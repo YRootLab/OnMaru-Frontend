@@ -1,0 +1,261 @@
+// ============================================================
+// 온마루 (On-Maru) — Emotion CSS Theme Provider
+// React + Emotion · ThemeProvider · useTheme hook
+// ============================================================
+
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+  type ReactNode,
+} from 'react'
+import { ThemeProvider as EmotionThemeProvider, Global, css } from '@emotion/react'
+import {
+  lightTheme,
+  darkTheme,
+  createTheme,
+  type ColorMode,
+  type OnmaruTheme,
+} from './onmaru-tokens'
+
+
+// ─────────────────────────────────────────
+// 1. THEME CONTEXT
+// ─────────────────────────────────────────
+
+interface OnmaruThemeContextValue {
+  theme:      OnmaruTheme
+  mode:       ColorMode
+  toggleMode: () => void
+  setMode:    (mode: ColorMode) => void
+}
+
+const OnmaruThemeContext = createContext<OnmaruThemeContextValue | null>(null)
+
+
+// ─────────────────────────────────────────
+// 2. GLOBAL STYLES
+// ─────────────────────────────────────────
+
+const createGlobalStyles = (theme: OnmaruTheme) => css`
+  /* ── Google Fonts import */
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;700&family=Hahmlet:wght@400;500;700&display=swap');
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css');
+
+  /* ── CSS Reset + Base */
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    font-family:      ${theme.typography.fontFamily.body};
+    font-size:        ${theme.typography.fontSize.base};
+    font-weight:      ${theme.typography.fontWeight.regular};
+    line-height:      ${theme.typography.lineHeight.normal};
+    color:            ${theme.colors.text.primary};
+    background-color: ${theme.colors.bg.app};
+    transition:
+      background-color 0.30s ease,
+      color            0.30s ease;
+  }
+
+  /* ── CSS Custom Properties (CSS Variables로도 접근 가능하도록) */
+  :root {
+    /* Background */
+    --color-bg-app:      ${theme.colors.bg.app};
+    --color-bg-surface:  ${theme.colors.bg.surface};
+    --color-bg-card:     ${theme.colors.bg.card};
+    --color-bg-elevated: ${theme.colors.bg.elevated};
+
+    /* Border */
+    --color-border-subtle:  ${theme.colors.border.subtle};
+    --color-border-default: ${theme.colors.border.default};
+
+    /* Text */
+    --color-text-primary:   ${theme.colors.text.primary};
+    --color-text-secondary: ${theme.colors.text.secondary};
+    --color-text-muted:     ${theme.colors.text.muted};
+
+    /* Action — 단청 주홍 */
+    --color-action-primary:         ${theme.colors.action.primary};
+    --color-action-primary-hover:   ${theme.colors.action.primaryHover};
+    --color-action-primary-pressed: ${theme.colors.action.primaryPressed};
+    --color-action-primary-bg:      ${theme.colors.action.primaryBg};
+    --color-action-primary-subtle:  ${theme.colors.action.primarySubtle};
+
+    /* Nav — 대청 청록 */
+    --color-nav-primary:         ${theme.colors.nav.primary};
+    --color-nav-primary-hover:   ${theme.colors.nav.primaryHover};
+    --color-nav-primary-pressed: ${theme.colors.nav.primaryPressed};
+    --color-nav-primary-bg:      ${theme.colors.nav.primaryBg};
+
+    /* Badge — 황금 기와 */
+    --color-badge-star:       ${theme.colors.badge.star};
+    --color-badge-star-text:  ${theme.colors.badge.starText};
+    --color-badge-star-bg:    ${theme.colors.badge.starBg};
+
+    /* Docent — 연지 장미 */
+    --color-docent-primary:        ${theme.colors.docent.primary};
+    --color-docent-primary-hover:  ${theme.colors.docent.primaryHover};
+    --color-docent-primary-bg:     ${theme.colors.docent.primaryBg};
+
+    /* Info — 청화 코발트 */
+    --color-info-primary:        ${theme.colors.info.primary};
+    --color-info-primary-hover:  ${theme.colors.info.primaryHover};
+    --color-info-primary-bg:     ${theme.colors.info.primaryBg};
+
+    /* Metaball */
+    --color-metaball-core:    ${theme.colors.metaball.core};
+    --color-metaball-spread1: ${theme.colors.metaball.spread1};
+    --color-metaball-spread2: ${theme.colors.metaball.spread2};
+    --color-metaball-accent1: ${theme.colors.metaball.accent1};
+    --color-metaball-accent2: ${theme.colors.metaball.accent2};
+  }
+
+  /* ── Typography base */
+  h1, h2, h3, h4, h5, h6 {
+    font-family:  ${theme.typography.fontFamily.display};
+    font-weight:  ${theme.typography.fontWeight.medium};
+    line-height:  ${theme.typography.lineHeight.tight};
+    color:        ${theme.colors.text.primary};
+  }
+
+  a {
+    color:           ${theme.colors.nav.primary};
+    text-decoration: none;
+    transition:      ${theme.transition.fast};
+
+    &:hover {
+      color: ${theme.colors.nav.primaryHover};
+    }
+  }
+
+  code, pre, kbd {
+    font-family: ${theme.typography.fontFamily.mono};
+    font-size:   0.875em;
+  }
+
+  /* ── Scrollbar (Webkit) */
+  ::-webkit-scrollbar        { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track  { background: transparent; }
+  ::-webkit-scrollbar-thumb  {
+    background:    ${theme.colors.border.default};
+    border-radius: ${theme.borderRadius.full};
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: ${theme.colors.neutral.subtle};
+  }
+
+  /* ── Focus ring */
+  :focus-visible {
+    outline:        2px solid ${theme.colors.action.primary};
+    outline-offset: 2px;
+    border-radius:  ${theme.borderRadius.sm};
+  }
+
+  /* ── Selection */
+  ::selection {
+    background-color: ${theme.colors.action.primaryBg};
+    color:            ${theme.colors.action.primaryPressed};
+  }
+`
+
+
+// ─────────────────────────────────────────
+// 3. THEME PROVIDER COMPONENT
+// ─────────────────────────────────────────
+
+interface OnmaruThemeProviderProps {
+  children:     ReactNode
+  defaultMode?: ColorMode
+  /** true면 시스템 다크모드 자동 감지 */
+  followSystem?: boolean
+}
+
+export function OnmaruThemeProvider({
+  children,
+  defaultMode  = 'light',
+  followSystem = true,
+}: OnmaruThemeProviderProps) {
+
+  const [mode, setModeState] = useState<ColorMode>(() => {
+    // 1순위: localStorage
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('onmaru-color-mode') as ColorMode | null
+      if (saved === 'light' || saved === 'dark') return saved
+    }
+    // 2순위: 시스템 설정
+    if (followSystem && typeof window !== 'undefined') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light'
+    }
+    return defaultMode
+  })
+
+  const theme = mode === 'dark' ? darkTheme : lightTheme
+
+  // 시스템 다크모드 변경 감지
+  useEffect(() => {
+    if (!followSystem) return
+    const mq = window.matchMedia('(prefers-color-scheme: dark)')
+    const handler = (e: MediaQueryListEvent) => {
+      const saved = localStorage.getItem('onmaru-color-mode')
+      if (!saved) setModeState(e.matches ? 'dark' : 'light')
+    }
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [followSystem])
+
+  const setMode = useCallback((next: ColorMode) => {
+    setModeState(next)
+    localStorage.setItem('onmaru-color-mode', next)
+    // HTML attribute로도 노출 (CSS 셀렉터 활용 가능)
+    document.documentElement.setAttribute('data-theme', next)
+  }, [])
+
+  const toggleMode = useCallback(() => {
+    setMode(mode === 'light' ? 'dark' : 'light')
+  }, [mode, setMode])
+
+  // data-theme 초기화
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', mode)
+  }, [mode])
+
+  return (
+    <OnmaruThemeContext.Provider value={{ theme, mode, toggleMode, setMode }}>
+      <EmotionThemeProvider theme={theme}>
+        <Global styles={createGlobalStyles(theme)} />
+        {children}
+      </EmotionThemeProvider>
+    </OnmaruThemeContext.Provider>
+  )
+}
+
+
+// ─────────────────────────────────────────
+// 4. useTheme HOOK
+// ─────────────────────────────────────────
+
+export function useOnmaruTheme() {
+  const ctx = useContext(OnmaruThemeContext)
+  if (!ctx) {
+    throw new Error('useOnmaruTheme must be used inside <OnmaruThemeProvider>')
+  }
+  return ctx
+}
+
+// Emotion의 useTheme과 병행 사용 가능하도록
+export { useTheme } from '@emotion/react'
