@@ -1,0 +1,121 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: "ko-KR"
+tone_instructions: "OnMaru 프로젝트의 시니어 프론트엔드 엔지니어이자 테크니컬 라이터입니다. 모든 리뷰는 100% 한국어(해요체)로, 전문적이되 정중한 어조를 유지합니다. 잘 작성된 코드는 적극 칭찬하고, 개선 제안 시 반드시 구체적인 코드 예시를 함께 제공합니다."
+reviews:
+  profile: "assertive"
+  request_changes_workflow: false
+  poem: false
+  collapse_walkthrough: false
+  suggested_reviewers: false
+  labeling_instructions:
+    - label: "feature"
+      instructions: "새로운 기능이 추가된 PR에 적용합니다."
+    - label: "bugfix"
+      instructions: "버그 수정이 포함된 PR에 적용합니다."
+    - label: "refactor"
+      instructions: "기능 변경 없이 코드 구조를 개선하는 PR에 적용합니다."
+    - label: "docs"
+      instructions: "문서(README, docs/ 디렉토리, 주석 등)만 변경된 PR에 적용합니다."
+    - label: "chore"
+      instructions: "빌드 설정, 의존성 업데이트, CI/CD 변경 등 기능과 무관한 변경에 적용합니다."
+    - label: "design-system"
+      instructions: "공통 디자인 시스템 토큰, 컴포넌트, 테마 정의가 변경된 PR에 적용합니다."
+  mutually_exclusive_groups:
+    pr_type: ["feature", "bugfix", "refactor", "docs", "chore", "design-system"]
+  auto_review:
+    ignore_title_keywords:
+      - "WIP"
+      - "DO NOT MERGE"
+      - "wip"
+    base_branches:
+      - "develop"
+  path_filters:
+    - "!dist/**"
+    - "!node_modules/**"
+    - "!.git/**"
+    - "!*.lock"
+    - "!package-lock.json"
+    - "!pnpm-lock.yaml"
+    - "!yarn.lock"
+    - "!*.min.js"
+    - "!*.map"
+  path_instructions:
+    - path: "**/*.{js,jsx,ts,tsx}"
+      instructions: "React/TypeScript 프론트엔드 코드를 리뷰합니다.\n\n[코드 품질 4대 핵심 기준]\n- 가독성: 선언적 코드 작성, 명확한 컴포넌트 및 변수 명명, 복잡한 로직의 훅(Hook) 분리\n- 예측 가능성: 부작용(Side Effect) 제어, 명확한 Prop 타입 정의, 상태 변경 흐름의 단순화\n- 응집도: 컴포넌트와 연관된 스타일(Emotion), 헬퍼 함수는 가급적 가까이 배치\n- 재사용성: 프리젠테이셔널 컴포넌트와 비즈니스 로직의 적절한 분리\n\n[코드 스타일]\n- const/let 사용 및 화살표 함수(Arrow Function) 일관성 확인\n- Emotion CSS/styled-components 스타일 정의 시 OnMaru 디자인 시스템 토큰 및 ThemeProvider 활용 여부 확인\n- 비구조화 할당(Destructuring Assignment) 적극 활용\n\n[컴포넌트 및 훅 설계]\n- 불필요한 리렌더링 유발 요인 점검 (useMemo, useCallback의 적절한 사용)\n- 커스텀 훅을 통한 비즈니스 로직 격리 및 UI 선언화\n- 컴포넌트 생명주기와 useEffect 의존성 배열(dependency array) 검증\n\n[상태 관리 및 라우팅]\n- 불필요한 전역 상태 사용 지양 및 컴포넌트 로컬 상태 우선 활용\n- 라우터 연동 시 dynamic routing 구현 및 보안 라우팅(Protected Route) 처리 확인\n\n[피드백 작성 구조]\n1. 변경 사항 요약\n2. 세부 리뷰 의견:\n   - 🎨 UI/UX & 디자인 시스템 (디자인 가이드 준수 여부 및 Emotion CSS 활용)\n   - ⚙️ 컴포넌트 구조 & 최적화 (성능, 리렌더링 및 훅 설계)\n   - 🛡️ 상태 관리 & 안정성 (에러 바운더리, 렌더링 예외 처리)\n   - 👏 좋았던 부분 (칭찬할 점)"
+    - path: "docs/**"
+      instructions: "기술 문서를 리뷰합니다:\n- 가독성 및 문맥 흐름의 매끄러움\n- 맞춤법, 띄어쓰기, 문장 표현의 정확성 및 오탈자 검출\n- API 스펙 및 데이터 구조 정의의 완성도와 누락 여부\n- 마크다운 문법 및 구조적 포맷팅 가독성\n- API 명세서의 엔드포인트, 요청 파라미터, 응답 예시가 실제 구현과 일치하는지"
+    - path: "**/.env*"
+      instructions: "환경변수 파일을 리뷰합니다:\n- .env 파일이 .gitignore에 포함되어 있는지 확인\n- 실제 시크릿 값이 커밋되지 않았는지 반드시 확인\n- 민감 정보(예: API Key, Supabase Key 등)가 절대 노출되지 않도록 확인\n- .env.example인 경우 필수 환경변수 목록과 설명이 정리되어 있는지 확인"
+    - path: ".github/**"
+      instructions: "GitHub Actions 워크플로우 및 설정 파일을 리뷰합니다:\n- 시크릿이 올바르게 GitHub Secrets로 관리되는지 확인\n- 워크플로우 권한이 최소 권한 원칙을 따르는지 검토"
+  tools:
+    languagetool:
+      level: "picky"
+    ruff:
+      enabled: false
+    phpstan:
+      enabled: false
+    phpmd:
+      enabled: false
+    phpcs:
+      enabled: false
+    golangci-lint:
+      enabled: false
+    swiftlint:
+      enabled: false
+    detekt:
+      enabled: false
+    rubocop:
+      enabled: false
+    clippy:
+      enabled: false
+    pylint:
+      enabled: false
+    flake8:
+      enabled: false
+    pmd:
+      enabled: false
+    clang:
+      enabled: false
+    cppcheck:
+      enabled: false
+    checkov:
+      enabled: false
+    tflint:
+      enabled: false
+    buf:
+      enabled: false
+    regal:
+      enabled: false
+    fbinfer:
+      enabled: false
+    fortitudeLint:
+      enabled: false
+    brakeman:
+      enabled: false
+    luacheck:
+      enabled: false
+    shopifyThemeCheck:
+      enabled: false
+    reactDoctor:
+      enabled: false
+    htmlhint:
+      enabled: false
+    stylelint:
+      enabled: false
+    checkmake:
+      enabled: false
+    blinter:
+      enabled: false
+    smartyLint:
+      enabled: false
+    emberTemplateLint:
+      enabled: false
+    skillspector:
+      enabled: false
+    psscriptanalyzer:
+      enabled: false
+    prismaLint:
+      enabled: false
+chat:
+  auto_reply: true
