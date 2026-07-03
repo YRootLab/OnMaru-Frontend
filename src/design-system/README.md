@@ -119,6 +119,38 @@ export default function CardComponent() {
 
 ---
 
+## 📝 4. 타이포그래피 및 반응형 폰트 사이즈 (`tokens.ts`)
+
+새롭게 추가된 기기별(Mobile / PC) 폰트 사이즈 토큰을 사용하여 반응형 디자인을 쉽게 구현할 수 있습니다. 피그마에 정의된 정확한 수치(`d1` ~ `inputField` 등)가 적용되어 있습니다.
+
+### ✅ 타이포그래피 토큰 구조
+```typescript
+theme.typography.mobile.d1 // '56px'
+theme.typography.pc.d1     // '92px'
+// ...
+theme.typography.mobile.headlineCaps // '14px'
+```
+
+### ✅ 미디어 쿼리(Media Query)를 활용한 반응형 텍스트 컴포넌트 예시
+기본적으로 모바일 환경(`mobile`)을 베이스로 폰트 크기를 지정하고, 데스크탑 환경(`pc`)에서 폰트가 커지도록 분기 처리합니다.
+
+```tsx
+'use client';
+import styled from '@emotion/styled';
+
+export const ResponsiveHeadline = styled.h1`
+  /* 1. 기본 폰트 크기 (모바일 기준) */
+  font-size: ${({ theme }) => theme.typography.mobile.h1}; 
+
+  /* 2. PC (Desktop) 환경 도달 시 폰트 크기 변경 */
+  @media (min-width: 768px) {
+    font-size: ${({ theme }) => theme.typography.pc.h1};
+  }
+`;
+```
+
+---
+
 ## ✨ 꿀팁 요약 (Best Practices)
 1. **하드코딩 금지:** 직접 색상 번호(`#ff0000`)나 픽셀 수치(`16px`)를 적기보다는 가급적 `theme.colors`와 `theme.spacing`을 활용해 주세요!
 2. **다크모드를 잊으세요:** `theme.colors.bg.card` 같은 의미론적(Semantic) 이름만 쓰면 다크모드는 `ThemeProvider`가 알아서 처리합니다. 
