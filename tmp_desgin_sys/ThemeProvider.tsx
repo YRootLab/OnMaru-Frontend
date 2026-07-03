@@ -18,7 +18,7 @@ import {
   createTheme,
   type ColorMode,
   type OnmaruTheme,
-} from './onmaru-tokens'
+} from './tokens'
 
 
 // ─────────────────────────────────────────
@@ -40,9 +40,12 @@ const OnmaruThemeContext = createContext<OnmaruThemeContextValue | null>(null)
 // ─────────────────────────────────────────
 
 const createGlobalStyles = (theme: OnmaruTheme) => css`
-  /* ── Google Fonts import */
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;500;700&family=Hahmlet:wght@400;500;700&display=swap');
-  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css');
+  /* ── SpoqaHanSansNeo 폰트 */
+  @font-face { font-family: 'SpoqaHanSansNeo'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/SpoqaHanSansNeo-Thin.woff') format('woff'); font-weight: 100; font-display: swap; }
+  @font-face { font-family: 'SpoqaHanSansNeo'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/SpoqaHanSansNeo-Light.woff') format('woff'); font-weight: 300; font-display: swap; }
+  @font-face { font-family: 'SpoqaHanSansNeo'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/SpoqaHanSansNeo-Regular.woff') format('woff'); font-weight: 400; font-display: swap; }
+  @font-face { font-family: 'SpoqaHanSansNeo'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/SpoqaHanSansNeo-Medium.woff') format('woff'); font-weight: 500; font-display: swap; }
+  @font-face { font-family: 'SpoqaHanSansNeo'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/SpoqaHanSansNeo-Bold.woff') format('woff'); font-weight: 700; font-display: swap; }
 
   /* ── CSS Reset + Base */
   *, *::before, *::after {
@@ -59,7 +62,7 @@ const createGlobalStyles = (theme: OnmaruTheme) => css`
   }
 
   body {
-    font-family:      ${theme.typography.fontFamily.body};
+    font-family:      ${theme.typography.fontFamily.sans};
     font-size:        ${theme.typography.fontSize.base};
     font-weight:      ${theme.typography.fontWeight.regular};
     line-height:      ${theme.typography.lineHeight.normal};
@@ -125,8 +128,8 @@ const createGlobalStyles = (theme: OnmaruTheme) => css`
 
   /* ── Typography base */
   h1, h2, h3, h4, h5, h6 {
-    font-family:  ${theme.typography.fontFamily.display};
-    font-weight:  ${theme.typography.fontWeight.medium};
+    font-family:  ${theme.typography.fontFamily.sans};
+    font-weight:  ${theme.typography.fontWeight.semibold};
     line-height:  ${theme.typography.lineHeight.tight};
     color:        ${theme.colors.text.primary};
   }
@@ -142,7 +145,7 @@ const createGlobalStyles = (theme: OnmaruTheme) => css`
   }
 
   code, pre, kbd {
-    font-family: ${theme.typography.fontFamily.mono};
+    font-family: ${theme.typography.fontFamily.sans};
     font-size:   0.875em;
   }
 

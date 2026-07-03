@@ -5,8 +5,8 @@
 
 import styled       from '@emotion/styled'
 import { css }      from '@emotion/react'
-import { useOnmaruTheme } from './OnmaruThemeProvider'
-import type { OnmaruTheme } from './onmaru-tokens'
+import { useOnmaruTheme } from './ThemeProvider'
+import type { OnmaruTheme } from './tokens'
 
 
 // ─────────────────────────────────────────
@@ -28,7 +28,7 @@ export const CTAButton = styled.button<{ size?: 'sm' | 'md' | 'lg' }>`
          : size === 'lg' ? `${t.spacing[4]} ${t.spacing[8]}`
          :                 `${t.spacing[3]} ${t.spacing[6]}`
   }};
-  font-family:     ${({ theme }) => (theme as OnmaruTheme).typography.fontFamily.body};
+  font-family:     ${({ theme }) => (theme as OnmaruTheme).typography.fontFamily.sans};
   font-size:       ${({ theme, size = 'md' }) => {
     const t = theme as OnmaruTheme
     return size === 'sm' ? t.typography.fontSize.sm : t.typography.fontSize.base
@@ -72,7 +72,7 @@ export const NavButton = styled.button`
     const t = theme as OnmaruTheme
     return `${t.spacing[2]} ${t.spacing[5]}`
   }};
-  font-family:     ${({ theme }) => (theme as OnmaruTheme).typography.fontFamily.body};
+  font-family:     ${({ theme }) => (theme as OnmaruTheme).typography.fontFamily.sans};
   font-size:       ${({ theme }) => (theme as OnmaruTheme).typography.fontSize.sm};
   font-weight:     ${({ theme }) => (theme as OnmaruTheme).typography.fontWeight.medium};
   border:          1.5px solid ${({ theme }) => (theme as OnmaruTheme).colors.nav.primary};
@@ -104,7 +104,7 @@ export const DocentButton = styled.button`
     const t = theme as OnmaruTheme
     return `${t.spacing[2]} ${t.spacing[5]}`
   }};
-  font-family:     ${({ theme }) => (theme as OnmaruTheme).typography.fontFamily.body};
+  font-family:     ${({ theme }) => (theme as OnmaruTheme).typography.fontFamily.sans};
   font-size:       ${({ theme }) => (theme as OnmaruTheme).typography.fontSize.sm};
   font-weight:     ${({ theme }) => (theme as OnmaruTheme).typography.fontWeight.medium};
   border:          1.5px solid ${({ theme }) => (theme as OnmaruTheme).colors.docent.primary};
@@ -187,7 +187,7 @@ export const SearchInput = styled.input`
     const t = theme as OnmaruTheme
     return `${t.spacing[3]} ${t.spacing[4]}`
   }};
-  font-family:   ${({ theme }) => (theme as OnmaruTheme).typography.fontFamily.body};
+  font-family:   ${({ theme }) => (theme as OnmaruTheme).typography.fontFamily.sans};
   font-size:     ${({ theme }) => (theme as OnmaruTheme).typography.fontSize.sm};
   color:         ${({ theme }) => (theme as OnmaruTheme).colors.text.primary};
   background:    ${({ theme }) => (theme as OnmaruTheme).colors.bg.surface};
@@ -255,7 +255,7 @@ export const TabItem = styled.button<{ active?: boolean }>`
   background:      none;
   border:          none;
   cursor:          pointer;
-  font-family:     ${({ theme }) => (theme as OnmaruTheme).typography.fontFamily.body};
+  font-family:     ${({ theme }) => (theme as OnmaruTheme).typography.fontFamily.sans};
   font-size:       10px;
   font-weight:     ${({ active, theme }) =>
     active
@@ -334,7 +334,7 @@ export const metaballContainerCss = (theme: OnmaruTheme) => css`
  * 섹션 헤더 — 서체 강조
  */
 export const sectionHeaderCss = (theme: OnmaruTheme) => css`
-  font-family: ${theme.typography.fontFamily.display};
+  font-family: ${theme.typography.fontFamily.sans};
   font-size:   ${theme.typography.fontSize['2xl']};
   font-weight: ${theme.typography.fontWeight.medium};
   color:       ${theme.colors.text.primary};
@@ -365,7 +365,7 @@ export function ThemeToggleButton() {
         border:          1px solid ${theme.colors.border.default};
         border-radius:   ${theme.borderRadius.full};
         color:           ${theme.colors.text.secondary};
-        font-family:     ${theme.typography.fontFamily.body};
+        font-family:     ${theme.typography.fontFamily.sans};
         font-size:       ${theme.typography.fontSize.sm};
         cursor:          pointer;
         transition:      ${theme.transition.normal};

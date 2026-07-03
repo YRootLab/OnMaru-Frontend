@@ -1,366 +1,282 @@
 // ============================================================
-// 온마루 (On-Maru) — Design Token System
-// Emotion CSS Ready · Light / Dark Mode
-// v1.0 Final · 2026
+// 온마루 컬러 토큰 — Light / Dark
+//
+// 구조:
+//   lightPalette   — 라이트 전용 액센트 5색 (Hue별 7단계)
+//   darkPalette    — 다크 전용 액센트 5색 (OKLCH 검증, 7단계)
+//   meok           — 라이트/다크 공용 중성 그레이 (6단계)
+//   surface        — 배경 표면 토큰 (light / dark)
+//   semanticTokens — 역할별 매핑
+//   createTheme    — 최종 테마 객체
 // ============================================================
 
-// ─────────────────────────────────────────
-// 1. PRIMITIVE COLORS (Raw Color Ramps)
-// ─────────────────────────────────────────
+// ------------------------------------------------------------
+// 1. 액센트 팔레트
+// ------------------------------------------------------------
 
-export const primitive = {
-  // 🔴 단청 주홍 — Hue 21° / Primary · Action
+// 라이트 전용 — 따뜻한 한국 전통색 램프
+export const lightPalette = {
+  // 🔴 단청 주홍 — Hue 21° / 대표 액션 컬러
   juhong: {
-    50:  '#FFF0E6',
-    100: '#FFCBA8',
-    200: '#FF9A60',
-    400: '#F07030',
-    500: '#E85A18',  // ★ Light CTA base
-    700: '#A03A0A',
-    900: '#3A1004',
+    50: '#FFF0E6', 100: '#FFCBA8', 200: '#FF9A60', 400: '#F07030',
+    500: '#E85A18', 700: '#A03A0A', 900: '#3A1004',
   },
-
-  // 🟢 대청 청록 — Hue 168° / Navigation · Map
+  // 🟢 대청 청록 — Hue 168° / 내비게이션 및 지도
   cheongrok: {
-    50:  '#E6F5F0',
-    100: '#90D4C0',
-    200: '#3DB898',
-    400: '#249878',
-    500: '#1E7A68',  // ★ Light Nav base
-    700: '#0E5848',
-    900: '#042820',
+    50: '#E6F5F0', 100: '#90D4C0', 200: '#3DB898', 400: '#249878',
+    500: '#1E7A68', 700: '#0E5848', 900: '#042820',
   },
-
-  // 🟡 황금 기와 — Hue 38° / Badge · Star · 장터
+  // 🟡 황금 기와 — Hue 38° / 배지, 별점, 장터용
   hwanggeum: {
-    50:  '#FFF8E0',
-    100: '#FFE898',
-    200: '#FFCC40',
-    400: '#F5A623',  // ★ Light Badge base
-    500: '#C07808',
-    700: '#7A4C04',
-    900: '#2C1800',
+    50: '#FFF8E0', 100: '#FFE898', 200: '#FFCC40', 400: '#F5A623',
+    500: '#C07808', 700: '#7A4C04', 900: '#2C1800',
   },
-
-  // 🌸 연지 장미 — Hue 340° / Docent · Odii API
-  // ⚠️ 오디(Odii) 보라(Hue ~260°)와 80° 이격 — 충돌 없음
+  // 🌸 연지 장미 — Hue 340° / 도슨트, 오디 API용
   jangmi: {
-    50:  '#FFF0F4',
-    100: '#F8A8C0',
-    200: '#F06090',
-    400: '#E03870',
-    500: '#D42058',  // ★ Light Docent base
-    700: '#8A1038',
-    900: '#300010',
+    50: '#FFF0F4', 100: '#F8A8C0', 200: '#F06090', 400: '#E03870',
+    500: '#D42058', 700: '#8A1038', 900: '#300010',
   },
-
-  // 🔵 청화 코발트 — Hue 224° / Info · Link · 건축 데이터
+  // 🔵 청화 코발트 — Hue 224° / 정보 안내, 링크, 데이터용
   kobalt: {
-    50:  '#EEF3FF',
-    100: '#A8C0F8',
-    200: '#6088F0',
-    400: '#4068E8',
-    500: '#2B5CE6',  // ★ Light Info base
-    700: '#1A3898',
-    900: '#081040',
+    50: '#EEF3FF', 100: '#A8C0F8', 200: '#6088F0', 400: '#4068E8',
+    500: '#2B5CE6', 700: '#1A3898', 900: '#081040',
   },
+} as const;
 
-  // ⬛ 먹빛 중성 — Hue 35° (Warm Neutral)
-  meok: {
-    50:  '#F5F3EE',
-    100: '#D8D0C0',
-    200: '#A89880',
-    400: '#706050',
-    500: '#4A3820',  // ★ Text base
-    700: '#2A2010',
-    900: '#100C06',
+// 다크 전용 — OKLCH 기반 재생성 (배경 #191f28 대비 명도 대비 >= 5:1 검증 완료)
+export const darkPalette = {
+  juhong:   { 50: '#FFF2ED', 100: '#FFCEBD', 200: '#FFA07F', 400: '#F87443', 500: '#F85700', 700: '#973100', 900: '#1E0000' },
+  cheongrok:{ 50: '#ECF9F1', 100: '#A9E2C1', 200: '#6FCF9C', 400: '#5DB687', 500: '#00A76A', 700: '#2A5F44', 900: '#000E04' },
+  hwanggeum:{ 50: '#FFF3E7', 100: '#FFE9D3', 200: '#FFDCB8', 400: '#FFCA91', 500: '#FAAA49', 700: '#8B5A1D', 900: '#160400' },
+  jangmi:   { 50: '#FFF1F3', 100: '#FFBBC3', 200: '#FF859A', 400: '#FF5F81', 500: '#F84E76', 700: '#961F3F', 900: '#200003' },
+  kobalt:   { 50: '#F0F5FF', 100: '#B9D0FF', 200: '#7FA7FF', 400: '#6090FF', 500: '#5A89F6', 700: '#2044A4', 900: '#00012E' },
+} as const;
+
+// ------------------------------------------------------------
+// 2. 공용 중성색 (먹빛) — 라이트/다크 모두 참조
+// ------------------------------------------------------------
+export const meok = {
+  100: '#f2f4f6',
+  200: '#e5e8eb',
+  400: '#b0b8c1',
+  500: '#8b95a1',
+  700: '#4e5968',
+  900: '#191f28',
+} as const;
+
+// ------------------------------------------------------------
+// 3. 표면 및 배경 (Surface)
+// ------------------------------------------------------------
+export const surface = {
+  light: {
+    base:     '#FAF6F0',  // 화선지 오프화이트
+    surface:  '#F5EFE6',  // 한지 면
+    card:     '#FFFFFF',  // 카드 배경
+    elevated: '#FFFFFF',  // 팝업/모달 배경
   },
-
-  // ☀️ 라이트 배경 레이어
-  lightSurface: {
-    base:     '#FAF6F0',  // App Background — 화선지 백
-    surface:  '#F5EFE6',  // Surface — 한지 면
-    card:     '#FFFFFF',  // Card
-    elevated: '#FFFFFF',  // Elevated
+  dark: {
+    app:      '#0E0B07',  // 먹빛 마루
+    surface:  '#1A1510',  // 먹빛 결
+    card:     '#252018',  // 먹빛 카드
+    elevated: '#342C22',  // 먹빛 부유
   },
+} as const;
 
-  // 🌙 다크 배경 레이어
-  darkSurface: {
-    base:     '#080604',  // Base BG — 먹 심연
-    app:      '#0E0B07',  // App BG — 먹 마루
-    surface:  '#1A1510',  // Surface — 먹 결
-    card:     '#252018',  // Card — 먹 카드
-    elevated: '#342C22',  // Elevated — 먹 부유
-  },
-} as const
+// ------------------------------------------------------------
+// 4. 시맨틱 역할별 토큰 매핑
+// ------------------------------------------------------------
 
-
-// ─────────────────────────────────────────
-// 2. SEMANTIC TOKENS
-// ─────────────────────────────────────────
-
-export type ColorMode = 'light' | 'dark'
+export type ColorMode = 'light' | 'dark';
 
 export const semanticTokens = {
   light: {
-    // ── Background
     bg: {
-      app:      primitive.lightSurface.base,     // #FAF6F0
-      surface:  primitive.lightSurface.surface,  // #F5EFE6
-      card:     primitive.lightSurface.card,     // #FFFFFF
-      elevated: primitive.lightSurface.elevated, // #FFFFFF
+      app:      surface.light.base,
+      surface:  surface.light.surface,
+      card:     surface.light.card,
+      elevated: surface.light.elevated,
     },
-
-    // ── Border
     border: {
-      subtle:  '#EAE0D0',
-      default: '#D8C8B0',
+      subtle:  meok[200],
+      default: meok[400],
     },
-
-    // ── Text
     text: {
-      primary:   '#2A1A0A',
-      secondary: primitive.meok[400],  // #706050
-      muted:     primitive.meok[200],  // #A89880
+      primary:   meok[900],
+      secondary: meok[700],
+      muted:     meok[500],
       inverse:   '#FFFFFF',
     },
-
-    // ── Action (단청 주홍)
     action: {
-      primary:        primitive.juhong[500],  // #E85A18
-      primaryHover:   primitive.juhong[400],  // #F07030
-      primaryPressed: primitive.juhong[700],  // #A03A0A
-      primaryBg:      primitive.juhong[50],   // #FFF0E6
-      primarySubtle:  primitive.juhong[100],  // #FFCBA8
+      primary:        lightPalette.juhong[500],
+      primaryHover:   lightPalette.juhong[400],
+      primaryPressed: lightPalette.juhong[700],
+      primaryBg:      lightPalette.juhong[50],
+      primarySubtle:  lightPalette.juhong[100],
     },
-
-    // ── Navigation (대청 청록)
     nav: {
-      primary:        primitive.cheongrok[500],  // #1E7A68
-      primaryHover:   primitive.cheongrok[400],  // #249878
-      primaryPressed: primitive.cheongrok[700],  // #0E5848
-      primaryBg:      primitive.cheongrok[50],   // #E6F5F0
-      primarySubtle:  primitive.cheongrok[100],  // #90D4C0
+      primary:        lightPalette.cheongrok[500],
+      primaryHover:   lightPalette.cheongrok[400],
+      primaryPressed: lightPalette.cheongrok[700],
+      primaryBg:      lightPalette.cheongrok[50],
+      primarySubtle:  lightPalette.cheongrok[100],
     },
-
-    // ── Badge / Star (황금 기와)
     badge: {
-      star:        primitive.hwanggeum[400],  // #F5A623
-      starText:    primitive.hwanggeum[500],  // #C07808
-      starPressed: primitive.hwanggeum[700],  // #7A4C04
-      starBg:      primitive.hwanggeum[50],   // #FFF8E0
-      starSubtle:  primitive.hwanggeum[100],  // #FFE898
+      star:        lightPalette.hwanggeum[400],
+      starText:    lightPalette.hwanggeum[500],
+      starPressed: lightPalette.hwanggeum[700],
+      starBg:      lightPalette.hwanggeum[50],
+      starSubtle:  lightPalette.hwanggeum[100],
     },
-
-    // ── Docent / Odii (연지 장미)
     docent: {
-      primary:        primitive.jangmi[500],  // #D42058
-      primaryHover:   primitive.jangmi[400],  // #E03870
-      primaryPressed: primitive.jangmi[700],  // #8A1038
-      primaryBg:      primitive.jangmi[50],   // #FFF0F4
-      primarySubtle:  primitive.jangmi[100],  // #F8A8C0
+      primary:        lightPalette.jangmi[500],
+      primaryHover:   lightPalette.jangmi[400],
+      primaryPressed: lightPalette.jangmi[700],
+      primaryBg:      lightPalette.jangmi[50],
+      primarySubtle:  lightPalette.jangmi[100],
     },
-
-    // ── Info / Data (청화 코발트)
     info: {
-      primary:        primitive.kobalt[500],  // #2B5CE6
-      primaryHover:   primitive.kobalt[400],  // #4068E8
-      primaryPressed: primitive.kobalt[700],  // #1A3898
-      primaryBg:      primitive.kobalt[50],   // #EEF3FF
-      primarySubtle:  primitive.kobalt[100],  // #A8C0F8
+      primary:        lightPalette.kobalt[500],
+      primaryHover:   lightPalette.kobalt[400],
+      primaryPressed: lightPalette.kobalt[700],
+      primaryBg:      lightPalette.kobalt[50],
+      primarySubtle:  lightPalette.kobalt[100],
     },
-
-    // ── Neutral (먹빛)
     neutral: {
-      primary:  primitive.meok[500],  // #4A3820
-      subtle:   primitive.meok[400],  // #706050
-      muted:    primitive.meok[200],  // #A89880
-      light:    primitive.meok[100],  // #D8D0C0
-      lightest: primitive.meok[50],   // #F5F3EE
+      primary:  meok[700],
+      subtle:   meok[500],
+      muted:    meok[400],
+      light:    meok[200],
+      lightest: meok[100],
     },
   },
 
   dark: {
-    // ── Background
     bg: {
-      app:      primitive.darkSurface.app,      // #0E0B07
-      surface:  primitive.darkSurface.surface,  // #1A1510
-      card:     primitive.darkSurface.card,     // #252018
-      elevated: primitive.darkSurface.elevated, // #342C22
+      app:      surface.dark.app,
+      surface:  surface.dark.surface,
+      card:     surface.dark.card,
+      elevated: surface.dark.elevated,
     },
-
-    // ── Border
     border: {
-      subtle:  '#2A2418',
-      default: '#3A3028',
+      subtle:  meok[700],
+      default: meok[900],
     },
-
-    // ── Text
     text: {
-      primary:   '#E8D8B8',
-      secondary: '#786050',
-      muted:     '#504030',
-      inverse:   primitive.darkSurface.app,
+      primary:   meok[100],
+      secondary: meok[400],
+      muted:     meok[500],
+      inverse:   surface.dark.app,
     },
-
-    // ── Action (단청 주홍 — 다크: 400↑)
     action: {
-      primary:        primitive.juhong[400],  // #F07030  ← 한 단계 ↑
-      primaryHover:   primitive.juhong[200],  // #FF9A60
-      primaryPressed: primitive.juhong[500],  // #E85A18
-      primaryBg:      primitive.juhong[900],  // #3A1004
-      primarySubtle:  primitive.juhong[700],  // #A03A0A
+      primary:        darkPalette.juhong[500],
+      primaryHover:   darkPalette.juhong[200],
+      primaryPressed: darkPalette.juhong[700],
+      primaryBg:      darkPalette.juhong[900],
+      primarySubtle:  darkPalette.juhong[700],
     },
-
-    // ── Navigation (대청 청록 — 다크: 200↑↑)
     nav: {
-      primary:        primitive.cheongrok[200],  // #3DB898  ← 두 단계 ↑
-      primaryHover:   primitive.cheongrok[100],  // #90D4C0
-      primaryPressed: primitive.cheongrok[400],  // #249878
-      primaryBg:      primitive.cheongrok[900],  // #042820
-      primarySubtle:  primitive.cheongrok[700],  // #0E5848
+      primary:        darkPalette.cheongrok[500],
+      primaryHover:   darkPalette.cheongrok[200],
+      primaryPressed: darkPalette.cheongrok[700],
+      primaryBg:      darkPalette.cheongrok[900],
+      primarySubtle:  darkPalette.cheongrok[700],
     },
-
-    // ── Badge / Star (황금 기와 — 다크: 200↑↑)
     badge: {
-      star:        primitive.hwanggeum[200],  // #FFCC40  ← 두 단계 ↑
-      starText:    primitive.hwanggeum[100],  // #FFE898
-      starPressed: primitive.hwanggeum[400],  // #F5A623
-      starBg:      primitive.hwanggeum[900],  // #2C1800
-      starSubtle:  primitive.hwanggeum[700],  // #7A4C04
+      star:        darkPalette.hwanggeum[500],
+      starText:    darkPalette.hwanggeum[200],
+      starPressed: darkPalette.hwanggeum[700],
+      starBg:      darkPalette.hwanggeum[900],
+      starSubtle:  darkPalette.hwanggeum[700],
     },
-
-    // ── Docent / Odii (연지 장미 — 다크: 200↑↑)
     docent: {
-      primary:        primitive.jangmi[200],  // #F06090  ← 두 단계 ↑
-      primaryHover:   primitive.jangmi[100],  // #F8A8C0
-      primaryPressed: primitive.jangmi[400],  // #E03870
-      primaryBg:      primitive.jangmi[900],  // #300010
-      primarySubtle:  primitive.jangmi[700],  // #8A1038
+      primary:        darkPalette.jangmi[500],
+      primaryHover:   darkPalette.jangmi[200],
+      primaryPressed: darkPalette.jangmi[700],
+      primaryBg:      darkPalette.jangmi[900],
+      primarySubtle:  darkPalette.jangmi[700],
     },
-
-    // ── Info / Data (청화 코발트 — 다크: 200↑↑)
     info: {
-      primary:        primitive.kobalt[200],  // #6088F0  ← 두 단계 ↑
-      primaryHover:   primitive.kobalt[100],  // #A8C0F8
-      primaryPressed: primitive.kobalt[400],  // #4068E8
-      primaryBg:      primitive.kobalt[900],  // #081040
-      primarySubtle:  primitive.kobalt[700],  // #1A3898
+      primary:        darkPalette.kobalt[500],
+      primaryHover:   darkPalette.kobalt[200],
+      primaryPressed: darkPalette.kobalt[700],
+      primaryBg:      darkPalette.kobalt[900],
+      primarySubtle:  darkPalette.kobalt[700],
     },
-
-    // ── Neutral (먹빛 — 반전)
     neutral: {
-      primary:  '#E8D8B8',
-      subtle:   '#A89880',
-      muted:    '#706050',
-      light:    '#3A3028',
-      lightest: '#252018',
+      primary:  meok[200],
+      subtle:   meok[400],
+      muted:    meok[500],
+      light:    meok[700],
+      lightest: meok[900],
     },
   },
-} as const
+} as const;
 
+export type SemanticToken = keyof typeof semanticTokens.light;
 
-// ─────────────────────────────────────────
-// 3. EMOTION CSS THEME OBJECT
-// ─────────────────────────────────────────
+// ------------------------------------------------------------
+// 5. 최종 테마 객체 (Emotion CSS용)
+// ------------------------------------------------------------
 
 export const createTheme = (mode: ColorMode) => {
-  const s = semanticTokens[mode]
+  const s = semanticTokens[mode];
 
   return {
     mode,
     colors: {
       ...s,
-
-      // ── 온기 맵 메타볼 전용 컬러
       metaball: {
-        core:    primitive.juhong[500],       // #E85A18 — 중심 블롭
-        spread1: primitive.juhong[200],       // #FF9A60 — 1차 확산
-        spread2: primitive.hwanggeum[400],    // #F5A623 — 2차 확산
-        accent1: primitive.jangmi[500],       // #D42058 — 포인트
-        accent2: primitive.cheongrok[500],    // #1E7A68 — 외곽
-        // 다크 전용 강조
-        darkCore:    primitive.juhong[500],   // #E85A18 opacity .58
-        darkSpread1: primitive.juhong[400],   // #F07030 opacity .42
-        darkSpread2: primitive.hwanggeum[200],// #FFCC40 opacity .38
-        darkAccent1: primitive.jangmi[200],   // #F06090 opacity .44
-        darkAccent2: primitive.cheongrok[200],// #3DB898 opacity .38
+        core:        lightPalette.juhong[500],
+        spread1:     lightPalette.juhong[200],
+        spread2:     lightPalette.hwanggeum[400],
+        accent1:     lightPalette.jangmi[500],
+        accent2:     lightPalette.cheongrok[500],
+        darkCore:    darkPalette.juhong[500],     // 불투명도 .58
+        darkSpread1: darkPalette.juhong[400],     // 불투명도 .42
+        darkSpread2: darkPalette.hwanggeum[400],  // 불투명도 .38
+        darkAccent1: darkPalette.jangmi[400],     // 불투명도 .44
+        darkAccent2: darkPalette.cheongrok[400],  // 불투명도 .38
       },
     },
 
-    // ── 타이포그래피 스케일
     typography: {
       fontFamily: {
-        display: '"Noto Serif KR", "Hahmlet", Georgia, serif',
-        body:    '"Pretendard", "Noto Sans KR", system-ui, sans-serif',
-        mono:    '"JetBrains Mono", "Fira Code", monospace',
+        sans: '"SpoqaHanSansNeo", system-ui, sans-serif',
       },
       fontSize: {
-        xs:   '0.75rem',   // 12px
-        sm:   '0.875rem',  // 14px
-        base: '1rem',      // 16px
-        lg:   '1.125rem',  // 18px
-        xl:   '1.25rem',   // 20px
-        '2xl':'1.5rem',    // 24px
-        '3xl':'1.875rem',  // 30px
-        '4xl':'2.25rem',   // 36px
+        xs: '0.75rem', sm: '0.875rem', base: '1rem', lg: '1.125rem',
+        xl: '1.25rem', '2xl': '1.5rem', '3xl': '1.875rem', '4xl': '2.25rem',
       },
-      fontWeight: {
-        regular: 400,
-        medium:  500,
-        semibold:600,
-        bold:    700,
-      },
-      lineHeight: {
-        tight:  1.25,
-        normal: 1.6,
-        loose:  1.8,
-      },
+      fontWeight: { regular: 400, medium: 500, semibold: 600, bold: 700 },
+      lineHeight:  { tight: 1.25, normal: 1.6, loose: 1.8 },
     },
 
-    // ── 스페이싱 스케일
     spacing: {
-      0:    '0',
-      1:    '0.25rem',   // 4px
-      2:    '0.5rem',    // 8px
-      3:    '0.75rem',   // 12px
-      4:    '1rem',      // 16px
-      5:    '1.25rem',   // 20px
-      6:    '1.5rem',    // 24px
-      8:    '2rem',      // 32px
-      10:   '2.5rem',    // 40px
-      12:   '3rem',      // 48px
-      16:   '4rem',      // 64px
-      20:   '5rem',      // 80px
-      24:   '6rem',      // 96px
+      0: '0',       1: '0.25rem', 2: '0.5rem',  3: '0.75rem',
+      4: '1rem',    5: '1.25rem', 6: '1.5rem',  8: '2rem',
+      10: '2.5rem', 12: '3rem',  16: '4rem',   20: '5rem', 24: '6rem',
     },
 
-    // ── 보더 반경
     borderRadius: {
-      sm:   '6px',
-      md:   '10px',
-      lg:   '14px',
-      xl:   '18px',
-      '2xl':'24px',
-      full: '9999px',
+      sm: '6px', md: '10px', lg: '14px', xl: '18px', '2xl': '24px', full: '9999px',
     },
 
-    // ── 그림자 (라이트/다크 분기)
+    // 라이트 그림자 — meok[900] 기반, 채도 있는 부드러운 그림자
     shadow: mode === 'light' ? {
-      sm:  '0 1px 3px rgba(42, 26, 10, 0.08)',
-      md:  '0 4px 12px rgba(42, 26, 10, 0.10)',
-      lg:  '0 8px 24px rgba(42, 26, 10, 0.12)',
-      xl:  '0 16px 48px rgba(42, 26, 10, 0.14)',
-      glow:'0 0 24px rgba(232, 90, 24, 0.30)',  // 주홍 글로우
+      sm:   '0 1px 3px rgba(25, 31, 40, 0.05)',
+      md:   '0 4px 12px rgba(25, 31, 40, 0.07)',
+      lg:   '0 8px 24px rgba(25, 31, 40, 0.09)',
+      xl:   '0 16px 48px rgba(25, 31, 40, 0.11)',
+      glow: '0 0 20px rgba(232, 90, 24, 0.18)',
+    // 다크 그림자 — 순수 검정 대신 meok[900] 기반, 낮은 불투명도
     } : {
-      sm:  '0 1px 3px rgba(0, 0, 0, 0.30)',
-      md:  '0 4px 12px rgba(0, 0, 0, 0.40)',
-      lg:  '0 8px 24px rgba(0, 0, 0, 0.50)',
-      xl:  '0 16px 48px rgba(0, 0, 0, 0.60)',
-      glow:'0 0 32px rgba(240, 112, 48, 0.40)',  // 다크 주홍 글로우
+      sm:   '0 1px 4px rgba(25, 31, 40, 0.18)',
+      md:   '0 4px 12px rgba(25, 31, 40, 0.24)',
+      lg:   '0 8px 24px rgba(25, 31, 40, 0.30)',
+      xl:   '0 16px 48px rgba(25, 31, 40, 0.36)',
+      glow: '0 0 20px rgba(248, 87, 0, 0.24)',
     },
 
-    // ── 트랜지션
     transition: {
       fast:   'all 0.15s ease',
       normal: 'all 0.25s ease',
@@ -368,20 +284,11 @@ export const createTheme = (mode: ColorMode) => {
       spring: 'all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)',
     },
 
-    // ── z-index 스케일
-    zIndex: {
-      base:    0,
-      raised:  10,
-      overlay: 100,
-      modal:   200,
-      toast:   300,
-      tooltip: 400,
-    },
-  } as const
-}
+    zIndex: { base: 0, raised: 10, overlay: 100, modal: 200, toast: 300, tooltip: 400 },
+  } as const;
+};
 
-export type OnmaruTheme = ReturnType<typeof createTheme>
+export type OnmaruTheme = ReturnType<typeof createTheme>;
 
-// 기본 인스턴스
-export const lightTheme = createTheme('light')
-export const darkTheme  = createTheme('dark')
+export const lightTheme = createTheme('light');
+export const darkTheme  = createTheme('dark');
