@@ -273,6 +273,30 @@ export const createTheme = (mode: ColorMode) => {
       sm: '6px', md: '10px', lg: '14px', xl: '18px', '2xl': '24px', full: '9999px',
     },
 
+    breakpoints: {
+      sm: '768px',
+      md: '1024px',
+      lg: '1280px',
+    },
+
+    layout: {
+      margin: {
+        sm: '16px', // Mobile
+        md: '16px', // Tablet
+        lg: '72px', // Desktop
+      },
+      gutter: {
+        sm: '16px',
+        md: '24px',
+        lg: '32px',
+      },
+      columns: {
+        sm: 4,
+        md: 8,
+        lg: 12,
+      },
+    },
+
     // 라이트 그림자 — meok[900] 기반, 채도 있는 부드러운 그림자
     shadow: mode === 'light' ? {
       sm:   '0 1px 3px rgba(25, 31, 40, 0.05)',

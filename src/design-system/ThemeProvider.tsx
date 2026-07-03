@@ -124,6 +124,23 @@ const createGlobalStyles = (theme: OnmaruTheme) => css`
     --color-metaball-spread2: ${theme.colors.metaball.spread2};
     --color-metaball-accent1: ${theme.colors.metaball.accent1};
     --color-metaball-accent2: ${theme.colors.metaball.accent2};
+
+    /* Layout (Responsive Variables) */
+    --layout-margin: ${theme.layout.margin.sm};
+    --layout-gutter: ${theme.layout.gutter.sm};
+    --layout-columns: ${theme.layout.columns.sm};
+
+    @media (min-width: ${theme.breakpoints.sm}) {
+      --layout-margin: ${theme.layout.margin.md};
+      --layout-gutter: ${theme.layout.gutter.md};
+      --layout-columns: ${theme.layout.columns.md};
+    }
+
+    @media (min-width: ${theme.breakpoints.lg}) {
+      --layout-margin: ${theme.layout.margin.lg};
+      --layout-gutter: ${theme.layout.gutter.lg};
+      --layout-columns: ${theme.layout.columns.lg};
+    }
   }
 
   /* ── Typography base */
