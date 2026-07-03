@@ -56,8 +56,8 @@ export const darkPalette = {
 // 2. 공용 중성색 (먹빛) — 라이트/다크 모두 참조
 // ------------------------------------------------------------
 export const meok = {
-  100: '#f2f4f6',
-  200: '#e5e8eb',
+  100: '#fafafa',
+  200: '#f0f0f0',
   400: '#b0b8c1',
   500: '#8b95a1',
   700: '#4e5968',
@@ -69,8 +69,8 @@ export const meok = {
 // ------------------------------------------------------------
 export const surface = {
   light: {
-    base:     '#FAF6F0',  // 화선지 오프화이트
-    surface:  '#F5EFE6',  // 한지 면
+    base:     '#fafafa',  // 화선지 오프화이트
+    surface:  '#f0f0f0',  // 한지 면
     card:     '#FFFFFF',  // 카드 배경
     elevated: '#FFFFFF',  // 팝업/모달 배경
   },
@@ -246,6 +246,18 @@ export const createTheme = (mode: ColorMode) => {
       fontSize: {
         xs: '0.75rem', sm: '0.875rem', base: '1rem', lg: '1.125rem',
         xl: '1.25rem', '2xl': '1.5rem', '3xl': '1.875rem', '4xl': '2.25rem',
+      },
+      mobile: {
+        d1: '56px', d2: '36px', d3: '32px',
+        h1: '28px', h2: '24px', h3: '20px',
+        p1: '18px', p2: '16px', p3: '14px', p4: '12px',
+        headline: '18px', headlineCaps: '14px', inputField: '16px',
+      },
+      pc: {
+        d1: '92px', d2: '64px', d3: '40px',
+        h1: '28px', h2: '24px', h3: '18px',
+        p1: '18px', p2: '16px', p3: '14px', p4: '12px',
+        headline: '18px', headlineCaps: '14px', inputField: '16px',
       },
       fontWeight: { regular: 400, medium: 500, semibold: 600, bold: 700 },
       lineHeight:  { tight: 1.25, normal: 1.6, loose: 1.8 },
