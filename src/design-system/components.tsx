@@ -1,3 +1,4 @@
+/** @jsxImportSource @emotion/react */
 // ============================================================
 // 온마루 (On-Maru) — Emotion CSS 컴포넌트 사용 예시
 // styled / css / useOnmaruTheme 세 가지 방식 모두 포함
