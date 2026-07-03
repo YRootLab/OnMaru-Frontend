@@ -56,8 +56,8 @@ export const darkPalette = {
 // 2. 공용 중성색 (먹빛) — 라이트/다크 모두 참조
 // ------------------------------------------------------------
 export const meok = {
-  100: '#f2f4f6',
-  200: '#e5e8eb',
+  100: '#fafafa',
+  200: '#f0f0f0',
   400: '#b0b8c1',
   500: '#8b95a1',
   700: '#4e5968',
@@ -69,8 +69,8 @@ export const meok = {
 // ------------------------------------------------------------
 export const surface = {
   light: {
-    base:     '#FAF6F0',  // 화선지 오프화이트
-    surface:  '#F5EFE6',  // 한지 면
+    base:     '#fafafa',  // 화선지 오프화이트
+    surface:  '#f0f0f0',  // 한지 면
     card:     '#FFFFFF',  // 카드 배경
     elevated: '#FFFFFF',  // 팝업/모달 배경
   },
