@@ -4,18 +4,12 @@ import React, { useState, useMemo, useCallback } from 'react';
 import styles from './HanokExplorer.module.css';
 import HanokCanvas from './HanokCanvas';
 import HanokDetailPanel from './HanokDetailPanel';
-import { HANOK_PARTS, HANOK_TABS } from './hanok.data';
-import type { TabId, HanokPart } from './hanok.data';
-import { motion } from 'framer-motion';
+import { HANOK_PARTS } from './hanok.data';
+import { motion, animate } from 'framer-motion';
 
 export default function HanokExplorer() {
-  const [activeTabId, setActiveTabId] = useState<TabId>('exterior');
   const [selectedPartId, setSelectedPartId] = useState<string | null>(null);
-
-  // Filter parts by active tab
-  const visibleParts = useMemo(() => {
-    return HANOK_PARTS.filter((p) => p.tabId === activeTabId);
-  }, [activeTabId]);
+  const [explodeProgress, setExplodeProgress] = useState<number>(0);
 
   // Find the selected part
   const selectedPart = useMemo(() => {
@@ -29,21 +23,26 @@ export default function HanokExplorer() {
   }, [selectedPart]);
 
   const handleSelectPart = useCallback((partId: string) => {
-    setSelectedPartId((prev) => (prev === partId ? null : partId));
-  }, []);
+    setSelectedPartId(partId);
+    
+    // Smoothly animate the explode progress to 1 (Fully Exploded) when a part is clicked
+    animate(explodeProgress, 1, {
+      duration: 0.6,
+      ease: [0.25, 1, 0.5, 1],
+      onUpdate: (latest) => setExplodeProgress(latest),
+    });
+  }, [explodeProgress]);
 
   const handleDeselect = useCallback(() => {
     setSelectedPartId(null);
-  }, []);
-
-  const handleTabChange = useCallback((tabId: TabId) => {
-    setActiveTabId(tabId);
-    setSelectedPartId(null);
-  }, []);
-
-  const activeTab = useMemo(() => {
-    return HANOK_TABS.find((t) => t.id === activeTabId)!;
-  }, [activeTabId]);
+    
+    // Smoothly animate the explode progress back to 0 (Assembled)
+    animate(explodeProgress, 0, {
+      duration: 0.6,
+      ease: [0.25, 1, 0.5, 1],
+      onUpdate: (latest) => setExplodeProgress(latest),
+    });
+  }, [explodeProgress]);
 
   return (
     <div className={styles.page}>
@@ -52,46 +51,50 @@ export default function HanokExplorer() {
         <header className={styles.header}>
           <div className={styles.headerLeft}>
             <span className={styles.headerTag}>온마루 · 공간의 해부학</span>
-            <h1 className={styles.headerTitle}>Hanok A to Z</h1>
+            <h1 className={styles.headerTitle}>Hanok Exploded View</h1>
             <p className={styles.headerSubtitle}>
-              {activeTab.description}
+              한옥의 5대 핵심 요소를 분해하여 선조들의 입체적인 지혜를 느껴보세요.
             </p>
           </div>
-
-          {/* 3-Step Tab Navigation */}
-          <nav className={styles.categoryTabs} role="tablist" aria-label="한옥 탐색 탭">
-            {HANOK_TABS.map((tab) => (
-              <motion.button
-                key={tab.id}
-                className={`${styles.categoryTab} ${activeTabId === tab.id ? styles.active : ''}`}
-                onClick={() => handleTabChange(tab.id)}
-                role="tab"
-                aria-selected={activeTabId === tab.id}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ duration: 0.15 }}
-              >
-                {tab.label}
-              </motion.button>
-            ))}
-          </nav>
         </header>
 
-        {/* Canvas Area */}
+        {/* Canvas Area with layers */}
         <HanokCanvas
-          parts={visibleParts}
-          imageSrc={activeTab.imageSrc}
+          parts={HANOK_PARTS}
           selectedPartId={selectedPartId}
+          explodeProgress={explodeProgress}
           onSelectPart={handleSelectPart}
           onDeselect={handleDeselect}
         />
 
-        {/* Floating Detail Panel with Intelligent Side Placement */}
+        {/* Floating Detail Panel */}
         <HanokDetailPanel
           part={selectedPart}
           side={panelSide}
           onClose={handleDeselect}
         />
+
+        {/* Apple-style Exploded Slider */}
+        <div className={styles.sliderContainer}>
+          <span className={styles.sliderLabel}>조립</span>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value={explodeProgress}
+            onChange={(e) => {
+              const val = parseFloat(e.target.value);
+              setExplodeProgress(val);
+              if (val < 0.2 && selectedPartId) {
+                setSelectedPartId(null);
+              }
+            }}
+            className={styles.slider}
+            aria-label="한옥 분해 조립 조절기"
+          />
+          <span className={styles.sliderLabel}>분해</span>
+        </div>
       </div>
     </div>
   );
