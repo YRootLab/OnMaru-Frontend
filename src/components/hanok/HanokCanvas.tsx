@@ -81,6 +81,7 @@ export default function HanokCanvas({
                 inset: 0,
                 zIndex: layer.zIndex,
                 pointerEvents: 'none',
+                mixBlendMode: 'multiply',
               }}
               animate={{
                 y: yOffset,
@@ -101,7 +102,6 @@ export default function HanokCanvas({
                   fill
                   style={{
                     objectFit: 'contain',
-                    mixBlendMode: 'multiply',
                   }}
                   sizes="(max-width: 768px) 95vw, (max-width: 1280px) 80vw, 900px"
                   priority
