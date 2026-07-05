@@ -247,6 +247,18 @@ export const createTheme = (mode: ColorMode) => {
         xs: '0.75rem', sm: '0.875rem', base: '1rem', lg: '1.125rem',
         xl: '1.25rem', '2xl': '1.5rem', '3xl': '1.875rem', '4xl': '2.25rem',
       },
+      mobile: {
+        d1: '56px', d2: '36px', d3: '32px',
+        h1: '28px', h2: '24px', h3: '20px',
+        p1: '18px', p2: '16px', p3: '14px', p4: '12px',
+        headline: '18px', headlineCaps: '14px', inputField: '16px',
+      },
+      pc: {
+        d1: '92px', d2: '64px', d3: '40px',
+        h1: '28px', h2: '24px', h3: '18px',
+        p1: '18px', p2: '16px', p3: '14px', p4: '12px',
+        headline: '18px', headlineCaps: '14px', inputField: '16px',
+      },
       fontWeight: { regular: 400, medium: 500, semibold: 600, bold: 700 },
       lineHeight:  { tight: 1.25, normal: 1.6, loose: 1.8 },
     },
