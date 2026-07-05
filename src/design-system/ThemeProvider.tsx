@@ -1,3 +1,5 @@
+'use client';
+
 // ============================================================
 // 온마루 (On-Maru) — Emotion CSS Theme Provider
 // React + Emotion · ThemeProvider · useTheme hook
@@ -209,26 +211,26 @@ export function OnmaruThemeProvider({
   followSystem = true,
 }: OnmaruThemeProviderProps) {
 
-  const [mode, setModeState] = useState<ColorMode>(() => {
-    // 1순위: localStorage
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('onmaru-color-mode') as ColorMode | null
-      if (saved === 'light' || saved === 'dark') return saved
+  const [mode, setModeState] = useState<ColorMode>(defaultMode)
+  const [mounted, setMounted] = useState(false)
+
+  // 컴포넌트가 클라이언트에 마운트된 이후에 로컬 스토리지/시스템 설정 반영
+  useEffect(() => {
+    setMounted(true)
+    const saved = localStorage.getItem('onmaru-color-mode') as ColorMode | null
+    if (saved === 'light' || saved === 'dark') {
+      setModeState(saved)
+    } else if (followSystem) {
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+      setModeState(isDark ? 'dark' : 'light')
     }
-    // 2순위: 시스템 설정
-    if (followSystem && typeof window !== 'undefined') {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches
-        ? 'dark'
-        : 'light'
-    }
-    return defaultMode
-  })
+  }, [followSystem])
 
   const theme = mode === 'dark' ? darkTheme : lightTheme
 
   // 시스템 다크모드 변경 감지
   useEffect(() => {
-    if (!followSystem) return
+    if (!followSystem || !mounted) return
     const mq = window.matchMedia('(prefers-color-scheme: dark)')
     const handler = (e: MediaQueryListEvent) => {
       const saved = localStorage.getItem('onmaru-color-mode')

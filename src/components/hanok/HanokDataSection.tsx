@@ -14,7 +14,7 @@ export default function HanokDataSection() {
   });
 
   useEffect(() => {
-    return ch4Scroll.onChange((latest) => {
+    return ch4Scroll.on('change', (latest) => {
       if (latest > 0.6) {
         setDataSnapped(true);
       } else {
