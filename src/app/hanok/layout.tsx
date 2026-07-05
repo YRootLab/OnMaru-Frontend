@@ -1,7 +1,5 @@
-export default function HanokLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  return <>{children}</>
+import React from 'react';
+
+export default function HanokLayout({ children }: { children: React.ReactNode }) {
+  return <>{children}</>;
 }

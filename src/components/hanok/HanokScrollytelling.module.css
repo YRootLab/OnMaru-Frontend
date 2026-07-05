@@ -1,0 +1,1624 @@
+/* ============================================================
+   HanokScrollytelling — CSS Module
+   하이엔드 애플 스타일 5단 스토리텔링 전용 스타일시트
+   ============================================================ */
+
+/* ── CSS Variables ── */
+:root {
+  --hanok-text-primary-dark: #ffffff;
+  --hanok-text-secondary-dark: #86868b;
+  
+  --hanok-text-primary-light: #1a1714;
+  --hanok-text-secondary-light: #6b6560;
+  
+  --hanok-accent: #d4af37; /* Gold Warmth */
+  --hanok-accent-warm: #f3c250;
+  
+  --hanok-bg-dark: #0b0b0f;
+  --hanok-bg-light: linear-gradient(180deg, #fbfaf8 0%, #f3f0e9 100%);
+  
+  --hanok-glass-bg-dark: rgba(20, 20, 25, 0.7);
+  --hanok-glass-border-dark: rgba(255, 255, 255, 0.08);
+  
+  --hanok-glass-bg-light: rgba(255, 255, 255, 0.85);
+  --hanok-glass-border-light: rgba(0, 0, 0, 0.08);
+  
+  --hanok-font-serif: var(--font-noto-serif-kr, 'Noto Serif KR'), serif;
+  --hanok-font-sans: var(--font-noto-sans-kr, 'Noto Sans KR'), -apple-system, BlinkMacSystemFont, sans-serif;
+  
+  --hanok-transition-smooth: 0.8s cubic-bezier(0.15, 0.85, 0.3, 1);
+  --hanok-transition-fast: 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* ── Container ── */
+.scrollyContainer {
+  width: 100%;
+  background-color: var(--hanok-bg-dark);
+  font-family: var(--hanok-font-sans);
+  color: var(--hanok-text-primary-dark);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ── GNB Header ── */
+.gnb {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 52px;
+  background: rgba(11, 11, 15, 0.75);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+}
+
+.logo {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.logo span {
+  color: var(--hanok-accent);
+  font-weight: 300;
+}
+
+.gnbRight {
+  font-size: 11px;
+  color: var(--hanok-text-secondary-dark);
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* ── SECTION 0: HERO INTRO ── */
+.heroSection {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background-color: var(--hanok-bg-dark);
+  text-align: center;
+}
+
+.heroContent {
+  max-width: 800px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  z-index: 10;
+}
+
+.heroTag {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: var(--hanok-accent);
+  text-transform: uppercase;
+}
+
+.heroTitle {
+  font-family: var(--hanok-font-serif);
+  font-size: 48px;
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: #ffffff;
+}
+
+.heroSubtitle {
+  font-size: 17px;
+  color: var(--hanok-text-secondary-dark);
+  max-width: 520px;
+  line-height: 1.6;
+}
+
+.heroScrollPrompt {
+  position: absolute;
+  bottom: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: var(--hanok-text-secondary-dark);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2px;
+}
+
+.scrollDot {
+  width: 6px;
+  height: 6px;
+  background: var(--hanok-accent);
+  border-radius: 50%;
+  animation: bounce 1.8s infinite ease-in-out;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); opacity: 0.3; }
+  50% { transform: translateY(10px); opacity: 1; }
+}
+
+/* ── SECTION 1: CHAPTER 1 - 공간의 해부학 (Sticky) ── */
+.chapterSection {
+  width: 100%;
+  height: 300vh; /* Scrolly height */
+  position: relative;
+  background: var(--hanok-bg-light);
+  color: var(--hanok-text-primary-light);
+}
+
+.stickyWrapper {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  overflow: hidden;
+}
+
+.narrativePanel {
+  width: 45%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 80px 60px;
+  position: relative;
+  z-index: 10;
+}
+
+.chapterNum {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--hanok-accent);
+  margin-bottom: 30px;
+  text-transform: uppercase;
+}
+
+.slideTextSection {
+  position: absolute;
+  max-width: 480px;
+  opacity: 0;
+  transform: translateY(30px);
+  filter: blur(10px);
+  transition: all var(--hanok-transition-smooth);
+  pointer-events: none;
+}
+
+.slideTextSection.active {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+  pointer-events: auto;
+}
+
+.slideBadge {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--hanok-text-secondary-light);
+  margin-bottom: 12px;
+  display: inline-block;
+}
+
+.slideTitle {
+  font-family: var(--hanok-font-serif);
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  letter-spacing: -0.5px;
+}
+
+.slideDesc {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--hanok-text-secondary-light);
+  margin-bottom: 24px;
+}
+
+.slidePoints {
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13.5px;
+  color: var(--hanok-text-secondary-light);
+}
+
+/* Right Sticky Canvas Stage */
+.stickyCanvasStage {
+  width: 55%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.imageShowcase {
+  position: relative;
+  width: 90%;
+  aspect-ratio: 16 / 11;
+  background: transparent;
+}
+
+.showcaseLayer {
+  position: absolute;
+  inset: 0;
+  will-change: transform, opacity;
+}
+
+.ondolParticleContainer {
+  position: absolute;
+  bottom: 20%;
+  right: 25%;
+  width: 150px;
+  height: 150px;
+  pointer-events: none;
+}
+
+.thermalWave {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,85,0,0.3) 0%, transparent 70%);
+}
+
+/* ── SECTION HEADER COMMON ── */
+.sectionHeader {
+  max-width: 800px;
+  margin: 0 auto 50px auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sectionHeaderTag {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--hanok-accent);
+}
+
+.sectionHeaderTitle {
+  font-family: var(--hanok-font-serif);
+  font-size: 38px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.sectionHeaderSubtitle {
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ── SECTION 2: MAP SECTION ── */
+.chapterMapSection {
+  width: 100%;
+  min-height: 100vh;
+  padding: 100px 40px;
+  background: var(--hanok-bg-light);
+  color: var(--hanok-text-primary-light);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Map Grid Layout */
+.mapGrid {
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 40px;
+  align-items: center;
+}
+
+.mapTabs {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mapTabButton {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  border-radius: 14px;
+  border: 1px solid var(--hanok-glass-border-light);
+  background: var(--hanok-glass-bg-light);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--hanok-transition-fast);
+}
+
+.mapTabBullet {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--hanok-text-secondary-light);
+  transition: background var(--hanok-transition-fast), transform var(--hanok-transition-fast);
+}
+
+.mapTabTextWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mapTabLabel {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--hanok-text-primary-light);
+}
+
+.mapTabShape {
+  font-size: 11px;
+  color: var(--hanok-text-secondary-light);
+}
+
+.mapTabButton.active {
+  border-color: var(--hanok-accent);
+  box-shadow: 0 8px 30px rgba(196, 149, 106, 0.15);
+}
+
+.mapTabButton.active .mapTabBullet {
+  background: var(--hanok-accent);
+  transform: scale(1.4);
+}
+
+/* Map Stage */
+.mapStage {
+  position: relative;
+  aspect-ratio: 16 / 11;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 20px;
+  border: 1px solid var(--hanok-glass-border-light);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 40px;
+  align-items: center;
+}
+
+.koreaMapContainer {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.koreaMapOutline {
+  height: 90%;
+  max-height: 250px;
+}
+
+.koreaMapOutline path {
+  stroke: rgba(0,0,0,0.15) !important;
+}
+
+.houseShapeWrapper {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mapHouseSvg {
+  width: 90%;
+  max-width: 200px;
+}
+
+.mapWireframe {
+  stroke: var(--hanok-text-secondary-light);
+  stroke-width: 1.5;
+  fill: none;
+}
+
+.mapWireframeAccent {
+  stroke: var(--hanok-accent);
+  stroke-width: 2.2;
+  fill: none;
+  filter: drop-shadow(0 0 6px var(--hanok-glow-warm));
+}
+
+.mapInfoCard {
+  grid-column: 1 / -1;
+  background: var(--hanok-glass-bg-light);
+  border: 1px solid var(--hanok-glass-border-light);
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+}
+
+.mapInfoTitle {
+  font-family: var(--hanok-font-serif);
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.mapInfoDesc {
+  font-size: 14px;
+  color: var(--hanok-text-secondary-light);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.mapInfoStory {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--hanok-text-secondary-light);
+  border-top: 1px solid rgba(0,0,0,0.06);
+  padding-top: 12px;
+  margin-bottom: 14px;
+}
+
+.mapInfoSpecs {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--hanok-accent);
+}
+
+.mapInfoSpecLbl {
+  font-size: 11px;
+  color: var(--hanok-text-secondary-light);
+  font-weight: 400;
+  margin-top: 2px;
+}
+
+/* ── SECTION 3: TIME LAPSE ── */
+.chapterTimeSection {
+  width: 100%;
+  padding: 100px 40px;
+  background: var(--hanok-bg-light);
+  color: var(--hanok-text-primary-light);
+  display: flex;
+  flex-direction: column;
+}
+
+.timeLapseContainer {
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+  aspect-ratio: 16 / 11;
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+}
+
+.timeLapseSky {
+  position: absolute;
+  inset: 0;
+  background: var(--sky-gradient);
+  transition: background 1s ease;
+  z-index: 1;
+}
+
+.starryNight {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+.firefly {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #fff;
+}
+
+.porchImageWrap {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+}
+
+.porchImage {
+  object-fit: cover;
+  filter: var(--image-filter);
+  transition: filter 1s ease;
+}
+
+.porchOverlay {
+  position: absolute;
+  inset: 0;
+  background: var(--overlay-gradient);
+  mix-blend-mode: overlay;
+  transition: background 1s ease;
+}
+
+.timeControlCard {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  right: 24px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 16px;
+  padding: 20px 24px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.timeDescription {
+  max-width: 450px;
+}
+
+.timeLabel {
+  font-family: var(--hanok-font-sans);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--hanok-text-primary-light);
+  margin-bottom: 4px;
+}
+
+.timeDescText {
+  font-size: 12.5px;
+  color: var(--hanok-text-secondary-light);
+  line-height: 1.5;
+}
+
+.timeSliderWrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.timeSliderLimit {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--hanok-text-secondary-light);
+}
+
+.timeSlider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 160px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.15);
+  outline: none;
+}
+
+.timeSlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--hanok-accent);
+  border: 2.2px solid white;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+/* ── SECTION 4: DATA INTEGRATION SECTION (DARK GRID) ── */
+.chapterDataSection {
+  width: 100%;
+  min-height: 100vh;
+  padding: 120px 40px;
+  background-color: var(--hanok-bg-dark);
+  color: var(--hanok-text-primary-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.chapterDataSection::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.012) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.012) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: center center;
+  pointer-events: none;
+}
+
+.dataGrid {
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 60px;
+  align-items: center;
+  z-index: 5;
+}
+
+.dataTextWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dataCardStage {
+  position: relative;
+  aspect-ratio: 16 / 12;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.magneticField {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dataChip {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 12px;
+  color: var(--hanok-text-primary-dark);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+
+/* Glassmorphic Registry Card */
+.glassRegistryCard {
+  width: 440px;
+  background: var(--hanok-glass-bg-dark);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--hanok-glass-border-dark);
+  border-radius: 20px;
+  padding: 24px;
+  z-index: 20;
+}
+
+.cardGnb {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--hanok-accent);
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 10px;
+  margin-bottom: 16px;
+}
+
+.registryContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.registryTitle {
+  font-family: var(--hanok-font-serif);
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.registryPlaceholder {
+  font-size: 13px;
+  color: var(--hanok-text-secondary-dark);
+  padding: 30px 0;
+  text-align: center;
+  border: 1.5px dashed rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+}
+
+.registryDataGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.regItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.regVal {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.regLbl {
+  font-size: 10px;
+  color: var(--hanok-text-secondary-dark);
+}
+
+/* LLM summary section */
+.llmSummaryArea {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 16px;
+}
+
+.llmBadge {
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(212, 175, 55, 0.15);
+  border: 1.2px solid var(--hanok-accent);
+  color: var(--hanok-accent);
+  padding: 2px 8px;
+  border-radius: 10px;
+  align-self: flex-start;
+  letter-spacing: 1px;
+}
+
+.llmText {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.85);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.accordionContainer {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 10px;
+  margin-top: 4px;
+}
+
+.accordionToggle {
+  background: none;
+  border: none;
+  color: var(--hanok-accent);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.accordionText {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--hanok-text-secondary-dark);
+  padding-top: 6px;
+  overflow: hidden;
+}
+
+/* ── SECTION 5: OUTRO CTA ── */
+.outroSection {
+  width: 100%;
+  height: 100vh;
+  position: relative;
+  background-color: var(--hanok-bg-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.particleCanvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  pointer-events: auto;
+}
+
+/* Background outline map */
+.outroSection::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(212, 175, 55, 0.05) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.outroContent {
+  max-width: 780px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.outroTag {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--hanok-accent);
+  text-transform: uppercase;
+  transition: transform var(--hanok-transition-fast);
+}
+
+.outroTitle {
+  font-family: var(--hanok-font-serif);
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.5px;
+  color: #fff;
+}
+
+.outroSubtitle {
+  font-size: 15.5px;
+  line-height: 1.7;
+  color: var(--hanok-text-secondary-dark);
+  max-width: 540px;
+}
+
+.ctaButton {
+  margin-top: 20px;
+  background: linear-gradient(135deg, var(--hanok-accent) 0%, #b38f2e 100%);
+  color: #0b0b0f;
+  border: none;
+  border-radius: 30px;
+  padding: 16px 40px;
+  font-family: var(--hanok-font-sans);
+  font-size: 14.5px;
+  font-weight: 750;
+  letter-spacing: 1px;
+  cursor: pointer;
+  pointer-events: auto;
+  box-shadow: 0 4px 20px rgba(212, 175, 55, 0.2);
+  transition: all var(--hanok-transition-fast);
+  animation: ctaPulse 2s infinite;
+}
+
+@keyframes ctaPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+/* ── Interactive Helper Overlay ── */
+.interactionHelper {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 1000;
+  font-size: 11px;
+  color: var(--hanok-text-secondary-dark);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: rgba(11, 11, 15, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+  .heroTitle { font-size: 32px; }
+  .slideTitle { font-size: 26px; }
+  .sectionHeaderTitle { font-size: 28px; }
+  .outroTitle { font-size: 28px; }
+
+  .stickyWrapper {
+    flex-direction: column;
+  }
+
+  .narrativePanel {
+    width: 100%;
+    height: 50vh;
+    padding: 30px 20px;
+    justify-content: flex-end;
+  }
+
+  .stickyCanvasStage {
+    width: 100%;
+    height: 50vh;
+  }
+
+  .mapGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .mapStage {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .dataGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .glassRegistryCard {
+    width: 100%;
+  }
+
+  .timeControlCard {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* ================================================================
+   CHAPTER 1 — ANNOTATED IMAGE + HORIZONTAL SCROLL
+   ================================================================ */
+
+.chapterAnnotatedSection {
+  width: 100%;
+  background: linear-gradient(180deg, #fbfaf8 0%, #f3f0e9 100%);
+  color: #1a1714;
+  padding: 80px 0 0;
+}
+
+.annotatedSection {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.annotatedHeader {
+  text-align: center;
+  margin-bottom: 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+}
+
+.annotatedTitle {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 42px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: #1a1714;
+}
+
+.annotatedSubtitle {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #6b6560;
+  max-width: 560px;
+}
+
+.annotatedImageWrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+}
+
+.annotatedImageInner {
+  position: relative;
+  width: 100%;
+  max-width: 1000px;
+  aspect-ratio: 16 / 10;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #f8f5f0;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.08), 0 4px 20px rgba(0,0,0,0.05);
+}
+
+.imageDimOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(248, 245, 240, 0.75);
+  backdrop-filter: blur(2px);
+  z-index: 20;
+}
+
+.hotspotDot {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #d4af37;
+  border: 2.5px solid rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 4px 16px rgba(212, 175, 55, 0.5);
+  z-index: 30;
+}
+
+.hotspotNumber {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0b0b0f;
+  position: relative;
+  z-index: 2;
+}
+
+.hotspotRing {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid #d4af37;
+  animation: hotspotPulse 2.4s ease-out infinite;
+}
+
+@keyframes hotspotPulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+
+.calloutCard {
+  position: absolute;
+  width: 260px;
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 18px;
+  padding: 20px 22px 18px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.14);
+  z-index: 50;
+}
+
+.calloutNumber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  background: #d4af37;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 800;
+  color: #0b0b0f;
+  margin-bottom: 10px;
+}
+
+.calloutName {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: #1a1714;
+  margin-bottom: 2px;
+}
+
+.calloutNameEn {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b6560;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.calloutDesc {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: #6b6560;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.calloutDetail {
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: #aaa;
+  border-top: 1px solid rgba(0,0,0,0.06);
+  padding-top: 8px;
+}
+
+.calloutClose {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: none;
+  border: none;
+  color: #6b6560;
+  font-size: 14px;
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.calloutClose:hover {
+  background: rgba(0,0,0,0.07);
+}
+
+.hotspotLegend {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 700px;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.7);
+  border: 1.5px solid rgba(0,0,0,0.08);
+  cursor: pointer;
+  transition: all 0.25s;
+  font-size: 13px;
+  color: #6b6560;
+}
+
+.legendItem:hover {
+  border-color: #d4af37;
+  color: #1a1714;
+  background: rgba(212,175,55,0.06);
+}
+
+.legendActive {
+  border-color: #d4af37 !important;
+  background: rgba(212,175,55,0.12) !important;
+  color: #1a1714 !important;
+}
+
+.legendNum {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: #d4af37;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 800;
+  color: #0b0b0f;
+  flex-shrink: 0;
+}
+
+.legendName {
+  font-weight: 600;
+}
+
+/* ── HORIZONTAL SCROLL ── */
+
+.hScrollSection {
+  width: 100%;
+  padding: 60px 0 80px;
+  background: linear-gradient(180deg, #fbfaf8 0%, #f3f0e9 100%);
+  color: #1a1714;
+}
+
+.hScrollHeader {
+  max-width: 1200px;
+  margin: 0 auto 28px;
+  padding: 0 40px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.hScrollTag {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #d4af37;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.hScrollTitle {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1714;
+}
+
+.hScrollArrows {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.arrowBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.9);
+  border: 1.5px solid rgba(0,0,0,0.1);
+  font-size: 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b6560;
+  transition: all 0.2s;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  line-height: 1;
+}
+
+.arrowBtn:hover {
+  background: rgba(212,175,55,0.1);
+  border-color: #d4af37;
+  color: #d4af37;
+}
+
+.arrowDisabled {
+  opacity: 0.3;
+  cursor: default;
+  pointer-events: none;
+}
+
+.hScrollOuter {
+  position: relative;
+  overflow: hidden;
+}
+
+.fadeLeft {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 80px;
+  background: linear-gradient(to right, #f8f5f0, transparent);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.fadeRight {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 80px;
+  background: linear-gradient(to left, #f8f5f0, transparent);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.hScrollTrack {
+  display: flex;
+  gap: 18px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 16px 40px 28px;
+}
+
+.hScrollTrack::-webkit-scrollbar {
+  display: none;
+}
+
+.structureCard {
+  flex: 0 0 230px;
+  min-height: 280px;
+  background: rgba(255,255,255,0.95);
+  border: 1.5px solid rgba(0,0,0,0.07);
+  border-radius: 18px;
+  padding: 24px 20px 20px;
+  scroll-snap-align: start;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  cursor: pointer;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.structureCard:hover {
+  border-color: rgba(212,175,55,0.25);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+}
+
+.cardAccentBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 18px 18px 0 0;
+  transform-origin: left;
+}
+
+.cardEmoji {
+  font-size: 34px;
+  line-height: 1;
+}
+
+.cardText {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+}
+
+.cardNameKo {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: #1a1714;
+}
+
+.cardNameEn {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: #6b6560;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.cardDesc {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: #6b6560;
+}
+
+.cardFact {
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: #999;
+  border-top: 1px solid rgba(0,0,0,0.07);
+  padding-top: 10px;
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.cardFactIcon {
+  flex-shrink: 0;
+  font-size: 12px;
+}
+
+/* ── Callout card overflow fix ── */
+/* Outer wrapper must not clip */
+.annotatedImageWrap {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+/* Keep overflow:hidden only on the image box itself for rounding */
+.annotatedImageInner {
+  overflow: hidden;
+}
+
+/* Close row layout */
+.calloutCloseRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+/* Callout card: positioned absolutely relative to annotatedImageWrap */
+.calloutCard {
+  position: absolute;
+  z-index: 200;
+  pointer-events: auto;
+}
+
+/* Per-hotspot position offsets (fine-tune to each dot location) */
+/* dot x:50% y:18% => top of image => card appears above */
+.calloutPos_giwa {
+  left: calc(50% - 130px);
+  top: calc(18% - 215px);
+}
+
+/* dot x:22% y:35% => left side */
+.calloutPos_seokrye {
+  left: calc(22% - 285px);
+  top: calc(35% - 80px);
+}
+
+/* dot x:30% y:65% => bottom-left */
+.calloutPos_changho {
+  left: calc(30% - 290px);
+  top: calc(65% - 100px);
+}
+
+/* dot x:50% y:80% => bottom center → card above the dot */
+.calloutPos_ondol {
+  left: calc(50% - 130px);
+  top: calc(80% - 225px);
+}
+
+/* dot x:78% y:62% => right side */
+.calloutPos_maru {
+  left: calc(78% + 20px);
+  top: calc(62% - 80px);
+}
+
+/* ================================================================
+   ANNOTATED IMAGE — SIDE PANEL LAYOUT (v2, no clipping)
+   ================================================================ */
+
+/* 2-col grid: image (left) + detail panel (right) */
+.annotatedLayout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 40px;
+  align-items: flex-start;
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+/* Image side */
+.annotatedImageWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: center;
+}
+
+/* Image box — overflow:hidden only for image clipping, not for cards */
+.annotatedImageInner {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 20px;
+  background: #f8f5f0;
+  box-shadow: 0 16px 50px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.04);
+  overflow: hidden;
+}
+
+/* Detail panel side */
+.detailPanelWrap {
+  position: sticky;
+  top: 80px;
+  min-height: 360px;
+}
+
+.detailPanel {
+  background: rgba(255,255,255,0.95);
+  border: 1.5px solid rgba(0,0,0,0.07);
+  border-radius: 22px;
+  padding: 28px 28px 24px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.07);
+}
+
+.detailPanelBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  border-radius: 22px 22px 0 0;
+}
+
+.detailNum {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.detailName {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: #1a1714;
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+
+.detailNameEn {
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #86868b;
+  margin-bottom: 18px;
+  display: block;
+}
+
+.detailDivider {
+  height: 2px;
+  width: 36px;
+  border-radius: 2px;
+  margin-bottom: 18px;
+  opacity: 0.7;
+}
+
+.detailDesc {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.6;
+  color: #2c2a28;
+  margin-bottom: 14px;
+}
+
+.detailDetail {
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: #6b6560;
+  padding-top: 14px;
+  border-top: 1px solid rgba(0,0,0,0.06);
+}
+
+/* Prev/Next nav */
+.detailNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0,0,0,0.06);
+}
+
+.detailNavBtn {
+  background: none;
+  border: none;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #6b6560;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.detailNavBtn:hover:not(:disabled) {
+  background: rgba(0,0,0,0.05);
+  color: #1a1714;
+}
+
+.detailNavBtn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.detailNavCount {
+  font-size: 12px;
+  color: #86868b;
+  font-weight: 600;
+}
+
+/* ── Responsive: stack on mobile ── */
+@media (max-width: 900px) {
+  .annotatedLayout {
+    grid-template-columns: 1fr;
+    padding: 0 20px;
+  }
+
+  .detailPanelWrap {
+    position: static;
+  }
+}
