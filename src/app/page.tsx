@@ -1,8 +1,14 @@
+import AnchaeViewer from '@/components/hanok/AnchaeViewer';
+
+export const metadata = {
+  title: '온마루 — 안채 3D 모델 뷰어 🇰🇷',
+  description: '한옥 안채 3D GLB 모델 뷰어',
+};
+
 export default function Home() {
   return (
-    <main style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
-      <h1>온마루 — 한옥의 온기를 잇다 🏯</h1>
-      <p>프로젝트 초기화 완료. 개발을 시작할 준비가 됐습니다.</p>
+    <main style={{ width: '100%', background: '#0E0B07' }}>
+      <AnchaeViewer />
     </main>
-  )
+  );
 }
