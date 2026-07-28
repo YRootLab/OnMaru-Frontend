@@ -48,5 +48,5 @@ GLB Model: `/public/anchae.glb`
 
 ## 📜 Code Style & TypeScript Conventions
 - Zero TypeScript errors (`npx tsc --noEmit` must pass cleanly).
-- Keep component code clean and modular (`AnchaeViewer.tsx` for layout & GSAP, `AnchaeViewerCanvas.tsx` for 3D R3F canvas, `hanok.data.ts` for data schemas).
+- Keep component code clean and modular (`src/features/hanok-viewer/` 이하: `HanokCanvas.tsx` 3D 배경, `HanokModel.tsx` 모델 조립, `HanokCameraRig.tsx` 카메라 보간, `useHanokViewerStore.ts` Zustand 전역 상태, `hanok.data.ts` 데이터 스키마).
 - **Emoji Rule (이모지 규칙)**: Japanese Castle emoji (`🏯`) 사용을 엄격히 금지하며, 전통 한옥 관련 표현 및 응답 시 태극기 이모지(`🇰🇷`)를 사용합니다.

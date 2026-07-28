@@ -1,4 +1,4 @@
-import AnchaeViewer from '@/components/hanok/AnchaeViewer';
+import HanokViewerApp from '@/features/hanok-viewer/HanokViewerApp';
 
 export const metadata = {
   title: '온마루 — 전통 한옥 공간 스토리텔링 🇰🇷',
@@ -8,7 +8,7 @@ export const metadata = {
 export default function HanokPage() {
   return (
     <main style={{ width: '100%', background: '#1C1A17' }}>
-      <AnchaeViewer />
+      <HanokViewerApp />
     </main>
   );
 }
