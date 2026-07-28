@@ -49,7 +49,7 @@ export default function HanokCameraRig({ controlsRef }: HanokCameraRigProps) {
 
   useFrame((_, delta) => {
     const pCam = camera as THREE.PerspectiveCamera;
-    const { scrollProgress, isOrbitEnabled, customTarget, isLoaded, isReducedMotion, heroTime } =
+    const { activeSectionId, stageProgress, isOrbitEnabled, customTarget, isLoaded, isReducedMotion, heroTime } =
       useHanokViewerStore.getState();
 
     if (isOrbitEnabled) {
@@ -61,57 +61,51 @@ export default function HanokCameraRig({ controlsRef }: HanokCameraRigProps) {
     }
 
     const aspect = size.width / size.height;
-    const p = scrollProgress;
 
-    // 히어로 시퀀스 재생 시간 갱신
-    if (isLoaded && p < 0.05) {
-      if (isReducedMotion) {
-        setHeroTime(3.5);
-      } else if (heroTime < 4.0) {
-        setHeroTime(heroTime + delta);
+    // 히어로 및 브랜드 소개 섹션 카메라 처리
+    if (activeSectionId === 'hero' || activeSectionId === 'about') {
+      if (isLoaded && activeSectionId === 'hero') {
+        if (isReducedMotion) {
+          setHeroTime(3.5);
+        } else if (heroTime < 4.0) {
+          setHeroTime(heroTime + delta);
+        }
       }
-    }
 
-    // 히어로 카메라 위치 및 시선 타겟 계산
-    const currentHeroTime = isReducedMotion ? 3.5 : heroTime;
-    const heroPos = new THREE.Vector3();
-    const heroTarget = new THREE.Vector3();
+      // 히어로 카메라 위치 및 시선 타겟 계산
+      const currentHeroTime = isReducedMotion ? 3.5 : heroTime;
+      const heroPos = new THREE.Vector3();
+      const heroTarget = new THREE.Vector3();
 
-    if (currentHeroTime <= 1.5) {
-      heroPos.copy(HERO_EAVES_POS);
-      heroTarget.copy(HERO_EAVES_TARGET);
-    } else if (currentHeroTime <= 3.5) {
-      const t = clamp01((currentHeroTime - 1.5) / 2.0);
-      const k = easeInOutCubic(t);
-      heroPos.lerpVectors(HERO_EAVES_POS, HERO_FULL_POS, k);
-      heroTarget.lerpVectors(HERO_EAVES_TARGET, HERO_FULL_TARGET, k);
+      if (currentHeroTime <= 1.5) {
+        heroPos.copy(HERO_EAVES_POS);
+        heroTarget.copy(HERO_EAVES_TARGET);
+      } else if (currentHeroTime <= 3.5) {
+        const t = clamp01((currentHeroTime - 1.5) / 2.0);
+        const k = easeInOutCubic(t);
+        heroPos.lerpVectors(HERO_EAVES_POS, HERO_FULL_POS, k);
+        heroTarget.lerpVectors(HERO_EAVES_TARGET, HERO_FULL_TARGET, k);
+      } else {
+        // 3.5초 이후 자동 궤도 회전 연출
+        const rotAngle = (currentHeroTime - 3.5) * ((8 * Math.PI) / 180) / 10.0;
+        const relX = HERO_FULL_POS.x - HERO_FULL_TARGET.x;
+        const relZ = HERO_FULL_POS.z - HERO_FULL_TARGET.z;
+        const cos = Math.cos(rotAngle);
+        const sin = Math.sin(rotAngle);
+
+        heroPos.set(
+          HERO_FULL_TARGET.x + (relX * cos - relZ * sin),
+          HERO_FULL_POS.y,
+          HERO_FULL_TARGET.z + (relX * sin + relZ * cos)
+        );
+        heroTarget.copy(HERO_FULL_TARGET);
+      }
+
+      desiredPos.current.copy(heroPos);
+      desiredTarget.current.copy(heroTarget);
+      desiredFov.current = HERO_FOV;
     } else {
-      // 3.5초 이후 자동 궤도 회전 연출
-      const rotAngle = (currentHeroTime - 3.5) * ((8 * Math.PI) / 180) / 10.0;
-      const relX = HERO_FULL_POS.x - HERO_FULL_TARGET.x;
-      const relZ = HERO_FULL_POS.z - HERO_FULL_TARGET.z;
-      const cos = Math.cos(rotAngle);
-      const sin = Math.sin(rotAngle);
-
-      heroPos.set(
-        HERO_FULL_TARGET.x + (relX * cos - relZ * sin),
-        HERO_FULL_POS.y,
-        HERO_FULL_TARGET.z + (relX * sin + relZ * cos)
-      );
-      heroTarget.copy(HERO_FULL_TARGET);
-    }
-
-    // 스크롤 진행률에 따른 카메라 보간 수행
-    if (p < HERO_SPLIT) {
-      const wHero = clamp01(1 - p / HERO_SPLIT);
-      const stage1Pos = STAGE_POS[0];
-      const stage1Target = STAGE_TARGET[0];
-
-      desiredPos.current.lerpVectors(stage1Pos, heroPos, wHero);
-      desiredTarget.current.lerpVectors(stage1Target, heroTarget, wHero);
-      desiredFov.current = THREE.MathUtils.lerp(STAGE_FOV[0], HERO_FOV, wHero);
-    } else {
-      const pAss = clamp01((p - HERO_SPLIT) / (1 - HERO_SPLIT));
+      const pAss = clamp01(stageProgress);
       const last = STAGES.length - 1;
       const f = pAss * last;
       const i = Math.min(last - 1, Math.floor(f));

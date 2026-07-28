@@ -153,29 +153,13 @@ export default function HanokModel() {
     modelFadeRef.current = Math.min(1, modelFadeRef.current + delta / 1.2);
     const fade = easeOutCubic(modelFadeRef.current);
 
-    const p = useHanokViewerStore.getState().scrollProgress;
+    const { activeSectionId, stageProgress } = useHanokViewerStore.getState();
 
-    if (p < HERO_SPLIT) {
-      // 히어로 섹션 전용 완공 상태 유지
-      const heroScrollFactor = clamp01(p / HERO_SPLIT);
-
+    if (activeSectionId !== 'assembly') {
+      // 히어로 및 브랜드 소개 섹션: 완공된 상태 유지
       for (const part of parts) {
-        // 원본 완공 위치 좌표
-        const targetX = part.origin.x;
-        const targetY = part.origin.y;
-        const targetZ = part.origin.z;
-
-        // 로드 페이드인 및 전환 투명도 보간
-        let opacity = fade;
-
-        // 조립 섹션 진입 시 부재 투명도 제어
-        if (heroScrollFactor > 0.05 && part.stage > 0) {
-          const hideDelay = (part.stage / STAGES.length);
-          const stageHide = clamp01(1 - (heroScrollFactor - hideDelay * 0.5) / 0.5);
-          opacity *= stageHide;
-        }
-
-        part.mesh.position.set(targetX, targetY, targetZ);
+        part.mesh.position.copy(part.origin);
+        const opacity = fade;
         const visible = opacity > 0.004;
         part.mesh.visible = visible;
 
@@ -188,7 +172,7 @@ export default function HanokModel() {
       }
     } else {
       // 7단계 부재별 분해 및 조립 위치 보간
-      const pAss = clamp01((p - HERO_SPLIT) / (1 - HERO_SPLIT));
+      const pAss = clamp01(stageProgress);
       const span = 1 / STAGES.length;
 
       for (const part of parts) {

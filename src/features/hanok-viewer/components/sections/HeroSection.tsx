@@ -183,7 +183,7 @@ export default function HeroSection() {
   const delayScroll = isReducedMotion ? 0 : 3.5;
 
   return (
-    <HeroContainer>
+    <HeroContainer id="hero-section">
       <HanjiTextureOverlay />
       <TopGradientOverlay />
 

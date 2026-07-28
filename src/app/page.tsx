@@ -1,5 +1,6 @@
 import HanokViewerLayout from '@/features/hanok-viewer/HanokViewerLayout';
 import HeroSection from '@/features/hanok-viewer/components/sections/HeroSection';
+import AboutHanokSection from '@/features/hanok-viewer/components/sections/AboutHanokSection';
 import AssemblySection from '@/features/hanok-viewer/components/sections/AssemblySection';
 
 export const metadata = {
@@ -12,6 +13,7 @@ export default function Home() {
     <HanokViewerLayout>
       <HeroSection />
       <AssemblySection />
+      <AboutHanokSection />
     </HanokViewerLayout>
   );
 }

@@ -288,7 +288,7 @@ export default function AssemblySection({ onJumpStage }: AssemblySectionProps) {
   const stage = STAGES[activeStageIndex] ?? STAGES[0];
 
   return (
-    <SectionContainer totalStages={STAGES.length}>
+    <SectionContainer id="assembly-section" totalStages={STAGES.length}>
       <StickyViewport>
         <VignetteOverlay />
 
