@@ -49,6 +49,18 @@ const createGlobalStyles = (theme: OnmaruTheme) => css`
   @font-face { font-family: 'SpoqaHanSansNeo'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/SpoqaHanSansNeo-Medium.woff') format('woff'); font-weight: 500; font-display: swap; }
   @font-face { font-family: 'SpoqaHanSansNeo'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/SpoqaHanSansNeo-Bold.woff') format('woff'); font-weight: 700; font-display: swap; }
 
+  /* ── 충주시 김생체 전통 폰트 */
+  @font-face { font-family: 'ChungjuKimsaeng'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2312-1@1.1/ChungjuKimSaengTTF.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+  @font-face { font-family: 'ChungjuKimsaeng'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2312-1@1.1/ChungjuKimSaengTTF.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
+  @font-face { font-family: 'ChungjuKimsaeng'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2312-1@1.1/ChungjuKimSaengTTF.woff2') format('woff2'); font-weight: 800; font-style: normal; font-display: swap; }
+
+  /* ── 네이버 마루 부리 (MaruBuri) 폰트 */
+  @font-face { font-family: 'MaruBuri'; src: url('https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-ExtraLight.woff2') format('woff2'); font-weight: 200; font-display: swap; }
+  @font-face { font-family: 'MaruBuri'; src: url('https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-Light.woff2') format('woff2'); font-weight: 300; font-display: swap; }
+  @font-face { font-family: 'MaruBuri'; src: url('https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-Regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+  @font-face { font-family: 'MaruBuri'; src: url('https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-SemiBold.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+  @font-face { font-family: 'MaruBuri'; src: url('https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-Bold.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+
   /* ── CSS Reset + Base */
   *, *::before, *::after {
     box-sizing: border-box;
@@ -212,11 +224,13 @@ export function OnmaruThemeProvider({
 }: OnmaruThemeProviderProps) {
 
   const [mode, setModeState] = useState<ColorMode>(defaultMode)
-  const [mounted, setMounted] = useState(false)
 
-  // 컴포넌트가 클라이언트에 마운트된 이후에 로컬 스토리지/시스템 설정 반영
+  // 컴포넌트가 클라이언트에 마운트된 이후에 로컬 스토리지/시스템 설정 반영.
+  // 서버는 localStorage와 matchMedia를 볼 수 없으므로 defaultMode로 렌더하고,
+  // 실제 값은 마운트 후에 반영해야 한다. 이펙트에서 상태를 넣는 것이 유일한 방법이라
+  // set-state-in-effect 규칙을 이 지점에서만 해제한다.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
-    setMounted(true)
     const saved = localStorage.getItem('onmaru-color-mode') as ColorMode | null
     if (saved === 'light' || saved === 'dark') {
       setModeState(saved)
@@ -225,12 +239,16 @@ export function OnmaruThemeProvider({
       setModeState(isDark ? 'dark' : 'light')
     }
   }, [followSystem])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const theme = mode === 'dark' ? darkTheme : lightTheme
 
   // 시스템 다크모드 변경 감지
   useEffect(() => {
-    if (!followSystem || !mounted) return
+    // mounted 플래그로 막던 코드였는데, 그 플래그는 첫 이펙트에서야 true가 되고
+    // 이 이펙트의 의존성에는 없어서 재실행되지 않았다. 결과적으로 리스너가 한 번도
+    // 붙지 않았다. useEffect 자체가 클라이언트에서만 도니 가드는 불필요하다.
+    if (!followSystem) return
     const mq = window.matchMedia('(prefers-color-scheme: dark)')
     const handler = (e: MediaQueryListEvent) => {
       const saved = localStorage.getItem('onmaru-color-mode')

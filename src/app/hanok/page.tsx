@@ -1,10 +1,17 @@
-import HanokScrollytelling from '@/components/hanok/HanokScrollytelling';
+import HanokViewerLayout from '@/features/hanok-viewer/HanokViewerLayout';
+import HeroSection from '@/features/hanok-viewer/components/sections/HeroSection';
+import AssemblySection from '@/features/hanok-viewer/components/sections/AssemblySection';
 
 export const metadata = {
-  title: '한옥 A to Z — 공간의 해부학 | 온마루',
-  description: '가장 한국적인 공간에서 느끼는 가장 따뜻한 환대, 온마루의 한옥 공간 도슨트 및 소개 페이지입니다.',
+  title: '온마루 — 전통 한옥 공간 스토리텔링 🇰🇷',
+  description: '전통 한옥의 구조와 지혜를 담은 하이엔드 7단 스크롤리텔링',
 };
 
 export default function HanokPage() {
-  return <HanokScrollytelling />;
+  return (
+    <HanokViewerLayout>
+      <HeroSection />
+      <AssemblySection />
+    </HanokViewerLayout>
+  );
 }
