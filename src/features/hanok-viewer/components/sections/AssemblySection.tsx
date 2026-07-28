@@ -1,11 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
-import { STAGES } from '../../data/hanok.data';
+import { STAGES, type HanokStageData } from '../../data/hanok.data';
 import { useHanokViewerStore } from '../../store/useHanokViewerStore';
-import { meok, surface } from '@/design-system/tokens';
+import { meok } from '@/design-system/tokens';
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -103,6 +103,16 @@ const IndicatorSpan = styled(motion.span)`
   border-radius: 2px;
 `;
 
+// 단계 번호 (01, 02, ...) — 타이틀과 동일 크기/굵기
+const StageNumber = styled.span`
+  color: ${meok[500]};
+  margin-right: 16px;
+
+  @media (max-width: 768px) {
+    margin-right: 10px;
+  }
+`;
+
 const OversizedTitle = styled.h2`
   font-family: 'SpoqaHanSansNeo', -apple-system, sans-serif;
   color: ${meok[100]};
@@ -117,21 +127,6 @@ const OversizedTitle = styled.h2`
   @media (max-width: 768px) {
     font-size: clamp(28px, 7.5vw, 36px);
     margin: 0 0 12px;
-  }
-`;
-
-const NumberPrefix = styled.span`
-  font-family: 'SpoqaHanSansNeo', -apple-system, sans-serif;
-  font-size: clamp(42px, 5vw, 68px);
-  font-weight: 800;
-  color: ${meok[100]};
-  margin-right: 18px;
-  letter-spacing: -0.03em;
-  opacity: 0.95;
-
-  @media (max-width: 768px) {
-    font-size: clamp(24px, 6.5vw, 30px);
-    margin-right: 10px;
   }
 `;
 
@@ -150,66 +145,167 @@ const StageDescription = styled.p`
   }
 `;
 
+// 더보기/접기 텍스트 토글 버튼
+const MoreToggle = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid currentColor;
+  padding: 0 0 3px 0;
+  margin-left: 8px;
+  font-family: 'SpoqaHanSansNeo', -apple-system, sans-serif;
+  font-size: 0.9em;
+  font-weight: 600;
+  color: ${meok[400]};
+  cursor: pointer;
+  letter-spacing: -0.01em;
+  transition: color 0.2s ease;
+  pointer-events: auto;
+
+  &:hover {
+    color: ${meok[200]};
+  }
+`;
+
+// 토글 화살표 아이콘
+const ToggleArrow = styled.span<{ isOpen: boolean }>`
+  display: inline-block;
+  font-size: 10px;
+  transition: transform 0.3s ease;
+  transform: ${(props) => (props.isOpen ? 'rotate(180deg)' : 'rotate(0deg)')};
+`;
+
+// 펼쳐지는 추가 설명 영역
+const ExpandedDesc = styled.span``;
+
+// 'SCROLL' 글자 없이 아래 방향 셰브론만 남긴다.
+// 라벨은 프로젝트 규칙(인위적 라벨링 금지)에 걸리고, 형태만으로 충분히 읽힌다.
 const ScrollPrompt = styled(motion.div)`
   position: absolute;
-  bottom: 36px;
+  bottom: 40px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 10px;
-  font-family: 'SpoqaHanSansNeo', -apple-system, sans-serif;
-  font-size: 12px;
-  letter-spacing: 0.24em;
+  justify-content: center;
   color: ${meok[400]};
   z-index: 20;
   pointer-events: none;
 
   @media (max-width: 768px) {
-    bottom: 16px;
-    font-size: 10px;
+    bottom: 20px;
   }
 `;
 
-const ScrollBeamLine = styled(motion.span)`
-  width: 1px;
-  height: 26px;
-  background: currentColor;
+const ScrollChevron = styled(motion.svg)`
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+
+  @media (max-width: 768px) {
+    width: 16px;
+    height: 16px;
+  }
 `;
 
-interface AssemblySectionProps {
-  containerRef: React.RefObject<HTMLDivElement | null>;
-  onJumpStage: (index: number) => void;
+// 단계 텍스트 크로스페이드용 겹침 컨테이너
+const StageTextStack = styled.div`
+  position: relative;
+  min-height: 300px;
+
+  @media (max-width: 768px) {
+    min-height: 200px;
+  }
+`;
+
+const StageTextLayer = styled(motion.div)`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+`;
+
+// 설명 텍스트를 첫 문장과 나머지로 분리
+function splitFirstSentence(text: string): [string, string] {
+  const dotIdx = text.indexOf('.');
+  if (dotIdx >= 0 && dotIdx < text.length - 1) {
+    return [text.slice(0, dotIdx + 1), text.slice(dotIdx + 1).trim()];
+  }
+  return [text, ''];
 }
 
-export default function AssemblySection({ containerRef, onJumpStage }: AssemblySectionProps) {
+// 제목·본문 한 벌. 부모가 key={stage.id}로 감싸므로 단계가 바뀌면 이 컴포넌트가
+// 통째로 다시 마운트되고 isExpanded도 자연히 초기화된다.
+// (단계 변경 때마다 useEffect로 setIsExpanded(false)를 부르던 방식은 렌더를 한 번
+//  더 유발하고 react-hooks/set-state-in-effect에도 걸렸다.)
+function StageCopy({ stage }: { stage: HanokStageData }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const [firstLine, restLines] = splitFirstSentence(stage.desc);
+  const hasMore = restLines.length > 0;
+  const stageNum = String(stage.step).padStart(2, '0');
+
+  return (
+    <>
+      <OversizedTitle>
+        <StageNumber>{stageNum}</StageNumber>
+        {stage.nameKo}
+      </OversizedTitle>
+
+      <StageDescription>
+        {firstLine}
+        {hasMore && (
+          <>
+            {isExpanded && (
+              <ExpandedDesc>
+                {' '}{restLines}
+              </ExpandedDesc>
+            )}
+            <MoreToggle onClick={() => setIsExpanded((prev) => !prev)}>
+              {isExpanded ? '접기' : '더보기'}
+              <ToggleArrow isOpen={isExpanded}>▼</ToggleArrow>
+            </MoreToggle>
+          </>
+        )}
+      </StageDescription>
+    </>
+  );
+}
+
+interface AssemblySectionProps {
+  onJumpStage?: (index: number) => void;
+}
+
+export default function AssemblySection({ onJumpStage }: AssemblySectionProps) {
   const activeStageIndex = useHanokViewerStore((s) => s.activeStageIndex);
   const isOrbitEnabled = useHanokViewerStore((s) => s.isOrbitEnabled);
   const stage = STAGES[activeStageIndex] ?? STAGES[0];
 
   return (
-    <SectionContainer ref={containerRef} totalStages={STAGES.length}>
+    <SectionContainer totalStages={STAGES.length}>
       <StickyViewport>
         <VignetteOverlay />
 
         <EditorialPanel style={{ pointerEvents: isOrbitEnabled ? 'none' : 'auto' }}>
-          <AnimatePresence mode="popLayout" initial={false}>
-            <motion.div
-              key={stage.id}
-              initial={{ opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.38, ease: EASE }}
-            >
-              <OversizedTitle>
-                <NumberPrefix>{String(stage.step).padStart(2, '0')}</NumberPrefix>
-                {stage.nameKo}
-              </OversizedTitle>
-
-              <StageDescription>{stage.desc}</StageDescription>
-            </motion.div>
-          </AnimatePresence>
+          <StageTextStack>
+            <AnimatePresence initial={false}>
+              <StageTextLayer
+                key={stage.id}
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10, transition: { duration: 0.2, ease: EASE } }}
+                transition={{ duration: 0.42, ease: EASE, delay: 0.1 }}
+              >
+                <StageCopy stage={stage} />
+              </StageTextLayer>
+            </AnimatePresence>
+          </StageTextStack>
 
           <StageIndicatorGroup>
             {STAGES.map((s, i) => {
@@ -217,14 +313,14 @@ export default function AssemblySection({ containerRef, onJumpStage }: AssemblyS
               return (
                 <StageIndicatorButton
                   key={s.id}
-                  onClick={() => onJumpStage(i)}
-                  aria-label={`${s.step}단계 ${s.nameKo}`}
+                  onClick={() => onJumpStage?.(i)}
+                  aria-label={`${String(s.step).padStart(2, '0')}단계 ${s.nameKo}`}
                   aria-current={isActive}
                   isActive={isActive}
                 >
                   <IndicatorSpan
                     animate={{
-                      backgroundColor: isActive ? '#d4af37' : 'rgba(255,255,255,0.22)',
+                      backgroundColor: isActive ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.22)',
                     }}
                     transition={{ duration: 0.45, ease: EASE }}
                   />
@@ -242,11 +338,14 @@ export default function AssemblySection({ containerRef, onJumpStage }: AssemblyS
               exit={{ opacity: 0 }}
               transition={{ duration: 0.4 }}
             >
-              SCROLL
-              <ScrollBeamLine
-                animate={{ y: [0, 7, 0], opacity: [0.7, 0.2, 0.7] }}
+              <ScrollChevron
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                animate={{ y: [0, 6, 0], opacity: [0.65, 0.25, 0.65] }}
                 transition={{ repeat: Infinity, duration: 1.9, ease: 'easeInOut' }}
-              />
+              >
+                <path d="M6 9l6 6 6-6" />
+              </ScrollChevron>
             </ScrollPrompt>
           )}
         </AnimatePresence>

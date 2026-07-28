@@ -155,7 +155,8 @@ export default function HanokCameraRig({ controlsRef }: HanokCameraRigProps) {
     }
     camera.lookAt(smoothTarget.current);
 
-    const responsiveFovMult = aspect < 1.2 ? Math.min(1.55, 1.38 / Math.max(0.48, aspect)) : 1.0;
+    // 모바일(세로 화면)에서 모델이 좌우로 잘리지 않도록 FOV 멀티플라이어를 상향 조정
+    const responsiveFovMult = aspect < 1.2 ? Math.min(1.75, 1.5 / Math.max(0.45, aspect)) : 1.0;
     const targetFov = desiredFov.current * responsiveFovMult;
 
     if (Math.abs(pCam.fov - targetFov) > 0.01) {
