@@ -52,6 +52,16 @@ const VignetteOverlay = styled.div`
   );
   pointer-events: none;
   z-index: 10;
+
+  @media (max-width: 768px) {
+    background: linear-gradient(
+      to top,
+      rgba(14, 11, 7, 0.96) 0%,
+      rgba(14, 11, 7, 0.72) 20%,
+      rgba(14, 11, 7, 0.22) 35%,
+      rgba(14, 11, 7, 0) 52%
+    );
+  }
 `;
 
 const EditorialPanel = styled.div`
@@ -61,13 +71,28 @@ const EditorialPanel = styled.div`
   transform: translateY(-50%);
   width: clamp(340px, 42vw, 540px);
   z-index: 20;
+
+  @media (max-width: 768px) {
+    left: 20px;
+    right: 20px;
+    bottom: 48px;
+    top: auto;
+    transform: none;
+    width: auto;
+    max-width: calc(100vw - 40px);
+  }
 `;
 
 const StageIndicatorGroup = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 28px;
+  margin-top: 28px;
+
+  @media (max-width: 768px) {
+    gap: 8px;
+    margin-top: 16px;
+  }
 `;
 
 const StageIndicatorButton = styled.button<{ isActive: boolean }>`
@@ -79,6 +104,11 @@ const StageIndicatorButton = styled.button<{ isActive: boolean }>`
   background: transparent;
   width: ${(props) => (props.isActive ? '44px' : '16px')};
   transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+
+  @media (max-width: 768px) {
+    height: 3px;
+    width: ${(props) => (props.isActive ? '28px' : '10px')};
+  }
 `;
 
 const IndicatorSpan = styled(motion.span)`
@@ -98,6 +128,11 @@ const OversizedTitle = styled.h2`
   margin: 0 0 22px;
   display: flex;
   align-items: baseline;
+
+  @media (max-width: 768px) {
+    font-size: clamp(28px, 7.5vw, 36px);
+    margin: 0 0 12px;
+  }
 `;
 
 /* SpoqaHanSansNeo 메인 서체로 통일한 01, 02 숫자 접두사 */
@@ -109,6 +144,11 @@ const NumberPrefix = styled.span`
   margin-right: 18px;
   letter-spacing: -0.03em;
   opacity: 0.95;
+
+  @media (max-width: 768px) {
+    font-size: clamp(24px, 6.5vw, 30px);
+    margin-right: 10px;
+  }
 `;
 
 /* 살짝 크기를 줄여 한옥 모델과 조화를 이룬 정갈한 설명문 (15px ~ 17px) */
@@ -120,6 +160,11 @@ const StageDescription = styled.p`
   color: ${meok[400]};
   margin: 0;
   letter-spacing: -0.015em;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+    line-height: 1.65;
+  }
 `;
 
 const ScrollPrompt = styled(motion.div)`
@@ -137,6 +182,11 @@ const ScrollPrompt = styled(motion.div)`
   color: ${meok[400]};
   z-index: 20;
   pointer-events: none;
+
+  @media (max-width: 768px) {
+    bottom: 16px;
+    font-size: 10px;
+  }
 `;
 
 const ScrollBeamLine = styled(motion.span)`
@@ -161,28 +211,6 @@ export default function AnchaeViewer() {
         <VignetteOverlay />
 
         <EditorialPanel>
-          <StageIndicatorGroup>
-            {STAGES.map((s, i) => {
-              const isActive = i === activeStage;
-              return (
-                <StageIndicatorButton
-                  key={s.id}
-                  onClick={() => scrollToStage(i)}
-                  aria-label={`${s.step}단계 ${s.nameKo}`}
-                  aria-current={isActive}
-                  isActive={isActive}
-                >
-                  <IndicatorSpan
-                    animate={{
-                      backgroundColor: isActive ? s.color : 'rgba(255,255,255,0.22)',
-                    }}
-                    transition={{ duration: 0.45, ease: EASE }}
-                  />
-                </StageIndicatorButton>
-              );
-            })}
-          </StageIndicatorGroup>
-
           <AnimatePresence mode="popLayout" initial={false}>
             <motion.div
               key={stage.id}
@@ -202,6 +230,28 @@ export default function AnchaeViewer() {
               <StageDescription>{stage.desc}</StageDescription>
             </motion.div>
           </AnimatePresence>
+
+          <StageIndicatorGroup>
+            {STAGES.map((s, i) => {
+              const isActive = i === activeStage;
+              return (
+                <StageIndicatorButton
+                  key={s.id}
+                  onClick={() => scrollToStage(i)}
+                  aria-label={`${s.step}단계 ${s.nameKo}`}
+                  aria-current={isActive}
+                  isActive={isActive}
+                >
+                  <IndicatorSpan
+                    animate={{
+                      backgroundColor: isActive ? '#d4af37' : 'rgba(255,255,255,0.22)',
+                    }}
+                    transition={{ duration: 0.45, ease: EASE }}
+                  />
+                </StageIndicatorButton>
+              );
+            })}
+          </StageIndicatorGroup>
         </EditorialPanel>
 
         <AnimatePresence>

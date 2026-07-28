@@ -89,6 +89,8 @@ function usePreparedModel(): PreparedModel {
         s.meshKeywords.some((kw) => name.includes(kw.toLowerCase()))
       );
 
+      const matchedBy = stage !== -1 ? 'keyword' : 'height-fallback';
+
       if (stage === -1) {
         // 이름으로 못 잡으면 높이로 추정 (낮은 부재부터 조립)
         const box = new THREE.Box3().setFromObject(mesh);
@@ -97,9 +99,15 @@ function usePreparedModel(): PreparedModel {
         stage = Math.min(n - 1, Math.max(0, Math.floor(((c.y - yMin) / ySpan) * n)));
       }
 
+      console.log(
+        `[MeshMap] "${mesh.name}" (parent: "${mesh.parent?.name}") → Stage ${stage} (${STAGES[stage]?.nameKo}) [${matchedBy}]`
+      );
+
       stageOf.set(mesh, stage);
       perStageCount[stage]++;
     });
+
+    console.log('[MeshMap] Per-stage count:', perStageCount.map((c, i) => `${STAGES[i]?.nameKo}: ${c}`).join(', '));
 
     const seen = new Array<number>(n).fill(0);
 
@@ -272,6 +280,7 @@ function FramingOffset({ ratio = 0.16 }: { ratio?: number }) {
   useEffect(() => {
     const wide = size.width / size.height > 1.2;
     if (wide) {
+      camera.fov = 40;
       camera.setViewOffset(
         size.width,
         size.height,
@@ -281,13 +290,15 @@ function FramingOffset({ ratio = 0.16 }: { ratio?: number }) {
         size.height
       );
     } else {
-      // 좁은 화면에서는 패널이 3D 위를 덮으므로 오프셋을 주지 않는다
+      // 좁은 화면에서는 FOV를 넓혀 한옥 전체가 잘리지 않고 보이게 한다
+      camera.fov = 54;
       camera.clearViewOffset();
     }
     camera.updateProjectionMatrix();
 
     return () => {
       camera.clearViewOffset();
+      camera.fov = 40;
       camera.updateProjectionMatrix();
     };
   }, [camera, size, ratio]);
