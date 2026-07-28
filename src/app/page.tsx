@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function Home() {
   return (
-    <main style={{ width: '100%', background: '#0E0B07' }}>
+    <main style={{ width: '100%', background: '#1C1A17' }}>
       <AnchaeViewer />
     </main>
   );

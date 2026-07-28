@@ -1,12 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
 import { STAGES } from './hanok.data';
 import { useAnchaeScroll } from './useAnchaeScroll';
 import { meok, surface } from '@/design-system/tokens';
+import DevCameraHelper from './DevCameraHelper';
 
 const AnchaeViewerCanvas = dynamic(() => import('./AnchaeViewerCanvas'), {
   ssr: false,
@@ -45,10 +46,10 @@ const VignetteOverlay = styled.div`
   inset: 0;
   background: linear-gradient(
     to right,
-    rgba(20, 23, 34, 0.96) 0%,
-    rgba(20, 23, 34, 0.88) 28%,
-    rgba(20, 23, 34, 0.55) 45%,
-    rgba(20, 23, 34, 0) 68%
+    rgba(28, 26, 23, 0.96) 0%,
+    rgba(28, 26, 23, 0.88) 28%,
+    rgba(28, 26, 23, 0.55) 45%,
+    rgba(28, 26, 23, 0) 68%
   );
   pointer-events: none;
   z-index: 10;
@@ -56,10 +57,10 @@ const VignetteOverlay = styled.div`
   @media (max-width: 768px) {
     background: linear-gradient(
       to top,
-      rgba(14, 11, 7, 0.96) 0%,
-      rgba(14, 11, 7, 0.72) 20%,
-      rgba(14, 11, 7, 0.22) 35%,
-      rgba(14, 11, 7, 0) 52%
+      rgba(28, 26, 23, 0.96) 0%,
+      rgba(28, 26, 23, 0.72) 20%,
+      rgba(28, 26, 23, 0.22) 35%,
+      rgba(28, 26, 23, 0) 52%
     );
   }
 `;
@@ -117,7 +118,6 @@ const IndicatorSpan = styled(motion.span)`
   border-radius: 2px;
 `;
 
-/* SpoqaHanSansNeo 대형 디스플레이 타이틀 */
 const OversizedTitle = styled.h2`
   font-family: 'SpoqaHanSansNeo', -apple-system, sans-serif;
   color: ${meok[100]};
@@ -135,7 +135,6 @@ const OversizedTitle = styled.h2`
   }
 `;
 
-/* SpoqaHanSansNeo 메인 서체로 통일한 01, 02 숫자 접두사 */
 const NumberPrefix = styled.span`
   font-family: 'SpoqaHanSansNeo', -apple-system, sans-serif;
   font-size: clamp(42px, 5vw, 68px);
@@ -151,7 +150,6 @@ const NumberPrefix = styled.span`
   }
 `;
 
-/* 살짝 크기를 줄여 한옥 모델과 조화를 이룬 정갈한 설명문 (15px ~ 17px) */
 const StageDescription = styled.p`
   font-family: 'SpoqaHanSansNeo', -apple-system, sans-serif;
   font-size: clamp(15px, 1.5vw, 17px);
@@ -203,14 +201,57 @@ export default function AnchaeViewer() {
   const { progress, activeStage, containerRef, scrollToStage } = useAnchaeScroll();
   const stage = STAGES[activeStage] ?? STAGES[0];
 
+  const [isOrbitEnabled, setIsOrbitEnabled] = useState(false);
+  const [camPos, setCamPos] = useState<[number, number, number]>(STAGES[0].cameraPos);
+  const [camTarget, setCamTarget] = useState<[number, number, number]>(STAGES[0].cameraTarget);
+  const [camFov, setCamFov] = useState<number>(STAGES[0].fov);
+  const [customTarget, setCustomTarget] = useState<[number, number, number] | null>(null);
+
+  const handleCameraUpdate = useCallback(
+    (pos: [number, number, number], target: [number, number, number], fov: number) => {
+      setCamPos(pos);
+      setCamTarget(target);
+      setCamFov(fov);
+    },
+    []
+  );
+
+  const handleJumpStage = useCallback(
+    (idx: number) => {
+      setCustomTarget(null);
+      scrollToStage(idx);
+    },
+    [scrollToStage]
+  );
+
+  const isDev = process.env.NODE_ENV === 'development';
+
   return (
     <ViewerContainer ref={containerRef} totalStages={STAGES.length}>
       <StickyViewport>
-        <AnchaeViewerCanvas progress={progress} />
+        <AnchaeViewerCanvas
+          progress={progress}
+          isOrbitEnabled={isOrbitEnabled}
+          customTarget={customTarget}
+          onCameraUpdate={handleCameraUpdate}
+        />
 
         <VignetteOverlay />
 
-        <EditorialPanel>
+        {isDev && (
+          <DevCameraHelper
+            camPos={camPos}
+            camTarget={customTarget ?? camTarget}
+            camFov={camFov}
+            activeStage={activeStage}
+            isOrbitEnabled={isOrbitEnabled}
+            onToggleOrbit={setIsOrbitEnabled}
+            onJumpStage={handleJumpStage}
+            onUpdateTarget={setCustomTarget}
+          />
+        )}
+
+        <EditorialPanel style={{ pointerEvents: isOrbitEnabled ? 'none' : 'auto' }}>
           <AnimatePresence mode="popLayout" initial={false}>
             <motion.div
               key={stage.id}
@@ -219,7 +260,6 @@ export default function AnchaeViewer() {
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.38, ease: EASE }}
             >
-              {/* SpoqaHanSansNeo 폰트로 통일된 01, 02 인라인 타이틀 */}
               <OversizedTitle>
                 <NumberPrefix>
                   {String(stage.step).padStart(2, '0')}

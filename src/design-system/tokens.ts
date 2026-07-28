@@ -75,10 +75,10 @@ export const surface = {
     elevated: '#FFFFFF',  // 팝업/모달 배경
   },
   dark: {
-    app:      '#0E0B07',  // 먹빛 마루
-    surface:  '#1A1510',  // 먹빛 결
-    card:     '#252018',  // 먹빛 카드
-    elevated: '#342C22',  // 먹빛 부유
+    app:      '#1C1A17',  // 전통 먹빛 마루
+    surface:  '#24211D',  // 먹빛 결
+    card:     '#2D2924',  // 먹빛 카드
+    elevated: '#3A352E',  // 먹빛 부유
   },
 } as const;
 
