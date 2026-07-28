@@ -8,6 +8,8 @@ import * as THREE from 'three';
 import { STAGES } from './hanok.data';
 import { surface, darkPalette } from '@/design-system/tokens';
 
+type OrbitControlsRef = React.ComponentRef<typeof OrbitControls>;
+
 const MODEL_URL = '/anchae.glb';
 
 /* ------------------------------------------------------------------ *
@@ -203,7 +205,7 @@ interface CameraRigProps {
   progress: MotionValue<number>;
   isOrbitEnabled?: boolean;
   customTarget?: [number, number, number] | null;
-  controlsRef?: React.RefObject<any>;
+  controlsRef?: React.RefObject<OrbitControlsRef | null>;
   onCameraUpdate?: (pos: [number, number, number], target: [number, number, number], fov: number) => void;
 }
 
@@ -390,7 +392,7 @@ export default function AnchaeViewerCanvas({
   customTarget,
   onCameraUpdate,
 }: AnchaeViewerCanvasProps) {
-  const controlsRef = useRef<any>(null);
+  const controlsRef = useRef<OrbitControlsRef | null>(null);
 
   return (
     <Canvas

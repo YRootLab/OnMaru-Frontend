@@ -5,25 +5,21 @@ import styled from '@emotion/styled';
 import { STAGES } from '../../data/hanok.data';
 import { useHanokViewerStore } from '../../store/useHanokViewerStore';
 
-interface DevCameraHelperProps {
-  onJumpStage?: (stageIndex: number) => void;
-}
-
 const DevContainer = styled.div`
   position: fixed;
   top: 16px;
   right: 16px;
   z-index: 9999;
-  background: rgba(28, 26, 23, 0.94);
-  border: 1px solid rgba(212, 175, 55, 0.35);
+  background: rgba(28, 26, 23, 0.95);
+  border: 1px solid rgba(212, 175, 55, 0.4);
   backdrop-filter: blur(14px);
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 16px;
-  width: 330px;
+  width: 320px;
   color: #e0e6ed;
   font-family: monospace;
   font-size: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
   user-select: none;
   max-height: 90vh;
   overflow-y: auto;
@@ -32,7 +28,7 @@ const DevContainer = styled.div`
     top: 10px;
     right: 10px;
     width: calc(100vw - 20px);
-    max-width: 310px;
+    max-width: 300px;
     padding: 12px;
     font-size: 11px;
   }
@@ -44,17 +40,17 @@ const TitleBar = styled.div`
   justify-content: space-between;
   margin-bottom: 12px;
   padding-bottom: 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   font-weight: bold;
   color: #d4af37;
 `;
 
 const ToggleButton = styled.button<{ active: boolean }>`
-  background: ${(props) => (props.active ? '#d4af37' : 'rgba(255,255,255,0.1)')};
+  background: ${(props) => (props.active ? '#d4af37' : 'rgba(255,255,255,0.12)')};
   color: ${(props) => (props.active ? '#000' : '#fff')};
   border: none;
   border-radius: 6px;
-  padding: 4px 8px;
+  padding: 4px 10px;
   font-size: 11px;
   font-weight: bold;
   cursor: pointer;
@@ -66,74 +62,23 @@ const ToggleButton = styled.button<{ active: boolean }>`
 `;
 
 const Section = styled.div`
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 `;
 
-const Label = styled.div`
-  font-size: 10px;
-  color: #8a99ad;
-  margin-bottom: 4px;
-  display: flex;
-  justify-content: space-between;
-`;
-
-const ValueBox = styled.div<{ copied?: boolean }>`
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px dashed ${(props) => (props.copied ? '#4caf50' : 'rgba(255, 255, 255, 0.2)')};
-  border-radius: 6px;
-  padding: 8px 10px;
-  color: ${(props) => (props.copied ? '#4caf50' : '#64b5f6')};
-  cursor: pointer;
-  transition: all 0.2s;
-  word-break: break-all;
-
-  &:hover {
-    background: rgba(212, 175, 55, 0.15);
-    border-color: #d4af37;
-  }
-`;
-
-const SliderGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  background: rgba(0, 0, 0, 0.25);
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  margin-top: 6px;
-`;
-
-const SliderRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
+const SectionHeader = styled.div`
   font-size: 11px;
-`;
-
-const SliderLabel = styled.span`
-  width: 16px;
   font-weight: bold;
   color: #d4af37;
-`;
-
-const SliderInput = styled.input`
-  flex: 1;
-  accent-color: #d4af37;
-  cursor: pointer;
-`;
-
-const SliderValue = styled.span`
-  width: 38px;
-  text-align: right;
-  color: #90caf9;
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
 `;
 
 const StageGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 6px;
-  margin-top: 12px;
+  margin-top: 6px;
 `;
 
 const StageBtn = styled.button<{ isActive: boolean }>`
@@ -152,40 +97,24 @@ const StageBtn = styled.button<{ isActive: boolean }>`
   }
 `;
 
-const ToastNotice = styled.span`
-  color: #4caf50;
-  font-size: 10px;
-`;
+// 개발자 툴 화면 표시 여부 플래그 (코드 유지 및 화면 비노출 처리)
+const SHOW_DEV_TOOL = false;
+
+interface DevCameraHelperProps {
+  onJumpStage?: (stageIndex: number) => void;
+}
 
 export default function DevCameraHelper({ onJumpStage }: DevCameraHelperProps) {
   const {
+    isOrbitEnabled,
+    setIsOrbitEnabled,
     camPos,
     camTarget,
     camFov,
     activeStageIndex,
-    isOrbitEnabled,
-    customTarget,
-    setIsOrbitEnabled,
-    setCustomTarget,
   } = useHanokViewerStore();
 
-  const [copiedType, setCopiedType] = useState<'pos' | 'target' | null>(null);
-
-  const displayTarget = customTarget ?? camTarget;
-  const formattedPos = `[${camPos.map((v) => Number(v.toFixed(2))).join(', ')}]`;
-  const formattedTarget = `[${displayTarget.map((v) => Number(v.toFixed(2))).join(', ')}]`;
-
-  const copyToClipboard = (text: string, type: 'pos' | 'target') => {
-    navigator.clipboard.writeText(text);
-    setCopiedType(type);
-    setTimeout(() => setCopiedType(null), 1500);
-  };
-
-  const handleSliderChange = (axisIndex: 0 | 1 | 2, value: number) => {
-    const nextTarget: [number, number, number] = [...displayTarget];
-    nextTarget[axisIndex] = value;
-    setCustomTarget(nextTarget);
-  };
+  if (!SHOW_DEV_TOOL) return null;
 
   return (
     <DevContainer>
@@ -197,72 +126,18 @@ export default function DevCameraHelper({ onJumpStage }: DevCameraHelperProps) {
       </TitleBar>
 
       <Section>
-        <Label>
-          <span>cameraPos</span>
-          {copiedType === 'pos' && <ToastNotice>복사됨!</ToastNotice>}
-        </Label>
-        <ValueBox copied={copiedType === 'pos'} onClick={() => copyToClipboard(formattedPos, 'pos')}>
-          {formattedPos}
-        </ValueBox>
+        <SectionHeader>
+          <span>📷 Camera Position / Target</span>
+        </SectionHeader>
+        <div style={{ color: '#64b5f6', marginBottom: '4px' }}>
+          Pos: [{camPos.map((v) => v.toFixed(1)).join(', ')}]
+        </div>
+        <div style={{ color: '#ffb74d' }}>
+          Target: [{camTarget.map((v) => v.toFixed(1)).join(', ')}] | FOV: {camFov.toFixed(1)}°
+        </div>
       </Section>
 
-      <Section>
-        <Label>
-          <span>cameraTarget (클릭하여 복사)</span>
-          {copiedType === 'target' && <ToastNotice>복사됨!</ToastNotice>}
-        </Label>
-        <ValueBox copied={copiedType === 'target'} onClick={() => copyToClipboard(formattedTarget, 'target')}>
-          {formattedTarget}
-        </ValueBox>
-
-        <SliderGroup>
-          <SliderRow>
-            <SliderLabel>X</SliderLabel>
-            <SliderInput
-              type="range"
-              min="-10"
-              max="10"
-              step="0.1"
-              value={displayTarget[0]}
-              onChange={(e) => handleSliderChange(0, parseFloat(e.target.value))}
-            />
-            <SliderValue>{displayTarget[0].toFixed(1)}</SliderValue>
-          </SliderRow>
-          <SliderRow>
-            <SliderLabel>Y</SliderLabel>
-            <SliderInput
-              type="range"
-              min="0"
-              max="12"
-              step="0.1"
-              value={displayTarget[1]}
-              onChange={(e) => handleSliderChange(1, parseFloat(e.target.value))}
-            />
-            <SliderValue>{displayTarget[1].toFixed(1)}</SliderValue>
-          </SliderRow>
-          <SliderRow>
-            <SliderLabel>Z</SliderLabel>
-            <SliderInput
-              type="range"
-              min="-10"
-              max="10"
-              step="0.1"
-              value={displayTarget[2]}
-              onChange={(e) => handleSliderChange(2, parseFloat(e.target.value))}
-            />
-            <SliderValue>{displayTarget[2].toFixed(1)}</SliderValue>
-          </SliderRow>
-        </SliderGroup>
-      </Section>
-
-      <Section>
-        <Label>
-          <span>FOV</span>
-        </Label>
-        <div style={{ color: '#ffb74d', fontWeight: 'bold' }}>{camFov.toFixed(1)}°</div>
-      </Section>
-
-      <Label style={{ marginTop: '12px' }}>STAGE JUMP (1 ~ 7)</Label>
+      <SectionHeader>STAGE JUMP (1 ~ 7)</SectionHeader>
       <StageGrid>
         {STAGES.map((s, idx) => (
           <StageBtn

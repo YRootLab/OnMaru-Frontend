@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
@@ -36,6 +36,13 @@ function toTransparent(source: THREE.Material): THREE.Material {
   m.transparent = true;
   m.opacity = 0;
   m.depthWrite = true;
+
+  // 재질 스페큘러 반사 환경맵 세기 설정
+  const std = m as THREE.MeshStandardMaterial;
+  if (std.isMeshStandardMaterial) {
+    std.envMapIntensity = 0.9;
+  }
+
   return m;
 }
 
@@ -47,7 +54,12 @@ function usePreparedModel(): PreparedModel {
 
     const meshes: THREE.Mesh[] = [];
     root.traverse((o) => {
-      if ((o as THREE.Mesh).isMesh) meshes.push(o as THREE.Mesh);
+      if ((o as THREE.Mesh).isMesh) {
+        const mesh = o as THREE.Mesh;
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        meshes.push(mesh);
+      }
     });
 
     const bbox = new THREE.Box3().setFromObject(root);
@@ -92,6 +104,18 @@ function usePreparedModel(): PreparedModel {
         : [toTransparent(mesh.material)];
       mesh.material = materials.length === 1 ? materials[0] : materials;
 
+      // 기와는 구운 점토라 실제로 은은한 광택이 있다. GLB 기본 roughness가 너무 높아
+      // 검은 기와가 무광 회색 판처럼 보이므로, 지붕 부재만 반사를 살려 능선을 드러낸다.
+      if (STAGES[stage]?.id === 'stage-7') {
+        for (const mat of materials) {
+          const std = mat as THREE.MeshStandardMaterial;
+          if (std.isMeshStandardMaterial) {
+            std.roughness = Math.min(std.roughness, 0.52);
+            std.envMapIntensity = 1.4;
+          }
+        }
+      }
+
       return {
         mesh,
         materials,
@@ -113,50 +137,79 @@ function partProgress(part: Part, p: number, span: number): number {
   return clamp01((local - delay) / (1 - delay));
 }
 
+const HERO_SPLIT = 0.12;
+
 export default function HanokModel() {
   const { root, parts, offset } = usePreparedModel();
-  const { scrollProgress } = useHanokViewerStore();
-  const introRef = useRef(0);
+  // scrollProgress를 구독하면 스크롤마다 리렌더된다. 루프 안에서 getState()로 읽는다.
+  const setIsLoaded = useHanokViewerStore((s) => s.setIsLoaded);
+  const modelFadeRef = useRef(0);
+
+  useEffect(() => {
+    setIsLoaded(true);
+  }, [setIsLoaded]);
 
   useFrame((_, delta) => {
-    const p = scrollProgress;
-    const span = 1 / STAGES.length;
+    modelFadeRef.current = Math.min(1, modelFadeRef.current + delta / 1.2);
+    const fade = easeOutCubic(modelFadeRef.current);
 
-    introRef.current = Math.min(1, introRef.current + delta / 2.0);
-    const introRaw = introRef.current;
+    const p = useHanokViewerStore.getState().scrollProgress;
 
-    for (const part of parts) {
-      const t = partProgress(part, p, span);
-      const e = easeOutCubic(t);
+    if (p < HERO_SPLIT) {
+      // 히어로 섹션 전용 완공 상태 유지
+      const heroScrollFactor = clamp01(p / HERO_SPLIT);
 
-      let targetX = part.origin.x + part.from.x * (1 - e);
-      let targetY = part.origin.y + part.from.y * (1 - e);
-      let targetZ = part.origin.z + part.from.z * (1 - e);
-      let opacity = smoothstep(0, 0.4, t);
+      for (const part of parts) {
+        // 원본 완공 위치 좌표
+        const targetX = part.origin.x;
+        const targetY = part.origin.y;
+        const targetZ = part.origin.z;
 
-      if (introRaw < 1.0 && part.stage === 0 && p < 0.05) {
-        const partIntroTime = clamp01((introRaw - part.stagger * 0.52) / 0.48);
-        const partIntroEase = easeOutCubic(partIntroTime);
+        // 로드 페이드인 및 전환 투명도 보간
+        let opacity = fade;
 
-        const angle = Math.atan2(part.origin.z, part.origin.x || 0.001);
-        const spreadDist = 9.0 + (part.stagger - 0.5) * 8.0;
+        // 조립 섹션 진입 시 부재 투명도 제어
+        if (heroScrollFactor > 0.05 && part.stage > 0) {
+          const hideDelay = (part.stage / STAGES.length);
+          const stageHide = clamp01(1 - (heroScrollFactor - hideDelay * 0.5) / 0.5);
+          opacity *= stageHide;
+        }
 
-        targetX = part.origin.x + Math.cos(angle) * spreadDist * (1 - partIntroEase);
-        targetY = part.origin.y - 18.0 * (1 - partIntroEase);
-        targetZ = part.origin.z + Math.sin(angle) * spreadDist * (1 - partIntroEase);
+        part.mesh.position.set(targetX, targetY, targetZ);
+        const visible = opacity > 0.004;
+        part.mesh.visible = visible;
 
-        opacity = smoothstep(0, 0.25, partIntroTime);
+        if (visible) {
+          for (const mat of part.materials) {
+            mat.opacity = opacity;
+            mat.transparent = opacity < 0.995;
+          }
+        }
       }
+    } else {
+      // 7단계 부재별 분해 및 조립 위치 보간
+      const pAss = clamp01((p - HERO_SPLIT) / (1 - HERO_SPLIT));
+      const span = 1 / STAGES.length;
 
-      part.mesh.position.set(targetX, targetY, targetZ);
+      for (const part of parts) {
+        const t = partProgress(part, pAss, span);
+        const e = easeOutCubic(t);
 
-      const visible = opacity > 0.004;
-      part.mesh.visible = visible;
+        const targetX = part.origin.x + part.from.x * (1 - e);
+        const targetY = part.origin.y + part.from.y * (1 - e);
+        const targetZ = part.origin.z + part.from.z * (1 - e);
+        const opacity = smoothstep(0, 0.4, t) * fade;
 
-      if (visible) {
-        for (const mat of part.materials) {
-          mat.opacity = opacity;
-          mat.transparent = opacity < 0.995;
+        part.mesh.position.set(targetX, targetY, targetZ);
+
+        const visible = opacity > 0.004;
+        part.mesh.visible = visible;
+
+        if (visible) {
+          for (const mat of part.materials) {
+            mat.opacity = opacity;
+            mat.transparent = opacity < 0.995;
+          }
         }
       }
     }

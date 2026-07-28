@@ -238,19 +238,6 @@ export default function AnchaeViewer() {
 
         <VignetteOverlay />
 
-        {isDev && (
-          <DevCameraHelper
-            camPos={camPos}
-            camTarget={customTarget ?? camTarget}
-            camFov={camFov}
-            activeStage={activeStage}
-            isOrbitEnabled={isOrbitEnabled}
-            onToggleOrbit={setIsOrbitEnabled}
-            onJumpStage={handleJumpStage}
-            onUpdateTarget={setCustomTarget}
-          />
-        )}
-
         <EditorialPanel style={{ pointerEvents: isOrbitEnabled ? 'none' : 'auto' }}>
           <AnimatePresence mode="popLayout" initial={false}>
             <motion.div
