@@ -15,7 +15,7 @@ This document defines shared conventions, architecture, and coding rules for AI 
 
 ---
 
-## 🏯 Hanok 3D Assembly Rules (7-Stage Assembly Model)
+## 🇰🇷 Hanok 3D Assembly Rules (7-Stage Assembly Model)
 GLB Model: `/public/anchae.glb`
 
 | Step | Stage Name (Ko) | Member Keywords (`meshKeywords`) | Initial Displacement (`from`) |
@@ -49,3 +49,4 @@ GLB Model: `/public/anchae.glb`
 ## 📜 Code Style & TypeScript Conventions
 - Zero TypeScript errors (`npx tsc --noEmit` must pass cleanly).
 - Keep component code clean and modular (`AnchaeViewer.tsx` for layout & GSAP, `AnchaeViewerCanvas.tsx` for 3D R3F canvas, `hanok.data.ts` for data schemas).
+- **Emoji Rule (이모지 규칙)**: Japanese Castle emoji (`🏯`) 사용을 엄격히 금지하며, 전통 한옥 관련 표현 및 응답 시 태극기 이모지(`🇰🇷`)를 사용합니다.
