@@ -242,6 +242,8 @@ export const createTheme = (mode: ColorMode) => {
     typography: {
       fontFamily: {
         sans: '"SpoqaHanSansNeo", system-ui, sans-serif',
+        serif: '"MaruBuri", "SpoqaHanSansNeo", serif',
+        traditional: '"ChungjuKimsaeng", "SpoqaHanSansNeo", serif',
       },
       fontSize: {
         xs: '0.75rem', sm: '0.875rem', base: '1rem', lg: '1.125rem',
