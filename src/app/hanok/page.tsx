@@ -1,4 +1,6 @@
-import HanokViewerApp from '@/features/hanok-viewer/HanokViewerApp';
+import HanokViewerLayout from '@/features/hanok-viewer/HanokViewerLayout';
+import HeroSection from '@/features/hanok-viewer/components/sections/HeroSection';
+import AssemblySection from '@/features/hanok-viewer/components/sections/AssemblySection';
 
 export const metadata = {
   title: '온마루 — 전통 한옥 공간 스토리텔링 🇰🇷',
@@ -7,8 +9,9 @@ export const metadata = {
 
 export default function HanokPage() {
   return (
-    <main style={{ width: '100%', background: '#1C1A17' }}>
-      <HanokViewerApp />
-    </main>
+    <HanokViewerLayout>
+      <HeroSection />
+      <AssemblySection />
+    </HanokViewerLayout>
   );
 }
