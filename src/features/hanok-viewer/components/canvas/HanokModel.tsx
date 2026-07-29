@@ -137,8 +137,6 @@ function partProgress(part: Part, p: number, span: number): number {
   return clamp01((local - delay) / (1 - delay));
 }
 
-const HERO_SPLIT = 0.12;
-
 export default function HanokModel() {
   const { root, parts, offset } = usePreparedModel();
   const setIsLoaded = useHanokViewerStore((s) => s.setIsLoaded);

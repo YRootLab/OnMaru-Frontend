@@ -62,20 +62,37 @@ function Loader() {
   );
 }
 
-const HERO_SPLIT = 0.12;
+// ── 01 히어로 시퀀스 조명 상수 ──
+const HERO_KEY_COLOR = '#FFD9A8'; // 해질녘 톤
+const HERO_KEY_INTENSITY = 2.5;
+
+// 각 보조 광원의 최종(완전 점등) 세기. 암전 구간에서는 이 값에 ramp를 곱한다.
+const RIM_INTENSITY = 1.1;
+const FILL_INTENSITY = 0.45;
+const AMBIENT_INTENSITY = 0.3;
+const HEMI_INTENSITY = 0.5;
+
+const GROUND_SHADOW_OPACITY = 0.45;
+
+const clamp01 = (x: number) => (x < 0 ? 0 : x > 1 ? 1 : x);
+
+// [0.20 ~ 0.45] 조명 intensity 0 -> 최종값. 그림자도 이 램프를 함께 탄다.
+const lightRamp = (p: number) => clamp01((p - 0.2) / 0.25);
+
+// [0.45 ~ 0.55] 배경색 #0A0908 -> #F7F2E9
+const bgRamp = (p: number) => clamp01((p - 0.45) / 0.1);
 
 // 스크롤 연동 3D 배경 및 조명 보간 컨트롤러
 function EnvironmentController() {
   const { scene } = useThree();
 
-  const heroBgColor = useRef(new THREE.Color('#FAF8F3'));
-  const darkBgColor = useRef(new THREE.Color('#1C1A17'));
-  const heroFogColor = useRef(new THREE.Color('#E9E3D8'));
-  const darkFogColor = useRef(new THREE.Color('#1C1A17'));
-
-  // 히어로 주광 위치 (좌측 45도) / 조립 섹션 주광 위치
-  const heroKeyPos = useRef(new THREE.Vector3(-12, 8, 10));
-  const assemblyKeyPos = useRef(new THREE.Vector3(13, 17, 11));
+  // 매 프레임 new THREE.Color()를 만들면 GC가 계속 돈다. 스크래치 인스턴스를 재사용한다.
+  const darkBg = useRef(new THREE.Color('#0A0908'));
+  const brightBg = useRef(new THREE.Color('#F7F2E9'));
+  const darkFog = useRef(new THREE.Color('#0A0908'));
+  const brightFog = useRef(new THREE.Color('#EDE4D6'));
+  const scratchBg = useRef(new THREE.Color());
+  const scratchFog = useRef(new THREE.Color());
 
   const keyRef = useRef<THREE.DirectionalLight>(null);
   const rimRef = useRef<THREE.DirectionalLight>(null);
@@ -85,61 +102,48 @@ function EnvironmentController() {
 
   useFrame(() => {
     const { activeSectionId, heroProgress, isReducedMotion } = useHanokViewerStore.getState();
-    const lerp = THREE.MathUtils.lerp;
 
-    if (activeSectionId === 'hero') {
-      if (isReducedMotion) {
-        if (keyRef.current) {
-          keyRef.current.intensity = 2.5;
-          keyRef.current.color.set('#FFD9A8');
-        }
-        scene.background = new THREE.Color('#F7F2E9');
-        if (scene.fog) scene.fog.color = new THREE.Color('#EDE4D6');
-      } else {
-        // [0.20 ~ 0.45] directionalLight intensity 0 -> 2.5 (해질녘 톤 #FFD9A8)
-        let keyIntensity = 0;
-        if (heroProgress <= 0.20) {
-          keyIntensity = 0;
-        } else if (heroProgress <= 0.45) {
-          const t = (heroProgress - 0.20) / 0.25;
-          keyIntensity = lerp(0, 2.5, t);
-        } else {
-          keyIntensity = 2.5;
-        }
+    // 00 인트로는 완전 암전 상태로 끝나고, 01이 그 시작점을 그대로 이어받아 밝아진다.
+    // 인트로를 여기서 함께 처리하지 않으면 캔버스가 페이드인하는 순간 이미 밝은 화면이
+    // 나타나 "어둠 속에서 드러난다"는 연출 자체가 성립하지 않는다.
+    if (activeSectionId === 'intro' || activeSectionId === 'hero') {
+      const p = activeSectionId === 'intro' ? 0 : heroProgress;
 
-        if (keyRef.current) {
-          keyRef.current.intensity = keyIntensity;
-          keyRef.current.color.set('#FFD9A8');
-        }
+      // [접근성] prefers-reduced-motion이면 페이드인 없이 즉시 최종 밝기
+      const lit = isReducedMotion ? 1 : lightRamp(p);
+      const bright = isReducedMotion ? 1 : bgRamp(p);
 
-        // [0.45 ~ 0.55] 배경색 #0A0908 -> #F7F2E9 lerp 전환
-        let bgProgress = 0;
-        if (heroProgress <= 0.45) {
-          bgProgress = 0;
-        } else if (heroProgress <= 0.55) {
-          bgProgress = (heroProgress - 0.45) / 0.10;
-        } else {
-          bgProgress = 1;
-        }
+      if (keyRef.current) {
+        keyRef.current.intensity = HERO_KEY_INTENSITY * lit;
+        keyRef.current.color.set(HERO_KEY_COLOR);
+      }
+      // 보조광까지 같이 눌러야 암전 구간에 실루엣이 새어나오지 않는다.
+      if (rimRef.current) rimRef.current.intensity = RIM_INTENSITY * lit;
+      if (fillRef.current) fillRef.current.intensity = FILL_INTENSITY * lit;
+      if (ambientRef.current) ambientRef.current.intensity = AMBIENT_INTENSITY * lit;
+      if (hemiRef.current) hemiRef.current.intensity = HEMI_INTENSITY * lit;
 
-        const darkBg = new THREE.Color('#0A0908');
-        const brightBg = new THREE.Color('#F7F2E9');
-        scene.background = new THREE.Color().lerpColors(darkBg, brightBg, bgProgress);
+      scene.environmentIntensity = 0.55 * lit;
 
-        if (scene.fog) {
-          const darkFog = new THREE.Color('#0A0908');
-          const brightFog = new THREE.Color('#EDE4D6');
-          scene.fog.color = new THREE.Color().lerpColors(darkFog, brightFog, bgProgress);
-        }
+      scene.background = scratchBg.current.lerpColors(darkBg.current, brightBg.current, bright);
+      if (scene.fog) {
+        scene.fog.color = scratchFog.current.lerpColors(darkFog.current, brightFog.current, bright);
       }
     } else {
-      // 기타 섹션 (조립, 부재탐색 등) 기본 조명 밸런스 유지
+      // 기타 섹션 (조립, 부재탐색 등) 기본 조명 밸런스로 복귀
       if (keyRef.current) {
         keyRef.current.intensity = 2.8;
         keyRef.current.color.set('#FFEFD8');
       }
-      scene.background = new THREE.Color('#FAF8F3');
-      if (scene.fog) scene.fog.color = new THREE.Color('#EDE4D6');
+      if (rimRef.current) rimRef.current.intensity = RIM_INTENSITY;
+      if (fillRef.current) fillRef.current.intensity = FILL_INTENSITY;
+      if (ambientRef.current) ambientRef.current.intensity = AMBIENT_INTENSITY;
+      if (hemiRef.current) hemiRef.current.intensity = HEMI_INTENSITY;
+
+      scene.environmentIntensity = 0.55;
+
+      scene.background = scratchBg.current.set('#FAF8F3');
+      if (scene.fog) scene.fog.color = scratchFog.current.set('#EDE4D6');
     }
   });
 
@@ -208,13 +212,61 @@ function StudioEnvironment() {
   return null;
 }
 
+// 건물 하단 접지 그림자. 조명과 무관하게 항상 떠 있으면 암전 구간에 바닥 그림자만
+// 남아 형체가 드러나므로, 주광과 같은 램프를 태워 함께 짙어지게 한다.
+function GroundShadow() {
+  const groupRef = useRef<THREE.Group>(null);
+  const matRef = useRef<THREE.Material | null>(null);
+
+  useFrame(() => {
+    if (!matRef.current && groupRef.current) {
+      groupRef.current.traverse((o) => {
+        const mesh = o as THREE.Mesh;
+        if (mesh.isMesh && !matRef.current) {
+          matRef.current = Array.isArray(mesh.material) ? mesh.material[0] : mesh.material;
+        }
+      });
+    }
+
+    const mat = matRef.current;
+    if (!mat) return;
+
+    const { activeSectionId, heroProgress, isReducedMotion } = useHanokViewerStore.getState();
+
+    let k = 1;
+    if (activeSectionId === 'intro') {
+      k = isReducedMotion ? 1 : 0;
+    } else if (activeSectionId === 'hero') {
+      k = isReducedMotion ? 1 : lightRamp(heroProgress);
+    }
+
+    mat.opacity = GROUND_SHADOW_OPACITY * k;
+  });
+
+  return (
+    <group ref={groupRef}>
+      <ContactShadows
+        position={[0, 0, 0]}
+        scale={45}
+        blur={2.5}
+        opacity={GROUND_SHADOW_OPACITY}
+        far={12}
+        resolution={512}
+        color="#1C1A17"
+      />
+    </group>
+  );
+}
+
 export default function HanokCanvas() {
   const controlsRef = useRef<OrbitControlsRef | null>(null);
   const isOrbitEnabled = useHanokViewerStore((s) => s.isOrbitEnabled);
   const activeSectionId = useHanokViewerStore((s) => s.activeSectionId);
   const introProgress = useHanokViewerStore((s) => s.introProgress);
 
-  const isHero = useHanokViewerStore((s) => s.scrollProgress < HERO_SPLIT);
+  // 인트로/히어로 구간에서는 캔버스 뒤판도 암전색이어야 한다. 캔버스가 페이드인하는
+  // 동안 이 배경이 그대로 비치기 때문에, 여기가 밝으면 암전이 깨진다.
+  const isHeroLike = activeSectionId === 'intro' || activeSectionId === 'hero';
 
   const canvasOpacity =
     activeSectionId === 'intro'
@@ -228,9 +280,7 @@ export default function HanokCanvas() {
         inset: 0,
         zIndex: 0,
         opacity: canvasOpacity,
-        background: isHero
-          ? 'linear-gradient(180deg, #FAF8F3 0%, #E9E3D8 100%)'
-          : '#1C1A17',
+        background: isHeroLike ? '#0A0908' : '#FAF8F3',
         transition: 'opacity 0.2s ease-out, background 0.4s ease-out',
         pointerEvents: isOrbitEnabled ? 'auto' : 'none',
       }}
@@ -247,8 +297,9 @@ export default function HanokCanvas() {
         }}
         style={{ position: 'absolute', inset: 0 }}
       >
-        <color attach="background" args={['#FAF8F3']} />
-        <fog attach="fog" args={['#EDE4D6', 25, 70]} />
+        {/* 초기값은 암전색. 첫 프레임이 밝게 번쩍이지 않도록 00 시작 상태와 맞춘다. */}
+        <color attach="background" args={['#0A0908']} />
+        <fog attach="fog" args={['#0A0908', 25, 70]} />
 
         <EnvironmentController />
 
@@ -256,16 +307,8 @@ export default function HanokCanvas() {
           <HanokModel />
         </React.Suspense>
 
-        {/* 건물 하단 접지 그림자 (ContactShadows) */}
-        <ContactShadows
-          position={[0, 0, 0]}
-          scale={45}
-          blur={2.5}
-          opacity={0.45}
-          far={12}
-          resolution={512}
-          color="#1C1A17"
-        />
+        {/* 건물 하단 접지 그림자 (조명 램프 연동) */}
+        <GroundShadow />
 
         {isOrbitEnabled && <OrbitControls ref={controlsRef} makeDefault />}
 

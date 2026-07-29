@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 import gsap from 'gsap';
 import { useHanokViewerStore } from '../../store/useHanokViewerStore';
@@ -170,16 +170,10 @@ export default function HeroSection() {
   const scrollIndRef = useRef<HTMLDivElement>(null);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
 
-  const [prefersReduced, setPrefersReduced] = useState(false);
+  // 감지는 useHanokScroll에서 한 번만 하고 스토어로 공유한다. 여기서 따로 matchMedia를
+  // 붙이면 텍스트와 3D(조명 페이드인/자동 회전)가 서로 다른 판정을 들고 갈 수 있다.
+  const prefersReduced = useHanokViewerStore((s) => s.isReducedMotion);
   const heroProgress = useHanokViewerStore((s) => s.heroProgress);
-
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setPrefersReduced(mq.matches);
-    const onChange = (e: MediaQueryListEvent) => setPrefersReduced(e.matches);
-    mq.addEventListener('change', onChange);
-    return () => mq.removeEventListener('change', onChange);
-  }, []);
 
   useEffect(() => {
     if (prefersReduced) return;

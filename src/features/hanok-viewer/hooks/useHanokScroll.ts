@@ -12,7 +12,6 @@ if (typeof window !== 'undefined') {
 }
 
 let activeLenis: Lenis | null = null;
-const HERO_SPLIT = 0.12;
 
 export function useHanokScroll() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -26,6 +25,20 @@ export function useHanokScroll() {
   const setActiveStageIndex = useHanokViewerStore((s) => s.setActiveStageIndex);
   const setActiveSectionId = useHanokViewerStore((s) => s.setActiveSectionId);
   const setIsOrbitEnabled = useHanokViewerStore((s) => s.setIsOrbitEnabled);
+  const setHeroProgress = useHanokViewerStore((s) => s.setHeroProgress);
+  const setIsReducedMotion = useHanokViewerStore((s) => s.setIsReducedMotion);
+
+  // [접근성] 3D 쪽(조명 페이드인/자동 회전)은 스토어의 isReducedMotion을 보고 분기한다.
+  // 각 섹션 컴포넌트의 로컬 state만으로는 캔버스까지 전달되지 않으므로 여기서 한 번만
+  // 감지해 전역에 싣는다.
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setIsReducedMotion(mq.matches);
+
+    const onChange = (e: MediaQueryListEvent) => setIsReducedMotion(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, [setIsReducedMotion]);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -101,8 +114,6 @@ export function useHanokScroll() {
         setIsOrbitEnabled(false);
       },
     }) : null;
-
-    const setHeroProgress = useHanokViewerStore.getState().setHeroProgress;
 
     const heroTrigger = heroEl
       ? ScrollTrigger.create({
@@ -203,7 +214,15 @@ export function useHanokScroll() {
       if (activeLenis === lenis) activeLenis = null;
       lenisRef.current = null;
     };
-  }, [setScrollProgress, setStageProgress, setActiveStageIndex, setActiveSectionId]);
+  }, [
+    setScrollProgress,
+    setStageProgress,
+    setIntroProgress,
+    setHeroProgress,
+    setActiveStageIndex,
+    setActiveSectionId,
+    setIsOrbitEnabled,
+  ]);
 
   const scrollToStage = (index: number) => {
     const assemblyEl = document.getElementById('assembly-section');

@@ -15,15 +15,18 @@ const clamp01 = (x: number) => (x < 0 ? 0 : x > 1 ? 1 : x);
 const easeInOutCubic = (x: number) =>
   x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
 
-// 히어로 전경 구도 카메라 파라미터 설정
-const HERO_EAVES_POS = new THREE.Vector3(-1.8, 3.2, 4.5);
-const HERO_EAVES_TARGET = new THREE.Vector3(-0.8, 3.0, 0.0);
-
+// 히어로 전경 구도 카메라 파라미터 설정(확정 앙각). 01 시퀀스 전 구간 이 구도를 유지한다.
 const HERO_FULL_POS = new THREE.Vector3(-11.2, 2.5, 9.8);
 const HERO_FULL_TARGET = new THREE.Vector3(-0.8, 3.0, 0.0);
 const HERO_FOV = 46;
 
-const HERO_SPLIT = 0.12;
+// [3D 등장 시퀀스] 0.55 이후 아주 느린 자동 회전 시작 (10초당 8도)
+const HERO_ROTATE_START = 0.55;
+const HERO_ROTATE_DEG_PER_SEC = 8 / 10;
+
+// 대제목이 상단 40%를 차지하므로 모델을 화면 하단 60%로 내리는 비율.
+// 값을 키우면 모델이 더 내려가고 기단이 잘리기 시작한다.
+const HERO_MODEL_DROP_RATIO = 0.15;
 
 // drei의 OrbitControls 인스턴스 타입. any를 쓰면 controlsRef.current.target 같은
 // 접근이 전부 타입 검사에서 빠져나간다.
@@ -36,20 +39,23 @@ interface HanokCameraRigProps {
 export default function HanokCameraRig({ controlsRef }: HanokCameraRigProps) {
   const { camera, size } = useThree();
 
-  // 매 프레임 바뀌는 값(scrollProgress, heroTime)을 구독하면 이 컴포넌트가 60fps로
+  // 매 프레임 바뀌는 값(scrollProgress, heroProgress)을 구독하면 이 컴포넌트가 60fps로
   // 리렌더되고 useFrame 콜백도 매 프레임 새로 만들어진다. 액션만 구독해 참조를 고정하고,
   // 나머지는 루프 안에서 getState()로 최신값을 직접 읽는다.
-  const setHeroTime = useHanokViewerStore((s) => s.setHeroTime);
   const setCameraInfo = useHanokViewerStore((s) => s.setCameraInfo);
 
-  const desiredPos = useRef(new THREE.Vector3().copy(HERO_EAVES_POS));
-  const desiredTarget = useRef(new THREE.Vector3().copy(HERO_EAVES_TARGET));
-  const smoothTarget = useRef(new THREE.Vector3().copy(HERO_EAVES_TARGET));
+  const desiredPos = useRef(new THREE.Vector3().copy(HERO_FULL_POS));
+  const desiredTarget = useRef(new THREE.Vector3().copy(HERO_FULL_TARGET));
+  const smoothTarget = useRef(new THREE.Vector3().copy(HERO_FULL_TARGET));
   const desiredFov = useRef(HERO_FOV);
+
+  // 자동 회전 경과 시간. 스토어에 두면 매 프레임 set이 일어나 구독자가 흔들리므로
+  // 이 컴포넌트 안에서만 누적한다.
+  const rotElapsed = useRef(0);
 
   useFrame((_, delta) => {
     const pCam = camera as THREE.PerspectiveCamera;
-    const { activeSectionId, stageProgress, isOrbitEnabled, customTarget, isLoaded, isReducedMotion, heroTime } =
+    const { activeSectionId, stageProgress, heroProgress, isOrbitEnabled, customTarget, isReducedMotion } =
       useHanokViewerStore.getState();
 
     if (isOrbitEnabled) {
@@ -62,47 +68,33 @@ export default function HanokCameraRig({ controlsRef }: HanokCameraRigProps) {
 
     const aspect = size.width / size.height;
 
-    // 히어로 및 브랜드 소개 섹션 카메라 처리
-    if (activeSectionId === 'hero' || activeSectionId === 'about') {
-      if (isLoaded && activeSectionId === 'hero') {
-        if (isReducedMotion) {
-          setHeroTime(3.5);
-        } else if (heroTime < 4.0) {
-          setHeroTime(heroTime + delta);
-        }
+    // 00 인트로 / 01 히어로 / 브랜드 소개 섹션 카메라 처리.
+    // 세 구간 모두 확정 앙각(HERO_FULL) 구도를 그대로 쓴다. 01에서 화면을 만드는 것은
+    // 카메라 이동이 아니라 조명이므로, 여기서 구도가 흔들리면 연출 의도가 무너진다.
+    if (activeSectionId === 'intro' || activeSectionId === 'hero' || activeSectionId === 'about') {
+      // [0.55 ~ 1.00] 아주 느린 자동 회전. 그 전 구간(0.00~0.55)은 완전 고정.
+      const isRotating =
+        !isReducedMotion && activeSectionId === 'hero' && heroProgress >= HERO_ROTATE_START;
+
+      if (isRotating) {
+        rotElapsed.current += delta;
+      } else if (activeSectionId !== 'hero' || heroProgress < HERO_ROTATE_START) {
+        // 되감아 올라오면 회전을 처음 상태로 되돌려 재진입 시 구도가 튀지 않게 한다.
+        rotElapsed.current = 0;
       }
 
-      // 히어로 카메라 위치 및 시선 타겟 계산
-      const currentHeroTime = isReducedMotion ? 3.5 : heroTime;
-      const heroPos = new THREE.Vector3();
-      const heroTarget = new THREE.Vector3();
+      const rotAngle = (rotElapsed.current * HERO_ROTATE_DEG_PER_SEC * Math.PI) / 180;
+      const relX = HERO_FULL_POS.x - HERO_FULL_TARGET.x;
+      const relZ = HERO_FULL_POS.z - HERO_FULL_TARGET.z;
+      const cos = Math.cos(rotAngle);
+      const sin = Math.sin(rotAngle);
 
-      if (currentHeroTime <= 1.5) {
-        heroPos.copy(HERO_EAVES_POS);
-        heroTarget.copy(HERO_EAVES_TARGET);
-      } else if (currentHeroTime <= 3.5) {
-        const t = clamp01((currentHeroTime - 1.5) / 2.0);
-        const k = easeInOutCubic(t);
-        heroPos.lerpVectors(HERO_EAVES_POS, HERO_FULL_POS, k);
-        heroTarget.lerpVectors(HERO_EAVES_TARGET, HERO_FULL_TARGET, k);
-      } else {
-        // 3.5초 이후 자동 궤도 회전 연출
-        const rotAngle = (currentHeroTime - 3.5) * ((8 * Math.PI) / 180) / 10.0;
-        const relX = HERO_FULL_POS.x - HERO_FULL_TARGET.x;
-        const relZ = HERO_FULL_POS.z - HERO_FULL_TARGET.z;
-        const cos = Math.cos(rotAngle);
-        const sin = Math.sin(rotAngle);
-
-        heroPos.set(
-          HERO_FULL_TARGET.x + (relX * cos - relZ * sin),
-          HERO_FULL_POS.y,
-          HERO_FULL_TARGET.z + (relX * sin + relZ * cos)
-        );
-        heroTarget.copy(HERO_FULL_TARGET);
-      }
-
-      desiredPos.current.copy(heroPos);
-      desiredTarget.current.copy(heroTarget);
+      desiredPos.current.set(
+        HERO_FULL_TARGET.x + (relX * cos - relZ * sin),
+        HERO_FULL_POS.y,
+        HERO_FULL_TARGET.z + (relX * sin + relZ * cos)
+      );
+      desiredTarget.current.copy(HERO_FULL_TARGET);
       desiredFov.current = HERO_FOV;
     } else {
       const pAss = clamp01(stageProgress);
@@ -171,18 +163,31 @@ export default function HanokCameraRig({ controlsRef }: HanokCameraRigProps) {
 export function FramingOffset({ ratio = 0.14, mobileYRatio = 0.06 }: { ratio?: number; mobileYRatio?: number }) {
   const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera;
   const size = useThree((s) => s.size);
-  // 이 이펙트에 필요한 건 히어로 구간인지 여부뿐이다. scrollProgress를 그대로 의존성에
-  // 두면 스크롤 프레임마다 setViewOffset과 updateProjectionMatrix가 다시 호출된다.
-  const isHero = useHanokViewerStore((s) => s.scrollProgress < HERO_SPLIT);
+  // 섹션 id만 구독한다. scrollProgress를 기준으로 삼으면 섹션이 하나 늘어날 때마다
+  // 임계값(0.12)이 가리키는 구간이 통째로 밀려 히어로를 더 이상 못 짚는다.
+  const activeSectionId = useHanokViewerStore((s) => s.activeSectionId);
+  const isHeroLike = activeSectionId === 'intro' || activeSectionId === 'hero';
 
   useEffect(() => {
     const wide = size.width / size.height > 1.2;
 
-    if (isHero) {
-      // 히어로 섹션 전용 뷰 오프셋 해제 처리
-      camera.clearViewOffset();
+    if (isHeroLike) {
+      // [레이아웃] 좌우 여백은 균등하게 두고 모델만 화면 하단 60%로 내린다.
+      // y가 음수면 프러스텀이 위로 올라가 피사체가 화면 아래쪽에 놓인다.
+      camera.setViewOffset(
+        size.width,
+        size.height,
+        0,
+        -size.height * HERO_MODEL_DROP_RATIO,
+        size.width,
+        size.height
+      );
       camera.updateProjectionMatrix();
-      return;
+
+      return () => {
+        camera.clearViewOffset();
+        camera.updateProjectionMatrix();
+      };
     }
 
     if (wide) {
@@ -210,7 +215,7 @@ export function FramingOffset({ ratio = 0.14, mobileYRatio = 0.06 }: { ratio?: n
       camera.clearViewOffset();
       camera.updateProjectionMatrix();
     };
-  }, [camera, size, ratio, mobileYRatio, isHero]);
+  }, [camera, size, ratio, mobileYRatio, isHeroLike]);
 
   return null;
 }

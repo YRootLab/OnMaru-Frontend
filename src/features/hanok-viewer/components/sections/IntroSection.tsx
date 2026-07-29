@@ -81,16 +81,22 @@ const PeriodWord = styled(Word)`
   text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
 `;
 
-// 배경색 전환용 오버레이 (#0A0908 -> #F7F2E9)
+// [0.85~1.00] 배경색 #0A0908 -> #F7F2E9 커스텀 라디얼 그라데이션 전환 오버레이
 const BrightenOverlay = styled.div`
   position: absolute;
   inset: 0;
-  background-color: #f7f2e9;
+  background: radial-gradient(
+    circle at 50% 40%,
+    #f9f5f0 0%,
+    #f7f2e9 50%,
+    #ede4d6 100%
+  );
   pointer-events: none;
   z-index: 20;
   opacity: 0;
   will-change: opacity;
 `;
+
 
 // ─────────────────────────────────────────
 // prefers-reduced-motion용 폴백
@@ -186,6 +192,7 @@ export default function IntroSection() {
       gsap.set([...s1, ...s2, ...s3], { opacity: 0, y: 10 });
       if (period) gsap.set(period, { opacity: 0, scale: 0.8 });
       if (overlay) gsap.set(overlay, { opacity: 0 });
+
 
       // GSAP 타임라인 (전체 duration = 1.0 단위 스크롤 프로그레스 매핑)
       const tl = gsap.timeline({
@@ -315,8 +322,7 @@ export default function IntroSection() {
       }
 
       // ─────────────────────────────────────────
-      // 0.85 ~ 1.00 : 배경색 #0A0908 -> #F7F2E9 lerp 전환 및 문장 3 페이드아웃
-      // ─────────────────────────────────────────
+      // 0.85 ~ 1.00 : 문장 3 페이드아웃 + radial-gradient 배경 오버레이 전환
       const s3Elements = [...s3, ...(period ? [period] : [])];
       tl.to(
         s3Elements,
@@ -363,10 +369,11 @@ export default function IntroSection() {
   return (
     <Outer id="intro-section" ref={outerRef}>
       <Inner ref={innerRef}>
-        {/* 배경색 #0A0908 -> #F7F2E9 Lerp 전환 오버레이 */}
+        {/* 커스탈 라디얼 그라데이션 전환 오버레이 */}
         <BrightenOverlay ref={overlayRef} />
 
         <Center>
+
           {/* Phrase 1: "단 하나의 선도 우연이 아닙니다." */}
           <PhraseContainer ref={phrase1Ref}>
             {S1_WORDS.map((word, i) => (
