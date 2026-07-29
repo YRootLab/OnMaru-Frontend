@@ -22,8 +22,10 @@ export function useHanokScroll() {
   // 액션만 개별 셀렉터로 집어오면 참조가 고정되어 리렌더가 발생하지 않는다.
   const setScrollProgress = useHanokViewerStore((s) => s.setScrollProgress);
   const setStageProgress = useHanokViewerStore((s) => s.setStageProgress);
+  const setIntroProgress = useHanokViewerStore((s) => s.setIntroProgress);
   const setActiveStageIndex = useHanokViewerStore((s) => s.setActiveStageIndex);
   const setActiveSectionId = useHanokViewerStore((s) => s.setActiveSectionId);
+  const setIsOrbitEnabled = useHanokViewerStore((s) => s.setIsOrbitEnabled);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -74,20 +76,80 @@ export function useHanokScroll() {
       },
     });
 
-    // 히어로 / 한옥이란 섹션 범위 활성화 트리거
+    // 0섹션(인트로), 히어로, 조립, 부재 탐색, 브랜드 소개 섹션 범위 활성화 트리거
+    const introEl = document.getElementById('intro-section');
     const heroEl = document.getElementById('hero-section');
-    const aboutEl = document.getElementById('about-hanok-section');
     const assemblyEl = document.getElementById('assembly-section');
+    const exploreEl = document.getElementById('explore-section');
+    const aboutEl = document.getElementById('about-hanok-section');
+
+    const introTrigger = introEl ? ScrollTrigger.create({
+      trigger: introEl,
+      start: 'top top',
+      end: 'bottom bottom',
+      onUpdate: (self) => {
+        setActiveSectionId('intro');
+        setIntroProgress(self.progress);
+        setIsOrbitEnabled(false);
+      },
+      onEnter: () => {
+        setActiveSectionId('intro');
+        setIsOrbitEnabled(false);
+      },
+      onEnterBack: () => {
+        setActiveSectionId('intro');
+        setIsOrbitEnabled(false);
+      },
+    }) : null;
 
     const heroTrigger = heroEl ? ScrollTrigger.create({
       trigger: heroEl,
       start: 'top top',
       end: 'bottom top',
-      onEnter: () => setActiveSectionId('hero'),
+      onEnter: () => {
+        setActiveSectionId('hero');
+        setIsOrbitEnabled(false);
+      },
       onEnterBack: () => {
         setActiveSectionId('hero');
         setActiveStageIndex(0);
         setStageProgress(0);
+        setIsOrbitEnabled(false);
+      },
+    }) : null;
+
+    const assemblyTrigger = assemblyEl ? ScrollTrigger.create({
+      trigger: assemblyEl,
+      start: 'top top',
+      end: 'bottom bottom',
+      onEnter: () => setIsOrbitEnabled(false),
+      onEnterBack: () => setIsOrbitEnabled(false),
+      onUpdate: (self) => {
+        setActiveSectionId('assembly');
+        const p = self.progress;
+        setStageProgress(p);
+        const idx = Math.min(n - 1, Math.max(0, Math.floor(p * n)));
+        setActiveStageIndex(idx);
+      },
+    }) : null;
+
+    const exploreTrigger = exploreEl ? ScrollTrigger.create({
+      trigger: exploreEl,
+      start: 'top center',
+      end: 'bottom top',
+      onEnter: () => {
+        setActiveSectionId('explore');
+        setIsOrbitEnabled(true);
+      },
+      onEnterBack: () => {
+        setActiveSectionId('explore');
+        setIsOrbitEnabled(true);
+      },
+      onLeave: () => {
+        setIsOrbitEnabled(false);
+      },
+      onLeaveBack: () => {
+        setIsOrbitEnabled(false);
       },
     }) : null;
 
@@ -99,25 +161,13 @@ export function useHanokScroll() {
         setActiveSectionId('about');
         setActiveStageIndex(0);
         setStageProgress(0);
+        setIsOrbitEnabled(false);
       },
       onEnterBack: () => {
         setActiveSectionId('about');
         setActiveStageIndex(0);
         setStageProgress(0);
-      },
-    }) : null;
-
-    // 조립 섹션 전용 7단계 스크롤 트리거
-    const assemblyTrigger = assemblyEl ? ScrollTrigger.create({
-      trigger: assemblyEl,
-      start: 'top top',
-      end: 'bottom bottom',
-      onUpdate: (self) => {
-        setActiveSectionId('assembly');
-        const p = self.progress;
-        setStageProgress(p);
-        const idx = Math.min(n - 1, Math.max(0, Math.floor(p * n)));
-        setActiveStageIndex(idx);
+        setIsOrbitEnabled(false);
       },
     }) : null;
 
@@ -132,9 +182,12 @@ export function useHanokScroll() {
       clearTimeout(t2);
       document.removeEventListener('visibilitychange', handleVisibility);
       pageTrigger.kill();
+      introTrigger?.kill();
       heroTrigger?.kill();
-      aboutTrigger?.kill();
       assemblyTrigger?.kill();
+      exploreTrigger?.kill();
+      aboutTrigger?.kill();
+
       gsap.ticker.remove(tick);
       lenis.destroy();
       if (activeLenis === lenis) activeLenis = null;

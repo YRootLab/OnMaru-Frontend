@@ -6,6 +6,7 @@ export interface HanokViewerState {
   activeStageIndex: number;
   scrollProgress: number;
   stageProgress: number;
+  introProgress: number;
 
   // 히어로 섹션 전역 상태 정의
   isLoaded: boolean;
@@ -20,11 +21,17 @@ export interface HanokViewerState {
   camTarget: [number, number, number];
   camFov: number;
 
+  // 부재 탐색 섹션 전역 상태 정의
+  selectedElementId: string | null;
+  hoveredElementId: string | null;
+  tooltipPos: { x: number; y: number } | null;
+
   // 상태 변경 액션 정의
   setActiveSectionId: (id: string) => void;
   setActiveStageIndex: (index: number) => void;
   setScrollProgress: (p: number) => void;
   setStageProgress: (p: number) => void;
+  setIntroProgress: (p: number) => void;
   setIsLoaded: (loaded: boolean) => void;
   setIsReducedMotion: (val: boolean) => void;
   setHeroTime: (t: number) => void;
@@ -32,13 +39,19 @@ export interface HanokViewerState {
   setIsOrbitEnabled: (enabled: boolean) => void;
   setCustomTarget: (target: [number, number, number] | null) => void;
   setCameraInfo: (pos: [number, number, number], target: [number, number, number], fov: number) => void;
+
+  setSelectedElementId: (id: string | null) => void;
+  setHoveredElementId: (id: string | null) => void;
+  setTooltipPos: (pos: { x: number; y: number } | null) => void;
+  resetExploration: () => void;
 }
 
 export const useHanokViewerStore = create<HanokViewerState>((set) => ({
-  activeSectionId: 'hero',
+  activeSectionId: 'intro',
   activeStageIndex: 0,
   scrollProgress: 0,
   stageProgress: 0,
+  introProgress: 0,
 
   isLoaded: false,
   isReducedMotion: false,
@@ -51,10 +64,15 @@ export const useHanokViewerStore = create<HanokViewerState>((set) => ({
   camTarget: STAGES[0].cameraTarget,
   camFov: STAGES[0].fov,
 
+  selectedElementId: null,
+  hoveredElementId: null,
+  tooltipPos: null,
+
   setActiveSectionId: (id) => set({ activeSectionId: id }),
   setActiveStageIndex: (index) => set({ activeStageIndex: index }),
   setScrollProgress: (p) => set({ scrollProgress: p }),
   setStageProgress: (p) => set({ stageProgress: p }),
+  setIntroProgress: (p) => set({ introProgress: p }),
   setIsLoaded: (loaded) => set({ isLoaded: loaded }),
   setIsReducedMotion: (val) => set({ isReducedMotion: val }),
   setHeroTime: (t) => set({ heroTime: t }),
@@ -67,4 +85,10 @@ export const useHanokViewerStore = create<HanokViewerState>((set) => ({
       camTarget: target,
       camFov: fov,
     }),
+
+  setSelectedElementId: (id) => set({ selectedElementId: id }),
+  setHoveredElementId: (id) => set({ hoveredElementId: id }),
+  setTooltipPos: (pos) => set({ tooltipPos: pos }),
+  resetExploration: () => set({ selectedElementId: null, hoveredElementId: null, tooltipPos: null, customTarget: null }),
 }));
+
