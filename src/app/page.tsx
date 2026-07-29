@@ -1,23 +1,19 @@
-import HanokViewerLayout from '@/features/hanok-viewer/HanokViewerLayout';
-import IntroSection from '@/features/hanok-viewer/components/sections/IntroSection';
-import HeroSection from '@/features/hanok-viewer/components/sections/HeroSection';
-import AssemblySection from '@/features/hanok-viewer/components/sections/AssemblySection';
-import AboutHanokSection from '@/features/hanok-viewer/components/sections/AboutHanokSection';
+'use client';
 
-export const metadata = {
-  title: '온마루 — 안채 3D 모델 뷰어 🇰🇷',
-  description: '한옥 안채 3D GLB 모델 뷰어',
-};
+import React from 'react';
+import useOneLongScroll from '@/features/one-long-scroll/hooks/useOneLongScroll';
+import FixedBackgroundCanvas from '@/features/one-long-scroll/components/FixedBackgroundCanvas';
+import ScrollTrack from '@/features/one-long-scroll/components/ScrollTrack';
+import ProgressOverlay from '@/features/one-long-scroll/components/ProgressOverlay';
 
 export default function Home() {
+  useOneLongScroll();
+
   return (
-    <HanokViewerLayout>
-      <IntroSection />
-      <HeroSection />
-      <AssemblySection />
-      <AboutHanokSection />
-    </HanokViewerLayout>
+    <main style={{ position: 'relative', width: '100%', minHeight: '100vh' }}>
+      <FixedBackgroundCanvas />
+      <ScrollTrack panels={5} />
+      <ProgressOverlay />
+    </main>
   );
 }
-
-

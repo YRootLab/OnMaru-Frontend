@@ -3,7 +3,8 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { STAGES } from './hanok.data';
-import { useHanokViewerStore } from '@/features/hanok-viewer/store/useHanokViewerStore';
+import { useHanokViewerStore } from '@/archive/hanok-viewer/store/useHanokViewerStore';
+
 
 const DevContainer = styled.div`
   position: fixed;
