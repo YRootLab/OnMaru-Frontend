@@ -1,13 +1,12 @@
 'use client';
 
 import React, { Suspense, useEffect, useRef } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+
+import { Canvas, useThree } from '@react-three/fiber';
 import { ContactShadows } from '@react-three/drei';
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
-import { getScrollProgress } from '../store/scrollProgress';
-import { sampleColorStops, type Rgb } from '../utils/lerpColor';
-import { BACKGROUND_STOPS, BACKGROUND_START_HEX } from '../data/scrollPalette';
+import { registerKeyLight, COLOR_CURVE, INTENSITY_CURVE } from '@/components/LightingSystem';
 import HanokStaticModel from './HanokStaticModel';
 
 // ─────────────────────────────────────────
@@ -39,48 +38,32 @@ function FixedCamera() {
 }
 
 // ─────────────────────────────────────────
-// 배경색 (테스트용 progress 보간)
+// 조명
 // ─────────────────────────────────────────
 
 /**
- * 진행도에 따라 씬 배경색과 포그 색을 갈아끼운다.
- * 스토어를 구독하지 않고 useFrame 안에서 전역 변수를 직접 읽으므로 리렌더가 없다.
+ * 조명 리그.
+ *
+ * 주광만 LightingSystem에 등록해 스크롤 진행도를 따라간다
+ * (세기 0.3 → 2.8 → 0.3, 색 주홍 → 황금 → 백색 → 코발트).
+ * 보조광과 위치·그림자 설정은 스크롤과 무관하므로 여기서만 관리한다.
+ *
+ * 초기 intensity/color는 곡선의 progress 0 지점을 그대로 쓴다.
+ * 값을 따로 적어두면 캔버스가 늦게 올라올 때 첫 프레임이 밝게 번쩍인다.
  */
-function ScrollBackground() {
-  const scene = useThree((s) => s.scene);
+function LightRig() {
+  const keyLightRef = useRef<THREE.DirectionalLight>(null);
 
-  // 매 프레임 배열/THREE.Color를 새로 만들지 않도록 스크래치를 재사용한다.
-  const rgb = useRef<Rgb>([0, 0, 0]);
-  const color = useRef(new THREE.Color());
+  useEffect(() => registerKeyLight(keyLightRef.current), []);
 
-  useFrame(() => {
-    sampleColorStops(BACKGROUND_STOPS, getScrollProgress(), rgb.current);
-
-    const [r, g, b] = rgb.current;
-    color.current.setRGB(r / 255, g / 255, b / 255, THREE.SRGBColorSpace);
-
-    scene.background = color.current;
-    if (scene.fog) scene.fog.color.copy(color.current);
-  });
-
-  return null;
-}
-
-// ─────────────────────────────────────────
-// 고정 조명 (아직 연출 없음)
-// ─────────────────────────────────────────
-
-/**
- * 스크롤과 무관한 고정 조명 리그. 조명 연출은 아직 붙이지 않는다.
- */
-function StaticLights() {
   return (
     <>
-      {/* 주광 */}
+      {/* 주광 — intensity/color는 LightingSystem이 갱신한다 */}
       <directionalLight
+        ref={keyLightRef}
         position={[-12, 8, 10]}
-        intensity={2.8}
-        color="#FFEFD8"
+        intensity={INTENSITY_CURVE[0].value}
+        color={COLOR_CURVE[0].color}
         castShadow
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}
@@ -143,10 +126,6 @@ function StudioEnvironment() {
 
 /**
  * 화면 전체를 덮는 고정 배경 캔버스.
- *
- * z-index: -1이므로 본문 콘텐츠는 별도 z-index 없이도 항상 위에 놓인다.
- * 대신 이 캔버스를 감싸는 어떤 조상도 스태킹 컨텍스트를 만들면 안 되고
- * (transform / opacity / filter 금지), 본문 래퍼에 불투명 배경을 깔면 안 된다.
  */
 export default function FixedBackgroundCanvas() {
   return (
@@ -160,8 +139,7 @@ export default function FixedBackgroundCanvas() {
         height: '100vh',
         zIndex: -1,
         pointerEvents: 'none',
-        // 캔버스가 올라오기 전 한 프레임 동안 비칠 색
-        background: BACKGROUND_START_HEX,
+        background: 'transparent',
       }}
     >
       <Canvas
@@ -169,20 +147,17 @@ export default function FixedBackgroundCanvas() {
         dpr={[1, 2]}
         shadows
         gl={{
+          alpha: true,
           antialias: true,
           toneMapping: THREE.ACESFilmicToneMapping,
           toneMappingExposure: 1.05,
         }}
         style={{ position: 'absolute', inset: 0 }}
       >
-        {/* 첫 프레임 색. 이후는 ScrollBackground가 매 프레임 덮어쓴다. */}
-        <color attach="background" args={[BACKGROUND_START_HEX]} />
-        <fog attach="fog" args={[BACKGROUND_START_HEX, 25, 70]} />
-
-        <ScrollBackground />
         <FixedCamera />
-        <StaticLights />
+        <LightRig />
         <StudioEnvironment />
+
 
         <Suspense fallback={null}>
           <HanokStaticModel />

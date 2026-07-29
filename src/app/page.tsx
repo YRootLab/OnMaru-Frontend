@@ -1,19 +1,16 @@
-'use client';
+import OneLongScrollStage from '@/features/one-long-scroll/OneLongScrollStage';
 
-import React from 'react';
-import useOneLongScroll from '@/features/one-long-scroll/hooks/useOneLongScroll';
-import FixedBackgroundCanvas from '@/features/one-long-scroll/components/FixedBackgroundCanvas';
-import ScrollTrack from '@/features/one-long-scroll/components/ScrollTrack';
-import ProgressOverlay from '@/features/one-long-scroll/components/ProgressOverlay';
+export const metadata = {
+  title: '온마루 — 한옥의 온기를 잇다',
+  description: '페이지 전체를 하나의 긴 스크롤로 경험하는 한옥 스토리텔링',
+};
 
 export default function Home() {
-  useOneLongScroll();
-
   return (
     <main style={{ position: 'relative', width: '100%', minHeight: '100vh' }}>
-      <FixedBackgroundCanvas />
-      <ScrollTrack panels={5} />
-      <ProgressOverlay />
+      {/* 스크롤 트리거 · 배경 그라데이션 · 고정 캔버스 · 오버레이를 한곳에서 엮는다.
+          개별 조각을 여기서 직접 조립하면 initBackgroundSystem 연결이 빠지기 쉽다. */}
+      <OneLongScrollStage />
     </main>
   );
 }

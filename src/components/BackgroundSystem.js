@@ -12,81 +12,59 @@
 
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { lightPalette, darkPalette, surface, meok } from '@/design-system/tokens';
+import { lightPalette, meok, surface } from '@/design-system/tokens';
+import { updateLightForProgress } from './LightingSystem';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
 // ─────────────────────────────────────────
-// 온마루 단청 팔레트 (design-system/tokens.ts 연동)
-// ─────────────────────────────────────────
-
-export const colors = {
-  midnight: surface.dark.app,            // 밤 (먹빛 마루 #1C1A17)
-  darkBlue: lightPalette.kobalt[700],    // 청화 코발트 (#1A3898)
-  teal:     lightPalette.cheongrok[500], // 대청 청록 (#1E7A68)
-  rose:     lightPalette.jangmi[500],    // 연지 장미 (#D42058)
-  red:      lightPalette.juhong[500],    // 단청 주홍 (#E85A18)
-  gold:     lightPalette.hwanggeum[400], // 황금 기와 (#F5A623)
-  cream:    lightPalette.hwanggeum[50],  // 밝은 크림 (#FFF8E0)
-  beige:    surface.light.base,          // 베이지/화선지 오프화이트 (#fafafa)
-  bright:   lightPalette.hwanggeum[50],  // 극밝은 하단 백아이보리 (#FFF8E0)
-};
-
-
-// ─────────────────────────────────────────
-// 시간대별 그라데이션 정의
-// position은 세로 방향 0(위) ~ 100(아래) 퍼센트.
+// 시간대별 그라데이션 정의 (tokens.ts 연동)
 // ─────────────────────────────────────────
 
 export const timeOfDay = {
   0.0: {
     name: '새벽',
     stops: [
-      { position: 0, color: colors.darkBlue },
-      { position: 30, color: colors.rose },
-      { position: 60, color: colors.red },
-      { position: 100, color: colors.gold },
+      { position: 0, color: meok[100] },
+      { position: 100, color: lightPalette.kobalt[50] },
     ],
   },
 
   0.25: {
     name: '아침',
     stops: [
-      { position: 0, color: colors.rose },
-      { position: 40, color: colors.gold },
-      { position: 100, color: colors.cream },
+      { position: 0, color: lightPalette.juhong[50] },
+      { position: 100, color: surface.light.base },
     ],
   },
 
   0.5: {
     name: '정오',
     stops: [
-      { position: 0, color: colors.teal },
-      { position: 50, color: '#E8F4FF' },
-      { position: 100, color: colors.bright },
+      { position: 0, color: surface.light.base },
+      { position: 100, color: surface.light.base },
     ],
   },
 
   0.75: {
     name: '오후',
     stops: [
-      { position: 0, color: colors.darkBlue },
-      { position: 40, color: colors.rose },
-      { position: 100, color: '#A67C52' },
+      { position: 0, color: lightPalette.kobalt[50] },
+      { position: 100, color: lightPalette.kobalt[50] },
     ],
   },
 
   1.0: {
     name: '저녁',
     stops: [
-      { position: 0, color: colors.midnight },
-      { position: 40, color: colors.darkBlue },
-      { position: 100, color: colors.teal },
+      { position: 0, color: lightPalette.kobalt[100] },
+      { position: 100, color: lightPalette.kobalt[100] },
     ],
   },
 };
+
 
 /**
  * timeOfDay를 key 오름차순 배열로 펴둔다.
@@ -162,7 +140,7 @@ function sampleStopsAt(stops, position) {
 }
 
 /**
- * 시간대마다 정지점 개수가 다르므로(새벽 4개, 나머지 3개) 그냥 짝지어 보간할 수 없다.
+ * 시간대마다 정지점 개수와 위치가 다를 수 있어 그냥 인덱스끼리 짝지어 보간할 수 없다.
  * 두 시간대의 position을 합집합으로 모은 뒤, 각 위치에서 양쪽 색을 샘플링해 보간한다.
  */
 function unionPositions(stopsA, stopsB) {
@@ -272,7 +250,17 @@ export function updateBackgroundGradient(progress) {
 // ─────────────────────────────────────────
 
 /**
- * 배경 시스템을 스크롤에 연결한다. 정리 함수를 반환한다.
+ * 스크롤 갱신 한 번에 딸려가는 일들.
+ * 배경과 조명은 같은 시간대 곡선을 공유하므로 반드시 같은 progress 값으로,
+ * 같은 프레임에 갱신되어야 한다. 따로 구독하면 scrub 지연만큼 어긋난다.
+ */
+function handleProgress(progress) {
+  updateBackgroundGradient(progress);
+  updateLightForProgress(progress);
+}
+
+/**
+ * 배경 + 조명 시스템을 스크롤에 연결한다. 정리 함수를 반환한다.
  *
  * @param {object}   [options]
  * @param {Function} [options.subscribe]
@@ -283,11 +271,11 @@ export function updateBackgroundGradient(progress) {
 export function initBackgroundSystem({ subscribe } = {}) {
   if (typeof window === 'undefined') return () => {};
 
-  // 첫 프레임부터 올바른 색으로 시작한다.
-  updateBackgroundGradient(0);
+  // 첫 프레임부터 올바른 색/밝기로 시작한다.
+  handleProgress(0);
 
   if (subscribe) {
-    return subscribe(updateBackgroundGradient);
+    return subscribe(handleProgress);
   }
 
   // ScrollTrigger 단독의 self.progress는 scrub의 관성을 타지 않고 스크롤 위치를
@@ -303,7 +291,7 @@ export function initBackgroundSystem({ subscribe } = {}) {
       end: 'bottom bottom',
       scrub: 1,
     },
-    onUpdate: () => updateBackgroundGradient(proxy.p),
+    onUpdate: () => handleProgress(proxy.p),
   });
 
   return () => {
