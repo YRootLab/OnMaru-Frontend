@@ -84,42 +84,73 @@ function EnvironmentController() {
   const hemiRef = useRef<THREE.HemisphereLight>(null);
 
   useFrame(() => {
-    // 스크롤마다 바뀌는 값이라 구독하면 이 컨트롤러가 매 프레임 리렌더된다.
-    const p = useHanokViewerStore.getState().scrollProgress;
-    const wHero = Math.max(0, Math.min(1, 1 - p / HERO_SPLIT));
+    const { activeSectionId, heroProgress, isReducedMotion } = useHanokViewerStore.getState();
     const lerp = THREE.MathUtils.lerp;
 
-    // 배경색 및 안개 보간 처리
-    const currentBg = new THREE.Color().lerpColors(darkBgColor.current, heroBgColor.current, wHero);
-    const currentFog = new THREE.Color().lerpColors(darkFogColor.current, heroFogColor.current, wHero);
+    if (activeSectionId === 'hero') {
+      if (isReducedMotion) {
+        if (keyRef.current) {
+          keyRef.current.intensity = 2.5;
+          keyRef.current.color.set('#FFD9A8');
+        }
+        scene.background = new THREE.Color('#F7F2E9');
+        if (scene.fog) scene.fog.color = new THREE.Color('#EDE4D6');
+      } else {
+        // [0.20 ~ 0.45] directionalLight intensity 0 -> 2.5 (해질녘 톤 #FFD9A8)
+        let keyIntensity = 0;
+        if (heroProgress <= 0.20) {
+          keyIntensity = 0;
+        } else if (heroProgress <= 0.45) {
+          const t = (heroProgress - 0.20) / 0.25;
+          keyIntensity = lerp(0, 2.5, t);
+        } else {
+          keyIntensity = 2.5;
+        }
 
-    scene.background = currentBg;
-    if (scene.fog) {
-      scene.fog.color = currentFog;
-      (scene.fog as THREE.Fog).near = lerp(38, 25, wHero);
-      (scene.fog as THREE.Fog).far = lerp(88, 70, wHero);
-    }
+        if (keyRef.current) {
+          keyRef.current.intensity = keyIntensity;
+          keyRef.current.color.set('#FFD9A8');
+        }
 
-    // 광원 세기 및 명암 대비 보간 제어
-    if (keyRef.current) {
-      keyRef.current.intensity = lerp(2.2, 3.1, wHero);
-      // 히어로: 좌측 45도 입사 → 처마 밑·우측 면 그늘 생성
-      keyRef.current.position.lerpVectors(assemblyKeyPos.current, heroKeyPos.current, wHero);
+        // [0.45 ~ 0.55] 배경색 #0A0908 -> #F7F2E9 lerp 전환
+        let bgProgress = 0;
+        if (heroProgress <= 0.45) {
+          bgProgress = 0;
+        } else if (heroProgress <= 0.55) {
+          bgProgress = (heroProgress - 0.45) / 0.10;
+        } else {
+          bgProgress = 1;
+        }
+
+        const darkBg = new THREE.Color('#0A0908');
+        const brightBg = new THREE.Color('#F7F2E9');
+        scene.background = new THREE.Color().lerpColors(darkBg, brightBg, bgProgress);
+
+        if (scene.fog) {
+          const darkFog = new THREE.Color('#0A0908');
+          const brightFog = new THREE.Color('#EDE4D6');
+          scene.fog.color = new THREE.Color().lerpColors(darkFog, brightFog, bgProgress);
+        }
+      }
+    } else {
+      // 기타 섹션 (조립, 부재탐색 등) 기본 조명 밸런스 유지
+      if (keyRef.current) {
+        keyRef.current.intensity = 2.8;
+        keyRef.current.color.set('#FFEFD8');
+      }
+      scene.background = new THREE.Color('#FAF8F3');
+      if (scene.fog) scene.fog.color = new THREE.Color('#EDE4D6');
     }
-    if (rimRef.current) rimRef.current.intensity = lerp(2.4, 1.1, wHero);
-    if (fillRef.current) fillRef.current.intensity = lerp(0.25, 0.45, wHero);
-    if (ambientRef.current) ambientRef.current.intensity = lerp(0.16, 0.18, wHero);
-    if (hemiRef.current) hemiRef.current.intensity = lerp(0.22, 0.5, wHero);
   });
 
   return (
     <>
-      {/* 주광(Key Light) 설정 */}
+      {/* 주광(Key Light) 설정 — #FFD9A8 해질녘 톤 지원 */}
       <directionalLight
         ref={keyRef}
         position={[-12, 8, 10]}
-        intensity={3.1}
-        color="#FFEFD8"
+        intensity={0}
+        color="#FFD9A8"
         castShadow
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}
@@ -146,6 +177,7 @@ function EnvironmentController() {
     </>
   );
 }
+
 
 // 절차적 스튜디오 환경맵. three 내장 RoomEnvironment를 PMREM으로 한 번만 구워
 // scene.environment에 물린다. 외부 HDRI를 받지 않으므로 오프라인 시연에서도 안전하고,

@@ -102,21 +102,31 @@ export function useHanokScroll() {
       },
     }) : null;
 
-    const heroTrigger = heroEl ? ScrollTrigger.create({
-      trigger: heroEl,
-      start: 'top top',
-      end: 'bottom top',
-      onEnter: () => {
-        setActiveSectionId('hero');
-        setIsOrbitEnabled(false);
-      },
-      onEnterBack: () => {
-        setActiveSectionId('hero');
-        setActiveStageIndex(0);
-        setStageProgress(0);
-        setIsOrbitEnabled(false);
-      },
-    }) : null;
+    const setHeroProgress = useHanokViewerStore.getState().setHeroProgress;
+
+    const heroTrigger = heroEl
+      ? ScrollTrigger.create({
+          trigger: heroEl,
+          start: 'top top',
+          end: 'bottom bottom',
+          onUpdate: (self) => {
+            setActiveSectionId('hero');
+            setHeroProgress(self.progress);
+            setIsOrbitEnabled(false);
+          },
+          onEnter: () => {
+            setActiveSectionId('hero');
+            setIsOrbitEnabled(false);
+          },
+          onEnterBack: () => {
+            setActiveSectionId('hero');
+            setActiveStageIndex(0);
+            setStageProgress(0);
+            setIsOrbitEnabled(false);
+          },
+        })
+      : null;
+
 
     const assemblyTrigger = assemblyEl ? ScrollTrigger.create({
       trigger: assemblyEl,

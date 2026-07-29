@@ -7,6 +7,7 @@ export interface HanokViewerState {
   scrollProgress: number;
   stageProgress: number;
   introProgress: number;
+  heroProgress: number;
 
   // 히어로 섹션 전역 상태 정의
   isLoaded: boolean;
@@ -32,6 +33,8 @@ export interface HanokViewerState {
   setScrollProgress: (p: number) => void;
   setStageProgress: (p: number) => void;
   setIntroProgress: (p: number) => void;
+  setHeroProgress: (p: number) => void;
+
   setIsLoaded: (loaded: boolean) => void;
   setIsReducedMotion: (val: boolean) => void;
   setHeroTime: (t: number) => void;
@@ -52,6 +55,7 @@ export const useHanokViewerStore = create<HanokViewerState>((set) => ({
   scrollProgress: 0,
   stageProgress: 0,
   introProgress: 0,
+  heroProgress: 0,
 
   isLoaded: false,
   isReducedMotion: false,
@@ -73,6 +77,8 @@ export const useHanokViewerStore = create<HanokViewerState>((set) => ({
   setScrollProgress: (p) => set({ scrollProgress: p }),
   setStageProgress: (p) => set({ stageProgress: p }),
   setIntroProgress: (p) => set({ introProgress: p }),
+  setHeroProgress: (p) => set({ heroProgress: p }),
+
   setIsLoaded: (loaded) => set({ isLoaded: loaded }),
   setIsReducedMotion: (val) => set({ isReducedMotion: val }),
   setHeroTime: (t) => set({ heroTime: t }),

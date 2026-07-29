@@ -1,238 +1,322 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
-import { motion } from 'framer-motion';
+import gsap from 'gsap';
 import { useHanokViewerStore } from '../../store/useHanokViewerStore';
-import type { OnmaruTheme } from '@/design-system/tokens';
-import { InfoTag } from '@/design-system/components';
 
-const EASE = [0.22, 1, 0.36, 1] as const;
+// ─────────────────────────────────────────
+// Styled Components
+// ─────────────────────────────────────────
 
-const HeroContainer = styled.section`
+const OuterContainer = styled.section`
   position: relative;
   width: 100%;
-  height: 100vh;
-  overflow: hidden;
-  font-family: ${({ theme }) => (theme as OnmaruTheme).typography.fontFamily.sans};
+  height: 250vh;
   z-index: 10;
   pointer-events: none;
 `;
 
-// 상단 가독성 확보용 그라데이션 오버레이 레이어
-const TopGradientOverlay = styled.div`
-  position: absolute;
+const StickyViewport = styled.div`
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
-  height: clamp(240px, 38vh, 400px);
-  background: linear-gradient(
-    180deg,
-    rgba(250, 248, 243, 0.95) 0%,
-    rgba(250, 248, 243, 0.7) 50%,
-    rgba(250, 248, 243, 0) 100%
-  );
-  pointer-events: none;
-  z-index: 15;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
-// 한지 질감 오버레이 — SVG feTurbulence 노이즈로 종이 섬유질 표현
-const HANJI_NOISE_SVG = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='h'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23h)' opacity='1'/%3E%3C/svg%3E`;
-
-const HanjiTextureOverlay = styled.div`
+// 화면 상단 40% 지점에 중앙 정렬 대제목 컨테이너
+const TitleContainer = styled.div`
   position: absolute;
-  inset: 0;
-  background-image: url("${HANJI_NOISE_SVG}");
-  background-repeat: repeat;
-  background-size: 400px 400px;
-  opacity: 0.14;
-  mix-blend-mode: multiply;
-  pointer-events: none;
-  z-index: 12;
-`;
-
-// 화면 중앙 상단 콘텐츠 패널 구성
-const ContentPanel = styled.div`
-  position: absolute;
-  top: clamp(36px, 7.5vh, 76px);
+  top: 40%;
   left: 50%;
-  transform: translateX(-50%);
-  width: min(90%, 1080px);
-  padding: 0 ${({ theme }) => (theme as OnmaruTheme).spacing[6]};
+  transform: translate(-50%, -50%);
+  width: 100%;
+  max-width: 90vw;
   text-align: center;
-  z-index: 20;
-  pointer-events: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  box-sizing: border-box;
-`;
-
-const MainTitle = styled(motion.h1)`
-  font-family: ${({ theme }) => (theme as OnmaruTheme).typography.fontFamily.traditional};
-  font-size: clamp(28px, 5.5vw, 76px);
-  font-weight: ${({ theme }) => (theme as OnmaruTheme).typography.fontWeight.bold};
-  line-height: ${({ theme }) => (theme as OnmaruTheme).typography.lineHeight.tight};
-  letter-spacing: -0.025em;
-  color: ${({ theme }) => (theme as OnmaruTheme).colors.text.primary};
-  margin: 0 0 ${({ theme }) => (theme as OnmaruTheme).spacing[3]};
-  word-break: keep-all;
-  white-space: normal;
-  max-width: 100%;
-
-  @media (max-width: 768px) {
-    font-size: clamp(22px, 6.5vw, 38px);
-    margin-bottom: ${({ theme }) => (theme as OnmaruTheme).spacing[2]};
-  }
-`;
-
-const Subtitle = styled(motion.p)`
-  font-family: ${({ theme }) => (theme as OnmaruTheme).typography.fontFamily.sans};
-  font-size: clamp(16px, 1.6vw, 22px);
-  line-height: ${({ theme }) => (theme as OnmaruTheme).typography.lineHeight.normal};
-  font-weight: ${({ theme }) => (theme as OnmaruTheme).typography.fontWeight.regular};
-  color: ${({ theme }) => (theme as OnmaruTheme).colors.text.secondary};
+  justify-content: center;
   margin: 0;
-  max-width: 760px;
-  letter-spacing: -0.015em;
-  word-break: keep-all;
-
-  @media (max-width: 768px) {
-    font-size: 14.5px;
-  }
-`;
-
-// 화면 좌측 하단 출처 표기 패널 구성
-const CreditGroup = styled(motion.div)`
-  position: absolute;
-  bottom: clamp(28px, 4.5vh, 40px);
-  left: clamp(24px, 5vw, 64px);
-  z-index: 20;
   pointer-events: auto;
-
-  @media (max-width: 768px) {
-    left: 20px;
-    bottom: 76px;
-  }
 `;
 
-const StyledInfoTag = styled(InfoTag)`
+const MainTitleLine = styled.div`
+  font-family: 'MaruBuri', 'SpoqaHanSansNeo', serif;
+  font-size: clamp(40px, 7vw, 96px);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: #1c1a17;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25em;
+  margin: 0;
+  will-change: opacity, transform;
+  opacity: 0;
+`;
+
+const ScaleWordSpan = styled.span`
+  display: inline-block;
+  will-change: transform, opacity;
+`;
+
+// 화면 하단 부제 표기 (font-size 12px, rgba(28,26,23,0.5))
+const SubtitleGroup = styled.div`
+  position: absolute;
+  bottom: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'SpoqaHanSansNeo', sans-serif;
   font-size: 12px;
   line-height: 1.5;
-  color: ${({ theme }) => (theme as OnmaruTheme).colors.text.muted};
-  background: rgba(247, 245, 240, 0.75);
-  backdrop-filter: blur(4px);
-  border-color: ${({ theme }) => (theme as OnmaruTheme).colors.border.subtle};
-  padding: ${({ theme }) => `${(theme as OnmaruTheme).spacing[1]} ${(theme as OnmaruTheme).spacing[3]}`};
+  color: rgba(28, 26, 23, 0.5);
   letter-spacing: -0.015em;
   white-space: nowrap;
+  text-align: center;
+  opacity: 0;
+  will-change: opacity, transform;
+  pointer-events: auto;
 
   @media (max-width: 768px) {
     white-space: normal;
     word-break: keep-all;
+    bottom: 64px;
+    padding: 0 20px;
   }
 `;
 
-// 하단 중앙 스크롤 인디케이터 구성
-const ScrollPrompt = styled(motion.div)`
+// 하단 스크롤 인디케이터 (1px 세로선, 2초 주기 흐름 애니메이션)
+const ScrollIndicatorGroup = styled.div`
   position: absolute;
-  bottom: 28px;
+  bottom: 16px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: ${({ theme }) => (theme as OnmaruTheme).spacing[2]};
-  font-size: 11px;
-  font-weight: ${({ theme }) => (theme as OnmaruTheme).typography.fontWeight.bold};
-  letter-spacing: 0.24em;
-  color: ${({ theme }) => (theme as OnmaruTheme).colors.text.secondary};
-  z-index: 25;
+  gap: 6px;
+  opacity: 0;
+  will-change: opacity;
   pointer-events: none;
 `;
 
-const ScrollArrowIcon = styled(motion.svg)`
-  width: 18px;
-  height: 18px;
-  fill: none;
-  stroke: ${({ theme }) => (theme as OnmaruTheme).colors.badge.star};
-  stroke-width: 2.2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+const VerticalLineTrack = styled.div`
+  width: 1px;
+  height: 28px;
+  background: rgba(28, 26, 23, 0.15);
+  position: relative;
+  overflow: hidden;
+  border-radius: 1px;
+`;
+
+const VerticalLineFlow = styled.div`
+  width: 100%;
+  height: 100%;
+  background: #d4af37;
+  animation: lineFlow 2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+
+  @keyframes lineFlow {
+    0% {
+      transform: translateY(-100%);
+    }
+    50% {
+      transform: translateY(0%);
+    }
+    100% {
+      transform: translateY(100%);
+    }
+  }
+`;
+
+// 접근성 prefers-reduced-motion 전용 레이아웃
+const ReducedMotionPanel = styled.div`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  text-align: center;
+`;
+
+const ReducedTitle = styled.h1`
+  font-family: 'MaruBuri', 'SpoqaHanSansNeo', serif;
+  font-size: clamp(36px, 6.5vw, 84px);
+  font-weight: 700;
+  color: #1c1a17;
+  margin: 0 0 16px 0;
+  letter-spacing: -0.02em;
+`;
+
+const ReducedSub = styled.p`
+  font-family: 'SpoqaHanSansNeo', sans-serif;
+  font-size: 12px;
+  color: rgba(28, 26, 23, 0.5);
+  margin: 0;
 `;
 
 export default function HeroSection() {
-  const isOrbitEnabled = useHanokViewerStore((s) => s.isOrbitEnabled);
-  const isLoaded = useHanokViewerStore((s) => s.isLoaded);
-  const isReducedMotion = useHanokViewerStore((s) => s.isReducedMotion);
-  const setIsReducedMotion = useHanokViewerStore((s) => s.setIsReducedMotion);
+  const line1Ref = useRef<HTMLDivElement>(null);
+  const line2Ref = useRef<HTMLDivElement>(null);
+  const scaleWordRef = useRef<HTMLSpanElement>(null);
+  const subRef = useRef<HTMLDivElement>(null);
+  const scrollIndRef = useRef<HTMLDivElement>(null);
+  const tlRef = useRef<gsap.core.Timeline | null>(null);
+
+  const [prefersReduced, setPrefersReduced] = useState(false);
+  const heroProgress = useHanokViewerStore((s) => s.heroProgress);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setIsReducedMotion(mediaQuery.matches);
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReduced(mq.matches);
+    const onChange = (e: MediaQueryListEvent) => setPrefersReduced(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
 
-    const handler = (e: MediaQueryListEvent) => setIsReducedMotion(e.matches);
-    mediaQuery.addEventListener('change', handler);
-    return () => mediaQuery.removeEventListener('change', handler);
-  }, [setIsReducedMotion]);
+  useEffect(() => {
+    if (prefersReduced) return;
 
-  const delayTitle = isReducedMotion ? 0 : 0.0;
-  const delaySub = isReducedMotion ? 0 : 2.5;
-  const delayCredit = isReducedMotion ? 0 : 3.5;
-  const delayScroll = isReducedMotion ? 0 : 3.5;
+    const line1 = line1Ref.current;
+    const line2 = line2Ref.current;
+    const scaleWord = scaleWordRef.current;
+    const sub = subRef.current;
+    const scrollInd = scrollIndRef.current;
+
+    if (!line1 || !line2 || !sub || !scrollInd) return;
+
+    // 초기 상태 은폐 설정
+    gsap.set([line1, line2, sub, scrollInd], { opacity: 0, y: 10 });
+    if (scaleWord) gsap.set(scaleWord, { scale: 0.95 });
+
+    const tl = gsap.timeline({ paused: true });
+
+    // 0.00 ~ 0.55 : 텍스트 숨김 유지
+    tl.to({}, { duration: 0.55 });
+
+    // 0.55 ~ 0.70 : "모든 선에는," fade in, y:10->0, ease power2.out
+    tl.to(
+      line1,
+      {
+        opacity: 1,
+        y: 0,
+        ease: 'power2.out',
+        duration: 0.15,
+      },
+      0.55
+    );
+
+    // 0.70 ~ 0.85 : "이유가 있습니다." fade in + "있습니다" scale 0.95 -> 1.02 -> 1.0
+    tl.to(
+      line2,
+      {
+        opacity: 1,
+        y: 0,
+        ease: 'power2.out',
+        duration: 0.15,
+      },
+      0.7
+    );
+
+    if (scaleWord) {
+      tl.to(
+        scaleWord,
+        {
+          scale: 1.02,
+          ease: 'back.out(2)',
+          duration: 0.08,
+        },
+        0.78
+      );
+      tl.to(
+        scaleWord,
+        {
+          scale: 1.0,
+          ease: 'power1.out',
+          duration: 0.05,
+        },
+        0.83
+      );
+    }
+
+    // 0.85 ~ 1.00 : 대제목 유지 + 부제/스크롤 인디케이터 등장
+    tl.to(
+      [sub, scrollInd],
+      {
+        opacity: 1,
+        y: 0,
+        ease: 'power2.out',
+        duration: 0.15,
+      },
+      0.85
+    );
+
+    tlRef.current = tl;
+
+    return () => {
+      tl.kill();
+      tlRef.current = null;
+    };
+  }, [prefersReduced]);
+
+  // heroProgress 수신 시 GSAP 타임라인Seek
+  useEffect(() => {
+    if (tlRef.current && !prefersReduced) {
+      const p = Math.max(0, Math.min(1, heroProgress));
+      tlRef.current.progress(p);
+    }
+  }, [heroProgress, prefersReduced]);
+
+  if (prefersReduced) {
+    return (
+      <OuterContainer id="hero-section" style={{ height: 'auto', minHeight: '100vh' }}>
+        <StickyViewport style={{ height: 'auto', minHeight: '100vh' }}>
+          <ReducedMotionPanel>
+            <ReducedTitle>
+              모든 선에는,
+              <br />
+              이유가 있습니다.
+            </ReducedTitle>
+            <ReducedSub>
+              서울 계동 근대 한옥 안채 · 국가유산청 3D 실측 데이터
+            </ReducedSub>
+          </ReducedMotionPanel>
+        </StickyViewport>
+      </OuterContainer>
+    );
+  }
 
   return (
-    <HeroContainer id="hero-section">
-      <HanjiTextureOverlay />
-      <TopGradientOverlay />
+    <OuterContainer id="hero-section">
+      <StickyViewport>
+        {/* 화면 상단 40% 지점 대제목 */}
+        <TitleContainer>
+          <MainTitleLine ref={line1Ref}>모든 선에는,</MainTitleLine>
+          <MainTitleLine ref={line2Ref}>
+            <span>이유가 </span>
+            <ScaleWordSpan ref={scaleWordRef}>있습니다.</ScaleWordSpan>
+          </MainTitleLine>
+        </TitleContainer>
 
-      {/* 상단 중앙 대제목 및 부제 영역 */}
-      <ContentPanel style={{ pointerEvents: isOrbitEnabled ? 'none' : 'auto' }}>
-        <MainTitle
-          initial={{ opacity: 0, y: isReducedMotion ? 0 : 24 }}
-          animate={isLoaded || isReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
-          transition={{ duration: isReducedMotion ? 0.2 : 0.7, ease: EASE, delay: delayTitle }}
-        >
-          한옥을 따라, 동네를 누비다
-        </MainTitle>
+        {/* 화면 하단 12px 부제 정보 */}
+        <SubtitleGroup ref={subRef}>
+          서울 계동 근대 한옥 안채 · 국가유산청 3D 실측 데이터
+        </SubtitleGroup>
 
-        <Subtitle
-          initial={{ opacity: 0, y: isReducedMotion ? 0 : 16 }}
-          animate={isLoaded || isReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
-          transition={{ duration: isReducedMotion ? 0.2 : 0.8, ease: EASE, delay: delaySub }}
-        >
-          길을 찾고, 듣고, 나누는 로컬 탐색 지도, 온마루
-        </Subtitle>
-      </ContentPanel>
-
-      {/* 좌측 하단 출처 표기 영역 */}
-      <CreditGroup
-        initial={{ opacity: 0, y: isReducedMotion ? 0 : 14 }}
-        animate={isLoaded || isReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 }}
-        transition={{ duration: isReducedMotion ? 0.2 : 0.8, ease: EASE, delay: delayCredit }}
-        style={{ pointerEvents: isOrbitEnabled ? 'none' : 'auto' }}
-      >
-        <StyledInfoTag>
-          서울 계동 근대 한옥 안채 · 국가유산청 3D 실측 데이터 · 공공누리 제1유형
-        </StyledInfoTag>
-      </CreditGroup>
-
-      {/* 하단 중앙 스크롤 인디케이터 영역 */}
-      <ScrollPrompt
-        initial={{ opacity: 0 }}
-        animate={isLoaded || isReducedMotion ? { opacity: 1 } : { opacity: 0 }}
-        transition={{ duration: isReducedMotion ? 0.2 : 0.8, delay: delayScroll }}
-      >
-        <span>SCROLL</span>
-        <ScrollArrowIcon
-          viewBox="0 0 24 24"
-          animate={{ y: [0, 6, 0] }}
-          transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }}
-        >
-          <polyline points="6 9 12 15 18 9" />
-        </ScrollArrowIcon>
-      </ScrollPrompt>
-    </HeroContainer>
+        {/* 하단 1px 세로선 스크롤 인디케이터 */}
+        <ScrollIndicatorGroup ref={scrollIndRef}>
+          <VerticalLineTrack>
+            <VerticalLineFlow />
+          </VerticalLineTrack>
+        </ScrollIndicatorGroup>
+      </StickyViewport>
+    </OuterContainer>
   );
 }

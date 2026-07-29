@@ -141,7 +141,6 @@ const HERO_SPLIT = 0.12;
 
 export default function HanokModel() {
   const { root, parts, offset } = usePreparedModel();
-  // scrollProgress를 구독하면 스크롤마다 리렌더된다. 루프 안에서 getState()로 읽는다.
   const setIsLoaded = useHanokViewerStore((s) => s.setIsLoaded);
   const modelFadeRef = useRef(0);
 
@@ -149,11 +148,25 @@ export default function HanokModel() {
     setIsLoaded(true);
   }, [setIsLoaded]);
 
+  const groupRef = useRef<THREE.Group>(null);
+
+
   useFrame((_, delta) => {
     modelFadeRef.current = Math.min(1, modelFadeRef.current + delta / 1.2);
     const fade = easeOutCubic(modelFadeRef.current);
 
-    const { activeSectionId, stageProgress } = useHanokViewerStore.getState();
+    const { activeSectionId, stageProgress, heroProgress, isReducedMotion } =
+      useHanokViewerStore.getState();
+
+    // 0.55 ~ 1.00: 느린 자동 회전 시작 (10초당 8도 = 0.8도/초)
+    if (activeSectionId === 'hero' && heroProgress >= 0.55 && !isReducedMotion) {
+      if (groupRef.current) {
+        const rotSpeed = (8 * (Math.PI / 180)) / 10;
+        groupRef.current.rotation.y += delta * rotSpeed;
+      }
+    } else if (groupRef.current) {
+      groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, 0, 0.08);
+    }
 
     if (activeSectionId !== 'assembly') {
       // 히어로 및 브랜드 소개 섹션: 완공된 상태 유지
@@ -200,10 +213,11 @@ export default function HanokModel() {
   });
 
   return (
-    <group position={offset}>
+    <group ref={groupRef} position={offset}>
       <primitive object={root} />
     </group>
   );
 }
+
 
 useGLTF.preload(MODEL_URL);
