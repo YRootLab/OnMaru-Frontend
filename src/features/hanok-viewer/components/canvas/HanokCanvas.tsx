@@ -179,10 +179,15 @@ function StudioEnvironment() {
 export default function HanokCanvas() {
   const controlsRef = useRef<OrbitControlsRef | null>(null);
   const isOrbitEnabled = useHanokViewerStore((s) => s.isOrbitEnabled);
+  const activeSectionId = useHanokViewerStore((s) => s.activeSectionId);
+  const introProgress = useHanokViewerStore((s) => s.introProgress);
 
-  // 배경 전환에 필요한 건 불리언 하나뿐이다. scrollProgress를 그대로 구독하면
-  // 스크롤 프레임마다 리렌더되지만, 셀렉터에서 비교까지 끝내면 값이 뒤집힐 때만 리렌더된다.
   const isHero = useHanokViewerStore((s) => s.scrollProgress < HERO_SPLIT);
+
+  const canvasOpacity =
+    activeSectionId === 'intro'
+      ? Math.max(0, Math.min(1, (introProgress - 0.85) / 0.15))
+      : 1;
 
   return (
     <div
@@ -190,13 +195,15 @@ export default function HanokCanvas() {
         position: 'fixed',
         inset: 0,
         zIndex: 0,
+        opacity: canvasOpacity,
         background: isHero
           ? 'linear-gradient(180deg, #FAF8F3 0%, #E9E3D8 100%)'
           : '#1C1A17',
-        transition: 'background 0.4s ease-out',
+        transition: 'opacity 0.2s ease-out, background 0.4s ease-out',
         pointerEvents: isOrbitEnabled ? 'auto' : 'none',
       }}
     >
+
       <Canvas
         camera={{ position: [0.0, 1.2, 9.5], fov: 52, near: 0.1, far: 200 }}
         dpr={[1, 2]}

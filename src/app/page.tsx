@@ -1,7 +1,8 @@
 import HanokViewerLayout from '@/features/hanok-viewer/HanokViewerLayout';
+import IntroSection from '@/features/hanok-viewer/components/sections/IntroSection';
 import HeroSection from '@/features/hanok-viewer/components/sections/HeroSection';
-import AboutHanokSection from '@/features/hanok-viewer/components/sections/AboutHanokSection';
 import AssemblySection from '@/features/hanok-viewer/components/sections/AssemblySection';
+import AboutHanokSection from '@/features/hanok-viewer/components/sections/AboutHanokSection';
 
 export const metadata = {
   title: '온마루 — 안채 3D 모델 뷰어 🇰🇷',
@@ -11,9 +12,12 @@ export const metadata = {
 export default function Home() {
   return (
     <HanokViewerLayout>
+      <IntroSection />
       <HeroSection />
       <AssemblySection />
       <AboutHanokSection />
     </HanokViewerLayout>
   );
 }
+
+
