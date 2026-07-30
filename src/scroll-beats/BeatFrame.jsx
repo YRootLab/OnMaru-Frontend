@@ -18,7 +18,49 @@ export function isInBeat(progress, start, end) {
 // 같은 감각을 유지하되 이징은 자바스크립트에서 직접 먹인다.
 export const clamp01 = (v) => Math.min(1, Math.max(0, v));
 export const easeOut = (t) => 1 - (1 - t) ** 3;
+export const easeOutQuad = (t) => 1 - (1 - t) ** 2;
 export const easeIn = (t) => t ** 3;
+
+/** start~end 구간을 0~1로 환산한다. 구간 밖은 0 또는 1로 잘린다. */
+export const progressIn = (value, start, end) => clamp01((value - start) / (end - start));
+
+// ─────────────────────────────────────────
+// 색
+// ─────────────────────────────────────────
+
+const hexToRgb = (hex) => {
+  const n = parseInt(hex.slice(1), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+};
+
+/**
+ * 두 hex 색을 sRGB에서 그대로 섞는다.
+ * 색상환을 크게 도는 보간이 아니라 인접한 톤 사이 이동에만 쓴다.
+ */
+export function lerpHex(from, to, t) {
+  const a = hexToRgb(from);
+  const b = hexToRgb(to);
+
+  const mixed = a.map((channel, i) => Math.round(channel + (b[i] - channel) * t));
+
+  return `#${mixed.map((v) => v.toString(16).padStart(2, '0')).join('')}`;
+}
+
+/**
+ * 여러 정거장을 지나는 색 변화. stops는 [지점, 색]을 지점 오름차순으로 준다.
+ * 해가 뜨는 것처럼 어둠 → 갈색 → 황금 → 크림으로 넘어가는 경로를 한 번에 태운다.
+ */
+export function lerpStops(stops, t) {
+  const at = clamp01(t);
+
+  const next = stops.findIndex(([stop]) => at <= stop);
+  if (next <= 0) return stops[next === 0 ? 0 : stops.length - 1][1];
+
+  const [fromStop, fromColor] = stops[next - 1];
+  const [toStop, toColor] = stops[next];
+
+  return lerpHex(fromColor, toColor, progressIn(at, fromStop, toStop));
+}
 
 // ─────────────────────────────────────────
 // 모션 최소화
