@@ -79,8 +79,8 @@ const SectionContainer = styled.section`
 
 const ViewportContainer = styled.div`
   position: relative;
-  width: 100%;
-  max-width: 1000px;
+  width: 98vw;
+  max-width: 1600px;
   height: 75vh;
   max-height: 640px;
   background: transparent;
@@ -90,26 +90,31 @@ const ViewportContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  overflow: visible;
 `;
 
 const CardHeader = styled.div`
   z-index: 2;
   margin-bottom: 12px;
   text-align: center;
+  width: 100%;
+  padding: 0 16px;
 `;
 
 const SingleLineTitle = styled.h2`
   font-family: 'SpoqaHanSansNeo', sans-serif;
-  font-size: clamp(18px, 2.2vw, 28px);
-  font-weight: 600;
+  font-size: clamp(22px, 3.2vw, 48px);
+  font-weight: 700;
   color: #f4efe4;
   margin: 0;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  letter-spacing: -0.02em;
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+  letter-spacing: -0.03em;
+  text-shadow: 0 4px 28px rgba(0, 0, 0, 0.95);
+
+  @media (max-width: 768px) {
+    white-space: normal;
+    word-break: keep-all;
+  }
 `;
 
 const CanvasWrapper = styled.div`
