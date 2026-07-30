@@ -1,4 +1,4 @@
-import Section00 from '@/components/Section00';
+import Section00 from '@/archive2/components/Section00';
 
 export default function Section00Preview() {
   return (

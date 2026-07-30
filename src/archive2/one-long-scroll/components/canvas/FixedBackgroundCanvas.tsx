@@ -6,7 +6,7 @@ import { Canvas, useThree } from '@react-three/fiber';
 import { ContactShadows } from '@react-three/drei';
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
-import { registerKeyLight, COLOR_CURVE, INTENSITY_CURVE } from '@/components/LightingSystem';
+import { registerKeyLight, COLOR_CURVE, INTENSITY_CURVE } from '@/archive2/components/LightingSystem';
 import HanokStaticModel from './HanokStaticModel';
 
 // ─────────────────────────────────────────

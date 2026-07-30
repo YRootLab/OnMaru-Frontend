@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { useOneLongScroll } from './hooks/useOneLongScroll';
 import { subscribeScrollProgress } from './store/scrollProgress';
-import { initBackgroundSystem } from '@/components/BackgroundSystem';
+import { initBackgroundSystem } from '@/archive2/components/BackgroundSystem';
 import ProgressOverlay from './components/ProgressOverlay';
 import ScrollTrack from './components/ScrollTrack';
 
