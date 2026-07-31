@@ -61,28 +61,21 @@ export function useScrollProgress() {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    let frame = 0;
+    let animId = 0;
 
-    const read = () => {
-      frame = 0;
+    const updateProgress = () => {
       const scrollable = document.documentElement.scrollHeight - window.innerHeight;
       const next = scrollable > 0 ? window.scrollY / scrollable : 0;
-      setProgress(Math.min(1, Math.max(0, next)));
+      const clamped = Math.min(1, Math.max(0, next));
+
+      setProgress((prev) => (Math.abs(prev - clamped) > 0.0001 ? clamped : prev));
+      animId = requestAnimationFrame(updateProgress);
     };
 
-    const schedule = () => {
-      if (frame) return;
-      frame = requestAnimationFrame(read);
-    };
-
-    read();
-    window.addEventListener('scroll', schedule, { passive: true });
-    window.addEventListener('resize', schedule, { passive: true });
+    animId = requestAnimationFrame(updateProgress);
 
     return () => {
-      if (frame) cancelAnimationFrame(frame);
-      window.removeEventListener('scroll', schedule);
-      window.removeEventListener('resize', schedule);
+      if (animId) cancelAnimationFrame(animId);
     };
   }, []);
 
@@ -151,12 +144,23 @@ const WIDTH_FILL = 0.82;
  * 위치와 회전을 전부 prop으로 넘긴다. 효과에서 손대면 R3F가 prop을 적용하는
  * 시점과 엇갈려 한 프레임씩 어긋나거나 아예 씹힌다.
  */
-function FramedCamera({ position, rotation, near, far }) {
+function FramedCamera({ position, target, near, far }) {
+  const camera = useThree((state) => state.camera);
+
+  useEffect(() => {
+    if (camera && position && target) {
+      camera.position.set(...position);
+      camera.lookAt(target[0], target[1], target[2]);
+      camera.near = near;
+      camera.far = far;
+      camera.updateProjectionMatrix();
+    }
+  }, [camera, position, target, near, far]);
+
   return (
     <PerspectiveCamera
       makeDefault
       position={position}
-      rotation={rotation}
       fov={CAMERA_FOV}
       near={near}
       far={far}
@@ -198,15 +202,19 @@ function HanokScene({ stage }) {
   const size = useThree((s) => s.size);
 
   const model = useMemo(() => {
+    const box = new THREE.Box3().setFromObject(scene);
     const extent = new THREE.Vector3();
-    new THREE.Box3().setFromObject(scene).getSize(extent);
+    box.getSize(extent);
+
+    // 모델의 원본 높이가 극단적이어도 화면에 알맞도록 10단위로 스케일 정규화 기준 산출
+    const rawHeight = Math.max(extent.y, 0.001);
+    const normalizedScale = 10 / rawHeight;
 
     return {
-      height: extent.y,
-      // 어느 방위에서 봐도 안 잘리도록 가로 반지름은 대각선으로 잡는다
-      radius: Math.hypot(extent.x, extent.z) / 2,
-      // 지면에 닿는 넓이. 그림자 평면 크기의 기준이 된다.
-      footprint: Math.max(extent.x, extent.z),
+      height: 10,
+      radius: (Math.hypot(extent.x, extent.z) / 2) * normalizedScale,
+      footprint: Math.max(extent.x, extent.z) * normalizedScale,
+      normalizedScale,
     };
   }, [scene]);
 
@@ -231,72 +239,51 @@ function HanokScene({ stage }) {
     <>
       <FramedCamera
         position={view.position}
-        rotation={view.rotation}
+        target={view.target}
         near={view.near}
         far={view.far}
       />
 
-      <ambientLight intensity={stage.ambientIntensity} />
+      <ambientLight intensity={Math.max(stage.ambientIntensity, 1.2)} color="#FFFDF7" />
 
-      {/*
-        주광. 이 빛 하나가 그림자를 만든다.
-
-        그림자 카메라는 직교라 기본 ±5로는 한옥이 프러스텀을 넘어 그림자가 잘린다.
-        발자국 기준으로 넉넉히 벌려야 처마 끝까지 벽에 맺힌다.
-      */}
       <directionalLight
-        position={stage.keyPosition.map((v) => v * scale)}
-        intensity={stage.keyIntensity}
-        color={stage.keyColor}
+        position={[-15, 25, 20]}
+        intensity={Math.max(stage.keyIntensity, 2.5)}
+        color="#FFF4DC"
         castShadow
         shadow-mapSize-width={SHADOW_MAP}
         shadow-mapSize-height={SHADOW_MAP}
         shadow-bias={SHADOW_BIAS}
       >
-        {/*
-          그림자 카메라를 자식으로 붙여 args로 만든다.
-
-          shadow-camera-left 같은 prop으로 주면 값은 들어가지만
-          updateProjectionMatrix가 불리지 않아 직교 프러스텀이 기본 ±5에 머문다.
-          모델이 그보다 크면 그림자가 조용히 프레임을 빗나간다.
-        */}
         <orthographicCamera
           attach="shadow-camera"
           args={[
-            -footprint * 1.6,
-            footprint * 1.6,
-            footprint * 1.6,
-            -footprint * 1.6,
+            -footprint * 2,
+            footprint * 2,
+            footprint * 2,
+            -footprint * 2,
             0.5,
-            scale * 20,
+            100,
           ]}
         />
       </directionalLight>
 
       <directionalLight
-        position={RIM_DIR.map((v) => v * scale)}
-        intensity={stage.rimIntensity}
-        color={stage.rimColor}
+        position={[15, 20, -15]}
+        intensity={Math.max(stage.rimIntensity, 1.5)}
+        color="#FFCC77"
       />
 
-      <HanokModel wireframe={stage.wireframe} />
+      <group scale={model.normalizedScale}>
+        <HanokModel wireframe={stage.wireframe} />
+      </group>
 
-      {/*
-        접지 그림자. 이게 없이는 한옥이 배경 위에 떠 있는 것처럼 보인다.
-
-        HanokModel이 바닥을 y=0에 맞추므로 평면도 정확히 0에 둔다.
-        scale은 발자국의 약 두 배까지만 준다. 넓게 벌리면 같은 그림자가
-        큰 텍스처에 옅게 퍼져 화면에서 사라진다.
-        far는 모델 높이를 덮어야 지붕까지 깊이에 잡힌다.
-
-        골격 구간에서는 stage가 0을 넘긴다 — 먹빛 배경 위 선에는 접지가 없다.
-      */}
       <ContactShadows
         position={[0, 0, 0]}
         opacity={stage.shadowOpacity}
-        scale={footprint * 2}
-        blur={2.2}
-        far={scale * 1.2}
+        scale={footprint * 2.5}
+        blur={2.0}
+        far={scale * 2}
         resolution={1024}
         color={stage.shadowColor}
       />
@@ -306,18 +293,42 @@ function HanokScene({ stage }) {
 
 /**
  * 고정 무대의 조명·배경값 한 벌.
+ *
+ * Beat5 구간(0.70~0.82)에서 한옥이 서서히 사라진다.
+ * 이전에는 Beat5가 별도 Canvas를 마운트해 이 연출을 맡았지만,
+ * 단일 Canvas 아키텍처로 통합하면서 FixedStage가 대신한다.
  */
 function getStage(progress) {
   const isWireframe = progress >= 0.08 && progress < 0.2;
 
+  // Beat5 한옥 퇴장 — 구간 진입 후 0~18% (로컬) 동안 한옥이 옅어진다
+  const BEAT5_START = 0.7;
+  const BEAT5_END = 0.82;
+  const BEAT5_EXIT_LOCAL = 0.18; // 로컬 진행도 중 18%까지만 한옥을 보여준다
+
+  let beat5Exit = 0; // 0=한옥 보임, 1=한옥 사라짐
+  if (progress >= BEAT5_START && progress < BEAT5_END) {
+    const localProgress = (progress - BEAT5_START) / (BEAT5_END - BEAT5_START);
+    beat5Exit = Math.min(1, Math.max(0, localProgress / BEAT5_EXIT_LOCAL));
+    // easeInOutCubic
+    beat5Exit = beat5Exit < 0.5
+      ? 4 * beat5Exit ** 3
+      : 1 - ((-2 * beat5Exit + 2) ** 3) / 2;
+  } else if (progress >= BEAT5_END) {
+    beat5Exit = 1;
+  }
+
+  // Beat5 구간 이후에는 한옥을 감춘다
+  const hiddenByBeat5 = beat5Exit >= 1;
+
   return {
-    keyIntensity: isWireframe ? 0 : 1.8,
+    keyIntensity: isWireframe || hiddenByBeat5 ? 0 : 1.8,
     keyColor: '#FFF8F0',
     keyPosition: [-1.25, 1.75, 1.35],
-    rimIntensity: isWireframe ? 0 : 0.3,
+    rimIntensity: isWireframe || hiddenByBeat5 ? 0 : 0.3,
     rimColor: '#C1502E',
-    ambientIntensity: isWireframe ? 0 : 0.5,
-    shadowOpacity: isWireframe ? 0 : 0.4,
+    ambientIntensity: isWireframe || hiddenByBeat5 ? 0 : 0.5,
+    shadowOpacity: isWireframe || hiddenByBeat5 ? 0 : 0.4,
     shadowColor: '#3A2E1F',
     background: CANVAS_BASE_COLOR,
     cameraDolly: 0,
@@ -326,6 +337,8 @@ function getStage(progress) {
       drawn: 1,
       scale: 1,
     },
+    // FixedStage가 읽어 캔버스 레이어 전체 opacity를 조절한다
+    canvasOpacity: 1 - beat5Exit,
   };
 }
 
@@ -370,13 +383,13 @@ function Fallback3DWireframe() {
  */
 function FixedStage({ progress }) {
   const stage = getStage(progress);
-  const canvasOpacity = 1;
+  const canvasOpacity = stage.canvasOpacity;
 
   return (
     <>
       {/* 배경색 div는 GlobalBackground가 전담하므로 제거했다. */}
 
-      {SHOW_HANOK && (
+      {SHOW_HANOK && canvasOpacity > 0 && (
         <div
           aria-hidden="true"
           style={{
@@ -390,7 +403,7 @@ function FixedStage({ progress }) {
           <Canvas
             dpr={[1, 2]}
             /* 그림자 맵이 이 연출의 전부다. 이 플래그 없이는 벽이 비어 있다. */
-            shadows
+            shadows={{ type: THREE.PCFShadowMap }}
             gl={{ alpha: true, antialias: true }}
             style={{ position: 'absolute', inset: 0, background: 'transparent' }}
           >

@@ -72,15 +72,30 @@ export default function HanokModel({ wireframe = { on: false, drawn: 1, scale: 1
         o.castShadow = true;
         o.receiveShadow = true;
 
+        // 원본 재질이 투명도 0으로 묶여있는 현상을 막기 위해 재질 독립 복제 및 불투명도 보장
+        const origMat = Array.isArray(o.material)
+          ? o.material.map((m) => {
+              const c = m.clone();
+              c.transparent = false;
+              c.opacity = 1;
+              return c;
+            })
+          : (() => {
+              const c = o.material.clone();
+              c.transparent = false;
+              c.opacity = 1;
+              return c;
+            })();
+
+        o.material = origMat;
+
         collected.push({
           mesh: o,
-          // 원본 재질 백업. 실체로 돌아갈 때 이것 그대로 되돌린다.
-          original: o.material,
-          // 크로스페이드가 건드리는 값들도 함께 적어둔다.
-          states: materialsOf(o.material).map((material) => ({
+          original: origMat,
+          states: materialsOf(origMat).map((material) => ({
             material,
-            transparent: material.transparent,
-            opacity: material.opacity,
+            transparent: false,
+            opacity: 1,
           })),
         });
       }
@@ -88,10 +103,6 @@ export default function HanokModel({ wireframe = { on: false, drawn: 1, scale: 1
 
     /*
       글로우용 껍질 한 겹.
-
-      선 한 겹만 그리면 wireframe이 얇고 죽은 격자로 보인다.
-      아주 조금 큰 클론을 가산 합성으로 겹쳐 선 주변을 번지게 한다.
-      본체와 같은 오프셋 그룹 안에 들어가므로 정렬은 따로 맞출 것이 없다.
     */
     const shell = cloned.clone(true);
     shell.traverse((o) => {
@@ -114,48 +125,22 @@ export default function HanokModel({ wireframe = { on: false, drawn: 1, scale: 1
     };
   }, [scene]);
 
-  /*
-    골격 ↔ 실체.
-
-    재질 참조만 바꿔치기하므로 원본은 배열에 그대로 남아 있고,
-    되돌리는 것도 그 참조를 다시 꽂는 것으로 끝난다.
-  */
   useEffect(() => {
-    /**
-     * 실체가 드러난 정도를 value(0~1)로 채운다.
-     * 다 차면 적어둔 값 그대로 되돌려 놓아 흔적을 남기지 않는다.
-     */
-    const apply = (value) => {
-      const fading = value < 1;
-
-      states.forEach((entry) => entry.states.forEach((state) => {
-        const transparent = fading || state.transparent;
-
-        // transparent를 바꾸면 셰이더를 다시 짜야 한다. 바뀔 때만 알린다.
-        if (state.material.transparent !== transparent) {
-          state.material.transparent = transparent;
-          state.material.needsUpdate = true;
-        }
-
-        state.material.opacity = fading ? state.opacity * value : state.opacity;
-      }));
-    };
-
     if (wireframe.on) {
-      // 되감아 들어왔다면 크로스페이드가 남긴 반투명을 먼저 지운다
-      apply(1);
-
       states.forEach((entry) => {
         entry.mesh.material = wire.line;
       });
-
       return undefined;
     }
 
     states.forEach((entry) => {
       entry.mesh.material = entry.original;
+      materialsOf(entry.original).forEach((mat) => {
+        mat.transparent = false;
+        mat.opacity = 1;
+        mat.needsUpdate = true;
+      });
     });
-    apply(1);
 
     return undefined;
   }, [wireframe.on, states]);
