@@ -1,21 +1,14 @@
 'use client';
 
-import { Suspense, useEffect, useMemo, useRef } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { useGLTF } from '@react-three/drei';
-import * as THREE from 'three';
+import { useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 
-import { MODEL_URL, BEAT_RANGES } from '@/scroll-core/constants';
+import { BEAT_RANGES } from '@/scroll-core/constants';
 import { clamp01, easeOutQuad, progressIn, usePrefersReducedMotion } from './BeatFrame';
 
 const FONT = "'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif";
 
 const INK = '244, 239, 228'; // #F4EFE4 — alpha를 calc로 섞어야 해서 채널로 둔다
-
-const lerp = (from, to, t) => from + (to - from) * t;
-
-const easeInOutCubic = (t) => (t < 0.5 ? 4 * t ** 3 : 1 - ((-2 * t + 2) ** 3) / 2);
 
 // ─────────────────────────────────────────
 // 구간 — 전역 progress 0.70 ~ 0.82
@@ -24,12 +17,6 @@ const easeInOutCubic = (t) => (t < 0.5 ? 4 * t ** 3 : 1 - ((-2 * t + 2) ** 3) / 
 export const RANGE = BEAT_RANGES.BEAT5;
 
 const [RANGE_START, RANGE_END] = RANGE;
-
-/** 한옥이 물러나며 사라지는 창. 이후로는 캔버스 자체를 올리지 않는다. */
-const EXIT = [0, 0.18];
-const EXIT_SCALE = 0.96;
-
-// 배경(어둠·중앙 글로우)과 부유 입자는 GlobalBackground로 이관했다.
 
 // ─────────────────────────────────────────
 // 글자
@@ -135,6 +122,8 @@ function charCue(local, line, index, count, reduced) {
 // 글자마다 리스너를 달지 않는다. 좌표는 한 번 재서 캐시하고(고정 레이어라 스크롤에
 // 흔들리지 않는다) 프레임당 한 번 전부 갱신한다. 값은 CSS 변수로 넘겨 React가 쥔
 // opacity·translateY 와 서로 덮어쓰지 않게 한다.
+//
+// 최적화: visibility가 hidden이거나 opacity가 0에 가까운 글자는 건너뛴다.
 // ─────────────────────────────────────────
 
 function useProximityGlow(rootRef, visibleKey, reduced) {
@@ -171,6 +160,18 @@ function useProximityGlow(rootRef, visibleKey, reduced) {
     let frame = 0;
     const step = () => {
       for (const target of targets) {
+        // 최적화: 보이지 않는 글자는 건너뛴다
+        const currentOpacity = parseFloat(target.el.style.opacity);
+        if (currentOpacity < 0.01) {
+          // 글로우를 0으로 리셋해 다시 나타날 때 깨끗하게 시작한다
+          if (target.glow > 0.001) {
+            target.glow = 0;
+            target.el.style.setProperty('--glow', '0');
+            target.el.style.setProperty('--scale', '1');
+          }
+          continue;
+        }
+
         const distance = Math.hypot(pointer.x - target.x, pointer.y - target.y);
         const influence = Math.max(0, 1 - distance / target.radius);
 
@@ -195,76 +196,6 @@ function useProximityGlow(rootRef, visibleKey, reduced) {
 }
 
 // ─────────────────────────────────────────
-// 3D — Beat4가 남기고 간 한옥
-//
-// Beat4는 0.70에서 언마운트하며 공유 scene을 조립 완료 상태(제자리·원본 재질)로
-// 되돌린다. 그래서 여기서는 재질을 건드리지 않고 그대로 세우기만 한다.
-// 사라짐은 재질 opacity가 아니라 캔버스 레이어의 opacity가 맡는다 —
-// 공유 scene을 또 만지면 되감아 Beat4로 돌아갈 때 조립 상태가 깨진다.
-//
-// 카메라·조명은 Beat4 우측 장면과 같은 값이다. 한쪽만 바꾸면 0.70 경계에서 한옥이 튄다.
-// ─────────────────────────────────────────
-
-const CAMERA = { position: [-16.94, 8.5, 20.91], fov: 45 };
-const LOOK_AT = [0, 4, 0];
-
-function Hanok({ scale }) {
-  const { scene } = useGLTF(MODEL_URL);
-
-  // 밑동을 y=0에, 좌우·앞뒤 중심을 원점에 둔다 (Beat4의 offset과 같은 계산)
-  const offset = useMemo(() => {
-    const box = new THREE.Box3().setFromObject(scene);
-    const center = box.getCenter(new THREE.Vector3());
-    return [-center.x, -box.min.y, -center.z];
-  }, [scene]);
-
-  return (
-    <group scale={scale}>
-      <group position={offset}>
-        <primitive object={scene} />
-      </group>
-    </group>
-  );
-}
-
-function Scene({ scale }) {
-  return (
-    <>
-      {/* 환경광. Beat4와 같은 값이라야 0.70 경계에서 한옥의 밝기가 튀지 않는다. */}
-      <ambientLight intensity={1.6} color="#EAE2D4" />
-
-      <directionalLight
-        position={[-9, 16, 14]}
-        intensity={2.4}
-        color="#FFF4DC"
-        castShadow
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
-        shadow-camera-near={0.5}
-        shadow-camera-far={80}
-        shadow-camera-left={-30}
-        shadow-camera-right={30}
-        shadow-camera-top={30}
-        shadow-camera-bottom={-30}
-        shadow-bias={-0.0005}
-      />
-
-      {/* 림라이트 — 어두운 배경에서 윤곽을 떠올린다 */}
-      <directionalLight position={[-6, 8, -10]} intensity={1.6} color="#F5A623" />
-
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
-        <planeGeometry args={[40, 40]} />
-        <shadowMaterial opacity={0.5} />
-      </mesh>
-
-      <Suspense fallback={null}>
-        <Hanok scale={scale} />
-      </Suspense>
-    </>
-  );
-}
-
-// ─────────────────────────────────────────
 // 스타일
 // ─────────────────────────────────────────
 
@@ -274,21 +205,6 @@ const Stage = styled.section`
   z-index: 5;
   pointer-events: none;
   font-family: ${FONT};
-`;
-
-/** Beat4의 3D가 서 있던 자리. 같은 분할이라야 한옥이 그 자리에서 사라진다. */
-const Frame = styled.div`
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 40%;
-  right: 0;
-  z-index: 1;
-
-  @media (max-width: 768px) {
-    left: 0;
-    bottom: 40%;
-  }
 `;
 
 /**
@@ -355,7 +271,11 @@ const SrOnly = styled.span`
 `;
 
 // ─────────────────────────────────────────
-// Beat5_Silence
+// Beat5_Silence — 텍스트 전용 레이어
+//
+// 3D 한옥의 퇴장 연출은 ScrollExperience의 FixedStage Canvas가
+// getStage에서 opacity를 줄여 전담한다.
+// 이 컴포넌트는 고요한 문장 시퀀스와 마우스 근접 발광만 담는다.
 // ─────────────────────────────────────────
 
 export default function Beat5_Silence({ progress }) {
@@ -364,8 +284,6 @@ export default function Beat5_Silence({ progress }) {
 
   const active = progress >= RANGE_START && progress < RANGE_END;
   const local = active ? (progress - RANGE_START) / (RANGE_END - RANGE_START) : 0;
-
-  const exit = easeInOutCubic(progressIn(local, ...EXIT));
 
   // 지금 화면에 글자가 떠 있는 블록. 이게 바뀔 때만 좌표를 다시 잰다.
   const visible = BLOCKS.filter((block) =>
@@ -380,23 +298,7 @@ export default function Beat5_Silence({ progress }) {
   return (
     <Stage ref={rootRef}>
       {/* 배경(어둠·중앙 글로우)은 GlobalBackground가 전담한다. */}
-
-      {/* z 1 — 한옥. 레이어째 옅어지며 살짝 물러난다. */}
-      {exit < 1 && (
-        <Frame aria-hidden="true" style={{ opacity: 1 - exit }}>
-          <Canvas
-            shadows
-            camera={CAMERA}
-            gl={{ alpha: true, antialias: true }}
-            onCreated={({ camera }) => camera.lookAt(...LOOK_AT)}
-            style={{ position: 'absolute', inset: 0, background: 'transparent' }}
-          >
-            <Scene scale={lerp(1, EXIT_SCALE, exit)} />
-          </Canvas>
-        </Frame>
-      )}
-
-      {/* 부유 입자는 GlobalBackground로 이관했다. */}
+      {/* 3D 한옥 퇴장은 FixedStage Canvas가 전담한다. */}
 
       {/* z 2 — 문장. 침묵 구간에서는 블록 자체가 그려지지 않아 화면에 아무것도 남지 않는다. */}
       {visible.map((block) => (
@@ -442,5 +344,3 @@ export default function Beat5_Silence({ progress }) {
     </Stage>
   );
 }
-
-useGLTF.preload(MODEL_URL);
