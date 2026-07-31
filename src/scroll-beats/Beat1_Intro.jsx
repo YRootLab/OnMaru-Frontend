@@ -165,18 +165,18 @@ const Copy = styled.div`
 const Line = styled.p`
   margin: 0;
   white-space: nowrap;
-  font-size: ${(props) => (props.isLead ? 'min(28px, 2.2vw)' : 'min(36px, 2.8vw)')};
-  font-weight: ${(props) => (props.isLead ? 400 : 700)};
+  font-size: ${(props) => (props.isLead ? 'clamp(24px, 2.4vw, 36px)' : 'clamp(32px, 3.4vw, 48px)')};
+  font-weight: ${(props) => (props.isLead ? 400 : 800)};
   color: ${(props) => (props.isLead ? LEAD_COLOR : TEXT_COLOR)};
 
   & + & {
-    margin-top: clamp(14px, 2vh, 26px);
+    margin-top: clamp(16px, 2.5vh, 32px);
   }
 
   @media (max-width: 768px) {
     white-space: normal;
     font-size: ${(props) =>
-      props.isLead ? 'clamp(15px, 3.8vw, 19px)' : 'clamp(17px, 4.4vw, 22px)'};
+      props.isLead ? 'clamp(18px, 4.5vw, 24px)' : 'clamp(22px, 5.5vw, 30px)'};
   }
 `;
 

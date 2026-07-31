@@ -1,301 +1,315 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useMemo, Suspense } from 'react';
-import styled from '@emotion/styled';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { useGLTF, Center } from '@react-three/drei';
+import { Suspense, useEffect, useMemo, useRef } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { PerspectiveCamera, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
-import { isInBeat } from './BeatFrame';
+
+import { lightPalette, meok } from '@/design-system/tokens';
+import { easeOut, progressIn, usePrefersReducedMotion } from './BeatFrame';
 
 // ─────────────────────────────────────────
-// 하위 호환성 및 무대 파라미터 Export
+// 구간 (Beat2: 0.09 ~ 0.20)
 // ─────────────────────────────────────────
 
-export const RANGE = [0.06, 0.19];
-export const WALL_COLOR = '#F5E6D3';
-export const WALL_ROUGHNESS = 0.95;
-export const WALL_DISTANCE = 0.6;
-export const WALL_SIZE = [10, 6.7];
+export const RANGE = [0.09, 0.2];
 
-export const WIRE_OPACITY = 0.85;
-export const GLOW_OPACITY = 0.25;
-export const GLOW_SCALE = 1.002;
-export const TILT_MAX = 0.26;
-export const TILT_LERP = 0.05;
+const [RANGE_START, RANGE_END] = RANGE;
 
-export function getBeat2Scene(progress) {
+export const MODEL_URL = '/anchae.glb';
+
+/**
+ * Beat3가 실체로 되돌릴 원본 재질.
+ *
+ * 골격 재질로 갈아끼우기 직전에 { mesh, material } 로 적어둔다.
+ * useEffect로 미루면 이미 갈아끼운 뒤라 황금빛 wireframe이 백업된다 —
+ * 백업은 반드시 교체와 같은 자리에서 일어나야 한다.
+ */
+export const originalMaterialsRef = { current: [] };
+
+// ─────────────────────────────────────────
+// 등장 시퀀스 (모두 로컬 진행도 0~1 기준)
+// ─────────────────────────────────────────
+
+const APPEAR = [0.15, 0.45]; // 떠오름 — 0.15 이전은 완전한 어둠(Beat1 페이드아웃과 겹치는 침묵)
+const GLOW_OUT = [0.85, 1.0]; // 글로우만 걷힌다. 선은 Beat3까지 남는다.
+const TILT_FROM = 0.45; // 등장 애니메이션이 끝난 뒤에만 마우스를 받는다
+
+const WIRE_OPACITY = 0.85;
+const GLOW_OPACITY = 0.25;
+const GLOW_SCALE = 1.003;
+
+const RISE = -0.13; // 아래에서 떠오르는 거리 (모델 높이 배수 — GLB 단위와 무관하게 같아 보인다)
+const SCALE_FROM = 0.94;
+
+const TILT_MAX = 0.26; // ±15°
+const TILT_LERP = 0.05;
+
+// ─────────────────────────────────────────
+// 구도 — bounding box에서 카메라 거리를 역산한다
+//
+// GLB 단위가 미터인지 센티미터인지 알 수 없어(수백 단위일 수 있다) 카메라 거리를
+// 상수로 박으면 한옥이 화면 밖으로 잘리거나 점으로 사라진다.
+// 아래 세 비율만 만지면 화면 비율이 바뀌어도 구도가 유지된다.
+// ─────────────────────────────────────────
+
+const FOV = 42;
+/*
+  bbox 기준 채움 비율. 원근 때문에 카메라에 가까운 앞면(툇마루·기단)이 bbox보다 크게
+  투영되므로, 값을 낮춰 실제 화면에서 처마·기단이 잘리지 않게 여유를 둔다.
+  세로가 짧은 노트북(넓은 종횡비)에서 특히 세로가 binding이라 FILL_V가 프레이밍을 정한다.
+*/
+const FILL_V = 0.45; // 한옥이 차지하는 화면 세로 비율 — 위아래 여백
+const FILL_H = 0.7; // 가로 비율 — 좁은 화면에서 좌우가 잘리지 않게 물러선다
+const TOP_MARGIN = 0.31; // 지붕 위 여백 — 한옥을 세로 중앙에 앉힌다(윗글자와 살짝 겹쳐도 됨)
+
+/**
+ * 모델 치수와 화면 비율에서 카메라를 푼다.
+ *
+ * 세로·가로 중 더 많이 물러나야 하는 쪽을 택해 한옥이 어느 방향으로도 잘리지 않게 한다.
+ * 화면에서 y가 놓이는 높이는  p = 0.5 + (y - targetY) / (2 * halfV)  이므로,
+ * 지붕(y = height)을 p = 1 - TOP_MARGIN 에 앉히도록 targetY를 역산한다.
+ */
+function frameCamera(height, radius, aspect) {
+  const halfV = Math.max(height / (2 * FILL_V), radius / (FILL_H * Math.max(aspect, 0.1)));
+  const distance = halfV / Math.tan((FOV * Math.PI) / 360);
+
+  // 카메라가 수평이라 회전이 0이다 — lookAt을 따로 부를 것이 없다.
+  const targetY = height - (0.5 - TOP_MARGIN) * 2 * halfV;
+
   return {
-    keyIntensity: 1.8,
-    keyColor: '#FFF8F0',
-    keyPosition: [-1.25, 1.75, 1.35],
-    rimIntensity: 0.3,
-    rimColor: '#C1502E',
-    ambientIntensity: 0.5,
-    shadowOpacity: 0.4,
-    shadowColor: '#3A2E1F',
-    background: '#141414',
-    cameraDolly: 0,
-    shadowOnly: false,
-    wallOpacity: 0,
+    position: [0, targetY, distance],
+    near: Math.max(0.01, distance / 200),
+    far: distance * 6,
   };
 }
 
-export function createWireframeMaterials() {
-  return {
-    line: new THREE.MeshBasicMaterial({
-      color: '#F5A623',
-      wireframe: true,
-      transparent: true,
-      opacity: WIRE_OPACITY,
-    }),
-    glow: new THREE.MeshBasicMaterial({
-      color: '#FFCC40',
-      wireframe: true,
-      transparent: true,
-      opacity: GLOW_OPACITY,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-    }),
-  };
-}
-
 // ─────────────────────────────────────────
-// Emotion Styled Components
+// 3D 골격
 // ─────────────────────────────────────────
 
-const SectionContainer = styled.section`
-  position: fixed;
-  inset: 0;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  background-color: transparent;
-  overflow: hidden;
-  pointer-events: auto;
-  will-change: opacity, transform;
-`;
+/*
+  골격 재질 두 장.
 
-const ViewportContainer = styled.div`
-  position: relative;
-  width: 98vw;
-  max-width: 1600px;
-  height: 75vh;
-  max-height: 640px;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  overflow: visible;
-`;
+  스크롤이 매 프레임 opacity를 밀어 올리는 값이라 훅이 쥐고 있으면 안 된다
+  (렌더 결과를 나중에 고치는 셈이 된다). 한옥은 화면에 하나뿐이므로
+  모듈 수준에 한 벌 두고 본체와 글로우 클론이 나눠 쓴다.
+*/
+const wire = {
+  line: new THREE.MeshBasicMaterial({
+    color: lightPalette.hwanggeum[400],
+    wireframe: true,
+    transparent: true,
+    opacity: 0,
+  }),
+  glow: new THREE.MeshBasicMaterial({
+    color: lightPalette.hwanggeum[200],
+    wireframe: true,
+    transparent: true,
+    opacity: 0,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+  }),
+};
 
-const CardHeader = styled.div`
-  z-index: 2;
-  margin-bottom: 12px;
-  text-align: center;
-  width: 100%;
-  padding: 0 16px;
-`;
-
-const SingleLineTitle = styled.h2`
-  font-family: 'SpoqaHanSansNeo', sans-serif;
-  font-size: clamp(22px, 3.2vw, 48px);
-  font-weight: 700;
-  color: #f4efe4;
-  margin: 0;
-  white-space: nowrap;
-  letter-spacing: -0.03em;
-  text-shadow: 0 4px 28px rgba(0, 0, 0, 0.95);
-
-  @media (max-width: 768px) {
-    white-space: normal;
-    word-break: keep-all;
-  }
-`;
-
-const CanvasWrapper = styled.div`
-  position: relative;
-  width: 100%;
-  height: 100%;
-  max-height: 520px;
-  background: transparent;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-// ─────────────────────────────────────────
-// Three.js 3D GLB Model Wireframe
-// ─────────────────────────────────────────
-
-function HanokR185ModelWireframe({ rx, ry }) {
-  const { scene } = useGLTF('/anchae.glb');
+function Skeleton({ local, pointer, reduced }) {
+  const { scene } = useGLTF(MODEL_URL);
+  const size = useThree((s) => s.size);
   const groupRef = useRef(null);
 
-  const goldWireframeScene = useMemo(() => {
+  const { root, glow, backup, offset, height, radius } = useMemo(() => {
     const cloned = scene.clone(true);
-    const wireframeMat = new THREE.MeshStandardMaterial({
-      color: '#D4AF37',
-      wireframe: true,
-      emissive: '#4A3B10',
-      roughness: 0.25,
-      metalness: 0.8,
+
+    /*
+      글로우용 껍질 한 겹.
+      선 한 겹만 그리면 wireframe이 얇고 죽은 격자로 보인다.
+      아주 조금 큰 클론을 가산 합성으로 겹쳐 선 주변을 번지게 한다.
+    */
+    const shell = cloned.clone(true);
+    shell.traverse((o) => {
+      if (o.isMesh) o.material = wire.glow;
     });
 
-    cloned.traverse((child) => {
-      if (child.isMesh) {
-        child.material = wireframeMat;
-      }
+    const originals = [];
+    cloned.traverse((o) => {
+      if (!o.isMesh) return;
+      originals.push({ mesh: o, material: o.material });
+      o.material = wire.line;
     });
 
-    return cloned;
+    const box = new THREE.Box3().setFromObject(cloned);
+    const extent = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+
+    return {
+      root: cloned,
+      glow: shell,
+      backup: originals,
+      // 중심을 원점에 맞춰야 마우스 틸팅이 건물 한가운데를 축으로 돈다
+      offset: [-center.x, -center.y, -center.z],
+      height: extent.y,
+      // 어느 각도로 틸팅해도 안 잘리도록 가로 반지름은 대각선으로 잡는다
+      radius: Math.hypot(extent.x, extent.z) / 2,
+    };
   }, [scene]);
 
-  useFrame(() => {
-    if (groupRef.current) {
-      const targetRx = (rx * Math.PI) / 180;
-      const targetRy = (ry * Math.PI) / 180;
+  // GLB 로드 직후 1회. backup은 clone과 함께 만들어지므로 참조가 바뀌지 않는다.
+  useEffect(() => {
+    originalMaterialsRef.current = backup;
+  }, [backup]);
 
-      groupRef.current.rotation.x += (targetRx - groupRef.current.rotation.x) * 0.08;
-      groupRef.current.rotation.y += (targetRy - groupRef.current.rotation.y) * 0.08;
-    }
-  });
-
-  return (
-    <group ref={groupRef}>
-      <Center position={[-0.7, 0.3, 0]}>
-        <primitive object={goldWireframeScene} scale={0.48} />
-      </Center>
-    </group>
+  const view = useMemo(
+    () => frameCamera(height, radius, size.width / size.height),
+    [height, radius, size.width, size.height],
   );
-}
 
-export function Fallback3DWireframe({ rx = 0, ry = 0 }) {
-  const groupRef = useRef(null);
 
   useFrame(() => {
-    if (groupRef.current) {
-      const targetRx = (rx * Math.PI) / 180;
-      const targetRy = (ry * Math.PI) / 180;
+    const group = groupRef.current;
+    if (!group) return;
 
-      groupRef.current.rotation.x += (targetRx - groupRef.current.rotation.x) * 0.08;
-      groupRef.current.rotation.y += (targetRy - groupRef.current.rotation.y) * 0.08;
-    }
+    const appear = easeOut(progressIn(local, ...APPEAR));
+
+    wire.line.opacity = WIRE_OPACITY * appear;
+    wire.glow.opacity = GLOW_OPACITY * appear * (1 - progressIn(local, ...GLOW_OUT));
+
+    // 중심이 height/2 에 있어야 한옥 밑동이 y=0 에 선다
+    group.position.y = height / 2 + height * RISE * (1 - appear);
+    group.scale.setScalar(SCALE_FROM + (1 - SCALE_FROM) * appear);
+
+    // 카메라는 고정. 회전은 모델 group만 갖는다.
+    const active = !reduced && local >= TILT_FROM;
+    const targetY = active ? pointer.current.x * TILT_MAX : 0;
+    const targetX = active ? -pointer.current.y * TILT_MAX : 0;
+
+    group.rotation.y += (targetY - group.rotation.y) * TILT_LERP;
+    group.rotation.x += (targetX - group.rotation.x) * TILT_LERP;
   });
 
   return (
-    <group ref={groupRef}>
-      <group position={[-0.7, 0.3, 0]}>
-        <mesh position={[0, -0.5, 0]}>
-          <boxGeometry args={[4.5, 0.45, 3.5]} />
-          <meshStandardMaterial color="#D4AF37" wireframe />
-        </mesh>
-        {[-1.8, 1.8].map((x, i) =>
-          [-1.3, 1.3].map((z, j) => (
-            <mesh key={`${i}-${j}`} position={[x, 0.9, z]}>
-              <cylinderGeometry args={[0.13, 0.13, 2.5, 8]} />
-              <meshStandardMaterial color="#D4AF37" wireframe />
-            </mesh>
-          ))
-        )}
-        <mesh position={[0, 2.6, 0]}>
-          <coneGeometry args={[3.6, 1.5, 4]} />
-          <meshStandardMaterial color="#C1502E" wireframe />
-        </mesh>
+    <>
+      <PerspectiveCamera
+        makeDefault
+        position={view.position}
+        fov={FOV}
+        near={view.near}
+        far={view.far}
+      />
+
+      <group ref={groupRef}>
+        <group position={offset}>
+          <primitive object={root} />
+          <primitive object={glow} scale={GLOW_SCALE} />
+        </group>
       </group>
-    </group>
+    </>
   );
 }
 
 // ─────────────────────────────────────────
-// Beat2_Reveal 메인 컴포넌트 (부드러운 스크롤 교차 페이드)
+// 텍스트
 // ─────────────────────────────────────────
 
-export default function Beat2_Reveal({ progress = 0.12 }) {
-  const [tilt, setTilt] = useState({ rx: 0, ry: 0 });
-  const [mounted, setMounted] = useState(false);
-  const containerRef = useRef(null);
+const EYEBROW_IN = [0.2, 0.28];
+const HEADLINE_IN = [0.25, 0.33];
+const HINT_IN = [0.45, 0.55];
+
+const FONT = "'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif";
+
+// ─────────────────────────────────────────
+// Beat2_Reveal
+// ─────────────────────────────────────────
+
+export default function Beat2_Reveal({ progress }) {
+  const reduced = usePrefersReducedMotion();
+  const pointer = useRef({ x: 0, y: 0 });
+
+  const inRange = progress >= RANGE_START && progress < RANGE_END;
+  const local = inRange ? (progress - RANGE_START) / (RANGE_END - RANGE_START) : 0;
+
+  /*
+    캔버스 레이어는 pointer-events가 끊겨 있어 R3F의 포인터가 갱신되지 않는다.
+    화면 전체를 기준으로 직접 정규화해서 읽는다 (-1 ~ 1).
+  */
+  const armed = local >= TILT_FROM;
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    if (reduced || !armed) return undefined;
 
-  if (typeof progress === 'number' && !isInBeat(progress, 0.05, 0.21)) {
-    return null;
-  }
+    const read = (event) => {
+      pointer.current.x = (event.clientX / window.innerWidth) * 2 - 1;
+      pointer.current.y = (event.clientY / window.innerHeight) * 2 - 1;
+    };
 
-  // Beat1 -> Beat2 진입 교차 페이드 (0.06 ~ 0.09)
-  const fadeIn = Math.max(0, Math.min(1, (progress - 0.06) / (0.09 - 0.06)));
-  // Beat2 -> Beat3 퇴장 교차 페이드 (0.16 ~ 0.19)
-  const fadeOut = Math.max(0, Math.min(1, (0.19 - progress) / (0.19 - 0.16)));
+    window.addEventListener('pointermove', read, { passive: true });
+    return () => window.removeEventListener('pointermove', read);
+  }, [reduced, armed]);
 
-  const smoothFadeIn = Math.sin(fadeIn * Math.PI * 0.5);
-  const smoothFadeOut = Math.sin(fadeOut * Math.PI * 0.5);
-  const smoothOpacity = smoothFadeIn * smoothFadeOut;
+  if (!inRange) return null;
 
-  // 부드러운 수직 부상 애니메이션 (16px -> 0px)
-  const translateY = (1 - smoothFadeIn) * 16;
-
-  const handleMouseMove = (e) => {
-    if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-
-    const normX = (e.clientX - centerX) / (rect.width / 2);
-    const normY = (e.clientY - centerY) / (rect.height / 2);
-
-    const ry = Math.max(-15, Math.min(15, normX * 15));
-    const rx = Math.max(-15, Math.min(15, -normY * 15));
-
-    setTilt({ rx, ry });
-  };
-
-  const handleMouseLeave = () => {
-    setTilt({ rx: 0, ry: 0 });
-  };
+  const headline = progressIn(local, ...HEADLINE_IN);
+  const hint = progressIn(local, ...HINT_IN);
 
   return (
-    <SectionContainer
-      style={{
-        opacity: smoothOpacity,
-        transform: `translate3d(0, ${translateY}px, 0)`,
-        transition: 'opacity 0.2s ease-out, transform 0.2s ease-out',
-      }}
-    >
-      <ViewportContainer
-        ref={containerRef}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
+    <section style={{ position: 'fixed', inset: 0, pointerEvents: 'none' }}>
+      {/* 배경은 GlobalBackground가 전담한다. */}
+
+      {/* z 1 — 골격 (alpha: true 로 전역 배경이 그대로 비친다) */}
+      <div aria-hidden="true" style={{ position: 'fixed', inset: 0, zIndex: 1 }}>
+        <Canvas
+          dpr={[1, 2]}
+          gl={{ alpha: true, antialias: true }}
+          style={{ position: 'absolute', inset: 0, background: 'transparent' }}
+        >
+          <Suspense fallback={null}>
+            <Skeleton local={local} pointer={pointer} reduced={reduced} />
+          </Suspense>
+        </Canvas>
+      </div>
+
+      {/* z 2 — 텍스트. 한옥 와이어프레임 지붕 상단과 겹치지 않도록 여백(Negative space) 확보 */}
+      <div
+        style={{
+          position: 'fixed',
+          top: 'clamp(5vh, 6.5vh, 8vh)',
+          left: 0,
+          right: 0,
+          zIndex: 2,
+          padding: '0 24px',
+          textAlign: 'center',
+          fontFamily: FONT,
+        }}
       >
-        <CardHeader>
-          <SingleLineTitle>
-            형태를 지워낸 자리, 치밀하게 맞물린 설계 데이터가 드러납니다.
-          </SingleLineTitle>
-        </CardHeader>
+        <h2
+          style={{
+            margin: 0,
+            fontSize: 'clamp(28px, 4.2vw, 54px)',
+            fontWeight: 700,
+            letterSpacing: '-0.03em',
+            wordBreak: 'keep-all',
+            color: meok[100],
+            opacity: headline,
+            transform: `translateY(${12 * (1 - headline)}px)`,
+          }}
+        >
+          형태를 지우면, 설계가 남습니다.
+        </h2>
 
-        <CanvasWrapper>
-          {mounted && (
-            <Canvas
-              camera={{ position: [0, 1.8, 7.2], fov: 42 }}
-              style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}
-            >
-              <ambientLight intensity={0.7} />
-              <directionalLight position={[10, 15, 10]} intensity={2.0} color="#FFF8F0" />
-              <directionalLight position={[-10, -5, -10]} intensity={0.6} color="#D4AF37" />
-
-              <Suspense fallback={<Fallback3DWireframe rx={tilt.rx} ry={tilt.ry} />}>
-                <HanokR185ModelWireframe rx={tilt.rx} ry={tilt.ry} />
-              </Suspense>
-            </Canvas>
-          )}
-        </CanvasWrapper>
-      </ViewportContainer>
-    </SectionContainer>
+        <p
+          style={{
+            margin: '14px 0 0',
+            fontSize: 'clamp(13px, 1.4vw, 15px)',
+            fontWeight: 400,
+            color: meok[500],
+            opacity: hint,
+            transition: 'opacity 0.4s ease-out',
+          }}
+        >
+          마우스를 움직여 각도를 바꿔보십시오.
+        </p>
+      </div>
+    </section>
   );
 }
+
+useGLTF.preload(MODEL_URL);

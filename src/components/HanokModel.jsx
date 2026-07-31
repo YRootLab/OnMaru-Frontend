@@ -6,17 +6,32 @@ import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 
 import { usePrefersReducedMotion } from '@/scroll-beats/BeatFrame';
-import {
-  GLOW_OPACITY,
-  GLOW_SCALE,
-  TILT_LERP,
-  TILT_MAX,
-  WIRE_OPACITY,
-  createWireframeMaterials,
-} from '@/scroll-beats/Beat2_Reveal';
 import { onEarthquake, runQuake, runReveal } from '@/scroll-beats/Beat3a_Earthquake';
 
 export const MODEL_URL = '/anchae.glb';
+
+const WIRE_OPACITY = 0.85;
+const GLOW_OPACITY = 0.25;
+const GLOW_SCALE = 1.002;
+const TILT_MAX = 0.26; // ±15°
+const TILT_LERP = 0.05;
+
+const createWireframeMaterials = () => ({
+  line: new THREE.MeshBasicMaterial({
+    color: '#F5A623',
+    wireframe: true,
+    transparent: true,
+    opacity: WIRE_OPACITY,
+  }),
+  glow: new THREE.MeshBasicMaterial({
+    color: '#FFCC40',
+    wireframe: true,
+    transparent: true,
+    opacity: GLOW_OPACITY,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+  }),
+});
 
 /** mesh 하나가 재질을 여러 장 가질 수 있다. 늘 배열로 펴서 다룬다. */
 const materialsOf = (material) => (Array.isArray(material) ? material : [material]);
