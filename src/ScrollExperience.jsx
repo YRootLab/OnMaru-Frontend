@@ -7,15 +7,15 @@ import * as THREE from 'three';
 import Lenis from 'lenis';
 
 import { surface } from '@/design-system/tokens';
+import { MODEL_URL, SCROLL_HEIGHT } from '@/scroll-core/constants';
+import { frameCamera } from '@/scroll-core/cameraUtils';
 
-import HanokModel, { MODEL_URL } from '@/components/HanokModel';
+import HanokModel from '@/components/HanokModel';
 import GlobalBackground from '@/scroll-core/GlobalBackground';
 import { progressIn } from '@/scroll-beats/BeatFrame';
 import Beat1_Intro from '@/scroll-beats/Beat1_Intro';
 import Beat2_Reveal from '@/scroll-beats/Beat2_Reveal';
 import Beat3_Season from '@/scroll-beats/Beat3_Season';
-import Beat3c_CrossSection from '@/scroll-beats/Beat3c_CrossSection';
-import Beat3d_Deuleoyeolgae from '@/scroll-beats/Beat3d_Deuleoyeolgae';
 import Beat4_Assembly from '@/scroll-beats/Beat4_Assembly';
 import Beat5_Silence from '@/scroll-beats/Beat5_Silence';
 import Beat6_Invite from '@/scroll-beats/Beat6_Invite';
@@ -31,7 +31,7 @@ import Beat6_Invite from '@/scroll-beats/Beat6_Invite';
  *
  * 800vh 시절엔 같은 창이 7vh였다 — 휠 한 틱에 문장이 떠서 지워졌다.
  */
-const SCROLL_HEIGHT = '2000vh';
+// SCROLL_HEIGHT 상수는 @/scroll-core/constants 에서 제공합니다.
 
 /**
  * 캔버스 기본 배경 — 전통 먹빛 마루.
@@ -64,15 +64,26 @@ export function useScrollProgress() {
     let frame = 0;
 
     const read = () => {
+      frame = 0;
       const scrollable = document.documentElement.scrollHeight - window.innerHeight;
       const next = scrollable > 0 ? window.scrollY / scrollable : 0;
       setProgress(Math.min(1, Math.max(0, next)));
+    };
+
+    const schedule = () => {
+      if (frame) return;
       frame = requestAnimationFrame(read);
     };
 
-    frame = requestAnimationFrame(read);
+    read();
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule, { passive: true });
 
-    return () => cancelAnimationFrame(frame);
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+    };
   }, []);
 
   return progress;
@@ -134,65 +145,6 @@ const ROOF_SCREEN_Y = 0.7;
 /** 가로로 한옥이 차지하는 최대 비율. 좁은 화면에서 잘리지 않게 물러선다. */
 const WIDTH_FILL = 0.82;
 
-const toRad = (deg) => (deg * Math.PI) / 180;
-
-/**
- * 모델 크기에서 카메라 구도를 역산한다.
- *
- * 화면에서 y가 놓이는 높이는  p = 0.5 + 0.5 * (y - targetY) / halfExtent  이다.
- * 하단(y=0)과 지붕(y=height)을 원하는 p에 앉히도록 halfExtent와 targetY를 풀고,
- * 거기서 카메라 거리를 얻는다. 가로가 모자라면 그만큼 더 물러선다.
- *
- * 이렇게 두면 화면 비율이 바뀌어도 한옥이 늘 같은 자리에 선다.
- */
-function frameCamera({ height, radius }, aspect, dolly) {
-  const forHeight = (0.5 * height) / (ROOF_SCREEN_Y - BASE_SCREEN_Y);
-  const forWidth = radius / (WIDTH_FILL * Math.max(aspect, 0.1));
-  const halfExtent = Math.max(forHeight, forWidth);
-
-  const targetY = 2 * halfExtent * (0.5 - BASE_SCREEN_Y);
-  const distance = Math.max(halfExtent / Math.tan(toRad(CAMERA_FOV) / 2) + dolly, 1);
-
-  const azimuth = toRad(VIEW_AZIMUTH_DEG);
-  const elevation = toRad(VIEW_ELEVATION_DEG);
-  const ground = distance * Math.cos(elevation);
-
-  // 타깃의 x·z가 0이라 한옥이 화면 가로 중앙에 선다
-  const target = [0, targetY, 0];
-  const position = [
-    Math.cos(azimuth) * ground,
-    targetY - distance * Math.sin(elevation),
-    Math.sin(azimuth) * ground,
-  ];
-
-  /*
-    회전까지 여기서 뽑아 카메라에 prop으로 넘긴다.
-
-    효과에서 lookAt을 부르면 R3F가 position prop을 적용하는 시점과 엇갈려
-    회전이 씹힌다. 더미로 한 번 바라보게 해서 오일러각을 얻으면
-    위치와 회전이 같은 렌더에서 함께 적용된다.
-  */
-  const dummy = new THREE.Object3D();
-  dummy.position.set(...position);
-  dummy.lookAt(...target);
-
-  return {
-    target,
-    position,
-    rotation: [dummy.rotation.x, dummy.rotation.y, dummy.rotation.z],
-
-    /*
-      near·far도 거리에서 뽑는다.
-
-      GLB의 단위가 무엇인지는 알 수 없다. 미터가 아니라 센티미터로 나온 모델이면
-      카메라가 수백 단위 밖에 서게 되고, far를 상수로 박아두면 장면 전체가
-      잘려 캔버스가 텅 빈다.
-    */
-    near: Math.max(0.01, distance / 200),
-    far: distance * 6,
-  };
-}
-
 /**
  * 카메라를 구도값에 맞춘다.
  *
@@ -221,12 +173,9 @@ function FramedCamera({ position, rotation, near, far }) {
 const SHOW_HANOK = true;
 
 /**
- * 고정 캔버스가 차오르는 구간 — Beat2가 끝나고 Beat3가 시작하는 자리(0.20)다.
- *
- * Beat2가 자기 캔버스로 골격을 그리므로 이 캔버스는 그때까지 완전히 꺼져 있어야 한다.
- * 앞당기면 Beat1 영상이 걷히는 사이로 실체 한옥이 비쳐 두 Beat이 겹쳐 보인다.
+ * 고정 캔버스가 차오르는 구간 — Beat1이 끝나갈 즈음(0.06~0.12)부터 부드럽게 밝아진다.
  */
-const CANVAS_FADE_IN = [0.19, 0.21];
+const CANVAS_FADE_IN = [0.06, 0.12];
 
 /** 역광 위치. 모델 높이의 배수라 크기가 달라져도 각도가 유지된다. */
 const RIM_DIR = [1.15, 1.6, -1.3]; // 후면 상단 — 지붕 윤곽만 떠올리는 역광
@@ -247,9 +196,6 @@ const SHADOW_BIAS = -0.0005;
 function HanokScene({ stage }) {
   const { scene } = useGLTF(MODEL_URL);
   const size = useThree((s) => s.size);
-  const three = useThree();
-  useEffect(() => { window.__r3f = three; console.log('[dbg] HanokScene mounted'); }, [three]);
-  console.log('[dbg] HanokScene render');
 
   const model = useMemo(() => {
     const extent = new THREE.Vector3();
@@ -265,7 +211,16 @@ function HanokScene({ stage }) {
   }, [scene]);
 
   const view = useMemo(
-    () => frameCamera(model, size.width / size.height, stage.cameraDolly),
+    () =>
+      frameCamera(model, size.width / size.height, {
+        fov: CAMERA_FOV,
+        azimuthDeg: VIEW_AZIMUTH_DEG,
+        elevationDeg: VIEW_ELEVATION_DEG,
+        baseScreenY: BASE_SCREEN_Y,
+        roofScreenY: ROOF_SCREEN_Y,
+        widthFill: WIDTH_FILL,
+        dolly: stage.cameraDolly || 0,
+      }),
     [model, size.width, size.height, stage.cameraDolly],
   );
 
@@ -351,22 +306,26 @@ function HanokScene({ stage }) {
 
 /**
  * 고정 무대의 조명·배경값 한 벌.
- *
- * Beat2가 자기 캔버스를 갖게 되면서 이 값들도 여기로 내려왔다.
- * 아직 progress에 따라 변하지 않는다 — 구간별 변화가 필요해지면 여기서 가른다.
  */
-function getStage() {
+function getStage(progress) {
+  const isWireframe = progress >= 0.08 && progress < 0.2;
+
   return {
-    keyIntensity: 1.8,
+    keyIntensity: isWireframe ? 0 : 1.8,
     keyColor: '#FFF8F0',
     keyPosition: [-1.25, 1.75, 1.35],
-    rimIntensity: 0.3,
+    rimIntensity: isWireframe ? 0 : 0.3,
     rimColor: '#C1502E',
-    ambientIntensity: 0.5,
-    shadowOpacity: 0.4,
+    ambientIntensity: isWireframe ? 0 : 0.5,
+    shadowOpacity: isWireframe ? 0 : 0.4,
     shadowColor: '#3A2E1F',
     background: CANVAS_BASE_COLOR,
     cameraDolly: 0,
+    wireframe: {
+      on: isWireframe,
+      drawn: 1,
+      scale: 1,
+    },
   };
 }
 
@@ -410,14 +369,8 @@ function Fallback3DWireframe() {
  * 어느 구간에서 무엇이 어떻게 변하는지는 각 Beat 파일이 갖는다.
  */
 function FixedStage({ progress }) {
-  const stage = getStage();
-
-  /*
-    캔버스 레이어의 투명도는 Beat1 영상이 걷히는 만큼만 차오른다.
-
-    골격이 그려지는 연출은 레이어가 아니라 재질이 맡는다 (stage.wireframe.drawn).
-  */
-  const canvasOpacity = progressIn(progress, ...CANVAS_FADE_IN);
+  const stage = getStage(progress);
+  const canvasOpacity = 1;
 
   return (
     <>
@@ -481,8 +434,6 @@ export default function ScrollExperience() {
         <Beat1_Intro progress={progress} />
         <Beat2_Reveal progress={progress} />
         <Beat3_Season progress={progress} />
-        <Beat3c_CrossSection progress={progress} />
-        <Beat3d_Deuleoyeolgae progress={progress} />
         <Beat4_Assembly progress={progress} />
         <Beat5_Silence progress={progress} />
         <Beat6_Invite progress={progress} />

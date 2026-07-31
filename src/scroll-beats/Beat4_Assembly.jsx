@@ -1,8 +1,14 @@
 'use client';
 
-import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
+/*
+  eslint-disable react-hooks/immutability --
+  R3F는 씬 그래프를 명령형으로 다룬다. useFrame이 mesh·material을 직접 쓰는 것이
+  이 라이브러리의 정상 패턴이고, 여기서 만지는 것은 이 컴포넌트가 clone한 자기 사본이다.
+*/
+
+import { Suspense, useEffect, useMemo, useRef } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Environment, OrbitControls, useGLTF } from '@react-three/drei';
+import { PerspectiveCamera, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import styled from '@emotion/styled';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -10,16 +16,11 @@ import { AnimatePresence, motion } from 'framer-motion';
 // 읽기 전용 아카이브의 단계 정의. 실제 경로는 .../data/hanok.data
 // (브리프 경로에서 /data/ 세그먼트가 빠져 있었다). hanok.data.ts는 수정하지 않는다.
 import { STAGES } from '@/archive/hanok-viewer/data/hanok.data';
+import { MODEL_URL, BEAT_RANGES } from '@/scroll-core/constants';
 import { clamp01, easeOut as easeOutCubic } from './BeatFrame';
-
-const MODEL_URL = '/anchae.glb';
 
 const FONT = "'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif";
 const EASE = [0.22, 1, 0.36, 1];
-
-const IS_DEV = process.env.NODE_ENV === 'development';
-
-const lerp = (from, to, t) => from + (to - from) * t;
 
 const smoothstep = (edge0, edge1, x) => {
   const t = clamp01((x - edge0) / (edge1 - edge0));
@@ -27,10 +28,10 @@ const smoothstep = (edge0, edge1, x) => {
 };
 
 // ─────────────────────────────────────────
-// 구간 — 전역 progress 0.45 ~ 0.70 (Beat1~3과 같은 props 방식)
+// 구간 — 전역 progress 0.45 ~ 0.70
 // ─────────────────────────────────────────
 
-export const RANGE = [0.45, 0.7];
+export const RANGE = BEAT_RANGES.BEAT4;
 
 const [RANGE_START, RANGE_END] = RANGE;
 
@@ -68,24 +69,31 @@ const statusOf = (local, i) => {
 // ─────────────────────────────────────────
 
 /**
- * 성능: scene.clone(true)를 쓰지 않는다.
- * mesh.material만 clone하고 geometry는 공유한다 (부재 107개 × 지오메트리 복제를 피한다).
- * 공유 scene을 직접 만지므로, 언마운트 때 위치·재질을 원상 복구해 Beat2·3로 되돌아갈 때
- * 부재가 흩어진 채로 남지 않게 한다.
+ * 조립할 한옥 한 벌.
+ *
+ * useGLTF가 돌려주는 scene은 캐시된 한 덩어리다. HanokModel(상시 마운트)과 Beat5도
+ * 같은 것을 쥐고 있어서, 여기서 직접 mesh.material을 갈아끼우면 서로의 재질을 덮어쓴다.
+ * 실제로 그 탓에 부재가 visible=true 인 채 opacity 0 에 묶여 화면에서 통째로 사라졌다.
+ *
+ * 그래서 자기 사본 위에서만 작업한다. clone(true)는 노드 계층만 복제하고
+ * geometry·material은 참조로 공유하므로 부재 107개라도 비용이 거의 없다.
+ * 남의 것을 만지지 않으니 언마운트 때 되돌릴 것도 없다.
  */
 function AssemblyModel({ localRef }) {
   const { scene } = useGLTF(MODEL_URL);
 
-  const { parts, offset } = useMemo(() => {
+  const { parts, offset, root } = useMemo(() => {
+    const cloned = scene.clone(true);
+
     const meshes = [];
-    scene.traverse((object) => {
+    cloned.traverse((object) => {
       if (!object.isMesh) return;
       object.castShadow = true;
       object.receiveShadow = true;
       meshes.push(object);
     });
 
-    const box = new THREE.Box3().setFromObject(scene);
+    const box = new THREE.Box3().setFromObject(cloned);
     const center = box.getCenter(new THREE.Vector3());
     const yMin = box.min.y;
     const ySpan = Math.max(0.001, box.max.y - yMin);
@@ -103,20 +111,22 @@ function AssemblyModel({ localRef }) {
         stage = Math.min(STAGES.length - 1, Math.max(0, bucket));
       }
 
-      // 재질만 clone. 원본 참조는 백업해 언마운트 때 되돌린다.
-      const originalMaterial = mesh.material;
+      /*
+        재질도 제 것으로 복제한다.
+        clone(true)가 재질을 참조로 공유하므로, 이걸 빼먹으면 opacity 애니메이션이
+        원본 재질에 그대로 새어 나가 다른 Beat의 한옥까지 함께 지워진다.
+      */
       const isRoof = stage === STAGES.length - 1; // 기와 단계
       const materials = (Array.isArray(mesh.material) ? mesh.material : [mesh.material]).map(
         (source) => {
           const material = source.clone();
           material.transparent = true;
           material.opacity = 0;
-          // 환경맵 반사 세기 — 이게 없으면 검은 기와가 배경에 묻혀 안 보인다.
-          material.envMapIntensity = 0.9;
-          // 기와는 구운 점토라 은은한 광택이 있다. 반사를 살려 어두운 배경에서 능선을 드러낸다.
+
+          // 기와는 구운 점토라 은은한 광택이 있다. 거칠기를 낮춰
+          // 어두운 배경에서도 주광이 능선을 훑고 지나가게 한다.
           if (isRoof && material.isMeshStandardMaterial) {
             material.roughness = Math.min(material.roughness, 0.42);
-            material.envMapIntensity = 1.8;
           }
           return material;
         },
@@ -127,41 +137,26 @@ function AssemblyModel({ localRef }) {
       return {
         mesh,
         materials,
-        originalMaterial,
         origin: mesh.position.clone(),
         from: new THREE.Vector3(...STAGES[stage].from),
         stage,
-        settled: false,
       };
     });
 
-    return { parts: built, offset: [-center.x, -yMin, -center.z] };
+    return { parts: built, offset: [-center.x, -yMin, -center.z], root: cloned };
   }, [scene]);
 
-  // 언마운트 시 공유 scene을 조립 완료(제자리·원본 재질) 상태로 복구한다.
-  useEffect(
-    () => () => {
-      parts.forEach((part) => {
-        part.mesh.position.copy(part.origin);
-        part.mesh.material = part.originalMaterial;
-        part.mesh.visible = true;
-        part.materials.forEach((m) => m.dispose());
-      });
-    },
-    [parts],
-  );
+  /*
+    매 프레임 107개를 전부 다시 계산한다.
 
+    "정착한 부재는 건너뛴다"는 최적화가 있었지만, 부재마다 상태 플래그를 들고
+    되감기까지 챙겨야 해서 계산량보다 그 관리가 더 비쌌다. 곱셈 몇 번이 전부다.
+  */
   useFrame(() => {
     const local = localRef.current;
 
     for (const part of parts) {
       const [start, end] = STAGE_WINDOWS[part.stage];
-
-      // 이미 정착한 부재는 계산을 건너뛴다. 되감아 창 안으로 들어오면 다시 계산한다.
-      if (part.settled) {
-        if (local >= end) continue;
-        part.settled = false;
-      }
 
       const t = clamp01((local - start) / (end - start));
       const e = easeOutCubic(t);
@@ -180,55 +175,114 @@ function AssemblyModel({ localRef }) {
         const opaque = opacity > 0.995;
         for (const material of part.materials) {
           material.opacity = opacity;
-          material.transparent = !opaque;
+
+          // transparent를 바꾸면 셰이더를 다시 짜야 한다. 바뀔 때만 알린다.
+          if (material.transparent === opaque) {
+            material.transparent = !opaque;
+            material.needsUpdate = true;
+          }
         }
-        if (t >= 1) part.settled = true; // 정착: 다음 프레임부터 스킵
       }
     }
   });
 
   return (
     <group position={offset}>
-      <primitive object={scene} />
+      <primitive object={root} />
     </group>
   );
 }
 
-/** 개발 중에만 켤 수 있는 카메라 탐색기. 켜면 OrbitControls로 돌리며 좌표를 콘솔에 찍는다. */
-function DevCamera({ enabled }) {
-  if (!enabled) return null;
+/**
+ * 카메라를 모델 치수와 화면 비율에서 역산한다.
+ *
+ * 상수 좌표는 넓은 창에서 잡아둔 값이라, 캔버스가 세로로 길어지면(모바일에서는
+ * 3D가 위 60%만 차지한다) 한옥이 프레임 밖으로 밀려 화면이 텅 빈다.
+ * 방향만 원래 값에서 그대로 가져오고 거리는 매번 푼다.
+ */
+const VIEW_DIR = [-11, 6, 14]; // 타깃 → 카메라. 원래 상수 좌표가 보던 방향 그대로.
+const FOV = 45;
+
+/*
+  부재가 STAGES[].from 만큼 떨어진 자리에서 날아오므로 완성 크기보다 넉넉히 잡는다.
+  꽉 채우면 조립 중 부재가 프레임 밖에서 나타난다.
+*/
+const FILL_H = 0.72;
+const FILL_V = 0.6;
+
+const LOOK_Y = 0.45; // 시선이 닿는 높이 (모델 높이 배수)
+
+const toRad = (deg) => (deg * Math.PI) / 180;
+
+function AssemblyCamera() {
+  const { scene } = useGLTF(MODEL_URL);
+  const size = useThree((s) => s.size);
+
+  const extent = useMemo(
+    () => new THREE.Box3().setFromObject(scene).getSize(new THREE.Vector3()),
+    [scene],
+  );
+
+  const view = useMemo(() => {
+    const aspect = Math.max(size.width / size.height, 0.1);
+    const radius = Math.hypot(extent.x, extent.z) / 2;
+
+    const halfV = Math.max(extent.y / (2 * FILL_V), radius / (FILL_H * aspect));
+    const distance = halfV / Math.tan(toRad(FOV) / 2);
+
+    const targetY = extent.y * LOOK_Y;
+    const length = Math.hypot(...VIEW_DIR);
+    const position = VIEW_DIR.map((v) => (v / length) * distance);
+    position[1] += targetY;
+
+    /*
+      회전을 여기서 뽑아 prop으로 넘긴다. 효과에서 lookAt을 부르면 R3F가 position을
+      적용하는 시점과 엇갈려 회전이 씹힌다. 더미는 반드시 카메라여야 한다 —
+      평범한 Object3D는 eye/target을 뒤집어 맞춰 카메라가 반대편을 본다.
+    */
+    const dummy = new THREE.PerspectiveCamera();
+    dummy.position.set(...position);
+    dummy.lookAt(0, targetY, 0);
+
+    return {
+      position,
+      rotation: [dummy.rotation.x, dummy.rotation.y, dummy.rotation.z],
+      // GLB 단위를 모르므로 near·far도 거리에서 뽑는다
+      near: Math.max(0.01, distance / 200),
+      far: distance * 6,
+    };
+  }, [extent, size.width, size.height]);
+
   return (
-    <OrbitControls
+    <PerspectiveCamera
       makeDefault
-      target={[0, 4, 0]}
-      onChange={(event) => {
-        const cam = event?.target?.object;
-        if (!cam) return;
-        console.log(
-          '[Beat4 cam] position',
-          cam.position.toArray().map((n) => +n.toFixed(2)),
-        );
-      }}
+      position={view.position}
+      rotation={view.rotation}
+      fov={FOV}
+      near={view.near}
+      far={view.far}
     />
   );
 }
 
-function Scene({ localRef, devCam }) {
-  // QA 임시 프로브 — 확인 끝나면 제거
-  const three = useThree();
-  useEffect(() => { window.__b4 = three; }, [three]);
-
+function Scene({ localRef }) {
   return (
     <>
       {/*
-        빛만 담당하는 HDRI (background 없음 → 다크 radial 배경은 그대로).
-        검은 기와가 반사로 살아나게 하는 게 핵심 — 재질의 envMapIntensity가 이걸 받는다.
+        useGLTF를 부르므로 반드시 Suspense 안에 있어야 한다.
+        밖에 두면 모델을 기다리는 동안 Canvas 전체가 suspend되어 DOM에서 통째로 빠진다.
       */}
       <Suspense fallback={null}>
-        <Environment files="/hdri/sunset_meadow_path_4k.exr" environmentIntensity={1.2} />
+        <AssemblyCamera />
       </Suspense>
 
-      <ambientLight intensity={1.4} />
+      {/*
+        환경광.
+
+        전에는 22MB HDRI가 이 자리를 맡았지만 배경으로 쓰지 않고 빛만 뽑아 쓰는 터라
+        화면에 남는 차이가 거의 없었다. 단색으로 바꿔 첫 로딩에서 그 무게를 덜어냈다.
+      */}
+      <ambientLight intensity={1.6} color="#EAE2D4" />
 
       {/*
         주광 — 그림자 담당. 카메라(-x, +z)와 같은 쪽에 둬 카메라가 보는 면이 밝게 서도록.
@@ -263,8 +317,6 @@ function Scene({ localRef, devCam }) {
       <Suspense fallback={null}>
         <AssemblyModel localRef={localRef} />
       </Suspense>
-
-      <DevCamera enabled={devCam} />
     </>
   );
 }
@@ -387,35 +439,20 @@ const Bar = styled.span`
         : 'rgba(250, 250, 250, 0.15)'};
 `;
 
-const DevButton = styled.button`
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  z-index: 30;
-  pointer-events: auto;
-  padding: 6px 12px;
-  border: 1px solid rgba(250, 250, 250, 0.3);
-  border-radius: 6px;
-  background: ${(props) => (props.active ? '#F5A623' : 'rgba(0,0,0,0.4)')};
-  color: ${(props) => (props.active ? '#131211' : 'rgba(250,250,250,0.7)')};
-  font-family: ${FONT};
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  cursor: pointer;
-`;
-
 // ─────────────────────────────────────────
 // Beat4_Assembly
 // ─────────────────────────────────────────
 
 export default function Beat4_Assembly({ progress }) {
   const localRef = useRef(0);
-  const [devCam, setDevCam] = useState(false);
 
   const active = progress >= RANGE_START && progress < RANGE_END;
   const local = active ? (progress - RANGE_START) / (RANGE_END - RANGE_START) : 0;
-  localRef.current = local;
+
+  // 조립 루프가 읽어갈 진행도. 렌더 중에 ref를 쓰면 React가 막으므로 커밋 뒤에 넘긴다.
+  useEffect(() => {
+    localRef.current = local;
+  }, [local]);
 
   if (!active) return null;
 
@@ -465,34 +502,19 @@ export default function Beat4_Assembly({ progress }) {
           </AnimatePresence>
         </TextStack>
 
-        <Bars aria-hidden="true">
+        <Bars
+          role="progressbar"
+          aria-label="한옥 7단계 조립 진행 상태"
+          aria-valuemin={1}
+          aria-valuemax={7}
+          aria-valuenow={Math.max(1, activeStageIndex + 1)}
+          aria-valuetext={activeStageIndex >= 0 ? `${activeStageIndex + 1}단계 ${STAGES[activeStageIndex]?.nameKo || ''}` : '조립 준비'}
+        >
           {STAGES.map((s, i) => (
             <Bar key={s.id} status={statusOf(local, i)} />
           ))}
         </Bars>
       </Left>
-
-      <Right>
-        <Canvas
-          shadows
-          camera={{ position: [-11, 10, 14], fov: 45 }}
-          gl={{ alpha: true, antialias: true }}
-          onCreated={({ camera }) => camera.lookAt(0, 3, 0)}
-          style={{ position: 'absolute', inset: 0 }}
-        >
-          <Scene localRef={localRef} devCam={devCam} />
-        </Canvas>
-
-        {IS_DEV && (
-          <DevButton
-            type="button"
-            active={devCam}
-            onClick={() => setDevCam((v) => !v)}
-          >
-            DEV CAM {devCam ? 'ON' : 'OFF'}
-          </DevButton>
-        )}
-      </Right>
     </Stage>
   );
 }

@@ -6,17 +6,18 @@ import { PerspectiveCamera, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 
 import { lightPalette, meok } from '@/design-system/tokens';
+import { MODEL_URL, BEAT_RANGES } from '@/scroll-core/constants';
 import { easeOut, progressIn, usePrefersReducedMotion } from './BeatFrame';
 
 // ─────────────────────────────────────────
 // 구간 (Beat2: 0.09 ~ 0.20)
 // ─────────────────────────────────────────
 
-export const RANGE = [0.09, 0.2];
+export const RANGE = BEAT_RANGES.BEAT2;
 
 const [RANGE_START, RANGE_END] = RANGE;
 
-export const MODEL_URL = '/anchae.glb';
+export { MODEL_URL };
 
 /**
  * Beat3가 실체로 되돌릴 원본 재질.
@@ -252,21 +253,6 @@ export default function Beat2_Reveal({ progress }) {
 
   return (
     <section style={{ position: 'fixed', inset: 0, pointerEvents: 'none' }}>
-      {/* 배경은 GlobalBackground가 전담한다. */}
-
-      {/* z 1 — 골격 (alpha: true 로 전역 배경이 그대로 비친다) */}
-      <div aria-hidden="true" style={{ position: 'fixed', inset: 0, zIndex: 1 }}>
-        <Canvas
-          dpr={[1, 2]}
-          gl={{ alpha: true, antialias: true }}
-          style={{ position: 'absolute', inset: 0, background: 'transparent' }}
-        >
-          <Suspense fallback={null}>
-            <Skeleton local={local} pointer={pointer} reduced={reduced} />
-          </Suspense>
-        </Canvas>
-      </div>
-
       {/* z 2 — 텍스트. 한옥 와이어프레임 지붕 상단과 겹치지 않도록 여백(Negative space) 확보 */}
       <div
         style={{

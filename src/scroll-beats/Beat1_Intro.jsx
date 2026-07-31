@@ -4,13 +4,14 @@ import { Fragment, useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { css, keyframes } from '@emotion/react';
 
+import { BEAT_RANGES } from '@/scroll-core/constants';
 import { clamp01, easeIn, usePrefersReducedMotion } from './BeatFrame';
 
 // ─────────────────────────────────────────
 // 구간 (Beat1: 0.0 ~ 0.09)
 // ─────────────────────────────────────────
 
-export const RANGE = [0.0, 0.09];
+export const RANGE = BEAT_RANGES.BEAT1;
 
 const [RANGE_START, RANGE_END] = RANGE;
 
@@ -265,7 +266,7 @@ export default function Beat1_Intro({ progress }) {
 
               return (
                 <Fragment key={`${char}-${charIndex}`}>
-                  {hasCursor && order === typedCount && <Cursor>|</Cursor>}
+                  {hasCursor && order === typedCount && <Cursor aria-hidden="true">|</Cursor>}
                   <Char style={{ opacity: order < typedCount ? 1 : 0 }}>{char}</Char>
                 </Fragment>
               );
@@ -273,7 +274,7 @@ export default function Beat1_Intro({ progress }) {
 
             {hasCursor
               && typedCount >= TOTAL_CHARS
-              && lineIndex === LINE_CHARS.length - 1 && <Cursor>|</Cursor>}
+              && lineIndex === LINE_CHARS.length - 1 && <Cursor aria-hidden="true">|</Cursor>}
           </Line>
         ))}
       </Copy>

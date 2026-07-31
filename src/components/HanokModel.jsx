@@ -6,7 +6,6 @@ import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 
 import { usePrefersReducedMotion } from '@/scroll-beats/BeatFrame';
-import { onEarthquake, runQuake, runReveal } from '@/scroll-beats/Beat3a_Earthquake';
 
 export const MODEL_URL = '/anchae.glb';
 
@@ -156,13 +155,9 @@ export default function HanokModel({ wireframe = { on: false, drawn: 1, scale: 1
     states.forEach((entry) => {
       entry.mesh.material = entry.original;
     });
+    apply(1);
 
-    const tween = runReveal(apply);
-
-    return () => {
-      if (tween) tween.kill();
-      apply(1);
-    };
+    return undefined;
   }, [wireframe.on, states]);
 
   /*
@@ -211,8 +206,6 @@ export default function HanokModel({ wireframe = { on: false, drawn: 1, scale: 1
     group.rotation.y += (targetY - group.rotation.y) * TILT_LERP;
     group.rotation.x += (targetX - group.rotation.x) * TILT_LERP;
   });
-
-  useEffect(() => onEarthquake(() => runQuake(shakeRef.current)), []);
 
   /*
     그룹을 층으로 나눠 세운다.
