@@ -1,15 +1,15 @@
 'use client';
 
-import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, useMemo, useRef, useState } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
-import { Environment, PerspectiveCamera, useGLTF } from '@react-three/drei';
+import { PerspectiveCamera, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 
+import { lightPalette, meok } from '@/design-system/tokens';
+import { MODEL_URL, BEAT_RANGES } from '@/scroll-core/constants';
 import { clamp01, lerpHex } from './BeatFrame';
-
-const MODEL_URL = '/anchae.glb';
 
 const FONT = "'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif";
 
@@ -27,7 +27,10 @@ const SUN_WINTER = [10, 6, 16];
 
 const SUN_COLOR = ['#FFF9E8', '#FFD9A8']; // 희고 강한 볕 → 낮고 따뜻한 볕
 const SUN_INTENSITY = [1.8, 1.2];
-const ENV_INTENSITY = [1.1, 0.7];
+
+/** 하늘이 돌려주는 반사광. 여름 → 겨울. HDRI가 맡던 자리다. */
+const AMBIENT_INTENSITY = [1.5, 1.0];
+const SKY_LIGHT = ['#EAF0F5', '#DCE2E8']; // 맑고 높은 하늘 → 낮고 흐린 하늘
 
 const headlineFor = (season) => {
   if (season <= 0.25) return '하지(여름). 볕이 마루를 비끼어 갑니다.';
@@ -154,13 +157,17 @@ function Scene({ season }) {
 
   return (
     <>
-      {/* HDRI는 조명(IBL)만 담당. 배경은 GlobalBackground가 전담하므로 background 프롭을 뺐다. */}
-      <Suspense fallback={null}>
-        <Environment
-          files="/hdri/sunset_meadow_path_4k.exr"
-          environmentIntensity={lerp(ENV_INTENSITY[0], ENV_INTENSITY[1], season)}
-        />
-      </Suspense>
+      {/*
+        하늘빛 환경광.
+
+        전에는 22MB HDRI가 이 자리를 맡았는데, 배경으로 쓰지 않고 빛만 뽑아 쓰는 터라
+        화면에 남는 차이가 거의 없었다. 단색 환경광이면 첫 로딩에서 그 무게가 통째로 빠진다.
+        겨울로 갈수록 하늘이 낮고 흐려져 반사광도 함께 줄어든다.
+      */}
+      <ambientLight
+        intensity={lerp(AMBIENT_INTENSITY[0], AMBIENT_INTENSITY[1], season)}
+        color={lerpHex(SKY_LIGHT[0], SKY_LIGHT[1], season)}
+      />
 
       <PerspectiveCamera
         makeDefault
@@ -236,8 +243,8 @@ const Headline = styled.h2`
   font-weight: 700;
   letter-spacing: -0.03em;
   word-break: keep-all;
-  color: #191f28;
-  text-shadow: 0 2px 16px rgba(245, 235, 216, 0.9), 0 0 2px rgba(255, 255, 255, 0.8);
+  color: #f4efe4;
+  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.7);
   transition: opacity 0.4s ease-out;
 `;
 
@@ -246,10 +253,10 @@ const Subtitle = styled.p`
   max-width: 600px;
   font-size: clamp(13px, 1.3vw, 15px);
   font-weight: 400;
-  color: #4e5968;
+  color: ${meok[200]};
   line-height: 1.5;
   word-break: keep-all;
-  text-shadow: 0 1px 8px rgba(255, 255, 255, 0.8);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
 `;
 
 /* 눈에 띄는 컨트롤러 패널 */
@@ -269,13 +276,13 @@ const ControllerContainer = styled.div`
 
 const DetailCard = styled.div`
   width: 100%;
-  background: rgba(255, 255, 255, 0.82);
+  background: rgba(28, 26, 23, 0.88);
   backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(212, 175, 55, 0.35);
   border-radius: 16px;
   padding: 12px 18px;
   text-align: center;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
   transition: all 0.3s ease-out;
 `;
 
@@ -283,8 +290,8 @@ const AngleTag = styled.span`
   display: inline-block;
   font-size: 12px;
   font-weight: 700;
-  color: #d84a10;
-  background: rgba(232, 90, 24, 0.1);
+  color: ${lightPalette.hwanggeum[400]};
+  background: rgba(212, 175, 55, 0.12);
   padding: 3px 10px;
   border-radius: 12px;
   margin-bottom: 6px;
@@ -293,8 +300,8 @@ const AngleTag = styled.span`
 const DetailDesc = styled.p`
   margin: 0;
   font-size: clamp(12px, 1.2vw, 14px);
-  font-weight: 500;
-  color: #333d4b;
+  font-weight: 400;
+  color: ${meok[100]};
   line-height: 1.45;
   word-break: keep-all;
 `;
@@ -305,12 +312,13 @@ const DragGuideHint = styled.div`
   gap: 8px;
   font-size: 13px;
   font-weight: 600;
-  color: #d84a10;
-  background: rgba(255, 255, 255, 0.9);
+  color: ${lightPalette.hwanggeum[400]};
+  background: rgba(28, 26, 23, 0.92);
+  border: 1px solid rgba(212, 175, 55, 0.3);
   backdrop-filter: blur(8px);
   padding: 4px 14px;
   border-radius: 20px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
   animation: ${pingpong} 1.8s ease-in-out infinite;
   transition: opacity 0.5s ease-out;
   pointer-events: none;
@@ -320,16 +328,21 @@ const TrackWrapper = styled.div`
   width: 100%;
   position: relative;
   height: 46px;
-  background: rgba(255, 255, 255, 0.78);
+  background: rgba(28, 26, 23, 0.88);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(212, 175, 55, 0.35);
   border-radius: 23px;
   padding: 0 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
   cursor: ew-resize;
+
+  &:focus-visible {
+    outline: 2px solid ${lightPalette.hwanggeum[400]};
+    outline-offset: 2px;
+  }
 `;
 
 const TrackLine = styled.div`
@@ -339,13 +352,13 @@ const TrackLine = styled.div`
   height: 4px;
   background: linear-gradient(90deg, #f5a623 0%, #e85a18 100%);
   border-radius: 2px;
-  opacity: 0.45;
+  opacity: 0.6;
 `;
 
 const TrackLabel = styled.span`
   font-size: 13px;
   font-weight: 700;
-  color: #333d4b;
+  color: ${meok[200]};
   z-index: 1;
   user-select: none;
 `;
@@ -399,6 +412,18 @@ export default function Beat3_Season({ progress }) {
     drag.current = null;
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      setUserSeason(clamp01(season - 0.05));
+      setInteracted(true);
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      setUserSeason(clamp01(season + 0.05));
+      setInteracted(true);
+    }
+  };
+
   const headline = headlineFor(season);
   const detail = detailFor(season);
 
@@ -406,14 +431,6 @@ export default function Beat3_Season({ progress }) {
 
   return (
     <Stage aria-label="계절 — 하지에서 동지까지">
-      <Canvas
-        shadows
-        gl={{ alpha: true, antialias: true }}
-        style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none' }}
-      >
-        <Scene season={season} />
-      </Canvas>
-
       <Copy>
         <Headline key={headline}>{headline}</Headline>
         <Subtitle>
@@ -428,14 +445,22 @@ export default function Beat3_Season({ progress }) {
         </DetailCard>
 
         <DragGuideHint style={{ opacity: interacted ? 0 : 1 }}>
-          <span>←</span> ☀️ 드래그하여 태양의 고도와 처마 그림자를 확인해보세요 <span>→</span>
+          <span>←</span> ☀️ 드래그나 방향키로 태양의 고도와 처마 그림자를 확인해보세요 <span>→</span>
         </DragGuideHint>
 
         <TrackWrapper
+          tabIndex={0}
+          role="slider"
+          aria-label="태양 고도 조절 슬라이더"
+          aria-valuemin={0}
+          aria-valuemax={1}
+          aria-valuenow={Number(season.toFixed(2))}
+          aria-valuetext={`${detail.angle} - ${detail.desc}`}
           onPointerDown={start}
           onPointerMove={move}
           onPointerUp={end}
           onPointerCancel={end}
+          onKeyDown={handleKeyDown}
         >
           <TrackLabel>☀️ 하지(여름)</TrackLabel>
           <TrackLine />
