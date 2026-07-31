@@ -462,7 +462,7 @@ export default function Beat4_Assembly({ progress }) {
   const showResult = local >= RESULT_AT;
 
   return (
-    <Stage aria-hidden="true">
+    <Stage aria-label="한옥 7단계 조립 과정">
       <Left>
         <TextStack>
           <AnimatePresence initial={false} mode="popLayout">
@@ -507,8 +507,8 @@ export default function Beat4_Assembly({ progress }) {
           aria-label="한옥 7단계 조립 진행 상태"
           aria-valuemin={1}
           aria-valuemax={7}
-          aria-valuenow={Math.max(1, activeStageIndex + 1)}
-          aria-valuetext={activeStageIndex >= 0 ? `${activeStageIndex + 1}단계 ${STAGES[activeStageIndex]?.nameKo || ''}` : '조립 준비'}
+          aria-valuenow={Math.max(1, activeIndex + 1)}
+          aria-valuetext={activeIndex >= 0 ? `${activeIndex + 1}단계 ${STAGES[activeIndex]?.nameKo || ''}` : '조립 준비'}
         >
           {STAGES.map((s, i) => (
             <Bar key={s.id} status={statusOf(local, i)} />
