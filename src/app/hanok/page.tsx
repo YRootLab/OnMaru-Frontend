@@ -1,10 +1,10 @@
-import HanokViewerLayout from '@/features/hanok-viewer/HanokViewerLayout';
-import HeroSection from '@/features/hanok-viewer/components/sections/HeroSection';
-import AssemblySection from '@/features/hanok-viewer/components/sections/AssemblySection';
+import HanokViewerLayout from '@/archive/hanok-viewer/HanokViewerLayout';
+import HeroSection from '@/archive/hanok-viewer/components/sections/HeroSection';
+import AssemblySection from '@/archive/hanok-viewer/components/sections/AssemblySection';
 
 export const metadata = {
-  title: '온마루 — 전통 한옥 공간 스토리텔링 🇰🇷',
-  description: '전통 한옥의 구조와 지혜를 담은 하이엔드 7단 스크롤리텔링',
+  title: '온마루 — 전통 한옥 공간 스토리텔링 🇰🇷 (아카이브)',
+  description: '전통 한옥 아카이브 뷰어',
 };
 
 export default function HanokPage() {
