@@ -2,13 +2,12 @@
 
 import { Suspense, useEffect, useMemo, useRef } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { Environment, useGLTF } from '@react-three/drei';
+import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import styled from '@emotion/styled';
 
+import { MODEL_URL, BEAT_RANGES } from '@/scroll-core/constants';
 import { clamp01, easeOutQuad, progressIn, usePrefersReducedMotion } from './BeatFrame';
-
-const MODEL_URL = '/anchae.glb';
 
 const FONT = "'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif";
 
@@ -22,7 +21,7 @@ const easeInOutCubic = (t) => (t < 0.5 ? 4 * t ** 3 : 1 - ((-2 * t + 2) ** 3) / 
 // 구간 — 전역 progress 0.70 ~ 0.82
 // ─────────────────────────────────────────
 
-export const RANGE = [0.7, 0.82];
+export const RANGE = BEAT_RANGES.BEAT5;
 
 const [RANGE_START, RANGE_END] = RANGE;
 
@@ -231,12 +230,8 @@ function Hanok({ scale }) {
 function Scene({ scale }) {
   return (
     <>
-      {/* 빛만 담당하는 HDRI. 검은 기와가 반사로 살아나는 근거다. */}
-      <Suspense fallback={null}>
-        <Environment files="/hdri/sunset_meadow_path_4k.exr" environmentIntensity={0.7} />
-      </Suspense>
-
-      <ambientLight intensity={3.0} />
+      {/* 환경광. Beat4와 같은 값이라야 0.70 경계에서 한옥의 밝기가 튀지 않는다. */}
+      <ambientLight intensity={1.6} color="#EAE2D4" />
 
       <directionalLight
         position={[-9, 16, 14]}
