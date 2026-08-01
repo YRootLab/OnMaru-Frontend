@@ -413,7 +413,7 @@ export default function Beat4_Assembly({ progress }) {
                 exit={{ opacity: 0, y: -12 }}
                 transition={{ duration: 0.4, ease: EASE }}
               >
-                일곱 겹의 결구, 한 채의 한옥.
+                천 년의 지혜가 기둥과 지붕으로 일어서다.
               </Result>
             ) : (
               <Layer
