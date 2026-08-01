@@ -147,10 +147,10 @@ const SHOTS = [
  * 지면을 내려다보는 이 구도를 표현하지 못하기 때문이다.
  */
 const SEASON_VIEWS = [
-  // target Y축을 26.0 / 24.0 / 22.0으로 획기적으로 끌어올려 한옥 3D 피사체와 마당 그림자 전체가 화면 위쪽 상단으로 껑충 떠올라 위치하도록 배치한다.
-  { minWidth: 1280, dir: [14, 20, 34], target: [-2, 26.0, 0], fov: 34, fit: 0.86 },
-  { minWidth: 768, dir: [14, 21, 38], target: [-2, 24.0, 0], fov: 38, fit: 0.88 },
-  { minWidth: 0, dir: [10, 22, 46], target: [-1, 22.0, 0], fov: 44, fit: 0.90 },
+  // 3D 한옥 모델 메쉬 그룹 자체가 Y축 양수(+) 방향으로 위로 올라가므로 카메라 구도를 정석에 맞춰 안착시킨다.
+  { minWidth: 1280, dir: [14, 18, 32], target: [-2, 5.0, 0], fov: 38, fit: 0.88 },
+  { minWidth: 768, dir: [14, 19, 38], target: [-2, 4.5, 0], fov: 42, fit: 0.90 },
+  { minWidth: 0, dir: [10, 20, 48], target: [-1, 4.0, 0], fov: 48, fit: 0.92 },
 ];
 
 const lerp = (from, to, t) => from + (to - from) * t;
@@ -461,34 +461,29 @@ function HanokScene({ stage }) {
       />
 
       {/*
-        Beat4 구간에서는 완성된 한옥이 물러나고 부재 107개가 날아와 쌓인다.
-        조립본은 같은 스케일 안에서 자기 사본만 만지므로 서로의 재질을 덮지 않는다.
+        Beat3(절기) 구간에서는 한옥 모델 및 바닥 그림자 3D 그룹 전체를 수직 Y축 양수(+) 방향으로 +9.5유닛 대폭 위로 들어 올린다.
       */}
-      <group scale={model.normalizedScale}>
-        {assembling ? <AssemblyModel /> : <HanokModel />}
+      <group position={[0, stage.seasonView ? 9.5 : 0, 0]}>
+        <group scale={model.normalizedScale}>
+          {assembling ? <AssemblyModel /> : <HanokModel />}
+        </group>
+
+        {/* 그림자를 받는 바닥 */}
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
+          <planeGeometry args={[120, 120]} />
+          <shadowMaterial opacity={stage.shadowOpacity} transparent />
+        </mesh>
+
+        <ContactShadows
+          position={[0, 0, 0]}
+          opacity={stage.shadowOpacity * 0.6}
+          scale={footprint * 2.5}
+          blur={2.0}
+          far={scale * 2}
+          resolution={1024}
+          color={stage.shadowColor}
+        />
       </group>
-
-      {/*
-        그림자를 받는 바닥.
-
-        이 면이 없으면 주광이 드리운 그림자가 떨어질 자리가 없어, 태양 고도를 아무리
-        움직여도 화면에 아무 변화가 없다. 처마가 볕을 어디까지 막는지가 이 연출의 전부다.
-        (ContactShadows는 접지 얼룩이라 광원 각도를 따르지 않는다 — 둘 다 필요하다.)
-      */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
-        <planeGeometry args={[120, 120]} />
-        <shadowMaterial opacity={stage.shadowOpacity} transparent />
-      </mesh>
-
-      <ContactShadows
-        position={[0, 0, 0]}
-        opacity={stage.shadowOpacity * 0.6}
-        scale={footprint * 2.5}
-        blur={2.0}
-        far={scale * 2}
-        resolution={1024}
-        color={stage.shadowColor}
-      />
     </>
   );
 }
