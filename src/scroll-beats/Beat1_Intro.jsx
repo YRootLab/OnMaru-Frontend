@@ -1,10 +1,11 @@
 'use client';
 
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
 import { css, keyframes } from '@emotion/react';
 
 import { BEAT_RANGES } from '@/scroll-core/constants';
+import { meok } from '@/design-system/tokens';
 import { clamp01, easeIn, usePrefersReducedMotion } from './BeatFrame';
 
 // ─────────────────────────────────────────
@@ -25,8 +26,8 @@ const EXIT_START = 0.06 / RANGE_END; // 0.667
 const SHIFT_PX = 12;
 
 const LINES = [
-  '한옥, 단순히 자연에 순응한 과거의 유산이 아닙니다.',
-  '빛과 온도, 바람의 변수까지 완벽하게 통제한 정교한 시스템입니다.',
+  '한옥, 자연의 순리를 품어낸 완벽한 조화.',
+  '빛과 바람의 결까지 섬세하게 다스린 정교한 지혜입니다.',
 ];
 
 const LINE_CHARS = LINES.map((line) => line.split(''));
@@ -38,13 +39,13 @@ const LINE_OFFSETS = LINE_CHARS.reduce(
 
 const TOTAL_CHARS = LINE_OFFSETS[LINE_OFFSETS.length - 1];
 
-const TYPE_MIN_MS = 30;
-const TYPE_MAX_MS = 50;
-const LINE_PAUSE_MS = 420;
+const TYPE_MIN_MS = 60;
+const TYPE_MAX_MS = 90;
+const LINE_PAUSE_MS = 650;
 
-const TEXT_COLOR = '#F4EFE4';
-const LEAD_COLOR = 'rgba(244, 239, 228, 0.72)';
-const LINE_COLOR = 'rgba(244, 239, 228, 0.4)';
+const TEXT_COLOR = meok[100];
+const LEAD_COLOR = 'rgba(250, 250, 250, 0.72)';
+const LINE_COLOR = 'rgba(250, 250, 250, 0.4)';
 
 const VIDEO_SRC = '/videos/hanok-neungsohwa-loop.mp4';
 
@@ -118,6 +119,9 @@ const BackgroundVideo = styled.video`
   height: 100%;
   object-fit: cover;
   z-index: 0;
+  transform: translateZ(0);
+  will-change: opacity;
+  backface-visibility: hidden;
 `;
 
 const Scrim = styled.div`
@@ -191,7 +195,12 @@ const blink = keyframes`
 `;
 
 const Cursor = styled.span`
+  display: inline-block;
+  width: 0;
+  overflow: visible;
   animation: ${blink} 0.8s step-end infinite;
+  user-select: none;
+  pointer-events: none;
 
   @media (prefers-reduced-motion: reduce) {
     animation: none;
@@ -226,16 +235,32 @@ const ScrollLine = styled.span`
 export default function Beat1_Intro({ progress }) {
   const reduced = usePrefersReducedMotion();
   const typedCount = useTypewriter(TOTAL_CHARS, { skip: reduced });
+  const videoRef = useRef(null);
+  const [cursorDone, setCursorDone] = useState(false);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.playbackRate = 1.3;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typedCount >= TOTAL_CHARS) {
+      const timer = setTimeout(() => setCursorDone(true), 1200);
+      return () => clearTimeout(timer);
+    }
+  }, [typedCount]);
 
   if (progress < RANGE_START || progress >= RANGE_END) return null;
 
   const local = (progress - RANGE_START) / (RANGE_END - RANGE_START);
   const { exit, shift, video } = getExitState(local, reduced);
-  const hasCursor = !reduced && local < EXIT_START;
+  const hasCursor = !reduced && local < EXIT_START && !cursorDone;
 
   return (
     <Stage>
       <BackgroundVideo
+        ref={videoRef}
         aria-hidden="true"
         autoPlay
         muted
