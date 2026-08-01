@@ -472,7 +472,7 @@ function HanokScene({ stage }) {
         position={[
           devTuner?.posX ?? 0,
           stage.seasonView ? (devTuner?.posY ?? 0) : 0,
-          stage.seasonView ? (devTuner?.posZ ?? -1.0) : 0,
+          stage.seasonView ? (devTuner?.posZ ?? -10.0) : 0,
         ]}
       >
         <group scale={model.normalizedScale * (devTuner?.scale ?? 1.35)}>
@@ -519,8 +519,8 @@ const ASSEMBLY_LIGHT = { key: 3.4, rim: 1.6, ambient: 1.6 };
  * 이 함수가 무슨 값을 내든 결과가 같았다. Beat5 퇴장에서 조명이 안 꺼진 것도 그 탓이다.
  */
 function getStage(progress, assembling, orbit) {
-  // 한옥 등장 — Beat1이 끝나갈 즈음 배경에서 떠오른다.
-  const enter = progressIn(progress, CANVAS_FADE_IN[0], CANVAS_FADE_IN[1]);
+  // 한옥 등장 — Beat1(0.00~0.12) 진입 이후 3D 한옥 캔버스 opacity를 1.0으로 완전히 명확하고 또렷하게 보장
+  const enter = progress >= 0.10 ? 1.0 : progressIn(progress, CANVAS_FADE_IN[0], CANVAS_FADE_IN[1]);
 
   const exit = easeInOutCubic(progressIn(progress, BEAT5_START, BEAT5_EXIT_END));
 
