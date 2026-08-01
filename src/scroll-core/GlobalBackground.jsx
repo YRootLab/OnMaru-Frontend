@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 
+import { lightPalette, surface } from '@/design-system/tokens';
 import { clamp01, lerpHex, usePrefersReducedMotion } from '@/scroll-beats/BeatFrame';
 
 // ─────────────────────────────────────────
@@ -233,12 +234,12 @@ export default function GlobalBackground({ progress }) {
         </div>
       )}
 
-      {/* z1.5 — 계절 및 태양 고도에 맞춰 은은하고 자연스럽게 섞이는 Soft Mesh/Radial Gradient 배경 오버레이 */}
+      {/* z1.5 — 온마루 표면 컬러와 계절 액센트(juhong, hwanggeum, kobalt) subtle 톤이 은은하게 섞이는 Soft Mesh/Radial Gradient */}
       <div
         style={{
           ...fill,
           zIndex: 1.5,
-          background: `radial-gradient(ellipse 70% 60% at 50% 30%, rgba(245, 166, 35, 0.09) 0%, rgba(232, 90, 24, 0.04) 45%, rgba(75, 123, 157, 0.03) 75%, transparent 90%), linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, transparent 60%)`,
+          background: `radial-gradient(ellipse 75% 65% at 50% 28%, rgba(255, 240, 230, 0.45) 0%, rgba(255, 248, 224, 0.25) 40%, rgba(235, 240, 255, 0.15) 75%, transparent 95%), linear-gradient(180deg, rgba(250, 250, 250, 0.35) 0%, transparent 60%)`,
         }}
       />
 

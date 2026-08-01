@@ -35,17 +35,17 @@ const ACCENT = lightPalette.juhong[500];
 const ACCENT_VIVID = lightPalette.juhong[500];
 
 /**
- * 계절별 슬라이더 바 & 손잡이 동적 컬러 테마
- * - 봄 (Spring): Soft Coral (#E06D53)
- * - 여름 (Summer): Vibrant Orange / Sunny Gold (#E85A18)
- * - 가을 (Autumn): Deep Amber / Terracotta (#C6531E)
- * - 겨울 (Winter): Slate Blue / Cool Grey (#4B7B9D)
+ * 계절별 온마루 세맨틱 토큰 매핑
+ * - 봄 (spring): jangmi[500] (#D42058) / jangmi[50] (#FFF0F4)
+ * - 여름 (summer): juhong[500] (#E85A18) / juhong[50] (#FFF0E6)
+ * - 가을 (autumn): hwanggeum[500] (#C07808) / hwanggeum[50] (#FFF8E0)
+ * - 겨울 (winter): kobalt[500] (#2B5CE6) / kobalt[50] (#EBF0FF)
  */
 const SEASON_ACCENTS = {
-  spring: { primary: '#E06D53', bg: 'rgba(224, 109, 83, 0.12)' },
-  summer: { primary: lightPalette.juhong[500], bg: 'rgba(232, 90, 24, 0.12)' },
-  autumn: { primary: '#C6531E', bg: 'rgba(198, 83, 30, 0.12)' },
-  winter: { primary: '#4B7B9D', bg: 'rgba(75, 123, 157, 0.12)' },
+  spring: { primary: lightPalette.jangmi[500], bg: lightPalette.jangmi[50] },
+  summer: { primary: lightPalette.juhong[500], bg: lightPalette.juhong[50] },
+  autumn: { primary: lightPalette.hwanggeum[500], bg: lightPalette.hwanggeum[50] },
+  winter: { primary: lightPalette.kobalt[500], bg: lightPalette.kobalt[50] },
 };
 
 /**
@@ -154,44 +154,56 @@ const Headline = styled.h2`
 
 const Stats = styled.dl`
   display: flex;
-  align-items: baseline;
-  gap: clamp(18px, 2.4vw, 28px);
-  margin: 0 0 12px;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(16px, 2.4vw, 28px);
+  margin: 0 0 6px;
+`;
+
+const StatGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: clamp(14px, 2vw, 24px);
+
+  @media (max-width: 600px) {
+    gap: 10px;
+  }
 `;
 
 const Stat = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-  white-space: nowrap;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
 `;
 
 /** '1m당 그림자', '남중고도' 등의 수치 타이틀 무조건 한 줄 고정 */
 const StatLabel = styled.dt`
   font-size: clamp(11px, 1.1vw, 13px);
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   color: ${INK_WEAK};
-  white-space: nowrap;
-  word-break: keep-all;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
 `;
 
 const StatValue = styled.dd`
   margin: 0;
-  font-size: clamp(20px, 2.2vw, 28px);
+  font-size: clamp(17px, 1.9vw, 24px);
   font-weight: 700;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
   color: ${INK};
-  white-space: nowrap;
-  word-break: keep-all;
+  white-space: nowrap !important;
+  word-break: keep-all !important;
 
   small {
     margin-left: 2px;
-    font-size: 0.6em;
+    font-size: 0.65em;
     font-weight: 500;
     color: ${INK_SUB};
-    white-space: nowrap;
+    white-space: nowrap !important;
   }
 `;
 
@@ -268,16 +280,16 @@ const Controller = styled.div`
  */
 const Card = styled.div`
   position: relative;
-  padding: 14px 20px 10px;
+  padding: 10px 18px 6px;
   border: 1px solid ${LINE};
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(14px);
-  box-shadow: 0 8px 28px rgba(25, 31, 40, 0.08);
+  border-radius: 16px;
+  background: ${surface.light.card};
+  backdrop-filter: blur(16px);
+  box-shadow: 0 4px 20px rgba(25, 31, 40, 0.06);
 
   @media (max-width: 767px) {
-    padding: 12px 14px 8px;
-    border-radius: 16px;
+    padding: 8px 12px 4px;
+    border-radius: 14px;
   }
 `;
 

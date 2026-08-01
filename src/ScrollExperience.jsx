@@ -147,10 +147,10 @@ const SHOTS = [
  * 지면을 내려다보는 이 구도를 표현하지 못하기 때문이다.
  */
 const SEASON_VIEWS = [
-  // 3D 한옥 모델 메쉬 그룹 자체가 Y축 양수(+) 방향으로 위로 올라가므로 카메라 구도를 정석에 맞춰 안착시킨다.
-  { minWidth: 1280, dir: [14, 18, 32], target: [-2, 5.0, 0], fov: 38, fit: 0.88 },
-  { minWidth: 768, dir: [14, 19, 38], target: [-2, 4.5, 0], fov: 42, fit: 0.90 },
-  { minWidth: 0, dir: [10, 20, 48], target: [-1, 4.0, 0], fov: 48, fit: 0.92 },
+  // 한옥 3D 모델 및 동지 기준 1.8m 그림자 전경이 슬림해진 카드 위쪽 화면 중앙~상단 비주얼 영역에 여유 있게 안착되도록 정교한 구도 적용.
+  { minWidth: 1280, dir: [14, 18, 32], target: [-2, 6.0, 0], fov: 36, fit: 0.84 },
+  { minWidth: 768, dir: [14, 19, 38], target: [-2, 5.5, 0], fov: 40, fit: 0.86 },
+  { minWidth: 0, dir: [10, 20, 48], target: [-1, 5.0, 0], fov: 46, fit: 0.88 },
 ];
 
 const lerp = (from, to, t) => from + (to - from) * t;
@@ -427,7 +427,9 @@ function HanokScene({ stage }) {
         </>
       )}
 
-      <ambientLight intensity={stage.ambientIntensity} color="#FFFDF7" />
+      <ambientLight intensity={Math.max(0.6, stage.ambientIntensity)} color="#FFFDF7" />
+
+      <hemisphereLight skyColor="#FFF9EE" groundColor="#E8DFD0" intensity={0.4} />
 
       <SunDriver lightRef={keyLight} />
 
@@ -437,9 +439,10 @@ function HanokScene({ stage }) {
         intensity={stage.keyIntensity}
         color={KEY_COLOR}
         castShadow
-        shadow-mapSize-width={SHADOW_MAP}
-        shadow-mapSize-height={SHADOW_MAP}
-        shadow-bias={SHADOW_BIAS}
+        shadow-mapSize-width={2048}
+        shadow-mapSize-height={2048}
+        shadow-bias={-0.0001}
+        shadow-radius={4}
       >
         <orthographicCamera
           attach="shadow-camera"
@@ -461,9 +464,9 @@ function HanokScene({ stage }) {
       />
 
       {/*
-        Beat3(절기) 구간에서는 한옥 모델 및 바닥 그림자 3D 그룹 전체를 수직 Y축 양수(+) 방향으로 +9.5유닛 대폭 위로 들어 올린다.
+        Beat3(절기) 구간에서는 한옥 모델 및 바닥 그림자 3D 그룹 전체를 슬림해진 카드 위쪽 비주얼 공간에 안착시킨다.
       */}
-      <group position={[0, stage.seasonView ? 9.5 : 0, 0]}>
+      <group position={[0, stage.seasonView ? 4.8 : 0, 0]}>
         <group scale={model.normalizedScale}>
           {assembling ? <AssemblyModel /> : <HanokModel />}
         </group>
