@@ -53,7 +53,7 @@ export function shadowLengthRatio(altitude) {
 }
 
 /**
- * 절기(solarTerms.json의 month/day)가 올해 드는 날.
+ * 절기(solarShadow.json의 month/day)가 올해 드는 날.
  *
  * 실제 절기는 해마다 하루 남짓 흔들리지만, 그 하루가 적위에 주는 차이는 0.4° 미만이라
  * 처마 그림자로는 보이지 않는다. 표의 날짜를 그대로 쓴다.

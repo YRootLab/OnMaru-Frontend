@@ -6,7 +6,7 @@ import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 
 import { lightPalette, meok } from '@/design-system/tokens';
-import solarTerms from '@/data/solarTerms.json';
+import SHADOW from '@/data/solarShadow.json';
 
 import { usePrefersReducedMotion } from './BeatFrame';
 
@@ -67,7 +67,7 @@ function getNextSolarTerm(now = new Date()) {
   const year = now.getFullYear();
 
   const dated = [year, year + 1].flatMap((y) =>
-    solarTerms.map((term) => ({ name: term.name, date: new Date(y, term.month - 1, term.day) })),
+    (SHADOW.stops || []).map((term) => ({ name: term.name, date: new Date(y, term.month - 1, term.day) })),
   );
 
   const next = dated.filter((term) => term.date >= now).sort((a, b) => a.date - b.date)[0];

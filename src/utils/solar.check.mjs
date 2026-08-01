@@ -5,8 +5,8 @@
  */
 import assert from 'node:assert/strict';
 
-import TERMS from '../data/solarTerms.json' with { type: 'json' };
 import SHADOW from '../data/solarShadow.json' with { type: 'json' };
+const TERMS = SHADOW.stops;
 import {
   altitudeToSeasonValue,
   getNoonSolarAltitude,
