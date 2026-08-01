@@ -20,10 +20,8 @@ const STOPS = [
   { p: 0.17, top: '#EFE4D0', mid: '#F7EEDC', bot: '#FDF6E9' }, // Beat3 밝음
   { p: 0.36, top: '#EFE4D0', mid: '#F7EEDC', bot: '#FDF6E9' },
   { p: 0.5, top: '#26231E', mid: '#1F1D1A', bot: '#161412' }, // Beat4 어둠
-  { p: 0.68, top: '#26231E', mid: '#1F1D1A', bot: '#161412' },
-  { p: 0.74, top: '#16130F', mid: '#0E0C0A', bot: '#0A0908' }, // Beat5 가장 어두움
-  { p: 0.82, top: '#16130F', mid: '#0E0C0A', bot: '#0A0908' },
-  { p: 0.9, top: '#F0E6D4', mid: '#F5EDDF', bot: '#FAF3E6' }, // Beat6 밝게 마무리
+  { p: 0.68, top: '#26231E', mid: '#1F1D1A', bot: '#161412' }, // Beat4 어둠
+  { p: 0.74, top: '#F0E6D4', mid: '#F5EDDF', bot: '#FAF3E6' }, // Beat5~6 밝은 한지색 반전
   { p: 1.0, top: '#F0E6D4', mid: '#F5EDDF', bot: '#FAF3E6' },
 ];
 
