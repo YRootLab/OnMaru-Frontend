@@ -381,12 +381,10 @@ export default function Beat4_Assembly({ progress }) {
   const setAssembling = useSceneStore((s) => s.setAssembling);
 
   const active = progress >= RANGE_START && progress < RANGE_END;
-  const local = active ? (progress - RANGE_START) / (RANGE_END - RANGE_START) : 0;
+  const local = clamp01((progress - RANGE_START) / (RANGE_END - RANGE_START));
 
-  // 조립 루프가 읽어갈 진행도. 렌더 중에 쓰면 React가 막으므로 커밋 뒤에 넘긴다.
-  useEffect(() => {
-    assemblyProgress.current = local;
-  }, [local]);
+  // 렌더링 단계에서 즉시 동기화 (useEffect 1프레임 딜레이 및 역방향 스크롤 리셋 방지)
+  assemblyProgress.current = local;
 
   // 고정 캔버스에 "지금은 조립 중"이라고 알린다. 완성된 한옥이 물러나고 부재가 날아온다.
   useEffect(() => {
