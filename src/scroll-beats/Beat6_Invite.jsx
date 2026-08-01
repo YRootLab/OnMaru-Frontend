@@ -1,84 +1,129 @@
 'use client';
 
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 
-import { lightPalette, meok, surface } from '@/design-system/tokens';
+import { lightPalette, meok } from '@/design-system/tokens';
 import solarTerms from '@/data/solarTerms.json';
+
 import { usePrefersReducedMotion } from './BeatFrame';
 
 const FONT = "'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif";
 
+const START = 0.84;
+
+const COUNT_AT = 0.28; // 숫자 블록이 자리를 잡는 지점. 여기서 카운트업이 출발한다.
+const COUNT_MS = 1200;
+
+const CACHE_KEY = 'onmaru_hanok_total';
+
+/**
+ * 이번 세션에서 이미 받아둔 숙소 수. 없으면 undefined.
+ *
+ * 렌더 전에 답이 나오는 값이라 초기값으로 읽는다 —
+ * effect에서 setState로 밀어넣으면 스켈레톤을 한 번 그린 뒤 다시 그린다.
+ */
+function readCachedTotal() {
+  try {
+    const cached = Number(sessionStorage.getItem(CACHE_KEY));
+    if (Number.isFinite(cached) && cached > 0) return cached;
+  } catch {
+    /* 프라이빗 모드 등 — 캐시가 없는 셈 친다 */
+  }
+
+  return undefined;
+}
+
 // ─────────────────────────────────────────
-// 애니메이션 Keyframes
+// 유틸
 // ─────────────────────────────────────────
 
-const pulse = keyframes`
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.8; }
-`;
-
-// ─────────────────────────────────────────
-// 공통 등장 유틸
-// ─────────────────────────────────────────
-
-function reveal(localProgress, start, end, reduced = false) {
+/**
+ * 블록 하나의 등장.
+ *
+ * 스크롤이 매 프레임 값을 바꾸므로 CSS transition을 걸면 뒤늦게 쫓아가며 밀린다.
+ * 이징을 여기서 직접 먹이고 결과값만 style로 넣는다.
+ */
+function reveal(localProgress, start, end, reduced) {
   const t = Math.min(1, Math.max(0, (localProgress - start) / (end - start)));
-  const eased = 1 - Math.pow(1 - t, 3); // easeOutCubic
+  const eased = 1 - (1 - t) ** 3; // easeOutCubic
+
   return {
     opacity: eased,
-    transform: reduced ? 'translateY(0px)' : `translateY(${(1 - eased) * 16}px)`,
+    // 모션을 줄인 사용자에게는 투명도만 남긴다
+    transform: reduced ? 'none' : `translateY(${(1 - eased) * 16}px)`,
   };
 }
 
-// ─────────────────────────────────────────
-// 절기 및 다음달 계산 유틸
-// ─────────────────────────────────────────
-
+/**
+ * 다음 절기.
+ *
+ * 올해치와 내년치를 함께 늘어놓고 오늘 이후 가장 가까운 것을 고른다.
+ * 12월에 서면 올해 남은 절기가 없으므로 내년 소한이 잡힌다.
+ */
 function getNextSolarTerm(now = new Date()) {
-  const y = now.getFullYear();
-  const candidates = solarTerms
-    .map((t) => ({ ...t, date: new Date(y, t.month - 1, t.day) }))
-    .concat(solarTerms.map((t) => ({ ...t, date: new Date(y + 1, t.month - 1, t.day) })))
-    .filter((t) => t.date >= now)
-    .sort((a, b) => a.date - b.date);
-  const next = candidates[0] || { name: '입춘', daysLeft: 10 };
-  const daysLeft = Math.ceil((next.date - now) / 86400000);
-  return { name: next.name, daysLeft };
+  const year = now.getFullYear();
+
+  const dated = [year, year + 1].flatMap((y) =>
+    solarTerms.map((term) => ({ name: term.name, date: new Date(y, term.month - 1, term.day) })),
+  );
+
+  const next = dated.filter((term) => term.date >= now).sort((a, b) => a.date - b.date)[0];
+  if (!next) return null;
+
+  return {
+    name: next.name,
+    daysLeft: Math.ceil((next.date - now) / 86400000),
+  };
 }
 
-function getNextMonth(now = new Date()) {
-  const m = now.getMonth() + 1;
-  return m === 12 ? 1 : m + 1;
-}
+const nextMonthOf = (now = new Date()) => ((now.getMonth() + 1) % 12) + 1;
 
 // ─────────────────────────────────────────
-// 스타일 컴포넌트
+// 스타일
 // ─────────────────────────────────────────
 
-const Container = styled.div`
+const pulse = keyframes`
+  0%, 100% { opacity: 0.45; }
+  50%      { opacity: 0.9; }
+`;
+
+/**
+ * justify-content에 safe를 붙인다.
+ * 내용이 화면보다 길어지면 그냥 center인 경우 위쪽이 잘려 스크롤로도 못 올라간다.
+ */
+const Stage = styled.section`
   position: fixed;
   inset: 0;
   z-index: 10;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: safe center;
   gap: clamp(32px, 4vh, 56px);
-  padding: 0 6vw;
+  padding: 6vh 6vw;
   overflow-y: auto;
-  pointer-events: auto;
   font-family: ${FONT};
 
   @media (max-width: 768px) {
-    padding: 0 20px;
+    padding: 4vh 20px;
     gap: clamp(20px, 3vh, 32px);
+  }
+
+  /*
+    노트북 뷰포트(대략 700~860px)에서는 네 블록이 한 화면에 들어오지 않는다.
+    스크롤이 이미 문서 끝이라 잘린 부분은 어떤 방법으로도 볼 수 없으므로,
+    여기서부터는 여백과 숫자를 줄여 전부 담는다.
+  */
+  @media (max-height: 860px) {
+    padding: 2vh 6vw;
+    gap: clamp(8px, 1.4vh, 16px);
   }
 `;
 
-const SectionInner = styled.div`
+const Block = styled.div`
   width: 100%;
   max-width: 880px;
   display: flex;
@@ -87,102 +132,133 @@ const SectionInner = styled.div`
   text-align: center;
 `;
 
-// 1단 — 실재 선언
+// ── 1단 — 실재 선언
+
 const Headline = styled.h2`
-  font-family: ${FONT};
+  margin: 0;
   font-size: clamp(32px, 4.2vw, 58px);
   font-weight: 700;
   letter-spacing: -0.03em;
-  color: ${meok[900]};
-  text-align: center;
-  margin: 0;
-  word-break: keep-all;
   line-height: 1.25;
+  word-break: keep-all;
+  color: ${meok[900]};
+
+  @media (max-height: 860px) {
+    font-size: clamp(26px, 2.8vw, 40px);
+  }
 `;
 
-const SourceMeta = styled.div`
+/**
+ * 출처 두 줄. 화면이 낮으면 한 줄로 합쳐 세로를 아낀다.
+ * 가운데 구분점은 한 줄일 때만 나온다.
+ */
+const Source = styled.p`
+  margin: 14px 0 0;
   font-size: clamp(12px, 1.1vw, 14px);
   font-weight: 400;
   line-height: 1.7;
   color: ${meok[500]};
-  text-align: center;
-  margin-top: 14px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  word-break: keep-all;
 
-  @media (max-height: 700px) {
-    flex-direction: row;
-    gap: 8px;
+  span + span::before {
+    content: '';
+    display: block;
+  }
+
+  @media (max-height: 860px) {
+    margin-top: 8px;
+
+    span + span::before {
+      content: ' · ';
+      display: inline;
+    }
   }
 `;
 
-// 2단 — 규모
-const TransitionSentence = styled.p`
+// ── 2단 — 규모
+
+const Lead = styled.p`
+  margin: 0 0 16px;
   font-size: clamp(18px, 2vw, 26px);
   font-weight: 500;
   color: ${meok[700]};
-  margin: 0 0 16px;
-  text-align: center;
+
+  @media (max-height: 860px) {
+    margin-bottom: 6px;
+    font-size: clamp(16px, 1.6vw, 20px);
+  }
 `;
 
-const NumberBlock = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-`;
-
-const NumberLabel = styled.span`
+const CountLabel = styled.span`
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.1em;
   color: ${meok[500]};
 `;
 
-const NumberValue = styled.div`
+const CountValue = styled.div`
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  margin: 8px 0;
   font-size: clamp(48px, 8vw, 120px);
   font-weight: 700;
   letter-spacing: -0.04em;
   color: ${lightPalette.juhong[500]};
+  /* 자릿수가 바뀔 때 숫자가 좌우로 흔들리지 않는다 */
   font-variant-numeric: tabular-nums;
-  margin: 8px 0;
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
 
   @media (max-width: 768px) {
     font-size: clamp(40px, 12vw, 72px);
   }
+
+  @media (max-height: 860px) {
+    margin: 2px 0;
+    font-size: clamp(32px, 4vw, 52px);
+  }
 `;
 
-const UnitText = styled.span`
-  font-size: 0.45em;
-  color: ${lightPalette.juhong[500]};
+const Unit = styled.span`
   margin-left: 6px;
+  font-size: 0.45em;
 `;
 
-const FallbackText = styled.span`
+const CountFallback = styled.span`
   font-size: 0.5em;
-  color: ${lightPalette.juhong[500]};
 `;
 
 const Skeleton = styled.div`
   width: 180px;
   height: 0.8em;
-  background: rgba(78, 89, 104, 0.08);
   border-radius: 8px;
-  animation: ${pulse} 1.4s infinite;
-  margin: 8px 0;
+  background: rgba(78, 89, 104, 0.08);
+  animation: ${pulse} 1.4s ease-in-out infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 `;
 
-const SourceCaption = styled.span`
+const CountSource = styled.span`
   font-size: 11px;
   color: ${meok[400]};
 `;
 
-// 3단 — 두 개의 문
-const DoorsGrid = styled.div`
+/** 카운트업을 한 자리씩 읽어주지 않도록, 다 센 결과만 스크린리더에 한 번 전한다. */
+const SrOnly = styled.span`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
+`;
+
+// ── 3단 — 두 개의 문
+
+const Doors = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: clamp(16px, 2vw, 28px);
@@ -194,22 +270,34 @@ const DoorsGrid = styled.div`
   }
 `;
 
-const CardLink = styled(Link)`
+/**
+ * 카드 두 장.
+ *
+ * 성격 차이는 data-primary 하나로 가른다 — 커스텀 prop을 styled(Link)에 넘기면
+ * next/link가 그대로 <a>에 뿌려 React가 알 수 없는 속성이라고 경고한다.
+ */
+const Card = styled(Link)`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  border-radius: 18px;
-  padding: clamp(24px, 3vw, 36px) clamp(20px, 2.6vw, 32px);
   min-height: 240px;
+  padding: clamp(24px, 3vw, 36px) clamp(20px, 2.6vw, 32px);
+  border-radius: 18px;
   text-decoration: none;
   cursor: pointer;
-  transition: ${(props) =>
-    props.reduced
-      ? 'box-shadow .3s ease'
-      : 'transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease'};
+  background: rgba(25, 31, 40, 0.03);
+  border: 1px solid rgba(78, 89, 104, 0.16);
+  transition:
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.3s ease;
+
+  &[data-primary='true'] {
+    background: rgba(232, 90, 24, 0.05);
+    border-color: rgba(232, 90, 24, 0.24);
+  }
 
   &:hover {
-    transform: ${(props) => (props.reduced ? 'none' : 'translateY(-6px)')};
+    transform: translateY(-6px);
     box-shadow: 0 12px 32px rgba(25, 31, 40, 0.1);
   }
 
@@ -220,33 +308,45 @@ const CardLink = styled(Link)`
 
   @media (max-width: 768px) {
     min-height: 180px;
-    order: ${(props) => (props.isPrimary ? -1 : 0)};
+
+    /* 주 행동을 위로 올린다 */
+    &[data-primary='true'] {
+      order: -1;
+    }
   }
-`;
 
-const CardLeft = styled(CardLink)`
-  background: rgba(25, 31, 40, 0.03);
-  border: 1px solid rgba(78, 89, 104, 0.16);
-`;
+  @media (max-height: 860px) {
+    min-height: 0;
+    padding: 16px 18px;
+  }
 
-const CardRight = styled(CardLink)`
-  background: rgba(232, 90, 24, 0.05);
-  border: 1px solid rgba(232, 90, 24, 0.24);
+  @media (prefers-reduced-motion: reduce) {
+    transition: box-shadow 0.3s ease;
+
+    &:hover {
+      transform: none;
+    }
+  }
 `;
 
 const CardTag = styled.span`
   font-size: 16px;
   font-weight: 600;
-  color: ${(props) => (props.isPrimary ? lightPalette.juhong[500] : meok[700])};
+  color: ${meok[700]};
+
+  [data-primary='true'] & {
+    color: ${lightPalette.juhong[500]};
+  }
 `;
 
 const CardTitle = styled.h3`
   margin: 12px 0 8px;
   font-size: clamp(22px, 2.6vw, 30px);
   font-weight: 700;
-  color: ${meok[900]};
   line-height: 1.35;
   white-space: pre-line;
+  word-break: keep-all;
+  color: ${meok[900]};
 `;
 
 const CardDesc = styled.p`
@@ -260,233 +360,260 @@ const CardAction = styled.span`
   margin-top: 16px;
   font-size: 15px;
   font-weight: 600;
-  color: ${(props) => (props.isPrimary ? lightPalette.juhong[500] : meok[700])};
+  color: ${meok[700]};
+
+  [data-primary='true'] & {
+    color: ${lightPalette.juhong[500]};
+  }
 `;
 
-// 4단 — 다음 방문
-const NextVisitBox = styled.div`
-  max-width: 480px;
+// ── 4단 — 다음 방문
+
+const NextVisit = styled.div`
   width: 100%;
+  max-width: 480px;
+  padding: 24px;
   border: 1px solid rgba(78, 89, 104, 0.18);
   border-radius: 14px;
-  padding: 24px;
   background: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(8px);
 
   @media (max-width: 768px) {
     padding: 20px;
   }
+
+  @media (max-height: 860px) {
+    padding: 16px 20px;
+  }
 `;
 
 const NextVisitTitle = styled.h4`
   margin: 0 0 16px;
+
+  @media (max-height: 860px) {
+    margin-bottom: 10px;
+  }
   font-size: 15px;
   font-weight: 600;
   color: ${meok[700]};
 `;
 
-const ListRow = styled.div`
+const Row = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  gap: 12px;
 
-  &:last-of-type {
-    margin-bottom: 0;
+  & + & {
+    margin-top: 10px;
+  }
+
+  @media (max-height: 860px) {
+    & + & {
+      margin-top: 6px;
+    }
   }
 `;
 
-const ListLabel = styled.span`
+const RowLabel = styled.span`
   font-size: 14px;
   font-weight: 400;
   color: ${meok[500]};
 `;
 
-const ListValue = styled.span`
+const RowValue = styled.span`
   font-size: 13px;
   font-weight: 500;
-  color: ${(props) => (props.highlight ? lightPalette.juhong[500] : meok[700])};
+  color: ${meok[700]};
+
+  &[data-accent='true'] {
+    color: ${lightPalette.juhong[500]};
+  }
 `;
 
-const AutoRefreshCaption = styled.p`
+const AutoNote = styled.p`
   margin: 16px 0 0;
   padding-top: 14px;
   border-top: 1px solid rgba(78, 89, 104, 0.1);
   font-size: 12px;
-  color: ${meok[400]};
   text-align: center;
+  color: ${meok[400]};
+
+  @media (max-height: 860px) {
+    margin-top: 8px;
+    padding-top: 8px;
+  }
 `;
 
 // ─────────────────────────────────────────
-// Beat6_Invite Main Component
+// Beat6_Invite
 // ─────────────────────────────────────────
 
 export default function Beat6_Invite({ progress }) {
   const reduced = usePrefersReducedMotion();
 
-  // 1. 데이터 소스 처리
-  const [totalCount, setTotalCount] = useState(undefined); // undefined: 로딩중, null: 실패, number: 성공
-  const [displayCount, setDisplayCount] = useState(0);
-  const startedRef = useRef(false);
+  // undefined = 아직 모름, null = 못 가져옴, number = 확인된 값
+  const [total, setTotal] = useState(readCachedTotal);
+  const [counted, setCounted] = useState(0);
+  const started = useRef(false);
 
-  // 2. 절기 및 다음 달 계산
-  const termInfo = useMemo(() => getNextSolarTerm(), []);
-  const nextMonth = useMemo(() => getNextMonth(), []);
+  const term = useMemo(() => getNextSolarTerm(), []);
+  const nextMonth = useMemo(() => nextMonthOf(), []);
+
+  /*
+    훅은 전부 이 위에 둔다.
+    아래 early return보다 뒤에 훅이 하나라도 있으면 progress가 0.84를 넘는 순간
+    렌더마다 훅 개수가 달라져 React가 통째로 던진다.
+  */
+  const localProgress = Math.min(1, Math.max(0, (progress - START) / (1 - START)));
 
   useEffect(() => {
-    const cached = sessionStorage.getItem('onmaru_hanok_total');
-    if (cached) {
-      setTotalCount(Number(cached));
-      return;
-    }
+    if (total !== undefined) return; // 캐시가 이미 답을 줬다
+
     fetch('/api/tour/summary')
-      .then((r) => r.json())
-      .then((d) => {
-        const count = d.total ?? d.count ?? 1240;
-        setTotalCount(count);
-        sessionStorage.setItem('onmaru_hanok_total', String(count));
+      .then((response) => response.json())
+      .then((data) => {
+        const value = Number(data?.total);
+
+        // 값이 없으면 지어내지 않는다. 아래 대체 문구로 간다.
+        if (!Number.isFinite(value) || value <= 0) throw new Error('total 없음');
+
+        setTotal(value);
+        sessionStorage.setItem(CACHE_KEY, String(value));
       })
-      .catch(() => {
-        setTotalCount(null);
-      });
-  }, []);
+      .catch(() => setTotal(null));
+  }, [total]);
 
-  // Early Return은 모든 훅 선언 이후에 조율 (Rules of Hooks 준수)
-  if (progress < 0.84) return null;
-
-  const localProgress = Math.min(1, (progress - 0.84) / (1.0 - 0.84));
-
-  // 3. 카운트업 애니메이션
+  // 숫자가 자리를 잡는 지점에서 한 번만 센다.
   useEffect(() => {
-    if (localProgress < 0.28 || startedRef.current || totalCount === undefined || totalCount === null) {
-      if (reduced && typeof totalCount === 'number') {
-        setDisplayCount(totalCount);
-      }
-      return;
-    }
-    startedRef.current = true;
-    const target = totalCount;
-    const duration = 1200;
-    const t0 = performance.now();
-    let raf;
-    const tick = (now) => {
-      const p = Math.min(1, (now - t0) / duration);
-      const eased = 1 - Math.pow(2, -10 * p); // easeOutExpo
-      setDisplayCount(Math.round(target * eased));
-      if (p < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [localProgress, totalCount, reduced]);
+    if (started.current || reduced) return undefined;
+    if (localProgress < COUNT_AT || typeof total !== 'number') return undefined;
 
-  const termDaysText = useMemo(() => {
-    if (termInfo.daysLeft === 0) return '오늘';
-    if (termInfo.daysLeft === 1) return '내일';
-    return `${termInfo.name}까지 ${termInfo.daysLeft}일`;
-  }, [termInfo]);
+    started.current = true;
+
+    const startedAt = performance.now();
+    let frame = 0;
+
+    const tick = (now) => {
+      const t = Math.min(1, (now - startedAt) / COUNT_MS);
+      const eased = 1 - 2 ** (-10 * t); // easeOutExpo
+
+      setCounted(Math.round(total * eased));
+      if (t < 1) frame = requestAnimationFrame(tick);
+    };
+
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [localProgress, total, reduced]);
+
+  if (progress < START) return null;
+
+  // 모션을 줄인 사용자에게는 세는 과정 없이 결과만 보여준다.
+  const shown = reduced ? total ?? 0 : counted;
+  const settled = typeof total === 'number' && shown >= total;
+
+  const termValue = (() => {
+    if (!term) return '—';
+    if (term.daysLeft === 0) return `${term.name} 오늘`;
+    if (term.daysLeft === 1) return `${term.name} 내일`;
+    return `${term.name}까지 ${term.daysLeft}일`;
+  })();
 
   return (
-    <Container>
-      {/* 1단 — 실재 선언 (localProgress 0.00~0.20) */}
-      <SectionInner>
-        <Headline style={reveal(localProgress, 0.02, 0.12, reduced)}>
-          이 집은, 실재합니다.
-        </Headline>
-        <SourceMeta style={reveal(localProgress, 0.08, 0.18, reduced)}>
+    <Stage aria-label="온마루 둘러보기">
+      {/* 1단 — 실재 선언 */}
+      <Block>
+        <Headline style={reveal(localProgress, 0.02, 0.12, reduced)}>이 집은, 실재합니다.</Headline>
+
+        <Source style={reveal(localProgress, 0.08, 0.18, reduced)}>
           <span>서울 계동 · 1930년대</span>
           <span>국가유산청 3D 실측 데이터 · 공공누리 제1유형</span>
-        </SourceMeta>
-      </SectionInner>
+        </Source>
+      </Block>
 
-      {/* 2단 — 규모 (localProgress 0.20~0.45) */}
-      <SectionInner>
-        <TransitionSentence style={reveal(localProgress, 0.2, 0.28, reduced)}>
-          그리고 이런 집들이,
-        </TransitionSentence>
+      {/* 2단 — 규모 */}
+      <Block>
+        <Lead style={reveal(localProgress, 0.2, 0.28, reduced)}>그리고 이런 집들이,</Lead>
 
-        <NumberBlock
-          style={reveal(localProgress, 0.26, 0.38, reduced)}
-          role="status"
-          aria-live="polite"
-        >
-          <NumberLabel>전국 한옥 숙소</NumberLabel>
+        <Block style={reveal(localProgress, 0.26, 0.38, reduced)}>
+          <CountLabel>전국 한옥 숙소</CountLabel>
 
-          <NumberValue>
-            {totalCount === undefined ? (
-              <Skeleton />
-            ) : totalCount === null ? (
-              <FallbackText>전국 곳곳에</FallbackText>
-            ) : (
+          <CountValue aria-hidden="true">
+            {total === undefined && <Skeleton />}
+            {total === null && <CountFallback>전국 곳곳에</CountFallback>}
+            {typeof total === 'number' && (
               <>
-                {displayCount.toLocaleString('ko-KR')}
-                <UnitText>곳</UnitText>
+                {shown.toLocaleString('ko-KR')}
+                <Unit>곳</Unit>
               </>
             )}
-          </NumberValue>
+          </CountValue>
 
-          {totalCount !== null && <SourceCaption>한국관광공사 실시간 데이터</SourceCaption>}
-        </NumberBlock>
-      </SectionInner>
+          <SrOnly role="status" aria-live="polite">
+            {settled ? `전국 한옥 숙소 ${total.toLocaleString('ko-KR')}곳` : ''}
+          </SrOnly>
 
-      {/* 3단 — 두 개의 문 (localProgress 0.45~0.80) */}
-      <DoorsGrid>
-        <CardLeft
+          {total !== null && <CountSource>한국관광공사 실시간 데이터</CountSource>}
+        </Block>
+      </Block>
+
+      {/* 3단 — 두 개의 문 */}
+      <Doors>
+        <Card
           href="/hanok"
-          reduced={reduced}
-          style={reveal(localProgress, 0.46, 0.6, reduced)}
           aria-label="한옥 구조 알아보기 페이지로 이동"
+          style={reveal(localProgress, 0.46, 0.6, reduced)}
         >
           <div>
             <CardTag>더 알아보기</CardTag>
-            <CardTitle>{`한옥은 어떻게\n지어졌는가`}</CardTitle>
+            <CardTitle>{'한옥은 어떻게\n지어졌는가'}</CardTitle>
             <CardDesc>구조 · 온돌 · 창호</CardDesc>
           </div>
-          <CardAction>한옥 이야기 →</CardAction>
-        </CardLeft>
 
-        <CardRight
+          <CardAction>한옥 이야기 →</CardAction>
+        </Card>
+
+        <Card
           href="/map"
-          isPrimary
-          reduced={reduced}
-          style={reveal(localProgress, 0.5, 0.64, reduced)}
+          data-primary="true"
           aria-label="전국 한옥 숙소 지도 페이지로 이동"
+          style={reveal(localProgress, 0.5, 0.64, reduced)}
         >
           <div>
-            <CardTag isPrimary>가보기</CardTag>
-            <CardTitle>{`전국 한옥 숙소를\n지도에서`}</CardTitle>
+            <CardTag>가보기</CardTag>
+            <CardTitle>{'전국 한옥 숙소를\n지도에서'}</CardTitle>
             <CardDesc>
-              {typeof totalCount === 'number'
-                ? `${totalCount.toLocaleString('ko-KR')}곳 · 실시간`
+              {typeof total === 'number'
+                ? `${total.toLocaleString('ko-KR')}곳 · 실시간`
                 : '실시간 연동'}
             </CardDesc>
           </div>
-          <CardAction isPrimary>지도 열기 →</CardAction>
-        </CardRight>
-      </DoorsGrid>
 
-      {/* 4단 — 다음 방문 (localProgress 0.80~1.00) */}
-      <NextVisitBox style={reveal(localProgress, 0.82, 0.94, reduced)}>
+          <CardAction>지도 열기 →</CardAction>
+        </Card>
+      </Doors>
+
+      {/* 4단 — 다음 방문 */}
+      <NextVisit style={reveal(localProgress, 0.82, 0.94, reduced)}>
         <NextVisitTitle>다음에 오시면, 달라져 있습니다</NextVisitTitle>
 
-        <ListRow>
-          <ListLabel>○ 오늘의 볕</ListLabel>
-          <ListValue highlight>매일 갱신</ListValue>
-        </ListRow>
+        <Row>
+          <RowLabel>○ 오늘의 볕</RowLabel>
+          <RowValue data-accent="true">매일 갱신</RowValue>
+        </Row>
 
-        <ListRow>
-          <ListLabel>○ 절기 알림</ListLabel>
-          <ListValue>{termDaysText}</ListValue>
-        </ListRow>
+        <Row>
+          <RowLabel>○ 절기 알림</RowLabel>
+          <RowValue>{termValue}</RowValue>
+        </Row>
 
-        <ListRow>
-          <ListLabel>○ 이 달의 한옥</ListLabel>
-          <ListValue>{`${nextMonth}월 1일 교체`}</ListValue>
-        </ListRow>
+        <Row>
+          <RowLabel>○ 이 달의 한옥</RowLabel>
+          <RowValue>{`${nextMonth}월 1일 교체`}</RowValue>
+        </Row>
 
-        <AutoRefreshCaption>
-          한국관광공사 데이터를 기반으로 자동으로 갱신됩니다.
-        </AutoRefreshCaption>
-      </NextVisitBox>
-    </Container>
+        <AutoNote>한국관광공사 데이터를 기반으로 자동으로 갱신됩니다.</AutoNote>
+      </NextVisit>
+    </Stage>
   );
 }
