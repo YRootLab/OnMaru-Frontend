@@ -31,6 +31,8 @@ const INK = meok[900];
 const INK_SUB = meok[700];
 const INK_WEAK = meok[500];
 const LINE = 'rgba(78, 89, 104, 0.14)';
+const ACCENT = lightPalette.juhong[500];
+const ACCENT_VIVID = lightPalette.juhong[500];
 
 /**
  * 계절별 슬라이더 바 & 손잡이 동적 컬러 테마
