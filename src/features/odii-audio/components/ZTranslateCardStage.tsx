@@ -10,14 +10,20 @@ interface ZTranslateCardStageProps {
 
 export const ZTranslateCardStage: React.FC<ZTranslateCardStageProps> = ({ featuredStories }) => {
   const [activeIdx, setActiveIdx] = useState<number>(0);
-  const setCurrentStory = useOdiiAudioStore((s) => s.currentStory);
-  const setStoryInStore = useOdiiAudioStore((s) => s.setCurrentStory);
+  const currentStory = useOdiiAudioStore((s) => s.currentStory);
+  const isPlaying = useOdiiAudioStore((s) => s.isPlaying);
+  const setCurrentStory = useOdiiAudioStore((s) => s.setCurrentStory);
+  const setIsPlaying = useOdiiAudioStore((s) => s.setIsPlaying);
 
   const displayStories = featuredStories.slice(0, 3);
 
   const handleCardClick = (story: OdiiStoryItem, idx: number) => {
     setActiveIdx(idx);
-    setStoryInStore(story);
+    if (currentStory.stid === story.stid) {
+      setIsPlaying(!isPlaying);
+    } else {
+      setCurrentStory(story);
+    }
   };
 
   return (
@@ -34,7 +40,7 @@ export const ZTranslateCardStage: React.FC<ZTranslateCardStageProps> = ({ featur
           3차원 Z-축 공간으로 만나는 오디 큐레이션
         </h2>
         <p className="text-xs sm:text-sm text-[#A09588] mt-2 max-w-md mx-auto">
-          마우스를 올리거나 카드를 클릭해 깊이감 있는 3D 한옥 오디오 서사를 감상해 보세요.
+          카드를 터치하면 오디오가 재생되며, 이미 재생 중인 카드를 다시 터치하면 일시정지됩니다.
         </p>
       </div>
 
@@ -44,8 +50,8 @@ export const ZTranslateCardStage: React.FC<ZTranslateCardStageProps> = ({ featur
         <div className="relative w-[300px] sm:w-[360px] h-[380px] sm:h-[420px] [transform-style:preserve-3d] animate-float-3d">
           {displayStories.map((story, idx) => {
             const isActive = activeIdx === idx;
+            const isThisPlaying = currentStory.stid === story.stid && isPlaying;
             
-            // 3D Z-Translate 및 Rotate 계산 (preview.html 3D 깊이감 적용)
             let zTrans = -300 + idx * 120;
             let rotY = idx === 0 ? -12 : idx === 2 ? 12 : 0;
             let transX = idx === 0 ? -50 : idx === 2 ? 50 : 0;
@@ -76,7 +82,7 @@ export const ZTranslateCardStage: React.FC<ZTranslateCardStageProps> = ({ featur
                     {story.category}
                   </span>
                   <span className="text-xs text-white/60 font-mono">
-                    📍 {story.distance || '300m'}
+                    {story.distance || '300m'}
                   </span>
                 </div>
 
@@ -87,10 +93,24 @@ export const ZTranslateCardStage: React.FC<ZTranslateCardStageProps> = ({ featur
                     alt={story.title}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end p-3">
-                    <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                      ▶ 오디오 서사 재생
-                    </span>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end p-3 justify-between">
+                    <div className="flex items-center space-x-2">
+                      {/* SVG 재생/정지 버튼 */}
+                      <div className="w-8 h-8 rounded-full bg-[#D42058] flex items-center justify-center shadow-lg">
+                        {isThisPlaying ? (
+                          <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24">
+                            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                          </svg>
+                        ) : (
+                          <svg className="w-4 h-4 fill-white translate-x-0.5" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
+                          </svg>
+                        )}
+                      </div>
+                      <span className="text-xs font-bold text-white">
+                        {isThisPlaying ? '일시정지' : '오디오 재생'}
+                      </span>
+                    </div>
                   </div>
                 </div>
 

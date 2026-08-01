@@ -34,7 +34,7 @@ export const HeroAudioPlayer: React.FC = () => {
 
   return (
     <div className="bg-[#1C1814] text-white rounded-3xl p-6 sm:p-8 border border-[#3A332C] shadow-2xl flex flex-col justify-between h-full relative overflow-hidden">
-      {/* 배경 은은한 노을 미색 무드 */}
+      {/* 배경 은은한 무드 */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-[#D42058]/10 via-transparent to-transparent pointer-events-none" />
 
       {/* 상단 앨범 아트 및 배지 */}
@@ -61,7 +61,7 @@ export const HeroAudioPlayer: React.FC = () => {
           {currentStory.audioTitle || currentStory.title}
         </h1>
         <p className="text-xs sm:text-sm text-[#A09588] mb-6 flex items-center gap-1.5">
-          <span>📍 {currentStory.locationName || currentStory.title}</span>
+          <span>{currentStory.locationName || currentStory.title}</span>
           <span>•</span>
           <span>{currentStory.speaker || '온마루 해설 도슨트'}</span>
         </p>
@@ -85,48 +85,73 @@ export const HeroAudioPlayer: React.FC = () => {
           </div>
         </div>
 
-        {/* 컨트롤 버튼 모음 */}
+        {/* 컨트롤 버튼 모음 (SVG 아이콘 및 정갈한 라벨 적용) */}
         <div className="flex items-center justify-between pt-2">
           {/* 북마크 버튼 */}
           <button
             onClick={toggleBookmark}
-            className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
+            className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all flex items-center space-x-1.5 ${
               isBookmarked
                 ? 'text-[#F8A8C0] bg-[#D42058]/20 border border-[#D42058]/40'
                 : 'text-[#A09588] hover:text-white hover:bg-white/5'
             }`}
           >
-            {isBookmarked ? '🔖 Saved' : '🔖 Save'}
+            <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+              <path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z"/>
+            </svg>
+            <span>{isBookmarked ? '저장됨' : '북마크'}</span>
           </button>
 
-          {/* 메인 컨트롤러 */}
+          {/* 메인 컨트롤러 (10초 이전 / SVG 재생-일시정지 / 10초 다음) */}
           <div className="flex items-center space-x-4">
             <button
               onClick={() => skipBackward(10)}
-              className="p-2 text-[#A09588] hover:text-white transition-colors font-bold text-sm"
+              className="p-2 text-[#A09588] hover:text-white transition-colors font-bold text-xs flex items-center space-x-1"
               title="10초 뒤로"
             >
-              ↺ 10
+              <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                <path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/>
+              </svg>
+              <span>10s</span>
             </button>
 
             <button
               onClick={() => setIsPlaying(!isPlaying)}
-              className="w-13 h-13 sm:w-14 sm:h-14 bg-[#D42058] hover:bg-[#E03870] text-white rounded-full flex items-center justify-center shadow-xl transition-transform active:scale-95 text-xl font-bold"
+              className="px-5 py-3 bg-[#D42058] hover:bg-[#E03870] text-white rounded-full flex items-center space-x-2 shadow-xl transition-all active:scale-95 text-xs font-bold"
             >
-              {isPlaying ? '⏸' : '▶'}
+              {isPlaying ? (
+                <>
+                  <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24">
+                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                  </svg>
+                  <span>일시정지</span>
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                  <span>재생하기</span>
+                </>
+              )}
             </button>
 
             <button
               onClick={() => skipForward(10)}
-              className="p-2 text-[#A09588] hover:text-white transition-colors font-bold text-sm"
+              className="p-2 text-[#A09588] hover:text-white transition-colors font-bold text-xs flex items-center space-x-1"
               title="10초 앞으로"
             >
-              10 ↻
+              <span>10s</span>
+              <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                <path d="M11.5 8c2.65 0 5.05.99 6.9 2.6L22 7v9h-9l3.62-3.62c-1.39-1.16-3.16-1.88-5.12-1.88-3.54 0-6.55 2.31-7.6 5.5l-2.37-.78C2.92 11.03 6.85 8 11.5 8z"/>
+              </svg>
             </button>
           </div>
 
-          <div className="text-xs text-[#A09588] font-mono">
-            🔊 100%
+          <div className="text-xs text-[#A09588] font-mono flex items-center space-x-1">
+            <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+              <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+            </svg>
           </div>
         </div>
       </div>

@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
+import React from 'react';
 
 interface HanokChapter {
   id: string;
@@ -14,7 +13,6 @@ interface HanokChapter {
   quote: string;
   imageUrl: string;
   accentColor: string;
-  bgGradient: string;
   details: { label: string; val: string }[];
 }
 
@@ -31,7 +29,6 @@ const HANOK_CHAPTERS: HanokChapter[] = [
     quote: '"한옥의 마루는 자연을 차단하는 벽이 아니라, 바람과 사람을 이어주는 열린 무대입니다."',
     imageUrl: 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=1000&q=80',
     accentColor: '#D42058',
-    bgGradient: 'from-[#FFF0F4] to-[#FAF6F0]',
     details: [
       { label: '건축적 특징', val: '우물마루 정교한 짜맞춤 목공 기법' },
       { label: '소리 메타포', val: '처마 끝 쇠소리 풍경음 & 바람 잎 소리' },
@@ -44,12 +41,11 @@ const HANOK_CHAPTERS: HanokChapter[] = [
     subtitle: '천년의 시간을 축열(蓄熱)하여 은근히 전하는 겨울의 온기',
     concept: '은근한 체온',
     description:
-      '아궁이에 피운 장작불의 기운이 암석으로 된 구들장을 따스하게 데우고, 열기가 방 전체로 은은하게 스며듭니다. 차가운 밖의 기운 속에서도 윗목과 아랫목을 채우는 조용하고 깊은 한국 고유의 온열 과학입니다.',
+      '아궁이에 피운 장작불의 기운이 암석으로 된 구들장을 따스하게 데우고, 열기가 방 전체로 은은하게 스며듭니다. 차가운 밖의 기운 속에서도 윗목과 아랫목을 채우는 조용하고 깊은 온열 과학입니다.',
     hanokElement: '황토 구들장 • 보물 자경전 굴뚝',
     quote: '"구들장이 품은 온기는 어머니의 넉넉한 품처럼 밤새도록 방안을 감쌉니다."',
     imageUrl: 'https://images.unsplash.com/photo-1584467541268-b040f83be3fd?auto=format&fit=crop&w=1000&q=80',
     accentColor: '#E85A18',
-    bgGradient: 'from-[#FFF3ED] to-[#FAF6F0]',
     details: [
       { label: '건축적 특징', val: '연도를 통한 열기 순환 및 황토 미장' },
       { label: '소리 메타포', val: '타오르는 아궁이 숯불 소리 & 바람 연기' },
@@ -67,7 +63,6 @@ const HANOK_CHAPTERS: HanokChapter[] = [
     quote: '"하늘과 땅 사이, 겹겹이 올려진 기와 곡선은 산능선의 물결을 닮았습니다."',
     imageUrl: 'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=1000&q=80',
     accentColor: '#1E7A68',
-    bgGradient: 'from-[#E6F5F0] to-[#FAF6F0]',
     details: [
       { label: '건축적 특징', val: '낙수물 받이 곡선 및 모서리 솟음 기법' },
       { label: '소리 메타포', val: '기와에 떨어지는 낙수 빗소리' },
@@ -85,7 +80,6 @@ const HANOK_CHAPTERS: HanokChapter[] = [
     quote: '"창호지는 밖의 풍경을 단절하지 않고, 은은한 서광만을 기품 있게 들여놓습니다."',
     imageUrl: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1000&q=80',
     accentColor: '#F5A623',
-    bgGradient: 'from-[#FFF8E0] to-[#FAF6F0]',
     details: [
       { label: '건축적 특징', val: '천연 닥나무 섬유의 습도 조절 기능' },
       { label: '소리 메타포', val: '바람에 사그라드는 창호 문풍지 소리' },
@@ -94,28 +88,24 @@ const HANOK_CHAPTERS: HanokChapter[] = [
 ];
 
 export const ZIndexStackedSection: React.FC = () => {
-  const [expandedId, setExpandedId] = useState<string | null>(null);
-
   return (
-    <section className="w-full py-20 border-t border-b border-[#EAE0D0] my-12 bg-gradient-to-b from-[#FAF6F0] via-[#F5EFE6]/40 to-[#FAF6F0]">
-      {/* 섹션 헤더 (전통 한옥 타이포그래피 & 문양) */}
+    <section className="w-full py-16 my-8 border-t border-b border-[#3A332C]/60">
+      {/* 섹션 헤더 (전통 한옥 타이포그래피) */}
       <div className="text-center mb-16 px-4">
-        <div className="inline-flex items-center justify-center space-x-2 px-4 py-1.5 rounded-full bg-[#FFF0F4] border border-[#F8A8C0]/40 text-[#D42058] text-xs font-bold mb-4 shadow-sm">
-          <span>🏯</span>
-          <span>ANATOMY OF HANOK SPACE</span>
-        </div>
-        <h2 className="text-3xl sm:text-4xl font-extrabold text-[#2A1A0A] tracking-tight font-serif">
+        <span className="px-3.5 py-1 rounded-full bg-[#D42058]/15 border border-[#D42058]/40 text-[#F8A8C0] text-xs font-bold inline-block mb-3">
+          ANATOMY OF HANOK ARCHITECTURE
+        </span>
+        <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight font-serif">
           한옥의 4대 공간 해부학 & 서사
         </h2>
-        <p className="text-sm sm:text-base text-[#786050] mt-3 max-w-xl mx-auto leading-relaxed">
-          스크롤에 따라 깊어지는 한옥 고유의 건축 요소와 바람, 빛, 온기의 스토리를 차례대로 감상해보세요.
+        <p className="text-xs sm:text-sm text-[#A09588] mt-2.5 max-w-xl mx-auto leading-relaxed">
+          스크롤을 내리며 층층이 접혀 접히는 한옥 고택의 공간 미학을 차례대로 감상해보세요.
         </p>
       </div>
 
-      {/* 스태킹 카드 컨테이너 (Shopify Editions & Editorial Style) */}
+      {/* 스태킹 카드 컨테이너 (Dark Editorial Style) */}
       <div className="relative w-full max-w-5xl mx-auto px-4 space-y-16">
         {HANOK_CHAPTERS.map((chapter, idx) => {
-          const isExpanded = expandedId === chapter.id;
           const zIndex = (idx + 1) * 10;
           const topSticky = 90 + idx * 30;
 
@@ -126,12 +116,10 @@ export const ZIndexStackedSection: React.FC = () => {
                 zIndex,
                 top: `${topSticky}px`,
               }}
-              className={`sticky w-full rounded-3xl p-6 sm:p-10 border transition-all duration-500 shadow-xl overflow-hidden bg-gradient-to-br ${chapter.bgGradient} ${
-                isExpanded ? 'ring-2 ring-[#D42058] shadow-2xl' : 'border-[#EAE0D0]'
-              }`}
+              className="sticky w-full bg-[#1C1814] text-white rounded-3xl p-6 sm:p-10 border border-[#3A332C] shadow-2xl transition-transform duration-500 hover:-translate-y-1 overflow-hidden"
             >
-              {/* 은은한 배경 문살 한지 패턴 메타포 */}
-              <div className="absolute right-0 top-0 w-96 h-96 opacity-5 pointer-events-none bg-[radial-gradient(#2A1A0A_1px,transparent_1px)] [background-size:16px_16px]" />
+              {/* 은은한 배경 문양 오버레이 */}
+              <div className="absolute right-0 top-0 w-96 h-96 opacity-5 pointer-events-none bg-[radial-gradient(#FFFFFF_1px,transparent_1px)] [background-size:16px_16px]" />
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
                 {/* 좌측 에디토리얼 서사 */}
@@ -143,26 +131,26 @@ export const ZIndexStackedSection: React.FC = () => {
                     >
                       {chapter.chapterNum}
                     </span>
-                    <span className="px-2.5 py-0.5 text-xs font-semibold bg-white/80 text-[#2A1A0A] rounded-md border border-[#EAE0D0]">
+                    <span className="px-2.5 py-0.5 text-xs font-semibold bg-white/10 text-[#A09588] rounded-md border border-white/10">
                       {chapter.hanokElement}
                     </span>
                   </div>
 
                   <div>
-                    <h3 className="text-2xl sm:text-3xl font-extrabold text-[#2A1A0A] tracking-tight leading-tight">
+                    <h3 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight font-serif">
                       {chapter.title}
                     </h3>
-                    <p className="text-xs sm:text-sm font-semibold text-[#D42058] mt-1">
+                    <p className="text-xs sm:text-sm font-semibold text-[#F8A8C0] mt-1">
                       {chapter.subtitle}
                     </p>
                   </div>
 
-                  <p className="text-sm sm:text-base text-[#786050] leading-relaxed">
+                  <p className="text-sm sm:text-base text-[#A09588] leading-relaxed">
                     {chapter.description}
                   </p>
 
-                  {/* 인용구 및 사운드 상세 */}
-                  <blockquote className="p-4 bg-white/80 backdrop-blur-sm rounded-2xl border-l-4 border-[#D42058] text-xs sm:text-sm font-medium italic text-[#2A1A0A] shadow-sm">
+                  {/* 인용구 */}
+                  <blockquote className="p-4 bg-white/5 rounded-2xl border-l-2 border-[#D42058] text-xs sm:text-sm font-medium italic text-white/90">
                     {chapter.quote}
                   </blockquote>
 
@@ -171,29 +159,29 @@ export const ZIndexStackedSection: React.FC = () => {
                     {chapter.details.map((d, i) => (
                       <div
                         key={i}
-                        className="bg-white/60 p-2.5 rounded-xl border border-[#EAE0D0]/50 text-xs"
+                        className="bg-white/5 p-3 rounded-xl border border-white/10 text-xs"
                       >
-                        <span className="font-bold text-[#D42058] block mb-0.5">
+                        <span className="font-bold text-[#F8A8C0] block mb-0.5">
                           {d.label}
                         </span>
-                        <span className="text-[#2A1A0A] font-medium">{d.val}</span>
+                        <span className="text-white/90 font-medium">{d.val}</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                {/* 우측 한옥 이미지 & 비주얼 */}
+                {/* 우측 진짜 한옥 고택 이미지 */}
                 <div className="lg:col-span-5">
-                  <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-md group border border-white">
+                  <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-xl group border border-white/10">
                     <img
                       src={chapter.imageUrl}
                       alt={chapter.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                     <div className="absolute bottom-3 left-3 right-3 flex justify-between items-center text-white text-xs">
-                      <span className="font-bold">📍 한옥 공간 해부</span>
-                      <span className="px-2 py-1 bg-white/20 backdrop-blur-md rounded-md">
+                      <span className="font-bold">한옥 공간 서사</span>
+                      <span className="px-2.5 py-1 bg-black/40 backdrop-blur-md rounded-md text-white/90 border border-white/10">
                         {chapter.concept}
                       </span>
                     </div>
