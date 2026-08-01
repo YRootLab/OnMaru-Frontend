@@ -6,18 +6,21 @@
   이 라이브러리의 정상 패턴이고, 여기서 만지는 것은 이 컴포넌트가 clone한 자기 사본이다.
 */
 
-import { Suspense, useEffect, useMemo, useRef } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { PerspectiveCamera, useGLTF } from '@react-three/drei';
+import { useEffect, useMemo } from 'react';
+import { useFrame } from '@react-three/fiber';
+import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import styled from '@emotion/styled';
+import { keyframes } from '@emotion/react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 // 읽기 전용 아카이브의 단계 정의. 실제 경로는 .../data/hanok.data
 // (브리프 경로에서 /data/ 세그먼트가 빠져 있었다). hanok.data.ts는 수정하지 않는다.
 import { STAGES } from '@/archive/hanok-viewer/data/hanok.data';
 import { MODEL_URL, BEAT_RANGES } from '@/scroll-core/constants';
-import { clamp01, easeOut as easeOutCubic } from './BeatFrame';
+import { assemblyProgress, useSceneStore } from '@/scroll-core/sceneStore';
+import { meok } from '@/design-system/tokens';
+import { clamp01, easeOut as easeOutCubic, usePrefersReducedMotion } from './BeatFrame';
 
 const FONT = "'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif";
 const EASE = [0.22, 1, 0.36, 1];
@@ -37,16 +40,16 @@ const [RANGE_START, RANGE_END] = RANGE;
 
 /** localProgress(0~1)를 7단계에 나눠 담는 창. 앞 0.06 진입, 뒤 0.06 완성 여운. */
 const STAGE_WINDOWS = [
-  [0.06, 0.19], // 01 기단
-  [0.19, 0.32], // 02 댓돌
-  [0.32, 0.45], // 03 초석과 기둥
-  [0.45, 0.58], // 04 마루
-  [0.58, 0.71], // 05 벽
-  [0.71, 0.84], // 06 창호
-  [0.84, 0.94], // 07 기와
+  [0.01, 0.12], // 01 기단
+  [0.12, 0.23], // 02 댓돌
+  [0.23, 0.35], // 03 초석과 기둥
+  [0.35, 0.47], // 04 마루
+  [0.47, 0.59], // 05 벽
+  [0.59, 0.71], // 06 창호
+  [0.71, 0.83], // 07 기와 (0.83 완공)
 ];
 
-const RESULT_AT = 0.94;
+const RESULT_AT = 0.83;
 
 /** 진행 중이거나 방금 끝난 단계. 진입 구간에서는 -1. */
 const activeStageOf = (local) => {
@@ -71,16 +74,21 @@ const statusOf = (local, i) => {
 /**
  * 조립할 한옥 한 벌.
  *
- * useGLTF가 돌려주는 scene은 캐시된 한 덩어리다. HanokModel(상시 마운트)과 Beat5도
- * 같은 것을 쥐고 있어서, 여기서 직접 mesh.material을 갈아끼우면 서로의 재질을 덮어쓴다.
+ * ScrollExperience의 HanokScene이 Beat4 구간에서 완성된 한옥 대신 이것을 세운다.
+ * 예전에는 이 파일이 자기 Canvas를 들고 있었지만 그 Canvas가 JSX에 놓인 적이 없어
+ * 조립이 한 번도 돌지 않았다 — 그래서 텍스트만 넘어가고 한옥은 그대로였다.
+ *
+ * useGLTF가 돌려주는 scene은 캐시된 한 덩어리다. HanokModel과 Beat5도 같은 것을 쥐고
+ * 있어서, 여기서 직접 mesh.material을 갈아끼우면 서로의 재질을 덮어쓴다.
  * 실제로 그 탓에 부재가 visible=true 인 채 opacity 0 에 묶여 화면에서 통째로 사라졌다.
  *
  * 그래서 자기 사본 위에서만 작업한다. clone(true)는 노드 계층만 복제하고
  * geometry·material은 참조로 공유하므로 부재 107개라도 비용이 거의 없다.
  * 남의 것을 만지지 않으니 언마운트 때 되돌릴 것도 없다.
  */
-function AssemblyModel({ localRef }) {
+export function AssemblyModel() {
   const { scene } = useGLTF(MODEL_URL);
+  const reduced = usePrefersReducedMotion();
 
   const { parts, offset, root } = useMemo(() => {
     const cloned = scene.clone(true);
@@ -146,20 +154,23 @@ function AssemblyModel({ localRef }) {
     return { parts: built, offset: [-center.x, -yMin, -center.z], root: cloned };
   }, [scene]);
 
+const easeInOutCubic = (t) =>
+  t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+const lerp = (a, b, t) => a + (b - a) * t;
+
   /*
-    매 프레임 107개를 전부 다시 계산한다.
-
-    "정착한 부재는 건너뛴다"는 최적화가 있었지만, 부재마다 상태 플래그를 들고
-    되감기까지 챙겨야 해서 계산량보다 그 관리가 더 비쌌다. 곱셈 몇 번이 전부다.
+    매 프레임 107개 부재 및 STAGES 데이터 기반 카메라를 보간 계산한다.
   */
-  useFrame(() => {
-    const local = localRef.current;
+  useFrame(({ camera, size }) => {
+    const local = assemblyProgress.current;
 
+    // 1. 107개 부재 조립 애니메이션
     for (const part of parts) {
       const [start, end] = STAGE_WINDOWS[part.stage];
 
       const t = clamp01((local - start) / (end - start));
-      const e = easeOutCubic(t);
+      const e = 1 - (1 - t) ** 3;
 
       part.mesh.position.set(
         part.origin.x + part.from.x * (1 - e),
@@ -167,7 +178,7 @@ function AssemblyModel({ localRef }) {
         part.origin.z + part.from.z * (1 - e),
       );
 
-      const opacity = smoothstep(0, 0.4, t);
+      const opacity = smoothstep(0, 0.18, t);
       const visible = opacity > 0.004;
       part.mesh.visible = visible;
 
@@ -176,12 +187,78 @@ function AssemblyModel({ localRef }) {
         for (const material of part.materials) {
           material.opacity = opacity;
 
-          // transparent를 바꾸면 셰이더를 다시 짜야 한다. 바뀔 때만 알린다.
           if (material.transparent === opaque) {
             material.transparent = !opaque;
             material.needsUpdate = true;
           }
         }
+      }
+    }
+
+    // 2. STAGES 데이터 기반 단계별 카메라 보간 애니메이션
+    const activeStage = local >= RESULT_AT ? STAGES.length - 1 : activeStageOf(local);
+    if (activeStage >= 0 && activeStage < STAGES.length) {
+      const i = activeStage;
+      const isCompleted = local >= RESULT_AT;
+
+      const cur = STAGES[i];
+      const next = STAGES[Math.min(i + 1, STAGES.length - 1)];
+
+      const [start, end] = STAGE_WINDOWS[i];
+      const stageLocalProgress = isCompleted ? 1 : clamp01((local - start) / (end - start));
+
+      // [6] 접근성 (prefers-reduced-motion): reduced인 경우 linear, 아니면 easeInOutCubic
+      const t = reduced ? stageLocalProgress : easeInOutCubic(stageLocalProgress);
+
+      const isMobile = size.width < 768;
+
+      const curPos = new THREE.Vector3(...cur.cameraPos);
+      const nextPos = new THREE.Vector3(...next.cameraPos);
+
+      const curTargetVec = new THREE.Vector3(
+        ...(isMobile && cur.mobileCameraTarget ? cur.mobileCameraTarget : cur.cameraTarget),
+      );
+      const nextTargetVec = new THREE.Vector3(
+        ...(isMobile && next.mobileCameraTarget ? next.mobileCameraTarget : next.cameraTarget),
+      );
+
+      // position 및 target 보간
+      const lerpedPos = new THREE.Vector3().lerpVectors(curPos, nextPos, t);
+      const lerpedTarget = new THREE.Vector3().lerpVectors(curTargetVec, nextTargetVec, t);
+
+      // [방안 A] 카메라 타겟을 데스크톱에서 좌측으로 Shift하여 3D 한옥을 우측에 배치하고 좌측 45%를 '순수 여백'으로 확보
+      if (!isMobile) {
+        lerpedTarget.x -= 2.2;
+        lerpedPos.x -= 2.2;
+      }
+
+      // [3] 단계 진입 시 미세한 무게감 강조 모션 (Punch Effect)
+      if (!reduced && stageLocalProgress <= 0.15) {
+        const punch = Math.sin((stageLocalProgress / 0.15) * Math.PI) * 0.4;
+        const dirFromTarget = lerpedPos.clone().sub(lerpedTarget);
+        dirFromTarget.multiplyScalar(1 - punch * 0.012);
+        lerpedPos.copy(lerpedTarget).add(dirFromTarget);
+      }
+
+      // [4] 반응형 카메라 보정 (모바일 1.55x, 태블릿 1.2x 거리 늘림 및 fov +6)
+      let distanceScale = 1;
+      if (size.width < 768) distanceScale = 1.55;
+      else if (size.width < 1280) distanceScale = 1.2;
+
+      const dir = lerpedPos.clone().sub(lerpedTarget).normalize();
+      const dist = lerpedPos.distanceTo(lerpedTarget) * distanceScale;
+      const finalPos = lerpedTarget.clone().add(dir.multiplyScalar(dist));
+
+      camera.position.copy(finalPos);
+      camera.lookAt(lerpedTarget);
+
+      // fov 보간
+      const baseFov = lerp(cur.fov ?? 45, next.fov ?? 45, t);
+      const finalFov = isMobile ? baseFov + 6 : baseFov;
+
+      if (Math.abs(camera.fov - finalFov) > 0.01) {
+        camera.fov = finalFov;
+        camera.updateProjectionMatrix();
       }
     }
   });
@@ -190,134 +267,6 @@ function AssemblyModel({ localRef }) {
     <group position={offset}>
       <primitive object={root} />
     </group>
-  );
-}
-
-/**
- * 카메라를 모델 치수와 화면 비율에서 역산한다.
- *
- * 상수 좌표는 넓은 창에서 잡아둔 값이라, 캔버스가 세로로 길어지면(모바일에서는
- * 3D가 위 60%만 차지한다) 한옥이 프레임 밖으로 밀려 화면이 텅 빈다.
- * 방향만 원래 값에서 그대로 가져오고 거리는 매번 푼다.
- */
-const VIEW_DIR = [-11, 6, 14]; // 타깃 → 카메라. 원래 상수 좌표가 보던 방향 그대로.
-const FOV = 45;
-
-/*
-  부재가 STAGES[].from 만큼 떨어진 자리에서 날아오므로 완성 크기보다 넉넉히 잡는다.
-  꽉 채우면 조립 중 부재가 프레임 밖에서 나타난다.
-*/
-const FILL_H = 0.72;
-const FILL_V = 0.6;
-
-const LOOK_Y = 0.45; // 시선이 닿는 높이 (모델 높이 배수)
-
-const toRad = (deg) => (deg * Math.PI) / 180;
-
-function AssemblyCamera() {
-  const { scene } = useGLTF(MODEL_URL);
-  const size = useThree((s) => s.size);
-
-  const extent = useMemo(
-    () => new THREE.Box3().setFromObject(scene).getSize(new THREE.Vector3()),
-    [scene],
-  );
-
-  const view = useMemo(() => {
-    const aspect = Math.max(size.width / size.height, 0.1);
-    const radius = Math.hypot(extent.x, extent.z) / 2;
-
-    const halfV = Math.max(extent.y / (2 * FILL_V), radius / (FILL_H * aspect));
-    const distance = halfV / Math.tan(toRad(FOV) / 2);
-
-    const targetY = extent.y * LOOK_Y;
-    const length = Math.hypot(...VIEW_DIR);
-    const position = VIEW_DIR.map((v) => (v / length) * distance);
-    position[1] += targetY;
-
-    /*
-      회전을 여기서 뽑아 prop으로 넘긴다. 효과에서 lookAt을 부르면 R3F가 position을
-      적용하는 시점과 엇갈려 회전이 씹힌다. 더미는 반드시 카메라여야 한다 —
-      평범한 Object3D는 eye/target을 뒤집어 맞춰 카메라가 반대편을 본다.
-    */
-    const dummy = new THREE.PerspectiveCamera();
-    dummy.position.set(...position);
-    dummy.lookAt(0, targetY, 0);
-
-    return {
-      position,
-      rotation: [dummy.rotation.x, dummy.rotation.y, dummy.rotation.z],
-      // GLB 단위를 모르므로 near·far도 거리에서 뽑는다
-      near: Math.max(0.01, distance / 200),
-      far: distance * 6,
-    };
-  }, [extent, size.width, size.height]);
-
-  return (
-    <PerspectiveCamera
-      makeDefault
-      position={view.position}
-      rotation={view.rotation}
-      fov={FOV}
-      near={view.near}
-      far={view.far}
-    />
-  );
-}
-
-function Scene({ localRef }) {
-  return (
-    <>
-      {/*
-        useGLTF를 부르므로 반드시 Suspense 안에 있어야 한다.
-        밖에 두면 모델을 기다리는 동안 Canvas 전체가 suspend되어 DOM에서 통째로 빠진다.
-      */}
-      <Suspense fallback={null}>
-        <AssemblyCamera />
-      </Suspense>
-
-      {/*
-        환경광.
-
-        전에는 22MB HDRI가 이 자리를 맡았지만 배경으로 쓰지 않고 빛만 뽑아 쓰는 터라
-        화면에 남는 차이가 거의 없었다. 단색으로 바꿔 첫 로딩에서 그 무게를 덜어냈다.
-      */}
-      <ambientLight intensity={1.6} color="#EAE2D4" />
-
-      {/*
-        주광 — 그림자 담당. 카메라(-x, +z)와 같은 쪽에 둬 카메라가 보는 면이 밝게 서도록.
-        (원래 +x 쪽이라 카메라가 그늘진 뒷면을 봐서 한옥이 통째로 어두웠다.)
-        어두운 배경이라 성능 위해 그림자 맵은 1024로.
-      */}
-      <directionalLight
-        position={[-9, 16, 14]}
-        intensity={3.4}
-        color="#FFF4DC"
-        castShadow
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
-        shadow-camera-near={0.5}
-        shadow-camera-far={80}
-        shadow-camera-left={-30}
-        shadow-camera-right={30}
-        shadow-camera-top={30}
-        shadow-camera-bottom={-30}
-        shadow-bias={-0.0005}
-      />
-
-      {/* 림라이트 — 후면에서 윤곽을 살려 어두운 배경에서 한옥이 떠오르게 한다. */}
-      <directionalLight position={[-6, 8, -10]} intensity={1.6} color="#F5A623" />
-
-      {/* 그림자만 받는 투명 바닥 */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
-        <planeGeometry args={[40, 40]} />
-        <shadowMaterial opacity={0.5} />
-      </mesh>
-
-      <Suspense fallback={null}>
-        <AssemblyModel localRef={localRef} />
-      </Suspense>
-    </>
   );
 }
 
@@ -332,36 +281,30 @@ const Stage = styled.section`
   display: flex;
   pointer-events: none;
   font-family: ${FONT};
-  /* 배경은 GlobalBackground가 전담한다 (Canvas는 alpha:true 라 그대로 비친다). */
 
   @media (max-width: 768px) {
-    flex-direction: column-reverse; /* 위 3D, 아래 텍스트 */
+    flex-direction: column-reverse;
   }
 `;
 
 const Left = styled.div`
-  flex: 0 0 40%;
+  flex: 0 0 42%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   padding-left: 6vw;
-  padding-right: 24px;
+  padding-right: 36px;
+  position: relative;
+  z-index: 2;
 
   @media (max-width: 768px) {
-    flex: 0 0 40%;
-    padding: 0 20px 36px;
+    flex: 0 0 45%;
+    padding: 20px;
     justify-content: flex-end;
   }
 `;
 
-const Right = styled.div`
-  flex: 0 0 60%;
-  position: relative;
-
-  @media (max-width: 768px) {
-    flex: 0 0 60%;
-  }
-`;
+/* 오른쪽 60%는 비워둔다. 그 자리에 고정 캔버스의 한옥이 조립된다. */
 
 const TextStack = styled.div`
   position: relative;
@@ -370,6 +313,12 @@ const TextStack = styled.div`
   @media (max-width: 768px) {
     min-height: 180px;
   }
+`;
+
+const goldShimmer = keyframes`
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 `;
 
 const Layer = styled(motion.div)`
@@ -384,15 +333,23 @@ const TitleLine = styled.h2`
   display: flex;
   align-items: baseline;
   font-size: clamp(48px, 5.5vw, 76px);
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1.05;
-  color: #fafafa;
+  background: linear-gradient(135deg, #ffffff 0%, #f7e3be 45%, #d4af37 85%, #f5a623 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: ${goldShimmer} 6s ease-in-out infinite;
 `;
 
 const StepNumber = styled.span`
   margin-right: 16px;
-  color: #fafafa;
+  background: linear-gradient(135deg, #ffffff 0%, #f7e3be 45%, #d4af37 85%, #f5a623 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: ${goldShimmer} 6s ease-in-out infinite;
 `;
 
 const Description = styled(motion.p)`
@@ -402,19 +359,35 @@ const Description = styled(motion.p)`
   font-weight: 400;
   line-height: 1.75;
   letter-spacing: -0.015em;
-  color: rgba(250, 250, 250, 0.72);
+  color: ${meok[100]};
 `;
 
-const Result = styled(motion.p)`
+const ResultWrapper = styled(motion.div)`
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   margin: 0;
-  font-size: clamp(28px, 3.2vw, 44px);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: #f5a623;
+  pointer-events: auto;
+  cursor: pointer;
+`;
+
+const Result = styled(motion.p)`
+  margin: 0;
+  font-size: clamp(26px, 3.0vw, 42px);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.35;
+  background: linear-gradient(135deg, #ffffff 0%, #f7e3be 45%, #d4af37 85%, #f5a623 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  word-break: keep-all;
+  animation: ${goldShimmer} 6s ease-in-out infinite;
+
+  &:hover {
+    animation-duration: 2.5s;
+  }
 `;
 
 const Bars = styled.div`
@@ -433,10 +406,12 @@ const Bar = styled.span`
   width: ${(props) => (props.status === 'current' ? '44px' : '28px')};
   background: ${(props) =>
     props.status === 'current'
-      ? '#F5A623'
+      ? '#ffffff'
       : props.status === 'done'
-        ? 'rgba(250, 250, 250, 0.35)'
-        : 'rgba(250, 250, 250, 0.15)'};
+        ? 'rgba(255, 255, 255, 0.45)'
+        : 'rgba(255, 255, 255, 0.18)'};
+  box-shadow: ${(props) =>
+    props.status === 'current' ? '0 0 10px rgba(255, 255, 255, 0.6)' : 'none'};
 `;
 
 // ─────────────────────────────────────────
@@ -444,15 +419,20 @@ const Bar = styled.span`
 // ─────────────────────────────────────────
 
 export default function Beat4_Assembly({ progress }) {
-  const localRef = useRef(0);
+  const setAssembling = useSceneStore((s) => s.setAssembling);
 
   const active = progress >= RANGE_START && progress < RANGE_END;
-  const local = active ? (progress - RANGE_START) / (RANGE_END - RANGE_START) : 0;
+  const local = clamp01((progress - RANGE_START) / (RANGE_END - RANGE_START));
 
-  // 조립 루프가 읽어갈 진행도. 렌더 중에 ref를 쓰면 React가 막으므로 커밋 뒤에 넘긴다.
+  // 렌더링 단계에서 즉시 동기화 (useEffect 1프레임 딜레이 및 역방향 스크롤 리셋 방지)
+  assemblyProgress.current = local;
+
+  // 고정 캔버스에 "지금은 조립 중"이라고 알린다. 완성된 한옥이 물러나고 부재가 날아온다.
   useEffect(() => {
-    localRef.current = local;
-  }, [local]);
+    setAssembling(active);
+  }, [active, setAssembling]);
+
+  useEffect(() => () => useSceneStore.getState().setAssembling(false), []);
 
   if (!active) return null;
 
@@ -467,15 +447,19 @@ export default function Beat4_Assembly({ progress }) {
         <TextStack>
           <AnimatePresence initial={false} mode="popLayout">
             {showResult ? (
-              <Result
+              <ResultWrapper
                 key="result"
-                initial={{ opacity: 0, y: 12 }}
+                initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
+                exit={{ opacity: 0, y: -14 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 transition={{ duration: 0.4, ease: EASE }}
               >
-                부재 107개. 못 0개.
-              </Result>
+                <Result>
+                하나의 쇠못 없이 맞물려,<br /> 천 년을 지탱하는 <br />견고한 뼈대입니다.
+                </Result>
+              </ResultWrapper>
             ) : (
               <Layer
                 key={stage.id}

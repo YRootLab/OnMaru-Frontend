@@ -1,83 +1,108 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 /**
- * 사용자의 대략적인 위도.
- *
- * 쓰임은 "내 지역의 볕" 한 줄이라 정확한 행정구역이 필요 없다.
- * 위도 구간으로 이름을 붙이면 역지오코딩 요청이 통째로 사라진다.
+ * 위도에 따른 대략적인 도시명 반환
  */
-
-const DEFAULT = { latitude: 37.5665, cityName: '서울', isDefault: true };
-
-const CACHE_KEY = 'onmaru:location';
-
-/** 권한 팝업을 오래 띄워두면 그냥 이탈한다. 3초면 답이 온다. */
-const TIMEOUT = 3000;
-
-function cityOf(latitude) {
-  if (latitude >= 38.0) return '강원';
-  if (latitude >= 37.2) return '서울·경기';
-  if (latitude >= 36.5) return '충청';
-  if (latitude >= 35.8) return '대전·세종';
-  if (latitude >= 35.0) return '전라·경북';
+export function cityOf(latitude) {
+  if (latitude >= 37.8) return '강원';
+  if (latitude >= 37.1) return '서울·경기';
+  if (latitude >= 36.3) return '대전·세종·충청';
+  if (latitude >= 35.1) return '전라·경북';
   return '부산·경남';
 }
 
-/** 이번 세션에서 이미 답이 난 위치. 서버에서는 항상 기본값이다. */
-function readCache() {
-  try {
-    const cached = typeof window !== 'undefined' && sessionStorage.getItem(CACHE_KEY);
-    if (cached) return { ...JSON.parse(cached), resolved: true };
-  } catch {
-    /* 깨진 캐시는 없는 셈 친다 */
-  }
-
-  return { ...DEFAULT, resolved: false };
-}
+const DEFAULT_LAT = 37.5665;
+const STORAGE_KEY = 'onmaru_lat';
 
 /**
- * enabled가 true가 되는 순간에만 권한을 묻는다.
- * 거부·실패·시간초과는 전부 기본값(서울)으로 조용히 떨어진다.
+ * [5] 이번 세션에서 이미 받아둔 위도. 없으면 null.
+ *
+ * 렌더 전에 답이 나오는 값이라 effect가 아니라 초기값으로 읽는다.
+ * effect에서 setState로 밀어넣으면 기본값으로 한 번 그린 뒤 다시 그린다.
  */
-export default function useUserLocation(enabled = true) {
-  const [location, setLocation] = useState(readCache);
+function readCachedLat() {
+  try {
+    const cached = typeof window !== 'undefined' && sessionStorage.getItem(STORAGE_KEY);
+    const parsed = cached ? parseFloat(cached) : NaN;
+    if (!Number.isNaN(parsed)) return parsed;
+  } catch {
+    /* 프라이빗 모드 등 — 캐시가 없는 셈 친다 */
+  }
 
+  return null;
+}
+
+export default function useUserLocation() {
+  const [cachedLat] = useState(readCachedLat);
+
+  const [latitude, setLatitude] = useState(cachedLat ?? DEFAULT_LAT);
+  // 'idle' | 'requesting' | 'granted' | 'denied'
+  const [locationState, setLocationState] = useState(cachedLat === null ? 'idle' : 'granted');
+
+  // [6] HTTPS / secureContext 여부. 서버에서는 막을 이유가 없으니 true로 둔다.
+  const [isSecure] = useState(() => typeof window === 'undefined' || window.isSecureContext);
+
+  // [4] Permissions API 사전 확인 (팝업 없이 재방문 허용자 자동 적용)
   useEffect(() => {
-    if (!enabled || location.resolved) return;
+    if (cachedLat !== null) return; // 캐시가 이미 답을 줬다
 
-    // 거부한 결과도 함께 저장한다. 안 그러면 이 훅이 뜰 때마다 팝업이 다시 뜬다.
-    const cache = (next) => {
-      try {
-        sessionStorage.setItem(CACHE_KEY, JSON.stringify(next));
-      } catch {
-        /* 프라이빗 모드 등 — 캐시는 못 해도 위치는 쓴다 */
-      }
-    };
-
-    const remember = (next) => {
-      cache(next);
-      setLocation({ ...next, resolved: true });
-    };
-
-    // 지원하지 않는 브라우저. 이미 기본값이 들어 있으니 다시 그릴 것이 없다.
-    if (!navigator.geolocation) {
-      cache(DEFAULT);
-      return;
+    if (navigator.permissions && navigator.permissions.query) {
+      navigator.permissions
+        .query({ name: 'geolocation' })
+        .then((result) => {
+          if (result.state === 'granted') {
+            navigator.geolocation.getCurrentPosition(
+              (pos) => {
+                const lat = pos.coords.latitude;
+                sessionStorage.setItem(STORAGE_KEY, lat.toString());
+                setLatitude(lat);
+                setLocationState('granted');
+              },
+              () => {
+                setLocationState('denied');
+              },
+              { timeout: 5000, maximumAge: 600000 },
+            );
+          } else if (result.state === 'denied') {
+            setLocationState('denied');
+          }
+          // 'prompt'면 idle 상태 유지 (버튼 노출)
+        })
+        .catch(() => {
+          /* query 실패시 idle 유지 */
+        });
     }
+  }, [cachedLat]);
+
+  // [2] 버튼 클릭 시 권한 직접 요청
+  const requestLocation = useCallback(() => {
+    if (!navigator.geolocation || locationState === 'requesting') return;
+
+    setLocationState('requesting');
 
     navigator.geolocation.getCurrentPosition(
-      ({ coords }) =>
-        remember({
-          latitude: coords.latitude,
-          cityName: cityOf(coords.latitude),
-          isDefault: false,
-        }),
-      () => remember(DEFAULT),
-      { timeout: TIMEOUT, maximumAge: 10 * 60 * 1000 },
+      (pos) => {
+        const lat = pos.coords.latitude;
+        sessionStorage.setItem(STORAGE_KEY, lat.toString());
+        setLatitude(lat);
+        setLocationState('granted');
+      },
+      () => {
+        setLocationState('denied');
+      },
+      { timeout: 5000, maximumAge: 600000 },
     );
-  }, [enabled, location.resolved]);
+  }, [locationState]);
 
-  return location;
+  const cityName = locationState === 'granted' ? cityOf(latitude) : '서울';
+
+  return {
+    latitude,
+    cityName,
+    locationState,
+    isSecure,
+    requestLocation,
+  };
 }

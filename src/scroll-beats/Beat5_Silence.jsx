@@ -52,36 +52,16 @@ const GLOW_LERP = 0.12;
 
 const BLOCKS = [
   {
-    id: 'limit',
-    size: 'clamp(20px, 2.6vw, 34px)',
-    weight: 500,
+    id: 'explore',
+    size: 'clamp(22px, 3.2vw, 42px)',
+    weight: 700,
     gap: 0,
     lines: [
       {
-        text: '여기까지가, 화면이 할 수 있는 전부입니다.',
-        enter: [0.2, 0.26],
-        exit: [0.34, 0.38],
+        text: '완벽하게 계산된 공간을 지도 위 실제 데이터로 탐색하십시오.',
+        enter: [0.15, 0.85],
+        strong: true,
       },
-    ],
-  },
-  {
-    id: 'senses',
-    size: 'clamp(18px, 2.2vw, 28px)',
-    weight: 400,
-    gap: 20,
-    lines: [
-      { text: '마루의 온도.', enter: [0.44, 0.49], exit: [0.66, 0.7] },
-      { text: '창호지를 통과한 빛.', enter: [0.53, 0.58], exit: [0.66, 0.7] },
-    ],
-  },
-  {
-    id: 'purpose',
-    size: 'clamp(22px, 2.8vw, 38px)',
-    weight: 700,
-    gap: 0, // line-height 1.4 가 줄 사이를 잡는다
-    lines: [
-      { text: '계산의 목적은,', enter: [0.78, 0.85] },
-      { text: '사람의 감각이었습니다.', enter: [0.85, 0.92], strong: true },
     ],
   },
 ];
