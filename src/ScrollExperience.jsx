@@ -147,10 +147,10 @@ const SHOTS = [
  * 지면을 내려다보는 이 구도를 표현하지 못하기 때문이다.
  */
 const SEASON_VIEWS = [
-  // target을 지붕(높이 10)보다 위에 두면 한옥이 화면 아래쪽으로 내려앉아 위가 글자 자리로 빈다.
-  { minWidth: 1280, dir: [12, 16, 30], target: [-2, 8.5, 0], fov: 38, fit: 0.88 },
-  { minWidth: 768, dir: [12, 17, 36], target: [-2, 8, 0], fov: 42, fit: 0.9 },
-  { minWidth: 0, dir: [9, 18, 46], target: [-1, 6, 0], fov: 48, fit: 0.92 },
+  // target의 Y 오프셋을 높이고 fit을 다듬어 한옥 모델 및 그림자가 하단 컨트롤 카드에 가려지지 않고 화면 60% 상단 영역에 완벽 안착되게 만든다.
+  { minWidth: 1280, dir: [14, 18, 32], target: [-2, 7.8, 0], fov: 36, fit: 0.82 },
+  { minWidth: 768, dir: [14, 19, 38], target: [-2, 7.2, 0], fov: 40, fit: 0.85 },
+  { minWidth: 0, dir: [10, 20, 48], target: [-1, 5.8, 0], fov: 46, fit: 0.88 },
 ];
 
 const lerp = (from, to, t) => from + (to - from) * t;

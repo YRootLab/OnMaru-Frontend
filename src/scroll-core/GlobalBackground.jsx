@@ -233,13 +233,12 @@ export default function GlobalBackground({ progress }) {
         </div>
       )}
 
-      {/* z1.5 — 3D 한옥 조형미를 돋보이게 하는 은은한 볕 스팟라이트 및 좌측 비네트 레이어 */}
+      {/* z1.5 — 3D 한옥 조형미를 돋보이게 하는 당근/토스 감성 태양 광선 및 계절 분위기 그라데이션 오버레이 */}
       <div
         style={{
           ...fill,
           zIndex: 1.5,
-          background:
-            'radial-gradient(ellipse 60% 55% at 65% 45%, rgba(232, 90, 24, 0.075) 0%, rgba(245, 166, 35, 0.035) 45%, transparent 75%), linear-gradient(to right, rgba(14, 16, 22, 0.45) 0%, transparent 45%)',
+          background: `radial-gradient(ellipse 65% 55% at 55% 35%, rgba(245, 166, 35, 0.08) 0%, rgba(232, 90, 24, 0.04) 50%, transparent 80%), linear-gradient(to right, rgba(14, 16, 22, 0.25) 0%, transparent 40%)`,
         }}
       />
 

@@ -7,15 +7,9 @@ import { keyframes } from '@emotion/react';
 import { BEAT_RANGES } from '@/scroll-core/constants';
 import { useSceneStore } from '@/scroll-core/sceneStore';
 import useUserLocation from '@/hooks/useUserLocation';
-import SOLAR_TERMS from '@/data/solarTerms.json';
-import {
-  altitudeToSeasonValue,
-  getNoonSolarAltitude,
-  seasonValueToAltitude,
-  solarTermDate,
-} from '@/utils/solar';
+import SHADOW from '@/data/solarShadow.json';
+import { altitudeToSeasonValue, getDayOfYear, getNoonSolarAltitude } from '@/utils/solar';
 
-import { meok } from '@/design-system/tokens';
 import { clamp01, easeOut, usePrefersReducedMotion } from './BeatFrame';
 
 export const RANGE = BEAT_RANGES.BEAT3;
@@ -24,80 +18,60 @@ const [START, END] = RANGE;
 
 const FONT = "'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif";
 
-/** 한 화면 폭의 절반을 끌면 하지에서 동지까지 간다. */
-const DRAG_SPAN = 0.5;
+// ─────────────────────────────────────────
+// 색
+//
+// 배경이 크림(#F7EEDC)이라 글자는 전부 어두운 쪽에서 고른다.
+// 액센트는 주홍 하나로 통일했다 — 전에는 주홍과 금색이 한 화면에서 갈라져 있었다.
+// ─────────────────────────────────────────
 
-/** 이만큼 벌어져야 "오늘로 돌아가기"가 뜬다. */
-const AWAY_FROM_TODAY = 0.04;
+const INK = '#191f28'; // 크림 위 약 14:1
+const INK_SUB = '#4e5968'; // 약 7.4:1
+const INK_WEAK = '#8b95a1'; // 흰 표면 위 보조 라벨에만
+const ACCENT = '#a03a0a'; // 작은 글자용 주홍 (약 7.7:1)
+const ACCENT_VIVID = '#e85a18'; // 면·손잡이처럼 글자가 아닌 곳
+const LINE = 'rgba(25, 31, 40, 0.08)';
 
+/**
+ * 절기 여덟. 값은 서울 계동(37.58°N) 정오 기준이고 solarShadow.json이 갖는다.
+ *
+ * 고도순이 아니라 달력순이라, 입춘에서 동지까지 훑으면
+ * 그림자가 짧아졌다가 다시 길어지는 왕복이 손끝에 그대로 잡힌다.
+ */
+const STOPS = SHADOW.stops.map((stop) => ({
+  ...stop,
+  dayOfYear: getDayOfYear(new Date(2026, stop.month - 1, stop.day)),
+  seasonValue: altitudeToSeasonValue(stop.altitude, SHADOW.latitude),
+}));
+
+const LAST = STOPS.length - 1;
+
+/**
+ * 트랙은 여덟 칸에 딱딱 선다.
+ *
+ * 사이를 연속으로 훑게 두면 화면의 숫자(69.5° / 37cm)와 문장("최고 고도 75.82°")이
+ * 서로 다른 값을 말한다. 절기마다 문구가 확정돼 있으므로 값도 절기에서 멈춰야 한다.
+ */
 const RETURN_MS = 600;
 
-// ─────────────────────────────────────────
-// 카피 — seasonValue 0 하지 ~ 1 동지
-// ─────────────────────────────────────────
+/** 오늘에 가장 가까운 절기. 연중 며칠째인지로 고른다. */
+function stopIndexForDay(day) {
+  let best = 0;
 
-const SUMMER_EDGE = 0.22;
-const WINTER_EDGE = 0.78;
-
-const headlineFor = (season) => {
-  if (season <= SUMMER_EDGE) return '하지. 볕이 마루에 닿지 않습니다.';
-  if (season >= WINTER_EDGE) return '동지. 방 안 깊숙이 볕이 듭니다.';
-  return '처마는, 계절별 태양의 고도를 계산했습니다.';
-};
-
-/**
- * 고도는 위도에서 나온다.
- * 서울(37.57°)이면 스펙에 적힌 76° / 29°가 그대로 나오고, 다른 지역이면 그 지역 값이 나온다.
- */
-const descFor = (season, summerAltitude, winterAltitude) => {
-  if (season <= SUMMER_EDGE) {
-    return `태양 고도 ${summerAltitude}°. 높게 뜬 볕을 처마가 막아냅니다.`;
+  for (let i = 1; i < STOPS.length; i += 1) {
+    if (Math.abs(STOPS[i].dayOfYear - day) < Math.abs(STOPS[best].dayOfYear - day)) best = i;
   }
-  if (season >= WINTER_EDGE) {
-    return `태양 고도 ${winterAltitude}°. 낮게 기운 볕이 방 구석까지 닿습니다.`;
-  }
-  return '처마 길이는 그 집이 선 위도의 함수입니다.';
-};
 
-const formatDate = (date) => `${date.getMonth() + 1}월 ${date.getDate()}일`;
-
-/**
- * 사이드바에서 절기를 눌러 들어온 경우(?solar=ipchu).
- *
- * next/navigation의 useSearchParams는 이 페이지 전체를 Suspense로 감싸게 만든다.
- * 읽는 값이 하나뿐이라 location에서 직접 꺼낸다.
- */
-function useSolarTermParam() {
-  return useMemo(() => {
-    if (typeof window === 'undefined') return null;
-
-    const id = new URLSearchParams(window.location.search).get('solar');
-    return id ? SOLAR_TERMS.find((term) => term.id === id) || null : null;
-  }, []);
+  return best;
 }
 
 // ─────────────────────────────────────────
 // 스타일
 // ─────────────────────────────────────────
 
-const pingpong = keyframes`
-  0%, 100% { transform: translateX(-10px); }
-  50%      { transform: translateX(10px); }
-`;
-
-const pulseGlow = keyframes`
-  0%, 100% { box-shadow: 0 0 12px rgba(232, 90, 24, 0.6), 0 0 24px rgba(245, 166, 35, 0.4); }
-  50%      { box-shadow: 0 0 20px rgba(232, 90, 24, 0.9), 0 0 36px rgba(245, 166, 35, 0.8); }
-`;
-
 const riseIn = keyframes`
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
-`;
-
-const highlightFade = keyframes`
-  0%   { background-color: rgba(232, 90, 24, 0.4); }
-  100% { background-color: transparent; }
+  from { opacity: 0; transform: translate(-50%, 6px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
 `;
 
 const Stage = styled.section`
@@ -109,12 +83,12 @@ const Stage = styled.section`
 `;
 
 /**
- * 상단 10vh~26vh. 한옥은 세로 35% 아래에서 시작하므로 이 띠와 겹치지 않는다.
+ * 상단 7vh부터. 지붕은 세로 35% 언저리에서 시작하므로 이 띠가 그 위에서 끝나야 한다.
  * 모바일은 3D가 상단 55%를 다 쓰는 터라 글이 아래 45%로 내려간다.
  */
 const Copy = styled.div`
   position: absolute;
-  top: 10vh;
+  top: 7vh;
   left: 0;
   right: 0;
   z-index: 1;
@@ -123,199 +97,335 @@ const Copy = styled.div`
   pointer-events: none;
 
   @media (max-width: 767px) {
-    top: 56vh;
+    top: 52vh;
   }
 `;
 
-const Eyebrow = styled.p`
-  margin: 0;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  color: #e85a18;
-`;
-
-const TodayLine = styled.p`
-  margin: 10px 0 0;
-  font-size: clamp(12px, 1.15vw, 14px);
-  font-weight: 400;
-  letter-spacing: 0.02em;
-  color: ${meok[200]};
+const TermTag = styled.p`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: ${ACCENT};
+
+  /* 짝 절기 — 춘분과 추분은 고도가 같다. 그 사실이 이 화면의 재미다. */
+  em {
+    padding: 2px 8px;
+    border-radius: 9999px;
+    background: rgba(160, 58, 10, 0.09);
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 500;
+  }
+`;
+
+/** 문장이 길어져 어색하게 꺾이지 않도록 정갈하게 한 줄 단열 배치한다. */
+const Headline = styled.h2`
+  margin: 0 auto;
+  font-size: clamp(22px, 3.2vw, 44px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.25;
+  word-break: keep-all;
+  text-wrap: balance;
+  color: ${INK};
+  text-align: center;
+`;
+
+/**
+ * 숫자 두 개. 슬라이더 바로 위, 카드 안에 둔다.
+ * 위쪽 카피에 두면 지붕과 겹치고, 무엇보다 이 값들은 슬라이더의 눈금판이다.
+ */
+const Stats = styled.dl`
+  display: flex;
+  align-items: baseline;
+  gap: clamp(18px, 2.4vw, 28px);
+  margin: 0 0 12px;
+`;
+
+const Stat = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+`;
+
+const StatLabel = styled.dt`
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: ${INK_WEAK};
+`;
+
+const StatValue = styled.dd`
+  margin: 0;
+  font-size: clamp(20px, 2.2vw, 28px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  /* 자릿수가 바뀌어도 숫자가 좌우로 흔들리지 않는다 */
+  font-variant-numeric: tabular-nums;
+  color: ${INK};
+
+  small {
+    margin-left: 2px;
+    font-size: 0.6em;
+    font-weight: 500;
+    color: ${INK_SUB};
+  }
+`;
+
+const Note = styled.p`
+  margin: 14px auto 0;
+  max-width: 420px;
+  font-size: 14px;
+  line-height: 1.55;
+  word-break: keep-all;
+  color: ${INK_SUB};
+`;
+
+/** 카드 바닥의 잔글씨. 상단 카피에 두면 지붕과 겹쳐 읽히지 않는다. */
+const Basis = styled.p`
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid ${LINE};
+  font-size: 11px;
+  line-height: 1.4;
+  text-align: center;
+  color: ${INK_WEAK};
 `;
 
 const LocationButton = styled.button`
   pointer-events: auto;
-  font-size: 12px;
-  color: #e85a18;
   padding: 4px 10px;
-  border: 1px solid rgba(232, 90, 24, 0.28);
+  border: 1px solid rgba(160, 58, 10, 0.28);
   border-radius: 9999px;
   background: transparent;
-  cursor: pointer;
-  font-family: ${FONT};
+  font-family: inherit;
+  font-size: 12px;
   line-height: 1.2;
-  transition: all 0.2s ease-out;
+  color: ${ACCENT};
+  cursor: pointer;
+  transition: background 0.2s ease-out;
 
   &:hover:not(:disabled) {
-    background: rgba(232, 90, 24, 0.08);
+    background: rgba(160, 58, 10, 0.07);
   }
 
   &:disabled {
     cursor: default;
   }
-`;
 
-const HighlightSpan = styled.span`
-  display: inline-block;
-  padding: 2px 6px;
-  border-radius: 4px;
-  animation: ${(props) => (props.animate ? highlightFade : 'none')} 0.6s ease-out;
-`;
-
-const TermTag = styled.p`
-  margin: 8px 0 0;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: #e85a18;
-`;
-
-const Headline = styled.h2`
-  margin: 14px 0 0;
-  font-size: clamp(24px, 3.4vw, 42px);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  word-break: keep-all;
-  color: ${meok[100]};
-`;
-
-const Description = styled.p`
-  margin: 10px auto 0;
-  max-width: 600px;
-  font-size: 14px;
-  font-weight: 400;
-  color: ${meok[200]};
-  line-height: 1.5;
-  word-break: keep-all;
+  &:focus-visible {
+    outline: 2px solid ${ACCENT_VIVID};
+    outline-offset: 2px;
+  }
 `;
 
 const Controller = styled.div`
   position: absolute;
-  bottom: 12vh;
+  bottom: clamp(12px, 2.5vh, 28px);
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
-  width: min(92vw, 480px);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
+  width: min(92vw, 660px);
   pointer-events: auto;
 
   @media (max-width: 767px) {
-    bottom: 3vh;
+    width: min(94vw, 440px);
+    bottom: 1.5vh;
   }
 `;
 
-const Hint = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #4e5968;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(78, 89, 104, 0.16);
-  backdrop-filter: blur(8px);
-  padding: 4px 14px;
+/**
+ * 흰 카드 하나.
+ * 3D 모델 및 그림자 하단부를 절대 침범하지 않도록 슬림하고 밀도 높은 반응형 카드 구성.
+ */
+const Card = styled.div`
+  position: relative;
+  padding: 14px 20px 10px;
+  border: 1px solid ${LINE};
   border-radius: 20px;
-  animation: ${pingpong} 1.8s ease-in-out infinite;
-  transition: opacity 0.5s ease-out;
-  pointer-events: none;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 8px 28px rgba(25, 31, 40, 0.08);
 
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
+  @media (max-width: 767px) {
+    padding: 12px 14px 8px;
+    border-radius: 16px;
+  }
+`;
+
+/** 숫자를 풀어 쓴 한 줄. 값과 문장이 늘 같은 절기를 말하도록 카드 안에 함께 둔다. */
+const StatNote = styled.dd`
+  align-self: center;
+  margin: 0 0 0 4px;
+  font-size: 12px;
+  line-height: 1.45;
+  word-break: keep-all;
+  text-wrap: balance;
+  color: ${INK_SUB};
+
+  @media (max-width: 900px) {
+    display: none;
+  }
+`;
+
+const ReachText = styled.p`
+  margin: 8px 0 0;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.45;
+  color: ${ACCENT};
+  text-align: center;
+  word-break: keep-all;
+  text-wrap: balance;
+`;
+
+/** 통계 오른쪽 끝에 붙어, 손을 대면 조용히 사라진다. */
+const Hint = styled.p`
+  margin: 0 0 0 auto;
+  font-size: 12px;
+  font-weight: 500;
+  color: ${INK_WEAK};
+  transition: opacity 0.4s ease-out;
+`;
+
+/** 손잡이를 잡는 판. 실제 눈금은 안쪽 레일이 갖는다. */
+const Track = styled.div`
+  position: relative;
+  height: 28px;
+  cursor: pointer;
+  touch-action: none;
+
+  &:focus-visible {
+    outline: none;
+  }
+
+  &:focus-visible span[data-knob] {
+    box-shadow: 0 0 0 4px rgba(232, 90, 24, 0.24);
+  }
+`;
+
+const Rail = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 4px;
+  margin-top: -2px;
+  border-radius: 2px;
+  background: #eceef1;
+`;
+
+const Fill = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: 2px;
+  background: ${ACCENT_VIVID};
+`;
+
+const Tick = styled.span`
+  position: absolute;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  margin: -2.5px 0 0 -2.5px;
+  border-radius: 50%;
+  background: #d5d9de;
+
+  &[data-passed='true'] {
+    background: rgba(255, 255, 255, 0.92);
+  }
+`;
+
+const Knob = styled.span`
+  position: absolute;
+  top: 50%;
+  width: 22px;
+  height: 22px;
+  margin: -11px 0 0 -11px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 3px solid ${ACCENT_VIVID};
+  box-shadow: 0 2px 8px rgba(25, 31, 40, 0.18);
+  transition: box-shadow 0.2s ease-out;
+`;
+
+const Labels = styled.div`
+  position: relative;
+  height: 18px;
+  margin-top: 8px;
+`;
+
+const Label = styled.button`
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  padding: 0 2px;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 18px;
+  white-space: nowrap;
+  color: ${INK_WEAK};
+  cursor: pointer;
+  transition: color 0.2s ease-out;
+
+  &[data-active='true'] {
+    font-weight: 700;
+    color: ${ACCENT};
+  }
+
+  &:hover {
+    color: ${INK_SUB};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${ACCENT_VIVID};
+    outline-offset: 2px;
+    border-radius: 4px;
   }
 `;
 
 const BackToToday = styled.button`
-  font-size: 13px;
-  font-weight: 500;
-  font-family: inherit;
-  color: #e85a18;
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 12px);
+  transform: translateX(-50%);
   padding: 6px 14px;
-  border: 1px solid rgba(232, 90, 24, 0.3);
+  border: 1px solid ${LINE};
   border-radius: 9999px;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: ${ACCENT};
   cursor: pointer;
+  box-shadow: 0 2px 10px rgba(25, 31, 40, 0.08);
   animation: ${riseIn} 0.3s ease-out;
-  transition: background 0.2s ease-out;
 
   &:hover {
-    background: rgba(232, 90, 24, 0.08);
+    background: #ffffff;
   }
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
-`;
-
-const Track = styled.div`
-  width: 100%;
-  position: relative;
-  height: 46px;
-  background: rgba(28, 26, 23, 0.88);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(212, 175, 55, 0.35);
-  border-radius: 23px;
-  padding: 0 18px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  cursor: ew-resize;
-  touch-action: none;
 
   &:focus-visible {
-    outline: 2px solid #e85a18;
-    outline-offset: 3px;
+    outline: 2px solid ${ACCENT_VIVID};
+    outline-offset: 2px;
   }
-`;
-
-const TrackLine = styled.div`
-  position: absolute;
-  left: 44px;
-  right: 44px;
-  height: 4px;
-  background: linear-gradient(90deg, #f5a623 0%, #e85a18 100%);
-  border-radius: 2px;
-  opacity: 0.6;
-`;
-
-const TrackLabel = styled.span`
-  font-size: 13px;
-  font-weight: 700;
-  color: #e8e0d2;
-  z-index: 1;
-  user-select: none;
-`;
-
-const Knob = styled.div`
-  position: absolute;
-  top: 50%;
-  width: 28px;
-  height: 28px;
-  margin: -14px 0 0 -14px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #fff 0%, #f5a623 60%, #e85a18 100%);
-  cursor: grab;
-  z-index: 2;
-  animation: ${pulseGlow} 2s infinite ease-in-out;
 
   @media (prefers-reduced-motion: reduce) {
     animation: none;
@@ -329,229 +439,235 @@ const Knob = styled.div`
 export default function Beat3_Season({ progress }) {
   const reduced = usePrefersReducedMotion();
   const { latitude, cityName, locationState, isSecure, requestLocation } = useUserLocation();
-  const setSeason = useSceneStore((s) => s.setSeason);
-  const term = useSolarTermParam();
+  const setSun = useSceneStore((s) => s.setSun);
 
-  /*
-    하이라이트는 타이머로 껐다 켜지 않는다.
-    아래 HighlightSpan이 지역·고도를 key로 물고 있어, 위치가 잡혀 값이 바뀌면
-    span이 새로 마운트되며 CSS 애니메이션이 저절로 한 번 돈다.
-  */
-  const animateHighlight = locationState === 'granted';
-
-  // 오늘의 볕. 위치가 늦게 오므로 위도가 바뀌면 다시 잡는다.
-  const today = useMemo(() => {
-    const date = new Date();
-    const altitude = getNoonSolarAltitude(latitude, date);
-    return { date, altitude, seasonValue: altitudeToSeasonValue(altitude, latitude) };
-  }, [latitude]);
-
-  // 절기로 들어왔다면 기준점은 오늘이 아니라 그 절기다.
-  const termView = useMemo(() => {
-    if (!term) return null;
-    const date = solarTermDate(term);
-    const altitude = getNoonSolarAltitude(latitude, date);
-    return { date, altitude, seasonValue: altitudeToSeasonValue(altitude, latitude) };
-  }, [term, latitude]);
-
-  const baseSeason = termView ? termView.seasonValue : today.seasonValue;
+  // 오늘에 가장 가까운 절기. 손대지 않았으면 여기가 기준점이다.
+  const baseIndex = useMemo(() => stopIndexForDay(getDayOfYear(new Date())), []);
 
   /**
    * null이면 아직 손대지 않은 상태다.
-   * 기준값을 state에 복사해두면 위치가 늦게 도착할 때 그것을 다시 밀어넣을 effect가 필요해진다.
+   * 기준값을 state에 복사해두면 그것을 다시 밀어넣을 effect가 필요해진다.
    * 손댄 값만 들고 있으면 그 동기화가 통째로 사라진다.
    */
-  const [userSeason, setUserSeason] = useState(null);
+  const [userIndex, setUserIndex] = useState(null);
 
-  const seasonValue = userSeason ?? baseSeason;
-  const hasUserDragged = userSeason !== null;
+  const index = userIndex ?? baseIndex;
+  const touched = userIndex !== null;
 
   const drag = useRef(null);
   const tween = useRef(0);
 
-  // 고정 캔버스의 볕에 계절값을 넘긴다. 구간 밖에서는 놓아준다.
+  const view = STOPS[index];
+  const pair = view.pairId ? STOPS.find((stop) => stop.id === view.pairId) : null;
   const inRange = progress >= START && progress < END;
 
+  /*
+    고정 캔버스의 주광에 이 절기의 남중고도를 넘긴다.
+    3D 그림자 길이는 저쪽에서 높이 / tan(고도)로 떨어지므로, 화면의 그림자와
+    위에 적힌 숫자가 같은 값에서 나온다. 구간 밖에서는 놓아준다.
+  */
   useEffect(() => {
-    setSeason(inRange ? seasonValue : null);
-  }, [inRange, seasonValue, setSeason]);
+    setSun(inRange ? { altitude: view.altitude, value: view.seasonValue } : null);
+  }, [inRange, view.altitude, view.seasonValue, setSun]);
 
   useEffect(
     () => () => {
       cancelAnimationFrame(tween.current);
-      useSceneStore.getState().setSeason(null);
+      useSceneStore.getState().setSun(null);
     },
     [],
   );
 
   if (!inRange) return null;
 
-  const summerAltitude = Math.round(seasonValueToAltitude(0, latitude));
-  const winterAltitude = Math.round(seasonValueToAltitude(1, latitude));
-  const currentAltitude = Math.round(seasonValueToAltitude(seasonValue, latitude));
+  const today = new Date();
+  const todayAltitude = getNoonSolarAltitude(latitude, today);
 
-  const moveTo = (value) => {
+  const moveTo = (next) => {
     cancelAnimationFrame(tween.current);
-    setUserSeason(clamp01(value));
+    setUserIndex(Math.min(LAST, Math.max(0, Math.round(next))));
   };
 
-  const updateSeasonFromClientX = (clientX, trackElement) => {
-    if (!trackElement) return;
-    const rect = trackElement.getBoundingClientRect();
-    const padding = 44;
-    const usableWidth = Math.max(1, rect.width - padding * 2);
-    const relativeX = clientX - rect.left - padding;
-    setUserSeason(clamp01(relativeX / usableWidth));
+  /** 끄는 자리에서 가장 가까운 칸으로 붙는다. */
+  const indexFromX = (clientX, element) => {
+    const rect = element.getBoundingClientRect();
+    return clamp01((clientX - rect.left) / Math.max(1, rect.width)) * LAST;
   };
 
   const start = (event) => {
-    try {
-      event.currentTarget.setPointerCapture(event.pointerId);
-    } catch {}
-    cancelAnimationFrame(tween.current);
-    drag.current = { isDragging: true, track: event.currentTarget };
-    updateSeasonFromClientX(event.clientX, event.currentTarget);
+    event.currentTarget.setPointerCapture(event.pointerId);
+    drag.current = event.currentTarget;
+    moveTo(indexFromX(event.clientX, event.currentTarget));
   };
 
   const move = (event) => {
-    if (!drag.current || !drag.current.isDragging) return;
-    updateSeasonFromClientX(event.clientX, drag.current.track);
+    if (!drag.current) return;
+    moveTo(indexFromX(event.clientX, drag.current));
   };
 
-  const end = (event) => {
-    if (drag.current && drag.current.track) {
-      try {
-        event.currentTarget.releasePointerCapture(event.pointerId);
-      } catch {}
-    }
+  const end = () => {
     drag.current = null;
   };
 
   const onKeyDown = (event) => {
-    const step = { ArrowLeft: -0.05, ArrowRight: 0.05 }[event.key];
+    const step = { ArrowLeft: -1, ArrowRight: 1 }[event.key];
 
     if (step !== undefined) {
       event.preventDefault();
-      moveTo(seasonValue + step);
+      moveTo(index + step);
     } else if (event.key === 'Home') {
       event.preventDefault();
       moveTo(0);
     } else if (event.key === 'End') {
       event.preventDefault();
-      moveTo(1);
+      moveTo(LAST);
     }
   };
 
-  /** 기준점으로 0.6초에 걸쳐 돌아간다. 값이 튀면 그림자가 순간이동한다. */
+  /**
+   * 기준 절기로 한 칸씩 걸어 돌아간다.
+   * 한 번에 뛰면 그림자가 순간이동하므로 중간 절기를 밟고 지나간다.
+   */
   const returnToBase = () => {
     cancelAnimationFrame(tween.current);
 
     // 모션을 줄인 사용자에게는 애니메이션 자체가 방해다. 바로 놓는다.
     if (reduced) {
-      setUserSeason(null);
+      setUserIndex(null);
       return;
     }
 
-    const from = seasonValue;
+    const from = index;
     const startedAt = performance.now();
 
     const step = (now) => {
       const t = Math.min(1, (now - startedAt) / RETURN_MS);
 
-      // 도착하면 손뗀 상태(null)로 되돌린다 — 이후 위치가 바뀌면 다시 따라간다.
       if (t < 1) {
-        setUserSeason(from + (baseSeason - from) * easeOut(t));
+        setUserIndex(Math.round(from + (baseIndex - from) * easeOut(t)));
         tween.current = requestAnimationFrame(step);
       } else {
-        setUserSeason(null);
+        setUserIndex(null);
       }
     };
 
     tween.current = requestAnimationFrame(step);
   };
 
-  const showReturn = hasUserDragged && Math.abs(seasonValue - baseSeason) > AWAY_FROM_TODAY;
-  const headline = headlineFor(seasonValue);
+  const showReturn = touched && index !== baseIndex;
+  const percent = (index / LAST) * 100;
 
   return (
-    <Stage aria-label="계절 — 하지에서 동지까지">
+    <Stage aria-label="절기에 따른 처마 그림자">
       <Copy>
-        <Eyebrow>SOLAR — 볕의 계산</Eyebrow>
+        <TermTag>
+          {`${view.name} · ${view.month}월 ${view.day}일`}
+          {pair && <em>{`${pair.name}과 같은 고도`}</em>}
+        </TermTag>
 
-        <TodayLine>
-          <HighlightSpan key={`${cityName}-${Math.round(today.altitude)}`} animate={animateHighlight}>
-            {`${today.date.getFullYear()}년 ${formatDate(today.date)} · ${cityName}${
-              locationState === 'granted' ? '' : ' 기준'
-            } · 태양 고도 ${Math.round(today.altitude)}°`}
-          </HighlightSpan>
+        <Headline key={view.id}>{view.headline}</Headline>
 
-          {isSecure && locationState === 'idle' && (
-            <LocationButton type="button" onClick={requestLocation}>
-              {`${cityName}이라면 지금 이만큼 듭니다`}
-            </LocationButton>
-          )}
-
-          {isSecure && locationState === 'requesting' && (
-            <LocationButton type="button" disabled style={{ opacity: 0.7 }}>
-              확인 중...
-            </LocationButton>
-          )}
-
-          {locationState === 'denied' && (
-            <LocationButton
-              type="button"
-              disabled
-              style={{ color: '#B0B8C1', borderColor: 'rgba(176,184,193,0.3)' }}
-            >
-              위치 권한이 차단되어 있습니다
-            </LocationButton>
-          )}
-        </TodayLine>
-
-        {termView && (
-          <TermTag>{`${term.name} · ${formatDate(termView.date)}`}</TermTag>
-        )}
-
-        <Headline key={headline}>{headline}</Headline>
-        <Description>
-          {termView && !hasUserDragged
-            ? term.copy
-            : descFor(seasonValue, summerAltitude, winterAltitude)}
-        </Description>
+        <Note key={`${view.id}-reach`}>{view.sunlightReach}</Note>
       </Copy>
 
       <Controller>
-        <Hint style={{ opacity: hasUserDragged ? 0 : 1 }}>
-          <span>←</span> ☀️ 드래그나 방향키로 태양의 고도와 처마 그림자를 확인해보세요 <span>→</span>
-        </Hint>
-
         {showReturn && (
           <BackToToday type="button" onClick={returnToBase}>
-            {termView ? `${term.name}로 돌아가기` : '오늘로 돌아가기'}
+            오늘로 돌아가기
           </BackToToday>
         )}
 
-        <Track
-          tabIndex={0}
-          role="slider"
-          aria-label="계절 조절"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={Math.round(seasonValue * 100)}
-          aria-valuetext={`${seasonValue < 0.5 ? '여름' : '겨울'} 쪽, 태양 고도 ${currentAltitude}도`}
-          onPointerDown={start}
-          onPointerMove={move}
-          onPointerUp={end}
-          onPointerCancel={end}
-          onKeyDown={onKeyDown}
-        >
-          <TrackLabel>☀️ 하지·여름</TrackLabel>
-          <TrackLine />
-          <Knob
-            style={{ left: `calc(44px + (${seasonValue * 100}% * (100% - 88px) / 100))` }}
-          />
-          <TrackLabel>❄️ 동지·겨울</TrackLabel>
-        </Track>
+        <Card>
+          <Stats>
+            <Stat>
+              <StatLabel>남중고도</StatLabel>
+              <StatValue>
+                {view.altitude}
+                <small>°</small>
+              </StatValue>
+            </Stat>
+
+            <Stat>
+              <StatLabel>1m당 그림자</StatLabel>
+              <StatValue>
+                {Math.round(view.shadow)}
+                <small>cm</small>
+              </StatValue>
+            </Stat>
+
+            <StatNote>{view.note}</StatNote>
+
+            <Hint style={{ opacity: touched ? 0 : 1 }}>절기를 옮겨 그림자를 보세요</Hint>
+          </Stats>
+
+          <Track
+            tabIndex={0}
+            role="slider"
+            aria-label="절기"
+            aria-valuemin={0}
+            aria-valuemax={LAST}
+            aria-valuenow={index}
+            aria-valuetext={`${view.name}, 남중고도 ${view.altitude}도, 1미터당 그림자 ${Math.round(view.shadow)}센티미터`}
+            onPointerDown={start}
+            onPointerMove={move}
+            onPointerUp={end}
+            onPointerCancel={end}
+            onKeyDown={onKeyDown}
+          >
+            <Rail>
+              <Fill style={{ width: `${percent}%` }} />
+
+              {STOPS.map((stop, i) => {
+                const at = (i / LAST) * 100;
+                return (
+                  <Tick key={stop.id} data-passed={at <= percent} style={{ left: `${at}%` }} />
+                );
+              })}
+            </Rail>
+
+            <Knob data-knob style={{ left: `${percent}%` }} />
+          </Track>
+
+          <Labels>
+            {STOPS.map((stop, i) => (
+              <Label
+                key={stop.id}
+                type="button"
+                data-active={i === index}
+                style={{ left: `${(i / LAST) * 100}%` }}
+                onClick={() => moveTo(i)}
+              >
+                {stop.name}
+              </Label>
+            ))}
+          </Labels>
+
+          <Basis>
+            <span>
+              {SHADOW.place} 정오 기준 · 오늘 {today.getMonth() + 1}월 {today.getDate()}일{' '}
+              {cityName}
+              {locationState === 'granted' ? '' : ' 기준'} 고도 {Math.round(todayAltitude)}°
+            </span>
+
+            {isSecure && locationState === 'idle' && (
+              <LocationButton type="button" onClick={requestLocation}>
+                내 위치로 보기
+              </LocationButton>
+            )}
+
+            {isSecure && locationState === 'requesting' && (
+              <LocationButton type="button" disabled>
+                확인 중…
+              </LocationButton>
+            )}
+
+            {locationState === 'denied' && (
+              <LocationButton type="button" disabled style={{ color: INK_WEAK, borderColor: LINE }}>
+                위치 권한 차단됨
+              </LocationButton>
+            )}
+          </Basis>
+        </Card>
       </Controller>
     </Stage>
   );
