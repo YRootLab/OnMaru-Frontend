@@ -347,16 +347,45 @@ const Description = styled(motion.p)`
   color: ${meok[100]};
 `;
 
-const Result = styled(motion.p)`
+const sparklePulse = keyframes`
+  0%, 100% { opacity: 0.55; transform: scale(1); filter: blur(22px); }
+  50% { opacity: 0.9; transform: scale(1.1); filter: blur(28px); }
+`;
+
+const ResultWrapper = styled(motion.div)`
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   margin: 0;
-  font-size: clamp(28px, 3.2vw, 44px);
+`;
+
+const ResultGlowBackdrop = styled.div`
+  position: absolute;
+  top: -24px;
+  left: -32px;
+  width: min(90vw, 420px);
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 40% 50%,
+    rgba(245, 166, 35, 0.32) 0%,
+    rgba(232, 90, 24, 0.18) 45%,
+    transparent 72%
+  );
+  pointer-events: none;
+  z-index: -1;
+  animation: ${sparklePulse} 3.2s ease-in-out infinite;
+`;
+
+const Result = styled.p`
+  margin: 0;
+  font-size: clamp(26px, 3.0vw, 42px);
   font-weight: 700;
   letter-spacing: -0.02em;
-  color: #f5a623;
+  line-height: 1.35;
+  color: #ffffff;
+  word-break: keep-all;
 `;
 
 const Bars = styled.div`
@@ -414,15 +443,20 @@ export default function Beat4_Assembly({ progress }) {
         <TextStack>
           <AnimatePresence initial={false} mode="popLayout">
             {showResult ? (
-              <Result
+              <ResultWrapper
                 key="result"
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -12 }}
                 transition={{ duration: 0.4, ease: EASE }}
               >
-                쇠못 하나 없이 맞물려, 천 년의 숨을 쉬는 보금자리.
-              </Result>
+                <ResultGlowBackdrop />
+                <Result>
+                  쇠못 하나 없이 맞물려,
+                  <br />
+                  천 년의 숨을 쉬는 보금자리
+                </Result>
+              </ResultWrapper>
             ) : (
               <Layer
                 key={stage.id}
