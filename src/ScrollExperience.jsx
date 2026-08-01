@@ -19,6 +19,7 @@ import Beat3_Season from '@/scroll-beats/Beat3_Season';
 import Beat4_Assembly, { AssemblyModel } from '@/scroll-beats/Beat4_Assembly';
 import Beat5_Silence from '@/scroll-beats/Beat5_Silence';
 import Beat6_Invite from '@/scroll-beats/Beat6_Invite';
+import HanokDevTuner from '@/components/dev/HanokDevTuner';
 
 /**
  * 전체 스크롤 길이. 9개 Beat이 나눠 쓴다.
@@ -380,6 +381,7 @@ function HanokScene({ stage }) {
   const size = useThree((s) => s.size);
 
   const assembling = useSceneStore((s) => s.assembling);
+  const devTuner = useSceneStore((s) => s.devTuner);
 
   // 주광은 SunDriver가 매 프레임 직접 겨눈다. 여기서는 자리만 잡아준다.
   const keyLight = useRef(null);
@@ -464,10 +466,16 @@ function HanokScene({ stage }) {
       />
 
       {/*
-        Beat3(절기) 구간에서는 한옥 3D 모델 피사체 Y축을 양수(+) 방향으로 +14.0유닛 위로 껑충 높게 올려 안착시킨다.
+        개발자 실시간 튜너(HanokDevTuner) 오프셋 및 Beat3(절기) 수직 인상 안착
       */}
-      <group position={[0, stage.seasonView ? 14.0 : 0, 0]}>
-        <group scale={model.normalizedScale}>
+      <group
+        position={[
+          devTuner?.posX ?? 0,
+          stage.seasonView ? (devTuner?.posY ?? 14.0) : 0,
+          devTuner?.posZ ?? 0,
+        ]}
+      >
+        <group scale={model.normalizedScale * (devTuner?.scale ?? 1.0)}>
           {assembling ? <AssemblyModel /> : <HanokModel />}
         </group>
 
@@ -714,6 +722,9 @@ export default function ScrollExperience() {
         <Beat4_Assembly progress={progress} />
         <Beat5_Silence progress={progress} />
         <Beat6_Invite progress={progress} />
+
+        {/* 개발자 실시간 3D 한옥 위치·크기 튜너 패널 */}
+        <HanokDevTuner />
       </div>
     </main>
   );

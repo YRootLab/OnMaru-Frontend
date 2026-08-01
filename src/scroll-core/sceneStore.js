@@ -97,6 +97,16 @@ export const useSceneStore = create((set) => ({
   /** Beat4 조립 구간인지. true면 완성된 한옥 대신 조립 중인 한옥을 세운다. */
   assembling: false,
 
+  /** 개발자 테스트용 실시간 3D 한옥 X/Y/Z 위치 및 크기 조절기 */
+  devTuner: {
+    enabled: true,
+    posX: 0,
+    posY: 14.0,
+    posZ: 0,
+    scale: 1.0,
+    targetY: 6.0,
+  },
+
   setSun: (sun) => {
     tweenSunTo(sun);
     set({ sun });
@@ -108,6 +118,11 @@ export const useSceneStore = create((set) => ({
   },
 
   setAssembling: (assembling) => set({ assembling }),
+
+  setDevTuner: (patch) =>
+    set((state) => ({
+      devTuner: typeof patch === 'function' ? patch(state.devTuner) : { ...state.devTuner, ...patch },
+    })),
 }));
 
 /**
