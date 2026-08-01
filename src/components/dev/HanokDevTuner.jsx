@@ -23,7 +23,7 @@ export default function HanokDevTuner() {
     setDevTuner({
       posX: 0,
       posY: 0,
-      posZ: -12.0,
+      posZ: -16.0,
       scale: 1.35,
       targetY: 6.0,
     });
