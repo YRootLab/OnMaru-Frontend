@@ -20,7 +20,7 @@ import { STAGES } from '@/temp/archive/hanok-viewer/data/hanok.data';
 import { MODEL_URL, BEAT_RANGES } from '@/scroll-core/constants';
 import { assemblyProgress, useSceneStore } from '@/scroll-core/sceneStore';
 import { meok } from '@/design-system/tokens';
-import { clamp01, easeOut as easeOutCubic, usePrefersReducedMotion } from './BeatFrame';
+import { clamp01, easeOut as easeOutCubic, usePrefersReducedMotion } from './LandingSectionFrame';
 
 const FONT = "'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif";
 const EASE = [0.22, 1, 0.36, 1];
@@ -415,10 +415,10 @@ const Bar = styled.span`
 `;
 
 // ─────────────────────────────────────────
-// Beat4_Assembly
+// LandingHanokAssembly
 // ─────────────────────────────────────────
 
-export default function Beat4_Assembly({ progress }) {
+export default function LandingHanokAssembly({ progress }) {
   const setAssembling = useSceneStore((s) => s.setAssembling);
 
   const active = progress >= RANGE_START && progress < RANGE_END;

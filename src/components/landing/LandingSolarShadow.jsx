@@ -10,7 +10,7 @@ import useUserLocation from '@/hooks/useUserLocation';
 import SHADOW from '@/data/solarShadow.json';
 import { altitudeToSeasonValue, getDayOfYear, getNoonSolarAltitude } from '@/utils/solar';
 
-import { clamp01, easeOut, usePrefersReducedMotion } from './BeatFrame';
+import { clamp01, easeOut, usePrefersReducedMotion } from './LandingSectionFrame';
 
 export const RANGE = BEAT_RANGES.BEAT3;
 
@@ -472,10 +472,10 @@ const BackToToday = styled.button`
 `;
 
 // ─────────────────────────────────────────
-// Beat3_Season
+// LandingSolarShadow
 // ─────────────────────────────────────────
 
-export default function Beat3_Season({ progress }) {
+export default function LandingSolarShadow({ progress }) {
   const reduced = usePrefersReducedMotion();
   const { latitude, cityName, locationState, isSecure, requestLocation } = useUserLocation();
   const setSun = useSceneStore((s) => s.setSun);

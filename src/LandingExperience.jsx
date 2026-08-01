@@ -13,12 +13,12 @@ import { frameCamera, toRad } from '@/scroll-core/cameraUtils';
 import HanokModel from '@/components/HanokModel';
 import GlobalBackground from '@/scroll-core/GlobalBackground';
 import { sunNow, useSceneStore } from '@/scroll-core/sceneStore';
-import { progressIn } from '@/landing-beats/BeatFrame';
-import Beat1_Intro from '@/landing-beats/Beat1_Intro';
-import Beat3_Season from '@/landing-beats/Beat3_Season';
-import Beat4_Assembly, { AssemblyModel } from '@/landing-beats/Beat4_Assembly';
-import Beat5_Silence from '@/landing-beats/Beat5_Silence';
-import Beat6_Invite from '@/landing-beats/Beat6_Invite';
+import { progressIn } from '@/components/landing/LandingSectionFrame';
+import LandingHero from '@/components/landing/LandingHero';
+import LandingSolarShadow from '@/components/landing/LandingSolarShadow';
+import LandingHanokAssembly, { AssemblyModel } from '@/components/landing/LandingHanokAssembly';
+import LandingPhilosophy from '@/components/landing/LandingPhilosophy';
+import LandingCallToAction from '@/components/landing/LandingCallToAction';
 
 /**
  * 전체 스크롤 길이. 9개 Beat이 나눠 쓴다.
@@ -716,11 +716,11 @@ export default function LandingExperience() {
 
       {/* 배경(z 0)·한옥(z 1) 위. 텍스트가 무엇에도 가리지 않는다. */}
       <div style={{ position: 'relative', zIndex: 2 }}>
-        <Beat1_Intro progress={progress} />
-        <Beat3_Season progress={progress} />
-        <Beat4_Assembly progress={progress} />
-        <Beat5_Silence progress={progress} />
-        <Beat6_Invite progress={progress} />
+        <LandingHero progress={progress} />
+        <LandingSolarShadow progress={progress} />
+        <LandingHanokAssembly progress={progress} />
+        <LandingPhilosophy progress={progress} />
+        <LandingCallToAction progress={progress} />
       </div>
     </main>
   );

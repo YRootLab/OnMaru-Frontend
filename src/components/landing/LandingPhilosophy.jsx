@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 
 import { BEAT_RANGES } from '@/scroll-core/constants';
-import { clamp01, easeOutQuad, progressIn, usePrefersReducedMotion } from './BeatFrame';
+import { clamp01, easeOutQuad, progressIn, usePrefersReducedMotion } from './LandingSectionFrame';
 
 const FONT = "'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif";
 
@@ -258,7 +258,7 @@ const SrOnly = styled.span`
 // 이 컴포넌트는 고요한 문장 시퀀스와 마우스 근접 발광만 담는다.
 // ─────────────────────────────────────────
 
-export default function Beat5_Silence({ progress }) {
+export default function LandingPhilosophy({ progress }) {
   const reduced = usePrefersReducedMotion();
   const rootRef = useRef(null);
 
