@@ -615,8 +615,6 @@ export default function Beat3_Season({ progress }) {
               </StatValue>
             </Stat>
 
-            <StatNote>{view.note}</StatNote>
-
             <Hint style={{ opacity: touched ? 0 : 1 }}>절기를 옮겨 그림자를 보세요</Hint>
           </Stats>
 
