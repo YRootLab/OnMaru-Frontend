@@ -471,7 +471,7 @@ function HanokScene({ stage }) {
       <group
         position={[
           devTuner?.posX ?? 0,
-          stage.seasonView ? (devTuner?.posY ?? 16.2) : 0,
+          stage.seasonView ? (devTuner?.posY ?? 24.0) : 0,
           devTuner?.posZ ?? 0,
         ]}
       >

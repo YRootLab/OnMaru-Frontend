@@ -101,7 +101,7 @@ export const useSceneStore = create((set) => ({
   devTuner: {
     enabled: true,
     posX: 0,
-    posY: 16.2,
+    posY: 24.0,
     posZ: 0,
     scale: 1.35,
     targetY: 6.0,
