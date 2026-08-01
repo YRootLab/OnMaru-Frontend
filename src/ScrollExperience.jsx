@@ -147,10 +147,10 @@ const SHOTS = [
  * 지면을 내려다보는 이 구도를 표현하지 못하기 때문이다.
  */
 const SEASON_VIEWS = [
-  // target의 Y 오프셋을 높이고 fit을 다듬어 한옥 모델 및 그림자가 하단 컨트롤 카드에 가려지지 않고 화면 60% 상단 영역에 완벽 안착되게 만든다.
-  { minWidth: 1280, dir: [14, 18, 32], target: [-2, 7.8, 0], fov: 36, fit: 0.82 },
-  { minWidth: 768, dir: [14, 19, 38], target: [-2, 7.2, 0], fov: 40, fit: 0.85 },
-  { minWidth: 0, dir: [10, 20, 48], target: [-1, 5.8, 0], fov: 46, fit: 0.88 },
+  // target Y축을 11.5~12.5로 끌어올리고 fit을 0.72~0.78로 물러서게 만들어 한옥 3D 피사체와 마당 그림자 전체가 하단 카드의 위쪽 뷰포트 비주얼 영역에 완벽하게 시원하게 안착되도록 고도화한다.
+  { minWidth: 1280, dir: [14, 20, 34], target: [-2, 12.5, 0], fov: 34, fit: 0.72 },
+  { minWidth: 768, dir: [14, 21, 38], target: [-2, 11.8, 0], fov: 38, fit: 0.75 },
+  { minWidth: 0, dir: [10, 22, 46], target: [-1, 10.5, 0], fov: 44, fit: 0.78 },
 ];
 
 const lerp = (from, to, t) => from + (to - from) * t;

@@ -25,12 +25,26 @@ const FONT = "'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif";
 // 액센트는 주홍 하나로 통일했다 — 전에는 주홍과 금색이 한 화면에서 갈라져 있었다.
 // ─────────────────────────────────────────
 
-const INK = '#191f28'; // 크림 위 약 14:1
-const INK_SUB = '#4e5968'; // 약 7.4:1
-const INK_WEAK = '#8b95a1'; // 흰 표면 위 보조 라벨에만
-const ACCENT = '#a03a0a'; // 작은 글자용 주홍 (약 7.7:1)
-const ACCENT_VIVID = '#e85a18'; // 면·손잡이처럼 글자가 아닌 곳
-const LINE = 'rgba(25, 31, 40, 0.08)';
+import { lightPalette, meok, surface } from '@/design-system/tokens';
+
+const INK = meok[900];
+const INK_SUB = meok[700];
+const INK_WEAK = meok[500];
+const LINE = 'rgba(78, 89, 104, 0.14)';
+
+/**
+ * 계절별 슬라이더 바 & 손잡이 동적 컬러 테마
+ * - 봄 (Spring): Soft Coral (#E06D53)
+ * - 여름 (Summer): Vibrant Orange / Sunny Gold (#E85A18)
+ * - 가을 (Autumn): Deep Amber / Terracotta (#C6531E)
+ * - 겨울 (Winter): Slate Blue / Cool Grey (#4B7B9D)
+ */
+const SEASON_ACCENTS = {
+  spring: { primary: '#E06D53', bg: 'rgba(224, 109, 83, 0.12)' },
+  summer: { primary: lightPalette.juhong[500], bg: 'rgba(232, 90, 24, 0.12)' },
+  autumn: { primary: '#C6531E', bg: 'rgba(198, 83, 30, 0.12)' },
+  winter: { primary: '#4B7B9D', bg: 'rgba(75, 123, 157, 0.12)' },
+};
 
 /**
  * 절기 여덟. 값은 서울 계동(37.58°N) 정오 기준이고 solarShadow.json이 갖는다.
@@ -46,12 +60,6 @@ const STOPS = SHADOW.stops.map((stop) => ({
 
 const LAST = STOPS.length - 1;
 
-/**
- * 트랙은 여덟 칸에 딱딱 선다.
- *
- * 사이를 연속으로 훑게 두면 화면의 숫자(69.5° / 37cm)와 문장("최고 고도 75.82°")이
- * 서로 다른 값을 말한다. 절기마다 문구가 확정돼 있으므로 값도 절기에서 멈춰야 한다.
- */
 const RETURN_MS = 600;
 
 /** 오늘에 가장 가까운 절기. 연중 며칠째인지로 고른다. */
@@ -110,16 +118,17 @@ const TermTag = styled.p`
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.02em;
-  color: ${ACCENT};
+  color: ${(props) => props.accentColor || lightPalette.juhong[500]};
+  white-space: nowrap;
 
-  /* 짝 절기 — 춘분과 추분은 고도가 같다. 그 사실이 이 화면의 재미다. */
   em {
     padding: 2px 8px;
     border-radius: 9999px;
-    background: rgba(160, 58, 10, 0.09);
+    background: ${(props) => props.bgAccent || 'rgba(232, 90, 24, 0.09)'};
     font-style: normal;
     font-size: 11px;
     font-weight: 500;
+    white-space: nowrap;
   }
 `;
 
@@ -131,15 +140,16 @@ const Headline = styled.h2`
   letter-spacing: -0.03em;
   line-height: 1.25;
   word-break: keep-all;
-  text-wrap: balance;
+  white-space: nowrap;
   color: ${INK};
   text-align: center;
+
+  @media (max-width: 600px) {
+    white-space: normal;
+    text-wrap: balance;
+  }
 `;
 
-/**
- * 숫자 두 개. 슬라이더 바로 위, 카드 안에 둔다.
- * 위쪽 카피에 두면 지붕과 겹치고, 무엇보다 이 값들은 슬라이더의 눈금판이다.
- */
 const Stats = styled.dl`
   display: flex;
   align-items: baseline;
@@ -151,13 +161,17 @@ const Stat = styled.div`
   display: flex;
   flex-direction: column;
   gap: 2px;
+  white-space: nowrap;
 `;
 
+/** '1m당 그림자', '남중고도' 등의 수치 타이틀 무조건 한 줄 고정 */
 const StatLabel = styled.dt`
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.06em;
+  font-size: clamp(11px, 1.1vw, 13px);
+  font-weight: 600;
+  letter-spacing: 0.04em;
   color: ${INK_WEAK};
+  white-space: nowrap;
+  word-break: keep-all;
 `;
 
 const StatValue = styled.dd`
@@ -165,15 +179,17 @@ const StatValue = styled.dd`
   font-size: clamp(20px, 2.2vw, 28px);
   font-weight: 700;
   letter-spacing: -0.02em;
-  /* 자릿수가 바뀌어도 숫자가 좌우로 흔들리지 않는다 */
   font-variant-numeric: tabular-nums;
   color: ${INK};
+  white-space: nowrap;
+  word-break: keep-all;
 
   small {
     margin-left: 2px;
     font-size: 0.6em;
     font-weight: 500;
     color: ${INK_SUB};
+    white-space: nowrap;
   }
 `;
 
@@ -331,7 +347,8 @@ const Fill = styled.div`
   left: 0;
   height: 100%;
   border-radius: 2px;
-  background: ${ACCENT_VIVID};
+  background: ${(props) => props.accentColor || lightPalette.juhong[500]};
+  transition: background-color 0.35s ease;
 `;
 
 const Tick = styled.span`
@@ -356,9 +373,9 @@ const Knob = styled.span`
   margin: -11px 0 0 -11px;
   border-radius: 50%;
   background: #ffffff;
-  border: 3px solid ${ACCENT_VIVID};
+  border: 3px solid ${(props) => props.accentColor || lightPalette.juhong[500]};
   box-shadow: 0 2px 8px rgba(25, 31, 40, 0.18);
-  transition: box-shadow 0.2s ease-out;
+  transition: border-color 0.35s ease, box-shadow 0.2s ease-out;
 `;
 
 const Labels = styled.div`
@@ -381,11 +398,11 @@ const Label = styled.button`
   white-space: nowrap;
   color: ${INK_WEAK};
   cursor: pointer;
-  transition: color 0.2s ease-out;
+  transition: color 0.25s ease-out;
 
   &[data-active='true'] {
     font-weight: 700;
-    color: ${ACCENT};
+    color: ${(props) => props.accentColor || lightPalette.juhong[500]};
   }
 
   &:hover {
@@ -393,7 +410,7 @@ const Label = styled.button`
   }
 
   &:focus-visible {
-    outline: 2px solid ${ACCENT_VIVID};
+    outline: 2px solid ${lightPalette.juhong[500]};
     outline-offset: 2px;
     border-radius: 4px;
   }
@@ -556,11 +573,12 @@ export default function Beat3_Season({ progress }) {
 
   const showReturn = touched && index !== baseIndex;
   const percent = (index / LAST) * 100;
+  const seasonTheme = SEASON_ACCENTS[view.season] || SEASON_ACCENTS.summer;
 
   return (
     <Stage aria-label="절기에 따른 처마 그림자">
       <Copy>
-        <TermTag>
+        <TermTag accentColor={seasonTheme.primary} bgAccent={seasonTheme.bg}>
           {`${view.name} · ${view.month}월 ${view.day}일`}
           {pair && <em>{`${pair.name}과 같은 고도`}</em>}
         </TermTag>
@@ -572,7 +590,7 @@ export default function Beat3_Season({ progress }) {
 
       <Controller>
         {showReturn && (
-          <BackToToday type="button" onClick={returnToBase}>
+          <BackToToday type="button" onClick={returnToBase} style={{ color: seasonTheme.primary }}>
             오늘로 돌아가기
           </BackToToday>
         )}
@@ -615,7 +633,7 @@ export default function Beat3_Season({ progress }) {
             onKeyDown={onKeyDown}
           >
             <Rail>
-              <Fill style={{ width: `${percent}%` }} />
+              <Fill accentColor={seasonTheme.primary} style={{ width: `${percent}%` }} />
 
               {STOPS.map((stop, i) => {
                 const at = (i / LAST) * 100;
@@ -625,7 +643,7 @@ export default function Beat3_Season({ progress }) {
               })}
             </Rail>
 
-            <Knob data-knob style={{ left: `${percent}%` }} />
+            <Knob accentColor={seasonTheme.primary} data-knob style={{ left: `${percent}%` }} />
           </Track>
 
           <Labels>
@@ -633,6 +651,7 @@ export default function Beat3_Season({ progress }) {
               <Label
                 key={stop.id}
                 type="button"
+                accentColor={seasonTheme.primary}
                 data-active={i === index}
                 style={{ left: `${(i / LAST) * 100}%` }}
                 onClick={() => moveTo(i)}

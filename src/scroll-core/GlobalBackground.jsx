@@ -233,12 +233,12 @@ export default function GlobalBackground({ progress }) {
         </div>
       )}
 
-      {/* z1.5 — 3D 한옥 조형미를 돋보이게 하는 당근/토스 감성 태양 광선 및 계절 분위기 그라데이션 오버레이 */}
+      {/* z1.5 — 계절 및 태양 고도에 맞춰 은은하고 자연스럽게 섞이는 Soft Mesh/Radial Gradient 배경 오버레이 */}
       <div
         style={{
           ...fill,
           zIndex: 1.5,
-          background: `radial-gradient(ellipse 65% 55% at 55% 35%, rgba(245, 166, 35, 0.08) 0%, rgba(232, 90, 24, 0.04) 50%, transparent 80%), linear-gradient(to right, rgba(14, 16, 22, 0.25) 0%, transparent 40%)`,
+          background: `radial-gradient(ellipse 70% 60% at 50% 30%, rgba(245, 166, 35, 0.09) 0%, rgba(232, 90, 24, 0.04) 45%, rgba(75, 123, 157, 0.03) 75%, transparent 90%), linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, transparent 60%)`,
         }}
       />
 
