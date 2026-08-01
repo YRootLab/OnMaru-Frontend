@@ -12,7 +12,8 @@ import { frameCamera } from '@/scroll-core/cameraUtils';
 
 import HanokModel from '@/components/HanokModel';
 import GlobalBackground from '@/scroll-core/GlobalBackground';
-import { progressIn } from '@/scroll-beats/BeatFrame';
+import { useSeasonStore } from '@/scroll-core/seasonStore';
+import { lerpHex } from '@/scroll-beats/BeatFrame';
 import Beat1_Intro from '@/scroll-beats/Beat1_Intro';
 import Beat3_Season from '@/scroll-beats/Beat3_Season';
 import Beat4_Assembly from '@/scroll-beats/Beat4_Assembly';
@@ -192,6 +193,20 @@ const SHADOW_MAP = 2048;
 /** 그림자 아티팩트(자기 그림자 줄무늬) 방지 */
 const SHADOW_BIAS = -0.0005;
 
+/** 평소의 주광 — Beat3 밖에서는 계절과 무관하게 여기 서 있다. */
+const KEY_POSITION = [-15, 25, 20];
+const KEY_COLOR = '#FFF4DC';
+
+/**
+ * Beat3의 계절 볕. 여름은 높고 희게, 겨울은 낮게 기울며 따뜻해진다.
+ *
+ * 평소 위치 KEY_POSITION이 두 값의 대략 가운데라 Beat3에 들어서도 구도가 튀지 않는다.
+ * 그림자가 마루 어디까지 들어오는지는 여기 y·z 두 쌍이 정한다 — 눈으로 보고 조율할 자리다.
+ */
+const SUN_SUMMER = [-15, 27, 9];
+const SUN_WINTER = [-15, 9, 24];
+const SUN_COLOR = ['#FFF9E8', '#FFD9A8'];
+
 /**
  * 한옥 장면 한 벌. 구도를 잡으려면 모델 치수가 필요해서
  * 캔버스 안에서 bounding box를 한 번 재고 카메라·조명을 함께 배치한다.
@@ -199,6 +214,18 @@ const SHADOW_BIAS = -0.0005;
 function HanokScene({ stage }) {
   const { scene } = useGLTF(MODEL_URL);
   const size = useThree((s) => s.size);
+
+  // Beat3의 슬라이더가 여기로 들어온다. null이면 평소 주광.
+  const season = useSeasonStore((s) => s.season);
+
+  const sun = useMemo(() => {
+    if (season === null) return { position: KEY_POSITION, color: KEY_COLOR };
+
+    return {
+      position: SUN_SUMMER.map((from, i) => from + (SUN_WINTER[i] - from) * season),
+      color: lerpHex(SUN_COLOR[0], SUN_COLOR[1], season),
+    };
+  }, [season]);
 
   const model = useMemo(() => {
     const box = new THREE.Box3().setFromObject(scene);
@@ -246,9 +273,9 @@ function HanokScene({ stage }) {
       <ambientLight intensity={Math.max(stage.ambientIntensity, 1.2)} color="#FFFDF7" />
 
       <directionalLight
-        position={[-15, 25, 20]}
+        position={sun.position}
         intensity={Math.max(stage.keyIntensity, 2.5)}
-        color="#FFF4DC"
+        color={sun.color}
         castShadow
         shadow-mapSize-width={SHADOW_MAP}
         shadow-mapSize-height={SHADOW_MAP}

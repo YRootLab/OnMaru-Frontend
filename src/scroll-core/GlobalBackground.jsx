@@ -14,10 +14,11 @@ import { clamp01, lerpHex, usePrefersReducedMotion } from '@/scroll-beats/BeatFr
 const STOPS = [
   { p: 0.0, top: '#241A11', mid: '#1A130C', bot: '#120D08' }, // 영상 구간(어두운 황갈)
   { p: 0.09, top: '#241A11', mid: '#1A130C', bot: '#120D08' },
-  { p: 0.14, top: '#2A211A', mid: '#1F1A14', bot: '#161210' }, // Beat2 골격
-  { p: 0.2, top: '#2A211A', mid: '#1F1A14', bot: '#161210' },
-  { p: 0.26, top: '#EFE4D0', mid: '#F7EEDC', bot: '#FDF6E9' }, // Beat3 밝음
-  { p: 0.42, top: '#EFE4D0', mid: '#F7EEDC', bot: '#FDF6E9' },
+  // Beat3가 0.12에서 시작하므로 밝은 구간도 함께 당겼다.
+  // 여기가 어두우면 Beat3의 회색 본문(#4E5968·#8B95A1)이 배경에 묻힌다.
+  { p: 0.12, top: '#2A211A', mid: '#1F1A14', bot: '#161210' },
+  { p: 0.17, top: '#EFE4D0', mid: '#F7EEDC', bot: '#FDF6E9' }, // Beat3 밝음
+  { p: 0.36, top: '#EFE4D0', mid: '#F7EEDC', bot: '#FDF6E9' },
   { p: 0.5, top: '#26231E', mid: '#1F1D1A', bot: '#161412' }, // Beat4 어둠
   { p: 0.68, top: '#26231E', mid: '#1F1D1A', bot: '#161412' },
   { p: 0.74, top: '#16130F', mid: '#0E0C0A', bot: '#0A0908' }, // Beat5 가장 어두움
