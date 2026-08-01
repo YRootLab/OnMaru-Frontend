@@ -215,15 +215,15 @@ const Cursor = styled.span`
 `;
 
 const doubleArrowVariants = {
-  initial: { y: -6, opacity: 0.15 },
+  initial: { y: -4, opacity: 0.1 },
   animate: (i) => ({
-    y: [-6, 6, 14],
-    opacity: [0.15, 0.95, 0],
+    y: [-4, 4, 10],
+    opacity: [0.1, 0.65, 0],
     transition: {
-      duration: 1.5,
+      duration: 2.4,
       repeat: Infinity,
       ease: 'easeInOut',
-      delay: i * 0.3,
+      delay: i * 0.45,
     },
   }),
 };
@@ -313,14 +313,14 @@ export default function Beat1_Intro({ progress }) {
         <span
           style={{
             fontSize: '11px',
-            fontWeight: 600,
-            letterSpacing: '0.22em',
-            color: 'rgba(250, 250, 250, 0.75)',
+            fontWeight: 500,
+            letterSpacing: '0.14em',
+            color: 'rgba(250, 250, 250, 0.65)',
             fontFamily: 'SpoqaHanSansNeo, sans-serif',
             marginBottom: '4px',
           }}
         >
-          SCROLL
+          천천히 내려보기
         </span>
 
         {[0, 1].map((index) => (
