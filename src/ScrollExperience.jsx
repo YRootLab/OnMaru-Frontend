@@ -475,7 +475,7 @@ function HanokScene({ stage }) {
           devTuner?.posZ ?? 0,
         ]}
       >
-        <group scale={model.normalizedScale * (devTuner?.scale ?? 1.15)}>
+        <group scale={model.normalizedScale * (devTuner?.scale ?? 1.35)}>
           {assembling ? <AssemblyModel /> : <HanokModel />}
         </group>
 

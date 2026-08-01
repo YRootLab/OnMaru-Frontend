@@ -24,7 +24,7 @@ export default function HanokDevTuner() {
       posX: 0,
       posY: 16.2,
       posZ: 0,
-      scale: 1.15,
+      scale: 1.35,
       targetY: 6.0,
     });
   };
