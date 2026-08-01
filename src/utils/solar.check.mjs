@@ -6,10 +6,12 @@
 import assert from 'node:assert/strict';
 
 import TERMS from '../data/solarTerms.json' with { type: 'json' };
+import SHADOW from '../data/solarShadow.json' with { type: 'json' };
 import {
   altitudeToSeasonValue,
   getNoonSolarAltitude,
   seasonValueToAltitude,
+  shadowLengthRatio,
   solarTermDate,
 } from './solar.js';
 
@@ -53,5 +55,53 @@ const at = (id) => {
 assert.ok(at('haji') < 0.02, '하지 절기가 0 근처가 아니다');
 assert.ok(at('dongji') > 0.98, '동지 절기가 1 근처가 아니다');
 assert.ok(Math.abs(at('chunbun') - 0.5) < 0.05, '춘분이 한가운데가 아니다');
+
+// ── 절기 그림자 표 (서울 계동 37.58°N)
+//
+// 표에 적힌 고도와 그림자가 서로 맞는지, 그리고 고도가 위도에서 실제로 나오는지 본다.
+// 손으로 옮겨 적은 숫자라 한 칸만 어긋나도 화면의 모든 문장이 같이 틀어진다.
+
+assert.equal(SHADOW.stops.length, 8, '절기가 8개가 아니다');
+assert.equal(new Set(SHADOW.stops.map((s) => s.id)).size, 8, 'id가 겹친다');
+
+const byId = new Map(SHADOW.stops.map((s) => [s.id, s]));
+
+for (const stop of SHADOW.stops) {
+  const expected = shadowLengthRatio(stop.altitude) * 100;
+  assert.ok(
+    Math.abs(expected - stop.shadow) < 0.6,
+    `${stop.name} 그림자 ${stop.shadow}cm — 고도 ${stop.altitude}°에서는 ${expected.toFixed(1)}cm`,
+  );
+
+  // cm와 배수는 같은 값을 두 번 적은 것이다. 한쪽만 고치면 화면에서 어긋난다.
+  assert.ok(
+    Math.abs(stop.shadowRatio - stop.shadow / 100) < 0.01,
+    `${stop.name} shadowRatio ${stop.shadowRatio} ≠ ${stop.shadow}cm`,
+  );
+
+  // 화면이 통째로 이 세 문장으로 돌아간다. 비면 빈 화면이 된다.
+  for (const key of ['headline', 'note', 'sunlightReach']) {
+    assert.ok(stop[key]?.length > 0, `${stop.name} ${key}가 비었다`);
+  }
+
+  // 짝 절기는 서로를 가리키고 고도가 같아야 한다 (춘분↔추분, 입춘↔입동, 입하↔입추).
+  if (stop.pairId) {
+    const pair = byId.get(stop.pairId);
+    assert.ok(pair, `${stop.name}의 짝 ${stop.pairId}이 없다`);
+    assert.equal(pair.pairId, stop.id, `${stop.name}↔${pair.name} 짝이 서로를 가리키지 않는다`);
+    assert.equal(pair.altitude, stop.altitude, `${stop.name}↔${pair.name} 고도가 다르다`);
+  }
+
+  const altitude = getNoonSolarAltitude(SHADOW.latitude, solarTermDate(stop, 2026));
+  assert.ok(
+    Math.abs(altitude - stop.altitude) < 1.2,
+    `${stop.name} 고도 ${stop.altitude}° — 날짜로 계산하면 ${altitude.toFixed(2)}°`,
+  );
+}
+
+// 하지가 가장 짧고 동지가 가장 길다. 이 순서가 뒤집히면 연출이 통째로 거꾸로 간다.
+const shadows = SHADOW.stops.map((s) => s.shadow);
+assert.equal(Math.min(...shadows), 25.2, '가장 짧은 그림자가 하지가 아니다');
+assert.equal(Math.max(...shadows), 180.2, '가장 긴 그림자가 동지가 아니다');
 
 console.log('solar.js ok');

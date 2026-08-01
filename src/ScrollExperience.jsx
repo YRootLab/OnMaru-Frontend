@@ -19,7 +19,6 @@ import Beat3_Season from '@/scroll-beats/Beat3_Season';
 import Beat4_Assembly, { AssemblyModel } from '@/scroll-beats/Beat4_Assembly';
 import Beat5_Silence from '@/scroll-beats/Beat5_Silence';
 import Beat6_Invite from '@/scroll-beats/Beat6_Invite';
-import HanokDevTuner from '@/components/dev/HanokDevTuner';
 
 /**
  * 전체 스크롤 길이. 9개 Beat이 나눠 쓴다.
@@ -722,9 +721,6 @@ export default function ScrollExperience() {
         <Beat4_Assembly progress={progress} />
         <Beat5_Silence progress={progress} />
         <Beat6_Invite progress={progress} />
-
-        {/* 개발자 실시간 3D 한옥 위치·크기 튜너 패널 */}
-        <HanokDevTuner />
       </div>
     </main>
   );
