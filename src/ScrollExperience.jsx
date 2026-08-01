@@ -12,7 +12,7 @@ import { frameCamera, toRad } from '@/scroll-core/cameraUtils';
 
 import HanokModel from '@/components/HanokModel';
 import GlobalBackground from '@/scroll-core/GlobalBackground';
-import { useSceneStore } from '@/scroll-core/sceneStore';
+import { sunNow, useSceneStore } from '@/scroll-core/sceneStore';
 import { progressIn } from '@/scroll-beats/BeatFrame';
 import Beat1_Intro from '@/scroll-beats/Beat1_Intro';
 import Beat3_Season from '@/scroll-beats/Beat3_Season';
