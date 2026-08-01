@@ -88,7 +88,7 @@ const Stage = styled.section`
   position: fixed;
   inset: 0;
   z-index: 5;
-  pointer-events: none;
+  pointer-events: none !important;
   font-family: ${FONT};
 `;
 
@@ -104,7 +104,7 @@ const Copy = styled.div`
   z-index: 1;
   padding: 0 24px;
   text-align: center;
-  pointer-events: none;
+  pointer-events: none !important;
 
   @media (max-width: 767px) {
     top: 48vh;
@@ -214,6 +214,7 @@ const Note = styled.p`
   line-height: 1.55;
   word-break: keep-all;
   color: ${INK_SUB};
+  pointer-events: none !important;
 `;
 
 /** 카드 바닥의 잔글씨. 상단 카피에 두면 지붕과 겹쳐 읽히지 않는다. */
