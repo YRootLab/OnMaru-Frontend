@@ -471,8 +471,8 @@ function HanokScene({ stage }) {
       <group
         position={[
           devTuner?.posX ?? 0,
-          stage.seasonView ? (devTuner?.posY ?? 24.0) : 0,
-          devTuner?.posZ ?? 0,
+          stage.seasonView ? (devTuner?.posY ?? 0) : 0,
+          stage.seasonView ? (devTuner?.posZ ?? -12.0) : 0,
         ]}
       >
         <group scale={model.normalizedScale * (devTuner?.scale ?? 1.35)}>
