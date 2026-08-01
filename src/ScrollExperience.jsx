@@ -1,8 +1,8 @@
 'use client';
 
 import { Suspense, useEffect, useMemo, useState } from 'react';
-import { Canvas, useThree } from '@react-three/fiber';
-import { ContactShadows, PerspectiveCamera, useGLTF } from '@react-three/drei';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { ContactShadows, OrbitControls, PerspectiveCamera, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import Lenis from 'lenis';
 
@@ -12,11 +12,11 @@ import { frameCamera } from '@/scroll-core/cameraUtils';
 
 import HanokModel from '@/components/HanokModel';
 import GlobalBackground from '@/scroll-core/GlobalBackground';
-import { useSeasonStore } from '@/scroll-core/seasonStore';
-import { lerpHex } from '@/scroll-beats/BeatFrame';
+import { useSceneStore } from '@/scroll-core/sceneStore';
+import { lerpHex, progressIn } from '@/scroll-beats/BeatFrame';
 import Beat1_Intro from '@/scroll-beats/Beat1_Intro';
 import Beat3_Season from '@/scroll-beats/Beat3_Season';
-import Beat4_Assembly from '@/scroll-beats/Beat4_Assembly';
+import Beat4_Assembly, { AssemblyModel } from '@/scroll-beats/Beat4_Assembly';
 import Beat5_Silence from '@/scroll-beats/Beat5_Silence';
 import Beat6_Invite from '@/scroll-beats/Beat6_Invite';
 
@@ -114,15 +114,43 @@ function useSmoothScroll() {
 const CAMERA_FOV = 46;
 
 /**
- * 방위각. 90°가 정면(+z), 180°가 좌측면이다.
+ * 섹션별 구도.
  *
- * 정면에서 틀어 측면을 조금 보여준다. 부재가 겹쳐 보이는 각도여야
- * 골격 구간에서 짜임이 선으로 읽힌다.
+ * 카메라가 스크롤을 따라 한옥 주위를 돈다. 예전에는 방위각·고도가 상수 하나씩이고
+ * dolly가 리터럴 0이라 전 구간 같은 자리에 서 있었다 — 한옥이 한 장의 그림처럼 보인 이유다.
+ *
+ * 방위각 90°가 정면(+z), 180°가 좌측면이다. 원래 잡아둔 118°를 가운데 두고 ±25° 안에서만
+ * 움직인다 — 더 돌리면 장식 없는 뒷면이 정면으로 온다.
+ * dolly는 양수가 뒤로 물러남이고, 기준 거리가 약 20이라 ±6이면 30% 안쪽의 이동이다.
  */
-const VIEW_AZIMUTH_DEG = 118;
+const SHOTS = [
+  { p: 0.0, azimuthDeg: 104, elevationDeg: 9, dolly: 6 }, // Beat1 — 멀찍이서 떠오른다
+  { p: 0.12, season: true }, // Beat3 진입 — 아래 SEASON_VIEWS 구도로 붙는다
+  { p: 0.38, season: true }, // Beat3 — 구간 내내 붙박이. 움직이는 건 그림자뿐이다
+  { p: 0.45, azimuthDeg: 142, elevationDeg: 20, dolly: 3 }, // Beat4 — 비스듬한 3/4 아이솔메트릭 입체 구도
+  { p: 0.7, azimuthDeg: 134, elevationDeg: 14, dolly: -1 }, // Beat4 완성 — 눈높이와 입체감의 최적화
+  { p: 1.0, azimuthDeg: 118, elevationDeg: 12, dolly: 6 }, // Beat5~ — 다시 멀어진다
+];
 
-/** 눈높이. 올려다보지 않고 거의 수평으로 본다. */
-const VIEW_ELEVATION_DEG = 3;
+/**
+ * Beat3 전용 구도.
+ *
+ * 그림자 길이 변화가 이 구간의 전부라, 물러나 내려다보면서 그림자가 뻗을 바닥을 비워둔다.
+ * 한옥이 세로 40% 남짓만 차지하고 시선(target)을 왼쪽 지면에 두어 그림자 쪽에 여백이 생긴다.
+ *
+ * 다른 구간과 달리 모델 치수에서 역산하지 않고 좌표를 직접 준다 —
+ * frameCamera는 건물 중간을 겨누는 전제라 지면을 내려다보는 이 구도를 표현하지 못한다.
+ * (모델은 높이 10으로 정규화되어 있어 이 좌표가 크기와 무관하게 맞는다.)
+ */
+const SEASON_VIEWS = [
+  { minWidth: 1280, position: [10, 16, 30], target: [-2, 0, 0], fov: 38 },
+  { minWidth: 768, position: [10, 17, 36], target: [-2, 0, 0], fov: 42 },
+  { minWidth: 0, position: [8, 18, 46], target: [-1, 0, 0], fov: 48 },
+];
+
+const lerp = (from, to, t) => from + (to - from) * t;
+
+const easeInOutCubic = (t) => (t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2);
 
 /** 한옥 하단이 놓이는 화면 높이 (0 = 바닥, 1 = 천장) */
 const BASE_SCREEN_Y = 0.12;
@@ -139,32 +167,100 @@ const ROOF_SCREEN_Y = 0.7;
 const WIDTH_FILL = 0.82;
 
 /**
+ * SHOTS를 실제 카메라 좌표로 푼다.
+ *
+ * 모델 치수와 화면 비율이 있어야 풀 수 있으므로 캔버스 안에서 한 번만 계산하고,
+ * 매 프레임에는 이미 풀어둔 좌표 사이를 섞기만 한다.
+ */
+function resolveShots(model, size) {
+  const view = SEASON_VIEWS.find((candidate) => size.width >= candidate.minWidth);
+
+  return SHOTS.map((shot) => {
+    if (shot.season) {
+      const distance = Math.hypot(
+        view.position[0] - view.target[0],
+        view.position[1] - view.target[1],
+        view.position[2] - view.target[2],
+      );
+
+      return {
+        p: shot.p,
+        position: view.position,
+        target: view.target,
+        fov: view.fov,
+        near: Math.max(0.01, distance / 200),
+        far: distance * 6,
+      };
+    }
+
+    const framed = frameCamera(model, size.width / size.height, {
+      fov: CAMERA_FOV,
+      baseScreenY: BASE_SCREEN_Y,
+      roofScreenY: ROOF_SCREEN_Y,
+      widthFill: WIDTH_FILL,
+      azimuthDeg: shot.azimuthDeg,
+      elevationDeg: shot.elevationDeg,
+      dolly: shot.dolly,
+    });
+
+    return { p: shot.p, fov: CAMERA_FOV, ...framed };
+  });
+}
+
+/** progress를 감싸는 두 자리를 찾아 섞는다. 구간마다 이징이 걸려 섹션 끝에서 카메라가 선다. */
+function cameraAt(shots, p) {
+  let a = shots[0];
+  let b = shots[shots.length - 1];
+
+  for (let i = 0; i < shots.length - 1; i += 1) {
+    if (p >= shots[i].p && p <= shots[i + 1].p) {
+      a = shots[i];
+      b = shots[i + 1];
+      break;
+    }
+  }
+
+  const k = easeInOutCubic(progressIn(p, a.p, b.p));
+
+  return {
+    position: a.position.map((v, i) => lerp(v, b.position[i], k)),
+    target: a.target.map((v, i) => lerp(v, b.target[i], k)),
+    fov: lerp(a.fov, b.fov, k),
+    near: lerp(a.near, b.near, k),
+    far: lerp(a.far, b.far, k),
+  };
+}
+
+/**
  * 카메라를 구도값에 맞춘다.
  *
  * 위치와 회전을 전부 prop으로 넘긴다. 효과에서 손대면 R3F가 prop을 적용하는
  * 시점과 엇갈려 한 프레임씩 어긋나거나 아예 씹힌다.
+ *
+ * orbit이 켜져 있으면 손을 떼고 OrbitControls에게 카메라를 넘긴다 — 둘이 같은 카메라를
+ * 매 프레임 다투면 화면이 떨린다.
  */
-function FramedCamera({ position, target, near, far }) {
+function FramedCamera({ position, target, fov, near, far, orbit }) {
   const camera = useThree((state) => state.camera);
 
+  /*
+    R3F는 씬 그래프를 명령형으로 다룬다. useThree가 돌려주는 카메라를 직접 겨누는 것이
+    이 라이브러리의 정상 패턴이고, 여기서 만지는 것은 이 Canvas가 소유한 카메라다.
+  */
   useEffect(() => {
-    if (camera && position && target) {
+    if (camera && position && target && !orbit) {
       camera.position.set(...position);
       camera.lookAt(target[0], target[1], target[2]);
+      // eslint-disable-next-line react-hooks/immutability
       camera.near = near;
       camera.far = far;
+      camera.fov = fov;
       camera.updateProjectionMatrix();
     }
-  }, [camera, position, target, near, far]);
+  }, [camera, position, target, fov, near, far, orbit]);
 
   return (
-    <PerspectiveCamera
-      makeDefault
-      position={position}
-      fov={CAMERA_FOV}
-      near={near}
-      far={far}
-    />
+    <PerspectiveCamera makeDefault position={position} fov={fov} near={near} far={far} />
   );
 }
 
@@ -181,9 +277,6 @@ const SHOW_HANOK = true;
  */
 const CANVAS_FADE_IN = [0.06, 0.12];
 
-/** 역광 위치. 모델 높이의 배수라 크기가 달라져도 각도가 유지된다. */
-const RIM_DIR = [1.15, 1.6, -1.3]; // 후면 상단 — 지붕 윤곽만 떠올리는 역광
-
 /**
  * 그림자 맵 해상도. 처마선과 문살 격자가 선으로 읽혀야 하므로 높게 잡는다.
  * 낮추면 격자가 뭉개져 그냥 검은 덩어리가 된다.
@@ -191,7 +284,16 @@ const RIM_DIR = [1.15, 1.6, -1.3]; // 후면 상단 — 지붕 윤곽만 떠올�
 const SHADOW_MAP = 2048;
 
 /** 그림자 아티팩트(자기 그림자 줄무늬) 방지 */
-const SHADOW_BIAS = -0.0005;
+const SHADOW_BIAS = -0.0004;
+
+/**
+ * 그림자를 담는 상자.
+ *
+ * 겨울 볕은 낮게 기울어 그림자가 건물 길이의 몇 배로 뻗는다. 이 범위가 좁으면
+ * 그림자가 중간에서 잘려 "계절이 바뀌어도 길이가 그대로"인 것처럼 보인다.
+ */
+const SHADOW_EXTENT = 45;
+const SHADOW_FAR = 120;
 
 /** 평소의 주광 — Beat3 밖에서는 계절과 무관하게 여기 서 있다. */
 const KEY_POSITION = [-15, 25, 20];
@@ -200,11 +302,12 @@ const KEY_COLOR = '#FFF4DC';
 /**
  * Beat3의 계절 볕. 여름은 높고 희게, 겨울은 낮게 기울며 따뜻해진다.
  *
- * 평소 위치 KEY_POSITION이 두 값의 대략 가운데라 Beat3에 들어서도 구도가 튀지 않는다.
+ * 오른쪽 위에 두어 그림자가 화면 왼쪽으로 뻗는다 — Beat3 카메라의 시선(target)이
+ * 왼쪽에 있어 그쪽이 비어 있다. y를 26 → 9로 크게 벌린 것이 이 연출의 전부다.
  * 그림자가 마루 어디까지 들어오는지는 여기 y·z 두 쌍이 정한다 — 눈으로 보고 조율할 자리다.
  */
-const SUN_SUMMER = [-15, 27, 9];
-const SUN_WINTER = [-15, 9, 24];
+const SUN_SUMMER = [16, 26, 8];
+const SUN_WINTER = [22, 9, 18];
 const SUN_COLOR = ['#FFF9E8', '#FFD9A8'];
 
 /**
@@ -216,7 +319,8 @@ function HanokScene({ stage }) {
   const size = useThree((s) => s.size);
 
   // Beat3의 슬라이더가 여기로 들어온다. null이면 평소 주광.
-  const season = useSeasonStore((s) => s.season);
+  const season = useSceneStore((s) => s.season);
+  const assembling = useSceneStore((s) => s.assembling);
 
   const sun = useMemo(() => {
     if (season === null) return { position: KEY_POSITION, color: KEY_COLOR };
@@ -244,19 +348,9 @@ function HanokScene({ stage }) {
     };
   }, [scene]);
 
-  const view = useMemo(
-    () =>
-      frameCamera(model, size.width / size.height, {
-        fov: CAMERA_FOV,
-        azimuthDeg: VIEW_AZIMUTH_DEG,
-        elevationDeg: VIEW_ELEVATION_DEG,
-        baseScreenY: BASE_SCREEN_Y,
-        roofScreenY: ROOF_SCREEN_Y,
-        widthFill: WIDTH_FILL,
-        dolly: stage.cameraDolly || 0,
-      }),
-    [model, size.width, size.height, stage.cameraDolly],
-  );
+  // 모델 치수와 화면 비율이 바뀔 때만 다시 푼다. 스크롤 중에는 섞기만 한다.
+  const shots = useMemo(() => resolveShots(model, size), [model, size]);
+  const view = cameraAt(shots, stage.progress);
 
   const scale = model.height;
   const footprint = model.footprint;
@@ -266,15 +360,25 @@ function HanokScene({ stage }) {
       <FramedCamera
         position={view.position}
         target={view.target}
+        fov={view.fov}
         near={view.near}
         far={view.far}
+        orbit={stage.orbit}
       />
 
-      <ambientLight intensity={Math.max(stage.ambientIntensity, 1.2)} color="#FFFDF7" />
+      {/* 각도를 눈으로 찾을 때만. ?orbit=1 로 켠다 — 켜지는 순간 스크롤 카메라는 손을 뗀다. */}
+      {stage.orbit && (
+        <>
+          <OrbitControls makeDefault enableZoom={false} enablePan={false} target={view.target} />
+          <CameraProbe target={view.target} sun={sun.position} />
+        </>
+      )}
+
+      <ambientLight intensity={stage.ambientIntensity} color="#FFFDF7" />
 
       <directionalLight
         position={sun.position}
-        intensity={Math.max(stage.keyIntensity, 2.5)}
+        intensity={stage.keyIntensity}
         color={sun.color}
         castShadow
         shadow-mapSize-width={SHADOW_MAP}
@@ -284,29 +388,45 @@ function HanokScene({ stage }) {
         <orthographicCamera
           attach="shadow-camera"
           args={[
-            -footprint * 2,
-            footprint * 2,
-            footprint * 2,
-            -footprint * 2,
+            -SHADOW_EXTENT,
+            SHADOW_EXTENT,
+            SHADOW_EXTENT,
+            -SHADOW_EXTENT,
             0.5,
-            100,
+            SHADOW_FAR,
           ]}
         />
       </directionalLight>
 
       <directionalLight
         position={[15, 20, -15]}
-        intensity={Math.max(stage.rimIntensity, 1.5)}
+        intensity={stage.rimIntensity}
         color="#FFCC77"
       />
 
+      {/*
+        Beat4 구간에서는 완성된 한옥이 물러나고 부재 107개가 날아와 쌓인다.
+        조립본은 같은 스케일 안에서 자기 사본만 만지므로 서로의 재질을 덮지 않는다.
+      */}
       <group scale={model.normalizedScale}>
-        <HanokModel wireframe={stage.wireframe} />
+        {assembling ? <AssemblyModel /> : <HanokModel />}
       </group>
+
+      {/*
+        그림자를 받는 바닥.
+
+        이 면이 없으면 주광이 드리운 그림자가 떨어질 자리가 없어, 태양 고도를 아무리
+        움직여도 화면에 아무 변화가 없다. 처마가 볕을 어디까지 막는지가 이 연출의 전부다.
+        (ContactShadows는 접지 얼룩이라 광원 각도를 따르지 않는다 — 둘 다 필요하다.)
+      */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
+        <planeGeometry args={[120, 120]} />
+        <shadowMaterial opacity={stage.shadowOpacity} transparent />
+      </mesh>
 
       <ContactShadows
         position={[0, 0, 0]}
-        opacity={stage.shadowOpacity}
+        opacity={stage.shadowOpacity * 0.6}
         scale={footprint * 2.5}
         blur={2.0}
         far={scale * 2}
@@ -317,55 +437,115 @@ function HanokScene({ stage }) {
   );
 }
 
+/** Beat5 한옥 퇴장 — 구간 진입 후 로컬 18% 동안 옅어진다. */
+const BEAT5_START = 0.7;
+const BEAT5_EXIT_END = 0.7216; // 0.70 + (0.82 - 0.70) × 0.18
+
 /**
- * 고정 무대의 조명·배경값 한 벌.
+ * 조명 세기 한 벌.
  *
- * Beat5 구간(0.70~0.82)에서 한옥이 서서히 사라진다.
- * 이전에는 Beat5가 별도 Canvas를 마운트해 이 연출을 맡았지만,
- * 단일 Canvas 아키텍처로 통합하면서 FixedStage가 대신한다.
+ * 조립 중에는 부재 하나하나가 따로 서야 해서 주광을 세우고 역광을 올린다.
+ * (Beat4가 자기 Canvas에 쓰려고 잡아둔 값 그대로 가져왔다.)
  */
-function getStage(progress) {
-  const isWireframe = false;
+const REST_LIGHT = { key: 2.5, rim: 1.5, ambient: 1.2 };
+const ASSEMBLY_LIGHT = { key: 3.4, rim: 1.6, ambient: 1.6 };
 
-  // Beat5 한옥 퇴장 — 구간 진입 후 0~18% (로컬) 동안 한옥이 옅어진다
-  const BEAT5_START = 0.7;
-  const BEAT5_END = 0.82;
-  const BEAT5_EXIT_LOCAL = 0.18; // 로컬 진행도 중 18%까지만 한옥을 보여준다
+/**
+ * 고정 무대의 조명값 한 벌.
+ *
+ * 여기서 내는 값이 곧 화면이다 — 예전에는 소비하는 쪽이 Math.max로 바닥을 깔아둬서
+ * 이 함수가 무슨 값을 내든 결과가 같았다. Beat5 퇴장에서 조명이 안 꺼진 것도 그 탓이다.
+ */
+function getStage(progress, assembling, orbit) {
+  // 한옥 등장 — Beat1이 끝나갈 즈음 배경에서 떠오른다.
+  const enter = progressIn(progress, CANVAS_FADE_IN[0], CANVAS_FADE_IN[1]);
 
-  let beat5Exit = 0; // 0=한옥 보임, 1=한옥 사라짐
-  if (progress >= BEAT5_START && progress < BEAT5_END) {
-    const localProgress = (progress - BEAT5_START) / (BEAT5_END - BEAT5_START);
-    beat5Exit = Math.min(1, Math.max(0, localProgress / BEAT5_EXIT_LOCAL));
-    // easeInOutCubic
-    beat5Exit = beat5Exit < 0.5
-      ? 4 * beat5Exit ** 3
-      : 1 - ((-2 * beat5Exit + 2) ** 3) / 2;
-  } else if (progress >= BEAT5_END) {
-    beat5Exit = 1;
-  }
+  const exit = easeInOutCubic(progressIn(progress, BEAT5_START, BEAT5_EXIT_END));
 
-  // Beat5 구간 이후에는 한옥을 감춘다
-  const hiddenByBeat5 = beat5Exit >= 1;
+  const light = assembling ? ASSEMBLY_LIGHT : REST_LIGHT;
+  const lit = 1 - exit;
 
   return {
-    keyIntensity: isWireframe || hiddenByBeat5 ? 0 : 1.8,
-    keyColor: '#FFF8F0',
-    keyPosition: [-1.25, 1.75, 1.35],
-    rimIntensity: isWireframe || hiddenByBeat5 ? 0 : 0.3,
-    rimColor: '#C1502E',
-    ambientIntensity: isWireframe || hiddenByBeat5 ? 0 : 0.5,
-    shadowOpacity: isWireframe || hiddenByBeat5 ? 0 : 0.4,
+    progress,
+    orbit,
+    keyIntensity: light.key * lit,
+    rimIntensity: light.rim * lit,
+    ambientIntensity: light.ambient * lit,
+    // 0.42 — 더 진하면 무겁고, 더 옅으면 계절에 따른 길이 변화가 눈에 안 들어온다
+    shadowOpacity: 0.42 * lit,
     shadowColor: '#3A2E1F',
-    background: CANVAS_BASE_COLOR,
-    cameraDolly: 0,
-    wireframe: {
-      on: isWireframe,
-      drawn: 1,
-      scale: 1,
-    },
     // FixedStage가 읽어 캔버스 레이어 전체 opacity를 조절한다
-    canvasOpacity: 1 - beat5Exit,
+    canvasOpacity: enter * (1 - exit),
   };
+}
+
+// ─────────────────────────────────────────
+// 구도를 눈으로 찾는 도구 — ?orbit=1 (개발 빌드에서만)
+//
+// 각도가 맞았다 싶으면 HUD가 읽어주는 position/target/fov를 SEASON_VIEWS에 옮겨 적고
+// 이 블록(useOrbitFlag · CameraHud · cameraReadout)과 OrbitControls를 지운다.
+// ─────────────────────────────────────────
+
+/** HUD가 읽어갈 최신 값. 매 프레임 바뀌므로 state가 아니라 상자에 담는다. */
+const cameraReadout = { position: [0, 0, 0], target: [0, 0, 0], fov: 0, sun: [0, 0, 0] };
+
+function useOrbitFlag() {
+  return useMemo(() => {
+    if (process.env.NODE_ENV !== 'development' || typeof window === 'undefined') return false;
+    return new URLSearchParams(window.location.search).get('orbit') === '1';
+  }, []);
+}
+
+function CameraHud() {
+  const season = useSceneStore((s) => s.season);
+  const [, tick] = useState(0);
+
+  // 200ms마다 한 번만 읽는다. 매 프레임 다시 그리면 HUD가 곧 부하가 된다.
+  useEffect(() => {
+    const timer = setInterval(() => tick((n) => n + 1), 200);
+    return () => clearInterval(timer);
+  }, []);
+
+  const round = (values) => `[${values.map((v) => v.toFixed(1)).join(', ')}]`;
+
+  return (
+    <pre
+      style={{
+        position: 'fixed',
+        top: 12,
+        right: 12,
+        zIndex: 99,
+        margin: 0,
+        padding: '10px 12px',
+        borderRadius: 8,
+        background: 'rgba(16, 14, 12, 0.82)',
+        color: '#F5A623',
+        font: '11px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace',
+        pointerEvents: 'none',
+      }}
+    >
+      {`position ${round(cameraReadout.position)}
+target   ${round(cameraReadout.target)}
+fov      ${cameraReadout.fov.toFixed(1)}
+season   ${season === null ? '—' : season.toFixed(3)}
+sun      ${round(cameraReadout.sun)}`}
+    </pre>
+  );
+}
+
+/** 캔버스 안에서 현재 카메라를 상자에 옮겨 담는다. */
+function CameraProbe({ target, sun }) {
+  const camera = useThree((s) => s.camera);
+  const controls = useThree((s) => s.controls);
+
+  useFrame(() => {
+    cameraReadout.position = camera.position.toArray();
+    cameraReadout.target = controls?.target ? controls.target.toArray() : target;
+    cameraReadout.fov = camera.fov;
+    cameraReadout.sun = sun;
+  });
+
+  return null;
 }
 
 /** GLB가 오기 전 자리를 지키는 임시 골격. 같은 황금빛으로 서 있는다. */
@@ -408,12 +588,17 @@ function Fallback3DWireframe() {
  * 어느 구간에서 무엇이 어떻게 변하는지는 각 Beat 파일이 갖는다.
  */
 function FixedStage({ progress }) {
-  const stage = getStage(progress);
+  const assembling = useSceneStore((s) => s.assembling);
+  const orbit = useOrbitFlag();
+
+  const stage = getStage(progress, assembling, orbit);
   const canvasOpacity = stage.canvasOpacity;
 
   return (
     <>
       {/* 배경색 div는 GlobalBackground가 전담하므로 제거했다. */}
+
+      {orbit && <CameraHud />}
 
       {SHOW_HANOK && canvasOpacity > 0 && (
         <div

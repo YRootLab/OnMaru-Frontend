@@ -5,7 +5,7 @@ import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 
 import { BEAT_RANGES } from '@/scroll-core/constants';
-import { useSeasonStore } from '@/scroll-core/seasonStore';
+import { useSceneStore } from '@/scroll-core/sceneStore';
 import useUserLocation from '@/hooks/useUserLocation';
 import SOLAR_TERMS from '@/data/solarTerms.json';
 import {
@@ -22,12 +22,6 @@ export const RANGE = BEAT_RANGES.BEAT3;
 const [START, END] = RANGE;
 
 const FONT = "'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif";
-
-/**
- * 위치 권한은 이 지점을 지날 때 한 번만 묻는다.
- * 첫 화면에서 팝업이 뜨면 무슨 사이트인지 알기도 전에 나간다.
- */
-const ASK_LOCATION_AT = 0.1;
 
 /** 한 화면 폭의 절반을 끌면 하지에서 동지까지 간다. */
 const DRAG_SPAN = 0.5;
@@ -100,6 +94,11 @@ const riseIn = keyframes`
   to   { opacity: 1; transform: translateY(0); }
 `;
 
+const highlightFade = keyframes`
+  0%   { background-color: rgba(232, 90, 24, 0.4); }
+  100% { background-color: transparent; }
+`;
+
 const Stage = styled.section`
   position: fixed;
   inset: 0;
@@ -109,12 +108,12 @@ const Stage = styled.section`
 `;
 
 /**
- * 데스크톱은 화면 위쪽, 모바일은 아래 45%.
- * 세로 화면에서는 한옥이 상단 55%를 다 쓰므로 글이 그 위에 겹치면 둘 다 안 읽힌다.
+ * 상단 10vh~26vh. 한옥은 세로 35% 아래에서 시작하므로 이 띠와 겹치지 않는다.
+ * 모바일은 3D가 상단 55%를 다 쓰는 터라 글이 아래 45%로 내려간다.
  */
 const Copy = styled.div`
   position: absolute;
-  top: clamp(5vh, 7vh, 9vh);
+  top: 10vh;
   left: 0;
   right: 0;
   z-index: 1;
@@ -141,11 +140,40 @@ const TodayLine = styled.p`
   font-weight: 400;
   letter-spacing: 0.02em;
   color: #8b95a1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
 `;
 
-const FallbackNote = styled.span`
-  color: #b0b8c1;
-  font-size: 11px;
+const LocationButton = styled.button`
+  pointer-events: auto;
+  font-size: 12px;
+  color: #e85a18;
+  padding: 4px 10px;
+  border: 1px solid rgba(232, 90, 24, 0.28);
+  border-radius: 9999px;
+  background: transparent;
+  cursor: pointer;
+  font-family: ${FONT};
+  line-height: 1.2;
+  transition: all 0.2s ease-out;
+
+  &:hover:not(:disabled) {
+    background: rgba(232, 90, 24, 0.08);
+  }
+
+  &:disabled {
+    cursor: default;
+  }
+`;
+
+const HighlightSpan = styled.span`
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  animation: ${(props) => (props.animate ? highlightFade : 'none')} 0.6s ease-out;
 `;
 
 const TermTag = styled.p`
@@ -177,7 +205,7 @@ const Description = styled.p`
 
 const Controller = styled.div`
   position: absolute;
-  bottom: 6vh;
+  bottom: 12vh;
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
@@ -299,9 +327,16 @@ const Knob = styled.div`
 
 export default function Beat3_Season({ progress }) {
   const reduced = usePrefersReducedMotion();
-  const { latitude, cityName, isDefault } = useUserLocation(progress >= ASK_LOCATION_AT);
-  const setSeason = useSeasonStore((s) => s.setSeason);
+  const { latitude, cityName, locationState, isSecure, requestLocation } = useUserLocation();
+  const setSeason = useSceneStore((s) => s.setSeason);
   const term = useSolarTermParam();
+
+  /*
+    하이라이트는 타이머로 껐다 켜지 않는다.
+    아래 HighlightSpan이 지역·고도를 key로 물고 있어, 위치가 잡혀 값이 바뀌면
+    span이 새로 마운트되며 CSS 애니메이션이 저절로 한 번 돈다.
+  */
+  const animateHighlight = locationState === 'granted';
 
   // 오늘의 볕. 위치가 늦게 오므로 위도가 바뀌면 다시 잡는다.
   const today = useMemo(() => {
@@ -343,7 +378,7 @@ export default function Beat3_Season({ progress }) {
   useEffect(
     () => () => {
       cancelAnimationFrame(tween.current);
-      useSeasonStore.getState().setSeason(null);
+      useSceneStore.getState().setSeason(null);
     },
     [],
   );
@@ -359,20 +394,35 @@ export default function Beat3_Season({ progress }) {
     setUserSeason(clamp01(value));
   };
 
+  const updateSeasonFromClientX = (clientX, trackElement) => {
+    if (!trackElement) return;
+    const rect = trackElement.getBoundingClientRect();
+    const padding = 44;
+    const usableWidth = Math.max(1, rect.width - padding * 2);
+    const relativeX = clientX - rect.left - padding;
+    setUserSeason(clamp01(relativeX / usableWidth));
+  };
+
   const start = (event) => {
-    event.currentTarget.setPointerCapture(event.pointerId);
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {}
     cancelAnimationFrame(tween.current);
-    drag.current = { x: event.clientX, season: seasonValue };
-    setUserSeason(seasonValue);
+    drag.current = { isDragging: true, track: event.currentTarget };
+    updateSeasonFromClientX(event.clientX, event.currentTarget);
   };
 
   const move = (event) => {
-    if (!drag.current) return;
-    const delta = (event.clientX - drag.current.x) / (window.innerWidth * DRAG_SPAN);
-    setUserSeason(clamp01(drag.current.season + delta));
+    if (!drag.current || !drag.current.isDragging) return;
+    updateSeasonFromClientX(event.clientX, drag.current.track);
   };
 
-  const end = () => {
+  const end = (event) => {
+    if (drag.current && drag.current.track) {
+      try {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      } catch {}
+    }
     drag.current = null;
   };
 
@@ -428,10 +478,33 @@ export default function Beat3_Season({ progress }) {
         <Eyebrow>SOLAR — 볕의 계산</Eyebrow>
 
         <TodayLine>
-          {`${today.date.getFullYear()}년 ${formatDate(today.date)} · ${cityName} · 태양 고도 ${Math.round(
-            today.altitude,
-          )}°`}
-          {isDefault && <FallbackNote> (위치 미허용 · 서울 기준)</FallbackNote>}
+          <HighlightSpan key={`${cityName}-${Math.round(today.altitude)}`} animate={animateHighlight}>
+            {`${today.date.getFullYear()}년 ${formatDate(today.date)} · ${cityName}${
+              locationState === 'granted' ? '' : ' 기준'
+            } · 태양 고도 ${Math.round(today.altitude)}°`}
+          </HighlightSpan>
+
+          {isSecure && locationState === 'idle' && (
+            <LocationButton type="button" onClick={requestLocation}>
+              {`${cityName}이라면 지금 이만큼 듭니다`}
+            </LocationButton>
+          )}
+
+          {isSecure && locationState === 'requesting' && (
+            <LocationButton type="button" disabled style={{ opacity: 0.7 }}>
+              확인 중...
+            </LocationButton>
+          )}
+
+          {locationState === 'denied' && (
+            <LocationButton
+              type="button"
+              disabled
+              style={{ color: '#B0B8C1', borderColor: 'rgba(176,184,193,0.3)' }}
+            >
+              위치 권한이 차단되어 있습니다
+            </LocationButton>
+          )}
         </TodayLine>
 
         {termView && (
