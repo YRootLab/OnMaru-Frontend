@@ -1,0 +1,101 @@
+{
+  "latitude": 37.58,
+  "stops": [
+    {
+      "id": "ipchun",
+      "name": "입춘",
+      "month": 2,
+      "day": 4,
+      "season": "spring",
+      "altitude": 36.1,
+      "shadowRatio": 1.37,
+      "headline": "그림자가 공간의 경계를 넘어 축소됩니다",
+      "sunlightReach": "낮아진 궤적의 빛이 마루를 넘어 방 문턱까지 진입합니다.",
+      "pairId": "ipdong"
+    },
+    {
+      "id": "chunbun",
+      "name": "춘분",
+      "month": 3,
+      "day": 20,
+      "season": "spring",
+      "altitude": 52.4,
+      "shadowRatio": 0.77,
+      "headline": "낮과 밤, 볕과 그늘의 길이가 균형을 이룹니다",
+      "sunlightReach": "기울어진 빛이 딱 마루 가장자리에 부드럽게 걸칩니다.",
+      "pairId": "chubun"
+    },
+    {
+      "id": "ipha",
+      "name": "입하",
+      "month": 5,
+      "day": 5,
+      "season": "summer",
+      "altitude": 68.8,
+      "shadowRatio": 0.39,
+      "headline": "높아진 태양이 마루 끝으로 볕을 차단합니다",
+      "sunlightReach": "처마가 우산처럼 빛을 가려 마루 전체가 그늘에 듭니다.",
+      "pairId": "ipchu"
+    },
+    {
+      "id": "haji",
+      "name": "하지",
+      "month": 6,
+      "day": 21,
+      "season": "summer",
+      "altitude": 75.8,
+      "shadowRatio": 0.25,
+      "headline": "태양이 남중고도 최고점에 도달합니다",
+      "sunlightReach": "처마 그늘이 마루 전체를 완벽히 덮어 실내를 서늘하게 유지합니다.",
+      "pairId": null
+    },
+    {
+      "id": "ipchu",
+      "name": "입추",
+      "month": 8,
+      "day": 7,
+      "season": "autumn",
+      "altitude": 68.8,
+      "shadowRatio": 0.39,
+      "headline": "처마 그늘이 서서히 옅어지며 가을을 차분히 맞이합니다",
+      "sunlightReach": "기울기 시작한 볕이 댓돌 위로 차분하게 내리쬡니다.",
+      "pairId": "ipha"
+    },
+    {
+      "id": "chubun",
+      "name": "추분",
+      "month": 9,
+      "day": 23,
+      "season": "autumn",
+      "altitude": 52.4,
+      "shadowRatio": 0.77,
+      "headline": "선선한 바람과 함께 볕의 깊이가 고르게 다가옵니다",
+      "sunlightReach": "대청마루 중앙까지 맑은 햇살이 다시 깊숙이 차오릅니다.",
+      "pairId": "chunbun"
+    },
+    {
+      "id": "ipdong",
+      "name": "입동",
+      "month": 11,
+      "day": 7,
+      "season": "winter",
+      "altitude": 36.1,
+      "shadowRatio": 1.37,
+      "headline": "겨울의 길목에서 따스한 온기가 마루 안으로 깊이 듭니다",
+      "sunlightReach": "낮게 누운 햇빛이 대청 깊숙한 방 문턱까지 온기를 전달합니다.",
+      "pairId": "ipchun"
+    },
+    {
+      "id": "dongji",
+      "name": "동지",
+      "month": 12,
+      "day": 21,
+      "season": "winter",
+      "altitude": 29.0,
+      "shadowRatio": 1.8,
+      "headline": "태양이 가장 낮게 지나는 연중 최고의 햇볕 선물입니다",
+      "sunlightReach": "깊게 들어온 햇볕이 황토벽과 방안 전체를 따뜻하게 데웁니다.",
+      "pairId": null
+    }
+  ]
+}
