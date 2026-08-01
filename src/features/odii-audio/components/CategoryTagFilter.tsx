@@ -6,10 +6,13 @@ import { OdiiCategory } from '../types/odii.types';
 
 const CATEGORIES: OdiiCategory[] = [
   '전체',
+  '궁궐/유적',
+  '한옥/고택',
+  '정원/자연',
+  '박물관/미술관',
+  '시전/전통시장',
+  '도보/골목길',
   '사람내음과 고운 정',
-  '자연의 소리',
-  '한옥의 미학',
-  '역사와 서사',
 ];
 
 export const CategoryTagFilter: React.FC = () => {
@@ -31,7 +34,7 @@ export const CategoryTagFilter: React.FC = () => {
               className={`px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 whitespace-nowrap ${
                 isSelected
                   ? 'bg-[#D42058] text-white shadow-md shadow-[#D42058]/20 scale-105'
-                  : 'bg-white text-[#786050] border border-[#EAE0D0] hover:border-[#F8A8C0] hover:text-[#2A1A0A]'
+                  : 'bg-white/5 text-[#A09588] border border-white/10 hover:border-[#F8A8C0] hover:text-white'
               }`}
             >
               {cat}
@@ -46,14 +49,14 @@ export const CategoryTagFilter: React.FC = () => {
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="이야기 검색"
-          className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#EAE0D0] rounded-full text-sm text-[#2A1A0A] placeholder-[#786050]/60 focus:outline-none focus:border-[#D42058] focus:ring-2 focus:ring-[#D42058]/20 transition-all shadow-sm"
+          placeholder="이야기, 장소, 해설사 검색"
+          className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/15 rounded-full text-sm text-white placeholder-white/40 focus:outline-none focus:border-[#D42058] focus:ring-2 focus:ring-[#D42058]/20 transition-all shadow-sm"
         />
-        <span className="absolute left-3.5 top-3 text-sm text-[#786050]">🔍</span>
+        <span className="absolute left-3.5 top-3 text-xs text-white/50">🔍</span>
         {searchQuery && (
           <button
             onClick={() => setSearchQuery('')}
-            className="absolute right-3.5 top-3 text-xs text-[#786050] hover:text-[#2A1A0A]"
+            className="absolute right-3.5 top-3 text-xs text-[#A09588] hover:text-white"
           >
             ✕
           </button>

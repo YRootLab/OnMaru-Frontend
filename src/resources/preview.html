@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>CSS translateZ Demo</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+
+    height:100vh;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    background:
+        radial-gradient(circle at top,#3f4d67,#12161f 70%);
+
+    font-family:
+        "Pretendard",
+        sans-serif;
+
+    overflow:hidden;
+}
+
+
+/*=========================
+  3D 공간 생성
+==========================*/
+
+.scene{
+
+    perspective:1000px;
+}
+
+
+/*=========================
+  카드 그룹
+==========================*/
+
+.stack{
+
+    position:relative;
+
+    width:320px;
+    height:430px;
+
+    transform-style:preserve-3d;
+
+}
+
+
+/*=========================
+  카드 공통
+==========================*/
+
+.card{
+
+    position:absolute;
+    inset:0;
+
+    border-radius:24px;
+
+    color:white;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    font-size:34px;
+    font-weight:700;
+    letter-spacing:2px;
+
+    transition:
+        transform .9s cubic-bezier(.2,.8,.2,1),
+        filter .9s,
+        box-shadow .9s;
+
+    /*
+        처음에는 멀리 뒤에 있음
+    */
+
+    transform:
+        translateZ(-500px);
+
+    filter:
+        blur(5px)
+        brightness(.75);
+
+    box-shadow:
+        0 10px 20px rgba(0,0,0,.15);
+
+}
+
+
+/*=========================
+  카드별 배경
+==========================*/
+
+.card:nth-child(1){
+
+    background:
+        linear-gradient(135deg,#6a11cb,#2575fc);
+
+    transform:
+        rotate(-10deg)
+        translateX(-45px)
+        translateZ(-500px);
+
+}
+
+.card:nth-child(2){
+
+    background:
+        linear-gradient(135deg,#ff9966,#ff5e62);
+
+    z-index:2;
+
+    transform:
+        translateZ(-500px);
+
+}
+
+.card:nth-child(3){
+
+    background:
+        linear-gradient(135deg,#00c9a7,#4facfe);
+
+    transform:
+        rotate(10deg)
+        translateX(45px)
+        translateZ(-500px);
+
+}
+
+
+/*=========================
+  Hover
+==========================*/
+
+.scene:hover .card{
+
+    filter:
+        blur(0px)
+        brightness(1);
+
+    box-shadow:
+
+        0 45px 80px rgba(0,0,0,.45),
+
+        0 15px 30px rgba(0,0,0,.25);
+
+}
+
+
+/*
+    카드마다 앞으로 오는 정도를 다르게
+*/
+
+.scene:hover .card:nth-child(1){
+
+    transform:
+
+        rotate(-10deg)
+        translateX(-45px)
+        translateZ(-30px);
+
+}
+
+.scene:hover .card:nth-child(2){
+
+    transform:
+        translateZ(0px);
+
+}
+
+.scene:hover .card:nth-child(3){
+
+    transform:
+
+        rotate(10deg)
+        translateX(45px)
+        translateZ(-60px);
+
+}
+
+
+/*=========================
+  살짝 떠있는 애니메이션
+==========================*/
+
+.card::after{
+
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+    border-radius:24px;
+
+    background:
+        linear-gradient(
+            rgba(255,255,255,.18),
+            transparent 35%
+        );
+
+    pointer-events:none;
+}
+
+.stack{
+
+    animation:
+        floating 4s ease-in-out infinite;
+}
+
+@keyframes floating{
+
+    0%{
+
+        transform:
+            rotateX(2deg)
+            rotateY(-3deg);
+
+    }
+
+    50%{
+
+        transform:
+            rotateX(-2deg)
+            rotateY(3deg);
+
+    }
+
+    100%{
+
+        transform:
+            rotateX(2deg)
+            rotateY(-3deg);
+
+    }
+
+}
+
+.title{
+
+    position:absolute;
+
+    top:60px;
+
+    width:100%;
+
+    text-align:center;
+
+    color:white;
+
+    font-size:28px;
+
+    font-weight:700;
+
+    letter-spacing:1px;
+
+}
+
+.subtitle{
+
+    position:absolute;
+
+    bottom:50px;
+
+    width:100%;
+
+    text-align:center;
+
+    color:#b8c2d6;
+
+    font-size:15px;
+
+}
+
+</style>
+
+</head>
+<body>
+
+<div class="title">
+CSS 3D translateZ()
+</div>
+
+<div class="scene">
+
+    <div class="stack">
+
+        <div class="card">
+            Card A
+        </div>
+
+        <div class="card">
+            Card B
+        </div>
+
+        <div class="card">
+            Card C
+        </div>
+
+    </div>
+
+</div>
+
+<div class="subtitle">
+마우스를 카드 위에 올려보세요.
+</div>
+
+</body>
+</html>

@@ -13,7 +13,6 @@ export const ScriptSyncViewer: React.FC = () => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const activeItemRef = useRef<HTMLParagraphElement | null>(null);
 
-  // 활성 줄 스크롤 중앙 자동 정렬
   useEffect(() => {
     if (activeItemRef.current && containerRef.current) {
       activeItemRef.current.scrollIntoView({
@@ -28,25 +27,27 @@ export const ScriptSyncViewer: React.FC = () => {
   };
 
   return (
-    <div className="bg-white rounded-3xl p-5 sm:p-7 border border-[#EAE0D0] shadow-sm flex flex-col justify-between h-full min-h-[420px]">
+    <div className="bg-[#1C1814] text-white rounded-3xl p-6 sm:p-8 border border-[#3A332C] shadow-2xl flex flex-col justify-between h-full min-h-[440px]">
       {/* 상단 헤더 */}
-      <div className="flex items-center justify-between border-b border-[#EAE0D0] pb-4 mb-4">
-        <div className="flex items-center space-x-2">
-          <span className="text-xs font-bold text-[#786050]">Narrative Script</span>
-          <span className="text-[#D8C8B0]">•</span>
-          <span className="text-sm font-bold text-[#2A1A0A]">스크립트</span>
+      <div className="flex items-center justify-between border-b border-[#3A332C] pb-4 mb-4">
+        <div className="flex items-center space-x-2.5">
+          <span className="text-xs font-bold text-[#F8A8C0] tracking-wider uppercase">
+            Narrative Script
+          </span>
+          <span className="text-white/30">•</span>
+          <span className="text-sm font-bold font-serif text-white">실시간 오디오 대본</span>
         </div>
         {isPlaying && (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#D42058] text-white animate-pulse">
-            ● LIVE
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-[#D42058] text-white animate-pulse shadow-md">
+            ● LIVE SCRIPT
           </span>
         )}
       </div>
 
-      {/* 대본 라인 스크롤 영역 */}
+      {/* 대본 라인 스크롤 영역 (tacky left border 제거, 고품격 활성 텍스트 발광) */}
       <div
         ref={containerRef}
-        className="flex-1 overflow-y-auto space-y-3 pr-2 scrollbar-thin scrollbar-thumb-[#F8A8C0] max-h-[340px] sm:max-h-[400px]"
+        className="flex-1 overflow-y-auto space-y-3 pr-2 scrollbar-thin scrollbar-thumb-white/20 max-h-[340px] sm:max-h-[400px]"
       >
         {parsedScriptLines.map((line, idx) => {
           const isActive = idx === activeScriptIndex;
@@ -56,27 +57,31 @@ export const ScriptSyncViewer: React.FC = () => {
               key={line.id}
               ref={isActive ? activeItemRef : null}
               onClick={() => handleLineClick(line.timeSec)}
-              className={`p-3 rounded-xl text-sm sm:text-base transition-all duration-300 cursor-pointer font-medium leading-relaxed ${
+              className={`p-3.5 rounded-2xl text-sm sm:text-base transition-all duration-300 cursor-pointer font-serif leading-relaxed ${
                 isActive
-                  ? 'bg-[#FFF0F4] text-[#D42058] font-bold border-l-4 border-[#D42058] shadow-sm scale-[1.01]'
-                  : 'text-[#786050] hover:bg-[#FAF6F0] hover:text-[#2A1A0A]'
+                  ? 'bg-white/10 text-white font-bold border border-[#D42058]/50 shadow-lg scale-[1.01]'
+                  : 'text-[#A09588] hover:bg-white/5 hover:text-white'
               }`}
             >
+              <span className="text-xs font-mono text-[#D42058] mr-2">
+                [{Math.floor(line.timeSec / 60)}:
+                {(line.timeSec % 60).toString().padStart(2, '0')}]
+              </span>
               {line.text}
             </p>
           );
         })}
       </div>
 
-      {/* 하단 줄 번호 & 팁 */}
-      <div className="flex items-center justify-between border-t border-[#EAE0D0] pt-4 mt-4 text-xs text-[#786050]">
-        <span className="font-semibold text-[#D42058]">
+      {/* 하단 정보 */}
+      <div className="flex items-center justify-between border-t border-[#3A332C] pt-4 mt-4 text-xs text-[#A09588]">
+        <span className="font-mono text-[#F8A8C0]">
           {parsedScriptLines.length > 0
             ? `${activeScriptIndex + 1} / ${parsedScriptLines.length} 줄`
             : '0 / 0 줄'}
         </span>
-        <span className="text-[#D42058] hover:underline cursor-pointer">
-          줄을 클릭하면 해당 구간으로 이동합니다
+        <span className="text-[#A09588] hover:text-white transition-colors cursor-pointer">
+          대본 라인을 터치하여 구간 이동
         </span>
       </div>
     </div>
