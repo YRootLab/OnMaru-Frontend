@@ -234,12 +234,16 @@ export default function GlobalBackground({ progress }) {
         </div>
       )}
 
-      {/* z1.5 — 온마루 표면 컬러와 계절 액센트(juhong, hwanggeum, kobalt) subtle 톤이 은은하게 섞이는 Soft Mesh/Radial Gradient */}
+      {/* z1.5 — 온마루 표면 컬러(surface.light.base)와 계절 액센트 subtle 톤(juhong[50], hwanggeum[50], kobalt[50], jangmi[50])이 은은하게 섞이는 Mesh/Radial Gradient */}
       <div
         style={{
           ...fill,
           zIndex: 1.5,
-          background: `radial-gradient(ellipse 75% 65% at 50% 28%, rgba(255, 240, 230, 0.45) 0%, rgba(255, 248, 224, 0.25) 40%, rgba(235, 240, 255, 0.15) 75%, transparent 95%), linear-gradient(180deg, rgba(250, 250, 250, 0.35) 0%, transparent 60%)`,
+          background: `
+            radial-gradient(ellipse 85% 70% at 50% 22%, ${lightPalette.juhong[50]}90 0%, ${lightPalette.hwanggeum[50]}66 35%, ${lightPalette.kobalt[50]}40 70%, transparent 95%),
+            radial-gradient(circle at 80% 18%, ${lightPalette.jangmi[50]}70 0%, transparent 45%),
+            linear-gradient(180deg, ${surface.light.base}66 0%, transparent 65%)
+          `,
         }}
       />
 
