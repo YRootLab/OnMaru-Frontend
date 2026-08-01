@@ -18,6 +18,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { STAGES } from '@/archive/hanok-viewer/data/hanok.data';
 import { MODEL_URL, BEAT_RANGES } from '@/scroll-core/constants';
 import { assemblyProgress, useSceneStore } from '@/scroll-core/sceneStore';
+import { meok } from '@/design-system/tokens';
 import { clamp01, easeOut as easeOutCubic, usePrefersReducedMotion } from './BeatFrame';
 
 const FONT = "'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif";
@@ -336,7 +337,7 @@ const Description = styled(motion.p)`
   font-weight: 400;
   line-height: 1.75;
   letter-spacing: -0.015em;
-  color: rgba(250, 250, 250, 0.72);
+  color: ${meok[100]};
 `;
 
 const Result = styled(motion.p)`

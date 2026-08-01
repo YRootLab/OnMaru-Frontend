@@ -15,6 +15,7 @@ import {
   solarTermDate,
 } from '@/utils/solar';
 
+import { meok } from '@/design-system/tokens';
 import { clamp01, easeOut, usePrefersReducedMotion } from './BeatFrame';
 
 export const RANGE = BEAT_RANGES.BEAT3;
@@ -139,7 +140,7 @@ const TodayLine = styled.p`
   font-size: clamp(12px, 1.15vw, 14px);
   font-weight: 400;
   letter-spacing: 0.02em;
-  color: #8b95a1;
+  color: ${meok[200]};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -190,7 +191,7 @@ const Headline = styled.h2`
   font-weight: 700;
   letter-spacing: -0.03em;
   word-break: keep-all;
-  color: #191f28;
+  color: ${meok[100]};
 `;
 
 const Description = styled.p`
@@ -198,7 +199,7 @@ const Description = styled.p`
   max-width: 600px;
   font-size: 14px;
   font-weight: 400;
-  color: #4e5968;
+  color: ${meok[200]};
   line-height: 1.5;
   word-break: keep-all;
 `;
