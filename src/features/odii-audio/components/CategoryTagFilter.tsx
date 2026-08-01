@@ -22,9 +22,9 @@ export const CategoryTagFilter: React.FC = () => {
   const setSearchQuery = useOdiiAudioStore((s) => s.setSearchQuery);
 
   return (
-    <div className="w-full py-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div className="w-full py-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-[#211e19]/15">
       {/* 태그 칩 모음 */}
-      <div className="flex items-center space-x-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
+      <div className="flex items-center space-x-2 overflow-x-auto pb-2 md:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {CATEGORIES.map((cat) => {
           const isSelected = selectedCategory === cat;
           return (
@@ -33,8 +33,8 @@ export const CategoryTagFilter: React.FC = () => {
               onClick={() => setSelectedCategory(cat)}
               className={`px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 whitespace-nowrap ${
                 isSelected
-                  ? 'bg-[#D42058] text-white shadow-md shadow-[#D42058]/20 scale-105'
-                  : 'bg-white/5 text-[#A09588] border border-white/10 hover:border-[#F8A8C0] hover:text-white'
+                  ? 'bg-[#211e19] text-[#f7f0e4]'
+                  : 'text-[#655b4d] border border-[#211e19]/20 hover:border-[#a94d35] hover:text-[#211e19]'
               }`}
             >
               {cat}
@@ -50,13 +50,13 @@ export const CategoryTagFilter: React.FC = () => {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="이야기, 장소, 해설사 검색"
-          className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/15 rounded-full text-sm text-white placeholder-white/40 focus:outline-none focus:border-[#D42058] focus:ring-2 focus:ring-[#D42058]/20 transition-all shadow-sm"
+          className="w-full pl-10 pr-4 py-2.5 bg-[#f7f0e4]/70 border border-[#211e19]/20 rounded-full text-sm text-[#211e19] placeholder-[#655b4d] focus:outline-none focus:border-[#a94d35] transition-all"
         />
-        <span className="absolute left-3.5 top-3 text-xs text-white/50">🔍</span>
+        <span className="absolute left-3.5 top-3 text-xs text-[#655b4d]">⌕</span>
         {searchQuery && (
           <button
             onClick={() => setSearchQuery('')}
-            className="absolute right-3.5 top-3 text-xs text-[#A09588] hover:text-white"
+            className="absolute right-3.5 top-3 text-xs text-[#655b4d] hover:text-[#211e19]"
           >
             ✕
           </button>
