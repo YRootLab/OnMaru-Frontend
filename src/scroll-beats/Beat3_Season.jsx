@@ -49,10 +49,17 @@ const SEASON_ACCENTS = {
 };
 
 /**
+ * 섹션 배경화면 (Section Background) 계절별 그라데이션 토큰 연동
+ */
+const SEASON_STAGE_BG = {
+  spring: `radial-gradient(ellipse 85% 70% at 50% 25%, ${lightPalette.jangmi[50]}FA 0%, ${lightPalette.juhong[50]}C8 45%, ${surface.light.base} 100%)`,
+  summer: `radial-gradient(ellipse 85% 70% at 50% 25%, ${lightPalette.hwanggeum[50]}FA 0%, ${lightPalette.juhong[50]}B8 45%, ${surface.light.base} 100%)`,
+  autumn: `radial-gradient(ellipse 85% 70% at 50% 25%, ${lightPalette.hwanggeum[100]}F0 0%, ${lightPalette.hwanggeum[50]}C8 45%, ${surface.light.base} 100%)`,
+  winter: `radial-gradient(ellipse 85% 70% at 50% 25%, ${lightPalette.kobalt[50]}FA 0%, ${lightPalette.cheongrok[50]}B8 45%, ${surface.light.base} 100%)`,
+};
+
+/**
  * 절기 여덟. 값은 서울 계동(37.58°N) 정오 기준이고 solarShadow.json이 갖는다.
- *
- * 고도순이 아니라 달력순이라, 입춘에서 동지까지 훑으면
- * 그림자가 짧아졌다가 다시 길어지는 왕복이 손끝에 그대로 잡힌다.
  */
 const STOPS = SHADOW.stops.map((stop) => ({
   ...stop,
@@ -61,7 +68,6 @@ const STOPS = SHADOW.stops.map((stop) => ({
 }));
 
 const LAST = STOPS.length - 1;
-
 const RETURN_MS = 600;
 
 /** 오늘에 가장 가까운 절기. 연중 며칠째인지로 고른다. */
@@ -87,9 +93,11 @@ const riseIn = keyframes`
 const Stage = styled.section`
   position: fixed;
   inset: 0;
-  z-index: 5;
+  z-index: 1;
   pointer-events: none !important;
   font-family: ${FONT};
+  background: ${(props) => props.bgGradient || surface.light.base};
+  transition: background 0.6s ease;
 `;
 
 /**
@@ -589,9 +597,10 @@ export default function Beat3_Season({ progress }) {
   const showReturn = touched && index !== baseIndex;
   const percent = (index / LAST) * 100;
   const seasonTheme = SEASON_ACCENTS[view.season] || SEASON_ACCENTS.summer;
+  const seasonStageBg = SEASON_STAGE_BG[view.season] || SEASON_STAGE_BG.spring;
 
   return (
-    <Stage aria-label="절기에 따른 처마 그림자">
+    <Stage aria-label="절기에 따른 처마 그림자" bgGradient={seasonStageBg}>
       <Copy>
         <TermTag accentColor={seasonTheme.primary} bgAccent={seasonTheme.bg}>
           {`${view.name} · ${view.month}월 ${view.day}일`}
