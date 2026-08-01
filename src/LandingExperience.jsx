@@ -19,6 +19,10 @@ import LandingSolarShadow from '@/components/landing/LandingSolarShadow';
 import LandingHanokAssembly, { AssemblyModel } from '@/components/landing/LandingHanokAssembly';
 import LandingPhilosophy from '@/components/landing/LandingPhilosophy';
 import LandingCallToAction from '@/components/landing/LandingCallToAction';
+import LandingLoader from '@/components/landing/LandingLoader';
+
+// 3D 한옥 메쉬 모델 백그라운드 사전 캐싱 (Preload)
+useGLTF.preload(MODEL_URL);
 
 /**
  * 전체 스크롤 길이. 9개 Beat이 나눠 쓴다.
@@ -706,6 +710,9 @@ export default function LandingExperience() {
   // 밝은 body 배경이 비치는 것을 막는다.
   return (
     <main style={{ position: 'relative', width: '100%', background: CANVAS_BASE_COLOR }}>
+      {/* 3D 자원 로딩 진행률 및 감성 텍스트 스크린 */}
+      <LandingLoader />
+
       {/* 모든 Beat보다 아래(z 0). 색·텍스처·비네트를 전담한다. */}
       <GlobalBackground progress={progress} />
 

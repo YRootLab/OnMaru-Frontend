@@ -18,6 +18,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 // (브리프 경로에서 /data/ 세그먼트가 빠져 있었다). hanok.data.ts는 수정하지 않는다.
 import { STAGES } from '@/temp/archive/hanok-viewer/data/hanok.data';
 import { MODEL_URL, BEAT_RANGES } from '@/scroll-core/constants';
+useGLTF.preload(MODEL_URL);
 import { assemblyProgress, useSceneStore } from '@/scroll-core/sceneStore';
 import { meok } from '@/design-system/tokens';
 import { clamp01, easeOut as easeOutCubic, usePrefersReducedMotion } from './LandingSectionFrame';
