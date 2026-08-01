@@ -464,9 +464,9 @@ function HanokScene({ stage }) {
       />
 
       {/*
-        Beat3(절기) 구간에서는 한옥 모델 및 바닥 그림자 3D 그룹 전체를 슬림해진 카드 위쪽 비주얼 공간에 안착시킨다.
+        Beat3(절기) 구간에서는 한옥 3D 모델 피사체 Y축을 양수(+) 방향으로 +14.0유닛 위로 껑충 높게 올려 안착시킨다.
       */}
-      <group position={[0, stage.seasonView ? 4.8 : 0, 0]}>
+      <group position={[0, stage.seasonView ? 14.0 : 0, 0]}>
         <group scale={model.normalizedScale}>
           {assembling ? <AssemblyModel /> : <HanokModel />}
         </group>
