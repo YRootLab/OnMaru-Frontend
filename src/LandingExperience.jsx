@@ -13,12 +13,12 @@ import { frameCamera, toRad } from '@/scroll-core/cameraUtils';
 import HanokModel from '@/components/HanokModel';
 import GlobalBackground from '@/scroll-core/GlobalBackground';
 import { sunNow, useSceneStore } from '@/scroll-core/sceneStore';
-import { progressIn } from '@/scroll-beats/BeatFrame';
-import Beat1_Intro from '@/scroll-beats/Beat1_Intro';
-import Beat3_Season from '@/scroll-beats/Beat3_Season';
-import Beat4_Assembly, { AssemblyModel } from '@/scroll-beats/Beat4_Assembly';
-import Beat5_Silence from '@/scroll-beats/Beat5_Silence';
-import Beat6_Invite from '@/scroll-beats/Beat6_Invite';
+import { progressIn } from '@/landing-beats/BeatFrame';
+import Beat1_Intro from '@/landing-beats/Beat1_Intro';
+import Beat3_Season from '@/landing-beats/Beat3_Season';
+import Beat4_Assembly, { AssemblyModel } from '@/landing-beats/Beat4_Assembly';
+import Beat5_Silence from '@/landing-beats/Beat5_Silence';
+import Beat6_Invite from '@/landing-beats/Beat6_Invite';
 
 /**
  * 전체 스크롤 길이. 9개 Beat이 나눠 쓴다.
@@ -640,7 +640,7 @@ function Fallback3DWireframe() {
  *
  *   z 0 — 배경색
  *   z 1 — 한옥
- *   z 2 — Beat 텍스트 (ScrollExperience가 그린다)
+ *   z 2 — Beat 텍스트 (LandingExperience가 그린다)
  *
  * 배경색은 캔버스가 아니라 아래 div가 갖는다.
  * Canvas는 alpha: true로 투명하게 두고 scene.background도 비운다.
@@ -695,10 +695,10 @@ function FixedStage({ progress }) {
 }
 
 // ─────────────────────────────────────────
-// ScrollExperience
+// LandingExperience (온마루 메인 랜딩 스토리텔링 오케스트레이션)
 // ─────────────────────────────────────────
 
-export default function ScrollExperience() {
+export default function LandingExperience() {
   useSmoothScroll();
   const progress = useScrollProgress();
 

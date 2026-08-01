@@ -74,7 +74,7 @@ const statusOf = (local, i) => {
 /**
  * 조립할 한옥 한 벌.
  *
- * ScrollExperience의 HanokScene이 Beat4 구간에서 완성된 한옥 대신 이것을 세운다.
+ * LandingExperience의 HanokScene이 Beat4 구간에서 완성된 한옥 대신 이것을 세운다.
  * 예전에는 이 파일이 자기 Canvas를 들고 있었지만 그 Canvas가 JSX에 놓인 적이 없어
  * 조립이 한 번도 돌지 않았다 — 그래서 텍스트만 넘어가고 한옥은 그대로였다.
  *

@@ -5,7 +5,7 @@ import { useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 
-import { usePrefersReducedMotion } from '@/scroll-beats/BeatFrame';
+import { usePrefersReducedMotion } from '@/landing-beats/BeatFrame';
 
 export const MODEL_URL = '/anchae.glb';
 

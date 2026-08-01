@@ -253,7 +253,7 @@ const SrOnly = styled.span`
 // ─────────────────────────────────────────
 // Beat5_Silence — 텍스트 전용 레이어
 //
-// 3D 한옥의 퇴장 연출은 ScrollExperience의 FixedStage Canvas가
+// 3D 한옥의 퇴장 연출은 LandingExperience의 FixedStage Canvas가
 // getStage에서 opacity를 줄여 전담한다.
 // 이 컴포넌트는 고요한 문장 시퀀스와 마우스 근접 발광만 담는다.
 // ─────────────────────────────────────────
