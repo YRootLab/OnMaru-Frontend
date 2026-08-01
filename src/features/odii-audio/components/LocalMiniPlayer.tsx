@@ -52,9 +52,17 @@ export const LocalMiniPlayer: React.FC = () => {
       <div className="flex items-center space-x-2 flex-shrink-0">
         <button
           onClick={() => setIsPlaying(!isPlaying)}
-          className="w-9 h-9 bg-[#D42058] text-white rounded-full flex items-center justify-center text-sm shadow-md hover:bg-[#E03870] transition-colors"
+          className="w-9 h-9 bg-[#D42058] text-white rounded-full flex items-center justify-center shadow-md hover:bg-[#E03870] transition-colors"
         >
-          {isPlaying ? '⏸' : '▶'}
+          {isPlaying ? (
+            <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24">
+              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+            </svg>
+          ) : (
+            <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+          )}
         </button>
 
         <button
