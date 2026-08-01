@@ -3,6 +3,7 @@
 import { Fragment, useEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
 import { css, keyframes } from '@emotion/react';
+import { motion } from 'framer-motion';
 
 import { BEAT_RANGES } from '@/scroll-core/constants';
 import { meok } from '@/design-system/tokens';
@@ -213,29 +214,19 @@ const Cursor = styled.span`
   }
 `;
 
-const draw = keyframes`
-  0%   { transform: scaleY(0); transform-origin: 50% 0%; }
-  50%  { transform: scaleY(1); transform-origin: 50% 0%; }
-  51%  { transform: scaleY(1); transform-origin: 50% 100%; }
-  100% { transform: scaleY(0); transform-origin: 50% 100%; }
-`;
-
-const ScrollLine = styled.span`
-  position: absolute;
-  z-index: 2;
-  bottom: 8vh;
-  left: 50%;
-  width: 1px;
-  height: 40px;
-  margin-left: -0.5px;
-  background: ${LINE_COLOR};
-  animation: ${draw} 2s ease-in-out infinite;
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-    transform: scaleY(1);
-  }
-`;
+const doubleArrowVariants = {
+  initial: { y: -6, opacity: 0.15 },
+  animate: (i) => ({
+    y: [-6, 6, 14],
+    opacity: [0.15, 0.95, 0],
+    transition: {
+      duration: 1.5,
+      repeat: Infinity,
+      ease: 'easeInOut',
+      delay: i * 0.3,
+    },
+  }),
+};
 
 export default function Beat1_Intro({ progress }) {
   const reduced = usePrefersReducedMotion();
@@ -302,7 +293,59 @@ export default function Beat1_Intro({ progress }) {
         ))}
       </Copy>
 
-      <ScrollLine aria-hidden="true" style={{ opacity: exit }} />
+      {/* Framer Motion 이중 하향 화살표 (\/ \/) 스크롤 인디케이터 */}
+      <motion.div
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          bottom: 'clamp(24px, 5vh, 48px)',
+          left: '50%',
+          x: '-50%',
+          zIndex: 3,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '2px',
+          opacity: exit,
+          pointerEvents: 'none',
+        }}
+      >
+        <span
+          style={{
+            fontSize: '11px',
+            fontWeight: 600,
+            letterSpacing: '0.22em',
+            color: 'rgba(250, 250, 250, 0.75)',
+            fontFamily: 'SpoqaHanSansNeo, sans-serif',
+            marginBottom: '4px',
+          }}
+        >
+          SCROLL
+        </span>
+
+        {[0, 1].map((index) => (
+          <motion.svg
+            key={index}
+            width="20"
+            height="11"
+            viewBox="0 0 24 14"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            custom={index}
+            variants={doubleArrowVariants}
+            initial="initial"
+            animate="animate"
+          >
+            <path
+              d="M2 2L12 12L22 2"
+              stroke="rgba(250, 250, 250, 0.85)"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </motion.svg>
+        ))}
+      </motion.div>
     </Stage>
   );
 }
