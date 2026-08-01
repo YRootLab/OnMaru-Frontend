@@ -14,7 +14,6 @@ import HanokModel from '@/components/HanokModel';
 import GlobalBackground from '@/scroll-core/GlobalBackground';
 import { progressIn } from '@/scroll-beats/BeatFrame';
 import Beat1_Intro from '@/scroll-beats/Beat1_Intro';
-import Beat2_Reveal from '@/scroll-beats/Beat2_Reveal';
 import Beat3_Season from '@/scroll-beats/Beat3_Season';
 import Beat4_Assembly from '@/scroll-beats/Beat4_Assembly';
 import Beat5_Silence from '@/scroll-beats/Beat5_Silence';
@@ -299,7 +298,7 @@ function HanokScene({ stage }) {
  * 단일 Canvas 아키텍처로 통합하면서 FixedStage가 대신한다.
  */
 function getStage(progress) {
-  const isWireframe = progress >= 0.08 && progress < 0.2;
+  const isWireframe = false;
 
   // Beat5 한옥 퇴장 — 구간 진입 후 0~18% (로컬) 동안 한옥이 옅어진다
   const BEAT5_START = 0.7;
@@ -445,7 +444,6 @@ export default function ScrollExperience() {
       {/* 배경(z 0)·한옥(z 1) 위. 텍스트가 무엇에도 가리지 않는다. */}
       <div style={{ position: 'relative', zIndex: 2 }}>
         <Beat1_Intro progress={progress} />
-        <Beat2_Reveal progress={progress} />
         <Beat3_Season progress={progress} />
         <Beat4_Assembly progress={progress} />
         <Beat5_Silence progress={progress} />
