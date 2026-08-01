@@ -16,7 +16,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 // 읽기 전용 아카이브의 단계 정의. 실제 경로는 .../data/hanok.data
 // (브리프 경로에서 /data/ 세그먼트가 빠져 있었다). hanok.data.ts는 수정하지 않는다.
-import { STAGES } from '@/archive/hanok-viewer/data/hanok.data';
+import { STAGES } from '@/temp/archive/hanok-viewer/data/hanok.data';
 import { MODEL_URL, BEAT_RANGES } from '@/scroll-core/constants';
 import { assemblyProgress, useSceneStore } from '@/scroll-core/sceneStore';
 import { meok } from '@/design-system/tokens';
