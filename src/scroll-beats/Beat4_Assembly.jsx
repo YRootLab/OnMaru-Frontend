@@ -348,13 +348,10 @@ const Description = styled(motion.p)`
   color: ${meok[100]};
 `;
 
-const textGlowShift = keyframes`
-  0%, 100% {
-    text-shadow: 0 0 16px rgba(245, 166, 35, 0.25), 0 0 32px rgba(232, 90, 24, 0.15);
-  }
-  50% {
-    text-shadow: 0 0 28px rgba(245, 166, 35, 0.65), 0 0 48px rgba(232, 90, 24, 0.45);
-  }
+const goldShimmer = keyframes`
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 `;
 
 const ResultWrapper = styled(motion.div)`
@@ -367,38 +364,21 @@ const ResultWrapper = styled(motion.div)`
   cursor: pointer;
 `;
 
-const ResultGlowBackdrop = styled(motion.div)`
-  position: absolute;
-  top: -30px;
-  left: -40px;
-  width: min(92vw, 460px);
-  height: 220px;
-  border-radius: 50%;
-  background: radial-gradient(
-    ellipse at 35% 50%,
-    rgba(245, 166, 35, 0.35) 0%,
-    rgba(232, 90, 24, 0.22) 40%,
-    transparent 75%
-  );
-  pointer-events: none;
-  z-index: -1;
-  filter: blur(20px);
-`;
-
 const Result = styled(motion.p)`
   margin: 0;
   font-size: clamp(26px, 3.0vw, 42px);
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: -0.025em;
   line-height: 1.35;
-  color: #ffffff;
+  background: linear-gradient(135deg, #ffffff 0%, #f7e3be 45%, #d4af37 85%, #f5a623 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   word-break: keep-all;
-  animation: ${textGlowShift} 3s ease-in-out infinite;
-  transition: color 0.3s ease-out;
+  animation: ${goldShimmer} 6s ease-in-out infinite;
 
   &:hover {
-    color: #ffffff;
-    text-shadow: 0 0 32px rgba(245, 166, 35, 0.9), 0 0 60px rgba(232, 90, 24, 0.7);
+    animation-duration: 2.5s;
   }
 `;
 
@@ -462,21 +442,10 @@ export default function Beat4_Assembly({ progress }) {
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -14 }}
-                whileHover={{ scale: 1.025 }}
+                whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ duration: 0.4, ease: EASE }}
               >
-                <ResultGlowBackdrop
-                  animate={{
-                    scale: [1, 1.12, 1],
-                    opacity: [0.65, 0.95, 0.65],
-                  }}
-                  transition={{
-                    duration: 3.2,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                  }}
-                />
                 <Result>
                   쇠못 하나 없이 맞물려,
                   <br />
