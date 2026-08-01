@@ -413,7 +413,7 @@ export default function Beat4_Assembly({ progress }) {
                 exit={{ opacity: 0, y: -12 }}
                 transition={{ duration: 0.4, ease: EASE }}
               >
-                천 년의 지혜가 기둥과 지붕으로 일어서다.
+                쇠못 하나 없이 맞물려, 천 년의 숨을 쉬는 보금자리.
               </Result>
             ) : (
               <Layer
