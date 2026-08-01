@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { ContactShadows, OrbitControls, PerspectiveCamera, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
@@ -8,12 +8,12 @@ import Lenis from 'lenis';
 
 import { surface } from '@/design-system/tokens';
 import { MODEL_URL, SCROLL_HEIGHT } from '@/scroll-core/constants';
-import { frameCamera } from '@/scroll-core/cameraUtils';
+import { frameCamera, toRad } from '@/scroll-core/cameraUtils';
 
 import HanokModel from '@/components/HanokModel';
 import GlobalBackground from '@/scroll-core/GlobalBackground';
 import { useSceneStore } from '@/scroll-core/sceneStore';
-import { lerpHex, progressIn } from '@/scroll-beats/BeatFrame';
+import { progressIn } from '@/scroll-beats/BeatFrame';
 import Beat1_Intro from '@/scroll-beats/Beat1_Intro';
 import Beat3_Season from '@/scroll-beats/Beat3_Season';
 import Beat4_Assembly, { AssemblyModel } from '@/scroll-beats/Beat4_Assembly';
@@ -136,16 +136,21 @@ const SHOTS = [
  * Beat3 전용 구도.
  *
  * 그림자 길이 변화가 이 구간의 전부라, 물러나 내려다보면서 그림자가 뻗을 바닥을 비워둔다.
- * 한옥이 세로 40% 남짓만 차지하고 시선(target)을 왼쪽 지면에 두어 그림자 쪽에 여백이 생긴다.
+ * 시선(target)을 왼쪽 지면에 두어 그림자가 뻗는 쪽에 여백이 생긴다.
  *
- * 다른 구간과 달리 모델 치수에서 역산하지 않고 좌표를 직접 준다 —
- * frameCamera는 건물 중간을 겨누는 전제라 지면을 내려다보는 이 구도를 표현하지 못한다.
- * (모델은 높이 10으로 정규화되어 있어 이 좌표가 크기와 무관하게 맞는다.)
+ * 방향과 화각만 고정하고 거리는 모델에서 푼다.
+ * 처음에는 좌표를 그대로 박아뒀는데, 높이만 보고 계산한 값이라 화면에서 오른쪽 날개가
+ * 잘려나갔다 — 이 한옥은 ㄱ자로 넓어서 세로가 아니라 가로가 거리를 정한다.
+ *
+ * fit은 모델을 감싸는 구가 화면에서 차지하는 비율이다. 1이면 딱 맞고, 낮출수록 물러선다.
+ * frameCamera를 쓰지 않는 이유는 그쪽이 건물 중간을 겨누는 전제라
+ * 지면을 내려다보는 이 구도를 표현하지 못하기 때문이다.
  */
 const SEASON_VIEWS = [
-  { minWidth: 1280, position: [10, 16, 30], target: [-2, 0, 0], fov: 38 },
-  { minWidth: 768, position: [10, 17, 36], target: [-2, 0, 0], fov: 42 },
-  { minWidth: 0, position: [8, 18, 46], target: [-1, 0, 0], fov: 48 },
+  // target을 지붕(높이 10)보다 위에 두면 한옥이 화면 아래쪽으로 내려앉아 위가 글자 자리로 빈다.
+  { minWidth: 1280, dir: [12, 16, 30], target: [-2, 8.5, 0], fov: 38, fit: 0.88 },
+  { minWidth: 768, dir: [12, 17, 36], target: [-2, 8, 0], fov: 42, fit: 0.9 },
+  { minWidth: 0, dir: [9, 18, 46], target: [-1, 6, 0], fov: 48, fit: 0.92 },
 ];
 
 const lerp = (from, to, t) => from + (to - from) * t;
@@ -177,15 +182,33 @@ function resolveShots(model, size) {
 
   return SHOTS.map((shot) => {
     if (shot.season) {
-      const distance = Math.hypot(
-        view.position[0] - view.target[0],
-        view.position[1] - view.target[1],
-        view.position[2] - view.target[2],
+      /*
+        타깃을 중심으로 모델 전체를 삼키는 구의 반지름.
+
+        모델은 밑면이 원점에 붙어 있으므로 중심은 (0, height/2, 0)이다.
+        타깃을 모델 중심보다 위에 두면 한옥이 화면 아래쪽으로 내려앉아 위가 글자 자리로 비고,
+        그만큼 벌어진 거리를 반지름에 더해 두면 날개가 프레임 밖으로 나가지 않는다.
+      */
+      const center = [0, model.height / 2, 0];
+      const gap = Math.hypot(...center.map((v, i) => v - view.target[i]));
+
+      const spread = Math.hypot(model.radius, model.height / 2) + gap;
+
+      const halfTan = Math.tan(toRad(view.fov) / 2);
+      const aspect = Math.max(size.width / size.height, 0.1);
+
+      // 세로·가로 중 더 물러나야 하는 쪽이 거리를 정한다 (가로 화면에서는 보통 세로).
+      const distance = Math.max(
+        spread / Math.sin(Math.atan(halfTan) * view.fit),
+        spread / Math.sin(Math.atan(halfTan * aspect) * view.fit),
       );
+
+      const length = Math.hypot(...view.dir);
+      const position = view.dir.map((v, i) => view.target[i] + (v / length) * distance);
 
       return {
         p: shot.p,
-        position: view.position,
+        position,
         target: view.target,
         fov: view.fov,
         near: Math.max(0.01, distance / 200),
@@ -300,15 +323,53 @@ const KEY_POSITION = [-15, 25, 20];
 const KEY_COLOR = '#FFF4DC';
 
 /**
- * Beat3의 계절 볕. 여름은 높고 희게, 겨울은 낮게 기울며 따뜻해진다.
+ * Beat3의 절기 볕.
  *
- * 오른쪽 위에 두어 그림자가 화면 왼쪽으로 뻗는다 — Beat3 카메라의 시선(target)이
- * 왼쪽에 있어 그쪽이 비어 있다. y를 26 → 9로 크게 벌린 것이 이 연출의 전부다.
- * 그림자가 마루 어디까지 들어오는지는 여기 y·z 두 쌍이 정한다 — 눈으로 보고 조율할 자리다.
+ * 방위는 고정하고 고도만 절기를 따라 움직인다. 광원이 지면과 이루는 각이 그대로
+ * 남중고도이므로 바닥에 지는 그림자 길이가 정확히 (높이 / tan(고도))로 떨어진다 —
+ * 하지 75.8°면 0.25배, 동지 29.0°면 1.80배. 화면의 그림자가 곧 데이터다.
+ *
+ * 방위를 오른쪽 앞(+x, +z)에 둬서 그림자는 왼쪽 뒤로 뻗는다.
  */
-const SUN_SUMMER = [16, 26, 8];
-const SUN_WINTER = [22, 9, 18];
-const SUN_COLOR = ['#FFF9E8', '#FFD9A8'];
+const SUN_AZIMUTH = [0.894, 0.447]; // (x, z) 단위벡터
+const SUN_DISTANCE = 40;
+
+/* 매 프레임 문자열을 파싱하지 않도록 색은 미리 만들어 둔다. */
+const REST_TINT = new THREE.Color(KEY_COLOR);
+const SUMMER_TINT = new THREE.Color('#FFF9E8');
+const WINTER_TINT = new THREE.Color('#FFD9A8');
+
+function sunPositionAt(altitude) {
+  const radians = toRad(altitude);
+  const ground = Math.cos(radians) * SUN_DISTANCE;
+
+  return [SUN_AZIMUTH[0] * ground, Math.sin(radians) * SUN_DISTANCE, SUN_AZIMUTH[1] * ground];
+}
+
+/**
+ * 주광을 매 프레임 sunNow에 맞춘다.
+ *
+ * 값이 프레임마다 바뀌므로 prop으로 내려보내면 그때마다 React가 다시 그린다.
+ * 광원 하나를 직접 겨누는 편이 훨씬 싸고, R3F에서는 이쪽이 정상 패턴이다.
+ */
+function SunDriver({ lightRef }) {
+  useFrame(() => {
+    const light = lightRef.current;
+    if (!light) return;
+
+    // Beat3 밖 — 평소 자리로 돌려놓는다.
+    if (sunNow.altitude === null) {
+      light.position.set(...KEY_POSITION);
+      light.color.copy(REST_TINT);
+      return;
+    }
+
+    light.position.set(...sunPositionAt(sunNow.altitude));
+    light.color.copy(SUMMER_TINT).lerp(WINTER_TINT, sunNow.value);
+  });
+
+  return null;
+}
 
 /**
  * 한옥 장면 한 벌. 구도를 잡으려면 모델 치수가 필요해서
@@ -318,18 +379,10 @@ function HanokScene({ stage }) {
   const { scene } = useGLTF(MODEL_URL);
   const size = useThree((s) => s.size);
 
-  // Beat3의 슬라이더가 여기로 들어온다. null이면 평소 주광.
-  const season = useSceneStore((s) => s.season);
   const assembling = useSceneStore((s) => s.assembling);
 
-  const sun = useMemo(() => {
-    if (season === null) return { position: KEY_POSITION, color: KEY_COLOR };
-
-    return {
-      position: SUN_SUMMER.map((from, i) => from + (SUN_WINTER[i] - from) * season),
-      color: lerpHex(SUN_COLOR[0], SUN_COLOR[1], season),
-    };
-  }, [season]);
+  // 주광은 SunDriver가 매 프레임 직접 겨눈다. 여기서는 자리만 잡아준다.
+  const keyLight = useRef(null);
 
   const model = useMemo(() => {
     const box = new THREE.Box3().setFromObject(scene);
@@ -376,10 +429,13 @@ function HanokScene({ stage }) {
 
       <ambientLight intensity={stage.ambientIntensity} color="#FFFDF7" />
 
+      <SunDriver lightRef={keyLight} />
+
       <directionalLight
-        position={sun.position}
+        ref={keyLight}
+        position={KEY_POSITION}
         intensity={stage.keyIntensity}
-        color={sun.color}
+        color={KEY_COLOR}
         castShadow
         shadow-mapSize-width={SHADOW_MAP}
         shadow-mapSize-height={SHADOW_MAP}
@@ -497,7 +553,7 @@ function useOrbitFlag() {
 }
 
 function CameraHud() {
-  const season = useSceneStore((s) => s.season);
+  const solar = useSceneStore((s) => s.sun);
   const [, tick] = useState(0);
 
   // 200ms마다 한 번만 읽는다. 매 프레임 다시 그리면 HUD가 곧 부하가 된다.
@@ -527,7 +583,7 @@ function CameraHud() {
       {`position ${round(cameraReadout.position)}
 target   ${round(cameraReadout.target)}
 fov      ${cameraReadout.fov.toFixed(1)}
-season   ${season === null ? '—' : season.toFixed(3)}
+고도     ${solar ? `${solar.altitude.toFixed(1)}° · 그림자 ${(1 / Math.tan(toRad(solar.altitude))).toFixed(2)}배` : '—'}
 sun      ${round(cameraReadout.sun)}`}
     </pre>
   );
