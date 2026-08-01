@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 
 import { lightPalette, surface } from '@/design-system/tokens';
+import { useSceneStore } from '@/scroll-core/sceneStore';
 import { clamp01, lerpHex, usePrefersReducedMotion } from '@/scroll-beats/BeatFrame';
 
 // ─────────────────────────────────────────
@@ -151,15 +152,37 @@ function Particles({ opacity, reduced }) {
 //   z0 색상 그라데이션 · z1 구간별 텍스처 · z2 공통 비네트
 // ─────────────────────────────────────────
 
+// 계절별 온마루 토큰 배경 그라데이션 매핑
+// - 봄 (Spring): surface.light.base ↔ jangmi[50] / juhong[50]
+// - 여름 (Summer): surface.light.base ↔ hwanggeum[50]
+// - 가을 (Autumn): surface.light.base ↔ hwanggeum[100]
+// - 겨울 (Winter): surface.light.base ↔ kobalt[50]
+const SEASON_BG_COLORS = {
+  spring: { top: '#FAFAFA', mid: '#FFF0F4', bot: '#FFF0E6' },
+  summer: { top: '#FAFAFA', mid: '#FFF8E0', bot: '#FFF3D0' },
+  autumn: { top: '#FAFAFA', mid: '#FFE898', bot: '#FFDF80' },
+  winter: { top: '#FAFAFA', mid: '#EEF3FF', bot: '#DCE8FF' },
+};
+
 export default function GlobalBackground({ progress }) {
   const reduced = usePrefersReducedMotion();
+  const sunState = useSceneStore((s) => s.sun);
+  const currentSeason = sunState?.season ?? 'spring';
 
   const p = clamp01(progress);
   const colors = bgColors(p);
-  const gradient = `linear-gradient(180deg, ${colors.top} 0%, ${colors.mid} 55%, ${colors.bot} 100%)`;
+
+  const isSeasonStage = p >= 0.13 && p <= 0.38;
+  const seasonColors = SEASON_BG_COLORS[currentSeason] || SEASON_BG_COLORS.spring;
+
+  const bgTop = isSeasonStage ? seasonColors.top : colors.top;
+  const bgMid = isSeasonStage ? seasonColors.mid : colors.mid;
+  const bgBot = isSeasonStage ? seasonColors.bot : colors.bot;
+
+  const gradient = `linear-gradient(180deg, ${bgTop} 0%, ${bgMid} 55%, ${bgBot} 100%)`;
 
   // 비네트 세기 — 배경이 밝을수록 약하게(0.12), 어두울수록 강하게(0.30)
-  const vignette = lerp(0.3, 0.12, clamp01(hexLum(colors.mid) / 200));
+  const vignette = lerp(0.3, 0.12, clamp01(hexLum(bgMid) / 200));
 
   const dots = bandOpacity(p, TEXTURES.dots);
   const hanji = bandOpacity(p, TEXTURES.hanji);
@@ -169,8 +192,15 @@ export default function GlobalBackground({ progress }) {
 
   return (
     <div aria-hidden="true" style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
-      {/* z0 — 색상 그라데이션 */}
-      <div style={{ ...fill, zIndex: 0, background: gradient }} />
+      {/* z0 — 색상 그라데이션 (0.6초 이행 효과 탑재) */}
+      <div 
+        style={{ 
+          ...fill, 
+          zIndex: 0, 
+          background: gradient, 
+          transition: 'background 0.6s ease, background-color 0.6s ease' 
+        }} 
+      />
 
       {/* z1 — 구간별 텍스처 (현재 구간 ±crossfade만 DOM에 존재) */}
       {dots > 0 && (
