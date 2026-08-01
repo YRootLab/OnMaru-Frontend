@@ -122,6 +122,7 @@ const BackgroundVideo = styled.video`
   transform: translateZ(0);
   will-change: opacity;
   backface-visibility: hidden;
+  transition: opacity 0.2s ease-out;
 `;
 
 const Scrim = styled.div`
@@ -143,6 +144,7 @@ const Scrim = styled.div`
       rgba(10, 9, 8, 0.35) 65%,
       rgba(10, 9, 8, 0.7) 100%
     );
+  transition: opacity 0.2s ease-out;
 `;
 
 const fadeInAnimation = keyframes`
@@ -159,6 +161,7 @@ const Copy = styled.div`
   letter-spacing: -0.03em;
   line-height: 1.55;
   will-change: opacity, transform;
+  transition: opacity 0.2s ease-out;
 
   ${(props) =>
     props.isReduced &&
@@ -201,6 +204,8 @@ const Cursor = styled.span`
   animation: ${blink} 0.8s step-end infinite;
   user-select: none;
   pointer-events: none;
+  opacity: ${(props) => (props.isDone ? 0 : 1)};
+  transition: opacity 0.6s ease-out;
 
   @media (prefers-reduced-motion: reduce) {
     animation: none;
@@ -236,7 +241,6 @@ export default function Beat1_Intro({ progress }) {
   const reduced = usePrefersReducedMotion();
   const typedCount = useTypewriter(TOTAL_CHARS, { skip: reduced });
   const videoRef = useRef(null);
-  const [cursorDone, setCursorDone] = useState(false);
 
   useEffect(() => {
     if (videoRef.current) {
@@ -244,18 +248,12 @@ export default function Beat1_Intro({ progress }) {
     }
   }, []);
 
-  useEffect(() => {
-    if (typedCount >= TOTAL_CHARS) {
-      const timer = setTimeout(() => setCursorDone(true), 1200);
-      return () => clearTimeout(timer);
-    }
-  }, [typedCount]);
-
   if (progress < RANGE_START || progress >= RANGE_END) return null;
 
   const local = (progress - RANGE_START) / (RANGE_END - RANGE_START);
   const { exit, shift, video } = getExitState(local, reduced);
-  const hasCursor = !reduced && local < EXIT_START && !cursorDone;
+  const isDone = typedCount >= TOTAL_CHARS;
+  const hasCursor = !reduced && local < EXIT_START;
 
   return (
     <Stage>
@@ -267,16 +265,16 @@ export default function Beat1_Intro({ progress }) {
         loop
         playsInline
         preload="auto"
-        style={{ opacity: video, transition: 'opacity 0.2s ease-out' }}
+        style={{ opacity: video }}
       >
         <source src={VIDEO_SRC} type="video/mp4" />
       </BackgroundVideo>
 
-      <Scrim aria-hidden="true" style={{ opacity: video, transition: 'opacity 0.2s ease-out' }} />
+      <Scrim aria-hidden="true" style={{ opacity: video }} />
 
       <Copy
         isReduced={reduced}
-        style={{ opacity: exit, transform: `translateY(${shift}px)`, transition: 'opacity 0.2s ease-out' }}
+        style={{ opacity: exit, transform: `translateY(${shift}px)` }}
         role="paragraph"
         aria-label={LINES.join(' ')}
       >
@@ -291,15 +289,15 @@ export default function Beat1_Intro({ progress }) {
 
               return (
                 <Fragment key={`${char}-${charIndex}`}>
-                  {hasCursor && order === typedCount && <Cursor aria-hidden="true">|</Cursor>}
+                  {hasCursor && order === typedCount && <Cursor isDone={isDone} aria-hidden="true">|</Cursor>}
                   <Char style={{ opacity: order < typedCount ? 1 : 0 }}>{char}</Char>
                 </Fragment>
               );
             })}
 
             {hasCursor
-              && typedCount >= TOTAL_CHARS
-              && lineIndex === LINE_CHARS.length - 1 && <Cursor aria-hidden="true">|</Cursor>}
+              && isDone
+              && lineIndex === LINE_CHARS.length - 1 && <Cursor isDone={isDone} aria-hidden="true">|</Cursor>}
           </Line>
         ))}
       </Copy>
