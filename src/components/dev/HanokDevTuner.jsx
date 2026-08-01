@@ -22,9 +22,9 @@ export default function HanokDevTuner() {
   const handleReset = () => {
     setDevTuner({
       posX: 0,
-      posY: 14.0,
+      posY: 16.2,
       posZ: 0,
-      scale: 1.0,
+      scale: 1.15,
       targetY: 6.0,
     });
   };
