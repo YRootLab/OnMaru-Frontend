@@ -1,211 +1,88 @@
 'use client';
 
-import { Suspense, useMemo, useRef, useState } from 'react';
-import { Canvas, useThree } from '@react-three/fiber';
-import { PerspectiveCamera, useGLTF } from '@react-three/drei';
-import * as THREE from 'three';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 
-import { lightPalette, meok } from '@/design-system/tokens';
-import { MODEL_URL, BEAT_RANGES } from '@/scroll-core/constants';
-import { clamp01, lerpHex } from './BeatFrame';
+import { BEAT_RANGES } from '@/scroll-core/constants';
+import { useSeasonStore } from '@/scroll-core/seasonStore';
+import useUserLocation from '@/hooks/useUserLocation';
+import SOLAR_TERMS from '@/data/solarTerms.json';
+import {
+  altitudeToSeasonValue,
+  getNoonSolarAltitude,
+  seasonValueToAltitude,
+  solarTermDate,
+} from '@/utils/solar';
+
+import { clamp01, easeOut, usePrefersReducedMotion } from './BeatFrame';
+
+export const RANGE = BEAT_RANGES.BEAT3;
+
+const [START, END] = RANGE;
 
 const FONT = "'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif";
 
-const lerp = (from, to, t) => from + (to - from) * t;
+/**
+ * 위치 권한은 이 지점을 지날 때 한 번만 묻는다.
+ * 첫 화면에서 팝업이 뜨면 무슨 사이트인지 알기도 전에 나간다.
+ */
+const ASK_LOCATION_AT = 0.1;
 
-// ─────────────────────────────────────────
-// 계절 — 0 하지(여름·태양 높음) ~ 1 동지(겨울·태양 낮음)
-// ─────────────────────────────────────────
-
+/** 한 화면 폭의 절반을 끌면 하지에서 동지까지 간다. */
 const DRAG_SPAN = 0.5;
 
-// 태양 고도. y가 낮아지고 z가 멀어지면서 그림자가 마루 안쪽으로 길어진다.
-const SUN_SUMMER = [10, 18, 6];
-const SUN_WINTER = [10, 6, 16];
+/** 이만큼 벌어져야 "오늘로 돌아가기"가 뜬다. */
+const AWAY_FROM_TODAY = 0.04;
 
-const SUN_COLOR = ['#FFF9E8', '#FFD9A8']; // 희고 강한 볕 → 낮고 따뜻한 볕
-const SUN_INTENSITY = [1.8, 1.2];
+const RETURN_MS = 600;
 
-/** 하늘이 돌려주는 반사광. 여름 → 겨울. HDRI가 맡던 자리다. */
-const AMBIENT_INTENSITY = [1.5, 1.0];
-const SKY_LIGHT = ['#EAF0F5', '#DCE2E8']; // 맑고 높은 하늘 → 낮고 흐린 하늘
+// ─────────────────────────────────────────
+// 카피 — seasonValue 0 하지 ~ 1 동지
+// ─────────────────────────────────────────
+
+const SUMMER_EDGE = 0.22;
+const WINTER_EDGE = 0.78;
 
 const headlineFor = (season) => {
-  if (season <= 0.25) return '하지(여름). 볕이 마루를 비끼어 갑니다.';
-  if (season >= 0.75) return '동지(겨울). 방 안 깊숙이 따스한 볕이 듭니다.';
+  if (season <= SUMMER_EDGE) return '하지. 볕이 마루에 닿지 않습니다.';
+  if (season >= WINTER_EDGE) return '동지. 방 안 깊숙이 볕이 듭니다.';
   return '처마는, 계절별 태양의 고도를 계산했습니다.';
 };
 
-const detailFor = (season) => {
-  if (season <= 0.25) {
-    return {
-      angle: '여름 태양 고도 76° (높음)',
-      desc: '높게 뜬 여름 볕은 처마가 길게 막아내어 마루와 안방을 시원하게 유지합니다.',
-    };
+/**
+ * 고도는 위도에서 나온다.
+ * 서울(37.57°)이면 스펙에 적힌 76° / 29°가 그대로 나오고, 다른 지역이면 그 지역 값이 나온다.
+ */
+const descFor = (season, summerAltitude, winterAltitude) => {
+  if (season <= SUMMER_EDGE) {
+    return `태양 고도 ${summerAltitude}°. 높게 뜬 볕을 처마가 막아냅니다.`;
   }
-  if (season >= 0.75) {
-    return {
-      angle: '겨울 태양 고도 29° (낮음)',
-      desc: '낮게 기운 겨울 볕은 처마 밑을 깊숙이 통과하여 방 안 구석까지 따스한 온기를 전달합니다.',
-    };
+  if (season >= WINTER_EDGE) {
+    return `태양 고도 ${winterAltitude}°. 낮게 기운 볕이 방 구석까지 닿습니다.`;
   }
-  return {
-    angle: '처마의 계절별 자연 조율 원리',
-    desc: '여름의 뜨거운 볕은 차단하고, 겨울의 따스한 온기는 깊이 들이는 한옥의 친환경 건축 지혜입니다.',
-  };
+  return '처마 길이는 그 집이 선 위도의 함수입니다.';
 };
 
-// ─────────────────────────────────────────
-// 구도 — bbox에서 카메라를 역산한다
-// ─────────────────────────────────────────
+const formatDate = (date) => `${date.getMonth() + 1}월 ${date.getDate()}일`;
 
-const FOV = 45;
-const AZIMUTH_DEG = 315;
-const ELEVATION_DEG = 22;
+/**
+ * 사이드바에서 절기를 눌러 들어온 경우(?solar=ipchu).
+ *
+ * next/navigation의 useSearchParams는 이 페이지 전체를 Suspense로 감싸게 만든다.
+ * 읽는 값이 하나뿐이라 location에서 직접 꺼낸다.
+ */
+function useSolarTermParam() {
+  return useMemo(() => {
+    if (typeof window === 'undefined') return null;
 
-const FILL_H = 0.67;
-const FILL_V = 0.48;
-const LIFT = 0.06;
-
-const toRad = (deg) => (deg * Math.PI) / 180;
-
-function frameCamera(extent, aspect) {
-  const azimuth = toRad(AZIMUTH_DEG);
-  const halfWidth = (extent.x * Math.cos(azimuth) + extent.z * Math.sin(azimuth)) / 2;
-
-  const halfV = Math.max(
-    extent.y / (2 * FILL_V),
-    halfWidth / (FILL_H * Math.max(aspect, 0.1)),
-  );
-  const distance = halfV / Math.tan(toRad(FOV) / 2);
-
-  const elevation = toRad(ELEVATION_DEG);
-  const targetY = extent.y / 2 + LIFT * 2 * halfV;
-  const ground = distance * Math.cos(elevation);
-
-  const position = [
-    Math.sin(azimuth) * ground,
-    targetY + distance * Math.sin(elevation),
-    Math.cos(azimuth) * ground,
-  ];
-
-  const offsetX = extent.x * 0.08;
-
-  const dummy = new THREE.PerspectiveCamera();
-  dummy.position.set(...position);
-  dummy.lookAt(-offsetX, targetY, 0);
-
-  return {
-    position,
-    rotation: [dummy.rotation.x, dummy.rotation.y, dummy.rotation.z],
-    near: Math.max(0.01, distance / 200),
-    far: distance * 6,
-  };
-}
-
-const materialsOf = (material) => (Array.isArray(material) ? material : [material]);
-
-// ─────────────────────────────────────────
-// 3D
-// ─────────────────────────────────────────
-
-function Scene({ season }) {
-  const { scene } = useGLTF(MODEL_URL);
-  const size = useThree((s) => s.size);
-
-  const { model, extent, ground } = useMemo(() => {
-    const cloned = scene.clone(true);
-
-    cloned.traverse((child) => {
-      if (!child.isMesh) return;
-
-      child.castShadow = true;
-      child.receiveShadow = true;
-
-      child.material = materialsOf(child.material).map((source) => {
-        const material = source.clone();
-        material.wireframe = false;
-        material.transparent = false;
-        material.opacity = 1;
-        return material;
-      });
-
-      if (child.material.length === 1) [child.material] = child.material;
-    });
-
-    const box = new THREE.Box3().setFromObject(cloned);
-    const measured = box.getSize(new THREE.Vector3());
-    const center = box.getCenter(new THREE.Vector3());
-
-    cloned.position.set(-center.x, -box.min.y, -center.z);
-
-    return {
-      model: cloned,
-      extent: measured,
-      ground: Math.max(measured.x, measured.z) * 1.8,
-    };
-  }, [scene]);
-
-  const view = useMemo(
-    () => frameCamera(extent, size.width / size.height),
-    [extent, size.width, size.height],
-  );
-
-  const sunPosition = SUN_SUMMER.map((v, i) => lerp(v, SUN_WINTER[i], season));
-
-  return (
-    <>
-      {/*
-        하늘빛 환경광.
-
-        전에는 22MB HDRI가 이 자리를 맡았는데, 배경으로 쓰지 않고 빛만 뽑아 쓰는 터라
-        화면에 남는 차이가 거의 없었다. 단색 환경광이면 첫 로딩에서 그 무게가 통째로 빠진다.
-        겨울로 갈수록 하늘이 낮고 흐려져 반사광도 함께 줄어든다.
-      */}
-      <ambientLight
-        intensity={lerp(AMBIENT_INTENSITY[0], AMBIENT_INTENSITY[1], season)}
-        color={lerpHex(SKY_LIGHT[0], SKY_LIGHT[1], season)}
-      />
-
-      <PerspectiveCamera
-        makeDefault
-        position={view.position}
-        rotation={view.rotation}
-        fov={FOV}
-        near={view.near}
-        far={view.far}
-      />
-
-      <directionalLight
-        position={sunPosition}
-        intensity={lerp(SUN_INTENSITY[0], SUN_INTENSITY[1], season)}
-        color={lerpHex(SUN_COLOR[0], SUN_COLOR[1], season)}
-        castShadow
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
-        shadow-camera-near={0.5}
-        shadow-camera-far={80}
-        shadow-camera-left={-30}
-        shadow-camera-right={30}
-        shadow-camera-top={30}
-        shadow-camera-bottom={-30}
-        shadow-bias={-0.0005}
-      />
-
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
-        <planeGeometry args={[ground, ground]} />
-        <shadowMaterial opacity={0.4} />
-      </mesh>
-
-      <primitive object={model} />
-    </>
-  );
+    const id = new URLSearchParams(window.location.search).get('solar');
+    return id ? SOLAR_TERMS.find((term) => term.id === id) || null : null;
+  }, []);
 }
 
 // ─────────────────────────────────────────
-// 스타일 & 애니메이션
+// 스타일
 // ─────────────────────────────────────────
 
 const pingpong = keyframes`
@@ -218,6 +95,11 @@ const pulseGlow = keyframes`
   50%      { box-shadow: 0 0 20px rgba(232, 90, 24, 0.9), 0 0 36px rgba(245, 166, 35, 0.8); }
 `;
 
+const riseIn = keyframes`
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+`;
+
 const Stage = styled.section`
   position: fixed;
   inset: 0;
@@ -226,6 +108,10 @@ const Stage = styled.section`
   font-family: ${FONT};
 `;
 
+/**
+ * 데스크톱은 화면 위쪽, 모바일은 아래 45%.
+ * 세로 화면에서는 한옥이 상단 55%를 다 쓰므로 글이 그 위에 겹치면 둘 다 안 읽힌다.
+ */
 const Copy = styled.div`
   position: absolute;
   top: clamp(5vh, 7vh, 9vh);
@@ -235,32 +121,61 @@ const Copy = styled.div`
   padding: 0 24px;
   text-align: center;
   pointer-events: none;
+
+  @media (max-width: 767px) {
+    top: 56vh;
+  }
+`;
+
+const Eyebrow = styled.p`
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: #e85a18;
+`;
+
+const TodayLine = styled.p`
+  margin: 10px 0 0;
+  font-size: clamp(12px, 1.15vw, 14px);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: #8b95a1;
+`;
+
+const FallbackNote = styled.span`
+  color: #b0b8c1;
+  font-size: 11px;
+`;
+
+const TermTag = styled.p`
+  margin: 8px 0 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #e85a18;
 `;
 
 const Headline = styled.h2`
-  margin: 0;
+  margin: 14px 0 0;
   font-size: clamp(24px, 3.4vw, 42px);
   font-weight: 700;
   letter-spacing: -0.03em;
   word-break: keep-all;
-  color: #f4efe4;
-  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.7);
-  transition: opacity 0.4s ease-out;
+  color: #191f28;
 `;
 
-const Subtitle = styled.p`
-  margin: 8px auto 0;
+const Description = styled.p`
+  margin: 10px auto 0;
   max-width: 600px;
-  font-size: clamp(13px, 1.3vw, 15px);
+  font-size: 14px;
   font-weight: 400;
-  color: ${meok[200]};
+  color: #4e5968;
   line-height: 1.5;
   word-break: keep-all;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
 `;
 
-/* 눈에 띄는 컨트롤러 패널 */
-const ControllerContainer = styled.div`
+const Controller = styled.div`
   position: absolute;
   bottom: 6vh;
   left: 50%;
@@ -270,61 +185,58 @@ const ControllerContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 16px;
   pointer-events: auto;
+
+  @media (max-width: 767px) {
+    bottom: 3vh;
+  }
 `;
 
-const DetailCard = styled.div`
-  width: 100%;
-  background: rgba(28, 26, 23, 0.88);
-  backdrop-filter: blur(14px);
-  border: 1px solid rgba(212, 175, 55, 0.35);
-  border-radius: 16px;
-  padding: 12px 18px;
-  text-align: center;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
-  transition: all 0.3s ease-out;
-`;
-
-const AngleTag = styled.span`
-  display: inline-block;
-  font-size: 12px;
-  font-weight: 700;
-  color: ${lightPalette.hwanggeum[400]};
-  background: rgba(212, 175, 55, 0.12);
-  padding: 3px 10px;
-  border-radius: 12px;
-  margin-bottom: 6px;
-`;
-
-const DetailDesc = styled.p`
-  margin: 0;
-  font-size: clamp(12px, 1.2vw, 14px);
-  font-weight: 400;
-  color: ${meok[100]};
-  line-height: 1.45;
-  word-break: keep-all;
-`;
-
-const DragGuideHint = styled.div`
+const Hint = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
   font-size: 13px;
   font-weight: 600;
-  color: ${lightPalette.hwanggeum[400]};
-  background: rgba(28, 26, 23, 0.92);
-  border: 1px solid rgba(212, 175, 55, 0.3);
+  color: #4e5968;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(78, 89, 104, 0.16);
   backdrop-filter: blur(8px);
   padding: 4px 14px;
   border-radius: 20px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
   animation: ${pingpong} 1.8s ease-in-out infinite;
   transition: opacity 0.5s ease-out;
   pointer-events: none;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 `;
 
-const TrackWrapper = styled.div`
+const BackToToday = styled.button`
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  color: #e85a18;
+  padding: 6px 14px;
+  border: 1px solid rgba(232, 90, 24, 0.3);
+  border-radius: 9999px;
+  background: transparent;
+  cursor: pointer;
+  animation: ${riseIn} 0.3s ease-out;
+  transition: background 0.2s ease-out;
+
+  &:hover {
+    background: rgba(232, 90, 24, 0.08);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+`;
+
+const Track = styled.div`
   width: 100%;
   position: relative;
   height: 46px;
@@ -338,10 +250,11 @@ const TrackWrapper = styled.div`
   justify-content: space-between;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
   cursor: ew-resize;
+  touch-action: none;
 
   &:focus-visible {
-    outline: 2px solid ${lightPalette.hwanggeum[400]};
-    outline-offset: 2px;
+    outline: 2px solid #e85a18;
+    outline-offset: 3px;
   }
 `;
 
@@ -358,12 +271,12 @@ const TrackLine = styled.div`
 const TrackLabel = styled.span`
   font-size: 13px;
   font-weight: 700;
-  color: ${meok[200]};
+  color: #e8e0d2;
   z-index: 1;
   user-select: none;
 `;
 
-const SunKnob = styled.div`
+const Knob = styled.div`
   position: absolute;
   top: 50%;
   width: 28px;
@@ -374,11 +287,9 @@ const SunKnob = styled.div`
   cursor: grab;
   z-index: 2;
   animation: ${pulseGlow} 2s infinite ease-in-out;
-  transition: transform 0.1s ease-out;
 
-  &:active {
-    cursor: grabbing;
-    transform: scale(1.18);
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
   }
 `;
 
@@ -387,19 +298,72 @@ const SunKnob = styled.div`
 // ─────────────────────────────────────────
 
 export default function Beat3_Season({ progress }) {
+  const reduced = usePrefersReducedMotion();
+  const { latitude, cityName, isDefault } = useUserLocation(progress >= ASK_LOCATION_AT);
+  const setSeason = useSeasonStore((s) => s.setSeason);
+  const term = useSolarTermParam();
+
+  // 오늘의 볕. 위치가 늦게 오므로 위도가 바뀌면 다시 잡는다.
+  const today = useMemo(() => {
+    const date = new Date();
+    const altitude = getNoonSolarAltitude(latitude, date);
+    return { date, altitude, seasonValue: altitudeToSeasonValue(altitude, latitude) };
+  }, [latitude]);
+
+  // 절기로 들어왔다면 기준점은 오늘이 아니라 그 절기다.
+  const termView = useMemo(() => {
+    if (!term) return null;
+    const date = solarTermDate(term);
+    const altitude = getNoonSolarAltitude(latitude, date);
+    return { date, altitude, seasonValue: altitudeToSeasonValue(altitude, latitude) };
+  }, [term, latitude]);
+
+  const baseSeason = termView ? termView.seasonValue : today.seasonValue;
+
+  /**
+   * null이면 아직 손대지 않은 상태다.
+   * 기준값을 state에 복사해두면 위치가 늦게 도착할 때 그것을 다시 밀어넣을 effect가 필요해진다.
+   * 손댄 값만 들고 있으면 그 동기화가 통째로 사라진다.
+   */
   const [userSeason, setUserSeason] = useState(null);
-  const [interacted, setInteracted] = useState(false);
+
+  const seasonValue = userSeason ?? baseSeason;
+  const hasUserDragged = userSeason !== null;
+
   const drag = useRef(null);
+  const tween = useRef(0);
 
-  if (progress < 0.2 || progress >= 0.45) return null;
+  // 고정 캔버스의 볕에 계절값을 넘긴다. 구간 밖에서는 놓아준다.
+  const inRange = progress >= START && progress < END;
 
-  const scrollSeason = clamp01((progress - 0.2) / (0.45 - 0.2));
-  const season = userSeason !== null ? userSeason : scrollSeason;
+  useEffect(() => {
+    setSeason(inRange ? seasonValue : null);
+  }, [inRange, seasonValue, setSeason]);
+
+  useEffect(
+    () => () => {
+      cancelAnimationFrame(tween.current);
+      useSeasonStore.getState().setSeason(null);
+    },
+    [],
+  );
+
+  if (!inRange) return null;
+
+  const summerAltitude = Math.round(seasonValueToAltitude(0, latitude));
+  const winterAltitude = Math.round(seasonValueToAltitude(1, latitude));
+  const currentAltitude = Math.round(seasonValueToAltitude(seasonValue, latitude));
+
+  const moveTo = (value) => {
+    cancelAnimationFrame(tween.current);
+    setUserSeason(clamp01(value));
+  };
 
   const start = (event) => {
     event.currentTarget.setPointerCapture(event.pointerId);
-    drag.current = { x: event.clientX, season };
-    setInteracted(true);
+    cancelAnimationFrame(tween.current);
+    drag.current = { x: event.clientX, season: seasonValue };
+    setUserSeason(seasonValue);
   };
 
   const move = (event) => {
@@ -412,68 +376,109 @@ export default function Beat3_Season({ progress }) {
     drag.current = null;
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'ArrowLeft') {
-      e.preventDefault();
-      setUserSeason(clamp01(season - 0.05));
-      setInteracted(true);
-    } else if (e.key === 'ArrowRight') {
-      e.preventDefault();
-      setUserSeason(clamp01(season + 0.05));
-      setInteracted(true);
+  const onKeyDown = (event) => {
+    const step = { ArrowLeft: -0.05, ArrowRight: 0.05 }[event.key];
+
+    if (step !== undefined) {
+      event.preventDefault();
+      moveTo(seasonValue + step);
+    } else if (event.key === 'Home') {
+      event.preventDefault();
+      moveTo(0);
+    } else if (event.key === 'End') {
+      event.preventDefault();
+      moveTo(1);
     }
   };
 
-  const headline = headlineFor(season);
-  const detail = detailFor(season);
+  /** 기준점으로 0.6초에 걸쳐 돌아간다. 값이 튀면 그림자가 순간이동한다. */
+  const returnToBase = () => {
+    cancelAnimationFrame(tween.current);
 
-  const knobLeftPercent = season * 100;
+    // 모션을 줄인 사용자에게는 애니메이션 자체가 방해다. 바로 놓는다.
+    if (reduced) {
+      setUserSeason(null);
+      return;
+    }
+
+    const from = seasonValue;
+    const startedAt = performance.now();
+
+    const step = (now) => {
+      const t = Math.min(1, (now - startedAt) / RETURN_MS);
+
+      // 도착하면 손뗀 상태(null)로 되돌린다 — 이후 위치가 바뀌면 다시 따라간다.
+      if (t < 1) {
+        setUserSeason(from + (baseSeason - from) * easeOut(t));
+        tween.current = requestAnimationFrame(step);
+      } else {
+        setUserSeason(null);
+      }
+    };
+
+    tween.current = requestAnimationFrame(step);
+  };
+
+  const showReturn = hasUserDragged && Math.abs(seasonValue - baseSeason) > AWAY_FROM_TODAY;
+  const headline = headlineFor(seasonValue);
 
   return (
     <Stage aria-label="계절 — 하지에서 동지까지">
       <Copy>
+        <Eyebrow>SOLAR — 볕의 계산</Eyebrow>
+
+        <TodayLine>
+          {`${today.date.getFullYear()}년 ${formatDate(today.date)} · ${cityName} · 태양 고도 ${Math.round(
+            today.altitude,
+          )}°`}
+          {isDefault && <FallbackNote> (위치 미허용 · 서울 기준)</FallbackNote>}
+        </TodayLine>
+
+        {termView && (
+          <TermTag>{`${term.name} · ${formatDate(termView.date)}`}</TermTag>
+        )}
+
         <Headline key={headline}>{headline}</Headline>
-        <Subtitle>
-          여름의 뜨거운 볕은 튕겨내고, 겨울의 온기는 방 안 깊이 들이는 한옥 처마의 자연 조율 지혜입니다.
-        </Subtitle>
+        <Description>
+          {termView && !hasUserDragged
+            ? term.copy
+            : descFor(seasonValue, summerAltitude, winterAltitude)}
+        </Description>
       </Copy>
 
-      <ControllerContainer>
-        <DetailCard>
-          <AngleTag>{detail.angle}</AngleTag>
-          <DetailDesc>{detail.desc}</DetailDesc>
-        </DetailCard>
-
-        <DragGuideHint style={{ opacity: interacted ? 0 : 1 }}>
+      <Controller>
+        <Hint style={{ opacity: hasUserDragged ? 0 : 1 }}>
           <span>←</span> ☀️ 드래그나 방향키로 태양의 고도와 처마 그림자를 확인해보세요 <span>→</span>
-        </DragGuideHint>
+        </Hint>
 
-        <TrackWrapper
+        {showReturn && (
+          <BackToToday type="button" onClick={returnToBase}>
+            {termView ? `${term.name}로 돌아가기` : '오늘로 돌아가기'}
+          </BackToToday>
+        )}
+
+        <Track
           tabIndex={0}
           role="slider"
-          aria-label="태양 고도 조절 슬라이더"
+          aria-label="계절 조절"
           aria-valuemin={0}
-          aria-valuemax={1}
-          aria-valuenow={Number(season.toFixed(2))}
-          aria-valuetext={`${detail.angle} - ${detail.desc}`}
+          aria-valuemax={100}
+          aria-valuenow={Math.round(seasonValue * 100)}
+          aria-valuetext={`${seasonValue < 0.5 ? '여름' : '겨울'} 쪽, 태양 고도 ${currentAltitude}도`}
           onPointerDown={start}
           onPointerMove={move}
           onPointerUp={end}
           onPointerCancel={end}
-          onKeyDown={handleKeyDown}
+          onKeyDown={onKeyDown}
         >
-          <TrackLabel>☀️ 하지(여름)</TrackLabel>
+          <TrackLabel>☀️ 하지·여름</TrackLabel>
           <TrackLine />
-          <SunKnob
-            style={{
-              left: `calc(44px + (${knobLeftPercent}% * (100% - 88px) / 100))`,
-            }}
+          <Knob
+            style={{ left: `calc(44px + (${seasonValue * 100}% * (100% - 88px) / 100))` }}
           />
-          <TrackLabel>❄️ 동지(겨울)</TrackLabel>
-        </TrackWrapper>
-      </ControllerContainer>
+          <TrackLabel>❄️ 동지·겨울</TrackLabel>
+        </Track>
+      </Controller>
     </Stage>
   );
 }
-
-useGLTF.preload(MODEL_URL);
