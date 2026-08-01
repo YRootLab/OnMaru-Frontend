@@ -38,16 +38,16 @@ const [RANGE_START, RANGE_END] = RANGE;
 
 /** localProgress(0~1)를 7단계에 나눠 담는 창. 앞 0.06 진입, 뒤 0.06 완성 여운. */
 const STAGE_WINDOWS = [
-  [0.01, 0.14], // 01 기단
-  [0.14, 0.27], // 02 댓돌
-  [0.27, 0.40], // 03 초석과 기둥
-  [0.40, 0.53], // 04 마루
-  [0.53, 0.66], // 05 벽
-  [0.66, 0.79], // 06 창호
-  [0.79, 0.92], // 07 기와
+  [0.01, 0.12], // 01 기단
+  [0.12, 0.23], // 02 댓돌
+  [0.23, 0.35], // 03 초석과 기둥
+  [0.35, 0.47], // 04 마루
+  [0.47, 0.59], // 05 벽
+  [0.59, 0.71], // 06 창호
+  [0.71, 0.83], // 07 기와 (0.83 완공)
 ];
 
-const RESULT_AT = 0.94;
+const RESULT_AT = 0.83;
 
 /** 진행 중이거나 방금 끝난 단계. 진입 구간에서는 -1. */
 const activeStageOf = (local) => {
@@ -194,14 +194,16 @@ const lerp = (a, b, t) => a + (b - a) * t;
     }
 
     // 2. STAGES 데이터 기반 단계별 카메라 보간 애니메이션
-    const activeStage = activeStageOf(local);
+    const activeStage = local >= RESULT_AT ? STAGES.length - 1 : activeStageOf(local);
     if (activeStage >= 0 && activeStage < STAGES.length) {
       const i = activeStage;
+      const isCompleted = local >= RESULT_AT;
+
       const cur = STAGES[i];
       const next = STAGES[Math.min(i + 1, STAGES.length - 1)];
 
       const [start, end] = STAGE_WINDOWS[i];
-      const stageLocalProgress = clamp01((local - start) / (end - start));
+      const stageLocalProgress = isCompleted ? 1 : clamp01((local - start) / (end - start));
 
       // [6] 접근성 (prefers-reduced-motion): reduced인 경우 linear, 아니면 easeInOutCubic
       const t = reduced ? stageLocalProgress : easeInOutCubic(stageLocalProgress);
