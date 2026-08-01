@@ -324,12 +324,14 @@ const AutoRefreshCaption = styled.p`
 export default function Beat6_Invite({ progress }) {
   const reduced = usePrefersReducedMotion();
 
-  if (progress < 0.84) return null;
-
-  const localProgress = Math.min(1, (progress - 0.84) / (1.0 - 0.84));
-
   // 1. 데이터 소스 처리
   const [totalCount, setTotalCount] = useState(undefined); // undefined: 로딩중, null: 실패, number: 성공
+  const [displayCount, setDisplayCount] = useState(0);
+  const startedRef = useRef(false);
+
+  // 2. 절기 및 다음 달 계산
+  const termInfo = useMemo(() => getNextSolarTerm(), []);
+  const nextMonth = useMemo(() => getNextMonth(), []);
 
   useEffect(() => {
     const cached = sessionStorage.getItem('onmaru_hanok_total');
@@ -349,10 +351,12 @@ export default function Beat6_Invite({ progress }) {
       });
   }, []);
 
-  // 2. 카운트업 애니메이션
-  const [displayCount, setDisplayCount] = useState(0);
-  const startedRef = useRef(false);
+  // Early Return은 모든 훅 선언 이후에 조율 (Rules of Hooks 준수)
+  if (progress < 0.84) return null;
 
+  const localProgress = Math.min(1, (progress - 0.84) / (1.0 - 0.84));
+
+  // 3. 카운트업 애니메이션
   useEffect(() => {
     if (localProgress < 0.28 || startedRef.current || totalCount === undefined || totalCount === null) {
       if (reduced && typeof totalCount === 'number') {
@@ -374,10 +378,6 @@ export default function Beat6_Invite({ progress }) {
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [localProgress, totalCount, reduced]);
-
-  // 3. 절기 및 다음 달 계산
-  const termInfo = useMemo(() => getNextSolarTerm(), []);
-  const nextMonth = useMemo(() => getNextMonth(), []);
 
   const termDaysText = useMemo(() => {
     if (termInfo.daysLeft === 0) return '오늘';
