@@ -98,7 +98,7 @@ const Stage = styled.section`
  */
 const Copy = styled.div`
   position: absolute;
-  top: 7vh;
+  top: 5vh;
   left: 0;
   right: 0;
   z-index: 1;
@@ -107,7 +107,7 @@ const Copy = styled.div`
   pointer-events: none;
 
   @media (max-width: 767px) {
-    top: 52vh;
+    top: 48vh;
   }
 `;
 
