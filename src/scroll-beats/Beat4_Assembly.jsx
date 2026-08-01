@@ -11,6 +11,7 @@ import { useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import styled from '@emotion/styled';
+import { keyframes } from '@emotion/react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 // 읽기 전용 아카이브의 단계 정의. 실제 경로는 .../data/hanok.data
