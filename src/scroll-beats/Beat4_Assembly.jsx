@@ -225,6 +225,12 @@ const lerp = (a, b, t) => a + (b - a) * t;
       const lerpedPos = new THREE.Vector3().lerpVectors(curPos, nextPos, t);
       const lerpedTarget = new THREE.Vector3().lerpVectors(curTargetVec, nextTargetVec, t);
 
+      // [방안 A] 카메라 타겟을 데스크톱에서 좌측으로 Shift하여 3D 한옥을 우측에 배치하고 좌측 45%를 '순수 여백'으로 확보
+      if (!isMobile) {
+        lerpedTarget.x -= 2.2;
+        lerpedPos.x -= 2.2;
+      }
+
       // [3] 단계 진입 시 미세한 무게감 강조 모션 (Punch Effect)
       if (!reduced && stageLocalProgress <= 0.15) {
         const punch = Math.sin((stageLocalProgress / 0.15) * Math.PI) * 0.4;
@@ -257,7 +263,7 @@ const lerp = (a, b, t) => a + (b - a) * t;
   });
 
   return (
-    <group position={[offset[0] + 1.6, offset[1], offset[2]]}>
+    <group position={offset}>
       <primitive object={root} />
     </group>
   );
@@ -289,14 +295,11 @@ const Left = styled.div`
   padding-right: 36px;
   position: relative;
   z-index: 2;
-  background: linear-gradient(to right, rgba(14, 16, 22, 0.92) 0%, rgba(14, 16, 22, 0.72) 75%, transparent 100%);
-  backdrop-filter: blur(8px);
 
   @media (max-width: 768px) {
     flex: 0 0 45%;
     padding: 20px;
     justify-content: flex-end;
-    background: linear-gradient(to top, rgba(14, 16, 22, 0.95) 0%, rgba(14, 16, 22, 0.8) 80%, transparent 100%);
   }
 `;
 
@@ -327,13 +330,11 @@ const TitleLine = styled.h2`
   letter-spacing: -0.02em;
   line-height: 1.05;
   color: #fafafa;
-  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.9), 0 0 24px rgba(0, 0, 0, 0.7);
 `;
 
 const StepNumber = styled.span`
   margin-right: 16px;
   color: #fafafa;
-  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.9);
 `;
 
 const Description = styled(motion.p)`
@@ -344,7 +345,6 @@ const Description = styled(motion.p)`
   line-height: 1.75;
   letter-spacing: -0.015em;
   color: ${meok[100]};
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95), 0 0 16px rgba(0, 0, 0, 0.7);
 `;
 
 const Result = styled(motion.p)`
