@@ -147,10 +147,10 @@ const SHOTS = [
  * 지면을 내려다보는 이 구도를 표현하지 못하기 때문이다.
  */
 const SEASON_VIEWS = [
-  // target Y축을 16.2/15.5로 대폭 끌어올려 한옥을 위로 당기고 fit을 0.86~0.90으로 늘려 3D 피사체 크기를 웅장하게 확대 안착시킨다.
-  { minWidth: 1280, dir: [14, 20, 34], target: [-2, 16.2, 0], fov: 34, fit: 0.86 },
-  { minWidth: 768, dir: [14, 21, 38], target: [-2, 15.5, 0], fov: 38, fit: 0.88 },
-  { minWidth: 0, dir: [10, 22, 46], target: [-1, 14.0, 0], fov: 44, fit: 0.90 },
+  // target Y축을 26.0 / 24.0 / 22.0으로 획기적으로 끌어올려 한옥 3D 피사체와 마당 그림자 전체가 화면 위쪽 상단으로 껑충 떠올라 위치하도록 배치한다.
+  { minWidth: 1280, dir: [14, 20, 34], target: [-2, 26.0, 0], fov: 34, fit: 0.86 },
+  { minWidth: 768, dir: [14, 21, 38], target: [-2, 24.0, 0], fov: 38, fit: 0.88 },
+  { minWidth: 0, dir: [10, 22, 46], target: [-1, 22.0, 0], fov: 44, fit: 0.90 },
 ];
 
 const lerp = (from, to, t) => from + (to - from) * t;
