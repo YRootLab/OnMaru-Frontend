@@ -315,6 +315,12 @@ const TextStack = styled.div`
   }
 `;
 
+const goldShimmer = keyframes`
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+`;
+
 const Layer = styled(motion.div)`
   position: absolute;
   top: 0;
@@ -327,15 +333,23 @@ const TitleLine = styled.h2`
   display: flex;
   align-items: baseline;
   font-size: clamp(48px, 5.5vw, 76px);
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1.05;
-  color: #fafafa;
+  background: linear-gradient(135deg, #ffffff 0%, #f7e3be 45%, #d4af37 85%, #f5a623 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: ${goldShimmer} 6s ease-in-out infinite;
 `;
 
 const StepNumber = styled.span`
   margin-right: 16px;
-  color: #fafafa;
+  background: linear-gradient(135deg, #ffffff 0%, #f7e3be 45%, #d4af37 85%, #f5a623 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: ${goldShimmer} 6s ease-in-out infinite;
 `;
 
 const Description = styled(motion.p)`
@@ -346,12 +360,6 @@ const Description = styled(motion.p)`
   line-height: 1.75;
   letter-spacing: -0.015em;
   color: ${meok[100]};
-`;
-
-const goldShimmer = keyframes`
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
 `;
 
 const ResultWrapper = styled(motion.div)`
@@ -398,10 +406,12 @@ const Bar = styled.span`
   width: ${(props) => (props.status === 'current' ? '44px' : '28px')};
   background: ${(props) =>
     props.status === 'current'
-      ? '#F5A623'
+      ? '#ffffff'
       : props.status === 'done'
-        ? 'rgba(250, 250, 250, 0.35)'
-        : 'rgba(250, 250, 250, 0.15)'};
+        ? 'rgba(255, 255, 255, 0.45)'
+        : 'rgba(255, 255, 255, 0.18)'};
+  box-shadow: ${(props) =>
+    props.status === 'current' ? '0 0 10px rgba(255, 255, 255, 0.6)' : 'none'};
 `;
 
 // ─────────────────────────────────────────
@@ -447,9 +457,7 @@ export default function Beat4_Assembly({ progress }) {
                 transition={{ duration: 0.4, ease: EASE }}
               >
                 <Result>
-                  쇠못 하나 없이 맞물려,
-                  <br />
-                  천 년의 숨을 쉬는 보금자리
+                하나의 쇠못 없이 맞물려,<br /> 천 년을 지탱하는 <br />견고한 뼈대입니다.
                 </Result>
               </ResultWrapper>
             ) : (
