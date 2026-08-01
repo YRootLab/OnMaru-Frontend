@@ -243,26 +243,7 @@ export default function GlobalBackground({ progress }) {
 
       {particles > 0 && <Particles opacity={particles} reduced={reduced} />}
 
-      {light > 0 && (
-        <div style={{ ...fill, zIndex: 1, opacity: light }}>
-          <div
-            style={{
-              ...fill,
-              backgroundImage: HANJI,
-              backgroundSize: '220px 220px',
-              opacity: 0.03,
-              mixBlendMode: 'multiply',
-            }}
-          />
-          <div
-            style={{
-              ...fill,
-              background:
-                'radial-gradient(ellipse 60% 45% at 50% 40%, rgba(255,250,240,0.35) 0%, transparent 65%)',
-            }}
-          />
-        </div>
-      )}
+
 
       {/* z1.5 — 온마루 표면 컬러(surface.light.base)와 계절 액센트 subtle 톤(juhong[50], hwanggeum[50], kobalt[50], jangmi[50])이 은은하게 섞이는 Mesh/Radial Gradient */}
       <div
