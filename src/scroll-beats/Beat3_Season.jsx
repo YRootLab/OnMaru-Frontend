@@ -93,11 +93,10 @@ const riseIn = keyframes`
 const Stage = styled.section`
   position: fixed;
   inset: 0;
-  z-index: 1;
+  z-index: 5;
   pointer-events: none !important;
   font-family: ${FONT};
-  background: ${(props) => props.bgGradient || surface.light.base};
-  transition: background 0.6s ease;
+  background: transparent;
 `;
 
 /**
