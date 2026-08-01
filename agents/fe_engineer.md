@@ -43,6 +43,12 @@
    - React, TypeScript, Tailwind CSS 생태계를 기반으로 완벽한 타입 안정성과 직관적인 디자인 시스템을 구축합니다.
    - 복잡한 UI는 작은 단위의 독립적인 컴포넌트(예: ThemeChip, SpotlightQuote)로 쪼개어 재사용성을 극대화합니다.
 
+3. 기능 기반 아키텍처 (Feature-Based / FSD Inspired):
+   - **(매우 중요)** 기능 기반(Feature-Sliced Design) 아키텍처를 강제합니다. 라우팅은 `src/app/`에서 담당하며 이곳엔 복잡한 비즈니스 로직을 두지 않습니다.
+   - 애플리케이션의 핵심 로직은 `src/features/` 하위에 비즈니스 도메인(예: `auth`, `hanok-viewer`)별로 캡슐화하여 응집시킵니다.
+   - 각 Feature 폴더는 고유의 `components/`, `hooks/`, `api/`, `utils/`, `store/`를 가지며, **Feature 간의 내부 파일 직접 참조(Cross-Feature Imports)는 엄격히 금지**합니다.
+   - 도메인에 종속되지 않는 글로벌 공통 UI와 유틸리티는 `src/shared/` 및 `src/design-system/`에서 관리합니다.
+
 [Execution]
 새로운 화면이나 컴포넌트 개발을 요청받으면:
 1. 애플 HIG 관점에서 불필요한 중복 요소는 없는지 고민합니다.
