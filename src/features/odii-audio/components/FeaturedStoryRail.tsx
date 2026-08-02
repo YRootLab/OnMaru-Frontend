@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
 import { OdiiStoryItem } from '../types/odii.types';
@@ -9,10 +9,12 @@ interface FeaturedStoryRailProps { stories: OdiiStoryItem[]; }
 const TABS = ['추천', '한옥', '시장'];
 
 export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories }) => {
+  const sectionRef = useRef<HTMLElement | null>(null);
   const [activeTab, setActiveTab] = useState('추천');
   const [activeIndex, setActiveIndex] = useState(0);
   const [direction, setDirection] = useState(1);
   const [autoplayVersion, setAutoplayVersion] = useState(0);
+  const [isSectionInView, setIsSectionInView] = useState(true);
   const currentStory = useOdiiAudioStore((s) => s.currentStory);
   const isPlaying = useOdiiAudioStore((s) => s.isPlaying);
   const setCurrentStory = useOdiiAudioStore((s) => s.setCurrentStory);
@@ -27,13 +29,21 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
   const visualDirection = direction;
 
   useEffect(() => {
-    if (featured.length < 2) return;
+    if (featured.length < 2 || !isSectionInView) return;
     const timer = window.setInterval(() => {
       setDirection(1);
       setActiveIndex((index) => (index + 1) % featured.length);
     }, 5000);
     return () => window.clearInterval(timer);
-  }, [featured.length, activeTab, autoplayVersion]);
+  }, [featured.length, activeTab, autoplayVersion, isSectionInView]);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+    const observer = new IntersectionObserver(([entry]) => setIsSectionInView(entry.isIntersecting), { threshold: 0.15 });
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
 
   if (!lead) return null;
   const move = (nextDirection: number) => {
@@ -45,7 +55,7 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
   const following = featured.slice(1, 3).map((_, index) => featured[(activeIndex + index + 1) % featured.length]);
 
   return (
-    <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-8 sm:pb-28">
+    <section ref={sectionRef} className="mx-auto max-w-6xl px-4 pb-20 sm:px-8 sm:pb-28">
       <div>
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <div>

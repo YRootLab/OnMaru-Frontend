@@ -9,6 +9,10 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        maruburi: ['MaruBuri', 'serif'],
+        'odii-sans': ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Apple SD Gothic Neo', 'Noto Sans KR', 'sans-serif'],
+      },
       colors: {
         jangmi: {
           50: '#FFF0F4',

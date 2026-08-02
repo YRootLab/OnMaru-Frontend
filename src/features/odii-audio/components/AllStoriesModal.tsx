@@ -67,7 +67,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
             <span className="text-[11px] font-bold text-[#F8A8C0] uppercase tracking-wider block mb-0.5">
               COMPLETE AUDIO COLLECTION
             </span>
-            <h2 className="text-xl sm:text-2xl font-bold font-serif text-white">
+            <h2 className="font-maruburi text-xl font-semibold text-white sm:text-2xl">
               오디(Odii) 전체 이야기 아카이브
             </h2>
           </div>

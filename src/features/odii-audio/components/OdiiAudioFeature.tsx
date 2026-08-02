@@ -42,10 +42,10 @@ export const OdiiAudioFeature: React.FC = () => {
   }, [selectedCategory, searchQuery]);
 
   return (
-    <div className="min-h-screen bg-[#f3eee4] pb-24 text-[#211e19] selection:bg-[#d56748] selection:text-white">
+    <div className="min-h-screen bg-[#f3eee4] pb-24 font-odii-sans text-[#211e19] selection:bg-[#d56748] selection:text-white">
       <header className="px-4 py-6 sm:px-8">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
-          <Link href="/" className="font-serif text-xl tracking-[-0.04em]">ONMARU</Link>
+          <Link href="/" className="font-maruburi text-xl tracking-[-0.04em]">ONMARU</Link>
           <button onClick={() => setIsModalOpen(true)} className="text-xs font-semibold tracking-wide underline underline-offset-4">모든 이야기</button>
         </div>
       </header>
@@ -53,8 +53,8 @@ export const OdiiAudioFeature: React.FC = () => {
       <main>
         <section className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-4 pb-20 pt-16 sm:px-8 sm:pt-24 lg:grid-cols-12 lg:items-end">
           <div className="lg:col-span-7">
-            <p className="text-xs font-semibold tracking-[0.18em] text-[#a94d35]">ODII AUDIO GUIDE / ONMARU</p>
-            <h1 className="mt-5 max-w-3xl font-serif text-5xl leading-[0.98] tracking-[-0.055em] sm:text-7xl">
+            <p className="text-xs font-semibold tracking-[0.18em] text-[#a94d35]">오디 오디오 가이드</p>
+            <h1 className="mt-5 max-w-3xl font-maruburi text-5xl font-semibold leading-[1.08] tracking-[-0.055em] sm:text-7xl">
               소리를 따라,<br />한국의 온기 속으로.
             </h1>
             <p className="mt-7 max-w-lg text-base leading-7 text-[#655b4d]">
@@ -72,10 +72,9 @@ export const OdiiAudioFeature: React.FC = () => {
         <section className="mx-auto max-w-6xl px-4 py-20 sm:px-8 sm:py-28">
           <div className="mb-8 flex items-end justify-between border-b border-[#211e19]/20 pb-5">
             <div>
-              <p className="text-xs font-semibold tracking-[0.16em] text-[#a94d35]">NEARBY STORIES</p>
-              <h2 className="mt-2 font-serif text-3xl tracking-[-0.04em] sm:text-4xl">오늘, 여기에서 들을 수 있는 이야기</h2>
+              <h2 className="font-maruburi text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">오늘, 여기에서 들을 수 있는 이야기</h2>
             </div>
-            <p className="hidden text-xs text-[#655b4d] sm:block">서울 종로구 기준</p>
+              <p className="hidden text-xs text-[#655b4d] sm:block">거리순 · {nearbyStories.length}개의 오디오 가이드</p>
           </div>
           <StoryCarousel stories={nearbyStories} />
         </section>
@@ -84,8 +83,7 @@ export const OdiiAudioFeature: React.FC = () => {
           <div className="mx-auto max-w-6xl">
             <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
               <div>
-                <p className="text-xs font-semibold tracking-[0.16em] text-[#a94d35]">THE SOUND ARCHIVE</p>
-                <h2 className="mt-2 font-serif text-4xl tracking-[-0.045em] sm:text-5xl">모든 이야기를 찾아보세요.</h2>
+                <h2 className="font-maruburi text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">모든 이야기를 찾아보세요.</h2>
               </div>
               <p className="max-w-xs text-sm leading-6 text-[#655b4d]">지역과 테마, 장소 이름으로 지금 떠나고 싶은 이야기를 찾을 수 있어요.</p>
             </div>
@@ -98,10 +96,15 @@ export const OdiiAudioFeature: React.FC = () => {
           </div>
         </section>
 
-        <section className="mx-auto grid max-w-6xl grid-cols-1 gap-6 px-4 py-20 sm:px-8 lg:grid-cols-12">
-          <div className="lg:col-span-5"><p className="text-xs font-semibold tracking-[0.16em] text-[#a94d35]">NOW PLAYING</p><h2 className="mt-3 font-serif text-3xl tracking-[-0.04em]">지금, 귀 기울이는 장소</h2></div>
-          <div className="lg:col-span-7"><HeroAudioPlayer /></div>
-          <div className="lg:col-start-6 lg:col-span-7"><ScriptSyncViewer /></div>
+        <section className="mx-auto max-w-6xl px-4 py-20 sm:px-8 sm:py-28">
+          <div className="mb-8 flex flex-col justify-between gap-4 border-b border-[#211e19]/20 pb-5 sm:flex-row sm:items-end">
+            <div><p className="text-xs font-semibold tracking-[0.16em] text-[#a94d35]">지금 재생 중</p><h2 className="mt-3 font-maruburi text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">지금, 귀 기울이는 장소</h2></div>
+            <p className="max-w-xs text-sm leading-6 text-[#655b4d]">장소의 풍경을 보고, 이야기를 읽으며 같은 호흡으로 들어보세요.</p>
+          </div>
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-stretch">
+            <HeroAudioPlayer />
+            <ScriptSyncViewer />
+          </div>
         </section>
       </main>
 

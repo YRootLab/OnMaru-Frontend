@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
 import { OdiiStoryItem } from '../types/odii.types';
 
@@ -10,6 +11,8 @@ interface StoryCarouselProps {
 
 export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories }) => {
   const railRef = useRef<HTMLDivElement | null>(null);
+  const [isAtStart, setIsAtStart] = useState(true);
+  const [isAtEnd, setIsAtEnd] = useState(false);
   const currentStory = useOdiiAudioStore((s) => s.currentStory);
   const isPlaying = useOdiiAudioStore((s) => s.isPlaying);
   const setCurrentStory = useOdiiAudioStore((s) => s.setCurrentStory);
@@ -33,20 +36,35 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories }) => {
     railRef.current?.scrollBy({ left: direction * 336, behavior: 'smooth' });
   };
 
+  useEffect(() => {
+    const rail = railRef.current;
+    if (!rail) return;
+
+    const updateRailEdges = () => {
+      const maxScrollLeft = rail.scrollWidth - rail.clientWidth;
+      const firstCardStart = (rail.firstElementChild as HTMLElement | null)?.offsetLeft ?? 0;
+      // 첫 카드가 레일의 시작점에 스냅된 상태도 index 0으로 취급한다.
+      setIsAtStart(rail.scrollLeft <= firstCardStart + 4);
+      setIsAtEnd(maxScrollLeft <= 4 || rail.scrollLeft >= maxScrollLeft - 4);
+    };
+
+    updateRailEdges();
+    rail.addEventListener('scroll', updateRailEdges, { passive: true });
+    window.addEventListener('resize', updateRailEdges);
+    return () => {
+      rail.removeEventListener('scroll', updateRailEdges);
+      window.removeEventListener('resize', updateRailEdges);
+    };
+  }, [stories.length]);
+
   return (
     <section className="w-full">
       <div className="mb-5 flex items-center justify-between">
         <p className="text-sm text-[#655b4d]">가까운 장소의 이야기를 좌우로 살펴보세요.</p>
-        <div className="flex items-center gap-2">
-          <button type="button" onClick={() => moveRail(-1)} className="flex h-10 w-10 items-center justify-center rounded-full border border-[#211e19]/20 text-[#211e19] transition hover:border-[#a94d35] hover:bg-[#a94d35] hover:text-white" aria-label="이전 이야기">
-            <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-2"><path d="m14 5-7 7 7 7" /></svg>
-          </button>
-          <button type="button" onClick={() => moveRail(1)} className="flex h-10 w-10 items-center justify-center rounded-full bg-[#211e19] text-white transition hover:bg-[#a94d35]" aria-label="다음 이야기">
-            <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-2"><path d="m10 5 7 7-7 7" /></svg>
-          </button>
-        </div>
+        <span className="text-xs text-[#786d5e]">좌우로 이동</span>
       </div>
-      <div ref={railRef} className="flex snap-x snap-mandatory space-x-5 overflow-x-auto px-1 pb-5 pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="relative -mx-4 sm:-mx-8">
+      <div ref={railRef} className="flex snap-x snap-mandatory space-x-5 overflow-x-auto px-10 pb-12 pt-5 sm:px-16 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {stories.map((story) => {
           const isCurrent = currentStory.stid === story.stid;
           const isThisPlaying = isCurrent && isPlaying;
@@ -71,8 +89,8 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories }) => {
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 {story.distance && (
-                  <span className="absolute top-2 left-2 px-2.5 py-1 text-[11px] font-semibold bg-[#f7f0e4]/90 text-[#211e19]">
-                    {story.distance} · 내 주변
+                  <span className="absolute left-3 top-3 rounded-full border border-white/50 bg-[#f7f0e4]/82 px-3 py-1.5 text-[11px] font-semibold text-[#493d31] shadow-sm backdrop-blur-md">
+                    {story.distance} <span className="mx-1 text-[#b49f8b]">·</span><span className="text-[#776958]">내 주변</span>
                   </span>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-3 justify-between">
@@ -114,6 +132,21 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories }) => {
             </button>
           );
         })}
+      </div>
+        <AnimatePresence initial={false}>
+          {!isAtStart && <motion.div key="left-rail-control" initial={{ opacity: 0, x: -18 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -18 }} transition={{ duration: 0.24, ease: 'easeOut' }} className="absolute inset-y-0 left-0 z-10">
+            <div className="pointer-events-none h-full w-10 bg-gradient-to-r from-[#f3eee4] via-[#f3eee4]/82 to-transparent sm:w-16" />
+            <button type="button" onClick={() => moveRail(-1)} className="absolute left-3 top-[42%] flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-[#b8ab9b]/80 bg-[#f7f0e6]/80 text-[#594b3e] shadow-[0_8px_20px_rgba(61,45,29,0.12)] backdrop-blur-sm transition duration-300 hover:scale-105 hover:border-[#a94d35] hover:bg-[#a94d35] hover:text-white sm:left-5" aria-label="이전 이야기">
+              <svg viewBox="0 0 24 24" className="h-[18px] w-[18px] fill-none stroke-current stroke-[1.7]"><path d="m14.5 5.5-6.5 6.5 6.5 6.5" /></svg>
+            </button>
+          </motion.div>}
+          {!isAtEnd && <motion.div key="right-rail-control" initial={{ opacity: 0, x: 18 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 18 }} transition={{ duration: 0.24, ease: 'easeOut' }} className="absolute inset-y-0 right-0 z-10">
+            <div className="pointer-events-none h-full w-10 bg-gradient-to-l from-[#f3eee4] via-[#f3eee4]/82 to-transparent sm:w-16" />
+            <button type="button" onClick={() => moveRail(1)} className="absolute right-3 top-[42%] flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-[#b8ab9b]/80 bg-[#f7f0e6]/80 text-[#594b3e] shadow-[0_8px_20px_rgba(61,45,29,0.12)] backdrop-blur-sm transition duration-300 hover:scale-105 hover:border-[#a94d35] hover:bg-[#a94d35] hover:text-white sm:right-5" aria-label="다음 이야기">
+              <svg viewBox="0 0 24 24" className="h-[18px] w-[18px] fill-none stroke-current stroke-[1.7]"><path d="m9.5 5.5 6.5 6.5-6.5 6.5" /></svg>
+            </button>
+          </motion.div>}
+        </AnimatePresence>
       </div>
     </section>
   );

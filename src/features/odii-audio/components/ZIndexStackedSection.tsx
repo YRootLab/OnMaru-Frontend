@@ -50,8 +50,7 @@ export const ZIndexStackedSection: React.FC<ZIndexStackedSectionProps> = ({ stor
     <section className="bg-[#f7f4ee] px-4 py-20 sm:px-8 sm:py-28">
       <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-12 lg:items-center">
         <div className="lg:col-span-4">
-          <p className="text-xs font-semibold tracking-[0.18em] text-[#a94d35]">ONMARU × ODII</p>
-          <h2 className="mt-4 font-serif text-4xl leading-[1.02] tracking-[-0.05em] sm:text-5xl">공간이 품은 소리를, 이야기로 만나보세요.</h2>
+          <h2 className="font-maruburi text-4xl font-semibold leading-[1.12] tracking-[-0.05em] sm:text-5xl">공간이 품은 소리를, 이야기로 만나보세요.</h2>
           <p className="mt-6 max-w-sm text-sm leading-6 text-[#655b4d]">카드 위에서 휠을 움직이면 세 장면이 끝없이 겹쳐지며 전환됩니다.</p>
           <div className="mt-8 flex gap-2">
             {CHAPTERS.map((chapter, index) => <button key={chapter.eyebrow} type="button" onClick={() => setSelected(index)} aria-label={chapter.eyebrow} className={`h-2.5 rounded-full transition-all ${index === selected ? 'w-9 bg-[#a94d35]' : 'w-2.5 bg-[#c9bdad]'}`} />)}
@@ -78,11 +77,11 @@ export const ZIndexStackedSection: React.FC<ZIndexStackedSectionProps> = ({ stor
                 <div className="absolute inset-0 bg-gradient-to-r from-white/80 via-white/25 to-transparent" />
                 <div className="relative flex h-full max-w-[78%] flex-col justify-end p-5 sm:max-w-[66%] sm:p-8">
                   <p className="text-[10px] font-bold tracking-[0.14em] opacity-65 sm:text-[11px]">0{index + 1} / {chapter.eyebrow}</p>
-                  <h3 className="mt-2 font-serif text-2xl leading-[1.06] tracking-[-0.045em] sm:text-4xl">{chapter.title}</h3>
+                  <h3 className="mt-2 font-maruburi text-2xl font-semibold leading-[1.12] tracking-[-0.045em] sm:text-4xl">{chapter.title}</h3>
                   <p className="mt-3 max-w-sm text-xs leading-5 opacity-75 sm:text-sm sm:leading-6">{chapter.description}</p>
                   {isFront && story && <button type="button" onClick={(event) => { event.stopPropagation(); play(story); }} className="mt-5 inline-flex w-fit items-center gap-2 rounded-full bg-[#211e19] px-3 py-2.5 text-xs font-semibold text-white sm:px-4 sm:text-sm"><span>{currentStory.stid === story.stid && isPlaying ? 'Ⅱ' : '▶'}</span>{story.title} 듣기</button>}
                 </div>
-                <span className="absolute bottom-[-5rem] right-5 font-serif text-[14rem] leading-none tracking-[-0.14em] opacity-10 sm:right-12 sm:text-[20rem]">0{index + 1}</span>
+                <span className="absolute bottom-[-5rem] right-5 font-maruburi text-[14rem] leading-none tracking-[-0.14em] opacity-10 sm:right-12 sm:text-[20rem]">0{index + 1}</span>
               </article>
             );
           })}

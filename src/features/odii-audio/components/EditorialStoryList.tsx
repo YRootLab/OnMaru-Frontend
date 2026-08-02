@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
 import { OdiiStoryItem } from '../types/odii.types';
 
@@ -15,8 +15,6 @@ export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({ stories 
   const selectStory = useOdiiAudioStore((s) => s.selectStory);
   const setIsPlaying = useOdiiAudioStore((s) => s.setIsPlaying);
 
-  const [isExpandedAll, setIsExpandedAll] = useState(false);
-
   const handlePlayClick = (story: OdiiStoryItem, e: React.MouseEvent) => {
     e.stopPropagation();
     if (currentStory.stid === story.stid) {
@@ -25,8 +23,6 @@ export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({ stories 
       setCurrentStory(story);
     }
   };
-
-  const visibleStories = isExpandedAll ? stories : stories.slice(0, 4);
 
   if (stories.length === 0) {
     return (
@@ -37,23 +33,18 @@ export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({ stories 
   }
 
   return (
-    <div className="w-full py-6 space-y-0">
+    <div className="w-full py-6">
       {/* 아카이브 상단 요약 바 */}
       <div className="flex items-center justify-between pb-4 text-xs text-[#655b4d] border-b border-[#211e19]/20">
         <span className="font-semibold text-[#211e19]">
           총 <strong className="text-[#a94d35] font-extrabold">{stories.length}개</strong>의 오디오 이야기
         </span>
-        <button
-          onClick={() => setIsExpandedAll(!isExpandedAll)}
-          className="text-[#211e19] font-semibold text-xs transition-colors hover:text-[#a94d35]"
-        >
-          {isExpandedAll ? '▲ 접기' : '▼ 전체보기'}
-        </button>
+        <span>스크롤하여 탐색</span>
       </div>
 
       {/* 리스트 아이템 모음 */}
-      <div>
-        {visibleStories.map((story) => {
+      <div className="pt-2">
+        {stories.map((story) => {
           const isCurrent = currentStory.stid === story.stid;
           const isThisPlaying = isCurrent && isPlaying;
 
@@ -61,13 +52,9 @@ export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({ stories 
             <div
               key={story.stid}
               onClick={() => selectStory(story)}
-              className={`group relative flex cursor-pointer items-center justify-between border-b py-2 transition-colors duration-300 ${
-                isCurrent
-                  ? 'border-[#a94d35]'
-                  : 'border-[#211e19]/15 hover:border-[#a94d35]'
-              }`}
+              className="group relative z-0 flex cursor-pointer items-center justify-between py-2 transition-all duration-300 hover:z-10"
             >
-              <div className={`flex w-full items-center justify-between rounded-2xl px-3 py-3 transition-all duration-300 sm:px-4 ${isCurrent ? 'bg-[#f1e5d6]' : 'group-hover:bg-[#f5eee4]'}`}>
+              <div className={`relative flex w-full items-center justify-between rounded-2xl border px-3 py-3 transition-all duration-300 sm:px-4 ${isCurrent ? 'border-[#d7a18e] bg-[#f1e5d6] shadow-[0_12px_24px_rgba(115,75,48,0.12)]' : 'border-transparent bg-transparent group-hover:border-[#d8cbb9] group-hover:bg-[#fbf8f2] group-hover:shadow-[0_20px_28px_-16px_rgba(61,45,29,0.36)]'}`}>
                 {/* 좌측 섬네일 + 정보 */}
                 <div className="flex min-w-0 items-center space-x-4">
                   <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl bg-[#d8cfbf] sm:h-20 sm:w-20">
@@ -123,23 +110,12 @@ export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({ stories 
                   )}
                 </button>
               </div>
+              <div className="pointer-events-none absolute inset-x-5 bottom-0 h-px bg-gradient-to-r from-transparent via-[#b9ab99]/70 to-transparent group-hover:opacity-0" />
             </div>
           );
         })}
       </div>
 
-      {/* 전체보기 토글 버튼 */}
-      {stories.length > 4 && (
-        <div className="text-center pt-3">
-          <button
-            onClick={() => setIsExpandedAll(!isExpandedAll)}
-            className="w-full py-4 border-b border-[#211e19]/20 text-[#211e19] font-semibold text-xs sm:text-sm transition-all hover:text-[#a94d35] flex items-center justify-center gap-2"
-          >
-            <span>{isExpandedAll ? '목록 접기' : `이야기 컬렉션 전체보기 (${stories.length}개 전체)`}</span>
-            <span>{isExpandedAll ? '▲' : '▼'}</span>
-          </button>
-        </div>
-      )}
     </div>
   );
 };
