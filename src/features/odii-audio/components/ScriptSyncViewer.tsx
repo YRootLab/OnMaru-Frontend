@@ -1,89 +1,78 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
 import { useOdiiAudioPlayer } from '../hooks/useOdiiAudioPlayer';
+
+function formatTime(seconds: number) {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = Math.floor(seconds % 60);
+  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+}
 
 export const ScriptSyncViewer: React.FC = () => {
   const isPlaying = useOdiiAudioStore((s) => s.isPlaying);
   const activeScriptIndex = useOdiiAudioStore((s) => s.activeScriptIndex);
   const parsedScriptLines = useOdiiAudioStore((s) => s.parsedScriptLines);
   const { seekTo } = useOdiiAudioPlayer();
-
-  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [isTranscriptOpen, setIsTranscriptOpen] = useState(false);
   const activeItemRef = useRef<HTMLParagraphElement | null>(null);
 
   useEffect(() => {
-    if (activeItemRef.current && containerRef.current) {
-      activeItemRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      });
+    if (isTranscriptOpen && activeItemRef.current) {
+      activeItemRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  }, [activeScriptIndex]);
+  }, [activeScriptIndex, isTranscriptOpen]);
 
-  const handleLineClick = (timeSec: number) => {
-    seekTo(timeSec);
-  };
+  if (!parsedScriptLines.length) return null;
+
+  const previewStart = Math.max(0, Math.min(activeScriptIndex, parsedScriptLines.length - 3));
+  const previewLines = parsedScriptLines.slice(previewStart, previewStart + 3);
 
   return (
-    <div className="bg-[#1C1814] text-white rounded-3xl p-6 sm:p-8 border border-[#3A332C] shadow-2xl flex flex-col justify-between h-full min-h-[440px]">
-      {/* 상단 헤더 */}
-      <div className="flex items-center justify-between border-b border-[#3A332C] pb-4 mb-4">
-        <div className="flex items-center space-x-2.5">
-          <span className="text-xs font-bold text-[#F8A8C0] tracking-wider uppercase">
-            Narrative Script
-          </span>
-          <span className="text-white/30">•</span>
-          <span className="text-sm font-bold font-serif text-white">실시간 오디오 대본</span>
+    <>
+      <section className="rounded-3xl border border-[#d8ccbc] bg-[#fbf8f2] p-6 shadow-[0_16px_45px_rgba(61,45,29,0.09)] sm:p-8">
+        <div className="flex items-start justify-between gap-4 border-b border-[#211e19]/10 pb-4">
+          <div>
+            <p className="text-[11px] font-bold tracking-[0.16em] text-[#a94d35]">NARRATIVE SCRIPT</p>
+            <h3 className="mt-1 font-maruburi text-lg font-semibold tracking-[-0.03em]">듣고 있는 이야기</h3>
+          </div>
+          {isPlaying && <span className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-[#a94d35] px-2.5 py-1 text-[10px] font-bold text-white"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />재생 중</span>}
         </div>
-        {isPlaying && (
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-[#D42058] text-white animate-pulse shadow-md">
-            ● LIVE SCRIPT
-          </span>
-        )}
-      </div>
 
-      {/* 대본 라인 스크롤 영역 (tacky left border 제거, 고품격 활성 텍스트 발광) */}
-      <div
-        ref={containerRef}
-        className="flex-1 overflow-y-auto space-y-3 pr-2 scrollbar-thin scrollbar-thumb-white/20 max-h-[340px] sm:max-h-[400px]"
-      >
-        {parsedScriptLines.map((line, idx) => {
-          const isActive = idx === activeScriptIndex;
-
-          return (
-            <p
-              key={line.id}
-              ref={isActive ? activeItemRef : null}
-              onClick={() => handleLineClick(line.timeSec)}
-              className={`p-3.5 rounded-2xl text-sm sm:text-base transition-all duration-300 cursor-pointer font-serif leading-relaxed ${
-                isActive
-                  ? 'bg-white/10 text-white font-bold border border-[#D42058]/50 shadow-lg scale-[1.01]'
-                  : 'text-[#A09588] hover:bg-white/5 hover:text-white'
-              }`}
-            >
-              <span className="text-xs font-mono text-[#D42058] mr-2">
-                [{Math.floor(line.timeSec / 60)}:
-                {(line.timeSec % 60).toString().padStart(2, '0')}]
-              </span>
+        <blockquote className="mt-6 border-l-2 border-[#d56748] pl-4 font-maruburi text-[15px] leading-7 text-[#3c342a] sm:text-base">
+          {previewLines.map((line, index) => (
+            <p key={line.id} className={line.id === parsedScriptLines[activeScriptIndex]?.id ? 'font-semibold text-[#211e19]' : index === 0 ? '' : 'mt-2'}>
               {line.text}
             </p>
-          );
-        })}
-      </div>
+          ))}
+        </blockquote>
 
-      {/* 하단 정보 */}
-      <div className="flex items-center justify-between border-t border-[#3A332C] pt-4 mt-4 text-xs text-[#A09588]">
-        <span className="font-mono text-[#F8A8C0]">
-          {parsedScriptLines.length > 0
-            ? `${activeScriptIndex + 1} / ${parsedScriptLines.length} 줄`
-            : '0 / 0 줄'}
-        </span>
-        <span className="text-[#A09588] hover:text-white transition-colors cursor-pointer">
-          대본 라인을 터치하여 구간 이동
-        </span>
-      </div>
-    </div>
+        <div className="mt-6 flex items-center justify-between border-t border-[#211e19]/10 pt-4">
+          <span className="text-xs text-[#786d5e]">{formatTime(parsedScriptLines[activeScriptIndex]?.timeSec ?? 0)} · 대본 {parsedScriptLines.length}개 구간</span>
+          <button type="button" onClick={() => setIsTranscriptOpen(true)} className="text-sm font-semibold text-[#a94d35] underline decoration-[#a94d35]/40 underline-offset-4 transition hover:text-[#7f3725]">
+            대본 전체 보기 →
+          </button>
+        </div>
+      </section>
+
+      {isTranscriptOpen && (
+        <div className="fixed inset-0 z-[70] flex items-end bg-[#211e19]/50 p-0 backdrop-blur-sm sm:items-center sm:justify-center sm:p-6" role="dialog" aria-modal="true" aria-label="오디오 대본 전체 보기">
+          <div className="flex max-h-[86vh] w-full max-w-2xl flex-col rounded-t-3xl bg-[#fbf8f2] shadow-2xl sm:rounded-3xl">
+            <div className="flex items-center justify-between border-b border-[#211e19]/10 px-6 py-5 sm:px-8">
+              <div><p className="text-[11px] font-bold tracking-[0.16em] text-[#a94d35]">FULL TRANSCRIPT</p><h3 className="mt-1 font-maruburi text-xl font-semibold">오디오 대본</h3></div>
+              <button type="button" onClick={() => setIsTranscriptOpen(false)} className="rounded-full p-2 text-[#655b4d] transition hover:bg-[#eee6da] hover:text-[#211e19]" aria-label="대본 닫기">✕</button>
+            </div>
+            <div className="overflow-y-auto px-6 py-5 sm:px-8">
+              {parsedScriptLines.map((line, index) => {
+                const isActive = index === activeScriptIndex;
+                return <p key={line.id} ref={isActive ? activeItemRef : null} onClick={() => seekTo(line.timeSec)} className={`cursor-pointer rounded-2xl px-4 py-3 text-[15px] leading-7 transition sm:text-base ${isActive ? 'bg-[#f0ded5] font-semibold text-[#211e19]' : 'text-[#655b4d] hover:bg-[#f2ece2]'}`}><span className="mr-3 text-xs font-mono text-[#a94d35]">{formatTime(line.timeSec)}</span>{line.text}</p>;
+              })}
+            </div>
+            <div className="border-t border-[#211e19]/10 px-6 py-4 text-xs text-[#786d5e] sm:px-8">문장을 누르면 해당 오디오 구간으로 이동합니다.</div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
