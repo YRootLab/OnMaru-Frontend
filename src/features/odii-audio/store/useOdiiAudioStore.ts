@@ -15,6 +15,7 @@ interface OdiiAudioState {
 
   // Actions
   setCurrentStory: (story: OdiiStoryItem) => void;
+  selectStory: (story: OdiiStoryItem) => void;
   setIsPlaying: (isPlaying: boolean) => void;
   setCurrentTime: (time: number) => void;
   setDuration: (duration: number) => void;
@@ -55,6 +56,20 @@ export const useOdiiAudioStore = create<OdiiAudioState>((set, get) => ({
       activeScriptIndex: 0,
       parsedScriptLines: parsed,
       isPlaying: true,
+    });
+  },
+
+  // 목록 탐색에서 쓰는 선택 액션: 재생은 명시적인 재생 버튼에서만 시작한다.
+  selectStory: (story: OdiiStoryItem) => {
+    const playTimeSec = parseInt(story.playTime, 10) || 300;
+    const parsed = parseScriptToLines(story.script, playTimeSec);
+    set({
+      currentStory: story,
+      currentTime: 0,
+      duration: playTimeSec,
+      activeScriptIndex: 0,
+      parsedScriptLines: parsed,
+      isPlaying: false,
     });
   },
 
