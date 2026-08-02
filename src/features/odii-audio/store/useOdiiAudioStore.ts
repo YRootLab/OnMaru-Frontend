@@ -12,6 +12,7 @@ interface OdiiAudioState {
   selectedCategory: string;
   searchQuery: string;
   isBookmarked: boolean;
+  isPlayerExpanded: boolean;
 
   // Actions
   setCurrentStory: (story: OdiiStoryItem) => void;
@@ -23,6 +24,7 @@ interface OdiiAudioState {
   setSelectedCategory: (category: string) => void;
   setSearchQuery: (query: string) => void;
   toggleBookmark: () => void;
+  setIsPlayerExpanded: (isExpanded: boolean) => void;
   
   // Audio Seek & Controls
   skipForward: (seconds?: number) => void;
@@ -45,6 +47,7 @@ export const useOdiiAudioStore = create<OdiiAudioState>((set, get) => ({
   selectedCategory: '전체',
   searchQuery: '',
   isBookmarked: false,
+  isPlayerExpanded: false,
 
   setCurrentStory: (story: OdiiStoryItem) => {
     const playTimeSec = parseInt(story.playTime, 10) || 300;
@@ -94,6 +97,7 @@ export const useOdiiAudioStore = create<OdiiAudioState>((set, get) => ({
   setSelectedCategory: (selectedCategory: string) => set({ selectedCategory }),
   setSearchQuery: (searchQuery: string) => set({ searchQuery }),
   toggleBookmark: () => set((state) => ({ isBookmarked: !state.isBookmarked })),
+  setIsPlayerExpanded: (isPlayerExpanded: boolean) => set({ isPlayerExpanded }),
 
   skipForward: (seconds = 10) => {
     const state = get();

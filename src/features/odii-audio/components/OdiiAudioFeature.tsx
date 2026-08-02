@@ -2,8 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { HeroAudioPlayer } from './HeroAudioPlayer';
-import { ScriptSyncViewer } from './ScriptSyncViewer';
 import { StoryCarousel } from './StoryCarousel';
 import { CategoryTagFilter } from './CategoryTagFilter';
 import { EditorialStoryList } from './EditorialStoryList';
@@ -96,16 +94,6 @@ export const OdiiAudioFeature: React.FC = () => {
           </div>
         </section>
 
-        <section className="mx-auto max-w-6xl px-4 py-20 sm:px-8 sm:py-28">
-          <div className="mb-8 flex flex-col justify-between gap-4 border-b border-[#211e19]/20 pb-5 sm:flex-row sm:items-end">
-            <div><p className="text-xs font-semibold tracking-[0.16em] text-[#a94d35]">지금 재생 중</p><h2 className="mt-3 font-maruburi text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">지금, 귀 기울이는 장소</h2></div>
-            <p className="max-w-xs text-sm leading-6 text-[#655b4d]">장소의 풍경을 보고, 이야기를 읽으며 같은 호흡으로 들어보세요.</p>
-          </div>
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-stretch">
-            <HeroAudioPlayer />
-            <ScriptSyncViewer />
-          </div>
-        </section>
       </main>
 
       <LocalMiniPlayer />
