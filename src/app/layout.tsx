@@ -4,6 +4,8 @@ import './globals.css'
 // 없으면 스크롤 상태 전환이 어긋난다. Next App Router에서 전역 CSS는 layout에서만 import 가능.
 import 'lenis/dist/lenis.css'
 import { Providers } from './providers'
+import Header from '@/shared/components/Header'
+import PageContainer from '@/shared/components/Layout/PageContainer'
 
 export const metadata: Metadata = {
   title: '온마루 — 한옥의 온기를 잇다',
@@ -18,7 +20,12 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          <Header />
+          <PageContainer>
+            {children}
+          </PageContainer>
+        </Providers>
       </body>
     </html>
   )

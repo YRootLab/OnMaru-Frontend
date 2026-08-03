@@ -2,14 +2,16 @@
 
 /*
   =============================================================
-  ⚠️ [주의 / NOTICE] 여 기 는  임 시  파 일 입 니 다 !
+  📢 [안내 / NOTICE] 이 파일은 데모 / 프로토타입 임시 페이지입니다!
   =============================================================
-  - 이 라우트 페이지(/map/page.jsx)는 지도 탐색 임시 프로토타입 페이지입니다.
-  - 추후 정식 지도 서비스 연동 개발 시 수정을 하거나 대체될 수 있습니다.
+  - 이 페이지는 지도 탐색(정보지도 / 온기지도) 네비게이션 데모 페이지입니다.
+  - 정식 지도 서비스 연동 및 디자인 시 이 구조에 국한되지 않고 
+    자유롭게 기능 확장 및 디자인을 마음껏 꾸미실 수 있습니다! 🇰🇷
   =============================================================
 */
 
 import { useMemo, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import styled from '@emotion/styled';
@@ -238,6 +240,10 @@ const MapPlaceholder = styled.div`
 `;
 
 export default function MapPage() {
+  const searchParams = useSearchParams();
+  const modeParam = searchParams.get('mode');
+  const isWarmthMode = modeParam === 'warmth';
+
   const [region, setRegion] = useState(ALL);
   const [activeId, setActiveId] = useState(null);
 
@@ -259,14 +265,15 @@ export default function MapPage() {
         <PanelHead>
           <BackLink href="/">← 온마루</BackLink>
 
-          <Title>한옥 지도</Title>
+          <Title>{isWarmthMode ? '🔥 온기지도' : '🗺️ 정보지도'}</Title>
           <Count>
-            <b>{places.length}</b>곳 {region === ALL ? '전국' : region}
+            <b>{places.length}</b>곳 {region === ALL ? '전국' : region} {isWarmthMode ? '(온기 후기 연동)' : '(건축 위치 데이터)'}
           </Count>
 
           <SourceBadge>
-            샘플 데이터 — 공개된 한옥마을·고택의 근사 좌표입니다. 한국관광공사 TourAPI 키를 연결하면
-            실제 숙소 목록으로 바뀝니다.
+            {isWarmthMode
+              ? '온기지도 데모 — 전국 한옥에 남겨진 여행자들의 따뜻한 스토리와 발자취를 지도 위에서 탐색합니다.'
+              : '정보지도 데모 — 공개된 전국 한옥 고택 및 마을의 정확한 위치와 건축 데이터를 탐색합니다.'}
           </SourceBadge>
         </PanelHead>
 
