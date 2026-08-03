@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 
 import { BEAT_RANGES } from '@/scroll-core/constants';
 import { meok } from '@/design-system/tokens';
-import { clamp01, easeIn, usePrefersReducedMotion } from './BeatFrame';
+import { clamp01, easeIn, usePrefersReducedMotion } from './LandingSectionFrame';
 
 // ─────────────────────────────────────────
 // 구간 (Beat1: 0.0 ~ 0.09)
@@ -228,7 +228,7 @@ const doubleArrowVariants = {
   }),
 };
 
-export default function Beat1_Intro({ progress }) {
+export default function LandingHero({ progress }) {
   const reduced = usePrefersReducedMotion();
   const typedCount = useTypewriter(TOTAL_CHARS, { skip: reduced });
   const videoRef = useRef(null);

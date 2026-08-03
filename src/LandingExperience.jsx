@@ -13,12 +13,16 @@ import { frameCamera, toRad } from '@/scroll-core/cameraUtils';
 import HanokModel from '@/components/HanokModel';
 import GlobalBackground from '@/scroll-core/GlobalBackground';
 import { sunNow, useSceneStore } from '@/scroll-core/sceneStore';
-import { progressIn } from '@/scroll-beats/BeatFrame';
-import Beat1_Intro from '@/scroll-beats/Beat1_Intro';
-import Beat3_Season from '@/scroll-beats/Beat3_Season';
-import Beat4_Assembly, { AssemblyModel } from '@/scroll-beats/Beat4_Assembly';
-import Beat5_Silence from '@/scroll-beats/Beat5_Silence';
-import Beat6_Invite from '@/scroll-beats/Beat6_Invite';
+import { progressIn } from '@/components/landing/LandingSectionFrame';
+import LandingHero from '@/components/landing/LandingHero';
+import LandingSolarShadow from '@/components/landing/LandingSolarShadow';
+import LandingHanokAssembly, { AssemblyModel } from '@/components/landing/LandingHanokAssembly';
+import LandingPhilosophy from '@/components/landing/LandingPhilosophy';
+import LandingCallToAction from '@/components/landing/LandingCallToAction';
+import LandingLoader from '@/components/landing/LandingLoader';
+
+// 3D 한옥 메쉬 모델 백그라운드 사전 캐싱 (Preload)
+useGLTF.preload(MODEL_URL);
 
 /**
  * 전체 스크롤 길이. 9개 Beat이 나눠 쓴다.
@@ -640,7 +644,7 @@ function Fallback3DWireframe() {
  *
  *   z 0 — 배경색
  *   z 1 — 한옥
- *   z 2 — Beat 텍스트 (ScrollExperience가 그린다)
+ *   z 2 — Beat 텍스트 (LandingExperience가 그린다)
  *
  * 배경색은 캔버스가 아니라 아래 div가 갖는다.
  * Canvas는 alpha: true로 투명하게 두고 scene.background도 비운다.
@@ -695,10 +699,10 @@ function FixedStage({ progress }) {
 }
 
 // ─────────────────────────────────────────
-// ScrollExperience
+// LandingExperience (온마루 메인 랜딩 스토리텔링 오케스트레이션)
 // ─────────────────────────────────────────
 
-export default function ScrollExperience() {
+export default function LandingExperience() {
   useSmoothScroll();
   const progress = useScrollProgress();
 
@@ -706,6 +710,9 @@ export default function ScrollExperience() {
   // 밝은 body 배경이 비치는 것을 막는다.
   return (
     <main style={{ position: 'relative', width: '100%', background: CANVAS_BASE_COLOR }}>
+      {/* 3D 자원 로딩 진행률 및 감성 텍스트 스크린 */}
+      <LandingLoader />
+
       {/* 모든 Beat보다 아래(z 0). 색·텍스처·비네트를 전담한다. */}
       <GlobalBackground progress={progress} />
 
@@ -716,11 +723,11 @@ export default function ScrollExperience() {
 
       {/* 배경(z 0)·한옥(z 1) 위. 텍스트가 무엇에도 가리지 않는다. */}
       <div style={{ position: 'relative', zIndex: 2 }}>
-        <Beat1_Intro progress={progress} />
-        <Beat3_Season progress={progress} />
-        <Beat4_Assembly progress={progress} />
-        <Beat5_Silence progress={progress} />
-        <Beat6_Invite progress={progress} />
+        <LandingHero progress={progress} />
+        <LandingSolarShadow progress={progress} />
+        <LandingHanokAssembly progress={progress} />
+        <LandingPhilosophy progress={progress} />
+        <LandingCallToAction progress={progress} />
       </div>
     </main>
   );

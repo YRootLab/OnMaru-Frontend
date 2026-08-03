@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 
 import { lightPalette, surface } from '@/design-system/tokens';
 import { useSceneStore } from '@/scroll-core/sceneStore';
-import { clamp01, lerpHex, usePrefersReducedMotion } from '@/scroll-beats/BeatFrame';
+import { clamp01, lerpHex, usePrefersReducedMotion } from '@/components/landing/LandingSectionFrame';
 
 // ─────────────────────────────────────────
 // 색상 정거장 — 전부 황갈/한지 계열 (남색 배제)

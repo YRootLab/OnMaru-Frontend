@@ -16,11 +16,12 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 // 읽기 전용 아카이브의 단계 정의. 실제 경로는 .../data/hanok.data
 // (브리프 경로에서 /data/ 세그먼트가 빠져 있었다). hanok.data.ts는 수정하지 않는다.
-import { STAGES } from '@/archive/hanok-viewer/data/hanok.data';
+import { STAGES } from '@/temp/archive/hanok-viewer/data/hanok.data';
 import { MODEL_URL, BEAT_RANGES } from '@/scroll-core/constants';
+useGLTF.preload(MODEL_URL);
 import { assemblyProgress, useSceneStore } from '@/scroll-core/sceneStore';
 import { meok } from '@/design-system/tokens';
-import { clamp01, easeOut as easeOutCubic, usePrefersReducedMotion } from './BeatFrame';
+import { clamp01, easeOut as easeOutCubic, usePrefersReducedMotion } from './LandingSectionFrame';
 
 const FONT = "'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif";
 const EASE = [0.22, 1, 0.36, 1];
@@ -74,7 +75,7 @@ const statusOf = (local, i) => {
 /**
  * 조립할 한옥 한 벌.
  *
- * ScrollExperience의 HanokScene이 Beat4 구간에서 완성된 한옥 대신 이것을 세운다.
+ * LandingExperience의 HanokScene이 Beat4 구간에서 완성된 한옥 대신 이것을 세운다.
  * 예전에는 이 파일이 자기 Canvas를 들고 있었지만 그 Canvas가 JSX에 놓인 적이 없어
  * 조립이 한 번도 돌지 않았다 — 그래서 텍스트만 넘어가고 한옥은 그대로였다.
  *
@@ -415,10 +416,10 @@ const Bar = styled.span`
 `;
 
 // ─────────────────────────────────────────
-// Beat4_Assembly
+// LandingHanokAssembly
 // ─────────────────────────────────────────
 
-export default function Beat4_Assembly({ progress }) {
+export default function LandingHanokAssembly({ progress }) {
   const setAssembling = useSceneStore((s) => s.setAssembling);
 
   const active = progress >= RANGE_START && progress < RANGE_END;

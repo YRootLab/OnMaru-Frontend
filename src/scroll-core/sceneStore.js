@@ -3,7 +3,7 @@ import { create } from 'zustand';
 /**
  * Beat이 고정 캔버스의 3D에 값을 넘기는 통로.
  *
- * 3D는 ScrollExperience의 Canvas 하나가 전부 갖고 있고 Beat은 그 위에 얹힌 DOM이라,
+ * 3D는 LandingExperience의 Canvas 하나가 전부 갖고 있고 Beat은 그 위에 얹힌 DOM이라,
  * 트리를 가로질러 값을 건네려면 자리가 하나 필요하다.
  *
  * 이 자리가 비어 있던 탓에 Beat2·3·4가 저마다 3D를 들고 있다가 전부 마운트되지 못했다.

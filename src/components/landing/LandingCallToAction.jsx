@@ -8,7 +8,7 @@ import { keyframes } from '@emotion/react';
 import { lightPalette, meok } from '@/design-system/tokens';
 import SHADOW from '@/data/solarShadow.json';
 
-import { usePrefersReducedMotion } from './BeatFrame';
+import { usePrefersReducedMotion } from './LandingSectionFrame';
 
 const FONT = "'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif";
 
@@ -449,7 +449,7 @@ const AutoNote = styled.p`
 // Beat6_Invite
 // ─────────────────────────────────────────
 
-export default function Beat6_Invite({ progress }) {
+export default function LandingCallToAction({ progress }) {
   const reduced = usePrefersReducedMotion();
 
   // undefined = 아직 모름, null = 못 가져옴, number = 확인된 값
