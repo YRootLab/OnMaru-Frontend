@@ -283,9 +283,9 @@ export const createTheme = (mode: ColorMode) => {
 
     layout: {
       margin: {
-        sm: '16px', // Mobile
-        md: '16px', // Tablet
-        lg: '72px', // Desktop
+        sm: '16px', // Mobile (< 768px)
+        md: '16px', // Tablet (768px ~ 1024px)
+        lg: '75px', // Large Desktop (>= 1280px)
       },
       gutter: {
         sm: '16px',
