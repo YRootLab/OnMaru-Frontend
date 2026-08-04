@@ -8,10 +8,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import styled from '@emotion/styled';
 
 interface LandingProps {
-  isLanding?: boolean;
+  $isLanding?: boolean;
 }
 
-const HeaderContainer = styled.header<LandingProps>`
+const shouldNotForwardLanding = (prop: string) => prop !== '$isLanding' && prop !== 'isLanding';
+
+const HeaderContainer = styled('header', {
+  shouldForwardProp: shouldNotForwardLanding,
+})<LandingProps>`
   position: fixed;
   top: 0;
   left: 0;
@@ -27,11 +31,11 @@ const HeaderContainer = styled.header<LandingProps>`
     padding: 0 16px;
   }
 
-  background: ${({ isLanding }) => (isLanding ? 'rgba(20, 18, 15, 0.72)' : '#ffffff')};
+  background: ${({ $isLanding }) => ($isLanding ? 'rgba(20, 18, 15, 0.72)' : '#ffffff')};
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid ${({ isLanding }) => (isLanding ? 'rgba(212, 175, 55, 0.15)' : 'rgba(0, 0, 0, 0.06)')};
-  box-shadow: ${({ isLanding }) => (isLanding ? '0 4px 20px rgba(0, 0, 0, 0.35)' : '0 2px 12px rgba(0, 0, 0, 0.04)')};
+  border-bottom: 1px solid ${({ $isLanding }) => ($isLanding ? 'rgba(212, 175, 55, 0.15)' : 'rgba(0, 0, 0, 0.06)')};
+  box-shadow: ${({ $isLanding }) => ($isLanding ? '0 4px 20px rgba(0, 0, 0, 0.35)' : '0 2px 12px rgba(0, 0, 0, 0.04)')};
   transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
   user-select: none;
 `;
@@ -60,12 +64,14 @@ const CenterNav = styled.nav`
   height: 100%;
 `;
 
-const NavLink = styled(Link)<LandingProps>`
+const NavLink = styled(Link, {
+  shouldForwardProp: shouldNotForwardLanding,
+})<LandingProps>`
   position: relative;
   font-family: 'SpoqaHanSansNeo', sans-serif;
   font-size: 14px;
   font-weight: 400;
-  color: ${({ isLanding }) => (isLanding ? 'rgba(250, 250, 250, 0.88)' : '#211e19')};
+  color: ${({ $isLanding }) => ($isLanding ? 'rgba(250, 250, 250, 0.88)' : '#211e19')};
   text-decoration: none;
   letter-spacing: -0.01em;
   display: flex;
@@ -74,7 +80,7 @@ const NavLink = styled(Link)<LandingProps>`
   transition: color 0.2s ease;
 
   &:hover {
-    color: ${({ isLanding }) => (isLanding ? '#d4af37' : '#a94d35')};
+    color: ${({ $isLanding }) => ($isLanding ? '#d4af37' : '#a94d35')};
   }
 `;
 
@@ -85,7 +91,9 @@ const DropdownWrapper = styled.div`
   align-items: center;
 `;
 
-const DropdownTrigger = styled.button<LandingProps>`
+const DropdownTrigger = styled('button', {
+  shouldForwardProp: shouldNotForwardLanding,
+})<LandingProps>`
   background: none;
   border: none;
   outline: none;
@@ -93,7 +101,7 @@ const DropdownTrigger = styled.button<LandingProps>`
   font-family: 'SpoqaHanSansNeo', sans-serif;
   font-size: 14px;
   font-weight: 400;
-  color: ${({ isLanding }) => (isLanding ? 'rgba(250, 250, 250, 0.88)' : '#211e19')};
+  color: ${({ $isLanding }) => ($isLanding ? 'rgba(250, 250, 250, 0.88)' : '#211e19')};
   letter-spacing: -0.01em;
   display: flex;
   align-items: center;
@@ -103,7 +111,7 @@ const DropdownTrigger = styled.button<LandingProps>`
   transition: color 0.2s ease;
 
   &:hover {
-    color: ${({ isLanding }) => (isLanding ? '#d4af37' : '#a94d35')};
+    color: ${({ $isLanding }) => ($isLanding ? '#d4af37' : '#a94d35')};
   }
 `;
 
@@ -117,30 +125,34 @@ const ChevronIcon = styled(motion.svg)`
   stroke-linejoin: round;
 `;
 
-const DropdownMenu = styled(motion.div)<LandingProps>`
+const DropdownMenu = styled(motion.div, {
+  shouldForwardProp: shouldNotForwardLanding,
+})<LandingProps>`
   position: absolute;
   top: calc(100% + 4px);
   left: 50%;
   transform: translateX(-50%);
   min-width: 140px;
-  background: ${({ isLanding }) => (isLanding ? 'rgba(28, 25, 22, 0.94)' : '#ffffff')};
+  background: ${({ $isLanding }) => ($isLanding ? 'rgba(28, 25, 22, 0.94)' : '#ffffff')};
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid ${({ isLanding }) => (isLanding ? 'rgba(212, 175, 55, 0.25)' : 'rgba(0, 0, 0, 0.08)')};
+  border: 1px solid ${({ $isLanding }) => ($isLanding ? 'rgba(212, 175, 55, 0.25)' : 'rgba(0, 0, 0, 0.08)')};
   border-radius: 10px;
   padding: 6px;
-  box-shadow: ${({ isLanding }) => (isLanding ? '0 12px 32px rgba(0, 0, 0, 0.45)' : '0 10px 28px rgba(0, 0, 0, 0.12)')};
+  box-shadow: ${({ $isLanding }) => ($isLanding ? '0 12px 32px rgba(0, 0, 0, 0.45)' : '0 10px 28px rgba(0, 0, 0, 0.12)')};
   display: flex;
   flex-direction: column;
   gap: 2px;
   z-index: 101;
 `;
 
-const DropdownItem = styled(Link)<LandingProps>`
+const DropdownItem = styled(Link, {
+  shouldForwardProp: shouldNotForwardLanding,
+})<LandingProps>`
   font-family: 'SpoqaHanSansNeo', sans-serif;
   font-size: 13px;
   font-weight: 400;
-  color: ${({ isLanding }) => (isLanding ? 'rgba(250, 250, 250, 0.88)' : '#211e19')};
+  color: ${({ $isLanding }) => ($isLanding ? 'rgba(250, 250, 250, 0.88)' : '#211e19')};
   text-decoration: none;
   padding: 8px 12px;
   border-radius: 6px;
@@ -150,8 +162,8 @@ const DropdownItem = styled(Link)<LandingProps>`
   transition: background-color 0.15s ease, color 0.15s ease;
 
   &:hover {
-    background: ${({ isLanding }) => (isLanding ? 'rgba(212, 175, 55, 0.12)' : 'rgba(169, 77, 53, 0.08)')};
-    color: ${({ isLanding }) => (isLanding ? '#d4af37' : '#a94d35')};
+    background: ${({ $isLanding }) => ($isLanding ? 'rgba(212, 175, 55, 0.12)' : 'rgba(169, 77, 53, 0.08)')};
+    color: ${({ $isLanding }) => ($isLanding ? '#d4af37' : '#a94d35')};
   }
 `;
 
@@ -161,13 +173,15 @@ const RightSection = styled.div`
   height: 100%;
 `;
 
-const LoginButton = styled(Link)<LandingProps>`
+const LoginButton = styled(Link, {
+  shouldForwardProp: shouldNotForwardLanding,
+})<LandingProps>`
   position: relative;
   font-family: 'SpoqaHanSansNeo', sans-serif;
   font-size: 13px;
   font-weight: 600;
-  color: ${({ isLanding }) => (isLanding ? 'rgba(250, 250, 250, 0.92)' : '#1c1a17')};
-  background: ${({ isLanding }) => (isLanding ? 'rgba(255, 255, 255, 0.08)' : 'rgba(28, 26, 23, 0.04)')};
+  color: ${({ $isLanding }) => ($isLanding ? 'rgba(250, 250, 250, 0.92)' : '#1c1a17')};
+  background: ${({ $isLanding }) => ($isLanding ? 'rgba(255, 255, 255, 0.08)' : 'rgba(28, 26, 23, 0.04)')};
   border: none;
   border-radius: 6px;
   padding: 6px 14px;
@@ -183,7 +197,7 @@ const LoginButton = styled(Link)<LandingProps>`
     content: '';
     position: absolute;
     inset: 0;
-    background: ${({ isLanding }) => (isLanding ? '#faf8f5' : '#1c1a17')};
+    background: ${({ $isLanding }) => ($isLanding ? '#faf8f5' : '#1c1a17')};
     transform: scaleX(0);
     transform-origin: right;
     transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
@@ -198,8 +212,8 @@ const LoginButton = styled(Link)<LandingProps>`
   }
 
   &:hover {
-    color: ${({ isLanding }) => (isLanding ? '#1c1a17' : '#faf8f5')};
-    box-shadow: ${({ isLanding }) => (isLanding ? '0 4px 14px rgba(0, 0, 0, 0.3)' : '0 4px 14px rgba(28, 26, 23, 0.12)')};
+    color: ${({ $isLanding }) => ($isLanding ? '#1c1a17' : '#faf8f5')};
+    box-shadow: ${({ $isLanding }) => ($isLanding ? '0 4px 14px rgba(0, 0, 0, 0.3)' : '0 4px 14px rgba(28, 26, 23, 0.12)')};
 
     &::before {
       transform: scaleX(1);
@@ -208,7 +222,7 @@ const LoginButton = styled(Link)<LandingProps>`
 
     & > svg {
       transform: translateX(2px);
-      stroke: ${({ isLanding }) => (isLanding ? '#1c1a17' : '#faf8f5')};
+      stroke: ${({ $isLanding }) => ($isLanding ? '#1c1a17' : '#faf8f5')};
     }
   }
 
@@ -234,7 +248,7 @@ export default function Header() {
   }, []);
 
   return (
-    <HeaderContainer isLanding={isLandingPage}>
+    <HeaderContainer $isLanding={isLandingPage}>
       {/* 맨 왼쪽: logo.png */}
       <LeftSection>
         <LogoLink href="/" aria-label="온마루 홈으로 이동">
@@ -251,7 +265,7 @@ export default function Header() {
 
       {/* 가운데: 한옥 아카이브, 지도 (드롭다운), 소리마루 */}
       <CenterNav>
-        <NavLink href="/archive" isLanding={isLandingPage}>
+        <NavLink href="/archive" $isLanding={isLandingPage}>
           한옥 아카이브
         </NavLink>
 
@@ -265,7 +279,7 @@ export default function Header() {
             onClick={() => setIsMapMenuOpen((prev) => !prev)}
             aria-expanded={isMapMenuOpen}
             aria-haspopup="true"
-            isLanding={isLandingPage}
+            $isLanding={isLandingPage}
           >
             지도
             <ChevronIcon
@@ -280,7 +294,7 @@ export default function Header() {
           <AnimatePresence>
             {isMapMenuOpen && (
               <DropdownMenu
-                isLanding={isLandingPage}
+                $isLanding={isLandingPage}
                 initial={{ opacity: 0, y: -6, scale: 0.96 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -6, scale: 0.96 }}
@@ -288,14 +302,14 @@ export default function Header() {
               >
                 <DropdownItem
                   href="/map"
-                  isLanding={isLandingPage}
+                  $isLanding={isLandingPage}
                   onClick={() => setIsMapMenuOpen(false)}
                 >
                   정보지도
                 </DropdownItem>
                 <DropdownItem
                   href="/map?mode=warmth"
-                  isLanding={isLandingPage}
+                  $isLanding={isLandingPage}
                   onClick={() => setIsMapMenuOpen(false)}
                 >
                   온기지도
@@ -305,14 +319,14 @@ export default function Header() {
           </AnimatePresence>
         </DropdownWrapper>
 
-        <NavLink href="/odii" isLanding={isLandingPage}>
+        <NavLink href="/odii" $isLanding={isLandingPage}>
           소리마루
         </NavLink>
       </CenterNav>
 
       {/* 오른쪽 끝: 로그인 */}
       <RightSection>
-        <LoginButton href="/auth/login" isLanding={isLandingPage}>
+        <LoginButton href="/auth/login" $isLanding={isLandingPage}>
           <span>로그인</span>
           <svg
             width="12"
