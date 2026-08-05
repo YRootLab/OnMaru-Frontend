@@ -78,7 +78,7 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
     }
   };
 
-  // 요청사항: 4개의 대기 세로 서브 카드
+  // 정확히 4개의 서브 대기 카드
   const following = featured
     .slice(1, 5)
     .map((_, index) => featured[(activeIndex + index + 1) % featured.length]);
@@ -86,10 +86,10 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
   const leadImageUrl = getValidImage(lead.imageUrl);
 
   return (
-    <section ref={sectionRef} className="mx-auto max-w-6xl px-4 pb-16 sm:px-8 sm:pb-24">
+    <section ref={sectionRef} className="mx-auto max-w-6xl px-4 pb-12 sm:px-8 sm:pb-16">
       <div>
         {/* 상단 탭 필터 바 */}
-        <div className="mb-6 flex items-center space-x-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="mb-4 flex items-center space-x-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {TABS.map((tab) => (
             <button
               key={tab}
@@ -100,7 +100,7 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
                 setActiveIndex(0);
                 setAutoplayVersion((version) => version + 1);
               }}
-              className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all whitespace-nowrap shadow-sm ${
+              className={`px-4 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap shadow-sm ${
                 activeTab === tab
                   ? 'bg-[#e54527] text-white scale-105'
                   : 'bg-[#f7f0e4]/80 text-[#554c41] hover:bg-[#e8dfd1] hover:text-[#211e19]'
@@ -111,13 +111,13 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
           ))}
         </div>
 
-        {/* 3D Flip 컨테이너 */}
-        <div className="relative flex items-center gap-3 overflow-hidden [perspective:1200px]">
+        {/* 75% 높이로 슬림화된 3D Flip 슬라이더 영역 (기존 420px -> 310px) */}
+        <div className="relative flex items-center gap-2.5 overflow-hidden [perspective:1200px]">
           
-          {/* 메인 풀블리드 비주얼 카드 (3D Flip 적용 영역) */}
-          <div className="relative flex-1 min-h-[380px] sm:min-h-[420px] rounded-[2rem] overflow-hidden shadow-xl group [transform-style:preserve-3d]">
+          {/* 메인 풀블리드 비주얼 카드 (높이 75% 슬림화: min-h-[300px] sm:min-h-[315px]) */}
+          <div className="relative flex-1 min-h-[295px] sm:min-h-[315px] h-[315px] rounded-[1.6rem] overflow-hidden shadow-lg group [transform-style:preserve-3d]">
             
-            {/* 🌟 3D Flip (좌->우 회전 뒤집기) 애니메이션 레이어 */}
+            {/* 3D Flip 애니메이션 이미지 */}
             <AnimatePresence initial={false} mode="sync">
               <motion.img
                 key={lead.stid}
@@ -149,47 +149,48 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
               />
             </AnimatePresence>
 
-            {/* 시네마틱 오버레이 */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent pointer-events-none" />
+            {/* 하단/좌측 오버레이 */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent pointer-events-none" />
             <div className="absolute inset-y-0 left-0 w-3/4 bg-gradient-to-r from-black/60 via-black/20 to-transparent pointer-events-none" />
 
             {/* 우측 상단 뱃지 */}
-            <div className="absolute top-5 right-5 z-20">
-              <span className="px-3 py-1 rounded-full bg-black/50 text-white text-[11px] font-semibold backdrop-blur-md border border-white/20">
+            <div className="absolute top-4 right-4 z-20">
+              <span className="px-2.5 py-0.5 rounded-full bg-black/50 text-white text-[10px] font-semibold backdrop-blur-md border border-white/20">
                 {activeIndex + 1} / {featured.length}
               </span>
             </div>
 
-            {/* 메인 카드 정보 & 컨트롤 */}
-            <div className="relative z-10 flex flex-col justify-end h-full p-8 sm:p-10 min-h-[380px] sm:min-h-[420px]">
+            {/* 메인 카드 슬림 정보 & 컨트롤 (75% 비율 맞춤) */}
+            <div className="relative z-10 flex flex-col justify-end h-full p-6 sm:p-7 min-h-[295px] sm:min-h-[315px]">
               <div>
-                <span className="inline-block px-3 py-1 rounded-md bg-[#e54527] text-white text-[11px] font-bold tracking-wide uppercase shadow-md mb-3">
+                <span className="inline-block px-2.5 py-0.5 rounded-md bg-[#e54527] text-white text-[10px] font-bold tracking-wide uppercase shadow-md mb-2">
                   {lead.category} · {lead.locationName}
                 </span>
-                <h2 className="font-maruburi text-3xl sm:text-5xl font-bold text-white leading-[1.18] tracking-[-0.04em] drop-shadow-[0_4px_16px_rgba(0,0,0,0.8)]">
+                <h2 className="font-maruburi text-2xl sm:text-4xl font-bold text-white leading-[1.18] tracking-[-0.04em] drop-shadow-[0_3px_12px_rgba(0,0,0,0.8)]">
                   {lead.title}
                 </h2>
-                <p className="mt-3 max-w-lg text-sm sm:text-base text-white/90 font-light line-clamp-2 drop-shadow">
+                <p className="mt-2 max-w-md text-xs sm:text-sm text-white/90 font-light line-clamp-1 drop-shadow">
                   {lead.audioTitle}
                 </p>
               </div>
 
-              <div className="mt-8 flex items-center gap-4">
+              {/* 버튼 컨트롤 */}
+              <div className="mt-5 flex items-center gap-3">
                 <button
                   type="button"
                   onClick={play}
-                  className="px-6 py-3 rounded-full bg-white text-[#211e19] text-sm font-bold shadow-2xl transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
+                  className="px-5 py-2.5 rounded-full bg-white text-[#211e19] text-xs font-bold shadow-xl transition-all hover:scale-105 active:scale-95 flex items-center gap-1.5"
                 >
                   <span>{currentStory.stid === lead.stid && isPlaying ? '일시정지' : '이야기 듣기'}</span>
-                  <span className="text-xs text-[#655b4d] font-normal">{lead.formattedDuration}</span>
+                  <span className="text-[11px] text-[#655b4d] font-normal">{lead.formattedDuration}</span>
                 </button>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   <button
                     type="button"
                     aria-label="이전"
                     onClick={() => move(-1)}
-                    className="w-10 h-10 rounded-full bg-black/40 text-white backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-black/60 transition-transform active:scale-95"
+                    className="w-8 h-8 rounded-full bg-black/40 text-white backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-black/60 transition-transform active:scale-95 text-xs"
                   >
                     ‹
                   </button>
@@ -197,7 +198,7 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
                     type="button"
                     aria-label="다음"
                     onClick={() => move(1)}
-                    className="w-10 h-10 rounded-full bg-white text-[#211e19] shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 font-bold"
+                    className="w-8 h-8 rounded-full bg-white text-[#211e19] shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 text-xs font-bold"
                   >
                     ›
                   </button>
@@ -206,8 +207,8 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
             </div>
           </div>
 
-          {/* 우측 4개 콤팩트 대기 카드 트랙 (요청 반영: 콤팩트한 4개 세로 카드) */}
-          <div className="hidden lg:flex items-center gap-2.5 shrink-0">
+          {/* 우측 4개 슬림 서브 대기 카드 (75% 높이: 315px, 4개 보장) */}
+          <div className="hidden md:flex items-center gap-2 shrink-0">
             <AnimatePresence initial={false} mode="popLayout">
               {following.map((story, index) => {
                 const imgUrl = getValidImage(story.imageUrl);
@@ -223,7 +224,7 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
                     animate={{ opacity: 1, x: 0, rotateY: 0, scale: 1 }}
                     exit={{ opacity: 0, x: -20, rotateY: 30, scale: 0.95 }}
                     transition={{ duration: 0.45, delay: index * 0.04 }}
-                    className="relative h-[380px] sm:h-[420px] w-[88px] sm:w-[96px] rounded-[1.6rem] overflow-hidden cursor-pointer group shadow-md ring-1 ring-black/10 transition-all hover:w-[110px]"
+                    className="relative h-[315px] w-[78px] sm:w-[84px] rounded-[1.3rem] overflow-hidden cursor-pointer group shadow-md ring-1 ring-black/10 transition-all hover:w-[98px]"
                   >
                     <img
                       src={imgUrl}
@@ -235,11 +236,11 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
                     
-                    <div className="absolute bottom-0 inset-x-0 p-2.5 text-white">
-                      <span className="text-[9px] font-bold text-amber-300 uppercase block">
+                    <div className="absolute bottom-0 inset-x-0 p-2 text-white">
+                      <span className="text-[8px] font-bold text-amber-300 uppercase block">
                         {story.category}
                       </span>
-                      <h4 className="font-maruburi text-[11px] font-bold line-clamp-2 mt-0.5 leading-snug">
+                      <h4 className="font-maruburi text-[10px] font-bold line-clamp-2 mt-0.5 leading-snug">
                         {story.title}
                       </h4>
                     </div>
