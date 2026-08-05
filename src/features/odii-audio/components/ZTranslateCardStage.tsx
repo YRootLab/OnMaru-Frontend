@@ -36,7 +36,7 @@ export const ZTranslateCardStage: React.FC<ZTranslateCardStageProps> = ({ featur
         <span className="text-[11px] font-extrabold tracking-widest text-[#F8A8C0] uppercase px-3 py-1 rounded-full bg-white/5 border border-white/10 inline-block mb-3">
           SHOPIFY EDITIONS INSPIRED • 3D STAGE
         </span>
-        <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight font-serif text-white">
+        <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight font-odii-sans text-white">
           3차원 Z-축 공간으로 만나는 오디 큐레이션
         </h2>
         <p className="text-xs sm:text-sm text-[#A09588] mt-2 max-w-md mx-auto">
@@ -116,7 +116,7 @@ export const ZTranslateCardStage: React.FC<ZTranslateCardStageProps> = ({ featur
 
                 {/* 하단 텍스트 정보 */}
                 <div>
-                  <h3 className="text-base sm:text-lg font-bold text-white line-clamp-1 font-serif group-hover:text-[#F8A8C0] transition-colors">
+                    <h3 className="text-base sm:text-lg font-bold text-white line-clamp-1 font-odii-sans group-hover:text-[#F8A8C0] transition-colors">
                     {story.title}
                   </h3>
                   <p className="text-xs text-[#A09588] truncate mt-1">

@@ -4,12 +4,13 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
 import { OdiiStoryItem } from '../types/odii.types';
+import { ODII_HERO_TABS } from '../data/odiiCategoryData';
 
 interface FeaturedStoryRailProps {
   stories: OdiiStoryItem[];
+  storySets?: Record<string, OdiiStoryItem[]>;
 }
 
-const TABS = ['추천', '한옥', '궁궐/역사', '전통시장', '고택'];
 const FALLBACK_IMAGES = [
   'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=1200&q=80',
   'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80',
@@ -32,7 +33,7 @@ function getValidImage(url?: string, seed?: string): string {
   return url;
 }
 
-export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories }) => {
+export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories, storySets }) => {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [activeTab, setActiveTab] = useState('추천');
   const [activeIndex, setActiveIndex] = useState(0);
@@ -46,10 +47,20 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
   const setIsPlaying = useOdiiAudioStore((s) => s.setIsPlaying);
 
   const featured = useMemo(() => {
+    const apiStories = storySets?.[activeTab];
+    if (apiStories?.length) return apiStories.slice(0, 7);
     if (activeTab === '추천') return stories.slice(0, 7);
-    const matched = stories.filter((story) => story.category.includes(activeTab));
+
+    const tab = ODII_HERO_TABS.find((item) => item.id === activeTab);
+    const matched = stories.filter((story) =>
+      [activeTab, tab?.keyword].filter(Boolean).some((keyword) =>
+        story.category.includes(keyword as string) ||
+        story.title.includes(keyword as string) ||
+        story.locationName?.includes(keyword as string),
+      ),
+    );
     return (matched.length ? matched : stories).slice(0, 7);
-  }, [activeTab, stories]);
+  }, [activeTab, stories, storySets]);
 
   const lead = featured[activeIndex] ?? featured[0];
 
@@ -109,15 +120,15 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
       <div>
         {/* 상단 필터 바 */}
         <div className="mb-3.5 flex items-center space-x-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {TABS.map((tab) => {
-            const isTabActive = activeTab === tab;
+          {ODII_HERO_TABS.map((tab) => {
+            const isTabActive = activeTab === tab.id;
             return (
               <button
-                key={tab}
+                key={tab.id}
                 type="button"
                 onClick={() => {
                   setDirection(1);
-                  setActiveTab(tab);
+                  setActiveTab(tab.id);
                   setActiveIndex(0);
                   setAutoplayVersion((version) => version + 1);
                 }}
@@ -128,7 +139,7 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
                 }`}
               >
                 {isTabActive && <span className="h-1.5 w-1.5 rounded-full bg-[#a94d35]" />}
-                {tab}
+                {tab.label}
               </button>
             );
           })}
@@ -138,7 +149,7 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
         <div className="relative flex items-center gap-3 overflow-hidden">
           
           {/* 메인 비주얼 배너 카드 (기존 메인은 왼쪽으로 퇴장, 오른쪽 서브가 왼쪽으로 당겨지며 메인 승격) */}
-          <div className="relative flex-1 min-h-[420px] sm:min-h-[390px] h-auto rounded-[1.75rem] overflow-hidden bg-[#6d6258] shadow-[0_20px_55px_rgba(43,35,26,0.18)]">
+          <div className="relative flex-1 min-h-[420px] h-auto overflow-hidden rounded-[1.75rem] bg-[#6d6258] shadow-[0_20px_55px_rgba(43,35,26,0.18)] sm:min-h-[350px] md:h-[350px] md:min-h-0">
             
             <AnimatePresence mode="sync">
               <motion.div
@@ -176,7 +187,7 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
             </div>
 
             {/* 메인 카드 정보 및 버튼 */}
-            <div className="relative z-10 grid min-h-[420px] grid-cols-1 items-center gap-6 p-6 sm:min-h-[390px] sm:grid-cols-[minmax(0,1fr)_190px] sm:gap-8 sm:p-9 lg:grid-cols-[minmax(0,1fr)_220px] pointer-events-none">
+            <div className="pointer-events-none relative z-10 grid min-h-[420px] grid-cols-1 items-center gap-6 p-6 sm:min-h-[350px] sm:grid-cols-[minmax(0,1fr)_190px] sm:gap-8 sm:p-7 md:h-full md:min-h-0 lg:grid-cols-[minmax(0,1fr)_220px]">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={lead.stid}
@@ -189,7 +200,7 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
                   <span className="inline-block px-2.5 py-1 rounded-full bg-white/15 text-white text-[10px] font-bold tracking-wide backdrop-blur-md border border-white/15 shadow-sm mb-3">
                     {lead.badgeText ?? lead.category}
                   </span>
-                  <h2 className="max-w-xl font-maruburi text-3xl sm:text-4xl font-bold text-white leading-[1.18] tracking-[-0.04em] drop-shadow-[0_3px_12px_rgba(0,0,0,0.45)]">
+                  <h2 className="max-w-xl font-odii-sans text-3xl sm:text-4xl font-bold text-white leading-[1.18] tracking-[-0.04em] drop-shadow-[0_3px_12px_rgba(0,0,0,0.45)]">
                     {lead.title}
                   </h2>
                   <p className="mt-3 max-w-md text-xs sm:text-sm text-white/80 font-light line-clamp-2 leading-6">
@@ -216,13 +227,13 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 1.04, y: -8 }}
                   transition={springTransition}
-                  className="pointer-events-none order-first mx-auto w-[156px] overflow-hidden rounded-[1.2rem] border border-white/30 bg-white/10 shadow-[0_18px_36px_rgba(0,0,0,0.07)] sm:order-none sm:mb-14 sm:w-full"
+                  className="pointer-events-none order-first mx-auto w-[156px] overflow-hidden rounded-[1.2rem] border border-white/30 bg-white/10 shadow-[0_18px_36px_rgba(0,0,0,0.07)] sm:order-none sm:mb-6 sm:h-[220px] sm:w-full md:h-[230px] lg:h-[250px]"
                 >
                   <img
                     src={leadImageUrl}
                     alt=""
                     onError={(e) => { (e.target as HTMLImageElement).src = getFallbackImage(lead.stid); }}
-                    className="aspect-[3/4] h-full w-full object-cover"
+                    className="h-full w-full object-cover"
                   />
                 </motion.div>
               </AnimatePresence>
@@ -241,8 +252,8 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
             </div>
           </div>
 
-          {/* 우측 4개 세로 대기 카드 (한 칸씩 자연스럽게 왼쪽으로 전진 이동하는 Layout Shift) */}
-          <div className="hidden md:flex items-center gap-2 shrink-0">
+          {/* 우측 3개 세로 대기 카드 (한 칸씩 자연스럽게 왼쪽으로 전진 이동하는 Layout Shift) */}
+          <div className="hidden h-[350px] shrink-0 items-center gap-2 md:flex">
             <AnimatePresence mode="popLayout" initial={false}>
               {following.map((story, index) => {
                 const imgUrl = getValidImage(story.imageUrl, story.stid);
@@ -264,7 +275,7 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
                       x: { duration: 0.35, ease: [0.16, 1, 0.3, 1] as const }
                     }}
 
-                    className="relative h-[315px] w-[78px] sm:w-[84px] rounded-[1.3rem] overflow-hidden cursor-pointer group shadow-md ring-1 ring-black/10 transition-colors hover:ring-white/60"
+                    className="group relative h-full w-[78px] cursor-pointer overflow-hidden rounded-[1.3rem] shadow-md ring-1 ring-black/10 transition-colors hover:ring-white/60 sm:w-[84px]"
                   >
                     <img
                       src={imgUrl}
@@ -277,7 +288,7 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
                     
                     <div className="absolute bottom-0 inset-x-0 p-2 text-white">
-                      <h4 className="font-maruburi text-[10px] font-bold line-clamp-2 leading-snug">
+                      <h4 className="font-odii-sans text-[10px] font-bold line-clamp-2 leading-snug">
                         {story.title}
                       </h4>
                     </div>

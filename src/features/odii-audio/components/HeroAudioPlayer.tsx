@@ -57,7 +57,7 @@ export const HeroAudioPlayer: React.FC = () => {
         </div>
 
         {/* 타이틀 및 해설자 */}
-        <h1 className="mb-1.5 line-clamp-1 font-maruburi text-xl font-semibold tracking-tight text-white sm:text-2xl">
+              <h1 className="mb-1.5 line-clamp-1 font-odii-sans text-xl font-semibold tracking-tight text-white sm:text-2xl">
           {currentStory.audioTitle || currentStory.title}
         </h1>
         <p className="text-xs sm:text-sm text-[#A09588] mb-6 flex items-center gap-1.5">

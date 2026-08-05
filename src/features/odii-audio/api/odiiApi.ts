@@ -7,10 +7,12 @@ const API_KEY = process.env.NEXT_PUBLIC_ODII_API_KEY || process.env.ODII_API_KEY
 // 테마 카테고리에 대응하는 Odii API 키워드 매핑
 const CATEGORY_KEYWORD_MAP: Record<string, string> = {
   '한옥/고택': '한옥',
-  '궁궐/역사': '궁',
+  '서원/향교': '서원',
   '전통시장/장터': '시장',
-  '마을/골목길': '마을',
-  '소리/문화': '문화',
+  '마을/골목길': '골목',
+  '궁궐/역사': '궁',
+  '사찰/산사': '사찰',
+  '소리/문화': '소리',
   '박물관/미술관': '박물관',
   '자연/둘레길': '길',
   '한옥': '한옥',
@@ -18,8 +20,42 @@ const CATEGORY_KEYWORD_MAP: Record<string, string> = {
   '고택': '고택',
   '북촌': '북촌',
   '전주': '전주',
-  '전통시장': '전통시장'
+  '경주': '경주',
+  '안동': '안동',
+  '서울': '서울',
+  '제주': '제주',
+  '부산': '부산',
+  '대구': '대구',
+  '전통시장': '시장'
 };
+
+const KEYWORD_SYNONYMS: Record<string, string[]> = {
+  한옥: ['한옥', '고택', '한옥마을', '대청마루'],
+  서원: ['서원', '향교', '선비', '서당', '유교'],
+  시장: ['시장', '장터', '시전', '전통시장', '장사'],
+  사찰: ['사찰', '산사', '절', '사원', '종소리'],
+};
+
+const toText = (value: unknown): string => {
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'number' && Number.isFinite(value)) return String(value);
+  return '';
+};
+
+const readText = (item: Record<string, unknown>, key: string): string => toText(item[key]);
+
+const isPlayableStory = (story: OdiiStoryItem): boolean => toText(story.audioUrl).length > 0;
+
+const matchesKeyword = (story: OdiiStoryItem, keyword: string): boolean => {
+  const normalizedKeyword = keyword.trim().toLowerCase();
+  const terms = [normalizedKeyword, ...(KEYWORD_SYNONYMS[normalizedKeyword] || [])];
+  const searchableText = [story.category, story.title, story.audioTitle, story.locationName, story.script]
+    .map((value) => toText(value).toLowerCase())
+    .join(' ');
+
+  return terms.some((term) => searchableText.includes(term.toLowerCase()));
+};
+
 
 
 // 고품질 기본 앨범아트 Fallback 목록
@@ -91,36 +127,38 @@ export const odiiApiAdapter = {
         return this.getMockFiltered(category, query);
       }
 
-      const itemList = Array.isArray(rawItems) ? rawItems : [rawItems];
+      const itemList = (Array.isArray(rawItems) ? rawItems : [rawItems]) as Record<string, unknown>[];
 
-      const mappedStories: OdiiStoryItem[] = itemList.map((item: any, idx: number) => {
-        const title = item.title || item.storyTitle || '한국의 문화 이야기';
-        const stid = String(item.stid || item.tid || idx + 1);
-        const imageUrl = item.imageUrl && item.imageUrl.trim().length > 0
-          ? item.imageUrl
+      const mappedStories: OdiiStoryItem[] = itemList.map((item, idx) => {
+        const title = readText(item, 'title') || readText(item, 'storyTitle') || '한국의 문화 이야기';
+        const stid = readText(item, 'stid') || readText(item, 'tid') || String(idx + 1);
+        const audioUrl = readText(item, 'audioUrl') || readText(item, 'audio') || readText(item, 'playUrl') || readText(item, 'mp3Url');
+        const audioTime = readText(item, 'audioTime');
+        const imageUrl = readText(item, 'imageUrl').length > 0
+          ? readText(item, 'imageUrl')
           : getRandomFallbackImage(stid + title);
 
         const categoryVal: OdiiCategory = (category as OdiiCategory) || '한옥';
 
         return {
-          tid: String(item.tid || ''),
-          tlid: String(item.tlid || ''),
+          tid: readText(item, 'tid'),
+          tlid: readText(item, 'tlid'),
           stid: stid,
-          stlid: String(item.stlid || ''),
+          stlid: readText(item, 'stlid'),
           title: title,
-          audioTitle: item.storyTitle || item.title || '오디오 해설',
+          audioTitle: readText(item, 'storyTitle') || title || '오디오 해설',
           speaker: '문화해설사 도슨트',
           category: categoryVal,
           distance: '0.8km',
-          mapX: String(item.mapX || '126.9780'),
-          mapY: String(item.mapY || '37.5665'),
-          script: item.script || '해설 대본 정보가 준비 중입니다.',
-          playTime: String(item.audioTime || '180'),
-          formattedDuration: item.audioTime ? `${Math.floor(Number(item.audioTime) / 60)}분 ${Number(item.audioTime) % 60}초` : '3분 00초',
-          audioUrl: item.audioUrl || '',
+          mapX: readText(item, 'mapX') || '126.9780',
+          mapY: readText(item, 'mapY') || '37.5665',
+          script: readText(item, 'script') || '해설 대본 정보가 준비 중입니다.',
+          playTime: audioTime || '180',
+          formattedDuration: audioTime ? `${Math.floor(Number(audioTime) / 60)}분 ${Number(audioTime) % 60}초` : '3분 00초',
+          audioUrl,
           imageUrl: imageUrl,
-          locationName: item.addr1 || item.addr2 || '대한민국 문화유산',
-          badgeText: item.audioUrl ? '음원 제공' : '대본 전용'
+          locationName: readText(item, 'addr1') || readText(item, 'addr2') || '대한민국 문화유산',
+          badgeText: audioUrl ? '음원 제공' : '대본 전용'
         };
       });
 
@@ -139,20 +177,52 @@ export const odiiApiAdapter = {
     let filtered = MOCK_ODII_STORIES;
 
     if (category && category !== '전체') {
-      filtered = filtered.filter((s) => s.category === category);
+      const categoryKeyword = CATEGORY_KEYWORD_MAP[category] || category;
+      filtered = filtered.filter((story) => matchesKeyword(story, categoryKeyword));
     }
 
     if (query && query.trim().length > 0) {
-      const q = query.toLowerCase().trim();
-      filtered = filtered.filter(
-        (s) =>
-          s.title.toLowerCase().includes(q) ||
-          s.audioTitle.toLowerCase().includes(q) ||
-          s.script.toLowerCase().includes(q)
-      );
+      filtered = filtered.filter((story) => matchesKeyword(story, query));
     }
 
     return filtered;
+  },
+
+  /**
+   * 챕터가 사용할 첫 번째 재생 가능 오디오를 찾는다.
+   * API 응답에 음원이 없거나 검색 결과가 비어 있으면 상위 컨테이너가 전달한
+   * 후보 목록과 기존 Mock 목록에서 같은 키워드를 안전하게 찾는다.
+   */
+  async getFirstStoryByKeyword(keyword: string, fallbackStories: OdiiStoryItem[] = []): Promise<OdiiStoryItem | null> {
+    const apiStories = await this.getStoryList(undefined, keyword);
+    const pool = [...apiStories, ...fallbackStories, ...MOCK_ODII_STORIES];
+    const exactMatch = pool.find((story) => isPlayableStory(story) && matchesKeyword(story, keyword));
+    if (exactMatch) return exactMatch;
+
+    return pool.find(isPlayableStory) || null;
+  },
+
+  async getChapterStorySets(keywords: string[], fallbackStories: OdiiStoryItem[] = []): Promise<Record<string, OdiiStoryItem[]>> {
+    const entries = await Promise.all(
+      keywords.map(async (keyword) => {
+        const apiStories = await this.getStoryList(undefined, keyword);
+        const pool = [...apiStories, ...fallbackStories, ...MOCK_ODII_STORIES];
+        const uniqueStories = Array.from(new Map(pool.map((story) => [story.stid, story])).values());
+        const playableMatches = uniqueStories.filter((story) => isPlayableStory(story) && matchesKeyword(story, keyword));
+        const matchedStories = playableMatches.length > 0
+          ? playableMatches
+          : uniqueStories.filter(isPlayableStory);
+
+        return [keyword, matchedStories.slice(0, 4)] as const;
+      }),
+    );
+
+    return Object.fromEntries(entries);
+  },
+
+  async getChapterStories(keywords: string[], fallbackStories: OdiiStoryItem[] = []): Promise<Record<string, OdiiStoryItem | null>> {
+    const storySets = await this.getChapterStorySets(keywords, fallbackStories);
+    return Object.fromEntries(keywords.map((keyword) => [keyword, storySets[keyword]?.[0] || null]));
   },
 
   /**
@@ -168,6 +238,8 @@ export const odiiApiAdapter = {
    * 위치 기반(LBS) 내 주변 이야기 목록 조회
    */
   async getNearbyStories(mapX?: string, mapY?: string): Promise<OdiiStoryItem[]> {
+    void mapX;
+    void mapY;
     return this.getStoryList('한옥');
   }
 };

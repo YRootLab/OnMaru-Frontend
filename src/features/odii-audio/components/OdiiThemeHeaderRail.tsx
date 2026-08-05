@@ -103,7 +103,7 @@ export const OdiiThemeHeaderRail: React.FC = () => {
           <span className="text-[11px] font-bold tracking-[0.2em] text-[#a94d35] uppercase">
             Odii Audio Curation
           </span>
-          <h2 className="font-maruburi text-2xl sm:text-3xl font-semibold text-[#211e19] mt-1">
+          <h2 className="font-odii-sans text-2xl sm:text-3xl font-semibold text-[#211e19] mt-1">
             한국의 온기를 담은 6대 문화 테마
           </h2>
         </div>
@@ -144,7 +144,7 @@ export const OdiiThemeHeaderRail: React.FC = () => {
               </div>
 
               {/* 제목 & 서브타이틀 */}
-              <h3 className="font-maruburi text-xl font-bold text-white group-hover:text-amber-100 transition-colors">
+              <h3 className="font-odii-sans text-xl font-bold text-white group-hover:text-amber-100 transition-colors">
                 {theme.title}
               </h3>
               <p className="text-xs text-white/70 mt-1.5 line-clamp-1">

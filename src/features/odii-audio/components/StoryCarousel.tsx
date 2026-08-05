@@ -118,7 +118,7 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories }) => {
                 <span className="mb-1 block text-[11px] font-semibold text-[#a94d35]">
                   {story.category}
                 </span>
-                <h3 className="font-maruburi text-lg font-semibold text-[#211e19] line-clamp-1 transition-colors group-hover:text-[#a94d35]">
+                <h3 className="font-odii-sans text-lg font-semibold text-[#211e19] line-clamp-1 transition-colors group-hover:text-[#a94d35]">
                   {story.title}
                 </h3>
                 <p className="mt-1 text-xs text-[#655b4d] line-clamp-1">{story.locationName}</p>

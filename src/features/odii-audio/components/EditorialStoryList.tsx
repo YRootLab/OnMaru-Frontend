@@ -27,95 +27,116 @@ export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({ stories 
   if (stories.length === 0) {
     return (
       <div className="w-full py-16 text-center text-[#655b4d]">
-        <p className="text-sm font-medium">검색 조건에 일치하는 이야기가 없습니다.</p>
+        <p className="text-xs font-medium">선택한 조건에 해당하는 오디오 가이드가 없습니다.</p>
       </div>
     );
   }
 
   return (
-    <div className="w-full py-6">
-      {/* 아카이브 상단 요약 바 */}
-      <div className="flex items-center justify-between pb-4 text-xs text-[#655b4d] border-b border-[#211e19]/20">
+    <div className="w-full py-3">
+      {/* 아카이브 상단 헤어라인 레전드 */}
+      <div className="flex items-center justify-between pb-2 text-[11px] text-[#8c7e6c] border-b border-[#211e19]/10">
         <span className="font-semibold text-[#211e19]">
-          총 <strong className="text-[#a94d35] font-extrabold">{stories.length}개</strong>의 오디오 이야기
+          트랙 아카이브 <strong className="text-[#a94d35] font-extrabold ml-1">{stories.length}</strong>
         </span>
-        <span>스크롤하여 탐색</span>
+        <span className="font-mono text-[10px]">Apple Music & Odii Curation</span>
       </div>
 
-      {/* 리스트 아이템 모음 */}
-      <div className="pt-2">
-        {stories.map((story) => {
+      {/* 멜론 / Apple Music 트레이너 트랙 리스트 */}
+      <div className="divide-y divide-[#211e19]/5">
+        {stories.map((story, index) => {
           const isCurrent = currentStory.stid === story.stid;
           const isThisPlaying = isCurrent && isPlaying;
+          const trackNum = String(index + 1).padStart(2, '0');
 
           return (
             <div
               key={story.stid}
               onClick={() => selectStory(story)}
-              className="group relative z-0 flex cursor-pointer items-center justify-between py-2 transition-all duration-300 hover:z-10"
+              className={`group flex cursor-pointer items-center justify-between py-3 px-2.5 rounded-xl transition-all duration-300 ${
+                isCurrent
+                  ? 'bg-[#f4ebe1] text-[#211e19] ring-1 ring-[#a94d35]/20 shadow-xs'
+                  : 'hover:bg-[#f9f6f0]'
+              }`}
             >
-              <div className={`relative flex w-full items-center justify-between rounded-2xl border px-3 py-3 transition-all duration-300 sm:px-4 ${isCurrent ? 'border-[#d7a18e] bg-[#f1e5d6] shadow-[0_12px_24px_rgba(115,75,48,0.12)]' : 'border-transparent bg-transparent group-hover:border-[#d8cbb9] group-hover:bg-[#fbf8f2] group-hover:shadow-[0_20px_28px_-16px_rgba(61,45,29,0.36)]'}`}>
-                {/* 좌측 섬네일 + 정보 */}
-                <div className="flex min-w-0 items-center space-x-4">
-                  <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl bg-[#d8cfbf] sm:h-20 sm:w-20">
+              {/* 좌측: 트랙 번호 + 섬네일 + 정보 */}
+              <div className="flex min-w-0 items-center space-x-3.5">
+                {/* 트랙 번호 / 라이브 이퀄라이저 아이콘 */}
+                <div className="w-6 shrink-0 text-center">
+                  {isThisPlaying ? (
+                    <div className="flex items-end justify-center space-x-0.5 h-3.5">
+                      <span className="w-0.5 bg-[#a94d35] rounded-full animate-[bounce_0.6s_infinite_100ms] h-3" />
+                      <span className="w-0.5 bg-[#a94d35] rounded-full animate-[bounce_0.6s_infinite_300ms] h-2" />
+                      <span className="w-0.5 bg-[#a94d35] rounded-full animate-[bounce_0.6s_infinite_200ms] h-3.5" />
+                    </div>
+                  ) : (
+                    <span className={`text-[11px] font-mono font-semibold ${isCurrent ? 'text-[#a94d35]' : 'text-[#8c7e6c]'}`}>
+                      {trackNum}
+                    </span>
+                  )}
+                </div>
+
+                {/* 섬네일 앨범아트 */}
+                <div className="relative h-11 w-11 sm:h-13 sm:w-13 shrink-0 overflow-hidden rounded-lg bg-[#e8e0d5] ring-1 ring-black/5">
                   <img
                     src={story.imageUrl}
                     alt={story.title}
-                    className={`h-full w-full object-cover transition-transform duration-500 ${isCurrent ? 'scale-105' : 'group-hover:scale-105'}`}
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   {isThisPlaying && (
-                    <div className="absolute inset-0 bg-[#a94d35]/70 flex items-center justify-center">
-                      <span className="animate-pulse text-xs font-extrabold text-white">● 재생 중</span>
+                    <div className="absolute inset-0 bg-[#a94d35]/80 backdrop-blur-xs flex items-center justify-center">
+                      <span className="text-[9px] font-bold text-white tracking-widest uppercase">PLAY</span>
                     </div>
                   )}
-                  </div>
-
-                  <div className="min-w-0 space-y-1">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-[10px] sm:text-xs font-semibold text-[#a94d35]">
-                        {story.category}
-                      </span>
-                      <span className="text-xs text-[#655b4d]">
-                        {story.locationName || '관광지 오디오 가이드'}
-                      </span>
-                    </div>
-
-                    <h4 className={`font-maruburi text-sm font-semibold truncate transition-colors sm:text-base ${isCurrent ? 'text-[#a94d35]' : 'text-[#211e19] group-hover:text-[#a94d35]'}`}>
-                      {story.title}
-                    </h4>
-
-                    <p className="text-xs text-[#655b4d] truncate">
-                      {story.audioTitle} · {story.formattedDuration || '8:24'}
-                    </p>
-                    <p className="hidden max-w-xl text-xs leading-5 text-[#786d5e] line-clamp-1 sm:block">
-                      {story.script.split('\n').find((line) => line.trim())?.trim()}
-                    </p>
-                  </div>
                 </div>
 
-                {/* 우측 재생 버튼 */}
+                {/* 정보 (제목 / 장소 / 카테고리) */}
+                <div className="min-w-0 pr-2">
+                  <div className="flex items-center space-x-1.5">
+                    <span className="text-[10px] font-bold text-[#a94d35]">
+                      {story.category}
+                    </span>
+                    <span className="text-[10px] text-[#8c7e6c] truncate max-w-[130px] sm:max-w-none">
+                      · {story.locationName || '대한민국 문화유산'}
+                    </span>
+                  </div>
+
+                  <h4 className={`font-odii-sans text-xs sm:text-sm font-semibold truncate transition-colors ${isCurrent ? 'text-[#a94d35]' : 'text-[#211e19] group-hover:text-[#a94d35]'}`}>
+                    {story.title}
+                  </h4>
+                  <p className="text-[11px] text-[#786d5e] truncate">
+                    {story.audioTitle}
+                  </p>
+                </div>
+              </div>
+
+              {/* 우측: 재생시간 + 재생 버튼 */}
+              <div className="flex items-center space-x-3 shrink-0">
+                <span className="hidden sm:inline-block text-[11px] font-mono text-[#8c7e6c]">
+                  {story.formattedDuration || '3:00'}
+                </span>
+
                 <button
+                  type="button"
                   onClick={(e) => handlePlayClick(story, e)}
-                  className={`ml-3 flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full transition-all duration-300 sm:h-12 sm:w-12 ${
+                  className={`flex h-8 w-8 items-center justify-center rounded-full transition-all duration-300 ${
                     isThisPlaying
-                      ? 'scale-105 bg-[#a94d35] text-white shadow-[0_8px_18px_rgba(169,77,53,0.3)]'
-                      : 'border border-[#211e19]/20 text-[#211e19] group-hover:border-[#a94d35] group-hover:bg-[#a94d35] group-hover:text-white hover:scale-105'
+                      ? 'bg-[#a94d35] text-white shadow-xs scale-105'
+                      : 'bg-white border border-[#211e19]/15 text-[#211e19] hover:bg-[#211e19] hover:border-[#211e19] hover:text-white'
                   }`}
                   title={isThisPlaying ? '일시정지' : '재생'}
                 >
                   {isThisPlaying ? (
-                    <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                    <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
                   ) : (
-                    <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    <svg className="h-3.5 w-3.5 fill-current ml-0.5" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                   )}
                 </button>
               </div>
-              <div className="pointer-events-none absolute inset-x-5 bottom-0 h-px bg-gradient-to-r from-transparent via-[#b9ab99]/70 to-transparent group-hover:opacity-0" />
             </div>
           );
         })}
       </div>
-
     </div>
   );
 };

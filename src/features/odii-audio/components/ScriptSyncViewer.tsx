@@ -35,12 +35,12 @@ export const ScriptSyncViewer: React.FC = () => {
         <div className="flex items-start justify-between gap-4 border-b border-[#211e19]/10 pb-4">
           <div>
             <p className="text-[11px] font-bold tracking-[0.16em] text-[#a94d35]">NARRATIVE SCRIPT</p>
-            <h3 className="mt-1 font-maruburi text-lg font-semibold tracking-[-0.03em]">듣고 있는 이야기</h3>
+            <h3 className="mt-1 font-odii-sans text-lg font-semibold tracking-[-0.03em]">듣고 있는 이야기</h3>
           </div>
           {isPlaying && <span className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-[#a94d35] px-2.5 py-1 text-[10px] font-bold text-white"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />재생 중</span>}
         </div>
 
-        <blockquote className="mt-6 border-l-2 border-[#d56748] pl-4 font-maruburi text-[15px] leading-7 text-[#3c342a] sm:text-base">
+        <blockquote className="mt-6 border-l-2 border-[#d56748] pl-4 font-odii-sans text-[15px] leading-7 text-[#3c342a] sm:text-base">
           {previewLines.map((line, index) => (
             <p key={line.id} className={line.id === parsedScriptLines[activeScriptIndex]?.id ? 'font-semibold text-[#211e19]' : index === 0 ? '' : 'mt-2'}>
               {line.text}
@@ -60,7 +60,7 @@ export const ScriptSyncViewer: React.FC = () => {
         <div className="fixed inset-0 z-[70] flex items-end bg-[#211e19]/50 p-0 backdrop-blur-sm sm:items-center sm:justify-center sm:p-6" role="dialog" aria-modal="true" aria-label="오디오 대본 전체 보기">
           <div className="flex max-h-[86vh] w-full max-w-2xl flex-col rounded-t-3xl bg-[#fbf8f2] shadow-2xl sm:rounded-3xl">
             <div className="flex items-center justify-between border-b border-[#211e19]/10 px-6 py-5 sm:px-8">
-              <div><p className="text-[11px] font-bold tracking-[0.16em] text-[#a94d35]">FULL TRANSCRIPT</p><h3 className="mt-1 font-maruburi text-xl font-semibold">오디오 대본</h3></div>
+              <div><p className="text-[11px] font-bold tracking-[0.16em] text-[#a94d35]">FULL TRANSCRIPT</p><h3 className="mt-1 font-odii-sans text-xl font-semibold">오디오 대본</h3></div>
               <button type="button" onClick={() => setIsTranscriptOpen(false)} className="rounded-full p-2 text-[#655b4d] transition hover:bg-[#eee6da] hover:text-[#211e19]" aria-label="대본 닫기">✕</button>
             </div>
             <div className="overflow-y-auto px-6 py-5 sm:px-8">

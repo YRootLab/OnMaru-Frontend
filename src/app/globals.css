@@ -45,6 +45,26 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.odii-feature {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Apple SD Gothic Neo", Inter, sans-serif;
+}
+
+.odii-atmosphere-layer {
+  transition: opacity 0.8s cubic-bezier(.16, 1, .3, 1);
+}
+
+.odii-atmosphere-stage {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .odii-atmosphere-layer {
+    transition-duration: 0.12s;
+  }
+}
+
 * {
   box-sizing: border-box;
   padding: 0;
