@@ -10,11 +10,24 @@ interface FeaturedStoryRailProps {
 }
 
 const TABS = ['추천', '한옥', '궁궐/역사', '전통시장', '고택'];
-const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1200&q=80';
+const FALLBACK_IMAGES = [
+  'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=1200&q=80',
+  'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80',
+  'https://images.unsplash.com/photo-1584467541268-b040f83be3fd?auto=format&fit=crop&w=1200&q=80',
+  'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=1200&q=80',
+  'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1200&q=80',
+  'https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&w=1200&q=80',
+  'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1200&q=80',
+];
 
-function getValidImage(url?: string): string {
+function getFallbackImage(seed = ''): string {
+  const index = Array.from(seed).reduce((total, char) => total + char.charCodeAt(0), 0) % FALLBACK_IMAGES.length;
+  return FALLBACK_IMAGES[index];
+}
+
+function getValidImage(url?: string, seed?: string): string {
   if (!url || typeof url !== 'string' || url.trim().length === 0) {
-    return FALLBACK_IMAGE;
+    return getFallbackImage(seed);
   }
   return url;
 }
@@ -77,12 +90,12 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
     }
   };
 
-  // 우측 4개 대기 서브 카드
+  // 우측 3개 대기 서브 카드
   const following = featured
-    .slice(1, 5)
+    .slice(1, 4)
     .map((_, index) => featured[(activeIndex + index + 1) % featured.length]);
 
-  const leadImageUrl = getValidImage(lead.imageUrl);
+  const leadImageUrl = getValidImage(lead.imageUrl, lead.stid);
 
   // 자연스러운 슬라이드 트랜지션 베지어 커브 (Apple / Netflix Style Curve)
   const springTransition = {
@@ -117,11 +130,11 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
           ))}
         </div>
 
-        {/* 메인 슬라이더 레이아웃 (자연스러운 좌측 흐름 시프팅) */}
+        {/* 같은 장면을 확장·블러 처리한 배경 위에 원본 앨범아트를 올린 에디토리얼 히어로 */}
         <div className="relative flex items-center gap-3 overflow-hidden">
           
           {/* 메인 비주얼 배너 카드 (기존 메인은 왼쪽으로 퇴장, 오른쪽 서브가 왼쪽으로 당겨지며 메인 승격) */}
-          <div className="relative flex-1 min-h-[295px] sm:min-h-[315px] h-[315px] rounded-[1.6rem] overflow-hidden shadow-xl group">
+          <div className="relative flex-1 min-h-[420px] sm:min-h-[390px] h-auto rounded-[1.75rem] overflow-hidden bg-[#6d6258] shadow-[0_20px_55px_rgba(43,35,26,0.18)]">
             
             <AnimatePresence mode="popLayout" custom={direction}>
               <motion.div
@@ -142,19 +155,16 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
                 transition={springTransition}
                 className="absolute inset-0 h-full w-full"
               >
-                {/* 배경 비주얼 이미지 */}
+                {/* 이미지를 크게 확장해 주변 색감만 남기는 Apple Store식 배경 */}
                 <img
                   src={leadImageUrl}
                   alt={lead.title}
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = FALLBACK_IMAGE;
+                    (e.target as HTMLImageElement).src = getFallbackImage(lead.stid);
                   }}
-                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="h-full w-full scale-125 object-cover opacity-100 blur-2xl saturate-125"
                 />
-
-                {/* 하단/좌측 오버레이 */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent pointer-events-none" />
-                <div className="absolute inset-y-0 left-0 w-3/4 bg-gradient-to-r from-black/60 via-black/20 to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/15 to-black/5" />
               </motion.div>
             </AnimatePresence>
 
@@ -166,7 +176,7 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
             </div>
 
             {/* 메인 카드 정보 및 버튼 */}
-            <div className="relative z-10 flex flex-col justify-end h-full p-6 sm:p-7 min-h-[295px] sm:min-h-[315px] pointer-events-none">
+            <div className="relative z-10 grid min-h-[420px] grid-cols-1 items-center gap-6 p-6 sm:min-h-[390px] sm:grid-cols-[minmax(0,1fr)_190px] sm:gap-8 sm:p-9 lg:grid-cols-[minmax(0,1fr)_220px] pointer-events-none">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={lead.stid}
@@ -176,35 +186,30 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
                   transition={{ duration: 0.35, ease: 'easeOut' }}
                   className="pointer-events-auto"
                 >
-                  <span className="inline-block px-2.5 py-0.5 rounded-md bg-[#e54527] text-white text-[10px] font-bold tracking-wide uppercase shadow-md mb-2">
-                    {lead.category} · {lead.locationName}
+                  <span className="inline-block px-2.5 py-1 rounded-full bg-white/15 text-white text-[10px] font-bold tracking-wide backdrop-blur-md border border-white/15 shadow-sm mb-3">
+                    {lead.badgeText ?? lead.category}
                   </span>
-                  <h2 className="font-maruburi text-2xl sm:text-4xl font-bold text-white leading-[1.18] tracking-[-0.04em] drop-shadow-[0_3px_12px_rgba(0,0,0,0.8)]">
+                  <h2 className="max-w-xl font-maruburi text-3xl sm:text-4xl font-bold text-white leading-[1.18] tracking-[-0.04em] drop-shadow-[0_3px_12px_rgba(0,0,0,0.45)]">
                     {lead.title}
                   </h2>
-                  <p className="mt-2 max-w-md text-xs sm:text-sm text-white/90 font-light line-clamp-1 drop-shadow">
+                  <p className="mt-3 max-w-md text-xs sm:text-sm text-white/80 font-light line-clamp-2 leading-6">
                     {lead.audioTitle}
                   </p>
-                </motion.div>
-              </AnimatePresence>
-
-              {/* 재생/탐색 버튼 컨트롤 */}
-              <div className="mt-5 flex items-center gap-3 pointer-events-auto">
-                <button
-                  type="button"
-                  onClick={play}
-                  className="px-5 py-2.5 rounded-full bg-white text-[#211e19] text-xs font-bold shadow-xl transition-all hover:scale-105 active:scale-95 flex items-center gap-1.5"
-                >
-                  <span>{currentStory.stid === lead.stid && isPlaying ? '일시정지' : '이야기 듣기'}</span>
-                  <span className="text-[11px] text-[#655b4d] font-normal">{lead.formattedDuration}</span>
-                </button>
-
-                <div className="flex items-center gap-1.5">
+                  <div className="mt-6 flex items-center gap-3 pointer-events-auto">
+                    <button
+                      type="button"
+                      onClick={play}
+                      className="px-5 py-2.5 rounded-full bg-white text-[#211e19] text-xs font-bold shadow-xl transition-colors hover:bg-white/90 active:bg-white/80 flex items-center gap-1.5"
+                    >
+                      <span>{currentStory.stid === lead.stid && isPlaying ? '일시정지' : '이야기 듣기'}</span>
+                      <span className="text-[11px] text-[#655b4d] font-normal">{lead.formattedDuration}</span>
+                    </button>
+                    <div className="flex items-center gap-1.5">
                   <button
                     type="button"
                     aria-label="이전"
                     onClick={() => move(-1)}
-                    className="w-8 h-8 rounded-full bg-black/40 text-white backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-black/60 transition-transform active:scale-95 text-xs"
+                    className="w-8 h-8 rounded-full bg-black/40 text-white backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-black/60 transition-colors text-xs"
                   >
                     ‹
                   </button>
@@ -212,12 +217,33 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
                     type="button"
                     aria-label="다음"
                     onClick={() => move(1)}
-                    className="w-8 h-8 rounded-full bg-white text-[#211e19] shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 text-xs font-bold"
+                    className="w-8 h-8 rounded-full bg-white text-[#211e19] shadow-lg flex items-center justify-center hover:bg-white/85 transition-colors text-xs font-bold"
                   >
                     ›
                   </button>
-                </div>
-              </div>
+                    </div>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+
+              {/* 블러 배경과 대비되는 원본 앨범아트 */}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={`${lead.stid}-art`}
+                  initial={{ opacity: 0, scale: 0.94, y: 12 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 1.04, y: -8 }}
+                  transition={springTransition}
+                  className="pointer-events-none order-first mx-auto w-[156px] overflow-hidden rounded-[1.2rem] border border-white/30 bg-white/10 shadow-[0_18px_36px_rgba(0,0,0,0.35)] sm:order-none sm:w-full"
+                >
+                  <img
+                    src={leadImageUrl}
+                    alt=""
+                    onError={(e) => { (e.target as HTMLImageElement).src = getFallbackImage(lead.stid); }}
+                    className="aspect-[3/4] h-full w-full object-cover"
+                  />
+                </motion.div>
+              </AnimatePresence>
             </div>
           </div>
 
@@ -225,7 +251,7 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
           <div className="hidden md:flex items-center gap-2 shrink-0">
             <AnimatePresence mode="popLayout" initial={false}>
               {following.map((story, index) => {
-                const imgUrl = getValidImage(story.imageUrl);
+                const imgUrl = getValidImage(story.imageUrl, story.stid);
                 return (
                   <motion.div
                     key={story.stid}
@@ -244,15 +270,15 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
                       x: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const }
                     }}
 
-                    className="relative h-[315px] w-[78px] sm:w-[84px] rounded-[1.3rem] overflow-hidden cursor-pointer group shadow-md ring-1 ring-black/10 transition-all hover:w-[98px]"
+                    className="relative h-[315px] w-[78px] sm:w-[84px] rounded-[1.3rem] overflow-hidden cursor-pointer group shadow-md ring-1 ring-black/10 transition-colors hover:ring-white/60"
                   >
                     <img
                       src={imgUrl}
                       alt={story.title}
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = FALLBACK_IMAGE;
+                        (e.target as HTMLImageElement).src = getFallbackImage(story.stid);
                       }}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      className="h-full w-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
                     
