@@ -33,15 +33,15 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
   const setIsPlaying = useOdiiAudioStore((s) => s.setIsPlaying);
 
   const featured = useMemo(() => {
-    if (activeTab === '추천') return stories.slice(0, 7);
+    if (activeTab === '추천') return stories.slice(0, 10);
     const matched = stories.filter((story) => story.category.includes(activeTab));
-    return (matched.length ? matched : stories).slice(0, 7);
+    return (matched.length ? matched : stories).slice(0, 10);
   }, [activeTab, stories]);
 
   const lead = featured[activeIndex] ?? featured[0];
   const visualDirection = direction;
 
-  // 7초마다 자동 슬라이드
+  // 7초 자동 이동
   useEffect(() => {
     if (featured.length < 2 || !isSectionInView) return;
     const timer = window.setInterval(() => {
@@ -78,9 +78,9 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
     }
   };
 
-  // 다음 카드 2개
+  // 요청사항: 4개의 대기 세로 서브 카드
   const following = featured
-    .slice(1, 3)
+    .slice(1, 5)
     .map((_, index) => featured[(activeIndex + index + 1) % featured.length]);
 
   const leadImageUrl = getValidImage(lead.imageUrl);
@@ -88,7 +88,7 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
   return (
     <section ref={sectionRef} className="mx-auto max-w-6xl px-4 pb-16 sm:px-8 sm:pb-24">
       <div>
-        {/* 상단 스크롤 칩 태그 바 (스크린샷 동일 스타일) */}
+        {/* 상단 탭 필터 바 */}
         <div className="mb-6 flex items-center space-x-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {TABS.map((tab) => (
             <button
@@ -111,13 +111,13 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
           ))}
         </div>
 
-        {/* 뤼튼 크랙 스타일 메인 히어로 배너 슬라이더 컨테이너 (검은색 껍데기 제거 -> 생생한 비주얼 꽉 채움) */}
-        <div className="relative flex items-center gap-4 overflow-hidden">
+        {/* 3D Flip 컨테이너 */}
+        <div className="relative flex items-center gap-3 overflow-hidden [perspective:1200px]">
           
-          {/* 메인 1등 전면 대형 앨범 카드 배너 */}
-          <div className="relative flex-1 min-h-[380px] sm:min-h-[420px] rounded-[2rem] overflow-hidden shadow-xl group">
+          {/* 메인 풀블리드 비주얼 카드 (3D Flip 적용 영역) */}
+          <div className="relative flex-1 min-h-[380px] sm:min-h-[420px] rounded-[2rem] overflow-hidden shadow-xl group [transform-style:preserve-3d]">
             
-            {/* 🌟 100% 선명하게 드러나는 생생한 메인 이미지 배경 (검은색 칠 완전 제거) */}
+            {/* 🌟 3D Flip (좌->우 회전 뒤집기) 애니메이션 레이어 */}
             <AnimatePresence initial={false} mode="sync">
               <motion.img
                 key={lead.stid}
@@ -126,26 +126,41 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = FALLBACK_IMAGE;
                 }}
-                initial={{ opacity: 0, scale: 1.15, x: visualDirection * 24 }}
-                animate={{ opacity: 1, scale: 1, x: 0 }}
-                exit={{ opacity: 0, scale: 0.95, x: visualDirection * -24 }}
-                transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                initial={{
+                  opacity: 0,
+                  rotateY: visualDirection > 0 ? -60 : 60,
+                  scale: 1.12,
+                  x: visualDirection * 40,
+                }}
+                animate={{
+                  opacity: 1,
+                  rotateY: 0,
+                  scale: 1,
+                  x: 0,
+                }}
+                exit={{
+                  opacity: 0,
+                  rotateY: visualDirection > 0 ? 60 : -60,
+                  scale: 0.92,
+                  x: visualDirection * -40,
+                }}
+                transition={{ duration: 0.75, ease: [0.25, 1, 0.5, 1] }}
+                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 origin-center"
               />
             </AnimatePresence>
 
-            {/* 텍스트 가독성을 위한 하단/좌측 시네마틱 오버레이 (검정 칠 대신 자연스러운 그라데이션) */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-            <div className="absolute inset-y-0 left-0 w-3/4 bg-gradient-to-r from-black/60 via-black/20 to-transparent" />
+            {/* 시네마틱 오버레이 */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent pointer-events-none" />
+            <div className="absolute inset-y-0 left-0 w-3/4 bg-gradient-to-r from-black/60 via-black/20 to-transparent pointer-events-none" />
 
-            {/* 상단 우측 페이지 뱃지 (예: 1 / 7) */}
+            {/* 우측 상단 뱃지 */}
             <div className="absolute top-5 right-5 z-20">
               <span className="px-3 py-1 rounded-full bg-black/50 text-white text-[11px] font-semibold backdrop-blur-md border border-white/20">
                 {activeIndex + 1} / {featured.length}
               </span>
             </div>
 
-            {/* 메인 카드 좌측 내부 정보 */}
+            {/* 메인 카드 정보 & 컨트롤 */}
             <div className="relative z-10 flex flex-col justify-end h-full p-8 sm:p-10 min-h-[380px] sm:min-h-[420px]">
               <div>
                 <span className="inline-block px-3 py-1 rounded-md bg-[#e54527] text-white text-[11px] font-bold tracking-wide uppercase shadow-md mb-3">
@@ -159,7 +174,6 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
                 </p>
               </div>
 
-              {/* 재생 및 탐색 컨트롤 버튼 */}
               <div className="mt-8 flex items-center gap-4">
                 <button
                   type="button"
@@ -192,8 +206,8 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
             </div>
           </div>
 
-          {/* 우측 뤼튼 크랙 스타일 서브 카드 2개 (스크린샷처럼 우측에 얇게 붙는 카드 슬라이더) */}
-          <div className="hidden lg:flex items-center gap-3 shrink-0">
+          {/* 우측 4개 콤팩트 대기 카드 트랙 (요청 반영: 콤팩트한 4개 세로 카드) */}
+          <div className="hidden lg:flex items-center gap-2.5 shrink-0">
             <AnimatePresence initial={false} mode="popLayout">
               {following.map((story, index) => {
                 const imgUrl = getValidImage(story.imageUrl);
@@ -205,11 +219,11 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
                       setActiveIndex((activeIndex + index + 1) % featured.length);
                       setAutoplayVersion((v) => v + 1);
                     }}
-                    initial={{ opacity: 0, x: 20, scale: 0.95 }}
-                    animate={{ opacity: 1, x: 0, scale: 1 }}
-                    exit={{ opacity: 0, x: -20, scale: 0.95 }}
-                    transition={{ duration: 0.5, delay: index * 0.05 }}
-                    className="relative h-[380px] sm:h-[420px] w-[130px] rounded-[1.8rem] overflow-hidden cursor-pointer group shadow-lg ring-1 ring-black/10"
+                    initial={{ opacity: 0, x: 20, rotateY: -30, scale: 0.95 }}
+                    animate={{ opacity: 1, x: 0, rotateY: 0, scale: 1 }}
+                    exit={{ opacity: 0, x: -20, rotateY: 30, scale: 0.95 }}
+                    transition={{ duration: 0.45, delay: index * 0.04 }}
+                    className="relative h-[380px] sm:h-[420px] w-[88px] sm:w-[96px] rounded-[1.6rem] overflow-hidden cursor-pointer group shadow-md ring-1 ring-black/10 transition-all hover:w-[110px]"
                   >
                     <img
                       src={imgUrl}
@@ -219,13 +233,13 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
                       }}
                       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
                     
-                    <div className="absolute bottom-0 inset-x-0 p-4 text-white">
-                      <span className="text-[10px] font-bold text-amber-300 uppercase">
+                    <div className="absolute bottom-0 inset-x-0 p-2.5 text-white">
+                      <span className="text-[9px] font-bold text-amber-300 uppercase block">
                         {story.category}
                       </span>
-                      <h4 className="font-maruburi text-xs font-bold line-clamp-2 mt-1">
+                      <h4 className="font-maruburi text-[11px] font-bold line-clamp-2 mt-0.5 leading-snug">
                         {story.title}
                       </h4>
                     </div>
