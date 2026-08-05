@@ -13,8 +13,6 @@ import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
 import { odiiApiAdapter } from '../api/odiiApi';
 import { OdiiStoryItem } from '../types/odii.types';
 
-import { OdiiThemeHeaderRail } from './OdiiThemeHeaderRail';
-
 export const OdiiAudioFeature: React.FC = () => {
   const selectedCategory = useOdiiAudioStore((s) => s.selectedCategory);
   const searchQuery = useOdiiAudioStore((s) => s.searchQuery);
@@ -51,10 +49,10 @@ export const OdiiAudioFeature: React.FC = () => {
       </header>
 
       <main>
-        <section className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-4 pb-12 pt-16 sm:px-8 sm:pt-24 lg:grid-cols-12 lg:items-end">
+        <section className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-4 pb-12 pt-14 sm:px-8 sm:pt-20 lg:grid-cols-12 lg:items-end">
           <div className="lg:col-span-7">
             <p className="text-xs font-semibold tracking-[0.18em] text-[#a94d35]">오디 오디오 가이드</p>
-            <h1 className="mt-5 max-w-3xl font-maruburi text-5xl font-semibold leading-[1.08] tracking-[-0.055em] sm:text-7xl">
+            <h1 className="mt-4 max-w-3xl font-maruburi text-4xl font-semibold leading-[1.12] tracking-[-0.055em] sm:text-6xl">
               소리를 따라,<br />한국의 온기 속으로.
             </h1>
             <p className="mt-7 max-w-lg text-base leading-7 text-[#655b4d]">
@@ -70,22 +68,24 @@ export const OdiiAudioFeature: React.FC = () => {
         <ZIndexStackedSection stories={storyList.length ? storyList : nearbyStories} />
 
 
-        <section className="mx-auto max-w-6xl px-4 py-20 sm:px-8 sm:py-28">
-          <div className="mb-8 flex items-end justify-between border-b border-[#211e19]/20 pb-5">
+        <section className="mx-auto max-w-6xl px-4 py-16 sm:px-8 sm:py-20">
+          <div className="mb-6 flex items-end justify-between border-b border-[#211e19]/20 pb-4">
             <div>
-              <h2 className="font-maruburi text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">오늘, 여기에서 들을 수 있는 이야기</h2>
+              <p className="text-[11px] font-semibold tracking-[0.14em] text-[#a94d35]">내 주변</p>
+              <h2 className="mt-1 font-maruburi text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">가까운 이야기</h2>
             </div>
               <p className="hidden text-xs text-[#655b4d] sm:block">거리순 · {nearbyStories.length}개의 오디오 가이드</p>
           </div>
           <StoryCarousel stories={nearbyStories} />
         </section>
 
-        <section className="bg-white border-t border-[#211e19]/10 px-4 py-20 sm:px-8 sm:py-28">
+        <section className="bg-white border-t border-[#211e19]/10 px-4 py-16 sm:px-8 sm:py-20">
 
           <div className="mx-auto max-w-6xl">
             <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
               <div>
-                <h2 className="font-maruburi text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">모든 이야기를 찾아보세요.</h2>
+                <p className="text-[11px] font-semibold tracking-[0.14em] text-[#a94d35]">아카이브</p>
+                <h2 className="mt-1 font-maruburi text-2xl font-semibold tracking-[-0.045em] sm:text-3xl">더 많은 이야기</h2>
               </div>
               <p className="max-w-xs text-sm leading-6 text-[#655b4d]">지역과 테마, 장소 이름으로 지금 떠나고 싶은 이야기를 찾을 수 있어요.</p>
             </div>

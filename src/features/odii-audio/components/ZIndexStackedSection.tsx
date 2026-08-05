@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
 import { OdiiStoryItem } from '../types/odii.types';
 
@@ -14,32 +14,11 @@ interface ZIndexStackedSectionProps { stories: OdiiStoryItem[]; }
 
 export const ZIndexStackedSection: React.FC<ZIndexStackedSectionProps> = ({ stories }) => {
   const [selected, setSelected] = useState(0);
-  const wheelLocked = useRef(false);
-  const wheelDelta = useRef(0);
-  const isStackHovered = useRef(false);
   const currentStory = useOdiiAudioStore((s) => s.currentStory);
   const isPlaying = useOdiiAudioStore((s) => s.isPlaying);
   const setCurrentStory = useOdiiAudioStore((s) => s.setCurrentStory);
   const setIsPlaying = useOdiiAudioStore((s) => s.setIsPlaying);
 
-  const changeChapter = (direction: number) => setSelected((current) => (current + direction + CHAPTERS.length) % CHAPTERS.length);
-  useEffect(() => {
-    const handleWheel = (event: WheelEvent) => {
-      if (!isStackHovered.current) return;
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-      if (wheelLocked.current) return;
-      wheelDelta.current += event.deltaY;
-      if (Math.abs(wheelDelta.current) < 18) return;
-      wheelLocked.current = true;
-      changeChapter(wheelDelta.current > 0 ? 1 : -1);
-      wheelDelta.current = 0;
-      window.setTimeout(() => { wheelLocked.current = false; }, 650);
-    };
-    window.addEventListener('wheel', handleWheel, { passive: false, capture: true });
-    return () => window.removeEventListener('wheel', handleWheel, { capture: true });
-  }, []);
   const play = (story?: OdiiStoryItem) => {
     if (!story) return;
     if (currentStory.stid === story.stid) setIsPlaying(!isPlaying);
@@ -47,20 +26,19 @@ export const ZIndexStackedSection: React.FC<ZIndexStackedSectionProps> = ({ stor
   };
 
   return (
-    <section className="bg-[#f7f4ee] px-4 py-20 sm:px-8 sm:py-28">
+    <section className="bg-[#f7f4ee] px-4 py-16 sm:px-8 sm:py-20">
       <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-12 lg:items-center">
         <div className="lg:col-span-4">
-          <h2 className="font-maruburi text-4xl font-semibold leading-[1.12] tracking-[-0.05em] sm:text-5xl">공간이 품은 소리를, 이야기로 만나보세요.</h2>
-          <p className="mt-6 max-w-sm text-sm leading-6 text-[#655b4d]">카드 위에서 휠을 움직이면 세 장면이 끝없이 겹쳐지며 전환됩니다.</p>
-          <div className="mt-8 flex gap-2">
-            {CHAPTERS.map((chapter, index) => <button key={chapter.eyebrow} type="button" onClick={() => setSelected(index)} aria-label={chapter.eyebrow} className={`h-2.5 rounded-full transition-all ${index === selected ? 'w-9 bg-[#a94d35]' : 'w-2.5 bg-[#c9bdad]'}`} />)}
+          <p className="text-[11px] font-semibold tracking-[0.14em] text-[#a94d35]">소리의 장면</p>
+          <h2 className="mt-1 font-maruburi text-2xl font-semibold leading-tight tracking-[-0.05em] sm:text-3xl">머물고 싶은 곳을 고르세요.</h2>
+          <p className="mt-3 max-w-sm text-sm leading-6 text-[#655b4d]">장면을 선택하면 그곳의 이야기를 바로 들을 수 있어요.</p>
+          <div className="mt-6 flex gap-2" aria-label="장면 선택">
+            {CHAPTERS.map((chapter, index) => <button key={chapter.eyebrow} type="button" onClick={() => setSelected(index)} aria-label={chapter.eyebrow} aria-pressed={index === selected} className={`h-2.5 rounded-full transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#a94d35] ${index === selected ? 'w-8 bg-[#a94d35]' : 'w-2.5 bg-[#c9bdad] hover:bg-[#a94d35]/60'}`} />)}
           </div>
         </div>
 
         <div
-          onMouseEnter={() => { isStackHovered.current = true; }}
-          onMouseLeave={() => { isStackHovered.current = false; }}
-          className="relative h-[322px] w-[70%] justify-self-center cursor-ns-resize overscroll-contain lg:col-span-8 sm:h-[413px]"
+          className="relative h-[322px] w-[86%] justify-self-center lg:col-span-8 sm:h-[413px]"
         >
           {CHAPTERS.map((chapter, index) => {
             const depth = (index - selected + CHAPTERS.length) % CHAPTERS.length;
@@ -76,12 +54,11 @@ export const ZIndexStackedSection: React.FC<ZIndexStackedSectionProps> = ({ stor
                 <img src={chapter.image} alt="" className="absolute inset-0 h-full w-full object-cover mix-blend-multiply opacity-65" />
                 <div className="absolute inset-0 bg-gradient-to-r from-white/80 via-white/25 to-transparent" />
                 <div className="relative flex h-full max-w-[78%] flex-col justify-end p-5 sm:max-w-[66%] sm:p-8">
-                  <p className="text-[10px] font-bold tracking-[0.14em] opacity-65 sm:text-[11px]">0{index + 1} / {chapter.eyebrow}</p>
-                  <h3 className="mt-2 font-maruburi text-2xl font-semibold leading-[1.12] tracking-[-0.045em] sm:text-4xl">{chapter.title}</h3>
-                  <p className="mt-3 max-w-sm text-xs leading-5 opacity-75 sm:text-sm sm:leading-6">{chapter.description}</p>
+                  <p className="text-[10px] font-bold tracking-[0.14em] opacity-65 sm:text-[11px]">{chapter.eyebrow}</p>
+                  <h3 className="mt-2 font-maruburi text-xl font-semibold leading-[1.2] tracking-[-0.045em] sm:text-3xl">{chapter.title}</h3>
+                  <p className="mt-2 max-w-sm text-xs leading-5 opacity-75 sm:text-sm sm:leading-6">{chapter.description}</p>
                   {isFront && story && <button type="button" onClick={(event) => { event.stopPropagation(); play(story); }} className="mt-5 inline-flex w-fit items-center gap-2 rounded-full bg-[#211e19] px-3 py-2.5 text-xs font-semibold text-white sm:px-4 sm:text-sm"><span>{currentStory.stid === story.stid && isPlaying ? 'Ⅱ' : '▶'}</span>{story.title} 듣기</button>}
                 </div>
-                <span className="absolute bottom-[-5rem] right-5 font-maruburi text-[14rem] leading-none tracking-[-0.14em] opacity-10 sm:right-12 sm:text-[20rem]">0{index + 1}</span>
               </article>
             );
           })}
