@@ -6,14 +6,16 @@ import { OdiiCategory } from '../types/odii.types';
 
 const CATEGORIES: OdiiCategory[] = [
   '전체',
-  '궁궐/유적',
   '한옥/고택',
-  '정원/자연',
+  '궁궐/역사',
+  '전통시장/장터',
+  '마을/골목길',
+  '소리/문화',
   '박물관/미술관',
-  '시전/전통시장',
-  '도보/골목길',
-  '사람내음과 고운 정',
+  '자연/둘레길',
 ];
+
+
 
 export const CategoryTagFilter: React.FC = () => {
   const selectedCategory = useOdiiAudioStore((s) => s.selectedCategory);

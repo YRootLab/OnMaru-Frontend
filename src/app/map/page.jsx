@@ -10,7 +10,8 @@
   =============================================================
 */
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, Suspense } from 'react';
+
 import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
@@ -239,7 +240,9 @@ const MapPlaceholder = styled.div`
   color: ${meok[500]};
 `;
 
-export default function MapPage() {
+
+
+function MapContent() {
   const searchParams = useSearchParams();
   const modeParam = searchParams.get('mode');
   const isWarmthMode = modeParam === 'warmth';
@@ -319,3 +322,12 @@ export default function MapPage() {
     </Page>
   );
 }
+
+export default function MapPage() {
+  return (
+    <Suspense fallback={<MapPlaceholder>지도를 불러오는 중…</MapPlaceholder>}>
+      <MapContent />
+    </Suspense>
+  );
+}
+

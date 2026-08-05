@@ -13,6 +13,8 @@ import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
 import { odiiApiAdapter } from '../api/odiiApi';
 import { OdiiStoryItem } from '../types/odii.types';
 
+import { OdiiThemeHeaderRail } from './OdiiThemeHeaderRail';
+
 export const OdiiAudioFeature: React.FC = () => {
   const selectedCategory = useOdiiAudioStore((s) => s.selectedCategory);
   const searchQuery = useOdiiAudioStore((s) => s.searchQuery);
@@ -49,7 +51,7 @@ export const OdiiAudioFeature: React.FC = () => {
       </header>
 
       <main>
-        <section className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-4 pb-20 pt-16 sm:px-8 sm:pt-24 lg:grid-cols-12 lg:items-end">
+        <section className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-4 pb-12 pt-16 sm:px-8 sm:pt-24 lg:grid-cols-12 lg:items-end">
           <div className="lg:col-span-7">
             <p className="text-xs font-semibold tracking-[0.18em] text-[#a94d35]">오디 오디오 가이드</p>
             <h1 className="mt-5 max-w-3xl font-maruburi text-5xl font-semibold leading-[1.08] tracking-[-0.055em] sm:text-7xl">
@@ -66,6 +68,7 @@ export const OdiiAudioFeature: React.FC = () => {
 
         <FeaturedStoryRail stories={storyList.length ? storyList : nearbyStories} />
         <ZIndexStackedSection stories={storyList.length ? storyList : nearbyStories} />
+
 
         <section className="mx-auto max-w-6xl px-4 py-20 sm:px-8 sm:py-28">
           <div className="mb-8 flex items-end justify-between border-b border-[#211e19]/20 pb-5">
