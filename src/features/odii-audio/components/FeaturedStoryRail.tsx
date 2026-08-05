@@ -9,7 +9,7 @@ interface FeaturedStoryRailProps {
   stories: OdiiStoryItem[];
 }
 
-const TABS = ['추천', '한옥', '시장'];
+const TABS = ['추천', '한옥', '궁궐/역사', '전통시장', '고택'];
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1200&q=80';
 
 function getValidImage(url?: string): string {
@@ -41,7 +41,7 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
   const lead = featured[activeIndex] ?? featured[0];
   const visualDirection = direction;
 
-  // 7초(7000ms)마다 자동으로 다음 오디오 스토리로 스위칭
+  // 7초마다 자동 슬라이드
   useEffect(() => {
     if (featured.length < 2 || !isSectionInView) return;
     const timer = window.setInterval(() => {
@@ -78,6 +78,7 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
     }
   };
 
+  // 다음 카드 2개
   const following = featured
     .slice(1, 3)
     .map((_, index) => featured[(activeIndex + index + 1) % featured.length]);
@@ -85,179 +86,155 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
   const leadImageUrl = getValidImage(lead.imageUrl);
 
   return (
-    <section ref={sectionRef} className="mx-auto max-w-6xl px-4 pb-20 sm:px-8 sm:pb-28">
+    <section ref={sectionRef} className="mx-auto max-w-6xl px-4 pb-16 sm:px-8 sm:pb-24">
       <div>
-        {/* 상단 섹션 타이틀 및 탭 */}
-        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h2 className="font-maruburi text-2xl font-semibold tracking-[-0.04em] text-[#211e19]">
-              이번 주 소리 추천 Top 7
-            </h2>
-          </div>
-          <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {TABS.map((tab) => (
-              <button
-                key={tab}
-                type="button"
-                onClick={() => {
-                  setDirection(1);
-                  setActiveTab(tab);
-                  setActiveIndex(0);
-                  setAutoplayVersion((version) => version + 1);
-                }}
-                className={`shrink-0 rounded-full px-4 py-2 text-xs font-medium transition-colors ${
-                  activeTab === tab
-                    ? 'bg-[#211e19] text-white'
-                    : 'border border-[#211e19]/20 text-[#655b4d] hover:border-[#211e19] hover:text-[#211e19]'
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
+        {/* 상단 스크롤 칩 태그 바 (스크린샷 동일 스타일) */}
+        <div className="mb-6 flex items-center space-x-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {TABS.map((tab) => (
+            <button
+              key={tab}
+              type="button"
+              onClick={() => {
+                setDirection(1);
+                setActiveTab(tab);
+                setActiveIndex(0);
+                setAutoplayVersion((version) => version + 1);
+              }}
+              className={`px-5 py-2.5 rounded-full text-xs font-bold transition-all whitespace-nowrap shadow-sm ${
+                activeTab === tab
+                  ? 'bg-[#e54527] text-white scale-105'
+                  : 'bg-[#f7f0e4]/80 text-[#554c41] hover:bg-[#e8dfd1] hover:text-[#211e19]'
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
         </div>
 
-        {/* 메인 히어로 앰비언트 카드 컨테이너 */}
-        <div className="relative min-h-[380px] overflow-hidden rounded-[1.8rem] bg-[#1a1715] shadow-2xl sm:min-h-[440px]">
+        {/* 뤼튼 크랙 스타일 메인 히어로 배너 슬라이더 컨테이너 (검은색 껍데기 제거 -> 생생한 비주얼 꽉 채움) */}
+        <div className="relative flex items-center gap-4 overflow-hidden">
           
-          {/* 🌟 현재 포커싱된 이미지(lead.imageUrl)를 Scale Up + Blur 처리하여 배경에 꽉 채움 */}
-          <AnimatePresence initial={false} mode="sync">
-            <motion.img
-              key={lead.stid}
-              src={leadImageUrl}
-              alt=""
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = FALLBACK_IMAGE;
-              }}
-              initial={{ opacity: 0, scale: 1.35, x: visualDirection * 28 }}
-              animate={{ opacity: 0.7, scale: 1.22, x: 0 }}
-              exit={{ opacity: 0, scale: 1.15, x: visualDirection * -28 }}
-              transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute inset-0 h-full w-full object-cover blur-3xl saturate-150 brightness-90"
-            />
-          </AnimatePresence>
-
-          {/* 에디토리얼 시네마틱 앰비언트 오버레이 (가독성 보장 소프트 그라데이션) */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#141210]/90 via-[#141210]/70 to-[#141210]/25 backdrop-blur-[2px]" />
-          <div className="absolute inset-y-0 left-0 w-2/3 bg-[radial-gradient(ellipse_at_left,rgba(20,18,15,0.5),transparent_70%)]" />
-
-          {/* 내부 콘텐츠 레이어 */}
-          <div className="relative z-10 grid min-h-[380px] grid-cols-1 items-stretch p-7 sm:min-h-[440px] sm:grid-cols-12 sm:p-10">
+          {/* 메인 1등 전면 대형 앨범 카드 배너 */}
+          <div className="relative flex-1 min-h-[380px] sm:min-h-[420px] rounded-[2rem] overflow-hidden shadow-xl group">
             
-            {/* 좌측 텍스트 & 재생 컨트롤 */}
-            <AnimatePresence initial={false} mode="wait">
-              <motion.div
+            {/* 🌟 100% 선명하게 드러나는 생생한 메인 이미지 배경 (검은색 칠 완전 제거) */}
+            <AnimatePresence initial={false} mode="sync">
+              <motion.img
                 key={lead.stid}
-                initial={{ opacity: 0, x: visualDirection * 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: visualDirection * -12 }}
-                transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
-                className="flex h-full max-w-xl flex-col sm:col-span-7"
-              >
-                <div className="flex flex-1 flex-col justify-center">
-                  <span className="inline-block self-start rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-amber-200 backdrop-blur-md border border-white/15">
-                    {lead.category} · {lead.locationName}
-                  </span>
-                  <h2 className="mt-4 font-maruburi text-4xl font-semibold leading-[1.12] tracking-[-0.05em] text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.85)] sm:text-6xl">
-                    {lead.title}
-                  </h2>
-                  <p className="mt-4 max-w-md text-base leading-7 text-white/90 drop-shadow">
-                    {lead.audioTitle}
-                  </p>
-                </div>
-
-                <div className="mt-auto flex flex-wrap items-center gap-4 pt-6">
-                  <button
-                    type="button"
-                    onClick={play}
-                    className="flex items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#211e19] shadow-2xl transition-all hover:scale-[1.03] hover:bg-amber-50 active:scale-95"
-                  >
-                    <span>{currentStory.stid === lead.stid && isPlaying ? '일시정지' : '이야기 듣기'}</span>
-                    <span className="ml-1 text-xs text-[#6c6257]">{lead.formattedDuration}</span>
-                  </button>
-
-                  <div className="flex items-center gap-2">
-                    <span className="mr-1 text-xs font-semibold text-white/80">
-                      {activeIndex + 1} / {featured.length}
-                    </span>
-                    <button
-                      type="button"
-                      aria-label="이전 추천"
-                      onClick={() => move(-1)}
-                      className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-md hover:bg-white/30 transition-transform active:scale-95"
-                    >
-                      <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-2">
-                        <path d="m14 19-7-7 7-7" />
-                      </svg>
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="다음 추천"
-                      onClick={() => move(1)}
-                      className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-[#211e19] shadow-lg transition-transform hover:scale-105 active:scale-95"
-                    >
-                      <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-2">
-                        <path d="m10 5 7 7-7 7" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
+                src={leadImageUrl}
+                alt={lead.title}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = FALLBACK_IMAGE;
+                }}
+                initial={{ opacity: 0, scale: 1.15, x: visualDirection * 24 }}
+                animate={{ opacity: 1, scale: 1, x: 0 }}
+                exit={{ opacity: 0, scale: 0.95, x: visualDirection * -24 }}
+                transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
             </AnimatePresence>
 
-            {/* 우측 포커싱된 전면 앨범아트 이미지 1개 + 뒤따르는 다음 스토리 카드 2개 */}
-            <div className="absolute bottom-5 right-5 top-5 hidden items-center gap-3 sm:flex">
-              {/* 포커싱된 전면 대표 메인 카드 */}
-              <AnimatePresence initial={false} mode="popLayout">
-                <motion.img
-                  key={lead.stid}
-                  src={leadImageUrl}
-                  alt={lead.title}
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = FALLBACK_IMAGE;
-                  }}
-                  initial={{ opacity: 0, x: visualDirection * 36, scale: 0.96 }}
-                  animate={{ opacity: 1, x: 0, scale: 1 }}
-                  exit={{ opacity: 0, x: visualDirection * -24, scale: 0.97 }}
-                  transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-                  className="aspect-[3/4] h-[320px] w-[240px] rounded-2xl object-cover shadow-2xl ring-1 ring-white/20"
-                />
-              </AnimatePresence>
+            {/* 텍스트 가독성을 위한 하단/좌측 시네마틱 오버레이 (검정 칠 대신 자연스러운 그라데이션) */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+            <div className="absolute inset-y-0 left-0 w-3/4 bg-gradient-to-r from-black/60 via-black/20 to-transparent" />
 
-              {/* 다음 추천 스토리 얇은 카드 2개 */}
-              <AnimatePresence initial={false} mode="popLayout">
-                {following.map((story, index) => {
-                  const imgUrl = getValidImage(story.imageUrl);
-                  return (
-                    <motion.button
-                      key={`${lead.stid}-${story.stid}`}
-                      type="button"
-                      onClick={() => {
-                        setDirection(1);
-                        setActiveIndex((activeIndex + index + 1) % featured.length);
-                        setAutoplayVersion((version) => version + 1);
-                      }}
-                      initial={{ opacity: 0, x: 18, scale: 0.94 }}
-                      animate={{ opacity: 0.65, x: 0, scale: 1 }}
-                      exit={{ opacity: 0, x: -14, scale: 0.96 }}
-                      transition={{ duration: 0.5, delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
-                      className="h-[285px] w-16 overflow-hidden rounded-2xl transition-all hover:opacity-100 ring-1 ring-white/10"
-                    >
-                      <img
-                        src={imgUrl}
-                        alt={story.title}
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = FALLBACK_IMAGE;
-                        }}
-                        className="h-full w-full scale-125 object-cover blur-[1px]"
-                      />
-                    </motion.button>
-                  );
-                })}
-              </AnimatePresence>
+            {/* 상단 우측 페이지 뱃지 (예: 1 / 7) */}
+            <div className="absolute top-5 right-5 z-20">
+              <span className="px-3 py-1 rounded-full bg-black/50 text-white text-[11px] font-semibold backdrop-blur-md border border-white/20">
+                {activeIndex + 1} / {featured.length}
+              </span>
             </div>
 
+            {/* 메인 카드 좌측 내부 정보 */}
+            <div className="relative z-10 flex flex-col justify-end h-full p-8 sm:p-10 min-h-[380px] sm:min-h-[420px]">
+              <div>
+                <span className="inline-block px-3 py-1 rounded-md bg-[#e54527] text-white text-[11px] font-bold tracking-wide uppercase shadow-md mb-3">
+                  {lead.category} · {lead.locationName}
+                </span>
+                <h2 className="font-maruburi text-3xl sm:text-5xl font-bold text-white leading-[1.18] tracking-[-0.04em] drop-shadow-[0_4px_16px_rgba(0,0,0,0.8)]">
+                  {lead.title}
+                </h2>
+                <p className="mt-3 max-w-lg text-sm sm:text-base text-white/90 font-light line-clamp-2 drop-shadow">
+                  {lead.audioTitle}
+                </p>
+              </div>
+
+              {/* 재생 및 탐색 컨트롤 버튼 */}
+              <div className="mt-8 flex items-center gap-4">
+                <button
+                  type="button"
+                  onClick={play}
+                  className="px-6 py-3 rounded-full bg-white text-[#211e19] text-sm font-bold shadow-2xl transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
+                >
+                  <span>{currentStory.stid === lead.stid && isPlaying ? '일시정지' : '이야기 듣기'}</span>
+                  <span className="text-xs text-[#655b4d] font-normal">{lead.formattedDuration}</span>
+                </button>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    aria-label="이전"
+                    onClick={() => move(-1)}
+                    className="w-10 h-10 rounded-full bg-black/40 text-white backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-black/60 transition-transform active:scale-95"
+                  >
+                    ‹
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="다음"
+                    onClick={() => move(1)}
+                    className="w-10 h-10 rounded-full bg-white text-[#211e19] shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 font-bold"
+                  >
+                    ›
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
+
+          {/* 우측 뤼튼 크랙 스타일 서브 카드 2개 (스크린샷처럼 우측에 얇게 붙는 카드 슬라이더) */}
+          <div className="hidden lg:flex items-center gap-3 shrink-0">
+            <AnimatePresence initial={false} mode="popLayout">
+              {following.map((story, index) => {
+                const imgUrl = getValidImage(story.imageUrl);
+                return (
+                  <motion.div
+                    key={`${lead.stid}-${story.stid}`}
+                    onClick={() => {
+                      setDirection(1);
+                      setActiveIndex((activeIndex + index + 1) % featured.length);
+                      setAutoplayVersion((v) => v + 1);
+                    }}
+                    initial={{ opacity: 0, x: 20, scale: 0.95 }}
+                    animate={{ opacity: 1, x: 0, scale: 1 }}
+                    exit={{ opacity: 0, x: -20, scale: 0.95 }}
+                    transition={{ duration: 0.5, delay: index * 0.05 }}
+                    className="relative h-[380px] sm:h-[420px] w-[130px] rounded-[1.8rem] overflow-hidden cursor-pointer group shadow-lg ring-1 ring-black/10"
+                  >
+                    <img
+                      src={imgUrl}
+                      alt={story.title}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = FALLBACK_IMAGE;
+                      }}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                    
+                    <div className="absolute bottom-0 inset-x-0 p-4 text-white">
+                      <span className="text-[10px] font-bold text-amber-300 uppercase">
+                        {story.category}
+                      </span>
+                      <h4 className="font-maruburi text-xs font-bold line-clamp-2 mt-1">
+                        {story.title}
+                      </h4>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+          </div>
+
         </div>
       </div>
     </section>
