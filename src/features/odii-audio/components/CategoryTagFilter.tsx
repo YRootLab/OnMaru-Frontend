@@ -52,7 +52,8 @@ export const CategoryTagFilter: React.FC = () => {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="이야기, 장소, 해설사 검색"
-          className="w-full pl-10 pr-4 py-2.5 bg-[#f7f0e4]/70 border border-[#211e19]/20 rounded-full text-sm text-[#211e19] placeholder-[#655b4d] focus:outline-none focus:border-[#a94d35] transition-all"
+          className="w-full pl-10 pr-4 py-2.5 bg-[#f8f6f0] border border-[#211e19]/20 rounded-full text-sm text-[#211e19] placeholder-[#655b4d] focus:outline-none focus:border-[#a94d35] transition-all"
+
         />
         <span className="absolute left-3.5 top-3 text-xs text-[#655b4d]">⌕</span>
         {searchQuery && (

@@ -42,7 +42,7 @@ export const OdiiAudioFeature: React.FC = () => {
   }, [selectedCategory, searchQuery]);
 
   return (
-    <div className="min-h-screen bg-[#f3eee4] pb-24 font-odii-sans text-[#211e19] selection:bg-[#d56748] selection:text-white">
+    <div className="min-h-screen bg-white pb-24 font-odii-sans text-[#211e19] selection:bg-[#d56748] selection:text-white">
       <header className="px-4 py-6 sm:px-8">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
           <Link href="/" className="font-maruburi text-xl tracking-[-0.04em]">ONMARU</Link>
@@ -80,7 +80,8 @@ export const OdiiAudioFeature: React.FC = () => {
           <StoryCarousel stories={nearbyStories} />
         </section>
 
-        <section className="bg-[#e8dfd1] px-4 py-20 sm:px-8 sm:py-28">
+        <section className="bg-white border-t border-[#211e19]/10 px-4 py-20 sm:px-8 sm:py-28">
+
           <div className="mx-auto max-w-6xl">
             <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
               <div>
