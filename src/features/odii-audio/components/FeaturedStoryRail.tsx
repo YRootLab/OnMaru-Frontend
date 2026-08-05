@@ -39,7 +39,6 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
   }, [activeTab, stories]);
 
   const lead = featured[activeIndex] ?? featured[0];
-  const visualDirection = direction;
 
   // 7초 자동 이동
   useEffect(() => {
@@ -78,17 +77,24 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
     }
   };
 
-  // 정확히 4개의 서브 대기 카드
+  // 우측 4개 대기 서브 카드
   const following = featured
     .slice(1, 5)
     .map((_, index) => featured[(activeIndex + index + 1) % featured.length]);
 
   const leadImageUrl = getValidImage(lead.imageUrl);
 
+  // 자연스러운 슬라이드 트랜지션 베지어 커브 (Apple / Netflix Style Curve)
+  const springTransition = {
+    duration: 0.65,
+    ease: [0.16, 1, 0.3, 1] as const,
+  };
+
+
   return (
     <section ref={sectionRef} className="mx-auto max-w-6xl px-4 pb-12 sm:px-8 sm:pb-16">
       <div>
-        {/* 상단 탭 필터 바 */}
+        {/* 상단 필터 바 */}
         <div className="mb-4 flex items-center space-x-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {TABS.map((tab) => (
             <button
@@ -111,47 +117,46 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
           ))}
         </div>
 
-        {/* 75% 높이로 슬림화된 3D Flip 슬라이더 영역 (기존 420px -> 310px) */}
-        <div className="relative flex items-center gap-2.5 overflow-hidden [perspective:1200px]">
+        {/* 메인 슬라이더 레이아웃 (자연스러운 좌측 흐름 시프팅) */}
+        <div className="relative flex items-center gap-3 overflow-hidden">
           
-          {/* 메인 풀블리드 비주얼 카드 (높이 75% 슬림화: min-h-[300px] sm:min-h-[315px]) */}
-          <div className="relative flex-1 min-h-[295px] sm:min-h-[315px] h-[315px] rounded-[1.6rem] overflow-hidden shadow-lg group [transform-style:preserve-3d]">
+          {/* 메인 비주얼 배너 카드 (기존 메인은 왼쪽으로 퇴장, 오른쪽 서브가 왼쪽으로 당겨지며 메인 승격) */}
+          <div className="relative flex-1 min-h-[295px] sm:min-h-[315px] h-[315px] rounded-[1.6rem] overflow-hidden shadow-xl group">
             
-            {/* 3D Flip 애니메이션 이미지 */}
-            <AnimatePresence initial={false} mode="sync">
-              <motion.img
+            <AnimatePresence mode="popLayout" custom={direction}>
+              <motion.div
                 key={lead.stid}
-                src={leadImageUrl}
-                alt={lead.title}
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = FALLBACK_IMAGE;
-                }}
+                custom={direction}
                 initial={{
-                  opacity: 0,
-                  rotateY: visualDirection > 0 ? -60 : 60,
-                  scale: 1.12,
-                  x: visualDirection * 40,
+                  x: direction > 0 ? '100%' : '-100%',
+                  opacity: 0.8,
                 }}
                 animate={{
+                  x: '0%',
                   opacity: 1,
-                  rotateY: 0,
-                  scale: 1,
-                  x: 0,
                 }}
                 exit={{
-                  opacity: 0,
-                  rotateY: visualDirection > 0 ? 60 : -60,
-                  scale: 0.92,
-                  x: visualDirection * -40,
+                  x: direction > 0 ? '-100%' : '100%',
+                  opacity: 0.2,
                 }}
-                transition={{ duration: 0.75, ease: [0.25, 1, 0.5, 1] }}
-                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105 origin-center"
-              />
-            </AnimatePresence>
+                transition={springTransition}
+                className="absolute inset-0 h-full w-full"
+              >
+                {/* 배경 비주얼 이미지 */}
+                <img
+                  src={leadImageUrl}
+                  alt={lead.title}
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = FALLBACK_IMAGE;
+                  }}
+                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
 
-            {/* 하단/좌측 오버레이 */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent pointer-events-none" />
-            <div className="absolute inset-y-0 left-0 w-3/4 bg-gradient-to-r from-black/60 via-black/20 to-transparent pointer-events-none" />
+                {/* 하단/좌측 오버레이 */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent pointer-events-none" />
+                <div className="absolute inset-y-0 left-0 w-3/4 bg-gradient-to-r from-black/60 via-black/20 to-transparent pointer-events-none" />
+              </motion.div>
+            </AnimatePresence>
 
             {/* 우측 상단 뱃지 */}
             <div className="absolute top-4 right-4 z-20">
@@ -160,22 +165,31 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
               </span>
             </div>
 
-            {/* 메인 카드 슬림 정보 & 컨트롤 (75% 비율 맞춤) */}
-            <div className="relative z-10 flex flex-col justify-end h-full p-6 sm:p-7 min-h-[295px] sm:min-h-[315px]">
-              <div>
-                <span className="inline-block px-2.5 py-0.5 rounded-md bg-[#e54527] text-white text-[10px] font-bold tracking-wide uppercase shadow-md mb-2">
-                  {lead.category} · {lead.locationName}
-                </span>
-                <h2 className="font-maruburi text-2xl sm:text-4xl font-bold text-white leading-[1.18] tracking-[-0.04em] drop-shadow-[0_3px_12px_rgba(0,0,0,0.8)]">
-                  {lead.title}
-                </h2>
-                <p className="mt-2 max-w-md text-xs sm:text-sm text-white/90 font-light line-clamp-1 drop-shadow">
-                  {lead.audioTitle}
-                </p>
-              </div>
+            {/* 메인 카드 정보 및 버튼 */}
+            <div className="relative z-10 flex flex-col justify-end h-full p-6 sm:p-7 min-h-[295px] sm:min-h-[315px] pointer-events-none">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={lead.stid}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.35, ease: 'easeOut' }}
+                  className="pointer-events-auto"
+                >
+                  <span className="inline-block px-2.5 py-0.5 rounded-md bg-[#e54527] text-white text-[10px] font-bold tracking-wide uppercase shadow-md mb-2">
+                    {lead.category} · {lead.locationName}
+                  </span>
+                  <h2 className="font-maruburi text-2xl sm:text-4xl font-bold text-white leading-[1.18] tracking-[-0.04em] drop-shadow-[0_3px_12px_rgba(0,0,0,0.8)]">
+                    {lead.title}
+                  </h2>
+                  <p className="mt-2 max-w-md text-xs sm:text-sm text-white/90 font-light line-clamp-1 drop-shadow">
+                    {lead.audioTitle}
+                  </p>
+                </motion.div>
+              </AnimatePresence>
 
-              {/* 버튼 컨트롤 */}
-              <div className="mt-5 flex items-center gap-3">
+              {/* 재생/탐색 버튼 컨트롤 */}
+              <div className="mt-5 flex items-center gap-3 pointer-events-auto">
                 <button
                   type="button"
                   onClick={play}
@@ -207,23 +221,29 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
             </div>
           </div>
 
-          {/* 우측 4개 슬림 서브 대기 카드 (75% 높이: 315px, 4개 보장) */}
+          {/* 우측 4개 세로 대기 카드 (한 칸씩 자연스럽게 왼쪽으로 전진 이동하는 Layout Shift) */}
           <div className="hidden md:flex items-center gap-2 shrink-0">
-            <AnimatePresence initial={false} mode="popLayout">
+            <AnimatePresence mode="popLayout" initial={false}>
               {following.map((story, index) => {
                 const imgUrl = getValidImage(story.imageUrl);
                 return (
                   <motion.div
-                    key={`${lead.stid}-${story.stid}`}
+                    key={story.stid}
+                    layout
                     onClick={() => {
                       setDirection(1);
                       setActiveIndex((activeIndex + index + 1) % featured.length);
                       setAutoplayVersion((v) => v + 1);
                     }}
-                    initial={{ opacity: 0, x: 20, rotateY: -30, scale: 0.95 }}
-                    animate={{ opacity: 1, x: 0, rotateY: 0, scale: 1 }}
-                    exit={{ opacity: 0, x: -20, rotateY: 30, scale: 0.95 }}
-                    transition={{ duration: 0.45, delay: index * 0.04 }}
+                    initial={{ opacity: 0, x: 40, scale: 0.9 }}
+                    animate={{ opacity: 1, x: 0, scale: 1 }}
+                    exit={{ opacity: 0, x: -40, scale: 0.9 }}
+                    transition={{
+                      layout: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const },
+                      opacity: { duration: 0.3 },
+                      x: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const }
+                    }}
+
                     className="relative h-[315px] w-[78px] sm:w-[84px] rounded-[1.3rem] overflow-hidden cursor-pointer group shadow-md ring-1 ring-black/10 transition-all hover:w-[98px]"
                   >
                     <img
