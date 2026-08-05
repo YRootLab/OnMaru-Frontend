@@ -136,23 +136,19 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
           {/* 메인 비주얼 배너 카드 (기존 메인은 왼쪽으로 퇴장, 오른쪽 서브가 왼쪽으로 당겨지며 메인 승격) */}
           <div className="relative flex-1 min-h-[420px] sm:min-h-[390px] h-auto rounded-[1.75rem] overflow-hidden bg-[#6d6258] shadow-[0_20px_55px_rgba(43,35,26,0.18)]">
             
-            <AnimatePresence mode="popLayout" custom={direction}>
+            <AnimatePresence mode="sync">
               <motion.div
                 key={lead.stid}
-                custom={direction}
                 initial={{
-                  x: direction > 0 ? '100%' : '-100%',
-                  opacity: 0.8,
+                  opacity: 0,
                 }}
                 animate={{
-                  x: '0%',
                   opacity: 1,
                 }}
                 exit={{
-                  x: direction > 0 ? '-100%' : '100%',
-                  opacity: 0.2,
+                  opacity: 0,
                 }}
-                transition={springTransition}
+                transition={{ duration: 0.5, ease: 'easeInOut' }}
                 className="absolute inset-0 h-full w-full"
               >
                 {/* 이미지를 크게 확장해 주변 색감만 남기는 Apple Store식 배경 */}
@@ -195,7 +191,7 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
                   <p className="mt-3 max-w-md text-xs sm:text-sm text-white/80 font-light line-clamp-2 leading-6">
                     {lead.audioTitle}
                   </p>
-                  <div className="mt-6 flex items-center gap-3 pointer-events-auto">
+                  <div className="mt-6 pointer-events-auto">
                     <button
                       type="button"
                       onClick={play}
@@ -204,24 +200,6 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
                       <span>{currentStory.stid === lead.stid && isPlaying ? '일시정지' : '이야기 듣기'}</span>
                       <span className="text-[11px] text-[#655b4d] font-normal">{lead.formattedDuration}</span>
                     </button>
-                    <div className="flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    aria-label="이전"
-                    onClick={() => move(-1)}
-                    className="w-8 h-8 rounded-full bg-black/40 text-white backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-black/60 transition-colors text-xs"
-                  >
-                    ‹
-                  </button>
-                  <button
-                    type="button"
-                    aria-label="다음"
-                    onClick={() => move(1)}
-                    className="w-8 h-8 rounded-full bg-white text-[#211e19] shadow-lg flex items-center justify-center hover:bg-white/85 transition-colors text-xs font-bold"
-                  >
-                    ›
-                  </button>
-                    </div>
                   </div>
                 </motion.div>
               </AnimatePresence>
@@ -234,7 +212,7 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 1.04, y: -8 }}
                   transition={springTransition}
-                  className="pointer-events-none order-first mx-auto w-[156px] overflow-hidden rounded-[1.2rem] border border-white/30 bg-white/10 shadow-[0_18px_36px_rgba(0,0,0,0.35)] sm:order-none sm:w-full"
+                  className="pointer-events-none order-first mx-auto w-[156px] overflow-hidden rounded-[1.2rem] border border-white/30 bg-white/10 shadow-[0_18px_36px_rgba(0,0,0,0.35)] sm:order-none sm:mb-14 sm:w-full"
                 >
                   <img
                     src={leadImageUrl}
@@ -244,6 +222,18 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
                   />
                 </motion.div>
               </AnimatePresence>
+
+              {/* 제목 길이와 관계없이 항상 같은 자리에 놓이는 다음 탐색 버튼 */}
+              <div className="pointer-events-auto absolute bottom-6 left-6 z-20 sm:bottom-9 sm:left-auto sm:right-9">
+                <button
+                  type="button"
+                  aria-label="다음 이야기"
+                  onClick={() => move(1)}
+                  className="flex h-11 items-center gap-2 rounded-full bg-white px-4 text-xs font-bold text-[#211e19] shadow-lg transition-colors duration-500 hover:bg-white/85 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                >
+                  다음 이야기 <span aria-hidden="true" className="text-base leading-none">›</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -283,10 +273,7 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
                     <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
                     
                     <div className="absolute bottom-0 inset-x-0 p-2 text-white">
-                      <span className="text-[8px] font-bold text-amber-300 uppercase block">
-                        {story.category}
-                      </span>
-                      <h4 className="font-maruburi text-[10px] font-bold line-clamp-2 mt-0.5 leading-snug">
+                      <h4 className="font-maruburi text-[10px] font-bold line-clamp-2 leading-snug">
                         {story.title}
                       </h4>
                     </div>
