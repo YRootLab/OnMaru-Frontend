@@ -46,9 +46,9 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
   const setIsPlaying = useOdiiAudioStore((s) => s.setIsPlaying);
 
   const featured = useMemo(() => {
-    if (activeTab === '추천') return stories.slice(0, 10);
+    if (activeTab === '추천') return stories.slice(0, 7);
     const matched = stories.filter((story) => story.category.includes(activeTab));
-    return (matched.length ? matched : stories).slice(0, 10);
+    return (matched.length ? matched : stories).slice(0, 7);
   }, [activeTab, stories]);
 
   const lead = featured[activeIndex] ?? featured[0];
@@ -97,9 +97,9 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
 
   const leadImageUrl = getValidImage(lead.imageUrl, lead.stid);
 
-  // 자연스러운 슬라이드 트랜지션 베지어 커브 (Apple / Netflix Style Curve)
+  // 세련되고 반응성이 빠른 트랜지션 베지어 커브 (0.3초 속도 개선)
   const springTransition = {
-    duration: 0.65,
+    duration: 0.35,
     ease: [0.16, 1, 0.3, 1] as const,
   };
 
@@ -108,26 +108,30 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
     <section ref={sectionRef} className="mx-auto max-w-6xl px-4 pb-12 sm:px-8 sm:pb-16">
       <div>
         {/* 상단 필터 바 */}
-        <div className="mb-4 flex items-center space-x-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {TABS.map((tab) => (
-            <button
-              key={tab}
-              type="button"
-              onClick={() => {
-                setDirection(1);
-                setActiveTab(tab);
-                setActiveIndex(0);
-                setAutoplayVersion((version) => version + 1);
-              }}
-              className={`px-4 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap shadow-sm ${
-                activeTab === tab
-                  ? 'bg-[#e54527] text-white scale-105'
-                  : 'bg-[#f7f0e4]/80 text-[#554c41] hover:bg-[#e8dfd1] hover:text-[#211e19]'
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
+        <div className="mb-3.5 flex items-center space-x-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {TABS.map((tab) => {
+            const isTabActive = activeTab === tab;
+            return (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => {
+                  setDirection(1);
+                  setActiveTab(tab);
+                  setActiveIndex(0);
+                  setAutoplayVersion((version) => version + 1);
+                }}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-300 whitespace-nowrap flex items-center gap-1.5 ${
+                  isTabActive
+                    ? 'bg-[#211e19] text-white shadow-sm font-bold'
+                    : 'bg-[#f7f4ee] text-[#655b4d] hover:bg-[#ede5d8] hover:text-[#211e19]'
+                }`}
+              >
+                {isTabActive && <span className="h-1.5 w-1.5 rounded-full bg-[#a94d35]" />}
+                {tab}
+              </button>
+            );
+          })}
         </div>
 
         {/* 같은 장면을 확장·블러 처리한 배경 위에 원본 앨범아트를 올린 에디토리얼 히어로 */}
@@ -148,7 +152,7 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
                 exit={{
                   opacity: 0,
                 }}
-                transition={{ duration: 0.5, ease: 'easeInOut' }}
+                transition={{ duration: 0.3, ease: 'easeInOut' }}
                 className="absolute inset-0 h-full w-full"
               >
                 {/* 이미지를 크게 확장해 주변 색감만 남기는 Apple Store식 배경 */}
@@ -212,7 +216,7 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 1.04, y: -8 }}
                   transition={springTransition}
-                  className="pointer-events-none order-first mx-auto w-[156px] overflow-hidden rounded-[1.2rem] border border-white/30 bg-white/10 shadow-[0_18px_36px_rgba(0,0,0,0.35)] sm:order-none sm:mb-14 sm:w-full"
+                  className="pointer-events-none order-first mx-auto w-[156px] overflow-hidden rounded-[1.2rem] border border-white/30 bg-white/10 shadow-[0_18px_36px_rgba(0,0,0,0.07)] sm:order-none sm:mb-14 sm:w-full"
                 >
                   <img
                     src={leadImageUrl}
@@ -255,9 +259,9 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories })
                     animate={{ opacity: 1, x: 0, scale: 1 }}
                     exit={{ opacity: 0, x: -40, scale: 0.9 }}
                     transition={{
-                      layout: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const },
-                      opacity: { duration: 0.3 },
-                      x: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const }
+                      layout: { duration: 0.35, ease: [0.16, 1, 0.3, 1] as const },
+                      opacity: { duration: 0.25 },
+                      x: { duration: 0.35, ease: [0.16, 1, 0.3, 1] as const }
                     }}
 
                     className="relative h-[315px] w-[78px] sm:w-[84px] rounded-[1.3rem] overflow-hidden cursor-pointer group shadow-md ring-1 ring-black/10 transition-colors hover:ring-white/60"
