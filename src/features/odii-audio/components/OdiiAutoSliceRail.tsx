@@ -271,24 +271,6 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
 
               {/* 메인 장면은 같은 자리에 머물고, 다음 장면으로 조용히 교차 전환 */}
               <div className="pointer-events-none relative order-first mx-auto h-[198px] w-[75%] translate-x-2 rounded-[1rem] border border-white/20 bg-white/10 shadow-[0_14px_30px_rgba(0,0,0,0.07)] sm:order-none sm:h-[198px] sm:w-[75%] sm:translate-x-3 md:h-[202px] lg:h-[211px]">
-                <svg className="pointer-events-none absolute -inset-[2px] z-20 h-[calc(100%+4px)] w-[calc(100%+4px)] overflow-visible" viewBox="0 0 72 100" preserveAspectRatio="none" aria-hidden="true">
-                  <rect x="0" y="0" width="72" height="100" rx="8.5" fill="none" stroke="rgba(255,255,255,0.78)" strokeWidth="0.55" pathLength="100" strokeDasharray="18 82" strokeLinecap="round">
-                    <animate
-                      attributeName="stroke-dashoffset"
-                      values="0;-16.7;-16.71;-20.76;-45.95;-45.96;-50.02;-66.71;-66.72;-70.78;-95.97;-95.98;-100"
-                      keyTimes="0;0.1734;0.1735;0.2058;0.4675;0.4676;0.4999;0.6732;0.6733;0.7056;0.9675;0.9676;1"
-                      dur="29s"
-                      repeatCount="indefinite"
-                    />
-                    <animate
-                      attributeName="stroke-dasharray"
-                      values="18 82;18 82;24 76;18 82;18 82;24 76;18 82;18 82;24 76;18 82;18 82;24 76;18 82"
-                      keyTimes="0;0.1734;0.1735;0.2058;0.4675;0.4676;0.4999;0.6732;0.6733;0.7056;0.9675;0.9676;1"
-                      dur="29s"
-                      repeatCount="indefinite"
-                    />
-                  </rect>
-                </svg>
                 <div className="relative z-10 h-full w-full overflow-hidden rounded-[0.95rem] bg-white/10">
                   <AnimatePresence initial={false} mode="sync">
                     <motion.div

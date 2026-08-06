@@ -106,7 +106,7 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
       onClick={onSelect}
       aria-pressed={isCurrent}
       style={{ isolation: 'isolate' }}
-      className={`group relative z-0 grid w-[min(86vw,22rem)] shrink-0 snap-start grid-cols-[88px_minmax(0,1fr)] gap-2.5 overflow-hidden rounded-[1.1rem] border p-1.5 text-left transition-[border-color,background-color,box-shadow] duration-300 hover:z-20 focus-visible:z-20 active:z-20 sm:w-[22rem] sm:grid-cols-[96px_minmax(0,1fr)] sm:gap-3 sm:p-2 ${
+      className={`group relative z-0 grid w-[min(86vw,22rem)] shrink-0 snap-start grid-cols-[128px_minmax(0,1fr)] gap-2.5 overflow-hidden rounded-[1.1rem] border p-1.5 text-left transition-[border-color,background-color,box-shadow] duration-300 hover:z-20 focus-visible:z-20 active:z-20 sm:w-[22rem] sm:grid-cols-[136px_minmax(0,1fr)] sm:gap-3 sm:p-2 ${
         isCurrent
           ? 'border-[#a94d35]/45 bg-[#fffaf3] shadow-[0_8px_18px_rgba(61,45,29,0.1)]'
           : 'border-[#211e19]/10 bg-[#fbf8f2] hover:border-[#a94d35]/35 hover:shadow-[0_8px_20px_rgba(61,45,29,0.1)]'
@@ -117,7 +117,7 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
         style={{ background: `radial-gradient(ellipse 72% 110% at 88% 12%, ${accentColor} 0%, transparent 68%)` }}
       />
       <div className="pointer-events-none absolute -left-1/2 top-0 z-20 h-full w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 transition-[transform,opacity] duration-700 ease-out group-hover:translate-x-[480%] group-hover:opacity-60 group-focus-visible:translate-x-[480%] group-focus-visible:opacity-60 group-active:translate-x-[480%] group-active:opacity-45" />
-      <div className="relative z-10 min-h-[108px] overflow-hidden rounded-[0.85rem] bg-[#d8cfbf]">
+      <div className="relative z-10 min-h-[138px] overflow-hidden rounded-[0.85rem] bg-[#d8cfbf]">
         <img
           src={story.imageUrl || FALLBACK_ART}
           alt=""
