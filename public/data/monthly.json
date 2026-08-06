@@ -1,0 +1,446 @@
+[
+  {
+    "month": 1,
+    "items": [
+      {
+        "id": "893974",
+        "name": "개평한옥마을",
+        "region": "경남",
+        "type": "집성촌형",
+        "image": "http://tong.visitkorea.or.kr/cms/resource/75/3538275_image2_1.jpg",
+        "summary": "함양의 중심에 위치한 개평한옥마을은 좌안동 우함양이라 불릴 정도로 많은 유학자들 배출한 영남지역의 대표적인…"
+      },
+      {
+        "id": "2737307",
+        "name": "경기광주 한옥마을",
+        "region": "경기",
+        "type": "체험형",
+        "image": "http://tong.visitkorea.or.kr/cms/resource/42/3527342_image2_1.jpg",
+        "summary": "400년이 넘은 충남 광천의 사대부 한옥을 그대로 옮겨 복원시켰다."
+      },
+      {
+        "id": "126747",
+        "name": "남산골한옥마을",
+        "region": "서울",
+        "type": "도심형",
+        "image": "http://tong.visitkorea.or.kr/cms/resource/94/2932494_image2_1.bmp",
+        "summary": "1998년 조성된 남산골한옥마을은 남산 북측 옛 수도방위사령부 부지 총 79,934m²(24,180평)에 …"
+      },
+      {
+        "id": "3033516",
+        "name": "논산한옥마을",
+        "region": "충남",
+        "type": "체험형",
+        "image": "https://tong.visitkorea.or.kr/cms/resource/94/3033494_image2_1.JPG",
+        "summary": "논산한옥마을은 충남 논산시 동부 연산면 돈암서원 인근에 조성된 한옥마을이다."
+      }
+    ]
+  },
+  {
+    "month": 2,
+    "items": [
+      {
+        "id": "3033516",
+        "name": "논산한옥마을",
+        "region": "충남",
+        "type": "체험형",
+        "image": "https://tong.visitkorea.or.kr/cms/resource/94/3033494_image2_1.JPG",
+        "summary": "논산한옥마을은 충남 논산시 동부 연산면 돈암서원 인근에 조성된 한옥마을이다."
+      },
+      {
+        "id": "126537",
+        "name": "북촌한옥마을",
+        "region": "서울",
+        "type": "도심형",
+        "image": "http://tong.visitkorea.or.kr/cms/resource/04/3304404_image2_1.jpg",
+        "summary": "북촌은 경복궁과 창덕궁, 종묘 사이에 위치한 곳으로 전통한옥이 밀집되어 있는 서울의 대표적인 전통 주거지역…"
+      },
+      {
+        "id": "2767851",
+        "name": "송도 한옥마을",
+        "region": "인천",
+        "type": "도심형",
+        "image": "https://tong.visitkorea.or.kr/cms/resource/41/4090541_image2_1.jpg",
+        "summary": "인천 연수구 송도동 24-9번지에 조성된 한옥마을로 오래된 전통 가옥 촌이 아닌 2013년에 신축된 한옥 …"
+      },
+      {
+        "id": "2686588",
+        "name": "오성한옥마을",
+        "region": "전북",
+        "type": "체험형",
+        "image": "https://tong.visitkorea.or.kr/cms/resource_photo/23/3516523_image2_1.jpg",
+        "summary": "종남산과 위봉산이 병풍처럼 둘러싼 천혜의 자연경관 속에 전통 한옥 20여 채가 자리한 한옥마을이다."
+      }
+    ]
+  },
+  {
+    "month": 3,
+    "items": [
+      {
+        "id": "2767851",
+        "name": "송도 한옥마을",
+        "region": "인천",
+        "type": "도심형",
+        "image": "https://tong.visitkorea.or.kr/cms/resource/41/4090541_image2_1.jpg",
+        "summary": "인천 연수구 송도동 24-9번지에 조성된 한옥마을로 오래된 전통 가옥 촌이 아닌 2013년에 신축된 한옥 …"
+      },
+      {
+        "id": "2686588",
+        "name": "오성한옥마을",
+        "region": "전북",
+        "type": "체험형",
+        "image": "https://tong.visitkorea.or.kr/cms/resource_photo/23/3516523_image2_1.jpg",
+        "summary": "종남산과 위봉산이 병풍처럼 둘러싼 천혜의 자연경관 속에 전통 한옥 20여 채가 자리한 한옥마을이다."
+      },
+      {
+        "id": "2769810",
+        "name": "오창 미래지 한옥마을",
+        "region": "충북",
+        "type": "체험형",
+        "image": "http://tong.visitkorea.or.kr/cms/resource/68/3399268_image2_1.jpg",
+        "summary": "오창 미래지 한옥마을은 충북 청주시 청원구 오창읍에 자리 잡고 있다."
+      },
+      {
+        "id": "2724392",
+        "name": "은평한옥마을",
+        "region": "서울",
+        "type": "도심형",
+        "image": "http://tong.visitkorea.or.kr/cms/resource/24/3530324_image2_1.JPG",
+        "summary": "은평한옥마을은 은평구 진관동에 있는 현대식 한옥마을이다."
+      }
+    ]
+  },
+  {
+    "month": 4,
+    "items": [
+      {
+        "id": "2724392",
+        "name": "은평한옥마을",
+        "region": "서울",
+        "type": "도심형",
+        "image": "http://tong.visitkorea.or.kr/cms/resource/24/3530324_image2_1.JPG",
+        "summary": "은평한옥마을은 은평구 진관동에 있는 현대식 한옥마을이다."
+      },
+      {
+        "id": "264284",
+        "name": "전북 전주 한옥마을",
+        "region": "전북",
+        "type": "도심형",
+        "image": "https://tong.visitkorea.or.kr/cms/resource_photo/67/3516667_image2_1.jpg",
+        "summary": "전주 한옥마을은 전주 풍남동 일대에 700여 채의 한옥이 군락을 이루고 있는 국내 최대 규모의 전통 한옥촌…"
+      },
+      {
+        "id": "126471",
+        "name": "성읍민속마을",
+        "region": "제주",
+        "type": "체험형",
+        "image": "http://tong.visitkorea.or.kr/cms/resource/64/3551564_image2_1.jpg",
+        "summary": "표선리에서 북쪽으로 8㎞쯤 가면 한라산 기슭 아래 성읍마을이 있다."
+      },
+      {
+        "id": "126001",
+        "name": "외암민속마을",
+        "region": "충남",
+        "type": "집성촌형",
+        "image": "https://tong.visitkorea.or.kr/cms/resource_photo/59/4071759_image2_1.jpg",
+        "summary": "국가민속문화유산로 지정된 마을이다."
+      }
+    ]
+  },
+  {
+    "month": 5,
+    "items": [
+      {
+        "id": "126001",
+        "name": "외암민속마을",
+        "region": "충남",
+        "type": "집성촌형",
+        "image": "https://tong.visitkorea.or.kr/cms/resource_photo/59/4071759_image2_1.jpg",
+        "summary": "국가민속문화유산로 지정된 마을이다."
+      },
+      {
+        "id": "2702546",
+        "name": "토성민속마을",
+        "region": "강원",
+        "type": "체험형",
+        "image": "http://tong.visitkorea.or.kr/cms/resource/69/3558069_image2_1.jpg",
+        "summary": "철원 토성민속마을은 덕령산을 뒤쪽에 두고 마을 앞에 넓은 화강이 흐르는 곳이다."
+      },
+      {
+        "id": "127714",
+        "name": "괴시리 전통마을",
+        "region": "경북",
+        "type": "집성촌형",
+        "image": "http://tong.visitkorea.or.kr/cms/resource/21/3039221_image2_1.JPG",
+        "summary": "영해면 소재지에서 동북쪽으로 800m쯤 가면 고려 말의 대학자 목은 이색의 탄생지이자, 조선시대 전통 가옥…"
+      },
+      {
+        "id": "1991992",
+        "name": "고택 한옥에서",
+        "region": "전남",
+        "type": "숙소",
+        "image": "http://tong.visitkorea.or.kr/cms/resource/47/2917547_image2_1.jpg",
+        "summary": "한옥에서 찾는 모든 사람들에게 건강하고 행복한 에너지를 채워드리려고 노력하는 고택한옥에서는 한국의 멋과 맛…"
+      }
+    ]
+  },
+  {
+    "month": 6,
+    "items": [
+      {
+        "id": "894027",
+        "name": "안동 하회마을",
+        "region": "경북",
+        "type": "집성촌형",
+        "image": "https://tong.visitkorea.or.kr/cms/resource/62/4059762_image2_1.jpg",
+        "summary": "하회마을은 풍산 류 (柳)씨가 대대로 살아오던 전형적인 집성촌으로 한국 전통가옥의 미(美)가 살아 숨 쉬는…"
+      },
+      {
+        "id": "2531222",
+        "name": "강릉오죽한옥마을",
+        "region": "강원",
+        "type": "숙소",
+        "image": "https://tong.visitkorea.or.kr/cms/resource/66/3525066_image2_1.jpg",
+        "summary": "한옥은 예로부터 작위적인 형태가 아닌 자연을 관조하며 주위의 환경요소와 어울리도록 지었기 때문에 주위의 경…"
+      },
+      {
+        "id": "1991992",
+        "name": "고택 한옥에서",
+        "region": "전남",
+        "type": "숙소",
+        "image": "http://tong.visitkorea.or.kr/cms/resource/47/2917547_image2_1.jpg",
+        "summary": "한옥에서 찾는 모든 사람들에게 건강하고 행복한 에너지를 채워드리려고 노력하는 고택한옥에서는 한국의 멋과 맛…"
+      },
+      {
+        "id": "1867806",
+        "name": "공주한옥마을",
+        "region": "충남",
+        "type": "숙소",
+        "image": "https://tong.visitkorea.or.kr/cms/resource/74/3581774_image2_1.JPG",
+        "summary": "공주 한옥마을은 한국 전통난방으로 구들장 체험이 가능한 시설로 설계되었고 친환경 건축양식인 소나무와 삼나무…"
+      }
+    ]
+  },
+  {
+    "month": 7,
+    "items": [
+      {
+        "id": "4012448",
+        "name": "검무한옥 호운당",
+        "region": "경북",
+        "type": "숙소",
+        "image": "https://tong.visitkorea.or.kr/cms/resource/34/4012434_image2_1.jpg",
+        "summary": "이름처럼 좋은 기운이 머무는 공간인 호운당은 전통 한옥 고유의 아름다움을 바탕으로, 검무가 지닌 정신성과 …"
+      },
+      {
+        "id": "1991992",
+        "name": "고택 한옥에서",
+        "region": "전남",
+        "type": "숙소",
+        "image": "http://tong.visitkorea.or.kr/cms/resource/47/2917547_image2_1.jpg",
+        "summary": "한옥에서 찾는 모든 사람들에게 건강하고 행복한 에너지를 채워드리려고 노력하는 고택한옥에서는 한국의 멋과 맛…"
+      },
+      {
+        "id": "1867806",
+        "name": "공주한옥마을",
+        "region": "충남",
+        "type": "숙소",
+        "image": "https://tong.visitkorea.or.kr/cms/resource/74/3581774_image2_1.JPG",
+        "summary": "공주 한옥마을은 한국 전통난방으로 구들장 체험이 가능한 시설로 설계되었고 친환경 건축양식인 소나무와 삼나무…"
+      },
+      {
+        "id": "2574186",
+        "name": "김포아트빌리지 전통한옥숙박체험관",
+        "region": "경기",
+        "type": "숙소",
+        "image": "http://tong.visitkorea.or.kr/cms/resource/35/3535435_image2_1.jpg",
+        "summary": "전통한옥숙박체험관은 김포아트빌리지 한옥마을에 위치하고 있다."
+      }
+    ]
+  },
+  {
+    "month": 8,
+    "items": [
+      {
+        "id": "1991992",
+        "name": "고택 한옥에서",
+        "region": "전남",
+        "type": "숙소",
+        "image": "http://tong.visitkorea.or.kr/cms/resource/47/2917547_image2_1.jpg",
+        "summary": "한옥에서 찾는 모든 사람들에게 건강하고 행복한 에너지를 채워드리려고 노력하는 고택한옥에서는 한국의 멋과 맛…"
+      },
+      {
+        "id": "1867806",
+        "name": "공주한옥마을",
+        "region": "충남",
+        "type": "숙소",
+        "image": "https://tong.visitkorea.or.kr/cms/resource/74/3581774_image2_1.JPG",
+        "summary": "공주 한옥마을은 한국 전통난방으로 구들장 체험이 가능한 시설로 설계되었고 친환경 건축양식인 소나무와 삼나무…"
+      },
+      {
+        "id": "2574186",
+        "name": "김포아트빌리지 전통한옥숙박체험관",
+        "region": "경기",
+        "type": "숙소",
+        "image": "http://tong.visitkorea.or.kr/cms/resource/35/3535435_image2_1.jpg",
+        "summary": "전통한옥숙박체험관은 김포아트빌리지 한옥마을에 위치하고 있다."
+      },
+      {
+        "id": "2652952",
+        "name": "김해한옥체험관",
+        "region": "경남",
+        "type": "숙소",
+        "image": "https://tong.visitkorea.or.kr/cms/resource/81/3016981_image2_1.jpg",
+        "summary": "김해한옥체험관은 조선시대 사대부의 상징인 가옥을 재현한 숙소로 우리나라 전통 한옥의 운치를 고스란히 느낄 …"
+      }
+    ]
+  },
+  {
+    "month": 9,
+    "items": [
+      {
+        "id": "2652952",
+        "name": "김해한옥체험관",
+        "region": "경남",
+        "type": "숙소",
+        "image": "https://tong.visitkorea.or.kr/cms/resource/81/3016981_image2_1.jpg",
+        "summary": "김해한옥체험관은 조선시대 사대부의 상징인 가옥을 재현한 숙소로 우리나라 전통 한옥의 운치를 고스란히 느낄 …"
+      },
+      {
+        "id": "2595871",
+        "name": "나들한옥",
+        "region": "경북",
+        "type": "숙소",
+        "image": "http://tong.visitkorea.or.kr/cms/resource/86/2636486_image2_1.jpg",
+        "summary": "경주 나들한옥은 전통 한옥 건축양식과 현대의 편의성을 접목한 신축 한옥스테이다."
+      },
+      {
+        "id": "2531375",
+        "name": "다가가다한옥",
+        "region": "강원",
+        "type": "숙소",
+        "image": "http://tong.visitkorea.or.kr/cms/resource/44/2592444_image2_1.jpg",
+        "summary": "다가다가한옥은 강원도 화천 북한강 옆에 자리하고 있다."
+      },
+      {
+        "id": "2994636",
+        "name": "다담한옥",
+        "region": "울산",
+        "type": "숙소",
+        "image": "http://tong.visitkorea.or.kr/cms/resource/45/2994645_image2_1.jpg",
+        "summary": "다담한옥의 이름은 차(茶)와 이야기(談)가 있는 한옥이라는 뜻을 담고 있다."
+      }
+    ]
+  },
+  {
+    "month": 10,
+    "items": [
+      {
+        "id": "2994636",
+        "name": "다담한옥",
+        "region": "울산",
+        "type": "숙소",
+        "image": "http://tong.visitkorea.or.kr/cms/resource/45/2994645_image2_1.jpg",
+        "summary": "다담한옥의 이름은 차(茶)와 이야기(談)가 있는 한옥이라는 뜻을 담고 있다."
+      },
+      {
+        "id": "2701356",
+        "name": "달빛한옥 수류화개",
+        "region": "전남",
+        "type": "숙소",
+        "image": "http://tong.visitkorea.or.kr/cms/resource/65/2808465_image2_1.png",
+        "summary": "달빛한옥 수류화개는 전남광주통합특별시 강진군 달빛한옥마을에 자리한 포근한 한옥 민박으로, 수려한 월출산과 …"
+      },
+      {
+        "id": "2695742",
+        "name": "대성 정담한옥",
+        "region": "전북",
+        "type": "숙소",
+        "image": "http://tong.visitkorea.or.kr/cms/resource/90/3022090_image2_1.jpg",
+        "summary": "전주 대성동 조그만 시골마을에 위치한 대성 정담한옥은 독채&가족 펜션이다."
+      },
+      {
+        "id": "2384350",
+        "name": "더한옥&스파",
+        "region": "대구",
+        "type": "숙소",
+        "image": "https://tong.visitkorea.or.kr/cms/resource/48/2384348_image2_1.jpg",
+        "summary": "도쿄대학교 출신의 건축사 후미카즈씨가 직접 디자인 설계하여 큰 관심을 모았으며, ㈜헨리스, 동호건축디자인에…"
+      }
+    ]
+  },
+  {
+    "month": 11,
+    "items": [
+      {
+        "id": "2695742",
+        "name": "대성 정담한옥",
+        "region": "전북",
+        "type": "숙소",
+        "image": "http://tong.visitkorea.or.kr/cms/resource/90/3022090_image2_1.jpg",
+        "summary": "전주 대성동 조그만 시골마을에 위치한 대성 정담한옥은 독채&가족 펜션이다."
+      },
+      {
+        "id": "2384350",
+        "name": "더한옥&스파",
+        "region": "대구",
+        "type": "숙소",
+        "image": "https://tong.visitkorea.or.kr/cms/resource/48/2384348_image2_1.jpg",
+        "summary": "도쿄대학교 출신의 건축사 후미카즈씨가 직접 디자인 설계하여 큰 관심을 모았으며, ㈜헨리스, 동호건축디자인에…"
+      },
+      {
+        "id": "2595489",
+        "name": "동해한옥 동안재",
+        "region": "강원",
+        "type": "숙소",
+        "image": "http://tong.visitkorea.or.kr/cms/resource/79/2766079_image2_1.jpg",
+        "summary": "동안재는 금강송과 육송, 황토로 지은 동해 한옥스테이로, 독채로 대여한다."
+      },
+      {
+        "id": "2572792",
+        "name": "매죽헌(매죽헌 한옥 민박)",
+        "region": "전남",
+        "type": "숙소",
+        "image": "https://tong.visitkorea.or.kr/cms/resource/86/2571486_image2_1.jpg",
+        "summary": "향긋한 매화향과 운치 있는 대나무 숲아래 자리한 멋들어진 전통 한옥 매죽헌이다."
+      }
+    ]
+  },
+  {
+    "month": 12,
+    "items": [
+      {
+        "id": "2595489",
+        "name": "동해한옥 동안재",
+        "region": "강원",
+        "type": "숙소",
+        "image": "http://tong.visitkorea.or.kr/cms/resource/79/2766079_image2_1.jpg",
+        "summary": "동안재는 금강송과 육송, 황토로 지은 동해 한옥스테이로, 독채로 대여한다."
+      },
+      {
+        "id": "2572792",
+        "name": "매죽헌(매죽헌 한옥 민박)",
+        "region": "전남",
+        "type": "숙소",
+        "image": "https://tong.visitkorea.or.kr/cms/resource/86/2571486_image2_1.jpg",
+        "summary": "향긋한 매화향과 운치 있는 대나무 숲아래 자리한 멋들어진 전통 한옥 매죽헌이다."
+      },
+      {
+        "id": "2592489",
+        "name": "복합한옥공간 곳",
+        "region": "서울",
+        "type": "숙소",
+        "image": "http://tong.visitkorea.or.kr/cms/resource/68/2631068_image2_1.jpg",
+        "summary": "복합한옥공간 곳은 종로구 계동(안국역도보 5분거리)에 위치해 있으며 근처에는 경복궁, 창덕궁, 창경궁,인사…"
+      },
+      {
+        "id": "2814160",
+        "name": "불국사한옥팜스테이",
+        "region": "경북",
+        "type": "숙소",
+        "image": "http://tong.visitkorea.or.kr/cms/resource/33/2813933_image2_1.jpg",
+        "summary": "불국사한옥팜스테이는 ‘생에 첫 수학여행’ TV 프로그램 촬영지로, 불국사 숙소이자 글램핑 장소다."
+      }
+    ]
+  }
+]

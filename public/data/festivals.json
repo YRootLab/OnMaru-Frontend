@@ -1,0 +1,212 @@
+[
+  {
+    "id": "3383613",
+    "title": "고양행주한우 숯불구이축제",
+    "addr": "경기도 고양시 덕양구 원당로 16 (주교동)",
+    "eventStartDate": "20261031",
+    "eventEndDate": "20261101",
+    "image": "https://tong.visitkorea.or.kr/cms/resource/73/4066273_image2_1.JPG",
+    "lat": 37.654669772497314,
+    "lng": 126.83276387204035
+  },
+  {
+    "id": "4060434",
+    "title": "국악공연 진연",
+    "addr": "서울특별시 종로구 인사동5길 10 (인사동)",
+    "eventStartDate": "20260101",
+    "eventEndDate": "20261231",
+    "image": "https://tong.visitkorea.or.kr/cms/resource/35/4060435_image2_1.jpg",
+    "lat": 37.5728652641047,
+    "lng": 126.985653181823
+  },
+  {
+    "id": "2809535",
+    "title": "남산봉수의식 등 전통문화행사",
+    "addr": "서울특별시 종로구 종로 54 (관철동)",
+    "eventStartDate": "20260101",
+    "eventEndDate": "20261231",
+    "image": "https://tong.visitkorea.or.kr/cms/resource/57/4001657_image2_1.jpg",
+    "lat": 37.5697673859634,
+    "lng": 126.983677617361
+  },
+  {
+    "id": "3351268",
+    "title": "동대문구 맥주축제",
+    "addr": "서울특별시 동대문구 장안동",
+    "eventStartDate": "20260828",
+    "eventEndDate": "20260829",
+    "image": "https://tong.visitkorea.or.kr/cms/resource/21/4090921_image2_1.jpg",
+    "lat": 37.566591,
+    "lng": 127.075333
+  },
+  {
+    "id": "2556687",
+    "title": "문학주간2026 〈곁눈질〉",
+    "addr": "서울특별시 종로구 대학로 104 (동숭동)",
+    "eventStartDate": "20260916",
+    "eventEndDate": "20260920",
+    "image": "https://tong.visitkorea.or.kr/cms/resource/65/4081065_image2_1.jpg",
+    "lat": 37.580512461,
+    "lng": 127.0023742293
+  },
+  {
+    "id": "2598331",
+    "title": "문화가 흐르는 서울광장",
+    "addr": "서울특별시 중구 을지로 지하12 (을지로1가)",
+    "eventStartDate": "20260506",
+    "eventEndDate": "20261231",
+    "image": "https://tong.visitkorea.or.kr/cms/resource/68/4059668_image2_1.jpg",
+    "lat": 37.56544835496842,
+    "lng": 126.97878183534239
+  },
+  {
+    "id": "3537267",
+    "title": "백년나이트 야시장 (메기의 귀환)",
+    "addr": "서울특별시 강북구 한천로144길 16 (수유동)",
+    "eventStartDate": "20260807",
+    "eventEndDate": "20260808",
+    "image": "https://tong.visitkorea.or.kr/cms/resource/13/4096313_image2_1.jpg",
+    "lat": 37.641720888,
+    "lng": 127.0259140093
+  },
+  {
+    "id": "1847202",
+    "title": "서대문독립민주축제",
+    "addr": "서울특별시 서대문구 통일로 251 (현저동)",
+    "eventStartDate": "20260815",
+    "eventEndDate": "20260816",
+    "image": "https://tong.visitkorea.or.kr/cms/resource/12/4089612_image2_1.JPG",
+    "lat": 37.5746183894,
+    "lng": 126.9573284067
+  },
+  {
+    "id": "292961",
+    "title": "서울 왕궁수문장 교대의식",
+    "addr": "서울특별시 중구 세종대로 99 (정동)",
+    "eventStartDate": "20260101",
+    "eventEndDate": "20261231",
+    "image": "https://tong.visitkorea.or.kr/cms/resource/79/4039379_image2_1.jpg",
+    "lat": 37.565054919430565,
+    "lng": 126.97657463444833
+  },
+  {
+    "id": "1018469",
+    "title": "서울국제작가축제",
+    "addr": "서울특별시 종로구 인사동9길 26 (견지동)",
+    "eventStartDate": "20260911",
+    "eventEndDate": "20260916",
+    "image": "https://tong.visitkorea.or.kr/cms/resource/69/4073769_image2_1.jpg",
+    "lat": 37.5734199329,
+    "lng": 126.9836265705
+  },
+  {
+    "id": "3509884",
+    "title": "서울썸머비치",
+    "addr": "서울특별시 종로구 세종대로 175 (세종로)",
+    "eventStartDate": "20260720",
+    "eventEndDate": "20260809",
+    "image": "https://tong.visitkorea.or.kr/cms/resource/04/4079504_image2_1.png",
+    "lat": 37.5718478585,
+    "lng": 126.9761682759
+  },
+  {
+    "id": "3544886",
+    "title": "서울어텀페스타",
+    "addr": "서울특별시 중구 세종대로 110 (태평로1가)",
+    "eventStartDate": "20260918",
+    "eventEndDate": "20260918",
+    "image": "https://tong.visitkorea.or.kr/cms/resource/66/4031666_image2_1.jpg",
+    "lat": 37.5662050219,
+    "lng": 126.9777062791
+  },
+  {
+    "id": "142193",
+    "title": "서울프린지페스티벌2026",
+    "addr": "서울특별시 마포구 월드컵북로 94 (성산동)",
+    "eventStartDate": "20260806",
+    "eventEndDate": "20260823",
+    "image": "https://tong.visitkorea.or.kr/cms/resource/22/4087022_image2_1.jpg",
+    "lat": 37.5620373293,
+    "lng": 126.9150631652
+  },
+  {
+    "id": "2989981",
+    "title": "서초뮤직앤아트페스티벌(SMAF)",
+    "addr": "서울특별시 서초구 신반포로 194 (반포동)",
+    "eventStartDate": "20260829",
+    "eventEndDate": "20260830",
+    "image": "https://tong.visitkorea.or.kr/cms/resource/29/4094029_image2_1.jpg",
+    "lat": 37.5061540847,
+    "lng": 127.0055699583
+  },
+  {
+    "id": "2499947",
+    "title": "성북문화바캉스",
+    "addr": "서울특별시 성북구 정릉로 279 (정릉동)",
+    "eventStartDate": "20260725",
+    "eventEndDate": "20260809",
+    "image": "https://tong.visitkorea.or.kr/cms/resource/88/4087988_image2_1.JPG",
+    "lat": 37.6038254756,
+    "lng": 127.0132924339
+  },
+  {
+    "id": "2651042",
+    "title": "세계유산축전",
+    "addr": "경상북도 안동시 풍천면 하회종가길 2-1",
+    "eventStartDate": "20260828",
+    "eventEndDate": "20261025",
+    "image": "https://tong.visitkorea.or.kr/cms/resource/34/4055834_image2_1.jpg",
+    "lat": 36.5407525056,
+    "lng": 128.5227975834
+  },
+  {
+    "id": "506809",
+    "title": "소래포구축제",
+    "addr": "인천광역시 남동구 장도로 86-17 (논현동)",
+    "eventStartDate": "20261002",
+    "eventEndDate": "20261004",
+    "image": "https://tong.visitkorea.or.kr/cms/resource/93/4074893_image2_1.jpg",
+    "lat": 37.3979276988,
+    "lng": 126.7393126807
+  },
+  {
+    "id": "2829118",
+    "title": "시민창작예술축제 학산마당극놀래",
+    "addr": "인천광역시 미추홀구 경인로 216-1 (도화동)",
+    "eventStartDate": "20260919",
+    "eventEndDate": "20260919",
+    "image": "https://tong.visitkorea.or.kr/cms/resource/07/4090107_image2_1.jpg",
+    "lat": 37.4631460755,
+    "lng": 126.666305572
+  },
+  {
+    "id": "2828336",
+    "title": "시흥월곶포구축제",
+    "addr": "경기도 시흥시 월곶해안로 188 (월곶동)",
+    "eventStartDate": "20261009",
+    "eventEndDate": "20261011",
+    "image": "https://tong.visitkorea.or.kr/cms/resource/77/4089877_image2_1.jpg",
+    "lat": 37.3873639083,
+    "lng": 126.7402812374
+  },
+  {
+    "id": "1829696",
+    "title": "아시아프 (ASYAAF 100)",
+    "addr": "서울특별시 중구 세종대로21길 30 (태평로1가)",
+    "eventStartDate": "20260701",
+    "eventEndDate": "20260805",
+    "image": "https://tong.visitkorea.or.kr/cms/resource/49/4057349_image2_1.jpg",
+    "lat": 37.5678450408989,
+    "lng": 126.975895739578
+  },
+  {
+    "id": "2856675",
+    "title": "안아드림 페스티벌",
+    "addr": "경상북도 안동시 풍천면 갈전리",
+    "eventStartDate": "20261002",
+    "eventEndDate": "20261003",
+    "image": "https://tong.visitkorea.or.kr/cms/resource/23/4092723_image2_1.png",
+    "lat": 36.571569,
+    "lng": 128.504971
+  }
+]

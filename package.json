@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "build:data": "node --env-file=.env.local scripts/build-data.mjs",
+    "build:data:check": "node scripts/build-data.mjs --self-check",
+    "probe": "node --env-file=.env.local scripts/probe-tourapi.mjs",
+    "probe:village": "node --env-file=.env.local scripts/probe-village.mjs"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

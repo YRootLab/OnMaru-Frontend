@@ -1,0 +1,18 @@
+{
+  "generatedAt": "2026-08-06T14:03:03.871Z",
+  "totalVillages": 17,
+  "totalStays": 139,
+  "apiCalls": {
+    "totalCalls": 535,
+    "countsByEndpoint": {
+      "searchKeyword2": 7,
+      "searchStay2": 1,
+      "detailCommon2": 156,
+      "detailPetTour2": 156,
+      "detailIntro2": 139,
+      "detailImage2": 75,
+      "searchFestival2": 1
+    }
+  },
+  "errorCount": 0
+}
