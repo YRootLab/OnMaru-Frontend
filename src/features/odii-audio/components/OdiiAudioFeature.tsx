@@ -1,19 +1,18 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
 import { StoryCarousel } from './StoryCarousel';
 import { CategoryTagFilter } from './CategoryTagFilter';
 import { EditorialStoryList } from './EditorialStoryList';
 import { ZIndexStackedSection } from './ZIndexStackedSection';
-import { FeaturedStoryRail } from './FeaturedStoryRail';
+import { OdiiAutoSliceRail } from './OdiiAutoSliceRail';
 import { AllStoriesModal } from './AllStoriesModal';
 import { LocalMiniPlayer } from './LocalMiniPlayer';
 import { OdiiAtmosphereBackground } from './OdiiAtmosphereBackground';
 import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
 import { odiiApiAdapter } from '../api/odiiApi';
 import { MOCK_ODII_STORIES } from '../api/odiiMockData';
-import { OdiiStoryItem } from '../types/odii.types';
+import { OdiiStoryItem, OdiiStoryPage } from '../types/odii.types';
 import { ODII_CHAPTER_DEFINITIONS } from '../data/odiiChapterData';
 import { ODII_HERO_TABS } from '../data/odiiCategoryData';
 import { OdiiChapterPresentation } from '../types/odiiChapter.types';
@@ -75,25 +74,45 @@ export const OdiiAudioFeature: React.FC = () => {
   const [chapterStories, setChapterStories] = useState<Record<string, OdiiStoryItem | null>>({});
   const [chapterStorySets, setChapterStorySets] = useState<Record<string, OdiiStoryItem[]>>({});
   const [isLoading, setIsLoading] = useState(true);
+  const [archiveMeta, setArchiveMeta] = useState<OdiiStoryPage>({
+    items: [],
+    pageNo: 1,
+    numOfRows: 12,
+    totalCount: 0,
+    source: 'mock',
+  });
+  const [archivePage, setArchivePage] = useState(1);
+  const [isLocating, setIsLocating] = useState(false);
+  const [locationLabel, setLocationLabel] = useState('기본 위치');
+  const [locationMessage, setLocationMessage] = useState('내 위치를 허용하면 반경 3km의 실제 오디오를 찾아드려요.');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
-    async function loadData() {
+    async function loadArchive() {
       setIsLoading(true);
-      const [list, nearby] = await Promise.all([
-        odiiApiAdapter.getStoryList(selectedCategory, searchQuery),
-        odiiApiAdapter.getNearbyStories(),
-      ]);
+      const page = await odiiApiAdapter.getStoryPage(selectedCategory, searchQuery, archivePage, 12);
       if (isMounted) {
-        setStoryList(list);
-        setNearbyStories(nearby);
+        if (page.items.length === 0 && archivePage > 1) {
+          setArchivePage(1);
+          return;
+        }
+        setStoryList(page.items);
+        setArchiveMeta(page);
         setIsLoading(false);
       }
     }
-    loadData();
+    loadArchive();
     return () => { isMounted = false; };
-  }, [selectedCategory, searchQuery]);
+  }, [archivePage, selectedCategory, searchQuery]);
+
+  useEffect(() => {
+    let isMounted = true;
+    odiiApiAdapter.getNearbyStories().then((stories) => {
+      if (isMounted) setNearbyStories(stories);
+    });
+    return () => { isMounted = false; };
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -143,62 +162,142 @@ export const OdiiAudioFeature: React.FC = () => {
     () => normalizeChapterPresentations(chapterStories, chapterStorySets, chapterFallbackStories),
     [chapterFallbackStories, chapterStories, chapterStorySets],
   );
+  const totalArchivePages = Math.max(1, Math.ceil(archiveMeta.totalCount / archiveMeta.numOfRows));
+
+  const handleLocate = () => {
+    if (!navigator.geolocation) {
+      setLocationMessage('이 브라우저에서는 위치 기반 이야기를 사용할 수 없습니다.');
+      return;
+    }
+
+    setIsLocating(true);
+    setLocationMessage('현재 위치를 확인하고 주변 이야기를 찾는 중입니다.');
+    navigator.geolocation.getCurrentPosition(
+      async ({ coords }) => {
+        const stories = await odiiApiAdapter.getNearbyStories(String(coords.longitude), String(coords.latitude));
+        if (stories.length > 0) {
+          setNearbyStories(stories);
+          setLocationLabel('현재 위치 기준 · 반경 3km');
+          setLocationMessage(`${stories.length}개의 이야기를 찾았습니다. 가까운 장소부터 들려드릴게요.`);
+        } else {
+          setLocationMessage('반경 3km 안에는 아직 등록된 이야기가 없어요. 전국 큐레이션을 보여드립니다.');
+        }
+        setIsLocating(false);
+      },
+      () => {
+        setLocationMessage('위치 권한을 확인하지 못했습니다. 권한 없이도 전국 큐레이션을 둘러볼 수 있어요.');
+        setIsLocating(false);
+      },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 },
+    );
+  };
 
   return (
     <div className="odii-feature relative isolate min-h-screen pb-24 text-[#211e19] selection:bg-[#d56748] selection:text-white">
       <OdiiAtmosphereBackground />
       <div className="relative z-10">
-        <header className="px-4 py-6 sm:px-8">
-          <div className="mx-auto flex max-w-6xl items-center justify-between">
-            <Link href="/" className="text-xl font-semibold tracking-[-0.04em]">ONMARU</Link>
-            <button onClick={() => setIsModalOpen(true)} className="text-xs font-semibold tracking-wide underline underline-offset-4">모든 이야기</button>
-          </div>
-        </header>
-
         <main>
-        {/* 섹션 1: 상단 인트로 */}
-        <section className="mx-auto max-w-6xl px-4 pb-6 pt-8 sm:px-8 sm:pt-10">
-          <div className="max-w-xl">
-            <h1 className="font-odii-sans text-2xl font-bold tracking-tight text-[#211e19] sm:text-3xl">
-              소리를 따라, 한국의 온기 속으로
-            </h1>
-            <p className="mt-2 text-xs sm:text-sm leading-relaxed text-[#655b4d]">
-              바람이 머무는 한옥, 사람의 온기가 흐르는 시장, 오래된 골목의 시간을 오디오로 천천히 만나보세요.
-            </p>
+        {/* 섹션 0: 상단 인트로 — 사용자 요청대로 유지 */}
+        <section className="w-full pb-6 pt-8 sm:pt-10">
+          <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
+            <div className="max-w-xl">
+              <h1 className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-2xl font-bold tracking-tight text-transparent sm:text-3xl">
+                소리를 따라, 한국의 온기 속으로
+              </h1>
+              <p className="mt-2 text-xs sm:text-sm leading-relaxed text-[#655b4d]">
+                바람이 머무는 한옥, 사람의 온기가 흐르는 시장, 오래된 골목의 시간을 오디오로 천천히 만나보세요.
+              </p>
+            </div>
           </div>
         </section>
 
-        <FeaturedStoryRail
+        {/* 섹션 1: 이전 자동 슬라이스 히어로 */}
+        <OdiiAutoSliceRail
           stories={storyList.length ? storyList : nearbyStories}
           storySets={heroStorySets}
         />
+
+        {/* 섹션 2: 챕터별 오디오 트랙과 대본 미리보기 */}
         <ZIndexStackedSection
           chapters={chapters}
         />
 
-        {/* 섹션 4: 오늘, 여기에서 */}
-        <section className="mx-auto max-w-6xl px-4 py-10 sm:px-8 sm:py-14">
-          <div className="mb-5 flex items-baseline justify-between">
-            <h2 className="font-odii-sans text-xl font-bold tracking-tight text-[#211e19] sm:text-2xl">가까운 이야기</h2>
-            <span className="text-xs font-medium text-[#786d5e]">거리순 · {nearbyStories.length}개</span>
+        {/* 섹션 3: 오늘, 여기에서 */}
+        <section aria-labelledby="nearby-stories-heading" className="w-full py-8 sm:py-12">
+          <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
+            <div className="flex flex-col gap-4 pb-1 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
+              <div className="min-w-0">
+                <h2 id="nearby-stories-heading" className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-2xl font-bold tracking-[-0.045em] text-transparent sm:text-3xl">오늘, 여기에서</h2>
+                <p className="mt-1 max-w-xl truncate text-xs leading-5 text-[#786d5e]">{locationMessage}</p>
+              </div>
+              <div className="flex shrink-0 items-center justify-between gap-3 sm:flex-col sm:items-end sm:gap-1.5">
+                <span className="text-[10px] text-[#8c7e6c]">{locationLabel} · <strong className="font-semibold text-[#655b4d]">내 주변 오디오 {nearbyStories.length}개</strong></span>
+                <button
+                  type="button"
+                  onClick={handleLocate}
+                  disabled={isLocating}
+                  className="inline-flex h-8 items-center gap-1.5 rounded-full border border-[#211e19]/12 bg-white/55 px-3 text-[11px] font-medium text-[#655b4d] shadow-[0_3px_12px_rgba(61,45,29,0.04)] transition-[background-color,border-color,color,transform] duration-300 hover:-translate-y-0.5 hover:border-[#211e19]/25 hover:bg-white hover:text-[#211e19] disabled:cursor-wait disabled:opacity-50"
+                >
+                  {isLocating ? '위치 확인 중…' : '내 위치 사용'}
+                  {!isLocating && <span aria-hidden="true" className="text-[13px] leading-none">›</span>}
+                </button>
+              </div>
+            </div>
+            <div className="mt-5">
+              <StoryCarousel stories={nearbyStories} />
+            </div>
           </div>
-          <StoryCarousel stories={nearbyStories} />
         </section>
 
-        {/* 섹션 5: 모든 이야기 아카이브 */}
-        <section className="bg-white px-4 py-10 sm:px-8 sm:py-14">
-          <div className="mx-auto max-w-6xl">
+        {/* 섹션 4: 페이지형 이야기 아카이브 */}
+        <section id="odii-archive" className="w-full bg-white py-10 sm:py-14">
+          <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
             <div className="max-w-xl">
-              <h2 className="font-odii-sans text-xl font-bold tracking-tight text-[#211e19] sm:text-2xl">더 많은 이야기</h2>
+              <div className="flex items-center justify-between gap-4">
+                <h2 className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-2xl font-bold tracking-[-0.045em] text-transparent sm:text-3xl">더 많은 이야기</h2>
+              </div>
               <p className="mt-1.5 text-xs sm:text-sm leading-relaxed text-[#655b4d]">
-                테마 태그와 주요 문화도시 키워드로 취향에 맞는 오디오 도슨트를 탐색해 보세요.
+                장소와 지역, 키워드로 듣고 싶은 이야기를 찾아보세요.
               </p>
             </div>
             <CategoryTagFilter />
             {isLoading ? (
               <div className="py-16 text-center text-xs text-[#655b4d]">이야기를 불러오는 중입니다...</div>
             ) : (
-              <EditorialStoryList stories={storyList} />
+              <>
+                <EditorialStoryList stories={storyList} />
+                <div className="mt-6 flex flex-col items-center justify-between gap-3 border-t border-[#211e19]/10 pt-4 sm:flex-row">
+                  <span className="text-[11px] text-[#8c7e6c]">
+                    {archiveMeta.totalCount > 0 ? `${archiveMeta.totalCount.toLocaleString()}개 중 ${archiveMeta.pageNo}페이지` : '검색 결과 없음'}
+                  </span>
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsModalOpen(true)}
+                      className="mr-1 inline-flex items-center gap-1.5 rounded-full border border-[#211e19]/12 bg-white/60 px-3 py-1.5 text-[11px] font-medium text-[#655b4d] shadow-[0_3px_12px_rgba(61,45,29,0.04)] transition-[background-color,border-color,color,transform] duration-300 hover:-translate-y-0.5 hover:border-[#211e19]/25 hover:bg-white hover:text-[#211e19]"
+                    >
+                      모든 이야기 <span aria-hidden="true" className="text-[13px] leading-none">›</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setArchivePage((page) => Math.max(1, page - 1))}
+                      disabled={archivePage <= 1}
+                      className="h-9 rounded-full border border-[#211e19]/15 px-3 text-xs font-semibold text-[#211e19] transition-colors hover:border-[#a94d35] hover:text-[#a94d35] disabled:cursor-not-allowed disabled:opacity-30"
+                    >
+                      이전
+                    </button>
+                    <span className="min-w-16 text-center text-xs font-semibold text-[#211e19]">{archivePage} / {totalArchivePages}</span>
+                    <button
+                      type="button"
+                      onClick={() => setArchivePage((page) => Math.min(totalArchivePages, page + 1))}
+                      disabled={archivePage >= totalArchivePages}
+                      className="h-9 rounded-full border border-[#211e19]/15 px-3 text-xs font-semibold text-[#211e19] transition-colors hover:border-[#a94d35] hover:text-[#a94d35] disabled:cursor-not-allowed disabled:opacity-30"
+                    >
+                      다음
+                    </button>
+                  </div>
+                </div>
+              </>
             )}
           </div>
         </section>

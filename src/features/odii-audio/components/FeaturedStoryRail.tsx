@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
 import { OdiiStoryItem } from '../types/odii.types';
-import { ODII_HERO_TABS } from '../data/odiiCategoryData';
+import { ODII_HERO_TABS, ODII_THEME_CATEGORIES } from '../data/odiiCategoryData';
 
 interface FeaturedStoryRailProps {
   stories: OdiiStoryItem[];
@@ -21,6 +21,16 @@ const FALLBACK_IMAGES = [
   'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1200&q=80',
 ];
 
+const BOARD_LAYOUTS = [
+  'col-span-2 min-h-[360px] md:col-span-7 md:row-span-6 md:min-h-0',
+  'col-span-1 min-h-[220px] md:col-span-5 md:row-span-3 md:min-h-0',
+  'col-span-1 min-h-[220px] md:col-span-5 md:row-span-3 md:min-h-0',
+  'col-span-1 min-h-[230px] md:col-span-4 md:row-span-4 md:min-h-0',
+  'col-span-1 min-h-[230px] md:col-span-3 md:row-span-4 md:min-h-0',
+  'col-span-1 min-h-[230px] md:col-span-5 md:row-span-4 md:min-h-0',
+  'col-span-2 min-h-[250px] md:col-span-7 md:row-span-4 md:min-h-0',
+];
+
 function getFallbackImage(seed = ''): string {
   const index = Array.from(seed).reduce((total, char) => total + char.charCodeAt(0), 0) % FALLBACK_IMAGES.length;
   return FALLBACK_IMAGES[index];
@@ -33,6 +43,10 @@ function getValidImage(url?: string, seed?: string): string {
   return url;
 }
 
+function formatCategory(story: OdiiStoryItem): string {
+  return story.category || story.locationName || '한국의 문화 이야기';
+}
+
 export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories, storySets }) => {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [activeTab, setActiveTab] = useState('추천');
@@ -40,46 +54,56 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories, s
   const [direction, setDirection] = useState(1);
   const [autoplayVersion, setAutoplayVersion] = useState(0);
   const [isSectionInView, setIsSectionInView] = useState(true);
+  const shouldReduceMotion = useReducedMotion();
 
   const currentStory = useOdiiAudioStore((s) => s.currentStory);
   const isPlaying = useOdiiAudioStore((s) => s.isPlaying);
   const setCurrentStory = useOdiiAudioStore((s) => s.setCurrentStory);
   const setIsPlaying = useOdiiAudioStore((s) => s.setIsPlaying);
 
+  const activeMeta = ODII_THEME_CATEGORIES.find((category) => category.id === activeTab);
+  const activeTabMeta = ODII_HERO_TABS.find((tab) => tab.id === activeTab);
+
   const featured = useMemo(() => {
     const apiStories = storySets?.[activeTab];
     if (apiStories?.length) return apiStories.slice(0, 7);
     if (activeTab === '추천') return stories.slice(0, 7);
 
-    const tab = ODII_HERO_TABS.find((item) => item.id === activeTab);
+    const keywords = [activeTab, activeTabMeta?.keyword].filter(Boolean) as string[];
     const matched = stories.filter((story) =>
-      [activeTab, tab?.keyword].filter(Boolean).some((keyword) =>
-        story.category.includes(keyword as string) ||
-        story.title.includes(keyword as string) ||
-        story.locationName?.includes(keyword as string),
+      keywords.some((keyword) =>
+        story.category.includes(keyword) ||
+        story.title.includes(keyword) ||
+        story.audioTitle.includes(keyword) ||
+        story.locationName?.includes(keyword),
       ),
     );
+
     return (matched.length ? matched : stories).slice(0, 7);
-  }, [activeTab, stories, storySets]);
+  }, [activeTab, activeTabMeta?.keyword, stories, storySets]);
 
-  const lead = featured[activeIndex] ?? featured[0];
+  const normalizedIndex = featured.length > 0 ? activeIndex % featured.length : 0;
+  const boardStories = useMemo(
+    () => featured.map((_, index) => featured[(normalizedIndex + index) % featured.length]),
+    [featured, normalizedIndex],
+  );
+  const lead = boardStories[0];
 
-  // 7초 자동 이동
   useEffect(() => {
-    if (featured.length < 2 || !isSectionInView) return;
+    if (featured.length < 2 || !isSectionInView || shouldReduceMotion) return;
     const timer = window.setInterval(() => {
       setDirection(1);
       setActiveIndex((index) => (index + 1) % featured.length);
     }, 7000);
     return () => window.clearInterval(timer);
-  }, [featured.length, activeTab, autoplayVersion, isSectionInView]);
+  }, [featured.length, autoplayVersion, isSectionInView, shouldReduceMotion]);
 
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
     const observer = new IntersectionObserver(
       ([entry]) => setIsSectionInView(entry.isIntersecting),
-      { threshold: 0.15 }
+      { threshold: 0.15 },
     );
     observer.observe(section);
     return () => observer.disconnect();
@@ -93,6 +117,12 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories, s
     setAutoplayVersion((version) => version + 1);
   };
 
+  const selectStory = (index: number) => {
+    setDirection(index === 0 ? 1 : -1);
+    setActiveIndex((normalizedIndex + index) % featured.length);
+    setAutoplayVersion((version) => version + 1);
+  };
+
   const play = () => {
     if (currentStory.stid === lead.stid) {
       setIsPlaying(!isPlaying);
@@ -101,203 +131,145 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories, s
     }
   };
 
-  // 우측 3개 대기 서브 카드
-  const following = featured
-    .slice(1, 4)
-    .map((_, index) => featured[(activeIndex + index + 1) % featured.length]);
-
-  const leadImageUrl = getValidImage(lead.imageUrl, lead.stid);
-
-  // 세련되고 반응성이 빠른 트랜지션 베지어 커브 (0.3초 속도 개선)
-  const springTransition = {
-    duration: 0.35,
-    ease: [0.16, 1, 0.3, 1] as const,
-  };
-
-
   return (
     <section ref={sectionRef} className="mx-auto max-w-6xl px-4 pb-12 sm:px-8 sm:pb-16">
       <div>
-        {/* 상단 필터 바 */}
-        <div className="mb-3.5 flex items-center space-x-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div role="tablist" aria-label="오디 핵심 카테고리" className="mb-4 flex items-center gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {ODII_HERO_TABS.map((tab) => {
-            const isTabActive = activeTab === tab.id;
+            const isActive = activeTab === tab.id;
+            const tabClass = [
+              'whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-semibold transition-colors duration-300',
+              isActive ? 'bg-[#211e19] text-white' : 'bg-[#f7f4ee] text-[#655b4d] hover:bg-[#ede5d8] hover:text-[#211e19]',
+            ].join(' ');
+
             return (
               <button
                 key={tab.id}
                 type="button"
+                role="tab"
+                aria-selected={isActive}
                 onClick={() => {
-                  setDirection(1);
                   setActiveTab(tab.id);
                   setActiveIndex(0);
                   setAutoplayVersion((version) => version + 1);
                 }}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-300 whitespace-nowrap flex items-center gap-1.5 ${
-                  isTabActive
-                    ? 'bg-[#211e19] text-white shadow-sm font-bold'
-                    : 'bg-[#f7f4ee] text-[#655b4d] hover:bg-[#ede5d8] hover:text-[#211e19]'
-                }`}
+                className={tabClass}
               >
-                {isTabActive && <span className="h-1.5 w-1.5 rounded-full bg-[#a94d35]" />}
                 {tab.label}
               </button>
             );
           })}
         </div>
 
-        {/* 같은 장면을 확장·블러 처리한 배경 위에 원본 앨범아트를 올린 에디토리얼 히어로 */}
-        <div className="relative flex items-center gap-3 overflow-hidden">
-          
-          {/* 메인 비주얼 배너 카드 (기존 메인은 왼쪽으로 퇴장, 오른쪽 서브가 왼쪽으로 당겨지며 메인 승격) */}
-          <div className="relative flex-1 min-h-[420px] h-auto overflow-hidden rounded-[1.75rem] bg-[#6d6258] shadow-[0_20px_55px_rgba(43,35,26,0.18)] sm:min-h-[350px] md:h-[350px] md:min-h-0">
-            
-            <AnimatePresence mode="sync">
-              <motion.div
-                key={lead.stid}
-                initial={{
-                  opacity: 0,
+        <div className="grid auto-rows-[72px] grid-cols-2 gap-2.5 md:auto-rows-[68px] md:grid-cols-12">
+          {boardStories.map((story, index) => {
+            const imageUrl = getValidImage(story.imageUrl, story.stid);
+            const isLead = index === 0;
+            const isPlayingStory = currentStory.stid === story.stid && isPlaying;
+            const cardClass = [
+              'group relative overflow-hidden rounded-2xl border border-[#211e19]/10 bg-[#fbf8f2] outline-none ring-offset-2 transition-shadow duration-300 focus-visible:ring-2 focus-visible:ring-[#a94d35]/70',
+              BOARD_LAYOUTS[index] || 'col-span-2 min-h-[240px] md:col-span-4 md:row-span-3',
+              isLead ? 'shadow-[0_20px_50px_rgba(61,45,29,0.14)] ring-2 ring-[#a94d35]/60' : 'shadow-[0_12px_32px_rgba(61,45,29,0.07)] hover:shadow-[0_18px_38px_rgba(61,45,29,0.12)]',
+            ].join(' ');
+            const imageClass = [
+              'absolute object-cover transition-[transform,opacity,filter] duration-700 ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-[1.02]',
+              isLead
+                ? 'inset-y-0 right-0 h-full w-[47%] opacity-[0.65] grayscale-[0.2] saturate-[0.65] sm:w-[43%]'
+                : 'inset-x-0 top-0 h-[40%] w-full opacity-[0.7] grayscale-[0.15] saturate-[0.7]',
+            ].join(' ');
+            const contentClass = [
+              'z-10 text-[#211e19]',
+              isLead
+                ? 'absolute inset-y-0 left-0 flex w-[70%] flex-col justify-end bg-[#fbf8f2]/96 p-5 sm:w-[63%] sm:p-6'
+                : 'absolute inset-x-0 bottom-0 top-[40%] border-t border-[#211e19]/10 bg-[#fbf8f2] p-3.5 sm:p-4',
+            ].join(' ');
+
+            return (
+              <motion.article
+                key={story.stid}
+                layout
+                tabIndex={0}
+                aria-current={isLead ? 'true' : undefined}
+                onClick={() => selectStory(index)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    selectStory(index);
+                  }
                 }}
-                animate={{
-                  opacity: 1,
-                }}
-                exit={{
-                  opacity: 0,
-                }}
-                transition={{ duration: 0.3, ease: 'easeInOut' }}
-                className="absolute inset-0 h-full w-full"
+                initial={shouldReduceMotion ? undefined : { opacity: 0, x: direction * 14 }}
+                animate={{ opacity: 1, x: 0 }}
+                whileHover={shouldReduceMotion ? undefined : { y: -3 }}
+                transition={{ layout: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } }}
+                className={cardClass}
               >
-                {/* 이미지를 크게 확장해 주변 색감만 남기는 Apple Store식 배경 */}
                 <img
-                  src={leadImageUrl}
-                  alt={lead.title}
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = getFallbackImage(lead.stid);
+                  src={imageUrl}
+                  alt={story.title}
+                  onError={(event) => {
+                    (event.target as HTMLImageElement).src = getFallbackImage(story.stid);
                   }}
-                  className="h-full w-full scale-125 object-cover opacity-100 blur-2xl saturate-125"
+                  className={imageClass}
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/15 to-black/5" />
-              </motion.div>
-            </AnimatePresence>
+                {isLead && <div className="pointer-events-none absolute inset-y-0 right-0 w-[52%] bg-gradient-to-r from-[#fbf8f2] via-[#fbf8f2]/10 to-transparent" />}
 
-            {/* 우측 상단 뱃지 */}
-            <div className="absolute top-4 right-4 z-20">
-              <span className="px-2.5 py-0.5 rounded-full bg-black/50 text-white text-[10px] font-semibold backdrop-blur-md border border-white/20">
-                {activeIndex + 1} / {featured.length}
-              </span>
-            </div>
-
-            {/* 메인 카드 정보 및 버튼 */}
-            <div className="pointer-events-none relative z-10 grid min-h-[420px] grid-cols-1 items-center gap-6 p-6 sm:min-h-[350px] sm:grid-cols-[minmax(0,1fr)_190px] sm:gap-8 sm:p-7 md:h-full md:min-h-0 lg:grid-cols-[minmax(0,1fr)_220px]">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={lead.stid}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.35, ease: 'easeOut' }}
-                  className="pointer-events-auto"
-                >
-                  <span className="inline-block px-2.5 py-1 rounded-full bg-white/15 text-white text-[10px] font-bold tracking-wide backdrop-blur-md border border-white/15 shadow-sm mb-3">
-                    {lead.badgeText ?? lead.category}
-                  </span>
-                  <h2 className="max-w-xl font-odii-sans text-3xl sm:text-4xl font-bold text-white leading-[1.18] tracking-[-0.04em] drop-shadow-[0_3px_12px_rgba(0,0,0,0.45)]">
-                    {lead.title}
-                  </h2>
-                  <p className="mt-3 max-w-md text-xs sm:text-sm text-white/80 font-light line-clamp-2 leading-6">
-                    {lead.audioTitle}
+                <div className={contentClass}>
+                  <p className={isLead ? 'truncate text-xs font-semibold text-[#8c7e6c]' : 'truncate text-[10px] font-semibold text-[#8c7e6c]'}>
+                    {story.locationName || formatCategory(story)}
                   </p>
-                  <div className="mt-6 pointer-events-auto">
-                    <button
-                      type="button"
-                      onClick={play}
-                      className="px-5 py-2.5 rounded-full bg-white text-[#211e19] text-xs font-bold shadow-xl transition-colors hover:bg-white/90 active:bg-white/80 flex items-center gap-1.5"
-                    >
-                      <span>{currentStory.stid === lead.stid && isPlaying ? '일시정지' : '이야기 듣기'}</span>
-                      <span className="text-[11px] text-[#655b4d] font-normal">{lead.formattedDuration}</span>
-                    </button>
-                  </div>
-                </motion.div>
-              </AnimatePresence>
+                  <h3 className={isLead ? 'mt-1 font-odii-sans text-2xl font-bold leading-tight tracking-[-0.035em] sm:text-3xl' : 'mt-1 font-odii-sans text-sm font-bold leading-tight tracking-[-0.035em] sm:text-base'}>
+                    {story.title}
+                  </h3>
 
-              {/* 블러 배경과 대비되는 원본 앨범아트 */}
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={`${lead.stid}-art`}
-                  initial={{ opacity: 0, scale: 0.94, y: 12 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 1.04, y: -8 }}
-                  transition={springTransition}
-                  className="pointer-events-none order-first mx-auto w-[156px] overflow-hidden rounded-[1.2rem] border border-white/30 bg-white/10 shadow-[0_18px_36px_rgba(0,0,0,0.07)] sm:order-none sm:mb-6 sm:h-[220px] sm:w-full md:h-[230px] lg:h-[250px]"
-                >
-                  <img
-                    src={leadImageUrl}
-                    alt=""
-                    onError={(e) => { (e.target as HTMLImageElement).src = getFallbackImage(lead.stid); }}
-                    className="h-full w-full object-cover"
-                  />
-                </motion.div>
-              </AnimatePresence>
-
-              {/* 제목 길이와 관계없이 항상 같은 자리에 놓이는 다음 탐색 버튼 */}
-              <div className="pointer-events-auto absolute bottom-6 left-6 z-20 sm:bottom-9 sm:left-auto sm:right-9">
-                <button
-                  type="button"
-                  aria-label="다음 이야기"
-                  onClick={() => move(1)}
-                  className="flex h-11 items-center gap-2 rounded-full bg-white px-4 text-xs font-bold text-[#211e19] shadow-lg transition-colors duration-500 hover:bg-white/85 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-                >
-                  다음 이야기 <span aria-hidden="true" className="text-base leading-none">›</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* 우측 3개 세로 대기 카드 (한 칸씩 자연스럽게 왼쪽으로 전진 이동하는 Layout Shift) */}
-          <div className="hidden h-[350px] shrink-0 items-center gap-2 md:flex">
-            <AnimatePresence mode="popLayout" initial={false}>
-              {following.map((story, index) => {
-                const imgUrl = getValidImage(story.imageUrl, story.stid);
-                return (
-                  <motion.div
-                    key={story.stid}
-                    layout
-                    onClick={() => {
-                      setDirection(1);
-                      setActiveIndex((activeIndex + index + 1) % featured.length);
-                      setAutoplayVersion((v) => v + 1);
-                    }}
-                    initial={{ opacity: 0, x: 40, scale: 0.9 }}
-                    animate={{ opacity: 1, x: 0, scale: 1 }}
-                    exit={{ opacity: 0, x: -40, scale: 0.9 }}
-                    transition={{
-                      layout: { duration: 0.35, ease: [0.16, 1, 0.3, 1] as const },
-                      opacity: { duration: 0.25 },
-                      x: { duration: 0.35, ease: [0.16, 1, 0.3, 1] as const }
-                    }}
-
-                    className="group relative h-full w-[78px] cursor-pointer overflow-hidden rounded-[1.3rem] shadow-md ring-1 ring-black/10 transition-colors hover:ring-white/60 sm:w-[84px]"
-                  >
-                    <img
-                      src={imgUrl}
-                      alt={story.title}
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = getFallbackImage(story.stid);
-                      }}
-                      className="h-full w-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-                    
-                    <div className="absolute bottom-0 inset-x-0 p-2 text-white">
-                      <h4 className="font-odii-sans text-[10px] font-bold line-clamp-2 leading-snug">
-                        {story.title}
-                      </h4>
+                  {isLead ? (
+                    <>
+                      <p className="mt-2 max-w-lg text-xs leading-5 text-[#655b4d] sm:text-sm">{story.audioTitle}</p>
+                      <div className="mt-4 flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            play();
+                          }}
+                          aria-label={story.title + ' ' + (isPlayingStory ? '일시정지' : '듣기')}
+                          className="inline-flex h-10 items-center gap-2 rounded-full bg-[#211e19] px-4 text-xs font-bold text-[#fffaf3] shadow-md transition-colors hover:bg-[#a94d35]"
+                        >
+                          <span aria-hidden="true">{isPlayingStory ? 'Ⅱ' : '▶'}</span>
+                          {isPlayingStory ? '일시정지' : '이야기 듣기'}
+                          {story.formattedDuration && <span className="font-normal text-[#d8d0c5]">{story.formattedDuration}</span>}
+                        </button>
+                        <span className="text-[10px] text-[#8c7e6c]">{activeMeta?.label || '오늘의 추천'}</span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="mt-2 flex items-center justify-between gap-2 text-[10px] text-[#786d5e]">
+                      <span className="truncate">{activeMeta?.label || formatCategory(story)}</span>
+                      <span className="shrink-0">{story.formattedDuration || '오디오'}</span>
                     </div>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          </div>
+                  )}
+                </div>
 
+                {!isLead && isPlayingStory && (
+                  <span className="absolute right-3 top-3 rounded-full bg-[#a94d35] px-2 py-1 text-[9px] font-bold text-white shadow-sm">
+                    재생 중
+                  </span>
+                )}
+              </motion.article>
+            );
+          })}
+        </div>
+
+        <div className="mt-4 flex items-center justify-between border-t border-[#211e19]/10 pt-3">
+          <span className="text-[11px] text-[#8c7e6c]">
+            {String(normalizedIndex + 1).padStart(2, '0')} / {String(featured.length).padStart(2, '0')} · 카드를 고르면 앞으로 이동합니다
+          </span>
+          <button
+            type="button"
+            onClick={() => move(1)}
+            className="text-xs font-semibold text-[#211e19] underline decoration-[#a94d35]/50 underline-offset-4 transition-colors hover:text-[#a94d35]"
+          >
+            다음 이야기 →
+          </button>
         </div>
       </div>
     </section>

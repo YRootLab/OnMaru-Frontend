@@ -12,14 +12,22 @@ interface AllStoriesModalProps {
 
 const MODAL_CATEGORIES: OdiiCategory[] = [
   '전체',
-  '궁궐/유적',
   '한옥/고택',
-  '정원/자연',
-  '박물관/미술관',
-  '시전/전통시장',
-  '도보/골목길',
-  '사람내음과 고운 정',
+  '전통시장/장터',
+  '마을/골목길',
+  '궁궐/역사',
+  '소리/문화',
+  '자연/둘레길',
 ];
+
+const MODAL_CATEGORY_KEYWORDS: Record<string, string[]> = {
+  '한옥/고택': ['한옥', '고택', '한옥마을'],
+  '전통시장/장터': ['시장', '장터', '시전'],
+  '마을/골목길': ['마을', '골목', '길'],
+  '궁궐/역사': ['궁', '역사', '유적'],
+  '소리/문화': ['소리', '전통', '문화'],
+  '자연/둘레길': ['자연', '둘레길', '산', '공원'],
+};
 
 export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
   isOpen,
@@ -38,7 +46,13 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
 
   let filtered = allStories;
   if (activeCat !== '전체') {
-    filtered = filtered.filter((s) => s.category === activeCat);
+    const keywords = MODAL_CATEGORY_KEYWORDS[activeCat] || [];
+    filtered = filtered.filter((story) => {
+      const searchableText = [story.category, story.title, story.audioTitle, story.locationName]
+        .filter(Boolean)
+        .join(' ');
+      return keywords.some((keyword) => searchableText.includes(keyword));
+    });
   }
   if (modalSearch.trim().length > 0) {
     const q = modalSearch.toLowerCase().trim();

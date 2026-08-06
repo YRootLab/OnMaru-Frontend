@@ -1,4 +1,4 @@
-import { OdiiStoryItem, OdiiCategory } from '../types/odii.types';
+import { OdiiStoryItem, OdiiCategory, OdiiStoryPage } from '../types/odii.types';
 import { MOCK_ODII_STORIES } from './odiiMockData';
 
 const BASE_URL = process.env.NEXT_PUBLIC_ODII_API_URL || 'https://apis.data.go.kr/B551011/Odii';
@@ -9,7 +9,7 @@ const CATEGORY_KEYWORD_MAP: Record<string, string> = {
   '한옥/고택': '한옥',
   '서원/향교': '서원',
   '전통시장/장터': '시장',
-  '마을/골목길': '골목',
+  '마을/골목길': '마을',
   '궁궐/역사': '궁',
   '사찰/산사': '사찰',
   '소리/문화': '소리',
@@ -34,6 +34,7 @@ const KEYWORD_SYNONYMS: Record<string, string[]> = {
   서원: ['서원', '향교', '선비', '서당', '유교'],
   시장: ['시장', '장터', '시전', '전통시장', '장사'],
   사찰: ['사찰', '산사', '절', '사원', '종소리'],
+  마을: ['마을', '골목', '한옥마을', '슬로시티'],
 };
 
 const toText = (value: unknown): string => {
@@ -75,6 +76,63 @@ function getRandomFallbackImage(seedStr: string): string {
   return FALLBACK_IMAGES[index];
 }
 
+function formatDistance(distanceKm: number): string {
+  if (distanceKm < 1) return `${Math.max(100, Math.round(distanceKm * 1000))}m`;
+  return `${distanceKm.toFixed(1)}km`;
+}
+
+function calculateDistanceKm(fromX: string, fromY: string, toX: string, toY: string): number | null {
+  const longitude = Number(fromX);
+  const latitude = Number(fromY);
+  const targetLongitude = Number(toX);
+  const targetLatitude = Number(toY);
+  if (![longitude, latitude, targetLongitude, targetLatitude].every(Number.isFinite)) return null;
+
+  const earthRadiusKm = 6371;
+  const latitudeDelta = (targetLatitude - latitude) * Math.PI / 180;
+  const longitudeDelta = (targetLongitude - longitude) * Math.PI / 180;
+  const haversine = Math.sin(latitudeDelta / 2) ** 2
+    + Math.cos(latitude * Math.PI / 180) * Math.cos(targetLatitude * Math.PI / 180) * Math.sin(longitudeDelta / 2) ** 2;
+  return earthRadiusKm * 2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
+}
+
+function mapStoryItem(item: Record<string, unknown>, index: number, category?: string, origin?: { mapX: string; mapY: string }): OdiiStoryItem {
+  const title = readText(item, 'title') || readText(item, 'storyTitle') || '한국의 문화 이야기';
+  const stid = readText(item, 'stid') || readText(item, 'tid') || String(index + 1);
+  const audioUrl = readText(item, 'audioUrl') || readText(item, 'audio') || readText(item, 'playUrl') || readText(item, 'mp3Url');
+  const playTime = readText(item, 'playTime') || readText(item, 'audioTime') || '180';
+  const playTimeSeconds = Number(playTime);
+  const imageUrl = readText(item, 'imageUrl').length > 0
+    ? readText(item, 'imageUrl')
+    : getRandomFallbackImage(stid + title);
+  const mapX = readText(item, 'mapX') || '126.9780';
+  const mapY = readText(item, 'mapY') || '37.5665';
+  const distance = origin ? calculateDistanceKm(origin.mapX, origin.mapY, mapX, mapY) : null;
+
+  return {
+    tid: readText(item, 'tid'),
+    tlid: readText(item, 'tlid'),
+    stid,
+    stlid: readText(item, 'stlid'),
+    title,
+    audioTitle: readText(item, 'audioTitle') || readText(item, 'storyTitle') || title || '오디오 해설',
+    speaker: '문화해설사 도슨트',
+    category: (category && category !== '전체' ? category : '') as OdiiCategory || readText(item, 'themaCategory') || '오디 이야기',
+    distance: distance === null ? undefined : formatDistance(distance),
+    mapX,
+    mapY,
+    script: readText(item, 'script') || '해설 대본 정보가 준비 중입니다.',
+    playTime,
+    formattedDuration: Number.isFinite(playTimeSeconds)
+      ? `${Math.floor(playTimeSeconds / 60)}분 ${String(playTimeSeconds % 60).padStart(2, '0')}초`
+      : '3분 00초',
+    audioUrl,
+    imageUrl,
+    locationName: [readText(item, 'addr1'), readText(item, 'addr2')].filter(Boolean).join(' ') || '대한민국 문화유산',
+    badgeText: audioUrl ? '음원 제공' : '대본 전용',
+  };
+}
+
 /**
  * 한국관광공사 오디(Odii) API 어댑터
  */
@@ -83,89 +141,84 @@ export const odiiApiAdapter = {
    * 오디오 이야기 목록 조회 (카테고리 & 검색어 필터링)
    */
   async getStoryList(category?: OdiiCategory | string, query?: string): Promise<OdiiStoryItem[]> {
+    const page = await this.getStoryPage(category, query, 1, 30);
+    return page.items;
+  },
+
+  async getStoryPage(
+    category?: OdiiCategory | string,
+    query?: string,
+    pageNo = 1,
+    numOfRows = 12,
+  ): Promise<OdiiStoryPage> {
+    const safePageNo = Math.max(1, pageNo);
+    const safeNumOfRows = Math.min(30, Math.max(1, numOfRows));
+    let keyword = query?.trim() || '';
+    if (!keyword && category && category !== '전체') {
+      keyword = CATEGORY_KEYWORD_MAP[category] || category;
+    }
+
     if (!API_KEY) {
-      console.warn('[Odii API] API Key가 설정되지 않아 Mock 데이터를 반환합니다.');
-      return this.getMockFiltered(category, query);
+      const filtered = await this.getMockFiltered(category, query);
+      const start = (safePageNo - 1) * safeNumOfRows;
+      return {
+        items: filtered.slice(start, start + safeNumOfRows),
+        pageNo: safePageNo,
+        numOfRows: safeNumOfRows,
+        totalCount: filtered.length,
+        source: 'mock',
+      };
     }
 
     try {
-      let keyword = query && query.trim().length > 0 ? query.trim() : '';
-
-      if (!keyword && category && category !== '전체') {
-        keyword = CATEGORY_KEYWORD_MAP[category] || category;
-      }
-
       const endpoint = keyword ? 'storySearchList' : 'storyBasedList';
       const params: Record<string, string> = {
         MobileOS: 'ETC',
         MobileApp: 'OnMaruFE',
         _type: 'json',
         langCode: 'ko',
-        numOfRows: '30',
-        pageNo: '1',
+        numOfRows: String(safeNumOfRows),
+        pageNo: String(safePageNo),
       };
-
-      if (keyword) {
-        params.keyword = keyword;
-      }
+      if (keyword) params.keyword = keyword;
 
       const paramStr = Object.entries(params)
-        .map(([k, v]) => `${k}=${encodeURIComponent(v)}`)
+        .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
         .join('&');
-
       const url = `${BASE_URL}/${endpoint}?serviceKey=${API_KEY}&${paramStr}`;
-
       const res = await fetch(url, { cache: 'no-store' });
-      if (!res.ok) {
-        throw new Error(`HTTP error ${res.status}`);
-      }
+      if (!res.ok) throw new Error(`HTTP error ${res.status}`);
 
       const json = await res.json();
-      const rawItems = json?.response?.body?.items?.item;
-
-      if (!rawItems) {
-        return this.getMockFiltered(category, query);
+      const body = json?.response?.body;
+      const rawItems = body?.items?.item;
+      const itemList = rawItems
+        ? (Array.isArray(rawItems) ? rawItems : [rawItems]) as Record<string, unknown>[]
+        : [];
+      const mappedStories = itemList.map((item, index) => mapStoryItem(item, index, category));
+      if (mappedStories.length === 0 && safePageNo === 1) {
+        const fallback = await this.getMockFiltered(category, query);
+        return { items: fallback.slice(0, safeNumOfRows), pageNo: 1, numOfRows: safeNumOfRows, totalCount: fallback.length, source: 'mock' };
       }
 
-      const itemList = (Array.isArray(rawItems) ? rawItems : [rawItems]) as Record<string, unknown>[];
-
-      const mappedStories: OdiiStoryItem[] = itemList.map((item, idx) => {
-        const title = readText(item, 'title') || readText(item, 'storyTitle') || '한국의 문화 이야기';
-        const stid = readText(item, 'stid') || readText(item, 'tid') || String(idx + 1);
-        const audioUrl = readText(item, 'audioUrl') || readText(item, 'audio') || readText(item, 'playUrl') || readText(item, 'mp3Url');
-        const audioTime = readText(item, 'audioTime');
-        const imageUrl = readText(item, 'imageUrl').length > 0
-          ? readText(item, 'imageUrl')
-          : getRandomFallbackImage(stid + title);
-
-        const categoryVal: OdiiCategory = (category as OdiiCategory) || '한옥';
-
-        return {
-          tid: readText(item, 'tid'),
-          tlid: readText(item, 'tlid'),
-          stid: stid,
-          stlid: readText(item, 'stlid'),
-          title: title,
-          audioTitle: readText(item, 'storyTitle') || title || '오디오 해설',
-          speaker: '문화해설사 도슨트',
-          category: categoryVal,
-          distance: '0.8km',
-          mapX: readText(item, 'mapX') || '126.9780',
-          mapY: readText(item, 'mapY') || '37.5665',
-          script: readText(item, 'script') || '해설 대본 정보가 준비 중입니다.',
-          playTime: audioTime || '180',
-          formattedDuration: audioTime ? `${Math.floor(Number(audioTime) / 60)}분 ${Number(audioTime) % 60}초` : '3분 00초',
-          audioUrl,
-          imageUrl: imageUrl,
-          locationName: readText(item, 'addr1') || readText(item, 'addr2') || '대한민국 문화유산',
-          badgeText: audioUrl ? '음원 제공' : '대본 전용'
-        };
-      });
-
-      return mappedStories.length > 0 ? mappedStories : this.getMockFiltered(category, query);
+      return {
+        items: mappedStories,
+        pageNo: safePageNo,
+        numOfRows: safeNumOfRows,
+        totalCount: Number(body?.totalCount) || mappedStories.length,
+        source: 'api',
+      };
     } catch (error) {
       console.error('[Odii API Error] API 호출 실패, Fallback 데이터 전환:', error);
-      return this.getMockFiltered(category, query);
+      const fallback = await this.getMockFiltered(category, query);
+      const start = (safePageNo - 1) * safeNumOfRows;
+      return {
+        items: fallback.slice(start, start + safeNumOfRows),
+        pageNo: safePageNo,
+        numOfRows: safeNumOfRows,
+        totalCount: fallback.length,
+        source: 'mock',
+      };
     }
   },
 
@@ -237,9 +290,35 @@ export const odiiApiAdapter = {
   /**
    * 위치 기반(LBS) 내 주변 이야기 목록 조회
    */
-  async getNearbyStories(mapX?: string, mapY?: string): Promise<OdiiStoryItem[]> {
-    void mapX;
-    void mapY;
-    return this.getStoryList('한옥');
+  async getNearbyStories(mapX?: string, mapY?: string, radius = 3000): Promise<OdiiStoryItem[]> {
+    if (!mapX || !mapY || !API_KEY) return this.getStoryList('한옥');
+
+    try {
+      const params = new URLSearchParams({
+        serviceKey: API_KEY,
+        MobileOS: 'ETC',
+        MobileApp: 'OnMaruFE',
+        _type: 'json',
+        lang: 'ko',
+        xCoord: mapX,
+        yCoord: mapY,
+        radius: String(radius),
+      });
+      const res = await fetch(`${BASE_URL}/storyLocationBasedList?${params.toString()}`, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+      const json = await res.json();
+      const rawItems = json?.response?.body?.items?.item;
+      if (!rawItems) return [];
+      const itemList = (Array.isArray(rawItems) ? rawItems : [rawItems]) as Record<string, unknown>[];
+      return itemList
+        .map((item, index) => mapStoryItem(item, index, '내 주변', { mapX, mapY }))
+        .sort((left, right) => (
+          (calculateDistanceKm(mapX, mapY, left.mapX, left.mapY) ?? Number.POSITIVE_INFINITY)
+          - (calculateDistanceKm(mapX, mapY, right.mapX, right.mapY) ?? Number.POSITIVE_INFINITY)
+        ));
+    } catch (error) {
+      console.error('[Odii Nearby Error] 위치 기반 조회 실패:', error);
+      return this.getStoryList('한옥');
+    }
   }
 };

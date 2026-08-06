@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { FormEvent, useState } from 'react';
 import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
 import { ODII_REGION_CHIPS, ODII_THEME_CATEGORIES } from '../data/odiiCategoryData';
 
@@ -8,7 +8,15 @@ export const CategoryTagFilter: React.FC = () => {
   const selectedCategory = useOdiiAudioStore((s) => s.selectedCategory);
   const setSelectedCategory = useOdiiAudioStore((s) => s.setSelectedCategory);
   const setSearchQuery = useOdiiAudioStore((s) => s.setSearchQuery);
+  const searchQuery = useOdiiAudioStore((s) => s.searchQuery);
+  const [searchDraft, setSearchDraft] = useState(searchQuery);
   const selectedTheme = ODII_THEME_CATEGORIES.find((theme) => theme.keyword === selectedCategory);
+
+  const handleSearch = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setSelectedCategory('전체');
+    setSearchQuery(searchDraft.trim());
+  };
 
   const handleRegionClick = (region: string) => {
     if (selectedCategory === region) {
@@ -21,11 +29,35 @@ export const CategoryTagFilter: React.FC = () => {
 
   return (
     <div className="w-full py-5 flex flex-col gap-4 border-b border-[#211e19]/10">
-      {/* 10대 정규 테마 태그 칩 모음 */}
+      <form onSubmit={handleSearch} className="flex flex-col gap-2.5 sm:flex-row sm:items-center">
+        <label htmlFor="odii-story-search" className="sr-only">오디 이야기 검색</label>
+        <div className="relative min-w-0 flex-1">
+          <input
+            id="odii-story-search"
+            value={searchDraft}
+            onChange={(event) => setSearchDraft(event.target.value)}
+            placeholder="장소·인물·키워드로 이야기 찾기"
+            className="h-11 w-full rounded-xl border border-[#211e19]/12 bg-white px-4 pr-20 text-sm text-[#211e19] outline-none transition-colors placeholder:text-[#a59a8d] focus:border-[#a94d35]"
+          />
+        </div>
+        <button type="submit" className="h-11 rounded-xl bg-[#211e19] px-5 text-xs font-semibold text-white transition-colors duration-300 hover:bg-[#a94d35]">
+          찾기
+        </button>
+        {(searchQuery || searchDraft) && (
+          <button
+            type="button"
+            onClick={() => {
+              setSearchDraft('');
+              setSearchQuery('');
+            }}
+            className="h-11 shrink-0 px-1 text-xs font-semibold text-[#8c7e6c] transition-colors hover:text-[#a94d35]"
+          >
+            지우기
+          </button>
+        )}
+      </form>
+
       <div>
-        <p className="mb-2 text-[10px] font-bold tracking-[0.16em] text-[#a94d35] uppercase">
-          주제별 큐레이션
-        </p>
         <div className="flex items-center space-x-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <button
             type="button"

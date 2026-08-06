@@ -21,6 +21,14 @@ export interface OdiiStoryItem {
   likesCount?: number;   // 좋아요/북마크 수
 }
 
+export interface OdiiStoryPage {
+  items: OdiiStoryItem[];
+  pageNo: number;
+  numOfRows: number;
+  totalCount: number;
+  source: 'api' | 'mock';
+}
+
 export interface ScriptLine {
   id: number;
   timeSec: number;

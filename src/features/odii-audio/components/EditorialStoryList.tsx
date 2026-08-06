@@ -34,15 +34,12 @@ export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({ stories 
 
   return (
     <div className="w-full py-3">
-      {/* 아카이브 상단 헤어라인 레전드 */}
       <div className="flex items-center justify-between pb-2 text-[11px] text-[#8c7e6c] border-b border-[#211e19]/10">
         <span className="font-semibold text-[#211e19]">
           트랙 아카이브 <strong className="text-[#a94d35] font-extrabold ml-1">{stories.length}</strong>
         </span>
-        <span className="font-mono text-[10px]">Apple Music & Odii Curation</span>
       </div>
 
-      {/* 멜론 / Apple Music 트레이너 트랙 리스트 */}
       <div className="divide-y divide-[#211e19]/5">
         {stories.map((story, index) => {
           const isCurrent = currentStory.stid === story.stid;
