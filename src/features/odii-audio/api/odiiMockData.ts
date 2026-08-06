@@ -25,7 +25,7 @@ export const MOCK_ODII_STORIES: OdiiStoryItem[] = [
     distance: '300m',
     mapX: '126.9830',
     mapY: '37.5826',
-    badgeText: '한옥 아카이브',
+    badgeText: '한옥도감',
     locationName: '서울 종로구 북촌 한옥길',
     likesCount: 1420,
     script: `조선시대 명망 높은 대가가 살던 북촌 고택의 조용한 아침을 엽니다.

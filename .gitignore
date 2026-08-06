@@ -33,6 +33,11 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# tourapi 조사/빌드 부산물 (큐레이션 파일 data/village-overrides.json과
+# 산출물 src/data/hanokVillages*.json은 커밋 대상)
+data/probe-*.json
+data/build-errors.json
+
 # vercel
 .vercel
 
