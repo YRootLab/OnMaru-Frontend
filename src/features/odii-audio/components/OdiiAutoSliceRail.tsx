@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { AnimatePresence, LayoutGroup, motion } from 'framer-motion';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
 import { OdiiStoryItem } from '../types/odii.types';
 import { ODII_HERO_TABS } from '../data/odiiCategoryData';
@@ -33,12 +33,19 @@ function getValidImage(url?: string, seed?: string): string {
   return url;
 }
 
+function getUpcomingStories(stories: OdiiStoryItem[], activeIndex: number, count = 3): OdiiStoryItem[] {
+  if (stories.length < 2) return [];
+  return Array.from({ length: Math.min(count, stories.length - 1) }, (_, index) => stories[(activeIndex + index + 1) % stories.length]);
+}
+
 export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, storySets }) => {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [activeTab, setActiveTab] = useState('추천');
   const [activeIndex, setActiveIndex] = useState(0);
-  const [autoplayVersion, setAutoplayVersion] = useState(0);
+  const [previewIndex, setPreviewIndex] = useState(0);
+  const [transitionDirection, setTransitionDirection] = useState(1);
   const [isSectionInView, setIsSectionInView] = useState(true);
+  const previewTimerRef = useRef<number | null>(null);
 
   const currentStory = useOdiiAudioStore((s) => s.currentStory);
   const isPlaying = useOdiiAudioStore((s) => s.isPlaying);
@@ -61,16 +68,46 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
     return (matched.length ? matched : stories).slice(0, 7);
   }, [activeTab, stories, storySets]);
 
+  useEffect(() => {
+    featured.slice(0, 7).forEach((story) => {
+      const image = new window.Image();
+      image.src = getValidImage(story.imageUrl, story.stid);
+    });
+  }, [featured]);
+
   const lead = featured[activeIndex] ?? featured[0];
+
+  const advanceTo = useCallback((targetIndex: number, direction = 1) => {
+    if (featured.length < 2) return;
+    const nextIndex = (targetIndex + featured.length) % featured.length;
+    setTransitionDirection(direction >= 0 ? 1 : -1);
+    setPreviewIndex(nextIndex);
+
+    if (previewTimerRef.current !== null) {
+      window.clearTimeout(previewTimerRef.current);
+    }
+
+    // preview 큐가 한 칸 흐른 뒤 메인 장면이 따라오도록 짧은 리드 타임을 둔다.
+    previewTimerRef.current = window.setTimeout(() => {
+      setActiveIndex(nextIndex);
+      previewTimerRef.current = null;
+    }, 150);
+  }, [featured.length]);
+
+  useEffect(() => () => {
+    if (previewTimerRef.current !== null) {
+      window.clearTimeout(previewTimerRef.current);
+    }
+  }, []);
 
   // 7초 자동 이동
   useEffect(() => {
     if (featured.length < 2 || !isSectionInView) return;
     const timer = window.setInterval(() => {
-      setActiveIndex((index) => (index + 1) % featured.length);
+      advanceTo((activeIndex + 1) % featured.length, 1);
     }, 7000);
     return () => window.clearInterval(timer);
-  }, [featured.length, activeTab, autoplayVersion, isSectionInView]);
+  }, [activeIndex, activeTab, advanceTo, featured.length, isSectionInView]);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -86,8 +123,8 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
   if (!lead) return null;
 
   const move = (nextDirection: number) => {
-    setActiveIndex((index) => (index + nextDirection + featured.length) % featured.length);
-    setAutoplayVersion((version) => version + 1);
+    // 전환 중에는 메인 카드보다 preview 큐가 먼저 이동하므로 큐의 위치를 기준으로 이어간다.
+    advanceTo((previewIndex + nextDirection + featured.length) % featured.length, nextDirection);
   };
 
   const play = () => {
@@ -98,19 +135,9 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
     }
   };
 
-  // 우측 3개 대기 서브 카드
-  const following = featured
-    .slice(1, 4)
-    .map((_, index) => featured[(activeIndex + index + 1) % featured.length]);
+  const following = getUpcomingStories(featured, previewIndex, 3);
 
   const leadImageUrl = getValidImage(lead.imageUrl, lead.stid);
-
-  // 세련되고 반응성이 빠른 트랜지션 베지어 커브 (0.3초 속도 개선)
-  const springTransition = {
-    duration: 0.35,
-    ease: [0.16, 1, 0.3, 1] as const,
-  };
-
 
   return (
     <section ref={sectionRef} className="w-full pb-12 sm:pb-16">
@@ -124,9 +151,14 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
                 key={tab.id}
                 type="button"
                 onClick={() => {
+                  if (previewTimerRef.current !== null) {
+                    window.clearTimeout(previewTimerRef.current);
+                    previewTimerRef.current = null;
+                  }
                   setActiveTab(tab.id);
                   setActiveIndex(0);
-                  setAutoplayVersion((version) => version + 1);
+                  setPreviewIndex(0);
+                  setTransitionDirection(1);
                 }}
                 className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-300 whitespace-nowrap flex items-center gap-1.5 ${
                   isTabActive
@@ -141,14 +173,13 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
           })}
         </div>
 
-        {/* 같은 장면을 확장·블러 처리한 배경 위에 원본 앨범아트를 올린 에디토리얼 히어로 */}
-        <LayoutGroup id="odii-hero-scenes">
+        {/* 한 장면을 오래 듣고 다음 장면으로 이어지는 청음 스테이지 */}
         <div className="relative flex min-w-0 items-center gap-3 overflow-visible">
           
           {/* 메인 비주얼 배너 카드 (기존 메인은 왼쪽으로 퇴장, 오른쪽 서브가 왼쪽으로 당겨지며 메인 승격) */}
-          <div className="relative min-h-[300px] min-w-0 flex-1 overflow-hidden rounded-[1.6rem] bg-[#6d6258] shadow-[0_18px_48px_rgba(43,35,26,0.16)] sm:min-h-[260px] md:h-[260px] md:min-h-0">
+          <div className="relative min-h-[320px] min-w-0 flex-1 overflow-hidden rounded-[1.6rem] bg-[#6d6258] shadow-[0_18px_48px_rgba(43,35,26,0.16)] sm:min-h-[280px] md:h-[280px] md:min-h-0">
             
-            <AnimatePresence mode="sync">
+            <AnimatePresence initial={false} mode="sync">
               <motion.div
                 key={lead.stid}
                 initial={{
@@ -160,19 +191,20 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
                 exit={{
                   opacity: 0,
                 }}
-                transition={{ duration: 0.3, ease: 'easeInOut' }}
+                transition={{ duration: 0.42, ease: 'easeOut' }}
                 className="absolute inset-0 h-full w-full"
               >
-                {/* 이미지를 크게 확장해 주변 색감만 남기는 Apple Store식 배경 */}
+                {/* 전환 때 무거운 blur를 다시 그리지 않고 낮은 대비의 장면으로 분위기만 연결 */}
                 <img
                   src={leadImageUrl}
                   alt={lead.title}
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = getFallbackImage(lead.stid);
                   }}
-                  className="h-full w-full scale-125 object-cover opacity-100 blur-2xl saturate-125"
+                  className="h-full w-full transform-gpu object-cover opacity-35 saturate-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/15 to-black/5" />
+                <div className="absolute inset-0 bg-black/[0.035] backdrop-blur-[2px]" />
+                <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/30 to-black/10" />
               </motion.div>
             </AnimatePresence>
 
@@ -184,51 +216,100 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
             </div>
 
             {/* 메인 카드 정보 및 버튼 */}
-            <div className="pointer-events-none relative z-10 grid min-h-[300px] grid-cols-1 items-center gap-5 p-5 sm:min-h-[260px] sm:grid-cols-[minmax(0,1fr)_180px] sm:gap-7 sm:p-6 md:h-full md:min-h-0 lg:grid-cols-[minmax(0,1fr)_205px]">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={lead.stid}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.35, ease: 'easeOut' }}
-                  className="pointer-events-auto"
-                >
-                  <span className="inline-block px-2.5 py-1 rounded-full bg-white/15 text-white text-[10px] font-bold tracking-wide backdrop-blur-md border border-white/15 shadow-sm mb-3">
+            <div className="pointer-events-none relative z-10 grid min-h-[320px] grid-cols-1 items-center gap-5 p-5 sm:min-h-[280px] sm:grid-cols-[minmax(0,1fr)_190px] sm:gap-7 sm:p-6 md:h-full md:min-h-0 lg:grid-cols-[minmax(0,1fr)_215px]">
+              <div className="pointer-events-auto relative min-h-[176px] min-w-0 sm:min-h-[184px]">
+                <AnimatePresence initial={false} mode="sync">
+                  <motion.div
+                    key={lead.stid}
+                    initial={{ opacity: 0, x: transitionDirection * 16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: transitionDirection * -16 }}
+                      transition={{ duration: 0.34, delay: 0.04, ease: [0.22, 1, 0.36, 1] }}
+                    style={{ willChange: 'transform, opacity' }}
+                    className="absolute inset-0 flex flex-col justify-center"
+                  >
+                  <span className="mb-3 inline-flex h-6 self-start items-center rounded-lg border border-white/20 bg-white/[0.12] px-2 text-[9px] font-semibold tracking-[0.04em] text-white/90 backdrop-blur-sm">
                     {lead.badgeText ?? lead.category}
                   </span>
                   <h2 className="max-w-xl font-odii-sans text-3xl sm:text-4xl font-bold text-white leading-[1.18] tracking-[-0.04em] drop-shadow-[0_3px_12px_rgba(0,0,0,0.45)]">
                     {lead.title}
                   </h2>
-                  <p className="mt-3 max-w-md text-xs sm:text-sm text-white/80 font-light line-clamp-2 leading-6">
+                  <p className="mt-3 max-w-md line-clamp-2 text-sm font-medium leading-6 text-white/90 sm:text-[15px]">
                     {lead.audioTitle}
                   </p>
-                  <div className="mt-6 pointer-events-auto">
+                  <div className="mt-6 flex items-center gap-3 pointer-events-auto">
                     <button
                       type="button"
                       onClick={play}
-                      className="px-5 py-2.5 rounded-full bg-white text-[#211e19] text-xs font-bold shadow-xl transition-colors hover:bg-white/90 active:bg-white/80 flex items-center gap-1.5"
+                      className="flex items-center gap-1.5 rounded-full bg-white px-5 py-2.5 text-xs font-bold text-[#211e19] shadow-xl transition-colors hover:bg-white/90 active:bg-white/80"
                     >
                       <span>{currentStory.stid === lead.stid && isPlaying ? '일시정지' : '이야기 듣기'}</span>
-                      <span className="text-[11px] text-[#655b4d] font-normal">{lead.formattedDuration}</span>
+                      <span className="text-[11px] font-normal text-[#655b4d]">{lead.formattedDuration}</span>
                     </button>
+                    <div
+                      className="flex h-4 items-end gap-[2px] opacity-75"
+                      aria-label={currentStory.stid === lead.stid && isPlaying ? '재생 중' : '재생 대기'}
+                    >
+                      {[0, 1, 2, 3, 4].map((bar) => {
+                        const isLeadPlaying = currentStory.stid === lead.stid && isPlaying;
+                        return (
+                          <motion.span
+                            key={bar}
+                            animate={isLeadPlaying ? { height: ['4px', '13px', '6px', '10px', '4px'] } : { height: '4px' }}
+                            transition={isLeadPlaying
+                              ? { duration: 0.9 + bar * 0.08, repeat: Infinity, ease: 'easeInOut', delay: bar * 0.05 }
+                              : { duration: 0.2 }}
+                            className="w-[2px] rounded-full bg-white/80"
+                          />
+                        );
+                      })}
+                    </div>
                   </div>
-                </motion.div>
-              </AnimatePresence>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
 
-              {/* 블러 배경과 대비되는 원본 앨범아트 */}
-              <motion.div
-                layoutId={`odii-story-art-${lead.stid}`}
-                transition={springTransition}
-                className="pointer-events-none order-first mx-auto w-[156px] overflow-hidden rounded-[1rem] border border-white/30 bg-white/10 shadow-[0_14px_30px_rgba(0,0,0,0.07)] sm:order-none sm:h-[180px] sm:w-full md:h-[190px] lg:h-[200px]"
-              >
-                <img
-                  src={leadImageUrl}
-                  alt=""
-                  onError={(e) => { (e.target as HTMLImageElement).src = getFallbackImage(lead.stid); }}
-                  className="h-full w-full object-cover"
-                />
-              </motion.div>
+              {/* 메인 장면은 같은 자리에 머물고, 다음 장면으로 조용히 교차 전환 */}
+              <div className="pointer-events-none relative order-first mx-auto h-[198px] w-[75%] translate-x-2 rounded-[1rem] border border-white/20 bg-white/10 shadow-[0_14px_30px_rgba(0,0,0,0.07)] sm:order-none sm:h-[198px] sm:w-[75%] sm:translate-x-3 md:h-[202px] lg:h-[211px]">
+                <svg className="pointer-events-none absolute -inset-[2px] z-20 h-[calc(100%+4px)] w-[calc(100%+4px)] overflow-visible" viewBox="0 0 72 100" preserveAspectRatio="none" aria-hidden="true">
+                  <rect x="0" y="0" width="72" height="100" rx="8.5" fill="none" stroke="rgba(255,255,255,0.78)" strokeWidth="0.55" pathLength="100" strokeDasharray="18 82" strokeLinecap="round">
+                    <animate
+                      attributeName="stroke-dashoffset"
+                      values="0;-16.7;-16.71;-20.76;-45.95;-45.96;-50.02;-66.71;-66.72;-70.78;-95.97;-95.98;-100"
+                      keyTimes="0;0.1734;0.1735;0.2058;0.4675;0.4676;0.4999;0.6732;0.6733;0.7056;0.9675;0.9676;1"
+                      dur="29s"
+                      repeatCount="indefinite"
+                    />
+                    <animate
+                      attributeName="stroke-dasharray"
+                      values="18 82;18 82;24 76;18 82;18 82;24 76;18 82;18 82;24 76;18 82;18 82;24 76;18 82"
+                      keyTimes="0;0.1734;0.1735;0.2058;0.4675;0.4676;0.4999;0.6732;0.6733;0.7056;0.9675;0.9676;1"
+                      dur="29s"
+                      repeatCount="indefinite"
+                    />
+                  </rect>
+                </svg>
+                <div className="relative z-10 h-full w-full overflow-hidden rounded-[0.95rem] bg-white/10">
+                  <AnimatePresence initial={false} mode="sync">
+                    <motion.div
+                      key={lead.stid}
+                      initial={{ opacity: 0, x: transitionDirection * 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: transitionDirection * -20 }}
+                      transition={{ duration: 0.34, delay: 0.06, ease: [0.22, 1, 0.36, 1] }}
+                      style={{ willChange: 'transform, opacity' }}
+                      className="absolute inset-0 transform-gpu"
+                    >
+                      <img
+                        src={leadImageUrl}
+                        alt=""
+                        onError={(e) => { (e.target as HTMLImageElement).src = getFallbackImage(lead.stid); }}
+                        className="h-full w-full object-cover transform-gpu"
+                      />
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+              </div>
 
               {/* 제목 길이와 관계없이 항상 같은 자리에 놓이는 다음 탐색 버튼 */}
               <div className="pointer-events-auto absolute right-4 top-1/2 z-20 -translate-y-1/2">
@@ -244,59 +325,68 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
             </div>
           </div>
 
-          {/* 우측 3개 세로 대기 카드 (한 칸씩 자연스럽게 왼쪽으로 전진 이동하는 Layout Shift) */}
-          <div className="hidden h-[260px] shrink-0 items-center gap-2 md:flex">
-            <AnimatePresence mode="sync" initial={false}>
-              {following.map((story, index) => {
-                const imgUrl = getValidImage(story.imageUrl, story.stid);
-                return (
-                  <motion.div
-                    key={story.stid}
-                    layout
-                    onClick={() => {
-                      setActiveIndex((activeIndex + index + 1) % featured.length);
-                      setAutoplayVersion((v) => v + 1);
-                    }}
-                    initial={{ opacity: 0, x: 40, scale: 0.9 }}
-                    animate={{ opacity: 1, x: 0, scale: 1 }}
-                    exit={{ opacity: 0, x: -40, scale: 0.9 }}
-                    transition={{
-                      layout: { duration: 0.35, ease: [0.16, 1, 0.3, 1] as const },
-                      opacity: { duration: 0.25 },
-                      x: { duration: 0.35, ease: [0.16, 1, 0.3, 1] as const }
-                    }}
-
-                    className="group relative h-full w-[78px] cursor-pointer overflow-hidden rounded-[1rem] shadow-md ring-1 ring-black/10 transition-[box-shadow,ring-color] hover:ring-white/60 sm:w-[84px]"
-                  >
-                    <motion.div
-                      layoutId={`odii-story-art-${story.stid}`}
-                      transition={springTransition}
-                      className="absolute inset-0"
+          {/* 우측 다음 장면 preview: 작은 썸네일 큐 */}
+          <div className="relative hidden h-[280px] w-[250px] shrink-0 translate-y-1.5 items-center md:flex">
+            <span className="pointer-events-none absolute -left-3 top-1/2 h-px w-3 bg-gradient-to-r from-transparent to-[#a94d35]/40" aria-hidden="true" />
+            <span className="pointer-events-none absolute -left-3 top-1/2 h-1 w-1 -translate-x-1/2 -translate-y-1/2 rounded-[1px] bg-[#a94d35]/60" aria-hidden="true" />
+            <div className="relative flex w-full flex-col gap-1.5">
+              <AnimatePresence initial={false} mode="popLayout">
+                {following.map((story, index) => {
+                  const imgUrl = getValidImage(story.imageUrl, story.stid);
+                  return (
+                    <motion.button
+                      key={story.stid}
+                      layout
+                      type="button"
+                      aria-label={`${story.title} 이야기 선택`}
+                      onClick={() => {
+                        advanceTo((previewIndex + index + 1) % featured.length, 1);
+                      }}
+                      initial={{ opacity: 0, x: 24, y: 14, scale: 0.98 }}
+                      animate={{ opacity: 1, x: 0, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, x: -28, y: 0, scale: 0.98 }}
+                      transition={{
+                        layout: { duration: 0.52, ease: [0.22, 1, 0.36, 1] },
+                        opacity: { duration: 0.28, ease: 'easeOut' },
+                        x: { duration: 0.46, ease: [0.22, 1, 0.36, 1] },
+                        y: { duration: 0.52, ease: [0.22, 1, 0.36, 1] },
+                        scale: { duration: 0.46, ease: [0.22, 1, 0.36, 1] },
+                      }}
+                      className="group relative h-[68px] w-full overflow-hidden rounded-lg border border-white/20 bg-[#211e19]/[0.1] text-left shadow-[0_8px_20px_rgba(43,35,26,0.12)] ring-1 ring-white/15 backdrop-blur-sm transition-[box-shadow,ring-color] duration-300 hover:border-white/35 hover:ring-white/45 hover:shadow-[0_12px_26px_rgba(43,35,26,0.18)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a94d35]"
                     >
                       <img
                         src={imgUrl}
-                        alt={story.title}
+                        alt=""
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = getFallbackImage(story.stid);
                         }}
-                        className="h-full w-full object-cover"
+                        className="relative z-0 h-full w-full object-cover opacity-50 transition-transform duration-500 group-hover:scale-[1.03]"
                       />
-                    </motion.div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-                    
-                    <div className="absolute bottom-0 inset-x-0 p-2 text-white">
-                      <h4 className="font-odii-sans text-[10px] font-bold line-clamp-2 leading-snug">
-                        {story.title}
-                      </h4>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
+                      <div className="absolute inset-0 z-10 bg-gradient-to-r from-[#211e19]/80 via-[#211e19]/45 to-[#211e19]/15" />
+                      <div className="absolute inset-x-0 bottom-0 z-10 h-1/2 overflow-hidden bg-gradient-to-t from-white/[0.07] to-transparent">
+                        <motion.div
+                          animate={{ x: ['-6%', '6%', '-6%'], opacity: [0.1, 0.22, 0.1] }}
+                          transition={{ duration: 4.2 + index * 0.35, repeat: Infinity, ease: 'easeInOut' }}
+                          className="absolute -left-[8%] bottom-[-8px] h-5 w-[116%] rounded-[50%] bg-white/10 blur-[4px]"
+                          aria-hidden="true"
+                        />
+                      </div>
+                      <div className="absolute inset-x-0 bottom-0 z-20 flex items-end justify-between gap-2 p-2 pt-5 text-white">
+                        <div className="min-w-0">
+                          <p className="text-[9px] font-semibold tracking-[0.04em] text-white/80">{story.locationName || story.category}</p>
+                          <h4 className="mt-0.5 line-clamp-1 font-odii-sans text-xs font-bold leading-tight text-white">
+                            {story.title}
+                          </h4>
+                        </div>
+                      </div>
+                    </motion.button>
+                  );
+                })}
+              </AnimatePresence>
+            </div>
           </div>
 
         </div>
-        </LayoutGroup>
       </div>
     </section>
   );
