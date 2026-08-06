@@ -31,6 +31,16 @@ export function stripTags(s) {
     .trim();
 }
 
+/**
+ * TourAPI 이미지 URL을 https로 승격.
+ * tong.visitkorea.or.kr은 http로 내려주는 경우가 섞여 있어, https 사이트에서
+ * 그대로 쓰면 mixed content로 차단된다. 호스트는 https를 지원한다.
+ */
+export function toHttps(url) {
+  const s = String(url ?? '').trim();
+  return s.startsWith('http://') ? `https://${s.slice(7)}` : s;
+}
+
 /** API 응답 JSON에서 items 배열을 안전하게 추출 */
 export function itemsOf(json) {
   const item = json?.response?.body?.items?.item;
@@ -250,7 +260,7 @@ export async function detailPetTour(contentId) {
 }
 
 /**
- * 10. 법정동 코드 — 지역 필터용
+ * 11. 법정동 코드 — 지역 필터용
  * @param {Record<string, any>} [opts]
  */
 export async function ldongCode(opts = {}) {
@@ -261,3 +271,78 @@ export async function ldongCode(opts = {}) {
     ...opts.extraParams,
   });
 }
+
+/**
+ * 12. 지역기반 관광정보 조회 — 카테고리(cat1/cat2/cat3) 및 지역(areaCode) 기반 조회
+ * @param {Record<string, any>} [opts]
+ */
+export async function areaBasedList(opts = {}) {
+  return callApi('areaBasedList2', {
+    numOfRows: String(opts.numOfRows ?? 100),
+    pageNo: String(opts.pageNo ?? 1),
+    arrange: opts.arrange ?? 'C',
+    ...(opts.contentTypeId ? { contentTypeId: String(opts.contentTypeId) } : {}),
+    ...(opts.areaCode ? { areaCode: String(opts.areaCode) } : {}),
+    ...(opts.cat1 ? { cat1: String(opts.cat1) } : {}),
+    ...(opts.cat2 ? { cat2: String(opts.cat2) } : {}),
+    ...(opts.cat3 ? { cat3: String(opts.cat3) } : {}),
+    ...opts.extraParams,
+  });
+}
+
+// ─────────────────────────────────────────────
+// TourAPI 4.0 카테고리 매핑 및 Query Parser 모듈
+// ─────────────────────────────────────────────
+
+export const CATEGORY_MAPPINGS = {
+  STAY_HANOK: { contentTypeId: '32', cat1: 'B02', cat2: 'B0201', cat3: 'B02011600' },
+  VILLAGE: { contentTypeId: '12', cat1: 'A02', cat2: 'A0201', cat3: 'A02010800' },
+  HERITAGE_HOUSE: { contentTypeId: '12', cat1: 'A02', cat2: 'A0201', cat3: 'A02010100' },
+  PALACE: { contentTypeId: '12', cat1: 'A02', cat2: 'A0201', cat3: 'A02010300' },
+};
+
+export const AREA_CODES = {
+  서울: '1', 인천: '2', 대전: '3', 대구: '4', 광주: '5', 부산: '6', 울산: '7', 세종: '8',
+  경기: '31', 강원: '32', 충북: '33', 충남: '34', 전북: '35', 전남: '36', 경북: '37', 경남: '38', 제주: '39',
+};
+
+/**
+ * 자연어 요청을 TourAPI 4.0 JSON 쿼리 파라미터로 변환하는 Query Parser
+ * @param {string} naturalLanguagePrompt
+ */
+export function parseHanokQuery(naturalLanguagePrompt) {
+  const prompt = String(naturalLanguagePrompt ?? '');
+  let areaCode;
+  for (const [region, code] of Object.entries(AREA_CODES)) {
+    if (prompt.includes(region)) {
+      areaCode = code;
+      break;
+    }
+  }
+
+  let catConfig = CATEGORY_MAPPINGS.VILLAGE;
+  if (prompt.includes('숙소') || prompt.includes('숙박') || prompt.includes('스테이') || prompt.includes('민박')) {
+    catConfig = CATEGORY_MAPPINGS.STAY_HANOK;
+  } else if (prompt.includes('궁') || prompt.includes('궁궐') || prompt.includes('성') || prompt.includes('관아')) {
+    catConfig = CATEGORY_MAPPINGS.PALACE;
+  } else if (prompt.includes('고택') || prompt.includes('종택') || prompt.includes('생가')) {
+    catConfig = CATEGORY_MAPPINGS.HERITAGE_HOUSE;
+  }
+
+  const isKeywordSearch = prompt.includes('검색') || (!areaCode && !prompt.includes('한옥') && !prompt.includes('마을'));
+
+  return {
+    endpoint: isKeywordSearch ? 'searchKeyword1' : 'areaBasedList1',
+    queryParams: {
+      ...(isKeywordSearch ? { keyword: prompt } : {}),
+      contentTypeId: catConfig.contentTypeId,
+      ...(areaCode ? { areaCode } : {}),
+      cat1: catConfig.cat1,
+      cat2: catConfig.cat2,
+      cat3: catConfig.cat3,
+      arrange: 'C',
+      numOfRows: 20,
+    },
+  };
+}
+

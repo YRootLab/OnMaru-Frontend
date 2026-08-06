@@ -11,10 +11,14 @@ import {
   locationBased,
   searchFestival,
   detailPetTour,
+  areaBasedList,
+  CATEGORY_MAPPINGS,
+  parseHanokQuery,
   getCallStats,
   itemsOf,
   totalOf,
   stripTags,
+  toHttps,
 } from './lib/tourapi.mjs';
 
 const OUT_DIR = 'public/data';
@@ -36,32 +40,84 @@ const ADDR_PREFIX = {
   제주특별자치도: '제주',
 };
 
-const VILLAGE_KEYWORDS = ['한옥마을', '민속마을', '전통마을'];
+const VILLAGE_KEYWORDS = [
+  '한옥마을', '민속마을', '전통마을', '경복궁', '창덕궁', '덕수궁',
+  '고택', '종택', '서원', '향교', '돌담길', '민속촌', '한옥',
+];
+const HERITAGE_MATCH_WORDS = [
+  '마을', '촌', '궁', '전', '재', '당', '원', '장', '택', '가',
+  '정', '루', '길', '한옥', '고택', '종택', '서원', '향교', '유적',
+];
 const VILLAGE_ALLOWED_TYPE_IDS = ['12', '14'];
 const VILLAGE_EXCLUDE_WORDS = [
   '게스트하우스', '펜션', '민박', '카페', '식당',
-  '체험관', '공예관', '전시관', '주차장',
+  '공예관', '전시관', '주차장',
 ];
 
 const STAY_KEYWORDS = ['한옥', '고택', '종택', '한옥스테이'];
 const STAY_EXCLUDE_WORDS = ['펜션', '모텔', '호텔', '리조트', '게스트하우스', '뷰'];
 
 const BADGE_PRIORITY = {
-  세계유산: 100, 문화재: 90, 민속마을: 80, 고택: 75, 슬로시티: 72,
-  조선시대: 70, 취사가능: 68, 바베큐: 65, 돌담길: 60, 주차가능: 55,
-  반려동물: 52, 체험가능: 50, 신조성마을: 35,
+  세계유산: 100, 국가지정: 95, 민속마을: 90, 시도지정: 85,
+  보존마을: 82, 고택: 80, '서원·향교': 78, 기와집: 76, 초가: 75,
+  조선시대: 70, 고려시대: 70, 근대건축: 68, '600년': 65,
+  돌담길: 60, 전통정원: 58, 강변: 56, 산자락: 55, 바다: 54, 한옥골목: 52,
+  숙박가능: 50, 전통체험: 48, 드라마촬영: 46, 한복: 45, 다도: 44, 공예: 42,
+  전통음식: 40, 공연: 38, 축제: 36, 포토스팟: 35, 도심접근: 34, 주차가능: 30, 무장애: 28, 대규모: 25,
+  취사가능: 68, 바베큐: 65, 반려동물: 52, 체험가능: 50, 신조성마을: 35,
 };
 
 const BADGE_RULES = [
-  { badge: '세계유산', keywords: ['세계유산', '유네스코'] },
-  { badge: '문화재', keywords: ['문화재', '보물', '국보', '사적'] },
-  { badge: '민속마을', keywords: ['민속마을', '민속자료'] },
-  { badge: '고택', keywords: ['고택', '종택'] },
-  { badge: '슬로시티', keywords: ['슬로시티', '슬로우시티'] },
-  { badge: '조선시대', keywords: ['조선'] },
-  { badge: '돌담길', keywords: ['돌담', '담장'] },
-  { badge: '체험가능', keywords: ['체험'] },
-  { badge: '신조성마을', keywords: ['신축', '현대식 한옥'] },
+  // ─── 지정·인증 (신뢰도) ───────────────
+  { badge: '세계유산',   keywords: ['세계유산', '유네스코', 'UNESCO'] },
+  { badge: '국가지정',   keywords: ['국보', '보물', '사적', '명승'] },
+  { badge: '민속마을',   keywords: ['중요민속문화재', '국가민속문화재', '민속마을'] },
+  { badge: '시도지정',   keywords: ['시도지정', '유형문화재', '기념물'] },
+
+  // ─── 시대 ───────────────────────────
+  { badge: '조선시대',   keywords: ['조선', '이조'] },
+  { badge: '고려시대',   keywords: ['고려'] },
+  { badge: '근대건축',   keywords: ['일제강점기', '근대', '개항'] },
+  { badge: '600년',     keywords: ['600년', '육백년'] },
+
+  // ─── 건축 유형 ───────────────────────
+  { badge: '고택',      keywords: ['고택', '종택', '종가'] },
+  { badge: '초가',      keywords: ['초가', '초가집', '초가지붕'] },
+  { badge: '기와집',    keywords: ['기와집', '와가'] },
+  { badge: '서원·향교',  keywords: ['서원', '향교', '書院'] },
+  { badge: '정자·누각',  keywords: ['정자', '누각', '누정'] },
+  { badge: '사당',      keywords: ['사당', '재실'] },
+
+  // ─── 경관 ───────────────────────────
+  { badge: '돌담길',    keywords: ['돌담', '담장', '토담'] },
+  { badge: '한옥골목',  keywords: ['골목', '골목길'] },
+  { badge: '강변',      keywords: ['강변', '낙동강', '섬진강', '금강', '하천'] },
+  { badge: '산자락',    keywords: ['산자락', '산기슭', '배산임수'] },
+  { badge: '바다',      keywords: ['바다', '해변', '해안'] },
+  { badge: '전통정원',  keywords: ['정원', '원림', '연못', '정원'] },
+
+  // ─── 체험·활동 ───────────────────────
+  { badge: '숙박가능',  keywords: ['숙박', '민박', '한옥스테이', '체험숙박'] },
+  { badge: '전통체험',  keywords: ['체험', '체험관', '체험프로그램'] },
+  { badge: '공예',      keywords: ['공예', '도자기', '한지', '옻칠', '장인'] },
+  { badge: '전통음식',  keywords: ['향토음식', '한정식', '전통음식', '종가음식'] },
+  { badge: '한복',      keywords: ['한복', '한복대여'] },
+  { badge: '다도',      keywords: ['다도', '차문화', '전통차'] },
+  { badge: '공연',      keywords: ['공연', '판소리', '국악', '풍물'] },
+  { badge: '축제',      keywords: ['축제', '행사'] },
+
+  // ─── 촬영·미디어 ─────────────────────
+  { badge: '드라마촬영', keywords: ['드라마', '영화', '촬영지', '로케이션'] },
+  { badge: '포토스팟',  keywords: ['사진', '전망', '경치', '야경'] },
+
+  // ─── 접근성·편의 ─────────────────────
+  { badge: '도심접근',  keywords: ['도심', '시내', '역에서', '도보'] },
+  { badge: '무장애',    keywords: ['휠체어', '무장애', '경사로'] },
+  { badge: '주차가능',  keywords: ['주차장', '주차'] },
+
+  // ─── 규모 ───────────────────────────
+  { badge: '대규모',    keywords: ['최대', '가장 큰', '수백 채', '군락'] },
+  { badge: '보존마을',  keywords: ['원형 보존', '집성촌', '동성마을'] },
 ];
 
 const BRACKET_BADGE = {
@@ -88,8 +144,12 @@ export function regionOf(areaCode, addr) {
 
 export function classifyType(region, addr, name, override) {
   if (override) return override;
+  const combined = `${name} ${addr}`;
+  if (combined.includes('궁') || combined.includes('궁궐')) return '궁궐 한옥';
+  if (combined.includes('서원') || combined.includes('향교')) return '서원·향교';
+  if (combined.includes('고택') || combined.includes('종택') || combined.includes('선교장') || combined.includes('종가')) return '사대부 고택';
   if (METRO.includes(region)) return '도심형';
-  if (`${addr} ${name}`.includes('전주')) return '도심형';
+  if (combined.includes('전주')) return '도심형';
   return '체험형';
 }
 
@@ -196,7 +256,7 @@ async function main() {
           const typeId = String(item.contenttypeid ?? '');
           const title = String(item.title ?? '');
           if (!VILLAGE_ALLOWED_TYPE_IDS.includes(typeId)) continue;
-          if (!title.includes('마을') && !title.includes('촌')) continue;
+          if (!HERITAGE_MATCH_WORDS.some((w) => title.includes(w))) continue;
           if (VILLAGE_EXCLUDE_WORDS.some((w) => title.includes(w))) continue;
           const id = String(item.contentid ?? '');
           if (id && !excludedSet.has(id)) byId.set(id, item);
@@ -204,6 +264,22 @@ async function main() {
       } catch (err) {
         console.warn(`  ! 마을 수집 실패 ('${keyword}'): ${err.message}`);
         errors.push({ step: 'STEP 1', target: keyword, error: err.message });
+      }
+    }
+
+    // TourAPI 4.0 카테고리 기반 수집 (궁궐 A02010300, 고택 A02010100, 한옥마을 A02010800)
+    const categoryConfigs = [CATEGORY_MAPPINGS.PALACE, CATEGORY_MAPPINGS.HERITAGE_HOUSE, CATEGORY_MAPPINGS.VILLAGE];
+    for (const cfg of categoryConfigs) {
+      try {
+        const json = await areaBasedList({ ...cfg, arrange: 'C', numOfRows: 50 });
+        const items = itemsOf(json);
+        console.log(`  · areaBasedList(cat3=${cfg.cat3}) ${items.length}건 수신`);
+        for (const item of items) {
+          const id = String(item.contentid ?? '');
+          if (id && !excludedSet.has(id)) byId.set(id, item);
+        }
+      } catch (err) {
+        console.warn(`  ! areaBasedList 수집 실패 (cat3=${cfg.cat3}): ${err.message}`);
       }
     }
 
@@ -291,7 +367,7 @@ async function main() {
         const overview = stripTags(detail.overview);
         const lat = Number(detail.mapy ?? item.mapy);
         const lng = Number(detail.mapx ?? item.mapx);
-        let image = String(detail.firstimage ?? item.firstimage ?? '').trim();
+        let image = toHttps(detail.firstimage ?? item.firstimage);
         let copyright = null;
 
         // 대표 이미지 없으면 detailImage 폴백 + 공공누리 저작권 정보
@@ -300,7 +376,7 @@ async function main() {
             const imgJson = await detailImage(id);
             const imgs = itemsOf(imgJson);
             if (imgs.length > 0) {
-              image = String(imgs[0].originimgurl ?? imgs[0].imgname ?? '').trim();
+              image = toHttps(imgs[0].originimgurl ?? imgs[0].imgname);
               copyright = {
                 title: imgs[0].imgname ?? imgs[0].cpktitle ?? '',
                 typeCode: imgs[0].cpyrhtTypeCd ?? '',
@@ -405,7 +481,7 @@ async function main() {
           id: String(loc.contentid),
           title: stripTags(loc.title),
           addr: stripTags(loc.addr1),
-          image: loc.firstimage ?? '',
+          image: toHttps(loc.firstimage),
           distKm: getDistanceKm(item.lat, item.lng, Number(loc.mapy), Number(loc.mapx)),
         })).sort((a, b) => a.distKm - b.distKm);
       } catch {
@@ -449,7 +525,7 @@ async function main() {
           addr: stripTags(fest.addr1),
           eventStartDate: fest.eventstartdate,
           eventEndDate: fest.eventenddate,
-          image: fest.firstimage ?? '',
+          image: toHttps(fest.firstimage),
           lat: fLat,
           lng: fLng,
         });
@@ -575,13 +651,13 @@ async function selfCheck() {
   assert.equal(parseTitle('가 [X] 나').name, '가 나', '제거 후 공백 정리');
 
   // 뱃지 — 우선순위 내림차순, 중복 제거
-  assert.deepEqual(parseBadges('조선시대 사적으로 지정된 고택, 돌담길'), ['문화재', '고택', '조선시대', '돌담길']);
+  assert.deepEqual(parseBadges('조선시대 사적으로 지정된 고택, 돌담길'), ['국가지정', '고택', '조선시대', '돌담길']);
   assert.deepEqual(parseBadges('마을', ['세계유산']), ['세계유산'], '대괄호 유래 뱃지 병합');
   assert.deepEqual(parseBadges('유네스코 세계유산', ['세계유산']), ['세계유산'], '중복 제거');
   assert.deepEqual(parseBadges('마을', [], {}, ['신조성마을']), ['신조성마을'], 'curation.badges 수동 부여');
   // '조성'을 키워드로 쓰면 북촌("조선시대에 조성된")·외암("저잣거리가 조성되어")이 전부 오분류된다
   assert.ok(!parseBadges('북촌은 조선시대에 조성된 양반층 주거지').includes('신조성마을'), "'조성'만으로는 신조성마을이 붙지 않는다");
-  assert.equal(parseBadges('문화재 고택 조선 돌담 체험 유네스코 신축').length, MAX_BADGES, `최대 ${MAX_BADGES}개`);
+  assert.equal(parseBadges('국가지정 사적 고택 조선 돌담 체험 유네스코 신축').length, MAX_BADGES, `최대 ${MAX_BADGES}개`);
 
   // 숙소 시설 정보 → 뱃지
   assert.ok(parseBadges('한옥', [], { chkcooking: '가능' }).includes('취사가능'));
