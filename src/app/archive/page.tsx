@@ -52,31 +52,64 @@ const Description = styled.p`
   margin: 0;
 `;
 
-const FilterBar = styled.div`
-  display: flex;
+const SegmentedControl = styled.div`
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 32px;
-  border-bottom: 1px solid rgba(25, 22, 19, 0.1);
-  padding-bottom: 16px;
-  flex-wrap: wrap;
+  background: rgba(140, 130, 115, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 4px;
+  border-radius: 9999px;
+  border: 1px solid rgba(25, 22, 19, 0.06);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+  gap: 2px;
+  margin-bottom: 36px;
+  max-width: 100%;
+  overflow-x: auto;
+
+  /* 스크롤바 숨기기 */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 `;
 
-const FilterTab = styled.button<{ active: boolean }>`
-  background: ${({ active }) => (active ? '#1c1a17' : 'transparent')};
-  color: ${({ active }) => (active ? '#ffffff' : '#655b4d')};
-  border: 1px solid ${({ active }) => (active ? '#1c1a17' : 'rgba(25, 22, 19, 0.15)')};
-  border-radius: 20px;
-  padding: 6px 16px;
-  font-size: 13px;
-  font-weight: 500;
+const SegmentItem = styled.button<{ active: boolean }>`
+  position: relative;
+  border: none;
+  background: transparent;
+  padding: 8px 20px;
+  font-size: 13.5px;
+  font-weight: ${({ active }) => (active ? '600' : '450')};
+  color: ${({ active }) => (active ? '#1c1a17' : '#736b5e')};
   cursor: pointer;
-  transition: all 0.2s ease;
+  outline: none;
+  border-radius: 9999px;
+  transition: color 0.2s ease;
+  user-select: none;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   &:hover {
-    border-color: #1c1a17;
-    color: ${({ active }) => (active ? '#ffffff' : '#1c1a17')};
+    color: #1c1a17;
   }
+`;
+
+const ActiveSegmentPill = styled(motion.div)`
+  position: absolute;
+  inset: 0;
+  background: #ffffff;
+  border-radius: 9999px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  z-index: 0;
+`;
+
+const SegmentText = styled.span`
+  position: relative;
+  z-index: 1;
 `;
 
 const ArchiveGrid = styled.div`
@@ -191,24 +224,35 @@ export default function ArchiveDemoPage() {
   return (
     <Container>
       <HeaderSection>
-        <Subtitle>ON-MARU ARCHIVE</Subtitle>
-        <Title>한옥 아카이브</Title>
+        <Subtitle>ON-MARU COMPENDIUM</Subtitle>
+        <Title>한옥도감</Title>
         <Description>
-          우리 한옥의 기단, 기둥, 마루부터 기와지붕까지 — 역사와 아름다움을 보존하는 3D 디지털 아카이브 체계입니다.
+          우리 한옥의 기단, 기둥, 마루부터 기와지붕까지 — 역사와 아름다움을 담아낸 디지털 한옥도감입니다.
         </Description>
       </HeaderSection>
 
-      <FilterBar>
-        {categories.map((cat) => (
-          <FilterTab
-            key={cat}
-            active={activeCategory === cat}
-            onClick={() => setActiveCategory(cat)}
-          >
-            {cat}
-          </FilterTab>
-        ))}
-      </FilterBar>
+      <SegmentedControl role="tablist" aria-label="한옥도감 카테고리">
+        {categories.map((cat) => {
+          const isActive = activeCategory === cat;
+          return (
+            <SegmentItem
+              key={cat}
+              active={isActive}
+              onClick={() => setActiveCategory(cat)}
+              role="tab"
+              aria-selected={isActive}
+            >
+              {isActive && (
+                <ActiveSegmentPill
+                  layoutId="activeSegmentPill"
+                  transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+                />
+              )}
+              <SegmentText>{cat}</SegmentText>
+            </SegmentItem>
+          );
+        })}
+      </SegmentedControl>
 
       <ArchiveGrid>
         {filteredItems.map((item) => (
