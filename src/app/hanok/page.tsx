@@ -213,7 +213,7 @@ const ARCHIVE_ITEMS = [
   },
 ];
 
-export default function ArchiveDemoPage() {
+export default function HanokPage() {
   const [activeCategory, setActiveCategory] = useState('전체');
   const categories = ['전체', '궁궐 건축', '민가 주택', '종택 건축'];
 

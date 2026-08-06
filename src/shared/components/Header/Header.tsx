@@ -265,7 +265,7 @@ export default function Header() {
 
       {/* 가운데: 한옥도감, 지도 (드롭다운), 소리마루 */}
       <CenterNav>
-        <NavLink href="/archive" $isLanding={isLandingPage}>
+        <NavLink href="/hanok" $isLanding={isLandingPage}>
           한옥도감
         </NavLink>
 
