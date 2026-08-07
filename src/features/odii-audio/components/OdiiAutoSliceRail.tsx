@@ -248,24 +248,25 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
                       <span>{currentStory.stid === lead.stid && isPlaying ? '일시정지' : '이야기 듣기'}</span>
                       <span className="text-[11px] font-normal text-[#655b4d]">{lead.formattedDuration}</span>
                     </button>
-                    <div
-                      className="flex h-4 items-end gap-[2px] opacity-75"
-                      aria-label={currentStory.stid === lead.stid && isPlaying ? '재생 중' : '재생 대기'}
-                    >
-                      {[0, 1, 2, 3, 4].map((bar) => {
-                        const isLeadPlaying = currentStory.stid === lead.stid && isPlaying;
-                        return (
+                    {currentStory.stid === lead.stid && isPlaying ? (
+                      <div
+                        className="flex h-4 items-end gap-[2px] opacity-90"
+                        aria-label="재생 중"
+                      >
+                        {[0, 1, 2, 3, 4].map((bar) => (
                           <motion.span
                             key={bar}
-                            animate={isLeadPlaying ? { height: ['4px', '13px', '6px', '10px', '4px'] } : { height: '4px' }}
-                            transition={isLeadPlaying
-                              ? { duration: 0.9 + bar * 0.08, repeat: Infinity, ease: 'easeInOut', delay: bar * 0.05 }
-                              : { duration: 0.2 }}
-                            className="w-[2px] rounded-full bg-white/80"
+                            animate={{ height: ['4px', '13px', '6px', '10px', '4px'] }}
+                            transition={{ duration: 0.9 + bar * 0.08, repeat: Infinity, ease: 'easeInOut', delay: bar * 0.05 }}
+                            className="w-[2px] rounded-full bg-white"
                           />
-                        );
-                      })}
-                    </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="flex items-center text-white/70" aria-label="재생 대기">
+                        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07" /></svg>
+                      </div>
+                    )}
                   </div>
                   </motion.div>
                 </AnimatePresence>
@@ -339,7 +340,8 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
                         x: { duration: 0.4, ease: [0.16, 1, 0.3, 1] },
                         y: { duration: 0.42, ease: [0.16, 1, 0.3, 1] },
                       }}
-                      className="group relative h-[68px] w-full overflow-hidden rounded-lg border border-white/20 bg-[#211e19]/[0.1] text-left shadow-[0_8px_20px_rgba(43,35,26,0.12)] ring-1 ring-white/15 backdrop-blur-sm transition-[box-shadow,ring-color] duration-300 hover:border-white/35 hover:ring-white/45 hover:shadow-[0_12px_26px_rgba(43,35,26,0.18)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a94d35]"
+                      style={{ width: '100%' }}
+                      className="group relative h-[68px] w-full shrink-0 overflow-hidden rounded-lg border border-white/20 bg-[#211e19]/[0.1] text-left shadow-[0_8px_20px_rgba(43,35,26,0.12)] ring-1 ring-white/15 backdrop-blur-sm transition-[box-shadow,ring-color] duration-300 hover:border-white/35 hover:ring-white/45 hover:shadow-[0_12px_26px_rgba(43,35,26,0.18)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a94d35]"
                     >
                       <img
                         src={imgUrl}
