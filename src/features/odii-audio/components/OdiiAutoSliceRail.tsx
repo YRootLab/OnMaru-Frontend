@@ -283,7 +283,7 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
               </div>
 
               {/* 메인 장면 오른쪽 서브 비주얼 카드 고정 규격 (찌부됨 방지) */}
-              <div className="pointer-events-none relative order-first mx-auto h-[198px] w-[150px] shrink-0 rounded-[1.2rem] border border-white/25 bg-white/10 shadow-[0_14px_30px_rgba(0,0,0,0.12)] sm:order-none sm:h-[198px] sm:w-[150px] md:h-[202px] lg:h-[211px] lg:w-[160px] overflow-hidden">
+              <div className="pointer-events-none relative order-first mx-auto h-[198px] w-[150px] shrink-0 rounded-[1.2rem] border border-white/25 bg-white/10 shadow-[0_14px_30px_rgba(0,0,0,0.12)] sm:order-none sm:h-[198px] sm:w-[150px] md:h-[202px] lg:h-[211px] lg:w-[160px] overflow-visible">
                 <div className="relative z-10 h-full w-full overflow-hidden rounded-[1.1rem]">
                   <AnimatePresence initial={false} mode="sync">
                     <motion.div
@@ -303,18 +303,18 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
                     </motion.div>
                   </AnimatePresence>
                 </div>
-              </div>
 
-              {/* 섬네일의 오른쪽 끝 엣지 수직 중앙 위치에 얹히는 다음 탐색 버튼 */}
-              <div className="pointer-events-auto absolute right-0 translate-x-1/2 top-1/2 z-30 -translate-y-1/2">
-                <button
-                  type="button"
-                  aria-label="다음 이야기"
-                  onClick={() => move(1)}
-                  className="flex h-10 w-11 items-center justify-center rounded-xl border border-white/60 bg-white/95 text-[#211e19] shadow-[0_8px_24px_rgba(0,0,0,0.25)] transition-[background-color,transform] duration-300 hover:scale-105 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-                >
-                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="m9 5 7 7-7 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                </button>
+                {/* 서브 섬네일 카드의 오른쪽 border 지점에 수직 중앙으로 얹히는 다음 탐색 버튼 */}
+                <div className="pointer-events-auto absolute right-0 translate-x-1/2 top-1/2 z-30 -translate-y-1/2">
+                  <button
+                    type="button"
+                    aria-label="다음 이야기"
+                    onClick={() => move(1)}
+                    className="flex h-10 w-11 items-center justify-center rounded-xl border border-white/60 bg-white/95 text-[#211e19] shadow-[0_8px_24px_rgba(0,0,0,0.25)] transition-[background-color,transform] duration-300 hover:scale-105 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                  >
+                    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="m9 5 7 7-7 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
