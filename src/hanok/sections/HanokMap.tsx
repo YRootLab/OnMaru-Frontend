@@ -12,7 +12,7 @@ const HanokInteractiveMapFrame = dynamic(() => import('./HanokInteractiveMapFram
   ssr: false,
   loading: () => (
     <MapLoadingState>
-      지도를 불러오는 중입니다...
+      지도를 불러오는 중
     </MapLoadingState>
   ),
 });
@@ -48,9 +48,9 @@ export default function HanokMap({ villages, onSelectVillage }: HanokMapProps) {
     <Section id="map" aria-labelledby="map-heading">
       <SectionHeader
         id="map-heading"
-        title="전국 전통 한옥 시공간 지도 인터랙션"
-        subtitle="지역 선택에 따라 좌측에 펼쳐지는 한옥 스토리와 대표 유산 큐레이션"
-        actionLabel="전체 정보지도 열기 ↗"
+        title="전국 지도"
+        subtitle="지역을 선택하면 그곳의 한옥 이야기와 대표 유산을 보여드립니다"
+        actionLabel="전체 지도 열기 ↗"
         actionHref="/map"
       />
 

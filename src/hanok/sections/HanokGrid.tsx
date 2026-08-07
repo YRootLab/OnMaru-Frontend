@@ -91,8 +91,8 @@ export default function HanokGrid({ villages, onSelectVillage }: HanokGridProps)
     <Section id="grid" aria-labelledby="grid-heading">
       <SectionHeader
         id="grid-heading"
-        title="전통 한옥 & 문화유산 도감"
-        subtitle={`궁궐, 고택, 서원부터 공공한옥과 전통마을까지 (${filtered.length}곳)`}
+        title="한옥 도감"
+        subtitle={`궁궐부터 고택·서원·전통마을까지 ${filtered.length}곳`}
       />
 
       <FilterBar
@@ -128,7 +128,7 @@ export default function HanokGrid({ villages, onSelectVillage }: HanokGridProps)
         </>
       ) : (
         <EmptyState role="status" aria-live="polite">
-          해당 조건에 맞는 명소가 없습니다
+          조건에 맞는 한옥이 없습니다. 필터를 지우고 다시 찾아보세요.
         </EmptyState>
       )}
     </Section>

@@ -88,9 +88,9 @@ const HamburgerBtn = styled.button`
 `;
 
 const MENU_ITEMS: { label: string; href: string; section: SectionId }[] = [
-  { label: '마을 목록', href: '#grid', section: 'grid' },
-  { label: '지도', href: '#map', section: 'map' },
-  { label: '이 달의 한옥', href: '#monthly', section: 'monthly' },
+  { label: '한옥 도감', href: '#grid', section: 'grid' },
+  { label: '전국 지도', href: '#map', section: 'map' },
+  { label: '이달의 한옥', href: '#monthly', section: 'monthly' },
 ];
 
 interface ArchiveNavProps {

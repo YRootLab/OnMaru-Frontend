@@ -264,7 +264,7 @@ const FALLBACK_STAYS: Village[] = [
     badges: ['고택숙박', '세계유산', '전통정원'],
     image: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=1200&q=80',
     hasImage: true,
-    summary: '300년 전통 사대부 가옥 열화당에서 거니는 명품 고택 체류 공간입니다.',
+    summary: '300년 사대부 가옥 열화당과 연못 정자 활래정.',
     overview: '조선 사대부 대저택 강릉 선교장에서 선비의 기품과 수중 정자 활래정의 정취를 누리며 머무는 품격 높은 한옥 스테이입니다.',
   },
   {
@@ -278,7 +278,7 @@ const FALLBACK_STAYS: Village[] = [
     badges: ['민속문화재', '고택숙박', '도심접근'],
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
     hasImage: true,
-    summary: '1908년 건립된 전주 한옥마을 내 최고(最古) 사대부 한옥 스테이 명소.',
+    summary: '1908년에 지은 전주 한옥마을 최고(最古) 고택.',
     overview: '조선 왕실 후손이 건립한 전주 대표 한옥 학인당은 100년이 넘는 기와지붕과 고풍스러운 툇마루에서 전통 차와 온돌의 온기를 전합니다.',
   },
   {
@@ -292,7 +292,7 @@ const FALLBACK_STAYS: Village[] = [
     badges: ['산자락', '호수뷰', '고택숙박'],
     image: 'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=1200&q=80',
     hasImage: true,
-    summary: '임하호 호수 정경과 아침 안개가 어우러지는 사대부 예술 고택 휴식처.',
+    summary: '임하호 물안개를 마루에서 바라보는 산자락 고택.',
     overview: '물안개 피어오르는 임하호 산자락 끝에 위치하여 툇마루에 앉아 자연의 쉼을 만끽하는 고즈넉한 사대부 한옥 스테이입니다.',
   },
   {
@@ -306,7 +306,7 @@ const FALLBACK_STAYS: Village[] = [
     badges: ['첨성대근처', '조선시대', '포토스팟'],
     image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80',
     hasImage: true,
-    summary: '첨성대 및 황리단길 인근에 정결하게 조성된 사계절 전통 한옥 숙소.',
+    summary: '첨성대와 황리단길을 걸어서 오가는 경주 한옥.',
     overview: '첨성대와 대릉원 돌담길을 따라 걸을 수 있는 최적의 위치에 전통 기와지붕과 현대식 아늑함을 접목한 명품 한옥 스테이입니다.',
   },
   {
@@ -320,7 +320,7 @@ const FALLBACK_STAYS: Village[] = [
     badges: ['국가지정', '선비마을', '고택숙박'],
     image: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=1200&q=80',
     hasImage: true,
-    summary: '조선 5현 일두 정여창 선생의 생가 고택에서 만나는 수백년 선비 문화.',
+    summary: '조선 오현 정여창의 생가, 돌담과 솔숲의 개평마을.',
     overview: '돌담길과 솔숲이 어우러진 개평한옥마을의 으뜸 고택으로 조선 시대 사대부 가옥의 웅장함을 직접 입실해 경험할 수 있습니다.',
   },
   {
@@ -334,7 +334,7 @@ const FALLBACK_STAYS: Village[] = [
     badges: ['온돌구들', '전통체험', '공공건축물'],
     image: 'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=1200&q=80',
     hasImage: true,
-    summary: '친환경 소나무와 황토 온돌 구들장으로 참나무 장작불 훈기를 전하는 공주 친환경 숙소.',
+    summary: '참나무 장작으로 직접 불을 때는 황토 온돌방.',
     overview: '백제의 숨결이 흐르는 공주한옥마을 단지 내 전통 참나무 구들목 장작불을 직접 때는 최고급 온돌 힐링 한옥 스테이입니다.',
   },
   {
@@ -348,7 +348,7 @@ const FALLBACK_STAYS: Village[] = [
     badges: ['도심접근', '북한산뷰', '신조성마을'],
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
     hasImage: true,
-    summary: '북한산 웅장한 바위 절경을 안방 대창 너머로 감상하는 도심형 프라이빗 한옥스테이.',
+    summary: '안방 대창 너머로 북한산 절경이 드는 도심 한옥.',
     overview: '은평 한옥마을 정중앙에 위치하여 북한산 마루와 맑은 공기를 품고 도심 속 휴식을 제공하는 모던 프라이빗 한옥스테이입니다.',
   },
 ];
@@ -419,8 +419,8 @@ export default function HanokStayAccordion({
     <Section id="hanok-stays" aria-labelledby="stay-heading">
       <SectionHeader
         id="stay-heading"
-        title="머무름의 미학 — 지역별 한옥 고택 스테이"
-        subtitle={`300년 고택의 대청마루와 온돌 온기를 느껴보는 전국 명품 숙소 (총 ${regionFilteredStays.length}곳)`}
+        title="지역별 한옥 고택 스테이"
+        subtitle={`대청마루와 온돌을 갖춘 전국 고택 숙소 ${regionFilteredStays.length}곳`}
       />
 
       <RegionFilterBar>
@@ -483,7 +483,7 @@ export default function HanokStayAccordion({
                               onSelectVillage(item);
                             }}
                           >
-                            상세 정보 & 예약 <ArrowUpRight size={14} style={{ marginLeft: 4 }} />
+                            예약 정보 보기 <ArrowUpRight size={14} style={{ marginLeft: 4 }} />
                           </DetailActionBtn>
                         )}
                       </ActiveContentOverlay>
@@ -497,17 +497,19 @@ export default function HanokStayAccordion({
           {maxPages > 1 && (
             <ControlsRow>
               <BatchInfo>
-                {page + 1} / {maxPages} 페이지 (선택 지역 {regionFilteredStays.length}개 숙소)
+                {page + 1} / {maxPages} · {selectedRegion} {regionFilteredStays.length}곳
               </BatchInfo>
               <RefreshBtn onClick={handleNextBatch}>
-                <RotateCw size={14} /> 다른 한옥 스테이 더보기
+                <RotateCw size={14} /> 다른 스테이 보기
               </RefreshBtn>
             </ControlsRow>
           )}
         </>
       ) : (
         <EmptyState role="status" aria-live="polite">
-          선택하신 {selectedRegion} 지역에 등록된 한옥 스테이가 없습니다
+          {selectedRegion === '전체'
+            ? '등록된 한옥 스테이가 아직 없습니다.'
+            : `${selectedRegion}에 등록된 스테이가 없습니다. 다른 지역을 선택해 보세요.`}
         </EmptyState>
       )}
     </Section>

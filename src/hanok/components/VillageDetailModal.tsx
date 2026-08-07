@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { meok, lightPalette } from '@/design-system/tokens';
 import type { Village } from '@/hanok/types';
 
+
 const Overlay = styled(motion.div)`
   position: fixed;
   inset: 0;
@@ -156,6 +157,37 @@ const ExpandBtn = styled.button`
   }
 `;
 
+const OverviewSkeleton = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+`;
+
+const shimmer = `
+  @keyframes shimmer {
+    0% { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+  }
+`;
+
+const SkeletonLine = styled.div`
+  height: 14px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, ${meok[200]} 25%, #e8e8e8 50%, ${meok[200]} 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+  ${shimmer}
+`;
+
+const EmptyOverview = styled.p`
+  font-size: 14px;
+  color: ${meok[400]};
+  font-style: italic;
+  margin: 0 0 20px;
+`;
+
+
 const BadgeTitle = styled.div`
   font-size: 12px;
   font-weight: 600;
@@ -217,13 +249,34 @@ export default function VillageDetailModal({
   onClose,
 }: VillageDetailModalProps) {
   const [isExpanded, setIsExpanded] = React.useState(false);
+  const [fetchedOverview, setFetchedOverview] = React.useState<string | null>(null);
+  const [isLoadingOverview, setIsLoadingOverview] = React.useState(false);
 
   React.useEffect(() => {
     setIsExpanded(false);
+    setFetchedOverview(null);
+
+    if (!village) return;
+
+    // 이미 충분한 내용이 있으면 추가 fetch 불필요
+    const existing = village.overview || village.summary || '';
+    const isFallback = existing.includes(' — ') && existing.length < 80;
+    if (!isFallback && existing.length > 60) return;
+
+    // 상세 overview fetch
+    setIsLoadingOverview(true);
+    fetch(`/api/tourapi/detail?id=${village.id}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.overview) setFetchedOverview(data.overview);
+      })
+      .catch(() => {/* 실패 시 기존 데이터 유지 */})
+      .finally(() => setIsLoadingOverview(false));
   }, [village]);
 
-  const rawOverview = village?.overview || village?.summary || '';
+  const rawOverview = fetchedOverview || village?.overview || village?.summary || '';
   const isLongText = rawOverview.length > 300;
+
 
   return (
     <AnimatePresence>
@@ -261,11 +314,23 @@ export default function VillageDetailModal({
                 </AddrText>
               </MetaRow>
 
-              <Overview $expanded={isExpanded}>{rawOverview}</Overview>
+              {isLoadingOverview ? (
+                <OverviewSkeleton>
+                  <SkeletonLine style={{ width: '100%' }} />
+                  <SkeletonLine style={{ width: '92%' }} />
+                  <SkeletonLine style={{ width: '96%' }} />
+                  <SkeletonLine style={{ width: '78%' }} />
+                </OverviewSkeleton>
+              ) : rawOverview && !rawOverview.includes(' — ') ? (
+                <Overview $expanded={isExpanded}>{rawOverview}</Overview>
+              ) : (
+                <EmptyOverview>상세 설명이 아직 없습니다.</EmptyOverview>
+              )}
 
-              {isLongText && !isExpanded && (
+              {!isLoadingOverview && isLongText && !isExpanded && (
                 <ExpandBtn onClick={() => setIsExpanded(true)}>
-                  전체 내용 더보기 <ChevronDown size={14} />
+                  더 보기 <ChevronDown size={14} />
+
                 </ExpandBtn>
               )}
 

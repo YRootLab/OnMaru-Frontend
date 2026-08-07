@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { meok } from '@/design-system/tokens';
-import HanokHero from '@/hanok/sections/HanokHero';
 import HanokGrid from '@/hanok/sections/HanokGrid';
 import HanokMap from '@/hanok/sections/HanokMap';
 import HanokStayAccordion from '@/hanok/sections/HanokStayAccordion';
@@ -39,8 +38,10 @@ export default function HanokArchive({ villages, meta }: HanokArchiveProps) {
   return (
     <Root>
       <PageInner>
-        {/* 히어로 시네마틱 쇼케이스 */}
-        <HanokHero villages={villages} onSelectVillage={setSelectedVillage} />
+        {/* 이 달의 한옥 큐레이션 (첫번째 인트로 섹션) */}
+        <SectionWrapper style={{ paddingTop: 'clamp(24px, 4vh, 48px)' }}>
+          <HanokMonthly villages={villages} onSelectVillage={setSelectedVillage} />
+        </SectionWrapper>
 
         {/* 전통 한옥 & 문화유산 도감 그리드 */}
         <SectionWrapper>
@@ -55,11 +56,6 @@ export default function HanokArchive({ villages, meta }: HanokArchiveProps) {
         {/* 한옥 고택 스테이 확장형 아코디언 컬렉션 */}
         <SectionWrapper>
           <HanokStayAccordion villages={villages} onSelectVillage={setSelectedVillage} />
-        </SectionWrapper>
-
-        {/* 이 달의 한옥 큐레이션 */}
-        <SectionWrapper>
-          <HanokMonthly villages={villages} onSelectVillage={setSelectedVillage} />
         </SectionWrapper>
 
         {/* 온마루 한옥 매니페스토 */}

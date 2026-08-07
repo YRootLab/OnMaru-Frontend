@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { meok, lightPalette } from '@/design-system/tokens';
 
-import { TreePine, Home, Leaf, Coffee, Heart, Sparkles, Landmark, ArrowUpRight, ArrowRight } from 'lucide-react';
+import { Home, Leaf, ArrowUpRight, ArrowRight } from 'lucide-react';
 
 const Section = styled.section`
   padding: clamp(60px, 8vh, 120px) 0 clamp(40px, 6vh, 80px);
@@ -69,15 +69,17 @@ const ButtonRow = styled.div`
   flex-wrap: wrap;
 `;
 
-const CtaButton = styled(Link)<{ $primary?: boolean }>`
+const CtaButton = styled(Link, {
+  shouldForwardProp: (prop) => prop !== '$primary',
+})<{ $primary?: boolean }>`
   display: inline-flex;
   align-items: center;
   gap: 8px;
   background: ${({ $primary }) =>
-    $primary ? meok[900] : 'rgba(255, 255, 255, 0.9)'};
+    $primary ? lightPalette.kobalt[500] : 'rgba(255, 255, 255, 0.9)'};
   color: ${({ $primary }) => ($primary ? '#ffffff' : meok[900])};
   border: 1px solid
-    ${({ $primary }) => ($primary ? meok[900] : 'rgba(0, 0, 0, 0.12)')};
+    ${({ $primary }) => ($primary ? lightPalette.kobalt[500] : 'rgba(0, 0, 0, 0.12)')};
   font-size: 14.5px;
   font-weight: 700;
   padding: 14px 28px;
@@ -88,7 +90,7 @@ const CtaButton = styled(Link)<{ $primary?: boolean }>`
 
   &:hover {
     background: ${({ $primary }) =>
-      $primary ? lightPalette.kobalt[500] : '#f8fafc'};
+      $primary ? lightPalette.kobalt[700] : '#f8fafc'};
     border-color: ${lightPalette.kobalt[500]};
     transform: translateY(-2px);
   }
@@ -104,21 +106,17 @@ export default function HanokManifestoCta() {
         transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
       >
         <ManifestoParagraph>
-          수백 년의 시간 <InlineIcon><TreePine /></InlineIcon>이 쌓인 한옥{' '}
-          <InlineIcon><Home /></InlineIcon>에서 자연 <InlineIcon><Leaf /></InlineIcon>의
-          숨결을 들읍니다. 문화유산의 지혜 <InlineIcon><Coffee /></InlineIcon>와
-          고택에서의 온전한 안식 <InlineIcon><Heart /></InlineIcon>이 현대의 기술{' '}
-          <InlineIcon><Sparkles /></InlineIcon>과 만나 당신의 삶에{' '}
-          <HighlightText>깊은 울림</HighlightText> <InlineIcon><Landmark /></InlineIcon>을
-          전합니다.
+          한옥 <InlineIcon><Home /></InlineIcon>은 지나간 유산이 아니라 지금의 쉼터{' '}
+          <InlineIcon><Leaf /></InlineIcon>입니다. 수백 년을 버틴 대청마루에서{' '}
+          <HighlightText>당신의 하루</HighlightText>를 쉬어 가세요.
         </ManifestoParagraph>
 
         <ButtonRow>
           <CtaButton href="/map" $primary>
-            전국 문화유산 지도 전체보기 <ArrowUpRight size={16} />
+            전국 지도 보기 <ArrowUpRight size={16} />
           </CtaButton>
           <CtaButton href="/guide">
-            체험 가이드 알아보기 <ArrowRight size={16} />
+            체험 가이드 보기 <ArrowRight size={16} />
           </CtaButton>
         </ButtonRow>
       </Container>

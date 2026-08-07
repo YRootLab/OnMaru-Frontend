@@ -287,15 +287,15 @@ const REGION_COORDS: Record<string, [number, number, number]> = {
 };
 
 const REGION_STORIES: Record<string, string> = {
-  전체: '대한민국 삼천리 강산에 펼쳐진 수백 년 전통의 궁궐, 고택, 서원과 한옥마을 좌표를 탐색하세요.',
-  서울: '경복궁, 창덕궁, 덕수궁부터 혜화동 한옥 주민센터와 북한산 자락 청운문학도서관까지 완벽하게 소화하는 도심 궁궐 유산의 거리.',
-  경북: '안동 하회마을, 병산서원 만대루, 경주 교촌마을 등 유교 문화와 사대부 종택의 본향.',
-  전북: '전주 한옥마을 학인당과 경기전 돌담길, 고풍스러운 호남 사대부의 가옥의 멋.',
-  경남: '함양 개평한옥마을 일두고택과 지리산 산자락 끝에 세워진 수백년 사대부 선비 가옥.',
-  충남: '공주한옥마을 참나무 구들장과 외암민속마을 돌담길이 선사하는 백제 및 사대부 문화의 숨결.',
-  강원: '강릉 선교장 열화당 대저택과 툇마루 너머 활래정 연못이 선사하는 동해 바람의 휴식.',
-  경기: '화성행궁 인근 전통 한옥 거리와 수원 남문 한옥 문화 탐색.',
-  전남: '해남 윤선도 고택과 나주 향교가 들려주는 남도 유학 문화의 정취.',
+  전체: '전국에 남은 궁궐과 고택, 서원과 한옥마을을 지도에서 찾아보세요.',
+  서울: '경복궁과 창덕궁부터 청운문학도서관까지, 도심에 남은 궁궐과 현대 한옥.',
+  경북: '안동 하회마을과 병산서원 만대루, 유교 문화와 종택의 본향.',
+  전북: '전주 한옥마을 학인당과 경기전 돌담길, 호남 사대부의 가옥.',
+  경남: '지리산 자락에 선 함양 개평한옥마을 일두고택.',
+  충남: '공주한옥마을의 구들장과 외암민속마을 돌담길.',
+  강원: '강릉 선교장 열화당과 연못 위 활래정.',
+  경기: '화성행궁 곁에 이어진 수원 남문 한옥 거리.',
+  전남: '해남 윤선도 고택과 나주 향교, 남도 유학의 자취.',
 };
 
 function MapController({ center, zoom }: { center: [number, number]; zoom: number }) {
@@ -349,11 +349,11 @@ export default function HanokInteractiveMapFrame({
           <PanelSubHeader>Heritage Stories</PanelSubHeader>
           <PanelTitle>
             {selectedRegion === '전체'
-              ? '전국 한옥유산 지도'
-              : `${selectedRegion} 한옥 이야기`}
+              ? '전국 한옥'
+              : `${selectedRegion} 한옥`}
           </PanelTitle>
           <PanelCountBadge>
-            등재 명소 {regionVillages.length}곳
+            {regionVillages.length}곳
           </PanelCountBadge>
 
           <PanelDesc>
@@ -435,7 +435,7 @@ export default function HanokInteractiveMapFrame({
                 <PopupAddr>{v.addr}</PopupAddr>
                 {onSelectVillage && (
                   <ViewBtn onClick={() => onSelectVillage(v)}>
-                    상세 보기 <ArrowRight size={13} style={{ marginLeft: 4 }} />
+                    자세히 보기 <ArrowRight size={13} style={{ marginLeft: 4 }} />
                   </ViewBtn>
                 )}
               </PopupContent>
