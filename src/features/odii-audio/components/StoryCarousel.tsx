@@ -237,9 +237,9 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories }) => {
           className="flex snap-x snap-mandatory gap-2.5 touch-pan-x cursor-grab overflow-x-auto px-6 py-8 active:cursor-grabbing [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:px-8"
           style={{ overflowAnchor: 'none' }}
         >
-          {stories.map((story) => (
+          {stories.map((story, index) => (
             <NearbyStoryCard
-              key={story.stid}
+              key={`${story.stid}-${index}`}
               story={story}
               isCurrent={currentStory.stid === story.stid}
               isPlaying={currentStory.stid === story.stid && isPlaying}
