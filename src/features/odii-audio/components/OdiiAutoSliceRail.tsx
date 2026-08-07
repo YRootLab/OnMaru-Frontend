@@ -179,19 +179,22 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
           {/* 메인 비주얼 배너 카드 (기존 메인은 왼쪽으로 퇴장, 오른쪽 서브가 왼쪽으로 당겨지며 메인 승격) */}
           <div className="relative min-h-[320px] min-w-0 flex-1 overflow-hidden rounded-[1.6rem] bg-[#6d6258] shadow-[0_18px_48px_rgba(43,35,26,0.16)] sm:min-h-[280px] md:h-[280px] md:min-h-0">
             
-            <AnimatePresence initial={false} mode="wait">
+            <AnimatePresence initial={false} mode="sync">
               <motion.div
                 key={`${lead.stid}-${activeIndex}`}
                 initial={{
                   opacity: 0,
+                  x: transitionDirection * 35,
                 }}
                 animate={{
                   opacity: 1,
+                  x: 0,
                 }}
                 exit={{
                   opacity: 0,
+                  x: transitionDirection * -35,
                 }}
-                transition={{ duration: 0.35, ease: 'easeOut' }}
+                transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
                 className="absolute inset-0 h-full w-full"
               >
                 {/* 전환 때 무거운 blur를 다시 그리지 않고 낮은 대비의 장면으로 분위기만 연결 */}
@@ -218,13 +221,13 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
             {/* 메인 카드 정보 및 버튼 */}
             <div className="pointer-events-none relative z-10 grid min-h-[320px] grid-cols-1 items-center gap-5 p-5 sm:min-h-[280px] sm:grid-cols-[minmax(0,1fr)_190px] sm:gap-7 sm:p-6 md:h-full md:min-h-0 lg:grid-cols-[minmax(0,1fr)_215px]">
               <div className="pointer-events-auto relative min-h-[176px] min-w-0 sm:min-h-[184px]">
-                <AnimatePresence initial={false} mode="wait">
+                <AnimatePresence initial={false} mode="sync">
                   <motion.div
                     key={`${lead.stid}-${activeIndex}`}
-                    initial={{ opacity: 0, x: transitionDirection * 16 }}
+                    initial={{ opacity: 0, x: transitionDirection * 28 }}
                     animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: transitionDirection * -16 }}
-                    transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                    exit={{ opacity: 0, x: transitionDirection * -28 }}
+                    transition={{ duration: 0.36, delay: 0.02, ease: [0.16, 1, 0.3, 1] }}
                     className="absolute inset-0 flex flex-col justify-center"
                   >
                   <span className="mb-3 inline-flex h-6 self-start items-center rounded-lg border border-white/20 bg-white/[0.12] px-2 text-[9px] font-semibold tracking-[0.04em] text-white/90 backdrop-blur-sm">
@@ -271,13 +274,13 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
               {/* 메인 장면은 같은 자리에 머물고, 다음 장면으로 조용히 교차 전환 */}
               <div className="pointer-events-none relative order-first mx-auto h-[198px] w-[75%] translate-x-2 rounded-[1rem] border border-white/20 bg-white/10 shadow-[0_14px_30px_rgba(0,0,0,0.07)] sm:order-none sm:h-[198px] sm:w-[75%] sm:translate-x-3 md:h-[202px] lg:h-[211px]">
                 <div className="relative z-10 h-full w-full overflow-hidden rounded-[0.95rem] bg-white/10">
-                  <AnimatePresence initial={false} mode="wait">
+                  <AnimatePresence initial={false} mode="sync">
                     <motion.div
                       key={`${lead.stid}-${activeIndex}`}
-                      initial={{ opacity: 0, x: transitionDirection * 20 }}
+                      initial={{ opacity: 0, x: transitionDirection * 35 }}
                       animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: transitionDirection * -20 }}
-                      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                      exit={{ opacity: 0, x: transitionDirection * -35 }}
+                      transition={{ duration: 0.38, delay: 0.04, ease: [0.16, 1, 0.3, 1] }}
                       className="absolute inset-0"
                     >
                       <img
