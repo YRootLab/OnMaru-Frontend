@@ -77,8 +77,16 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
 
   const lead = featured[activeIndex] ?? featured[0];
 
+  const isClickThrottledRef = useRef(false);
+
   const advanceTo = useCallback((targetIndex: number, direction = 1) => {
     if (featured.length < 2) return;
+    if (isClickThrottledRef.current) return;
+    isClickThrottledRef.current = true;
+    setTimeout(() => {
+      isClickThrottledRef.current = false;
+    }, 280);
+
     const nextIndex = (targetIndex + featured.length) % featured.length;
     setTransitionDirection(direction >= 0 ? 1 : -1);
     setPreviewIndex(nextIndex);
@@ -91,7 +99,7 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
     previewTimerRef.current = window.setTimeout(() => {
       setActiveIndex(nextIndex);
       previewTimerRef.current = null;
-    }, 150);
+    }, 100);
   }, [featured.length]);
 
   useEffect(() => () => {
@@ -331,11 +339,11 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
                       animate={{ opacity: 1, y: slotY, x: 0 }}
                       exit={
                         isTopItem
-                          ? { opacity: 0, x: -85, y: slotY, scale: 0.95 }
-                          : { opacity: 0, y: slotY - 24, x: 0, scale: 0.95 }
+                          ? { opacity: 0, x: -24, y: slotY, scale: 0.97 }
+                          : { opacity: 0, y: slotY - 18, x: 0, scale: 0.97 }
                       }
                       transition={{
-                        duration: 0.42,
+                        duration: 0.32,
                         ease: [0.16, 1, 0.3, 1],
                       }}
                       className="group absolute left-0 top-0 h-[68px] w-full overflow-hidden rounded-lg border border-white/20 bg-[#211e19]/[0.1] text-left shadow-[0_8px_20px_rgba(43,35,26,0.12)] ring-1 ring-white/15 backdrop-blur-sm transition-[box-shadow,ring-color] duration-300 hover:border-white/35 hover:ring-white/45 hover:shadow-[0_12px_26px_rgba(43,35,26,0.18)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a94d35]"
