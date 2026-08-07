@@ -67,27 +67,27 @@ function normalizeChapterPresentations(
 }
 
 const sectionVariants: Variants = {
-  hidden: { opacity: 0, y: 22 },
+  hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 1.05,
-      ease: [0.19, 1, 0.22, 1],
-      staggerChildren: 0.12,
-      delayChildren: 0.06,
+      duration: 0.6,
+      ease: [0.25, 1, 0.5, 1],
+      staggerChildren: 0.06,
+      delayChildren: 0.02,
     },
   },
 };
 
 const childVariants: Variants = {
-  hidden: { opacity: 0, y: 14 },
+  hidden: { opacity: 0, y: 12 },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.85,
-      ease: [0.19, 1, 0.22, 1],
+      duration: 0.5,
+      ease: [0.25, 1, 0.5, 1],
     },
   },
 };
@@ -224,11 +224,12 @@ export const OdiiAudioFeature: React.FC = () => {
       <OdiiAtmosphereBackground />
       <div className="relative z-10">
         <main>
-          {/* 섹션 0: 상단 인트로 헤더 — 자연스러운 페이드인 & 순차적 올라오기 */}
+          {/* 섹션 0: 상단 인트로 헤더 */}
           <motion.section
             variants={sectionVariants}
             initial="hidden"
             animate="visible"
+            style={{ willChange: 'transform, opacity' }}
             className="w-full pb-6 pt-8 sm:pt-10"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
@@ -243,11 +244,12 @@ export const OdiiAudioFeature: React.FC = () => {
             </div>
           </motion.section>
 
-          {/* 섹션 1: 메인 자동 슬라이스 레일 — 순차적 조화 모션 */}
+          {/* 섹션 1: 메인 자동 슬라이스 레일 */}
           <motion.div
             variants={sectionVariants}
             initial="hidden"
             animate="visible"
+            style={{ willChange: 'transform, opacity' }}
           >
             <OdiiAutoSliceRail
               stories={storyList.length ? storyList : (nearbyStories.length ? nearbyStories : MOCK_ODII_STORIES)}
@@ -255,12 +257,13 @@ export const OdiiAudioFeature: React.FC = () => {
             />
           </motion.div>
 
-          {/* 섹션 2: 챕터별 오디오 트랙 스태킹 섹션 — 뷰포트에 닿으면 내부 요소와 함께 조화롭게 올라옴 */}
+          {/* 섹션 2: 챕터별 오디오 트랙 스태킹 섹션 */}
           <motion.div
             variants={sectionVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: '-50px' }}
+            viewport={{ once: true, amount: 0.05 }}
+            style={{ willChange: 'transform, opacity' }}
           >
             <ZIndexStackedSection
               chapters={chapters}
@@ -273,7 +276,8 @@ export const OdiiAudioFeature: React.FC = () => {
             variants={sectionVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: '-50px' }}
+            viewport={{ once: true, amount: 0.05 }}
+            style={{ willChange: 'transform, opacity' }}
             className="w-full py-8 sm:py-12"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
@@ -307,7 +311,8 @@ export const OdiiAudioFeature: React.FC = () => {
             variants={sectionVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: '-50px' }}
+            viewport={{ once: true, amount: 0.05 }}
+            style={{ willChange: 'transform, opacity' }}
             className="w-full bg-white py-10 sm:py-14"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
