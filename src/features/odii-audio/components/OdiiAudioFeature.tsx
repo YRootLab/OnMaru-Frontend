@@ -67,26 +67,26 @@ function normalizeChapterPresentations(
 }
 
 const sectionVariants: Variants = {
-  hidden: { opacity: 0, y: 28 },
+  hidden: { opacity: 0, y: 18 },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 1.0,
+      duration: 0.6,
       ease: [0.16, 1, 0.3, 1],
-      staggerChildren: 0.1,
-      delayChildren: 0.08,
+      staggerChildren: 0.06,
+      delayChildren: 0.02,
     },
   },
 };
 
 const childVariants: Variants = {
-  hidden: { opacity: 0, y: 16 },
+  hidden: { opacity: 0, y: 12 },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.8,
+      duration: 0.5,
       ease: [0.16, 1, 0.3, 1],
     },
   },
@@ -224,7 +224,7 @@ export const OdiiAudioFeature: React.FC = () => {
       <OdiiAtmosphereBackground />
       <div className="relative z-10">
         <main>
-          {/* 섹션 0: 상단 인트로 헤더 — 바로 시작 (0.0초) */}
+          {/* 섹션 0: 상단 인트로 헤더 — 물 흐르듯 0.6초 피드백 */}
           <motion.section
             variants={sectionVariants}
             initial="hidden"
@@ -244,18 +244,18 @@ export const OdiiAudioFeature: React.FC = () => {
             </div>
           </motion.section>
 
-          {/* 섹션 1: 메인 자동 슬라이스 레일 — 0.1초 시점에 즉시 먼저 등장 (섹션 2보다 항상 먼저 등장) */}
+          {/* 섹션 1: 메인 자동 슬라이스 레일 — 지연 없이 0.06초 인트로에 이어서 차곡차곡 리드미컬 등장 */}
           <motion.div
             variants={{
-              hidden: { opacity: 0, y: 24 },
+              hidden: { opacity: 0, y: 18 },
               visible: {
                 opacity: 1,
                 y: 0,
                 transition: {
-                  duration: 1.0,
-                  delay: 0.1,
+                  duration: 0.6,
+                  delay: 0.06,
                   ease: [0.16, 1, 0.3, 1],
-                  staggerChildren: 0.08,
+                  staggerChildren: 0.06,
                 },
               },
             }}
@@ -269,12 +269,12 @@ export const OdiiAudioFeature: React.FC = () => {
             />
           </motion.div>
 
-          {/* 섹션 2: 챕터별 오디오 트랙 스태킹 섹션 — 사용자가 스크롤을 내려 뷰포트에 도달해야만 천천히 등장 */}
+          {/* 섹션 2: 챕터별 오디오 트랙 스태킹 섹션 — 스크롤 시 시선에 맞게 답답함 없이 즉각 반응 */}
           <motion.div
             variants={sectionVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, amount: 0.3, margin: '0px 0px -120px 0px' }}
+            viewport={{ once: true, amount: 0.15, margin: '0px 0px -40px 0px' }}
             style={{ willChange: 'transform, opacity' }}
           >
             <ZIndexStackedSection
@@ -288,7 +288,7 @@ export const OdiiAudioFeature: React.FC = () => {
             variants={sectionVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, amount: 0.3, margin: '0px 0px -120px 0px' }}
+            viewport={{ once: true, amount: 0.15, margin: '0px 0px -40px 0px' }}
             style={{ willChange: 'transform, opacity' }}
             className="w-full py-8 sm:py-12"
           >
@@ -323,7 +323,7 @@ export const OdiiAudioFeature: React.FC = () => {
             variants={sectionVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, amount: 0.3, margin: '0px 0px -120px 0px' }}
+            viewport={{ once: true, amount: 0.15, margin: '0px 0px -40px 0px' }}
             style={{ willChange: 'transform, opacity' }}
             className="w-full bg-white py-10 sm:py-14"
           >
