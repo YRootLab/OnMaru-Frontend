@@ -224,7 +224,7 @@ export const OdiiAudioFeature: React.FC = () => {
       <OdiiAtmosphereBackground />
       <div className="relative z-10">
         <main>
-          {/* 섹션 0: 상단 인트로 헤더 — 1초 완료 */}
+          {/* 섹션 0: 상단 인트로 헤더 — 바로 시작 (0.0초) */}
           <motion.section
             variants={sectionVariants}
             initial="hidden"
@@ -244,18 +244,18 @@ export const OdiiAudioFeature: React.FC = () => {
             </div>
           </motion.section>
 
-          {/* 섹션 1: 메인 자동 슬라이스 레일 — 상단 인트로 70% 진행 시점(0.35초)부터 순차적 1초 진행 */}
+          {/* 섹션 1: 메인 자동 슬라이스 레일 — 0.1초 시점에 즉시 먼저 등장 (섹션 2보다 항상 먼저 등장) */}
           <motion.div
             variants={{
-              hidden: { opacity: 0, y: 28 },
+              hidden: { opacity: 0, y: 24 },
               visible: {
                 opacity: 1,
                 y: 0,
                 transition: {
                   duration: 1.0,
-                  delay: 0.35,
+                  delay: 0.1,
                   ease: [0.16, 1, 0.3, 1],
-                  staggerChildren: 0.1,
+                  staggerChildren: 0.08,
                 },
               },
             }}
@@ -269,12 +269,12 @@ export const OdiiAudioFeature: React.FC = () => {
             />
           </motion.div>
 
-          {/* 섹션 2: 챕터별 오디오 트랙 스태킹 섹션 — 이전 섹션 70% 경과 시점(amount: 0.3)부터 opacity 0에서 천천히 1초 등장 */}
+          {/* 섹션 2: 챕터별 오디오 트랙 스태킹 섹션 — 사용자가 스크롤을 내려 뷰포트에 도달해야만 천천히 등장 */}
           <motion.div
             variants={sectionVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
+            viewport={{ once: true, amount: 0.3, margin: '0px 0px -120px 0px' }}
             style={{ willChange: 'transform, opacity' }}
           >
             <ZIndexStackedSection
@@ -282,13 +282,13 @@ export const OdiiAudioFeature: React.FC = () => {
             />
           </motion.div>
 
-          {/* 섹션 3: 오늘, 여기에서 캐러셀 — 이전 섹션 70% 경과 시점(amount: 0.3)부터 천천히 1초 등장 */}
+          {/* 섹션 3: 오늘, 여기에서 캐러셀 */}
           <motion.section
             aria-labelledby="nearby-stories-heading"
             variants={sectionVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
+            viewport={{ once: true, amount: 0.3, margin: '0px 0px -120px 0px' }}
             style={{ willChange: 'transform, opacity' }}
             className="w-full py-8 sm:py-12"
           >
@@ -317,13 +317,13 @@ export const OdiiAudioFeature: React.FC = () => {
             </div>
           </motion.section>
 
-          {/* 섹션 4: 페이지형 이야기 아카이브 — 이전 섹션 70% 경과 시점(amount: 0.3)부터 천천히 1초 등장 */}
+          {/* 섹션 4: 페이지형 이야기 아카이브 */}
           <motion.section
             id="odii-archive"
             variants={sectionVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
+            viewport={{ once: true, amount: 0.3, margin: '0px 0px -120px 0px' }}
             style={{ willChange: 'transform, opacity' }}
             className="w-full bg-white py-10 sm:py-14"
           >
