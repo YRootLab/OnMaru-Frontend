@@ -316,24 +316,28 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
               <AnimatePresence initial={false} mode="popLayout">
                 {following.map((story, index) => {
                   const imgUrl = getValidImage(story.imageUrl, story.stid);
+                  const isTopItem = index === 0;
                   return (
                     <motion.button
-                      key={`${story.stid}-${previewIndex}-${index}`}
+                      key={story.stid}
                       layout
                       type="button"
                       aria-label={`${story.title} 이야기 선택`}
                       onClick={() => {
                         advanceTo((previewIndex + index + 1) % featured.length, 1);
                       }}
-                      initial={{ opacity: 0, x: 24, y: 14, scale: 0.98 }}
-                      animate={{ opacity: 1, x: 0, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, x: -28, y: 0, scale: 0.98 }}
+                      initial={{ opacity: 0, y: 35, x: 0 }}
+                      animate={{ opacity: 1, y: 0, x: 0 }}
+                      exit={
+                        isTopItem
+                          ? { opacity: 0, x: -90, y: 0, scale: 0.95 }
+                          : { opacity: 0, y: -24, x: 0, scale: 0.95 }
+                      }
                       transition={{
-                        layout: { duration: 0.42, ease: [0.22, 1, 0.36, 1] },
-                        opacity: { duration: 0.25, ease: 'easeOut' },
-                        x: { duration: 0.38, ease: [0.22, 1, 0.36, 1] },
-                        y: { duration: 0.42, ease: [0.22, 1, 0.36, 1] },
-                        scale: { duration: 0.38, ease: [0.22, 1, 0.36, 1] },
+                        layout: { duration: 0.45, ease: [0.16, 1, 0.3, 1] },
+                        opacity: { duration: 0.28, ease: 'easeOut' },
+                        x: { duration: 0.4, ease: [0.16, 1, 0.3, 1] },
+                        y: { duration: 0.42, ease: [0.16, 1, 0.3, 1] },
                       }}
                       className="group relative h-[68px] w-full overflow-hidden rounded-lg border border-white/20 bg-[#211e19]/[0.1] text-left shadow-[0_8px_20px_rgba(43,35,26,0.12)] ring-1 ring-white/15 backdrop-blur-sm transition-[box-shadow,ring-color] duration-300 hover:border-white/35 hover:ring-white/45 hover:shadow-[0_12px_26px_rgba(43,35,26,0.18)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a94d35]"
                     >
