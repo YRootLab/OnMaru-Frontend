@@ -67,27 +67,27 @@ function normalizeChapterPresentations(
 }
 
 const sectionVariants: Variants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 28 },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.6,
-      ease: [0.25, 1, 0.5, 1],
-      staggerChildren: 0.06,
-      delayChildren: 0.02,
+      duration: 1.0,
+      ease: [0.16, 1, 0.3, 1],
+      staggerChildren: 0.1,
+      delayChildren: 0.08,
     },
   },
 };
 
 const childVariants: Variants = {
-  hidden: { opacity: 0, y: 12 },
+  hidden: { opacity: 0, y: 16 },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.5,
-      ease: [0.25, 1, 0.5, 1],
+      duration: 0.8,
+      ease: [0.16, 1, 0.3, 1],
     },
   },
 };
@@ -224,7 +224,7 @@ export const OdiiAudioFeature: React.FC = () => {
       <OdiiAtmosphereBackground />
       <div className="relative z-10">
         <main>
-          {/* 섹션 0: 상단 인트로 헤더 */}
+          {/* 섹션 0: 상단 인트로 헤더 — 1초 완료 */}
           <motion.section
             variants={sectionVariants}
             initial="hidden"
@@ -244,9 +244,21 @@ export const OdiiAudioFeature: React.FC = () => {
             </div>
           </motion.section>
 
-          {/* 섹션 1: 메인 자동 슬라이스 레일 */}
+          {/* 섹션 1: 메인 자동 슬라이스 레일 — 상단 인트로 70% 진행 시점(0.35초)부터 순차적 1초 진행 */}
           <motion.div
-            variants={sectionVariants}
+            variants={{
+              hidden: { opacity: 0, y: 28 },
+              visible: {
+                opacity: 1,
+                y: 0,
+                transition: {
+                  duration: 1.0,
+                  delay: 0.35,
+                  ease: [0.16, 1, 0.3, 1],
+                  staggerChildren: 0.1,
+                },
+              },
+            }}
             initial="hidden"
             animate="visible"
             style={{ willChange: 'transform, opacity' }}
@@ -257,12 +269,12 @@ export const OdiiAudioFeature: React.FC = () => {
             />
           </motion.div>
 
-          {/* 섹션 2: 챕터별 오디오 트랙 스태킹 섹션 */}
+          {/* 섹션 2: 챕터별 오디오 트랙 스태킹 섹션 — 이전 섹션 70% 경과 시점(amount: 0.3)부터 opacity 0에서 천천히 1초 등장 */}
           <motion.div
             variants={sectionVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, amount: 0.05 }}
+            viewport={{ once: true, amount: 0.3 }}
             style={{ willChange: 'transform, opacity' }}
           >
             <ZIndexStackedSection
@@ -270,13 +282,13 @@ export const OdiiAudioFeature: React.FC = () => {
             />
           </motion.div>
 
-          {/* 섹션 3: 오늘, 여기에서 캐러셀 */}
+          {/* 섹션 3: 오늘, 여기에서 캐러셀 — 이전 섹션 70% 경과 시점(amount: 0.3)부터 천천히 1초 등장 */}
           <motion.section
             aria-labelledby="nearby-stories-heading"
             variants={sectionVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, amount: 0.05 }}
+            viewport={{ once: true, amount: 0.3 }}
             style={{ willChange: 'transform, opacity' }}
             className="w-full py-8 sm:py-12"
           >
@@ -305,13 +317,13 @@ export const OdiiAudioFeature: React.FC = () => {
             </div>
           </motion.section>
 
-          {/* 섹션 4: 페이지형 이야기 아카이브 */}
+          {/* 섹션 4: 페이지형 이야기 아카이브 — 이전 섹션 70% 경과 시점(amount: 0.3)부터 천천히 1초 등장 */}
           <motion.section
             id="odii-archive"
             variants={sectionVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, amount: 0.05 }}
+            viewport={{ once: true, amount: 0.3 }}
             style={{ willChange: 'transform, opacity' }}
             className="w-full bg-white py-10 sm:py-14"
           >
