@@ -185,39 +185,41 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
         <div className="relative flex min-w-0 items-center gap-3 overflow-visible">
           
           {/* 메인 비주얼 배너 카드 (기존 메인은 왼쪽으로 퇴장, 오른쪽 서브가 왼쪽으로 당겨지며 메인 승격) */}
-          <div className="relative min-h-[320px] min-w-0 flex-1 overflow-hidden rounded-[1.6rem] bg-[#6d6258] shadow-[0_18px_48px_rgba(43,35,26,0.16)] sm:min-h-[280px] md:h-[280px] md:min-h-0">
+          <div className="relative min-h-[320px] min-w-0 flex-1 rounded-[1.6rem] bg-[#6d6258] shadow-[0_18px_48px_rgba(43,35,26,0.16)] sm:min-h-[280px] md:h-[280px] md:min-h-0">
             
-            <AnimatePresence initial={false} mode="sync">
-              <motion.div
-                key={`${lead.stid}-${activeIndex}`}
-                initial={{
-                  opacity: 0,
-                  x: transitionDirection * 35,
-                }}
-                animate={{
-                  opacity: 1,
-                  x: 0,
-                }}
-                exit={{
-                  opacity: 0,
-                  x: transitionDirection * -35,
-                }}
-                transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
-                className="absolute inset-0 h-full w-full"
-              >
-                {/* 전환 때 무거운 blur를 다시 그리지 않고 낮은 대비의 장면으로 분위기만 연결 */}
-                <img
-                  src={leadImageUrl}
-                  alt={lead.title}
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = getFallbackImage(lead.stid);
+            <div className="absolute inset-0 overflow-hidden rounded-[1.6rem]">
+              <AnimatePresence initial={false} mode="sync">
+                <motion.div
+                  key={`${lead.stid}-${activeIndex}`}
+                  initial={{
+                    opacity: 0,
+                    x: transitionDirection * 35,
                   }}
-                  className="h-full w-full object-cover opacity-35 saturate-105"
-                />
-                <div className="absolute inset-0 bg-black/[0.035] backdrop-blur-[2px]" />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/30 to-black/10" />
-              </motion.div>
-            </AnimatePresence>
+                  animate={{
+                    opacity: 1,
+                    x: 0,
+                  }}
+                  exit={{
+                    opacity: 0,
+                    x: transitionDirection * -35,
+                  }}
+                  transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
+                  className="absolute inset-0 h-full w-full"
+                >
+                  {/* 전환 때 무거운 blur를 다시 그리지 않고 낮은 대비의 장면으로 분위기만 연결 */}
+                  <img
+                    src={leadImageUrl}
+                    alt={lead.title}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = getFallbackImage(lead.stid);
+                    }}
+                    className="h-full w-full object-cover opacity-35 saturate-105"
+                  />
+                  <div className="absolute inset-0 bg-black/[0.035] backdrop-blur-[2px]" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/30 to-black/10" />
+                </motion.div>
+              </AnimatePresence>
+            </div>
 
             {/* 우측 상단 뱃지 */}
             <div className="absolute right-4 top-2.5 z-20">
@@ -303,13 +305,13 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
                 </div>
               </div>
 
-              {/* 제목 길이와 관계없이 항상 같은 자리에 놓이는 다음 탐색 버튼 */}
-              <div className="pointer-events-auto absolute right-4 top-1/2 z-20 -translate-y-1/2">
+              {/* 섬네일의 오른쪽 끝 엣지 수직 중앙 위치에 얹히는 다음 탐색 버튼 */}
+              <div className="pointer-events-auto absolute right-0 translate-x-1/2 top-1/2 z-30 -translate-y-1/2">
                 <button
                   type="button"
                   aria-label="다음 이야기"
                   onClick={() => move(1)}
-                  className="flex h-10 w-11 items-center justify-center rounded-xl border border-white/60 bg-white/90 text-[#211e19] shadow-lg transition-[background-color,transform] duration-300 hover:translate-x-0.5 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                  className="flex h-10 w-11 items-center justify-center rounded-xl border border-white/60 bg-white/95 text-[#211e19] shadow-[0_8px_24px_rgba(0,0,0,0.25)] transition-[background-color,transform] duration-300 hover:scale-105 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                 >
                   <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="m9 5 7 7-7 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
                 </button>
