@@ -14,7 +14,7 @@ const listContainerVariants: Variants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.04,
+      staggerChildren: 0.06,
     },
   },
 };
@@ -25,8 +25,8 @@ const itemVariants: Variants = {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.4,
-      ease: [0.16, 1, 0.3, 1],
+      duration: 0.75,
+      ease: [0.19, 1, 0.22, 1],
     },
   },
 };

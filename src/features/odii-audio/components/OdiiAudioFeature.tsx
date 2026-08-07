@@ -67,27 +67,27 @@ function normalizeChapterPresentations(
 }
 
 const sectionVariants: Variants = {
-  hidden: { opacity: 0, y: 32 },
+  hidden: { opacity: 0, y: 22 },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.7,
-      ease: [0.16, 1, 0.3, 1],
-      staggerChildren: 0.08,
-      delayChildren: 0.04,
+      duration: 1.05,
+      ease: [0.19, 1, 0.22, 1],
+      staggerChildren: 0.12,
+      delayChildren: 0.06,
     },
   },
 };
 
 const childVariants: Variants = {
-  hidden: { opacity: 0, y: 16 },
+  hidden: { opacity: 0, y: 14 },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.5,
-      ease: [0.16, 1, 0.3, 1],
+      duration: 0.85,
+      ease: [0.19, 1, 0.22, 1],
     },
   },
 };
