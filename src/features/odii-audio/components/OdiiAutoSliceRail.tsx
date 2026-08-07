@@ -309,39 +309,36 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
             </div>
           </div>
 
-          {/* 우측 다음 장면 preview: 작은 썸네일 큐 */}
-          <div className="relative hidden h-[280px] w-[250px] shrink-0 translate-y-1.5 items-center md:flex">
+          {/* 우측 다음 장면 preview: 명시적 절대 슬롯 좌표 계산 (연타 시 찌그러짐/오프셋 방지) */}
+          <div className="relative hidden h-[224px] w-[250px] shrink-0 translate-y-1.5 items-center md:flex overflow-visible">
             <span className="pointer-events-none absolute -left-3 top-1/2 h-px w-3 bg-gradient-to-r from-transparent to-[#a94d35]/40" aria-hidden="true" />
             <span className="pointer-events-none absolute -left-3 top-1/2 h-1 w-1 -translate-x-1/2 -translate-y-1/2 rounded-[1px] bg-[#a94d35]/60" aria-hidden="true" />
-            <div className="relative flex w-full flex-col gap-1.5">
-              <AnimatePresence initial={false} mode="popLayout">
+            <div className="relative h-[216px] w-full overflow-visible">
+              <AnimatePresence initial={false} mode="sync">
                 {following.map((story, index) => {
                   const imgUrl = getValidImage(story.imageUrl, story.stid);
                   const isTopItem = index === 0;
+                  const slotY = index * 74;
                   return (
                     <motion.button
                       key={story.stid}
-                      layout
                       type="button"
                       aria-label={`${story.title} 이야기 선택`}
                       onClick={() => {
                         advanceTo((previewIndex + index + 1) % featured.length, 1);
                       }}
-                      initial={{ opacity: 0, y: 35, x: 0 }}
-                      animate={{ opacity: 1, y: 0, x: 0 }}
+                      initial={{ opacity: 0, y: slotY + 30, x: 0 }}
+                      animate={{ opacity: 1, y: slotY, x: 0 }}
                       exit={
                         isTopItem
-                          ? { opacity: 0, x: -90, y: 0, scale: 0.95 }
-                          : { opacity: 0, y: -24, x: 0, scale: 0.95 }
+                          ? { opacity: 0, x: -85, y: slotY, scale: 0.95 }
+                          : { opacity: 0, y: slotY - 24, x: 0, scale: 0.95 }
                       }
                       transition={{
-                        layout: { duration: 0.45, ease: [0.16, 1, 0.3, 1] },
-                        opacity: { duration: 0.28, ease: 'easeOut' },
-                        x: { duration: 0.4, ease: [0.16, 1, 0.3, 1] },
-                        y: { duration: 0.42, ease: [0.16, 1, 0.3, 1] },
+                        duration: 0.42,
+                        ease: [0.16, 1, 0.3, 1],
                       }}
-                      style={{ width: '100%' }}
-                      className="group relative h-[68px] w-full shrink-0 overflow-hidden rounded-lg border border-white/20 bg-[#211e19]/[0.1] text-left shadow-[0_8px_20px_rgba(43,35,26,0.12)] ring-1 ring-white/15 backdrop-blur-sm transition-[box-shadow,ring-color] duration-300 hover:border-white/35 hover:ring-white/45 hover:shadow-[0_12px_26px_rgba(43,35,26,0.18)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a94d35]"
+                      className="group absolute left-0 top-0 h-[68px] w-full overflow-hidden rounded-lg border border-white/20 bg-[#211e19]/[0.1] text-left shadow-[0_8px_20px_rgba(43,35,26,0.12)] ring-1 ring-white/15 backdrop-blur-sm transition-[box-shadow,ring-color] duration-300 hover:border-white/35 hover:ring-white/45 hover:shadow-[0_12px_26px_rgba(43,35,26,0.18)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a94d35]"
                     >
                       <img
                         src={imgUrl}
