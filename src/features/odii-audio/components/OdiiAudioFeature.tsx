@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { StoryCarousel } from './StoryCarousel';
 import { CategoryTagFilter } from './CategoryTagFilter';
 import { EditorialStoryList } from './EditorialStoryList';
@@ -65,6 +65,32 @@ function normalizeChapterPresentations(
     return { ...definition, story: stories[0] || story, stories };
   });
 }
+
+const sectionVariants: Variants = {
+  hidden: { opacity: 0, y: 32 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.7,
+      ease: [0.16, 1, 0.3, 1],
+      staggerChildren: 0.08,
+      delayChildren: 0.04,
+    },
+  },
+};
+
+const childVariants: Variants = {
+  hidden: { opacity: 0, y: 16 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+};
 
 export const OdiiAudioFeature: React.FC = () => {
   const selectedCategory = useOdiiAudioStore((s) => s.selectedCategory);
@@ -198,30 +224,30 @@ export const OdiiAudioFeature: React.FC = () => {
       <OdiiAtmosphereBackground />
       <div className="relative z-10">
         <main>
-          {/* 섹션 0: 상단 인트로 헤더 — 자연스러운 페이드인 & 올라오기 */}
+          {/* 섹션 0: 상단 인트로 헤더 — 자연스러운 페이드인 & 순차적 올라오기 */}
           <motion.section
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
+            variants={sectionVariants}
+            initial="hidden"
+            animate="visible"
             className="w-full pb-6 pt-8 sm:pt-10"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
               <div className="max-w-xl">
-                <h1 className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-2xl font-bold tracking-tight text-transparent sm:text-3xl">
+                <motion.h1 variants={childVariants} className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-2xl font-bold tracking-tight text-transparent sm:text-3xl">
                   소리를 따라, 한국의 온기 속으로
-                </h1>
-                <p className="mt-2 text-xs sm:text-sm leading-relaxed text-[#655b4d]">
+                </motion.h1>
+                <motion.p variants={childVariants} className="mt-2 text-xs sm:text-sm leading-relaxed text-[#655b4d]">
                   바람이 머무는 한옥, 사람의 온기가 흐르는 시장, 오래된 골목의 시간을 오디오로 천천히 만나보세요.
-                </p>
+                </motion.p>
               </div>
             </div>
           </motion.section>
 
-          {/* 섹션 1: 메인 자동 슬라이스 레일 — MOCK 데이터 초기 바인딩으로 레이아웃 시프트 예방 + 순차적 올라오는 애니메이션 */}
+          {/* 섹션 1: 메인 자동 슬라이스 레일 — 순차적 조화 모션 */}
           <motion.div
-            initial={{ opacity: 0, y: 32 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
+            variants={sectionVariants}
+            initial="hidden"
+            animate="visible"
           >
             <OdiiAutoSliceRail
               stories={storyList.length ? storyList : (nearbyStories.length ? nearbyStories : MOCK_ODII_STORIES)}
@@ -229,12 +255,12 @@ export const OdiiAudioFeature: React.FC = () => {
             />
           </motion.div>
 
-          {/* 섹션 2: 챕터별 오디오 트랙 스태킹 섹션 — 뷰포트에 닿으면 부드럽게 올라옴 */}
+          {/* 섹션 2: 챕터별 오디오 트랙 스태킹 섹션 — 뷰포트에 닿으면 내부 요소와 함께 조화롭게 올라옴 */}
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-40px' }}
-            transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+            variants={sectionVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-50px' }}
           >
             <ZIndexStackedSection
               chapters={chapters}
@@ -244,14 +270,14 @@ export const OdiiAudioFeature: React.FC = () => {
           {/* 섹션 3: 오늘, 여기에서 캐러셀 */}
           <motion.section
             aria-labelledby="nearby-stories-heading"
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-40px' }}
-            transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+            variants={sectionVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-50px' }}
             className="w-full py-8 sm:py-12"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
-              <div className="flex flex-col gap-4 pb-1 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
+              <motion.div variants={childVariants} className="flex flex-col gap-4 pb-1 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
                 <div className="min-w-0">
                   <h2 id="nearby-stories-heading" className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-2xl font-bold tracking-[-0.045em] text-transparent sm:text-3xl">오늘, 여기에서</h2>
                   <p className="mt-1 max-w-xl truncate text-xs leading-5 text-[#786d5e]">{locationMessage}</p>
@@ -268,38 +294,42 @@ export const OdiiAudioFeature: React.FC = () => {
                     {!isLocating && <span aria-hidden="true" className="text-[13px] leading-none">›</span>}
                   </button>
                 </div>
-              </div>
-              <div className="mt-5">
+              </motion.div>
+              <motion.div variants={childVariants} className="mt-5">
                 <StoryCarousel stories={nearbyStories.length ? nearbyStories : MOCK_ODII_STORIES} />
-              </div>
+              </motion.div>
             </div>
           </motion.section>
 
           {/* 섹션 4: 페이지형 이야기 아카이브 */}
           <motion.section
             id="odii-archive"
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-40px' }}
-            transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+            variants={sectionVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-50px' }}
             className="w-full bg-white py-10 sm:py-14"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
-              <div className="max-w-xl">
+              <motion.div variants={childVariants} className="max-w-xl">
                 <div className="flex items-center justify-between gap-4">
                   <h2 className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-2xl font-bold tracking-[-0.045em] text-transparent sm:text-3xl">더 많은 이야기</h2>
                 </div>
                 <p className="mt-1.5 text-xs sm:text-sm leading-relaxed text-[#655b4d]">
                   장소와 지역, 키워드로 듣고 싶은 이야기를 찾아보세요.
                 </p>
-              </div>
-              <CategoryTagFilter />
+              </motion.div>
+              <motion.div variants={childVariants}>
+                <CategoryTagFilter />
+              </motion.div>
               {isLoading ? (
                 <div className="py-16 text-center text-xs text-[#655b4d]">이야기를 불러오는 중입니다...</div>
               ) : (
                 <>
-                  <EditorialStoryList stories={storyList} />
-                  <div className="mt-6 flex flex-col items-center justify-between gap-3 border-t border-[#211e19]/10 pt-4 sm:flex-row">
+                  <motion.div variants={childVariants}>
+                    <EditorialStoryList stories={storyList} />
+                  </motion.div>
+                  <motion.div variants={childVariants} className="mt-6 flex flex-col items-center justify-between gap-3 border-t border-[#211e19]/10 pt-4 sm:flex-row">
                     <span className="text-[11px] text-[#8c7e6c]">
                       {archiveMeta.totalCount > 0 ? `${archiveMeta.totalCount.toLocaleString()}개 중 ${archiveMeta.pageNo}페이지` : '검색 결과 없음'}
                     </span>
@@ -329,7 +359,7 @@ export const OdiiAudioFeature: React.FC = () => {
                         다음
                       </button>
                     </div>
-                  </div>
+                  </motion.div>
                 </>
               )}
             </div>

@@ -1,12 +1,35 @@
 'use client';
 
 import React from 'react';
+import { motion, Variants } from 'framer-motion';
 import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
 import { OdiiStoryItem } from '../types/odii.types';
 
 interface EditorialStoryListProps {
   stories: OdiiStoryItem[];
 }
+
+const listContainerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.04,
+    },
+  },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 12 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.4,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+};
 
 export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({ stories }) => {
   const currentStory = useOdiiAudioStore((s) => s.currentStory);
@@ -40,15 +63,21 @@ export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({ stories 
         </span>
       </div>
 
-      <div className="divide-y divide-[#211e19]/5">
+      <motion.div
+        variants={listContainerVariants}
+        initial="hidden"
+        animate="visible"
+        className="divide-y divide-[#211e19]/5"
+      >
         {stories.map((story, index) => {
           const isCurrent = currentStory.stid === story.stid;
           const isThisPlaying = isCurrent && isPlaying;
           const trackNum = String(index + 1).padStart(2, '0');
 
           return (
-            <div
+            <motion.div
               key={story.stid}
+              variants={itemVariants}
               onClick={() => selectStory(story)}
               className={`group flex cursor-pointer items-center justify-between py-3 px-2.5 rounded-xl transition-all duration-300 ${
                 isCurrent
@@ -130,10 +159,10 @@ export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({ stories 
                   )}
                 </button>
               </div>
-            </div>
+            </motion.div>
           );
         })}
-      </div>
+      </motion.div>
     </div>
   );
 };
