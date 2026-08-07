@@ -147,7 +147,10 @@ export const OdiiAudioFeature: React.FC = () => {
     Promise.all(
       ODII_HERO_TABS.map(async (tab) => {
         const stories = await odiiApiAdapter.getStoryList(undefined, tab.keyword || undefined);
-        return [tab.id, stories.slice(0, 7)] as const;
+        const combined = tab.id === '추천'
+          ? [MOCK_ODII_STORIES[0], ...stories.filter((s) => s.stid !== MOCK_ODII_STORIES[0].stid)]
+          : stories;
+        return [tab.id, combined.slice(0, 7)] as const;
       }),
     ).then((entries) => {
       if (isMounted) setHeroStorySets(Object.fromEntries(entries));
