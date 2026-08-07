@@ -11,14 +11,11 @@
 */
 
 import { useMemo, useState, Suspense } from 'react';
-
 import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import styled from '@emotion/styled';
-
 import { lightPalette, meok } from '@/design-system/tokens';
-import STAYS from '@/data/hanokStays.json';
 
 const FONT = "'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif";
 
