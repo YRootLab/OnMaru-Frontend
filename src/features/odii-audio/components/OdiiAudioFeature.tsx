@@ -95,17 +95,19 @@ const childVariants: Variants = {
 export const OdiiAudioFeature: React.FC = () => {
   const selectedCategory = useOdiiAudioStore((s) => s.selectedCategory);
   const searchQuery = useOdiiAudioStore((s) => s.searchQuery);
-  const [storyList, setStoryList] = useState<OdiiStoryItem[]>([]);
-  const [nearbyStories, setNearbyStories] = useState<OdiiStoryItem[]>([]);
-  const [heroStorySets, setHeroStorySets] = useState<Record<string, OdiiStoryItem[]>>({});
+  const [storyList, setStoryList] = useState<OdiiStoryItem[]>(MOCK_ODII_STORIES);
+  const [nearbyStories, setNearbyStories] = useState<OdiiStoryItem[]>(MOCK_ODII_STORIES);
+  const [heroStorySets, setHeroStorySets] = useState<Record<string, OdiiStoryItem[]>>({
+    '추천': MOCK_ODII_STORIES.slice(0, 7),
+  });
   const [chapterStories, setChapterStories] = useState<Record<string, OdiiStoryItem | null>>({});
   const [chapterStorySets, setChapterStorySets] = useState<Record<string, OdiiStoryItem[]>>({});
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [archiveMeta, setArchiveMeta] = useState<OdiiStoryPage>({
-    items: [],
+    items: MOCK_ODII_STORIES,
     pageNo: 1,
     numOfRows: 12,
-    totalCount: 0,
+    totalCount: MOCK_ODII_STORIES.length,
     source: 'mock',
   });
   const [archivePage, setArchivePage] = useState(1);
@@ -116,75 +118,53 @@ export const OdiiAudioFeature: React.FC = () => {
 
   useEffect(() => {
     let isMounted = true;
-    async function loadArchive() {
-      setIsLoading(true);
-      const page = await odiiApiAdapter.getStoryPage(selectedCategory, searchQuery, archivePage, 12);
+
+    async function loadAllData() {
+      const [page, nearby, heroEntries, chapterSets] = await Promise.all([
+        odiiApiAdapter.getStoryPage(selectedCategory, searchQuery, archivePage, 12),
+        odiiApiAdapter.getNearbyStories(),
+        Promise.all(
+          ODII_HERO_TABS.map(async (tab) => {
+            const stories = await odiiApiAdapter.getStoryList(undefined, tab.keyword || undefined);
+            const combined = tab.id === '추천'
+              ? MOCK_ODII_STORIES.slice(0, 7)
+              : (stories.length >= 7
+                  ? stories.slice(0, 7)
+                  : [...stories, ...MOCK_ODII_STORIES.filter((m) => !stories.some((s) => s.stid === m.stid))].slice(0, 7));
+            return [tab.id, combined] as const;
+          }),
+        ),
+        odiiApiAdapter.getChapterStorySets(
+          ODII_CHAPTER_DEFINITIONS.map((chapter) => chapter.keyword),
+          MOCK_ODII_STORIES,
+        ),
+      ]);
+
       if (isMounted) {
         if (page.items.length === 0 && archivePage > 1) {
           setArchivePage(1);
           return;
         }
-        setStoryList(page.items);
+        setStoryList(page.items.length ? page.items : MOCK_ODII_STORIES);
         setArchiveMeta(page);
+        if (nearby.length) setNearbyStories(nearby);
+        setHeroStorySets(Object.fromEntries(heroEntries));
+        setChapterStorySets(chapterSets);
+        setChapterStories(
+          Object.fromEntries(
+            Object.entries(chapterSets).map(([keyword, stories]) => [keyword, stories[0] || null]),
+          ),
+        );
         setIsLoading(false);
       }
     }
-    loadArchive();
-    return () => { isMounted = false; };
+
+    loadAllData();
+
+    return () => {
+      isMounted = false;
+    };
   }, [archivePage, selectedCategory, searchQuery]);
-
-  useEffect(() => {
-    let isMounted = true;
-    odiiApiAdapter.getNearbyStories().then((stories) => {
-      if (isMounted) setNearbyStories(stories);
-    });
-    return () => { isMounted = false; };
-  }, []);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    Promise.all(
-      ODII_HERO_TABS.map(async (tab) => {
-        const stories = await odiiApiAdapter.getStoryList(undefined, tab.keyword || undefined);
-        const combined = tab.id === '추천'
-          ? MOCK_ODII_STORIES.slice(0, 7)
-          : (stories.length >= 7
-              ? stories.slice(0, 7)
-              : [...stories, ...MOCK_ODII_STORIES.filter((m) => !stories.some((s) => s.stid === m.stid))].slice(0, 7));
-        return [tab.id, combined] as const;
-      }),
-    ).then((entries) => {
-      if (isMounted) setHeroStorySets(Object.fromEntries(entries));
-    });
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    let isMounted = true;
-    odiiApiAdapter
-      .getChapterStorySets(
-        ODII_CHAPTER_DEFINITIONS.map((chapter) => chapter.keyword),
-        MOCK_ODII_STORIES,
-      )
-      .then((storySets) => {
-        if (isMounted) {
-          setChapterStorySets(storySets);
-          setChapterStories(
-            Object.fromEntries(
-              Object.entries(storySets).map(([keyword, stories]) => [keyword, stories[0] || null]),
-            ),
-          );
-        }
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   const chapterFallbackStories = useMemo(
     () => [...storyList, ...nearbyStories, ...MOCK_ODII_STORIES],
