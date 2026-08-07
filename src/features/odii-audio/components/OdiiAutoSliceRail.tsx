@@ -271,9 +271,9 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
                 </AnimatePresence>
               </div>
 
-              {/* 메인 장면은 같은 자리에 머물고, 다음 장면으로 조용히 교차 전환 */}
-              <div className="pointer-events-none relative order-first mx-auto h-[198px] w-[75%] translate-x-2 rounded-[1rem] border border-white/20 bg-white/10 shadow-[0_14px_30px_rgba(0,0,0,0.07)] sm:order-none sm:h-[198px] sm:w-[75%] sm:translate-x-3 md:h-[202px] lg:h-[211px]">
-                <div className="relative z-10 h-full w-full overflow-hidden rounded-[0.95rem] bg-white/10">
+              {/* 메인 장면 오른쪽 서브 비주얼 카드 고정 규격 (찌부됨 방지) */}
+              <div className="pointer-events-none relative order-first mx-auto h-[198px] w-[150px] shrink-0 rounded-[1.2rem] border border-white/25 bg-white/10 shadow-[0_14px_30px_rgba(0,0,0,0.12)] sm:order-none sm:h-[198px] sm:w-[150px] md:h-[202px] lg:h-[211px] lg:w-[160px] overflow-hidden">
+                <div className="relative z-10 h-full w-full overflow-hidden rounded-[1.1rem]">
                   <AnimatePresence initial={false} mode="sync">
                     <motion.div
                       key={`${lead.stid}-${activeIndex}`}
@@ -281,13 +281,13 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: transitionDirection * -35 }}
                       transition={{ duration: 0.38, delay: 0.04, ease: [0.16, 1, 0.3, 1] }}
-                      className="absolute inset-0"
+                      className="absolute inset-0 h-full w-full overflow-hidden"
                     >
                       <img
                         src={leadImageUrl}
                         alt=""
                         onError={(e) => { (e.target as HTMLImageElement).src = getFallbackImage(lead.stid); }}
-                        className="h-full w-full object-cover"
+                        className="h-full w-full object-cover object-center"
                       />
                     </motion.div>
                   </AnimatePresence>
