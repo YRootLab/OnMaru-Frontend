@@ -227,14 +227,14 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             </div>
           </motion.section>
 
-          {/* 섹션 1: 히어로 큐레이션 레일 (애플 스타일 0.22초 시차 겹침 진입) */}
+          {/* 섹션 1: 히어로 큐레이션 레일 (선명한 0.68초 시차 연극적 진입) */}
           <motion.div
-            initial={{ opacity: 0, y: 32 }}
+            initial={{ opacity: 0, y: 36 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{
-              duration: 1.15,
+              duration: 1.2,
               ease: [0.16, 1, 0.3, 1],
-              delay: 0.22,
+              delay: 0.68,
             }}
           >
             <OdiiAutoSliceRail
