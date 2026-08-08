@@ -22,8 +22,8 @@ const sectionVariants: Variants = {
   hidden: {},
   visible: {
     transition: {
-      staggerChildren: 0.18,
-      delayChildren: 0.05,
+      staggerChildren: 0.38,
+      delayChildren: 0.08,
     },
   },
 };
