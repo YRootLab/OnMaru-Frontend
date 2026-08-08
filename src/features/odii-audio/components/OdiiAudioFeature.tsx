@@ -212,7 +212,8 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
           <motion.section
             variants={sectionVariants}
             initial="hidden"
-            animate="visible"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.05 }}
             className="w-full pb-4 pt-8 sm:pt-10"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
@@ -231,7 +232,8 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
           <motion.div
             variants={sectionVariants}
             initial="hidden"
-            animate="visible"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.05 }}
           >
             <OdiiAutoSliceRail
               stories={storyList.length ? storyList : (nearbyStories.length ? nearbyStories : MOCK_ODII_STORIES)}
@@ -244,7 +246,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             variants={sectionVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, amount: 0.1 }}
+            viewport={{ once: true, amount: 0.08 }}
           >
             <KeywordSpotlightSection
               onBookmarkStory={handleToggleBookmark}
@@ -258,7 +260,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             variants={sectionVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, amount: 0.1 }}
+            viewport={{ once: true, amount: 0.08 }}
             className="w-full py-8 sm:py-12"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
@@ -291,7 +293,8 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             id="odii-archive"
             variants={sectionVariants}
             initial="hidden"
-            animate="visible"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.08 }}
             className="w-full bg-white py-10 sm:py-14"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
