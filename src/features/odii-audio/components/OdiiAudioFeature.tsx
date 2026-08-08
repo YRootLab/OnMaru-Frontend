@@ -263,12 +263,13 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             />
           </motion.div>
 
-          {/* 섹션 2: 키워드에서 대표 이야기로 이어지는 스포트라이트 (제목 ➔ 0.18초 후 하위 컴포넌트 시차 진입) */}
+          {/* 섹션 2: 키워드에서 대표 이야기로 이어지는 스포트라이트 (섹션 1 이후 스크롤 감지 시 선명하게 시차 진입) */}
           <motion.div
             variants={sectionVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, amount: 0.15 }}
+            viewport={{ once: true, amount: 0.35 }}
+            transition={{ delay: 0.3 }}
           >
             <KeywordSpotlightSection
               onBookmarkStory={handleToggleBookmark}
@@ -282,7 +283,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             variants={sectionVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, amount: 0.12 }}
+            viewport={{ once: true, amount: 0.25 }}
             className="w-full py-8 sm:py-12"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
@@ -319,7 +320,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             variants={sectionVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, amount: 0.12 }}
+            viewport={{ once: true, amount: 0.25 }}
             className="w-full bg-white py-10 sm:py-14"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
