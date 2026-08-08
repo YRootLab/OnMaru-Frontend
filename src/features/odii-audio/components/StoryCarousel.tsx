@@ -130,18 +130,18 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#211e19]/65 via-transparent to-transparent" />
 
-        {/* 재생 컨트롤 시원하고 큼직한 둥근 원형 버블 (44px/48px 시원한 라운드 UI) */}
-        <span className={`absolute bottom-3 left-3 inline-flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-full shadow-lg backdrop-blur-md transition-all duration-300 group-hover:scale-110 active:scale-95 ${
+        {/* 재생 컨트롤 적절한 황금 비율 원형 버블 (34px/36px 조화로운 라운드 UI) */}
+        <span className={`absolute bottom-2.5 left-2.5 inline-flex h-8.5 w-8.5 sm:h-9 sm:w-9 items-center justify-center rounded-full shadow-md backdrop-blur-xs transition-all duration-300 group-hover:scale-110 active:scale-95 ${
           isPlaying
-            ? 'bg-[#a94d35] text-white ring-2 ring-white shadow-[0_8px_20px_rgba(169,77,53,0.35)]'
-            : 'bg-white/95 text-[#211e19] ring-2 ring-white/90 shadow-[0_8px_18px_rgba(0,0,0,0.18)] hover:bg-white hover:text-[#a94d35]'
+            ? 'bg-[#a94d35] text-white ring-2 ring-white/90 shadow-[0_6px_16px_rgba(169,77,53,0.3)]'
+            : 'bg-white/95 text-[#211e19] ring-2 ring-white/90 shadow-[0_6px_14px_rgba(0,0,0,0.15)] hover:bg-white hover:text-[#a94d35]'
         }`}>
           {isPlaying ? (
-            <svg className="h-4.5 w-4.5 sm:h-5 sm:w-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+            <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
             </svg>
           ) : (
-            <svg className="ml-0.5 h-5 w-5 sm:h-5.5 sm:w-5.5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+            <svg className="ml-0.5 h-4 w-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M8 5v14l11-7z" />
             </svg>
           )}
