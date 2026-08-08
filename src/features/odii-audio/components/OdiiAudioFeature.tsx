@@ -150,13 +150,14 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
 
   const bookmarkedIds = useMemo(() => new Set(savedStories.map((s) => s.stid)), [savedStories]);
 
+  const [isArchiveLoading, setIsArchiveLoading] = useState(false);
+
+  // 1. 페이지 최초 마운트 시 히어로 탭 및 주변 이야기 1회만 로드
   useEffect(() => {
     let isMounted = true;
 
-    async function loadAllData() {
-      setIsLoading(true);
-      const [page, nearby, heroEntries] = await Promise.all([
-        activeApiService.getStoryPage(selectedCategory, searchQuery, archivePage, 12),
+    async function loadInitialHeroAndNearby() {
+      const [nearby, heroEntries] = await Promise.all([
         activeApiService.getNearbyStories(),
         Promise.all(
           ODII_HERO_TABS.map(async (tab) => {
@@ -172,19 +173,39 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
       ]);
 
       if (isMounted) {
+        if (nearby.length) setNearbyStories(nearby);
+        setHeroStorySets(Object.fromEntries(heroEntries));
+      }
+    }
+
+    loadInitialHeroAndNearby();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [activeApiService]);
+
+  // 2. 섹션 4 아카이브 페이지네이션 및 카테고리/검색어 독립적 쾌속 업데이트 (히어로 및 전체 재로딩 완전 분리)
+  useEffect(() => {
+    let isMounted = true;
+
+    async function fetchArchiveData() {
+      setIsArchiveLoading(true);
+      const page = await activeApiService.getStoryPage(selectedCategory, searchQuery, archivePage, 12);
+
+      if (isMounted) {
         if (page.items.length === 0 && archivePage > 1) {
           setArchivePage(1);
+          setIsArchiveLoading(false);
           return;
         }
         setStoryList(page.items.length ? page.items : MOCK_ODII_STORIES);
         setArchiveMeta(page);
-        if (nearby.length) setNearbyStories(nearby);
-        setHeroStorySets(Object.fromEntries(heroEntries));
-        setIsLoading(false);
+        setIsArchiveLoading(false);
       }
     }
 
-    loadAllData();
+    fetchArchiveData();
 
     return () => {
       isMounted = false;
@@ -328,53 +349,55 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                 <CategoryTagFilter />
               </motion.div>
 
-              {isLoading ? (
-                <div className="py-16 text-center text-xs text-[#655b4d]">이야기를 불러오는 중입니다...</div>
-              ) : (
-                <>
-                  {/* 오디오 아카이브 카드 리스트 (페이지 변경 시 애니메이션 없이 즉시 업데이트) */}
-                  <div>
-                    <EditorialStoryList
-                      stories={storyList}
-                      onBookmarkStory={handleToggleBookmark}
-                      bookmarkedIds={bookmarkedIds}
-                    />
-                  </div>
-
-                  {/* 하단 페이지네이션 (페이지 변경 시 애니메이션 없이 즉시 업데이트) */}
-                  <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-[#211e19]/10 pt-4 sm:flex-row">
-                    <span className="text-[11px] text-[#8c7e6c]">
-                      {archiveMeta.totalCount > 0 ? `${archiveMeta.totalCount.toLocaleString()}개 중 ${archiveMeta.pageNo}페이지` : '검색 결과 없음'}
+              {/* 오디오 아카이브 카드 리스트 (높이 붕괴 방지 & 0ms 레이아웃 시프트 차단) */}
+              <div className="relative min-h-[460px]">
+                {isArchiveLoading && (
+                  <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/50 backdrop-blur-xs transition-opacity duration-150">
+                    <span className="inline-flex items-center gap-2 rounded-full bg-[#211e19] px-4 py-2 text-xs font-semibold text-white shadow-lg">
+                      <span className="h-2 w-2 rounded-full bg-[#a94d35] animate-ping" />
+                      트랙 목록 갱신 중…
                     </span>
-                    <div className="flex flex-wrap items-center justify-end gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setIsModalOpen(true)}
-                        className="mr-1 inline-flex items-center gap-1.5 rounded-full border border-[#211e19]/12 bg-white/60 px-3 py-1.5 text-[11px] font-medium text-[#655b4d] shadow-xs transition-transform duration-300 hover:-translate-y-0.5 hover:border-[#211e19]/25 hover:bg-white hover:text-[#211e19]"
-                      >
-                        전체 목록 보기 <span aria-hidden="true" className="text-[13px] leading-none">›</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setArchivePage((page) => Math.max(1, page - 1))}
-                        disabled={archivePage <= 1}
-                        className="h-9 rounded-full border border-[#211e19]/15 px-3 text-xs font-semibold text-[#211e19] transition-colors hover:border-[#a94d35] hover:text-[#a94d35] disabled:cursor-not-allowed disabled:opacity-30"
-                      >
-                        이전
-                      </button>
-                      <span className="min-w-16 text-center text-xs font-semibold text-[#211e19]">{archivePage} / {totalArchivePages}</span>
-                      <button
-                        type="button"
-                        onClick={() => setArchivePage((page) => Math.min(totalArchivePages, page + 1))}
-                        disabled={archivePage >= totalArchivePages}
-                        className="h-9 rounded-full border border-[#211e19]/15 px-3 text-xs font-semibold text-[#211e19] transition-colors hover:border-[#a94d35] hover:text-[#a94d35] disabled:cursor-not-allowed disabled:opacity-30"
-                      >
-                        다음
-                      </button>
-                    </div>
                   </div>
-                </>
-              )}
+                )}
+                <EditorialStoryList
+                  stories={storyList}
+                  onBookmarkStory={handleToggleBookmark}
+                  bookmarkedIds={bookmarkedIds}
+                />
+              </div>
+
+              {/* 하단 페이지네이션 (페이지 변경 시 레이아웃 시프트 없이 즉시 업데이트) */}
+              <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-[#211e19]/10 pt-4 sm:flex-row">
+                <span className="text-[11px] text-[#8c7e6c]">
+                  {archiveMeta.totalCount > 0 ? `${archiveMeta.totalCount.toLocaleString()}개 중 ${archiveMeta.pageNo}페이지` : '검색 결과 없음'}
+                </span>
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsModalOpen(true)}
+                    className="mr-1 inline-flex items-center gap-1.5 rounded-full border border-[#211e19]/12 bg-white/60 px-3 py-1.5 text-[11px] font-medium text-[#655b4d] shadow-xs transition-transform duration-300 hover:-translate-y-0.5 hover:border-[#211e19]/25 hover:bg-white hover:text-[#211e19]"
+                  >
+                    전체 목록 보기 <span aria-hidden="true" className="text-[13px] leading-none">›</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setArchivePage((page) => Math.max(1, page - 1))}
+                    disabled={archivePage <= 1 || isArchiveLoading}
+                    className="h-9 rounded-full border border-[#211e19]/15 px-3 text-xs font-semibold text-[#211e19] transition-colors hover:border-[#a94d35] hover:text-[#a94d35] disabled:cursor-not-allowed disabled:opacity-30"
+                  >
+                    이전
+                  </button>
+                  <span className="min-w-16 text-center text-xs font-semibold text-[#211e19]">{archivePage} / {totalArchivePages}</span>
+                  <button
+                    type="button"
+                    onClick={() => setArchivePage((page) => Math.min(totalArchivePages, page + 1))}
+                    disabled={archivePage >= totalArchivePages || isArchiveLoading}
+                    className="h-9 rounded-full border border-[#211e19]/15 px-3 text-xs font-semibold text-[#211e19] transition-colors hover:border-[#a94d35] hover:text-[#a94d35] disabled:cursor-not-allowed disabled:opacity-30"
+                  >
+                    다음
+                  </button>
+                </div>
+              </div>
             </div>
           </motion.section>
 
