@@ -106,25 +106,28 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
   const [locationMessage, setLocationMessage] = useState('내 위치를 허용하면 반경 3km의 실제 오디오를 찾아드려요.');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // 세션 스토리지 기반 애니메이션 1회 실행 기억 (새로고침 시 애니메이션 재실행 방지)
-  const [hasAnimated] = useState<boolean>(() => {
+  // 리로드(F5) 시에만 애니메이션 생략, 다른 상단 네비게이션에서 이동해 올 때는 우아한 애니메이션 실행
+  const [skipAnimation] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false;
     try {
-      return sessionStorage.getItem('onmaru_odii_animated') === 'true';
+      const navEntries = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
+      const isPageReload = navEntries.length > 0 && navEntries[0].type === 'reload';
+      const hasAlreadyVisited = sessionStorage.getItem('onmaru_odii_visited_once') === 'true';
+      return isPageReload && hasAlreadyVisited;
     } catch {
       return false;
     }
   });
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && !hasAnimated) {
+    if (typeof window !== 'undefined') {
       try {
-        sessionStorage.setItem('onmaru_odii_animated', 'true');
+        sessionStorage.setItem('onmaru_odii_visited_once', 'true');
       } catch {
         // ignore
       }
     }
-  }, [hasAnimated]);
+  }, []);
 
   // 로컬 스토리지 기반 '마음 담은 소리' 스크랩 보관함 관리 (재방문 유지)
   const [savedStories, setSavedStories] = useState<OdiiStoryItem[]>(() => {
@@ -248,10 +251,10 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
         <OdiiAtmosphereBackground />
         <div className="relative z-10">
           <main>
-            {/* 섹션 0: 헤더 타이틀 (첫 진입 시 즉시 진입, 재방문 시 애니메이션 생략) */}
+            {/* 섹션 0: 헤더 타이틀 (새로고침 시 애니메이션 생략, 다른 페이지에서 네비게이션 시 우아한 등판) */}
           <motion.section
             variants={sectionVariants}
-            initial={hasAnimated ? false : "hidden"}
+            initial={skipAnimation ? false : "hidden"}
             animate="visible"
             className="w-full pb-4 pt-8 sm:pt-10"
           >
@@ -267,11 +270,11 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             </div>
           </motion.section>
 
-          {/* 섹션 1: 히어로 큐레이션 레일 (첫 진입 시 0.45초 자동 등판, 재방문 시 즉시 노출) */}
+          {/* 섹션 1: 히어로 큐레이션 레일 (새로고침 시 즉시 노출, 다른 페이지에서 진입 시 0.45초 지연 등판) */}
           <motion.div
-            initial={hasAnimated ? false : { opacity: 0, y: 32 }}
+            initial={skipAnimation ? false : { opacity: 0, y: 32 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={hasAnimated ? { duration: 0 } : {
+            transition={skipAnimation ? { duration: 0 } : {
               duration: 1.15,
               ease: [0.16, 1, 0.3, 1],
               delay: 0.45,
@@ -283,14 +286,14 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             />
           </motion.div>
 
-          {/* 섹션 2: 키워드 스포트라이트 (첫 진입 시 0.85초 자동 순차 등판 / 스크롤 시 등장, 재방문 시 즉시 노출) */}
+          {/* 섹션 2: 키워드 스포트라이트 (새로고침 시 즉시 노출, 다른 페이지에서 진입 시 0.85초 시차 등판) */}
           <motion.div
             variants={sectionVariants}
-            initial={hasAnimated ? false : "hidden"}
-            whileInView={hasAnimated ? undefined : "visible"}
-            animate={hasAnimated ? "visible" : undefined}
-            viewport={hasAnimated ? undefined : { once: true, amount: 0.15 }}
-            transition={hasAnimated ? { duration: 0 } : { delay: 0.3 }}
+            initial={skipAnimation ? false : "hidden"}
+            whileInView={skipAnimation ? undefined : "visible"}
+            animate={skipAnimation ? "visible" : undefined}
+            viewport={skipAnimation ? undefined : { once: true, amount: 0.15 }}
+            transition={skipAnimation ? { duration: 0 } : { delay: 0.3 }}
           >
             <KeywordSpotlightSection
               onBookmarkStory={handleToggleBookmark}
@@ -302,7 +305,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
           <motion.section
             aria-labelledby="nearby-stories-heading"
             variants={sectionVariants}
-            initial={hasAnimated ? false : "hidden"}
+            initial={skipAnimation ? false : "hidden"}
             whileInView="visible"
             viewport={{ once: true, amount: 0.2 }}
             className="w-full py-8 sm:py-12"
@@ -339,7 +342,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
           <motion.section
             id="odii-archive"
             variants={sectionVariants}
-            initial={hasAnimated ? false : "hidden"}
+            initial={skipAnimation ? false : "hidden"}
             whileInView="visible"
             viewport={{ once: true, amount: 0.2 }}
             className="w-full bg-white py-10 sm:py-14"
