@@ -38,7 +38,7 @@ export const CategoryTagFilter: React.FC = () => {
               setSelectedCategory('전체');
               setSearchQuery('');
             }}
-            className={`px-4 py-2 rounded-full text-xs font-medium transition-all duration-300 whitespace-nowrap ${
+            className={`px-4 py-2 rounded-xl text-xs font-medium transition-all duration-300 whitespace-nowrap ${
               selectedCategory === '전체'
                 ? 'bg-[#211e19] text-white shadow-sm font-bold'
                 : 'text-[#655b4d] bg-[#f7f4ee] hover:bg-[#ede5d8] hover:text-[#211e19]'
@@ -58,7 +58,7 @@ export const CategoryTagFilter: React.FC = () => {
                   setSearchQuery('');
                 }}
                 title={theme.description}
-                className={`px-4 py-2 rounded-full text-xs font-medium transition-all duration-300 whitespace-nowrap ${
+                className={`px-4 py-2 rounded-xl text-xs font-medium transition-all duration-300 whitespace-nowrap ${
                   isSelected
                     ? 'bg-[#211e19] text-white shadow-sm font-bold'
                     : 'text-[#655b4d] bg-[#f7f4ee] hover:bg-[#ede5d8] hover:text-[#211e19]'
@@ -88,7 +88,7 @@ export const CategoryTagFilter: React.FC = () => {
                 key={region}
                 type="button"
                 onClick={() => handleRegionClick(region)}
-                className={`px-3 py-1 rounded-full text-xs transition-all duration-200 whitespace-nowrap ${
+                className={`px-3 py-1 rounded-lg text-xs transition-all duration-200 whitespace-nowrap ${
                   isSelected
                     ? 'bg-[#a94d35] text-white font-bold shadow-xs'
                     : 'bg-white text-[#655b4d] border border-[#211e19]/10 hover:border-[#a94d35]/50 hover:text-[#211e19]'

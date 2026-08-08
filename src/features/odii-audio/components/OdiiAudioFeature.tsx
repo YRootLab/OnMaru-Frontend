@@ -372,6 +372,16 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             className="w-full bg-white py-10 sm:py-14 min-h-[940px] sm:min-h-[1020px]"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
+              {/* 섹션 4 타이틀 & 서브타이틀 */}
+              <motion.div variants={titleVariants} className="mb-4">
+                <h2 id="archive-heading" className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-2xl font-bold tracking-[-0.045em] text-transparent sm:text-3xl">
+                  주제와 장소를 따라보는 이야기
+                </h2>
+                <p className="mt-1 max-w-xl text-xs leading-5 text-[#786d5e]">
+                  원하는 테마와 장소를 선택하여 전국 문화유산을 담은 오디오 도슨트를 자유롭게 둘러보세요.
+                </p>
+              </motion.div>
+
               {/* 카테고리 태그 필터 */}
               <motion.div variants={contentVariants}>
                 <CategoryTagFilter />
