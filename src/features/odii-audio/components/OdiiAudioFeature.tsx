@@ -106,6 +106,26 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
   const [locationMessage, setLocationMessage] = useState('내 위치를 허용하면 반경 3km의 실제 오디오를 찾아드려요.');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // 세션 스토리지 기반 애니메이션 1회 실행 기억 (새로고침 시 애니메이션 재실행 방지)
+  const [hasAnimated] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      return sessionStorage.getItem('onmaru_odii_animated') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !hasAnimated) {
+      try {
+        sessionStorage.setItem('onmaru_odii_animated', 'true');
+      } catch {
+        // ignore
+      }
+    }
+  }, [hasAnimated]);
+
   // 로컬 스토리지 기반 '마음 담은 소리' 스크랩 보관함 관리 (재방문 유지)
   const [savedStories, setSavedStories] = useState<OdiiStoryItem[]>(() => {
     if (typeof window === 'undefined') return [];
@@ -228,10 +248,10 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
         <OdiiAtmosphereBackground />
         <div className="relative z-10">
           <main>
-            {/* 섹션 0: 헤더 타이틀 (즉시 진입) */}
+            {/* 섹션 0: 헤더 타이틀 (첫 진입 시 즉시 진입, 재방문 시 애니메이션 생략) */}
           <motion.section
             variants={sectionVariants}
-            initial="hidden"
+            initial={hasAnimated ? false : "hidden"}
             animate="visible"
             className="w-full pb-4 pt-8 sm:pt-10"
           >
@@ -247,14 +267,14 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             </div>
           </motion.section>
 
-          {/* 섹션 1: 히어로 큐레이션 레일 (선명한 0.68초 시차 연극적 진입) */}
+          {/* 섹션 1: 히어로 큐레이션 레일 (첫 진입 시 0.45초 자동 등판, 재방문 시 즉시 노출) */}
           <motion.div
-            initial={{ opacity: 0, y: 36 }}
+            initial={hasAnimated ? false : { opacity: 0, y: 32 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{
-              duration: 1.2,
+            transition={hasAnimated ? { duration: 0 } : {
+              duration: 1.15,
               ease: [0.16, 1, 0.3, 1],
-              delay: 0.68,
+              delay: 0.45,
             }}
           >
             <OdiiAutoSliceRail
@@ -263,13 +283,14 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             />
           </motion.div>
 
-          {/* 섹션 2: 키워드에서 대표 이야기로 이어지는 스포트라이트 (섹션 1 이후 스크롤 감지 시 선명하게 시차 진입) */}
+          {/* 섹션 2: 키워드 스포트라이트 (첫 진입 시 0.85초 자동 순차 등판 / 스크롤 시 등장, 재방문 시 즉시 노출) */}
           <motion.div
             variants={sectionVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.35 }}
-            transition={{ delay: 0.3 }}
+            initial={hasAnimated ? false : "hidden"}
+            whileInView={hasAnimated ? undefined : "visible"}
+            animate={hasAnimated ? "visible" : undefined}
+            viewport={hasAnimated ? undefined : { once: true, amount: 0.15 }}
+            transition={hasAnimated ? { duration: 0 } : { delay: 0.3 }}
           >
             <KeywordSpotlightSection
               onBookmarkStory={handleToggleBookmark}
@@ -281,9 +302,9 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
           <motion.section
             aria-labelledby="nearby-stories-heading"
             variants={sectionVariants}
-            initial="hidden"
+            initial={hasAnimated ? false : "hidden"}
             whileInView="visible"
-            viewport={{ once: true, amount: 0.25 }}
+            viewport={{ once: true, amount: 0.2 }}
             className="w-full py-8 sm:py-12"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
@@ -318,9 +339,9 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
           <motion.section
             id="odii-archive"
             variants={sectionVariants}
-            initial="hidden"
+            initial={hasAnimated ? false : "hidden"}
             whileInView="visible"
-            viewport={{ once: true, amount: 0.25 }}
+            viewport={{ once: true, amount: 0.2 }}
             className="w-full bg-white py-10 sm:py-14"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
