@@ -247,14 +247,14 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             </div>
           </motion.section>
 
-          {/* 섹션 1: 히어로 큐레이션 레일 (0.28초 지연 우아한 등판) */}
+          {/* 섹션 1: 히어로 큐레이션 레일 (0.14초 시차 - 2배 빠른 스무스 등판) */}
           <motion.div
-            initial={{ opacity: 0, y: 28 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{
-              duration: 1.0,
+              duration: 0.85,
               ease: [0.16, 1, 0.3, 1],
-              delay: 0.28,
+              delay: 0.14,
             }}
           >
             <OdiiAutoSliceRail
@@ -263,13 +263,13 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             />
           </motion.div>
 
-          {/* 섹션 2: 한 단어로, 한 장면 (1번 섹션과 제목이 동시에 나오지 않도록 스크롤 40% 진입 시 0.25s 지연 등판) */}
+          {/* 섹션 2: 한 단어로, 한 장면 (0.32초 자동 순차 등판 - 스크롤 없이도 자연스러운 릴레이) */}
           <motion.div
             variants={sectionVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, amount: 0.4, margin: '0px 0px -80px 0px' }}
-            transition={{ delay: 0.25 }}
+            viewport={{ once: true, amount: 0.08 }}
+            transition={{ delay: 0.32 }}
           >
             <KeywordSpotlightSection
               onBookmarkStory={handleToggleBookmark}
