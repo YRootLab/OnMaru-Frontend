@@ -119,8 +119,8 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
         style={{ background: `radial-gradient(ellipse 80% 120% at 85% 15%, ${accentColor} 0%, transparent 70%)` }}
       />
 
-      {/* 섬네일 비주얼 (1.4배 높아진 썸네일: min-h-[200px] / sm:min-h-[210px]) */}
-      <div className="relative z-10 min-h-[200px] sm:min-h-[210px] overflow-hidden rounded-[1.1rem] bg-[#d8cfbf]">
+      {/* 섬네일 비주얼 (애플 HIG 황금 비율 황금 조화: min-h-[168px] / sm:min-h-[176px]) */}
+      <div className="relative z-10 min-h-[168px] sm:min-h-[176px] overflow-hidden rounded-[1.1rem] bg-[#d8cfbf]">
         <img
           src={story.imageUrl || FALLBACK_ART}
           alt=""
@@ -134,17 +134,17 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
         <div className="absolute inset-0 bg-gradient-to-t from-[#211e19]/65 via-transparent to-transparent" />
 
         {/* 재생 컨트롤 원형 버블 */}
-        <span className={`absolute bottom-3 left-3 inline-flex h-8.5 w-8.5 sm:h-9 sm:w-9 items-center justify-center rounded-full shadow-md backdrop-blur-xs transition-all duration-300 ${
+        <span className={`absolute bottom-2.5 left-2.5 inline-flex h-8 w-8 sm:h-8.5 sm:w-8.5 items-center justify-center rounded-full shadow-md backdrop-blur-xs transition-all duration-300 ${
           isPlaying
             ? 'bg-[#a94d35] text-white ring-2 ring-white/90 shadow-[0_4px_12px_rgba(169,77,53,0.3)]'
             : 'bg-white/95 text-[#211e19] ring-2 ring-white/90 shadow-[0_4px_10px_rgba(0,0,0,0.15)]'
         }`}>
           {isPlaying ? (
-            <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+            <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
             </svg>
           ) : (
-            <svg className="ml-0.5 h-4 w-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+            <svg className="ml-0.5 h-3.5 w-3.5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M8 5v14l11-7z" />
             </svg>
           )}
@@ -155,19 +155,19 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
       <div className="relative z-10 flex min-w-0 flex-col justify-between py-0.5 pr-0.5">
         <div className="min-w-0">
           {/* 1. 메인 타이틀 (맨 위 배치!) */}
-          <h3 className={`font-odii-sans text-[15.5px] font-bold leading-tight tracking-[-0.035em] transition-colors duration-300 line-clamp-1 ${
+          <h3 className={`font-odii-sans text-[15px] font-bold leading-tight tracking-[-0.035em] transition-colors duration-300 line-clamp-1 ${
             isCurrent ? 'text-[#a94d35]' : 'text-[#211e19] group-hover:text-[#a94d35]'
           }`}>
             {story.title}
           </h3>
 
           {/* 2. 서브타이틀 / 오디오 소제목 */}
-          <p className="mt-0.5 truncate text-[11.5px] font-medium text-[#655b4d]">
+          <p className="mt-0.5 truncate text-[11px] font-medium text-[#655b4d]">
             {story.audioTitle}
           </p>
 
           {/* 3. 애플 스타일 카테고리 & 장소 정보 메타행 */}
-          <div className="mt-2 flex min-w-0 items-center gap-1.5 text-[10px]">
+          <div className="mt-1.5 flex min-w-0 items-center gap-1.5 text-[10px]">
             <span className="shrink-0 rounded-full bg-[#a94d35]/10 px-2 py-0.5 font-bold text-[#a94d35]">
               {story.category}
             </span>
@@ -178,15 +178,15 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
           </div>
 
           {/* 4. 한지 오디오 인용구 에디토리얼 박스 */}
-          <div className="mt-2.5 rounded-r-lg border-l-2 border-[#a94d35]/50 bg-[#211e19]/[0.035] py-1.5 pl-2.5 pr-1.5">
-            <p className="line-clamp-2 text-[10.5px] italic leading-relaxed text-[#594e40]">
+          <div className="mt-2 rounded-r-lg border-l-2 border-[#a94d35]/50 bg-[#211e19]/[0.035] py-1 pl-2 pr-1">
+            <p className="line-clamp-2 text-[10px] italic leading-relaxed text-[#594e40]">
               “{getScriptExcerpt(story.script)}”
             </p>
           </div>
         </div>
 
         {/* 5. 하단 메타바 (애플 스타일 1px 헤어라인 분리) */}
-        <div className="mt-3 flex items-center justify-between border-t border-[#211e19]/08 pt-2.5 text-[10px] text-[#786d5e]">
+        <div className="mt-2.5 flex items-center justify-between border-t border-[#211e19]/08 pt-2 text-[9.5px] text-[#786d5e]">
           <span className="font-mono font-semibold text-[#655b4d]">{formatDuration(story)}</span>
           <span className="truncate font-medium text-[#8c7e6c]">{story.speaker || '온마루 도슨트'}</span>
         </div>
@@ -204,7 +204,7 @@ export const StoryCarouselSkeleton: React.FC = () => (
           className="grid w-[min(94vw,25.5rem)] shrink-0 grid-cols-[144px_minmax(0,1fr)] gap-4 overflow-hidden rounded-[1.4rem] border border-[#211e19]/08 bg-[#faf7f2]/95 p-3 sm:w-[25.5rem] sm:grid-cols-[152px_minmax(0,1fr)]"
         >
           {/* 섬네일 스켈레톤 */}
-          <div className="relative h-[200px] min-h-[200px] w-full overflow-hidden rounded-[1.1rem] bg-[#e5d9c7] animate-pulse sm:h-[210px] sm:min-h-[210px]" />
+          <div className="relative h-[168px] min-h-[168px] w-full overflow-hidden rounded-[1.1rem] bg-[#e5d9c7] animate-pulse sm:h-[176px] sm:min-h-[176px]" />
 
           {/* 우측 텍스트 정보 스켈레톤 */}
           <div className="flex flex-col justify-between py-0.5 pr-0.5">
