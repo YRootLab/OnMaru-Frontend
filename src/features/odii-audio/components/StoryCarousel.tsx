@@ -148,15 +148,16 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
             </svg>
           )}
         </span>
-        {story.distance && <span className="absolute right-3 bottom-3 rounded-full bg-[#fffaf3]/95 px-2.5 py-1 text-[9.5px] font-bold text-[#211e19] shadow-xs">{story.distance}</span>}
       </div>
 
       {/* 카드 우측 정보 서사 영역 (1.4배 높아진 비율 완벽 대응) */}
       <div className="relative z-10 flex min-w-0 flex-col justify-between py-1 pr-0.5">
         <div className="min-w-0">
           <div className="flex min-w-0 items-center gap-1.5">
-            <span className="shrink-0 rounded-full bg-[#a94d35]/10 px-2 py-0.5 text-[10px] font-bold text-[#a94d35]">{story.category}</span>
-            <span className="truncate text-[10px] font-medium text-[#8c7e6c]">{story.locationName || '대한민국 문화유산'}</span>
+            <span className="shrink-0 rounded-full bg-[#a94d35]/10 px-2.5 py-0.5 text-[10px] font-bold text-[#a94d35]">{story.category}</span>
+            <span className="min-w-0 flex-1 truncate text-[10.5px] font-medium text-[#786d5e]" title={story.locationName || '대한민국 문화유산'}>
+              {story.locationName || '대한민국 문화유산'}
+            </span>
           </div>
           
           <h3 className={`mt-2 line-clamp-1 font-odii-sans text-base font-bold leading-snug tracking-[-0.03em] ${isCurrent ? 'text-[#a94d35]' : 'text-[#211e19]'}`}>
