@@ -160,8 +160,8 @@ export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = (
           </div>
         </motion.nav>
 
-        {/* 대표 이야기 스포트라이트 스테이지 (0.36초 후 순차 등판) */}
-        <motion.div variants={contentVariants} className="mt-8 overflow-hidden border border-[#211e19]/15 bg-[#fbf7ef]">
+        {/* 대표 이야기 스포트라이트 스테이지 (0.36초 후 순차 등판 / 480px 레이아웃 완벽 고정) */}
+        <motion.div variants={contentVariants} className="mt-8 min-h-[480px] overflow-hidden border border-[#211e19]/15 bg-[#fbf7ef]">
           <AnimatePresence mode="wait">
             <motion.div
               key={selectedKeyword}
@@ -169,13 +169,15 @@ export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = (
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
-              className="grid min-h-[420px] lg:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.65fr)]"
+              className="grid min-h-[480px] lg:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.65fr)]"
             >
               <article className="grid min-w-0 md:grid-cols-[minmax(240px,0.9fr)_minmax(0,1.1fr)]">
-                <div className="relative min-h-[250px] overflow-hidden bg-[#d9cdbc] md:min-h-[420px]">
+                <div className="relative h-[280px] min-h-[280px] overflow-hidden bg-[#d9cdbc] md:h-full md:min-h-[480px]">
                   <img
                     src={spotlightStory?.imageUrl || FALLBACK_IMAGE}
                     alt={spotlightStory?.title || '오늘의 대표 이야기'}
+                    loading="eager"
+                    decoding="sync"
                     onError={(event) => {
                       (event.target as HTMLImageElement).src = FALLBACK_IMAGE;
                     }}

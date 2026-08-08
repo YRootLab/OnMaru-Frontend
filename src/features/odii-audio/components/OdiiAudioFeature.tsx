@@ -305,7 +305,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             />
           </motion.div>
 
-          {/* 섹션 2: 한 단어로, 한 장면 (새로고침 시 즉시 노출 / 500px 레이아웃 고정) */}
+          {/* 섹션 2: 한 단어로, 한 장면 (새로고침 시 즉시 노출 / 660px 레이아웃 완벽 고정) */}
           <motion.div
             variants={sectionVariants}
             initial={hasAnimatedSession ? false : "hidden"}
@@ -313,7 +313,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             animate={hasAnimatedSession ? "visible" : undefined}
             viewport={hasAnimatedSession ? undefined : { once: true, amount: 0.15 }}
             transition={hasAnimatedSession ? { duration: 0 } : undefined}
-            className="min-h-[440px] sm:min-h-[500px]"
+            className="min-h-[620px] sm:min-h-[660px]"
           >
             <KeywordSpotlightSection
               onBookmarkStory={handleToggleBookmark}
