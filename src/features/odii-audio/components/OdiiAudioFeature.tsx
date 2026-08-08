@@ -205,12 +205,12 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
     };
   }, [activeApiService]);
 
-  // 2. 섹션 4 아카이브 페이지네이션 및 카테고리/검색어 독립적 쾌속 업데이트 (히어로 및 전체 재로딩 완전 분리)
+  // 2. 섹션 4 아카이브 페이지네이션 및 카테고리/검색어 독립적 쾌속 업데이트 (초기 마운트 시 0ms 렌더링 유지)
   useEffect(() => {
     let isMounted = true;
 
     async function fetchArchiveData() {
-      setIsArchiveLoading(true);
+      // 마운트 시 initialStories가 이미 렌더링된 상태에서는 로딩 오버레이 없이 0ms 고정 렌더링
       const page = await activeApiService.getStoryPage(selectedCategory, searchQuery, archivePage, 12);
 
       if (isMounted) {
@@ -305,7 +305,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             />
           </motion.div>
 
-          {/* 섹션 2: 한 단어로, 한 장면 (새로고침 시 즉시 노출 / 480px 레이아웃 고정) */}
+          {/* 섹션 2: 한 단어로, 한 장면 (새로고침 시 즉시 노출 / 500px 레이아웃 고정) */}
           <motion.div
             variants={sectionVariants}
             initial={hasAnimatedSession ? false : "hidden"}
@@ -321,7 +321,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             />
           </motion.div>
 
-          {/* 섹션 3: 오늘, 여기에서 (새로고침 시 즉시 노출 / 300px 레이아웃 고정) */}
+          {/* 섹션 3: 오늘, 여기에서 (새로고침 시 즉시 노출 / 320px 레이아웃 고정) */}
           <motion.section
             aria-labelledby="nearby-stories-heading"
             variants={sectionVariants}
@@ -360,7 +360,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             </div>
           </motion.section>
 
-          {/* 섹션 4: 주제와 장소를 따라보는 이야기 아카이브 (새로고침 시 즉시 노출 / 700px 레이아웃 고정) */}
+          {/* 섹션 4: 주제와 장소를 따라보는 이야기 아카이브 (새로고침 시 즉시 노출 / 1020px 레이아웃 완벽 고정) */}
           <motion.section
             id="odii-archive"
             variants={sectionVariants}
@@ -369,7 +369,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             animate={hasAnimatedSession ? "visible" : undefined}
             viewport={hasAnimatedSession ? undefined : { once: true, amount: 0.12 }}
             transition={hasAnimatedSession ? { duration: 0 } : undefined}
-            className="w-full bg-white py-10 sm:py-14 min-h-[650px] sm:min-h-[750px]"
+            className="w-full bg-white py-10 sm:py-14 min-h-[940px] sm:min-h-[1020px]"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
               {/* 카테고리 태그 필터 */}
@@ -377,8 +377,8 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                 <CategoryTagFilter />
               </motion.div>
 
-              {/* 오디오 아카이브 카드 리스트 (높이 붕괴 방지 & 0ms 레이아웃 시프트 차단) */}
-              <div className="relative min-h-[460px]">
+              {/* 오디오 아카이브 카드 리스트 (높이 붕괴 방지 & 780px 레이아웃 고정) */}
+              <div className="relative min-h-[720px] sm:min-h-[780px]">
                 {isArchiveLoading && (
                   <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/50 backdrop-blur-xs transition-opacity duration-150">
                     <span className="inline-flex items-center gap-2 rounded-full bg-[#211e19] px-4 py-2 text-xs font-semibold text-white shadow-lg">
@@ -409,7 +409,10 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                   </button>
                   <button
                     type="button"
-                    onClick={() => setArchivePage((page) => Math.max(1, page - 1))}
+                    onClick={() => {
+                      setIsArchiveLoading(true);
+                      setArchivePage((page) => Math.max(1, page - 1));
+                    }}
                     disabled={archivePage <= 1 || isArchiveLoading}
                     className="h-9 rounded-full border border-[#211e19]/15 px-3 text-xs font-semibold text-[#211e19] transition-colors hover:border-[#a94d35] hover:text-[#a94d35] disabled:cursor-not-allowed disabled:opacity-30"
                   >
@@ -418,7 +421,10 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                   <span className="min-w-16 text-center text-xs font-semibold text-[#211e19]">{archivePage} / {totalArchivePages}</span>
                   <button
                     type="button"
-                    onClick={() => setArchivePage((page) => Math.min(totalArchivePages, page + 1))}
+                    onClick={() => {
+                      setIsArchiveLoading(true);
+                      setArchivePage((page) => Math.min(totalArchivePages, page + 1));
+                    }}
                     disabled={archivePage >= totalArchivePages || isArchiveLoading}
                     className="h-9 rounded-full border border-[#211e19]/15 px-3 text-xs font-semibold text-[#211e19] transition-colors hover:border-[#a94d35] hover:text-[#a94d35] disabled:cursor-not-allowed disabled:opacity-30"
                   >
@@ -429,12 +435,15 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             </div>
           </motion.section>
 
-          {/* 섹션 6: 이탈 방지 & 재방문 CTA */}
+          {/* 섹션 5: 이탈 방지 & 재방문 CTA (새로고침 시 즉시 노출 / 260px 고정) */}
           <motion.div
             variants={sectionVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.1 }}
+            initial={hasAnimatedSession ? false : "hidden"}
+            whileInView={hasAnimatedSession ? undefined : "visible"}
+            animate={hasAnimatedSession ? "visible" : undefined}
+            viewport={hasAnimatedSession ? undefined : { once: true, amount: 0.1 }}
+            transition={hasAnimatedSession ? { duration: 0 } : undefined}
+            className="min-h-[220px] sm:min-h-[260px]"
           >
             <OdiiFooterCTA />
           </motion.div>
