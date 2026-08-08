@@ -19,27 +19,27 @@ import { ODII_HERO_TABS } from '../data/odiiCategoryData';
 import { OdiiDependencyProvider, useOdiiApiService } from '../context/OdiiDependencyContext';
 
 const sectionVariants: Variants = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 32 },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
       duration: 1.1,
-      ease: [0.12, 1, 0.2, 1],
-      staggerChildren: 0.08,
-      delayChildren: 0.06,
+      ease: [0.16, 1, 0.3, 1],
+      staggerChildren: 0.1,
+      delayChildren: 0.08,
     },
   },
 };
 
 const childVariants: Variants = {
-  hidden: { opacity: 0, y: 14 },
+  hidden: { opacity: 0, y: 18 },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.9,
-      ease: [0.12, 1, 0.2, 1],
+      duration: 0.95,
+      ease: [0.16, 1, 0.3, 1],
     },
   },
 };
@@ -208,12 +208,11 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
         <OdiiAtmosphereBackground />
         <div className="relative z-10">
           <main>
-            {/* 섹션 0: 헤더 타이틀 */}
+            {/* 섹션 0: 헤더 타이틀 (즉시 진입) */}
           <motion.section
             variants={sectionVariants}
             initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.05 }}
+            animate="visible"
             className="w-full pb-4 pt-8 sm:pt-10"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
@@ -228,12 +227,15 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             </div>
           </motion.section>
 
-          {/* 섹션 1: 히어로 큐레이션 레일 */}
+          {/* 섹션 1: 히어로 큐레이션 레일 (애플 스타일 0.22초 시차 겹침 진입) */}
           <motion.div
-            variants={sectionVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.05 }}
+            initial={{ opacity: 0, y: 32 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: 1.15,
+              ease: [0.16, 1, 0.3, 1],
+              delay: 0.22,
+            }}
           >
             <OdiiAutoSliceRail
               stories={storyList.length ? storyList : (nearbyStories.length ? nearbyStories : MOCK_ODII_STORIES)}
@@ -241,12 +243,13 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             />
           </motion.div>
 
-          {/* 섹션 2: 키워드에서 대표 이야기로 이어지는 스포트라이트 */}
+          {/* 섹션 2: 키워드에서 대표 이야기로 이어지는 스포트라이트 (스크롤 반응 시차 진입) */}
           <motion.div
             variants={sectionVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, amount: 0.08 }}
+            viewport={{ once: true, amount: 0.1 }}
+            transition={{ delay: 0.08 }}
           >
             <KeywordSpotlightSection
               onBookmarkStory={handleToggleBookmark}
@@ -260,7 +263,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             variants={sectionVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, amount: 0.08 }}
+            viewport={{ once: true, amount: 0.1 }}
             className="w-full py-8 sm:py-12"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
@@ -294,7 +297,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             variants={sectionVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, amount: 0.08 }}
+            viewport={{ once: true, amount: 0.1 }}
             className="w-full bg-white py-10 sm:py-14"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
