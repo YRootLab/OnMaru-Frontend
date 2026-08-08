@@ -150,40 +150,44 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
         </span>
       </div>
 
-      {/* 카드 우측 정보 서사 영역 (주소 짤림 100% 방지 위계 구조) */}
+      {/* 카드 우측 정보 서사 영역 (Apple App Store 에디토리얼 타이포그래피 위계) */}
       <div className="relative z-10 flex min-w-0 flex-col justify-between py-0.5 pr-0.5">
         <div className="min-w-0">
-          {/* 상단 1열: 카테고리 태그 */}
-          <div>
-            <span className="inline-block rounded-full bg-[#a94d35]/10 px-2.5 py-0.5 text-[10px] font-bold text-[#a94d35]">
+          {/* 1. 메인 타이틀 (맨 위 배치!) */}
+          <h3 className={`font-odii-sans text-[15.5px] font-bold leading-tight tracking-[-0.035em] transition-colors duration-300 line-clamp-1 ${
+            isCurrent ? 'text-[#a94d35]' : 'text-[#211e19] group-hover:text-[#a94d35]'
+          }`}>
+            {story.title}
+          </h3>
+
+          {/* 2. 서브타이틀 / 오디오 소제목 */}
+          <p className="mt-0.5 truncate text-[11.5px] font-medium text-[#655b4d]">
+            {story.audioTitle}
+          </p>
+
+          {/* 3. 애플 스타일 카테고리 & 장소 정보 메타행 */}
+          <div className="mt-2 flex min-w-0 items-center gap-1.5 text-[10px]">
+            <span className="shrink-0 rounded-full bg-[#a94d35]/10 px-2 py-0.5 font-bold text-[#a94d35]">
               {story.category}
+            </span>
+            <span className="text-[#a94d35]/40 font-bold">·</span>
+            <span className="min-w-0 flex-1 truncate font-medium text-[#786d5e]" title={story.locationName || '대한민국 문화유산'}>
+              {story.locationName || '대한민국 문화유산'}
             </span>
           </div>
 
-          {/* 상단 2열: 장소/주소 (독립적인 전체 너비 확보로 짤림 100% 방지) */}
-          <p className="mt-1 truncate text-[11px] font-medium text-[#786d5e]" title={story.locationName || '대한민국 문화유산'}>
-            {story.locationName || '대한민국 문화유산'}
-          </p>
-          
-          {/* 메인 타이틀 */}
-          <h3 className={`mt-1.5 line-clamp-1 font-odii-sans text-base font-bold leading-snug tracking-[-0.03em] ${isCurrent ? 'text-[#a94d35]' : 'text-[#211e19]'}`}>
-            {story.title}
-          </h3>
-          
-          <p className="mt-0.5 line-clamp-1 text-xs font-medium text-[#655b4d]">{story.audioTitle}</p>
-          
-          {/* 한지 오디오 인용구 박스 */}
-          <div className="mt-2 rounded-r-md border-l-2 border-[#a94d35]/40 bg-[#211e19]/04 py-1.5 pl-2.5 pr-1.5">
-            <p className="line-clamp-2 text-[10.5px] italic leading-relaxed text-[#655b4d]">
+          {/* 4. 한지 오디오 인용구 에디토리얼 박스 */}
+          <div className="mt-2.5 rounded-r-lg border-l-2 border-[#a94d35]/50 bg-[#211e19]/[0.035] py-1.5 pl-2.5 pr-1.5">
+            <p className="line-clamp-2 text-[10.5px] italic leading-relaxed text-[#594e40]">
               “{getScriptExcerpt(story.script)}”
             </p>
           </div>
         </div>
 
-        {/* 하단 메타바 */}
-        <div className="mt-2.5 flex items-center justify-between border-t border-[#211e19]/08 pt-2 text-[10px] text-[#786d5e]">
+        {/* 5. 하단 메타바 (애플 스타일 1px 헤어라인 분리) */}
+        <div className="mt-3 flex items-center justify-between border-t border-[#211e19]/08 pt-2.5 text-[10px] text-[#786d5e]">
           <span className="font-mono font-semibold text-[#655b4d]">{formatDuration(story)}</span>
-          <span className="truncate font-medium text-[#8c7e6c]">{story.speaker || '문화해설사 도슨트'}</span>
+          <span className="truncate font-medium text-[#8c7e6c]">{story.speaker || '온마루 도슨트'}</span>
         </div>
       </div>
     </button>
