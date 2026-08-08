@@ -65,8 +65,8 @@ export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = (
 }) => {
   const activeApiService = useOdiiApiService(apiService);
   const [selectedKeyword, setSelectedKeyword] = useState('한옥');
-  const [spotlightStory, setSpotlightStory] = useState<OdiiStoryItem | null>(null);
-  const [relatedStories, setRelatedStories] = useState<OdiiStoryItem[]>([]);
+  const [spotlightStory, setSpotlightStory] = useState<OdiiStoryItem | null>(() => MOCK_ODII_STORIES[0]);
+  const [relatedStories, setRelatedStories] = useState<OdiiStoryItem[]>(() => MOCK_ODII_STORIES.slice(1, 4));
   const [isLoading, setIsLoading] = useState(false);
 
   const currentStory = useOdiiAudioStore((state) => state.currentStory);
