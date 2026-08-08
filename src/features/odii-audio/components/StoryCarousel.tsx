@@ -106,9 +106,9 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
       onClick={onSelect}
       aria-pressed={isCurrent}
       style={{ isolation: 'isolate' }}
-      className={`group relative z-0 grid w-[min(88vw,23rem)] shrink-0 snap-start grid-cols-[138px_minmax(0,1fr)] gap-3.5 overflow-hidden rounded-[1.35rem] border p-2.5 text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_14px_30px_rgba(61,45,29,0.11)] sm:w-[23rem] sm:grid-cols-[144px_minmax(0,1fr)] ${
+      className={`group relative z-0 grid w-[min(82vw,19.5rem)] shrink-0 snap-start grid-cols-[118px_minmax(0,1fr)] gap-2.5 overflow-hidden rounded-[1.15rem] border p-2 text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_24px_rgba(61,45,29,0.11)] sm:w-[19.5rem] sm:grid-cols-[124px_minmax(0,1fr)] ${
         isCurrent
-          ? 'border-[#a94d35]/50 bg-[#fffbf5] shadow-[0_10px_24px_rgba(169,77,53,0.13)] ring-1 ring-[#a94d35]/25'
+          ? 'border-[#a94d35]/50 bg-[#fffbf5] shadow-[0_8px_20px_rgba(169,77,53,0.13)] ring-1 ring-[#a94d35]/25'
           : 'border-[#211e19]/08 bg-[#faf7f2]/95 hover:border-[#a94d35]/35 hover:bg-[#fffaf4]'
       }`}
     >
@@ -118,8 +118,8 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
         style={{ background: `radial-gradient(ellipse 80% 120% at 85% 15%, ${accentColor} 0%, transparent 70%)` }}
       />
 
-      {/* 섬네일 비주얼 */}
-      <div className="relative z-10 min-h-[148px] overflow-hidden rounded-[1rem] bg-[#d8cfbf]">
+      {/* 섬네일 비주얼 (0.85 비율 수축: min-h-[126px]) */}
+      <div className="relative z-10 min-h-[126px] overflow-hidden rounded-[0.85rem] bg-[#d8cfbf]">
         <img
           src={story.imageUrl || FALLBACK_ART}
           alt=""
@@ -130,49 +130,49 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#211e19]/65 via-transparent to-transparent" />
 
-        {/* 재생 컨트롤 원형 버블 (38px/40px 완벽한 비주얼 밸런스 UI) */}
-        <span className={`absolute bottom-2.5 left-2.5 inline-flex h-9.5 w-9.5 sm:h-10 sm:w-10 items-center justify-center rounded-full shadow-md backdrop-blur-xs transition-all duration-300 group-hover:scale-110 active:scale-95 ${
+        {/* 재생 컨트롤 원형 버블 (0.85 비율에 맞춰 28px/32px 원형 UI) */}
+        <span className={`absolute bottom-2 left-2 inline-flex h-7.5 w-7.5 sm:h-8 sm:w-8 items-center justify-center rounded-full shadow-md backdrop-blur-xs transition-all duration-300 group-hover:scale-110 active:scale-95 ${
           isPlaying
-            ? 'bg-[#a94d35] text-white ring-2 ring-white/90 shadow-[0_6px_16px_rgba(169,77,53,0.3)]'
-            : 'bg-white/95 text-[#211e19] ring-2 ring-white/90 shadow-[0_6px_14px_rgba(0,0,0,0.15)] hover:bg-white hover:text-[#a94d35]'
+            ? 'bg-[#a94d35] text-white ring-2 ring-white/90 shadow-[0_4px_12px_rgba(169,77,53,0.3)]'
+            : 'bg-white/95 text-[#211e19] ring-2 ring-white/90 shadow-[0_4px_10px_rgba(0,0,0,0.15)] hover:bg-white hover:text-[#a94d35]'
         }`}>
           {isPlaying ? (
-            <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+            <svg className="h-3 w-3 fill-current" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
             </svg>
           ) : (
-            <svg className="ml-0.5 h-4.5 w-4.5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+            <svg className="ml-0.5 h-3.5 w-3.5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M8 5v14l11-7z" />
             </svg>
           )}
         </span>
-        {story.distance && <span className="absolute right-2.5 bottom-2.5 rounded-full bg-[#fffaf3]/95 px-2 py-0.5 text-[9px] font-bold text-[#211e19] shadow-xs">{story.distance}</span>}
+        {story.distance && <span className="absolute right-2 bottom-2 rounded-full bg-[#fffaf3]/95 px-1.5 py-0.5 text-[8.5px] font-bold text-[#211e19] shadow-xs">{story.distance}</span>}
       </div>
 
-      {/* 카드 우측 정보 서사 영역 */}
+      {/* 카드 우측 정보 서사 영역 (0.85 비율 컴팩트 레이아웃) */}
       <div className="relative z-10 flex min-w-0 flex-col justify-between py-0.5 pr-0.5">
         <div className="min-w-0">
-          <div className="flex min-w-0 items-center gap-1.5">
-            <span className="shrink-0 rounded-full bg-[#a94d35]/10 px-2 py-0.5 text-[9.5px] font-bold text-[#a94d35]">{story.category}</span>
-            <span className="truncate text-[9.5px] font-medium text-[#8c7e6c]">{story.locationName || '대한민국 문화유산'}</span>
+          <div className="flex min-w-0 items-center gap-1">
+            <span className="shrink-0 rounded-full bg-[#a94d35]/10 px-1.5 py-0.5 text-[9px] font-bold text-[#a94d35]">{story.category}</span>
+            <span className="truncate text-[9px] font-medium text-[#8c7e6c]">{story.locationName || '대한민국 문화유산'}</span>
           </div>
           
-          <h3 className={`mt-1.5 line-clamp-1 font-odii-sans text-[14.5px] font-bold leading-snug tracking-[-0.03em] ${isCurrent ? 'text-[#a94d35]' : 'text-[#211e19]'}`}>
+          <h3 className={`mt-1 line-clamp-1 font-odii-sans text-xs font-bold leading-snug tracking-[-0.03em] ${isCurrent ? 'text-[#a94d35]' : 'text-[#211e19]'}`}>
             {story.title}
           </h3>
           
-          <p className="mt-0.5 line-clamp-1 text-[10.5px] font-medium text-[#655b4d]">{story.audioTitle}</p>
+          <p className="mt-0.5 line-clamp-1 text-[10px] font-medium text-[#655b4d]">{story.audioTitle}</p>
           
           {/* 한지 오디오 인용구 박스 */}
-          <div className="mt-2 rounded-r-md border-l-2 border-[#a94d35]/40 bg-[#211e19]/04 py-1 pl-2 pr-1">
-            <p className="line-clamp-2 text-[10px] italic leading-relaxed text-[#655b4d]">
+          <div className="mt-1.5 rounded-r-md border-l-2 border-[#a94d35]/40 bg-[#211e19]/04 py-0.5 pl-1.5 pr-1">
+            <p className="line-clamp-2 text-[9.5px] italic leading-relaxed text-[#655b4d]">
               “{getScriptExcerpt(story.script)}”
             </p>
           </div>
         </div>
 
         {/* 하단 메타바 */}
-        <div className="mt-2.5 flex items-center justify-between border-t border-[#211e19]/08 pt-2 text-[9.5px] text-[#786d5e]">
+        <div className="mt-1.5 flex items-center justify-between border-t border-[#211e19]/08 pt-1.5 text-[9px] text-[#786d5e]">
           <span className="font-mono font-semibold text-[#655b4d]">{formatDuration(story)}</span>
           <span className="truncate font-medium text-[#8c7e6c]">{story.speaker || '문화해설사 도슨트'}</span>
         </div>
