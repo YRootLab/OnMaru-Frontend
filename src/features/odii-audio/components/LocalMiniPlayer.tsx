@@ -58,7 +58,7 @@ export const LocalMiniPlayer: React.FC = () => {
       layout
       initial={{ opacity: 0, y: 20, x: '-50%' }}
       animate={{ opacity: 1, y: 0, x: '-50%' }}
-      className="fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom))] left-1/2 z-50 w-[calc(100%-2rem)] max-w-xl overflow-hidden rounded-[1.5rem] border border-[#d2c3b1]/80 bg-[#fbf8f2]/95 p-3 sm:px-4 shadow-[0_18px_44px_rgba(61,45,29,0.2)] backdrop-blur-xl"
+      className="fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom))] left-1/2 z-50 w-[calc(100%-2rem)] max-w-xl overflow-hidden rounded-[1.35rem] border border-[#d2c3b1]/80 bg-[#fbf8f2]/95 px-3.5 pt-2.5 pb-1.5 sm:px-4 sm:pt-3 sm:pb-2 shadow-[0_18px_44px_rgba(61,45,29,0.2)] backdrop-blur-xl"
     >
       <div className="flex items-center gap-3">
         <button type="button" onClick={() => setIsExpanded(true)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
@@ -81,8 +81,8 @@ export const LocalMiniPlayer: React.FC = () => {
         </button>
       </div>
 
-      {/* 🎵 하단 이쁜 둥근 프로그레스 바 (leading, trailing 여백 + 둥근 캡 적용) */}
-      <div className="mt-2.5 px-1 sm:px-2">
+      {/* 🎵 미니 플레이어 바닥면에 착 붙는 슬림 프로그레스 바 (leading, trailing 여백 + 둥근 캡) */}
+      <div className="mt-1.5 px-0.5 sm:px-1">
         <div className="h-1 w-full overflow-hidden rounded-full bg-[#211e19]/10">
           <div
             className="h-full rounded-full bg-[#a94d35] transition-[width] duration-300"
