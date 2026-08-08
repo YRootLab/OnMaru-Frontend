@@ -130,11 +130,11 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#211e19]/65 via-transparent to-transparent" />
 
-        {/* 재생 컨트롤 원형 버블 (0.9 스케일 정갈한 32px/34px UI - 호버 시 크기 변경 없이 컬러 전환만 적용) */}
-        <span className={`absolute bottom-2.5 left-2.5 inline-flex h-8 w-8 sm:h-8.5 sm:w-8.5 items-center justify-center rounded-full shadow-md backdrop-blur-xs transition-colors duration-300 ${
+        {/* 재생 컨트롤 원형 버블 (0.9 스케일 정갈한 32px/34px UI - 호버 시 형태와 컬러 모두 정갈하게 유지) */}
+        <span className={`absolute bottom-2.5 left-2.5 inline-flex h-8 w-8 sm:h-8.5 sm:w-8.5 items-center justify-center rounded-full shadow-md backdrop-blur-xs transition-all duration-300 ${
           isPlaying
             ? 'bg-[#a94d35] text-white ring-2 ring-white/90 shadow-[0_4px_12px_rgba(169,77,53,0.3)]'
-            : 'bg-white/95 text-[#211e19] ring-2 ring-white/90 shadow-[0_4px_10px_rgba(0,0,0,0.15)] group-hover:bg-[#a94d35] group-hover:text-white'
+            : 'bg-white/95 text-[#211e19] ring-2 ring-white/90 shadow-[0_4px_10px_rgba(0,0,0,0.15)]'
         }`}>
           {isPlaying ? (
             <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
