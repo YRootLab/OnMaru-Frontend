@@ -58,6 +58,49 @@ function getDailyIndex(length: number, keyword: string): number {
   return (dateSeed + keywordSeed) % length;
 }
 
+const KeywordSpotlightSkeleton: React.FC = () => (
+  <div className="grid min-h-[480px] lg:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.65fr)]">
+    <article className="grid min-w-0 md:grid-cols-[minmax(240px,0.9fr)_minmax(0,1.1fr)]">
+      <div className="relative h-[280px] min-h-[280px] overflow-hidden bg-[#e8ded0] animate-pulse md:h-full md:min-h-[480px]">
+        <div className="absolute inset-0 bg-gradient-to-t from-[#211e19]/30 via-transparent to-transparent" />
+      </div>
+      <div className="flex min-w-0 flex-col justify-between p-6 sm:p-8">
+        <div>
+          <div className="h-3.5 w-28 bg-[#e5d9c7] animate-pulse rounded" />
+          <div className="mt-4 h-8 w-4/5 bg-[#dfd2be] animate-pulse rounded-md" />
+          <div className="mt-3 h-4 w-1/2 bg-[#e8ded0] animate-pulse rounded" />
+          <div className="mt-8 border-l-2 border-[#a94d35]/30 pl-4 space-y-2.5">
+            <div className="h-4 w-full bg-[#e8ded0] animate-pulse rounded" />
+            <div className="h-4 w-3/4 bg-[#e8ded0] animate-pulse rounded" />
+          </div>
+        </div>
+        <div className="mt-8 flex items-center gap-4 border-t border-[#211e19]/12 pt-4">
+          <div className="h-9 w-32 bg-[#dfd2be] animate-pulse rounded-full" />
+          <div className="h-4 w-20 bg-[#e8ded0] animate-pulse rounded" />
+        </div>
+      </div>
+    </article>
+    <aside className="border-t border-[#211e19]/12 bg-[#f3ecdf] p-6 sm:p-8 lg:border-l lg:border-t-0">
+      <div className="flex items-end justify-between gap-3 border-b border-[#211e19]/12 pb-4">
+        <div className="h-4 w-28 bg-[#e5d9c7] animate-pulse rounded" />
+        <div className="h-3 w-6 bg-[#e5d9c7] animate-pulse rounded" />
+      </div>
+      <div className="divide-y divide-[#211e19]/12">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="flex items-center gap-3 py-4">
+            <div className="h-3 w-4 bg-[#e5d9c7] animate-pulse rounded" />
+            <div className="min-w-0 flex-1 space-y-2">
+              <div className="h-3 w-20 bg-[#e8ded0] animate-pulse rounded" />
+              <div className="h-4 w-3/4 bg-[#dfd2be] animate-pulse rounded" />
+            </div>
+            <div className="h-8 w-8 rounded-full bg-[#e5d9c7] animate-pulse shrink-0" />
+          </div>
+        ))}
+      </div>
+    </aside>
+  </div>
+);
+
 export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = ({
   onBookmarkStory,
   bookmarkedIds = new Set(),
@@ -65,9 +108,9 @@ export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = (
 }) => {
   const activeApiService = useOdiiApiService(apiService);
   const [selectedKeyword, setSelectedKeyword] = useState('한옥');
-  const [spotlightStory, setSpotlightStory] = useState<OdiiStoryItem | null>(() => MOCK_ODII_STORIES[0]);
-  const [relatedStories, setRelatedStories] = useState<OdiiStoryItem[]>(() => MOCK_ODII_STORIES.slice(1, 4));
-  const [isLoading, setIsLoading] = useState(false);
+  const [spotlightStory, setSpotlightStory] = useState<OdiiStoryItem | null>(null);
+  const [relatedStories, setRelatedStories] = useState<OdiiStoryItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const currentStory = useOdiiAudioStore((state) => state.currentStory);
   const isPlaying = useOdiiAudioStore((state) => state.isPlaying);
@@ -124,7 +167,7 @@ export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = (
   };
 
   return (
-    <section aria-labelledby="keyword-spotlight-heading" className="w-full pt-6 pb-12 sm:pt-8 sm:pb-16">
+    <section aria-labelledby="keyword-spotlight-heading" className="w-full pt-6 pb-12 sm:pt-8 sm:pb-16 min-h-[580px]">
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
         {/* 섹션 2 타이틀 (가장 먼저 등판) */}
         <motion.div variants={titleVariants} className="pb-1">
@@ -163,14 +206,25 @@ export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = (
         {/* 대표 이야기 스포트라이트 스테이지 (0.36초 후 순차 등판 / 480px 레이아웃 완벽 고정) */}
         <motion.div variants={contentVariants} className="mt-8 min-h-[480px] overflow-hidden border border-[#211e19]/15 bg-[#fbf7ef]">
           <AnimatePresence mode="wait">
-            <motion.div
-              key={selectedKeyword}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
-              className="grid min-h-[480px] lg:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.65fr)]"
-            >
+            {isLoading || !spotlightStory ? (
+              <motion.div
+                key="spotlight-skeleton"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <KeywordSpotlightSkeleton />
+              </motion.div>
+            ) : (
+              <motion.div
+                key={selectedKeyword}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
+                className="grid min-h-[480px] lg:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.65fr)]"
+              >
               <article className="grid min-w-0 md:grid-cols-[minmax(240px,0.9fr)_minmax(0,1.1fr)]">
                 <div className="relative h-[280px] min-h-[280px] overflow-hidden bg-[#d9cdbc] md:h-full md:min-h-[480px]">
                   <img
@@ -279,7 +333,8 @@ export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = (
                 </div>
               </aside>
             </motion.div>
-          </AnimatePresence>
+          )}
+        </AnimatePresence>
         </motion.div>
       </div>
     </section>
