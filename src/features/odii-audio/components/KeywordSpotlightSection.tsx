@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, Variants } from 'framer-motion';
 import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
 import { MOCK_ODII_STORIES } from '../api/odiiMockData';
 import { OdiiStoryItem, IOdiiApiService } from '../types/odii.types';
@@ -15,6 +15,30 @@ interface KeywordSpotlightSectionProps {
 }
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=1200&q=82';
+
+const titleVariants: Variants = {
+  hidden: { opacity: 0, y: 26 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 1.0,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+};
+
+const contentVariants: Variants = {
+  hidden: { opacity: 0, y: 32 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 1.15,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+};
 
 function getExcerpt(script = ''): string {
   const line = script.split(/\r?\n/).find((item) => item.trim());
@@ -80,7 +104,7 @@ export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = (
     return () => {
       isMounted = false;
     };
-  }, [selectedKeyword]);
+  }, [activeApiService, selectedKeyword]);
 
   const activeCategory = useMemo(
     () => ODII_THEME_CATEGORIES.find((category) => category.keyword === selectedKeyword) || ODII_THEME_CATEGORIES[0],
@@ -102,7 +126,8 @@ export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = (
   return (
     <section aria-labelledby="keyword-spotlight-heading" className="w-full py-14 sm:py-20">
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
-        <div className="flex flex-col gap-4 border-b border-[#211e19]/15 pb-6 sm:flex-row sm:items-end sm:justify-between sm:gap-8">
+        {/* 섹션 2 타이틀 (가장 먼저 등판) */}
+        <motion.div variants={titleVariants} className="flex flex-col gap-4 border-b border-[#211e19]/15 pb-6 sm:flex-row sm:items-end sm:justify-between sm:gap-8">
           <div>
             <p className="text-xs font-semibold tracking-[0.16em] text-[#a94d35]">오늘의 이야기</p>
             <h2 id="keyword-spotlight-heading" className="mt-2 font-odii-sans text-3xl font-bold tracking-[-0.055em] text-[#211e19] sm:text-4xl">
@@ -112,9 +137,10 @@ export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = (
           <p className="max-w-sm text-xs leading-5 text-[#786d5e] sm:text-right">
             마음이 머무는 주제를 고르면 오늘의 대표 이야기가 열립니다. 내일은 또 다른 장면을 만나보세요.
           </p>
-        </div>
+        </motion.div>
 
-        <nav aria-label="이야기 주제" className="mt-6 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {/* 주제 카테고리 네비게이션 (0.18초 후 지연 등판) */}
+        <motion.nav variants={contentVariants} aria-label="이야기 주제" className="mt-6 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <div className="flex min-w-max items-center gap-x-5 sm:gap-x-7">
             {ODII_THEME_CATEGORIES.map((category) => {
               const isSelected = selectedKeyword === category.keyword;
@@ -135,9 +161,10 @@ export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = (
               );
             })}
           </div>
-        </nav>
+        </motion.nav>
 
-        <div className="mt-8 overflow-hidden border border-[#211e19]/15 bg-[#fbf7ef]">
+        {/* 대표 이야기 스포트라이트 스테이지 (0.36초 후 순차 등판) */}
+        <motion.div variants={contentVariants} className="mt-8 overflow-hidden border border-[#211e19]/15 bg-[#fbf7ef]">
           <AnimatePresence mode="wait">
             <motion.div
               key={selectedKeyword}
@@ -254,7 +281,7 @@ export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = (
               </aside>
             </motion.div>
           </AnimatePresence>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
