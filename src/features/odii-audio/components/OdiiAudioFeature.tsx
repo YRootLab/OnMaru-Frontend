@@ -106,28 +106,16 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
   const [locationMessage, setLocationMessage] = useState('내 위치를 허용하면 반경 3km의 실제 오디오를 찾아드려요.');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // 리로드(F5) 시에만 애니메이션 생략, 다른 상단 네비게이션에서 이동해 올 때는 우아한 애니메이션 실행
+  // 리로드(F5) 시에만 애니메이션 생략, 상단 네비게이션으로 다른 페이지에서 이동해 올 때는 100% 애니메이션 재생
   const [skipAnimation] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false;
     try {
       const navEntries = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[];
-      const isPageReload = navEntries.length > 0 && navEntries[0].type === 'reload';
-      const hasAlreadyVisited = sessionStorage.getItem('onmaru_odii_visited_once') === 'true';
-      return isPageReload && hasAlreadyVisited;
+      return navEntries.length > 0 && navEntries[0].type === 'reload';
     } catch {
       return false;
     }
   });
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        sessionStorage.setItem('onmaru_odii_visited_once', 'true');
-      } catch {
-        // ignore
-      }
-    }
-  }, []);
 
   // 로컬 스토리지 기반 '마음 담은 소리' 스크랩 보관함 관리 (재방문 유지)
   const [savedStories, setSavedStories] = useState<OdiiStoryItem[]>(() => {
