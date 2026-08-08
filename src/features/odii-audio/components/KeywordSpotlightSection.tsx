@@ -127,14 +127,11 @@ export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = (
     <section aria-labelledby="keyword-spotlight-heading" className="w-full pt-6 pb-12 sm:pt-8 sm:pb-16">
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
         {/* 섹션 2 타이틀 (가장 먼저 등판) */}
-        <motion.div variants={titleVariants} className="flex flex-col gap-4 border-b border-[#211e19]/15 pb-6 sm:flex-row sm:items-end sm:justify-between sm:gap-8">
-          <div>
-            <p className="text-xs font-semibold tracking-[0.16em] text-[#a94d35]">오늘의 이야기</p>
-            <h2 id="keyword-spotlight-heading" className="mt-2 font-odii-sans text-3xl font-bold tracking-[-0.055em] text-[#211e19] sm:text-4xl">
-              한 단어로, 한 장면
-            </h2>
-          </div>
-          <p className="max-w-sm text-xs leading-5 text-[#786d5e] sm:text-right">
+        <motion.div variants={titleVariants} className="border-b border-[#211e19]/15 pb-6">
+          <h2 id="keyword-spotlight-heading" className="font-odii-sans text-3xl font-bold tracking-[-0.055em] text-[#211e19] sm:text-4xl">
+            한 단어로, 한 장면
+          </h2>
+          <p className="mt-2.5 max-w-xl text-xs leading-relaxed text-[#786d5e] sm:text-sm">
             마음이 머무는 주제를 고르면 오늘의 대표 이야기가 열립니다. 내일은 또 다른 장면을 만나보세요.
           </p>
         </motion.div>
