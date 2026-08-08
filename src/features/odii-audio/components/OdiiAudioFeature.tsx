@@ -355,7 +355,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
 
               {/* 섹션 3 캐러셀 컴포넌트 */}
               <motion.div variants={contentVariants} className="mt-5">
-                <StoryCarousel stories={nearbyStories.length ? nearbyStories : MOCK_ODII_STORIES} />
+                <StoryCarousel stories={nearbyStories.length ? nearbyStories : MOCK_ODII_STORIES} isLoading={isLocating} />
               </motion.div>
             </div>
           </motion.section>

@@ -6,6 +6,7 @@ import { OdiiStoryItem } from '../types/odii.types';
 
 interface StoryCarouselProps {
   stories: OdiiStoryItem[];
+  isLoading?: boolean;
 }
 
 const FALLBACK_ART = 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=640&q=78';
@@ -194,7 +195,48 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
   );
 };
 
-export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories }) => {
+export const StoryCarouselSkeleton: React.FC = () => (
+  <div aria-label="주변 오디오 로딩 중" className="relative w-full overflow-hidden">
+    <div className="flex gap-4 overflow-x-auto px-6 pt-3 pb-8 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:px-8">
+      {[1, 2, 3].map((id) => (
+        <div
+          key={id}
+          className="grid w-[min(94vw,25.5rem)] shrink-0 grid-cols-[144px_minmax(0,1fr)] gap-4 overflow-hidden rounded-[1.4rem] border border-[#211e19]/08 bg-[#faf7f2]/95 p-3 sm:w-[25.5rem] sm:grid-cols-[152px_minmax(0,1fr)]"
+        >
+          {/* 섬네일 스켈레톤 */}
+          <div className="relative h-[200px] min-h-[200px] w-full overflow-hidden rounded-[1.1rem] bg-[#e5d9c7] animate-pulse sm:h-[210px] sm:min-h-[210px]" />
+
+          {/* 우측 텍스트 정보 스켈레톤 */}
+          <div className="flex flex-col justify-between py-0.5 pr-0.5">
+            <div>
+              {/* 타이틀 스켈레톤 */}
+              <div className="h-5 w-4/5 rounded-md bg-[#dfd2be] animate-pulse" />
+              {/* 서브타이틀 스켈레톤 */}
+              <div className="mt-2 h-3.5 w-3/5 rounded bg-[#e8ded0] animate-pulse" />
+              {/* 카테고리 태그 스켈레톤 */}
+              <div className="mt-3 flex items-center gap-2">
+                <div className="h-4 w-16 rounded-full bg-[#e8ded0] animate-pulse" />
+                <div className="h-3.5 w-24 rounded bg-[#e5d9c7] animate-pulse" />
+              </div>
+              {/* 한지 오디오 인용구 박스 스켈레톤 */}
+              <div className="mt-3 rounded-r-lg border-l-2 border-[#a94d35]/30 bg-[#211e19]/04 p-2.5 space-y-2">
+                <div className="h-3 w-full rounded bg-[#e8ded0] animate-pulse" />
+                <div className="h-3 w-3/4 rounded bg-[#e8ded0] animate-pulse" />
+              </div>
+            </div>
+            {/* 하단 메타바 스켈레톤 */}
+            <div className="mt-3 flex items-center justify-between border-t border-[#211e19]/08 pt-2.5">
+              <div className="h-3.5 w-12 rounded bg-[#e5d9c7] animate-pulse" />
+              <div className="h-3.5 w-20 rounded bg-[#e5d9c7] animate-pulse" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading }) => {
   const railRef = useRef<HTMLDivElement | null>(null);
   const [railIndicator, setRailIndicator] = useState({ left: 0, width: 100, index: 1 });
   const [isDragging, setIsDragging] = useState(false);
@@ -337,6 +379,10 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories }) => {
       window.removeEventListener('resize', updateRailIndicator);
     };
   }, [updateRailIndicator]);
+
+  if (isLoading) {
+    return <StoryCarouselSkeleton />;
+  }
 
   if (stories.length === 0) {
     return (
