@@ -13,10 +13,10 @@ import { AllStoriesModal } from './AllStoriesModal';
 import { LocalMiniPlayer } from './LocalMiniPlayer';
 import { OdiiAtmosphereBackground } from './OdiiAtmosphereBackground';
 import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
-import { odiiApiAdapter } from '../api/odiiApi';
 import { MOCK_ODII_STORIES } from '../api/odiiMockData';
-import { OdiiStoryItem, OdiiStoryPage } from '../types/odii.types';
+import { OdiiStoryItem, OdiiStoryPage, IOdiiApiService } from '../types/odii.types';
 import { ODII_HERO_TABS } from '../data/odiiCategoryData';
+import { OdiiDependencyProvider, useOdiiApiService } from '../context/OdiiDependencyContext';
 
 const sectionVariants: Variants = {
   hidden: { opacity: 0, y: 24 },
@@ -44,20 +44,40 @@ const childVariants: Variants = {
   },
 };
 
-export const OdiiAudioFeature: React.FC = () => {
+export interface OdiiAudioFeatureProps {
+  /** 외부에서 주입 가능한 API 서비스 (기본값: odiiApiAdapter) */
+  apiService?: IOdiiApiService;
+  /** 외부에서 주입받는 아카이브 오디오 스토리 데이터 */
+  initialStories?: OdiiStoryItem[];
+  /** 외부에서 주입받는 내 주변 오디오 스토리 데이터 */
+  initialNearbyStories?: OdiiStoryItem[];
+  /** 외부에서 주입받는 히어로 오디오 스토리 세트 */
+  initialHeroStorySets?: Record<string, OdiiStoryItem[]>;
+  /** 외부 위치 변경 이벤트 콜백 */
+  onLocationChange?: (latitude: number, longitude: number) => void;
+}
+
+export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
+  apiService,
+  initialStories,
+  initialNearbyStories,
+  initialHeroStorySets,
+  onLocationChange,
+}) => {
+  const activeApiService = useOdiiApiService(apiService);
   const selectedCategory = useOdiiAudioStore((s) => s.selectedCategory);
   const searchQuery = useOdiiAudioStore((s) => s.searchQuery);
-  const [storyList, setStoryList] = useState<OdiiStoryItem[]>(MOCK_ODII_STORIES);
-  const [nearbyStories, setNearbyStories] = useState<OdiiStoryItem[]>(MOCK_ODII_STORIES);
-  const [heroStorySets, setHeroStorySets] = useState<Record<string, OdiiStoryItem[]>>({
+  const [storyList, setStoryList] = useState<OdiiStoryItem[]>(() => initialStories || MOCK_ODII_STORIES);
+  const [nearbyStories, setNearbyStories] = useState<OdiiStoryItem[]>(() => initialNearbyStories || MOCK_ODII_STORIES);
+  const [heroStorySets, setHeroStorySets] = useState<Record<string, OdiiStoryItem[]>>(() => initialHeroStorySets || {
     '추천': MOCK_ODII_STORIES.slice(0, 7),
   });
   const [isLoading, setIsLoading] = useState(false);
   const [archiveMeta, setArchiveMeta] = useState<OdiiStoryPage>({
-    items: MOCK_ODII_STORIES,
+    items: initialStories || MOCK_ODII_STORIES,
     pageNo: 1,
     numOfRows: 12,
-    totalCount: MOCK_ODII_STORIES.length,
+    totalCount: (initialStories || MOCK_ODII_STORIES).length,
     source: 'mock',
   });
   const [archivePage, setArchivePage] = useState(1);
@@ -116,11 +136,11 @@ export const OdiiAudioFeature: React.FC = () => {
     async function loadAllData() {
       setIsLoading(true);
       const [page, nearby, heroEntries] = await Promise.all([
-        odiiApiAdapter.getStoryPage(selectedCategory, searchQuery, archivePage, 12),
-        odiiApiAdapter.getNearbyStories(),
+        activeApiService.getStoryPage(selectedCategory, searchQuery, archivePage, 12),
+        activeApiService.getNearbyStories(),
         Promise.all(
           ODII_HERO_TABS.map(async (tab) => {
-            const stories = await odiiApiAdapter.getStoryList(undefined, tab.keyword || undefined);
+            const stories = await activeApiService.getStoryList(undefined, tab.keyword || undefined);
             const combined = tab.id === '추천'
               ? MOCK_ODII_STORIES.slice(0, 7)
               : (stories.length >= 7
@@ -149,7 +169,7 @@ export const OdiiAudioFeature: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [archivePage, selectedCategory, searchQuery]);
+  }, [activeApiService, archivePage, selectedCategory, searchQuery]);
 
   const totalArchivePages = Math.max(1, Math.ceil(archiveMeta.totalCount / archiveMeta.numOfRows));
 
@@ -163,7 +183,8 @@ export const OdiiAudioFeature: React.FC = () => {
     setLocationMessage('현재 위치를 확인하고 주변 이야기를 찾는 중입니다.');
     navigator.geolocation.getCurrentPosition(
       async ({ coords }) => {
-        const stories = await odiiApiAdapter.getNearbyStories(String(coords.longitude), String(coords.latitude));
+        const stories = await activeApiService.getNearbyStories(coords.latitude, coords.longitude);
+        if (onLocationChange) onLocationChange(coords.latitude, coords.longitude);
         if (stories.length > 0) {
           setNearbyStories(stories);
           setLocationLabel('현재 위치 기준 · 반경 3km');
@@ -182,11 +203,12 @@ export const OdiiAudioFeature: React.FC = () => {
   };
 
   return (
-    <div className="odii-feature relative isolate min-h-screen pb-24 text-[#211e19] selection:bg-[#a94d35] selection:text-white">
-      <OdiiAtmosphereBackground />
-      <div className="relative z-10">
-        <main>
-          {/* 섹션 0: 헤더 타이틀 */}
+    <OdiiDependencyProvider apiService={activeApiService}>
+      <div className="odii-feature relative isolate min-h-screen pb-24 text-[#211e19] selection:bg-[#a94d35] selection:text-white">
+        <OdiiAtmosphereBackground />
+        <div className="relative z-10">
+          <main>
+            {/* 섹션 0: 헤더 타이틀 */}
           <motion.section
             variants={sectionVariants}
             initial="hidden"
@@ -356,5 +378,6 @@ export const OdiiAudioFeature: React.FC = () => {
       <LocalMiniPlayer />
       <AllStoriesModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} allStories={storyList} />
     </div>
+    </OdiiDependencyProvider>
   );
 };

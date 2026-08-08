@@ -6,9 +6,13 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { LocalMiniPlayer } from './LocalMiniPlayer';
 import { SavedSoundDrawer } from './SavedSoundDrawer';
 import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
-import { odiiApiAdapter } from '../api/odiiApi';
 import { MOCK_ODII_STORIES } from '../api/odiiMockData';
-import { OdiiStoryItem } from '../types/odii.types';
+import { OdiiStoryItem, IOdiiApiService } from '../types/odii.types';
+import { useOdiiApiService } from '../context/OdiiDependencyContext';
+
+interface OdiiFreeformFeatureProps {
+  apiService?: IOdiiApiService;
+}
 
 const TOPICS = [
   { keyword: '한옥', label: '#한옥', note: '나무와 종이가 호흡하는 집' },
@@ -23,11 +27,16 @@ const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1596484552834-6a58f850
 
 function excerpt(script = ''): string {
   const text = script.split(/\r?\n/).find((line) => line.trim())?.trim() || '장소에 머무는 시간을 소리로 만나보세요.';
-  return text.length > 115 ? `${text.slice(0, 114)}…` : text;
+  return text.length > 90 ? `${text.slice(0, 89)}…` : text;
 }
 
 function uniqueStories(stories: OdiiStoryItem[]): OdiiStoryItem[] {
-  return Array.from(new Map(stories.map((story) => [story.stid, story])).values());
+  const seen = new Set<string>();
+  return stories.filter((story) => {
+    if (!story.stid || seen.has(story.stid)) return false;
+    seen.add(story.stid);
+    return true;
+  });
 }
 
 function storyMatchesTopic(story: OdiiStoryItem, keyword: string): boolean {
@@ -45,7 +54,8 @@ function PlayGlyph({ playing = false }: { playing?: boolean }) {
   );
 }
 
-export const OdiiFreeformFeature: React.FC = () => {
+export const OdiiFreeformFeature: React.FC<OdiiFreeformFeatureProps> = ({ apiService }) => {
+  const activeApiService = useOdiiApiService(apiService);
   const [storyPool, setStoryPool] = useState<OdiiStoryItem[]>(MOCK_ODII_STORIES);
   const [topicStories, setTopicStories] = useState<OdiiStoryItem[]>(MOCK_ODII_STORIES.slice(0, 3));
   const [nearbyStories, setNearbyStories] = useState<OdiiStoryItem[]>(MOCK_ODII_STORIES.slice(0, 4));
@@ -74,8 +84,8 @@ export const OdiiFreeformFeature: React.FC = () => {
   useEffect(() => {
     let isMounted = true;
     Promise.all([
-      odiiApiAdapter.getStoryPage('전체', '', 1, 24),
-      odiiApiAdapter.getNearbyStories(),
+      activeApiService.getStoryPage('전체', '', 1, 24),
+      activeApiService.getNearbyStories(),
     ]).then(([page, nearby]) => {
       if (!isMounted) return;
       if (page.items.length) setStoryPool(uniqueStories(page.items));
@@ -92,7 +102,7 @@ export const OdiiFreeformFeature: React.FC = () => {
 
     async function loadTopic() {
       const localMatches = storyPool.filter((story) => storyMatchesTopic(story, activeTopic));
-      const remoteStories = await odiiApiAdapter.getStoryList(undefined, activeTopic);
+      const remoteStories = await activeApiService.getStoryList(undefined, activeTopic);
       const nextStories = uniqueStories([
         ...(remoteStories.length ? remoteStories : localMatches),
         ...storyPool,
@@ -161,7 +171,7 @@ export const OdiiFreeformFeature: React.FC = () => {
     setLocationMessage('지금 있는 곳을 살펴보는 중…');
     navigator.geolocation.getCurrentPosition(
       async ({ coords }) => {
-        const stories = await odiiApiAdapter.getNearbyStories(String(coords.longitude), String(coords.latitude));
+        const stories = await activeApiService.getNearbyStories(String(coords.longitude), String(coords.latitude));
         if (stories.length) {
           setNearbyStories(uniqueStories(stories).slice(0, 6));
           setLocationMessage(`${stories.length}개의 이야기가 가까이에 있어요.`);
@@ -186,7 +196,7 @@ export const OdiiFreeformFeature: React.FC = () => {
   const reloadArchive = async () => {
     setIsRefreshing(true);
     try {
-      const page = await odiiApiAdapter.getStoryPage('전체', '', 1, 24);
+      const page = await activeApiService.getStoryPage('전체', '', 1, 24);
       setStoryPool(uniqueStories(page.items.length ? page.items : MOCK_ODII_STORIES));
     } finally {
       setIsRefreshing(false);

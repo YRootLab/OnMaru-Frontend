@@ -3,14 +3,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
-import { odiiApiAdapter } from '../api/odiiApi';
 import { MOCK_ODII_STORIES } from '../api/odiiMockData';
-import { OdiiStoryItem } from '../types/odii.types';
+import { OdiiStoryItem, IOdiiApiService } from '../types/odii.types';
 import { ODII_THEME_CATEGORIES } from '../data/odiiCategoryData';
+import { useOdiiApiService } from '../context/OdiiDependencyContext';
 
 interface KeywordSpotlightSectionProps {
   onBookmarkStory?: (story: OdiiStoryItem) => void;
   bookmarkedIds?: Set<string>;
+  apiService?: IOdiiApiService;
 }
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=1200&q=82';
@@ -36,7 +37,9 @@ function getDailyIndex(length: number, keyword: string): number {
 export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = ({
   onBookmarkStory,
   bookmarkedIds = new Set(),
+  apiService,
 }) => {
+  const activeApiService = useOdiiApiService(apiService);
   const [selectedKeyword, setSelectedKeyword] = useState('한옥');
   const [spotlightStory, setSpotlightStory] = useState<OdiiStoryItem | null>(null);
   const [relatedStories, setRelatedStories] = useState<OdiiStoryItem[]>([]);
@@ -53,7 +56,7 @@ export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = (
     async function loadSpotlight() {
       setIsLoading(true);
       try {
-        const stories = await odiiApiAdapter.getStoryList(undefined, selectedKeyword);
+        const stories = await activeApiService.getStoryList(undefined, selectedKeyword);
         const pool = (stories.length > 0 ? stories : MOCK_ODII_STORIES).filter((story) => story.audioUrl);
         const main = pool[getDailyIndex(pool.length, selectedKeyword)] || pool[0] || null;
         const connected = pool.filter((story) => story.stid !== main?.stid).slice(0, 3);

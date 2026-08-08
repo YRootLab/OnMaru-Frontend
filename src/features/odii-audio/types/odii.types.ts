@@ -56,3 +56,17 @@ export type OdiiRegion =
   | '제주'
   | '부산'
   | '대구';
+
+/**
+ * 🏛️ 외부 의존성 주입(Dependency Injection)을 위한 오디 API 서비스 추상화 인터페이스
+ */
+export interface IOdiiApiService {
+  getStoryList(category?: OdiiCategory | string, query?: string): Promise<OdiiStoryItem[]>;
+  getNearbyStories(mapX?: string | number, mapY?: string | number, radius?: number): Promise<OdiiStoryItem[]>;
+  getStoryPage(
+    category?: OdiiCategory | string,
+    query?: string,
+    pageNo?: number,
+    numOfRows?: number
+  ): Promise<OdiiStoryPage>;
+}
