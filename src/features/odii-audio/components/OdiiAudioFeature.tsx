@@ -288,7 +288,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             </div>
           </motion.section>
 
-          {/* 섹션 1: 히어로 큐레이션 레일 (새로고침 시 즉시 노출) */}
+          {/* 섹션 1: 히어로 큐레이션 레일 (새로고침 시 즉시 노출 / 420px 레이아웃 고정) */}
           <motion.div
             initial={hasAnimatedSession ? false : { opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -297,6 +297,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
               ease: [0.16, 1, 0.3, 1],
               delay: 0.20,
             }}
+            className="min-h-[360px] sm:min-h-[420px]"
           >
             <OdiiAutoSliceRail
               stories={storyList.length ? storyList : (nearbyStories.length ? nearbyStories : MOCK_ODII_STORIES)}
@@ -304,7 +305,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             />
           </motion.div>
 
-          {/* 섹션 2: 한 단어로, 한 장면 (새로고침 시 즉시 노출) */}
+          {/* 섹션 2: 한 단어로, 한 장면 (새로고침 시 즉시 노출 / 480px 레이아웃 고정) */}
           <motion.div
             variants={sectionVariants}
             initial={hasAnimatedSession ? false : "hidden"}
@@ -312,6 +313,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             animate={hasAnimatedSession ? "visible" : undefined}
             viewport={hasAnimatedSession ? undefined : { once: true, amount: 0.15 }}
             transition={hasAnimatedSession ? { duration: 0 } : undefined}
+            className="min-h-[440px] sm:min-h-[500px]"
           >
             <KeywordSpotlightSection
               onBookmarkStory={handleToggleBookmark}
@@ -319,7 +321,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             />
           </motion.div>
 
-          {/* 섹션 3: 오늘, 여기에서 (새로고침 시 즉시 노출) */}
+          {/* 섹션 3: 오늘, 여기에서 (새로고침 시 즉시 노출 / 300px 레이아웃 고정) */}
           <motion.section
             aria-labelledby="nearby-stories-heading"
             variants={sectionVariants}
@@ -328,7 +330,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             animate={hasAnimatedSession ? "visible" : undefined}
             viewport={hasAnimatedSession ? undefined : { once: true, amount: 0.12 }}
             transition={hasAnimatedSession ? { duration: 0 } : undefined}
-            className="w-full py-8 sm:py-12"
+            className="w-full py-8 sm:py-12 min-h-[280px] sm:min-h-[320px]"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
               {/* 섹션 3 타이틀 (가장 먼저 등판) */}
@@ -358,7 +360,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             </div>
           </motion.section>
 
-          {/* 섹션 4: 주제와 장소를 따라보는 이야기 아카이브 (새로고침 시 즉시 노출) */}
+          {/* 섹션 4: 주제와 장소를 따라보는 이야기 아카이브 (새로고침 시 즉시 노출 / 700px 레이아웃 고정) */}
           <motion.section
             id="odii-archive"
             variants={sectionVariants}
@@ -367,7 +369,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             animate={hasAnimatedSession ? "visible" : undefined}
             viewport={hasAnimatedSession ? undefined : { once: true, amount: 0.12 }}
             transition={hasAnimatedSession ? { duration: 0 } : undefined}
-            className="w-full bg-white py-10 sm:py-14"
+            className="w-full bg-white py-10 sm:py-14 min-h-[650px] sm:min-h-[750px]"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
               {/* 카테고리 태그 필터 */}
