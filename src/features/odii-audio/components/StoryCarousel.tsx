@@ -106,7 +106,7 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
       onClick={onSelect}
       aria-pressed={isCurrent}
       style={{ isolation: 'isolate' }}
-      className={`group relative z-0 grid w-[min(86vw,22rem)] shrink-0 snap-start grid-cols-[128px_minmax(0,1fr)] gap-2.5 overflow-hidden rounded-[1.1rem] border p-1.5 text-left transition-[border-color,background-color,box-shadow] duration-300 hover:z-20 focus-visible:z-20 active:z-20 sm:w-[22rem] sm:grid-cols-[136px_minmax(0,1fr)] sm:gap-3 sm:p-2 ${
+      className={`group relative z-0 grid w-[min(86vw,22rem)] shrink-0 snap-start grid-cols-[128px_minmax(0,1fr)] gap-2.5 overflow-hidden rounded-[1.1rem] border p-1.5 text-left transition-[border-color,background-color,box-shadow] duration-300 sm:w-[22rem] sm:grid-cols-[136px_minmax(0,1fr)] sm:gap-3 sm:p-2 ${
         isCurrent
           ? 'border-[#a94d35]/45 bg-[#fffaf3] shadow-[0_8px_18px_rgba(61,45,29,0.1)]'
           : 'border-[#211e19]/10 bg-[#fbf8f2] hover:border-[#a94d35]/35 hover:shadow-[0_8px_20px_rgba(61,45,29,0.1)]'
@@ -219,7 +219,8 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories }) => {
 
   return (
     <div aria-label="주변 오디오 목록" className="relative w-full">
-      <div className="relative">
+      {/* 카드 스크롤 트랙 영역 (깔끔한 오버플로우 클리핑 & 페이드 처리) */}
+      <div className="relative overflow-hidden rounded-2xl">
         <div
           ref={railRef}
           tabIndex={0}
@@ -234,7 +235,7 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories }) => {
               moveRail(1);
             }
           }}
-          className="flex snap-x snap-mandatory gap-2.5 touch-pan-x cursor-grab overflow-x-auto px-6 py-8 active:cursor-grabbing [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:px-8"
+          className="flex snap-x snap-mandatory gap-2.5 touch-pan-x cursor-grab overflow-x-auto px-6 py-6 active:cursor-grabbing [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:px-8"
           style={{ overflowAnchor: 'none' }}
         >
           {stories.map((story, index) => (
@@ -248,14 +249,23 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories }) => {
           ))}
         </div>
 
+        {/* 카드 트랙 끝부분을 자연스럽게 덮어주는 완만한 페이드 오버레이 */}
+        {railIndicator.left > 0.5 && (
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-20 w-12 bg-gradient-to-r from-white via-white/70 to-transparent sm:w-18" aria-hidden="true" />
+        )}
+        {railIndicator.width < 100 && railIndicator.left < 99 - railIndicator.width && (
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-20 w-12 bg-gradient-to-l from-white via-white/70 to-transparent sm:w-18" aria-hidden="true" />
+        )}
+
+        {/* 이전 / 다음 네비게이션 버튼 (z-30으로 오버레이 상단에 위치) */}
         {railIndicator.left > 0.5 && (
           <button
             type="button"
             aria-label="이전 주변 오디오 보기"
             onClick={() => moveRail(-1)}
-            className="absolute bottom-8 left-0 top-8 z-30 flex w-11 items-center justify-center bg-gradient-to-r from-white via-white/80 to-transparent text-[#655b4d] transition-[color,opacity] duration-200 hover:text-[#211e19] focus-visible:text-[#211e19]"
+            className="absolute left-1.5 top-1/2 z-30 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#211e19]/12 bg-white/90 text-[#211e19] shadow-sm backdrop-blur-xs transition-transform duration-200 hover:scale-110 hover:bg-white sm:left-3 sm:h-9 sm:w-9"
           >
-            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="m14.5 5-7 7 7 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="m14.5 5-7 7 7 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
         )}
         {railIndicator.width < 100 && railIndicator.left < 99 - railIndicator.width && (
@@ -263,25 +273,19 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories }) => {
             type="button"
             aria-label="다음 주변 오디오 보기"
             onClick={() => moveRail(1)}
-            className="absolute bottom-8 right-0 top-8 z-30 flex w-11 items-center justify-center bg-gradient-to-l from-white via-white/80 to-transparent text-[#655b4d] transition-[color,opacity] duration-200 hover:text-[#211e19] focus-visible:text-[#211e19]"
+            className="absolute right-1.5 top-1/2 z-30 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#211e19]/12 bg-white/90 text-[#211e19] shadow-md backdrop-blur-xs transition-transform duration-200 hover:scale-110 hover:bg-white sm:right-3 sm:h-9 sm:w-9"
           >
-            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="m9.5 5 7 7-7 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="m9.5 5 7 7-7 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
         )}
-
-        {railIndicator.left > 0.5 && (
-          <div className="pointer-events-none absolute inset-y-6 left-0 z-10 w-7 bg-gradient-to-r from-white/90 to-transparent" aria-hidden="true" />
-        )}
-        {railIndicator.width < 100 && railIndicator.left < 99 - railIndicator.width && (
-          <div className="pointer-events-none absolute inset-y-6 right-0 z-10 w-7 bg-gradient-to-l from-white/90 to-transparent" aria-hidden="true" />
-        )}
-
-        {railIndicator.width < 100 && (
-          <div className="flex items-center justify-end px-6 pt-1 text-[10px] font-medium tracking-[0.08em] text-[#8c7e6c] sm:px-8" aria-live="polite">
-            <span>{String(railIndicator.index).padStart(2, '0')} / {String(stories.length).padStart(2, '0')}</span>
-          </div>
-        )}
       </div>
+
+      {/* 하단 01 / 19 인덱스 카운터 (그라데이션 및 버튼 간섭 0%) */}
+      {railIndicator.width < 100 && (
+        <div className="flex items-center justify-end px-6 pt-2 text-[10px] font-medium tracking-[0.08em] text-[#8c7e6c] sm:px-8" aria-live="polite">
+          <span>{String(railIndicator.index).padStart(2, '0')} / {String(stories.length).padStart(2, '0')}</span>
+        </div>
+      )}
     </div>
   );
 };
