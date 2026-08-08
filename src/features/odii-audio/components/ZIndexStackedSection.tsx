@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
 import { OdiiChapterPresentation } from '../types/odiiChapter.types';
 
@@ -9,193 +9,155 @@ interface ZIndexStackedSectionProps {
   chapters: OdiiChapterPresentation[];
 }
 
-interface ChapterTrackRowProps {
-  chapter: OdiiChapterPresentation;
-  story: OdiiChapterPresentation['stories'][number];
-  index: number;
-}
+export const ZIndexStackedSection: React.FC<ZIndexStackedSectionProps> = ({ chapters }) => {
+  const [activeChapterId, setActiveChapterId] = useState(chapters[0]?.id || 'hanok');
+  const shouldReduceMotion = useReducedMotion();
 
-function getScriptPreview(story: ChapterTrackRowProps['story']): string {
-  const parsedPreview = story.parsedScript?.[0]?.text?.trim();
-  if (parsedPreview) return parsedPreview;
-
-  const scriptPreview = story.script
-    ?.replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, 92);
-  return scriptPreview || story.audioTitle || '오디오 해설을 준비하고 있습니다.';
-}
-
-const ChapterTrackRow: React.FC<ChapterTrackRowProps> = ({ chapter, story, index }) => {
   const currentStory = useOdiiAudioStore((state) => state.currentStory);
   const isPlaying = useOdiiAudioStore((state) => state.isPlaying);
   const setCurrentStory = useOdiiAudioStore((state) => state.setCurrentStory);
   const setIsPlaying = useOdiiAudioStore((state) => state.setIsPlaying);
-  const isCurrent = currentStory.stid === story.stid;
-  const isThisPlaying = isCurrent && isPlaying;
 
-  const selectStory = () => {
-    if (isCurrent) {
+  const activeChapter = chapters.find((chap) => chap.id === activeChapterId) || chapters[0];
+
+  if (!activeChapter) return null;
+
+  const handlePlayStory = (story: any) => {
+    if (currentStory.stid === story.stid) {
       setIsPlaying(!isPlaying);
     } else {
       setCurrentStory(story);
     }
   };
 
-  return (
-    <article
-      tabIndex={0}
-      role="button"
-      onClick={selectStory}
-      onKeyDown={(event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          selectStory();
-        }
-      }}
-      className={`group grid cursor-pointer grid-cols-[30px_minmax(0,1fr)_auto] gap-3 px-3 py-3.5 outline-none transition-colors sm:grid-cols-[34px_minmax(0,1fr)_auto] sm:gap-4 sm:px-4 ${
-        isCurrent
-          ? 'bg-[#f4ebe1]'
-          : 'hover:bg-[#f8f4ed] focus-visible:bg-[#f8f4ed]'
-      }`}
-      aria-label={`${story.title} ${isThisPlaying ? '일시정지' : '재생'}`}
-    >
-      <div className="flex items-start justify-center pt-0.5">
-        {isThisPlaying ? (
-          <span className="flex h-5 items-end gap-0.5" aria-label="재생 중">
-            <span className="h-3 w-0.5 animate-[bounce_0.6s_infinite_100ms] rounded-full bg-[#a94d35]" />
-            <span className="h-4 w-0.5 animate-[bounce_0.6s_infinite_300ms] rounded-full bg-[#a94d35]" />
-            <span className="h-2 w-0.5 animate-[bounce_0.6s_infinite_200ms] rounded-full bg-[#a94d35]" />
-          </span>
-        ) : (
-          <span className={`font-mono text-[11px] font-semibold ${isCurrent ? 'text-[#a94d35]' : 'text-[#a99d8d]'}`}>
-            {String(index + 1).padStart(2, '0')}
-          </span>
-        )}
-      </div>
-
-      <div className="min-w-0">
-        <div className="flex min-w-0 items-center gap-1.5">
-          <span className="shrink-0 text-[10px] font-bold text-[#a94d35]">{chapter.keyword}</span>
-          <span className="truncate text-[10px] text-[#8c7e6c]">{story.locationName || '대한민국 문화 공간'}</span>
-        </div>
-        <h3 className={`mt-0.5 truncate font-odii-sans text-sm font-semibold tracking-[-0.025em] sm:text-[15px] ${isCurrent ? 'text-[#a94d35]' : 'text-[#211e19]'}`}>
-          {story.title}
-        </h3>
-        <p className="mt-0.5 truncate text-[11px] text-[#655b4d]">{story.audioTitle}</p>
-        <p className="mt-1 line-clamp-1 text-[11px] leading-5 text-[#8c7e6c] sm:max-w-[620px]">
-          “{getScriptPreview(story)}”
-        </p>
-      </div>
-
-      <div className="flex items-start gap-2 pt-0.5 sm:gap-3">
-        <span className="hidden pt-1 font-mono text-[10px] text-[#8c7e6c] sm:block">
-          {story.formattedDuration || '오디오'}
-        </span>
-        <button
-          type="button"
-          onClick={(event) => {
-            event.stopPropagation();
-            selectStory();
-          }}
-          aria-label={`${story.title} ${isThisPlaying ? '일시정지' : '듣기'}`}
-          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors ${
-            isThisPlaying
-              ? 'bg-[#a94d35] text-white'
-              : 'border border-[#211e19]/15 bg-white text-[#211e19] hover:border-[#211e19] hover:bg-[#211e19] hover:text-white'
-          }`}
-        >
-          {isThisPlaying ? (
-            <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19h4V5H6v14zm8-14h4v14h-4V5z" /></svg>
-          ) : (
-            <svg className="ml-0.5 h-3.5 w-3.5 fill-current" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
-          )}
-        </button>
-      </div>
-    </article>
-  );
-};
-
-export const ZIndexStackedSection: React.FC<ZIndexStackedSectionProps> = ({ chapters }) => {
-  const [activeChapterId, setActiveChapterId] = useState(chapters[0]?.id);
-  const shouldReduceMotion = useReducedMotion();
-  const activeChapter = chapters.find((chapter) => chapter.id === activeChapterId) || chapters[0];
-
-  if (!activeChapter) return null;
+  const heroImage = activeChapter.heroImageUrl || 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=1600&q=85';
 
   return (
-    <section aria-label="장면별 오디오 트랙" className="relative w-full pb-14 pt-8 sm:pt-12">
+    <section aria-label="장면별 이야길 깊이 들여다보기" className="relative w-full py-8 sm:py-12">
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
-        <div className="flex items-end justify-between gap-6 pb-1">
+        {/* 인위적 요약 뱃지 전면 제거 — 순수 타이포그래피 헤더 */}
+        <div className="flex flex-col gap-1 pb-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[10px] font-bold tracking-[0.16em] text-[#a94d35]">장면별 오디오</p>
-            <h2 className="mt-1 inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-2xl font-bold leading-tight tracking-[-0.04em] text-transparent sm:text-3xl">
-              장면을 고르고, 이어서 들어보세요
+            <h2 className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-2xl font-bold leading-tight tracking-[-0.04em] text-transparent sm:text-3xl">
+              소리와 장면으로 만나는 한국의 온기
             </h2>
           </div>
-          <span className="hidden text-xs text-[#8c7e6c] sm:block">{chapters.length}개의 장면 · {activeChapter.stories.length}개의 트랙</span>
+          <p className="text-xs text-[#786d5e]">
+            각 챕터를 선택해 깊은 이야기 속으로 들어가보세요.
+          </p>
         </div>
 
-        <div className="mt-4 grid gap-3 md:grid-cols-[190px_minmax(0,1fr)] md:gap-8">
-          <nav aria-label="장면 목록" className="flex gap-1.5 overflow-x-auto pb-1 md:block md:space-y-1.5 md:overflow-visible">
-            {chapters.map((chapter, index) => {
-              const isActive = activeChapter.id === chapter.id;
-              return (
-                <button
-                  key={chapter.id}
-                  type="button"
-                  aria-pressed={isActive}
-                  onClick={() => setActiveChapterId(chapter.id)}
-                  className={`min-w-[148px] rounded-xl border px-3 py-2.5 text-left transition-colors md:w-full ${
-                    isActive
-                      ? 'border-[#a94d35]/35 bg-[#f4ebe1]'
-                      : 'border-transparent bg-transparent hover:border-[#211e19]/10 hover:bg-[#f8f4ed]'
-                  }`}
-                >
-                  <span className={`font-mono text-[10px] ${isActive ? 'text-[#a94d35]' : 'text-[#a99d8d]'}`}>
-                    0{index + 1}
-                  </span>
-                  <span className={`mt-0.5 block truncate text-xs font-bold ${isActive ? 'text-[#211e19]' : 'text-[#655b4d]'}`}>
-                    {chapter.title}
-                  </span>
-                  <span className="mt-1 block truncate text-[10px] text-[#8c7e6c]">
-                    {chapter.stories.length}개 트랙
-                  </span>
-                </button>
-              );
-            })}
-          </nav>
+        {/* 챕터 가로 칩 */}
+        <div className="mb-4 flex items-center space-x-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {chapters.map((chap) => {
+            const isActive = chap.id === activeChapter.id;
+            return (
+              <button
+                key={chap.id}
+                type="button"
+                onClick={() => setActiveChapterId(chap.id)}
+                className={`flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-xs font-semibold transition-all duration-300 ${
+                  isActive
+                    ? 'bg-[#211e19] text-white shadow-sm font-bold'
+                    : 'bg-[#f7f4ee] text-[#655b4d] hover:bg-[#ede5d8] hover:text-[#211e19]'
+                }`}
+              >
+                <span>{chap.title}</span>
+              </button>
+            );
+          })}
+        </div>
 
-          <motion.div
-            key={activeChapter.id}
-            initial={shouldReduceMotion ? undefined : { opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="min-w-0 overflow-hidden rounded-2xl border border-[#211e19]/10 bg-[#fbf8f2] shadow-[0_12px_32px_rgba(61,45,29,0.06)]"
-          >
-            <header className="flex flex-wrap items-end justify-between gap-3 border-b border-[#211e19]/10 px-4 py-4 sm:px-5">
-              <div className="min-w-0">
-                <p className="text-[10px] font-bold text-[#a94d35]">{activeChapter.keywords.join(' · ')}</p>
-                <h3 className="mt-1 truncate font-odii-sans text-lg font-bold tracking-[-0.035em] text-[#211e19]">
-                  {activeChapter.title}
-                </h3>
-                <p className="mt-1 text-xs text-[#655b4d]">{activeChapter.narrative}</p>
-              </div>
-              <span className="text-[10px] text-[#8c7e6c]">대본 미리보기 포함</span>
-            </header>
+        {/* 정갈하고 절제된 에디토리얼 카드 (이미지 과다 제거, 텍스트 집중) */}
+        <div className="relative min-h-[360px] w-full overflow-hidden rounded-3xl border border-[#211e19]/10 bg-[#fbf8f2] shadow-[0_8px_24px_rgba(33,30,25,0.04)]">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeChapter.id}
+              initial={shouldReduceMotion ? undefined : { opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={shouldReduceMotion ? undefined : { opacity: 0, y: -10 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              className="grid grid-cols-1 items-stretch md:grid-cols-[1fr_320px] lg:grid-cols-[1fr_360px]"
+            >
+              {/* 좌측 텍스트 내러티브 & 트랙 */}
+              <div className="flex flex-col justify-between p-6 sm:p-8">
+                <div>
+                  <h3 className="font-odii-sans text-2xl font-bold tracking-tight text-[#211e19] sm:text-3xl">
+                    {activeChapter.title}
+                  </h3>
+                  <p className="mt-1.5 text-xs font-semibold text-[#a94d35]">
+                    {activeChapter.subTitle}
+                  </p>
+                  <p className="mt-3 text-xs leading-relaxed text-[#655b4d] sm:text-sm sm:leading-relaxed">
+                    “{activeChapter.narrative}”
+                  </p>
+                </div>
 
-            {activeChapter.stories.length > 0 ? (
-              <div className="divide-y divide-[#211e19]/8">
-                {activeChapter.stories.map((story, index) => (
-                  <ChapterTrackRow key={story.stid} chapter={activeChapter} story={story} index={index} />
-                ))}
+                {/* 하단 대표 트랙 2개 */}
+                <div className="mt-6 border-t border-[#211e19]/10 pt-4">
+                  <div className="grid gap-2.5 sm:grid-cols-2">
+                    {activeChapter.stories.slice(0, 2).map((story) => {
+                      const isCurrent = currentStory.stid === story.stid;
+                      const isThisPlaying = isCurrent && isPlaying;
+                      return (
+                        <div
+                          key={story.stid}
+                          onClick={() => handlePlayStory(story)}
+                          className={`group flex cursor-pointer items-center justify-between rounded-xl border p-3 transition-colors ${
+                            isCurrent
+                              ? 'border-[#a94d35] bg-[#f4ebe1] shadow-xs'
+                              : 'border-[#211e19]/10 bg-white hover:border-[#a94d35]/50'
+                          }`}
+                        >
+                          <div className="min-w-0 pr-2">
+                            <span className="text-[9px] font-bold text-[#a94d35]">
+                              {story.locationName || '소리 공간'}
+                            </span>
+                            <h4 className="mt-0.5 truncate font-odii-sans text-xs font-bold text-[#211e19]">
+                              {story.title}
+                            </h4>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handlePlayStory(story);
+                            }}
+                            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors ${
+                              isThisPlaying
+                                ? 'bg-[#a94d35] text-white shadow-xs'
+                                : 'bg-[#211e19] text-white hover:bg-[#a94d35]'
+                            }`}
+                          >
+                            {isThisPlaying ? (
+                              <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                            ) : (
+                              <svg className="ml-0.5 h-3.5 w-3.5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            )}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
-            ) : (
-              <p className="px-5 py-10 text-center text-xs text-[#8c7e6c]">이 장면의 오디오를 준비하고 있습니다.</p>
-            )}
-          </motion.div>
+
+              {/* 우측 절제된 단일 액자 비주얼 */}
+              <div className="relative min-h-[220px] overflow-hidden rounded-b-3xl md:rounded-r-3xl md:rounded-bl-none">
+                <img
+                  src={heroImage}
+                  alt={activeChapter.title}
+                  className="h-full w-full object-cover object-center"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+              </div>
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
     </section>
   );
 };
+
+

@@ -29,51 +29,24 @@ export const CategoryTagFilter: React.FC = () => {
 
   return (
     <div className="w-full py-5 flex flex-col gap-4 border-b border-[#211e19]/10">
-      <form onSubmit={handleSearch} className="flex flex-col gap-2.5 sm:flex-row sm:items-center">
-        <label htmlFor="odii-story-search" className="sr-only">오디 이야기 검색</label>
-        <div className="relative min-w-0 flex-1">
-          <input
-            id="odii-story-search"
-            value={searchDraft}
-            onChange={(event) => setSearchDraft(event.target.value)}
-            placeholder="장소·인물·키워드로 이야기 찾기"
-            className="h-11 w-full rounded-xl border border-[#211e19]/12 bg-white px-4 pr-20 text-sm text-[#211e19] outline-none transition-colors placeholder:text-[#a59a8d] focus:border-[#a94d35]"
-          />
-        </div>
-        <button type="submit" className="h-11 rounded-xl bg-[#211e19] px-5 text-xs font-semibold text-white transition-colors duration-300 hover:bg-[#a94d35]">
-          찾기
-        </button>
-        {(searchQuery || searchDraft) && (
-          <button
-            type="button"
-            onClick={() => {
-              setSearchDraft('');
-              setSearchQuery('');
-            }}
-            className="h-11 shrink-0 px-1 text-xs font-semibold text-[#8c7e6c] transition-colors hover:text-[#a94d35]"
-          >
-            지우기
-          </button>
-        )}
-      </form>
-
+      {/* 1단: 인위적 요약 뱃지 없이 깨끗한 6대 브랜드 카테고리 태그 칩 */}
       <div>
-        <div className="flex items-center space-x-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex items-center space-x-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <button
             type="button"
             onClick={() => {
               setSelectedCategory('전체');
               setSearchQuery('');
             }}
-            className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-300 whitespace-nowrap flex items-center gap-1.5 ${
+            className={`px-4 py-2 rounded-full text-xs font-medium transition-all duration-300 whitespace-nowrap ${
               selectedCategory === '전체'
-                ? 'bg-[#211e19] text-white shadow-sm ring-1 ring-black/10 font-bold'
-                : 'text-[#655b4d] bg-[#f7f4ee]/80 hover:bg-[#ede5d8] hover:text-[#211e19]'
+                ? 'bg-[#211e19] text-white shadow-sm font-bold'
+                : 'text-[#655b4d] bg-[#f7f4ee] hover:bg-[#ede5d8] hover:text-[#211e19]'
             }`}
           >
-            {selectedCategory === '전체' && <span className="h-1.5 w-1.5 rounded-full bg-[#a94d35] animate-pulse" />}
             오늘의 전체
           </button>
+
           {ODII_THEME_CATEGORIES.map((theme) => {
             const isSelected = selectedCategory === theme.keyword;
             return (
@@ -85,31 +58,29 @@ export const CategoryTagFilter: React.FC = () => {
                   setSearchQuery('');
                 }}
                 title={theme.description}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-300 whitespace-nowrap flex items-center gap-1.5 ${
+                className={`px-4 py-2 rounded-full text-xs font-medium transition-all duration-300 whitespace-nowrap ${
                   isSelected
-                    ? 'bg-[#211e19] text-white shadow-sm ring-1 ring-black/10 font-bold'
-                    : 'text-[#655b4d] bg-[#f7f4ee]/80 hover:bg-[#ede5d8] hover:text-[#211e19]'
+                    ? 'bg-[#211e19] text-white shadow-sm font-bold'
+                    : 'text-[#655b4d] bg-[#f7f4ee] hover:bg-[#ede5d8] hover:text-[#211e19]'
                 }`}
               >
-                {isSelected && <span className="h-1.5 w-1.5 rounded-full bg-[#a94d35] animate-pulse" />}
-                {theme.shortLabel}
+                {theme.label}
               </button>
             );
           })}
         </div>
+
         {selectedTheme && (
-          <p className="mt-2 text-[11px] leading-5 text-[#8c7e6c]">
-            <span className="font-semibold text-[#a94d35]">{selectedTheme.shortLabel}</span> · {selectedTheme.description}
+          <p className="mt-2 text-xs leading-5 text-[#8c7e6c]">
+            <strong className="font-semibold text-[#a94d35]">{selectedTheme.label}</strong> · {selectedTheme.description}
           </p>
         )}
       </div>
 
-      {/* 7대 문화도시 지역 퀵 필터 칩 */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 pt-1 border-t border-[#211e19]/5">
+      {/* 2단: 서브 검색 폼 & 지역 명소 필터 칩 */}
+      <div className="flex flex-col gap-3 rounded-2xl bg-[#f7f4ee]/70 p-3.5 sm:flex-row sm:items-center sm:justify-between">
+        {/* 지역 칩 */}
         <div className="flex items-center space-x-1.5 overflow-x-auto pb-1 sm:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <span className="text-[11px] font-semibold text-[#8c7e6c] shrink-0 mr-1">
-            지역 명소:
-          </span>
           {ODII_REGION_CHIPS.map((region) => {
             const isSelected = selectedCategory === region;
             return (
@@ -117,7 +88,7 @@ export const CategoryTagFilter: React.FC = () => {
                 key={region}
                 type="button"
                 onClick={() => handleRegionClick(region)}
-                className={`px-2.5 py-1 rounded-full text-xs transition-all duration-200 whitespace-nowrap ${
+                className={`px-3 py-1 rounded-full text-xs transition-all duration-200 whitespace-nowrap ${
                   isSelected
                     ? 'bg-[#a94d35] text-white font-bold shadow-xs'
                     : 'bg-white text-[#655b4d] border border-[#211e19]/10 hover:border-[#a94d35]/50 hover:text-[#211e19]'
@@ -129,17 +100,34 @@ export const CategoryTagFilter: React.FC = () => {
           })}
         </div>
 
-        {/* 선택 카테고리 / 키워드 초기화 */}
-        {selectedCategory !== '전체' && (
-          <button
-            type="button"
-            onClick={() => setSelectedCategory('전체')}
-            className="text-[11px] text-[#a94d35] font-semibold tracking-wide hover:underline shrink-0"
-          >
-            초기화 ↺
+        {/* 서브 검색바 */}
+        <form onSubmit={handleSearch} className="flex items-center gap-2">
+          <label htmlFor="odii-story-search" className="sr-only">오디 이야기 검색</label>
+          <input
+            id="odii-story-search"
+            value={searchDraft}
+            onChange={(event) => setSearchDraft(event.target.value)}
+            placeholder="원하는 장소 검색"
+            className="h-9 w-40 sm:w-48 rounded-xl border border-[#211e19]/12 bg-white px-3 text-xs text-[#211e19] outline-none transition-colors placeholder:text-[#a59a8d] focus:border-[#a94d35]"
+          />
+          <button type="submit" className="h-9 rounded-xl bg-[#211e19] px-3.5 text-xs font-semibold text-white transition-colors duration-300 hover:bg-[#a94d35]">
+            검색
           </button>
-        )}
+          {(searchQuery || searchDraft) && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchDraft('');
+                setSearchQuery('');
+              }}
+              className="text-xs font-semibold text-[#8c7e6c] hover:text-[#a94d35]"
+            >
+              지우기
+            </button>
+          )}
+        </form>
       </div>
     </div>
   );
 };
+

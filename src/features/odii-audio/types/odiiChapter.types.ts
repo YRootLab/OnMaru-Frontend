@@ -16,8 +16,11 @@ export interface OdiiChapterDefinition {
   id: Exclude<OdiiAtmosphereId, 'archive'>;
   keyword: string;
   title: string;
+  subTitle?: string;
   narrative: string;
   keywords: string[];
+  heroImageUrl?: string;
+  mood?: string;
   atmosphere: OdiiAtmosphere;
 }
 

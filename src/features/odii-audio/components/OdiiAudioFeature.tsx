@@ -5,8 +5,10 @@ import { motion, Variants } from 'framer-motion';
 import { StoryCarousel } from './StoryCarousel';
 import { CategoryTagFilter } from './CategoryTagFilter';
 import { EditorialStoryList } from './EditorialStoryList';
-import { ZIndexStackedSection } from './ZIndexStackedSection';
+import { KeywordSpotlightSection } from './KeywordSpotlightSection';
+import { SavedSoundDrawer } from './SavedSoundDrawer';
 import { OdiiAutoSliceRail } from './OdiiAutoSliceRail';
+import { OdiiFooterCTA } from './OdiiFooterCTA';
 import { AllStoriesModal } from './AllStoriesModal';
 import { LocalMiniPlayer } from './LocalMiniPlayer';
 import { OdiiAtmosphereBackground } from './OdiiAtmosphereBackground';
@@ -14,57 +16,7 @@ import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
 import { odiiApiAdapter } from '../api/odiiApi';
 import { MOCK_ODII_STORIES } from '../api/odiiMockData';
 import { OdiiStoryItem, OdiiStoryPage } from '../types/odii.types';
-import { ODII_CHAPTER_DEFINITIONS } from '../data/odiiChapterData';
 import { ODII_HERO_TABS } from '../data/odiiCategoryData';
-import { OdiiChapterPresentation } from '../types/odiiChapter.types';
-
-const CHAPTER_FALLBACK_TERMS: Record<string, string[]> = {
-  hanok: ['한옥', '고택', '한옥마을', '마루'],
-  seowon: ['서원', '향교', '선비', '서당', '유교'],
-  market: ['시장', '장터', '시전', '전통시장', '사람'],
-  temple: ['사찰', '산사', '절', '사원', '종소리'],
-};
-
-function getStorySearchText(story: OdiiStoryItem): string {
-  return [story.category, story.title, story.audioTitle, story.locationName]
-    .filter(Boolean)
-    .join(' ')
-    .toLocaleLowerCase();
-}
-
-function scoreFallbackStory(story: OdiiStoryItem, chapterId: string): number {
-  const searchableText = getStorySearchText(story);
-  return (CHAPTER_FALLBACK_TERMS[chapterId] || []).reduce(
-    (score, term) => score + (searchableText.includes(term) ? 1 : 0),
-    0,
-  );
-}
-
-function normalizeChapterPresentations(
-  chapterStories: Record<string, OdiiStoryItem | null>,
-  chapterStorySets: Record<string, OdiiStoryItem[]>,
-  fallbackStories: OdiiStoryItem[],
-): OdiiChapterPresentation[] {
-  const storyPool = Array.from(new Map(fallbackStories.map((story) => [story.stid, story])).values());
-  const usedStoryIds = new Set<string>();
-
-  return ODII_CHAPTER_DEFINITIONS.map((definition) => {
-    const apiStory = chapterStories[definition.keyword];
-    const exactFallback = storyPool
-      .filter((story) => !usedStoryIds.has(story.stid) && story.audioUrl)
-      .sort((left, right) => scoreFallbackStory(right, definition.id) - scoreFallbackStory(left, definition.id))[0];
-    const story = apiStory && !usedStoryIds.has(apiStory.stid) ? apiStory : exactFallback || null;
-    const relatedStories = (chapterStorySets[definition.keyword] || [])
-      .filter((relatedStory) => relatedStory.audioUrl && !usedStoryIds.has(relatedStory.stid))
-      .slice(0, 2);
-    const stories = Array.from(
-      new Map([story, ...relatedStories].filter((item): item is OdiiStoryItem => Boolean(item)).map((item) => [item.stid, item])).values(),
-    ).slice(0, 2);
-
-    stories.forEach((item) => usedStoryIds.add(item.stid));
-    return { ...definition, story: stories[0] || story, stories };
-  });
-}
 
 const sectionVariants: Variants = {
   hidden: { opacity: 0, y: 24 },
@@ -72,7 +24,7 @@ const sectionVariants: Variants = {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 1.2,
+      duration: 1.1,
       ease: [0.12, 1, 0.2, 1],
       staggerChildren: 0.08,
       delayChildren: 0.06,
@@ -86,7 +38,7 @@ const childVariants: Variants = {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.95,
+      duration: 0.9,
       ease: [0.12, 1, 0.2, 1],
     },
   },
@@ -100,8 +52,6 @@ export const OdiiAudioFeature: React.FC = () => {
   const [heroStorySets, setHeroStorySets] = useState<Record<string, OdiiStoryItem[]>>({
     '추천': MOCK_ODII_STORIES.slice(0, 7),
   });
-  const [chapterStories, setChapterStories] = useState<Record<string, OdiiStoryItem | null>>({});
-  const [chapterStorySets, setChapterStorySets] = useState<Record<string, OdiiStoryItem[]>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [archiveMeta, setArchiveMeta] = useState<OdiiStoryPage>({
     items: MOCK_ODII_STORIES,
@@ -116,11 +66,56 @@ export const OdiiAudioFeature: React.FC = () => {
   const [locationMessage, setLocationMessage] = useState('내 위치를 허용하면 반경 3km의 실제 오디오를 찾아드려요.');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // 로컬 스토리지 기반 '마음 담은 소리' 스크랩 보관함 관리 (재방문 유지)
+  const [savedStories, setSavedStories] = useState<OdiiStoryItem[]>(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const stored = localStorage.getItem('onmaru_saved_odii_stories');
+      const parsed = stored ? JSON.parse(stored) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const handleToggleBookmark = (story: OdiiStoryItem) => {
+    setSavedStories((prev) => {
+      const exists = prev.some((s) => s.stid === story.stid);
+      let updated: OdiiStoryItem[];
+      if (exists) {
+        updated = prev.filter((s) => s.stid !== story.stid);
+      } else {
+        updated = [story, ...prev];
+      }
+      try {
+        localStorage.setItem('onmaru_saved_odii_stories', JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
+  };
+
+  const handleRemoveBookmark = (storyId: string) => {
+    setSavedStories((prev) => {
+      const updated = prev.filter((s) => s.stid !== storyId);
+      try {
+        localStorage.setItem('onmaru_saved_odii_stories', JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
+  };
+
+  const bookmarkedIds = useMemo(() => new Set(savedStories.map((s) => s.stid)), [savedStories]);
+
   useEffect(() => {
     let isMounted = true;
 
     async function loadAllData() {
-      const [page, nearby, heroEntries, chapterSets] = await Promise.all([
+      setIsLoading(true);
+      const [page, nearby, heroEntries] = await Promise.all([
         odiiApiAdapter.getStoryPage(selectedCategory, searchQuery, archivePage, 12),
         odiiApiAdapter.getNearbyStories(),
         Promise.all(
@@ -134,10 +129,6 @@ export const OdiiAudioFeature: React.FC = () => {
             return [tab.id, combined] as const;
           }),
         ),
-        odiiApiAdapter.getChapterStorySets(
-          ODII_CHAPTER_DEFINITIONS.map((chapter) => chapter.keyword),
-          MOCK_ODII_STORIES,
-        ),
       ]);
 
       if (isMounted) {
@@ -149,12 +140,6 @@ export const OdiiAudioFeature: React.FC = () => {
         setArchiveMeta(page);
         if (nearby.length) setNearbyStories(nearby);
         setHeroStorySets(Object.fromEntries(heroEntries));
-        setChapterStorySets(chapterSets);
-        setChapterStories(
-          Object.fromEntries(
-            Object.entries(chapterSets).map(([keyword, stories]) => [keyword, stories[0] || null]),
-          ),
-        );
         setIsLoading(false);
       }
     }
@@ -166,14 +151,6 @@ export const OdiiAudioFeature: React.FC = () => {
     };
   }, [archivePage, selectedCategory, searchQuery]);
 
-  const chapterFallbackStories = useMemo(
-    () => [...storyList, ...nearbyStories, ...MOCK_ODII_STORIES],
-    [nearbyStories, storyList],
-  );
-  const chapters = useMemo(
-    () => normalizeChapterPresentations(chapterStories, chapterStorySets, chapterFallbackStories),
-    [chapterFallbackStories, chapterStories, chapterStorySets],
-  );
   const totalArchivePages = Math.max(1, Math.ceil(archiveMeta.totalCount / archiveMeta.numOfRows));
 
   const handleLocate = () => {
@@ -205,17 +182,16 @@ export const OdiiAudioFeature: React.FC = () => {
   };
 
   return (
-    <div className="odii-feature relative isolate min-h-screen pb-24 text-[#211e19] selection:bg-[#d56748] selection:text-white">
+    <div className="odii-feature relative isolate min-h-screen pb-24 text-[#211e19] selection:bg-[#a94d35] selection:text-white">
       <OdiiAtmosphereBackground />
       <div className="relative z-10">
         <main>
-          {/* 섹션 0: 상단 인트로 헤더 — 0.0초 진입 */}
+          {/* 섹션 0: 헤더 타이틀 */}
           <motion.section
             variants={sectionVariants}
             initial="hidden"
             animate="visible"
-            style={{ willChange: 'transform, opacity' }}
-            className="w-full pb-6 pt-8 sm:pt-10"
+            className="w-full pb-4 pt-8 sm:pt-10"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
               <div className="max-w-xl">
@@ -223,30 +199,17 @@ export const OdiiAudioFeature: React.FC = () => {
                   소리를 따라, 한국의 온기 속으로
                 </motion.h1>
                 <motion.p variants={childVariants} className="mt-2 text-xs sm:text-sm leading-relaxed text-[#655b4d]">
-                  바람이 머무는 한옥, 사람의 온기가 흐르는 시장, 오래된 골목의 시간을 오디오로 천천히 만나보세요.
+                  바람이 머무는 한옥, 사람의 온기가 흐르는 시장, 오래된 골목의 시간을 오디오 도슨트로 천천히 만나보세요.
                 </motion.p>
               </div>
             </div>
           </motion.section>
 
-          {/* 섹션 1: 메인 자동 슬라이스 레일 — 0.12초 진입 (최우선) */}
+          {/* 섹션 1: 히어로 큐레이션 레일 */}
           <motion.div
-            variants={{
-              hidden: { opacity: 0, y: 24 },
-              visible: {
-                opacity: 1,
-                y: 0,
-                transition: {
-                  duration: 1.2,
-                  delay: 0.12,
-                  ease: [0.12, 1, 0.2, 1],
-                  staggerChildren: 0.08,
-                },
-              },
-            }}
+            variants={sectionVariants}
             initial="hidden"
             animate="visible"
-            style={{ willChange: 'transform, opacity' }}
           >
             <OdiiAutoSliceRail
               stories={storyList.length ? storyList : (nearbyStories.length ? nearbyStories : MOCK_ODII_STORIES)}
@@ -254,39 +217,26 @@ export const OdiiAudioFeature: React.FC = () => {
             />
           </motion.div>
 
-          {/* 섹션 2: 챕터별 오디오 트랙 스태킹 섹션 — 섹션 1 등장 후 약 0.3초 뒤 (0.42초) 스크롤 없이도 자연스럽게 순차 바인딩 */}
+          {/* 섹션 2: 키워드에서 대표 이야기로 이어지는 스포트라이트 */}
           <motion.div
-            variants={{
-              hidden: { opacity: 0, y: 24 },
-              visible: {
-                opacity: 1,
-                y: 0,
-                transition: {
-                  duration: 1.2,
-                  delay: 0.42,
-                  ease: [0.12, 1, 0.2, 1],
-                  staggerChildren: 0.08,
-                  delayChildren: 0.06,
-                },
-              },
-            }}
+            variants={sectionVariants}
             initial="hidden"
-            animate="visible"
-            style={{ willChange: 'transform, opacity' }}
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.1 }}
           >
-            <ZIndexStackedSection
-              chapters={chapters}
+            <KeywordSpotlightSection
+              onBookmarkStory={handleToggleBookmark}
+              bookmarkedIds={bookmarkedIds}
             />
           </motion.div>
 
-          {/* 섹션 3: 오늘, 여기에서 캐러셀 — 스크롤 타이밍 약 0.2초 앞당김 (amount: 0.12, margin: -20px) */}
+          {/* 섹션 3: 오늘, 여기에서 (고정 위치 기반 주변 오디오 캐러셀) */}
           <motion.section
             aria-labelledby="nearby-stories-heading"
             variants={sectionVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, amount: 0.12, margin: '0px 0px -20px 0px' }}
-            style={{ willChange: 'transform, opacity' }}
+            viewport={{ once: true, amount: 0.1 }}
             className="w-full py-8 sm:py-12"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
@@ -301,7 +251,7 @@ export const OdiiAudioFeature: React.FC = () => {
                     type="button"
                     onClick={handleLocate}
                     disabled={isLocating}
-                    className="inline-flex h-8 items-center gap-1.5 rounded-full border border-[#211e19]/12 bg-white/55 px-3 text-[11px] font-medium text-[#655b4d] shadow-[0_3px_12px_rgba(61,45,29,0.04)] transition-[background-color,border-color,color,transform] duration-300 hover:-translate-y-0.5 hover:border-[#211e19]/25 hover:bg-white hover:text-[#211e19] disabled:cursor-wait disabled:opacity-50"
+                    className="inline-flex h-8 items-center gap-1.5 rounded-full border border-[#211e19]/12 bg-white/55 px-3 text-[11px] font-medium text-[#655b4d] shadow-xs transition-transform duration-300 hover:-translate-y-0.5 hover:border-[#211e19]/25 hover:bg-white hover:text-[#211e19] disabled:cursor-wait disabled:opacity-50"
                   >
                     {isLocating ? '위치 확인 중…' : '내 위치 사용'}
                     {!isLocating && <span aria-hidden="true" className="text-[13px] leading-none">›</span>}
@@ -314,36 +264,43 @@ export const OdiiAudioFeature: React.FC = () => {
             </div>
           </motion.section>
 
-          {/* 섹션 4: 페이지형 이야기 아카이브 — 스크롤 타이밍 약 0.2초 앞당김 (amount: 0.12, margin: -20px) */}
+          {/* 섹션 4/5: 주제와 장소를 따라보는 이야기 아카이브 */}
           <motion.section
             id="odii-archive"
             variants={sectionVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, amount: 0.12, margin: '0px 0px -20px 0px' }}
-            style={{ willChange: 'transform, opacity' }}
+            viewport={{ once: true, amount: 0.1 }}
             className="w-full bg-white py-10 sm:py-14"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
               <motion.div variants={childVariants} className="max-w-xl">
-                <div className="flex items-center justify-between gap-4">
-                  <h2 className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-2xl font-bold tracking-[-0.045em] text-transparent sm:text-3xl">더 많은 이야기</h2>
-                </div>
+                <h2 className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-2xl font-bold tracking-[-0.045em] text-transparent sm:text-3xl">
+                  이야기를 더 둘러보기
+                </h2>
                 <p className="mt-1.5 text-xs sm:text-sm leading-relaxed text-[#655b4d]">
-                  장소와 지역, 키워드로 듣고 싶은 이야기를 찾아보세요.
+                  한옥, 정, 시장, 골목처럼 마음이 가는 주제에서 다음 장소를 찾아보세요.
                 </p>
               </motion.div>
+
               <motion.div variants={childVariants}>
                 <CategoryTagFilter />
               </motion.div>
+
               {isLoading ? (
                 <div className="py-16 text-center text-xs text-[#655b4d]">이야기를 불러오는 중입니다...</div>
               ) : (
                 <>
                   <motion.div variants={childVariants}>
-                    <EditorialStoryList stories={storyList} />
+                    <EditorialStoryList
+                      stories={storyList}
+                      onBookmarkStory={handleToggleBookmark}
+                      bookmarkedIds={bookmarkedIds}
+                    />
                   </motion.div>
-                  <motion.div variants={childVariants} className="mt-6 flex flex-col items-center justify-between gap-3 border-t border-[#211e19]/10 pt-4 sm:flex-row">
+
+                  {/* 하단 페이지네이션 */}
+                  <motion.div variants={childVariants} className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-[#211e19]/10 pt-4 sm:flex-row">
                     <span className="text-[11px] text-[#8c7e6c]">
                       {archiveMeta.totalCount > 0 ? `${archiveMeta.totalCount.toLocaleString()}개 중 ${archiveMeta.pageNo}페이지` : '검색 결과 없음'}
                     </span>
@@ -351,9 +308,9 @@ export const OdiiAudioFeature: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => setIsModalOpen(true)}
-                        className="mr-1 inline-flex items-center gap-1.5 rounded-full border border-[#211e19]/12 bg-white/60 px-3 py-1.5 text-[11px] font-medium text-[#655b4d] shadow-[0_3px_12px_rgba(61,45,29,0.04)] transition-[background-color,border-color,color,transform] duration-300 hover:-translate-y-0.5 hover:border-[#211e19]/25 hover:bg-white hover:text-[#211e19]"
+                        className="mr-1 inline-flex items-center gap-1.5 rounded-full border border-[#211e19]/12 bg-white/60 px-3 py-1.5 text-[11px] font-medium text-[#655b4d] shadow-xs transition-transform duration-300 hover:-translate-y-0.5 hover:border-[#211e19]/25 hover:bg-white hover:text-[#211e19]"
                       >
-                        모든 이야기 <span aria-hidden="true" className="text-[13px] leading-none">›</span>
+                        전체 목록 보기 <span aria-hidden="true" className="text-[13px] leading-none">›</span>
                       </button>
                       <button
                         type="button"
@@ -379,12 +336,26 @@ export const OdiiAudioFeature: React.FC = () => {
             </div>
           </motion.section>
 
+          {/* 섹션 6: 이탈 방지 & 재방문 CTA */}
+          <motion.div
+            variants={sectionVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.1 }}
+          >
+            <OdiiFooterCTA />
+          </motion.div>
         </main>
       </div>
+
+      {/* 마음 담은 소리 보관함 (재방문 드라이버) */}
+      <SavedSoundDrawer
+        savedStories={savedStories}
+        onRemoveBookmark={handleRemoveBookmark}
+      />
 
       <LocalMiniPlayer />
       <AllStoriesModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} allStories={storyList} />
     </div>
   );
 };
-
