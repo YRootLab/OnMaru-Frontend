@@ -269,8 +269,7 @@ export const OdiiAudioFeature: React.FC = () => {
             id="odii-archive"
             variants={sectionVariants}
             initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.1 }}
+            animate="visible"
             className="w-full bg-white py-10 sm:py-14"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">

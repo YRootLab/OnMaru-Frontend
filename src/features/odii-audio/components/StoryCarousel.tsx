@@ -106,53 +106,71 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
       onClick={onSelect}
       aria-pressed={isCurrent}
       style={{ isolation: 'isolate' }}
-      className={`group relative z-0 grid w-[min(86vw,22rem)] shrink-0 snap-start grid-cols-[128px_minmax(0,1fr)] gap-2.5 overflow-hidden rounded-[1.1rem] border p-1.5 text-left transition-[border-color,background-color,box-shadow] duration-300 sm:w-[22rem] sm:grid-cols-[136px_minmax(0,1fr)] sm:gap-3 sm:p-2 ${
+      className={`group relative z-0 grid w-[min(88vw,23rem)] shrink-0 snap-start grid-cols-[138px_minmax(0,1fr)] gap-3.5 overflow-hidden rounded-[1.35rem] border p-2.5 text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_14px_30px_rgba(61,45,29,0.11)] sm:w-[23rem] sm:grid-cols-[144px_minmax(0,1fr)] ${
         isCurrent
-          ? 'border-[#a94d35]/45 bg-[#fffaf3] shadow-[0_8px_18px_rgba(61,45,29,0.1)]'
-          : 'border-[#211e19]/10 bg-[#fbf8f2] hover:border-[#a94d35]/35 hover:shadow-[0_8px_20px_rgba(61,45,29,0.1)]'
+          ? 'border-[#a94d35]/50 bg-[#fffbf5] shadow-[0_10px_24px_rgba(169,77,53,0.13)] ring-1 ring-[#a94d35]/25'
+          : 'border-[#211e19]/08 bg-[#faf7f2]/95 hover:border-[#a94d35]/35 hover:bg-[#fffaf4]'
       }`}
     >
+      {/* 3D 깊이감 앰비언트 글로우 */}
       <div
-        className="pointer-events-none absolute inset-0 z-0 opacity-[0.12] blur-[1px]"
-        style={{ background: `radial-gradient(ellipse 72% 110% at 88% 12%, ${accentColor} 0%, transparent 68%)` }}
+        className="pointer-events-none absolute inset-0 z-0 opacity-15 blur-sm transition-opacity duration-300 group-hover:opacity-25"
+        style={{ background: `radial-gradient(ellipse 80% 120% at 85% 15%, ${accentColor} 0%, transparent 70%)` }}
       />
-      <div className="pointer-events-none absolute -left-1/2 top-0 z-20 h-full w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 transition-[transform,opacity] duration-700 ease-out group-hover:translate-x-[480%] group-hover:opacity-60 group-focus-visible:translate-x-[480%] group-focus-visible:opacity-60 group-active:translate-x-[480%] group-active:opacity-45" />
-      <div className="relative z-10 min-h-[138px] overflow-hidden rounded-[0.85rem] bg-[#d8cfbf]">
+
+      {/* 섬네일 비주얼 */}
+      <div className="relative z-10 min-h-[148px] overflow-hidden rounded-[1rem] bg-[#d8cfbf]">
         <img
           src={story.imageUrl || FALLBACK_ART}
           alt=""
           onError={(event) => {
             (event.target as HTMLImageElement).src = FALLBACK_ART;
           }}
-          className={`h-full w-full object-cover transition-[filter] duration-500 ${isCurrent ? 'brightness-[0.92] saturate-[0.78]' : 'brightness-[0.84] saturate-[0.72]'}`}
+          className={`h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 ${isCurrent ? 'brightness-95 saturate-[0.88]' : 'brightness-[0.88] saturate-[0.78]'}`}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#211e19]/60 via-transparent to-transparent" />
-        <span className="absolute bottom-2 left-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#fffaf3] text-[#211e19] shadow-sm">
+        <div className="absolute inset-0 bg-gradient-to-t from-[#211e19]/65 via-transparent to-transparent" />
+
+        {/* 재생 컨트롤 버블 */}
+        <span className="absolute bottom-2.5 left-2.5 inline-flex h-7.5 w-7.5 items-center justify-center rounded-full bg-[#fffaf3] text-[#211e19] shadow-md transition-transform duration-300 group-hover:scale-110">
           {isPlaying ? (
-            <svg className="h-3 w-3 fill-current" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19h4V5H6v14zm8-14h4v14h-4V5z" /></svg>
+            <span className="inline-flex items-center gap-0.5">
+              <span className="h-2.5 w-0.5 animate-pulse bg-[#a94d35]" />
+              <span className="h-3.5 w-0.5 animate-pulse bg-[#a94d35] [animation-delay:0.15s]" />
+              <span className="h-2 w-0.5 animate-pulse bg-[#a94d35] [animation-delay:0.3s]" />
+            </span>
           ) : (
-            <svg className="ml-0.5 h-3 w-3 fill-current" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
+            <svg className="ml-0.5 h-3 w-3 fill-current text-[#211e19]" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
           )}
         </span>
-        {story.distance && <span className="absolute right-2 top-2 rounded-full bg-[#fffaf3]/95 px-1.5 py-1 text-[9px] font-bold text-[#211e19]">{story.distance}</span>}
+        {story.distance && <span className="absolute right-2.5 bottom-2.5 rounded-full bg-[#fffaf3]/95 px-2 py-0.5 text-[9px] font-bold text-[#211e19] shadow-xs">{story.distance}</span>}
       </div>
 
-      <div className="relative z-10 flex min-w-0 flex-col justify-between py-0.5 pr-1">
+      {/* 카드 우측 정보 서사 영역 */}
+      <div className="relative z-10 flex min-w-0 flex-col justify-between py-0.5 pr-0.5">
         <div className="min-w-0">
           <div className="flex min-w-0 items-center gap-1.5">
-            <span className="shrink-0 text-[9px] font-bold text-[#a94d35]">{story.category}</span>
-            <span className="truncate text-[9px] text-[#8c7e6c]">{story.locationName || '대한민국 문화 공간'}</span>
+            <span className="shrink-0 rounded-full bg-[#a94d35]/10 px-2 py-0.5 text-[9.5px] font-bold text-[#a94d35]">{story.category}</span>
+            <span className="truncate text-[9.5px] font-medium text-[#8c7e6c]">{story.locationName || '대한민국 문화유산'}</span>
           </div>
-          <h3 className={`mt-1 line-clamp-2 font-odii-sans text-sm font-bold leading-[1.25] tracking-[-0.03em] ${isCurrent ? 'text-[#a94d35]' : 'text-[#211e19]'}`}>
+          
+          <h3 className={`mt-1.5 line-clamp-1 font-odii-sans text-[14.5px] font-bold leading-snug tracking-[-0.03em] ${isCurrent ? 'text-[#a94d35]' : 'text-[#211e19]'}`}>
             {story.title}
           </h3>
-          <p className="mt-1 line-clamp-1 text-[10px] text-[#655b4d]">{story.audioTitle}</p>
-          <p className="mt-2 line-clamp-2 text-[10px] leading-4 text-[#8c7e6c]">“{getScriptExcerpt(story.script)}”</p>
+          
+          <p className="mt-0.5 line-clamp-1 text-[10.5px] font-medium text-[#655b4d]">{story.audioTitle}</p>
+          
+          {/* 한지 오디오 인용구 박스 */}
+          <div className="mt-2 rounded-r-md border-l-2 border-[#a94d35]/40 bg-[#211e19]/04 py-1 pl-2 pr-1">
+            <p className="line-clamp-2 text-[10px] italic leading-relaxed text-[#655b4d]">
+              “{getScriptExcerpt(story.script)}”
+            </p>
+          </div>
         </div>
-        <div className="mt-2 flex items-center gap-1.5 border-t border-[#211e19]/10 pt-2 text-[9px] text-[#786d5e]">
-          <span className="font-mono">{formatDuration(story)}</span>
-          <span className="text-[#b5a795]">·</span>
-          <span className="truncate">{story.speaker || '온마루 도슨트'}</span>
+
+        {/* 하단 메타바 */}
+        <div className="mt-2.5 flex items-center justify-between border-t border-[#211e19]/08 pt-2 text-[9.5px] text-[#786d5e]">
+          <span className="font-mono font-semibold text-[#655b4d]">{formatDuration(story)}</span>
+          <span className="truncate font-medium text-[#8c7e6c]">{story.speaker || '문화해설사 도슨트'}</span>
         </div>
       </div>
     </button>
@@ -162,17 +180,111 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
 export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories }) => {
   const railRef = useRef<HTMLDivElement | null>(null);
   const [railIndicator, setRailIndicator] = useState({ left: 0, width: 100, index: 1 });
+  const [isDragging, setIsDragging] = useState(false);
+
+  const isMouseDownRef = useRef(false);
+  const startXRef = useRef(0);
+  const scrollLeftRef = useRef(0);
+  const isMovedRef = useRef(false);
+  const lastXRef = useRef(0);
+  const lastTimeRef = useRef(0);
+  const velocityRef = useRef(0);
+
   const currentStory = useOdiiAudioStore((state) => state.currentStory);
   const isPlaying = useOdiiAudioStore((state) => state.isPlaying);
   const setCurrentStory = useOdiiAudioStore((state) => state.setCurrentStory);
   const setIsPlaying = useOdiiAudioStore((state) => state.setIsPlaying);
 
   const handleCardClick = (story: OdiiStoryItem) => {
+    if (isMovedRef.current) {
+      isMovedRef.current = false;
+      return;
+    }
     if (currentStory.stid === story.stid) {
       setIsPlaying(!isPlaying);
     } else {
       setCurrentStory(story);
     }
+  };
+
+  const getNearestCardScrollLeft = (currentScrollLeft: number, velocity: number) => {
+    const rail = railRef.current;
+    if (!rail) return currentScrollLeft;
+
+    const cards = Array.from(rail.children) as HTMLElement[];
+    if (cards.length === 0) return currentScrollLeft;
+
+    const firstCardLeft = cards[0].offsetLeft;
+    const maxScroll = rail.scrollWidth - rail.clientWidth;
+    
+    // 속도 기반 미래 스크롤 예측 지점 (속도가 크면 1~2개 카드 이상 미끄러짐)
+    const projectedLeft = currentScrollLeft - velocity * 180;
+
+    let closestScrollLeft = 0;
+    let minDistance = Math.abs(projectedLeft - 0);
+
+    for (let i = 0; i < cards.length; i++) {
+      const cardTarget = cards[i].offsetLeft - firstCardLeft;
+      const distance = Math.abs(projectedLeft - cardTarget);
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestScrollLeft = cardTarget;
+      }
+    }
+
+    return Math.max(0, Math.min(maxScroll, closestScrollLeft));
+  };
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rail = railRef.current;
+    if (!rail) return;
+
+    isMouseDownRef.current = true;
+    isMovedRef.current = false;
+    startXRef.current = e.pageX - rail.offsetLeft;
+    scrollLeftRef.current = rail.scrollLeft;
+
+    lastXRef.current = e.pageX;
+    lastTimeRef.current = performance.now();
+    velocityRef.current = 0;
+
+    setIsDragging(true);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isMouseDownRef.current || !railRef.current) return;
+    const rail = railRef.current;
+    const now = performance.now();
+    const dt = now - lastTimeRef.current;
+    const currentX = e.pageX;
+
+    if (dt > 0) {
+      const dx = currentX - lastXRef.current;
+      velocityRef.current = dx / dt;
+    }
+
+    lastXRef.current = currentX;
+    lastTimeRef.current = now;
+
+    const x = currentX - rail.offsetLeft;
+    const walk = (x - startXRef.current) * 1.1;
+    if (Math.abs(walk) > 6) {
+      isMovedRef.current = true;
+    }
+    rail.scrollLeft = scrollLeftRef.current - walk;
+  };
+
+  const handleMouseUpOrLeave = () => {
+    if (!isMouseDownRef.current) return;
+    isMouseDownRef.current = false;
+    setIsDragging(false);
+
+    const rail = railRef.current;
+    if (!rail) return;
+
+    // 관성 속도 및 가까운 카드 위치로 100% 부드러운 스무스 정렬
+    const targetLeft = getNearestCardScrollLeft(rail.scrollLeft, velocityRef.current);
+    rail.scrollTo({ left: targetLeft, behavior: 'smooth' });
   };
 
   const updateRailIndicator = useCallback(() => {
@@ -192,6 +304,7 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories }) => {
   const moveRail = (direction: number) => {
     const rail = railRef.current;
     if (!rail) return;
+    const targetLeft = getNearestCardScrollLeft(rail.scrollLeft, direction * -2);
     rail.scrollBy({ left: direction * Math.max(240, rail.clientWidth * 0.82), behavior: 'smooth' });
   };
 
@@ -219,12 +332,16 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories }) => {
 
   return (
     <div aria-label="주변 오디오 목록" className="relative w-full">
-      {/* 카드 스크롤 트랙 영역 (깔끔한 오버플로우 클리핑 & 페이드 처리) */}
-      <div className="relative overflow-hidden rounded-2xl">
+      {/* 스크롤 트랙 컨테이너 (하단/좌측 그림자 절단 방지를 위해 pt-3 pb-8 스페이싱 확보) */}
+      <div className="relative">
         <div
           ref={railRef}
           tabIndex={0}
           aria-label="주변 오디오를 좌우로 살펴보기"
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUpOrLeave}
+          onMouseLeave={handleMouseUpOrLeave}
           onKeyDown={(event) => {
             if (event.key === 'ArrowLeft') {
               event.preventDefault();
@@ -235,7 +352,9 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories }) => {
               moveRail(1);
             }
           }}
-          className="flex snap-x snap-mandatory gap-2.5 touch-pan-x cursor-grab overflow-x-auto px-6 py-6 active:cursor-grabbing [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:px-8"
+          className={`flex gap-3.5 touch-pan-x overflow-x-auto px-6 pt-3 pb-8 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:px-8 sm:pb-9 ${
+            isDragging ? 'cursor-grabbing select-none' : 'cursor-grab'
+          }`}
           style={{ overflowAnchor: 'none' }}
         >
           {stories.map((story, index) => (
@@ -249,23 +368,23 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories }) => {
           ))}
         </div>
 
-        {/* 카드 트랙 끝부분을 자연스럽게 덮어주는 완만한 페이드 오버레이 */}
+        {/* 🌟 슬림하고 콤팩트한 가장자리 리니어 그라데이션 오버레이 */}
         {railIndicator.left > 0.5 && (
-          <div className="pointer-events-none absolute inset-y-0 left-0 z-20 w-12 bg-gradient-to-r from-white via-white/70 to-transparent sm:w-18" aria-hidden="true" />
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-6 bg-gradient-to-r from-white via-white/60 to-transparent sm:w-9" aria-hidden="true" />
         )}
         {railIndicator.width < 100 && railIndicator.left < 99 - railIndicator.width && (
-          <div className="pointer-events-none absolute inset-y-0 right-0 z-20 w-12 bg-gradient-to-l from-white via-white/70 to-transparent sm:w-18" aria-hidden="true" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-6 bg-gradient-to-l from-white via-white/60 to-transparent sm:w-9" aria-hidden="true" />
         )}
 
-        {/* 이전 / 다음 네비게이션 버튼 (z-30으로 오버레이 상단에 위치) */}
+        {/* 좌/우 플로팅 네비게이션 화살표 버튼 (z-30 배치) */}
         {railIndicator.left > 0.5 && (
           <button
             type="button"
             aria-label="이전 주변 오디오 보기"
             onClick={() => moveRail(-1)}
-            className="absolute left-1.5 top-1/2 z-30 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#211e19]/12 bg-white/90 text-[#211e19] shadow-sm backdrop-blur-xs transition-transform duration-200 hover:scale-110 hover:bg-white sm:left-3 sm:h-9 sm:w-9"
+            className="absolute left-1 top-1/2 z-30 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#211e19]/12 bg-white/95 text-[#211e19] shadow-md backdrop-blur-md transition-all duration-200 hover:scale-110 hover:bg-white sm:left-2 sm:h-9 sm:w-9"
           >
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="m14.5 5-7 7 7 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="m14.5 5-7 7 7 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
         )}
         {railIndicator.width < 100 && railIndicator.left < 99 - railIndicator.width && (
@@ -273,17 +392,19 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories }) => {
             type="button"
             aria-label="다음 주변 오디오 보기"
             onClick={() => moveRail(1)}
-            className="absolute right-1.5 top-1/2 z-30 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#211e19]/12 bg-white/90 text-[#211e19] shadow-md backdrop-blur-xs transition-transform duration-200 hover:scale-110 hover:bg-white sm:right-3 sm:h-9 sm:w-9"
+            className="absolute right-1 top-1/2 z-30 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#211e19]/12 bg-white/95 text-[#211e19] shadow-md backdrop-blur-md transition-all duration-200 hover:scale-110 hover:bg-white sm:right-2 sm:h-9 sm:w-9"
           >
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="m9.5 5 7 7-7 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="m9.5 5 7 7-7 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
         )}
       </div>
 
-      {/* 하단 01 / 19 인덱스 카운터 (그라데이션 및 버튼 간섭 0%) */}
+      {/* 📍 하단 우측 독립 인덱스 카운터 (01 / 19) */}
       {railIndicator.width < 100 && (
-        <div className="flex items-center justify-end px-6 pt-2 text-[10px] font-medium tracking-[0.08em] text-[#8c7e6c] sm:px-8" aria-live="polite">
-          <span>{String(railIndicator.index).padStart(2, '0')} / {String(stories.length).padStart(2, '0')}</span>
+        <div className="flex items-center justify-end px-6 pt-1 text-[11px] font-medium tracking-[0.08em] text-[#8c7e6c] sm:px-8" aria-live="polite">
+          <span className="font-mono">
+            <strong className="font-bold text-[#a94d35]">{String(railIndicator.index).padStart(2, '0')}</strong> / {String(stories.length).padStart(2, '0')}
+          </span>
         </div>
       )}
     </div>
