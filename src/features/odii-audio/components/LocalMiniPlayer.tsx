@@ -58,12 +58,9 @@ export const LocalMiniPlayer: React.FC = () => {
       layout
       initial={{ opacity: 0, y: 20, x: '-50%' }}
       animate={{ opacity: 1, y: 0, x: '-50%' }}
-      className="fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom))] left-1/2 z-50 w-[calc(100%-2rem)] max-w-xl overflow-hidden rounded-2xl border border-[#d2c3b1] bg-[#fbf8f2]/95 shadow-[0_18px_44px_rgba(61,45,29,0.2)] backdrop-blur-xl"
+      className="fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom))] left-1/2 z-50 w-[calc(100%-2rem)] max-w-xl overflow-hidden rounded-[1.5rem] border border-[#d2c3b1]/80 bg-[#fbf8f2]/95 p-3 sm:px-4 shadow-[0_18px_44px_rgba(61,45,29,0.2)] backdrop-blur-xl"
     >
-      <div className="h-1 bg-[#e4d9cc]">
-        <div className="h-full bg-[#a94d35] transition-[width] duration-300" style={{ width: `${audioProgress}%` }} />
-      </div>
-      <div className="flex items-center gap-3 px-3 py-2.5 sm:px-4">
+      <div className="flex items-center gap-3">
         <button type="button" onClick={() => setIsExpanded(true)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
           <motion.img layoutId="odii-player-art" src={story.imageUrl} alt="" className="h-10 w-10 shrink-0 rounded-xl object-cover shadow-sm"/>
           <span className="min-w-0">
@@ -76,12 +73,22 @@ export const LocalMiniPlayer: React.FC = () => {
           </span>
         </button>
 
-        <button type="button" onClick={() => setIsPlaying(!isPlaying)} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#a94d35] text-white shadow-sm hover:bg-[#8f3e29]">
+        <button type="button" onClick={() => setIsPlaying(!isPlaying)} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#a94d35] text-white shadow-sm hover:bg-[#8f3e29] transition-transform hover:scale-105">
           <PlayIcon />
         </button>
-        <button type="button" onClick={() => setIsExpanded(true)} className="hidden items-center gap-1 rounded-full px-2.5 py-1.5 text-xs font-semibold text-[#655b4d] hover:bg-[#eee6da] sm:flex">
+        <button type="button" onClick={() => setIsExpanded(true)} className="hidden items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold text-[#655b4d] hover:bg-[#eee6da] sm:flex">
           대본 보기
         </button>
+      </div>
+
+      {/* 🎵 하단 이쁜 둥근 프로그레스 바 (leading, trailing 여백 + 둥근 캡 적용) */}
+      <div className="mt-2.5 px-1 sm:px-2">
+        <div className="h-1 w-full overflow-hidden rounded-full bg-[#211e19]/10">
+          <div
+            className="h-full rounded-full bg-[#a94d35] transition-[width] duration-300"
+            style={{ width: `${audioProgress}%` }}
+          />
+        </div>
       </div>
     </motion.div>
 
