@@ -106,6 +106,12 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
   const [locationMessage, setLocationMessage] = useState('내 위치를 허용하면 반경 3km의 실제 오디오를 찾아드려요.');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   // 세션 스토리지 기반 애니메이션 1회 실행 기억 (새로고침 F5 시 애니메이션 재실행 100% 차단)
   const [hasAnimatedSession] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false;
@@ -353,14 +359,14 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                 </div>
               </motion.div>
 
-              {/* 섹션 3 캐러셀 컴포넌트 */}
+              {/* 섹션 3 캐러셀 컴포넌트 (F5 새로고침 및 위치 조회 중 스켈레톤 즉시 발동) */}
               <motion.div variants={contentVariants} className="mt-5">
-                <StoryCarousel stories={nearbyStories.length ? nearbyStories : MOCK_ODII_STORIES} isLoading={isLocating} />
+                <StoryCarousel stories={nearbyStories.length ? nearbyStories : MOCK_ODII_STORIES} isLoading={!isMounted || isLocating} />
               </motion.div>
             </div>
           </motion.section>
 
-          {/* 섹션 4: 주제와 장소를 따라보는 이야기 아카이브 (새로고침 시 즉시 노출 / 1020px 레이아웃 완벽 고정) */}
+          {/* 섹션 4: 주제와 장소를 따라보는 이야기 아카이브 (새로고침 시 1120px 레이아웃 완벽 고정) */}
           <motion.section
             id="odii-archive"
             variants={sectionVariants}
@@ -369,7 +375,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             animate={hasAnimatedSession ? "visible" : undefined}
             viewport={hasAnimatedSession ? undefined : { once: true, amount: 0.12 }}
             transition={hasAnimatedSession ? { duration: 0 } : undefined}
-            className="w-full bg-white py-10 sm:py-14 min-h-[940px] sm:min-h-[1020px]"
+            className="w-full bg-white py-10 sm:py-14 min-h-[1040px] sm:min-h-[1120px]"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
               {/* 섹션 4 타이틀 & 서브타이틀 */}
@@ -387,8 +393,8 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                 <CategoryTagFilter />
               </motion.div>
 
-              {/* 오디오 아카이브 카드 리스트 (높이 붕괴 방지 & 780px 레이아웃 고정) */}
-              <div className="relative min-h-[720px] sm:min-h-[780px]">
+              {/* 오디오 아카이브 카드 리스트 (높이 붕괴 방지 & 820px 레이아웃 고정) */}
+              <div className="relative min-h-[760px] sm:min-h-[820px]">
                 {isArchiveLoading && (
                   <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/50 backdrop-blur-xs transition-opacity duration-150">
                     <span className="inline-flex items-center gap-2 rounded-full bg-[#211e19] px-4 py-2 text-xs font-semibold text-white shadow-lg">
