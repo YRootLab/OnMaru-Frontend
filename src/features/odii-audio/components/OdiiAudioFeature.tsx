@@ -19,15 +19,35 @@ import { ODII_HERO_TABS } from '../data/odiiCategoryData';
 import { OdiiDependencyProvider, useOdiiApiService } from '../context/OdiiDependencyContext';
 
 const sectionVariants: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.18,
+      delayChildren: 0.05,
+    },
+  },
+};
+
+const titleVariants: Variants = {
+  hidden: { opacity: 0, y: 26 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 1.0,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+};
+
+const contentVariants: Variants = {
   hidden: { opacity: 0, y: 32 },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 1.1,
+      duration: 1.15,
       ease: [0.16, 1, 0.3, 1],
-      staggerChildren: 0.1,
-      delayChildren: 0.08,
     },
   },
 };
@@ -263,11 +283,12 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             variants={sectionVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, amount: 0.1 }}
+            viewport={{ once: true, amount: 0.12 }}
             className="w-full py-8 sm:py-12"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
-              <motion.div variants={childVariants} className="flex flex-col gap-4 pb-1 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
+              {/* 섹션 3 타이틀 (가장 먼저 등판) */}
+              <motion.div variants={titleVariants} className="flex flex-col gap-4 pb-1 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
                 <div className="min-w-0">
                   <h2 id="nearby-stories-heading" className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-2xl font-bold tracking-[-0.045em] text-transparent sm:text-3xl">오늘, 여기에서</h2>
                   <p className="mt-1 max-w-xl truncate text-xs leading-5 text-[#786d5e]">{locationMessage}</p>
@@ -285,7 +306,9 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                   </button>
                 </div>
               </motion.div>
-              <motion.div variants={childVariants} className="mt-5">
+
+              {/* 섹션 3 캐러셀 컴포넌트 (타이틀 등장 0.18초 후 지연 등판) */}
+              <motion.div variants={contentVariants} className="mt-5">
                 <StoryCarousel stories={nearbyStories.length ? nearbyStories : MOCK_ODII_STORIES} />
               </motion.div>
             </div>
@@ -297,11 +320,12 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             variants={sectionVariants}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, amount: 0.1 }}
+            viewport={{ once: true, amount: 0.12 }}
             className="w-full bg-white py-10 sm:py-14"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
-              <motion.div variants={childVariants} className="max-w-xl">
+              {/* 섹션 4 타이틀 (가장 먼저 등판) */}
+              <motion.div variants={titleVariants} className="max-w-xl">
                 <h2 className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-2xl font-bold tracking-[-0.045em] text-transparent sm:text-3xl">
                   이야기를 더 둘러보기
                 </h2>
@@ -310,7 +334,8 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                 </p>
               </motion.div>
 
-              <motion.div variants={childVariants}>
+              {/* 카테고리 태그 필터 (타이틀 등판 0.18초 후 지연 등판) */}
+              <motion.div variants={contentVariants}>
                 <CategoryTagFilter />
               </motion.div>
 
@@ -318,7 +343,8 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                 <div className="py-16 text-center text-xs text-[#655b4d]">이야기를 불러오는 중입니다...</div>
               ) : (
                 <>
-                  <motion.div variants={childVariants}>
+                  {/* 오디오 아카이브 카드 리스트 (카테고리 필터 0.18초 후 순차 등판) */}
+                  <motion.div variants={contentVariants}>
                     <EditorialStoryList
                       stories={storyList}
                       onBookmarkStory={handleToggleBookmark}
