@@ -342,8 +342,12 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                 <div className="py-16 text-center text-xs text-[#655b4d]">이야기를 불러오는 중입니다...</div>
               ) : (
                 <>
-                  {/* 오디오 아카이브 카드 리스트 (카테고리 필터 0.18초 후 순차 등판) */}
-                  <motion.div variants={contentVariants}>
+                  {/* 오디오 아카이브 카드 리스트 */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                  >
                     <EditorialStoryList
                       stories={storyList}
                       onBookmarkStory={handleToggleBookmark}
@@ -352,7 +356,12 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                   </motion.div>
 
                   {/* 하단 페이지네이션 */}
-                  <motion.div variants={childVariants} className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-[#211e19]/10 pt-4 sm:flex-row">
+                  <motion.div
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+                    className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-[#211e19]/10 pt-4 sm:flex-row"
+                  >
                     <span className="text-[11px] text-[#8c7e6c]">
                       {archiveMeta.totalCount > 0 ? `${archiveMeta.totalCount.toLocaleString()}개 중 ${archiveMeta.pageNo}페이지` : '검색 결과 없음'}
                     </span>
