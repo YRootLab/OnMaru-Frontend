@@ -50,19 +50,22 @@ export const LocalMiniPlayer: React.FC = () => {
   const transcriptProgress = lines.length ? ((activeIndex + 1) / lines.length) * 100 : 0;
   const closePlayer = () => { setIsTranscriptOpen(false); setIsExpanded(false); };
 
-  if (!isVisible) return null;
-
-  return <>
-    {/* 하단 플로팅 미니 플레이어 */}
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 20, x: '-50%' }}
-      animate={{ opacity: 1, y: 0, x: '-50%' }}
-      className="fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom))] left-1/2 z-50 w-[calc(100%-2rem)] max-w-xl overflow-hidden rounded-[1.35rem] border border-[#d2c3b1]/80 bg-[#fbf8f2]/95 px-3.5 pt-2.5 pb-3.5 sm:px-4 sm:pt-3 sm:pb-4 shadow-[0_18px_44px_rgba(61,45,29,0.2)] backdrop-blur-xl"
-    >
+  return (
+    <>
+      {/* 하단 플로팅 미니 플레이어 */}
+      <AnimatePresence>
+        {isVisible && (
+          <motion.div
+            key="mini-player-floating-bar"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 16 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom))] left-1/2 z-50 -translate-x-1/2 w-[calc(100%-2rem)] max-w-xl overflow-hidden rounded-[1.35rem] border border-[#d2c3b1]/80 bg-[#fbf8f2]/95 px-3.5 pt-2.5 pb-3.5 sm:px-4 sm:pt-3 sm:pb-4 shadow-[0_18px_44px_rgba(61,45,29,0.2)] backdrop-blur-xl"
+          >
       <div className="flex items-center gap-3">
         <button type="button" onClick={() => setIsExpanded(true)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
-          <motion.img layoutId="odii-player-art" src={story.imageUrl} alt="" className="h-10 w-10 shrink-0 rounded-xl object-cover shadow-sm"/>
+          <img src={story.imageUrl} alt="" className="h-10 w-10 shrink-0 rounded-xl object-cover shadow-sm"/>
           <span className="min-w-0">
             <span className="block truncate font-odii-sans text-sm font-semibold text-[#211e19]">
               {story.title}
@@ -91,6 +94,8 @@ export const LocalMiniPlayer: React.FC = () => {
         </div>
       </div>
     </motion.div>
+  )}
+</AnimatePresence>
 
     {/* 확장 플레이어 & 전체 대본 Drawer */}
     <AnimatePresence>
@@ -263,5 +268,6 @@ export const LocalMiniPlayer: React.FC = () => {
         </motion.div>
       )}
     </AnimatePresence>
-  </>;
+    </>
+  );
 };
