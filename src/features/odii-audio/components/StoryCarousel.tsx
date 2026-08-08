@@ -118,11 +118,13 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
         style={{ background: `radial-gradient(ellipse 80% 120% at 85% 15%, ${accentColor} 0%, transparent 70%)` }}
       />
 
-      {/* 섬네일 비주얼 (기본 Scale 1: min-h-[148px]) */}
-      <div className="relative z-10 min-h-[148px] overflow-hidden rounded-[1rem] bg-[#d8cfbf]">
+      {/* 섬네일 비주얼 (정사각형 비율 고정: 138px/144px aspect-square) */}
+      <div className="relative z-10 h-[138px] w-[138px] sm:h-[144px] sm:w-[144px] shrink-0 overflow-hidden rounded-[1rem] bg-[#d8cfbf]">
         <img
           src={story.imageUrl || FALLBACK_ART}
           alt=""
+          loading="eager"
+          decoding="sync"
           onError={(event) => {
             (event.target as HTMLImageElement).src = FALLBACK_ART;
           }}
