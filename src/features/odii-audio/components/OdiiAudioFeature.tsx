@@ -313,7 +313,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             </div>
           </motion.section>
 
-          {/* 섹션 4/5: 주제와 장소를 따라보는 이야기 아카이브 */}
+          {/* 섹션 4: 주제와 장소를 따라보는 이야기 아카이브 */}
           <motion.section
             id="odii-archive"
             variants={sectionVariants}
@@ -323,17 +323,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             className="w-full bg-white py-10 sm:py-14"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
-              {/* 섹션 4 타이틀 (가장 먼저 등판) */}
-              <motion.div variants={titleVariants} className="max-w-xl">
-                <h2 className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-2xl font-bold tracking-[-0.045em] text-transparent sm:text-3xl">
-                  이야기를 더 둘러보기
-                </h2>
-                <p className="mt-1.5 text-xs sm:text-sm leading-relaxed text-[#655b4d]">
-                  한옥, 정, 시장, 골목처럼 마음이 가는 주제에서 다음 장소를 찾아보세요.
-                </p>
-              </motion.div>
-
-              {/* 카테고리 태그 필터 (타이틀 등판 0.18초 후 지연 등판) */}
+              {/* 카테고리 태그 필터 */}
               <motion.div variants={contentVariants}>
                 <CategoryTagFilter />
               </motion.div>
@@ -342,26 +332,17 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                 <div className="py-16 text-center text-xs text-[#655b4d]">이야기를 불러오는 중입니다...</div>
               ) : (
                 <>
-                  {/* 오디오 아카이브 카드 리스트 */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                  >
+                  {/* 오디오 아카이브 카드 리스트 (페이지 변경 시 애니메이션 없이 즉시 업데이트) */}
+                  <div>
                     <EditorialStoryList
                       stories={storyList}
                       onBookmarkStory={handleToggleBookmark}
                       bookmarkedIds={bookmarkedIds}
                     />
-                  </motion.div>
+                  </div>
 
-                  {/* 하단 페이지네이션 */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-                    className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-[#211e19]/10 pt-4 sm:flex-row"
-                  >
+                  {/* 하단 페이지네이션 (페이지 변경 시 애니메이션 없이 즉시 업데이트) */}
+                  <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-[#211e19]/10 pt-4 sm:flex-row">
                     <span className="text-[11px] text-[#8c7e6c]">
                       {archiveMeta.totalCount > 0 ? `${archiveMeta.totalCount.toLocaleString()}개 중 ${archiveMeta.pageNo}페이지` : '검색 결과 없음'}
                     </span>
@@ -391,7 +372,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                         다음
                       </button>
                     </div>
-                  </motion.div>
+                  </div>
                 </>
               )}
             </div>
