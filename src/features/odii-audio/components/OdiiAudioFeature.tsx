@@ -263,15 +263,12 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             />
           </motion.div>
 
-          {/* 섹션 2: 한 단어로, 한 장면 (0.85초 시차 엄격 연쇄 등판 - 1번 섹션 완료 후 등장) */}
+          {/* 섹션 2: 한 단어로, 한 장면 (스크롤 감지 시 시차 순차 등판) */}
           <motion.div
-            initial={{ opacity: 0, y: 32 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{
-              duration: 1.0,
-              ease: [0.16, 1, 0.3, 1],
-              delay: 0.85,
-            }}
+            variants={sectionVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.15 }}
           >
             <KeywordSpotlightSection
               onBookmarkStory={handleToggleBookmark}

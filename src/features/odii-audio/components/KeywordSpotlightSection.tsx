@@ -124,7 +124,7 @@ export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = (
   };
 
   return (
-    <section aria-labelledby="keyword-spotlight-heading" className="w-full py-14 sm:py-20">
+    <section aria-labelledby="keyword-spotlight-heading" className="w-full pt-6 pb-12 sm:pt-8 sm:pb-16">
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
         {/* 섹션 2 타이틀 (가장 먼저 등판) */}
         <motion.div variants={titleVariants} className="flex flex-col gap-4 border-b border-[#211e19]/15 pb-6 sm:flex-row sm:items-end sm:justify-between sm:gap-8">
