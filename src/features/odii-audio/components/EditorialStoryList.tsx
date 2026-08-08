@@ -12,23 +12,21 @@ interface EditorialStoryListProps {
 }
 
 const listContainerVariants: Variants = {
-  hidden: { opacity: 0 },
+  hidden: { opacity: 0.92 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.05,
+      duration: 0.2,
     },
   },
 };
 
 const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 12 },
+  hidden: { opacity: 0.92 },
   visible: {
     opacity: 1,
-    y: 0,
     transition: {
-      duration: 0.9,
-      ease: [0.12, 1, 0.2, 1],
+      duration: 0.2,
     },
   },
 };
@@ -79,13 +77,14 @@ export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({
           const isCurrent = currentStory.stid === story.stid;
           const isThisPlaying = isCurrent && isPlaying;
           const trackNum = String(index + 1).padStart(2, '0');
+          const isBookmarked = bookmarkedIds?.has(story.stid);
 
           return (
             <motion.div
               key={story.stid}
               variants={itemVariants}
               onClick={() => selectStory(story)}
-              className={`group flex cursor-pointer items-center justify-between py-3 px-2.5 rounded-xl transition-all duration-300 ${
+              className={`group flex cursor-pointer items-center justify-between py-3 px-2.5 rounded-xl transition-all duration-200 ${
                 isCurrent
                   ? 'bg-[#f4ebe1] text-[#211e19] ring-1 ring-[#a94d35]/20 shadow-xs'
                   : 'hover:bg-[#f9f6f0]'
@@ -142,8 +141,8 @@ export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({
                 </div>
               </div>
 
-              {/* 우측: 보관함 하트 + 재생시간 + 재생 버튼 */}
-              <div className="flex items-center space-x-3 shrink-0">
+              {/* 우측: 보관함 하트 SVG + 재생시간 + 재생 버튼 */}
+              <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
                 {onBookmarkStory && (
                   <button
                     type="button"
@@ -151,13 +150,21 @@ export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({
                       event.stopPropagation();
                       onBookmarkStory(story);
                     }}
-                    aria-label={bookmarkedIds?.has(story.stid) ? `${story.title} 보관함에서 삭제` : `${story.title} 마음에 담기`}
-                    aria-pressed={bookmarkedIds?.has(story.stid)}
-                    className={`text-base leading-none transition-transform duration-200 hover:scale-110 ${
-                      bookmarkedIds?.has(story.stid) ? 'text-[#a94d35]' : 'text-[#b1a396] hover:text-[#a94d35]'
+                    aria-label={isBookmarked ? `${story.title} 보관함에서 삭제` : `${story.title} 마음에 담기`}
+                    aria-pressed={isBookmarked}
+                    className={`flex h-8 w-8 items-center justify-center rounded-full transition-all duration-200 ${
+                      isBookmarked
+                        ? 'text-[#a94d35] bg-[#a94d35]/10 hover:bg-[#a94d35]/20 scale-105'
+                        : 'text-[#8c7e6c] hover:bg-[#211e19]/5 hover:text-[#a94d35]'
                     }`}
                   >
-                    {bookmarkedIds?.has(story.stid) ? '♥' : '♡'}
+                    <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
+                      {isBookmarked ? (
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                      ) : (
+                        <path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.73C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"/>
+                      )}
+                    </svg>
                   </button>
                 )}
 

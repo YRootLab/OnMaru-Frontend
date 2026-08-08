@@ -44,7 +44,7 @@ export const CategoryTagFilter: React.FC = () => {
                 : 'text-[#655b4d] bg-[#f7f4ee] hover:bg-[#ede5d8] hover:text-[#211e19]'
             }`}
           >
-            오늘의 전체
+            전체
           </button>
 
           {ODII_THEME_CATEGORIES.map((theme) => {
@@ -102,7 +102,7 @@ export const CategoryTagFilter: React.FC = () => {
 
         {/* 서브 검색바 */}
         <form onSubmit={handleSearch} className="flex items-center gap-2">
-          <label htmlFor="odii-story-search" className="sr-only">오디 이야기 검색</label>
+          <label htmlFor="odii-story-search" className="sr-only">장소 및 가이드 검색</label>
           <input
             id="odii-story-search"
             value={searchDraft}
