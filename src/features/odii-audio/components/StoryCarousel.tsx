@@ -130,16 +130,18 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#211e19]/65 via-transparent to-transparent" />
 
-        {/* 재생 컨트롤 버블 */}
-        <span className="absolute bottom-2.5 left-2.5 inline-flex h-7.5 w-7.5 items-center justify-center rounded-full bg-[#fffaf3] text-[#211e19] shadow-md transition-transform duration-300 group-hover:scale-110">
+        {/* 재생 컨트롤 원형 버블 (크기 확대 & 돼지코 애니메이션 대신 명확한 일시정지 아이콘) */}
+        <span className={`absolute bottom-3 left-3 inline-flex h-9.5 w-9.5 items-center justify-center rounded-full shadow-md backdrop-blur-xs transition-all duration-300 group-hover:scale-110 ${
+          isPlaying ? 'bg-[#a94d35] text-white ring-2 ring-white/90 shadow-lg' : 'bg-white/95 text-[#211e19] hover:bg-white'
+        }`}>
           {isPlaying ? (
-            <span className="inline-flex items-center gap-0.5">
-              <span className="h-2.5 w-0.5 animate-pulse bg-[#a94d35]" />
-              <span className="h-3.5 w-0.5 animate-pulse bg-[#a94d35] [animation-delay:0.15s]" />
-              <span className="h-2 w-0.5 animate-pulse bg-[#a94d35] [animation-delay:0.3s]" />
-            </span>
+            <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+            </svg>
           ) : (
-            <svg className="ml-0.5 h-3 w-3 fill-current text-[#211e19]" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
+            <svg className="ml-0.5 h-4 w-4 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M8 5v14l11-7z" />
+            </svg>
           )}
         </span>
         {story.distance && <span className="absolute right-2.5 bottom-2.5 rounded-full bg-[#fffaf3]/95 px-2 py-0.5 text-[9px] font-bold text-[#211e19] shadow-xs">{story.distance}</span>}
