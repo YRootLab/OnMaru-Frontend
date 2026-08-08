@@ -106,7 +106,7 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
       onClick={onSelect}
       aria-pressed={isCurrent}
       style={{ isolation: 'isolate' }}
-      className={`group relative z-0 grid w-[min(92vw,24.5rem)] shrink-0 snap-start grid-cols-[152px_minmax(0,1fr)] gap-3.5 overflow-hidden rounded-[1.4rem] border p-3 text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_34px_rgba(61,45,29,0.12)] sm:w-[24.5rem] sm:grid-cols-[162px_minmax(0,1fr)] ${
+      className={`group relative z-0 grid w-[min(94vw,25.5rem)] shrink-0 snap-start grid-cols-[144px_minmax(0,1fr)] gap-4 overflow-hidden rounded-[1.4rem] border p-3 text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_34px_rgba(61,45,29,0.12)] sm:w-[25.5rem] sm:grid-cols-[152px_minmax(0,1fr)] ${
         isCurrent
           ? 'border-[#a94d35]/50 bg-[#fffbf5] shadow-[0_12px_28px_rgba(169,77,53,0.14)] ring-1 ring-[#a94d35]/25'
           : 'border-[#211e19]/08 bg-[#faf7f2]/95 hover:border-[#a94d35]/35 hover:bg-[#fffaf4]'
@@ -150,32 +150,38 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
         </span>
       </div>
 
-      {/* 카드 우측 정보 서사 영역 (1.4배 높아진 비율 완벽 대응) */}
-      <div className="relative z-10 flex min-w-0 flex-col justify-between py-1 pr-0.5">
+      {/* 카드 우측 정보 서사 영역 (주소 짤림 100% 방지 위계 구조) */}
+      <div className="relative z-10 flex min-w-0 flex-col justify-between py-0.5 pr-0.5">
         <div className="min-w-0">
-          <div className="flex min-w-0 items-center gap-1.5">
-            <span className="shrink-0 rounded-full bg-[#a94d35]/10 px-2.5 py-0.5 text-[10px] font-bold text-[#a94d35]">{story.category}</span>
-            <span className="min-w-0 flex-1 truncate text-[10.5px] font-medium text-[#786d5e]" title={story.locationName || '대한민국 문화유산'}>
-              {story.locationName || '대한민국 문화유산'}
+          {/* 상단 1열: 카테고리 태그 */}
+          <div>
+            <span className="inline-block rounded-full bg-[#a94d35]/10 px-2.5 py-0.5 text-[10px] font-bold text-[#a94d35]">
+              {story.category}
             </span>
           </div>
+
+          {/* 상단 2열: 장소/주소 (독립적인 전체 너비 확보로 짤림 100% 방지) */}
+          <p className="mt-1 truncate text-[11px] font-medium text-[#786d5e]" title={story.locationName || '대한민국 문화유산'}>
+            {story.locationName || '대한민국 문화유산'}
+          </p>
           
-          <h3 className={`mt-2 line-clamp-1 font-odii-sans text-base font-bold leading-snug tracking-[-0.03em] ${isCurrent ? 'text-[#a94d35]' : 'text-[#211e19]'}`}>
+          {/* 메인 타이틀 */}
+          <h3 className={`mt-1.5 line-clamp-1 font-odii-sans text-base font-bold leading-snug tracking-[-0.03em] ${isCurrent ? 'text-[#a94d35]' : 'text-[#211e19]'}`}>
             {story.title}
           </h3>
           
           <p className="mt-0.5 line-clamp-1 text-xs font-medium text-[#655b4d]">{story.audioTitle}</p>
           
-          {/* 한지 오디오 인용구 박스 (3줄 여유 서사) */}
-          <div className="mt-2.5 rounded-r-md border-l-2 border-[#a94d35]/40 bg-[#211e19]/04 py-1.5 pl-2.5 pr-1.5">
-            <p className="line-clamp-3 text-[10.5px] italic leading-relaxed text-[#655b4d]">
+          {/* 한지 오디오 인용구 박스 */}
+          <div className="mt-2 rounded-r-md border-l-2 border-[#a94d35]/40 bg-[#211e19]/04 py-1.5 pl-2.5 pr-1.5">
+            <p className="line-clamp-2 text-[10.5px] italic leading-relaxed text-[#655b4d]">
               “{getScriptExcerpt(story.script)}”
             </p>
           </div>
         </div>
 
         {/* 하단 메타바 */}
-        <div className="mt-3 flex items-center justify-between border-t border-[#211e19]/08 pt-2.5 text-[10px] text-[#786d5e]">
+        <div className="mt-2.5 flex items-center justify-between border-t border-[#211e19]/08 pt-2 text-[10px] text-[#786d5e]">
           <span className="font-mono font-semibold text-[#655b4d]">{formatDuration(story)}</span>
           <span className="truncate font-medium text-[#8c7e6c]">{story.speaker || '문화해설사 도슨트'}</span>
         </div>
