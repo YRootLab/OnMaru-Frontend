@@ -61,7 +61,7 @@ export const LocalMiniPlayer: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 16 }}
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom))] left-1/2 z-50 -translate-x-1/2 w-[calc(100%-2rem)] max-w-xl overflow-hidden rounded-[1.35rem] border border-[#d2c3b1]/80 bg-[#fbf8f2]/95 px-3.5 pt-2.5 pb-3.5 sm:px-4 sm:pt-3 sm:pb-4 shadow-[0_18px_44px_rgba(61,45,29,0.2)] backdrop-blur-xl"
+            className="fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom))] left-4 right-4 z-50 mx-auto w-auto max-w-xl overflow-hidden rounded-[1.35rem] border border-[#d2c3b1]/80 bg-[#fbf8f2]/95 px-3.5 pt-2.5 pb-3.5 shadow-[0_18px_44px_rgba(61,45,29,0.2)] backdrop-blur-xl sm:px-4 sm:pt-3 sm:pb-4"
           >
       <div className="flex items-center gap-3">
         <button type="button" onClick={() => setIsExpanded(true)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
@@ -116,7 +116,7 @@ export const LocalMiniPlayer: React.FC = () => {
             onClick={(event) => event.stopPropagation()}
             className={`absolute bottom-0 left-0 right-0 flex flex-col overflow-y-auto rounded-t-3xl bg-[#fbf8f2] p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-2xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
               isTranscriptOpen ? 'max-h-[88dvh]' : 'max-h-[90dvh]'
-            } lg:bottom-6 lg:left-auto lg:right-6 lg:w-[460px] lg:rounded-3xl lg:p-7 ${isTranscriptOpen ? 'lg:max-h-[86vh]' : ''}`}
+            } lg:bottom-6 lg:left-1/2 lg:right-auto lg:ml-[-230px] lg:w-[460px] lg:rounded-3xl lg:p-7 ${isTranscriptOpen ? 'lg:max-h-[86vh]' : ''}`}
           >
             {isTranscriptOpen ? (
               <>

@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { motion, Variants } from 'framer-motion';
 import { StoryCarousel } from './StoryCarousel';
 import { CategoryTagFilter } from './CategoryTagFilter';
-import { EditorialStoryList } from './EditorialStoryList';
+import { EditorialStoryList, EditorialStoryListSkeleton } from './EditorialStoryList';
 import { KeywordSpotlightSection } from './KeywordSpotlightSection';
 import { SavedSoundDrawer } from './SavedSoundDrawer';
 import { OdiiAutoSliceRail } from './OdiiAutoSliceRail';
@@ -88,15 +88,14 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
   const selectedCategory = useOdiiAudioStore((s) => s.selectedCategory);
   const searchQuery = useOdiiAudioStore((s) => s.searchQuery);
   const [storyList, setStoryList] = useState<OdiiStoryItem[]>(() => initialStories || MOCK_ODII_STORIES);
-  const [nearbyStories, setNearbyStories] = useState<OdiiStoryItem[]>(() => initialNearbyStories || MOCK_ODII_STORIES);
+  const [nearbyStories, setNearbyStories] = useState<OdiiStoryItem[]>(() => initialNearbyStories || []);
   const [heroStorySets, setHeroStorySets] = useState<Record<string, OdiiStoryItem[]>>(() => initialHeroStorySets || {
     '추천': MOCK_ODII_STORIES.slice(0, 7),
   });
-  const [isLoading, setIsLoading] = useState(false);
   const [archiveMeta, setArchiveMeta] = useState<OdiiStoryPage>({
     items: initialStories || MOCK_ODII_STORIES,
     pageNo: 1,
-    numOfRows: 12,
+    numOfRows: 7,
     totalCount: (initialStories || MOCK_ODII_STORIES).length,
     source: 'mock',
   });
@@ -105,12 +104,6 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
   const [locationLabel, setLocationLabel] = useState('기본 위치');
   const [locationMessage, setLocationMessage] = useState('내 위치를 허용하면 반경 3km의 실제 오디오를 찾아드려요.');
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   // 세션 스토리지 기반 애니메이션 1회 실행 기억 (새로고침 F5 시 애니메이션 재실행 100% 차단)
   const [hasAnimatedSession] = useState<boolean>(() => {
@@ -176,31 +169,36 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
 
   const bookmarkedIds = useMemo(() => new Set(savedStories.map((s) => s.stid)), [savedStories]);
 
-  const [isArchiveLoading, setIsArchiveLoading] = useState(false);
+  const [isNearbyLoading, setIsNearbyLoading] = useState(true);
+  const [isArchiveLoading, setIsArchiveLoading] = useState(true);
 
   // 1. 페이지 최초 마운트 시 히어로 탭 및 주변 이야기 1회만 로드
   useEffect(() => {
     let isMounted = true;
 
     async function loadInitialHeroAndNearby() {
-      const [nearby, heroEntries] = await Promise.all([
-        activeApiService.getNearbyStories(),
-        Promise.all(
-          ODII_HERO_TABS.map(async (tab) => {
-            const stories = await activeApiService.getStoryList(undefined, tab.keyword || undefined);
-            const combined = tab.id === '추천'
-              ? MOCK_ODII_STORIES.slice(0, 7)
-              : (stories.length >= 7
-                  ? stories.slice(0, 7)
-                  : [...stories, ...MOCK_ODII_STORIES.filter((m) => !stories.some((s) => s.stid === m.stid))].slice(0, 7));
-            return [tab.id, combined] as const;
-          }),
-        ),
-      ]);
+      try {
+        const [nearby, heroEntries] = await Promise.all([
+          activeApiService.getNearbyStories(),
+          Promise.all(
+            ODII_HERO_TABS.map(async (tab) => {
+              const stories = await activeApiService.getStoryList(undefined, tab.keyword || undefined);
+              const combined = tab.id === '추천'
+                ? MOCK_ODII_STORIES.slice(0, 7)
+                : (stories.length >= 7
+                    ? stories.slice(0, 7)
+                    : [...stories, ...MOCK_ODII_STORIES.filter((m) => !stories.some((s) => s.stid === m.stid))].slice(0, 7));
+              return [tab.id, combined] as const;
+            }),
+          ),
+        ]);
 
-      if (isMounted) {
-        if (nearby.length) setNearbyStories(nearby);
-        setHeroStorySets(Object.fromEntries(heroEntries));
+        if (isMounted) {
+          setNearbyStories(nearby);
+          setHeroStorySets(Object.fromEntries(heroEntries));
+        }
+      } finally {
+        if (isMounted) setIsNearbyLoading(false);
       }
     }
 
@@ -216,18 +214,20 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
     let isMounted = true;
 
     async function fetchArchiveData() {
-      // 마운트 시 initialStories가 이미 렌더링된 상태에서는 로딩 오버레이 없이 0ms 고정 렌더링
-      const page = await activeApiService.getStoryPage(selectedCategory, searchQuery, archivePage, 12);
+      setIsArchiveLoading(true);
+      try {
+        const page = await activeApiService.getStoryPage(selectedCategory, searchQuery, archivePage, 7);
 
-      if (isMounted) {
-        if (page.items.length === 0 && archivePage > 1) {
-          setArchivePage(1);
-          setIsArchiveLoading(false);
-          return;
+        if (isMounted) {
+          if (page.items.length === 0 && archivePage > 1) {
+            setArchivePage(1);
+            return;
+          }
+          setStoryList(page.items.length ? page.items : MOCK_ODII_STORIES);
+          setArchiveMeta(page);
         }
-        setStoryList(page.items.length ? page.items : MOCK_ODII_STORIES);
-        setArchiveMeta(page);
-        setIsArchiveLoading(false);
+      } finally {
+        if (isMounted) setIsArchiveLoading(false);
       }
     }
 
@@ -336,7 +336,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             animate={hasAnimatedSession ? "visible" : undefined}
             viewport={hasAnimatedSession ? undefined : { once: true, amount: 0.12 }}
             transition={hasAnimatedSession ? { duration: 0 } : undefined}
-            className="w-full py-8 sm:py-12 min-h-[340px] sm:min-h-[380px]"
+            className="h-[420px] w-full overflow-hidden py-8 sm:py-12"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
               {/* 섹션 3 타이틀 (가장 먼저 등판) */}
@@ -361,12 +361,12 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
 
               {/* 섹션 3 캐러셀 컴포넌트 (F5 새로고침 및 위치 조회 중 스켈레톤 즉시 발동) */}
               <motion.div variants={contentVariants} className="mt-5">
-                <StoryCarousel stories={nearbyStories.length ? nearbyStories : MOCK_ODII_STORIES} isLoading={!isMounted || isLocating} />
+                <StoryCarousel stories={nearbyStories} isLoading={isNearbyLoading || isLocating} />
               </motion.div>
             </div>
           </motion.section>
 
-          {/* 섹션 4: 주제와 장소를 따라보는 이야기 아카이브 (새로고침 시 1120px 레이아웃 완벽 고정) */}
+          {/* 섹션 4: 주제와 장소를 따라보는 이야기 아카이브 (7개 단위 / 위치 고정) */}
           <motion.section
             id="odii-archive"
             variants={sectionVariants}
@@ -375,7 +375,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             animate={hasAnimatedSession ? "visible" : undefined}
             viewport={hasAnimatedSession ? undefined : { once: true, amount: 0.12 }}
             transition={hasAnimatedSession ? { duration: 0 } : undefined}
-            className="w-full bg-white py-10 sm:py-14 min-h-[1040px] sm:min-h-[1120px]"
+            className="h-[1040px] w-full overflow-hidden bg-white py-10 sm:py-14"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
               {/* 섹션 4 타이틀 & 서브타이틀 */}
@@ -393,21 +393,17 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                 <CategoryTagFilter />
               </motion.div>
 
-              {/* 오디오 아카이브 카드 리스트 (높이 붕괴 방지 & 820px 레이아웃 고정) */}
-              <div className="relative min-h-[760px] sm:min-h-[820px]">
-                {isArchiveLoading && (
-                  <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/50 backdrop-blur-xs transition-opacity duration-150">
-                    <span className="inline-flex items-center gap-2 rounded-full bg-[#211e19] px-4 py-2 text-xs font-semibold text-white shadow-lg">
-                      <span className="h-2 w-2 rounded-full bg-[#a94d35] animate-ping" />
-                      트랙 목록 갱신 중…
-                    </span>
-                  </div>
+              {/* 오디오 아카이브 카드 리스트 (7개 단위 / 높이 고정) */}
+              <div className="relative h-[600px] overflow-hidden">
+                {isArchiveLoading ? (
+                  <EditorialStoryListSkeleton />
+                ) : (
+                  <EditorialStoryList
+                    stories={storyList}
+                    onBookmarkStory={handleToggleBookmark}
+                    bookmarkedIds={bookmarkedIds}
+                  />
                 )}
-                <EditorialStoryList
-                  stories={storyList}
-                  onBookmarkStory={handleToggleBookmark}
-                  bookmarkedIds={bookmarkedIds}
-                />
               </div>
 
               {/* 하단 페이지네이션 (페이지 변경 시 레이아웃 시프트 없이 즉시 업데이트) */}

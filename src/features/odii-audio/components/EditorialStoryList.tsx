@@ -11,6 +11,31 @@ interface EditorialStoryListProps {
   bookmarkedIds?: Set<string>;
 }
 
+export const EditorialStoryListSkeleton: React.FC = () => (
+  <div aria-label="트랙 목록 로딩 중" className="w-full py-3" aria-busy="true">
+    <div className="flex items-center justify-between border-b border-[#211e19]/10 pb-2 text-[11px]">
+      <div className="odii-skeleton h-3.5 w-28 rounded bg-[#e8e0d5]" />
+      <div className="odii-skeleton h-3 w-16 rounded bg-[#eee8df]" />
+    </div>
+    <div className="divide-y divide-[#211e19]/5">
+      {Array.from({ length: 7 }, (_, index) => (
+        <div key={index} className="flex items-center justify-between gap-4 rounded-xl px-2.5 py-3">
+          <div className="flex min-w-0 items-center gap-3.5">
+            <div className="odii-skeleton h-3 w-6 rounded bg-[#eee8df]" />
+            <div className="odii-skeleton h-11 w-11 shrink-0 rounded-lg bg-[#e8e0d5] sm:h-13 sm:w-13" />
+            <div className="min-w-0 space-y-2">
+              <div className="odii-skeleton h-2.5 w-24 rounded bg-[#e8e0d5]" />
+              <div className="odii-skeleton h-3.5 w-40 rounded bg-[#dfd5c8] sm:w-64" />
+              <div className="odii-skeleton h-2.5 w-28 rounded bg-[#eee8df]" />
+            </div>
+          </div>
+          <div className="odii-skeleton h-8 w-8 shrink-0 rounded-full bg-[#e8e0d5]" />
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
 const listContainerVariants: Variants = {
   hidden: { opacity: 0.92 },
   visible: {
@@ -61,7 +86,7 @@ export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({
 
   return (
     <div className="w-full py-3">
-      <div className="flex items-center justify-between pb-2 text-[11px] text-[#8c7e6c] border-b border-[#211e19]/10">
+    <div className="flex items-center justify-between pb-2 text-[11px] text-[#8c7e6c] border-b border-[#211e19]/10">
         <span className="font-semibold text-[#211e19]">
           트랙 아카이브 <strong className="text-[#a94d35] font-extrabold ml-1">{stories.length}</strong>
         </span>

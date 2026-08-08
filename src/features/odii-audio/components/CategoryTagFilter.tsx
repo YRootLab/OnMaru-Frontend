@@ -30,7 +30,7 @@ export const CategoryTagFilter: React.FC = () => {
   return (
     <div className="w-full py-5 flex flex-col gap-4 border-b border-[#211e19]/10">
       {/* 1단: 인위적 요약 뱃지 없이 깨끗한 6대 브랜드 카테고리 태그 칩 */}
-      <div>
+      <div className="min-h-[60px]">
         <div className="flex items-center space-x-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <button
             type="button"
@@ -130,4 +130,3 @@ export const CategoryTagFilter: React.FC = () => {
     </div>
   );
 };
-

@@ -107,7 +107,7 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
       onClick={onSelect}
       aria-pressed={isCurrent}
       style={{ isolation: 'isolate' }}
-      className={`group relative z-0 grid w-[min(94vw,25.5rem)] shrink-0 snap-start grid-cols-[144px_minmax(0,1fr)] gap-4 overflow-hidden rounded-[1.4rem] border p-3 text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_34px_rgba(61,45,29,0.12)] sm:w-[25.5rem] sm:grid-cols-[152px_minmax(0,1fr)] ${
+      className={`group relative z-0 grid w-[min(94vw,25.5rem)] shrink-0 snap-start grid-cols-[125px_minmax(0,1fr)] gap-4 overflow-hidden rounded-[1.4rem] border p-3 text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_34px_rgba(61,45,29,0.12)] sm:w-[25.5rem] sm:grid-cols-[132px_minmax(0,1fr)] ${
         isCurrent
           ? 'border-[#a94d35]/50 bg-[#fffbf5] shadow-[0_12px_28px_rgba(169,77,53,0.14)] ring-1 ring-[#a94d35]/25'
           : 'border-[#211e19]/08 bg-[#faf7f2]/95 hover:border-[#a94d35]/35 hover:bg-[#fffaf4]'
@@ -119,8 +119,8 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
         style={{ background: `radial-gradient(ellipse 80% 120% at 85% 15%, ${accentColor} 0%, transparent 70%)` }}
       />
 
-      {/* 섬네일 비주얼 (애플 HIG 황금 비율 황금 조화: min-h-[168px] / sm:min-h-[176px]) */}
-      <div className="relative z-10 min-h-[168px] sm:min-h-[176px] overflow-hidden rounded-[1.1rem] bg-[#d8cfbf]">
+      {/* 섬네일 비주얼 */}
+      <div className="relative z-10 min-h-[136px] sm:min-h-[144px] overflow-hidden rounded-[1.1rem] bg-[#d8cfbf]">
         <img
           src={story.imageUrl || FALLBACK_ART}
           alt=""
@@ -134,7 +134,7 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
         <div className="absolute inset-0 bg-gradient-to-t from-[#211e19]/65 via-transparent to-transparent" />
 
         {/* 재생 컨트롤 원형 버블 */}
-        <span className={`absolute bottom-2.5 left-2.5 inline-flex h-8 w-8 sm:h-8.5 sm:w-8.5 items-center justify-center rounded-full shadow-md backdrop-blur-xs transition-all duration-300 ${
+        <span className={`absolute bottom-2.5 left-2.5 inline-flex h-8 w-8 items-center justify-center rounded-full shadow-md backdrop-blur-xs transition-all duration-300 sm:h-8.5 sm:w-8.5 ${
           isPlaying
             ? 'bg-[#a94d35] text-white ring-2 ring-white/90 shadow-[0_4px_12px_rgba(169,77,53,0.3)]'
             : 'bg-white/95 text-[#211e19] ring-2 ring-white/90 shadow-[0_4px_10px_rgba(0,0,0,0.15)]'
@@ -154,38 +154,46 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
       {/* 카드 우측 정보 서사 영역 (Apple App Store 에디토리얼 타이포그래피 위계) */}
       <div className="relative z-10 flex min-w-0 flex-col justify-between py-0.5 pr-0.5">
         <div className="min-w-0">
-          {/* 1. 메인 타이틀 (맨 위 배치!) */}
-          <h3 className={`font-odii-sans text-[15px] font-bold leading-tight tracking-[-0.035em] transition-colors duration-300 line-clamp-1 ${
+          {/* 1. 메인 타이틀 */}
+          <h3 className={`font-odii-sans text-[14px] font-bold leading-tight tracking-[-0.035em] transition-colors duration-300 line-clamp-1 ${
             isCurrent ? 'text-[#a94d35]' : 'text-[#211e19] group-hover:text-[#a94d35]'
           }`}>
             {story.title}
           </h3>
 
           {/* 2. 서브타이틀 / 오디오 소제목 */}
-          <p className="mt-0.5 truncate text-[11px] font-medium text-[#655b4d]">
+          <p className="mt-0.5 truncate text-[10px] font-medium leading-4 text-[#655b4d]">
             {story.audioTitle}
           </p>
 
-          {/* 3. 애플 스타일 카테고리 & 장소 정보 메타행 */}
-          <div className="mt-1.5 flex min-w-0 items-center gap-1.5 text-[10px]">
-            <span className="shrink-0 rounded-full bg-[#a94d35]/10 px-2 py-0.5 font-bold text-[#a94d35]">
+          {/* 3. 주제 태그 */}
+          <div className="mt-1">
+            <span className="inline-flex rounded-full bg-[#a94d35]/10 px-2 py-0.5 text-[10px] font-bold leading-4 text-[#a94d35]">
               {story.category}
-            </span>
-            <span className="text-[#a94d35]/40 font-bold">·</span>
-            <span className="min-w-0 flex-1 truncate font-medium text-[#786d5e]" title={story.locationName || '대한민국 문화유산'}>
-              {story.locationName || '대한민국 문화유산'}
             </span>
           </div>
 
-          {/* 4. 한지 오디오 인용구 에디토리얼 박스 */}
-          <div className="mt-2 rounded-r-lg border-l-2 border-[#a94d35]/50 bg-[#211e19]/[0.035] py-1 pl-2 pr-1">
+          {/* 4. 장소는 태그와 분리해 읽기 흐름을 확보 */}
+          <div
+            className="mt-0.5 flex min-h-8 min-w-0 items-start gap-1 text-[10px] font-medium leading-4 text-[#786d5e]"
+            title={story.locationName || '대한민국 문화유산'}
+          >
+            <svg className="mt-0.5 h-3 w-3 shrink-0 text-[#a94d35]/65" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+              <path d="M12 21s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Z" />
+              <circle cx="12" cy="9" r="2.2" />
+            </svg>
+            <span className="line-clamp-2 break-keep">{story.locationName || '대한민국 문화유산'}</span>
+          </div>
+
+          {/* 5. 한지 오디오 인용구 에디토리얼 박스 */}
+          <div className="mt-1 rounded-r-lg border-l-2 border-[#a94d35]/50 bg-[#211e19]/[0.035] py-1 pl-2 pr-1">
             <p className="line-clamp-2 text-[10px] italic leading-relaxed text-[#594e40]">
               “{getScriptExcerpt(story.script)}”
             </p>
           </div>
         </div>
 
-        {/* 5. 하단 메타바 (애플 스타일 1px 헤어라인 분리) */}
+        {/* 6. 하단 메타바 (애플 스타일 1px 헤어라인 분리) */}
         <div className="mt-2.5 flex items-center justify-between border-t border-[#211e19]/08 pt-2 text-[9.5px] text-[#786d5e]">
           <span className="font-mono font-semibold text-[#655b4d]">{formatDuration(story)}</span>
           <span className="truncate font-medium text-[#8c7e6c]">{story.speaker || '온마루 도슨트'}</span>
@@ -201,37 +209,47 @@ export const StoryCarouselSkeleton: React.FC = () => (
       {[1, 2, 3].map((id) => (
         <div
           key={id}
-          className="grid w-[min(94vw,25.5rem)] shrink-0 grid-cols-[144px_minmax(0,1fr)] gap-4 overflow-hidden rounded-[1.4rem] border border-[#211e19]/08 bg-[#faf7f2]/95 p-3 sm:w-[25.5rem] sm:grid-cols-[152px_minmax(0,1fr)]"
+          className="grid min-h-[176px] w-[min(94vw,25.5rem)] shrink-0 grid-cols-[125px_minmax(0,1fr)] gap-4 overflow-hidden rounded-[1.4rem] border border-[#211e19]/08 bg-[#faf7f2]/95 p-3 sm:min-h-[184px] sm:w-[25.5rem] sm:grid-cols-[132px_minmax(0,1fr)]"
         >
           {/* 섬네일 스켈레톤 */}
-          <div className="relative h-[168px] min-h-[168px] w-full overflow-hidden rounded-[1.1rem] bg-[#e5d9c7] animate-pulse sm:h-[176px] sm:min-h-[176px]" />
+          <div className="odii-skeleton relative h-auto min-h-[176px] w-full self-stretch overflow-hidden rounded-[1.1rem] bg-[#e5d9c7] sm:min-h-[184px]">
+            <div className="odii-skeleton absolute bottom-2.5 left-2.5 h-8 w-8 rounded-full bg-[#dfd2be]" />
+          </div>
 
           {/* 우측 텍스트 정보 스켈레톤 */}
           <div className="flex flex-col justify-between py-0.5 pr-0.5">
             <div>
               {/* 타이틀 스켈레톤 */}
-              <div className="h-5 w-4/5 rounded-md bg-[#dfd2be] animate-pulse" />
+              <div className="odii-skeleton h-4 w-4/5 rounded-md bg-[#dfd2be]" />
               {/* 서브타이틀 스켈레톤 */}
-              <div className="mt-2 h-3.5 w-3/5 rounded bg-[#e8ded0] animate-pulse" />
-              {/* 카테고리 태그 스켈레톤 */}
-              <div className="mt-3 flex items-center gap-2">
-                <div className="h-4 w-16 rounded-full bg-[#e8ded0] animate-pulse" />
-                <div className="h-3.5 w-24 rounded bg-[#e5d9c7] animate-pulse" />
+              <div className="odii-skeleton mt-0.5 h-3.5 w-3/5 rounded bg-[#e8ded0]" />
+              {/* 주제 태그 + 장소 스켈레톤 */}
+              <div className="mt-1">
+                <div className="odii-skeleton h-4 w-16 rounded-full bg-[#e8ded0]" />
+                <div className="mt-0.5 flex items-start gap-1">
+                  <div className="odii-skeleton mt-0.5 h-3 w-3 rounded-full bg-[#e5d9c7]" />
+                  <div className="flex-1 space-y-1">
+                    <div className="odii-skeleton h-3.5 w-full rounded bg-[#e5d9c7]" />
+                    <div className="odii-skeleton h-3.5 w-3/4 rounded bg-[#e5d9c7]" />
+                  </div>
+                </div>
               </div>
               {/* 한지 오디오 인용구 박스 스켈레톤 */}
-              <div className="mt-3 rounded-r-lg border-l-2 border-[#a94d35]/30 bg-[#211e19]/04 p-2.5 space-y-2">
-                <div className="h-3 w-full rounded bg-[#e8ded0] animate-pulse" />
-                <div className="h-3 w-3/4 rounded bg-[#e8ded0] animate-pulse" />
+              <div className="mt-1 rounded-r-lg border-l-2 border-[#a94d35]/30 bg-[#211e19]/04 py-1 pl-2 pr-1 space-y-1.5">
+                <div className="odii-skeleton h-3 w-full rounded bg-[#e8ded0]" />
+                <div className="odii-skeleton h-3 w-3/4 rounded bg-[#e8ded0]" />
               </div>
             </div>
-            {/* 하단 메타바 스켈레톤 */}
-            <div className="mt-3 flex items-center justify-between border-t border-[#211e19]/08 pt-2.5">
-              <div className="h-3.5 w-12 rounded bg-[#e5d9c7] animate-pulse" />
-              <div className="h-3.5 w-20 rounded bg-[#e5d9c7] animate-pulse" />
+            <div className="mt-2 flex items-center justify-between border-t border-[#211e19]/08 pt-1.5">
+              <div className="odii-skeleton h-3.5 w-10 rounded bg-[#e5d9c7]" />
+              <div className="odii-skeleton h-3.5 w-20 rounded bg-[#e5d9c7]" />
             </div>
           </div>
         </div>
       ))}
+    </div>
+    <div className="h-[18px] px-6 sm:px-8" aria-hidden="true">
+      <div className="odii-skeleton ml-auto h-3 w-16 rounded bg-[#e5d9c7]" />
     </div>
   </div>
 );
