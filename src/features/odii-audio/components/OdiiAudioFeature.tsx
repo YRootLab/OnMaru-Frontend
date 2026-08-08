@@ -321,7 +321,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             />
           </motion.div>
 
-          {/* 섹션 3: 오늘, 여기에서 (새로고침 시 즉시 노출 / 320px 레이아웃 고정) */}
+          {/* 섹션 3: 오늘, 여기에서 (새로고침 시 즉시 노출 / 480px 레이아웃 고정) */}
           <motion.section
             aria-labelledby="nearby-stories-heading"
             variants={sectionVariants}
@@ -330,7 +330,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             animate={hasAnimatedSession ? "visible" : undefined}
             viewport={hasAnimatedSession ? undefined : { once: true, amount: 0.12 }}
             transition={hasAnimatedSession ? { duration: 0 } : undefined}
-            className="w-full py-8 sm:py-12 min-h-[280px] sm:min-h-[320px]"
+            className="w-full py-8 sm:py-12 min-h-[440px] sm:min-h-[480px]"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
               {/* 섹션 3 타이틀 (가장 먼저 등판) */}
