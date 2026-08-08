@@ -48,14 +48,14 @@ export default function HanokArchive({ villages, meta }: HanokArchiveProps) {
           <HanokGrid villages={villages} onSelectVillage={setSelectedVillage} />
         </SectionWrapper>
 
-        {/* 전국 시공간 분할 지도 인터랙션 */}
-        <SectionWrapper>
-          <HanokMap villages={villages} onSelectVillage={setSelectedVillage} />
-        </SectionWrapper>
-
         {/* 한옥 고택 스테이 확장형 아코디언 컬렉션 */}
         <SectionWrapper>
           <HanokStayAccordion villages={villages} onSelectVillage={setSelectedVillage} />
+        </SectionWrapper>
+
+        {/* 전국 시공간 분할 지도 인터랙션 */}
+        <SectionWrapper>
+          <HanokMap villages={villages} onSelectVillage={setSelectedVillage} />
         </SectionWrapper>
 
         {/* 온마루 한옥 매니페스토 */}

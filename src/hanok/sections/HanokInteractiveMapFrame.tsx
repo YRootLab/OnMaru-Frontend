@@ -1,13 +1,29 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet';
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import Script from 'next/script';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
-import 'leaflet/dist/leaflet.css';
 import { lightPalette, meok } from '@/design-system/tokens';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, MapPin, AlertCircle, ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
 import type { Village } from '@/hanok/types';
+
+// Light Kobalt & Soft Gray Theme Tokens
+const KOBALT_PRIMARY = lightPalette.kobalt[500]; // #2B5CE6
+const KOBALT_DEEP = lightPalette.kobalt[700]; // #1A3898
+const KOBALT_LIGHT = lightPalette.kobalt[50]; // #EEF3FF
+const KOBALT_SUBTLE = 'rgba(43, 92, 230, 0.08)';
+const KOBALT_BORDER = 'rgba(43, 92, 230, 0.18)';
+
+// Default Fallback Hanok Photos
+const FALLBACK_HANOK_IMAGES = [
+  '/images/hanok/hanok-exterior.png',
+  '/images/hanok/hanok-main.png',
+  '/images/hanok/hanok-porch.png',
+  '/images/hanok/hanok-interior.png',
+  '/images/hanok/giwa-detail.png',
+  '/images/hanok/maru-detail.png',
+];
 
 const Frame = styled.div`
   position: relative;
@@ -15,47 +31,179 @@ const Frame = styled.div`
   height: 580px;
   overflow: hidden;
   border-radius: 28px;
+  background: #f0f4fc;
+  border: 1px solid rgba(43, 92, 230, 0.12);
+  box-shadow: none;
+`;
 
-  .leaflet-container {
-    width: 100%;
-    height: 100%;
-    background: #f8fafc;
-    font-family: 'SpoqaHanSansNeo', sans-serif;
+const MapCanvas = styled.div`
+  width: 100%;
+  height: 100%;
+
+  /* ── Photo Circle Avatar Marker Pins ── */
+  .custom-overlay-pin {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transform: translate(-50%, -50%);
+    transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), z-index 0.1s ease;
+    z-index: 10;
+
+    &:hover {
+      z-index: 300 !important;
+      transform: translate(-50%, -60%) scale(1.15);
+
+      .avatar-thumb {
+        border-color: ${KOBALT_PRIMARY};
+        box-shadow: none;
+      }
+
+      .avatar-label {
+        background: #ffffff;
+        border-color: ${KOBALT_PRIMARY};
+        color: ${KOBALT_DEEP};
+        box-shadow: none;
+      }
+    }
   }
 
-  .leaflet-popup-content-wrapper {
-    border-radius: 20px;
-    padding: 0;
+  .avatar-thumb {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    background-size: cover;
+    background-position: center;
+    background-color: ${KOBALT_PRIMARY};
     box-shadow: none;
-    background: rgba(238, 243, 255, 0.96);
-    backdrop-filter: blur(16px);
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
   }
 
-  .leaflet-popup-content {
-    margin: 16px 18px;
+  .avatar-label {
+    margin-top: 2px;
+    padding: 2px 7px;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid ${KOBALT_BORDER};
+    border-radius: 10px;
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: ${meok[900]};
+    white-space: nowrap;
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-shadow: none;
+    font-family: 'SpoqaHanSansNeo', sans-serif;
+    transition: all 0.2s ease;
   }
+`;
 
-  .leaflet-popup-tip-container {
+const MapLoadingState = styled.div`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(240, 244, 252, 0.95);
+  color: ${KOBALT_PRIMARY};
+  font-size: 13px;
+  font-weight: 500;
+  z-index: 10;
+  text-align: center;
+  padding: 16px;
+`;
+
+const ErrorSubtext = styled.p`
+  font-size: 11.5px;
+  color: ${meok[700]};
+  max-width: 340px;
+  line-height: 1.45;
+  margin-top: 2px;
+`;
+
+/* ── Bottom Floating Region Bar (Flat White Glass Dock) ── */
+const BottomRegionBar = styled.div`
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid ${KOBALT_BORDER};
+  border-radius: 9999px;
+  padding: 3px 4px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  box-shadow: none;
+  max-width: calc(100% - 28px);
+  overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
     display: none;
   }
 `;
 
-/* ── Left Story Side Panel ── */
+const RegionChip = styled.button<{ $active: boolean }>`
+  background: ${({ $active }) =>
+    $active
+      ? `linear-gradient(135deg, ${KOBALT_PRIMARY} 0%, ${KOBALT_DEEP} 100%)`
+      : 'transparent'};
+  color: ${({ $active }) => ($active ? '#ffffff' : meok[900])};
+  border: none;
+  border-radius: 9999px;
+  padding: 5px 11px;
+  font-size: 12px;
+  font-weight: ${({ $active }) => ($active ? 600 : 400)};
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: ${({ $active }) =>
+      $active
+        ? `linear-gradient(135deg, ${KOBALT_PRIMARY} 0%, ${KOBALT_DEEP} 100%)`
+        : KOBALT_SUBTLE};
+    color: ${({ $active }) => ($active ? '#ffffff' : KOBALT_PRIMARY)};
+  }
+`;
+
+/* ── Left Collapsible Story Side Panel (Flat Light Glass Drawer) ── */
 const LeftPanel = styled(motion.div)`
   position: absolute;
-  top: 20px;
-  left: 20px;
-  width: 320px;
-  max-height: calc(100% - 40px);
-  z-index: 1000;
-  background: rgba(238, 243, 255, 0.96);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-radius: 24px;
-  padding: 24px;
+  top: 14px;
+  left: 14px;
+  width: 280px;
+  max-height: calc(100% - 28px);
+  z-index: 20;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid ${KOBALT_BORDER};
+  border-radius: 18px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  box-shadow: none;
   scrollbar-width: none;
   &::-webkit-scrollbar {
     display: none;
@@ -63,81 +211,109 @@ const LeftPanel = styled(motion.div)`
 
   @media (max-width: 900px) {
     top: auto;
-    bottom: 20px;
-    left: 20px;
-    right: 20px;
+    bottom: 14px;
+    left: 14px;
+    right: 14px;
     width: auto;
     max-height: 220px;
   }
 `;
 
+const PanelHeaderRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+`;
+
 const PanelSubHeader = styled.div`
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: ${lightPalette.kobalt[500]};
-  margin-bottom: 6px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  color: ${KOBALT_PRIMARY};
+`;
+
+const CollapseBtn = styled.button`
+  background: rgba(43, 92, 230, 0.08);
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${meok[900]};
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: ${KOBALT_PRIMARY};
+    color: #ffffff;
+  }
 `;
 
 const PanelTitle = styled.h3`
   font-family: 'SpoqaHanSansNeo', sans-serif;
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 17px;
+  font-weight: 600;
   color: ${meok[900]};
-  margin: 0 0 6px;
+  margin: 0 0 4px;
   line-height: 1.25;
 `;
 
 const PanelCountBadge = styled.span`
   display: inline-block;
-  font-size: 12px;
-  font-weight: 700;
-  color: ${lightPalette.kobalt[700]};
-  background: ${lightPalette.kobalt[100]};
-  padding: 3px 12px;
+  font-size: 11px;
+  font-weight: 500;
+  color: ${KOBALT_PRIMARY};
+  background: ${KOBALT_LIGHT};
+  border: 1px solid ${KOBALT_BORDER};
+  padding: 2px 9px;
   border-radius: 9999px;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
   align-self: flex-start;
 `;
 
 const PanelDesc = styled.p`
-  font-size: 13px;
-  color: ${meok[500]};
-  line-height: 1.55;
-  margin: 0 0 16px;
+  font-size: 12px;
+  color: ${meok[700]};
+  line-height: 1.45;
+  margin: 0 0 10px;
 `;
 
 const MiniCardList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
 `;
 
 const MiniCard = styled(motion.div)`
   display: flex;
   align-items: center;
-  gap: 12px;
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 10px;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(43, 92, 230, 0.1);
+  border-radius: 12px;
+  padding: 7px;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    background: ${lightPalette.kobalt[50]};
+    background: ${KOBALT_LIGHT};
+    border-color: ${KOBALT_PRIMARY};
+    box-shadow: none;
   }
 `;
 
 const MiniThumb = styled.div<{ $bg: string | null }>`
-  width: 52px;
-  height: 52px;
-  border-radius: 12px;
-  background-color: ${lightPalette.kobalt[100]};
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background-color: ${KOBALT_LIGHT};
   ${({ $bg }) =>
     $bg
       ? `background-image: url("${$bg}"); background-size: cover; background-position: center;`
-      : `background: linear-gradient(135deg, ${lightPalette.kobalt[100]} 0%, ${lightPalette.kobalt[200]} 100%);`}
+      : `background: linear-gradient(135deg, ${KOBALT_LIGHT} 0%, rgba(43, 92, 230, 0.2) 100%);`}
   flex-shrink: 0;
 `;
 
@@ -147,8 +323,8 @@ const MiniInfo = styled.div`
 `;
 
 const MiniTitle = styled.h4`
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 500;
   color: ${meok[900]};
   margin: 0 0 2px;
   white-space: nowrap;
@@ -157,113 +333,37 @@ const MiniTitle = styled.h4`
 `;
 
 const MiniMeta = styled.div`
-  font-size: 11.5px;
+  font-size: 11px;
+  font-weight: 400;
   color: ${meok[500]};
 `;
 
-/* ── Right Vertical Region Selector List Panel ── */
-const RightPanel = styled.div`
+/* ── Collapsed Floating Trigger Pill (Flat Glass) ── */
+const CollapsedPillBtn = styled(motion.button)`
   position: absolute;
-  top: 20px;
-  right: 20px;
-  width: 150px;
-  z-index: 1000;
-  background: rgba(238, 243, 255, 0.96);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: 24px;
-  padding: 16px 12px;
+  top: 14px;
+  left: 14px;
+  z-index: 20;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid ${KOBALT_BORDER};
+  border-radius: 9999px;
+  padding: 7px 13px;
   display: flex;
-  flex-direction: column;
-
-  @media (max-width: 900px) {
-    display: none;
-  }
-`;
-
-const RightHeader = styled.div`
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: ${lightPalette.kobalt[400]};
-  padding: 0 8px;
-  margin-bottom: 10px;
-`;
-
-const RegionList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-`;
-
-const RegionItemBtn = styled.button<{ $active: boolean }>`
-  position: relative;
-  background: ${({ $active }) =>
-    $active
-      ? `linear-gradient(135deg, ${lightPalette.kobalt[500]} 0%, ${lightPalette.kobalt[700]} 100%)`
-      : 'transparent'};
-  color: ${({ $active }) => ($active ? '#ffffff' : lightPalette.kobalt[700])};
-  border: none;
-  border-radius: 14px;
-  padding: 8px 12px;
-  font-size: 13px;
-  font-weight: ${({ $active }) => ($active ? 700 : 500)};
-  text-align: left;
+  align-items: center;
+  gap: 6px;
+  color: ${meok[900]};
+  font-size: 12px;
+  font-weight: 500;
   cursor: pointer;
+  box-shadow: none;
   transition: all 0.2s ease;
 
   &:hover {
-    background: ${({ $active }) =>
-      $active
-        ? `linear-gradient(135deg, ${lightPalette.kobalt[500]} 0%, ${lightPalette.kobalt[700]} 100%)`
-        : lightPalette.kobalt[50]};
-    color: ${({ $active }) => ($active ? '#ffffff' : lightPalette.kobalt[700])};
-  }
-`;
-
-/* ── Leaflet Popup Styles ── */
-const PopupContent = styled.div`
-  min-width: 190px;
-`;
-
-const PopupTag = styled.span`
-  font-size: 11px;
-  font-weight: 700;
-  color: ${lightPalette.kobalt[500]};
-  background: ${lightPalette.kobalt[50]};
-  padding: 2px 8px;
-  border-radius: 9999px;
-`;
-
-const PopupTitle = styled.h4`
-  font-size: 16px;
-  font-weight: 700;
-  color: ${meok[900]};
-  margin: 8px 0 4px;
-  line-height: 1.3;
-`;
-
-const PopupAddr = styled.p`
-  font-size: 12px;
-  color: ${meok[500]};
-  margin: 0 0 12px;
-`;
-
-const ViewBtn = styled.button`
-  width: 100%;
-  background: ${meok[900]};
-  color: #ffffff;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 9999px;
-  font-size: 12.5px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s ease;
-
-  &:hover {
-    background: ${lightPalette.kobalt[500]};
+    background: ${KOBALT_LIGHT};
+    border-color: ${KOBALT_PRIMARY};
+    color: ${KOBALT_PRIMARY};
   }
 `;
 
@@ -273,18 +373,6 @@ interface HanokInteractiveMapFrameProps {
 }
 
 const REGIONS = ['전체', '서울', '경북', '전북', '경남', '충남', '강원', '경기', '전남'];
-
-const REGION_COORDS: Record<string, [number, number, number]> = {
-  전체: [36.2, 127.8, 7],
-  서울: [37.5665, 126.978, 11],
-  경북: [36.5684, 128.7297, 8],
-  전북: [35.8242, 127.148, 9],
-  경남: [35.2383, 128.6924, 8],
-  충남: [36.5184, 126.8, 9],
-  강원: [37.8228, 128.1555, 8],
-  경기: [37.4138, 127.5183, 9],
-  전남: [34.816, 126.463, 8],
-};
 
 const REGION_STORIES: Record<string, string> = {
   전체: '전국에 남은 궁궐과 고택, 서원과 한옥마을을 지도에서 찾아보세요.',
@@ -298,30 +386,26 @@ const REGION_STORIES: Record<string, string> = {
   전남: '해남 윤선도 고택과 나주 향교, 남도 유학의 자취.',
 };
 
-function MapController({ center, zoom }: { center: [number, number]; zoom: number }) {
-  const map = useMap();
-  React.useEffect(() => {
-    map.flyTo(center, zoom, { duration: 1.2 });
-  }, [center, zoom, map]);
-  return null;
-}
-
-const MapContainerComp = MapContainer as any;
-const TileLayerComp = TileLayer as any;
-const CircleMarkerComp = CircleMarker as any;
-
 export default function HanokInteractiveMapFrame({
   villages,
   onSelectVillage,
 }: HanokInteractiveMapFrameProps) {
-  const [selectedRegion, setSelectedRegion] = useState('전체');
-  const [mapState, setMapState] = useState<{ center: [number, number]; zoom: number }>({
-    center: [36.2, 127.8],
-    zoom: 7,
-  });
+  const containerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<any>(null);
+  const clustererRef = useRef<any>(null);
+  const overlaysRef = useRef<any[]>([]);
+  const markersRef = useRef<any[]>([]);
 
-  const validVillages = villages.filter(
-    (v) => typeof v.lat === 'number' && typeof v.lng === 'number'
+  const [selectedRegion, setSelectedRegion] = useState('전체');
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isStoryExpanded, setIsStoryExpanded] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const kakaoAppKey = process.env.NEXT_PUBLIC_KAKAO_MAP_KEY;
+
+  const validVillages = useMemo(
+    () => villages.filter((v) => typeof v.lat === 'number' && typeof v.lng === 'number'),
+    [villages]
   );
 
   const regionVillages = useMemo(() => {
@@ -329,120 +413,347 @@ export default function HanokInteractiveMapFrame({
     return validVillages.filter((v) => v.region.includes(selectedRegion));
   }, [validVillages, selectedRegion]);
 
+  // 대한민국 전체 지점이 화면 100%에 맞춰 가득 차도록 바운즈 자동 계산
+  const fitKoreaBounds = useCallback((mapInstance: any, targets: Village[]) => {
+    if (!mapInstance || !window.kakao || !window.kakao.maps || targets.length === 0) return;
+
+    const bounds = new window.kakao.maps.LatLngBounds();
+    targets.forEach((v) => {
+      if (typeof v.lat === 'number' && typeof v.lng === 'number') {
+        bounds.extend(new window.kakao.maps.LatLng(v.lat, v.lng));
+      }
+    });
+
+    mapInstance.setBounds(bounds);
+  }, []);
+
+  // Kakao Map & MarkerClusterer 초기화
+  const initMap = useCallback(() => {
+    if (!containerRef.current) return;
+    if (!window.kakao || !window.kakao.maps) {
+      console.warn('[KakaoMap] kakao.maps is not available on window object.');
+      return;
+    }
+
+    try {
+      window.kakao.maps.load(() => {
+        if (!containerRef.current) return;
+        const options = {
+          center: new window.kakao.maps.LatLng(36.1, 127.8),
+          level: 11,
+        };
+
+        const map = new window.kakao.maps.Map(containerRef.current, options);
+        mapRef.current = map;
+
+        // 바탕 지도 클릭 시 스토리 패널 접기
+        window.kakao.maps.event.addListener(map, 'click', () => {
+          setIsStoryExpanded(false);
+        });
+
+        // 클러스터러 스타일 (그림자 제거, 미디엄 폰트)
+        if (window.kakao.maps.MarkerClusterer) {
+          const clusterer = new window.kakao.maps.MarkerClusterer({
+            map,
+            averageCenter: true,
+            minLevel: 8,
+            calculator: [10, 30, 50],
+            styles: [
+              {
+                width: '46px',
+                height: '46px',
+                background: 'rgba(255, 255, 255, 0.94)',
+                border: '1.5px solid #2B5CE6',
+                borderRadius: '50%',
+                color: '#1A3898',
+                textAlign: 'center',
+                lineHeight: '43px',
+                fontWeight: '600',
+                fontSize: '13px',
+                boxShadow: 'none',
+                fontFamily: 'SpoqaHanSansNeo, sans-serif',
+              },
+              {
+                width: '54px',
+                height: '54px',
+                background: 'linear-gradient(135deg, #2B5CE6 0%, #1A3898 100%)',
+                border: '2px solid #ffffff',
+                borderRadius: '50%',
+                color: '#ffffff',
+                textAlign: 'center',
+                lineHeight: '50px',
+                fontWeight: '600',
+                fontSize: '14px',
+                boxShadow: 'none',
+                fontFamily: 'SpoqaHanSansNeo, sans-serif',
+              },
+            ],
+          });
+          clustererRef.current = clusterer;
+        }
+
+        setIsLoaded(true);
+
+        setTimeout(() => {
+          map.relayout();
+          fitKoreaBounds(map, validVillages);
+        }, 120);
+      });
+    } catch (err: any) {
+      console.error('[KakaoMap] Map initialization error:', err);
+      setErrorMessage('카카오 지도를 초기화하는 중 오류가 발생했습니다.');
+    }
+  }, [fitKoreaBounds, validVillages]);
+
+  // 마커 / 클러스터러 / 사진 아바타 오버레이 업데이트
+  useEffect(() => {
+    if (!isLoaded || !mapRef.current || !window.kakao || !window.kakao.maps) return;
+
+    // 기존 오버레이 및 마커 클리어
+    overlaysRef.current.forEach((overlay) => overlay.setMap(null));
+    overlaysRef.current = [];
+
+    if (clustererRef.current) {
+      clustererRef.current.clear();
+    }
+    markersRef.current = [];
+
+    const newMarkers: any[] = [];
+
+    regionVillages.forEach((village, idx) => {
+      if (typeof village.lat !== 'number' || typeof village.lng !== 'number') return;
+
+      const position = new window.kakao.maps.LatLng(village.lat, village.lng);
+
+      const photoUrl = village.hasImage && village.image
+        ? village.image
+        : FALLBACK_HANOK_IMAGES[idx % FALLBACK_HANOK_IMAGES.length];
+
+      // 1. 커스텀 사진 오버레이 핀
+      const content = document.createElement('div');
+      content.className = 'custom-overlay-pin';
+      content.innerHTML = `
+        <div class="avatar-thumb">
+          <img src="${photoUrl}" alt="${village.name}" onerror="this.src='${FALLBACK_HANOK_IMAGES[0]}'" />
+        </div>
+        <div class="avatar-label">${village.name}</div>
+      `;
+
+      content.addEventListener('click', (e) => {
+        e.stopPropagation();
+        setIsStoryExpanded(false); // 핀 클릭 시 스토리 패널 자동 접기
+        onSelectVillage?.(village);
+        mapRef.current?.panTo(position);
+      });
+
+      const customOverlay = new window.kakao.maps.CustomOverlay({
+        position,
+        content,
+        yAnchor: 0.5,
+      });
+      overlaysRef.current.push(customOverlay);
+
+      // 2. 마커 클러스터러용 마커 객체
+      const transparentImage = new window.kakao.maps.MarkerImage(
+        'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+        new window.kakao.maps.Size(1, 1)
+      );
+
+      const marker = new window.kakao.maps.Marker({
+        position,
+        image: transparentImage,
+      });
+      window.kakao.maps.event.addListener(marker, 'click', () => {
+        setIsStoryExpanded(false); // 마커 클릭 시 스토리 패널 자동 접기
+        onSelectVillage?.(village);
+        mapRef.current?.panTo(position);
+      });
+      newMarkers.push(marker);
+    });
+
+    markersRef.current = newMarkers;
+
+    // 줌 레벨 및 지역 선택에 따른 오버레이 표시 상태 갱신 함수
+    const syncOverlayVisibility = () => {
+      if (!mapRef.current) return;
+      const currentLevel = mapRef.current.getLevel();
+      const showOverlays = selectedRegion !== '전체' || currentLevel < 8;
+
+      overlaysRef.current.forEach((overlay) => {
+        overlay.setMap(showOverlays ? mapRef.current : null);
+      });
+    };
+
+    // 초기 상태 갱신
+    syncOverlayVisibility();
+
+    // 줌 레벨 변경 시 동적 노출 갱신
+    window.kakao.maps.event.addListener(mapRef.current, 'zoom_changed', syncOverlayVisibility);
+
+    // 전국 전체 보기일 때 마커 클러스터러 적용
+    if (selectedRegion === '전체' && clustererRef.current) {
+      clustererRef.current.addMarkers(newMarkers);
+
+      // 클러스터 클릭 시 스토리 패널 접기 및 해당 위치로 확대
+      window.kakao.maps.event.addListener(clustererRef.current, 'clusterclick', (cluster: any) => {
+        setIsStoryExpanded(false); // 클러스터 클릭 시 스토리 패널 자동 접기
+        const level = mapRef.current.getLevel() - 2;
+        const targetLevel = level < 1 ? 1 : level;
+        mapRef.current.setLevel(targetLevel, { animate: true });
+        mapRef.current.panTo(cluster.getCenter());
+        setTimeout(syncOverlayVisibility, 250);
+      });
+    }
+  }, [regionVillages, onSelectVillage, isLoaded, selectedRegion]);
+
+  // 스크립트가 이미 로드된 경우의 fallback
+  useEffect(() => {
+    if (window.kakao && window.kakao.maps && !isLoaded) {
+      initMap();
+    }
+  }, [initMap, isLoaded]);
+
+  // 키 체크
+  useEffect(() => {
+    if (!kakaoAppKey) {
+      setErrorMessage(
+        'NEXT_PUBLIC_KAKAO_MAP_KEY 환경 변수가 없습니다. 개발 서버(npm run dev)를 재시작해 보세요.'
+      );
+    }
+  }, [kakaoAppKey]);
+
+  // 지역 클릭 시 지도 이동 및 바운즈 피팅
   const handleRegionClick = (region: string) => {
     setSelectedRegion(region);
-    const coords = REGION_COORDS[region] || REGION_COORDS['전체'];
-    setMapState({ center: [coords[0], coords[1]], zoom: coords[2] });
+
+    if (!mapRef.current || !window.kakao || !window.kakao.maps) return;
+
+    if (region === '전체') {
+      fitKoreaBounds(mapRef.current, validVillages);
+    } else {
+      const targets = validVillages.filter((v) => v.region.includes(region));
+      if (targets.length > 0) {
+        fitKoreaBounds(mapRef.current, targets);
+      }
+    }
+  };
+
+  const handleMiniCardClick = (village: Village) => {
+    setIsStoryExpanded(false);
+    onSelectVillage?.(village);
+    if (mapRef.current && typeof village.lat === 'number' && typeof village.lng === 'number') {
+      const pos = new window.kakao.maps.LatLng(village.lat, village.lng);
+      mapRef.current.setLevel(6, { animate: true });
+      mapRef.current.panTo(pos);
+    }
   };
 
   return (
     <Frame>
-      {/* ── Left Story Side Panel ── */}
-      <AnimatePresence mode="wait">
-        <LeftPanel
-          key={selectedRegion}
-          initial={{ opacity: 0, x: -16 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -16 }}
-          transition={{ duration: 0.22, ease: 'easeOut' }}
-        >
-          <PanelSubHeader>Heritage Stories</PanelSubHeader>
-          <PanelTitle>
-            {selectedRegion === '전체'
-              ? '전국 한옥'
-              : `${selectedRegion} 한옥`}
-          </PanelTitle>
-          <PanelCountBadge>
-            {regionVillages.length}곳
-          </PanelCountBadge>
-
-          <PanelDesc>
-            {REGION_STORIES[selectedRegion] || REGION_STORIES['전체']}
-          </PanelDesc>
-
-          <MiniCardList>
-            {regionVillages.slice(0, 3).map((v) => (
-              <MiniCard
-                key={v.id}
-                onClick={() => onSelectVillage?.(v)}
-                whileHover={{ x: 4 }}
-                transition={{ duration: 0.15 }}
-              >
-                <MiniThumb $bg={v.hasImage ? v.image : null} />
-                <MiniInfo>
-                  <MiniTitle>{v.name}</MiniTitle>
-                  <MiniMeta>
-                    {v.region} · {v.type}
-                  </MiniMeta>
-                </MiniInfo>
-              </MiniCard>
-            ))}
-          </MiniCardList>
-        </LeftPanel>
-      </AnimatePresence>
-
-      {/* ── Right Vertical Region Selector Panel ── */}
-      <RightPanel>
-        <RightHeader>Choose Zone</RightHeader>
-        <RegionList>
-          {REGIONS.map((r) => {
-            const isActive = selectedRegion === r;
-            return (
-              <RegionItemBtn
-                key={r}
-                $active={isActive}
-                onClick={() => handleRegionClick(r)}
-              >
-                {r}
-              </RegionItemBtn>
+      {kakaoAppKey && (
+        <Script
+          src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoAppKey}&autoload=false&libraries=services,clusterer`}
+          onLoad={initMap}
+          onError={() => {
+            setErrorMessage(
+              '카카오 지도 SDK 스크립트를 불러오지 못했습니다. 카카오 개발자 센터에서 http://localhost:3000 도메인이 등록되어 있는지 확인해주세요.'
             );
-          })}
-        </RegionList>
-      </RightPanel>
-
-      {/* ── Leaflet CartoDB Map ── */}
-      <MapContainerComp
-        center={mapState.center}
-        zoom={mapState.zoom}
-        scrollWheelZoom={false}
-        style={{ width: '100%', height: '100%' }}
-      >
-        <MapController center={mapState.center} zoom={mapState.zoom} />
-
-        <TileLayerComp
-          attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+          }}
         />
+      )}
 
-        {regionVillages.map((v) => (
-          <CircleMarkerComp
-            key={v.id}
-            center={[v.lat!, v.lng!]}
-            radius={9}
-            pathOptions={{
-              color: '#ffffff',
-              fillColor: lightPalette.kobalt[500],
-              fillOpacity: 0.95,
-              weight: 2.5,
-            }}
+      {errorMessage ? (
+        <MapLoadingState style={{ color: '#ef4444' }}>
+          <AlertCircle size={24} />
+          <div>{errorMessage}</div>
+          <ErrorSubtext>
+            Kakao Developers 콘솔 → [내 애플리케이션] → [플랫폼] → [Web 사이트 도메인]에 현재 개발 도메인이 등록되어 있어야 합니다.
+          </ErrorSubtext>
+        </MapLoadingState>
+      ) : !isLoaded ? (
+        <MapLoadingState>
+          <MapPin size={22} />
+          지도를 불러오는 중입니다…
+        </MapLoadingState>
+      ) : null}
+
+      <MapCanvas ref={containerRef} />
+
+      {/* ── Bottom Floating Region Bar (Flat Slim White Dock) ── */}
+      <BottomRegionBar>
+        {REGIONS.map((r) => {
+          const isActive = selectedRegion === r;
+          return (
+            <RegionChip
+              key={r}
+              $active={isActive}
+              onClick={() => handleRegionClick(r)}
+            >
+              {r}
+            </RegionChip>
+          );
+        })}
+      </BottomRegionBar>
+
+      {/* ── Left Story Side Panel (Flat Light Glass Drawer) ── */}
+      <AnimatePresence mode="wait">
+        {isStoryExpanded ? (
+          <LeftPanel
+            key="expanded"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.18, ease: 'easeOut' }}
           >
-            <Popup>
-              <PopupContent>
-                <PopupTag>
-                  {v.region} · {v.type}
-                </PopupTag>
-                <PopupTitle>{v.name}</PopupTitle>
-                <PopupAddr>{v.addr}</PopupAddr>
-                {onSelectVillage && (
-                  <ViewBtn onClick={() => onSelectVillage(v)}>
-                    자세히 보기 <ArrowRight size={13} style={{ marginLeft: 4 }} />
-                  </ViewBtn>
-                )}
-              </PopupContent>
-            </Popup>
-          </CircleMarkerComp>
-        ))}
-      </MapContainerComp>
+            <PanelHeaderRow>
+              <PanelSubHeader>한옥 이야기</PanelSubHeader>
+              <CollapseBtn onClick={() => setIsStoryExpanded(false)}>
+                <ChevronLeft size={16} />
+              </CollapseBtn>
+            </PanelHeaderRow>
+
+            <PanelTitle>
+              {selectedRegion === '전체' ? '전국 한옥' : `${selectedRegion} 한옥`}
+            </PanelTitle>
+            <PanelCountBadge>{regionVillages.length}곳</PanelCountBadge>
+
+            <PanelDesc>
+              {REGION_STORIES[selectedRegion] || REGION_STORIES['전체']}
+            </PanelDesc>
+
+            <MiniCardList>
+              {regionVillages.slice(0, 3).map((v) => (
+                <MiniCard
+                  key={v.id}
+                  onClick={() => handleMiniCardClick(v)}
+                  whileHover={{ x: 3 }}
+                  transition={{ duration: 0.12 }}
+                >
+                  <MiniThumb $bg={v.hasImage ? v.image : null} />
+                  <MiniInfo>
+                    <MiniTitle>{v.name}</MiniTitle>
+                    <MiniMeta>
+                      {v.region} · {v.type}
+                    </MiniMeta>
+                  </MiniInfo>
+                </MiniCard>
+              ))}
+            </MiniCardList>
+          </LeftPanel>
+        ) : (
+          <CollapsedPillBtn
+            key="collapsed"
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -10 }}
+            onClick={() => setIsStoryExpanded(true)}
+          >
+            <BookOpen size={15} style={{ color: KOBALT_PRIMARY }} />
+            <span>한옥 이야기 ({regionVillages.length}곳)</span>
+            <ChevronRight size={15} />
+          </CollapsedPillBtn>
+        )}
+      </AnimatePresence>
     </Frame>
   );
 }

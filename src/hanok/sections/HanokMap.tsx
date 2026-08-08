@@ -7,7 +7,7 @@ import { meok } from '@/design-system/tokens';
 import SectionHeader from '@/hanok/components/SectionHeader';
 import type { Village } from '@/hanok/types';
 
-// Dynamic import for Leaflet map component (client side only)
+// Dynamic import for Kakao map component (client side only)
 const HanokInteractiveMapFrame = dynamic(() => import('./HanokInteractiveMapFrame'), {
   ssr: false,
   loading: () => (

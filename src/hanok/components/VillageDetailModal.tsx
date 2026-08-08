@@ -13,7 +13,7 @@ const Overlay = styled(motion.div)`
   background: rgba(25, 31, 40, 0.65);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  z-index: 200;
+  z-index: 99999;
   display: grid;
   place-items: center;
   padding: 24px;
