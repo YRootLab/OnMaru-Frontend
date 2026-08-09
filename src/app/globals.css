@@ -47,6 +47,67 @@ body {
 
 .odii-feature {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Apple SD Gothic Neo", Inter, sans-serif;
+  /* design-system/tokens.ts의 jangmi 500/400/700/50 */
+  --odii-primary: #F84E76;
+  --odii-primary-hover: #FF5F81;
+  --odii-primary-pressed: #961F3F;
+  --odii-primary-bg: #FFF1F3;
+  --odii-primary-subtle: #FFBBC3;
+}
+
+/* 기존 오디의 테라코타 포인트를 장미(jangmi) 계열로 통일 */
+.odii-feature [class~="text-[#a94d35]"] {
+  color: var(--odii-primary) !important;
+}
+
+.odii-feature [class~="bg-[#a94d35]"] {
+  background-color: var(--odii-primary) !important;
+}
+
+.odii-feature [class~="border-[#a94d35]"] {
+  border-color: var(--odii-primary) !important;
+}
+
+.odii-feature [class~="ring-[#a94d35]"] {
+  --tw-ring-color: var(--odii-primary) !important;
+}
+
+.odii-feature [class~="from-[#a94d35]"] {
+  --tw-gradient-from: var(--odii-primary) var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: rgb(248 78 118 / 0) var(--tw-gradient-to-position) !important;
+}
+
+.odii-feature [class~="hover:bg-[#a94d35]"]:hover {
+  background-color: var(--odii-primary-hover) !important;
+}
+
+.odii-feature [class~="hover:text-[#a94d35]"]:hover {
+  color: var(--odii-primary-hover) !important;
+}
+
+/* 장미 토큰의 투명도 단계도 기존 테라코타 없이 동일한 색조로 유지 */
+.odii-feature :is([class~="text-[#a94d35]/40"], [class~="text-[#a94d35]/50"], [class~="text-[#a94d35]/65"]) {
+  color: color-mix(in srgb, var(--odii-primary) 65%, transparent) !important;
+}
+
+.odii-feature :is([class~="bg-[#a94d35]/10"], [class~="bg-[#a94d35]/20"], [class~="bg-[#a94d35]/30"], [class~="bg-[#a94d35]/35"]) {
+  background-color: color-mix(in srgb, var(--odii-primary) 12%, transparent) !important;
+}
+
+.odii-feature :is([class~="bg-[#a94d35]/50"], [class~="bg-[#a94d35]/65"], [class~="bg-[#a94d35]/80"]) {
+  background-color: color-mix(in srgb, var(--odii-primary-pressed) 58%, transparent) !important;
+}
+
+.odii-feature :is([class~="border-[#a94d35]/20"], [class~="border-[#a94d35]/25"], [class~="border-[#a94d35]/30"], [class~="border-[#a94d35]/35"], [class~="border-[#a94d35]/50"], [class~="border-[#a94d35]/60"]) {
+  border-color: color-mix(in srgb, var(--odii-primary) 42%, transparent) !important;
+}
+
+.odii-feature :is([class~="ring-[#a94d35]/10"], [class~="ring-[#a94d35]/20"], [class~="ring-[#a94d35]/25"], [class~="ring-[#a94d35]/50"], [class~="ring-[#a94d35]/60"], [class~="ring-[#a94d35]/70"]) {
+  --tw-ring-color: color-mix(in srgb, var(--odii-primary) 48%, transparent) !important;
+}
+
+.odii-feature :is([class~="hover:border-[#a94d35]/25"], [class~="hover:border-[#a94d35]/35"], [class~="hover:border-[#a94d35]/50"]):hover {
+  border-color: var(--odii-primary-hover) !important;
 }
 
 .odii-atmosphere-layer {

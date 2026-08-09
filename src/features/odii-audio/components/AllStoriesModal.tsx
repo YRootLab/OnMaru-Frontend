@@ -167,8 +167,9 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
                       <h4 className="text-sm sm:text-base font-bold text-white truncate">
                         {story.title}
                       </h4>
-                      <p className="text-xs text-[#A09588] truncate mt-0.5">
-                        {story.locationName || story.title} • {story.speaker}
+                      <p className="mt-0.5 text-xs text-[#A09588]">
+                        <span className="block truncate">{story.locationName || story.title}</span>
+                        <span className="mt-0.5 block truncate text-[10px]">{story.speaker}</span>
                       </p>
                     </div>
                   </div>

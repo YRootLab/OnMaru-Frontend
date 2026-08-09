@@ -261,7 +261,8 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories, s
 
         <div className="mt-4 flex items-center justify-between border-t border-[#211e19]/10 pt-3">
           <span className="text-[11px] text-[#8c7e6c]">
-            {String(normalizedIndex + 1).padStart(2, '0')} / {String(featured.length).padStart(2, '0')} · 카드를 고르면 앞으로 이동합니다
+            {String(normalizedIndex + 1).padStart(2, '0')} / {String(featured.length).padStart(2, '0')}
+            <span className="ml-2">카드를 고르면 앞으로 이동합니다</span>
           </span>
           <button
             type="button"

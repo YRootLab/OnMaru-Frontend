@@ -72,7 +72,8 @@ export const CategoryTagFilter: React.FC = () => {
 
         {selectedTheme && (
           <p className="mt-2 text-xs leading-5 text-[#8c7e6c]">
-            <strong className="font-semibold text-[#a94d35]">{selectedTheme.label}</strong> · {selectedTheme.description}
+            <strong className="mr-1 font-semibold text-[#a94d35]">{selectedTheme.label}</strong>
+            <span>{selectedTheme.description}</span>
           </p>
         )}
       </div>

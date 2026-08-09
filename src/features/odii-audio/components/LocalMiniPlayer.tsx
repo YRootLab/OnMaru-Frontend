@@ -71,7 +71,8 @@ export const LocalMiniPlayer: React.FC = () => {
               {story.title}
             </span>
             <span className="block text-[11px] text-[#786d5e]">
-              <span className="text-[#a94d35] font-semibold">{story.category}</span> · {formatTime(currentTime)} / {formatTime(duration)}
+              <span className="text-[#a94d35] font-semibold">{story.category}</span>
+              <span className="ml-2">{formatTime(currentTime)} / {formatTime(duration)}</span>
             </span>
           </span>
         </button>
@@ -192,8 +193,9 @@ export const LocalMiniPlayer: React.FC = () => {
                   <h2 className="mt-2 font-odii-sans text-xl sm:text-2xl font-bold text-[#211e19] leading-tight">
                     {story.title}
                   </h2>
-                  <p className="mt-1 text-xs sm:text-sm text-[#655b4d]">
-                    {story.audioTitle} · <span className="text-[#8f7e6c] font-medium">{story.speaker || '온마루 문화해설사'}</span>
+                  <p className="mt-1 text-xs leading-5 text-[#655b4d] sm:text-sm">
+                    <span className="block">{story.audioTitle}</span>
+                    <span className="mt-0.5 block text-[#8f7e6c] font-medium">{story.speaker || '온마루 문화해설사'}</span>
                   </p>
                 </div>
 

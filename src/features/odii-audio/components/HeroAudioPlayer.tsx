@@ -60,10 +60,9 @@ export const HeroAudioPlayer: React.FC = () => {
               <h1 className="mb-1.5 line-clamp-1 font-odii-sans text-xl font-semibold tracking-tight text-white sm:text-2xl">
           {currentStory.audioTitle || currentStory.title}
         </h1>
-        <p className="text-xs sm:text-sm text-[#A09588] mb-6 flex items-center gap-1.5">
-          <span>{currentStory.locationName || currentStory.title}</span>
-          <span>•</span>
-          <span>{currentStory.speaker || '온마루 해설 도슨트'}</span>
+        <p className="mb-6 text-xs leading-5 text-[#A09588] sm:text-sm">
+          <span className="block">{currentStory.locationName || currentStory.title}</span>
+          <span className="mt-0.5 block">{currentStory.speaker || '온마루 해설 도슨트'}</span>
         </p>
       </div>
 

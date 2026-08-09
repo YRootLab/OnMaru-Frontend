@@ -153,7 +153,7 @@ export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({
                       {story.category}
                     </span>
                     <span className="text-[10px] text-[#8c7e6c] truncate max-w-[130px] sm:max-w-none">
-                      · {story.locationName || '대한민국 문화유산'}
+                      {story.locationName || '대한민국 문화유산'}
                     </span>
                   </div>
 

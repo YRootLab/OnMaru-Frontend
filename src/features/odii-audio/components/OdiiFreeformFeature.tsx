@@ -314,7 +314,6 @@ export const OdiiFreeformFeature: React.FC<OdiiFreeformFeatureProps> = ({ apiSer
                       <div>
                         <div className="flex flex-wrap items-center gap-2 text-[10px] text-[#6d6d66]">
                           <span className="font-bold text-[#2454ff]">{activeTopicMeta.label}</span>
-                          <span>·</span>
                           <span>{activeStory.locationName || '대한민국 문화유산'}</span>
                         </div>
                         <h3 className="mt-3 font-odii-sans text-3xl font-bold leading-[0.98] tracking-[-0.065em] sm:text-5xl">{activeStory.title}</h3>

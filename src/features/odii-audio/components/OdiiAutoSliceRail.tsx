@@ -278,8 +278,6 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
 
           {/* 우측 다음 장면 preview: 명시적 절대 슬롯 좌표 계산 (연타 시 찌그러짐/오프셋 방지) */}
           <div className="relative hidden h-[224px] w-[250px] shrink-0 translate-y-1.5 items-center md:flex overflow-visible">
-            <span className="pointer-events-none absolute -left-3 top-1/2 h-px w-3 bg-gradient-to-r from-transparent to-[#a94d35]/40" aria-hidden="true" />
-            <span className="pointer-events-none absolute -left-3 top-1/2 h-1 w-1 -translate-x-1/2 -translate-y-1/2 rounded-[1px] bg-[#a94d35]/60" aria-hidden="true" />
             <div className="relative h-[216px] w-full overflow-visible">
               <AnimatePresence initial={false} mode="sync">
                 {following.map((story, index) => {

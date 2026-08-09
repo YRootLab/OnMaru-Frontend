@@ -49,7 +49,10 @@ export const ScriptSyncViewer: React.FC = () => {
         </blockquote>
 
         <div className="mt-6 flex items-center justify-between border-t border-[#211e19]/10 pt-4">
-          <span className="text-xs text-[#786d5e]">{formatTime(parsedScriptLines[activeScriptIndex]?.timeSec ?? 0)} · 대본 {parsedScriptLines.length}개 구간</span>
+          <span className="text-xs text-[#786d5e]">
+            <span>{formatTime(parsedScriptLines[activeScriptIndex]?.timeSec ?? 0)}</span>
+            <span className="ml-2">대본 {parsedScriptLines.length}개 구간</span>
+          </span>
           <button type="button" onClick={() => setIsTranscriptOpen(true)} className="text-sm font-semibold text-[#a94d35] underline decoration-[#a94d35]/40 underline-offset-4 transition hover:text-[#7f3725]">
             대본 전체 보기 →
           </button>

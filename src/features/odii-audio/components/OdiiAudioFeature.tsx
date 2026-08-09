@@ -5,9 +5,9 @@ import { motion, Variants } from 'framer-motion';
 import { StoryCarousel } from './StoryCarousel';
 import { CategoryTagFilter } from './CategoryTagFilter';
 import { EditorialStoryList, EditorialStoryListSkeleton } from './EditorialStoryList';
-import { KeywordSpotlightSection } from './KeywordSpotlightSection';
 import { SavedSoundDrawer } from './SavedSoundDrawer';
 import { OdiiAutoSliceRail } from './OdiiAutoSliceRail';
+import { OdiiEditorialRail } from './OdiiEditorialRail';
 import { OdiiFooterCTA } from './OdiiFooterCTA';
 import { AllStoriesModal } from './AllStoriesModal';
 import { LocalMiniPlayer } from './LocalMiniPlayer';
@@ -243,7 +243,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
         if (onLocationChange) onLocationChange(coords.latitude, coords.longitude);
         if (stories.length > 0) {
           setNearbyStories(stories);
-          setLocationLabel('현재 위치 기준 · 반경 3km');
+          setLocationLabel('현재 위치 기준, 반경 3km');
           setLocationMessage(`${stories.length}개의 이야기를 찾았습니다. 가까운 장소부터 들려드릴게요.`);
         } else {
           setLocationMessage('반경 3km 안에는 아직 등록된 이야기가 없어요. 전국 큐레이션을 보여드립니다.');
@@ -260,7 +260,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
 
   return (
     <OdiiDependencyProvider apiService={activeApiService}>
-      <div className="odii-feature relative isolate min-h-screen pb-24 text-[#211e19] selection:bg-[#a94d35] selection:text-white">
+      <div className="odii-feature relative isolate min-h-screen pb-24 text-[#211e19] selection:bg-[#ffd9e4] selection:text-[#b52f55]">
         <OdiiAtmosphereBackground />
         <div className="relative z-10">
           <main>
@@ -308,12 +308,20 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             animate={hasAnimatedSession ? "visible" : undefined}
             viewport={hasAnimatedSession ? undefined : { once: true, amount: 0.15 }}
             transition={hasAnimatedSession ? { duration: 0 } : undefined}
-            className="min-h-[620px] sm:min-h-[660px]"
+            className="min-h-[650px] sm:min-h-[700px]"
           >
-            <KeywordSpotlightSection
-              onBookmarkStory={handleToggleBookmark}
-              bookmarkedIds={bookmarkedIds}
-            />
+            <div className="mt-4">
+              <div className="mx-auto max-w-6xl px-4 sm:px-8">
+                <h3 className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-2xl font-bold tracking-[-0.04em] text-transparent sm:text-3xl">장면을 골라 듣다</h3>
+              </div>
+              <div className="mt-1">
+                <OdiiEditorialRail
+                  stories={storyList.length ? storyList : (nearbyStories.length ? nearbyStories : MOCK_ODII_STORIES)}
+                  storySets={heroStorySets}
+                  apiService={activeApiService}
+                />
+              </div>
+            </div>
           </motion.div>
 
           {/* 섹션 3: 오늘, 여기에서 (새로고침 시 즉시 노출 / 380px 레이아웃 고정) */}
@@ -335,7 +343,10 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                   <p className="mt-1 max-w-xl truncate text-xs leading-5 text-[#786d5e]">{locationMessage}</p>
                 </div>
                 <div className="flex shrink-0 items-center justify-between gap-3 sm:flex-col sm:items-end sm:gap-1.5">
-                  <span className="text-[10px] text-[#8c7e6c]">{locationLabel} · <strong className="font-semibold text-[#655b4d]">내 주변 오디오 {nearbyStories.length}개</strong></span>
+                  <span className="text-right text-[10px] leading-4 text-[#8c7e6c]">
+                    <span className="block">{locationLabel}</span>
+                    <strong className="block font-semibold text-[#655b4d]">내 주변 오디오 {nearbyStories.length}개</strong>
+                  </span>
                   <button
                     type="button"
                     onClick={handleLocate}
