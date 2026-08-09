@@ -2,10 +2,18 @@
 
 import React, { useState, useMemo } from 'react';
 import styled from '@emotion/styled';
+import { keyframes } from '@emotion/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { meok, lightPalette } from '@/design-system/tokens';
 import SectionHeader from '@/hanok/components/SectionHeader';
 import type { Village } from '@/hanok/types';
+import { Home, Flame, Trees, Coffee, Sparkles, Leaf, Mountain, RotateCw, ArrowUpRight, ExternalLink } from 'lucide-react';
+
+const pulseAnimation = keyframes`
+  0% { opacity: 0.6; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.2); }
+  100% { opacity: 0.6; transform: scale(0.9); }
+`;
 
 const Section = styled.section`
   position: relative;
@@ -153,6 +161,8 @@ const TagRow = styled.div`
   display: flex;
   gap: 8px;
   margin-bottom: 8px;
+  align-items: center;
+  flex-wrap: wrap;
 `;
 
 const StayTag = styled.span`
@@ -168,6 +178,28 @@ const StayTag = styled.span`
   border: 1px solid rgba(255, 255, 255, 0.3);
 `;
 
+const LiveAvailableTag = styled.span`
+  font-size: 11px;
+  font-weight: 700;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  padding: 3px 10px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  backdrop-filter: blur(8px);
+`;
+
+const PulseDot = styled.span`
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #10b981;
+  animation: ${pulseAnimation} 1.6s ease-in-out infinite;
+`;
+
 const StayTitle = styled.h3`
   font-family: 'SpoqaHanSansNeo', sans-serif;
   font-size: clamp(20px, 2.5vw, 26px);
@@ -175,7 +207,6 @@ const StayTitle = styled.h3`
   margin: 0 0 6px;
   line-height: 1.25;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
-  /* ThemeProvider의 전역 h1~h6 규칙이 부모의 color 상속을 이긴다. 사진 위 제목은 직접 지정. */
   color: #ffffff;
 `;
 
@@ -190,24 +221,65 @@ const StayDesc = styled.p`
   overflow: hidden;
 `;
 
-const DetailActionBtn = styled.button`
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  background: rgba(255, 255, 255, 0.95);
-  color: ${meok[900]};
-  font-size: 13px;
-  font-weight: 700;
-  padding: 10px 20px;
-  border-radius: 9999px;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s ease;
+const ActionGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
   flex-shrink: 0;
 
+  @media (max-width: 640px) {
+    width: 100%;
+  }
+`;
+
+const DirectBookingBtn = styled.a`
+  background: linear-gradient(135deg, ${lightPalette.kobalt[500]} 0%, ${lightPalette.kobalt[700]} 100%);
+  color: #ffffff;
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 9px 16px;
+  border-radius: 9999px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  transition: transform 0.18s ease, opacity 0.18s ease;
+  box-shadow: 0 4px 14px rgba(43, 92, 230, 0.35);
+
   &:hover {
-    background: #ffffff;
+    opacity: 0.95;
     transform: scale(1.04);
   }
 `;
+
+const DetailActionBtn = styled.button`
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(10px);
+  color: #ffffff;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 9px 16px;
+  border-radius: 9999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.18s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.32);
+    border-color: #ffffff;
+  }
+`;
+
+function getBookingUrl(item: Village): string {
+  if (item.overview) {
+    const match = item.overview.match(/https?:\/\/[^\s"']+/i);
+    if (match) return match[0];
+  }
+  return `https://search.naver.com/search.naver?query=${encodeURIComponent(item.name + ' 예약')}`;
+}
+
 
 const ControlsRow = styled.div`
   display: flex;
@@ -357,8 +429,6 @@ const FALLBACK_STAYS: Village[] = [
 
 const REGION_TABS = ['전체', '경북', '전북', '강원', '경남', '충남', '서울', '경기'];
 
-import { Home, Flame, Trees, Coffee, Sparkles, Leaf, Mountain, RotateCw, ArrowUpRight } from 'lucide-react';
-
 const ICONS = [
   <Home size={20} key="home" />,
   <Flame size={20} key="flame" />,
@@ -386,7 +456,8 @@ export default function HanokStayAccordion({
   const allStays = useMemo(() => {
     // 예전엔 '고택' 뱃지만 붙어도 스테이로 셌다. 그러면 묵을 수 없는 고택까지 '숙소 N곳'에
     // 들어가고, 도감(스테이 제외)과 합이 전체 수집분을 넘어선다. 실제 숙박(contentTypeId 32)만.
-    const fetched = villages.filter((v) => v.type === '한옥 고택 스테이');
+    // 아코디언은 사진이 전부다. 이미지 없는 항목은 까만 빈 알약으로 남아 없느니만 못하다.
+    const fetched = villages.filter((v) => v.type === '한옥 고택 스테이' && v.hasImage);
     if (fetched.length >= 3) return fetched;
     return FALLBACK_STAYS;
   }, [villages]);
@@ -469,22 +540,35 @@ export default function HanokStayAccordion({
                           <TagRow>
                             <StayTag>{item.region}</StayTag>
                             <StayTag>{item.type}</StayTag>
+                            <LiveAvailableTag>
+                              <PulseDot /> 실시간 예약 연동
+                            </LiveAvailableTag>
                           </TagRow>
                           <StayTitle>{item.name}</StayTitle>
                           {/* TourAPI 목록 응답엔 설명이 없다. 없으면 주소라도 보여준다. */}
                           <StayDesc>{item.summary || item.addr}</StayDesc>
                         </InfoGroup>
 
-                        {onSelectVillage && (
-                          <DetailActionBtn
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onSelectVillage(item);
-                            }}
+                        <ActionGroup>
+                          <DirectBookingBtn
+                            href={getBookingUrl(item)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
                           >
-                            예약 정보 보기 <ArrowUpRight size={14} style={{ marginLeft: 4 }} />
-                          </DetailActionBtn>
-                        )}
+                            실시간 예약하기 <ExternalLink size={13} />
+                          </DirectBookingBtn>
+                          {onSelectVillage && (
+                            <DetailActionBtn
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onSelectVillage(item);
+                              }}
+                            >
+                              도감 상세 보기 <ArrowUpRight size={13} />
+                            </DetailActionBtn>
+                          )}
+                        </ActionGroup>
                       </ActiveContentOverlay>
                     )}
                   </AnimatePresence>

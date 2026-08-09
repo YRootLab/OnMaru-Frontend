@@ -191,21 +191,23 @@ const SubRegionTag = styled.p`
   margin: 0 0 24px;
 `;
 
+// 페이지 바탕이 한지톤이라 예전의 #faf8f5는 배경에 묻힌다. 흰 종이가 얹힌 것처럼 띄운다.
 const StorySection = styled.div`
   position: relative;
-  background: #faf8f5;
+  background: #ffffff;
   border-radius: 24px;
   padding: 28px 32px;
-  border: 1px solid rgba(43, 92, 230, 0.08);
+  border: 1px solid rgba(78, 89, 104, 0.10);
   margin-bottom: 28px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 6px 24px rgba(25, 31, 40, 0.05);
 `;
 
+// 에디터가 직접 쓴 글의 머리표. 코발트는 인터랙션 색으로 남기고 여긴 무채색으로.
 const QuoteHeader = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
-  color: ${lightPalette.kobalt[400]};
+  color: ${meok[500]};
   font-size: 12px;
   font-weight: 700;
   margin-bottom: 12px;

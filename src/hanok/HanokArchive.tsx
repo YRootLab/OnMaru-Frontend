@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
+import { Global, css } from '@emotion/react';
 import { meok, lightPalette } from '@/design-system/tokens';
 import HanokGrid from '@/hanok/sections/HanokGrid';
 import HanokMap from '@/hanok/sections/HanokMap';
@@ -23,8 +24,26 @@ const PageInner = styled.div`
   padding: 0;
 `;
 
-const SectionWrapper = styled.div`
-  padding-top: clamp(48px, 6vh, 80px);
+// 페이지 바탕. PageContainer가 좌우 패딩을 가지고 있어 Root에 칠하면 양옆이 흰색으로 남는다.
+// 한옥 페이지에 있는 동안만 body 자체를 한지톤으로 깐다(언마운트 시 자동 복원).
+const paperGround = css`
+  body {
+    background: #f7f4ee;
+  }
+`;
+
+// 섹션 완급: 매거진(이달의 한옥·매니페스토)은 넓게 비우고,
+// 아카이브 3종(도감·스테이·지도)은 붙여서 한 덩어리로 읽히게 한다.
+const EditorialSection = styled.div`
+  padding-top: clamp(28px, 4vh, 52px);
+`;
+
+const ArchiveGroup = styled.div`
+  padding-top: clamp(88px, 12vh, 160px);
+`;
+
+const ArchiveSection = styled.div`
+  padding-top: clamp(36px, 4.5vh, 60px);
 `;
 
 const Intro = styled.header`
@@ -81,14 +100,15 @@ export default function HanokArchive({ villages, meta }: HanokArchiveProps) {
 
   return (
     <Root>
+      <Global styles={paperGround} />
       <PageInner>
-        {/* 페이지 진입부: 한옥도감이 무엇이고 왜 필요한지 */}
+        {/* 진입부는 질문을 던지고, 답(왜 한옥인가)은 맨 아래 매니페스토가 한다 */}
         <Intro>
           <Eyebrow>온마루 한옥도감</Eyebrow>
-          <PageTitle>한옥은 지나간 유산이 아니라 지금도 사람이 사는 집입니다</PageTitle>
+          <PageTitle>지금 한옥은 어디에 남아 있을까</PageTitle>
           <Lead>
-            수백 년을 버틴 집이 지금 어디에 어떤 모습으로 남아 있는지, 궁궐부터 고택·서원·전통마을과
-            머물 수 있는 고택 스테이까지 한자리에 기록합니다.
+            궁궐과 고택, 서원과 전통마을, 그리고 하룻밤 머물 수 있는 집까지. 계절마다 한 곳을
+            골라 들여다보고 나머지는 도감과 지도로 기록합니다.
           </Lead>
           <SourceNote>
             한국관광공사 TourAPI 실시간 연동 · 현재 <strong>{meta.total}곳</strong> 수집
@@ -96,29 +116,25 @@ export default function HanokArchive({ villages, meta }: HanokArchiveProps) {
         </Intro>
 
         {/* 이 달의 한옥 큐레이션 */}
-        <SectionWrapper style={{ paddingTop: 'clamp(24px, 4vh, 48px)' }}>
+        <EditorialSection>
           <HanokMonthly villages={villages} onSelectVillage={setSelectedVillage} />
-        </SectionWrapper>
+        </EditorialSection>
 
-        {/* 전통 한옥 & 문화유산 도감 그리드 */}
-        <SectionWrapper>
+        {/* 아카이브 한 덩어리: 도감 → 스테이 → 지도 */}
+        <ArchiveGroup>
           <HanokGrid villages={villages} onSelectVillage={setSelectedVillage} />
-        </SectionWrapper>
 
-        {/* 한옥 고택 스테이 확장형 아코디언 컬렉션 */}
-        <SectionWrapper>
-          <HanokStayAccordion villages={villages} onSelectVillage={setSelectedVillage} />
-        </SectionWrapper>
+          <ArchiveSection>
+            <HanokStayAccordion villages={villages} onSelectVillage={setSelectedVillage} />
+          </ArchiveSection>
 
-        {/* 전국 시공간 분할 지도 인터랙션 */}
-        <SectionWrapper>
-          <HanokMap villages={villages} onSelectVillage={setSelectedVillage} />
-        </SectionWrapper>
+          <ArchiveSection>
+            <HanokMap villages={villages} onSelectVillage={setSelectedVillage} />
+          </ArchiveSection>
+        </ArchiveGroup>
 
-        {/* 온마루 한옥 매니페스토 */}
-        <SectionWrapper>
-          <HanokManifestoCta />
-        </SectionWrapper>
+        {/* 온마루 한옥 매니페스토 (자체 상하 여백을 가지고 있다) */}
+        <HanokManifestoCta />
       </PageInner>
 
       {/* 마을 상세 인터랙티브 모달 */}
