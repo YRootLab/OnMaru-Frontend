@@ -4,7 +4,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion';
 import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
 import { OdiiStoryItem } from '../types/odii.types';
-import { ODII_HERO_TABS } from '../data/odiiCategoryData';
 
 interface OdiiAutoSliceRailProps {
   stories: OdiiStoryItem[];
@@ -40,7 +39,6 @@ function getUpcomingStories(stories: OdiiStoryItem[], activeIndex: number, count
 
 export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, storySets }) => {
   const sectionRef = useRef<HTMLElement | null>(null);
-  const [activeTab, setActiveTab] = useState('추천');
   const [activeIndex, setActiveIndex] = useState(0);
   const [previewIndex, setPreviewIndex] = useState(0);
   const [transitionDirection, setTransitionDirection] = useState(1);
@@ -53,20 +51,10 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
   const setIsPlaying = useOdiiAudioStore((s) => s.setIsPlaying);
 
   const featured = useMemo(() => {
-    const apiStories = storySets?.[activeTab];
+    const apiStories = storySets?.['추천'];
     if (apiStories?.length) return apiStories.slice(0, 7);
-    if (activeTab === '추천') return stories.slice(0, 7);
-
-    const tab = ODII_HERO_TABS.find((item) => item.id === activeTab);
-    const matched = stories.filter((story) =>
-      [activeTab, tab?.keyword].filter(Boolean).some((keyword) =>
-        story.category.includes(keyword as string) ||
-        story.title.includes(keyword as string) ||
-        story.locationName?.includes(keyword as string),
-      ),
-    );
-    return (matched.length ? matched : stories).slice(0, 7);
-  }, [activeTab, stories, storySets]);
+    return stories.slice(0, 7);
+  }, [stories, storySets]);
 
   useEffect(() => {
     featured.slice(0, 7).forEach((story) => {
@@ -115,7 +103,7 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
       advanceTo((activeIndex + 1) % featured.length, 1);
     }, 7000);
     return () => window.clearInterval(timer);
-  }, [activeIndex, activeTab, advanceTo, featured.length, isSectionInView]);
+  }, [activeIndex, advanceTo, featured.length, isSectionInView]);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -150,37 +138,6 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
   return (
     <section ref={sectionRef} className="w-full pb-12 sm:pb-16">
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
-        {/* 상단 필터 바 */}
-        <div className="mb-3.5 flex items-center space-x-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {ODII_HERO_TABS.map((tab) => {
-            const isTabActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => {
-                  if (previewTimerRef.current !== null) {
-                    window.clearTimeout(previewTimerRef.current);
-                    previewTimerRef.current = null;
-                  }
-                  setActiveTab(tab.id);
-                  setActiveIndex(0);
-                  setPreviewIndex(0);
-                  setTransitionDirection(1);
-                }}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-300 whitespace-nowrap flex items-center gap-1.5 ${
-                  isTabActive
-                    ? 'bg-[#211e19] text-white shadow-sm font-bold'
-                    : 'bg-[#f7f4ee] text-[#655b4d] hover:bg-[#ede5d8] hover:text-[#211e19]'
-                }`}
-              >
-                {isTabActive && <span className="h-1.5 w-1.5 rounded-full bg-[#a94d35]" />}
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
-
         {/* 한 장면을 오래 듣고 다음 장면으로 이어지는 청음 스테이지 */}
         <div className="relative flex min-w-0 items-center gap-3 overflow-visible">
           

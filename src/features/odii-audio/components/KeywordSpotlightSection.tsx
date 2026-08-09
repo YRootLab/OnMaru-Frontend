@@ -3,7 +3,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion, Variants } from 'framer-motion';
 import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
-import { MOCK_ODII_STORIES } from '../api/odiiMockData';
 import { OdiiStoryItem, IOdiiApiService } from '../types/odii.types';
 import { ODII_THEME_CATEGORIES } from '../data/odiiCategoryData';
 import { useOdiiApiService } from '../context/OdiiDependencyContext';
@@ -124,7 +123,8 @@ export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = (
       setIsLoading(true);
       try {
         const stories = await activeApiService.getStoryList(undefined, selectedKeyword);
-        const pool = (stories.length > 0 ? stories : MOCK_ODII_STORIES).filter((story) => story.audioUrl);
+        // 실제 API에 음원이 없는 항목은 목업으로 대체하지 않고 미제공 상태로 보여준다.
+        const pool = stories.filter((story) => story.audioUrl);
         const main = pool[getDailyIndex(pool.length, selectedKeyword)] || pool[0] || null;
         const connected = pool.filter((story) => story.stid !== main?.stid).slice(0, 3);
 
@@ -134,9 +134,8 @@ export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = (
         }
       } catch {
         if (isMounted) {
-          const main = MOCK_ODII_STORIES[getDailyIndex(MOCK_ODII_STORIES.length, selectedKeyword)];
-          setSpotlightStory(main);
-          setRelatedStories(MOCK_ODII_STORIES.filter((story) => story.stid !== main.stid).slice(0, 3));
+          setSpotlightStory(null);
+          setRelatedStories([]);
         }
       } finally {
         if (isMounted) setIsLoading(false);
@@ -206,7 +205,7 @@ export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = (
         {/* 대표 이야기 스포트라이트 스테이지 (0.36초 후 순차 등판 / 480px 레이아웃 완벽 고정) */}
         <motion.div variants={contentVariants} className="mt-8 min-h-[480px] overflow-hidden border border-[#211e19]/15 bg-[#fbf7ef]">
           <AnimatePresence mode="wait">
-            {isLoading || !spotlightStory ? (
+            {isLoading ? (
               <motion.div
                 key="spotlight-skeleton"
                 initial={{ opacity: 0 }}
@@ -216,7 +215,7 @@ export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = (
               >
                 <KeywordSpotlightSkeleton />
               </motion.div>
-            ) : (
+            ) : spotlightStory ? (
               <motion.div
                 key={selectedKeyword}
                 initial={{ opacity: 0, y: 12 }}
@@ -332,6 +331,18 @@ export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = (
                   })}
                 </div>
               </aside>
+            </motion.div>
+          ) : (
+            <motion.div
+              key={`spotlight-empty-${selectedKeyword}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex min-h-[480px] items-center justify-center px-6 text-center"
+            >
+              <div>
+                <p className="text-sm font-semibold text-[#655b4d]">이 주제의 오디오가 아직 준비되지 않았어요.</p>
+                <p className="mt-1 text-xs text-[#8c7e6c]">다른 주제를 선택해 새로운 이야기를 찾아보세요.</p>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

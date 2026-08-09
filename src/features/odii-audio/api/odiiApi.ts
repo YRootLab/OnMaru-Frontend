@@ -1,8 +1,7 @@
 import { OdiiStoryItem, OdiiCategory, OdiiStoryPage } from '../types/odii.types';
 import { MOCK_ODII_STORIES } from './odiiMockData';
 
-const BASE_URL = process.env.NEXT_PUBLIC_ODII_API_URL || 'https://apis.data.go.kr/B551011/Odii';
-const API_KEY = process.env.NEXT_PUBLIC_ODII_API_KEY || process.env.ODII_API_KEY || '';
+const CLIENT_API_ENDPOINT = '/api/odii';
 
 // 테마 카테고리에 대응하는 Odii API 키워드 매핑
 const CATEGORY_KEYWORD_MAP: Record<string, string> = {
@@ -158,35 +157,15 @@ export const odiiApiAdapter = {
       keyword = CATEGORY_KEYWORD_MAP[category] || category;
     }
 
-    if (!API_KEY) {
-      const filtered = await this.getMockFiltered(category, query);
-      const start = (safePageNo - 1) * safeNumOfRows;
-      return {
-        items: filtered.slice(start, start + safeNumOfRows),
-        pageNo: safePageNo,
-        numOfRows: safeNumOfRows,
-        totalCount: filtered.length,
-        source: 'mock',
-      };
-    }
-
     try {
-      const endpoint = keyword ? 'storySearchList' : 'storyBasedList';
-      const params: Record<string, string> = {
-        MobileOS: 'ETC',
-        MobileApp: 'OnMaruFE',
-        _type: 'json',
-        langCode: 'ko',
+      const params = new URLSearchParams({
+        type: 'stories',
         numOfRows: String(safeNumOfRows),
         pageNo: String(safePageNo),
-      };
-      if (keyword) params.keyword = keyword;
+      });
+      if (keyword) params.set('keyword', keyword);
 
-      const paramStr = Object.entries(params)
-        .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
-        .join('&');
-      const url = `${BASE_URL}/${endpoint}?serviceKey=${API_KEY}&${paramStr}`;
-      const res = await fetch(url, { cache: 'no-store' });
+      const res = await fetch(`${CLIENT_API_ENDPOINT}?${params.toString()}`, { cache: 'no-store' });
       if (!res.ok) throw new Error(`HTTP error ${res.status}`);
 
       const json = await res.json();
@@ -291,20 +270,16 @@ export const odiiApiAdapter = {
    * 위치 기반(LBS) 내 주변 이야기 목록 조회
    */
   async getNearbyStories(mapX?: string, mapY?: string, radius = 3000): Promise<OdiiStoryItem[]> {
-    if (!mapX || !mapY || !API_KEY) return this.getStoryList('한옥');
+    if (!mapX || !mapY) return this.getStoryList('한옥');
 
     try {
       const params = new URLSearchParams({
-        serviceKey: API_KEY,
-        MobileOS: 'ETC',
-        MobileApp: 'OnMaruFE',
-        _type: 'json',
-        lang: 'ko',
+        type: 'nearby',
         xCoord: mapX,
         yCoord: mapY,
         radius: String(radius),
       });
-      const res = await fetch(`${BASE_URL}/storyLocationBasedList?${params.toString()}`, { cache: 'no-store' });
+      const res = await fetch(`${CLIENT_API_ENDPOINT}?${params.toString()}`, { cache: 'no-store' });
       if (!res.ok) throw new Error(`HTTP error ${res.status}`);
       const json = await res.json();
       const rawItems = json?.response?.body?.items?.item;

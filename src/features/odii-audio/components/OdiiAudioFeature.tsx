@@ -15,7 +15,6 @@ import { OdiiAtmosphereBackground } from './OdiiAtmosphereBackground';
 import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
 import { MOCK_ODII_STORIES } from '../api/odiiMockData';
 import { OdiiStoryItem, OdiiStoryPage, IOdiiApiService } from '../types/odii.types';
-import { ODII_HERO_TABS } from '../data/odiiCategoryData';
 import { OdiiDependencyProvider, useOdiiApiService } from '../context/OdiiDependencyContext';
 
 const sectionVariants: Variants = {
@@ -180,22 +179,12 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
       try {
         const [nearby, heroEntries] = await Promise.all([
           activeApiService.getNearbyStories(),
-          Promise.all(
-            ODII_HERO_TABS.map(async (tab) => {
-              const stories = await activeApiService.getStoryList(undefined, tab.keyword || undefined);
-              const combined = tab.id === '추천'
-                ? MOCK_ODII_STORIES.slice(0, 7)
-                : (stories.length >= 7
-                    ? stories.slice(0, 7)
-                    : [...stories, ...MOCK_ODII_STORIES.filter((m) => !stories.some((s) => s.stid === m.stid))].slice(0, 7));
-              return [tab.id, combined] as const;
-            }),
-          ),
+          activeApiService.getStoryList(),
         ]);
 
         if (isMounted) {
           setNearbyStories(nearby);
-          setHeroStorySets(Object.fromEntries(heroEntries));
+          setHeroStorySets({ '추천': heroEntries.slice(0, 7) });
         }
       } finally {
         if (isMounted) setIsNearbyLoading(false);
@@ -285,10 +274,10 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
               <div className="max-w-xl">
                 <motion.h1 variants={childVariants} className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-2xl font-bold tracking-tight text-transparent sm:text-3xl">
-                  소리를 따라, 한국의 온기 속으로
+                  오늘의 추천
                 </motion.h1>
                 <motion.p variants={childVariants} className="mt-2 text-xs sm:text-sm leading-relaxed text-[#655b4d]">
-                  바람이 머무는 한옥, 사람의 온기가 흐르는 시장, 오래된 골목의 시간을 오디오 도슨트로 천천히 만나보세요.
+                  오늘은 어떤 장소의 이야기를 들어볼까요? 오디가 골라온 한국의 소리를 만나보세요.
                 </motion.p>
               </div>
             </div>
