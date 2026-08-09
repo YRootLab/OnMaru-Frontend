@@ -58,23 +58,6 @@ const matchesKeyword = (story: OdiiStoryItem, keyword: string): boolean => {
 
 
 
-// 고품질 기본 앨범아트 Fallback 목록
-const FALLBACK_IMAGES = [
-  'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=800&q=80', // 한옥/궁
-  'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=800&q=80', // 고택
-  'https://images.unsplash.com/photo-1538688525198-9b88f6f53126?auto=format&fit=crop&w=800&q=80', // 골목
-  'https://images.unsplash.com/photo-1528164344705-47542687990d?auto=format&fit=crop&w=800&q=80', // 단청
-];
-
-function getRandomFallbackImage(seedStr: string): string {
-  let hash = 0;
-  for (let i = 0; i < seedStr.length; i++) {
-    hash = seedStr.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  const index = Math.abs(hash) % FALLBACK_IMAGES.length;
-  return FALLBACK_IMAGES[index];
-}
-
 function formatDistance(distanceKm: number): string {
   if (distanceKm < 1) return `${Math.max(100, Math.round(distanceKm * 1000))}m`;
   return `${distanceKm.toFixed(1)}km`;
@@ -98,12 +81,10 @@ function calculateDistanceKm(fromX: string, fromY: string, toX: string, toY: str
 function mapStoryItem(item: Record<string, unknown>, index: number, category?: string, origin?: { mapX: string; mapY: string }): OdiiStoryItem {
   const title = readText(item, 'title') || readText(item, 'storyTitle') || '한국의 문화 이야기';
   const stid = readText(item, 'stid') || readText(item, 'tid') || String(index + 1);
-  const audioUrl = readText(item, 'audioUrl') || readText(item, 'audio') || readText(item, 'playUrl') || readText(item, 'mp3Url');
-  const playTime = readText(item, 'playTime') || readText(item, 'audioTime') || '180';
+  const audioUrl = readText(item, 'audioUrl');
+  const playTime = readText(item, 'playTime') || '180';
   const playTimeSeconds = Number(playTime);
-  const imageUrl = readText(item, 'imageUrl').length > 0
-    ? readText(item, 'imageUrl')
-    : getRandomFallbackImage(stid + title);
+  const imageUrl = readText(item, 'imageUrl');
   const mapX = readText(item, 'mapX') || '126.9780';
   const mapY = readText(item, 'mapY') || '37.5665';
   const distance = origin ? calculateDistanceKm(origin.mapX, origin.mapY, mapX, mapY) : null;
@@ -174,7 +155,7 @@ export const odiiApiAdapter = {
       const itemList = rawItems
         ? (Array.isArray(rawItems) ? rawItems : [rawItems]) as Record<string, unknown>[]
         : [];
-      const mappedStories = itemList.map((item, index) => mapStoryItem(item, index, category));
+      const mappedStories = itemList.map((item, index) => mapStoryItem(item, index, category || keyword));
       if (mappedStories.length === 0 && safePageNo === 1) {
         const fallback = await this.getMockFiltered(category, query);
         return { items: fallback.slice(0, safeNumOfRows), pageNo: 1, numOfRows: safeNumOfRows, totalCount: fallback.length, source: 'mock' };

@@ -11,6 +11,35 @@ interface EditorialStoryListProps {
   bookmarkedIds?: Set<string>;
 }
 
+const LIST_FALLBACK_IMAGES = [
+  '/images/hanok/hanok-main.png',
+  '/images/hanok/hanok-exterior.png',
+  '/images/hanok/hanok-interior.png',
+  '/images/hanok/hanok-porch.png',
+  '/images/hanok/giwa-detail.png',
+];
+
+const imageFor = (story: OdiiStoryItem, index: number) => {
+  if (story.imageUrl) return story.imageUrl;
+  const seed = Array.from(`${story.stid}${story.title}`).reduce((sum, char) => sum + char.charCodeAt(0), index);
+  return LIST_FALLBACK_IMAGES[seed % LIST_FALLBACK_IMAGES.length];
+};
+
+const categoryLabelFor = (story: OdiiStoryItem) => {
+  const categoryLabels: Record<string, string> = {
+    한옥: '한옥/고택',
+    시장: '전통시장',
+    마을: '전통마을',
+    궁: '궁궐/역사',
+    길: '자연/둘레길',
+  };
+  if (story.category && story.category !== '오디 이야기') return categoryLabels[story.category] || story.category;
+  if (story.title.includes('한옥') || story.title.includes('고택')) return '한옥/고택';
+  if (story.title.includes('시장')) return '전통시장';
+  if (story.title.includes('궁') || story.title.includes('왕')) return '궁궐/역사';
+  return story.badgeText === '음원 제공' ? '문화유산' : '오디오 가이드';
+};
+
 export const EditorialStoryListSkeleton: React.FC = () => (
   <div aria-label="트랙 목록 로딩 중" className="w-full py-3" aria-busy="true">
     <div className="flex items-center justify-between border-b border-[#211e19]/10 pb-2 text-[11px]">
@@ -86,17 +115,11 @@ export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({
 
   return (
     <div className="w-full py-3">
-    <div className="flex items-center justify-between pb-2 text-[11px] text-[#8c7e6c] border-b border-[#211e19]/10">
-        <span className="font-semibold text-[#211e19]">
-          트랙 아카이브 <strong className="text-[#a94d35] font-extrabold ml-1">{stories.length}</strong>
-        </span>
-      </div>
-
       <motion.div
         variants={listContainerVariants}
         initial="hidden"
         animate="visible"
-        className="divide-y divide-[#211e19]/5"
+        className="space-y-2.5"
       >
         {stories.map((story, index) => {
           const isCurrent = currentStory.stid === story.stid;
@@ -109,65 +132,59 @@ export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({
               key={story.stid}
               variants={itemVariants}
               onClick={() => selectStory(story)}
-              className={`group flex cursor-pointer items-center justify-between py-3 px-2.5 rounded-xl transition-all duration-200 ${
+              className={`group relative grid cursor-pointer grid-cols-[34px_64px_minmax(0,1fr)_auto] items-center gap-3 overflow-hidden rounded-2xl border px-3 py-3.5 transition-all duration-300 sm:grid-cols-[40px_76px_minmax(0,1fr)_auto] sm:gap-4 sm:px-4 ${
                 isCurrent
-                  ? 'bg-[#f4ebe1] text-[#211e19] ring-1 ring-[#a94d35]/20 shadow-xs'
-                  : 'hover:bg-[#f9f6f0]'
+                  ? 'border-[#f84e76]/45 bg-[#fff0f5] shadow-[0_12px_30px_rgba(248,78,118,0.12)]'
+                  : 'border-[#211e19]/8 bg-white/70 hover:-translate-y-0.5 hover:border-[#f84e76]/25 hover:bg-[#fff8fa] hover:shadow-[0_10px_24px_rgba(248,78,118,0.08)]'
               }`}
             >
-              {/* 좌측: 트랙 번호 + 섬네일 + 정보 */}
-              <div className="flex min-w-0 items-center space-x-3.5">
-                {/* 트랙 번호 / 라이브 이퀄라이저 아이콘 */}
+              <div className="flex h-full items-center justify-center border-r border-[#211e19]/8 pr-2">
                 <div className="w-6 shrink-0 text-center">
                   {isThisPlaying ? (
                     <div className="flex items-end justify-center space-x-0.5 h-3.5">
-                      <span className="w-0.5 bg-[#a94d35] rounded-full animate-[bounce_0.6s_infinite_100ms] h-3" />
-                      <span className="w-0.5 bg-[#a94d35] rounded-full animate-[bounce_0.6s_infinite_300ms] h-2" />
-                      <span className="w-0.5 bg-[#a94d35] rounded-full animate-[bounce_0.6s_infinite_200ms] h-3.5" />
+                      <span className="h-3 w-0.5 rounded-full bg-[#f84e76] animate-[bounce_0.6s_infinite_100ms]" />
+                      <span className="h-2 w-0.5 rounded-full bg-[#f84e76] animate-[bounce_0.6s_infinite_300ms]" />
+                      <span className="h-3.5 w-0.5 rounded-full bg-[#f84e76] animate-[bounce_0.6s_infinite_200ms]" />
                     </div>
                   ) : (
-                    <span className={`text-[11px] font-mono font-semibold ${isCurrent ? 'text-[#a94d35]' : 'text-[#8c7e6c]'}`}>
+                    <span className={`font-mono text-[11px] font-semibold ${isCurrent ? 'text-[#f84e76]' : 'text-[#8c7e6c]'}`}>
                       {trackNum}
                     </span>
                   )}
                 </div>
+              </div>
 
-                {/* 섬네일 앨범아트 */}
-                <div className="relative h-11 w-11 sm:h-13 sm:w-13 shrink-0 overflow-hidden rounded-lg bg-[#e8e0d5] ring-1 ring-black/5">
+              <div className="relative h-14 w-16 shrink-0 overflow-hidden rounded-xl bg-[#f3eee8] ring-1 ring-black/5 sm:h-[68px] sm:w-[76px]">
                   <img
-                    src={story.imageUrl}
+                    src={imageFor(story, index)}
                     alt={story.title}
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    onError={(event) => {
+                      event.currentTarget.onerror = null;
+                      event.currentTarget.src = LIST_FALLBACK_IMAGES[0];
+                    }}
                   />
+                  {!story.imageUrl && <span className="absolute bottom-1 left-1 rounded bg-white/75 px-1 py-0.5 text-[8px] font-medium text-[#8c7e6c] backdrop-blur-sm">참고용</span>}
                   {isThisPlaying && (
-                    <div className="absolute inset-0 bg-[#a94d35]/80 backdrop-blur-xs flex items-center justify-center">
+                    <div className="absolute inset-0 flex items-center justify-center bg-[#f84e76]/75 backdrop-blur-xs">
                       <span className="text-[9px] font-bold text-white tracking-widest uppercase">PLAY</span>
                     </div>
                   )}
-                </div>
-
-                {/* 정보 (제목 / 장소 / 카테고리) */}
-                <div className="min-w-0 pr-2">
-                  <div className="flex items-center space-x-1.5">
-                    <span className="text-[10px] font-bold text-[#a94d35]">
-                      {story.category}
-                    </span>
-                    <span className="text-[10px] text-[#8c7e6c] truncate max-w-[130px] sm:max-w-none">
-                      {story.locationName || '대한민국 문화유산'}
-                    </span>
-                  </div>
-
-                  <h4 className={`font-odii-sans text-xs sm:text-sm font-semibold truncate transition-colors ${isCurrent ? 'text-[#a94d35]' : 'text-[#211e19] group-hover:text-[#a94d35]'}`}>
-                    {story.title}
-                  </h4>
-                  <p className="text-[11px] text-[#786d5e] truncate">
-                    {story.audioTitle}
-                  </p>
-                </div>
               </div>
 
-              {/* 우측: 보관함 하트 SVG + 재생시간 + 재생 버튼 */}
-              <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
+              <div className="min-w-0 pr-1">
+                <div className="mb-1 flex min-w-0 items-center gap-2 text-[10px]">
+                  <span className="truncate font-bold text-[#f84e76]">{categoryLabelFor(story)}</span>
+                  <span className="truncate text-[#8c7e6c]">{story.locationName || '대한민국 문화유산'}</span>
+                </div>
+
+                <h4 className={`truncate font-odii-sans text-sm font-semibold tracking-[-0.025em] transition-colors sm:text-base ${isCurrent ? 'text-[#f84e76]' : 'text-[#211e19] group-hover:text-[#f84e76]'}`}>
+                  {story.title}
+                </h4>
+                <p className="mt-1 truncate text-[10px] text-[#786d5e] sm:text-[11px]">{story.locationName || '대한민국 문화유산'}</p>
+              </div>
+
+              <div className="flex shrink-0 items-center gap-2 sm:gap-3">
                 {onBookmarkStory && (
                   <button
                     type="button"
@@ -179,8 +196,8 @@ export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({
                     aria-pressed={isBookmarked}
                     className={`flex h-8 w-8 items-center justify-center rounded-full transition-all duration-200 ${
                       isBookmarked
-                        ? 'text-[#a94d35] bg-[#a94d35]/10 hover:bg-[#a94d35]/20 scale-105'
-                        : 'text-[#8c7e6c] hover:bg-[#211e19]/5 hover:text-[#a94d35]'
+                        ? 'scale-105 bg-[#f84e76]/12 text-[#f84e76] hover:bg-[#f84e76]/20'
+                        : 'text-[#b0a398] hover:bg-[#f84e76]/10 hover:text-[#f84e76]'
                     }`}
                   >
                     <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
@@ -193,7 +210,7 @@ export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({
                   </button>
                 )}
 
-                <span className="hidden sm:inline-block text-[11px] font-mono text-[#8c7e6c]">
+                <span className="hidden font-mono text-[11px] text-[#8c7e6c] sm:inline-block">
                   {story.formattedDuration || '3:00'}
                 </span>
 
@@ -202,8 +219,8 @@ export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({
                   onClick={(e) => handlePlayClick(story, e)}
                   className={`flex h-8 w-8 items-center justify-center rounded-full transition-all duration-300 ${
                     isThisPlaying
-                      ? 'bg-[#a94d35] text-white shadow-xs scale-105'
-                      : 'bg-white border border-[#211e19]/15 text-[#211e19] hover:bg-[#211e19] hover:border-[#211e19] hover:text-white'
+                      ? 'scale-105 bg-[#f84e76] text-white shadow-[0_6px_16px_rgba(248,78,118,0.28)]'
+                      : 'border border-[#f84e76]/25 bg-white text-[#f84e76] hover:bg-[#f84e76] hover:text-white'
                   }`}
                   title={isThisPlaying ? '일시정지' : '재생'}
                 >

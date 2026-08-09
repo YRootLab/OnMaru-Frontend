@@ -3,6 +3,14 @@ import { NextRequest, NextResponse } from 'next/server';
 const ODII_BASE_URL = process.env.ODII_API_URL || process.env.NEXT_PUBLIC_ODII_API_URL || 'https://apis.data.go.kr/B551011/Odii';
 const ODII_API_KEY = process.env.ODII_API_KEY || process.env.NEXT_PUBLIC_ODII_API_KEY || '';
 
+function getApiKey() {
+  try {
+    return decodeURIComponent(ODII_API_KEY);
+  } catch {
+    return ODII_API_KEY;
+  }
+}
+
 const COMMON_PARAMS = {
   MobileOS: 'ETC',
   MobileApp: 'OnMaruFE',
@@ -13,10 +21,15 @@ const COMMON_PARAMS = {
 function getUpstreamUrl(request: NextRequest): URL {
   const query = request.nextUrl.searchParams;
   const type = query.get('type') || 'stories';
-  const upstream = new URL(`${ODII_BASE_URL}/${type === 'nearby' ? 'storyLocationBasedList' : query.get('keyword') ? 'storySearchList' : 'storyBasedList'}`);
+  const operation = type === 'nearby'
+    ? 'storyLocationBasedList'
+    : type === 'themes'
+      ? (query.get('keyword') ? 'themeSearchList' : 'themeBasedList')
+      : query.get('keyword') ? 'storySearchList' : 'storyBasedList';
+  const upstream = new URL(`${ODII_BASE_URL}/${operation}`);
 
   Object.entries(COMMON_PARAMS).forEach(([key, value]) => upstream.searchParams.set(key, value));
-  upstream.searchParams.set('serviceKey', ODII_API_KEY);
+  upstream.searchParams.set('serviceKey', getApiKey());
 
   if (type === 'nearby') {
     upstream.searchParams.set('xCoord', query.get('xCoord') || '');

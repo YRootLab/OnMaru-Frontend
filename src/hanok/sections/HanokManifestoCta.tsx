@@ -69,7 +69,9 @@ const ButtonRow = styled.div`
   flex-wrap: wrap;
 `;
 
-const CtaButton = styled(Link)<{ $primary?: boolean }>`
+const CtaButton = styled(Link, {
+  shouldForwardProp: (prop) => prop !== '$primary',
+})<{ $primary?: boolean }>`
   display: inline-flex;
   align-items: center;
   gap: 8px;

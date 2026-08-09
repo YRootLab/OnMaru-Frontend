@@ -36,19 +36,19 @@ export const OdiiFooterCTA: React.FC = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: [0.12, 1, 0.2, 1] }}
-          className="relative overflow-hidden border-y border-white/15 bg-[#211e19] p-8 text-white shadow-[0_18px_48px_rgba(33,30,25,0.14)] sm:p-12"
+          className="relative overflow-hidden border-y border-[#211e19]/8 bg-transparent p-8 text-[#211e19] sm:p-12"
         >
           {/* 아늑한 비네트 배경 */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#a94d35]/20 via-transparent to-[#a94d35]/20 pointer-events-none" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#fff0f5]/70 via-transparent to-[#fff0f5]/70" />
 
           <div className="relative z-10 flex flex-col items-center">
-            <p className="text-xs font-semibold tracking-[0.12em] text-[#d68a6f]">{termText}</p>
+            <p className="text-xs font-semibold tracking-[0.12em] text-[#f84e76]">{termText}</p>
 
-            <h2 className="mt-4 font-odii-sans text-2xl font-bold tracking-tight sm:text-4xl text-white">
+            <h2 className="mt-4 font-odii-sans text-2xl font-bold tracking-tight text-[#211e19] sm:text-4xl">
               다음 계절에도, 새로운 이야기를 만나요
             </h2>
 
-            <p className="mt-3 max-w-xl text-xs sm:text-sm leading-relaxed text-white/80">
+            <p className="mt-3 max-w-xl text-xs leading-relaxed text-[#786d5e] sm:text-sm">
               계절과 날짜가 바뀌면 오늘의 대표 이야기도 새롭게 열립니다.
               다음에 돌아왔을 때 다른 장소의 온기를 이어서 들어보세요.
             </p>
@@ -57,19 +57,19 @@ export const OdiiFooterCTA: React.FC = () => {
             <div className="mt-8 flex flex-col sm:flex-row items-center gap-3">
               <Link
                 href="/map"
-                className="w-full sm:w-auto rounded-full bg-[#a94d35] px-6 py-3 text-xs font-bold text-white shadow-lg transition-transform hover:scale-105 hover:bg-[#c4563a]"
+                className="w-full rounded-full bg-[#f84e76] px-6 py-3 text-xs font-bold text-white shadow-[0_8px_18px_rgba(248,78,118,0.2)] transition-transform hover:scale-105 hover:bg-[#dc4569] sm:w-auto"
               >
                 전국 한옥 지도에서 둘러보기 →
               </Link>
               <Link
                 href="/"
-                className="w-full sm:w-auto rounded-full border border-white/30 px-6 py-3 text-xs font-semibold text-white transition-colors hover:border-white hover:bg-white/10"
+                className="w-full rounded-full border border-[#f84e76]/25 px-6 py-3 text-xs font-semibold text-[#f84e76] transition-colors hover:border-[#f84e76] hover:bg-[#fff0f5] sm:w-auto"
               >
                 온마루 3D 한옥 스토리가기
               </Link>
             </div>
 
-            <p className="mt-8 text-[11px] text-white/50">오늘의 소리는 내일 또 다른 장면으로 이어집니다.</p>
+            <p className="mt-8 text-[11px] text-[#a59a8d]">오늘의 소리는 내일 또 다른 장면으로 이어집니다.</p>
           </div>
         </motion.div>
       </div>

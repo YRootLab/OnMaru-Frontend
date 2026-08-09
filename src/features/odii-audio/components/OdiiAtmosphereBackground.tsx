@@ -11,12 +11,6 @@ export const OdiiAtmosphereBackground: React.FC = () => {
             backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(255,255,255,0.96), transparent 72%)',
           }}
         />
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: 'linear-gradient(112deg, transparent 0 48%, rgba(61,52,41,0.025) 49%, transparent 50%), linear-gradient(78deg, transparent 0 72%, rgba(61,52,41,0.018) 73%, transparent 74%)',
-          }}
-        />
       </div>
     </div>
   );

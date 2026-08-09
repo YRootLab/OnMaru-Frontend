@@ -5,6 +5,9 @@ import { motion, Variants } from 'framer-motion';
 import { StoryCarousel } from './StoryCarousel';
 import { CategoryTagFilter } from './CategoryTagFilter';
 import { EditorialStoryList, EditorialStoryListSkeleton } from './EditorialStoryList';
+import { OdiiStoryCardGrid } from './OdiiStoryCardGrid';
+import { OdiiOriginalStoryList } from './OdiiOriginalStoryList';
+import { OdiiArchiveMetaBar } from './OdiiArchiveMetaBar';
 import { SavedSoundDrawer } from './SavedSoundDrawer';
 import { OdiiAutoSliceRail } from './OdiiAutoSliceRail';
 import { OdiiEditorialRail } from './OdiiEditorialRail';
@@ -198,7 +201,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
     };
   }, [activeApiService]);
 
-  // 2. 섹션 4 아카이브 페이지네이션 및 카테고리/검색어 독립적 쾌속 업데이트 (초기 마운트 시 0ms 렌더링 유지)
+  // 2. 섹션 5 아카이브 페이지네이션 및 카테고리/검색어 독립적 쾌속 업데이트
   useEffect(() => {
     let isMounted = true;
 
@@ -319,6 +322,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                   stories={storyList.length ? storyList : (nearbyStories.length ? nearbyStories : MOCK_ODII_STORIES)}
                   storySets={heroStorySets}
                   apiService={activeApiService}
+                  isLoading={isArchiveLoading}
                 />
               </div>
             </div>
@@ -366,7 +370,45 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             </div>
           </motion.section>
 
-          {/* 섹션 4: 주제와 장소를 따라보는 이야기 아카이브 (7개 단위 / 위치 고정) */}
+          {/* 섹션 4: 기존 리스트 컴포넌트 큐레이션 */}
+          <motion.section
+            aria-labelledby="compact-archive-heading"
+            variants={sectionVariants}
+            initial={hasAnimatedSession ? false : "hidden"}
+            whileInView={hasAnimatedSession ? undefined : "visible"}
+            animate={hasAnimatedSession ? "visible" : undefined}
+            viewport={hasAnimatedSession ? undefined : { once: true, amount: 0.12 }}
+            transition={hasAnimatedSession ? { duration: 0 } : undefined}
+            className="w-full bg-white py-10 sm:py-14"
+          >
+            <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
+              <motion.div variants={titleVariants} className="mb-5 flex items-end justify-between gap-4">
+                <div className="min-w-0">
+                  <h2 id="compact-archive-heading" className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-2xl font-bold tracking-[-0.045em] text-transparent sm:text-3xl">
+                    주제와 장소를 따라보는 이야기
+                  </h2>
+                  <p className="mt-1 max-w-xl text-xs leading-5 text-[#786d5e]">지금 고른 장면에서 이어지는 오디오 이야기를 빠르게 둘러보세요.</p>
+                </div>
+                <div className="flex shrink-0 items-center gap-3">
+                  <button type="button" onClick={() => document.getElementById('odii-archive')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="text-xs font-medium text-[#8c7e6c] transition-colors hover:text-[#f84e76]">검색</button>
+                </div>
+              </motion.div>
+              <OdiiArchiveMetaBar resultCount={storyList.length} />
+              <motion.div variants={contentVariants} className="min-h-[520px]">
+                {isArchiveLoading ? (
+                  <EditorialStoryListSkeleton />
+                ) : (
+                  <OdiiOriginalStoryList
+                    stories={storyList}
+                    onBookmarkStory={handleToggleBookmark}
+                    bookmarkedIds={bookmarkedIds}
+                  />
+                )}
+              </motion.div>
+            </div>
+          </motion.section>
+
+          {/* 섹션 5: 주제와 장소를 따라보는 이야기 아카이브 (기존 섹션 4 이동) */}
           <motion.section
             id="odii-archive"
             variants={sectionVariants}
@@ -375,10 +417,10 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             animate={hasAnimatedSession ? "visible" : undefined}
             viewport={hasAnimatedSession ? undefined : { once: true, amount: 0.12 }}
             transition={hasAnimatedSession ? { duration: 0 } : undefined}
-            className="h-[1040px] w-full overflow-hidden bg-white py-10 sm:py-14"
+            className="min-h-[900px] w-full overflow-visible bg-white py-10 sm:py-14"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
-              {/* 섹션 4 타이틀 & 서브타이틀 */}
+              {/* 섹션 5 타이틀 & 서브타이틀 */}
               <motion.div variants={titleVariants} className="mb-4">
                 <h2 id="archive-heading" className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-2xl font-bold tracking-[-0.045em] text-transparent sm:text-3xl">
                   주제와 장소를 따라보는 이야기
@@ -392,6 +434,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
               <motion.div variants={contentVariants}>
                 <CategoryTagFilter />
               </motion.div>
+              <OdiiArchiveMetaBar resultCount={storyList.length} totalCount={archiveMeta.totalCount} />
 
               {/* 오디오 아카이브 카드 리스트 (7개 단위 / 높이 고정) */}
               <div className="relative h-[600px] overflow-hidden">
@@ -414,19 +457,12 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                 <div className="flex flex-wrap items-center justify-end gap-2">
                   <button
                     type="button"
-                    onClick={() => setIsModalOpen(true)}
-                    className="mr-1 inline-flex items-center gap-1.5 rounded-full border border-[#211e19]/12 bg-white/60 px-3 py-1.5 text-[11px] font-medium text-[#655b4d] shadow-xs transition-transform duration-300 hover:-translate-y-0.5 hover:border-[#211e19]/25 hover:bg-white hover:text-[#211e19]"
-                  >
-                    전체 목록 보기 <span aria-hidden="true" className="text-[13px] leading-none">›</span>
-                  </button>
-                  <button
-                    type="button"
                     onClick={() => {
                       setIsArchiveLoading(true);
                       setArchivePage((page) => Math.max(1, page - 1));
                     }}
                     disabled={archivePage <= 1 || isArchiveLoading}
-                    className="h-9 rounded-full border border-[#211e19]/15 px-3 text-xs font-semibold text-[#211e19] transition-colors hover:border-[#a94d35] hover:text-[#a94d35] disabled:cursor-not-allowed disabled:opacity-30"
+                    className="h-9 rounded-full border border-[#f84e76]/25 px-3 text-xs font-semibold text-[#f84e76] transition-colors hover:border-[#f84e76] hover:bg-[#fff0f5] disabled:cursor-not-allowed disabled:opacity-30"
                   >
                     이전
                   </button>
@@ -438,7 +474,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                       setArchivePage((page) => Math.min(totalArchivePages, page + 1));
                     }}
                     disabled={archivePage >= totalArchivePages || isArchiveLoading}
-                    className="h-9 rounded-full border border-[#211e19]/15 px-3 text-xs font-semibold text-[#211e19] transition-colors hover:border-[#a94d35] hover:text-[#a94d35] disabled:cursor-not-allowed disabled:opacity-30"
+                    className="h-9 rounded-full border border-[#f84e76]/25 px-3 text-xs font-semibold text-[#f84e76] transition-colors hover:border-[#f84e76] hover:bg-[#fff0f5] disabled:cursor-not-allowed disabled:opacity-30"
                   >
                     다음
                   </button>
@@ -447,7 +483,39 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             </div>
           </motion.section>
 
-          {/* 섹션 5: 이탈 방지 & 재방문 CTA (새로고침 시 즉시 노출 / 260px 고정) */}
+          {/* 섹션 6: 카드형 오디오 컬렉션 */}
+          <motion.section
+            aria-labelledby="odii-card-collection-heading"
+            variants={sectionVariants}
+            initial={hasAnimatedSession ? false : "hidden"}
+            whileInView={hasAnimatedSession ? undefined : "visible"}
+            animate={hasAnimatedSession ? "visible" : undefined}
+            viewport={hasAnimatedSession ? undefined : { once: true, amount: 0.12 }}
+            transition={hasAnimatedSession ? { duration: 0 } : undefined}
+            className="w-full bg-white py-12 sm:py-16"
+          >
+            <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
+              <motion.div variants={titleVariants} className="mb-5 flex items-end justify-between gap-5">
+                <div className="min-w-0">
+                  <h2 id="odii-card-collection-heading" className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-2xl font-bold tracking-[-0.045em] text-transparent sm:text-3xl">
+                    주제와 장소를 따라보는 이야기
+                  </h2>
+                  <p className="mt-1 max-w-xl text-xs leading-5 text-[#786d5e]">이미지보다 이야기에 집중할 수 있도록, 짧고 가볍게 골라보세요.</p>
+                </div>
+              </motion.div>
+              <motion.div variants={contentVariants}>
+                <OdiiArchiveMetaBar resultCount={storyList.length} totalCount={archiveMeta.totalCount} />
+                <OdiiStoryCardGrid
+                  stories={storyList.length ? storyList : MOCK_ODII_STORIES}
+                  isLoading={isArchiveLoading}
+                  onBookmarkStory={handleToggleBookmark}
+                  bookmarkedIds={bookmarkedIds}
+                />
+              </motion.div>
+            </div>
+          </motion.section>
+
+          {/* 섹션 7: 이탈 방지 & 재방문 CTA (새로고침 시 즉시 노출 / 260px 고정) */}
           <motion.div
             variants={sectionVariants}
             initial={hasAnimatedSession ? false : "hidden"}

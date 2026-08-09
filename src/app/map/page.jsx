@@ -23,6 +23,8 @@ const FONT = "'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif";
  * Leaflet은 window를 직접 만진다. 서버에서 한 번이라도 그리면 그 자리에서 터지므로
  * 브라우저에서만 불러온다. (이 파일이 클라이언트 컴포넌트여야 ssr:false를 쓸 수 있다.)
  */
+const STAYS = { items: [] };
+
 const HanokMap = dynamic(() => import('@/components/map/HanokMap'), {
   ssr: false,
   loading: () => <MapPlaceholder>지도를 불러오는 중…</MapPlaceholder>,
