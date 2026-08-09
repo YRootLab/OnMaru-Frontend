@@ -32,4 +32,24 @@ export interface VillageMeta {
   badgeFallbackCount: number;
 }
 
+export interface RepeatInfoItem {
+  title: string;
+  content: string;
+}
+
+export interface VillageDetailResponse {
+  overview: string | null;
+  homepage?: string | null;
+  tel?: string | null;
+  usetime?: string | null;
+  restdate?: string | null;
+  parking?: string | null;
+  expguide?: string | null;
+  repeatInfo?: RepeatInfoItem[];
+  images?: string[];
+  source: 'TourAPI' | 'none';
+  item?: any;
+}
+
 export type SectionId = 'hero' | 'grid' | 'map' | 'monthly' | 'cta';
+

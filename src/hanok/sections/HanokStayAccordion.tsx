@@ -175,6 +175,8 @@ const StayTitle = styled.h3`
   margin: 0 0 6px;
   line-height: 1.25;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  /* ThemeProvider의 전역 h1~h6 규칙이 부모의 color 상속을 이긴다. 사진 위 제목은 직접 지정. */
+  color: #ffffff;
 `;
 
 const StayDesc = styled.p`

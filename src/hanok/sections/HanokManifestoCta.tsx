@@ -115,8 +115,8 @@ export default function HanokManifestoCta() {
           <CtaButton href="/map" $primary>
             전국 지도 보기 <ArrowUpRight size={16} />
           </CtaButton>
-          <CtaButton href="/guide">
-            체험 가이드 보기 <ArrowRight size={16} />
+          <CtaButton href="#hanok-stays">
+            고택 스테이 둘러보기 <ArrowRight size={16} />
           </CtaButton>
         </ButtonRow>
       </Container>
