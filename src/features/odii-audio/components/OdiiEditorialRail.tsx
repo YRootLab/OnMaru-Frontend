@@ -133,8 +133,11 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
   }, []);
 
   useEffect(() => {
-    setActivePosition(60);
-    setTrackTransitionEnabled(true);
+    const resetId = window.setTimeout(() => {
+      setActivePosition(60);
+      setTrackTransitionEnabled(true);
+    }, 0);
+    return () => window.clearTimeout(resetId);
   }, [selectedKeyword]);
 
   useEffect(() => {
@@ -142,7 +145,7 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
     let isMounted = true;
     const requestId = categoryRequestRef.current + 1;
     categoryRequestRef.current = requestId;
-    setIsCategoryLoading(true);
+    const loadingId = window.setTimeout(() => setIsCategoryLoading(true), 0);
 
     activeApiService.getStoryList(undefined, selectedKeyword)
       .then((nextStories) => {
@@ -161,6 +164,7 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
 
     return () => {
       isMounted = false;
+      window.clearTimeout(loadingId);
     };
   }, [activeApiService, categoryStories, selectedKeyword]);
 
@@ -171,15 +175,18 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
     }, {});
     if (!Object.keys(newlyCached).length) return;
 
-    setCachedImageUrls((previous) => {
-      const next = { ...previous, ...newlyCached };
-      try {
-        window.localStorage.setItem('onmaru_odii_story_images', JSON.stringify(next));
-      } catch {
-        // ignore storage failures
-      }
-      return next;
-    });
+    const cacheId = window.setTimeout(() => {
+      setCachedImageUrls((previous) => {
+        const next = { ...previous, ...newlyCached };
+        try {
+          window.localStorage.setItem('onmaru_odii_story_images', JSON.stringify(next));
+        } catch {
+          // ignore storage failures
+        }
+        return next;
+      });
+    }, 0);
+    return () => window.clearTimeout(cacheId);
   }, [categoryStories, stories]);
 
   const moveBy = useCallback((delta: number, resetAuto = true) => {

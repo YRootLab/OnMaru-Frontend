@@ -90,6 +90,9 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
   const selectedCategory = useOdiiAudioStore((s) => s.selectedCategory);
   const searchQuery = useOdiiAudioStore((s) => s.searchQuery);
   const [storyList, setStoryList] = useState<OdiiStoryItem[]>(() => initialStories || MOCK_ODII_STORIES);
+  const [section4Stories, setSection4Stories] = useState<OdiiStoryItem[]>(() => initialStories?.slice(0, 7) || MOCK_ODII_STORIES.slice(0, 7));
+  const [section6Stories, setSection6Stories] = useState<OdiiStoryItem[]>(() => initialStories?.slice(0, 6) || MOCK_ODII_STORIES.slice(0, 6));
+  const [section6TotalCount, setSection6TotalCount] = useState(0);
   const [nearbyStories, setNearbyStories] = useState<OdiiStoryItem[]>(() => initialNearbyStories || []);
   const [heroStorySets, setHeroStorySets] = useState<Record<string, OdiiStoryItem[]>>(() => initialHeroStorySets || {
     '추천': MOCK_ODII_STORIES.slice(0, 7),
@@ -173,6 +176,8 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
 
   const [isNearbyLoading, setIsNearbyLoading] = useState(true);
   const [isArchiveLoading, setIsArchiveLoading] = useState(true);
+  const [isSection4Loading, setIsSection4Loading] = useState(true);
+  const [isSection6Loading, setIsSection6Loading] = useState(true);
 
   // 1. 페이지 최초 마운트 시 히어로 탭 및 주변 이야기 1회만 로드
   useEffect(() => {
@@ -215,7 +220,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             setArchivePage(1);
             return;
           }
-          setStoryList(page.items.length ? page.items : MOCK_ODII_STORIES);
+          setStoryList(page.items);
           setArchiveMeta(page);
         }
       } finally {
@@ -229,6 +234,47 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
       isMounted = false;
     };
   }, [activeApiService, archivePage, selectedCategory, searchQuery]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function fetchSection4Data() {
+      setIsSection4Loading(true);
+      try {
+        const page = await activeApiService.getStoryPage(selectedCategory, searchQuery, 1, 7);
+        if (isMounted) setSection4Stories(page.items);
+      } finally {
+        if (isMounted) setIsSection4Loading(false);
+      }
+    }
+
+    fetchSection4Data();
+    return () => {
+      isMounted = false;
+    };
+  }, [activeApiService, selectedCategory, searchQuery]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function fetchSection6Data() {
+      setIsSection6Loading(true);
+      try {
+        const page = await activeApiService.getStoryPage(selectedCategory, searchQuery, 1, 6);
+        if (isMounted) {
+          setSection6Stories(page.items);
+          setSection6TotalCount(page.totalCount);
+        }
+      } finally {
+        if (isMounted) setIsSection6Loading(false);
+      }
+    }
+
+    fetchSection6Data();
+    return () => {
+      isMounted = false;
+    };
+  }, [activeApiService, selectedCategory, searchQuery]);
 
   const totalArchivePages = Math.max(1, Math.ceil(archiveMeta.totalCount / archiveMeta.numOfRows));
 
@@ -393,13 +439,16 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                   <button type="button" onClick={() => document.getElementById('odii-archive')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="text-xs font-medium text-[#8c7e6c] transition-colors hover:text-[#f84e76]">검색</button>
                 </div>
               </motion.div>
-              <OdiiArchiveMetaBar resultCount={storyList.length} />
+              <OdiiArchiveMetaBar resultCount={section4Stories.length} />
+              <motion.div variants={contentVariants}>
+                <CategoryTagFilter variant="store" />
+              </motion.div>
               <motion.div variants={contentVariants} className="min-h-[520px]">
-                {isArchiveLoading ? (
+                {isSection4Loading ? (
                   <EditorialStoryListSkeleton />
                 ) : (
                   <OdiiOriginalStoryList
-                    stories={storyList}
+                    stories={section4Stories}
                     onBookmarkStory={handleToggleBookmark}
                     bookmarkedIds={bookmarkedIds}
                   />
@@ -437,7 +486,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
               <OdiiArchiveMetaBar resultCount={storyList.length} totalCount={archiveMeta.totalCount} />
 
               {/* 오디오 아카이브 카드 리스트 (7개 단위 / 높이 고정) */}
-              <div className="relative h-[600px] overflow-hidden">
+              <div className="relative min-h-[600px] overflow-visible">
                 {isArchiveLoading ? (
                   <EditorialStoryListSkeleton />
                 ) : (
@@ -504,10 +553,11 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                 </div>
               </motion.div>
               <motion.div variants={contentVariants}>
-                <OdiiArchiveMetaBar resultCount={storyList.length} totalCount={archiveMeta.totalCount} />
+                <CategoryTagFilter variant="compact" />
+                <OdiiArchiveMetaBar resultCount={section6Stories.length} totalCount={section6TotalCount} />
                 <OdiiStoryCardGrid
-                  stories={storyList.length ? storyList : MOCK_ODII_STORIES}
-                  isLoading={isArchiveLoading}
+                  stories={section6Stories}
+                  isLoading={isSection6Loading}
                   onBookmarkStory={handleToggleBookmark}
                   bookmarkedIds={bookmarkedIds}
                 />
