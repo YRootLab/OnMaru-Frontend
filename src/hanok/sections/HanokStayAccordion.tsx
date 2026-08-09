@@ -91,7 +91,7 @@ const PillImageLayer = styled(motion.div)<{ $bg: string | null }>`
   inset: 0;
   ${({ $bg }) =>
     $bg
-      ? `background-image: url("${$bg}"); background-size: cover; background-position: center;`
+      ? `background-image: url("${$bg}"); background-size: cover; background-position: center 25%;`
       : 'background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);'}
   transition: transform 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
 
@@ -101,9 +101,9 @@ const PillImageLayer = styled(motion.div)<{ $bg: string | null }>`
     inset: 0;
     background: linear-gradient(
       180deg,
-      rgba(0, 0, 0, 0.15) 0%,
-      rgba(0, 0, 0, 0.2) 40%,
-      rgba(0, 0, 0, 0.82) 100%
+      rgba(0, 0, 0, 0.05) 0%,
+      rgba(0, 0, 0, 0.15) 45%,
+      rgba(0, 0, 0, 0.76) 100%
     );
   }
 `;
@@ -384,13 +384,9 @@ export default function HanokStayAccordion({
   const [page, setPage] = useState(0);
 
   const allStays = useMemo(() => {
-    const fetched = villages.filter(
-      (v) =>
-        v.type === '한옥 고택 스테이' ||
-        v.badges.includes('고택') ||
-        v.badges.includes('숙박') ||
-        v.badges.includes('고택숙박')
-    );
+    // 예전엔 '고택' 뱃지만 붙어도 스테이로 셌다. 그러면 묵을 수 없는 고택까지 '숙소 N곳'에
+    // 들어가고, 도감(스테이 제외)과 합이 전체 수집분을 넘어선다. 실제 숙박(contentTypeId 32)만.
+    const fetched = villages.filter((v) => v.type === '한옥 고택 스테이');
     if (fetched.length >= 3) return fetched;
     return FALLBACK_STAYS;
   }, [villages]);
@@ -475,7 +471,8 @@ export default function HanokStayAccordion({
                             <StayTag>{item.type}</StayTag>
                           </TagRow>
                           <StayTitle>{item.name}</StayTitle>
-                          <StayDesc>{item.summary || item.overview}</StayDesc>
+                          {/* TourAPI 목록 응답엔 설명이 없다. 없으면 주소라도 보여준다. */}
+                          <StayDesc>{item.summary || item.addr}</StayDesc>
                         </InfoGroup>
 
                         {onSelectVillage && (

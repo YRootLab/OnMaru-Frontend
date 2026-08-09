@@ -3,37 +3,61 @@
 import React, { useMemo } from 'react';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
+import { RotateCcw, Tag } from 'lucide-react';
 import { meok, lightPalette } from '@/design-system/tokens';
 import type { Village } from '@/hanok/types';
 
-export const ALL_TYPES = ['전체', '한옥 공공건축물', '궁궐 한옥', '사대부 고택', '서원·향교', '도심형', '집성촌형', '체험형'] as const;
+export const ALL_TYPES = [
+  '전체',
+  '한옥 공공건축물',
+  '궁궐 한옥',
+  '사대부 고택',
+  '서원·향교',
+  '도심형',
+  '집성촌형',
+  '체험형',
+] as const;
+
 export type VillageTypeFilter = (typeof ALL_TYPES)[number] | string;
 
 const Wrapper = styled.div`
   margin-bottom: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 `;
 
-const FilterRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
+/* 1단: 건축/마을 유형 세그먼트 컨트롤 탭 */
+const SegmentScrollWrapper = styled.div`
+  position: relative;
+  width: 100%;
+`;
+
+const SegmentScrollContainer = styled.div`
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  padding: 2px 0;
 `;
 
 const SegmentControl = styled.div`
   display: inline-flex;
   background: ${lightPalette.kobalt[50]};
-  padding: 4px;
+  padding: 5px;
   border-radius: 9999px;
-  gap: 2px;
+  gap: 4px;
+  border: 1px solid rgba(43, 92, 230, 0.08);
 `;
 
 const Segment = styled.button<{ $active: boolean }>`
   position: relative;
   border: none;
   background: transparent;
-  padding: 8px 20px;
-  font-size: 13.5px;
+  padding: 9px 22px;
+  font-size: 14px;
   font-weight: ${({ $active }) => ($active ? 700 : 500)};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
   cursor: pointer;
@@ -54,6 +78,7 @@ const SegmentPill = styled(motion.div)`
   background: linear-gradient(135deg, ${lightPalette.kobalt[500]} 0%, ${lightPalette.kobalt[700]} 100%);
   border-radius: 9999px;
   z-index: 0;
+  box-shadow: 0 4px 12px rgba(43, 92, 230, 0.25);
 `;
 
 const SegmentLabel = styled.span`
@@ -61,28 +86,52 @@ const SegmentLabel = styled.span`
   z-index: 1;
 `;
 
-const Divider = styled.div`
-  width: 1px;
-  height: 22px;
-  background: transparent;
-  margin: 0 4px;
+/* 2단: 특징 태그 뱃지 바 */
+const BadgeContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 16px;
+  background: rgba(248, 250, 255, 0.7);
+  border: 1px solid rgba(43, 92, 230, 0.08);
+  border-radius: 18px;
+`;
+
+const BadgeHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: ${lightPalette.kobalt[700]};
+  margin-right: 4px;
+  white-space: nowrap;
+`;
+
+const BadgeList = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex: 1;
 `;
 
 const BadgeChip = styled.button<{ $active: boolean }>`
   border: 1px solid
     ${({ $active }) =>
-      $active ? lightPalette.kobalt[500] : lightPalette.kobalt[100]};
+      $active ? lightPalette.kobalt[500] : 'rgba(43, 92, 230, 0.16)'};
   background: ${({ $active }) =>
     $active
       ? `linear-gradient(135deg, ${lightPalette.kobalt[500]} 0%, ${lightPalette.kobalt[700]} 100%)`
-      : lightPalette.kobalt[50]};
+      : '#ffffff'};
   color: ${({ $active }) => ($active ? '#ffffff' : lightPalette.kobalt[700])};
   font-size: 12.5px;
   font-weight: ${({ $active }) => ($active ? 700 : 500)};
-  padding: 6px 16px;
+  padding: 5px 14px;
   border-radius: 9999px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.18s ease;
   white-space: nowrap;
 
   &:hover {
@@ -90,8 +139,29 @@ const BadgeChip = styled.button<{ $active: boolean }>`
     background: ${({ $active }) =>
       $active
         ? `linear-gradient(135deg, ${lightPalette.kobalt[400]} 0%, ${lightPalette.kobalt[700]} 100%)`
-        : lightPalette.kobalt[100]};
-    color: ${({ $active }) => ($active ? '#ffffff' : lightPalette.kobalt[700])};
+        : lightPalette.kobalt[50]};
+  }
+`;
+
+const ResetBtn = styled.button`
+  border: 1px solid rgba(78, 89, 104, 0.2);
+  background: transparent;
+  color: ${meok[500]};
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  transition: all 0.18s ease;
+
+  &:hover {
+    color: ${meok[900]};
+    border-color: ${meok[400]};
+    background: rgba(0, 0, 0, 0.04);
   }
 `;
 
@@ -101,6 +171,7 @@ interface FilterBarProps {
   activeBadges: string[];
   onTypeChange: (t: VillageTypeFilter) => void;
   onBadgeToggle: (b: string) => void;
+  onResetBadges?: () => void;
 }
 
 export default function FilterBar({
@@ -109,9 +180,21 @@ export default function FilterBar({
   activeBadges,
   onTypeChange,
   onBadgeToggle,
+  onResetBadges,
 }: FilterBarProps) {
   const MAJOR_BADGES = useMemo(
-    () => ['세계유산', '국가지정', '궁궐', '고택', '서원·향교', '공공건축물', '민속마을', '돌담길', '전통체험', '조선시대'],
+    () => [
+      '세계유산',
+      '국가지정',
+      '궁궐',
+      '고택',
+      '서원·향교',
+      '공공건축물',
+      '민속마을',
+      '돌담길',
+      '전통체험',
+      '조선시대',
+    ],
     []
   );
 
@@ -125,42 +208,62 @@ export default function FilterBar({
 
   return (
     <Wrapper>
-      <FilterRow>
-        <SegmentControl role="group" aria-label="마을 유형 필터">
-          {ALL_TYPES.map((t) => {
-            const isActive = activeType === t;
-            return (
-              <Segment
-                key={t}
-                $active={isActive}
-                onClick={() => onTypeChange(t)}
-                aria-pressed={isActive}
-              >
-                {isActive && (
-                  <SegmentPill
-                    layoutId="typePill"
-                    transition={{ type: 'spring', stiffness: 450, damping: 35 }}
-                  />
-                )}
-                <SegmentLabel>{t}</SegmentLabel>
-              </Segment>
-            );
-          })}
-        </SegmentControl>
+      {/* 1단: 건축/마을 유형 메인 세그먼트 탭 */}
+      <SegmentScrollWrapper>
+        <SegmentScrollContainer>
+          <SegmentControl role="group" aria-label="마을 유형 필터">
+            {ALL_TYPES.map((t) => {
+              const isActive = activeType === t;
+              return (
+                <Segment
+                  key={t}
+                  $active={isActive}
+                  onClick={() => onTypeChange(t)}
+                  aria-pressed={isActive}
+                >
+                  {isActive && (
+                    <SegmentPill
+                      layoutId="typePill"
+                      transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+                    />
+                  )}
+                  <SegmentLabel>{t}</SegmentLabel>
+                </Segment>
+              );
+            })}
+          </SegmentControl>
+        </SegmentScrollContainer>
+      </SegmentScrollWrapper>
 
-        {allBadges.length > 0 && <Divider aria-hidden />}
-
-        {allBadges.map((b) => (
-          <BadgeChip
-            key={b}
-            $active={activeBadges.includes(b)}
-            onClick={() => onBadgeToggle(b)}
-            aria-pressed={activeBadges.includes(b)}
-          >
-            {b}
-          </BadgeChip>
-        ))}
-      </FilterRow>
+      {/* 2단: 특징 태그 뱃지 필터 바 */}
+      {allBadges.length > 0 && (
+        <BadgeContainer>
+          <BadgeHeader>
+            <Tag size={13} />
+            <span>특징 태그</span>
+          </BadgeHeader>
+          <BadgeList>
+            {allBadges.map((b) => {
+              const isActive = activeBadges.includes(b);
+              return (
+                <BadgeChip
+                  key={b}
+                  $active={isActive}
+                  onClick={() => onBadgeToggle(b)}
+                  aria-pressed={isActive}
+                >
+                  #{b}
+                </BadgeChip>
+              );
+            })}
+          </BadgeList>
+          {activeBadges.length > 0 && (
+            <ResetBtn onClick={onResetBadges || (() => activeBadges.forEach((b) => onBadgeToggle(b)))}>
+              <RotateCcw size={12} /> 태그 초기화
+            </ResetBtn>
+          )}
+        </BadgeContainer>
+      )}
     </Wrapper>
   );
 }

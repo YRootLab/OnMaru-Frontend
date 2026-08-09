@@ -45,6 +45,20 @@ const BADGE_RULES = [
   { badge: '전통체험', keywords: ['체험', '체험관'] },
 ];
 
+// HanokMonthly의 MONTHLY_CURATIONS가 contentId로 못 박아 둔 12곳.
+// 이 이름들이 수집분에 들어와야 이달의 한옥이 폴백 없이 정확히 그 집을 가리킨다.
+const CURATION_KEYWORDS = [
+  '경복궁', '강릉 선교장', '남산골한옥마을', '구례 운조루', '하회마을',
+  '학인당', '봉정사', '안동 임청각', '외암민속마을', '경주 최부자댁',
+  '논산 명재고택', '은평한옥마을',
+];
+
+// 좌표가 비었거나 0으로 오는 항목이 섞이면 지도 바운즈가 한반도 밖까지 늘어나
+// 전체 보기가 통째로 축소된다. 한반도 범위 밖은 좌표 없음으로 취급한다.
+function inKorea(lat: number, lng: number): boolean {
+  return lat >= 33 && lat <= 39 && lng >= 124 && lng <= 132;
+}
+
 function toHttps(url?: string | null): string | null {
   if (!url) return null;
   const s = String(url).trim();
@@ -118,6 +132,11 @@ export async function fetchTourApiRealtime(): Promise<{ villages: Village[]; met
   }
 
   const queryEndpoints = [
+    // 이달의 한옥 12개월 큐레이션 대상. 일반 키워드 수집만으로는 임청각처럼
+    // 안 잡히는 곳이 있어 큐레이션이 폴백으로 떨어진다.
+    // HanokMonthly의 MONTHLY_CURATIONS와 짝이므로 한쪽만 바꾸지 말 것.
+    ...CURATION_KEYWORDS.map((val) => ({ type: 'keyword', val })),
+
     { type: 'keyword', val: '한옥' },
     { type: 'keyword', val: '한옥마을' },
     { type: 'keyword', val: '경복궁' },
@@ -179,6 +198,7 @@ export async function fetchTourApiRealtime(): Promise<{ villages: Village[]; met
         const img = toHttps(item.firstimage || item.firstimage2);
         const lat = Number(item.mapy);
         const lng = Number(item.mapx);
+        const hasCoords = Number.isFinite(lat) && Number.isFinite(lng) && inKorea(lat, lng);
 
         // searchKeyword2/areaBasedList2는 overview를 주지 않는다. 예전엔 `제목 — 주소`로
         // 채웠는데 카드마다 제목이 두 번 나오는 죽은 카피가 됐다. 없으면 비워 두고,
@@ -192,8 +212,8 @@ export async function fetchTourApiRealtime(): Promise<{ villages: Village[]; met
           rawTitle: title,
           region,
           addr,
-          lat: Number.isFinite(lat) ? lat : null,
-          lng: Number.isFinite(lng) ? lng : null,
+          lat: hasCoords ? lat : null,
+          lng: hasCoords ? lng : null,
           type: classifyType(title, addr, contentTypeId) as any,
           badges,
           image: img,

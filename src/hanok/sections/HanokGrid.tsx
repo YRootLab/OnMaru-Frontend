@@ -101,6 +101,7 @@ export default function HanokGrid({ villages, onSelectVillage }: HanokGridProps)
         activeBadges={activeBadges}
         onTypeChange={setActiveType}
         onBadgeToggle={handleBadgeToggle}
+        onResetBadges={() => setActiveBadges([])}
       />
 
       {paginatedItems.length > 0 ? (

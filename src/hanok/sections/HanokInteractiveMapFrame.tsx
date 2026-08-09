@@ -424,7 +424,8 @@ export default function HanokInteractiveMapFrame({
       }
     });
 
-    mapInstance.setBounds(bounds);
+    // 상하좌우 여백(32px)으로 대한민국 전역이 시원하게 중앙 렌더링되도록 함
+    mapInstance.setBounds(bounds, 32, 32, 32, 32);
   }, []);
 
   // Kakao Map & MarkerClusterer 초기화
@@ -439,9 +440,10 @@ export default function HanokInteractiveMapFrame({
       window.kakao.maps.load(() => {
         if (!containerRef.current) return;
         const options = {
-          center: new window.kakao.maps.LatLng(36.1, 127.8),
+          center: new window.kakao.maps.LatLng(36.25, 127.6),
           level: 11,
         };
+
 
         const map = new window.kakao.maps.Map(containerRef.current, options);
         mapRef.current = map;
@@ -612,6 +614,24 @@ export default function HanokInteractiveMapFrame({
       initMap();
     }
   }, [initMap, isLoaded]);
+
+  // 컨테이너 최종 크기가 초기화 이후에 확정되면(웹폰트 로드, 레이아웃 시프트, 창 리사이즈)
+  // 지도는 옛 크기 그대로 남아 오른쪽에 빈 띠가 생기고 바운즈도 어긋난 채 굳는다.
+  // 크기가 바뀔 때마다 relayout하고, 전체 보기 상태면 바운즈를 다시 맞춘다.
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!isLoaded || !el) return;
+
+    const observer = new ResizeObserver(() => {
+      if (!mapRef.current) return;
+      mapRef.current.relayout();
+      if (selectedRegion === '전체') {
+        fitKoreaBounds(mapRef.current, validVillages);
+      }
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [isLoaded, selectedRegion, validVillages, fitKoreaBounds]);
 
   // 키 체크
   useEffect(() => {
