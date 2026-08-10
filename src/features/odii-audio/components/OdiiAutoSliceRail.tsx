@@ -37,6 +37,16 @@ function getUpcomingStories(stories: OdiiStoryItem[], activeIndex: number, count
   return Array.from({ length: Math.min(count, stories.length - 1) }, (_, index) => stories[(activeIndex + index + 1) % stories.length]);
 }
 
+function getCategoryThemeBadge(story: OdiiStoryItem): string {
+  if (story.category && story.category !== '오디 이야기' && story.category !== '전체') {
+    return story.category;
+  }
+  if (story.badgeText && story.badgeText !== '대본 전용' && story.badgeText !== '음원 제공') {
+    return story.badgeText;
+  }
+  return story.locationName || '대한민국 문화유산';
+}
+
 export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, storySets }) => {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -184,7 +194,7 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
                   {/* 카드 내부 오버레이 콘텐츠 */}
                   <div className="absolute inset-x-0 bottom-0 p-4 text-white">
                     <span className="inline-flex items-center rounded-md border border-white/25 bg-white/15 px-2 py-0.5 text-[9px] font-semibold text-white/90 backdrop-blur-md">
-                      {lead.badgeText ?? lead.category}
+                      {getCategoryThemeBadge(lead)}
                     </span>
                     <h3 className="mt-1 line-clamp-1 font-odii-sans text-xl font-bold tracking-tight text-white drop-shadow-sm">
                       {lead.title}
@@ -271,7 +281,7 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
                     className="absolute inset-0 flex flex-col justify-center"
                   >
                   <span className="mb-3 inline-flex h-6 self-start items-center rounded-lg border border-white/20 bg-white/[0.12] px-2 text-[9px] font-semibold tracking-[0.04em] text-white/90 backdrop-blur-sm">
-                    {lead.badgeText ?? lead.category}
+                    {getCategoryThemeBadge(lead)}
                   </span>
                   <h2 className="max-w-xl font-odii-sans text-3xl sm:text-4xl font-bold text-white leading-[1.18] tracking-[-0.04em] drop-shadow-[0_3px_12px_rgba(0,0,0,0.45)]">
                     {lead.title}

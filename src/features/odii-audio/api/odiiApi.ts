@@ -181,7 +181,9 @@ function mapStoryItem(item: Record<string, unknown>, index: number, category?: s
     audioUrl,
     imageUrl,
     locationName: [readText(item, 'addr1'), readText(item, 'addr2')].filter(Boolean).join(' ') || '대한민국 문화유산',
-    badgeText: audioUrl ? '음원 제공' : '대본 전용',
+    badgeText: (category && category !== '전체' && category !== '오디 이야기')
+      ? category
+      : readText(item, 'themaCategory') || [readText(item, 'addr1'), readText(item, 'addr2')].filter(Boolean).join(' ') || '대한민국 문화유산',
   };
 }
 

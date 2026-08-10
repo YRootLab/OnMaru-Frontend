@@ -473,7 +473,7 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
               </div>
             </nav>
           </div>
-          <div className="relative mt-0 h-[355px] overflow-hidden sm:h-[430px] lg:h-[465px]">
+          <div className="relative mt-0 h-[285px] overflow-hidden sm:h-[365px] lg:h-[405px]">
             {/* Leading (좌측) & Trailing (우측) 슬림 퓨어 화이트 리니어 그라데이션 페이드 마스크 */}
             <div className="pointer-events-none absolute left-0 top-0 bottom-0 z-20 w-6 sm:w-12 lg:w-16 bg-gradient-to-r from-white via-white/50 to-transparent" />
             <div className="pointer-events-none absolute right-0 top-0 bottom-0 z-20 w-6 sm:w-12 lg:w-16 bg-gradient-to-l from-white via-white/50 to-transparent" />
@@ -551,7 +551,7 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
           </div>
 
           {/* 하단 인디케이터 바 */}
-          <div className="relative z-30 flex items-center justify-center pt-2">
+          <div className="relative z-30 flex items-center justify-center pt-1.5 sm:pt-2">
             <div className="flex items-center gap-1.5">
               {featured.map((story, index) => (
                 <button key={story.stid} type="button" onClick={() => moveTo(index)} className={`h-1 rounded-full transition-all duration-300 ${index === activeIndex ? 'w-8 bg-[#f84e76]' : 'w-1.5 bg-[#211e19]/20 hover:bg-[#211e19]/50'}`} aria-label={`${index + 1}번째 이야기 선택`} />
