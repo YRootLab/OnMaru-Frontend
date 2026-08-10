@@ -1,7 +1,14 @@
 import { OdiiStoryItem, OdiiCategory, OdiiStoryPage } from '../types/odii.types';
+import { OdiiNetworkClient, odiiNetworkClient } from './odiiNetwork';
 
-const CLIENT_API_ENDPOINT = '/api/odii';
-const REQUEST_TIMEOUT_MS = 45_000;
+interface OdiiApiResponse {
+  response?: {
+    body?: {
+      items?: { item?: Record<string, unknown> | Record<string, unknown>[] };
+      totalCount?: number | string;
+    };
+  };
+}
 
 const DAILY_CACHE_PREFIX = 'onmaru_odii_api_cache_v1';
 const dailyMemoryCache = new Map<string, unknown>();
@@ -172,7 +179,8 @@ function mapStoryItem(item: Record<string, unknown>, index: number, category?: s
 /**
  * 한국관광공사 오디(Odii) API 어댑터
  */
-export const odiiApiAdapter = {
+export const createOdiiApiAdapter = (network: OdiiNetworkClient = odiiNetworkClient) => {
+  const adapter = {
   /**
    * 오디오 이야기 목록 조회 (카테고리 & 검색어 필터링)
    */
@@ -198,24 +206,14 @@ export const odiiApiAdapter = {
 
     return getCachedRequest(requestKey, async () => {
       try {
-      const params = new URLSearchParams({
+      const json = await network.request<OdiiApiResponse>({
         type: 'stories',
-        numOfRows: String(safeNumOfRows),
-        pageNo: String(safePageNo),
+        params: {
+          numOfRows: String(safeNumOfRows),
+          pageNo: String(safePageNo),
+          ...(keyword ? { keyword } : {}),
+        },
       });
-      if (keyword) params.set('keyword', keyword);
-
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-      let res: Response;
-      try {
-        res = await fetch(`${CLIENT_API_ENDPOINT}?${params.toString()}`, { cache: 'no-store', signal: controller.signal });
-      } finally {
-        clearTimeout(timeoutId);
-      }
-      if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-
-      const json = await res.json();
       const body = json?.response?.body;
       const rawItems = body?.items?.item;
       const itemList = rawItems
@@ -292,22 +290,10 @@ export const odiiApiAdapter = {
 
     return getCachedRequest(requestKey, async () => {
       try {
-        const params = new URLSearchParams({
+        const json = await network.request<OdiiApiResponse>({
           type: 'nearby',
-          xCoord: mapX,
-          yCoord: mapY,
-          radius: String(radius),
+          params: { xCoord: mapX, yCoord: mapY, radius: String(radius) },
         });
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-        let res: Response;
-        try {
-          res = await fetch(`${CLIENT_API_ENDPOINT}?${params.toString()}`, { cache: 'no-store', signal: controller.signal });
-        } finally {
-          clearTimeout(timeoutId);
-        }
-        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-        const json = await res.json();
         const rawItems = json?.response?.body?.items?.item;
         if (!rawItems) return [];
         const itemList = (Array.isArray(rawItems) ? rawItems : [rawItems]) as Record<string, unknown>[];
@@ -323,4 +309,9 @@ export const odiiApiAdapter = {
       }
     });
   }
+  };
+
+  return adapter;
 };
+
+export const odiiApiAdapter = createOdiiApiAdapter();
