@@ -10,44 +10,30 @@ export interface VesselRevealProps {
   className?: string;
   /** 고유 ID */
   id?: string;
-  /** 진입 초기 축소 비율 (기본값: 0.80 = 80%) */
+  /** 진입 초기 축소 비율 (기본값: 0.92 = 92%의 은은한 라운드 캡슐) */
   scaleFrom?: number;
-  /** 진입 초기 라운드 캡슐 곡률 (기본값: '2.5rem') */
+  /** 진입 초기 라운드 캡슐 곡률 (기본값: '2.2rem') */
   roundedFrom?: string;
-  /** 뷰포트 감지 임계값 (기본값: 0.12 = 12%) */
+  /** 뷰포트 감지 임계값 (기본값: 0.08 = 8% 하단 접촉 시 은은한 언폴딩) */
   threshold?: number;
-  /** 애니메이션 지속 시간 (기본값: 0.85s 고정 럭셔리 이징) */
+  /** 애니메이션 지속 시간 (기본값: 0.95s 실크 이징) */
   duration?: number;
 }
 
 /**
- * ## VesselReveal (균일 이징 기반 하단 80% ↔ 100% 스크롤 모핑 디자인 패턴)
+ * ## VesselReveal (은은하게 대기하다 자연스럽게 펼쳐지는 스크롤 모핑 패턴)
  * 
- * 애플(Apple) & 어워즈(Awwwards) 스타일의 스크롤 모핑 인터랙션 컴포넌트입니다.
- * 스크롤 위치나 가속도와 관계없이 매 섹션 12% 진입 시 0.85초의 고급 럭셔리 이징[0.16, 1, 0.3, 1]으로
- * 일정하고 수려하게 80% -> 100% 언폴딩 개화합니다.
- *
- * ### 스크롤 물리 동작 원칙:
- * 1. **아래에서 위로 올라올 때 (하단 진입)**: 0.85s 일정 속도로 80% 캡슐 -> 100% 개화.
- * 2. **위로 계속 올라갈 때 (상단 이탈)**: 100% 유지 (속도 증가 현상 없음).
- * 3. **위에서 아래로 내려올 때 (상단 재진입)**: 100% 유지.
- * 4. **아래로 사라질 때 (하단 이탈)**: 0.85s 일정 속도로 100% -> 80% 캡슐 수축.
- *
- * @example
- * ```tsx
- * <VesselReveal scaleFrom={0.80} duration={0.85}>
- *   <MySectionComponent />
- * </VesselReveal>
- * ```
+ * 아래에서 튀어 오르는 팝업 현상(Jump)을 완벽히 억제하고,
+ * 하단 경계에서 은은하게 대기하다 시선에 맞춰 실크처럼 92% -> 100% 개화합니다.
  */
 export const VesselReveal: React.FC<VesselRevealProps> = ({
   children,
   className = '',
   id,
-  scaleFrom = 0.80,
-  roundedFrom = '2.5rem',
-  threshold = 0.12,
-  duration = 0.85,
+  scaleFrom = 0.92,
+  roundedFrom = '2.2rem',
+  threshold = 0.08,
+  duration = 0.95,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [stage, setStage] = useState<'vessel' | 'bloomed'>('vessel');
@@ -59,10 +45,10 @@ export const VesselReveal: React.FC<VesselRevealProps> = ({
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          // 화면 12% 진입 시: 80% -> 100% 일정 속도로 전면 개화
+          // 화면 하단 접촉 시: 위로 점프하지 않고 은은하게 92% -> 100% 개화
           setStage('bloomed');
         } else {
-          // 화면 이탈 시: 하단으로 벗어난 경우에만 80% 캡슐로 수축 폴딩, 상단 이탈은 100% 고정
+          // 화면 하단으로 완전히 벗어난 경우에만 은은한 라운드 캡슐로 폴딩
           if (entry.boundingClientRect.top > 0) {
             setStage('vessel');
           }
@@ -84,17 +70,17 @@ export const VesselReveal: React.FC<VesselRevealProps> = ({
       initial={false}
       animate={{
         scale: isBloomed ? 1 : scaleFrom,
-        y: isBloomed ? 0 : 28,
-        opacity: isBloomed ? 1 : 0.72,
+        y: isBloomed ? 0 : 6,
+        opacity: isBloomed ? 1 : 0.88,
         borderRadius: isBloomed ? '0.5rem' : roundedFrom,
-        borderColor: isBloomed ? 'rgba(33, 30, 25, 0)' : 'rgba(33, 30, 25, 0.14)',
+        borderColor: isBloomed ? 'rgba(33, 30, 25, 0)' : 'rgba(33, 30, 25, 0.12)',
         boxShadow: isBloomed
           ? '0 0px 0px rgba(0, 0, 0, 0)'
-          : '0 20px 48px rgba(33, 30, 25, 0.10)',
+          : '0 16px 36px rgba(33, 30, 25, 0.08)',
       }}
       transition={{
         duration,
-        ease: [0.16, 1, 0.3, 1],
+        ease: [0.22, 1, 0.36, 1],
       }}
       className={`border overflow-hidden transition-colors duration-500 ${className}`}
     >
