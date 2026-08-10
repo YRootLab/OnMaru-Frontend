@@ -1,3 +1,6 @@
+/* ── 나눔손글씨 펜 (Nanum Pen Script) — 폴라로이드 캡션용 */
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,6 +11,14 @@
   font-weight: normal;
   font-display: swap;
 }
+
+@font-face {
+  font-family: 'NostalgicGukhanbakOchungiWriterKim';
+  src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2607161334@griunxhangeulochungikim-regular/griunxhangeulochungikim-regular/GriunXHangeulOCHUNGIKIM-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+
 
 /* ── 마루 부리 (MaruBuri) 폰트 */
 @font-face { font-family: 'MaruBuri'; src: url('https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-ExtraLight.woff2') format('woff2'); font-weight: 200; font-display: swap; }
