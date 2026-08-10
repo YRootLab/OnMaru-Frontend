@@ -293,7 +293,8 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
       });
   };
 
-  const showSkeleton = isLoading || isCategoryLoading;
+  // 실제 카드가 이미 있으면 다른 API 요청의 지연으로 카드를 가리지 않는다.
+  const showSkeleton = !activeStory && (isLoading || isCategoryLoading);
 
   if (!activeStory && !showSkeleton) {
     return (
