@@ -12,14 +12,22 @@ interface AllStoriesModalProps {
 
 const MODAL_CATEGORIES: OdiiCategory[] = [
   '전체',
-  '궁궐/유적',
   '한옥/고택',
-  '정원/자연',
-  '박물관/미술관',
-  '시전/전통시장',
-  '도보/골목길',
-  '사람내음과 고운 정',
+  '전통시장/장터',
+  '마을/골목길',
+  '궁궐/역사',
+  '소리/문화',
+  '자연/둘레길',
 ];
+
+const MODAL_CATEGORY_KEYWORDS: Record<string, string[]> = {
+  '한옥/고택': ['한옥', '고택', '한옥마을'],
+  '전통시장/장터': ['시장', '장터', '시전'],
+  '마을/골목길': ['마을', '골목', '길'],
+  '궁궐/역사': ['궁', '역사', '유적'],
+  '소리/문화': ['소리', '전통', '문화'],
+  '자연/둘레길': ['자연', '둘레길', '산', '공원'],
+};
 
 export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
   isOpen,
@@ -38,7 +46,13 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
 
   let filtered = allStories;
   if (activeCat !== '전체') {
-    filtered = filtered.filter((s) => s.category === activeCat);
+    const keywords = MODAL_CATEGORY_KEYWORDS[activeCat] || [];
+    filtered = filtered.filter((story) => {
+      const searchableText = [story.category, story.title, story.audioTitle, story.locationName]
+        .filter(Boolean)
+        .join(' ');
+      return keywords.some((keyword) => searchableText.includes(keyword));
+    });
   }
   if (modalSearch.trim().length > 0) {
     const q = modalSearch.toLowerCase().trim();
@@ -67,7 +81,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
             <span className="text-[11px] font-bold text-[#F8A8C0] uppercase tracking-wider block mb-0.5">
               COMPLETE AUDIO COLLECTION
             </span>
-            <h2 className="font-maruburi text-xl font-semibold text-white sm:text-2xl">
+            <h2 className="font-odii-sans text-xl font-semibold text-white sm:text-2xl">
               오디(Odii) 전체 이야기 아카이브
             </h2>
           </div>
@@ -153,8 +167,9 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
                       <h4 className="text-sm sm:text-base font-bold text-white truncate">
                         {story.title}
                       </h4>
-                      <p className="text-xs text-[#A09588] truncate mt-0.5">
-                        {story.locationName || story.title} • {story.speaker}
+                      <p className="mt-0.5 text-xs text-[#A09588]">
+                        <span className="block truncate">{story.locationName || story.title}</span>
+                        <span className="mt-0.5 block truncate text-[10px]">{story.speaker}</span>
                       </p>
                     </div>
                   </div>

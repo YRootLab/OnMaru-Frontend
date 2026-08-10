@@ -21,6 +21,14 @@ export interface OdiiStoryItem {
   likesCount?: number;   // 좋아요/북마크 수
 }
 
+export interface OdiiStoryPage {
+  items: OdiiStoryItem[];
+  pageNo: number;
+  numOfRows: number;
+  totalCount: number;
+  source: 'api' | 'mock';
+}
+
 export interface ScriptLine {
   id: number;
   timeSec: number;
@@ -29,10 +37,36 @@ export interface ScriptLine {
 
 export type OdiiCategory =
   | '전체'
-  | '궁궐/유적'
   | '한옥/고택'
-  | '정원/자연'
+  | '서원/향교'
+  | '전통시장/장터'
+  | '마을/골목길'
+  | '궁궐/역사'
+  | '사찰/산사'
+  | '소리/문화'
   | '박물관/미술관'
-  | '시전/전통시장'
-  | '도보/골목길'
-  | '사람내음과 고운 정';
+  | '자연/둘레길'
+  | string;
+
+export type OdiiRegion =
+  | '경주'
+  | '전주'
+  | '안동'
+  | '서울'
+  | '제주'
+  | '부산'
+  | '대구';
+
+/**
+ * 🏛️ 외부 의존성 주입(Dependency Injection)을 위한 오디 API 서비스 추상화 인터페이스
+ */
+export interface IOdiiApiService {
+  getStoryList(category?: OdiiCategory | string, query?: string): Promise<OdiiStoryItem[]>;
+  getNearbyStories(mapX?: string | number, mapY?: string | number, radius?: number): Promise<OdiiStoryItem[]>;
+  getStoryPage(
+    category?: OdiiCategory | string,
+    query?: string,
+    pageNo?: number,
+    numOfRows?: number
+  ): Promise<OdiiStoryPage>;
+}

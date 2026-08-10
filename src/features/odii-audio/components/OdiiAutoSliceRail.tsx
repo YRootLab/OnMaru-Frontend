@@ -1,0 +1,344 @@
+'use client';
+
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
+import { OdiiStoryItem } from '../types/odii.types';
+
+interface OdiiAutoSliceRailProps {
+  stories: OdiiStoryItem[];
+  storySets?: Record<string, OdiiStoryItem[]>;
+}
+
+const FALLBACK_IMAGES = [
+  'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=1200&q=80',
+  'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80',
+  'https://images.unsplash.com/photo-1584467541268-b040f83be3fd?auto=format&fit=crop&w=1200&q=80',
+  'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=1200&q=80',
+  'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1200&q=80',
+  'https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&w=1200&q=80',
+  'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1200&q=80',
+];
+
+function getFallbackImage(seed = ''): string {
+  const index = Array.from(seed).reduce((total, char) => total + char.charCodeAt(0), 0) % FALLBACK_IMAGES.length;
+  return FALLBACK_IMAGES[index];
+}
+
+function getValidImage(url?: string, seed?: string): string {
+  if (!url || typeof url !== 'string' || url.trim().length === 0) {
+    return getFallbackImage(seed);
+  }
+  return url;
+}
+
+function getUpcomingStories(stories: OdiiStoryItem[], activeIndex: number, count = 3): OdiiStoryItem[] {
+  if (stories.length < 2) return [];
+  return Array.from({ length: Math.min(count, stories.length - 1) }, (_, index) => stories[(activeIndex + index + 1) % stories.length]);
+}
+
+export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, storySets }) => {
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [previewIndex, setPreviewIndex] = useState(0);
+  const [transitionDirection, setTransitionDirection] = useState(1);
+  const [isSectionInView, setIsSectionInView] = useState(true);
+  const previewTimerRef = useRef<number | null>(null);
+
+  const currentStory = useOdiiAudioStore((s) => s.currentStory);
+  const isPlaying = useOdiiAudioStore((s) => s.isPlaying);
+  const setCurrentStory = useOdiiAudioStore((s) => s.setCurrentStory);
+  const setIsPlaying = useOdiiAudioStore((s) => s.setIsPlaying);
+
+  const featured = useMemo(() => {
+    const apiStories = storySets?.['추천'];
+    if (apiStories?.length) return apiStories.slice(0, 7);
+    return stories.slice(0, 7);
+  }, [stories, storySets]);
+
+  useEffect(() => {
+    featured.slice(0, 7).forEach((story) => {
+      const image = new window.Image();
+      image.src = getValidImage(story.imageUrl, story.stid);
+    });
+  }, [featured]);
+
+  const lead = featured[activeIndex] ?? featured[0];
+
+  const isClickThrottledRef = useRef(false);
+
+  const advanceTo = useCallback((targetIndex: number, direction = 1) => {
+    if (featured.length < 2) return;
+    if (isClickThrottledRef.current) return;
+    isClickThrottledRef.current = true;
+    setTimeout(() => {
+      isClickThrottledRef.current = false;
+    }, 280);
+
+    const nextIndex = (targetIndex + featured.length) % featured.length;
+    setTransitionDirection(direction >= 0 ? 1 : -1);
+    setPreviewIndex(nextIndex);
+
+    if (previewTimerRef.current !== null) {
+      window.clearTimeout(previewTimerRef.current);
+    }
+
+    // preview 큐가 한 칸 흐른 뒤 메인 장면이 따라오도록 짧은 리드 타임을 둔다.
+    previewTimerRef.current = window.setTimeout(() => {
+      setActiveIndex(nextIndex);
+      previewTimerRef.current = null;
+    }, 100);
+  }, [featured.length]);
+
+  useEffect(() => () => {
+    if (previewTimerRef.current !== null) {
+      window.clearTimeout(previewTimerRef.current);
+    }
+  }, []);
+
+  // 7초 자동 이동
+  useEffect(() => {
+    if (featured.length < 2 || !isSectionInView) return;
+    const timer = window.setInterval(() => {
+      advanceTo((activeIndex + 1) % featured.length, 1);
+    }, 7000);
+    return () => window.clearInterval(timer);
+  }, [activeIndex, advanceTo, featured.length, isSectionInView]);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsSectionInView(entry.isIntersecting),
+      { threshold: 0.15 }
+    );
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
+  if (!lead) return null;
+
+  const move = (nextDirection: number) => {
+    // 전환 중에는 메인 카드보다 preview 큐가 먼저 이동하므로 큐의 위치를 기준으로 이어간다.
+    advanceTo((previewIndex + nextDirection + featured.length) % featured.length, nextDirection);
+  };
+
+  const play = () => {
+    if (currentStory.stid === lead.stid) {
+      setIsPlaying(!isPlaying);
+    } else {
+      setCurrentStory(lead);
+    }
+  };
+
+  const following = getUpcomingStories(featured, previewIndex, 3);
+
+  const leadImageUrl = getValidImage(lead.imageUrl, lead.stid);
+
+  return (
+    <section ref={sectionRef} className="w-full pb-12 sm:pb-16">
+      <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
+        {/* 한 장면을 오래 듣고 다음 장면으로 이어지는 청음 스테이지 */}
+        <div className="relative flex min-w-0 items-center gap-3 overflow-visible">
+          
+          {/* 메인 비주얼 배너 카드 (기존 메인은 왼쪽으로 퇴장, 오른쪽 서브가 왼쪽으로 당겨지며 메인 승격) */}
+          <div className="relative min-h-[320px] min-w-0 flex-1 rounded-[1.6rem] bg-[#6d6258] shadow-[0_18px_48px_rgba(43,35,26,0.16)] sm:min-h-[280px] md:h-[280px] md:min-h-0">
+            
+            <div className="absolute inset-0 overflow-hidden rounded-[1.6rem]">
+              <AnimatePresence initial={false} mode="sync">
+                <motion.div
+                  key={`${lead.stid}-${activeIndex}`}
+                  initial={{
+                    opacity: 0,
+                    x: transitionDirection * 35,
+                  }}
+                  animate={{
+                    opacity: 1,
+                    x: 0,
+                  }}
+                  exit={{
+                    opacity: 0,
+                    x: transitionDirection * -35,
+                  }}
+                  transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
+                  className="absolute inset-0 h-full w-full"
+                >
+                  {/* 전환 때 무거운 blur를 다시 그리지 않고 낮은 대비의 장면으로 분위기만 연결 */}
+                  <img
+                    src={leadImageUrl}
+                    alt={lead.title}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = getFallbackImage(lead.stid);
+                    }}
+                    className="h-full w-full object-cover opacity-35 saturate-105"
+                  />
+                  <div className="absolute inset-0 bg-black/[0.035] backdrop-blur-[2px]" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/30 to-black/10" />
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            {/* 우측 상단 뱃지 */}
+            <div className="absolute right-4 top-2.5 z-20">
+              <span className="px-2.5 py-0.5 rounded-full bg-black/50 text-white text-[10px] font-semibold backdrop-blur-md border border-white/20">
+                {activeIndex + 1} / {featured.length}
+              </span>
+            </div>
+
+            {/* 메인 카드 정보 및 버튼 */}
+            <div className="pointer-events-none relative z-10 grid min-h-[320px] grid-cols-1 items-center gap-5 p-5 sm:min-h-[280px] sm:grid-cols-[minmax(0,1fr)_190px] sm:gap-7 sm:p-6 md:h-full md:min-h-0 lg:grid-cols-[minmax(0,1fr)_215px]">
+              <div className="pointer-events-auto relative min-h-[176px] min-w-0 sm:min-h-[184px]">
+                <AnimatePresence initial={false} mode="sync">
+                  <motion.div
+                    key={`${lead.stid}-${activeIndex}`}
+                    initial={{ opacity: 0, x: transitionDirection * 28 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: transitionDirection * -28 }}
+                    transition={{ duration: 0.36, delay: 0.02, ease: [0.16, 1, 0.3, 1] }}
+                    className="absolute inset-0 flex flex-col justify-center"
+                  >
+                  <span className="mb-3 inline-flex h-6 self-start items-center rounded-lg border border-white/20 bg-white/[0.12] px-2 text-[9px] font-semibold tracking-[0.04em] text-white/90 backdrop-blur-sm">
+                    {lead.badgeText ?? lead.category}
+                  </span>
+                  <h2 className="max-w-xl font-odii-sans text-3xl sm:text-4xl font-bold text-white leading-[1.18] tracking-[-0.04em] drop-shadow-[0_3px_12px_rgba(0,0,0,0.45)]">
+                    {lead.title}
+                  </h2>
+                  <p className="mt-3 max-w-md line-clamp-2 text-sm font-medium leading-6 text-white/90 sm:text-[15px]">
+                    {lead.audioTitle}
+                  </p>
+                  <div className="mt-6 flex items-center gap-3 pointer-events-auto">
+                    <button
+                      type="button"
+                      onClick={play}
+                      className="flex items-center gap-1.5 rounded-full bg-white px-5 py-2.5 text-xs font-bold text-[#211e19] shadow-xl transition-colors hover:bg-white/90 active:bg-white/80"
+                    >
+                      <span>{currentStory.stid === lead.stid && isPlaying ? '일시정지' : '이야기 듣기'}</span>
+                      <span className="text-[11px] font-normal text-[#655b4d]">{lead.formattedDuration}</span>
+                    </button>
+                    {currentStory.stid === lead.stid && isPlaying ? (
+                      <div
+                        className="flex h-4 items-end gap-[2px] opacity-90"
+                        aria-label="재생 중"
+                      >
+                        {[0, 1, 2, 3, 4].map((bar) => (
+                          <motion.span
+                            key={bar}
+                            animate={{ height: ['4px', '13px', '6px', '10px', '4px'] }}
+                            transition={{ duration: 0.9 + bar * 0.08, repeat: Infinity, ease: 'easeInOut', delay: bar * 0.05 }}
+                            className="w-[2px] rounded-full bg-white"
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="flex items-center text-white/70" aria-label="재생 대기">
+                        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07" /></svg>
+                      </div>
+                    )}
+                  </div>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+
+              {/* 메인 장면 오른쪽 서브 비주얼 카드 고정 규격 (찌부됨 방지) */}
+              <div className="pointer-events-none relative order-first mx-auto h-[198px] w-[150px] shrink-0 rounded-[1.2rem] border border-white/25 bg-white/10 shadow-[0_14px_30px_rgba(0,0,0,0.12)] sm:order-none sm:h-[198px] sm:w-[150px] md:h-[202px] lg:h-[211px] lg:w-[160px] overflow-visible">
+                <div className="relative z-10 h-full w-full overflow-hidden rounded-[1.1rem]">
+                  <AnimatePresence initial={false} mode="sync">
+                    <motion.div
+                      key={`${lead.stid}-${activeIndex}`}
+                      initial={{ opacity: 0, x: transitionDirection * 35 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: transitionDirection * -35 }}
+                      transition={{ duration: 0.38, delay: 0.04, ease: [0.16, 1, 0.3, 1] }}
+                      className="absolute inset-0 h-full w-full overflow-hidden"
+                    >
+                      <img
+                        src={leadImageUrl}
+                        alt=""
+                        onError={(e) => { (e.target as HTMLImageElement).src = getFallbackImage(lead.stid); }}
+                        className="h-full w-full object-cover object-center"
+                      />
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+
+                {/* 서브 섬네일 카드의 오른쪽 border 지점에 수직 중앙으로 얹히는 다음 탐색 버튼 */}
+                <div className="pointer-events-auto absolute right-0 translate-x-1/2 top-1/2 z-30 -translate-y-1/2">
+                  <button
+                    type="button"
+                    aria-label="다음 이야기"
+                    onClick={() => move(1)}
+                    className="flex h-10 w-11 items-center justify-center rounded-xl border border-white/60 bg-white/95 text-[#211e19] shadow-[0_8px_24px_rgba(0,0,0,0.25)] transition-[background-color,transform] duration-300 hover:scale-105 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                  >
+                    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="m9 5 7 7-7 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 우측 다음 장면 preview: 명시적 절대 슬롯 좌표 계산 (연타 시 찌그러짐/오프셋 방지) */}
+          <div className="relative hidden h-[224px] w-[250px] shrink-0 translate-y-1.5 items-center md:flex overflow-visible">
+            <div className="relative h-[216px] w-full overflow-visible">
+              <AnimatePresence initial={false} mode="sync">
+                {following.map((story, index) => {
+                  const imgUrl = getValidImage(story.imageUrl, story.stid);
+                  const isTopItem = index === 0;
+                  const slotY = index * 74;
+                  return (
+                    <motion.button
+                      key={story.stid}
+                      type="button"
+                      aria-label={`${story.title} 이야기 선택`}
+                      onClick={() => {
+                        advanceTo((previewIndex + index + 1) % featured.length, 1);
+                      }}
+                      initial={{ opacity: 0, y: slotY + 30, x: 0 }}
+                      animate={{ opacity: 1, y: slotY, x: 0 }}
+                      exit={
+                        isTopItem
+                          ? { opacity: 0, x: -24, y: slotY, scale: 0.97 }
+                          : { opacity: 0, y: slotY - 18, x: 0, scale: 0.97 }
+                      }
+                      transition={{
+                        duration: 0.32,
+                        ease: [0.16, 1, 0.3, 1],
+                      }}
+                      className="group absolute left-0 top-0 h-[68px] w-full overflow-hidden rounded-lg border border-white/20 bg-[#211e19]/[0.1] text-left shadow-[0_8px_20px_rgba(43,35,26,0.12)] ring-1 ring-white/15 backdrop-blur-sm transition-[box-shadow,ring-color] duration-300 hover:border-white/35 hover:ring-white/45 hover:shadow-[0_12px_26px_rgba(43,35,26,0.18)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a94d35]"
+                    >
+                      <img
+                        src={imgUrl}
+                        alt=""
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = getFallbackImage(story.stid);
+                        }}
+                        className="relative z-0 h-full w-full object-cover opacity-50 transition-transform duration-500 group-hover:scale-[1.03]"
+                      />
+                      <div className="absolute inset-0 z-10 bg-gradient-to-r from-[#211e19]/80 via-[#211e19]/45 to-[#211e19]/15" />
+                      <div className="absolute inset-x-0 bottom-0 z-10 h-1/2 overflow-hidden bg-gradient-to-t from-white/[0.07] to-transparent">
+                        <motion.div
+                          animate={{ x: ['-6%', '6%', '-6%'], opacity: [0.1, 0.22, 0.1] }}
+                          transition={{ duration: 4.2 + index * 0.35, repeat: Infinity, ease: 'easeInOut' }}
+                          className="absolute -left-[8%] bottom-[-8px] h-5 w-[116%] rounded-[50%] bg-white/10 blur-[4px]"
+                          aria-hidden="true"
+                        />
+                      </div>
+                      <div className="absolute inset-x-0 bottom-0 z-20 flex items-end justify-between gap-2 p-2 pt-5 text-white">
+                        <div className="min-w-0">
+                          <p className="text-[9px] font-semibold tracking-[0.04em] text-white/80">{story.locationName || story.category}</p>
+                          <h4 className="mt-0.5 line-clamp-1 font-odii-sans text-xs font-bold leading-tight text-white">
+                            {story.title}
+                          </h4>
+                        </div>
+                      </div>
+                    </motion.button>
+                  );
+                })}
+              </AnimatePresence>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  );
+};
