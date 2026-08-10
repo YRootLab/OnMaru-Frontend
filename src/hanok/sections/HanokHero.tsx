@@ -199,7 +199,7 @@ export default function HanokHero({ villages, onSelectVillage }: HanokHeroProps)
           </Indicators>
 
           <DetailBtn onClick={() => onSelectVillage(current)}>
-            스토리 보기 <ArrowRight size={14} />
+            자세히 보기 <ArrowRight size={14} />
           </DetailBtn>
         </ControlsRow>
       </ContentOverlay>
