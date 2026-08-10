@@ -112,7 +112,11 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
       return searchable.includes(category.keyword.toLowerCase());
     });
     const recommendationStories = storySets?.['추천'];
-    const source = categoryStories?.length ? categoryStories : localCategoryStories.length ? localCategoryStories : (recommendationStories?.length ? recommendationStories : stories);
+    const source = categoryStories !== null
+      ? categoryStories
+      : localCategoryStories.length
+        ? localCategoryStories
+        : (recommendationStories?.length ? recommendationStories : stories);
     // 오디오 섹션에는 실제 재생 가능한 레코드만 들어와야 한다.
     return source.filter((story) => Boolean(story.audioUrl)).slice(0, 10).map((story) => (
       !story.imageUrl && cachedImageUrls[story.stid]
@@ -305,8 +309,8 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
       });
   };
 
-  // 실제 카드가 이미 있으면 다른 API 요청의 지연으로 카드를 가리지 않는다.
-  const showSkeleton = !activeStory && (isLoading || isCategoryLoading);
+  // 카테고리 응답이 끝나기 전에는 fallback 카드와 실제 카드를 교체하지 않는다.
+  const showSkeleton = isLoading || isCategoryLoading;
 
   if (!activeStory && !showSkeleton) {
     return (
