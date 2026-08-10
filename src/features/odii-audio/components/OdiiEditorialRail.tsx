@@ -474,6 +474,34 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
             </nav>
           </div>
           <div className="relative mt-0 h-[355px] overflow-hidden sm:h-[430px] lg:h-[465px]">
+            {/* Leading (좌측) & Trailing (우측) 소프트 리니어 그라데이션 페이드 마스크 */}
+            <div className="pointer-events-none absolute left-0 top-0 bottom-0 z-20 w-16 sm:w-28 lg:w-36 bg-gradient-to-r from-[#fffaf3] via-[#fffaf3]/70 to-transparent" />
+            <div className="pointer-events-none absolute right-0 top-0 bottom-0 z-20 w-16 sm:w-28 lg:w-36 bg-gradient-to-l from-[#fffaf3] via-[#fffaf3]/70 to-transparent" />
+
+            {/* 카드 스테이지 좌측 Leading 탐색 화살표 버튼 */}
+            <button
+              type="button"
+              onClick={() => moveBy(-1)}
+              onDragStart={(event) => event.preventDefault()}
+              draggable={false}
+              aria-label="이전 이야기"
+              className="absolute left-3 sm:left-6 top-1/2 z-30 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full border border-[#211e19]/15 bg-white/85 text-[#211e19] shadow-[0_8px_24px_rgba(33,30,25,0.14)] backdrop-blur-md transition-all duration-300 hover:scale-110 hover:border-[#f84e76] hover:bg-white hover:text-[#f84e76] active:scale-95"
+            >
+              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+
+            {/* 카드 스테이지 우측 Trailing 탐색 화살표 버튼 */}
+            <button
+              type="button"
+              onClick={() => moveBy(1)}
+              onDragStart={(event) => event.preventDefault()}
+              draggable={false}
+              aria-label="다음 이야기"
+              className="absolute right-3 sm:right-6 top-1/2 z-30 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full border border-[#211e19]/15 bg-white/85 text-[#211e19] shadow-[0_8px_24px_rgba(33,30,25,0.14)] backdrop-blur-md transition-all duration-300 hover:scale-110 hover:border-[#f84e76] hover:bg-white hover:text-[#f84e76] active:scale-95"
+            >
+              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+
             {showSkeleton && (
               <div className="absolute inset-x-0 top-3 flex items-start justify-center gap-4 px-4 sm:gap-5 lg:gap-5">
                 {[0, 1, 2, 3, 4, 5, 6].map((index) => (
@@ -522,14 +550,13 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
             </div>}
           </div>
 
-          <div className="relative z-30 flex items-center justify-center gap-5">
-            <button type="button" onClick={() => moveBy(-1)} onDragStart={(event) => event.preventDefault()} draggable={false} className="select-none text-sm text-[#786d5e] transition-colors hover:text-[#211e19]" aria-label="이전 이야기">←</button>
+          {/* 하단 인디케이터 바 */}
+          <div className="relative z-30 flex items-center justify-center pt-2">
             <div className="flex items-center gap-1.5">
               {featured.map((story, index) => (
                 <button key={story.stid} type="button" onClick={() => moveTo(index)} className={`h-1 rounded-full transition-all duration-300 ${index === activeIndex ? 'w-8 bg-[#f84e76]' : 'w-1.5 bg-[#211e19]/20 hover:bg-[#211e19]/50'}`} aria-label={`${index + 1}번째 이야기 선택`} />
               ))}
             </div>
-            <button type="button" onClick={() => moveBy(1)} onDragStart={(event) => event.preventDefault()} draggable={false} className="select-none text-sm text-[#786d5e] transition-colors hover:text-[#211e19]" aria-label="다음 이야기">→</button>
           </div>
         </div>
       </div>
