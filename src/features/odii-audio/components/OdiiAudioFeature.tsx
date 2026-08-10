@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion, Variants } from 'framer-motion';
 import { StoryCarousel } from './StoryCarousel';
 import { CategoryTagFilter } from './CategoryTagFilter';
@@ -177,6 +177,9 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
   const [isSection6Loading, setIsSection6Loading] = useState(true);
   const [apiError, setApiError] = useState<string | null>(null);
   const [retryToken, setRetryToken] = useState(0);
+  const handleApiError = useCallback(() => {
+    setApiError('오디 이야기를 불러오지 못했습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.');
+  }, []);
 
   // 1. 페이지 최초 마운트 시 히어로 탭 및 주변 이야기 1회만 로드
   useEffect(() => {
@@ -390,7 +393,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                   storySets={heroStorySets}
                   apiService={activeApiService}
                   isLoading={isArchiveLoading && storyList.length === 0}
-                  onApiError={() => setApiError('오디 이야기를 불러오지 못했습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.')}
+                  onApiError={handleApiError}
                 />
               </div>
             </div>
