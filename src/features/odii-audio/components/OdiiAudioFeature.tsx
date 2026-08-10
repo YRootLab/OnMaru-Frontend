@@ -314,13 +314,13 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
               </button>
             </div>
           )}
-          <main className="space-y-6 sm:space-y-10">
+          <main className="space-y-4 sm:space-y-6">
             {/* 섹션 0: 헤더 타이틀 */}
           <motion.section
             variants={sectionVariants}
             initial="hidden"
             animate="visible"
-            className="w-full pb-4 pt-8 sm:pt-10"
+            className="w-full pb-2 pt-6 sm:pt-8"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
               <div className="max-w-xl">
@@ -334,12 +334,12 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             </div>
           </motion.section>
 
-          {/* 섹션 1: 히어로 큐레이션 레일 (상단 히어로 - 즉시 깨끗하고 시원하게 노출) */}
+          {/* 섹션 1: 히어로 큐레이션 레일 (헤더와 적절한 탑 여백 확보) */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
-            className="min-h-[360px] sm:min-h-[420px]"
+            className="mt-3 sm:mt-5 min-h-[360px] sm:min-h-[420px]"
           >
             <OdiiAutoSliceRail
               stories={storyList}
