@@ -82,6 +82,7 @@ const durationFor = (story: OdiiStoryItem) => story.formattedDuration || `${Math
 const QUEUE_SIZE = 14;
 const INITIAL_QUEUE_START = 54; // activePosition 60을 14개 큐의 안쪽에 둔다.
 const POSITION_CORRECTION_COOLDOWN_MS = 70;
+const TRANSITION_SAFETY_TIMEOUT_MS = 900;
 
 export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, storySets, apiService, isLoading = false, onApiError }) => {
   const activeApiService = useOdiiApiService(apiService);
@@ -116,7 +117,8 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
     });
     const recommendationStories = storySets?.['추천'];
     const source = categoryStories?.length ? categoryStories : localCategoryStories.length ? localCategoryStories : (recommendationStories?.length ? recommendationStories : stories);
-    return source.slice(0, 10).map((story) => (
+    // 오디오 섹션에는 실제 재생 가능한 레코드만 들어와야 한다.
+    return source.filter((story) => Boolean(story.audioUrl)).slice(0, 10).map((story) => (
       !story.imageUrl && cachedImageUrls[story.stid]
         ? { ...story, imageUrl: cachedImageUrls[story.stid] }
         : story
@@ -211,8 +213,12 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
     inputLockedRef.current = true;
     if (unlockTimerRef.current !== null) {
       window.clearTimeout(unlockTimerRef.current);
-      unlockTimerRef.current = null;
     }
+    // transitionend가 브라우저/렌더링 상황에 따라 누락되어도 영구 잠금되지 않게 한다.
+    unlockTimerRef.current = window.setTimeout(() => {
+      inputLockedRef.current = false;
+      unlockTimerRef.current = null;
+    }, TRANSITION_SAFETY_TIMEOUT_MS);
   }, []);
 
   const moveBy = useCallback((delta: number, resetAuto = true) => {
@@ -244,6 +250,11 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
     if (event.target !== event.currentTarget || event.propertyName !== 'transform' || featured.length < 2) return;
     const atQueueStart = activePosition <= queueStart;
     const atQueueEnd = activePosition >= queueStart + QUEUE_SIZE - 1;
+
+    if (unlockTimerRef.current !== null) {
+      window.clearTimeout(unlockTimerRef.current);
+      unlockTimerRef.current = null;
+    }
 
     if (!atQueueStart && !atQueueEnd) {
       unlockTimerRef.current = window.setTimeout(() => {

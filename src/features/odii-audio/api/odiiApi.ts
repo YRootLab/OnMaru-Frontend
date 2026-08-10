@@ -10,7 +10,8 @@ interface OdiiApiResponse {
   };
 }
 
-const DAILY_CACHE_PREFIX = 'onmaru_odii_api_cache_v1';
+// v2는 이전 구현에서 저장한 빈/불완전 응답 캐시를 사용하지 않도록 의도적으로 무효화한다.
+const DAILY_CACHE_PREFIX = 'onmaru_odii_api_cache_v2';
 const dailyMemoryCache = new Map<string, unknown>();
 const inFlightRequests = new Map<string, Promise<unknown>>();
 
@@ -48,15 +49,23 @@ function writeDailyCache<T>(requestKey: string, value: T): void {
   }
 }
 
-async function getCachedRequest<T>(requestKey: string, request: () => Promise<T>): Promise<T> {
+async function getCachedRequest<T>(
+  requestKey: string,
+  request: () => Promise<T>,
+  shouldCache: (value: T) => boolean = () => true,
+): Promise<T> {
   const cached = readDailyCache<T>(requestKey);
-  if (cached !== undefined) return cached;
+  if (cached !== undefined) {
+    console.info('[Odii Cache] hit', { requestKey });
+    return cached;
+  }
 
   const existing = inFlightRequests.get(dailyCacheKey(requestKey));
   if (existing) return existing as Promise<T>;
 
   const pending = request().then((value) => {
-    writeDailyCache(requestKey, value);
+    if (shouldCache(value)) writeDailyCache(requestKey, value);
+    else console.info('[Odii Cache] skip empty response', { requestKey });
     return value;
   }).finally(() => {
     inFlightRequests.delete(dailyCacheKey(requestKey));
@@ -231,7 +240,7 @@ export const createOdiiApiAdapter = (network: OdiiNetworkClient = odiiNetworkCli
       console.error('[Odii API Error] API 호출 실패:', error);
       throw error instanceof Error ? error : new Error('Odii API request failed');
       }
-    });
+    }, (value) => value.items.length > 0);
   },
 
   /**
@@ -307,7 +316,7 @@ export const createOdiiApiAdapter = (network: OdiiNetworkClient = odiiNetworkCli
         console.error('[Odii Nearby Error] 위치 기반 조회 실패:', error);
         throw error instanceof Error ? error : new Error('Odii nearby request failed');
       }
-    });
+    }, (value) => value.length > 0);
   }
   };
 
