@@ -37,6 +37,16 @@ function getUpcomingStories(stories: OdiiStoryItem[], activeIndex: number, count
   return Array.from({ length: Math.min(count, stories.length - 1) }, (_, index) => stories[(activeIndex + index + 1) % stories.length]);
 }
 
+function getCategoryThemeBadge(story: OdiiStoryItem): string {
+  if (story.category && story.category !== '오디 이야기' && story.category !== '전체') {
+    return story.category;
+  }
+  if (story.badgeText && story.badgeText !== '대본 전용' && story.badgeText !== '음원 제공') {
+    return story.badgeText;
+  }
+  return story.locationName || '대한민국 문화유산';
+}
+
 export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, storySets }) => {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -83,7 +93,6 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
       window.clearTimeout(previewTimerRef.current);
     }
 
-    // preview 큐가 한 칸 흐른 뒤 메인 장면이 따라오도록 짧은 리드 타임을 둔다.
     previewTimerRef.current = window.setTimeout(() => {
       setActiveIndex(nextIndex);
       previewTimerRef.current = null;
@@ -96,7 +105,6 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
     }
   }, []);
 
-  // 7초 자동 이동
   useEffect(() => {
     if (featured.length < 2 || !isSectionInView) return;
     const timer = window.setInterval(() => {
@@ -119,7 +127,6 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
   if (!lead) return null;
 
   const move = (nextDirection: number) => {
-    // 전환 중에는 메인 카드보다 preview 큐가 먼저 이동하므로 큐의 위치를 기준으로 이어간다.
     advanceTo((previewIndex + nextDirection + featured.length) % featured.length, nextDirection);
   };
 
@@ -132,17 +139,94 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
   };
 
   const following = getUpcomingStories(featured, previewIndex, 3);
-
+  const nextStory = featured[(activeIndex + 1) % featured.length] ?? featured[0];
   const leadImageUrl = getValidImage(lead.imageUrl, lead.stid);
+  const nextImageUrl = getValidImage(nextStory.imageUrl, nextStory.stid);
 
   return (
     <section ref={sectionRef} className="w-full pb-12 sm:pb-16">
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
+        
         {/* 한 장면을 오래 듣고 다음 장면으로 이어지는 청음 스테이지 */}
         <div className="relative flex min-w-0 items-center gap-3 overflow-visible">
           
-          {/* 메인 비주얼 배너 카드 (기존 메인은 왼쪽으로 퇴장, 오른쪽 서브가 왼쪽으로 당겨지며 메인 승격) */}
-          <div className="relative min-h-[320px] min-w-0 flex-1 rounded-[1.6rem] bg-[#6d6258] shadow-[0_18px_48px_rgba(43,35,26,0.16)] sm:min-h-[280px] md:h-[280px] md:min-h-0">
+          {/* Awwwards Interactive 3D Card Deck (모바일 전용 뷰) */}
+          <div className="relative w-full overflow-hidden rounded-[1.8rem] bg-[#1c1917] p-4 shadow-[0_20px_50px_rgba(0,0,0,0.22)] sm:hidden">
+            {/* 우측 상단 인디케이터 */}
+            <div className="absolute right-4 top-4 z-30">
+              <span className="rounded-full border border-white/20 bg-black/50 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-md">
+                {activeIndex + 1} / {featured.length}
+              </span>
+            </div>
+
+            {/* 3D Stacked Card Stage */}
+            <div className="relative h-[250px] w-full overflow-visible pt-2">
+              <AnimatePresence initial={false} mode="popLayout">
+                {/* 뒤에 깔린 카드 (Next Card Layer) */}
+                <motion.div
+                  key={`next-${nextStory.stid}`}
+                  className="absolute left-1/2 top-3 h-[220px] w-[88%] -translate-x-1/2 overflow-hidden rounded-2xl border border-white/15 bg-white/10 opacity-60 shadow-md backdrop-blur-md pointer-events-none"
+                  initial={{ scale: 0.9, y: 12 }}
+                  animate={{ scale: 0.94, y: 8 }}
+                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <img src={nextImageUrl} alt="" className="h-full w-full object-cover opacity-50" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                </motion.div>
+
+                {/* 전면 메인 카드 (Active Hero Card Layer) */}
+                <motion.div
+                  key={`lead-${lead.stid}-${activeIndex}`}
+                  initial={{ opacity: 0, scale: 0.92, y: 16, rotate: transitionDirection * 4 }}
+                  animate={{ opacity: 1, scale: 1, y: 0, rotate: 0 }}
+                  exit={{ opacity: 0, scale: 0.88, x: transitionDirection * -120, rotate: transitionDirection * -10 }}
+                  transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1] }}
+                  className="relative z-20 mx-auto h-[235px] w-[96%] overflow-hidden rounded-2xl border border-white/25 bg-[#2a2421] shadow-[0_16px_36px_rgba(0,0,0,0.45)]"
+                >
+                  <img
+                    src={leadImageUrl}
+                    alt={lead.title}
+                    onError={(e) => { (e.target as HTMLImageElement).src = getFallbackImage(lead.stid); }}
+                    className="h-full w-full object-cover saturate-[1.1]"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                  
+                  {/* 카드 내부 오버레이 콘텐츠 */}
+                  <div className="absolute inset-x-0 bottom-0 p-4 text-white">
+                    <span className="inline-flex items-center rounded-md border border-white/25 bg-white/15 px-2 py-0.5 text-[9px] font-semibold text-white/90 backdrop-blur-md">
+                      {getCategoryThemeBadge(lead)}
+                    </span>
+                    <h3 className="mt-1 line-clamp-1 font-odii-sans text-xl font-bold tracking-tight text-white drop-shadow-sm">
+                      {lead.title}
+                    </h3>
+                    <p className="mt-0.5 line-clamp-1 text-xs text-white/80">{lead.audioTitle}</p>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            {/* 하단 재생 컨트롤바 */}
+            <div className="mt-2 flex items-center justify-between gap-3 px-1 pt-1">
+              <button
+                type="button"
+                onClick={play}
+                className="flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-white text-xs font-bold text-[#211e19] shadow-lg active:bg-white/90"
+              >
+                <span>{currentStory.stid === lead.stid && isPlaying ? '일시정지' : '이야기 듣기'}</span>
+                <span className="text-[11px] font-normal text-[#655b4d]">{lead.formattedDuration}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => move(1)}
+                className="flex h-11 px-4 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-xs font-semibold text-white backdrop-blur-md active:bg-white/20"
+              >
+                다음 장면 →
+              </button>
+            </div>
+          </div>
+
+          {/* 데스크탑 기본 레이아웃 */}
+          <div className="relative min-h-[320px] min-w-0 flex-1 rounded-[1.6rem] bg-[#6d6258] shadow-[0_18px_48px_rgba(43,35,26,0.16)] hidden sm:block sm:min-h-[280px] md:h-[280px] md:min-h-0">
             
             <div className="absolute inset-0 overflow-hidden rounded-[1.6rem]">
               <AnimatePresence initial={false} mode="sync">
@@ -163,17 +247,16 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
                   transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
                   className="absolute inset-0 h-full w-full"
                 >
-                  {/* 전환 때 무거운 blur를 다시 그리지 않고 낮은 대비의 장면으로 분위기만 연결 */}
                   <img
                     src={leadImageUrl}
                     alt={lead.title}
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = getFallbackImage(lead.stid);
                     }}
-                    className="h-full w-full object-cover opacity-35 saturate-105"
+                    className="h-full w-full object-cover opacity-60 sm:opacity-35 saturate-105"
                   />
                   <div className="absolute inset-0 bg-black/[0.035] backdrop-blur-[2px]" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/30 to-black/10" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20 sm:bg-gradient-to-r sm:from-black/65 sm:via-black/30 sm:to-black/10" />
                 </motion.div>
               </AnimatePresence>
             </div>
@@ -198,7 +281,7 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
                     className="absolute inset-0 flex flex-col justify-center"
                   >
                   <span className="mb-3 inline-flex h-6 self-start items-center rounded-lg border border-white/20 bg-white/[0.12] px-2 text-[9px] font-semibold tracking-[0.04em] text-white/90 backdrop-blur-sm">
-                    {lead.badgeText ?? lead.category}
+                    {getCategoryThemeBadge(lead)}
                   </span>
                   <h2 className="max-w-xl font-odii-sans text-3xl sm:text-4xl font-bold text-white leading-[1.18] tracking-[-0.04em] drop-shadow-[0_3px_12px_rgba(0,0,0,0.45)]">
                     {lead.title}
@@ -240,7 +323,7 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
               </div>
 
               {/* 메인 장면 오른쪽 서브 비주얼 카드 고정 규격 (찌부됨 방지) */}
-              <div className="pointer-events-none relative order-first mx-auto h-[198px] w-[150px] shrink-0 rounded-[1.2rem] border border-white/25 bg-white/10 shadow-[0_14px_30px_rgba(0,0,0,0.12)] sm:order-none sm:h-[198px] sm:w-[150px] md:h-[202px] lg:h-[211px] lg:w-[160px] overflow-visible">
+              <div className="pointer-events-none relative order-first mx-auto h-[198px] w-[150px] shrink-0 rounded-[1.2rem] border border-white/25 bg-white/10 shadow-[0_14px_30px_rgba(0,0,0,0.12)] hidden sm:block sm:order-none sm:h-[198px] sm:w-[150px] md:h-[202px] lg:h-[211px] lg:w-[160px] overflow-visible">
                 <div className="relative z-10 h-full w-full overflow-hidden rounded-[1.1rem]">
                   <AnimatePresence initial={false} mode="sync">
                     <motion.div

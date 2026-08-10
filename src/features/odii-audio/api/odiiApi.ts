@@ -1,7 +1,79 @@
 import { OdiiStoryItem, OdiiCategory, OdiiStoryPage } from '../types/odii.types';
-import { MOCK_ODII_STORIES } from './odiiMockData';
+import { OdiiNetworkClient, odiiNetworkClient } from './odiiNetwork';
 
-const CLIENT_API_ENDPOINT = '/api/odii';
+interface OdiiApiResponse {
+  response?: {
+    body?: {
+      items?: { item?: Record<string, unknown> | Record<string, unknown>[] };
+      totalCount?: number | string;
+    };
+  };
+}
+
+// v3는 이전 구현에서 저장한 빈/불완전 응답 캐시를 사용하지 않도록 의도적으로 무효화한다.
+const DAILY_CACHE_PREFIX = 'onmaru_odii_api_cache_v3';
+const dailyMemoryCache = new Map<string, unknown>();
+const inFlightRequests = new Map<string, Promise<unknown>>();
+
+function dailyCacheKey(requestKey: string): string {
+  const today = new Date();
+  const localDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  return `${DAILY_CACHE_PREFIX}:${localDate}:${requestKey}`;
+}
+
+function readDailyCache<T>(requestKey: string): T | undefined {
+  const key = dailyCacheKey(requestKey);
+  if (dailyMemoryCache.has(key)) return dailyMemoryCache.get(key) as T;
+  if (typeof window === 'undefined') return undefined;
+
+  try {
+    const stored = window.localStorage.getItem(key);
+    if (!stored) return undefined;
+    const parsed = JSON.parse(stored) as T;
+    dailyMemoryCache.set(key, parsed);
+    return parsed;
+  } catch {
+    return undefined;
+  }
+}
+
+function writeDailyCache<T>(requestKey: string, value: T): void {
+  const key = dailyCacheKey(requestKey);
+  dailyMemoryCache.set(key, value);
+  if (typeof window === 'undefined') return;
+
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // localStorage 용량/권한 문제는 API 응답 자체를 막지 않는다.
+  }
+}
+
+async function getCachedRequest<T>(
+  requestKey: string,
+  request: () => Promise<T>,
+  shouldCache: (value: T) => boolean = () => true,
+): Promise<T> {
+  const cached = readDailyCache<T>(requestKey);
+  if (cached !== undefined) {
+    console.info('[Odii Cache] hit', { requestKey });
+    return cached;
+  }
+
+  const existing = inFlightRequests.get(dailyCacheKey(requestKey));
+  if (existing) return existing as Promise<T>;
+
+  const pending = request().then((value) => {
+    if (shouldCache(value)) writeDailyCache(requestKey, value);
+    else console.info('[Odii Cache] skip empty response', { requestKey });
+    return value;
+  }).finally(() => {
+    inFlightRequests.delete(dailyCacheKey(requestKey));
+  });
+
+  inFlightRequests.set(dailyCacheKey(requestKey), pending);
+  return pending;
+}
 
 // 테마 카테고리에 대응하는 Odii API 키워드 매핑
 const CATEGORY_KEYWORD_MAP: Record<string, string> = {
@@ -109,14 +181,17 @@ function mapStoryItem(item: Record<string, unknown>, index: number, category?: s
     audioUrl,
     imageUrl,
     locationName: [readText(item, 'addr1'), readText(item, 'addr2')].filter(Boolean).join(' ') || '대한민국 문화유산',
-    badgeText: audioUrl ? '음원 제공' : '대본 전용',
+    badgeText: (category && category !== '전체' && category !== '오디 이야기')
+      ? category
+      : readText(item, 'themaCategory') || [readText(item, 'addr1'), readText(item, 'addr2')].filter(Boolean).join(' ') || '대한민국 문화유산',
   };
 }
 
 /**
  * 한국관광공사 오디(Odii) API 어댑터
  */
-export const odiiApiAdapter = {
+export const createOdiiApiAdapter = (network: OdiiNetworkClient = odiiNetworkClient) => {
+  const adapter = {
   /**
    * 오디오 이야기 목록 조회 (카테고리 & 검색어 필터링)
    */
@@ -138,29 +213,24 @@ export const odiiApiAdapter = {
       keyword = CATEGORY_KEYWORD_MAP[category] || category;
     }
 
-    try {
-      const params = new URLSearchParams({
+    const requestKey = `stories:${category || ''}:${keyword}:${safePageNo}:${safeNumOfRows}`;
+
+    return getCachedRequest(requestKey, async () => {
+      try {
+      const json = await network.request<OdiiApiResponse>({
         type: 'stories',
-        numOfRows: String(safeNumOfRows),
-        pageNo: String(safePageNo),
+        params: {
+          numOfRows: String(safeNumOfRows),
+          pageNo: String(safePageNo),
+          ...(keyword ? { keyword } : {}),
+        },
       });
-      if (keyword) params.set('keyword', keyword);
-
-      const res = await fetch(`${CLIENT_API_ENDPOINT}?${params.toString()}`, { cache: 'no-store' });
-      if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-
-      const json = await res.json();
       const body = json?.response?.body;
       const rawItems = body?.items?.item;
       const itemList = rawItems
         ? (Array.isArray(rawItems) ? rawItems : [rawItems]) as Record<string, unknown>[]
         : [];
       const mappedStories = itemList.map((item, index) => mapStoryItem(item, index, category || keyword));
-      if (mappedStories.length === 0 && safePageNo === 1) {
-        const fallback = await this.getMockFiltered(category, query);
-        return { items: fallback.slice(0, safeNumOfRows), pageNo: 1, numOfRows: safeNumOfRows, totalCount: fallback.length, source: 'mock' };
-      }
-
       return {
         items: mappedStories,
         pageNo: safePageNo,
@@ -168,37 +238,11 @@ export const odiiApiAdapter = {
         totalCount: Number(body?.totalCount) || mappedStories.length,
         source: 'api',
       };
-    } catch (error) {
-      console.error('[Odii API Error] API 호출 실패, Fallback 데이터 전환:', error);
-      const fallback = await this.getMockFiltered(category, query);
-      const start = (safePageNo - 1) * safeNumOfRows;
-      return {
-        items: fallback.slice(start, start + safeNumOfRows),
-        pageNo: safePageNo,
-        numOfRows: safeNumOfRows,
-        totalCount: fallback.length,
-        source: 'mock',
-      };
-    }
-  },
-
-  /**
-   * Mock 데이터 필터링 헬퍼
-   */
-  async getMockFiltered(category?: string, query?: string): Promise<OdiiStoryItem[]> {
-    await new Promise((r) => setTimeout(r, 50));
-    let filtered = MOCK_ODII_STORIES;
-
-    if (category && category !== '전체') {
-      const categoryKeyword = CATEGORY_KEYWORD_MAP[category] || category;
-      filtered = filtered.filter((story) => matchesKeyword(story, categoryKeyword));
-    }
-
-    if (query && query.trim().length > 0) {
-      filtered = filtered.filter((story) => matchesKeyword(story, query));
-    }
-
-    return filtered;
+      } catch (error) {
+      console.error('[Odii API Error] API 호출 실패:', error);
+      throw error instanceof Error ? error : new Error('Odii API request failed');
+      }
+    }, (value) => value.items.length > 0);
   },
 
   /**
@@ -208,7 +252,7 @@ export const odiiApiAdapter = {
    */
   async getFirstStoryByKeyword(keyword: string, fallbackStories: OdiiStoryItem[] = []): Promise<OdiiStoryItem | null> {
     const apiStories = await this.getStoryList(undefined, keyword);
-    const pool = [...apiStories, ...fallbackStories, ...MOCK_ODII_STORIES];
+    const pool = [...apiStories, ...fallbackStories];
     const exactMatch = pool.find((story) => isPlayableStory(story) && matchesKeyword(story, keyword));
     if (exactMatch) return exactMatch;
 
@@ -219,7 +263,7 @@ export const odiiApiAdapter = {
     const entries = await Promise.all(
       keywords.map(async (keyword) => {
         const apiStories = await this.getStoryList(undefined, keyword);
-        const pool = [...apiStories, ...fallbackStories, ...MOCK_ODII_STORIES];
+        const pool = [...apiStories, ...fallbackStories];
         const uniqueStories = Array.from(new Map(pool.map((story) => [story.stid, story])).values());
         const playableMatches = uniqueStories.filter((story) => isPlayableStory(story) && matchesKeyword(story, keyword));
         const matchedStories = playableMatches.length > 0
@@ -244,7 +288,7 @@ export const odiiApiAdapter = {
   async getStoryDetail(stid: string): Promise<OdiiStoryItem | null> {
     const list = await this.getStoryList();
     const found = list.find((s) => s.stid === stid);
-    return found || MOCK_ODII_STORIES.find((s) => s.stid === stid) || null;
+    return found || null;
   },
 
   /**
@@ -253,28 +297,32 @@ export const odiiApiAdapter = {
   async getNearbyStories(mapX?: string, mapY?: string, radius = 3000): Promise<OdiiStoryItem[]> {
     if (!mapX || !mapY) return this.getStoryList('한옥');
 
-    try {
-      const params = new URLSearchParams({
-        type: 'nearby',
-        xCoord: mapX,
-        yCoord: mapY,
-        radius: String(radius),
-      });
-      const res = await fetch(`${CLIENT_API_ENDPOINT}?${params.toString()}`, { cache: 'no-store' });
-      if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-      const json = await res.json();
-      const rawItems = json?.response?.body?.items?.item;
-      if (!rawItems) return [];
-      const itemList = (Array.isArray(rawItems) ? rawItems : [rawItems]) as Record<string, unknown>[];
-      return itemList
-        .map((item, index) => mapStoryItem(item, index, '내 주변', { mapX, mapY }))
-        .sort((left, right) => (
-          (calculateDistanceKm(mapX, mapY, left.mapX, left.mapY) ?? Number.POSITIVE_INFINITY)
-          - (calculateDistanceKm(mapX, mapY, right.mapX, right.mapY) ?? Number.POSITIVE_INFINITY)
-        ));
-    } catch (error) {
-      console.error('[Odii Nearby Error] 위치 기반 조회 실패:', error);
-      return this.getStoryList('한옥');
-    }
+    const requestKey = `nearby:${mapX}:${mapY}:${radius}`;
+
+    return getCachedRequest(requestKey, async () => {
+      try {
+        const json = await network.request<OdiiApiResponse>({
+          type: 'nearby',
+          params: { xCoord: mapX, yCoord: mapY, radius: String(radius) },
+        });
+        const rawItems = json?.response?.body?.items?.item;
+        if (!rawItems) return [];
+        const itemList = (Array.isArray(rawItems) ? rawItems : [rawItems]) as Record<string, unknown>[];
+        return itemList
+          .map((item, index) => mapStoryItem(item, index, '내 주변', { mapX, mapY }))
+          .sort((left, right) => (
+            (calculateDistanceKm(mapX, mapY, left.mapX, left.mapY) ?? Number.POSITIVE_INFINITY)
+            - (calculateDistanceKm(mapX, mapY, right.mapX, right.mapY) ?? Number.POSITIVE_INFINITY)
+          ));
+      } catch (error) {
+        console.error('[Odii Nearby Error] 위치 기반 조회 실패:', error);
+        throw error instanceof Error ? error : new Error('Odii nearby request failed');
+      }
+    }, (value) => value.length > 0);
   }
+  };
+
+  return adapter;
 };
+
+export const odiiApiAdapter = createOdiiApiAdapter();

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
 import { odiiApiAdapter } from '../api/odiiApi';
 import { IOdiiApiService } from '../types/odii.types';
 
@@ -25,8 +25,10 @@ export const OdiiDependencyProvider: React.FC<OdiiDependencyProviderProps> = ({
   apiService = odiiApiAdapter,
   children,
 }) => {
+  const contextValue = useMemo(() => ({ apiService }), [apiService]);
+
   return (
-    <OdiiDependencyContext.Provider value={{ apiService }}>
+    <OdiiDependencyContext.Provider value={contextValue}>
       {children}
     </OdiiDependencyContext.Provider>
   );

@@ -12,6 +12,7 @@ interface OdiiEditorialRailProps {
   storySets?: Record<string, OdiiStoryItem[]>;
   apiService?: IOdiiApiService;
   isLoading?: boolean;
+  onApiError?: () => void;
 }
 
 const FALLBACK_IMAGE_SETS = {
@@ -63,9 +64,9 @@ const getFallbackImageSet = (story: OdiiStoryItem) => {
   return FALLBACK_IMAGE_SETS.default;
 };
 
-const fallbackImageFor = (story: OdiiStoryItem, index: number) => {
+const fallbackImageFor = (story: OdiiStoryItem) => {
   const imageSet = getFallbackImageSet(story);
-  const seed = Array.from(story.stid || story.title).reduce((total, char) => total + char.charCodeAt(0), index);
+  const seed = Array.from(story.stid || story.title).reduce((total, char) => total + char.charCodeAt(0), 0);
   return imageSet[seed % imageSet.length];
 };
 
@@ -77,12 +78,95 @@ const isTrustedOdiiImage = (imageUrl: string) => (
 
 const durationFor = (story: OdiiStoryItem) => story.formattedDuration || `${Math.floor((Number(story.playTime) || 0) / 60)}:${String((Number(story.playTime) || 0) % 60).padStart(2, '0')}`;
 
-export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, storySets, apiService, isLoading = false }) => {
+interface EditorialRailCardProps {
+  story: OdiiStoryItem;
+  position: number;
+  offset: number;
+  featuredLength: number;
+  trackTransitionEnabled: boolean;
+  onInteractRef: React.MutableRefObject<(position: number) => void>;
+}
+
+const EditorialRailCard = React.memo<EditorialRailCardProps>(({ story, position, offset, featuredLength, trackTransitionEnabled, onInteractRef }) => {
+  const distance = Math.abs(offset);
+  const isVisible = distance <= 4;
+  const isActive = offset === 0;
+  const initialImageSrc = story.imageUrl || fallbackImageFor(story);
+  const tilt = isActive ? 0 : offset < 0
+    ? (Math.abs(offset) % 2 === 1 ? 1.6 : -1.6)
+    : (offset % 2 === 1 ? -1.6 : 1.6);
+  const lift = isActive ? 0 : offset < 0
+    ? (Math.abs(offset) % 2 === 1 ? -6 : 6)
+    : (offset % 2 === 1 ? 6 : -6);
+
+  return (
+    <motion.button
+      type="button"
+      animate={{
+        opacity: isVisible ? (isActive ? 1 : 0.54) : 0,
+        y: lift,
+        rotate: tilt,
+        scale: isActive ? 1 : distance === 1 ? 0.92 : 0.84,
+      }}
+      transition={{ duration: trackTransitionEnabled && isVisible ? 0.48 : 0, ease: [0.16, 1, 0.3, 1] }}
+      onClick={() => onInteractRef.current(position)}
+      className={`relative h-[250px] w-[135px] shrink-0 select-none overflow-hidden border bg-white text-left outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0 sm:h-[330px] sm:w-[200px] lg:h-[370px] lg:w-[225px] ${isActive ? 'z-20 border-[#f84e76] shadow-[0_22px_48px_rgba(33,30,25,0.18),0_8px_24px_rgba(248,78,118,0.13)]' : 'z-10 border-[#211e19]/12 shadow-[0_18px_35px_rgba(33,30,25,0.16)] grayscale-[0.15] hover:grayscale-0'}`}
+      draggable={false}
+      onMouseDown={(event) => event.preventDefault()}
+      aria-label={`${story.title}${isActive ? ' 현재 선택됨' : ''}`}
+    >
+      <img
+        src={initialImageSrc}
+        alt=""
+        draggable={false}
+        loading={distance <= 3 ? 'eager' : 'lazy'}
+        decoding="async"
+        className="h-full w-full object-cover"
+        onError={(event) => {
+          const image = event.currentTarget;
+          if (image.dataset.fallbackApplied === 'true') {
+            image.onerror = null;
+            image.src = FALLBACK_IMAGE_SETS.default[0];
+            return;
+          }
+          image.dataset.fallbackApplied = 'true';
+          image.src = fallbackImageFor(story);
+        }}
+      />
+      {!story.imageUrl && <span className="pointer-events-none absolute right-3 top-3 z-10 rounded-full bg-black/25 px-2 py-1 text-[9px] font-medium text-white/90 backdrop-blur-sm">참고용 이미지</span>}
+      <div className="absolute inset-0 bg-gradient-to-t from-white/55 via-transparent to-black/5" />
+      <span className="pointer-events-none absolute left-4 top-4 z-10 text-[10px] font-semibold tabular-nums text-white mix-blend-difference drop-shadow-[0_1px_3px_rgba(0,0,0,0.35)]">
+        {String((position % featuredLength) + 1).padStart(2, '0')}
+      </span>
+      <div className={`absolute inset-x-0 bottom-0 px-4 py-4 text-[#211e19] backdrop-blur-[24px] sm:px-5 sm:py-5 ${isActive ? 'bg-[#fff0f5]/[0.68] shadow-[0_-8px_20px_rgba(248,78,118,0.08)]' : 'bg-white/[0.46] shadow-[0_-8px_20px_rgba(255,255,255,0.12)]'}`}>
+        <p className="truncate text-[9px] font-semibold uppercase tracking-[0.12em] text-[#F84E76]">{story.category !== '오디 이야기' ? story.category : story.badgeText || '오디오 가이드'}</p>
+        <h3 className="mt-1 line-clamp-2 font-odii-sans text-base font-semibold leading-tight tracking-[-0.03em] sm:text-lg">{story.title}</h3>
+        <p className="mt-1 line-clamp-1 text-[10px] leading-4 text-[#8c7e6c]">{story.locationName || '대한민국 문화유산'}</p>
+        {isActive && <span className="mt-2 inline-flex items-center gap-2 text-[10px] text-[#f84e76]">{durationFor(story)} <span className="text-[#8c7e6c]">↗</span></span>}
+      </div>
+    </motion.button>
+  );
+}, (previous, next) => {
+  const previousVisible = Math.abs(previous.offset) <= 4;
+  const nextVisible = Math.abs(next.offset) <= 4;
+  if (!previousVisible && !nextVisible) return previous.story === next.story;
+  return previous.story === next.story
+    && previous.offset === next.offset
+    && previous.trackTransitionEnabled === next.trackTransitionEnabled;
+});
+
+const POSITION_CORRECTION_COOLDOWN_MS = 70;
+const TRANSITION_SAFETY_TIMEOUT_MS = 900;
+const RAIL_COPY_COUNT = 3;
+const RAIL_VISIBLE_BUFFER = 4;
+
+export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, storySets, apiService, isLoading = false, onApiError }) => {
   const activeApiService = useOdiiApiService(apiService);
   const setCurrentStory = useOdiiAudioStore((state) => state.setCurrentStory);
   const [selectedKeyword, setSelectedKeyword] = useState(ODII_THEME_CATEGORIES[0].keyword);
   const [isCategoryLoading, setIsCategoryLoading] = useState(false);
   const [categoryStories, setCategoryStories] = useState<OdiiStoryItem[] | null>(null);
+  const categoryCacheMapRef = useRef<Record<string, OdiiStoryItem[]>>({});
   const [cachedImageUrls, setCachedImageUrls] = useState<Record<string, string>>(() => {
     if (typeof window === 'undefined') return {};
     try {
@@ -94,11 +178,53 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
     }
   });
   const categoryRequestRef = useRef(0);
-  const [activePosition, setActivePosition] = useState(60);
+  const [activePosition, setActivePosition] = useState(0);
   const [trackTransitionEnabled, setTrackTransitionEnabled] = useState(true);
   const [autoResetToken, setAutoResetToken] = useState(0);
   const resetTimerRef = useRef<number | null>(null);
+  const inputLockedRef = useRef(false);
+  const unlockTimerRef = useRef<number | null>(null);
+  const cardInteractionRef = useRef<(position: number) => void>(() => undefined);
   const [trackMetrics, setTrackMetrics] = useState({ cardWidth: 225, cardStep: 245 });
+
+  // 1. 모든 테마 카테고리의 이야기 데이터 및 이미지 사전(Eager) Pre-reload
+  useEffect(() => {
+    let isMounted = true;
+
+    // 복구 이미지 셋 전체 사전 프리로드
+    Object.values(FALLBACK_IMAGE_SETS).flat().forEach((url) => {
+      const img = new window.Image();
+      img.decoding = 'async';
+      img.src = url;
+    });
+
+    // 전체 카테고리 이야기 사전 로드 및 이미지 캐시 워밍
+    ODII_THEME_CATEGORIES.forEach((categoryItem) => {
+      activeApiService.getStoryList(undefined, categoryItem.keyword)
+        .then((fetchedStories) => {
+          if (!isMounted) return;
+          const filtered = fetchedStories.filter((s) => s.audioUrl);
+          categoryCacheMapRef.current[categoryItem.keyword] = filtered;
+
+          filtered.forEach((story) => {
+            const src = story.imageUrl || fallbackImageFor(story);
+            if (src) {
+              const img = new window.Image();
+              img.decoding = 'async';
+              img.src = src;
+            }
+          });
+        })
+        .catch(() => {
+          // ignore
+        });
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [activeApiService]);
+
   const featured = useMemo(() => {
     const category = ODII_THEME_CATEGORIES.find((item) => item.keyword === selectedKeyword) ?? ODII_THEME_CATEGORIES[0];
     const localCategoryStories = storySets?.[category.label] ?? stories.filter((story) => {
@@ -106,16 +232,37 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
       return searchable.includes(category.keyword.toLowerCase());
     });
     const recommendationStories = storySets?.['추천'];
-    const source = categoryStories?.length ? categoryStories : localCategoryStories.length ? localCategoryStories : (recommendationStories?.length ? recommendationStories : stories);
-    return source.slice(0, 10).map((story) => (
+    const cachedCategory = categoryCacheMapRef.current[selectedKeyword];
+
+    const source = categoryStories !== null
+      ? categoryStories
+      : (cachedCategory && cachedCategory.length)
+        ? cachedCategory
+        : localCategoryStories.length
+          ? localCategoryStories
+          : (recommendationStories?.length ? recommendationStories : stories);
+
+    return source.filter((story) => Boolean(story.audioUrl)).slice(0, 10).map((story) => (
       !story.imageUrl && cachedImageUrls[story.stid]
         ? { ...story, imageUrl: cachedImageUrls[story.stid] }
         : story
     ));
   }, [cachedImageUrls, categoryStories, selectedKeyword, stories, storySets]);
+
+  const VIRTUAL_BUFFER = 4;
   const activeIndex = featured.length ? ((activePosition % featured.length) + featured.length) % featured.length : 0;
   const activeStory = featured[activeIndex] ?? featured[0];
-  const trackStories = useMemo(() => Array.from({ length: 120 }, (_, index) => ({ story: featured[index % Math.max(featured.length, 1)], position: index })), [featured]);
+
+  // React-Window 스타일 가상화(Virtualization): 현재 화면 중심(activePosition) 기준 ±4개 카드만 DOM에 유지
+  const visibleVirtualPositions = useMemo(() => {
+    const list: { pos: number; story: OdiiStoryItem }[] = [];
+    if (!featured.length) return list;
+    for (let pos = activePosition - VIRTUAL_BUFFER; pos <= activePosition + VIRTUAL_BUFFER; pos++) {
+      const index = ((pos % featured.length) + featured.length) % featured.length;
+      list.push({ pos, story: featured[index] });
+    }
+    return list;
+  }, [activePosition, featured]);
 
   useEffect(() => {
     const updateTrackMetrics = () => {
@@ -134,7 +281,7 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
 
   useEffect(() => {
     const resetId = window.setTimeout(() => {
-      setActivePosition(60);
+      setActivePosition(0);
       setTrackTransitionEnabled(true);
     }, 0);
     return () => window.clearTimeout(resetId);
@@ -145,15 +292,17 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
     let isMounted = true;
     const requestId = categoryRequestRef.current + 1;
     categoryRequestRef.current = requestId;
-    const loadingId = window.setTimeout(() => setIsCategoryLoading(true), 0);
 
     activeApiService.getStoryList(undefined, selectedKeyword)
       .then((nextStories) => {
         if (!isMounted || requestId !== categoryRequestRef.current) return;
-        setCategoryStories(nextStories.filter((story) => story.audioUrl));
+        const validStories = nextStories.filter((story) => story.audioUrl);
+        categoryCacheMapRef.current[selectedKeyword] = validStories;
+        setCategoryStories(validStories);
       })
       .catch(() => {
         if (!isMounted || requestId !== categoryRequestRef.current) return;
+        onApiError?.();
         setCategoryStories([]);
       })
       .finally(() => {
@@ -164,9 +313,8 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
 
     return () => {
       isMounted = false;
-      window.clearTimeout(loadingId);
     };
-  }, [activeApiService, categoryStories, selectedKeyword]);
+  }, [activeApiService, categoryStories, onApiError, selectedKeyword]);
 
   useEffect(() => {
     const newlyCached = [...stories, ...(categoryStories || [])].reduce<Record<string, string>>((result, story) => {
@@ -189,11 +337,34 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
     return () => window.clearTimeout(cacheId);
   }, [categoryStories, stories]);
 
+  useEffect(() => {
+    const imageSources = new Set(
+      featured.map((story) => story.imageUrl || fallbackImageFor(story)),
+    );
+    imageSources.forEach((source) => {
+      const image = new window.Image();
+      image.decoding = 'async';
+      image.src = source;
+    });
+  }, [featured]);
+
+  const lockInputForTransition = useCallback(() => {
+    inputLockedRef.current = true;
+    if (unlockTimerRef.current !== null) {
+      window.clearTimeout(unlockTimerRef.current);
+    }
+    unlockTimerRef.current = window.setTimeout(() => {
+      inputLockedRef.current = false;
+      unlockTimerRef.current = null;
+    }, TRANSITION_SAFETY_TIMEOUT_MS);
+  }, []);
+
   const moveBy = useCallback((delta: number, resetAuto = true) => {
-    if (!delta) return;
+    if (!delta || featured.length < 2 || inputLockedRef.current) return;
+    if (resetAuto) lockInputForTransition();
     if (resetAuto) setAutoResetToken((token) => token + 1);
     setActivePosition((position) => position + delta);
-  }, []);
+  }, [featured.length, lockInputForTransition]);
 
   const moveTo = useCallback((index: number) => {
     let delta = index - activeIndex;
@@ -210,54 +381,78 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
 
   useEffect(() => () => {
     if (resetTimerRef.current !== null) window.clearTimeout(resetTimerRef.current);
+    if (unlockTimerRef.current !== null) window.clearTimeout(unlockTimerRef.current);
   }, []);
 
   const handleTrackTransitionEnd = useCallback((event: React.TransitionEvent<HTMLDivElement>) => {
-    if (event.target !== event.currentTarget || event.propertyName !== 'transform' || featured.length < 2) return;
-    if (activePosition <= 90 && activePosition >= 30) return;
-
-    setTrackTransitionEnabled(false);
-    setActivePosition((position) => position > 90 ? position - featured.length : position + featured.length);
-    window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => setTrackTransitionEnabled(true));
-    });
-  }, [activePosition, featured.length]);
+    if (event.target !== event.currentTarget || event.propertyName !== 'transform') return;
+    if (unlockTimerRef.current !== null) {
+      window.clearTimeout(unlockTimerRef.current);
+      unlockTimerRef.current = null;
+    }
+    inputLockedRef.current = false;
+  }, []);
 
   const handleCategoryChange = (keyword: string) => {
-    if (keyword === selectedKeyword) return;
+    if (keyword === selectedKeyword || inputLockedRef.current) return;
     if (resetTimerRef.current !== null) window.clearTimeout(resetTimerRef.current);
-    setIsCategoryLoading(true);
-    setTrackTransitionEnabled(false);
-    setActivePosition(60);
+
     setSelectedKeyword(keyword);
+
+    // 0ms 캐시 즉시 적용 (가상화 윈도잉 0ms 렌더링)
+    const cached = categoryCacheMapRef.current[keyword];
+    if (cached && cached.length) {
+      setCategoryStories(cached);
+      setTrackTransitionEnabled(false);
+      setActivePosition(0);
+      window.requestAnimationFrame(() => {
+        setTrackTransitionEnabled(true);
+      });
+      return;
+    }
+
+    // 캐시 미스 시 배경에서 조용히 로드
     const requestId = categoryRequestRef.current + 1;
     categoryRequestRef.current = requestId;
     activeApiService.getStoryList(undefined, keyword)
       .then((nextStories) => {
         if (requestId !== categoryRequestRef.current) return;
-        setCategoryStories(nextStories.filter((story) => story.audioUrl));
+        const validStories = nextStories.filter((story) => story.audioUrl);
+        categoryCacheMapRef.current[keyword] = validStories;
+        setCategoryStories(validStories);
+        setTrackTransitionEnabled(false);
+        setActivePosition(0);
+        window.requestAnimationFrame(() => {
+          setTrackTransitionEnabled(true);
+        });
       })
       .catch(() => {
         if (requestId !== categoryRequestRef.current) return;
-        setCategoryStories([]);
-      })
-      .finally(() => {
-        if (requestId !== categoryRequestRef.current) return;
-        resetTimerRef.current = window.setTimeout(() => {
-          setIsCategoryLoading(false);
-          setTrackTransitionEnabled(true);
-        }, 260);
+        onApiError?.();
       });
   };
 
-  const showSkeleton = isLoading || isCategoryLoading;
+  cardInteractionRef.current = (position) => {
+    const offset = position - activePosition;
+    const story = visibleVirtualPositions.find((item) => item.pos === position)?.story;
+    moveBy(offset);
+    if (offset === 0 && story) setCurrentStory(story);
+  };
 
-  if (!activeStory) return null;
+  const showSkeleton = !activeStory && (isLoading || isCategoryLoading);
+
+  if (!activeStory && !showSkeleton) {
+    return (
+      <section aria-label="오디 셀렉션" className="relative left-1/2 flex min-h-[355px] w-screen -translate-x-1/2 items-center justify-center py-3 sm:min-h-[430px] sm:py-5 lg:min-h-[465px]">
+        <p className="text-sm text-[#8c7e6c]">이 주제의 오디오 이야기를 찾지 못했습니다.</p>
+      </section>
+    );
+  }
 
   return (
-    <section aria-label="오디 셀렉션" aria-busy={showSkeleton} className="relative left-1/2 w-screen -translate-x-1/2 py-3 sm:py-5">
+    <section aria-label="오디 셀렉션" aria-busy={showSkeleton} style={{ contain: 'layout paint' }} className="relative left-1/2 w-screen -translate-x-1/2 py-3 sm:py-5">
       <div className="w-full px-0">
-        <div className="relative px-1 pb-2 pt-1 sm:px-3 sm:pt-2">
+        <div className="relative pb-2 pt-1 sm:pt-2">
           <div className="mx-auto mb-3 w-full max-w-6xl px-4 sm:px-8">
             <nav aria-label="장면 카테고리" className="overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               <div className="flex min-w-max items-center gap-4">
@@ -278,9 +473,37 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
               </div>
             </nav>
           </div>
-          <div className="relative mt-0 h-[355px] overflow-hidden sm:h-[430px] lg:h-[465px]">
+          <div className="relative mt-0 h-[325px] overflow-hidden pt-2 pb-4 sm:h-[410px] lg:h-[455px]">
+            {/* Leading (좌측) 풀나비게이션 히트영역 & 리니어 그라데이션 버튼 */}
+            <button
+              type="button"
+              onClick={() => moveBy(-1)}
+              onDragStart={(event) => event.preventDefault()}
+              draggable={false}
+              aria-label="이전 이야기"
+              className="group absolute left-0 top-0 bottom-0 z-30 flex w-10 sm:w-16 lg:w-20 cursor-pointer items-center justify-start pl-1 sm:pl-2 bg-gradient-to-r from-white via-white/50 to-transparent transition-opacity duration-200 hover:from-white hover:via-white/75 active:opacity-80"
+            >
+              <span className="flex h-10 w-8 items-center justify-center rounded-lg text-[#786d5e] transition-transform duration-300 group-hover:scale-110 group-hover:text-[#211e19]">
+                <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+              </span>
+            </button>
+
+            {/* Trailing (우측) 풀나비게이션 히트영역 & 리니어 그라데이션 버튼 */}
+            <button
+              type="button"
+              onClick={() => moveBy(1)}
+              onDragStart={(event) => event.preventDefault()}
+              draggable={false}
+              aria-label="다음 이야기"
+              className="group absolute right-0 top-0 bottom-0 z-30 flex w-10 sm:w-16 lg:w-20 cursor-pointer items-center justify-end pr-1 sm:pr-2 bg-gradient-to-l from-white via-white/50 to-transparent transition-opacity duration-200 hover:from-white hover:via-white/75 active:opacity-80"
+            >
+              <span className="flex h-10 w-8 items-center justify-center rounded-lg text-[#786d5e] transition-transform duration-300 group-hover:scale-110 group-hover:text-[#211e19]">
+                <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              </span>
+            </button>
+
             {showSkeleton && (
-              <div className="absolute inset-x-0 top-3 flex items-start justify-center gap-4 px-4 sm:gap-5 lg:gap-5">
+              <div className="absolute inset-x-0 top-7 flex items-start justify-center gap-4 px-4 sm:gap-5 lg:gap-5">
                 {[0, 1, 2, 3, 4, 5, 6].map((index) => (
                   <div
                     key={index}
@@ -297,86 +520,47 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
               </div>
             )}
             {!showSkeleton && <div
-              className="absolute left-1/2 top-3 flex items-start gap-4 sm:gap-5 lg:gap-5"
+              className="absolute left-1/2 top-7 flex items-start"
               style={{
-                transform: `translate3d(${-(trackMetrics.cardStep * activePosition + trackMetrics.cardWidth / 2)}px, 0, 0)`,
+                transform: `translate3d(${-trackMetrics.cardStep * activePosition}px, 0, 0)`,
                 transition: trackTransitionEnabled ? 'transform 480ms cubic-bezier(0.16, 1, 0.3, 1)' : 'none',
+                willChange: 'transform',
               }}
               onTransitionEnd={handleTrackTransitionEnd}
             >
-              {trackStories.map(({ story, position }) => {
-                const offset = position - activePosition;
-                const distance = Math.abs(offset);
-                const isActive = offset === 0;
-                const tilt = isActive ? 0 : offset < 0
-                  ? (Math.abs(offset) % 2 === 1 ? 1.6 : -1.6)
-                  : (offset % 2 === 1 ? -1.6 : 1.6);
-                const lift = isActive ? 0 : offset < 0
-                  ? (Math.abs(offset) % 2 === 1 ? -6 : 6)
-                  : (offset % 2 === 1 ? 6 : -6);
-                return (
-                  <motion.button
-                    key={position}
-                    type="button"
-                    animate={{
-                      opacity: distance <= 4 ? (isActive ? 1 : 0.54) : 0,
-                      y: lift,
-                      rotate: tilt,
-                      scale: isActive ? 1 : distance === 1 ? 0.92 : 0.84,
-                    }}
-                    transition={{ duration: 0.48, ease: [0.16, 1, 0.3, 1] }}
-                    onClick={() => {
-                      moveBy(offset);
-                      if (isActive) setCurrentStory(story);
-                    }}
-                    className={`relative h-[250px] w-[135px] shrink-0 overflow-hidden border bg-white text-left sm:h-[330px] sm:w-[200px] lg:h-[370px] lg:w-[225px] ${isActive ? 'z-20 border-[#f84e76] shadow-[0_22px_48px_rgba(33,30,25,0.18),0_8px_24px_rgba(248,78,118,0.13)]' : 'z-10 border-[#211e19]/12 shadow-[0_18px_35px_rgba(33,30,25,0.16)] grayscale-[0.15] hover:grayscale-0'}`}
-                    aria-label={`${story.title}${isActive ? ' 현재 선택됨' : ''}`}
-                  >
-                    <img
-                      src={story.imageUrl || fallbackImageFor(story, position)}
-                      alt=""
-                      loading={distance <= 3 ? 'eager' : 'lazy'}
-                      decoding="async"
-                      className="h-full w-full object-cover"
-                      onError={(event) => {
-                        const image = event.currentTarget;
-                        if (image.dataset.fallbackApplied === 'true') {
-                          image.onerror = null;
-                          image.src = FALLBACK_IMAGE_SETS.default[0];
-                          return;
-                        }
-                        image.dataset.fallbackApplied = 'true';
-                        image.src = fallbackImageFor(story, position);
-                      }}
-                    />
-                    {!story.imageUrl && <span className="pointer-events-none absolute right-3 top-3 z-10 rounded-full bg-black/25 px-2 py-1 text-[9px] font-medium text-white/90 backdrop-blur-sm">참고용 이미지</span>}
-                    <div className="absolute inset-0 bg-gradient-to-t from-white/55 via-transparent to-black/5" />
-                    <span className="pointer-events-none absolute left-4 top-4 z-10 text-[10px] font-semibold tabular-nums text-white mix-blend-difference drop-shadow-[0_1px_3px_rgba(0,0,0,0.35)]">
-                      {String((position % featured.length) + 1).padStart(2, '0')}
-                    </span>
-                    <div className={`absolute inset-x-0 bottom-0 px-4 py-4 text-[#211e19] backdrop-blur-[24px] sm:px-5 sm:py-5 ${isActive ? 'bg-[#fff0f5]/[0.68] shadow-[0_-8px_20px_rgba(248,78,118,0.08)]' : 'bg-white/[0.46] shadow-[0_-8px_20px_rgba(255,255,255,0.12)]'}`}>
-                      <p className="truncate text-[9px] font-semibold uppercase tracking-[0.12em] text-[#F84E76]">{story.category !== '오디 이야기' ? story.category : story.badgeText || '오디오 가이드'}</p>
-                      <h3 className="mt-1 line-clamp-2 font-odii-sans text-base font-semibold leading-tight tracking-[-0.03em] sm:text-lg">{story.title}</h3>
-                      <p className="mt-1 line-clamp-1 text-[10px] leading-4 text-[#8c7e6c]">{story.locationName || '대한민국 문화유산'}</p>
-                      {isActive && <span className="mt-2 inline-flex items-center gap-2 text-[10px] text-[#f84e76]">{durationFor(story)} <span className="text-[#8c7e6c]">↗</span></span>}
-                    </div>
-                  </motion.button>
-                );
-              })}
+              {visibleVirtualPositions.map(({ pos, story }) => (
+                <div
+                  key={pos}
+                  style={{
+                    position: 'absolute',
+                    left: `${pos * trackMetrics.cardStep - trackMetrics.cardWidth / 2}px`,
+                    top: 0,
+                  }}
+                >
+                  <EditorialRailCard
+                    story={story}
+                    position={pos}
+                    offset={pos - activePosition}
+                    featuredLength={featured.length}
+                    trackTransitionEnabled={trackTransitionEnabled}
+                    onInteractRef={cardInteractionRef}
+                  />
+                </div>
+              ))}
             </div>}
           </div>
 
-          <div className="relative z-30 flex items-center justify-center gap-5">
-            <button type="button" onClick={() => moveBy(-1)} onDragStart={(event) => event.preventDefault()} draggable={false} className="select-none text-sm text-[#786d5e] transition-colors hover:text-[#211e19]" aria-label="이전 이야기">←</button>
+          {/* 하단 인디케이터 바 */}
+          <div className="relative z-30 flex items-center justify-center pt-1.5 sm:pt-2">
             <div className="flex items-center gap-1.5">
               {featured.map((story, index) => (
                 <button key={story.stid} type="button" onClick={() => moveTo(index)} className={`h-1 rounded-full transition-all duration-300 ${index === activeIndex ? 'w-8 bg-[#f84e76]' : 'w-1.5 bg-[#211e19]/20 hover:bg-[#211e19]/50'}`} aria-label={`${index + 1}번째 이야기 선택`} />
               ))}
             </div>
-            <button type="button" onClick={() => moveBy(1)} onDragStart={(event) => event.preventDefault()} draggable={false} className="select-none text-sm text-[#786d5e] transition-colors hover:text-[#211e19]" aria-label="다음 이야기">→</button>
           </div>
         </div>
       </div>
     </section>
   );
-};
+});
+
