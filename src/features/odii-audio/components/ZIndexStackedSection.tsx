@@ -1,92 +1,163 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
-import { OdiiStoryItem } from '../types/odii.types';
+import { OdiiChapterPresentation } from '../types/odiiChapter.types';
 
-const CHAPTERS = [
-  { eyebrow: '바람이 머무는 곳', title: '처마 아래, 바람은 잠시 쉬어 갑니다.', description: '마루를 지나온 공기와 풍경 소리가 한옥의 하루를 엽니다.', image: '/images/hanok/hanok-main.png', color: '#d8e2d3', ink: '#20312a' },
-  { eyebrow: '사람의 온기가 흐르는 곳', title: '말 한마디와 익숙한 소리가 시장을 채웁니다.', description: '골목의 발걸음과 가게의 인사, 한 끼를 나누는 사람들의 이야기.', image: '/images/hanok/hanok-interior.png', color: '#f1d5a8', ink: '#3e2c1a' },
-  { eyebrow: '시간이 겹쳐진 곳', title: '오래된 길에는 아직 들리지 않은 이야기가 있습니다.', description: '기와 위의 빗소리와 담장 사이의 발걸음이 시간을 지금으로 데려옵니다.', image: '/images/hanok/hanok-exterior.png', color: '#c9bfd9', ink: '#30233c' },
-];
+interface ZIndexStackedSectionProps {
+  chapters: OdiiChapterPresentation[];
+}
 
-interface ZIndexStackedSectionProps { stories: OdiiStoryItem[]; }
+export const ZIndexStackedSection: React.FC<ZIndexStackedSectionProps> = ({ chapters }) => {
+  const [activeChapterId, setActiveChapterId] = useState(chapters[0]?.id || 'hanok');
+  const shouldReduceMotion = useReducedMotion();
 
-export const ZIndexStackedSection: React.FC<ZIndexStackedSectionProps> = ({ stories }) => {
-  const [selected, setSelected] = useState(0);
-  const wheelLocked = useRef(false);
-  const wheelDelta = useRef(0);
-  const isStackHovered = useRef(false);
-  const currentStory = useOdiiAudioStore((s) => s.currentStory);
-  const isPlaying = useOdiiAudioStore((s) => s.isPlaying);
-  const setCurrentStory = useOdiiAudioStore((s) => s.setCurrentStory);
-  const setIsPlaying = useOdiiAudioStore((s) => s.setIsPlaying);
+  const currentStory = useOdiiAudioStore((state) => state.currentStory);
+  const isPlaying = useOdiiAudioStore((state) => state.isPlaying);
+  const setCurrentStory = useOdiiAudioStore((state) => state.setCurrentStory);
+  const setIsPlaying = useOdiiAudioStore((state) => state.setIsPlaying);
 
-  const changeChapter = (direction: number) => setSelected((current) => (current + direction + CHAPTERS.length) % CHAPTERS.length);
-  useEffect(() => {
-    const handleWheel = (event: WheelEvent) => {
-      if (!isStackHovered.current) return;
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-      if (wheelLocked.current) return;
-      wheelDelta.current += event.deltaY;
-      if (Math.abs(wheelDelta.current) < 18) return;
-      wheelLocked.current = true;
-      changeChapter(wheelDelta.current > 0 ? 1 : -1);
-      wheelDelta.current = 0;
-      window.setTimeout(() => { wheelLocked.current = false; }, 650);
-    };
-    window.addEventListener('wheel', handleWheel, { passive: false, capture: true });
-    return () => window.removeEventListener('wheel', handleWheel, { capture: true });
-  }, []);
-  const play = (story?: OdiiStoryItem) => {
-    if (!story) return;
-    if (currentStory.stid === story.stid) setIsPlaying(!isPlaying);
-    else setCurrentStory(story);
+  const activeChapter = chapters.find((chap) => chap.id === activeChapterId) || chapters[0];
+
+  if (!activeChapter) return null;
+
+  const handlePlayStory = (story: any) => {
+    if (currentStory.stid === story.stid) {
+      setIsPlaying(!isPlaying);
+    } else {
+      setCurrentStory(story);
+    }
   };
 
+  const heroImage = activeChapter.heroImageUrl || 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=1600&q=85';
+
   return (
-    <section className="bg-[#f7f4ee] px-4 py-20 sm:px-8 sm:py-28">
-      <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-12 lg:items-center">
-        <div className="lg:col-span-4">
-          <h2 className="font-maruburi text-4xl font-semibold leading-[1.12] tracking-[-0.05em] sm:text-5xl">공간이 품은 소리를, 이야기로 만나보세요.</h2>
-          <p className="mt-6 max-w-sm text-sm leading-6 text-[#655b4d]">카드 위에서 휠을 움직이면 세 장면이 끝없이 겹쳐지며 전환됩니다.</p>
-          <div className="mt-8 flex gap-2">
-            {CHAPTERS.map((chapter, index) => <button key={chapter.eyebrow} type="button" onClick={() => setSelected(index)} aria-label={chapter.eyebrow} className={`h-2.5 rounded-full transition-all ${index === selected ? 'w-9 bg-[#a94d35]' : 'w-2.5 bg-[#c9bdad]'}`} />)}
+    <section aria-label="장면별 이야길 깊이 들여다보기" className="relative w-full py-8 sm:py-12">
+      <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
+        {/* 인위적 요약 뱃지 전면 제거 — 순수 타이포그래피 헤더 */}
+        <div className="flex flex-col gap-1 pb-5 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-2xl font-bold leading-tight tracking-[-0.04em] text-transparent sm:text-3xl">
+              소리와 장면으로 만나는 한국의 온기
+            </h2>
           </div>
+          <p className="text-xs text-[#786d5e]">
+            각 챕터를 선택해 깊은 이야기 속으로 들어가보세요.
+          </p>
         </div>
 
-        <div
-          onMouseEnter={() => { isStackHovered.current = true; }}
-          onMouseLeave={() => { isStackHovered.current = false; }}
-          className="relative h-[322px] w-[70%] justify-self-center cursor-ns-resize overscroll-contain lg:col-span-8 sm:h-[413px]"
-        >
-          {CHAPTERS.map((chapter, index) => {
-            const depth = (index - selected + CHAPTERS.length) % CHAPTERS.length;
-            const story = stories[index];
-            const isFront = depth === 0;
+        {/* 챕터 가로 칩 */}
+        <div className="mb-4 flex items-center space-x-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {chapters.map((chap) => {
+            const isActive = chap.id === activeChapter.id;
             return (
-              <article
-                key={chapter.eyebrow}
-                onClick={() => setSelected(index)}
-                className="absolute inset-x-0 top-0 h-full overflow-hidden rounded-[2rem] shadow-[0_28px_70px_rgba(64,46,30,0.18)] transition-all duration-700 ease-[cubic-bezier(.22,1,.36,1)] sm:rounded-[2.75rem]"
-                style={{ backgroundColor: chapter.color, color: chapter.ink, zIndex: CHAPTERS.length - depth, transform: `translateY(${depth * 32}px) scale(${1 - depth * 0.055})`, opacity: depth === 2 ? 0.72 : 1 }}
+              <button
+                key={chap.id}
+                type="button"
+                onClick={() => setActiveChapterId(chap.id)}
+                className={`flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-xs font-semibold transition-all duration-300 ${
+                  isActive
+                    ? 'bg-[#211e19] text-white shadow-sm font-bold'
+                    : 'bg-[#f7f4ee] text-[#655b4d] hover:bg-[#ede5d8] hover:text-[#211e19]'
+                }`}
               >
-                <img src={chapter.image} alt="" className="absolute inset-0 h-full w-full object-cover mix-blend-multiply opacity-65" />
-                <div className="absolute inset-0 bg-gradient-to-r from-white/80 via-white/25 to-transparent" />
-                <div className="relative flex h-full max-w-[78%] flex-col justify-end p-5 sm:max-w-[66%] sm:p-8">
-                  <p className="text-[10px] font-bold tracking-[0.14em] opacity-65 sm:text-[11px]">0{index + 1} / {chapter.eyebrow}</p>
-                  <h3 className="mt-2 font-maruburi text-2xl font-semibold leading-[1.12] tracking-[-0.045em] sm:text-4xl">{chapter.title}</h3>
-                  <p className="mt-3 max-w-sm text-xs leading-5 opacity-75 sm:text-sm sm:leading-6">{chapter.description}</p>
-                  {isFront && story && <button type="button" onClick={(event) => { event.stopPropagation(); play(story); }} className="mt-5 inline-flex w-fit items-center gap-2 rounded-full bg-[#211e19] px-3 py-2.5 text-xs font-semibold text-white sm:px-4 sm:text-sm"><span>{currentStory.stid === story.stid && isPlaying ? 'Ⅱ' : '▶'}</span>{story.title} 듣기</button>}
-                </div>
-                <span className="absolute bottom-[-5rem] right-5 font-maruburi text-[14rem] leading-none tracking-[-0.14em] opacity-10 sm:right-12 sm:text-[20rem]">0{index + 1}</span>
-              </article>
+                <span>{chap.title}</span>
+              </button>
             );
           })}
+        </div>
+
+        {/* 정갈하고 절제된 에디토리얼 카드 (이미지 과다 제거, 텍스트 집중) */}
+        <div className="relative min-h-[360px] w-full overflow-hidden rounded-3xl border border-[#211e19]/10 bg-[#fbf8f2] shadow-[0_8px_24px_rgba(33,30,25,0.04)]">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeChapter.id}
+              initial={shouldReduceMotion ? undefined : { opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={shouldReduceMotion ? undefined : { opacity: 0, y: -10 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              className="grid grid-cols-1 items-stretch md:grid-cols-[1fr_320px] lg:grid-cols-[1fr_360px]"
+            >
+              {/* 좌측 텍스트 내러티브 & 트랙 */}
+              <div className="flex flex-col justify-between p-6 sm:p-8">
+                <div>
+                  <h3 className="font-odii-sans text-2xl font-bold tracking-tight text-[#211e19] sm:text-3xl">
+                    {activeChapter.title}
+                  </h3>
+                  <p className="mt-1.5 text-xs font-semibold text-[#a94d35]">
+                    {activeChapter.subTitle}
+                  </p>
+                  <p className="mt-3 text-xs leading-relaxed text-[#655b4d] sm:text-sm sm:leading-relaxed">
+                    “{activeChapter.narrative}”
+                  </p>
+                </div>
+
+                {/* 하단 대표 트랙 2개 */}
+                <div className="mt-6 border-t border-[#211e19]/10 pt-4">
+                  <div className="grid gap-2.5 sm:grid-cols-2">
+                    {activeChapter.stories.slice(0, 2).map((story) => {
+                      const isCurrent = currentStory.stid === story.stid;
+                      const isThisPlaying = isCurrent && isPlaying;
+                      return (
+                        <div
+                          key={story.stid}
+                          onClick={() => handlePlayStory(story)}
+                          className={`group flex cursor-pointer items-center justify-between rounded-xl border p-3 transition-colors ${
+                            isCurrent
+                              ? 'border-[#a94d35] bg-[#f4ebe1] shadow-xs'
+                              : 'border-[#211e19]/10 bg-white hover:border-[#a94d35]/50'
+                          }`}
+                        >
+                          <div className="min-w-0 pr-2">
+                            <span className="text-[9px] font-bold text-[#a94d35]">
+                              {story.locationName || '소리 공간'}
+                            </span>
+                            <h4 className="mt-0.5 truncate font-odii-sans text-xs font-bold text-[#211e19]">
+                              {story.title}
+                            </h4>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handlePlayStory(story);
+                            }}
+                            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors ${
+                              isThisPlaying
+                                ? 'bg-[#a94d35] text-white shadow-xs'
+                                : 'bg-[#211e19] text-white hover:bg-[#a94d35]'
+                            }`}
+                          >
+                            {isThisPlaying ? (
+                              <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                            ) : (
+                              <svg className="ml-0.5 h-3.5 w-3.5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            )}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* 우측 절제된 단일 액자 비주얼 */}
+              <div className="relative min-h-[220px] overflow-hidden rounded-b-3xl md:rounded-r-3xl md:rounded-bl-none">
+                <img
+                  src={heroImage}
+                  alt={activeChapter.title}
+                  className="h-full w-full object-cover object-center"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+              </div>
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
     </section>
   );
 };
+
+

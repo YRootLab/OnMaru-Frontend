@@ -50,25 +50,226 @@ export const LocalMiniPlayer: React.FC = () => {
   const transcriptProgress = lines.length ? ((activeIndex + 1) / lines.length) * 100 : 0;
   const closePlayer = () => { setIsTranscriptOpen(false); setIsExpanded(false); };
 
-  if (!isVisible) return null;
+  return (
+    <>
+      {/* 하단 플로팅 미니 플레이어 */}
+      <AnimatePresence>
+        {isVisible && (
+          <motion.div
+            key="mini-player-floating-bar"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 16 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom))] left-4 right-4 z-50 mx-auto w-auto max-w-xl overflow-hidden rounded-[1.35rem] border border-[#d2c3b1]/80 bg-[#fbf8f2]/95 px-3.5 pt-2.5 pb-3.5 shadow-[0_18px_44px_rgba(61,45,29,0.2)] backdrop-blur-xl sm:px-4 sm:pt-3 sm:pb-4"
+          >
+      <div className="flex items-center gap-3">
+        <button type="button" onClick={() => setIsExpanded(true)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
+          <img src={story.imageUrl} alt="" className="h-10 w-10 shrink-0 rounded-xl object-cover shadow-sm"/>
+          <span className="min-w-0">
+            <span className="block truncate font-odii-sans text-sm font-semibold text-[#211e19]">
+              {story.title}
+            </span>
+            <span className="block text-[11px] text-[#786d5e]">
+              <span className="text-[#a94d35] font-semibold">{story.category}</span>
+              <span className="ml-2">{formatTime(currentTime)} / {formatTime(duration)}</span>
+            </span>
+          </span>
+        </button>
 
-  return <>
-    <motion.div layout initial={{ opacity: 0, y: 20, x: '-50%' }} animate={{ opacity: 1, y: 0, x: '-50%' }} className="fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom))] left-1/2 z-50 w-[calc(100%-2rem)] max-w-xl overflow-hidden rounded-2xl border border-[#d2c3b1] bg-[#fbf8f2]/95 shadow-[0_18px_44px_rgba(61,45,29,0.2)] backdrop-blur-xl">
-      <div className="h-1 bg-[#e4d9cc]"><div className="h-full bg-[#a94d35] transition-[width] duration-300" style={{ width: `${audioProgress}%` }} /></div>
-      <div className="flex items-center gap-3 px-3 py-2.5 sm:px-4"><button type="button" onClick={() => setIsExpanded(true)} className="flex min-w-0 flex-1 items-center gap-3 text-left"><motion.img layoutId="odii-player-art" src={story.imageUrl} alt="" className="h-10 w-10 rounded-xl object-cover"/><span className="min-w-0"><span className="block truncate font-maruburi text-sm font-semibold text-[#211e19]">{story.title}</span><span className="block text-[11px] text-[#786d5e]">{formatTime(currentTime)} / {formatTime(duration)}</span></span></button><button type="button" onClick={() => setIsPlaying(!isPlaying)} className="flex h-10 w-10 items-center justify-center rounded-full bg-[#a94d35] text-white"><PlayIcon /></button><button type="button" onClick={() => setIsExpanded(true)} className="hidden items-center gap-1 rounded-full px-2 py-2 text-[11px] font-semibold text-[#786d5e] hover:bg-[#eee6da] sm:flex">자세히<svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-none stroke-current stroke-2"><path d="m7 10 5 5 5-5" /></svg></button></div>
+        <button type="button" onClick={() => setIsPlaying(!isPlaying)} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#a94d35] text-white shadow-sm hover:bg-[#8f3e29] transition-transform hover:scale-105">
+          <PlayIcon />
+        </button>
+        <button type="button" onClick={() => setIsExpanded(true)} className="hidden items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold text-[#655b4d] hover:bg-[#eee6da] sm:flex">
+          대본 보기
+        </button>
+      </div>
+
+      {/* 🎵 미니 플레이어 최하단 바닥면에 착 붙는 슬림(h-[2.5px]) 둥근 프로그레스 바 */}
+      <div className="absolute bottom-1.5 left-4 right-4 sm:left-5 sm:right-5">
+        <div className="h-[2.5px] w-full overflow-hidden rounded-full bg-[#211e19]/10">
+          <div
+            className="h-full rounded-full bg-[#a94d35] transition-[width] duration-300"
+            style={{ width: `${audioProgress}%` }}
+          />
+        </div>
+      </div>
     </motion.div>
+  )}
+</AnimatePresence>
 
-    <AnimatePresence>{isExpanded && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] bg-[#211e19]/35 backdrop-blur-sm" onClick={closePlayer}><motion.aside layout initial={{ opacity: 0, y: 18, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 18, scale: 0.98 }} transition={{ type: 'spring', damping: 30, stiffness: 340 }} onClick={(event) => event.stopPropagation()} className={`absolute bottom-0 left-0 right-0 flex flex-col overflow-y-auto rounded-t-3xl bg-[#fbf8f2] p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-2xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${isTranscriptOpen ? 'max-h-[88dvh]' : 'max-h-[90dvh]'} lg:bottom-6 lg:left-auto lg:right-6 lg:w-[460px] lg:rounded-3xl lg:p-6 ${isTranscriptOpen ? 'lg:max-h-[86vh]' : ''}`}>
-      {isTranscriptOpen ? <>
-        <header className="flex items-center justify-between border-b border-[#211e19]/10 pb-4"><button type="button" onClick={() => setIsTranscriptOpen(false)} className="inline-flex items-center gap-1 text-sm font-semibold text-[#655b4d] hover:text-[#211e19]">← 플레이어로</button><button type="button" onClick={closePlayer} className="flex h-9 w-9 items-center justify-center rounded-full text-[#655b4d] hover:bg-[#eee6da]" aria-label="패널 닫기">✕</button></header>
-        <div className="flex items-center justify-between py-4"><div><p className="text-[10px] font-bold tracking-[0.15em] text-[#a94d35]">전체 대본</p><h2 className="mt-1 max-w-[290px] truncate font-maruburi text-lg font-semibold">{story.title}</h2></div><button type="button" onClick={() => setIsPlaying(!isPlaying)} className="flex h-10 w-10 items-center justify-center rounded-full bg-[#a94d35] text-white"><PlayIcon /></button></div>
-        <div className="relative pl-5 pr-2"><div className="pointer-events-none absolute bottom-0 left-0 top-0 w-0.5 bg-[#dfd2c2]"/><motion.div className="pointer-events-none absolute left-0 top-0 w-0.5 bg-[#d56748]" animate={{ height: `${transcriptProgress}%` }} transition={{ duration: 0.45 }}/><div className="space-y-2">{lines.map((line) => <button key={line.id} type="button" onClick={() => seekTo(line.timeSec)} className={`block w-full rounded-xl px-3 py-2.5 text-left text-sm leading-6 transition ${line.id === lines[activeIndex]?.id ? 'bg-[#f1e0d7] font-semibold text-[#211e19]' : 'text-[#655b4d] hover:bg-[#f2ece2]'}`}>{line.text}</button>)}</div></div>
-      </> : <>
-        <div className="mb-5 flex items-center justify-between"><span className="text-[11px] font-bold tracking-[0.16em] text-[#a94d35]">지금 재생 중</span><button type="button" onClick={closePlayer} className="flex h-9 w-9 items-center justify-center rounded-full text-[#655b4d] hover:bg-[#eee6da]" aria-label="패널 닫기">✕</button></div>
-        <motion.img layoutId="odii-player-art" src={story.imageUrl} alt={story.title} className="h-28 w-full rounded-2xl object-cover sm:h-44"/><p className="mt-3 text-xs font-semibold text-[#a94d35]">{story.category} · {story.locationName}</p><h2 className="mt-1 font-maruburi text-2xl font-semibold tracking-[-0.04em]">{story.audioTitle || story.title}</h2><p className="mt-1.5 text-sm text-[#786d5e]">{story.speaker || '온마루 도슨트'}</p>
-        <input type="range" min={0} max={duration || 100} value={currentTime} onChange={(event) => seekTo(Number(event.target.value))} className="mt-4 w-full accent-[#a94d35]"/><div className="flex justify-between text-xs text-[#786d5e]"><span>{formatTime(currentTime)}</span><span>{formatTime(duration)}</span></div><div className="mt-2 flex items-center justify-center gap-5"><button type="button" onClick={() => skipBackward(10)} className="text-xs font-semibold text-[#655b4d]">10초 전</button><button type="button" onClick={() => setIsPlaying(!isPlaying)} className="flex h-12 w-12 items-center justify-center rounded-full bg-[#a94d35] text-white"><PlayIcon /></button><button type="button" onClick={() => skipForward(10)} className="text-xs font-semibold text-[#655b4d]">10초 후</button></div>
-        {previewLines.length > 0 && <section className="mt-4 border-t border-[#211e19]/10 pt-4"><div className="flex items-center justify-between"><div><p className="text-[10px] font-bold tracking-[0.14em] text-[#a94d35]">이야기 미리보기</p><h3 className="mt-1 font-maruburi text-base font-semibold">듣고 있는 이야기</h3></div><button type="button" onClick={() => setIsTranscriptOpen(true)} className="inline-flex items-center gap-1 px-1 py-2 text-xs font-semibold text-[#a94d35] transition hover:text-[#7f3725]">전체 대본<svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-none stroke-current stroke-2"><path d="m7 10 5 5 5-5" /></svg></button></div><div className="relative mt-3 h-44 overflow-hidden pl-4"><div className="pointer-events-none absolute bottom-2 left-0 top-2 z-10 w-0.5 bg-[#dfd2c2]"/><div className="space-y-1.5 pb-12 pt-8 pl-2">{previewLines.map((line) => <button key={line.id} type="button" onClick={() => seekTo(line.timeSec)} className={`block w-full rounded-lg px-2 py-1.5 text-left text-sm leading-5 transition ${line.id === lines[activeIndex]?.id ? 'font-semibold text-[#211e19]' : 'text-[#756557] hover:text-[#211e19]'}`}>{line.text}</button>)}</div><div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-9 bg-gradient-to-b from-[#fbf8f2] via-[#fbf8f2]/85 to-transparent"/><div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-12 bg-gradient-to-t from-[#fbf8f2] via-[#fbf8f2]/90 to-transparent"/></div></section>}
-      </>}
-    </motion.aside></motion.div>}</AnimatePresence>
-  </>;
+    {/* 확장 플레이어 & 전체 대본 Drawer */}
+    <AnimatePresence>
+      {isExpanded && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[60] bg-[#211e19]/40 backdrop-blur-sm"
+          onClick={closePlayer}
+        >
+          <motion.aside
+            layout
+            initial={{ opacity: 0, y: 18, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 18, scale: 0.98 }}
+            transition={{ type: 'spring', damping: 30, stiffness: 340 }}
+            onClick={(event) => event.stopPropagation()}
+            className={`absolute bottom-0 left-0 right-0 flex flex-col overflow-y-auto rounded-t-3xl bg-[#fbf8f2] p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-2xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
+              isTranscriptOpen ? 'max-h-[88dvh]' : 'max-h-[90dvh]'
+            } lg:bottom-6 lg:left-1/2 lg:right-auto lg:ml-[-230px] lg:w-[460px] lg:rounded-3xl lg:p-7 ${isTranscriptOpen ? 'lg:max-h-[86vh]' : ''}`}
+          >
+            {isTranscriptOpen ? (
+              <>
+                <header className="flex items-center justify-between border-b border-[#211e19]/10 pb-4">
+                  <button type="button" onClick={() => setIsTranscriptOpen(false)} className="inline-flex items-center gap-1 text-xs font-bold text-[#a94d35] hover:text-[#7f3725]">
+                    ← 오디오 플레이어로
+                  </button>
+                  <button type="button" onClick={closePlayer} className="flex h-8 w-8 items-center justify-center rounded-full text-[#655b4d] hover:bg-[#eee6da]" aria-label="패널 닫기">
+                    ✕
+                  </button>
+                </header>
+
+                <div className="flex items-center justify-between py-4">
+                  <div>
+                    <span className="px-2 py-0.5 rounded-full bg-[#f1e5d6] text-[10px] font-bold text-[#a94d35]">
+                      {story.category}
+                    </span>
+                    <h2 className="mt-1.5 max-w-[280px] truncate font-odii-sans text-lg font-semibold text-[#211e19]">
+                      {story.title}
+                    </h2>
+                    <p className="text-xs text-[#655b4d]">{story.locationName || '대한민국 문화유산'}</p>
+                  </div>
+                  <button type="button" onClick={() => setIsPlaying(!isPlaying)} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#a94d35] text-white shadow-md">
+                    <PlayIcon />
+                  </button>
+                </div>
+
+                <div className="relative pl-5 pr-2 pt-2">
+                  <div className="pointer-events-none absolute bottom-0 left-0 top-0 w-0.5 bg-[#dfd2c2]" />
+                  <motion.div className="pointer-events-none absolute left-0 top-0 w-0.5 bg-[#a94d35]" animate={{ height: `${transcriptProgress}%` }} transition={{ duration: 0.45 }} />
+                  <div className="space-y-2">
+                    {lines.map((line) => (
+                      <button
+                        key={line.id}
+                        type="button"
+                        onClick={() => seekTo(line.timeSec)}
+                        className={`block w-full rounded-xl px-3.5 py-3 text-left text-sm leading-6 transition ${
+                          line.id === lines[activeIndex]?.id
+                            ? 'bg-[#f3e9dc] font-semibold text-[#211e19] shadow-sm'
+                            : 'text-[#655b4d] hover:bg-[#f5eee4]'
+                        }`}
+                      >
+                        {line.text}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="mb-4 flex items-center justify-between">
+                  <span className="px-2.5 py-1 rounded-full bg-[#a94d35]/10 text-[10px] font-bold text-[#a94d35] tracking-wider">
+                    지금 재생 중
+                  </span>
+                  <button type="button" onClick={closePlayer} className="flex h-8 w-8 items-center justify-center rounded-full text-[#655b4d] hover:bg-[#eee6da]" aria-label="패널 닫기">
+                    ✕
+                  </button>
+                </div>
+
+                <motion.img layoutId="odii-player-art" src={story.imageUrl} alt={story.title} className="h-36 w-full rounded-2xl object-cover shadow-md sm:h-48"/>
+
+                {/* 메인 타이틀 & 서브타이틀 UX 개선 */}
+                <div className="mt-4">
+                  <div className="flex items-center space-x-2">
+                    <span className="px-2 py-0.5 rounded-full bg-[#f1e5d6] text-[10px] font-bold text-[#a94d35]">
+                      {story.category}
+                    </span>
+                    <span className="text-xs font-medium text-[#655b4d]">
+                      {story.locationName || '대한민국 문화유산'}
+                    </span>
+                  </div>
+
+                  <h2 className="mt-2 font-odii-sans text-xl sm:text-2xl font-bold text-[#211e19] leading-tight">
+                    {story.title}
+                  </h2>
+                  <p className="mt-1 text-xs leading-5 text-[#655b4d] sm:text-sm">
+                    <span className="block">{story.audioTitle}</span>
+                    <span className="mt-0.5 block text-[#8f7e6c] font-medium">{story.speaker || '온마루 문화해설사'}</span>
+                  </p>
+                </div>
+
+                {/* 오디오 탐색 프로그레스 바 & 컨트롤 */}
+                <div className="mt-5">
+                  <input
+                    type="range"
+                    min={0}
+                    max={duration || 100}
+                    value={currentTime}
+                    onChange={(event) => seekTo(Number(event.target.value))}
+                    className="w-full accent-[#a94d35] cursor-pointer"
+                  />
+                  <div className="flex justify-between text-xs font-mono text-[#786d5e] mt-1">
+                    <span>{formatTime(currentTime)}</span>
+                    <span>{formatTime(duration)}</span>
+                  </div>
+                </div>
+
+                <div className="mt-4 flex items-center justify-center gap-6">
+                  <button type="button" onClick={() => skipBackward(10)} className="px-3 py-1.5 rounded-full bg-[#f2ece2] text-xs font-bold text-[#655b4d] hover:bg-[#e8dfd2]">
+                    10초 전
+                  </button>
+                  <button type="button" onClick={() => setIsPlaying(!isPlaying)} className="flex h-13 w-13 items-center justify-center rounded-full bg-[#a94d35] text-white shadow-lg hover:bg-[#8f3e29]">
+                    <PlayIcon />
+                  </button>
+                  <button type="button" onClick={() => skipForward(10)} className="px-3 py-1.5 rounded-full bg-[#f2ece2] text-xs font-bold text-[#655b4d] hover:bg-[#e8dfd2]">
+                    10초 후
+                  </button>
+                </div>
+
+                {/* 대본 미리보기 & 전체 대본 보기 전환 */}
+                {previewLines.length > 0 && (
+                  <section className="mt-5 border-t border-[#211e19]/10 pt-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-[10px] font-bold tracking-[0.14em] text-[#a94d35]">실시간 자막</p>
+                        <h3 className="mt-0.5 font-odii-sans text-sm font-semibold text-[#211e19]">해설 대본</h3>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setIsTranscriptOpen(true)}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#a94d35]/10 text-xs font-bold text-[#a94d35] hover:bg-[#a94d35]/20 transition"
+                      >
+                        전체 대본 보기 ➔
+                      </button>
+                    </div>
+
+                    <div className="relative mt-3 h-36 overflow-hidden rounded-xl bg-[#f5efe5] p-3">
+                      <div className="space-y-1.5">
+                        {previewLines.map((line) => (
+                          <button
+                            key={line.id}
+                            type="button"
+                            onClick={() => seekTo(line.timeSec)}
+                            className={`block w-full rounded-lg px-2.5 py-1.5 text-left text-xs sm:text-sm leading-relaxed transition ${
+                              line.id === lines[activeIndex]?.id
+                                ? 'bg-[#a94d35] font-semibold text-white shadow-xs'
+                                : 'text-[#655b4d] hover:text-[#211e19]'
+                            }`}
+                          >
+                            {line.text}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </section>
+                )}
+              </>
+            )}
+          </motion.aside>
+        </motion.div>
+      )}
+    </AnimatePresence>
+    </>
+  );
 };

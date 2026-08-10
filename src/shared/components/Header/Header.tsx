@@ -107,7 +107,6 @@ const DropdownTrigger = styled('button', {
   align-items: center;
   gap: 4px;
   height: 100%;
-  padding: 0;
   transition: color 0.2s ease;
 
   &:hover {
@@ -118,9 +117,9 @@ const DropdownTrigger = styled('button', {
 const ChevronIcon = styled(motion.svg)`
   width: 12px;
   height: 12px;
-  fill: none;
   stroke: currentColor;
-  stroke-width: 2;
+  stroke-width: 2.2;
+  fill: none;
   stroke-linecap: round;
   stroke-linejoin: round;
 `;
@@ -129,7 +128,7 @@ const DropdownMenu = styled(motion.div, {
   shouldForwardProp: shouldNotForwardLanding,
 })<LandingProps>`
   position: absolute;
-  top: calc(100% + 4px);
+  top: calc(100% - 2px);
   left: 50%;
   transform: translateX(-50%);
   min-width: 140px;
@@ -143,23 +142,21 @@ const DropdownMenu = styled(motion.div, {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  z-index: 101;
+  z-index: 110;
 `;
 
 const DropdownItem = styled(Link, {
   shouldForwardProp: shouldNotForwardLanding,
 })<LandingProps>`
+  padding: 8px 14px;
   font-family: 'SpoqaHanSansNeo', sans-serif;
   font-size: 13px;
   font-weight: 400;
   color: ${({ $isLanding }) => ($isLanding ? 'rgba(250, 250, 250, 0.88)' : '#211e19')};
   text-decoration: none;
-  padding: 8px 12px;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+  white-space: nowrap;
 
   &:hover {
     background: ${({ $isLanding }) => ($isLanding ? 'rgba(212, 175, 55, 0.12)' : 'rgba(169, 77, 53, 0.08)')};
@@ -170,6 +167,7 @@ const DropdownItem = styled(Link, {
 const RightSection = styled.div`
   display: flex;
   align-items: center;
+  gap: 16px;
   height: 100%;
 `;
 
@@ -186,8 +184,7 @@ const LoginButton = styled(Link, {
   border-radius: 6px;
   padding: 6px 14px;
   text-decoration: none;
-  letter-spacing: -0.02em;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 6px;
   overflow: hidden;
@@ -231,7 +228,7 @@ const LoginButton = styled(Link, {
   }
 `;
 
-export default function Header() {
+export function Header() {
   const pathname = usePathname();
   const isLandingPage = pathname === '/';
   const [isMapMenuOpen, setIsMapMenuOpen] = useState(false);
@@ -346,3 +343,5 @@ export default function Header() {
     </HeaderContainer>
   );
 }
+
+export default Header;

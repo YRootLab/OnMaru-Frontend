@@ -11,7 +11,7 @@ const config: Config = {
     extend: {
       fontFamily: {
         maruburi: ['MaruBuri', 'serif'],
-        'odii-sans': ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Apple SD Gothic Neo', 'Noto Sans KR', 'sans-serif'],
+        'odii-sans': ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'Apple SD Gothic Neo', 'Inter', 'sans-serif'],
       },
       colors: {
         jangmi: {

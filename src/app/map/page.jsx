@@ -10,7 +10,7 @@
   =============================================================
 */
 
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
@@ -23,6 +23,8 @@ const FONT = "'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif";
  * Leaflet은 window를 직접 만진다. 서버에서 한 번이라도 그리면 그 자리에서 터지므로
  * 브라우저에서만 불러온다. (이 파일이 클라이언트 컴포넌트여야 ssr:false를 쓸 수 있다.)
  */
+const STAYS = { items: [] };
+
 const HanokMap = dynamic(() => import('@/components/map/HanokMap'), {
   ssr: false,
   loading: () => <MapPlaceholder>지도를 불러오는 중…</MapPlaceholder>,
@@ -237,7 +239,9 @@ const MapPlaceholder = styled.div`
   color: ${meok[500]};
 `;
 
-export default function MapPage() {
+
+
+function MapContent() {
   const searchParams = useSearchParams();
   const modeParam = searchParams.get('mode');
   const isWarmthMode = modeParam === 'warmth';
@@ -317,3 +321,12 @@ export default function MapPage() {
     </Page>
   );
 }
+
+export default function MapPage() {
+  return (
+    <Suspense fallback={<MapPlaceholder>지도를 불러오는 중…</MapPlaceholder>}>
+      <MapContent />
+    </Suspense>
+  );
+}
+
