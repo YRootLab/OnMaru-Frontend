@@ -156,6 +156,8 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(({ story, position,
 
 const POSITION_CORRECTION_COOLDOWN_MS = 70;
 const TRANSITION_SAFETY_TIMEOUT_MS = 900;
+const RAIL_COPY_COUNT = 3;
+const RAIL_VISIBLE_BUFFER = 4;
 
 export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, storySets, apiService, isLoading = false, onApiError }) => {
   const activeApiService = useOdiiApiService(apiService);
@@ -174,7 +176,7 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
     }
   });
   const categoryRequestRef = useRef(0);
-  const [activePosition, setActivePosition] = useState(60);
+  const [activePosition, setActivePosition] = useState(0);
   const [trackTransitionEnabled, setTrackTransitionEnabled] = useState(true);
   const [autoResetToken, setAutoResetToken] = useState(0);
   const resetTimerRef = useRef<number | null>(null);
@@ -203,10 +205,10 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
   }, [cachedImageUrls, categoryStories, selectedKeyword, stories, storySets]);
   const activeIndex = featured.length ? ((activePosition % featured.length) + featured.length) % featured.length : 0;
   const activeStory = featured[activeIndex] ?? featured[0];
-  const trackStories = useMemo(
-    () => Array.from({ length: 120 }, (_, index) => ({ story: featured[index % Math.max(featured.length, 1)], position: index })),
-    [featured],
-  );
+  const trackStories = useMemo(() => Array.from({ length: featured.length * RAIL_COPY_COUNT }, (_, position) => ({
+    story: featured[position % featured.length],
+    position,
+  })), [featured]);
 
   useEffect(() => {
     const updateTrackMetrics = () => {
@@ -225,11 +227,11 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
 
   useEffect(() => {
     const resetId = window.setTimeout(() => {
-      setActivePosition(60);
+      setActivePosition(featured.length);
       setTrackTransitionEnabled(true);
     }, 0);
     return () => window.clearTimeout(resetId);
-  }, [selectedKeyword]);
+  }, [featured.length, selectedKeyword]);
 
   useEffect(() => {
     if (categoryStories !== null) return;
@@ -337,7 +339,12 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
       unlockTimerRef.current = null;
     }
 
-    if (activePosition <= 90 && activePosition >= 30) {
+    const middleCopyStart = featured.length;
+    const middleCopyEnd = featured.length * 2;
+    const needsRightCorrection = activePosition > middleCopyEnd - RAIL_VISIBLE_BUFFER;
+    const needsLeftCorrection = activePosition < middleCopyStart + RAIL_VISIBLE_BUFFER;
+
+    if (!needsRightCorrection && !needsLeftCorrection) {
       unlockTimerRef.current = window.setTimeout(() => {
         inputLockedRef.current = false;
         unlockTimerRef.current = null;
@@ -346,7 +353,7 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
     }
 
     setTrackTransitionEnabled(false);
-    setActivePosition((position) => position > 90 ? position - featured.length : position + featured.length);
+    setActivePosition((position) => needsRightCorrection ? position - featured.length : position + featured.length);
     window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => {
         setTrackTransitionEnabled(true);
@@ -363,7 +370,7 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
     if (resetTimerRef.current !== null) window.clearTimeout(resetTimerRef.current);
     setIsCategoryLoading(true);
     setTrackTransitionEnabled(false);
-    setActivePosition(60);
+    setActivePosition(featured.length);
     setSelectedKeyword(keyword);
     const requestId = categoryRequestRef.current + 1;
     categoryRequestRef.current = requestId;
