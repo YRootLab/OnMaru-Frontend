@@ -78,6 +78,82 @@ const isTrustedOdiiImage = (imageUrl: string) => (
 
 const durationFor = (story: OdiiStoryItem) => story.formattedDuration || `${Math.floor((Number(story.playTime) || 0) / 60)}:${String((Number(story.playTime) || 0) % 60).padStart(2, '0')}`;
 
+interface EditorialRailCardProps {
+  story: OdiiStoryItem;
+  position: number;
+  offset: number;
+  featuredLength: number;
+  trackTransitionEnabled: boolean;
+  onInteractRef: React.MutableRefObject<(position: number) => void>;
+}
+
+const EditorialRailCard = React.memo<EditorialRailCardProps>(({ story, position, offset, featuredLength, trackTransitionEnabled, onInteractRef }) => {
+  const distance = Math.abs(offset);
+  const isVisible = distance <= 4;
+  const isActive = offset === 0;
+  const tilt = isActive ? 0 : offset < 0
+    ? (Math.abs(offset) % 2 === 1 ? 1.6 : -1.6)
+    : (offset % 2 === 1 ? -1.6 : 1.6);
+  const lift = isActive ? 0 : offset < 0
+    ? (Math.abs(offset) % 2 === 1 ? -6 : 6)
+    : (offset % 2 === 1 ? 6 : -6);
+
+  return (
+    <motion.button
+      type="button"
+      animate={{
+        opacity: isVisible ? (isActive ? 1 : 0.54) : 0,
+        y: lift,
+        rotate: tilt,
+        scale: isActive ? 1 : distance === 1 ? 0.92 : 0.84,
+      }}
+      transition={{ duration: trackTransitionEnabled && isVisible ? 0.48 : 0, ease: [0.16, 1, 0.3, 1] }}
+      onClick={() => onInteractRef.current(position)}
+      className={`relative h-[250px] w-[135px] shrink-0 select-none overflow-hidden border bg-white text-left outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0 sm:h-[330px] sm:w-[200px] lg:h-[370px] lg:w-[225px] ${isActive ? 'z-20 border-[#f84e76] shadow-[0_22px_48px_rgba(33,30,25,0.18),0_8px_24px_rgba(248,78,118,0.13)]' : 'z-10 border-[#211e19]/12 shadow-[0_18px_35px_rgba(33,30,25,0.16)] grayscale-[0.15] hover:grayscale-0'}`}
+      draggable={false}
+      onMouseDown={(event) => event.preventDefault()}
+      aria-label={`${story.title}${isActive ? ' 현재 선택됨' : ''}`}
+    >
+      <img
+        src={story.imageUrl || fallbackImageFor(story, position)}
+        alt=""
+        draggable={false}
+        loading={distance <= 3 ? 'eager' : 'lazy'}
+        decoding="async"
+        className="h-full w-full object-cover"
+        onError={(event) => {
+          const image = event.currentTarget;
+          if (image.dataset.fallbackApplied === 'true') {
+            image.onerror = null;
+            image.src = FALLBACK_IMAGE_SETS.default[0];
+            return;
+          }
+          image.dataset.fallbackApplied = 'true';
+          image.src = fallbackImageFor(story, position);
+        }}
+      />
+      {!story.imageUrl && <span className="pointer-events-none absolute right-3 top-3 z-10 rounded-full bg-black/25 px-2 py-1 text-[9px] font-medium text-white/90 backdrop-blur-sm">참고용 이미지</span>}
+      <div className="absolute inset-0 bg-gradient-to-t from-white/55 via-transparent to-black/5" />
+      <span className="pointer-events-none absolute left-4 top-4 z-10 text-[10px] font-semibold tabular-nums text-white mix-blend-difference drop-shadow-[0_1px_3px_rgba(0,0,0,0.35)]">
+        {String((position % featuredLength) + 1).padStart(2, '0')}
+      </span>
+      <div className={`absolute inset-x-0 bottom-0 px-4 py-4 text-[#211e19] backdrop-blur-[24px] sm:px-5 sm:py-5 ${isActive ? 'bg-[#fff0f5]/[0.68] shadow-[0_-8px_20px_rgba(248,78,118,0.08)]' : 'bg-white/[0.46] shadow-[0_-8px_20px_rgba(255,255,255,0.12)]'}`}>
+        <p className="truncate text-[9px] font-semibold uppercase tracking-[0.12em] text-[#F84E76]">{story.category !== '오디 이야기' ? story.category : story.badgeText || '오디오 가이드'}</p>
+        <h3 className="mt-1 line-clamp-2 font-odii-sans text-base font-semibold leading-tight tracking-[-0.03em] sm:text-lg">{story.title}</h3>
+        <p className="mt-1 line-clamp-1 text-[10px] leading-4 text-[#8c7e6c]">{story.locationName || '대한민국 문화유산'}</p>
+        {isActive && <span className="mt-2 inline-flex items-center gap-2 text-[10px] text-[#f84e76]">{durationFor(story)} <span className="text-[#8c7e6c]">↗</span></span>}
+      </div>
+    </motion.button>
+  );
+}, (previous, next) => {
+  const previousVisible = Math.abs(previous.offset) <= 4;
+  const nextVisible = Math.abs(next.offset) <= 4;
+  if (!previousVisible && !nextVisible) return previous.story === next.story;
+  return previous.story === next.story
+    && previous.offset === next.offset
+    && previous.trackTransitionEnabled === next.trackTransitionEnabled;
+});
+
 const POSITION_CORRECTION_COOLDOWN_MS = 70;
 const TRANSITION_SAFETY_TIMEOUT_MS = 900;
 
@@ -104,6 +180,7 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
   const resetTimerRef = useRef<number | null>(null);
   const inputLockedRef = useRef(false);
   const unlockTimerRef = useRef<number | null>(null);
+  const cardInteractionRef = useRef<(position: number) => void>(() => undefined);
   const [trackMetrics, setTrackMetrics] = useState({ cardWidth: 225, cardStep: 245 });
   const featured = useMemo(() => {
     const category = ODII_THEME_CATEGORIES.find((item) => item.keyword === selectedKeyword) ?? ODII_THEME_CATEGORIES[0];
@@ -309,6 +386,13 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
       });
   };
 
+  cardInteractionRef.current = (position) => {
+    const offset = position - activePosition;
+    const story = trackStories.find((item) => item.position === position)?.story;
+    moveBy(offset);
+    if (offset === 0 && story) setCurrentStory(story);
+  };
+
   // 실제 playable 카드가 있으면 카테고리 API 지연/실패가 카드를 가리지 않게 한다.
   const showSkeleton = !activeStory && (isLoading || isCategoryLoading);
 
@@ -370,69 +454,17 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
               }}
               onTransitionEnd={handleTrackTransitionEnd}
             >
-              {trackStories.map(({ story, position }) => {
-                const offset = position - activePosition;
-                const distance = Math.abs(offset);
-                const isVisible = distance <= 4;
-                const isActive = offset === 0;
-                const tilt = isActive ? 0 : offset < 0
-                  ? (Math.abs(offset) % 2 === 1 ? 1.6 : -1.6)
-                  : (offset % 2 === 1 ? -1.6 : 1.6);
-                const lift = isActive ? 0 : offset < 0
-                  ? (Math.abs(offset) % 2 === 1 ? -6 : 6)
-                  : (offset % 2 === 1 ? 6 : -6);
-                return (
-                  <motion.button
-                    key={position}
-                    type="button"
-                    animate={{
-                      opacity: isVisible ? (isActive ? 1 : 0.54) : 0,
-                      y: lift,
-                      rotate: tilt,
-                      scale: isActive ? 1 : distance === 1 ? 0.92 : 0.84,
-                    }}
-                    transition={{ duration: trackTransitionEnabled && isVisible ? 0.48 : 0, ease: [0.16, 1, 0.3, 1] }}
-                    onClick={() => {
-                      moveBy(offset);
-                      if (isActive) setCurrentStory(story);
-                    }}
-                    className={`relative h-[250px] w-[135px] shrink-0 select-none overflow-hidden border bg-white text-left outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0 sm:h-[330px] sm:w-[200px] lg:h-[370px] lg:w-[225px] ${isActive ? 'z-20 border-[#f84e76] shadow-[0_22px_48px_rgba(33,30,25,0.18),0_8px_24px_rgba(248,78,118,0.13)]' : 'z-10 border-[#211e19]/12 shadow-[0_18px_35px_rgba(33,30,25,0.16)] grayscale-[0.15] hover:grayscale-0'}`}
-                    draggable={false}
-                    onMouseDown={(event) => event.preventDefault()}
-                    aria-label={`${story.title}${isActive ? ' 현재 선택됨' : ''}`}
-                  >
-                    <img
-                      src={story.imageUrl || fallbackImageFor(story, position)}
-                      alt=""
-                      draggable={false}
-                      loading={distance <= 3 ? 'eager' : 'lazy'}
-                      decoding="async"
-                      className="h-full w-full object-cover"
-                      onError={(event) => {
-                        const image = event.currentTarget;
-                        if (image.dataset.fallbackApplied === 'true') {
-                          image.onerror = null;
-                          image.src = FALLBACK_IMAGE_SETS.default[0];
-                          return;
-                        }
-                        image.dataset.fallbackApplied = 'true';
-                        image.src = fallbackImageFor(story, position);
-                      }}
-                    />
-                    {!story.imageUrl && <span className="pointer-events-none absolute right-3 top-3 z-10 rounded-full bg-black/25 px-2 py-1 text-[9px] font-medium text-white/90 backdrop-blur-sm">참고용 이미지</span>}
-                    <div className="absolute inset-0 bg-gradient-to-t from-white/55 via-transparent to-black/5" />
-                    <span className="pointer-events-none absolute left-4 top-4 z-10 text-[10px] font-semibold tabular-nums text-white mix-blend-difference drop-shadow-[0_1px_3px_rgba(0,0,0,0.35)]">
-                      {String((position % featured.length) + 1).padStart(2, '0')}
-                    </span>
-                    <div className={`absolute inset-x-0 bottom-0 px-4 py-4 text-[#211e19] backdrop-blur-[24px] sm:px-5 sm:py-5 ${isActive ? 'bg-[#fff0f5]/[0.68] shadow-[0_-8px_20px_rgba(248,78,118,0.08)]' : 'bg-white/[0.46] shadow-[0_-8px_20px_rgba(255,255,255,0.12)]'}`}>
-                      <p className="truncate text-[9px] font-semibold uppercase tracking-[0.12em] text-[#F84E76]">{story.category !== '오디 이야기' ? story.category : story.badgeText || '오디오 가이드'}</p>
-                      <h3 className="mt-1 line-clamp-2 font-odii-sans text-base font-semibold leading-tight tracking-[-0.03em] sm:text-lg">{story.title}</h3>
-                      <p className="mt-1 line-clamp-1 text-[10px] leading-4 text-[#8c7e6c]">{story.locationName || '대한민국 문화유산'}</p>
-                      {isActive && <span className="mt-2 inline-flex items-center gap-2 text-[10px] text-[#f84e76]">{durationFor(story)} <span className="text-[#8c7e6c]">↗</span></span>}
-                    </div>
-                  </motion.button>
-                );
-              })}
+              {trackStories.map(({ story, position }) => (
+                <EditorialRailCard
+                  key={position}
+                  story={story}
+                  position={position}
+                  offset={position - activePosition}
+                  featuredLength={featured.length}
+                  trackTransitionEnabled={trackTransitionEnabled}
+                  onInteractRef={cardInteractionRef}
+                />
+              ))}
             </div>}
           </div>
 
