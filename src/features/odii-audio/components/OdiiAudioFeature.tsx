@@ -368,7 +368,8 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                   stories={storyList.length ? storyList : (nearbyStories.length ? nearbyStories : MOCK_ODII_STORIES)}
                   storySets={heroStorySets}
                   apiService={activeApiService}
-                  isLoading={isArchiveLoading}
+                  // 초기 목업/기존 목록이 있으면 API가 늦어도 화면을 스켈레톤으로 가리지 않는다.
+                  isLoading={isArchiveLoading && storyList.length === 0}
                 />
               </div>
             </div>
