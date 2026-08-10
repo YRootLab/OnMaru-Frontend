@@ -539,10 +539,10 @@ export default function Header() {
         </LogoLink>
         </LeftSection>
 
-      {/* 가운데: 한옥 아카이브, 지도 (드롭다운), 소리마루 */}
+      {/* 가운데: 한옥도감, 지도 (드롭다운), 소리마루 */}
       <CenterNav>
-        <NavLink href="/archive" isLanding={usesDarkSurface} isOdii={isOdiiPage}>
-          한옥 아카이브
+        <NavLink href="/hanok" isLanding={usesDarkSurface} isOdii={isOdiiPage}>
+          한옥도감
         </NavLink>
 
         <DropdownWrapper
@@ -633,13 +633,13 @@ export default function Header() {
           </MobileTabIcon>
           <span>홈</span>
         </MobileTabLink>
-        <MobileTabLink href="/archive" isLanding={usesDarkSurface} isActive={pathname.startsWith('/archive')}>
+        <MobileTabLink href="/hanok" isLanding={usesDarkSurface} isActive={pathname.startsWith('/hanok')}>
           <MobileTabIcon viewBox="0 0 24 24" aria-hidden="true">
             <path d="M4 6.5h16" />
             <path d="M6 4h12v16H6z" />
             <path d="M9 10h6M9 14h6" />
           </MobileTabIcon>
-          <span>아카이브</span>
+          <span>한옥도감</span>
         </MobileTabLink>
         <MobileTabLink href="/map" isLanding={usesDarkSurface} isActive={pathname.startsWith('/map')}>
           <MobileTabIcon viewBox="0 0 24 24" aria-hidden="true">
@@ -693,7 +693,7 @@ export default function Header() {
               exit={{ opacity: 0, y: -6, scale: 0.98 }}
               transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
             >
-              <MobileMenuLink href="/archive" isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>한옥 아카이브</MobileMenuLink>
+              <MobileMenuLink href="/hanok" isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>한옥도감</MobileMenuLink>
               <MobileMenuLink href="/map" isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>정보지도</MobileMenuLink>
               <MobileMenuLink href="/map?mode=warmth" isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>온기지도</MobileMenuLink>
               <MobileMenuLink href="/odii" isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>소리마루</MobileMenuLink>
