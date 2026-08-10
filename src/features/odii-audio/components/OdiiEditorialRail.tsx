@@ -64,9 +64,9 @@ const getFallbackImageSet = (story: OdiiStoryItem) => {
   return FALLBACK_IMAGE_SETS.default;
 };
 
-const fallbackImageFor = (story: OdiiStoryItem, index: number) => {
+const fallbackImageFor = (story: OdiiStoryItem) => {
   const imageSet = getFallbackImageSet(story);
-  const seed = Array.from(story.stid || story.title).reduce((total, char) => total + char.charCodeAt(0), index);
+  const seed = Array.from(story.stid || story.title).reduce((total, char) => total + char.charCodeAt(0), 0);
   return imageSet[seed % imageSet.length];
 };
 
@@ -91,7 +91,7 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(({ story, position,
   const distance = Math.abs(offset);
   const isVisible = distance <= 4;
   const isActive = offset === 0;
-  const nextImageSrc = story.imageUrl || fallbackImageFor(story, position);
+  const nextImageSrc = story.imageUrl || fallbackImageFor(story);
   const [displayedImageSrc, setDisplayedImageSrc] = useState(nextImageSrc);
   const tilt = isActive ? 0 : offset < 0
     ? (Math.abs(offset) % 2 === 1 ? 1.6 : -1.6)
@@ -151,7 +151,7 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(({ story, position,
             return;
           }
           image.dataset.fallbackApplied = 'true';
-          setDisplayedImageSrc(fallbackImageFor(story, position));
+          setDisplayedImageSrc(fallbackImageFor(story));
         }}
       />
       {!story.imageUrl && <span className="pointer-events-none absolute right-3 top-3 z-10 rounded-full bg-black/25 px-2 py-1 text-[9px] font-medium text-white/90 backdrop-blur-sm">참고용 이미지</span>}
@@ -308,9 +308,9 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
   // 무한 트랙 보정 시 새로 노출되는 물리 슬롯에서 이미지 decode가 발생하지 않도록 미리 준비한다.
   useEffect(() => {
     const imageSources = new Set(
-      featured.map((story, index) => story.imageUrl || fallbackImageFor(story, index)),
+      featured.map((story) => story.imageUrl || fallbackImageFor(story)),
     );
-    imageSources.forEach((source) => {
+      imageSources.forEach((source) => {
       const image = new window.Image();
       image.decoding = 'async';
       image.src = source;
