@@ -396,12 +396,14 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
                       moveBy(offset);
                       if (isActive) setCurrentStory(story);
                     }}
-                    className={`relative h-[250px] w-[135px] shrink-0 overflow-hidden border bg-white text-left sm:h-[330px] sm:w-[200px] lg:h-[370px] lg:w-[225px] ${isActive ? 'z-20 border-[#f84e76] shadow-[0_22px_48px_rgba(33,30,25,0.18),0_8px_24px_rgba(248,78,118,0.13)]' : 'z-10 border-[#211e19]/12 shadow-[0_18px_35px_rgba(33,30,25,0.16)] grayscale-[0.15] hover:grayscale-0'}`}
+                    className={`relative h-[250px] w-[135px] shrink-0 select-none overflow-hidden border bg-white text-left sm:h-[330px] sm:w-[200px] lg:h-[370px] lg:w-[225px] ${isActive ? 'z-20 border-[#f84e76] shadow-[0_22px_48px_rgba(33,30,25,0.18),0_8px_24px_rgba(248,78,118,0.13)]' : 'z-10 border-[#211e19]/12 shadow-[0_18px_35px_rgba(33,30,25,0.16)] grayscale-[0.15] hover:grayscale-0'}`}
+                    draggable={false}
                     aria-label={`${story.title}${isActive ? ' 현재 선택됨' : ''}`}
                   >
                     <img
                       src={story.imageUrl || fallbackImageFor(story, position)}
                       alt=""
+                      draggable={false}
                       loading={distance <= 3 ? 'eager' : 'lazy'}
                       decoding="async"
                       className="h-full w-full object-cover"
