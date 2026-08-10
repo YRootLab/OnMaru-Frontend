@@ -473,7 +473,7 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
               </div>
             </nav>
           </div>
-          <div className="relative mt-0 h-[310px] overflow-hidden pb-4 sm:h-[395px] lg:h-[440px]">
+          <div className="relative mt-0 h-[325px] overflow-hidden pt-2 pb-4 sm:h-[410px] lg:h-[455px]">
             {/* Leading (좌측) 풀나비게이션 히트영역 & 리니어 그라데이션 버튼 */}
             <button
               type="button"
@@ -503,7 +503,7 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
             </button>
 
             {showSkeleton && (
-              <div className="absolute inset-x-0 top-3 flex items-start justify-center gap-4 px-4 sm:gap-5 lg:gap-5">
+              <div className="absolute inset-x-0 top-7 flex items-start justify-center gap-4 px-4 sm:gap-5 lg:gap-5">
                 {[0, 1, 2, 3, 4, 5, 6].map((index) => (
                   <div
                     key={index}
@@ -520,7 +520,7 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
               </div>
             )}
             {!showSkeleton && <div
-              className="absolute left-1/2 top-3 flex items-start"
+              className="absolute left-1/2 top-7 flex items-start"
               style={{
                 transform: `translate3d(${-trackMetrics.cardStep * activePosition}px, 0, 0)`,
                 transition: trackTransitionEnabled ? 'transform 480ms cubic-bezier(0.16, 1, 0.3, 1)' : 'none',
