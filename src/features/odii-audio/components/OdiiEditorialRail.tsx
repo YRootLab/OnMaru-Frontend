@@ -87,7 +87,7 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
   const activeApiService = useOdiiApiService(apiService);
   const setCurrentStory = useOdiiAudioStore((state) => state.setCurrentStory);
   const [selectedKeyword, setSelectedKeyword] = useState(ODII_THEME_CATEGORIES[0].keyword);
-  const [isCategoryLoading, setIsCategoryLoading] = useState(false);
+  const [isCategoryLoading, setIsCategoryLoading] = useState(true);
   const [categoryStories, setCategoryStories] = useState<OdiiStoryItem[] | null>(null);
   const [cachedImageUrls, setCachedImageUrls] = useState<Record<string, string>>(() => {
     if (typeof window === 'undefined') return {};
@@ -298,7 +298,13 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
 
   const showSkeleton = isLoading || isCategoryLoading;
 
-  if (!activeStory && !showSkeleton) return null;
+  if (!activeStory && !showSkeleton) {
+    return (
+      <section aria-label="오디 셀렉션" className="relative left-1/2 flex min-h-[355px] w-screen -translate-x-1/2 items-center justify-center py-3 sm:min-h-[430px] sm:py-5 lg:min-h-[465px]">
+        <p className="text-sm text-[#8c7e6c]">이 주제의 오디오 이야기를 찾지 못했습니다.</p>
+      </section>
+    );
+  }
 
   return (
     <section aria-label="오디 셀렉션" aria-busy={showSkeleton} className="relative left-1/2 w-screen -translate-x-1/2 py-3 sm:py-5">
