@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
 import { useOdiiAudioPlayer } from '../hooks/useOdiiAudioPlayer';
+import { lightPalette, meok } from '@/design-system/tokens';
 
 const formatTime = (seconds: number) => `${Math.floor(Math.max(0, seconds || 0) / 60)}:${String(Math.floor(Math.max(0, seconds || 0) % 60)).padStart(2, '0')}`;
 
@@ -13,6 +14,8 @@ const PlayIcon: React.FC = () => {
     ? <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
     : <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>;
 };
+
+const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80';
 
 export const LocalMiniPlayer: React.FC = () => {
   const story = useOdiiAudioStore((s) => s.currentStory);
@@ -73,7 +76,7 @@ export const LocalMiniPlayer: React.FC = () => {
           >
       <div className="flex items-center gap-3">
         <button type="button" onClick={() => setIsExpanded(true)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
-          <img src={story.imageUrl} alt="" className="h-10 w-10 shrink-0 rounded-xl object-cover shadow-sm"/>
+          <img src={story.imageUrl || FALLBACK_IMAGE} alt="" className="h-10 w-10 shrink-0 rounded-xl object-cover shadow-sm"/>
           <span className="min-w-0">
             <span className="block truncate font-odii-sans text-sm font-semibold text-[#211e19]">
               {story.title}
@@ -185,7 +188,7 @@ export const LocalMiniPlayer: React.FC = () => {
                   </button>
                 </div>
 
-                <motion.img layoutId="odii-player-art" src={story.imageUrl} alt={story.title} className="h-36 w-full rounded-2xl object-cover shadow-md sm:h-48"/>
+                <motion.img layoutId="odii-player-art" src={story.imageUrl || FALLBACK_IMAGE} alt={story.title} className="h-36 w-full rounded-2xl object-cover shadow-md sm:h-48"/>
 
                 {/* 메인 타이틀 & 서브타이틀 UX 개선 */}
                 <div className="mt-4">

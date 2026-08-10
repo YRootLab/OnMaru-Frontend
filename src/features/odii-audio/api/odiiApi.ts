@@ -156,7 +156,7 @@ function mapStoryItem(item: Record<string, unknown>, index: number, category?: s
   const audioUrl = readText(item, 'audioUrl');
   const playTime = readText(item, 'playTime') || '180';
   const playTimeSeconds = Number(playTime);
-  const imageUrl = readText(item, 'imageUrl');
+  const imageUrl = readText(item, 'imageUrl') || 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80';
   const mapX = readText(item, 'mapX') || '126.9780';
   const mapY = readText(item, 'mapY') || '37.5665';
   const distance = origin ? calculateDistanceKm(origin.mapX, origin.mapY, mapX, mapY) : null;

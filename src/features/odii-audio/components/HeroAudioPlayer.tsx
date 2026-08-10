@@ -3,6 +3,7 @@
 import React from 'react';
 import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
 import { useOdiiAudioPlayer } from '../hooks/useOdiiAudioPlayer';
+import { lightPalette } from '@/design-system/tokens';
 
 function formatTime(seconds: number) {
   if (isNaN(seconds) || seconds < 0) return '0:00';
@@ -41,13 +42,16 @@ export const HeroAudioPlayer: React.FC = () => {
       <div className="relative z-10">
         <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden mb-6 bg-[#24211D] border border-white/10 shadow-lg">
           <img
-            src={currentStory.imageUrl}
+            src={currentStory.imageUrl || 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80'}
             alt={currentStory.title}
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
           <div className="absolute bottom-3 left-3 flex items-center space-x-2">
-            <span className="px-3 py-1 bg-[#D42058] text-white text-xs font-extrabold rounded-md shadow-md">
+            <span
+              className="px-3 py-1 text-white text-xs font-extrabold rounded-md shadow-md"
+              style={{ backgroundColor: lightPalette.jangmi[500] }}
+            >
               {currentStory.badgeText || '한옥 오디오 가이드'}
             </span>
             <span className="text-white/80 text-xs font-medium backdrop-blur-sm px-2 py-0.5 rounded bg-black/30">
@@ -116,7 +120,8 @@ export const HeroAudioPlayer: React.FC = () => {
 
             <button
               onClick={() => setIsPlaying(!isPlaying)}
-              className="px-5 py-3 bg-[#D42058] hover:bg-[#E03870] text-white rounded-full flex items-center space-x-2 shadow-xl transition-all active:scale-95 text-xs font-bold"
+              className="px-5 py-3 text-white rounded-full flex items-center space-x-2 shadow-xl transition-all active:scale-95 text-xs font-bold"
+              style={{ backgroundColor: lightPalette.jangmi[500] }}
             >
               {isPlaying ? (
                 <>

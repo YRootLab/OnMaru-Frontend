@@ -151,7 +151,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
                 >
                   <div className="flex items-center space-x-4 min-w-0">
                     <img
-                      src={story.imageUrl}
+                      src={story.imageUrl || 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80'}
                       alt={story.title}
                       className="w-14 h-14 rounded-xl object-cover border border-white/10 flex-shrink-0"
                     />
