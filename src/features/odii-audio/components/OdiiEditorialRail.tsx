@@ -77,6 +77,11 @@ const isTrustedOdiiImage = (imageUrl: string) => (
 
 const durationFor = (story: OdiiStoryItem) => story.formattedDuration || `${Math.floor((Number(story.playTime) || 0) / 60)}:${String((Number(story.playTime) || 0) % 60).padStart(2, '0')}`;
 
+// 화면 양옆에 필요한 카드만 유지한다. 카드의 모양·간격·전환 시간은 기존 값을 그대로 쓴다.
+const QUEUE_SIZE = 9;
+const QUEUE_CENTER = Math.floor(QUEUE_SIZE / 2);
+const POSITION_CORRECTION_COOLDOWN_MS = 70;
+
 export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, storySets, apiService, isLoading = false }) => {
   const activeApiService = useOdiiApiService(apiService);
   const setCurrentStory = useOdiiAudioStore((state) => state.setCurrentStory);
@@ -98,6 +103,8 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
   const [trackTransitionEnabled, setTrackTransitionEnabled] = useState(true);
   const [autoResetToken, setAutoResetToken] = useState(0);
   const resetTimerRef = useRef<number | null>(null);
+  const inputLockedRef = useRef(false);
+  const unlockTimerRef = useRef<number | null>(null);
   const [trackMetrics, setTrackMetrics] = useState({ cardWidth: 225, cardStep: 245 });
   const featured = useMemo(() => {
     const category = ODII_THEME_CATEGORIES.find((item) => item.keyword === selectedKeyword) ?? ODII_THEME_CATEGORIES[0];
@@ -115,7 +122,14 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
   }, [cachedImageUrls, categoryStories, selectedKeyword, stories, storySets]);
   const activeIndex = featured.length ? ((activePosition % featured.length) + featured.length) % featured.length : 0;
   const activeStory = featured[activeIndex] ?? featured[0];
-  const trackStories = useMemo(() => Array.from({ length: 120 }, (_, index) => ({ story: featured[index % Math.max(featured.length, 1)], position: index })), [featured]);
+  const trackStories = useMemo(() => {
+    if (!featured.length) return [];
+
+    return Array.from({ length: QUEUE_SIZE }, (_, slot) => {
+      const position = activePosition - QUEUE_CENTER + slot;
+      return { story: featured[((position % featured.length) + featured.length) % featured.length], position };
+    });
+  }, [activePosition, featured]);
 
   useEffect(() => {
     const updateTrackMetrics = () => {
@@ -189,11 +203,20 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
     return () => window.clearTimeout(cacheId);
   }, [categoryStories, stories]);
 
+  const lockInputForTransition = useCallback(() => {
+    inputLockedRef.current = true;
+    if (unlockTimerRef.current !== null) {
+      window.clearTimeout(unlockTimerRef.current);
+      unlockTimerRef.current = null;
+    }
+  }, []);
+
   const moveBy = useCallback((delta: number, resetAuto = true) => {
-    if (!delta) return;
+    if (!delta || featured.length < 2 || inputLockedRef.current) return;
+    if (resetAuto) lockInputForTransition();
     if (resetAuto) setAutoResetToken((token) => token + 1);
     setActivePosition((position) => position + delta);
-  }, []);
+  }, [featured.length, lockInputForTransition]);
 
   const moveTo = useCallback((index: number) => {
     let delta = index - activeIndex;
@@ -210,21 +233,34 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
 
   useEffect(() => () => {
     if (resetTimerRef.current !== null) window.clearTimeout(resetTimerRef.current);
+    if (unlockTimerRef.current !== null) window.clearTimeout(unlockTimerRef.current);
   }, []);
 
   const handleTrackTransitionEnd = useCallback((event: React.TransitionEvent<HTMLDivElement>) => {
     if (event.target !== event.currentTarget || event.propertyName !== 'transform' || featured.length < 2) return;
-    if (activePosition <= 90 && activePosition >= 30) return;
+    if (activePosition <= 90 && activePosition >= 30) {
+      unlockTimerRef.current = window.setTimeout(() => {
+        inputLockedRef.current = false;
+        unlockTimerRef.current = null;
+      }, POSITION_CORRECTION_COOLDOWN_MS);
+      return;
+    }
 
     setTrackTransitionEnabled(false);
     setActivePosition((position) => position > 90 ? position - featured.length : position + featured.length);
     window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => setTrackTransitionEnabled(true));
+      window.requestAnimationFrame(() => {
+        setTrackTransitionEnabled(true);
+        unlockTimerRef.current = window.setTimeout(() => {
+          inputLockedRef.current = false;
+          unlockTimerRef.current = null;
+        }, POSITION_CORRECTION_COOLDOWN_MS);
+      });
     });
   }, [activePosition, featured.length]);
 
   const handleCategoryChange = (keyword: string) => {
-    if (keyword === selectedKeyword) return;
+    if (keyword === selectedKeyword || isCategoryLoading || inputLockedRef.current) return;
     if (resetTimerRef.current !== null) window.clearTimeout(resetTimerRef.current);
     setIsCategoryLoading(true);
     setTrackTransitionEnabled(false);
@@ -299,7 +335,7 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
             {!showSkeleton && <div
               className="absolute left-1/2 top-3 flex items-start gap-4 sm:gap-5 lg:gap-5"
               style={{
-                transform: `translate3d(${-(trackMetrics.cardStep * activePosition + trackMetrics.cardWidth / 2)}px, 0, 0)`,
+                transform: `translate3d(${-(trackMetrics.cardStep * QUEUE_CENTER + trackMetrics.cardWidth / 2)}px, 0, 0)`,
                 transition: trackTransitionEnabled ? 'transform 480ms cubic-bezier(0.16, 1, 0.3, 1)' : 'none',
               }}
               onTransitionEnd={handleTrackTransitionEnd}
