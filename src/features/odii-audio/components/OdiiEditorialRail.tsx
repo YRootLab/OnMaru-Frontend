@@ -309,8 +309,8 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
       });
   };
 
-  // 카테고리 응답이 끝나기 전에는 fallback 카드와 실제 카드를 교체하지 않는다.
-  const showSkeleton = isLoading || isCategoryLoading;
+  // 실제 playable 카드가 있으면 카테고리 API 지연/실패가 카드를 가리지 않게 한다.
+  const showSkeleton = !activeStory && (isLoading || isCategoryLoading);
 
   if (!activeStory && !showSkeleton) {
     return (
