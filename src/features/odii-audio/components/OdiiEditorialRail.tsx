@@ -473,7 +473,7 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
               </div>
             </nav>
           </div>
-          <div className="relative mt-0 h-[285px] overflow-hidden sm:h-[365px] lg:h-[405px]">
+          <div className="relative mt-0 h-[310px] overflow-hidden pb-4 sm:h-[395px] lg:h-[440px]">
             {/* Leading (좌측) 풀나비게이션 히트영역 & 리니어 그라데이션 버튼 */}
             <button
               type="button"
