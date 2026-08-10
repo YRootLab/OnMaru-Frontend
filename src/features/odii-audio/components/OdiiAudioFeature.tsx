@@ -320,7 +320,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             variants={sectionVariants}
             initial="hidden"
             animate="visible"
-            className="w-full pb-2 pt-6 sm:pt-8"
+            className="w-full pb-3 pt-10 sm:pt-14 lg:pt-16"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
               <div className="max-w-xl">
