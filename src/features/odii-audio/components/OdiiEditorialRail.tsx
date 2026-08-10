@@ -452,7 +452,7 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
   return (
     <section aria-label="오디 셀렉션" aria-busy={showSkeleton} style={{ contain: 'layout paint' }} className="relative left-1/2 w-screen -translate-x-1/2 py-3 sm:py-5">
       <div className="w-full px-0">
-        <div className="relative px-1 pb-2 pt-1 sm:px-3 sm:pt-2">
+        <div className="relative pb-2 pt-1 sm:pt-2">
           <div className="mx-auto mb-3 w-full max-w-6xl px-4 sm:px-8">
             <nav aria-label="장면 카테고리" className="overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               <div className="flex min-w-max items-center gap-4">
