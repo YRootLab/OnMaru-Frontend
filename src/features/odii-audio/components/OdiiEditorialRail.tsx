@@ -357,6 +357,7 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
               {trackStories.map(({ story, position }) => {
                 const offset = position - activePosition;
                 const distance = Math.abs(offset);
+                const isVisible = distance <= 4;
                 const isActive = offset === 0;
                 const tilt = isActive ? 0 : offset < 0
                   ? (Math.abs(offset) % 2 === 1 ? 1.6 : -1.6)
@@ -369,12 +370,12 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
                     key={position}
                     type="button"
                     animate={{
-                      opacity: distance <= 4 ? (isActive ? 1 : 0.54) : 0,
+                      opacity: isVisible ? (isActive ? 1 : 0.54) : 0,
                       y: lift,
                       rotate: tilt,
                       scale: isActive ? 1 : distance === 1 ? 0.92 : 0.84,
                     }}
-                    transition={{ duration: trackTransitionEnabled ? 0.48 : 0, ease: [0.16, 1, 0.3, 1] }}
+                    transition={{ duration: trackTransitionEnabled && isVisible ? 0.48 : 0, ease: [0.16, 1, 0.3, 1] }}
                     onClick={() => {
                       moveBy(offset);
                       if (isActive) setCurrentStory(story);
