@@ -107,26 +107,6 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
   const [locationMessage, setLocationMessage] = useState('내 위치를 허용하면 반경 3km의 실제 오디오를 찾아드려요.');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // 세션 스토리지 기반 애니메이션 1회 실행 기억 (새로고침 F5 시 애니메이션 재실행 100% 차단)
-  const [hasAnimatedSession] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return false;
-    try {
-      return sessionStorage.getItem('onmaru_odii_has_animated_session') === 'true';
-    } catch {
-      return false;
-    }
-  });
-
-  useEffect(() => {
-    if (typeof window !== 'undefined' && !hasAnimatedSession) {
-      try {
-        sessionStorage.setItem('onmaru_odii_has_animated_session', 'true');
-      } catch {
-        // ignore
-      }
-    }
-  }, [hasAnimatedSession]);
-
   // 로컬 스토리지 기반 '마음 담은 소리' 스크랩 보관함 관리 (재방문 유지)
   const [savedStories, setSavedStories] = useState<OdiiStoryItem[]>(() => {
     if (typeof window === 'undefined') return [];
@@ -336,10 +316,10 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             </div>
           )}
           <main>
-            {/* 섹션 0: 헤더 타이틀 (새로고침 시 애니메이션 완전 생략) */}
+            {/* 섹션 0: 헤더 타이틀 */}
           <motion.section
             variants={sectionVariants}
-            initial={hasAnimatedSession ? false : "hidden"}
+            initial="hidden"
             animate="visible"
             className="w-full pb-4 pt-8 sm:pt-10"
           >
@@ -357,9 +337,9 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
 
           {/* 섹션 1: 히어로 큐레이션 레일 (새로고침 시 즉시 노출 / 420px 레이아웃 고정) */}
           <motion.div
-            initial={hasAnimatedSession ? false : { opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={hasAnimatedSession ? { duration: 0 } : {
+            transition={{
               duration: 0.85,
               ease: [0.16, 1, 0.3, 1],
               delay: 0.20,
@@ -375,11 +355,9 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
           {/* 섹션 2: 한 단어로, 한 장면 (새로고침 시 즉시 노출 / 660px 레이아웃 완벽 고정) */}
           <motion.div
             variants={sectionVariants}
-            initial={hasAnimatedSession ? false : "hidden"}
-            whileInView={hasAnimatedSession ? undefined : "visible"}
-            animate={hasAnimatedSession ? "visible" : undefined}
-            viewport={hasAnimatedSession ? undefined : { once: true, amount: 0.15 }}
-            transition={hasAnimatedSession ? { duration: 0 } : undefined}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.15 }}
             className="min-h-[650px] sm:min-h-[700px]"
           >
             <div className="mt-4">
@@ -402,11 +380,9 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
           <motion.section
             aria-labelledby="nearby-stories-heading"
             variants={sectionVariants}
-            initial={hasAnimatedSession ? false : "hidden"}
-            whileInView={hasAnimatedSession ? undefined : "visible"}
-            animate={hasAnimatedSession ? "visible" : undefined}
-            viewport={hasAnimatedSession ? undefined : { once: true, amount: 0.12 }}
-            transition={hasAnimatedSession ? { duration: 0 } : undefined}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.12 }}
             className="h-[420px] w-full overflow-hidden py-8 sm:py-12"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
@@ -444,11 +420,9 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
           <motion.section
             aria-labelledby="compact-archive-heading"
             variants={sectionVariants}
-            initial={hasAnimatedSession ? false : "hidden"}
-            whileInView={hasAnimatedSession ? undefined : "visible"}
-            animate={hasAnimatedSession ? "visible" : undefined}
-            viewport={hasAnimatedSession ? undefined : { once: true, amount: 0.12 }}
-            transition={hasAnimatedSession ? { duration: 0 } : undefined}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.12 }}
             className="w-full bg-white py-10 sm:py-14"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
@@ -485,11 +459,9 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
           <motion.section
             id="odii-archive"
             variants={sectionVariants}
-            initial={hasAnimatedSession ? false : "hidden"}
-            whileInView={hasAnimatedSession ? undefined : "visible"}
-            animate={hasAnimatedSession ? "visible" : undefined}
-            viewport={hasAnimatedSession ? undefined : { once: true, amount: 0.12 }}
-            transition={hasAnimatedSession ? { duration: 0 } : undefined}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.12 }}
             className="min-h-[900px] w-full overflow-visible bg-white py-10 sm:py-14"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
@@ -560,11 +532,9 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
           <motion.section
             aria-labelledby="odii-card-collection-heading"
             variants={sectionVariants}
-            initial={hasAnimatedSession ? false : "hidden"}
-            whileInView={hasAnimatedSession ? undefined : "visible"}
-            animate={hasAnimatedSession ? "visible" : undefined}
-            viewport={hasAnimatedSession ? undefined : { once: true, amount: 0.12 }}
-            transition={hasAnimatedSession ? { duration: 0 } : undefined}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.12 }}
             className="w-full bg-white py-12 sm:py-16"
           >
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
@@ -592,11 +562,9 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
           {/* 섹션 7: 이탈 방지 & 재방문 CTA (새로고침 시 즉시 노출 / 260px 고정) */}
           <motion.div
             variants={sectionVariants}
-            initial={hasAnimatedSession ? false : "hidden"}
-            whileInView={hasAnimatedSession ? undefined : "visible"}
-            animate={hasAnimatedSession ? "visible" : undefined}
-            viewport={hasAnimatedSession ? undefined : { once: true, amount: 0.1 }}
-            transition={hasAnimatedSession ? { duration: 0 } : undefined}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.1 }}
             className="min-h-[220px] sm:min-h-[260px]"
           >
             <OdiiFooterCTA />
