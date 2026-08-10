@@ -91,33 +91,13 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(({ story, position,
   const distance = Math.abs(offset);
   const isVisible = distance <= 4;
   const isActive = offset === 0;
-  const nextImageSrc = story.imageUrl || fallbackImageFor(story);
-  const [displayedImageSrc, setDisplayedImageSrc] = useState(nextImageSrc);
+  const initialImageSrc = story.imageUrl || fallbackImageFor(story);
   const tilt = isActive ? 0 : offset < 0
     ? (Math.abs(offset) % 2 === 1 ? 1.6 : -1.6)
     : (offset % 2 === 1 ? -1.6 : 1.6);
   const lift = isActive ? 0 : offset < 0
     ? (Math.abs(offset) % 2 === 1 ? -6 : 6)
     : (offset % 2 === 1 ? 6 : -6);
-
-  useEffect(() => {
-    if (nextImageSrc === displayedImageSrc) return undefined;
-
-    let cancelled = false;
-    const image = new window.Image();
-    image.decoding = 'async';
-    image.onload = () => {
-      if (!cancelled) setDisplayedImageSrc(nextImageSrc);
-    };
-    image.onerror = () => {
-      if (!cancelled) setDisplayedImageSrc(FALLBACK_IMAGE_SETS.default[0]);
-    };
-    image.src = nextImageSrc;
-
-    return () => {
-      cancelled = true;
-    };
-  }, [displayedImageSrc, nextImageSrc]);
 
   return (
     <motion.button
@@ -136,7 +116,7 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(({ story, position,
       aria-label={`${story.title}${isActive ? ' 현재 선택됨' : ''}`}
     >
       <img
-        src={displayedImageSrc}
+        src={initialImageSrc}
         alt=""
         draggable={false}
         loading={distance <= 3 ? 'eager' : 'lazy'}
@@ -147,11 +127,10 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(({ story, position,
           if (image.dataset.fallbackApplied === 'true') {
             image.onerror = null;
             image.src = FALLBACK_IMAGE_SETS.default[0];
-            setDisplayedImageSrc(FALLBACK_IMAGE_SETS.default[0]);
             return;
           }
           image.dataset.fallbackApplied = 'true';
-          setDisplayedImageSrc(fallbackImageFor(story));
+          image.src = fallbackImageFor(story);
         }}
       />
       {!story.imageUrl && <span className="pointer-events-none absolute right-3 top-3 z-10 rounded-full bg-black/25 px-2 py-1 text-[9px] font-medium text-white/90 backdrop-blur-sm">참고용 이미지</span>}
@@ -185,8 +164,9 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
   const activeApiService = useOdiiApiService(apiService);
   const setCurrentStory = useOdiiAudioStore((state) => state.setCurrentStory);
   const [selectedKeyword, setSelectedKeyword] = useState(ODII_THEME_CATEGORIES[0].keyword);
-  const [isCategoryLoading, setIsCategoryLoading] = useState(true);
+  const [isCategoryLoading, setIsCategoryLoading] = useState(false);
   const [categoryStories, setCategoryStories] = useState<OdiiStoryItem[] | null>(null);
+  const categoryCacheMapRef = useRef<Record<string, OdiiStoryItem[]>>({});
   const [cachedImageUrls, setCachedImageUrls] = useState<Record<string, string>>(() => {
     if (typeof window === 'undefined') return {};
     try {
@@ -206,6 +186,45 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
   const unlockTimerRef = useRef<number | null>(null);
   const cardInteractionRef = useRef<(position: number) => void>(() => undefined);
   const [trackMetrics, setTrackMetrics] = useState({ cardWidth: 225, cardStep: 245 });
+
+  // 1. 모든 테마 카테고리의 이야기 데이터 및 이미지 사전(Eager) Pre-reload
+  useEffect(() => {
+    let isMounted = true;
+
+    // 복구 이미지 셋 전체 사전 프리로드
+    Object.values(FALLBACK_IMAGE_SETS).flat().forEach((url) => {
+      const img = new window.Image();
+      img.decoding = 'async';
+      img.src = url;
+    });
+
+    // 전체 카테고리 이야기 사전 로드 및 이미지 캐시 워밍
+    ODII_THEME_CATEGORIES.forEach((categoryItem) => {
+      activeApiService.getStoryList(undefined, categoryItem.keyword)
+        .then((fetchedStories) => {
+          if (!isMounted) return;
+          const filtered = fetchedStories.filter((s) => s.audioUrl);
+          categoryCacheMapRef.current[categoryItem.keyword] = filtered;
+
+          filtered.forEach((story) => {
+            const src = story.imageUrl || fallbackImageFor(story);
+            if (src) {
+              const img = new window.Image();
+              img.decoding = 'async';
+              img.src = src;
+            }
+          });
+        })
+        .catch(() => {
+          // ignore
+        });
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [activeApiService]);
+
   const featured = useMemo(() => {
     const category = ODII_THEME_CATEGORIES.find((item) => item.keyword === selectedKeyword) ?? ODII_THEME_CATEGORIES[0];
     const localCategoryStories = storySets?.[category.label] ?? stories.filter((story) => {
@@ -213,24 +232,37 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
       return searchable.includes(category.keyword.toLowerCase());
     });
     const recommendationStories = storySets?.['추천'];
+    const cachedCategory = categoryCacheMapRef.current[selectedKeyword];
+
     const source = categoryStories !== null
       ? categoryStories
-      : localCategoryStories.length
-        ? localCategoryStories
-        : (recommendationStories?.length ? recommendationStories : stories);
-    // 오디오 섹션에는 실제 재생 가능한 레코드만 들어와야 한다.
+      : (cachedCategory && cachedCategory.length)
+        ? cachedCategory
+        : localCategoryStories.length
+          ? localCategoryStories
+          : (recommendationStories?.length ? recommendationStories : stories);
+
     return source.filter((story) => Boolean(story.audioUrl)).slice(0, 10).map((story) => (
       !story.imageUrl && cachedImageUrls[story.stid]
         ? { ...story, imageUrl: cachedImageUrls[story.stid] }
         : story
     ));
   }, [cachedImageUrls, categoryStories, selectedKeyword, stories, storySets]);
+
+  const VIRTUAL_BUFFER = 4;
   const activeIndex = featured.length ? ((activePosition % featured.length) + featured.length) % featured.length : 0;
   const activeStory = featured[activeIndex] ?? featured[0];
-  const trackStories = useMemo(() => Array.from({ length: featured.length * RAIL_COPY_COUNT }, (_, position) => ({
-    story: featured[position % featured.length],
-    position,
-  })), [featured]);
+
+  // React-Window 스타일 가상화(Virtualization): 현재 화면 중심(activePosition) 기준 ±4개 카드만 DOM에 유지
+  const visibleVirtualPositions = useMemo(() => {
+    const list: { pos: number; story: OdiiStoryItem }[] = [];
+    if (!featured.length) return list;
+    for (let pos = activePosition - VIRTUAL_BUFFER; pos <= activePosition + VIRTUAL_BUFFER; pos++) {
+      const index = ((pos % featured.length) + featured.length) % featured.length;
+      list.push({ pos, story: featured[index] });
+    }
+    return list;
+  }, [activePosition, featured]);
 
   useEffect(() => {
     const updateTrackMetrics = () => {
@@ -249,23 +281,24 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
 
   useEffect(() => {
     const resetId = window.setTimeout(() => {
-      setActivePosition(featured.length);
+      setActivePosition(0);
       setTrackTransitionEnabled(true);
     }, 0);
     return () => window.clearTimeout(resetId);
-  }, [featured.length, selectedKeyword]);
+  }, [selectedKeyword]);
 
   useEffect(() => {
     if (categoryStories !== null) return;
     let isMounted = true;
     const requestId = categoryRequestRef.current + 1;
     categoryRequestRef.current = requestId;
-    const loadingId = window.setTimeout(() => setIsCategoryLoading(true), 0);
 
     activeApiService.getStoryList(undefined, selectedKeyword)
       .then((nextStories) => {
         if (!isMounted || requestId !== categoryRequestRef.current) return;
-        setCategoryStories(nextStories.filter((story) => story.audioUrl));
+        const validStories = nextStories.filter((story) => story.audioUrl);
+        categoryCacheMapRef.current[selectedKeyword] = validStories;
+        setCategoryStories(validStories);
       })
       .catch(() => {
         if (!isMounted || requestId !== categoryRequestRef.current) return;
@@ -280,7 +313,6 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
 
     return () => {
       isMounted = false;
-      window.clearTimeout(loadingId);
     };
   }, [activeApiService, categoryStories, onApiError, selectedKeyword]);
 
@@ -305,12 +337,11 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
     return () => window.clearTimeout(cacheId);
   }, [categoryStories, stories]);
 
-  // 무한 트랙 보정 시 새로 노출되는 물리 슬롯에서 이미지 decode가 발생하지 않도록 미리 준비한다.
   useEffect(() => {
     const imageSources = new Set(
       featured.map((story) => story.imageUrl || fallbackImageFor(story)),
     );
-      imageSources.forEach((source) => {
+    imageSources.forEach((source) => {
       const image = new window.Image();
       image.decoding = 'async';
       image.src = source;
@@ -322,7 +353,6 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
     if (unlockTimerRef.current !== null) {
       window.clearTimeout(unlockTimerRef.current);
     }
-    // transitionend가 브라우저/렌더링 상황에 따라 누락되어도 영구 잠금되지 않게 한다.
     unlockTimerRef.current = window.setTimeout(() => {
       inputLockedRef.current = false;
       unlockTimerRef.current = null;
@@ -355,74 +385,60 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
   }, []);
 
   const handleTrackTransitionEnd = useCallback((event: React.TransitionEvent<HTMLDivElement>) => {
-    if (event.target !== event.currentTarget || event.propertyName !== 'transform' || featured.length < 2) return;
+    if (event.target !== event.currentTarget || event.propertyName !== 'transform') return;
     if (unlockTimerRef.current !== null) {
       window.clearTimeout(unlockTimerRef.current);
       unlockTimerRef.current = null;
     }
+    inputLockedRef.current = false;
+  }, []);
 
-    const middleCopyStart = featured.length;
-    const middleCopyEnd = featured.length * 2;
-    const needsRightCorrection = activePosition > middleCopyEnd - RAIL_VISIBLE_BUFFER;
-    const needsLeftCorrection = activePosition < middleCopyStart + RAIL_VISIBLE_BUFFER;
+  const handleCategoryChange = (keyword: string) => {
+    if (keyword === selectedKeyword || inputLockedRef.current) return;
+    if (resetTimerRef.current !== null) window.clearTimeout(resetTimerRef.current);
 
-    if (!needsRightCorrection && !needsLeftCorrection) {
-      unlockTimerRef.current = window.setTimeout(() => {
-        inputLockedRef.current = false;
-        unlockTimerRef.current = null;
-      }, POSITION_CORRECTION_COOLDOWN_MS);
+    setSelectedKeyword(keyword);
+
+    // 0ms 캐시 즉시 적용 (가상화 윈도잉 0ms 렌더링)
+    const cached = categoryCacheMapRef.current[keyword];
+    if (cached && cached.length) {
+      setCategoryStories(cached);
+      setTrackTransitionEnabled(false);
+      setActivePosition(0);
+      window.requestAnimationFrame(() => {
+        setTrackTransitionEnabled(true);
+      });
       return;
     }
 
-    setTrackTransitionEnabled(false);
-    setActivePosition((position) => needsRightCorrection ? position - featured.length : position + featured.length);
-    window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => {
-        setTrackTransitionEnabled(true);
-        unlockTimerRef.current = window.setTimeout(() => {
-          inputLockedRef.current = false;
-          unlockTimerRef.current = null;
-        }, POSITION_CORRECTION_COOLDOWN_MS);
-      });
-    });
-  }, [activePosition, featured.length]);
-
-  const handleCategoryChange = (keyword: string) => {
-    if (keyword === selectedKeyword || isCategoryLoading || inputLockedRef.current) return;
-    if (resetTimerRef.current !== null) window.clearTimeout(resetTimerRef.current);
-    setIsCategoryLoading(true);
-    setTrackTransitionEnabled(false);
-    setActivePosition(featured.length);
-    setSelectedKeyword(keyword);
+    // 캐시 미스 시 배경에서 조용히 로드
     const requestId = categoryRequestRef.current + 1;
     categoryRequestRef.current = requestId;
     activeApiService.getStoryList(undefined, keyword)
       .then((nextStories) => {
         if (requestId !== categoryRequestRef.current) return;
-        setCategoryStories(nextStories.filter((story) => story.audioUrl));
+        const validStories = nextStories.filter((story) => story.audioUrl);
+        categoryCacheMapRef.current[keyword] = validStories;
+        setCategoryStories(validStories);
+        setTrackTransitionEnabled(false);
+        setActivePosition(0);
+        window.requestAnimationFrame(() => {
+          setTrackTransitionEnabled(true);
+        });
       })
       .catch(() => {
         if (requestId !== categoryRequestRef.current) return;
         onApiError?.();
-        setCategoryStories([]);
-      })
-      .finally(() => {
-        if (requestId !== categoryRequestRef.current) return;
-        resetTimerRef.current = window.setTimeout(() => {
-          setIsCategoryLoading(false);
-          setTrackTransitionEnabled(true);
-        }, 260);
       });
   };
 
   cardInteractionRef.current = (position) => {
     const offset = position - activePosition;
-    const story = trackStories.find((item) => item.position === position)?.story;
+    const story = visibleVirtualPositions.find((item) => item.pos === position)?.story;
     moveBy(offset);
     if (offset === 0 && story) setCurrentStory(story);
   };
 
-  // 실제 playable 카드가 있으면 카테고리 API 지연/실패가 카드를 가리지 않게 한다.
   const showSkeleton = !activeStory && (isLoading || isCategoryLoading);
 
   if (!activeStory && !showSkeleton) {
@@ -434,7 +450,7 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
   }
 
   return (
-    <section aria-label="오디 셀렉션" aria-busy={showSkeleton} className="relative left-1/2 w-screen -translate-x-1/2 py-3 sm:py-5">
+    <section aria-label="오디 셀렉션" aria-busy={showSkeleton} style={{ contain: 'layout paint' }} className="relative left-1/2 w-screen -translate-x-1/2 py-3 sm:py-5">
       <div className="w-full px-0">
         <div className="relative px-1 pb-2 pt-1 sm:px-3 sm:pt-2">
           <div className="mx-auto mb-3 w-full max-w-6xl px-4 sm:px-8">
@@ -476,23 +492,32 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
               </div>
             )}
             {!showSkeleton && <div
-              className="absolute left-1/2 top-3 flex items-start gap-4 sm:gap-5 lg:gap-5"
+              className="absolute left-1/2 top-3 flex items-start"
               style={{
-                transform: `translate3d(${-(trackMetrics.cardStep * activePosition + trackMetrics.cardWidth / 2)}px, 0, 0)`,
+                transform: `translate3d(${-trackMetrics.cardStep * activePosition}px, 0, 0)`,
                 transition: trackTransitionEnabled ? 'transform 480ms cubic-bezier(0.16, 1, 0.3, 1)' : 'none',
+                willChange: 'transform',
               }}
               onTransitionEnd={handleTrackTransitionEnd}
             >
-              {trackStories.map(({ story, position }) => (
-                <EditorialRailCard
-                  key={position}
-                  story={story}
-                  position={position}
-                  offset={position - activePosition}
-                  featuredLength={featured.length}
-                  trackTransitionEnabled={trackTransitionEnabled}
-                  onInteractRef={cardInteractionRef}
-                />
+              {visibleVirtualPositions.map(({ pos, story }) => (
+                <div
+                  key={pos}
+                  style={{
+                    position: 'absolute',
+                    left: `${pos * trackMetrics.cardStep - trackMetrics.cardWidth / 2}px`,
+                    top: 0,
+                  }}
+                >
+                  <EditorialRailCard
+                    story={story}
+                    position={pos}
+                    offset={pos - activePosition}
+                    featuredLength={featured.length}
+                    trackTransitionEnabled={trackTransitionEnabled}
+                    onInteractRef={cardInteractionRef}
+                  />
+                </div>
               ))}
             </div>}
           </div>
@@ -511,3 +536,4 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
     </section>
   );
 });
+
