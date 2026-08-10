@@ -374,7 +374,7 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
                       rotate: tilt,
                       scale: isActive ? 1 : distance === 1 ? 0.92 : 0.84,
                     }}
-                    transition={{ duration: 0.48, ease: [0.16, 1, 0.3, 1] }}
+                    transition={{ duration: trackTransitionEnabled ? 0.48 : 0, ease: [0.16, 1, 0.3, 1] }}
                     onClick={() => {
                       moveBy(offset);
                       if (isActive) setCurrentStory(story);
