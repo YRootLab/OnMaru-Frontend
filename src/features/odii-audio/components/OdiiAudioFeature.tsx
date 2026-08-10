@@ -89,22 +89,24 @@ const ScrollySectionVessel: React.FC<ScrollySectionVesselProps> = ({ children, c
     <motion.div
       id={id}
       initial={{
-        scale: 0.95,
+        scale: 0.94,
+        y: 28,
         borderRadius: '2.5rem',
-        borderColor: 'rgba(33, 30, 25, 0.12)',
-        boxShadow: '0 18px 45px rgba(33, 30, 25, 0.08)',
+        borderColor: 'rgba(33, 30, 25, 0.14)',
+        boxShadow: '0 20px 48px rgba(33, 30, 25, 0.10)',
         opacity: 0.75,
       }}
       whileInView={{
         scale: 1,
-        borderRadius: '0.8rem',
+        y: 0,
+        borderRadius: '0.5rem',
         borderColor: 'rgba(33, 30, 25, 0)',
         boxShadow: '0 0px 0px rgba(0, 0, 0, 0)',
         opacity: 1,
       }}
-      viewport={{ margin: '-10% 0px -10% 0px', amount: 0.2 }}
+      viewport={{ once: true, amount: 0.12 }}
       transition={{
-        duration: 0.75,
+        duration: 0.85,
         ease: [0.16, 1, 0.3, 1],
       }}
       className={`border overflow-hidden transition-colors duration-500 ${className}`}
