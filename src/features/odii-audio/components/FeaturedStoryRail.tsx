@@ -132,7 +132,7 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories, s
   };
 
   return (
-    <section ref={sectionRef} className="mx-auto max-w-6xl px-4 pb-12 sm:px-8 sm:pb-16">
+    <section ref={sectionRef} className="w-full pb-12 sm:pb-16">
       <div>
         <div role="tablist" aria-label="오디 핵심 카테고리" className="mb-4 flex items-center gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {ODII_HERO_TABS.map((tab) => {
@@ -186,7 +186,7 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories, s
 
             return (
               <motion.article
-                key={story.stid}
+                key={`${story.stid}-${index}`}
                 layout
                 tabIndex={0}
                 aria-current={isLead ? 'true' : undefined}

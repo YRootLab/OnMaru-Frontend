@@ -34,11 +34,11 @@ export const ZIndexStackedSection: React.FC<ZIndexStackedSectionProps> = ({ chap
 
   return (
     <section aria-label="장면별 이야길 깊이 들여다보기" className="relative w-full py-8 sm:py-12">
-      <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
+      <div className="w-full">
         {/* 인위적 요약 뱃지 전면 제거 — 순수 타이포그래피 헤더 */}
         <div className="flex flex-col gap-1 pb-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-2xl font-bold leading-tight tracking-[-0.04em] text-transparent sm:text-3xl">
+            <h2 className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-[clamp(24px,3.2vw,36px)] font-bold leading-tight tracking-[-0.04em] text-transparent">
               소리와 장면으로 만나는 한국의 온기
             </h2>
           </div>

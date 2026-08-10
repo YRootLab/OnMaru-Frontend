@@ -320,15 +320,18 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             variants={sectionVariants}
             initial="hidden"
             animate="visible"
-            className="w-full pb-3 pt-10 sm:pt-14 lg:pt-16"
+            className="w-full pb-3 pt-8 sm:pt-12 lg:pt-14"
           >
-            <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
-              <div className="max-w-xl">
-                <motion.h1 variants={childVariants} className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-2xl font-bold tracking-tight text-transparent sm:text-3xl">
-                  오늘의 추천
+            <div className="mx-auto w-full max-w-6xl">
+              <div className="max-w-2xl">
+                <motion.p variants={childVariants} className="text-xs sm:text-sm font-bold tracking-[0.14em] uppercase text-[#a94d35] mb-2">
+                  온마루 소리마루
+                </motion.p>
+                <motion.h1 variants={childVariants} className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-[clamp(32px,5.2vw,56px)] font-bold tracking-tight text-transparent leading-[1.25]">
+                  오늘의 추천 소리
                 </motion.h1>
-                <motion.p variants={childVariants} className="mt-2 text-xs sm:text-sm leading-relaxed text-[#655b4d]">
-                  오늘은 어떤 장소의 이야기를 들어볼까요? 오디가 골라온 한국의 소리를 만나보세요.
+                <motion.p variants={childVariants} className="mt-3 text-[clamp(15px,1.6vw,17px)] leading-relaxed text-[#655b4d]">
+                  오늘은 어떤 장소의 이야기를 들어볼까요? 한국관광공사의 오디(Odii) 가이드와 함께 한국의 고즈넉한 온기를 전하는 소리를 만나보세요.
                 </motion.p>
               </div>
             </div>
@@ -350,8 +353,8 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
           {/* 섹션 2: 한 단어로, 한 장면 */}
           <VesselReveal className="min-h-[650px] sm:min-h-[700px]">
             <div className="mt-4">
-              <div className="mx-auto max-w-6xl px-4 sm:px-8 pt-4">
-                <h3 className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-2xl font-bold tracking-[-0.04em] text-transparent sm:text-3xl">장면을 골라 듣다</h3>
+              <div className="mx-auto max-w-6xl pt-4">
+                <h3 className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-[clamp(24px,3.2vw,36px)] font-bold tracking-[-0.04em] text-transparent">장면을 골라 듣다</h3>
               </div>
               <div className="mt-1">
                 <OdiiEditorialRail
@@ -371,11 +374,11 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
               aria-labelledby="nearby-stories-heading"
               className="w-full"
             >
-              <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
+              <div className="mx-auto w-full max-w-6xl">
                 <motion.div variants={titleVariants} className="flex flex-col gap-4 pb-1 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
                   <div className="min-w-0">
-                    <h2 id="nearby-stories-heading" className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-2xl font-bold tracking-[-0.045em] text-transparent sm:text-3xl">오늘, 여기에서</h2>
-                    <p className="mt-1 max-w-xl truncate text-xs leading-5 text-[#786d5e]">{locationMessage}</p>
+                    <h2 id="nearby-stories-heading" className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-[clamp(24px,3.2vw,36px)] font-bold tracking-[-0.045em] text-transparent">오늘, 여기에서</h2>
+                    <p className="mt-1 max-w-xl truncate text-xs sm:text-sm leading-5 text-[#786d5e]">{locationMessage}</p>
                   </div>
                   <div className="flex shrink-0 items-center justify-between gap-3 sm:flex-col sm:items-end sm:gap-1.5">
                     <span className="text-right text-[10px] leading-4 text-[#8c7e6c]">
@@ -407,13 +410,13 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
               aria-labelledby="compact-archive-heading"
               className="w-full"
             >
-              <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
+              <div className="mx-auto w-full max-w-6xl">
                 <motion.div variants={titleVariants} className="mb-5 flex items-end justify-between gap-4">
                   <div className="min-w-0">
-                    <h2 id="compact-archive-heading" className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-2xl font-bold tracking-[-0.045em] text-transparent sm:text-3xl">
+                    <h2 id="compact-archive-heading" className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-[clamp(24px,3.2vw,36px)] font-bold tracking-[-0.045em] text-transparent">
                       주제와 장소를 따라보는 이야기
                     </h2>
-                    <p className="mt-1 max-w-xl text-xs leading-5 text-[#786d5e]">지금 고른 장면에서 이어지는 오디오 이야기를 빠르게 둘러보세요.</p>
+                    <p className="mt-1 max-w-xl text-xs sm:text-sm leading-5 text-[#786d5e]">지금 고른 장면에서 이어지는 오디오 이야기를 빠르게 둘러보세요.</p>
                   </div>
                   <div className="flex shrink-0 items-center gap-3">
                     <button type="button" onClick={() => document.getElementById('odii-archive')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="text-xs font-medium text-[#8c7e6c] transition-colors hover:text-[#f84e76]">검색</button>
@@ -443,12 +446,12 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             <section
               className="w-full"
             >
-              <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
+              <div className="mx-auto w-full max-w-6xl">
                 <motion.div variants={titleVariants} className="mb-4">
-                  <h2 id="archive-heading" className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-2xl font-bold tracking-[-0.045em] text-transparent sm:text-3xl">
+                  <h2 id="archive-heading" className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-[clamp(24px,3.2vw,36px)] font-bold tracking-[-0.045em] text-transparent">
                     주제와 장소를 따라보는 이야기
                   </h2>
-                  <p className="mt-1 max-w-xl text-xs leading-5 text-[#786d5e]">
+                  <p className="mt-1 max-w-xl text-xs sm:text-sm leading-5 text-[#786d5e]">
                     원하는 테마와 장소를 선택하여 전국 문화유산을 담은 오디오 도슨트를 자유롭게 둘러보세요.
                   </p>
                 </motion.div>
@@ -510,13 +513,13 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
               aria-labelledby="odii-card-collection-heading"
               className="w-full"
             >
-              <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
+              <div className="mx-auto w-full max-w-6xl">
                 <motion.div variants={titleVariants} className="mb-5 flex items-end justify-between gap-5">
                   <div className="min-w-0">
-                    <h2 id="odii-card-collection-heading" className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-2xl font-bold tracking-[-0.045em] text-transparent sm:text-3xl">
+                    <h2 id="odii-card-collection-heading" className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-[clamp(24px,3.2vw,36px)] font-bold tracking-[-0.045em] text-transparent">
                       주제와 장소를 따라보는 이야기
                     </h2>
-                    <p className="mt-1 max-w-xl text-xs leading-5 text-[#786d5e]">이미지보다 이야기에 집중할 수 있도록, 짧고 가볍게 골라보세요.</p>
+                    <p className="mt-1 max-w-xl text-xs sm:text-sm leading-5 text-[#786d5e]">이미지보다 이야기에 집중할 수 있도록, 짧고 가볍게 골라보세요.</p>
                   </div>
                 </motion.div>
                 <motion.div variants={contentVariants}>

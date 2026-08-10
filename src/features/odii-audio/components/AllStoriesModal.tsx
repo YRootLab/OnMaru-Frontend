@@ -135,13 +135,13 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
               일치하는 이야기가 없습니다.
             </div>
           ) : (
-            filtered.map((story) => {
+            filtered.map((story, index) => {
               const isCurrent = currentStory.stid === story.stid;
               const isThisPlaying = isCurrent && isPlaying;
 
               return (
                 <div
-                  key={story.stid}
+                  key={`${story.stid}-${index}`}
                   onClick={() => handlePlayStory(story)}
                   className={`flex items-center justify-between p-4 rounded-2xl border transition-all cursor-pointer ${
                     isCurrent

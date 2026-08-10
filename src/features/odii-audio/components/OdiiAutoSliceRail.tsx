@@ -145,7 +145,7 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
 
   return (
     <section ref={sectionRef} className="w-full pb-12 sm:pb-16">
-      <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
+      <div className="mx-auto w-full max-w-6xl">
         
         {/* 한 장면을 오래 듣고 다음 장면으로 이어지는 청음 스테이지 */}
         <div className="relative flex min-w-0 items-center gap-3 overflow-visible">
