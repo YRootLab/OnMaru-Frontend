@@ -392,7 +392,6 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                   stories={storyList}
                   storySets={heroStorySets}
                   apiService={activeApiService}
-                  isLoading={isArchiveLoading && storyList.length === 0}
                   onApiError={handleApiError}
                 />
               </div>

@@ -10,7 +10,7 @@ interface OdiiApiResponse {
   };
 }
 
-// v2는 이전 구현에서 저장한 빈/불완전 응답 캐시를 사용하지 않도록 의도적으로 무효화한다.
+// v3는 이전 구현에서 저장한 빈/불완전 응답 캐시를 사용하지 않도록 의도적으로 무효화한다.
 const DAILY_CACHE_PREFIX = 'onmaru_odii_api_cache_v3';
 const dailyMemoryCache = new Map<string, unknown>();
 const inFlightRequests = new Map<string, Promise<unknown>>();
