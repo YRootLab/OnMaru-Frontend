@@ -81,7 +81,7 @@ const durationFor = (story: OdiiStoryItem) => story.formattedDuration || `${Math
 const POSITION_CORRECTION_COOLDOWN_MS = 70;
 const TRANSITION_SAFETY_TIMEOUT_MS = 900;
 
-export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, storySets, apiService, isLoading = false, onApiError }) => {
+export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, storySets, apiService, isLoading = false, onApiError }) => {
   const activeApiService = useOdiiApiService(apiService);
   const setCurrentStory = useOdiiAudioStore((state) => state.setCurrentStory);
   const [selectedKeyword, setSelectedKeyword] = useState(ODII_THEME_CATEGORIES[0].keyword);
@@ -446,4 +446,4 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
       </div>
     </section>
   );
-};
+});

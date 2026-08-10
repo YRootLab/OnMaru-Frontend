@@ -358,6 +358,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.15 }}
+            style={{ contain: 'layout paint' }}
             className="min-h-[650px] sm:min-h-[700px]"
           >
             <div className="mt-4">
