@@ -3,5 +3,4 @@
 
 scripts:
   setup: |
-    npm cache clean --force
-    npm install
+    npm ci
