@@ -12,6 +12,7 @@ interface OdiiEditorialRailProps {
   storySets?: Record<string, OdiiStoryItem[]>;
   apiService?: IOdiiApiService;
   isLoading?: boolean;
+  onApiError?: () => void;
 }
 
 const FALLBACK_IMAGE_SETS = {
@@ -82,7 +83,7 @@ const QUEUE_SIZE = 14;
 const INITIAL_QUEUE_START = 54; // activePosition 60을 14개 큐의 안쪽에 둔다.
 const POSITION_CORRECTION_COOLDOWN_MS = 70;
 
-export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, storySets, apiService, isLoading = false }) => {
+export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, storySets, apiService, isLoading = false, onApiError }) => {
   const activeApiService = useOdiiApiService(apiService);
   const setCurrentStory = useOdiiAudioStore((state) => state.setCurrentStory);
   const [selectedKeyword, setSelectedKeyword] = useState(ODII_THEME_CATEGORIES[0].keyword);
@@ -170,6 +171,7 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
       })
       .catch(() => {
         if (!isMounted || requestId !== categoryRequestRef.current) return;
+        onApiError?.();
         setCategoryStories([]);
       })
       .finally(() => {
@@ -182,7 +184,7 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
       isMounted = false;
       window.clearTimeout(loadingId);
     };
-  }, [activeApiService, categoryStories, selectedKeyword]);
+  }, [activeApiService, categoryStories, onApiError, selectedKeyword]);
 
   useEffect(() => {
     const newlyCached = [...stories, ...(categoryStories || [])].reduce<Record<string, string>>((result, story) => {
@@ -282,6 +284,7 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
       })
       .catch(() => {
         if (requestId !== categoryRequestRef.current) return;
+        onApiError?.();
         setCategoryStories([]);
       })
       .finally(() => {
@@ -295,7 +298,7 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
 
   const showSkeleton = isLoading || isCategoryLoading;
 
-  if (!activeStory) return null;
+  if (!activeStory && !showSkeleton) return null;
 
   return (
     <section aria-label="오디 셀렉션" aria-busy={showSkeleton} className="relative left-1/2 w-screen -translate-x-1/2 py-3 sm:py-5">

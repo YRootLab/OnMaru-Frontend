@@ -16,7 +16,6 @@ import { AllStoriesModal } from './AllStoriesModal';
 import { LocalMiniPlayer } from './LocalMiniPlayer';
 import { OdiiAtmosphereBackground } from './OdiiAtmosphereBackground';
 import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
-import { MOCK_ODII_STORIES } from '../api/odiiMockData';
 import { OdiiStoryItem, OdiiStoryPage, IOdiiApiService } from '../types/odii.types';
 import { OdiiDependencyProvider, useOdiiApiService } from '../context/OdiiDependencyContext';
 
@@ -89,19 +88,17 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
   const activeApiService = useOdiiApiService(apiService);
   const selectedCategory = useOdiiAudioStore((s) => s.selectedCategory);
   const searchQuery = useOdiiAudioStore((s) => s.searchQuery);
-  const [storyList, setStoryList] = useState<OdiiStoryItem[]>(() => initialStories || MOCK_ODII_STORIES);
-  const [section4Stories, setSection4Stories] = useState<OdiiStoryItem[]>(() => initialStories?.slice(0, 7) || MOCK_ODII_STORIES.slice(0, 7));
-  const [section6Stories, setSection6Stories] = useState<OdiiStoryItem[]>(() => initialStories?.slice(0, 6) || MOCK_ODII_STORIES.slice(0, 6));
+  const [storyList, setStoryList] = useState<OdiiStoryItem[]>(() => initialStories || []);
+  const [section4Stories, setSection4Stories] = useState<OdiiStoryItem[]>(() => initialStories?.slice(0, 7) || []);
+  const [section6Stories, setSection6Stories] = useState<OdiiStoryItem[]>(() => initialStories?.slice(0, 6) || []);
   const [section6TotalCount, setSection6TotalCount] = useState(0);
   const [nearbyStories, setNearbyStories] = useState<OdiiStoryItem[]>(() => initialNearbyStories || []);
-  const [heroStorySets, setHeroStorySets] = useState<Record<string, OdiiStoryItem[]>>(() => initialHeroStorySets || {
-    '추천': MOCK_ODII_STORIES.slice(0, 7),
-  });
+  const [heroStorySets, setHeroStorySets] = useState<Record<string, OdiiStoryItem[]>>(() => initialHeroStorySets || {});
   const [archiveMeta, setArchiveMeta] = useState<OdiiStoryPage>({
-    items: initialStories || MOCK_ODII_STORIES,
+    items: initialStories || [],
     pageNo: 1,
     numOfRows: 7,
-    totalCount: (initialStories || MOCK_ODII_STORIES).length,
+    totalCount: initialStories?.length || 0,
     source: 'mock',
   });
   const [archivePage, setArchivePage] = useState(1);
@@ -178,6 +175,8 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
   const [isArchiveLoading, setIsArchiveLoading] = useState(true);
   const [isSection4Loading, setIsSection4Loading] = useState(true);
   const [isSection6Loading, setIsSection6Loading] = useState(true);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [retryToken, setRetryToken] = useState(0);
 
   // 1. 페이지 최초 마운트 시 히어로 탭 및 주변 이야기 1회만 로드
   useEffect(() => {
@@ -194,6 +193,8 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
           setNearbyStories(nearby);
           setHeroStorySets({ '추천': heroEntries.slice(0, 7) });
         }
+      } catch {
+        if (isMounted) setApiError('오디 이야기를 불러오지 못했습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.');
       } finally {
         if (isMounted) setIsNearbyLoading(false);
       }
@@ -204,7 +205,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [activeApiService]);
+  }, [activeApiService, retryToken]);
 
   // 2. 섹션 5 아카이브 페이지네이션 및 카테고리/검색어 독립적 쾌속 업데이트
   useEffect(() => {
@@ -223,6 +224,8 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
           setStoryList(page.items);
           setArchiveMeta(page);
         }
+      } catch {
+        if (isMounted) setApiError('오디 이야기를 불러오지 못했습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.');
       } finally {
         if (isMounted) setIsArchiveLoading(false);
       }
@@ -233,7 +236,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [activeApiService, archivePage, selectedCategory, searchQuery]);
+  }, [activeApiService, archivePage, selectedCategory, searchQuery, retryToken]);
 
   useEffect(() => {
     let isMounted = true;
@@ -243,6 +246,8 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
       try {
         const page = await activeApiService.getStoryPage(selectedCategory, searchQuery, 1, 7);
         if (isMounted) setSection4Stories(page.items);
+      } catch {
+        if (isMounted) setApiError('오디 이야기를 불러오지 못했습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.');
       } finally {
         if (isMounted) setIsSection4Loading(false);
       }
@@ -252,7 +257,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [activeApiService, selectedCategory, searchQuery]);
+  }, [activeApiService, selectedCategory, searchQuery, retryToken]);
 
   useEffect(() => {
     let isMounted = true;
@@ -265,6 +270,8 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
           setSection6Stories(page.items);
           setSection6TotalCount(page.totalCount);
         }
+      } catch {
+        if (isMounted) setApiError('오디 이야기를 불러오지 못했습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.');
       } finally {
         if (isMounted) setIsSection6Loading(false);
       }
@@ -274,7 +281,12 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [activeApiService, selectedCategory, searchQuery]);
+  }, [activeApiService, selectedCategory, searchQuery, retryToken]);
+
+  const retryApiRequests = () => {
+    setApiError(null);
+    setRetryToken((token) => token + 1);
+  };
 
   const totalArchivePages = Math.max(1, Math.ceil(archiveMeta.totalCount / archiveMeta.numOfRows));
 
@@ -312,6 +324,14 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
       <div className="odii-feature relative isolate min-h-screen pb-24 text-[#211e19] selection:bg-[#ffd9e4] selection:text-[#b52f55]">
         <OdiiAtmosphereBackground />
         <div className="relative z-10">
+          {apiError && (
+            <div role="alert" className="fixed left-1/2 top-20 z-[60] flex w-[min(92vw,460px)] -translate-x-1/2 items-center justify-between gap-4 rounded-2xl border border-[#a94d35]/20 bg-[#fffaf3] px-4 py-3 text-sm text-[#655b4d] shadow-[0_12px_35px_rgba(33,30,25,0.16)]">
+              <span>{apiError}</span>
+              <button type="button" onClick={retryApiRequests} className="shrink-0 rounded-full bg-[#a94d35] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#8e3d2d]">
+                다시 시도
+              </button>
+            </div>
+          )}
           <main>
             {/* 섹션 0: 헤더 타이틀 (새로고침 시 애니메이션 완전 생략) */}
           <motion.section
@@ -344,7 +364,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             className="min-h-[360px] sm:min-h-[420px]"
           >
             <OdiiAutoSliceRail
-              stories={storyList.length ? storyList : (nearbyStories.length ? nearbyStories : MOCK_ODII_STORIES)}
+              stories={storyList}
               storySets={heroStorySets}
             />
           </motion.div>
@@ -365,11 +385,12 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
               </div>
               <div className="mt-1">
                 <OdiiEditorialRail
-                  stories={storyList.length ? storyList : (nearbyStories.length ? nearbyStories : MOCK_ODII_STORIES)}
+                  key={retryToken}
+                  stories={storyList}
                   storySets={heroStorySets}
                   apiService={activeApiService}
-                  // 초기 목업/기존 목록이 있으면 API가 늦어도 화면을 스켈레톤으로 가리지 않는다.
                   isLoading={isArchiveLoading && storyList.length === 0}
+                  onApiError={() => setApiError('오디 이야기를 불러오지 못했습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.')}
                 />
               </div>
             </div>

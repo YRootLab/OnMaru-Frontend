@@ -1,7 +1,7 @@
 import { OdiiStoryItem, OdiiCategory, OdiiStoryPage } from '../types/odii.types';
-import { MOCK_ODII_STORIES } from './odiiMockData';
 
 const CLIENT_API_ENDPOINT = '/api/odii';
+const REQUEST_TIMEOUT_MS = 45_000;
 
 const DAILY_CACHE_PREFIX = 'onmaru_odii_api_cache_v1';
 const dailyMemoryCache = new Map<string, unknown>();
@@ -205,7 +205,14 @@ export const odiiApiAdapter = {
       });
       if (keyword) params.set('keyword', keyword);
 
-      const res = await fetch(`${CLIENT_API_ENDPOINT}?${params.toString()}`, { cache: 'no-store' });
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+      let res: Response;
+      try {
+        res = await fetch(`${CLIENT_API_ENDPOINT}?${params.toString()}`, { cache: 'no-store', signal: controller.signal });
+      } finally {
+        clearTimeout(timeoutId);
+      }
       if (!res.ok) throw new Error(`HTTP error ${res.status}`);
 
       const json = await res.json();
@@ -215,11 +222,6 @@ export const odiiApiAdapter = {
         ? (Array.isArray(rawItems) ? rawItems : [rawItems]) as Record<string, unknown>[]
         : [];
       const mappedStories = itemList.map((item, index) => mapStoryItem(item, index, category || keyword));
-      if (mappedStories.length === 0 && safePageNo === 1) {
-        const fallback = await this.getMockFiltered(category, query);
-        return { items: fallback.slice(0, safeNumOfRows), pageNo: 1, numOfRows: safeNumOfRows, totalCount: fallback.length, source: 'mock' };
-      }
-
       return {
         items: mappedStories,
         pageNo: safePageNo,
@@ -228,37 +230,10 @@ export const odiiApiAdapter = {
         source: 'api',
       };
       } catch (error) {
-      console.error('[Odii API Error] API 호출 실패, Fallback 데이터 전환:', error);
-      const fallback = await this.getMockFiltered(category, query);
-      const start = (safePageNo - 1) * safeNumOfRows;
-      return {
-        items: fallback.slice(start, start + safeNumOfRows),
-        pageNo: safePageNo,
-        numOfRows: safeNumOfRows,
-        totalCount: fallback.length,
-        source: 'mock',
-      };
+      console.error('[Odii API Error] API 호출 실패:', error);
+      throw error instanceof Error ? error : new Error('Odii API request failed');
       }
     });
-  },
-
-  /**
-   * Mock 데이터 필터링 헬퍼
-   */
-  async getMockFiltered(category?: string, query?: string): Promise<OdiiStoryItem[]> {
-    await new Promise((r) => setTimeout(r, 50));
-    let filtered = MOCK_ODII_STORIES;
-
-    if (category && category !== '전체') {
-      const categoryKeyword = CATEGORY_KEYWORD_MAP[category] || category;
-      filtered = filtered.filter((story) => matchesKeyword(story, categoryKeyword));
-    }
-
-    if (query && query.trim().length > 0) {
-      filtered = filtered.filter((story) => matchesKeyword(story, query));
-    }
-
-    return filtered;
   },
 
   /**
@@ -268,7 +243,7 @@ export const odiiApiAdapter = {
    */
   async getFirstStoryByKeyword(keyword: string, fallbackStories: OdiiStoryItem[] = []): Promise<OdiiStoryItem | null> {
     const apiStories = await this.getStoryList(undefined, keyword);
-    const pool = [...apiStories, ...fallbackStories, ...MOCK_ODII_STORIES];
+    const pool = [...apiStories, ...fallbackStories];
     const exactMatch = pool.find((story) => isPlayableStory(story) && matchesKeyword(story, keyword));
     if (exactMatch) return exactMatch;
 
@@ -279,7 +254,7 @@ export const odiiApiAdapter = {
     const entries = await Promise.all(
       keywords.map(async (keyword) => {
         const apiStories = await this.getStoryList(undefined, keyword);
-        const pool = [...apiStories, ...fallbackStories, ...MOCK_ODII_STORIES];
+        const pool = [...apiStories, ...fallbackStories];
         const uniqueStories = Array.from(new Map(pool.map((story) => [story.stid, story])).values());
         const playableMatches = uniqueStories.filter((story) => isPlayableStory(story) && matchesKeyword(story, keyword));
         const matchedStories = playableMatches.length > 0
@@ -304,7 +279,7 @@ export const odiiApiAdapter = {
   async getStoryDetail(stid: string): Promise<OdiiStoryItem | null> {
     const list = await this.getStoryList();
     const found = list.find((s) => s.stid === stid);
-    return found || MOCK_ODII_STORIES.find((s) => s.stid === stid) || null;
+    return found || null;
   },
 
   /**
@@ -323,7 +298,14 @@ export const odiiApiAdapter = {
           yCoord: mapY,
           radius: String(radius),
         });
-        const res = await fetch(`${CLIENT_API_ENDPOINT}?${params.toString()}`, { cache: 'no-store' });
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+        let res: Response;
+        try {
+          res = await fetch(`${CLIENT_API_ENDPOINT}?${params.toString()}`, { cache: 'no-store', signal: controller.signal });
+        } finally {
+          clearTimeout(timeoutId);
+        }
         if (!res.ok) throw new Error(`HTTP error ${res.status}`);
         const json = await res.json();
         const rawItems = json?.response?.body?.items?.item;
@@ -337,7 +319,7 @@ export const odiiApiAdapter = {
           ));
       } catch (error) {
         console.error('[Odii Nearby Error] 위치 기반 조회 실패:', error);
-        return this.getStoryList('한옥');
+        throw error instanceof Error ? error : new Error('Odii nearby request failed');
       }
     });
   }
