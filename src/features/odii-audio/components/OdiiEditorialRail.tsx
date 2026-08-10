@@ -200,6 +200,18 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
     return () => window.clearTimeout(cacheId);
   }, [categoryStories, stories]);
 
+  // 무한 트랙 보정 시 새로 노출되는 물리 슬롯에서 이미지 decode가 발생하지 않도록 미리 준비한다.
+  useEffect(() => {
+    const imageSources = new Set(
+      featured.map((story, index) => story.imageUrl || fallbackImageFor(story, index)),
+    );
+    imageSources.forEach((source) => {
+      const image = new window.Image();
+      image.decoding = 'async';
+      image.src = source;
+    });
+  }, [featured]);
+
   const lockInputForTransition = useCallback(() => {
     inputLockedRef.current = true;
     if (unlockTimerRef.current !== null) {
