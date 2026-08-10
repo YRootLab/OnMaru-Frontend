@@ -54,7 +54,7 @@ export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({ stories 
               onClick={() => selectStory(story)}
               className="group relative z-0 flex cursor-pointer items-center justify-between py-2 transition-all duration-300 hover:z-10"
             >
-              <div className={`relative flex w-full items-center justify-between rounded-2xl border px-3 py-3 transition-all duration-300 sm:px-4 ${isCurrent ? 'border-[#d7a18e] bg-[#f1e5d6] shadow-[0_12px_24px_rgba(115,75,48,0.12)]' : 'border-transparent bg-transparent group-hover:border-[#d8cbb9] group-hover:bg-[#fbf8f2] group-hover:shadow-[0_20px_28px_-16px_rgba(61,45,29,0.36)]'}`}>
+              <div className={`relative flex w-full items-center justify-between rounded-2xl border px-3 py-3 transition-all duration-300 sm:px-4 ${isCurrent ? 'border-2 border-[#D42058] bg-transparent shadow-[0_12px_24px_rgba(115,75,48,0.12)]' : 'border-transparent bg-transparent group-hover:border-[#d8cbb9] group-hover:bg-[#fbf8f2] group-hover:shadow-[0_20px_28px_-16px_rgba(61,45,29,0.36)]'}`}>
                 {/* 좌측 섬네일 + 정보 */}
                 <div className="flex min-w-0 items-center space-x-4">
                   <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl bg-[#d8cfbf] sm:h-20 sm:w-20">

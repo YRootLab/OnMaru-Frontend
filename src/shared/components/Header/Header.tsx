@@ -9,37 +9,95 @@ import styled from '@emotion/styled';
 
 interface LandingProps {
   isLanding?: boolean;
+  isOdii?: boolean;
+  isActive?: boolean;
+  isScrolled?: boolean;
+  isHidden?: boolean;
 }
+
+const NavigationBackdrop = styled(motion.div)<LandingProps>`
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  background: ${({ isLanding }) => (isLanding ? 'rgba(8, 7, 6, 0.34)' : 'rgba(31, 27, 22, 0.22)')};
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+
+  @media (prefers-reduced-motion: reduce) {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+`;
 
 const HeaderContainer = styled.header<LandingProps>`
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 49px;
+  top: 12px;
+  left: 24px;
+  right: 24px;
+  height: 54px;
   z-index: 100;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 75px;
+  padding: 0 28px;
+  border-radius: 16px;
 
   @media (max-width: 1279px) {
     padding: 0 16px;
   }
 
-  background: ${({ isLanding }) => (isLanding ? 'rgba(20, 18, 15, 0.72)' : '#ffffff')};
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid ${({ isLanding }) => (isLanding ? 'rgba(212, 175, 55, 0.15)' : 'rgba(0, 0, 0, 0.06)')};
-  box-shadow: ${({ isLanding }) => (isLanding ? '0 4px 20px rgba(0, 0, 0, 0.35)' : '0 2px 12px rgba(0, 0, 0, 0.04)')};
-  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  @media (max-width: 767px) {
+    top: auto;
+    right: 12px;
+    bottom: max(12px, env(safe-area-inset-bottom));
+    left: 12px;
+    height: 64px;
+    padding: 0 8px;
+    border-radius: 20px;
+    transform: none;
+  }
+
+  background: ${({ isLanding, isScrolled }) =>
+    isLanding
+      ? isScrolled ? 'rgba(27, 25, 22, 0.74)' : 'rgba(27, 25, 22, 0.56)'
+      : isScrolled ? 'rgba(244, 243, 239, 0.82)' : 'rgba(248, 247, 244, 0.68)'};
+  backdrop-filter: blur(${({ isScrolled }) => (isScrolled ? '22px' : '16px')}) saturate(150%);
+  -webkit-backdrop-filter: blur(${({ isScrolled }) => (isScrolled ? '22px' : '16px')}) saturate(150%);
+  border-bottom: 1px solid ${({ isLanding, isScrolled }) =>
+    isLanding
+      ? isScrolled ? 'rgba(255, 248, 235, 0.18)' : 'rgba(255, 248, 235, 0.13)'
+      : isScrolled ? 'rgba(77, 68, 55, 0.13)' : 'rgba(77, 68, 55, 0.1)'};
+  box-shadow: ${({ isLanding, isScrolled }) =>
+    isLanding
+      ? isScrolled ? '0 12px 32px rgba(0, 0, 0, 0.3)' : '0 8px 24px rgba(0, 0, 0, 0.18)'
+      : isScrolled ? '0 12px 32px rgba(47, 39, 29, 0.1)' : '0 8px 24px rgba(47, 39, 29, 0.07)'};
+  transform: translateY(${({ isHidden }) => (isHidden ? 'calc(-100% - 16px)' : '0')});
+  transition:
+    transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 260ms ease,
+    border-color 260ms ease,
+    box-shadow 260ms ease,
+    backdrop-filter 260ms ease;
+  will-change: transform;
   user-select: none;
+
+  @media (max-width: 767px) {
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
 `;
 
 const LeftSection = styled.div`
   display: flex;
   align-items: center;
   height: 100%;
+
+  @media (max-width: 767px) {
+    display: none;
+  }
 `;
 
 const LogoLink = styled(Link)`
@@ -56,8 +114,16 @@ const LogoLink = styled(Link)`
 const CenterNav = styled.nav`
   display: flex;
   align-items: center;
-  gap: 36px;
+  gap: 32px;
   height: 100%;
+
+  @media (max-width: 640px) {
+    gap: 16px;
+  }
+
+  @media (max-width: 767px) {
+    display: none;
+  }
 `;
 
 const NavLink = styled(Link)<LandingProps>`
@@ -73,8 +139,26 @@ const NavLink = styled(Link)<LandingProps>`
   height: 100%;
   transition: color 0.2s ease;
 
+  &::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: 11px;
+    left: 0;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
   &:hover {
-    color: ${({ isLanding }) => (isLanding ? '#d4af37' : '#a94d35')};
+    color: ${({ isLanding, isOdii }) => (isOdii ? '#D42058' : isLanding ? '#d4af37' : '#a94d35')};
+
+    &::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
   }
 `;
 
@@ -103,7 +187,7 @@ const DropdownTrigger = styled.button<LandingProps>`
   transition: color 0.2s ease;
 
   &:hover {
-    color: ${({ isLanding }) => (isLanding ? '#d4af37' : '#a94d35')};
+    color: ${({ isLanding, isOdii }) => (isOdii ? '#D42058' : isLanding ? '#d4af37' : '#a94d35')};
   }
 `;
 
@@ -119,17 +203,26 @@ const ChevronIcon = styled(motion.svg)`
 
 const DropdownMenu = styled(motion.div)<LandingProps>`
   position: absolute;
-  top: calc(100% + 4px);
-  left: 50%;
-  transform: translateX(-50%);
-  min-width: 140px;
-  background: ${({ isLanding }) => (isLanding ? 'rgba(28, 25, 22, 0.94)' : '#ffffff')};
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid ${({ isLanding }) => (isLanding ? 'rgba(212, 175, 55, 0.25)' : 'rgba(0, 0, 0, 0.08)')};
-  border-radius: 10px;
-  padding: 6px;
-  box-shadow: ${({ isLanding }) => (isLanding ? '0 12px 32px rgba(0, 0, 0, 0.45)' : '0 10px 28px rgba(0, 0, 0, 0.12)')};
+  top: calc(100% + 10px);
+  /* 메뉴 텍스트의 시작선을 트리거 "지도"의 첫 글자와 맞춘다. */
+  left: -14px;
+  min-width: 148px;
+  background: ${({ isLanding, isScrolled }) =>
+    isLanding
+      ? isScrolled ? 'rgba(27, 25, 22, 0.74)' : 'rgba(27, 25, 22, 0.56)'
+      : isScrolled ? 'rgba(244, 243, 239, 0.82)' : 'rgba(248, 247, 244, 0.68)'};
+  backdrop-filter: blur(${({ isScrolled }) => (isScrolled ? '22px' : '16px')}) saturate(150%);
+  -webkit-backdrop-filter: blur(${({ isScrolled }) => (isScrolled ? '22px' : '16px')}) saturate(150%);
+  border: 1px solid ${({ isLanding, isScrolled }) =>
+    isLanding
+      ? isScrolled ? 'rgba(255, 248, 235, 0.18)' : 'rgba(255, 248, 235, 0.13)'
+      : isScrolled ? 'rgba(77, 68, 55, 0.13)' : 'rgba(77, 68, 55, 0.1)'};
+  border-radius: 16px;
+  padding: 4px;
+  box-shadow: ${({ isLanding, isScrolled }) =>
+    isLanding
+      ? isScrolled ? '0 12px 32px rgba(0, 0, 0, 0.3)' : '0 8px 24px rgba(0, 0, 0, 0.18)'
+      : isScrolled ? '0 12px 32px rgba(47, 39, 29, 0.1)' : '0 8px 24px rgba(47, 39, 29, 0.07)'};
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -142,16 +235,18 @@ const DropdownItem = styled(Link)<LandingProps>`
   font-weight: 400;
   color: ${({ isLanding }) => (isLanding ? 'rgba(250, 250, 250, 0.88)' : '#211e19')};
   text-decoration: none;
-  padding: 8px 12px;
-  border-radius: 6px;
+  min-height: 40px;
+  padding: 8px 10px;
+  border-radius: 9px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition: background-color 0.15s ease;
 
   &:hover {
-    background: ${({ isLanding }) => (isLanding ? 'rgba(212, 175, 55, 0.12)' : 'rgba(169, 77, 53, 0.08)')};
-    color: ${({ isLanding }) => (isLanding ? '#d4af37' : '#a94d35')};
+    background: rgba(212, 32, 88, 0.12);
+    /* 전역 링크 스타일이나 브라우저 방문 링크 색상이 섞이지 않도록 기본 글자색을 고정한다. */
+    color: ${({ isLanding }) => (isLanding ? 'rgba(250, 250, 250, 0.88)' : '#211e19')};
   }
 `;
 
@@ -159,57 +254,144 @@ const RightSection = styled.div`
   display: flex;
   align-items: center;
   height: 100%;
+
+  @media (max-width: 767px) {
+    display: none;
+  }
+`;
+
+const MobileMenuWrapper = styled.div`
+  position: relative;
+  display: none;
+
+`;
+
+const MobileTabNav = styled.nav`
+  display: none;
+
+  @media (max-width: 767px) {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    align-items: stretch;
+  }
+`;
+
+const MobileTabLink = styled(Link)<LandingProps>`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+  color: ${({ isLanding, isOdii, isActive }) => {
+    if (isActive && isOdii) return '#D42058';
+    if (isActive) return isLanding ? '#f8e6bd' : '#a94d35';
+    return isLanding ? 'rgba(250, 250, 250, 0.68)' : 'rgba(33, 30, 25, 0.68)';
+  }};
+  font-family: 'SpoqaHanSansNeo', sans-serif;
+  font-size: 10px;
+  font-weight: ${({ isActive }) => (isActive ? 600 : 400)};
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  transition: color 180ms ease, transform 180ms ease;
+
+  &:active { transform: scale(0.94); }
+`;
+
+const MobileTabIcon = styled.svg`
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+`;
+
+const MobileMenuButton = styled.button<LandingProps>`
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  color: ${({ isLanding }) => (isLanding ? '#faf9f6' : '#211e19')};
+  background: ${({ isLanding }) => (isLanding ? 'rgba(255, 248, 235, 0.1)' : 'rgba(77, 68, 55, 0.06)')};
+  border: 1px solid ${({ isLanding }) => (isLanding ? 'rgba(255, 248, 235, 0.15)' : 'rgba(77, 68, 55, 0.1)')};
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 180ms ease, transform 180ms ease;
+
+  &:active { transform: scale(0.96); }
+`;
+
+const MobileMenuPanel = styled(motion.nav)<LandingProps>`
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: min(280px, calc(100vw - 16px));
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: ${({ isLanding, isScrolled }) =>
+    isLanding
+      ? isScrolled ? 'rgba(27, 25, 22, 0.82)' : 'rgba(27, 25, 22, 0.7)'
+      : isScrolled ? 'rgba(244, 243, 239, 0.9)' : 'rgba(248, 247, 244, 0.8)'};
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  border: 1px solid ${({ isLanding }) => (isLanding ? 'rgba(255, 248, 235, 0.18)' : 'rgba(77, 68, 55, 0.13)')};
+  border-radius: 16px;
+  box-shadow: ${({ isLanding }) => (isLanding ? '0 14px 32px rgba(0, 0, 0, 0.3)' : '0 14px 32px rgba(47, 39, 29, 0.12)')};
+`;
+
+const MobileMenuLink = styled(Link)<LandingProps>`
+  min-height: 44px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  border-radius: 10px;
+  color: ${({ isLanding }) => (isLanding ? 'rgba(250, 250, 250, 0.9)' : '#211e19')};
+  font-family: 'SpoqaHanSansNeo', sans-serif;
+  font-size: 15px;
+  text-decoration: none;
+
+  &:active {
+    background: ${({ isLanding }) => (isLanding ? 'rgba(255, 248, 235, 0.12)' : 'rgba(169, 77, 53, 0.1)')};
+  }
+`;
+
+const MobileMenuDivider = styled.div<LandingProps>`
+  height: 1px;
+  margin: 4px 6px;
+  background: ${({ isLanding }) => (isLanding ? 'rgba(255, 248, 235, 0.13)' : 'rgba(77, 68, 55, 0.1)')};
 `;
 
 const LoginButton = styled(Link)<LandingProps>`
-  position: relative;
   font-family: 'SpoqaHanSansNeo', sans-serif;
   font-size: 13px;
-  font-weight: 600;
-  color: ${({ isLanding }) => (isLanding ? 'rgba(250, 250, 250, 0.92)' : '#1c1a17')};
-  background: ${({ isLanding }) => (isLanding ? 'rgba(255, 255, 255, 0.08)' : 'rgba(28, 26, 23, 0.04)')};
-  border: none;
-  border-radius: 6px;
-  padding: 6px 14px;
+  font-weight: 500;
+  color: ${({ isLanding, isOdii }) => (isOdii ? '#ffffff' : isLanding ? '#211e19' : '#faf9f6')};
+  background: ${({ isLanding, isOdii }) => (isOdii ? '#D42058' : isLanding ? 'rgba(250, 247, 240, 0.92)' : 'rgba(38, 35, 31, 0.92)')};
+  border: 1px solid ${({ isLanding, isOdii }) => (isOdii ? 'rgba(212, 32, 88, 0.4)' : isLanding ? 'rgba(255, 255, 255, 0.42)' : 'rgba(28, 26, 23, 0.18)')};
+  border-radius: 999px;
+  height: 32px;
+  padding: 0 13px 0 14px;
   text-decoration: none;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  overflow: hidden;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: ${({ isLanding }) => (isLanding ? '#faf8f5' : '#1c1a17')};
-    transform: scaleX(0);
-    transform-origin: right;
-    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    z-index: 0;
-  }
-
-  & > span,
-  & > svg {
-    position: relative;
-    z-index: 1;
-    transition: color 0.25s ease, stroke 0.25s ease, transform 0.25s ease;
-  }
+  box-shadow: ${({ isLanding, isOdii }) => (isOdii ? '0 4px 12px rgba(212, 32, 88, 0.24)' : isLanding ? '0 4px 12px rgba(0, 0, 0, 0.18)' : '0 3px 10px rgba(47, 39, 29, 0.1)')};
+  transition: transform 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
 
   &:hover {
-    color: ${({ isLanding }) => (isLanding ? '#1c1a17' : '#faf8f5')};
-    box-shadow: ${({ isLanding }) => (isLanding ? '0 4px 14px rgba(0, 0, 0, 0.3)' : '0 4px 14px rgba(28, 26, 23, 0.12)')};
+    background: ${({ isLanding, isOdii }) => (isOdii ? '#E03870' : isLanding ? '#ffffff' : '#514a42')};
+    box-shadow: ${({ isLanding, isOdii }) => (isOdii ? '0 6px 16px rgba(212, 32, 88, 0.32)' : isLanding ? '0 6px 16px rgba(0, 0, 0, 0.24)' : '0 5px 14px rgba(47, 39, 29, 0.16)')};
+    transform: translateY(-1px);
 
-    &::before {
-      transform: scaleX(1);
-      transform-origin: left;
-    }
-
-    & > svg {
-      transform: translateX(2px);
-      stroke: ${({ isLanding }) => (isLanding ? '#1c1a17' : '#faf8f5')};
-    }
+    & > svg { transform: translateX(1px); }
   }
 
   &:active {
@@ -220,23 +402,131 @@ const LoginButton = styled(Link)<LandingProps>`
 export default function Header() {
   const pathname = usePathname();
   const isLandingPage = pathname === '/';
+  const isOdiiPage = pathname.startsWith('/odii');
   const [isMapMenuOpen, setIsMapMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
+  const [isLandingLight, setIsLandingLight] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+
+  // 랜딩은 스크롤에 따라 먹빛 ↔ 한지색 배경이 전환된다.
+  // 밝은 구간에서는 다른 페이지와 동일한 라이트 글래스를 사용한다.
+  const usesDarkSurface = isLandingPage && !isLandingLight;
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (dropdownRef.current && !dropdownRef.current.contains(target)) {
         setIsMapMenuOpen(false);
       }
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(target)) setIsMobileMenuOpen(false);
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    let frameId = 0;
+    let previousY = window.scrollY;
+    let accumulatedDistance = 0;
+    let direction: 'up' | 'down' | null = null;
+    let headerIsScrolled = false;
+    let headerIsHidden = false;
+    let landingSurfaceIsLight = false;
+
+    const updateScrolled = (nextValue: boolean) => {
+      if (nextValue !== headerIsScrolled) {
+        headerIsScrolled = nextValue;
+        setIsScrolled(nextValue);
+      }
+    };
+
+    const updateHidden = (nextValue: boolean) => {
+      if (nextValue !== headerIsHidden) {
+        headerIsHidden = nextValue;
+        setIsHidden(nextValue);
+      }
+    };
+
+    const updateLandingSurface = (currentY: number) => {
+      if (!isLandingPage) return;
+
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = scrollable > 0 ? currentY / scrollable : 0;
+      // GlobalBackground의 밝은 한지/계절 구간(0.13~0.38)과 마지막 밝은 구간(0.90~1.0)에 맞춘다.
+      const nextIsLight = (progress >= 0.15 && progress <= 0.39) || progress >= 0.88;
+
+      if (nextIsLight !== landingSurfaceIsLight) {
+        landingSurfaceIsLight = nextIsLight;
+        setIsLandingLight(nextIsLight);
+      }
+    };
+
+    const updateHeader = () => {
+      const currentY = window.scrollY;
+      const delta = currentY - previousY;
+
+      updateScrolled(currentY > 12);
+      updateLandingSurface(currentY);
+
+      if (isMapMenuOpen || isMobileMenuOpen || currentY < 80) {
+        accumulatedDistance = 0;
+        direction = null;
+        updateHidden(false);
+      } else if (Math.abs(delta) >= 1) {
+        const nextDirection = delta > 0 ? 'down' : 'up';
+        accumulatedDistance = direction === nextDirection
+          ? accumulatedDistance + Math.abs(delta)
+          : Math.abs(delta);
+        direction = nextDirection;
+
+        // 작은 트랙패드 흔들림에는 반응하지 않고, 의도적인 스크롤에서만 전환한다.
+        if (nextDirection === 'down' && accumulatedDistance >= 28) {
+          updateHidden(true);
+          accumulatedDistance = 0;
+        } else if (nextDirection === 'up' && accumulatedDistance >= 12) {
+          updateHidden(false);
+          accumulatedDistance = 0;
+        }
+      }
+
+      previousY = currentY;
+      frameId = window.requestAnimationFrame(updateHeader);
+    };
+
+    frameId = window.requestAnimationFrame(updateHeader);
+    return () => window.cancelAnimationFrame(frameId);
+  }, [isMapMenuOpen, isMobileMenuOpen, isLandingPage]);
+
+  const isNavigationOpen = isMapMenuOpen || isMobileMenuOpen;
+
   return (
-    <HeaderContainer isLanding={isLandingPage}>
-      {/* 맨 왼쪽: logo.png */}
-      <LeftSection>
+    <>
+      <AnimatePresence>
+        {isNavigationOpen && (
+          <NavigationBackdrop
+            isLanding={usesDarkSurface}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18, ease: 'easeOut' }}
+            onClick={() => {
+              setIsMapMenuOpen(false);
+              setIsMobileMenuOpen(false);
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      <HeaderContainer
+        isLanding={usesDarkSurface}
+        isScrolled={isScrolled}
+        isHidden={isHidden}
+      >
+        {/* 맨 왼쪽: logo.png */}
+        <LeftSection>
         <LogoLink href="/" aria-label="온마루 홈으로 이동">
           <Image
             src="/logo.png"
@@ -247,11 +537,11 @@ export default function Header() {
             priority
           />
         </LogoLink>
-      </LeftSection>
+        </LeftSection>
 
       {/* 가운데: 한옥 아카이브, 지도 (드롭다운), 소리마루 */}
       <CenterNav>
-        <NavLink href="/archive" isLanding={isLandingPage}>
+        <NavLink href="/archive" isLanding={usesDarkSurface} isOdii={isOdiiPage}>
           한옥 아카이브
         </NavLink>
 
@@ -265,7 +555,8 @@ export default function Header() {
             onClick={() => setIsMapMenuOpen((prev) => !prev)}
             aria-expanded={isMapMenuOpen}
             aria-haspopup="true"
-            isLanding={isLandingPage}
+            isLanding={usesDarkSurface}
+            isOdii={isOdiiPage}
           >
             지도
             <ChevronIcon
@@ -280,22 +571,25 @@ export default function Header() {
           <AnimatePresence>
             {isMapMenuOpen && (
               <DropdownMenu
-                isLanding={isLandingPage}
-                initial={{ opacity: 0, y: -6, scale: 0.96 }}
+                isLanding={usesDarkSurface}
+                isScrolled={isScrolled}
+                initial={{ opacity: 0, y: -8, scale: 0.97 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -6, scale: 0.96 }}
-                transition={{ duration: 0.18, ease: 'easeOut' }}
+                exit={{ opacity: 0, y: -5, scale: 0.98 }}
+                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
               >
                 <DropdownItem
                   href="/map"
-                  isLanding={isLandingPage}
+                  isLanding={usesDarkSurface}
+                  isOdii={isOdiiPage}
                   onClick={() => setIsMapMenuOpen(false)}
                 >
                   정보지도
                 </DropdownItem>
                 <DropdownItem
                   href="/map?mode=warmth"
-                  isLanding={isLandingPage}
+                  isLanding={usesDarkSurface}
+                  isOdii={isOdiiPage}
                   onClick={() => setIsMapMenuOpen(false)}
                 >
                   온기지도
@@ -305,14 +599,14 @@ export default function Header() {
           </AnimatePresence>
         </DropdownWrapper>
 
-        <NavLink href="/odii" isLanding={isLandingPage}>
+        <NavLink href="/odii" isLanding={usesDarkSurface} isOdii={isOdiiPage}>
           소리마루
         </NavLink>
       </CenterNav>
 
       {/* 오른쪽 끝: 로그인 */}
       <RightSection>
-        <LoginButton href="/auth/login" isLanding={isLandingPage}>
+        <LoginButton href="/auth/login" isLanding={usesDarkSurface} isOdii={isOdiiPage}>
           <span>로그인</span>
           <svg
             width="12"
@@ -329,6 +623,87 @@ export default function Header() {
           </svg>
         </LoginButton>
       </RightSection>
-    </HeaderContainer>
+
+      <MobileTabNav aria-label="주요 탐색">
+        <MobileTabLink href="/" isLanding={usesDarkSurface} isActive={pathname === '/'}>
+          <MobileTabIcon viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m3 10 9-7 9 7" />
+            <path d="M5 9v11h14V9" />
+            <path d="M9 20v-6h6v6" />
+          </MobileTabIcon>
+          <span>홈</span>
+        </MobileTabLink>
+        <MobileTabLink href="/archive" isLanding={usesDarkSurface} isActive={pathname.startsWith('/archive')}>
+          <MobileTabIcon viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 6.5h16" />
+            <path d="M6 4h12v16H6z" />
+            <path d="M9 10h6M9 14h6" />
+          </MobileTabIcon>
+          <span>아카이브</span>
+        </MobileTabLink>
+        <MobileTabLink href="/map" isLanding={usesDarkSurface} isActive={pathname.startsWith('/map')}>
+          <MobileTabIcon viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3z" />
+            <path d="M9 3v15M15 6v15" />
+          </MobileTabIcon>
+          <span>지도</span>
+        </MobileTabLink>
+        <MobileTabLink href="/odii" isLanding={usesDarkSurface} isOdii isActive={isOdiiPage}>
+          <MobileTabIcon viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 14v-4M8 18V6M12 15V9M16 20V4M20 14v-4" />
+          </MobileTabIcon>
+          <span>오디</span>
+        </MobileTabLink>
+      </MobileTabNav>
+
+      <MobileMenuWrapper ref={mobileMenuRef}>
+        <MobileMenuButton
+          type="button"
+          isLanding={usesDarkSurface}
+          aria-label="메뉴 열기"
+          aria-expanded={isMobileMenuOpen}
+          aria-controls="mobile-navigation"
+          onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+        >
+          <motion.svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            animate={{ rotate: isMobileMenuOpen ? 90 : 0 }}
+            transition={{ duration: 0.18 }}
+          >
+            <path d="M4 7h16" />
+            <path d="M4 12h16" />
+            <path d="M4 17h16" />
+          </motion.svg>
+        </MobileMenuButton>
+
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <MobileMenuPanel
+              id="mobile-navigation"
+              isLanding={usesDarkSurface}
+              isScrolled={isScrolled}
+              initial={{ opacity: 0, y: -8, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -6, scale: 0.98 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <MobileMenuLink href="/archive" isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>한옥 아카이브</MobileMenuLink>
+              <MobileMenuLink href="/map" isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>정보지도</MobileMenuLink>
+              <MobileMenuLink href="/map?mode=warmth" isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>온기지도</MobileMenuLink>
+              <MobileMenuLink href="/odii" isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>소리마루</MobileMenuLink>
+              <MobileMenuDivider isLanding={usesDarkSurface} />
+              <MobileMenuLink href="/auth/login" isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>로그인</MobileMenuLink>
+            </MobileMenuPanel>
+          )}
+        </AnimatePresence>
+      </MobileMenuWrapper>
+      </HeaderContainer>
+    </>
   );
 }

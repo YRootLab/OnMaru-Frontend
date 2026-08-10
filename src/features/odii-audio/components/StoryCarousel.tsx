@@ -77,7 +77,7 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories }) => {
               aria-pressed={isCurrent}
               className={`group w-72 snap-start flex-shrink-0 overflow-hidden rounded-2xl border text-left shadow-[0_10px_28px_rgba(61,45,29,0.08)] transition-all duration-300 sm:w-80 ${
                 isCurrent
-                  ? 'border-[#a94d35] bg-[#f5e3d7] ring-1 ring-[#a94d35]/20'
+                  ? 'border-2 border-[#D42058] bg-[#fbf8f2]'
                   : 'border-[#cfc1b0] bg-[#fbf8f2] hover:-translate-y-1 hover:border-[#a94d35] hover:shadow-[0_18px_34px_rgba(61,45,29,0.14)]'
               }`}
             >

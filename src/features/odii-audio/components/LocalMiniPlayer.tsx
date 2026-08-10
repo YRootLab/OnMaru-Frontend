@@ -31,11 +31,22 @@ export const LocalMiniPlayer: React.FC = () => {
   const [isTranscriptOpen, setIsTranscriptOpen] = useState(false);
 
   useEffect(() => {
-    const updateVisibility = () => setIsVisible(window.scrollY > 220 || isPlaying);
+    const updateVisibility = () => {
+      const isMobileViewport = window.matchMedia('(max-width: 767px)').matches;
+      const hasStartedPlayback = isPlaying || currentTime > 0;
+      // 기본으로 선택된 이야기는 재생바를 띄우지 않는다. 모바일에서는 사용자가
+      // 실제 재생을 시작한 뒤에만 탭바 위에서 조작할 수 있게 한다.
+      // 데스크톱에서는 본문을 가리지 않도록 기존의 스크롤/재생 기준을 유지한다.
+      setIsVisible(isMobileViewport ? hasStartedPlayback : window.scrollY > 220 || isPlaying);
+    };
     updateVisibility();
     window.addEventListener('scroll', updateVisibility, { passive: true });
-    return () => window.removeEventListener('scroll', updateVisibility);
-  }, [isPlaying]);
+    window.addEventListener('resize', updateVisibility);
+    return () => {
+      window.removeEventListener('scroll', updateVisibility);
+      window.removeEventListener('resize', updateVisibility);
+    };
+  }, [currentTime, isPlaying]);
 
   useEffect(() => {
     if (!isExpanded) return;
@@ -53,12 +64,12 @@ export const LocalMiniPlayer: React.FC = () => {
   if (!isVisible) return null;
 
   return <>
-    <motion.div layout initial={{ opacity: 0, y: 20, x: '-50%' }} animate={{ opacity: 1, y: 0, x: '-50%' }} className="fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom))] left-1/2 z-50 w-[calc(100%-2rem)] max-w-xl overflow-hidden rounded-2xl border border-[#d2c3b1] bg-[#fbf8f2]/95 shadow-[0_18px_44px_rgba(61,45,29,0.2)] backdrop-blur-xl">
-      <div className="h-1 bg-[#e4d9cc]"><div className="h-full bg-[#a94d35] transition-[width] duration-300" style={{ width: `${audioProgress}%` }} /></div>
-      <div className="flex items-center gap-3 px-3 py-2.5 sm:px-4"><button type="button" onClick={() => setIsExpanded(true)} className="flex min-w-0 flex-1 items-center gap-3 text-left"><motion.img layoutId="odii-player-art" src={story.imageUrl} alt="" className="h-10 w-10 rounded-xl object-cover"/><span className="min-w-0"><span className="block truncate font-maruburi text-sm font-semibold text-[#211e19]">{story.title}</span><span className="block text-[11px] text-[#786d5e]">{formatTime(currentTime)} / {formatTime(duration)}</span></span></button><button type="button" onClick={() => setIsPlaying(!isPlaying)} className="flex h-10 w-10 items-center justify-center rounded-full bg-[#a94d35] text-white"><PlayIcon /></button><button type="button" onClick={() => setIsExpanded(true)} className="hidden items-center gap-1 rounded-full px-2 py-2 text-[11px] font-semibold text-[#786d5e] hover:bg-[#eee6da] sm:flex">자세히<svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-none stroke-current stroke-2"><path d="m7 10 5 5 5-5" /></svg></button></div>
+    <motion.div layout initial={{ opacity: 0, y: 20, x: '-50%' }} animate={{ opacity: 1, y: 0, x: '-50%' }} className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] left-1/2 z-[110] w-[calc(100%-1.5rem)] max-w-xl overflow-hidden rounded-[18px] border border-[#D42058]/20 bg-[#fff9fb]/95 shadow-[0_14px_32px_rgba(105,25,53,0.18)] backdrop-blur-xl md:bottom-[calc(1.25rem+env(safe-area-inset-bottom))] md:z-50 md:w-[calc(100%-2rem)] md:rounded-2xl">
+      <div className="h-0.5 bg-[#F8D7E2] sm:h-1"><div className="h-full bg-[#D42058] transition-[width] duration-300" style={{ width: `${audioProgress}%` }} /></div>
+      <div className="flex items-center gap-2 px-2.5 py-2 sm:gap-3 sm:px-4 sm:py-2.5"><button type="button" onClick={() => setIsExpanded(true)} className="flex min-w-0 flex-1 items-center gap-2 text-left sm:gap-3" aria-label={`${story.title} 전체 플레이어 열기`}><motion.img layoutId="odii-player-art" src={story.imageUrl} alt="" className="h-9 w-9 rounded-[10px] object-cover sm:h-10 sm:w-10 sm:rounded-xl"/><span className="min-w-0"><span className="block truncate font-maruburi text-[13px] font-semibold leading-5 text-[#211e19] sm:text-sm">{story.title}</span><span className="hidden text-[11px] text-[#786d5e] sm:block">{formatTime(currentTime)} / {formatTime(duration)}</span></span></button><button type="button" onClick={() => setIsPlaying(!isPlaying)} aria-label={isPlaying ? '일시정지' : '재생'} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#D42058] text-white shadow-[0_4px_10px_rgba(212,32,88,0.28)] sm:h-10 sm:w-10"><PlayIcon /></button><button type="button" onClick={() => setIsExpanded(true)} className="hidden items-center gap-1 rounded-full px-2 py-2 text-[11px] font-semibold text-[#786d5e] hover:bg-[#FCE7EE] sm:flex">자세히<svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-none stroke-current stroke-2"><path d="m7 10 5 5 5-5" /></svg></button></div>
     </motion.div>
 
-    <AnimatePresence>{isExpanded && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] bg-[#211e19]/35 backdrop-blur-sm" onClick={closePlayer}><motion.aside layout initial={{ opacity: 0, y: 18, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 18, scale: 0.98 }} transition={{ type: 'spring', damping: 30, stiffness: 340 }} onClick={(event) => event.stopPropagation()} className={`absolute bottom-0 left-0 right-0 flex flex-col overflow-y-auto rounded-t-3xl bg-[#fbf8f2] p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-2xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${isTranscriptOpen ? 'max-h-[88dvh]' : 'max-h-[90dvh]'} lg:bottom-6 lg:left-auto lg:right-6 lg:w-[460px] lg:rounded-3xl lg:p-6 ${isTranscriptOpen ? 'lg:max-h-[86vh]' : ''}`}>
+    <AnimatePresence>{isExpanded && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[200] bg-[#211e19]/35 backdrop-blur-sm md:z-[60]" onClick={closePlayer}><motion.aside layout initial={{ opacity: 0, y: 18, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 18, scale: 0.98 }} transition={{ type: 'spring', damping: 30, stiffness: 340 }} onClick={(event) => event.stopPropagation()} className={`absolute bottom-0 left-0 right-0 flex flex-col overflow-y-auto rounded-t-3xl bg-[#fbf8f2] p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-2xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${isTranscriptOpen ? 'max-h-[88dvh]' : 'max-h-[90dvh]'} lg:bottom-6 lg:left-auto lg:right-6 lg:w-[460px] lg:rounded-3xl lg:p-6 ${isTranscriptOpen ? 'lg:max-h-[86vh]' : ''}`}>
       {isTranscriptOpen ? <>
         <header className="flex items-center justify-between border-b border-[#211e19]/10 pb-4"><button type="button" onClick={() => setIsTranscriptOpen(false)} className="inline-flex items-center gap-1 text-sm font-semibold text-[#655b4d] hover:text-[#211e19]">← 플레이어로</button><button type="button" onClick={closePlayer} className="flex h-9 w-9 items-center justify-center rounded-full text-[#655b4d] hover:bg-[#eee6da]" aria-label="패널 닫기">✕</button></header>
         <div className="flex items-center justify-between py-4"><div><p className="text-[10px] font-bold tracking-[0.15em] text-[#a94d35]">전체 대본</p><h2 className="mt-1 max-w-[290px] truncate font-maruburi text-lg font-semibold">{story.title}</h2></div><button type="button" onClick={() => setIsPlaying(!isPlaying)} className="flex h-10 w-10 items-center justify-center rounded-full bg-[#a94d35] text-white"><PlayIcon /></button></div>
