@@ -15,6 +15,7 @@ import { OdiiFooterCTA } from './OdiiFooterCTA';
 import { AllStoriesModal } from './AllStoriesModal';
 import { LocalMiniPlayer } from './LocalMiniPlayer';
 import { OdiiAtmosphereBackground } from './OdiiAtmosphereBackground';
+import { VesselReveal } from '@/shared/components/animation/VesselReveal';
 import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
 import { OdiiStoryItem, OdiiStoryPage, IOdiiApiService } from '../types/odii.types';
 import { OdiiDependencyProvider, useOdiiApiService } from '../context/OdiiDependencyContext';
@@ -77,44 +78,6 @@ export interface OdiiAudioFeatureProps {
   /** 외부 위치 변경 이벤트 콜백 */
   onLocationChange?: (latitude: number, longitude: number) => void;
 }
-
-interface ScrollySectionVesselProps {
-  children: React.ReactNode;
-  className?: string;
-  id?: string;
-}
-
-const ScrollySectionVessel: React.FC<ScrollySectionVesselProps> = ({ children, className = '', id }) => {
-  return (
-    <motion.div
-      id={id}
-      initial={{
-        scale: 0.94,
-        y: 28,
-        borderRadius: '2.5rem',
-        borderColor: 'rgba(33, 30, 25, 0.14)',
-        boxShadow: '0 20px 48px rgba(33, 30, 25, 0.10)',
-        opacity: 0.75,
-      }}
-      whileInView={{
-        scale: 1,
-        y: 0,
-        borderRadius: '0.5rem',
-        borderColor: 'rgba(33, 30, 25, 0)',
-        boxShadow: '0 0px 0px rgba(0, 0, 0, 0)',
-        opacity: 1,
-      }}
-      viewport={{ once: true, amount: 0.12 }}
-      transition={{
-        duration: 0.85,
-        ease: [0.16, 1, 0.3, 1],
-      }}
-      className={`border overflow-hidden transition-colors duration-500 ${className}`}
-    >
-      {children}
-    </motion.div>
-  );
-};
 
 export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
   apiService,
@@ -385,7 +348,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
           </motion.div>
 
           {/* 섹션 2: 한 단어로, 한 장면 */}
-          <ScrollySectionVessel className="min-h-[650px] sm:min-h-[700px]">
+          <VesselReveal className="min-h-[650px] sm:min-h-[700px]">
             <div className="mt-4">
               <div className="mx-auto max-w-6xl px-4 sm:px-8 pt-4">
                 <h3 className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-2xl font-bold tracking-[-0.04em] text-transparent sm:text-3xl">장면을 골라 듣다</h3>
@@ -400,10 +363,10 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                 />
               </div>
             </div>
-          </ScrollySectionVessel>
+          </VesselReveal>
 
           {/* 섹션 3: 오늘, 여기에서 */}
-          <ScrollySectionVessel className="h-[420px] w-full py-6 sm:py-8">
+          <VesselReveal className="h-[420px] w-full py-6 sm:py-8">
             <section
               aria-labelledby="nearby-stories-heading"
               className="w-full"
@@ -436,10 +399,10 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                 </motion.div>
               </div>
             </section>
-          </ScrollySectionVessel>
+          </VesselReveal>
 
           {/* 섹션 4: 기존 리스트 컴포넌트 큐레이션 */}
-          <ScrollySectionVessel className="w-full py-8 sm:py-12">
+          <VesselReveal className="w-full py-8 sm:py-12">
             <section
               aria-labelledby="compact-archive-heading"
               className="w-full"
@@ -473,10 +436,10 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                 </motion.div>
               </div>
             </section>
-          </ScrollySectionVessel>
+          </VesselReveal>
 
           {/* 섹션 5: 주제와 장소를 따라보는 이야기 아카이브 */}
-          <ScrollySectionVessel id="odii-archive" className="min-h-[900px] w-full py-8 sm:py-12">
+          <VesselReveal id="odii-archive" className="min-h-[900px] w-full py-8 sm:py-12">
             <section
               className="w-full"
             >
@@ -539,10 +502,10 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                 </div>
               </div>
             </section>
-          </ScrollySectionVessel>
+          </VesselReveal>
 
           {/* 섹션 6: 카드형 오디오 컬렉션 */}
-          <ScrollySectionVessel className="w-full py-10 sm:py-14">
+          <VesselReveal className="w-full py-10 sm:py-14">
             <section
               aria-labelledby="odii-card-collection-heading"
               className="w-full"
@@ -568,12 +531,12 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                 </motion.div>
               </div>
             </section>
-          </ScrollySectionVessel>
+          </VesselReveal>
 
           {/* 섹션 7: 이탈 방지 & 재방문 CTA */}
-          <ScrollySectionVessel className="min-h-[220px] sm:min-h-[260px]">
+          <VesselReveal className="min-h-[220px] sm:min-h-[260px]">
             <OdiiFooterCTA />
-          </ScrollySectionVessel>
+          </VesselReveal>
           </main>
         </div>
 
