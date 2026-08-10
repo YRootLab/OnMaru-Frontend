@@ -38,17 +38,20 @@ Odii 화면의 섹션 2 카드 레일에서 카드를 빠르게 연속 클릭하
 - `localStorage` 사용 실패가 API 동작 자체를 막지 않도록 예외를 무시하는 이유를 설명한다.
 - 이 전략의 장점과 주의점도 적는다. 예: 하루 동안 데이터가 갱신되지 않는다는 제품 가정, 오래된 localStorage 항목 정리 필요성, 사용자별 위치 데이터 캐시 키 분리.
 
-#### 3. 120개 카드에서 9개 재사용 큐로 변경
+#### 3. 120개 카드에서 14개 재사용 큐로 변경
 
 - 기존 구현이 120개의 카드 React 요소를 만들고, 결과적으로 카드 DOM 노드와 이미지 요소도 120개까지 생성할 수 있었음을 설명한다.
-- 새 구현은 활성 카드 주변에 보이는 9개 슬롯만 렌더링한다.
+- 새 구현은 활성 카드 주변에 보이는 14개 슬롯만 렌더링한다.
 - 이것은 카드 데이터를 단순히 잘라낸 것이 아니라, 활성 위치를 기준으로 앞뒤 카드를 계산해 같은 화면 슬롯을 재사용하는 고정 큐 구조임을 분명히 한다.
-- `QUEUE_SIZE = 9`, `QUEUE_CENTER`가 어떤 역할을 하는지 설명한다.
+- `QUEUE_SIZE = 14`, `INITIAL_QUEUE_START`, `queueStart`가 어떤 역할을 하는지 설명한다.
+- 큐가 활성 카드 중심으로 매 렌더링마다 재생성되지 않도록, 고정된 슬롯이 트랜지션 동안 유지된다는 점을 설명한다.
+- 부모 트랙은 `activePosition - queueStart`만큼 실제로 이동해 `index + 2`, `index + 3` 같은 다중 이동도 기존처럼 자연스럽게 애니메이션한다.
+- 큐 끝에 도달한 경우에만 트랜지션 종료 후 `queueStart`를 한 칸 보정해 무한 순환을 이어간다는 점을 설명한다.
 - 카드의 크기, 간격, 회전, opacity, scale, 480ms easing 등 기존 시각적 애니메이션은 유지되고, 렌더링되는 요소 수만 줄었다는 점을 확인한다.
 - Next.js에 이 UI에 바로 적용되는 기본 reusable queue 컴포넌트가 있는지와, 이번 작업에서 별도 라이브러리 대신 작은 커스텀 큐를 선택한 이유를 설명한다.
 - 일반적인 virtualized list 라이브러리와 비교하되, 이 레일은 세로 목록이 아니라 양옆 카드와 무한 순환 애니메이션을 가진 가로 프레젠테이션 레일이라는 차이를 반영한다.
-- 120개 카드에서 9개 카드로 줄었을 때 React reconciliation, layout/paint, 이미지 로딩, Framer Motion 업데이트 비용이 어떻게 달라지는지 설명한다.
-- “DOM이 9개로 줄었다”는 표현은 카드 컨테이너 기준인지, 카드 내부 이미지/텍스트까지 포함하는지 정확히 구분한다. 전체 페이지 DOM이 9개라는 뜻으로 과장하지 않는다.
+- 120개 카드에서 14개 카드로 줄었을 때 React reconciliation, layout/paint, 이미지 로딩, Framer Motion 업데이트 비용이 어떻게 달라지는지 설명한다.
+- “DOM이 14개로 줄었다”는 표현은 카드 컨테이너 기준인지, 카드 내부 이미지/텍스트까지 포함하는지 정확히 구분한다. 전체 페이지 DOM이 14개라는 뜻으로 과장하지 않는다.
 
 ### 블로그 글에 포함할 검증 결과
 
@@ -74,6 +77,6 @@ Odii 화면의 섹션 2 카드 레일에서 카드를 빠르게 연속 클릭하
 ## 작업 범위 메모
 
 - 전환 입력 잠금 및 위치 보정 쿨다운: `src/features/odii-audio/components/OdiiEditorialRail.tsx`
-- 120개 카드 → 활성 주변 9개 고정 큐: `src/features/odii-audio/components/OdiiEditorialRail.tsx`
+- 120개 카드 → 활성 주변 14개 고정 큐: `src/features/odii-audio/components/OdiiEditorialRail.tsx`
 - 날짜 단위 메모리/localStorage 캐시 및 in-flight 중복 요청 방지: `src/features/odii-audio/api/odiiApi.ts`
 - 기존 UI 스타일, 카드 크기, easing, 480ms 전환 애니메이션은 유지

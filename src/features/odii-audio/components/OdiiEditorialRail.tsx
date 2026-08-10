@@ -77,9 +77,9 @@ const isTrustedOdiiImage = (imageUrl: string) => (
 
 const durationFor = (story: OdiiStoryItem) => story.formattedDuration || `${Math.floor((Number(story.playTime) || 0) / 60)}:${String((Number(story.playTime) || 0) % 60).padStart(2, '0')}`;
 
-// 화면 양옆에 필요한 카드만 유지한다. 카드의 모양·간격·전환 시간은 기존 값을 그대로 쓴다.
-const QUEUE_SIZE = 9;
-const QUEUE_CENTER = Math.floor(QUEUE_SIZE / 2);
+// 기존 트랙의 이동 애니메이션은 유지하고, 전환에 필요한 카드 슬롯만 재사용한다.
+const QUEUE_SIZE = 14;
+const INITIAL_QUEUE_START = 54; // activePosition 60을 14개 큐의 안쪽에 둔다.
 const POSITION_CORRECTION_COOLDOWN_MS = 70;
 
 export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, storySets, apiService, isLoading = false }) => {
@@ -100,6 +100,7 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
   });
   const categoryRequestRef = useRef(0);
   const [activePosition, setActivePosition] = useState(60);
+  const [queueStart, setQueueStart] = useState(INITIAL_QUEUE_START);
   const [trackTransitionEnabled, setTrackTransitionEnabled] = useState(true);
   const [autoResetToken, setAutoResetToken] = useState(0);
   const resetTimerRef = useRef<number | null>(null);
@@ -126,10 +127,10 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
     if (!featured.length) return [];
 
     return Array.from({ length: QUEUE_SIZE }, (_, slot) => {
-      const position = activePosition - QUEUE_CENTER + slot;
+      const position = queueStart + slot;
       return { story: featured[((position % featured.length) + featured.length) % featured.length], position };
     });
-  }, [activePosition, featured]);
+  }, [featured, queueStart]);
 
   useEffect(() => {
     const updateTrackMetrics = () => {
@@ -149,6 +150,7 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
   useEffect(() => {
     const resetId = window.setTimeout(() => {
       setActivePosition(60);
+      setQueueStart(INITIAL_QUEUE_START);
       setTrackTransitionEnabled(true);
     }, 0);
     return () => window.clearTimeout(resetId);
@@ -238,7 +240,10 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
 
   const handleTrackTransitionEnd = useCallback((event: React.TransitionEvent<HTMLDivElement>) => {
     if (event.target !== event.currentTarget || event.propertyName !== 'transform' || featured.length < 2) return;
-    if (activePosition <= 90 && activePosition >= 30) {
+    const atQueueStart = activePosition <= queueStart;
+    const atQueueEnd = activePosition >= queueStart + QUEUE_SIZE - 1;
+
+    if (!atQueueStart && !atQueueEnd) {
       unlockTimerRef.current = window.setTimeout(() => {
         inputLockedRef.current = false;
         unlockTimerRef.current = null;
@@ -247,7 +252,8 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
     }
 
     setTrackTransitionEnabled(false);
-    setActivePosition((position) => position > 90 ? position - featured.length : position + featured.length);
+    // 전환이 끝난 뒤에만 한 칸 보정한다. activePosition은 논리적 카드 index로 유지한다.
+    setQueueStart((position) => position + (atQueueEnd ? 1 : -1));
     window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => {
         setTrackTransitionEnabled(true);
@@ -257,7 +263,7 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
         }, POSITION_CORRECTION_COOLDOWN_MS);
       });
     });
-  }, [activePosition, featured.length]);
+  }, [activePosition, featured.length, queueStart]);
 
   const handleCategoryChange = (keyword: string) => {
     if (keyword === selectedKeyword || isCategoryLoading || inputLockedRef.current) return;
@@ -265,6 +271,7 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
     setIsCategoryLoading(true);
     setTrackTransitionEnabled(false);
     setActivePosition(60);
+    setQueueStart(INITIAL_QUEUE_START);
     setSelectedKeyword(keyword);
     const requestId = categoryRequestRef.current + 1;
     categoryRequestRef.current = requestId;
@@ -335,7 +342,7 @@ export const OdiiEditorialRail: React.FC<OdiiEditorialRailProps> = ({ stories, s
             {!showSkeleton && <div
               className="absolute left-1/2 top-3 flex items-start gap-4 sm:gap-5 lg:gap-5"
               style={{
-                transform: `translate3d(${-(trackMetrics.cardStep * QUEUE_CENTER + trackMetrics.cardWidth / 2)}px, 0, 0)`,
+                transform: `translate3d(${-(trackMetrics.cardStep * (activePosition - queueStart) + trackMetrics.cardWidth / 2)}px, 0, 0)`,
                 transition: trackTransitionEnabled ? 'transform 480ms cubic-bezier(0.16, 1, 0.3, 1)' : 'none',
               }}
               onTransitionEnd={handleTrackTransitionEnd}
