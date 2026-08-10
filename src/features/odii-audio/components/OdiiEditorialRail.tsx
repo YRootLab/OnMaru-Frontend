@@ -474,32 +474,32 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
             </nav>
           </div>
           <div className="relative mt-0 h-[355px] overflow-hidden sm:h-[430px] lg:h-[465px]">
-            {/* Leading (좌측) & Trailing (우측) 소프트 리니어 그라데이션 페이드 마스크 */}
-            <div className="pointer-events-none absolute left-0 top-0 bottom-0 z-20 w-16 sm:w-28 lg:w-36 bg-gradient-to-r from-[#fffaf3] via-[#fffaf3]/70 to-transparent" />
-            <div className="pointer-events-none absolute right-0 top-0 bottom-0 z-20 w-16 sm:w-28 lg:w-36 bg-gradient-to-l from-[#fffaf3] via-[#fffaf3]/70 to-transparent" />
+            {/* Leading (좌측) & Trailing (우측) 슬림 퓨어 화이트 리니어 그라데이션 페이드 마스크 */}
+            <div className="pointer-events-none absolute left-0 top-0 bottom-0 z-20 w-6 sm:w-12 lg:w-16 bg-gradient-to-r from-white via-white/50 to-transparent" />
+            <div className="pointer-events-none absolute right-0 top-0 bottom-0 z-20 w-6 sm:w-12 lg:w-16 bg-gradient-to-l from-white via-white/50 to-transparent" />
 
-            {/* 카드 스테이지 좌측 Leading 탐색 화살표 버튼 */}
+            {/* 카드 스테이지 좌측 Leading 탐색 화살표 버튼 (미니멀 미니 화살표) */}
             <button
               type="button"
               onClick={() => moveBy(-1)}
               onDragStart={(event) => event.preventDefault()}
               draggable={false}
               aria-label="이전 이야기"
-              className="absolute left-3 sm:left-6 top-1/2 z-30 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full border border-[#211e19]/15 bg-white/85 text-[#211e19] shadow-[0_8px_24px_rgba(33,30,25,0.14)] backdrop-blur-md transition-all duration-300 hover:scale-110 hover:border-[#f84e76] hover:bg-white hover:text-[#f84e76] active:scale-95"
+              className="absolute left-1 sm:left-3 top-1/2 z-30 -translate-y-1/2 flex h-10 w-9 items-center justify-center rounded-xl text-[#786d5e] transition-all duration-300 hover:scale-110 hover:bg-black/5 hover:text-[#211e19] active:scale-95"
             >
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+              <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
             </button>
 
-            {/* 카드 스테이지 우측 Trailing 탐색 화살표 버튼 */}
+            {/* 카드 스테이지 우측 Trailing 탐색 화살표 버튼 (미니멀 미니 화살표) */}
             <button
               type="button"
               onClick={() => moveBy(1)}
               onDragStart={(event) => event.preventDefault()}
               draggable={false}
               aria-label="다음 이야기"
-              className="absolute right-3 sm:right-6 top-1/2 z-30 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full border border-[#211e19]/15 bg-white/85 text-[#211e19] shadow-[0_8px_24px_rgba(33,30,25,0.14)] backdrop-blur-md transition-all duration-300 hover:scale-110 hover:border-[#f84e76] hover:bg-white hover:text-[#f84e76] active:scale-95"
+              className="absolute right-1 sm:right-3 top-1/2 z-30 -translate-y-1/2 flex h-10 w-9 items-center justify-center rounded-xl text-[#786d5e] transition-all duration-300 hover:scale-110 hover:bg-black/5 hover:text-[#211e19] active:scale-95"
             >
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
             </button>
 
             {showSkeleton && (
