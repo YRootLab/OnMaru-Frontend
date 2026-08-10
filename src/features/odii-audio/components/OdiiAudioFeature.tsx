@@ -366,7 +366,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
           </VesselReveal>
 
           {/* 섹션 3: 오늘, 여기에서 */}
-          <VesselReveal className="h-[420px] w-full py-6 sm:py-8">
+          <VesselReveal className="min-h-[440px] sm:min-h-[470px] w-full py-6 sm:py-8">
             <section
               aria-labelledby="nearby-stories-heading"
               className="w-full"

@@ -482,7 +482,7 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
 
       {/* 📍 하단 우측 독립 인덱스 카운터 (01 / 19) */}
       {railIndicator.width < 100 && (
-        <div className="flex items-center justify-end px-6 pt-1 text-[11px] font-medium tracking-[0.08em] text-[#8c7e6c] sm:px-8" aria-live="polite">
+        <div className="flex items-center justify-end px-6 pt-1 pb-3 text-[11px] font-medium tracking-[0.08em] text-[#8c7e6c] sm:px-8 sm:pb-4" aria-live="polite">
           <span className="font-mono">
             <strong className="font-bold text-[#a94d35]">{String(railIndicator.index).padStart(2, '0')}</strong> / {String(stories.length).padStart(2, '0')}
           </span>
