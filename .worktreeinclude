@@ -1,0 +1,5 @@
+# .worktreeinclude (repo root)
+# Files and directories ignored by git to automatically copy from primary checkout to newly created Orca worktrees
+.env
+.env.local
+.vscode/settings.json

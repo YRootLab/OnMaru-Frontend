@@ -1,0 +1,7 @@
+# orca.yaml
+# Orca workspace & worktree configuration for OnMaru Frontend
+
+scripts:
+  setup: |
+    npm cache clean --force
+    npm install
