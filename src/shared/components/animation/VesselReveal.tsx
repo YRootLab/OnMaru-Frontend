@@ -14,17 +14,18 @@ export interface VesselRevealProps {
   scaleFrom?: number;
   /** 진입 초기 라운드 캡슐 곡률 (기본값: '2.2rem') */
   roundedFrom?: string;
-  /** 뷰포트 감지 임계값 (기본값: 0.08 = 8% 하단 접촉 시 은은한 언폴딩) */
-  threshold?: number;
-  /** 애니메이션 지속 시간 (기본값: 0.95s 실크 이징) */
+  /** 하단 캡슐 모핑 트리거 뷰포트 비율 (기본값: 0.75 = 화면 하단 25% 영역 진입 시 선제적 언폴딩/폴딩) */
+  exitThresholdRatio?: number;
+  /** 애니메이션 지속 시간 (기본값: 0.85s) */
   duration?: number;
 }
 
 /**
- * ## VesselReveal (은은하게 대기하다 자연스럽게 펼쳐지는 스크롤 모핑 패턴)
+ * ## VesselReveal (선제적 하단 25% 영역 스크롤 모핑 디자인 패턴)
  * 
- * 아래에서 튀어 오르는 팝업 현상(Jump)을 완벽히 억제하고,
- * 하단 경계에서 은은하게 대기하다 시선에 맞춰 실크처럼 92% -> 100% 개화합니다.
+ * 섹션 상단이 화면 하단 25% 영역(`vh * 0.75`)에 진입하는 시점에 선제적으로 은은하게 92% -> 100% 개화하며,
+ * 사용자가 위로 스크롤하여 하단 25% 영역 이하로 떨어지는 바로 그 순간 뒤늦음 없이 
+ * 매끄럽게 92% 라운드 캡슐로 수축 폴딩(Fold)되는 웰메이드 스크롤 컴포넌트입니다.
  */
 export const VesselReveal: React.FC<VesselRevealProps> = ({
   children,
@@ -32,8 +33,8 @@ export const VesselReveal: React.FC<VesselRevealProps> = ({
   id,
   scaleFrom = 0.92,
   roundedFrom = '2.2rem',
-  threshold = 0.08,
-  duration = 0.95,
+  exitThresholdRatio = 0.75,
+  duration = 0.85,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [stage, setStage] = useState<'vessel' | 'bloomed'>('vessel');
@@ -42,24 +43,29 @@ export const VesselReveal: React.FC<VesselRevealProps> = ({
     const el = containerRef.current;
     if (!el) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          // 화면 하단 접촉 시: 위로 점프하지 않고 은은하게 92% -> 100% 개화
-          setStage('bloomed');
-        } else {
-          // 화면 하단으로 완전히 벗어난 경우에만 은은한 라운드 캡슐로 폴딩
-          if (entry.boundingClientRect.top > 0) {
-            setStage('vessel');
-          }
-        }
-      },
-      { threshold }
-    );
+    const handleScroll = () => {
+      const rect = el.getBoundingClientRect();
+      const vh = window.innerHeight;
 
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [threshold]);
+      // 섹션 상단이 화면 하단 25% 선(vh * 0.75)보다 위에 있고, 아직 화면 전체를 안 벗어난 경우 -> 100% 개화
+      if (rect.top < vh * exitThresholdRatio && rect.bottom > 0) {
+        setStage('bloomed');
+      } 
+      // 섹션 상단이 화면 하단 25% 선보다 아래로 떨어지면 -> 뒤늦음 없이 선제적으로 92% 캡슐 수축 폴딩
+      else if (rect.top >= vh * exitThresholdRatio) {
+        setStage('vessel');
+      }
+    };
+
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, [exitThresholdRatio]);
 
   const isBloomed = stage === 'bloomed';
 
