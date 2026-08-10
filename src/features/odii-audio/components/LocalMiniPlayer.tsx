@@ -31,11 +31,19 @@ export const LocalMiniPlayer: React.FC = () => {
   const [isTranscriptOpen, setIsTranscriptOpen] = useState(false);
 
   useEffect(() => {
-    const updateVisibility = () => setIsVisible(window.scrollY > 220 || isPlaying);
+    const updateVisibility = () => {
+      const isMobileViewport = window.matchMedia('(max-width: 767px)').matches;
+      const hasStartedPlayback = isPlaying || currentTime > 0;
+      setIsVisible(isMobileViewport ? hasStartedPlayback : window.scrollY > 220 || isPlaying);
+    };
     updateVisibility();
     window.addEventListener('scroll', updateVisibility, { passive: true });
-    return () => window.removeEventListener('scroll', updateVisibility);
-  }, [isPlaying]);
+    window.addEventListener('resize', updateVisibility);
+    return () => {
+      window.removeEventListener('scroll', updateVisibility);
+      window.removeEventListener('resize', updateVisibility);
+    };
+  }, [currentTime, isPlaying]);
 
   useEffect(() => {
     if (!isExpanded) return;
@@ -61,7 +69,7 @@ export const LocalMiniPlayer: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 16 }}
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed bottom-[calc(1.25rem+env(safe-area-inset-bottom))] left-4 right-4 z-50 mx-auto w-auto max-w-xl overflow-hidden rounded-[1.35rem] border border-[#d2c3b1]/80 bg-[#fbf8f2]/95 px-3.5 pt-2.5 pb-3.5 shadow-[0_18px_44px_rgba(61,45,29,0.2)] backdrop-blur-xl sm:px-4 sm:pt-3 sm:pb-4"
+            className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] left-3 right-3 z-[110] mx-auto w-auto max-w-xl overflow-hidden rounded-[1.35rem] border border-[#d2c3b1]/80 bg-[#fbf8f2]/95 px-3.5 pt-2.5 pb-3.5 shadow-[0_18px_44px_rgba(61,45,29,0.2)] backdrop-blur-xl md:bottom-[calc(1.25rem+env(safe-area-inset-bottom))] md:z-50 sm:px-4 sm:pt-3 sm:pb-4"
           >
       <div className="flex items-center gap-3">
         <button type="button" onClick={() => setIsExpanded(true)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
@@ -105,7 +113,7 @@ export const LocalMiniPlayer: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[60] bg-[#211e19]/40 backdrop-blur-sm"
+          className="fixed inset-0 z-[200] bg-[#211e19]/40 backdrop-blur-sm md:z-[60]"
           onClick={closePlayer}
         >
           <motion.aside
