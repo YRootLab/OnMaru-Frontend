@@ -91,12 +91,33 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(({ story, position,
   const distance = Math.abs(offset);
   const isVisible = distance <= 4;
   const isActive = offset === 0;
+  const nextImageSrc = story.imageUrl || fallbackImageFor(story, position);
+  const [displayedImageSrc, setDisplayedImageSrc] = useState(nextImageSrc);
   const tilt = isActive ? 0 : offset < 0
     ? (Math.abs(offset) % 2 === 1 ? 1.6 : -1.6)
     : (offset % 2 === 1 ? -1.6 : 1.6);
   const lift = isActive ? 0 : offset < 0
     ? (Math.abs(offset) % 2 === 1 ? -6 : 6)
     : (offset % 2 === 1 ? 6 : -6);
+
+  useEffect(() => {
+    if (nextImageSrc === displayedImageSrc) return undefined;
+
+    let cancelled = false;
+    const image = new window.Image();
+    image.decoding = 'async';
+    image.onload = () => {
+      if (!cancelled) setDisplayedImageSrc(nextImageSrc);
+    };
+    image.onerror = () => {
+      if (!cancelled) setDisplayedImageSrc(FALLBACK_IMAGE_SETS.default[0]);
+    };
+    image.src = nextImageSrc;
+
+    return () => {
+      cancelled = true;
+    };
+  }, [displayedImageSrc, nextImageSrc]);
 
   return (
     <motion.button
@@ -115,7 +136,7 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(({ story, position,
       aria-label={`${story.title}${isActive ? ' 현재 선택됨' : ''}`}
     >
       <img
-        src={story.imageUrl || fallbackImageFor(story, position)}
+        src={displayedImageSrc}
         alt=""
         draggable={false}
         loading={distance <= 3 ? 'eager' : 'lazy'}
@@ -126,10 +147,11 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(({ story, position,
           if (image.dataset.fallbackApplied === 'true') {
             image.onerror = null;
             image.src = FALLBACK_IMAGE_SETS.default[0];
+            setDisplayedImageSrc(FALLBACK_IMAGE_SETS.default[0]);
             return;
           }
           image.dataset.fallbackApplied = 'true';
-          image.src = fallbackImageFor(story, position);
+          setDisplayedImageSrc(fallbackImageFor(story, position));
         }}
       />
       {!story.imageUrl && <span className="pointer-events-none absolute right-3 top-3 z-10 rounded-full bg-black/25 px-2 py-1 text-[9px] font-medium text-white/90 backdrop-blur-sm">참고용 이미지</span>}
