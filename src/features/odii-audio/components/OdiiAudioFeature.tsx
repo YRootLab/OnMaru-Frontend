@@ -371,13 +371,18 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             </div>
           </motion.section>
 
-          {/* 섹션 1: 히어로 큐레이션 레일 */}
-          <ScrollySectionVessel className="min-h-[360px] sm:min-h-[420px]">
+          {/* 섹션 1: 히어로 큐레이션 레일 (상단 히어로 - 즉시 깨끗하고 시원하게 노출) */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+            className="min-h-[360px] sm:min-h-[420px]"
+          >
             <OdiiAutoSliceRail
               stories={storyList}
               storySets={heroStorySets}
             />
-          </ScrollySectionVessel>
+          </motion.div>
 
           {/* 섹션 2: 한 단어로, 한 장면 */}
           <ScrollySectionVessel className="min-h-[650px] sm:min-h-[700px]">
