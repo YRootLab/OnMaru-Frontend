@@ -2,8 +2,8 @@
 
 ## Resume point
 
-- Current task: Task 4 — stage markers and comparison routes
-- Current phase: route contract RED test
+- Current task: Task 5 — browser QA and final verification
+- Current phase: production build
 - Branch: `feat/odii-background-ui-implements`
 - Workspace: `/Users/yangseunghyeon/orca/workspaces/OnMaruFE/odii-background-codex`
 - Plan: `docs/superpowers/plans/2026-08-12-odii-interactive-background-variants.md`
@@ -20,7 +20,7 @@
 - [x] Task 1 — scene domain model and invariant tests
 - [x] Task 2 — deterministic section controller
 - [x] Task 3 — four visual renderers and hanji transition
-- [ ] Task 4 — stage markers and comparison routes
+- [x] Task 4 — stage markers and comparison routes
 - [ ] Task 5 — browser QA and final verification
 
 ## Recovery rule
@@ -35,3 +35,5 @@ On reconnect, read this ledger, then the plan and spec. Resume at the exact unch
 - Task 2 GREEN — 2 files / 9 tests passed; TypeScript, targeted ESLint, and `git diff --check` passed.
 - Task 3 RED — presentation test failed because variant material-emphasis resolution did not exist.
 - Task 3 GREEN — 2 files / 11 tests passed; TypeScript, targeted ESLint, and `git diff --check` passed.
+- Task 4 RED — after adding the missing Vitest alias bridge, route suite failed because `be-ver1` through `be-ver4` did not exist.
+- Task 4 GREEN — 4 files / 20 tests passed; TypeScript, targeted ESLint, and `git diff --check` passed.

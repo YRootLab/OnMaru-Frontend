@@ -358,7 +358,7 @@ git commit -m "feat: render Odii background variants"
 - Extends `OdiiAudioFeatureProps` with `backgroundVariant?: OdiiBackgroundVariant`.
 - Produces four pages whose returned `OdiiAudioFeature` element has the exact experimental variant prop.
 
-- [ ] **Step 1: Write the failing route tests**
+- [x] **Step 1: Write the failing route tests**
 
 ```tsx
 import { describe, expect, it } from 'vitest';
@@ -387,17 +387,17 @@ describe('Odii background comparison routes', () => {
 });
 ```
 
-- [ ] **Step 2: Run the route test and verify RED**
+- [x] **Step 2: Run the route test and verify RED**
 
 Run: `npx vitest run src/app/odii/backgroundRoutes.test.tsx`
 
 Expected: FAIL because the four pages do not exist.
 
-- [ ] **Step 3: Add the prop and background state inputs**
+- [x] **Step 3: Add the prop and background state inputs**
 
 In `OdiiAudioFeature`, read `isPlaying` from the existing Zustand store and pass `backgroundVariant`, `selectedCategory`, and `isPlaying` to `OdiiAtmosphereBackground`. The default value is `default`.
 
-- [ ] **Step 4: Add stable stage markers and approved tear boundaries**
+- [x] **Step 4: Add stable stage markers and approved tear boundaries**
 
 Add `data-odii-stage` to existing section-owning elements without changing copy or content ordering:
 
@@ -411,17 +411,17 @@ Add `data-odii-stage` to existing section-owning elements without changing copy 
 
 Render `HanjiTearTransition` immediately before nearby and archive. Its own invariant suppresses unapproved variants and boundaries.
 
-- [ ] **Step 5: Create thin route wrappers**
+- [x] **Step 5: Create thin route wrappers**
 
 Each page imports `OdiiAudioFeature`, exports concise Odii comparison metadata, and returns exactly one feature element with its variant. It contains no duplicated data or playback logic.
 
-- [ ] **Step 6: Run the route test and verify GREEN**
+- [x] **Step 6: Run the route test and verify GREEN**
 
 Run: `npx vitest run src/app/odii/backgroundRoutes.test.tsx`
 
 Expected: the default compatibility case and 4 parameterized cases pass.
 
-- [ ] **Step 7: Run the complete focused suite and static checks**
+- [x] **Step 7: Run the complete focused suite and static checks**
 
 Run: `npx vitest run src/features/odii-audio/background/odiiBackgroundScenes.test.ts src/features/odii-audio/background/odiiBackgroundController.test.ts src/app/odii/backgroundRoutes.test.tsx src/features/odii-audio/api/odiiApi.test.ts`
 
@@ -431,7 +431,7 @@ Run: `npx eslint src/app/odii src/features/odii-audio/background src/features/od
 
 Expected: all tests pass and static checks exit 0.
 
-- [ ] **Step 8: Commit Task 4**
+- [x] **Step 8: Commit Task 4**
 
 ```bash
 git add src/app/odii src/features/odii-audio/components/OdiiAudioFeature.tsx
