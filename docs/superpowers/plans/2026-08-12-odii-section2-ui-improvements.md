@@ -342,7 +342,7 @@ If no corrections were needed, do not create an empty commit.
 
 **Interfaces:**
 - Consumes: the completed `/odii/section2-ui-improvements` route.
-- Produces: a removable desktop `카드들` navigation link; mobile navigation remains unchanged.
+- Produces: a removable desktop `임시 카드들` navigation link; mobile navigation remains unchanged.
 
 - [ ] **Step 1: Add the isolated temporary link**
 
@@ -355,7 +355,7 @@ Immediately after the existing `소리마루` `NavLink`, add one commented JSX b
   $isLanding={usesDarkSurface}
   $isOdii={isOdiiPage}
 >
-  카드들
+  임시 카드들
 </NavLink>
 ```
 
@@ -375,7 +375,7 @@ Expected: exit code 0 and `/odii/section2-ui-improvements` remains in the route 
 
 - [ ] **Step 4: Verify the existing and target routes**
 
-With the local server running, request `/odii` and `/odii/section2-ui-improvements` and expect HTTP 200 for both. Confirm the rendered header contains the `카드들` label and target href.
+With the local server running, request `/odii` and `/odii/section2-ui-improvements` and expect HTTP 200 for both. Confirm the rendered header contains the `임시 카드들` label and target href.
 
 - [ ] **Step 5: Commit the temporary navigation entry**
 

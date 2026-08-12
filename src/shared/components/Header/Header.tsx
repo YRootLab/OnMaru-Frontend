@@ -610,7 +610,7 @@ export default function Header() {
           $isLanding={usesDarkSurface}
           $isOdii={isOdiiPage}
         >
-          카드들
+          임시 카드들
         </NavLink>
       </CenterNav>
 

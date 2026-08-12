@@ -14,7 +14,7 @@ Create an isolated comparison page for four polished alternatives to the existin
 
 ## Temporary navigation entry
 
-- Add a desktop-only `카드들` link immediately after `소리마루` in the shared header's center navigation.
+- Add a desktop-only `임시 카드들` link immediately after `소리마루` in the shared header's center navigation.
 - Link it directly to `/odii/section2-ui-improvements`.
 - Keep mobile navigation unchanged.
 - Isolate the temporary link in one commented JSX block so it can be removed without changing any surrounding navigation behavior.
