@@ -450,7 +450,7 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
   }
 
   return (
-    <section aria-label="오디 셀렉션" aria-busy={showSkeleton} style={{ contain: 'layout paint' }} className="relative left-1/2 w-screen -translate-x-1/2 py-3 sm:py-5">
+    <section aria-label="오디 셀렉션" aria-busy={showSkeleton} style={{ contain: 'layout paint' }} className="relative w-full py-3 sm:py-5">
       <div className="w-full px-0">
         <div className="relative pb-2 pt-1 sm:pt-2">
           <div className="mx-auto mb-3 w-full max-w-6xl">
@@ -474,31 +474,31 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
             </nav>
           </div>
           <div className="relative mt-0 h-[325px] overflow-hidden pt-2 pb-4 sm:h-[410px] lg:h-[455px]">
-            {/* Leading (좌측) 풀나비게이션 히트영역 & 리니어 그라데이션 버튼 */}
+            {/* Leading (좌측) 풀 높이 리니어 그라데이션 탐색 버튼 */}
             <button
               type="button"
               onClick={() => moveBy(-1)}
               onDragStart={(event) => event.preventDefault()}
               draggable={false}
               aria-label="이전 이야기"
-              className="group absolute left-0 top-0 bottom-0 z-30 flex w-10 sm:w-16 lg:w-20 cursor-pointer items-center justify-start pl-1 sm:pl-2 bg-gradient-to-r from-white via-white/50 to-transparent transition-opacity duration-200 hover:from-white hover:via-white/75 active:opacity-80"
+              className="group absolute left-0 top-0 bottom-0 z-30 flex w-12 sm:w-16 lg:w-20 cursor-pointer items-center justify-start pl-2 sm:pl-4 bg-gradient-to-r from-white via-white/80 to-transparent transition-opacity duration-200 hover:from-white hover:via-white/95 active:opacity-80"
             >
-              <span className="flex h-10 w-8 items-center justify-center rounded-lg text-[#786d5e] transition-transform duration-300 group-hover:scale-110 group-hover:text-[#211e19]">
-                <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+              <span className="flex h-11 w-9 items-center justify-center rounded-xl bg-white/40 text-[#211e19] shadow-xs backdrop-blur-xs transition-transform duration-300 group-hover:scale-115 group-hover:bg-white group-hover:text-[#f84e76]">
+                <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
               </span>
             </button>
 
-            {/* Trailing (우측) 풀나비게이션 히트영역 & 리니어 그라데이션 버튼 */}
+            {/* Trailing (우측) 풀 높이 리니어 그라데이션 탐색 버튼 */}
             <button
               type="button"
               onClick={() => moveBy(1)}
               onDragStart={(event) => event.preventDefault()}
               draggable={false}
               aria-label="다음 이야기"
-              className="group absolute right-0 top-0 bottom-0 z-30 flex w-10 sm:w-16 lg:w-20 cursor-pointer items-center justify-end pr-1 sm:pr-2 bg-gradient-to-l from-white via-white/50 to-transparent transition-opacity duration-200 hover:from-white hover:via-white/75 active:opacity-80"
+              className="group absolute right-0 top-0 bottom-0 z-30 flex w-12 sm:w-16 lg:w-20 cursor-pointer items-center justify-end pr-2 sm:pr-4 bg-gradient-to-l from-white via-white/80 to-transparent transition-opacity duration-200 hover:from-white hover:via-white/95 active:opacity-80"
             >
-              <span className="flex h-10 w-8 items-center justify-center rounded-lg text-[#786d5e] transition-transform duration-300 group-hover:scale-110 group-hover:text-[#211e19]">
-                <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              <span className="flex h-11 w-9 items-center justify-center rounded-xl bg-white/40 text-[#211e19] shadow-xs backdrop-blur-xs transition-transform duration-300 group-hover:scale-115 group-hover:bg-white group-hover:text-[#f84e76]">
+                <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
               </span>
             </button>
 
