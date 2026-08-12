@@ -50,3 +50,6 @@ node_modules
 
 #Orca
 .mcp.json
+
+# local visual brainstorming artifacts
+.superpowers/
