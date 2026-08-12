@@ -1,237 +1,231 @@
 # Odii Interactive Background Variants Design
 
-## Purpose
+## Objective
 
-Build three isolated background candidates for the Odii audio-guide experience so the team can compare a calm brand-first treatment, a tactile hanji editorial treatment, and a technically ambitious spatial treatment before changing the production `/odii` route.
+Create four comparison routes that change only the atmospheric background and section transitions of the existing Korea Tourism Organization Odii discovery and playback page:
 
-The experience must communicate On-Maru's promise: technology should reveal Korean warmth, hospitality, and connection rather than feel cold or ornamental. Korea Tourism Organization Odii content remains the foreground; the background supports its narrative.
+- `/odii/be-ver1`
+- `/odii/be-ver2`
+- `/odii/be-ver3`
+- `/odii/be-ver4`
 
-## Product grounding
+The production `/odii` route remains unchanged until the team selects a candidate. Existing featured audio, theme curation, nearby audio, related stories, topic and location archives, playback, filters, bookmarks, modals, and drawers remain the foreground and retain their behavior.
 
-The design follows On-Maru PRD 2.5 and its Odii feature definition:
+## Product interpretation
 
-- Maru is an open boundary and a symbol of hospitality.
-- Changho brings light into the house.
-- The hanok creates a path for wind rather than shutting nature out.
-- Odii focuses on historic homes and head houses, hanok villages and traditional alleys, and pavilions and gazebos.
-- Public tourism data must be curated into culture and story, not displayed as decorative noise.
+The On-Maru PRD provides brand context, not a feature list for this page. The Odii background follows four principles:
 
-## Scope
+- Korean warmth and hospitality are expressed through restraint, light, material, and continuity.
+- Hanok references support audio stories rather than explain architecture.
+- Odii data and audio remain more prominent than visual effects.
+- The page feels calm, premium, and Korean without filling every area with traditional decoration.
 
-### In scope
+## Explicit exclusions
 
-- Add `/odii/be-ver1`, `/odii/be-ver2`, and `/odii/be-ver3` comparison routes.
-- Reuse the same Odii content, API behavior, audio player, filters, bookmarks, and modals as `/odii`.
-- Make background and section-transition behavior selectable through an explicit variant interface.
-- Add subtle pointer and scroll reactions appropriate to each candidate.
-- Add reduced-motion, mobile, low-performance, and rendering-failure fallbacks.
-- Keep all candidates natural, calm, and legible.
+- No 3D hanok tour, architectural disassembly, maru explanation, or camera journey through a building.
+- No dark scene, night mode, dramatic sunset, or large saturated color field.
+- No sound wave, equalizer, ripple, or waveform background.
+- No imitation of Shopify's Renaissance artwork, game-like scale, or heavy 3D stack.
+- No Western scrapbook language using tape, newspaper, loud stickers, dirty paper, burnt edges, or artificial aging.
+- No changes to Odii data contracts, playback behavior, content ordering, or the production `/odii` route.
 
-### Out of scope
+## Shared interaction model
 
-- Replacing `/odii` with a candidate.
-- Changing Odii API schemas, curation rules, or audio playback behavior.
-- Redesigning every content card.
-- Adding new rendering or animation dependencies.
-- Building multiple heavyweight 3D scenes.
-- Western scrapbook motifs such as masking tape, newspapers, stickers, or distressed paper.
+The reusable lesson from Shopify Editions is structural:
 
-## Shared route and composition model
+> One fixed background stage remains mounted while scroll position and the active Odii section transform it into a sequence of related atmospheres.
 
-`OdiiAudioFeature` accepts a background presentation variant while retaining its current default behavior. The three candidate pages are thin route wrappers that select a variant. `/odii` supplies no candidate variant and therefore remains unchanged.
+The stage is not visually identical in every section. Each major section owns a scene state with distinct light position, material emphasis, decorative motif, motion density, and spatial balance. Crossing a boundary interpolates between scene states over 0.8-1.4 seconds instead of hard-swapping unrelated backgrounds.
 
-The content tree remains above a fixed atmospheric stage. Each major section exposes a stable section identity to the background controller. The controller maps page scroll progress and the currently dominant section to a small set of visual properties such as light position, shadow opacity, depth offset, and time of day.
+### Section sequence
 
-Background rendering is decorative and non-interactive from an accessibility perspective. It uses `aria-hidden`, never captures keyboard focus, and does not block content pointer events.
+| Stage | Foreground role | Background mood |
+| --- | --- | --- |
+| `featured` | Featured and ranked stories | Broad, clean morning light; most open and welcoming |
+| `themes` | Scene and theme curation | Hanji fiber becomes visible; gentle framed rhythm |
+| `nearby` | Location-aware audio | Shadows open outward; airy garden light |
+| `related` | Continue-listening lists | Warm timber reflection and gathered warmth points |
+| `archive` | Search and full archive | Motion and texture recede into a legible white record space |
+| `collection` | Short visual collection | Material detail returns lightly, modified by category |
+| `closing` | Seasonal return invitation | Warm late-afternoon light without darkness or orange saturation |
 
-## Candidate 1: Light Resting on the Maru
+### Category modifiers
+
+Category selection changes one small motif, not the entire palette:
+
+- Hanok and historic homes: faint changho rhythm and straight timber shadow.
+- Traditional market: clustered warm specks suggesting people gathering.
+- Village and alley: soft stone-and-earth texture at the edges.
+- Palace and history: restrained roof-curve framing shadow.
+- Nature and paths: brighter open-air shadow with sparse leaf movement.
+
+### Interaction limits
+
+- Stable section markers and `IntersectionObserver` select the dominant scene.
+- Scroll progress moves light and material inside that scene.
+- Pointer parallax is clamped to 4-6 CSS pixels and frame-coalesced.
+- Foreground hit targets and text never move with the background.
+
+## Brightness and color constraints
+
+- Base backgrounds remain warm white or light hanji.
+- No full-screen state becomes darker than pale beige or light warm gray.
+- Timber, changho, leaf, and roof shadows remain low-opacity.
+- On-Maru pink appears only in small seals, existing controls, or minute warmth accents.
+- Other colors stay desaturated and occupy a small viewport area.
+- Sections differ through composition, texture, light direction, and motion rather than large hue changes.
+
+## Version 1 — 온기의 결
 
 Route: `/odii/be-ver1`
 
-This is the recommended production candidate. It expresses one continuous hanok space with restrained 2.5D depth rather than changing to unrelated backgrounds between sections.
+A safe evolution of the existing white background using fine hanji grain, large soft light pools, and sparse warmth points.
 
-### Visual language
+- Featured: one broad light pool supports the hero.
+- Themes: paper grain becomes clearer and warm light divides gently.
+- Nearby: warmth points spread apart to suggest local discovery.
+- Related: points gather into small groups without connecting lines.
+- Archive: pools flatten and points nearly disappear.
+- Collection: category modifiers alter only the edge texture.
+- Closing: warmth settles near the central invitation.
 
-- Warm off-white plaster and hanji instead of pure white.
-- A dark, softly blurred timber frame at the far edges establishes the feeling of looking outward from a maru.
-- Changho lattice shadows travel slowly across the page.
-- A distant garden-light layer and a near timber layer move at different rates.
-- The full page progresses from clear morning light through warm afternoon to a quiet evening glow.
-- Brand pink appears only as a small reflected warmth near active audio states, never as a large atmospheric wash.
+This is the lowest-risk candidate and the most content-first, but it references hanok indirectly.
 
-### Motion
-
-- Pointer parallax is clamped to 6-8 CSS pixels and follows with spring-like delay.
-- Scroll changes light position and warmth continuously rather than snapping at section boundaries.
-- The background remains visually quiet while the user manipulates filters or the player.
-- Two subtle torn-hanji boundaries may appear: before the full archive and before the closing CTA.
-
-### Implementation profile
-
-- DOM/CSS/SVG layers with Framer Motion values.
-- Existing hanok imagery may be used only as a soft, cropped fallback or depth plate.
-- No WebGL requirement.
-- Highest likelihood of becoming the production `/odii` background.
-
-## Candidate 2: Hanji Sound Journal
+## Version 2 — 창호 사이의 바람
 
 Route: `/odii/be-ver2`
 
-This candidate explores a Korean tactile editorial language. It should feel like carefully handled cultural records placed on a maru, not a Western scrapbook.
+A recognizable but restrained hanok atmosphere built from warm-white space, changho shadow, leaf shadow, and eaves-like framing. Breeze appears through slow shadow drift and fiber movement, never as a wave graphic.
 
-### Visual language
+- Featured: open morning light with almost no lattice.
+- Themes: a partial changho shadow enters from one side.
+- Nearby: lattice recedes while leaf shadow and open-air light increase.
+- Related: warm timber reflection anchors the lower edge.
+- Archive: shadows align and fade for search clarity.
+- Collection: the selected category chooses one shadow motif.
+- Closing: a long, soft changho shadow returns without darkening the page.
 
-- Clean warm hanji sheets with visible mulberry fibers.
-- Small index tabs, restrained red seals, thread-binding details, and dry-brush dividers.
-- Archive-oriented sections feel like catalog records rather than floating app cards.
-- Paper remains light and cared for; yellowed, dirty, burnt, or heavily wrinkled textures are prohibited.
+This candidate creates the clearest immediate hanok association and requires careful contrast QA.
 
-### Torn hanji transitions
-
-Only two strong tear transitions are used:
-
-1. Between the scene-selection experience and location-aware recommendations.
-2. At the entrance to the full searchable archive.
-
-Each transition contains four visual layers: upper paper body, irregular alpha edge, 1-3 pixel bright fiber fringe, and a warm contact shadow. The transition reveals a prepared edge mask instead of generating random geometry during scroll. The paper lifts 8-20 pixels while the next section becomes visible. Reversing scroll reverses the reveal without a destructive one-shot animation.
-
-### Motion
-
-- Paper sheets enter with small vertical offsets and rotations no greater than 0.6 degrees.
-- Depth shifts are small enough that text never moves independently from its interactive hit target.
-- Pointer response is limited to decorative paper layers.
-
-### Implementation profile
-
-- DOM layers plus reusable SVG or CSS masks.
-- Framer Motion scroll progress drives reveal variables.
-- Medium implementation and QA cost.
-- Strongest identity, but less suitable than version 1 if it distracts from browsing many audio results.
-
-## Candidate 3: Quiet Hanok Landscape
+## Version 3 — 한지로 이어진 여행
 
 Route: `/odii/be-ver3`
 
-This candidate tests the spatial continuity that makes Shopify Editions compelling while translating it into a restrained Korean landscape.
+A clean Korean editorial-record system using one persistent hanji surface with nearly white paper depths, small index tabs, restrained seals, record numbers, and faint location notation. Marks remain decorative and contain no extra copy.
 
-### Visual language
+Strong torn-hanji transitions appear only when entering the location-aware portion and the full archive. Each prepared tear has an irregular edge, a narrow light fiber fringe, and a shallow warm contact shadow. It reverses naturally when scrolling upward. Other boundaries use paper depth and position only.
 
-- Abstract roof curves, eaves shadow, distant mountain planes, low mist, warm dust, and wind traces.
-- One continuous space moves from outer courtyard toward the maru interior.
-- Shapes are illustrative and atmospheric rather than a photorealistic game environment.
-- Content remains DOM-based above the canvas.
+- Featured: clean cover sheet and one small seal.
+- Themes: offset index and slightly clearer fiber.
+- Nearby: the first tear reveals an airy location record.
+- Related: record slips overlap only near the edges.
+- Archive: the second tear opens a quiet catalog sheet.
+- Collection: a category-specific index marker appears without recoloring.
+- Closing: the final sheet settles without dramatic folding.
 
-### Motion
+This is the most distinctive editorial candidate and must remain restrained to avoid a scrapbook result.
 
-- Scroll moves a single camera rig slowly through one scene and changes lighting state.
-- Pointer position produces small camera easing, not free camera control.
-- Audio playback may gently increase warm light and particle breathing; it must not create a music visualizer across the page.
-- No camera rotation greater than a few degrees and no motion that competes with reading.
+## Version 4 — 소리가 머무는 온마루
 
-### Performance policy
+Route: `/odii/be-ver4`
 
-- The WebGL module is dynamically loaded only on the version 3 route.
-- High-performance devices use the complete scene; constrained devices reduce pixel ratio, particle count, and post-processing.
-- Mobile, reduced-motion, WebGL failure, and explicit low-performance states render a static layered image treatment.
-- The page remains fully usable before and without canvas initialization.
+This is the recommended final candidate. It synthesizes the strongest parts of the analysis into one Odii-specific experience rather than displaying every decorative technique at once.
 
-### Implementation profile
+The page feels like listening at a bright, open threshold where place, memory, and people meet. Hanji provides air, sunlight communicates welcome, changho and leaf shadow establish hanok without illustration, and small warmth gatherings express jeong.
 
-- React Three Fiber and Three.js already present in the repository.
-- Highest visual impact and highest QA cost.
-- Treated as a technical experiment, not the default recommendation.
+### Persistent layers
 
-## Shared components and boundaries
+1. **Hanji air** — an almost imperceptible fiber base.
+2. **Hospitality light** — broad warm light that shifts to create space around active content.
+3. **Threshold shadow** — changho, leaf, or eaves-like shadow selected by section.
+4. **Gathered warmth** — sparse soft points used only for location, people, and market contexts.
+5. **Archive edge** — one restrained torn-hanji reveal at the full archive entrance.
 
-### Background variant contract
+All layers share one coordinate system and interpolate together. This provides Shopify-like continuity without Shopify's imagery, darkness, 3D weight, or dramatic camera movement.
 
-A small union type identifies `default`, `maru-light`, `hanji-journal`, and `quiet-landscape`. The default value preserves current `/odii` behavior. Candidate routes pass one of the three experimental values.
+### Section direction
 
-### Atmospheric stage
+- Featured: bright open threshold and one concentrated warmth behind the lead story.
+- Themes: faint changho rhythm frames the chosen scene while fiber becomes clearer.
+- Nearby: the frame opens and sparse leaf shadow drifts outward.
+- Related: warmth points gather near the lower periphery, suggesting stories passing between people.
+- Archive: one soft hanji edge reveals the catalog; texture and motion then reduce sharply.
+- Collection: the selected category awakens one small motif while archive clarity remains.
+- Closing: a warm late-afternoon beam settles near the CTA, ending with welcome rather than spectacle.
 
-One component chooses the renderer for the active variant and owns decorative layers only. It does not fetch data or own audio state. Version 3 may read a minimal `isPlaying` boolean for its optional light response.
+Playback does not create a visualizer. During playback, only the nearest warmth point and hospitality light may breathe within a very small opacity range at a slow interval. Pause and reduced-motion return them to a static state.
+
+### Why version 4 is recommended
+
+- It belongs to Odii's people-and-place stories rather than a generic hanok showcase.
+- Each section is distinct while the page still feels like one place.
+- Korean materials are present without decorative overload.
+- It remains bright and compatible with a content-heavy service.
+- It requires no WebGL or new dependency and degrades to a complete static background.
+
+## Architecture
+
+### Variant contract
+
+`OdiiAudioFeature` receives an optional background variant. No variant preserves current `/odii` behavior. Four thin route wrappers select the experimental variants.
+
+### Background controller
+
+A focused controller owns active section, normalized scroll progress, selected category modifier, reduced-motion state, and an optional playback-active flag for version 4. It returns a declarative scene model and never fetches Odii data or mutates player state.
+
+### Renderers
+
+- Version 1: DOM and CSS gradient layers.
+- Version 2: DOM and SVG shadow masks.
+- Version 3: DOM and SVG/CSS paper masks.
+- Version 4: composed DOM/SVG renderer reusing shared material, light, shadow, warmth, and edge primitives.
+
+Framer Motion values and CSS custom properties interpolate state. No candidate requires WebGL or a new package.
 
 ### Section markers
 
-Major sections expose semantic stage keys. A single observer/controller derives the dominant section and normalized page progress. Background renderers consume that state without querying arbitrary DOM structures.
+Each existing major section receives a stable stage identifier without changing content or layout. The controller follows the most relevant visible marker with deterministic boundary tie-breaking to prevent flicker.
 
-### Hanji transition
+## Accessibility and fallback
 
-A reusable transition component accepts edge style, direction, strength, and reduced-motion behavior. It is inserted only at the explicitly approved boundaries. It does not wrap every section.
+- Backgrounds are decorative, `aria-hidden`, unfocusable, and pointer-transparent.
+- Reduced-motion disables drift, parallax, breathing, and animated tearing while preserving static section compositions.
+- No information is communicated only by background color, texture, or motion.
+- A warm-white static background renders before client initialization and remains if animation setup fails.
+- Observers disconnect on unmount; animation pauses while the document is hidden.
+- Pointer input writes motion values or CSS properties, not React state on every event.
+- No runtime dependency on a new third-party service is introduced.
 
-### Route wrappers
+## Verification
 
-Each comparison route contains only route metadata and its selected variant. Business logic remains in the shared Odii feature.
+### Automated
 
-## Interaction and state flow
+- Route tests verify versions 1-4 select the intended variant.
+- Default-route tests verify `/odii` preserves current background behavior.
+- Controller tests cover section selection and deterministic boundary behavior.
+- Category tests cover hanok and traditional-market modifiers.
+- Reduced-motion tests verify parallax, drift, breathing, and animated tears are disabled.
+- Transition tests verify strong tears appear only at approved boundaries.
+- Existing Odii tests, type checking, linting, focused Vitest tests, and production build must pass.
 
-1. The route selects a background variant.
-2. `OdiiAudioFeature` renders the same data-driven content for every route.
-3. Section markers report visibility to a background scene controller.
-4. The controller calculates active stage and normalized scroll progress.
-5. The selected renderer maps that state to decorative visual properties.
-6. Reduced-motion and capability checks override motion or renderer choice without altering content state.
+### Visual
 
-No candidate writes its visual state to local storage. Existing bookmark and player persistence behavior remains unchanged.
-
-## Accessibility
-
-- All decorative backgrounds use `aria-hidden="true"` and `pointer-events: none`, except the version 3 canvas event surface when pointer parallax is enabled; that surface remains unfocusable and content stays above it.
-- `prefers-reduced-motion: reduce` disables continuous parallax, camera travel, particle animation, and animated tears.
-- Static torn edges remain visible as section separators when animation is reduced.
-- Text contrast is measured against the effective layered background, not only the base color.
-- No information is communicated only through background color, motion, or texture.
-
-## Performance and reliability
-
-- Version 1 and version 2 should not require WebGL.
-- Version 3 is dynamically imported and must have a first-render static fallback.
-- Expensive observers and animation frames stop when their stage is outside the relevant viewport range.
-- Pointer updates are frame-coalesced and never set React state on every move.
-- Texture assets are compressed and sized for their rendered use.
-- Failure to load any decorative asset leaves a warm neutral background and functional content.
-- Candidate route navigation and API behavior must work offline to the same degree as the existing Odii page after assets have been built locally; no runtime dependency on a new third-party service is introduced.
-
-## Testing and review
-
-### Automated checks
-
-- Route tests verify all three candidate pages select the intended variant.
-- Component tests verify the default variant preserves the current background path.
-- Reduced-motion tests verify motion-heavy layers are disabled or replaced.
-- Hanji transition tests verify it is used only at approved boundaries.
-- Version 3 tests verify the fallback remains renderable when WebGL capability is absent.
-- Existing Odii API tests remain unchanged and passing.
-- Type checking, linting, focused Vitest tests, and the production build are required before completion.
-
-### Visual checks
-
-- Desktop widths: 1440 and 1920 pixels.
-- Mobile widths: 390 and 430 pixels.
-- Validate top, mid-page transition, full archive, active audio player, modal/drawer stacking, and footer.
-- Compare motion at normal and reduced-motion settings.
-- Confirm that content remains readable when the background is at its brightest and darkest states.
-
-## Selection criteria
-
-The candidates will be evaluated in this order:
-
-1. Does it express Korean warmth and hospitality without relying on clichés?
-2. Does Odii content remain easier to browse and hear than the background is to notice?
-3. Does the page feel like one continuous place?
-4. Does motion remain calm and reversible?
-5. Is mobile and low-performance behavior credible?
-6. Is the implementation cost justified by the improvement?
-
-Version 1 is the recommended baseline, version 2 is the tactile identity experiment, and version 3 is the spatial technology experiment.
+- Review at desktop widths 1440 and 1920 pixels and mobile widths 390 and 430 pixels.
+- Inspect every stage transition in both scroll directions.
+- Inspect hanok and traditional-market category modifiers.
+- Inspect active playback, modal, saved drawer, and mini-player stacking.
+- Compare normal and reduced-motion modes.
+- Confirm no state becomes dark, saturated, or less readable.
 
 ## Acceptance criteria
 
-- All three routes render independently and preserve existing Odii functionality.
-- `/odii` has no visual or behavioral regression.
-- The three variants are clearly distinguishable by concept, not merely color.
-- Torn paper is limited to the two approved semantic boundaries in version 2 and remains subtle if reused in version 1.
-- No Western scrapbook motifs are present.
-- Reduced-motion users receive a stable, non-animated composition.
-- Version 3 works with and without WebGL.
-- The repository builds successfully and focused tests pass.
+- All four comparison routes render the same working Odii content with distinct background systems.
+- `/odii` remains unchanged.
+- Every major section has a distinct atmosphere in all candidates.
+- Transitions remain continuous rather than unrelated swaps.
+- All candidates stay close to the current light palette.
+- No waveform or 3D-hanok treatment appears.
+- Torn paper is limited, reversible, and materially plausible.
+- Version 4 is the most cohesive expression of On-Maru warmth, hanok atmosphere, and Odii discovery.
+- Reduced-motion and static fallback states remain complete.
+- Focused tests and production build pass.

@@ -12,7 +12,23 @@
 
 Create calm, interactive Odii background concepts that express Korean jeong, hanok hospitality, maru, changho light, and Korea Tourism Organization data without overwhelming the audio content.
 
-The candidates will be reachable from dedicated comparison routes such as `/odii/be-ver1`, `/odii/be-ver2`, and optionally `/odii/be-ver3` after the design gate is approved.
+The candidates will be reachable from `/odii/be-ver1`, `/odii/be-ver2`, `/odii/be-ver3`, and `/odii/be-ver4` after the design gate is approved.
+
+## Direction correction from user review
+
+- The external PRD was provided only to understand On-Maru's service identity; the Odii background spec must not reproduce the full PRD.
+- This is an Odii discovery and playback page powered by Korea Tourism Organization audio data, not the existing 3D hanok explanation experience.
+- Do not add a 3D hanok tour, maru explanation, architectural disassembly, or camera journey through a hanok.
+- Preserve the existing Odii sections and foreground content. Background work should strengthen their flow: featured audio, weekly/ranked curation, location-aware audio, hanok stories, traditional-market stories, topic/location archives, and the closing invitation.
+- Rebuild the original three candidates as background-only systems with light section transitions.
+- Keep every candidate close to the current white page: no dark scene, large saturated color field, or dramatic palette shift.
+- Remove the sound-wave/ripple background direction entirely.
+- Retain the useful structural lesson from the Shopify Editions analysis: one fixed background stage persists for the whole page and changes continuously with scroll and the active Odii section.
+- The persistent stage must still create clearly distinct section atmospheres. Each section has its own scene state; transitions interpolate between states instead of hard-swapping unrelated backgrounds.
+- Add version 4 as the designer-recommended synthesis: `소리가 머무는 온마루`, using hanji air, hospitality light, section-specific threshold shadows, contextual warmth gatherings, and one restrained archive tear.
+- Do not copy Shopify's Renaissance imagery, 3D scenes, dramatic camera work, dark palette, or game-like presentation.
+- Translate the persistent-stage structure into restrained hanji, sunlight, breeze, warmth, changho shadow, and travel-record materials.
+- The previously committed design direction was rejected and has been replaced by the reviewed four-candidate, background-only direction.
 
 ## Confirmed constraints
 
@@ -44,16 +60,15 @@ The candidates will be reachable from dedicated comparison routes such as `/odii
 - `/odii/be-ver1`
 - `/odii/be-ver2`
 - `/odii/be-ver3`
+- `/odii/be-ver4`
 - Keep `/odii` unchanged until a preferred candidate is selected.
 
 ## Next step
 
-1. Present three concrete visual/technical approaches with trade-offs and a recommendation.
-2. Obtain design approval.
-3. Save and commit the approved spec under `docs/superpowers/specs/`.
-4. Write the task-by-task implementation plan under `docs/superpowers/plans/`.
-5. Execute with a `.superpowers/sdd/<plan>/progress.md` recovery ledger.
+1. Obtain user review of the rewritten four-candidate spec.
+2. Write the task-by-task implementation plan under `docs/superpowers/plans/`.
+3. Execute with a `.superpowers/sdd/<plan>/progress.md` recovery ledger.
 
 ## Status
 
-Discovery complete; three candidate routes confirmed; preparing the design approval gate.
+Direction corrected after user review; background-only four-candidate spec rewritten with version 4 as the recommendation.
