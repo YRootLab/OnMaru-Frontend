@@ -6,7 +6,7 @@ Create an isolated comparison page for four polished alternatives to the existin
 
 ## Route and isolation
 
-- Add the comparison at `/odii/section2-study`.
+- Add the comparison at `/odii/section2-ui-improvements`.
 - Keep `/odii` visually and functionally unchanged.
 - Do not import the study page into `OdiiAudioFeature`.
 - Use local mock records only; the study must not call an API or depend on geolocation.
@@ -82,7 +82,7 @@ This is the strongest structural change, intended to test readability and compac
 - Confirm that `OdiiAudioFeature.tsx` and `OdiiEditorialRail.tsx` are unchanged.
 - Run lint on all new study files.
 - Run the production build to verify the new route and TypeScript boundaries.
-- Inspect `/odii/section2-study` at desktop and mobile widths for clipping, card-height consistency, keyboard focus, and horizontal overflow.
+- Inspect `/odii/section2-ui-improvements` at desktop and mobile widths for clipping, card-height consistency, keyboard focus, and horizontal overflow.
 - Spot-check `/odii` to confirm its existing Section 2 is unchanged.
 
 ## Out of scope
