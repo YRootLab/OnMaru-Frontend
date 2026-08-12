@@ -334,3 +334,52 @@ git commit -m "fix(odii): polish section2 comparison layouts"
 ```
 
 If no corrections were needed, do not create an empty commit.
+
+### Task 5: Temporary desktop navigation link
+
+**Files:**
+- Modify: `src/shared/components/Header/Header.tsx`
+
+**Interfaces:**
+- Consumes: the completed `/odii/section2-ui-improvements` route.
+- Produces: a removable desktop `카드들` navigation link; mobile navigation remains unchanged.
+
+- [ ] **Step 1: Add the isolated temporary link**
+
+Immediately after the existing `소리마루` `NavLink`, add one commented JSX block:
+
+```tsx
+{/* 임시 UI 비교 페이지 링크: 스터디 종료 후 이 블록만 제거 */}
+<NavLink
+  href="/odii/section2-ui-improvements"
+  $isLanding={usesDarkSurface}
+  $isOdii={isOdiiPage}
+>
+  카드들
+</NavLink>
+```
+
+Do not add the link to `MobileTabNav` or `MobileMenuPanel`.
+
+- [ ] **Step 2: Run focused lint**
+
+Run: `npx eslint src/shared/components/Header/Header.tsx`
+
+Expected: exit code 0.
+
+- [ ] **Step 3: Run the production build**
+
+Run: `npm run build`
+
+Expected: exit code 0 and `/odii/section2-ui-improvements` remains in the route list.
+
+- [ ] **Step 4: Verify the existing and target routes**
+
+With the local server running, request `/odii` and `/odii/section2-ui-improvements` and expect HTTP 200 for both. Confirm the rendered header contains the `카드들` label and target href.
+
+- [ ] **Step 5: Commit the temporary navigation entry**
+
+```bash
+git add src/shared/components/Header/Header.tsx
+git commit -m "feat(odii): link temporary section2 card studies"
+```
