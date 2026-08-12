@@ -450,31 +450,31 @@ git commit -m "feat: add Odii background preview routes"
 - Consumes the completed routes and existing local development server.
 - Produces verified screenshots or visual observations at specified widths and a completed recovery record.
 
-- [ ] **Step 1: Run the production build before visual review**
+- [x] **Step 1: Run the production build before visual review**
 
 Run: `npm run build`
 
 Expected: Next.js production build exits 0 and lists `/odii` plus all four comparison routes.
 
-- [ ] **Step 2: Start or reuse the development server on port 3000**
+- [x] **Step 2: Start or reuse the development server on port 3000**
 
 Run: `npm run dev -- -p 3000`
 
 Expected: server reports `Ready` and `http://localhost:3000`.
 
-- [ ] **Step 3: Inspect desktop and mobile compositions**
+- [ ] **Step 3: Inspect desktop and mobile compositions** — deferred: no browser backend available
 
 For `/odii`, `/odii/be-ver1`, `/odii/be-ver2`, `/odii/be-ver3`, and `/odii/be-ver4`, inspect at 1440x1000, 1920x1080, 390x844, and 430x932. Check every stage in both scroll directions, modal/drawer/player stacking, hanok and market modifiers, and archive tear boundaries.
 
-- [ ] **Step 4: Inspect reduced motion**
+- [ ] **Step 4: Inspect reduced motion** — automated logic/CSS verified; browser emulation deferred
 
 Emulate `prefers-reduced-motion: reduce` and verify static section compositions remain distinct while drift, parallax, breathing, and animated tears stop.
 
-- [ ] **Step 5: Correct only observed defects and rerun covering checks**
+- [x] **Step 5: Correct only observed defects and rerun covering checks**
 
 For each defect, record route, viewport, stage, expected result, actual result, and covering check in the checkpoint before editing. Rerun the focused test or static command covering the changed file.
 
-- [ ] **Step 6: Run final verification from a clean state**
+- [x] **Step 6: Run final verification from a clean state** — task-scoped suite, TypeScript, ESLint and webpack build pass; repository-wide legacy lint debt recorded
 
 Run: `npx vitest run src/features/odii-audio/background/odiiBackgroundScenes.test.ts src/features/odii-audio/background/odiiBackgroundController.test.ts src/app/odii/backgroundRoutes.test.tsx src/features/odii-audio/api/odiiApi.test.ts`
 
@@ -486,7 +486,7 @@ Run: `npm run build`
 
 Expected: all commands exit 0.
 
-- [ ] **Step 7: Update recovery checkpoint and commit verification changes**
+- [x] **Step 7: Update recovery checkpoint and commit verification changes**
 
 Record completed tasks, commit hashes, commands, results, routes, and any intentionally deferred visual observations in the checkpoint.
 

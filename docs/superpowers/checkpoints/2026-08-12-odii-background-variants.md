@@ -63,12 +63,42 @@ The candidates will be reachable from `/odii/be-ver1`, `/odii/be-ver2`, `/odii/b
 - `/odii/be-ver4`
 - Keep `/odii` unchanged until a preferred candidate is selected.
 
-## Next step
+## Implementation result
 
-1. Obtain user review of the rewritten four-candidate spec.
-2. Write the task-by-task implementation plan under `docs/superpowers/plans/`.
-3. Execute with a `.superpowers/sdd/<plan>/progress.md` recovery ledger.
+- Shared scene model: seven stable stages, five restrained category modifiers, deterministic tear-boundary invariants.
+- Shared controller: dominant-section selection, deterministic tie breaking, section-local progress, clamped pointer motion, document visibility, reduced-motion and unsupported-observer static fallback.
+- Version 1 `온기의 결`: light pools, fine hanji grain, disconnected warmth points.
+- Version 2 `창호 사이의 바람`: restrained changho, garden and timber-like shadows.
+- Version 3 `한지로 이어진 여행`: editorial paper depth with strong tears only before nearby and archive.
+- Version 4 `소리가 머무는 온마루`: balanced hanji air, hospitality light, threshold/garden shadow, gathered warmth and one archive tear.
+- Production `/odii`: continues through the original white radial-gradient compatibility path.
+- Existing Odii content, API service, playback, bookmark, filter, modal, drawer and player implementations remain shared rather than copied into preview routes.
+
+## Recovery commits
+
+- `e960589` — implementation plan
+- `06be6f0` — scene domain model
+- `56e2125` — section and motion controller
+- `64aad0c` — fixed-stage renderers and hanji transition
+- `9e4139f` — Odii stage integration and preview routes
+
+## Verification record
+
+- Baseline: `npm run test:odii` — PASS, 1 file / 4 tests.
+- Focused integration before final review: 4 files / 20 tests — PASS.
+- Production build: PASS; `/odii` and `/odii/be-ver1` through `/odii/be-ver4` were emitted as static routes.
+- Final verification: 4 test files / 22 tests PASS; TypeScript PASS; task-scoped ESLint PASS; `next build --webpack` PASS with all 15 pages generated.
+- Local route probes against the existing port 3000 server: all five routes returned HTTP 200.
+- Returned markup: `/odii` contains the existing `odii-atmosphere`; preview routes contain their exact variant and all seven `data-odii-stage` values.
+- Source review finding: environments without `IntersectionObserver` could throw before reaching the intended static fallback. A RED/GREEN test now protects the feature-detection guard and disables all ambient motion when animation support is absent.
+- Brightness review finding: the strongest pink warmth gradient was reduced from `0.10` to `0.085`, within the approved decorative accent limit.
+- Repository-wide `npm run lint` remains non-zero because of existing unrelated debt (39 errors / 67 warnings in Tour API, landing, archived 3D hanok and existing Odii components). Task-scoped ESLint is used as the change boundary; none of those unrelated files were modified.
+- Default Turbopack build passed once after route integration. Later reruns stalled without an error at `Creating an optimized production build`, including after stopping the same-worktree dev server and moving the partial `.next` output aside. The one-variable webpack build then completed successfully, isolating the stall to the Turbopack runner/session rather than application compilation. The two moved partial build directories remain recoverable under `/private/tmp/odii-next-stale-20260812-1430` and `/private/tmp/odii-next-stale-20260812-1433`.
+
+## Deferred visual observations
+
+The in-app browser runtime reported no available browser backends, so screenshot-based checks at 1440x1000, 1920x1080, 390x844 and 430x932 and browser emulation of `prefers-reduced-motion` could not be performed in this session. Automated reduced-motion logic, CSS reduced-motion rules, route rendering, compilation and server responses are covered; viewport-level visual approval remains the only deferred review item.
 
 ## Status
 
-Direction corrected after user review; background-only four-candidate spec rewritten with version 4 as the recommendation.
+Implementation complete. Task-scoped automated verification and route probes complete; repository-wide legacy lint and screenshot-based visual approval are explicitly deferred.

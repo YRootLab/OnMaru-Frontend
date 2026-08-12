@@ -11,6 +11,7 @@ export interface OdiiMotionStateOptions {
   isReducedMotion: boolean;
   isDocumentVisible: boolean;
   isPlaying: boolean;
+  hasAnimationSupport?: boolean;
 }
 
 export interface OdiiMotionState {
@@ -18,6 +19,10 @@ export interface OdiiMotionState {
   parallax: boolean;
   breathing: boolean;
   animatedTear: boolean;
+}
+
+export function canObserveOdiiBackground(observer: unknown): boolean {
+  return typeof observer === 'function';
 }
 
 export function selectDominantOdiiStage(
@@ -49,8 +54,9 @@ export function resolveOdiiMotionState({
   isReducedMotion,
   isDocumentVisible,
   isPlaying,
+  hasAnimationSupport = true,
 }: OdiiMotionStateOptions): OdiiMotionState {
-  const ambientMotionAllowed = !isReducedMotion && isDocumentVisible;
+  const ambientMotionAllowed = hasAnimationSupport && !isReducedMotion && isDocumentVisible;
 
   return {
     drift: ambientMotionAllowed,

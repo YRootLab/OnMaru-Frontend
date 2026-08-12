@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useMotionValue, useReducedMotion } from 'framer-motion';
 import {
+  canObserveOdiiBackground,
   normalizeOdiiSectionProgress,
   resolveOdiiMotionState,
   selectDominantOdiiStage,
@@ -25,6 +26,7 @@ export function useOdiiBackgroundController({
   const [activeStage, setActiveStage] = useState<OdiiBackgroundStage>('featured');
   const [isDocumentVisible, setIsDocumentVisible] = useState(true);
   const isReducedMotion = useReducedMotion() ?? false;
+  const hasAnimationSupport = canObserveOdiiBackground(globalThis.IntersectionObserver);
   const activeStageRef = useRef<OdiiBackgroundStage>('featured');
   const activeMarkerRef = useRef<Element | null>(null);
   const observationsRef = useRef(new Map<Element, OdiiStageObservation>());
@@ -35,8 +37,13 @@ export function useOdiiBackgroundController({
   const scrollProgress = useMotionValue(0);
 
   const motion = useMemo(
-    () => resolveOdiiMotionState({ isReducedMotion, isDocumentVisible, isPlaying }),
-    [isDocumentVisible, isPlaying, isReducedMotion],
+    () => resolveOdiiMotionState({
+      isReducedMotion,
+      isDocumentVisible,
+      isPlaying,
+      hasAnimationSupport,
+    }),
+    [hasAnimationSupport, isDocumentVisible, isPlaying, isReducedMotion],
   );
 
   const scene = useMemo(
@@ -47,7 +54,8 @@ export function useOdiiBackgroundController({
   useEffect(() => {
     const markers = Array.from(document.querySelectorAll<HTMLElement>('[data-odii-stage]'));
     const observationsByMarker = observationsRef.current;
-    if (markers.length === 0) return;
+    const observationSupported = canObserveOdiiBackground(globalThis.IntersectionObserver);
+    if (markers.length === 0 || !observationSupported) return;
 
     const observer = new IntersectionObserver((entries) => {
       for (const entry of entries) {

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  canObserveOdiiBackground,
   normalizeOdiiSectionProgress,
   resolveOdiiMotionState,
   selectDominantOdiiStage,
@@ -30,6 +31,13 @@ describe('normalizeOdiiSectionProgress', () => {
     expect(normalizeOdiiSectionProgress(900, 600, 1000)).toBe(0.0625);
     expect(normalizeOdiiSectionProgress(1200, 600, 1000)).toBe(0);
     expect(normalizeOdiiSectionProgress(-700, 600, 1000)).toBe(1);
+  });
+});
+
+describe('canObserveOdiiBackground', () => {
+  it('keeps the background static when IntersectionObserver is unavailable', () => {
+    expect(canObserveOdiiBackground(undefined)).toBe(false);
+    expect(canObserveOdiiBackground(class FakeIntersectionObserver {})).toBe(true);
   });
 });
 
@@ -64,5 +72,19 @@ describe('resolveOdiiMotionState', () => {
       isDocumentVisible: false,
       isPlaying: true,
     }).breathing).toBe(false);
+  });
+
+  it('returns a complete static fallback without animation support', () => {
+    expect(resolveOdiiMotionState({
+      isReducedMotion: false,
+      isDocumentVisible: true,
+      isPlaying: true,
+      hasAnimationSupport: false,
+    })).toEqual({
+      drift: false,
+      parallax: false,
+      breathing: false,
+      animatedTear: false,
+    });
   });
 });

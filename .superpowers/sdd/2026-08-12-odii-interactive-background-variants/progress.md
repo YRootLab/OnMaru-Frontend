@@ -3,7 +3,7 @@
 ## Resume point
 
 - Current task: Task 5 — browser QA and final verification
-- Current phase: production build
+- Current phase: implementation complete; visual approval deferred
 - Branch: `feat/odii-background-ui-implements`
 - Workspace: `/Users/yangseunghyeon/orca/workspaces/OnMaruFE/odii-background-codex`
 - Plan: `docs/superpowers/plans/2026-08-12-odii-interactive-background-variants.md`
@@ -21,7 +21,7 @@
 - [x] Task 2 — deterministic section controller
 - [x] Task 3 — four visual renderers and hanji transition
 - [x] Task 4 — stage markers and comparison routes
-- [ ] Task 5 — browser QA and final verification
+- [x] Task 5 — automated QA and final verification complete; browser visual approval deferred
 
 ## Recovery rule
 
@@ -37,3 +37,9 @@ On reconnect, read this ledger, then the plan and spec. Resume at the exact unch
 - Task 3 GREEN — 2 files / 11 tests passed; TypeScript, targeted ESLint, and `git diff --check` passed.
 - Task 4 RED — after adding the missing Vitest alias bridge, route suite failed because `be-ver1` through `be-ver4` did not exist.
 - Task 4 GREEN — 4 files / 20 tests passed; TypeScript, targeted ESLint, and `git diff --check` passed.
+- Task 5 build — PASS; Next emitted `/odii` and all four preview routes.
+- Task 5 server probe — all five routes returned HTTP 200 with the expected background contract and seven section markers.
+- Task 5 browser QA — deferred because the browser runtime listed no available backends.
+- Task 5 source review RED/GREEN — added unsupported-observer static fallback; controller suite now has 8 passing tests.
+- Task 5 repository lint — blocked by pre-existing unrelated debt: 39 errors / 67 warnings. Do not widen this feature branch to repair Tour API, landing or archived 3D files; use targeted lint for changed source.
+- Task 5 final evidence — 4 files / 22 tests PASS; TypeScript PASS; task-scoped ESLint PASS; webpack production build PASS with all 15 routes. Default Turbopack passed earlier, but later session reruns stalled at compile with no diagnostic.
