@@ -19,7 +19,7 @@ export function OverlayInfoVariant({ stories, selectedStoryId, onSelectStory }: 
             <StudyImage
               story={story}
               sizes="(max-width: 640px) 218px, 252px"
-              className="transition-transform duration-700 group-hover:scale-[1.04] motion-reduce:transition-none"
+              className="transition-transform duration-700 [@media(hover:hover)_and_(pointer:fine)]:group-hover:scale-[1.04] motion-reduce:transition-none"
             />
             <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/35 to-transparent" aria-hidden="true" />
             <span className="absolute left-4 top-4 rounded-full border border-white/35 bg-black/20 px-2.5 py-1 text-[9px] font-semibold text-white shadow-sm backdrop-blur-md">

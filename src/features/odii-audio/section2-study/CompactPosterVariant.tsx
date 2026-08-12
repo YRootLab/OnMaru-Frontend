@@ -23,7 +23,7 @@ export function CompactPosterVariant({ stories, selectedStoryId, onSelectStory }
               <StudyImage
                 story={story}
                 sizes="(max-width: 640px) 196px, 232px"
-                className="transition-transform duration-700 group-hover:scale-[1.035] motion-reduce:transition-none"
+                className="transition-transform duration-700 [@media(hover:hover)_and_(pointer:fine)]:group-hover:scale-[1.035] motion-reduce:transition-none"
               />
               <span className="absolute left-3 top-3 rounded-full bg-[#fffdf9]/90 px-2.5 py-1 text-[9px] font-bold text-[#d94068] shadow-sm backdrop-blur-sm">
                 {story.category}

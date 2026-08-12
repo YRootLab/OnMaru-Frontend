@@ -12,7 +12,7 @@ export function Section2UiImprovements() {
   const sharedProps = {
     stories: SECTION2_STUDY_STORIES,
     selectedStoryId,
-    onSelectStory: (storyId: string) => setSelectedStoryId(storyId || null),
+    onSelectStory: setSelectedStoryId,
   };
 
   return (

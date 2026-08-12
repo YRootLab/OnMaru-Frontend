@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   SECTION2_STUDY_STORIES,
   SECTION2_STUDY_VARIANTS,
+  getNextStudySelection,
   getStudyPlaybackLabel,
 } from './studyData';
 
@@ -35,5 +36,11 @@ describe('section2 UI study data', () => {
     expect(getStudyPlaybackLabel(null, 'story-1')).toBe('재생');
     expect(getStudyPlaybackLabel('story-1', 'story-1')).toBe('재생 중');
     expect(getStudyPlaybackLabel('story-2', 'story-1')).toBe('재생');
+  });
+
+  it('selects a new story and deselects the active story', () => {
+    expect(getNextStudySelection(null, 'story-1')).toBe('story-1');
+    expect(getNextStudySelection('story-2', 'story-1')).toBe('story-1');
+    expect(getNextStudySelection('story-1', 'story-1')).toBeNull();
   });
 });

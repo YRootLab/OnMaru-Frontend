@@ -86,3 +86,7 @@ export const SECTION2_STUDY_VARIANTS = [
 export function getStudyPlaybackLabel(selectedStoryId: string | null, storyId: string) {
   return selectedStoryId === storyId ? '재생 중' : '재생';
 }
+
+export function getNextStudySelection(selectedStoryId: string | null, storyId: string) {
+  return selectedStoryId === storyId ? null : storyId;
+}

@@ -20,7 +20,7 @@ export function LandscapeCardVariant({ stories, selectedStoryId, onSelectStory }
               <StudyImage
                 story={story}
                 sizes="(max-width: 640px) 137px, 163px"
-                className="transition-transform duration-700 group-hover:scale-[1.04] motion-reduce:transition-none"
+                className="transition-transform duration-700 [@media(hover:hover)_and_(pointer:fine)]:group-hover:scale-[1.04] motion-reduce:transition-none"
               />
               <span className="absolute left-3 top-3 rounded-full border border-white/35 bg-black/20 px-2 py-1 text-[8px] font-semibold text-white backdrop-blur-md">
                 {story.category}
