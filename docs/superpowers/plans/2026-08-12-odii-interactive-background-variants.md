@@ -268,7 +268,7 @@ git commit -m "feat: track Odii background sections"
 - Consumes Task 1 scene functions and Task 2 hook.
 - Produces `<OdiiBackgroundStage variant selectedCategory isPlaying />`, `<HanjiTearTransition stage variant />`, and `<OdiiAtmosphereBackground variant selectedCategory isPlaying />`.
 
-- [ ] **Step 1: Extend the failing scene test with presentation assertions**
+- [x] **Step 1: Extend the failing scene test with presentation assertions**
 
 ```ts
 it('keeps the production default separate from experimental renderers', () => {
@@ -283,7 +283,7 @@ it('keeps the production default separate from experimental renderers', () => {
 
 Run the test and expect it to fail until the closing motif is configured as `seal`.
 
-- [ ] **Step 2: Implement shared fixed-stage markup**
+- [x] **Step 2: Implement shared fixed-stage markup**
 
 `OdiiBackgroundStage` renders one fixed root with these non-semantic layers:
 
@@ -307,7 +307,7 @@ Run the test and expect it to fail until the closing motif is configured as `sea
 
 Use data-attribute selectors in the CSS Module to make every stage visually distinct for every variant. Version 1 emphasizes `hospitalityLight` and `warmthField`; version 2 emphasizes shadows; version 3 emphasizes `paperDepth`; version 4 balances all layers and reduces them in `archive`.
 
-- [ ] **Step 3: Implement brightness-safe CSS**
+- [x] **Step 3: Implement brightness-safe CSS**
 
 - Root background stays between `#fffefa`, `#fcfaf4`, and `#f8f4ec`.
 - Shadow layer opacity stays at or below `0.12`.
@@ -316,15 +316,15 @@ Use data-attribute selectors in the CSS Module to make every stage visually dist
 - Motion uses transforms and opacity only.
 - `@media (prefers-reduced-motion: reduce)` removes all keyframe animation and transitions longer than `120ms`.
 
-- [ ] **Step 4: Implement the approved tear component**
+- [x] **Step 4: Implement the approved tear component**
 
 `HanjiTearTransition` returns `null` unless `getOdiiTearBoundaries(variant).includes(stage)`. When present it renders a decorative, pointer-transparent edge with three layers: paper body, fiber fringe, and contact shadow. The irregular edge is an inline SVG mask with a deterministic path, not randomized geometry.
 
-- [ ] **Step 5: Preserve the default compatibility path**
+- [x] **Step 5: Preserve the default compatibility path**
 
 `OdiiAtmosphereBackground` keeps the existing white radial-gradient markup when `variant` is missing or `default`. Experimental variants render `OdiiBackgroundStage`. This is the production regression boundary.
 
-- [ ] **Step 6: Run focused tests, type checking, and lint**
+- [x] **Step 6: Run focused tests, type checking, and lint**
 
 Run: `npx vitest run src/features/odii-audio/background/odiiBackgroundScenes.test.ts src/features/odii-audio/background/odiiBackgroundController.test.ts`
 
@@ -334,7 +334,7 @@ Run: `npx eslint src/features/odii-audio/background src/features/odii-audio/comp
 
 Expected: focused tests pass and both static checks exit 0.
 
-- [ ] **Step 7: Commit Task 3**
+- [x] **Step 7: Commit Task 3**
 
 ```bash
 git add src/features/odii-audio/background src/features/odii-audio/components/OdiiAtmosphereBackground.tsx

@@ -3,6 +3,7 @@ import {
   getOdiiTearBoundaries,
   ODII_BACKGROUND_STAGES,
   resolveOdiiBackgroundCategory,
+  resolveOdiiBackgroundPresentation,
   resolveOdiiBackgroundScene,
 } from './odiiBackgroundScenes';
 
@@ -41,5 +42,37 @@ describe('Odii background scene model', () => {
       motif: 'leaf',
     });
     expect(resolveOdiiBackgroundScene('warmth-grain', 'archive', '전체').motionLevel).toBe('quiet');
+  });
+
+  it('gives each comparison route a different restrained material emphasis', () => {
+    expect(resolveOdiiBackgroundPresentation('warmth-grain')).toMatchObject({
+      warmthField: 1,
+      thresholdShadow: 0.18,
+      paperDepth: 0.22,
+    });
+    expect(resolveOdiiBackgroundPresentation('changho-breeze')).toMatchObject({
+      warmthField: 0.28,
+      thresholdShadow: 1,
+      paperDepth: 0.18,
+    });
+    expect(resolveOdiiBackgroundPresentation('hanji-journey')).toMatchObject({
+      warmthField: 0.2,
+      thresholdShadow: 0.22,
+      paperDepth: 1,
+    });
+    expect(resolveOdiiBackgroundPresentation('onmaru-signature')).toMatchObject({
+      warmthField: 0.68,
+      thresholdShadow: 0.72,
+      paperDepth: 0.58,
+    });
+  });
+
+  it('keeps the production default separate from experimental renderers', () => {
+    expect(resolveOdiiBackgroundScene('default', 'featured', '전체').variant).toBe('default');
+    expect(resolveOdiiBackgroundScene('onmaru-signature', 'closing', '한옥')).toMatchObject({
+      stage: 'closing',
+      category: 'hanok',
+      motif: 'seal',
+    });
   });
 });

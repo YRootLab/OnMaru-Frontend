@@ -39,3 +39,12 @@ export interface OdiiBackgroundScene {
   motif: OdiiBackgroundMotif;
   motionLevel: OdiiBackgroundMotionLevel;
 }
+
+export interface OdiiBackgroundPresentation {
+  hanjiAir: number;
+  hospitalityLight: number;
+  thresholdShadow: number;
+  gardenShadow: number;
+  warmthField: number;
+  paperDepth: number;
+}
