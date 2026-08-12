@@ -166,7 +166,7 @@ git commit -m "feat: define Odii background scenes"
 - Produces `OdiiStageObservation`, `selectDominantOdiiStage(observations, currentStage)`, `resolveOdiiMotionState(...)`, and `useOdiiBackgroundController({ variant, selectedCategory, isPlaying })`.
 - The hook returns `{ scene, motion, isDocumentVisible, pointerX, pointerY, scrollProgress }` where pointer values are Framer `MotionValue<number>` instances in the `-1..1` range and section-local `scrollProgress` is clamped to `0..1`.
 
-- [ ] **Step 1: Write the failing controller tests**
+- [x] **Step 1: Write the failing controller tests**
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -201,23 +201,23 @@ describe('selectDominantOdiiStage', () => {
 });
 ```
 
-- [ ] **Step 2: Run the controller test and verify RED**
+- [x] **Step 2: Run the controller test and verify RED**
 
 Run: `npx vitest run src/features/odii-audio/background/odiiBackgroundController.test.ts`
 
 Expected: FAIL because the controller module does not exist.
 
-- [ ] **Step 3: Implement the pure selector**
+- [x] **Step 3: Implement the pure selector**
 
 Sort intersecting observations by descending `intersectionRatio`, then ascending `Math.abs(top - windowFocusTop)`. The pure selector receives `windowFocusTop = 0` as an optional third argument so tests do not read `window`.
 
-- [ ] **Step 4: Run the controller test and verify GREEN**
+- [x] **Step 4: Run the controller test and verify GREEN**
 
 Run: `npx vitest run src/features/odii-audio/background/odiiBackgroundController.test.ts`
 
 Expected: 3 tests pass.
 
-- [ ] **Step 5: Implement the hook without changing the pure selector**
+- [x] **Step 5: Implement the hook without changing the pure selector**
 
 The hook:
 
@@ -238,7 +238,7 @@ export interface UseOdiiBackgroundControllerOptions {
 - Resolves drift, parallax, playback breathing, and animated-tear permissions with the pure `resolveOdiiMotionState`; reduced motion or a hidden document disables all four.
 - Resolves category and scene through Task 1 functions.
 
-- [ ] **Step 6: Run focused tests and type checking**
+- [x] **Step 6: Run focused tests and type checking**
 
 Run: `npx vitest run src/features/odii-audio/background/odiiBackgroundScenes.test.ts src/features/odii-audio/background/odiiBackgroundController.test.ts`
 
@@ -246,7 +246,7 @@ Run: `npx tsc --noEmit`
 
 Expected: 6 tests pass and TypeScript exits 0.
 
-- [ ] **Step 7: Commit Task 2**
+- [x] **Step 7: Commit Task 2**
 
 ```bash
 git add src/features/odii-audio/background/odiiBackgroundController.ts src/features/odii-audio/background/odiiBackgroundController.test.ts src/features/odii-audio/background/useOdiiBackgroundController.ts

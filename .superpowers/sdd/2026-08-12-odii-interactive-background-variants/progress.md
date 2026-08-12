@@ -2,8 +2,8 @@
 
 ## Resume point
 
-- Current task: Task 2 — deterministic section controller
-- Current phase: RED test creation
+- Current task: Task 3 — four visual renderers and hanji transition
+- Current phase: presentation invariant RED test
 - Branch: `feat/odii-background-ui-implements`
 - Workspace: `/Users/yangseunghyeon/orca/workspaces/OnMaruFE/odii-background-codex`
 - Plan: `docs/superpowers/plans/2026-08-12-odii-interactive-background-variants.md`
@@ -18,7 +18,7 @@
 ## Task status
 
 - [x] Task 1 — scene domain model and invariant tests
-- [ ] Task 2 — deterministic section controller
+- [x] Task 2 — deterministic section controller
 - [ ] Task 3 — four visual renderers and hanji transition
 - [ ] Task 4 — stage markers and comparison routes
 - [ ] Task 5 — browser QA and final verification
@@ -31,3 +31,5 @@ On reconnect, read this ledger, then the plan and spec. Resume at the exact unch
 
 - Task 1 RED — `odiiBackgroundScenes.test.ts` failed because `odiiBackgroundScenes` did not exist.
 - Task 1 GREEN — 1 file / 3 tests passed; `git diff --check` passed.
+- Task 2 RED — controller suite failed because the module did not exist; progress normalization then failed because the function did not exist.
+- Task 2 GREEN — 2 files / 9 tests passed; TypeScript, targeted ESLint, and `git diff --check` passed.
