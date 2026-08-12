@@ -51,7 +51,7 @@
 - Produces `OdiiBackgroundVariant`, `OdiiBackgroundStage`, `OdiiBackgroundCategory`, `OdiiBackgroundScene`, `ODII_BACKGROUND_STAGES`, `resolveOdiiBackgroundCategory(category)`, `resolveOdiiBackgroundScene(variant, stage, category)`, and `getOdiiTearBoundaries(variant)`.
 - Later tasks must import these names rather than repeat strings.
 
-- [ ] **Step 1: Write the failing scene tests**
+- [x] **Step 1: Write the failing scene tests**
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -90,13 +90,13 @@ describe('Odii background scene model', () => {
 });
 ```
 
-- [ ] **Step 2: Run the scene test and verify RED**
+- [x] **Step 2: Run the scene test and verify RED**
 
 Run: `npx vitest run src/features/odii-audio/background/odiiBackgroundScenes.test.ts`
 
 Expected: FAIL because `odiiBackgroundScenes` does not exist.
 
-- [ ] **Step 3: Implement the model**
+- [x] **Step 3: Implement the model**
 
 Create the exact unions and exported functions:
 
@@ -139,13 +139,13 @@ export interface OdiiBackgroundScene {
 
 `resolveOdiiBackgroundScene` uses a total `Record<OdiiBackgroundStage, ...>` so every stage has a motif and archive is always `quiet`. `resolveOdiiBackgroundCategory` maps only the five approved theme keywords; region chips resolve to `default`.
 
-- [ ] **Step 4: Run the scene test and verify GREEN**
+- [x] **Step 4: Run the scene test and verify GREEN**
 
 Run: `npx vitest run src/features/odii-audio/background/odiiBackgroundScenes.test.ts`
 
 Expected: 3 tests pass.
 
-- [ ] **Step 5: Commit Task 1**
+- [x] **Step 5: Commit Task 1**
 
 ```bash
 git add src/features/odii-audio/background/odiiBackground.types.ts src/features/odii-audio/background/odiiBackgroundScenes.ts src/features/odii-audio/background/odiiBackgroundScenes.test.ts
