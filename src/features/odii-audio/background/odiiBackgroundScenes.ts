@@ -1,11 +1,21 @@
 import type {
   OdiiBackgroundCategory,
   OdiiBackgroundMotif,
+  OdiiBackgroundPalette,
   OdiiBackgroundPresentation,
   OdiiBackgroundScene,
   OdiiBackgroundStage,
   OdiiBackgroundVariant,
 } from './odiiBackground.types';
+
+export const ODII_BACKGROUND_PALETTE: OdiiBackgroundPalette = {
+  canvas: '#ffffff',
+  paper: '#ffffff',
+  lightRgb: '255, 255, 255',
+  fiberRgb: '112, 112, 112',
+  shadowRgb: '70, 70, 70',
+  accentRgb: '145, 145, 145',
+};
 
 export const ODII_BACKGROUND_STAGES = [
   'featured',

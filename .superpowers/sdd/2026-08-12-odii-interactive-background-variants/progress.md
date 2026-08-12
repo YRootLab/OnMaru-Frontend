@@ -2,8 +2,8 @@
 
 ## Resume point
 
-- Current task: Task 5 — browser QA and final verification
-- Current phase: implementation complete; visual approval deferred
+- Current task: White-canvas correction after user visual review
+- Current phase: complete; awaiting user comparison of versions 1-4
 - Branch: `feat/odii-background-ui-implements`
 - Workspace: `/Users/yangseunghyeon/orca/workspaces/OnMaruFE/odii-background-codex`
 - Plan: `docs/superpowers/plans/2026-08-12-odii-interactive-background-variants.md`
@@ -43,3 +43,6 @@ On reconnect, read this ledger, then the plan and spec. Resume at the exact unch
 - Task 5 source review RED/GREEN — added unsupported-observer static fallback; controller suite now has 8 passing tests.
 - Task 5 repository lint — blocked by pre-existing unrelated debt: 39 errors / 67 warnings. Do not widen this feature branch to repair Tour API, landing or archived 3D files; use targeted lint for changed source.
 - Task 5 final evidence — 4 files / 22 tests PASS; TypeScript PASS; task-scoped ESLint PASS; webpack production build PASS with all 15 routes. Default Turbopack passed earlier, but later session reruns stalled at compile with no diagnostic.
+- User review correction — preserve the four comparison structures but remove the yellow/cream/golden palette from every experimental route. Use true white paper and neutral gray material detail; `/odii` remains unchanged.
+- White-canvas RED — palette test failed because no shared true-white palette contract existed.
+- White-canvas GREEN — 4 files / 23 tests PASS; TypeScript PASS; task-scoped ESLint PASS; webpack production build PASS; ver1/ver4 HTTP 200 and rendered `--odii-bg-canvas:#ffffff`.

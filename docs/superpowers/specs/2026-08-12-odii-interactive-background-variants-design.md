@@ -229,3 +229,15 @@ Each existing major section receives a stable stage identifier without changing 
 - Version 4 is the most cohesive expression of On-Maru warmth, hanok atmosphere, and Odii discovery.
 - Reduced-motion and static fallback states remain complete.
 - Focused tests and production build pass.
+
+## 2026-08-12 white-canvas correction
+
+User review found that the warm-white canvas and golden light treatments conflict with the existing Odii foreground. Before comparing or reducing the four concepts, normalize all preview routes to a true white canvas.
+
+- Keep the geometry, section states, motion, paper depth and route-specific emphasis of versions 1-4 for comparison.
+- Replace every cream, beige, ochre and golden full-screen tint with `#ffffff` or a neutral gray alpha.
+- Paper surfaces are white rather than aged, ivory or yellow hanji.
+- Fibers, contact shadows, threshold shadows and garden shadows use neutral gray only.
+- Warmth points lose amber and coral coloration during this comparison pass; their spacing remains available for evaluating composition.
+- The production `/odii` compatibility background remains unchanged.
+- This correction changes color only. Decisions about which variants or sections to remove happen after the user compares the white versions.

@@ -102,3 +102,12 @@ The in-app browser runtime reported no available browser backends, so screenshot
 ## Status
 
 Implementation complete. Task-scoped automated verification and route probes complete; repository-wide legacy lint and screenshot-based visual approval are explicitly deferred.
+
+## White-canvas correction
+
+- User comparison feedback rejected the cream/golden atmosphere before choosing a variant.
+- Versions 1-4 keep their geometry, motion, section states and paper treatment, but now share a true-white `#ffffff` canvas and white paper surfaces.
+- Golden, beige, ochre, amber, coral and green-tinted background values were removed from the experimental background module. Fibers, shadows and former warmth points now use neutral gray alpha only.
+- `/odii` remains on its original compatibility background.
+- Verification: palette test observed RED before the contract existed, then GREEN; final focused suite passed 4 files / 23 tests; TypeScript and task-scoped ESLint passed; webpack production build generated all 15 routes.
+- Live development probes returned HTTP 200 for `/odii/be-ver1` and `/odii/be-ver4`, and the rendered markup exposed `--odii-bg-canvas:#ffffff` with the expected route variant.

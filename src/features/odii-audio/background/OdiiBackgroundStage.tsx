@@ -2,7 +2,10 @@
 
 import type { CSSProperties } from 'react';
 import { motion, useTransform } from 'framer-motion';
-import { resolveOdiiBackgroundPresentation } from './odiiBackgroundScenes';
+import {
+  ODII_BACKGROUND_PALETTE,
+  resolveOdiiBackgroundPresentation,
+} from './odiiBackgroundScenes';
 import type { OdiiBackgroundVariant } from './odiiBackground.types';
 import { useOdiiBackgroundController } from './useOdiiBackgroundController';
 import styles from './OdiiBackgroundStage.module.css';
@@ -31,6 +34,12 @@ export function OdiiBackgroundStage({
   const shadowY = useTransform(scrollProgress, [0, 1], motionState.drift ? [-3, 3] : [0, 0]);
 
   const stageStyle: BackgroundVariables = {
+    '--odii-bg-canvas': ODII_BACKGROUND_PALETTE.canvas,
+    '--odii-bg-paper-surface': ODII_BACKGROUND_PALETTE.paper,
+    '--odii-bg-light-rgb': ODII_BACKGROUND_PALETTE.lightRgb,
+    '--odii-bg-fiber-rgb': ODII_BACKGROUND_PALETTE.fiberRgb,
+    '--odii-bg-shadow-rgb': ODII_BACKGROUND_PALETTE.shadowRgb,
+    '--odii-bg-accent-rgb': ODII_BACKGROUND_PALETTE.accentRgb,
     '--odii-bg-hanji': presentation.hanjiAir.toString(),
     '--odii-bg-light': presentation.hospitalityLight.toString(),
     '--odii-bg-threshold': presentation.thresholdShadow.toString(),

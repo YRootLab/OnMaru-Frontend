@@ -48,3 +48,12 @@ export interface OdiiBackgroundPresentation {
   warmthField: number;
   paperDepth: number;
 }
+
+export interface OdiiBackgroundPalette {
+  canvas: '#ffffff';
+  paper: '#ffffff';
+  lightRgb: string;
+  fiberRgb: string;
+  shadowRgb: string;
+  accentRgb: string;
+}

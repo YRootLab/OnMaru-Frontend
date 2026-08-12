@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   getOdiiTearBoundaries,
+  ODII_BACKGROUND_PALETTE,
   ODII_BACKGROUND_STAGES,
   resolveOdiiBackgroundCategory,
   resolveOdiiBackgroundPresentation,
@@ -8,6 +9,17 @@ import {
 } from './odiiBackgroundScenes';
 
 describe('Odii background scene model', () => {
+  it('uses a true-white neutral palette across every experimental background', () => {
+    expect(ODII_BACKGROUND_PALETTE).toEqual({
+      canvas: '#ffffff',
+      paper: '#ffffff',
+      lightRgb: '255, 255, 255',
+      fiberRgb: '112, 112, 112',
+      shadowRgb: '70, 70, 70',
+      accentRgb: '145, 145, 145',
+    });
+  });
+
   it('maps only approved Odii themes to restrained category modifiers', () => {
     expect(resolveOdiiBackgroundCategory('한옥')).toBe('hanok');
     expect(resolveOdiiBackgroundCategory('시장')).toBe('market');
