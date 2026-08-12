@@ -12,6 +12,13 @@ Create an isolated comparison page for four polished alternatives to the existin
 - Use local mock records only; the study must not call an API or depend on geolocation.
 - Keep all study-specific UI under a dedicated `section2-study` component directory so it can be removed without touching production components.
 
+## Temporary navigation entry
+
+- Add a desktop-only `카드들` link immediately after `소리마루` in the shared header's center navigation.
+- Link it directly to `/odii/section2-ui-improvements`.
+- Keep mobile navigation unchanged.
+- Isolate the temporary link in one commented JSX block so it can be removed without changing any surrounding navigation behavior.
+
 ## Page structure
 
 The page begins with a compact study header explaining that the four sections contain the same stories and differ only in card treatment. Below it, all four complete section variants appear vertically in a single page. Each variant repeats the title “장면을 골라 듣다,” includes a short label explaining the tested change, and presents the same horizontal story set.
