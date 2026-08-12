@@ -30,7 +30,7 @@ export const OdiiFooterCTA: React.FC = () => {
 
   return (
     <section aria-label="다음에 또 방문하기" className="w-full py-12 sm:py-16">
-      <div className="mx-auto w-full max-w-4xl px-4 sm:px-8 text-center">
+      <div className="w-full text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

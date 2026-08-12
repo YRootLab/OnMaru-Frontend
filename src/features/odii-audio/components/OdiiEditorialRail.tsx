@@ -453,7 +453,7 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
     <section aria-label="오디 셀렉션" aria-busy={showSkeleton} style={{ contain: 'layout paint' }} className="relative left-1/2 w-screen -translate-x-1/2 py-3 sm:py-5">
       <div className="w-full px-0">
         <div className="relative pb-2 pt-1 sm:pt-2">
-          <div className="mx-auto mb-3 w-full max-w-6xl px-4 sm:px-8">
+          <div className="mx-auto mb-3 w-full max-w-6xl">
             <nav aria-label="장면 카테고리" className="overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               <div className="flex min-w-max items-center gap-4">
                 {ODII_THEME_CATEGORIES.map((category) => {
@@ -554,7 +554,7 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
           <div className="relative z-30 flex items-center justify-center pt-1.5 sm:pt-2">
             <div className="flex items-center gap-1.5">
               {featured.map((story, index) => (
-                <button key={story.stid} type="button" onClick={() => moveTo(index)} className={`h-1 rounded-full transition-all duration-300 ${index === activeIndex ? 'w-8 bg-[#f84e76]' : 'w-1.5 bg-[#211e19]/20 hover:bg-[#211e19]/50'}`} aria-label={`${index + 1}번째 이야기 선택`} />
+                <button key={`${story.stid}-${index}`} type="button" onClick={() => moveTo(index)} className={`h-1 rounded-full transition-all duration-300 ${index === activeIndex ? 'w-8 bg-[#f84e76]' : 'w-1.5 bg-[#211e19]/20 hover:bg-[#211e19]/50'}`} aria-label={`${index + 1}번째 이야기 선택`} />
               ))}
             </div>
           </div>

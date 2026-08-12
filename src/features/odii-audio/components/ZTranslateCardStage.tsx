@@ -89,7 +89,7 @@ export const ZTranslateCardStage: React.FC<ZTranslateCardStageProps> = ({ featur
                 {/* 중앙 썸네일 */}
                 <div className="relative w-full h-44 rounded-2xl overflow-hidden my-3 border border-white/10 group-hover:scale-105 transition-transform duration-500">
                   <img
-                    src={story.imageUrl}
+                    src={story.imageUrl || 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80'}
                     alt={story.title}
                     className="w-full h-full object-cover"
                   />

@@ -97,7 +97,7 @@ export const OdiiThemeHeaderRail: React.FC = () => {
   const setSelectedCategory = useOdiiAudioStore((s) => s.setSelectedCategory);
 
   return (
-    <section className="mx-auto max-w-6xl px-4 py-8 sm:px-8">
+    <section className="w-full py-8">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 pb-4 border-b border-[#211e19]/15">
         <div>
           <span className="text-[11px] font-bold tracking-[0.2em] text-[#a94d35] uppercase">

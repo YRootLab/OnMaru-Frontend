@@ -97,12 +97,12 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
                     이야기 옆의 하트를 눌러보세요.
                   </div>
                 ) : (
-                  savedStories.map((story) => {
+                  savedStories.map((story, index) => {
                     const isCurrentPlaying = currentStory.stid === story.stid && isPlaying;
                     return (
-                      <div key={story.stid} className="flex gap-3 border-b border-[#211e19]/12 pb-4">
+                      <div key={`${story.stid}-${index}`} className="flex gap-3 border-b border-[#211e19]/12 pb-4">
                         <div className="h-16 w-20 shrink-0 overflow-hidden bg-[#e5dbcd]">
-                          <img src={story.imageUrl} alt="" className="h-full w-full object-cover" />
+                          <img src={story.imageUrl || 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80'} alt="" className="h-full w-full object-cover" />
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-[10px] text-[#a94d35]">{story.locationName || '소리의 장소'}</p>

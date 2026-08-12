@@ -129,7 +129,7 @@ export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({
 
           return (
             <motion.div
-              key={story.stid}
+              key={`${story.stid}-${index}`}
               variants={itemVariants}
               onClick={() => selectStory(story)}
               className={`group relative grid cursor-pointer grid-cols-[34px_64px_minmax(0,1fr)_auto] items-center gap-3 overflow-hidden rounded-2xl border px-3 py-3.5 transition-all duration-300 sm:grid-cols-[40px_76px_minmax(0,1fr)_auto] sm:gap-4 sm:px-4 ${

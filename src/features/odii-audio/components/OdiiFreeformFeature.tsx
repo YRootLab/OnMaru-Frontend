@@ -208,7 +208,7 @@ export const OdiiFreeformFeature: React.FC<OdiiFreeformFeatureProps> = ({ apiSer
       <div className="pointer-events-none absolute left-[7%] top-24 h-36 w-36 rounded-full bg-[#d5f05a] mix-blend-multiply blur-[1px] sm:h-56 sm:w-56" aria-hidden="true" />
       <div className="pointer-events-none absolute right-[-8%] top-[30rem] h-64 w-64 rounded-full bg-[#2454ff] opacity-90 mix-blend-multiply sm:h-[30rem] sm:w-[30rem]" aria-hidden="true" />
 
-      <div className="relative z-10 mx-auto max-w-[1440px] px-4 sm:px-8 lg:px-12">
+      <div className="relative z-10 w-full">
         <header className="border-b-2 border-[#171717]">
           <div className="flex min-h-14 items-center justify-between gap-4 text-[10px] font-semibold uppercase tracking-[0.16em]">
             <Link href="/odii" className="shrink-0 transition-colors hover:text-[#2454ff]">ONMARU / ODII</Link>

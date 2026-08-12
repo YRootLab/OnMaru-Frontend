@@ -74,7 +74,7 @@ export const OdiiStoryCardGrid: React.FC<OdiiStoryCardGridProps> = ({
 
             return (
               <motion.article
-                key={story.stid}
+                key={`${story.stid}-${index}`}
                 layout
                 whileHover={{ y: -5 }}
                 transition={{ duration: 0.25 }}

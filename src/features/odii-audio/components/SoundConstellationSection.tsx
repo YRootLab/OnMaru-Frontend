@@ -123,11 +123,11 @@ export const SoundConstellationSection: React.FC = () => {
 
   return (
     <section aria-label="소리의 실타래 탐색" className="relative w-full py-10 sm:py-14">
-      <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
+      <div className="w-full">
         {/* 인위적인 요약 뱃지 제거 — 순수 타이포그래피 헤더 */}
         <div className="flex flex-col gap-1 pb-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-2xl font-bold leading-tight tracking-[-0.04em] text-transparent sm:text-3xl">
+            <h2 className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-[clamp(24px,3.2vw,36px)] font-bold leading-tight tracking-[-0.04em] text-transparent">
               이야기와 소리로 이어지는 한국의 장소들
             </h2>
           </div>

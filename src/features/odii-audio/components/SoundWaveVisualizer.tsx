@@ -94,7 +94,7 @@ export const FloatingVinylDisc: React.FC<{ imageUrl: string; isPlaying: boolean 
 
         {/* 앨범 아트 섬네일 중심 */}
         <div className="h-10 w-10 overflow-hidden rounded-full border-2 border-black sm:h-12 sm:w-12">
-          <img src={imageUrl} alt="" className="h-full w-full object-cover" />
+          <img src={imageUrl || 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80'} alt="" className="h-full w-full object-cover" />
         </div>
       </motion.div>
 

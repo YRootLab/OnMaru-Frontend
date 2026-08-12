@@ -167,10 +167,10 @@ export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = (
 
   return (
     <section aria-labelledby="keyword-spotlight-heading" className="w-full pt-6 pb-12 sm:pt-8 sm:pb-16 min-h-[580px]">
-      <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
+      <div className="w-full">
         {/* 섹션 2 타이틀 (가장 먼저 등판) */}
         <motion.div variants={titleVariants} className="pb-1">
-          <h2 id="keyword-spotlight-heading" className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-2xl font-bold tracking-[-0.045em] text-transparent sm:text-3xl">
+          <h2 id="keyword-spotlight-heading" className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-[clamp(24px,3.2vw,36px)] font-bold tracking-[-0.045em] text-transparent">
             한 단어로, 한 장면
           </h2>
           <p className="mt-2.5 max-w-xl text-xs leading-relaxed text-[#786d5e] sm:text-sm">
