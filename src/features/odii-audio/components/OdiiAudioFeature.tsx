@@ -15,6 +15,8 @@ import { OdiiFooterCTA } from './OdiiFooterCTA';
 import { AllStoriesModal } from './AllStoriesModal';
 import { LocalMiniPlayer } from './LocalMiniPlayer';
 import { OdiiAtmosphereBackground } from './OdiiAtmosphereBackground';
+import { HanjiTearTransition } from '../background/HanjiTearTransition';
+import type { OdiiBackgroundVariant } from '../background/odiiBackground.types';
 import { VesselReveal } from '@/shared/components/animation/VesselReveal';
 import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
 import { OdiiStoryItem, OdiiStoryPage, IOdiiApiService } from '../types/odii.types';
@@ -77,6 +79,8 @@ export interface OdiiAudioFeatureProps {
   initialHeroStorySets?: Record<string, OdiiStoryItem[]>;
   /** 외부 위치 변경 이벤트 콜백 */
   onLocationChange?: (latitude: number, longitude: number) => void;
+  /** 비교 시안에서만 사용하는 오디 배경 시스템 */
+  backgroundVariant?: OdiiBackgroundVariant;
 }
 
 export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
@@ -85,10 +89,13 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
   initialNearbyStories,
   initialHeroStorySets,
   onLocationChange,
+  backgroundVariant,
 }) => {
   const activeApiService = useOdiiApiService(apiService);
   const selectedCategory = useOdiiAudioStore((s) => s.selectedCategory);
   const searchQuery = useOdiiAudioStore((s) => s.searchQuery);
+  const isPlaying = useOdiiAudioStore((s) => s.isPlaying);
+  const resolvedBackgroundVariant = backgroundVariant ?? 'default';
   const [storyList, setStoryList] = useState<OdiiStoryItem[]>(() => initialStories || []);
   const [section4Stories, setSection4Stories] = useState<OdiiStoryItem[]>(() => initialStories?.slice(0, 7) || []);
   const [section6Stories, setSection6Stories] = useState<OdiiStoryItem[]>(() => initialStories?.slice(0, 6) || []);
@@ -304,7 +311,11 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
   return (
     <OdiiDependencyProvider apiService={activeApiService}>
       <div className="odii-feature relative isolate min-h-screen pb-24 text-[#211e19] selection:bg-[#ffd9e4] selection:text-[#b52f55]">
-        <OdiiAtmosphereBackground />
+        <OdiiAtmosphereBackground
+          variant={backgroundVariant}
+          selectedCategory={selectedCategory}
+          isPlaying={isPlaying}
+        />
         <div className="relative z-10">
           {apiError && (
             <div role="alert" className="fixed left-1/2 top-20 z-[60] flex w-[min(92vw,460px)] -translate-x-1/2 items-center justify-between gap-4 rounded-2xl border border-[#a94d35]/20 bg-[#fffaf3] px-4 py-3 text-sm text-[#655b4d] shadow-[0_12px_35px_rgba(33,30,25,0.16)]">
@@ -317,6 +328,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
           <main className="space-y-4 sm:space-y-6">
             {/* 섹션 0: 헤더 타이틀 */}
           <motion.section
+            data-odii-stage="featured"
             variants={sectionVariants}
             initial="hidden"
             animate="visible"
@@ -339,6 +351,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
 
           {/* 섹션 1: 히어로 큐레이션 레일 (헤더와 적절한 탑 여백 확보) */}
           <motion.div
+            data-odii-stage="featured"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
@@ -352,7 +365,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
 
           {/* 섹션 2: 한 단어로, 한 장면 */}
           <VesselReveal className="min-h-[650px] sm:min-h-[700px]">
-            <div className="mt-4">
+            <div className="mt-4" data-odii-stage="themes">
               <div className="mx-auto max-w-6xl pt-4">
                 <h3 className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-[clamp(24px,3.2vw,36px)] font-bold tracking-[-0.04em] text-transparent">장면을 골라 듣다</h3>
               </div>
@@ -369,10 +382,12 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
           </VesselReveal>
 
           {/* 섹션 3: 오늘, 여기에서 */}
+          <HanjiTearTransition stage="nearby" variant={resolvedBackgroundVariant} />
           <VesselReveal className="min-h-[440px] sm:min-h-[470px] w-full py-6 sm:py-8">
             <section
               aria-labelledby="nearby-stories-heading"
               className="w-full"
+              data-odii-stage="nearby"
             >
               <div className="mx-auto w-full max-w-6xl">
                 <motion.div variants={titleVariants} className="flex flex-col gap-4 pb-1 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
@@ -409,6 +424,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             <section
               aria-labelledby="compact-archive-heading"
               className="w-full"
+              data-odii-stage="related"
             >
               <div className="mx-auto w-full max-w-6xl">
                 <motion.div variants={titleVariants} className="mb-5 flex items-end justify-between gap-4">
@@ -442,9 +458,11 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
           </VesselReveal>
 
           {/* 섹션 5: 주제와 장소를 따라보는 이야기 아카이브 */}
+          <HanjiTearTransition stage="archive" variant={resolvedBackgroundVariant} />
           <VesselReveal id="odii-archive" className="min-h-[900px] w-full py-8 sm:py-12">
             <section
               className="w-full"
+              data-odii-stage="archive"
             >
               <div className="mx-auto w-full max-w-6xl">
                 <motion.div variants={titleVariants} className="mb-4">
@@ -512,6 +530,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             <section
               aria-labelledby="odii-card-collection-heading"
               className="w-full"
+              data-odii-stage="collection"
             >
               <div className="mx-auto w-full max-w-6xl">
                 <motion.div variants={titleVariants} className="mb-5 flex items-end justify-between gap-5">
@@ -538,7 +557,9 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
 
           {/* 섹션 7: 이탈 방지 & 재방문 CTA */}
           <VesselReveal className="min-h-[220px] sm:min-h-[260px]">
-            <OdiiFooterCTA />
+            <div data-odii-stage="closing">
+              <OdiiFooterCTA />
+            </div>
           </VesselReveal>
           </main>
         </div>
