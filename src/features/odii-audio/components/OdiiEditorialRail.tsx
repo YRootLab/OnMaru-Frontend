@@ -473,7 +473,7 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
               </div>
             </nav>
           </div>
-          <div className="relative mt-0 h-[325px] overflow-hidden pt-2 pb-4 sm:h-[410px] lg:h-[455px]">
+          <div className="relative isolate mt-0 h-[325px] overflow-hidden bg-white pt-2 pb-4 sm:h-[410px] lg:h-[455px]">
             {/* Leading (좌측) 풀 높이 리니어 그라데이션 탐색 버튼 */}
             <button
               type="button"
@@ -563,4 +563,3 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
     </section>
   );
 });
-

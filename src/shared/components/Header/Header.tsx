@@ -603,6 +603,15 @@ export default function Header() {
         <NavLink href="/odii" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
           소리마루
         </NavLink>
+
+        {/* 임시 UI 비교 페이지 링크: 스터디 종료 후 이 블록만 제거 */}
+        <NavLink
+          href="/odii/section2-ui-improvements"
+          $isLanding={usesDarkSurface}
+          $isOdii={isOdiiPage}
+        >
+          임시 카드들
+        </NavLink>
       </CenterNav>
 
       {/* 오른쪽 끝: 로그인 */}

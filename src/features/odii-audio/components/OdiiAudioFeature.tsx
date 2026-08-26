@@ -12,6 +12,8 @@ import { SavedSoundDrawer } from './SavedSoundDrawer';
 import { OdiiAutoSliceRail } from './OdiiAutoSliceRail';
 import { OdiiEditorialRail } from './OdiiEditorialRail';
 import { OdiiFooterCTA } from './OdiiFooterCTA';
+import { OdiiSection2Experiments } from './OdiiSection2Experiments';
+import { SoundConstellationSection } from './SoundConstellationSection';
 import { AllStoriesModal } from './AllStoriesModal';
 import { LocalMiniPlayer } from './LocalMiniPlayer';
 import { OdiiAtmosphereBackground } from './OdiiAtmosphereBackground';
@@ -379,6 +381,15 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                 />
               </div>
             </div>
+          </VesselReveal>
+
+          {/* 섹션 2 아래: 카드 정보 밀도 개선 임시 시안 */}
+          <VesselReveal className="w-full">
+            <OdiiSection2Experiments stories={storyList} storySets={heroStorySets} />
+          </VesselReveal>
+
+          <VesselReveal className="w-full">
+            <SoundConstellationSection stories={storyList} />
           </VesselReveal>
 
           {/* 섹션 3: 오늘, 여기에서 */}
