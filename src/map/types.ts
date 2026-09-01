@@ -59,6 +59,36 @@ export interface WarmthReview {
   isHelpful?: boolean;
 }
 
+/** 실시간 인기 장소 랭킹 데이터 */
+export interface RankedPlace {
+  placeId: string;
+  placeName: string;
+  placeType: string;
+  placeRegion: string;
+  helpfulCount: number;
+  congestionLevel: '여유' | '보통' | '혼잡' | string;
+  image: string | null;
+  lat?: number;
+  lng?: number;
+}
+
+/** 장소 상세 정보 데이터 */
+export interface PlaceDetailData {
+  contentId: string;
+  contentTypeId: string;
+  title: string;
+  overview: string;
+  addr1: string;
+  addr2?: string;
+  tel: string | null;
+  images: string[];
+  mapx: number;
+  mapy: number;
+  intro: Record<string, string>;
+  homepage: string | null;
+  error?: string;
+}
+
 /** 격자 집계 결과. 셀 하나가 blob 하나가 된다. */
 export interface WarmthCell {
   key: string;

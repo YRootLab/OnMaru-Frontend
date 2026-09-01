@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useMapStore } from '../../hooks/useMapStore';
-import type { WarmthReview } from '../../types';
+import type { WarmthReview, RankedPlace } from '../../types';
 import rawReviews from '../../mock/warmthReviews.mock.json';
 import WarmthCard from './WarmthCard';
 
@@ -325,16 +325,7 @@ export default function WarmthFeed() {
 
   const [selectedRegion, setSelectedRegion] = useState('all');
   const [sortOrder, setSortOrder] = useState<'recent' | 'helpful'>('recent');
-  const [apiTopPlace, setApiTopPlace] = useState<{
-    placeId: string;
-    placeName: string;
-    placeType: string;
-    placeRegion: string;
-    helpfulCount: number;
-    congestionLevel: string;
-    lat?: number;
-    lng?: number;
-  } | null>(null);
+  const [apiTopPlace, setApiTopPlace] = useState<RankedPlace | null>(null);
 
   const reviews = rawReviews as WarmthReview[];
 

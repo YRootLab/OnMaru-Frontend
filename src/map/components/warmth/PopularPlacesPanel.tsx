@@ -5,6 +5,7 @@ import styled from '@emotion/styled';
 import { X, Flame, Landmark, ChevronRight } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useMapStore } from '../../hooks/useMapStore';
+import type { RankedPlace } from '../../types';
 
 const REGIONS = [
   { id: 'all', label: '전국' },
@@ -16,18 +17,6 @@ const REGIONS = [
   { id: '강릉', label: '강릉' },
   { id: '제주', label: '제주' },
 ];
-
-interface RankedPlace {
-  placeId: string;
-  placeName: string;
-  placeType: string;
-  placeRegion: string;
-  helpfulCount: number;
-  congestionLevel: string;
-  image: string | null;
-  lat?: number;
-  lng?: number;
-}
 
 const PanelRoot = styled.div`
   display: flex;

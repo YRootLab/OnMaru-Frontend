@@ -1,22 +1,7 @@
-'use client';
-
 import { useState, useEffect, useCallback } from 'react';
+import type { PlaceDetailData } from '../types';
 
-export interface PlaceDetailData {
-  contentId: string;
-  contentTypeId: string;
-  title: string;
-  overview: string;
-  addr1: string;
-  addr2?: string;
-  tel: string | null;
-  images: string[];
-  mapx: number;
-  mapy: number;
-  intro: Record<string, string>;
-  homepage: string | null;
-  error?: string;
-}
+export type { PlaceDetailData };
 
 interface CacheEntry {
   data: PlaceDetailData;

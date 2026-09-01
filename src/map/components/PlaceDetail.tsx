@@ -24,6 +24,8 @@ import { lightPalette, meok } from '@/design-system/tokens';
 import { useMapStore } from '../hooks/useMapStore';
 import { usePlaceDetail } from '../hooks/usePlaceDetail';
 import type { PlaceCategory } from '../types';
+import { toHttps, formatDistance } from '../utils/formatters';
+import { createKakaoNavigationLinks } from '../utils/navigation';
 
 const log = logger('map');
 
@@ -523,23 +525,21 @@ export default function PlaceDetail() {
     lng >= 124 &&
     lng <= 132;
 
-  const encodedName = encodeURIComponent(title);
-  const kakaoNavUrl = `https://map.kakao.com/link/to/${encodedName},${lat},${lng}`;
+  const navLinks = createKakaoNavigationLinks(title, lat, lng);
 
   // 모바일 카카오맵 앱 연동 핸들러
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    log.log('길찾기 실행', { name: title, lat, lng, url: kakaoNavUrl });
+    log.log('길찾기 실행', { name: title, lat, lng, url: navLinks.webUrl });
     if (typeof window === 'undefined') return;
 
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     if (isMobile) {
       e.preventDefault();
-      const appUrl = `kakaomap://route?ep=${lat},${lng}&by=CAR`;
       const t0 = Date.now();
-      window.location.href = appUrl;
+      window.location.href = navLinks.appScheme;
       setTimeout(() => {
         if (Date.now() - t0 < 1500) {
-          window.open(kakaoNavUrl, '_blank');
+          window.open(navLinks.webUrl, '_blank');
         }
       }, 1000);
     }
@@ -730,7 +730,7 @@ export default function PlaceDetail() {
 
         {hasValidCoords && (
           <NavButton
-            href={kakaoNavUrl}
+            href={navLinks.webUrl}
             target="_blank"
             rel="noopener noreferrer"
             onClick={handleNavClick}
