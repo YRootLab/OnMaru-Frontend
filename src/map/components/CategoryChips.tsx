@@ -1,0 +1,92 @@
+'use client';
+
+import styled from '@emotion/styled';
+import {
+  Coffee, Flame, Landmark, Leaf, Home, MessageCircle, Sparkles, Store, Users, Utensils,
+  type LucideIcon,
+} from 'lucide-react';
+import { meok } from '@/design-system/tokens';
+import { MODE_COLOR, useMapStore } from '../hooks/useMapStore';
+import type { MapMode } from '../types';
+
+const CATEGORIES: Record<MapMode, { id: string; label: string; icon: LucideIcon }[]> = {
+  info: [
+    { id: 'spot', label: '명소', icon: Landmark },
+    { id: 'stay', label: '한옥숙소', icon: Home },
+    { id: 'food', label: '식당', icon: Utensils },
+    { id: 'cafe', label: '카페', icon: Coffee },
+    { id: 'market', label: '전통시장', icon: Store },
+  ],
+  warmth: [
+    { id: 'all', label: '모든 온기', icon: Flame },
+    { id: 'busy', label: '북적이는 곳', icon: Users },
+    { id: 'quiet', label: '한적한 곳', icon: Leaf },
+    { id: 'today', label: '오늘의 온기', icon: Sparkles },
+    { id: 'review', label: '한줄평', icon: MessageCircle },
+  ],
+};
+
+const Scroller = styled.div`
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+const Chip = styled.button<{ $active: boolean; $color: string }>`
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid ${({ $active }) => ($active ? 'transparent' : 'rgba(78, 89, 104, 0.12)')};
+  border-radius: 9999px;
+  background: ${({ $active, $color }) => ($active ? $color : 'rgba(255, 255, 255, 0.95)')};
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(25, 31, 40, 0.08);
+  color: ${({ $active }) => ($active ? '#FFFFFF' : meok[700])};
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.2s ease-out, color 0.2s ease-out;
+
+  &:focus-visible {
+    outline: 2px solid ${({ $color }) => $color};
+    outline-offset: 2px;
+  }
+`;
+
+export default function CategoryChips() {
+  const mode = useMapStore((s) => s.mode);
+  const category = useMapStore((s) => s.category);
+  const setCategory = useMapStore((s) => s.setCategory);
+  const color = MODE_COLOR[mode];
+
+  return (
+    <Scroller role="group" aria-label="카테고리 필터">
+      {CATEGORIES[mode].map(({ id, label, icon: Icon }) => {
+        const active = category === id;
+        return (
+          <Chip
+            key={id}
+            type="button"
+            aria-pressed={active}
+            $active={active}
+            $color={color}
+            onClick={() => setCategory(active ? null : id)}
+          >
+            <Icon size={16} aria-hidden />
+            {label}
+          </Chip>
+        );
+      })}
+    </Scroller>
+  );
+}

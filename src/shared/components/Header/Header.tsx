@@ -402,6 +402,7 @@ const LoginButton = styled(Link)<LandingProps>`
 
 export default function Header() {
   const pathname = usePathname();
+  const isMapPage = pathname.startsWith('/map');
   const isLandingPage = pathname === '/';
   const isOdiiPage = pathname.startsWith('/odii');
   const [isMapMenuOpen, setIsMapMenuOpen] = useState(false);
@@ -411,6 +412,9 @@ export default function Header() {
   const [isLandingLight, setIsLandingLight] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+
+  // 지도 페이지에서는 전체 화면 지도 몰입을 위해 전역 헤더를 숨긴다.
+  if (isMapPage) return null;
 
   // 랜딩은 스크롤에 따라 먹빛 ↔ 한지색 배경이 전환된다.
   // 밝은 구간에서는 다른 페이지와 동일한 라이트 글래스를 사용한다.
@@ -501,6 +505,9 @@ export default function Header() {
     return () => window.cancelAnimationFrame(frameId);
   }, [isMapMenuOpen, isMobileMenuOpen, isLandingPage]);
 
+  // 지도 페이지에서는 전체 화면 지도 몰입을 위해 전역 헤더를 숨긴다.
+  if (isMapPage) return null;
+
   const isNavigationOpen = isMapMenuOpen || isMobileMenuOpen;
 
   return (
@@ -528,91 +535,91 @@ export default function Header() {
       >
         {/* 맨 왼쪽: logo.png */}
         <LeftSection>
-        <LogoLink href="/" aria-label="온마루 홈으로 이동">
-          <Image
-            src="/logo.png"
-            alt="온마루 로고"
-            width={110}
-            height={32}
-            style={{ objectFit: 'contain', height: '32px', width: 'auto' }}
-            priority
-          />
-        </LogoLink>
+          <LogoLink href="/" aria-label="온마루 홈으로 이동">
+            <Image
+              src="/logo.png"
+              alt="온마루 로고"
+              width={110}
+              height={32}
+              style={{ objectFit: 'contain', height: '32px', width: 'auto' }}
+              priority
+            />
+          </LogoLink>
         </LeftSection>
 
-      {/* 가운데: 한옥도감, 지도 (드롭다운), 소리마루 */}
-      <CenterNav>
-        <NavLink href="/hanok" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
-          한옥도감
-        </NavLink>
+        {/* 가운데: 한옥도감, 지도 (드롭다운), 소리마루 */}
+        <CenterNav>
+          <NavLink href="/hanok" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
+            한옥도감
+          </NavLink>
 
-        <DropdownWrapper
-          ref={dropdownRef}
-          onMouseEnter={() => setIsMapMenuOpen(true)}
-          onMouseLeave={() => setIsMapMenuOpen(false)}
-        >
-          <DropdownTrigger
-            type="button"
-            onClick={() => setIsMapMenuOpen((prev) => !prev)}
-            aria-expanded={isMapMenuOpen}
-            aria-haspopup="true"
+          <DropdownWrapper
+            ref={dropdownRef}
+            onMouseEnter={() => setIsMapMenuOpen(true)}
+            onMouseLeave={() => setIsMapMenuOpen(false)}
+          >
+            <DropdownTrigger
+              type="button"
+              onClick={() => setIsMapMenuOpen((prev) => !prev)}
+              aria-expanded={isMapMenuOpen}
+              aria-haspopup="true"
+              $isLanding={usesDarkSurface}
+              $isOdii={isOdiiPage}
+            >
+              지도
+              <ChevronIcon
+                viewBox="0 0 24 24"
+                animate={{ rotate: isMapMenuOpen ? 180 : 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </ChevronIcon>
+            </DropdownTrigger>
+
+            <AnimatePresence>
+              {isMapMenuOpen && (
+                <DropdownMenu
+                  $isLanding={usesDarkSurface}
+                  $isScrolled={isScrolled}
+                  initial={{ opacity: 0, y: -8, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -5, scale: 0.98 }}
+                  transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <DropdownItem
+                    href="/map"
+                    $isLanding={usesDarkSurface}
+                    $isOdii={isOdiiPage}
+                    onClick={() => setIsMapMenuOpen(false)}
+                  >
+                    정보지도
+                  </DropdownItem>
+                  <DropdownItem
+                    href="/map?mode=warmth"
+                    $isLanding={usesDarkSurface}
+                    $isOdii={isOdiiPage}
+                    onClick={() => setIsMapMenuOpen(false)}
+                  >
+                    온기지도
+                  </DropdownItem>
+                </DropdownMenu>
+              )}
+            </AnimatePresence>
+          </DropdownWrapper>
+
+          <NavLink href="/odii" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
+            소리마루
+          </NavLink>
+
+          {/* 임시 UI 비교 페이지 링크: 스터디 종료 후 이 블록만 제거 */}
+          <NavLink
+            href="/odii/section2-ui-improvements"
             $isLanding={usesDarkSurface}
             $isOdii={isOdiiPage}
           >
-            지도
-            <ChevronIcon
-              viewBox="0 0 24 24"
-              animate={{ rotate: isMapMenuOpen ? 180 : 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <polyline points="6 9 12 15 18 9" />
-            </ChevronIcon>
-          </DropdownTrigger>
-
-          <AnimatePresence>
-            {isMapMenuOpen && (
-              <DropdownMenu
-                $isLanding={usesDarkSurface}
-                $isScrolled={isScrolled}
-                initial={{ opacity: 0, y: -8, scale: 0.97 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -5, scale: 0.98 }}
-                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <DropdownItem
-                  href="/map"
-                  $isLanding={usesDarkSurface}
-                  $isOdii={isOdiiPage}
-                  onClick={() => setIsMapMenuOpen(false)}
-                >
-                  정보지도
-                </DropdownItem>
-                <DropdownItem
-                  href="/map?mode=warmth"
-                  $isLanding={usesDarkSurface}
-                  $isOdii={isOdiiPage}
-                  onClick={() => setIsMapMenuOpen(false)}
-                >
-                  온기지도
-                </DropdownItem>
-              </DropdownMenu>
-            )}
-          </AnimatePresence>
-        </DropdownWrapper>
-
-        <NavLink href="/odii" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
-          소리마루
-        </NavLink>
-
-        {/* 임시 UI 비교 페이지 링크: 스터디 종료 후 이 블록만 제거 */}
-        <NavLink
-          href="/odii/section2-ui-improvements"
-          $isLanding={usesDarkSurface}
-          $isOdii={isOdiiPage}
-        >
-          임시 카드들
-        </NavLink>
-      </CenterNav>
+            임시 카드들
+          </NavLink>
+        </CenterNav>
 
       {/* 오른쪽 끝: 로그인 */}
       <RightSection>

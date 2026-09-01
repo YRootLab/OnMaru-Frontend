@@ -1,0 +1,80 @@
+import { create } from 'zustand';
+import { lightPalette } from '@/design-system/tokens';
+import type { Item, KakaoMap, LatLng, MapMode, SheetSnap, Warmth } from '../types';
+
+/** 전주 한옥마을. 데이터가 붙기 전까지의 기본 시점. */
+export const DEFAULT_CENTER: LatLng = { lat: 35.815, lng: 127.153 };
+export const DEFAULT_LEVEL = 5;
+
+/** 모드별 대표색 — 토글·칩·마커·온기 blob이 같은 값을 본다. */
+export const MODE_COLOR: Record<MapMode, string> = {
+  info: lightPalette.cheongrok[500],
+  warmth: lightPalette.juhong[500],
+};
+
+interface MapState {
+  /** kakao.maps.Map 인스턴스. panTo·setLevel을 쓰는 쪽이 직접 잡는다. */
+  map: KakaoMap | null;
+  mode: MapMode;
+  /** 정보모드는 PlaceCategory, 온기모드는 WarmthFilter로 읽는다. null = 전체. */
+  category: string | null;
+  center: LatLng;
+  level: number;
+  items: Item[];
+  warmths: Warmth[];
+  loading: boolean;
+  error: string | null;
+  selectedId: string | null;
+  /** 마지막으로 검색한 중심. 여기서 2km 벗어나면 재검색 버튼이 뜬다. */
+  searchCenter: LatLng;
+  isSearchDirty: boolean;
+  panelOpen: boolean;
+  sheetSnap: SheetSnap;
+
+  setMap: (map: KakaoMap | null) => void;
+  setMode: (mode: MapMode) => void;
+  setCategory: (category: string | null) => void;
+  setCenter: (center: LatLng, level?: number) => void;
+  setItems: (items: Item[]) => void;
+  setWarmths: (warmths: Warmth[]) => void;
+  setLoading: (loading: boolean) => void;
+  setError: (error: string | null) => void;
+  setSelectedId: (id: string | null) => void;
+  markSearchDirty: () => void;
+  clearSearchDirty: () => void;
+  togglePanel: () => void;
+  setSheetSnap: (snap: SheetSnap) => void;
+}
+
+export const useMapStore = create<MapState>((set, get) => ({
+  map: null,
+  mode: 'info',
+  category: null,
+  center: DEFAULT_CENTER,
+  level: DEFAULT_LEVEL,
+  items: [],
+  warmths: [],
+  loading: false,
+  error: null,
+  selectedId: null,
+  searchCenter: DEFAULT_CENTER,
+  isSearchDirty: false,
+  panelOpen: true,
+  sheetSnap: 'half',
+
+  setMap: (map) => set({ map }),
+  // 모드가 바뀌면 카테고리 목록 자체가 달라지므로 선택을 버린다.
+  setMode: (mode) => set({ mode, category: null, selectedId: null }),
+  setCategory: (category) => set({ category, selectedId: null }),
+  setCenter: (center, level) => set(level === undefined ? { center } : { center, level }),
+  setItems: (items) => set({ items }),
+  setWarmths: (warmths) => set({ warmths }),
+  setLoading: (loading) => set({ loading }),
+  setError: (error) => set({ error }),
+  setSelectedId: (selectedId) => set({ selectedId }),
+  markSearchDirty: () => set({ isSearchDirty: true }),
+  // searchCenter가 바뀌면 useMapData가 그걸 신호로 다시 fetch 한다.
+  clearSearchDirty: () => set({ isSearchDirty: false, searchCenter: get().center }),
+  togglePanel: () => set({ panelOpen: !get().panelOpen }),
+  setSheetSnap: (sheetSnap) => set({ sheetSnap }),
+}));
