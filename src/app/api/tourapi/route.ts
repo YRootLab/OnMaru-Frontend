@@ -1,14 +1,17 @@
 import { NextResponse } from 'next/server';
-import { fetchTourApiRealtime } from '@/lib/tourapi';
+import { HanokArchiveService } from '@/hanok/services/hanokArchive.service';
 
+/**
+ * 한옥 아카이브 실시간 목록 조회 API (Thin Controller)
+ */
 export async function GET() {
   try {
-    const data = await fetchTourApiRealtime();
+    const data = await HanokArchiveService.fetchRealtimeHanoks();
     return NextResponse.json(data);
   } catch (error: any) {
     return NextResponse.json(
-      { error: error?.message || 'Failed to fetch TourAPI data' },
-      { status: 500 }
+      { error: error?.message || '한옥 아카이브 데이터를 불러오지 못했습니다' },
+      { status: 500 },
     );
   }
 }

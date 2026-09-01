@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
 import HanokArchive from '@/hanok/HanokArchive';
 import type { Village, VillageMeta } from '@/hanok/types';
-import { fetchTourApiRealtime } from '@/lib/tourapi';
+import { HanokArchiveService } from '@/hanok/services/hanokArchive.service';
 
 async function getVillageData(): Promise<{ villages: Village[]; meta: VillageMeta }> {
   // TourAPI 4.0 실시간 라이브 API 호출
-  return await fetchTourApiRealtime();
+  return await HanokArchiveService.fetchRealtimeHanoks();
 }
 
 export const metadata: Metadata = {
