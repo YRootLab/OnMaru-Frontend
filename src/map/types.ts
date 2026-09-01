@@ -1,7 +1,7 @@
 export type MapMode = 'info' | 'warmth';
 export type SheetSnap = 'peek' | 'half' | 'full';
 
-/** 정보지도 카테고리. TourAPI contentTypeId/cat3와 1:1로 대응한다 (src/lib/tourapiPlaces.ts). */
+/** 정보지도 카테고리. TourAPI contentTypeId/cat3와 1:1로 대응한다 (src/map/services/place.service.ts). */
 export type PlaceCategory = 'spot' | 'stay' | 'food' | 'cafe' | 'market';
 
 /** 온기지도 필터. 데이터가 아니라 보기 방식이라 Warmth에는 안 들어간다. */
