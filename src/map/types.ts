@@ -40,6 +40,25 @@ export interface Warmth {
   mine?: boolean;
 }
 
+/** 온기모드 상세 후기 피드 리뷰 */
+export interface WarmthReview {
+  id: string;
+  placeId: string;
+  placeName: string;
+  placeRegion: string;
+  placeType: string;
+  mood: 1 | 2 | 3 | 4 | 5;
+  season: '봄' | '여름' | '가을' | '겨울';
+  visitCount?: number;
+  goodTags: string[];
+  goodText?: string;
+  badTags: string[];
+  badText?: string;
+  createdAt: string;
+  helpfulCount: number;
+  isHelpful?: boolean;
+}
+
 /** 격자 집계 결과. 셀 하나가 blob 하나가 된다. */
 export interface WarmthCell {
   key: string;

@@ -6,7 +6,7 @@ import type { LatLng } from '../types';
 
 /** autoload=false 필수 — kakao.maps.load()로 직접 초기화한다. */
 export const KAKAO_SDK_SRC =
-  `//dapi.kakao.com/v2/maps/sdk.js` +
+  `https://dapi.kakao.com/v2/maps/sdk.js` +
   `?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_KEY}` +
   `&libraries=services,clusterer&autoload=false`;
 

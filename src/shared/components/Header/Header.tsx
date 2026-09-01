@@ -6,7 +6,8 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import styled from '@emotion/styled';
-import { lightPalette, darkPalette, meok, surface } from '@/design-system/tokens';
+import { transientProps } from '@/design-system/styled';
+import { lightPalette, meok } from '@/design-system/tokens';
 
 interface LandingProps {
   $isLanding?: boolean;
@@ -16,7 +17,7 @@ interface LandingProps {
   $isHidden?: boolean;
 }
 
-const NavigationBackdrop = styled(motion.div)<LandingProps>`
+const NavigationBackdrop = styled(motion.div, transientProps)<LandingProps>`
   position: fixed;
   inset: 0;
   z-index: 99;
@@ -30,7 +31,7 @@ const NavigationBackdrop = styled(motion.div)<LandingProps>`
   }
 `;
 
-const HeaderContainer = styled.header<LandingProps>`
+const HeaderContainer = styled('header', transientProps)<LandingProps>`
   position: fixed;
   top: 12px;
   left: 24px;
@@ -127,7 +128,7 @@ const CenterNav = styled.nav`
   }
 `;
 
-const NavLink = styled(Link)<LandingProps>`
+const NavLink = styled(Link, transientProps)<LandingProps>`
   position: relative;
   font-family: 'SpoqaHanSansNeo', sans-serif;
   font-size: 14px;
@@ -170,7 +171,7 @@ const DropdownWrapper = styled.div`
   align-items: center;
 `;
 
-const DropdownTrigger = styled.button<LandingProps>`
+const DropdownTrigger = styled('button', transientProps)<LandingProps>`
   background: none;
   border: none;
   outline: none;
@@ -202,7 +203,7 @@ const ChevronIcon = styled(motion.svg)`
   stroke-linejoin: round;
 `;
 
-const DropdownMenu = styled(motion.div)<LandingProps>`
+const DropdownMenu = styled(motion.div, transientProps)<LandingProps>`
   position: absolute;
   top: calc(100% + 10px);
   /* 메뉴 텍스트의 시작선을 트리거 "지도"의 첫 글자와 맞춘다. */
@@ -230,7 +231,7 @@ const DropdownMenu = styled(motion.div)<LandingProps>`
   z-index: 101;
 `;
 
-const DropdownItem = styled(Link)<LandingProps>`
+const DropdownItem = styled(Link, transientProps)<LandingProps>`
   font-family: 'SpoqaHanSansNeo', sans-serif;
   font-size: 13px;
   font-weight: 400;
@@ -279,7 +280,7 @@ const MobileTabNav = styled.nav`
   }
 `;
 
-const MobileTabLink = styled(Link)<LandingProps>`
+const MobileTabLink = styled(Link, transientProps)<LandingProps>`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -311,7 +312,7 @@ const MobileTabIcon = styled.svg`
   stroke-linejoin: round;
 `;
 
-const MobileMenuButton = styled.button<LandingProps>`
+const MobileMenuButton = styled('button', transientProps)<LandingProps>`
   width: 34px;
   height: 34px;
   padding: 0;
@@ -327,7 +328,7 @@ const MobileMenuButton = styled.button<LandingProps>`
   &:active { transform: scale(0.96); }
 `;
 
-const MobileMenuPanel = styled(motion.nav)<LandingProps>`
+const MobileMenuPanel = styled(motion.nav, transientProps)<LandingProps>`
   position: absolute;
   top: calc(100% + 10px);
   right: 0;
@@ -347,7 +348,7 @@ const MobileMenuPanel = styled(motion.nav)<LandingProps>`
   box-shadow: ${({ $isLanding }) => ($isLanding ? '0 14px 32px rgba(0, 0, 0, 0.3)' : '0 14px 32px rgba(47, 39, 29, 0.12)')};
 `;
 
-const MobileMenuLink = styled(Link)<LandingProps>`
+const MobileMenuLink = styled(Link, transientProps)<LandingProps>`
   min-height: 44px;
   padding: 0 12px;
   display: flex;
@@ -363,13 +364,13 @@ const MobileMenuLink = styled(Link)<LandingProps>`
   }
 `;
 
-const MobileMenuDivider = styled.div<LandingProps>`
+const MobileMenuDivider = styled('div', transientProps)<LandingProps>`
   height: 1px;
   margin: 4px 6px;
   background: ${({ $isLanding }) => ($isLanding ? 'rgba(255, 248, 235, 0.13)' : 'rgba(77, 68, 55, 0.1)')};
 `;
 
-const LoginButton = styled(Link)<LandingProps>`
+const LoginButton = styled(Link, transientProps)<LandingProps>`
   font-family: 'SpoqaHanSansNeo', sans-serif;
   font-size: 13px;
   font-weight: 500;
@@ -412,9 +413,6 @@ export default function Header() {
   const [isLandingLight, setIsLandingLight] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
-
-  // 지도 페이지에서는 전체 화면 지도 몰입을 위해 전역 헤더를 숨긴다.
-  if (isMapPage) return null;
 
   // 랜딩은 스크롤에 따라 먹빛 ↔ 한지색 배경이 전환된다.
   // 밝은 구간에서는 다른 페이지와 동일한 라이트 글래스를 사용한다.

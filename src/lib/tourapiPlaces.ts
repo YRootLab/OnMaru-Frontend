@@ -1,4 +1,7 @@
+import { logger } from '@/lib/log';
 import type { Item, PlaceCategory } from '@/map/types';
+
+const log = logger('map');
 
 const BASE = 'https://apis.data.go.kr/B551011/KorService2/locationBasedList2';
 
@@ -6,25 +9,43 @@ const BASE = 'https://apis.data.go.kr/B551011/KorService2/locationBasedList2';
 const MAX_RADIUS = 20000;
 
 /**
- * 분류 규칙 — 실제 응답에서 확인한 값이다 (전주 한옥마을 반경 3km 기준).
- * cat3까지 API 파라미터로 넘기지 않고 contentTypeId로 한 번만 받아 여기서 가른다.
- * 식당/카페가 같은 39를 쓰기 때문에 어차피 한쪽은 후처리가 필요하다.
+ * TourAPI 전체 데드라인. 타임아웃이 없으면 상대가 안 끊는 한 요청이 그대로 매달리고,
+ * 그게 그대로 클라이언트 무한 로딩이 된다.
  */
-const CATEGORY_QUERY: Record<
+const TIMEOUT_MS = 10_000;
+
+/**
+ * 인메모리 캐시 — 동일 좌표/반경 반복 요청 시 0ms 즉각 반환
+ */
+interface CacheEntry {
+  expiresAt: number;
+  items: Item[];
+}
+const cache = new Map<string, CacheEntry>();
+const CACHE_TTL = 10 * 60 * 1000; // 10분
+
+function getCacheKey(lat: number, lng: number, radius: number, category?: PlaceCategory | null): string {
+  const roundedLat = Math.round(lat * 100) / 100;
+  const roundedLng = Math.round(lng * 100) / 100;
+  const roundedRadius = Math.round(radius / 500) * 500;
+  return `${roundedLat}_${roundedLng}_${roundedRadius}_${category || 'all'}`;
+}
+
+const CATEGORY_MAP: Record<
   PlaceCategory,
   { contentTypeId: string; keep: (cat3: string, title: string) => boolean }
 > = {
   spot: { contentTypeId: '12', keep: () => true },
-  stay: { contentTypeId: '32', keep: (cat3) => cat3 === 'B02011600' }, // B02011600 = 한옥
+  stay: { contentTypeId: '32', keep: (cat3) => cat3 === 'B02011600' || true }, // 한옥 또는 일반 숙소
   food: { contentTypeId: '39', keep: (cat3) => cat3 !== 'A05020900' },
-  cafe: { contentTypeId: '39', keep: (cat3) => cat3 === 'A05020900' },
+  cafe: { contentTypeId: '39', keep: (cat3, title) => cat3 === 'A05020900' || /(카페|찻집|커피|다원)/.test(title) },
   market: {
     contentTypeId: '38',
-    keep: (cat3, title) => cat3 === 'A04010200' || title.includes('시장'),
+    keep: (cat3, title) => cat3 === 'A04010100' || cat3 === 'A04010200' || title.includes('시장'),
   },
 };
 
-export const PLACE_CATEGORIES = Object.keys(CATEGORY_QUERY) as PlaceCategory[];
+export const PLACE_CATEGORIES = Object.keys(CATEGORY_MAP) as PlaceCategory[];
 
 function toHttps(url?: string | null): string | null {
   const s = String(url ?? '').trim();
@@ -32,55 +53,64 @@ function toHttps(url?: string | null): string | null {
   return s.startsWith('http://') ? `https://${s.slice(7)}` : s;
 }
 
-async function fetchOne(
-  category: PlaceCategory,
+interface TourApiRawItem {
+  contentid?: string | number;
+  title?: string;
+  cat3?: string;
+  mapy?: string | number;
+  mapx?: string | number;
+  addr1?: string;
+  firstimage?: string;
+  firstimage2?: string;
+  tel?: string;
+  dist?: string | number;
+}
+
+async function fetchByContentType(
+  contentTypeId: string,
   lat: number,
   lng: number,
   radius: number,
   apiKey: string,
-): Promise<Item[]> {
-  const { contentTypeId, keep } = CATEGORY_QUERY[category];
-  const url =
-    `${BASE}?serviceKey=${encodeURIComponent(apiKey)}` +
-    `&MobileOS=ETC&MobileApp=OnMaru&_type=json&arrange=E` +
+  signal?: AbortSignal,
+): Promise<TourApiRawItem[]> {
+  const query =
+    `MobileOS=ETC&MobileApp=OnMaru&_type=json&arrange=E` +
     `&mapX=${lng}&mapY=${lat}&radius=${radius}` +
-    `&contentTypeId=${contentTypeId}&numOfRows=50`;
+    `&contentTypeId=${contentTypeId}&numOfRows=30`;
 
-  const res = await fetch(url, { next: { revalidate: 3600 } });
-  if (!res.ok) throw new Error(`TourAPI ${res.status}`);
+  const urls = [
+    `${BASE}?serviceKey=${encodeURIComponent(apiKey)}&${query}`,
+    `${BASE}?serviceKey=${apiKey}&${query}`,
+  ];
 
-  const json = await res.json();
-  const raw = json?.response?.body?.items?.item;
-  const rows = Array.isArray(raw) ? raw : raw ? [raw] : [];
+  for (const url of urls) {
+    try {
+      const res = await fetch(url, { signal });
+      if (!res.ok) {
+        log.warn('tourapi non-ok', contentTypeId, res.status);
+        continue;
+      }
 
-  const out: Item[] = [];
-  for (const row of rows) {
-    const title = String(row.title ?? '').trim();
-    const cat3 = String(row.cat3 ?? '');
-    if (!title || !keep(cat3, title)) continue;
+      const text = await res.text();
+      if (!text.trim().startsWith('{')) continue;
 
-    const y = Number(row.mapy);
-    const x = Number(row.mapx);
-    if (!Number.isFinite(y) || !Number.isFinite(x)) continue;
-
-    out.push({
-      id: String(row.contentid),
-      name: title,
-      category,
-      lat: y,
-      lng: x,
-      addr: String(row.addr1 ?? '').trim(),
-      image: toHttps(row.firstimage || row.firstimage2),
-      tel: String(row.tel ?? '').trim() || null,
-      dist: Number.isFinite(Number(row.dist)) ? Math.round(Number(row.dist)) : null,
-    });
+      const json = JSON.parse(text);
+      const raw = json?.response?.body?.items?.item;
+      return Array.isArray(raw) ? raw : raw ? [raw] : [];
+    } catch (e) {
+      // TimeoutError면 10초 데드라인에 걸린 것.
+      log.warn('tourapi 호출 실패', contentTypeId, e instanceof Error ? e.name : e);
+      continue;
+    }
   }
-  return out;
+  return [];
 }
 
 /**
  * 지도 뷰포트 기준 장소 검색.
- * category를 비우면 다섯 카테고리를 한 번에 받아 거리순으로 섞는다.
+ * - 인메모리 캐시 우선 반환 (0ms)
+ * - contentTypeId 중복 제거 (12, 32, 38, 39 병렬 1회 호출)
  */
 export async function fetchPlaces(opts: {
   lat: number;
@@ -88,22 +118,161 @@ export async function fetchPlaces(opts: {
   radius: number;
   category?: PlaceCategory | null;
 }): Promise<Item[]> {
-  const apiKey = process.env.TOUR_API_KEY || process.env.NEXT_PUBLIC_TOUR_API_KEY;
+  const apiKey =
+    process.env.TOUR_API_KEY ||
+    process.env.TOUR_API_CONGESTION_KEY ||
+    process.env.NEXT_PUBLIC_TOUR_API_KEY;
   if (!apiKey) throw new Error('TOUR_API_KEY 없음');
 
   const radius = Math.min(MAX_RADIUS, Math.max(1000, Math.round(opts.radius)));
-  const targets = opts.category ? [opts.category] : PLACE_CATEGORIES;
+  const cacheKey = getCacheKey(opts.lat, opts.lng, radius, opts.category);
 
-  const settled = await Promise.allSettled(
-    targets.map((c) => fetchOne(c, opts.lat, opts.lng, radius, apiKey)),
-  );
-
-  // 카테고리 하나가 죽어도 나머지는 보여준다. 지도가 통째로 비는 것보다 낫다.
-  const merged = new Map<string, Item>();
-  for (const r of settled) {
-    if (r.status !== 'fulfilled') continue;
-    for (const item of r.value) if (!merged.has(item.id)) merged.set(item.id, item);
+  // 1. 캐시 히트 검사
+  const cached = cache.get(cacheKey);
+  if (cached && cached.expiresAt > Date.now()) {
+    log.log('cache hit', cacheKey, cached.items.length);
+    return cached.items;
   }
 
-  return Array.from(merged.values()).sort((a, b) => (a.dist ?? 1e9) - (b.dist ?? 1e9));
+  // 병렬 호출 전체가 하나의 데드라인을 공유한다. 호출당 걸면 4개 × 2회 = 최악 80초.
+  const signal = AbortSignal.timeout(TIMEOUT_MS);
+
+  const out: Item[] = [];
+
+  // 2. 단일 카테고리 요청인 경우 (단 1회의 API 호출)
+  if (opts.category) {
+    const config = CATEGORY_MAP[opts.category];
+    const rows = await fetchByContentType(
+      config.contentTypeId, opts.lat, opts.lng, radius, apiKey, signal,
+    );
+
+    for (const row of rows) {
+      const title = String(row.title ?? '').trim();
+      const cat3 = String(row.cat3 ?? '');
+      if (!title || !config.keep(cat3, title)) continue;
+
+      const y = Number(row.mapy);
+      const x = Number(row.mapx);
+      if (!Number.isFinite(y) || !Number.isFinite(x)) continue;
+
+      out.push({
+        id: String(row.contentid),
+        name: title,
+        category: opts.category,
+        lat: y,
+        lng: x,
+        addr: String(row.addr1 ?? '').trim(),
+        image: toHttps(row.firstimage || row.firstimage2),
+        tel: String(row.tel ?? '').trim() || null,
+        dist: Number.isFinite(Number(row.dist)) ? Math.round(Number(row.dist)) : null,
+      });
+    }
+  } else {
+    // 3. 전체 카테고리인 경우: 12(관광), 32(숙박), 39(음식/카페), 38(쇼핑) 4개만 병렬 호출
+    const [spots, stays, foodsAndCafes, shops] = await Promise.all([
+      fetchByContentType('12', opts.lat, opts.lng, radius, apiKey, signal),
+      fetchByContentType('32', opts.lat, opts.lng, radius, apiKey, signal),
+      fetchByContentType('39', opts.lat, opts.lng, radius, apiKey, signal),
+      fetchByContentType('38', opts.lat, opts.lng, radius, apiKey, signal),
+    ]);
+
+    // spots
+    for (const row of spots) {
+      const title = String(row.title ?? '').trim();
+      const y = Number(row.mapy);
+      const x = Number(row.mapx);
+      if (!title || !Number.isFinite(y) || !Number.isFinite(x)) continue;
+      out.push({
+        id: String(row.contentid),
+        name: title,
+        category: 'spot',
+        lat: y,
+        lng: x,
+        addr: String(row.addr1 ?? '').trim(),
+        image: toHttps(row.firstimage || row.firstimage2),
+        tel: String(row.tel ?? '').trim() || null,
+        dist: Number.isFinite(Number(row.dist)) ? Math.round(Number(row.dist)) : null,
+      });
+    }
+
+    // stays
+    for (const row of stays) {
+      const title = String(row.title ?? '').trim();
+      const y = Number(row.mapy);
+      const x = Number(row.mapx);
+      if (!title || !Number.isFinite(y) || !Number.isFinite(x)) continue;
+      out.push({
+        id: String(row.contentid),
+        name: title,
+        category: 'stay',
+        lat: y,
+        lng: x,
+        addr: String(row.addr1 ?? '').trim(),
+        image: toHttps(row.firstimage || row.firstimage2),
+        tel: String(row.tel ?? '').trim() || null,
+        dist: Number.isFinite(Number(row.dist)) ? Math.round(Number(row.dist)) : null,
+      });
+    }
+
+    // foods & cafes
+    for (const row of foodsAndCafes) {
+      const title = String(row.title ?? '').trim();
+      const cat3 = String(row.cat3 ?? '');
+      const y = Number(row.mapy);
+      const x = Number(row.mapx);
+      if (!title || !Number.isFinite(y) || !Number.isFinite(x)) continue;
+
+      const isCafe = cat3 === 'A05020900' || /(카페|찻집|커피|다원)/.test(title);
+      out.push({
+        id: String(row.contentid),
+        name: title,
+        category: isCafe ? 'cafe' : 'food',
+        lat: y,
+        lng: x,
+        addr: String(row.addr1 ?? '').trim(),
+        image: toHttps(row.firstimage || row.firstimage2),
+        tel: String(row.tel ?? '').trim() || null,
+        dist: Number.isFinite(Number(row.dist)) ? Math.round(Number(row.dist)) : null,
+      });
+    }
+
+    // markets
+    for (const row of shops) {
+      const title = String(row.title ?? '').trim();
+      const cat3 = String(row.cat3 ?? '');
+      const y = Number(row.mapy);
+      const x = Number(row.mapx);
+      if (!title || !Number.isFinite(y) || !Number.isFinite(x)) continue;
+      if (cat3 === 'A04010100' || cat3 === 'A04010200' || title.includes('시장')) {
+        out.push({
+          id: String(row.contentid),
+          name: title,
+          category: 'market',
+          lat: y,
+          lng: x,
+          addr: String(row.addr1 ?? '').trim(),
+          image: toHttps(row.firstimage || row.firstimage2),
+          tel: String(row.tel ?? '').trim() || null,
+          dist: Number.isFinite(Number(row.dist)) ? Math.round(Number(row.dist)) : null,
+        });
+      }
+    }
+  }
+
+  const sorted = out.sort((a, b) => (a.dist ?? 1e9) - (b.dist ?? 1e9));
+
+  // 실패해서 빈 결과가 나온 걸 10분간 캐시하면 그 지역이 10분 내내 빈다.
+  if (sorted.length === 0) return sorted;
+
+  // 캐시 저장 (최대 100개 유지)
+  if (cache.size > 100) {
+    const oldestKey = cache.keys().next().value;
+    if (oldestKey) cache.delete(oldestKey);
+  }
+  cache.set(cacheKey, {
+    expiresAt: Date.now() + CACHE_TTL,
+    items: sorted,
+  });
+
+  return sorted;
 }

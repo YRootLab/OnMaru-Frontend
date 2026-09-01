@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
+import { transientProps } from '@/design-system/styled';
 import { meok, lightPalette } from '@/design-system/tokens';
 import type { Village } from '@/hanok/types';
 
@@ -18,7 +19,7 @@ const HeroContainer = styled.section`
   margin-bottom: 56px;
 `;
 
-const SlideImage = styled(motion.div)<{ $bg: string }>`
+const SlideImage = styled(motion.div, transientProps)<{ $bg: string }>`
   position: absolute;
   inset: 0;
   background-image: url(${({ $bg }) => $bg});

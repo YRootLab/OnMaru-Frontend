@@ -665,7 +665,7 @@ function FixedStage({ progress }) {
 
       {orbit && <CameraHud />}
 
-      {SHOW_HANOK && canvasOpacity > 0 && (
+      {SHOW_HANOK && (
         <div
           aria-hidden="true"
           style={{
@@ -674,6 +674,8 @@ function FixedStage({ progress }) {
             zIndex: 1,
             pointerEvents: 'none',
             opacity: canvasOpacity,
+            visibility: canvasOpacity > 0.001 ? 'visible' : 'hidden',
+            transition: 'opacity 0.2s ease-out',
           }}
         >
           <Canvas

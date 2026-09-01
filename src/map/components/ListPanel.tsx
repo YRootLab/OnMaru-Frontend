@@ -1,91 +1,34 @@
 'use client';
 
-import Link from 'next/link';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
-import { ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { meok } from '@/design-system/tokens';
 import { useMapStore } from '../hooks/useMapStore';
 import ModeToggle from './ModeToggle';
-import RegionChips from './RegionChips';
+import PlaceList from './PlaceList';
 import SearchBar from './SearchBar';
+import WarmthFeed from './warmth/WarmthFeed';
 
 const PANEL_WIDTH = 380;
+const PANEL_WIDTH_COMPACT = 340;
 
-const PanelTopBar = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 16px 4px;
-`;
-
-const BackToHomeButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 32px;
-  padding: 0 12px 0 8px;
-  border: 1px solid rgba(78, 89, 104, 0.14);
-  border-radius: 20px;
-  background: rgba(25, 31, 40, 0.04);
-  color: ${meok[700]};
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.18s ease;
-
-  svg {
-    transition: transform 0.18s ease;
-  }
-
-  &:hover {
-    background: rgba(25, 31, 40, 0.08);
-    color: ${meok[900]};
-    transform: translateY(-1px);
-
-    svg {
-      transform: translateX(-2px);
-    }
-  }
-
-  &:active {
-    transform: scale(0.97);
-  }
-`;
-
-const LogoLink = styled(Link)`
-  display: flex;
-  align-items: center;
-  opacity: 0.9;
-  transition: opacity 0.2s ease;
-
-  &:hover {
-    opacity: 1;
-  }
-`;
-
-/** 리스트 아이템은 다음 단계. 지금은 자리만 잡아둔다. */
-export const ListPlaceholder = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 140px;
-  margin: 16px;
-  border: 1px dashed rgba(78, 89, 104, 0.24);
-  border-radius: 12px;
-  color: ${meok[400]};
-  font-size: 13px;
-`;
-
+/* ── 호갱노노 스타일: 지도 위에 떠 있는 둥근 플로팅 카드 ── */
 const Panel = styled.aside<{ $open: boolean }>`
   position: relative;
   flex: none;
   width: ${({ $open }) => ($open ? `${PANEL_WIDTH}px` : '0px')};
-  border-right: 1px solid rgba(78, 89, 104, 0.1);
+  height: 100%;
   background: #ffffff;
-  transition: width 0.3s ease-out;
+  border-radius: 24px;
+  box-shadow: 0 10px 32px rgba(25, 31, 40, 0.12);
+  z-index: 21;
+  pointer-events: auto;
+  overflow: hidden;
+  transition: width 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+
+  @media (min-width: 1024px) and (max-width: 1439px) {
+    width: ${({ $open }) => ($open ? `${PANEL_WIDTH_COMPACT}px` : '0px')};
+  }
 
   @media (max-width: 1023px) {
     display: none;
@@ -98,26 +41,19 @@ const Inner = styled.div`
   width: ${PANEL_WIDTH}px;
   height: 100%;
   overflow: hidden;
+
+  @media (min-width: 1024px) and (max-width: 1439px) {
+    width: ${PANEL_WIDTH_COMPACT}px;
+  }
 `;
 
-const Row = styled.div<{ $pad: string }>`
+const HeaderArea = styled.div`
   flex: none;
-  padding: ${({ $pad }) => $pad};
-`;
-
-const Divider = styled.hr`
-  flex: none;
-  margin: 0;
-  border: none;
-  border-top: 1px solid rgba(78, 89, 104, 0.1);
-`;
-
-const ListHeader = styled.p`
-  flex: none;
-  margin: 0;
-  padding: 12px 16px 0;
-  font-size: 13px;
-  color: ${meok[500]};
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px 10px;
+  background: #ffffff;
 `;
 
 const ListArea = styled.div`
@@ -130,7 +66,7 @@ const Toggle = styled.button`
   position: absolute;
   top: 50%;
   left: 100%;
-  z-index: 15;
+  z-index: 25;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -138,11 +74,17 @@ const Toggle = styled.button`
   height: 48px;
   transform: translateY(-50%);
   border: none;
-  border-radius: 0 12px 12px 0;
+  border-radius: 0 16px 16px 0;
   background: #ffffff;
-  box-shadow: 2px 0 8px rgba(25, 31, 40, 0.12);
+  box-shadow: 2px 0 8px rgba(25, 31, 40, 0.08);
   color: ${meok[700]};
   cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover {
+    color: ${meok[900]};
+    background: #fafafa;
+  }
 
   @media (max-width: 1023px) {
     display: none;
@@ -150,59 +92,22 @@ const Toggle = styled.button`
 `;
 
 export default function ListPanel() {
-  const router = useRouter();
   const panelOpen = useMapStore((s) => s.panelOpen);
   const togglePanel = useMapStore((s) => s.togglePanel);
   const mode = useMapStore((s) => s.mode);
-  const count = useMapStore((s) => s.items.length);
-
-  const handleBack = () => {
-    if (typeof window !== 'undefined' && window.history.length > 1) {
-      router.back();
-    } else {
-      router.push('/');
-    }
-  };
 
   return (
     <Panel $open={panelOpen}>
       <Inner>
-        <PanelTopBar>
-          <BackToHomeButton
-            type="button"
-            onClick={handleBack}
-            aria-label="이전 페이지 또는 홈으로 이동"
-          >
-            <ArrowLeft size={16} />
-            <span>뒤로가기</span>
-          </BackToHomeButton>
-          <LogoLink href="/" aria-label="온마루 홈으로 이동">
-            <Image
-              src="/logo.png"
-              alt="온마루 로고"
-              width={84}
-              height={25}
-              style={{ objectFit: 'contain', height: '24px', width: 'auto' }}
-              priority
-            />
-          </LogoLink>
-        </PanelTopBar>
-
-        <Row $pad="10px 16px 14px">
-          <SearchBar />
-        </Row>
-        <Row $pad="0 16px 12px">
+        {/* 1. 상단 2단 헤더: (1) 홈 버튼 일체형 검색바 + (2) 모드 토글 */}
+        <HeaderArea>
+          <SearchBar showHomeButton={true} />
           <ModeToggle />
-        </Row>
-        <Row $pad="0 16px 12px">
-          <RegionChips />
-        </Row>
-        <Divider />
-        <ListHeader>
-          {mode === 'info' ? '명소' : '온기'} {count}곳
-        </ListHeader>
+        </HeaderArea>
+
+        {/* 2. 메인 리스트 영역 (정보모드: PlaceList / 온기모드: WarmthFeed) */}
         <ListArea>
-          <ListPlaceholder>리스트 영역 · 다음 단계</ListPlaceholder>
+          {mode === 'warmth' ? <WarmthFeed /> : <PlaceList />}
         </ListArea>
       </Inner>
 

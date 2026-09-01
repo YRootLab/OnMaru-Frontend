@@ -1,10 +1,13 @@
 'use client';
 
 import { useEffect } from 'react';
+import { logger } from '@/lib/log';
 import { loadWarmth } from '../warmth/warmthRepo';
 import { distanceInMeters } from './useKakaoMap';
 import { useMapStore } from './useMapStore';
 import type { KakaoMap } from '../types';
+
+const log = logger('map');
 
 /**
  * 현재 화면이 담고 있는 반경(m). 중심에서 북동쪽 모서리까지가 곧 요청 반경이다.
@@ -32,39 +35,58 @@ export function useMapData() {
   const mode = useMapStore((s) => s.mode);
   const category = useMapStore((s) => s.category);
   const searchCenter = useMapStore((s) => s.searchCenter);
+  const reloadNonce = useMapStore((s) => s.reloadNonce);
 
   useEffect(() => {
     useMapStore.getState().setWarmths(loadWarmth());
   }, []);
 
   useEffect(() => {
-    if (!map || mode !== 'info') return;
-
     const { setItems, setLoading, setError } = useMapStore.getState();
+    // 정보모드가 아니거나 지도가 아직 없으면 로딩을 반드시 내린다.
+    // 안 그러면 fetch 도중 모드를 바꿨을 때 loading이 true로 영영 박힌다.
+    if (!map || mode !== 'info') {
+      setLoading(false);
+      return;
+    }
+
     const controller = new AbortController();
+    const radius = Math.round(radiusFromMap(map));
+
     const params = new URLSearchParams({
       lat: String(searchCenter.lat),
       lng: String(searchCenter.lng),
-      radius: String(Math.round(radiusFromMap(map))),
+      radius: String(radius),
     });
     if (category) params.set('category', category);
 
     setLoading(true);
     setError(null);
+    const t0 = performance.now();
+    log.log('fetch', { ...Object.fromEntries(params), mode });
 
     fetch(`/api/map/places?${params}`, { signal: controller.signal })
       .then(async (res) => {
-        const json = await res.json();
-        if (!res.ok) throw new Error(json?.error ?? '장소를 불러오지 못했습니다');
-        setItems(json.items ?? []);
+        // 라우트는 실패해도 200 + items:[] + error 를 준다. 상태코드가 아니라 body를 본다.
+        const json = await res.json().catch(() => ({}));
+        const items = Array.isArray(json.items) ? json.items : [];
+        log.log('items', items.length, `${Math.round(performance.now() - t0)}ms`, json.error ?? '');
+        setItems(items);
+        if (!res.ok || json.error) {
+          setError(typeof json.error === 'string' ? json.error : '장소를 불러오지 못했습니다');
+        }
       })
       .catch((err: unknown) => {
         if (err instanceof DOMException && err.name === 'AbortError') return;
+        log.error('fetch 실패', err);
         setItems([]);
         setError(err instanceof Error ? err.message : '장소를 불러오지 못했습니다');
       })
-      .finally(() => setLoading(false));
+      // 중단된 요청은 뒤이은 요청의 loading=true를 덮어쓰면 안 된다.
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
 
     return () => controller.abort();
-  }, [map, mode, category, searchCenter]);
+  }, [map, mode, category, searchCenter.lat, searchCenter.lng, reloadNonce]);
 }

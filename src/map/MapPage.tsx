@@ -2,44 +2,62 @@
 
 import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
-import { ArrowLeft } from 'lucide-react';
+import { Home } from 'lucide-react';
 import { meok } from '@/design-system/tokens';
 import { useMapStore } from './hooks/useMapStore';
+import { useMapData } from './hooks/useMapData';
 import BottomSheet from './components/BottomSheet';
 import CategoryChips from './components/CategoryChips';
+import DetailPanel from './components/DetailPanel';
 import KakaoMap from './components/KakaoMap';
 import ListPanel from './components/ListPanel';
 import ModeToggle from './components/ModeToggle';
+import PlaceMarkers from './components/PlaceMarkers';
 import SearchBar from './components/SearchBar';
+import WarmthLayer from './components/WarmthLayer';
+import WriteButton from './components/warmth/WriteButton';
 
 const FONT = "'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif";
 
-/**
- * 지도는 전역 PageContainer의 여백 밖에서 화면을 통째로 쓴다.
- * (fixed inset 0 — 기존 /map 프로토타입과 같은 방식)
- */
 const Root = styled.main`
   position: fixed;
   inset: 0;
-  display: flex;
   overflow: hidden;
   background: #ffffff;
   font-family: ${FONT};
 `;
 
+/** 1. 전체 화면을 시원하게 채우는 풀사이즈 지도 영역 */
 const MapArea = styled.div`
-  position: relative;
-  flex: 1;
-  min-width: 0;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 `;
 
-/** PC에서만 지도 위에 뜨는 카테고리 칩. 모바일은 바텀시트 안에 있다. */
+/** 2. 호갱노노 스타일: 지도 위에 떠 있는 플로팅 듀얼 패널 컨테이너 (좌: 리스트, 우: 상세) */
+const FloatingPanelsContainer = styled.div`
+  position: absolute;
+  top: 16px;
+  bottom: 16px;
+  left: 16px;
+  z-index: 20;
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  pointer-events: none;
+
+  @media (max-width: 1023px) {
+    display: none;
+  }
+`;
+
+/** PC에서 지도 위에 뜨는 카테고리 칩 */
 const MapChips = styled.div`
   position: absolute;
   top: 16px;
-  left: 16px;
   right: 16px;
-  z-index: 10;
+  z-index: 15;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -49,7 +67,7 @@ const MapChips = styled.div`
   }
 `;
 
-/** 패널이 닫혔을 때 지도 좌상단에 뜨는 홈/뒤로가기 플로팅 버튼 */
+/** 패널이 닫혔을 때 좌상단에 뜨는 홈 버튼 */
 const FloatingHomeButton = styled.button`
   display: flex;
   align-items: center;
@@ -130,6 +148,9 @@ export default function MapPage() {
   const router = useRouter();
   const panelOpen = useMapStore((s) => s.panelOpen);
 
+  // 지도 데이터(TourAPI 장소 + 온기 데이터) 패치 훅
+  useMapData();
+
   const handleBack = () => {
     if (typeof window !== 'undefined' && window.history.length > 1) {
       router.back();
@@ -140,36 +161,46 @@ export default function MapPage() {
 
   return (
     <Root>
-      <ListPanel />
-
+      {/* 1. 풀스크린 지도 뷰포트 */}
       <MapArea>
         <KakaoMap />
+        <PlaceMarkers />
+        <WarmthLayer />
         <MapChips>
           {!panelOpen && (
             <FloatingHomeButton
               type="button"
               onClick={handleBack}
-              aria-label="이전 페이지 또는 홈으로 이동"
+              aria-label="온마루 홈으로 이동"
             >
-              <ArrowLeft size={16} />
+              <Home size={16} />
               <span>홈으로</span>
             </FloatingHomeButton>
           )}
           <CategoryChips />
         </MapChips>
+        <WriteButton />
       </MapArea>
 
+      {/* 2. 호갱노노 스타일: 지도 위에 떠 있는 좌측 리스트 + 우측 상세 플로팅 카드 */}
+      <FloatingPanelsContainer>
+        <ListPanel />
+        <DetailPanel />
+      </FloatingPanelsContainer>
+
+      {/* 3. 모바일 탑 네비게이션 & 바텀시트 */}
       <MobileTop>
         <MobileSearchBarRow>
           <MobileBackButton
             type="button"
             onClick={handleBack}
-            aria-label="이전 페이지 또는 홈으로 이동"
+            aria-label="온마루 홈으로 이동"
+            title="온마루 홈으로 이동"
           >
-            <ArrowLeft size={20} />
+            <Home size={20} />
           </MobileBackButton>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <SearchBar />
+            <SearchBar showHomeButton={false} />
           </div>
         </MobileSearchBarRow>
         <ModeToggle />

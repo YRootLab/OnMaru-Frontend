@@ -58,6 +58,7 @@ export default function RegionChips() {
   const panTo = (center: LatLng) => {
     map?.panTo(new window.kakao.maps.LatLng(center.lat, center.lng));
     useMapStore.getState().setCenter(center);
+    useMapStore.getState().clearSearchDirty();
   };
 
   const select = (id: string, center?: LatLng) => {

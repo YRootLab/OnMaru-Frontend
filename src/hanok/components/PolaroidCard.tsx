@@ -3,6 +3,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
+import { transientProps } from '@/design-system/styled';
 import { meok, lightPalette } from '@/design-system/tokens';
 import type { Village } from '@/hanok/types';
 import { ArrowRight } from 'lucide-react';
@@ -10,7 +11,7 @@ import { ArrowRight } from 'lucide-react';
 // 각 인덱스에 고정된 회전각 (자연스러운 폴라로이드 느낌)
 const ROTATIONS = [-4.2, 2.8, -2.1, 3.5];
 
-const Wrapper = styled(motion.article)<{ $rotate: number }>`
+const Wrapper = styled(motion.article, transientProps)<{ $rotate: number }>`
   display: flex;
   flex-direction: column;
   cursor: pointer;
@@ -40,7 +41,7 @@ const PhotoArea = styled.div`
   background: ${lightPalette.kobalt[50]};
 `;
 
-const Photo = styled(motion.div)<{ $bg: string | null }>`
+const Photo = styled(motion.div, transientProps)<{ $bg: string | null }>`
   position: absolute;
   inset: 0;
   ${({ $bg }) =>
@@ -156,7 +157,7 @@ const DetailButton = styled.div`
   color: ${meok[900]};
   transition: color 0.2s ease, transform 0.2s ease;
 
-  ${Wrapper}:hover & {
+  .polaroid-card:hover & {
     color: ${lightPalette.kobalt[500]};
     transform: translateX(3px);
   }
@@ -186,6 +187,7 @@ export default function PolaroidCard({
 
   return (
     <Wrapper
+      className="polaroid-card"
       $rotate={rotate}
       onClick={() => onClick?.(village)}
       role="button"

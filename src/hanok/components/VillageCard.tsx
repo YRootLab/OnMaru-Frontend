@@ -3,10 +3,11 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
+import { transientProps } from '@/design-system/styled';
 import { meok, lightPalette } from '@/design-system/tokens';
 import type { Village } from '@/hanok/types';
 
-const Card = styled(motion.article)`
+const Card = styled(motion.article, transientProps)`
   position: relative;
   width: 100%;
   aspect-ratio: 3 / 4.4;
@@ -18,7 +19,7 @@ const Card = styled(motion.article)`
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
 `;
 
-const ImageLayer = styled(motion.div)<{ $bg: string | null }>`
+const ImageLayer = styled(motion.div, transientProps)<{ $bg: string | null }>`
   position: absolute;
   inset: 0;
   ${({ $bg }) =>
@@ -27,7 +28,7 @@ const ImageLayer = styled(motion.div)<{ $bg: string | null }>`
       : `background: linear-gradient(135deg, ${lightPalette.kobalt[700]} 0%, ${meok[900]} 100%);`}
   transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
 
-  ${Card}:hover & {
+  .village-card:hover & {
     transform: scale(1.06);
   }
 `;
@@ -114,7 +115,7 @@ const Badge = styled.span`
   border: 1px solid rgba(255, 255, 255, 0.08);
 `;
 
-const ActionButton = styled(motion.div)`
+const ActionButton = styled(motion.div, transientProps)`
   width: 100%;
   height: 48px;
   background: #ffffff;
@@ -129,7 +130,7 @@ const ActionButton = styled(motion.div)`
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
   transition: background-color 0.2s ease, transform 0.2s ease;
 
-  ${Card}:hover & {
+  .village-card:hover & {
     background: #f8fafc;
     transform: translateY(-1px);
   }
@@ -143,6 +144,7 @@ interface VillageCardProps {
 export default function VillageCard({ village, onClick }: VillageCardProps) {
   return (
     <Card
+      className="village-card"
       onClick={() => onClick?.(village)}
       role="button"
       tabIndex={0}

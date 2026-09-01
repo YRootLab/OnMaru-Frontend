@@ -1,30 +1,69 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
-import { Search, X } from 'lucide-react';
-import { meok } from '@/design-system/tokens';
+import { Search, X, Home } from 'lucide-react';
+import { lightPalette, meok } from '@/design-system/tokens';
 
 const RECENT = ['전주 한옥마을', '안동 하회마을'];
 const POPULAR = ['전주', '경주', '담양', '제주'];
 
+interface SearchBarProps {
+  showHomeButton?: boolean;
+}
+
 const Wrap = styled.div`
   position: relative;
+  width: 100%;
 `;
 
 const Field = styled.div`
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
   height: 44px;
-  padding: 0 14px;
-  border: 1px solid rgba(78, 89, 104, 0.14);
-  border-radius: 12px;
-  background: #ffffff;
+  padding: 0 14px 0 6px;
+  border-radius: 9999px;
+  background: rgba(25, 31, 40, 0.04);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:focus-within {
-    border-color: rgba(78, 89, 104, 0.28);
+    background: rgba(25, 31, 40, 0.07);
   }
+`;
+
+const HomeBtn = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: ${meok[700]};
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: rgba(40, 110, 95, 0.12);
+    color: ${lightPalette.cheongrok[700]};
+    transform: scale(1.06);
+  }
+
+  &:active {
+    transform: scale(0.92);
+  }
+`;
+
+const SearchIconBox = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 2px;
 `;
 
 const Input = styled.input`
@@ -34,7 +73,7 @@ const Input = styled.input`
   outline: none;
   background: transparent;
   font-family: inherit;
-  font-size: 15px;
+  font-size: 14px;
   color: ${meok[900]};
 
   &::placeholder {
@@ -44,30 +83,36 @@ const Input = styled.input`
 
 const Clear = styled.button`
   display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
   flex: none;
-  padding: 2px;
+  padding: 0;
   border: none;
   border-radius: 50%;
-  background: transparent;
-  color: ${meok[500]};
+  background: rgba(25, 31, 40, 0.08);
+  color: ${meok[700]};
   cursor: pointer;
+  transition: all 0.15s ease;
 
   &:hover {
-    background: rgba(25, 31, 40, 0.06);
+    background: rgba(25, 31, 40, 0.16);
+    color: ${meok[900]};
   }
 `;
 
 const Dropdown = styled.div`
   position: absolute;
-  top: calc(100% + 6px);
+  top: calc(100% + 8px);
   left: 0;
   right: 0;
   z-index: 40;
-  padding: 12px 14px 14px;
-  border: 1px solid rgba(78, 89, 104, 0.1);
-  border-radius: 12px;
+  padding: 16px;
+  border-radius: 20px;
   background: #ffffff;
-  box-shadow: 0 8px 28px rgba(25, 31, 40, 0.14);
+  box-shadow: 0 10px 30px rgba(25, 31, 40, 0.1);
+  backdrop-filter: blur(20px);
 `;
 
 const GroupTitle = styled.p`
@@ -88,28 +133,49 @@ const Suggestions = styled.div`
 `;
 
 const Suggestion = styled.button`
-  padding: 5px 10px;
-  border: 1px solid rgba(78, 89, 104, 0.14);
+  padding: 5px 12px;
+  border: none;
   border-radius: 9999px;
-  background: transparent;
+  background: rgba(78, 89, 104, 0.07);
   font-family: inherit;
-  font-size: 13px;
+  font-size: 12.5px;
   color: ${meok[700]};
   cursor: pointer;
+  transition: all 0.15s ease;
 
   &:hover {
-    background: rgba(25, 31, 40, 0.04);
+    background: rgba(78, 89, 104, 0.14);
+    color: ${meok[900]};
   }
 `;
 
-export default function SearchBar() {
+export default function SearchBar({ showHomeButton = true }: SearchBarProps) {
+  const router = useRouter();
   const [value, setValue] = useState('');
   const [open, setOpen] = useState(false);
+
+  const handleGoHome = () => {
+    router.push('/');
+  };
 
   return (
     <Wrap>
       <Field>
-        <Search size={18} color={meok[400]} aria-hidden />
+        {showHomeButton ? (
+          <HomeBtn
+            type="button"
+            onClick={handleGoHome}
+            aria-label="온마루 메인 홈으로 이동"
+            title="온마루 홈으로 이동"
+          >
+            <Home size={18} />
+          </HomeBtn>
+        ) : null}
+
+        <SearchIconBox>
+          <Search size={16} color={meok[400]} aria-hidden />
+        </SearchIconBox>
+
         <Input
           type="search"
           value={value}
@@ -117,12 +183,12 @@ export default function SearchBar() {
           aria-label="장소 검색"
           onChange={(e) => setValue(e.target.value)}
           onFocus={() => setOpen(true)}
-          // 드롭다운 항목 클릭이 blur보다 먼저 살아남도록 한 틱 늦춘다.
           onBlur={() => setTimeout(() => setOpen(false), 120)}
         />
+
         {value && (
           <Clear type="button" aria-label="검색어 지우기" onClick={() => setValue('')}>
-            <X size={16} />
+            <X size={15} />
           </Clear>
         )}
       </Field>

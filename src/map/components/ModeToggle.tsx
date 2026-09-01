@@ -13,23 +13,24 @@ const MODES: { id: MapMode; label: string }[] = [
 const Track = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  height: 36px;
+  height: 38px;
   padding: 3px;
-  border-radius: 10px;
-  background: rgba(78, 89, 104, 0.06);
+  border-radius: 9999px;
+  background: rgba(78, 89, 104, 0.08);
 `;
 
 const Tab = styled.button<{ $active: boolean; $color: string }>`
   border: none;
-  border-radius: 8px;
+  border-radius: 9999px;
   background: ${({ $active }) => ($active ? '#FFFFFF' : 'transparent')};
-  box-shadow: ${({ $active }) => ($active ? '0 1px 3px rgba(25, 31, 40, 0.10)' : 'none')};
-  color: ${({ $active, $color }) => ($active ? $color : meok[500])};
+  box-shadow: ${({ $active }) =>
+    $active ? '0 2px 8px rgba(25, 31, 40, 0.12), 0 1px 2px rgba(25, 31, 40, 0.06)' : 'none'};
+  color: ${({ $active, $color }) => ($active ? $color : meok[700])};
   font-family: inherit;
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s ease-out, color 0.2s ease-out, box-shadow 0.2s ease-out;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:focus-visible {
     outline: 2px solid ${({ $color }) => $color};

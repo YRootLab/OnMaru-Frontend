@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { transientProps } from '@/design-system/styled';
 import { meok, lightPalette } from '@/design-system/tokens';
 import SectionHeader from '@/hanok/components/SectionHeader';
 import type { Village } from '@/hanok/types';
@@ -74,7 +75,7 @@ const AccordionContainer = styled.div`
   }
 `;
 
-const AccordionPill = styled(motion.div)<{ $active: boolean }>`
+const AccordionPill = styled(motion.div, transientProps)<{ $active: boolean }>`
   position: relative;
   height: 440px;
   border-radius: ${({ $active }) => ($active ? '32px' : '9999px')};
@@ -94,7 +95,7 @@ const AccordionPill = styled(motion.div)<{ $active: boolean }>`
   }
 `;
 
-const PillImageLayer = styled(motion.div)<{ $bg: string | null }>`
+const PillImageLayer = styled(motion.div, transientProps)<{ $bg: string | null }>`
   position: absolute;
   inset: 0;
   ${({ $bg }) =>
@@ -116,7 +117,7 @@ const PillImageLayer = styled(motion.div)<{ $bg: string | null }>`
   }
 `;
 
-const PillIconButton = styled(motion.div)<{ $active: boolean }>`
+const PillIconButton = styled(motion.div, transientProps)<{ $active: boolean }>`
   position: absolute;
   bottom: 20px;
   left: 20px;
@@ -133,7 +134,7 @@ const PillIconButton = styled(motion.div)<{ $active: boolean }>`
   z-index: 5;
 `;
 
-const ActiveContentOverlay = styled(motion.div)`
+const ActiveContentOverlay = styled(motion.div, transientProps)`
   position: absolute;
   bottom: 24px;
   left: 76px;

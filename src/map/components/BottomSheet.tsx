@@ -2,18 +2,23 @@
 
 import { useRef, useState } from 'react';
 import styled from '@emotion/styled';
+import { AnimatePresence, motion } from 'framer-motion';
 import { meok } from '@/design-system/tokens';
 import { useMapStore } from '../hooks/useMapStore';
 import type { SheetSnap } from '../types';
 import CategoryChips from './CategoryChips';
-import { ListPlaceholder } from './ListPanel';
+import PlaceDetail from './PlaceDetail';
+import PlaceList from './PlaceList';
+import WarmthFeed from './warmth/WarmthFeed';
 
 const SNAPS: SheetSnap[] = ['peek', 'half', 'full'];
 const SNAP_CSS: Record<SheetSnap, string> = { peek: '120px', half: '50dvh', full: '88dvh' };
 const SPRING = 'cubic-bezier(0.32, 0.72, 0, 1)';
 
-const snapPx = (snap: SheetSnap) =>
-  snap === 'peek' ? 120 : window.innerHeight * (snap === 'half' ? 0.5 : 0.88);
+const snapPx = (snap: SheetSnap) => {
+  const vh = typeof window === 'undefined' ? 800 : window.innerHeight;
+  return snap === 'peek' ? 120 : vh * (snap === 'half' ? 0.5 : 0.88);
+};
 
 const Sheet = styled.div<{ $height: string; $dragging: boolean }>`
   position: fixed;
@@ -24,10 +29,11 @@ const Sheet = styled.div<{ $height: string; $dragging: boolean }>`
   display: flex;
   flex-direction: column;
   height: ${({ $height }) => $height};
-  border-radius: 20px 20px 0 0;
+  border-radius: 28px 28px 0 0;
   background: #ffffff;
-  box-shadow: 0 -4px 24px rgba(25, 31, 40, 0.12);
+  box-shadow: 0 -8px 32px rgba(25, 31, 40, 0.16);
   transition: ${({ $dragging }) => ($dragging ? 'none' : `height 0.4s ${SPRING}`)};
+  overflow: hidden;
 
   @media (min-width: 1024px) {
     display: none;
@@ -43,24 +49,38 @@ const Grab = styled.div`
 `;
 
 const Handle = styled.div`
-  width: 40px;
-  height: 4px;
-  margin: 10px auto;
-  border-radius: 2px;
-  background: rgba(78, 89, 104, 0.24);
+  width: 44px;
+  height: 5px;
+  margin: 12px auto;
+  border-radius: 9999px;
+  background: rgba(78, 89, 104, 0.28);
+`;
+
+const ContentContainer = styled.div`
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  overflow: hidden;
+`;
+
+const MotionView = styled(motion.div)`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+`;
+
+const TopSection = styled.div`
+  flex: none;
 `;
 
 const Chips = styled.div`
   flex: none;
-  padding: 0 16px 12px;
-`;
-
-const ListHeader = styled.p`
-  flex: none;
-  margin: 0;
-  padding: 4px 16px 0;
-  font-size: 13px;
-  color: ${meok[500]};
+  padding: 0 16px 10px;
 `;
 
 const ListArea = styled.div`
@@ -98,7 +118,7 @@ export default function BottomSheet() {
   const snap = useMapStore((s) => s.sheetSnap);
   const setSheetSnap = useMapStore((s) => s.setSheetSnap);
   const mode = useMapStore((s) => s.mode);
-  const count = useMapStore((s) => s.items.length);
+  const detailId = useMapStore((s) => s.detailId);
 
   const sheetRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -164,16 +184,39 @@ export default function BottomSheet() {
           <Handle />
         </Grab>
 
-        <Chips>
-          <CategoryChips />
-        </Chips>
+        <ContentContainer>
+          <AnimatePresence initial={false} mode="wait">
+            {detailId ? (
+              <MotionView
+                key="detail"
+                initial={{ x: 20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: 20, opacity: 0 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+              >
+                <PlaceDetail />
+              </MotionView>
+            ) : (
+              <MotionView
+                key="list"
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: -20, opacity: 0 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+              >
+                <TopSection>
+                  <Chips>
+                    <CategoryChips />
+                  </Chips>
+                </TopSection>
 
-        <ListHeader>
-          {mode === 'info' ? '명소' : '온기'} {count}곳
-        </ListHeader>
-        <ListArea ref={listRef}>
-          <ListPlaceholder>리스트 영역 · 다음 단계</ListPlaceholder>
-        </ListArea>
+                <ListArea ref={listRef}>
+                  {mode === 'warmth' ? <WarmthFeed /> : <PlaceList />}
+                </ListArea>
+              </MotionView>
+            )}
+          </AnimatePresence>
+        </ContentContainer>
       </Sheet>
     </>
   );

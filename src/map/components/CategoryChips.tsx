@@ -42,20 +42,33 @@ const Chip = styled.button<{ $active: boolean; $color: string }>`
   flex: none;
   align-items: center;
   gap: 6px;
-  height: 36px;
-  padding: 0 14px;
+  height: 38px;
+  padding: 0 16px;
   border: 1px solid ${({ $active }) => ($active ? 'transparent' : 'rgba(78, 89, 104, 0.12)')};
   border-radius: 9999px;
-  background: ${({ $active, $color }) => ($active ? $color : 'rgba(255, 255, 255, 0.95)')};
-  backdrop-filter: blur(8px);
-  box-shadow: 0 2px 8px rgba(25, 31, 40, 0.08);
+  background: ${({ $active, $color }) => ($active ? $color : 'rgba(255, 255, 255, 0.92)')};
+  backdrop-filter: blur(16px);
+  box-shadow: ${({ $active }) =>
+    $active
+      ? '0 4px 14px rgba(40, 110, 95, 0.3)'
+      : '0 2px 8px rgba(25, 31, 40, 0.08)'};
   color: ${({ $active }) => ($active ? '#FFFFFF' : meok[700])};
   font-family: inherit;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 13.5px;
+  font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
-  transition: background 0.2s ease-out, color 0.2s ease-out;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(25, 31, 40, 0.12);
+    color: ${({ $active }) => ($active ? '#FFFFFF' : meok[900])};
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
 
   &:focus-visible {
     outline: 2px solid ${({ $color }) => $color};
