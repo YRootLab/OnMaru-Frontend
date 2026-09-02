@@ -1,7 +1,21 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { X, Share2, Navigation, RefreshCw, AlertCircle, Check, Award, Compass, Play } from 'lucide-react';
+import {
+  X,
+  Share2,
+  Navigation,
+  RefreshCw,
+  AlertCircle,
+  Check,
+  Award,
+  Compass,
+  Play,
+  Headphones,
+  Flame,
+  Car,
+  Ticket,
+} from 'lucide-react';
 import { logger } from '@/lib/log';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useOdiiPlaceStory } from '@/features/odii-audio/hooks/useOdiiPlaceStory';
@@ -23,6 +37,11 @@ import {
   PlaceAddress,
   BadgeRow,
   Badge,
+  SmartFeatureRow,
+  SmartFeatureChip,
+  HeroActionGrid,
+  HeroActionTile,
+  HeroActionLink,
   CoreInfoBox,
   CoreRow,
   CoreLabel,
@@ -169,6 +188,27 @@ export default function PlaceDetail() {
     hasValidCoords ? lng : undefined,
   );
 
+  const smartFeatures = useMemo(() => {
+    const list: { label: string; type: 'free' | 'parking' | 'audio' | 'general' }[] = [];
+    if (matchedOdiiStory) {
+      list.push({ label: '오디 도슨트 해설', type: 'audio' });
+    }
+    const fee = data?.intro?.['이용요금'] || '';
+    if (fee.includes('무료') || (!fee && selectedItem?.category === 'spot')) {
+      list.push({ label: '무료 관람', type: 'free' });
+    } else if (fee) {
+      list.push({ label: '관람요금 안내', type: 'general' });
+    }
+    const parking = data?.intro?.['주차시설'] || '';
+    if (parking.includes('가능') || parking.includes('있음') || parking.includes('주차장')) {
+      list.push({ label: '주차 가능', type: 'parking' });
+    }
+    if (tel) {
+      list.push({ label: '유선 문의 가능', type: 'general' });
+    }
+    return list;
+  }, [matchedOdiiStory, data?.intro, selectedItem?.category, tel]);
+
   const startTour = useCinematicTourStore((s) => s.startTour);
 
   const handleStartCinematicTour = () => {
@@ -251,7 +291,73 @@ export default function PlaceDetail() {
                   ))}
                 </BadgeRow>
               )}
+              {smartFeatures.length > 0 && (
+                <SmartFeatureRow>
+                  {smartFeatures.map((feat, idx) => (
+                    <SmartFeatureChip key={idx} $type={feat.type}>
+                      {feat.type === 'audio' && <Headphones size={11} />}
+                      {feat.type === 'free' && <Ticket size={11} />}
+                      {feat.type === 'parking' && <Car size={11} />}
+                      <span>{feat.label}</span>
+                    </SmartFeatureChip>
+                  ))}
+                </SmartFeatureRow>
+              )}
             </TitleSection>
+
+            {/* 원클릭 4단 퀵 액션 타일 바 */}
+            <HeroActionGrid>
+              <HeroActionTile
+                type="button"
+                $highlight={Boolean(matchedOdiiStory)}
+                onClick={() => {
+                  if (matchedOdiiStory) {
+                    handleStartCinematicTour();
+                  } else {
+                    window.open(`/odii?search=${encodeURIComponent(title)}`, '_self');
+                  }
+                }}
+                title={matchedOdiiStory ? '시네마틱 오디오 투어 시작' : '소리마루 오디 둘러보기'}
+              >
+                <Headphones size={18} />
+                <span>{matchedOdiiStory ? '오디 투어' : '소리마루'}</span>
+              </HeroActionTile>
+
+              {hasValidCoords ? (
+                <HeroActionLink
+                  href={navLinks.webUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={handleNavClick}
+                  title="카카오맵 길찾기"
+                >
+                  <Navigation size={18} />
+                  <span>길찾기</span>
+                </HeroActionLink>
+              ) : (
+                <HeroActionTile type="button" disabled title="좌표 정보 없음">
+                  <Navigation size={18} />
+                  <span>길찾기</span>
+                </HeroActionTile>
+              )}
+
+              <HeroActionTile
+                type="button"
+                onClick={() => {
+                  const el = document.getElementById('place-warmth-section');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }}
+                title="방문객 온기(후기) 보기"
+              >
+                <Flame size={18} />
+                <span>온기 남기기</span>
+              </HeroActionTile>
+
+              <HeroActionTile type="button" onClick={handleShare} title="장소 링크 공유">
+                {copied ? <Check size={18} color={lightPalette.cheongrok[700]} /> : <Share2 size={18} />}
+                <span>{copied ? '복사됨' : '공유하기'}</span>
+              </HeroActionTile>
+            </HeroActionGrid>
 
             {matchedOdiiStory && (
               <CinematicBanner>

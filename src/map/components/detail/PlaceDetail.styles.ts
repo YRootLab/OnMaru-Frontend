@@ -114,6 +114,112 @@ export const Badge = styled.span`
   background: rgba(78, 89, 104, 0.07);
 `;
 
+export const SmartFeatureRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+`;
+
+export const SmartFeatureChip = styled.span<{ $type?: 'free' | 'parking' | 'audio' | 'general' }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: ${({ $type }) =>
+    $type === 'free'
+      ? lightPalette.cheongrok[700]
+      : $type === 'audio'
+        ? lightPalette.jangmi[500]
+        : $type === 'parking'
+          ? '#2b5ce6'
+          : meok[700]};
+  background: ${({ $type }) =>
+    $type === 'free'
+      ? 'rgba(40, 110, 95, 0.08)'
+      : $type === 'audio'
+        ? 'rgba(232, 40, 90, 0.08)'
+        : $type === 'parking'
+          ? 'rgba(43, 92, 230, 0.08)'
+          : 'rgba(78, 89, 104, 0.06)'};
+`;
+
+export const HeroActionGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding: 0 16px 14px;
+`;
+
+export const HeroActionTile = styled.button<{ $highlight?: boolean }>`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 4px;
+  border-radius: 14px;
+  background: ${({ $highlight }) =>
+    $highlight ? 'rgba(40, 110, 95, 0.08)' : 'rgba(78, 89, 104, 0.05)'};
+  color: ${({ $highlight }) =>
+    $highlight ? lightPalette.cheongrok[700] : meok[700]};
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  text-decoration: none;
+
+  &:hover {
+    background: ${({ $highlight }) =>
+      $highlight ? 'rgba(40, 110, 95, 0.14)' : 'rgba(78, 89, 104, 0.1)'};
+    transform: translateY(-1.5px);
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+
+  span {
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+`;
+
+export const HeroActionLink = styled.a<{ $highlight?: boolean }>`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 4px;
+  border-radius: 14px;
+  background: ${({ $highlight }) =>
+    $highlight ? 'rgba(40, 110, 95, 0.08)' : 'rgba(78, 89, 104, 0.05)'};
+  color: ${({ $highlight }) =>
+    $highlight ? lightPalette.cheongrok[700] : meok[700]};
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  text-decoration: none;
+
+  &:hover {
+    background: ${({ $highlight }) =>
+      $highlight ? 'rgba(40, 110, 95, 0.14)' : 'rgba(78, 89, 104, 0.1)'};
+    transform: translateY(-1.5px);
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+
+  span {
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+`;
+
 export const CoreInfoBox = styled.div`
   margin: 0 16px;
   padding: 16px;

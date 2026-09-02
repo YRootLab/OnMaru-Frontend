@@ -239,11 +239,16 @@ function getDistrictFromAddr(addr?: string): string {
   return addr;
 }
 
-/** 거리 포맷팅 (1000m 미만 "320m", 이상 "2.4km") */
+/** 거리 및 소요 시간 계산 (1000m 미만 "내 위치에서 320m · 도보 5분", 이상 "내 위치에서 2.4km · 차량 5분") */
 function formatDistance(dist?: number | null): string {
   if (dist === null || dist === undefined || !Number.isFinite(dist)) return '';
-  if (dist < 1000) return `${Math.round(dist)}m`;
-  return `${(dist / 1000).toFixed(1)}km`;
+  const distStr = dist < 1000 ? `${Math.round(dist)}m` : `${(dist / 1000).toFixed(1)}km`;
+  if (dist < 1200) {
+    const walkMinutes = Math.max(1, Math.round(dist / 67));
+    return `내 위치에서 ${distStr} · 도보 ${walkMinutes}분`;
+  }
+  const driveMinutes = Math.max(2, Math.round(dist / 500));
+  return `내 위치에서 ${distStr} · 차량 ${driveMinutes}분`;
 }
 
 function PlaceListItemComponent({

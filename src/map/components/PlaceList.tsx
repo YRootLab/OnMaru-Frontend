@@ -317,14 +317,40 @@ export default function PlaceList() {
           <EmptyIconBox>
             <Map size={24} />
           </EmptyIconBox>
-          <EmptyTitle>주변에 등록된 장소가 없습니다</EmptyTitle>
+          <EmptyTitle>현재 반경에 장소가 없습니다</EmptyTitle>
           <EmptyDesc>
-            지도를 이동하거나 다른 카테고리를 선택하세요
+            {category
+              ? `선택하신 '${CATEGORY_NAMES[category] || category}' 장소가 가까운 반경에 없습니다.`
+              : '지도 영역을 넓히거나 전국 인기 명소를 둘러보세요.'}
           </EmptyDesc>
-          <ActionButton type="button" onClick={handleZoomOut}>
-            <Map size={14} />
-            <span>지도 영역 넓히기</span>
-          </ActionButton>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', maxWidth: '240px' }}>
+            {category && (
+              <ActionButton
+                type="button"
+                onClick={() => useMapStore.getState().setCategory(null)}
+                style={{ width: '100%', justifyContent: 'center' }}
+              >
+                <Sparkles size={14} />
+                <span>전체 카테고리로 보기</span>
+              </ActionButton>
+            )}
+            <ActionButton
+              type="button"
+              onClick={handleZoomOut}
+              style={{ width: '100%', justifyContent: 'center' }}
+            >
+              <Map size={14} />
+              <span>지도 영역 2배 넓히기</span>
+            </ActionButton>
+            <ActionButton
+              type="button"
+              onClick={() => useMapStore.getState().setPopularPanelOpen(true)}
+              style={{ width: '100%', justifyContent: 'center', background: 'rgba(232, 90, 24, 0.08)', color: lightPalette.juhong[500] }}
+            >
+              <Sparkles size={14} />
+              <span>전국 인기 명소 랭킹</span>
+            </ActionButton>
+          </div>
         </EmptyStateBox>
       ) : (
         <ListContainer role="list">
