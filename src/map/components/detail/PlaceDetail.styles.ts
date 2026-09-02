@@ -136,13 +136,17 @@ export const SmartFeatureChip = styled.span<{ $type?: 'free' | 'parking' | 'audi
   border-radius: 8px;
   font-size: 11px;
   font-weight: 600;
-  color: ${meok[700]};
-  background: rgba(78, 89, 104, 0.06);
+  color: ${({ $type }) =>
+    $type === 'audio' ? lightPalette.jangmi[700] : meok[700]};
+  background: ${({ $type }) =>
+    $type === 'audio' ? 'rgba(212, 32, 88, 0.08)' : 'rgba(78, 89, 104, 0.06)'};
   border: none;
 
   [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.06);
-    color: ${meok[400]};
+    background: ${({ $type }) =>
+      $type === 'audio' ? 'rgba(248, 78, 118, 0.15)' : 'rgba(255, 255, 255, 0.06)'};
+    color: ${({ $type }) =>
+      $type === 'audio' ? darkPalette.jangmi[400] : meok[400]};
   }
 `;
 
@@ -213,24 +217,55 @@ export const HeroActionTile = styled.button<{ $highlight?: boolean; $isWarmth?: 
   padding: 10px 2px;
   border-radius: 14px;
   border: none;
-  background: ${({ $isWarmth }) =>
-    $isWarmth ? 'rgba(232, 90, 24, 0.08)' : 'rgba(78, 89, 104, 0.06)'};
-  color: ${({ $isWarmth }) =>
-    $isWarmth ? lightPalette.juhong[500] : meok[700]};
+  background: ${({ $highlight, $isWarmth }) =>
+    $highlight
+      ? 'rgba(212, 32, 88, 0.08)'
+      : $isWarmth
+        ? 'rgba(232, 90, 24, 0.08)'
+        : 'rgba(78, 89, 104, 0.06)'};
+  color: ${({ $highlight, $isWarmth }) =>
+    $highlight
+      ? lightPalette.jangmi[700]
+      : $isWarmth
+        ? lightPalette.juhong[500]
+        : meok[700]};
   cursor: pointer;
   transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
   text-decoration: none;
 
   &:hover {
-    background: ${({ $isWarmth }) =>
-      $isWarmth ? 'rgba(232, 90, 24, 0.15)' : 'rgba(78, 89, 104, 0.12)'};
-    color: ${({ $isWarmth }) =>
-      $isWarmth ? lightPalette.juhong[700] : meok[900]};
+    background: ${({ $highlight, $isWarmth }) =>
+      $highlight
+        ? 'rgba(212, 32, 88, 0.15)'
+        : $isWarmth
+          ? 'rgba(232, 90, 24, 0.15)'
+          : 'rgba(78, 89, 104, 0.12)'};
+    color: ${({ $highlight, $isWarmth }) =>
+      $highlight
+        ? lightPalette.jangmi[900]
+        : $isWarmth
+          ? lightPalette.juhong[700]
+          : meok[900]};
     transform: translateY(-1.5px);
   }
 
   &:active {
     transform: scale(0.96);
+  }
+
+  [data-theme='dark'] & {
+    background: ${({ $highlight, $isWarmth }) =>
+      $highlight
+        ? 'rgba(248, 78, 118, 0.15)'
+        : $isWarmth
+          ? 'rgba(248, 87, 0, 0.15)'
+          : 'rgba(255, 255, 255, 0.06)'};
+    color: ${({ $highlight, $isWarmth }) =>
+      $highlight
+        ? darkPalette.jangmi[400]
+        : $isWarmth
+          ? darkPalette.juhong[400]
+          : meok[400]};
   }
 
   span {
@@ -449,8 +484,8 @@ export const CinematicBanner = styled.div`
   margin: 12px 16px 6px;
   padding: 14px 16px;
   border-radius: 18px;
-  background: linear-gradient(135deg, rgba(232, 90, 24, 0.08) 0%, rgba(212, 32, 88, 0.08) 100%);
-
+  background: linear-gradient(135deg, rgba(212, 32, 88, 0.08) 0%, rgba(248, 78, 118, 0.12) 100%);
+  border: none;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -458,8 +493,7 @@ export const CinematicBanner = styled.div`
   overflow: hidden;
 
   [data-theme='dark'] & {
-    background: linear-gradient(135deg, rgba(248, 87, 0, 0.15) 0%, rgba(248, 78, 118, 0.12) 100%);
-    border-color: rgba(248, 87, 0, 0.35);
+    background: linear-gradient(135deg, rgba(248, 78, 118, 0.15) 0%, rgba(212, 32, 88, 0.18) 100%);
   }
 `;
 
@@ -475,10 +509,10 @@ export const CinematicBadge = styled.span`
   gap: 5px;
   font-size: 11px;
   font-weight: 800;
-  color: ${lightPalette.juhong[500]};
+  color: ${lightPalette.jangmi[500]};
 
   [data-theme='dark'] & {
-    color: ${darkPalette.juhong[400]};
+    color: ${darkPalette.jangmi[400]};
   }
 `;
 
@@ -519,19 +553,18 @@ export const CinematicStartButton = styled.button`
   width: 100%;
   height: 38px;
   margin-top: 4px;
-
+  border: none;
   border-radius: 12px;
-  background: ${lightPalette.juhong[500]};
+  background: ${lightPalette.jangmi[500]};
   color: #ffffff;
   font-family: inherit;
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
-
   transition: all 0.15s ease;
 
   &:hover {
-    background: ${lightPalette.juhong[400]};
+    background: ${lightPalette.jangmi[700]};
     transform: translateY(-1px);
   }
 
@@ -540,8 +573,7 @@ export const CinematicStartButton = styled.button`
   }
 
   [data-theme='dark'] & {
-    background: ${darkPalette.juhong[500]};
-
+    background: ${darkPalette.jangmi[500]};
   }
 `;
 
