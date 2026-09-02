@@ -64,9 +64,9 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
           <span className="text-xs text-[#8c7e6c]">{stories.length}개의 이야기 · 권역 선택형</span>
         </div>
 
-        <div className="grid gap-5 rounded-[28px] border border-[#211e19]/10 bg-[#fbf8f2] p-3  sm:p-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(300px,.8fr)] lg:gap-6">
+        <div className="grid gap-5 rounded-[28px]  bg-[#fbf8f2] p-3  sm:p-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(300px,.8fr)] lg:gap-6">
           <div className="relative min-h-[480px] overflow-hidden rounded-[22px] bg-[#f4efe7] p-4 sm:min-h-[560px] sm:p-6">
-            <div className="absolute left-4 top-4 z-20 flex items-center gap-2 rounded-full border border-[#211e19]/10 bg-[#fffdf9]/85 px-3 py-1.5 text-[10px] text-[#786d5e] backdrop-blur-sm sm:left-6 sm:top-6">
+            <div className="absolute left-4 top-4 z-20 flex items-center gap-2 rounded-full  bg-[#fffdf9]/85 px-3 py-1.5 text-[10px] text-[#786d5e] backdrop-blur-sm sm:left-6 sm:top-6">
               <span className="h-1.5 w-1.5 rounded-full bg-[#f84e76]" /> 점선은 권역 경계 · 버튼을 눌러 탐색
             </div>
 
@@ -81,7 +81,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                 const active = region.id === selectedRegionId;
                 const count = getRegionStories(stories, region).length;
                 return (
-                  <motion.button key={region.id} type="button" onClick={() => setSelectedRegionId(region.id)} whileHover={{ scale: 1.06 }} whileTap={{ scale: .97 }} style={{ left: `${region.x}%`, top: `${region.y}%`, '--region-color': region.color } as React.CSSProperties} className={`absolute z-10 -translate-x-1/2 -translate-y-1/2 rounded-full border px-2.5 py-2 text-[10px] font-semibold  backdrop-blur-sm transition-colors sm:px-3 sm:text-xs ${active ? 'border-[var(--region-color)] bg-[#211e19] text-white' : 'border-[#211e19]/10 bg-[#fffdf9]/90 text-[#655b4d] hover:border-[var(--region-color)]'}`} aria-pressed={active}>
+                  <motion.button key={region.id} type="button" onClick={() => setSelectedRegionId(region.id)} whileHover={{ scale: 1.06 }} whileTap={{ scale: .97 }} style={{ left: `${region.x}%`, top: `${region.y}%`, '--region-color': region.color } as React.CSSProperties} className={`absolute z-10 -translate-x-1/2 -translate-y-1/2 rounded-full px-2.5 py-2 text-[10px] font-semibold  backdrop-blur-sm transition-colors sm:px-3 sm:text-xs ${active ? ' bg-[#211e19] text-white' : ' bg-[#fffdf9]/90 text-[#655b4d] hover:'}`} aria-pressed={active}>
                     <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-[var(--region-color)]" />{region.shortLabel}<span className={active ? 'text-white/60' : 'text-[#a09587]'}>{count}</span></span>
                   </motion.button>
                 );
@@ -90,8 +90,8 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
             </div>
           </div>
 
-          <aside aria-live="polite" className="flex min-h-[480px] flex-col rounded-[20px] border border-[#211e19]/8 bg-[#fffdf9] p-4 sm:min-h-[560px] sm:p-5">
-            <div className="border-b border-[#211e19]/10 pb-4">
+          <aside aria-live="polite" className="flex min-h-[480px] flex-col rounded-[20px]  bg-[#fffdf9] p-4 sm:min-h-[560px] sm:p-5">
+            <div className="  pb-4">
               <p className="text-[10px] font-semibold tracking-[.15em] text-[#f84e76]">SELECTED REGION</p>
               <div className="mt-1 flex items-end justify-between gap-3"><h3 className="text-xl font-bold tracking-[-.04em] text-[#211e19]">{selectedRegion.label}</h3><span className="text-xs text-[#8c7e6c]">{regionStories.length}개 이야기</span></div>
               <p className="mt-2 text-xs leading-5 text-[#786d5e]">이 권역에서 가장 먼저 들어볼 만한 문화유산 소리입니다.</p>

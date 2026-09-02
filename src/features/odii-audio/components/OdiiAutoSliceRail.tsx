@@ -154,7 +154,7 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
           <div className="relative w-full overflow-hidden rounded-[1.8rem] bg-[#1c1917] p-4  sm:hidden">
             {/* 우측 상단 인디케이터 */}
             <div className="absolute right-4 top-4 z-30">
-              <span className="rounded-full border border-white/20 bg-black/50 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-md">
+              <span className="rounded-full  bg-black/50 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-md">
                 {activeIndex + 1} / {featured.length}
               </span>
             </div>
@@ -165,7 +165,7 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
                 {/* 뒤에 깔린 카드 (Next Card Layer) */}
                 <motion.div
                   key={`next-${nextStory.stid}`}
-                  className="absolute left-1/2 top-3 h-[220px] w-[88%] -translate-x-1/2 overflow-hidden rounded-2xl border border-white/15 bg-white/10 opacity-60  backdrop-blur-md pointer-events-none"
+                  className="absolute left-1/2 top-3 h-[220px] w-[88%] -translate-x-1/2 overflow-hidden rounded-2xl  bg-white/10 opacity-60  backdrop-blur-md pointer-events-none"
                   initial={{ scale: 0.9, y: 12 }}
                   animate={{ scale: 0.94, y: 8 }}
                   transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
@@ -181,7 +181,7 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
                   animate={{ opacity: 1, scale: 1, y: 0, rotate: 0 }}
                   exit={{ opacity: 0, scale: 0.88, x: transitionDirection * -120, rotate: transitionDirection * -10 }}
                   transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1] }}
-                  className="relative z-20 mx-auto h-[235px] w-[96%] overflow-hidden rounded-2xl border border-white/25 bg-[#2a2421] "
+                  className="relative z-20 mx-auto h-[235px] w-[96%] overflow-hidden rounded-2xl  bg-[#2a2421] "
                 >
                   <img
                     src={leadImageUrl}
@@ -193,7 +193,7 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
                   
                   {/* 카드 내부 오버레이 콘텐츠 */}
                   <div className="absolute inset-x-0 bottom-0 p-4 text-white">
-                    <span className="inline-flex items-center rounded-md border border-white/25 bg-white/15 px-2 py-0.5 text-[9px] font-semibold text-white/90 backdrop-blur-md">
+                    <span className="inline-flex items-center rounded-md  bg-white/15 px-2 py-0.5 text-[9px] font-semibold text-white/90 backdrop-blur-md">
                       {getCategoryThemeBadge(lead)}
                     </span>
                     <h3 className="mt-1 line-clamp-1 font-odii-sans text-xl font-bold tracking-tight text-white drop-">
@@ -218,7 +218,7 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
               <button
                 type="button"
                 onClick={() => move(1)}
-                className="flex h-11 px-4 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-xs font-semibold text-white backdrop-blur-md active:bg-white/20"
+                className="flex h-11 px-4 items-center justify-center rounded-xl  bg-white/10 text-xs font-semibold text-white backdrop-blur-md active:bg-white/20"
               >
                 다음 장면 →
               </button>
@@ -263,7 +263,7 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
 
             {/* 우측 상단 뱃지 */}
             <div className="absolute right-4 top-2.5 z-20">
-              <span className="px-2.5 py-0.5 rounded-full bg-black/50 text-white text-[10px] font-semibold backdrop-blur-md border border-white/20">
+              <span className="px-2.5 py-0.5 rounded-full bg-black/50 text-white text-[10px] font-semibold backdrop-blur-md ">
                 {activeIndex + 1} / {featured.length}
               </span>
             </div>
@@ -280,7 +280,7 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
                     transition={{ duration: 0.36, delay: 0.02, ease: [0.16, 1, 0.3, 1] }}
                     className="absolute inset-0 flex flex-col justify-center"
                   >
-                  <span className="mb-3 inline-flex h-6 self-start items-center rounded-lg border border-white/20 bg-white/[0.12] px-2 text-[9px] font-semibold tracking-[0.04em] text-white/90 backdrop-blur-sm">
+                  <span className="mb-3 inline-flex h-6 self-start items-center rounded-lg  bg-white/[0.12] px-2 text-[9px] font-semibold tracking-[0.04em] text-white/90 backdrop-blur-sm">
                     {getCategoryThemeBadge(lead)}
                   </span>
                   <h2 className="max-w-xl font-odii-sans text-3xl sm:text-4xl font-bold text-white leading-[1.18] tracking-[-0.04em] drop-">
@@ -323,7 +323,7 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
               </div>
 
               {/* 메인 장면 오른쪽 서브 비주얼 카드 고정 규격 (찌부됨 방지) */}
-              <div className="pointer-events-none relative order-first mx-auto h-[198px] w-[150px] shrink-0 rounded-[1.2rem] border border-white/25 bg-white/10  hidden sm:block sm:order-none sm:h-[198px] sm:w-[150px] md:h-[202px] lg:h-[211px] lg:w-[160px] overflow-visible">
+              <div className="pointer-events-none relative order-first mx-auto h-[198px] w-[150px] shrink-0 rounded-[1.2rem]  bg-white/10  hidden sm:block sm:order-none sm:h-[198px] sm:w-[150px] md:h-[202px] lg:h-[211px] lg:w-[160px] overflow-visible">
                 <div className="relative z-10 h-full w-full overflow-hidden rounded-[1.1rem]">
                   <AnimatePresence initial={false} mode="sync">
                     <motion.div
@@ -344,13 +344,13 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
                   </AnimatePresence>
                 </div>
 
-                {/* 서브 섬네일 카드의 오른쪽 border 지점에 수직 중앙으로 얹히는 다음 탐색 버튼 */}
+                {/* 서브 섬네일 카드의 오른쪽 지점에 수직 중앙으로 얹히는 다음 탐색 버튼 */}
                 <div className="pointer-events-auto absolute right-0 translate-x-1/2 top-1/2 z-30 -translate-y-1/2">
                   <button
                     type="button"
                     aria-label="다음 이야기"
                     onClick={() => move(1)}
-                    className="flex h-10 w-11 items-center justify-center rounded-xl border border-white/60 bg-white/95 text-[#211e19]  transition-[background-color,transform] duration-300 hover:scale-105 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                    className="flex h-10 w-11 items-center justify-center rounded-xl  bg-white/95 text-[#211e19]  transition-[background-color,transform] duration-300 hover:scale-105 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                   >
                     <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="m9 5 7 7-7 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
                   </button>
@@ -386,7 +386,7 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
                         duration: 0.32,
                         ease: [0.16, 1, 0.3, 1],
                       }}
-                      className="group absolute left-0 top-0 h-[68px] w-full overflow-hidden rounded-lg border border-white/20 bg-[#211e19]/[0.1] text-left   backdrop-blur-sm transition-[box-shadow,ring-color] duration-300 hover:border-white/35 hover:ring-white/45 hover: focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a94d35]"
+                      className="group absolute left-0 top-0 h-[68px] w-full overflow-hidden rounded-lg  bg-[#211e19]/[0.1] text-left   backdrop-blur-sm transition-[box-shadow,ring-color] duration-300 hover: hover:ring-white/45 hover: focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a94d35]"
                     >
                       <img
                         src={imgUrl}

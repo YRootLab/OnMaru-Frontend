@@ -31,7 +31,7 @@ export function StudySectionFrame({
   const headingId = `section2-study-${number}`;
 
   return (
-    <section aria-labelledby={headingId} className="border-t border-[#211e19]/10 py-14 sm:py-20">
+    <section aria-labelledby={headingId} className="  py-14 sm:py-20">
       <div className="mb-7 flex flex-col gap-4 sm:mb-9 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-[10px] font-bold tracking-[0.2em] text-[#f84e76]">VARIANT {number}</p>
@@ -101,7 +101,7 @@ export function StudyPlayControl({
       onClick={() => onSelectStory(getNextStudySelection(selectedStoryId, story.id))}
       aria-label={`${story.title} ${isSelected ? '재생 멈추기' : '재생하기'}`}
       aria-pressed={isSelected}
-      className={`inline-flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#f84e76] font-bold text-white  transition-[width,background-color] hover:bg-[#e33f69] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#211e19] focus-visible:ring-offset-2 motion-reduce:transition-none ${compact && !isSelected ? 'w-11 text-[10px]' : 'min-w-11 px-3 text-[10px]'}`}
+      className={`inline-flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#f84e76] font-bold text-white  transition-[width,background-color] hover:bg-[#e33f69] focus-visible:outline-none focus-visible: focus-visible:ring-[#211e19] focus-visible:ring-offset-2 motion-reduce:transition-none ${compact && !isSelected ? 'w-11 text-[10px]' : 'min-w-11 px-3 text-[10px]'}`}
     >
       <span aria-hidden="true" className={isSelected ? 'text-[8px]' : 'translate-x-px text-[9px]'}>{isSelected ? 'Ⅱ' : '▶'}</span>
       {(!compact || isSelected) && <span>{label}</span>}

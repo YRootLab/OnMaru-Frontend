@@ -98,7 +98,7 @@ export const OdiiThemeHeaderRail: React.FC = () => {
 
   return (
     <section className="w-full py-8">
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 pb-4 border-b border-[#211e19]/15">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 pb-4  ">
         <div>
           <span className="text-[11px] font-bold tracking-[0.2em] text-[#a94d35] uppercase">
             Odii Audio Curation
@@ -123,7 +123,7 @@ export const OdiiThemeHeaderRail: React.FC = () => {
               onClick={() => setSelectedCategory(theme.category)}
               className={`group relative cursor-pointer overflow-hidden rounded-2xl p-6 transition-all duration-300 bg-gradient-to-br ${theme.bgGradient} ${
                 isSelected
-                  ? 'ring-2 ring-offset-2 ring-offset-[#f3eee4]  scale-[1.02]'
+                  ? ' ring-offset-2 ring-offset-[#f3eee4]  scale-[1.02]'
                   : 'hover: hover:-translate-y-0.5 opacity-95 hover:opacity-100'
               }`}
               style={{
@@ -133,7 +133,7 @@ export const OdiiThemeHeaderRail: React.FC = () => {
               {/* 상단 태그 뱃지 */}
               <div className="flex items-center justify-between mb-4">
                 <span
-                  className="px-2.5 py-1 rounded-full text-[11px] font-semibold text-white/90 bg-white/10 backdrop-blur-md border border-white/15"
+                  className="px-2.5 py-1 rounded-full text-[11px] font-semibold text-white/90 bg-white/10 backdrop-blur-md "
                   style={{ color: theme.accentColor }}
                 >
                   {theme.tag} 오디오
@@ -152,7 +152,7 @@ export const OdiiThemeHeaderRail: React.FC = () => {
               </p>
 
               {/* 장소 예시 샘플 */}
-              <div className="mt-5 pt-3 border-t border-white/10 flex items-center justify-between">
+              <div className="mt-5 pt-3   flex items-center justify-between">
                 <p className="text-[11px] text-white/50 truncate max-w-[85%]">
                   {theme.examples}
                 </p>

@@ -167,9 +167,9 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories, s
             const isLead = index === 0;
             const isPlayingStory = currentStory.stid === story.stid && isPlaying;
             const cardClass = [
-              'group relative overflow-hidden rounded-2xl border border-[#211e19]/10 bg-[#fbf8f2] outline-none ring-offset-2 transition-shadow duration-300 focus-visible:ring-2 focus-visible:ring-[#a94d35]/70',
+              'group relative overflow-hidden rounded-2xl  bg-[#fbf8f2] outline-none ring-offset-2 transition-shadow duration-300 focus-visible: focus-visible:ring-[#a94d35]/70',
               BOARD_LAYOUTS[index] || 'col-span-2 min-h-[240px] md:col-span-4 md:row-span-3',
-              isLead ? ' ring-2 ring-[#a94d35]/60' : ' hover:',
+              isLead ? '  ring-[#a94d35]/60' : ' hover:',
             ].join(' ');
             const imageClass = [
               'absolute object-cover transition-[transform,opacity,filter] duration-700 ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-[1.02]',
@@ -181,7 +181,7 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories, s
               'z-10 text-[#211e19]',
               isLead
                 ? 'absolute inset-y-0 left-0 flex w-[70%] flex-col justify-end bg-[#fbf8f2]/96 p-5 sm:w-[63%] sm:p-6'
-                : 'absolute inset-x-0 bottom-0 top-[40%] border-t border-[#211e19]/10 bg-[#fbf8f2] p-3.5 sm:p-4',
+                : 'absolute inset-x-0 bottom-0 top-[40%]   bg-[#fbf8f2] p-3.5 sm:p-4',
             ].join(' ');
 
             return (
@@ -259,7 +259,7 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories, s
           })}
         </div>
 
-        <div className="mt-4 flex items-center justify-between border-t border-[#211e19]/10 pt-3">
+        <div className="mt-4 flex items-center justify-between   pt-3">
           <span className="text-[11px] text-[#8c7e6c]">
             {String(normalizedIndex + 1).padStart(2, '0')} / {String(featured.length).padStart(2, '0')}
             <span className="ml-2">카드를 고르면 앞으로 이동합니다</span>

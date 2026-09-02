@@ -14,7 +14,7 @@ export function LandscapeCardVariant({ stories, selectedStoryId, onSelectStory }
         {stories.map((story) => (
           <MotionStudyCard
             key={story.id}
-            className="group grid h-[196px] w-[310px] shrink-0 grid-cols-[44%_1fr] overflow-hidden rounded-[20px] border border-[#211e19]/10 bg-[#fffdf9]  sm:h-[218px] sm:w-[370px] sm:rounded-[24px]"
+            className="group grid h-[196px] w-[310px] shrink-0 grid-cols-[44%_1fr] overflow-hidden rounded-[20px]  bg-[#fffdf9]  sm:h-[218px] sm:w-[370px] sm:rounded-[24px]"
           >
             <div className="relative overflow-hidden bg-[#ddd2c5]">
               <StudyImage
@@ -22,7 +22,7 @@ export function LandscapeCardVariant({ stories, selectedStoryId, onSelectStory }
                 sizes="(max-width: 640px) 137px, 163px"
                 className="transition-transform duration-700 [@media(hover:hover)_and_(pointer:fine)]:group-hover:scale-[1.04] motion-reduce:transition-none"
               />
-              <span className="absolute left-3 top-3 rounded-full border border-white/35 bg-black/20 px-2 py-1 text-[8px] font-semibold text-white backdrop-blur-md">
+              <span className="absolute left-3 top-3 rounded-full  bg-black/20 px-2 py-1 text-[8px] font-semibold text-white backdrop-blur-md">
                 {story.category}
               </span>
             </div>
@@ -32,7 +32,7 @@ export function LandscapeCardVariant({ stories, selectedStoryId, onSelectStory }
                 {story.title}
               </h3>
               <p className="mt-2 line-clamp-2 text-[9px] leading-4 text-[#786d5e] sm:text-[10px]">{story.audioTitle}</p>
-              <div className="mt-auto flex items-center justify-between gap-2 border-t border-[#211e19]/10 pt-3">
+              <div className="mt-auto flex items-center justify-between gap-2   pt-3">
                 <span className="text-[10px] font-semibold tabular-nums text-[#655b4d]">{story.duration}</span>
                 <StudyPlayControl story={story} selectedStoryId={selectedStoryId} onSelectStory={onSelectStory} compact />
               </div>

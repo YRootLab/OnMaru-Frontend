@@ -13,7 +13,7 @@ export function EditorialCaptionVariant({ stories, selectedStoryId, onSelectStor
       <StudyRail className="gap-6 sm:gap-8">
         {stories.map((story) => (
           <MotionStudyCard key={story.id} className="group w-[206px] shrink-0 sm:w-[244px]">
-            <div className="relative h-[244px] overflow-hidden rounded-[16px] border border-white/60 bg-[#ddd2c5]  sm:h-[286px] sm:rounded-[20px]">
+            <div className="relative h-[244px] overflow-hidden rounded-[16px]  bg-[#ddd2c5]  sm:h-[286px] sm:rounded-[20px]">
               <StudyImage
                 story={story}
                 sizes="(max-width: 640px) 206px, 244px"
@@ -31,7 +31,7 @@ export function EditorialCaptionVariant({ stories, selectedStoryId, onSelectStor
               <h3 className="mt-1.5 line-clamp-2 min-h-[2.85rem] font-odii-sans text-[17px] font-bold leading-[1.35] tracking-[-0.04em] text-[#211e19]">
                 {story.title}
               </h3>
-              <div className="mt-3 flex items-center justify-between gap-3 border-t border-[#211e19]/10 pt-3">
+              <div className="mt-3 flex items-center justify-between gap-3   pt-3">
                 <p className="truncate text-[10px] text-[#786d5e]">{story.audioTitle}</p>
                 <span className="shrink-0 text-[10px] font-semibold tabular-nums text-[#d94068]">{story.duration}</span>
               </div>

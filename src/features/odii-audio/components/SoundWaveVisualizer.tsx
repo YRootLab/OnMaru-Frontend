@@ -88,12 +88,12 @@ export const FloatingVinylDisc: React.FC<{ imageUrl: string; isPlaying: boolean 
         className="relative flex h-24 w-24 items-center justify-center rounded-full bg-[#111111] p-1   sm:h-28 sm:w-28"
       >
         {/* LP 텍스처 링 */}
-        <div className="absolute inset-2 rounded-full border border-white/10" />
-        <div className="absolute inset-4 rounded-full border border-white/5" />
-        <div className="absolute inset-6 rounded-full border border-white/10" />
+        <div className="absolute inset-2 rounded-full " />
+        <div className="absolute inset-4 rounded-full " />
+        <div className="absolute inset-6 rounded-full " />
 
         {/* 앨범 아트 섬네일 중심 */}
-        <div className="h-10 w-10 overflow-hidden rounded-full border-2 border-black sm:h-12 sm:w-12">
+        <div className="h-10 w-10 overflow-hidden rounded-full   sm:h-12 sm:w-12">
           <img src={imageUrl || 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80'} alt="" className="h-full w-full object-cover" />
         </div>
       </motion.div>

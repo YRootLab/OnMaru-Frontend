@@ -48,7 +48,7 @@
   height: min(76vh, 780px);
   translate: -50% -28%;
   opacity: calc(.9 * var(--odii-bg-light) * var(--odii-bg-stage-strength));
-  border-radius: 50%;
+   50%;
   background:
     radial-gradient(ellipse at 50% 48%, rgba(var(--odii-bg-light-rgb), 1) 0 22%, rgba(var(--odii-bg-light-rgb), .74) 48%, transparent 75%),
     radial-gradient(circle at 62% 56%, rgba(var(--odii-bg-light-rgb), .32), transparent 36%);
@@ -67,7 +67,7 @@
   height: min(78vh, 840px);
   opacity: calc(.11 * var(--odii-bg-threshold) * var(--odii-bg-stage-strength));
   rotate: -4deg;
-  border-radius: 2rem;
+   2rem;
   background-image:
     repeating-linear-gradient(90deg, transparent 0 68px, rgba(var(--odii-bg-shadow-rgb), .76) 69px 73px),
     repeating-linear-gradient(0deg, transparent 0 84px, rgba(var(--odii-bg-shadow-rgb), .58) 85px 89px);
@@ -86,7 +86,7 @@
   position: absolute;
   inset: -8% auto -8% -13px;
   width: 14px;
-  border-radius: 999px;
+   999px;
   background: rgba(var(--odii-bg-shadow-rgb), .7);
 }
 
@@ -126,7 +126,7 @@
   position: absolute;
   width: clamp(48px, 6vw, 92px);
   aspect-ratio: 1;
-  border-radius: 50%;
+   50%;
   background: radial-gradient(circle, rgba(var(--odii-bg-accent-rgb), .055), rgba(var(--odii-bg-accent-rgb), .025) 38%, transparent 72%);
   filter: blur(5px);
   transition:
@@ -155,10 +155,8 @@
   top: 8%;
   width: 31vw;
   height: 72vh;
-  border: 1px solid rgba(var(--odii-bg-shadow-rgb), .05);
-  border-radius: 10px 0 0 10px;
+   10px 0 0 10px;
   background: linear-gradient(135deg, rgba(var(--odii-bg-light-rgb), .98), rgba(var(--odii-bg-light-rgb), .82));
-  box-shadow: -14px 18px 42px rgba(var(--odii-bg-shadow-rgb), .035);
   rotate: 1.4deg;
   transition:
     right 1.2s cubic-bezier(.22, 1, .36, 1),
@@ -172,9 +170,8 @@
   top: 22%;
   width: 5px;
   height: 78px;
-  border-radius: 4px;
+   4px;
   background: rgba(var(--odii-bg-accent-rgb), .065);
-  box-shadow: 0 92px 0 rgba(var(--odii-bg-accent-rgb), .05), 0 184px 0 rgba(var(--odii-bg-accent-rgb), .04);
   transition: top 1.2s cubic-bezier(.22, 1, .36, 1);
 }
 
@@ -185,7 +182,6 @@
   width: 18vw;
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(var(--odii-bg-shadow-rgb), .065));
-  box-shadow: 0 14px 0 rgba(var(--odii-bg-shadow-rgb), .022), 0 28px 0 rgba(var(--odii-bg-shadow-rgb), .018);
 }
 
 .paperSeal {
@@ -194,8 +190,7 @@
   bottom: 9%;
   width: 18px;
   height: 18px;
-  border: 1px solid rgba(var(--odii-bg-accent-rgb), .08);
-  border-radius: 3px;
+   3px;
   rotate: 4deg;
   opacity: 0;
   transition: opacity 1s ease, right 1.2s ease, bottom 1.2s ease;
@@ -350,7 +345,6 @@
 .stage[data-variant='hanji-journey'] .paperSheet {
   right: -1.5%;
   width: 38vw;
-  box-shadow: -18px 22px 52px rgba(var(--odii-bg-shadow-rgb), .04);
 }
 
 .stage[data-variant='hanji-journey'][data-stage='themes'] .paperSheet { right: 3%; top: 13%; rotate: -1deg; }
@@ -381,7 +375,7 @@
 
 .stage[data-category='hanok'] .thresholdShadow { rotate: -1deg; }
 .stage[data-category='village'] .edgeVignette { opacity: .78; }
-.stage[data-category='palace'] .thresholdShadow { border-radius: 48% 48% 12px 12px; rotate: 2deg; }
+.stage[data-category='palace'] .thresholdShadow {  48% 48% 12px 12px; rotate: 2deg; }
 .stage[data-category='nature'] .gardenShadow { opacity: calc(.105 * var(--odii-bg-garden)); }
 
 .stage[data-breathing='true'] .hospitalityLight {

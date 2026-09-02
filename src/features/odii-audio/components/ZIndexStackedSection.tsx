@@ -69,7 +69,7 @@ export const ZIndexStackedSection: React.FC<ZIndexStackedSectionProps> = ({ chap
         </div>
 
         {/* 정갈하고 절제된 에디토리얼 카드 (이미지 과다 제거, 텍스트 집중) */}
-        <div className="relative min-h-[360px] w-full overflow-hidden rounded-3xl border border-[#211e19]/10 bg-[#fbf8f2] ">
+        <div className="relative min-h-[360px] w-full overflow-hidden rounded-3xl  bg-[#fbf8f2] ">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeChapter.id}
@@ -94,7 +94,7 @@ export const ZIndexStackedSection: React.FC<ZIndexStackedSectionProps> = ({ chap
                 </div>
 
                 {/* 하단 대표 트랙 2개 */}
-                <div className="mt-6 border-t border-[#211e19]/10 pt-4">
+                <div className="mt-6   pt-4">
                   <div className="grid gap-2.5 sm:grid-cols-2">
                     {activeChapter.stories.slice(0, 2).map((story) => {
                       const isCurrent = currentStory.stid === story.stid;
@@ -103,10 +103,10 @@ export const ZIndexStackedSection: React.FC<ZIndexStackedSectionProps> = ({ chap
                         <div
                           key={story.stid}
                           onClick={() => handlePlayStory(story)}
-                          className={`group flex cursor-pointer items-center justify-between rounded-xl border p-3 transition-colors ${
+                          className={`group flex cursor-pointer items-center justify-between rounded-xl p-3 transition-colors ${
                             isCurrent
-                              ? 'border-[#a94d35] bg-[#f4ebe1] shadow-xs'
-                              : 'border-[#211e19]/10 bg-white hover:border-[#a94d35]/50'
+                              ? ' bg-[#f4ebe1] '
+                              : ' bg-white hover:'
                           }`}
                         >
                           <div className="min-w-0 pr-2">
@@ -126,7 +126,7 @@ export const ZIndexStackedSection: React.FC<ZIndexStackedSectionProps> = ({ chap
                             }}
                             className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors ${
                               isThisPlaying
-                                ? 'bg-[#a94d35] text-white shadow-xs'
+                                ? 'bg-[#a94d35] text-white '
                                 : 'bg-[#211e19] text-white hover:bg-[#a94d35]'
                             }`}
                           >

@@ -320,7 +320,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
         />
         <div className="relative z-10">
           {apiError && (
-            <div role="alert" className="fixed left-1/2 top-20 z-[60] flex w-[min(92vw,460px)] -translate-x-1/2 items-center justify-between gap-4 rounded-2xl border border-[#a94d35]/20 bg-[#fffaf3] px-4 py-3 text-sm text-[#655b4d] ">
+            <div role="alert" className="fixed left-1/2 top-20 z-[60] flex w-[min(92vw,460px)] -translate-x-1/2 items-center justify-between gap-4 rounded-2xl  bg-[#fffaf3] px-4 py-3 text-sm text-[#655b4d] ">
               <span>{apiError}</span>
               <button type="button" onClick={retryApiRequests} className="shrink-0 rounded-full bg-[#a94d35] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#8e3d2d]">
                 다시 시도
@@ -415,7 +415,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                       type="button"
                       onClick={handleLocate}
                       disabled={isLocating}
-                      className="inline-flex h-8 items-center gap-1.5 rounded-full border border-[#211e19]/12 bg-white/55 px-3 text-[11px] font-medium text-[#655b4d] shadow-xs transition-transform duration-300 hover:-translate-y-0.5 hover:border-[#211e19]/25 hover:bg-white hover:text-[#211e19] disabled:cursor-wait disabled:opacity-50"
+                      className="inline-flex h-8 items-center gap-1.5 rounded-full  bg-white/55 px-3 text-[11px] font-medium text-[#655b4d]  transition-transform duration-300 hover:-translate-y-0.5 hover: hover:bg-white hover:text-[#211e19] disabled:cursor-wait disabled:opacity-50"
                     >
                       {isLocating ? '위치 확인 중…' : '내 위치 사용'}
                       {!isLocating && <span aria-hidden="true" className="text-[13px] leading-none">›</span>}
@@ -502,7 +502,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                   )}
                 </div>
 
-                <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-[#211e19]/10 pt-4 sm:flex-row">
+                <div className="mt-8 flex flex-col items-center justify-between gap-3   pt-4 sm:flex-row">
                   <span className="text-[11px] text-[#8c7e6c]">
                     {archiveMeta.totalCount > 0 ? `${archiveMeta.totalCount.toLocaleString()}개 중 ${archiveMeta.pageNo}페이지` : '검색 결과 없음'}
                   </span>
@@ -514,7 +514,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                         setArchivePage((page) => Math.max(1, page - 1));
                       }}
                       disabled={archivePage <= 1 || isArchiveLoading}
-                      className="h-9 rounded-full border border-[#f84e76]/25 px-3 text-xs font-semibold text-[#f84e76] transition-colors hover:border-[#f84e76] hover:bg-[#fff0f5] disabled:cursor-not-allowed disabled:opacity-30"
+                      className="h-9 rounded-full  px-3 text-xs font-semibold text-[#f84e76] transition-colors hover: hover:bg-[#fff0f5] disabled:cursor-not-allowed disabled:opacity-30"
                     >
                       이전
                     </button>
@@ -526,7 +526,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                         setArchivePage((page) => Math.min(totalArchivePages, page + 1));
                       }}
                       disabled={archivePage >= totalArchivePages || isArchiveLoading}
-                      className="h-9 rounded-full border border-[#f84e76]/25 px-3 text-xs font-semibold text-[#f84e76] transition-colors hover:border-[#f84e76] hover:bg-[#fff0f5] disabled:cursor-not-allowed disabled:opacity-30"
+                      className="h-9 rounded-full  px-3 text-xs font-semibold text-[#f84e76] transition-colors hover: hover:bg-[#fff0f5] disabled:cursor-not-allowed disabled:opacity-30"
                     >
                       다음
                     </button>

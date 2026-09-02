@@ -27,13 +27,13 @@ export const ZTranslateCardStage: React.FC<ZTranslateCardStageProps> = ({ featur
   };
 
   return (
-    <section className="w-full py-16 relative overflow-hidden bg-gradient-to-b from-[#141210] via-[#1A1815] to-[#141210] text-white rounded-3xl border border-[#3A332C]  my-8">
+    <section className="w-full py-16 relative overflow-hidden bg-gradient-to-b from-[#141210] via-[#1A1815] to-[#141210] text-white rounded-3xl   my-8">
       {/* 배경 3D 빛/입자 그라데이션 */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-tr from-[#D42058]/15 via-[#F5A623]/10 to-transparent rounded-full blur-3xl pointer-events-none" />
 
       {/* 헤더 */}
       <div className="text-center relative z-20 mb-8 px-4">
-        <span className="text-[11px] font-extrabold tracking-widest text-[#F8A8C0] uppercase px-3 py-1 rounded-full bg-white/5 border border-white/10 inline-block mb-3">
+        <span className="text-[11px] font-extrabold tracking-widest text-[#F8A8C0] uppercase px-3 py-1 rounded-full bg-white/5  inline-block mb-3">
           SHOPIFY EDITIONS INSPIRED • 3D STAGE
         </span>
         <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight font-odii-sans text-white">
@@ -70,10 +70,10 @@ export const ZTranslateCardStage: React.FC<ZTranslateCardStageProps> = ({ featur
                   transform: `translateZ(${zTrans}px) rotateY(${rotY}deg) translateX(${transX}px)`,
                   zIndex: isActive ? 40 : 10 + idx,
                 }}
-                className={`absolute inset-0 rounded-3xl p-6 flex flex-col justify-between transition-all duration-700 cursor-pointer backdrop-blur-xl border border-white/15 group  ${
+                className={`absolute inset-0 rounded-3xl p-6 flex flex-col justify-between transition-all duration-700 cursor-pointer backdrop-blur-xl  group  ${
                   isActive
-                    ? 'bg-gradient-to-b from-[#2A231D]/95 to-[#1A1512]/95 ring-2 ring-[#D42058]/80 /20'
-                    : 'bg-[#1C1814]/85 hover:border-white/40 opacity-80 hover:opacity-100'
+                    ? 'bg-gradient-to-b from-[#2A231D]/95 to-[#1A1512]/95  ring-[#D42058]/80 /20'
+                    : 'bg-[#1C1814]/85 hover: opacity-80 hover:opacity-100'
                 }`}
               >
                 {/* 카드 상단 헤더 */}
@@ -87,7 +87,7 @@ export const ZTranslateCardStage: React.FC<ZTranslateCardStageProps> = ({ featur
                 </div>
 
                 {/* 중앙 썸네일 */}
-                <div className="relative w-full h-44 rounded-2xl overflow-hidden my-3 border border-white/10 group-hover:scale-105 transition-transform duration-500">
+                <div className="relative w-full h-44 rounded-2xl overflow-hidden my-3  group-hover:scale-105 transition-transform duration-500">
                   <img
                     src={story.imageUrl || 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80'}
                     alt={story.title}

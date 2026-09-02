@@ -42,7 +42,7 @@ export const OdiiArchiveMetaBar: React.FC<Props> = ({ resultCount, totalCount })
   const hasFilter = selectedCategory !== '전체' || Boolean(searchQuery);
 
   return (
-    <div className="mb-5 flex flex-col gap-3 rounded-2xl border border-[#211e19]/8 bg-white/65 p-3 sm:flex-row sm:items-center sm:justify-between sm:px-4">
+    <div className="mb-5 flex flex-col gap-3 rounded-2xl  bg-white/65 p-3 sm:flex-row sm:items-center sm:justify-between sm:px-4">
       <div className="flex min-w-0 items-center gap-2.5">
         <span className="h-2 w-2 shrink-0 rounded-full bg-[#f84e76] " />
         <span className="truncate text-xs font-semibold text-[#211e19]">{labelFor(selectedCategory)}</span>
@@ -56,7 +56,7 @@ export const OdiiArchiveMetaBar: React.FC<Props> = ({ resultCount, totalCount })
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
           placeholder="장소나 이야기 검색"
-          className="h-8 min-w-0 flex-1 rounded-lg border border-[#211e19]/10 bg-white px-2.5 text-[11px] text-[#211e19] outline-none placeholder:text-[#b0a398] focus:border-[#f84e76]/60 sm:w-44 sm:flex-none"
+          className="h-8 min-w-0 flex-1 rounded-lg  bg-white px-2.5 text-[11px] text-[#211e19] outline-none placeholder:text-[#b0a398] focus: sm:w-44 sm:flex-none"
         />
         <button type="submit" className="h-8 rounded-lg bg-[#f84e76] px-3 text-[11px] font-semibold text-white transition-colors hover:bg-[#dc4569]">검색</button>
         {hasFilter && <button type="button" onClick={reset} className="text-[11px] font-medium text-[#8c7e6c] hover:text-[#f84e76]">초기화</button>}

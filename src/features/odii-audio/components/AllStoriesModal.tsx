@@ -74,9 +74,9 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fade-in">
-      <div className="bg-[#1C1814] text-white w-full max-w-4xl max-h-[85vh] rounded-3xl border border-[#3A332C]  flex flex-col overflow-hidden">
+      <div className="bg-[#1C1814] text-white w-full max-w-4xl max-h-[85vh] rounded-3xl   flex flex-col overflow-hidden">
         {/* 모달 헤더 */}
-        <div className="flex items-center justify-between p-6 border-b border-[#3A332C]">
+        <div className="flex items-center justify-between p-6  ">
           <div>
             <span className="text-[11px] font-bold text-[#F8A8C0] uppercase tracking-wider block mb-0.5">
               COMPLETE AUDIO COLLECTION
@@ -94,7 +94,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
         </div>
 
         {/* 카테고리 필터 & 검색 */}
-        <div className="p-6 border-b border-[#3A332C] space-y-4 bg-[#141210]">
+        <div className="p-6   space-y-4 bg-[#141210]">
           {/* 카테고리 태그 칩 */}
           <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
             {MODAL_CATEGORIES.map((cat) => {
@@ -106,7 +106,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
                   className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap ${
                     isSel
                       ? 'bg-[#D42058] text-white '
-                      : 'bg-white/5 text-[#A09588] border border-white/10 hover:bg-white/10 hover:text-white'
+                      : 'bg-white/5 text-[#A09588]  hover:bg-white/10 hover:text-white'
                   }`}
                 >
                   {cat}
@@ -122,7 +122,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
               value={modalSearch}
               onChange={(e) => setModalSearch(e.target.value)}
               placeholder="이야기, 장소, 해설사 키워드로 검색"
-              className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/15 rounded-xl text-sm text-white placeholder-white/40 focus:outline-none focus:border-[#D42058]"
+              className="w-full pl-10 pr-4 py-2.5 bg-white/5  rounded-xl text-sm text-white placeholder-white/40 focus:outline-none focus:"
             />
             <span className="absolute left-3.5 top-3 text-xs text-white/50">🔍</span>
           </div>
@@ -143,17 +143,17 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
                 <div
                   key={`${story.stid}-${index}`}
                   onClick={() => handlePlayStory(story)}
-                  className={`flex items-center justify-between p-4 rounded-2xl border transition-all cursor-pointer ${
+                  className={`flex items-center justify-between p-4 rounded-2xl transition-all cursor-pointer ${
                     isCurrent
-                      ? 'bg-[#D42058]/20 border-[#D42058] text-white'
-                      : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/25 text-[#A09588]'
+                      ? 'bg-[#D42058]/20  text-white'
+                      : 'bg-white/5  hover:bg-white/10 hover: text-[#A09588]'
                   }`}
                 >
                   <div className="flex items-center space-x-4 min-w-0">
                     <img
                       src={story.imageUrl || 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80'}
                       alt={story.title}
-                      className="w-14 h-14 rounded-xl object-cover border border-white/10 flex-shrink-0"
+                      className="w-14 h-14 rounded-xl object-cover  flex-shrink-0"
                     />
                     <div className="min-w-0">
                       <div className="flex items-center space-x-2 mb-1">
