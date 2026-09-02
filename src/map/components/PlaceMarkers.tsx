@@ -11,8 +11,8 @@ const log = logger('map');
 
 const ACCENT = lightPalette.cheongrok[500];
 
-/** 반경 검색이라 원래 많이 안 오지만, '전체'는 다섯 카테고리가 겹쳐 온다. */
-const MAX_PINS = 60;
+/** 전국 조망 및 광역 탐색 시 전체 점 마커 표시 한도 */
+const MAX_PINS = 150;
 /** 이보다 축척이 커지면 이름표를 접고 점만 남긴다. */
 const LABEL_MAX_LEVEL = 6;
 
@@ -38,7 +38,7 @@ const styles = css`
   .om-pin:hover,
   .om-pin[data-hovered='true'] {
     transform: translateY(-6px) scale(1.14);
-    box-shadow: 0 6px 18px rgba(40, 110, 95, 0.35);
+    box-shadow: 0 6px 18px rgba(30, 122, 104, 0.35);
     z-index: 25 !important;
   }
 
@@ -79,7 +79,7 @@ const styles = css`
     background: ${ACCENT};
     color: #ffffff;
     transform: translateY(-6px) scale(1.15);
-    box-shadow: 0 6px 20px rgba(40, 110, 95, 0.45);
+    box-shadow: 0 6px 20px rgba(30, 122, 104, 0.45);
     z-index: 30 !important;
     opacity: 1 !important;
   }
@@ -88,7 +88,7 @@ const styles = css`
     background: ${ACCENT};
     color: #ffffff;
     transform: translateY(-8px) scale(1.22);
-    box-shadow: 0 8px 24px rgba(40, 110, 95, 0.5);
+    box-shadow: 0 8px 24px rgba(30, 122, 104, 0.5);
     z-index: 35 !important;
     opacity: 1 !important;
   }
@@ -99,29 +99,30 @@ const styles = css`
     color: ${ACCENT};
   }
 
-  /* 축척이 커지면 점만. 이름표를 다 띄우면 서로 겹쳐 아무것도 안 읽힌다. */
+  /* 축척이 커지면 점만. 전국에 수놓아진 전통 문화재 점 마커 */
   .om-dot {
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
     border: 2px solid #ffffff;
     background: ${ACCENT};
-    box-shadow: 0 1px 4px rgba(25, 31, 40, 0.3);
+    box-shadow: 0 2px 8px rgba(25, 31, 40, 0.35);
     cursor: pointer;
     transition: transform 0.15s ease, opacity 0.2s ease;
   }
 
   .om-dot:hover,
   .om-dot[data-hovered='true'] {
-    transform: scale(1.35);
+    transform: scale(1.4);
+    background: ${lightPalette.cheongrok[700]};
   }
 
   .om-dot[data-selected='true'],
   .om-dot[data-detail='true'] {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
     background: ${meok[900]};
-    transform: scale(1.25);
+    transform: scale(1.3);
     opacity: 1 !important;
   }
 `;
