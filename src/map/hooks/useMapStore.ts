@@ -2,9 +2,9 @@ import { create } from 'zustand';
 import { lightPalette } from '@/design-system/tokens';
 import type { Item, KakaoMap, LatLng, MapMode, SheetSnap, Warmth } from '../types';
 
-/** 전주 한옥마을. 데이터가 붙기 전까지의 기본 시점. */
-export const DEFAULT_CENTER: LatLng = { lat: 35.815, lng: 127.153 };
-export const DEFAULT_LEVEL = 5;
+/** 대한민국 전국 중심 시점 (특정 지역을 검색하지 않았을 때 기본 전국 조망) */
+export const DEFAULT_CENTER: LatLng = { lat: 36.35, lng: 127.75 };
+export const DEFAULT_LEVEL = 11;
 
 /** 모드별 대표색 — 토글·칩·마커·온기 blob이 같은 값을 본다. */
 export const MODE_COLOR: Record<MapMode, string> = {
@@ -74,7 +74,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   detailId: null,
   popularPanelOpen: false,
   sortOrder: 'dist',
-  currentAddress: '전북 전주시 완산구',
+  currentAddress: '대한민국 전국',
   searchCenter: DEFAULT_CENTER,
   isSearchDirty: false,
   reloadNonce: 0,

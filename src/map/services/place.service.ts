@@ -33,6 +33,15 @@ const CATEGORY_MAP: Record<
 
 export const PLACE_CATEGORIES = Object.keys(CATEGORY_MAP) as PlaceCategory[];
 
+const NATIONWIDE_HUBS = [
+  { lat: 37.58, lng: 126.98 }, // 서울·북촌·경복궁
+  { lat: 35.815, lng: 127.153 }, // 전주 한옥마을
+  { lat: 36.54, lng: 128.80 }, // 안동 하회마을·서원
+  { lat: 35.83, lng: 129.22 }, // 경주 양동마을·유적
+  { lat: 35.15, lng: 127.15 }, // 담양·순천 낙안읍성
+  { lat: 37.79, lng: 128.89 }, // 강릉 선교장·오죽헌
+];
+
 export class PlaceService {
   private static placeCache = new Map<string, CacheEntry>();
 
@@ -57,8 +66,9 @@ export class PlaceService {
     radius: number;
     category?: PlaceCategory | null;
   }): Promise<Item[]> {
-    const radius = Math.min(MAX_RADIUS, Math.max(1000, Math.round(opts.radius)));
-    const cacheKey = this.getCacheKey(opts.lat, opts.lng, radius, opts.category);
+    const isNationwide = opts.radius >= 20000;
+    const radius = isNationwide ? 15000 : Math.min(MAX_RADIUS, Math.max(1000, Math.round(opts.radius)));
+    const cacheKey = this.getCacheKey(opts.lat, opts.lng, opts.radius, opts.category);
 
     // 1. 캐시 히트 검사
     const cached = this.placeCache.get(cacheKey);
@@ -68,113 +78,91 @@ export class PlaceService {
 
     const signal = AbortSignal.timeout(10000);
     const out: Item[] = [];
+    const seen = new Set<string>();
 
-    // 2. 단일 카테고리 요청
-    if (opts.category) {
-      const config = CATEGORY_MAP[opts.category];
-      const json = await TourApiClient.get(
-        'locationBasedList2',
-        {
-          mapX: opts.lng,
-          mapY: opts.lat,
-          radius,
-          contentTypeId: config.contentTypeId,
-          arrange: 'E',
-          numOfRows: 30,
-        },
-        signal,
-      );
+    // 🌟 전국 모드(Nationwide View): 서울, 전주, 안동, 경주, 호남, 강원 등 전국 주요 권역 병렬 수집
+    const queryCenters = isNationwide
+      ? NATIONWIDE_HUBS
+      : [{ lat: opts.lat, lng: opts.lng }];
 
-      const raw = json?.response?.body?.items?.item;
-      const rows = Array.isArray(raw) ? raw : raw ? [raw] : [];
+    const contentTypes = opts.category
+      ? [CATEGORY_MAP[opts.category].contentTypeId]
+      : ['12', '14', '15', '28', '32', '38', '39'];
+
+    // 모든 타겟 중심점 및 카테고리에 대해 병렬 쿼리 수행
+    const fetchTasks: Promise<{ cType: string; rows: Record<string, unknown>[] }>[] = [];
+
+    for (const center of queryCenters) {
+      for (const cType of contentTypes) {
+        fetchTasks.push(
+          TourApiClient.get(
+            'locationBasedList2',
+            {
+              mapX: center.lng,
+              mapY: center.lat,
+              radius,
+              contentTypeId: cType,
+              arrange: 'E',
+              numOfRows: isNationwide ? 12 : 25,
+            },
+            signal,
+          )
+            .then((res) => {
+              const raw = res?.response?.body?.items?.item;
+              const rows = (Array.isArray(raw) ? raw : raw ? [raw] : []) as Record<string, unknown>[];
+              return { cType, rows };
+            })
+            .catch(() => ({ cType, rows: [] })),
+        );
+      }
+    }
+
+    const results = await Promise.allSettled(fetchTasks);
+
+    results.forEach((res) => {
+      if (res.status !== 'fulfilled' || !res.value) return;
+      const { cType, rows } = res.value;
 
       for (const row of rows) {
+        const id = String(row.contentid);
+        if (seen.has(id)) continue;
+        seen.add(id);
+
         const title = String(row.title ?? '').trim();
         const cat3 = String(row.cat3 ?? '');
-        if (!title || !config.keep(cat3, title)) continue;
-
         const y = Number(row.mapy);
         const x = Number(row.mapx);
-        if (!Number.isFinite(y) || !Number.isFinite(x)) continue;
+        if (!title || !Number.isFinite(y) || !Number.isFinite(x)) continue;
+
+        let category: PlaceCategory = 'spot';
+        if (cType === '32') category = 'stay';
+        else if (cType === '28') category = 'experience';
+        else if (cType === '14') category = 'culture';
+        else if (cType === '15') category = 'festival';
+        else if (cType === '38') category = 'market';
+        else if (cType === '39') {
+          category =
+            cat3 === 'A05020900' || /(카페|찻집|커피|다원)/.test(title)
+              ? 'cafe'
+              : 'food';
+        }
+
+        // 특정 카테고리 필터링이 있는 경우 카테고리 일치 여부 확인
+        if (opts.category && category !== opts.category) continue;
 
         out.push({
-          id: String(row.contentid),
+          id,
           name: title,
-          category: opts.category,
+          category,
           lat: y,
           lng: x,
           addr: String(row.addr1 ?? '').trim(),
-          image: toHttps(row.firstimage || row.firstimage2),
+          image: toHttps(String(row.firstimage || row.firstimage2 || '')),
           tel: row.tel ? String(row.tel).trim() : null,
           dist: row.dist !== undefined ? Number(row.dist) : null,
         });
       }
-    } else {
-      // 3. 전체 카테고리 병렬 요청 (12, 14, 15, 28, 32, 38, 39)
-      const contentTypes = ['12', '14', '15', '28', '32', '38', '39'];
-      const results = await Promise.allSettled(
-        contentTypes.map((cType) =>
-          TourApiClient.get(
-            'locationBasedList2',
-            {
-              mapX: opts.lng,
-              mapY: opts.lat,
-              radius,
-              contentTypeId: cType,
-              arrange: 'E',
-              numOfRows: 25,
-            },
-            signal,
-          ),
-        ),
-      );
-
-      const seen = new Set<string>();
-
-      results.forEach((res, idx) => {
-        if (res.status !== 'fulfilled' || !res.value) return;
-        const cType = contentTypes[idx];
-        const raw = res.value?.response?.body?.items?.item;
-        const rows = Array.isArray(raw) ? raw : raw ? [raw] : [];
-
-        for (const row of rows) {
-          const id = String(row.contentid);
-          if (seen.has(id)) continue;
-          seen.add(id);
-
-          const title = String(row.title ?? '').trim();
-          const cat3 = String(row.cat3 ?? '');
-          const y = Number(row.mapy);
-          const x = Number(row.mapx);
-          if (!title || !Number.isFinite(y) || !Number.isFinite(x)) continue;
-
-          let category: PlaceCategory = 'spot';
-          if (cType === '32') category = 'stay';
-          else if (cType === '28') category = 'experience';
-          else if (cType === '14') category = 'culture';
-          else if (cType === '15') category = 'festival';
-          else if (cType === '38') category = 'market';
-          else if (cType === '39') {
-            category =
-              cat3 === 'A05020900' || /(카페|찻집|커피|다원)/.test(title)
-                ? 'cafe'
-                : 'food';
-          }
-
-          out.push({
-            id,
-            name: title,
-            category,
-            lat: y,
-            lng: x,
-            addr: String(row.addr1 ?? '').trim(),
-            image: toHttps(row.firstimage || row.firstimage2),
-            tel: row.tel ? String(row.tel).trim() : null,
-            dist: row.dist !== undefined ? Number(row.dist) : null,
-          });
-        }
-      });
-    }
+    });
 
     // 4. 캐시 저장
     this.placeCache.set(cacheKey, {
