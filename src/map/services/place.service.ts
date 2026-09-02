@@ -424,15 +424,15 @@ export class PlaceService {
     return {
       contentId,
       contentTypeId,
-      title: '한옥 명소 상세',
-      overview: '한국의 전통미와 고즈넉한 정취를 품은 한옥 명소입니다.',
-      addr1: '대한민국 전통 한옥 명소',
+      title: '상세 정보',
+      overview: '',
+      addr1: '',
       addr2: '',
       tel: null,
       images: [],
       mapx: 0,
       mapy: 0,
-      intro: { 이용시간: '상시 개방', 문의전화: '안내소 문의' },
+      intro: {},
       homepage: null,
     };
   }
