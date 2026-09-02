@@ -80,89 +80,219 @@ export class PlaceService {
     const out: Item[] = [];
     const seen = new Set<string>();
 
-    // 🌟 전국 모드(Nationwide View): 서울, 전주, 안동, 경주, 호남, 강원 등 전국 주요 권역 병렬 수집
-    const queryCenters = isNationwide
-      ? NATIONWIDE_HUBS
-      : [{ lat: opts.lat, lng: opts.lng }];
+    // 🌟 2. 축제/야행(festival) 카테고리 요청 시: TourAPI searchFestival2 및 전국 문화재 야행 병렬 수집
+    if (opts.category === 'festival') {
+      const today = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+      const yearStart = `${new Date().getFullYear() - 1}0101`;
 
-    const contentTypes = opts.category
-      ? [CATEGORY_MAP[opts.category].contentTypeId]
-      : ['12', '14', '15', '28', '32', '38', '39'];
+      const festivalQueries = await Promise.allSettled([
+        TourApiClient.get(
+          'searchFestival2',
+          {
+            eventStartDate: yearStart,
+            arrange: 'E',
+            numOfRows: 30,
+          },
+          signal,
+        ),
+        TourApiClient.get(
+          'areaBasedList2',
+          {
+            contentTypeId: '15',
+            arrange: 'Q',
+            numOfRows: 30,
+          },
+          signal,
+        ),
+        TourApiClient.get(
+          'locationBasedList2',
+          {
+            mapX: opts.lng,
+            mapY: opts.lat,
+            radius: Math.max(15000, radius),
+            contentTypeId: '15',
+            arrange: 'E',
+            numOfRows: 25,
+          },
+          signal,
+        ),
+      ]);
 
-    // 모든 타겟 중심점 및 카테고리에 대해 병렬 쿼리 수행
-    const fetchTasks: Promise<{ cType: string; rows: Record<string, unknown>[] }>[] = [];
+      festivalQueries.forEach((res) => {
+        if (res.status !== 'fulfilled' || !res.value) return;
+        const raw = res.value?.response?.body?.items?.item;
+        const rows = (Array.isArray(raw) ? raw : raw ? [raw] : []) as Record<string, unknown>[];
 
-    for (const center of queryCenters) {
-      for (const cType of contentTypes) {
-        fetchTasks.push(
-          TourApiClient.get(
-            'locationBasedList2',
-            {
-              mapX: center.lng,
-              mapY: center.lat,
-              radius,
-              contentTypeId: cType,
-              arrange: 'E',
-              numOfRows: isNationwide ? 12 : 25,
-            },
-            signal,
-          )
-            .then((res) => {
-              const raw = res?.response?.body?.items?.item;
-              const rows = (Array.isArray(raw) ? raw : raw ? [raw] : []) as Record<string, unknown>[];
-              return { cType, rows };
-            })
-            .catch(() => ({ cType, rows: [] })),
-        );
-      }
-    }
+        for (const row of rows) {
+          const id = String(row.contentid);
+          if (seen.has(id)) continue;
+          seen.add(id);
 
-    const results = await Promise.allSettled(fetchTasks);
+          const title = String(row.title ?? '').trim();
+          const y = Number(row.mapy);
+          const x = Number(row.mapx);
+          if (!title || !Number.isFinite(y) || !Number.isFinite(x)) continue;
 
-    results.forEach((res) => {
-      if (res.status !== 'fulfilled' || !res.value) return;
-      const { cType, rows } = res.value;
-
-      for (const row of rows) {
-        const id = String(row.contentid);
-        if (seen.has(id)) continue;
-        seen.add(id);
-
-        const title = String(row.title ?? '').trim();
-        const cat3 = String(row.cat3 ?? '');
-        const y = Number(row.mapy);
-        const x = Number(row.mapx);
-        if (!title || !Number.isFinite(y) || !Number.isFinite(x)) continue;
-
-        let category: PlaceCategory = 'spot';
-        if (cType === '32') category = 'stay';
-        else if (cType === '28') category = 'experience';
-        else if (cType === '14') category = 'culture';
-        else if (cType === '15') category = 'festival';
-        else if (cType === '38') category = 'market';
-        else if (cType === '39') {
-          category =
-            cat3 === 'A05020900' || /(카페|찻집|커피|다원)/.test(title)
-              ? 'cafe'
-              : 'food';
+          out.push({
+            id,
+            name: title,
+            category: 'festival',
+            lat: y,
+            lng: x,
+            addr: String(row.addr1 ?? '').trim(),
+            image: toHttps(String(row.firstimage || row.firstimage2 || '')),
+            tel: row.tel ? String(row.tel).trim() : null,
+            dist: row.dist !== undefined ? Number(row.dist) : null,
+          });
         }
+      });
 
-        // 특정 카테고리 필터링이 있는 경우 카테고리 일치 여부 확인
-        if (opts.category && category !== opts.category) continue;
+      // 전국 대표 문화재 야행 및 고택 축제 보장 리스트 병합
+      const DEFAULT_FESTIVALS = [
+        {
+          id: '2941014',
+          name: '2026 전주 한옥마을 문화재 야행',
+          category: 'festival' as PlaceCategory,
+          lat: 35.815,
+          lng: 127.153,
+          addr: '전북 전주시 완산구 태조로 44',
+          image: 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80',
+          tel: '063-281-2114',
+        },
+        {
+          id: '2684898',
+          name: '경복궁 별빛야행 & 달빛기행',
+          category: 'festival' as PlaceCategory,
+          lat: 37.58,
+          lng: 126.98,
+          addr: '서울 종로구 사직로 161 경복궁 일원',
+          image: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=800&q=80',
+          tel: '02-3700-3900',
+        },
+        {
+          id: '139433',
+          name: '안동 하회마을 선유줄불놀이',
+          category: 'festival' as PlaceCategory,
+          lat: 36.54,
+          lng: 128.80,
+          addr: '경북 안동시 풍천면 하회리 만송정 일원',
+          image: 'https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=800&q=80',
+          tel: '054-853-0103',
+        },
+        {
+          id: '141364',
+          name: '수원화성 문화제 & 미디어아트',
+          category: 'festival' as PlaceCategory,
+          lat: 37.287,
+          lng: 127.015,
+          addr: '경기 수원시 팔달구 정조로 825',
+          image: 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80',
+          tel: '031-290-3600',
+        },
+        {
+          id: '1038753',
+          name: '남산골 한옥마을 전통세시풍속 축제',
+          category: 'festival' as PlaceCategory,
+          lat: 37.559,
+          lng: 126.994,
+          addr: '서울 중구 퇴계로34길 28',
+          image: 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80',
+          tel: '02-2261-0517',
+        },
+      ];
 
-        out.push({
-          id,
-          name: title,
-          category,
-          lat: y,
-          lng: x,
-          addr: String(row.addr1 ?? '').trim(),
-          image: toHttps(String(row.firstimage || row.firstimage2 || '')),
-          tel: row.tel ? String(row.tel).trim() : null,
-          dist: row.dist !== undefined ? Number(row.dist) : null,
-        });
+      for (const fes of DEFAULT_FESTIVALS) {
+        if (!seen.has(fes.id)) {
+          seen.add(fes.id);
+          const dLat = (fes.lat - opts.lat) * 111000;
+          const dLng = (fes.lng - opts.lng) * 88800;
+          const dist = Math.round(Math.sqrt(dLat * dLat + dLng * dLng));
+          out.push({ ...fes, dist });
+        }
       }
-    });
+    } else {
+      // 🌟 일반/전체 카테고리 요청
+      const queryCenters = isNationwide
+        ? NATIONWIDE_HUBS
+        : [{ lat: opts.lat, lng: opts.lng }];
+
+      const contentTypes = opts.category
+        ? [CATEGORY_MAP[opts.category].contentTypeId]
+        : ['12', '14', '15', '28', '32', '38', '39'];
+
+      const fetchTasks: Promise<{ cType: string; rows: Record<string, unknown>[] }>[] = [];
+
+      for (const center of queryCenters) {
+        for (const cType of contentTypes) {
+          fetchTasks.push(
+            TourApiClient.get(
+              'locationBasedList2',
+              {
+                mapX: center.lng,
+                mapY: center.lat,
+                radius,
+                contentTypeId: cType,
+                arrange: 'E',
+                numOfRows: isNationwide ? 12 : 25,
+              },
+              signal,
+            )
+              .then((res) => {
+                const raw = res?.response?.body?.items?.item;
+                const rows = (Array.isArray(raw) ? raw : raw ? [raw] : []) as Record<string, unknown>[];
+                return { cType, rows };
+              })
+              .catch(() => ({ cType, rows: [] })),
+          );
+        }
+      }
+
+      const results = await Promise.allSettled(fetchTasks);
+
+      results.forEach((res) => {
+        if (res.status !== 'fulfilled' || !res.value) return;
+        const { cType, rows } = res.value;
+
+        for (const row of rows) {
+          const id = String(row.contentid);
+          if (seen.has(id)) continue;
+          seen.add(id);
+
+          const title = String(row.title ?? '').trim();
+          const cat3 = String(row.cat3 ?? '');
+          const y = Number(row.mapy);
+          const x = Number(row.mapx);
+          if (!title || !Number.isFinite(y) || !Number.isFinite(x)) continue;
+
+          let category: PlaceCategory = 'spot';
+          if (cType === '32') category = 'stay';
+          else if (cType === '28') category = 'experience';
+          else if (cType === '14') category = 'culture';
+          else if (cType === '15') category = 'festival';
+          else if (cType === '38') category = 'market';
+          else if (cType === '39') {
+            category =
+              cat3 === 'A05020900' || /(카페|찻집|커피|다원)/.test(title)
+                ? 'cafe'
+                : 'food';
+          }
+
+          if (opts.category && category !== opts.category) continue;
+
+          out.push({
+            id,
+            name: title,
+            category,
+            lat: y,
+            lng: x,
+            addr: String(row.addr1 ?? '').trim(),
+            image: toHttps(String(row.firstimage || row.firstimage2 || '')),
+            tel: row.tel ? String(row.tel).trim() : null,
+            dist: row.dist !== undefined ? Number(row.dist) : null,
+          });
+        }
+      });
+    }
 
     // 4. 캐시 저장
     this.placeCache.set(cacheKey, {
