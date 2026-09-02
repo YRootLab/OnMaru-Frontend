@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { STAGES } from '../data/hanok.data';
+import { STAGES } from '@/temp/archive/hanok-viewer/data/hanok.data';
 
 export interface HanokViewerState {
   activeSectionId: string;

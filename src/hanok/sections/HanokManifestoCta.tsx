@@ -41,7 +41,6 @@ const InlineIcon = styled.span`
   height: clamp(34px, 4.2vw, 48px);
   border-radius: 50%;
   background: rgba(78, 89, 104, 0.06);
-  border: 1px solid rgba(0, 0, 0, 0.08);
   color: ${lightPalette.kobalt[500]};
   margin: 0 6px;
   vertical-align: middle;
@@ -79,8 +78,6 @@ const CtaButton = styled(Link, {
   background: ${({ $primary }) =>
     $primary ? lightPalette.kobalt[500] : 'rgba(255, 255, 255, 0.9)'};
   color: ${({ $primary }) => ($primary ? '#ffffff' : meok[900])};
-  border: 1px solid
-    ${({ $primary }) => ($primary ? lightPalette.kobalt[500] : 'rgba(0, 0, 0, 0.12)')};
   font-size: 14.5px;
   font-weight: 700;
   padding: 14px 28px;

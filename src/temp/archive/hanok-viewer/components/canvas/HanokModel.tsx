@@ -4,8 +4,8 @@ import React, { useMemo, useRef, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
-import { STAGES } from '../../data/hanok.data';
-import { useHanokViewerStore } from '../../store/useHanokViewerStore';
+import { STAGES } from '@/temp/archive/hanok-viewer/data/hanok.data';
+import { useHanokViewerStore } from '@/temp/archive/hanok-viewer/store/useHanokViewerStore';
 
 const MODEL_URL = '/anchae.glb';
 

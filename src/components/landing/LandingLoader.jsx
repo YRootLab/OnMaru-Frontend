@@ -61,7 +61,7 @@ const ProgressBar = styled.div`
     ${lightPalette.juhong[500]} 50%,
     ${lightPalette.hwanggeum[500]} 100%
   );
-  box-shadow: 0 0 12px ${lightPalette.juhong[400]};
+
   transition: width 0.3s ease-out;
 `;
 

@@ -22,7 +22,6 @@ const Section = styled.section``;
 const MapLoadingState = styled.div`
   min-height: 580px;
   background: rgba(247, 241, 230, 0.5);
-  border: 1px solid rgba(78, 89, 104, 0.12);
   border-radius: 28px;
   display: grid;
   place-items: center;
@@ -35,7 +34,6 @@ const MapWrapper = styled.div`
   height: 580px;
   border-radius: 28px;
   overflow: hidden;
-  box-shadow: none;
 `;
 
 interface HanokMapProps {

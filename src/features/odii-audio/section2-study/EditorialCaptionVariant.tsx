@@ -13,13 +13,13 @@ export function EditorialCaptionVariant({ stories, selectedStoryId, onSelectStor
       <StudyRail className="gap-6 sm:gap-8">
         {stories.map((story) => (
           <MotionStudyCard key={story.id} className="group w-[206px] shrink-0 sm:w-[244px]">
-            <div className="relative h-[244px] overflow-hidden rounded-[16px] border border-white/60 bg-[#ddd2c5] shadow-[0_17px_36px_rgba(33,30,25,0.13)] sm:h-[286px] sm:rounded-[20px]">
+            <div className="relative h-[244px] overflow-hidden rounded-[16px] border border-white/60 bg-[#ddd2c5]  sm:h-[286px] sm:rounded-[20px]">
               <StudyImage
                 story={story}
                 sizes="(max-width: 640px) 206px, 244px"
                 className="transition-transform duration-700 [@media(hover:hover)_and_(pointer:fine)]:group-hover:scale-[1.035] motion-reduce:transition-none"
               />
-              <span className="absolute left-3 top-3 rounded-full bg-[#fffdf9]/90 px-2.5 py-1 text-[9px] font-bold text-[#d94068] shadow-sm backdrop-blur-sm">
+              <span className="absolute left-3 top-3 rounded-full bg-[#fffdf9]/90 px-2.5 py-1 text-[9px] font-bold text-[#d94068]  backdrop-blur-sm">
                 {story.category}
               </span>
               <div className="absolute bottom-3 right-3">

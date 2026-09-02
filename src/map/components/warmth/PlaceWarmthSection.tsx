@@ -4,10 +4,10 @@ import React, { useState, useMemo } from 'react';
 import styled from '@emotion/styled';
 import { Flame, Leaf, Users, Plus, MessageCircleHeart } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
-import { useMapStore } from '../../hooks/useMapStore';
+import { useMapStore } from '@/map/hooks/useMapStore';
 import WriteWarmthModal from './WriteWarmthModal';
 import MoodSelector from './MoodSelector';
-import type { Warmth } from '../../types';
+import type { Warmth } from '@/map/types';
 
 interface PlaceWarmthSectionProps {
   placeId: string;
@@ -63,7 +63,7 @@ const WriteButton = styled.button`
   gap: 4px;
   height: 30px;
   padding: 0 10px;
-  border: 1px solid ${lightPalette.juhong[200]};
+
   border-radius: 9999px;
   background: ${lightPalette.juhong[50]};
   color: ${lightPalette.juhong[700]};
@@ -94,13 +94,12 @@ const WarmthCard = styled.div`
   padding: 14px 16px;
   border-radius: 18px;
   background: #ffffff;
-  border: 1px solid rgba(78, 89, 104, 0.08);
-  box-shadow: 0 2px 8px rgba(25, 31, 40, 0.04);
+
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 
   &:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 14px rgba(25, 31, 40, 0.08);
+
   }
 `;
 
@@ -186,7 +185,7 @@ const EmptyBox = styled.div`
   padding: 24px 16px;
   border-radius: 16px;
   background: #fafafa;
-  border: 1px dashed ${meok[200]};
+
   text-align: center;
 `;
 
@@ -221,7 +220,7 @@ const EmptyActionBtn = styled.button`
   gap: 5px;
   height: 32px;
   padding: 0 14px;
-  border: none;
+
   border-radius: 9999px;
   background: ${lightPalette.juhong[500]};
   color: #ffffff;
@@ -229,7 +228,7 @@ const EmptyActionBtn = styled.button`
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(232, 90, 24, 0.3);
+
   transition: background 0.15s ease;
 
   &:hover {

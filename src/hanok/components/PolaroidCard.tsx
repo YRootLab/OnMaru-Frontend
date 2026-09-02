@@ -24,10 +24,7 @@ const Wrapper = styled(motion.article, transientProps)<{ $rotate: number }>`
 const Frame = styled.div`
   background: #ffffff;
   padding: 12px 12px 60px;
-  box-shadow:
-    0 4px 16px rgba(25, 31, 40, 0.10),
-    0 1px 4px rgba(25, 31, 40, 0.06),
-    0 12px 40px rgba(25, 31, 40, 0.08);
+
   border-radius: 2px;
   position: relative;
   overflow: visible;

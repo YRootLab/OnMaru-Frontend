@@ -12,8 +12,7 @@ const HeroContainer = styled.section`
   width: 100%;
   border-radius: 28px;
   overflow: hidden;
-  box-shadow: 0 16px 40px rgba(25, 31, 40, 0.08);
-  border: 1px solid rgba(78, 89, 104, 0.10);
+
   background: #191f28;
   color: #ffffff;
   margin-bottom: 56px;
@@ -61,7 +60,7 @@ const EyebrowBadge = styled.div`
   font-size: 12px;
   font-weight: 600;
   color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+
   margin-bottom: 16px;
   width: fit-content;
 
@@ -112,7 +111,7 @@ const Dot = styled.button<{ $active: boolean }>`
   border-radius: 9999px;
   background: ${({ $active }) =>
     $active ? lightPalette.kobalt[400] : 'rgba(255, 255, 255, 0.35)'};
-  border: none;
+
   cursor: pointer;
   transition: all 0.3s ease;
 `;
@@ -127,7 +126,7 @@ const DetailBtn = styled.button`
   font-weight: 600;
   padding: 10px 22px;
   border-radius: 9999px;
-  border: none;
+
   cursor: pointer;
   transition: transform 0.18s ease, background 0.18s ease;
 

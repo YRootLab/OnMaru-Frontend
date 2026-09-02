@@ -3,8 +3,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Heart, Play, Pause } from 'lucide-react';
-import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
-import { OdiiStoryItem } from '../types/odii.types';
+import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
+import { OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
 
 interface OdiiStoryCardGridProps {
   stories: OdiiStoryItem[];
@@ -79,7 +79,7 @@ export const OdiiStoryCardGrid: React.FC<OdiiStoryCardGridProps> = ({
                 layout
                 whileHover={{ y: -5 }}
                 transition={{ duration: 0.25 }}
-                className={`group flex min-h-[116px] items-center gap-3 rounded-2xl border p-2.5 transition-shadow duration-300 ${isCurrent ? 'border-[#f84e76]/45 bg-[#fff0f5] shadow-[0_12px_26px_rgba(248,78,118,0.12)]' : 'border-[#211e19]/8 bg-white/75 hover:border-[#f84e76]/25 hover:shadow-[0_12px_26px_rgba(248,78,118,0.08)]'}`}
+                className={`group flex min-h-[116px] items-center gap-3 rounded-2xl border p-2.5 transition-shadow duration-300 ${isCurrent ? 'border-[#f84e76]/45 bg-[#fff0f5] ' : 'border-[#211e19]/8 bg-white/75 hover:border-[#f84e76]/25 hover:'}`}
               >
                 <div className="relative h-[88px] w-[92px] shrink-0 overflow-hidden rounded-xl bg-[#f3eee8]">
                   <img
@@ -99,7 +99,7 @@ export const OdiiStoryCardGrid: React.FC<OdiiStoryCardGridProps> = ({
                     type="button"
                     onClick={() => handlePlay(story)}
                     aria-label={`${story.title} ${isCurrent && isPlaying ? '일시정지' : '재생'}`}
-                    className={`absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center rounded-full shadow-lg transition-transform duration-300 group-hover:scale-105 ${isCurrent ? 'bg-[#f84e76] text-white' : 'bg-white/95 text-[#f84e76]'}`}
+                    className={`absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center rounded-full  transition-transform duration-300 group-hover:scale-105 ${isCurrent ? 'bg-[#f84e76] text-white' : 'bg-white/95 text-[#f84e76]'}`}
                   >
                     {isCurrent && isPlaying ? (
                       <Pause size={12} fill="currentColor" />

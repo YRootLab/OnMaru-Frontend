@@ -1,7 +1,7 @@
 import { create } from 'zustand';
-import { OdiiStoryItem, ScriptLine } from '../types/odii.types';
-import { parseScriptToLines } from '../utils/scriptParser';
-import { odiiApiAdapter } from '../api/odiiApi';
+import { OdiiStoryItem, ScriptLine } from '@/features/odii-audio/types/odii.types';
+import { parseScriptToLines } from '@/features/odii-audio/utils/scriptParser';
+import { odiiApiAdapter } from '@/features/odii-audio/api/odiiApi';
 
 interface OdiiAudioState {
   currentStory: OdiiStoryItem;

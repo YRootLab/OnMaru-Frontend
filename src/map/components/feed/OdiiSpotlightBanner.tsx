@@ -7,7 +7,7 @@ import { lightPalette, meok } from '@/design-system/tokens';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { useCinematicTourStore } from '@/features/cinematic-tour/store/useCinematicTourStore';
 import { generateDynamicWaypoints } from '@/features/odii-audio/hooks/useOdiiPlaceStory';
-import { useMapStore } from '../../hooks/useMapStore';
+import { useMapStore } from '@/map/hooks/useMapStore';
 
 const CardContainer = styled.div`
   position: relative;
@@ -15,14 +15,13 @@ const CardContainer = styled.div`
   padding: 14px 16px;
   border-radius: 18px;
   background: linear-gradient(135deg, #fff5f8 0%, #ffffff 100%);
-  border: 1px solid rgba(212, 32, 88, 0.18);
-  box-shadow: 0 4px 16px rgba(212, 32, 88, 0.08);
+
   overflow: hidden;
   transition: transform 0.18s ease, box-shadow 0.18s ease;
 
   &:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(212, 32, 88, 0.12);
+
   }
 `;
 
@@ -56,7 +55,7 @@ const Badge = styled.div`
   font-weight: 800;
   color: ${lightPalette.jangmi[500]};
   background: ${lightPalette.jangmi[50]};
-  border: 1px solid rgba(212, 32, 88, 0.2);
+
 `;
 
 const DurationText = styled.span`
@@ -109,7 +108,7 @@ const StartBtn = styled.button`
   height: 32px;
   padding: 0 14px;
   border-radius: 9999px;
-  border: none;
+
   background: ${lightPalette.jangmi[500]};
   color: #ffffff;
   font-family: inherit;
@@ -117,12 +116,11 @@ const StartBtn = styled.button`
   font-weight: 700;
   cursor: pointer;
   transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 2px 8px rgba(212, 32, 88, 0.3);
 
   &:hover {
     background: ${lightPalette.jangmi[400]};
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(212, 32, 88, 0.4);
+
   }
 
   &:active {

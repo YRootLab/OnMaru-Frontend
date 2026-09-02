@@ -1,4 +1,4 @@
-import { ScriptLine } from '../types/odii.types';
+import { ScriptLine } from '@/features/odii-audio/types/odii.types';
 
 export function parseScriptToLines(script: string, totalPlayTimeSec: number): ScriptLine[] {
   const rawLines = (script || '').split('\n').filter((l) => l.trim().length > 0);

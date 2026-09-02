@@ -21,7 +21,7 @@ const TagBadge = styled.span`
   font-weight: 600;
   padding: 3.5px 9px;
   border-radius: 9999px;
-  border: none;
+
   white-space: nowrap;
   background: ${lightPalette.juhong[50]};
   color: ${lightPalette.juhong[700]};

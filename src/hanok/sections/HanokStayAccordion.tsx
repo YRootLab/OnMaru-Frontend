@@ -33,8 +33,7 @@ const RegionFilterBar = styled.div`
 `;
 
 const RegionFilterChip = styled.button<{ $active: boolean }>`
-  border: 1px solid
-    ${({ $active }) => ($active ? lightPalette.kobalt[500] : 'rgba(78, 89, 104, 0.12)')};
+
   background: ${({ $active }) =>
     $active ? lightPalette.kobalt[500] : '#ffffff'};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[900])};
@@ -81,7 +80,7 @@ const AccordionPill = styled(motion.div, transientProps)<{ $active: boolean }>`
   border-radius: ${({ $active }) => ($active ? '32px' : '9999px')};
   overflow: hidden;
   cursor: pointer;
-  border: 1px solid rgba(255, 255, 255, 0.5);
+
   background-color: ${meok[900]};
   user-select: none;
   flex-shrink: 0;
@@ -176,7 +175,7 @@ const StayTag = styled.span`
   backdrop-filter: blur(8px);
   padding: 3px 10px;
   border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+
 `;
 
 const LiveAvailableTag = styled.span`
@@ -184,7 +183,7 @@ const LiveAvailableTag = styled.span`
   font-weight: 700;
   color: #10b981;
   background: rgba(16, 185, 129, 0.18);
-  border: 1px solid rgba(16, 185, 129, 0.4);
+
   padding: 3px 10px;
   border-radius: 9999px;
   display: inline-flex;
@@ -246,7 +245,6 @@ const DirectBookingBtn = styled.a`
   gap: 4px;
   white-space: nowrap;
   transition: transform 0.18s ease, opacity 0.18s ease;
-  box-shadow: 0 4px 14px rgba(43, 92, 230, 0.35);
 
   &:hover {
     opacity: 0.95;
@@ -255,7 +253,7 @@ const DirectBookingBtn = styled.a`
 `;
 
 const DetailActionBtn = styled.button`
-  border: 1px solid rgba(255, 255, 255, 0.45);
+
   background: rgba(255, 255, 255, 0.18);
   backdrop-filter: blur(10px);
   color: #ffffff;
@@ -297,7 +295,7 @@ const BatchInfo = styled.span`
 `;
 
 const RefreshBtn = styled.button`
-  border: 1px solid rgba(78, 89, 104, 0.14);
+
   background: #ffffff;
   color: ${meok[900]};
   font-size: 13px;
@@ -319,7 +317,7 @@ const RefreshBtn = styled.button`
 const EmptyState = styled.div`
   min-height: 240px;
   background: rgba(78, 89, 104, 0.03);
-  border: 1px dashed rgba(78, 89, 104, 0.14);
+
   border-radius: 24px;
   display: grid;
   place-items: center;

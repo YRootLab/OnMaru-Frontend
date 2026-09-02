@@ -4,8 +4,8 @@ import React, { useEffect, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import type { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
-import { STAGES } from '../../data/hanok.data';
-import { useHanokViewerStore } from '../../store/useHanokViewerStore';
+import { STAGES } from '@/temp/archive/hanok-viewer/data/hanok.data';
+import { useHanokViewerStore } from '@/temp/archive/hanok-viewer/store/useHanokViewerStore';
 
 const STAGE_POS = STAGES.map((s) => new THREE.Vector3(...s.cameraPos));
 const STAGE_TARGET = STAGES.map((s) => new THREE.Vector3(...s.cameraTarget));

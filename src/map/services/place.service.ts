@@ -1,6 +1,6 @@
 import { TourApiClient } from '@/lib/tour-api/tourApiClient';
-import type { Item, PlaceCategory, PlaceDetailData } from '../types';
-import { sanitizeHtml, toHttps } from '../utils/formatters';
+import type { Item, PlaceCategory, PlaceDetailData } from '@/map/types';
+import { sanitizeHtml, toHttps } from '@/map/utils/formatters';
 
 const MAX_RADIUS = 20000;
 const CACHE_TTL = 10 * 60 * 1000; // 10분

@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
-import { STAGES } from '../../data/hanok.data';
-import { useHanokViewerStore } from '../../store/useHanokViewerStore';
+import { STAGES } from '@/temp/archive/hanok-viewer/data/hanok.data';
+import { useHanokViewerStore } from '@/temp/archive/hanok-viewer/store/useHanokViewerStore';
 
 const DevContainer = styled.div`
   position: fixed;
@@ -11,7 +11,6 @@ const DevContainer = styled.div`
   right: 16px;
   z-index: 9999;
   background: rgba(28, 26, 23, 0.95);
-  border: 1px solid rgba(212, 175, 55, 0.4);
   backdrop-filter: blur(14px);
   border-radius: 14px;
   padding: 16px;
@@ -19,7 +18,6 @@ const DevContainer = styled.div`
   color: #e0e6ed;
   font-family: monospace;
   font-size: 12px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
   user-select: none;
   max-height: 90vh;
   overflow-y: auto;
@@ -48,7 +46,6 @@ const TitleBar = styled.div`
 const ToggleButton = styled.button<{ active: boolean }>`
   background: ${(props) => (props.active ? '#d4af37' : 'rgba(255,255,255,0.12)')};
   color: ${(props) => (props.active ? '#000' : '#fff')};
-  border: none;
   border-radius: 6px;
   padding: 4px 10px;
   font-size: 11px;
@@ -84,7 +81,6 @@ const StageGrid = styled.div`
 const StageBtn = styled.button<{ isActive: boolean }>`
   background: ${(props) => (props.isActive ? '#d4af37' : 'rgba(255, 255, 255, 0.08)')};
   color: ${(props) => (props.isActive ? '#000' : '#ddd')};
-  border: 1px solid ${(props) => (props.isActive ? '#d4af37' : 'rgba(255, 255, 255, 0.15)')};
   border-radius: 6px;
   padding: 6px 0;
   font-size: 11px;

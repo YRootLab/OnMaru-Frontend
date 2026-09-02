@@ -1,4 +1,4 @@
-import type { KakaoMap } from '../types';
+import type { KakaoMap } from '@/map/types';
 
 export interface OverlaySpec {
   lat: number;

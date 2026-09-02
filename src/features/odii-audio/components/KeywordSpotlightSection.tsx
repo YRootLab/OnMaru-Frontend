@@ -3,10 +3,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion, Variants } from 'framer-motion';
 import { Heart } from 'lucide-react';
-import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
-import { OdiiStoryItem, IOdiiApiService } from '../types/odii.types';
-import { ODII_THEME_CATEGORIES } from '../data/odiiCategoryData';
-import { useOdiiApiService } from '../context/OdiiDependencyContext';
+import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
+import { OdiiStoryItem, IOdiiApiService } from '@/features/odii-audio/types/odii.types';
+import { ODII_THEME_CATEGORIES } from '@/features/odii-audio/data/odiiCategoryData';
+import { useOdiiApiService } from '@/features/odii-audio/context/OdiiDependencyContext';
 
 interface KeywordSpotlightSectionProps {
   onBookmarkStory?: (story: OdiiStoryItem) => void;

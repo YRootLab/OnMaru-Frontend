@@ -4,8 +4,8 @@ import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { X, Flame, Landmark, ChevronRight } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
-import { useMapStore } from '../../hooks/useMapStore';
-import type { RankedPlace } from '../../types';
+import { useMapStore } from '@/map/hooks/useMapStore';
+import type { RankedPlace } from '@/map/types';
 
 const REGIONS = [
   { id: 'all', label: '전국' },
@@ -47,7 +47,7 @@ const CloseBtn = styled.button`
   justify-content: center;
   width: 32px;
   height: 32px;
-  border: none;
+
   border-radius: 50%;
   background: rgba(25, 31, 40, 0.04);
   color: ${meok[700]};
@@ -86,7 +86,7 @@ const RegionScroller = styled.div`
 const RegionChip = styled.button<{ $active: boolean }>`
   flex: none;
   padding: 6px 13px;
-  border: none;
+
   border-radius: 9999px;
   background: ${({ $active }) =>
     $active ? meok[900] : 'rgba(78, 89, 104, 0.07)'};

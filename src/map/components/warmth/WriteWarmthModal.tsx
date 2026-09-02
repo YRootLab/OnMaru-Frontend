@@ -4,8 +4,8 @@ import React, { useState, useMemo } from 'react';
 import styled from '@emotion/styled';
 import { X, Flame, Users, Leaf, Check, MapPin, Search } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
-import { addWarmth, loadWarmth } from '../../warmth/warmthRepo';
-import { useMapStore } from '../../hooks/useMapStore';
+import { addWarmth, loadWarmth } from '@/map/warmth/warmthRepo';
+import { useMapStore } from '@/map/hooks/useMapStore';
 import MoodSelector, { type MoodValue } from './MoodSelector';
 
 interface WriteWarmthModalProps {
@@ -67,8 +67,7 @@ const ModalCard = styled.div<{ $open: boolean }>`
   padding: 24px;
   border-radius: 24px;
   background: #ffffff;
-  border: none;
-  box-shadow: none;
+
   transform: ${({ $open }) => ($open ? 'scale(1) translateY(0)' : 'scale(0.95) translateY(12px)')};
   transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
 `;
@@ -96,8 +95,7 @@ const CloseBtn = styled.button`
   justify-content: center;
   width: 32px;
   height: 32px;
-  border: none;
-  box-shadow: none;
+
   border-radius: 50%;
   background: #f2f4f6;
   color: ${meok[700]};
@@ -139,8 +137,7 @@ const RegionChip = styled.button<{ $active: boolean }>`
   height: 32px;
   padding: 0 12px;
   border-radius: 9999px;
-  border: none;
-  box-shadow: none;
+
   font-family: inherit;
   font-size: 12.5px;
   font-weight: 600;
@@ -176,8 +173,7 @@ const PlaceInput = styled.input`
   height: 42px;
   padding: 0 14px 0 38px;
   border-radius: 12px;
-  border: none;
-  box-shadow: none;
+
   background: #f2f4f6;
   color: ${meok[900]};
   font-family: inherit;
@@ -202,8 +198,7 @@ const PlaceDropdown = styled.div`
   overflow-y: auto;
   border-radius: 12px;
   background: #fafbfc;
-  border: none;
-  box-shadow: none;
+
   padding: 4px;
 `;
 
@@ -214,8 +209,7 @@ const PlaceOption = styled.button`
   width: 100%;
   padding: 8px 10px;
   border-radius: 8px;
-  border: none;
-  box-shadow: none;
+
   background: transparent;
   color: ${meok[900]};
   font-family: inherit;
@@ -251,8 +245,7 @@ const MoodButton = styled.button<{ $active: boolean }>`
   gap: 8px;
   height: 42px;
   border-radius: 14px;
-  border: none;
-  box-shadow: none;
+
   background: ${({ $active }) => ($active ? lightPalette.juhong[500] : '#f2f4f6')};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
   font-size: 13.5px;
@@ -275,8 +268,7 @@ const TagWrap = styled.div`
 const TagChip = styled.button<{ $selected: boolean }>`
   padding: 6px 12px;
   border-radius: 9999px;
-  border: none;
-  box-shadow: none;
+
   background: ${({ $selected }) => ($selected ? lightPalette.juhong[500] : '#f2f4f6')};
   color: ${({ $selected }) => ($selected ? '#ffffff' : meok[700])};
   font-size: 12.5px;
@@ -295,8 +287,7 @@ const TextArea = styled.textarea`
   height: 84px;
   padding: 12px 14px;
   border-radius: 14px;
-  border: none;
-  box-shadow: none;
+
   background: #f2f4f6;
   color: ${meok[900]};
   font-family: inherit;
@@ -330,8 +321,7 @@ const SubmitBtn = styled.button`
   width: 100%;
   height: 48px;
   margin-top: 8px;
-  border: none;
-  box-shadow: none;
+
   border-radius: 14px;
   background: ${lightPalette.juhong[500]};
   color: #ffffff;

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { OdiiStoryItem, TourWaypoint } from '../types/odii.types';
-import { odiiApiAdapter } from '../api/odiiApi';
-import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
+import { OdiiStoryItem, TourWaypoint } from '@/features/odii-audio/types/odii.types';
+import { odiiApiAdapter } from '@/features/odii-audio/api/odiiApi';
+import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 
 /**
  * 장소 객체와 Odii 스토리 목록 간의 100% 정밀 1:1 매칭 함수 (단일 진실 공급원 SSOT)

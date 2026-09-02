@@ -18,8 +18,8 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { meok } from '@/design-system/tokens';
-import { MODE_COLOR, useMapStore } from '../hooks/useMapStore';
-import type { MapMode } from '../types';
+import { MODE_COLOR, useMapStore } from '@/map/hooks/useMapStore';
+import type { MapMode } from '@/map/types';
 
 const CATEGORIES: Record<MapMode, { id: string; label: string; icon: LucideIcon }[]> = {
   info: [
@@ -60,14 +60,11 @@ const Chip = styled.button<{ $active: boolean; $color: string }>`
   gap: 6px;
   height: 38px;
   padding: 0 16px;
-  border: 1px solid ${({ $active }) => ($active ? 'transparent' : 'rgba(78, 89, 104, 0.12)')};
+
   border-radius: 9999px;
   background: ${({ $active, $color }) => ($active ? $color : 'rgba(255, 255, 255, 0.92)')};
   backdrop-filter: blur(16px);
-  box-shadow: ${({ $active }) =>
-    $active
-      ? '0 4px 14px rgba(40, 110, 95, 0.3)'
-      : '0 2px 8px rgba(25, 31, 40, 0.08)'};
+
   color: ${({ $active }) => ($active ? '#FFFFFF' : meok[700])};
   font-family: inherit;
   font-size: 13.5px;
@@ -78,7 +75,7 @@ const Chip = styled.button<{ $active: boolean; $color: string }>`
 
   &:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(25, 31, 40, 0.12);
+
     color: ${({ $active }) => ($active ? '#FFFFFF' : meok[900])};
   }
 

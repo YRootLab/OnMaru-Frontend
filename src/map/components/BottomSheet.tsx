@@ -4,8 +4,8 @@ import { useRef, useState } from 'react';
 import styled from '@emotion/styled';
 import { AnimatePresence, motion } from 'framer-motion';
 import { meok } from '@/design-system/tokens';
-import { useMapStore } from '../hooks/useMapStore';
-import type { SheetSnap } from '../types';
+import { useMapStore } from '@/map/hooks/useMapStore';
+import type { SheetSnap } from '@/map/types';
 import CategoryChips from './CategoryChips';
 import PlaceDetail from './PlaceDetail';
 import PlaceList from './PlaceList';
@@ -31,7 +31,7 @@ const Sheet = styled.div<{ $height: string; $dragging: boolean }>`
   height: ${({ $height }) => $height};
   border-radius: 28px 28px 0 0;
   background: #ffffff;
-  box-shadow: 0 -8px 32px rgba(25, 31, 40, 0.16);
+
   transition: ${({ $dragging }) => ($dragging ? 'none' : `height 0.4s ${SPRING}`)};
   overflow: hidden;
 
@@ -99,14 +99,14 @@ const OpenList = styled.button`
   height: 40px;
   padding: 0 18px;
   transform: translateX(-50%);
-  border: none;
+
   border-radius: 9999px;
   background: ${meok[900]};
   color: #ffffff;
   font-family: inherit;
   font-size: 14px;
   font-weight: 600;
-  box-shadow: 0 4px 16px rgba(25, 31, 40, 0.2);
+
   cursor: pointer;
 
   @media (min-width: 1024px) {

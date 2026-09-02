@@ -3,7 +3,7 @@
 import React, { useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 import gsap from 'gsap';
-import { useHanokViewerStore } from '../../store/useHanokViewerStore';
+import { useHanokViewerStore } from '@/temp/archive/hanok-viewer/store/useHanokViewerStore';
 
 // ─────────────────────────────────────────
 // Styled Components

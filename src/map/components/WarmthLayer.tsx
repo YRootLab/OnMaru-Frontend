@@ -9,10 +9,10 @@ import {
   surface,
 } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
-import { paintOverlays, type OverlaySpec } from '../hooks/overlay';
-import { useMapStore } from '../hooks/useMapStore';
-import { clusterWarmth, filterWarmth } from '../warmth/warmthRepo';
-import type { WarmthFilter } from '../types';
+import { paintOverlays, type OverlaySpec } from '@/map/hooks/overlay';
+import { useMapStore } from '@/map/hooks/useMapStore';
+import { clusterWarmth, filterWarmth } from '@/map/warmth/warmthRepo';
+import type { WarmthFilter } from '@/map/types';
 
 /** 이 레벨 이하로 확대하면 히트맵 위에 상세 말풍선(Bud)도 함께 띄운다. */
 const BUBBLE_MAX_LEVEL = 4;
@@ -84,14 +84,12 @@ const styles = css`
   [data-theme='light'] .om-scatter-dot,
   :root:not([data-theme='dark']) .om-scatter-dot {
     background: ${lightPalette.juhong[500]};
-    border: 1.5px solid #ffffff;
-    box-shadow: 0 1px 4px rgba(25, 31, 40, 0.25), 0 0 6px rgba(232, 90, 24, 0.45);
+
   }
 
   [data-theme='dark'] .om-scatter-dot {
     background: ${darkPalette.juhong[400]};
-    border: 1.5px solid ${surface.dark.card};
-    box-shadow: 0 0 8px rgba(248, 87, 0, 0.85);
+
   }
 
   .om-scatter-dot:hover {
@@ -143,12 +141,12 @@ const styles = css`
     width: 38px;
     height: 38px;
     border-radius: 50%;
-    box-shadow: 0 4px 14px rgba(25, 31, 40, 0.22);
+
     transition: box-shadow 0.2s ease;
   }
 
   .om-surge-card:hover .om-surge-badge {
-    box-shadow: 0 6px 20px rgba(25, 31, 40, 0.32);
+
   }
 
   .om-surge-badge svg {
@@ -168,12 +166,12 @@ const styles = css`
     padding: 0 4px;
     border-radius: 9999px;
     background: #ffffff;
-    border: 1.5px solid currentColor;
+
     font-size: 10px;
     font-weight: 800;
     line-height: 14px;
     text-align: center;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+
     font-variant-numeric: tabular-nums;
   }
 
@@ -198,7 +196,7 @@ const styles = css`
     color: ${meok[900]};
     background: rgba(255, 255, 255, 0.94);
     backdrop-filter: blur(4px);
-    box-shadow: 0 2px 6px rgba(25, 31, 40, 0.12);
+
     text-shadow: 0 0 3px #ffffff;
   }
 
@@ -206,8 +204,7 @@ const styles = css`
     color: ${meok[100]};
     background: rgba(45, 41, 36, 0.9);
     backdrop-filter: blur(6px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+
   }
 
   /* ------------------------------------------------------------
@@ -226,14 +223,12 @@ const styles = css`
   [data-theme='light'] .om-bud,
   :root:not([data-theme='dark']) .om-bud {
     background: rgba(255, 255, 255, 0.96);
-    border: 1px solid rgba(78, 89, 104, 0.14);
-    box-shadow: 0 4px 18px rgba(25, 31, 40, 0.16);
+
   }
 
   [data-theme='dark'] .om-bud {
     background: rgba(45, 41, 36, 0.94);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.5);
+
   }
 
   .om-bud:hover {
@@ -245,7 +240,7 @@ const styles = css`
     position: absolute;
     left: 20px;
     top: 100%;
-    border: 7px solid transparent;
+
   }
 
   [data-theme='light'] .om-bud::after,

@@ -5,13 +5,13 @@ import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { ChevronDown, Map, RefreshCw, AlertCircle, Sparkles, LayoutList } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
-import { useMapStore } from '../hooks/useMapStore';
+import { useMapStore } from '@/map/hooks/useMapStore';
 import { PlaceListItem } from './PlaceListItem';
 import LiveNoticeBanner from './feed/LiveNoticeBanner';
 import FestivalExhibitionCarousel from './feed/FestivalExhibitionCarousel';
 import OdiiSpotlightBanner from './feed/OdiiSpotlightBanner';
 import SmartAroundFeed from './feed/SmartAroundFeed';
-import type { Item, PlaceCategory } from '../types';
+import type { Item, PlaceCategory } from '@/map/types';
 
 const CATEGORY_NAMES: Record<string, string> = {
   spot: '고택·명소',
@@ -58,7 +58,7 @@ const SortDropdownWrapper = styled.div`
 const SortSelect = styled.select`
   appearance: none;
   background: transparent;
-  border: none;
+
   font-family: inherit;
   font-size: 12.5px;
   font-weight: 600;
@@ -168,7 +168,7 @@ const ActionButton = styled.button`
   gap: 6px;
   height: 36px;
   padding: 0 16px;
-  border: none;
+
   border-radius: 9999px;
   background: rgba(78, 89, 104, 0.08);
   color: ${meok[900]};

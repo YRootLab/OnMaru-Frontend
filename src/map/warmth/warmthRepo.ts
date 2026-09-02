@@ -1,4 +1,4 @@
-import type { Warmth, WarmthCell, WarmthFilter } from '../types';
+import type { Warmth, WarmthCell, WarmthFilter } from '@/map/types';
 import { seedWarmth } from './seed';
 
 const STORAGE_KEY = 'onmaru.warmth.v1';

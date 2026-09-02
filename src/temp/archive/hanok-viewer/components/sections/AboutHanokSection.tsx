@@ -144,8 +144,6 @@ const CardInner = styled(motion.div)<{ bg: string; accent: string }>`
   padding: clamp(20px, 3vw, 36px);
   display: flex;
   flex-direction: column;
-  box-shadow: 0 32px 64px rgba(0, 0, 0, 0.12), 0 10px 30px rgba(0, 0, 0, 0.06);
-  border: none;
   transform-origin: top center;
   transform-style: preserve-3d;
   overflow: hidden;
@@ -155,7 +153,6 @@ const CardInner = styled(motion.div)<{ bg: string; accent: string }>`
   transition: box-shadow 0.4s ease;
 
   &:hover {
-    box-shadow: 0 40px 90px rgba(0, 0, 0, 0.22), 0 16px 40px rgba(0, 0, 0, 0.12);
   }
 
   @media (max-width: 768px) {
@@ -209,8 +206,6 @@ const CardMediaContainer = styled.div<{ accent: string; hasImage?: boolean }>`
   justify-content: center;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.2) 100%);
   border-radius: 20px;
-  border: none;
-  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.02);
   overflow: hidden;
   padding: 6px;
 

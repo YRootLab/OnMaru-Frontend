@@ -5,7 +5,7 @@ import { Global, css } from '@emotion/react';
 import { lightPalette, darkPalette, meok, surface } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import { useMapStore } from '@/map/hooks/useMapStore';
-import { useCinematicTourStore } from '../store/useCinematicTourStore';
+import { useCinematicTourStore } from '@/features/cinematic-tour/store/useCinematicTourStore';
 
 const styles = css`
   /* ------------------------------------------------------------
@@ -35,7 +35,7 @@ const styles = css`
     font-size: 11px;
     font-weight: 800;
     white-space: nowrap;
-    box-shadow: 0 3px 10px rgba(25, 31, 40, 0.16);
+
     backdrop-filter: blur(6px);
   }
 
@@ -43,13 +43,13 @@ const styles = css`
   :root:not([data-theme='dark']) .om-tour-pin-badge {
     background: #ffffff;
     color: ${lightPalette.juhong[700]};
-    border: 1px solid rgba(232, 90, 24, 0.25);
+
   }
 
   [data-theme='dark'] .om-tour-pin-badge {
     background: ${surface.dark.card};
     color: ${darkPalette.juhong[200]};
-    border: 1px solid rgba(248, 87, 0, 0.35);
+
   }
 
   .om-tour-pin-icon {
@@ -62,8 +62,7 @@ const styles = css`
     border-radius: 50% 50% 50% 0;
     transform: rotate(-45deg);
     background: ${lightPalette.juhong[500]};
-    border: 2px solid #ffffff;
-    box-shadow: 0 4px 14px rgba(232, 90, 24, 0.45);
+
     color: #ffffff;
     font-size: 12px;
     font-weight: 800;
@@ -72,7 +71,7 @@ const styles = css`
   [data-theme='dark'] .om-tour-pin-icon {
     background: ${darkPalette.juhong[500]};
     border-color: ${surface.dark.card};
-    box-shadow: 0 0 16px rgba(248, 87, 0, 0.7);
+
   }
 
   .om-tour-pin-icon span {
@@ -83,12 +82,12 @@ const styles = css`
   .om-tour-pin[data-active='true'] .om-tour-pin-icon {
     transform: rotate(-45deg) scale(1.15);
     background: ${lightPalette.jangmi[500]};
-    box-shadow: 0 6px 20px rgba(212, 32, 88, 0.55);
+
   }
 
   [data-theme='dark'] .om-tour-pin[data-active='true'] .om-tour-pin-icon {
     background: ${darkPalette.jangmi[500]};
-    box-shadow: 0 0 22px rgba(248, 78, 118, 0.85);
+
   }
 
   .om-tour-pin[data-active='true']::after {

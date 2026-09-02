@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
-import { OdiiCategory } from '../types/odii.types';
+import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
+import { OdiiCategory } from '@/features/odii-audio/types/odii.types';
 
 interface RealThemeCard {
   id: string;
@@ -123,8 +123,8 @@ export const OdiiThemeHeaderRail: React.FC = () => {
               onClick={() => setSelectedCategory(theme.category)}
               className={`group relative cursor-pointer overflow-hidden rounded-2xl p-6 transition-all duration-300 bg-gradient-to-br ${theme.bgGradient} ${
                 isSelected
-                  ? 'ring-2 ring-offset-2 ring-offset-[#f3eee4] shadow-xl scale-[1.02]'
-                  : 'hover:shadow-lg hover:-translate-y-0.5 opacity-95 hover:opacity-100'
+                  ? 'ring-2 ring-offset-2 ring-offset-[#f3eee4]  scale-[1.02]'
+                  : 'hover: hover:-translate-y-0.5 opacity-95 hover:opacity-100'
               }`}
               style={{
                 borderColor: isSelected ? theme.accentColor : 'transparent',

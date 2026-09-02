@@ -1,5 +1,5 @@
-import { OdiiStoryItem } from '../types/odii.types';
-import { OdiiAtmosphereId } from '../types/odiiChapter.types';
+import { OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
+import { OdiiAtmosphereId } from '@/features/odii-audio/types/odiiChapter.types';
 
 interface KeywordCandidate {
   label: string;

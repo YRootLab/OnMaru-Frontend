@@ -98,7 +98,6 @@ const StageIndicatorGroup = styled.div`
 
 const StageIndicatorButton = styled.button<{ isActive: boolean }>`
   height: 4px;
-  border: none;
   padding: 0;
   cursor: pointer;
   border-radius: 2px;

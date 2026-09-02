@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import styled from '@emotion/styled';
 import { meok } from '@/design-system/tokens';
-import { DEFAULT_CENTER, useMapStore } from '../hooks/useMapStore';
-import type { LatLng } from '../types';
+import { DEFAULT_CENTER, useMapStore } from '@/map/hooks/useMapStore';
+import type { LatLng } from '@/map/types';
 
 const NEARBY = 'nearby';
 
@@ -34,7 +34,7 @@ const Chip = styled.button<{ $active: boolean }>`
   flex: none;
   height: 32px;
   padding: 0 12px;
-  border: 1px solid ${({ $active }) => ($active ? 'transparent' : 'rgba(78, 89, 104, 0.16)')};
+
   border-radius: 9999px;
   background: ${({ $active }) => ($active ? meok[900] : 'transparent')};
   color: ${({ $active }) => ($active ? '#FFFFFF' : meok[700])};

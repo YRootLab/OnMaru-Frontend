@@ -3,7 +3,7 @@
 import styled from '@emotion/styled';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { meok } from '@/design-system/tokens';
-import { useMapStore } from '../hooks/useMapStore';
+import { useMapStore } from '@/map/hooks/useMapStore';
 import ModeToggle from './ModeToggle';
 import PlaceList from './PlaceList';
 import SearchBar from './SearchBar';
@@ -20,7 +20,7 @@ const Panel = styled.aside<{ $open: boolean }>`
   height: 100%;
   background: #ffffff;
   border-radius: 24px;
-  box-shadow: 0 10px 32px rgba(25, 31, 40, 0.12);
+
   z-index: 21;
   pointer-events: auto;
   overflow: hidden;
@@ -73,10 +73,10 @@ const Toggle = styled.button`
   width: 24px;
   height: 48px;
   transform: translateY(-50%);
-  border: none;
+
   border-radius: 0 16px 16px 0;
   background: #ffffff;
-  box-shadow: 2px 0 8px rgba(25, 31, 40, 0.08);
+
   color: ${meok[700]};
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);

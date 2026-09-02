@@ -1,6 +1,6 @@
 import { TourApiClient } from '@/lib/tour-api/tourApiClient';
-import type { RankedPlace } from '../types';
-import { toHttps } from '../utils/formatters';
+import type { RankedPlace } from '@/map/types';
+import { toHttps } from '@/map/utils/formatters';
 
 const CACHE_TTL = 10 * 60 * 1000; // 10분
 

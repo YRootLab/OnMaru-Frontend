@@ -1,4 +1,4 @@
-import type { Warmth } from '../types';
+import type { Warmth } from '@/map/types';
 
 /** [장소id, 장소명, lat, lng, 한줄평, 분위기, 며칠 전] */
 type Row = [string, string, number, number, string, Warmth['mood'], number];

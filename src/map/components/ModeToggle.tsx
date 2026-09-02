@@ -2,8 +2,8 @@
 
 import styled from '@emotion/styled';
 import { meok } from '@/design-system/tokens';
-import { MODE_COLOR, useMapStore } from '../hooks/useMapStore';
-import type { MapMode } from '../types';
+import { MODE_COLOR, useMapStore } from '@/map/hooks/useMapStore';
+import type { MapMode } from '@/map/types';
 
 const MODES: { id: MapMode; label: string }[] = [
   { id: 'info', label: '정보' },
@@ -20,11 +20,10 @@ const Track = styled.div`
 `;
 
 const Tab = styled.button<{ $active: boolean; $color: string }>`
-  border: none;
+
   border-radius: 9999px;
   background: ${({ $active }) => ($active ? '#FFFFFF' : 'transparent')};
-  box-shadow: ${({ $active }) =>
-    $active ? '0 2px 8px rgba(25, 31, 40, 0.12), 0 1px 2px rgba(25, 31, 40, 0.06)' : 'none'};
+
   color: ${({ $active, $color }) => ($active ? $color : meok[700])};
   font-family: inherit;
   font-size: 13.5px;

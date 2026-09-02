@@ -2,11 +2,11 @@
 
 import { useEffect } from 'react';
 import { logger } from '@/lib/log';
-import { loadWarmth } from '../warmth/warmthRepo';
+import { loadWarmth } from '@/map/warmth/warmthRepo';
 import { distanceInMeters } from './useKakaoMap';
 import { useMapStore } from './useMapStore';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
-import type { KakaoMap } from '../types';
+import type { KakaoMap } from '@/map/types';
 
 const log = logger('map');
 

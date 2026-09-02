@@ -2,9 +2,9 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
-import { OdiiStoryItem } from '../types/odii.types';
-import { ODII_HERO_TABS, ODII_THEME_CATEGORIES } from '../data/odiiCategoryData';
+import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
+import { OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
+import { ODII_HERO_TABS, ODII_THEME_CATEGORIES } from '@/features/odii-audio/data/odiiCategoryData';
 
 interface FeaturedStoryRailProps {
   stories: OdiiStoryItem[];
@@ -169,7 +169,7 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories, s
             const cardClass = [
               'group relative overflow-hidden rounded-2xl border border-[#211e19]/10 bg-[#fbf8f2] outline-none ring-offset-2 transition-shadow duration-300 focus-visible:ring-2 focus-visible:ring-[#a94d35]/70',
               BOARD_LAYOUTS[index] || 'col-span-2 min-h-[240px] md:col-span-4 md:row-span-3',
-              isLead ? 'shadow-[0_20px_50px_rgba(61,45,29,0.14)] ring-2 ring-[#a94d35]/60' : 'shadow-[0_12px_32px_rgba(61,45,29,0.07)] hover:shadow-[0_18px_38px_rgba(61,45,29,0.12)]',
+              isLead ? ' ring-2 ring-[#a94d35]/60' : ' hover:',
             ].join(' ');
             const imageClass = [
               'absolute object-cover transition-[transform,opacity,filter] duration-700 ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-[1.02]',
@@ -232,7 +232,7 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories, s
                             play();
                           }}
                           aria-label={story.title + ' ' + (isPlayingStory ? '일시정지' : '듣기')}
-                          className="inline-flex h-10 items-center gap-2 rounded-full bg-[#211e19] px-4 text-xs font-bold text-[#fffaf3] shadow-md transition-colors hover:bg-[#a94d35]"
+                          className="inline-flex h-10 items-center gap-2 rounded-full bg-[#211e19] px-4 text-xs font-bold text-[#fffaf3]  transition-colors hover:bg-[#a94d35]"
                         >
                           <span aria-hidden="true">{isPlayingStory ? 'Ⅱ' : '▶'}</span>
                           {isPlayingStory ? '일시정지' : '이야기 듣기'}
@@ -250,7 +250,7 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories, s
                 </div>
 
                 {!isLead && isPlayingStory && (
-                  <span className="absolute right-3 top-3 rounded-full bg-[#a94d35] px-2 py-1 text-[9px] font-bold text-white shadow-sm">
+                  <span className="absolute right-3 top-3 rounded-full bg-[#a94d35] px-2 py-1 text-[9px] font-bold text-white ">
                     재생 중
                   </span>
                 )}

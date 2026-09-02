@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
-import { useOdiiAudioPlayer } from '../hooks/useOdiiAudioPlayer';
+import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
+import { useOdiiAudioPlayer } from '@/features/odii-audio/hooks/useOdiiAudioPlayer';
 import { lightPalette } from '@/design-system/tokens';
 
 function formatTime(seconds: number) {
@@ -34,13 +34,13 @@ export const HeroAudioPlayer: React.FC = () => {
   const remainingSeconds = Math.max(0, duration - currentTime);
 
   return (
-    <div className="bg-[#1C1814] text-white rounded-3xl p-6 sm:p-8 border border-[#3A332C] shadow-2xl flex flex-col justify-between h-full relative overflow-hidden">
+    <div className="bg-[#1C1814] text-white rounded-3xl p-6 sm:p-8 border border-[#3A332C]  flex flex-col justify-between h-full relative overflow-hidden">
       {/* 배경 은은한 무드 */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-[#D42058]/10 via-transparent to-transparent pointer-events-none" />
 
       {/* 상단 앨범 아트 및 배지 */}
       <div className="relative z-10">
-        <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden mb-6 bg-[#24211D] border border-white/10 shadow-lg">
+        <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden mb-6 bg-[#24211D] border border-white/10 ">
           <img
             src={currentStory.imageUrl || 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80'}
             alt={currentStory.title}
@@ -49,7 +49,7 @@ export const HeroAudioPlayer: React.FC = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
           <div className="absolute bottom-3 left-3 flex items-center space-x-2">
             <span
-              className="px-3 py-1 text-white text-xs font-extrabold rounded-md shadow-md"
+              className="px-3 py-1 text-white text-xs font-extrabold rounded-md "
               style={{ backgroundColor: lightPalette.jangmi[500] }}
             >
               {currentStory.badgeText || '한옥 오디오 가이드'}
@@ -120,7 +120,7 @@ export const HeroAudioPlayer: React.FC = () => {
 
             <button
               onClick={() => setIsPlaying(!isPlaying)}
-              className="px-5 py-3 text-white rounded-full flex items-center space-x-2 shadow-xl transition-all active:scale-95 text-xs font-bold"
+              className="px-5 py-3 text-white rounded-full flex items-center space-x-2  transition-all active:scale-95 text-xs font-bold"
               style={{ backgroundColor: lightPalette.jangmi[500] }}
             >
               {isPlaying ? (

@@ -85,7 +85,7 @@ export const FloatingVinylDisc: React.FC<{ imageUrl: string; isPlaying: boolean 
       <motion.div
         animate={{ rotate: isPlaying ? 360 : 0 }}
         transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
-        className="relative flex h-24 w-24 items-center justify-center rounded-full bg-[#111111] p-1 shadow-2xl ring-1 ring-white/20 sm:h-28 sm:w-28"
+        className="relative flex h-24 w-24 items-center justify-center rounded-full bg-[#111111] p-1   sm:h-28 sm:w-28"
       >
         {/* LP 텍스처 링 */}
         <div className="absolute inset-2 rounded-full border border-white/10" />
@@ -99,7 +99,7 @@ export const FloatingVinylDisc: React.FC<{ imageUrl: string; isPlaying: boolean 
       </motion.div>
 
       {/* 중앙 핀 홀 */}
-      <div className="absolute h-3 w-3 rounded-full bg-[#fbf8f2] shadow-inner" />
+      <div className="absolute h-3 w-3 rounded-full bg-[#fbf8f2] " />
     </div>
   );
 };

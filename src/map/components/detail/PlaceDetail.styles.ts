@@ -51,7 +51,7 @@ export const CloseButton = styled.button`
   width: 32px;
   height: 32px;
   padding: 0;
-  border: none;
+
   border-radius: 50%;
   background: rgba(25, 31, 40, 0.04);
   color: ${meok[700]};
@@ -178,7 +178,7 @@ export const OverviewText = styled.p<{ $expanded: boolean }>`
 export const ToggleMoreBtn = styled.button`
   margin-top: 6px;
   padding: 0;
-  border: none;
+
   background: transparent;
   color: ${lightPalette.cheongrok[700]};
   font-family: inherit;
@@ -206,7 +206,7 @@ export const ShareButton = styled.button`
   justify-content: center;
   gap: 6px;
   height: 48px;
-  border: none;
+
   border-radius: 16px;
   background: rgba(78, 89, 104, 0.08);
   color: ${meok[900]};
@@ -287,7 +287,7 @@ export const CinematicBanner = styled.div`
   padding: 14px 16px;
   border-radius: 18px;
   background: linear-gradient(135deg, rgba(232, 90, 24, 0.08) 0%, rgba(212, 32, 88, 0.08) 100%);
-  border: 1.5px solid rgba(232, 90, 24, 0.25);
+
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -356,7 +356,7 @@ export const CinematicStartButton = styled.button`
   width: 100%;
   height: 38px;
   margin-top: 4px;
-  border: none;
+
   border-radius: 12px;
   background: ${lightPalette.juhong[500]};
   color: #ffffff;
@@ -364,7 +364,7 @@ export const CinematicStartButton = styled.button`
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 3px 12px rgba(232, 90, 24, 0.3);
+
   transition: all 0.15s ease;
 
   &:hover {
@@ -378,7 +378,7 @@ export const CinematicStartButton = styled.button`
 
   [data-theme='dark'] & {
     background: ${darkPalette.juhong[500]};
-    box-shadow: 0 0 14px rgba(248, 87, 0, 0.5);
+
   }
 `;
 

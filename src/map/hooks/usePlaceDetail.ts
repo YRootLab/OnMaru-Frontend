@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { PlaceDetailData } from '../types';
+import type { PlaceDetailData } from '@/map/types';
 
 export type { PlaceDetailData };
 

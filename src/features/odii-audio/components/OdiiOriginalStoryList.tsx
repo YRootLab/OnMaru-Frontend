@@ -3,8 +3,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Heart, Play, Pause, Music } from 'lucide-react';
-import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
-import { OdiiStoryItem } from '../types/odii.types';
+import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
+import { OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
 
 interface Props {
   stories: OdiiStoryItem[];
@@ -54,13 +54,13 @@ export const OdiiOriginalStoryList: React.FC<Props> = ({ stories, onBookmarkStor
               key={story.stid}
               layout
               onClick={() => selectStory(story)}
-              className={`group flex cursor-pointer items-center justify-between gap-3 rounded-xl px-2.5 py-3 transition-all duration-300 ${current ? 'bg-[#fff0f5] ring-1 ring-[#f84e76]/25 shadow-sm' : 'hover:bg-[#fff8fa]'}`}
+              className={`group flex cursor-pointer items-center justify-between gap-3 rounded-xl px-2.5 py-3 transition-all duration-300 ${current ? 'bg-[#fff0f5]  ' : 'hover:bg-[#fff8fa]'}`}
             >
               <div className="flex min-w-0 items-center gap-3.5">
                 <span className={`flex w-6 shrink-0 items-center justify-center font-mono text-[11px] font-semibold ${current ? 'text-[#f84e76]' : 'text-[#8c7e6c]'}`}>
                   {playing ? <Music size={12} className="animate-pulse text-[#f84e76]" /> : String(index + 1).padStart(2, '0')}
                 </span>
-                <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-[#e8e0d5] ring-1 ring-black/5 sm:h-[52px] sm:w-[52px]">
+                <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-[#e8e0d5]  sm:h-[52px] sm:w-[52px]">
                   <img src={imageFor(story, index)} alt={story.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = FALLBACK_IMAGES[0]; }} />
                   {playing && <span className="absolute inset-0 flex items-center justify-center bg-[#f84e76]/80 text-[8px] font-bold tracking-widest text-white">PLAY</span>}
                 </div>

@@ -4,8 +4,8 @@ import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
-import { STAGES } from '../data/hanok.data';
-import { useHanokViewerStore } from '../store/useHanokViewerStore';
+import { STAGES } from '@/temp/archive/hanok-viewer/data/hanok.data';
+import { useHanokViewerStore } from '@/temp/archive/hanok-viewer/store/useHanokViewerStore';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);

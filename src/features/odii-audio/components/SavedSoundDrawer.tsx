@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { OdiiStoryItem } from '../types/odii.types';
-import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
+import { OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
+import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 
 interface SavedSoundDrawerProps {
   savedStories: OdiiStoryItem[];
@@ -43,7 +43,7 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
         type="button"
         onClick={() => setIsOpen(true)}
         aria-label={`마음 담아둔 소리 ${savedStories.length}개 열기`}
-        className="fixed bottom-20 right-4 z-40 inline-flex items-center gap-2 border border-[#211e19]/20 bg-[#fbf8f2] px-3.5 py-2.5 text-xs font-semibold text-[#211e19] shadow-[0_8px_24px_rgba(61,45,29,0.12)] transition-colors hover:border-[#a94d35] hover:text-[#a94d35] sm:right-6"
+        className="fixed bottom-20 right-4 z-40 inline-flex items-center gap-2 border border-[#211e19]/20 bg-[#fbf8f2] px-3.5 py-2.5 text-xs font-semibold text-[#211e19]  transition-colors hover:border-[#a94d35] hover:text-[#a94d35] sm:right-6"
       >
         <span className="text-[#a94d35]">♥</span>
         마음 담아둔 소리
@@ -68,7 +68,7 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              className="relative z-10 flex h-full w-full max-w-md flex-col bg-[#fbf8f2] p-6 text-[#211e19] shadow-[-12px_0_36px_rgba(61,45,29,0.16)] sm:p-8"
+              className="relative z-10 flex h-full w-full max-w-md flex-col bg-[#fbf8f2] p-6 text-[#211e19]  sm:p-8"
             >
               <div className="flex items-start justify-between border-b border-[#211e19]/15 pb-5">
                 <div>

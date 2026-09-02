@@ -92,7 +92,8 @@ const styles = css`
     padding: 3.5px 10px 3.5px 4.5px;
     border-radius: 9999px;
     background: #ffffff;
-    box-shadow: 0 2px 10px rgba(25, 31, 40, 0.12);
+    border: none;
+    box-shadow: none;
     font-size: 12.5px;
     font-weight: 600;
     line-height: 1;
@@ -100,13 +101,13 @@ const styles = css`
     white-space: nowrap;
     cursor: pointer;
     transform: translateY(-2px);
-    transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, box-shadow 0.18s ease;
+    transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease;
   }
 
   .om-pin:hover,
   .om-pin[data-hovered='true'] {
     transform: translateY(-5px) scale(1.1);
-    box-shadow: 0 6px 18px rgba(25, 31, 40, 0.18);
+    box-shadow: none;
     z-index: 25 !important;
   }
 
@@ -119,7 +120,6 @@ const styles = css`
     height: 6px;
     background: inherit;
     transform: translate(-50%, -3px) rotate(45deg);
-    box-shadow: 1px 1px 3px rgba(25, 31, 40, 0.08);
   }
 
   .om-pin-icon-box {
@@ -142,7 +142,7 @@ const styles = css`
   .om-pin[data-detail='true'] {
     color: #ffffff !important;
     transform: translateY(-6px) scale(1.15);
-    box-shadow: 0 6px 20px rgba(25, 31, 40, 0.28);
+    box-shadow: none;
     z-index: 35 !important;
     opacity: 1 !important;
   }
@@ -161,17 +161,16 @@ const styles = css`
     width: 26px;
     height: 26px;
     border-radius: 50%;
-    border-width: 1.5px;
-    border-style: solid;
-    box-shadow: 0 2px 8px rgba(25, 31, 40, 0.14);
+    border: none;
+    box-shadow: none;
     cursor: pointer;
-    transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, color 0.15s ease, box-shadow 0.18s ease;
+    transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, color 0.15s ease;
   }
 
   .om-badge-pin:hover,
   .om-badge-pin[data-hovered='true'] {
     transform: translateY(-4px) scale(1.22);
-    box-shadow: 0 6px 16px rgba(25, 31, 40, 0.22);
+    box-shadow: none;
     z-index: 25 !important;
   }
 
@@ -179,8 +178,8 @@ const styles = css`
   .om-badge-pin[data-detail='true'] {
     transform: translateY(-5px) scale(1.35);
     color: #ffffff !important;
-    border-color: #ffffff !important;
-    box-shadow: 0 8px 22px rgba(25, 31, 40, 0.32);
+    border: none;
+    box-shadow: none;
     z-index: 35 !important;
     opacity: 1 !important;
   }
@@ -193,8 +192,6 @@ const styles = css`
     width: 5px;
     height: 5px;
     background: inherit;
-    border-right: 1.2px solid currentColor;
-    border-bottom: 1.2px solid currentColor;
     transform: translate(-50%, -3px) rotate(45deg);
   }
 
@@ -207,19 +204,18 @@ const styles = css`
     border-radius: 9999px;
     background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(12px);
-    border: 1.5px solid rgba(30, 122, 104, 0.18);
-    box-shadow: 0 4px 16px rgba(25, 31, 40, 0.14);
+    border: none;
+    box-shadow: none;
     cursor: pointer;
     transform: translate(-50%, -50%);
-    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     user-select: none;
     white-space: nowrap;
   }
 
   .om-cluster-pill:hover {
     transform: translate(-50%, -54%) scale(1.12);
-    box-shadow: 0 8px 24px rgba(30, 122, 104, 0.24);
-    border-color: ${lightPalette.cheongrok[500]};
+    box-shadow: none;
     z-index: 40 !important;
   }
 

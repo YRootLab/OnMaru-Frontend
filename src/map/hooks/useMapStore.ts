@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { lightPalette } from '@/design-system/tokens';
-import type { Item, KakaoMap, LatLng, MapMode, SheetSnap, Warmth } from '../types';
+import type { Item, KakaoMap, LatLng, MapMode, SheetSnap, Warmth } from '@/map/types';
 
 /** 대한민국 전국 중심 시점 (특정 지역을 검색하지 않았을 때 기본 전국 조망) */
 export const DEFAULT_CENTER: LatLng = { lat: 36.35, lng: 127.75 };

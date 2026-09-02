@@ -5,7 +5,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Html, useProgress, OrbitControls, ContactShadows } from '@react-three/drei';
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
-import { useHanokViewerStore } from '../../store/useHanokViewerStore';
+import { useHanokViewerStore } from '@/temp/archive/hanok-viewer/store/useHanokViewerStore';
 import HanokModel from './HanokModel';
 import HanokCameraRig, { FramingOffset, type OrbitControlsRef } from './HanokCameraRig';
 
