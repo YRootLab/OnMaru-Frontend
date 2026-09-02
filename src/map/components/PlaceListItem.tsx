@@ -8,7 +8,7 @@ import {
   Home,
   Utensils,
   Coffee,
-  ShoppingBag,
+  Store,
   Sparkles,
   BookOpen,
   Moon,
@@ -223,7 +223,7 @@ function renderCategoryIcon(category: PlaceCategory) {
     case 'cafe':
       return <Coffee size={24} />;
     case 'market':
-      return <ShoppingBag size={24} />;
+      return <Store size={24} />;
     default:
       return <Landmark size={24} />;
   }
