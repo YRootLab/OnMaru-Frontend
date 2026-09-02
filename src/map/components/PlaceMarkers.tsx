@@ -6,25 +6,39 @@ import { logger } from '@/lib/log';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { paintOverlays } from '../hooks/overlay';
 import { useMapStore } from '../hooks/useMapStore';
+import type { PlaceCategory } from '../types';
 
 const log = logger('map');
 
 const ACCENT = lightPalette.cheongrok[500];
 
-/** 전국 조망 및 광역 탐색 시 전체 점 마커 표시 한도 */
+/** 전국 조망 및 광역 탐색 시 전체 아이콘 마커 표시 한도 */
 const MAX_PINS = 150;
-/** 이보다 축척이 커지면 이름표를 접고 점만 남긴다. */
+/** 이보다 축척이 커지면 이름표를 접고 통일성 있는 원형 아이콘 뱃지만 남긴다. */
 const LABEL_MAX_LEVEL = 6;
 
+/** 각 카테고리별 통일성 있는 React Lucide SVG 아이콘 문자열 */
+const CATEGORY_ICONS: Record<PlaceCategory, string> = {
+  spot: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="2" x2="22" y1="22" y2="22"/><line x1="6" x2="6" y1="18"/><line x1="10" x2="10" y1="18"/><line x1="14" x2="14" y1="18"/><line x1="18" x2="18" y1="18"/><polygon points="12 2 20 7 4 7"/></svg>`,
+  culture: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/></svg>`,
+  stay: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+  experience: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>`,
+  festival: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>`,
+  food: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2v6a3 3 0 0 1-3 3 3 3 0 0 1-3-3V2"/><path d="M12 2v20"/><path d="M21 15v7"/></svg>`,
+  cafe: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/></svg>`,
+  market: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`,
+};
+
 const styles = css`
+  /* 1. 확대 시 이름표 포함 핀 마커 */
   .om-pin {
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 5px 10px 5px 6px;
+    padding: 4px 10px 4px 5px;
     border-radius: 9999px;
     background: #ffffff;
-    box-shadow: 0 2px 10px rgba(25, 31, 40, 0.16);
+    box-shadow: 0 3px 12px rgba(25, 31, 40, 0.16);
     font-size: 12.5px;
     font-weight: 600;
     line-height: 1;
@@ -37,7 +51,7 @@ const styles = css`
 
   .om-pin:hover,
   .om-pin[data-hovered='true'] {
-    transform: translateY(-6px) scale(1.14);
+    transform: translateY(-6px) scale(1.12);
     box-shadow: 0 6px 18px rgba(30, 122, 104, 0.35);
     z-index: 25 !important;
   }
@@ -47,83 +61,95 @@ const styles = css`
     position: absolute;
     left: 50%;
     top: 100%;
-    width: 8px;
-    height: 8px;
+    width: 7px;
+    height: 7px;
     background: inherit;
     transform: translate(-50%, -4px) rotate(45deg);
     box-shadow: 2px 2px 4px rgba(25, 31, 40, 0.08);
   }
 
-  .om-pin-num {
+  .om-pin-icon-box {
     display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 17px;
-    height: 17px;
-    padding: 0 3px;
+    width: 20px;
+    height: 20px;
     border-radius: 9999px;
     background: ${ACCENT};
     color: #ffffff;
-    font-size: 10px;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
   }
 
   .om-pin[data-dimmed='true'],
-  .om-dot[data-dimmed='true'] {
-    opacity: 0.4;
-    filter: grayscale(30%);
+  .om-badge-pin[data-dimmed='true'] {
+    opacity: 0.35;
+    filter: grayscale(40%);
   }
 
-  .om-pin[data-selected='true'] {
+  .om-pin[data-selected='true'],
+  .om-pin[data-detail='true'] {
     background: ${ACCENT};
     color: #ffffff;
     transform: translateY(-6px) scale(1.15);
     box-shadow: 0 6px 20px rgba(30, 122, 104, 0.45);
-    z-index: 30 !important;
-    opacity: 1 !important;
-  }
-
-  .om-pin[data-detail='true'] {
-    background: ${ACCENT};
-    color: #ffffff;
-    transform: translateY(-8px) scale(1.22);
-    box-shadow: 0 8px 24px rgba(30, 122, 104, 0.5);
     z-index: 35 !important;
     opacity: 1 !important;
   }
 
-  .om-pin[data-selected='true'] .om-pin-num,
-  .om-pin[data-detail='true'] .om-pin-num {
+  .om-pin[data-selected='true'] .om-pin-icon-box,
+  .om-pin[data-detail='true'] .om-pin-icon-box {
     background: #ffffff;
     color: ${ACCENT};
   }
 
-  /* 축척이 커지면 점만. 전국에 수놓아진 전통 문화재 점 마커 */
-  .om-dot {
-    width: 14px;
-    height: 14px;
+  /* 2. 전국 조망 및 축척 축소 시: 멀리서도 한눈에 파악되는 통일성 있는 원형 아이콘 뱃지 마커 */
+  .om-badge-pin {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
     border-radius: 50%;
-    border: 2px solid #ffffff;
-    background: ${ACCENT};
-    box-shadow: 0 2px 8px rgba(25, 31, 40, 0.35);
+    background: #ffffff;
+    border: 1.8px solid ${ACCENT};
+    color: ${ACCENT};
+    box-shadow: 0 2px 8px rgba(25, 31, 40, 0.22);
     cursor: pointer;
-    transition: transform 0.15s ease, opacity 0.2s ease;
+    transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, color 0.15s ease, box-shadow 0.18s ease;
   }
 
-  .om-dot:hover,
-  .om-dot[data-hovered='true'] {
-    transform: scale(1.4);
-    background: ${lightPalette.cheongrok[700]};
+  .om-badge-pin:hover,
+  .om-badge-pin[data-hovered='true'] {
+    transform: translateY(-4px) scale(1.25);
+    background: ${ACCENT};
+    color: #ffffff;
+    box-shadow: 0 6px 18px rgba(30, 122, 104, 0.45);
+    z-index: 25 !important;
   }
 
-  .om-dot[data-selected='true'],
-  .om-dot[data-detail='true'] {
-    width: 18px;
-    height: 18px;
-    background: ${meok[900]};
-    transform: scale(1.3);
+  .om-badge-pin[data-selected='true'],
+  .om-badge-pin[data-detail='true'] {
+    transform: translateY(-5px) scale(1.35);
+    background: ${ACCENT};
+    border-color: #ffffff;
+    color: #ffffff;
+    box-shadow: 0 8px 22px rgba(30, 122, 104, 0.55);
+    z-index: 35 !important;
     opacity: 1 !important;
+  }
+
+  .om-badge-pin::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    width: 5px;
+    height: 5px;
+    background: inherit;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: translate(-50%, -3px) rotate(45deg);
   }
 `;
 
@@ -148,19 +174,21 @@ export default function PlaceMarkers() {
       return (a.dist ?? 1e9) - (b.dist ?? 1e9);
     });
 
-    const specs = sorted.slice(0, MAX_PINS).map((item, index) => {
+    const specs = sorted.slice(0, MAX_PINS).map((item) => {
       const el = document.createElement('div');
       const isDetail = item.id === detailId;
       const isSelected = item.id === selectedId || isDetail;
       const isHovered = item.id === hoveredId;
       const isDimmed = Boolean(detailId && !isDetail);
+      const iconSvg = CATEGORY_ICONS[item.category] || CATEGORY_ICONS.spot;
 
       if (withLabel) {
         el.className = 'om-pin';
         el.style.position = 'relative';
-        el.innerHTML = `<span class="om-pin-num">${index + 1}</span><span>${item.name}</span>`;
+        el.innerHTML = `<span class="om-pin-icon-box">${iconSvg}</span><span>${item.name}</span>`;
       } else {
-        el.className = 'om-dot';
+        el.className = 'om-badge-pin';
+        el.innerHTML = iconSvg;
       }
       el.dataset.selected = String(isSelected);
       el.dataset.detail = String(isDetail);
@@ -180,7 +208,7 @@ export default function PlaceMarkers() {
       return { lat: item.lat, lng: item.lng, el, zIndex };
     });
 
-    log.log('핀', specs.length, `/ ${items.length}곳 · level ${level} · ${withLabel ? '이름표' : '점'}`);
+    log.log('핀', specs.length, `/ ${items.length}곳 · level ${level} · ${withLabel ? '이름표' : '아이콘뱃지'}`);
     return paintOverlays(map, specs);
   }, [map, mode, items, level, selectedId, hoveredId, detailId, sortOrder]);
 
