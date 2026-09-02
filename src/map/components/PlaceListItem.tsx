@@ -171,13 +171,13 @@ const OdiiBadge = styled.span`
 
 /** 카테고리별 한글 명칭 */
 const CATEGORY_LABELS: Record<PlaceCategory, string> = {
-  spot: '명소·고택',
-  experience: '전통체험',
+  spot: '고택·명소',
+  experience: '한복·전통체험',
   culture: '문화재·서원',
   festival: '야행·축제',
-  stay: '한옥숙박',
+  stay: '한옥숙소',
   food: '향토음식',
-  cafe: '전통찻집',
+  cafe: '한옥카페·디저트',
   market: '전통시장',
 };
 

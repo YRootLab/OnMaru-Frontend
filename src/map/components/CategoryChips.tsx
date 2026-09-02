@@ -24,13 +24,13 @@ import type { MapMode } from '../types';
 const CATEGORIES: Record<MapMode, { id: string; label: string; icon: LucideIcon }[]> = {
   info: [
     { id: 'all', label: '전체', icon: LayoutGrid },
-    { id: 'spot', label: '명소·고택', icon: Landmark },
-    { id: 'experience', label: '전통체험·한복', icon: Sparkles },
+    { id: 'spot', label: '고택·명소', icon: Landmark },
+    { id: 'experience', label: '한복·전통체험', icon: Sparkles },
     { id: 'culture', label: '문화재·서원', icon: BookOpen },
     { id: 'festival', label: '야행·축제', icon: Moon },
     { id: 'stay', label: '한옥숙소', icon: Home },
     { id: 'food', label: '향토음식', icon: Utensils },
-    { id: 'cafe', label: '전통찻집', icon: Coffee },
+    { id: 'cafe', label: '한옥카페·디저트', icon: Coffee },
     { id: 'market', label: '전통시장', icon: Store },
   ],
   warmth: [

@@ -279,20 +279,20 @@ export default function PlaceDetail() {
                 <CoreLabel>카테고리</CoreLabel>
                 <CoreValue>
                   {selectedItem?.category === 'stay'
-                    ? '한옥스테이'
+                    ? '한옥숙소'
                     : selectedItem?.category === 'experience'
-                      ? '전통문화체험'
+                      ? '한복·전통체험'
                       : selectedItem?.category === 'culture'
-                        ? '문화재/서원/전시'
+                        ? '문화재·서원'
                         : selectedItem?.category === 'festival'
-                          ? '야행/축제행사'
+                          ? '야행·문화축제'
                           : selectedItem?.category === 'food'
-                            ? '향토음식점'
+                            ? '향토음식'
                             : selectedItem?.category === 'cafe'
-                              ? '전통찻집/카페'
+                              ? '한옥카페·디저트'
                               : selectedItem?.category === 'market'
                                 ? '전통시장'
-                                : '명소/고택'}
+                                : '고택·명소'}
                 </CoreValue>
               </CoreRow>
 
