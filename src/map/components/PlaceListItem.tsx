@@ -17,6 +17,7 @@ import {
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { matchOdiiStory } from '@/features/odii-audio/hooks/useOdiiPlaceStory';
+import { CATEGORY_STYLES } from './PlaceMarkers';
 import type { Item, PlaceCategory } from '../types';
 
 interface PlaceListItemProps {
@@ -122,12 +123,34 @@ const IndexNumber = styled.span`
 `;
 
 const Row2 = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 12px;
   color: ${meok[500]};
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  margin-top: 2px;
+  margin-top: 3px;
+`;
+
+const CategoryTag = styled.span<{ $category: PlaceCategory }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1.5px 6px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: ${({ $category }) => CATEGORY_STYLES[$category]?.main || '#1E7A68'};
+  background: ${({ $category }) => CATEGORY_STYLES[$category]?.lightBg || '#E6F5F0'};
+  flex-shrink: 0;
+`;
+
+const DistrictText = styled.span`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const Row3 = styled.div`
@@ -300,7 +323,8 @@ function PlaceListItemComponent({
           </Row1>
 
           <Row2 title={`${catLabel} · ${district}`}>
-            {catLabel} {district ? `· ${district}` : ''}
+            <CategoryTag $category={item.category}>{catLabel}</CategoryTag>
+            {district && <DistrictText>{district}</DistrictText>}
           </Row2>
 
           {distText && <Row3>{distText}</Row3>}
