@@ -2,24 +2,41 @@ import { useState, useEffect } from 'react';
 import { OdiiStoryItem, TourWaypoint } from '../types/odii.types';
 import { odiiApiAdapter } from '../api/odiiApi';
 
-/**
- * 한국관광공사 Odii 오디오 해설이 정식 지원되는 전국 주요 한옥/역사/문화재 명소 키워드
- */
-const KNOWN_ODII_KEYWORDS = [
-  '경기전', '오목대', '이목대', '향교', '풍남문', '전주사고', '조경묘', '한벽당', '전동성당',
-  '경복궁', '창덕궁', '창경궁', '덕수궁', '종묘', '북촌', '서촌', '남산골', '운현궁',
-  '하회마을', '병산서원', '도산서원', '봉정사', '양동마을', '불국사', '석굴암', '첨성대', '동궁',
-  '낙안읍성', '소쇄원', '식영정', '명옥헌', '무섬마을', '부석사', '소수서원', '선교장', '오죽헌',
-  '성읍', '해미읍성', '수원화성', '행궁', '융건릉', '남한산성', '백제', '공산성', '무령왕릉'
-];
+// 실시간 Odii API에서 검색/로드된 전국 이야기들의 동적 메모리 인덱스 레지스트리
+const liveOdiiStoryRegistry = new Map<string, OdiiStoryItem>();
 
 /**
- * 특정 장소에 Odii 오디오 도슨트 해설이 지원되는지 판별하는 헬퍼 함수
+ * 실시간 API 기반으로 수집된 Odii 스토리 레지스트리를 갱신합니다.
+ */
+export function registerLiveOdiiStories(stories: OdiiStoryItem[]) {
+  for (const story of stories) {
+    if (story.audioUrl) {
+      const normalizedTitle = story.title.replace(/\s+/g, '').toLowerCase();
+      liveOdiiStoryRegistry.set(normalizedTitle, story);
+      if (story.audioTitle) {
+        liveOdiiStoryRegistry.set(story.audioTitle.replace(/\s+/g, '').toLowerCase(), story);
+      }
+    }
+  }
+}
+
+/**
+ * 특정 장소에 Odii 오디오 도슨트 해설이 지원되는지 실시간 레지스트리 및 명칭으로 동적 판별
  */
 export function hasOdiiDocent(placeName?: string, addr?: string): boolean {
   if (!placeName) return false;
-  const clean = placeName.replace(/[\s\(\)\[\]]/g, '');
-  return KNOWN_ODII_KEYWORDS.some((kw) => clean.includes(kw));
+  const cleanTarget = placeName
+    .replace(/[\s\(\)\[\]\-_]/g, '')
+    .toLowerCase();
+
+  // 1. 실시간 API에서 등록된 스토리 목록에서 검색
+  for (const [key] of liveOdiiStoryRegistry) {
+    if (key.includes(cleanTarget) || cleanTarget.includes(key)) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 /**

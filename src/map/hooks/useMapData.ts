@@ -5,6 +5,8 @@ import { logger } from '@/lib/log';
 import { loadWarmth } from '../warmth/warmthRepo';
 import { distanceInMeters } from './useKakaoMap';
 import { useMapStore } from './useMapStore';
+import { odiiApiAdapter } from '@/features/odii-audio/api/odiiApi';
+import { registerLiveOdiiStories } from '@/features/odii-audio/hooks/useOdiiPlaceStory';
 import type { KakaoMap } from '../types';
 
 const log = logger('map');
@@ -72,6 +74,17 @@ export function useMapData() {
         const items = Array.isArray(json.items) ? json.items : [];
         log.log('items', items.length, `${Math.round(performance.now() - t0)}ms`, json.error ?? '');
         setItems(items);
+
+        // 실시간 Odii API에서 현재 지도 뷰포트 반경의 공식 도슨트 해설 데이터 동적 인덱싱
+        odiiApiAdapter
+          .getNearbyStories(String(searchCenter.lng), String(searchCenter.lat), Math.max(5000, radius))
+          .then((stories) => {
+            if (stories && stories.length > 0) {
+              registerLiveOdiiStories(stories);
+            }
+          })
+          .catch(() => {});
+
         if (!res.ok || json.error) {
           setError(typeof json.error === 'string' ? json.error : '장소를 불러오지 못했습니다');
         }
