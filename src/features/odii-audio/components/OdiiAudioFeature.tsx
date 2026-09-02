@@ -117,17 +117,20 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
   const [locationMessage, setLocationMessage] = useState('내 위치를 허용하면 반경 3km의 실제 오디오를 찾아드려요.');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // 로컬 스토리지 기반 '마음 담은 소리' 스크랩 보관함 관리 (재방문 유지)
-  const [savedStories, setSavedStories] = useState<OdiiStoryItem[]>(() => {
-    if (typeof window === 'undefined') return [];
+  // 로컬 스토리지 기반 '마음 담은 소리' 스크랩 보관함 관리 (SSR 하이드레이션 안전 처리)
+  const [savedStories, setSavedStories] = useState<OdiiStoryItem[]>([]);
+
+  useEffect(() => {
     try {
       const stored = localStorage.getItem('onmaru_saved_odii_stories');
       const parsed = stored ? JSON.parse(stored) : [];
-      return Array.isArray(parsed) ? parsed : [];
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        setSavedStories(parsed);
+      }
     } catch {
-      return [];
+      // ignore
     }
-  });
+  }, []);
 
   const handleToggleBookmark = (story: OdiiStoryItem) => {
     setSavedStories((prev) => {
