@@ -6,6 +6,7 @@ import { X, Flame, Users, Leaf, Check } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { addWarmth, loadWarmth } from '../../warmth/warmthRepo';
 import { useMapStore } from '../../hooks/useMapStore';
+import MoodSelector, { type MoodValue } from './MoodSelector';
 
 interface WriteWarmthModalProps {
   isOpen: boolean;
@@ -17,6 +18,17 @@ interface WriteWarmthModalProps {
     lng: number;
   };
 }
+
+const PRESET_TAGS = [
+  '#대청마루',
+  '#야경',
+  '#사진맛집',
+  '#전통체험',
+  '#힐링',
+  '#고즈넉함',
+  '#산책코스',
+  '#차한잔',
+];
 
 const Overlay = styled.div<{ $open: boolean }>`
   position: fixed;
@@ -37,6 +49,8 @@ const ModalCard = styled.div<{ $open: boolean }>`
   position: relative;
   width: 100%;
   max-width: 440px;
+  max-height: 90vh;
+  overflow-y: auto;
   padding: 24px;
   border-radius: 24px;
   background: #ffffff;
@@ -49,7 +63,7 @@ const ModalHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 `;
 
 const ModalTitle = styled.h3`
@@ -91,11 +105,11 @@ const PlaceNameBadge = styled.div`
   color: ${lightPalette.cheongrok[700]};
   font-size: 13px;
   font-weight: 600;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 `;
 
 const FormSection = styled.div`
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 `;
 
 const SectionLabel = styled.label`
@@ -117,7 +131,7 @@ const MoodButton = styled.button<{ $active: boolean; $type: 'quiet' | 'busy' }>`
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 46px;
+  height: 42px;
   border-radius: 14px;
   border: 1.5px solid
     ${({ $active, $type }) =>
@@ -138,7 +152,7 @@ const MoodButton = styled.button<{ $active: boolean; $type: 'quiet' | 'busy' }>`
         ? lightPalette.cheongrok[700]
         : lightPalette.juhong[700]
       : meok[700]};
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.18s ease;
@@ -149,9 +163,31 @@ const MoodButton = styled.button<{ $active: boolean; $type: 'quiet' | 'busy' }>`
   }
 `;
 
+const TagWrap = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+`;
+
+const TagChip = styled.button<{ $selected: boolean }>`
+  padding: 5px 10px;
+  border-radius: 9999px;
+  border: 1px solid ${({ $selected }) => ($selected ? lightPalette.cheongrok[500] : meok[200])};
+  background: ${({ $selected }) => ($selected ? lightPalette.cheongrok[50] : '#ffffff')};
+  color: ${({ $selected }) => ($selected ? lightPalette.cheongrok[700] : meok[700])};
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    border-color: ${lightPalette.cheongrok[400]};
+  }
+`;
+
 const TextArea = styled.textarea`
   width: 100%;
-  height: 90px;
+  height: 80px;
   padding: 12px 14px;
   border-radius: 14px;
   border: 1.5px solid ${meok[200]};
@@ -190,19 +226,19 @@ const SubmitBtn = styled.button`
   margin-top: 8px;
   border: none;
   border-radius: 14px;
-  background: ${lightPalette.cheongrok[500]};
+  background: ${lightPalette.juhong[500]};
   color: #ffffff;
   font-family: inherit;
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(30, 122, 104, 0.28);
+  box-shadow: 0 4px 14px rgba(232, 90, 24, 0.28);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover:not(:disabled) {
-    background: ${lightPalette.cheongrok[700]};
+    background: ${lightPalette.juhong[700]};
     transform: translateY(-1px);
-    box-shadow: 0 6px 18px rgba(30, 122, 104, 0.35);
+    box-shadow: 0 6px 18px rgba(232, 90, 24, 0.35);
   }
 
   &:disabled {
@@ -217,12 +253,20 @@ export default function WriteWarmthModal({
   onClose,
   defaultPlace,
 }: WriteWarmthModalProps) {
+  const [score, setScore] = useState<MoodValue>(1);
   const [mood, setMood] = useState<'한적' | '북적'>('한적');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [text, setText] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
 
   const setWarmths = useMapStore((s) => s.setWarmths);
   const searchCenter = useMapStore((s) => s.searchCenter);
+
+  const handleToggleTag = (tag: string) => {
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
+    );
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -241,6 +285,8 @@ export default function WriteWarmthModal({
       lng,
       text: text.trim(),
       mood,
+      score,
+      tags: selectedTags,
     });
 
     // Zustand 스토어 업데이트
@@ -250,6 +296,7 @@ export default function WriteWarmthModal({
     setTimeout(() => {
       setIsSuccess(false);
       setText('');
+      setSelectedTags([]);
       onClose();
     }, 900);
   };
@@ -277,6 +324,13 @@ export default function WriteWarmthModal({
         )}
 
         <form onSubmit={handleSubmit}>
+          {/* 1. 표정 감정 선택기 */}
+          <FormSection>
+            <SectionLabel>이곳에서의 전반적인 느낌 (표정 선택)</SectionLabel>
+            <MoodSelector value={score} onChange={(val) => setScore(val)} />
+          </FormSection>
+
+          {/* 2. 장소 혼잡도 분위기 */}
           <FormSection>
             <SectionLabel>현재 이 장소의 분위기</SectionLabel>
             <MoodButtonGroup>
@@ -301,6 +355,24 @@ export default function WriteWarmthModal({
             </MoodButtonGroup>
           </FormSection>
 
+          {/* 3. 추천 키워드 태그 */}
+          <FormSection>
+            <SectionLabel>좋았던 점 키워드 (선택)</SectionLabel>
+            <TagWrap>
+              {PRESET_TAGS.map((tag) => (
+                <TagChip
+                  key={tag}
+                  type="button"
+                  $selected={selectedTags.includes(tag)}
+                  onClick={() => handleToggleTag(tag)}
+                >
+                  {tag}
+                </TagChip>
+              ))}
+            </TagWrap>
+          </FormSection>
+
+          {/* 4. 한줄평 본문 */}
           <FormSection>
             <SectionLabel>이곳에 머문 느낌이나 꿀팁</SectionLabel>
             <TextArea

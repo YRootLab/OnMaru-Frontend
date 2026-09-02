@@ -6,6 +6,7 @@ import { Flame, Leaf, Users, Plus, MessageCircleHeart } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useMapStore } from '../../hooks/useMapStore';
 import WriteWarmthModal from './WriteWarmthModal';
+import MoodSelector from './MoodSelector';
 import type { Warmth } from '../../types';
 
 interface PlaceWarmthSectionProps {
@@ -49,8 +50,8 @@ const CountBadge = styled.span`
   height: 20px;
   padding: 0 6px;
   border-radius: 9999px;
-  background: ${lightPalette.cheongrok[50]};
-  color: ${lightPalette.cheongrok[700]};
+  background: ${lightPalette.juhong[50]};
+  color: ${lightPalette.juhong[700]};
   font-size: 11px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -62,10 +63,10 @@ const WriteButton = styled.button`
   gap: 4px;
   height: 30px;
   padding: 0 10px;
-  border: 1px solid ${lightPalette.cheongrok[200]};
+  border: 1px solid ${lightPalette.juhong[200]};
   border-radius: 9999px;
-  background: ${lightPalette.cheongrok[50]};
-  color: ${lightPalette.cheongrok[700]};
+  background: ${lightPalette.juhong[50]};
+  color: ${lightPalette.juhong[700]};
   font-family: inherit;
   font-size: 12px;
   font-weight: 600;
@@ -73,9 +74,9 @@ const WriteButton = styled.button`
   transition: all 0.15s ease;
 
   &:hover {
-    background: ${lightPalette.cheongrok[500]};
+    background: ${lightPalette.juhong[500]};
     color: #ffffff;
-    border-color: ${lightPalette.cheongrok[500]};
+    border-color: ${lightPalette.juhong[500]};
   }
 
   &:active {
@@ -86,19 +87,20 @@ const WriteButton = styled.button`
 const WarmthList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 `;
 
 const WarmthCard = styled.div`
-  padding: 12px 14px;
-  border-radius: 16px;
-  background: #f8faf9;
-  border: 1px solid rgba(30, 122, 104, 0.08);
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: #ffffff;
+  border: 1px solid rgba(78, 89, 104, 0.08);
+  box-shadow: 0 2px 8px rgba(25, 31, 40, 0.04);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 
   &:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(25, 31, 40, 0.05);
+    box-shadow: 0 4px 14px rgba(25, 31, 40, 0.08);
   }
 `;
 
@@ -106,14 +108,20 @@ const CardTop = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+`;
+
+const LeftBadges = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
 `;
 
 const MoodBadge = styled.span<{ $mood: '한적' | '북적' }>`
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 2px 7px;
+  padding: 2.5px 7px;
   border-radius: 6px;
   font-size: 11px;
   font-weight: 700;
@@ -128,12 +136,12 @@ const TimeAndMine = styled.div`
 `;
 
 const MineBadge = styled.span`
-  padding: 1px 5px;
+  padding: 1.5px 6px;
   border-radius: 4px;
   background: ${meok[900]};
   color: #ffffff;
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 700;
 `;
 
 const TimeText = styled.span`
@@ -141,11 +149,31 @@ const TimeText = styled.span`
   color: ${meok[400]};
 `;
 
+const MoodSelectorWrap = styled.div`
+  margin: 6px 0 10px;
+`;
+
+const TagList = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 8px;
+`;
+
+const TagItem = styled.span`
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(30, 122, 104, 0.07);
+  color: ${lightPalette.cheongrok[700]};
+  font-size: 11px;
+  font-weight: 600;
+`;
+
 const WarmthText = styled.p`
   margin: 0;
   font-size: 13.5px;
   font-weight: 500;
-  line-height: 1.5;
+  line-height: 1.55;
   color: ${meok[900]};
   word-break: keep-all;
 `;
@@ -169,8 +197,8 @@ const EmptyIconBox = styled.div`
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: ${lightPalette.cheongrok[50]};
-  color: ${lightPalette.cheongrok[500]};
+  background: ${lightPalette.juhong[50]};
+  color: ${lightPalette.juhong[500]};
   margin-bottom: 10px;
 `;
 
@@ -195,16 +223,17 @@ const EmptyActionBtn = styled.button`
   padding: 0 14px;
   border: none;
   border-radius: 9999px;
-  background: ${lightPalette.cheongrok[500]};
+  background: ${lightPalette.juhong[500]};
   color: #ffffff;
   font-family: inherit;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
+  box-shadow: 0 2px 8px rgba(232, 90, 24, 0.3);
   transition: background 0.15s ease;
 
   &:hover {
-    background: ${lightPalette.cheongrok[700]};
+    background: ${lightPalette.juhong[700]};
   }
 `;
 
@@ -297,15 +326,34 @@ export default function PlaceWarmthSection({
             {matchedWarmths.map((item) => (
               <WarmthCard key={item.id}>
                 <CardTop>
-                  <MoodBadge $mood={item.mood}>
-                    {item.mood === '한적' ? <Leaf size={11} /> : <Users size={11} />}
-                    <span>{item.mood}</span>
-                  </MoodBadge>
+                  <LeftBadges>
+                    <MoodBadge $mood={item.mood}>
+                      {item.mood === '한적' ? <Leaf size={11} /> : <Users size={11} />}
+                      <span>{item.mood}</span>
+                    </MoodBadge>
+                  </LeftBadges>
                   <TimeAndMine>
                     {item.mine && <MineBadge>내가 남김</MineBadge>}
                     <TimeText>{formatRelativeTime(item.createdAt)}</TimeText>
                   </TimeAndMine>
                 </CardTop>
+
+                {/* 5단계 표정 감정 표시기 */}
+                {item.score && (
+                  <MoodSelectorWrap>
+                    <MoodSelector value={item.score} readonly />
+                  </MoodSelectorWrap>
+                )}
+
+                {/* 추천 키워드 태그 */}
+                {item.tags && item.tags.length > 0 && (
+                  <TagList>
+                    {item.tags.map((t, idx) => (
+                      <TagItem key={idx}>{t}</TagItem>
+                    ))}
+                  </TagList>
+                )}
+
                 <WarmthText>{item.text}</WarmthText>
               </WarmthCard>
             ))}

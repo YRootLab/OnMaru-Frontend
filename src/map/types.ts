@@ -43,6 +43,8 @@ export interface Warmth {
   lng: number;
   text: string;
   mood: '북적' | '한적';
+  score?: 1 | 2 | 3 | 4 | 5;
+  tags?: string[];
   createdAt: string;
   /** 내가 남긴 것 — 로컬 저장분에만 붙는다. */
   mine?: boolean;
