@@ -113,7 +113,7 @@ const styles = css`
     border-radius: 9999px;
     background: #ffffff;
     border: none;
-    box-shadow: none;
+    box-shadow: 0 4px 12px -2px rgba(25, 31, 40, 0.16), 0 1px 3px rgba(25, 31, 40, 0.08);
     font-size: 12.5px;
     font-weight: 600;
     line-height: 1;
@@ -121,13 +121,14 @@ const styles = css`
     white-space: nowrap;
     cursor: pointer;
     transform: translateY(-2px);
-    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, color 0.15s ease;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, background 0.15s ease, color 0.15s ease;
     user-select: none;
   }
 
   .om-pin:hover,
   .om-pin[data-hovered='true'] {
     transform: translateY(-5px) scale(1.1);
+    box-shadow: 0 8px 20px -3px rgba(25, 31, 40, 0.22);
     z-index: 30 !important;
   }
 
@@ -180,6 +181,7 @@ const styles = css`
     padding: 10px;
     background: #ffffff;
     border-radius: 14px;
+    box-shadow: 0 12px 32px -4px rgba(25, 31, 40, 0.18), 0 1px 4px rgba(25, 31, 40, 0.06);
     pointer-events: none;
     opacity: 0;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -228,6 +230,7 @@ const styles = css`
   .om-pin[data-detail='true'] {
     color: #ffffff !important;
     background: #191F28 !important;
+    box-shadow: 0 8px 24px -2px rgba(25, 31, 40, 0.35);
     animation: om-pin-spring 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     z-index: 40 !important;
     opacity: 1 !important;
@@ -254,15 +257,16 @@ const styles = css`
     height: 28px;
     border-radius: 50%;
     border: none;
-    box-shadow: none;
+    box-shadow: 0 3px 10px -1px rgba(25, 31, 40, 0.16), 0 1px 2px rgba(25, 31, 40, 0.08);
     cursor: pointer;
-    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, color 0.15s ease;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, background 0.15s ease, color 0.15s ease;
     user-select: none;
   }
 
   .om-badge-pin:hover,
   .om-badge-pin[data-hovered='true'] {
     transform: translateY(-4px) scale(1.25);
+    box-shadow: 0 6px 16px -2px rgba(25, 31, 40, 0.22);
     z-index: 30 !important;
   }
 
@@ -271,6 +275,7 @@ const styles = css`
     transform: translateY(-5px) scale(1.35);
     background: #191F28 !important;
     color: #ffffff !important;
+    box-shadow: 0 8px 24px -2px rgba(25, 31, 40, 0.35);
     z-index: 40 !important;
     opacity: 1 !important;
     animation: om-pin-spring 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
@@ -297,16 +302,17 @@ const styles = css`
     background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(12px);
     border: none;
-    box-shadow: none;
+    box-shadow: 0 6px 18px -2px rgba(25, 31, 40, 0.16), 0 1px 4px rgba(25, 31, 40, 0.08);
     cursor: pointer;
     transform: translate(-50%, -50%);
-    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
     user-select: none;
     white-space: nowrap;
   }
 
   .om-cluster-pill:hover {
     transform: translate(-50%, -54%) scale(1.12);
+    box-shadow: 0 10px 24px -3px rgba(25, 31, 40, 0.22);
     z-index: 40 !important;
   }
 
