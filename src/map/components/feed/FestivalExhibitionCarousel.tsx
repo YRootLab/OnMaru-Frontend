@@ -267,9 +267,9 @@ export default function FestivalExhibitionCarousel({ festivals }: FestivalExhibi
     <SectionWrapper>
       <SectionHeader>
         <TitleGroup>
-          <Sparkles size={15} color={lightPalette.juhong[500]} />
-          <SectionTitle>진행 중인 지역 축제 & 기획전</SectionTitle>
-          <BadgeTitle>LIVE</BadgeTitle>
+          <Sparkles size={15} color={lightPalette.cheongrok[500]} />
+          <SectionTitle>진행 중인 축제·기획전</SectionTitle>
+          <BadgeTitle>실시간</BadgeTitle>
         </TitleGroup>
 
         <RightControls>
@@ -280,13 +280,13 @@ export default function FestivalExhibitionCarousel({ festivals }: FestivalExhibi
             <ChevronRight size={15} />
           </NavArrowBtn>
           <MoreBtn type="button" onClick={() => setCategory('festival')}>
-            <span>더보기</span>
+            <span>전체보기</span>
             <ChevronRight size={13} />
           </MoreBtn>
         </RightControls>
       </SectionHeader>
 
-      <Scroller ref={scrollerRef} onWheel={handleWheel} role="region" aria-label="진행 중인 지역 축제 목록">
+      <Scroller ref={scrollerRef} onWheel={handleWheel} role="region" aria-label="진행 중인 축제 및 기획전 목록">
         {displayList.map((item) => (
           <FestivalCard key={item.id} type="button" onClick={() => handleClick(item)}>
             <ThumbBox>
@@ -312,7 +312,7 @@ export default function FestivalExhibitionCarousel({ festivals }: FestivalExhibi
               <CardTitle title={item.name}>{item.name}</CardTitle>
               <CardDateRow>
                 <Calendar size={11} />
-                <span>야간 특별 개방 및 행사 진행중</span>
+                <span>야간 개방 및 특별 행사 진행</span>
               </CardDateRow>
               <CardAddr>{item.addr || '전통 한옥 명소'}</CardAddr>
             </CardBody>

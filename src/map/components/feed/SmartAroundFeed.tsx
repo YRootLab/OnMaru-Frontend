@@ -228,21 +228,21 @@ export default function SmartAroundFeed({ items }: SmartAroundFeedProps) {
       <Header>
         <TitleBox>
           <Award size={15} color={lightPalette.cheongrok[500]} />
-          <Title>이번 주 추천 한옥 스팟</Title>
-          <SubText>Smart Pick</SubText>
+          <Title>추천 한옥 명소</Title>
+          <SubText>추천</SubText>
         </TitleBox>
 
         <NavButtonGroup>
-          <NavArrowBtn type="button" onClick={() => scroll('left')} aria-label="이전 추천 스팟">
+          <NavArrowBtn type="button" onClick={() => scroll('left')} aria-label="이전 추천 명소">
             <ChevronLeft size={15} />
           </NavArrowBtn>
-          <NavArrowBtn type="button" onClick={() => scroll('right')} aria-label="다음 추천 스팟">
+          <NavArrowBtn type="button" onClick={() => scroll('right')} aria-label="다음 추천 명소">
             <ChevronRight size={15} />
           </NavArrowBtn>
         </NavButtonGroup>
       </Header>
 
-      <Scroller ref={scrollerRef} onWheel={handleWheel} role="region" aria-label="추천 한옥 스팟 가로 슬라이더">
+      <Scroller ref={scrollerRef} onWheel={handleWheel} role="region" aria-label="추천 한옥 명소 목록">
         {curatedSpots.map((item) => (
           <CuratedCard key={item.id} type="button" onClick={() => handleClick(item)}>
             <PhotoBox>
@@ -256,7 +256,7 @@ export default function SmartAroundFeed({ items }: SmartAroundFeedProps) {
               />
               <PhotoBadge>
                 <Sparkles size={9} />
-                <span>HOT</span>
+                <span>추천</span>
               </PhotoBadge>
             </PhotoBox>
 

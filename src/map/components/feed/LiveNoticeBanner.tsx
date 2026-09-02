@@ -6,10 +6,10 @@ import { Volume2, ExternalLink, Sparkles } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 
 const NOTICES = [
-  '2026 전국 한옥마을 문화재 야행 & 고택 달빛음악회 일정 안내',
-  '한국관광공사 Odii와 함께하는 시네마틱 공간 오디오 도슨트 서비스 개시',
-  '국가유산청 고택·종택 특별 야간 개방 및 전통 다도 체험 주간',
-  '봄·가을 여행주간 맞이 전국 전통 한옥스테이 품질인증 특별전',
+  '전국 한옥마을 문화재 야행 및 달빛음악회 일정 안내',
+  '음성 도슨트와 함께 지도를 따라 걷는 한옥 산책',
+  '고택·종택 특별 야간 개방 및 전통 다도 체험 진행',
+  '전국 한옥스테이 품질인증 숙소 안내',
 ];
 
 const Container = styled.div`

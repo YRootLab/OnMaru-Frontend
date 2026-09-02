@@ -164,14 +164,14 @@ export default function OdiiSpotlightBanner() {
       <TopRow>
         <Badge>
           <Compass size={12} />
-          <span>시네마틱 공간 투어</span>
+          <span>공간 오디오 투어</span>
         </Badge>
-        <DurationText>{spotlightStory.formattedDuration || '약 10분 코스'}</DurationText>
+        <DurationText>{spotlightStory.formattedDuration || '약 10분 소요'}</DurationText>
       </TopRow>
 
       <StoryTitle>{spotlightStory.audioTitle || spotlightStory.title}</StoryTitle>
       <StoryExcerpt>
-        {spotlightStory.script || '한국관광공사 공식 문화해설사와 함께 지도를 따라 걷는 고택 산책'}
+        {spotlightStory.script || '문화해설사의 음성 해설과 함께 지도를 따라 걷는 고택 산책'}
       </StoryExcerpt>
 
       <ActionRow>

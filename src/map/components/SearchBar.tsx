@@ -318,7 +318,7 @@ export default function SearchBar({ showHomeButton = true }: SearchBarProps) {
         <Input
           type="search"
           value={value}
-          placeholder="지역, 마을, 장소 검색 (예: 전주, 북촌, 하회마을)"
+          placeholder="지역이나 장소를 검색하세요 (예: 전주, 북촌, 하회마을)"
           aria-label="장소 검색"
           onChange={(e) => setValue(e.target.value)}
           onFocus={() => setOpen(true)}
@@ -329,8 +329,8 @@ export default function SearchBar({ showHomeButton = true }: SearchBarProps) {
           {isSearched && (
             <ActionIconBtn
               type="button"
-              aria-label="전국 전체보기로 초기화"
-              title="전국 전체보기로 리셋"
+              aria-label="전국 지도로 초기화"
+              title="전국 지도로 초기화"
               onClick={handleResetToNationwide}
             >
               <RotateCcw size={13} />
@@ -359,13 +359,13 @@ export default function SearchBar({ showHomeButton = true }: SearchBarProps) {
               onMouseDown={handleResetToNationwide}
             >
               <Globe size={15} />
-              <span>대한민국 전국 전체보기로 리셋</span>
+              <span>전국 지도로 초기화</span>
             </ResetAllBtn>
           )}
 
           <GroupTitle>
             <Sparkles size={13} color={lightPalette.cheongrok[500]} />
-            <span>추천 명소</span>
+            <span>추천 검색어</span>
           </GroupTitle>
           <Suggestions>
             {RECENT.map((keyword) => (
@@ -382,7 +382,7 @@ export default function SearchBar({ showHomeButton = true }: SearchBarProps) {
 
           <GroupTitle style={{ marginTop: 14 }}>
             <MapPin size={13} color={lightPalette.cheongrok[500]} />
-            <span>인기 한옥 지역</span>
+            <span>인기 지역</span>
           </GroupTitle>
           <Suggestions>
             {POPULAR.map((keyword) => (

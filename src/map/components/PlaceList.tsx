@@ -317,13 +317,13 @@ export default function PlaceList() {
           <EmptyIconBox>
             <Map size={24} />
           </EmptyIconBox>
-          <EmptyTitle>이 지역에 해당하는 장소가 없습니다</EmptyTitle>
+          <EmptyTitle>주변에 등록된 장소가 없습니다</EmptyTitle>
           <EmptyDesc>
-            지도를 옮기거나 다른 카테고리를 선택해보세요
+            지도를 이동하거나 다른 카테고리를 선택하세요
           </EmptyDesc>
           <ActionButton type="button" onClick={handleZoomOut}>
             <Map size={14} />
-            <span>지도 넓게 보기</span>
+            <span>지도 영역 넓히기</span>
           </ActionButton>
         </EmptyStateBox>
       ) : (
