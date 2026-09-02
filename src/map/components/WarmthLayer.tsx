@@ -297,8 +297,11 @@ const styles = css`
   .om-bud-text {
     margin: 0;
     font-size: 12.5px;
-    line-height: 1.45;
-    word-break: keep-all;
+    font-weight: 500;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   [data-theme='light'] .om-bud-text,
@@ -452,12 +455,19 @@ export default function WarmthLayer() {
         const el = document.createElement('div');
         el.className = 'om-bud';
         el.dataset.mine = String(Boolean(w.mine));
+
+        // 좋아요 평/후기의 첫 번째 줄(문장) 추출
+        const firstLine = (w.text.split('\n')[0] || '').trim();
+        const cleanPreview = firstLine.includes('. ') && firstLine.length > 30
+          ? firstLine.split('. ')[0] + '.'
+          : firstLine;
+
         el.innerHTML =
           `<div class="om-bud-head">` +
           `<span>${w.placeName}</span>` +
           `<span class="om-bud-mood">${w.mood}</span>` +
           `</div>` +
-          `<p class="om-bud-text">${w.text}</p>`;
+          `<p class="om-bud-text" title="${w.text}">${cleanPreview}</p>`;
         el.addEventListener('click', () => select(w.placeId, w.lat, w.lng));
 
         specs.push({
