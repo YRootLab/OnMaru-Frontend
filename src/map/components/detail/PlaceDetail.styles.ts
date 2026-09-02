@@ -148,8 +148,8 @@ export const SmartFeatureChip = styled.span<{ $type?: 'free' | 'parking' | 'audi
 
 export const HeroActionGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 6px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
   padding: 0 16px 14px;
 `;
 
@@ -163,6 +163,7 @@ export const LiveWarmthMeter = styled.div`
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  box-sizing: border-box;
 
   [data-theme='dark'] & {
     background: #25221d;
@@ -173,9 +174,13 @@ export const LiveWarmthStatus = styled.div`
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 700;
   color: ${meok[900]};
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 
   [data-theme='dark'] & {
     color: ${meok[100]};
@@ -183,17 +188,20 @@ export const LiveWarmthStatus = styled.div`
 `;
 
 export const LiveWarmthPulse = styled.span<{ $busy: boolean }>`
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
+  flex-shrink: 0;
   background: ${({ $busy }) => ($busy ? lightPalette.juhong[500] : lightPalette.hwanggeum[500])};
   box-shadow: 0 0 0 3px ${({ $busy }) => ($busy ? 'rgba(232, 90, 24, 0.2)' : 'rgba(245, 166, 35, 0.2)')};
 `;
 
 export const LiveWarmthCount = styled.span`
-  font-size: 11.5px;
+  font-size: 11px;
   color: ${lightPalette.juhong[500]};
   font-weight: 700;
+  flex-shrink: 0;
+  white-space: nowrap;
 `;
 
 export const HeroActionTile = styled.button<{ $highlight?: boolean; $isWarmth?: boolean }>`

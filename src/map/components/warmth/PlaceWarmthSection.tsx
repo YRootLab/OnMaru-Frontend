@@ -309,7 +309,7 @@ export default function PlaceWarmthSection({
 
   return (
     <>
-      <SectionContainer>
+      <SectionContainer id="place-warmth-section">
         <SectionHeader>
           <TitleBox>
             <Flame size={16} color={lightPalette.juhong[500]} />

@@ -337,7 +337,7 @@ export default function PlaceDetail() {
               <LiveWarmthCount>{warmthCount > 0 ? `온기 ${warmthCount}건` : '첫 온기 남기기'}</LiveWarmthCount>
             </LiveWarmthMeter>
 
-            {/* 원클릭 5단 퀵 액션 타일 바 */}
+            {/* 원클릭 4단 퀵 액션 타일 바 */}
             <HeroActionGrid>
               <HeroActionTile
                 type="button"
@@ -351,7 +351,7 @@ export default function PlaceDetail() {
                 }}
                 title={matchedOdiiStory ? '시네마틱 오디오 투어 시작' : '소리마루 오디 둘러보기'}
               >
-                <Headphones size={17} />
+                <Headphones size={18} />
                 <span>{matchedOdiiStory ? '오디 투어' : '소리 해설'}</span>
               </HeroActionTile>
 
@@ -360,7 +360,7 @@ export default function PlaceDetail() {
                 onClick={() => setIsRoadviewOpen(true)}
                 title="카카오 현장 360도 거리 풍경 둘러보기"
               >
-                <Camera size={17} />
+                <Camera size={18} />
                 <span>거리 풍경</span>
               </HeroActionTile>
 
@@ -372,12 +372,12 @@ export default function PlaceDetail() {
                   onClick={handleNavClick}
                   title="카카오맵 길찾기"
                 >
-                  <Navigation size={17} />
+                  <Navigation size={18} />
                   <span>길찾기</span>
                 </HeroActionLink>
               ) : (
                 <HeroActionTile type="button" disabled title="좌표 정보 없음">
-                  <Navigation size={17} />
+                  <Navigation size={18} />
                   <span>길찾기</span>
                 </HeroActionTile>
               )}
@@ -391,13 +391,8 @@ export default function PlaceDetail() {
                 }}
                 title="방문객 온기(후기) 보기"
               >
-                <Flame size={17} />
+                <Flame size={18} />
                 <span>온기 남기기</span>
-              </HeroActionTile>
-
-              <HeroActionTile type="button" onClick={handleShare} title="장소 링크 공유">
-                {copied ? <Check size={17} color={lightPalette.cheongrok[700]} /> : <Share2 size={17} />}
-                <span>{copied ? '복사됨' : '공유하기'}</span>
               </HeroActionTile>
             </HeroActionGrid>
 
