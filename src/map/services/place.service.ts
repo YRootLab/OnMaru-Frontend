@@ -218,8 +218,20 @@ export class PlaceService {
         }
       }
 
-      // 3-2. 전통 문화재·한옥 키워드 searchKeyword2 실시간 쿼리 병합 (소도시/군 단위 숨은 문화재 발굴)
-      const traditionalKeywords = ['한옥', '고택', '종택', '서원', '향교', '민속마을'];
+      // 3-2. 전국 각지의 한옥마을 및 전통 문화재 키워드 searchKeyword2 실시간 병렬 쿼리
+      const traditionalKeywords = [
+        '한옥마을',
+        '전통마을',
+        '민속마을',
+        '고가마을',
+        '한옥',
+        '고택',
+        '종택',
+        '서원',
+        '향교',
+        '사찰',
+        '궁궐',
+      ];
       for (const kw of traditionalKeywords) {
         fetchTasks.push(
           TourApiClient.get(
@@ -227,7 +239,7 @@ export class PlaceService {
             {
               keyword: kw,
               arrange: 'Q',
-              numOfRows: 20,
+              numOfRows: 40,
             },
             signal,
           )
