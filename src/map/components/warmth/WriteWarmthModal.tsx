@@ -118,7 +118,7 @@ const SectionLabel = styled.label`
   display: block;
   font-size: 13px;
   font-weight: 700;
-  color: ${meok[800]};
+  color: ${meok[900]};
   margin-bottom: 8px;
 `;
 
