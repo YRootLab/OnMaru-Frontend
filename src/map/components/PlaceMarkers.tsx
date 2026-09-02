@@ -25,61 +25,61 @@ export const CATEGORY_STYLES: Record<
     iconSvg: string;
   }
 > = {
-  // 1. 고택·명소 / 한옥마을: 대청 청록 (#1E7A68, #E6F5F0)
+  // 1. 고택·명소 / 한옥마을: Landmark (#1E7A68, #E6F5F0)
   spot: {
     main: '#1E7A68',
     lightBg: '#E6F5F0',
     border: '#1E7A68',
     iconSvg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="2" x2="22" y1="22" y2="22"/><line x1="6" x2="6" y1="18"/><line x1="10" x2="10" y1="18"/><line x1="14" x2="14" y1="18"/><line x1="18" x2="18" y1="18"/><polygon points="12 2 20 7 4 7"/></svg>`,
   },
-  // 2. 문화재·서원 / 궁궐·미술관: 청화 코발트 블루 (#2563EB, #EEF4FF)
+  // 2. 문화재·서원 / 궁궐·미술관: BookOpen (#2563EB, #EEF4FF)
   culture: {
     main: '#2563EB',
     lightBg: '#EEF4FF',
     border: '#2563EB',
-    iconSvg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/></svg>`,
+    iconSvg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
   },
-  // 3. 한옥숙소 / 고택스테이: 고택 쑥색 올리브 (#4D7C0F, #F7FEE7)
+  // 3. 한옥숙소 / 고택스테이: Home (#4D7C0F, #F7FEE7)
   stay: {
     main: '#4D7C0F',
     lightBg: '#F7FEE7',
     border: '#4D7C0F',
     iconSvg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
   },
-  // 4. 향토음식 / 한식당: 전통 단청 적갈/버건디 (#9F1239, #FFF1F2) — 온기 주황과 겹치지 않는 깊은 식미 컬러
+  // 4. 향토음식 / 한식당: Utensils (#9F1239, #FFF1F2)
   food: {
     main: '#9F1239',
     lightBg: '#FFF1F2',
     border: '#9F1239',
     iconSvg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2v6a3 3 0 0 1-3 3 3 3 0 0 1-3-3V2"/><path d="M12 2v20"/><path d="M21 15v7"/></svg>`,
   },
-  // 5. 한옥카페·디저트 / 전통찻집: 다원 커피 브라운 (#78350F, #FDF4E7)
+  // 5. 한옥카페·디저트 / 전통찻집: Coffee (#78350F, #FDF4E7)
   cafe: {
     main: '#78350F',
     lightBg: '#FDF4E7',
     border: '#78350F',
     iconSvg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/></svg>`,
   },
-  // 6. 한복·전통체험 / 민속촌: 자수 바이올렛 (#7C3AED, #F3E8FF)
+  // 6. 한복·전통체험 / 민속촌: Sparkles (#7C3AED, #F3E8FF)
   experience: {
     main: '#7C3AED',
     lightBg: '#F3E8FF',
     border: '#7C3AED',
     iconSvg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>`,
   },
-  // 7. 야행·축제: 달빛 인디고 (#4338CA, #EEF2FF)
+  // 7. 야행·축제: Moon (#4338CA, #EEF2FF) — 칩의 달(Moon) 아이콘과 100% 일치!
   festival: {
     main: '#4338CA',
     lightBg: '#EEF2FF',
     border: '#4338CA',
-    iconSvg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>`,
+    iconSvg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`,
   },
-  // 8. 전통시장: 장터 틸 (#0D9488, #E6FFFA)
+  // 8. 전통시장: Store (#0D9488, #E6FFFA) — 칩의 상점(Store) 아이콘과 100% 일치!
   market: {
     main: '#0D9488',
     lightBg: '#E6FFFA',
     border: '#0D9488',
-    iconSvg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`,
+    iconSvg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/><path d="M22 7a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2"/></svg>`,
   },
 };
 
