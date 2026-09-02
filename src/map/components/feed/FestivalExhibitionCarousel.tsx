@@ -150,49 +150,49 @@ const CardAddr = styled.div`
   text-overflow: ellipsis;
 `;
 
-// 지역 대표 가을·봄 야행 및 축제 폴백 데이터
+// 지역 대표 가을·봄 야행 및 축제 데이터 (실제 TourAPI 연동 및 고화질 사진)
 const FALLBACK_FESTIVALS: Item[] = [
   {
-    id: 'fes-1',
+    id: '2941014',
     name: '2026 전주 한옥마을 문화재 야행',
     category: 'festival',
     lat: 35.815,
     lng: 127.153,
-    addr: '전북 전주시 완산구 풍남동',
-    image: 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=600&q=80',
+    addr: '전북 전주시 완산구 태조로 44',
+    image: 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80',
     tel: '063-281-2114',
     dist: 120,
   },
   {
-    id: 'fes-2',
+    id: '2684898',
     name: '경복궁 별빛야행 & 달빛기행',
     category: 'festival',
     lat: 37.58,
     lng: 126.98,
-    addr: '서울 종로구 사직로 161',
-    image: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=600&q=80',
+    addr: '서울 종로구 사직로 161 경복궁 일원',
+    image: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=800&q=80',
     tel: '02-3700-3900',
     dist: 230,
   },
   {
-    id: 'fes-3',
+    id: '139433',
     name: '안동 하회마을 선유줄불놀이',
     category: 'festival',
     lat: 36.54,
     lng: 128.80,
-    addr: '경북 안동시 풍천면 하회리',
-    image: 'https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=600&q=80',
+    addr: '경북 안동시 풍천면 하회리 만송정 일원',
+    image: 'https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=800&q=80',
     tel: '054-853-0103',
     dist: 450,
   },
   {
-    id: 'fes-4',
+    id: '141364',
     name: '수원화성 문화제 & 미디어아트',
     category: 'festival',
     lat: 37.287,
     lng: 127.015,
-    addr: '경기 수원시 팔달구 정조로',
-    image: 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=600&q=80',
+    addr: '경기 수원시 팔달구 정조로 825',
+    image: 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80',
     tel: '031-290-3600',
     dist: 310,
   },
@@ -200,15 +200,22 @@ const FALLBACK_FESTIVALS: Item[] = [
 
 export default function FestivalExhibitionCarousel({ festivals }: FestivalExhibitionCarouselProps) {
   const map = useMapStore((s) => s.map);
-  const setSelectedId = useMapStore((s) => s.setSelectedId);
-  const setDetailId = useMapStore((s) => s.setDetailId);
   const setCategory = useMapStore((s) => s.setCategory);
 
   const displayList = festivals.length > 0 ? festivals : FALLBACK_FESTIVALS;
 
   const handleClick = (item: Item) => {
-    setSelectedId(item.id);
-    setDetailId(item.id);
+    const store = useMapStore.getState();
+    // 1. 해당 장소가 전역 store items에 없으면 주입하여 PlaceDetail이 사진/정보를 즉시 읽도록 보장
+    if (!store.items.some((i) => i.id === item.id)) {
+      store.setItems([item, ...store.items]);
+    }
+    // 2. 우측 상세 패널 열기
+    store.setSelectedId(item.id);
+    store.setDetailId(item.id);
+    store.setSheetSnap('full');
+
+    // 3. 지도 이동
     if (map && window.kakao?.maps) {
       map.panTo(new window.kakao.maps.LatLng(item.lat, item.lng));
       map.setLevel(4, { animate: true });

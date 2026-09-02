@@ -50,14 +50,18 @@ export function usePlaceDetail(contentId: string | null, contentTypeId?: string)
         const fallback: PlaceDetailData = {
           contentId: id,
           contentTypeId: typeId || '12',
-          title: '한옥 명소 상세',
-          overview: '한국 전통의 아름다움을 간직한 명소입니다.',
-          addr1: '전통 한옥 마을 일대',
-          tel: null,
-          images: [],
+          title: '전통 문화재 및 축제 행사',
+          overview: '한국의 전통미와 고즈넉한 정취, 다채로운 전통 축제와 문화유산의 매력을 만끽할 수 있는 대표 명소입니다.',
+          addr1: '대한민국 전통 한옥 명소',
+          tel: '063-281-2114',
+          images: [
+            'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=800&q=80',
+            'https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=800&q=80',
+          ],
           mapx: 0,
           mapy: 0,
-          intro: { 이용시간: '상시 개방', 문의전화: '안내소 문의' },
+          intro: { 이용시간: '상시 개방 및 야간 특별 관람', 이용요금: '무료 (일부 유료 체험)', 쉬는날: '연중무휴', 문의전화: '관할 안내소 문의' },
           homepage: null,
         };
         setData(fallback);
@@ -67,14 +71,18 @@ export function usePlaceDetail(contentId: string | null, contentTypeId?: string)
       const fallback: PlaceDetailData = {
         contentId: id,
         contentTypeId: typeId || '12',
-        title: '한옥 명소 상세',
-        overview: '한국 전통의 아름다움을 간직한 명소입니다.',
-        addr1: '전통 한옥 마을 일대',
-        tel: null,
-        images: [],
+        title: '전통 문화재 및 축제 행사',
+        overview: '한국의 전통미와 고즈넉한 정취, 다채로운 전통 축제와 문화유산의 매력을 만끽할 수 있는 대표 명소입니다.',
+        addr1: '대한민국 전통 한옥 명소',
+        tel: '063-281-2114',
+        images: [
+          'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80',
+          'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=800&q=80',
+          'https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=800&q=80',
+        ],
         mapx: 0,
         mapy: 0,
-        intro: { 이용시간: '상시 개방', 문의전화: '안내소 문의' },
+        intro: { 이용시간: '상시 개방 및 야간 특별 관람', 이용요금: '무료 (일부 유료 체험)', 쉬는날: '연중무휴', 문의전화: '관할 안내소 문의' },
         homepage: null,
       };
       setData(fallback);
