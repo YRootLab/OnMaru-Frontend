@@ -18,7 +18,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { meok } from '@/design-system/tokens';
-import { MODE_COLOR, useMapStore } from '@/map/hooks/useMapStore';
+import { useMapStore } from '@/map/hooks/useMapStore';
 import type { MapMode } from '@/map/types';
 
 const CATEGORIES: Record<MapMode, { id: string; label: string; icon: LucideIcon }[]> = {
@@ -53,7 +53,7 @@ const Scroller = styled.div`
   }
 `;
 
-const Chip = styled.button<{ $active: boolean; $color: string }>`
+const Chip = styled.button<{ $active: boolean }>`
   display: flex;
   flex: none;
   align-items: center;
@@ -62,7 +62,7 @@ const Chip = styled.button<{ $active: boolean; $color: string }>`
   padding: 0 16px;
 
   border-radius: 9999px;
-  background: ${({ $active, $color }) => ($active ? $color : 'rgba(255, 255, 255, 0.92)')};
+  background: ${({ $active }) => ($active ? meok[900] : 'rgba(255, 255, 255, 0.94)')};
   backdrop-filter: blur(16px);
 
   color: ${({ $active }) => ($active ? '#FFFFFF' : meok[700])};
@@ -75,7 +75,7 @@ const Chip = styled.button<{ $active: boolean; $color: string }>`
 
   &:hover {
     transform: translateY(-1px);
-
+    background: ${({ $active }) => ($active ? meok[900] : '#ffffff')};
     color: ${({ $active }) => ($active ? '#FFFFFF' : meok[900])};
   }
 
@@ -84,7 +84,7 @@ const Chip = styled.button<{ $active: boolean; $color: string }>`
   }
 
   &:focus-visible {
-    outline: 2px solid ${({ $color }) => $color};
+    outline: 2px solid ${meok[900]};
     outline-offset: 2px;
   }
 `;
@@ -93,7 +93,6 @@ export default function CategoryChips() {
   const mode = useMapStore((s) => s.mode);
   const category = useMapStore((s) => s.category);
   const setCategory = useMapStore((s) => s.setCategory);
-  const color = MODE_COLOR[mode];
 
   const handleChipClick = (id: string) => {
     if (id === 'all') {
@@ -117,7 +116,6 @@ export default function CategoryChips() {
             type="button"
             aria-pressed={active}
             $active={active}
-            $color={color}
             onClick={() => handleChipClick(id)}
           >
             <Icon size={16} aria-hidden />
