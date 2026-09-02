@@ -44,14 +44,24 @@ export function useKakaoMap(containerRef: RefObject<HTMLDivElement | null>) {
         level,
       });
 
-      // idle에서만 중심을 되받는다. 드래그 중 매 프레임 스토어를 때리지 않기 위해서.
+      let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+      // 지도를 드래그하거나 줌을 변경한 후 멈추면(idle) 자동으로 주변 데이터 실시간 로딩
       window.kakao.maps.event.addListener(map, 'idle', () => {
         const c = map.getCenter();
+        const currentLevel = map.getLevel();
         const next = { lat: c.getLat(), lng: c.getLng() };
-        setCenter(next, map.getLevel());
-        if (distanceInMeters(next, useMapStore.getState().searchCenter) >= SEARCH_DIRTY_DISTANCE) {
-          markSearchDirty();
-        }
+        setCenter(next, currentLevel);
+
+        if (debounceTimer) clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+          const store = useMapStore.getState();
+          const dist = distanceInMeters(next, store.searchCenter);
+          // 400m 이상 이동했거나 줌 레벨이 변경되었을 때 자동으로 실시간 데이터 패치
+          if (dist >= 400 || currentLevel !== store.level) {
+            store.clearSearchDirty();
+          }
+        }, 320);
       });
 
       setMap(map);
