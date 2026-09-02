@@ -218,7 +218,32 @@ export class PlaceService {
         }
       }
 
-      // 3-2. 전국 각지의 한옥마을 및 전통 문화재 키워드 searchKeyword2 실시간 병렬 쿼리
+      // 3-2. 전국 17개 광역 시·도별 areaBasedList2 실시간 병렬 쿼리 (서울~제주 전역 균형 수집)
+      if (isNationwide) {
+        const AREA_CODES = ['1', '2', '3', '4', '5', '6', '7', '8', '31', '32', '33', '34', '35', '36', '37', '38', '39'];
+        for (const aCode of AREA_CODES) {
+          fetchTasks.push(
+            TourApiClient.get(
+              'areaBasedList2',
+              {
+                areaCode: aCode,
+                contentTypeId: opts.category ? CATEGORY_MAP[opts.category].contentTypeId : '12',
+                arrange: 'Q',
+                numOfRows: 15,
+              },
+              signal,
+            )
+              .then((res) => {
+                const raw = res?.response?.body?.items?.item;
+                const rows = (Array.isArray(raw) ? raw : raw ? [raw] : []) as Record<string, unknown>[];
+                return { cType: opts.category ? CATEGORY_MAP[opts.category].contentTypeId : '12', rows };
+              })
+              .catch(() => ({ cType: '12', rows: [] })),
+          );
+        }
+      }
+
+      // 3-3. 전국 각지의 한옥마을 및 전통 문화재 키워드 searchKeyword2 실시간 병렬 쿼리
       const traditionalKeywords = [
         '한옥마을',
         '전통마을',
@@ -239,7 +264,7 @@ export class PlaceService {
             {
               keyword: kw,
               arrange: 'Q',
-              numOfRows: 40,
+              numOfRows: isNationwide ? 60 : 30,
             },
             signal,
           )

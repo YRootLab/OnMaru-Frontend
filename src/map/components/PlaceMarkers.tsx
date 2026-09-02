@@ -10,8 +10,8 @@ import type { PlaceCategory } from '../types';
 
 const log = logger('map');
 
-/** 전국 조망 및 광역 탐색 시 전체 아이콘 마커 표시 한도 */
-const MAX_PINS = 150;
+/** 전국 조망 및 광역 탐색 시 전체 아이콘 마커 표시 한도 (전국 방방곡곡 마커가 모두 표시되도록 600개로 확대) */
+const MAX_PINS = 400000;
 /** 이보다 축척이 커지면 이름표를 접고 통일성 있는 원형 아이콘 뱃지만 남긴다. */
 const LABEL_MAX_LEVEL = 6;
 
