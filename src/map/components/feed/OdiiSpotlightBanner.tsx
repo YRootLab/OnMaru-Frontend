@@ -8,6 +8,7 @@ import { lightPalette, meok } from '@/design-system/tokens';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { useCinematicTourStore } from '@/features/cinematic-tour/store/useCinematicTourStore';
 import { generateDynamicWaypoints } from '@/features/odii-audio/hooks/useOdiiPlaceStory';
+import { useMapStore } from '../../hooks/useMapStore';
 
 const CardContainer = styled.div`
   position: relative;
@@ -121,10 +122,32 @@ const StartBtn = styled.button`
 
 export default function OdiiSpotlightBanner() {
   const availableStories = useOdiiAudioStore((s) => s.availableStories);
+  const center = useMapStore((s) => s.center);
   const startTour = useCinematicTourStore((s) => s.startTour);
 
-  // 음원이 있는 대표 스토리 선별
-  const spotlightStory = availableStories.find((s) => Boolean(s.audioUrl)) || availableStories[0];
+  // 현재 지도 중심(center)에 가장 가까운 지역별 대표 Odii 스토리 동적 선별
+  const spotlightStory = React.useMemo(() => {
+    const validStories = availableStories.filter((s) => Boolean(s.audioUrl));
+    if (validStories.length === 0) return null;
+
+    let closest = validStories[0];
+    let minDistance = Infinity;
+
+    for (const s of validStories) {
+      const sLat = parseFloat(s.mapY);
+      const sLng = parseFloat(s.mapX);
+      if (sLat && sLng) {
+        const dLat = (sLat - center.lat) * 111;
+        const dLng = (sLng - center.lng) * 88.8;
+        const distKm = Math.sqrt(dLat * dLat + dLng * dLng);
+        if (distKm < minDistance) {
+          minDistance = distKm;
+          closest = s;
+        }
+      }
+    }
+    return closest;
+  }, [availableStories, center.lat, center.lng]);
 
   if (!spotlightStory) return null;
 

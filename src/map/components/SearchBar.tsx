@@ -3,9 +3,9 @@
 import React, { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
-import { Search, X, Home, MapPin, Sparkles } from 'lucide-react';
+import { Search, X, Home, MapPin, Sparkles, RotateCcw, Globe } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
-import { useMapStore } from '../hooks/useMapStore';
+import { DEFAULT_CENTER, DEFAULT_LEVEL, useMapStore } from '../hooks/useMapStore';
 
 const RECENT = ['전주 한옥마을', '북촌 한옥마을', '안동 하회마을', '경주 양동마을', '경복궁'];
 const POPULAR = ['전주', '북촌', '경주', '안동', '강릉', '담양', '공주'];
@@ -24,16 +24,14 @@ const Field = styled.form`
   align-items: center;
   gap: 6px;
   height: 44px;
-  padding: 0 14px 0 6px;
+  padding: 0 12px 0 6px;
   border-radius: 9999px;
   background: rgba(25, 31, 40, 0.05);
-  border: 1.5px solid transparent;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:focus-within {
     background: #ffffff;
-    border-color: ${lightPalette.cheongrok[500]};
-    box-shadow: 0 4px 16px rgba(30, 122, 104, 0.15);
+    box-shadow: 0 4px 16px rgba(30, 122, 104, 0.12);
   }
 `;
 
@@ -95,12 +93,18 @@ const Input = styled.input`
   }
 `;
 
-const Clear = styled.button`
+const ButtonGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`;
+
+const ActionIconBtn = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   flex: none;
   padding: 0;
   border: none;
@@ -125,9 +129,36 @@ const Dropdown = styled.div`
   padding: 16px;
   border-radius: 20px;
   background: #ffffff;
-  border: 1px solid rgba(78, 89, 104, 0.12);
   box-shadow: 0 12px 36px rgba(25, 31, 40, 0.12);
   backdrop-filter: blur(20px);
+`;
+
+const ResetAllBtn = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 9px 14px;
+  margin-bottom: 12px;
+  border: none;
+  border-radius: 12px;
+  background: ${lightPalette.cheongrok[50]};
+  color: ${lightPalette.cheongrok[700]};
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: ${lightPalette.cheongrok[100]};
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
 `;
 
 const GroupTitle = styled.p`
@@ -155,9 +186,9 @@ const Suggestion = styled.button`
   align-items: center;
   gap: 4px;
   padding: 5px 12px;
-  border: 1px solid rgba(78, 89, 104, 0.12);
+  border: none;
   border-radius: 9999px;
-  background: #ffffff;
+  background: rgba(25, 31, 40, 0.05);
   font-family: inherit;
   font-size: 12.5px;
   font-weight: 500;
@@ -168,18 +199,36 @@ const Suggestion = styled.button`
   &:hover {
     background: ${lightPalette.cheongrok[50]};
     color: ${lightPalette.cheongrok[700]};
-    border-color: ${lightPalette.cheongrok[200]};
   }
 `;
 
 export default function SearchBar({ showHomeButton = true }: SearchBarProps) {
   const router = useRouter();
   const map = useMapStore((s) => s.map);
+  const currentAddress = useMapStore((s) => s.currentAddress);
   const [value, setValue] = useState('');
   const [open, setOpen] = useState(false);
 
   const handleGoHome = () => {
     router.push('/');
+  };
+
+  // 전국 전체보기로 지도 및 검색 초기화
+  const handleResetToNationwide = () => {
+    setValue('');
+    setOpen(false);
+    const store = useMapStore.getState();
+    store.setCurrentAddress('대한민국 전국');
+    store.setCenter(DEFAULT_CENTER, DEFAULT_LEVEL);
+    store.setCategory(null);
+    store.setSelectedId(null);
+    store.setDetailId(null);
+    store.clearSearchDirty();
+
+    if (map && window.kakao?.maps) {
+      map.setCenter(new window.kakao.maps.LatLng(DEFAULT_CENTER.lat, DEFAULT_CENTER.lng));
+      map.setLevel(DEFAULT_LEVEL, { animate: true });
+    }
   };
 
   const performSearch = useCallback(
@@ -246,6 +295,8 @@ export default function SearchBar({ showHomeButton = true }: SearchBarProps) {
     performSearch(value);
   };
 
+  const isSearched = Boolean(value) || (currentAddress && !currentAddress.includes('전국'));
+
   return (
     <Wrap>
       <Field onSubmit={handleSubmit}>
@@ -271,24 +322,47 @@ export default function SearchBar({ showHomeButton = true }: SearchBarProps) {
           aria-label="장소 검색"
           onChange={(e) => setValue(e.target.value)}
           onFocus={() => setOpen(true)}
-          onBlur={() => setTimeout(() => setOpen(false), 200)}
+          onBlur={() => setTimeout(() => setOpen(false), 220)}
         />
 
-        {value && (
-          <Clear
-            type="button"
-            aria-label="검색어 지우기"
-            onClick={() => {
-              setValue('');
-            }}
-          >
-            <X size={14} />
-          </Clear>
-        )}
+        <ButtonGroup>
+          {isSearched && (
+            <ActionIconBtn
+              type="button"
+              aria-label="전국 전체보기로 초기화"
+              title="전국 전체보기로 리셋"
+              onClick={handleResetToNationwide}
+            >
+              <RotateCcw size={13} />
+            </ActionIconBtn>
+          )}
+
+          {value && (
+            <ActionIconBtn
+              type="button"
+              aria-label="검색어 지우기"
+              onClick={() => {
+                setValue('');
+              }}
+            >
+              <X size={14} />
+            </ActionIconBtn>
+          )}
+        </ButtonGroup>
       </Field>
 
       {open && (
         <Dropdown>
+          {isSearched && (
+            <ResetAllBtn
+              type="button"
+              onMouseDown={handleResetToNationwide}
+            >
+              <Globe size={15} />
+              <span>대한민국 전국 전체보기로 리셋</span>
+            </ResetAllBtn>
+          )}
+
           <GroupTitle>
             <Sparkles size={13} color={lightPalette.cheongrok[500]} />
             <span>추천 명소</span>
