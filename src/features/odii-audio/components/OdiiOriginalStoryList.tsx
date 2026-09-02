@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Heart, Play, Pause, Music } from 'lucide-react';
 import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
 import { OdiiStoryItem } from '../types/odii.types';
 
@@ -56,8 +57,8 @@ export const OdiiOriginalStoryList: React.FC<Props> = ({ stories, onBookmarkStor
               className={`group flex cursor-pointer items-center justify-between gap-3 rounded-xl px-2.5 py-3 transition-all duration-300 ${current ? 'bg-[#fff0f5] ring-1 ring-[#f84e76]/25 shadow-sm' : 'hover:bg-[#fff8fa]'}`}
             >
               <div className="flex min-w-0 items-center gap-3.5">
-                <span className={`w-6 shrink-0 text-center font-mono text-[11px] font-semibold ${current ? 'text-[#f84e76]' : 'text-[#8c7e6c]'}`}>
-                  {playing ? '♫' : String(index + 1).padStart(2, '0')}
+                <span className={`flex w-6 shrink-0 items-center justify-center font-mono text-[11px] font-semibold ${current ? 'text-[#f84e76]' : 'text-[#8c7e6c]'}`}>
+                  {playing ? <Music size={12} className="animate-pulse text-[#f84e76]" /> : String(index + 1).padStart(2, '0')}
                 </span>
                 <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-[#e8e0d5] ring-1 ring-black/5 sm:h-[52px] sm:w-[52px]">
                   <img src={imageFor(story, index)} alt={story.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = FALLBACK_IMAGES[0]; }} />
@@ -73,10 +74,24 @@ export const OdiiOriginalStoryList: React.FC<Props> = ({ stories, onBookmarkStor
                 </div>
               </div>
               <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-                {onBookmarkStory && <button type="button" onClick={(event) => { event.stopPropagation(); onBookmarkStory(story); }} aria-label={saved ? '마음에서 삭제' : '마음에 담기'} className={`text-base leading-none transition-transform hover:scale-110 ${saved ? 'text-[#f84e76]' : 'text-[#b1a396] hover:text-[#f84e76]'}`}>{saved ? '♥' : '♡'}</button>}
+                {onBookmarkStory && (
+                  <button
+                    type="button"
+                    onClick={(event) => { event.stopPropagation(); onBookmarkStory(story); }}
+                    aria-label={saved ? '마음에서 삭제' : '마음에 담기'}
+                    className={`transition-transform hover:scale-110 ${saved ? 'text-[#f84e76]' : 'text-[#b1a396] hover:text-[#f84e76]'}`}
+                  >
+                    <Heart size={16} className={saved ? 'fill-current' : ''} />
+                  </button>
+                )}
                 <span className="hidden font-mono text-[11px] text-[#8c7e6c] sm:inline-block">{story.formattedDuration || '3:00'}</span>
-                <button type="button" onClick={(event) => play(story, event)} aria-label={playing ? '일시정지' : '재생'} className={`flex h-8 w-8 items-center justify-center rounded-full transition-all ${playing ? 'scale-105 bg-[#f84e76] text-white' : 'border border-[#f84e76]/25 bg-white text-[#f84e76] hover:border-[#f84e76] hover:bg-[#f84e76] hover:text-white'}`}>
-                  {playing ? 'Ⅱ' : '▶'}
+                <button
+                  type="button"
+                  onClick={(event) => play(story, event)}
+                  aria-label={playing ? '일시정지' : '재생'}
+                  className={`flex h-8 w-8 items-center justify-center rounded-full transition-all ${playing ? 'scale-105 bg-[#f84e76] text-white' : 'border border-[#f84e76]/25 bg-white text-[#f84e76] hover:border-[#f84e76] hover:bg-[#f84e76] hover:text-white'}`}
+                >
+                  {playing ? <Pause size={12} fill="currentColor" /> : <Play size={12} fill="currentColor" className="ml-0.5" />}
                 </button>
               </div>
             </motion.div>

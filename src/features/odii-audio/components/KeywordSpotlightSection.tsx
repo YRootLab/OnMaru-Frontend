@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion, Variants } from 'framer-motion';
+import { Heart } from 'lucide-react';
 import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
 import { OdiiStoryItem, IOdiiApiService } from '../types/odii.types';
 import { ODII_THEME_CATEGORIES } from '../data/odiiCategoryData';
@@ -282,9 +283,13 @@ export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = (
                             type="button"
                             onClick={() => onBookmarkStory(spotlightStory)}
                             aria-pressed={bookmarkedIds.has(spotlightStory.stid)}
-                            className={`text-xs font-semibold transition-colors ${bookmarkedIds.has(spotlightStory.stid) ? 'text-[#a94d35]' : 'text-[#8c7e6c] hover:text-[#a94d35]'}`}
+                            className={`inline-flex items-center gap-1.5 text-xs font-semibold transition-colors ${bookmarkedIds.has(spotlightStory.stid) ? 'text-[#a94d35]' : 'text-[#8c7e6c] hover:text-[#a94d35]'}`}
                           >
-                            {bookmarkedIds.has(spotlightStory.stid) ? '♥ 담아둔 소리' : '♡ 마음에 담기'}
+                            <Heart
+                              size={14}
+                              className={bookmarkedIds.has(spotlightStory.stid) ? 'fill-current' : ''}
+                            />
+                            <span>{bookmarkedIds.has(spotlightStory.stid) ? '담아둔 소리' : '마음에 담기'}</span>
                           </button>
                         )}
                       </div>

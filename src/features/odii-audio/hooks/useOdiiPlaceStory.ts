@@ -104,7 +104,7 @@ export function generateDynamicWaypoints(story: OdiiStoryItem): TourWaypoint[] {
       lat: baseLat + offset.lat,
       lng: baseLng + offset.lng,
       zoomLevel: 2,
-      photoTip: `📸 ${offset.tip}`,
+      photoTip: offset.tip,
       description: lineExcerpt,
     });
   }

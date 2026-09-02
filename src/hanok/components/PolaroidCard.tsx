@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
 import { meok, lightPalette } from '@/design-system/tokens';
 import type { Village } from '@/hanok/types';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Home } from 'lucide-react';
 
 // 각 인덱스에 고정된 회전각 (자연스러운 폴라로이드 느낌)
 const ROTATIONS = [-4.2, 2.8, -2.1, 3.5];
@@ -223,7 +223,7 @@ export default function PolaroidCard({
             whileHover={{ scale: 1.07 }}
             transition={{ duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
           />
-          {!village.hasImage && <NoImageLabel>🏠</NoImageLabel>}
+          {!village.hasImage && <NoImageLabel><Home size={32} /></NoImageLabel>}
         </PhotoArea>
 
         <HandWritingCaption>

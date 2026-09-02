@@ -217,7 +217,7 @@ export default function CinematicTourMapLayer() {
 
       el.innerHTML = `
         <div class="om-tour-pin-badge">
-          ${isCurrent ? '🔴 재생중' : `스팟 ${idx + 1}`} : ${wp.title}
+          ${isCurrent ? '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#D42058;margin-right:4px;vertical-align:middle;"></span>재생중' : `스팟 ${idx + 1}`} : ${wp.title}
         </div>
         <div class="om-tour-pin-icon">
           <span>${idx + 1}</span>

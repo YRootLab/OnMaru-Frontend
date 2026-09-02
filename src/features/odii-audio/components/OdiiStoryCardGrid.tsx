@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Heart, Play, Pause } from 'lucide-react';
 import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
 import { OdiiStoryItem } from '../types/odii.types';
 
@@ -101,8 +102,10 @@ export const OdiiStoryCardGrid: React.FC<OdiiStoryCardGridProps> = ({
                     className={`absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center rounded-full shadow-lg transition-transform duration-300 group-hover:scale-105 ${isCurrent ? 'bg-[#f84e76] text-white' : 'bg-white/95 text-[#f84e76]'}`}
                   >
                     {isCurrent && isPlaying ? (
-                      <span className="flex gap-0.5"><i className="h-3 w-0.5 bg-current" /><i className="h-3 w-0.5 bg-current" /></span>
-                    ) : <span className="ml-0.5 text-sm">▶</span>}
+                      <Pause size={12} fill="currentColor" />
+                    ) : (
+                      <Play size={12} fill="currentColor" className="ml-0.5" />
+                    )}
                   </button>
                 </div>
 
@@ -114,9 +117,9 @@ export const OdiiStoryCardGrid: React.FC<OdiiStoryCardGridProps> = ({
                         type="button"
                         onClick={() => onBookmarkStory(story)}
                         aria-label={isBookmarked ? '마음에서 삭제' : '마음에 담기'}
-                        className={`text-base leading-none transition-colors ${isBookmarked ? 'text-[#f84e76]' : 'text-[#b0a398] hover:text-[#f84e76]'}`}
+                        className={`transition-colors hover:scale-110 ${isBookmarked ? 'text-[#f84e76]' : 'text-[#b0a398] hover:text-[#f84e76]'}`}
                       >
-                        {isBookmarked ? '♥' : '♡'}
+                        <Heart size={16} className={isBookmarked ? 'fill-current' : ''} />
                       </button>
                     )}
                   </div>

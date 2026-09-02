@@ -184,7 +184,10 @@ export default function WarmthFeed() {
             <FeaturedLeft>
               <FeaturedIconBox>{renderPlaceIcon(topPlace.placeType)}</FeaturedIconBox>
               <FeaturedInfo>
-                <FeaturedRank>🔥 1위 대표 명소</FeaturedRank>
+                <FeaturedRank>
+                  <Flame size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
+                  <span>1위 대표 명소</span>
+                </FeaturedRank>
                 <FeaturedName>{topPlace.placeName}</FeaturedName>
                 <FeaturedMeta>
                   {topPlace.placeRegion} · {topPlace.placeType}

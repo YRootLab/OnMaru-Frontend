@@ -6,6 +6,7 @@
 
 import styled       from '@emotion/styled'
 import { css }      from '@emotion/react'
+import { Moon, Sun } from 'lucide-react'
 import { useOnmaruTheme } from './ThemeProvider'
 import type { OnmaruTheme } from './tokens'
 
@@ -378,7 +379,15 @@ export function ThemeToggleButton() {
         }
       `}
     >
-      {mode === 'light' ? '🌙 야간 모드' : '☀️ 주간 모드'}
+      {mode === 'light' ? (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Moon size={14} /> 야간 모드
+        </span>
+      ) : (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Sun size={14} /> 주간 모드
+        </span>
+      )}
     </button>
   )
 }
