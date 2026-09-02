@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
-import { OdiiChapterPresentation } from '../types/odiiChapter.types';
+import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
+import { OdiiChapterPresentation } from '@/features/odii-audio/types/odiiChapter.types';
 
 interface ZIndexStackedSectionProps {
   chapters: OdiiChapterPresentation[];
@@ -58,7 +58,7 @@ export const ZIndexStackedSection: React.FC<ZIndexStackedSectionProps> = ({ chap
                 onClick={() => setActiveChapterId(chap.id)}
                 className={`flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-xs font-semibold transition-all duration-300 ${
                   isActive
-                    ? 'bg-[#211e19] text-white shadow-sm font-bold'
+                    ? 'bg-[#211e19] text-white  font-bold'
                     : 'bg-[#f7f4ee] text-[#655b4d] hover:bg-[#ede5d8] hover:text-[#211e19]'
                 }`}
               >
@@ -69,7 +69,7 @@ export const ZIndexStackedSection: React.FC<ZIndexStackedSectionProps> = ({ chap
         </div>
 
         {/* 정갈하고 절제된 에디토리얼 카드 (이미지 과다 제거, 텍스트 집중) */}
-        <div className="relative min-h-[360px] w-full overflow-hidden rounded-3xl border border-[#211e19]/10 bg-[#fbf8f2] shadow-[0_8px_24px_rgba(33,30,25,0.04)]">
+        <div className="relative min-h-[360px] w-full overflow-hidden rounded-3xl border border-[#211e19]/10 bg-[#fbf8f2] ">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeChapter.id}

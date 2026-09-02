@@ -3,8 +3,8 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
-import { STAGES, type HanokStageData } from '../../data/hanok.data';
-import { useHanokViewerStore } from '../../store/useHanokViewerStore';
+import { STAGES, type HanokStageData } from '@/temp/archive/hanok-viewer/data/hanok.data';
+import { useHanokViewerStore } from '@/temp/archive/hanok-viewer/store/useHanokViewerStore';
 import { meok } from '@/design-system/tokens';
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -83,7 +83,6 @@ const StageIndicatorGroup = styled.div`
 
 const StageIndicatorButton = styled.button<{ isActive: boolean }>`
   height: 4px;
-  border: none;
   padding: 0;
   cursor: pointer;
   border-radius: 2px;
@@ -151,7 +150,6 @@ const MoreToggle = styled.button`
   align-items: center;
   gap: 4px;
   background: none;
-  border: none;
   border-bottom: 1px solid currentColor;
   padding: 0 0 3px 0;
   margin-left: 8px;

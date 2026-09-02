@@ -6,9 +6,9 @@ import styled from '@emotion/styled';
 import { Global, css } from '@emotion/react';
 import { Loader2, LocateFixed, Minus, Plus, RotateCw } from 'lucide-react';
 import { meok, lightPalette } from '@/design-system/tokens';
-import { KAKAO_SDK_SRC, useKakaoMap } from '../hooks/useKakaoMap';
-import { DEFAULT_CENTER, useMapStore } from '../hooks/useMapStore';
-import type { LatLng } from '../types';
+import { KAKAO_SDK_SRC, useKakaoMap } from '@/map/hooks/useKakaoMap';
+import { DEFAULT_CENTER, useMapStore } from '@/map/hooks/useMapStore';
+import type { LatLng } from '@/map/types';
 
 const mapGlobalStyles = css`
   /* ------------------------------------------------------------
@@ -50,7 +50,7 @@ const mapGlobalStyles = css`
     font-size: 11.5px;
     font-weight: 800;
     white-space: nowrap;
-    box-shadow: 0 3px 12px rgba(25, 31, 40, 0.18);
+
     backdrop-filter: blur(6px);
   }
 
@@ -58,14 +58,13 @@ const mapGlobalStyles = css`
   :root:not([data-theme='dark']) .om-my-location-label {
     background: rgba(255, 255, 255, 0.96);
     color: #1a3898;
-    border: 1.5px solid rgba(43, 92, 230, 0.3);
+
   }
 
   [data-theme='dark'] .om-my-location-label {
     background: rgba(32, 68, 164, 0.92);
     color: #ffffff;
-    border: 1.5px solid rgba(90, 137, 246, 0.5);
-    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.5);
+
   }
 
   .om-my-location-icon-wrap {
@@ -78,14 +77,13 @@ const mapGlobalStyles = css`
     border-radius: 50% 50% 50% 0;
     transform: rotate(-45deg);
     background: #2b5ce6;
-    border: 2.5px solid #ffffff;
-    box-shadow: 0 4px 14px rgba(43, 92, 230, 0.45);
+
   }
 
   [data-theme='dark'] .om-my-location-icon-wrap {
     background: #5a89f6;
     border-color: #1c1a17;
-    box-shadow: 0 0 16px rgba(90, 137, 246, 0.7);
+
   }
 
   .om-my-location-icon-wrap svg {
@@ -141,10 +139,10 @@ const Research = styled.button`
   gap: 6px;
   height: 40px;
   padding: 0 18px;
-  border: none;
+
   border-radius: 9999px;
   background: #ffffff;
-  box-shadow: 0 4px 16px rgba(25, 31, 40, 0.16);
+
   color: ${meok[900]};
   font-family: inherit;
   font-size: 14px;
@@ -188,7 +186,7 @@ const Stack = styled.div`
   flex-direction: column;
   border-radius: 10px;
   background: #ffffff;
-  box-shadow: 0 2px 10px rgba(25, 31, 40, 0.14);
+
   overflow: hidden;
 `;
 
@@ -198,7 +196,7 @@ const ControlButton = styled.button`
   justify-content: center;
   width: 40px;
   height: 40px;
-  border: none;
+
   background: #ffffff;
   color: ${meok[700]};
   cursor: pointer;

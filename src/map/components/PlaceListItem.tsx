@@ -18,7 +18,7 @@ import { lightPalette, meok } from '@/design-system/tokens';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { matchOdiiStory } from '@/features/odii-audio/hooks/useOdiiPlaceStory';
 import { CATEGORY_STYLES } from './PlaceMarkers';
-import type { Item, PlaceCategory } from '../types';
+import type { Item, PlaceCategory } from '@/map/types';
 
 interface PlaceListItemProps {
   item: Item;
@@ -40,7 +40,7 @@ const ItemButton = styled.button<{ $isSelected: boolean }>`
   gap: 12px;
   width: 100%;
   padding: 12px 14px;
-  border: none;
+
   border-radius: 16px;
   background: ${({ $isSelected }) =>
     $isSelected ? 'rgba(40, 110, 95, 0.08)' : 'transparent'};
@@ -189,7 +189,7 @@ const OdiiBadge = styled.span`
   font-weight: 800;
   color: #ffffff;
   background: ${lightPalette.jangmi[500]};
-  box-shadow: 0 1px 4px rgba(212, 32, 88, 0.35);
+
   white-space: nowrap;
 `;
 

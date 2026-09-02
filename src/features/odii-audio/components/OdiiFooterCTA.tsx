@@ -57,7 +57,7 @@ export const OdiiFooterCTA: React.FC = () => {
             <div className="mt-8 flex flex-col sm:flex-row items-center gap-3">
               <Link
                 href="/map"
-                className="w-full rounded-full bg-[#f84e76] px-6 py-3 text-xs font-bold text-white shadow-[0_8px_18px_rgba(248,78,118,0.2)] transition-transform hover:scale-105 hover:bg-[#dc4569] sm:w-auto"
+                className="w-full rounded-full bg-[#f84e76] px-6 py-3 text-xs font-bold text-white  transition-transform hover:scale-105 hover:bg-[#dc4569] sm:w-auto"
               >
                 전국 한옥 지도에서 둘러보기 →
               </Link>

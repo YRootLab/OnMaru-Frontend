@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, type RefObject } from 'react';
 import { useMapStore } from './useMapStore';
-import type { LatLng } from '../types';
+import type { LatLng } from '@/map/types';
 
 /** autoload=false 필수 — kakao.maps.load()로 직접 초기화한다. */
 export const KAKAO_SDK_SRC =

@@ -1,4 +1,4 @@
-import { OdiiAtmosphere, OdiiChapterDefinition } from '../types/odiiChapter.types';
+import { OdiiAtmosphere, OdiiChapterDefinition } from '@/features/odii-audio/types/odiiChapter.types';
 
 export interface OdiiChapterExtendedDefinition extends OdiiChapterDefinition {
   heroImageUrl: string;

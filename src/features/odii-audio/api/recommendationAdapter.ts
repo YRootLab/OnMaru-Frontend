@@ -1,6 +1,6 @@
 import { odiiApiAdapter } from './odiiApi';
-import { OdiiStoryItem } from '../types/odii.types';
-import { CONSTELLATION_NODES, ConstellationNode } from '../data/constellationData';
+import { OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
+import { CONSTELLATION_NODES, ConstellationNode } from '@/features/odii-audio/data/constellationData';
 
 export interface RecommendationResult {
   node: ConstellationNode;

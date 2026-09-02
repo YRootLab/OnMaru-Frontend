@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
+import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 
 export function useOdiiAudioPlayer() {
   const audioRef = useRef<HTMLAudioElement | null>(null);

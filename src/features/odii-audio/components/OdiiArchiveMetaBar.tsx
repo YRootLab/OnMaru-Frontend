@@ -1,8 +1,8 @@
 'use client';
 
 import React, { FormEvent, useId, useState } from 'react';
-import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
-import { ODII_THEME_CATEGORIES } from '../data/odiiCategoryData';
+import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
+import { ODII_THEME_CATEGORIES } from '@/features/odii-audio/data/odiiCategoryData';
 
 interface Props {
   resultCount: number;
@@ -44,7 +44,7 @@ export const OdiiArchiveMetaBar: React.FC<Props> = ({ resultCount, totalCount })
   return (
     <div className="mb-5 flex flex-col gap-3 rounded-2xl border border-[#211e19]/8 bg-white/65 p-3 sm:flex-row sm:items-center sm:justify-between sm:px-4">
       <div className="flex min-w-0 items-center gap-2.5">
-        <span className="h-2 w-2 shrink-0 rounded-full bg-[#f84e76] shadow-[0_0_0_4px_rgba(248,78,118,0.1)]" />
+        <span className="h-2 w-2 shrink-0 rounded-full bg-[#f84e76] " />
         <span className="truncate text-xs font-semibold text-[#211e19]">{labelFor(selectedCategory)}</span>
         {searchQuery && <span className="truncate text-[11px] text-[#8c7e6c]">“{searchQuery}”</span>}
         <span className="shrink-0 text-[10px] text-[#a59a8d]">{totalCount ?? resultCount}개 결과</span>

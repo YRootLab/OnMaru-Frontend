@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
-import { OdiiStoryItem, OdiiCategory } from '../types/odii.types';
+import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
+import { OdiiStoryItem, OdiiCategory } from '@/features/odii-audio/types/odii.types';
 
 interface AllStoriesModalProps {
   isOpen: boolean;
@@ -74,7 +74,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fade-in">
-      <div className="bg-[#1C1814] text-white w-full max-w-4xl max-h-[85vh] rounded-3xl border border-[#3A332C] shadow-2xl flex flex-col overflow-hidden">
+      <div className="bg-[#1C1814] text-white w-full max-w-4xl max-h-[85vh] rounded-3xl border border-[#3A332C]  flex flex-col overflow-hidden">
         {/* 모달 헤더 */}
         <div className="flex items-center justify-between p-6 border-b border-[#3A332C]">
           <div>
@@ -105,7 +105,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
                   onClick={() => setActiveCat(cat)}
                   className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap ${
                     isSel
-                      ? 'bg-[#D42058] text-white shadow-md'
+                      ? 'bg-[#D42058] text-white '
                       : 'bg-white/5 text-[#A09588] border border-white/10 hover:bg-white/10 hover:text-white'
                   }`}
                 >
@@ -181,7 +181,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
                     }}
                     className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ml-3 ${
                       isThisPlaying
-                        ? 'bg-[#D42058] text-white shadow-lg animate-pulse'
+                        ? 'bg-[#D42058] text-white  animate-pulse'
                         : 'bg-white/10 text-white hover:bg-[#D42058]'
                     }`}
                   >

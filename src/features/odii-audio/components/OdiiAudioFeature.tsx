@@ -17,12 +17,12 @@ import { SoundConstellationSection } from './SoundConstellationSection';
 import { AllStoriesModal } from './AllStoriesModal';
 import { LocalMiniPlayer } from './LocalMiniPlayer';
 import { OdiiAtmosphereBackground } from './OdiiAtmosphereBackground';
-import { HanjiTearTransition } from '../background/HanjiTearTransition';
-import type { OdiiBackgroundVariant } from '../background/odiiBackground.types';
+import { HanjiTearTransition } from '@/features/odii-audio/background/HanjiTearTransition';
+import type { OdiiBackgroundVariant } from '@/features/odii-audio/background/odiiBackground.types';
 import { VesselReveal } from '@/shared/components/animation/VesselReveal';
-import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
-import { OdiiStoryItem, OdiiStoryPage, IOdiiApiService } from '../types/odii.types';
-import { OdiiDependencyProvider, useOdiiApiService } from '../context/OdiiDependencyContext';
+import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
+import { OdiiStoryItem, OdiiStoryPage, IOdiiApiService } from '@/features/odii-audio/types/odii.types';
+import { OdiiDependencyProvider, useOdiiApiService } from '@/features/odii-audio/context/OdiiDependencyContext';
 
 const sectionVariants: Variants = {
   hidden: {},
@@ -320,7 +320,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
         />
         <div className="relative z-10">
           {apiError && (
-            <div role="alert" className="fixed left-1/2 top-20 z-[60] flex w-[min(92vw,460px)] -translate-x-1/2 items-center justify-between gap-4 rounded-2xl border border-[#a94d35]/20 bg-[#fffaf3] px-4 py-3 text-sm text-[#655b4d] shadow-[0_12px_35px_rgba(33,30,25,0.16)]">
+            <div role="alert" className="fixed left-1/2 top-20 z-[60] flex w-[min(92vw,460px)] -translate-x-1/2 items-center justify-between gap-4 rounded-2xl border border-[#a94d35]/20 bg-[#fffaf3] px-4 py-3 text-sm text-[#655b4d] ">
               <span>{apiError}</span>
               <button type="button" onClick={retryApiRequests} className="shrink-0 rounded-full bg-[#a94d35] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#8e3d2d]">
                 다시 시도

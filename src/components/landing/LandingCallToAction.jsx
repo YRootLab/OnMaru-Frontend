@@ -286,7 +286,6 @@ const Card = styled(Link)`
   text-decoration: none;
   cursor: pointer;
   background: rgba(25, 31, 40, 0.03);
-  border: 1px solid rgba(78, 89, 104, 0.16);
   transition:
     transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
     box-shadow 0.3s ease;
@@ -298,7 +297,6 @@ const Card = styled(Link)`
 
   &:hover {
     transform: translateY(-6px);
-    box-shadow: 0 12px 32px rgba(25, 31, 40, 0.1);
   }
 
   &:focus-visible {
@@ -373,7 +371,6 @@ const NextVisit = styled.div`
   width: 100%;
   max-width: 480px;
   padding: 24px;
-  border: 1px solid rgba(78, 89, 104, 0.18);
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(8px);

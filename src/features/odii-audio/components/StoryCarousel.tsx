@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
-import { OdiiStoryItem } from '../types/odii.types';
+import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
+import { OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
 
 interface StoryCarouselProps {
   stories: OdiiStoryItem[];
@@ -107,9 +107,9 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
       onClick={onSelect}
       aria-pressed={isCurrent}
       style={{ isolation: 'isolate' }}
-      className={`group relative z-0 grid w-[min(94vw,25.5rem)] shrink-0 snap-start grid-cols-[125px_minmax(0,1fr)] gap-4 overflow-hidden rounded-[1.4rem] border p-3 text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_34px_rgba(61,45,29,0.12)] sm:w-[25.5rem] sm:grid-cols-[132px_minmax(0,1fr)] ${
+      className={`group relative z-0 grid w-[min(94vw,25.5rem)] shrink-0 snap-start grid-cols-[125px_minmax(0,1fr)] gap-4 overflow-hidden rounded-[1.4rem] border p-3 text-left transition-all duration-300 hover:-translate-y-1 hover: sm:w-[25.5rem] sm:grid-cols-[132px_minmax(0,1fr)] ${
         isCurrent
-          ? 'border-[#a94d35]/50 bg-[#fffbf5] shadow-[0_12px_28px_rgba(169,77,53,0.14)] ring-1 ring-[#a94d35]/25'
+          ? 'border-[#a94d35]/50 bg-[#fffbf5]  '
           : 'border-[#211e19]/08 bg-[#faf7f2]/95 hover:border-[#a94d35]/35 hover:bg-[#fffaf4]'
       }`}
     >
@@ -134,10 +134,10 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
         <div className="absolute inset-0 bg-gradient-to-t from-[#211e19]/65 via-transparent to-transparent" />
 
         {/* 재생 컨트롤 원형 버블 */}
-        <span className={`absolute bottom-2.5 left-2.5 inline-flex h-8 w-8 items-center justify-center rounded-full shadow-md backdrop-blur-xs transition-all duration-300 sm:h-8.5 sm:w-8.5 ${
+        <span className={`absolute bottom-2.5 left-2.5 inline-flex h-8 w-8 items-center justify-center rounded-full  backdrop-blur-xs transition-all duration-300 sm:h-8.5 sm:w-8.5 ${
           isPlaying
-            ? 'bg-[#a94d35] text-white ring-2 ring-white/90 shadow-[0_4px_12px_rgba(169,77,53,0.3)]'
-            : 'bg-white/95 text-[#211e19] ring-2 ring-white/90 shadow-[0_4px_10px_rgba(0,0,0,0.15)]'
+            ? 'bg-[#a94d35] text-white ring-2 ring-white/90 '
+            : 'bg-white/95 text-[#211e19] ring-2 ring-white/90 '
         }`}>
           {isPlaying ? (
             <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
@@ -463,7 +463,7 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
             type="button"
             aria-label="이전 주변 오디오 보기"
             onClick={() => moveRail(-1)}
-            className="absolute left-1 top-1/2 z-30 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#211e19]/12 bg-white/95 text-[#211e19] shadow-md backdrop-blur-md transition-all duration-200 hover:scale-110 hover:bg-white sm:left-2 sm:h-9 sm:w-9"
+            className="absolute left-1 top-1/2 z-30 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#211e19]/12 bg-white/95 text-[#211e19]  backdrop-blur-md transition-all duration-200 hover:scale-110 hover:bg-white sm:left-2 sm:h-9 sm:w-9"
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="m14.5 5-7 7 7 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
@@ -473,7 +473,7 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
             type="button"
             aria-label="다음 주변 오디오 보기"
             onClick={() => moveRail(1)}
-            className="absolute right-1 top-1/2 z-30 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#211e19]/12 bg-white/95 text-[#211e19] shadow-md backdrop-blur-md transition-all duration-200 hover:scale-110 hover:bg-white sm:right-2 sm:h-9 sm:w-9"
+            className="absolute right-1 top-1/2 z-30 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#211e19]/12 bg-white/95 text-[#211e19]  backdrop-blur-md transition-all duration-200 hover:scale-110 hover:bg-white sm:right-2 sm:h-9 sm:w-9"
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="m9.5 5 7 7-7 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>

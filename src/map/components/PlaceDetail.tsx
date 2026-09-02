@@ -6,10 +6,10 @@ import { logger } from '@/lib/log';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useOdiiPlaceStory } from '@/features/odii-audio/hooks/useOdiiPlaceStory';
 import { useCinematicTourStore } from '@/features/cinematic-tour/store/useCinematicTourStore';
-import { useMapStore } from '../hooks/useMapStore';
-import { usePlaceDetail } from '../hooks/usePlaceDetail';
-import { formatDistance } from '../utils/formatters';
-import { createKakaoNavigationLinks } from '../utils/navigation';
+import { useMapStore } from '@/map/hooks/useMapStore';
+import { usePlaceDetail } from '@/map/hooks/usePlaceDetail';
+import { formatDistance } from '@/map/utils/formatters';
+import { createKakaoNavigationLinks } from '@/map/utils/navigation';
 import PlaceDetailCarousel from './detail/PlaceDetailCarousel';
 import PlaceWarmthSection from './warmth/PlaceWarmthSection';
 import {

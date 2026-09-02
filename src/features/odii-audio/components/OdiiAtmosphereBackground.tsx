@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { OdiiBackgroundStage } from '../background/OdiiBackgroundStage';
-import type { OdiiBackgroundVariant } from '../background/odiiBackground.types';
+import { OdiiBackgroundStage } from '@/features/odii-audio/background/OdiiBackgroundStage';
+import type { OdiiBackgroundVariant } from '@/features/odii-audio/background/odiiBackground.types';
 
 interface OdiiAtmosphereBackgroundProps {
   variant?: OdiiBackgroundVariant;

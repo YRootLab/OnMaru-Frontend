@@ -17,7 +17,7 @@ export function CompactPosterVariant({ stories, selectedStoryId, onSelectStory }
         {stories.map((story) => (
           <MotionStudyCard
             key={story.id}
-            className="group flex w-[196px] shrink-0 flex-col overflow-hidden rounded-[18px] border border-[#211e19]/10 bg-[#fffdf9] shadow-[0_15px_36px_rgba(33,30,25,0.1)] sm:w-[232px]"
+            className="group flex w-[196px] shrink-0 flex-col overflow-hidden rounded-[18px] border border-[#211e19]/10 bg-[#fffdf9]  sm:w-[232px]"
           >
             <div className="relative h-[202px] overflow-hidden bg-[#ddd2c5] sm:h-[226px]">
               <StudyImage
@@ -25,7 +25,7 @@ export function CompactPosterVariant({ stories, selectedStoryId, onSelectStory }
                 sizes="(max-width: 640px) 196px, 232px"
                 className="transition-transform duration-700 [@media(hover:hover)_and_(pointer:fine)]:group-hover:scale-[1.035] motion-reduce:transition-none"
               />
-              <span className="absolute left-3 top-3 rounded-full bg-[#fffdf9]/90 px-2.5 py-1 text-[9px] font-bold text-[#d94068] shadow-sm backdrop-blur-sm">
+              <span className="absolute left-3 top-3 rounded-full bg-[#fffdf9]/90 px-2.5 py-1 text-[9px] font-bold text-[#d94068]  backdrop-blur-sm">
                 {story.category}
               </span>
             </div>

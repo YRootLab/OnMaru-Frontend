@@ -1,4 +1,4 @@
-import { OdiiStoryItem, OdiiCategory, OdiiStoryPage } from '../types/odii.types';
+import { OdiiStoryItem, OdiiCategory, OdiiStoryPage } from '@/features/odii-audio/types/odii.types';
 import { OdiiNetworkClient, odiiNetworkClient } from './odiiNetwork';
 
 interface OdiiApiResponse {

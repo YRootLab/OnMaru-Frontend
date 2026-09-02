@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
-import { OdiiStoryItem } from '../types/odii.types';
+import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
+import { OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
 
 interface ZTranslateCardStageProps {
   featuredStories: OdiiStoryItem[];
@@ -27,7 +27,7 @@ export const ZTranslateCardStage: React.FC<ZTranslateCardStageProps> = ({ featur
   };
 
   return (
-    <section className="w-full py-16 relative overflow-hidden bg-gradient-to-b from-[#141210] via-[#1A1815] to-[#141210] text-white rounded-3xl border border-[#3A332C] shadow-2xl my-8">
+    <section className="w-full py-16 relative overflow-hidden bg-gradient-to-b from-[#141210] via-[#1A1815] to-[#141210] text-white rounded-3xl border border-[#3A332C]  my-8">
       {/* 배경 3D 빛/입자 그라데이션 */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-tr from-[#D42058]/15 via-[#F5A623]/10 to-transparent rounded-full blur-3xl pointer-events-none" />
 
@@ -70,9 +70,9 @@ export const ZTranslateCardStage: React.FC<ZTranslateCardStageProps> = ({ featur
                   transform: `translateZ(${zTrans}px) rotateY(${rotY}deg) translateX(${transX}px)`,
                   zIndex: isActive ? 40 : 10 + idx,
                 }}
-                className={`absolute inset-0 rounded-3xl p-6 flex flex-col justify-between transition-all duration-700 cursor-pointer backdrop-blur-xl border border-white/15 group shadow-2xl ${
+                className={`absolute inset-0 rounded-3xl p-6 flex flex-col justify-between transition-all duration-700 cursor-pointer backdrop-blur-xl border border-white/15 group  ${
                   isActive
-                    ? 'bg-gradient-to-b from-[#2A231D]/95 to-[#1A1512]/95 ring-2 ring-[#D42058]/80 shadow-[#D42058]/20'
+                    ? 'bg-gradient-to-b from-[#2A231D]/95 to-[#1A1512]/95 ring-2 ring-[#D42058]/80 /20'
                     : 'bg-[#1C1814]/85 hover:border-white/40 opacity-80 hover:opacity-100'
                 }`}
               >
@@ -96,7 +96,7 @@ export const ZTranslateCardStage: React.FC<ZTranslateCardStageProps> = ({ featur
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end p-3 justify-between">
                     <div className="flex items-center space-x-2">
                       {/* SVG 재생/정지 버튼 */}
-                      <div className="w-8 h-8 rounded-full bg-[#D42058] flex items-center justify-center shadow-lg">
+                      <div className="w-8 h-8 rounded-full bg-[#D42058] flex items-center justify-center ">
                         {isThisPlaying ? (
                           <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24">
                             <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>

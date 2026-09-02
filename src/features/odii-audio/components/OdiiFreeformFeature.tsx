@@ -6,9 +6,9 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Heart } from 'lucide-react';
 import { LocalMiniPlayer } from './LocalMiniPlayer';
 import { SavedSoundDrawer } from './SavedSoundDrawer';
-import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
-import { OdiiStoryItem, IOdiiApiService } from '../types/odii.types';
-import { useOdiiApiService } from '../context/OdiiDependencyContext';
+import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
+import { OdiiStoryItem, IOdiiApiService } from '@/features/odii-audio/types/odii.types';
+import { useOdiiApiService } from '@/features/odii-audio/context/OdiiDependencyContext';
 
 interface OdiiFreeformFeatureProps {
   apiService?: IOdiiApiService;
@@ -265,7 +265,7 @@ export const OdiiFreeformFeature: React.FC<OdiiFreeformFeatureProps> = ({ apiSer
                 initial={{ opacity: 0, rotate: 4, y: 18 }}
                 animate={{ opacity: 1, rotate: -3, y: 0 }}
                 transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className="absolute inset-x-4 top-4 bottom-0 overflow-hidden border-2 border-[#171717] bg-[#d5f05a] p-3 shadow-[12px_12px_0_#2454ff] sm:inset-x-12 sm:p-4"
+                className="absolute inset-x-4 top-4 bottom-0 overflow-hidden border-2 border-[#171717] bg-[#d5f05a] p-3  sm:inset-x-12 sm:p-4"
               >
                 <img src={activeStory.imageUrl || FALLBACK_IMAGE} alt={activeStory.title} className="h-full w-full object-cover grayscale-[0.2]" />
                 <div className="absolute inset-3 flex flex-col justify-between bg-gradient-to-b from-[#171717]/45 via-transparent to-[#171717]/70 p-4 text-white sm:inset-4 sm:p-6">
