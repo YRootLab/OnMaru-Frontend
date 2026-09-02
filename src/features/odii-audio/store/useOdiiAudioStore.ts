@@ -2,7 +2,6 @@ import { create } from 'zustand';
 import { OdiiStoryItem, ScriptLine } from '../types/odii.types';
 import { parseScriptToLines } from '../utils/scriptParser';
 import { odiiApiAdapter } from '../api/odiiApi';
-import { NATIONWIDE_REGIONAL_ODII_STORIES } from '../data/regionalOdiiMaster';
 
 interface OdiiAudioState {
   currentStory: OdiiStoryItem;
@@ -36,14 +35,29 @@ interface OdiiAudioState {
   skipBackward: (seconds?: number) => void;
 }
 
-const initialStory: OdiiStoryItem = NATIONWIDE_REGIONAL_ODII_STORIES[0];
+const emptyStory: OdiiStoryItem = {
+  tid: '',
+  tlid: '',
+  stid: '',
+  stlid: '',
+  title: '온마루 공간 오디오',
+  audioTitle: '한국의 문화유산 이야기',
+  speaker: '문화해설사 도슨트',
+  category: '한옥',
+  mapX: '126.9780',
+  mapY: '37.5665',
+  script: '장소에 머무는 시간을 소리로 만나보세요.',
+  playTime: '300',
+  audioUrl: '',
+  imageUrl: 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80',
+};
 
 export const useOdiiAudioStore = create<OdiiAudioState>((set, get) => ({
-  currentStory: initialStory,
-  availableStories: NATIONWIDE_REGIONAL_ODII_STORIES,
+  currentStory: emptyStory,
+  availableStories: [],
   isPlaying: false,
   currentTime: 0,
-  duration: 360,
+  duration: 300,
   activeScriptIndex: 0,
   parsedScriptLines: [],
   selectedCategory: '전체',
@@ -55,31 +69,36 @@ export const useOdiiAudioStore = create<OdiiAudioState>((set, get) => ({
 
   fetchRegionalOdiiStories: async (lng?: number, lat?: number) => {
     try {
-      const [nearbyStories, generalStories] = await Promise.all([
-        lng && lat
-          ? odiiApiAdapter.getNearbyStories(String(lng), String(lat), 25000).catch(() => [])
-          : Promise.resolve([]),
-        odiiApiAdapter.getStoryList('한옥').catch(() => []),
-      ]);
+      const keywords = ['한옥', '고택', '궁', '사찰', '마을'];
+      const requests: Promise<OdiiStoryItem[]>[] = [];
 
-      const merged = [
-        ...nearbyStories,
-        ...NATIONWIDE_REGIONAL_ODII_STORIES,
-        ...generalStories,
-      ].filter((s) => Boolean(s.audioUrl));
+      if (lng && lat) {
+        requests.push(odiiApiAdapter.getNearbyStories(String(lng), String(lat), 25000).catch(() => []));
+      }
+
+      for (const kw of keywords) {
+        requests.push(odiiApiAdapter.getStoryList(undefined, kw).catch(() => []));
+      }
+
+      const results = await Promise.all(requests);
+      const flattened = results.flat().filter((s) => Boolean(s.audioUrl));
 
       const seen = new Set<string>();
-      const unique = merged.filter((s) => {
-        const key = s.stid || s.title;
-        if (seen.has(key)) return false;
-        seen.add(key);
-        return true;
-      });
+      const unique: OdiiStoryItem[] = [];
+      for (const story of flattened) {
+        const key = story.stid || story.title;
+        if (!seen.has(key)) {
+          seen.add(key);
+          unique.push(story);
+        }
+      }
 
       set({ availableStories: unique });
+      if (!get().currentStory && unique.length > 0) {
+        set({ currentStory: unique[0] });
+      }
     } catch {
-      // 에러 발생 시에도 전국 마스터 데이터 유지
-      set({ availableStories: NATIONWIDE_REGIONAL_ODII_STORIES });
+      // API 오류 시 빈 목록 유지
     }
   },
 
