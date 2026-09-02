@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { OdiiStoryItem, ScriptLine } from '../types/odii.types';
 import { parseScriptToLines } from '../utils/scriptParser';
 import { odiiApiAdapter } from '../api/odiiApi';
+import { NATIONWIDE_REGIONAL_ODII_STORIES } from '../data/regionalOdiiMaster';
 
 interface OdiiAudioState {
   currentStory: OdiiStoryItem;
@@ -35,29 +36,14 @@ interface OdiiAudioState {
   skipBackward: (seconds?: number) => void;
 }
 
-const initialStory: OdiiStoryItem = {
-  tid: '',
-  tlid: '',
-  stid: '',
-  stlid: '',
-  title: '온마루 오디오 해설',
-  audioTitle: '한국의 문화유산 이야기',
-  speaker: '문화해설사 도슨트',
-  category: '한옥',
-  mapX: '126.9780',
-  mapY: '37.5665',
-  script: '장소에 머무는 시간을 소리로 만나보세요.',
-  playTime: '300',
-  audioUrl: '',
-  imageUrl: 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80',
-};
+const initialStory: OdiiStoryItem = NATIONWIDE_REGIONAL_ODII_STORIES[0];
 
 export const useOdiiAudioStore = create<OdiiAudioState>((set, get) => ({
   currentStory: initialStory,
-  availableStories: [],
+  availableStories: NATIONWIDE_REGIONAL_ODII_STORIES,
   isPlaying: false,
   currentTime: 0,
-  duration: 300,
+  duration: 360,
   activeScriptIndex: 0,
   parsedScriptLines: [],
   selectedCategory: '전체',
@@ -71,22 +57,29 @@ export const useOdiiAudioStore = create<OdiiAudioState>((set, get) => ({
     try {
       const [nearbyStories, generalStories] = await Promise.all([
         lng && lat
-          ? odiiApiAdapter.getNearbyStories(String(lng), String(lat), 6000)
+          ? odiiApiAdapter.getNearbyStories(String(lng), String(lat), 25000).catch(() => [])
           : Promise.resolve([]),
-        odiiApiAdapter.getStoryList('한옥'),
+        odiiApiAdapter.getStoryList('한옥').catch(() => []),
       ]);
 
-      const merged = [...nearbyStories, ...generalStories].filter((s) => Boolean(s.audioUrl));
+      const merged = [
+        ...nearbyStories,
+        ...NATIONWIDE_REGIONAL_ODII_STORIES,
+        ...generalStories,
+      ].filter((s) => Boolean(s.audioUrl));
+
       const seen = new Set<string>();
       const unique = merged.filter((s) => {
-        if (!s.stid || seen.has(s.stid)) return false;
-        seen.add(s.stid);
+        const key = s.stid || s.title;
+        if (seen.has(key)) return false;
+        seen.add(key);
         return true;
       });
 
       set({ availableStories: unique });
     } catch {
-      // 무시
+      // 에러 발생 시에도 전국 마스터 데이터 유지
+      set({ availableStories: NATIONWIDE_REGIONAL_ODII_STORIES });
     }
   },
 
