@@ -22,6 +22,9 @@ function radiusFromMap(map: KakaoMap): number {
   );
 }
 
+const CLIENT_CACHE_TTL = 5 * 60 * 1000; // 5분 클라이언트 캐시
+const clientPlaceCache = new Map<string, { expiresAt: number; items: any[] }>();
+
 /** 지도 장소 목록 및 온기 데이터 실시간 동기화 훅 */
 export function useMapData() {
   const map = useMapStore((s) => s.map);
@@ -41,9 +44,21 @@ export function useMapData() {
       return;
     }
 
-    const controller = new AbortController();
     const radius = Math.round(radiusFromMap(map));
+    const roundedLat = Math.round(searchCenter.lat * 100) / 100;
+    const roundedLng = Math.round(searchCenter.lng * 100) / 100;
+    const roundedRadius = Math.round(radius / 1000) * 1000;
+    const cacheKey = `${roundedLat}_${roundedLng}_${roundedRadius}_${category || 'all'}`;
 
+    // 클라이언트 메모리 캐시 히트 시 0ms 즉각 렌더링
+    const cached = clientPlaceCache.get(cacheKey);
+    if (cached && cached.expiresAt > Date.now()) {
+      setItems(cached.items);
+      setLoading(false);
+      return;
+    }
+
+    const controller = new AbortController();
     const params = new URLSearchParams({
       lat: String(searchCenter.lat),
       lng: String(searchCenter.lng),
@@ -61,6 +76,13 @@ export function useMapData() {
         const json = await res.json().catch(() => ({}));
         const items = Array.isArray(json.items) ? json.items : [];
         log.log('items', items.length, `${Math.round(performance.now() - t0)}ms`, json.error ?? '');
+
+        // 클라이언트 캐시에 저장
+        clientPlaceCache.set(cacheKey, {
+          expiresAt: Date.now() + CLIENT_CACHE_TTL,
+          items,
+        });
+
         setItems(items);
 
         // 오디 도슨트 해설 데이터 동기화

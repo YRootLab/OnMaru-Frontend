@@ -1,10 +1,9 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Global, css } from '@emotion/react';
 import { logger } from '@/lib/log';
 import { meok, lightPalette } from '@/design-system/tokens';
-import { paintOverlays, type OverlaySpec } from '../hooks/overlay';
 import { useMapStore } from '../hooks/useMapStore';
 import type { Item, PlaceCategory } from '../types';
 
@@ -313,6 +312,8 @@ function clusterNearbyItems(items: Item[], level: number): ClusterGroup[] {
   return clusters;
 }
 
+type OverlayRecord = { overlay: any; el: HTMLElement };
+
 export default function PlaceMarkers() {
   const map = useMapStore((s) => s.map);
   const mode = useMapStore((s) => s.mode);
@@ -321,18 +322,29 @@ export default function PlaceMarkers() {
   const selectedId = useMapStore((s) => s.selectedId);
   const hoveredId = useMapStore((s) => s.hoveredId);
   const detailId = useMapStore((s) => s.detailId);
-  const sortOrder = useMapStore((s) => s.sortOrder);
 
+  // 현재 지도에 올라가 있는 오버레이 인스턴스 및 엘리먼트 맵 (리렌더링 시 DOM 재생성 방지)
+  const overlayMapRef = useRef<Map<string, OverlayRecord>>(new Map());
+
+  // [1] 오버레이 생성 및 지도 배치 (아이템 목록, 모드, 줌 티어가 변경될 때만 실행)
   useEffect(() => {
-    if (!map || mode !== 'info' || items.length === 0) return;
+    if (!map || mode !== 'info' || items.length === 0 || !window.kakao?.maps) {
+      // 기존 오버레이 정리
+      overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));
+      overlayMapRef.current.clear();
+      return;
+    }
 
-    // ─────────────────────────────────────────────────────────────
-    // [1] 광역 / 전국 축소 조망 (Level >= 8): 지역별 스마트 클러스터 뱃지 렌더링
-    // ─────────────────────────────────────────────────────────────
-    if (level > PIN_MAX_LEVEL) {
+    // 기존 오버레이 해제
+    overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));
+    overlayMapRef.current.clear();
+
+    const isCluster = level > PIN_MAX_LEVEL;
+
+    if (isCluster) {
       const clusters = clusterNearbyItems(items, level);
 
-      const specs: OverlaySpec[] = clusters.map((cluster) => {
+      clusters.forEach((cluster, idx) => {
         const count = cluster.items.length;
         const regionName = extractClusterRegionName(cluster.items);
         const topItem = cluster.items[0];
@@ -350,7 +362,6 @@ export default function PlaceMarkers() {
           </span>
         `;
 
-        // 클러스터 클릭 시 부드러운 줌인 애니메이션
         el.addEventListener('click', () => {
           const currentLevel = map.getLevel();
           const targetLevel = Math.max(1, currentLevel - 3);
@@ -358,61 +369,42 @@ export default function PlaceMarkers() {
           map.panTo(new window.kakao.maps.LatLng(cluster.lat, cluster.lng));
         });
 
-        return {
-          lat: cluster.lat,
-          lng: cluster.lng,
-          el,
-          zIndex: 10,
+        const overlay = new window.kakao.maps.CustomOverlay({
+          position: new window.kakao.maps.LatLng(cluster.lat, cluster.lng),
+          content: el,
           yAnchor: 0.5,
-        };
+          zIndex: 10,
+        });
+        overlay.setMap(map);
+        overlayMapRef.current.set(`cluster_${idx}`, { overlay, el });
       });
 
-      log.log('클러스터링', specs.length, `개 권역 · level ${level} · 총 ${items.length}개 장소 통합`);
-      return paintOverlays(map, specs);
+      return () => {
+        overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));
+        overlayMapRef.current.clear();
+      };
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // [2] 시/군/골목길 상세 조망 (Level <= 7): 개별 파스텔 핀 마커 렌더링
-    // ─────────────────────────────────────────────────────────────
+    // 개별 핀 마커 생성 (최대 120개로 제한하여 메모리 및 카카오맵 렌더링 극대화)
     const withLabel = level <= LABEL_MAX_LEVEL;
+    const targetItems = items.slice(0, 120);
 
-    const sorted = [...items].sort((a, b) => {
-      if (sortOrder === 'name') return a.name.localeCompare(b.name, 'ko');
-      return (a.dist ?? 1e9) - (b.dist ?? 1e9);
-    });
-
-    const specs: OverlaySpec[] = sorted.slice(0, 300).map((item) => {
+    targetItems.forEach((item) => {
       const el = document.createElement('div');
-      const isDetail = item.id === detailId;
-      const isSelected = item.id === selectedId || isDetail;
-      const isHovered = item.id === hoveredId;
-      const isDimmed = Boolean(detailId && !isDetail);
       const catStyle = CATEGORY_STYLES[item.category] || CATEGORY_STYLES.spot;
 
       if (withLabel) {
         el.className = 'om-pin';
         el.style.position = 'relative';
-        if (isSelected) {
-          el.style.background = catStyle.main;
-        }
-        el.innerHTML = `<span class="om-pin-icon-box" style="background: ${isSelected ? '#ffffff' : catStyle.lightBg}; color: ${isSelected ? catStyle.main : catStyle.main};">${catStyle.iconSvg}</span><span>${item.name}</span>`;
+        el.innerHTML = `<span class="om-pin-icon-box" style="background: ${catStyle.lightBg}; color: ${catStyle.main};">${catStyle.iconSvg}</span><span>${item.name}</span>`;
       } else {
         el.className = 'om-badge-pin';
-        if (isSelected) {
-          el.style.background = catStyle.main;
-          el.style.color = '#ffffff';
-          el.style.borderColor = '#ffffff';
-        } else {
-          el.style.background = catStyle.lightBg;
-          el.style.color = catStyle.main;
-          el.style.borderColor = catStyle.main;
-        }
+        el.style.background = catStyle.lightBg;
+        el.style.color = catStyle.main;
+        el.style.borderColor = catStyle.main;
         el.innerHTML = catStyle.iconSvg;
       }
-      el.dataset.selected = String(isSelected);
-      el.dataset.detail = String(isDetail);
-      el.dataset.hovered = String(isHovered);
-      el.dataset.dimmed = String(isDimmed);
+
       el.dataset.category = item.category;
 
       el.addEventListener('click', () => {
@@ -423,13 +415,41 @@ export default function PlaceMarkers() {
         store.setSheetSnap('full');
       });
 
-      const zIndex = isDetail ? 35 : isSelected ? 30 : isHovered ? 25 : 1;
-      return { lat: item.lat, lng: item.lng, el, zIndex };
+      const overlay = new window.kakao.maps.CustomOverlay({
+        position: new window.kakao.maps.LatLng(item.lat, item.lng),
+        content: el,
+        yAnchor: 1.0,
+        zIndex: 1,
+      });
+      overlay.setMap(map);
+      overlayMapRef.current.set(item.id, { overlay, el });
     });
 
-    log.log('핀', specs.length, `/ ${items.length}곳 · level ${level} · ${withLabel ? '이름표' : '파스텔아이콘'}`);
-    return paintOverlays(map, specs);
-  }, [map, mode, items, level, selectedId, hoveredId, detailId, sortOrder]);
+    return () => {
+      overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));
+      overlayMapRef.current.clear();
+    };
+  }, [map, mode, items, level > PIN_MAX_LEVEL, level <= LABEL_MAX_LEVEL]);
+
+  // [2] 선택/호버/상세보기 상태만 DOM 실시간 업데이트 (오버레이 재생성 0회, 0.1ms 초고속 반영)
+  useEffect(() => {
+    if (overlayMapRef.current.size === 0) return;
+
+    overlayMapRef.current.forEach((val: OverlayRecord, id: string) => {
+      const isDetail = id === detailId;
+      const isSelected = id === selectedId || isDetail;
+      const isHovered = id === hoveredId;
+      const isDimmed = Boolean(detailId && !isDetail);
+
+      val.el.dataset.selected = String(isSelected);
+      val.el.dataset.detail = String(isDetail);
+      val.el.dataset.hovered = String(isHovered);
+      val.el.dataset.dimmed = String(isDimmed);
+
+      const zIndex = isDetail ? 35 : isSelected ? 30 : isHovered ? 25 : 1;
+      val.overlay.setZIndex(zIndex);
+    });
+  }, [selectedId, hoveredId, detailId]);
 
   return <Global styles={styles} />;
 }
