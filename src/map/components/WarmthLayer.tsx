@@ -2,112 +2,328 @@
 
 import { useEffect } from 'react';
 import { Global, css } from '@emotion/react';
-import { lightPalette, meok } from '@/design-system/tokens';
-import { paintOverlays } from '../hooks/overlay';
+import {
+  lightPalette,
+  darkPalette,
+  meok,
+  surface,
+} from '@/design-system/tokens';
+import { useOnmaruTheme } from '@/design-system/ThemeProvider';
+import { paintOverlays, type OverlaySpec } from '../hooks/overlay';
 import { useMapStore } from '../hooks/useMapStore';
 import { clusterWarmth, filterWarmth } from '../warmth/warmthRepo';
 import type { WarmthFilter } from '../types';
 
-const ACCENT = lightPalette.juhong[500];
-
-/** 이 레벨까지 확대하면 격자를 풀고 한줄평을 그대로 띄운다. */
+/** 이 레벨 이하로 확대하면 히트맵 위에 상세 말풍선(Bud)도 함께 띄운다. */
 const BUBBLE_MAX_LEVEL = 4;
-/** blob 지름 = BASE + 온기 수 × STEP (상한까지). */
-const BLOB_BASE = 46;
-const BLOB_STEP = 3.6;
-const BLOB_MAX = 118;
+
+/** 우버st 히트맵 기본 블롭 크기 */
+const HEAT_BASE_SIZE = 110;
+const HEAT_STEP_SIZE = 24;
+const HEAT_MAX_SIZE = 320;
 
 const styles = css`
-  /* 우버st 가중 blob — 격자 셀 하나가 원 하나다. 온기가 많을수록 크고 진하다. */
-  .om-blob {
-    display: grid;
-    place-items: center;
-    width: var(--om-size);
-    height: var(--om-size);
+  /* ------------------------------------------------------------
+   * 1. 우버st 상시 지속 다층 서지(Surge) 히트맵 레이어 (확대/축소 무관 상시 표시)
+   * ------------------------------------------------------------ */
+  .om-heat-container {
+    position: relative;
+    width: var(--om-heat-size);
+    height: var(--om-heat-size);
+    pointer-events: none;
+    user-select: none;
+  }
+
+  /* 부드러운 유기적 다중 컬러 스탑 히트 그라데이션 (가우시안 확산) */
+  .om-heat-bloom {
+    position: absolute;
+    inset: -25%;
     border-radius: 50%;
+    filter: blur(24px);
+    transition: transform 0.35s ease, opacity 0.35s ease;
+  }
+
+  /* 라이트 모드: 화선지/지도 위 부드러운 곱하기(multiply) 블렌딩 */
+  [data-theme='light'] .om-heat-bloom,
+  :root:not([data-theme='dark']) .om-heat-bloom {
+    mix-blend-mode: multiply;
     background: radial-gradient(
-      circle,
-      rgba(232, 90, 24, var(--om-alpha)) 0%,
-      rgba(232, 90, 24, calc(var(--om-alpha) * 0.45)) 45%,
-      rgba(232, 90, 24, 0) 72%
+      circle closest-side,
+      var(--om-core-color, rgba(232, 90, 24, 0.75)) 0%,
+      var(--om-mid-color, rgba(245, 166, 35, 0.52)) 40%,
+      var(--om-fringe-color, rgba(255, 204, 64, 0.26)) 68%,
+      rgba(255, 255, 255, 0) 92%
     );
+  }
+
+  /* 다크 모드: 먹빛 마루 위 빛나는 네온 서지(screen) 블렌딩 */
+  [data-theme='dark'] .om-heat-bloom {
+    mix-blend-mode: screen;
+    background: radial-gradient(
+      circle closest-side,
+      var(--om-core-color, rgba(248, 87, 0, 0.88)) 0%,
+      var(--om-mid-color, rgba(248, 78, 118, 0.58)) 42%,
+      var(--om-fringe-color, rgba(250, 170, 73, 0.28)) 70%,
+      rgba(0, 0, 0, 0) 94%
+    );
+    filter: blur(28px) drop-shadow(0 0 24px var(--om-core-color, rgba(248, 87, 0, 0.45)));
+  }
+
+  /* ------------------------------------------------------------
+   * 2. 우버st 마이크로 액티비티 스캐터 도트 (Scatter Activity Dots)
+   * ------------------------------------------------------------ */
+  .om-scatter-dot {
+    position: relative;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
     cursor: pointer;
-    transition: transform 0.18s ease-out;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
   }
 
-  .om-blob:hover {
-    transform: scale(1.08);
+  [data-theme='light'] .om-scatter-dot,
+  :root:not([data-theme='dark']) .om-scatter-dot {
+    background: ${lightPalette.juhong[500]};
+    border: 1.5px solid #ffffff;
+    box-shadow: 0 1px 4px rgba(25, 31, 40, 0.25), 0 0 6px rgba(232, 90, 24, 0.45);
   }
 
-  .om-blob-count {
-    display: grid;
-    place-items: center;
-    min-width: 30px;
-    height: 30px;
-    padding: 0 8px;
+  [data-theme='dark'] .om-scatter-dot {
+    background: ${darkPalette.juhong[400]};
+    border: 1.5px solid ${surface.dark.card};
+    box-shadow: 0 0 8px rgba(248, 87, 0, 0.85);
+  }
+
+  .om-scatter-dot:hover {
+    transform: scale(1.6);
+    z-index: 25 !important;
+  }
+
+  /* 미세 펄스 링 */
+  .om-scatter-dot::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: inherit;
+    opacity: 0.4;
+    animation: om-scatter-pulse 2.2s ease-out infinite;
+  }
+
+  @keyframes om-scatter-pulse {
+    0% { transform: scale(0.8); opacity: 0.6; }
+    50% { transform: scale(1.8); opacity: 0.15; }
+    100% { transform: scale(2.5); opacity: 0; }
+  }
+
+  /* ------------------------------------------------------------
+   * 3. 우버st 서지 거점 뱃지 & 장소명 라벨 (Surge Place Badge)
+   * ------------------------------------------------------------ */
+  .om-surge-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    transform: translate(-50%, -50%);
+    transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: auto;
+  }
+
+  .om-surge-card:hover {
+    transform: translate(-50%, -54%) scale(1.1);
+  }
+
+  /* 원형 서지 뱃지 */
+  .om-surge-badge {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    box-shadow: 0 4px 14px rgba(25, 31, 40, 0.22);
+    transition: box-shadow 0.2s ease;
+  }
+
+  .om-surge-card:hover .om-surge-badge {
+    box-shadow: 0 6px 20px rgba(25, 31, 40, 0.32);
+  }
+
+  .om-surge-badge svg {
+    width: 20px;
+    height: 20px;
+    color: #ffffff;
+    stroke-width: 2.2;
+  }
+
+  /* 서지 온기 개수 카운트 뱃지 */
+  .om-surge-count {
+    position: absolute;
+    top: -3px;
+    right: -5px;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
     border-radius: 9999px;
     background: #ffffff;
-    box-shadow: 0 2px 8px rgba(25, 31, 40, 0.2);
-    font-size: 13px;
-    font-weight: 700;
-    color: ${ACCENT};
+    border: 1.5px solid currentColor;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 14px;
+    text-align: center;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
     font-variant-numeric: tabular-nums;
   }
 
-  /* 확대하면 온기가 말풍선으로 풀린다 — 지도 위에서 한줄평이 바로 읽히는 게 핵심. */
+  [data-theme='dark'] .om-surge-count {
+    background: ${surface.dark.card};
+  }
+
+  /* 서지 장소 라벨 */
+  .om-surge-label {
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.3;
+    white-space: nowrap;
+    text-align: center;
+    transition: all 0.2s ease;
+  }
+
+  [data-theme='light'] .om-surge-label,
+  :root:not([data-theme='dark']) .om-surge-label {
+    color: ${meok[900]};
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(4px);
+    box-shadow: 0 2px 6px rgba(25, 31, 40, 0.12);
+    text-shadow: 0 0 3px #ffffff;
+  }
+
+  [data-theme='dark'] .om-surge-label {
+    color: ${meok[100]};
+    background: rgba(45, 41, 36, 0.9);
+    backdrop-filter: blur(6px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  /* ------------------------------------------------------------
+   * 4. 줌인 상세 한줄평 말풍선 (Detail Warmth Bud - 히트맵 상단에 함께 오버레이)
+   * ------------------------------------------------------------ */
   .om-bud {
     position: relative;
-    max-width: 190px;
-    padding: 8px 11px;
-    border-radius: 12px;
-    background: #ffffff;
-    box-shadow: 0 3px 14px rgba(25, 31, 40, 0.18);
+    max-width: 210px;
+    padding: 10px 13px;
+    border-radius: 14px;
     cursor: pointer;
-    transition: transform 0.15s ease-out;
+    transition: transform 0.18s ease-out, box-shadow 0.18s ease;
+    backdrop-filter: blur(8px);
+  }
+
+  [data-theme='light'] .om-bud,
+  :root:not([data-theme='dark']) .om-bud {
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(78, 89, 104, 0.14);
+    box-shadow: 0 4px 18px rgba(25, 31, 40, 0.16);
+  }
+
+  [data-theme='dark'] .om-bud {
+    background: rgba(45, 41, 36, 0.94);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.5);
   }
 
   .om-bud:hover {
-    transform: translateY(-2px);
+    transform: translateY(-3px) scale(1.02);
   }
 
   .om-bud::after {
     content: '';
     position: absolute;
-    left: 18px;
+    left: 20px;
     top: 100%;
-    border: 6px solid transparent;
+    border: 7px solid transparent;
+  }
+
+  [data-theme='light'] .om-bud::after,
+  :root:not([data-theme='dark']) .om-bud::after {
     border-top-color: #ffffff;
+  }
+
+  [data-theme='dark'] .om-bud::after {
+    border-top-color: ${surface.dark.card};
   }
 
   .om-bud-head {
     display: flex;
     align-items: center;
-    gap: 5px;
-    margin-bottom: 3px;
-    font-size: 11px;
+    justify-content: space-between;
+    gap: 6px;
+    margin-bottom: 5px;
+    font-size: 11.5px;
     font-weight: 700;
-    color: ${ACCENT};
+  }
+
+  [data-theme='light'] .om-bud-head,
+  :root:not([data-theme='dark']) .om-bud-head {
+    color: ${lightPalette.juhong[500]};
+  }
+
+  [data-theme='dark'] .om-bud-head {
+    color: ${darkPalette.juhong[400]};
   }
 
   .om-bud-mood {
-    padding: 1px 5px;
+    padding: 2px 6px;
     border-radius: 4px;
-    background: rgba(232, 90, 24, 0.1);
     font-size: 10px;
-    font-weight: 600;
+    font-weight: 700;
+  }
+
+  [data-theme='light'] .om-bud-mood,
+  :root:not([data-theme='dark']) .om-bud-mood {
+    background: ${lightPalette.juhong[50]};
+    color: ${lightPalette.juhong[700]};
+  }
+
+  [data-theme='dark'] .om-bud-mood {
+    background: ${darkPalette.juhong[900]};
+    color: ${darkPalette.juhong[200]};
   }
 
   .om-bud-text {
     margin: 0;
     font-size: 12.5px;
-    line-height: 1.4;
-    color: ${meok[900]};
+    line-height: 1.45;
     word-break: keep-all;
   }
 
-  .om-bud[data-mine='true'] {
-    outline: 2px solid ${ACCENT};
+  [data-theme='light'] .om-bud-text,
+  :root:not([data-theme='dark']) .om-bud-text {
+    color: ${meok[900]};
   }
+
+  [data-theme='dark'] .om-bud-text {
+    color: ${meok[100]};
+  }
+
+  .om-bud[data-mine='true'] {
+    outline: 2px solid ${lightPalette.juhong[500]};
+  }
+
+  [data-theme='dark'] .om-bud[data-mine='true'] {
+    outline: 2px solid ${darkPalette.juhong[400]};
+  }
+`;
+
+// 우버 서지 아이콘 SVG (단청 온기 / 불꽃 형태)
+const SVG_WARMTH_ICON = `
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+</svg>
 `;
 
 export default function WarmthLayer() {
@@ -116,6 +332,8 @@ export default function WarmthLayer() {
   const warmths = useMapStore((s) => s.warmths);
   const category = useMapStore((s) => s.category);
   const level = useMapStore((s) => s.level);
+  const { mode: colorMode } = useOnmaruTheme();
+  const isDark = colorMode === 'dark';
 
   useEffect(() => {
     if (!map || mode !== 'warmth' || warmths.length === 0) return;
@@ -130,43 +348,188 @@ export default function WarmthLayer() {
       if (store.sheetSnap === 'peek') store.setSheetSnap('half');
     };
 
+    const cells = clusterWarmth(list, level);
+    const busiest = Math.max(...cells.map((c) => c.count), 1);
+    const specs: OverlaySpec[] = [];
+
+    // ─────────────────────────────────────────────────────────────
+    // [1] 우버 스타일 다층 히트맵 블룸 (확대/축소 상관없이 모든 줌 레벨 상시 유지!)
+    // ─────────────────────────────────────────────────────────────
+    cells.forEach((cell) => {
+      const ratio = cell.count / busiest; // 0.0 ~ 1.0
+      // 줌 레벨이 확대될 때도 길거리/골목길 위에 넓게 번지는 유기적 열기를 유지하도록 스케일 보정
+      const zoomMultiplier = level <= 2 ? 1.5 : level <= 4 ? 1.25 : 1.0;
+      const size = Math.min(HEAT_MAX_SIZE, (HEAT_BASE_SIZE + cell.count * HEAT_STEP_SIZE) * zoomMultiplier);
+
+      const el = document.createElement('div');
+      el.className = 'om-heat-container';
+      el.style.setProperty('--om-heat-size', `${size}px`);
+
+      // 밀집도 및 다크/라이트 모드에 따른 컬러 램프 정의
+      let coreColor: string;
+      let midColor: string;
+      let fringeColor: string;
+
+      if (isDark) {
+        if (ratio >= 0.6) {
+          // 피크 핫스팟 (진한 다크단청 주홍 ~ 연지 핑크)
+          coreColor = `rgba(248, 87, 0, ${0.78 + 0.18 * ratio})`;
+          midColor = `rgba(248, 78, 118, ${0.52 + 0.18 * ratio})`;
+          fringeColor = `rgba(250, 170, 73, 0.28)`;
+        } else if (ratio >= 0.3) {
+          // 미드 웜 (황금 ~ 주홍)
+          coreColor = `rgba(248, 116, 67, ${0.68 + 0.14 * ratio})`;
+          midColor = `rgba(250, 170, 73, 0.48)`;
+          fringeColor = `rgba(0, 167, 106, 0.22)`;
+        } else {
+          // 주변부 (소프트 청록 ~ 황금)
+          coreColor = `rgba(250, 170, 73, 0.52)`;
+          midColor = `rgba(0, 167, 106, 0.32)`;
+          fringeColor = `rgba(0, 167, 106, 0.14)`;
+        }
+      } else {
+        if (ratio >= 0.6) {
+          // 피크 핫스팟 (선명한 단청 주홍 ~ 장미)
+          coreColor = `rgba(232, 90, 24, ${0.75 + 0.18 * ratio})`;
+          midColor = `rgba(212, 32, 88, ${0.5 + 0.18 * ratio})`;
+          fringeColor = `rgba(245, 166, 35, 0.35)`;
+        } else if (ratio >= 0.3) {
+          // 미드 웜 (황금 기와 ~ 주홍)
+          coreColor = `rgba(240, 112, 48, ${0.6 + 0.14 * ratio})`;
+          midColor = `rgba(245, 166, 35, 0.48)`;
+          fringeColor = `rgba(61, 184, 152, 0.26)`;
+        } else {
+          // 주변부 (소프트 연두청록 ~ 황금)
+          coreColor = `rgba(245, 166, 35, 0.48)`;
+          midColor = `rgba(61, 184, 152, 0.3)`;
+          fringeColor = `rgba(144, 212, 192, 0.16)`;
+        }
+      }
+
+      el.style.setProperty('--om-core-color', coreColor);
+      el.style.setProperty('--om-mid-color', midColor);
+      el.style.setProperty('--om-fringe-color', fringeColor);
+
+      const bloom = document.createElement('div');
+      bloom.className = 'om-heat-bloom';
+      el.appendChild(bloom);
+
+      specs.push({
+        lat: cell.lat,
+        lng: cell.lng,
+        el,
+        yAnchor: 0.5,
+        zIndex: 1,
+      });
+    });
+
+    // ─────────────────────────────────────────────────────────────
+    // [2] 우버 스타일 마이크로 액티비티 스캐터 도트 (Scatter Activity Dots)
+    // ─────────────────────────────────────────────────────────────
+    list.slice(0, 60).forEach((w) => {
+      const el = document.createElement('div');
+      el.className = 'om-scatter-dot';
+      el.title = `${w.placeName}: ${w.text}`;
+      el.addEventListener('click', () => {
+        select(w.placeId, w.lat, w.lng);
+      });
+
+      specs.push({
+        lat: w.lat,
+        lng: w.lng,
+        el,
+        yAnchor: 0.5,
+        zIndex: 5,
+      });
+    });
+
+    // ─────────────────────────────────────────────────────────────
+    // [3] 줌 레벨에 맞춘 상단 오버레이 (서지 거점 뱃지 vs 상세 한줄평 말풍선)
+    // ─────────────────────────────────────────────────────────────
     if (level <= BUBBLE_MAX_LEVEL) {
-      const specs = list.slice(0, 40).map((w) => {
+      // 🌟 상세 줌 (골목길/개별 장소 확대): 히트맵 배경 위에 말풍선(Bud)이 함께 플로팅!
+      list.slice(0, 40).forEach((w) => {
         const el = document.createElement('div');
         el.className = 'om-bud';
         el.dataset.mine = String(Boolean(w.mine));
         el.innerHTML =
-          `<div class="om-bud-head"><span class="om-bud-mood">${w.mood}</span>${w.placeName}</div>` +
+          `<div class="om-bud-head">` +
+          `<span>${w.placeName}</span>` +
+          `<span class="om-bud-mood">${w.mood}</span>` +
+          `</div>` +
           `<p class="om-bud-text">${w.text}</p>`;
         el.addEventListener('click', () => select(w.placeId, w.lat, w.lng));
-        return { lat: w.lat, lng: w.lng, el, zIndex: w.mine ? 20 : 2 };
+
+        specs.push({
+          lat: w.lat,
+          lng: w.lng,
+          el,
+          zIndex: w.mine ? 30 : 20,
+          yAnchor: 1.15,
+        });
       });
-      return paintOverlays(map, specs);
+    } else {
+      // 🌟 광역 줌 (시/구/동 단위): 서지 거점 뱃지 & 장소명 라벨
+      cells.forEach((cell) => {
+        const ratio = cell.count / busiest;
+        const el = document.createElement('div');
+        el.className = 'om-surge-card';
+
+        // 뱃지 배경색 결정 (우버 서지 3단계: 다홍/크림슨 > 황금/주황 > 청록)
+        let badgeBg: string;
+        let badgeColor: string;
+
+        if (isDark) {
+          if (ratio >= 0.55) {
+            badgeBg = darkPalette.juhong[500];
+            badgeColor = darkPalette.juhong[200];
+          } else if (ratio >= 0.25) {
+            badgeBg = darkPalette.hwanggeum[500];
+            badgeColor = darkPalette.hwanggeum[200];
+          } else {
+            badgeBg = darkPalette.cheongrok[500];
+            badgeColor = darkPalette.cheongrok[200];
+          }
+        } else {
+          if (ratio >= 0.55) {
+            badgeBg = lightPalette.juhong[500];
+            badgeColor = lightPalette.juhong[700];
+          } else if (ratio >= 0.25) {
+            badgeBg = lightPalette.hwanggeum[400];
+            badgeColor = lightPalette.hwanggeum[700];
+          } else {
+            badgeBg = lightPalette.cheongrok[500];
+            badgeColor = lightPalette.cheongrok[700];
+          }
+        }
+
+        el.innerHTML = `
+          <div class="om-surge-badge" style="background: ${badgeBg}">
+            ${SVG_WARMTH_ICON}
+            <span class="om-surge-count" style="color: ${badgeColor}">${cell.count}</span>
+          </div>
+          <div class="om-surge-label">${cell.latest.placeName}</div>
+        `;
+
+        el.addEventListener('click', () => {
+          const m = useMapStore.getState().map;
+          m?.setLevel(Math.max(1, m.getLevel() - 2), { animate: true });
+          m?.panTo(new window.kakao.maps.LatLng(cell.lat, cell.lng));
+          select(cell.latest.placeId, cell.lat, cell.lng);
+        });
+
+        specs.push({
+          lat: cell.lat,
+          lng: cell.lng,
+          el,
+          yAnchor: 0.5,
+          zIndex: 12,
+        });
+      });
     }
 
-    const cells = clusterWarmth(list, level);
-    const busiest = Math.max(...cells.map((c) => c.count));
-
-    const specs = cells.map((cell) => {
-      const el = document.createElement('div');
-      el.className = 'om-blob';
-      const size = Math.min(BLOB_MAX, BLOB_BASE + cell.count * BLOB_STEP);
-      el.style.setProperty('--om-size', `${size}px`);
-      // 가장 뜨거운 셀을 기준으로 농도를 잡는다 — 어디가 더 뜨거운지가 읽혀야 한다.
-      el.style.setProperty('--om-alpha', String(0.22 + 0.4 * (cell.count / busiest)));
-      el.innerHTML = `<span class="om-blob-count">${cell.count}</span>`;
-
-      el.addEventListener('click', () => {
-        const m = useMapStore.getState().map;
-        m?.setLevel(Math.max(1, m.getLevel() - 2), { animate: true });
-        m?.panTo(new window.kakao.maps.LatLng(cell.lat, cell.lng));
-      });
-
-      return { lat: cell.lat, lng: cell.lng, el, yAnchor: 0.5, zIndex: 1 };
-    });
-
     return paintOverlays(map, specs);
-  }, [map, mode, warmths, category, level]);
+  }, [map, mode, warmths, category, level, isDark]);
 
   return <Global styles={styles} />;
 }
