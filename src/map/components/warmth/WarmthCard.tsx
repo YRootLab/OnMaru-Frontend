@@ -7,7 +7,7 @@ import {
   Home,
   Utensils,
   Coffee,
-  ShoppingBag,
+  Store,
   ThumbsUp,
   ChevronRight,
 } from 'lucide-react';
@@ -24,13 +24,16 @@ interface WarmthCardProps {
 
 const CardWrapper = styled.article`
   padding: 16px;
-  margin: 4px 0 8px;
-  border-radius: 18px;
-  background: rgba(78, 89, 104, 0.035);
-  transition: all 0.15s ease;
+  margin: 4px 0 10px;
+  border-radius: 20px;
+  background: rgba(232, 90, 24, 0.03);
+  border: 1px solid rgba(232, 90, 24, 0.08);
+  transition: all 0.18s ease;
 
   &:hover {
-    background: rgba(78, 89, 104, 0.055);
+    background: rgba(232, 90, 24, 0.055);
+    border-color: rgba(232, 90, 24, 0.16);
+    box-shadow: 0 4px 16px rgba(232, 90, 24, 0.08);
   }
 `;
 
@@ -43,14 +46,14 @@ const PlaceHeader = styled.div`
 `;
 
 const CategoryIconBox = styled.div`
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 12px;
-  background: #f0eae0;
+  background: ${lightPalette.juhong[50]};
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${meok[500]};
+  color: ${lightPalette.juhong[500]};
   flex-shrink: 0;
 `;
 
@@ -77,25 +80,20 @@ const PlaceMeta = styled.p`
 
 /* ── 2. 감정 표시 ── */
 const MoodSection = styled.div`
-  margin: 12px 0 14px;
+  margin: 12px 0 12px;
 `;
 
-/* ── 3. 좋았던 점 / 4. 아쉬웠던 점 ── */
-const ReviewSection = styled.div`
+/* ── 3. 단일 통합 후기 본문 및 태그 ── */
+const ReviewBody = styled.div`
   margin-bottom: 12px;
 `;
 
-const SectionLabel = styled.span<{ $type: 'good' | 'bad' }>`
-  display: inline-block;
-  font-size: 13px;
-  font-weight: 700;
-  margin-bottom: 6px;
-  color: ${({ $type }) =>
-    $type === 'good' ? lightPalette.cheongrok[700] : lightPalette.juhong[500]};
+const TagSection = styled.div`
+  margin-bottom: 8px;
 `;
 
 const ReviewText = styled.p<{ $expanded: boolean }>`
-  margin: 8px 0 0;
+  margin: 0;
   font-size: 13.5px;
   line-height: 1.6;
   color: ${meok[900]};
@@ -113,21 +111,21 @@ const ReviewText = styled.p<{ $expanded: boolean }>`
 `;
 
 const TextToggleBtn = styled.button`
-  margin-top: 4px;
+  margin-top: 6px;
   padding: 0;
   border: none;
   background: transparent;
-  color: ${meok[500]};
+  color: ${lightPalette.juhong[500]};
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
 
   &:hover {
-    color: ${meok[900]};
+    color: ${lightPalette.juhong[700]};
   }
 `;
 
-/* ── 5. 하단 메타 & 도움돼요 (no border) ── */
+/* ── 4. 하단 메타 & 도움돼요 ── */
 const FooterMeta = styled.div`
   display: flex;
   align-items: center;
@@ -150,9 +148,8 @@ const HelpfulButton = styled.button<{ $active: boolean }>`
   border-radius: 9999px;
   border: none;
   background: ${({ $active }) =>
-    $active ? lightPalette.juhong[50] : 'rgba(78, 89, 104, 0.07)'};
-  color: ${({ $active }) =>
-    $active ? lightPalette.juhong[700] : meok[700]};
+    $active ? lightPalette.juhong[100] : lightPalette.juhong[50]};
+  color: ${lightPalette.juhong[700]};
   font-family: inherit;
   font-size: 12px;
   font-weight: 600;
@@ -160,8 +157,7 @@ const HelpfulButton = styled.button<{ $active: boolean }>`
   transition: all 0.15s ease;
 
   &:hover {
-    background: ${({ $active }) =>
-      $active ? lightPalette.juhong[100] : 'rgba(78, 89, 104, 0.12)'};
+    background: ${lightPalette.juhong[100]};
   }
 
   &:active {
@@ -169,12 +165,13 @@ const HelpfulButton = styled.button<{ $active: boolean }>`
   }
 `;
 
-/* ── 6. 관련 장소 미니 카드 (no border) ── */
+/* ── 5. 관련 장소 미니 카드 ── */
 const RelatedPlaceBox = styled.div`
   margin-top: 12px;
   padding: 10px 12px;
   background: #ffffff;
   border-radius: 14px;
+  border: 1px solid rgba(232, 90, 24, 0.1);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -182,8 +179,9 @@ const RelatedPlaceBox = styled.div`
   transition: all 0.15s ease;
 
   &:hover {
-    background: #fafafa;
+    background: #fffcf9;
     transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(232, 90, 24, 0.1);
   }
 `;
 
@@ -195,10 +193,10 @@ const RelatedLeft = styled.div`
 `;
 
 const RelatedThumb = styled.div`
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   border-radius: 10px;
-  background: #f0eae0;
+  background: ${lightPalette.juhong[50]};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -225,7 +223,6 @@ const RelatedMeta = styled.span`
   color: ${meok[500]};
 `;
 
-/** 카테고리 SVG 아이콘 매핑 */
 function renderCategoryIcon(type: string) {
   if (type.includes('숙소') || type.includes('스테이') || type.includes('고택')) {
     return <Home size={18} />;
@@ -237,7 +234,7 @@ function renderCategoryIcon(type: string) {
     return <Coffee size={18} />;
   }
   if (type.includes('시장') || type.includes('쇼핑')) {
-    return <ShoppingBag size={18} />;
+    return <Store size={18} />;
   }
   return <Landmark size={18} />;
 }
@@ -249,17 +246,23 @@ export default function WarmthCard({ review, onHover }: WarmthCardProps) {
   const setDetailId = useMapStore((s) => s.setDetailId);
   const setSheetSnap = useMapStore((s) => s.setSheetSnap);
 
-  const [isGoodExpanded, setIsGoodExpanded] = useState(false);
-  const [isBadExpanded, setIsBadExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [helpful, setHelpful] = useState(review.isHelpful || false);
   const [helpfulCount, setHelpfulCount] = useState(review.helpfulCount);
+
+  // 태그 통합
+  const allTags = Array.from(
+    new Set([...(review.goodTags || []), ...(review.badTags || [])]),
+  );
+
+  // 본문 텍스트 통합
+  const fullText = [review.goodText, review.badText].filter(Boolean).join('\n\n');
 
   // 일치하는 장소 검색
   const matchedItem = items.find(
     (i) => i.id === review.placeId || i.name.includes(review.placeName.split(' ')[0]),
   );
 
-  // 카드 클릭 시 지도 중심 이동
   const handleCardClick = () => {
     if (matchedItem && map && window.kakao?.maps) {
       setSelectedId(matchedItem.id);
@@ -267,7 +270,6 @@ export default function WarmthCard({ review, onHover }: WarmthCardProps) {
     }
   };
 
-  // 관련 장소 미니 카드 클릭 시 상세 패널 열기
   const handleGoToDetail = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (matchedItem) {
@@ -284,7 +286,6 @@ export default function WarmthCard({ review, onHover }: WarmthCardProps) {
     }
   };
 
-  // 도움돼요 토글
   const handleHelpfulToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
     setHelpful((prev) => {
@@ -322,55 +323,32 @@ export default function WarmthCard({ review, onHover }: WarmthCardProps) {
         <MoodSelector value={review.mood} readonly />
       </MoodSection>
 
-      {/* 3. 좋았던 점 */}
-      {review.goodTags.length > 0 && (
-        <ReviewSection>
-          <SectionLabel $type="good">좋았던 점</SectionLabel>
-          <TagGroup tags={review.goodTags} type="good" />
-          {review.goodText && (
-            <>
-              <ReviewText $expanded={isGoodExpanded}>{review.goodText}</ReviewText>
-              {review.goodText.length > 100 && (
-                <TextToggleBtn
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsGoodExpanded((prev) => !prev);
-                  }}
-                >
-                  {isGoodExpanded ? '접기 ▲' : '더보기 ▼'}
-                </TextToggleBtn>
-              )}
-            </>
-          )}
-        </ReviewSection>
-      )}
+      {/* 3. 통합된 키워드 태그 및 후기 본문 */}
+      <ReviewBody>
+        {allTags.length > 0 && (
+          <TagSection>
+            <TagGroup tags={allTags} />
+          </TagSection>
+        )}
+        {fullText && (
+          <>
+            <ReviewText $expanded={isExpanded}>{fullText}</ReviewText>
+            {fullText.length > 90 && (
+              <TextToggleBtn
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsExpanded((prev) => !prev);
+                }}
+              >
+                {isExpanded ? '접기 ▲' : '더보기 ▼'}
+              </TextToggleBtn>
+            )}
+          </>
+        )}
+      </ReviewBody>
 
-      {/* 4. 아쉬웠던 점 (있을 때만) */}
-      {(review.badTags.length > 0 || review.badText) && (
-        <ReviewSection>
-          <SectionLabel $type="bad">아쉬웠던 점</SectionLabel>
-          {review.badTags.length > 0 && <TagGroup tags={review.badTags} type="bad" />}
-          {review.badText && (
-            <>
-              <ReviewText $expanded={isBadExpanded}>{review.badText}</ReviewText>
-              {review.badText.length > 100 && (
-                <TextToggleBtn
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsBadExpanded((prev) => !prev);
-                  }}
-                >
-                  {isBadExpanded ? '접기 ▲' : '더보기 ▼'}
-                </TextToggleBtn>
-              )}
-            </>
-          )}
-        </ReviewSection>
-      )}
-
-      {/* 5. 하단 메타 & 도움돼요 */}
+      {/* 4. 하단 메타 & 도움돼요 */}
       <FooterMeta>
         <MetaDate>
           {review.createdAt} · 도움돼요 {helpfulCount}
@@ -386,7 +364,7 @@ export default function WarmthCard({ review, onHover }: WarmthCardProps) {
         </HelpfulButton>
       </FooterMeta>
 
-      {/* 6. 관련 장소 미니 카드 */}
+      {/* 5. 관련 장소 미니 카드 */}
       <RelatedPlaceBox onClick={handleGoToDetail} role="button" aria-label="장소 상세 정보 보기">
         <RelatedLeft>
           <RelatedThumb>{renderCategoryIcon(review.placeType)}</RelatedThumb>
@@ -395,7 +373,7 @@ export default function WarmthCard({ review, onHover }: WarmthCardProps) {
             <RelatedMeta>{review.placeType}</RelatedMeta>
           </RelatedInfo>
         </RelatedLeft>
-        <ChevronRight size={16} color={meok[500]} />
+        <ChevronRight size={16} color={lightPalette.juhong[400]} />
       </RelatedPlaceBox>
     </CardWrapper>
   );

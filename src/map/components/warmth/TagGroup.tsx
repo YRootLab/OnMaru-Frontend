@@ -6,7 +6,6 @@ import { lightPalette } from '@/design-system/tokens';
 
 interface TagGroupProps {
   tags: string[];
-  type?: 'good' | 'bad';
 }
 
 const Wrapper = styled.div`
@@ -15,30 +14,27 @@ const Wrapper = styled.div`
   gap: 6px;
 `;
 
-const TagBadge = styled.span<{ $type: 'good' | 'bad' }>`
+const TagBadge = styled.span`
   display: inline-flex;
   align-items: center;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   padding: 3.5px 9px;
   border-radius: 9999px;
   border: none;
   white-space: nowrap;
-
-  background: ${({ $type }) =>
-    $type === 'good' ? lightPalette.cheongrok[50] : lightPalette.juhong[50]};
-  color: ${({ $type }) =>
-    $type === 'good' ? lightPalette.cheongrok[700] : lightPalette.juhong[700]};
+  background: ${lightPalette.juhong[50]};
+  color: ${lightPalette.juhong[700]};
 `;
 
-export default function TagGroup({ tags, type = 'good' }: TagGroupProps) {
+export default function TagGroup({ tags }: TagGroupProps) {
   if (!tags || tags.length === 0) return null;
 
   return (
     <Wrapper>
       {tags.map((tag, idx) => (
-        <TagBadge key={idx} $type={type}>
-          #{tag}
+        <TagBadge key={idx}>
+          #{tag.replace(/^#/, '')}
         </TagBadge>
       ))}
     </Wrapper>

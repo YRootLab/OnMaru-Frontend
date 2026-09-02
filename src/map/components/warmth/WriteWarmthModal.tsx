@@ -101,8 +101,8 @@ const PlaceNameBadge = styled.div`
   gap: 6px;
   padding: 6px 12px;
   border-radius: 12px;
-  background: ${lightPalette.cheongrok[50]};
-  color: ${lightPalette.cheongrok[700]};
+  background: ${lightPalette.juhong[50]};
+  color: ${lightPalette.juhong[700]};
   font-size: 13px;
   font-weight: 600;
   margin-bottom: 18px;
@@ -126,7 +126,7 @@ const MoodButtonGroup = styled.div`
   gap: 10px;
 `;
 
-const MoodButton = styled.button<{ $active: boolean; $type: 'quiet' | 'busy' }>`
+const MoodButton = styled.button<{ $active: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -134,32 +134,19 @@ const MoodButton = styled.button<{ $active: boolean; $type: 'quiet' | 'busy' }>`
   height: 42px;
   border-radius: 14px;
   border: 1.5px solid
-    ${({ $active, $type }) =>
-      $active
-        ? $type === 'quiet'
-          ? lightPalette.cheongrok[500]
-          : lightPalette.juhong[500]
-        : meok[200]};
-  background: ${({ $active, $type }) =>
-    $active
-      ? $type === 'quiet'
-        ? lightPalette.cheongrok[50]
-        : lightPalette.juhong[50]
-      : '#ffffff'};
-  color: ${({ $active, $type }) =>
-    $active
-      ? $type === 'quiet'
-        ? lightPalette.cheongrok[700]
-        : lightPalette.juhong[700]
-      : meok[700]};
+    ${({ $active }) =>
+      $active ? lightPalette.juhong[500] : meok[200]};
+  background: ${({ $active }) =>
+    $active ? lightPalette.juhong[50] : '#ffffff'};
+  color: ${({ $active }) =>
+    $active ? lightPalette.juhong[700] : meok[700]};
   font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.18s ease;
 
   &:hover {
-    border-color: ${({ $type }) =>
-      $type === 'quiet' ? lightPalette.cheongrok[400] : lightPalette.juhong[400]};
+    border-color: ${lightPalette.juhong[400]};
   }
 `;
 
@@ -172,16 +159,16 @@ const TagWrap = styled.div`
 const TagChip = styled.button<{ $selected: boolean }>`
   padding: 5px 10px;
   border-radius: 9999px;
-  border: 1px solid ${({ $selected }) => ($selected ? lightPalette.cheongrok[500] : meok[200])};
-  background: ${({ $selected }) => ($selected ? lightPalette.cheongrok[50] : '#ffffff')};
-  color: ${({ $selected }) => ($selected ? lightPalette.cheongrok[700] : meok[700])};
+  border: 1px solid ${({ $selected }) => ($selected ? lightPalette.juhong[500] : meok[200])};
+  background: ${({ $selected }) => ($selected ? lightPalette.juhong[50] : '#ffffff')};
+  color: ${({ $selected }) => ($selected ? lightPalette.juhong[700] : meok[700])};
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
 
   &:hover {
-    border-color: ${lightPalette.cheongrok[400]};
+    border-color: ${lightPalette.juhong[400]};
   }
 `;
 
@@ -205,7 +192,7 @@ const TextArea = styled.textarea`
   }
 
   &:focus {
-    border-color: ${lightPalette.cheongrok[500]};
+    border-color: ${lightPalette.juhong[500]};
   }
 `;
 
@@ -336,7 +323,6 @@ export default function WriteWarmthModal({
             <MoodButtonGroup>
               <MoodButton
                 type="button"
-                $type="quiet"
                 $active={mood === '한적'}
                 onClick={() => setMood('한적')}
               >
@@ -345,7 +331,6 @@ export default function WriteWarmthModal({
               </MoodButton>
               <MoodButton
                 type="button"
-                $type="busy"
                 $active={mood === '북적'}
                 onClick={() => setMood('북적')}
               >
@@ -357,7 +342,7 @@ export default function WriteWarmthModal({
 
           {/* 3. 추천 키워드 태그 */}
           <FormSection>
-            <SectionLabel>좋았던 점 키워드 (선택)</SectionLabel>
+            <SectionLabel>방문 키워드 (선택)</SectionLabel>
             <TagWrap>
               {PRESET_TAGS.map((tag) => (
                 <TagChip

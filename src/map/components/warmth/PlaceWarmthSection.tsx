@@ -117,7 +117,7 @@ const LeftBadges = styled.div`
   gap: 6px;
 `;
 
-const MoodBadge = styled.span<{ $mood: '한적' | '북적' }>`
+const MoodBadge = styled.span<{ $mood?: '한적' | '북적' }>`
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -125,8 +125,8 @@ const MoodBadge = styled.span<{ $mood: '한적' | '북적' }>`
   border-radius: 6px;
   font-size: 11px;
   font-weight: 700;
-  color: ${({ $mood }) => ($mood === '한적' ? lightPalette.cheongrok[700] : lightPalette.juhong[700])};
-  background: ${({ $mood }) => ($mood === '한적' ? lightPalette.cheongrok[50] : lightPalette.juhong[50])};
+  color: ${lightPalette.juhong[700]};
+  background: ${lightPalette.juhong[50]};
 `;
 
 const TimeAndMine = styled.div`
@@ -163,8 +163,8 @@ const TagList = styled.div`
 const TagItem = styled.span`
   padding: 2px 8px;
   border-radius: 6px;
-  background: rgba(30, 122, 104, 0.07);
-  color: ${lightPalette.cheongrok[700]};
+  background: ${lightPalette.juhong[50]};
+  color: ${lightPalette.juhong[700]};
   font-size: 11px;
   font-weight: 600;
 `;
