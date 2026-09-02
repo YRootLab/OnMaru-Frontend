@@ -117,7 +117,11 @@ const styles = css`
   /* ------------------------------------------------------------
    * 3. 우버st 서지 거점 뱃지 & 장소명 라벨 (Surge Place Badge)
    * ------------------------------------------------------------ */
+  /* ------------------------------------------------------------
+   * 3. 우버st 서지 거점 뱃지 & 장소명 라벨 (Surge Place Badge)
+   * ------------------------------------------------------------ */
   .om-surge-card {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -126,10 +130,92 @@ const styles = css`
     transform: translate(-50%, -50%);
     transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
     pointer-events: auto;
+    user-select: none;
   }
 
   .om-surge-card:hover {
-    transform: translate(-50%, -54%) scale(1.1);
+    transform: translate(-50%, -54%) scale(1.12);
+    z-index: 35 !important;
+  }
+
+  /* 서지 뱃지 호버 시 팝업되는 실시간 온기 요약 카드 */
+  .om-surge-hover-card {
+    position: absolute;
+    bottom: calc(100% + 12px);
+    left: 50%;
+    transform: translate(-50%, 6px) scale(0.9);
+    width: 210px;
+    padding: 12px 14px;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 12px 32px -4px rgba(25, 31, 40, 0.18), 0 0 0 1px rgba(25, 31, 40, 0.06);
+    pointer-events: none;
+    opacity: 0;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 60;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  [data-theme='dark'] .om-surge-hover-card {
+    background: #25221d;
+    box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  }
+
+  .om-surge-card:hover .om-surge-hover-card {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+
+  .om-surge-hover-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: ${meok[900]};
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  [data-theme='dark'] .om-surge-hover-title {
+    color: ${meok[100]};
+  }
+
+  .om-surge-hover-mood-badge {
+    padding: 2px 7px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 700;
+    background: ${lightPalette.juhong[50]};
+    color: ${lightPalette.juhong[700]};
+  }
+
+  [data-theme='dark'] .om-surge-hover-mood-badge {
+    background: rgba(232, 90, 24, 0.2);
+    color: ${darkPalette.juhong[200]};
+  }
+
+  .om-surge-hover-text {
+    font-size: 12px;
+    line-height: 1.45;
+    color: ${meok[700]};
+    margin: 0;
+    background: rgba(25, 31, 40, 0.03);
+    padding: 6px 8px;
+    border-radius: 8px;
+  }
+
+  [data-theme='dark'] .om-surge-hover-text {
+    color: ${meok[400]};
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .om-surge-hover-footer {
+    font-size: 11px;
+    color: ${lightPalette.juhong[500]};
+    font-weight: 600;
+    text-align: right;
   }
 
   /* 원형 서지 뱃지 */
@@ -141,12 +227,7 @@ const styles = css`
     width: 38px;
     height: 38px;
     border-radius: 50%;
-
-    transition: box-shadow 0.2s ease;
-  }
-
-  .om-surge-card:hover .om-surge-badge {
-
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
 
   .om-surge-badge svg {
@@ -166,12 +247,10 @@ const styles = css`
     padding: 0 4px;
     border-radius: 9999px;
     background: #ffffff;
-
     font-size: 10px;
     font-weight: 800;
     line-height: 14px;
     text-align: center;
-
     font-variant-numeric: tabular-nums;
   }
 
@@ -196,7 +275,6 @@ const styles = css`
     color: ${meok[900]};
     background: rgba(255, 255, 255, 0.94);
     backdrop-filter: blur(4px);
-
     text-shadow: 0 0 3px #ffffff;
   }
 
@@ -204,35 +282,36 @@ const styles = css`
     color: ${meok[100]};
     background: rgba(45, 41, 36, 0.9);
     backdrop-filter: blur(6px);
-
   }
 
   /* ------------------------------------------------------------
-   * 4. 줌인 상세 한줄평 말풍선 (Detail Warmth Bud - 히트맵 상단에 함께 오버레이)
+   * 4. 줌인 상세 한줄평 말풍선 (Detail Warmth Bud)
    * ------------------------------------------------------------ */
   .om-bud {
     position: relative;
-    max-width: 210px;
-    padding: 10px 13px;
+    max-width: 220px;
+    padding: 10px 14px;
     border-radius: 14px;
     cursor: pointer;
-    transition: transform 0.18s ease-out, box-shadow 0.18s ease;
-    backdrop-filter: blur(8px);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+    backdrop-filter: blur(12px);
+    user-select: none;
   }
 
   [data-theme='light'] .om-bud,
   :root:not([data-theme='dark']) .om-bud {
     background: rgba(255, 255, 255, 0.96);
-
+    box-shadow: 0 4px 16px -2px rgba(25, 31, 40, 0.12), 0 0 0 1px rgba(25, 31, 40, 0.04);
   }
 
   [data-theme='dark'] .om-bud {
-    background: rgba(45, 41, 36, 0.94);
-
+    background: rgba(45, 41, 36, 0.95);
+    box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08);
   }
 
   .om-bud:hover {
-    transform: translateY(-3px) scale(1.02);
+    transform: translateY(-4px) scale(1.04);
+    z-index: 35 !important;
   }
 
   .om-bud::after {
@@ -240,7 +319,7 @@ const styles = css`
     position: absolute;
     left: 20px;
     top: 100%;
-
+    border: 6px solid transparent;
   }
 
   [data-theme='light'] .om-bud::after,
@@ -508,12 +587,23 @@ export default function WarmthLayer() {
           }
         }
 
+        const firstLine = (cell.latest.text.split('\n')[0] || '').trim();
+        const cleanSnippet = firstLine.length > 35 ? firstLine.slice(0, 35) + '...' : firstLine;
+
         el.innerHTML = `
           <div class="om-surge-badge" style="background: ${badgeBg}">
             ${SVG_WARMTH_ICON}
             <span class="om-surge-count" style="color: ${badgeColor}">${cell.count}</span>
           </div>
           <div class="om-surge-label">${cell.latest.placeName}</div>
+          <div class="om-surge-hover-card">
+            <div class="om-surge-hover-title">
+              <span>${cell.latest.placeName}</span>
+              <span class="om-surge-hover-mood-badge">${cell.latest.mood}</span>
+            </div>
+            <p class="om-surge-hover-text">"${cleanSnippet}"</p>
+            <div class="om-surge-hover-footer">총 ${cell.count}개의 온기 기록 · 클릭하여 보기 ➔</div>
+          </div>
         `;
 
         el.addEventListener('click', () => {
