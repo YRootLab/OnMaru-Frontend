@@ -1,9 +1,11 @@
 import { create } from 'zustand';
 import { OdiiStoryItem, ScriptLine } from '../types/odii.types';
 import { parseScriptToLines } from '../utils/scriptParser';
+import { odiiApiAdapter } from '../api/odiiApi';
 
 interface OdiiAudioState {
   currentStory: OdiiStoryItem;
+  availableStories: OdiiStoryItem[];
   isPlaying: boolean;
   currentTime: number;
   duration: number;
@@ -15,6 +17,8 @@ interface OdiiAudioState {
   isPlayerExpanded: boolean;
 
   // Actions
+  setAvailableStories: (stories: OdiiStoryItem[]) => void;
+  fetchRegionalOdiiStories: (lng?: number, lat?: number) => Promise<void>;
   setCurrentStory: (story: OdiiStoryItem) => void;
   selectStory: (story: OdiiStoryItem) => void;
   setIsPlaying: (isPlaying: boolean) => void;
@@ -50,6 +54,7 @@ const initialStory: OdiiStoryItem = {
 
 export const useOdiiAudioStore = create<OdiiAudioState>((set, get) => ({
   currentStory: initialStory,
+  availableStories: [],
   isPlaying: false,
   currentTime: 0,
   duration: 300,
@@ -59,6 +64,31 @@ export const useOdiiAudioStore = create<OdiiAudioState>((set, get) => ({
   searchQuery: '',
   isBookmarked: false,
   isPlayerExpanded: false,
+
+  setAvailableStories: (availableStories: OdiiStoryItem[]) => set({ availableStories }),
+
+  fetchRegionalOdiiStories: async (lng?: number, lat?: number) => {
+    try {
+      const [nearbyStories, generalStories] = await Promise.all([
+        lng && lat
+          ? odiiApiAdapter.getNearbyStories(String(lng), String(lat), 6000)
+          : Promise.resolve([]),
+        odiiApiAdapter.getStoryList('한옥'),
+      ]);
+
+      const merged = [...nearbyStories, ...generalStories].filter((s) => Boolean(s.audioUrl));
+      const seen = new Set<string>();
+      const unique = merged.filter((s) => {
+        if (!s.stid || seen.has(s.stid)) return false;
+        seen.add(s.stid);
+        return true;
+      });
+
+      set({ availableStories: unique });
+    } catch {
+      // 무시
+    }
+  },
 
   setCurrentStory: (story: OdiiStoryItem) => {
     const playTimeSec = parseInt(story.playTime, 10) || 300;
