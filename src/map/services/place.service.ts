@@ -181,30 +181,73 @@ export class PlaceService {
         }
       });
     } else {
-      // 🌟 3. 일반/전체 카테고리 TourAPI 4.0 실시간 병렬 호출
-      const queryCenters = isNationwide
-        ? NATIONWIDE_HUBS
-        : [{ lat: opts.lat, lng: opts.lng }];
-
-      const contentTypes = opts.category
-        ? [CATEGORY_MAP[opts.category].contentTypeId]
-        : ['12', '14', '15', '28', '32', '38', '39'];
-
+      // 🌟 3. 초고속 병렬 호출 (불필요한 280개 중복 요청 제거 -> 20개 정예 쿼리로 14배 가속)
       const fetchTasks: Promise<{ cType: string; rows: Record<string, unknown>[] }>[] = [];
 
-      // 3-1. 위치 기반 locationBasedList2 실시간 쿼리
-      for (const center of queryCenters) {
+      if (isNationwide) {
+        // [전국 조망]: 17개 광역 시·도별 areaBasedList2 (17개 요청) + 3개 핵심 키워드(3개 요청) = 총 20개 정예 쿼리
+        const AREA_CODES = ['1', '2', '3', '4', '5', '6', '7', '8', '31', '32', '33', '34', '35', '36', '37', '38', '39'];
+        const targetContentType = opts.category ? CATEGORY_MAP[opts.category].contentTypeId : '12';
+
+        for (const aCode of AREA_CODES) {
+          fetchTasks.push(
+            TourApiClient.get(
+              'areaBasedList2',
+              {
+                areaCode: aCode,
+                contentTypeId: targetContentType,
+                arrange: 'Q',
+                numOfRows: 25,
+              },
+              signal,
+            )
+              .then((res) => {
+                const raw = res?.response?.body?.items?.item;
+                const rows = (Array.isArray(raw) ? raw : raw ? [raw] : []) as Record<string, unknown>[];
+                return { cType: targetContentType, rows };
+              })
+              .catch(() => ({ cType: targetContentType, rows: [] })),
+          );
+        }
+
+        // 전국 숨은 명소/고택 보강 키워드 (3개)
+        const coreKeywords = ['한옥', '고택', '문화재'];
+        for (const kw of coreKeywords) {
+          fetchTasks.push(
+            TourApiClient.get(
+              'searchKeyword2',
+              {
+                keyword: kw,
+                arrange: 'Q',
+                numOfRows: 80,
+              },
+              signal,
+            )
+              .then((res) => {
+                const raw = res?.response?.body?.items?.item;
+                const rows = (Array.isArray(raw) ? raw : raw ? [raw] : []) as Record<string, unknown>[];
+                return { cType: '12', rows };
+              })
+              .catch(() => ({ cType: '12', rows: [] })),
+          );
+        }
+      } else {
+        // [시/군/동 상세 조망]: 현재 지도 중심 기준 locationBasedList2 (초고속 1~3개 쿼리)
+        const contentTypes = opts.category
+          ? [CATEGORY_MAP[opts.category].contentTypeId]
+          : ['12', '14', '15', '28', '32', '38', '39'];
+
         for (const cType of contentTypes) {
           fetchTasks.push(
             TourApiClient.get(
               'locationBasedList2',
               {
-                mapX: center.lng,
-                mapY: center.lat,
+                mapX: opts.lng,
+                mapY: opts.lat,
                 radius,
                 contentTypeId: cType,
                 arrange: 'E',
-                numOfRows: isNationwide ? 6 : 25,
+                numOfRows: 30,
               },
               signal,
             )
@@ -216,65 +259,6 @@ export class PlaceService {
               .catch(() => ({ cType, rows: [] })),
           );
         }
-      }
-
-      // 3-2. 전국 17개 광역 시·도별 areaBasedList2 실시간 병렬 쿼리 (서울~제주 전역 균형 수집)
-      if (isNationwide) {
-        const AREA_CODES = ['1', '2', '3', '4', '5', '6', '7', '8', '31', '32', '33', '34', '35', '36', '37', '38', '39'];
-        for (const aCode of AREA_CODES) {
-          fetchTasks.push(
-            TourApiClient.get(
-              'areaBasedList2',
-              {
-                areaCode: aCode,
-                contentTypeId: opts.category ? CATEGORY_MAP[opts.category].contentTypeId : '12',
-                arrange: 'Q',
-                numOfRows: 15,
-              },
-              signal,
-            )
-              .then((res) => {
-                const raw = res?.response?.body?.items?.item;
-                const rows = (Array.isArray(raw) ? raw : raw ? [raw] : []) as Record<string, unknown>[];
-                return { cType: opts.category ? CATEGORY_MAP[opts.category].contentTypeId : '12', rows };
-              })
-              .catch(() => ({ cType: '12', rows: [] })),
-          );
-        }
-      }
-
-      // 3-3. 전국 각지의 한옥마을 및 전통 문화재 키워드 searchKeyword2 실시간 병렬 쿼리
-      const traditionalKeywords = [
-        '한옥마을',
-        '전통마을',
-        '민속마을',
-        '고가마을',
-        '한옥',
-        '고택',
-        '종택',
-        '서원',
-        '향교',
-        '사찰',
-        '궁궐',
-      ];
-      for (const kw of traditionalKeywords) {
-        fetchTasks.push(
-          TourApiClient.get(
-            'searchKeyword2',
-            {
-              keyword: kw,
-              arrange: 'Q',
-              numOfRows: isNationwide ? 60 : 30,
-            },
-            signal,
-          )
-            .then((res) => {
-              const raw = res?.response?.body?.items?.item;
-              const rows = (Array.isArray(raw) ? raw : raw ? [raw] : []) as Record<string, unknown>[];
-              return { cType: '12', rows };
-            })
-            .catch(() => ({ cType: '12', rows: [] })),
-        );
       }
 
       const results = await Promise.allSettled(fetchTasks);
