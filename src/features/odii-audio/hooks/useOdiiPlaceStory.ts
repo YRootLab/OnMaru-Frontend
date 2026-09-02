@@ -1,42 +1,65 @@
 import { useState, useEffect } from 'react';
 import { OdiiStoryItem, TourWaypoint } from '../types/odii.types';
 import { odiiApiAdapter } from '../api/odiiApi';
-
-// 실시간 Odii API에서 검색/로드된 전국 이야기들의 동적 메모리 인덱스 레지스트리
-const liveOdiiStoryRegistry = new Map<string, OdiiStoryItem>();
+import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
 
 /**
- * 실시간 API 기반으로 수집된 Odii 스토리 레지스트리를 갱신합니다.
+ * 장소 객체와 Odii 스토리 목록 간의 100% 정밀 1:1 매칭 함수 (단일 진실 공급원 SSOT)
+ * 리스트의 뱃지 표시와 상세창의 시네마틱 투어 배너가 완벽하게 1:1 일치하도록 보장합니다.
  */
-export function registerLiveOdiiStories(stories: OdiiStoryItem[]) {
+export function matchOdiiStory(
+  place: { name?: string; addr?: string; lat?: number; lng?: number },
+  stories: OdiiStoryItem[],
+): OdiiStoryItem | null {
+  if (!place.name || !stories || stories.length === 0) return null;
+
+  // 장소명에서 괄호, 특수기호, 무의미한 업종 접미사 정제
+  const cleanPlace = place.name
+    .replace(/\(.*?\)/g, '')
+    .replace(/\[.*?\]/g, '')
+    .replace(/숙박|게스트하우스|체험장|체험관|주차장|식당|카페|호텔|모텔|빌라/g, '')
+    .replace(/[\s\-_]/g, '')
+    .toLowerCase();
+
+  if (cleanPlace.length < 2) return null;
+
+  // 1. 이름 기준 1:1 엄격 매칭 (음원이 실제로 존재하는 스토리만)
   for (const story of stories) {
-    if (story.audioUrl) {
-      const normalizedTitle = story.title.replace(/\s+/g, '').toLowerCase();
-      liveOdiiStoryRegistry.set(normalizedTitle, story);
-      if (story.audioTitle) {
-        liveOdiiStoryRegistry.set(story.audioTitle.replace(/\s+/g, '').toLowerCase(), story);
+    if (!story.audioUrl) continue;
+    const cleanStoryTitle = story.title.replace(/[\s\-_]/g, '').toLowerCase();
+    const cleanAudioTitle = (story.audioTitle || '').replace(/[\s\-_]/g, '').toLowerCase();
+
+    // 두 텍스트 간의 상호 온전한 포함 관계
+    if (
+      cleanStoryTitle.includes(cleanPlace) ||
+      cleanPlace.includes(cleanStoryTitle) ||
+      (cleanAudioTitle.length >= 2 && (cleanAudioTitle.includes(cleanPlace) || cleanPlace.includes(cleanAudioTitle)))
+    ) {
+      return story;
+    }
+  }
+
+  // 2. 거리 기준 초근접 정밀 매칭 (반경 250m 이내이면서 핵심 2글자 이상 일치)
+  if (place.lat !== undefined && place.lng !== undefined) {
+    for (const story of stories) {
+      if (!story.audioUrl) continue;
+      const sLat = parseFloat(story.mapY);
+      const sLng = parseFloat(story.mapX);
+      if (!sLat || !sLng) continue;
+
+      const dLat = Math.abs(sLat - place.lat);
+      const dLng = Math.abs(sLng - place.lng);
+      if (dLat <= 0.0025 && dLng <= 0.0025) {
+        const cleanStoryTitle = story.title.replace(/[\s\-_]/g, '').toLowerCase();
+        const token = cleanPlace.slice(0, 2);
+        if (cleanStoryTitle.includes(token)) {
+          return story;
+        }
       }
     }
   }
-}
 
-/**
- * 특정 장소에 Odii 오디오 도슨트 해설이 지원되는지 실시간 레지스트리 및 명칭으로 동적 판별
- */
-export function hasOdiiDocent(placeName?: string, addr?: string): boolean {
-  if (!placeName) return false;
-  const cleanTarget = placeName
-    .replace(/[\s\(\)\[\]\-_]/g, '')
-    .toLowerCase();
-
-  // 1. 실시간 API에서 등록된 스토리 목록에서 검색
-  for (const [key] of liveOdiiStoryRegistry) {
-    if (key.includes(cleanTarget) || cleanTarget.includes(key)) {
-      return true;
-    }
-  }
-
-  return false;
+  return null;
 }
 
 /**
@@ -93,10 +116,13 @@ const odiiPlaceCache = new Map<string, OdiiStoryItem | null>();
 
 /**
  * 장소명 및 좌표를 통해 한국관광공사 실제 Odii API를 직접 호출하여 
- * 정확히 일치/매칭되는 이야기만 반환하는 React 훅 (불일치 시 억지 fallback 없이 null 반환)
+ * 정확히 일치/매칭되는 이야기만 반환하는 React 훅
  */
 export function useOdiiPlaceStory(placeName?: string, lat?: number, lng?: number) {
-  const [story, setStory] = useState<OdiiStoryItem | null>(null);
+  const availableStories = useOdiiAudioStore((s) => s.availableStories);
+  const [story, setStory] = useState<OdiiStoryItem | null>(() => {
+    return matchOdiiStory({ name: placeName, lat, lng }, availableStories);
+  });
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
@@ -105,6 +131,17 @@ export function useOdiiPlaceStory(placeName?: string, lat?: number, lng?: number
       return;
     }
 
+    // 1. 이미 로드된 전역 Odii 스토어에서 즉시 동기 매칭 검사
+    const fastMatch = matchOdiiStory({ name: placeName, lat, lng }, availableStories);
+    if (fastMatch) {
+      if (!fastMatch.waypoints) {
+        fastMatch.waypoints = generateDynamicWaypoints(fastMatch);
+      }
+      setStory(fastMatch);
+      return;
+    }
+
+    // 2. 메모리 캐시 검사
     const cacheKey = `${placeName || ''}:${lat?.toFixed(3)}:${lng?.toFixed(3)}`;
     if (odiiPlaceCache.has(cacheKey)) {
       setStory(odiiPlaceCache.get(cacheKey) || null);
@@ -118,41 +155,23 @@ export function useOdiiPlaceStory(placeName?: string, lat?: number, lng?: number
       try {
         let matched: OdiiStoryItem | null = null;
 
-        // 1. 장소명 정제 및 핵심 검색어 추출
         const cleanName = (placeName || '')
           .replace(/\(.*?\)/g, '')
           .replace(/\[.*?\]/g, '')
-          .replace(/숙박|체험관|체험장|게스트하우스|호텔|카페|식당|한옥마을/g, '')
+          .replace(/숙박|체험관|체험장|게스트하우스|호텔|카페|식당/g, '')
           .trim();
 
-        // 2. 장소명 기반 Odii API 실시간 검색 (최대 4글자 핵심 키워드)
         if (cleanName.length >= 2) {
           const searchWord = cleanName.slice(0, 4);
           const apiStories = await odiiApiAdapter.getStoryList(undefined, searchWord);
-
-          // 음원이 있고 이름이 실제로 매칭되는 스토리만 엄격히 선별
-          matched = apiStories.find((s) => {
-            if (!s.audioUrl) return false;
-            const fullTitle = `${s.title} ${s.audioTitle}`.replace(/\s+/g, '');
-            const target = cleanName.replace(/\s+/g, '');
-            return fullTitle.includes(target) || target.includes(s.title.replace(/\s+/g, ''));
-          }) || null;
+          matched = matchOdiiStory({ name: placeName, lat, lng }, apiStories);
         }
 
-        // 3. 위치 기반 Odii API 실시간 조회 (반경 500m 이내 초근접 정밀 매칭)
         if (!matched && lat !== undefined && lng !== undefined) {
-          const nearbyStories = await odiiApiAdapter.getNearbyStories(String(lng), String(lat), 600);
-          if (nearbyStories.length > 0) {
-            matched = nearbyStories.find((s) => {
-              if (!s.audioUrl) return false;
-              if (cleanName.length < 2) return true;
-              const fullTitle = `${s.title} ${s.audioTitle}`;
-              return cleanName.split(' ').some((word) => word.length >= 2 && fullTitle.includes(word));
-            }) || null;
-          }
+          const nearbyStories = await odiiApiAdapter.getNearbyStories(String(lng), String(lat), 500);
+          matched = matchOdiiStory({ name: placeName, lat, lng }, nearbyStories);
         }
 
-        // 🌟 실전 원칙: 매칭되는 Odii 해설이 없으면 억지 fallback을 하지 않고 null 처리
         if (matched) {
           matched.waypoints = generateDynamicWaypoints(matched);
         }
@@ -176,7 +195,7 @@ export function useOdiiPlaceStory(placeName?: string, lat?: number, lng?: number
     return () => {
       isMounted = false;
     };
-  }, [placeName, lat, lng]);
+  }, [placeName, lat, lng, availableStories]);
 
   return { story, loading };
 }

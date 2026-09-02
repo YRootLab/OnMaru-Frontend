@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
+import { matchOdiiStory } from '@/features/odii-audio/hooks/useOdiiPlaceStory';
 import type { Item, PlaceCategory } from '../types';
 
 interface PlaceListItemProps {
@@ -256,32 +257,8 @@ function PlaceListItemComponent({
   const availableStories = useOdiiAudioStore((s) => s.availableStories);
 
   const hasOdii = useMemo(() => {
-    if (!item.name) return false;
-    const cleanItemName = item.name.replace(/[\s\(\)\[\]\-_]/g, '').toLowerCase();
-
-    // 1. Check against reactive availableStories fetched from live Odii API
-    const matched = availableStories.some((story) => {
-      const storyTitle = (story.title + ' ' + (story.audioTitle || '')).replace(/[\s\(\)\[\]\-_]/g, '').toLowerCase();
-      // Token overlap or containment
-      if (storyTitle.includes(cleanItemName) || cleanItemName.includes(story.title.replace(/[\s\(\)\[\]\-_]/g, '').toLowerCase())) {
-        return true;
-      }
-      // Or check coordinate proximity (< 500m)
-      const sLat = parseFloat(story.mapY);
-      const sLng = parseFloat(story.mapX);
-      if (sLat && sLng && item.lat && item.lng) {
-        const dLat = Math.abs(sLat - item.lat);
-        const dLng = Math.abs(sLng - item.lng);
-        if (dLat < 0.005 && dLng < 0.005) {
-          const nameTokens = cleanItemName.slice(0, 3);
-          return storyTitle.includes(nameTokens) || cleanItemName.includes(story.title.slice(0, 3).toLowerCase());
-        }
-      }
-      return false;
-    });
-
-    return matched;
-  }, [item.name, item.lat, item.lng, availableStories]);
+    return Boolean(matchOdiiStory(item, availableStories));
+  }, [item, availableStories]);
 
   const catLabel = CATEGORY_LABELS[item.category] || '한옥명소';
   const district = getDistrictFromAddr(item.addr);
