@@ -246,21 +246,6 @@ function formatDistance(dist?: number | null): string {
   return `${(dist / 1000).toFixed(1)}km`;
 }
 
-/** 뱃지 태그 추출 (최대 2개) */
-function getBadges(item: Item): string[] {
-  const badges: string[] = [];
-  if (item.category === 'stay') badges.push('한옥스테이');
-  else if (item.category === 'experience') badges.push('전통체험');
-  else if (item.category === 'culture') badges.push('문화유산');
-  else if (item.category === 'festival') badges.push('야행축제');
-  else if (item.category === 'cafe') badges.push('전통차');
-  else if (item.category === 'food') badges.push('향토음식');
-  else badges.push('명소고택');
-
-  if (item.tel) badges.push('안내가능');
-  return badges.slice(0, 2);
-}
-
 function PlaceListItemComponent({
   item,
   index,
@@ -286,7 +271,6 @@ function PlaceListItemComponent({
   const catLabel = CATEGORY_LABELS[item.category] || '한옥명소';
   const district = getDistrictFromAddr(item.addr);
   const distText = formatDistance(item.dist);
-  const badges = getBadges(item);
 
   return (
     <ItemContainer ref={itemRef}>
@@ -329,17 +313,17 @@ function PlaceListItemComponent({
 
           {distText && <Row3>{distText}</Row3>}
 
-          <BadgeRow>
-            {hasOdii && (
-              <OdiiBadge title="한국관광공사 공식 오디 오디오 도슨트 해설 지원 장소">
-                <Headphones size={10} />
-                <span>오디 해설</span>
-              </OdiiBadge>
-            )}
-            {badges.map((badge, idx) => (
-              <Badge key={idx}>{badge}</Badge>
-            ))}
-          </BadgeRow>
+          {(hasOdii || item.tel) && (
+            <BadgeRow>
+              {hasOdii && (
+                <OdiiBadge title="한국관광공사 공식 오디 오디오 도슨트 해설 지원 장소">
+                  <Headphones size={10} />
+                  <span>오디 해설</span>
+                </OdiiBadge>
+              )}
+              {item.tel && <Badge>안내 가능</Badge>}
+            </BadgeRow>
+          )}
         </Content>
       </ItemButton>
     </ItemContainer>
