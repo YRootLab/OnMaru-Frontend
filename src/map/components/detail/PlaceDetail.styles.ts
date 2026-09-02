@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
-import { lightPalette, meok } from '@/design-system/tokens';
+import { lightPalette, darkPalette, meok } from '@/design-system/tokens';
 
 export const pulse = keyframes`
   0%, 100% { opacity: 1; }
@@ -281,3 +281,104 @@ export const ErrorBox = styled.div`
   padding: 60px 20px;
   text-align: center;
 `;
+
+export const CinematicBanner = styled.div`
+  margin: 12px 16px 6px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(232, 90, 24, 0.08) 0%, rgba(212, 32, 88, 0.08) 100%);
+  border: 1.5px solid rgba(232, 90, 24, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+  overflow: hidden;
+
+  [data-theme='dark'] & {
+    background: linear-gradient(135deg, rgba(248, 87, 0, 0.15) 0%, rgba(248, 78, 118, 0.12) 100%);
+    border-color: rgba(248, 87, 0, 0.35);
+  }
+`;
+
+export const CinematicHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+export const CinematicBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 800;
+  color: ${lightPalette.juhong[500]};
+
+  [data-theme='dark'] & {
+    color: ${darkPalette.juhong[400]};
+  }
+`;
+
+export const CinematicDuration = styled.span`
+  font-size: 11px;
+  color: ${meok[500]};
+  font-weight: 600;
+`;
+
+export const CinematicTitle = styled.h4`
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: ${meok[900]};
+  line-height: 1.35;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
+`;
+
+export const CinematicDesc = styled.p`
+  margin: 0;
+  font-size: 12px;
+  color: ${meok[700]};
+  line-height: 1.4;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
+`;
+
+export const CinematicStartButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  height: 38px;
+  margin-top: 4px;
+  border: none;
+  border-radius: 12px;
+  background: ${lightPalette.juhong[500]};
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 3px 12px rgba(232, 90, 24, 0.3);
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: ${lightPalette.juhong[400]};
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  [data-theme='dark'] & {
+    background: ${darkPalette.juhong[500]};
+    box-shadow: 0 0 14px rgba(248, 87, 0, 0.5);
+  }
+`;
+

@@ -1,3 +1,14 @@
+export interface TourWaypoint {
+  id: string;
+  timeSec: number;        // 이 스팟이 시작되는 오디오 시간(초)
+  title: string;          // 경유지 이름 (예: "1. 경기전 하마비")
+  lat: number;            // 위도
+  lng: number;            // 경도
+  zoomLevel?: number;     // 줌 레벨 (기본 3)
+  photoTip?: string;      // "📸 포토 꿀팁: 대나무 숲 사이로 쏟아지는 아침 햇살"
+  description?: string;   // 스팟 한줄 설명
+}
+
 export interface OdiiStoryItem {
   tid: string;          // 관광지 ID
   tlid: string;         // 관광지 언어 ID
@@ -19,6 +30,7 @@ export interface OdiiStoryItem {
   badgeText?: string;   // 에디토리얼 뱃지
   locationName?: string; // 상세 장소명
   likesCount?: number;   // 좋아요/북마크 수
+  waypoints?: TourWaypoint[]; // 🎬 시네마틱 공간 오디오 투어 경유지 목록
 }
 
 export interface OdiiStoryPage {

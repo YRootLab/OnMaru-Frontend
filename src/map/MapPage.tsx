@@ -16,6 +16,8 @@ import PlaceMarkers from './components/PlaceMarkers';
 import SearchBar from './components/SearchBar';
 import WarmthLayer from './components/WarmthLayer';
 import WriteButton from './components/warmth/WriteButton';
+import CinematicTourMapLayer from '@/features/cinematic-tour/components/CinematicTourMapLayer';
+import CinematicTourFloatingBar from '@/features/cinematic-tour/components/CinematicTourFloatingBar';
 
 const FONT = "'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif";
 
@@ -166,6 +168,7 @@ export default function MapPage() {
         <KakaoMap />
         <PlaceMarkers />
         <WarmthLayer />
+        <CinematicTourMapLayer />
         <MapChips>
           {!panelOpen && (
             <FloatingHomeButton
@@ -206,7 +209,11 @@ export default function MapPage() {
         <ModeToggle />
       </MobileTop>
 
+      {/* 4. 시네마틱 공간 오디오 투어 플로팅 컨트롤러 */}
+      <CinematicTourFloatingBar />
+
       <BottomSheet />
     </Root>
   );
 }
+

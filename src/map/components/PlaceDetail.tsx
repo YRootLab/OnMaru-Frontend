@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { X, Share2, Navigation, RefreshCw, AlertCircle, Check, Award } from 'lucide-react';
+import { X, Share2, Navigation, RefreshCw, AlertCircle, Check, Award, Compass, Play } from 'lucide-react';
 import { logger } from '@/lib/log';
 import { lightPalette, meok } from '@/design-system/tokens';
+import { findMatchingOdiiStory } from '@/features/odii-audio/utils/matchOdiiStory';
+import { useCinematicTourStore } from '@/features/cinematic-tour/store/useCinematicTourStore';
 import { useMapStore } from '../hooks/useMapStore';
 import { usePlaceDetail } from '../hooks/usePlaceDetail';
 import { formatDistance } from '../utils/formatters';
@@ -35,6 +37,13 @@ import {
   SkeletonImg,
   SkeletonLine,
   ErrorBox,
+  CinematicBanner,
+  CinematicHeader,
+  CinematicBadge,
+  CinematicDuration,
+  CinematicTitle,
+  CinematicDesc,
+  CinematicStartButton,
 } from './detail/PlaceDetail.styles';
 
 const log = logger('map');
@@ -144,6 +153,22 @@ export default function PlaceDetail() {
 
   const navLinks = createKakaoNavigationLinks(title, lat, lng);
 
+  const matchedOdiiStory = useMemo(
+    () => findMatchingOdiiStory(title, lat, lng),
+    [title, lat, lng],
+  );
+
+  const startTour = useCinematicTourStore((s) => s.startTour);
+
+  const handleStartCinematicTour = () => {
+    if (!matchedOdiiStory) return;
+    startTour(matchedOdiiStory);
+    const store = useMapStore.getState();
+    if (store.sheetSnap === 'full') {
+      store.setSheetSnap('peek');
+    }
+  };
+
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     log.log('길찾기 실행', { name: title, lat, lng, url: navLinks.webUrl });
     if (typeof window === 'undefined') return;
@@ -216,6 +241,28 @@ export default function PlaceDetail() {
                 </BadgeRow>
               )}
             </TitleSection>
+
+            {matchedOdiiStory && (
+              <CinematicBanner>
+                <CinematicHeader>
+                  <CinematicBadge>
+                    <Compass size={13} />
+                    <span>시네마틱 공간 오디오 투어</span>
+                  </CinematicBadge>
+                  <CinematicDuration>
+                    {matchedOdiiStory.formattedDuration || '약 10분'}
+                  </CinematicDuration>
+                </CinematicHeader>
+                <CinematicTitle>{matchedOdiiStory.audioTitle}</CinematicTitle>
+                <CinematicDesc>
+                  {matchedOdiiStory.speaker ?? '도슨트'}와 함께 지도를 따라 걷는 {matchedOdiiStory.waypoints?.length || 4}대 경유지 코스
+                </CinematicDesc>
+                <CinematicStartButton type="button" onClick={handleStartCinematicTour}>
+                  <Play size={15} fill="currentColor" />
+                  <span>시네마틱 투어 시작하기</span>
+                </CinematicStartButton>
+              </CinematicBanner>
+            )}
 
             <CoreInfoBox>
               <CoreRow>
