@@ -53,7 +53,7 @@ export const RegionScroller = styled.div`
 export const RegionChip = styled.button<{ $active: boolean }>`
   flex: none;
   padding: 6px 13px;
-  border: none;
+
   border-radius: 9999px;
   background: ${({ $active }) =>
     $active ? meok[900] : 'rgba(78, 89, 104, 0.07)'};
@@ -152,7 +152,7 @@ export const MoreBtn = styled.button`
   align-items: center;
   gap: 2px;
   padding: 6px 10px;
-  border: none;
+
   border-radius: 9999px;
   background: #ffffff;
   color: ${meok[900]};
@@ -195,7 +195,7 @@ export const SortWrapper = styled.div`
 export const SortSelect = styled.select`
   appearance: none;
   background: transparent;
-  border: none;
+
   font-family: inherit;
   font-size: 12.5px;
   font-weight: 500;

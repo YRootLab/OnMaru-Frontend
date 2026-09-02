@@ -5,8 +5,8 @@ import styled from '@emotion/styled';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight, Award, Sparkles } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
-import { useMapStore } from '../../hooks/useMapStore';
-import type { Item } from '../../types';
+import { useMapStore } from '@/map/hooks/useMapStore';
+import type { Item } from '@/map/types';
 
 interface SmartAroundFeedProps {
   items: Item[];
@@ -55,7 +55,7 @@ const NavArrowBtn = styled.button`
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  border: none;
+
   background: rgba(25, 31, 40, 0.05);
   color: ${meok[700]};
   cursor: pointer;
@@ -91,7 +91,7 @@ const CuratedCard = styled.button`
   scroll-snap-align: start;
   display: flex;
   flex-direction: column;
-  border: none;
+
   border-radius: 14px;
   background: rgba(25, 31, 40, 0.03);
   overflow: hidden;

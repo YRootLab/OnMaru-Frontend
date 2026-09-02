@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { lightPalette, darkPalette, meok, surface } from '@/design-system/tokens';
-import { useCinematicTourStore } from '../store/useCinematicTourStore';
+import { useCinematicTourStore } from '@/features/cinematic-tour/store/useCinematicTourStore';
 
 const Container = styled.div`
   position: absolute;
@@ -45,14 +45,12 @@ const Container = styled.div`
   [data-theme='light'] &,
   :root:not([data-theme='dark']) & {
     background: rgba(255, 255, 255, 0.94);
-    border: 1.5px solid rgba(232, 90, 24, 0.2);
-    box-shadow: 0 12px 36px rgba(25, 31, 40, 0.22);
+
   }
 
   [data-theme='dark'] & {
     background: rgba(36, 33, 29, 0.94);
-    border: 1.5px solid rgba(248, 87, 0, 0.35);
-    box-shadow: 0 16px 44px rgba(0, 0, 0, 0.65);
+
   }
 
   @media (max-width: 768px) {
@@ -88,7 +86,7 @@ const TourBadge = styled.div`
   white-space: nowrap;
   color: #ffffff;
   background: linear-gradient(135deg, ${lightPalette.juhong[500]} 0%, ${lightPalette.jangmi[500]} 100%);
-  box-shadow: 0 2px 8px rgba(232, 90, 24, 0.35);
+
 `;
 
 const TourTitle = styled.h4`
@@ -122,7 +120,7 @@ const IconButton = styled.button`
   justify-content: center;
   width: 30px;
   height: 30px;
-  border: none;
+
   border-radius: 50%;
   background: transparent;
   cursor: pointer;
@@ -169,14 +167,13 @@ const WaypointChip = styled.button<{ $active: boolean }>`
       ? `
     background: ${lightPalette.juhong[500]};
     color: #ffffff;
-    border: 1px solid transparent;
-    box-shadow: 0 2px 8px rgba(232, 90, 24, 0.4);
+
     transform: scale(1.04);
   `
       : `
     background: rgba(78, 89, 104, 0.08);
     color: ${meok[700]};
-    border: 1px solid rgba(78, 89, 104, 0.12);
+
   `}
 
   [data-theme='dark'] & {
@@ -185,7 +182,7 @@ const WaypointChip = styled.button<{ $active: boolean }>`
         ? `
       background: ${darkPalette.juhong[500]};
       color: #ffffff;
-      box-shadow: 0 0 12px rgba(248, 87, 0, 0.6);
+
     `
         : `
       background: rgba(255, 255, 255, 0.06);
@@ -257,11 +254,11 @@ const PlayBtn = styled.button`
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  border: none;
+
   background: ${lightPalette.juhong[500]};
   color: #ffffff;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(232, 90, 24, 0.4);
+
   transition: transform 0.15s ease, background 0.15s ease;
 
   &:hover {
@@ -275,7 +272,7 @@ const PlayBtn = styled.button`
 
   [data-theme='dark'] & {
     background: ${darkPalette.juhong[500]};
-    box-shadow: 0 0 16px rgba(248, 87, 0, 0.7);
+
   }
 `;
 

@@ -12,8 +12,8 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
-import { useMapStore } from '../../hooks/useMapStore';
-import type { WarmthReview } from '../../types';
+import { useMapStore } from '@/map/hooks/useMapStore';
+import type { WarmthReview } from '@/map/types';
 import MoodSelector from './MoodSelector';
 import TagGroup from './TagGroup';
 
@@ -27,13 +27,13 @@ const CardWrapper = styled.article`
   margin: 4px 0 10px;
   border-radius: 20px;
   background: rgba(232, 90, 24, 0.03);
-  border: 1px solid rgba(232, 90, 24, 0.08);
+
   transition: all 0.18s ease;
 
   &:hover {
     background: rgba(232, 90, 24, 0.055);
     border-color: rgba(232, 90, 24, 0.16);
-    box-shadow: 0 4px 16px rgba(232, 90, 24, 0.08);
+
   }
 `;
 
@@ -113,7 +113,7 @@ const ReviewText = styled.p<{ $expanded: boolean }>`
 const TextToggleBtn = styled.button`
   margin-top: 6px;
   padding: 0;
-  border: none;
+
   background: transparent;
   color: ${lightPalette.juhong[500]};
   font-size: 12px;
@@ -146,7 +146,7 @@ const HelpfulButton = styled.button<{ $active: boolean }>`
   height: 30px;
   padding: 0 12px;
   border-radius: 9999px;
-  border: none;
+
   background: ${({ $active }) =>
     $active ? lightPalette.juhong[100] : lightPalette.juhong[50]};
   color: ${lightPalette.juhong[700]};
@@ -171,7 +171,7 @@ const RelatedPlaceBox = styled.div`
   padding: 10px 12px;
   background: #ffffff;
   border-radius: 14px;
-  border: 1px solid rgba(232, 90, 24, 0.1);
+
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -181,7 +181,7 @@ const RelatedPlaceBox = styled.div`
   &:hover {
     background: #fffcf9;
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(232, 90, 24, 0.1);
+
   }
 `;
 

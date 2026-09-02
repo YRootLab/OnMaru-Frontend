@@ -69,10 +69,7 @@ const HeaderContainer = styled('header', transientProps)<LandingProps>`
     $isLanding
       ? $isScrolled ? 'rgba(255, 248, 235, 0.18)' : 'rgba(255, 248, 235, 0.13)'
       : $isScrolled ? 'rgba(77, 68, 55, 0.13)' : 'rgba(77, 68, 55, 0.1)'};
-  box-shadow: ${({ $isLanding, $isScrolled }) =>
-    $isLanding
-      ? $isScrolled ? '0 12px 32px rgba(0, 0, 0, 0.3)' : '0 8px 24px rgba(0, 0, 0, 0.18)'
-      : $isScrolled ? '0 12px 32px rgba(47, 39, 29, 0.1)' : '0 8px 24px rgba(47, 39, 29, 0.07)'};
+
   transform: translateY(${({ $isHidden }) => ($isHidden ? 'calc(-100% - 16px)' : '0')});
   transition:
     transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
@@ -173,7 +170,7 @@ const DropdownWrapper = styled.div`
 
 const DropdownTrigger = styled('button', transientProps)<LandingProps>`
   background: none;
-  border: none;
+
   outline: none;
   cursor: pointer;
   font-family: 'SpoqaHanSansNeo', sans-serif;
@@ -215,16 +212,10 @@ const DropdownMenu = styled(motion.div, transientProps)<LandingProps>`
       : $isScrolled ? 'rgba(244, 243, 239, 0.82)' : 'rgba(248, 247, 244, 0.68)'};
   backdrop-filter: blur(${({ $isScrolled }) => ($isScrolled ? '22px' : '16px')}) saturate(150%);
   -webkit-backdrop-filter: blur(${({ $isScrolled }) => ($isScrolled ? '22px' : '16px')}) saturate(150%);
-  border: 1px solid ${({ $isLanding, $isScrolled }) =>
-    $isLanding
-      ? $isScrolled ? 'rgba(255, 248, 235, 0.18)' : 'rgba(255, 248, 235, 0.13)'
-      : $isScrolled ? 'rgba(77, 68, 55, 0.13)' : 'rgba(77, 68, 55, 0.1)'};
+
   border-radius: 16px;
   padding: 4px;
-  box-shadow: ${({ $isLanding, $isScrolled }) =>
-    $isLanding
-      ? $isScrolled ? '0 12px 32px rgba(0, 0, 0, 0.3)' : '0 8px 24px rgba(0, 0, 0, 0.18)'
-      : $isScrolled ? '0 12px 32px rgba(47, 39, 29, 0.1)' : '0 8px 24px rgba(47, 39, 29, 0.07)'};
+
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -320,7 +311,7 @@ const MobileMenuButton = styled('button', transientProps)<LandingProps>`
   place-items: center;
   color: ${({ $isLanding }) => ($isLanding ? '#faf9f6' : meok[900])};
   background: ${({ $isLanding }) => ($isLanding ? 'rgba(255, 248, 235, 0.1)' : 'rgba(77, 68, 55, 0.06)')};
-  border: 1px solid ${({ $isLanding }) => ($isLanding ? 'rgba(255, 248, 235, 0.15)' : 'rgba(77, 68, 55, 0.1)')};
+
   border-radius: 10px;
   cursor: pointer;
   transition: background-color 180ms ease, transform 180ms ease;
@@ -343,9 +334,9 @@ const MobileMenuPanel = styled(motion.nav, transientProps)<LandingProps>`
       : $isScrolled ? 'rgba(244, 243, 239, 0.9)' : 'rgba(248, 247, 244, 0.8)'};
   backdrop-filter: blur(22px) saturate(150%);
   -webkit-backdrop-filter: blur(22px) saturate(150%);
-  border: 1px solid ${({ $isLanding }) => ($isLanding ? 'rgba(255, 248, 235, 0.18)' : 'rgba(77, 68, 55, 0.13)')};
+
   border-radius: 16px;
-  box-shadow: ${({ $isLanding }) => ($isLanding ? '0 14px 32px rgba(0, 0, 0, 0.3)' : '0 14px 32px rgba(47, 39, 29, 0.12)')};
+
 `;
 
 const MobileMenuLink = styled(Link, transientProps)<LandingProps>`
@@ -376,7 +367,7 @@ const LoginButton = styled(Link, transientProps)<LandingProps>`
   font-weight: 500;
   color: ${({ $isLanding, $isOdii }) => ($isOdii ? '#ffffff' : $isLanding ? meok[900] : '#faf9f6')};
   background: ${({ $isLanding, $isOdii }) => ($isOdii ? lightPalette.jangmi[500] : $isLanding ? 'rgba(250, 247, 240, 0.92)' : 'rgba(38, 35, 31, 0.92)')};
-  border: 1px solid ${({ $isLanding, $isOdii }) => ($isOdii ? 'rgba(212, 32, 88, 0.4)' : $isLanding ? 'rgba(255, 255, 255, 0.42)' : 'rgba(28, 26, 23, 0.18)')};
+
   border-radius: 999px;
   height: 32px;
   padding: 0 13px 0 14px;
@@ -385,12 +376,12 @@ const LoginButton = styled(Link, transientProps)<LandingProps>`
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  box-shadow: ${({ $isLanding, $isOdii }) => ($isOdii ? '0 4px 12px rgba(212, 32, 88, 0.24)' : $isLanding ? '0 4px 12px rgba(0, 0, 0, 0.18)' : '0 3px 10px rgba(47, 39, 29, 0.1)')};
+
   transition: transform 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
 
   &:hover {
     background: ${({ $isLanding, $isOdii }) => ($isOdii ? lightPalette.jangmi[400] : $isLanding ? '#ffffff' : '#514a42')};
-    box-shadow: ${({ $isLanding, $isOdii }) => ($isOdii ? '0 6px 16px rgba(212, 32, 88, 0.32)' : $isLanding ? '0 6px 16px rgba(0, 0, 0, 0.24)' : '0 5px 14px rgba(47, 39, 29, 0.16)')};
+
     transform: translateY(-1px);
 
     & > svg { transform: translateX(1px); }

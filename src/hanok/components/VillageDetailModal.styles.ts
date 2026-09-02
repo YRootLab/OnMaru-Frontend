@@ -22,8 +22,7 @@ export const ModalCard = styled(motion.div)`
   max-height: 88vh;
   overflow-y: auto;
   position: relative;
-  border: 1px solid rgba(43, 92, 230, 0.12);
-  box-shadow: 0 24px 48px -12px rgba(25, 31, 40, 0.25);
+
   scrollbar-width: none;
   &::-webkit-scrollbar {
     display: none;
@@ -57,7 +56,7 @@ export const CloseBtn = styled.button`
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  border: none;
+
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(8px);
   color: ${meok[900]};
@@ -117,7 +116,7 @@ export const TypeBadge = styled.span`
   font-weight: 600;
   padding: 4px 12px;
   border-radius: 9999px;
-  border: 1px solid rgba(43, 92, 230, 0.18);
+
 `;
 
 export const AddrText = styled.span`
@@ -127,7 +126,7 @@ export const AddrText = styled.span`
 
 export const CuratorsNoteSection = styled.div`
   background: #f8fbff;
-  border: 1px solid rgba(43, 92, 230, 0.12);
+
   border-radius: 20px;
   padding: 20px 22px;
   margin-bottom: 24px;
@@ -184,7 +183,7 @@ export const StoryParagraph = styled.p`
 `;
 
 export const ExpandBtn = styled.button`
-  border: none;
+
   background: transparent;
   color: ${lightPalette.kobalt[500]};
   font-size: 13px;
@@ -220,7 +219,7 @@ export const InfoGrid = styled.div`
 
 export const InfoCard = styled.div`
   background: #fcfcfd;
-  border: 1px solid rgba(78, 89, 104, 0.12);
+
   border-radius: 14px;
   padding: 14px 16px;
   display: flex;
@@ -277,7 +276,7 @@ export const RepeatList = styled.div`
 
 export const RepeatItemCard = styled.div`
   background: rgba(248, 250, 255, 0.7);
-  border: 1px solid rgba(43, 92, 230, 0.08);
+
   border-radius: 12px;
   padding: 12px 16px;
 `;
@@ -312,7 +311,7 @@ export const GalleryThumb = styled.button<{ $active: boolean }>`
   aspect-ratio: 4 / 3;
   border-radius: 10px;
   overflow: hidden;
-  border: 2px solid ${({ $active }) => ($active ? lightPalette.kobalt[500] : 'transparent')};
+
   padding: 0;
   background: #eee;
   cursor: pointer;
@@ -373,7 +372,7 @@ export const TagBadge = styled.span`
   background: ${lightPalette.kobalt[50]};
   padding: 4px 11px;
   border-radius: 9999px;
-  border: 1px solid rgba(43, 92, 230, 0.15);
+
 `;
 
 export const ActionRow = styled.div`

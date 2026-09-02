@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { ChevronLeft, ChevronRight, Landmark, Home, Utensils, Coffee, ShoppingBag } from 'lucide-react';
 import { meok } from '@/design-system/tokens';
-import type { PlaceCategory } from '../../types';
+import type { PlaceCategory } from '@/map/types';
 
 const ImageContainer = styled.div<{ $hasImages: boolean }>`
   position: relative;
@@ -49,7 +49,7 @@ const CarouselNavBtn = styled.button<{ $pos: 'left' | 'right' }>`
   justify-content: center;
   width: 32px;
   height: 32px;
-  border: none;
+
   border-radius: 50%;
   background: rgba(25, 31, 40, 0.5);
   color: #ffffff;

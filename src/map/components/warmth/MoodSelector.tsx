@@ -35,7 +35,7 @@ const FaceButton = styled.button<{ $selected: boolean; $readonly: boolean }>`
   width: 28px;
   height: 28px;
   padding: 0;
-  border: none;
+
   background: transparent;
   cursor: ${({ $readonly }) => ($readonly ? 'default' : 'pointer')};
   color: ${({ $selected }) => ($selected ? lightPalette.juhong[500] : meok[500])};

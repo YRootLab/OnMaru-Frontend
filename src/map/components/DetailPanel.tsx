@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import styled from '@emotion/styled';
-import { useMapStore } from '../hooks/useMapStore';
+import { useMapStore } from '@/map/hooks/useMapStore';
 import PlaceDetail from './PlaceDetail';
 import PopularPlacesPanel from './warmth/PopularPlacesPanel';
 
@@ -17,7 +17,7 @@ const DetailAside = styled.aside<{ $open: boolean }>`
   height: 100%;
   background: #ffffff;
   border-radius: 24px;
-  box-shadow: 0 10px 32px rgba(25, 31, 40, 0.12);
+
   z-index: 22;
   pointer-events: auto;
   overflow: hidden;

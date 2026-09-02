@@ -16,7 +16,7 @@ const Card = styled(motion.article, transientProps)`
   cursor: pointer;
   user-select: none;
   background: #191f28;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+
 `;
 
 const ImageLayer = styled(motion.div, transientProps)<{ $bg: string | null }>`
@@ -73,7 +73,7 @@ const TypeBadge = styled.span`
   background: rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+
   color: #ffffff;
   font-size: 12px;
   font-weight: 700;
@@ -112,7 +112,7 @@ const Badge = styled.span`
   -webkit-backdrop-filter: blur(8px);
   padding: 5px 14px;
   border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+
 `;
 
 const ActionButton = styled(motion.div, transientProps)`
@@ -127,7 +127,7 @@ const ActionButton = styled(motion.div, transientProps)`
   font-size: 15px;
   font-weight: 700;
   letter-spacing: -0.01em;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+
   transition: background-color 0.2s ease, transform 0.2s ease;
 
   .village-card:hover & {

@@ -69,7 +69,6 @@ const HamburgerBtn = styled.button`
   gap: 5px;
   width: 28px;
   height: 28px;
-  border: none;
   background: transparent;
   cursor: pointer;
   padding: 0;

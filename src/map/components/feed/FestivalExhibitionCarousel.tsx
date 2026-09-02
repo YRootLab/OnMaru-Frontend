@@ -5,8 +5,8 @@ import styled from '@emotion/styled';
 import Image from 'next/image';
 import { Calendar, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
-import { useMapStore } from '../../hooks/useMapStore';
-import type { Item } from '../../types';
+import { useMapStore } from '@/map/hooks/useMapStore';
+import type { Item } from '@/map/types';
 
 interface FestivalExhibitionCarouselProps {
   festivals: Item[];
@@ -55,7 +55,7 @@ const NavArrowBtn = styled.button`
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  border: none;
+
   background: rgba(25, 31, 40, 0.05);
   color: ${meok[700]};
   cursor: pointer;
@@ -75,7 +75,7 @@ const MoreBtn = styled.button`
   display: flex;
   align-items: center;
   gap: 2px;
-  border: none;
+
   background: transparent;
   font-size: 11.5px;
   font-weight: 600;
@@ -106,7 +106,7 @@ const FestivalCard = styled.button`
   flex: none;
   width: 220px;
   scroll-snap-align: start;
-  border: none;
+
   border-radius: 14px;
   background: rgba(25, 31, 40, 0.03);
   overflow: hidden;
@@ -145,7 +145,7 @@ const CardBadge = styled.div`
   font-weight: 800;
   color: #ffffff;
   background: ${lightPalette.cheongrok[500]};
-  box-shadow: 0 2px 6px rgba(30, 122, 104, 0.4);
+
 `;
 
 const CardBody = styled.div`

@@ -76,11 +76,11 @@ const FloatingHomeButton = styled.button`
   gap: 6px;
   height: 36px;
   padding: 0 14px 0 10px;
-  border: 1px solid rgba(78, 89, 104, 0.12);
+
   border-radius: 9999px;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(8px);
-  box-shadow: 0 2px 8px rgba(25, 31, 40, 0.08);
+
   color: ${meok[700]};
   font-family: inherit;
   font-size: 13px;
@@ -128,10 +128,10 @@ const MobileBackButton = styled.button`
   width: 44px;
   height: 44px;
   flex: none;
-  border: 1px solid rgba(78, 89, 104, 0.14);
+
   border-radius: 12px;
   background: #ffffff;
-  box-shadow: 0 2px 8px rgba(25, 31, 40, 0.06);
+
   color: ${meok[700]};
   cursor: pointer;
   transition: all 0.15s ease;

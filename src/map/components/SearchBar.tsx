@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
 import { Search, X, Home, MapPin, Sparkles, RotateCcw, Globe } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
-import { DEFAULT_CENTER, DEFAULT_LEVEL, useMapStore } from '../hooks/useMapStore';
+import { DEFAULT_CENTER, DEFAULT_LEVEL, useMapStore } from '@/map/hooks/useMapStore';
 
 const RECENT = ['전주 한옥마을', '북촌 한옥마을', '안동 하회마을', '경주 양동마을', '경복궁'];
 const POPULAR = ['전주', '북촌', '경주', '안동', '강릉', '담양', '공주'];
@@ -31,7 +31,7 @@ const Field = styled.form`
 
   &:focus-within {
     background: #ffffff;
-    box-shadow: 0 4px 16px rgba(30, 122, 104, 0.12);
+
   }
 `;
 
@@ -43,7 +43,7 @@ const HomeBtn = styled.button`
   height: 34px;
   flex: none;
   padding: 0;
-  border: none;
+
   border-radius: 50%;
   background: transparent;
   color: ${meok[700]};
@@ -65,7 +65,7 @@ const SearchSubmitBtn = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  border: none;
+
   background: transparent;
   padding: 0 2px;
   color: ${meok[500]};
@@ -80,7 +80,7 @@ const SearchSubmitBtn = styled.button`
 const Input = styled.input`
   flex: 1;
   min-width: 0;
-  border: none;
+
   outline: none;
   background: transparent;
   font-family: inherit;
@@ -107,7 +107,7 @@ const ActionIconBtn = styled.button`
   height: 24px;
   flex: none;
   padding: 0;
-  border: none;
+
   border-radius: 50%;
   background: rgba(25, 31, 40, 0.08);
   color: ${meok[700]};
@@ -129,7 +129,7 @@ const Dropdown = styled.div`
   padding: 16px;
   border-radius: 20px;
   background: #ffffff;
-  box-shadow: 0 12px 36px rgba(25, 31, 40, 0.12);
+
   backdrop-filter: blur(20px);
 `;
 
@@ -141,7 +141,7 @@ const ResetAllBtn = styled.button`
   width: 100%;
   padding: 9px 14px;
   margin-bottom: 12px;
-  border: none;
+
   border-radius: 12px;
   background: ${lightPalette.cheongrok[50]};
   color: ${lightPalette.cheongrok[700]};
@@ -186,7 +186,7 @@ const Suggestion = styled.button`
   align-items: center;
   gap: 4px;
   padding: 5px 12px;
-  border: none;
+
   border-radius: 9999px;
   background: rgba(25, 31, 40, 0.05);
   font-family: inherit;

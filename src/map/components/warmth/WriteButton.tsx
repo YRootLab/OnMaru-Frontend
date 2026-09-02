@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { PenSquare } from 'lucide-react';
 import { lightPalette } from '@/design-system/tokens';
-import { useMapStore } from '../../hooks/useMapStore';
+import { useMapStore } from '@/map/hooks/useMapStore';
 import WriteWarmthModal from './WriteWarmthModal';
 
 const FloatingBtn = styled.button`
@@ -17,14 +17,14 @@ const FloatingBtn = styled.button`
   gap: 7px;
   height: 44px;
   padding: 0 18px;
-  border: none;
+
   border-radius: 9999px;
   background: ${lightPalette.juhong[500]};
   color: #ffffff;
   font-family: inherit;
   font-size: 14px;
   font-weight: 600;
-  box-shadow: 0 4px 14px rgba(232, 90, 24, 0.28);
+
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -32,7 +32,7 @@ const FloatingBtn = styled.button`
   &:hover {
     background: ${lightPalette.juhong[700]};
     transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(232, 90, 24, 0.35);
+
   }
 
   &:active {

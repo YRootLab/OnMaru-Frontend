@@ -12,9 +12,9 @@ import {
   ShoppingBag,
 } from 'lucide-react';
 import { meok } from '@/design-system/tokens';
-import { useMapStore } from '../../hooks/useMapStore';
-import type { WarmthReview, RankedPlace } from '../../types';
-import rawReviews from '../../mock/warmthReviews.mock.json';
+import { useMapStore } from '@/map/hooks/useMapStore';
+import type { WarmthReview, RankedPlace } from '@/map/types';
+import rawReviews from '@/map/mock/warmthReviews.mock.json';
 import WarmthCard from './WarmthCard';
 import {
   FeedContainer,
