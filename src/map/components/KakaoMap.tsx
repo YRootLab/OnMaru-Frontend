@@ -235,8 +235,38 @@ export default function KakaoMap() {
     return () => clearTimeout(id);
   }, [map, panelOpen]);
 
+  const hasAutoLocatedRef = useRef(false);
   const myLocationOverlayRef = useRef<any>(null);
   const myLocationCircleRef = useRef<any>(null);
+
+  // 지도 페이지 진입 시 사용자 현재 위치로 자동 이동 및 주변 장소 탐색
+  useEffect(() => {
+    if (!map || hasAutoLocatedRef.current) return;
+    hasAutoLocatedRef.current = true;
+
+    if (typeof window !== 'undefined' && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const currentPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          moveTo(currentPos, 5, pos.coords.accuracy);
+        },
+        () => {
+          // 저정밀도(네트워크/IP) 2차 시도
+          navigator.geolocation.getCurrentPosition(
+            (fallbackPos) => {
+              const fallbackCoord = { lat: fallbackPos.coords.latitude, lng: fallbackPos.coords.longitude };
+              moveTo(fallbackCoord, 5, fallbackPos.coords.accuracy);
+            },
+            () => {
+              // 위치 권한 미허용 시 기본 전국 시점 유지
+            },
+            { enableHighAccuracy: false, timeout: 6000, maximumAge: 300000 },
+          );
+        },
+        { enableHighAccuracy: true, timeout: 6000, maximumAge: 120000 },
+      );
+    }
+  }, [map]);
 
   const moveTo = (target: LatLng, targetLevel = 3, accuracy?: number) => {
     const currentMap = useMapStore.getState().map;
