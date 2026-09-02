@@ -38,6 +38,12 @@ export const useCinematicTourStore = create<CinematicTourState>((set, get) => ({
     const initialWp = waypoints[initialWaypointIndex];
     const playTimeSec = parseInt(story.playTime, 10) || 300;
 
+    // 🌟 UX 최적화: 시네마틱 투어가 시작되면 화면을 가리는 상세 패널을 닫고
+    // 지도의 비행 궤적(Glide Pan)과 동선이 한눈에 보이도록 전체 지도 뷰를 개방합니다.
+    const mapStore = useMapStore.getState();
+    mapStore.setDetailId(null);
+    mapStore.setSheetSnap('peek');
+
     set({
       isActive: true,
       story,
@@ -51,7 +57,7 @@ export const useCinematicTourStore = create<CinematicTourState>((set, get) => ({
 
     // 지도를 첫 번째 경유지로 즉시 부드럽게 이동
     if (initialWp) {
-      const map = useMapStore.getState().map;
+      const map = mapStore.map;
       if (map && window.kakao?.maps) {
         map.setLevel(initialWp.zoomLevel ?? 2, { animate: true });
         map.panTo(new window.kakao.maps.LatLng(initialWp.lat, initialWp.lng));

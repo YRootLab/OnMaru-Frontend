@@ -184,7 +184,7 @@ function getDistrictFromAddr(addr?: string): string {
 /** 거리 포맷팅 (1000m 미만 "320m", 이상 "2.4km") */
 function formatDistance(dist?: number | null): string {
   if (dist === null || dist === undefined || !Number.isFinite(dist)) return '';
-  if (dist < 1000) return `${dist}m`;
+  if (dist < 1000) return `${Math.round(dist)}m`;
   return `${(dist / 1000).toFixed(1)}km`;
 }
 
