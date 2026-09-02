@@ -3,7 +3,7 @@
 import { memo, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import styled from '@emotion/styled';
-import { Landmark, Home, Utensils, Coffee, ShoppingBag } from 'lucide-react';
+import { Landmark, Home, Utensils, Coffee, ShoppingBag, Sparkles, BookOpen, Moon } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 import type { Item, PlaceCategory } from '../types';
 
@@ -146,11 +146,14 @@ const Badge = styled.span`
 
 /** 카테고리별 한글 명칭 */
 const CATEGORY_LABELS: Record<PlaceCategory, string> = {
-  spot: '한옥명소',
+  spot: '명소·고택',
+  experience: '전통체험',
+  culture: '문화재·서원',
+  festival: '야행·축제',
   stay: '한옥숙박',
-  food: '전통음식점',
-  cafe: '카페·찻집',
-  market: '전통시장·쇼핑',
+  food: '향토음식',
+  cafe: '전통찻집',
+  market: '전통시장',
 };
 
 /** 카테고리별 SVG 폴백 아이콘 렌더링 */
@@ -158,6 +161,12 @@ function renderCategoryIcon(category: PlaceCategory) {
   switch (category) {
     case 'spot':
       return <Landmark size={24} />;
+    case 'experience':
+      return <Sparkles size={24} />;
+    case 'culture':
+      return <BookOpen size={24} />;
+    case 'festival':
+      return <Moon size={24} />;
     case 'stay':
       return <Home size={24} />;
     case 'food':
@@ -192,9 +201,12 @@ function formatDistance(dist?: number | null): string {
 function getBadges(item: Item): string[] {
   const badges: string[] = [];
   if (item.category === 'stay') badges.push('한옥스테이');
+  else if (item.category === 'experience') badges.push('전통체험');
+  else if (item.category === 'culture') badges.push('문화유산');
+  else if (item.category === 'festival') badges.push('야행축제');
   else if (item.category === 'cafe') badges.push('전통차');
   else if (item.category === 'food') badges.push('향토음식');
-  else badges.push('문화유산');
+  else badges.push('명소고택');
 
   if (item.tel) badges.push('안내가능');
   return badges.slice(0, 2);

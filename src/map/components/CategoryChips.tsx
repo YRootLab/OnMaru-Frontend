@@ -2,7 +2,19 @@
 
 import styled from '@emotion/styled';
 import {
-  Coffee, Flame, Landmark, Leaf, Home, MessageCircle, Sparkles, Store, Users, Utensils,
+  Coffee,
+  Flame,
+  Landmark,
+  Leaf,
+  Home,
+  MessageCircle,
+  Sparkles,
+  Store,
+  Users,
+  Utensils,
+  LayoutGrid,
+  BookOpen,
+  Moon,
   type LucideIcon,
 } from 'lucide-react';
 import { meok } from '@/design-system/tokens';
@@ -11,10 +23,14 @@ import type { MapMode } from '../types';
 
 const CATEGORIES: Record<MapMode, { id: string; label: string; icon: LucideIcon }[]> = {
   info: [
-    { id: 'spot', label: '명소', icon: Landmark },
+    { id: 'all', label: '전체', icon: LayoutGrid },
+    { id: 'spot', label: '명소·고택', icon: Landmark },
+    { id: 'experience', label: '전통체험·한복', icon: Sparkles },
+    { id: 'culture', label: '문화재·서원', icon: BookOpen },
+    { id: 'festival', label: '야행·축제', icon: Moon },
     { id: 'stay', label: '한옥숙소', icon: Home },
-    { id: 'food', label: '식당', icon: Utensils },
-    { id: 'cafe', label: '카페', icon: Coffee },
+    { id: 'food', label: '향토음식', icon: Utensils },
+    { id: 'cafe', label: '전통찻집', icon: Coffee },
     { id: 'market', label: '전통시장', icon: Store },
   ],
   warmth: [
@@ -82,10 +98,22 @@ export default function CategoryChips() {
   const setCategory = useMapStore((s) => s.setCategory);
   const color = MODE_COLOR[mode];
 
+  const handleChipClick = (id: string) => {
+    if (id === 'all') {
+      setCategory(null);
+    } else {
+      setCategory(category === id ? null : id);
+    }
+  };
+
   return (
     <Scroller role="group" aria-label="카테고리 필터">
       {CATEGORIES[mode].map(({ id, label, icon: Icon }) => {
-        const active = category === id;
+        const active =
+          id === 'all'
+            ? category === null || category === 'all'
+            : category === id;
+
         return (
           <Chip
             key={id}
@@ -93,7 +121,7 @@ export default function CategoryChips() {
             aria-pressed={active}
             $active={active}
             $color={color}
-            onClick={() => setCategory(active ? null : id)}
+            onClick={() => handleChipClick(id)}
           >
             <Icon size={16} aria-hidden />
             {label}
@@ -103,3 +131,4 @@ export default function CategoryChips() {
     </Scroller>
   );
 }
+

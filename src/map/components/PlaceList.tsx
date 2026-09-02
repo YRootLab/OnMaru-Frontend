@@ -10,10 +10,13 @@ import { PlaceListItem } from './PlaceListItem';
 import type { Item, PlaceCategory } from '../types';
 
 const CATEGORY_NAMES: Record<string, string> = {
-  spot: '한옥명소',
+  spot: '명소·고택',
+  experience: '전통체험·한복',
+  culture: '문화재·서원',
+  festival: '야행·축제',
   stay: '한옥숙박',
-  food: '전통음식점',
-  cafe: '카페·찻집',
+  food: '향토음식점',
+  cafe: '전통찻집·카페',
   market: '전통시장·쇼핑',
 };
 

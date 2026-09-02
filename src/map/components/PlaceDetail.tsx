@@ -62,11 +62,17 @@ export default function PlaceDetail() {
     detailId,
     selectedItem?.category === 'stay'
       ? '32'
-      : selectedItem?.category === 'food' || selectedItem?.category === 'cafe'
-        ? '39'
-        : selectedItem?.category === 'market'
-          ? '38'
-          : '12',
+      : selectedItem?.category === 'experience'
+        ? '28'
+        : selectedItem?.category === 'culture'
+          ? '14'
+          : selectedItem?.category === 'festival'
+            ? '15'
+            : selectedItem?.category === 'food' || selectedItem?.category === 'cafe'
+              ? '39'
+              : selectedItem?.category === 'market'
+                ? '38'
+                : '12',
   );
 
   const [isOverviewExpanded, setIsOverviewExpanded] = useState(false);
@@ -124,10 +130,13 @@ export default function PlaceDetail() {
   const badges = useMemo(() => {
     const list: string[] = [];
     if (selectedItem?.category === 'stay') list.push('한옥스테이');
-    else if (selectedItem?.category === 'food') list.push('전통음식');
-    else if (selectedItem?.category === 'cafe') list.push('한옥카페');
+    else if (selectedItem?.category === 'experience') list.push('전통체험');
+    else if (selectedItem?.category === 'culture') list.push('문화유산');
+    else if (selectedItem?.category === 'festival') list.push('야행축제');
+    else if (selectedItem?.category === 'food') list.push('향토음식');
+    else if (selectedItem?.category === 'cafe') list.push('전통찻집');
     else if (selectedItem?.category === 'market') list.push('전통시장');
-    else list.push('추천명소');
+    else list.push('명소고택');
 
     if (selectedItem?.dist !== undefined && selectedItem?.dist !== null) {
       list.push(formatDistance(selectedItem.dist));
@@ -271,13 +280,19 @@ export default function PlaceDetail() {
                 <CoreValue>
                   {selectedItem?.category === 'stay'
                     ? '한옥스테이'
-                    : selectedItem?.category === 'food'
-                      ? '전통음식'
-                      : selectedItem?.category === 'cafe'
-                        ? '한옥카페'
-                        : selectedItem?.category === 'market'
-                          ? '전통시장'
-                          : '관광지/명소'}
+                    : selectedItem?.category === 'experience'
+                      ? '전통문화체험'
+                      : selectedItem?.category === 'culture'
+                        ? '문화재/서원/전시'
+                        : selectedItem?.category === 'festival'
+                          ? '야행/축제행사'
+                          : selectedItem?.category === 'food'
+                            ? '향토음식점'
+                            : selectedItem?.category === 'cafe'
+                              ? '전통찻집/카페'
+                              : selectedItem?.category === 'market'
+                                ? '전통시장'
+                                : '명소/고택'}
                 </CoreValue>
               </CoreRow>
 

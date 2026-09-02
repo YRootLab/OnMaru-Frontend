@@ -15,6 +15,9 @@ const CATEGORY_MAP: Record<
   { contentTypeId: string; keep: (cat3: string, title: string) => boolean }
 > = {
   spot: { contentTypeId: '12', keep: () => true },
+  experience: { contentTypeId: '28', keep: () => true },
+  culture: { contentTypeId: '14', keep: () => true },
+  festival: { contentTypeId: '15', keep: () => true },
   stay: { contentTypeId: '32', keep: () => true },
   food: { contentTypeId: '39', keep: (cat3) => cat3 !== 'A05020900' },
   cafe: {
@@ -107,8 +110,8 @@ export class PlaceService {
         });
       }
     } else {
-      // 3. 전체 카테고리 병렬 요청 (12, 32, 38, 39)
-      const contentTypes = ['12', '32', '38', '39'];
+      // 3. 전체 카테고리 병렬 요청 (12, 14, 15, 28, 32, 38, 39)
+      const contentTypes = ['12', '14', '15', '28', '32', '38', '39'];
       const results = await Promise.allSettled(
         contentTypes.map((cType) =>
           TourApiClient.get(
@@ -119,7 +122,7 @@ export class PlaceService {
               radius,
               contentTypeId: cType,
               arrange: 'E',
-              numOfRows: 30,
+              numOfRows: 25,
             },
             signal,
           ),
@@ -147,6 +150,9 @@ export class PlaceService {
 
           let category: PlaceCategory = 'spot';
           if (cType === '32') category = 'stay';
+          else if (cType === '28') category = 'experience';
+          else if (cType === '14') category = 'culture';
+          else if (cType === '15') category = 'festival';
           else if (cType === '38') category = 'market';
           else if (cType === '39') {
             category =
