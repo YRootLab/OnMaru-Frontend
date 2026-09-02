@@ -1,13 +1,124 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Script from 'next/script';
 import styled from '@emotion/styled';
-import { LocateFixed, Minus, Plus, RotateCw } from 'lucide-react';
-import { meok } from '@/design-system/tokens';
+import { Global, css } from '@emotion/react';
+import { Loader2, LocateFixed, Minus, Plus, RotateCw } from 'lucide-react';
+import { meok, lightPalette } from '@/design-system/tokens';
 import { KAKAO_SDK_SRC, useKakaoMap } from '../hooks/useKakaoMap';
 import { DEFAULT_CENTER, useMapStore } from '../hooks/useMapStore';
 import type { LatLng } from '../types';
+
+const mapGlobalStyles = css`
+  /* ------------------------------------------------------------
+   * 내 위치 플로팅 핀 & 펄스 리플
+   * ------------------------------------------------------------ */
+  .om-my-location-pin {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    pointer-events: auto;
+    animation: om-pin-drop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .om-my-location-pin:hover {
+    transform: translateY(-4px) scale(1.08);
+  }
+
+  @keyframes om-pin-drop {
+    0% {
+      transform: translateY(-24px) scale(0.6);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+  }
+
+  .om-my-location-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    margin-bottom: 5px;
+    border-radius: 9999px;
+    font-size: 11.5px;
+    font-weight: 800;
+    white-space: nowrap;
+    box-shadow: 0 3px 12px rgba(25, 31, 40, 0.18);
+    backdrop-filter: blur(6px);
+  }
+
+  [data-theme='light'] .om-my-location-label,
+  :root:not([data-theme='dark']) .om-my-location-label {
+    background: rgba(255, 255, 255, 0.96);
+    color: #1a3898;
+    border: 1.5px solid rgba(43, 92, 230, 0.3);
+  }
+
+  [data-theme='dark'] .om-my-location-label {
+    background: rgba(32, 68, 164, 0.92);
+    color: #ffffff;
+    border: 1.5px solid rgba(90, 137, 246, 0.5);
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.5);
+  }
+
+  .om-my-location-icon-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    background: #2b5ce6;
+    border: 2.5px solid #ffffff;
+    box-shadow: 0 4px 14px rgba(43, 92, 230, 0.45);
+  }
+
+  [data-theme='dark'] .om-my-location-icon-wrap {
+    background: #5a89f6;
+    border-color: #1c1a17;
+    box-shadow: 0 0 16px rgba(90, 137, 246, 0.7);
+  }
+
+  .om-my-location-icon-wrap svg {
+    transform: rotate(45deg);
+    width: 17px;
+    height: 17px;
+    color: #ffffff;
+  }
+
+  .om-my-location-ripple {
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(43, 92, 230, 0.45);
+    pointer-events: none;
+    animation: om-my-ripple 2.2s ease-out infinite;
+  }
+
+  @keyframes om-my-ripple {
+    0% {
+      transform: translateX(-50%) scale(0.6);
+      opacity: 0.9;
+    }
+    100% {
+      transform: translateX(-50%) scale(3.4);
+      opacity: 0;
+    }
+  }
+`;
 
 const Frame = styled.div`
   position: absolute;
@@ -91,6 +202,7 @@ const ControlButton = styled.button`
   background: #ffffff;
   color: ${meok[700]};
   cursor: pointer;
+  transition: all 0.15s ease;
 
   & + & {
     border-top: 1px solid rgba(78, 89, 104, 0.1);
@@ -98,6 +210,15 @@ const ControlButton = styled.button`
 
   &:hover {
     background: rgba(25, 31, 40, 0.04);
+    color: ${meok[900]};
+  }
+
+  &:active {
+    background: rgba(25, 31, 40, 0.08);
+  }
+
+  &[data-active='true'] {
+    color: ${lightPalette.cheongrok[500]};
   }
 `;
 
@@ -107,6 +228,7 @@ export default function KakaoMap() {
   const map = useMapStore((s) => s.map);
   const isSearchDirty = useMapStore((s) => s.isSearchDirty);
   const panelOpen = useMapStore((s) => s.panelOpen);
+  const [isLocating, setIsLocating] = useState(false);
 
   // 패널이 접히면 지도 컨테이너 크기가 바뀐다. 카카오는 relayout을 직접 불러줘야 한다.
   useEffect(() => {
@@ -115,24 +237,123 @@ export default function KakaoMap() {
     return () => clearTimeout(id);
   }, [map, panelOpen]);
 
-  const panTo = (center: LatLng) => {
-    map?.panTo(new window.kakao.maps.LatLng(center.lat, center.lng));
+  const myLocationOverlayRef = useRef<any>(null);
+  const myLocationCircleRef = useRef<any>(null);
+
+  const moveTo = (target: LatLng, targetLevel = 3, accuracy?: number) => {
+    const currentMap = useMapStore.getState().map;
+    if (!currentMap || !window.kakao?.maps) return;
+    const latLng = new window.kakao.maps.LatLng(target.lat, target.lng);
+
+    // 1. 내 위치로 확대 및 이동
+    currentMap.setLevel(targetLevel, { animate: true });
+    currentMap.setCenter(latLng);
+
+    // 2. 내 위치 핀 & 라벨 표시
+    if (!myLocationOverlayRef.current) {
+      const el = document.createElement('div');
+      el.className = 'om-my-location-pin';
+      el.innerHTML = `
+        <div class="om-my-location-label">📍 내 위치</div>
+        <div class="om-my-location-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+            <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+          </svg>
+        </div>
+        <div class="om-my-location-ripple"></div>
+      `;
+      el.addEventListener('click', () => {
+        currentMap.setLevel(3, { animate: true });
+        currentMap.panTo(latLng);
+      });
+
+      myLocationOverlayRef.current = new window.kakao.maps.CustomOverlay({
+        position: latLng,
+        content: el,
+        yAnchor: 1.0,
+        xAnchor: 0.5,
+        zIndex: 35,
+      });
+      myLocationOverlayRef.current.setMap(currentMap);
+    } else {
+      myLocationOverlayRef.current.setPosition(latLng);
+      myLocationOverlayRef.current.setMap(currentMap);
+    }
+
+    // 3. GPS 정확도 오차 반경 서클 (Accuracy Circle)
+    if (accuracy && accuracy > 0 && accuracy <= 3000) {
+      if (!myLocationCircleRef.current) {
+        myLocationCircleRef.current = new window.kakao.maps.Circle({
+          center: latLng,
+          radius: Math.min(accuracy, 600),
+          strokeWeight: 1.5,
+          strokeColor: '#2B5CE6',
+          strokeOpacity: 0.5,
+          strokeStyle: 'dashed',
+          fillColor: '#2B5CE6',
+          fillOpacity: 0.08,
+          zIndex: 10,
+        });
+        myLocationCircleRef.current.setMap(currentMap);
+      } else {
+        myLocationCircleRef.current.setPosition(latLng);
+        myLocationCircleRef.current.setRadius(Math.min(accuracy, 600));
+        myLocationCircleRef.current.setMap(currentMap);
+      }
+    }
+
+    const store = useMapStore.getState();
+    store.setCenter(target, targetLevel);
+    store.clearSearchDirty();
   };
 
   const zoom = (delta: number) => {
-    if (map) map.setLevel(map.getLevel() + delta, { animate: true });
+    const currentMap = useMapStore.getState().map;
+    if (currentMap) currentMap.setLevel(currentMap.getLevel() + delta, { animate: true });
   };
 
   const locate = () => {
-    if (!navigator.geolocation) return panTo(DEFAULT_CENTER);
-    navigator.geolocation.getCurrentPosition(
-      ({ coords }) => panTo({ lat: coords.latitude, lng: coords.longitude }),
-      () => panTo(DEFAULT_CENTER),
-    );
+    if (typeof window === 'undefined' || !navigator.geolocation) {
+      alert('현재 환경에서 위치 정보를 지원하지 않습니다.');
+      return;
+    }
+
+    setIsLocating(true);
+
+    const onSuccess = (pos: GeolocationPosition) => {
+      setIsLocating(false);
+      const currentPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      moveTo(currentPos, 3, pos.coords.accuracy);
+    };
+
+    const onError = (err: GeolocationPositionError) => {
+      console.warn('GPS 고정밀도 조회 실패, 일반 위치로 재시도:', err.message);
+      // 고정밀도 실패 시 저정밀도(네트워크/IP 기반)로 2차 시도
+      navigator.geolocation.getCurrentPosition(
+        onSuccess,
+        (fallbackErr) => {
+          setIsLocating(false);
+          if (fallbackErr.code === fallbackErr.PERMISSION_DENIED) {
+            alert('브라우저 상단 주소창 왼쪽의 위치 권한을 [허용]으로 변경해 주세요.');
+          } else {
+            alert('현재 위치 정보를 가져올 수 없습니다. 기본 위치로 유지됩니다.');
+          }
+        },
+        { enableHighAccuracy: false, timeout: 10000, maximumAge: 0 },
+      );
+    };
+
+    // 항상 캐시를 배제(maximumAge: 0)하고 고정밀도 센서를 최대한 활용
+    navigator.geolocation.getCurrentPosition(onSuccess, onError, {
+      enableHighAccuracy: true,
+      timeout: 8000,
+      maximumAge: 0,
+    });
   };
 
   return (
     <Frame>
+      <Global styles={mapGlobalStyles} />
       <Script strategy="afterInteractive" src={KAKAO_SDK_SRC} onLoad={initMap} />
 
       <Canvas ref={containerRef} role="application" aria-label="한옥 위치 지도" />
@@ -146,8 +367,18 @@ export default function KakaoMap() {
 
       <Controls>
         <Stack>
-          <ControlButton type="button" aria-label="현위치로 이동" onClick={locate}>
-            <LocateFixed size={18} />
+          <ControlButton
+            type="button"
+            aria-label="현위치로 이동"
+            onClick={locate}
+            data-active={isLocating}
+            title="내 현재 위치로 이동"
+          >
+            {isLocating ? (
+              <Loader2 size={18} className="animate-spin" style={{ animation: 'spin 1s linear infinite' }} />
+            ) : (
+              <LocateFixed size={18} />
+            )}
           </ControlButton>
         </Stack>
         <Stack>
@@ -162,3 +393,4 @@ export default function KakaoMap() {
     </Frame>
   );
 }
+
