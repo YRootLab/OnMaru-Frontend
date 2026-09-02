@@ -2,8 +2,7 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
-import Image from 'next/image';
-import { Compass, Headphones, Play, Sparkles } from 'lucide-react';
+import { Compass, Headphones, Play } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { useCinematicTourStore } from '@/features/cinematic-tour/store/useCinematicTourStore';
@@ -13,24 +12,30 @@ import { useMapStore } from '../../hooks/useMapStore';
 const CardContainer = styled.div`
   position: relative;
   margin: 10px 14px;
-  padding: 16px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #1f2a37 0%, #111827 100%);
-  color: #ffffff;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #fff5f8 0%, #ffffff 100%);
+  border: 1px solid rgba(212, 32, 88, 0.18);
+  box-shadow: 0 4px 16px rgba(212, 32, 88, 0.08);
   overflow: hidden;
-  box-shadow: 0 8px 24px rgba(17, 24, 39, 0.25);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(212, 32, 88, 0.12);
+  }
 `;
 
-const BackgroundGlow = styled.div`
+const BackgroundAura = styled.div`
   position: absolute;
-  top: -40px;
-  right: -40px;
-  width: 140px;
-  height: 140px;
+  top: -24px;
+  right: -24px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
-  background: ${lightPalette.jangmi[500]};
-  opacity: 0.3;
-  filter: blur(40px);
+  background: ${lightPalette.jangmi[100]};
+  opacity: 0.5;
+  filter: blur(30px);
   pointer-events: none;
 `;
 
@@ -38,45 +43,47 @@ const TopRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 `;
 
 const Badge = styled.div`
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 8px;
+  padding: 2.5px 8px;
   border-radius: 9999px;
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 800;
-  color: #ffffff;
-  background: ${lightPalette.jangmi[500]};
-  box-shadow: 0 2px 8px rgba(212, 32, 88, 0.45);
+  color: ${lightPalette.jangmi[500]};
+  background: ${lightPalette.jangmi[50]};
+  border: 1px solid rgba(212, 32, 88, 0.2);
 `;
 
 const DurationText = styled.span`
   font-size: 11px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.65);
+  color: ${meok[500]};
 `;
 
 const StoryTitle = styled.h4`
-  margin: 0 0 6px;
-  font-size: 16px;
-  font-weight: 800;
-  color: #ffffff;
-  letter-spacing: -0.02em;
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 700;
+  color: ${meok[900]};
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const StoryExcerpt = styled.p`
-  margin: 0 0 14px;
+  margin: 0 0 12px;
   font-size: 12px;
-  line-height: 1.45;
-  color: rgba(255, 255, 255, 0.8);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  line-height: 1.4;
+  color: ${meok[700]};
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const ActionRow = styled.div`
@@ -90,29 +97,32 @@ const DocentTag = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.7);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: ${lightPalette.jangmi[700]};
 `;
 
 const StartBtn = styled.button`
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  height: 34px;
+  height: 32px;
   padding: 0 14px;
   border-radius: 9999px;
   border: none;
   background: ${lightPalette.jangmi[500]};
   color: #ffffff;
+  font-family: inherit;
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.15s ease;
-  box-shadow: 0 3px 10px rgba(212, 32, 88, 0.45);
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(212, 32, 88, 0.3);
 
   &:hover {
     background: ${lightPalette.jangmi[400]};
     transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(212, 32, 88, 0.4);
   }
 
   &:active {
@@ -174,17 +184,17 @@ export default function OdiiSpotlightBanner() {
 
   return (
     <CardContainer>
-      <BackgroundGlow />
+      <BackgroundAura />
       <TopRow>
         <Badge>
           <Compass size={12} />
           <span>공간 오디오 투어</span>
         </Badge>
-        <DurationText>{spotlightStory.formattedDuration || '약 10분 소요'}</DurationText>
+        <DurationText>{spotlightStory.formattedDuration || '약 10분'}</DurationText>
       </TopRow>
 
       <StoryTitle>{spotlightStory.audioTitle || spotlightStory.title}</StoryTitle>
-      <StoryExcerpt>
+      <StoryExcerpt title={spotlightStory.script}>
         {spotlightStory.script || '문화해설사의 음성 해설과 함께 지도를 따라 걷는 고택 산책'}
       </StoryExcerpt>
 
@@ -195,7 +205,7 @@ export default function OdiiSpotlightBanner() {
         </DocentTag>
 
         <StartBtn type="button" onClick={handleStart}>
-          <Play size={13} fill="currentColor" />
+          <Play size={12} fill="currentColor" />
           <span>투어 시작</span>
         </StartBtn>
       </ActionRow>
