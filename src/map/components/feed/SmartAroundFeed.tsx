@@ -52,19 +52,18 @@ const NavArrowBtn = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  border: 1px solid rgba(78, 89, 104, 0.16);
-  background: #ffffff;
+  border: none;
+  background: rgba(25, 31, 40, 0.05);
   color: ${meok[700]};
   cursor: pointer;
   transition: all 0.15s ease;
 
   &:hover {
-    background: rgba(40, 110, 95, 0.08);
+    background: ${lightPalette.cheongrok[50]};
     color: ${lightPalette.cheongrok[700]};
-    border-color: ${lightPalette.cheongrok[500]};
   }
 
   &:active {
@@ -92,19 +91,17 @@ const CuratedCard = styled.button`
   scroll-snap-align: start;
   display: flex;
   flex-direction: column;
-  border: 1px solid rgba(78, 89, 104, 0.12);
+  border: none;
   border-radius: 14px;
-  background: #ffffff;
+  background: rgba(25, 31, 40, 0.03);
   overflow: hidden;
   text-align: left;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(25, 31, 40, 0.06);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
+    background: rgba(25, 31, 40, 0.06);
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(25, 31, 40, 0.12);
-    border-color: ${lightPalette.cheongrok[500]};
   }
 
   &:active {

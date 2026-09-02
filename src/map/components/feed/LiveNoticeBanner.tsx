@@ -19,14 +19,12 @@ const Container = styled.div`
   padding: 8px 14px;
   margin: 10px 14px 4px;
   border-radius: 12px;
-  background: rgba(40, 110, 95, 0.07);
-  border: 1px solid rgba(40, 110, 95, 0.15);
+  background: rgba(30, 122, 104, 0.06);
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(40, 110, 95, 0.12);
-    transform: translateY(-1px);
+    background: rgba(30, 122, 104, 0.1);
   }
 `;
 

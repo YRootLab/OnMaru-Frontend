@@ -36,9 +36,8 @@ const StickyHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px 10px;
+  padding: 12px 16px 8px;
   background: #ffffff;
-  border-bottom: 1px solid rgba(78, 89, 104, 0.08);
 `;
 
 const CountLabel = styled.span`
