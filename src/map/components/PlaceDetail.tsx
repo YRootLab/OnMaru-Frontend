@@ -15,6 +15,7 @@ import {
   Flame,
   Car,
   Ticket,
+  Camera,
 } from 'lucide-react';
 import { logger } from '@/lib/log';
 import { lightPalette, meok } from '@/design-system/tokens';
@@ -26,6 +27,7 @@ import { formatDistance } from '@/map/utils/formatters';
 import { createKakaoNavigationLinks } from '@/map/utils/navigation';
 import PlaceDetailCarousel from './detail/PlaceDetailCarousel';
 import PlaceWarmthSection from './warmth/PlaceWarmthSection';
+import RoadviewModal from './detail/RoadviewModal';
 import {
   DetailWrapper,
   HeaderBar,
@@ -39,6 +41,10 @@ import {
   Badge,
   SmartFeatureRow,
   SmartFeatureChip,
+  LiveWarmthMeter,
+  LiveWarmthStatus,
+  LiveWarmthPulse,
+  LiveWarmthCount,
   HeroActionGrid,
   HeroActionTile,
   HeroActionLink,
@@ -72,6 +78,9 @@ export default function PlaceDetail() {
   const detailId = useMapStore((s) => s.detailId);
   const setDetailId = useMapStore((s) => s.setDetailId);
   const items = useMapStore((s) => s.items);
+  const warmths = useMapStore((s) => s.warmths);
+
+  const [isRoadviewOpen, setIsRoadviewOpen] = useState(false);
 
   const selectedItem = useMemo(
     () => items.find((i) => i.id === detailId),
@@ -237,6 +246,20 @@ export default function PlaceDetail() {
     }
   };
 
+  const placeWarmths = useMemo(() => {
+    return warmths.filter((w) => w.placeId === detailId || w.placeName === title);
+  }, [warmths, detailId, title]);
+
+  const warmthCount = placeWarmths.length;
+  const busyCount = placeWarmths.filter((w) => w.mood === '북적').length;
+  const isBusy = busyCount >= Math.max(1, warmthCount - busyCount);
+  const warmthStatusLabel =
+    warmthCount === 0
+      ? '방문객 온기를 기다리는 고즈넉한 명소'
+      : isBusy
+        ? '실시간 체감: 북적이고 활기찬 분위기'
+        : '실시간 체감: 고즈넉하고 한적한 분위기';
+
   return (
     <DetailWrapper tabIndex={-1} role="region" aria-label="장소 상세 정보">
       <HeaderBar>
@@ -305,7 +328,16 @@ export default function PlaceDetail() {
               )}
             </TitleSection>
 
-            {/* 원클릭 4단 퀵 액션 타일 바 */}
+            {/* 실시간 현장 체감 분위기 바 */}
+            <LiveWarmthMeter>
+              <LiveWarmthStatus>
+                <LiveWarmthPulse $busy={isBusy} />
+                <span>{warmthStatusLabel}</span>
+              </LiveWarmthStatus>
+              <LiveWarmthCount>{warmthCount > 0 ? `온기 ${warmthCount}건` : '첫 온기 남기기'}</LiveWarmthCount>
+            </LiveWarmthMeter>
+
+            {/* 원클릭 5단 퀵 액션 타일 바 */}
             <HeroActionGrid>
               <HeroActionTile
                 type="button"
@@ -319,8 +351,17 @@ export default function PlaceDetail() {
                 }}
                 title={matchedOdiiStory ? '시네마틱 오디오 투어 시작' : '소리마루 오디 둘러보기'}
               >
-                <Headphones size={18} />
-                <span>{matchedOdiiStory ? '오디 투어' : '소리마루'}</span>
+                <Headphones size={17} />
+                <span>{matchedOdiiStory ? '오디 투어' : '소리 해설'}</span>
+              </HeroActionTile>
+
+              <HeroActionTile
+                type="button"
+                onClick={() => setIsRoadviewOpen(true)}
+                title="카카오 현장 360도 거리 풍경 둘러보기"
+              >
+                <Camera size={17} />
+                <span>거리 풍경</span>
               </HeroActionTile>
 
               {hasValidCoords ? (
@@ -331,12 +372,12 @@ export default function PlaceDetail() {
                   onClick={handleNavClick}
                   title="카카오맵 길찾기"
                 >
-                  <Navigation size={18} />
+                  <Navigation size={17} />
                   <span>길찾기</span>
                 </HeroActionLink>
               ) : (
                 <HeroActionTile type="button" disabled title="좌표 정보 없음">
-                  <Navigation size={18} />
+                  <Navigation size={17} />
                   <span>길찾기</span>
                 </HeroActionTile>
               )}
@@ -349,12 +390,12 @@ export default function PlaceDetail() {
                 }}
                 title="방문객 온기(후기) 보기"
               >
-                <Flame size={18} />
+                <Flame size={17} />
                 <span>온기 남기기</span>
               </HeroActionTile>
 
               <HeroActionTile type="button" onClick={handleShare} title="장소 링크 공유">
-                {copied ? <Check size={18} color={lightPalette.cheongrok[700]} /> : <Share2 size={18} />}
+                {copied ? <Check size={17} color={lightPalette.cheongrok[700]} /> : <Share2 size={17} />}
                 <span>{copied ? '복사됨' : '공유하기'}</span>
               </HeroActionTile>
             </HeroActionGrid>
@@ -485,6 +526,14 @@ export default function PlaceDetail() {
           </NavButton>
         )}
       </BottomActionArea>
+
+      <RoadviewModal
+        isOpen={isRoadviewOpen}
+        onClose={() => setIsRoadviewOpen(false)}
+        placeName={title}
+        lat={lat}
+        lng={lng}
+      />
     </DetailWrapper>
   );
 }
