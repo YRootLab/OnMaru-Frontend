@@ -384,6 +384,7 @@ export default function PlaceDetail() {
 
               <HeroActionTile
                 type="button"
+                $isWarmth
                 onClick={() => {
                   const el = document.getElementById('place-warmth-section');
                   if (el) el.scrollIntoView({ behavior: 'smooth' });

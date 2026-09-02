@@ -38,10 +38,16 @@ export const HeaderBadge = styled.div`
   gap: 4px;
   padding: 4px 10px;
   border-radius: 9999px;
-  background: rgba(40, 110, 95, 0.08);
-  color: ${lightPalette.cheongrok[700]};
+  background: rgba(78, 89, 104, 0.08);
+  color: ${meok[700]};
   font-size: 11.5px;
   font-weight: 700;
+  border: none;
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.08);
+    color: ${meok[400]};
+  }
 `;
 
 export const CloseButton = styled.button`
@@ -51,7 +57,7 @@ export const CloseButton = styled.button`
   width: 32px;
   height: 32px;
   padding: 0;
-
+  border: none;
   border-radius: 50%;
   background: rgba(25, 31, 40, 0.04);
   color: ${meok[700]};
@@ -112,6 +118,7 @@ export const Badge = styled.span`
   font-weight: 500;
   color: ${meok[700]};
   background: rgba(78, 89, 104, 0.07);
+  border: none;
 `;
 
 export const SmartFeatureRow = styled.div`
@@ -129,22 +136,14 @@ export const SmartFeatureChip = styled.span<{ $type?: 'free' | 'parking' | 'audi
   border-radius: 8px;
   font-size: 11px;
   font-weight: 600;
-  color: ${({ $type }) =>
-    $type === 'free'
-      ? lightPalette.cheongrok[700]
-      : $type === 'audio'
-        ? lightPalette.jangmi[500]
-        : $type === 'parking'
-          ? '#2b5ce6'
-          : meok[700]};
-  background: ${({ $type }) =>
-    $type === 'free'
-      ? 'rgba(40, 110, 95, 0.08)'
-      : $type === 'audio'
-        ? 'rgba(232, 40, 90, 0.08)'
-        : $type === 'parking'
-          ? 'rgba(43, 92, 230, 0.08)'
-          : 'rgba(78, 89, 104, 0.06)'};
+  color: ${meok[700]};
+  background: rgba(78, 89, 104, 0.06);
+  border: none;
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.06);
+    color: ${meok[400]};
+  }
 `;
 
 export const HeroActionGrid = styled.div`
@@ -159,7 +158,7 @@ export const LiveWarmthMeter = styled.div`
   padding: 10px 14px;
   border-radius: 14px;
   background: #fbf8f2;
-  border: 1px solid rgba(232, 90, 24, 0.12);
+  border: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -167,7 +166,6 @@ export const LiveWarmthMeter = styled.div`
 
   [data-theme='dark'] & {
     background: #25221d;
-    border-color: rgba(248, 87, 0, 0.2);
   }
 `;
 
@@ -188,17 +186,17 @@ export const LiveWarmthPulse = styled.span<{ $busy: boolean }>`
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: ${({ $busy }) => ($busy ? lightPalette.juhong[500] : lightPalette.cheongrok[500])};
-  box-shadow: 0 0 0 3px ${({ $busy }) => ($busy ? 'rgba(232, 90, 24, 0.2)' : 'rgba(0, 167, 106, 0.2)')};
+  background: ${({ $busy }) => ($busy ? lightPalette.juhong[500] : lightPalette.hwanggeum[500])};
+  box-shadow: 0 0 0 3px ${({ $busy }) => ($busy ? 'rgba(232, 90, 24, 0.2)' : 'rgba(245, 166, 35, 0.2)')};
 `;
 
 export const LiveWarmthCount = styled.span`
   font-size: 11.5px;
-  color: ${meok[500]};
-  font-weight: 600;
+  color: ${lightPalette.juhong[500]};
+  font-weight: 700;
 `;
 
-export const HeroActionTile = styled.button<{ $highlight?: boolean }>`
+export const HeroActionTile = styled.button<{ $highlight?: boolean; $isWarmth?: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -206,17 +204,20 @@ export const HeroActionTile = styled.button<{ $highlight?: boolean }>`
   gap: 5px;
   padding: 10px 2px;
   border-radius: 14px;
-  background: ${({ $highlight }) =>
-    $highlight ? 'rgba(40, 110, 95, 0.08)' : 'rgba(78, 89, 104, 0.05)'};
-  color: ${({ $highlight }) =>
-    $highlight ? lightPalette.cheongrok[700] : meok[700]};
+  border: none;
+  background: ${({ $isWarmth }) =>
+    $isWarmth ? 'rgba(232, 90, 24, 0.08)' : 'rgba(78, 89, 104, 0.06)'};
+  color: ${({ $isWarmth }) =>
+    $isWarmth ? lightPalette.juhong[500] : meok[700]};
   cursor: pointer;
   transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
   text-decoration: none;
 
   &:hover {
-    background: ${({ $highlight }) =>
-      $highlight ? 'rgba(40, 110, 95, 0.14)' : 'rgba(78, 89, 104, 0.1)'};
+    background: ${({ $isWarmth }) =>
+      $isWarmth ? 'rgba(232, 90, 24, 0.15)' : 'rgba(78, 89, 104, 0.12)'};
+    color: ${({ $isWarmth }) =>
+      $isWarmth ? lightPalette.juhong[700] : meok[900]};
     transform: translateY(-1.5px);
   }
 
@@ -231,25 +232,24 @@ export const HeroActionTile = styled.button<{ $highlight?: boolean }>`
   }
 `;
 
-export const HeroActionLink = styled.a<{ $highlight?: boolean }>`
+export const HeroActionLink = styled.a`
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 10px 4px;
+  gap: 5px;
+  padding: 10px 2px;
   border-radius: 14px;
-  background: ${({ $highlight }) =>
-    $highlight ? 'rgba(40, 110, 95, 0.08)' : 'rgba(78, 89, 104, 0.05)'};
-  color: ${({ $highlight }) =>
-    $highlight ? lightPalette.cheongrok[700] : meok[700]};
+  border: none;
+  background: rgba(78, 89, 104, 0.06);
+  color: ${meok[700]};
   cursor: pointer;
   transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
   text-decoration: none;
 
   &:hover {
-    background: ${({ $highlight }) =>
-      $highlight ? 'rgba(40, 110, 95, 0.14)' : 'rgba(78, 89, 104, 0.1)'};
+    background: rgba(78, 89, 104, 0.12);
+    color: ${meok[900]};
     transform: translateY(-1.5px);
   }
 
@@ -267,11 +267,16 @@ export const HeroActionLink = styled.a<{ $highlight?: boolean }>`
 export const CoreInfoBox = styled.div`
   margin: 0 16px;
   padding: 16px;
-  background: #f7f1e6;
+  background: #f5f3ef;
   border-radius: 18px;
+  border: none;
   display: flex;
   flex-direction: column;
   gap: 11px;
+
+  [data-theme='dark'] & {
+    background: #25221d;
+  }
 `;
 
 export const CoreRow = styled.div`

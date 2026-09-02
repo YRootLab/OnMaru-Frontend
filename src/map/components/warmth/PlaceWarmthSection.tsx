@@ -17,9 +17,8 @@ interface PlaceWarmthSectionProps {
 }
 
 const SectionContainer = styled.section`
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid ${meok[200]};
+  margin-top: 20px;
+  padding: 16px;
 `;
 
 const SectionHeader = styled.div`
@@ -55,6 +54,7 @@ const CountBadge = styled.span`
   font-size: 11px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+  border: none;
 `;
 
 const WriteButton = styled.button`
@@ -62,8 +62,8 @@ const WriteButton = styled.button`
   align-items: center;
   gap: 4px;
   height: 30px;
-  padding: 0 10px;
-
+  padding: 0 12px;
+  border: none;
   border-radius: 9999px;
   background: ${lightPalette.juhong[50]};
   color: ${lightPalette.juhong[700]};
@@ -76,7 +76,6 @@ const WriteButton = styled.button`
   &:hover {
     background: ${lightPalette.juhong[500]};
     color: #ffffff;
-    border-color: ${lightPalette.juhong[500]};
   }
 
   &:active {
@@ -93,13 +92,16 @@ const WarmthList = styled.div`
 const WarmthCard = styled.div`
   padding: 14px 16px;
   border-radius: 18px;
-  background: #ffffff;
-
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  background: #fbf8f2;
+  border: none;
+  transition: transform 0.15s ease;
 
   &:hover {
     transform: translateY(-1px);
+  }
 
+  [data-theme='dark'] & {
+    background: #25221d;
   }
 `;
 
