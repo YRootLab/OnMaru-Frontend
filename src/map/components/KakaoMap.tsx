@@ -12,7 +12,7 @@ import type { LatLng } from '@/map/types';
 
 const mapGlobalStyles = css`
   /* ------------------------------------------------------------
-   * 내 위치 플로팅 핀 & 펄스 리플
+   * 내 위치 (My Location) 모던 펄스 레이더 마커
    * ------------------------------------------------------------ */
   .om-my-location-pin {
     display: flex;
@@ -21,21 +21,21 @@ const mapGlobalStyles = css`
     cursor: pointer;
     user-select: none;
     pointer-events: auto;
-    animation: om-pin-drop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
-    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation: om-my-location-appear 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .om-my-location-pin:hover {
-    transform: translateY(-4px) scale(1.08);
+    transform: scale(1.1);
   }
 
-  @keyframes om-pin-drop {
+  @keyframes om-my-location-appear {
     0% {
-      transform: translateY(-24px) scale(0.6);
+      transform: scale(0.4);
       opacity: 0;
     }
     100% {
-      transform: translateY(0) scale(1);
+      transform: scale(1);
       opacity: 1;
     }
   }
@@ -43,76 +43,72 @@ const mapGlobalStyles = css`
   .om-my-location-label {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    padding: 3px 9px;
-    margin-bottom: 5px;
+    gap: 4.5px;
+    padding: 3.5px 10px;
+    margin-bottom: 6px;
     border-radius: 9999px;
     font-size: 11.5px;
-    font-weight: 800;
+    font-weight: 700;
     white-space: nowrap;
-
-    backdrop-filter: blur(6px);
-  }
-
-  [data-theme='light'] .om-my-location-label,
-  :root:not([data-theme='dark']) .om-my-location-label {
-    background: rgba(255, 255, 255, 0.96);
-    color: #1a3898;
-
+    background: #ffffff;
+    color: #2b5ce6;
+    letter-spacing: -0.2px;
   }
 
   [data-theme='dark'] .om-my-location-label {
-    background: rgba(32, 68, 164, 0.92);
-    color: #ffffff;
-
+    background: #1c1a17;
+    color: #5a89f6;
   }
 
-  .om-my-location-icon-wrap {
+  .om-my-location-beacon-wrap {
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 34px;
-    height: 34px;
-    border-radius: 50% 50% 50% 0;
-    transform: rotate(-45deg);
+    width: 28px;
+    height: 28px;
+  }
+
+  .om-my-location-core {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
     background: #2b5ce6;
-
   }
 
-  [data-theme='dark'] .om-my-location-icon-wrap {
-    background: #5a89f6;
-    border-color: #1c1a17;
-
+  .om-my-location-core-inner {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ffffff;
   }
 
-  .om-my-location-icon-wrap svg {
-    transform: rotate(45deg);
-    width: 17px;
-    height: 17px;
-    color: #ffffff;
-  }
-
-  .om-my-location-ripple {
+  .om-my-location-pulse-1,
+  .om-my-location-pulse-2 {
     position: absolute;
-    bottom: -6px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 14px;
-    height: 14px;
+    inset: 0;
     border-radius: 50%;
     background: rgba(43, 92, 230, 0.45);
     pointer-events: none;
-    animation: om-my-ripple 2.2s ease-out infinite;
+    animation: om-my-pulse 2.2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
   }
 
-  @keyframes om-my-ripple {
+  .om-my-location-pulse-2 {
+    animation-delay: 1.1s;
+  }
+
+  @keyframes om-my-pulse {
     0% {
-      transform: translateX(-50%) scale(0.6);
-      opacity: 0.9;
+      transform: scale(0.6);
+      opacity: 0.8;
     }
     100% {
-      transform: translateX(-50%) scale(3.4);
+      transform: scale(2.6);
       opacity: 0;
     }
   }
@@ -283,17 +279,18 @@ export default function KakaoMap() {
       el.className = 'om-my-location-pin';
       el.innerHTML = `
         <div class="om-my-location-label">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px;">
-            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:2px;">
+            <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/>
           </svg>
           <span>내 위치</span>
         </div>
-        <div class="om-my-location-icon-wrap">
-          <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
-            <polygon points="3 11 22 2 13 21 11 13 3 11"/>
-          </svg>
+        <div class="om-my-location-beacon-wrap">
+          <div class="om-my-location-pulse-1"></div>
+          <div class="om-my-location-pulse-2"></div>
+          <div class="om-my-location-core">
+            <div class="om-my-location-core-inner"></div>
+          </div>
         </div>
-        <div class="om-my-location-ripple"></div>
       `;
       el.addEventListener('click', () => {
         currentMap.setLevel(3, { animate: true });
@@ -303,7 +300,7 @@ export default function KakaoMap() {
       myLocationOverlayRef.current = new window.kakao.maps.CustomOverlay({
         position: latLng,
         content: el,
-        yAnchor: 1.0,
+        yAnchor: 0.75,
         xAnchor: 0.5,
         zIndex: 35,
       });
