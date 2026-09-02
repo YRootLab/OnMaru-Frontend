@@ -165,8 +165,8 @@ const OdiiBadge = styled.span`
   font-size: 10.5px;
   font-weight: 800;
   color: #ffffff;
-  background: linear-gradient(135deg, ${lightPalette.juhong[500]} 0%, ${lightPalette.jangmi[500]} 100%);
-  box-shadow: 0 1px 4px rgba(232, 90, 24, 0.35);
+  background: ${lightPalette.jangmi[500]};
+  box-shadow: 0 1px 4px rgba(212, 32, 88, 0.35);
   white-space: nowrap;
 `;
 

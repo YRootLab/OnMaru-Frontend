@@ -1,13 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
-import { Search, X, Home } from 'lucide-react';
+import { Search, X, Home, MapPin, Sparkles } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
+import { useMapStore } from '../hooks/useMapStore';
 
-const RECENT = ['전주 한옥마을', '안동 하회마을'];
-const POPULAR = ['전주', '경주', '담양', '제주'];
+const RECENT = ['전주 한옥마을', '북촌 한옥마을', '안동 하회마을', '경주 양동마을', '경복궁'];
+const POPULAR = ['전주', '북촌', '경주', '안동', '강릉', '담양', '공주'];
 
 interface SearchBarProps {
   showHomeButton?: boolean;
@@ -18,18 +19,21 @@ const Wrap = styled.div`
   width: 100%;
 `;
 
-const Field = styled.div`
+const Field = styled.form`
   display: flex;
   align-items: center;
   gap: 6px;
   height: 44px;
   padding: 0 14px 0 6px;
   border-radius: 9999px;
-  background: rgba(25, 31, 40, 0.04);
+  background: rgba(25, 31, 40, 0.05);
+  border: 1.5px solid transparent;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:focus-within {
-    background: rgba(25, 31, 40, 0.07);
+    background: #ffffff;
+    border-color: ${lightPalette.cheongrok[500]};
+    box-shadow: 0 4px 16px rgba(30, 122, 104, 0.15);
   }
 `;
 
@@ -49,7 +53,7 @@ const HomeBtn = styled.button`
   transition: all 0.15s ease;
 
   &:hover {
-    background: rgba(40, 110, 95, 0.12);
+    background: ${lightPalette.cheongrok[50]};
     color: ${lightPalette.cheongrok[700]};
     transform: scale(1.06);
   }
@@ -59,11 +63,20 @@ const HomeBtn = styled.button`
   }
 `;
 
-const SearchIconBox = styled.div`
+const SearchSubmitBtn = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-left: 2px;
+  border: none;
+  background: transparent;
+  padding: 0 2px;
+  color: ${meok[500]};
+  cursor: pointer;
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: ${lightPalette.cheongrok[500]};
+  }
 `;
 
 const Input = styled.input`
@@ -74,6 +87,7 @@ const Input = styled.input`
   background: transparent;
   font-family: inherit;
   font-size: 14px;
+  font-weight: 500;
   color: ${meok[900]};
 
   &::placeholder {
@@ -111,15 +125,19 @@ const Dropdown = styled.div`
   padding: 16px;
   border-radius: 20px;
   background: #ffffff;
-  box-shadow: 0 10px 30px rgba(25, 31, 40, 0.1);
+  border: 1px solid rgba(78, 89, 104, 0.12);
+  box-shadow: 0 12px 36px rgba(25, 31, 40, 0.12);
   backdrop-filter: blur(20px);
 `;
 
 const GroupTitle = styled.p`
   margin: 0 0 8px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   color: ${meok[500]};
+  display: flex;
+  align-items: center;
+  gap: 4px;
 
   & + & {
     margin-top: 14px;
@@ -133,24 +151,30 @@ const Suggestions = styled.div`
 `;
 
 const Suggestion = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   padding: 5px 12px;
-  border: none;
+  border: 1px solid rgba(78, 89, 104, 0.12);
   border-radius: 9999px;
-  background: rgba(78, 89, 104, 0.07);
+  background: #ffffff;
   font-family: inherit;
   font-size: 12.5px;
+  font-weight: 500;
   color: ${meok[700]};
   cursor: pointer;
   transition: all 0.15s ease;
 
   &:hover {
-    background: rgba(78, 89, 104, 0.14);
-    color: ${meok[900]};
+    background: ${lightPalette.cheongrok[50]};
+    color: ${lightPalette.cheongrok[700]};
+    border-color: ${lightPalette.cheongrok[200]};
   }
 `;
 
 export default function SearchBar({ showHomeButton = true }: SearchBarProps) {
   const router = useRouter();
+  const map = useMapStore((s) => s.map);
   const [value, setValue] = useState('');
   const [open, setOpen] = useState(false);
 
@@ -158,9 +182,73 @@ export default function SearchBar({ showHomeButton = true }: SearchBarProps) {
     router.push('/');
   };
 
+  const performSearch = useCallback(
+    (query: string) => {
+      const keyword = query.trim();
+      if (!keyword) return;
+
+      setValue(keyword);
+      setOpen(false);
+
+      const store = useMapStore.getState();
+
+      // 1. 카카오 키워드 장소 검색 서비스 실행
+      if (typeof window !== 'undefined' && window.kakao?.maps?.services) {
+        const ps = new window.kakao.maps.services.Places();
+        ps.keywordSearch(keyword, (data: any, status: any) => {
+          if (status === window.kakao.maps.services.Status.OK && data && data.length > 0) {
+            const first = data[0];
+            const targetLat = Number(first.y);
+            const targetLng = Number(first.x);
+
+            // 지도 뷰포트 이동
+            if (map) {
+              const latLng = new window.kakao.maps.LatLng(targetLat, targetLng);
+              map.setCenter(latLng);
+              map.setLevel(4, { animate: true });
+            }
+
+            // 스토어 상태 갱신 및 재조회 트리거
+            store.setCurrentAddress(first.address_name || keyword);
+            store.setCenter({ lat: targetLat, lng: targetLng }, 4);
+            store.clearSearchDirty();
+            return;
+          }
+
+          // 검색 결과가 카카오 맵에 없을 경우 기존 리스트 내 필터링 시도
+          fallbackLocalSearch(keyword);
+        });
+      } else {
+        fallbackLocalSearch(keyword);
+      }
+    },
+    [map],
+  );
+
+  const fallbackLocalSearch = (keyword: string) => {
+    const store = useMapStore.getState();
+    const cleanKw = keyword.toLowerCase().replace(/\s+/g, '');
+    const matched = store.items.find((item) =>
+      item.name.toLowerCase().replace(/\s+/g, '').includes(cleanKw),
+    );
+
+    if (matched && map && window.kakao?.maps) {
+      map.panTo(new window.kakao.maps.LatLng(matched.lat, matched.lng));
+      map.setLevel(3, { animate: true });
+      store.setSelectedId(matched.id);
+      store.setDetailId(matched.id);
+      store.setSheetSnap('full');
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    performSearch(value);
+  };
+
   return (
     <Wrap>
-      <Field>
+      <Field onSubmit={handleSubmit}>
         {showHomeButton ? (
           <HomeBtn
             type="button"
@@ -172,43 +260,64 @@ export default function SearchBar({ showHomeButton = true }: SearchBarProps) {
           </HomeBtn>
         ) : null}
 
-        <SearchIconBox>
-          <Search size={16} color={meok[400]} aria-hidden />
-        </SearchIconBox>
+        <SearchSubmitBtn type="submit" aria-label="검색 실행">
+          <Search size={16} aria-hidden />
+        </SearchSubmitBtn>
 
         <Input
           type="search"
           value={value}
-          placeholder="지역, 마을, 장소 검색"
+          placeholder="지역, 마을, 장소 검색 (예: 전주, 북촌, 하회마을)"
           aria-label="장소 검색"
           onChange={(e) => setValue(e.target.value)}
           onFocus={() => setOpen(true)}
-          onBlur={() => setTimeout(() => setOpen(false), 120)}
+          onBlur={() => setTimeout(() => setOpen(false), 200)}
         />
 
         {value && (
-          <Clear type="button" aria-label="검색어 지우기" onClick={() => setValue('')}>
-            <X size={15} />
+          <Clear
+            type="button"
+            aria-label="검색어 지우기"
+            onClick={() => {
+              setValue('');
+            }}
+          >
+            <X size={14} />
           </Clear>
         )}
       </Field>
 
       {open && (
         <Dropdown>
-          <GroupTitle>최근 검색</GroupTitle>
+          <GroupTitle>
+            <Sparkles size={13} color={lightPalette.cheongrok[500]} />
+            <span>추천 명소</span>
+          </GroupTitle>
           <Suggestions>
             {RECENT.map((keyword) => (
-              <Suggestion key={keyword} type="button" onClick={() => setValue(keyword)}>
-                {keyword}
+              <Suggestion
+                key={keyword}
+                type="button"
+                onMouseDown={() => performSearch(keyword)}
+              >
+                <MapPin size={11} color={lightPalette.cheongrok[500]} />
+                <span>{keyword}</span>
               </Suggestion>
             ))}
           </Suggestions>
 
-          <GroupTitle>인기 지역</GroupTitle>
+          <GroupTitle style={{ marginTop: 14 }}>
+            <MapPin size={13} color={lightPalette.cheongrok[500]} />
+            <span>인기 한옥 지역</span>
+          </GroupTitle>
           <Suggestions>
             {POPULAR.map((keyword) => (
-              <Suggestion key={keyword} type="button" onClick={() => setValue(keyword)}>
-                {keyword}
+              <Suggestion
+                key={keyword}
+                type="button"
+                onMouseDown={() => performSearch(keyword)}
+              >
+                <span>{keyword}</span>
               </Suggestion>
             ))}
           </Suggestions>

@@ -27,8 +27,8 @@ const BackgroundGlow = styled.div`
   width: 140px;
   height: 140px;
   border-radius: 50%;
-  background: ${lightPalette.juhong[500]};
-  opacity: 0.25;
+  background: ${lightPalette.jangmi[500]};
+  opacity: 0.3;
   filter: blur(40px);
   pointer-events: none;
 `;
@@ -49,8 +49,8 @@ const Badge = styled.div`
   font-size: 10.5px;
   font-weight: 800;
   color: #ffffff;
-  background: linear-gradient(135deg, ${lightPalette.juhong[500]} 0%, ${lightPalette.jangmi[500]} 100%);
-  box-shadow: 0 2px 8px rgba(232, 90, 24, 0.4);
+  background: ${lightPalette.jangmi[500]};
+  box-shadow: 0 2px 8px rgba(212, 32, 88, 0.45);
 `;
 
 const DurationText = styled.span`
@@ -101,16 +101,16 @@ const StartBtn = styled.button`
   padding: 0 14px;
   border-radius: 9999px;
   border: none;
-  background: ${lightPalette.juhong[500]};
+  background: ${lightPalette.jangmi[500]};
   color: #ffffff;
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.15s ease;
-  box-shadow: 0 3px 10px rgba(232, 90, 24, 0.45);
+  box-shadow: 0 3px 10px rgba(212, 32, 88, 0.45);
 
   &:hover {
-    background: ${lightPalette.juhong[400]};
+    background: ${lightPalette.jangmi[400]};
     transform: translateY(-1px);
   }
 

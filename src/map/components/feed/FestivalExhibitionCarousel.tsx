@@ -39,7 +39,7 @@ const SectionTitle = styled.h3`
 const BadgeTitle = styled.span`
   font-size: 10.5px;
   font-weight: 700;
-  color: ${lightPalette.juhong[500]};
+  color: ${lightPalette.cheongrok[500]};
 `;
 
 const RightControls = styled.div`
@@ -62,9 +62,9 @@ const NavArrowBtn = styled.button`
   transition: all 0.15s ease;
 
   &:hover {
-    background: rgba(232, 90, 24, 0.08);
-    color: ${lightPalette.juhong[500]};
-    border-color: ${lightPalette.juhong[500]};
+    background: ${lightPalette.cheongrok[50]};
+    color: ${lightPalette.cheongrok[700]};
+    border-color: ${lightPalette.cheongrok[500]};
   }
 
   &:active {
@@ -119,7 +119,7 @@ const FestivalCard = styled.button`
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(25, 31, 40, 0.12);
-    border-color: ${lightPalette.juhong[500]};
+    border-color: ${lightPalette.cheongrok[500]};
   }
 
   &:active {
@@ -147,8 +147,8 @@ const CardBadge = styled.div`
   font-size: 10px;
   font-weight: 800;
   color: #ffffff;
-  background: linear-gradient(135deg, ${lightPalette.juhong[500]} 0%, ${lightPalette.jangmi[500]} 100%);
-  box-shadow: 0 2px 6px rgba(232, 90, 24, 0.4);
+  background: ${lightPalette.cheongrok[500]};
+  box-shadow: 0 2px 6px rgba(30, 122, 104, 0.4);
 `;
 
 const CardBody = styled.div`
