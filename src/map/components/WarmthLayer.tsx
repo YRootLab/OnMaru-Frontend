@@ -187,13 +187,13 @@ const styles = css`
     border-radius: 9999px;
     font-size: 11px;
     font-weight: 700;
-    background: ${lightPalette.juhong[50]};
-    color: ${lightPalette.juhong[700]};
+    background: rgba(78, 89, 104, 0.08);
+    color: ${meok[700]};
   }
 
   [data-theme='dark'] .om-surge-hover-mood-badge {
-    background: rgba(232, 90, 24, 0.2);
-    color: ${darkPalette.juhong[200]};
+    background: rgba(255, 255, 255, 0.08);
+    color: ${meok[400]};
   }
 
   .om-surge-hover-text {
@@ -343,11 +343,11 @@ const styles = css`
 
   [data-theme='light'] .om-bud-head,
   :root:not([data-theme='dark']) .om-bud-head {
-    color: ${lightPalette.juhong[500]};
+    color: ${meok[900]};
   }
 
   [data-theme='dark'] .om-bud-head {
-    color: ${darkPalette.juhong[400]};
+    color: ${meok[100]};
   }
 
   .om-bud-mood {
@@ -359,13 +359,13 @@ const styles = css`
 
   [data-theme='light'] .om-bud-mood,
   :root:not([data-theme='dark']) .om-bud-mood {
-    background: ${lightPalette.juhong[50]};
-    color: ${lightPalette.juhong[700]};
+    background: rgba(78, 89, 104, 0.08);
+    color: ${meok[700]};
   }
 
   [data-theme='dark'] .om-bud-mood {
-    background: ${darkPalette.juhong[900]};
-    color: ${darkPalette.juhong[200]};
+    background: rgba(255, 255, 255, 0.08);
+    color: ${meok[400]};
   }
 
   .om-bud-text {

@@ -82,8 +82,9 @@ export const FeaturedPlaceArea = styled.div`
 
 export const FeaturedCard = styled.div`
   padding: 14px 16px;
-  background: #f7f1e6;
+  background: #f8f6f0;
   border-radius: 18px;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -91,12 +92,20 @@ export const FeaturedCard = styled.div`
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    background: #f0eae0;
+    background: #f2eee6;
     transform: translateY(-1px);
   }
 
   &:active {
     transform: scale(0.985);
+  }
+
+  [data-theme='dark'] & {
+    background: #25221d;
+
+    &:hover {
+      background: #2c2822;
+    }
   }
 `;
 
@@ -115,8 +124,13 @@ export const FeaturedIconBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${lightPalette.juhong[500]};
+  color: ${meok[900]};
   flex-shrink: 0;
+
+  [data-theme='dark'] & {
+    background: #1c1a17;
+    color: ${meok[100]};
+  }
 `;
 
 export const FeaturedInfo = styled.div`
@@ -126,7 +140,7 @@ export const FeaturedInfo = styled.div`
 export const FeaturedRank = styled.span`
   font-size: 11px;
   font-weight: 700;
-  color: ${lightPalette.juhong[700]};
+  color: ${lightPalette.juhong[500]};
   display: block;
   margin-bottom: 2px;
 `;

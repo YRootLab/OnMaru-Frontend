@@ -1,8 +1,6 @@
-'use client';
-
 import React from 'react';
 import styled from '@emotion/styled';
-import { lightPalette } from '@/design-system/tokens';
+import { meok } from '@/design-system/tokens';
 
 interface TagGroupProps {
   tags: string[];
@@ -17,14 +15,19 @@ const Wrapper = styled.div`
 const TagBadge = styled.span`
   display: inline-flex;
   align-items: center;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 3.5px 9px;
+  font-size: 11.5px;
+  font-weight: 500;
+  padding: 3px 8.5px;
   border-radius: 9999px;
-
   white-space: nowrap;
-  background: ${lightPalette.juhong[50]};
-  color: ${lightPalette.juhong[700]};
+  background: rgba(78, 89, 104, 0.07);
+  color: ${meok[700]};
+  border: none;
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.07);
+    color: ${meok[400]};
+  }
 `;
 
 export default function TagGroup({ tags }: TagGroupProps) {
