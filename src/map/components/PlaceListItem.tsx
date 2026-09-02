@@ -3,8 +3,19 @@
 import { memo, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import styled from '@emotion/styled';
-import { Landmark, Home, Utensils, Coffee, ShoppingBag, Sparkles, BookOpen, Moon } from 'lucide-react';
+import {
+  Landmark,
+  Home,
+  Utensils,
+  Coffee,
+  ShoppingBag,
+  Sparkles,
+  BookOpen,
+  Moon,
+  Headphones,
+} from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
+import { hasOdiiDocent } from '@/features/odii-audio/hooks/useOdiiPlaceStory';
 import type { Item, PlaceCategory } from '../types';
 
 interface PlaceListItemProps {
@@ -144,6 +155,20 @@ const Badge = styled.span`
   white-space: nowrap;
 `;
 
+const OdiiBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #ffffff;
+  background: linear-gradient(135deg, ${lightPalette.juhong[500]} 0%, ${lightPalette.jangmi[500]} 100%);
+  box-shadow: 0 1px 4px rgba(232, 90, 24, 0.35);
+  white-space: nowrap;
+`;
+
 /** 카테고리별 한글 명칭 */
 const CATEGORY_LABELS: Record<PlaceCategory, string> = {
   spot: '명소·고택',
@@ -232,6 +257,7 @@ function PlaceListItemComponent({
   const district = getDistrictFromAddr(item.addr);
   const distText = formatDistance(item.dist);
   const badges = getBadges(item);
+  const hasOdii = hasOdiiDocent(item.name, item.addr);
 
   return (
     <ItemContainer ref={itemRef}>
@@ -274,6 +300,12 @@ function PlaceListItemComponent({
           {distText && <Row3>{distText}</Row3>}
 
           <BadgeRow>
+            {hasOdii && (
+              <OdiiBadge title="한국관광공사 공식 오디 오디오 도슨트 해설 지원 장소">
+                <Headphones size={10} />
+                <span>오디 해설</span>
+              </OdiiBadge>
+            )}
             {badges.map((badge, idx) => (
               <Badge key={idx}>{badge}</Badge>
             ))}
@@ -285,3 +317,4 @@ function PlaceListItemComponent({
 }
 
 export const PlaceListItem = memo(PlaceListItemComponent);
+

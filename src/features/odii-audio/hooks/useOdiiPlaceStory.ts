@@ -3,6 +3,26 @@ import { OdiiStoryItem, TourWaypoint } from '../types/odii.types';
 import { odiiApiAdapter } from '../api/odiiApi';
 
 /**
+ * 한국관광공사 Odii 오디오 해설이 정식 지원되는 전국 주요 한옥/역사/문화재 명소 키워드
+ */
+const KNOWN_ODII_KEYWORDS = [
+  '경기전', '오목대', '이목대', '향교', '풍남문', '전주사고', '조경묘', '한벽당', '전동성당',
+  '경복궁', '창덕궁', '창경궁', '덕수궁', '종묘', '북촌', '서촌', '남산골', '운현궁',
+  '하회마을', '병산서원', '도산서원', '봉정사', '양동마을', '불국사', '석굴암', '첨성대', '동궁',
+  '낙안읍성', '소쇄원', '식영정', '명옥헌', '무섬마을', '부석사', '소수서원', '선교장', '오죽헌',
+  '성읍', '해미읍성', '수원화성', '행궁', '융건릉', '남한산성', '백제', '공산성', '무령왕릉'
+];
+
+/**
+ * 특정 장소에 Odii 오디오 도슨트 해설이 지원되는지 판별하는 헬퍼 함수
+ */
+export function hasOdiiDocent(placeName?: string, addr?: string): boolean {
+  if (!placeName) return false;
+  const clean = placeName.replace(/[\s\(\)\[\]]/g, '');
+  return KNOWN_ODII_KEYWORDS.some((kw) => clean.includes(kw));
+}
+
+/**
  * 실시간 공공 Odii API 응답의 대본 및 좌표를 바탕으로 
  * 시네마틱 공간 투어 경유지(Waypoints)를 동적으로 생성합니다.
  */
@@ -55,7 +75,8 @@ export function generateDynamicWaypoints(story: OdiiStoryItem): TourWaypoint[] {
 const odiiPlaceCache = new Map<string, OdiiStoryItem | null>();
 
 /**
- * 장소명 및 좌표를 통해 한국관광공사 실제 Odii API를 직접 호출하여 매칭되는 스토리를 가져오는 React 훅
+ * 장소명 및 좌표를 통해 한국관광공사 실제 Odii API를 직접 호출하여 
+ * 정확히 일치/매칭되는 이야기만 반환하는 React 훅 (불일치 시 억지 fallback 없이 null 반환)
  */
 export function useOdiiPlaceStory(placeName?: string, lat?: number, lng?: number) {
   const [story, setStory] = useState<OdiiStoryItem | null>(null);
@@ -80,35 +101,42 @@ export function useOdiiPlaceStory(placeName?: string, lat?: number, lng?: number
       try {
         let matched: OdiiStoryItem | null = null;
 
-        // 1. 장소명 기반 Odii API 실시간 검색
-        if (placeName) {
-          const cleanName = placeName.replace(/\s+/g, '').replace(/한옥.*$/, '한옥');
-          const searchWord = cleanName.length > 2 ? cleanName.slice(0, 4) : cleanName;
+        // 1. 장소명 정제 및 핵심 검색어 추출
+        const cleanName = (placeName || '')
+          .replace(/\(.*?\)/g, '')
+          .replace(/\[.*?\]/g, '')
+          .replace(/숙박|체험관|체험장|게스트하우스|호텔|카페|식당|한옥마을/g, '')
+          .trim();
+
+        // 2. 장소명 기반 Odii API 실시간 검색 (최대 4글자 핵심 키워드)
+        if (cleanName.length >= 2) {
+          const searchWord = cleanName.slice(0, 4);
           const apiStories = await odiiApiAdapter.getStoryList(undefined, searchWord);
 
-          if (apiStories.length > 0) {
-            matched = apiStories.find((s) => s.audioUrl) || apiStories[0];
-          }
+          // 음원이 있고 이름이 실제로 매칭되는 스토리만 엄격히 선별
+          matched = apiStories.find((s) => {
+            if (!s.audioUrl) return false;
+            const fullTitle = `${s.title} ${s.audioTitle}`.replace(/\s+/g, '');
+            const target = cleanName.replace(/\s+/g, '');
+            return fullTitle.includes(target) || target.includes(s.title.replace(/\s+/g, ''));
+          }) || null;
         }
 
-        // 2. 위치 기반 Odii API 실시간 조회 (반경 3km 이내)
+        // 3. 위치 기반 Odii API 실시간 조회 (반경 500m 이내 초근접 정밀 매칭)
         if (!matched && lat !== undefined && lng !== undefined) {
-          const nearbyStories = await odiiApiAdapter.getNearbyStories(String(lng), String(lat), 3000);
+          const nearbyStories = await odiiApiAdapter.getNearbyStories(String(lng), String(lat), 600);
           if (nearbyStories.length > 0) {
-            matched = nearbyStories.find((s) => s.audioUrl) || nearbyStories[0];
+            matched = nearbyStories.find((s) => {
+              if (!s.audioUrl) return false;
+              if (cleanName.length < 2) return true;
+              const fullTitle = `${s.title} ${s.audioTitle}`;
+              return cleanName.split(' ').some((word) => word.length >= 2 && fullTitle.includes(word));
+            }) || null;
           }
         }
 
-        // 3. 없으면 전통 한옥 카테고리 대표 Odii 스토리 자동 연동
-        if (!matched) {
-          const hanokStories = await odiiApiAdapter.getStoryList('한옥');
-          if (hanokStories.length > 0) {
-            matched = hanokStories[0];
-          }
-        }
-
+        // 🌟 실전 원칙: 매칭되는 Odii 해설이 없으면 억지 fallback을 하지 않고 null 처리
         if (matched) {
-          // 실시간 API 스토리에 동적 시네마틱 경유지 생성 및 보정
           matched.waypoints = generateDynamicWaypoints(matched);
         }
 
@@ -135,3 +163,4 @@ export function useOdiiPlaceStory(placeName?: string, lat?: number, lng?: number
 
   return { story, loading };
 }
+
