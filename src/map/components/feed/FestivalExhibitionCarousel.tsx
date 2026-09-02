@@ -1,0 +1,267 @@
+'use client';
+
+import React from 'react';
+import styled from '@emotion/styled';
+import Image from 'next/image';
+import { Calendar, ChevronRight, MapPin, Sparkles } from 'lucide-react';
+import { lightPalette, meok } from '@/design-system/tokens';
+import { useMapStore } from '../../hooks/useMapStore';
+import type { Item } from '../../types';
+
+interface FestivalExhibitionCarouselProps {
+  festivals: Item[];
+}
+
+const SectionWrapper = styled.div`
+  padding: 14px 14px 6px;
+`;
+
+const SectionHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+`;
+
+const TitleGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
+
+const SectionTitle = styled.h3`
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: ${meok[900]};
+`;
+
+const BadgeTitle = styled.span`
+  font-size: 10.5px;
+  font-weight: 700;
+  color: ${lightPalette.juhong[500]};
+`;
+
+const MoreBtn = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border: none;
+  background: transparent;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: ${meok[500]};
+  cursor: pointer;
+  padding: 2px 4px;
+
+  &:hover {
+    color: ${meok[900]};
+  }
+`;
+
+const Scroller = styled.div`
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 8px;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+const FestivalCard = styled.button`
+  flex: none;
+  width: 220px;
+  border: 1px solid rgba(78, 89, 104, 0.12);
+  border-radius: 14px;
+  background: #ffffff;
+  overflow: hidden;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(25, 31, 40, 0.06);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(25, 31, 40, 0.12);
+    border-color: ${lightPalette.juhong[500]};
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+`;
+
+const ThumbBox = styled.div`
+  position: relative;
+  width: 100%;
+  height: 110px;
+  background: #f0eae0;
+`;
+
+const CardBadge = styled.div`
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  font-size: 10px;
+  font-weight: 800;
+  color: #ffffff;
+  background: linear-gradient(135deg, ${lightPalette.juhong[500]} 0%, ${lightPalette.jangmi[500]} 100%);
+  box-shadow: 0 2px 6px rgba(232, 90, 24, 0.4);
+`;
+
+const CardBody = styled.div`
+  padding: 10px 12px;
+`;
+
+const CardTitle = styled.h4`
+  margin: 0 0 4px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: ${meok[900]};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const CardDateRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: ${lightPalette.cheongrok[700]};
+  font-weight: 600;
+`;
+
+const CardAddr = styled.div`
+  margin-top: 3px;
+  font-size: 11px;
+  color: ${meok[500]};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+// 지역 대표 가을·봄 야행 및 축제 폴백 데이터
+const FALLBACK_FESTIVALS: Item[] = [
+  {
+    id: 'fes-1',
+    name: '2026 전주 한옥마을 문화재 야행',
+    category: 'festival',
+    lat: 35.815,
+    lng: 127.153,
+    addr: '전북 전주시 완산구 풍남동',
+    image: 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=600&q=80',
+    tel: '063-281-2114',
+    dist: 120,
+  },
+  {
+    id: 'fes-2',
+    name: '경복궁 별빛야행 & 달빛기행',
+    category: 'festival',
+    lat: 37.58,
+    lng: 126.98,
+    addr: '서울 종로구 사직로 161',
+    image: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=600&q=80',
+    tel: '02-3700-3900',
+    dist: 230,
+  },
+  {
+    id: 'fes-3',
+    name: '안동 하회마을 선유줄불놀이',
+    category: 'festival',
+    lat: 36.54,
+    lng: 128.80,
+    addr: '경북 안동시 풍천면 하회리',
+    image: 'https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=600&q=80',
+    tel: '054-853-0103',
+    dist: 450,
+  },
+  {
+    id: 'fes-4',
+    name: '수원화성 문화제 & 미디어아트',
+    category: 'festival',
+    lat: 37.287,
+    lng: 127.015,
+    addr: '경기 수원시 팔달구 정조로',
+    image: 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=600&q=80',
+    tel: '031-290-3600',
+    dist: 310,
+  },
+];
+
+export default function FestivalExhibitionCarousel({ festivals }: FestivalExhibitionCarouselProps) {
+  const map = useMapStore((s) => s.map);
+  const setSelectedId = useMapStore((s) => s.setSelectedId);
+  const setDetailId = useMapStore((s) => s.setDetailId);
+  const setCategory = useMapStore((s) => s.setCategory);
+
+  const displayList = festivals.length > 0 ? festivals : FALLBACK_FESTIVALS;
+
+  const handleClick = (item: Item) => {
+    setSelectedId(item.id);
+    setDetailId(item.id);
+    if (map && window.kakao?.maps) {
+      map.panTo(new window.kakao.maps.LatLng(item.lat, item.lng));
+      map.setLevel(4, { animate: true });
+    }
+  };
+
+  return (
+    <SectionWrapper>
+      <SectionHeader>
+        <TitleGroup>
+          <Sparkles size={15} color={lightPalette.juhong[500]} />
+          <SectionTitle>진행 중인 지역 축제 & 기획전</SectionTitle>
+          <BadgeTitle>LIVE</BadgeTitle>
+        </TitleGroup>
+        <MoreBtn type="button" onClick={() => setCategory('festival')}>
+          <span>전체보기</span>
+          <ChevronRight size={14} />
+        </MoreBtn>
+      </SectionHeader>
+
+      <Scroller role="region" aria-label="진행 중인 지역 축제 목록">
+        {displayList.map((item) => (
+          <FestivalCard key={item.id} type="button" onClick={() => handleClick(item)}>
+            <ThumbBox>
+              {item.image ? (
+                <Image
+                  src={item.image}
+                  alt={item.name}
+                  fill
+                  sizes="220px"
+                  style={{ objectFit: 'cover' }}
+                  unoptimized
+                />
+              ) : (
+                <div style={{ width: '100%', height: '100%', background: '#eae4d9' }} />
+              )}
+              <CardBadge>
+                <Sparkles size={10} />
+                <span>축제·기획전</span>
+              </CardBadge>
+            </ThumbBox>
+
+            <CardBody>
+              <CardTitle title={item.name}>{item.name}</CardTitle>
+              <CardDateRow>
+                <Calendar size={11} />
+                <span>야간 특별 개방 및 행사 진행중</span>
+              </CardDateRow>
+              <CardAddr>{item.addr || '전통 한옥 명소'}</CardAddr>
+            </CardBody>
+          </FestivalCard>
+        ))}
+      </Scroller>
+    </SectionWrapper>
+  );
+}

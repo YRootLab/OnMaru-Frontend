@@ -3,10 +3,14 @@
 import { useMemo } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
-import { ChevronDown, Map, RefreshCw, AlertCircle } from 'lucide-react';
+import { ChevronDown, Map, RefreshCw, AlertCircle, Sparkles, LayoutList } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useMapStore } from '../hooks/useMapStore';
 import { PlaceListItem } from './PlaceListItem';
+import LiveNoticeBanner from './feed/LiveNoticeBanner';
+import FestivalExhibitionCarousel from './feed/FestivalExhibitionCarousel';
+import OdiiSpotlightBanner from './feed/OdiiSpotlightBanner';
+import SmartAroundFeed from './feed/SmartAroundFeed';
 import type { Item, PlaceCategory } from '../types';
 
 const CATEGORY_NAMES: Record<string, string> = {
@@ -32,14 +36,18 @@ const StickyHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 16px 8px;
+  padding: 12px 16px 10px;
   background: #ffffff;
+  border-bottom: 1px solid rgba(78, 89, 104, 0.08);
 `;
 
 const CountLabel = styled.span`
-  font-size: 13px;
-  font-weight: 600;
-  color: ${meok[700]};
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: ${meok[900]};
 `;
 
 const SortDropdownWrapper = styled.div`
@@ -54,7 +62,7 @@ const SortSelect = styled.select`
   border: none;
   font-family: inherit;
   font-size: 12.5px;
-  font-weight: 500;
+  font-weight: 600;
   color: ${meok[700]};
   padding: 2px 18px 2px 4px;
   cursor: pointer;
@@ -187,6 +195,7 @@ export default function PlaceList() {
   const loading = useMapStore((s) => s.loading);
   const error = useMapStore((s) => s.error);
   const category = useMapStore((s) => s.category);
+  const currentAddress = useMapStore((s) => s.currentAddress);
   const selectedId = useMapStore((s) => s.selectedId);
   const hoveredId = useMapStore((s) => s.hoveredId);
   const sortOrder = useMapStore((s) => s.sortOrder);
@@ -205,7 +214,20 @@ export default function PlaceList() {
     return list.sort((a, b) => (a.dist ?? 1e9) - (b.dist ?? 1e9));
   }, [items, sortOrder]);
 
-  const categoryLabel = category ? CATEGORY_NAMES[category] || '한옥명소' : '한옥명소';
+  // 축제/행사 아이템 필터링
+  const festivalItems = useMemo(() => {
+    return items.filter((item) => item.category === 'festival');
+  }, [items]);
+
+  // 정확한 헤더 타이틀 라벨 계산
+  const headerTitle = useMemo(() => {
+    if (category) {
+      const name = CATEGORY_NAMES[category] || '한옥명소';
+      return `${name} ${sortedItems.length}곳`;
+    }
+    const regionName = currentAddress ? currentAddress.replace(/대한민국\s*/, '') || '전국' : '전체';
+    return `${regionName} ${sortedItems.length}곳`;
+  }, [category, currentAddress, sortedItems.length]);
 
   // 장소 선택 핸들러: 스토어에 selectedId, detailId 지정 및 지도 이동
   const handleSelect = (item: Item) => {
@@ -224,11 +246,32 @@ export default function PlaceList() {
     map.setLevel(Math.min(10, currentLevel + 2), { animate: true });
   };
 
+  const isAllCategory = !category || category === 'all';
+
   return (
     <div>
+      {/* 1. 실시간 공지/소식 롤링 띠배너 */}
+      <LiveNoticeBanner />
+
+      {/* 2. 전체 탭일 때 네이버 지도 스타일의 풍성한 스마트 큐레이션 피드 렌더링 */}
+      {isAllCategory && (
+        <>
+          {/* 진행 중인 지역 축제 & 기획전 캐러셀 */}
+          <FestivalExhibitionCarousel festivals={festivalItems} />
+
+          {/* 오디(Odii) 시네마틱 오디오 투어 스포트라이트 배너 */}
+          <OdiiSpotlightBanner />
+
+          {/* 네이버 스마트어라운드형 추천 포토 카드 피드 */}
+          <SmartAroundFeed items={sortedItems} />
+        </>
+      )}
+
+      {/* 3. 장소 목록 헤더 */}
       <StickyHeader>
         <CountLabel aria-live="polite">
-          {categoryLabel} {sortedItems.length}곳
+          <LayoutList size={15} color={lightPalette.cheongrok[500]} />
+          <span>{headerTitle}</span>
         </CountLabel>
 
         <SortDropdownWrapper>
@@ -244,6 +287,7 @@ export default function PlaceList() {
         </SortDropdownWrapper>
       </StickyHeader>
 
+      {/* 4. 장소 목록 컨텐츠 */}
       {loading && items.length === 0 ? (
         <SkeletonWrapper aria-busy="true" aria-label="장소 목록을 불러오는 중입니다">
           {[1, 2, 3, 4, 5].map((key) => (
@@ -274,7 +318,7 @@ export default function PlaceList() {
           <EmptyIconBox>
             <Map size={24} />
           </EmptyIconBox>
-          <EmptyTitle>이 지역에 {categoryLabel}이 없습니다</EmptyTitle>
+          <EmptyTitle>이 지역에 해당하는 장소가 없습니다</EmptyTitle>
           <EmptyDesc>
             지도를 옮기거나 다른 카테고리를 선택해보세요
           </EmptyDesc>
@@ -301,3 +345,4 @@ export default function PlaceList() {
     </div>
   );
 }
+
