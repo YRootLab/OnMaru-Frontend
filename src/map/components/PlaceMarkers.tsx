@@ -83,8 +83,29 @@ export const CATEGORY_STYLES: Record<
 };
 
 const styles = css`
-  /* 1. 상세 확대 시: 이름표 포함 핀 마커 */
+  /* ------------------------------------------------------------
+   * 1. 핀 공통 키프레임 & 마이크로 인터랙션
+   * ------------------------------------------------------------ */
+  @keyframes om-pin-spring {
+    0% { transform: translateY(-2px) scale(1); }
+    35% { transform: translateY(-16px) scale(1.22); }
+    65% { transform: translateY(-3px) scale(0.95); }
+    100% { transform: translateY(-6px) scale(1.15); }
+  }
+
+  @keyframes om-halo-pulse {
+    0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.8; }
+    100% { transform: translate(-50%, -50%) scale(2.4); opacity: 0; }
+  }
+
+  @keyframes om-eq-wave {
+    0%, 100% { height: 3px; }
+    50% { height: 10px; }
+  }
+
+  /* 2. 상세 확대 시: 이름표 포함 핀 마커 */
   .om-pin {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -100,14 +121,14 @@ const styles = css`
     white-space: nowrap;
     cursor: pointer;
     transform: translateY(-2px);
-    transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, color 0.15s ease;
+    user-select: none;
   }
 
   .om-pin:hover,
   .om-pin[data-hovered='true'] {
     transform: translateY(-5px) scale(1.1);
-    box-shadow: none;
-    z-index: 25 !important;
+    z-index: 30 !important;
   }
 
   .om-pin::after {
@@ -131,18 +152,84 @@ const styles = css`
     flex-shrink: 0;
   }
 
-  .om-pin[data-dimmed='true'],
-  .om-badge-pin[data-dimmed='true'] {
-    opacity: 0.35;
-    filter: grayscale(30%);
+  /* 라이브 사운드 이퀄라이저 바 */
+  .om-pin-eq {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 1.5px;
+    height: 10px;
+    margin-left: 2px;
   }
 
+  .om-pin-eq span {
+    width: 2px;
+    background: ${lightPalette.jangmi[500]};
+    border-radius: 1px;
+    animation: om-eq-wave 0.8s ease-in-out infinite alternate;
+  }
+  .om-pin-eq span:nth-of-type(2) { animation-delay: 0.25s; }
+  .om-pin-eq span:nth-of-type(3) { animation-delay: 0.5s; }
+
+  /* 핀 호버 시 팝업되는 라이브 미니 프리뷰 카드 */
+  .om-pin-hover-card {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    left: 50%;
+    transform: translate(-50%, 6px) scale(0.9);
+    width: 190px;
+    padding: 10px;
+    background: #ffffff;
+    border-radius: 14px;
+    pointer-events: none;
+    opacity: 0;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .om-pin:hover .om-pin-hover-card,
+  .om-pin[data-hovered='true'] .om-pin-hover-card,
+  .om-badge-pin:hover .om-pin-hover-card,
+  .om-badge-pin[data-hovered='true'] .om-pin-hover-card {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+
+  .om-pin-hover-thumb {
+    width: 100%;
+    height: 84px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: #f0eae0;
+  }
+
+  .om-pin-hover-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: ${meok[900]};
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin: 0;
+  }
+
+  .om-pin-hover-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    color: ${meok[500]};
+  }
+
+  /* 선택된 핀의 스프링 점프 & 펄스 오라 */
   .om-pin[data-selected='true'],
   .om-pin[data-detail='true'] {
     color: #ffffff !important;
-    transform: translateY(-6px) scale(1.15);
-    box-shadow: none;
-    z-index: 35 !important;
+    background: #191F28 !important;
+    animation: om-pin-spring 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    z-index: 40 !important;
     opacity: 1 !important;
   }
 
@@ -151,36 +238,42 @@ const styles = css`
     background: #ffffff !important;
   }
 
-  /* 2. 중간 확대 시: 파스텔 톤 원형 아이콘 뱃지 마커 */
+  .om-pin[data-dimmed='true'],
+  .om-badge-pin[data-dimmed='true'] {
+    opacity: 0.35;
+    filter: grayscale(30%);
+  }
+
+  /* 3. 중간 확대 시: 파스텔 톤 원형 아이콘 뱃지 마커 */
   .om-badge-pin {
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 26px;
-    height: 26px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     border: none;
     box-shadow: none;
     cursor: pointer;
-    transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, color 0.15s ease;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.15s ease, color 0.15s ease;
+    user-select: none;
   }
 
   .om-badge-pin:hover,
   .om-badge-pin[data-hovered='true'] {
-    transform: translateY(-4px) scale(1.22);
-    box-shadow: none;
-    z-index: 25 !important;
+    transform: translateY(-4px) scale(1.25);
+    z-index: 30 !important;
   }
 
   .om-badge-pin[data-selected='true'],
   .om-badge-pin[data-detail='true'] {
     transform: translateY(-5px) scale(1.35);
+    background: #191F28 !important;
     color: #ffffff !important;
-    border: none;
-    box-shadow: none;
-    z-index: 35 !important;
+    z-index: 40 !important;
     opacity: 1 !important;
+    animation: om-pin-spring 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   }
 
   .om-badge-pin::after {
@@ -194,7 +287,7 @@ const styles = css`
     transform: translate(-50%, -3px) rotate(45deg);
   }
 
-  /* 3. 🌟 전국/광역 축소 조망 시: 정갈한 지역별 숫자 클러스터 뱃지 (Marker Cluster) */
+  /* 4. 전국/광역 축소 조망 시: 스마트 클러스터 뱃지 */
   .om-cluster-pill {
     display: flex;
     align-items: center;
@@ -214,7 +307,6 @@ const styles = css`
 
   .om-cluster-pill:hover {
     transform: translate(-50%, -54%) scale(1.12);
-    box-shadow: none;
     z-index: 40 !important;
   }
 
@@ -392,17 +484,38 @@ export default function PlaceMarkers() {
     targetItems.forEach((item) => {
       const el = document.createElement('div');
       const catStyle = CATEGORY_STYLES[item.category] || CATEGORY_STYLES.spot;
+      const distStr = item.dist ? (item.dist < 1000 ? `${item.dist}m` : `${(item.dist / 1000).toFixed(1)}km`) : '';
+      const walkTime = item.dist && item.dist < 1200 ? `도보 ${Math.max(1, Math.round(item.dist / 67))}분` : '';
+      const metaText = walkTime ? `${distStr} · ${walkTime}` : distStr;
+
+      const hoverCardHtml = `
+        <div class="om-pin-hover-card">
+          ${item.image ? `<img src="${item.image}" alt="" class="om-pin-hover-thumb" loading="lazy" />` : ''}
+          <h5 class="om-pin-hover-title">${item.name}</h5>
+          <div class="om-pin-hover-meta">
+            <span style="color: ${catStyle.main}; font-weight: 700;">${CATEGORY_STYLES[item.category] ? item.category : '명소'}</span>
+            <span>${metaText}</span>
+          </div>
+        </div>
+      `;
 
       if (withLabel) {
         el.className = 'om-pin';
         el.style.position = 'relative';
-        el.innerHTML = `<span class="om-pin-icon-box" style="background: ${catStyle.lightBg}; color: ${catStyle.main};">${catStyle.iconSvg}</span><span>${item.name}</span>`;
+        el.innerHTML = `
+          <span class="om-pin-icon-box" style="background: ${catStyle.lightBg}; color: ${catStyle.main};">${catStyle.iconSvg}</span>
+          <span>${item.name}</span>
+          ${hoverCardHtml}
+        `;
       } else {
         el.className = 'om-badge-pin';
         el.style.background = catStyle.lightBg;
         el.style.color = catStyle.main;
         el.style.borderColor = catStyle.main;
-        el.innerHTML = catStyle.iconSvg;
+        el.innerHTML = `
+          ${catStyle.iconSvg}
+          ${hoverCardHtml}
+        `;
       }
 
       el.dataset.category = item.category;

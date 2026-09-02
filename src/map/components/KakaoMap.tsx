@@ -1,10 +1,21 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import Script from 'next/script';
 import styled from '@emotion/styled';
 import { Global, css } from '@emotion/react';
-import { Loader2, LocateFixed, Minus, Plus, RotateCw } from 'lucide-react';
+import {
+  Loader2,
+  LocateFixed,
+  Minus,
+  Plus,
+  RotateCw,
+  Moon,
+  Sun,
+  Compass,
+  X,
+  Play,
+} from 'lucide-react';
 import { meok, lightPalette } from '@/design-system/tokens';
 import { KAKAO_SDK_SRC, useKakaoMap } from '@/map/hooks/useKakaoMap';
 import { DEFAULT_CENTER, useMapStore } from '@/map/hooks/useMapStore';
@@ -119,10 +130,75 @@ const Frame = styled.div`
   inset: 0;
 `;
 
-const Canvas = styled.div`
+const Canvas = styled.div<{ $isNight: boolean }>`
   width: 100%;
   height: 100%;
   background: #f2ece1;
+  transition: filter 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  filter: ${({ $isNight }) =>
+    $isNight
+      ? 'invert(92%) hue-rotate(180deg) brightness(92%) contrast(112%) saturate(85%)'
+      : 'none'};
+`;
+
+const FlightBanner = styled.div`
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px 8px 12px;
+  background: #191f28;
+  color: #ffffff;
+  border-radius: 9999px;
+  animation: flight-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+
+  @keyframes flight-in {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -14px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, 0) scale(1);
+    }
+  }
+
+  span.hub-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.2px;
+  }
+
+  span.step-badge {
+    padding: 2px 7px;
+    border-radius: 9999px;
+    background: ${lightPalette.juhong[500]};
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  button.stop-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+  }
 `;
 
 const Research = styled.button`
@@ -157,7 +233,6 @@ const Research = styled.button`
     }
   }
 
-  /* 모바일은 상단에 검색바+모드토글이 떠 있어 그 아래로 내린다. */
   @media (max-width: 1023px) {
     top: 108px;
   }
@@ -173,28 +248,27 @@ const Controls = styled.div`
   gap: 8px;
 
   @media (max-width: 1023px) {
-    bottom: 136px; /* peek 시트(120px) 위 */
+    bottom: 136px;
   }
 `;
 
 const Stack = styled.div`
   display: flex;
   flex-direction: column;
-  border-radius: 10px;
+  border-radius: 12px;
   background: #ffffff;
-
   overflow: hidden;
 `;
 
-const ControlButton = styled.button`
+const ControlButton = styled.button<{ $active?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
   width: 40px;
   height: 40px;
 
-  background: #ffffff;
-  color: ${meok[700]};
+  background: ${({ $active }) => ($active ? '#191F28' : '#ffffff')};
+  color: ${({ $active }) => ($active ? '#FFFFFF' : meok[700])};
   cursor: pointer;
   transition: all 0.15s ease;
 
@@ -203,18 +277,22 @@ const ControlButton = styled.button`
   }
 
   &:hover {
-    background: rgba(25, 31, 40, 0.04);
-    color: ${meok[900]};
+    background: ${({ $active }) => ($active ? '#191F28' : 'rgba(25, 31, 40, 0.04)')};
+    color: ${({ $active }) => ($active ? '#FFFFFF' : meok[900])};
   }
 
   &:active {
-    background: rgba(25, 31, 40, 0.08);
-  }
-
-  &[data-active='true'] {
-    color: ${lightPalette.cheongrok[500]};
+    transform: scale(0.94);
   }
 `;
+
+/** 4대 전국 한옥 시네마틱 드론 비행 코스 */
+const FLIGHT_STOPS = [
+  { name: '서울 북촌 한옥마을', lat: 37.5826, lng: 126.9848, level: 4 },
+  { name: '전주 한옥마을', lat: 35.8150, lng: 127.1530, level: 4 },
+  { name: '안동 하회마을', lat: 36.5392, lng: 128.5185, level: 4 },
+  { name: '경주 양동마을', lat: 35.9985, lng: 129.2520, level: 4 },
+];
 
 export default function KakaoMap() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -223,6 +301,13 @@ export default function KakaoMap() {
   const isSearchDirty = useMapStore((s) => s.isSearchDirty);
   const panelOpen = useMapStore((s) => s.panelOpen);
   const [isLocating, setIsLocating] = useState(false);
+  const [isNight, setIsNight] = useState(false);
+  const [flightState, setFlightState] = useState<{ active: boolean; step: number }>({
+    active: false,
+    step: 0,
+  });
+
+  const flightTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // 패널이 접히면 지도 컨테이너 크기가 바뀐다. 카카오는 relayout을 직접 불러줘야 한다.
   useEffect(() => {
@@ -358,7 +443,6 @@ export default function KakaoMap() {
 
     const onError = (err: GeolocationPositionError) => {
       console.warn('GPS 고정밀도 조회 실패, 일반 위치로 재시도:', err.message);
-      // 고정밀도 실패 시 저정밀도(네트워크/IP 기반)로 2차 시도
       navigator.geolocation.getCurrentPosition(
         onSuccess,
         (fallbackErr) => {
@@ -373,7 +457,6 @@ export default function KakaoMap() {
       );
     };
 
-    // 항상 캐시를 배제(maximumAge: 0)하고 고정밀도 센서를 최대한 활용
     navigator.geolocation.getCurrentPosition(onSuccess, onError, {
       enableHighAccuracy: true,
       timeout: 8000,
@@ -381,14 +464,83 @@ export default function KakaoMap() {
     });
   };
 
+  /** 시네마틱 드론 비행 투어 시작/중지 핸들러 */
+  const stopFlight = useCallback(() => {
+    if (flightTimerRef.current) clearInterval(flightTimerRef.current);
+    flightTimerRef.current = null;
+    setFlightState({ active: false, step: 0 });
+  }, []);
+
+  const startFlight = useCallback(() => {
+    if (!map || !window.kakao?.maps) return;
+
+    if (flightState.active) {
+      stopFlight();
+      return;
+    }
+
+    let currentStep = 0;
+    const executeStep = (step: number) => {
+      const stop = FLIGHT_STOPS[step];
+      if (!stop) {
+        stopFlight();
+        return;
+      }
+
+      setFlightState({ active: true, step });
+      const latLng = new window.kakao.maps.LatLng(stop.lat, stop.lng);
+      map.setLevel(stop.level, { animate: true });
+      map.panTo(latLng);
+
+      const store = useMapStore.getState();
+      store.setCenter({ lat: stop.lat, lng: stop.lng }, stop.level);
+    };
+
+    executeStep(0);
+
+    flightTimerRef.current = setInterval(() => {
+      currentStep += 1;
+      if (currentStep >= FLIGHT_STOPS.length) {
+        stopFlight();
+      } else {
+        executeStep(currentStep);
+      }
+    }, 4800);
+  }, [map, flightState.active, stopFlight]);
+
+  useEffect(() => {
+    return () => {
+      if (flightTimerRef.current) clearInterval(flightTimerRef.current);
+    };
+  }, []);
+
+  const currentFlightStop = FLIGHT_STOPS[flightState.step];
+
   return (
     <Frame>
       <Global styles={mapGlobalStyles} />
       <Script strategy="afterInteractive" src={KAKAO_SDK_SRC} onLoad={initMap} />
 
-      <Canvas ref={containerRef} role="application" aria-label="한옥 위치 지도" />
+      <Canvas
+        ref={containerRef}
+        role="application"
+        aria-label="한옥 위치 지도"
+        $isNight={isNight}
+      />
 
-      {isSearchDirty && (
+      {/* 시네마틱 드론 비행 플로팅 알림 바 */}
+      {flightState.active && currentFlightStop && (
+        <FlightBanner>
+          <span className="step-badge">{flightState.step + 1} / {FLIGHT_STOPS.length}</span>
+          <span className="hub-name">✈️ 시네마틱 투어 중: {currentFlightStop.name}</span>
+          <button type="button" className="stop-btn" onClick={stopFlight}>
+            <X size={12} />
+            <span>종료</span>
+          </button>
+        </FlightBanner>
+      )}
+
+      {isSearchDirty && !flightState.active && (
         <Research type="button" onClick={() => useMapStore.getState().clearSearchDirty()}>
           <RotateCw size={16} aria-hidden />
           이 지역 재검색
@@ -396,12 +548,35 @@ export default function KakaoMap() {
       )}
 
       <Controls>
+        {/* 1. 시네마틱 드론 비행 & 달빛 야행 모드 인터랙티브 컨트롤 */}
+        <Stack>
+          <ControlButton
+            type="button"
+            aria-label="시네마틱 한옥 드론 비행"
+            onClick={startFlight}
+            $active={flightState.active}
+            title={flightState.active ? '시네마틱 투어 중지' : '전국 4대 한옥 시네마틱 비행 투어'}
+          >
+            <Compass size={18} />
+          </ControlButton>
+          <ControlButton
+            type="button"
+            aria-label="달빛 야행 모드 전환"
+            onClick={() => setIsNight((prev) => !prev)}
+            $active={isNight}
+            title={isNight ? '주간 뷰로 전환' : '달빛 야행(야경) 모드로 전환'}
+          >
+            {isNight ? <Sun size={18} color="#f59e0b" /> : <Moon size={18} />}
+          </ControlButton>
+        </Stack>
+
+        {/* 2. 내 위치 GPS 컨트롤 */}
         <Stack>
           <ControlButton
             type="button"
             aria-label="현위치로 이동"
             onClick={locate}
-            data-active={isLocating}
+            $active={isLocating}
             title="내 현재 위치로 이동"
           >
             {isLocating ? (
@@ -411,6 +586,8 @@ export default function KakaoMap() {
             )}
           </ControlButton>
         </Stack>
+
+        {/* 3. 줌 인/아웃 컨트롤 */}
         <Stack>
           <ControlButton type="button" aria-label="확대" onClick={() => zoom(-1)}>
             <Plus size={18} />
