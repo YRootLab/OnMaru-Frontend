@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { PenSquare } from 'lucide-react';
 import { lightPalette } from '@/design-system/tokens';
 import { useMapStore } from '../../hooks/useMapStore';
+import WriteWarmthModal from './WriteWarmthModal';
 
 const FloatingBtn = styled.button`
   position: absolute;
@@ -49,17 +50,33 @@ const FloatingBtn = styled.button`
 
 export default function WriteButton() {
   const mode = useMapStore((s) => s.mode);
+  const searchCenter = useMapStore((s) => s.searchCenter);
+  const currentAddress = useMapStore((s) => s.currentAddress);
+  const [isOpen, setIsOpen] = useState(false);
 
   if (mode !== 'warmth') return null;
 
   return (
-    <FloatingBtn
-      type="button"
-      onClick={() => alert('온기 작성 기능이 곧 오픈됩니다!')}
-      aria-label="장소에 대한 온기 후기 남기기"
-    >
-      <PenSquare size={16} />
-      <span>온기 남기기</span>
-    </FloatingBtn>
+    <>
+      <FloatingBtn
+        type="button"
+        onClick={() => setIsOpen(true)}
+        aria-label="장소에 대한 온기 후기 남기기"
+      >
+        <PenSquare size={16} />
+        <span>온기 남기기</span>
+      </FloatingBtn>
+
+      <WriteWarmthModal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        defaultPlace={{
+          id: `custom-${Date.now()}`,
+          name: currentAddress || '현재 지도 위치',
+          lat: searchCenter.lat,
+          lng: searchCenter.lng,
+        }}
+      />
+    </>
   );
 }

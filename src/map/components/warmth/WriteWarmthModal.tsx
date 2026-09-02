@@ -1,0 +1,329 @@
+'use client';
+
+import React, { useState } from 'react';
+import styled from '@emotion/styled';
+import { X, Flame, Users, Leaf, Check } from 'lucide-react';
+import { lightPalette, meok } from '@/design-system/tokens';
+import { addWarmth, loadWarmth } from '../../warmth/warmthRepo';
+import { useMapStore } from '../../hooks/useMapStore';
+
+interface WriteWarmthModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  defaultPlace?: {
+    id: string;
+    name: string;
+    lat: number;
+    lng: number;
+  };
+}
+
+const Overlay = styled.div<{ $open: boolean }>`
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(25, 31, 40, 0.45);
+  backdrop-filter: blur(8px);
+  opacity: ${({ $open }) => ($open ? 1 : 0)};
+  pointer-events: ${({ $open }) => ($open ? 'auto' : 'none')};
+  transition: opacity 0.22s ease;
+`;
+
+const ModalCard = styled.div<{ $open: boolean }>`
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  padding: 24px;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 16px 40px rgba(25, 31, 40, 0.18);
+  transform: ${({ $open }) => ($open ? 'scale(1) translateY(0)' : 'scale(0.95) translateY(12px)')};
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+`;
+
+const ModalHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+`;
+
+const ModalTitle = styled.h3`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: ${meok[900]};
+`;
+
+const CloseBtn = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: ${meok[100]};
+  color: ${meok[700]};
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: ${meok[200]};
+    color: ${meok[900]};
+  }
+`;
+
+const PlaceNameBadge = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 12px;
+  background: ${lightPalette.cheongrok[50]};
+  color: ${lightPalette.cheongrok[700]};
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 20px;
+`;
+
+const FormSection = styled.div`
+  margin-bottom: 18px;
+`;
+
+const SectionLabel = styled.label`
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: ${meok[700]};
+  margin-bottom: 8px;
+`;
+
+const MoodButtonGroup = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+`;
+
+const MoodButton = styled.button<{ $active: boolean; $type: 'quiet' | 'busy' }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 46px;
+  border-radius: 14px;
+  border: 1.5px solid
+    ${({ $active, $type }) =>
+      $active
+        ? $type === 'quiet'
+          ? lightPalette.cheongrok[500]
+          : lightPalette.juhong[500]
+        : meok[200]};
+  background: ${({ $active, $type }) =>
+    $active
+      ? $type === 'quiet'
+        ? lightPalette.cheongrok[50]
+        : lightPalette.juhong[50]
+      : '#ffffff'};
+  color: ${({ $active, $type }) =>
+    $active
+      ? $type === 'quiet'
+        ? lightPalette.cheongrok[700]
+        : lightPalette.juhong[700]
+      : meok[700]};
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+
+  &:hover {
+    border-color: ${({ $type }) =>
+      $type === 'quiet' ? lightPalette.cheongrok[400] : lightPalette.juhong[400]};
+  }
+`;
+
+const TextArea = styled.textarea`
+  width: 100%;
+  height: 90px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1.5px solid ${meok[200]};
+  background: #ffffff;
+  color: ${meok[900]};
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: none;
+  outline: none;
+  transition: border-color 0.18s ease;
+
+  &::placeholder {
+    color: ${meok[400]};
+  }
+
+  &:focus {
+    border-color: ${lightPalette.cheongrok[500]};
+  }
+`;
+
+const CharCount = styled.div`
+  text-align: right;
+  font-size: 12px;
+  color: ${meok[400]};
+  margin-top: 4px;
+`;
+
+const SubmitBtn = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 48px;
+  margin-top: 8px;
+  border: none;
+  border-radius: 14px;
+  background: ${lightPalette.cheongrok[500]};
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(30, 122, 104, 0.28);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover:not(:disabled) {
+    background: ${lightPalette.cheongrok[700]};
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(30, 122, 104, 0.35);
+  }
+
+  &:disabled {
+    background: ${meok[400]};
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+`;
+
+export default function WriteWarmthModal({
+  isOpen,
+  onClose,
+  defaultPlace,
+}: WriteWarmthModalProps) {
+  const [mood, setMood] = useState<'한적' | '북적'>('한적');
+  const [text, setText] = useState('');
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const setWarmths = useMapStore((s) => s.setWarmths);
+  const searchCenter = useMapStore((s) => s.searchCenter);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!text.trim()) return;
+
+    const placeId = defaultPlace?.id || `custom-${Date.now()}`;
+    const placeName = defaultPlace?.name || '우리 동네 한옥';
+    const lat = defaultPlace?.lat || searchCenter.lat;
+    const lng = defaultPlace?.lng || searchCenter.lng;
+
+    // 로컬 저장소에 온기 추가
+    addWarmth({
+      placeId,
+      placeName,
+      lat,
+      lng,
+      text: text.trim(),
+      mood,
+    });
+
+    // Zustand 스토어 업데이트
+    setWarmths(loadWarmth());
+
+    setIsSuccess(true);
+    setTimeout(() => {
+      setIsSuccess(false);
+      setText('');
+      onClose();
+    }, 900);
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <Overlay $open={isOpen} onClick={onClose} role="dialog" aria-modal="true">
+      <ModalCard $open={isOpen} onClick={(e) => e.stopPropagation()}>
+        <ModalHeader>
+          <ModalTitle>
+            <Flame size={20} color={lightPalette.juhong[500]} />
+            <span>온기 한 줄 남기기</span>
+          </ModalTitle>
+          <CloseBtn type="button" onClick={onClose} aria-label="닫기">
+            <X size={18} />
+          </CloseBtn>
+        </ModalHeader>
+
+        {defaultPlace && (
+          <PlaceNameBadge>
+            <span>📍</span>
+            <span>{defaultPlace.name}</span>
+          </PlaceNameBadge>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <FormSection>
+            <SectionLabel>현재 이 장소의 분위기</SectionLabel>
+            <MoodButtonGroup>
+              <MoodButton
+                type="button"
+                $type="quiet"
+                $active={mood === '한적'}
+                onClick={() => setMood('한적')}
+              >
+                <Leaf size={16} />
+                <span>한적해요</span>
+              </MoodButton>
+              <MoodButton
+                type="button"
+                $type="busy"
+                $active={mood === '북적'}
+                onClick={() => setMood('북적')}
+              >
+                <Users size={16} />
+                <span>북적여요</span>
+              </MoodButton>
+            </MoodButtonGroup>
+          </FormSection>
+
+          <FormSection>
+            <SectionLabel>이곳에 머문 느낌이나 꿀팁</SectionLabel>
+            <TextArea
+              value={text}
+              onChange={(e) => setText(e.target.value.slice(0, 80))}
+              placeholder="예: 마당에 피어난 배롱나무 꽃이 너무 예뻐요. 아침 일찍 방문을 추천합니다!"
+              required
+            />
+            <CharCount>{text.length} / 80자</CharCount>
+          </FormSection>
+
+          <SubmitBtn type="submit" disabled={!text.trim() || isSuccess}>
+            {isSuccess ? (
+              <>
+                <Check size={18} />
+                <span>온기가 따뜻하게 남겨졌습니다!</span>
+              </>
+            ) : (
+              <span>온기 등록하기</span>
+            )}
+          </SubmitBtn>
+        </form>
+      </ModalCard>
+    </Overlay>
+  );
+}

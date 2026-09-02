@@ -11,6 +11,7 @@ import { usePlaceDetail } from '../hooks/usePlaceDetail';
 import { formatDistance } from '../utils/formatters';
 import { createKakaoNavigationLinks } from '../utils/navigation';
 import PlaceDetailCarousel from './detail/PlaceDetailCarousel';
+import PlaceWarmthSection from './warmth/PlaceWarmthSection';
 import {
   DetailWrapper,
   HeaderBar,
@@ -345,6 +346,15 @@ export default function PlaceDetail() {
                   </ToggleMoreBtn>
                 )}
               </OverviewSection>
+            )}
+
+            {detailId && (
+              <PlaceWarmthSection
+                placeId={detailId}
+                placeName={title}
+                lat={lat}
+                lng={lng}
+              />
             )}
           </>
         )}
