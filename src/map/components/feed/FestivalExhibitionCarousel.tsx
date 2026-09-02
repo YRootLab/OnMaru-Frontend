@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useRef } from 'react';
 import styled from '@emotion/styled';
 import Image from 'next/image';
-import { Calendar, ChevronRight, MapPin, Sparkles } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useMapStore } from '../../hooks/useMapStore';
 import type { Item } from '../../types';
@@ -42,6 +42,36 @@ const BadgeTitle = styled.span`
   color: ${lightPalette.juhong[500]};
 `;
 
+const RightControls = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
+
+const NavArrowBtn = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid rgba(78, 89, 104, 0.16);
+  background: #ffffff;
+  color: ${meok[700]};
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: rgba(232, 90, 24, 0.08);
+    color: ${lightPalette.juhong[500]};
+    border-color: ${lightPalette.juhong[500]};
+  }
+
+  &:active {
+    transform: scale(0.92);
+  }
+`;
+
 const MoreBtn = styled.button`
   display: flex;
   align-items: center;
@@ -63,6 +93,8 @@ const Scroller = styled.div`
   display: flex;
   gap: 12px;
   overflow-x: auto;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
   scrollbar-width: none;
   padding-bottom: 8px;
 
@@ -74,6 +106,7 @@ const Scroller = styled.div`
 const FestivalCard = styled.button`
   flex: none;
   width: 220px;
+  scroll-snap-align: start;
   border: 1px solid rgba(78, 89, 104, 0.12);
   border-radius: 14px;
   background: #ffffff;
@@ -199,23 +232,34 @@ const FALLBACK_FESTIVALS: Item[] = [
 ];
 
 export default function FestivalExhibitionCarousel({ festivals }: FestivalExhibitionCarouselProps) {
+  const scrollerRef = useRef<HTMLDivElement>(null);
   const map = useMapStore((s) => s.map);
   const setCategory = useMapStore((s) => s.setCategory);
 
   const displayList = festivals.length > 0 ? festivals : FALLBACK_FESTIVALS;
 
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollerRef.current) {
+      const scrollAmount = direction === 'left' ? -230 : 230;
+      scrollerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
+  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    if (scrollerRef.current && Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      scrollerRef.current.scrollLeft += e.deltaY;
+    }
+  };
+
   const handleClick = (item: Item) => {
     const store = useMapStore.getState();
-    // 1. 해당 장소가 전역 store items에 없으면 주입하여 PlaceDetail이 사진/정보를 즉시 읽도록 보장
     if (!store.items.some((i) => i.id === item.id)) {
       store.setItems([item, ...store.items]);
     }
-    // 2. 우측 상세 패널 열기
     store.setSelectedId(item.id);
     store.setDetailId(item.id);
     store.setSheetSnap('full');
 
-    // 3. 지도 이동
     if (map && window.kakao?.maps) {
       map.panTo(new window.kakao.maps.LatLng(item.lat, item.lng));
       map.setLevel(4, { animate: true });
@@ -230,13 +274,22 @@ export default function FestivalExhibitionCarousel({ festivals }: FestivalExhibi
           <SectionTitle>진행 중인 지역 축제 & 기획전</SectionTitle>
           <BadgeTitle>LIVE</BadgeTitle>
         </TitleGroup>
-        <MoreBtn type="button" onClick={() => setCategory('festival')}>
-          <span>전체보기</span>
-          <ChevronRight size={14} />
-        </MoreBtn>
+
+        <RightControls>
+          <NavArrowBtn type="button" onClick={() => scroll('left')} aria-label="이전 축제">
+            <ChevronLeft size={15} />
+          </NavArrowBtn>
+          <NavArrowBtn type="button" onClick={() => scroll('right')} aria-label="다음 축제">
+            <ChevronRight size={15} />
+          </NavArrowBtn>
+          <MoreBtn type="button" onClick={() => setCategory('festival')}>
+            <span>더보기</span>
+            <ChevronRight size={13} />
+          </MoreBtn>
+        </RightControls>
       </SectionHeader>
 
-      <Scroller role="region" aria-label="진행 중인 지역 축제 목록">
+      <Scroller ref={scrollerRef} onWheel={handleWheel} role="region" aria-label="진행 중인 지역 축제 목록">
         {displayList.map((item) => (
           <FestivalCard key={item.id} type="button" onClick={() => handleClick(item)}>
             <ThumbBox>

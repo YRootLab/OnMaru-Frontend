@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useRef } from 'react';
 import styled from '@emotion/styled';
 import Image from 'next/image';
-import { Star, MapPin, ChevronRight, Award, Coffee, Home, Sparkles } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Award, Sparkles } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useMapStore } from '../../hooks/useMapStore';
 import type { Item } from '../../types';
@@ -13,14 +13,14 @@ interface SmartAroundFeedProps {
 }
 
 const Wrapper = styled.div`
-  padding: 10px 14px 14px;
+  padding: 12px 14px 14px;
 `;
 
 const Header = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 `;
 
 const TitleBox = styled.div`
@@ -42,27 +42,68 @@ const SubText = styled.span`
   color: ${lightPalette.cheongrok[500]};
 `;
 
-const Grid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+const NavButtonGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`;
+
+const NavArrowBtn = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid rgba(78, 89, 104, 0.16);
+  background: #ffffff;
+  color: ${meok[700]};
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: rgba(40, 110, 95, 0.08);
+    color: ${lightPalette.cheongrok[700]};
+    border-color: ${lightPalette.cheongrok[500]};
+  }
+
+  &:active {
+    transform: scale(0.92);
+  }
+`;
+
+const Scroller = styled.div`
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding-bottom: 6px;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const CuratedCard = styled.button`
+  flex: none;
+  width: 190px;
+  scroll-snap-align: start;
   display: flex;
   flex-direction: column;
   border: 1px solid rgba(78, 89, 104, 0.12);
-  border-radius: 12px;
+  border-radius: 14px;
   background: #ffffff;
   overflow: hidden;
   text-align: left;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(25, 31, 40, 0.05);
+  box-shadow: 0 2px 8px rgba(25, 31, 40, 0.06);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 14px rgba(25, 31, 40, 0.1);
+    box-shadow: 0 6px 16px rgba(25, 31, 40, 0.12);
     border-color: ${lightPalette.cheongrok[500]};
   }
 
@@ -88,7 +129,7 @@ const PhotoBadge = styled.div`
   gap: 2px;
   padding: 2px 6px;
   border-radius: 9999px;
-  background: rgba(25, 31, 40, 0.7);
+  background: rgba(25, 31, 40, 0.72);
   backdrop-filter: blur(4px);
   color: #ffffff;
   font-size: 9.5px;
@@ -145,20 +186,40 @@ function getMoodReview(name: string, category: string): string {
 }
 
 export default function SmartAroundFeed({ items }: SmartAroundFeedProps) {
+  const scrollerRef = useRef<HTMLDivElement>(null);
   const map = useMapStore((s) => s.map);
   const setSelectedId = useMapStore((s) => s.setSelectedId);
   const setDetailId = useMapStore((s) => s.setDetailId);
 
-  // 이미지가 있고 매력적인 상위 4개 장소 선별
+  // 이미지가 있고 매력적인 상위 12개 장소 선별
   const curatedSpots = items
     .filter((item) => Boolean(item.image))
-    .slice(0, 4);
+    .slice(0, 12);
 
   if (curatedSpots.length === 0) return null;
 
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollerRef.current) {
+      const scrollAmount = direction === 'left' ? -200 : 200;
+      scrollerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
+  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    if (scrollerRef.current && Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      scrollerRef.current.scrollLeft += e.deltaY;
+    }
+  };
+
   const handleClick = (item: Item) => {
-    setSelectedId(item.id);
-    setDetailId(item.id);
+    const store = useMapStore.getState();
+    if (!store.items.some((i) => i.id === item.id)) {
+      store.setItems([item, ...store.items]);
+    }
+    store.setSelectedId(item.id);
+    store.setDetailId(item.id);
+    store.setSheetSnap('full');
+
     if (map && window.kakao?.maps) {
       map.panTo(new window.kakao.maps.LatLng(item.lat, item.lng));
       map.setLevel(3, { animate: true });
@@ -173,9 +234,18 @@ export default function SmartAroundFeed({ items }: SmartAroundFeedProps) {
           <Title>이번 주 추천 한옥 스팟</Title>
           <SubText>Smart Pick</SubText>
         </TitleBox>
+
+        <NavButtonGroup>
+          <NavArrowBtn type="button" onClick={() => scroll('left')} aria-label="이전 추천 스팟">
+            <ChevronLeft size={15} />
+          </NavArrowBtn>
+          <NavArrowBtn type="button" onClick={() => scroll('right')} aria-label="다음 추천 스팟">
+            <ChevronRight size={15} />
+          </NavArrowBtn>
+        </NavButtonGroup>
       </Header>
 
-      <Grid>
+      <Scroller ref={scrollerRef} onWheel={handleWheel} role="region" aria-label="추천 한옥 스팟 가로 슬라이더">
         {curatedSpots.map((item) => (
           <CuratedCard key={item.id} type="button" onClick={() => handleClick(item)}>
             <PhotoBox>
@@ -183,7 +253,7 @@ export default function SmartAroundFeed({ items }: SmartAroundFeedProps) {
                 src={item.image!}
                 alt={item.name}
                 fill
-                sizes="160px"
+                sizes="190px"
                 style={{ objectFit: 'cover' }}
                 unoptimized
               />
@@ -203,7 +273,7 @@ export default function SmartAroundFeed({ items }: SmartAroundFeedProps) {
             </Body>
           </CuratedCard>
         ))}
-      </Grid>
+      </Scroller>
     </Wrapper>
   );
 }
