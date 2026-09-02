@@ -6,7 +6,6 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { LocalMiniPlayer } from './LocalMiniPlayer';
 import { SavedSoundDrawer } from './SavedSoundDrawer';
 import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
-import { MOCK_ODII_STORIES } from '../api/odiiMockData';
 import { OdiiStoryItem, IOdiiApiService } from '../types/odii.types';
 import { useOdiiApiService } from '../context/OdiiDependencyContext';
 
@@ -54,11 +53,28 @@ function PlayGlyph({ playing = false }: { playing?: boolean }) {
   );
 }
 
+const placeholderStory: OdiiStoryItem = {
+  tid: '',
+  tlid: '',
+  stid: '',
+  stlid: '',
+  title: '한국의 문화유산',
+  audioTitle: '오디오로 걷는 고택 산책',
+  speaker: '문화해설사',
+  category: '한옥',
+  mapX: '126.9780',
+  mapY: '37.5665',
+  script: '장소에 머무는 시간을 소리로 만나보세요.',
+  playTime: '300',
+  audioUrl: '',
+  imageUrl: FALLBACK_IMAGE,
+};
+
 export const OdiiFreeformFeature: React.FC<OdiiFreeformFeatureProps> = ({ apiService }) => {
   const activeApiService = useOdiiApiService(apiService);
-  const [storyPool, setStoryPool] = useState<OdiiStoryItem[]>(MOCK_ODII_STORIES);
-  const [topicStories, setTopicStories] = useState<OdiiStoryItem[]>(MOCK_ODII_STORIES.slice(0, 3));
-  const [nearbyStories, setNearbyStories] = useState<OdiiStoryItem[]>(MOCK_ODII_STORIES.slice(0, 4));
+  const [storyPool, setStoryPool] = useState<OdiiStoryItem[]>([]);
+  const [topicStories, setTopicStories] = useState<OdiiStoryItem[]>([]);
+  const [nearbyStories, setNearbyStories] = useState<OdiiStoryItem[]>([]);
   const [activeTopic, setActiveTopic] = useState('한옥');
   const [activeIndex, setActiveIndex] = useState(0);
   const [nearbyIndex, setNearbyIndex] = useState(0);
@@ -118,12 +134,12 @@ export const OdiiFreeformFeature: React.FC<OdiiFreeformFeatureProps> = ({ apiSer
   }, [activeTopic, storyPool]);
 
   const safeActiveIndex = Math.min(activeIndex, Math.max(topicStories.length - 1, 0));
-  const activeStory = topicStories[safeActiveIndex] || topicStories[0] || MOCK_ODII_STORIES[0];
+  const activeStory = topicStories[safeActiveIndex] || topicStories[0] || placeholderStory;
   const activeTopicMeta = TOPICS.find((topic) => topic.keyword === activeTopic) || TOPICS[0];
   const savedIds = useMemo(() => new Set(savedStories.map((story) => story.stid)), [savedStories]);
-  const archiveStories = useMemo(() => uniqueStories([...storyPool, ...MOCK_ODII_STORIES]), [storyPool]);
+  const archiveStories = useMemo(() => uniqueStories(storyPool), [storyPool]);
   const safeNearbyIndex = Math.min(nearbyIndex, Math.max(nearbyStories.length - 1, 0));
-  const nearbyStory = nearbyStories[safeNearbyIndex] || nearbyStories[0] || MOCK_ODII_STORIES[0];
+  const nearbyStory = nearbyStories[safeNearbyIndex] || nearbyStories[0] || placeholderStory;
   const isActivePlaying = currentStory.stid === activeStory.stid && isPlaying;
   const isNearbyPlaying = currentStory.stid === nearbyStory.stid && isPlaying;
 
@@ -197,7 +213,7 @@ export const OdiiFreeformFeature: React.FC<OdiiFreeformFeatureProps> = ({ apiSer
     setIsRefreshing(true);
     try {
       const page = await activeApiService.getStoryPage('전체', '', 1, 24);
-      setStoryPool(uniqueStories(page.items.length ? page.items : MOCK_ODII_STORIES));
+      setStoryPool(uniqueStories(page.items));
     } finally {
       setIsRefreshing(false);
     }

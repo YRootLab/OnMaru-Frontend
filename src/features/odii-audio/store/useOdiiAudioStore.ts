@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { OdiiStoryItem, ScriptLine } from '../types/odii.types';
-import { MOCK_ODII_STORIES, parseScriptToLines } from '../api/odiiMockData';
+import { parseScriptToLines } from '../utils/scriptParser';
 
 interface OdiiAudioState {
   currentStory: OdiiStoryItem;
@@ -31,19 +31,30 @@ interface OdiiAudioState {
   skipBackward: (seconds?: number) => void;
 }
 
-const initialStory = MOCK_ODII_STORIES[0];
-const initialParsedScript = parseScriptToLines(
-  initialStory.script,
-  parseInt(initialStory.playTime, 10) || 494
-);
+const initialStory: OdiiStoryItem = {
+  tid: '',
+  tlid: '',
+  stid: '',
+  stlid: '',
+  title: '온마루 오디오 해설',
+  audioTitle: '한국의 문화유산 이야기',
+  speaker: '문화해설사 도슨트',
+  category: '한옥',
+  mapX: '126.9780',
+  mapY: '37.5665',
+  script: '장소에 머무는 시간을 소리로 만나보세요.',
+  playTime: '300',
+  audioUrl: '',
+  imageUrl: 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80',
+};
 
 export const useOdiiAudioStore = create<OdiiAudioState>((set, get) => ({
   currentStory: initialStory,
   isPlaying: false,
   currentTime: 0,
-  duration: parseInt(initialStory.playTime, 10) || 494,
+  duration: 300,
   activeScriptIndex: 0,
-  parsedScriptLines: initialParsedScript,
+  parsedScriptLines: [],
   selectedCategory: '전체',
   searchQuery: '',
   isBookmarked: false,

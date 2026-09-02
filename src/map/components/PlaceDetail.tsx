@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { X, Share2, Navigation, RefreshCw, AlertCircle, Check, Award, Compass, Play } from 'lucide-react';
 import { logger } from '@/lib/log';
 import { lightPalette, meok } from '@/design-system/tokens';
-import { findMatchingOdiiStory } from '@/features/odii-audio/utils/matchOdiiStory';
+import { useOdiiPlaceStory } from '@/features/odii-audio/hooks/useOdiiPlaceStory';
 import { useCinematicTourStore } from '@/features/cinematic-tour/store/useCinematicTourStore';
 import { useMapStore } from '../hooks/useMapStore';
 import { usePlaceDetail } from '../hooks/usePlaceDetail';
@@ -153,9 +153,10 @@ export default function PlaceDetail() {
 
   const navLinks = createKakaoNavigationLinks(title, lat, lng);
 
-  const matchedOdiiStory = useMemo(
-    () => findMatchingOdiiStory(title, lat, lng),
-    [title, lat, lng],
+  const { story: matchedOdiiStory } = useOdiiPlaceStory(
+    title,
+    hasValidCoords ? lat : undefined,
+    hasValidCoords ? lng : undefined,
   );
 
   const startTour = useCinematicTourStore((s) => s.startTour);
