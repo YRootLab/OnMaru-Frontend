@@ -6,7 +6,8 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import styled from '@emotion/styled';
-import { lightPalette, darkPalette, meok, surface } from '@/design-system/tokens';
+import { transientProps } from '@/design-system/styled';
+import { lightPalette, meok } from '@/design-system/tokens';
 
 interface LandingProps {
   $isLanding?: boolean;
@@ -16,7 +17,7 @@ interface LandingProps {
   $isHidden?: boolean;
 }
 
-const NavigationBackdrop = styled(motion.div)<LandingProps>`
+const NavigationBackdrop = styled(motion.div, transientProps)<LandingProps>`
   position: fixed;
   inset: 0;
   z-index: 99;
@@ -30,7 +31,7 @@ const NavigationBackdrop = styled(motion.div)<LandingProps>`
   }
 `;
 
-const HeaderContainer = styled.header<LandingProps>`
+const HeaderContainer = styled('header', transientProps)<LandingProps>`
   position: fixed;
   top: 12px;
   left: 24px;
@@ -68,10 +69,7 @@ const HeaderContainer = styled.header<LandingProps>`
     $isLanding
       ? $isScrolled ? 'rgba(255, 248, 235, 0.18)' : 'rgba(255, 248, 235, 0.13)'
       : $isScrolled ? 'rgba(77, 68, 55, 0.13)' : 'rgba(77, 68, 55, 0.1)'};
-  box-shadow: ${({ $isLanding, $isScrolled }) =>
-    $isLanding
-      ? $isScrolled ? '0 12px 32px rgba(0, 0, 0, 0.3)' : '0 8px 24px rgba(0, 0, 0, 0.18)'
-      : $isScrolled ? '0 12px 32px rgba(47, 39, 29, 0.1)' : '0 8px 24px rgba(47, 39, 29, 0.07)'};
+
   transform: translateY(${({ $isHidden }) => ($isHidden ? 'calc(-100% - 16px)' : '0')});
   transition:
     transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
@@ -127,7 +125,7 @@ const CenterNav = styled.nav`
   }
 `;
 
-const NavLink = styled(Link)<LandingProps>`
+const NavLink = styled(Link, transientProps)<LandingProps>`
   position: relative;
   font-family: 'SpoqaHanSansNeo', sans-serif;
   font-size: 14px;
@@ -170,9 +168,9 @@ const DropdownWrapper = styled.div`
   align-items: center;
 `;
 
-const DropdownTrigger = styled.button<LandingProps>`
+const DropdownTrigger = styled('button', transientProps)<LandingProps>`
   background: none;
-  border: none;
+
   outline: none;
   cursor: pointer;
   font-family: 'SpoqaHanSansNeo', sans-serif;
@@ -202,7 +200,7 @@ const ChevronIcon = styled(motion.svg)`
   stroke-linejoin: round;
 `;
 
-const DropdownMenu = styled(motion.div)<LandingProps>`
+const DropdownMenu = styled(motion.div, transientProps)<LandingProps>`
   position: absolute;
   top: calc(100% + 10px);
   /* 메뉴 텍스트의 시작선을 트리거 "지도"의 첫 글자와 맞춘다. */
@@ -214,23 +212,17 @@ const DropdownMenu = styled(motion.div)<LandingProps>`
       : $isScrolled ? 'rgba(244, 243, 239, 0.82)' : 'rgba(248, 247, 244, 0.68)'};
   backdrop-filter: blur(${({ $isScrolled }) => ($isScrolled ? '22px' : '16px')}) saturate(150%);
   -webkit-backdrop-filter: blur(${({ $isScrolled }) => ($isScrolled ? '22px' : '16px')}) saturate(150%);
-  border: 1px solid ${({ $isLanding, $isScrolled }) =>
-    $isLanding
-      ? $isScrolled ? 'rgba(255, 248, 235, 0.18)' : 'rgba(255, 248, 235, 0.13)'
-      : $isScrolled ? 'rgba(77, 68, 55, 0.13)' : 'rgba(77, 68, 55, 0.1)'};
+
   border-radius: 16px;
   padding: 4px;
-  box-shadow: ${({ $isLanding, $isScrolled }) =>
-    $isLanding
-      ? $isScrolled ? '0 12px 32px rgba(0, 0, 0, 0.3)' : '0 8px 24px rgba(0, 0, 0, 0.18)'
-      : $isScrolled ? '0 12px 32px rgba(47, 39, 29, 0.1)' : '0 8px 24px rgba(47, 39, 29, 0.07)'};
+
   display: flex;
   flex-direction: column;
   gap: 2px;
   z-index: 101;
 `;
 
-const DropdownItem = styled(Link)<LandingProps>`
+const DropdownItem = styled(Link, transientProps)<LandingProps>`
   font-family: 'SpoqaHanSansNeo', sans-serif;
   font-size: 13px;
   font-weight: 400;
@@ -279,7 +271,7 @@ const MobileTabNav = styled.nav`
   }
 `;
 
-const MobileTabLink = styled(Link)<LandingProps>`
+const MobileTabLink = styled(Link, transientProps)<LandingProps>`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -311,7 +303,7 @@ const MobileTabIcon = styled.svg`
   stroke-linejoin: round;
 `;
 
-const MobileMenuButton = styled.button<LandingProps>`
+const MobileMenuButton = styled('button', transientProps)<LandingProps>`
   width: 34px;
   height: 34px;
   padding: 0;
@@ -319,7 +311,7 @@ const MobileMenuButton = styled.button<LandingProps>`
   place-items: center;
   color: ${({ $isLanding }) => ($isLanding ? '#faf9f6' : meok[900])};
   background: ${({ $isLanding }) => ($isLanding ? 'rgba(255, 248, 235, 0.1)' : 'rgba(77, 68, 55, 0.06)')};
-  border: 1px solid ${({ $isLanding }) => ($isLanding ? 'rgba(255, 248, 235, 0.15)' : 'rgba(77, 68, 55, 0.1)')};
+
   border-radius: 10px;
   cursor: pointer;
   transition: background-color 180ms ease, transform 180ms ease;
@@ -327,7 +319,7 @@ const MobileMenuButton = styled.button<LandingProps>`
   &:active { transform: scale(0.96); }
 `;
 
-const MobileMenuPanel = styled(motion.nav)<LandingProps>`
+const MobileMenuPanel = styled(motion.nav, transientProps)<LandingProps>`
   position: absolute;
   top: calc(100% + 10px);
   right: 0;
@@ -342,12 +334,12 @@ const MobileMenuPanel = styled(motion.nav)<LandingProps>`
       : $isScrolled ? 'rgba(244, 243, 239, 0.9)' : 'rgba(248, 247, 244, 0.8)'};
   backdrop-filter: blur(22px) saturate(150%);
   -webkit-backdrop-filter: blur(22px) saturate(150%);
-  border: 1px solid ${({ $isLanding }) => ($isLanding ? 'rgba(255, 248, 235, 0.18)' : 'rgba(77, 68, 55, 0.13)')};
+
   border-radius: 16px;
-  box-shadow: ${({ $isLanding }) => ($isLanding ? '0 14px 32px rgba(0, 0, 0, 0.3)' : '0 14px 32px rgba(47, 39, 29, 0.12)')};
+
 `;
 
-const MobileMenuLink = styled(Link)<LandingProps>`
+const MobileMenuLink = styled(Link, transientProps)<LandingProps>`
   min-height: 44px;
   padding: 0 12px;
   display: flex;
@@ -363,19 +355,19 @@ const MobileMenuLink = styled(Link)<LandingProps>`
   }
 `;
 
-const MobileMenuDivider = styled.div<LandingProps>`
+const MobileMenuDivider = styled('div', transientProps)<LandingProps>`
   height: 1px;
   margin: 4px 6px;
   background: ${({ $isLanding }) => ($isLanding ? 'rgba(255, 248, 235, 0.13)' : 'rgba(77, 68, 55, 0.1)')};
 `;
 
-const LoginButton = styled(Link)<LandingProps>`
+const LoginButton = styled(Link, transientProps)<LandingProps>`
   font-family: 'SpoqaHanSansNeo', sans-serif;
   font-size: 13px;
   font-weight: 500;
   color: ${({ $isLanding, $isOdii }) => ($isOdii ? '#ffffff' : $isLanding ? meok[900] : '#faf9f6')};
   background: ${({ $isLanding, $isOdii }) => ($isOdii ? lightPalette.jangmi[500] : $isLanding ? 'rgba(250, 247, 240, 0.92)' : 'rgba(38, 35, 31, 0.92)')};
-  border: 1px solid ${({ $isLanding, $isOdii }) => ($isOdii ? 'rgba(212, 32, 88, 0.4)' : $isLanding ? 'rgba(255, 255, 255, 0.42)' : 'rgba(28, 26, 23, 0.18)')};
+
   border-radius: 999px;
   height: 32px;
   padding: 0 13px 0 14px;
@@ -384,12 +376,12 @@ const LoginButton = styled(Link)<LandingProps>`
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  box-shadow: ${({ $isLanding, $isOdii }) => ($isOdii ? '0 4px 12px rgba(212, 32, 88, 0.24)' : $isLanding ? '0 4px 12px rgba(0, 0, 0, 0.18)' : '0 3px 10px rgba(47, 39, 29, 0.1)')};
+
   transition: transform 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
 
   &:hover {
     background: ${({ $isLanding, $isOdii }) => ($isOdii ? lightPalette.jangmi[400] : $isLanding ? '#ffffff' : '#514a42')};
-    box-shadow: ${({ $isLanding, $isOdii }) => ($isOdii ? '0 6px 16px rgba(212, 32, 88, 0.32)' : $isLanding ? '0 6px 16px rgba(0, 0, 0, 0.24)' : '0 5px 14px rgba(47, 39, 29, 0.16)')};
+
     transform: translateY(-1px);
 
     & > svg { transform: translateX(1px); }
@@ -402,6 +394,7 @@ const LoginButton = styled(Link)<LandingProps>`
 
 export default function Header() {
   const pathname = usePathname();
+  const isMapPage = pathname.startsWith('/map');
   const isLandingPage = pathname === '/';
   const isOdiiPage = pathname.startsWith('/odii');
   const [isMapMenuOpen, setIsMapMenuOpen] = useState(false);
@@ -501,6 +494,9 @@ export default function Header() {
     return () => window.cancelAnimationFrame(frameId);
   }, [isMapMenuOpen, isMobileMenuOpen, isLandingPage]);
 
+  // 지도 페이지에서는 전체 화면 지도 몰입을 위해 전역 헤더를 숨긴다.
+  if (isMapPage) return null;
+
   const isNavigationOpen = isMapMenuOpen || isMobileMenuOpen;
 
   return (
@@ -528,91 +524,91 @@ export default function Header() {
       >
         {/* 맨 왼쪽: logo.png */}
         <LeftSection>
-        <LogoLink href="/" aria-label="온마루 홈으로 이동">
-          <Image
-            src="/logo.png"
-            alt="온마루 로고"
-            width={110}
-            height={32}
-            style={{ objectFit: 'contain', height: '32px', width: 'auto' }}
-            priority
-          />
-        </LogoLink>
+          <LogoLink href="/" aria-label="온마루 홈으로 이동">
+            <Image
+              src="/logo.png"
+              alt="온마루 로고"
+              width={110}
+              height={32}
+              style={{ objectFit: 'contain', height: '32px', width: 'auto' }}
+              priority
+            />
+          </LogoLink>
         </LeftSection>
 
-      {/* 가운데: 한옥도감, 지도 (드롭다운), 소리마루 */}
-      <CenterNav>
-        <NavLink href="/hanok" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
-          한옥도감
-        </NavLink>
+        {/* 가운데: 한옥도감, 지도 (드롭다운), 소리마루 */}
+        <CenterNav>
+          <NavLink href="/hanok" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
+            한옥도감
+          </NavLink>
 
-        <DropdownWrapper
-          ref={dropdownRef}
-          onMouseEnter={() => setIsMapMenuOpen(true)}
-          onMouseLeave={() => setIsMapMenuOpen(false)}
-        >
-          <DropdownTrigger
-            type="button"
-            onClick={() => setIsMapMenuOpen((prev) => !prev)}
-            aria-expanded={isMapMenuOpen}
-            aria-haspopup="true"
+          <DropdownWrapper
+            ref={dropdownRef}
+            onMouseEnter={() => setIsMapMenuOpen(true)}
+            onMouseLeave={() => setIsMapMenuOpen(false)}
+          >
+            <DropdownTrigger
+              type="button"
+              onClick={() => setIsMapMenuOpen((prev) => !prev)}
+              aria-expanded={isMapMenuOpen}
+              aria-haspopup="true"
+              $isLanding={usesDarkSurface}
+              $isOdii={isOdiiPage}
+            >
+              지도
+              <ChevronIcon
+                viewBox="0 0 24 24"
+                animate={{ rotate: isMapMenuOpen ? 180 : 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </ChevronIcon>
+            </DropdownTrigger>
+
+            <AnimatePresence>
+              {isMapMenuOpen && (
+                <DropdownMenu
+                  $isLanding={usesDarkSurface}
+                  $isScrolled={isScrolled}
+                  initial={{ opacity: 0, y: -8, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -5, scale: 0.98 }}
+                  transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <DropdownItem
+                    href="/map"
+                    $isLanding={usesDarkSurface}
+                    $isOdii={isOdiiPage}
+                    onClick={() => setIsMapMenuOpen(false)}
+                  >
+                    정보지도
+                  </DropdownItem>
+                  <DropdownItem
+                    href="/map?mode=warmth"
+                    $isLanding={usesDarkSurface}
+                    $isOdii={isOdiiPage}
+                    onClick={() => setIsMapMenuOpen(false)}
+                  >
+                    온기지도
+                  </DropdownItem>
+                </DropdownMenu>
+              )}
+            </AnimatePresence>
+          </DropdownWrapper>
+
+          <NavLink href="/odii" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
+            소리마루
+          </NavLink>
+
+          {/* 임시 UI 비교 페이지 링크: 스터디 종료 후 이 블록만 제거 */}
+          <NavLink
+            href="/odii/section2-ui-improvements"
             $isLanding={usesDarkSurface}
             $isOdii={isOdiiPage}
           >
-            지도
-            <ChevronIcon
-              viewBox="0 0 24 24"
-              animate={{ rotate: isMapMenuOpen ? 180 : 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <polyline points="6 9 12 15 18 9" />
-            </ChevronIcon>
-          </DropdownTrigger>
-
-          <AnimatePresence>
-            {isMapMenuOpen && (
-              <DropdownMenu
-                $isLanding={usesDarkSurface}
-                $isScrolled={isScrolled}
-                initial={{ opacity: 0, y: -8, scale: 0.97 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -5, scale: 0.98 }}
-                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <DropdownItem
-                  href="/map"
-                  $isLanding={usesDarkSurface}
-                  $isOdii={isOdiiPage}
-                  onClick={() => setIsMapMenuOpen(false)}
-                >
-                  정보지도
-                </DropdownItem>
-                <DropdownItem
-                  href="/map?mode=warmth"
-                  $isLanding={usesDarkSurface}
-                  $isOdii={isOdiiPage}
-                  onClick={() => setIsMapMenuOpen(false)}
-                >
-                  온기지도
-                </DropdownItem>
-              </DropdownMenu>
-            )}
-          </AnimatePresence>
-        </DropdownWrapper>
-
-        <NavLink href="/odii" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
-          소리마루
-        </NavLink>
-
-        {/* 임시 UI 비교 페이지 링크: 스터디 종료 후 이 블록만 제거 */}
-        <NavLink
-          href="/odii/section2-ui-improvements"
-          $isLanding={usesDarkSurface}
-          $isOdii={isOdiiPage}
-        >
-          임시 카드들
-        </NavLink>
-      </CenterNav>
+            임시 카드들
+          </NavLink>
+        </CenterNav>
 
       {/* 오른쪽 끝: 로그인 */}
       <RightSection>

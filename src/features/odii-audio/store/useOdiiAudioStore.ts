@@ -1,9 +1,11 @@
 import { create } from 'zustand';
-import { OdiiStoryItem, ScriptLine } from '../types/odii.types';
-import { MOCK_ODII_STORIES, parseScriptToLines } from '../api/odiiMockData';
+import { OdiiStoryItem, ScriptLine } from '@/features/odii-audio/types/odii.types';
+import { parseScriptToLines } from '@/features/odii-audio/utils/scriptParser';
+import { odiiApiAdapter } from '@/features/odii-audio/api/odiiApi';
 
 interface OdiiAudioState {
   currentStory: OdiiStoryItem;
+  availableStories: OdiiStoryItem[];
   isPlaying: boolean;
   currentTime: number;
   duration: number;
@@ -15,6 +17,8 @@ interface OdiiAudioState {
   isPlayerExpanded: boolean;
 
   // Actions
+  setAvailableStories: (stories: OdiiStoryItem[]) => void;
+  fetchRegionalOdiiStories: (lng?: number, lat?: number) => Promise<void>;
   setCurrentStory: (story: OdiiStoryItem) => void;
   selectStory: (story: OdiiStoryItem) => void;
   setIsPlaying: (isPlaying: boolean) => void;
@@ -31,23 +35,72 @@ interface OdiiAudioState {
   skipBackward: (seconds?: number) => void;
 }
 
-const initialStory = MOCK_ODII_STORIES[0];
-const initialParsedScript = parseScriptToLines(
-  initialStory.script,
-  parseInt(initialStory.playTime, 10) || 494
-);
+const emptyStory: OdiiStoryItem = {
+  tid: '',
+  tlid: '',
+  stid: '',
+  stlid: '',
+  title: '온마루 공간 오디오',
+  audioTitle: '한국의 문화유산 이야기',
+  speaker: '문화해설사 도슨트',
+  category: '한옥',
+  mapX: '126.9780',
+  mapY: '37.5665',
+  script: '장소에 머무는 시간을 소리로 만나보세요.',
+  playTime: '300',
+  audioUrl: '',
+  imageUrl: 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80',
+};
 
 export const useOdiiAudioStore = create<OdiiAudioState>((set, get) => ({
-  currentStory: initialStory,
+  currentStory: emptyStory,
+  availableStories: [],
   isPlaying: false,
   currentTime: 0,
-  duration: parseInt(initialStory.playTime, 10) || 494,
+  duration: 300,
   activeScriptIndex: 0,
-  parsedScriptLines: initialParsedScript,
+  parsedScriptLines: [],
   selectedCategory: '전체',
   searchQuery: '',
   isBookmarked: false,
   isPlayerExpanded: false,
+
+  setAvailableStories: (availableStories: OdiiStoryItem[]) => set({ availableStories }),
+
+  fetchRegionalOdiiStories: async (lng?: number, lat?: number) => {
+    try {
+      const keywords = ['한옥', '고택', '궁', '사찰', '마을'];
+      const requests: Promise<OdiiStoryItem[]>[] = [];
+
+      if (lng && lat) {
+        requests.push(odiiApiAdapter.getNearbyStories(String(lng), String(lat), 25000).catch(() => []));
+      }
+
+      for (const kw of keywords) {
+        requests.push(odiiApiAdapter.getStoryList(undefined, kw).catch(() => []));
+      }
+
+      const results = await Promise.all(requests);
+      const flattened = results.flat().filter((s) => Boolean(s.audioUrl));
+
+      const seen = new Set<string>();
+      const unique: OdiiStoryItem[] = [];
+      for (const story of flattened) {
+        const key = story.stid || story.title;
+        if (!seen.has(key)) {
+          seen.add(key);
+          unique.push(story);
+        }
+      }
+
+      set({ availableStories: unique });
+      if (!get().currentStory && unique.length > 0) {
+        set({ currentStory: unique[0] });
+      }
+    } catch {
+      // API 오류 시 빈 목록 유지
+    }
+  },
 
   setCurrentStory: (story: OdiiStoryItem) => {
     const playTimeSec = parseInt(story.playTime, 10) || 300;

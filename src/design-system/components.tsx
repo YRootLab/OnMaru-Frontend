@@ -6,6 +6,7 @@
 
 import styled       from '@emotion/styled'
 import { css }      from '@emotion/react'
+import { Moon, Sun } from 'lucide-react'
 import { useOnmaruTheme } from './ThemeProvider'
 import type { OnmaruTheme } from './tokens'
 
@@ -35,24 +36,19 @@ export const CTAButton = styled.button<{ size?: 'sm' | 'md' | 'lg' }>`
     return size === 'sm' ? t.typography.fontSize.sm : t.typography.fontSize.base
   }};
   font-weight:     ${({ theme }) => (theme as OnmaruTheme).typography.fontWeight.medium};
-  border:          none;
   border-radius:   ${({ theme }) => (theme as OnmaruTheme).borderRadius.lg};
   background:      ${({ theme }) => (theme as OnmaruTheme).colors.action.primary};
   color:           #ffffff;
   cursor:          pointer;
   transition:      ${({ theme }) => (theme as OnmaruTheme).transition.spring};
-  box-shadow:      ${({ theme }) => (theme as OnmaruTheme).shadow.sm};
-
   &:hover {
     background:  ${({ theme }) => (theme as OnmaruTheme).colors.action.primaryHover};
-    box-shadow:  ${({ theme }) => (theme as OnmaruTheme).shadow.glow};
     transform:   translateY(-1px);
   }
 
   &:active {
     background: ${({ theme }) => (theme as OnmaruTheme).colors.action.primaryPressed};
     transform:  translateY(0);
-    box-shadow: none;
   }
 
   &:disabled {
@@ -76,7 +72,6 @@ export const NavButton = styled.button`
   font-family:     ${({ theme }) => (theme as OnmaruTheme).typography.fontFamily.sans};
   font-size:       ${({ theme }) => (theme as OnmaruTheme).typography.fontSize.sm};
   font-weight:     ${({ theme }) => (theme as OnmaruTheme).typography.fontWeight.medium};
-  border:          1.5px solid ${({ theme }) => (theme as OnmaruTheme).colors.nav.primary};
   border-radius:   ${({ theme }) => (theme as OnmaruTheme).borderRadius.lg};
   background:      transparent;
   color:           ${({ theme }) => (theme as OnmaruTheme).colors.nav.primary};
@@ -108,7 +103,6 @@ export const DocentButton = styled.button`
   font-family:     ${({ theme }) => (theme as OnmaruTheme).typography.fontFamily.sans};
   font-size:       ${({ theme }) => (theme as OnmaruTheme).typography.fontSize.sm};
   font-weight:     ${({ theme }) => (theme as OnmaruTheme).typography.fontWeight.medium};
-  border:          1.5px solid ${({ theme }) => (theme as OnmaruTheme).colors.docent.primary};
   border-radius:   ${({ theme }) => (theme as OnmaruTheme).borderRadius.lg};
   background:      ${({ theme }) => (theme as OnmaruTheme).colors.docent.primaryBg};
   color:           ${({ theme }) => (theme as OnmaruTheme).colors.docent.primary};
@@ -135,7 +129,6 @@ export const StarBadge = styled.span`
   }};
   font-size:     ${({ theme }) => (theme as OnmaruTheme).typography.fontSize.xs};
   font-weight:   ${({ theme }) => (theme as OnmaruTheme).typography.fontWeight.medium};
-  border:        1px solid ${({ theme }) => (theme as OnmaruTheme).colors.badge.star};
   border-radius: ${({ theme }) => (theme as OnmaruTheme).borderRadius.full};
   background:    ${({ theme }) => (theme as OnmaruTheme).colors.badge.starBg};
   color:         ${({ theme }) => (theme as OnmaruTheme).colors.badge.starText};
@@ -154,7 +147,6 @@ export const InfoTag = styled.span`
   }};
   font-size:     ${({ theme }) => (theme as OnmaruTheme).typography.fontSize.xs};
   font-weight:   ${({ theme }) => (theme as OnmaruTheme).typography.fontWeight.medium};
-  border:        1px solid ${({ theme }) => (theme as OnmaruTheme).colors.info.primarySubtle};
   border-radius: ${({ theme }) => (theme as OnmaruTheme).borderRadius.full};
   background:    ${({ theme }) => (theme as OnmaruTheme).colors.info.primaryBg};
   color:         ${({ theme }) => (theme as OnmaruTheme).colors.info.primary};
@@ -165,16 +157,13 @@ export const InfoTag = styled.span`
  */
 export const HanokCard = styled.article`
   background:    ${({ theme }) => (theme as OnmaruTheme).colors.bg.card};
-  border:        0.5px solid ${({ theme }) => (theme as OnmaruTheme).colors.border.subtle};
   border-radius: ${({ theme }) => (theme as OnmaruTheme).borderRadius.xl};
   padding:       ${({ theme }) => (theme as OnmaruTheme).spacing[5]};
-  box-shadow:    ${({ theme }) => (theme as OnmaruTheme).shadow.sm};
   transition:    ${({ theme }) => (theme as OnmaruTheme).transition.normal};
   cursor:        pointer;
 
   &:hover {
     border-color: ${({ theme }) => (theme as OnmaruTheme).colors.action.primarySubtle};
-    box-shadow:   ${({ theme }) => (theme as OnmaruTheme).shadow.md};
     transform:    translateY(-2px);
   }
 `
@@ -192,7 +181,6 @@ export const SearchInput = styled.input`
   font-size:     ${({ theme }) => (theme as OnmaruTheme).typography.fontSize.sm};
   color:         ${({ theme }) => (theme as OnmaruTheme).colors.text.primary};
   background:    ${({ theme }) => (theme as OnmaruTheme).colors.bg.surface};
-  border:        1px solid ${({ theme }) => (theme as OnmaruTheme).colors.border.subtle};
   border-radius: ${({ theme }) => (theme as OnmaruTheme).borderRadius.lg};
   outline:       none;
   transition:    ${({ theme }) => (theme as OnmaruTheme).transition.fast};
@@ -203,7 +191,6 @@ export const SearchInput = styled.input`
 
   &:focus {
     border-color: ${({ theme }) => (theme as OnmaruTheme).colors.action.primary};
-    box-shadow:   0 0 0 3px ${({ theme }) => (theme as OnmaruTheme).colors.action.primaryBg};
   }
 `
 
@@ -220,7 +207,6 @@ export const BottomSheet = styled.div<{ expanded?: boolean }>`
                  ${({ theme }) => (theme as OnmaruTheme).borderRadius['2xl']}
                  0 0;
   border-top:    0.5px solid ${({ theme }) => (theme as OnmaruTheme).colors.border.subtle};
-  box-shadow:    ${({ theme }) => (theme as OnmaruTheme).shadow.xl};
   padding:       ${({ theme }) => (theme as OnmaruTheme).spacing[5]};
   z-index:       ${({ theme }) => (theme as OnmaruTheme).zIndex.modal};
   transform:     translateY(${({ expanded }) => expanded ? '0' : '70%'});
@@ -254,7 +240,6 @@ export const TabItem = styled.button<{ active?: boolean }>`
   gap:             4px;
   padding:         8px 16px;
   background:      none;
-  border:          none;
   cursor:          pointer;
   font-family:     ${({ theme }) => (theme as OnmaruTheme).typography.fontFamily.sans};
   font-size:       10px;
@@ -363,7 +348,6 @@ export function ThemeToggleButton() {
         gap:             ${theme.spacing[2]};
         padding:         ${theme.spacing[2]} ${theme.spacing[4]};
         background:      ${theme.colors.bg.surface};
-        border:          1px solid ${theme.colors.border.default};
         border-radius:   ${theme.borderRadius.full};
         color:           ${theme.colors.text.secondary};
         font-family:     ${theme.typography.fontFamily.sans};
@@ -378,7 +362,15 @@ export function ThemeToggleButton() {
         }
       `}
     >
-      {mode === 'light' ? '🌙 야간 모드' : '☀️ 주간 모드'}
+      {mode === 'light' ? (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Moon size={14} /> 야간 모드
+        </span>
+      ) : (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Sun size={14} /> 주간 모드
+        </span>
+      )}
     </button>
   )
 }

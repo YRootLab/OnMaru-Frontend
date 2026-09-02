@@ -1,8 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useMemo } from 'react';
-import { odiiApiAdapter } from '../api/odiiApi';
-import { IOdiiApiService } from '../types/odii.types';
+import { odiiApiAdapter } from '@/features/odii-audio/api/odiiApi';
+import { IOdiiApiService } from '@/features/odii-audio/types/odii.types';
 
 interface OdiiDependencyContextValue {
   apiService: IOdiiApiService;

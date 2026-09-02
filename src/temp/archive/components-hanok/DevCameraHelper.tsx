@@ -3,7 +3,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { STAGES } from './hanok.data';
-import { useHanokViewerStore } from '../hanok-viewer/store/useHanokViewerStore';
+import { useHanokViewerStore } from '@/temp/archive/hanok-viewer/store/useHanokViewerStore';
 
 const DevContainer = styled.div`
   position: fixed;
@@ -11,13 +11,11 @@ const DevContainer = styled.div`
   right: 16px;
   z-index: 9999;
   background: rgba(28, 26, 23, 0.95);
-  border: 1px solid rgba(212, 175, 55, 0.4);
   border-radius: 12px;
   padding: 16px;
   color: #f5f5f7;
   font-family: monospace;
   font-size: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   width: 320px;
 `;
 
@@ -33,7 +31,6 @@ const TitleBar = styled.div`
 const ToggleButton = styled.button<{ active?: boolean }>`
   background: ${(props) => (props.active ? '#d4af37' : 'rgba(255, 255, 255, 0.1)')};
   color: ${(props) => (props.active ? '#1c1a17' : '#fff')};
-  border: none;
   padding: 4px 8px;
   border-radius: 4px;
   cursor: pointer;
@@ -65,7 +62,6 @@ const StageGrid = styled.div`
 const StageBtn = styled.button<{ isActive?: boolean }>`
   background: ${(props) => (props.isActive ? '#d4af37' : 'rgba(255, 255, 255, 0.1)')};
   color: ${(props) => (props.isActive ? '#1c1a17' : '#fff')};
-  border: none;
   padding: 6px;
   border-radius: 4px;
   cursor: pointer;

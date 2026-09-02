@@ -49,12 +49,10 @@ const SegmentControl = styled.div`
   padding: 5px;
   border-radius: 9999px;
   gap: 4px;
-  border: 1px solid rgba(43, 92, 230, 0.08);
 `;
 
 const Segment = styled.button<{ $active: boolean }>`
   position: relative;
-  border: none;
   background: transparent;
   padding: 9px 22px;
   font-size: 14px;
@@ -78,7 +76,6 @@ const SegmentPill = styled(motion.div)`
   background: linear-gradient(135deg, ${lightPalette.kobalt[500]} 0%, ${lightPalette.kobalt[700]} 100%);
   border-radius: 9999px;
   z-index: 0;
-  box-shadow: 0 4px 12px rgba(43, 92, 230, 0.25);
 `;
 
 const SegmentLabel = styled.span`
@@ -94,7 +91,6 @@ const BadgeContainer = styled.div`
   flex-wrap: wrap;
   padding: 10px 16px;
   background: rgba(248, 250, 255, 0.7);
-  border: 1px solid rgba(43, 92, 230, 0.08);
   border-radius: 18px;
 `;
 
@@ -118,9 +114,6 @@ const BadgeList = styled.div`
 `;
 
 const BadgeChip = styled.button<{ $active: boolean }>`
-  border: 1px solid
-    ${({ $active }) =>
-      $active ? lightPalette.kobalt[500] : 'rgba(43, 92, 230, 0.16)'};
   background: ${({ $active }) =>
     $active
       ? `linear-gradient(135deg, ${lightPalette.kobalt[500]} 0%, ${lightPalette.kobalt[700]} 100%)`
@@ -144,7 +137,6 @@ const BadgeChip = styled.button<{ $active: boolean }>`
 `;
 
 const ResetBtn = styled.button`
-  border: 1px solid rgba(78, 89, 104, 0.2);
   background: transparent;
   color: ${meok[500]};
   font-size: 12px;

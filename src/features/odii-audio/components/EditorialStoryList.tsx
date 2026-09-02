@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { motion, Variants } from 'framer-motion';
-import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
-import { OdiiStoryItem } from '../types/odii.types';
+import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
+import { OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
 
 interface EditorialStoryListProps {
   stories: OdiiStoryItem[];
@@ -134,8 +134,8 @@ export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({
               onClick={() => selectStory(story)}
               className={`group relative grid cursor-pointer grid-cols-[34px_64px_minmax(0,1fr)_auto] items-center gap-3 overflow-hidden rounded-2xl border px-3 py-3.5 transition-all duration-300 sm:grid-cols-[40px_76px_minmax(0,1fr)_auto] sm:gap-4 sm:px-4 ${
                 isCurrent
-                  ? 'border-[#f84e76]/45 bg-[#fff0f5] shadow-[0_12px_30px_rgba(248,78,118,0.12)]'
-                  : 'border-[#211e19]/8 bg-white/70 hover:-translate-y-0.5 hover:border-[#f84e76]/25 hover:bg-[#fff8fa] hover:shadow-[0_10px_24px_rgba(248,78,118,0.08)]'
+                  ? 'border-[#f84e76]/45 bg-[#fff0f5] '
+                  : 'border-[#211e19]/8 bg-white/70 hover:-translate-y-0.5 hover:border-[#f84e76]/25 hover:bg-[#fff8fa] hover:'
               }`}
             >
               <div className="flex h-full items-center justify-center border-r border-[#211e19]/8 pr-2">
@@ -154,7 +154,7 @@ export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({
                 </div>
               </div>
 
-              <div className="relative h-14 w-16 shrink-0 overflow-hidden rounded-xl bg-[#f3eee8] ring-1 ring-black/5 sm:h-[68px] sm:w-[76px]">
+              <div className="relative h-14 w-16 shrink-0 overflow-hidden rounded-xl bg-[#f3eee8]  sm:h-[68px] sm:w-[76px]">
                   <img
                     src={imageFor(story, index)}
                     alt={story.title}
@@ -219,7 +219,7 @@ export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({
                   onClick={(e) => handlePlayClick(story, e)}
                   className={`flex h-8 w-8 items-center justify-center rounded-full transition-all duration-300 ${
                     isThisPlaying
-                      ? 'scale-105 bg-[#f84e76] text-white shadow-[0_6px_16px_rgba(248,78,118,0.28)]'
+                      ? 'scale-105 bg-[#f84e76] text-white '
                       : 'border border-[#f84e76]/25 bg-white text-[#f84e76] hover:bg-[#f84e76] hover:text-white'
                   }`}
                   title={isThisPlaying ? '일시정지' : '재생'}

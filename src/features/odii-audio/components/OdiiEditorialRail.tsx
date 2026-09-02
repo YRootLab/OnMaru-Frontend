@@ -2,10 +2,10 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
-import { IOdiiApiService, OdiiStoryItem } from '../types/odii.types';
-import { ODII_THEME_CATEGORIES } from '../data/odiiCategoryData';
-import { useOdiiApiService } from '../context/OdiiDependencyContext';
+import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
+import { IOdiiApiService, OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
+import { ODII_THEME_CATEGORIES } from '@/features/odii-audio/data/odiiCategoryData';
+import { useOdiiApiService } from '@/features/odii-audio/context/OdiiDependencyContext';
 
 interface OdiiEditorialRailProps {
   stories: OdiiStoryItem[];
@@ -110,7 +110,7 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(({ story, position,
       }}
       transition={{ duration: trackTransitionEnabled && isVisible ? 0.48 : 0, ease: [0.16, 1, 0.3, 1] }}
       onClick={() => onInteractRef.current(position)}
-      className={`relative h-[250px] w-[135px] shrink-0 select-none overflow-hidden border bg-white text-left outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0 sm:h-[330px] sm:w-[200px] lg:h-[370px] lg:w-[225px] ${isActive ? 'z-20 border-[#f84e76] shadow-[0_22px_48px_rgba(33,30,25,0.18),0_8px_24px_rgba(248,78,118,0.13)]' : 'z-10 border-[#211e19]/12 shadow-[0_18px_35px_rgba(33,30,25,0.16)] grayscale-[0.15] hover:grayscale-0'}`}
+      className={`relative h-[250px] w-[135px] shrink-0 select-none overflow-hidden border bg-white text-left outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0 sm:h-[330px] sm:w-[200px] lg:h-[370px] lg:w-[225px] ${isActive ? 'z-20 border-[#f84e76] ' : 'z-10 border-[#211e19]/12  grayscale-[0.15] hover:grayscale-0'}`}
       draggable={false}
       onMouseDown={(event) => event.preventDefault()}
       aria-label={`${story.title}${isActive ? ' 현재 선택됨' : ''}`}
@@ -135,10 +135,10 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(({ story, position,
       />
       {!story.imageUrl && <span className="pointer-events-none absolute right-3 top-3 z-10 rounded-full bg-black/25 px-2 py-1 text-[9px] font-medium text-white/90 backdrop-blur-sm">참고용 이미지</span>}
       <div className="absolute inset-0 bg-gradient-to-t from-white/55 via-transparent to-black/5" />
-      <span className="pointer-events-none absolute left-4 top-4 z-10 text-[10px] font-semibold tabular-nums text-white mix-blend-difference drop-shadow-[0_1px_3px_rgba(0,0,0,0.35)]">
+      <span className="pointer-events-none absolute left-4 top-4 z-10 text-[10px] font-semibold tabular-nums text-white mix-blend-difference drop-">
         {String((position % featuredLength) + 1).padStart(2, '0')}
       </span>
-      <div className={`absolute inset-x-0 bottom-0 px-4 py-4 text-[#211e19] backdrop-blur-[24px] sm:px-5 sm:py-5 ${isActive ? 'bg-[#fff0f5]/[0.68] shadow-[0_-8px_20px_rgba(248,78,118,0.08)]' : 'bg-white/[0.46] shadow-[0_-8px_20px_rgba(255,255,255,0.12)]'}`}>
+      <div className={`absolute inset-x-0 bottom-0 px-4 py-4 text-[#211e19] backdrop-blur-[24px] sm:px-5 sm:py-5 ${isActive ? 'bg-[#fff0f5]/[0.68] ' : 'bg-white/[0.46] '}`}>
         <p className="truncate text-[9px] font-semibold uppercase tracking-[0.12em] text-[#F84E76]">{story.category !== '오디 이야기' ? story.category : story.badgeText || '오디오 가이드'}</p>
         <h3 className="mt-1 line-clamp-2 font-odii-sans text-base font-semibold leading-tight tracking-[-0.03em] sm:text-lg">{story.title}</h3>
         <p className="mt-1 line-clamp-1 text-[10px] leading-4 text-[#8c7e6c]">{story.locationName || '대한민국 문화유산'}</p>
@@ -507,7 +507,7 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
                 {[0, 1, 2, 3, 4, 5, 6].map((index) => (
                   <div
                     key={index}
-                    className={`h-[250px] w-[135px] shrink-0 animate-pulse overflow-hidden border border-[#211e19]/8 bg-white/70 shadow-[0_18px_35px_rgba(33,30,25,0.10)] sm:h-[330px] sm:w-[200px] lg:h-[370px] lg:w-[225px] ${index % 2 ? 'translate-y-2 rotate-[1.2deg]' : '-translate-y-1 rotate-[-1.2deg]'}`}
+                    className={`h-[250px] w-[135px] shrink-0 animate-pulse overflow-hidden border border-[#211e19]/8 bg-white/70  sm:h-[330px] sm:w-[200px] lg:h-[370px] lg:w-[225px] ${index % 2 ? 'translate-y-2 rotate-[1.2deg]' : '-translate-y-1 rotate-[-1.2deg]'}`}
                   >
                     <div className="h-[62%] bg-gradient-to-br from-[#f4e8eb] via-[#eee7e3] to-[#e5dfe0]" />
                     <div className="space-y-3 bg-white/70 px-4 py-5 sm:px-5 sm:py-6">

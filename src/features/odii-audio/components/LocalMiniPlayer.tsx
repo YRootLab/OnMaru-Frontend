@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
-import { useOdiiAudioPlayer } from '../hooks/useOdiiAudioPlayer';
+import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
+import { useOdiiAudioPlayer } from '@/features/odii-audio/hooks/useOdiiAudioPlayer';
 import { lightPalette, meok } from '@/design-system/tokens';
 
 const formatTime = (seconds: number) => `${Math.floor(Math.max(0, seconds || 0) / 60)}:${String(Math.floor(Math.max(0, seconds || 0) % 60)).padStart(2, '0')}`;
@@ -72,11 +72,11 @@ export const LocalMiniPlayer: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 16 }}
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] left-3 right-3 z-[110] mx-auto w-auto max-w-xl overflow-hidden rounded-[1.35rem] border border-[#d2c3b1]/80 bg-[#fbf8f2]/95 px-3.5 pt-2.5 pb-3.5 shadow-[0_18px_44px_rgba(61,45,29,0.2)] backdrop-blur-xl md:bottom-[calc(1.25rem+env(safe-area-inset-bottom))] md:z-50 sm:px-4 sm:pt-3 sm:pb-4"
+            className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] left-3 right-3 z-[110] mx-auto w-auto max-w-xl overflow-hidden rounded-[1.35rem] border border-[#d2c3b1]/80 bg-[#fbf8f2]/95 px-3.5 pt-2.5 pb-3.5  backdrop-blur-xl md:bottom-[calc(1.25rem+env(safe-area-inset-bottom))] md:z-50 sm:px-4 sm:pt-3 sm:pb-4"
           >
       <div className="flex items-center gap-3">
         <button type="button" onClick={() => setIsExpanded(true)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
-          <img src={story.imageUrl || FALLBACK_IMAGE} alt="" className="h-10 w-10 shrink-0 rounded-xl object-cover shadow-sm"/>
+          <img src={story.imageUrl || FALLBACK_IMAGE} alt="" className="h-10 w-10 shrink-0 rounded-xl object-cover "/>
           <span className="min-w-0">
             <span className="block truncate font-odii-sans text-sm font-semibold text-[#211e19]">
               {story.title}
@@ -88,7 +88,7 @@ export const LocalMiniPlayer: React.FC = () => {
           </span>
         </button>
 
-        <button type="button" onClick={() => setIsPlaying(!isPlaying)} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#a94d35] text-white shadow-sm hover:bg-[#8f3e29] transition-transform hover:scale-105">
+        <button type="button" onClick={() => setIsPlaying(!isPlaying)} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#a94d35] text-white  hover:bg-[#8f3e29] transition-transform hover:scale-105">
           <PlayIcon />
         </button>
         <button type="button" onClick={() => setIsExpanded(true)} className="hidden items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold text-[#655b4d] hover:bg-[#eee6da] sm:flex">
@@ -126,7 +126,7 @@ export const LocalMiniPlayer: React.FC = () => {
             exit={{ opacity: 0, y: 18, scale: 0.98 }}
             transition={{ type: 'spring', damping: 30, stiffness: 340 }}
             onClick={(event) => event.stopPropagation()}
-            className={`absolute bottom-0 left-0 right-0 flex flex-col overflow-y-auto rounded-t-3xl bg-[#fbf8f2] p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-2xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
+            className={`absolute bottom-0 left-0 right-0 flex flex-col overflow-y-auto rounded-t-3xl bg-[#fbf8f2] p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))]  [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
               isTranscriptOpen ? 'max-h-[88dvh]' : 'max-h-[90dvh]'
             } lg:bottom-6 lg:left-1/2 lg:right-auto lg:ml-[-230px] lg:w-[460px] lg:rounded-3xl lg:p-7 ${isTranscriptOpen ? 'lg:max-h-[86vh]' : ''}`}
           >
@@ -151,7 +151,7 @@ export const LocalMiniPlayer: React.FC = () => {
                     </h2>
                     <p className="text-xs text-[#655b4d]">{story.locationName || '대한민국 문화유산'}</p>
                   </div>
-                  <button type="button" onClick={() => setIsPlaying(!isPlaying)} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#a94d35] text-white shadow-md">
+                  <button type="button" onClick={() => setIsPlaying(!isPlaying)} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#a94d35] text-white ">
                     <PlayIcon />
                   </button>
                 </div>
@@ -167,7 +167,7 @@ export const LocalMiniPlayer: React.FC = () => {
                         onClick={() => seekTo(line.timeSec)}
                         className={`block w-full rounded-xl px-3.5 py-3 text-left text-sm leading-6 transition ${
                           line.id === lines[activeIndex]?.id
-                            ? 'bg-[#f3e9dc] font-semibold text-[#211e19] shadow-sm'
+                            ? 'bg-[#f3e9dc] font-semibold text-[#211e19] '
                             : 'text-[#655b4d] hover:bg-[#f5eee4]'
                         }`}
                       >
@@ -188,7 +188,7 @@ export const LocalMiniPlayer: React.FC = () => {
                   </button>
                 </div>
 
-                <motion.img layoutId="odii-player-art" src={story.imageUrl || FALLBACK_IMAGE} alt={story.title} className="h-36 w-full rounded-2xl object-cover shadow-md sm:h-48"/>
+                <motion.img layoutId="odii-player-art" src={story.imageUrl || FALLBACK_IMAGE} alt={story.title} className="h-36 w-full rounded-2xl object-cover  sm:h-48"/>
 
                 {/* 메인 타이틀 & 서브타이틀 UX 개선 */}
                 <div className="mt-4">
@@ -230,7 +230,7 @@ export const LocalMiniPlayer: React.FC = () => {
                   <button type="button" onClick={() => skipBackward(10)} className="px-3 py-1.5 rounded-full bg-[#f2ece2] text-xs font-bold text-[#655b4d] hover:bg-[#e8dfd2]">
                     10초 전
                   </button>
-                  <button type="button" onClick={() => setIsPlaying(!isPlaying)} className="flex h-13 w-13 items-center justify-center rounded-full bg-[#a94d35] text-white shadow-lg hover:bg-[#8f3e29]">
+                  <button type="button" onClick={() => setIsPlaying(!isPlaying)} className="flex h-13 w-13 items-center justify-center rounded-full bg-[#a94d35] text-white  hover:bg-[#8f3e29]">
                     <PlayIcon />
                   </button>
                   <button type="button" onClick={() => skipForward(10)} className="px-3 py-1.5 rounded-full bg-[#f2ece2] text-xs font-bold text-[#655b4d] hover:bg-[#e8dfd2]">

@@ -36,7 +36,6 @@ const itemVariants = {
 const EmptyState = styled.div`
   min-height: 240px;
   background: rgba(78, 89, 104, 0.04);
-  border: 1px dashed rgba(78, 89, 104, 0.16);
   border-radius: 20px;
   display: grid;
   place-items: center;

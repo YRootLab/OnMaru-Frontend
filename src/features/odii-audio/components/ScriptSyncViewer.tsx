@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
-import { useOdiiAudioPlayer } from '../hooks/useOdiiAudioPlayer';
+import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
+import { useOdiiAudioPlayer } from '@/features/odii-audio/hooks/useOdiiAudioPlayer';
 
 function formatTime(seconds: number) {
   const minutes = Math.floor(seconds / 60);
@@ -31,7 +31,7 @@ export const ScriptSyncViewer: React.FC = () => {
 
   return (
     <>
-      <section className="rounded-3xl border border-[#d8ccbc] bg-[#fbf8f2] p-6 shadow-[0_16px_45px_rgba(61,45,29,0.09)] sm:p-8">
+      <section className="rounded-3xl border border-[#d8ccbc] bg-[#fbf8f2] p-6  sm:p-8">
         <div className="flex items-start justify-between gap-4 border-b border-[#211e19]/10 pb-4">
           <div>
             <p className="text-[11px] font-bold tracking-[0.16em] text-[#a94d35]">NARRATIVE SCRIPT</p>
@@ -61,7 +61,7 @@ export const ScriptSyncViewer: React.FC = () => {
 
       {isTranscriptOpen && (
         <div className="fixed inset-0 z-[70] flex items-end bg-[#211e19]/50 p-0 backdrop-blur-sm sm:items-center sm:justify-center sm:p-6" role="dialog" aria-modal="true" aria-label="오디오 대본 전체 보기">
-          <div className="flex max-h-[86vh] w-full max-w-2xl flex-col rounded-t-3xl bg-[#fbf8f2] shadow-2xl sm:rounded-3xl">
+          <div className="flex max-h-[86vh] w-full max-w-2xl flex-col rounded-t-3xl bg-[#fbf8f2]  sm:rounded-3xl">
             <div className="flex items-center justify-between border-b border-[#211e19]/10 px-6 py-5 sm:px-8">
               <div><p className="text-[11px] font-bold tracking-[0.16em] text-[#a94d35]">FULL TRANSCRIPT</p><h3 className="mt-1 font-odii-sans text-xl font-semibold">오디오 대본</h3></div>
               <button type="button" onClick={() => setIsTranscriptOpen(false)} className="rounded-full p-2 text-[#655b4d] transition hover:bg-[#eee6da] hover:text-[#211e19]" aria-label="대본 닫기">✕</button>

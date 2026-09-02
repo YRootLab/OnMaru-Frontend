@@ -3,12 +3,12 @@
 import Link from 'next/link';
 import React, { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { Heart } from 'lucide-react';
 import { LocalMiniPlayer } from './LocalMiniPlayer';
 import { SavedSoundDrawer } from './SavedSoundDrawer';
-import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
-import { MOCK_ODII_STORIES } from '../api/odiiMockData';
-import { OdiiStoryItem, IOdiiApiService } from '../types/odii.types';
-import { useOdiiApiService } from '../context/OdiiDependencyContext';
+import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
+import { OdiiStoryItem, IOdiiApiService } from '@/features/odii-audio/types/odii.types';
+import { useOdiiApiService } from '@/features/odii-audio/context/OdiiDependencyContext';
 
 interface OdiiFreeformFeatureProps {
   apiService?: IOdiiApiService;
@@ -54,11 +54,28 @@ function PlayGlyph({ playing = false }: { playing?: boolean }) {
   );
 }
 
+const placeholderStory: OdiiStoryItem = {
+  tid: '',
+  tlid: '',
+  stid: '',
+  stlid: '',
+  title: '한국의 문화유산',
+  audioTitle: '오디오로 걷는 고택 산책',
+  speaker: '문화해설사',
+  category: '한옥',
+  mapX: '126.9780',
+  mapY: '37.5665',
+  script: '장소에 머무는 시간을 소리로 만나보세요.',
+  playTime: '300',
+  audioUrl: '',
+  imageUrl: FALLBACK_IMAGE,
+};
+
 export const OdiiFreeformFeature: React.FC<OdiiFreeformFeatureProps> = ({ apiService }) => {
   const activeApiService = useOdiiApiService(apiService);
-  const [storyPool, setStoryPool] = useState<OdiiStoryItem[]>(MOCK_ODII_STORIES);
-  const [topicStories, setTopicStories] = useState<OdiiStoryItem[]>(MOCK_ODII_STORIES.slice(0, 3));
-  const [nearbyStories, setNearbyStories] = useState<OdiiStoryItem[]>(MOCK_ODII_STORIES.slice(0, 4));
+  const [storyPool, setStoryPool] = useState<OdiiStoryItem[]>([]);
+  const [topicStories, setTopicStories] = useState<OdiiStoryItem[]>([]);
+  const [nearbyStories, setNearbyStories] = useState<OdiiStoryItem[]>([]);
   const [activeTopic, setActiveTopic] = useState('한옥');
   const [activeIndex, setActiveIndex] = useState(0);
   const [nearbyIndex, setNearbyIndex] = useState(0);
@@ -118,12 +135,12 @@ export const OdiiFreeformFeature: React.FC<OdiiFreeformFeatureProps> = ({ apiSer
   }, [activeTopic, storyPool]);
 
   const safeActiveIndex = Math.min(activeIndex, Math.max(topicStories.length - 1, 0));
-  const activeStory = topicStories[safeActiveIndex] || topicStories[0] || MOCK_ODII_STORIES[0];
+  const activeStory = topicStories[safeActiveIndex] || topicStories[0] || placeholderStory;
   const activeTopicMeta = TOPICS.find((topic) => topic.keyword === activeTopic) || TOPICS[0];
   const savedIds = useMemo(() => new Set(savedStories.map((story) => story.stid)), [savedStories]);
-  const archiveStories = useMemo(() => uniqueStories([...storyPool, ...MOCK_ODII_STORIES]), [storyPool]);
+  const archiveStories = useMemo(() => uniqueStories(storyPool), [storyPool]);
   const safeNearbyIndex = Math.min(nearbyIndex, Math.max(nearbyStories.length - 1, 0));
-  const nearbyStory = nearbyStories[safeNearbyIndex] || nearbyStories[0] || MOCK_ODII_STORIES[0];
+  const nearbyStory = nearbyStories[safeNearbyIndex] || nearbyStories[0] || placeholderStory;
   const isActivePlaying = currentStory.stid === activeStory.stid && isPlaying;
   const isNearbyPlaying = currentStory.stid === nearbyStory.stid && isPlaying;
 
@@ -197,7 +214,7 @@ export const OdiiFreeformFeature: React.FC<OdiiFreeformFeatureProps> = ({ apiSer
     setIsRefreshing(true);
     try {
       const page = await activeApiService.getStoryPage('전체', '', 1, 24);
-      setStoryPool(uniqueStories(page.items.length ? page.items : MOCK_ODII_STORIES));
+      setStoryPool(uniqueStories(page.items));
     } finally {
       setIsRefreshing(false);
     }
@@ -248,7 +265,7 @@ export const OdiiFreeformFeature: React.FC<OdiiFreeformFeatureProps> = ({ apiSer
                 initial={{ opacity: 0, rotate: 4, y: 18 }}
                 animate={{ opacity: 1, rotate: -3, y: 0 }}
                 transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className="absolute inset-x-4 top-4 bottom-0 overflow-hidden border-2 border-[#171717] bg-[#d5f05a] p-3 shadow-[12px_12px_0_#2454ff] sm:inset-x-12 sm:p-4"
+                className="absolute inset-x-4 top-4 bottom-0 overflow-hidden border-2 border-[#171717] bg-[#d5f05a] p-3  sm:inset-x-12 sm:p-4"
               >
                 <img src={activeStory.imageUrl || FALLBACK_IMAGE} alt={activeStory.title} className="h-full w-full object-cover grayscale-[0.2]" />
                 <div className="absolute inset-3 flex flex-col justify-between bg-gradient-to-b from-[#171717]/45 via-transparent to-[#171717]/70 p-4 text-white sm:inset-4 sm:p-6">
@@ -325,8 +342,9 @@ export const OdiiFreeformFeature: React.FC<OdiiFreeformFeatureProps> = ({ apiSer
                           <PlayGlyph playing={isActivePlaying} />
                           {isActivePlaying ? '잠시 멈추기' : '이야기 듣기'}
                         </button>
-                        <button type="button" onClick={() => toggleBookmark(activeStory)} className={`text-xs font-bold transition-colors ${savedIds.has(activeStory.stid) ? 'text-[#f45b3d]' : 'text-[#6d6d66] hover:text-[#171717]'}`}>
-                          {savedIds.has(activeStory.stid) ? '♥ 담아둔 소리' : '♡ 마음에 담기'}
+                        <button type="button" onClick={() => toggleBookmark(activeStory)} className={`inline-flex items-center gap-1.5 text-xs font-bold transition-colors ${savedIds.has(activeStory.stid) ? 'text-[#f45b3d]' : 'text-[#6d6d66] hover:text-[#171717]'}`}>
+                          <Heart size={14} className={savedIds.has(activeStory.stid) ? 'fill-current' : ''} />
+                          <span>{savedIds.has(activeStory.stid) ? '담아둔 소리' : '마음에 담기'}</span>
                         </button>
                       </div>
                     </div>
@@ -421,8 +439,8 @@ export const OdiiFreeformFeature: React.FC<OdiiFreeformFeatureProps> = ({ apiSer
                     <div className={`relative overflow-hidden border-2 border-[#171717] bg-[#d5f05a] ${index === 0 ? 'aspect-[4/5]' : 'aspect-[4/3]'}`}>
                       <img src={story.imageUrl || FALLBACK_IMAGE} alt={story.title} className="h-full w-full object-cover grayscale-[0.18] transition-transform duration-700 group-hover:scale-105" />
                       <span className="absolute left-3 top-3 bg-[#171717] px-2 py-1 font-mono text-[10px] text-[#d5f05a]">0{index + 1}</span>
-                      <button type="button" onClick={() => toggleBookmark(story)} aria-label={isSaved ? `${story.title} 담아두기 취소` : `${story.title} 마음에 담기`} className={`absolute right-3 top-3 flex h-8 w-8 items-center justify-center border-2 border-[#171717] text-lg leading-none transition-colors ${isSaved ? 'bg-[#f45b3d] text-[#171717]' : 'bg-[#e9e9e3] text-[#171717] hover:bg-[#d5f05a]'}`}>
-                        {isSaved ? '♥' : '♡'}
+                      <button type="button" onClick={() => toggleBookmark(story)} aria-label={isSaved ? `${story.title} 담아두기 취소` : `${story.title} 마음에 담기`} className={`absolute right-3 top-3 flex h-8 w-8 items-center justify-center border-2 border-[#171717] transition-colors ${isSaved ? 'bg-[#f45b3d] text-[#171717]' : 'bg-[#e9e9e3] text-[#171717] hover:bg-[#d5f05a]'}`}>
+                        <Heart size={14} className={isSaved ? 'fill-current' : ''} />
                       </button>
                       <button type="button" onClick={() => playStory(story)} className="absolute bottom-3 left-3 flex h-9 w-9 items-center justify-center rounded-full bg-[#2454ff] text-white opacity-0 transition-opacity group-hover:opacity-100" aria-label={`${story.title} 재생`}>
                         <PlayGlyph playing={currentStory.stid === story.stid && isPlaying} />

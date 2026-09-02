@@ -14,8 +14,6 @@ const Wrapper = styled.div`
 `;
 
 const PageBtn = styled.button<{ $active?: boolean; $disabled?: boolean }>`
-  border: 1px solid
-    ${({ $active }) => ($active ? meok[900] : 'rgba(78, 89, 104, 0.16)')};
   background: ${({ $active }) => ($active ? meok[900] : '#ffffff')};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
   font-size: 14px;

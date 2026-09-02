@@ -2,8 +2,8 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useOdiiAudioStore } from '../store/useOdiiAudioStore';
-import { OdiiStoryItem } from '../types/odii.types';
+import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
+import { OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
 
 interface OdiiAutoSliceRailProps {
   stories: OdiiStoryItem[];
@@ -151,7 +151,7 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
         <div className="relative flex min-w-0 items-center gap-3 overflow-visible">
           
           {/* Awwwards Interactive 3D Card Deck (모바일 전용 뷰) */}
-          <div className="relative w-full overflow-hidden rounded-[1.8rem] bg-[#1c1917] p-4 shadow-[0_20px_50px_rgba(0,0,0,0.22)] sm:hidden">
+          <div className="relative w-full overflow-hidden rounded-[1.8rem] bg-[#1c1917] p-4  sm:hidden">
             {/* 우측 상단 인디케이터 */}
             <div className="absolute right-4 top-4 z-30">
               <span className="rounded-full border border-white/20 bg-black/50 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-md">
@@ -165,7 +165,7 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
                 {/* 뒤에 깔린 카드 (Next Card Layer) */}
                 <motion.div
                   key={`next-${nextStory.stid}`}
-                  className="absolute left-1/2 top-3 h-[220px] w-[88%] -translate-x-1/2 overflow-hidden rounded-2xl border border-white/15 bg-white/10 opacity-60 shadow-md backdrop-blur-md pointer-events-none"
+                  className="absolute left-1/2 top-3 h-[220px] w-[88%] -translate-x-1/2 overflow-hidden rounded-2xl border border-white/15 bg-white/10 opacity-60  backdrop-blur-md pointer-events-none"
                   initial={{ scale: 0.9, y: 12 }}
                   animate={{ scale: 0.94, y: 8 }}
                   transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
@@ -181,7 +181,7 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
                   animate={{ opacity: 1, scale: 1, y: 0, rotate: 0 }}
                   exit={{ opacity: 0, scale: 0.88, x: transitionDirection * -120, rotate: transitionDirection * -10 }}
                   transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1] }}
-                  className="relative z-20 mx-auto h-[235px] w-[96%] overflow-hidden rounded-2xl border border-white/25 bg-[#2a2421] shadow-[0_16px_36px_rgba(0,0,0,0.45)]"
+                  className="relative z-20 mx-auto h-[235px] w-[96%] overflow-hidden rounded-2xl border border-white/25 bg-[#2a2421] "
                 >
                   <img
                     src={leadImageUrl}
@@ -196,7 +196,7 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
                     <span className="inline-flex items-center rounded-md border border-white/25 bg-white/15 px-2 py-0.5 text-[9px] font-semibold text-white/90 backdrop-blur-md">
                       {getCategoryThemeBadge(lead)}
                     </span>
-                    <h3 className="mt-1 line-clamp-1 font-odii-sans text-xl font-bold tracking-tight text-white drop-shadow-sm">
+                    <h3 className="mt-1 line-clamp-1 font-odii-sans text-xl font-bold tracking-tight text-white drop-">
                       {lead.title}
                     </h3>
                     <p className="mt-0.5 line-clamp-1 text-xs text-white/80">{lead.audioTitle}</p>
@@ -210,7 +210,7 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
               <button
                 type="button"
                 onClick={play}
-                className="flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-white text-xs font-bold text-[#211e19] shadow-lg active:bg-white/90"
+                className="flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-white text-xs font-bold text-[#211e19]  active:bg-white/90"
               >
                 <span>{currentStory.stid === lead.stid && isPlaying ? '일시정지' : '이야기 듣기'}</span>
                 <span className="text-[11px] font-normal text-[#655b4d]">{lead.formattedDuration}</span>
@@ -226,7 +226,7 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
           </div>
 
           {/* 데스크탑 기본 레이아웃 */}
-          <div className="relative min-h-[320px] min-w-0 flex-1 rounded-[1.6rem] bg-[#6d6258] shadow-[0_18px_48px_rgba(43,35,26,0.16)] hidden sm:block sm:min-h-[280px] md:h-[280px] md:min-h-0">
+          <div className="relative min-h-[320px] min-w-0 flex-1 rounded-[1.6rem] bg-[#6d6258]  hidden sm:block sm:min-h-[280px] md:h-[280px] md:min-h-0">
             
             <div className="absolute inset-0 overflow-hidden rounded-[1.6rem]">
               <AnimatePresence initial={false} mode="sync">
@@ -283,7 +283,7 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
                   <span className="mb-3 inline-flex h-6 self-start items-center rounded-lg border border-white/20 bg-white/[0.12] px-2 text-[9px] font-semibold tracking-[0.04em] text-white/90 backdrop-blur-sm">
                     {getCategoryThemeBadge(lead)}
                   </span>
-                  <h2 className="max-w-xl font-odii-sans text-3xl sm:text-4xl font-bold text-white leading-[1.18] tracking-[-0.04em] drop-shadow-[0_3px_12px_rgba(0,0,0,0.45)]">
+                  <h2 className="max-w-xl font-odii-sans text-3xl sm:text-4xl font-bold text-white leading-[1.18] tracking-[-0.04em] drop-">
                     {lead.title}
                   </h2>
                   <p className="mt-3 max-w-md line-clamp-2 text-sm font-medium leading-6 text-white/90 sm:text-[15px]">
@@ -293,7 +293,7 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
                     <button
                       type="button"
                       onClick={play}
-                      className="flex items-center gap-1.5 rounded-full bg-white px-5 py-2.5 text-xs font-bold text-[#211e19] shadow-xl transition-colors hover:bg-white/90 active:bg-white/80"
+                      className="flex items-center gap-1.5 rounded-full bg-white px-5 py-2.5 text-xs font-bold text-[#211e19]  transition-colors hover:bg-white/90 active:bg-white/80"
                     >
                       <span>{currentStory.stid === lead.stid && isPlaying ? '일시정지' : '이야기 듣기'}</span>
                       <span className="text-[11px] font-normal text-[#655b4d]">{lead.formattedDuration}</span>
@@ -323,7 +323,7 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
               </div>
 
               {/* 메인 장면 오른쪽 서브 비주얼 카드 고정 규격 (찌부됨 방지) */}
-              <div className="pointer-events-none relative order-first mx-auto h-[198px] w-[150px] shrink-0 rounded-[1.2rem] border border-white/25 bg-white/10 shadow-[0_14px_30px_rgba(0,0,0,0.12)] hidden sm:block sm:order-none sm:h-[198px] sm:w-[150px] md:h-[202px] lg:h-[211px] lg:w-[160px] overflow-visible">
+              <div className="pointer-events-none relative order-first mx-auto h-[198px] w-[150px] shrink-0 rounded-[1.2rem] border border-white/25 bg-white/10  hidden sm:block sm:order-none sm:h-[198px] sm:w-[150px] md:h-[202px] lg:h-[211px] lg:w-[160px] overflow-visible">
                 <div className="relative z-10 h-full w-full overflow-hidden rounded-[1.1rem]">
                   <AnimatePresence initial={false} mode="sync">
                     <motion.div
@@ -350,7 +350,7 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
                     type="button"
                     aria-label="다음 이야기"
                     onClick={() => move(1)}
-                    className="flex h-10 w-11 items-center justify-center rounded-xl border border-white/60 bg-white/95 text-[#211e19] shadow-[0_8px_24px_rgba(0,0,0,0.25)] transition-[background-color,transform] duration-300 hover:scale-105 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                    className="flex h-10 w-11 items-center justify-center rounded-xl border border-white/60 bg-white/95 text-[#211e19]  transition-[background-color,transform] duration-300 hover:scale-105 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                   >
                     <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="m9 5 7 7-7 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
                   </button>
@@ -386,7 +386,7 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
                         duration: 0.32,
                         ease: [0.16, 1, 0.3, 1],
                       }}
-                      className="group absolute left-0 top-0 h-[68px] w-full overflow-hidden rounded-lg border border-white/20 bg-[#211e19]/[0.1] text-left shadow-[0_8px_20px_rgba(43,35,26,0.12)] ring-1 ring-white/15 backdrop-blur-sm transition-[box-shadow,ring-color] duration-300 hover:border-white/35 hover:ring-white/45 hover:shadow-[0_12px_26px_rgba(43,35,26,0.18)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a94d35]"
+                      className="group absolute left-0 top-0 h-[68px] w-full overflow-hidden rounded-lg border border-white/20 bg-[#211e19]/[0.1] text-left   backdrop-blur-sm transition-[box-shadow,ring-color] duration-300 hover:border-white/35 hover:ring-white/45 hover: focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a94d35]"
                     >
                       <img
                         src={imgUrl}

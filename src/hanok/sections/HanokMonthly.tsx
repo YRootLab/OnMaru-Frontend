@@ -197,9 +197,7 @@ const StorySection = styled.div`
   background: #ffffff;
   border-radius: 24px;
   padding: 28px 32px;
-  border: 1px solid rgba(78, 89, 104, 0.10);
   margin-bottom: 28px;
-  box-shadow: 0 6px 24px rgba(25, 31, 40, 0.05);
 `;
 
 // 에디터가 직접 쓴 글의 머리표. 코발트는 인터랙션 색으로 남기고 여긴 무채색으로.
@@ -228,7 +226,6 @@ const DetailsButton = styled.button`
   gap: 8px;
   background: transparent;
   color: ${lightPalette.kobalt[500]};
-  border: 1.5px solid ${lightPalette.kobalt[500]};
   font-size: 14.5px;
   font-weight: 700;
   padding: 13px 26px;
@@ -239,7 +236,6 @@ const DetailsButton = styled.button`
   &:hover {
     background: ${lightPalette.kobalt[500]};
     color: #ffffff;
-    box-shadow: 0 6px 18px rgba(43, 92, 230, 0.22);
     transform: translateY(-2px);
   }
 `;

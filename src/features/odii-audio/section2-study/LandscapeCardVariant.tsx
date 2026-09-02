@@ -14,7 +14,7 @@ export function LandscapeCardVariant({ stories, selectedStoryId, onSelectStory }
         {stories.map((story) => (
           <MotionStudyCard
             key={story.id}
-            className="group grid h-[196px] w-[310px] shrink-0 grid-cols-[44%_1fr] overflow-hidden rounded-[20px] border border-[#211e19]/10 bg-[#fffdf9] shadow-[0_16px_38px_rgba(33,30,25,0.11)] sm:h-[218px] sm:w-[370px] sm:rounded-[24px]"
+            className="group grid h-[196px] w-[310px] shrink-0 grid-cols-[44%_1fr] overflow-hidden rounded-[20px] border border-[#211e19]/10 bg-[#fffdf9]  sm:h-[218px] sm:w-[370px] sm:rounded-[24px]"
           >
             <div className="relative overflow-hidden bg-[#ddd2c5]">
               <StudyImage

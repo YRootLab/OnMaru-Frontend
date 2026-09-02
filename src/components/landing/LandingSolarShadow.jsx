@@ -243,7 +243,6 @@ const Basis = styled.p`
 const LocationButton = styled.button`
   pointer-events: auto;
   padding: 4px 10px;
-  border: 1px solid rgba(160, 58, 10, 0.28);
   border-radius: 9999px;
   background: transparent;
   font-family: inherit;
@@ -289,12 +288,9 @@ const Controller = styled.div`
 const Card = styled.div`
   position: relative;
   padding: 10px 18px 6px;
-  border: 1px solid ${LINE};
   border-radius: 16px;
   background: ${surface.light.card};
   backdrop-filter: blur(16px);
-  box-shadow: 0 4px 20px rgba(25, 31, 40, 0.06);
-
   @media (max-width: 767px) {
     padding: 8px 12px 4px;
     border-radius: 14px;
@@ -348,7 +344,6 @@ const Track = styled.div`
   }
 
   &:focus-visible span[data-knob] {
-    box-shadow: 0 0 0 4px rgba(232, 90, 24, 0.24);
   }
 `;
 
@@ -395,8 +390,6 @@ const Knob = styled.span`
   margin: -11px 0 0 -11px;
   border-radius: 50%;
   background: #ffffff;
-  border: 3px solid ${(props) => props.accentColor || lightPalette.juhong[500]};
-  box-shadow: 0 2px 8px rgba(25, 31, 40, 0.18);
   transition: border-color 0.35s ease, box-shadow 0.2s ease-out;
 `;
 
@@ -411,7 +404,6 @@ const Label = styled.button`
   top: 0;
   transform: translateX(-50%);
   padding: 0 2px;
-  border: none;
   background: none;
   font-family: inherit;
   font-size: 11px;
@@ -444,7 +436,6 @@ const BackToToday = styled.button`
   bottom: calc(100% + 12px);
   transform: translateX(-50%);
   padding: 6px 14px;
-  border: 1px solid ${LINE};
   border-radius: 9999px;
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(8px);
@@ -454,7 +445,6 @@ const BackToToday = styled.button`
   white-space: nowrap;
   color: ${ACCENT};
   cursor: pointer;
-  box-shadow: 0 2px 10px rgba(25, 31, 40, 0.08);
   animation: ${riseIn} 0.3s ease-out;
 
   &:hover {

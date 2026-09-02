@@ -12,7 +12,8 @@
     "test:odii": "vitest run src/features/odii-audio/api/odiiApi.test.ts",
     "test:odii:live": "node scripts/test-odii-api.mjs",
     "probe": "node --env-file=.env.local scripts/probe-tourapi.mjs",
-    "probe:village": "node --env-file=.env.local scripts/probe-village.mjs"
+    "probe:village": "node --env-file=.env.local scripts/probe-village.mjs",
+    "probe:map": "node --env-file=.env.local scripts/probe-map-categories.mjs"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -22,17 +23,14 @@
     "@react-three/fiber": "^9.6.1",
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.110.0",
-    "@types/leaflet": "^1.9.22",
     "framer-motion": "^12.42.2",
     "gsap": "^3.15.0",
-    "leaflet": "^1.9.4",
     "lenis": "^1.3.25",
     "leva": "^0.10.1",
     "lucide-react": "^1.29.0",
     "next": "16.2.10",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "react-leaflet": "^5.0.0",
     "three": "^0.185.1",
     "zustand": "^5.0.14"
   },

@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 
 import { meok } from '@/design-system/tokens';
 import { BEAT_RANGES } from '@/scroll-core/constants';
-import { easeOut, progressIn, usePrefersReducedMotion } from '../../scroll-beats/BeatFrame';
+import { easeOut, progressIn, usePrefersReducedMotion } from '@/temp/scroll-beats/BeatFrame';
 
 // ─────────────────────────────────────────
 // 구간 (Beat2: 0.09 ~ 0.20)
