@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import styled from '@emotion/styled';
-import { X, Flame, Users, Leaf, Check } from 'lucide-react';
+import { X, Flame, Users, Leaf, Check, MapPin, Search } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { addWarmth, loadWarmth } from '../../warmth/warmthRepo';
 import { useMapStore } from '../../hooks/useMapStore';
@@ -19,6 +19,18 @@ interface WriteWarmthModalProps {
   };
 }
 
+const REGIONS = [
+  '전국',
+  '전주',
+  '안동',
+  '경주',
+  '서울',
+  '강릉',
+  '담양',
+  '공주/부여',
+  '제주',
+];
+
 const PRESET_TAGS = [
   '#대청마루',
   '#야경',
@@ -30,6 +42,7 @@ const PRESET_TAGS = [
   '#차한잔',
 ];
 
+/* ── STRICT RULE: border & shadow 절대 사용 금지 ── */
 const Overlay = styled.div<{ $open: boolean }>`
   position: fixed;
   inset: 0;
@@ -54,7 +67,8 @@ const ModalCard = styled.div<{ $open: boolean }>`
   padding: 24px;
   border-radius: 24px;
   background: #ffffff;
-  box-shadow: 0 16px 40px rgba(25, 31, 40, 0.18);
+  border: none;
+  box-shadow: none;
   transform: ${({ $open }) => ($open ? 'scale(1) translateY(0)' : 'scale(0.95) translateY(12px)')};
   transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
 `;
@@ -63,7 +77,7 @@ const ModalHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 `;
 
 const ModalTitle = styled.h3`
@@ -83,47 +97,151 @@ const CloseBtn = styled.button`
   width: 32px;
   height: 32px;
   border: none;
+  box-shadow: none;
   border-radius: 50%;
-  background: ${meok[100]};
+  background: #f2f4f6;
   color: ${meok[700]};
   cursor: pointer;
   transition: all 0.15s ease;
 
   &:hover {
-    background: ${meok[200]};
+    background: #e5e8eb;
     color: ${meok[900]};
   }
 `;
 
-const PlaceNameBadge = styled.div`
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: 12px;
-  background: ${lightPalette.juhong[50]};
-  color: ${lightPalette.juhong[700]};
-  font-size: 13px;
-  font-weight: 600;
-  margin-bottom: 18px;
-`;
-
 const FormSection = styled.div`
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 `;
 
 const SectionLabel = styled.label`
   display: block;
   font-size: 13px;
-  font-weight: 600;
-  color: ${meok[700]};
+  font-weight: 700;
+  color: ${meok[800]};
   margin-bottom: 8px;
 `;
 
+/* ── 1. 지역 선택기 (Region Scroller) ── */
+const RegionScroller = styled.div`
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+const RegionChip = styled.button<{ $active: boolean }>`
+  flex: none;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 9999px;
+  border: none;
+  box-shadow: none;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  background: ${({ $active }) => ($active ? lightPalette.juhong[500] : '#f2f4f6')};
+  color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: ${({ $active }) => ($active ? lightPalette.juhong[500] : '#e5e8eb')};
+  }
+`;
+
+/* ── 2. 장소 검색/선택 인풋 (Place Search & Select) ── */
+const PlaceInputWrap = styled.div`
+  position: relative;
+  margin-top: 8px;
+`;
+
+const PlaceInputIcon = styled.div`
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  color: ${lightPalette.juhong[500]};
+  pointer-events: none;
+`;
+
+const PlaceInput = styled.input`
+  width: 100%;
+  height: 42px;
+  padding: 0 14px 0 38px;
+  border-radius: 12px;
+  border: none;
+  box-shadow: none;
+  background: #f2f4f6;
+  color: ${meok[900]};
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  outline: none;
+
+  &::placeholder {
+    color: ${meok[400]};
+    font-weight: 400;
+  }
+
+  &:focus {
+    background: ${lightPalette.juhong[50]};
+    color: ${lightPalette.juhong[900]};
+  }
+`;
+
+const PlaceDropdown = styled.div`
+  margin-top: 6px;
+  max-height: 140px;
+  overflow-y: auto;
+  border-radius: 12px;
+  background: #fafbfc;
+  border: none;
+  box-shadow: none;
+  padding: 4px;
+`;
+
+const PlaceOption = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: none;
+  box-shadow: none;
+  background: transparent;
+  color: ${meok[900]};
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s ease;
+
+  &:hover {
+    background: ${lightPalette.juhong[50]};
+    color: ${lightPalette.juhong[700]};
+  }
+`;
+
+const PlaceOptionAddr = styled.span`
+  font-size: 11px;
+  color: ${meok[400]};
+  font-weight: 400;
+`;
+
+/* ── 3. 장소 혼잡도 분위기 ── */
 const MoodButtonGroup = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 8px;
 `;
 
 const MoodButton = styled.button<{ $active: boolean }>`
@@ -133,23 +251,21 @@ const MoodButton = styled.button<{ $active: boolean }>`
   gap: 8px;
   height: 42px;
   border-radius: 14px;
-  border: 1.5px solid
-    ${({ $active }) =>
-      $active ? lightPalette.juhong[500] : meok[200]};
-  background: ${({ $active }) =>
-    $active ? lightPalette.juhong[50] : '#ffffff'};
-  color: ${({ $active }) =>
-    $active ? lightPalette.juhong[700] : meok[700]};
+  border: none;
+  box-shadow: none;
+  background: ${({ $active }) => ($active ? lightPalette.juhong[500] : '#f2f4f6')};
+  color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
   font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.18s ease;
+  transition: all 0.15s ease;
 
   &:hover {
-    border-color: ${lightPalette.juhong[400]};
+    background: ${({ $active }) => ($active ? lightPalette.juhong[500] : '#e5e8eb')};
   }
 `;
 
+/* ── 4. 추천 키워드 태그 ── */
 const TagWrap = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -157,42 +273,45 @@ const TagWrap = styled.div`
 `;
 
 const TagChip = styled.button<{ $selected: boolean }>`
-  padding: 5px 10px;
+  padding: 6px 12px;
   border-radius: 9999px;
-  border: 1px solid ${({ $selected }) => ($selected ? lightPalette.juhong[500] : meok[200])};
-  background: ${({ $selected }) => ($selected ? lightPalette.juhong[50] : '#ffffff')};
-  color: ${({ $selected }) => ($selected ? lightPalette.juhong[700] : meok[700])};
-  font-size: 12px;
+  border: none;
+  box-shadow: none;
+  background: ${({ $selected }) => ($selected ? lightPalette.juhong[500] : '#f2f4f6')};
+  color: ${({ $selected }) => ($selected ? '#ffffff' : meok[700])};
+  font-size: 12.5px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
 
   &:hover {
-    border-color: ${lightPalette.juhong[400]};
+    background: ${({ $selected }) => ($selected ? lightPalette.juhong[500] : '#e5e8eb')};
   }
 `;
 
+/* ── 5. 한줄평 본문 ── */
 const TextArea = styled.textarea`
   width: 100%;
-  height: 80px;
+  height: 84px;
   padding: 12px 14px;
   border-radius: 14px;
-  border: 1.5px solid ${meok[200]};
-  background: #ffffff;
+  border: none;
+  box-shadow: none;
+  background: #f2f4f6;
   color: ${meok[900]};
   font-family: inherit;
   font-size: 14px;
   line-height: 1.5;
   resize: none;
   outline: none;
-  transition: border-color 0.18s ease;
+  transition: background 0.15s ease;
 
   &::placeholder {
     color: ${meok[400]};
   }
 
   &:focus {
-    border-color: ${lightPalette.juhong[500]};
+    background: #eef1f4;
   }
 `;
 
@@ -212,6 +331,7 @@ const SubmitBtn = styled.button`
   height: 48px;
   margin-top: 8px;
   border: none;
+  box-shadow: none;
   border-radius: 14px;
   background: ${lightPalette.juhong[500]};
   color: #ffffff;
@@ -219,19 +339,16 @@ const SubmitBtn = styled.button`
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(232, 90, 24, 0.28);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.18s ease;
 
   &:hover:not(:disabled) {
     background: ${lightPalette.juhong[700]};
-    transform: translateY(-1px);
-    box-shadow: 0 6px 18px rgba(232, 90, 24, 0.35);
   }
 
   &:disabled {
-    background: ${meok[400]};
+    background: #d1d5db;
+    color: #9ca3af;
     cursor: not-allowed;
-    box-shadow: none;
   }
 `;
 
@@ -240,14 +357,46 @@ export default function WriteWarmthModal({
   onClose,
   defaultPlace,
 }: WriteWarmthModalProps) {
+  const items = useMapStore((s) => s.items);
+  const searchCenter = useMapStore((s) => s.searchCenter);
+  const setWarmths = useMapStore((s) => s.setWarmths);
+
+  const [selectedRegion, setSelectedRegion] = useState('전국');
+  const [placeQuery, setPlaceQuery] = useState(defaultPlace?.name || '');
+  const [selectedPlace, setSelectedPlace] = useState<{
+    id: string;
+    name: string;
+    lat: number;
+    lng: number;
+  } | null>(defaultPlace || null);
+
   const [score, setScore] = useState<MoodValue>(1);
   const [mood, setMood] = useState<'한적' | '북적'>('한적');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [text, setText] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const setWarmths = useMapStore((s) => s.setWarmths);
-  const searchCenter = useMapStore((s) => s.searchCenter);
+  // 지역 및 검색어 필터링된 장소 목록
+  const filteredPlaces = useMemo(() => {
+    let list = items;
+    if (selectedRegion !== '전국') {
+      list = list.filter(
+        (i) => i.addr?.includes(selectedRegion) || i.name.includes(selectedRegion),
+      );
+    }
+    if (placeQuery.trim()) {
+      const q = placeQuery.trim().toLowerCase();
+      list = list.filter((i) => i.name.toLowerCase().includes(q));
+    }
+    return list.slice(0, 5);
+  }, [items, selectedRegion, placeQuery]);
+
+  const handleSelectPlace = (place: { id: string; name: string; lat: number; lng: number }) => {
+    setSelectedPlace(place);
+    setPlaceQuery(place.name);
+    setIsDropdownOpen(false);
+  };
 
   const handleToggleTag = (tag: string) => {
     setSelectedTags((prev) =>
@@ -259,12 +408,11 @@ export default function WriteWarmthModal({
     e.preventDefault();
     if (!text.trim()) return;
 
-    const placeId = defaultPlace?.id || `custom-${Date.now()}`;
-    const placeName = defaultPlace?.name || '우리 동네 한옥';
-    const lat = defaultPlace?.lat || searchCenter.lat;
-    const lng = defaultPlace?.lng || searchCenter.lng;
+    const placeId = selectedPlace?.id || `custom-${Date.now()}`;
+    const placeName = selectedPlace?.name || placeQuery.trim() || '우리 동네 한옥';
+    const lat = selectedPlace?.lat || searchCenter.lat;
+    const lng = selectedPlace?.lng || searchCenter.lng;
 
-    // 로컬 저장소에 온기 추가
     addWarmth({
       placeId,
       placeName,
@@ -276,7 +424,6 @@ export default function WriteWarmthModal({
       tags: selectedTags,
     });
 
-    // Zustand 스토어 업데이트
     setWarmths(loadWarmth());
 
     setIsSuccess(true);
@@ -303,21 +450,63 @@ export default function WriteWarmthModal({
           </CloseBtn>
         </ModalHeader>
 
-        {defaultPlace && (
-          <PlaceNameBadge>
-            <span>📍</span>
-            <span>{defaultPlace.name}</span>
-          </PlaceNameBadge>
-        )}
-
         <form onSubmit={handleSubmit}>
-          {/* 1. 표정 감정 선택기 */}
+          {/* 1. 지역 및 장소 선택기 */}
+          <FormSection>
+            <SectionLabel>남길 지역 및 장소 선택</SectionLabel>
+            <RegionScroller>
+              {REGIONS.map((region) => (
+                <RegionChip
+                  key={region}
+                  type="button"
+                  $active={selectedRegion === region}
+                  onClick={() => setSelectedRegion(region)}
+                >
+                  {region}
+                </RegionChip>
+              ))}
+            </RegionScroller>
+
+            <PlaceInputWrap>
+              <PlaceInputIcon>
+                <MapPin size={16} />
+              </PlaceInputIcon>
+              <PlaceInput
+                type="text"
+                value={placeQuery}
+                onFocus={() => setIsDropdownOpen(true)}
+                onChange={(e) => {
+                  setPlaceQuery(e.target.value);
+                  setIsDropdownOpen(true);
+                }}
+                placeholder="장소명을 검색하거나 직접 입력하세요 (예: 경기전)"
+                required
+              />
+            </PlaceInputWrap>
+
+            {isDropdownOpen && filteredPlaces.length > 0 && (
+              <PlaceDropdown>
+                {filteredPlaces.map((place) => (
+                  <PlaceOption
+                    key={place.id}
+                    type="button"
+                    onClick={() => handleSelectPlace(place)}
+                  >
+                    <span>{place.name}</span>
+                    <PlaceOptionAddr>{place.addr?.split(' ').slice(0, 2).join(' ')}</PlaceOptionAddr>
+                  </PlaceOption>
+                ))}
+              </PlaceDropdown>
+            )}
+          </FormSection>
+
+          {/* 2. 표정 감정 선택기 */}
           <FormSection>
             <SectionLabel>이곳에서의 전반적인 느낌 (표정 선택)</SectionLabel>
             <MoodSelector value={score} onChange={(val) => setScore(val)} />
           </FormSection>
 
-          {/* 2. 장소 혼잡도 분위기 */}
+          {/* 3. 장소 혼잡도 분위기 */}
           <FormSection>
             <SectionLabel>현재 이 장소의 분위기</SectionLabel>
             <MoodButtonGroup>
@@ -340,7 +529,7 @@ export default function WriteWarmthModal({
             </MoodButtonGroup>
           </FormSection>
 
-          {/* 3. 추천 키워드 태그 */}
+          {/* 4. 추천 키워드 태그 */}
           <FormSection>
             <SectionLabel>방문 키워드 (선택)</SectionLabel>
             <TagWrap>
@@ -357,7 +546,7 @@ export default function WriteWarmthModal({
             </TagWrap>
           </FormSection>
 
-          {/* 4. 한줄평 본문 */}
+          {/* 5. 한줄평 본문 */}
           <FormSection>
             <SectionLabel>이곳에 머문 느낌이나 꿀팁</SectionLabel>
             <TextArea
