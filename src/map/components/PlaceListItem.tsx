@@ -13,10 +13,14 @@ import {
   BookOpen,
   Moon,
   Headphones,
+  Bookmark,
 } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
+import { useBookmarkStore } from '@/map/hooks/useBookmarkStore';
+import { useMapStore } from '@/map/hooks/useMapStore';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { matchOdiiStory } from '@/features/odii-audio/hooks/useOdiiPlaceStory';
+import { calculateTravelEstimate } from '@/map/utils/geo';
 import { CATEGORY_STYLES } from './PlaceMarkers';
 import type { Item, PlaceCategory } from '@/map/types';
 
@@ -63,6 +67,34 @@ const ItemButton = styled.button<{ $isSelected: boolean }>`
   }
 `;
 
+const BookmarkQuickBtn = styled.button<{ $active: boolean }>`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: ${({ $active }) => ($active ? 'rgba(232, 90, 24, 0.12)' : 'rgba(25, 31, 40, 0.04)')};
+  color: ${({ $active }) => ($active ? lightPalette.juhong[500] : meok[400])};
+  cursor: pointer;
+  z-index: 3;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: ${({ $active }) => ($active ? 'rgba(232, 90, 24, 0.2)' : 'rgba(25, 31, 40, 0.08)')};
+    color: ${({ $active }) => ($active ? lightPalette.juhong[700] : meok[700])};
+    transform: scale(1.1);
+  }
+
+  &:active {
+    transform: scale(0.9);
+  }
+`;
+
 const ThumbnailBox = styled.div`
   position: relative;
   width: 72px;
@@ -94,6 +126,7 @@ const Content = styled.div`
   justify-content: space-between;
   flex: 1;
   min-width: 0;
+  padding-right: 28px;
 `;
 
 const Row1 = styled.div`
@@ -159,6 +192,19 @@ const Row3 = styled.div`
   color: ${lightPalette.cheongrok[700]};
   font-variant-numeric: tabular-nums;
   margin-top: 2px;
+`;
+
+const TraditionalBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: ${lightPalette.cheongrok[700]};
+  background: rgba(40, 110, 95, 0.12);
+  white-space: nowrap;
 `;
 
 const BadgeRow = styled.div`
@@ -239,13 +285,6 @@ function getDistrictFromAddr(addr?: string): string {
   return addr;
 }
 
-/** 거리 포맷팅 (1000m 미만 "320m", 이상 "2.4km") */
-function formatDistance(dist?: number | null): string {
-  if (dist === null || dist === undefined || !Number.isFinite(dist)) return '';
-  if (dist < 1000) return `${Math.round(dist)}m`;
-  return `${(dist / 1000).toFixed(1)}km`;
-}
-
 function PlaceListItemComponent({
   item,
   index,
@@ -262,15 +301,50 @@ function PlaceListItemComponent({
     }
   }, [isSelected]);
 
+  const userLocation = useMapStore((s) => s.userLocation);
+  const center = useMapStore((s) => s.center);
   const availableStories = useOdiiAudioStore((s) => s.availableStories);
+  const isBookmarked = useBookmarkStore((s) => s.isBookmarked(item.id));
+  const toggleBookmark = useBookmarkStore((s) => s.toggleBookmark);
+
+  const travelEstimate = useMemo(() => {
+    return calculateTravelEstimate(item, userLocation, center);
+  }, [item, userLocation, center]);
 
   const hasOdii = useMemo(() => {
     return Boolean(matchOdiiStory(item, availableStories));
   }, [item, availableStories]);
 
-  const catLabel = CATEGORY_LABELS[item.category] || '한옥명소';
+  const isRealTraditional = useMemo(() => {
+    if (item.isTraditional !== undefined) return item.isTraditional;
+    return /(한옥|고택|종택|향교|서원|사당|궁궐|성곽|누각|정자|기와|초가|전통|다원|다도|명옥헌|임청각|명재|선교장|운현궁|낙선재|대청|마루|온돌|당\b|재\b|헌\b|루\b|정\b|각\b|원\b)/i.test(
+      item.name,
+    );
+  }, [item.isTraditional, item.name]);
+
+  const catLabel = useMemo(() => {
+    if (item.category === 'stay') return isRealTraditional ? '정통 한옥숙소' : '주변 연계숙소';
+    if (item.category === 'cafe') return isRealTraditional ? '전통 찻집·한옥카페' : '주변 일반카페';
+    if (item.category === 'food') return isRealTraditional ? '향토·전통음식' : '주변 일반음식';
+    if (item.category === 'spot') return isRealTraditional ? '고택·전통명소' : '관광명소';
+    return CATEGORY_LABELS[item.category] || '한옥명소';
+  }, [item.category, isRealTraditional]);
+
+  const handleBookmarkClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggleBookmark({
+      id: item.id,
+      name: item.name,
+      category: item.category,
+      addr: item.addr || undefined,
+      image: item.image || undefined,
+      lat: item.lat,
+      lng: item.lng,
+    });
+  };
+
   const district = getDistrictFromAddr(item.addr);
-  const distText = formatDistance(item.dist);
+  const distText = travelEstimate.fullLabel;
 
   return (
     <ItemContainer ref={itemRef}>
@@ -313,18 +387,34 @@ function PlaceListItemComponent({
 
           {distText && <Row3>{distText}</Row3>}
 
-          {(hasOdii || item.tel) && (
-            <BadgeRow>
-              {hasOdii && (
-                <OdiiBadge title="한국관광공사 공식 오디 오디오 도슨트 해설 지원 장소">
-                  <Headphones size={10} />
-                  <span>오디 해설</span>
-                </OdiiBadge>
-              )}
-              {item.tel && <Badge>안내 가능</Badge>}
-            </BadgeRow>
-          )}
+          <BadgeRow>
+            {isRealTraditional ? (
+              <TraditionalBadge title="정통 한옥 및 전통 문화재 인증 명소">
+                <Landmark size={10} />
+                <span>정통 한옥</span>
+              </TraditionalBadge>
+            ) : (
+              <Badge>주변 연계</Badge>
+            )}
+            {hasOdii && (
+              <OdiiBadge title="한국관광공사 공식 오디 오디오 도슨트 해설 지원 장소">
+                <Headphones size={10} />
+                <span>오디 해설</span>
+              </OdiiBadge>
+            )}
+            {item.tel && <Badge>안내 가능</Badge>}
+          </BadgeRow>
         </Content>
+
+        <BookmarkQuickBtn
+          type="button"
+          $active={isBookmarked}
+          onClick={handleBookmarkClick}
+          title={isBookmarked ? '저장 해제' : '마음에 담기'}
+          aria-label={isBookmarked ? `${item.name} 마음에 담기 취소` : `${item.name} 마음에 담기`}
+        >
+          <Bookmark size={13} fill={isBookmarked ? 'currentColor' : 'none'} />
+        </BookmarkQuickBtn>
       </ItemButton>
     </ItemContainer>
   );

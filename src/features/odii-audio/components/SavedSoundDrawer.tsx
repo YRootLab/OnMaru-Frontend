@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { Heart } from 'lucide-react';
 import { OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 
@@ -43,9 +44,9 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
         type="button"
         onClick={() => setIsOpen(true)}
         aria-label={`마음 담아둔 소리 ${savedStories.length}개 열기`}
-        className="fixed bottom-20 right-4 z-40 inline-flex items-center gap-2 border border-[#211e19]/20 bg-[#fbf8f2] px-3.5 py-2.5 text-xs font-semibold text-[#211e19]  transition-colors hover:border-[#a94d35] hover:text-[#a94d35] sm:right-6"
+        className="fixed bottom-20 right-4 z-40 inline-flex items-center gap-2 bg-[#fbf8f2] px-3.5 py-2.5 text-xs font-semibold text-[#211e19] transition-colors hover:text-[#f84e76] sm:right-6"
       >
-        <span className="text-[#a94d35]">♥</span>
+        <Heart size={14} className="fill-current text-[#f84e76]" />
         마음 담아둔 소리
         <span className="font-mono text-[10px] text-[#8c7e6c]">{savedStories.length}</span>
       </button>
@@ -70,7 +71,7 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
               transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
               className="relative z-10 flex h-full w-full max-w-md flex-col bg-[#fbf8f2] p-6 text-[#211e19]  sm:p-8"
             >
-              <div className="flex items-start justify-between border-b border-[#211e19]/15 pb-5">
+              <div className="flex items-start justify-between   pb-5">
                 <div>
                   <p className="text-xs font-semibold text-[#a94d35]">다시 듣고 싶은 장면</p>
                   <h2 className="mt-1 font-odii-sans text-2xl font-bold tracking-[-0.045em]">마음 담아둔 소리</h2>
@@ -91,7 +92,7 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
 
               <div className="mt-6 flex-1 space-y-4 overflow-y-auto pr-1">
                 {savedStories.length === 0 ? (
-                  <div className="border-y border-dashed border-[#211e19]/20 py-16 text-center text-xs leading-6 text-[#8c7e6c]">
+                  <div className="   py-16 text-center text-xs leading-6 text-[#8c7e6c]">
                     아직 담아둔 소리가 없습니다.
                     <br />
                     이야기 옆의 하트를 눌러보세요.
@@ -100,7 +101,7 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
                   savedStories.map((story, index) => {
                     const isCurrentPlaying = currentStory.stid === story.stid && isPlaying;
                     return (
-                      <div key={`${story.stid}-${index}`} className="flex gap-3 border-b border-[#211e19]/12 pb-4">
+                      <div key={`${story.stid}-${index}`} className="flex gap-3   pb-4">
                         <div className="h-16 w-20 shrink-0 overflow-hidden bg-[#e5dbcd]">
                           <img src={story.imageUrl || 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80'} alt="" className="h-full w-full object-cover" />
                         </div>
@@ -133,7 +134,7 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
                 )}
               </div>
 
-              <p className="border-t border-[#211e19]/12 pt-4 text-[10px] text-[#8c7e6c]">
+              <p className="  pt-4 text-[10px] text-[#8c7e6c]">
                 이 기기의 브라우저에 저장됩니다.
               </p>
             </motion.aside>

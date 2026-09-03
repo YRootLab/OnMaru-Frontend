@@ -10,10 +10,7 @@ import type { KakaoMap } from '@/map/types';
 
 const log = logger('map');
 
-/**
- * 현재 화면이 담고 있는 반경(m). 중심에서 북동쪽 모서리까지가 곧 요청 반경이다.
- * locationBasedList2 상한이 20km라 lib에서 한 번 더 자른다.
- */
+/** 지도 뷰포트 기반 탐색 반경(m) 계산 */
 function radiusFromMap(map: KakaoMap): number {
   const bounds = map.getBounds?.();
   if (!bounds) return 3000;
@@ -25,12 +22,10 @@ function radiusFromMap(map: KakaoMap): number {
   );
 }
 
-/**
- * 지도 데이터 공급.
- * - 온기는 로컬에서 한 번 읽는다 (씨앗 + 내가 남긴 것).
- * - 장소는 지도가 준비되거나 카테고리/검색중심이 바뀔 때만 TourAPI를 친다.
- *   지도를 움직이는 동안은 절대 안 친다 — 그래서 "이 지역 재검색" 버튼이 있는 것.
- */
+const CLIENT_CACHE_TTL = 5 * 60 * 1000; // 5분 클라이언트 캐시
+const clientPlaceCache = new Map<string, { expiresAt: number; items: any[] }>();
+
+/** 지도 장소 목록 및 온기 데이터 실시간 동기화 훅 */
 export function useMapData() {
   const map = useMapStore((s) => s.map);
   const mode = useMapStore((s) => s.mode);
@@ -44,16 +39,26 @@ export function useMapData() {
 
   useEffect(() => {
     const { setItems, setLoading, setError } = useMapStore.getState();
-    // 정보모드가 아니거나 지도가 아직 없으면 로딩을 반드시 내린다.
-    // 안 그러면 fetch 도중 모드를 바꿨을 때 loading이 true로 영영 박힌다.
     if (!map || mode !== 'info') {
       setLoading(false);
       return;
     }
 
-    const controller = new AbortController();
     const radius = Math.round(radiusFromMap(map));
+    const roundedLat = Math.round(searchCenter.lat * 100) / 100;
+    const roundedLng = Math.round(searchCenter.lng * 100) / 100;
+    const roundedRadius = Math.round(radius / 1000) * 1000;
+    const cacheKey = `${roundedLat}_${roundedLng}_${roundedRadius}_${category || 'all'}`;
 
+    // 클라이언트 메모리 캐시 히트 시 0ms 즉각 렌더링
+    const cached = clientPlaceCache.get(cacheKey);
+    if (cached && cached.expiresAt > Date.now()) {
+      setItems(cached.items);
+      setLoading(false);
+      return;
+    }
+
+    const controller = new AbortController();
     const params = new URLSearchParams({
       lat: String(searchCenter.lat),
       lng: String(searchCenter.lng),
@@ -68,13 +73,19 @@ export function useMapData() {
 
     fetch(`/api/map/places?${params}`, { signal: controller.signal })
       .then(async (res) => {
-        // 라우트는 실패해도 200 + items:[] + error 를 준다. 상태코드가 아니라 body를 본다.
         const json = await res.json().catch(() => ({}));
         const items = Array.isArray(json.items) ? json.items : [];
         log.log('items', items.length, `${Math.round(performance.now() - t0)}ms`, json.error ?? '');
+
+        // 클라이언트 캐시에 저장
+        clientPlaceCache.set(cacheKey, {
+          expiresAt: Date.now() + CLIENT_CACHE_TTL,
+          items,
+        });
+
         setItems(items);
 
-        // 실시간 Odii API에서 현재 지도 뷰포트 반경의 공식 도슨트 해설 데이터 동적 인덱싱 & Zustand 상태 업데이트
+        // 오디 도슨트 해설 데이터 동기화
         useOdiiAudioStore
           .getState()
           .fetchRegionalOdiiStories(searchCenter.lng, searchCenter.lat);
@@ -89,7 +100,6 @@ export function useMapData() {
         setItems([]);
         setError(err instanceof Error ? err.message : '장소를 불러오지 못했습니다');
       })
-      // 중단된 요청은 뒤이은 요청의 loading=true를 덮어쓰면 안 된다.
       .finally(() => {
         if (!controller.signal.aborted) setLoading(false);
       });

@@ -80,10 +80,20 @@ export const FeaturedPlaceArea = styled.div`
   padding: 8px 16px 14px;
 `;
 
-export const FeaturedCard = styled.div`
+/*
+  클릭으로 상세를 여는 카드라 button으로 둔다.
+  div + onClick이면 Tab으로 닿지 않고 Enter로도 열리지 않는다.
+*/
+export const FeaturedCard = styled.button`
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+
   padding: 14px 16px;
-  background: #f7f1e6;
+  background: #f8f6f0;
   border-radius: 18px;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -91,12 +101,20 @@ export const FeaturedCard = styled.div`
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    background: #f0eae0;
+    background: #f2eee6;
     transform: translateY(-1px);
   }
 
   &:active {
     transform: scale(0.985);
+  }
+
+  [data-theme='dark'] & {
+    background: #25221d;
+
+    &:hover {
+      background: #2c2822;
+    }
   }
 `;
 
@@ -115,8 +133,13 @@ export const FeaturedIconBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${lightPalette.juhong[500]};
+  color: ${meok[900]};
   flex-shrink: 0;
+
+  [data-theme='dark'] & {
+    background: #1c1a17;
+    color: ${meok[100]};
+  }
 `;
 
 export const FeaturedInfo = styled.div`
@@ -126,7 +149,7 @@ export const FeaturedInfo = styled.div`
 export const FeaturedRank = styled.span`
   font-size: 11px;
   font-weight: 700;
-  color: ${lightPalette.juhong[700]};
+  color: ${lightPalette.juhong[500]};
   display: block;
   margin-bottom: 2px;
 `;
@@ -231,4 +254,79 @@ export const EmptyState = styled.div`
   color: ${meok[500]};
   font-size: 13.5px;
   line-height: 1.6;
+`;
+
+export const PaginationWrapper = styled.nav`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 16px 0 24px;
+`;
+
+export const PageNavBtn = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(78, 89, 104, 0.06);
+  color: ${meok[700]};
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: rgba(78, 89, 104, 0.12);
+    color: ${meok[900]};
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+`;
+
+export const PageNumberGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 4px;
+`;
+
+export const PageNumberBtn = styled.button<{ $active: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 6px;
+  border-radius: 10px;
+  border: none;
+  background: ${({ $active }) =>
+    $active ? lightPalette.juhong[500] : 'transparent'};
+  color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: ${({ $active }) => ($active ? 700 : 500)};
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: ${({ $active }) =>
+      $active ? lightPalette.juhong[700] : 'rgba(78, 89, 104, 0.08)'};
+    color: ${({ $active }) => ($active ? '#ffffff' : meok[900])};
+  }
+`;
+
+export const PageIndicator = styled.span`
+  font-size: 11.5px;
+  font-weight: 500;
+  color: ${meok[500]};
+  margin-left: 4px;
 `;

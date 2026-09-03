@@ -89,7 +89,7 @@ export const OdiiOriginalStoryList: React.FC<Props> = ({ stories, onBookmarkStor
                   type="button"
                   onClick={(event) => play(story, event)}
                   aria-label={playing ? '일시정지' : '재생'}
-                  className={`flex h-8 w-8 items-center justify-center rounded-full transition-all ${playing ? 'scale-105 bg-[#f84e76] text-white' : 'border border-[#f84e76]/25 bg-white text-[#f84e76] hover:border-[#f84e76] hover:bg-[#f84e76] hover:text-white'}`}
+                  className={`flex h-8 w-8 items-center justify-center rounded-full transition-all ${playing ? 'scale-105 bg-[#f84e76] text-white' : ' bg-white text-[#f84e76] hover: hover:bg-[#f84e76] hover:text-white'}`}
                 >
                   {playing ? <Pause size={12} fill="currentColor" /> : <Play size={12} fill="currentColor" className="ml-0.5" />}
                 </button>

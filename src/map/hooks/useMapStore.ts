@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { lightPalette } from '@/design-system/tokens';
 import type { Item, KakaoMap, LatLng, MapMode, SheetSnap, Warmth } from '@/map/types';
+import type { WarmthPeriod } from '@/map/warmth/heatScale';
 
 /** 대한민국 전국 중심 시점 (특정 지역을 검색하지 않았을 때 기본 전국 조망) */
 export const DEFAULT_CENTER: LatLng = { lat: 36.35, lng: 127.75 };
@@ -20,14 +21,19 @@ interface MapState {
   category: string | null;
   center: LatLng;
   level: number;
+  /** 사용자의 실제 GPS 위치 (권한 획득 시) */
+  userLocation: LatLng | null;
   items: Item[];
   warmths: Warmth[];
+  /** 온기 히트맵·피드가 함께 보는 기간 창. 좁히면 '지금 이 동네'가 보인다. */
+  warmthPeriod: WarmthPeriod;
   loading: boolean;
   error: string | null;
   selectedId: string | null;
   hoveredId: string | null;
   detailId: string | null;
   popularPanelOpen: boolean;
+  fromPopularRanking: boolean;
   sortOrder: 'dist' | 'name';
   currentAddress: string;
   /** 마지막으로 검색한 중심. 여기서 2km 벗어나면 재검색 버튼이 뜬다. */
@@ -42,13 +48,17 @@ interface MapState {
   setMode: (mode: MapMode) => void;
   setCategory: (category: string | null) => void;
   setCenter: (center: LatLng, level?: number) => void;
+  setUserLocation: (userLocation: LatLng | null) => void;
   setItems: (items: Item[]) => void;
   setWarmths: (warmths: Warmth[]) => void;
+  setWarmthPeriod: (period: WarmthPeriod) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   setSelectedId: (id: string | null) => void;
   setHoveredId: (id: string | null) => void;
   setDetailId: (id: string | null) => void;
+  setDetailFromPopular: (id: string) => void;
+  goBackToPopularRanking: () => void;
   setPopularPanelOpen: (open: boolean) => void;
   setSortOrder: (sortOrder: 'dist' | 'name') => void;
   setCurrentAddress: (currentAddress: string) => void;
@@ -65,14 +75,17 @@ export const useMapStore = create<MapState>((set, get) => ({
   category: null,
   center: DEFAULT_CENTER,
   level: DEFAULT_LEVEL,
+  userLocation: null,
   items: [],
   warmths: [],
+  warmthPeriod: 'all',
   loading: false,
   error: null,
   selectedId: null,
   hoveredId: null,
   detailId: null,
   popularPanelOpen: false,
+  fromPopularRanking: false,
   sortOrder: 'dist',
   currentAddress: '대한민국 전국',
   searchCenter: DEFAULT_CENTER,
@@ -91,6 +104,7 @@ export const useMapStore = create<MapState>((set, get) => ({
       hoveredId: null,
       detailId: null,
       popularPanelOpen: false,
+      fromPopularRanking: false,
     }),
   setCategory: (category) =>
     set({
@@ -99,17 +113,25 @@ export const useMapStore = create<MapState>((set, get) => ({
       hoveredId: null,
       detailId: null,
       popularPanelOpen: false,
+      fromPopularRanking: false,
     }),
   setCenter: (center, level) => set(level === undefined ? { center } : { center, level }),
+  setUserLocation: (userLocation) => set({ userLocation }),
   setItems: (items) => set({ items }),
   setWarmths: (warmths) => set({ warmths }),
+  setWarmthPeriod: (warmthPeriod) => set({ warmthPeriod }),
   setLoading: (loading) => set({ loading }),
   setError: (error) => set({ error }),
   setSelectedId: (selectedId) => set({ selectedId }),
   setHoveredId: (hoveredId) => set({ hoveredId }),
-  setDetailId: (detailId) => set({ detailId, popularPanelOpen: false }),
+  setDetailId: (detailId) =>
+    set({ detailId, popularPanelOpen: false, fromPopularRanking: false }),
+  setDetailFromPopular: (detailId) =>
+    set({ detailId, popularPanelOpen: false, fromPopularRanking: true }),
+  goBackToPopularRanking: () =>
+    set({ detailId: null, popularPanelOpen: true, fromPopularRanking: false }),
   setPopularPanelOpen: (popularPanelOpen) =>
-    set({ popularPanelOpen, detailId: popularPanelOpen ? null : get().detailId }),
+    set({ popularPanelOpen, detailId: popularPanelOpen ? null : get().detailId, fromPopularRanking: false }),
   setSortOrder: (sortOrder) => set({ sortOrder }),
   setCurrentAddress: (currentAddress) => set({ currentAddress }),
   markSearchDirty: () => set({ isSearchDirty: true }),

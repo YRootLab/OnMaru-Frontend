@@ -60,6 +60,22 @@ const ListArea = styled.div`
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(78, 89, 104, 0.2) transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(78, 89, 104, 0.2);
+    border-radius: 9999px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(78, 89, 104, 0.35);
+  }
 `;
 
 const Toggle = styled.button`
@@ -99,9 +115,9 @@ export default function ListPanel() {
   return (
     <Panel $open={panelOpen}>
       <Inner>
-        {/* 1. 상단 2단 헤더: (1) 홈 버튼 일체형 검색바 + (2) 모드 토글 */}
+        {/* 1. 상단 2단 헤더: (1) 검색바 + (2) 모드 토글 */}
         <HeaderArea>
-          <SearchBar showHomeButton={true} />
+          <SearchBar />
           <ModeToggle />
         </HeaderArea>
 

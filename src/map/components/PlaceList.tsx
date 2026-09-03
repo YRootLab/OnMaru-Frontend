@@ -1,11 +1,23 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
-import { ChevronDown, Map, RefreshCw, AlertCircle, Sparkles, LayoutList } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Map,
+  RefreshCw,
+  AlertCircle,
+  Sparkles,
+  LayoutList,
+  Bookmark,
+} from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
+import { useBookmarkStore } from '@/map/hooks/useBookmarkStore';
+import { distanceInMeters } from '@/map/utils/geo';
 import { PlaceListItem } from './PlaceListItem';
 import LiveNoticeBanner from './feed/LiveNoticeBanner';
 import FestivalExhibitionCarousel from './feed/FestivalExhibitionCarousel';
@@ -13,7 +25,10 @@ import OdiiSpotlightBanner from './feed/OdiiSpotlightBanner';
 import SmartAroundFeed from './feed/SmartAroundFeed';
 import type { Item, PlaceCategory } from '@/map/types';
 
+const ITEMS_PER_PAGE = 10;
+
 const CATEGORY_NAMES: Record<string, string> = {
+  bookmark: '마음에 담은 곳',
   spot: '고택·명소',
   experience: '한복·전통체험',
   culture: '문화재·서원',
@@ -47,6 +62,13 @@ const CountLabel = styled.span`
   font-size: 13.5px;
   font-weight: 700;
   color: ${meok[900]};
+`;
+
+const PageIndicator = styled.span`
+  font-size: 11.5px;
+  font-weight: 500;
+  color: ${meok[500]};
+  margin-left: 2px;
 `;
 
 const SortDropdownWrapper = styled.div`
@@ -88,6 +110,75 @@ const ListContainer = styled.ul`
   list-style: none;
   margin: 0;
   padding: 0;
+`;
+
+/* ── 페이지네이션 스타일 ── */
+const PaginationWrapper = styled.nav`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 18px 16px 28px;
+`;
+
+const PageNavBtn = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(78, 89, 104, 0.06);
+  color: ${meok[700]};
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: rgba(78, 89, 104, 0.12);
+    color: ${meok[900]};
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+`;
+
+const PageNumberGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 4px;
+`;
+
+const PageNumberBtn = styled.button<{ $active: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 6px;
+  border-radius: 10px;
+  border: none;
+  background: ${({ $active }) =>
+    $active ? lightPalette.cheongrok[500] : 'transparent'};
+  color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: ${({ $active }) => ($active ? 700 : 500)};
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: ${({ $active }) =>
+      $active ? lightPalette.cheongrok[700] : 'rgba(78, 89, 104, 0.08)'};
+    color: ${({ $active }) => ($active ? '#ffffff' : meok[900])};
+  }
 `;
 
 /* ── 스켈레톤 로딩 ── */
@@ -191,6 +282,8 @@ const ActionButton = styled.button`
 export default function PlaceList() {
   const map = useMapStore((s) => s.map);
   const items = useMapStore((s) => s.items);
+  const userLocation = useMapStore((s) => s.userLocation);
+  const center = useMapStore((s) => s.center);
   const loading = useMapStore((s) => s.loading);
   const error = useMapStore((s) => s.error);
   const category = useMapStore((s) => s.category);
@@ -204,14 +297,86 @@ export default function PlaceList() {
   const setHoveredId = useMapStore((s) => s.setHoveredId);
   const reload = useMapStore((s) => s.reload);
 
-  // 정렬 처리
+  const bookmarks = useBookmarkStore((s) => s.bookmarks);
+  const listTopRef = useRef<HTMLDivElement>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // 정렬 및 북마크 필터링 처리 (GPS 내 위치 또는 지도 중심 기준 정밀 정렬)
   const sortedItems = useMemo(() => {
-    const list = [...items];
+    let list = [...items];
+    if (category === 'bookmark') {
+      const bookmarkedIdSet = new Set(bookmarks.map((b) => b.id));
+      list = list.filter((item) => bookmarkedIdSet.has(item.id));
+      const existingIds = new Set(list.map((item) => item.id));
+      bookmarks.forEach((b) => {
+        if (!existingIds.has(b.id)) {
+          list.push({
+            id: b.id,
+            name: b.name,
+            category: (b.category as PlaceCategory) || 'spot',
+            lat: b.lat || 37.5665,
+            lng: b.lng || 126.978,
+            addr: b.addr || '',
+            image: b.image || null,
+            tel: null,
+            dist: null,
+          });
+        }
+      });
+    }
     if (sortOrder === 'name') {
       return list.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
     }
-    return list.sort((a, b) => (a.dist ?? 1e9) - (b.dist ?? 1e9));
-  }, [items, sortOrder]);
+
+    const basePoint = userLocation || center;
+    return list.sort((a, b) => {
+      const distA =
+        a.lat && a.lng && basePoint
+          ? distanceInMeters(basePoint, { lat: a.lat, lng: a.lng })
+          : (a.dist ?? 1e9);
+      const distB =
+        b.lat && b.lng && basePoint
+          ? distanceInMeters(basePoint, { lat: b.lat, lng: b.lng })
+          : (b.dist ?? 1e9);
+      return distA - distB;
+    });
+  }, [items, sortOrder, category, bookmarks, userLocation, center]);
+
+  // 필터, 정렬, 지역 변경 시 1페이지로 리셋
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [category, currentAddress, sortOrder, items.length]);
+
+  const totalPages = Math.max(1, Math.ceil(sortedItems.length / ITEMS_PER_PAGE));
+  const validPage = Math.min(currentPage, totalPages);
+
+  const paginatedItems = useMemo(() => {
+    const start = (validPage - 1) * ITEMS_PER_PAGE;
+    return sortedItems.slice(start, start + ITEMS_PER_PAGE);
+  }, [sortedItems, validPage]);
+
+  const pageNumbers = useMemo(() => {
+    const maxVisible = 5;
+    let start = Math.max(1, validPage - Math.floor(maxVisible / 2));
+    let end = start + maxVisible - 1;
+    if (end > totalPages) {
+      end = totalPages;
+      start = Math.max(1, end - maxVisible + 1);
+    }
+    const pages: number[] = [];
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }, [validPage, totalPages]);
+
+  const handlePageChange = (page: number) => {
+    const target = Math.max(1, Math.min(page, totalPages));
+    setCurrentPage(target);
+    if (listTopRef.current) {
+      listTopRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   // 축제/행사 아이템 필터링
   const festivalItems = useMemo(() => {
@@ -249,6 +414,8 @@ export default function PlaceList() {
 
   return (
     <div>
+      <div ref={listTopRef} />
+
       {/* 1. 실시간 공지/소식 롤링 띠배너 */}
       <LiveNoticeBanner />
 
@@ -271,6 +438,9 @@ export default function PlaceList() {
         <CountLabel aria-live="polite">
           <LayoutList size={15} color={lightPalette.cheongrok[500]} />
           <span>{headerTitle}</span>
+          {totalPages > 1 && (
+            <PageIndicator>({validPage}/{totalPages}p)</PageIndicator>
+          )}
         </CountLabel>
 
         <SortDropdownWrapper>
@@ -315,31 +485,110 @@ export default function PlaceList() {
       ) : sortedItems.length === 0 ? (
         <EmptyStateBox>
           <EmptyIconBox>
-            <Map size={24} />
+            {category === 'bookmark' ? (
+              <Bookmark size={24} color={lightPalette.juhong[500]} />
+            ) : (
+              <Map size={24} />
+            )}
           </EmptyIconBox>
-          <EmptyTitle>주변에 등록된 장소가 없습니다</EmptyTitle>
+          <EmptyTitle>
+            {category === 'bookmark'
+              ? '아직 마음에 담은 장소가 없습니다'
+              : '현재 반경에 장소가 없습니다'}
+          </EmptyTitle>
           <EmptyDesc>
-            지도를 이동하거나 다른 카테고리를 선택하세요
+            {category === 'bookmark'
+              ? '마음에 드는 한옥 명소의 [마음에 담기]를 눌러\n나만의 여행 지도를 만들어보세요.'
+              : category
+                ? `선택하신 '${CATEGORY_NAMES[category] || category}' 장소가 가까운 반경에 없습니다.`
+                : '지도 영역을 넓히거나 전국 인기 명소를 둘러보세요.'}
           </EmptyDesc>
-          <ActionButton type="button" onClick={handleZoomOut}>
-            <Map size={14} />
-            <span>지도 영역 넓히기</span>
-          </ActionButton>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', maxWidth: '240px' }}>
+            {category && (
+              <ActionButton
+                type="button"
+                onClick={() => useMapStore.getState().setCategory(null)}
+                style={{ width: '100%', justifyContent: 'center' }}
+              >
+                <Sparkles size={14} />
+                <span>전체 명소 둘러보기</span>
+              </ActionButton>
+            )}
+            {category !== 'bookmark' && (
+              <ActionButton
+                type="button"
+                onClick={handleZoomOut}
+                style={{ width: '100%', justifyContent: 'center' }}
+              >
+                <Map size={14} />
+                <span>지도 영역 2배 넓히기</span>
+              </ActionButton>
+            )}
+            <ActionButton
+              type="button"
+              onClick={() => useMapStore.getState().setPopularPanelOpen(true)}
+              style={{ width: '100%', justifyContent: 'center', background: 'rgba(232, 90, 24, 0.08)', color: lightPalette.juhong[500] }}
+            >
+              <Sparkles size={14} />
+              <span>전국 인기 명소 랭킹</span>
+            </ActionButton>
+          </div>
         </EmptyStateBox>
       ) : (
-        <ListContainer role="list">
-          {sortedItems.map((item, index) => (
-            <PlaceListItem
-              key={item.id}
-              item={item}
-              index={index}
-              isSelected={item.id === selectedId}
-              isHovered={item.id === hoveredId}
-              onSelect={handleSelect}
-              onHover={setHoveredId}
-            />
-          ))}
-        </ListContainer>
+        <>
+          <ListContainer role="list">
+            {paginatedItems.map((item, idx) => (
+              <PlaceListItem
+                key={item.id}
+                item={item}
+                index={(validPage - 1) * ITEMS_PER_PAGE + idx}
+                isSelected={item.id === selectedId}
+                isHovered={item.id === hoveredId}
+                onSelect={handleSelect}
+                onHover={setHoveredId}
+              />
+            ))}
+          </ListContainer>
+
+          {totalPages > 1 && (
+            <PaginationWrapper role="navigation" aria-label="장소 목록 페이지네이션">
+              <PageNavBtn
+                type="button"
+                onClick={() => handlePageChange(validPage - 1)}
+                disabled={validPage <= 1}
+                aria-label="이전 페이지로 이동"
+              >
+                <ChevronLeft size={16} />
+                <span>이전</span>
+              </PageNavBtn>
+
+              <PageNumberGroup>
+                {pageNumbers.map((p) => (
+                  <PageNumberBtn
+                    key={p}
+                    type="button"
+                    $active={p === validPage}
+                    onClick={() => handlePageChange(p)}
+                    aria-current={p === validPage ? 'page' : undefined}
+                    aria-label={`${p} 페이지로 이동`}
+                  >
+                    {p}
+                  </PageNumberBtn>
+                ))}
+              </PageNumberGroup>
+
+              <PageNavBtn
+                type="button"
+                onClick={() => handlePageChange(validPage + 1)}
+                disabled={validPage >= totalPages}
+                aria-label="다음 페이지로 이동"
+              >
+                <span>다음</span>
+                <ChevronRight size={16} />
+              </PageNavBtn>
+            </PaginationWrapper>
+          )}
+        </>
       )}
     </div>
   );

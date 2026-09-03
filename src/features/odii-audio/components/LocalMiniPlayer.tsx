@@ -72,7 +72,7 @@ export const LocalMiniPlayer: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 16 }}
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] left-3 right-3 z-[110] mx-auto w-auto max-w-xl overflow-hidden rounded-[1.35rem] border border-[#d2c3b1]/80 bg-[#fbf8f2]/95 px-3.5 pt-2.5 pb-3.5  backdrop-blur-xl md:bottom-[calc(1.25rem+env(safe-area-inset-bottom))] md:z-50 sm:px-4 sm:pt-3 sm:pb-4"
+            className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] left-3 right-3 z-[110] mx-auto w-auto max-w-xl overflow-hidden rounded-[1.35rem]  bg-[#fbf8f2]/95 px-3.5 pt-2.5 pb-3.5  backdrop-blur-xl md:bottom-[calc(1.25rem+env(safe-area-inset-bottom))] md:z-50 sm:px-4 sm:pt-3 sm:pb-4"
           >
       <div className="flex items-center gap-3">
         <button type="button" onClick={() => setIsExpanded(true)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
@@ -132,7 +132,7 @@ export const LocalMiniPlayer: React.FC = () => {
           >
             {isTranscriptOpen ? (
               <>
-                <header className="flex items-center justify-between border-b border-[#211e19]/10 pb-4">
+                <header className="flex items-center justify-between   pb-4">
                   <button type="button" onClick={() => setIsTranscriptOpen(false)} className="inline-flex items-center gap-1 text-xs font-bold text-[#a94d35] hover:text-[#7f3725]">
                     ← 오디오 플레이어로
                   </button>
@@ -240,7 +240,7 @@ export const LocalMiniPlayer: React.FC = () => {
 
                 {/* 대본 미리보기 & 전체 대본 보기 전환 */}
                 {previewLines.length > 0 && (
-                  <section className="mt-5 border-t border-[#211e19]/10 pt-4">
+                  <section className="mt-5   pt-4">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-[10px] font-bold tracking-[0.14em] text-[#a94d35]">실시간 자막</p>
@@ -264,7 +264,7 @@ export const LocalMiniPlayer: React.FC = () => {
                             onClick={() => seekTo(line.timeSec)}
                             className={`block w-full rounded-lg px-2.5 py-1.5 text-left text-xs sm:text-sm leading-relaxed transition ${
                               line.id === lines[activeIndex]?.id
-                                ? 'bg-[#a94d35] font-semibold text-white shadow-xs'
+                                ? 'bg-[#a94d35] font-semibold text-white '
                                 : 'text-[#655b4d] hover:text-[#211e19]'
                             }`}
                           >

@@ -42,7 +42,7 @@ const categoryLabelFor = (story: OdiiStoryItem) => {
 
 export const EditorialStoryListSkeleton: React.FC = () => (
   <div aria-label="트랙 목록 로딩 중" className="w-full py-3" aria-busy="true">
-    <div className="flex items-center justify-between border-b border-[#211e19]/10 pb-2 text-[11px]">
+    <div className="flex items-center justify-between   pb-2 text-[11px]">
       <div className="odii-skeleton h-3.5 w-28 rounded bg-[#e8e0d5]" />
       <div className="odii-skeleton h-3 w-16 rounded bg-[#eee8df]" />
     </div>
@@ -132,13 +132,13 @@ export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({
               key={`${story.stid}-${index}`}
               variants={itemVariants}
               onClick={() => selectStory(story)}
-              className={`group relative grid cursor-pointer grid-cols-[34px_64px_minmax(0,1fr)_auto] items-center gap-3 overflow-hidden rounded-2xl border px-3 py-3.5 transition-all duration-300 sm:grid-cols-[40px_76px_minmax(0,1fr)_auto] sm:gap-4 sm:px-4 ${
+              className={`group relative grid cursor-pointer grid-cols-[34px_64px_minmax(0,1fr)_auto] items-center gap-3 overflow-hidden rounded-2xl px-3 py-3.5 transition-all duration-300 sm:grid-cols-[40px_76px_minmax(0,1fr)_auto] sm:gap-4 sm:px-4 ${
                 isCurrent
-                  ? 'border-[#f84e76]/45 bg-[#fff0f5] '
-                  : 'border-[#211e19]/8 bg-white/70 hover:-translate-y-0.5 hover:border-[#f84e76]/25 hover:bg-[#fff8fa] hover:'
+                  ? ' bg-[#fff0f5] '
+                  : ' bg-white/70 hover:-translate-y-0.5 hover: hover:bg-[#fff8fa] hover:'
               }`}
             >
-              <div className="flex h-full items-center justify-center border-r border-[#211e19]/8 pr-2">
+              <div className="flex h-full items-center justify-center   pr-2">
                 <div className="w-6 shrink-0 text-center">
                   {isThisPlaying ? (
                     <div className="flex items-end justify-center space-x-0.5 h-3.5">
@@ -220,7 +220,7 @@ export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({
                   className={`flex h-8 w-8 items-center justify-center rounded-full transition-all duration-300 ${
                     isThisPlaying
                       ? 'scale-105 bg-[#f84e76] text-white '
-                      : 'border border-[#f84e76]/25 bg-white text-[#f84e76] hover:bg-[#f84e76] hover:text-white'
+                      : ' bg-white text-[#f84e76] hover:bg-[#f84e76] hover:text-white'
                   }`}
                   title={isThisPlaying ? '일시정지' : '재생'}
                 >

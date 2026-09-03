@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
-import { Home } from 'lucide-react';
+import { Home, ChevronLeft } from 'lucide-react';
 import { meok } from '@/design-system/tokens';
 import { useMapStore } from './hooks/useMapStore';
 import { useMapData } from './hooks/useMapData';
@@ -16,6 +16,8 @@ import PlaceMarkers from './components/PlaceMarkers';
 import SearchBar from './components/SearchBar';
 import WarmthLayer from './components/WarmthLayer';
 import WriteButton from './components/warmth/WriteButton';
+import WarmthLegend from './components/warmth/WarmthLegend';
+import MobileBottomNav from './components/MobileBottomNav';
 import CinematicTourMapLayer from '@/features/cinematic-tour/components/CinematicTourMapLayer';
 import CinematicTourFloatingBar from '@/features/cinematic-tour/components/CinematicTourFloatingBar';
 
@@ -174,15 +176,19 @@ export default function MapPage() {
             <FloatingHomeButton
               type="button"
               onClick={handleBack}
-              aria-label="온마루 홈으로 이동"
+              aria-label="온마루 메인 홈으로 이동"
+              title="온마루 메인 홈으로 이동"
             >
-              <Home size={16} />
-              <span>홈으로</span>
+              <ChevronLeft size={16} />
+              <span>온마루 홈</span>
             </FloatingHomeButton>
           )}
           <CategoryChips />
         </MapChips>
         <WriteButton />
+
+        {/* 온기 모드에서만: 히트맵 범례 · 화면 요약 · 기간 창 */}
+        <WarmthLegend />
       </MapArea>
 
       {/* 2. 호갱노노 스타일: 지도 위에 떠 있는 좌측 리스트 + 우측 상세 플로팅 카드 */}
@@ -197,13 +203,13 @@ export default function MapPage() {
           <MobileBackButton
             type="button"
             onClick={handleBack}
-            aria-label="온마루 홈으로 이동"
-            title="온마루 홈으로 이동"
+            aria-label="온마루 메인으로 돌아가기"
+            title="온마루 메인으로 돌아가기"
           >
-            <Home size={20} />
+            <ChevronLeft size={22} />
           </MobileBackButton>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <SearchBar showHomeButton={false} />
+            <SearchBar />
           </div>
         </MobileSearchBarRow>
         <ModeToggle />
@@ -213,6 +219,7 @@ export default function MapPage() {
       <CinematicTourFloatingBar />
 
       <BottomSheet />
+      <MobileBottomNav />
     </Root>
   );
 }

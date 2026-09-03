@@ -69,19 +69,19 @@ const KeywordSpotlightSkeleton: React.FC = () => (
           <div className="h-3.5 w-28 bg-[#e5d9c7] animate-pulse rounded" />
           <div className="mt-4 h-8 w-4/5 bg-[#dfd2be] animate-pulse rounded-md" />
           <div className="mt-3 h-4 w-1/2 bg-[#e8ded0] animate-pulse rounded" />
-          <div className="mt-8 border-l-2 border-[#a94d35]/30 pl-4 space-y-2.5">
+          <div className="mt-8 border-l-2  pl-4 space-y-2.5">
             <div className="h-4 w-full bg-[#e8ded0] animate-pulse rounded" />
             <div className="h-4 w-3/4 bg-[#e8ded0] animate-pulse rounded" />
           </div>
         </div>
-        <div className="mt-8 flex items-center gap-4 border-t border-[#211e19]/12 pt-4">
+        <div className="mt-8 flex items-center gap-4   pt-4">
           <div className="h-9 w-32 bg-[#dfd2be] animate-pulse rounded-full" />
           <div className="h-4 w-20 bg-[#e8ded0] animate-pulse rounded" />
         </div>
       </div>
     </article>
-    <aside className="border-t border-[#211e19]/12 bg-[#f3ecdf] p-6 sm:p-8 lg:border-l lg:border-t-0">
-      <div className="flex items-end justify-between gap-3 border-b border-[#211e19]/12 pb-4">
+    <aside className="  bg-[#f3ecdf] p-6 sm:p-8 lg: lg:border-t-0">
+      <div className="flex items-end justify-between gap-3   pb-4">
         <div className="h-4 w-28 bg-[#e5d9c7] animate-pulse rounded" />
         <div className="h-3 w-6 bg-[#e5d9c7] animate-pulse rounded" />
       </div>
@@ -190,10 +190,10 @@ export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = (
                   type="button"
                   onClick={() => setSelectedKeyword(category.keyword)}
                   aria-pressed={isSelected}
-                  className={`border-b pb-2 text-sm transition-colors duration-300 ${
+                  className={` pb-2 text-sm transition-colors duration-300 ${
                     isSelected
-                      ? 'border-[#a94d35] font-bold text-[#a94d35]'
-                      : 'border-transparent font-medium text-[#8c7e6c] hover:border-[#211e19]/25 hover:text-[#211e19]'
+                      ? ' font-bold text-[#a94d35]'
+                      : ' font-medium text-[#8c7e6c] hover: hover:text-[#211e19]'
                   }`}
                 >
                   #{getTagLabel(category.label)}
@@ -204,7 +204,7 @@ export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = (
         </motion.nav>
 
         {/* 대표 이야기 스포트라이트 스테이지 (0.36초 후 순차 등판 / 480px 레이아웃 완벽 고정) */}
-        <motion.div variants={contentVariants} className="mt-8 min-h-[480px] overflow-hidden border border-[#211e19]/15 bg-[#fbf7ef]">
+        <motion.div variants={contentVariants} className="mt-8 min-h-[480px] overflow-hidden  bg-[#fbf7ef]">
           <AnimatePresence mode="wait">
             {isLoading ? (
               <motion.div
@@ -256,12 +256,12 @@ export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = (
                           {spotlightStory.title}
                         </h3>
                         <p className="mt-2 text-sm leading-6 text-[#655b4d]">{spotlightStory.audioTitle}</p>
-                        <blockquote className="mt-7 border-l-2 border-[#a94d35]/60 pl-4 font-odii-sans text-lg leading-8 text-[#403a31] sm:text-xl">
+                        <blockquote className="mt-7 border-l-2  pl-4 font-odii-sans text-lg leading-8 text-[#403a31] sm:text-xl">
                           “{getExcerpt(spotlightStory.script)}”
                         </blockquote>
                       </div>
 
-                      <div className="mt-8 flex flex-wrap items-center gap-4 border-t border-[#211e19]/12 pt-4">
+                      <div className="mt-8 flex flex-wrap items-center gap-4   pt-4">
                         <button
                           type="button"
                           onClick={() => handlePlay(spotlightStory)}
@@ -300,8 +300,8 @@ export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = (
                 </div>
               </article>
 
-              <aside className="border-t border-[#211e19]/12 bg-[#f3ecdf] p-6 sm:p-8 lg:border-l lg:border-t-0">
-                <div className="flex items-end justify-between gap-3 border-b border-[#211e19]/12 pb-4">
+              <aside className="  bg-[#f3ecdf] p-6 sm:p-8 lg: lg:border-t-0">
+                <div className="flex items-end justify-between gap-3   pb-4">
                   <div>
                     <p className="text-xs font-semibold text-[#a94d35]">이어지는 소리</p>
                     <h3 className="mt-1 font-odii-sans text-xl font-bold tracking-[-0.04em] text-[#211e19]">함께 들으면 좋은 장면</h3>
@@ -323,7 +323,7 @@ export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = (
                           type="button"
                           onClick={() => handlePlay(story)}
                           aria-label={`${story.title} ${isRelatedPlaying ? '일시정지' : '재생'}`}
-                          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-colors ${isRelatedPlaying ? 'border-[#a94d35] bg-[#a94d35] text-white' : 'border-[#211e19]/20 text-[#211e19] hover:border-[#a94d35] hover:text-[#a94d35]'}`}
+                          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors ${isRelatedPlaying ? ' bg-[#a94d35] text-white' : ' text-[#211e19] hover: hover:text-[#a94d35]'}`}
                         >
                           {isRelatedPlaying ? (
                             <svg className="h-3 w-3 fill-current" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19h4V5H6v14zm8-14h4v14h-4V5z" /></svg>

@@ -3,7 +3,7 @@
 import React, { useRef } from 'react';
 import styled from '@emotion/styled';
 import Image from 'next/image';
-import { ChevronLeft, ChevronRight, Award, Sparkles } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Award } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import type { Item } from '@/map/types';
@@ -254,10 +254,6 @@ export default function SmartAroundFeed({ items }: SmartAroundFeedProps) {
                 style={{ objectFit: 'cover' }}
                 unoptimized
               />
-              <PhotoBadge>
-                <Sparkles size={9} />
-                <span>추천</span>
-              </PhotoBadge>
             </PhotoBox>
 
             <Body>

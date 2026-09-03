@@ -34,7 +34,7 @@ const categoryLabelFor = (story: OdiiStoryItem) => {
 };
 
 const CardSkeleton = () => (
-  <div className="overflow-hidden rounded-[22px] border border-[#211e19]/8 bg-white/70 p-2">
+  <div className="overflow-hidden rounded-[22px]  bg-white/70 p-2">
     <div className="odii-skeleton h-44 rounded-[16px] bg-[#eee8df] sm:h-52" />
     <div className="space-y-3 px-3 pb-3 pt-4">
       <div className="odii-skeleton h-2.5 w-20 rounded bg-[#eee8df]" />
@@ -79,7 +79,7 @@ export const OdiiStoryCardGrid: React.FC<OdiiStoryCardGridProps> = ({
                 layout
                 whileHover={{ y: -5 }}
                 transition={{ duration: 0.25 }}
-                className={`group flex min-h-[116px] items-center gap-3 rounded-2xl border p-2.5 transition-shadow duration-300 ${isCurrent ? 'border-[#f84e76]/45 bg-[#fff0f5] ' : 'border-[#211e19]/8 bg-white/75 hover:border-[#f84e76]/25 hover:'}`}
+                className={`group flex min-h-[116px] items-center gap-3 rounded-2xl p-2.5 transition-shadow duration-300 ${isCurrent ? ' bg-[#fff0f5] ' : ' bg-white/75 hover: hover:'}`}
               >
                 <div className="relative h-[88px] w-[92px] shrink-0 overflow-hidden rounded-xl bg-[#f3eee8]">
                   <img

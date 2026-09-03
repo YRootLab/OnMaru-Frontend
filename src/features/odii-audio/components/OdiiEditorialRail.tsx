@@ -110,7 +110,7 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(({ story, position,
       }}
       transition={{ duration: trackTransitionEnabled && isVisible ? 0.48 : 0, ease: [0.16, 1, 0.3, 1] }}
       onClick={() => onInteractRef.current(position)}
-      className={`relative h-[250px] w-[135px] shrink-0 select-none overflow-hidden border bg-white text-left outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0 sm:h-[330px] sm:w-[200px] lg:h-[370px] lg:w-[225px] ${isActive ? 'z-20 border-[#f84e76] ' : 'z-10 border-[#211e19]/12  grayscale-[0.15] hover:grayscale-0'}`}
+      className={`relative h-[250px] w-[135px] shrink-0 select-none overflow-hidden bg-white text-left outline-none focus:outline-none focus-visible:outline-none focus-visible: sm:h-[330px] sm:w-[200px] lg:h-[370px] lg:w-[225px] ${isActive ? 'z-20  ' : 'z-10   grayscale-[0.15] hover:grayscale-0'}`}
       draggable={false}
       onMouseDown={(event) => event.preventDefault()}
       aria-label={`${story.title}${isActive ? ' 현재 선택됨' : ''}`}
@@ -483,7 +483,7 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
               aria-label="이전 이야기"
               className="group absolute left-0 top-0 bottom-0 z-30 flex w-12 sm:w-16 lg:w-20 cursor-pointer items-center justify-start pl-2 sm:pl-4 bg-gradient-to-r from-white via-white/80 to-transparent transition-opacity duration-200 hover:from-white hover:via-white/95 active:opacity-80"
             >
-              <span className="flex h-11 w-9 items-center justify-center rounded-xl bg-white/40 text-[#211e19] shadow-xs backdrop-blur-xs transition-transform duration-300 group-hover:scale-115 group-hover:bg-white group-hover:text-[#f84e76]">
+              <span className="flex h-11 w-9 items-center justify-center rounded-xl bg-white/40 text-[#211e19]  backdrop-blur-xs transition-transform duration-300 group-hover:scale-115 group-hover:bg-white group-hover:text-[#f84e76]">
                 <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
               </span>
             </button>
@@ -497,7 +497,7 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
               aria-label="다음 이야기"
               className="group absolute right-0 top-0 bottom-0 z-30 flex w-12 sm:w-16 lg:w-20 cursor-pointer items-center justify-end pr-2 sm:pr-4 bg-gradient-to-l from-white via-white/80 to-transparent transition-opacity duration-200 hover:from-white hover:via-white/95 active:opacity-80"
             >
-              <span className="flex h-11 w-9 items-center justify-center rounded-xl bg-white/40 text-[#211e19] shadow-xs backdrop-blur-xs transition-transform duration-300 group-hover:scale-115 group-hover:bg-white group-hover:text-[#f84e76]">
+              <span className="flex h-11 w-9 items-center justify-center rounded-xl bg-white/40 text-[#211e19]  backdrop-blur-xs transition-transform duration-300 group-hover:scale-115 group-hover:bg-white group-hover:text-[#f84e76]">
                 <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
               </span>
             </button>
@@ -507,7 +507,7 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
                 {[0, 1, 2, 3, 4, 5, 6].map((index) => (
                   <div
                     key={index}
-                    className={`h-[250px] w-[135px] shrink-0 animate-pulse overflow-hidden border border-[#211e19]/8 bg-white/70  sm:h-[330px] sm:w-[200px] lg:h-[370px] lg:w-[225px] ${index % 2 ? 'translate-y-2 rotate-[1.2deg]' : '-translate-y-1 rotate-[-1.2deg]'}`}
+                    className={`h-[250px] w-[135px] shrink-0 animate-pulse overflow-hidden  bg-white/70  sm:h-[330px] sm:w-[200px] lg:h-[370px] lg:w-[225px] ${index % 2 ? 'translate-y-2 rotate-[1.2deg]' : '-translate-y-1 rotate-[-1.2deg]'}`}
                   >
                     <div className="h-[62%] bg-gradient-to-br from-[#f4e8eb] via-[#eee7e3] to-[#e5dfe0]" />
                     <div className="space-y-3 bg-white/70 px-4 py-5 sm:px-5 sm:py-6">

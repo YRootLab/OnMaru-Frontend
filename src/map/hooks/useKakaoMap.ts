@@ -1,8 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useRef, type RefObject } from 'react';
+import { distanceInMeters } from '@/map/utils/geo';
 import { useMapStore } from './useMapStore';
-import type { LatLng } from '@/map/types';
 
 /** autoload=false 필수 — kakao.maps.load()로 직접 초기화한다. */
 export const KAKAO_SDK_SRC =
@@ -10,20 +10,16 @@ export const KAKAO_SDK_SRC =
   `?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_KEY}` +
   `&libraries=services,clusterer&autoload=false`;
 
-/** 재검색 버튼이 뜨는 거리(m). */
-const SEARCH_DIRTY_DISTANCE = 2000;
+/** 지도를 이만큼 움직이면 자동으로 다시 불러온다. */
+const REFETCH_DISTANCE = 400;
 
-/** 두 좌표 사이 거리(m). geometry 라이브러리를 더 싣지 않으려고 직접 계산한다. */
-export function distanceInMeters(a: LatLng, b: LatLng): number {
-  const R = 6371000;
-  const toRad = (deg: number) => (deg * Math.PI) / 180;
-  const dLat = toRad(b.lat - a.lat);
-  const dLng = toRad(b.lng - a.lng);
-  const h =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
-  return 2 * R * Math.asin(Math.sqrt(h));
-}
+/** 지도가 멈춘 뒤 기다리는 시간. 드래그 중 연속 요청을 막는다. */
+const IDLE_DEBOUNCE_MS = 320;
+
+/*
+  거리 계산은 utils/geo가 갖는다. 이 이름으로 부르던 곳이 여럿이라 여기서도 내보낸다.
+*/
+export { distanceInMeters };
 
 /**
  * 지도 인스턴스를 만들어 스토어에 넣는다.
@@ -31,6 +27,7 @@ export function distanceInMeters(a: LatLng, b: LatLng): number {
  */
 export function useKakaoMap(containerRef: RefObject<HTMLDivElement | null>) {
   const createdRef = useRef(false);
+  const disposeRef = useRef<(() => void) | null>(null);
 
   const initMap = useCallback(() => {
     const container = containerRef.current;
@@ -38,21 +35,46 @@ export function useKakaoMap(containerRef: RefObject<HTMLDivElement | null>) {
     createdRef.current = true;
 
     window.kakao.maps.load(() => {
-      const { center, level, setMap, setCenter, markSearchDirty } = useMapStore.getState();
+      const { center, level, setMap, setCenter } = useMapStore.getState();
       const map = new window.kakao.maps.Map(container, {
         center: new window.kakao.maps.LatLng(center.lat, center.lng),
         level,
       });
 
-      // idle에서만 중심을 되받는다. 드래그 중 매 프레임 스토어를 때리지 않기 위해서.
-      window.kakao.maps.event.addListener(map, 'idle', () => {
+      let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+      const onIdle = () => {
         const c = map.getCenter();
+        const nextLevel = map.getLevel();
         const next = { lat: c.getLat(), lng: c.getLng() };
-        setCenter(next, map.getLevel());
-        if (distanceInMeters(next, useMapStore.getState().searchCenter) >= SEARCH_DIRTY_DISTANCE) {
-          markSearchDirty();
-        }
-      });
+
+        /*
+          줌 판정은 스토어를 건드리기 전에 끝낸다.
+          예전에는 setCenter로 level을 먼저 덮어쓴 뒤 320ms 후에 그 값과 비교해서
+          "줌이 바뀌었나" 조건이 항상 false였다 — 제자리 줌으로는 영영 갱신되지 않았다.
+        */
+        const prev = useMapStore.getState();
+        const zoomChanged = nextLevel !== prev.level;
+        const moved = distanceInMeters(next, prev.searchCenter) >= REFETCH_DISTANCE;
+
+        setCenter(next, nextLevel);
+
+        if (debounceTimer) clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+          if (zoomChanged || moved) useMapStore.getState().clearSearchDirty();
+        }, IDLE_DEBOUNCE_MS);
+      };
+
+      window.kakao.maps.event.addListener(map, 'idle', onIdle);
+
+      /*
+        지도를 떠날 때 리스너와 타이머를 같이 걷는다.
+        남겨두면 페이지를 나간 뒤 타이머가 한 번 더 깨어나 없는 지도의 상태를 흔든다.
+      */
+      disposeRef.current = () => {
+        if (debounceTimer) clearTimeout(debounceTimer);
+        window.kakao?.maps?.event?.removeListener(map, 'idle', onIdle);
+      };
 
       setMap(map);
     });
@@ -62,6 +84,8 @@ export function useKakaoMap(containerRef: RefObject<HTMLDivElement | null>) {
   useEffect(() => {
     initMap();
     return () => {
+      disposeRef.current?.();
+      disposeRef.current = null;
       createdRef.current = false;
       useMapStore.getState().setMap(null);
     };

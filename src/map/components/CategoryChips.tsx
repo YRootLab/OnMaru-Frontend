@@ -7,18 +7,17 @@ import {
   Landmark,
   Leaf,
   Home,
-  MessageCircle,
+  PenLine,
   Sparkles,
   Store,
   Users,
   Utensils,
   LayoutGrid,
   BookOpen,
-  Moon,
   type LucideIcon,
 } from 'lucide-react';
 import { meok } from '@/design-system/tokens';
-import { MODE_COLOR, useMapStore } from '@/map/hooks/useMapStore';
+import { useMapStore } from '@/map/hooks/useMapStore';
 import type { MapMode } from '@/map/types';
 
 const CATEGORIES: Record<MapMode, { id: string; label: string; icon: LucideIcon }[]> = {
@@ -27,18 +26,23 @@ const CATEGORIES: Record<MapMode, { id: string; label: string; icon: LucideIcon 
     { id: 'spot', label: '고택·명소', icon: Landmark },
     { id: 'experience', label: '한복·전통체험', icon: Sparkles },
     { id: 'culture', label: '문화재·서원', icon: BookOpen },
-    { id: 'festival', label: '야행·축제', icon: Moon },
     { id: 'stay', label: '한옥숙소', icon: Home },
     { id: 'food', label: '향토음식', icon: Utensils },
     { id: 'cafe', label: '한옥카페·디저트', icon: Coffee },
     { id: 'market', label: '전통시장', icon: Store },
   ],
+  /*
+    온기 칩은 warmthRepo.filterWarmth의 case와 1:1이어야 한다.
+    예전의 'review'(한줄평)는 filterWarmth에 대응 case가 없어 눌러도 아무 일이
+    없었다. 대신 내가 남긴 온기를 다시 찾는 경로('mine')를 넣는다 —
+    쓰고 나면 어디로 갔는지 확인할 방법이 그동안 없었다.
+  */
   warmth: [
     { id: 'all', label: '모든 온기', icon: Flame },
     { id: 'busy', label: '북적이는 곳', icon: Users },
     { id: 'quiet', label: '한적한 곳', icon: Leaf },
     { id: 'today', label: '오늘의 온기', icon: Sparkles },
-    { id: 'review', label: '한줄평', icon: MessageCircle },
+    { id: 'mine', label: '내 온기', icon: PenLine },
   ],
 };
 
@@ -53,7 +57,7 @@ const Scroller = styled.div`
   }
 `;
 
-const Chip = styled.button<{ $active: boolean; $color: string }>`
+const Chip = styled.button<{ $active: boolean }>`
   display: flex;
   flex: none;
   align-items: center;
@@ -62,7 +66,7 @@ const Chip = styled.button<{ $active: boolean; $color: string }>`
   padding: 0 16px;
 
   border-radius: 9999px;
-  background: ${({ $active, $color }) => ($active ? $color : 'rgba(255, 255, 255, 0.92)')};
+  background: ${({ $active }) => ($active ? meok[900] : 'rgba(255, 255, 255, 0.94)')};
   backdrop-filter: blur(16px);
 
   color: ${({ $active }) => ($active ? '#FFFFFF' : meok[700])};
@@ -75,7 +79,7 @@ const Chip = styled.button<{ $active: boolean; $color: string }>`
 
   &:hover {
     transform: translateY(-1px);
-
+    background: ${({ $active }) => ($active ? meok[900] : '#ffffff')};
     color: ${({ $active }) => ($active ? '#FFFFFF' : meok[900])};
   }
 
@@ -84,7 +88,7 @@ const Chip = styled.button<{ $active: boolean; $color: string }>`
   }
 
   &:focus-visible {
-    outline: 2px solid ${({ $color }) => $color};
+    outline: 2px solid ${meok[900]};
     outline-offset: 2px;
   }
 `;
@@ -93,7 +97,6 @@ export default function CategoryChips() {
   const mode = useMapStore((s) => s.mode);
   const category = useMapStore((s) => s.category);
   const setCategory = useMapStore((s) => s.setCategory);
-  const color = MODE_COLOR[mode];
 
   const handleChipClick = (id: string) => {
     if (id === 'all') {
@@ -117,7 +120,6 @@ export default function CategoryChips() {
             type="button"
             aria-pressed={active}
             $active={active}
-            $color={color}
             onClick={() => handleChipClick(id)}
           >
             <Icon size={16} aria-hidden />

@@ -110,7 +110,7 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 
                 key={region}
                 type="button"
                 onClick={() => handleRegionClick(region)}
-                className={`shrink-0 rounded-full border px-2.5 py-1 text-[10px] transition-colors ${isSelected ? 'border-[#f84e76]/25 bg-[#fff0f5] font-semibold text-[#f84e76]' : 'border-[#211e19]/8 text-[#8c7e6c] hover:border-[#f84e76]/25 hover:bg-[#fff8fa] hover:text-[#f84e76]'}`}
+                className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] transition-colors ${isSelected ? ' bg-[#fff0f5] font-semibold text-[#f84e76]' : ' text-[#8c7e6c] hover: hover:bg-[#fff8fa] hover:text-[#f84e76]'}`}
               >
                 {region}
               </button>
@@ -122,7 +122,7 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 
   }
 
   return (
-    <div className="w-full py-5 flex flex-col gap-4 border-b border-[#211e19]/10">
+    <div className="w-full py-5 flex flex-col gap-4  ">
       {/* 1단: 인위적 요약 뱃지 없이 깨끗한 6대 브랜드 카테고리 태그 칩 */}
       <div className="min-h-[60px]">
         <div className="flex items-center space-x-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -186,7 +186,7 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 
                 className={`px-3 py-1 rounded-lg text-xs transition-all duration-200 whitespace-nowrap ${
                   isSelected
                     ? 'bg-[#f84e76] text-white font-bold '
-                    : 'bg-white text-[#655b4d] border border-[#211e19]/10 hover:border-[#f84e76]/50 hover:text-[#f84e76]'
+                    : 'bg-white text-[#655b4d]  hover: hover:text-[#f84e76]'
                 }`}
               >
                 {region}

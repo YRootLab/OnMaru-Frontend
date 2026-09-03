@@ -1,10 +1,21 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import Script from 'next/script';
 import styled from '@emotion/styled';
 import { Global, css } from '@emotion/react';
-import { Loader2, LocateFixed, Minus, Plus, RotateCw } from 'lucide-react';
+import {
+  Loader2,
+  LocateFixed,
+  Minus,
+  Plus,
+  RotateCw,
+  Moon,
+  Sun,
+  Plane,
+  X,
+  Play,
+} from 'lucide-react';
 import { meok, lightPalette } from '@/design-system/tokens';
 import { KAKAO_SDK_SRC, useKakaoMap } from '@/map/hooks/useKakaoMap';
 import { DEFAULT_CENTER, useMapStore } from '@/map/hooks/useMapStore';
@@ -12,7 +23,7 @@ import type { LatLng } from '@/map/types';
 
 const mapGlobalStyles = css`
   /* ------------------------------------------------------------
-   * 내 위치 플로팅 핀 & 펄스 리플
+   * 내 위치 (My Location) 모던 펄스 레이더 마커
    * ------------------------------------------------------------ */
   .om-my-location-pin {
     display: flex;
@@ -21,21 +32,21 @@ const mapGlobalStyles = css`
     cursor: pointer;
     user-select: none;
     pointer-events: auto;
-    animation: om-pin-drop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
-    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    animation: om-my-location-appear 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .om-my-location-pin:hover {
-    transform: translateY(-4px) scale(1.08);
+    transform: scale(1.1);
   }
 
-  @keyframes om-pin-drop {
+  @keyframes om-my-location-appear {
     0% {
-      transform: translateY(-24px) scale(0.6);
+      transform: scale(0.4);
       opacity: 0;
     }
     100% {
-      transform: translateY(0) scale(1);
+      transform: scale(1);
       opacity: 1;
     }
   }
@@ -43,76 +54,72 @@ const mapGlobalStyles = css`
   .om-my-location-label {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    padding: 3px 9px;
-    margin-bottom: 5px;
+    gap: 4.5px;
+    padding: 3.5px 10px;
+    margin-bottom: 6px;
     border-radius: 9999px;
     font-size: 11.5px;
-    font-weight: 800;
+    font-weight: 700;
     white-space: nowrap;
-
-    backdrop-filter: blur(6px);
-  }
-
-  [data-theme='light'] .om-my-location-label,
-  :root:not([data-theme='dark']) .om-my-location-label {
-    background: rgba(255, 255, 255, 0.96);
-    color: #1a3898;
-
+    background: #ffffff;
+    color: #2b5ce6;
+    letter-spacing: -0.2px;
   }
 
   [data-theme='dark'] .om-my-location-label {
-    background: rgba(32, 68, 164, 0.92);
-    color: #ffffff;
-
+    background: #1c1a17;
+    color: #5a89f6;
   }
 
-  .om-my-location-icon-wrap {
+  .om-my-location-beacon-wrap {
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 34px;
-    height: 34px;
-    border-radius: 50% 50% 50% 0;
-    transform: rotate(-45deg);
+    width: 28px;
+    height: 28px;
+  }
+
+  .om-my-location-core {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
     background: #2b5ce6;
-
   }
 
-  [data-theme='dark'] .om-my-location-icon-wrap {
-    background: #5a89f6;
-    border-color: #1c1a17;
-
+  .om-my-location-core-inner {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ffffff;
   }
 
-  .om-my-location-icon-wrap svg {
-    transform: rotate(45deg);
-    width: 17px;
-    height: 17px;
-    color: #ffffff;
-  }
-
-  .om-my-location-ripple {
+  .om-my-location-pulse-1,
+  .om-my-location-pulse-2 {
     position: absolute;
-    bottom: -6px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 14px;
-    height: 14px;
+    inset: 0;
     border-radius: 50%;
     background: rgba(43, 92, 230, 0.45);
     pointer-events: none;
-    animation: om-my-ripple 2.2s ease-out infinite;
+    animation: om-my-pulse 2.2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
   }
 
-  @keyframes om-my-ripple {
+  .om-my-location-pulse-2 {
+    animation-delay: 1.1s;
+  }
+
+  @keyframes om-my-pulse {
     0% {
-      transform: translateX(-50%) scale(0.6);
-      opacity: 0.9;
+      transform: scale(0.6);
+      opacity: 0.8;
     }
     100% {
-      transform: translateX(-50%) scale(3.4);
+      transform: scale(2.6);
       opacity: 0;
     }
   }
@@ -123,10 +130,75 @@ const Frame = styled.div`
   inset: 0;
 `;
 
-const Canvas = styled.div`
+const Canvas = styled.div<{ $isNight: boolean }>`
   width: 100%;
   height: 100%;
   background: #f2ece1;
+  transition: filter 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  filter: ${({ $isNight }) =>
+    $isNight
+      ? 'invert(92%) hue-rotate(180deg) brightness(92%) contrast(112%) saturate(85%)'
+      : 'none'};
+`;
+
+const FlightBanner = styled.div`
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px 8px 12px;
+  background: #191f28;
+  color: #ffffff;
+  border-radius: 9999px;
+  animation: flight-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+
+  @keyframes flight-in {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -14px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, 0) scale(1);
+    }
+  }
+
+  span.hub-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.2px;
+  }
+
+  span.step-badge {
+    padding: 2px 7px;
+    border-radius: 9999px;
+    background: ${lightPalette.juhong[500]};
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  button.stop-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+  }
 `;
 
 const Research = styled.button`
@@ -161,7 +233,6 @@ const Research = styled.button`
     }
   }
 
-  /* 모바일은 상단에 검색바+모드토글이 떠 있어 그 아래로 내린다. */
   @media (max-width: 1023px) {
     top: 108px;
   }
@@ -177,28 +248,27 @@ const Controls = styled.div`
   gap: 8px;
 
   @media (max-width: 1023px) {
-    bottom: 136px; /* peek 시트(120px) 위 */
+    bottom: 136px;
   }
 `;
 
 const Stack = styled.div`
   display: flex;
   flex-direction: column;
-  border-radius: 10px;
+  border-radius: 12px;
   background: #ffffff;
-
   overflow: hidden;
 `;
 
-const ControlButton = styled.button`
+const ControlButton = styled.button<{ $active?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
   width: 40px;
   height: 40px;
 
-  background: #ffffff;
-  color: ${meok[700]};
+  background: ${({ $active }) => ($active ? '#191F28' : '#ffffff')};
+  color: ${({ $active }) => ($active ? '#FFFFFF' : meok[700])};
   cursor: pointer;
   transition: all 0.15s ease;
 
@@ -207,18 +277,22 @@ const ControlButton = styled.button`
   }
 
   &:hover {
-    background: rgba(25, 31, 40, 0.04);
-    color: ${meok[900]};
+    background: ${({ $active }) => ($active ? '#191F28' : 'rgba(25, 31, 40, 0.04)')};
+    color: ${({ $active }) => ($active ? '#FFFFFF' : meok[900])};
   }
 
   &:active {
-    background: rgba(25, 31, 40, 0.08);
-  }
-
-  &[data-active='true'] {
-    color: ${lightPalette.cheongrok[500]};
+    transform: scale(0.94);
   }
 `;
+
+/** 4대 전국 한옥 시네마틱 드론 비행 코스 */
+const FLIGHT_STOPS = [
+  { name: '서울 북촌 한옥마을', lat: 37.5826, lng: 126.9848, level: 4 },
+  { name: '전주 한옥마을', lat: 35.8150, lng: 127.1530, level: 4 },
+  { name: '안동 하회마을', lat: 36.5392, lng: 128.5185, level: 4 },
+  { name: '경주 양동마을', lat: 35.9985, lng: 129.2520, level: 4 },
+];
 
 export default function KakaoMap() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -227,6 +301,13 @@ export default function KakaoMap() {
   const isSearchDirty = useMapStore((s) => s.isSearchDirty);
   const panelOpen = useMapStore((s) => s.panelOpen);
   const [isLocating, setIsLocating] = useState(false);
+  const [isNight, setIsNight] = useState(false);
+  const [flightState, setFlightState] = useState<{ active: boolean; step: number }>({
+    active: false,
+    step: 0,
+  });
+
+  const flightTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // 패널이 접히면 지도 컨테이너 크기가 바뀐다. 카카오는 relayout을 직접 불러줘야 한다.
   useEffect(() => {
@@ -235,8 +316,38 @@ export default function KakaoMap() {
     return () => clearTimeout(id);
   }, [map, panelOpen]);
 
+  const hasAutoLocatedRef = useRef(false);
   const myLocationOverlayRef = useRef<any>(null);
   const myLocationCircleRef = useRef<any>(null);
+
+  // 지도 페이지 진입 시 사용자 현재 위치로 자동 이동 및 주변 장소 탐색
+  useEffect(() => {
+    if (!map || hasAutoLocatedRef.current) return;
+    hasAutoLocatedRef.current = true;
+
+    if (typeof window !== 'undefined' && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const currentPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          moveTo(currentPos, 5, pos.coords.accuracy);
+        },
+        () => {
+          // 저정밀도(네트워크/IP) 2차 시도
+          navigator.geolocation.getCurrentPosition(
+            (fallbackPos) => {
+              const fallbackCoord = { lat: fallbackPos.coords.latitude, lng: fallbackPos.coords.longitude };
+              moveTo(fallbackCoord, 5, fallbackPos.coords.accuracy);
+            },
+            () => {
+              // 위치 권한 미허용 시 기본 전국 시점 유지
+            },
+            { enableHighAccuracy: false, timeout: 6000, maximumAge: 300000 },
+          );
+        },
+        { enableHighAccuracy: true, timeout: 6000, maximumAge: 120000 },
+      );
+    }
+  }, [map]);
 
   const moveTo = (target: LatLng, targetLevel = 3, accuracy?: number) => {
     const currentMap = useMapStore.getState().map;
@@ -253,17 +364,18 @@ export default function KakaoMap() {
       el.className = 'om-my-location-pin';
       el.innerHTML = `
         <div class="om-my-location-label">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px;">
-            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:2px;">
+            <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/>
           </svg>
           <span>내 위치</span>
         </div>
-        <div class="om-my-location-icon-wrap">
-          <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
-            <polygon points="3 11 22 2 13 21 11 13 3 11"/>
-          </svg>
+        <div class="om-my-location-beacon-wrap">
+          <div class="om-my-location-pulse-1"></div>
+          <div class="om-my-location-pulse-2"></div>
+          <div class="om-my-location-core">
+            <div class="om-my-location-core-inner"></div>
+          </div>
         </div>
-        <div class="om-my-location-ripple"></div>
       `;
       el.addEventListener('click', () => {
         currentMap.setLevel(3, { animate: true });
@@ -273,7 +385,7 @@ export default function KakaoMap() {
       myLocationOverlayRef.current = new window.kakao.maps.CustomOverlay({
         position: latLng,
         content: el,
-        yAnchor: 1.0,
+        yAnchor: 0.75,
         xAnchor: 0.5,
         zIndex: 35,
       });
@@ -306,6 +418,7 @@ export default function KakaoMap() {
     }
 
     const store = useMapStore.getState();
+    store.setUserLocation(target);
     store.setCenter(target, targetLevel);
     store.clearSearchDirty();
   };
@@ -331,7 +444,6 @@ export default function KakaoMap() {
 
     const onError = (err: GeolocationPositionError) => {
       console.warn('GPS 고정밀도 조회 실패, 일반 위치로 재시도:', err.message);
-      // 고정밀도 실패 시 저정밀도(네트워크/IP 기반)로 2차 시도
       navigator.geolocation.getCurrentPosition(
         onSuccess,
         (fallbackErr) => {
@@ -346,7 +458,6 @@ export default function KakaoMap() {
       );
     };
 
-    // 항상 캐시를 배제(maximumAge: 0)하고 고정밀도 센서를 최대한 활용
     navigator.geolocation.getCurrentPosition(onSuccess, onError, {
       enableHighAccuracy: true,
       timeout: 8000,
@@ -354,14 +465,83 @@ export default function KakaoMap() {
     });
   };
 
+  /** 시네마틱 드론 비행 투어 시작/중지 핸들러 */
+  const stopFlight = useCallback(() => {
+    if (flightTimerRef.current) clearInterval(flightTimerRef.current);
+    flightTimerRef.current = null;
+    setFlightState({ active: false, step: 0 });
+  }, []);
+
+  const startFlight = useCallback(() => {
+    if (!map || !window.kakao?.maps) return;
+
+    if (flightState.active) {
+      stopFlight();
+      return;
+    }
+
+    let currentStep = 0;
+    const executeStep = (step: number) => {
+      const stop = FLIGHT_STOPS[step];
+      if (!stop) {
+        stopFlight();
+        return;
+      }
+
+      setFlightState({ active: true, step });
+      const latLng = new window.kakao.maps.LatLng(stop.lat, stop.lng);
+      map.setLevel(stop.level, { animate: true });
+      map.panTo(latLng);
+
+      const store = useMapStore.getState();
+      store.setCenter({ lat: stop.lat, lng: stop.lng }, stop.level);
+    };
+
+    executeStep(0);
+
+    flightTimerRef.current = setInterval(() => {
+      currentStep += 1;
+      if (currentStep >= FLIGHT_STOPS.length) {
+        stopFlight();
+      } else {
+        executeStep(currentStep);
+      }
+    }, 4800);
+  }, [map, flightState.active, stopFlight]);
+
+  useEffect(() => {
+    return () => {
+      if (flightTimerRef.current) clearInterval(flightTimerRef.current);
+    };
+  }, []);
+
+  const currentFlightStop = FLIGHT_STOPS[flightState.step];
+
   return (
     <Frame>
       <Global styles={mapGlobalStyles} />
       <Script strategy="afterInteractive" src={KAKAO_SDK_SRC} onLoad={initMap} />
 
-      <Canvas ref={containerRef} role="application" aria-label="한옥 위치 지도" />
+      <Canvas
+        ref={containerRef}
+        role="application"
+        aria-label="한옥 위치 지도"
+        $isNight={isNight}
+      />
 
-      {isSearchDirty && (
+      {/* 시네마틱 드론 비행 플로팅 알림 바 */}
+      {flightState.active && currentFlightStop && (
+        <FlightBanner>
+          <span className="step-badge">{flightState.step + 1} / {FLIGHT_STOPS.length}</span>
+          <span className="hub-name">✈️ 시네마틱 투어 중: {currentFlightStop.name}</span>
+          <button type="button" className="stop-btn" onClick={stopFlight}>
+            <X size={12} />
+            <span>종료</span>
+          </button>
+        </FlightBanner>
+      )}
+
+      {isSearchDirty && !flightState.active && (
         <Research type="button" onClick={() => useMapStore.getState().clearSearchDirty()}>
           <RotateCw size={16} aria-hidden />
           이 지역 재검색
@@ -369,12 +549,13 @@ export default function KakaoMap() {
       )}
 
       <Controls>
+        {/* 1. 스마트 인터랙션 컨트롤 (내 위치 GPS, 전국 스카이뷰 비행, 달빛 야행 모드) */}
         <Stack>
           <ControlButton
             type="button"
             aria-label="현위치로 이동"
             onClick={locate}
-            data-active={isLocating}
+            $active={isLocating}
             title="내 현재 위치로 이동"
           >
             {isLocating ? (
@@ -383,7 +564,27 @@ export default function KakaoMap() {
               <LocateFixed size={18} />
             )}
           </ControlButton>
+          <ControlButton
+            type="button"
+            aria-label="시네마틱 한옥 스카이뷰 비행 투어"
+            onClick={startFlight}
+            $active={flightState.active}
+            title={flightState.active ? '스카이뷰 비행 투어 중지' : '전국 4대 한옥 스카이뷰 비행 투어'}
+          >
+            <Plane size={18} />
+          </ControlButton>
+          <ControlButton
+            type="button"
+            aria-label="달빛 야행 모드 전환"
+            onClick={() => setIsNight((prev) => !prev)}
+            $active={isNight}
+            title={isNight ? '주간 뷰로 전환' : '달빛 야행(야경) 모드로 전환'}
+          >
+            {isNight ? <Sun size={18} color="#f59e0b" /> : <Moon size={18} />}
+          </ControlButton>
         </Stack>
+
+        {/* 2. 줌 인/아웃 컨트롤 */}
         <Stack>
           <ControlButton type="button" aria-label="확대" onClick={() => zoom(-1)}>
             <Plus size={18} />

@@ -12,8 +12,12 @@ export type PlaceCategory =
   | 'cafe'
   | 'market';
 
-/** 온기지도 필터. 데이터가 아니라 보기 방식이라 Warmth에는 안 들어간다. */
-export type WarmthFilter = 'all' | 'busy' | 'quiet' | 'today' | 'recent';
+/**
+ * 온기지도 필터. 데이터가 아니라 보기 방식이라 Warmth에는 안 들어간다.
+ * 여기 있는 값과 CategoryChips의 온기 칩 목록, warmthRepo.filterWarmth의 switch가
+ * 셋 다 같은 집합이어야 한다 — 예전엔 'recent'는 아무도 안 쓰고 'review'는 무동작이었다.
+ */
+export type WarmthFilter = 'all' | 'busy' | 'quiet' | 'today' | 'mine';
 
 export interface LatLng {
   lat: number;
@@ -32,6 +36,8 @@ export interface Item {
   tel: string | null;
   /** 검색 중심으로부터의 거리(m). TourAPI dist를 그대로 쓴다. */
   dist: number | null;
+  /** 정통 한옥·문화재·고택 엔티티 여부 (일반 숙소/시설과 차별화) */
+  isTraditional?: boolean;
 }
 
 /** 한 줄 온기. 당근 한줄평처럼 짧게, 장소 하나에 여러 개가 쌓인다. */
@@ -56,6 +62,7 @@ export interface WarmthReview {
   placeId: string;
   placeName: string;
   placeRegion: string;
+  /** 분류를 아는 경우에만 채운다. 모르면 빈 문자열 — 지어내지 않는다. */
   placeType: string;
   mood: 1 | 2 | 3 | 4 | 5;
   season: '봄' | '여름' | '가을' | '겨울';
@@ -64,9 +71,12 @@ export interface WarmthReview {
   goodText?: string;
   badTags: string[];
   badText?: string;
+  /** ISO 8601. 표시용 문자열이 아니다 — 정렬에 Date.parse로 들어간다. */
   createdAt: string;
   helpfulCount: number;
   isHelpful?: boolean;
+  /** 내가 남긴 것 */
+  mine?: boolean;
 }
 
 /** 실시간 인기 장소 랭킹 데이터 */
@@ -75,8 +85,6 @@ export interface RankedPlace {
   placeName: string;
   placeType: string;
   placeRegion: string;
-  helpfulCount: number;
-  congestionLevel: '여유' | '보통' | '혼잡' | string;
   image: string | null;
   lat?: number;
   lng?: number;
@@ -107,6 +115,8 @@ export interface WarmthCell {
   count: number;
   /** 셀 안에서 가장 최근 온기 — blob 라벨/미리보기용. */
   latest: Warmth;
+  /** 셀에 묶인 온기 전부. 분위기(북적/한적) 비율을 여기서 낸다. */
+  items: Warmth[];
 }
 
 /**

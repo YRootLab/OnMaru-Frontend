@@ -34,13 +34,13 @@ export const HeroAudioPlayer: React.FC = () => {
   const remainingSeconds = Math.max(0, duration - currentTime);
 
   return (
-    <div className="bg-[#1C1814] text-white rounded-3xl p-6 sm:p-8 border border-[#3A332C]  flex flex-col justify-between h-full relative overflow-hidden">
+    <div className="bg-[#1C1814] text-white rounded-3xl p-6 sm:p-8   flex flex-col justify-between h-full relative overflow-hidden">
       {/* 배경 은은한 무드 */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-[#D42058]/10 via-transparent to-transparent pointer-events-none" />
 
       {/* 상단 앨범 아트 및 배지 */}
       <div className="relative z-10">
-        <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden mb-6 bg-[#24211D] border border-white/10 ">
+        <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden mb-6 bg-[#24211D]  ">
           <img
             src={currentStory.imageUrl || 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80'}
             alt={currentStory.title}
@@ -95,7 +95,7 @@ export const HeroAudioPlayer: React.FC = () => {
             onClick={toggleBookmark}
             className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all flex items-center space-x-1.5 ${
               isBookmarked
-                ? 'text-[#F8A8C0] bg-[#D42058]/20 border border-[#D42058]/40'
+                ? 'text-[#F8A8C0] bg-[#D42058]/20 '
                 : 'text-[#A09588] hover:text-white hover:bg-white/5'
             }`}
           >

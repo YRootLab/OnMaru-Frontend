@@ -36,7 +36,7 @@ export const OdiiFooterCTA: React.FC = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: [0.12, 1, 0.2, 1] }}
-          className="relative overflow-hidden border-y border-[#211e19]/8 bg-transparent p-8 text-[#211e19] sm:p-12"
+          className="relative overflow-hidden   bg-transparent p-8 text-[#211e19] sm:p-12"
         >
           {/* 아늑한 비네트 배경 */}
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#fff0f5]/70 via-transparent to-[#fff0f5]/70" />
@@ -63,7 +63,7 @@ export const OdiiFooterCTA: React.FC = () => {
               </Link>
               <Link
                 href="/"
-                className="w-full rounded-full border border-[#f84e76]/25 px-6 py-3 text-xs font-semibold text-[#f84e76] transition-colors hover:border-[#f84e76] hover:bg-[#fff0f5] sm:w-auto"
+                className="w-full rounded-full  px-6 py-3 text-xs font-semibold text-[#f84e76] transition-colors hover: hover:bg-[#fff0f5] sm:w-auto"
               >
                 온마루 3D 한옥 스토리가기
               </Link>

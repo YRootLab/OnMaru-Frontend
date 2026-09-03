@@ -1,19 +1,20 @@
 'use client';
 
 import React from 'react';
+import { usePathname } from 'next/navigation';
 import styled from '@emotion/styled';
 import type { OnmaruTheme } from '@/design-system/tokens';
 
-const StyledPageContainer = styled.div`
+const StyledPageContainer = styled.div<{ $isFullBleed: boolean }>`
   width: 100%;
   min-height: 100vh;
-  padding-top: 66px; /* 플로팅 고정 헤더(상단 여백 포함)와 콘텐츠가 겹치지 않도록 확보 */
-  padding-left: ${({ theme }) => (theme as OnmaruTheme).layout?.margin?.lg || '75px'};
-  padding-right: ${({ theme }) => (theme as OnmaruTheme).layout?.margin?.lg || '75px'};
+  padding-top: ${({ $isFullBleed }) => ($isFullBleed ? '0' : '66px')};
+  padding-left: ${({ $isFullBleed, theme }) => ($isFullBleed ? '0' : (theme as OnmaruTheme).layout?.margin?.lg || '75px')};
+  padding-right: ${({ $isFullBleed, theme }) => ($isFullBleed ? '0' : (theme as OnmaruTheme).layout?.margin?.lg || '75px')};
 
   @media (max-width: 1279px) {
-    padding-left: ${({ theme }) => (theme as OnmaruTheme).layout?.margin?.md || '16px'};
-    padding-right: ${({ theme }) => (theme as OnmaruTheme).layout?.margin?.md || '16px'};
+    padding-left: ${({ $isFullBleed, theme }) => ($isFullBleed ? '0' : (theme as OnmaruTheme).layout?.margin?.md || '16px')};
+    padding-right: ${({ $isFullBleed, theme }) => ($isFullBleed ? '0' : (theme as OnmaruTheme).layout?.margin?.md || '16px')};
   }
 
   @media (max-width: 767px) {
@@ -23,5 +24,8 @@ const StyledPageContainer = styled.div`
 `;
 
 export default function PageContainer({ children }: { children: React.ReactNode }) {
-  return <StyledPageContainer>{children}</StyledPageContainer>;
+  const pathname = usePathname();
+  const isFullBleed = pathname.startsWith('/odii') || pathname.startsWith('/map') || pathname === '/';
+
+  return <StyledPageContainer $isFullBleed={isFullBleed}>{children}</StyledPageContainer>;
 }

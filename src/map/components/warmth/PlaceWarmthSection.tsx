@@ -5,6 +5,7 @@ import styled from '@emotion/styled';
 import { Flame, Leaf, Users, Plus, MessageCircleHeart } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
+import { distanceInMeters } from '@/map/utils/geo';
 import WriteWarmthModal from './WriteWarmthModal';
 import MoodSelector from './MoodSelector';
 import type { Warmth } from '@/map/types';
@@ -17,9 +18,8 @@ interface PlaceWarmthSectionProps {
 }
 
 const SectionContainer = styled.section`
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid ${meok[200]};
+  margin-top: 20px;
+  padding: 16px;
 `;
 
 const SectionHeader = styled.div`
@@ -55,6 +55,7 @@ const CountBadge = styled.span`
   font-size: 11px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+  border: none;
 `;
 
 const WriteButton = styled.button`
@@ -62,8 +63,8 @@ const WriteButton = styled.button`
   align-items: center;
   gap: 4px;
   height: 30px;
-  padding: 0 10px;
-
+  padding: 0 12px;
+  border: none;
   border-radius: 9999px;
   background: ${lightPalette.juhong[50]};
   color: ${lightPalette.juhong[700]};
@@ -76,7 +77,6 @@ const WriteButton = styled.button`
   &:hover {
     background: ${lightPalette.juhong[500]};
     color: #ffffff;
-    border-color: ${lightPalette.juhong[500]};
   }
 
   &:active {
@@ -93,13 +93,16 @@ const WarmthList = styled.div`
 const WarmthCard = styled.div`
   padding: 14px 16px;
   border-radius: 18px;
-  background: #ffffff;
-
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  background: #fbf8f2;
+  border: none;
+  transition: transform 0.15s ease;
 
   &:hover {
     transform: translateY(-1px);
+  }
 
+  [data-theme='dark'] & {
+    background: #25221d;
   }
 `;
 
@@ -253,11 +256,9 @@ function formatRelativeTime(isoString: string): string {
   }
 }
 
-/** 위도/경도 간 유클리드 근사 거리 (미터) */
+/** 위도/경도 간 거리(m). 계산기는 utils/geo 하나만 쓴다. */
 function getDistanceMeters(lat1: number, lng1: number, lat2: number, lng2: number): number {
-  const dLat = (lat2 - lat1) * 111000;
-  const dLng = (lng2 - lng1) * 88800;
-  return Math.sqrt(dLat * dLat + dLng * dLng);
+  return distanceInMeters({ lat: lat1, lng: lng1 }, { lat: lat2, lng: lng2 });
 }
 
 export default function PlaceWarmthSection({
@@ -307,7 +308,7 @@ export default function PlaceWarmthSection({
 
   return (
     <>
-      <SectionContainer>
+      <SectionContainer id="place-warmth-section">
         <SectionHeader>
           <TitleBox>
             <Flame size={16} color={lightPalette.juhong[500]} />

@@ -226,18 +226,18 @@ export const OdiiFreeformFeature: React.FC<OdiiFreeformFeatureProps> = ({ apiSer
       <div className="pointer-events-none absolute right-[-8%] top-[30rem] h-64 w-64 rounded-full bg-[#2454ff] opacity-90 mix-blend-multiply sm:h-[30rem] sm:w-[30rem]" aria-hidden="true" />
 
       <div className="relative z-10 w-full">
-        <header className="border-b-2 border-[#171717]">
+        <header className="border-b-2 ">
           <div className="flex min-h-14 items-center justify-between gap-4 text-[10px] font-semibold uppercase tracking-[0.16em]">
             <Link href="/odii" className="shrink-0 transition-colors hover:text-[#2454ff]">ONMARU / ODII</Link>
             <span className="hidden sm:block">Field notes for a slower Korea</span>
-            <Link href="/odii" className="shrink-0 border-b border-[#171717] pb-0.5 normal-case tracking-normal transition-colors hover:border-[#2454ff] hover:text-[#2454ff]">
+            <Link href="/odii" className="shrink-0   pb-0.5 normal-case tracking-normal transition-colors hover: hover:text-[#2454ff]">
               기존 버전 보기 ↗
             </Link>
           </div>
         </header>
 
         <main>
-          <section className="relative grid gap-10 border-b-2 border-[#171717] py-14 sm:py-20 lg:grid-cols-[minmax(0,1.12fr)_minmax(300px,0.88fr)] lg:gap-16 lg:py-24">
+          <section className="relative grid gap-10 border-b-2  py-14 sm:py-20 lg:grid-cols-[minmax(0,1.12fr)_minmax(300px,0.88fr)] lg:gap-16 lg:py-24">
             <div className="relative z-10">
               <p className="mb-6 text-[10px] font-bold uppercase tracking-[0.22em] text-[#2454ff]">AUDIO TRAVEL / 01</p>
               <h1 className="max-w-4xl font-odii-sans text-[clamp(3.5rem,9vw,8.8rem)] font-black leading-[0.83] tracking-[-0.09em]">
@@ -265,7 +265,7 @@ export const OdiiFreeformFeature: React.FC<OdiiFreeformFeatureProps> = ({ apiSer
                 initial={{ opacity: 0, rotate: 4, y: 18 }}
                 animate={{ opacity: 1, rotate: -3, y: 0 }}
                 transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className="absolute inset-x-4 top-4 bottom-0 overflow-hidden border-2 border-[#171717] bg-[#d5f05a] p-3  sm:inset-x-12 sm:p-4"
+                className="absolute inset-x-4 top-4 bottom-0 overflow-hidden   bg-[#d5f05a] p-3  sm:inset-x-12 sm:p-4"
               >
                 <img src={activeStory.imageUrl || FALLBACK_IMAGE} alt={activeStory.title} className="h-full w-full object-cover grayscale-[0.2]" />
                 <div className="absolute inset-3 flex flex-col justify-between bg-gradient-to-b from-[#171717]/45 via-transparent to-[#171717]/70 p-4 text-white sm:inset-4 sm:p-6">
@@ -283,8 +283,8 @@ export const OdiiFreeformFeature: React.FC<OdiiFreeformFeatureProps> = ({ apiSer
             </div>
           </section>
 
-          <section className="grid border-b-2 border-[#171717] lg:grid-cols-[190px_minmax(0,1fr)]" id="listen">
-            <aside className="border-b-2 border-[#171717] py-7 lg:border-b-0 lg:border-r-2 lg:py-10">
+          <section className="grid border-b-2  lg:grid-cols-[190px_minmax(0,1fr)]" id="listen">
+            <aside className="border-b-2  py-7 lg:border-b-0 lg:border-r-2 lg:py-10">
               <div className="flex items-center justify-between lg:sticky lg:top-20 lg:block">
                 <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#6d6d66]">Choose a feeling</p>
                 <p className="font-mono text-xs text-[#2454ff]">{String(TOPICS.length).padStart(2, '0')} themes</p>
@@ -297,7 +297,7 @@ export const OdiiFreeformFeature: React.FC<OdiiFreeformFeatureProps> = ({ apiSer
                     onClick={() => setActiveTopic(topic.keyword)}
                     className={`group flex shrink-0 items-center gap-2 text-left text-sm transition-colors lg:w-full ${activeTopic === topic.keyword ? 'font-bold text-[#2454ff]' : 'text-[#6d6d66] hover:text-[#171717]'}`}
                   >
-                    <span className={`h-2 w-2 rounded-full border border-current transition-transform ${activeTopic === topic.keyword ? 'scale-125 bg-[#2454ff]' : 'group-hover:scale-125'}`} />
+                    <span className={`h-2 w-2 rounded-full  transition-transform ${activeTopic === topic.keyword ? 'scale-125 bg-[#2454ff]' : 'group-hover:scale-125'}`} />
                     {topic.label}
                   </button>
                 ))}
@@ -323,7 +323,7 @@ export const OdiiFreeformFeature: React.FC<OdiiFreeformFeatureProps> = ({ apiSer
                     transition={{ duration: 0.35 }}
                     className="grid gap-6 sm:grid-cols-[minmax(180px,0.76fr)_minmax(0,1fr)]"
                   >
-                    <div className="relative aspect-[4/3] overflow-hidden border-2 border-[#171717] bg-[#d5f05a] sm:aspect-auto sm:min-h-[310px]">
+                    <div className="relative aspect-[4/3] overflow-hidden   bg-[#d5f05a] sm:aspect-auto sm:min-h-[310px]">
                       <img src={activeStory.imageUrl || FALLBACK_IMAGE} alt={activeStory.title} className="h-full w-full object-cover grayscale-[0.15] transition-transform duration-700 hover:scale-105" />
                       <span className="absolute bottom-3 left-3 bg-[#d5f05a] px-2 py-1 font-mono text-[10px] font-bold text-[#171717]">{activeStory.formattedDuration || 'audio'}</span>
                     </div>
@@ -335,9 +335,9 @@ export const OdiiFreeformFeature: React.FC<OdiiFreeformFeatureProps> = ({ apiSer
                         </div>
                         <h3 className="mt-3 font-odii-sans text-3xl font-bold leading-[0.98] tracking-[-0.065em] sm:text-5xl">{activeStory.title}</h3>
                         <p className="mt-3 text-sm font-medium leading-6 text-[#4d4d49]">{activeStory.audioTitle}</p>
-                        <blockquote className="mt-7 border-l-2 border-[#f45b3d] pl-4 text-base leading-7 text-[#4d4d49]">“{excerpt(activeStory.script)}”</blockquote>
+                        <blockquote className="mt-7 border-l-2  pl-4 text-base leading-7 text-[#4d4d49]">“{excerpt(activeStory.script)}”</blockquote>
                       </div>
-                      <div className="mt-8 flex flex-wrap items-center gap-4 border-t-2 border-[#171717] pt-4">
+                      <div className="mt-8 flex flex-wrap items-center gap-4 border-t-2  pt-4">
                         <button type="button" onClick={() => playStory(activeStory)} className="inline-flex items-center gap-2 bg-[#2454ff] px-4 py-2.5 text-xs font-bold text-white transition-transform hover:-translate-y-1">
                           <PlayGlyph playing={isActivePlaying} />
                           {isActivePlaying ? '잠시 멈추기' : '이야기 듣기'}
@@ -351,7 +351,7 @@ export const OdiiFreeformFeature: React.FC<OdiiFreeformFeatureProps> = ({ apiSer
                   </motion.article>
                 </AnimatePresence>
 
-                <div className="border-t-2 border-[#171717] xl:border-l-2 xl:border-t-0 xl:pl-6">
+                <div className="border-t-2  xl:border-l-2 xl:border-t-0 xl:pl-6">
                   <div className="flex items-center justify-between pt-5 xl:pt-0">
                     <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#6d6d66]">More from this feeling</p>
                     <span className="font-mono text-xs text-[#2454ff]">{String(topicStories.length).padStart(2, '0')}</span>
@@ -373,14 +373,14 @@ export const OdiiFreeformFeature: React.FC<OdiiFreeformFeatureProps> = ({ apiSer
             </div>
           </section>
 
-          <section className="relative border-b-2 border-[#171717] bg-[#2454ff] py-12 text-white sm:py-16">
+          <section className="relative border-b-2  bg-[#2454ff] py-12 text-white sm:py-16">
             <div className="absolute right-8 top-8 text-7xl font-black leading-none text-[#d5f05a]/80 sm:text-9xl" aria-hidden="true">03</div>
             <div className="relative grid gap-8 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)] lg:items-end">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#d5f05a]">Local signal</p>
                 <h2 className="mt-3 max-w-md font-odii-sans text-4xl font-bold leading-[0.9] tracking-[-0.07em] sm:text-6xl">오늘,<br />여기에서</h2>
                 <p className="mt-5 max-w-xs text-xs leading-5 text-white/75">{locationMessage}</p>
-                <button type="button" onClick={locate} disabled={isLocating} className="mt-6 border border-white/60 px-4 py-2.5 text-xs font-bold transition-colors hover:border-[#d5f05a] hover:bg-[#d5f05a] hover:text-[#171717] disabled:opacity-50">
+                <button type="button" onClick={locate} disabled={isLocating} className="mt-6  px-4 py-2.5 text-xs font-bold transition-colors hover: hover:bg-[#d5f05a] hover:text-[#171717] disabled:opacity-50">
                   {isLocating ? '살펴보는 중…' : '내 위치 사용 ↗'}
                 </button>
               </div>
@@ -388,7 +388,7 @@ export const OdiiFreeformFeature: React.FC<OdiiFreeformFeatureProps> = ({ apiSer
                 {nearbyStories.slice(0, 4).map((story, index) => {
                   const isCurrent = currentStory.stid === story.stid;
                   return (
-                    <button key={story.stid} type="button" onClick={() => { setNearbyIndex(index); playStory(story); }} className={`group grid grid-cols-[72px_minmax(0,1fr)] gap-3 border border-white/35 p-2 text-left transition-transform hover:-translate-y-1 ${story.stid === nearbyStory.stid ? 'bg-[#d5f05a] text-[#171717]' : 'bg-white/10'}`}>
+                    <button key={story.stid} type="button" onClick={() => { setNearbyIndex(index); playStory(story); }} className={`group grid grid-cols-[72px_minmax(0,1fr)] gap-3  p-2 text-left transition-transform hover:-translate-y-1 ${story.stid === nearbyStory.stid ? 'bg-[#d5f05a] text-[#171717]' : 'bg-white/10'}`}>
                       <img src={story.imageUrl || FALLBACK_IMAGE} alt="" className="h-[72px] w-[72px] object-cover grayscale-[0.2]" />
                       <span className="min-w-0 self-center">
                         <span className={`font-mono text-[10px] ${story.stid === nearbyStory.stid ? 'text-[#f45b3d]' : 'text-[#d5f05a]'}`}>0{index + 1} / {story.distance || 'near'}</span>
@@ -399,18 +399,18 @@ export const OdiiFreeformFeature: React.FC<OdiiFreeformFeatureProps> = ({ apiSer
                   );
                 })}
               </div>
-              <div className="mt-8 flex flex-col gap-4 border-t border-white/35 pt-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="mt-8 flex flex-col gap-4   pt-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
                   <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#d5f05a]">Selected nearby sound</p>
                   <p className="mt-1 truncate text-sm font-bold">{nearbyStory.title}</p>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
-                  <button type="button" onClick={() => moveNearby(-1)} aria-label="이전 주변 이야기" className="flex h-9 w-9 items-center justify-center border border-white/50 text-lg transition-colors hover:border-[#d5f05a] hover:bg-[#d5f05a] hover:text-[#171717]">←</button>
+                  <button type="button" onClick={() => moveNearby(-1)} aria-label="이전 주변 이야기" className="flex h-9 w-9 items-center justify-center  text-lg transition-colors hover: hover:bg-[#d5f05a] hover:text-[#171717]">←</button>
                   <button type="button" onClick={() => playStory(nearbyStory)} aria-label={isNearbyPlaying ? '주변 이야기 일시정지' : '주변 이야기 재생'} className="flex h-9 min-w-24 items-center justify-center gap-2 bg-[#d5f05a] px-3 text-[11px] font-bold text-[#171717] transition-transform hover:-translate-y-0.5">
                     <PlayGlyph playing={isNearbyPlaying} />
                     {isNearbyPlaying ? '일시정지' : '재생'}
                   </button>
-                  <button type="button" onClick={() => moveNearby(1)} aria-label="다음 주변 이야기" className="flex h-9 w-9 items-center justify-center border border-white/50 text-lg transition-colors hover:border-[#d5f05a] hover:bg-[#d5f05a] hover:text-[#171717]">→</button>
+                  <button type="button" onClick={() => moveNearby(1)} aria-label="다음 주변 이야기" className="flex h-9 w-9 items-center justify-center  text-lg transition-colors hover: hover:bg-[#d5f05a] hover:text-[#171717]">→</button>
                   <span className="ml-1 font-mono text-[10px] text-white/70">{String(safeNearbyIndex + 1).padStart(2, '0')} / {String(Math.max(nearbyStories.length, 1)).padStart(2, '0')}</span>
                 </div>
               </div>
@@ -418,14 +418,14 @@ export const OdiiFreeformFeature: React.FC<OdiiFreeformFeatureProps> = ({ apiSer
           </section>
 
           <section className="py-14 sm:py-20" id="archive">
-            <div className="flex flex-col justify-between gap-5 border-b-2 border-[#171717] pb-6 sm:flex-row sm:items-end">
+            <div className="flex flex-col justify-between gap-5 border-b-2  pb-6 sm:flex-row sm:items-end">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#f45b3d]">The archive</p>
                 <h2 className="mt-2 font-odii-sans text-4xl font-bold tracking-[-0.07em] sm:text-6xl">계속 걷기</h2>
               </div>
               <div className="flex items-end justify-between gap-4 sm:block sm:text-right">
                 <p className="max-w-xs text-xs leading-5 text-[#6d6d66]">한 번에 다 보지 않아도 좋아요. 오늘 마음에 걸린 장면만 골라두세요.</p>
-                <button type="button" onClick={reloadArchive} disabled={isRefreshing} className="mt-3 shrink-0 border-b border-[#171717] pb-0.5 text-[10px] font-bold text-[#2454ff] transition-colors hover:border-[#f45b3d] hover:text-[#f45b3d] disabled:opacity-50">
+                <button type="button" onClick={reloadArchive} disabled={isRefreshing} className="mt-3 shrink-0   pb-0.5 text-[10px] font-bold text-[#2454ff] transition-colors hover: hover:text-[#f45b3d] disabled:opacity-50">
                   {isRefreshing ? '다시 읽는 중…' : '장면 다시 읽기 ↻'}
                 </button>
               </div>
@@ -436,10 +436,10 @@ export const OdiiFreeformFeature: React.FC<OdiiFreeformFeatureProps> = ({ apiSer
                 const isSaved = savedIds.has(story.stid);
                 return (
                   <article key={story.stid} className={`group ${index === 1 ? 'lg:mt-16' : ''} ${index === 4 ? 'lg:-mt-10' : ''}`}>
-                    <div className={`relative overflow-hidden border-2 border-[#171717] bg-[#d5f05a] ${index === 0 ? 'aspect-[4/5]' : 'aspect-[4/3]'}`}>
+                    <div className={`relative overflow-hidden   bg-[#d5f05a] ${index === 0 ? 'aspect-[4/5]' : 'aspect-[4/3]'}`}>
                       <img src={story.imageUrl || FALLBACK_IMAGE} alt={story.title} className="h-full w-full object-cover grayscale-[0.18] transition-transform duration-700 group-hover:scale-105" />
                       <span className="absolute left-3 top-3 bg-[#171717] px-2 py-1 font-mono text-[10px] text-[#d5f05a]">0{index + 1}</span>
-                      <button type="button" onClick={() => toggleBookmark(story)} aria-label={isSaved ? `${story.title} 담아두기 취소` : `${story.title} 마음에 담기`} className={`absolute right-3 top-3 flex h-8 w-8 items-center justify-center border-2 border-[#171717] transition-colors ${isSaved ? 'bg-[#f45b3d] text-[#171717]' : 'bg-[#e9e9e3] text-[#171717] hover:bg-[#d5f05a]'}`}>
+                      <button type="button" onClick={() => toggleBookmark(story)} aria-label={isSaved ? `${story.title} 담아두기 취소` : `${story.title} 마음에 담기`} className={`absolute right-3 top-3 flex h-8 w-8 items-center justify-center   transition-colors ${isSaved ? 'bg-[#f45b3d] text-[#171717]' : 'bg-[#e9e9e3] text-[#171717] hover:bg-[#d5f05a]'}`}>
                         <Heart size={14} className={isSaved ? 'fill-current' : ''} />
                       </button>
                       <button type="button" onClick={() => playStory(story)} className="absolute bottom-3 left-3 flex h-9 w-9 items-center justify-center rounded-full bg-[#2454ff] text-white opacity-0 transition-opacity group-hover:opacity-100" aria-label={`${story.title} 재생`}>
@@ -460,7 +460,7 @@ export const OdiiFreeformFeature: React.FC<OdiiFreeformFeatureProps> = ({ apiSer
             </div>
           </section>
 
-          <footer className="flex flex-col justify-between gap-6 border-t-2 border-[#171717] py-8 text-xs sm:flex-row sm:items-center">
+          <footer className="flex flex-col justify-between gap-6 border-t-2  py-8 text-xs sm:flex-row sm:items-center">
             <p className="font-odii-sans text-lg font-bold tracking-[-0.04em]">천천히 들어도, 여행입니다.</p>
             <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-[0.15em]">
               <Link href="/map" className="hover:text-[#2454ff]">Map ↗</Link>

@@ -1,21 +1,42 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { X, Share2, Navigation, RefreshCw, AlertCircle, Check, Award, Compass, Play } from 'lucide-react';
+import {
+  X,
+  Share2,
+  Navigation,
+  RefreshCw,
+  AlertCircle,
+  Check,
+  Award,
+  Compass,
+  Play,
+  Headphones,
+  Flame,
+  Car,
+  Ticket,
+  Camera,
+  ChevronLeft,
+  Bookmark,
+} from 'lucide-react';
 import { logger } from '@/lib/log';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useOdiiPlaceStory } from '@/features/odii-audio/hooks/useOdiiPlaceStory';
 import { useCinematicTourStore } from '@/features/cinematic-tour/store/useCinematicTourStore';
 import { useMapStore } from '@/map/hooks/useMapStore';
+import { useBookmarkStore } from '@/map/hooks/useBookmarkStore';
 import { usePlaceDetail } from '@/map/hooks/usePlaceDetail';
-import { formatDistance } from '@/map/utils/formatters';
+import { calculateTravelEstimate } from '@/map/utils/geo';
 import { createKakaoNavigationLinks } from '@/map/utils/navigation';
 import PlaceDetailCarousel from './detail/PlaceDetailCarousel';
 import PlaceWarmthSection from './warmth/PlaceWarmthSection';
+import RoadviewModal from './detail/RoadviewModal';
 import {
   DetailWrapper,
   HeaderBar,
   HeaderBadge,
+  BackToPopularBtn,
+  HeaderActionGroup,
   CloseButton,
   ScrollBody,
   TitleSection,
@@ -23,6 +44,15 @@ import {
   PlaceAddress,
   BadgeRow,
   Badge,
+  SmartFeatureRow,
+  SmartFeatureChip,
+  LiveWarmthMeter,
+  LiveWarmthStatus,
+  LiveWarmthPulse,
+  LiveWarmthCount,
+  HeroActionGrid,
+  HeroActionTile,
+  HeroActionLink,
   CoreInfoBox,
   CoreRow,
   CoreLabel,
@@ -32,6 +62,7 @@ import {
   OverviewText,
   ToggleMoreBtn,
   BottomActionArea,
+  BookmarkButton,
   ShareButton,
   NavButton,
   SkeletonBox,
@@ -52,7 +83,12 @@ const log = logger('map');
 export default function PlaceDetail() {
   const detailId = useMapStore((s) => s.detailId);
   const setDetailId = useMapStore((s) => s.setDetailId);
+  const fromPopularRanking = useMapStore((s) => s.fromPopularRanking);
+  const goBackToPopularRanking = useMapStore((s) => s.goBackToPopularRanking);
   const items = useMapStore((s) => s.items);
+  const warmths = useMapStore((s) => s.warmths);
+
+  const [isRoadviewOpen, setIsRoadviewOpen] = useState(false);
 
   const selectedItem = useMemo(
     () => items.find((i) => i.id === detailId),
@@ -128,22 +164,42 @@ export default function PlaceDetail() {
   const addr = data?.addr1 || selectedItem?.addr || '';
   const tel = data?.tel || selectedItem?.tel;
 
+  const isRealTraditional = useMemo(() => {
+    if (selectedItem?.isTraditional !== undefined) return selectedItem.isTraditional;
+    return /(한옥|고택|종택|향교|서원|사당|궁궐|성곽|누각|정자|기와|초가|전통|다원|다도|명옥헌|임청각|명재|선교장|운현궁|낙선재|대청|마루|온돌|당\b|재\b|헌\b|루\b|정\b|각\b|원\b)/i.test(
+      title,
+    );
+  }, [selectedItem?.isTraditional, title]);
+
+  const userLocation = useMapStore((s) => s.userLocation);
+  const center = useMapStore((s) => s.center);
+
+  const travelEstimate = useMemo(() => {
+    return calculateTravelEstimate(selectedItem, userLocation, center);
+  }, [selectedItem, userLocation, center]);
+
   const badges = useMemo(() => {
     const list: string[] = [];
-    if (selectedItem?.category === 'stay') list.push('한옥스테이');
+    if (isRealTraditional) {
+      list.push('🏛️ 정통 한옥');
+    } else {
+      list.push('주변 연계 시설');
+    }
+
+    if (selectedItem?.category === 'stay') list.push(isRealTraditional ? '정통 한옥숙소' : '주변 숙박');
     else if (selectedItem?.category === 'experience') list.push('전통체험');
     else if (selectedItem?.category === 'culture') list.push('문화유산');
     else if (selectedItem?.category === 'festival') list.push('야행축제');
-    else if (selectedItem?.category === 'food') list.push('향토음식');
-    else if (selectedItem?.category === 'cafe') list.push('전통찻집');
+    else if (selectedItem?.category === 'food') list.push(isRealTraditional ? '향토음식' : '일반음식');
+    else if (selectedItem?.category === 'cafe') list.push(isRealTraditional ? '전통찻집' : '일반카페');
     else if (selectedItem?.category === 'market') list.push('전통시장');
-    else list.push('명소고택');
+    else list.push(isRealTraditional ? '고택명소' : '관광명소');
 
-    if (selectedItem?.dist !== undefined && selectedItem?.dist !== null) {
-      list.push(formatDistance(selectedItem.dist));
+    if (travelEstimate.fullLabel) {
+      list.push(travelEstimate.fullLabel);
     }
     return list;
-  }, [selectedItem]);
+  }, [selectedItem, isRealTraditional, travelEstimate]);
 
   let lat = Number(data?.mapy) || selectedItem?.lat || 0;
   let lng = Number(data?.mapx) || selectedItem?.lng || 0;
@@ -168,6 +224,27 @@ export default function PlaceDetail() {
     hasValidCoords ? lat : undefined,
     hasValidCoords ? lng : undefined,
   );
+
+  const smartFeatures = useMemo(() => {
+    const list: { label: string; type: 'free' | 'parking' | 'audio' | 'general' }[] = [];
+    if (matchedOdiiStory) {
+      list.push({ label: '오디 도슨트 해설', type: 'audio' });
+    }
+    const fee = data?.intro?.['이용요금'] || '';
+    if (fee.includes('무료') || (!fee && selectedItem?.category === 'spot')) {
+      list.push({ label: '무료 관람', type: 'free' });
+    } else if (fee) {
+      list.push({ label: '관람요금 안내', type: 'general' });
+    }
+    const parking = data?.intro?.['주차시설'] || '';
+    if (parking.includes('가능') || parking.includes('있음') || parking.includes('주차장')) {
+      list.push({ label: '주차 가능', type: 'parking' });
+    }
+    if (tel) {
+      list.push({ label: '유선 문의 가능', type: 'general' });
+    }
+    return list;
+  }, [matchedOdiiStory, data?.intro, selectedItem?.category, tel]);
 
   const startTour = useCinematicTourStore((s) => s.startTour);
 
@@ -197,21 +274,88 @@ export default function PlaceDetail() {
     }
   };
 
+  const placeWarmths = useMemo(() => {
+    return warmths.filter((w) => w.placeId === detailId || w.placeName === title);
+  }, [warmths, detailId, title]);
+
+  const warmthCount = placeWarmths.length;
+  const busyCount = placeWarmths.filter((w) => w.mood === '북적').length;
+  const isBusy = busyCount >= Math.max(1, warmthCount - busyCount);
+
+  const warmthMetrics = useMemo(() => {
+    if (warmthCount === 0) {
+      return {
+        temp: '36.5℃',
+        label: '방문객 온기를 기다리는 고즈넉한 쉼터',
+        countLabel: '첫 온기 남기기',
+      };
+    }
+    const temp = (36.5 + (isBusy ? 1.2 : 0.6) + Math.min(warmthCount * 0.2, 1.2)).toFixed(1);
+
+    return {
+      temp: `${temp}℃`,
+      label: isBusy ? `체감 ${temp}℃ · 북적이고 활기찬 온기` : `체감 ${temp}℃ · 고즈넉하고 따뜻한 쉼`,
+      countLabel: `머문 온기 ${warmthCount}건`,
+    };
+  }, [warmthCount, isBusy]);
+
+  const isBookmarked = useBookmarkStore((s) => s.isBookmarked(detailId || ''));
+  const toggleBookmark = useBookmarkStore((s) => s.toggleBookmark);
+
+  const handleToggleBookmark = () => {
+    if (!detailId) return;
+    toggleBookmark({
+      id: detailId,
+      name: title,
+      category: selectedItem?.category,
+      addr,
+      image: images[0],
+      lat: hasValidCoords ? lat : undefined,
+      lng: hasValidCoords ? lng : undefined,
+    });
+  };
+
   return (
     <DetailWrapper tabIndex={-1} role="region" aria-label="장소 상세 정보">
       <HeaderBar>
-        <HeaderBadge>
-          <Award size={13} />
-          <span>추천명소</span>
-        </HeaderBadge>
-        <CloseButton
-          type="button"
-          onClick={() => setDetailId(null)}
-          aria-label="상세 정보 닫기"
-          title="닫기 (ESC)"
-        >
-          <X size={20} />
-        </CloseButton>
+        {fromPopularRanking ? (
+          <BackToPopularBtn
+            type="button"
+            onClick={goBackToPopularRanking}
+            aria-label="실시간 인기 순위 목록으로 돌아가기"
+            title="실시간 인기 순위 목록으로 뒤로가기"
+          >
+            <ChevronLeft size={16} />
+            <span>인기 순위</span>
+          </BackToPopularBtn>
+        ) : (
+          <HeaderBadge>
+            <Award size={13} />
+            <span>추천명소</span>
+          </HeaderBadge>
+        )}
+        <HeaderActionGroup>
+          <CloseButton
+            type="button"
+            onClick={handleToggleBookmark}
+            aria-label={isBookmarked ? '마음에 둔 장소 저장 해제' : '마음에 둔 장소로 저장'}
+            title={isBookmarked ? '저장됨 (마음에 둔 장소)' : '마음에 담기 (북마크)'}
+            style={{
+              color: isBookmarked ? lightPalette.juhong[500] : meok[700],
+              background: isBookmarked ? 'rgba(232, 90, 24, 0.1)' : undefined,
+            }}
+          >
+            <Bookmark size={16} fill={isBookmarked ? 'currentColor' : 'none'} />
+          </CloseButton>
+          <CloseButton
+            type="button"
+            onClick={() => setDetailId(null)}
+            aria-label="상세 정보 닫기"
+            title="닫기 (ESC)"
+          >
+            <X size={20} />
+          </CloseButton>
+        </HeaderActionGroup>
       </HeaderBar>
 
       <ScrollBody key={detailId}>
@@ -251,7 +395,83 @@ export default function PlaceDetail() {
                   ))}
                 </BadgeRow>
               )}
+              {smartFeatures.length > 0 && (
+                <SmartFeatureRow>
+                  {smartFeatures.map((feat, idx) => (
+                    <SmartFeatureChip key={idx} $type={feat.type}>
+                      {feat.type === 'audio' && <Headphones size={11} />}
+                      {feat.type === 'free' && <Ticket size={11} />}
+                      {feat.type === 'parking' && <Car size={11} />}
+                      <span>{feat.label}</span>
+                    </SmartFeatureChip>
+                  ))}
+                </SmartFeatureRow>
+              )}
             </TitleSection>
+
+            {/* 실시간 현장 체감 온기 바 */}
+            <LiveWarmthMeter>
+              <LiveWarmthStatus>
+                <LiveWarmthPulse $busy={isBusy} />
+                <span>{warmthMetrics.label}</span>
+              </LiveWarmthStatus>
+              <LiveWarmthCount>{warmthMetrics.countLabel}</LiveWarmthCount>
+            </LiveWarmthMeter>
+
+            {/* 원클릭 퀵 액션 타일 바 (오디 해설이 지원되는 장소에만 '오디 투어' 타일 노출) */}
+            <HeroActionGrid>
+              {matchedOdiiStory && (
+                <HeroActionTile
+                  type="button"
+                  $highlight
+                  onClick={handleStartCinematicTour}
+                  title="시네마틱 오디오 투어 시작"
+                >
+                  <Headphones size={18} />
+                  <span>오디 투어</span>
+                </HeroActionTile>
+              )}
+
+              <HeroActionTile
+                type="button"
+                onClick={() => setIsRoadviewOpen(true)}
+                title="카카오 현장 360도 거리 풍경 둘러보기"
+              >
+                <Camera size={18} />
+                <span>거리 풍경</span>
+              </HeroActionTile>
+
+              {hasValidCoords ? (
+                <HeroActionLink
+                  href={navLinks.webUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={handleNavClick}
+                  title="카카오맵 길찾기"
+                >
+                  <Navigation size={18} />
+                  <span>길찾기</span>
+                </HeroActionLink>
+              ) : (
+                <HeroActionTile type="button" disabled title="좌표 정보 없음">
+                  <Navigation size={18} />
+                  <span>길찾기</span>
+                </HeroActionTile>
+              )}
+
+              <HeroActionTile
+                type="button"
+                $isWarmth
+                onClick={() => {
+                  const el = document.getElementById('place-warmth-section');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }}
+                title="방문객 온기(후기) 보기"
+              >
+                <Flame size={18} />
+                <span>온기 남기기</span>
+              </HeroActionTile>
+            </HeroActionGrid>
 
             {matchedOdiiStory && (
               <CinematicBanner>
@@ -277,10 +497,19 @@ export default function PlaceDetail() {
 
             <CoreInfoBox>
               <CoreRow>
+                <CoreLabel>공간 분류</CoreLabel>
+                <CoreValue>
+                  {isRealTraditional
+                    ? '🏛️ 정통 한옥 및 전통 문화 공간'
+                    : '🏡 주변 연계 편의 공간'}
+                </CoreValue>
+              </CoreRow>
+
+              <CoreRow>
                 <CoreLabel>카테고리</CoreLabel>
                 <CoreValue>
                   {selectedItem?.category === 'stay'
-                    ? '한옥숙소'
+                    ? isRealTraditional ? '정통 한옥숙소' : '주변 연계숙소'
                     : selectedItem?.category === 'experience'
                       ? '한복·전통체험'
                       : selectedItem?.category === 'culture'
@@ -288,12 +517,12 @@ export default function PlaceDetail() {
                         : selectedItem?.category === 'festival'
                           ? '야행·문화축제'
                           : selectedItem?.category === 'food'
-                            ? '향토음식'
+                            ? isRealTraditional ? '향토·전통음식' : '주변 일반음식점'
                             : selectedItem?.category === 'cafe'
-                              ? '한옥카페·디저트'
+                              ? isRealTraditional ? '전통 찻집·한옥카페' : '주변 일반카페'
                               : selectedItem?.category === 'market'
                                 ? '전통시장'
-                                : '고택·명소'}
+                                : isRealTraditional ? '고택·명소' : '관광명소'}
                 </CoreValue>
               </CoreRow>
 
@@ -361,6 +590,17 @@ export default function PlaceDetail() {
       </ScrollBody>
 
       <BottomActionArea>
+        <BookmarkButton
+          type="button"
+          $active={isBookmarked}
+          onClick={handleToggleBookmark}
+          aria-label={isBookmarked ? '마음에 담긴 장소' : '마음에 담기'}
+          title={isBookmarked ? '저장 해제' : '마음에 담기'}
+        >
+          <Bookmark size={15} fill={isBookmarked ? 'currentColor' : 'none'} />
+          <span>{isBookmarked ? '저장됨' : '마음에 담기'}</span>
+        </BookmarkButton>
+
         <ShareButton type="button" onClick={handleShare} aria-label="장소 링크 공유하기">
           {copied ? <Check size={16} color={lightPalette.cheongrok[700]} /> : <Share2 size={16} />}
           <span>{copied ? '복사됨' : '공유하기'}</span>
@@ -379,6 +619,14 @@ export default function PlaceDetail() {
           </NavButton>
         )}
       </BottomActionArea>
+
+      <RoadviewModal
+        isOpen={isRoadviewOpen}
+        onClose={() => setIsRoadviewOpen(false)}
+        placeName={title}
+        lat={lat}
+        lng={lng}
+      />
     </DetailWrapper>
   );
 }

@@ -107,10 +107,10 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
       onClick={onSelect}
       aria-pressed={isCurrent}
       style={{ isolation: 'isolate' }}
-      className={`group relative z-0 grid w-[min(94vw,25.5rem)] shrink-0 snap-start grid-cols-[125px_minmax(0,1fr)] gap-4 overflow-hidden rounded-[1.4rem] border p-3 text-left transition-all duration-300 hover:-translate-y-1 hover: sm:w-[25.5rem] sm:grid-cols-[132px_minmax(0,1fr)] ${
+      className={`group relative z-0 grid w-[min(94vw,25.5rem)] shrink-0 snap-start grid-cols-[125px_minmax(0,1fr)] gap-4 overflow-hidden rounded-[1.4rem] p-3 text-left transition-all duration-300 hover:-translate-y-1 hover: sm:w-[25.5rem] sm:grid-cols-[132px_minmax(0,1fr)] ${
         isCurrent
-          ? 'border-[#a94d35]/50 bg-[#fffbf5]  '
-          : 'border-[#211e19]/08 bg-[#faf7f2]/95 hover:border-[#a94d35]/35 hover:bg-[#fffaf4]'
+          ? ' bg-[#fffbf5]  '
+          : ' bg-[#faf7f2]/95 hover: hover:bg-[#fffaf4]'
       }`}
     >
       {/* 3D 깊이감 앰비언트 글로우 */}
@@ -136,8 +136,8 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
         {/* 재생 컨트롤 원형 버블 */}
         <span className={`absolute bottom-2.5 left-2.5 inline-flex h-8 w-8 items-center justify-center rounded-full  backdrop-blur-xs transition-all duration-300 sm:h-8.5 sm:w-8.5 ${
           isPlaying
-            ? 'bg-[#a94d35] text-white ring-2 ring-white/90 '
-            : 'bg-white/95 text-[#211e19] ring-2 ring-white/90 '
+            ? 'bg-[#a94d35] text-white  ring-white/90 '
+            : 'bg-white/95 text-[#211e19]  ring-white/90 '
         }`}>
           {isPlaying ? (
             <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
@@ -186,7 +186,7 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
           </div>
 
           {/* 5. 한지 오디오 인용구 에디토리얼 박스 */}
-          <div className="mt-1 rounded-r-lg border-l-2 border-[#a94d35]/50 bg-[#211e19]/[0.035] py-1 pl-2 pr-1">
+          <div className="mt-1 rounded-r-lg border-l-2  bg-[#211e19]/[0.035] py-1 pl-2 pr-1">
             <p className="line-clamp-2 text-[10px] italic leading-relaxed text-[#594e40]">
               “{getScriptExcerpt(story.script)}”
             </p>
@@ -194,7 +194,7 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
         </div>
 
         {/* 6. 하단 메타바 (애플 스타일 1px 헤어라인 분리) */}
-        <div className="mt-2.5 flex items-center justify-between border-t border-[#211e19]/08 pt-2 text-[9.5px] text-[#786d5e]">
+        <div className="mt-2.5 flex items-center justify-between   pt-2 text-[9.5px] text-[#786d5e]">
           <span className="font-mono font-semibold text-[#655b4d]">{formatDuration(story)}</span>
           <span className="truncate font-medium text-[#8c7e6c]">{story.speaker || '온마루 도슨트'}</span>
         </div>
@@ -209,7 +209,7 @@ export const StoryCarouselSkeleton: React.FC = () => (
       {[1, 2, 3].map((id) => (
         <div
           key={id}
-          className="grid min-h-[176px] w-[min(94vw,25.5rem)] shrink-0 grid-cols-[125px_minmax(0,1fr)] gap-4 overflow-hidden rounded-[1.4rem] border border-[#211e19]/08 bg-[#faf7f2]/95 p-3 sm:min-h-[184px] sm:w-[25.5rem] sm:grid-cols-[132px_minmax(0,1fr)]"
+          className="grid min-h-[176px] w-[min(94vw,25.5rem)] shrink-0 grid-cols-[125px_minmax(0,1fr)] gap-4 overflow-hidden rounded-[1.4rem]  bg-[#faf7f2]/95 p-3 sm:min-h-[184px] sm:w-[25.5rem] sm:grid-cols-[132px_minmax(0,1fr)]"
         >
           {/* 섬네일 스켈레톤 */}
           <div className="odii-skeleton relative h-auto min-h-[176px] w-full self-stretch overflow-hidden rounded-[1.1rem] bg-[#e5d9c7] sm:min-h-[184px]">
@@ -235,12 +235,12 @@ export const StoryCarouselSkeleton: React.FC = () => (
                 </div>
               </div>
               {/* 한지 오디오 인용구 박스 스켈레톤 */}
-              <div className="mt-1 rounded-r-lg border-l-2 border-[#a94d35]/30 bg-[#211e19]/04 py-1 pl-2 pr-1 space-y-1.5">
+              <div className="mt-1 rounded-r-lg border-l-2  bg-[#211e19]/04 py-1 pl-2 pr-1 space-y-1.5">
                 <div className="odii-skeleton h-3 w-full rounded bg-[#e8ded0]" />
                 <div className="odii-skeleton h-3 w-3/4 rounded bg-[#e8ded0]" />
               </div>
             </div>
-            <div className="mt-2 flex items-center justify-between border-t border-[#211e19]/08 pt-1.5">
+            <div className="mt-2 flex items-center justify-between   pt-1.5">
               <div className="odii-skeleton h-3.5 w-10 rounded bg-[#e5d9c7]" />
               <div className="odii-skeleton h-3.5 w-20 rounded bg-[#e5d9c7]" />
             </div>
@@ -404,7 +404,7 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
 
   if (stories.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-[#211e19]/15 bg-[#fbf8f2] px-5 py-8 text-center">
+      <div className="rounded-2xl   bg-[#fbf8f2] px-5 py-8 text-center">
         <p className="text-xs font-semibold text-[#655b4d]">아직 주변 이야기를 찾지 못했어요.</p>
         <p className="mt-1 text-[11px] text-[#8c7e6c]">위치를 허용하면 가까운 오디오부터 보여드릴게요.</p>
       </div>
@@ -463,7 +463,7 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
             type="button"
             aria-label="이전 주변 오디오 보기"
             onClick={() => moveRail(-1)}
-            className="absolute left-1 top-1/2 z-30 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#211e19]/12 bg-white/95 text-[#211e19]  backdrop-blur-md transition-all duration-200 hover:scale-110 hover:bg-white sm:left-2 sm:h-9 sm:w-9"
+            className="absolute left-1 top-1/2 z-30 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full  bg-white/95 text-[#211e19]  backdrop-blur-md transition-all duration-200 hover:scale-110 hover:bg-white sm:left-2 sm:h-9 sm:w-9"
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="m14.5 5-7 7 7 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>
@@ -473,7 +473,7 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
             type="button"
             aria-label="다음 주변 오디오 보기"
             onClick={() => moveRail(1)}
-            className="absolute right-1 top-1/2 z-30 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#211e19]/12 bg-white/95 text-[#211e19]  backdrop-blur-md transition-all duration-200 hover:scale-110 hover:bg-white sm:right-2 sm:h-9 sm:w-9"
+            className="absolute right-1 top-1/2 z-30 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full  bg-white/95 text-[#211e19]  backdrop-blur-md transition-all duration-200 hover:scale-110 hover:bg-white sm:right-2 sm:h-9 sm:w-9"
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="m9.5 5 7 7-7 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </button>

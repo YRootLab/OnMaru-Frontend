@@ -42,14 +42,14 @@ const styles = css`
   [data-theme='light'] .om-tour-pin-badge,
   :root:not([data-theme='dark']) .om-tour-pin-badge {
     background: #ffffff;
-    color: ${lightPalette.juhong[700]};
-
+    color: ${lightPalette.jangmi[700]};
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   }
 
   [data-theme='dark'] .om-tour-pin-badge {
     background: ${surface.dark.card};
-    color: ${darkPalette.juhong[200]};
-
+    color: ${darkPalette.jangmi[400]};
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
   }
 
   .om-tour-pin-icon {
@@ -61,17 +61,17 @@ const styles = css`
     height: 32px;
     border-radius: 50% 50% 50% 0;
     transform: rotate(-45deg);
-    background: ${lightPalette.juhong[500]};
-
+    background: ${lightPalette.jangmi[500]};
     color: #ffffff;
     font-size: 12px;
     font-weight: 800;
+    box-shadow: 0 2px 8px rgba(212, 32, 88, 0.35);
   }
 
   [data-theme='dark'] .om-tour-pin-icon {
-    background: ${darkPalette.juhong[500]};
-    border-color: ${surface.dark.card};
-
+    background: ${darkPalette.jangmi[500]};
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(248, 78, 118, 0.4);
   }
 
   .om-tour-pin-icon span {
@@ -80,14 +80,14 @@ const styles = css`
 
   /* 현재 활성화된(재생 중인) 스팟 펄스 링 */
   .om-tour-pin[data-active='true'] .om-tour-pin-icon {
-    transform: rotate(-45deg) scale(1.15);
-    background: ${lightPalette.jangmi[500]};
-
+    transform: rotate(-45deg) scale(1.18);
+    background: ${lightPalette.jangmi[700]};
+    box-shadow: 0 3px 12px rgba(212, 32, 88, 0.5);
   }
 
   [data-theme='dark'] .om-tour-pin[data-active='true'] .om-tour-pin-icon {
-    background: ${darkPalette.jangmi[500]};
-
+    background: ${darkPalette.jangmi[400]};
+    box-shadow: 0 3px 12px rgba(248, 78, 118, 0.6);
   }
 
   .om-tour-pin[data-active='true']::after {
@@ -99,7 +99,7 @@ const styles = css`
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: rgba(232, 90, 24, 0.5);
+    background: rgba(212, 32, 88, 0.45);
     animation: om-tour-radar 2s ease-out infinite;
   }
 
@@ -125,6 +125,7 @@ export default function CinematicTourMapLayer() {
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const polylineRef = useRef<any>(null);
+  const auraPolylineRef = useRef<any>(null);
   const overlaysRef = useRef<any[]>([]);
 
   // 1. 오디오 스트리밍 엘리먼트 관리
@@ -142,8 +143,19 @@ export default function CinematicTourMapLayer() {
       audio.currentTime = currentTime;
       audioRef.current = audio;
 
+      const syncAudioDuration = () => {
+        if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration) && audio.duration > 0) {
+          useCinematicTourStore.setState({ duration: audio.duration });
+        }
+      };
+
+      audio.onloadedmetadata = syncAudioDuration;
+      audio.ondurationchange = syncAudioDuration;
+      audio.oncanplay = syncAudioDuration;
+
       audio.ontimeupdate = () => {
         if (!audio.paused) {
+          syncAudioDuration();
           setCurrentTime(audio.currentTime);
         }
       };
@@ -183,6 +195,10 @@ export default function CinematicTourMapLayer() {
         polylineRef.current.setMap(null);
         polylineRef.current = null;
       }
+      if (auraPolylineRef.current) {
+        auraPolylineRef.current.setMap(null);
+        auraPolylineRef.current = null;
+      }
       overlaysRef.current.forEach((o) => o.setMap(null));
       overlaysRef.current = [];
       return;
@@ -190,17 +206,30 @@ export default function CinematicTourMapLayer() {
 
     const waypoints = story.waypoints;
 
-    // A. 동선 폴리라인 그리기
+    // A. 동선 폴리라인 그리기 (부드러운 2단 실선: 외곽 화이트 베이스 + 메인 장미 핑크 라인)
     const path = waypoints.map((wp) => new window.kakao.maps.LatLng(wp.lat, wp.lng));
     if (polylineRef.current) polylineRef.current.setMap(null);
+    if (auraPolylineRef.current) auraPolylineRef.current.setMap(null);
 
+    // A-1. 외곽 베이스 라인 (Aura Casing)
+    auraPolylineRef.current = new window.kakao.maps.Polyline({
+      path,
+      strokeWeight: 7,
+      strokeColor: isDark ? 'rgba(248, 78, 118, 0.3)' : '#ffffff',
+      strokeOpacity: 0.9,
+      strokeStyle: 'solid',
+      zIndex: 10,
+    });
+    auraPolylineRef.current.setMap(map);
+
+    // A-2. 메인 장미 핑크 보행 동선 라인 (Solid Track)
     polylineRef.current = new window.kakao.maps.Polyline({
       path,
-      strokeWeight: 4,
-      strokeColor: isDark ? '#F85700' : '#E85A18',
-      strokeOpacity: 0.85,
-      strokeStyle: 'dash',
-      zIndex: 10,
+      strokeWeight: 3.5,
+      strokeColor: isDark ? darkPalette.jangmi[500] : lightPalette.jangmi[500],
+      strokeOpacity: 0.95,
+      strokeStyle: 'solid',
+      zIndex: 11,
     });
     polylineRef.current.setMap(map);
 
@@ -210,13 +239,14 @@ export default function CinematicTourMapLayer() {
 
     const newOverlays = waypoints.map((wp, idx) => {
       const isCurrent = idx === activeWaypointIndex;
+      const cleanTitle = wp.title.replace(/^\d+[\.\s\-:]*\s*/, '');
       const el = document.createElement('div');
       el.className = 'om-tour-pin';
       el.dataset.active = String(isCurrent);
 
       el.innerHTML = `
         <div class="om-tour-pin-badge">
-          ${isCurrent ? '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#D42058;margin-right:4px;vertical-align:middle;"></span>재생중' : `스팟 ${idx + 1}`} : ${wp.title}
+          ${isCurrent ? '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#D42058;margin-right:4px;vertical-align:middle;"></span>재생중' : `스팟 ${idx + 1}`} · ${cleanTitle}
         </div>
         <div class="om-tour-pin-icon">
           <span>${idx + 1}</span>
@@ -243,6 +273,7 @@ export default function CinematicTourMapLayer() {
 
     return () => {
       if (polylineRef.current) polylineRef.current.setMap(null);
+      if (auraPolylineRef.current) auraPolylineRef.current.setMap(null);
       newOverlays.forEach((o) => o.setMap(null));
     };
   }, [map, isActive, story, activeWaypointIndex, isDark]);

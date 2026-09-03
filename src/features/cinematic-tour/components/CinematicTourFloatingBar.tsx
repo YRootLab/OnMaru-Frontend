@@ -156,6 +156,7 @@ const WaypointChip = styled.button<{ $active: boolean }>`
   height: 28px;
   padding: 0 10px;
   border-radius: 9999px;
+  border: none;
   font-size: 11.5px;
   font-weight: 700;
   white-space: nowrap;
@@ -165,51 +166,89 @@ const WaypointChip = styled.button<{ $active: boolean }>`
   ${({ $active }) =>
     $active
       ? `
-    background: ${lightPalette.juhong[500]};
+    background: ${lightPalette.jangmi[500]};
     color: #ffffff;
-
     transform: scale(1.04);
   `
       : `
     background: rgba(78, 89, 104, 0.08);
     color: ${meok[700]};
-
   `}
 
   [data-theme='dark'] & {
     ${({ $active }) =>
       $active
         ? `
-      background: ${darkPalette.juhong[500]};
+      background: ${darkPalette.jangmi[500]};
       color: #ffffff;
-
     `
         : `
       background: rgba(255, 255, 255, 0.06);
       color: ${meok[400]};
-      border-color: rgba(255, 255, 255, 0.1);
     `}
   }
 `;
 
 const SubtitleBox = styled.div`
-  padding: 8px 12px;
-  margin-bottom: 10px;
-  border-radius: 12px;
-  font-size: 13px;
-  line-height: 1.45;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  border-radius: 14px;
+  border: none;
+  min-height: 52px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  background: rgba(25, 31, 40, 0.04);
 
-  [data-theme='light'] &,
-  :root:not([data-theme='dark']) & {
-    background: rgba(232, 90, 24, 0.06);
-    color: ${meok[900]};
-    border-left: 3px solid ${lightPalette.juhong[500]};
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.05);
+  }
+`;
+
+const SubtitleMetaRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 3px;
+`;
+
+const SubtitleIndexBadge = styled.span`
+  font-size: 10.5px;
+  font-weight: 700;
+  color: ${lightPalette.jangmi[700]};
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  [data-theme='dark'] & {
+    color: ${darkPalette.jangmi[400]};
+  }
+`;
+
+const SubtitleLine = styled.p`
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: ${meok[900]};
+  word-break: keep-all;
+  animation: sentence-glide-in 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+
+  @keyframes sentence-glide-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   [data-theme='dark'] & {
-    background: rgba(248, 87, 0, 0.1);
     color: ${meok[100]};
-    border-left: 3px solid ${darkPalette.juhong[400]};
   }
 `;
 
@@ -217,10 +256,10 @@ const PhotoTipPill = styled.div`
   display: flex;
   align-items: center;
   gap: 5px;
-  margin-top: 5px;
+  margin-top: 6px;
   font-size: 11.5px;
   font-weight: 700;
-  color: ${lightPalette.jangmi[500]};
+  color: ${lightPalette.jangmi[700]};
 
   [data-theme='dark'] & {
     color: ${darkPalette.jangmi[400]};
@@ -254,8 +293,8 @@ const PlayBtn = styled.button`
   width: 42px;
   height: 42px;
   border-radius: 50%;
-
-  background: ${lightPalette.juhong[500]};
+  border: none;
+  background: ${lightPalette.jangmi[500]};
   color: #ffffff;
   cursor: pointer;
 
@@ -263,7 +302,7 @@ const PlayBtn = styled.button`
 
   &:hover {
     transform: scale(1.08);
-    background: ${lightPalette.juhong[400]};
+    background: ${lightPalette.jangmi[700]};
   }
 
   &:active {
@@ -271,8 +310,7 @@ const PlayBtn = styled.button`
   }
 
   [data-theme='dark'] & {
-    background: ${darkPalette.juhong[500]};
-
+    background: ${darkPalette.jangmi[500]};
   }
 `;
 
@@ -291,6 +329,8 @@ export default function CinematicTourFloatingBar() {
   const currentTime = useCinematicTourStore((s) => s.currentTime);
   const duration = useCinematicTourStore((s) => s.duration);
   const currentSubtitle = useCinematicTourStore((s) => s.currentSubtitle);
+  const activeSentenceIndex = useCinematicTourStore((s) => s.activeSentenceIndex);
+  const totalSentences = useCinematicTourStore((s) => s.totalSentences);
   const currentPhotoTip = useCinematicTourStore((s) => s.currentPhotoTip);
 
   const stopTour = useCinematicTourStore((s) => s.stopTour);
@@ -345,9 +385,19 @@ export default function CinematicTourFloatingBar() {
         </WaypointChipsScroller>
       )}
 
-      {/* 실시간 대본 및 포토존 팁 */}
+      {/* 실시간 한줄 대사 텔레프롬프터 및 포토존 팁 */}
       <SubtitleBox>
-        <p style={{ margin: 0 }}>"{currentSubtitle || story.audioTitle}"</p>
+        {totalSentences > 1 && (
+          <SubtitleMetaRow>
+            <SubtitleIndexBadge>
+              <Headphones size={11} />
+              <span>해설 자막 ({activeSentenceIndex + 1}/{totalSentences})</span>
+            </SubtitleIndexBadge>
+          </SubtitleMetaRow>
+        )}
+        <SubtitleLine key={`${activeSentenceIndex}-${currentSubtitle.slice(0, 10)}`}>
+          "{currentSubtitle || story.audioTitle}"
+        </SubtitleLine>
         {currentPhotoTip && (
           <PhotoTipPill>
             <Camera size={13} />

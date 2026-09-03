@@ -11,7 +11,7 @@ import {
   ThumbsUp,
   ChevronRight,
 } from 'lucide-react';
-import { lightPalette, meok } from '@/design-system/tokens';
+import { lightPalette, darkPalette, meok } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import type { WarmthReview } from '@/map/types';
 import MoodSelector from './MoodSelector';
@@ -26,14 +26,21 @@ const CardWrapper = styled.article`
   padding: 16px;
   margin: 4px 0 10px;
   border-radius: 20px;
-  background: rgba(232, 90, 24, 0.03);
-
+  background: #f8f6f0;
+  border: none;
   transition: all 0.18s ease;
 
   &:hover {
-    background: rgba(232, 90, 24, 0.055);
-    border-color: rgba(232, 90, 24, 0.16);
+    background: #f2eee6;
+    transform: translateY(-1px);
+  }
 
+  [data-theme='dark'] & {
+    background: #25221d;
+
+    &:hover {
+      background: #2c2822;
+    }
   }
 `;
 
@@ -49,12 +56,17 @@ const CategoryIconBox = styled.div`
   width: 38px;
   height: 38px;
   border-radius: 12px;
-  background: ${lightPalette.juhong[50]};
+  background: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${lightPalette.juhong[500]};
+  color: ${meok[900]};
   flex-shrink: 0;
+
+  [data-theme='dark'] & {
+    background: #1c1a17;
+    color: ${meok[100]};
+  }
 `;
 
 const PlaceHeaderInfo = styled.div`
@@ -70,6 +82,10 @@ const PlaceName = styled.h4`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 const PlaceMeta = styled.p`
@@ -108,20 +124,24 @@ const ReviewText = styled.p<{ $expanded: boolean }>`
     -webkit-box-orient: vertical;
     overflow: hidden;
   `}
+
+  [data-theme='dark'] & {
+    color: ${meok[200]};
+  }
 `;
 
 const TextToggleBtn = styled.button`
   margin-top: 6px;
   padding: 0;
-
+  border: none;
   background: transparent;
-  color: ${lightPalette.juhong[500]};
+  color: ${meok[700]};
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
 
   &:hover {
-    color: ${lightPalette.juhong[700]};
+    color: ${meok[900]};
   }
 `;
 
@@ -146,10 +166,11 @@ const HelpfulButton = styled.button<{ $active: boolean }>`
   height: 30px;
   padding: 0 12px;
   border-radius: 9999px;
-
+  border: none;
   background: ${({ $active }) =>
-    $active ? lightPalette.juhong[100] : lightPalette.juhong[50]};
-  color: ${lightPalette.juhong[700]};
+    $active ? lightPalette.juhong[50] : 'rgba(78, 89, 104, 0.07)'};
+  color: ${({ $active }) =>
+    $active ? lightPalette.juhong[700] : meok[700]};
   font-family: inherit;
   font-size: 12px;
   font-weight: 600;
@@ -157,11 +178,19 @@ const HelpfulButton = styled.button<{ $active: boolean }>`
   transition: all 0.15s ease;
 
   &:hover {
-    background: ${lightPalette.juhong[100]};
+    background: ${({ $active }) =>
+      $active ? lightPalette.juhong[100] : 'rgba(78, 89, 104, 0.12)'};
   }
 
   &:active {
     transform: scale(0.96);
+  }
+
+  [data-theme='dark'] & {
+    background: ${({ $active }) =>
+      $active ? 'rgba(232, 90, 24, 0.2)' : 'rgba(255, 255, 255, 0.06)'};
+    color: ${({ $active }) =>
+      $active ? darkPalette.juhong[200] : meok[400]};
   }
 `;
 
@@ -171,7 +200,7 @@ const RelatedPlaceBox = styled.div`
   padding: 10px 12px;
   background: #ffffff;
   border-radius: 14px;
-
+  border: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -179,9 +208,16 @@ const RelatedPlaceBox = styled.div`
   transition: all 0.15s ease;
 
   &:hover {
-    background: #fffcf9;
+    background: #fbf9f4;
     transform: translateY(-1px);
+  }
 
+  [data-theme='dark'] & {
+    background: #1c1a17;
+
+    &:hover {
+      background: #25221d;
+    }
   }
 `;
 
@@ -196,12 +232,17 @@ const RelatedThumb = styled.div`
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: ${lightPalette.juhong[50]};
+  background: #f0eae0;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${lightPalette.juhong[500]};
+  color: ${meok[700]};
   flex-shrink: 0;
+
+  [data-theme='dark'] & {
+    background: #2c2822;
+    color: ${meok[400]};
+  }
 `;
 
 const RelatedInfo = styled.div`

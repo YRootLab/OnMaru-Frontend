@@ -17,7 +17,7 @@ export function CompactPosterVariant({ stories, selectedStoryId, onSelectStory }
         {stories.map((story) => (
           <MotionStudyCard
             key={story.id}
-            className="group flex w-[196px] shrink-0 flex-col overflow-hidden rounded-[18px] border border-[#211e19]/10 bg-[#fffdf9]  sm:w-[232px]"
+            className="group flex w-[196px] shrink-0 flex-col overflow-hidden rounded-[18px]  bg-[#fffdf9]  sm:w-[232px]"
           >
             <div className="relative h-[202px] overflow-hidden bg-[#ddd2c5] sm:h-[226px]">
               <StudyImage

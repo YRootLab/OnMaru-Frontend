@@ -2,6 +2,60 @@ import { create } from 'zustand';
 import { OdiiStoryItem, TourWaypoint } from '@/features/odii-audio/types/odii.types';
 import { useMapStore } from '@/map/hooks/useMapStore';
 
+export function parseScriptSentences(script: string): string[] {
+  if (!script) return [];
+  // 1. 개행 및 특수문자 공백화
+  const clean = script.replace(/\r?\n+/g, ' ').trim();
+  // 2. 마침표(.), 물음표(?), 느낌표(!) 기준으로 문장 분할
+  const rawSentences = clean.split(/(?<=[.?!])\s+/);
+  const result: string[] = [];
+
+  for (const item of rawSentences) {
+    const trimmed = item.trim();
+    if (!trimmed) continue;
+    // 50자 이상의 긴 문장은 쉼표(,) 기준으로 추가 분할하여 한 줄에 읽기 편하게 제공
+    if (trimmed.length > 50 && trimmed.includes(',')) {
+      const parts = trimmed.split(/,\s+/);
+      result.push(...parts.map((p) => p.trim()).filter(Boolean));
+    } else {
+      result.push(trimmed);
+    }
+  }
+
+  return result.length > 0 ? result : [clean];
+}
+
+/**
+ * 문장별 글자 수 및 호흡 쉼표 가중치를 기반으로 현재 재생 시간(currentTime)에 일치하는 문장 인덱스를 정밀 계산
+ */
+export function calculateActiveSentenceIndex(
+  sentences: string[],
+  currentTime: number,
+  duration: number,
+): { index: number; sentence: string } {
+  if (sentences.length === 0) return { index: 0, sentence: '' };
+  if (sentences.length === 1) return { index: 0, sentence: sentences[0] };
+
+  const validDuration = Math.max(1, duration);
+
+  // 각 문장의 발화 예상 시간 가중치 계산 (글자수 + 문장 끝 쉼표/마침표 호흡 4글자분량 가중치)
+  const weights = sentences.map((s) => Math.max(8, s.length + 4));
+  const totalWeight = weights.reduce((acc, w) => acc + w, 0);
+
+  // 누적 타임스탬프 계산
+  let accumulatedTime = 0;
+  for (let i = 0; i < sentences.length; i++) {
+    const sentenceDuration = (weights[i] / totalWeight) * validDuration;
+    accumulatedTime += sentenceDuration;
+    if (currentTime < accumulatedTime) {
+      return { index: i, sentence: sentences[i] };
+    }
+  }
+
+  const lastIndex = sentences.length - 1;
+  return { index: lastIndex, sentence: sentences[lastIndex] };
+}
+
 interface CinematicTourState {
   isActive: boolean;
   story: OdiiStoryItem | null;
@@ -10,6 +64,8 @@ interface CinematicTourState {
   currentTime: number;
   duration: number;
   currentSubtitle: string;
+  activeSentenceIndex: number;
+  totalSentences: number;
   currentPhotoTip?: string;
 
   // Actions
@@ -31,12 +87,15 @@ export const useCinematicTourStore = create<CinematicTourState>((set, get) => ({
   currentTime: 0,
   duration: 300,
   currentSubtitle: '',
+  activeSentenceIndex: 0,
+  totalSentences: 0,
   currentPhotoTip: undefined,
 
   startTour: (story: OdiiStoryItem, initialWaypointIndex = 0) => {
     const waypoints = story.waypoints ?? [];
     const initialWp = waypoints[initialWaypointIndex];
     const playTimeSec = parseInt(story.playTime, 10) || 300;
+    const sentences = parseScriptSentences(story.script);
 
     // 🌟 UX 최적화: 시네마틱 투어가 시작되면 화면을 가리는 상세 패널을 닫고
     // 지도의 비행 궤적(Glide Pan)과 동선이 한눈에 보이도록 전체 지도 뷰를 개방합니다.
@@ -51,7 +110,9 @@ export const useCinematicTourStore = create<CinematicTourState>((set, get) => ({
       isPlaying: true,
       currentTime: initialWp?.timeSec ?? 0,
       duration: playTimeSec,
-      currentSubtitle: story.script.split('\n')[0] ?? '',
+      currentSubtitle: sentences[0] ?? story.audioTitle,
+      activeSentenceIndex: 0,
+      totalSentences: sentences.length,
       currentPhotoTip: initialWp?.photoTip,
     });
 
@@ -73,6 +134,8 @@ export const useCinematicTourStore = create<CinematicTourState>((set, get) => ({
       currentTime: 0,
       activeWaypointIndex: 0,
       currentSubtitle: '',
+      activeSentenceIndex: 0,
+      totalSentences: 0,
       currentPhotoTip: undefined,
     });
   },
@@ -110,15 +173,20 @@ export const useCinematicTourStore = create<CinematicTourState>((set, get) => ({
       }
     }
 
-    // 대본 자막 싱크 계산
-    const lines = story.script.split('\n').filter((l) => l.trim().length > 0);
-    const step = state.duration / Math.max(1, lines.length);
-    const lineIdx = Math.min(Math.floor(currentTime / step), lines.length - 1);
+    // 🌟 글자 수 가중치 기반 문장 싱크 정밀 계산
+    const sentences = parseScriptSentences(story.script);
+    const { index: sentenceIdx, sentence: activeSentence } = calculateActiveSentenceIndex(
+      sentences,
+      currentTime,
+      state.duration,
+    );
 
     set({
       currentTime,
       activeWaypointIndex: newWpIdx,
-      currentSubtitle: lines[lineIdx] ?? '',
+      currentSubtitle: activeSentence,
+      activeSentenceIndex: sentenceIdx,
+      totalSentences: sentences.length,
       currentPhotoTip: waypoints[newWpIdx]?.photoTip,
     });
   },
