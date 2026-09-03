@@ -238,7 +238,7 @@ export default function WarmthFeed() {
         <SectionHeader>
           <SectionTitleGroup>
             <Flame size={18} color="#FF6B00" />
-            <SectionTitle>지금 가장 따뜻한 한옥 명소</SectionTitle>
+            <SectionTitle>사람들이 남긴 한옥의 온기</SectionTitle>
           </SectionTitleGroup>
         </SectionHeader>
 
