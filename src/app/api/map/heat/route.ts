@@ -73,8 +73,8 @@ export async function GET(request: Request) {
           }))
           .filter((s) => {
             const d = Math.hypot(s.lat - lat, s.lng - lng);
-            // 확대 레벨(level <= 5)에서는 약 20km, 축소 시 약 60km 이내 장소 매칭
-            return d < (level <= 5 ? 0.18 : 0.55);
+            // 확대 레벨에서는 주변 반경, 축소 광역 뷰(level >= 8)에서는 전국(동·서·남·북) 고르게 매칭
+            return d < (level <= 5 ? 0.2 : level <= 7 ? 0.9 : 3.5);
           });
       }
 
@@ -102,8 +102,8 @@ export async function GET(request: Request) {
             });
           });
         } else {
-          // [광역 모드: level > 6]
-          // 권역(Zone) 단위 중심점으로 정돈 집계
+          // [축소 모드: level >= 7]
+          // 행정 구/동 단위로 스팟을 그룹화하여 권역 중심점에 훈기 집중
           const zoneMap = new Map<
             string,
             {
@@ -156,22 +156,35 @@ export async function GET(request: Request) {
       }
     }
 
-    // 3. 전국 주요 전통 한옥 거점 기본 보충
+    // 3. 전국 주요 전통 한옥 거점 기본 보충 (동서남북 균형 배치)
     const seedCenters: { name: string; lat: number; lng: number; district: string }[] = [
+      // 수도권
       { name: '북촌 한옥마을 일대', lat: 37.5826, lng: 126.9848, district: '종로구' },
-      { name: '전주 한옥마을 일대', lat: 35.815, lng: 127.153, district: '완산구' },
-      { name: '경주 양동/교촌 일대', lat: 35.832, lng: 129.216, district: '경주시' },
+      { name: '수원 화성행궁 일대', lat: 37.285, lng: 127.015, district: '수원시' },
+      // 강원권 (동부)
+      { name: '강릉 선교장·오죽헌 일대', lat: 37.7874, lng: 128.8875, district: '강릉시' },
+      { name: '속초·영동 한옥 일대', lat: 38.207, lng: 128.591, district: '속초시' },
+      // 충청권
+      { name: '대전 동춘당·우암 일대', lat: 36.3615, lng: 127.4412, district: '대덕구' },
+      { name: '공주 한옥마을 일대', lat: 36.463, lng: 127.118, district: '공주시' },
+      // 경북권 (동부)
       { name: '안동 하회마을 일대', lat: 36.5392, lng: 128.5185, district: '안동시' },
-      { name: '대전 동춘당/우암 일대', lat: 36.3615, lng: 127.4412, district: '대덕구' },
-      { name: '대전 유성 온천/한옥 일대', lat: 36.3537, lng: 127.3415, district: '유성구' },
-      { name: '대전 둔산/시민광장 일대', lat: 36.3504, lng: 127.3849, district: '서구' },
-      { name: '강릉 선교장 일대', lat: 37.7874, lng: 128.8875, district: '강릉시' },
+      { name: '경주 양동·교촌 일대', lat: 35.832, lng: 129.216, district: '경주시' },
+      { name: '영주 선비촌·소수 일대', lat: 36.924, lng: 128.578, district: '영주시' },
+      { name: '대구 옻골마을 일대', lat: 35.894, lng: 128.692, district: '대구시' },
+      // 경남권 (동남부)
+      { name: '부산 동래 한옥 일대', lat: 35.205, lng: 129.08, district: '부산시' },
+      { name: '산청 남사예담촌 일대', lat: 35.312, lng: 127.915, district: '산청군' },
+      // 전라권 (서남부)
+      { name: '전주 한옥마을 일대', lat: 35.815, lng: 127.153, district: '완산구' },
+      { name: '담양 소쇄원·죽녹원 일대', lat: 35.234, lng: 127.006, district: '담양군' },
+      { name: '순천 낙안읍성 일대', lat: 34.907, lng: 127.34, district: '순천시' },
     ];
 
     seedCenters.forEach((c, idx) => {
       const dLat = Math.abs(c.lat - (Number.isFinite(lat) ? lat : 36.35));
       const dLng = Math.abs(c.lng - (Number.isFinite(lng) ? lng : 127.75));
-      const maxDelta = level <= 5 ? 0.12 : 0.45;
+      const maxDelta = level <= 5 ? 0.15 : level <= 7 ? 0.8 : 3.5;
       if (dLat < maxDelta && dLng < maxDelta) {
         const stat = VisitorService.resolveCongestion(c.district, visitorMap, localMap, maxVisitor);
         spots.push({

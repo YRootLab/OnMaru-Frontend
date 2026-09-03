@@ -16,106 +16,160 @@ import { escapeHtml } from '@/map/utils/formatters';
 import type { HeatSpot, CongestionLevel } from '@/map/types';
 
 /**
- * 실시간 온기/혼잡도 히트맵 레이어 (스마트 클러스터링 및 충돌 방지)
+ * 실시간 온기/발길 훈기(薰氣) 레이어
  * 
- * TOUR_API_VISITOR_KEY & TOUR_API_CONGESTION_KEY 기반
- * 권역별 수요 집중도 뱃지, 지능형 방향 팝오버, 유기적 가우시안 발광 블룸 제공.
+ * 한옥 마을과 고택 일대에 머무는 사람들의 따스한 정(情)과 발길의 기척을
+ * 은은한 호롱불/등불 훈기 블룸과 단아한 한지(창호지) 뱃지로 시각화합니다.
  */
+
+const GOTHIC_FONT = "'Pretendard', 'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif";
+
+const ICONS = {
+  sparkles: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>`,
+  flame: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>`,
+  sun: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`,
+  wind: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.7 7.7A2.5 2.5 0 1 1 20 12H2"/><path d="M15.5 16.5A2.5 2.5 0 1 0 18 19H2"/><path d="M12.5 3.5A2.5 2.5 0 1 1 15 6H2"/></svg>`,
+  mapPin: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>`,
+  users: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+};
 
 const CONGESTION_CONFIG = {
   surge: {
-    label: '초혼잡',
-    icon: '⚡',
-    light: {
-      core: lightPalette.jangmi[500],
-      mid: lightPalette.juhong[500],
-      edge: 'rgba(212, 32, 88, 0.22)',
-      badgeBg: 'linear-gradient(135deg, #D42058 0%, #E85A18 100%)',
-      badgeColor: '#ffffff',
-      glow: '0 0 28px rgba(212, 32, 88, 0.6)',
-    },
-    dark: {
-      core: darkPalette.jangmi[500],
-      mid: darkPalette.juhong[500],
-      edge: 'rgba(248, 78, 118, 0.28)',
-      badgeBg: 'linear-gradient(135deg, #F84E76 0%, #F85700 100%)',
-      badgeColor: '#ffffff',
-      glow: '0 0 32px rgba(248, 78, 118, 0.75)',
-    },
-  },
-  busy: {
-    label: '혼잡',
-    icon: '🔥',
+    label: '북적이는 정',
+    subLabel: '사람과 온기가 모인 활기',
+    badgeText: '온기 가득',
+    iconSvg: ICONS.sparkles,
     light: {
       core: lightPalette.juhong[500],
-      mid: lightPalette.juhong[400],
-      edge: 'rgba(232, 90, 24, 0.2)',
-      badgeBg: 'linear-gradient(135deg, #E85A18 0%, #F07030 100%)',
-      badgeColor: '#ffffff',
-      glow: '0 0 24px rgba(232, 90, 24, 0.5)',
+      mid: lightPalette.hwanggeum[400],
+      edge: 'rgba(232, 90, 24, 0.22)',
+      badgeBg: surface.light.card,
+      badgeColor: meok[900],
+      accentColor: lightPalette.juhong[500],
+      tagBg: lightPalette.juhong[500],
+      tagColor: surface.light.card,
+      glow: '0 0 28px rgba(232, 90, 24, 0.55)',
     },
     dark: {
       core: darkPalette.juhong[500],
-      mid: darkPalette.juhong[400],
+      mid: darkPalette.hwanggeum[500],
       edge: 'rgba(248, 87, 0, 0.25)',
-      badgeBg: 'linear-gradient(135deg, #F85700 0%, #F87443 100%)',
-      badgeColor: '#ffffff',
-      glow: '0 0 28px rgba(248, 87, 0, 0.7)',
+      badgeBg: surface.dark.surface,
+      badgeColor: meok[100],
+      accentColor: darkPalette.juhong[400],
+      tagBg: darkPalette.juhong[500],
+      tagColor: meok[100],
+      glow: '0 0 32px rgba(248, 87, 0, 0.65)',
     },
   },
-  moderate: {
-    label: '보통',
-    icon: '✨',
+  busy: {
+    label: '따스한 온기',
+    subLabel: '발길이 이어지는 훈기',
+    badgeText: '따스한 정',
+    iconSvg: ICONS.flame,
     light: {
       core: lightPalette.hwanggeum[400],
-      mid: lightPalette.hwanggeum[200],
-      edge: 'rgba(245, 166, 35, 0.18)',
-      badgeBg: 'linear-gradient(135deg, #F5A623 0%, #FFCC40 100%)',
-      badgeColor: '#191f28',
-      glow: '0 0 20px rgba(245, 166, 35, 0.4)',
+      mid: lightPalette.juhong[200],
+      edge: 'rgba(245, 166, 35, 0.2)',
+      badgeBg: surface.light.card,
+      badgeColor: meok[900],
+      accentColor: lightPalette.hwanggeum[500],
+      tagBg: lightPalette.hwanggeum[500],
+      tagColor: surface.light.card,
+      glow: '0 0 24px rgba(245, 166, 35, 0.45)',
     },
     dark: {
       core: darkPalette.hwanggeum[500],
-      mid: darkPalette.hwanggeum[400],
+      mid: darkPalette.juhong[400],
       edge: 'rgba(250, 170, 73, 0.22)',
-      badgeBg: 'linear-gradient(135deg, #FAAA49 0%, #FFCA91 100%)',
-      badgeColor: '#191f28',
-      glow: '0 0 24px rgba(250, 170, 73, 0.6)',
+      badgeBg: surface.dark.surface,
+      badgeColor: meok[100],
+      accentColor: darkPalette.hwanggeum[400],
+      tagBg: darkPalette.hwanggeum[500],
+      tagColor: meok[100],
+      glow: '0 0 28px rgba(250, 170, 73, 0.55)',
+    },
+  },
+  moderate: {
+    label: '은은한 볕뉘',
+    subLabel: '햇살 드는 평온한 쉼',
+    badgeText: '은은한 볕',
+    iconSvg: ICONS.sun,
+    light: {
+      core: lightPalette.hwanggeum[200],
+      mid: lightPalette.cheongrok[100],
+      edge: 'rgba(255, 204, 64, 0.16)',
+      badgeBg: surface.light.card,
+      badgeColor: meok[900],
+      accentColor: lightPalette.hwanggeum[400],
+      tagBg: lightPalette.hwanggeum[400],
+      tagColor: meok[900],
+      glow: '0 0 20px rgba(245, 166, 35, 0.35)',
+    },
+    dark: {
+      core: darkPalette.hwanggeum[400],
+      mid: darkPalette.cheongrok[400],
+      edge: 'rgba(250, 170, 73, 0.18)',
+      badgeBg: surface.dark.surface,
+      badgeColor: meok[100],
+      accentColor: darkPalette.hwanggeum[400],
+      tagBg: darkPalette.hwanggeum[400],
+      tagColor: meok[900],
+      glow: '0 0 24px rgba(250, 170, 73, 0.45)',
     },
   },
   relaxed: {
-    label: '여유',
-    icon: '🌿',
+    label: '고즈넉한 쉼',
+    subLabel: '바람 소리 벗 삼는 고요',
+    badgeText: '고즈넉한 쉼',
+    iconSvg: ICONS.wind,
     light: {
       core: lightPalette.cheongrok[400],
       mid: lightPalette.cheongrok[200],
       edge: 'rgba(36, 152, 120, 0.16)',
-      badgeBg: 'linear-gradient(135deg, #249878 0%, #3DB898 100%)',
-      badgeColor: '#ffffff',
+      badgeBg: surface.light.card,
+      badgeColor: meok[900],
+      accentColor: lightPalette.cheongrok[500],
+      tagBg: lightPalette.cheongrok[500],
+      tagColor: surface.light.card,
       glow: '0 0 18px rgba(36, 152, 120, 0.35)',
     },
     dark: {
       core: darkPalette.cheongrok[500],
       mid: darkPalette.cheongrok[400],
-      edge: 'rgba(0, 167, 106, 0.2)',
-      badgeBg: 'linear-gradient(135deg, #00A76A 0%, #5DB687 100%)',
-      badgeColor: '#ffffff',
-      glow: '0 0 22px rgba(0, 167, 106, 0.55)',
+      edge: 'rgba(0, 167, 106, 0.18)',
+      badgeBg: surface.dark.surface,
+      badgeColor: meok[100],
+      accentColor: darkPalette.cheongrok[400],
+      tagBg: darkPalette.cheongrok[500],
+      tagColor: meok[100],
+      glow: '0 0 22px rgba(0, 167, 106, 0.45)',
     },
   },
 } as const;
 
 function formatVisitorCompact(num: number): string {
   if (num >= 10000) {
-    return `${(num / 10000).toFixed(1)}만명`;
+    return `${(num / 10000).toFixed(1)}만 걸음`;
   }
-  return `${num.toLocaleString()}명`;
+  return `${num.toLocaleString()}걸음`;
 }
 
 const styles = css`
   /* ------------------------------------------------------------
-   * 1. 발광 히트 블룸
+   * 1. 전통 호롱불/등불 숨쉬는 훈기(薰氣) 블룸
    * ------------------------------------------------------------ */
+  @keyframes om-heat-breathing {
+    0% {
+      transform: scale(0.93);
+      opacity: 0.65;
+    }
+    100% {
+      transform: scale(1.07);
+      opacity: 0.9;
+    }
+  }
+
   .om-heat-container {
     position: relative;
     width: var(--om-heat-size, 160px);
@@ -129,8 +183,8 @@ const styles = css`
     inset: -25%;
     border-radius: 50%;
     filter: blur(24px);
-    transition: transform 0.35s ease, opacity 0.35s ease;
-    animation: om-heat-breathing 4s ease-in-out infinite alternate;
+    transition: transform 0.4s ease, opacity 0.4s ease;
+    animation: om-heat-breathing 4.5s ease-in-out infinite alternate;
     opacity: 0.78;
   }
 
@@ -139,7 +193,7 @@ const styles = css`
   }
 
   /* ------------------------------------------------------------
-   * 2. 권역별 수요 집중도 알약 뱃지
+   * 2. 한지(창호지) 감성의 단아한 발길 훈기 뱃지
    * ------------------------------------------------------------ */
   .om-surge-pill-wrap {
     position: relative;
@@ -151,61 +205,70 @@ const styles = css`
     user-select: none;
     pointer-events: auto;
     z-index: 15;
-    transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   .om-surge-pill-wrap:hover {
-    transform: translate(-50%, -52%) scale(1.1);
+    transform: translate(-50%, -54%) scale(1.08);
     z-index: 50 !important;
   }
 
   .om-surge-pill {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    height: 30px;
-    padding: 0 12px 0 10px;
+    gap: 6px;
+    height: 32px;
+    padding: 0 13px 0 10px;
     border-radius: 9999px;
-    box-shadow: 0 6px 18px -2px rgba(0, 0, 0, 0.28), 0 0 0 1.5px rgba(255, 255, 255, 0.4);
-    transition: all 0.18s ease;
+    border: none;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 18px -2px rgba(25, 31, 40, 0.16), 0 1px 3px rgba(0, 0, 0, 0.08);
+    font-family: ${GOTHIC_FONT};
+    transition: all 0.2s ease;
   }
 
   .om-surge-pill-icon {
-    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
     line-height: 1;
   }
 
   .om-surge-pill-text {
     font-size: 12.5px;
-    font-weight: 800;
+    font-weight: 700;
     letter-spacing: -0.2px;
     white-space: nowrap;
   }
 
   .om-surge-pill-name {
     font-size: 12px;
-    font-weight: 600;
-    opacity: 0.94;
+    font-weight: 500;
+    opacity: 0.85;
     white-space: nowrap;
   }
 
   /* ------------------------------------------------------------
-   * 3. 지능형 호버 상세 카드 (Smart Directed Popover)
+   * 3. 한옥 서화첩 스타일의 지능형 정취 카드 (Directed Popover)
    * ------------------------------------------------------------ */
   .om-surge-popover {
     position: absolute;
     left: 50%;
     transform: translate(-50%, 6px) scale(0.94);
-    width: 230px;
-    padding: 13px 15px;
-    border-radius: 16px;
+    width: 240px;
+    padding: 14px 16px;
+    border-radius: 18px;
+    border: none;
     opacity: 0;
     pointer-events: none;
     transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
     z-index: 100;
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 8px;
+    font-family: ${GOTHIC_FONT};
   }
 
   /* 상단 배치 (기본) */
@@ -214,7 +277,7 @@ const styles = css`
     transform: translate(-50%, 6px) scale(0.94);
   }
 
-  /* 하단 배치 (화면 상단 영역 침범 방지) */
+  /* 하단 배치 (화면 상단 침범 방지) */
   .om-surge-popover.dir-bottom {
     top: calc(100% + 10px);
     transform: translate(-50%, -6px) scale(0.94);
@@ -222,13 +285,13 @@ const styles = css`
 
   [data-theme='light'] .om-surge-popover,
   :root:not([data-theme='dark']) .om-surge-popover {
-    background: #ffffff;
-    box-shadow: 0 14px 36px -4px rgba(25, 31, 40, 0.22), 0 0 0 1px rgba(25, 31, 40, 0.08);
+    background: ${surface.light.card};
+    box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.16);
   }
 
   [data-theme='dark'] .om-surge-popover {
-    background: #25221d;
-    box-shadow: 0 14px 36px -4px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    background: ${surface.dark.surface};
+    box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.75);
   }
 
   .om-surge-pill-wrap:hover .om-surge-popover {
@@ -244,11 +307,11 @@ const styles = css`
     left: 50%;
     transform: translateX(-50%);
     border: 6px solid transparent;
-    border-top-color: #ffffff;
+    border-top-color: ${surface.light.card};
   }
 
   [data-theme='dark'] .om-surge-popover.dir-top::after {
-    border-top-color: #25221d;
+    border-top-color: ${surface.dark.surface};
   }
 
   .om-surge-popover.dir-bottom::after {
@@ -258,11 +321,11 @@ const styles = css`
     left: 50%;
     transform: translateX(-50%);
     border: 6px solid transparent;
-    border-bottom-color: #ffffff;
+    border-bottom-color: ${surface.light.card};
   }
 
   [data-theme='dark'] .om-surge-popover.dir-bottom::after {
-    border-bottom-color: #25221d;
+    border-bottom-color: ${surface.dark.surface};
   }
 
   .om-popover-head {
@@ -273,8 +336,8 @@ const styles = css`
   }
 
   .om-popover-title {
-    font-size: 13.5px;
-    font-weight: 800;
+    font-size: 14px;
+    font-weight: 700;
     color: ${meok[900]};
     white-space: nowrap;
     overflow: hidden;
@@ -286,15 +349,19 @@ const styles = css`
   }
 
   .om-popover-tier {
-    padding: 2px 7px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
     border-radius: 9999px;
     font-size: 11px;
-    font-weight: 800;
+    font-weight: 700;
+    white-space: nowrap;
   }
 
   .om-popover-gauge {
     width: 100%;
-    height: 5px;
+    height: 4px;
     border-radius: 9999px;
     background: rgba(120, 120, 120, 0.15);
     overflow: hidden;
@@ -303,12 +370,13 @@ const styles = css`
   .om-popover-gauge-bar {
     height: 100%;
     border-radius: 9999px;
+    transition: width 0.3s ease;
   }
 
   .om-popover-body {
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 5px;
     font-size: 11.5px;
     color: ${meok[700]};
   }
@@ -323,8 +391,14 @@ const styles = css`
     justify-content: space-between;
   }
 
+  .om-row-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
   .om-popover-val {
-    font-weight: 700;
+    font-weight: 600;
     color: ${meok[900]};
   }
 
@@ -333,12 +407,13 @@ const styles = css`
   }
 
   .om-popover-hint {
-    margin-top: 3px;
-    padding-top: 5px;
-    border-top: 1px dashed rgba(120, 120, 120, 0.18);
+    margin-top: 4px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    background: rgba(120, 120, 120, 0.08);
     font-size: 10.5px;
     color: ${lightPalette.juhong[500]};
-    font-weight: 700;
+    font-weight: 600;
     text-align: center;
   }
 
@@ -428,9 +503,8 @@ export default function WarmthLayer() {
       const group: HeatSpot[] = [spot];
       used.add(spot.id);
 
-      // 주변 거리(px) 이내 스팟 탐색 및 병합
-      // 확대 레벨(level <= 4)에서는 30px 이내만 병합하여 골목마다의 스팟들이 사라지지 않도록 보호
-      const clusterThreshold = level <= 4 ? 30 : level <= 6 ? 45 : 65;
+      // 주변 거리(px) 이내 스팟 탐색 및 병합 (화면 상 겹침 방지)
+      const clusterThreshold = level <= 3 ? 35 : level <= 5 ? 70 : level <= 7 ? 100 : 130;
 
       for (let j = i + 1; j < baseList.length; j++) {
         const other = baseList[j];
@@ -477,10 +551,14 @@ export default function WarmthLayer() {
       });
     });
 
+    // API로부터 수집된 전국 각지의 온기 클러스터 전체를 인위적으로 자르지 않고(통제 배제),
+    // 동서남북 고르게 온기가 피어나도록 전량 렌더링
+    const displayClusters = clusters;
+
     const specs: OverlaySpec[] = [];
 
     // 3. 발광 히트 블룸 및 지능형 팝오버 뱃지 렌더링
-    clusters.forEach((item) => {
+    displayClusters.forEach((item) => {
       const cfg = CONGESTION_CONFIG[item.congestionLevel] || CONGESTION_CONFIG.moderate;
       const pal = isDark ? cfg.dark : cfg.light;
 
@@ -521,44 +599,43 @@ export default function WarmthLayer() {
         }
       }
 
-      const surgeLabel = item.congestionLevel === 'relaxed' ? '여유 1.0x' : `${item.surgeMultiplier}x`;
       const visitorText = formatVisitorCompact(item.visitorCount);
 
       pillWrap.innerHTML = `
         <div class="om-surge-pill" style="background: ${pal.badgeBg}; color: ${pal.badgeColor};">
-          <span class="om-surge-pill-icon">${cfg.icon}</span>
-          <span class="om-surge-pill-text">${surgeLabel}</span>
-          <span class="om-surge-pill-name">· ${escapeHtml(item.district || '권역')}</span>
+          <span class="om-surge-pill-icon" style="color: ${pal.accentColor};">${cfg.iconSvg}</span>
+          <span class="om-surge-pill-text">${cfg.badgeText}</span>
+          <span class="om-surge-pill-name">· ${escapeHtml(item.district || '마을 일대')}</span>
         </div>
 
         <div class="om-surge-popover ${popoverDir}">
           <div class="om-popover-head">
             <span class="om-popover-title">${escapeHtml(item.name)}</span>
-            <span class="om-popover-tier" style="background: ${pal.badgeBg}; color: ${pal.badgeColor};">
-              ${cfg.icon} ${cfg.label}
+            <span class="om-popover-tier" style="background: ${pal.tagBg}; color: ${pal.tagColor};">
+              ${cfg.iconSvg} ${cfg.label}
             </span>
           </div>
 
           <div class="om-popover-gauge">
-            <div class="om-popover-gauge-bar" style="width: ${item.congestionScore}%; background: ${pal.badgeBg};"></div>
+            <div class="om-popover-gauge-bar" style="width: ${item.congestionScore}%; background: ${pal.tagBg};"></div>
           </div>
 
           <div class="om-popover-body">
             <div class="om-popover-row">
-              <span>⚡ 관광객 집중률</span>
-              <span class="om-popover-val">${item.surgeMultiplier}배 (${cfg.label})</span>
+              <span class="om-row-label">${ICONS.sparkles} 마루의 정취</span>
+              <span class="om-popover-val">${cfg.subLabel}</span>
             </div>
             <div class="om-popover-row">
-              <span>👥 외지인 방문객</span>
-              <span class="om-popover-val">${visitorText}</span>
+              <span class="om-row-label">${ICONS.users} 머문 발자취</span>
+              <span class="om-popover-val">${visitorText}의 온기</span>
             </div>
             <div class="om-popover-row">
-              <span>📍 소속 권역</span>
-              <span class="om-popover-val">${escapeHtml(item.district || '전국')}</span>
+              <span class="om-row-label">${ICONS.mapPin} 마을 일대</span>
+              <span class="om-popover-val">${escapeHtml(item.district || '한옥 마을')}</span>
             </div>
           </div>
 
-          <div class="om-popover-hint">클릭하여 이 지역으로 확대</div>
+          <div class="om-popover-hint">클릭하여 고즈넉한 풍경 둘러보기</div>
         </div>
       `;
 
