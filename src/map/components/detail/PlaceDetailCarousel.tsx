@@ -114,7 +114,7 @@ const FallbackText = styled.span`
 
 function renderCategoryFallback(category?: PlaceCategory | string) {
   let icon = <Landmark size={28} />;
-  let label = '고택의 고즈넉한 정취';
+  let label = '한국의 멋과 정취가 깃든 공간';
 
   if (category === 'stay') {
     icon = <Home size={28} />;

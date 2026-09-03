@@ -213,7 +213,7 @@ export default function WarmthFeed() {
       <ReviewSectionHeader>
         <ReviewSectionTitle>
           <MessageSquare size={16} color={meok[700]} />
-          <span>고택에 머문 이들의 온기 이야기</span>
+          <span>이곳에 머문 이들의 온기 이야기</span>
         </ReviewSectionTitle>
 
         <SortWrapper>
@@ -233,7 +233,7 @@ export default function WarmthFeed() {
         {filteredReviews.length === 0 ? (
           <EmptyState>
             해당 지역에 남겨진 온기 기록이 아직 없습니다.
-            <br />고즈넉한 고택에 첫 번째 온기를 불어넣어 보세요.
+            <br />이곳에 첫 번째 따뜻한 온기를 불어넣어 보세요.
           </EmptyState>
         ) : (
           filteredReviews.map((review) => (
