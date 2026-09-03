@@ -238,7 +238,7 @@ export default function WarmthFeed() {
         <SectionHeader>
           <SectionTitleGroup>
             <Flame size={18} color="#FF6B00" />
-            <SectionTitle>지금 핫한 한옥</SectionTitle>
+            <SectionTitle>실시간 방문객 집중 명소</SectionTitle>
           </SectionTitleGroup>
         </SectionHeader>
 
@@ -271,7 +271,7 @@ export default function WarmthFeed() {
               <FeaturedInfo>
                 <FeaturedRank>
                   <Flame size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
-                  <span>지금 가장 핫한 곳</span>
+                  <span>실시간 방문 집중 1위</span>
                 </FeaturedRank>
                 <FeaturedName>{topPlace.placeName}</FeaturedName>
                 <FeaturedMeta>
@@ -313,7 +313,7 @@ export default function WarmthFeed() {
       <ReviewSectionHeader>
         <ReviewSectionTitle>
           <MessageSquare size={16} color={meok[700]} />
-          <span>이곳에 머문 이들의 온기 이야기</span>
+          <span>여행자들이 남긴 온기 이야기</span>
           {totalPages > 1 && (
             <PageIndicator>({validPage}/{totalPages}p)</PageIndicator>
           )}
