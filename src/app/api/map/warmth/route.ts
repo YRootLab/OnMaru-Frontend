@@ -27,8 +27,8 @@ export async function GET(request: Request) {
   const now = Date.now();
 
   try {
-    // 1. 한국관광공사 TOUR_API_VISITOR_KEY로 전국 외지인 관광객 방문자 수 맵 조회
-    const { visitorMap, maxVisitor, avgVisitor } = await VisitorService.getVisitorMap();
+    // 1. 한국관광공사 TOUR_API_VISITOR_KEY & TOUR_API_CONGESTION_KEY 빅데이터 맵 조회
+    const { visitorMap, localMap, maxVisitor, avgVisitor } = await VisitorService.getDetailedData();
 
     // 2. 현재 지도 뷰포트 내의 실제 한옥/문화재 장소 조회
     let heatmapWarmths: Warmth[] = [];
@@ -41,8 +41,8 @@ export async function GET(request: Request) {
       });
 
       places.forEach((p) => {
-        // 주소로부터 해당 시·군·구의 실제 외지인 방문객 통계 추출
-        const stat = VisitorService.resolveVisitorStat(p.addr, visitorMap, maxVisitor);
+        // 주소로부터 해당 시·군·구의 실제 외지인 방문객 및 집중도 추출
+        const stat = VisitorService.resolveCongestion(p.addr, visitorMap, localMap, maxVisitor);
 
         heatmapWarmths.push({
           id: `visitor-${p.id}`,
@@ -50,10 +50,10 @@ export async function GET(request: Request) {
           placeName: p.name,
           lat: p.lat,
           lng: p.lng,
-          text: `한국관광 데이터랩 외지인 방문객 ${formatVisitorNumber(stat.visitorCount)}명`,
-          mood: stat.mood,
-          score: stat.mood === '북적' ? 5 : 3,
-          tags: [stat.districtName, `${formatVisitorNumber(stat.visitorCount)}명`, stat.mood],
+          text: `외지인 방문객 ${formatVisitorNumber(stat.visitorCount)}명 (수요 집중 ${stat.surgeMultiplier}배)`,
+          mood: stat.congestionLevel === 'relaxed' ? '한적' : '북적',
+          score: stat.congestionLevel === 'surge' ? 5 : 4,
+          tags: [stat.district, `${formatVisitorNumber(stat.visitorCount)}명`, stat.congestionLevel],
           visitorCount: stat.visitorCount,
           createdAt: new Date().toISOString(),
         });

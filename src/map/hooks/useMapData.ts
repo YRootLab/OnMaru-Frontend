@@ -49,16 +49,27 @@ export function useMapData() {
     const roundedLng = Math.round(searchCenter.lng * 100) / 100;
     const roundedRadius = Math.round(radius / 1000) * 1000;
     const cacheKey = `${roundedLat}_${roundedLng}_${roundedRadius}_${category || 'all'}`;
-
-    // 1. 온기 API 실시간 연동 (현재 지도 위치/반경 내 TourAPI 장소 기반 온기 수집)
+    const controller = new AbortController();
     const warmthParams = new URLSearchParams({
       lat: String(searchCenter.lat),
       lng: String(searchCenter.lng),
       radius: String(Math.max(radius, 6000)),
     });
 
-    const controller = new AbortController();
+    // 1. 우버 스타일 실시간 혼잡도 & 방문자 집중도 히트스팟 패치 (TOUR_API_CONGESTION_KEY & TOUR_API_VISITOR_KEY)
+    fetch(`/api/map/heat?${warmthParams}`, { signal: controller.signal })
+      .then(async (res) => {
+        const json = await res.json().catch(() => ({}));
+        if (Array.isArray(json.spots) && json.spots.length > 0) {
+          useMapStore.getState().setHeatSpots(json.spots);
+        }
+      })
+      .catch((err) => {
+        if (err instanceof DOMException && err.name === 'AbortError') return;
+        log.warn('우버 히트스팟 패치 폴백', err);
+      });
 
+    // 2. 온기 API 실시간 연동 (현재 지도 위치/반경 내 TourAPI 장소 기반 온기 수집)
     fetch(`/api/map/warmth?${warmthParams}`, { signal: controller.signal })
       .then(async (res) => {
         const json = await res.json().catch(() => ({}));
