@@ -14,6 +14,7 @@ import PlaceMarkers from './components/PlaceMarkers';
 import SearchBar from './components/SearchBar';
 import WarmthLayer from './components/WarmthLayer';
 import WriteButton from './components/warmth/WriteButton';
+import MobileBottomNav from './components/MobileBottomNav';
 import CinematicTourMapLayer from '@/features/cinematic-tour/components/CinematicTourMapLayer';
 import CinematicTourFloatingBar from '@/features/cinematic-tour/components/CinematicTourFloatingBar';
 
@@ -212,6 +213,7 @@ export default function MapPage() {
       <CinematicTourFloatingBar />
 
       <BottomSheet />
+      <MobileBottomNav />
     </Root>
   );
 }

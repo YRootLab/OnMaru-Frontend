@@ -12,12 +12,12 @@ import PlaceList from './PlaceList';
 import WarmthFeed from './warmth/WarmthFeed';
 
 const SNAPS: SheetSnap[] = ['peek', 'half', 'full'];
-const SNAP_CSS: Record<SheetSnap, string> = { peek: '120px', half: '50dvh', full: '88dvh' };
+const SNAP_CSS: Record<SheetSnap, string> = { peek: '96px', half: '56dvh', full: '90dvh' };
 const SPRING = 'cubic-bezier(0.32, 0.72, 0, 1)';
 
 const snapPx = (snap: SheetSnap) => {
   const vh = typeof window === 'undefined' ? 800 : window.innerHeight;
-  return snap === 'peek' ? 120 : vh * (snap === 'half' ? 0.5 : 0.88);
+  return snap === 'peek' ? 96 : vh * (snap === 'half' ? 0.56 : 0.9);
 };
 
 const Sheet = styled.div<{ $height: string; $dragging: boolean }>`
@@ -31,6 +31,7 @@ const Sheet = styled.div<{ $height: string; $dragging: boolean }>`
   height: ${({ $height }) => $height};
   border-radius: 28px 28px 0 0;
   background: #ffffff;
+  box-shadow: 0 -4px 24px rgba(25, 31, 40, 0.12);
 
   transition: ${({ $dragging }) => ($dragging ? 'none' : `height 0.4s ${SPRING}`)};
   overflow: hidden;
@@ -40,10 +41,10 @@ const Sheet = styled.div<{ $height: string; $dragging: boolean }>`
   }
 `;
 
-/** 드래그 영역은 상단 48px 전체. */
+/** 드래그 영역은 상단 40px 전체. */
 const Grab = styled.div`
   flex: none;
-  height: 48px;
+  height: 38px;
   touch-action: none;
   cursor: grab;
 `;
@@ -51,7 +52,7 @@ const Grab = styled.div`
 const Handle = styled.div`
   width: 44px;
   height: 5px;
-  margin: 12px auto;
+  margin: 10px auto;
   border-radius: 9999px;
   background: rgba(78, 89, 104, 0.28);
 `;
@@ -89,25 +90,35 @@ const ListArea = styled.div`
   overflow-y: auto;
   overscroll-behavior: contain;
   touch-action: pan-y;
+  padding-bottom: 84px;
 `;
 
 const OpenList = styled.button`
   position: fixed;
-  bottom: 136px;
+  bottom: 84px;
   left: 50%;
-  z-index: 29;
+  z-index: 40;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   height: 40px;
   padding: 0 18px;
   transform: translateX(-50%);
 
   border-radius: 9999px;
-  background: ${meok[900]};
+  background: #191F28;
   color: #ffffff;
   font-family: inherit;
-  font-size: 14px;
-  font-weight: 600;
-
+  font-size: 13.5px;
+  font-weight: 700;
+  box-shadow: 0 6px 20px rgba(25, 31, 40, 0.25);
   cursor: pointer;
+  animation: om-pop 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+
+  @keyframes om-pop {
+    from { transform: translate(-50%, 10px) scale(0.9); opacity: 0; }
+    to { transform: translate(-50%, 0) scale(1); opacity: 1; }
+  }
 
   @media (min-width: 1024px) {
     display: none;
