@@ -54,6 +54,8 @@ export interface Warmth {
   createdAt: string;
   /** 내가 남긴 것 — 로컬 저장분에만 붙는다. */
   mine?: boolean;
+  /** 한국관광 데이터랩 빅데이터 외지인 방문객 수 (TOUR_API_VISITOR_KEY) */
+  visitorCount?: number;
 }
 
 /** 온기모드 상세 후기 피드 리뷰 */

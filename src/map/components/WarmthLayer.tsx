@@ -592,23 +592,33 @@ export default function WarmthLayer() {
     const visibleCells = cells.filter((cell) => inView(cell.lat, cell.lng));
     const busiest = Math.max(...(visibleCells.length ? visibleCells : cells).map((c) => c.count), 1);
 
+    // 빅데이터 방문객 수 기준 정규화
+    const hasVisitor = visibleCells.some((c) => c.items.some((it) => it.visitorCount));
+    const maxVisitorInView = Math.max(
+      ...(visibleCells.length ? visibleCells : cells).map((c) =>
+        c.items.reduce((s, it) => s + (it.visitorCount || 0), 0),
+      ),
+      1,
+    );
+
     const specs: OverlaySpec[] = [];
 
     // ─────────────────────────────────────────────────────────────
     // [1] 분위기 히트맵
     //
     //   색   — 북적(주홍) ↔ 반반(황금) ↔ 한적(청록)
-    //   진하기 — 그 자리에 쌓인 온기 수 (화면 안 최댓값 기준)
+    //   진하기 — TOUR_API_VISITOR_KEY 빅데이터 방문자 수 기준
     //   크기  — 격자 한 칸의 실제 지리 범위. 줌을 따라간다.
-    //
-    // 예전에는 색·크기가 둘 다 '개수' 하나에서 나왔다. 그건 유명한 곳을 칠하는
-    // 것이지 온기를 보여주는 게 아니다. 온기가 가진 축(mood)을 색으로 올린다.
     // ─────────────────────────────────────────────────────────────
     cells.forEach((cell) => {
       const stat = moodStatOf(cell.items);
       if (stat.ratio === null) return;
 
-      const strength = cell.count / busiest;
+      const cellVisitorSum = cell.items.reduce((s, it) => s + (it.visitorCount || 0), 0);
+      const strength = hasVisitor && cellVisitorSum > 0
+        ? Math.min(1, Math.max(0.25, cellVisitorSum / maxVisitorInView))
+        : cell.count / busiest;
+
       const paint = heatPaint(stat.ratio, strength, isDark);
 
       /*
@@ -722,6 +732,7 @@ export default function WarmthLayer() {
               ? firstLine.split('. ')[0] + '.'
               : firstLine;
 
+          const isVisitorPoint = Boolean(w.visitorCount && !w.mine);
           const pagerHtml =
             total > 1
               ? `<button type="button" class="om-bud-nav-btn" title="다음 온기 이야기 보기 (${currentIdx + 1}/${total})">
@@ -730,7 +741,9 @@ export default function WarmthLayer() {
               : '';
 
           const isHelped = isHelpful(w.id);
-          const reactHtml = `
+          const reactHtml = isVisitorPoint
+            ? ''
+            : `
             <div class="om-bud-footer">
               <button type="button" class="om-bud-react-btn ${isHelped ? 'active' : ''}" title="따뜻해요 공감 남기기">
                 <span>🔥</span>
@@ -738,6 +751,10 @@ export default function WarmthLayer() {
               </button>
             </div>
           `;
+
+          const bodyHtml = isVisitorPoint
+            ? `<p class="om-bud-text" style="color: #ea580c; font-weight: 600; margin: 4px 0 2px 0;">📊 ${escapeHtml(w.text)}</p>`
+            : `<p class="om-bud-text" title="${escapeHtml(w.text)}">${escapeHtml(cleanPreview)}</p>`;
 
           // placeName·text는 사용자가 쓴 값이다. 따옴표 하나로 마크업이 깨졌었다.
           el.innerHTML = `
@@ -748,7 +765,7 @@ export default function WarmthLayer() {
                 ${pagerHtml}
               </div>
             </div>
-            <p class="om-bud-text" title="${escapeHtml(w.text)}">${escapeHtml(cleanPreview)}</p>
+            ${bodyHtml}
             ${reactHtml}
           `;
 
@@ -824,13 +841,25 @@ export default function WarmthLayer() {
         const badgeBg = bandSwatch(band, isDark);
         const badgeColor = isDark ? surface.dark.card : meok[900];
 
+        const totalVisitors = cell.items.reduce((acc, it) => acc + (it.visitorCount || 0), 0);
+        const isVisitorCell = totalVisitors > 0;
+        const countDisplay = isVisitorCell
+          ? (totalVisitors >= 10000 ? `${(totalVisitors / 10000).toFixed(1)}만` : `${totalVisitors}`)
+          : `${cell.count}`;
+
         const firstLine = (cell.latest.text.split('\n')[0] || '').trim();
         const cleanSnippet = firstLine.length > 35 ? firstLine.slice(0, 35) + '...' : firstLine;
+        const hoverText = isVisitorCell
+          ? `한국관광 데이터랩 외지인 방문객 ${countDisplay}명`
+          : `"${escapeHtml(cleanSnippet)}"`;
+        const footerText = isVisitorCell
+          ? `빅데이터 방문자 지표 · ${moodLabel}`
+          : `온기 ${cell.count}개 · 한적 ${quietPct}% · 북적 ${100 - quietPct}%`;
 
         el.innerHTML = `
           <div class="om-surge-badge" style="background: ${badgeBg}">
             ${SVG_WARMTH_ICON}
-            <span class="om-surge-count" style="color: ${badgeColor}">${cell.count}</span>
+            <span class="om-surge-count" style="color: ${badgeColor}">${countDisplay}</span>
           </div>
           <div class="om-surge-label">${escapeHtml(cell.latest.placeName)}</div>
           <div class="om-surge-hover-card">
@@ -838,8 +867,8 @@ export default function WarmthLayer() {
               <span>${escapeHtml(cell.latest.placeName)}</span>
               <span class="om-surge-hover-mood-badge">${moodLabel}</span>
             </div>
-            <p class="om-surge-hover-text">"${escapeHtml(cleanSnippet)}"</p>
-            <div class="om-surge-hover-footer">온기 ${cell.count}개 · 한적 ${quietPct}% · 북적 ${100 - quietPct}%</div>
+            <p class="om-surge-hover-text">${escapeHtml(hoverText)}</p>
+            <div class="om-surge-hover-footer">${footerText}</div>
           </div>
         `;
 
