@@ -81,19 +81,61 @@ const Dot = styled.div<{ $active: boolean }>`
   transition: all 0.2s ease;
 `;
 
+const FallbackGraphicBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #f5efe6 0%, #ebe2d3 100%);
+  color: ${meok[500]};
+  user-select: none;
+`;
+
+const FallbackIconWrap = styled.div`
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: ${meok[700]};
+`;
+
+const FallbackText = styled.span`
+  font-size: 12px;
+  font-weight: 600;
+  color: ${meok[700]};
+  letter-spacing: -0.2px;
+`;
+
 function renderCategoryFallback(category?: PlaceCategory | string) {
-  switch (category) {
-    case 'stay':
-      return <Home size={44} color={meok[400]} />;
-    case 'food':
-      return <Utensils size={44} color={meok[400]} />;
-    case 'cafe':
-      return <Coffee size={44} color={meok[400]} />;
-    case 'market':
-      return <ShoppingBag size={44} color={meok[400]} />;
-    default:
-      return <Landmark size={44} color={meok[400]} />;
+  let icon = <Landmark size={28} />;
+  let label = '고택의 고즈넉한 정취';
+
+  if (category === 'stay') {
+    icon = <Home size={28} />;
+    label = '마당이 있는 한옥 스테이';
+  } else if (category === 'food') {
+    icon = <Utensils size={28} />;
+    label = '대를 이어온 전통의 손맛';
+  } else if (category === 'cafe') {
+    icon = <Coffee size={28} />;
+    label = '처마 밑 은은한 다도 향기';
+  } else if (category === 'market') {
+    icon = <ShoppingBag size={28} />;
+    label = '정겨운 전통시장 풍경';
   }
+
+  return (
+    <FallbackGraphicBox>
+      <FallbackIconWrap>{icon}</FallbackIconWrap>
+      <FallbackText>{label}</FallbackText>
+    </FallbackGraphicBox>
+  );
 }
 
 interface PlaceDetailCarouselProps {

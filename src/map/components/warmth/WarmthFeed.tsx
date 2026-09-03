@@ -158,7 +158,7 @@ export default function WarmthFeed() {
         <SectionHeader>
           <SectionTitleGroup>
             <Flame size={18} color="#FF6B00" />
-            <SectionTitle>실시간 인기 장소</SectionTitle>
+            <SectionTitle>지금 가장 따뜻한 한옥 명소</SectionTitle>
           </SectionTitleGroup>
         </SectionHeader>
 
@@ -213,7 +213,7 @@ export default function WarmthFeed() {
       <ReviewSectionHeader>
         <ReviewSectionTitle>
           <MessageSquare size={16} color={meok[700]} />
-          <span>이번 주 인기있는 한줄평</span>
+          <span>고택에 머문 이들의 온기 이야기</span>
         </ReviewSectionTitle>
 
         <SortWrapper>
@@ -232,8 +232,8 @@ export default function WarmthFeed() {
       <FeedScroll>
         {filteredReviews.length === 0 ? (
           <EmptyState>
-            해당 지역에 등록된 후기가 아직 없습니다.
-            <br />첫 번째 방문 후기를 남겨보세요!
+            해당 지역에 남겨진 온기 기록이 아직 없습니다.
+            <br />고즈넉한 고택에 첫 번째 온기를 불어넣어 보세요.
           </EmptyState>
         ) : (
           filteredReviews.map((review) => (

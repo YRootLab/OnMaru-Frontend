@@ -253,12 +253,23 @@ export default function PlaceDetail() {
   const warmthCount = placeWarmths.length;
   const busyCount = placeWarmths.filter((w) => w.mood === '북적').length;
   const isBusy = busyCount >= Math.max(1, warmthCount - busyCount);
-  const warmthStatusLabel =
-    warmthCount === 0
-      ? '방문객 온기를 기다리는 고즈넉한 명소'
-      : isBusy
-        ? '실시간 체감: 북적이고 활기찬 분위기'
-        : '실시간 체감: 고즈넉하고 한적한 분위기';
+
+  const warmthMetrics = useMemo(() => {
+    if (warmthCount === 0) {
+      return {
+        temp: '36.5℃',
+        label: '방문객 온기를 기다리는 고즈넉한 쉼터',
+        countLabel: '첫 온기 남기기',
+      };
+    }
+    const temp = (36.5 + (isBusy ? 1.2 : 0.6) + Math.min(warmthCount * 0.2, 1.2)).toFixed(1);
+
+    return {
+      temp: `${temp}℃`,
+      label: isBusy ? `체감 ${temp}℃ · 북적이고 활기찬 온기` : `체감 ${temp}℃ · 고즈넉하고 따뜻한 쉼`,
+      countLabel: `머문 온기 ${warmthCount}건`,
+    };
+  }, [warmthCount, isBusy]);
 
   return (
     <DetailWrapper tabIndex={-1} role="region" aria-label="장소 상세 정보">
@@ -328,13 +339,13 @@ export default function PlaceDetail() {
               )}
             </TitleSection>
 
-            {/* 실시간 현장 체감 분위기 바 */}
+            {/* 실시간 현장 체감 온기 바 */}
             <LiveWarmthMeter>
               <LiveWarmthStatus>
                 <LiveWarmthPulse $busy={isBusy} />
-                <span>{warmthStatusLabel}</span>
+                <span>{warmthMetrics.label}</span>
               </LiveWarmthStatus>
-              <LiveWarmthCount>{warmthCount > 0 ? `온기 ${warmthCount}건` : '첫 온기 남기기'}</LiveWarmthCount>
+              <LiveWarmthCount>{warmthMetrics.countLabel}</LiveWarmthCount>
             </LiveWarmthMeter>
 
             {/* 원클릭 4단 퀵 액션 타일 바 */}
