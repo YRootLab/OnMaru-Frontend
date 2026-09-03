@@ -12,7 +12,7 @@ import {
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import { paintOverlays, type OverlaySpec } from '@/map/hooks/overlay';
 import { useMapStore } from '@/map/hooks/useMapStore';
-import { clusterWarmth, filterWarmth } from '@/map/warmth/warmthRepo';
+import { clusterWarmth, filterWarmth, isHelpful, toggleHelpful } from '@/map/warmth/warmthRepo';
 import { bandOf, bandSwatch, filterByPeriod, heatPaint, moodStatOf, MOOD_BANDS } from "@/map/warmth/heatScale";
 import { escapeHtml } from '@/map/utils/formatters';
 import type { WarmthFilter } from '@/map/types';
@@ -483,6 +483,44 @@ const styles = css`
     outline: 2px solid ${darkPalette.juhong[400]};
   }
 
+  .om-bud-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: 6px;
+    padding-top: 5px;
+    border-top: 1px solid rgba(78, 89, 104, 0.08);
+  }
+
+  [data-theme='dark'] .om-bud-footer {
+    border-top-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .om-bud-react-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 3.5px;
+    padding: 2.5px 8px;
+    border-radius: 9999px;
+    border: none;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    background: rgba(232, 90, 24, 0.08);
+    color: ${lightPalette.juhong[500]};
+    transition: all 0.15s ease;
+  }
+
+  .om-bud-react-btn:hover {
+    background: rgba(232, 90, 24, 0.16);
+    transform: scale(1.05);
+  }
+
+  .om-bud-react-btn.active {
+    background: ${lightPalette.juhong[500]};
+    color: #ffffff;
+  }
+
   /* ------------------------------------------------------------
    * 모션 최소화
    *
@@ -691,6 +729,16 @@ export default function WarmthLayer() {
                  </button>`
               : '';
 
+          const isHelped = isHelpful(w.id);
+          const reactHtml = `
+            <div class="om-bud-footer">
+              <button type="button" class="om-bud-react-btn ${isHelped ? 'active' : ''}" title="따뜻해요 공감 남기기">
+                <span>🔥</span>
+                <span>${isHelped ? '따뜻해요' : '공감'}</span>
+              </button>
+            </div>
+          `;
+
           // placeName·text는 사용자가 쓴 값이다. 따옴표 하나로 마크업이 깨졌었다.
           el.innerHTML = `
             <div class="om-bud-head">
@@ -701,6 +749,7 @@ export default function WarmthLayer() {
               </div>
             </div>
             <p class="om-bud-text" title="${escapeHtml(w.text)}">${escapeHtml(cleanPreview)}</p>
+            ${reactHtml}
           `;
 
           const navBtn = el.querySelector('.om-bud-nav-btn');
@@ -708,6 +757,15 @@ export default function WarmthLayer() {
             navBtn.addEventListener('click', (e) => {
               e.stopPropagation();
               currentIdx = (currentIdx + 1) % total;
+              renderBud();
+            });
+          }
+
+          const reactBtn = el.querySelector('.om-bud-react-btn');
+          if (reactBtn) {
+            reactBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              toggleHelpful(w.id);
               renderBud();
             });
           }

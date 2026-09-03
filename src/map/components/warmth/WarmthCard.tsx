@@ -8,11 +8,12 @@ import {
   Utensils,
   Coffee,
   Store,
-  ThumbsUp,
+  Flame,
   ChevronRight,
 } from 'lucide-react';
 import { lightPalette, darkPalette, meok } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
+import { toggleHelpful } from '@/map/warmth/warmthRepo';
 import type { WarmthReview } from '@/map/types';
 import MoodSelector from './MoodSelector';
 import TagGroup from './TagGroup';
@@ -329,11 +330,9 @@ export default function WarmthCard({ review, onHover }: WarmthCardProps) {
 
   const handleHelpfulToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setHelpful((prev) => {
-      const next = !prev;
-      setHelpfulCount((cnt) => (next ? cnt + 1 : cnt - 1));
-      return next;
-    });
+    const next = toggleHelpful(review.id);
+    setHelpful(next);
+    setHelpfulCount((cnt) => (next ? cnt + 1 : Math.max(0, cnt - 1)));
   };
 
   const metaText = [
@@ -389,19 +388,20 @@ export default function WarmthCard({ review, onHover }: WarmthCardProps) {
         )}
       </ReviewBody>
 
-      {/* 4. 하단 메타 & 도움돼요 */}
+      {/* 4. 하단 메타 & 따뜻해요 */}
       <FooterMeta>
         <MetaDate>
-          {review.createdAt} · 도움돼요 {helpfulCount}
+          {review.createdAt}
         </MetaDate>
         <HelpfulButton
           type="button"
           $active={helpful}
           onClick={handleHelpfulToggle}
-          aria-label="이 후기가 도움이 되었나요?"
+          aria-label="이 온기에 공감하시나요? (따뜻해요)"
+          title="따뜻해요 공감 남기기"
         >
-          <ThumbsUp size={13} fill={helpful ? lightPalette.juhong[500] : 'none'} />
-          <span>도움돼요</span>
+          <Flame size={14} fill={helpful ? lightPalette.juhong[500] : 'none'} />
+          <span>따뜻해요 {helpfulCount > 0 ? helpfulCount : ''}</span>
         </HelpfulButton>
       </FooterMeta>
 

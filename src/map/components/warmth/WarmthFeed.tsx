@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Flame,
+  Plus,
   ChevronLeft,
   ChevronRight,
   MessageSquare,
@@ -15,14 +16,18 @@ import {
 import { meok } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import { countByPlace, regionOf, toReview } from '@/map/warmth/warmthRepo';
-import { filterByPeriod } from '@/map/warmth/heatScale';
+import { filterByPeriod, PERIOD_OPTIONS, type WarmthPeriod } from '@/map/warmth/heatScale';
 import WarmthCard from './WarmthCard';
+import WriteWarmthModal from './WriteWarmthModal';
 import {
   FeedContainer,
   StickyTop,
   SectionHeader,
   SectionTitleGroup,
   SectionTitle,
+  WriteActionBtn,
+  PeriodFilterRow,
+  PeriodTabBtn,
   RegionScroller,
   RegionChip,
   FeaturedPlaceArea,
@@ -94,23 +99,25 @@ export default function WarmthFeed() {
   const setPopularPanelOpen = useMapStore((s) => s.setPopularPanelOpen);
   const setHoveredId = useMapStore((s) => s.setHoveredId);
   const setSheetSnap = useMapStore((s) => s.setSheetSnap);
+  const category = useMapStore((s) => s.category);
 
   /*
     피드는 지도와 같은 온기를 본다.
-
     예전에는 지도가 seed(44건), 피드가 mock JSON(12건)을 따로 읽어서 같은 화면의
     좌우가 서로 다른 장소를 말했다 — 지도엔 북촌 말풍선이 떠 있는데 피드에서
     '서울'을 누르면 "기록이 없습니다"가 나왔다. 소스를 하나로 합친다.
   */
   const allWarmths = useMapStore((s) => s.warmths);
   const period = useMapStore((s) => s.warmthPeriod);
+  const setWarmthPeriod = useMapStore((s) => s.setWarmthPeriod);
 
-  /* 지도 범례에서 고른 기간 창을 피드도 그대로 따른다. 둘이 어긋나면 다시 두 화면이 된다. */
+  /* 지도 범례에서 고른 기간 창을 피드도 그대로 따른다. */
   const warmths = useMemo(() => filterByPeriod(allWarmths, period), [allWarmths, period]);
 
   const [selectedRegion, setSelectedRegion] = useState('all');
   const [sortOrder, setSortOrder] = useState<'recent' | 'place'>('recent');
   const [currentPage, setCurrentPage] = useState(1);
+  const [isWriteModalOpen, setIsWriteModalOpen] = useState(false);
   const feedTopRef = useRef<HTMLDivElement>(null);
 
   const regions = useMemo(() => buildRegions(warmths), [warmths]);
@@ -142,13 +149,24 @@ export default function WarmthFeed() {
   }, [warmths, selectedRegion]);
 
   const filteredReviews = useMemo(() => {
-    const list =
+    let list =
       selectedRegion === 'all'
         ? reviews
         : reviews.filter((r) => r.placeRegion === selectedRegion);
 
+    // 상단 분위기 카테고리 칩 필터 연동
+    if (category === 'busy') {
+      list = list.filter((r) => r.mood >= 4);
+    } else if (category === 'quiet') {
+      list = list.filter((r) => r.mood <= 2);
+    } else if (category === 'today') {
+      const ONE_DAY = 86_400_000;
+      list = list.filter((r) => Date.now() - Date.parse(r.createdAt) < ONE_DAY);
+    } else if (category === 'mine') {
+      list = list.filter((r) => r.mine === true);
+    }
+
     if (sortOrder === 'place') {
-      // 이야기가 많이 쌓인 장소부터. 같은 장소 안에서는 최신순을 유지한다.
       const counts = countByPlace(warmths);
       return [...list].sort((a, b) => {
         const ca = counts.get(a.placeId)?.count ?? 0;
@@ -158,16 +176,15 @@ export default function WarmthFeed() {
       });
     }
 
-    // createdAt은 ISO 8601이다 (types.ts).
     return [...list].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
-  }, [reviews, warmths, selectedRegion, sortOrder]);
+  }, [reviews, warmths, selectedRegion, sortOrder, category]);
 
   const REVIEWS_PER_PAGE = 6;
 
-  // 지역 또는 정렬 변경 시 1페이지로 리셋
+  // 지역, 정렬, 카테고리 변경 시 1페이지로 리셋
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedRegion, sortOrder]);
+  }, [selectedRegion, sortOrder, category]);
 
   const totalPages = Math.max(1, Math.ceil(filteredReviews.length / REVIEWS_PER_PAGE));
   const validPage = Math.min(currentPage, totalPages);
@@ -227,6 +244,14 @@ export default function WarmthFeed() {
             <Flame size={18} color="#FF6B00" />
             <SectionTitle>지금 가장 따뜻한 한옥 명소</SectionTitle>
           </SectionTitleGroup>
+          <WriteActionBtn
+            type="button"
+            onClick={() => setIsWriteModalOpen(true)}
+            aria-label="새 온기 한 줄 남기기"
+          >
+            <Plus size={14} />
+            <span>온기 남기기</span>
+          </WriteActionBtn>
         </SectionHeader>
 
         <RegionScroller role="group" aria-label="지역 필터">
@@ -282,6 +307,21 @@ export default function WarmthFeed() {
         </FeaturedPlaceArea>
       )}
 
+      {/* 기간 필터 탭 (최근 3일, 1주, 1달, 전체) */}
+      <PeriodFilterRow role="group" aria-label="온기 기간 필터">
+        {PERIOD_OPTIONS.map((opt) => (
+          <PeriodTabBtn
+            key={opt.id}
+            type="button"
+            aria-pressed={period === opt.id}
+            $active={period === opt.id}
+            onClick={() => setWarmthPeriod(opt.id as WarmthPeriod)}
+          >
+            {opt.label}
+          </PeriodTabBtn>
+        ))}
+      </PeriodFilterRow>
+
       <ReviewSectionHeader>
         <ReviewSectionTitle>
           <MessageSquare size={16} color={meok[700]} />
@@ -308,10 +348,21 @@ export default function WarmthFeed() {
         <div ref={feedTopRef} />
         {filteredReviews.length === 0 ? (
           <EmptyState>
-            {selectedRegion === 'all'
-              ? '아직 남겨진 온기가 없습니다.'
-              : `${selectedRegion}에 남겨진 온기가 아직 없습니다.`}
-            <br />이곳에 첫 번째 따뜻한 온기를 불어넣어 보세요.
+            {category === 'mine'
+              ? '아직 내가 남긴 온기가 없습니다.'
+              : selectedRegion === 'all'
+                ? '선택하신 조건에 해당하는 온기가 아직 없습니다.'
+                : `${selectedRegion}에 남겨진 온기가 아직 없습니다.`}
+            <br />
+            <span style={{ display: 'inline-block', marginTop: '6px' }}>
+              이곳에 첫 번째 따뜻한 온기를 불어넣어 보세요.
+            </span>
+            <div style={{ marginTop: '14px' }}>
+              <WriteActionBtn type="button" onClick={() => setIsWriteModalOpen(true)}>
+                <Plus size={14} />
+                <span>온기 남기기</span>
+              </WriteActionBtn>
+            </div>
           </EmptyState>
         ) : (
           <>
@@ -364,6 +415,12 @@ export default function WarmthFeed() {
           </>
         )}
       </FeedScroll>
+
+      {/* 온기 작성 모달 */}
+      <WriteWarmthModal
+        isOpen={isWriteModalOpen}
+        onClose={() => setIsWriteModalOpen(false)}
+      />
     </FeedContainer>
   );
 }
