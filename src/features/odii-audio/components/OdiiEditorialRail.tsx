@@ -6,6 +6,7 @@ import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore
 import { IOdiiApiService, OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
 import { ODII_THEME_CATEGORIES } from '@/features/odii-audio/data/odiiCategoryData';
 import { useOdiiApiService } from '@/features/odii-audio/context/OdiiDependencyContext';
+import { ODII_RAIL_VISIBLE_BUFFER, getVisibleRailPositions } from './odiiEditorialRailModel';
 
 interface OdiiEditorialRailProps {
   stories: OdiiStoryItem[];
@@ -89,7 +90,7 @@ interface EditorialRailCardProps {
 
 const EditorialRailCard = React.memo<EditorialRailCardProps>(({ story, position, offset, featuredLength, trackTransitionEnabled, onInteractRef }) => {
   const distance = Math.abs(offset);
-  const isVisible = distance <= 4;
+  const isVisible = distance <= ODII_RAIL_VISIBLE_BUFFER;
   const isActive = offset === 0;
   const initialImageSrc = story.imageUrl || fallbackImageFor(story);
   const tilt = isActive ? 0 : offset < 0
@@ -158,7 +159,6 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(({ story, position,
 const POSITION_CORRECTION_COOLDOWN_MS = 70;
 const TRANSITION_SAFETY_TIMEOUT_MS = 900;
 const RAIL_COPY_COUNT = 3;
-const RAIL_VISIBLE_BUFFER = 4;
 
 export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, storySets, apiService, isLoading = false, onApiError }) => {
   const activeApiService = useOdiiApiService(apiService);
@@ -249,7 +249,6 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
     ));
   }, [cachedImageUrls, categoryStories, selectedKeyword, stories, storySets]);
 
-  const VIRTUAL_BUFFER = 4;
   const activeIndex = featured.length ? ((activePosition % featured.length) + featured.length) % featured.length : 0;
   const activeStory = featured[activeIndex] ?? featured[0];
 
@@ -257,7 +256,7 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
   const visibleVirtualPositions = useMemo(() => {
     const list: { pos: number; story: OdiiStoryItem }[] = [];
     if (!featured.length) return list;
-    for (let pos = activePosition - VIRTUAL_BUFFER; pos <= activePosition + VIRTUAL_BUFFER; pos++) {
+    for (const pos of getVisibleRailPositions(activePosition)) {
       const index = ((pos % featured.length) + featured.length) % featured.length;
       list.push({ pos, story: featured[index] });
     }
@@ -443,14 +442,14 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
 
   if (!activeStory && !showSkeleton) {
     return (
-      <section aria-label="오디 셀렉션" className="relative left-1/2 flex min-h-[355px] w-screen -translate-x-1/2 items-center justify-center py-3 sm:min-h-[430px] sm:py-5 lg:min-h-[465px]">
+      <section aria-label="오디 셀렉션" className="relative mx-auto flex min-h-[355px] w-full max-w-6xl items-center justify-center overflow-hidden py-3 sm:min-h-[430px] sm:py-5 lg:min-h-[465px]">
         <p className="text-sm text-[#8c7e6c]">이 주제의 오디오 이야기를 찾지 못했습니다.</p>
       </section>
     );
   }
 
   return (
-    <section aria-label="오디 셀렉션" aria-busy={showSkeleton} style={{ contain: 'layout paint' }} className="relative w-full py-3 sm:py-5">
+    <section aria-label="오디 셀렉션" aria-busy={showSkeleton} style={{ contain: 'layout paint' }} className="relative mx-auto w-full max-w-6xl overflow-hidden py-3 sm:py-5">
       <div className="w-full px-0">
         <div className="relative pb-2 pt-1 sm:pt-2">
           <div className="mx-auto mb-3 w-full max-w-6xl">
