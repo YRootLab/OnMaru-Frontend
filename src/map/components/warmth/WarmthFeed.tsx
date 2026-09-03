@@ -238,7 +238,7 @@ export default function WarmthFeed() {
         <SectionHeader>
           <SectionTitleGroup>
             <Flame size={18} color="#FF6B00" />
-            <SectionTitle>사람들이 남긴 한옥의 온기</SectionTitle>
+            <SectionTitle>지금 핫한 한옥</SectionTitle>
           </SectionTitleGroup>
         </SectionHeader>
 
@@ -271,7 +271,7 @@ export default function WarmthFeed() {
               <FeaturedInfo>
                 <FeaturedRank>
                   <Flame size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
-                  <span>온기가 가장 많이 쌓인 곳</span>
+                  <span>지금 가장 핫한 곳</span>
                 </FeaturedRank>
                 <FeaturedName>{topPlace.placeName}</FeaturedName>
                 <FeaturedMeta>
