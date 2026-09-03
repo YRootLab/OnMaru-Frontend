@@ -1,8 +1,6 @@
-'use client';
-
 import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
-import { Home } from 'lucide-react';
+import { Home, ChevronLeft } from 'lucide-react';
 import { meok } from '@/design-system/tokens';
 import { useMapStore } from './hooks/useMapStore';
 import { useMapData } from './hooks/useMapData';
@@ -174,10 +172,11 @@ export default function MapPage() {
             <FloatingHomeButton
               type="button"
               onClick={handleBack}
-              aria-label="온마루 홈으로 이동"
+              aria-label="온마루 메인 홈으로 이동"
+              title="온마루 메인 홈으로 이동"
             >
-              <Home size={16} />
-              <span>홈으로</span>
+              <ChevronLeft size={16} />
+              <span>온마루 홈</span>
             </FloatingHomeButton>
           )}
           <CategoryChips />
@@ -197,13 +196,13 @@ export default function MapPage() {
           <MobileBackButton
             type="button"
             onClick={handleBack}
-            aria-label="온마루 홈으로 이동"
-            title="온마루 홈으로 이동"
+            aria-label="온마루 메인으로 돌아가기"
+            title="온마루 메인으로 돌아가기"
           >
-            <Home size={20} />
+            <ChevronLeft size={22} />
           </MobileBackButton>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <SearchBar showHomeButton={false} />
+            <SearchBar />
           </div>
         </MobileSearchBarRow>
         <ModeToggle />

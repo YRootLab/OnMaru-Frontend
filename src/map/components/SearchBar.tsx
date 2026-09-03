@@ -1,9 +1,6 @@
-'use client';
-
 import React, { useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
-import { Search, X, Home, MapPin, Sparkles, RotateCcw, Globe } from 'lucide-react';
+import { Search, X, MapPin, Sparkles, RotateCcw, Globe } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { DEFAULT_CENTER, DEFAULT_LEVEL, useMapStore } from '@/map/hooks/useMapStore';
 
@@ -11,7 +8,7 @@ const RECENT = ['전주 한옥마을', '북촌 한옥마을', '안동 하회마�
 const POPULAR = ['전주', '북촌', '경주', '안동', '강릉', '담양', '공주'];
 
 interface SearchBarProps {
-  showHomeButton?: boolean;
+  className?: string;
 }
 
 const Wrap = styled.div`
@@ -24,40 +21,14 @@ const Field = styled.form`
   align-items: center;
   gap: 6px;
   height: 44px;
-  padding: 0 12px 0 6px;
+  padding: 0 12px 0 12px;
   border-radius: 9999px;
   background: rgba(25, 31, 40, 0.05);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:focus-within {
     background: #ffffff;
-
-  }
-`;
-
-const HomeBtn = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  flex: none;
-  padding: 0;
-
-  border-radius: 50%;
-  background: transparent;
-  color: ${meok[700]};
-  cursor: pointer;
-  transition: all 0.15s ease;
-
-  &:hover {
-    background: ${lightPalette.cheongrok[50]};
-    color: ${lightPalette.cheongrok[700]};
-    transform: scale(1.06);
-  }
-
-  &:active {
-    transform: scale(0.92);
+    box-shadow: 0 4px 14px rgba(25, 31, 40, 0.08);
   }
 `;
 
@@ -202,16 +173,11 @@ const Suggestion = styled.button`
   }
 `;
 
-export default function SearchBar({ showHomeButton = true }: SearchBarProps) {
-  const router = useRouter();
+export default function SearchBar({ className }: SearchBarProps) {
   const map = useMapStore((s) => s.map);
   const currentAddress = useMapStore((s) => s.currentAddress);
   const [value, setValue] = useState('');
   const [open, setOpen] = useState(false);
-
-  const handleGoHome = () => {
-    router.push('/');
-  };
 
   // 전국 전체보기로 지도 및 검색 초기화
   const handleResetToNationwide = () => {
@@ -298,19 +264,8 @@ export default function SearchBar({ showHomeButton = true }: SearchBarProps) {
   const isSearched = Boolean(value) || (currentAddress && !currentAddress.includes('전국'));
 
   return (
-    <Wrap>
+    <Wrap className={className}>
       <Field onSubmit={handleSubmit}>
-        {showHomeButton ? (
-          <HomeBtn
-            type="button"
-            onClick={handleGoHome}
-            aria-label="온마루 메인 홈으로 이동"
-            title="온마루 홈으로 이동"
-          >
-            <Home size={18} />
-          </HomeBtn>
-        ) : null}
-
         <SearchSubmitBtn type="submit" aria-label="검색 실행">
           <Search size={16} aria-hidden />
         </SearchSubmitBtn>

@@ -99,9 +99,9 @@ export default function ListPanel() {
   return (
     <Panel $open={panelOpen}>
       <Inner>
-        {/* 1. 상단 2단 헤더: (1) 홈 버튼 일체형 검색바 + (2) 모드 토글 */}
+        {/* 1. 상단 2단 헤더: (1) 검색바 + (2) 모드 토글 */}
         <HeaderArea>
-          <SearchBar showHomeButton={true} />
+          <SearchBar />
           <ModeToggle />
         </HeaderArea>
 
