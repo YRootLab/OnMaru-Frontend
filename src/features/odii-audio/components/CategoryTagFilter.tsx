@@ -35,7 +35,7 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 
             <button
               type="button"
               onClick={() => { setSelectedCategory('전체'); setSearchQuery(''); }}
-              className={`flex h-10 shrink-0 items-center gap-2 rounded-[14px] px-4 text-xs transition-all ${selectedCategory === '전체' ? 'bg-white font-semibold text-[#f84e76] ' : 'text-[#786d5e] hover:text-[#f84e76]'}`}
+            className={`flex h-10 shrink-0 items-center gap-2 rounded-[14px] px-4 text-xs transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f84e76] ${selectedCategory === '전체' ? 'bg-white font-semibold text-[#f84e76] ' : 'text-[#786d5e] hover:text-[#f84e76]'}`}
             >
               <span className={`h-1.5 w-1.5 rounded-full ${selectedCategory === '전체' ? 'bg-[#f84e76]' : 'bg-[#c8bfb5]'}`} />
               전체
@@ -48,7 +48,7 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 
                   key={theme.id}
                   type="button"
                   onClick={() => { setSelectedCategory(theme.keyword); setSearchQuery(''); }}
-                  className={`flex h-10 shrink-0 items-center gap-2 rounded-[14px] px-4 text-xs transition-all ${isSelected ? 'bg-white font-semibold text-[#f84e76] ' : 'text-[#786d5e] hover:text-[#f84e76]'}`}
+                  className={`flex h-10 shrink-0 items-center gap-2 rounded-[14px] px-4 text-xs transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f84e76] ${isSelected ? 'bg-white font-semibold text-[#f84e76] ' : 'text-[#786d5e] hover:text-[#f84e76]'}`}
                 >
                   <span className={`h-1.5 w-1.5 rounded-full ${isSelected ? 'bg-[#f84e76]' : 'bg-[#c8bfb5]'}`} />
                   {label}
@@ -66,7 +66,7 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 
                 key={region}
                 type="button"
                 onClick={() => handleRegionClick(region)}
-                className={`shrink-0 rounded-full px-3 py-1.5 text-[10px] transition-colors ${isSelected ? 'bg-[#f84e76] font-semibold text-white ' : 'text-[#8c7e6c] hover:bg-[#fff0f5] hover:text-[#f84e76]'}`}
+                className={`min-h-10 shrink-0 rounded-full px-3 text-[10px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f84e76] ${isSelected ? 'bg-[#f84e76] font-semibold text-white ' : 'text-[#8c7e6c] hover:bg-[#fff0f5] hover:text-[#f84e76]'}`}
               >
                 {region}
               </button>
@@ -132,7 +132,7 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 
               setSelectedCategory('전체');
               setSearchQuery('');
             }}
-                className={`px-4 py-2 rounded-xl text-xs font-medium transition-all duration-300 whitespace-nowrap ${
+                className={`min-h-10 px-4 py-2 rounded-full text-xs font-medium transition-all duration-300 whitespace-nowrap focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f84e76] ${
               selectedCategory === '전체'
                 ? 'bg-[#f84e76] text-white  font-bold'
                 : 'text-[#655b4d] bg-[#f7f4ee] hover:bg-[#fff0f5] hover:text-[#f84e76]'
@@ -152,7 +152,7 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 
                   setSearchQuery('');
                 }}
                 title={theme.description}
-                className={`px-4 py-2 rounded-xl text-xs font-medium transition-all duration-300 whitespace-nowrap ${
+                  className={`min-h-10 px-4 py-2 rounded-full text-xs font-medium transition-all duration-300 whitespace-nowrap focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f84e76] ${
                   isSelected
                     ? 'bg-[#f84e76] text-white  font-bold'
                     : 'text-[#655b4d] bg-[#f7f4ee] hover:bg-[#fff0f5] hover:text-[#f84e76]'
@@ -165,7 +165,7 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 
         </div>
 
         {selectedTheme && (
-          <p className="mt-2 text-xs leading-5 text-[#8c7e6c]">
+          <p className="odii-filter-description mt-2 text-xs leading-5 text-[#8c7e6c]">
             <strong className="mr-1 font-semibold text-[#f84e76]">{selectedTheme.label}</strong>
             <span>{selectedTheme.description}</span>
           </p>
@@ -173,7 +173,7 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 
       </div>
 
       {/* 2단: 서브 검색 폼 & 지역 명소 필터 칩 */}
-      <div className="rounded-2xl bg-[#f7f4ee]/70 p-3.5">
+      <div className="odii-region-filter rounded-2xl bg-[#f7f4ee]/70 p-3.5">
         {/* 지역 칩 */}
         <div className="flex items-center space-x-1.5 overflow-x-auto pb-1 sm:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {ODII_REGION_CHIPS.map((region) => {
@@ -183,7 +183,7 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 
                 key={region}
                 type="button"
                 onClick={() => handleRegionClick(region)}
-                className={`px-3 py-1 rounded-lg text-xs transition-all duration-200 whitespace-nowrap ${
+                className={`min-h-10 px-3 py-1 rounded-full text-xs transition-all duration-200 whitespace-nowrap focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f84e76] ${
                   isSelected
                     ? 'bg-[#f84e76] text-white font-bold '
                     : 'bg-white text-[#655b4d]  hover: hover:text-[#f84e76]'

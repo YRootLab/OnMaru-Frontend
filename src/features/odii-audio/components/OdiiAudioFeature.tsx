@@ -12,7 +12,6 @@ import { SavedSoundDrawer } from './SavedSoundDrawer';
 import { OdiiAutoSliceRail } from './OdiiAutoSliceRail';
 import { OdiiEditorialRail } from './OdiiEditorialRail';
 import { OdiiFooterCTA } from './OdiiFooterCTA';
-import { OdiiSection2Experiments } from './OdiiSection2Experiments';
 import { SoundConstellationSection } from './SoundConstellationSection';
 import { AllStoriesModal } from './AllStoriesModal';
 import { LocalMiniPlayer } from './LocalMiniPlayer';
@@ -406,11 +405,6 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             </div>
           </VesselReveal>
 
-          {/* 섹션 2 아래: 카드 정보 밀도 개선 임시 시안 */}
-          <VesselReveal className="w-full">
-            <OdiiSection2Experiments stories={storyList} storySets={heroStorySets} />
-          </VesselReveal>
-
           <VesselReveal className="w-full">
             {conceptVariant ? <OdiiKoreaSoundMap concept={conceptVariant} stories={storyList} /> : <SoundConstellationSection stories={storyList} />}
           </VesselReveal>
@@ -420,8 +414,9 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
           <VesselReveal className="min-h-[440px] sm:min-h-[470px] w-full py-6 sm:py-8">
             <section
               aria-labelledby="nearby-stories-heading"
-              className="w-full"
+              className={`odii-nearby-panel mx-auto w-full max-w-[1240px] ${conceptVariant ? 'rounded-[38px] px-5 py-9 sm:px-10 sm:py-12' : ''}`}
               data-odii-stage="nearby"
+              data-odii-section="nearby"
             >
               <div className="mx-auto w-full max-w-6xl">
                 <motion.div variants={titleVariants} className="flex flex-col gap-4 pb-1 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
@@ -454,7 +449,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
           </VesselReveal>
 
           {/* 섹션 4: 기존 리스트 컴포넌트 큐레이션 */}
-          <VesselReveal className="w-full py-8 sm:py-12">
+          <VesselReveal className={`${conceptVariant ? 'hidden' : 'w-full py-8 sm:py-12'}`}>
             <section
               aria-labelledby="compact-archive-heading"
               className="w-full"
@@ -500,10 +495,10 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             >
               <div className="mx-auto w-full max-w-6xl">
                 <motion.div variants={titleVariants} className="mb-4">
-                  <h2 id="archive-heading" className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-[clamp(24px,3.2vw,36px)] font-bold tracking-[-0.045em] text-transparent">
-                    주제와 장소를 따라보는 이야기
+                  <h2 id="archive-heading" className={conceptVariant ? 'font-odii-sans text-[clamp(30px,4vw,46px)] font-semibold tracking-[-0.055em] text-[#1D1D1F]' : 'inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-[clamp(24px,3.2vw,36px)] font-bold tracking-[-0.045em] text-transparent'}>
+                    {conceptVariant ? '모든 이야기' : '주제와 장소를 따라보는 이야기'}
                   </h2>
-                  <p className="mt-1 max-w-xl text-xs sm:text-sm leading-5 text-[#786d5e]">
+                  <p className="mt-2 max-w-xl text-xs sm:text-sm leading-5 text-[#786d5e]">
                     원하는 테마와 장소를 선택하여 전국 문화유산을 담은 오디오 도슨트를 자유롭게 둘러보세요.
                   </p>
                 </motion.div>
@@ -560,7 +555,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
           </VesselReveal>
 
           {/* 섹션 6: 카드형 오디오 컬렉션 */}
-          <VesselReveal className="w-full py-10 sm:py-14">
+          <VesselReveal className={`${conceptVariant ? 'hidden' : 'w-full py-10 sm:py-14'}`}>
             <section
               aria-labelledby="odii-card-collection-heading"
               className="w-full"
