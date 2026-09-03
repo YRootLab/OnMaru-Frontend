@@ -131,6 +131,7 @@ export function clusterWarmth(list: Warmth[], level: number): WarmthCell[] {
     count: items.length,
     // items는 loadWarmth가 최신순으로 넘겨준 순서를 유지한다.
     latest: items[0],
+    items,
   }));
 }
 

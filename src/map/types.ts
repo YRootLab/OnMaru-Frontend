@@ -115,6 +115,8 @@ export interface WarmthCell {
   count: number;
   /** 셀 안에서 가장 최근 온기 — blob 라벨/미리보기용. */
   latest: Warmth;
+  /** 셀에 묶인 온기 전부. 분위기(북적/한적) 비율을 여기서 낸다. */
+  items: Warmth[];
 }
 
 /**
