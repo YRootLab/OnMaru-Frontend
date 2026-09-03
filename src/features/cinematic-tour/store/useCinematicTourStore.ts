@@ -25,6 +25,37 @@ export function parseScriptSentences(script: string): string[] {
   return result.length > 0 ? result : [clean];
 }
 
+/**
+ * 문장별 글자 수 및 호흡 쉼표 가중치를 기반으로 현재 재생 시간(currentTime)에 일치하는 문장 인덱스를 정밀 계산
+ */
+export function calculateActiveSentenceIndex(
+  sentences: string[],
+  currentTime: number,
+  duration: number,
+): { index: number; sentence: string } {
+  if (sentences.length === 0) return { index: 0, sentence: '' };
+  if (sentences.length === 1) return { index: 0, sentence: sentences[0] };
+
+  const validDuration = Math.max(1, duration);
+
+  // 각 문장의 발화 예상 시간 가중치 계산 (글자수 + 문장 끝 쉼표/마침표 호흡 4글자분량 가중치)
+  const weights = sentences.map((s) => Math.max(8, s.length + 4));
+  const totalWeight = weights.reduce((acc, w) => acc + w, 0);
+
+  // 누적 타임스탬프 계산
+  let accumulatedTime = 0;
+  for (let i = 0; i < sentences.length; i++) {
+    const sentenceDuration = (weights[i] / totalWeight) * validDuration;
+    accumulatedTime += sentenceDuration;
+    if (currentTime < accumulatedTime) {
+      return { index: i, sentence: sentences[i] };
+    }
+  }
+
+  const lastIndex = sentences.length - 1;
+  return { index: lastIndex, sentence: sentences[lastIndex] };
+}
+
 interface CinematicTourState {
   isActive: boolean;
   story: OdiiStoryItem | null;
@@ -142,18 +173,20 @@ export const useCinematicTourStore = create<CinematicTourState>((set, get) => ({
       }
     }
 
-    // 🌟 한줄씩 대사 텔레프롬프터 싱크 계산 (문장 단위 분할)
+    // 🌟 글자 수 가중치 기반 문장 싱크 정밀 계산
     const sentences = parseScriptSentences(story.script);
-    const total = Math.max(1, sentences.length);
-    const step = state.duration / total;
-    const sentenceIdx = Math.min(Math.floor(currentTime / step), total - 1);
+    const { index: sentenceIdx, sentence: activeSentence } = calculateActiveSentenceIndex(
+      sentences,
+      currentTime,
+      state.duration,
+    );
 
     set({
       currentTime,
       activeWaypointIndex: newWpIdx,
-      currentSubtitle: sentences[sentenceIdx] ?? '',
+      currentSubtitle: activeSentence,
       activeSentenceIndex: sentenceIdx,
-      totalSentences: total,
+      totalSentences: sentences.length,
       currentPhotoTip: waypoints[newWpIdx]?.photoTip,
     });
   },

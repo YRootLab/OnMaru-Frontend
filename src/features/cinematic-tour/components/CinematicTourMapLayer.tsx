@@ -143,8 +143,19 @@ export default function CinematicTourMapLayer() {
       audio.currentTime = currentTime;
       audioRef.current = audio;
 
+      const syncAudioDuration = () => {
+        if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration) && audio.duration > 0) {
+          useCinematicTourStore.setState({ duration: audio.duration });
+        }
+      };
+
+      audio.onloadedmetadata = syncAudioDuration;
+      audio.ondurationchange = syncAudioDuration;
+      audio.oncanplay = syncAudioDuration;
+
       audio.ontimeupdate = () => {
         if (!audio.paused) {
+          syncAudioDuration();
           setCurrentTime(audio.currentTime);
         }
       };
