@@ -289,35 +289,36 @@ const styles = css`
    * ------------------------------------------------------------ */
   .om-bud {
     position: relative;
-    max-width: 220px;
+    max-width: 230px;
     padding: 10px 14px;
-    border-radius: 14px;
+    border-radius: 16px;
     cursor: pointer;
     transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(16px);
     user-select: none;
+    pointer-events: auto;
   }
 
   [data-theme='light'] .om-bud,
   :root:not([data-theme='dark']) .om-bud {
     background: rgba(255, 255, 255, 0.96);
-    box-shadow: 0 4px 16px -2px rgba(25, 31, 40, 0.12), 0 0 0 1px rgba(25, 31, 40, 0.04);
+    box-shadow: 0 6px 20px -2px rgba(25, 31, 40, 0.16), 0 0 0 1px rgba(25, 31, 40, 0.05);
   }
 
   [data-theme='dark'] .om-bud {
     background: rgba(45, 41, 36, 0.95);
-    box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08);
+    box-shadow: 0 6px 20px -2px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.08);
   }
 
   .om-bud:hover {
     transform: translateY(-4px) scale(1.04);
-    z-index: 35 !important;
+    z-index: 40 !important;
   }
 
   .om-bud::after {
     content: '';
     position: absolute;
-    left: 20px;
+    left: 24px;
     top: 100%;
     border: 6px solid transparent;
   }
@@ -337,17 +338,30 @@ const styles = css`
     justify-content: space-between;
     gap: 6px;
     margin-bottom: 5px;
-    font-size: 11.5px;
-    font-weight: 700;
   }
 
-  [data-theme='light'] .om-bud-head,
-  :root:not([data-theme='dark']) .om-bud-head {
+  .om-bud-title {
+    font-size: 12.5px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  [data-theme='light'] .om-bud-title,
+  :root:not([data-theme='dark']) .om-bud-title {
     color: ${meok[900]};
   }
 
-  [data-theme='dark'] .om-bud-head {
+  [data-theme='dark'] .om-bud-title {
     color: ${meok[100]};
+  }
+
+  .om-bud-head-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
   }
 
   .om-bud-mood {
@@ -368,6 +382,32 @@ const styles = css`
     color: ${meok[400]};
   }
 
+  .om-bud-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 1.5px 6px;
+    border-radius: 9999px;
+    font-size: 10px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    border: none;
+    cursor: pointer;
+    background: rgba(232, 90, 24, 0.12);
+    color: ${lightPalette.juhong[500]};
+    transition: all 0.15s ease;
+  }
+
+  .om-bud-nav-btn:hover {
+    background: ${lightPalette.juhong[500]};
+    color: #ffffff;
+    transform: scale(1.08);
+  }
+
+  .om-bud-nav-btn:active {
+    transform: scale(0.92);
+  }
+
   .om-bud-text {
     margin: 0;
     font-size: 12.5px;
@@ -376,6 +416,7 @@ const styles = css`
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    transition: opacity 0.2s ease;
   }
 
   [data-theme='light'] .om-bud-text,
@@ -384,7 +425,7 @@ const styles = css`
   }
 
   [data-theme='dark'] .om-bud-text {
-    color: ${meok[100]};
+    color: ${meok[200]};
   }
 
   .om-bud[data-mine='true'] {
@@ -520,35 +561,87 @@ export default function WarmthLayer() {
       });
     });
 
+    const timers: NodeJS.Timeout[] = [];
+
     // ─────────────────────────────────────────────────────────────
     // [3] 줌 레벨에 맞춘 상단 오버레이 (서지 거점 뱃지 vs 상세 한줄평 말풍선)
     // ─────────────────────────────────────────────────────────────
     if (level <= BUBBLE_MAX_LEVEL) {
-      // 🌟 상세 줌 (골목길/개별 장소 확대): 히트맵 배경 위에 말풍선(Bud)이 함께 플로팅!
-      list.slice(0, 40).forEach((w) => {
+      // 🌟 상세 줌 (골목길/개별 장소 확대): 동일 장소의 후기를 단일 말풍선(Bud)으로 그룹화하여 넘겨볼 수 있는 캐러셀로 렌더링
+      const placeGroups = new Map<string, typeof list>();
+      list.forEach((w) => {
+        const key = w.placeId || w.placeName || `${w.lat.toFixed(4)}_${w.lng.toFixed(4)}`;
+        const group = placeGroups.get(key) || [];
+        group.push(w);
+        placeGroups.set(key, group);
+      });
+
+      placeGroups.forEach((group) => {
+        const first = group[0];
         const el = document.createElement('div');
         el.className = 'om-bud';
-        el.dataset.mine = String(Boolean(w.mine));
+        const isMine = group.some((w) => w.mine);
+        el.dataset.mine = String(isMine);
 
-        // 좋아요 평/후기의 첫 번째 줄(문장) 추출
-        const firstLine = (w.text.split('\n')[0] || '').trim();
-        const cleanPreview = firstLine.includes('. ') && firstLine.length > 30
-          ? firstLine.split('. ')[0] + '.'
-          : firstLine;
+        let currentIdx = 0;
 
-        el.innerHTML =
-          `<div class="om-bud-head">` +
-          `<span>${w.placeName}</span>` +
-          `<span class="om-bud-mood">${w.mood}</span>` +
-          `</div>` +
-          `<p class="om-bud-text" title="${w.text}">${cleanPreview}</p>`;
-        el.addEventListener('click', () => select(w.placeId, w.lat, w.lng));
+        const renderBud = () => {
+          const w = group[currentIdx];
+          const total = group.length;
+          const firstLine = (w.text.split('\n')[0] || '').trim();
+          const cleanPreview =
+            firstLine.includes('. ') && firstLine.length > 30
+              ? firstLine.split('. ')[0] + '.'
+              : firstLine;
+
+          const pagerHtml =
+            total > 1
+              ? `<button type="button" class="om-bud-nav-btn" title="다음 온기 이야기 보기 (${currentIdx + 1}/${total})">
+                   <span>${currentIdx + 1}/${total} ↻</span>
+                 </button>`
+              : '';
+
+          el.innerHTML = `
+            <div class="om-bud-head">
+              <span class="om-bud-title">${w.placeName}</span>
+              <div class="om-bud-head-right">
+                <span class="om-bud-mood">${w.mood}</span>
+                ${pagerHtml}
+              </div>
+            </div>
+            <p class="om-bud-text" title="${w.text}">${cleanPreview}</p>
+          `;
+
+          const navBtn = el.querySelector('.om-bud-nav-btn');
+          if (navBtn) {
+            navBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              currentIdx = (currentIdx + 1) % total;
+              renderBud();
+            });
+          }
+        };
+
+        renderBud();
+
+        // 후기가 여러 개인 장소는 4.5초마다 부드럽게 다음 온기 이야기로 자동 순환
+        if (group.length > 1) {
+          const timer = setInterval(() => {
+            currentIdx = (currentIdx + 1) % group.length;
+            renderBud();
+          }, 4500);
+          timers.push(timer);
+        }
+
+        el.addEventListener('click', () => {
+          select(first.placeId, first.lat, first.lng);
+        });
 
         specs.push({
-          lat: w.lat,
-          lng: w.lng,
+          lat: first.lat,
+          lng: first.lng,
           el,
-          zIndex: w.mine ? 30 : 20,
+          zIndex: isMine ? 30 : 20,
           yAnchor: 1.15,
         });
       });
@@ -623,7 +716,12 @@ export default function WarmthLayer() {
       });
     }
 
-    return paintOverlays(map, specs);
+    const cleanupOverlays = paintOverlays(map, specs);
+
+    return () => {
+      timers.forEach(clearInterval);
+      if (cleanupOverlays) cleanupOverlays();
+    };
   }, [map, mode, warmths, category, level, isDark]);
 
   return <Global styles={styles} />;
