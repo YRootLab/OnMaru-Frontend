@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Flame,
+  ChevronLeft,
   ChevronRight,
   MessageSquare,
   Landmark,
@@ -39,6 +40,11 @@ import {
   SortChevron,
   FeedScroll,
   EmptyState,
+  PaginationWrapper,
+  PageNavBtn,
+  PageNumberGroup,
+  PageNumberBtn,
+  PageIndicator,
 } from './WarmthFeed.styles';
 
 /**
@@ -99,6 +105,8 @@ export default function WarmthFeed() {
 
   const [selectedRegion, setSelectedRegion] = useState('all');
   const [sortOrder, setSortOrder] = useState<'recent' | 'place'>('recent');
+  const [currentPage, setCurrentPage] = useState(1);
+  const feedTopRef = useRef<HTMLDivElement>(null);
 
   const regions = useMemo(() => buildRegions(warmths), [warmths]);
 
@@ -145,18 +153,49 @@ export default function WarmthFeed() {
       });
     }
 
-    // createdAt은 ISO 8601이다 (types.ts). 예전 mock의 "3시간 전" 문자열은
-    // Date.parse가 NaN을 내서 최신순 정렬이 아예 동작하지 않았다.
+    // createdAt은 ISO 8601이다 (types.ts).
     return [...list].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
   }, [reviews, warmths, selectedRegion, sortOrder]);
 
+  const REVIEWS_PER_PAGE = 6;
+
+  // 지역 또는 정렬 변경 시 1페이지로 리셋
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedRegion, sortOrder]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredReviews.length / REVIEWS_PER_PAGE));
+  const validPage = Math.min(currentPage, totalPages);
+
+  const paginatedReviews = useMemo(() => {
+    const start = (validPage - 1) * REVIEWS_PER_PAGE;
+    return filteredReviews.slice(start, start + REVIEWS_PER_PAGE);
+  }, [filteredReviews, validPage]);
+
+  const pageNumbers = useMemo(() => {
+    const maxVisible = 5;
+    let start = Math.max(1, validPage - Math.floor(maxVisible / 2));
+    let end = start + maxVisible - 1;
+    if (end > totalPages) {
+      end = totalPages;
+      start = Math.max(1, end - maxVisible + 1);
+    }
+    const pages: number[] = [];
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }, [validPage, totalPages]);
+
+  const handlePageChange = (page: number) => {
+    const target = Math.max(1, Math.min(page, totalPages));
+    setCurrentPage(target);
+    if (feedTopRef.current) {
+      feedTopRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   const handlePlaceClick = (placeId: string, placeName: string, lat?: number, lng?: number) => {
-    /*
-      온기의 placeId는 TourAPI contentId가 아닐 수 있다(직접 남긴 온기).
-      id가 맞으면 그걸 쓰고, 아니면 이름이 서로를 품는지 양방향으로 본다 —
-      예전에는 `item.name.includes(placeName)` 한 방향뿐이라 "경기전"과
-      "전주한옥마을 경기전"이 영영 매칭되지 않았다.
-    */
     const matched = items.find(
       (i) => i.id === placeId || i.name.includes(placeName) || placeName.includes(i.name),
     );
@@ -168,7 +207,6 @@ export default function WarmthFeed() {
         map.panTo(new window.kakao.maps.LatLng(matched.lat, matched.lng));
       }
     } else if (lat !== undefined && lng !== undefined && map && window.kakao?.maps?.LatLng) {
-      // 상세를 열 수는 없어도 위치는 안다. 지도라도 그 자리로 옮겨준다.
       setSelectedId(placeId);
       map.panTo(new window.kakao.maps.LatLng(lat, lng));
     }
@@ -243,13 +281,12 @@ export default function WarmthFeed() {
         <ReviewSectionTitle>
           <MessageSquare size={16} color={meok[700]} />
           <span>이곳에 머문 이들의 온기 이야기</span>
+          {totalPages > 1 && (
+            <PageIndicator>({validPage}/{totalPages}p)</PageIndicator>
+          )}
         </ReviewSectionTitle>
 
         <SortWrapper>
-          {/*
-            '인기순'은 조작된 helpfulCount로 정렬하던 항목이라 걷어냈다.
-            실제로 셀 수 있는 축(시간, 장소별 온기 수)만 남긴다.
-          */}
           <SortSelect
             value={sortOrder}
             onChange={(e) => setSortOrder(e.target.value as 'recent' | 'place')}
@@ -263,6 +300,7 @@ export default function WarmthFeed() {
       </ReviewSectionHeader>
 
       <FeedScroll>
+        <div ref={feedTopRef} />
         {filteredReviews.length === 0 ? (
           <EmptyState>
             {selectedRegion === 'all'
@@ -271,13 +309,54 @@ export default function WarmthFeed() {
             <br />이곳에 첫 번째 따뜻한 온기를 불어넣어 보세요.
           </EmptyState>
         ) : (
-          filteredReviews.map((review) => (
-            <WarmthCard
-              key={review.id}
-              review={review}
-              onHover={(id) => setHoveredId(id)}
-            />
-          ))
+          <>
+            {paginatedReviews.map((review) => (
+              <WarmthCard
+                key={review.id}
+                review={review}
+                onHover={(id) => setHoveredId(id)}
+              />
+            ))}
+
+            {totalPages > 1 && (
+              <PaginationWrapper role="navigation" aria-label="온기 피드 페이지네이션">
+                <PageNavBtn
+                  type="button"
+                  onClick={() => handlePageChange(validPage - 1)}
+                  disabled={validPage <= 1}
+                  aria-label="이전 페이지로 이동"
+                >
+                  <ChevronLeft size={15} />
+                  <span>이전</span>
+                </PageNavBtn>
+
+                <PageNumberGroup>
+                  {pageNumbers.map((p) => (
+                    <PageNumberBtn
+                      key={p}
+                      type="button"
+                      $active={p === validPage}
+                      onClick={() => handlePageChange(p)}
+                      aria-current={p === validPage ? 'page' : undefined}
+                      aria-label={`${p} 페이지로 이동`}
+                    >
+                      {p}
+                    </PageNumberBtn>
+                  ))}
+                </PageNumberGroup>
+
+                <PageNavBtn
+                  type="button"
+                  onClick={() => handlePageChange(validPage + 1)}
+                  disabled={validPage >= totalPages}
+                  aria-label="다음 페이지로 이동"
+                >
+                  <span>다음</span>
+                  <ChevronRight size={15} />
+                </PageNavBtn>
+              </PaginationWrapper>
+            )}
+          </>
         )}
       </FeedScroll>
     </FeedContainer>

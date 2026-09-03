@@ -1,9 +1,19 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
-import { ChevronDown, Map, RefreshCw, AlertCircle, Sparkles, LayoutList, Bookmark } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Map,
+  RefreshCw,
+  AlertCircle,
+  Sparkles,
+  LayoutList,
+  Bookmark,
+} from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import { useBookmarkStore } from '@/map/hooks/useBookmarkStore';
@@ -14,6 +24,8 @@ import FestivalExhibitionCarousel from './feed/FestivalExhibitionCarousel';
 import OdiiSpotlightBanner from './feed/OdiiSpotlightBanner';
 import SmartAroundFeed from './feed/SmartAroundFeed';
 import type { Item, PlaceCategory } from '@/map/types';
+
+const ITEMS_PER_PAGE = 10;
 
 const CATEGORY_NAMES: Record<string, string> = {
   bookmark: '마음에 담은 곳',
@@ -50,6 +62,13 @@ const CountLabel = styled.span`
   font-size: 13.5px;
   font-weight: 700;
   color: ${meok[900]};
+`;
+
+const PageIndicator = styled.span`
+  font-size: 11.5px;
+  font-weight: 500;
+  color: ${meok[500]};
+  margin-left: 2px;
 `;
 
 const SortDropdownWrapper = styled.div`
@@ -91,6 +110,75 @@ const ListContainer = styled.ul`
   list-style: none;
   margin: 0;
   padding: 0;
+`;
+
+/* ── 페이지네이션 스타일 ── */
+const PaginationWrapper = styled.nav`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 18px 16px 28px;
+`;
+
+const PageNavBtn = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(78, 89, 104, 0.06);
+  color: ${meok[700]};
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: rgba(78, 89, 104, 0.12);
+    color: ${meok[900]};
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+`;
+
+const PageNumberGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 4px;
+`;
+
+const PageNumberBtn = styled.button<{ $active: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 6px;
+  border-radius: 10px;
+  border: none;
+  background: ${({ $active }) =>
+    $active ? lightPalette.cheongrok[500] : 'transparent'};
+  color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: ${({ $active }) => ($active ? 700 : 500)};
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: ${({ $active }) =>
+      $active ? lightPalette.cheongrok[700] : 'rgba(78, 89, 104, 0.08)'};
+    color: ${({ $active }) => ($active ? '#ffffff' : meok[900])};
+  }
 `;
 
 /* ── 스켈레톤 로딩 ── */
@@ -210,6 +298,8 @@ export default function PlaceList() {
   const reload = useMapStore((s) => s.reload);
 
   const bookmarks = useBookmarkStore((s) => s.bookmarks);
+  const listTopRef = useRef<HTMLDivElement>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // 정렬 및 북마크 필터링 처리 (GPS 내 위치 또는 지도 중심 기준 정밀 정렬)
   const sortedItems = useMemo(() => {
@@ -252,6 +342,42 @@ export default function PlaceList() {
     });
   }, [items, sortOrder, category, bookmarks, userLocation, center]);
 
+  // 필터, 정렬, 지역 변경 시 1페이지로 리셋
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [category, currentAddress, sortOrder, items.length]);
+
+  const totalPages = Math.max(1, Math.ceil(sortedItems.length / ITEMS_PER_PAGE));
+  const validPage = Math.min(currentPage, totalPages);
+
+  const paginatedItems = useMemo(() => {
+    const start = (validPage - 1) * ITEMS_PER_PAGE;
+    return sortedItems.slice(start, start + ITEMS_PER_PAGE);
+  }, [sortedItems, validPage]);
+
+  const pageNumbers = useMemo(() => {
+    const maxVisible = 5;
+    let start = Math.max(1, validPage - Math.floor(maxVisible / 2));
+    let end = start + maxVisible - 1;
+    if (end > totalPages) {
+      end = totalPages;
+      start = Math.max(1, end - maxVisible + 1);
+    }
+    const pages: number[] = [];
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }, [validPage, totalPages]);
+
+  const handlePageChange = (page: number) => {
+    const target = Math.max(1, Math.min(page, totalPages));
+    setCurrentPage(target);
+    if (listTopRef.current) {
+      listTopRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   // 축제/행사 아이템 필터링
   const festivalItems = useMemo(() => {
     return items.filter((item) => item.category === 'festival');
@@ -288,6 +414,8 @@ export default function PlaceList() {
 
   return (
     <div>
+      <div ref={listTopRef} />
+
       {/* 1. 실시간 공지/소식 롤링 띠배너 */}
       <LiveNoticeBanner />
 
@@ -310,6 +438,9 @@ export default function PlaceList() {
         <CountLabel aria-live="polite">
           <LayoutList size={15} color={lightPalette.cheongrok[500]} />
           <span>{headerTitle}</span>
+          {totalPages > 1 && (
+            <PageIndicator>({validPage}/{totalPages}p)</PageIndicator>
+          )}
         </CountLabel>
 
         <SortDropdownWrapper>
@@ -404,19 +535,60 @@ export default function PlaceList() {
           </div>
         </EmptyStateBox>
       ) : (
-        <ListContainer role="list">
-          {sortedItems.map((item, index) => (
-            <PlaceListItem
-              key={item.id}
-              item={item}
-              index={index}
-              isSelected={item.id === selectedId}
-              isHovered={item.id === hoveredId}
-              onSelect={handleSelect}
-              onHover={setHoveredId}
-            />
-          ))}
-        </ListContainer>
+        <>
+          <ListContainer role="list">
+            {paginatedItems.map((item, idx) => (
+              <PlaceListItem
+                key={item.id}
+                item={item}
+                index={(validPage - 1) * ITEMS_PER_PAGE + idx}
+                isSelected={item.id === selectedId}
+                isHovered={item.id === hoveredId}
+                onSelect={handleSelect}
+                onHover={setHoveredId}
+              />
+            ))}
+          </ListContainer>
+
+          {totalPages > 1 && (
+            <PaginationWrapper role="navigation" aria-label="장소 목록 페이지네이션">
+              <PageNavBtn
+                type="button"
+                onClick={() => handlePageChange(validPage - 1)}
+                disabled={validPage <= 1}
+                aria-label="이전 페이지로 이동"
+              >
+                <ChevronLeft size={16} />
+                <span>이전</span>
+              </PageNavBtn>
+
+              <PageNumberGroup>
+                {pageNumbers.map((p) => (
+                  <PageNumberBtn
+                    key={p}
+                    type="button"
+                    $active={p === validPage}
+                    onClick={() => handlePageChange(p)}
+                    aria-current={p === validPage ? 'page' : undefined}
+                    aria-label={`${p} 페이지로 이동`}
+                  >
+                    {p}
+                  </PageNumberBtn>
+                ))}
+              </PageNumberGroup>
+
+              <PageNavBtn
+                type="button"
+                onClick={() => handlePageChange(validPage + 1)}
+                disabled={validPage >= totalPages}
+                aria-label="다음 페이지로 이동"
+              >
+                <span>다음</span>
+                <ChevronRight size={16} />
+              </PageNavBtn>
+            </PaginationWrapper>
+          )}
+        </>
       )}
     </div>
   );

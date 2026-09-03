@@ -255,3 +255,78 @@ export const EmptyState = styled.div`
   font-size: 13.5px;
   line-height: 1.6;
 `;
+
+export const PaginationWrapper = styled.nav`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 16px 0 24px;
+`;
+
+export const PageNavBtn = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(78, 89, 104, 0.06);
+  color: ${meok[700]};
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: rgba(78, 89, 104, 0.12);
+    color: ${meok[900]};
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+`;
+
+export const PageNumberGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 4px;
+`;
+
+export const PageNumberBtn = styled.button<{ $active: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 6px;
+  border-radius: 10px;
+  border: none;
+  background: ${({ $active }) =>
+    $active ? lightPalette.juhong[500] : 'transparent'};
+  color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: ${({ $active }) => ($active ? 700 : 500)};
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: ${({ $active }) =>
+      $active ? lightPalette.juhong[700] : 'rgba(78, 89, 104, 0.08)'};
+    color: ${({ $active }) => ($active ? '#ffffff' : meok[900])};
+  }
+`;
+
+export const PageIndicator = styled.span`
+  font-size: 11.5px;
+  font-weight: 500;
+  color: ${meok[500]};
+  margin-left: 4px;
+`;
