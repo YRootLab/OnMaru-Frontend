@@ -13,8 +13,7 @@ import {
 } from 'lucide-react';
 import { meok } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
-import type { WarmthReview, RankedPlace } from '@/map/types';
-import rawReviews from '@/map/mock/warmthReviews.mock.json';
+import { countByPlace, regionOf, toReview } from '@/map/warmth/warmthRepo';
 import WarmthCard from './WarmthCard';
 import {
   FeedContainer,
@@ -42,16 +41,27 @@ import {
   EmptyState,
 } from './WarmthFeed.styles';
 
-const REGIONS = [
-  { id: 'all', label: '전국' },
-  { id: '전주', label: '전주' },
-  { id: '안동', label: '안동' },
-  { id: '경주', label: '경주' },
-  { id: '서울', label: '서울' },
-  { id: '담양', label: '담양' },
-  { id: '강릉', label: '강릉' },
-  { id: '제주', label: '제주' },
-];
+/**
+ * 지역 칩.
+ *
+ * 예전에는 8개를 고정으로 박아뒀는데 피드 데이터가 전주·안동·경주뿐이라
+ * 나머지 다섯은 누르면 무조건 "기록이 없습니다"였다. 지금은 실제로 온기가
+ * 있는 지역만 세워서, 눌러서 비는 칩이 생기지 않는다.
+ */
+function buildRegions(warmths: { lat: number; lng: number }[]) {
+  const seen = new Map<string, number>();
+
+  for (const w of warmths) {
+    const name = regionOf(w.lat, w.lng);
+    if (name) seen.set(name, (seen.get(name) ?? 0) + 1);
+  }
+
+  const ranked = Array.from(seen.entries())
+    .sort((a, b) => b[1] - a[1])
+    .map(([name]) => ({ id: name, label: name }));
+
+  return [{ id: 'all', label: '전국' }, ...ranked];
+}
 
 function renderPlaceIcon(type: string) {
   if (type.includes('스테이') || type.includes('숙소') || type.includes('고택')) {
@@ -78,67 +88,78 @@ export default function WarmthFeed() {
   const setHoveredId = useMapStore((s) => s.setHoveredId);
   const setSheetSnap = useMapStore((s) => s.setSheetSnap);
 
+  /*
+    피드는 지도와 같은 온기를 본다.
+
+    예전에는 지도가 seed(44건), 피드가 mock JSON(12건)을 따로 읽어서 같은 화면의
+    좌우가 서로 다른 장소를 말했다 — 지도엔 북촌 말풍선이 떠 있는데 피드에서
+    '서울'을 누르면 "기록이 없습니다"가 나왔다. 소스를 하나로 합친다.
+  */
+  const warmths = useMapStore((s) => s.warmths);
+
   const [selectedRegion, setSelectedRegion] = useState('all');
-  const [sortOrder, setSortOrder] = useState<'recent' | 'helpful'>('recent');
-  const [apiTopPlace, setApiTopPlace] = useState<RankedPlace | null>(null);
+  const [sortOrder, setSortOrder] = useState<'recent' | 'place'>('recent');
 
-  const reviews = rawReviews as WarmthReview[];
+  const regions = useMemo(() => buildRegions(warmths), [warmths]);
 
-  useEffect(() => {
-    let active = true;
-    fetch(`/api/popular-places?region=${encodeURIComponent(selectedRegion)}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (active && data?.topPlace) {
-          setApiTopPlace(data.topPlace);
-        }
-      })
-      .catch(() => {});
+  const reviews = useMemo(() => warmths.map(toReview), [warmths]);
 
-    return () => {
-      active = false;
-    };
-  }, [selectedRegion]);
-
+  /** 온기가 가장 많이 쌓인 장소. 실제 집계라 근거를 그대로 화면에 적을 수 있다. */
   const topPlace = useMemo(() => {
-    if (apiTopPlace) return apiTopPlace;
-    const candidates =
+    const scoped =
       selectedRegion === 'all'
-        ? reviews
-        : reviews.filter((r) => r.placeRegion.includes(selectedRegion));
+        ? warmths
+        : warmths.filter((w) => regionOf(w.lat, w.lng) === selectedRegion);
 
-    if (candidates.length === 0) return null;
+    const ranked = Array.from(countByPlace(scoped).entries()).sort(
+      (a, b) => b[1].count - a[1].count,
+    )[0];
 
-    const highest = [...candidates].sort((a, b) => b.helpfulCount - a.helpfulCount)[0];
+    if (!ranked) return null;
+
+    const [placeId, info] = ranked;
     return {
-      placeId: highest.placeId,
-      placeName: highest.placeName,
-      placeType: highest.placeType,
-      placeRegion: highest.placeRegion,
-      helpfulCount: highest.helpfulCount,
-      congestionLevel: '보통',
-      image: null,
+      placeId,
+      placeName: info.name,
+      count: info.count,
+      region: regionOf(info.lat, info.lng),
+      lat: info.lat,
+      lng: info.lng,
     };
-  }, [apiTopPlace, reviews, selectedRegion]);
+  }, [warmths, selectedRegion]);
 
   const filteredReviews = useMemo(() => {
-    let list =
+    const list =
       selectedRegion === 'all'
         ? reviews
-        : reviews.filter((r) => r.placeRegion.includes(selectedRegion));
+        : reviews.filter((r) => r.placeRegion === selectedRegion);
 
-    if (sortOrder === 'helpful') {
-      list = [...list].sort((a, b) => b.helpfulCount - a.helpfulCount);
-    } else {
-      list = [...list].sort(
-        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-      );
+    if (sortOrder === 'place') {
+      // 이야기가 많이 쌓인 장소부터. 같은 장소 안에서는 최신순을 유지한다.
+      const counts = countByPlace(warmths);
+      return [...list].sort((a, b) => {
+        const ca = counts.get(a.placeId)?.count ?? 0;
+        const cb = counts.get(b.placeId)?.count ?? 0;
+        if (cb !== ca) return cb - ca;
+        return Date.parse(b.createdAt) - Date.parse(a.createdAt);
+      });
     }
-    return list;
-  }, [reviews, selectedRegion, sortOrder]);
 
-  const handlePlaceClick = (placeId: string, placeName: string) => {
-    const matched = items.find((i) => i.id === placeId || i.name.includes(placeName));
+    // createdAt은 ISO 8601이다 (types.ts). 예전 mock의 "3시간 전" 문자열은
+    // Date.parse가 NaN을 내서 최신순 정렬이 아예 동작하지 않았다.
+    return [...list].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
+  }, [reviews, warmths, selectedRegion, sortOrder]);
+
+  const handlePlaceClick = (placeId: string, placeName: string, lat?: number, lng?: number) => {
+    /*
+      온기의 placeId는 TourAPI contentId가 아닐 수 있다(직접 남긴 온기).
+      id가 맞으면 그걸 쓰고, 아니면 이름이 서로를 품는지 양방향으로 본다 —
+      예전에는 `item.name.includes(placeName)` 한 방향뿐이라 "경기전"과
+      "전주한옥마을 경기전"이 영영 매칭되지 않았다.
+    */
+    const matched = items.find(
+      (i) => i.id === placeId || i.name.includes(placeName) || placeName.includes(i.name),
+    );
 
     if (matched) {
       setSelectedId(matched.id);
@@ -146,9 +167,12 @@ export default function WarmthFeed() {
       if (map && window.kakao?.maps?.LatLng) {
         map.panTo(new window.kakao.maps.LatLng(matched.lat, matched.lng));
       }
-    } else {
-      setDetailId(placeId);
+    } else if (lat !== undefined && lng !== undefined && map && window.kakao?.maps?.LatLng) {
+      // 상세를 열 수는 없어도 위치는 안다. 지도라도 그 자리로 옮겨준다.
+      setSelectedId(placeId);
+      map.panTo(new window.kakao.maps.LatLng(lat, lng));
     }
+
     setSheetSnap('half');
   };
 
@@ -162,10 +186,12 @@ export default function WarmthFeed() {
           </SectionTitleGroup>
         </SectionHeader>
 
-        <RegionScroller>
-          {REGIONS.map((r) => (
+        <RegionScroller role="group" aria-label="지역 필터">
+          {regions.map((r) => (
             <RegionChip
               key={r.id}
+              type="button"
+              aria-pressed={selectedRegion === r.id}
               $active={selectedRegion === r.id}
               onClick={() => setSelectedRegion(r.id)}
             >
@@ -178,19 +204,22 @@ export default function WarmthFeed() {
       {topPlace && (
         <FeaturedPlaceArea>
           <FeaturedCard
-            onClick={() => handlePlaceClick(topPlace.placeId, topPlace.placeName)}
+            type="button"
+            onClick={() =>
+              handlePlaceClick(topPlace.placeId, topPlace.placeName, topPlace.lat, topPlace.lng)
+            }
             title="장소 상세 보기"
           >
             <FeaturedLeft>
-              <FeaturedIconBox>{renderPlaceIcon(topPlace.placeType)}</FeaturedIconBox>
+              <FeaturedIconBox>{renderPlaceIcon(topPlace.placeName)}</FeaturedIconBox>
               <FeaturedInfo>
                 <FeaturedRank>
                   <Flame size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
-                  <span>1위 대표 명소</span>
+                  <span>온기가 가장 많이 쌓인 곳</span>
                 </FeaturedRank>
                 <FeaturedName>{topPlace.placeName}</FeaturedName>
                 <FeaturedMeta>
-                  {topPlace.placeRegion} · {topPlace.placeType}
+                  {[topPlace.region, `온기 ${topPlace.count}개`].filter(Boolean).join(' · ')}
                 </FeaturedMeta>
               </FeaturedInfo>
             </FeaturedLeft>
@@ -217,13 +246,17 @@ export default function WarmthFeed() {
         </ReviewSectionTitle>
 
         <SortWrapper>
+          {/*
+            '인기순'은 조작된 helpfulCount로 정렬하던 항목이라 걷어냈다.
+            실제로 셀 수 있는 축(시간, 장소별 온기 수)만 남긴다.
+          */}
           <SortSelect
             value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value as 'recent' | 'helpful')}
-            aria-label="리뷰 정렬 방식"
+            onChange={(e) => setSortOrder(e.target.value as 'recent' | 'place')}
+            aria-label="온기 정렬 방식"
           >
             <option value="recent">최신순</option>
-            <option value="helpful">인기순</option>
+            <option value="place">이야기 많은 곳</option>
           </SortSelect>
           <SortChevron size={13} />
         </SortWrapper>
@@ -232,7 +265,9 @@ export default function WarmthFeed() {
       <FeedScroll>
         {filteredReviews.length === 0 ? (
           <EmptyState>
-            해당 지역에 남겨진 온기 기록이 아직 없습니다.
+            {selectedRegion === 'all'
+              ? '아직 남겨진 온기가 없습니다.'
+              : `${selectedRegion}에 남겨진 온기가 아직 없습니다.`}
             <br />이곳에 첫 번째 따뜻한 온기를 불어넣어 보세요.
           </EmptyState>
         ) : (

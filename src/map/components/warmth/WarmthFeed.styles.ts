@@ -80,7 +80,16 @@ export const FeaturedPlaceArea = styled.div`
   padding: 8px 16px 14px;
 `;
 
-export const FeaturedCard = styled.div`
+/*
+  클릭으로 상세를 여는 카드라 button으로 둔다.
+  div + onClick이면 Tab으로 닿지 않고 Enter로도 열리지 않는다.
+*/
+export const FeaturedCard = styled.button`
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+
   padding: 14px 16px;
   background: #f8f6f0;
   border-radius: 18px;
