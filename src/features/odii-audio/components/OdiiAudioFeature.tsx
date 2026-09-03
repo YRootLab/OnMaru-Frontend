@@ -24,6 +24,8 @@ import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore
 import { OdiiStoryItem, OdiiStoryPage, IOdiiApiService } from '@/features/odii-audio/types/odii.types';
 import { OdiiDependencyProvider, useOdiiApiService } from '@/features/odii-audio/context/OdiiDependencyContext';
 import type { OdiiConcept } from '@/features/odii-audio/concepts/odiiConcept';
+import { OdiiConceptFrame } from '@/features/odii-audio/concepts/OdiiConceptFrame';
+import { OdiiConceptHero } from '@/features/odii-audio/concepts/OdiiConceptHero';
 
 const sectionVariants: Variants = {
   hidden: {},
@@ -101,6 +103,8 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
   const selectedCategory = useOdiiAudioStore((s) => s.selectedCategory);
   const searchQuery = useOdiiAudioStore((s) => s.searchQuery);
   const isPlaying = useOdiiAudioStore((s) => s.isPlaying);
+  const currentStory = useOdiiAudioStore((s) => s.currentStory);
+  const setIsPlaying = useOdiiAudioStore((s) => s.setIsPlaying);
   const resolvedBackgroundVariant = backgroundVariant ?? 'default';
   const [storyList, setStoryList] = useState<OdiiStoryItem[]>(() => initialStories || []);
   const [section4Stories, setSection4Stories] = useState<OdiiStoryItem[]>(() => initialStories?.slice(0, 7) || []);
@@ -129,6 +133,8 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
       const stored = localStorage.getItem('onmaru_saved_odii_stories');
       const parsed = stored ? JSON.parse(stored) : [];
       if (Array.isArray(parsed) && parsed.length > 0) {
+        // localStorage is an external source; restoring it after hydration is intentional.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setSavedStories(parsed);
       }
     } catch {
@@ -319,7 +325,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
 
   return (
     <OdiiDependencyProvider apiService={activeApiService}>
-      <div className={`odii-feature relative isolate min-h-screen pb-24 text-[#211e19] selection:bg-[#ffd9e4] selection:text-[#b52f55]${conceptVariant ? ` odii-concept--${conceptVariant}` : ''}`}>
+      <OdiiConceptFrame concept={conceptVariant}>
         <OdiiAtmosphereBackground
           variant={backgroundVariant}
           selectedCategory={selectedCategory}
@@ -335,8 +341,16 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             </div>
           )}
           <main className="space-y-4 sm:space-y-6">
+            {conceptVariant ? (
+              <OdiiConceptHero
+                concept={conceptVariant}
+                story={currentStory}
+                isPlaying={isPlaying}
+                onPlay={() => setIsPlaying(!isPlaying)}
+              />
+            ) : null}
             {/* 섹션 0: 헤더 타이틀 */}
-          <motion.section
+          {!conceptVariant ? <motion.section
             data-odii-stage="featured"
             variants={sectionVariants}
             initial="hidden"
@@ -356,7 +370,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                 </motion.p>
               </div>
             </div>
-          </motion.section>
+          </motion.section> : null}
 
           {/* 섹션 1: 히어로 큐레이션 레일 (헤더와 적절한 탑 여백 확보) */}
           <motion.div
@@ -590,7 +604,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
 
       <LocalMiniPlayer />
       <AllStoriesModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} allStories={storyList} />
-    </div>
+    </OdiiConceptFrame>
     </OdiiDependencyProvider>
   );
 };

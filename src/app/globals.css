@@ -66,6 +66,34 @@ body {
   --odii-primary-subtle: #FFBBC3;
 }
 
+.odii-concept-frame {
+  --concept-canvas: #FAFAF8;
+  --concept-ink: #1D1D1F;
+  --concept-muted: #746F68;
+  --concept-accent: #F84E76;
+  --concept-warmth: #FFB36B;
+  --concept-pine: #40685A;
+  background: var(--concept-canvas);
+}
+
+.odii-concept--sori .odii-concept-ambient {
+  background:
+    radial-gradient(circle at 78% 8%, rgb(255 179 107 / 0.12), transparent 27rem),
+    radial-gradient(circle at 14% 38%, rgb(64 104 90 / 0.06), transparent 32rem);
+}
+
+.odii-concept--hanji .odii-concept-ambient {
+  background-image:
+    linear-gradient(90deg, transparent 0 7%, rgb(29 29 31 / 0.025) 7.05%, transparent 7.1%),
+    radial-gradient(circle at 75% 22%, rgb(255 179 107 / 0.08), transparent 25rem);
+}
+
+.odii-concept--studio .odii-concept-ambient {
+  background:
+    radial-gradient(circle at 20% 12%, rgb(248 78 118 / 0.07), transparent 30rem),
+    radial-gradient(circle at 82% 44%, rgb(64 104 90 / 0.08), transparent 34rem);
+}
+
 /* 기존 오디의 테라코타 포인트를 장미(jangmi) 계열로 통일 */
 .odii-feature [class~="text-[#a94d35]"] {
   color: var(--odii-primary) !important;
