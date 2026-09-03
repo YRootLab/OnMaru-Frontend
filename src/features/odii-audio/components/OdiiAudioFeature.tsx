@@ -27,6 +27,7 @@ import type { OdiiConcept } from '@/features/odii-audio/concepts/odiiConcept';
 import { OdiiConceptFrame } from '@/features/odii-audio/concepts/OdiiConceptFrame';
 import { OdiiConceptHero } from '@/features/odii-audio/concepts/OdiiConceptHero';
 import { OdiiConceptSceneRail } from '@/features/odii-audio/concepts/OdiiConceptSceneRail';
+import { OdiiKoreaSoundMap } from '@/features/odii-audio/concepts/OdiiKoreaSoundMap';
 
 const sectionVariants: Variants = {
   hidden: {},
@@ -411,7 +412,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
           </VesselReveal>
 
           <VesselReveal className="w-full">
-            <SoundConstellationSection stories={storyList} />
+            {conceptVariant ? <OdiiKoreaSoundMap concept={conceptVariant} stories={storyList} /> : <SoundConstellationSection stories={storyList} />}
           </VesselReveal>
 
           {/* 섹션 3: 오늘, 여기에서 */}
