@@ -4,6 +4,8 @@ import { useEffect, useRef } from 'react';
 import { Global, css } from '@emotion/react';
 import { logger } from '@/lib/log';
 import { meok, lightPalette } from '@/design-system/tokens';
+import { escapeHtml, safeImageUrl } from '@/map/utils/formatters';
+import { calculateTravelEstimate, isTraditionalPlace, shortRegionName } from '@/map/utils/geo';
 import { useMapStore } from '../hooks/useMapStore';
 import type { Item, PlaceCategory } from '../types';
 
@@ -13,6 +15,16 @@ const log = logger('map');
 const LABEL_MAX_LEVEL = 6; // 레벨 1~6: 선명한 이름표 포함 핀 마커 상시 노출 (가시성 대폭 향상)
 const PIN_MAX_LEVEL = 8; // 레벨 7~8: 고대비 원형 아이콘 뱃지 핀
 // 레벨 9~11: 광역 지역별 스마트 클러스터 뱃지
+
+/**
+ * 한 화면에 올리는 핀 개수 상한.
+ *
+ * 이름표 핀은 장소명 전체를 한 줄로 달아 폭이 넓다. 레벨 6은 축척 500m라
+ * 화면에 몇 km가 들어오는데, 여기에 120개를 그리면 이름표가 서로 포개져 뭉갠다.
+ * 배지 핀(34px 원)은 겹쳐도 읽히므로 상한을 더 준다.
+ */
+const LABEL_PIN_LIMIT = 60;
+const BADGE_PIN_LIMIT = 120;
 
 /** 각 카테고리별 고대비 선명 컬러 및 React SVG 아이콘 */
 export const CATEGORY_STYLES: Record<
@@ -364,23 +376,64 @@ const styles = css`
     font-weight: 800;
     font-variant-numeric: tabular-nums;
   }
+
+  /* ------------------------------------------------------------
+   * 5. 키보드 포커스
+   *
+   * 마커는 role="button" tabindex="0"으로 Tab 순회에 들어온다.
+   * 지도 위라 배경색이 제각각이라서 흰 테두리를 한 겹 덧대 어디서든 보이게 한다.
+   * ------------------------------------------------------------ */
+  .om-pin:focus-visible,
+  .om-badge-pin:focus-visible,
+  .om-cluster-pill:focus-visible {
+    outline: 3px solid ${lightPalette.juhong[500]};
+    outline-offset: 3px;
+    box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.9);
+    z-index: 45 !important;
+  }
+
+  /* ------------------------------------------------------------
+   * 6. 모션 최소화
+   *
+   * 이퀄라이저 바와 핀 스프링은 계속 도는 애니메이션이라 가장 먼저 꺼야 한다.
+   * 상태 표시는 색과 크기가 대신하므로 정보는 잃지 않는다.
+   * ------------------------------------------------------------ */
+  @media (prefers-reduced-motion: reduce) {
+    .om-pin,
+    .om-badge-pin,
+    .om-cluster-pill,
+    .om-pin-hover-card {
+      transition: none !important;
+      animation: none !important;
+    }
+
+    .om-pin-eq span {
+      animation: none !important;
+      height: 6px;
+    }
+
+    .om-pin[data-selected='true'],
+    .om-pin[data-detail='true'],
+    .om-badge-pin[data-selected='true'],
+    .om-badge-pin[data-detail='true'] {
+      animation: none !important;
+      transform: none;
+    }
+  }
 `;
 
 /** 아이템 목록에서 대표 지역/시·군 명칭 추출 */
 function extractClusterRegionName(clusterItems: Item[]): string {
   const counts: Record<string, number> = {};
+
   for (const item of clusterItems) {
     if (!item.addr) continue;
-    const parts = item.addr.split(' ');
-    let name = parts[0] || '';
-    if (parts.length >= 2 && (parts[0].includes('도') || parts[0].includes('시'))) {
-      name = parts[1] || parts[0];
-    }
-    name = name.replace(/특별자치도|특별자치시|광역시|도|시|군|구/g, '');
-    if (name.length >= 2) {
-      counts[name] = (counts[name] || 0) + 1;
-    }
+
+    // 행정 접미사는 끝에서 한 번만 뗀다 (utils/geo). 전역 치환은 "구리시"를 "리"로 만든다.
+    const name = shortRegionName(item.addr);
+    if (name.length >= 2) counts[name] = (counts[name] || 0) + 1;
   }
+
   const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
   return top ? top[0] : '한옥명소';
 }
@@ -391,10 +444,14 @@ interface ClusterGroup {
   items: Item[];
 }
 
-/** 줌 레벨에 맞춘 지능형 공간 격자 클러스터링 알고리즘 */
+/**
+ * 줌 레벨에 맞춘 공간 격자 클러스터링.
+ *
+ * 클러스터는 level > PIN_MAX_LEVEL(8)에서만 뜨므로 실제로 들어오는 값은 9·10·11이다.
+ * 레벨이 한 칸 오를 때마다 축척이 두 배가 되니 셀도 두 배로 키운다.
+ */
 function clusterNearbyItems(items: Item[], level: number): ClusterGroup[] {
-  // 줌 레벨별 클러스터 격자 크기 (위도/경도 도 단위)
-  const cellSize = level >= 10 ? 0.55 : level >= 9 ? 0.32 : 0.18;
+  const cellSize = level >= 11 ? 0.9 : level >= 10 ? 0.55 : 0.32;
   const grid = new Map<string, Item[]>();
 
   for (const item of items) {
@@ -435,6 +492,8 @@ export default function PlaceMarkers() {
   const selectedId = useMapStore((s) => s.selectedId);
   const hoveredId = useMapStore((s) => s.hoveredId);
   const detailId = useMapStore((s) => s.detailId);
+  const userLocation = useMapStore((s) => s.userLocation);
+  const searchCenter = useMapStore((s) => s.searchCenter);
 
   // 현재 지도에 올라가 있는 오버레이 인스턴스 및 엘리먼트 맵 (리렌더링 시 DOM 재생성 방지)
   const overlayMapRef = useRef<Map<string, OverlayRecord>>(new Map());
@@ -465,21 +524,34 @@ export default function PlaceMarkers() {
 
         const el = document.createElement('div');
         el.className = 'om-cluster-pill';
+        // regionName은 TourAPI 주소에서 온다 — 이스케이프하고 넣는다.
         el.innerHTML = `
           <span class="om-cluster-icon-box" style="background: ${catStyle.lightBg}; color: ${catStyle.main}">
             ${catStyle.iconSvg}
           </span>
-          <span class="om-cluster-region-name">${regionName}</span>
+          <span class="om-cluster-region-name">${escapeHtml(regionName)}</span>
           <span class="om-cluster-count-badge" style="background: ${catStyle.main}">
             ${count}
           </span>
         `;
 
-        el.addEventListener('click', () => {
+        el.setAttribute('role', 'button');
+        el.setAttribute('tabindex', '0');
+        el.setAttribute('aria-label', `${regionName} 지역 ${count}곳. 확대해서 보기`);
+
+        const zoomIn = () => {
           const currentLevel = map.getLevel();
           const targetLevel = Math.max(1, currentLevel - 3);
           map.setLevel(targetLevel, { animate: true });
           map.panTo(new window.kakao.maps.LatLng(cluster.lat, cluster.lng));
+        };
+
+        el.addEventListener('click', zoomIn);
+        el.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            zoomIn();
+          }
         });
 
         const overlay = new window.kakao.maps.CustomOverlay({
@@ -498,22 +570,33 @@ export default function PlaceMarkers() {
       };
     }
 
-    // 개별 핀 마커 생성 (최대 120개로 제한하여 메모리 및 카카오맵 렌더링 극대화)
+    /*
+      개별 핀.
+
+      이름표 핀은 폭이 넓어 서로 겹친다. 레벨이 올라갈수록 같은 화면에 더 넓은 지역이
+      들어오므로, 라벨을 다는 구간에서는 개수를 줄여 겹침을 막는다.
+      (충돌 회피를 정교하게 하려면 화면 좌표가 필요한데, 그건 pan/zoom마다 다시 재야 한다.
+       ponytail: 개수 상한으로 갈음한다. 라벨이 여전히 겹치면 그때 좌표 기반 회피로 올린다.)
+    */
     const withLabel = level <= LABEL_MAX_LEVEL;
-    const targetItems = items.slice(0, 120);
+    const maxPins = withLabel ? LABEL_PIN_LIMIT : BADGE_PIN_LIMIT;
+    const targetItems = items.slice(0, maxPins);
 
     targetItems.forEach((item) => {
       const el = document.createElement('div');
       const catStyle = CATEGORY_STYLES[item.category] || CATEGORY_STYLES.spot;
-      const distStr = item.dist ? (item.dist < 1000 ? `${item.dist}m` : `${(item.dist / 1000).toFixed(1)}km`) : '';
-      const walkTime = item.dist && item.dist < 1200 ? `도보 ${Math.max(1, Math.round(item.dist / 67))}분` : '';
-      const metaText = walkTime ? `${distStr} · ${walkTime}` : distStr;
+      /*
+        거리·이동시간은 기준점을 밝혀서 적는다.
+        예전에는 검색 중심에서 잰 값을 "도보 3분"이라고만 써서, 지도를 옮기면
+        사용자에게서 30km 떨어진 곳이 도보 3분으로 보였다.
+      */
+      const metaText = calculateTravelEstimate(
+        { lat: item.lat, lng: item.lng },
+        userLocation,
+        searchCenter,
+      ).fullLabel;
 
-      const isTraditional =
-        item.isTraditional ??
-        /(한옥|고택|종택|향교|서원|사당|궁궐|성곽|누각|정자|기와|초가|전통|다원|다도|명옥헌|임청각|명재|선교장|운현궁|낙선재|대청|마루|온돌|당\b|재\b|헌\b|루\b|정\b|각\b|원\b)/i.test(
-          item.name,
-        );
+      const isTraditional = item.isTraditional ?? isTraditionalPlace(item.name);
 
       const catLabel = isTraditional
         ? item.category === 'stay'
@@ -533,44 +616,74 @@ export default function PlaceMarkers() {
               ? '주변 일반음식점'
               : '관광명소';
 
-      const hoverCardHtml = `
-        <div class="om-pin-hover-card">
-          ${item.image ? `<img src="${item.image}" alt="" class="om-pin-hover-thumb" loading="lazy" />` : ''}
-          <h5 class="om-pin-hover-title">${item.name}</h5>
+      /*
+        호버 카드는 마우스가 닿을 때 만든다.
+        전에는 핀마다 미리 넣어뒀는데, 그러면 화면에 뜨자마자 썸네일 100장이 한꺼번에
+        내려온다 (오버레이는 대체로 뷰포트 안이라 loading="lazy"가 걸러주지 못한다).
+      */
+      const buildHoverCard = () => {
+        if (el.querySelector('.om-pin-hover-card')) return;
+
+        const card = document.createElement('div');
+        card.className = 'om-pin-hover-card';
+        card.innerHTML = `
+          ${imgSrc ? `<img src="${imgSrc}" alt="" class="om-pin-hover-thumb" />` : ''}
+          <h5 class="om-pin-hover-title">${escapeHtml(item.name)}</h5>
           <div class="om-pin-hover-meta">
-            <span style="color: ${catStyle.main}; font-weight: 700;">${isTraditional ? '🏛️ ' : ''}${catLabel}</span>
-            <span>${metaText}</span>
+            <span style="color: ${catStyle.main}; font-weight: 700;">${isTraditional ? '🏛️ ' : ''}${escapeHtml(catLabel)}</span>
+            <span>${escapeHtml(metaText)}</span>
           </div>
-        </div>
-      `;
+        `;
+        el.appendChild(card);
+      };
+
+      const imgSrc = safeImageUrl(item.image);
 
       if (withLabel) {
         el.className = 'om-pin';
         el.style.position = 'relative';
         el.innerHTML = `
           <span class="om-pin-icon-box" style="background: ${catStyle.main}; color: #ffffff;">${catStyle.iconSvg}</span>
-          <span>${item.name}</span>
-          ${hoverCardHtml}
+          <span>${escapeHtml(item.name)}</span>
         `;
       } else {
         el.className = 'om-badge-pin';
         el.style.background = catStyle.main;
         el.style.color = '#ffffff';
-        el.innerHTML = `
-          ${catStyle.iconSvg}
-          ${hoverCardHtml}
-        `;
+        el.innerHTML = catStyle.iconSvg;
       }
 
       el.dataset.category = item.category;
 
-      el.addEventListener('click', () => {
+      /*
+        마커는 div라 기본적으로 키보드에 잡히지 않고 스크린리더에도 안 읽힌다.
+        버튼 의미를 직접 붙여서 Tab으로 순회하고 Enter/Space로 열 수 있게 한다.
+      */
+      el.setAttribute('role', 'button');
+      el.setAttribute('tabindex', '0');
+      el.setAttribute(
+        'aria-label',
+        `${item.name}, ${catLabel}${metaText ? `, ${metaText}` : ''}. 상세 정보 열기`,
+      );
+
+      const open = () => {
         const store = useMapStore.getState();
         store.setSelectedId(item.id);
         store.setDetailId(item.id);
         store.map?.panTo(new window.kakao.maps.LatLng(item.lat, item.lng));
         store.setSheetSnap('full');
+      };
+
+      el.addEventListener('click', open);
+      el.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          open();
+        }
       });
+
+      el.addEventListener('mouseenter', buildHoverCard);
+      el.addEventListener('focus', buildHoverCard);
 
       const overlay = new window.kakao.maps.CustomOverlay({
         position: new window.kakao.maps.LatLng(item.lat, item.lng),
@@ -586,7 +699,12 @@ export default function PlaceMarkers() {
       overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));
       overlayMapRef.current.clear();
     };
-  }, [map, mode, items, level > PIN_MAX_LEVEL, level <= LABEL_MAX_LEVEL]);
+    /*
+      level을 그대로 의존성에 넣는다.
+      예전에는 `level > 8`, `level <= 6` 두 불리언만 넣어서 9→10→11 사이 변화가
+      이펙트를 깨우지 못했다 — 클러스터 격자 크기가 처음 값에 얼어붙었다.
+    */
+  }, [map, mode, items, level, userLocation, searchCenter]);
 
   // [2] 선택/호버/상세보기 상태만 DOM 실시간 업데이트 (오버레이 재생성 0회, 0.1ms 초고속 반영)
   useEffect(() => {

@@ -7,6 +7,7 @@ import { ChevronDown, Map, RefreshCw, AlertCircle, Sparkles, LayoutList, Bookmar
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import { useBookmarkStore } from '@/map/hooks/useBookmarkStore';
+import { distanceInMeters } from '@/map/utils/geo';
 import { PlaceListItem } from './PlaceListItem';
 import LiveNoticeBanner from './feed/LiveNoticeBanner';
 import FestivalExhibitionCarousel from './feed/FestivalExhibitionCarousel';
@@ -193,6 +194,8 @@ const ActionButton = styled.button`
 export default function PlaceList() {
   const map = useMapStore((s) => s.map);
   const items = useMapStore((s) => s.items);
+  const userLocation = useMapStore((s) => s.userLocation);
+  const center = useMapStore((s) => s.center);
   const loading = useMapStore((s) => s.loading);
   const error = useMapStore((s) => s.error);
   const category = useMapStore((s) => s.category);
@@ -208,7 +211,7 @@ export default function PlaceList() {
 
   const bookmarks = useBookmarkStore((s) => s.bookmarks);
 
-  // 정렬 및 북마크 필터링 처리
+  // 정렬 및 북마크 필터링 처리 (GPS 내 위치 또는 지도 중심 기준 정밀 정렬)
   const sortedItems = useMemo(() => {
     let list = [...items];
     if (category === 'bookmark') {
@@ -234,8 +237,20 @@ export default function PlaceList() {
     if (sortOrder === 'name') {
       return list.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
     }
-    return list.sort((a, b) => (a.dist ?? 1e9) - (b.dist ?? 1e9));
-  }, [items, sortOrder, category, bookmarks]);
+
+    const basePoint = userLocation || center;
+    return list.sort((a, b) => {
+      const distA =
+        a.lat && a.lng && basePoint
+          ? distanceInMeters(basePoint, { lat: a.lat, lng: a.lng })
+          : (a.dist ?? 1e9);
+      const distB =
+        b.lat && b.lng && basePoint
+          ? distanceInMeters(basePoint, { lat: b.lat, lng: b.lng })
+          : (b.dist ?? 1e9);
+      return distA - distB;
+    });
+  }, [items, sortOrder, category, bookmarks, userLocation, center]);
 
   // 축제/행사 아이템 필터링
   const festivalItems = useMemo(() => {
