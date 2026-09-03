@@ -10,7 +10,8 @@ function readLocal(): Warmth[] {
   if (typeof window === 'undefined') return [];
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as Warmth[]) : [];
+    const list = raw ? (JSON.parse(raw) as Warmth[]) : [];
+    return list.filter((w) => !w.id.startsWith('visitor-'));
   } catch {
     return [];
   }

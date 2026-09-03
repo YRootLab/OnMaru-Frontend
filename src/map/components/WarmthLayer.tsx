@@ -385,22 +385,29 @@ export default function WarmthLayer() {
   useEffect(() => {
     if (!map || mode !== 'warmth') return;
 
-    // 1. 기초 스팟 데이터 확보 (heatSpots 우선, 없을 시 items 폴백)
+    // 1. 기초 스팟 데이터 확보 (heatSpots 우선, 없을 시 지역 권역 단위로 구성)
     let baseList: HeatSpot[] = heatSpots;
     if (baseList.length === 0 && items.length > 0) {
-      baseList = items.slice(0, 30).map((it) => ({
-        id: `auto-${it.id}`,
-        placeId: it.id,
-        name: it.name,
-        lat: it.lat,
-        lng: it.lng,
-        district: it.addr.split(' ')[1] || '전국',
-        visitorCount: 110000,
-        congestionScore: 45,
-        congestionLevel: 'moderate' as CongestionLevel,
-        surgeMultiplier: 1.5,
-        intensity: 0.5,
-      }));
+      baseList = items.slice(0, 30).map((it) => {
+        const parts = (it.addr || '').trim().split(/\s+/);
+        const district = parts[1] || parts[0] || '전국';
+        const dong = parts[2] || '';
+        const zoneName = dong ? `${district} ${dong} 일대` : `${district} 일대`;
+
+        return {
+          id: `auto-${it.id}`,
+          placeId: it.id,
+          name: zoneName,
+          lat: it.lat,
+          lng: it.lng,
+          district,
+          visitorCount: 110000,
+          congestionScore: 45,
+          congestionLevel: 'moderate' as CongestionLevel,
+          surgeMultiplier: 1.5,
+          intensity: 0.5,
+        };
+      });
     }
 
     if (baseList.length === 0) return;
@@ -520,7 +527,7 @@ export default function WarmthLayer() {
         <div class="om-surge-pill" style="background: ${pal.badgeBg}; color: ${pal.badgeColor};">
           <span class="om-surge-pill-icon">${cfg.icon}</span>
           <span class="om-surge-pill-text">${surgeLabel}</span>
-          <span class="om-surge-pill-name">· ${escapeHtml(item.name)}</span>
+          <span class="om-surge-pill-name">· ${escapeHtml(item.district || '권역')}</span>
         </div>
 
         <div class="om-surge-popover ${popoverDir}">

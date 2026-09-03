@@ -4,8 +4,32 @@ import { VisitorService } from '@/map/services/visitor.service';
 import type { HeatSpot, CongestionLevel } from '@/map/types';
 
 /**
+ * 주소로부터 행정동/지역 권역명 추출 (상호명 대신 '삼성동 일대', '청담동 일대' 등 지역 권역 명칭 산출)
+ */
+function extractZoneName(addr: string, district: string): string {
+  const parts = (addr || '').trim().split(/\s+/);
+  let sub = '';
+  for (let i = 1; i < parts.length; i++) {
+    const p = parts[i];
+    if (
+      p.endsWith('동') ||
+      p.endsWith('읍') ||
+      p.endsWith('면') ||
+      p.endsWith('가') ||
+      p.endsWith('로') ||
+      p.endsWith('리')
+    ) {
+      sub = p;
+      break;
+    }
+  }
+  const main = district || parts[1] || parts[0] || '해당 권역';
+  return sub ? `${main} ${sub} 일대` : `${main} 일대`;
+}
+
+/**
  * 한국관광공사 TOUR_API_VISITOR_KEY & TOUR_API_CONGESTION_KEY 기반
- * 우버 스타일 실시간 혼잡도 및 방문자 집중도 히트스팟 API
+ * 우버 스타일 실시간 지역별 혼잡도 및 수요 서지 히트스팟 API
  */
 export async function GET(request: Request) {
   const q = new URL(request.url).searchParams;
@@ -19,7 +43,7 @@ export async function GET(request: Request) {
 
     const spots: HeatSpot[] = [];
 
-    // 2. 현재 지도 뷰포트 내 장소들 조회
+    // 2. 현재 지도 뷰포트 내 장소들을 지역 권역(동/읍/면 일대) 단위로 집계
     if (Number.isFinite(lat) && Number.isFinite(lng)) {
       const places = await PlaceService.getNearbyPlaces({
         lat,
@@ -27,16 +51,47 @@ export async function GET(request: Request) {
         radius: Math.max(radius, 6000),
       });
 
+      // 개별 상호명(식당/카페 등)을 노출하지 않고, 우버처럼 권역별(Zone) 중심점으로 집계
+      const zoneMap = new Map<
+        string,
+        {
+          latSum: number;
+          lngSum: number;
+          count: number;
+          district: string;
+          stat: ReturnType<typeof VisitorService.resolveCongestion>;
+        }
+      >();
+
       places.forEach((p) => {
         const stat = VisitorService.resolveCongestion(p.addr, visitorMap, localMap, maxVisitor);
+        const zoneName = extractZoneName(p.addr, stat.district);
+
+        const prev = zoneMap.get(zoneName) || {
+          latSum: 0,
+          lngSum: 0,
+          count: 0,
+          district: stat.district,
+          stat,
+        };
+        prev.latSum += p.lat;
+        prev.lngSum += p.lng;
+        prev.count += 1;
+        zoneMap.set(zoneName, prev);
+      });
+
+      Array.from(zoneMap.entries()).forEach(([zoneName, data], idx) => {
+        const zoneLat = data.latSum / data.count;
+        const zoneLng = data.lngSum / data.count;
+        const stat = data.stat;
 
         spots.push({
-          id: `heat-${p.id}`,
-          placeId: p.id,
-          name: p.name,
-          lat: p.lat,
-          lng: p.lng,
-          district: stat.district,
+          id: `heat-zone-${idx}`,
+          placeId: `zone-${idx}`,
+          name: zoneName,
+          lat: zoneLat,
+          lng: zoneLng,
+          district: data.district,
           visitorCount: stat.visitorCount,
           congestionScore: stat.congestionScore,
           congestionLevel: stat.congestionLevel,
@@ -60,7 +115,6 @@ export async function GET(request: Request) {
     ];
 
     seedCenters.forEach((c, idx) => {
-      // 뷰포트와의 거리 필터 (반경 30km 이내이거나 spots가 적을 때 포함)
       const dLat = Math.abs(c.lat - (Number.isFinite(lat) ? lat : 36.35));
       const dLng = Math.abs(c.lng - (Number.isFinite(lng) ? lng : 127.75));
       if (dLat < 0.45 && dLng < 0.45) {
