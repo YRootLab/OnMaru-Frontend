@@ -1,3 +1,5 @@
+'use client';
+
 import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
 import { Home, ChevronLeft } from 'lucide-react';
