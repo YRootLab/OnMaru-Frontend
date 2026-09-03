@@ -122,7 +122,7 @@ export interface WarmthCell {
 }
 
 /**
- * 우버 스타일 실시간 혼잡도 및 방문자 집중도 (TOUR_API_VISITOR_KEY & TOUR_API_CONGESTION_KEY)
+ * 온마루 실시간 관광객 수요 집중도 및 혼잡도 지표 (TOUR_API_VISITOR_KEY & TOUR_API_CONGESTION_KEY 기반)
  */
 export type CongestionLevel = 'relaxed' | 'moderate' | 'busy' | 'surge';
 
@@ -133,11 +133,11 @@ export interface HeatSpot {
   lat: number;
   lng: number;
   district: string;
-  visitorCount: number;      // TOUR_API_VISITOR_KEY 외지인 방문객수
-  congestionScore: number;   // TOUR_API_CONGESTION_KEY 0~100 혼잡도 지수
+  visitorCount: number;      // 외지인 방문객수
+  congestionScore: number;   // 0~100 혼잡도 종합 지수
   congestionLevel: CongestionLevel; // 'relaxed' | 'moderate' | 'busy' | 'surge'
-  surgeMultiplier: number;   // 1.0x ~ 3.5x (우버 서지 배율)
-  intensity: number;         // 0.15 ~ 1.0 (히트 블룸 확산 강도)
+  surgeMultiplier: number;   // 1.0x ~ 3.5x 수요 집중 배율
+  intensity: number;         // 0.15 ~ 1.0 히트 블룸 확산 강도
   updatedAt?: string;
 }
 

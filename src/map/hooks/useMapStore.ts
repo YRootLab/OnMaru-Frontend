@@ -25,7 +25,7 @@ interface MapState {
   userLocation: LatLng | null;
   items: Item[];
   warmths: Warmth[];
-  /** 우버 스타일 실시간 혼잡도/방문자 집중도 히트스팟 */
+  /** 실시간 권역별 혼잡도 및 관광객 집중도 히트스팟 */
   heatSpots: HeatSpot[];
   selectedHeatSpot: HeatSpot | null;
   /** 온기 히트맵·피드가 함께 보는 기간 창. 좁히면 '지금 이 동네'가 보인다. */
