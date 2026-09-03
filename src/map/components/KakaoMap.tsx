@@ -12,7 +12,7 @@ import {
   RotateCw,
   Moon,
   Sun,
-  Compass,
+  Plane,
   X,
   Play,
 } from 'lucide-react';
@@ -548,29 +548,7 @@ export default function KakaoMap() {
       )}
 
       <Controls>
-        {/* 1. 시네마틱 드론 비행 & 달빛 야행 모드 인터랙티브 컨트롤 */}
-        <Stack>
-          <ControlButton
-            type="button"
-            aria-label="시네마틱 한옥 드론 비행"
-            onClick={startFlight}
-            $active={flightState.active}
-            title={flightState.active ? '시네마틱 투어 중지' : '전국 4대 한옥 시네마틱 비행 투어'}
-          >
-            <Compass size={18} />
-          </ControlButton>
-          <ControlButton
-            type="button"
-            aria-label="달빛 야행 모드 전환"
-            onClick={() => setIsNight((prev) => !prev)}
-            $active={isNight}
-            title={isNight ? '주간 뷰로 전환' : '달빛 야행(야경) 모드로 전환'}
-          >
-            {isNight ? <Sun size={18} color="#f59e0b" /> : <Moon size={18} />}
-          </ControlButton>
-        </Stack>
-
-        {/* 2. 내 위치 GPS 컨트롤 */}
+        {/* 1. 스마트 인터랙션 컨트롤 (내 위치 GPS, 전국 스카이뷰 비행, 달빛 야행 모드) */}
         <Stack>
           <ControlButton
             type="button"
@@ -585,9 +563,27 @@ export default function KakaoMap() {
               <LocateFixed size={18} />
             )}
           </ControlButton>
+          <ControlButton
+            type="button"
+            aria-label="시네마틱 한옥 스카이뷰 비행 투어"
+            onClick={startFlight}
+            $active={flightState.active}
+            title={flightState.active ? '스카이뷰 비행 투어 중지' : '전국 4대 한옥 스카이뷰 비행 투어'}
+          >
+            <Plane size={18} />
+          </ControlButton>
+          <ControlButton
+            type="button"
+            aria-label="달빛 야행 모드 전환"
+            onClick={() => setIsNight((prev) => !prev)}
+            $active={isNight}
+            title={isNight ? '주간 뷰로 전환' : '달빛 야행(야경) 모드로 전환'}
+          >
+            {isNight ? <Sun size={18} color="#f59e0b" /> : <Moon size={18} />}
+          </ControlButton>
         </Stack>
 
-        {/* 3. 줌 인/아웃 컨트롤 */}
+        {/* 2. 줌 인/아웃 컨트롤 */}
         <Stack>
           <ControlButton type="button" aria-label="확대" onClick={() => zoom(-1)}>
             <Plus size={18} />
