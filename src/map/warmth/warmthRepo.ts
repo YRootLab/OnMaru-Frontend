@@ -24,9 +24,18 @@ function writeLocal(list: Warmth[]) {
   }
 }
 
-/** 씨앗 + 내가 남긴 온기. 최신순. */
-export function loadWarmth(): Warmth[] {
-  return [...readLocal(), ...seedWarmth()].sort((a, b) =>
+/** 씨앗 + API 온기 + 내가 남긴 온기. 최신순. */
+export function loadWarmth(apiWarmths?: Warmth[]): Warmth[] {
+  const local = readLocal();
+  const base = apiWarmths && apiWarmths.length > 0 ? apiWarmths : seedWarmth();
+  const map = new Map<string, Warmth>();
+  for (const w of base) {
+    map.set(w.id, w);
+  }
+  for (const w of local) {
+    map.set(w.id, w);
+  }
+  return Array.from(map.values()).sort((a, b) =>
     b.createdAt.localeCompare(a.createdAt),
   );
 }

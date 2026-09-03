@@ -38,8 +38,8 @@ export function useMapData() {
   }, []);
 
   useEffect(() => {
-    const { setItems, setLoading, setError } = useMapStore.getState();
-    if (!map || mode !== 'info') {
+    const { setItems, setLoading, setError, setWarmths } = useMapStore.getState();
+    if (!map) {
       setLoading(false);
       return;
     }
@@ -50,7 +50,29 @@ export function useMapData() {
     const roundedRadius = Math.round(radius / 1000) * 1000;
     const cacheKey = `${roundedLat}_${roundedLng}_${roundedRadius}_${category || 'all'}`;
 
-    // 클라이언트 메모리 캐시 히트 시 0ms 즉각 렌더링
+    // 1. 온기 API 실시간 연동 (현재 지도 위치/반경 내 TourAPI 장소 기반 온기 수집)
+    const warmthParams = new URLSearchParams({
+      lat: String(searchCenter.lat),
+      lng: String(searchCenter.lng),
+      radius: String(Math.max(radius, 6000)),
+    });
+
+    const controller = new AbortController();
+
+    fetch(`/api/map/warmth?${warmthParams}`, { signal: controller.signal })
+      .then(async (res) => {
+        const json = await res.json().catch(() => ({}));
+        if (Array.isArray(json.warmths) && json.warmths.length > 0) {
+          const merged = loadWarmth(json.warmths);
+          setWarmths(merged);
+        }
+      })
+      .catch((err) => {
+        if (err instanceof DOMException && err.name === 'AbortError') return;
+        log.warn('온기 API 동기화 폴백 유지', err);
+      });
+
+    // 2. 장소 목록 조회 (클라이언트 메모리 캐시 히트 시 즉각 렌더링)
     const cached = clientPlaceCache.get(cacheKey);
     if (cached && cached.expiresAt > Date.now()) {
       setItems(cached.items);
@@ -58,13 +80,12 @@ export function useMapData() {
       return;
     }
 
-    const controller = new AbortController();
     const params = new URLSearchParams({
       lat: String(searchCenter.lat),
       lng: String(searchCenter.lng),
       radius: String(radius),
     });
-    if (category) params.set('category', category);
+    if (category && mode === 'info') params.set('category', category);
 
     setLoading(true);
     setError(null);
