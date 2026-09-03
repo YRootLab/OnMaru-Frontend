@@ -128,23 +128,14 @@ const styles = css`
     position: absolute;
     inset: -25%;
     border-radius: 50%;
-    filter: blur(28px);
+    filter: blur(24px);
     transition: transform 0.35s ease, opacity 0.35s ease;
     animation: om-heat-breathing 4s ease-in-out infinite alternate;
-  }
-
-  @keyframes om-heat-breathing {
-    0% { transform: scale(0.95); opacity: 0.82; }
-    100% { transform: scale(1.06); opacity: 0.98; }
-  }
-
-  [data-theme='light'] .om-heat-bloom,
-  :root:not([data-theme='dark']) .om-heat-bloom {
-    mix-blend-mode: multiply;
+    opacity: 0.78;
   }
 
   [data-theme='dark'] .om-heat-bloom {
-    mix-blend-mode: screen;
+    opacity: 0.88;
   }
 
   /* ------------------------------------------------------------
@@ -385,29 +376,35 @@ export default function WarmthLayer() {
   useEffect(() => {
     if (!map || mode !== 'warmth') return;
 
-    // 1. 기초 스팟 데이터 확보 (heatSpots 우선, 없을 시 지역 권역 단위로 구성)
+    // 1. 기초 스팟 데이터 확보 (heatSpots 우선, 없을 시 장소/온기 데이터로 폴백)
     let baseList: HeatSpot[] = heatSpots;
-    if (baseList.length === 0 && items.length > 0) {
-      baseList = items.slice(0, 30).map((it) => {
-        const parts = (it.addr || '').trim().split(/\s+/);
-        const district = parts[1] || parts[0] || '전국';
-        const dong = parts[2] || '';
-        const zoneName = dong ? `${district} ${dong} 일대` : `${district} 일대`;
+    if (baseList.length === 0) {
+      const warmths = useMapStore.getState().warmths;
+      const candidates = items.length > 0 ? items : warmths;
+      if (candidates.length > 0) {
+        baseList = (candidates as any[]).slice(0, 40).map((it) => {
+          const name = it.name || it.placeName || '해당 권역 일대';
+          const addr = (it.addr || '').replace(/일대/g, '').trim();
+          const parts = addr.split(/\s+/);
+          const district = parts[1] || parts[0] || '전국';
+          const dong = parts[2] || '';
+          const zoneName = dong ? `${district} ${dong} 일대` : `${district} 일대`;
 
-        return {
-          id: `auto-${it.id}`,
-          placeId: it.id,
-          name: zoneName,
-          lat: it.lat,
-          lng: it.lng,
-          district,
-          visitorCount: 110000,
-          congestionScore: 45,
-          congestionLevel: 'moderate' as CongestionLevel,
-          surgeMultiplier: 1.5,
-          intensity: 0.5,
-        };
-      });
+          return {
+            id: `auto-${it.id}`,
+            placeId: it.placeId || it.id,
+            name: zoneName !== '전국 일대' ? zoneName : `${name} 일대`,
+            lat: it.lat,
+            lng: it.lng,
+            district,
+            visitorCount: 110000,
+            congestionScore: 45,
+            congestionLevel: 'moderate' as CongestionLevel,
+            surgeMultiplier: 1.5,
+            intensity: 0.5,
+          };
+        });
+      }
     }
 
     if (baseList.length === 0) return;
