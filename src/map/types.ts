@@ -32,6 +32,8 @@ export interface Item {
   tel: string | null;
   /** 검색 중심으로부터의 거리(m). TourAPI dist를 그대로 쓴다. */
   dist: number | null;
+  /** 정통 한옥·문화재·고택 엔티티 여부 (일반 숙소/시설과 차별화) */
+  isTraditional?: boolean;
 }
 
 /** 한 줄 온기. 당근 한줄평처럼 짧게, 장소 하나에 여러 개가 쌓인다. */

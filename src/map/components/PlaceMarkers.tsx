@@ -494,12 +494,36 @@ export default function PlaceMarkers() {
       const walkTime = item.dist && item.dist < 1200 ? `도보 ${Math.max(1, Math.round(item.dist / 67))}분` : '';
       const metaText = walkTime ? `${distStr} · ${walkTime}` : distStr;
 
+      const isTraditional =
+        item.isTraditional ??
+        /(한옥|고택|종택|향교|서원|사당|궁궐|성곽|누각|정자|기와|초가|전통|다원|다도|명옥헌|임청각|명재|선교장|운현궁|낙선재|대청|마루|온돌|당\b|재\b|헌\b|루\b|정\b|각\b|원\b)/i.test(
+          item.name,
+        );
+
+      const catLabel = isTraditional
+        ? item.category === 'stay'
+          ? '정통 한옥숙소'
+          : item.category === 'cafe'
+            ? '전통 찻집·한옥카페'
+            : item.category === 'food'
+              ? '향토·전통음식'
+              : item.category === 'spot'
+                ? '고택·명소'
+                : '전통 문화'
+        : item.category === 'stay'
+          ? '주변 연계숙소'
+          : item.category === 'cafe'
+            ? '주변 일반카페'
+            : item.category === 'food'
+              ? '주변 일반음식점'
+              : '관광명소';
+
       const hoverCardHtml = `
         <div class="om-pin-hover-card">
           ${item.image ? `<img src="${item.image}" alt="" class="om-pin-hover-thumb" loading="lazy" />` : ''}
           <h5 class="om-pin-hover-title">${item.name}</h5>
           <div class="om-pin-hover-meta">
-            <span style="color: ${catStyle.main}; font-weight: 700;">${CATEGORY_STYLES[item.category] ? item.category : '명소'}</span>
+            <span style="color: ${catStyle.main}; font-weight: 700;">${isTraditional ? '🏛️ ' : ''}${catLabel}</span>
             <span>${metaText}</span>
           </div>
         </div>

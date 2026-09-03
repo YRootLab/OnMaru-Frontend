@@ -296,6 +296,15 @@ export class PlaceService {
           const dLng = (x - opts.lng) * 88800;
           const dist = Math.round(Math.sqrt(dLat * dLat + dLng * dLng));
 
+          // 정통 한옥 및 전통 문화재 엔티티 여부 판별
+          const isTraditional =
+            cat3 === 'B02011600' ||
+            cat3.startsWith('A0201') ||
+            cat3 === 'A02080100' ||
+            /(한옥|고택|종택|향교|서원|사당|궁궐|성곽|누각|정자|기와|초가|전통|다원|다도|명옥헌|임청각|명재|선교장|운현궁|낙선재|대청|마루|온돌|당\b|재\b|헌\b|루\b|정\b|각\b|원\b)/i.test(
+              title,
+            );
+
           out.push({
             id,
             name: title,
@@ -306,6 +315,7 @@ export class PlaceService {
             image: toHttps(String(row.firstimage || row.firstimage2 || '')),
             tel: row.tel ? String(row.tel).trim() : null,
             dist,
+            isTraditional,
           });
         }
       });

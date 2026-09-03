@@ -164,22 +164,35 @@ export default function PlaceDetail() {
   const addr = data?.addr1 || selectedItem?.addr || '';
   const tel = data?.tel || selectedItem?.tel;
 
+  const isRealTraditional = useMemo(() => {
+    if (selectedItem?.isTraditional !== undefined) return selectedItem.isTraditional;
+    return /(한옥|고택|종택|향교|서원|사당|궁궐|성곽|누각|정자|기와|초가|전통|다원|다도|명옥헌|임청각|명재|선교장|운현궁|낙선재|대청|마루|온돌|당\b|재\b|헌\b|루\b|정\b|각\b|원\b)/i.test(
+      title,
+    );
+  }, [selectedItem?.isTraditional, title]);
+
   const badges = useMemo(() => {
     const list: string[] = [];
-    if (selectedItem?.category === 'stay') list.push('한옥스테이');
+    if (isRealTraditional) {
+      list.push('🏛️ 정통 한옥');
+    } else {
+      list.push('주변 연계 시설');
+    }
+
+    if (selectedItem?.category === 'stay') list.push(isRealTraditional ? '정통 한옥숙소' : '주변 숙박');
     else if (selectedItem?.category === 'experience') list.push('전통체험');
     else if (selectedItem?.category === 'culture') list.push('문화유산');
     else if (selectedItem?.category === 'festival') list.push('야행축제');
-    else if (selectedItem?.category === 'food') list.push('향토음식');
-    else if (selectedItem?.category === 'cafe') list.push('전통찻집');
+    else if (selectedItem?.category === 'food') list.push(isRealTraditional ? '향토음식' : '일반음식');
+    else if (selectedItem?.category === 'cafe') list.push(isRealTraditional ? '전통찻집' : '일반카페');
     else if (selectedItem?.category === 'market') list.push('전통시장');
-    else list.push('명소고택');
+    else list.push(isRealTraditional ? '고택명소' : '관광명소');
 
     if (selectedItem?.dist !== undefined && selectedItem?.dist !== null) {
       list.push(formatDistance(selectedItem.dist));
     }
     return list;
-  }, [selectedItem]);
+  }, [selectedItem, isRealTraditional]);
 
   let lat = Number(data?.mapy) || selectedItem?.lat || 0;
   let lng = Number(data?.mapx) || selectedItem?.lng || 0;
@@ -481,10 +494,19 @@ export default function PlaceDetail() {
 
             <CoreInfoBox>
               <CoreRow>
+                <CoreLabel>공간 분류</CoreLabel>
+                <CoreValue>
+                  {isRealTraditional
+                    ? '🏛️ 정통 한옥 및 전통 문화 공간'
+                    : '🏡 주변 연계 편의 공간'}
+                </CoreValue>
+              </CoreRow>
+
+              <CoreRow>
                 <CoreLabel>카테고리</CoreLabel>
                 <CoreValue>
                   {selectedItem?.category === 'stay'
-                    ? '한옥숙소'
+                    ? isRealTraditional ? '정통 한옥숙소' : '주변 연계숙소'
                     : selectedItem?.category === 'experience'
                       ? '한복·전통체험'
                       : selectedItem?.category === 'culture'
@@ -492,12 +514,12 @@ export default function PlaceDetail() {
                         : selectedItem?.category === 'festival'
                           ? '야행·문화축제'
                           : selectedItem?.category === 'food'
-                            ? '향토음식'
+                            ? isRealTraditional ? '향토·전통음식' : '주변 일반음식점'
                             : selectedItem?.category === 'cafe'
-                              ? '한옥카페·디저트'
+                              ? isRealTraditional ? '전통 찻집·한옥카페' : '주변 일반카페'
                               : selectedItem?.category === 'market'
                                 ? '전통시장'
-                                : '고택·명소'}
+                                : isRealTraditional ? '고택·명소' : '관광명소'}
                 </CoreValue>
               </CoreRow>
 
