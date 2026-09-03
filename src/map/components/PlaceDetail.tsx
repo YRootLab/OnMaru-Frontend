@@ -16,6 +16,7 @@ import {
   Car,
   Ticket,
   Camera,
+  ChevronLeft,
 } from 'lucide-react';
 import { logger } from '@/lib/log';
 import { lightPalette, meok } from '@/design-system/tokens';
@@ -32,6 +33,7 @@ import {
   DetailWrapper,
   HeaderBar,
   HeaderBadge,
+  BackToPopularBtn,
   CloseButton,
   ScrollBody,
   TitleSection,
@@ -77,6 +79,8 @@ const log = logger('map');
 export default function PlaceDetail() {
   const detailId = useMapStore((s) => s.detailId);
   const setDetailId = useMapStore((s) => s.setDetailId);
+  const fromPopularRanking = useMapStore((s) => s.fromPopularRanking);
+  const goBackToPopularRanking = useMapStore((s) => s.goBackToPopularRanking);
   const items = useMapStore((s) => s.items);
   const warmths = useMapStore((s) => s.warmths);
 
@@ -274,10 +278,22 @@ export default function PlaceDetail() {
   return (
     <DetailWrapper tabIndex={-1} role="region" aria-label="장소 상세 정보">
       <HeaderBar>
-        <HeaderBadge>
-          <Award size={13} />
-          <span>추천명소</span>
-        </HeaderBadge>
+        {fromPopularRanking ? (
+          <BackToPopularBtn
+            type="button"
+            onClick={goBackToPopularRanking}
+            aria-label="실시간 인기 순위 목록으로 돌아가기"
+            title="실시간 인기 순위 목록으로 뒤로가기"
+          >
+            <ChevronLeft size={16} />
+            <span>인기 순위</span>
+          </BackToPopularBtn>
+        ) : (
+          <HeaderBadge>
+            <Award size={13} />
+            <span>추천명소</span>
+          </HeaderBadge>
+        )}
         <CloseButton
           type="button"
           onClick={() => setDetailId(null)}

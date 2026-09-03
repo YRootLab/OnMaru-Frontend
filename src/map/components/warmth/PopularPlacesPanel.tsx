@@ -228,8 +228,8 @@ const PlaceholderThumb = styled.div`
 export default function PopularPlacesPanel() {
   const map = useMapStore((s) => s.map);
   const items = useMapStore((s) => s.items);
-  const setDetailId = useMapStore((s) => s.setDetailId);
   const setSelectedId = useMapStore((s) => s.setSelectedId);
+  const setDetailFromPopular = useMapStore((s) => s.setDetailFromPopular);
   const setPopularPanelOpen = useMapStore((s) => s.setPopularPanelOpen);
 
   const [region, setRegion] = useState('all');
@@ -257,7 +257,7 @@ export default function PopularPlacesPanel() {
     const targetId = matched?.id || place.placeId;
 
     setSelectedId(targetId);
-    setDetailId(targetId);
+    setDetailFromPopular(targetId);
 
     if (matched && map && window.kakao?.maps) {
       map.panTo(new window.kakao.maps.LatLng(matched.lat, matched.lng));

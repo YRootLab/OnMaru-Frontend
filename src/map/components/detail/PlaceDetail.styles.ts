@@ -50,6 +50,36 @@ export const HeaderBadge = styled.div`
   }
 `;
 
+export const BackToPopularBtn = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px 5px 6px;
+  border-radius: 9999px;
+  background: rgba(78, 89, 104, 0.08);
+  color: ${meok[900]};
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: rgba(78, 89, 104, 0.14);
+    transform: translateX(-1.5px);
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.08);
+    color: ${meok[100]};
+  }
+`;
+
 export const CloseButton = styled.button`
   display: inline-flex;
   align-items: center;

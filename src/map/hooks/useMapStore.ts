@@ -28,6 +28,7 @@ interface MapState {
   hoveredId: string | null;
   detailId: string | null;
   popularPanelOpen: boolean;
+  fromPopularRanking: boolean;
   sortOrder: 'dist' | 'name';
   currentAddress: string;
   /** 마지막으로 검색한 중심. 여기서 2km 벗어나면 재검색 버튼이 뜬다. */
@@ -49,6 +50,8 @@ interface MapState {
   setSelectedId: (id: string | null) => void;
   setHoveredId: (id: string | null) => void;
   setDetailId: (id: string | null) => void;
+  setDetailFromPopular: (id: string) => void;
+  goBackToPopularRanking: () => void;
   setPopularPanelOpen: (open: boolean) => void;
   setSortOrder: (sortOrder: 'dist' | 'name') => void;
   setCurrentAddress: (currentAddress: string) => void;
@@ -73,6 +76,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   hoveredId: null,
   detailId: null,
   popularPanelOpen: false,
+  fromPopularRanking: false,
   sortOrder: 'dist',
   currentAddress: '대한민국 전국',
   searchCenter: DEFAULT_CENTER,
@@ -91,6 +95,7 @@ export const useMapStore = create<MapState>((set, get) => ({
       hoveredId: null,
       detailId: null,
       popularPanelOpen: false,
+      fromPopularRanking: false,
     }),
   setCategory: (category) =>
     set({
@@ -99,6 +104,7 @@ export const useMapStore = create<MapState>((set, get) => ({
       hoveredId: null,
       detailId: null,
       popularPanelOpen: false,
+      fromPopularRanking: false,
     }),
   setCenter: (center, level) => set(level === undefined ? { center } : { center, level }),
   setItems: (items) => set({ items }),
@@ -107,9 +113,14 @@ export const useMapStore = create<MapState>((set, get) => ({
   setError: (error) => set({ error }),
   setSelectedId: (selectedId) => set({ selectedId }),
   setHoveredId: (hoveredId) => set({ hoveredId }),
-  setDetailId: (detailId) => set({ detailId, popularPanelOpen: false }),
+  setDetailId: (detailId) =>
+    set({ detailId, popularPanelOpen: false, fromPopularRanking: false }),
+  setDetailFromPopular: (detailId) =>
+    set({ detailId, popularPanelOpen: false, fromPopularRanking: true }),
+  goBackToPopularRanking: () =>
+    set({ detailId: null, popularPanelOpen: true, fromPopularRanking: false }),
   setPopularPanelOpen: (popularPanelOpen) =>
-    set({ popularPanelOpen, detailId: popularPanelOpen ? null : get().detailId }),
+    set({ popularPanelOpen, detailId: popularPanelOpen ? null : get().detailId, fromPopularRanking: false }),
   setSortOrder: (sortOrder) => set({ sortOrder }),
   setCurrentAddress: (currentAddress) => set({ currentAddress }),
   markSearchDirty: () => set({ isSearchDirty: true }),
