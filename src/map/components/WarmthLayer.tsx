@@ -16,10 +16,10 @@ import { escapeHtml } from '@/map/utils/formatters';
 import type { HeatSpot, CongestionLevel } from '@/map/types';
 
 /**
- * 우버 스타일 실시간 온기/혼잡도 히트맵 레이어 (스마트 클러스터링 & 충돌 방지)
+ * 실시간 온기/혼잡도 히트맵 레이어 (스마트 클러스터링 및 충돌 방지)
  * 
  * TOUR_API_VISITOR_KEY & TOUR_API_CONGESTION_KEY 기반
- * 겹침 없는 우버 서지 뱃지 + 지능형 방향 팝오버 + 유기적 가우시안 발광 블룸
+ * 권역별 수요 집중도 뱃지, 지능형 방향 팝오버, 유기적 가우시안 발광 블룸 제공.
  */
 
 const CONGESTION_CONFIG = {
@@ -114,9 +114,9 @@ function formatVisitorCompact(num: number): string {
 
 const styles = css`
   /* ------------------------------------------------------------
-   * 1. 우버 스타일 발광 히트 블룸
+   * 1. 발광 히트 블룸
    * ------------------------------------------------------------ */
-  .om-uber-heat-container {
+  .om-heat-container {
     position: relative;
     width: var(--om-heat-size, 160px);
     height: var(--om-heat-size, 160px);
@@ -124,31 +124,31 @@ const styles = css`
     user-select: none;
   }
 
-  .om-uber-heat-bloom {
+  .om-heat-bloom {
     position: absolute;
     inset: -25%;
     border-radius: 50%;
     filter: blur(28px);
     transition: transform 0.35s ease, opacity 0.35s ease;
-    animation: om-uber-breathing 4s ease-in-out infinite alternate;
+    animation: om-heat-breathing 4s ease-in-out infinite alternate;
   }
 
-  @keyframes om-uber-breathing {
+  @keyframes om-heat-breathing {
     0% { transform: scale(0.95); opacity: 0.82; }
     100% { transform: scale(1.06); opacity: 0.98; }
   }
 
-  [data-theme='light'] .om-uber-heat-bloom,
-  :root:not([data-theme='dark']) .om-uber-heat-bloom {
+  [data-theme='light'] .om-heat-bloom,
+  :root:not([data-theme='dark']) .om-heat-bloom {
     mix-blend-mode: multiply;
   }
 
-  [data-theme='dark'] .om-uber-heat-bloom {
+  [data-theme='dark'] .om-heat-bloom {
     mix-blend-mode: screen;
   }
 
   /* ------------------------------------------------------------
-   * 2. 우버st 서지 일체형 알약 뱃지 (Clean Surge Pill)
+   * 2. 권역별 수요 집중도 알약 뱃지
    * ------------------------------------------------------------ */
   .om-surge-pill-wrap {
     position: relative;
@@ -352,7 +352,7 @@ const styles = css`
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .om-uber-heat-bloom {
+    .om-heat-bloom {
       animation: none !important;
     }
   }
@@ -479,7 +479,7 @@ export default function WarmthLayer() {
 
     const specs: OverlaySpec[] = [];
 
-    // 3. 우버 스타일 발광 히트 블룸 및 지능형 팝오버 뱃지 렌더링
+    // 3. 발광 히트 블룸 및 지능형 팝오버 뱃지 렌더링
     clusters.forEach((item) => {
       const cfg = CONGESTION_CONFIG[item.congestionLevel] || CONGESTION_CONFIG.moderate;
       const pal = isDark ? cfg.dark : cfg.light;
@@ -490,11 +490,11 @@ export default function WarmthLayer() {
 
       // ─── [A] 유기적 가우시안 발광 블룸 ───
       const bloomWrap = document.createElement('div');
-      bloomWrap.className = 'om-uber-heat-container';
+      bloomWrap.className = 'om-heat-container';
       bloomWrap.style.setProperty('--om-heat-size', `${bloomSize}px`);
 
       const bloom = document.createElement('div');
-      bloom.className = 'om-uber-heat-bloom';
+      bloom.className = 'om-heat-bloom';
       bloom.style.background = `radial-gradient(circle closest-side, ${pal.core} 0%, ${pal.mid} 45%, ${pal.edge} 75%, transparent 100%)`;
       bloom.style.filter = `blur(${Math.round(bloomSize * 0.18)}px) drop-shadow(${pal.glow})`;
       bloomWrap.appendChild(bloom);
@@ -507,7 +507,7 @@ export default function WarmthLayer() {
         zIndex: 2,
       });
 
-      // ─── [B] 일체형 우버 서지 뱃지 & 지능형 방향 팝오버 ───
+      // ─── [B] 권역별 수요 집중도 뱃지 및 지능형 방향 팝오버 ───
       const pillWrap = document.createElement('div');
       pillWrap.className = 'om-surge-pill-wrap';
 
