@@ -27,6 +27,7 @@ import { OdiiConceptFrame } from '@/features/odii-audio/concepts/OdiiConceptFram
 import { OdiiConceptHero } from '@/features/odii-audio/concepts/OdiiConceptHero';
 import { OdiiConceptSceneRail } from '@/features/odii-audio/concepts/OdiiConceptSceneRail';
 import { OdiiKoreaSoundMap } from '@/features/odii-audio/concepts/OdiiKoreaSoundMap';
+import { resolveConceptHeroStory } from '@/features/odii-audio/concepts/heroStoryModel';
 
 const sectionVariants: Variants = {
   hidden: {},
@@ -105,6 +106,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
   const searchQuery = useOdiiAudioStore((s) => s.searchQuery);
   const isPlaying = useOdiiAudioStore((s) => s.isPlaying);
   const currentStory = useOdiiAudioStore((s) => s.currentStory);
+  const setCurrentStory = useOdiiAudioStore((s) => s.setCurrentStory);
   const setIsPlaying = useOdiiAudioStore((s) => s.setIsPlaying);
   const resolvedBackgroundVariant = backgroundVariant ?? 'default';
   const [storyList, setStoryList] = useState<OdiiStoryItem[]>(() => initialStories || []);
@@ -113,6 +115,8 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
   const [section6TotalCount, setSection6TotalCount] = useState(0);
   const [nearbyStories, setNearbyStories] = useState<OdiiStoryItem[]>(() => initialNearbyStories || []);
   const [heroStorySets, setHeroStorySets] = useState<Record<string, OdiiStoryItem[]>>(() => initialHeroStorySets || {});
+  const conceptHeroStory = resolveConceptHeroStory(currentStory, storyList, heroStorySets);
+  const isConceptHeroPlaying = currentStory.stid === conceptHeroStory.stid && isPlaying;
   const [archiveMeta, setArchiveMeta] = useState<OdiiStoryPage>({
     items: initialStories || [],
     pageNo: 1,
@@ -345,9 +349,12 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
             {conceptVariant ? (
               <OdiiConceptHero
                 concept={conceptVariant}
-                story={currentStory}
-                isPlaying={isPlaying}
-                onPlay={() => setIsPlaying(!isPlaying)}
+                story={conceptHeroStory}
+                isPlaying={isConceptHeroPlaying}
+                onPlay={() => {
+                  if (currentStory.stid === conceptHeroStory.stid) setIsPlaying(!isPlaying);
+                  else setCurrentStory(conceptHeroStory);
+                }}
               />
             ) : null}
             {/* 섹션 0: 헤더 타이틀 */}
