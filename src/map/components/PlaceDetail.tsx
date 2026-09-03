@@ -418,23 +418,19 @@ export default function PlaceDetail() {
               <LiveWarmthCount>{warmthMetrics.countLabel}</LiveWarmthCount>
             </LiveWarmthMeter>
 
-            {/* 원클릭 4단 퀵 액션 타일 바 */}
+            {/* 원클릭 퀵 액션 타일 바 (오디 해설이 지원되는 장소에만 '오디 투어' 타일 노출) */}
             <HeroActionGrid>
-              <HeroActionTile
-                type="button"
-                $highlight={Boolean(matchedOdiiStory)}
-                onClick={() => {
-                  if (matchedOdiiStory) {
-                    handleStartCinematicTour();
-                  } else {
-                    window.open(`/odii?search=${encodeURIComponent(title)}`, '_self');
-                  }
-                }}
-                title={matchedOdiiStory ? '시네마틱 오디오 투어 시작' : '소리마루 오디 둘러보기'}
-              >
-                <Headphones size={18} />
-                <span>{matchedOdiiStory ? '오디 투어' : '소리 해설'}</span>
-              </HeroActionTile>
+              {matchedOdiiStory && (
+                <HeroActionTile
+                  type="button"
+                  $highlight
+                  onClick={handleStartCinematicTour}
+                  title="시네마틱 오디오 투어 시작"
+                >
+                  <Headphones size={18} />
+                  <span>오디 투어</span>
+                </HeroActionTile>
+              )}
 
               <HeroActionTile
                 type="button"

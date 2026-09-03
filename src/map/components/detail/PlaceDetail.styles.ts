@@ -181,10 +181,15 @@ export const SmartFeatureChip = styled.span<{ $type?: 'free' | 'parking' | 'audi
 `;
 
 export const HeroActionGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
+  align-items: stretch;
   gap: 8px;
   padding: 0 16px 14px;
+
+  & > * {
+    flex: 1;
+    min-width: 0;
+  }
 `;
 
 export const LiveWarmthMeter = styled.div`
