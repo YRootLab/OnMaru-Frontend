@@ -60,6 +60,22 @@ const ListArea = styled.div`
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(78, 89, 104, 0.2) transparent;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(78, 89, 104, 0.2);
+    border-radius: 9999px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(78, 89, 104, 0.35);
+  }
 `;
 
 const Toggle = styled.button`

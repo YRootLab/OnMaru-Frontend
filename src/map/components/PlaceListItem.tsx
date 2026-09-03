@@ -67,16 +67,16 @@ const ItemButton = styled.button<{ $isSelected: boolean }>`
 
 const BookmarkQuickBtn = styled.button<{ $active: boolean }>`
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 10px;
+  right: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   border: none;
-  background: ${({ $active }) => ($active ? 'rgba(232, 90, 24, 0.12)' : 'transparent')};
+  background: ${({ $active }) => ($active ? 'rgba(232, 90, 24, 0.12)' : 'rgba(25, 31, 40, 0.04)')};
   color: ${({ $active }) => ($active ? lightPalette.juhong[500] : meok[400])};
   cursor: pointer;
   z-index: 3;
@@ -124,6 +124,7 @@ const Content = styled.div`
   justify-content: space-between;
   flex: 1;
   min-width: 0;
+  padding-right: 28px;
 `;
 
 const Row1 = styled.div`
