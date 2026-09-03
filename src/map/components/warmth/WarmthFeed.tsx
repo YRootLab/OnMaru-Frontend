@@ -15,6 +15,7 @@ import {
 import { meok } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import { countByPlace, regionOf, toReview } from '@/map/warmth/warmthRepo';
+import { filterByPeriod } from '@/map/warmth/heatScale';
 import WarmthCard from './WarmthCard';
 import {
   FeedContainer,
@@ -101,7 +102,11 @@ export default function WarmthFeed() {
     좌우가 서로 다른 장소를 말했다 — 지도엔 북촌 말풍선이 떠 있는데 피드에서
     '서울'을 누르면 "기록이 없습니다"가 나왔다. 소스를 하나로 합친다.
   */
-  const warmths = useMapStore((s) => s.warmths);
+  const allWarmths = useMapStore((s) => s.warmths);
+  const period = useMapStore((s) => s.warmthPeriod);
+
+  /* 지도 범례에서 고른 기간 창을 피드도 그대로 따른다. 둘이 어긋나면 다시 두 화면이 된다. */
+  const warmths = useMemo(() => filterByPeriod(allWarmths, period), [allWarmths, period]);
 
   const [selectedRegion, setSelectedRegion] = useState('all');
   const [sortOrder, setSortOrder] = useState<'recent' | 'place'>('recent');

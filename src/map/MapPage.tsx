@@ -16,6 +16,7 @@ import PlaceMarkers from './components/PlaceMarkers';
 import SearchBar from './components/SearchBar';
 import WarmthLayer from './components/WarmthLayer';
 import WriteButton from './components/warmth/WriteButton';
+import WarmthLegend from './components/warmth/WarmthLegend';
 import MobileBottomNav from './components/MobileBottomNav';
 import CinematicTourMapLayer from '@/features/cinematic-tour/components/CinematicTourMapLayer';
 import CinematicTourFloatingBar from '@/features/cinematic-tour/components/CinematicTourFloatingBar';
@@ -185,6 +186,9 @@ export default function MapPage() {
           <CategoryChips />
         </MapChips>
         <WriteButton />
+
+        {/* 온기 모드에서만: 히트맵 범례 · 화면 요약 · 기간 창 */}
+        <WarmthLegend />
       </MapArea>
 
       {/* 2. 호갱노노 스타일: 지도 위에 떠 있는 좌측 리스트 + 우측 상세 플로팅 카드 */}
