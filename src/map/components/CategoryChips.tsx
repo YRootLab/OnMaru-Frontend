@@ -14,23 +14,18 @@ import {
   Utensils,
   LayoutGrid,
   BookOpen,
-  Moon,
-  Bookmark,
   type LucideIcon,
 } from 'lucide-react';
 import { meok } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
-import { useBookmarkStore } from '@/map/hooks/useBookmarkStore';
 import type { MapMode } from '@/map/types';
 
 const CATEGORIES: Record<MapMode, { id: string; label: string; icon: LucideIcon }[]> = {
   info: [
     { id: 'all', label: '전체', icon: LayoutGrid },
-    { id: 'bookmark', label: '마음에 담은 곳', icon: Bookmark },
     { id: 'spot', label: '고택·명소', icon: Landmark },
     { id: 'experience', label: '한복·전통체험', icon: Sparkles },
     { id: 'culture', label: '문화재·서원', icon: BookOpen },
-    { id: 'festival', label: '야행·축제', icon: Moon },
     { id: 'stay', label: '한옥숙소', icon: Home },
     { id: 'food', label: '향토음식', icon: Utensils },
     { id: 'cafe', label: '한옥카페·디저트', icon: Coffee },
@@ -96,7 +91,6 @@ export default function CategoryChips() {
   const mode = useMapStore((s) => s.mode);
   const category = useMapStore((s) => s.category);
   const setCategory = useMapStore((s) => s.setCategory);
-  const bookmarkCount = useBookmarkStore((s) => s.bookmarks.length);
 
   const handleChipClick = (id: string) => {
     if (id === 'all') {
@@ -114,9 +108,6 @@ export default function CategoryChips() {
             ? category === null || category === 'all'
             : category === id;
 
-        const displayLabel =
-          id === 'bookmark' && bookmarkCount > 0 ? `${label} (${bookmarkCount})` : label;
-
         return (
           <Chip
             key={id}
@@ -125,8 +116,8 @@ export default function CategoryChips() {
             $active={active}
             onClick={() => handleChipClick(id)}
           >
-            <Icon size={16} aria-hidden fill={id === 'bookmark' && active ? 'currentColor' : 'none'} />
-            {displayLabel}
+            <Icon size={16} aria-hidden />
+            {label}
           </Chip>
         );
       })}
