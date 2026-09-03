@@ -23,6 +23,7 @@ import { VesselReveal } from '@/shared/components/animation/VesselReveal';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { OdiiStoryItem, OdiiStoryPage, IOdiiApiService } from '@/features/odii-audio/types/odii.types';
 import { OdiiDependencyProvider, useOdiiApiService } from '@/features/odii-audio/context/OdiiDependencyContext';
+import type { OdiiConcept } from '@/features/odii-audio/concepts/odiiConcept';
 
 const sectionVariants: Variants = {
   hidden: {},
@@ -83,6 +84,8 @@ export interface OdiiAudioFeatureProps {
   onLocationChange?: (latitude: number, longitude: number) => void;
   /** 비교 시안에서만 사용하는 오디 배경 시스템 */
   backgroundVariant?: OdiiBackgroundVariant;
+  /** 내부 디자인 비교 경로에서 사용하는 시각 콘셉트 */
+  conceptVariant?: OdiiConcept;
 }
 
 export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
@@ -92,6 +95,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
   initialHeroStorySets,
   onLocationChange,
   backgroundVariant,
+  conceptVariant,
 }) => {
   const activeApiService = useOdiiApiService(apiService);
   const selectedCategory = useOdiiAudioStore((s) => s.selectedCategory);
@@ -315,7 +319,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
 
   return (
     <OdiiDependencyProvider apiService={activeApiService}>
-      <div className="odii-feature relative isolate min-h-screen pb-24 text-[#211e19] selection:bg-[#ffd9e4] selection:text-[#b52f55]">
+      <div className={`odii-feature relative isolate min-h-screen pb-24 text-[#211e19] selection:bg-[#ffd9e4] selection:text-[#b52f55]${conceptVariant ? ` odii-concept--${conceptVariant}` : ''}`}>
         <OdiiAtmosphereBackground
           variant={backgroundVariant}
           selectedCategory={selectedCategory}
