@@ -10,11 +10,11 @@ import type { Item, PlaceCategory } from '../types';
 const log = logger('map');
 
 /** 확대/축소 단계 정의 */
-const LABEL_MAX_LEVEL = 4; // 레벨 1~4: 이름표 포함 핀
-const PIN_MAX_LEVEL = 7; // 레벨 5~7: 개별 원형 아이콘 뱃지 핀
-// 레벨 8~11: 광역 지역별 스마트 클러스터 뱃지
+const LABEL_MAX_LEVEL = 6; // 레벨 1~6: 선명한 이름표 포함 핀 마커 상시 노출 (가시성 대폭 향상)
+const PIN_MAX_LEVEL = 8; // 레벨 7~8: 고대비 원형 아이콘 뱃지 핀
+// 레벨 9~11: 광역 지역별 스마트 클러스터 뱃지
 
-/** 각 카테고리별 눈이 편안한 부드러운 파스텔 톤 및 React SVG 아이콘 */
+/** 각 카테고리별 고대비 선명 컬러 및 React SVG 아이콘 */
 export const CATEGORY_STYLES: Record<
   PlaceCategory,
   {
@@ -24,61 +24,61 @@ export const CATEGORY_STYLES: Record<
     iconSvg: string;
   }
 > = {
-  // 1. 고택·명소 / 한옥마을: Landmark (#1E7A68, #E6F5F0)
+  // 1. 고택·명소 / 한옥마을: Landmark (선명한 단청 청록 #047857)
   spot: {
-    main: '#1E7A68',
-    lightBg: '#E6F5F0',
-    border: '#1E7A68',
-    iconSvg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="2" x2="22" y1="22" y2="22"/><line x1="6" x2="6" y1="18"/><line x1="10" x2="10" y1="18"/><line x1="14" x2="14" y1="18"/><line x1="18" x2="18" y1="18"/><polygon points="12 2 20 7 4 7"/></svg>`,
+    main: '#047857',
+    lightBg: '#ECFDF5',
+    border: '#047857',
+    iconSvg: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="2" x2="22" y1="22" y2="22"/><line x1="6" x2="6" y1="18"/><line x1="10" x2="10" y1="18"/><line x1="14" x2="14" y1="18"/><line x1="18" x2="18" y1="18"/><polygon points="12 2 20 7 4 7"/></svg>`,
   },
-  // 2. 문화재·서원 / 궁궐·미술관: BookOpen (#2563EB, #EEF4FF)
+  // 2. 문화재·서원 / 궁궐·미술관: BookOpen (딥 로열 블루 #1D4ED8)
   culture: {
-    main: '#2563EB',
-    lightBg: '#EEF4FF',
-    border: '#2563EB',
-    iconSvg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
+    main: '#1D4ED8',
+    lightBg: '#EFF6FF',
+    border: '#1D4ED8',
+    iconSvg: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
   },
-  // 3. 한옥숙소 / 고택스테이: Home (#4D7C0F, #F7FEE7)
+  // 3. 한옥숙소 / 고택스테이: Home (품격 있는 한옥 목조 골드브라운 #92400E)
   stay: {
-    main: '#4D7C0F',
-    lightBg: '#F7FEE7',
-    border: '#4D7C0F',
-    iconSvg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+    main: '#92400E',
+    lightBg: '#FEF3C7',
+    border: '#92400E',
+    iconSvg: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
   },
-  // 4. 향토음식 / 한식당: Utensils (#9F1239, #FFF1F2)
+  // 4. 향토음식 / 한식당: Utensils (단청 진홍 레드 #DC2626)
   food: {
-    main: '#9F1239',
-    lightBg: '#FFF1F2',
-    border: '#9F1239',
-    iconSvg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2v6a3 3 0 0 1-3 3 3 3 0 0 1-3-3V2"/><path d="M12 2v20"/><path d="M21 15v7"/></svg>`,
+    main: '#DC2626',
+    lightBg: '#FEE2E2',
+    border: '#DC2626',
+    iconSvg: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2v6a3 3 0 0 1-3 3 3 3 0 0 1-3-3V2"/><path d="M12 2v20"/><path d="M21 15v7"/></svg>`,
   },
-  // 5. 한옥카페·디저트 / 전통찻집: Coffee (#78350F, #FDF4E7)
+  // 5. 한옥카페·디저트 / 전통찻집: Coffee (전통 찻집 웜 오렌지 #C2410C)
   cafe: {
-    main: '#78350F',
-    lightBg: '#FDF4E7',
-    border: '#78350F',
-    iconSvg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/></svg>`,
+    main: '#C2410C',
+    lightBg: '#FFF7ED',
+    border: '#C2410C',
+    iconSvg: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/></svg>`,
   },
-  // 6. 한복·전통체험 / 민속촌: Sparkles (#7C3AED, #F3E8FF)
+  // 6. 한복·전통체험 / 민속촌: Sparkles (비비드 바이올렛 #7C3AED)
   experience: {
     main: '#7C3AED',
-    lightBg: '#F3E8FF',
+    lightBg: '#F5F3FF',
     border: '#7C3AED',
-    iconSvg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>`,
+    iconSvg: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>`,
   },
-  // 7. 야행·축제: Moon (#4338CA, #EEF2FF)
+  // 7. 야행·축제: Moon (밤하늘 인디고 #4338CA)
   festival: {
     main: '#4338CA',
     lightBg: '#EEF2FF',
     border: '#4338CA',
-    iconSvg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`,
+    iconSvg: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`,
   },
-  // 8. 전통시장: Store (#0D9488, #E6FFFA)
+  // 8. 전통시장: Store (전통 청자 틸 #0D9488)
   market: {
     main: '#0D9488',
-    lightBg: '#E6FFFA',
+    lightBg: '#F0FDFA',
     border: '#0D9488',
-    iconSvg: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/><path d="M22 7a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2"/></svg>`,
+    iconSvg: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/><path d="M22 7a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2"/></svg>`,
   },
 };
 
@@ -103,19 +103,20 @@ const styles = css`
     50% { height: 10px; }
   }
 
-  /* 2. 상세 확대 시: 이름표 포함 핀 마커 */
+  /* 2. 상세 확대 시: 이름표 포함 핀 마커 (고대비 플로팅 뱃지) */
   .om-pin {
     position: relative;
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 3.5px 10px 3.5px 4.5px;
+    height: 32px;
+    padding: 3px 12px 3px 4.5px;
     border-radius: 9999px;
     background: #ffffff;
-    border: none;
-    box-shadow: 0 4px 12px -2px rgba(25, 31, 40, 0.16), 0 1px 3px rgba(25, 31, 40, 0.08);
-    font-size: 12.5px;
-    font-weight: 600;
+    border: 1.5px solid rgba(25, 31, 40, 0.12);
+    box-shadow: 0 4px 16px -2px rgba(25, 31, 40, 0.22), 0 1px 4px rgba(25, 31, 40, 0.1);
+    font-size: 13px;
+    font-weight: 700;
     line-height: 1;
     color: ${meok[900]};
     white-space: nowrap;
@@ -127,9 +128,9 @@ const styles = css`
 
   .om-pin:hover,
   .om-pin[data-hovered='true'] {
-    transform: translateY(-5px) scale(1.1);
-    box-shadow: 0 8px 20px -3px rgba(25, 31, 40, 0.22);
-    z-index: 30 !important;
+    transform: translateY(-6px) scale(1.1);
+    box-shadow: 0 10px 24px -2px rgba(25, 31, 40, 0.3);
+    z-index: 35 !important;
   }
 
   .om-pin::after {
@@ -137,20 +138,23 @@ const styles = css`
     position: absolute;
     left: 50%;
     top: 100%;
-    width: 6px;
-    height: 6px;
-    background: inherit;
-    transform: translate(-50%, -3px) rotate(45deg);
+    width: 8px;
+    height: 8px;
+    background: #ffffff;
+    border-right: 1.5px solid rgba(25, 31, 40, 0.12);
+    border-bottom: 1.5px solid rgba(25, 31, 40, 0.12);
+    transform: translate(-50%, -4px) rotate(45deg);
   }
 
   .om-pin-icon-box {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 20px;
-    height: 20px;
-    border-radius: 9999px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
     flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
   }
 
   /* 라이브 사운드 이퀄라이저 바 */
@@ -174,14 +178,14 @@ const styles = css`
   /* 핀 호버 시 팝업되는 라이브 미니 프리뷰 카드 */
   .om-pin-hover-card {
     position: absolute;
-    bottom: calc(100% + 10px);
+    bottom: calc(100% + 12px);
     left: 50%;
     transform: translate(-50%, 6px) scale(0.9);
-    width: 190px;
+    width: 195px;
     padding: 10px;
     background: #ffffff;
     border-radius: 14px;
-    box-shadow: 0 12px 32px -4px rgba(25, 31, 40, 0.18), 0 1px 4px rgba(25, 31, 40, 0.06);
+    box-shadow: 0 12px 32px -4px rgba(25, 31, 40, 0.22), 0 1px 4px rgba(25, 31, 40, 0.08);
     pointer-events: none;
     opacity: 0;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -230,15 +234,23 @@ const styles = css`
   .om-pin[data-detail='true'] {
     color: #ffffff !important;
     background: #191F28 !important;
-    box-shadow: 0 8px 24px -2px rgba(25, 31, 40, 0.35);
+    border-color: #191F28 !important;
+    box-shadow: 0 8px 26px -2px rgba(25, 31, 40, 0.45);
     animation: om-pin-spring 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     z-index: 40 !important;
     opacity: 1 !important;
   }
 
+  .om-pin[data-selected='true']::after,
+  .om-pin[data-detail='true']::after {
+    background: #191F28 !important;
+    border-color: #191F28 !important;
+  }
+
   .om-pin[data-selected='true'] .om-pin-icon-box,
   .om-pin[data-detail='true'] .om-pin-icon-box {
     background: #ffffff !important;
+    color: #191F28 !important;
   }
 
   .om-pin[data-dimmed='true'],
@@ -247,35 +259,36 @@ const styles = css`
     filter: grayscale(30%);
   }
 
-  /* 3. 중간 확대 시: 파스텔 톤 원형 아이콘 뱃지 마커 */
+  /* 3. 중간 확대 시: 선명한 원형 아이콘 뱃지 마커 (34px) */
   .om-badge-pin {
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
-    border: none;
-    box-shadow: 0 3px 10px -1px rgba(25, 31, 40, 0.16), 0 1px 2px rgba(25, 31, 40, 0.08);
+    border: 2.5px solid #ffffff;
+    box-shadow: 0 4px 16px rgba(25, 31, 40, 0.28), 0 1px 4px rgba(25, 31, 40, 0.12);
     cursor: pointer;
-    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, background 0.15s ease, color 0.15s ease;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
     user-select: none;
   }
 
   .om-badge-pin:hover,
   .om-badge-pin[data-hovered='true'] {
-    transform: translateY(-4px) scale(1.25);
-    box-shadow: 0 6px 16px -2px rgba(25, 31, 40, 0.22);
-    z-index: 30 !important;
+    transform: translateY(-6px) scale(1.25);
+    box-shadow: 0 8px 24px rgba(25, 31, 40, 0.35);
+    z-index: 35 !important;
   }
 
   .om-badge-pin[data-selected='true'],
   .om-badge-pin[data-detail='true'] {
-    transform: translateY(-5px) scale(1.35);
+    transform: translateY(-6px) scale(1.35);
     background: #191F28 !important;
     color: #ffffff !important;
-    box-shadow: 0 8px 24px -2px rgba(25, 31, 40, 0.35);
+    border-color: #ffffff !important;
+    box-shadow: 0 8px 28px rgba(25, 31, 40, 0.45);
     z-index: 40 !important;
     opacity: 1 !important;
     animation: om-pin-spring 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
@@ -286,9 +299,11 @@ const styles = css`
     position: absolute;
     left: 50%;
     top: 100%;
-    width: 5px;
-    height: 5px;
+    width: 6px;
+    height: 6px;
     background: inherit;
+    border-right: 2px solid #ffffff;
+    border-bottom: 2px solid #ffffff;
     transform: translate(-50%, -3px) rotate(45deg);
   }
 
@@ -533,15 +548,14 @@ export default function PlaceMarkers() {
         el.className = 'om-pin';
         el.style.position = 'relative';
         el.innerHTML = `
-          <span class="om-pin-icon-box" style="background: ${catStyle.lightBg}; color: ${catStyle.main};">${catStyle.iconSvg}</span>
+          <span class="om-pin-icon-box" style="background: ${catStyle.main}; color: #ffffff;">${catStyle.iconSvg}</span>
           <span>${item.name}</span>
           ${hoverCardHtml}
         `;
       } else {
         el.className = 'om-badge-pin';
-        el.style.background = catStyle.lightBg;
-        el.style.color = catStyle.main;
-        el.style.borderColor = catStyle.main;
+        el.style.background = catStyle.main;
+        el.style.color = '#ffffff';
         el.innerHTML = `
           ${catStyle.iconSvg}
           ${hoverCardHtml}
