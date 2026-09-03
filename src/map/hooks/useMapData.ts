@@ -32,6 +32,7 @@ export function useMapData() {
   const category = useMapStore((s) => s.category);
   const searchCenter = useMapStore((s) => s.searchCenter);
   const reloadNonce = useMapStore((s) => s.reloadNonce);
+  const level = useMapStore((s) => s.level);
 
   useEffect(() => {
     useMapStore.getState().setWarmths(loadWarmth());
@@ -53,7 +54,8 @@ export function useMapData() {
     const warmthParams = new URLSearchParams({
       lat: String(searchCenter.lat),
       lng: String(searchCenter.lng),
-      radius: String(Math.max(radius, 6000)),
+      level: String(level),
+      radius: String(Math.max(radius, level <= 5 ? 5000 : 15000)),
     });
 
     // 1. 실시간 권역별 혼잡도 및 관광객 집중도 히트스팟 패치 (TOUR_API_CONGESTION_KEY & TOUR_API_VISITOR_KEY 기반)
@@ -137,5 +139,5 @@ export function useMapData() {
       });
 
     return () => controller.abort();
-  }, [map, mode, category, searchCenter.lat, searchCenter.lng, reloadNonce]);
+  }, [map, mode, category, searchCenter.lat, searchCenter.lng, level, reloadNonce]);
 }

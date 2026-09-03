@@ -431,12 +431,15 @@ export default function WarmthLayer() {
       const group: HeatSpot[] = [spot];
       used.add(spot.id);
 
-      // 주변 65px 이내 스팟 탐색 및 병합
+      // 주변 거리(px) 이내 스팟 탐색 및 병합
+      // 확대 레벨(level <= 4)에서는 30px 이내만 병합하여 골목마다의 스팟들이 사라지지 않도록 보호
+      const clusterThreshold = level <= 4 ? 30 : level <= 6 ? 45 : 65;
+
       for (let j = i + 1; j < baseList.length; j++) {
         const other = baseList[j];
         if (used.has(other.id)) continue;
         const dPx = getScreenDistance(spot.lat, spot.lng, other.lat, other.lng);
-        if (dPx < 65) {
+        if (dPx < clusterThreshold) {
           group.push(other);
           used.add(other.id);
         }
@@ -485,8 +488,9 @@ export default function WarmthLayer() {
       const pal = isDark ? cfg.dark : cfg.light;
 
       // 블룸 크기: 줌 레벨과 강도에 맞추어 유기적으로 조절
-      const basePx = Math.max(120, 260 - level * 14);
-      const bloomSize = Math.round(basePx * (0.8 + item.intensity * 0.45));
+      // 확대할수록(level이 작아질수록) 주변 골목과 건물에 부드럽고 따뜻하게 퍼지도록 확장
+      const basePx = Math.max(160, 360 - level * 18);
+      const bloomSize = Math.round(basePx * (0.85 + item.intensity * 0.45));
 
       // ─── [A] 유기적 가우시안 발광 블룸 ───
       const bloomWrap = document.createElement('div');
@@ -496,7 +500,7 @@ export default function WarmthLayer() {
       const bloom = document.createElement('div');
       bloom.className = 'om-heat-bloom';
       bloom.style.background = `radial-gradient(circle closest-side, ${pal.core} 0%, ${pal.mid} 45%, ${pal.edge} 75%, transparent 100%)`;
-      bloom.style.filter = `blur(${Math.round(bloomSize * 0.18)}px) drop-shadow(${pal.glow})`;
+      bloom.style.filter = `blur(${Math.round(bloomSize * 0.16)}px) drop-shadow(${pal.glow})`;
       bloomWrap.appendChild(bloom);
 
       specs.push({

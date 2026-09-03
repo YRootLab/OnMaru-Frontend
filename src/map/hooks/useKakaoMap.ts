@@ -61,7 +61,12 @@ export function useKakaoMap(containerRef: RefObject<HTMLDivElement | null>) {
 
         if (debounceTimer) clearTimeout(debounceTimer);
         debounceTimer = setTimeout(() => {
-          if (zoomChanged || moved) useMapStore.getState().clearSearchDirty();
+          if (zoomChanged || moved) {
+            useMapStore.getState().clearSearchDirty();
+            if (zoomChanged) {
+              useMapStore.getState().reload();
+            }
+          }
         }, IDLE_DEBOUNCE_MS);
       };
 

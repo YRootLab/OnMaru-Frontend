@@ -35,7 +35,10 @@ export async function GET(request: Request) {
   const q = new URL(request.url).searchParams;
   const lat = Number(q.get('lat'));
   const lng = Number(q.get('lng'));
-  const radius = Number(q.get('radius')) || 10000;
+  const level = Number(q.get('level')) || 7;
+  // 확대 시(level <= 5)에도 주변 5km 이상 반경의 스팟을 확보하여 히트맵이 비는 현상 방지
+  const requestedRadius = Number(q.get('radius')) || 10000;
+  const radius = Math.max(requestedRadius, level <= 5 ? 5000 : 15000);
 
   try {
     // 1. 전국 지자체별 방문자 및 거주자 빅데이터 수집
@@ -43,66 +46,91 @@ export async function GET(request: Request) {
 
     const spots: HeatSpot[] = [];
 
-    // 2. 현재 지도 뷰포트 내 장소들을 지역 권역(동/읍/면 일대) 단위로 집계
+    // 2. 현재 지도 뷰포트 내 장소들을 레벨에 맞추어 적응형으로 구성
     if (Number.isFinite(lat) && Number.isFinite(lng)) {
       const places = await PlaceService.getNearbyPlaces({
         lat,
         lng,
-        radius: Math.max(radius, 6000),
+        radius,
       });
 
-      // 개별 상호명을 노출하지 않고 권역(Zone) 중심점으로 집계
-      const zoneMap = new Map<
-        string,
-        {
-          latSum: number;
-          lngSum: number;
-          count: number;
-          district: string;
-          stat: ReturnType<typeof VisitorService.resolveCongestion>;
-        }
-      >();
+      if (level <= 6) {
+        // [확대 모드: level <= 6]
+        // 골목·개별 장소 단위로 히트스팟을 생성하여 확대 시 히트맵이 사라지지 않고 유지되도록 처리
+        places.forEach((p, idx) => {
+          const stat = VisitorService.resolveCongestion(p.addr, visitorMap, localMap, maxVisitor);
+          const zoneName = extractZoneName(p.addr, stat.district);
 
-      places.forEach((p) => {
-        const stat = VisitorService.resolveCongestion(p.addr, visitorMap, localMap, maxVisitor);
-        const zoneName = extractZoneName(p.addr, stat.district);
-
-        const prev = zoneMap.get(zoneName) || {
-          latSum: 0,
-          lngSum: 0,
-          count: 0,
-          district: stat.district,
-          stat,
-        };
-        prev.latSum += p.lat;
-        prev.lngSum += p.lng;
-        prev.count += 1;
-        zoneMap.set(zoneName, prev);
-      });
-
-      Array.from(zoneMap.entries()).forEach(([zoneName, data], idx) => {
-        const zoneLat = data.latSum / data.count;
-        const zoneLng = data.lngSum / data.count;
-        const stat = data.stat;
-
-        spots.push({
-          id: `heat-zone-${idx}`,
-          placeId: `zone-${idx}`,
-          name: zoneName,
-          lat: zoneLat,
-          lng: zoneLng,
-          district: data.district,
-          visitorCount: stat.visitorCount,
-          congestionScore: stat.congestionScore,
-          congestionLevel: stat.congestionLevel,
-          surgeMultiplier: stat.surgeMultiplier,
-          intensity: stat.intensity,
-          updatedAt: new Date().toISOString(),
+          spots.push({
+            id: `heat-detail-${p.id || idx}`,
+            placeId: p.id,
+            name: zoneName,
+            lat: p.lat,
+            lng: p.lng,
+            district: stat.district,
+            visitorCount: stat.visitorCount,
+            congestionScore: stat.congestionScore,
+            congestionLevel: stat.congestionLevel,
+            surgeMultiplier: stat.surgeMultiplier,
+            intensity: stat.intensity,
+            updatedAt: new Date().toISOString(),
+          });
         });
-      });
+      } else {
+        // [광역 모드: level > 6]
+        // 시/군/구 단위로 장소들을 중심점으로 집계하여 화면 정돈
+        const zoneMap = new Map<
+          string,
+          {
+            latSum: number;
+            lngSum: number;
+            count: number;
+            district: string;
+            stat: ReturnType<typeof VisitorService.resolveCongestion>;
+          }
+        >();
+
+        places.forEach((p) => {
+          const stat = VisitorService.resolveCongestion(p.addr, visitorMap, localMap, maxVisitor);
+          const zoneName = extractZoneName(p.addr, stat.district);
+
+          const prev = zoneMap.get(zoneName) || {
+            latSum: 0,
+            lngSum: 0,
+            count: 0,
+            district: stat.district,
+            stat,
+          };
+          prev.latSum += p.lat;
+          prev.lngSum += p.lng;
+          prev.count += 1;
+          zoneMap.set(zoneName, prev);
+        });
+
+        Array.from(zoneMap.entries()).forEach(([zoneName, data], idx) => {
+          const zoneLat = data.latSum / data.count;
+          const zoneLng = data.lngSum / data.count;
+          const stat = data.stat;
+
+          spots.push({
+            id: `heat-zone-${idx}`,
+            placeId: `zone-${idx}`,
+            name: zoneName,
+            lat: zoneLat,
+            lng: zoneLng,
+            district: data.district,
+            visitorCount: stat.visitorCount,
+            congestionScore: stat.congestionScore,
+            congestionLevel: stat.congestionLevel,
+            surgeMultiplier: stat.surgeMultiplier,
+            intensity: stat.intensity,
+            updatedAt: new Date().toISOString(),
+          });
+        });
+      }
     }
 
-    // 3. 전국 주요 전통 한옥 거점 기본 보충 (서울, 전주, 경주, 안동 등 기본 시드 거점)
+    // 3. 전국 주요 전통 한옥 거점 기본 보충
     const seedCenters: { name: string; lat: number; lng: number; district: string }[] = [
       { name: '북촌 한옥마을 일대', lat: 37.5826, lng: 126.9848, district: '종로구' },
       { name: '전주 한옥마을 일대', lat: 35.815, lng: 127.153, district: '완산구' },
@@ -117,7 +145,8 @@ export async function GET(request: Request) {
     seedCenters.forEach((c, idx) => {
       const dLat = Math.abs(c.lat - (Number.isFinite(lat) ? lat : 36.35));
       const dLng = Math.abs(c.lng - (Number.isFinite(lng) ? lng : 127.75));
-      if (dLat < 0.45 && dLng < 0.45) {
+      const maxDelta = level <= 5 ? 0.12 : 0.45;
+      if (dLat < maxDelta && dLng < maxDelta) {
         const stat = VisitorService.resolveCongestion(c.district, visitorMap, localMap, maxVisitor);
         spots.push({
           id: `seed-center-${idx}`,
@@ -135,6 +164,34 @@ export async function GET(request: Request) {
         });
       }
     });
+
+    // 4. 스팟이 비어있을 경우 현재 위치에 가장 인접한 한옥 거점 지표를 보정 산출
+    if (spots.length === 0 && seedCenters.length > 0 && Number.isFinite(lat) && Number.isFinite(lng)) {
+      let closest = seedCenters[0];
+      let minDist = Infinity;
+      seedCenters.forEach((c) => {
+        const d = (c.lat - lat) ** 2 + (c.lng - lng) ** 2;
+        if (d < minDist) {
+          minDist = d;
+          closest = c;
+        }
+      });
+      const stat = VisitorService.resolveCongestion(closest.district, visitorMap, localMap, maxVisitor);
+      spots.push({
+        id: `seed-center-closest`,
+        placeId: `hub-closest`,
+        name: `${closest.district} 일대`,
+        lat: lat,
+        lng: lng,
+        district: closest.district,
+        visitorCount: stat.visitorCount,
+        congestionScore: stat.congestionScore,
+        congestionLevel: stat.congestionLevel,
+        surgeMultiplier: stat.surgeMultiplier,
+        intensity: stat.intensity,
+        updatedAt: new Date().toISOString(),
+      });
+    }
 
     return NextResponse.json({
       spots,
