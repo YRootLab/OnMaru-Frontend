@@ -26,6 +26,7 @@ import { OdiiDependencyProvider, useOdiiApiService } from '@/features/odii-audio
 import type { OdiiConcept } from '@/features/odii-audio/concepts/odiiConcept';
 import { OdiiConceptFrame } from '@/features/odii-audio/concepts/OdiiConceptFrame';
 import { OdiiConceptHero } from '@/features/odii-audio/concepts/OdiiConceptHero';
+import { OdiiConceptSceneRail } from '@/features/odii-audio/concepts/OdiiConceptSceneRail';
 
 const sectionVariants: Variants = {
   hidden: {},
@@ -373,7 +374,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
           </motion.section> : null}
 
           {/* 섹션 1: 히어로 큐레이션 레일 (헤더와 적절한 탑 여백 확보) */}
-          <motion.div
+          {!conceptVariant ? <motion.div
             data-odii-stage="featured"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -384,22 +385,22 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
               stories={storyList}
               storySets={heroStorySets}
             />
-          </motion.div>
+          </motion.div> : null}
 
           {/* 섹션 2: 한 단어로, 한 장면 */}
           <VesselReveal className="min-h-[650px] sm:min-h-[700px]">
             <div className="mt-4" data-odii-stage="themes">
               <div className="mx-auto max-w-6xl pt-4">
-                <h3 className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-[clamp(24px,3.2vw,36px)] font-bold tracking-[-0.04em] text-transparent">장면을 골라 듣다</h3>
+                <h3 className={conceptVariant ? 'font-odii-sans text-[clamp(28px,3.8vw,44px)] font-semibold tracking-[-0.055em] text-[#1D1D1F]' : 'inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-[clamp(24px,3.2vw,36px)] font-bold tracking-[-0.04em] text-transparent'}>장면을 골라 듣다</h3>
               </div>
               <div className="mt-1">
-                <OdiiEditorialRail
+                {conceptVariant ? <OdiiConceptSceneRail concept={conceptVariant} stories={storyList} storySets={heroStorySets} /> : <OdiiEditorialRail
                   key={retryToken}
                   stories={storyList}
                   storySets={heroStorySets}
                   apiService={activeApiService}
                   onApiError={handleApiError}
-                />
+                />}
               </div>
             </div>
           </VesselReveal>
