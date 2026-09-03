@@ -60,3 +60,26 @@ export function formatDistance(meters?: number | null): string {
   if (meters < 1000) return `${Math.round(meters)}m`;
   return `${(meters / 1000).toFixed(1)}km`;
 }
+
+/**
+ * HTML 텍스트 노드에 넣기 전 이스케이프.
+ *
+ * 지도 오버레이는 카카오 CustomOverlay 특성상 innerHTML로 조립한다.
+ * TourAPI 응답(장소명·주소)과 사용자가 쓴 온기 글이 그대로 들어가므로
+ * 여기를 거치지 않으면 따옴표 하나로 마크업이 깨지고 스크립트도 실행된다.
+ */
+export function escapeHtml(raw?: string | null): string {
+  return String(raw ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/** 속성값 자리에 넣을 URL. javascript: 등 스킴을 막고 따옴표를 이스케이프한다. */
+export function safeImageUrl(url?: string | null): string {
+  const s = String(url ?? '').trim();
+  if (!/^https?:\/\//i.test(s)) return '';
+  return escapeHtml(s);
+}

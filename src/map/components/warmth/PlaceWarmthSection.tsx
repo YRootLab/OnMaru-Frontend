@@ -5,6 +5,7 @@ import styled from '@emotion/styled';
 import { Flame, Leaf, Users, Plus, MessageCircleHeart } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
+import { distanceInMeters } from '@/map/utils/geo';
 import WriteWarmthModal from './WriteWarmthModal';
 import MoodSelector from './MoodSelector';
 import type { Warmth } from '@/map/types';
@@ -255,11 +256,9 @@ function formatRelativeTime(isoString: string): string {
   }
 }
 
-/** 위도/경도 간 유클리드 근사 거리 (미터) */
+/** 위도/경도 간 거리(m). 계산기는 utils/geo 하나만 쓴다. */
 function getDistanceMeters(lat1: number, lng1: number, lat2: number, lng2: number): number {
-  const dLat = (lat2 - lat1) * 111000;
-  const dLng = (lng2 - lng1) * 88800;
-  return Math.sqrt(dLat * dLat + dLng * dLng);
+  return distanceInMeters({ lat: lat1, lng: lng1 }, { lat: lat2, lng: lng2 });
 }
 
 export default function PlaceWarmthSection({

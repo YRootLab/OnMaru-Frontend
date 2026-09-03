@@ -17,8 +17,10 @@ import {
 } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useBookmarkStore } from '@/map/hooks/useBookmarkStore';
+import { useMapStore } from '@/map/hooks/useMapStore';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { matchOdiiStory } from '@/features/odii-audio/hooks/useOdiiPlaceStory';
+import { calculateTravelEstimate } from '@/map/utils/geo';
 import { CATEGORY_STYLES } from './PlaceMarkers';
 import type { Item, PlaceCategory } from '@/map/types';
 
@@ -283,18 +285,6 @@ function getDistrictFromAddr(addr?: string): string {
   return addr;
 }
 
-/** 거리 및 소요 시간 계산 (1000m 미만 "내 위치에서 320m · 도보 5분", 이상 "내 위치에서 2.4km · 차량 5분") */
-function formatDistance(dist?: number | null): string {
-  if (dist === null || dist === undefined || !Number.isFinite(dist)) return '';
-  const distStr = dist < 1000 ? `${Math.round(dist)}m` : `${(dist / 1000).toFixed(1)}km`;
-  if (dist < 1200) {
-    const walkMinutes = Math.max(1, Math.round(dist / 67));
-    return `내 위치에서 ${distStr} · 도보 ${walkMinutes}분`;
-  }
-  const driveMinutes = Math.max(2, Math.round(dist / 500));
-  return `내 위치에서 ${distStr} · 차량 ${driveMinutes}분`;
-}
-
 function PlaceListItemComponent({
   item,
   index,
@@ -311,9 +301,15 @@ function PlaceListItemComponent({
     }
   }, [isSelected]);
 
+  const userLocation = useMapStore((s) => s.userLocation);
+  const center = useMapStore((s) => s.center);
   const availableStories = useOdiiAudioStore((s) => s.availableStories);
   const isBookmarked = useBookmarkStore((s) => s.isBookmarked(item.id));
   const toggleBookmark = useBookmarkStore((s) => s.toggleBookmark);
+
+  const travelEstimate = useMemo(() => {
+    return calculateTravelEstimate(item, userLocation, center);
+  }, [item, userLocation, center]);
 
   const hasOdii = useMemo(() => {
     return Boolean(matchOdiiStory(item, availableStories));
@@ -348,7 +344,7 @@ function PlaceListItemComponent({
   };
 
   const district = getDistrictFromAddr(item.addr);
-  const distText = formatDistance(item.dist);
+  const distText = travelEstimate.fullLabel;
 
   return (
     <ItemContainer ref={itemRef}>

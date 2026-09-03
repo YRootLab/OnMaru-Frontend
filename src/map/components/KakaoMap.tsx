@@ -418,6 +418,7 @@ export default function KakaoMap() {
     }
 
     const store = useMapStore.getState();
+    store.setUserLocation(target);
     store.setCenter(target, targetLevel);
     store.clearSearchDirty();
   };

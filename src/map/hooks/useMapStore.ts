@@ -20,6 +20,8 @@ interface MapState {
   category: string | null;
   center: LatLng;
   level: number;
+  /** 사용자의 실제 GPS 위치 (권한 획득 시) */
+  userLocation: LatLng | null;
   items: Item[];
   warmths: Warmth[];
   loading: boolean;
@@ -43,6 +45,7 @@ interface MapState {
   setMode: (mode: MapMode) => void;
   setCategory: (category: string | null) => void;
   setCenter: (center: LatLng, level?: number) => void;
+  setUserLocation: (userLocation: LatLng | null) => void;
   setItems: (items: Item[]) => void;
   setWarmths: (warmths: Warmth[]) => void;
   setLoading: (loading: boolean) => void;
@@ -68,6 +71,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   category: null,
   center: DEFAULT_CENTER,
   level: DEFAULT_LEVEL,
+  userLocation: null,
   items: [],
   warmths: [],
   loading: false,
@@ -107,6 +111,7 @@ export const useMapStore = create<MapState>((set, get) => ({
       fromPopularRanking: false,
     }),
   setCenter: (center, level) => set(level === undefined ? { center } : { center, level }),
+  setUserLocation: (userLocation) => set({ userLocation }),
   setItems: (items) => set({ items }),
   setWarmths: (warmths) => set({ warmths }),
   setLoading: (loading) => set({ loading }),

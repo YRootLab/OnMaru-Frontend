@@ -26,7 +26,7 @@ import { useCinematicTourStore } from '@/features/cinematic-tour/store/useCinema
 import { useMapStore } from '@/map/hooks/useMapStore';
 import { useBookmarkStore } from '@/map/hooks/useBookmarkStore';
 import { usePlaceDetail } from '@/map/hooks/usePlaceDetail';
-import { formatDistance } from '@/map/utils/formatters';
+import { calculateTravelEstimate } from '@/map/utils/geo';
 import { createKakaoNavigationLinks } from '@/map/utils/navigation';
 import PlaceDetailCarousel from './detail/PlaceDetailCarousel';
 import PlaceWarmthSection from './warmth/PlaceWarmthSection';
@@ -171,6 +171,13 @@ export default function PlaceDetail() {
     );
   }, [selectedItem?.isTraditional, title]);
 
+  const userLocation = useMapStore((s) => s.userLocation);
+  const center = useMapStore((s) => s.center);
+
+  const travelEstimate = useMemo(() => {
+    return calculateTravelEstimate(selectedItem, userLocation, center);
+  }, [selectedItem, userLocation, center]);
+
   const badges = useMemo(() => {
     const list: string[] = [];
     if (isRealTraditional) {
@@ -188,11 +195,11 @@ export default function PlaceDetail() {
     else if (selectedItem?.category === 'market') list.push('전통시장');
     else list.push(isRealTraditional ? '고택명소' : '관광명소');
 
-    if (selectedItem?.dist !== undefined && selectedItem?.dist !== null) {
-      list.push(formatDistance(selectedItem.dist));
+    if (travelEstimate.fullLabel) {
+      list.push(travelEstimate.fullLabel);
     }
     return list;
-  }, [selectedItem, isRealTraditional]);
+  }, [selectedItem, isRealTraditional, travelEstimate]);
 
   let lat = Number(data?.mapy) || selectedItem?.lat || 0;
   let lng = Number(data?.mapx) || selectedItem?.lng || 0;
