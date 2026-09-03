@@ -7,7 +7,7 @@ import {
   Landmark,
   Leaf,
   Home,
-  MessageCircle,
+  PenLine,
   Sparkles,
   Store,
   Users,
@@ -31,12 +31,18 @@ const CATEGORIES: Record<MapMode, { id: string; label: string; icon: LucideIcon 
     { id: 'cafe', label: '한옥카페·디저트', icon: Coffee },
     { id: 'market', label: '전통시장', icon: Store },
   ],
+  /*
+    온기 칩은 warmthRepo.filterWarmth의 case와 1:1이어야 한다.
+    예전의 'review'(한줄평)는 filterWarmth에 대응 case가 없어 눌러도 아무 일이
+    없었다. 대신 내가 남긴 온기를 다시 찾는 경로('mine')를 넣는다 —
+    쓰고 나면 어디로 갔는지 확인할 방법이 그동안 없었다.
+  */
   warmth: [
     { id: 'all', label: '모든 온기', icon: Flame },
     { id: 'busy', label: '북적이는 곳', icon: Users },
     { id: 'quiet', label: '한적한 곳', icon: Leaf },
     { id: 'today', label: '오늘의 온기', icon: Sparkles },
-    { id: 'review', label: '한줄평', icon: MessageCircle },
+    { id: 'mine', label: '내 온기', icon: PenLine },
   ],
 };
 
