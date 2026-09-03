@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Flame,
-  Plus,
   ChevronLeft,
   ChevronRight,
   MessageSquare,
@@ -18,14 +17,12 @@ import { useMapStore } from '@/map/hooks/useMapStore';
 import { countByPlace, regionOf, toReview } from '@/map/warmth/warmthRepo';
 import { filterByPeriod, PERIOD_OPTIONS, type WarmthPeriod } from '@/map/warmth/heatScale';
 import WarmthCard from './WarmthCard';
-import WriteWarmthModal from './WriteWarmthModal';
 import {
   FeedContainer,
   StickyTop,
   SectionHeader,
   SectionTitleGroup,
   SectionTitle,
-  WriteActionBtn,
   PeriodFilterRow,
   PeriodTabBtn,
   RegionScroller,
@@ -117,7 +114,6 @@ export default function WarmthFeed() {
   const [selectedRegion, setSelectedRegion] = useState('all');
   const [sortOrder, setSortOrder] = useState<'recent' | 'place'>('recent');
   const [currentPage, setCurrentPage] = useState(1);
-  const [isWriteModalOpen, setIsWriteModalOpen] = useState(false);
   const feedTopRef = useRef<HTMLDivElement>(null);
 
   const regions = useMemo(() => buildRegions(warmths), [warmths]);
@@ -244,14 +240,6 @@ export default function WarmthFeed() {
             <Flame size={18} color="#FF6B00" />
             <SectionTitle>지금 가장 따뜻한 한옥 명소</SectionTitle>
           </SectionTitleGroup>
-          <WriteActionBtn
-            type="button"
-            onClick={() => setIsWriteModalOpen(true)}
-            aria-label="새 온기 한 줄 남기기"
-          >
-            <Plus size={14} />
-            <span>온기 남기기</span>
-          </WriteActionBtn>
         </SectionHeader>
 
         <RegionScroller role="group" aria-label="지역 필터">
@@ -354,15 +342,7 @@ export default function WarmthFeed() {
                 ? '선택하신 조건에 해당하는 온기가 아직 없습니다.'
                 : `${selectedRegion}에 남겨진 온기가 아직 없습니다.`}
             <br />
-            <span style={{ display: 'inline-block', marginTop: '6px' }}>
-              이곳에 첫 번째 따뜻한 온기를 불어넣어 보세요.
-            </span>
-            <div style={{ marginTop: '14px' }}>
-              <WriteActionBtn type="button" onClick={() => setIsWriteModalOpen(true)}>
-                <Plus size={14} />
-                <span>온기 남기기</span>
-              </WriteActionBtn>
-            </div>
+            이곳에 첫 번째 따뜻한 온기를 불어넣어 보세요.
           </EmptyState>
         ) : (
           <>
@@ -415,12 +395,6 @@ export default function WarmthFeed() {
           </>
         )}
       </FeedScroll>
-
-      {/* 온기 작성 모달 */}
-      <WriteWarmthModal
-        isOpen={isWriteModalOpen}
-        onClose={() => setIsWriteModalOpen(false)}
-      />
     </FeedContainer>
   );
 }

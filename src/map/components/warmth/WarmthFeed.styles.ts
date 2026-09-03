@@ -38,33 +38,6 @@ export const SectionTitle = styled.h3`
   letter-spacing: -0.02em;
 `;
 
-export const WriteActionBtn = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  height: 32px;
-  padding: 0 12px;
-  border-radius: 9999px;
-  border: none;
-  background: ${lightPalette.juhong[500]};
-  color: #ffffff;
-  font-family: inherit;
-  font-size: 12.5px;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(232, 90, 24, 0.25);
-  transition: all 0.15s ease;
-
-  &:hover {
-    background: ${lightPalette.juhong[700]};
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(232, 90, 24, 0.35);
-  }
-
-  &:active {
-    transform: scale(0.96);
-  }
-`;
 
 export const PeriodFilterRow = styled.div`
   display: flex;

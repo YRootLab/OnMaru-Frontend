@@ -15,12 +15,10 @@ import {
   Plane,
   X,
   Play,
-  Flame,
 } from 'lucide-react';
 import { meok, lightPalette } from '@/design-system/tokens';
 import { KAKAO_SDK_SRC, useKakaoMap } from '@/map/hooks/useKakaoMap';
 import { DEFAULT_CENTER, useMapStore } from '@/map/hooks/useMapStore';
-import WriteWarmthModal from './warmth/WriteWarmthModal';
 import type { LatLng } from '@/map/types';
 
 const mapGlobalStyles = css`
@@ -254,42 +252,6 @@ const Controls = styled.div`
   }
 `;
 
-const WarmthFab = styled.button`
-  position: absolute;
-  right: 16px;
-  bottom: 236px;
-  z-index: 25;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 42px;
-  padding: 0 16px 0 13px;
-  border-radius: 9999px;
-  background: ${lightPalette.juhong[500]};
-  color: #ffffff;
-  border: none;
-  box-shadow: 0 8px 24px -4px rgba(232, 90, 24, 0.45), 0 2px 6px rgba(0, 0, 0, 0.08);
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-
-  &:hover {
-    background: ${lightPalette.juhong[700]};
-    transform: translateY(-2px) scale(1.04);
-    box-shadow: 0 12px 28px -4px rgba(232, 90, 24, 0.55);
-  }
-
-  &:active {
-    transform: scale(0.96);
-  }
-
-  @media (max-width: 1023px) {
-    bottom: 356px;
-  }
-`;
-
 const Stack = styled.div`
   display: flex;
   flex-direction: column;
@@ -336,12 +298,10 @@ export default function KakaoMap() {
   const containerRef = useRef<HTMLDivElement>(null);
   const initMap = useKakaoMap(containerRef);
   const map = useMapStore((s) => s.map);
-  const mode = useMapStore((s) => s.mode);
   const isSearchDirty = useMapStore((s) => s.isSearchDirty);
   const panelOpen = useMapStore((s) => s.panelOpen);
   const [isLocating, setIsLocating] = useState(false);
   const [isNight, setIsNight] = useState(false);
-  const [isWriteWarmthOpen, setIsWriteWarmthOpen] = useState(false);
   const [flightState, setFlightState] = useState<{ active: boolean; step: number }>({
     active: false,
     step: 0,
@@ -634,24 +594,6 @@ export default function KakaoMap() {
           </ControlButton>
         </Stack>
       </Controls>
-
-      {/* 온기 모드 전용 지도 플로팅 버튼 (어디서나 원클릭 온기 작성) */}
-      {mode === 'warmth' && (
-        <WarmthFab
-          type="button"
-          onClick={() => setIsWriteWarmthOpen(true)}
-          aria-label="새 온기 한 줄 남기기"
-        >
-          <Flame size={17} />
-          <span>온기 남기기</span>
-        </WarmthFab>
-      )}
-
-      {/* 온기 작성 모달 */}
-      <WriteWarmthModal
-        isOpen={isWriteWarmthOpen}
-        onClose={() => setIsWriteWarmthOpen(false)}
-      />
     </Frame>
   );
 }
