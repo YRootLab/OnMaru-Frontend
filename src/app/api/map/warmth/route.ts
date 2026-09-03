@@ -4,8 +4,7 @@ import { seedWarmth } from '@/map/warmth/seed';
 /**
  * 여행자 온기 이야기(리뷰 및 한줄평) API
  * 
- * 히트맵(우버 서지 빅데이터)과 완전히 분리되어,
- * 여행자들이 남긴 순수 한옥 여행 소감 및 온기 이야기를 제공합니다.
+ * 실시간 혼잡도 히트맵과 분리되어, 여행자들이 남긴 순수 한옥 여행 소감 및 온기 이야기 제공.
  */
 export async function GET() {
   const now = Date.now();

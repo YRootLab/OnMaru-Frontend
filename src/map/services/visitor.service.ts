@@ -145,7 +145,7 @@ export class VisitorService {
   }
 
   /**
-   * 주소 문자열로부터 지자체 추출 및 우버 스타일 혼잡도/서지 지표 산출
+   * 주소 문자열로부터 지자체 추출 및 실시간 혼잡도/수요 집중 지표 산출
    */
   public static resolveCongestion(
     addr: string,
@@ -188,15 +188,15 @@ export class VisitorService {
       matchedDistrict = parts[1] || parts[0] || '전국';
     }
 
-    // 외지인 대 현지인 비율 (관광객 집중률)
+    // 외지인 대 현지인 비율 (관광객 집중률 산출)
     const ratio = visitorCount / Math.max(localCount, 15000);
 
-    // 우버 서지 배율 (1.0x ~ 3.5x)
+    // 수요 집중 배율 산출 (1.0x ~ 3.5x)
     const surgeMultiplier = Number(
       Math.min(3.5, Math.max(1.0, 1.0 + ratio * 0.75)).toFixed(1),
     );
 
-    // 0 ~ 100 혼잡도 종합 지수 (집중률 + 절대 방문자수 반영)
+    // 0 ~ 100 혼잡도 종합 지표 산출 (집중률 및 절대 방문자수 반영)
     const congestionScore = Math.min(
       100,
       Math.round(ratio * 35 + (visitorCount / (maxVisitor || 400000)) * 50),
@@ -204,13 +204,13 @@ export class VisitorService {
 
     let congestionLevel: CongestionLevel = 'relaxed';
     if (congestionScore >= 75) {
-      congestionLevel = 'surge'; // 초혼잡 (붉은 장미빛)
+      congestionLevel = 'surge'; // 초혼잡
     } else if (congestionScore >= 50) {
-      congestionLevel = 'busy'; // 혼잡/북적 (주홍빛)
+      congestionLevel = 'busy'; // 혼잡
     } else if (congestionScore >= 30) {
-      congestionLevel = 'moderate'; // 보통 (황금빛)
+      congestionLevel = 'moderate'; // 보통
     } else {
-      congestionLevel = 'relaxed'; // 여유/한적 (청록빛)
+      congestionLevel = 'relaxed'; // 여유
     }
 
     const intensity = Math.min(1.0, Math.max(0.25, congestionScore / 100));

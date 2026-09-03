@@ -29,7 +29,7 @@ function extractZoneName(addr: string, district: string): string {
 
 /**
  * 한국관광공사 TOUR_API_VISITOR_KEY & TOUR_API_CONGESTION_KEY 기반
- * 우버 스타일 실시간 지역별 혼잡도 및 수요 서지 히트스팟 API
+ * 실시간 권역별 혼잡도 및 관광객 집중도 히트스팟 API
  */
 export async function GET(request: Request) {
   const q = new URL(request.url).searchParams;
@@ -51,7 +51,7 @@ export async function GET(request: Request) {
         radius: Math.max(radius, 6000),
       });
 
-      // 개별 상호명(식당/카페 등)을 노출하지 않고, 우버처럼 권역별(Zone) 중심점으로 집계
+      // 개별 상호명을 노출하지 않고 권역(Zone) 중심점으로 집계
       const zoneMap = new Map<
         string,
         {
@@ -142,7 +142,7 @@ export async function GET(request: Request) {
       updatedAt: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('우버 히트맵 API 호출 실패:', error);
+    console.error('권역 히트맵 API 호출 실패:', error);
     return NextResponse.json({
       spots: [],
       error: error instanceof Error ? error.message : 'Unknown error',
