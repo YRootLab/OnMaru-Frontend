@@ -4,13 +4,13 @@ import { sanitizeHtml, toHttps } from '@/map/utils/formatters';
 import { distanceInMeters, isTraditionalPlace } from '@/map/utils/geo';
 
 const MAX_RADIUS = 20000;
-const CACHE_TTL = 10 * 60 * 1000; // 10분
+const CACHE_TTL = 2 * 60 * 60 * 1000; // 2시간 캐시 (관광지 위치 데이터 보존)
 
 /**
  * 캐시 상한. 지도를 오래 돌아다니면 키가 계속 늘어나 서버 인스턴스 메모리를 먹는다.
  * 가장 오래된 것부터 버린다(Map은 삽입 순서를 지킨다).
  */
-const CACHE_MAX_ENTRIES = 200;
+const CACHE_MAX_ENTRIES = 500;
 
 /**
  * TourAPI 동시 호출 상한.
@@ -164,32 +164,7 @@ export class PlaceService {
       const fetchTasks: (() => Promise<{ cType: string; rows: Record<string, unknown>[] }>)[] = [];
 
       if (isNationwide) {
-        // 전국 17개 광역 시·도별 장소 및 핵심 키워드 병렬 쿼리
-        const AREA_CODES = ['1', '2', '3', '4', '5', '6', '7', '8', '31', '32', '33', '34', '35', '36', '37', '38', '39'];
-        const targetContentType = opts.category ? CATEGORY_MAP[opts.category].contentTypeId : '12';
-
-        for (const aCode of AREA_CODES) {
-          fetchTasks.push(() =>
-            TourApiClient.get(
-              'areaBasedList2',
-              {
-                areaCode: aCode,
-                contentTypeId: targetContentType,
-                arrange: 'Q',
-                numOfRows: 25,
-              },
-              signal(),
-            )
-              .then((res) => {
-                const raw = res?.response?.body?.items?.item;
-                const rows = (Array.isArray(raw) ? raw : raw ? [raw] : []) as Record<string, unknown>[];
-                return { cType: targetContentType, rows };
-              })
-              .catch(() => ({ cType: targetContentType, rows: [] })),
-          );
-        }
-
-        // 전통 문화재 핵심 키워드 쿼리
+        // 전국 조망 쿼리: 핵심 전통 한옥 키워드 3건으로 통합 요청 (기존 20건 -> 3건으로 대폭 절감)
         const coreKeywords = ['한옥', '고택', '문화재'];
         for (const kw of coreKeywords) {
           fetchTasks.push(() =>
@@ -198,7 +173,7 @@ export class PlaceService {
               {
                 keyword: kw,
                 arrange: 'Q',
-                numOfRows: 80,
+                numOfRows: 60,
               },
               signal(),
             )
@@ -211,33 +186,32 @@ export class PlaceService {
           );
         }
       } else {
-        // 현재 지도 중심 기준 위치 쿼리
-        const contentTypes = opts.category
-          ? [CATEGORY_MAP[opts.category].contentTypeId]
-          : ['12', '14', '15', '28', '32', '38', '39'];
-
-        for (const cType of contentTypes) {
-          fetchTasks.push(() =>
-            TourApiClient.get(
-              'locationBasedList2',
-              {
-                mapX: opts.lng,
-                mapY: opts.lat,
-                radius,
-                contentTypeId: cType,
-                arrange: 'E',
-                numOfRows: 30,
-              },
-              signal(),
-            )
-              .then((res) => {
-                const raw = res?.response?.body?.items?.item;
-                const rows = (Array.isArray(raw) ? raw : raw ? [raw] : []) as Record<string, unknown>[];
-                return { cType, rows };
-              })
-              .catch(() => ({ cType, rows: [] })),
-          );
+        // 현재 지도 중심 기준 위치 쿼리:
+        // 카테고리 지정 시 해당 카테고리 단 1회, 전체 조회 시에도 contentTypeId를 생략하여 1회 통합 요청 (기존 7건 -> 1건으로 85% 절감!)
+        const targetParams: Record<string, string | number> = {
+          mapX: opts.lng,
+          mapY: opts.lat,
+          radius,
+          arrange: 'E',
+          numOfRows: 80,
+        };
+        if (opts.category) {
+          targetParams.contentTypeId = CATEGORY_MAP[opts.category].contentTypeId;
         }
+
+        fetchTasks.push(() =>
+          TourApiClient.get(
+            'locationBasedList2',
+            targetParams,
+            signal(),
+          )
+            .then((res) => {
+              const raw = res?.response?.body?.items?.item;
+              const rows = (Array.isArray(raw) ? raw : raw ? [raw] : []) as Record<string, unknown>[];
+              return { cType: String(targetParams.contentTypeId || ''), rows };
+            })
+            .catch(() => ({ cType: '', rows: [] })),
+        );
       }
 
       const results = await runPooled(fetchTasks);
@@ -256,13 +230,14 @@ export class PlaceService {
           const x = Number(row.mapx);
           if (!title || !Number.isFinite(y) || !Number.isFinite(x)) continue;
 
+          const rowCType = String(row.contenttypeid || cType || '12');
           let category: PlaceCategory = 'spot';
-          if (cType === '32') category = 'stay';
-          else if (cType === '28') category = 'experience';
-          else if (cType === '14') category = 'culture';
-          else if (cType === '15') category = 'festival';
-          else if (cType === '38') category = 'market';
-          else if (cType === '39') {
+          if (rowCType === '32') category = 'stay';
+          else if (rowCType === '28') category = 'experience';
+          else if (rowCType === '14') category = 'culture';
+          else if (rowCType === '15') category = 'festival';
+          else if (rowCType === '38') category = 'market';
+          else if (rowCType === '39') {
             category =
               cat3 === 'A05020900' || /(카페|찻집|커피|다원)/.test(title)
                 ? 'cafe'

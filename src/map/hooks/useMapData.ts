@@ -22,8 +22,9 @@ function radiusFromMap(map: KakaoMap): number {
   );
 }
 
-const CLIENT_CACHE_TTL = 5 * 60 * 1000; // 5분 클라이언트 캐시
+const CLIENT_CACHE_TTL = 30 * 60 * 1000; // 30분 클라이언트 인메모리 캐시 (화면 재방문 시 0ms 즉시 로드)
 const clientPlaceCache = new Map<string, { expiresAt: number; items: any[] }>();
+const clientHeatCache = new Map<string, { expiresAt: number; spots: any[] }>();
 
 /** 지도 장소 목록 및 온기 데이터 실시간 동기화 훅 */
 export function useMapData() {
@@ -50,6 +51,7 @@ export function useMapData() {
     const roundedLng = Math.round(searchCenter.lng * 100) / 100;
     const roundedRadius = Math.round(radius / 1000) * 1000;
     const cacheKey = `${roundedLat}_${roundedLng}_${roundedRadius}_${category || 'all'}`;
+    const heatCacheKey = `${roundedLat}_${roundedLng}_${level}`;
     const controller = new AbortController();
     const warmthParams = new URLSearchParams({
       lat: String(searchCenter.lat),
@@ -58,20 +60,29 @@ export function useMapData() {
       radius: String(Math.max(radius, level <= 5 ? 5000 : 15000)),
     });
 
-    // 1. 실시간 권역별 혼잡도 및 관광객 집중도 히트스팟 패치 (TOUR_API_CONGESTION_KEY & TOUR_API_VISITOR_KEY 기반)
-    fetch(`/api/map/heat?${warmthParams}`, { signal: controller.signal })
-      .then(async (res) => {
-        const json = await res.json().catch(() => ({}));
-        if (Array.isArray(json.spots) && json.spots.length > 0) {
-          useMapStore.getState().setHeatSpots(json.spots);
-        }
-      })
-      .catch((err) => {
-        if (err instanceof DOMException && err.name === 'AbortError') return;
-        log.warn('권역 히트스팟 패치 실패:', err);
-      });
+    // 1. 실시간 권역별 혼잡도 및 관광객 집중도 히트스팟 패치 (클라이언트 캐시 우선)
+    const cachedHeat = clientHeatCache.get(heatCacheKey);
+    if (cachedHeat && cachedHeat.expiresAt > Date.now()) {
+      useMapStore.getState().setHeatSpots(cachedHeat.spots);
+    } else {
+      fetch(`/api/map/heat?${warmthParams}`, { signal: controller.signal })
+        .then(async (res) => {
+          const json = await res.json().catch(() => ({}));
+          if (Array.isArray(json.spots) && json.spots.length > 0) {
+            clientHeatCache.set(heatCacheKey, {
+              expiresAt: Date.now() + CLIENT_CACHE_TTL,
+              spots: json.spots,
+            });
+            useMapStore.getState().setHeatSpots(json.spots);
+          }
+        })
+        .catch((err) => {
+          if (err instanceof DOMException && err.name === 'AbortError') return;
+          log.warn('권역 히트스팟 패치 실패:', err);
+        });
+    }
 
-    // 2. 온기 API 실시간 연동 (현재 지도 위치/반경 내 TourAPI 장소 기반 온기 수집)
+    // 2. 온기 이야기 API 실시간 연동
     fetch(`/api/map/warmth?${warmthParams}`, { signal: controller.signal })
       .then(async (res) => {
         const json = await res.json().catch(() => ({}));

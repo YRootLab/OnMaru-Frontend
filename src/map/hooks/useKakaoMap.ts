@@ -10,11 +10,11 @@ export const KAKAO_SDK_SRC =
   `?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_KEY}` +
   `&libraries=services,clusterer&autoload=false`;
 
-/** 지도를 이만큼 움직이면 자동으로 다시 불러온다. */
-const REFETCH_DISTANCE = 400;
+/** 지도를 이만큼 움직이면 자동으로 다시 불러온다 (1.2km 이상 이동 시에만 재패치하여 트래픽 절약). */
+const REFETCH_DISTANCE = 1200;
 
-/** 지도가 멈춘 뒤 기다리는 시간. 드래그 중 연속 요청을 막는다. */
-const IDLE_DEBOUNCE_MS = 320;
+/** 지도가 멈춘 뒤 기다리는 시간 (0.55초). 드래그 및 줌 휠 중 연속 요청을 차단한다. */
+const IDLE_DEBOUNCE_MS = 550;
 
 /*
   거리 계산은 utils/geo가 갖는다. 이 이름으로 부르던 곳이 여럿이라 여기서도 내보낸다.
