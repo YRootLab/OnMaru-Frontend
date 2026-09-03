@@ -17,12 +17,14 @@ import {
   Ticket,
   Camera,
   ChevronLeft,
+  Bookmark,
 } from 'lucide-react';
 import { logger } from '@/lib/log';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useOdiiPlaceStory } from '@/features/odii-audio/hooks/useOdiiPlaceStory';
 import { useCinematicTourStore } from '@/features/cinematic-tour/store/useCinematicTourStore';
 import { useMapStore } from '@/map/hooks/useMapStore';
+import { useBookmarkStore } from '@/map/hooks/useBookmarkStore';
 import { usePlaceDetail } from '@/map/hooks/usePlaceDetail';
 import { formatDistance } from '@/map/utils/formatters';
 import { createKakaoNavigationLinks } from '@/map/utils/navigation';
@@ -34,6 +36,7 @@ import {
   HeaderBar,
   HeaderBadge,
   BackToPopularBtn,
+  HeaderActionGroup,
   CloseButton,
   ScrollBody,
   TitleSection,
@@ -59,6 +62,7 @@ import {
   OverviewText,
   ToggleMoreBtn,
   BottomActionArea,
+  BookmarkButton,
   ShareButton,
   NavButton,
   SkeletonBox,
@@ -275,6 +279,22 @@ export default function PlaceDetail() {
     };
   }, [warmthCount, isBusy]);
 
+  const isBookmarked = useBookmarkStore((s) => s.isBookmarked(detailId || ''));
+  const toggleBookmark = useBookmarkStore((s) => s.toggleBookmark);
+
+  const handleToggleBookmark = () => {
+    if (!detailId) return;
+    toggleBookmark({
+      id: detailId,
+      name: title,
+      category: selectedItem?.category,
+      addr,
+      image: images[0],
+      lat: hasValidCoords ? lat : undefined,
+      lng: hasValidCoords ? lng : undefined,
+    });
+  };
+
   return (
     <DetailWrapper tabIndex={-1} role="region" aria-label="장소 상세 정보">
       <HeaderBar>
@@ -294,14 +314,28 @@ export default function PlaceDetail() {
             <span>추천명소</span>
           </HeaderBadge>
         )}
-        <CloseButton
-          type="button"
-          onClick={() => setDetailId(null)}
-          aria-label="상세 정보 닫기"
-          title="닫기 (ESC)"
-        >
-          <X size={20} />
-        </CloseButton>
+        <HeaderActionGroup>
+          <CloseButton
+            type="button"
+            onClick={handleToggleBookmark}
+            aria-label={isBookmarked ? '마음에 둔 장소 저장 해제' : '마음에 둔 장소로 저장'}
+            title={isBookmarked ? '저장됨 (마음에 둔 장소)' : '마음에 담기 (북마크)'}
+            style={{
+              color: isBookmarked ? lightPalette.juhong[500] : meok[700],
+              background: isBookmarked ? 'rgba(232, 90, 24, 0.1)' : undefined,
+            }}
+          >
+            <Bookmark size={16} fill={isBookmarked ? 'currentColor' : 'none'} />
+          </CloseButton>
+          <CloseButton
+            type="button"
+            onClick={() => setDetailId(null)}
+            aria-label="상세 정보 닫기"
+            title="닫기 (ESC)"
+          >
+            <X size={20} />
+          </CloseButton>
+        </HeaderActionGroup>
       </HeaderBar>
 
       <ScrollBody key={detailId}>
@@ -531,6 +565,17 @@ export default function PlaceDetail() {
       </ScrollBody>
 
       <BottomActionArea>
+        <BookmarkButton
+          type="button"
+          $active={isBookmarked}
+          onClick={handleToggleBookmark}
+          aria-label={isBookmarked ? '마음에 담긴 장소' : '마음에 담기'}
+          title={isBookmarked ? '저장 해제' : '마음에 담기'}
+        >
+          <Bookmark size={15} fill={isBookmarked ? 'currentColor' : 'none'} />
+          <span>{isBookmarked ? '저장됨' : '마음에 담기'}</span>
+        </BookmarkButton>
+
         <ShareButton type="button" onClick={handleShare} aria-label="장소 링크 공유하기">
           {copied ? <Check size={16} color={lightPalette.cheongrok[700]} /> : <Share2 size={16} />}
           <span>{copied ? '복사됨' : '공유하기'}</span>

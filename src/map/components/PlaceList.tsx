@@ -3,9 +3,10 @@
 import { useMemo } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
-import { ChevronDown, Map, RefreshCw, AlertCircle, Sparkles, LayoutList } from 'lucide-react';
+import { ChevronDown, Map, RefreshCw, AlertCircle, Sparkles, LayoutList, Bookmark } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
+import { useBookmarkStore } from '@/map/hooks/useBookmarkStore';
 import { PlaceListItem } from './PlaceListItem';
 import LiveNoticeBanner from './feed/LiveNoticeBanner';
 import FestivalExhibitionCarousel from './feed/FestivalExhibitionCarousel';
@@ -14,6 +15,7 @@ import SmartAroundFeed from './feed/SmartAroundFeed';
 import type { Item, PlaceCategory } from '@/map/types';
 
 const CATEGORY_NAMES: Record<string, string> = {
+  bookmark: '마음에 담은 곳',
   spot: '고택·명소',
   experience: '한복·전통체험',
   culture: '문화재·서원',
@@ -204,14 +206,36 @@ export default function PlaceList() {
   const setHoveredId = useMapStore((s) => s.setHoveredId);
   const reload = useMapStore((s) => s.reload);
 
-  // 정렬 처리
+  const bookmarks = useBookmarkStore((s) => s.bookmarks);
+
+  // 정렬 및 북마크 필터링 처리
   const sortedItems = useMemo(() => {
-    const list = [...items];
+    let list = [...items];
+    if (category === 'bookmark') {
+      const bookmarkedIdSet = new Set(bookmarks.map((b) => b.id));
+      list = list.filter((item) => bookmarkedIdSet.has(item.id));
+      const existingIds = new Set(list.map((item) => item.id));
+      bookmarks.forEach((b) => {
+        if (!existingIds.has(b.id)) {
+          list.push({
+            id: b.id,
+            name: b.name,
+            category: (b.category as PlaceCategory) || 'spot',
+            lat: b.lat || 37.5665,
+            lng: b.lng || 126.978,
+            addr: b.addr || '',
+            image: b.image || null,
+            tel: null,
+            dist: null,
+          });
+        }
+      });
+    }
     if (sortOrder === 'name') {
       return list.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
     }
     return list.sort((a, b) => (a.dist ?? 1e9) - (b.dist ?? 1e9));
-  }, [items, sortOrder]);
+  }, [items, sortOrder, category, bookmarks]);
 
   // 축제/행사 아이템 필터링
   const festivalItems = useMemo(() => {
@@ -315,13 +339,23 @@ export default function PlaceList() {
       ) : sortedItems.length === 0 ? (
         <EmptyStateBox>
           <EmptyIconBox>
-            <Map size={24} />
+            {category === 'bookmark' ? (
+              <Bookmark size={24} color={lightPalette.juhong[500]} />
+            ) : (
+              <Map size={24} />
+            )}
           </EmptyIconBox>
-          <EmptyTitle>현재 반경에 장소가 없습니다</EmptyTitle>
+          <EmptyTitle>
+            {category === 'bookmark'
+              ? '아직 마음에 담은 장소가 없습니다'
+              : '현재 반경에 장소가 없습니다'}
+          </EmptyTitle>
           <EmptyDesc>
-            {category
-              ? `선택하신 '${CATEGORY_NAMES[category] || category}' 장소가 가까운 반경에 없습니다.`
-              : '지도 영역을 넓히거나 전국 인기 명소를 둘러보세요.'}
+            {category === 'bookmark'
+              ? '마음에 드는 한옥 명소의 [마음에 담기]를 눌러\n나만의 여행 지도를 만들어보세요.'
+              : category
+                ? `선택하신 '${CATEGORY_NAMES[category] || category}' 장소가 가까운 반경에 없습니다.`
+                : '지도 영역을 넓히거나 전국 인기 명소를 둘러보세요.'}
           </EmptyDesc>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', maxWidth: '240px' }}>
             {category && (
@@ -331,17 +365,19 @@ export default function PlaceList() {
                 style={{ width: '100%', justifyContent: 'center' }}
               >
                 <Sparkles size={14} />
-                <span>전체 카테고리로 보기</span>
+                <span>전체 명소 둘러보기</span>
               </ActionButton>
             )}
-            <ActionButton
-              type="button"
-              onClick={handleZoomOut}
-              style={{ width: '100%', justifyContent: 'center' }}
-            >
-              <Map size={14} />
-              <span>지도 영역 2배 넓히기</span>
-            </ActionButton>
+            {category !== 'bookmark' && (
+              <ActionButton
+                type="button"
+                onClick={handleZoomOut}
+                style={{ width: '100%', justifyContent: 'center' }}
+              >
+                <Map size={14} />
+                <span>지도 영역 2배 넓히기</span>
+              </ActionButton>
+            )}
             <ActionButton
               type="button"
               onClick={() => useMapStore.getState().setPopularPanelOpen(true)}

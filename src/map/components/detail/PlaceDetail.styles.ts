@@ -427,19 +427,61 @@ export const BottomActionArea = styled.div`
   gap: 8px;
 `;
 
-export const ShareButton = styled.button`
-  flex: 1;
+export const HeaderActionGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
+
+export const BookmarkButton = styled.button<{ $active: boolean }>`
+  flex: 1.1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
   height: 48px;
+  border-radius: 16px;
+  border: none;
+  background: ${({ $active }) =>
+    $active ? 'rgba(232, 90, 24, 0.1)' : 'rgba(78, 89, 104, 0.08)'};
+  color: ${({ $active }) =>
+    $active ? lightPalette.juhong[700] : meok[900]};
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
 
+  &:hover {
+    background: ${({ $active }) =>
+      $active ? 'rgba(232, 90, 24, 0.16)' : 'rgba(78, 89, 104, 0.14)'};
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  [data-theme='dark'] & {
+    background: ${({ $active }) =>
+      $active ? 'rgba(248, 87, 0, 0.2)' : 'rgba(255, 255, 255, 0.08)'};
+    color: ${({ $active }) =>
+      $active ? darkPalette.juhong[200] : meok[200]};
+  }
+`;
+
+export const ShareButton = styled.button`
+  flex: 0.9;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 48px;
+  border: none;
   border-radius: 16px;
   background: rgba(78, 89, 104, 0.08);
   color: ${meok[900]};
   font-family: inherit;
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s ease;

@@ -13,8 +13,10 @@ import {
   BookOpen,
   Moon,
   Headphones,
+  Bookmark,
 } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
+import { useBookmarkStore } from '@/map/hooks/useBookmarkStore';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { matchOdiiStory } from '@/features/odii-audio/hooks/useOdiiPlaceStory';
 import { CATEGORY_STYLES } from './PlaceMarkers';
@@ -60,6 +62,34 @@ const ItemButton = styled.button<{ $isSelected: boolean }>`
 
   &:focus-visible {
     background: rgba(40, 110, 95, 0.08);
+  }
+`;
+
+const BookmarkQuickBtn = styled.button<{ $active: boolean }>`
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: ${({ $active }) => ($active ? 'rgba(232, 90, 24, 0.12)' : 'transparent')};
+  color: ${({ $active }) => ($active ? lightPalette.juhong[500] : meok[400])};
+  cursor: pointer;
+  z-index: 3;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: ${({ $active }) => ($active ? 'rgba(232, 90, 24, 0.2)' : 'rgba(25, 31, 40, 0.08)')};
+    color: ${({ $active }) => ($active ? lightPalette.juhong[700] : meok[700])};
+    transform: scale(1.1);
+  }
+
+  &:active {
+    transform: scale(0.9);
   }
 `;
 
@@ -268,10 +298,25 @@ function PlaceListItemComponent({
   }, [isSelected]);
 
   const availableStories = useOdiiAudioStore((s) => s.availableStories);
+  const isBookmarked = useBookmarkStore((s) => s.isBookmarked(item.id));
+  const toggleBookmark = useBookmarkStore((s) => s.toggleBookmark);
 
   const hasOdii = useMemo(() => {
     return Boolean(matchOdiiStory(item, availableStories));
   }, [item, availableStories]);
+
+  const handleBookmarkClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggleBookmark({
+      id: item.id,
+      name: item.name,
+      category: item.category,
+      addr: item.addr || undefined,
+      image: item.image || undefined,
+      lat: item.lat,
+      lng: item.lng,
+    });
+  };
 
   const catLabel = CATEGORY_LABELS[item.category] || '한옥명소';
   const district = getDistrictFromAddr(item.addr);
@@ -330,6 +375,16 @@ function PlaceListItemComponent({
             </BadgeRow>
           )}
         </Content>
+
+        <BookmarkQuickBtn
+          type="button"
+          $active={isBookmarked}
+          onClick={handleBookmarkClick}
+          title={isBookmarked ? '저장 해제' : '마음에 담기'}
+          aria-label={isBookmarked ? `${item.name} 마음에 담기 취소` : `${item.name} 마음에 담기`}
+        >
+          <Bookmark size={13} fill={isBookmarked ? 'currentColor' : 'none'} />
+        </BookmarkQuickBtn>
       </ItemButton>
     </ItemContainer>
   );
