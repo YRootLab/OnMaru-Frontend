@@ -1,77 +1,56 @@
 import { TourApiClient } from '@/lib/tour-api/tourApiClient';
 import type { Item, PlaceCategory, PlaceDetailData } from '@/map/types';
 import { sanitizeHtml, toHttps } from '@/map/utils/formatters';
+import { distanceInMeters, isTraditionalPlace } from '@/map/utils/geo';
 
 const MAX_RADIUS = 20000;
 const CACHE_TTL = 10 * 60 * 1000; // 10분
+
+/**
+ * 캐시 상한. 지도를 오래 돌아다니면 키가 계속 늘어나 서버 인스턴스 메모리를 먹는다.
+ * 가장 오래된 것부터 버린다(Map은 삽입 순서를 지킨다).
+ */
+const CACHE_MAX_ENTRIES = 200;
+
+/**
+ * TourAPI 동시 호출 상한.
+ *
+ * 전국 조망은 17개 시·도 + 키워드 3개 = 20개를 한 번에 던졌다. 공공데이터포털은
+ * 동시 요청을 조이기 때문에 그중 일부가 통째로 비어 돌아왔다. 4개씩 끊어 보내면
+ * 전체 소요는 비슷하면서 빈 응답이 사라진다.
+ */
+const MAX_CONCURRENCY = 4;
+
+/** 요청 하나가 기다리는 시간. 예전에는 signal 하나를 20개가 공유해 함께 죽었다. */
+const REQUEST_TIMEOUT_MS = 8000;
+
+/** task를 limit개씩 끊어 실행한다. */
+async function runPooled<T>(tasks: (() => Promise<T>)[], limit = MAX_CONCURRENCY): Promise<T[]> {
+  const out: T[] = [];
+  for (let i = 0; i < tasks.length; i += limit) {
+    const batch = tasks.slice(i, i + limit).map((task) => task());
+    out.push(...(await Promise.all(batch)));
+  }
+  return out;
+}
 
 interface CacheEntry {
   expiresAt: number;
   items: Item[];
 }
 
-const CATEGORY_MAP: Record<
-  PlaceCategory,
-  { contentTypeId: string; keep: (cat3: string, title: string) => boolean }
-> = {
-  spot: { contentTypeId: '12', keep: () => true },
-  experience: { contentTypeId: '28', keep: () => true },
-  culture: { contentTypeId: '14', keep: () => true },
-  festival: { contentTypeId: '15', keep: () => true },
-  stay: { contentTypeId: '32', keep: () => true },
-  food: { contentTypeId: '39', keep: (cat3) => cat3 !== 'A05020900' },
-  cafe: {
-    contentTypeId: '39',
-    keep: (cat3, title) => cat3 === 'A05020900' || /(카페|찻집|커피|다원)/.test(title),
-  },
-  market: {
-    contentTypeId: '38',
-    keep: (cat3, title) =>
-      cat3 === 'A04010100' || cat3 === 'A04010200' || title.includes('시장'),
-  },
+const CATEGORY_MAP: Record<PlaceCategory, { contentTypeId: string }> = {
+  spot: { contentTypeId: '12' },
+  experience: { contentTypeId: '28' },
+  culture: { contentTypeId: '14' },
+  festival: { contentTypeId: '15' },
+  stay: { contentTypeId: '32' },
+  food: { contentTypeId: '39' },
+  cafe: { contentTypeId: '39' },
+  market: { contentTypeId: '38' },
 };
 
 export const PLACE_CATEGORIES = Object.keys(CATEGORY_MAP) as PlaceCategory[];
-
-/** 전국 권역별 거점 좌표 목록 */
-const NATIONWIDE_HUBS = [
-  { lat: 37.58, lng: 126.98 },
-  { lat: 37.28, lng: 127.01 },
-  { lat: 37.75, lng: 126.48 },
-  { lat: 38.33, lng: 128.50 },
-  { lat: 37.79, lng: 128.89 },
-  { lat: 37.38, lng: 128.66 },
-  { lat: 37.19, lng: 128.45 },
-  { lat: 36.73, lng: 127.01 },
-  { lat: 36.46, lng: 127.12 },
-  { lat: 36.21, lng: 127.13 },
-  { lat: 36.75, lng: 126.79 },
-  { lat: 36.48, lng: 127.72 },
-  { lat: 37.05, lng: 128.35 },
-  { lat: 35.815, lng: 127.153 },
-  { lat: 35.40, lng: 127.38 },
-  { lat: 35.43, lng: 126.70 },
-  { lat: 36.00, lng: 127.66 },
-  { lat: 35.18, lng: 126.99 },
-  { lat: 34.90, lng: 127.33 },
-  { lat: 35.26, lng: 127.48 },
-  { lat: 34.75, lng: 126.59 },
-  { lat: 34.55, lng: 126.61 },
-  { lat: 34.15, lng: 126.55 },
-  { lat: 36.54, lng: 128.52 },
-  { lat: 36.75, lng: 128.62 },
-  { lat: 36.41, lng: 129.04 },
-  { lat: 35.83, lng: 129.22 },
-  { lat: 35.88, lng: 128.29 },
-  { lat: 35.59, lng: 127.75 },
-  { lat: 35.29, lng: 127.97 },
-  { lat: 35.80, lng: 128.09 },
-  { lat: 35.49, lng: 128.75 },
-  { lat: 34.72, lng: 127.89 },
-  { lat: 33.38, lng: 126.79 },
-  { lat: 33.23, lng: 126.28 },
-  { lat: 33.51, lng: 126.52 },
-];
 
 /** 한옥 및 전통 문화재 장소 데이터 서비스 */
 export class PlaceService {
@@ -107,7 +86,8 @@ export class PlaceService {
       return cached.items;
     }
 
-    const signal = AbortSignal.timeout(10000);
+    /* 요청마다 새 타임아웃을 준다. 하나를 공유하면 뒤 배치가 시작도 못 하고 죽는다. */
+    const signal = () => AbortSignal.timeout(REQUEST_TIMEOUT_MS);
     const out: Item[] = [];
     const seen = new Set<string>();
 
@@ -123,7 +103,7 @@ export class PlaceService {
             arrange: 'E',
             numOfRows: 50,
           },
-          signal,
+          signal(),
         ),
         TourApiClient.get(
           'areaBasedList2',
@@ -132,7 +112,7 @@ export class PlaceService {
             arrange: 'Q',
             numOfRows: 50,
           },
-          signal,
+          signal(),
         ),
         TourApiClient.get(
           'searchKeyword2',
@@ -142,7 +122,7 @@ export class PlaceService {
             arrange: 'E',
             numOfRows: 30,
           },
-          signal,
+          signal(),
         ),
       ]);
 
@@ -161,9 +141,10 @@ export class PlaceService {
           const x = Number(row.mapx);
           if (!title || !Number.isFinite(y) || !Number.isFinite(x)) continue;
 
-          const dLat = (y - opts.lat) * 111000;
-          const dLng = (x - opts.lng) * 88800;
-          const dist = Math.round(Math.sqrt(dLat * dLat + dLng * dLng));
+          const dist = Math.round(distanceInMeters({ lat: opts.lat, lng: opts.lng }, { lat: y, lng: x }));
+
+          // 지역을 좁혀 보고 있으면 화면 밖 축제까지 끌어오지 않는다.
+          if (!isNationwide && dist > radius) continue;
 
           out.push({
             id,
@@ -180,7 +161,7 @@ export class PlaceService {
       });
     } else {
       // 일반 및 전체 카테고리 실시간 병렬 호출
-      const fetchTasks: Promise<{ cType: string; rows: Record<string, unknown>[] }>[] = [];
+      const fetchTasks: (() => Promise<{ cType: string; rows: Record<string, unknown>[] }>)[] = [];
 
       if (isNationwide) {
         // 전국 17개 광역 시·도별 장소 및 핵심 키워드 병렬 쿼리
@@ -188,7 +169,7 @@ export class PlaceService {
         const targetContentType = opts.category ? CATEGORY_MAP[opts.category].contentTypeId : '12';
 
         for (const aCode of AREA_CODES) {
-          fetchTasks.push(
+          fetchTasks.push(() =>
             TourApiClient.get(
               'areaBasedList2',
               {
@@ -197,7 +178,7 @@ export class PlaceService {
                 arrange: 'Q',
                 numOfRows: 25,
               },
-              signal,
+              signal(),
             )
               .then((res) => {
                 const raw = res?.response?.body?.items?.item;
@@ -211,7 +192,7 @@ export class PlaceService {
         // 전통 문화재 핵심 키워드 쿼리
         const coreKeywords = ['한옥', '고택', '문화재'];
         for (const kw of coreKeywords) {
-          fetchTasks.push(
+          fetchTasks.push(() =>
             TourApiClient.get(
               'searchKeyword2',
               {
@@ -219,7 +200,7 @@ export class PlaceService {
                 arrange: 'Q',
                 numOfRows: 80,
               },
-              signal,
+              signal(),
             )
               .then((res) => {
                 const raw = res?.response?.body?.items?.item;
@@ -236,7 +217,7 @@ export class PlaceService {
           : ['12', '14', '15', '28', '32', '38', '39'];
 
         for (const cType of contentTypes) {
-          fetchTasks.push(
+          fetchTasks.push(() =>
             TourApiClient.get(
               'locationBasedList2',
               {
@@ -247,7 +228,7 @@ export class PlaceService {
                 arrange: 'E',
                 numOfRows: 30,
               },
-              signal,
+              signal(),
             )
               .then((res) => {
                 const raw = res?.response?.body?.items?.item;
@@ -259,11 +240,10 @@ export class PlaceService {
         }
       }
 
-      const results = await Promise.allSettled(fetchTasks);
+      const results = await runPooled(fetchTasks);
 
-      results.forEach((res) => {
-        if (res.status !== 'fulfilled' || !res.value) return;
-        const { cType, rows } = res.value;
+      results.forEach((value) => {
+        const { cType, rows } = value;
 
         for (const row of rows) {
           const id = String(row.contentid);
@@ -291,19 +271,12 @@ export class PlaceService {
 
           if (opts.category && category !== opts.category) continue;
 
-          // 사용자 중심점(opts.lat, opts.lng) 기준 절대거리 계산
-          const dLat = (y - opts.lat) * 111000;
-          const dLng = (x - opts.lng) * 88800;
-          const dist = Math.round(Math.sqrt(dLat * dLat + dLng * dLng));
+          // 검색 중심(opts.lat, opts.lng) 기준 거리 — utils/geo가 유일한 계산기다.
+          const dist = Math.round(
+            distanceInMeters({ lat: opts.lat, lng: opts.lng }, { lat: y, lng: x }),
+          );
 
-          // 정통 한옥 및 전통 문화재 엔티티 여부 판별
-          const isTraditional =
-            cat3 === 'B02011600' ||
-            cat3.startsWith('A0201') ||
-            cat3 === 'A02080100' ||
-            /(한옥|고택|종택|향교|서원|사당|궁궐|성곽|누각|정자|기와|초가|전통|다원|다도|명옥헌|임청각|명재|선교장|운현궁|낙선재|대청|마루|온돌|당\b|재\b|헌\b|루\b|정\b|각\b|원\b)/i.test(
-              title,
-            );
+          const isTraditional = isTraditionalPlace(title, cat3);
 
           out.push({
             id,
@@ -321,11 +294,16 @@ export class PlaceService {
       });
     }
 
-    // 4. 캐시 저장
+    // 4. 캐시 저장 (상한을 넘으면 가장 오래된 항목부터 버린다)
     this.placeCache.set(cacheKey, {
       expiresAt: Date.now() + CACHE_TTL,
       items: out,
     });
+    while (this.placeCache.size > CACHE_MAX_ENTRIES) {
+      const oldest = this.placeCache.keys().next().value;
+      if (oldest === undefined) break;
+      this.placeCache.delete(oldest);
+    }
 
     return out;
   }
@@ -335,7 +313,7 @@ export class PlaceService {
     contentId: string,
     contentTypeId = '12',
   ): Promise<PlaceDetailData> {
-    const signal = AbortSignal.timeout(10000);
+    const signal = () => AbortSignal.timeout(REQUEST_TIMEOUT_MS);
 
     try {
       const [commonRes, introRes, imageRes] = await Promise.allSettled([
@@ -349,17 +327,17 @@ export class PlaceService {
             mapinfoYN: 'Y',
             overviewYN: 'Y',
           },
-          signal,
+          signal(),
         ),
         TourApiClient.get(
           'detailIntro2',
           { contentId, contentTypeId },
-          signal,
+          signal(),
         ),
         TourApiClient.get(
           'detailImage2',
           { contentId, imageYN: 'Y', subImageYN: 'Y', numOfRows: '10' },
-          signal,
+          signal(),
         ),
       ]);
 
