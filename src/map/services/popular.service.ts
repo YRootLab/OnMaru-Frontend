@@ -17,8 +17,11 @@ export class PopularPlaceService {
   private static cache = new Map<string, PopularCacheEntry>();
 
   /**
-   * 한국관광공사 TourAPI 4.0 실시간 인기도/조회순(P/Q) 정렬 기반 인기 장소 랭킹 조회
-   * (하드코딩 Fallback 데이터 전면 제거, 100% 공공 API 연동)
+   * 한국관광공사 TourAPI 조회순(arrange P/Q) 정렬 결과를 그대로 순위로 쓴다.
+   *
+   * 여기서 만들어내는 값은 없다. 예전에는 helpfulCount를 `95 - idx * 6`으로,
+   * 혼잡도를 순위 인덱스로 지어내 화면에 "도움돼요 95개 · 혼잡"으로 띄웠다.
+   * 근거가 없는 숫자라 전부 걷어냈고, 화면에는 순위와 출처만 남는다.
    */
   public static async getPopularPlaces(region = 'all'): Promise<{
     region: string;
@@ -78,14 +81,11 @@ export class PopularPlaceService {
         const x = Number(item.mapx);
         if (!title || !Number.isFinite(y) || !Number.isFinite(x)) continue;
 
-        const idx = items.length;
         items.push({
           placeId: id,
           placeName: title,
-          placeType: '전통문화 · 실시간 인기명소',
+          placeType: '한국관광공사 조회순',
           placeRegion: region === 'all' ? '전국' : region,
-          helpfulCount: Math.max(15, 95 - idx * 6),
-          congestionLevel: idx === 0 ? '혼잡' : idx < 3 ? '보통' : '여유',
           image: toHttps(String(item.firstimage || item.firstimage2 || '')) || null,
           lat: y,
           lng: x,

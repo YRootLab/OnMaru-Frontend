@@ -181,26 +181,6 @@ const Meta = styled.p`
   gap: 6px;
 `;
 
-const CongestionBadge = styled.span<{ $level: string }>`
-  display: inline-block;
-  padding: 1.5px 6px;
-  border-radius: 9999px;
-  font-size: 11px;
-  font-weight: 600;
-  background: ${({ $level }) =>
-    $level === '혼잡'
-      ? 'rgba(232, 90, 24, 0.1)'
-      : $level === '보통'
-        ? 'rgba(234, 179, 8, 0.12)'
-        : 'rgba(40, 110, 95, 0.1)'};
-  color: ${({ $level }) =>
-    $level === '혼잡'
-      ? lightPalette.juhong[700]
-      : $level === '보통'
-        ? '#b45309'
-        : lightPalette.cheongrok[700]};
-`;
-
 const RightCol = styled.div`
   margin-left: 12px;
   flex-shrink: 0;
@@ -282,7 +262,7 @@ export default function PopularPlacesPanel() {
 
       {/* 2. 설명 문구 및 가로 스크롤 지역 칩 */}
       <SubHeader>
-        <SubText>어제 대비 오늘 온기가 급상승한 한옥 명소 순</SubText>
+        <SubText>한국관광공사 TourAPI 조회순 상위 한옥·전통 명소입니다.</SubText>
         <RegionScroller role="tablist" aria-label="지역별 인기 장소">
           {REGIONS.map((reg) => (
             <RegionChip
@@ -312,13 +292,14 @@ export default function PopularPlacesPanel() {
               <RankNum $rank={idx + 1}>{idx + 1}</RankNum>
               <PlaceInfo>
                 <Name>{place.placeName}</Name>
+                {/*
+                  예전에는 여기에 "온기 95 · 혼잡"이 떴는데 둘 다 순위 인덱스로
+                  지어낸 값이었다. 실제로 아는 것은 지역과 정렬 근거뿐이라 그것만 적는다.
+                */}
                 <Meta>
                   <span>{place.placeRegion}</span>
                   <span>·</span>
-                  <span>온기 {place.helpfulCount}</span>
-                  <CongestionBadge $level={place.congestionLevel}>
-                    {place.congestionLevel}
-                  </CongestionBadge>
+                  <span>{place.placeType}</span>
                 </Meta>
               </PlaceInfo>
             </LeftCol>
