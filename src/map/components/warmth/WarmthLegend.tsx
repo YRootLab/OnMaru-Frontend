@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import styled from '@emotion/styled';
-import { meok } from '@/design-system/tokens';
+import { meok, surface } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import { filterWarmth } from '@/map/warmth/warmthRepo';
@@ -39,13 +39,16 @@ const Root = styled.div`
   max-width: calc(100vw - 32px);
 
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.94);
+  background: ${surface.light.card};
   backdrop-filter: blur(16px);
-  box-shadow: 0 6px 24px -4px rgba(25, 31, 40, 0.16), 0 0 0 1px rgba(25, 31, 40, 0.05);
+  border: none;
+  box-shadow: 0 6px 24px -4px rgba(0, 0, 0, 0.12);
+  font-family: 'Pretendard', 'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
 
   [data-theme='dark'] & {
-    background: rgba(36, 33, 29, 0.94);
-    box-shadow: 0 6px 24px -4px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08);
+    background: ${surface.dark.surface};
+    border: none;
+    box-shadow: 0 6px 24px -4px rgba(0, 0, 0, 0.6);
   }
 
   /*
@@ -138,7 +141,7 @@ const PeriodBtn = styled.button<{ $active: boolean }>`
   border: none;
 
   background: ${({ $active }) => ($active ? meok[900] : 'rgba(78, 89, 104, 0.08)')};
-  color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
+  color: ${({ $active }) => ($active ? surface.light.card : meok[700])};
   font-family: inherit;
   font-size: 11.5px;
   font-weight: 600;
@@ -201,10 +204,10 @@ export default function WarmthLegend() {
     <Root aria-label="온기 히트맵 범례">
       <Summary aria-live="polite">
         {stat.total === 0 ? (
-          '이 영역에는 아직 온기가 없습니다'
+          '이 일대에는 아직 머문 온기가 없습니다'
         ) : (
           <>
-            이 영역 온기 <b>{stat.total}</b>개 · 한적 <b>{100 - (percent ?? 0)}%</b> · 북적{' '}
+            이 일대 온기 <b>{stat.total}</b>편 · 고즈넉함 <b>{100 - (percent ?? 0)}%</b> · 북적이는 정{' '}
             <b>{percent}%</b>
           </>
         )}

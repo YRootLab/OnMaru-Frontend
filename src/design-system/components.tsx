@@ -267,7 +267,7 @@ export const TabItem = styled.button<{ active?: boolean }>`
 
 /**
  * 온기 맵 메타볼 컨테이너
- * Uber H3 + Metaballs 효과 래퍼
+ * 유기적 확산 메타볼(Metaballs) 효과 래퍼
  */
 export const metaballContainerCss = (theme: OnmaruTheme) => css`
   position: relative;

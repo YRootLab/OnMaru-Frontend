@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { lightPalette } from '@/design-system/tokens';
-import type { Item, KakaoMap, LatLng, MapMode, SheetSnap, Warmth } from '@/map/types';
+import type { HeatSpot, Item, KakaoMap, LatLng, MapMode, SheetSnap, Warmth } from '@/map/types';
 import type { WarmthPeriod } from '@/map/warmth/heatScale';
 
 /** 대한민국 전국 중심 시점 (특정 지역을 검색하지 않았을 때 기본 전국 조망) */
@@ -25,6 +25,9 @@ interface MapState {
   userLocation: LatLng | null;
   items: Item[];
   warmths: Warmth[];
+  /** 실시간 권역별 혼잡도 및 관광객 집중도 히트스팟 */
+  heatSpots: HeatSpot[];
+  selectedHeatSpot: HeatSpot | null;
   /** 온기 히트맵·피드가 함께 보는 기간 창. 좁히면 '지금 이 동네'가 보인다. */
   warmthPeriod: WarmthPeriod;
   loading: boolean;
@@ -51,6 +54,8 @@ interface MapState {
   setUserLocation: (userLocation: LatLng | null) => void;
   setItems: (items: Item[]) => void;
   setWarmths: (warmths: Warmth[]) => void;
+  setHeatSpots: (heatSpots: HeatSpot[]) => void;
+  setSelectedHeatSpot: (spot: HeatSpot | null) => void;
   setWarmthPeriod: (period: WarmthPeriod) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
@@ -78,6 +83,8 @@ export const useMapStore = create<MapState>((set, get) => ({
   userLocation: null,
   items: [],
   warmths: [],
+  heatSpots: [],
+  selectedHeatSpot: null,
   warmthPeriod: 'all',
   loading: false,
   error: null,
@@ -103,6 +110,7 @@ export const useMapStore = create<MapState>((set, get) => ({
       selectedId: null,
       hoveredId: null,
       detailId: null,
+      selectedHeatSpot: null,
       popularPanelOpen: false,
       fromPopularRanking: false,
     }),
@@ -119,6 +127,8 @@ export const useMapStore = create<MapState>((set, get) => ({
   setUserLocation: (userLocation) => set({ userLocation }),
   setItems: (items) => set({ items }),
   setWarmths: (warmths) => set({ warmths }),
+  setHeatSpots: (heatSpots) => set({ heatSpots }),
+  setSelectedHeatSpot: (selectedHeatSpot) => set({ selectedHeatSpot }),
   setWarmthPeriod: (warmthPeriod) => set({ warmthPeriod }),
   setLoading: (loading) => set({ loading }),
   setError: (error) => set({ error }),

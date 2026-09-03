@@ -15,6 +15,7 @@ import ModeToggle from './components/ModeToggle';
 import PlaceMarkers from './components/PlaceMarkers';
 import SearchBar from './components/SearchBar';
 import WarmthLayer from './components/WarmthLayer';
+import WarmthNotesLayer from './components/warmth/WarmthNotesLayer';
 import WriteButton from './components/warmth/WriteButton';
 import WarmthLegend from './components/warmth/WarmthLegend';
 import MobileBottomNav from './components/MobileBottomNav';
@@ -170,6 +171,7 @@ export default function MapPage() {
         <KakaoMap />
         <PlaceMarkers />
         <WarmthLayer />
+        <WarmthNotesLayer />
         <CinematicTourMapLayer />
         <MapChips>
           {!panelOpen && (
