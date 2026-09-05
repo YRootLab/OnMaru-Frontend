@@ -28,7 +28,7 @@ const PageInner = styled.div`
 // 한옥 페이지에 있는 동안만 body 자체를 한지톤으로 깐다(언마운트 시 자동 복원).
 const paperGround = css`
   body {
-    background: #f7f4ee;
+    background: #f5f5f4;
   }
 `;
 

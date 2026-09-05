@@ -6,6 +6,7 @@ import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore
 import { OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
 import { KOREA_MAP_VIEWBOX, KOREA_REGION_PATHS, KoreaRegionPath } from '@/features/odii-audio/data/koreaMapPaths';
 import { useOdiiApiService } from '@/features/odii-audio/context/OdiiDependencyContext';
+import { getVirtualRange } from './soundConstellationScroll';
 
 interface SoundConstellationSectionProps {
   stories: OdiiStoryItem[];
@@ -13,9 +14,21 @@ interface SoundConstellationSectionProps {
 
 const [VB_WIDTH, VB_HEIGHT] = KOREA_MAP_VIEWBOX.split(' ').slice(2).map(Number);
 const ITEM_HEIGHT = 90; // 확대된 80px 썸네일과 2줄 서사를 포함한 가상 스크롤 아이템 높이 (px)
-const OVERSCAN = 4; // 화면 위아래 버퍼 가상 아이템 개수
+const LIST_EDGE_INSET = 23; // 콘텐츠의 17px 여백 + 카드 내부 6px 패딩과 인디케이터의 시각적 시작점 일치
+const STORY_FALLBACK_IMAGES = [
+  '/images/hanok/hanok-main.png',
+  '/images/hanok/hanok-exterior.png',
+  '/images/hanok/hanok-interior.png',
+  '/images/hanok/hanok-porch.png',
+  '/images/hanok/giwa-detail.png',
+];
 
 const normalizeText = (story: OdiiStoryItem) => `${story.locationName || ''} ${story.title} ${story.audioTitle || ''} ${story.category || ''}`;
+const imageForStory = (story: OdiiStoryItem) => {
+  if (story.imageUrl) return story.imageUrl;
+  const seed = Array.from(`${story.stid}${story.title}`).reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  return STORY_FALLBACK_IMAGES[seed % STORY_FALLBACK_IMAGES.length];
+};
 const getRegionStories = (stories: OdiiStoryItem[], region: KoreaRegionPath) => {
   const matched = stories.filter((story) => region.keywords.some((keyword) => normalizeText(story).includes(keyword)));
   return matched.length ? matched : stories.slice(0, 4);
@@ -26,13 +39,13 @@ const RegionStoryListSkeleton: React.FC = () => (
   <div className="mt-1 flex-1 space-y-1.5 overflow-y-auto pr-1" aria-busy="true" aria-label="지역 오디오 이야기 로딩 중">
     {Array.from({ length: 5 }, (_, index) => (
       <div key={index} className="flex h-[84px] items-center gap-3 rounded-xl px-2.5 py-1.5 bg-transparent">
-        <div className="odii-skeleton h-[72px] w-[80px] shrink-0 rounded-xl bg-[#eee8df]" />
+        <div className="odii-skeleton h-[72px] w-[72px] shrink-0 rounded-xl bg-[#e4e4e2]" />
         <div className="min-w-0 flex-1 space-y-2">
-          <div className="odii-skeleton h-3.5 w-3/4 rounded bg-[#e8e0d5]" />
-          <div className="odii-skeleton h-2.5 w-full rounded bg-[#eee8df]" />
-          <div className="odii-skeleton h-2.5 w-2/3 rounded bg-[#eee8df]" />
+          <div className="odii-skeleton h-3.5 w-3/4 rounded bg-[#d7d7d4]" />
+          <div className="odii-skeleton h-2.5 w-full rounded bg-[#e4e4e2]" />
+          <div className="odii-skeleton h-2.5 w-2/3 rounded bg-[#e4e4e2]" />
         </div>
-        <div className="odii-skeleton h-3 w-8 shrink-0 rounded bg-[#eee8df]" />
+        <div className="odii-skeleton h-3 w-8 shrink-0 rounded bg-[#e4e4e2]" />
       </div>
     ))}
   </div>
@@ -55,6 +68,9 @@ function getStoryExcerpt(story: OdiiStoryItem): string {
 export const SoundConstellationSection: React.FC<SoundConstellationSectionProps> = ({ stories }) => {
   const activeApiService = useOdiiApiService();
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const indicatorThumbRef = useRef<HTMLSpanElement | null>(null);
+  const scrollFrameRef = useRef<number | null>(null);
+  const scrollMetricsRef = useRef<{ scrollTop: number; scrollHeight: number; clientHeight: number } | null>(null);
 
   const [selectedRegionId, setSelectedRegionId] = useState('seoul');
   const [hoveredRegionId, setHoveredRegionId] = useState<string | null>(null);
@@ -63,7 +79,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
   const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
 
   // 무한 스크롤 및 가상 스크롤 상태
-  const [scrollTop, setScrollTop] = useState(0);
+  const [renderScrollTop, setRenderScrollTop] = useState(0);
   const [containerHeight, setContainerHeight] = useState(500);
 
   const regionStoriesCacheRef = useRef<Record<string, { stories: OdiiStoryItem[]; page: number; hasMore: boolean }>>({});
@@ -82,7 +98,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
   useEffect(() => {
     let isMounted = true;
     if (scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0;
-    setScrollTop(0);
+    setRenderScrollTop(0);
 
     const cached = regionStoriesCacheRef.current[selectedRegionId];
     if (cached && cached.stories.length > 0) {
@@ -133,6 +149,10 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
       isMounted = false;
     };
   }, [selectedRegionId, activeApiService, selectedRegion, stories]);
+
+  useEffect(() => () => {
+    if (scrollFrameRef.current !== null) cancelAnimationFrame(scrollFrameRef.current);
+  }, []);
 
   // 2. 무한 스크롤 다음 페이지 API 수급 함수
   const loadNextPage = useCallback(() => {
@@ -186,8 +206,39 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
     const currentScrollHeight = target.scrollHeight;
     const currentClientHeight = target.clientHeight;
 
-    setScrollTop(currentScrollTop);
-    setContainerHeight(currentClientHeight);
+    scrollMetricsRef.current = {
+      scrollTop: currentScrollTop,
+      scrollHeight: currentScrollHeight,
+      clientHeight: currentClientHeight,
+    };
+
+    if (scrollFrameRef.current === null) {
+      scrollFrameRef.current = requestAnimationFrame(() => {
+        const metrics = scrollMetricsRef.current;
+        scrollFrameRef.current = null;
+        if (!metrics) return;
+
+        const trackHeight = Math.max(0, metrics.clientHeight - LIST_EDGE_INSET * 2);
+        const thumbHeight = Math.max(18, trackHeight * (metrics.clientHeight / metrics.scrollHeight));
+        const maxThumbOffset = Math.max(0, trackHeight - thumbHeight);
+        const maxNativeScrollTop = Math.max(1, metrics.scrollHeight - metrics.clientHeight);
+        const thumbOffset = (metrics.scrollTop / maxNativeScrollTop) * maxThumbOffset;
+
+        if (indicatorThumbRef.current) {
+          indicatorThumbRef.current.style.height = `${thumbHeight}px`;
+          indicatorThumbRef.current.style.transform = `translateY(${thumbOffset}px)`;
+        }
+
+        setContainerHeight((previous) => previous === metrics.clientHeight ? previous : metrics.clientHeight);
+        setRenderScrollTop((previous) => {
+          const previousRange = getVirtualRange(previous, metrics.clientHeight, totalCount);
+          const nextRange = getVirtualRange(metrics.scrollTop, metrics.clientHeight, totalCount);
+          return previousRange.startIndex === nextRange.startIndex && previousRange.endIndex === nextRange.endIndex
+            ? previous
+            : metrics.scrollTop;
+        });
+      });
+    }
 
     // 하단 100px 이내 접근 시 무한 스크롤 호출
     if (
@@ -205,9 +256,18 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
   // 4. 가상 스크롤(Virtual Scroll) 표시 범위 계산
   const totalCount = regionStories.length;
   const totalHeight = totalCount * ITEM_HEIGHT;
+  const scrollContentHeight = totalHeight + 34;
+  const indicatorTrackHeight = Math.max(0, containerHeight - LIST_EDGE_INSET * 2);
+  const canScrollStories = scrollContentHeight > containerHeight;
+  const indicatorThumbHeight = canScrollStories
+    ? Math.max(18, indicatorTrackHeight * (containerHeight / scrollContentHeight))
+    : 0;
+  const maxScrollTop = Math.max(1, scrollContentHeight - containerHeight);
+  const indicatorThumbOffset = canScrollStories
+    ? (renderScrollTop / maxScrollTop) * Math.max(0, indicatorTrackHeight - indicatorThumbHeight)
+    : 0;
 
-  const startIndex = Math.max(0, Math.floor(scrollTop / ITEM_HEIGHT) - OVERSCAN);
-  const endIndex = Math.min(totalCount, Math.ceil((scrollTop + containerHeight) / ITEM_HEIGHT) + OVERSCAN);
+  const { startIndex, endIndex } = getVirtualRange(renderScrollTop, containerHeight, totalCount);
   const visibleStories = useMemo(
     () => regionStories.slice(startIndex, endIndex),
     [regionStories, startIndex, endIndex]
@@ -256,7 +316,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                       onHoverStart={() => setHoveredRegionId(region.id)}
                       onHoverEnd={() => setHoveredRegionId((current) => (current === region.id ? null : current))}
                       animate={{
-                        fill: active ? '#f84e76' : hovered ? '#e9dfcd' : '#fffdf9',
+                        fill: active ? '#f84e76' : hovered ? '#e4e4e2' : '#f8f8f7',
                         fillOpacity: active ? 0.92 : 1,
                         filter: active
                           ? (isListHovered ? 'drop-shadow(0 5px 16px rgba(248,78,118,0.45))' : 'drop-shadow(0 3px 8px rgba(248,78,118,0.22))')
@@ -290,7 +350,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                       className={`rounded-full px-2.5 py-1.5 text-[10px] font-semibold backdrop-blur-sm outline-none transition-all duration-300 sm:px-3 sm:text-xs ${
                         active
                           ? 'bg-[#211e19] text-white shadow-md'
-                          : 'bg-[#fffdf9]/90 text-[#655b4d] shadow-[0_1px_4px_rgba(33,30,25,0.1)] hover:bg-white hover:text-[#f84e76]'
+                          : 'bg-white/90 text-[#655b4d] shadow-[0_1px_4px_rgba(33,30,25,0.1)] hover:bg-white hover:text-[#f84e76]'
                       }`}
                       style={active && isListHovered ? { boxShadow: '0 4px 14px rgba(248,78,118,0.55)' } : undefined}
                       aria-pressed={active}
@@ -328,7 +388,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                 <div
                   ref={scrollContainerRef}
                   onScroll={handleScroll}
-                  className="-mr-1 h-full overflow-y-auto px-0.5 pb-[17px] pt-[17px] [scrollbar-color:rgba(140,126,108,0.42)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-track]:my-[24px] [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#8c7e6c]/40"
+                  className="-mr-1 h-full overflow-y-auto px-0.5 pr-[10px] pb-[17px] pt-[17px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                 >
                   {/* 🚀 Virtual Scrolling 컨테이너 */}
                   <div style={{ height: `${totalHeight}px`, position: 'relative' }}>
@@ -355,17 +415,17 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                             className={`flex w-full items-center gap-3.5 rounded-xl px-2.5 py-1.5 text-left transition-all duration-200 ${
                               active
                                 ? 'bg-[#fff0f5] ring-1 ring-[#f84e76]/30 shadow-xs'
-                                : 'hover:bg-[#f7f4ee]/80'
+                                : 'hover:bg-[#f5f5f4]'
                             }`}
                           >
-                            <span className="relative h-[72px] w-[63.36px] shrink-0 overflow-hidden rounded-[8.7px] bg-[#f3eee8]">
+                            <span className="relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-[8.7px] bg-[#f0f0ef]">
                               <img
-                                src={story.imageUrl || '/images/hanok/hanok-main.png'}
+                                src={imageForStory(story)}
                                 alt=""
                                 loading="lazy"
-                                className="h-full w-full scale-[2.3] object-cover"
+                                className="h-full w-full scale-[2.6] object-cover"
                                 onError={(e) => {
-                                  (e.target as HTMLImageElement).src = '/images/hanok/hanok-main.png';
+                                  (e.target as HTMLImageElement).src = imageForStory({ ...story, imageUrl: '' });
                                 }}
                               />
                             </span>
@@ -402,6 +462,20 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                   </p>
                 )}
                 </div>
+
+                {canScrollStories && (
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute right-[2px] top-[23px] z-30 w-[3px] rounded-full"
+                    style={{ height: `${indicatorTrackHeight}px` }}
+                  >
+                    <span
+                      ref={indicatorThumbRef}
+                      className="absolute inset-x-0 rounded-full bg-[#8c7e6c]/40 transition-transform duration-100"
+                      style={{ height: `${indicatorThumbHeight}px`, transform: `translateY(${indicatorThumbOffset}px)` }}
+                    />
+                  </div>
+                )}
               </div>
             )}
           </aside>

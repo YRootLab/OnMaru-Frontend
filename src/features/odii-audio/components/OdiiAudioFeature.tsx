@@ -362,8 +362,6 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                   ) : (
                     <EditorialStoryList
                       stories={storyList}
-                      onBookmarkStory={handleToggleBookmark}
-                      bookmarkedIds={bookmarkedIds}
                     />
                   )}
                 </div>

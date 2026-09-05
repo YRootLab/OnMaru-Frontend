@@ -9,7 +9,19 @@ interface StoryCarouselProps {
   isLoading?: boolean;
 }
 
-const FALLBACK_ART = 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=640&q=78';
+const FALLBACK_IMAGES = [
+  '/images/hanok/hanok-main.png',
+  '/images/hanok/hanok-exterior.png',
+  '/images/hanok/hanok-interior.png',
+  '/images/hanok/hanok-porch.png',
+  '/images/hanok/giwa-detail.png',
+];
+
+function imageForStory(story: OdiiStoryItem): string {
+  if (story.imageUrl) return story.imageUrl;
+  const seed = Array.from(`${story.stid}${story.title}`).reduce((total, char) => total + char.charCodeAt(0), 0);
+  return FALLBACK_IMAGES[seed % FALLBACK_IMAGES.length];
+}
 
 function getScriptExcerpt(script = ''): string {
   const line = script.split(/\r?\n/).find((item) => item.trim());
@@ -77,7 +89,7 @@ function extractDominantColor(imageUrl: string, seed: string): Promise<string> {
       }
     };
     image.onerror = () => resolve(getFallbackAccent(seed));
-    image.src = imageUrl || FALLBACK_ART;
+    image.src = imageUrl || FALLBACK_IMAGES[0];
   });
 }
 
@@ -102,12 +114,13 @@ interface NearbyStoryCardProps {
 }
 
 const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isPlaying, onSelect }) => {
-  const [accentColor, setAccentColor] = useState(() => getFallbackAccent(`${story.stid}${story.imageUrl}`));
+  const imageSrc = imageForStory(story);
+  const [accentColor, setAccentColor] = useState(() => getFallbackAccent(`${story.stid}${imageSrc}`));
 
   useEffect(() => {
     let isMounted = true;
     const cancelIdleWork = scheduleIdleWork(() => {
-      extractDominantColor(story.imageUrl, `${story.stid}${story.imageUrl}`).then((color) => {
+      extractDominantColor(imageSrc, `${story.stid}${imageSrc}`).then((color) => {
         if (isMounted) setAccentColor(color);
       });
     });
@@ -115,7 +128,7 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
       isMounted = false;
       cancelIdleWork();
     };
-  }, [story.imageUrl, story.stid]);
+  }, [imageSrc, story.stid]);
 
   return (
     <button
@@ -138,12 +151,12 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
       {/* 섬네일 비주얼 */}
       <div className="relative z-10 min-h-[136px] sm:min-h-[144px] overflow-hidden rounded-[1.1rem] bg-[#d8cfbf]">
         <img
-          src={story.imageUrl || FALLBACK_ART}
+          src={imageSrc}
           alt=""
           loading="lazy"
           decoding="async"
           onError={(event) => {
-            (event.target as HTMLImageElement).src = FALLBACK_ART;
+            (event.target as HTMLImageElement).src = FALLBACK_IMAGES[0];
           }}
           className={`h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 ${isCurrent ? 'brightness-95 saturate-[0.88]' : 'brightness-[0.88] saturate-[0.78]'}`}
         />

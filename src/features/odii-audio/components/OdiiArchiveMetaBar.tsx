@@ -1,7 +1,7 @@
 'use client';
 
 import React, { FormEvent, useId, useState } from 'react';
-import { Search, X, Sparkles } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { ODII_THEME_CATEGORIES } from '@/features/odii-audio/data/odiiCategoryData';
 
@@ -43,53 +43,47 @@ export const OdiiArchiveMetaBar: React.FC<Props> = ({ resultCount, totalCount })
   const hasFilter = selectedCategory !== '전체' || Boolean(searchQuery);
 
   return (
-    <div className="mb-4 flex flex-col gap-3 rounded-2xl border border-white/80 bg-white/75 p-3 backdrop-blur-md shadow-xs sm:flex-row sm:items-center sm:justify-between sm:px-4 sm:py-2.5">
-      <div className="flex min-w-0 items-center gap-2.5">
-        <span className="flex h-6 items-center rounded-full bg-[#f84e76]/10 px-3 py-0.5 text-[11px] font-bold text-[#f84e76]">
-          {labelFor(selectedCategory)}
-        </span>
+    <div className="mb-2 flex flex-col gap-3 border-b border-[#211e19]/10 py-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex min-w-0 items-center gap-2 text-xs">
+        <span className="font-semibold text-[#211e19]">{labelFor(selectedCategory)}</span>
+        <span className="text-[#d0c7bd]">·</span>
         {searchQuery && (
-          <span className="truncate text-xs font-semibold text-[#655b4d]">
-            “<strong className="text-[#f84e76]">{searchQuery}</strong>” 검색 결과
+          <span className="truncate text-[#655b4d]">
+            “<strong className="font-semibold text-[#211e19]">{searchQuery}</strong>” 검색 결과
           </span>
         )}
-        <span className="shrink-0 font-mono text-xs font-bold text-[#8c7e6c]">
-          ({(totalCount ?? resultCount).toLocaleString()}개)
+        <span className="shrink-0 text-[#a09282]">
+          {(totalCount ?? resultCount).toLocaleString()}개
         </span>
       </div>
 
-      <form onSubmit={submit} className="flex min-w-0 items-center gap-2">
+      <form onSubmit={submit} className="flex min-w-0 items-center gap-2 sm:w-60">
         <label htmlFor={searchId} className="sr-only">오디오 이야기 검색</label>
-        <div className="relative flex h-9 min-w-0 flex-1 items-center rounded-xl border border-[#211e19]/10 bg-white/90 px-3 shadow-inner focus-within:border-[#f84e76]/40 focus-within:ring-2 focus-within:ring-[#f84e76]/15 sm:w-52 sm:flex-none">
-          <Search size={14} className="mr-2 shrink-0 text-[#a09282]" />
+        <div className="relative flex h-8 min-w-0 flex-1 items-center border-b border-[#211e19]/15 px-0.5 transition-colors duration-200 focus-within:border-[#f84e76]">
+          <Search size={14} className="mr-2 shrink-0 text-[#a09282]" strokeWidth={1.8} />
           <input
             id={searchId}
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
             placeholder="장소 또는 키워드 검색"
-            className="h-full w-full bg-transparent text-xs text-[#211e19] outline-none placeholder:text-[#b0a398]"
+            className="h-full w-full bg-transparent text-xs text-[#211e19] outline-none focus-visible:outline-none placeholder:text-[#b0a398]"
           />
           {draft && (
             <button
               type="button"
               onClick={() => setDraft('')}
-              className="p-1 text-[#b0a398] hover:text-[#211e19]"
+              className="p-1 text-[#b0a398] transition-colors hover:text-[#211e19]"
             >
               <X size={12} />
             </button>
           )}
         </div>
-        <button
-          type="submit"
-          className="h-9 rounded-xl bg-[#f84e76] px-3.5 text-xs font-bold text-white shadow-sm shadow-[#f84e76]/20 transition-all duration-200 hover:bg-[#dc4569] hover:shadow-md"
-        >
-          검색
-        </button>
+        <button type="submit" className="shrink-0 text-xs font-semibold text-[#655b4d] transition-colors hover:text-[#f84e76]">검색</button>
         {hasFilter && (
           <button
             type="button"
             onClick={reset}
-            className="h-9 rounded-xl border border-white/80 bg-white/80 px-3 text-xs font-semibold text-[#8c7e6c] transition-all hover:bg-white hover:text-[#f84e76]"
+            className="shrink-0 text-xs font-medium text-[#a09282] transition-colors hover:text-[#211e19]"
           >
             초기화
           </button>
