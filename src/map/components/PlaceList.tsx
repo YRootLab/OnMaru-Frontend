@@ -60,15 +60,9 @@ const CountLabel = styled.span`
   align-items: center;
   gap: 6px;
   font-size: 13.5px;
-  font-weight: 700;
+  font-weight: 600;
   color: ${meok[900]};
-`;
-
-const PageIndicator = styled.span`
-  font-size: 11.5px;
-  font-weight: 500;
-  color: ${meok[500]};
-  margin-left: 2px;
+  letter-spacing: -0.01em;
 `;
 
 const SortDropdownWrapper = styled.div`
@@ -83,18 +77,18 @@ const SortSelect = styled.select`
 
   font-family: inherit;
   font-size: 12.5px;
-  font-weight: 600;
-  color: ${meok[700]};
+  font-weight: 500;
+  color: ${meok[500]};
   padding: 2px 18px 2px 4px;
   cursor: pointer;
   outline: none;
 
   &:hover {
-    color: ${meok[900]};
+    color: ${meok[700]};
   }
 
   &:focus-visible {
-    outline: 2px solid ${lightPalette.cheongrok[500]};
+    outline: 2px solid ${meok[500]};
     border-radius: 4px;
   }
 `;
@@ -131,10 +125,10 @@ const PageNavBtn = styled.button`
   border-radius: 10px;
   border: none;
   background: rgba(78, 89, 104, 0.06);
-  color: ${meok[700]};
+  color: ${meok[500]};
   font-family: inherit;
   font-size: 12.5px;
-  font-weight: 600;
+  font-weight: 400;
   cursor: pointer;
   transition: all 0.15s ease;
 
@@ -165,8 +159,7 @@ const PageNumberBtn = styled.button<{ $active: boolean }>`
   padding: 0 6px;
   border-radius: 10px;
   border: none;
-  background: ${({ $active }) =>
-    $active ? lightPalette.cheongrok[500] : 'transparent'};
+  background: ${({ $active }) => ($active ? meok[900] : 'transparent')};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
   font-family: inherit;
   font-size: 13px;
@@ -176,7 +169,7 @@ const PageNumberBtn = styled.button<{ $active: boolean }>`
 
   &:hover:not(:disabled) {
     background: ${({ $active }) =>
-      $active ? lightPalette.cheongrok[700] : 'rgba(78, 89, 104, 0.08)'};
+      $active ? '#000000' : 'rgba(78, 89, 104, 0.08)'};
     color: ${({ $active }) => ($active ? '#ffffff' : meok[900])};
   }
 `;
@@ -249,8 +242,9 @@ const EmptyTitle = styled.h4`
 const EmptyDesc = styled.p`
   margin: 0 0 18px;
   font-size: 13px;
+  font-weight: 400;
   color: ${meok[500]};
-  line-height: 1.45;
+  line-height: 1.5;
 `;
 
 const ActionButton = styled.button`
@@ -262,10 +256,10 @@ const ActionButton = styled.button`
 
   border-radius: 9999px;
   background: rgba(78, 89, 104, 0.08);
-  color: ${meok[900]};
+  color: ${meok[700]};
   font-family: inherit;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
 
@@ -436,11 +430,8 @@ export default function PlaceList() {
       {/* 3. 장소 목록 헤더 */}
       <StickyHeader>
         <CountLabel aria-live="polite">
-          <LayoutList size={15} color={lightPalette.cheongrok[500]} />
+          <LayoutList size={15} color={meok[700]} />
           <span>{headerTitle}</span>
-          {totalPages > 1 && (
-            <PageIndicator>({validPage}/{totalPages}p)</PageIndicator>
-          )}
         </CountLabel>
 
         <SortDropdownWrapper>

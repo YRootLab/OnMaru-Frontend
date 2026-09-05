@@ -47,16 +47,19 @@ const ItemButton = styled.button<{ $isSelected: boolean }>`
   padding: 12px 14px;
 
   border-radius: 16px;
+  border: 1px solid
+    ${({ $isSelected }) =>
+      $isSelected ? 'rgba(0, 184, 130, 0.3)' : 'transparent'};
   background: ${({ $isSelected }) =>
-    $isSelected ? 'rgba(40, 110, 95, 0.08)' : 'transparent'};
+    $isSelected ? 'rgba(25, 31, 40, 0.04)' : 'transparent'};
   text-align: left;
   cursor: pointer;
   outline: none;
-  transition: background 0.15s ease;
+  transition: all 0.15s ease;
 
   &:hover {
     background: ${({ $isSelected }) =>
-      $isSelected ? 'rgba(40, 110, 95, 0.1)' : 'rgba(25, 31, 40, 0.04)'};
+      $isSelected ? 'rgba(25, 31, 40, 0.06)' : 'rgba(25, 31, 40, 0.03)'};
   }
 
   &:active {
@@ -64,7 +67,7 @@ const ItemButton = styled.button<{ $isSelected: boolean }>`
   }
 
   &:focus-visible {
-    background: rgba(40, 110, 95, 0.08);
+    border-color: ${meok[500]};
   }
 `;
 
@@ -147,15 +150,7 @@ const Title = styled.h4`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  letter-spacing: -0.01em;
-`;
-
-const IndexNumber = styled.span`
-  flex-shrink: 0;
-  font-size: 13px;
-  font-weight: 600;
-  color: ${meok[400]};
-  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 `;
 
 const BadgeRow = styled.div`
@@ -171,12 +166,23 @@ const CategoryTag = styled.span<{ $category: PlaceCategory }>`
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  padding: 1.5px 6px;
+  padding: 2px 7px;
   border-radius: 6px;
   font-size: 11px;
-  font-weight: 600;
-  color: ${({ $category }) => CATEGORY_STYLES[$category]?.main || lightPalette.cheongrok[500]};
-  background: ${({ $category }) => CATEGORY_STYLES[$category]?.lightBg || lightPalette.cheongrok[50]};
+  font-weight: 500;
+  color: ${({ $category }) =>
+    $category === 'spot'
+      ? meok[700]
+      : CATEGORY_STYLES[$category]?.main || meok[700]};
+  background: ${({ $category }) =>
+    $category === 'spot'
+      ? 'rgba(78, 89, 104, 0.07)'
+      : CATEGORY_STYLES[$category]?.lightBg || 'rgba(78, 89, 104, 0.07)'};
+  border: 1px solid
+    ${({ $category }) =>
+      $category === 'spot'
+        ? 'rgba(78, 89, 104, 0.1)'
+        : 'transparent'};
   flex-shrink: 0;
 `;
 
@@ -184,22 +190,24 @@ const TraditionalBadge = styled.span`
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  padding: 1.5px 6px;
+  padding: 2px 7px;
   border-radius: 9999px;
   font-size: 10.5px;
-  font-weight: 700;
+  font-weight: 600;
   color: ${lightPalette.cheongrok[700]};
-  background: rgba(0, 184, 130, 0.12);
+  background: rgba(0, 184, 130, 0.1);
+  border: 1px solid rgba(0, 184, 130, 0.2);
   white-space: nowrap;
 `;
 
 const Badge = styled.span`
-  padding: 1.5px 6px;
+  padding: 2px 7px;
   border-radius: 9999px;
   font-size: 11px;
-  font-weight: 500;
-  color: ${meok[700]};
-  background: rgba(78, 89, 104, 0.08);
+  font-weight: 400;
+  color: ${meok[500]};
+  background: rgba(78, 89, 104, 0.05);
+  border: 1px solid rgba(78, 89, 104, 0.08);
   white-space: nowrap;
 `;
 
@@ -207,26 +215,26 @@ const OdiiBadge = styled.span`
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  padding: 1.5px 6px;
+  padding: 2px 7px;
   border-radius: 9999px;
   font-size: 10.5px;
-  font-weight: 800;
+  font-weight: 700;
   color: #ffffff;
   background: ${lightPalette.jangmi[500]};
   white-space: nowrap;
 `;
 
 const DistanceRow = styled.div`
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 600;
-  color: ${lightPalette.cheongrok[700]};
+  color: ${meok[700]};
   font-variant-numeric: tabular-nums;
-  margin-top: 1px;
+  margin-top: 2px;
 `;
 
 const DistrictRow = styled.div`
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 400;
   color: ${meok[500]};
   overflow: hidden;
   text-overflow: ellipsis;
@@ -371,7 +379,6 @@ function PlaceListItemComponent({
         <Content>
           <Row1>
             <Title title={item.name}>{item.name}</Title>
-            <IndexNumber>{index + 1}</IndexNumber>
           </Row1>
 
           {/* 1. 주변 연계 & 주변 일반음식 (또는 정통 한옥) 뱃지 행 */}

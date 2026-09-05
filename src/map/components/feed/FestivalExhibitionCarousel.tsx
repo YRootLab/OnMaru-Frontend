@@ -13,7 +13,13 @@ interface FestivalExhibitionCarouselProps {
 }
 
 const SectionWrapper = styled.div`
+  position: relative;
   padding: 14px 14px 6px;
+
+  &:hover .om-carousel-floating-btn {
+    opacity: 1;
+    pointer-events: auto;
+  }
 `;
 
 const SectionHeader = styled.div`
@@ -32,43 +38,15 @@ const TitleGroup = styled.div`
 const SectionTitle = styled.h3`
   margin: 0;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 600;
   color: ${meok[900]};
+  letter-spacing: -0.01em;
 `;
 
 const BadgeTitle = styled.span`
   font-size: 10.5px;
-  font-weight: 700;
+  font-weight: 500;
   color: ${lightPalette.cheongrok[500]};
-`;
-
-const RightControls = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-`;
-
-const NavArrowBtn = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-
-  background: rgba(25, 31, 40, 0.05);
-  color: ${meok[700]};
-  cursor: pointer;
-  transition: all 0.15s ease;
-
-  &:hover {
-    background: ${lightPalette.cheongrok[50]};
-    color: ${lightPalette.cheongrok[700]};
-  }
-
-  &:active {
-    transform: scale(0.92);
-  }
 `;
 
 const MoreBtn = styled.button`
@@ -78,13 +56,59 @@ const MoreBtn = styled.button`
 
   background: transparent;
   font-size: 11.5px;
-  font-weight: 600;
-  color: ${meok[500]};
+  font-weight: 400;
+  color: ${meok[400]};
   cursor: pointer;
   padding: 2px 4px;
 
   &:hover {
+    color: ${meok[700]};
+  }
+`;
+
+const CarouselContainer = styled.div`
+  position: relative;
+  width: 100%;
+`;
+
+const FloatingNavBtn = styled.button<{ $direction: 'left' | 'right' }>`
+  position: absolute;
+  top: calc(50% - 14px);
+  ${({ $direction }) => ($direction === 'left' ? 'left: 4px;' : 'right: 4px;')}
+  transform: translateY(-50%);
+  z-index: 10;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(25, 31, 40, 0.08);
+  box-shadow: 0 4px 14px rgba(25, 31, 40, 0.16);
+  color: ${meok[700]};
+  cursor: pointer;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover {
+    background: #ffffff;
     color: ${meok[900]};
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 6px 18px rgba(25, 31, 40, 0.22);
+  }
+
+  &:active {
+    transform: translateY(-50%) scale(0.95);
+  }
+
+  @media (max-width: 768px) {
+    display: none;
   }
 `;
 
@@ -142,7 +166,7 @@ const CardBadge = styled.div`
   padding: 2px 7px;
   border-radius: 9999px;
   font-size: 10px;
-  font-weight: 800;
+  font-weight: 700;
   color: ${surface.light.card};
   background: ${lightPalette.cheongrok[500]};
 `;
@@ -154,11 +178,12 @@ const CardBody = styled.div`
 const CardTitle = styled.h4`
   margin: 0 0 4px;
   font-size: 13.5px;
-  font-weight: 700;
+  font-weight: 600;
   color: ${meok[900]};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  letter-spacing: -0.01em;
 `;
 
 const CardDateRow = styled.div`
@@ -167,13 +192,14 @@ const CardDateRow = styled.div`
   gap: 4px;
   font-size: 11px;
   color: ${lightPalette.cheongrok[700]};
-  font-weight: 600;
+  font-weight: 500;
 `;
 
 const CardAddr = styled.div`
   margin-top: 3px;
   font-size: 11px;
-  color: ${meok[500]};
+  font-weight: 400;
+  color: ${meok[400]};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -270,54 +296,67 @@ export default function FestivalExhibitionCarousel({ festivals }: FestivalExhibi
           <SectionTitle>진행 중인 축제·기획전</SectionTitle>
           <BadgeTitle>실시간</BadgeTitle>
         </TitleGroup>
-
-        <RightControls>
-          <NavArrowBtn type="button" onClick={() => scroll('left')} aria-label="이전 축제">
-            <ChevronLeft size={15} />
-          </NavArrowBtn>
-          <NavArrowBtn type="button" onClick={() => scroll('right')} aria-label="다음 축제">
-            <ChevronRight size={15} />
-          </NavArrowBtn>
-          <MoreBtn type="button" onClick={() => setCategory('festival')}>
-            <span>전체보기</span>
-            <ChevronRight size={13} />
-          </MoreBtn>
-        </RightControls>
+        <MoreBtn type="button" onClick={() => setCategory('festival')}>
+          <span>전체보기</span>
+          <ChevronRight size={13} />
+        </MoreBtn>
       </SectionHeader>
 
-      <Scroller ref={scrollerRef} onWheel={handleWheel} role="region" aria-label="진행 중인 축제 및 기획전 목록">
-        {displayList.map((item) => (
-          <FestivalCard key={item.id} type="button" onClick={() => handleClick(item)}>
-            <ThumbBox>
-              {item.image ? (
-                <Image
-                  src={item.image}
-                  alt={item.name}
-                  fill
-                  sizes="220px"
-                  style={{ objectFit: 'cover' }}
-                  unoptimized
-                />
-              ) : (
-                <div style={{ width: '100%', height: '100%', background: '#eae4d9' }} />
-              )}
-              <CardBadge>
-                <Sparkles size={10} />
-                <span>축제·기획전</span>
-              </CardBadge>
-            </ThumbBox>
+      <CarouselContainer>
+        <FloatingNavBtn
+          className="om-carousel-floating-btn"
+          $direction="left"
+          type="button"
+          onClick={() => scroll('left')}
+          aria-label="이전 축제 보기"
+        >
+          <ChevronLeft size={18} />
+        </FloatingNavBtn>
 
-            <CardBody>
-              <CardTitle title={item.name}>{item.name}</CardTitle>
-              <CardDateRow>
-                <Calendar size={11} />
-                <span>야간 개방 및 특별 행사 진행</span>
-              </CardDateRow>
-              <CardAddr>{item.addr || '전통 한옥 명소'}</CardAddr>
-            </CardBody>
-          </FestivalCard>
-        ))}
-      </Scroller>
+        <FloatingNavBtn
+          className="om-carousel-floating-btn"
+          $direction="right"
+          type="button"
+          onClick={() => scroll('right')}
+          aria-label="다음 축제 보기"
+        >
+          <ChevronRight size={18} />
+        </FloatingNavBtn>
+
+        <Scroller ref={scrollerRef} onWheel={handleWheel} role="region" aria-label="진행 중인 축제 및 기획전 목록">
+          {displayList.map((item) => (
+            <FestivalCard key={item.id} type="button" onClick={() => handleClick(item)}>
+              <ThumbBox>
+                {item.image ? (
+                  <Image
+                    src={item.image}
+                    alt={item.name}
+                    fill
+                    sizes="220px"
+                    style={{ objectFit: 'cover' }}
+                    unoptimized
+                  />
+                ) : (
+                  <div style={{ width: '100%', height: '100%', background: '#eae4d9' }} />
+                )}
+                <CardBadge>
+                  <Sparkles size={10} />
+                  <span>축제·기획전</span>
+                </CardBadge>
+              </ThumbBox>
+
+              <CardBody>
+                <CardTitle title={item.name}>{item.name}</CardTitle>
+                <CardDateRow>
+                  <Calendar size={11} />
+                  <span>야간 개방 및 특별 행사 진행</span>
+                </CardDateRow>
+                <CardAddr>{item.addr || '전통 한옥 명소'}</CardAddr>
+              </CardBody>
+            </FestivalCard>
+          ))}
+        </Scroller>
+      </CarouselContainer>
     </SectionWrapper>
   );
 }

@@ -26,8 +26,6 @@ import {
   SectionTitle,
   PeriodFilterRow,
   PeriodTabBtn,
-  RegionScroller,
-  RegionChip,
   FeaturedPlaceArea,
   ScrubberSection,
   FeaturedCard,
@@ -52,27 +50,6 @@ import {
   PageIndicator,
 } from './WarmthFeed.styles';
 
-/**
- * 지역 칩.
- *
- * 예전에는 8개를 고정으로 박아뒀는데 피드 데이터가 전주·안동·경주뿐이라
- * 나머지 다섯은 누르면 무조건 "기록이 없습니다"였다. 지금은 실제로 온기가
- * 있는 지역만 세워서, 눌러서 비는 칩이 생기지 않는다.
- */
-function buildRegions(warmths: { lat: number; lng: number }[]) {
-  const seen = new Map<string, number>();
-
-  for (const w of warmths) {
-    const name = regionOf(w.lat, w.lng);
-    if (name) seen.set(name, (seen.get(name) ?? 0) + 1);
-  }
-
-  const ranked = Array.from(seen.entries())
-    .sort((a, b) => b[1] - a[1])
-    .map(([name]) => ({ id: name, label: name }));
-
-  return [{ id: 'all', label: '전국' }, ...ranked];
-}
 
 function renderPlaceIcon(type: string) {
   if (type.includes('스테이') || type.includes('숙소') || type.includes('고택')) {
@@ -117,8 +94,6 @@ export default function WarmthFeed() {
   const [sortOrder, setSortOrder] = useState<'recent' | 'place'>('recent');
   const [currentPage, setCurrentPage] = useState(1);
   const feedTopRef = useRef<HTMLDivElement>(null);
-
-  const regions = useMemo(() => buildRegions(warmths), [warmths]);
 
   const reviews = useMemo(() => warmths.map(toReview), [warmths]);
 
@@ -216,27 +191,6 @@ export default function WarmthFeed() {
     }
   };
 
-  /** 지역 칩 클릭 시 피드 필터링 및 지도 카메라 동기화 */
-  const handleRegionClick = (regionId: string) => {
-    setSelectedRegion(regionId);
-    setCurrentPage(1);
-
-    if (!map || !window.kakao?.maps?.LatLng) return;
-
-    if (regionId === 'all') {
-      map.setLevel(11, { animate: true });
-      map.panTo(new window.kakao.maps.LatLng(DEFAULT_CENTER.lat, DEFAULT_CENTER.lng));
-      return;
-    }
-
-    // 해당 지역의 대표 온기 장소로 카메라 즉시 패닝 및 줌인
-    const targetPlace = warmths.find((w) => regionOf(w.lat, w.lng) === regionId);
-    if (targetPlace) {
-      map.setLevel(5, { animate: true });
-      map.panTo(new window.kakao.maps.LatLng(targetPlace.lat, targetPlace.lng));
-    }
-  };
-
   const handlePlaceClick = (placeId: string, placeName: string, lat?: number, lng?: number) => {
     const matched = items.find(
       (i) => i.id === placeId || i.name.includes(placeName) || placeName.includes(i.name),
@@ -265,20 +219,6 @@ export default function WarmthFeed() {
             <SectionTitle>실시간 방문객 집중 명소</SectionTitle>
           </SectionTitleGroup>
         </SectionHeader>
-
-        <RegionScroller role="group" aria-label="지역 필터">
-          {regions.map((r) => (
-            <RegionChip
-              key={r.id}
-              type="button"
-              aria-pressed={selectedRegion === r.id}
-              $active={selectedRegion === r.id}
-              onClick={() => handleRegionClick(r.id)}
-            >
-              {r.label}
-            </RegionChip>
-          ))}
-        </RegionScroller>
       </StickyTop>
 
       {topPlace && (
@@ -343,9 +283,6 @@ export default function WarmthFeed() {
         <ReviewSectionTitle>
           <MessageSquare size={16} color={meok[700]} />
           <span>여행자들이 남긴 온기 이야기</span>
-          {totalPages > 1 && (
-            <PageIndicator>({validPage}/{totalPages}p)</PageIndicator>
-          )}
         </ReviewSectionTitle>
 
         <SortWrapper>
