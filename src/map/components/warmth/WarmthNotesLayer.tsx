@@ -7,7 +7,8 @@ import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import { paintOverlays, type OverlaySpec } from '@/map/hooks/overlay';
 import { escapeHtml } from '@/map/utils/formatters';
-import type { Warmth } from '@/map/types';
+import { getCuratedPlace } from '@/map/data/curatedPlaces';
+import type { Item, Warmth } from '@/map/types';
 
 /**
  * 온기 모드 전용: 지도 위 실시간 한 줄 방명록 레이어 (슬라이드 페이징 지원)
@@ -141,8 +142,8 @@ const styles = css`
 
   .om-warmth-note-card {
     position: relative;
-    width: 242px;
-    padding: 10px 12px 10px 12px;
+    width: 264px;
+    padding: 11px 14px 10px 14px;
     border-radius: 14px;
     border: none;
     font-family: ${GOTHIC_FONT};
@@ -210,33 +211,43 @@ const styles = css`
     flex: none;
   }
 
-  /* 네모난 말풍선 카드 내부 좌우 화살표 레이아웃 */
+  /* 네모난 말풍선 카드 내부 좌우 화살표 레이아웃: <, > 버튼을 카드 양끝단으로 배치 */
   .om-note-content-row {
+    position: relative;
     display: flex;
     align-items: center;
-    gap: 4px;
-    margin: 4px 0 6px 0;
+    justify-content: space-between;
+    margin: 5px -8px 7px -8px;
+    min-height: 38px;
   }
 
   .om-inner-nav-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 20px;
-    height: 32px;
+    width: 24px;
+    height: 36px;
     border: none;
     background: transparent;
-    color: ${meok[500]};
+    color: ${meok[400]};
     cursor: pointer;
     border-radius: 6px;
     padding: 0;
-    flex: none;
+    flex-shrink: 0;
     transition: all 0.15s ease;
   }
 
   .om-inner-nav-btn:hover {
-    background: ${meok[200]};
+    background: rgba(25, 31, 40, 0.06);
     color: ${lightPalette.juhong[500]};
+  }
+
+  .om-inner-nav-btn.om-btn-prev {
+    margin-left: 2px;
+  }
+
+  .om-inner-nav-btn.om-btn-next {
+    margin-right: 2px;
   }
 
   [data-theme='dark'] .om-inner-nav-btn {
@@ -289,7 +300,8 @@ const styles = css`
   /* 본문: 한 줄 평 */
   .om-note-body {
     flex: 1;
-    font-size: 12px;
+    padding: 0 8px;
+    font-size: 12.5px;
     line-height: 1.45;
     font-weight: 500;
     color: ${meok[900]};
@@ -300,6 +312,7 @@ const styles = css`
     overflow: hidden;
     letter-spacing: -0.2px;
     min-height: 34px;
+    text-align: center;
   }
 
   [data-theme='dark'] .om-note-body {
@@ -315,10 +328,32 @@ const styles = css`
     color: ${meok[500]};
   }
 
-  .om-note-hint {
-    font-size: 9.5px;
+  .om-note-hint-btn {
+    border: none;
+    background: transparent;
+    padding: 2px 6px;
+    font-size: 10px;
+    font-weight: 700;
     color: ${lightPalette.juhong[500]};
-    font-weight: 600;
+    cursor: pointer;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    transition: all 0.15s ease;
+  }
+
+  .om-note-hint-btn:hover {
+    background: ${lightPalette.juhong[50]};
+    color: ${lightPalette.juhong[700]};
+  }
+
+  [data-theme='dark'] .om-note-hint-btn {
+    color: ${darkPalette.juhong[400]};
+  }
+
+  [data-theme='dark'] .om-note-hint-btn:hover {
+    background: ${darkPalette.juhong[900]};
   }
 `;
 
@@ -370,7 +405,7 @@ export default function WarmthNotesLayer() {
 
     if (inBoundsList.length === 0) return;
 
-    // 4. 같은 공간 / 인접 거리(화면상 100px 이내)의 후기들을 하나의 클러스터로 병합
+    // 4. 같은 공간 / 인접 거리(화면상 카드 크기 기준)의 후기들을 하나의 클러스터로 병합
     const getScreenDistance = (lat1: number, lng1: number, lat2: number, lng2: number) => {
       if (!projection) return 9999;
       const p1 = projection.pointFromCoords(new window.kakao.maps.LatLng(lat1, lng1));
@@ -378,9 +413,15 @@ export default function WarmthNotesLayer() {
       return Math.hypot(p2.x - p1.x, p2.y - p1.y);
     };
 
+    const getScreenDelta = (lat1: number, lng1: number, lat2: number, lng2: number) => {
+      if (!projection) return { dx: 9999, dy: 9999 };
+      const p1 = projection.pointFromCoords(new window.kakao.maps.LatLng(lat1, lng1));
+      const p2 = projection.pointFromCoords(new window.kakao.maps.LatLng(lat2, lng2));
+      return { dx: Math.abs(p2.x - p1.x), dy: Math.abs(p2.y - p1.y) };
+    };
+
     const clusters: NoteCluster[] = [];
     const used = new Set<string>();
-    const clusterDistPx = level <= 4 ? 40 : level <= 6 ? 75 : 105;
 
     inBoundsList.forEach((w) => {
       if (used.has(w.id)) return;
@@ -391,11 +432,15 @@ export default function WarmthNotesLayer() {
       inBoundsList.forEach((other) => {
         if (used.has(other.id)) return;
 
-        // 같은 장소이거나, 화면상 인접한 거리(clusterDistPx 이내)에 있으면 묶음
         const isSamePlace = other.placeId === w.placeId;
-        const distPx = getScreenDistance(w.lat, w.lng, other.lat, other.lng);
+        const delta = getScreenDelta(w.lat, w.lng, other.lat, other.lng);
 
-        if (isSamePlace || distPx < clusterDistPx) {
+        // 카드가 겹치지 않도록 카드 폭(264px) 및 높이(100px) 범위 내 근접 스팟은 1개 카드로 합쳐 슬라이드 제공
+        const cardCollision = compact
+          ? Math.hypot(delta.dx, delta.dy) < 60
+          : delta.dx < 230 && delta.dy < 95;
+
+        if (isSamePlace || cardCollision) {
           group.push(other);
           used.add(other.id);
         }
@@ -410,16 +455,47 @@ export default function WarmthNotesLayer() {
     });
 
     /*
-      5. 화면당 개수 제한.
-
-      쪽지 핀은 작으니 조금 더 세워도 여백이 상하지 않는다. 카드는 크니 다섯 장까지다.
-      자를 때는 배열 순서가 아니라 쌓인 이야기가 많은 순으로 남긴다 —
-      순서대로 자르면 어느 곳이 남을지가 데이터 정렬 순서에 달린 우연이 된다.
+      5. 화면당 개수 및 충돌 박스 디클러터링 (앞뒤 카드 겹침 원천 차단)
     */
+    const placedBoxes: { x: number; y: number }[] = [];
+    const nonCollidingClusters: NoteCluster[] = [];
+
+    // 이야기 개수가 많은 대표 권역을 우선 배치
+    const sortedClusters = [...clusters].sort((a, b) => b.notes.length - a.notes.length);
+
+    sortedClusters.forEach((cluster) => {
+      if (!projection) {
+        nonCollidingClusters.push(cluster);
+        return;
+      }
+      const pt = projection.pointFromCoords(new window.kakao.maps.LatLng(cluster.lat, cluster.lng));
+      if (!pt) return;
+
+      const cardW = compact ? 80 : 250;
+      const cardH = compact ? 30 : 95;
+
+      const collides = placedBoxes.some((box) => {
+        return Math.abs(box.x - pt.x) < cardW && Math.abs(box.y - pt.y) < cardH;
+      });
+
+      if (!collides) {
+        placedBoxes.push(pt);
+        nonCollidingClusters.push(cluster);
+      } else {
+        // 충돌하는 경우 가장 가까운 배치된 카드에 후기들을 병합하여 이야기 누락 없이 슬라이드로 감상
+        const nearest = nonCollidingClusters[0];
+        if (nearest) {
+          cluster.notes.forEach((n) => {
+            if (!nearest.notes.some((existing) => existing.id === n.id)) {
+              nearest.notes.push(n);
+            }
+          });
+        }
+      }
+    });
+
     const maxClusters = compact ? 12 : 5;
-    const finalClusters = [...clusters]
-      .sort((a, b) => b.notes.length - a.notes.length)
-      .slice(0, maxClusters);
+    const finalClusters = nonCollidingClusters.slice(0, maxClusters);
 
     // 6. 오버레이 스펙 생성
     const specs: OverlaySpec[] = finalClusters.map((cluster) => {
@@ -454,6 +530,54 @@ export default function WarmthNotesLayer() {
         return { lat: cluster.lat, lng: cluster.lng, el, yAnchor: 1.1, zIndex: 24 };
       }
 
+      const openDetailForCurrentNote = () => {
+        const currentNote = notes[currentIndex];
+        const store = useMapStore.getState();
+
+        // 1. 지도 이동
+        if (store.map && window.kakao?.maps) {
+          store.map.panTo(new window.kakao.maps.LatLng(currentNote.lat, currentNote.lng));
+        }
+
+        // 2. 일치하는 장소가 items에 있는지 확인 (ID 또는 장소명 기준)
+        const matched = store.items.find(
+          (it) =>
+            it.id === currentNote.placeId ||
+            it.name.includes(currentNote.placeName) ||
+            currentNote.placeName.includes(it.name),
+        );
+
+        const targetId = matched?.id || currentNote.placeId;
+
+        // 3. 만약 items에 해당 장소가 없다면 큐레이션된 정보로 Item을 생성하여 등록
+        if (!matched) {
+          const curated = getCuratedPlace(currentNote.placeId, currentNote.placeName);
+          const newItem: Item = {
+            id: targetId,
+            name: currentNote.placeName,
+            category: (curated?.category as any) || 'spot',
+            lat: currentNote.lat,
+            lng: currentNote.lng,
+            addr: curated?.addr1 || '전통 문화 명소',
+            image: curated?.images?.[0] || null,
+            tel: curated?.tel || null,
+            dist: null,
+            isTraditional: true,
+          };
+          store.setItems([...store.items, newItem]);
+        }
+
+        // 4. selectedId 및 detailId 설정 (데스크톱 DetailAside 및 모바일 BottomSheet 즉시 오픈)
+        store.setSelectedId(targetId);
+        store.setDetailId(targetId);
+        store.setSheetSnap('full');
+
+        // 5. 데스크톱 패널 닫혀있으면 오픈
+        if (!store.panelOpen) {
+          store.setPanelOpen(true);
+        }
+      };
+
       const renderCardContent = () => {
         const note = notes[currentIndex];
         const isBusy = note.mood === '북적';
@@ -461,6 +585,8 @@ export default function WarmthNotesLayer() {
         const badgeText = isBusy ? '따스한 정' : '고즈넉함';
         const badgeIcon = isBusy ? ICONS.flame : ICONS.wind;
         const timeAgo = formatTimeAgo(note.createdAt);
+        // 불필요한 따옴표 제거 (" " 굳이 필요 없음)
+        const cleanText = note.text.replace(/^["'“”‘’\s]+|["'“”‘’\s]+$/g, '').trim();
 
         const prevBtnHtml =
           notes.length > 1
@@ -490,7 +616,7 @@ export default function WarmthNotesLayer() {
             <div class="om-note-content-row">
               ${prevBtnHtml}
               <div class="om-note-body">
-                "${escapeHtml(note.text)}"
+                ${escapeHtml(cleanText)}
               </div>
               ${nextBtnHtml}
             </div>
@@ -498,7 +624,9 @@ export default function WarmthNotesLayer() {
             <div class="om-note-foot">
               <span>${timeAgo}</span>
               ${notes.length > 1 ? `<span class="om-note-page-indicator">${currentIndex + 1} / ${notes.length}</span>` : ''}
-              <span class="om-note-hint">상세보기</span>
+              <button type="button" class="om-note-hint-btn" aria-label="${escapeHtml(note.placeName)} 상세 정보 보기">
+                상세보기
+              </button>
             </div>
           </div>
         `;
@@ -520,19 +648,45 @@ export default function WarmthNotesLayer() {
             renderCardContent();
           });
         }
+
+        // 상세보기 버튼 클릭 시 상세 정보 열기
+        const hintBtn = el.querySelector('.om-note-hint-btn');
+        hintBtn?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openDetailForCurrentNote();
+        });
       };
 
       renderCardContent();
 
       // 카드 클릭 시 해당 후기의 장소 선택 및 상세 패널 오픈
-      el.addEventListener('click', () => {
-        const currentNote = notes[currentIndex];
-        const m = useMapStore.getState().map;
-        if (m) {
-          m.panTo(new window.kakao.maps.LatLng(currentNote.lat, currentNote.lng));
+      el.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+        if (target.closest('.om-inner-nav-btn')) return;
+        openDetailForCurrentNote();
+      });
+
+      const setZIndex = (z: number) => {
+        const overlay = (el as any).__kakaoOverlay;
+        if (overlay && typeof overlay.setZIndex === 'function') {
+          overlay.setZIndex(z);
         }
-        useMapStore.getState().setSelectedId(currentNote.placeId);
-        useMapStore.getState().setSheetSnap('half');
+        let parent: HTMLElement | null = el.parentElement;
+        while (parent && parent !== document.body) {
+          if (parent.style && (parent.style.position === 'absolute' || parent.style.zIndex)) {
+            parent.style.zIndex = String(z);
+            break;
+          }
+          parent = parent.parentElement;
+        }
+      };
+
+      el.addEventListener('mouseenter', () => {
+        setZIndex(99999);
+      });
+
+      el.addEventListener('mouseleave', () => {
+        setZIndex(25);
       });
 
       return {
