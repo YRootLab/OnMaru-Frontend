@@ -19,6 +19,7 @@ import WarmthNotesLayer from './components/warmth/WarmthNotesLayer';
 import WriteButton from './components/warmth/WriteButton';
 import WarmthLegend from './components/warmth/WarmthLegend';
 import MobileBottomNav from './components/MobileBottomNav';
+import MapNavRail from './components/MapNavRail';
 import CinematicTourMapLayer from '@/features/cinematic-tour/components/CinematicTourMapLayer';
 import CinematicTourFloatingBar from '@/features/cinematic-tour/components/CinematicTourFloatingBar';
 
@@ -40,12 +41,12 @@ const MapArea = styled.div`
   height: 100%;
 `;
 
-/** 2. 호갱노노 스타일: 지도 위에 떠 있는 플로팅 듀얼 패널 컨테이너 (좌: 리스트, 우: 상세) */
+/** 2. 플로팅 듀얼 패널 컨테이너 (좌측 68px 네비게이션 레일 옆 80px에 배치) */
 const FloatingPanelsContainer = styled.div`
   position: absolute;
   top: 16px;
   bottom: 16px;
-  left: 16px;
+  left: 80px;
   z-index: 20;
   display: flex;
   align-items: stretch;
@@ -193,7 +194,10 @@ export default function MapPage() {
         <WarmthLegend />
       </MapArea>
 
-      {/* 2. 호갱노노 스타일: 지도 위에 떠 있는 좌측 리스트 + 우측 상세 플로팅 카드 */}
+      {/* 2. 네이버 지도 스타일: 좌측 고정 세로 네비게이션 레일 (GNB) */}
+      <MapNavRail />
+
+      {/* 3. 지도 위에 떠 있는 좌측 리스트 + 우측 상세 플로팅 카드 */}
       <FloatingPanelsContainer>
         <ListPanel />
         <DetailPanel />

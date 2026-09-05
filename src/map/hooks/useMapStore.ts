@@ -71,6 +71,7 @@ interface MapState {
   clearSearchDirty: () => void;
   reload: () => void;
   togglePanel: () => void;
+  setPanelOpen: (panelOpen: boolean) => void;
   setSheetSnap: (snap: SheetSnap) => void;
 }
 
@@ -149,5 +150,6 @@ export const useMapStore = create<MapState>((set, get) => ({
   clearSearchDirty: () => set({ isSearchDirty: false, searchCenter: get().center }),
   reload: () => set({ reloadNonce: get().reloadNonce + 1 }),
   togglePanel: () => set({ panelOpen: !get().panelOpen }),
+  setPanelOpen: (panelOpen) => set({ panelOpen }),
   setSheetSnap: (sheetSnap) => set({ sheetSnap }),
 }));

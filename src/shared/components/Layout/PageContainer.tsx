@@ -3,29 +3,40 @@
 import React from 'react';
 import { usePathname } from 'next/navigation';
 import styled from '@emotion/styled';
+import { css } from '@emotion/react';
 import type { OnmaruTheme } from '@/design-system/tokens';
 
 const StyledPageContainer = styled.div<{ $isFullBleed: boolean }>`
   width: 100%;
   min-height: 100vh;
-  padding-top: ${({ $isFullBleed }) => ($isFullBleed ? '0' : '66px')};
-  padding-left: ${({ $isFullBleed, theme }) => ($isFullBleed ? '0' : (theme as OnmaruTheme).layout?.margin?.lg || '75px')};
-  padding-right: ${({ $isFullBleed, theme }) => ($isFullBleed ? '0' : (theme as OnmaruTheme).layout?.margin?.lg || '75px')};
+  box-sizing: border-box;
 
-  @media (max-width: 1279px) {
-    padding-left: ${({ $isFullBleed, theme }) => ($isFullBleed ? '0' : (theme as OnmaruTheme).layout?.margin?.md || '16px')};
-    padding-right: ${({ $isFullBleed, theme }) => ($isFullBleed ? '0' : (theme as OnmaruTheme).layout?.margin?.md || '16px')};
-  }
+  ${({ $isFullBleed, theme }) =>
+    $isFullBleed
+      ? css`
+          padding: 0;
+          margin: 0;
+          max-width: none;
+        `
+      : css`
+          max-width: ${(theme as OnmaruTheme).layout?.maxWidth || '1340px'};
+          margin: 0 auto;
+          padding-top: 66px;
+          padding-left: ${(theme as OnmaruTheme).layout?.padding?.lg || '16px'};
+          padding-right: ${(theme as OnmaruTheme).layout?.padding?.lg || '16px'};
 
-  @media (max-width: 767px) {
-    padding-top: 0;
-    padding-bottom: calc(88px + env(safe-area-inset-bottom));
-  }
+          @media (max-width: 767px) {
+            padding-top: 0;
+            padding-bottom: calc(88px + env(safe-area-inset-bottom));
+          }
+        `}
 `;
 
 export default function PageContainer({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isFullBleed = pathname.startsWith('/odii') || pathname.startsWith('/map') || pathname === '/';
+  // 지도는 무조건 풀블리드(여백/마진 제외). odii와 랜딩(/)도 풀블리드 유지
+  const isFullBleed = pathname.startsWith('/map') || pathname.startsWith('/odii') || pathname === '/';
 
   return <StyledPageContainer $isFullBleed={isFullBleed}>{children}</StyledPageContainer>;
 }
+

@@ -282,10 +282,16 @@ export const createTheme = (mode: ColorMode) => {
     },
 
     layout: {
+      maxWidth: '1340px',
       margin: {
         sm: '16px', // Mobile (< 768px)
         md: '16px', // Tablet (768px ~ 1024px)
-        lg: '75px', // Large Desktop (>= 1280px)
+        lg: 'auto', // Large Desktop (>= 1280px, 당근 레이아웃: 0 auto)
+      },
+      padding: {
+        sm: '16px',
+        md: '16px',
+        lg: '16px',
       },
       gutter: {
         sm: '16px',
