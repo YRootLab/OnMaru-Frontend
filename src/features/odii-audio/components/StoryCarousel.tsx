@@ -81,6 +81,19 @@ function extractDominantColor(imageUrl: string, seed: string): Promise<string> {
   });
 }
 
+function scheduleIdleWork(callback: () => void): () => void {
+  const idleWindow = window as Window & {
+    requestIdleCallback?: (idleCallback: () => void, options: { timeout: number }) => number;
+    cancelIdleCallback?: (idleId: number) => void;
+  };
+  if (idleWindow.requestIdleCallback) {
+    const idleId = idleWindow.requestIdleCallback(callback, { timeout: 1200 });
+    return () => idleWindow.cancelIdleCallback?.(idleId);
+  }
+  const timeoutId = window.setTimeout(callback, 200);
+  return () => window.clearTimeout(timeoutId);
+}
+
 interface NearbyStoryCardProps {
   story: OdiiStoryItem;
   isCurrent: boolean;
@@ -93,11 +106,14 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
 
   useEffect(() => {
     let isMounted = true;
-    extractDominantColor(story.imageUrl, `${story.stid}${story.imageUrl}`).then((color) => {
-      if (isMounted) setAccentColor(color);
+    const cancelIdleWork = scheduleIdleWork(() => {
+      extractDominantColor(story.imageUrl, `${story.stid}${story.imageUrl}`).then((color) => {
+        if (isMounted) setAccentColor(color);
+      });
     });
     return () => {
       isMounted = false;
+      cancelIdleWork();
     };
   }, [story.imageUrl, story.stid]);
 
@@ -124,8 +140,8 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
         <img
           src={story.imageUrl || FALLBACK_ART}
           alt=""
-          loading="eager"
-          decoding="sync"
+          loading="lazy"
+          decoding="async"
           onError={(event) => {
             (event.target as HTMLImageElement).src = FALLBACK_ART;
           }}

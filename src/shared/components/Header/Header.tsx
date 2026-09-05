@@ -63,12 +63,13 @@ const HeaderContainer = styled('header', transientProps)<LandingProps>`
     $isLanding
       ? $isScrolled ? 'rgba(27, 25, 22, 0.74)' : 'rgba(27, 25, 22, 0.56)'
       : $isScrolled ? 'rgba(244, 243, 239, 0.82)' : 'rgba(248, 247, 244, 0.68)'};
-  backdrop-filter: blur(${({ $isScrolled }) => ($isScrolled ? '22px' : '16px')}) saturate(150%);
-  -webkit-backdrop-filter: blur(${({ $isScrolled }) => ($isScrolled ? '22px' : '16px')}) saturate(150%);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
   border-bottom: 1px solid ${({ $isLanding, $isScrolled }) =>
     $isLanding
       ? $isScrolled ? 'rgba(255, 248, 235, 0.18)' : 'rgba(255, 248, 235, 0.13)'
       : $isScrolled ? 'rgba(77, 68, 55, 0.13)' : 'rgba(77, 68, 55, 0.1)'};
+  box-shadow: 0 12px 34px -10px rgba(23, 20, 18, 0.09);
 
   transform: translateY(${({ $isHidden }) => ($isHidden ? 'calc(-100% - 16px)' : '0')});
   transition:
@@ -365,22 +366,25 @@ const LoginButton = styled(Link, transientProps)<LandingProps>`
   font-family: 'SpoqaHanSansNeo', sans-serif;
   font-size: 13px;
   font-weight: 500;
-  color: ${({ $isLanding, $isOdii }) => ($isOdii ? '#ffffff' : $isLanding ? meok[900] : '#faf9f6')};
-  background: ${({ $isLanding, $isOdii }) => ($isOdii ? lightPalette.jangmi[500] : $isLanding ? 'rgba(250, 247, 240, 0.92)' : 'rgba(38, 35, 31, 0.92)')};
+  color: ${({ $isLanding, $isOdii }) => ($isOdii ? lightPalette.jangmi[700] : $isLanding ? meok[900] : '#faf9f6')};
+  background: ${({ $isLanding, $isOdii }) => ($isOdii ? 'rgba(248, 78, 118, 0.08)' : $isLanding ? 'rgba(250, 247, 240, 0.92)' : 'rgba(38, 35, 31, 0.92)')};
+  border: 1px solid ${({ $isOdii }) => ($isOdii ? 'rgba(248, 78, 118, 0.18)' : 'transparent')};
 
   border-radius: 999px;
   height: 32px;
-  padding: 0 13px 0 14px;
+  padding: 0 13px 0 17px;
   text-decoration: none;
   letter-spacing: -0.01em;
+  line-height: 1;
   display: inline-flex;
   align-items: center;
   gap: 6px;
 
-  transition: transform 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+  transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
 
   &:hover {
-    background: ${({ $isLanding, $isOdii }) => ($isOdii ? lightPalette.jangmi[400] : $isLanding ? '#ffffff' : '#514a42')};
+    background: ${({ $isLanding, $isOdii }) => ($isOdii ? 'rgba(248, 78, 118, 0.14)' : $isLanding ? '#ffffff' : '#514a42')};
+    border-color: ${({ $isOdii }) => ($isOdii ? 'rgba(248, 78, 118, 0.28)' : 'transparent')};
 
     transform: translateY(-1px);
 
@@ -422,7 +426,7 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
-    let frameId = 0;
+    let frameId: number | null = null;
     let previousY = window.scrollY;
     let accumulatedDistance = 0;
     let direction: 'up' | 'down' | null = null;
@@ -459,6 +463,7 @@ export default function Header() {
     };
 
     const updateHeader = () => {
+      frameId = null;
       const currentY = window.scrollY;
       const delta = currentY - previousY;
 
@@ -487,11 +492,18 @@ export default function Header() {
       }
 
       previousY = currentY;
-      frameId = window.requestAnimationFrame(updateHeader);
     };
 
-    frameId = window.requestAnimationFrame(updateHeader);
-    return () => window.cancelAnimationFrame(frameId);
+    const scheduleUpdate = () => {
+      if (frameId === null) frameId = window.requestAnimationFrame(updateHeader);
+    };
+
+    updateHeader();
+    window.addEventListener('scroll', scheduleUpdate, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', scheduleUpdate);
+      if (frameId !== null) window.cancelAnimationFrame(frameId);
+    };
   }, [isMapMenuOpen, isMobileMenuOpen, isLandingPage]);
 
   // 지도 페이지에서는 전체 화면 지도 몰입을 위해 전역 헤더를 숨긴다.

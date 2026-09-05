@@ -119,7 +119,7 @@ export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({
         variants={listContainerVariants}
         initial="hidden"
         animate="visible"
-        className="space-y-2.5"
+        className="space-y-3"
       >
         {stories.map((story, index) => {
           const isCurrent = currentStory.stid === story.stid;
@@ -132,59 +132,69 @@ export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({
               key={`${story.stid}-${index}`}
               variants={itemVariants}
               onClick={() => selectStory(story)}
-              className={`group relative grid cursor-pointer grid-cols-[34px_64px_minmax(0,1fr)_auto] items-center gap-3 overflow-hidden rounded-2xl px-3 py-3.5 transition-all duration-300 sm:grid-cols-[40px_76px_minmax(0,1fr)_auto] sm:gap-4 sm:px-4 ${
+              className={`group relative grid cursor-pointer grid-cols-[36px_92px_minmax(0,1fr)_auto] items-center gap-3.5 overflow-hidden rounded-2xl border p-3 backdrop-blur-md transition-all duration-300 sm:grid-cols-[44px_124px_minmax(0,1fr)_auto] sm:gap-5 sm:p-4 ${
                 isCurrent
-                  ? ' bg-[#fff0f5] '
-                  : ' bg-white/70 hover:-translate-y-0.5 hover: hover:bg-[#fff8fa] hover:'
+                  ? 'border-[#f84e76]/35 bg-gradient-to-r from-[#fff0f5] via-white to-white shadow-md shadow-[#f84e76]/10 ring-1 ring-[#f84e76]/20'
+                  : 'border-white/70 bg-white/75 hover:-translate-y-0.5 hover:border-[#f84e76]/30 hover:bg-white/95 hover:shadow-xl hover:shadow-rose-950/5'
               }`}
             >
-              <div className="flex h-full items-center justify-center   pr-2">
+              <div className="flex h-full items-center justify-center pr-1 sm:pr-2">
                 <div className="w-6 shrink-0 text-center">
                   {isThisPlaying ? (
-                    <div className="flex items-end justify-center space-x-0.5 h-3.5">
-                      <span className="h-3 w-0.5 rounded-full bg-[#f84e76] animate-[bounce_0.6s_infinite_100ms]" />
-                      <span className="h-2 w-0.5 rounded-full bg-[#f84e76] animate-[bounce_0.6s_infinite_300ms]" />
-                      <span className="h-3.5 w-0.5 rounded-full bg-[#f84e76] animate-[bounce_0.6s_infinite_200ms]" />
+                    <div className="flex items-end justify-center space-x-0.5 h-4">
+                      <span className="h-3.5 w-1 rounded-full bg-[#f84e76] animate-[bounce_0.6s_infinite_100ms]" />
+                      <span className="h-2.5 w-1 rounded-full bg-[#f84e76] animate-[bounce_0.6s_infinite_300ms]" />
+                      <span className="h-4 w-1 rounded-full bg-[#f84e76] animate-[bounce_0.6s_infinite_200ms]" />
                     </div>
                   ) : (
-                    <span className={`font-mono text-[11px] font-semibold ${isCurrent ? 'text-[#f84e76]' : 'text-[#8c7e6c]'}`}>
+                    <span className={`font-mono text-xs font-bold tracking-tight ${isCurrent ? 'text-[#f84e76]' : 'text-[#a09282] group-hover:text-[#655b4d]'}`}>
                       {trackNum}
                     </span>
                   )}
                 </div>
               </div>
 
-              <div className="relative h-14 w-16 shrink-0 overflow-hidden rounded-xl bg-[#f3eee8]  sm:h-[68px] sm:w-[76px]">
-                  <img
-                    src={imageFor(story, index)}
-                    alt={story.title}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    onError={(event) => {
-                      event.currentTarget.onerror = null;
-                      event.currentTarget.src = LIST_FALLBACK_IMAGES[0];
-                    }}
-                  />
-                  {!story.imageUrl && <span className="absolute bottom-1 left-1 rounded bg-white/75 px-1 py-0.5 text-[8px] font-medium text-[#8c7e6c] backdrop-blur-sm">참고용</span>}
-                  {isThisPlaying && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-[#f84e76]/75 backdrop-blur-xs">
-                      <span className="text-[9px] font-bold text-white tracking-widest uppercase">PLAY</span>
-                    </div>
-                  )}
+              {/* 썸네일 컨테이너: 124px 대형 썸네일 + default scale-110, hover scale-130 이펙트 */}
+              <div className="relative h-[68px] w-[92px] shrink-0 overflow-hidden rounded-xl bg-[#f3eee8] shadow-inner sm:h-[82px] sm:w-[124px]">
+                <img
+                  src={imageFor(story, index)}
+                  alt={story.title}
+                  className="h-full w-full object-cover scale-110 transition-transform duration-700 ease-out group-hover:scale-130"
+                  onError={(event) => {
+                    event.currentTarget.onerror = null;
+                    event.currentTarget.src = LIST_FALLBACK_IMAGES[0];
+                  }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent transition-opacity duration-300 group-hover:opacity-85" />
+                {!story.imageUrl && (
+                  <span className="absolute bottom-1.5 left-1.5 rounded-md bg-black/50 px-1.5 py-0.5 text-[8px] font-medium text-white/90 backdrop-blur-xs">
+                    참고용
+                  </span>
+                )}
+                {isThisPlaying && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-[#f84e76]/85 backdrop-blur-xs">
+                    <span className="text-[10px] font-extrabold text-white tracking-widest uppercase">PLAYING</span>
+                  </div>
+                )}
               </div>
 
               <div className="min-w-0 pr-1">
-                <div className="mb-1 flex min-w-0 items-center gap-2 text-[10px]">
-                  <span className="truncate font-bold text-[#f84e76]">{categoryLabelFor(story)}</span>
-                  <span className="truncate text-[#8c7e6c]">{story.locationName || '대한민국 문화유산'}</span>
+                <div className="mb-1 flex flex-wrap min-w-0 items-center gap-1.5 text-[10px]">
+                  <span className="rounded-md bg-[#f84e76]/10 px-2 py-0.5 font-bold text-[#f84e76]">
+                    {categoryLabelFor(story)}
+                  </span>
+                  <span className="truncate font-medium text-[#8c7e6c]">
+                    {story.locationName || '대한민국 문화유산'}
+                  </span>
                 </div>
 
-                <h4 className={`truncate font-odii-sans text-sm font-semibold tracking-[-0.025em] transition-colors sm:text-base ${isCurrent ? 'text-[#f84e76]' : 'text-[#211e19] group-hover:text-[#f84e76]'}`}>
+                <h4 className={`truncate font-odii-sans text-sm font-bold tracking-[-0.025em] transition-colors sm:text-base ${isCurrent ? 'text-[#f84e76]' : 'text-[#211e19] group-hover:text-[#f84e76]'}`}>
                   {story.title}
                 </h4>
-                <p className="mt-1 truncate text-[10px] text-[#786d5e] sm:text-[11px]">{story.locationName || '대한민국 문화유산'}</p>
+                <p className="mt-1 truncate text-[11px] text-[#786d5e] sm:text-xs">{story.locationName || '대한민국 문화유산'}</p>
               </div>
 
-              <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+              <div className="flex shrink-0 items-center gap-2 sm:gap-3.5">
                 {onBookmarkStory && (
                   <button
                     type="button"
@@ -194,13 +204,13 @@ export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({
                     }}
                     aria-label={isBookmarked ? `${story.title} 보관함에서 삭제` : `${story.title} 마음에 담기`}
                     aria-pressed={isBookmarked}
-                    className={`flex h-8 w-8 items-center justify-center rounded-full transition-all duration-200 ${
+                    className={`flex h-9 w-9 items-center justify-center rounded-full transition-all duration-200 ${
                       isBookmarked
-                        ? 'scale-105 bg-[#f84e76]/12 text-[#f84e76] hover:bg-[#f84e76]/20'
+                        ? 'scale-105 bg-[#f84e76]/15 text-[#f84e76] hover:bg-[#f84e76]/25'
                         : 'text-[#b0a398] hover:bg-[#f84e76]/10 hover:text-[#f84e76]'
                     }`}
                   >
-                    <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
+                    <svg className="h-4.5 w-4.5 fill-current" viewBox="0 0 24 24">
                       {isBookmarked ? (
                         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                       ) : (
@@ -210,24 +220,24 @@ export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({
                   </button>
                 )}
 
-                <span className="hidden font-mono text-[11px] text-[#8c7e6c] sm:inline-block">
+                <span className="hidden font-mono text-xs font-semibold text-[#8c7e6c] sm:inline-block">
                   {story.formattedDuration || '3:00'}
                 </span>
 
                 <button
                   type="button"
                   onClick={(e) => handlePlayClick(story, e)}
-                  className={`flex h-8 w-8 items-center justify-center rounded-full transition-all duration-300 ${
+                  className={`flex h-9 w-9 items-center justify-center rounded-full transition-all duration-300 shadow-sm ${
                     isThisPlaying
-                      ? 'scale-105 bg-[#f84e76] text-white '
-                      : ' bg-white text-[#f84e76] hover:bg-[#f84e76] hover:text-white'
+                      ? 'scale-105 bg-[#f84e76] text-white shadow-md shadow-[#f84e76]/30'
+                      : 'bg-white text-[#f84e76] hover:scale-105 hover:bg-[#f84e76] hover:text-white hover:shadow-md hover:shadow-[#f84e76]/25'
                   }`}
                   title={isThisPlaying ? '일시정지' : '재생'}
                 >
                   {isThisPlaying ? (
-                    <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                    <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
                   ) : (
-                    <svg className="h-3.5 w-3.5 fill-current ml-0.5" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    <svg className="h-4 w-4 fill-current ml-0.5" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                   )}
                 </button>
               </div>

@@ -25,19 +25,24 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 
 
   if (variant === 'store') {
     return (
-      <div className="mb-6">
-        <div className="mb-2 flex items-center justify-between px-1">
-          <span className="text-xs font-semibold text-[#211e19]">탐색하기</span>
-          <span className="text-[10px] text-[#a59a8d]">주제별 오디오</span>
+      <div className="mb-6 space-y-3">
+        <div className="flex items-center justify-between px-1">
+          <span className="text-xs font-bold text-[#211e19]">테마별 탐색</span>
+          <span className="text-[10px] font-medium text-[#a59a8d]">주제 오디오</span>
         </div>
-        <div className="rounded-[20px] bg-[#f5f3ef] p-1.5 ">
+
+        {/* 주 메뉴 메인 필터 레일 */}
+        <div className="rounded-2xl border border-white/80 bg-white/75 p-1.5 shadow-xs backdrop-blur-md">
           <div className="flex items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <button
               type="button"
               onClick={() => { setSelectedCategory('전체'); setSearchQuery(''); }}
-              className={`flex h-10 shrink-0 items-center gap-2 rounded-[14px] px-4 text-xs transition-all ${selectedCategory === '전체' ? 'bg-white font-semibold text-[#f84e76] ' : 'text-[#786d5e] hover:text-[#f84e76]'}`}
+              className={`flex h-9 shrink-0 items-center justify-center rounded-xl px-4 text-xs font-bold transition-all duration-200 ${
+                selectedCategory === '전체'
+                  ? 'bg-gradient-to-r from-[#f84e76] to-[#e03860] text-white shadow-md shadow-[#f84e76]/25'
+                  : 'text-[#655b4d] hover:bg-white hover:text-[#f84e76]'
+              }`}
             >
-              <span className={`h-1.5 w-1.5 rounded-full ${selectedCategory === '전체' ? 'bg-[#f84e76]' : 'bg-[#c8bfb5]'}`} />
               전체
             </button>
             {ODII_THEME_CATEGORIES.map((theme) => {
@@ -48,17 +53,22 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 
                   key={theme.id}
                   type="button"
                   onClick={() => { setSelectedCategory(theme.keyword); setSearchQuery(''); }}
-                  className={`flex h-10 shrink-0 items-center gap-2 rounded-[14px] px-4 text-xs transition-all ${isSelected ? 'bg-white font-semibold text-[#f84e76] ' : 'text-[#786d5e] hover:text-[#f84e76]'}`}
+                  className={`flex h-9 shrink-0 items-center justify-center rounded-xl px-4 text-xs font-bold transition-all duration-200 ${
+                    isSelected
+                      ? 'bg-gradient-to-r from-[#f84e76] to-[#e03860] text-white shadow-md shadow-[#f84e76]/25'
+                      : 'text-[#655b4d] hover:bg-white hover:text-[#f84e76]'
+                  }`}
                 >
-                  <span className={`h-1.5 w-1.5 rounded-full ${isSelected ? 'bg-[#f84e76]' : 'bg-[#c8bfb5]'}`} />
                   {label}
                 </button>
               );
             })}
           </div>
         </div>
-        <div className="mt-3 flex items-center gap-2 overflow-x-auto px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <span className="mr-1 shrink-0 text-[10px] font-medium text-[#a59a8d]">지역</span>
+
+        {/* 소메뉴 지역 필터 칩 */}
+        <div className="flex items-center gap-2 overflow-x-auto px-1 pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <span className="shrink-0 text-[11px] font-bold text-[#8c7e6c]">지역</span>
           {ODII_REGION_CHIPS.map((region) => {
             const isSelected = selectedCategory === region;
             return (
@@ -66,7 +76,11 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 
                 key={region}
                 type="button"
                 onClick={() => handleRegionClick(region)}
-                className={`shrink-0 rounded-full px-3 py-1.5 text-[10px] transition-colors ${isSelected ? 'bg-[#f84e76] font-semibold text-white ' : 'text-[#8c7e6c] hover:bg-[#fff0f5] hover:text-[#f84e76]'}`}
+                className={`shrink-0 rounded-full px-3.5 py-1 text-[11px] font-semibold transition-all duration-200 ${
+                  isSelected
+                    ? 'bg-[#211e19] text-white shadow-xs'
+                    : 'border border-white/70 bg-white/70 text-[#786d5e] hover:border-[#f84e76]/30 hover:bg-white hover:text-[#f84e76]'
+                }`}
               >
                 {region}
               </button>
@@ -79,14 +93,20 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 
 
   if (variant === 'compact') {
     return (
-      <div className="mb-5 space-y-3 px-1">
+      <div className="mb-5 space-y-2.5 px-1">
         <div className="flex items-center gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <span className="mr-1 shrink-0 text-[11px] font-semibold text-[#655b4d]">주제</span>
+          <span className="mr-1 shrink-0 text-[11px] font-bold text-[#655b4d]">주제</span>
           <button
             type="button"
             onClick={() => { setSelectedCategory('전체'); setSearchQuery(''); }}
-            className={`shrink-0 rounded-full px-3 py-1.5 text-xs transition-all ${selectedCategory === '전체' ? 'bg-[#f84e76] font-semibold text-white ' : 'bg-[#f7f4ee] text-[#786d5e] hover:bg-[#fff0f5] hover:text-[#f84e76]'}`}
-          >전체</button>
+            className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-bold transition-all duration-200 ${
+              selectedCategory === '전체'
+                ? 'bg-gradient-to-r from-[#f84e76] to-[#e03860] text-white shadow-xs'
+                : 'bg-white/80 text-[#786d5e] hover:bg-white hover:text-[#f84e76]'
+            }`}
+          >
+            전체
+          </button>
           {ODII_THEME_CATEGORIES.map((theme) => {
             const isSelected = selectedCategory === theme.keyword;
             return (
@@ -94,7 +114,11 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 
                 key={theme.id}
                 type="button"
                 onClick={() => { setSelectedCategory(theme.keyword); setSearchQuery(''); }}
-                className={`shrink-0 rounded-full px-3 py-1.5 text-xs transition-all ${isSelected ? 'bg-[#f84e76] font-semibold text-white ' : 'bg-[#f7f4ee] text-[#786d5e] hover:bg-[#fff0f5] hover:text-[#f84e76]'}`}
+                className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-bold transition-all duration-200 ${
+                  isSelected
+                    ? 'bg-gradient-to-r from-[#f84e76] to-[#e03860] text-white shadow-xs'
+                    : 'bg-white/80 text-[#786d5e] hover:bg-white hover:text-[#f84e76]'
+                }`}
               >
                 {theme.keyword === '마을' ? '전통마을' : theme.label.split('/')[0]}
               </button>
@@ -102,7 +126,7 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 
           })}
         </div>
         <div className="flex items-center gap-2 overflow-x-auto pl-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <span className="mr-1 shrink-0 text-[11px] font-semibold text-[#655b4d]">지역</span>
+          <span className="mr-1 shrink-0 text-[11px] font-bold text-[#8c7e6c]">지역</span>
           {ODII_REGION_CHIPS.map((region) => {
             const isSelected = selectedCategory === region;
             return (
@@ -110,7 +134,11 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 
                 key={region}
                 type="button"
                 onClick={() => handleRegionClick(region)}
-                className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] transition-colors ${isSelected ? ' bg-[#fff0f5] font-semibold text-[#f84e76]' : ' text-[#8c7e6c] hover: hover:bg-[#fff8fa] hover:text-[#f84e76]'}`}
+                className={`shrink-0 rounded-full px-3 py-1 text-[10px] font-semibold transition-all duration-200 ${
+                  isSelected
+                    ? 'bg-[#211e19] text-white shadow-xs'
+                    : 'bg-white/60 text-[#8c7e6c] hover:bg-white hover:text-[#f84e76]'
+                }`}
               >
                 {region}
               </button>
@@ -121,24 +149,25 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 
     );
   }
 
+  // Default Variant: 메인 오디오 아카이브 필터바 (섹션 5 전용)
   return (
-    <div className="w-full py-5 flex flex-col gap-4  ">
-      {/* 1단: 인위적 요약 뱃지 없이 깨끗한 6대 브랜드 카테고리 태그 칩 */}
-      <div className="min-h-[60px]">
-        <div className="flex items-center space-x-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div className="w-full py-2 space-y-2.5">
+      {/* 1단: 메인 테마 메뉴 */}
+      <div className="rounded-2xl border border-white/80 bg-white/80 p-1.5 shadow-xs backdrop-blur-md">
+        <div className="flex items-center space-x-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <button
             type="button"
             onClick={() => {
               setSelectedCategory('전체');
               setSearchQuery('');
             }}
-                className={`px-4 py-2 rounded-xl text-xs font-medium transition-all duration-300 whitespace-nowrap ${
+            className={`flex h-10 shrink-0 items-center justify-center rounded-xl px-4 text-xs transition-all duration-200 whitespace-nowrap ${
               selectedCategory === '전체'
-                ? 'bg-[#f84e76] text-white  font-bold'
-                : 'text-[#655b4d] bg-[#f7f4ee] hover:bg-[#fff0f5] hover:text-[#f84e76]'
+                ? 'bg-gradient-to-r from-[#f84e76] to-[#e03860] font-bold text-white shadow-md shadow-[#f84e76]/25 scale-[1.02]'
+                : 'font-semibold text-[#655b4d] hover:bg-white/90 hover:text-[#f84e76]'
             }`}
           >
-            전체
+            전체 보기
           </button>
 
           {ODII_THEME_CATEGORIES.map((theme) => {
@@ -152,10 +181,10 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 
                   setSearchQuery('');
                 }}
                 title={theme.description}
-                className={`px-4 py-2 rounded-xl text-xs font-medium transition-all duration-300 whitespace-nowrap ${
+                className={`flex h-10 shrink-0 items-center justify-center rounded-xl px-4 text-xs transition-all duration-200 whitespace-nowrap ${
                   isSelected
-                    ? 'bg-[#f84e76] text-white  font-bold'
-                    : 'text-[#655b4d] bg-[#f7f4ee] hover:bg-[#fff0f5] hover:text-[#f84e76]'
+                    ? 'bg-gradient-to-r from-[#f84e76] to-[#e03860] font-bold text-white shadow-md shadow-[#f84e76]/25 scale-[1.02]'
+                    : 'font-semibold text-[#655b4d] hover:bg-white/90 hover:text-[#f84e76]'
                 }`}
               >
                 {theme.label}
@@ -163,19 +192,22 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 
             );
           })}
         </div>
-
-        {selectedTheme && (
-          <p className="mt-2 text-xs leading-5 text-[#8c7e6c]">
-            <strong className="mr-1 font-semibold text-[#f84e76]">{selectedTheme.label}</strong>
-            <span>{selectedTheme.description}</span>
-          </p>
-        )}
       </div>
 
-      {/* 2단: 서브 검색 폼 & 지역 명소 필터 칩 */}
-      <div className="rounded-2xl bg-[#f7f4ee]/70 p-3.5">
-        {/* 지역 칩 */}
-        <div className="flex items-center space-x-1.5 overflow-x-auto pb-1 sm:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      {/* 선택된 테마 설명 서브 캡션 */}
+      {selectedTheme && (
+        <div className="flex items-center gap-2 rounded-xl border border-[#f84e76]/15 bg-[#fff0f5]/60 px-3.5 py-2 text-xs text-[#786d5e] backdrop-blur-xs">
+          <span className="font-bold text-[#f84e76]">{selectedTheme.label}</span>
+          <span className="text-[#a09282]">·</span>
+          <span>{selectedTheme.description}</span>
+        </div>
+      )}
+
+      {/* 2단: 소메뉴 (지역 칩 레일) */}
+      <div className="flex items-center justify-between gap-2.5 rounded-2xl border border-white/70 bg-white/60 p-2.5 backdrop-blur-sm sm:px-4">
+        <div className="flex items-center gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <span className="shrink-0 text-xs font-bold text-[#8c7e6c]">지역</span>
+          <div className="h-3 w-px bg-[#211e19]/10 shrink-0 mx-1" />
           {ODII_REGION_CHIPS.map((region) => {
             const isSelected = selectedCategory === region;
             return (
@@ -183,10 +215,10 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 
                 key={region}
                 type="button"
                 onClick={() => handleRegionClick(region)}
-                className={`px-3 py-1 rounded-lg text-xs transition-all duration-200 whitespace-nowrap ${
+                className={`shrink-0 rounded-full px-3.5 py-1 text-xs font-semibold transition-all duration-200 whitespace-nowrap ${
                   isSelected
-                    ? 'bg-[#f84e76] text-white font-bold '
-                    : 'bg-white text-[#655b4d]  hover: hover:text-[#f84e76]'
+                    ? 'bg-[#211e19] text-white shadow-xs scale-105'
+                    : 'border border-white/80 bg-white/75 text-[#655b4d] hover:border-[#f84e76]/30 hover:bg-white hover:text-[#f84e76]'
                 }`}
               >
                 {region}
@@ -194,7 +226,6 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 
             );
           })}
         </div>
-
       </div>
     </div>
   );

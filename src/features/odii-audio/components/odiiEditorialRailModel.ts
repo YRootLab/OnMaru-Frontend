@@ -6,3 +6,15 @@ export function getVisibleRailPositions(activePosition: number): number[] {
     (_, index) => activePosition - ODII_RAIL_VISIBLE_BUFFER + index,
   );
 }
+
+export function shouldFetchRailCategory({
+  isRailNearby,
+  isSelected,
+  isInteracted,
+}: {
+  isRailNearby: boolean;
+  isSelected: boolean;
+  isInteracted: boolean;
+}): boolean {
+  return isInteracted || (isRailNearby && isSelected);
+}

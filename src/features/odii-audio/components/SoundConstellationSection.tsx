@@ -1,42 +1,217 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
 import { KOREA_MAP_VIEWBOX, KOREA_REGION_PATHS, KoreaRegionPath } from '@/features/odii-audio/data/koreaMapPaths';
+import { useOdiiApiService } from '@/features/odii-audio/context/OdiiDependencyContext';
 
 interface SoundConstellationSectionProps {
   stories: OdiiStoryItem[];
 }
 
 const [VB_WIDTH, VB_HEIGHT] = KOREA_MAP_VIEWBOX.split(' ').slice(2).map(Number);
-const VISIBLE_STORY_COUNT = 6;
-const EXPANDED_STORY_CAP = 30;
-const STACK_ROTATIONS = [-7, 4, -3, 6];
+const ITEM_HEIGHT = 90; // 확대된 80px 썸네일과 2줄 서사를 포함한 가상 스크롤 아이템 높이 (px)
+const OVERSCAN = 4; // 화면 위아래 버퍼 가상 아이템 개수
 
-const normalizeText = (story: OdiiStoryItem) => `${story.locationName || ''} ${story.title} ${story.audioTitle} ${story.category}`;
+const normalizeText = (story: OdiiStoryItem) => `${story.locationName || ''} ${story.title} ${story.audioTitle || ''} ${story.category || ''}`;
 const getRegionStories = (stories: OdiiStoryItem[], region: KoreaRegionPath) => {
   const matched = stories.filter((story) => region.keywords.some((keyword) => normalizeText(story).includes(keyword)));
   return matched.length ? matched : stories.slice(0, 4);
 };
 
+// 초기 로딩 시 스켈레톤 UI
+const RegionStoryListSkeleton: React.FC = () => (
+  <div className="mt-1 flex-1 space-y-1.5 overflow-y-auto pr-1" aria-busy="true" aria-label="지역 오디오 이야기 로딩 중">
+    {Array.from({ length: 5 }, (_, index) => (
+      <div key={index} className="flex h-[84px] items-center gap-3 rounded-xl px-2.5 py-1.5 bg-transparent">
+        <div className="odii-skeleton h-[72px] w-[80px] shrink-0 rounded-xl bg-[#eee8df]" />
+        <div className="min-w-0 flex-1 space-y-2">
+          <div className="odii-skeleton h-3.5 w-3/4 rounded bg-[#e8e0d5]" />
+          <div className="odii-skeleton h-2.5 w-full rounded bg-[#eee8df]" />
+          <div className="odii-skeleton h-2.5 w-2/3 rounded bg-[#eee8df]" />
+        </div>
+        <div className="odii-skeleton h-3 w-8 shrink-0 rounded bg-[#eee8df]" />
+      </div>
+    ))}
+  </div>
+);
+
+// 오디오 이야기 스크립트/서사 요약 추출 함수 (텍스트 겹침 방지 가공)
+function getStoryExcerpt(story: OdiiStoryItem): string {
+  if (story.script && story.script.trim()) {
+    const firstSentence = story.script.split(/\r?\n/)[0]?.trim();
+    if (firstSentence && firstSentence.length > 3) {
+      return firstSentence.length > 70 ? `${firstSentence.slice(0, 70)}…` : firstSentence;
+    }
+  }
+  if (story.audioTitle && story.audioTitle !== story.title) {
+    return story.audioTitle;
+  }
+  return story.locationName ? `${story.locationName}에 남은 오디오 소리 이야기` : '장소에 머무는 아름다운 오디오 이야기';
+}
+
 export const SoundConstellationSection: React.FC<SoundConstellationSectionProps> = ({ stories }) => {
+  const activeApiService = useOdiiApiService();
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+
   const [selectedRegionId, setSelectedRegionId] = useState('seoul');
   const [hoveredRegionId, setHoveredRegionId] = useState<string | null>(null);
-  const [isListExpanded, setIsListExpanded] = useState(false);
+  const [isListHovered, setIsListHovered] = useState(false);
+  const [isRegionLoading, setIsRegionLoading] = useState(false);
+  const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
+
+  // 무한 스크롤 및 가상 스크롤 상태
+  const [scrollTop, setScrollTop] = useState(0);
+  const [containerHeight, setContainerHeight] = useState(500);
+
+  const regionStoriesCacheRef = useRef<Record<string, { stories: OdiiStoryItem[]; page: number; hasMore: boolean }>>({});
+  const [loadedRegionStories, setLoadedRegionStories] = useState<OdiiStoryItem[] | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+
   const setCurrentStory = useOdiiAudioStore((state) => state.setCurrentStory);
   const currentStory = useOdiiAudioStore((state) => state.currentStory);
   const isPlaying = useOdiiAudioStore((state) => state.isPlaying);
   const setIsPlaying = useOdiiAudioStore((state) => state.setIsPlaying);
-  const selectedRegion = KOREA_REGION_PATHS.find((region) => region.id === selectedRegionId) || KOREA_REGION_PATHS[0];
-  const regionStories = useMemo(() => getRegionStories(stories, selectedRegion), [stories, selectedRegion]);
 
-  const [expandedForRegion, setExpandedForRegion] = useState(selectedRegionId);
-  if (expandedForRegion !== selectedRegionId) {
-    setExpandedForRegion(selectedRegionId);
-    setIsListExpanded(false);
-  }
+  const selectedRegion = KOREA_REGION_PATHS.find((region) => region.id === selectedRegionId) || KOREA_REGION_PATHS[0];
+
+  // 1. 지도 클릭 시 해당 지역 데이터 초기 로딩 (API + 캐시)
+  useEffect(() => {
+    let isMounted = true;
+    if (scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0;
+    setScrollTop(0);
+
+    const cached = regionStoriesCacheRef.current[selectedRegionId];
+    if (cached && cached.stories.length > 0) {
+      setLoadedRegionStories(cached.stories);
+      setCurrentPage(cached.page);
+      setHasMore(cached.hasMore);
+      setIsRegionLoading(false);
+      return;
+    }
+
+    const localMatch = stories.filter((story) =>
+      selectedRegion.keywords.some((keyword) => normalizeText(story).includes(keyword))
+    );
+
+    setIsRegionLoading(true);
+
+    activeApiService
+      .getStoryList(undefined, selectedRegion.keywords[0])
+      .then((newStories) => {
+        if (!isMounted) return;
+        let finalStories = newStories.filter((s) => Boolean(s && s.stid));
+        if (finalStories.length === 0) {
+          finalStories = localMatch.length ? localMatch : stories;
+        }
+
+        const hasNext = newStories.length >= 10;
+        regionStoriesCacheRef.current[selectedRegionId] = {
+          stories: finalStories,
+          page: 1,
+          hasMore: hasNext,
+        };
+
+        setLoadedRegionStories(finalStories);
+        setCurrentPage(1);
+        setHasMore(hasNext);
+      })
+      .catch(() => {
+        if (!isMounted) return;
+        const fallback = localMatch.length ? localMatch : stories;
+        setLoadedRegionStories(fallback);
+        setHasMore(false);
+      })
+      .finally(() => {
+        if (isMounted) setIsRegionLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedRegionId, activeApiService, selectedRegion, stories]);
+
+  // 2. 무한 스크롤 다음 페이지 API 수급 함수
+  const loadNextPage = useCallback(() => {
+    if (isFetchingNextPage || !hasMore || isRegionLoading) return;
+
+    const nextPage = currentPage + 1;
+    setIsFetchingNextPage(true);
+
+    activeApiService
+      .getStoryList(undefined, selectedRegion.keywords[nextPage % selectedRegion.keywords.length] || selectedRegion.keywords[0])
+      .then((moreStories) => {
+        if (!moreStories || moreStories.length === 0) {
+          setHasMore(false);
+          if (regionStoriesCacheRef.current[selectedRegionId]) {
+            regionStoriesCacheRef.current[selectedRegionId].hasMore = false;
+          }
+          return;
+        }
+
+        setLoadedRegionStories((prev) => {
+          const currentList = prev || [];
+          const existingIds = new Set(currentList.map((s) => s.stid));
+          const uniqueNew = moreStories.filter((s) => s && s.stid && !existingIds.has(s.stid));
+          const updatedList = [...currentList, ...uniqueNew];
+
+          const hasNext = moreStories.length >= 10;
+          setHasMore(hasNext);
+          setCurrentPage(nextPage);
+
+          regionStoriesCacheRef.current[selectedRegionId] = {
+            stories: updatedList,
+            page: nextPage,
+            hasMore: hasNext,
+          };
+
+          return updatedList;
+        });
+      })
+      .catch(() => {
+        setHasMore(false);
+      })
+      .finally(() => {
+        setIsFetchingNextPage(false);
+      });
+  }, [isFetchingNextPage, hasMore, isRegionLoading, currentPage, activeApiService, selectedRegionId, selectedRegion.keywords]);
+
+  // 3. 스크롤 위치 감지 & 가상 스크롤 업데이트 & 무한 스크롤 트리거
+  const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
+    const target = event.currentTarget;
+    const currentScrollTop = target.scrollTop;
+    const currentScrollHeight = target.scrollHeight;
+    const currentClientHeight = target.clientHeight;
+
+    setScrollTop(currentScrollTop);
+    setContainerHeight(currentClientHeight);
+
+    // 하단 100px 이내 접근 시 무한 스크롤 호출
+    if (
+      currentScrollHeight - (currentScrollTop + currentClientHeight) < 120 &&
+      hasMore &&
+      !isFetchingNextPage &&
+      !isRegionLoading
+    ) {
+      loadNextPage();
+    }
+  };
+
+  const regionStories = loadedRegionStories || getRegionStories(stories, selectedRegion);
+
+  // 4. 가상 스크롤(Virtual Scroll) 표시 범위 계산
+  const totalCount = regionStories.length;
+  const totalHeight = totalCount * ITEM_HEIGHT;
+
+  const startIndex = Math.max(0, Math.floor(scrollTop / ITEM_HEIGHT) - OVERSCAN);
+  const endIndex = Math.min(totalCount, Math.ceil((scrollTop + containerHeight) / ITEM_HEIGHT) + OVERSCAN);
+  const visibleStories = useMemo(
+    () => regionStories.slice(startIndex, endIndex),
+    [regionStories, startIndex, endIndex]
+  );
 
   const playStory = (story: OdiiStoryItem) => {
     if (currentStory.stid === story.stid) setIsPlaying(!isPlaying);
@@ -47,14 +222,20 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
     <section aria-labelledby="sound-map-heading" className="w-full py-10 sm:py-14">
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
         <div className="pb-1">
-          <h2 id="sound-map-heading" className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-[clamp(24px,3.2vw,36px)] font-bold tracking-[-0.045em] text-transparent">지도로 듣는 이야기</h2>
-          <p className="mt-1 max-w-xl text-xs sm:text-sm leading-5 text-[#786d5e]">대한민국 지도에서 지역을 눌러 그곳에 남은 오디오 이야기를 들어보세요.</p>
+          <h2 id="sound-map-heading" className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-[clamp(24px,3.2vw,36px)] font-bold tracking-[-0.045em] text-transparent">
+            지도로 듣는 이야기
+          </h2>
+          <p className="mt-1 max-w-xl text-xs sm:text-sm leading-5 text-[#786d5e]">
+            대한민국 지도에서 지역을 눌러 그곳에 남은 오디오 이야기를 들어보세요.
+          </p>
         </div>
 
-        <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(300px,.8fr)] lg:gap-6">
+        {/* 복구된 좌측 지도 + 우측 가상 스크롤 리스트 분할 레이아웃 */}
+        <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)] lg:gap-6">
+          {/* 좌측 SVG 지도 영역 */}
           <div className="relative min-h-[480px] p-4 sm:min-h-[560px] sm:p-6">
-            <div className="absolute left-4 top-4 z-20 flex items-center gap-2 rounded-full  bg-[#fffdf9]/85 px-3.5 py-2 text-[12px] text-[#786d5e] backdrop-blur-sm sm:left-6 sm:top-6">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#f84e76]" /> 지역을 눌러 탐색해보세요
+            <div className="absolute left-4 top-4 z-20 flex items-center gap-2 rounded-full border border-white/80 bg-[#fffdf9]/85 px-3.5 py-2 text-[12px] text-[#786d5e] backdrop-blur-sm sm:left-6 sm:top-6">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#f84e76] animate-pulse" /> 지역을 눌러 탐색해보세요
             </div>
 
             <div className="relative mx-auto mt-14 aspect-[800/759] w-full max-w-[520px] sm:mt-12">
@@ -77,6 +258,9 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                       animate={{
                         fill: active ? '#f84e76' : hovered ? '#e9dfcd' : '#fffdf9',
                         fillOpacity: active ? 0.92 : 1,
+                        filter: active
+                          ? (isListHovered ? 'drop-shadow(0 5px 16px rgba(248,78,118,0.45))' : 'drop-shadow(0 3px 8px rgba(248,78,118,0.22))')
+                          : 'drop-shadow(0 0px 0px rgba(0,0,0,0))',
                       }}
                       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                       stroke={active ? '#f84e76' : '#211e19'}
@@ -85,7 +269,6 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                       strokeLinejoin="round"
                       vectorEffect="non-scaling-stroke"
                       className="cursor-pointer"
-                      style={active ? { filter: 'drop-shadow(0 3px 8px rgba(248,78,118,0.22))' } : undefined}
                     />
                   );
                 })}
@@ -93,7 +276,8 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
 
               {KOREA_REGION_PATHS.map((region) => {
                 const active = region.id === selectedRegionId;
-                const count = getRegionStories(stories, region).length;
+                const cached = regionStoriesCacheRef.current[region.id];
+                const count = cached ? cached.stories.length : getRegionStories(stories, region).length;
                 return (
                   <div
                     key={region.id}
@@ -103,10 +287,18 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                     <button
                       type="button"
                       onClick={() => setSelectedRegionId(region.id)}
-                      className={`rounded-full px-2.5 py-1.5 text-[10px] font-semibold  backdrop-blur-sm outline-none transition-colors sm:px-3 sm:text-xs ${active ? ' bg-[#211e19] text-white' : ' bg-[#fffdf9]/90 text-[#655b4d] shadow-[0_1px_4px_rgba(33,30,25,0.1)] hover:'}`}
+                      className={`rounded-full px-2.5 py-1.5 text-[10px] font-semibold backdrop-blur-sm outline-none transition-all duration-300 sm:px-3 sm:text-xs ${
+                        active
+                          ? 'bg-[#211e19] text-white shadow-md'
+                          : 'bg-[#fffdf9]/90 text-[#655b4d] shadow-[0_1px_4px_rgba(33,30,25,0.1)] hover:bg-white hover:text-[#f84e76]'
+                      }`}
+                      style={active && isListHovered ? { boxShadow: '0 4px 14px rgba(248,78,118,0.55)' } : undefined}
                       aria-pressed={active}
                     >
-                      <span className="flex items-center gap-1.5">{region.shortLabel}<span className={active ? 'text-white/60' : 'text-[#a09587]'}>{count}</span></span>
+                      <span className="flex items-center gap-1.5">
+                        {region.shortLabel}
+                        <span className={active ? 'text-white/80' : 'text-[#a09587]'}>{count}</span>
+                      </span>
                     </button>
                   </div>
                 );
@@ -114,48 +306,103 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
             </div>
           </div>
 
-          <aside aria-live="polite" className="flex min-h-[480px] flex-col rounded-[20px] border border-[#211e19]/[0.1] bg-white p-4 sm:min-h-[560px] sm:p-5">
-            <div className="  pb-4">
-              {regionStories.length > 0 && (
-                <div className="mb-4 flex items-center pl-3">
-                  {regionStories.slice(0, 4).map((story, index) => (
+          {/* 우측 가상 스크롤 + 무한 스크롤 이야기 리스트 패널 */}
+          <aside aria-live="polite" className="flex h-[480px] sm:h-[560px] flex-col rounded-2xl border border-[#211e19]/10 bg-white/85 px-1 py-4 backdrop-blur-md sm:px-1 sm:py-5 shadow-xs">
+            <div className="mx-2 pb-3 border-b border-[#211e19]/10 shrink-0">
+              <div className="flex items-end justify-between gap-3 px-1">
+                <h3 className="text-xl font-extrabold tracking-[-.04em] text-[#211e19]">{selectedRegion.label}</h3>
+                <span className="font-mono text-xs font-bold text-[#f84e76]">
+                  {isRegionLoading ? '조회 중…' : `${regionStories.length}개 이야기`}
+                </span>
+              </div>
+            </div>
+
+            {isRegionLoading ? (
+              <RegionStoryListSkeleton />
+            ) : (
+              <div className="relative flex-1 min-h-0 overflow-hidden mt-1 px-0.5">
+                {/* 얇고 핏한 상/하단 화이트 그라데이션 오버레이 */}
+                <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-[17px] bg-gradient-to-b from-white via-white/80 to-transparent" aria-hidden="true" />
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-[17px] bg-gradient-to-t from-white via-white/80 to-transparent" aria-hidden="true" />
+
+                <div
+                  ref={scrollContainerRef}
+                  onScroll={handleScroll}
+                  className="-mr-1 h-full overflow-y-auto px-0.5 pb-[17px] pt-[17px] [scrollbar-color:rgba(140,126,108,0.42)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-[3px] [&::-webkit-scrollbar-track]:my-[24px] [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#8c7e6c]/40"
+                >
+                  {/* 🚀 Virtual Scrolling 컨테이너 */}
+                  <div style={{ height: `${totalHeight}px`, position: 'relative' }}>
                     <div
-                      key={story.stid}
-                      style={{ marginLeft: index === 0 ? 0 : -26, zIndex: 10 - index, transform: `rotate(${STACK_ROTATIONS[index % STACK_ROTATIONS.length]}deg)` }}
-                      className="h-[76px] w-[76px] shrink-0 rounded-xl bg-white p-1 shadow-[0_8px_18px_rgba(33,30,25,0.18)]"
+                      style={{
+                        transform: `translateY(${startIndex * ITEM_HEIGHT}px)`,
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                      }}
+                      className="space-y-2"
                     >
-                      <div className="h-full w-full overflow-hidden rounded-lg">
-                        <img src={story.imageUrl} alt="" loading="lazy" className="h-full w-full scale-150 object-cover" />
-                      </div>
+                      {visibleStories.map((story) => {
+                        const active = currentStory.stid === story.stid;
+                        return (
+                          <button
+                            key={story.stid}
+                            type="button"
+                            onClick={() => playStory(story)}
+                            onMouseEnter={() => setIsListHovered(true)}
+                            onMouseLeave={() => setIsListHovered(false)}
+                            style={{ height: `${ITEM_HEIGHT - 6}px` }}
+                            className={`flex w-full items-center gap-3.5 rounded-xl px-2.5 py-1.5 text-left transition-all duration-200 ${
+                              active
+                                ? 'bg-[#fff0f5] ring-1 ring-[#f84e76]/30 shadow-xs'
+                                : 'hover:bg-[#f7f4ee]/80'
+                            }`}
+                          >
+                            <span className="relative h-[72px] w-[63.36px] shrink-0 overflow-hidden rounded-[8.7px] bg-[#f3eee8]">
+                              <img
+                                src={story.imageUrl || '/images/hanok/hanok-main.png'}
+                                alt=""
+                                loading="lazy"
+                                className="h-full w-full scale-[2.3] object-cover"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = '/images/hanok/hanok-main.png';
+                                }}
+                              />
+                            </span>
+                            <span className="min-w-0 flex-1 pr-1">
+                              <span className="flex min-w-0 items-start gap-2">
+                                <strong className={`min-w-0 flex-1 line-clamp-2 font-odii-sans text-sm font-bold leading-snug ${active ? 'text-[#f84e76]' : 'text-[#211e19]'}`}>
+                                  {story.title}
+                                </strong>
+                                <span className={`mt-px shrink-0 text-[10px] font-normal ${active ? 'text-[#f84e76]' : 'text-[#a09587]'}`}>
+                                  {active && isPlaying ? '재생 중' : story.formattedDuration || '3:00'}
+                                </span>
+                              </span>
+                              <span className="mt-1 block line-clamp-2 text-[10px] leading-[1.4] text-[#786d5e]">
+                                {getStoryExcerpt(story)}
+                              </span>
+                            </span>
+                          </button>
+                        );
+                      })}
                     </div>
-                  ))}
+                  </div>
+
+                {/* 🔄 무한 스크롤 추가 로딩 지디케이터 */}
+                {isFetchingNextPage && (
+                  <div className="flex items-center justify-center gap-2 py-3 text-xs font-bold text-[#f84e76]">
+                    <span className="h-3 w-3 animate-spin rounded-full border-2 border-[#f84e76] border-t-transparent" />
+                    <span>추가 이야기 불러오는 중…</span>
+                  </div>
+                )}
+
+                {!hasMore && regionStories.length > 5 && (
+                  <p className="py-3 text-center text-[10px] text-[#a09587]">
+                    {selectedRegion.label}의 모든 오디오 이야기를 확인했습니다.
+                  </p>
+                )}
                 </div>
-              )}
-              <div className="flex items-end justify-between gap-3"><h3 className="text-xl font-bold tracking-[-.04em] text-[#211e19]">{selectedRegion.label}</h3><span className="text-xs text-[#8c7e6c]">{regionStories.length}개 이야기</span></div>
-            </div>
-            <div className="mt-1 flex-1 divide-y divide-[#211e19]/[0.05] overflow-y-auto pr-1">
-              {(isListExpanded ? regionStories.slice(0, EXPANDED_STORY_CAP) : regionStories.slice(0, VISIBLE_STORY_COUNT)).map((story) => {
-                const active = currentStory.stid === story.stid;
-                return (
-                  <motion.button key={story.stid} type="button" onClick={() => playStory(story)} whileHover={{ x: 3 }} className={`flex w-full items-center gap-3 rounded-xl p-3 text-left transition-colors ${active ? 'bg-[#fff1f3]' : 'hover:bg-[#f7f4ee]'}`}>
-                    {active && isPlaying && <span className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-[#f84e76]" />}
-                    <span className="min-w-0 flex-1"><strong className="block truncate text-xs font-bold text-[#211e19]">{story.title}</strong><span className="mt-1 block truncate text-[10px] text-[#8c7e6c]">{story.locationName || story.audioTitle || '문화유산 오디오'}</span></span>
-                    <span className={`shrink-0 text-[10px] font-semibold ${active ? 'text-[#f84e76]' : 'text-[#a09587]'}`}>{active && isPlaying ? '재생 중' : story.formattedDuration || '듣기'}</span>
-                  </motion.button>
-                );
-              })}
-              {isListExpanded && regionStories.length > EXPANDED_STORY_CAP && (
-                <p className="p-3 text-center text-[10px] leading-4 text-[#a09587]">전체 {regionStories.length}개 중 {EXPANDED_STORY_CAP}개까지 표시돼요.</p>
-              )}
-            </div>
-            {regionStories.length > VISIBLE_STORY_COUNT && (
-              <button
-                type="button"
-                onClick={() => setIsListExpanded((prev) => !prev)}
-                className="mt-2 shrink-0 rounded-xl py-2 text-center text-[11px] font-semibold text-[#8c7e6c] transition-colors hover:bg-[#f7f4ee] hover:text-[#211e19]"
-              >
-                {isListExpanded ? '접기' : `${regionStories.length - VISIBLE_STORY_COUNT}개 더보기`}
-              </button>
+              </div>
             )}
           </aside>
         </div>

@@ -65,7 +65,7 @@ export const OdiiStoryCardGrid: React.FC<OdiiStoryCardGridProps> = ({
 
   return (
     <div aria-busy={isLoading} className="w-full">
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {isLoading
           ? Array.from({ length: 6 }, (_, index) => <CardSkeleton key={index} />)
           : stories.slice(0, 6).map((story, index) => {
@@ -77,56 +77,71 @@ export const OdiiStoryCardGrid: React.FC<OdiiStoryCardGridProps> = ({
               <motion.article
                 key={`${story.stid}-${index}`}
                 layout
-                whileHover={{ y: -5 }}
-                transition={{ duration: 0.25 }}
-                className={`group flex min-h-[116px] items-center gap-3 rounded-2xl p-2.5 transition-shadow duration-300 ${isCurrent ? ' bg-[#fff0f5] ' : ' bg-white/75 hover: hover:'}`}
+                whileHover={{ y: -6 }}
+                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                className={`group flex min-h-[124px] items-center gap-3.5 rounded-2xl border p-3 backdrop-blur-md transition-all duration-300 ${
+                  isCurrent
+                    ? 'border-[#f84e76]/40 bg-gradient-to-r from-[#fff0f5] via-white to-white shadow-lg shadow-[#f84e76]/10 ring-1 ring-[#f84e76]/20'
+                    : 'border-white/70 bg-white/80 hover:border-[#f84e76]/30 hover:bg-white/95 hover:shadow-xl hover:shadow-rose-950/5'
+                }`}
               >
-                <div className="relative h-[88px] w-[92px] shrink-0 overflow-hidden rounded-xl bg-[#f3eee8]">
+                {/* 썸네일 컨테이너: 크기 스케일 업 (104px -> 120px) & hover:scale-115 스케일 이펙트 */}
+                <div className="relative h-[96px] w-[104px] shrink-0 overflow-hidden rounded-xl bg-[#f3eee8] shadow-inner sm:h-[108px] sm:w-[118px]">
                   <img
                     src={imageUrl}
                     alt={story.title}
-                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-115"
                     onError={(event) => {
                       event.currentTarget.onerror = null;
                       event.currentTarget.src = FALLBACK_IMAGES[0];
                     }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-black/5" />
-                  <span className="absolute left-3 top-3 rounded-full bg-white/80 px-2 py-1 font-mono text-[9px] font-semibold text-[#655b4d] backdrop-blur-sm">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-black/5 transition-opacity duration-300 group-hover:opacity-90" />
+                  <span className="absolute left-2 top-2 rounded-md bg-black/40 px-2 py-0.5 font-mono text-[9px] font-bold text-white backdrop-blur-xs">
                     {String(index + 1).padStart(2, '0')}
                   </span>
                   <button
                     type="button"
                     onClick={() => handlePlay(story)}
                     aria-label={`${story.title} ${isCurrent && isPlaying ? '일시정지' : '재생'}`}
-                    className={`absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center rounded-full  transition-transform duration-300 group-hover:scale-105 ${isCurrent ? 'bg-[#f84e76] text-white' : 'bg-white/95 text-[#f84e76]'}`}
+                    className={`absolute bottom-2 right-2 flex h-9 w-9 items-center justify-center rounded-full shadow-md transition-all duration-300 group-hover:scale-110 ${
+                      isCurrent
+                        ? 'bg-[#f84e76] text-white shadow-[#f84e76]/40'
+                        : 'bg-white/95 text-[#f84e76] shadow-black/10 hover:bg-[#f84e76] hover:text-white'
+                    }`}
                   >
                     {isCurrent && isPlaying ? (
-                      <Pause size={12} fill="currentColor" />
+                      <Pause size={14} fill="currentColor" />
                     ) : (
-                      <Play size={12} fill="currentColor" className="ml-0.5" />
+                      <Play size={14} fill="currentColor" className="ml-0.5" />
                     )}
                   </button>
                 </div>
 
                 <div className="min-w-0 flex-1 py-1 pr-1">
-                  <div className="mb-2 flex items-center justify-between gap-2">
-                    <span className="truncate text-[10px] font-semibold text-[#f84e76]">{categoryLabelFor(story)}</span>
+                  <div className="mb-1.5 flex items-center justify-between gap-2">
+                    <span className="truncate rounded-md bg-[#f84e76]/10 px-2 py-0.5 text-[10px] font-bold text-[#f84e76]">
+                      {categoryLabelFor(story)}
+                    </span>
                     {onBookmarkStory && (
                       <button
                         type="button"
                         onClick={() => onBookmarkStory(story)}
                         aria-label={isBookmarked ? '마음에서 삭제' : '마음에 담기'}
-                        className={`transition-colors hover:scale-110 ${isBookmarked ? 'text-[#f84e76]' : 'text-[#b0a398] hover:text-[#f84e76]'}`}
+                        className={`transition-all duration-200 hover:scale-125 ${
+                          isBookmarked ? 'text-[#f84e76]' : 'text-[#b0a398] hover:text-[#f84e76]'
+                        }`}
                       >
                         <Heart size={16} className={isBookmarked ? 'fill-current' : ''} />
                       </button>
                     )}
                   </div>
-                  <h4 className="line-clamp-2 min-h-[36px] font-odii-sans text-sm font-semibold leading-tight tracking-[-0.03em] text-[#211e19]">{story.title}</h4>
+                  <h4 className="line-clamp-2 min-h-[38px] font-odii-sans text-sm font-bold leading-snug tracking-[-0.03em] text-[#211e19] transition-colors group-hover:text-[#f84e76]">
+                    {story.title}
+                  </h4>
                   <div className="mt-2 flex items-center justify-between gap-2 text-[10px] text-[#8c7e6c]">
-                    <span className="truncate">{story.locationName || '대한민국 문화유산'}</span>
-                    <span className="shrink-0 font-mono">{story.formattedDuration || '3:00'}</span>
+                    <span className="truncate font-medium">{story.locationName || '대한민국 문화유산'}</span>
+                    <span className="shrink-0 font-mono font-semibold">{story.formattedDuration || '3:00'}</span>
                   </div>
                 </div>
               </motion.article>
