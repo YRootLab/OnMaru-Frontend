@@ -54,6 +54,8 @@ export interface Warmth {
   createdAt: string;
   /** 내가 남긴 것 — 로컬 저장분에만 붙는다. */
   mine?: boolean;
+  /** 한국관광 데이터랩 빅데이터 외지인 방문객 수 (TOUR_API_VISITOR_KEY) */
+  visitorCount?: number;
 }
 
 /** 온기모드 상세 후기 피드 리뷰 */
@@ -120,8 +122,29 @@ export interface WarmthCell {
 }
 
 /**
+ * 온마루 실시간 관광객 수요 집중도 및 혼잡도 지표 (TOUR_API_VISITOR_KEY & TOUR_API_CONGESTION_KEY 기반)
+ */
+export type CongestionLevel = 'relaxed' | 'moderate' | 'busy' | 'surge';
+
+export interface HeatSpot {
+  id: string;
+  placeId: string;
+  name: string;
+  lat: number;
+  lng: number;
+  district: string;
+  visitorCount: number;      // 외지인 방문객수
+  congestionScore: number;   // 0~100 혼잡도 종합 지수
+  congestionLevel: CongestionLevel; // 'relaxed' | 'moderate' | 'busy' | 'surge'
+  surgeMultiplier: number;   // 1.0x ~ 3.5x 수요 집중 배율
+  intensity: number;         // 0.15 ~ 1.0 히트 블룸 확산 강도
+  updatedAt?: string;
+}
+
+/**
  * 카카오 SDK는 전역 window.kakao로 들어온다 (src/types/kakao.d.ts).
  * 공식 타입 패키지가 없어 프로젝트 관례대로 any를 그대로 쓴다.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type KakaoMap = any;
+

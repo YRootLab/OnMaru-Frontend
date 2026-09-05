@@ -38,6 +38,35 @@ export const SectionTitle = styled.h3`
   letter-spacing: -0.02em;
 `;
 
+
+export const PeriodFilterRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 16px 2px;
+`;
+
+export const PeriodTabBtn = styled.button<{ $active: boolean }>`
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: none;
+  background: ${({ $active }) =>
+    $active ? 'rgba(232, 90, 24, 0.12)' : 'transparent'};
+  color: ${({ $active }) =>
+    $active ? lightPalette.juhong[700] : meok[500]};
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: ${({ $active }) => ($active ? 700 : 500)};
+  cursor: pointer;
+  transition: all 0.12s ease;
+
+  &:hover {
+    background: rgba(232, 90, 24, 0.08);
+    color: ${lightPalette.juhong[700]};
+  }
+`;
+
 export const RegionScroller = styled.div`
   display: flex;
   gap: 6px;

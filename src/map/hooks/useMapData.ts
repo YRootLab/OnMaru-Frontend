@@ -22,8 +22,9 @@ function radiusFromMap(map: KakaoMap): number {
   );
 }
 
-const CLIENT_CACHE_TTL = 5 * 60 * 1000; // 5분 클라이언트 캐시
+const CLIENT_CACHE_TTL = 30 * 60 * 1000; // 30분 클라이언트 인메모리 캐시 (화면 재방문 시 0ms 즉시 로드)
 const clientPlaceCache = new Map<string, { expiresAt: number; items: any[] }>();
+const clientHeatCache = new Map<string, { expiresAt: number; spots: any[] }>();
 
 /** 지도 장소 목록 및 온기 데이터 실시간 동기화 훅 */
 export function useMapData() {
@@ -32,14 +33,15 @@ export function useMapData() {
   const category = useMapStore((s) => s.category);
   const searchCenter = useMapStore((s) => s.searchCenter);
   const reloadNonce = useMapStore((s) => s.reloadNonce);
+  const level = useMapStore((s) => s.level);
 
   useEffect(() => {
     useMapStore.getState().setWarmths(loadWarmth());
   }, []);
 
   useEffect(() => {
-    const { setItems, setLoading, setError } = useMapStore.getState();
-    if (!map || mode !== 'info') {
+    const { setItems, setLoading, setError, setWarmths } = useMapStore.getState();
+    if (!map) {
       setLoading(false);
       return;
     }
@@ -49,8 +51,52 @@ export function useMapData() {
     const roundedLng = Math.round(searchCenter.lng * 100) / 100;
     const roundedRadius = Math.round(radius / 1000) * 1000;
     const cacheKey = `${roundedLat}_${roundedLng}_${roundedRadius}_${category || 'all'}`;
+    const heatCacheKey = `${roundedLat}_${roundedLng}_${level}`;
+    const controller = new AbortController();
+    const warmthParams = new URLSearchParams({
+      lat: String(searchCenter.lat),
+      lng: String(searchCenter.lng),
+      level: String(level),
+      radius: String(Math.max(radius, level <= 5 ? 5000 : 15000)),
+    });
 
-    // 클라이언트 메모리 캐시 히트 시 0ms 즉각 렌더링
+    // 1. 실시간 권역별 혼잡도 및 관광객 집중도 히트스팟 패치 (클라이언트 캐시 우선)
+    const cachedHeat = clientHeatCache.get(heatCacheKey);
+    if (cachedHeat && cachedHeat.expiresAt > Date.now()) {
+      useMapStore.getState().setHeatSpots(cachedHeat.spots);
+    } else {
+      fetch(`/api/map/heat?${warmthParams}`, { signal: controller.signal })
+        .then(async (res) => {
+          const json = await res.json().catch(() => ({}));
+          if (Array.isArray(json.spots) && json.spots.length > 0) {
+            clientHeatCache.set(heatCacheKey, {
+              expiresAt: Date.now() + CLIENT_CACHE_TTL,
+              spots: json.spots,
+            });
+            useMapStore.getState().setHeatSpots(json.spots);
+          }
+        })
+        .catch((err) => {
+          if (err instanceof DOMException && err.name === 'AbortError') return;
+          log.warn('권역 히트스팟 패치 실패:', err);
+        });
+    }
+
+    // 2. 온기 이야기 API 실시간 연동
+    fetch(`/api/map/warmth?${warmthParams}`, { signal: controller.signal })
+      .then(async (res) => {
+        const json = await res.json().catch(() => ({}));
+        if (Array.isArray(json.warmths) && json.warmths.length > 0) {
+          const merged = loadWarmth(json.warmths);
+          setWarmths(merged);
+        }
+      })
+      .catch((err) => {
+        if (err instanceof DOMException && err.name === 'AbortError') return;
+        log.warn('온기 API 동기화 폴백 유지', err);
+      });
+
+    // 2. 장소 목록 조회 (클라이언트 메모리 캐시 히트 시 즉각 렌더링)
     const cached = clientPlaceCache.get(cacheKey);
     if (cached && cached.expiresAt > Date.now()) {
       setItems(cached.items);
@@ -58,13 +104,12 @@ export function useMapData() {
       return;
     }
 
-    const controller = new AbortController();
     const params = new URLSearchParams({
       lat: String(searchCenter.lat),
       lng: String(searchCenter.lng),
       radius: String(radius),
     });
-    if (category) params.set('category', category);
+    if (category && mode === 'info') params.set('category', category);
 
     setLoading(true);
     setError(null);
@@ -105,5 +150,5 @@ export function useMapData() {
       });
 
     return () => controller.abort();
-  }, [map, mode, category, searchCenter.lat, searchCenter.lng, reloadNonce]);
+  }, [map, mode, category, searchCenter.lat, searchCenter.lng, level, reloadNonce]);
 }

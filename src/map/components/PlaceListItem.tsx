@@ -34,6 +34,7 @@ interface PlaceListItemProps {
 }
 
 const ItemContainer = styled.li`
+  position: relative;
   padding: 3px 8px;
 `;
 
@@ -69,8 +70,8 @@ const ItemButton = styled.button<{ $isSelected: boolean }>`
 
 const BookmarkQuickBtn = styled.button<{ $active: boolean }>`
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 13px;
+  right: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -405,17 +406,17 @@ function PlaceListItemComponent({
             {item.tel && <Badge>안내 가능</Badge>}
           </BadgeRow>
         </Content>
-
-        <BookmarkQuickBtn
-          type="button"
-          $active={isBookmarked}
-          onClick={handleBookmarkClick}
-          title={isBookmarked ? '저장 해제' : '마음에 담기'}
-          aria-label={isBookmarked ? `${item.name} 마음에 담기 취소` : `${item.name} 마음에 담기`}
-        >
-          <Bookmark size={13} fill={isBookmarked ? 'currentColor' : 'none'} />
-        </BookmarkQuickBtn>
       </ItemButton>
+
+      <BookmarkQuickBtn
+        type="button"
+        $active={isBookmarked}
+        onClick={handleBookmarkClick}
+        title={isBookmarked ? '저장 해제' : '마음에 담기'}
+        aria-label={isBookmarked ? `${item.name} 마음에 담기 취소` : `${item.name} 마음에 담기`}
+      >
+        <Bookmark size={13} fill={isBookmarked ? 'currentColor' : 'none'} />
+      </BookmarkQuickBtn>
     </ItemContainer>
   );
 }

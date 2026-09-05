@@ -48,9 +48,9 @@ export function bandOf(ratio: number): MoodBand {
 }
 
 export const MOOD_BANDS: { id: MoodBand; label: string; hint: string }[] = [
-  { id: 'quiet', label: '한적', hint: '한적하다는 이야기가 대부분' },
-  { id: 'mixed', label: '반반', hint: '때에 따라 갈림' },
-  { id: 'busy', label: '북적', hint: '북적인다는 이야기가 대부분' },
+  { id: 'quiet', label: '고즈넉함', hint: '고요하고 한적한 쉼의 정취' },
+  { id: 'mixed', label: '은은함', hint: '때에 따라 고요와 온기가 어우러짐' },
+  { id: 'busy', label: '북적이는 정', hint: '사람과 발길이 모이는 따스한 활기' },
 ];
 
 /**
