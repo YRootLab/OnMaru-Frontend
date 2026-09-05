@@ -9,11 +9,13 @@ import {
   Coffee,
   Store,
   Flame,
+  Leaf,
   ChevronRight,
 } from 'lucide-react';
 import { lightPalette, darkPalette, meok } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import { toggleHelpful } from '@/map/warmth/warmthRepo';
+import { formatRelativeTime } from '@/map/utils/formatters';
 import type { WarmthReview } from '@/map/types';
 import MoodSelector from './MoodSelector';
 import TagGroup from './TagGroup';
@@ -75,8 +77,15 @@ const PlaceHeaderInfo = styled.div`
   min-width: 0;
 `;
 
+const PlaceTitleRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+`;
+
 const PlaceName = styled.h4`
-  margin: 0 0 2px;
+  margin: 0;
   font-size: 15px;
   font-weight: 700;
   color: ${meok[900]};
@@ -86,6 +95,29 @@ const PlaceName = styled.h4`
 
   [data-theme='dark'] & {
     color: ${meok[100]};
+  }
+`;
+
+const CrowdMoodBadge = styled.span<{ $crowd?: '북적' | '한적' }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+  background: ${({ $crowd }) =>
+    $crowd === '북적' ? 'rgba(232, 90, 24, 0.1)' : 'rgba(36, 152, 120, 0.1)'};
+  color: ${({ $crowd }) =>
+    $crowd === '북적' ? lightPalette.juhong[700] : lightPalette.cheongrok[700]};
+
+  [data-theme='dark'] & {
+    background: ${({ $crowd }) =>
+      $crowd === '북적' ? 'rgba(232, 90, 24, 0.2)' : 'rgba(36, 152, 120, 0.2)'};
+    color: ${({ $crowd }) =>
+      $crowd === '북적' ? darkPalette.juhong[200] : darkPalette.cheongrok[200]};
   }
 `;
 
@@ -353,7 +385,24 @@ export default function WarmthCard({ review, onHover }: WarmthCardProps) {
       <PlaceHeader>
         <CategoryIconBox>{renderCategoryIcon(review.placeType)}</CategoryIconBox>
         <PlaceHeaderInfo>
-          <PlaceName>{review.placeName}</PlaceName>
+          <PlaceTitleRow>
+            <PlaceName>{review.placeName}</PlaceName>
+            {review.crowdMood && (
+              <CrowdMoodBadge $crowd={review.crowdMood}>
+                {review.crowdMood === '북적' ? (
+                  <>
+                    <Flame size={12} strokeWidth={2.5} />
+                    <span>북적이는 활기</span>
+                  </>
+                ) : (
+                  <>
+                    <Leaf size={12} strokeWidth={2.5} />
+                    <span>고즈넉한 쉼</span>
+                  </>
+                )}
+              </CrowdMoodBadge>
+            )}
+          </PlaceTitleRow>
           <PlaceMeta>{metaText}</PlaceMeta>
         </PlaceHeaderInfo>
       </PlaceHeader>
@@ -391,7 +440,7 @@ export default function WarmthCard({ review, onHover }: WarmthCardProps) {
       {/* 4. 하단 메타 & 따뜻해요 */}
       <FooterMeta>
         <MetaDate>
-          {review.createdAt}
+          {formatRelativeTime(review.createdAt)}
         </MetaDate>
         <HelpfulButton
           type="button"

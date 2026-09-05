@@ -62,7 +62,7 @@ const MapChips = styled.div`
   position: absolute;
   top: 16px;
   right: 16px;
-  z-index: 15;
+  z-index: 30;
   display: flex;
   align-items: center;
   gap: 10px;

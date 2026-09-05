@@ -180,16 +180,18 @@ const styles = css`
 
   .om-heat-bloom {
     position: absolute;
-    inset: -25%;
+    inset: -20%;
     border-radius: 50%;
-    filter: blur(24px);
+    filter: blur(28px);
     transition: transform 0.4s ease, opacity 0.4s ease;
     animation: om-heat-breathing 4.5s ease-in-out infinite alternate;
-    opacity: 0.78;
+    opacity: 0.32;
+    mix-blend-mode: multiply;
   }
 
   [data-theme='dark'] .om-heat-bloom {
-    opacity: 0.88;
+    opacity: 0.42;
+    mix-blend-mode: screen;
   }
 
   /* ------------------------------------------------------------
@@ -458,7 +460,7 @@ export default function WarmthLayer() {
       const candidates = items.length > 0 ? items : warmths;
       if (candidates.length > 0) {
         baseList = (candidates as any[]).slice(0, 40).map((it) => {
-          const name = it.name || it.placeName || '해당 권역 일대';
+          const placeName = it.name || it.placeName || '';
           const addr = (it.addr || '').replace(/일대/g, '').trim();
           const parts = addr.split(/\s+/);
           const district = parts[1] || parts[0] || '전국';
@@ -468,10 +470,10 @@ export default function WarmthLayer() {
           return {
             id: `auto-${it.id}`,
             placeId: it.placeId || it.id,
-            name: zoneName !== '전국 일대' ? zoneName : `${name} 일대`,
+            name: placeName || (zoneName !== '전국 일대' ? zoneName : '한옥마을 일대'),
             lat: it.lat,
             lng: it.lng,
-            district,
+            district: placeName || district,
             visitorCount: 110000,
             congestionScore: 45,
             congestionLevel: 'moderate' as CongestionLevel,
@@ -533,7 +535,7 @@ export default function WarmthLayer() {
       const displayName =
         count === 1
           ? spot.name
-          : `${spot.district || spot.name} 일대 (${count}곳)`;
+          : `${spot.name} 외 ${count - 1}곳`;
 
       clusters.push({
         key: `cluster-${spot.id}-${count}`,
@@ -562,10 +564,9 @@ export default function WarmthLayer() {
       const cfg = CONGESTION_CONFIG[item.congestionLevel] || CONGESTION_CONFIG.moderate;
       const pal = isDark ? cfg.dark : cfg.light;
 
-      // 블룸 크기: 줌 레벨과 강도에 맞추어 유기적으로 조절
-      // 확대할수록(level이 작아질수록) 주변 골목과 건물에 부드럽고 따뜻하게 퍼지도록 확장
-      const basePx = Math.max(160, 360 - level * 18);
-      const bloomSize = Math.round(basePx * (0.85 + item.intensity * 0.45));
+      // 블룸 크기: 줌 레벨과 강도에 맞추어 유기적으로 조절 (지형을 덮지 않는 은은한 호롱불 훈기)
+      const basePx = Math.max(120, 220 - level * 10);
+      const bloomSize = Math.round(basePx * (0.8 + item.intensity * 0.3));
 
       // ─── [A] 유기적 가우시안 발광 블룸 ───
       const bloomWrap = document.createElement('div');
@@ -574,8 +575,8 @@ export default function WarmthLayer() {
 
       const bloom = document.createElement('div');
       bloom.className = 'om-heat-bloom';
-      bloom.style.background = `radial-gradient(circle closest-side, ${pal.core} 0%, ${pal.mid} 45%, ${pal.edge} 75%, transparent 100%)`;
-      bloom.style.filter = `blur(${Math.round(bloomSize * 0.16)}px) drop-shadow(${pal.glow})`;
+      bloom.style.background = `radial-gradient(circle closest-side, ${pal.core} 0%, ${pal.mid} 40%, ${pal.edge} 75%, transparent 100%)`;
+      bloom.style.filter = `blur(${Math.round(bloomSize * 0.16)}px)`;
       bloomWrap.appendChild(bloom);
 
       specs.push({
@@ -601,11 +602,15 @@ export default function WarmthLayer() {
 
       const visitorText = formatVisitorCompact(item.visitorCount);
 
+      // 대표 명소 또는 지역 명칭 산출 (단순 구/군 대신 실제 명소 이름 우선)
+      const cleanName = item.name.replace(/\s*일대$/, '').replace(/\s*외\s*\d+곳/, '').replace(/\s*\(\d+곳\)/, '');
+      const badgeTitle = cleanName || item.district || '한옥 일대';
+
       pillWrap.innerHTML = `
         <div class="om-surge-pill" style="background: ${pal.badgeBg}; color: ${pal.badgeColor};">
           <span class="om-surge-pill-icon" style="color: ${pal.accentColor};">${cfg.iconSvg}</span>
           <span class="om-surge-pill-text">${cfg.badgeText}</span>
-          <span class="om-surge-pill-name">· ${escapeHtml(item.district || '마을 일대')}</span>
+          <span class="om-surge-pill-name">· ${escapeHtml(badgeTitle)}</span>
         </div>
 
         <div class="om-surge-popover ${popoverDir}">

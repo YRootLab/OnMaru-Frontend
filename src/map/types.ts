@@ -67,6 +67,8 @@ export interface WarmthReview {
   /** 분류를 아는 경우에만 채운다. 모르면 빈 문자열 — 지어내지 않는다. */
   placeType: string;
   mood: 1 | 2 | 3 | 4 | 5;
+  /** 정취 분위기 (북적이는 활기 vs 한적한 고즈넉함) */
+  crowdMood?: '북적' | '한적';
   season: '봄' | '여름' | '가을' | '겨울';
   visitCount?: number;
   goodTags: string[];
