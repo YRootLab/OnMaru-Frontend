@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
+import { useEffect, useMemo } from 'react';
 import { Global, css } from '@emotion/react';
 import {
   lightPalette,
@@ -14,6 +13,14 @@ import { paintOverlays, type OverlaySpec } from '@/map/hooks/overlay';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import { escapeHtml } from '@/map/utils/formatters';
 import type { HeatSpot, CongestionLevel } from '@/map/types';
+import HeatCanvas from './warmth/HeatCanvas';
+import { intensityOf, levelOf } from '@/map/warmth/congestion';
+import {
+  compareText,
+  medianOf,
+  quietestWeekday,
+  weekdayPattern,
+} from '@/map/warmth/weekPattern';
 
 /**
  * 실시간 온기/발길 훈기(薰氣) 레이어
@@ -40,26 +47,18 @@ const CONGESTION_CONFIG = {
     badgeText: '온기 가득',
     iconSvg: ICONS.sparkles,
     light: {
-      core: lightPalette.juhong[500],
-      mid: lightPalette.hwanggeum[400],
-      edge: 'rgba(232, 90, 24, 0.22)',
       badgeBg: surface.light.card,
       badgeColor: meok[900],
       accentColor: lightPalette.juhong[500],
       tagBg: lightPalette.juhong[500],
       tagColor: surface.light.card,
-      glow: '0 0 28px rgba(232, 90, 24, 0.55)',
     },
     dark: {
-      core: darkPalette.juhong[500],
-      mid: darkPalette.hwanggeum[500],
-      edge: 'rgba(248, 87, 0, 0.25)',
       badgeBg: surface.dark.surface,
       badgeColor: meok[100],
       accentColor: darkPalette.juhong[400],
       tagBg: darkPalette.juhong[500],
       tagColor: meok[100],
-      glow: '0 0 32px rgba(248, 87, 0, 0.65)',
     },
   },
   busy: {
@@ -68,26 +67,18 @@ const CONGESTION_CONFIG = {
     badgeText: '따스한 정',
     iconSvg: ICONS.flame,
     light: {
-      core: lightPalette.hwanggeum[400],
-      mid: lightPalette.juhong[200],
-      edge: 'rgba(245, 166, 35, 0.2)',
       badgeBg: surface.light.card,
       badgeColor: meok[900],
       accentColor: lightPalette.hwanggeum[500],
       tagBg: lightPalette.hwanggeum[500],
       tagColor: surface.light.card,
-      glow: '0 0 24px rgba(245, 166, 35, 0.45)',
     },
     dark: {
-      core: darkPalette.hwanggeum[500],
-      mid: darkPalette.juhong[400],
-      edge: 'rgba(250, 170, 73, 0.22)',
       badgeBg: surface.dark.surface,
       badgeColor: meok[100],
       accentColor: darkPalette.hwanggeum[400],
       tagBg: darkPalette.hwanggeum[500],
       tagColor: meok[100],
-      glow: '0 0 28px rgba(250, 170, 73, 0.55)',
     },
   },
   moderate: {
@@ -96,26 +87,18 @@ const CONGESTION_CONFIG = {
     badgeText: '은은한 볕',
     iconSvg: ICONS.sun,
     light: {
-      core: lightPalette.hwanggeum[200],
-      mid: lightPalette.cheongrok[100],
-      edge: 'rgba(255, 204, 64, 0.16)',
       badgeBg: surface.light.card,
       badgeColor: meok[900],
       accentColor: lightPalette.hwanggeum[400],
       tagBg: lightPalette.hwanggeum[400],
       tagColor: meok[900],
-      glow: '0 0 20px rgba(245, 166, 35, 0.35)',
     },
     dark: {
-      core: darkPalette.hwanggeum[400],
-      mid: darkPalette.cheongrok[400],
-      edge: 'rgba(250, 170, 73, 0.18)',
       badgeBg: surface.dark.surface,
       badgeColor: meok[100],
       accentColor: darkPalette.hwanggeum[400],
       tagBg: darkPalette.hwanggeum[400],
       tagColor: meok[900],
-      glow: '0 0 24px rgba(250, 170, 73, 0.45)',
     },
   },
   relaxed: {
@@ -124,76 +107,31 @@ const CONGESTION_CONFIG = {
     badgeText: '고즈넉한 쉼',
     iconSvg: ICONS.wind,
     light: {
-      core: lightPalette.cheongrok[400],
-      mid: lightPalette.cheongrok[200],
-      edge: 'rgba(36, 152, 120, 0.16)',
       badgeBg: surface.light.card,
       badgeColor: meok[900],
       accentColor: lightPalette.cheongrok[500],
       tagBg: lightPalette.cheongrok[500],
       tagColor: surface.light.card,
-      glow: '0 0 18px rgba(36, 152, 120, 0.35)',
     },
     dark: {
-      core: darkPalette.cheongrok[500],
-      mid: darkPalette.cheongrok[400],
-      edge: 'rgba(0, 167, 106, 0.18)',
       badgeBg: surface.dark.surface,
       badgeColor: meok[100],
       accentColor: darkPalette.cheongrok[400],
       tagBg: darkPalette.cheongrok[500],
       tagColor: meok[100],
-      glow: '0 0 22px rgba(0, 167, 106, 0.45)',
     },
   },
 } as const;
 
+/** 외지인 방문객 수. 사람 수라서 '걸음'이 아니라 '명'으로 센다. */
 function formatVisitorCompact(num: number): string {
-  if (num >= 10000) {
-    return `${(num / 10000).toFixed(1)}만 걸음`;
-  }
-  return `${num.toLocaleString()}걸음`;
+  if (num >= 10000) return `${(num / 10000).toFixed(1)}만 명`;
+  return `${Math.round(num).toLocaleString()}명`;
 }
 
 const styles = css`
   /* ------------------------------------------------------------
-   * 1. 전통 호롱불/등불 숨쉬는 훈기(薰氣) 블룸
-   * ------------------------------------------------------------ */
-  @keyframes om-heat-breathing {
-    0% {
-      transform: scale(0.93);
-      opacity: 0.65;
-    }
-    100% {
-      transform: scale(1.07);
-      opacity: 0.9;
-    }
-  }
-
-  .om-heat-container {
-    position: relative;
-    width: var(--om-heat-size, 160px);
-    height: var(--om-heat-size, 160px);
-    pointer-events: none;
-    user-select: none;
-  }
-
-  .om-heat-bloom {
-    position: absolute;
-    inset: -25%;
-    border-radius: 50%;
-    filter: blur(24px);
-    transition: transform 0.4s ease, opacity 0.4s ease;
-    animation: om-heat-breathing 4.5s ease-in-out infinite alternate;
-    opacity: 0.78;
-  }
-
-  [data-theme='dark'] .om-heat-bloom {
-    opacity: 0.88;
-  }
-
-  /* ------------------------------------------------------------
-   * 2. 한지(창호지) 감성의 단아한 발길 훈기 뱃지
+   * 한지(창호지) 감성의 단아한 발길 훈기 뱃지
    * ------------------------------------------------------------ */
   .om-surge-pill-wrap {
     position: relative;
@@ -236,18 +174,42 @@ const styles = css`
     line-height: 1;
   }
 
-  .om-surge-pill-text {
+  .om-surge-pill-name {
     font-size: 12.5px;
     font-weight: 700;
     letter-spacing: -0.2px;
     white-space: nowrap;
   }
 
-  .om-surge-pill-name {
+  /*
+    권역마다 다른 값. 등급 문구는 같은 구면 늘 같아서 뱃지끼리 구별이 안 됐다.
+    색은 히트맵 램프와 같은 말을 한다 — 붉은 쪽이 피할 곳, 청록이 갈 만한 곳.
+  */
+  .om-surge-pill-delta {
     font-size: 12px;
-    font-weight: 500;
-    opacity: 0.85;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
     white-space: nowrap;
+  }
+
+  .om-surge-pill-delta.is-busy {
+    color: ${lightPalette.juhong[500]};
+  }
+
+  .om-surge-pill-delta.is-quiet {
+    color: ${lightPalette.cheongrok[500]};
+  }
+
+  .om-surge-pill-delta.is-flat {
+    color: ${meok[500]};
+  }
+
+  [data-theme='dark'] .om-surge-pill-delta.is-busy {
+    color: ${darkPalette.juhong[400]};
+  }
+
+  [data-theme='dark'] .om-surge-pill-delta.is-quiet {
+    color: ${darkPalette.cheongrok[400]};
   }
 
   /* ------------------------------------------------------------
@@ -294,9 +256,18 @@ const styles = css`
     box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.75);
   }
 
-  .om-surge-pill-wrap:hover .om-surge-popover {
+  /*
+    터치 기기에는 hover가 없다. 예전에는 그래서 이 카드를 볼 방법이 아예 없었고,
+    탭하면 곧장 지도가 확대돼 정보를 지나쳤다. 탭으로 여는 상태를 따로 둔다.
+  */
+  .om-surge-pill-wrap:hover .om-surge-popover,
+  .om-surge-pill-wrap.is-open .om-surge-popover {
     opacity: 1;
     transform: translate(-50%, 0) scale(1);
+  }
+
+  .om-surge-pill-wrap.is-open {
+    z-index: 90;
   }
 
   /* 꼬리 화살표 */
@@ -373,37 +344,152 @@ const styles = css`
     transition: width 0.3s ease;
   }
 
-  .om-popover-body {
+  /* 선택한 날 한 줄 — 스크러버가 가리키는 날이 여기 그대로 온다. */
+  .om-popover-now {
     display: flex;
-    flex-direction: column;
-    gap: 5px;
-    font-size: 11.5px;
-    color: ${meok[700]};
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 0;
+    font-size: 12px;
   }
 
-  [data-theme='dark'] .om-popover-body {
+  .om-now-day {
+    color: ${meok[700]};
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+
+  [data-theme='dark'] .om-now-day {
     color: ${meok[400]};
   }
 
-  .om-popover-row {
+  .om-now-delta {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .om-now-delta.is-busy {
+    color: ${lightPalette.juhong[500]};
+  }
+
+  .om-now-delta.is-quiet {
+    color: ${lightPalette.cheongrok[500]};
+  }
+
+  .om-now-delta.is-flat {
+    color: ${meok[500]};
+  }
+
+  [data-theme='dark'] .om-now-delta.is-busy {
+    color: ${darkPalette.juhong[400]};
+  }
+
+  [data-theme='dark'] .om-now-delta.is-quiet {
+    color: ${darkPalette.cheongrok[400]};
+  }
+
+  /*
+    요일 패턴. 이 팝오버가 답하는 질문은 '언제 가면 조용한가' 하나뿐이라
+    막대 일곱 개와 문장 한 줄 외에는 아무것도 두지 않는다.
+  */
+  .om-week {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .om-week-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 46px;
+  }
+
+  .om-week-col {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    height: 100%;
+  }
+
+  .om-week-bar-track {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .om-week-bar {
+    width: 100%;
+    border-radius: 3px 3px 0 0;
+    background: rgba(78, 89, 104, 0.22);
+  }
+
+  [data-theme='dark'] .om-week-bar {
+    background: rgba(255, 255, 255, 0.18);
+  }
+
+  .om-week-col.is-quiet .om-week-bar {
+    background: ${lightPalette.cheongrok[500]};
+  }
+
+  [data-theme='dark'] .om-week-col.is-quiet .om-week-bar {
+    background: ${darkPalette.cheongrok[500]};
+  }
+
+  .om-week-label {
+    font-size: 10.5px;
+    font-weight: 500;
+    color: ${meok[500]};
+    line-height: 1;
+  }
+
+  .om-week-col.is-quiet .om-week-label {
+    color: ${lightPalette.cheongrok[500]};
+    font-weight: 700;
+  }
+
+  [data-theme='dark'] .om-week-col.is-quiet .om-week-label {
+    color: ${darkPalette.cheongrok[400]};
+  }
+
+  .om-week-say {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 500;
+    color: ${meok[700]};
+  }
+
+  .om-week-say b {
+    font-weight: 700;
+    color: ${lightPalette.cheongrok[500]};
+  }
+
+  [data-theme='dark'] .om-week-say {
+    color: ${meok[400]};
+  }
+
+  [data-theme='dark'] .om-week-say b {
+    color: ${darkPalette.cheongrok[400]};
+  }
+
+  .om-popover-foot {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 12px;
+    font-size: 11.5px;
+    color: ${meok[500]};
   }
 
-  .om-row-label {
+  .om-popover-foot span {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-  }
-
-  .om-popover-val {
-    font-weight: 600;
-    color: ${meok[900]};
-  }
-
-  [data-theme='dark'] .om-popover-val {
-    color: ${meok[100]};
+    gap: 4px;
+    font-variant-numeric: tabular-nums;
   }
 
   .om-popover-hint {
@@ -417,11 +503,6 @@ const styles = css`
     text-align: center;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .om-heat-bloom {
-      animation: none !important;
-    }
-  }
 `;
 
 interface ClusteredHeatSpot {
@@ -436,6 +517,8 @@ interface ClusteredHeatSpot {
   congestionLevel: CongestionLevel;
   surgeMultiplier: number;
   intensity: number;
+  /** 권역의 30일 혼잡도. 요일 패턴과 '평소 대비'가 여기서 나온다. */
+  series?: number[];
   primarySpot: HeatSpot;
 }
 
@@ -445,20 +528,23 @@ export default function WarmthLayer() {
   const heatSpots = useMapStore((s) => s.heatSpots);
   const items = useMapStore((s) => s.items);
   const level = useMapStore((s) => s.level);
+  const heatDayIndex = useMapStore((s) => s.heatDayIndex);
+  const heatDays = useMapStore((s) => s.heatDays);
   const { mode: colorMode } = useOnmaruTheme();
   const isDark = colorMode === 'dark';
 
-  useEffect(() => {
-    if (!map || mode !== 'warmth') return;
-
-    // 1. 기초 스팟 데이터 확보 (heatSpots 우선, 없을 시 장소/온기 데이터로 폴백)
-    let baseList: HeatSpot[] = heatSpots;
-    if (baseList.length === 0) {
+  /*
+    히트맵과 뱃지가 같은 스팟 목록을 본다.
+    heatSpots가 비면 화면에 잡힌 장소·온기 데이터로 폴백한다.
+  */
+  const baseList = useMemo<HeatSpot[]>(() => {
+    let list: HeatSpot[] = heatSpots;
+    if (list.length === 0) {
       const warmths = useMapStore.getState().warmths;
       const candidates = items.length > 0 ? items : warmths;
       if (candidates.length > 0) {
-        baseList = (candidates as any[]).slice(0, 40).map((it) => {
-          const name = it.name || it.placeName || '해당 권역 일대';
+        list = (candidates as any[]).slice(0, 40).map((it) => {
+          const placeName = it.name || it.placeName || '';
           const addr = (it.addr || '').replace(/일대/g, '').trim();
           const parts = addr.split(/\s+/);
           const district = parts[1] || parts[0] || '전국';
@@ -468,10 +554,10 @@ export default function WarmthLayer() {
           return {
             id: `auto-${it.id}`,
             placeId: it.placeId || it.id,
-            name: zoneName !== '전국 일대' ? zoneName : `${name} 일대`,
+            name: placeName || (zoneName !== '전국 일대' ? zoneName : '한옥마을 일대'),
             lat: it.lat,
             lng: it.lng,
-            district,
+            district: placeName || district,
             visitorCount: 110000,
             congestionScore: 45,
             congestionLevel: 'moderate' as CongestionLevel,
@@ -482,111 +568,112 @@ export default function WarmthLayer() {
       }
     }
 
-    if (baseList.length === 0) return;
+    /*
+      스크러버가 고른 날의 값으로 혼잡도를 갈아끼운다.
+      히트맵 캔버스도 뱃지도 이 목록 하나만 보기 때문에, 날짜를 아는 곳은 여기뿐이다.
+      시계열이 없는 권역(매칭 실패·폴백)은 원래 값을 그대로 쓴다.
+    */
+    return list.map((spot) => {
+      const score = spot.series?.[heatDayIndex];
+      if (score === undefined) return spot;
 
-    // 2. 화면 안 겹침 방지 스마트 클러스터링 (Smart Distance Clustering)
-    // 줌 레벨에 따라 화면 상에서 65px 이내에 위치한 스팟들을 단일 거점 뱃지로 병합
-    const projection = map.getProjection?.();
-    const clusters: ClusteredHeatSpot[] = [];
-    const used = new Set<string>();
+      return {
+        ...spot,
+        congestionScore: score,
+        congestionLevel: levelOf(score),
+        intensity: intensityOf(score),
+      };
+    });
+  }, [heatSpots, items, heatDayIndex]);
 
-    const getScreenDistance = (lat1: number, lng1: number, lat2: number, lng2: number) => {
-      if (!projection) return 9999;
-      const p1 = projection.pointFromCoords(new window.kakao.maps.LatLng(lat1, lng1));
-      const p2 = projection.pointFromCoords(new window.kakao.maps.LatLng(lat2, lng2));
-      return Math.hypot(p2.x - p1.x, p2.y - p1.y);
-    };
+  useEffect(() => {
+    if (!map || mode !== 'warmth' || baseList.length === 0) return;
 
-    baseList.forEach((spot, i) => {
-      if (used.has(spot.id)) return;
+    /*
+      뱃지는 시군구(권역) 하나에 하나다.
 
-      const group: HeatSpot[] = [spot];
-      used.add(spot.id);
+      혼잡도는 시군구 단위로 산출되는 값이다. 그런데 예전에는 화면 픽셀 거리로 묶어서,
+      같은 구 안에서도 스팟이 떨어져 있으면 뱃지가 갈라졌다. 그 결과 '중구'가 네 번 뜨고
+      네 개가 전부 같은 숫자를 보여줬다 — 하나의 사실을 네 번 말한 셈이다.
+      방문객 수는 한술 더 떠서 같은 구의 값을 뱃지 개수만큼 더하고 있었다.
 
-      // 주변 거리(px) 이내 스팟 탐색 및 병합 (화면 상 겹침 방지)
-      const clusterThreshold = level <= 3 ? 35 : level <= 5 ? 70 : level <= 7 ? 100 : 130;
+      데이터가 가진 정직한 해상도가 시군구이므로, 뱃지도 거기에 맞춘다.
+    */
+    const zoneMap = new Map<string, ClusteredHeatSpot>();
 
-      for (let j = i + 1; j < baseList.length; j++) {
-        const other = baseList[j];
-        if (used.has(other.id)) continue;
-        const dPx = getScreenDistance(spot.lat, spot.lng, other.lat, other.lng);
-        if (dPx < clusterThreshold) {
-          group.push(other);
-          used.add(other.id);
-        }
+    baseList.forEach((spot) => {
+      const key = spot.district || spot.name;
+      const zone = zoneMap.get(key);
+
+      if (!zone) {
+        zoneMap.set(key, {
+          key: `zone-${key}`,
+          lat: spot.lat,
+          lng: spot.lng,
+          name: key,
+          count: 1,
+          district: key,
+          // 권역 단위 값이라 합치지 않는다. 더하면 같은 수를 여러 번 세게 된다.
+          visitorCount: spot.visitorCount,
+          congestionScore: spot.congestionScore,
+          congestionLevel: spot.congestionLevel,
+          surgeMultiplier: spot.surgeMultiplier,
+          intensity: spot.intensity,
+          series: spot.series,
+          primarySpot: spot,
+        });
+        return;
       }
 
-      const count = group.length;
-      const sumLat = group.reduce((acc, it) => acc + it.lat, 0);
-      const sumLng = group.reduce((acc, it) => acc + it.lng, 0);
-      const totalVisitors = group.reduce((acc, it) => acc + it.visitorCount, 0);
-      const maxSurge = Math.max(...group.map((it) => it.surgeMultiplier));
-      const maxScore = Math.max(...group.map((it) => it.congestionScore));
-
-      // 그룹 내 가장 혼잡도가 높은 스팟의 레벨을 대표 레벨로 채택
-      const rankOrder: Record<CongestionLevel, number> = { surge: 4, busy: 3, moderate: 2, relaxed: 1 };
-      const dominantLevel = group.reduce((best, it) =>
-        rankOrder[it.congestionLevel] > rankOrder[best] ? it.congestionLevel : best,
-        group[0].congestionLevel,
-      );
-
-      const displayName =
-        count === 1
-          ? spot.name
-          : `${spot.district || spot.name} 일대 (${count}곳)`;
-
-      clusters.push({
-        key: `cluster-${spot.id}-${count}`,
-        lat: sumLat / count,
-        lng: sumLng / count,
-        name: displayName,
-        count,
-        district: spot.district,
-        visitorCount: totalVisitors,
-        congestionScore: maxScore,
-        congestionLevel: dominantLevel,
-        surgeMultiplier: maxSurge,
-        intensity: Math.min(1, Math.max(0.25, maxScore / 100)),
-        primarySpot: group[0],
-      });
+      // 뱃지는 권역의 무게중심에 선다 — 첫 스팟 위가 아니라 한옥들이 모인 가운데다.
+      zone.lat = (zone.lat * zone.count + spot.lat) / (zone.count + 1);
+      zone.lng = (zone.lng * zone.count + spot.lng) / (zone.count + 1);
+      zone.count += 1;
+      if (!zone.series && spot.series) zone.series = spot.series;
     });
 
-    // API로부터 수집된 전국 각지의 온기 클러스터 전체를 인위적으로 자르지 않고(통제 배제),
-    // 동서남북 고르게 온기가 피어나도록 전량 렌더링
-    const displayClusters = clusters;
+    /*
+      주소 표기가 흔들려 같은 동네가 두 이름으로 갈리는 일이 있다 —
+      대부분 '전주시 완산구'로 잡히는데 한둘이 '완산구'로만 남는 식이다.
+      짧은 이름이 긴 이름의 꼬리면 같은 곳이므로, 시계열을 가진 쪽으로 합친다.
+    */
+    for (const [key, zone] of [...zoneMap]) {
+      if (zone.series) continue;
 
+      const host = [...zoneMap.values()].find(
+        (other) => other !== zone && other.series && other.district.endsWith(key),
+      );
+      if (!host) continue;
+
+      host.lat = (host.lat * host.count + zone.lat * zone.count) / (host.count + zone.count);
+      host.lng = (host.lng * host.count + zone.lng * zone.count) / (host.count + zone.count);
+      host.count += zone.count;
+      zoneMap.delete(key);
+    }
+
+    // 화면에 걸린 권역은 전부 세운다. 권역 단위라 개수가 저절로 적다.
+    const displayClusters = [...zoneMap.values()];
+
+    const projection = map.getProjection?.();
     const specs: OverlaySpec[] = [];
+
+    const canHover =
+      typeof window.matchMedia === 'function'
+        ? window.matchMedia('(hover: hover)').matches
+        : true;
+
+    const closeAllPopovers = () => {
+      document
+        .querySelectorAll('.om-surge-pill-wrap.is-open')
+        .forEach((el) => el.classList.remove('is-open'));
+    };
 
     // 3. 발광 히트 블룸 및 지능형 팝오버 뱃지 렌더링
     displayClusters.forEach((item) => {
       const cfg = CONGESTION_CONFIG[item.congestionLevel] || CONGESTION_CONFIG.moderate;
       const pal = isDark ? cfg.dark : cfg.light;
 
-      // 블룸 크기: 줌 레벨과 강도에 맞추어 유기적으로 조절
-      // 확대할수록(level이 작아질수록) 주변 골목과 건물에 부드럽고 따뜻하게 퍼지도록 확장
-      const basePx = Math.max(160, 360 - level * 18);
-      const bloomSize = Math.round(basePx * (0.85 + item.intensity * 0.45));
-
-      // ─── [A] 유기적 가우시안 발광 블룸 ───
-      const bloomWrap = document.createElement('div');
-      bloomWrap.className = 'om-heat-container';
-      bloomWrap.style.setProperty('--om-heat-size', `${bloomSize}px`);
-
-      const bloom = document.createElement('div');
-      bloom.className = 'om-heat-bloom';
-      bloom.style.background = `radial-gradient(circle closest-side, ${pal.core} 0%, ${pal.mid} 45%, ${pal.edge} 75%, transparent 100%)`;
-      bloom.style.filter = `blur(${Math.round(bloomSize * 0.16)}px) drop-shadow(${pal.glow})`;
-      bloomWrap.appendChild(bloom);
-
-      specs.push({
-        lat: item.lat,
-        lng: item.lng,
-        el: bloomWrap,
-        yAnchor: 0.5,
-        zIndex: 2,
-      });
-
-      // ─── [B] 권역별 수요 집중도 뱃지 및 지능형 방향 팝오버 ───
+      // ─── 권역별 수요 집중도 뱃지 및 지능형 방향 팝오버 ───
       const pillWrap = document.createElement('div');
       pillWrap.className = 'om-surge-pill-wrap';
 
@@ -600,48 +687,117 @@ export default function WarmthLayer() {
       }
 
       const visitorText = formatVisitorCompact(item.visitorCount);
+      const zoneName = (item.district || item.name || '한옥 일대').replace(/\s*일대$/, '');
+
+      /*
+        뱃지에는 권역마다 '다른' 값을 싣는다.
+        예전 뱃지는 '온기 가득'이라는 등급 문구를 달았는데, 등급은 같은 구면 늘 같아서
+        뱃지 여러 개가 서로를 구별하는 정보를 하나도 담지 못했다.
+        그 권역 자신의 30일 중앙값과 견준 편차는 권역마다 다르므로,
+        뱃지가 늘어서 있어도 한눈에 읽힌다.
+      */
+      const series = item.series ?? [];
+      const baseline = medianOf(series);
+      const compare = series.length > 0 ? compareText(item.congestionScore, baseline) : null;
+      const deltaClass = compare ? `is-${compare.tone}` : 'is-flat';
+      const deltaText = compare
+        ? compare.tone === 'flat'
+          ? '평소만큼'
+          : `${compare.delta > 0 ? '+' : ''}${compare.delta}%`
+        : '';
+
+      // 요일 패턴 — 이 팝오버가 답하려는 질문은 '언제 가면 조용한가' 하나다.
+      const week = weekdayPattern(series, heatDays);
+      const quietest = quietestWeekday(week);
+      const weekMax = week.length > 0 ? Math.max(...week.map((w) => w.avg)) : 1;
+      const weekMin = week.length > 0 ? Math.min(...week.map((w) => w.avg)) : 0;
+      const weekSpan = Math.max(weekMax - weekMin, 1);
+
+      /*
+        막대 높이는 px로 직접 계산한다. 트랙이 flex로 늘어난 높이라
+        퍼센트 높이가 해석되지 않아 전부 납작해진다.
+        바닥은 이 권역의 최저 요일 — 0부터 그리면 요일 간 차이가 뭉개진다.
+      */
+      const weekBars = week
+        .map((w) => {
+          const height = Math.round(8 + ((w.avg - weekMin) / weekSpan) * 26);
+          const isQuiet = quietest !== null && w.full === quietest.full;
+          return `
+            <div class="om-week-col${isQuiet ? ' is-quiet' : ''}" title="${w.full} 평균 혼잡도 ${Math.round(w.avg)}">
+              <div class="om-week-bar-track"><div class="om-week-bar" style="height: ${height}px"></div></div>
+              <span class="om-week-label">${w.short}</span>
+            </div>`;
+        })
+        .join('');
+
+      const dayStamp = heatDays[heatDayIndex];
+      const dayLabel = dayStamp
+        ? `${Number(dayStamp.ymd.slice(4, 6))}월 ${Number(dayStamp.ymd.slice(6, 8))}일 ${dayStamp.weekday}`
+        : '';
 
       pillWrap.innerHTML = `
         <div class="om-surge-pill" style="background: ${pal.badgeBg}; color: ${pal.badgeColor};">
           <span class="om-surge-pill-icon" style="color: ${pal.accentColor};">${cfg.iconSvg}</span>
-          <span class="om-surge-pill-text">${cfg.badgeText}</span>
-          <span class="om-surge-pill-name">· ${escapeHtml(item.district || '마을 일대')}</span>
+          <span class="om-surge-pill-name">${escapeHtml(zoneName)}</span>
+          ${deltaText ? `<span class="om-surge-pill-delta ${deltaClass}">${deltaText}</span>` : ''}
         </div>
 
         <div class="om-surge-popover ${popoverDir}">
           <div class="om-popover-head">
-            <span class="om-popover-title">${escapeHtml(item.name)}</span>
+            <span class="om-popover-title">${escapeHtml(zoneName)}</span>
             <span class="om-popover-tier" style="background: ${pal.tagBg}; color: ${pal.tagColor};">
               ${cfg.iconSvg} ${cfg.label}
             </span>
           </div>
 
-          <div class="om-popover-gauge">
-            <div class="om-popover-gauge-bar" style="width: ${item.congestionScore}%; background: ${pal.tagBg};"></div>
+          ${
+            compare
+              ? `<p class="om-popover-now">
+                   <span class="om-now-day">${escapeHtml(dayLabel)}</span>
+                   <span class="om-now-delta ${deltaClass}">${compare.text}</span>
+                 </p>`
+              : ''
+          }
+
+          ${
+            week.length > 0
+              ? `<div class="om-week">
+                   <div class="om-week-chart">${weekBars}</div>
+                   ${
+                     quietest
+                       ? `<p class="om-week-say">이 동네는 <b>${quietest.full}</b>이 가장 조용합니다</p>`
+                       : `<p class="om-week-say">요일별 차이가 뚜렷하지 않습니다</p>`
+                   }
+                 </div>`
+              : `<div class="om-popover-gauge">
+                   <div class="om-popover-gauge-bar" style="width: ${item.congestionScore}%; background: ${pal.tagBg};"></div>
+                 </div>`
+          }
+
+          <div class="om-popover-foot">
+            <span>${ICONS.users} 외지인 ${visitorText}</span>
+            <span>${ICONS.mapPin} 한옥 ${item.count}곳</span>
           </div>
 
-          <div class="om-popover-body">
-            <div class="om-popover-row">
-              <span class="om-row-label">${ICONS.sparkles} 마루의 정취</span>
-              <span class="om-popover-val">${cfg.subLabel}</span>
-            </div>
-            <div class="om-popover-row">
-              <span class="om-row-label">${ICONS.users} 머문 발자취</span>
-              <span class="om-popover-val">${visitorText}의 온기</span>
-            </div>
-            <div class="om-popover-row">
-              <span class="om-row-label">${ICONS.mapPin} 마을 일대</span>
-              <span class="om-popover-val">${escapeHtml(item.district || '한옥 마을')}</span>
-            </div>
-          </div>
-
-          <div class="om-popover-hint">클릭하여 고즈넉한 풍경 둘러보기</div>
+          <div class="om-popover-hint">눌러서 이 권역 둘러보기</div>
         </div>
       `;
 
-      // 클릭 시 해당 지점으로 카메라 줌인 이동
       pillWrap.addEventListener('click', (e) => {
         e.stopPropagation();
+
+        /*
+          터치에서는 첫 탭이 카드를 펴는 데 쓰인다.
+          이동은 카드 안의 '눌러서 이 권역 둘러보기'가 맡는다 —
+          그 버튼도 이 핸들러를 타는데, 그때는 이미 열려 있으므로 아래로 내려간다.
+        */
+        if (!canHover && !pillWrap.classList.contains('is-open')) {
+          closeAllPopovers();
+          pillWrap.classList.add('is-open');
+          return;
+        }
+
+        // 클릭 시 해당 지점으로 카메라 줌인 이동
         const m = useMapStore.getState().map;
         if (m) {
           m.setLevel(Math.max(2, m.getLevel() - 2), { animate: true });
@@ -660,11 +816,26 @@ export default function WarmthLayer() {
       });
     });
 
+    // 지도 아무 데나 누르면 펴둔 카드를 접는다 (데스크톱에서는 열린 카드가 없어 무해하다)
+    const onDocumentClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target?.closest('.om-surge-pill-wrap')) return;
+      closeAllPopovers();
+    };
+    document.addEventListener('click', onDocumentClick);
+
     const cleanup = paintOverlays(map, specs);
     return () => {
+      document.removeEventListener('click', onDocumentClick);
+      closeAllPopovers();
       if (cleanup) cleanup();
     };
-  }, [map, mode, heatSpots, items, level, isDark]);
+  }, [map, mode, baseList, level, isDark, heatDays, heatDayIndex]);
 
-  return <Global styles={styles} />;
+  return (
+    <>
+      <Global styles={styles} />
+      <HeatCanvas spots={baseList} />
+    </>
+  );
 }

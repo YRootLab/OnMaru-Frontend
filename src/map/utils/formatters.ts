@@ -83,3 +83,34 @@ export function safeImageUrl(url?: string | null): string {
   if (!/^https?:\/\//i.test(s)) return '';
   return escapeHtml(s);
 }
+
+/**
+ * ISO 8601 날짜를 친근한 상대 시간 또는 날짜 문자열로 변환합니다.
+ * 예: 방금 전, 3분 전, 2시간 전, 3일 전, 2주 전, 2026.09.03
+ */
+export function formatRelativeTime(isoString?: string | null): string {
+  if (!isoString) return '';
+  const date = new Date(isoString);
+  const time = date.getTime();
+  if (isNaN(time)) return '';
+
+  const diffMs = Date.now() - time;
+  if (diffMs < 0) return '방금 전';
+
+  const diffSec = Math.floor(diffMs / 1000);
+  const diffMin = Math.floor(diffSec / 60);
+  const diffHour = Math.floor(diffMin / 60);
+  const diffDay = Math.floor(diffHour / 24);
+
+  if (diffSec < 60) return '방금 전';
+  if (diffMin < 60) return `${diffMin}분 전`;
+  if (diffHour < 24) return `${diffHour}시간 전`;
+  if (diffDay < 7) return `${diffDay}일 전`;
+  if (diffDay < 30) return `${Math.floor(diffDay / 7)}주 전`;
+
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}.${m}.${d}`;
+}
+

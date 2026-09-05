@@ -140,18 +140,22 @@ const createGlobalStyles = (theme: OnmaruTheme) => css`
     --color-metaball-accent2: ${theme.colors.metaball.accent2};
 
     /* Layout (Responsive Variables) */
+    --layout-max-width: ${theme.layout.maxWidth};
     --layout-margin: ${theme.layout.margin.sm};
+    --layout-padding: ${theme.layout.padding.sm};
     --layout-gutter: ${theme.layout.gutter.sm};
     --layout-columns: ${theme.layout.columns.sm};
 
     @media (min-width: ${theme.breakpoints.sm}) {
       --layout-margin: ${theme.layout.margin.md};
+      --layout-padding: ${theme.layout.padding.md};
       --layout-gutter: ${theme.layout.gutter.md};
       --layout-columns: ${theme.layout.columns.md};
     }
 
     @media (min-width: ${theme.breakpoints.lg}) {
       --layout-margin: ${theme.layout.margin.lg};
+      --layout-padding: ${theme.layout.padding.lg};
       --layout-gutter: ${theme.layout.gutter.lg};
       --layout-columns: ${theme.layout.columns.lg};
     }

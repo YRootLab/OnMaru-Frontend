@@ -6,7 +6,7 @@ import { loadWarmth } from '@/map/warmth/warmthRepo';
 import { distanceInMeters } from './useKakaoMap';
 import { useMapStore } from './useMapStore';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
-import type { KakaoMap } from '@/map/types';
+import type { HeatDay, KakaoMap } from '@/map/types';
 
 const log = logger('map');
 
@@ -24,7 +24,10 @@ function radiusFromMap(map: KakaoMap): number {
 
 const CLIENT_CACHE_TTL = 30 * 60 * 1000; // 30분 클라이언트 인메모리 캐시 (화면 재방문 시 0ms 즉시 로드)
 const clientPlaceCache = new Map<string, { expiresAt: number; items: any[] }>();
-const clientHeatCache = new Map<string, { expiresAt: number; spots: any[] }>();
+const clientHeatCache = new Map<
+  string,
+  { expiresAt: number; spots: any[]; days: HeatDay[] }
+>();
 
 /** 지도 장소 목록 및 온기 데이터 실시간 동기화 훅 */
 export function useMapData() {
@@ -64,16 +67,20 @@ export function useMapData() {
     const cachedHeat = clientHeatCache.get(heatCacheKey);
     if (cachedHeat && cachedHeat.expiresAt > Date.now()) {
       useMapStore.getState().setHeatSpots(cachedHeat.spots);
+      useMapStore.getState().setHeatDays(cachedHeat.days);
     } else {
       fetch(`/api/map/heat?${warmthParams}`, { signal: controller.signal })
         .then(async (res) => {
           const json = await res.json().catch(() => ({}));
           if (Array.isArray(json.spots) && json.spots.length > 0) {
+            const days: HeatDay[] = Array.isArray(json.days) ? json.days : [];
             clientHeatCache.set(heatCacheKey, {
               expiresAt: Date.now() + CLIENT_CACHE_TTL,
               spots: json.spots,
+              days,
             });
             useMapStore.getState().setHeatSpots(json.spots);
+            useMapStore.getState().setHeatDays(days);
           }
         })
         .catch((err) => {

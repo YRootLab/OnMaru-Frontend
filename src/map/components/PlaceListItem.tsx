@@ -103,10 +103,11 @@ const ThumbnailBox = styled.div`
   flex-shrink: 0;
   border-radius: 14px;
   overflow: hidden;
-  background: #f0eae0;
+  background: ${meok[200]};
   display: flex;
   align-items: center;
   justify-content: center;
+  align-self: flex-start;
 
   @media (max-width: 1023px) {
     width: 64px;
@@ -124,7 +125,8 @@ const FallbackIconWrapper = styled.div`
 const Content = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 3px;
   flex: 1;
   min-width: 0;
   padding-right: 28px;
@@ -140,7 +142,7 @@ const Row1 = styled.div`
 const Title = styled.h4`
   margin: 0;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   color: ${meok[900]};
   overflow: hidden;
   text-overflow: ellipsis;
@@ -156,16 +158,13 @@ const IndexNumber = styled.span`
   font-variant-numeric: tabular-nums;
 `;
 
-const Row2 = styled.div`
+const BadgeRow = styled.div`
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: ${meok[500]};
+  gap: 5px;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  margin-top: 3px;
+  flex-wrap: wrap;
+  margin-top: 1px;
 `;
 
 const CategoryTag = styled.span<{ $category: PlaceCategory }>`
@@ -176,53 +175,31 @@ const CategoryTag = styled.span<{ $category: PlaceCategory }>`
   border-radius: 6px;
   font-size: 11px;
   font-weight: 600;
-  color: ${({ $category }) => CATEGORY_STYLES[$category]?.main || '#1E7A68'};
-  background: ${({ $category }) => CATEGORY_STYLES[$category]?.lightBg || '#E6F5F0'};
+  color: ${({ $category }) => CATEGORY_STYLES[$category]?.main || lightPalette.cheongrok[500]};
+  background: ${({ $category }) => CATEGORY_STYLES[$category]?.lightBg || lightPalette.cheongrok[50]};
   flex-shrink: 0;
-`;
-
-const DistrictText = styled.span`
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`;
-
-const Row3 = styled.div`
-  font-size: 12px;
-  font-weight: 600;
-  color: ${lightPalette.cheongrok[700]};
-  font-variant-numeric: tabular-nums;
-  margin-top: 2px;
 `;
 
 const TraditionalBadge = styled.span`
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  padding: 2px 7px;
+  padding: 1.5px 6px;
   border-radius: 9999px;
   font-size: 10.5px;
   font-weight: 700;
   color: ${lightPalette.cheongrok[700]};
-  background: rgba(40, 110, 95, 0.12);
+  background: rgba(0, 184, 130, 0.12);
   white-space: nowrap;
 `;
 
-const BadgeRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-top: 4px;
-  overflow: hidden;
-`;
-
 const Badge = styled.span`
-  padding: 2px 7px;
+  padding: 1.5px 6px;
   border-radius: 9999px;
   font-size: 11px;
   font-weight: 500;
   color: ${meok[700]};
-  background: rgba(78, 89, 104, 0.07);
+  background: rgba(78, 89, 104, 0.08);
   white-space: nowrap;
 `;
 
@@ -230,13 +207,29 @@ const OdiiBadge = styled.span`
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  padding: 2px 7px;
+  padding: 1.5px 6px;
   border-radius: 9999px;
   font-size: 10.5px;
   font-weight: 800;
   color: #ffffff;
   background: ${lightPalette.jangmi[500]};
+  white-space: nowrap;
+`;
 
+const DistanceRow = styled.div`
+  font-size: 12px;
+  font-weight: 600;
+  color: ${lightPalette.cheongrok[700]};
+  font-variant-numeric: tabular-nums;
+  margin-top: 1px;
+`;
+
+const DistrictRow = styled.div`
+  font-size: 12px;
+  font-weight: 500;
+  color: ${meok[500]};
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 `;
 
@@ -381,13 +374,7 @@ function PlaceListItemComponent({
             <IndexNumber>{index + 1}</IndexNumber>
           </Row1>
 
-          <Row2 title={`${catLabel} · ${district}`}>
-            <CategoryTag $category={item.category}>{catLabel}</CategoryTag>
-            {district && <DistrictText>{district}</DistrictText>}
-          </Row2>
-
-          {distText && <Row3>{distText}</Row3>}
-
+          {/* 1. 주변 연계 & 주변 일반음식 (또는 정통 한옥) 뱃지 행 */}
           <BadgeRow>
             {isRealTraditional ? (
               <TraditionalBadge title="정통 한옥 및 전통 문화재 인증 명소">
@@ -397,6 +384,7 @@ function PlaceListItemComponent({
             ) : (
               <Badge>주변 연계</Badge>
             )}
+            <CategoryTag $category={item.category}>{catLabel}</CategoryTag>
             {hasOdii && (
               <OdiiBadge title="한국관광공사 공식 오디 오디오 도슨트 해설 지원 장소">
                 <Headphones size={10} />
@@ -405,6 +393,12 @@ function PlaceListItemComponent({
             )}
             {item.tel && <Badge>안내 가능</Badge>}
           </BadgeRow>
+
+          {/* 2. 내 위치에서 거리 및 소요 시간 행 */}
+          {distText && <DistanceRow>{distText}</DistanceRow>}
+
+          {/* 3. 행정구역/지역명 행 (예: 대전 중구) */}
+          {district && <DistrictRow>{district}</DistrictRow>}
         </Content>
       </ItemButton>
 

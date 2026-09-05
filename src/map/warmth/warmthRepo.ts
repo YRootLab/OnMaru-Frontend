@@ -179,8 +179,8 @@ export function regionOf(lat: number, lng: number): string {
   return best.d <= 0.55 ? best.name : '';
 }
 
-/** '북적'/'한적'을 카드가 쓰는 5단계 눈금으로 옮긴다. */
-const MOOD_SCALE: Record<Warmth['mood'], 1 | 2 | 3 | 4 | 5> = { 한적: 2, 북적: 4 };
+/** 정취 분위기별 기본 만족도 점수 (1: 또 가고 싶어요, 2: 좋았어요) */
+const DEFAULT_MOOD_BY_CROWD: Record<Warmth['mood'], 1 | 2> = { 한적: 2, 북적: 1 };
 
 const SEASON_BY_MONTH: WarmthReview['season'][] = [
   '겨울', '겨울', '봄', '봄', '봄', '여름',
@@ -190,8 +190,7 @@ const SEASON_BY_MONTH: WarmthReview['season'][] = [
 /**
  * Warmth 한 건을 피드 카드가 읽는 모양으로 옮긴다.
  *
- * 없는 값은 만들지 않는다 — placeType/badTags처럼 원본에 없는 항목은 비워 둔다.
- * 카드가 비어 있는 항목을 그리지 않도록 되어 있으므로 화면에는 사실만 남는다.
+ * 정취 분위기(북적/한적)와 방문자 감정 만족도(또 가고 싶어요/좋았어요)를 분리하여 왜곡을 방지한다.
  */
 export function toReview(w: Warmth): WarmthReview {
   const month = new Date(w.createdAt).getMonth();
@@ -202,7 +201,8 @@ export function toReview(w: Warmth): WarmthReview {
     placeName: w.placeName,
     placeRegion: regionOf(w.lat, w.lng),
     placeType: '',
-    mood: w.score ?? MOOD_SCALE[w.mood],
+    mood: w.score ?? DEFAULT_MOOD_BY_CROWD[w.mood] ?? 2,
+    crowdMood: w.mood,
     season: SEASON_BY_MONTH[Number.isNaN(month) ? 0 : month],
     goodTags: w.tags ?? [],
     goodText: w.text,

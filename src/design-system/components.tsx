@@ -376,30 +376,38 @@ export function ThemeToggleButton() {
 }
 
 // ─────────────────────────────────────────
-// C-1. 공통 반응형 레이아웃 마진 믹스인 & 컨테이너
-// - Large Screen (>= 1280px): 75px
-// - Medium / Small Screen (< 1280px): 16px
+// C-1. 공통 반응형 레이아웃 마진 믹스인 & 컨테이너 (당근 레이아웃 규격)
+// - Max Width: 1340px
+// - Margin: 0 auto
+// - Padding: 0 16px
 // ─────────────────────────────────────────
 
 export const responsiveSidePaddingCss = (theme: OnmaruTheme) => css`
-  padding-left: ${theme.layout.margin.lg};
-  padding-right: ${theme.layout.margin.lg};
+  max-width: ${theme.layout.maxWidth};
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+  padding-left: ${theme.layout.padding.lg};
+  padding-right: ${theme.layout.padding.lg};
 
   @media (max-width: 1279px) {
-    padding-left: ${theme.layout.margin.md};
-    padding-right: ${theme.layout.margin.md};
+    padding-left: ${theme.layout.padding.md};
+    padding-right: ${theme.layout.padding.md};
   }
 `;
 
 export const PageContainer = styled.div`
   width: 100%;
+  max-width: ${({ theme }) => (theme as OnmaruTheme).layout.maxWidth};
+  margin: 0 auto;
+  box-sizing: border-box;
   padding-top: 49px; /* 고정 헤더(49px) 상단 여백 확보 */
-  padding-left: ${({ theme }) => (theme as OnmaruTheme).layout.margin.lg};
-  padding-right: ${({ theme }) => (theme as OnmaruTheme).layout.margin.lg};
+  padding-left: ${({ theme }) => (theme as OnmaruTheme).layout.padding.lg};
+  padding-right: ${({ theme }) => (theme as OnmaruTheme).layout.padding.lg};
 
   @media (max-width: 1279px) {
-    padding-left: ${({ theme }) => (theme as OnmaruTheme).layout.margin.md};
-    padding-right: ${({ theme }) => (theme as OnmaruTheme).layout.margin.md};
+    padding-left: ${({ theme }) => (theme as OnmaruTheme).layout.padding.md};
+    padding-right: ${({ theme }) => (theme as OnmaruTheme).layout.padding.md};
   }
 `;
 

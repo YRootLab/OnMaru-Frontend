@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import styled from '@emotion/styled';
 import { transientProps } from '@/design-system/styled';
-import { lightPalette, meok } from '@/design-system/tokens';
+import { lightPalette, meok, surface } from '@/design-system/tokens';
 
 interface LandingProps {
   $isLanding?: boolean;
@@ -153,7 +153,7 @@ const NavLink = styled(Link, transientProps)<LandingProps>`
   }
 
   &:hover {
-    color: ${({ $isLanding, $isOdii }) => ($isOdii ? lightPalette.jangmi[500] : $isLanding ? '#d4af37' : lightPalette.juhong[700])};
+    color: ${({ $isLanding, $isOdii }) => ($isOdii ? lightPalette.jangmi[500] : $isLanding ? lightPalette.hwanggeum[400] : lightPalette.juhong[700])};
 
     &::after {
       transform: scaleX(1);
@@ -187,7 +187,7 @@ const DropdownTrigger = styled('button', transientProps)<LandingProps>`
   transition: color 0.2s ease;
 
   &:hover {
-    color: ${({ $isLanding, $isOdii }) => ($isOdii ? lightPalette.jangmi[500] : $isLanding ? '#d4af37' : lightPalette.juhong[700])};
+    color: ${({ $isLanding, $isOdii }) => ($isOdii ? lightPalette.jangmi[500] : $isLanding ? lightPalette.hwanggeum[400] : lightPalette.juhong[700])};
   }
 `;
 
@@ -366,9 +366,9 @@ const LoginButton = styled(Link, transientProps)<LandingProps>`
   font-family: 'SpoqaHanSansNeo', sans-serif;
   font-size: 13px;
   font-weight: 500;
-  color: ${({ $isLanding, $isOdii }) => ($isOdii ? lightPalette.jangmi[700] : $isLanding ? meok[900] : '#faf9f6')};
-  background: ${({ $isLanding, $isOdii }) => ($isOdii ? 'rgba(248, 78, 118, 0.08)' : $isLanding ? 'rgba(250, 247, 240, 0.92)' : 'rgba(38, 35, 31, 0.92)')};
-  border: 1px solid ${({ $isOdii }) => ($isOdii ? 'rgba(248, 78, 118, 0.18)' : 'transparent')};
+
+  color: ${({ $isLanding, $isOdii }) => ($isOdii ? surface.light.card : $isLanding ? meok[900] : surface.light.base)};
+  background: ${({ $isLanding, $isOdii }) => ($isOdii ? lightPalette.jangmi[500] : $isLanding ? 'rgba(250, 247, 240, 0.92)' : 'rgba(38, 35, 31, 0.92)')};
 
   border-radius: 999px;
   height: 32px;
@@ -383,8 +383,9 @@ const LoginButton = styled(Link, transientProps)<LandingProps>`
   transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
 
   &:hover {
-    background: ${({ $isLanding, $isOdii }) => ($isOdii ? 'rgba(248, 78, 118, 0.14)' : $isLanding ? '#ffffff' : '#514a42')};
-    border-color: ${({ $isOdii }) => ($isOdii ? 'rgba(248, 78, 118, 0.28)' : 'transparent')};
+
+    background: ${({ $isLanding, $isOdii }) => ($isOdii ? lightPalette.jangmi[400] : $isLanding ? surface.light.card : meok[700])};
+
 
     transform: translateY(-1px);
 

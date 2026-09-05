@@ -67,6 +67,8 @@ export interface WarmthReview {
   /** 분류를 아는 경우에만 채운다. 모르면 빈 문자열 — 지어내지 않는다. */
   placeType: string;
   mood: 1 | 2 | 3 | 4 | 5;
+  /** 정취 분위기 (북적이는 활기 vs 한적한 고즈넉함) */
+  crowdMood?: '북적' | '한적';
   season: '봄' | '여름' | '가을' | '겨울';
   visitCount?: number;
   goodTags: string[];
@@ -138,7 +140,19 @@ export interface HeatSpot {
   congestionLevel: CongestionLevel; // 'relaxed' | 'moderate' | 'busy' | 'surge'
   surgeMultiplier: number;   // 1.0x ~ 3.5x 수요 집중 배율
   intensity: number;         // 0.15 ~ 1.0 히트 블룸 확산 강도
+  /**
+   * 날짜별 혼잡도(0~100). heatDays와 길이가 같다.
+   * 날짜를 문지를 때마다 서버를 다시 부르지 않으려고 시계열째로 받아둔다.
+   * 시계열이 없는 권역은 비어 있고, 그때는 congestionScore 하나로 버틴다.
+   */
+  series?: number[];
   updatedAt?: string;
+}
+
+/** 스크러버가 훑는 날짜 한 칸. weekday는 데이터랩이 주는 '월요일' 형태 그대로다. */
+export interface HeatDay {
+  ymd: string;
+  weekday: string;
 }
 
 /**

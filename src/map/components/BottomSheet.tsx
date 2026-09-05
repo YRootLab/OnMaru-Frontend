@@ -12,7 +12,8 @@ import PlaceList from './PlaceList';
 import WarmthFeed from './warmth/WarmthFeed';
 
 const SNAPS: SheetSnap[] = ['peek', 'half', 'full'];
-const SNAP_CSS: Record<SheetSnap, string> = { peek: '96px', half: '56dvh', full: '90dvh' };
+/** 시트 높이. 지도 위에 뜨는 컨트롤이 시트를 피하려면 같은 값을 봐야 한다. */
+export const SNAP_CSS: Record<SheetSnap, string> = { peek: '96px', half: '56dvh', full: '90dvh' };
 const SPRING = 'cubic-bezier(0.32, 0.72, 0, 1)';
 
 const snapPx = (snap: SheetSnap) => {

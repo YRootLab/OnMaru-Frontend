@@ -13,9 +13,10 @@ import {
   ShoppingBag,
 } from 'lucide-react';
 import { meok } from '@/design-system/tokens';
-import { useMapStore } from '@/map/hooks/useMapStore';
+import { useMapStore, DEFAULT_CENTER } from '@/map/hooks/useMapStore';
 import { countByPlace, regionOf, toReview } from '@/map/warmth/warmthRepo';
 import { filterByPeriod, PERIOD_OPTIONS, type WarmthPeriod } from '@/map/warmth/heatScale';
+import DateScrubber from './DateScrubber';
 import WarmthCard from './WarmthCard';
 import {
   FeedContainer,
@@ -28,6 +29,7 @@ import {
   RegionScroller,
   RegionChip,
   FeaturedPlaceArea,
+  ScrubberSection,
   FeaturedCard,
   FeaturedLeft,
   FeaturedIconBox,
@@ -150,14 +152,15 @@ export default function WarmthFeed() {
         ? reviews
         : reviews.filter((r) => r.placeRegion === selectedRegion);
 
-    // 상단 분위기 카테고리 칩 필터 연동
+    // 상단 분위기 카테고리 칩 필터 연동 (정취 분위기 또는 평점 기준)
     if (category === 'busy') {
-      list = list.filter((r) => r.mood >= 4);
+      list = list.filter((r) => r.crowdMood === '북적' || r.mood >= 4);
     } else if (category === 'quiet') {
-      list = list.filter((r) => r.mood <= 2);
+      list = list.filter((r) => r.crowdMood === '한적' || r.mood <= 2);
     } else if (category === 'today') {
       const ONE_DAY = 86_400_000;
-      list = list.filter((r) => Date.now() - Date.parse(r.createdAt) < ONE_DAY);
+      const now = Date.now();
+      list = list.filter((r) => now - Date.parse(r.createdAt) < ONE_DAY);
     } else if (category === 'mine') {
       list = list.filter((r) => r.mine === true);
     }
@@ -213,6 +216,27 @@ export default function WarmthFeed() {
     }
   };
 
+  /** 지역 칩 클릭 시 피드 필터링 및 지도 카메라 동기화 */
+  const handleRegionClick = (regionId: string) => {
+    setSelectedRegion(regionId);
+    setCurrentPage(1);
+
+    if (!map || !window.kakao?.maps?.LatLng) return;
+
+    if (regionId === 'all') {
+      map.setLevel(11, { animate: true });
+      map.panTo(new window.kakao.maps.LatLng(DEFAULT_CENTER.lat, DEFAULT_CENTER.lng));
+      return;
+    }
+
+    // 해당 지역의 대표 온기 장소로 카메라 즉시 패닝 및 줌인
+    const targetPlace = warmths.find((w) => regionOf(w.lat, w.lng) === regionId);
+    if (targetPlace) {
+      map.setLevel(5, { animate: true });
+      map.panTo(new window.kakao.maps.LatLng(targetPlace.lat, targetPlace.lng));
+    }
+  };
+
   const handlePlaceClick = (placeId: string, placeName: string, lat?: number, lng?: number) => {
     const matched = items.find(
       (i) => i.id === placeId || i.name.includes(placeName) || placeName.includes(i.name),
@@ -249,7 +273,7 @@ export default function WarmthFeed() {
               type="button"
               aria-pressed={selectedRegion === r.id}
               $active={selectedRegion === r.id}
-              onClick={() => setSelectedRegion(r.id)}
+              onClick={() => handleRegionClick(r.id)}
             >
               {r.label}
             </RegionChip>
@@ -294,6 +318,11 @@ export default function WarmthFeed() {
           </FeaturedCard>
         </FeaturedPlaceArea>
       )}
+
+      {/* 날씨/날짜별 혼잡도 스크러버 (차트) */}
+      <ScrubberSection>
+        <DateScrubber embedded />
+      </ScrubberSection>
 
       {/* 기간 필터 탭 (최근 3일, 1주, 1달, 전체) */}
       <PeriodFilterRow role="group" aria-label="온기 기간 필터">

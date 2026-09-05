@@ -36,60 +36,60 @@ export const CATEGORY_STYLES: Record<
     iconSvg: string;
   }
 > = {
-  // 1. 고택·명소 / 한옥마을: Landmark (선명한 단청 청록 #047857)
+  // 1. 고택·명소 / 한옥마을: Landmark (대청 청록)
   spot: {
-    main: '#047857',
-    lightBg: '#ECFDF5',
-    border: '#047857',
+    main: lightPalette.cheongrok[500],
+    lightBg: lightPalette.cheongrok[50],
+    border: lightPalette.cheongrok[500],
     iconSvg: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="2" x2="22" y1="22" y2="22"/><line x1="6" x2="6" y1="18"/><line x1="10" x2="10" y1="18"/><line x1="14" x2="14" y1="18"/><line x1="18" x2="18" y1="18"/><polygon points="12 2 20 7 4 7"/></svg>`,
   },
-  // 2. 문화재·서원 / 궁궐·미술관: BookOpen (딥 로열 블루 #1D4ED8)
+  // 2. 문화재·서원 / 궁궐·미술관: BookOpen (청화 코발트)
   culture: {
-    main: '#1D4ED8',
-    lightBg: '#EFF6FF',
-    border: '#1D4ED8',
+    main: lightPalette.kobalt[500],
+    lightBg: lightPalette.kobalt[50],
+    border: lightPalette.kobalt[500],
     iconSvg: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
   },
-  // 3. 한옥숙소 / 고택스테이: Home (품격 있는 한옥 목조 골드브라운 #92400E)
+  // 3. 한옥숙소 / 고택스테이: Home (황금 기와 앰버)
   stay: {
-    main: '#92400E',
-    lightBg: '#FEF3C7',
-    border: '#92400E',
+    main: lightPalette.hwanggeum[700],
+    lightBg: lightPalette.hwanggeum[50],
+    border: lightPalette.hwanggeum[700],
     iconSvg: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
   },
-  // 4. 향토음식 / 한식당: Utensils (단청 진홍 레드 #DC2626)
+  // 4. 향토음식 / 한식당: Utensils (연지 장미)
   food: {
-    main: '#DC2626',
-    lightBg: '#FEE2E2',
-    border: '#DC2626',
+    main: lightPalette.jangmi[700],
+    lightBg: lightPalette.jangmi[50],
+    border: lightPalette.jangmi[700],
     iconSvg: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2v6a3 3 0 0 1-3 3 3 3 0 0 1-3-3V2"/><path d="M12 2v20"/><path d="M21 15v7"/></svg>`,
   },
-  // 5. 한옥카페·디저트 / 전통찻집: Coffee (전통 찻집 웜 오렌지 #C2410C)
+  // 5. 한옥카페·디저트 / 전통찻집: Coffee (단청 주홍)
   cafe: {
-    main: '#C2410C',
-    lightBg: '#FFF7ED',
-    border: '#C2410C',
+    main: lightPalette.juhong[500],
+    lightBg: lightPalette.juhong[50],
+    border: lightPalette.juhong[500],
     iconSvg: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/></svg>`,
   },
-  // 6. 한복·전통체험 / 민속촌: Sparkles (비비드 바이올렛 #7C3AED)
+  // 6. 한복·전통체험 / 민속촌: Sparkles (비비드 연지 로즈)
   experience: {
-    main: '#7C3AED',
-    lightBg: '#F5F3FF',
-    border: '#7C3AED',
+    main: lightPalette.jangmi[500],
+    lightBg: lightPalette.jangmi[50],
+    border: lightPalette.jangmi[500],
     iconSvg: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>`,
   },
-  // 7. 야행·축제: Moon (밤하늘 인디고 #4338CA)
+  // 7. 야행·축제: Moon (청화 코발트 딥)
   festival: {
-    main: '#4338CA',
-    lightBg: '#EEF2FF',
-    border: '#4338CA',
+    main: lightPalette.kobalt[700],
+    lightBg: lightPalette.kobalt[50],
+    border: lightPalette.kobalt[700],
     iconSvg: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`,
   },
-  // 8. 전통시장: Store (전통 청자 틸 #0D9488)
+  // 8. 전통시장: Store (대청 청록 딥)
   market: {
-    main: '#0D9488',
-    lightBg: '#F0FDFA',
-    border: '#0D9488',
+    main: lightPalette.cheongrok[700],
+    lightBg: lightPalette.cheongrok[50],
+    border: lightPalette.cheongrok[700],
     iconSvg: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/><path d="M22 7a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2"/></svg>`,
   },
 };

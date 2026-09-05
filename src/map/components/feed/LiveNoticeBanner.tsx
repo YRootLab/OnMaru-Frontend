@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
-import { Volume2, ExternalLink, Sparkles } from 'lucide-react';
+import { Volume2, ExternalLink } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 
 const NOTICES = [
@@ -89,9 +89,7 @@ export default function LiveNoticeBanner() {
       <TextScroller>
         <NoticeText key={index}>{NOTICES[index]}</NoticeText>
       </TextScroller>
-      <ActionGlyph>
-        <Sparkles size={12} color={lightPalette.cheongrok[500]} />
-      </ActionGlyph>
+ 
     </Container>
   );
 }
