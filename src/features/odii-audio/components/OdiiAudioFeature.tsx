@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { motion, Variants } from 'framer-motion';
 import { StoryCarousel } from './StoryCarousel';
 import { CategoryTagFilter } from './CategoryTagFilter';
@@ -12,7 +13,6 @@ import { OdiiAutoSliceRail } from './OdiiAutoSliceRail';
 import { OdiiEditorialRail } from './OdiiEditorialRail';
 import { OdiiFooterCTA } from './OdiiFooterCTA';
 import { SoundConstellationSection } from './SoundConstellationSection';
-import { AllStoriesModal } from './AllStoriesModal';
 import { LocalMiniPlayer } from './LocalMiniPlayer';
 import { OdiiAtmosphereBackground } from './OdiiAtmosphereBackground';
 import { HanjiTearTransition } from '@/features/odii-audio/background/HanjiTearTransition';
@@ -21,6 +21,12 @@ import { VesselReveal } from '@/shared/components/animation/VesselReveal';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { OdiiStoryItem, OdiiStoryPage, IOdiiApiService } from '@/features/odii-audio/types/odii.types';
 import { OdiiDependencyProvider, useOdiiApiService } from '@/features/odii-audio/context/OdiiDependencyContext';
+import { loadOdiiInitialData } from './odiiInitialLoad';
+
+const AllStoriesModal = dynamic(
+  () => import('./AllStoriesModal').then((module) => module.AllStoriesModal),
+  { ssr: false },
+);
 
 const titleVariants: Variants = {
   hidden: { opacity: 0, y: 26 },
@@ -143,32 +149,64 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
   const [isArchiveLoading, setIsArchiveLoading] = useState(true);
   const [apiError, setApiError] = useState<string | null>(null);
   const [retryToken, setRetryToken] = useState(0);
+  const [initialLoadVersion, setInitialLoadVersion] = useState(0);
+  const initialLoadCompleteRef = useRef(false);
+  const initialArchiveRef = useRef<OdiiStoryPage | null>(initialStories ? {
+    items: initialStories,
+    pageNo: 1,
+    numOfRows: 12,
+    totalCount: initialStories.length,
+    source: 'mock',
+  } : null);
+  const archiveScopeRef = useRef({ selectedCategory, searchQuery, archivePage });
   const handleApiError = useCallback(() => {
     setApiError('오디 이야기를 불러오지 못했습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.');
   }, []);
 
   useEffect(() => {
+    archiveScopeRef.current = { selectedCategory, searchQuery, archivePage };
+  }, [archivePage, searchQuery, selectedCategory]);
+
+  useEffect(() => {
     let isMounted = true;
 
-    async function loadInitialHeroAndNearby() {
+    initialLoadCompleteRef.current = false;
+
+    async function loadInitialContent() {
       try {
-        const [nearby, heroEntries] = await Promise.all([
-          activeApiService.getNearbyStories(),
-          activeApiService.getStoryList(),
-        ]);
+        const result = await loadOdiiInitialData(activeApiService);
 
         if (isMounted) {
-          setNearbyStories(nearby);
-          setHeroStorySets({ '추천': heroEntries.slice(0, 7) });
+          setNearbyStories(result.nearbyStories);
+          setHeroStorySets({ '추천': result.heroStories });
+
+          if (result.archive) {
+            initialArchiveRef.current = result.archive;
+
+            const scope = archiveScopeRef.current;
+            if (scope.selectedCategory === '전체' && !scope.searchQuery && scope.archivePage === 1) {
+              setStoryList(result.archive.items);
+              setArchiveMeta(result.archive);
+            }
+          }
+          if (result.archiveError || result.nearbyError) {
+            setApiError('오디 이야기를 불러오지 못했습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.');
+          }
+          setIsArchiveLoading(false);
+          initialLoadCompleteRef.current = true;
+          setInitialLoadVersion((version) => version + 1);
         }
       } catch {
-        if (isMounted) setApiError('오디 이야기를 불러오지 못했습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.');
+        if (isMounted) {
+          setApiError('오디 이야기를 불러오지 못했습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.');
+          setIsArchiveLoading(false);
+        }
       } finally {
         if (isMounted) setIsNearbyLoading(false);
       }
     }
 
-    loadInitialHeroAndNearby();
+    loadInitialContent();
 
     return () => {
       isMounted = false;
@@ -177,6 +215,19 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
 
   useEffect(() => {
     let isMounted = true;
+    if (!initialLoadCompleteRef.current) return;
+
+    const isInitialScope = selectedCategory === '전체' && !searchQuery && archivePage === 1;
+    if (isInitialScope && initialArchiveRef.current) {
+      const initialArchive = initialArchiveRef.current;
+      Promise.resolve().then(() => {
+        if (!isMounted) return;
+        setStoryList(initialArchive.items);
+        setArchiveMeta(initialArchive);
+        setIsArchiveLoading(false);
+      });
+      return;
+    }
 
     async function fetchArchiveData() {
       setIsArchiveLoading(true);
@@ -203,10 +254,12 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [activeApiService, archivePage, selectedCategory, searchQuery, retryToken]);
+  }, [activeApiService, archivePage, initialLoadVersion, selectedCategory, searchQuery, retryToken]);
 
   const retryApiRequests = () => {
     setApiError(null);
+    setIsNearbyLoading(true);
+    setIsArchiveLoading(true);
     setRetryToken((token) => token + 1);
   };
 
@@ -421,7 +474,9 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
       />
 
       <LocalMiniPlayer />
-      <AllStoriesModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} allStories={storyList} />
+      {isModalOpen && (
+        <AllStoriesModal isOpen onClose={() => setIsModalOpen(false)} allStories={storyList} />
+      )}
     </div>
     </OdiiDependencyProvider>
   );

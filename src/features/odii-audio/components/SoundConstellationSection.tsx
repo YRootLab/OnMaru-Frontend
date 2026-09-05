@@ -7,6 +7,7 @@ import { OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
 import { KOREA_MAP_VIEWBOX, KOREA_REGION_PATHS, KoreaRegionPath } from '@/features/odii-audio/data/koreaMapPaths';
 import { useOdiiApiService } from '@/features/odii-audio/context/OdiiDependencyContext';
 import { getVirtualRange, VIRTUAL_ITEM_HEIGHT } from './soundConstellationScroll';
+import { useViewportActivation } from '@/shared/hooks/useViewportActivation';
 
 interface SoundConstellationSectionProps {
   stories: OdiiStoryItem[];
@@ -66,6 +67,9 @@ function getStoryExcerpt(story: OdiiStoryItem): string {
 
 export const SoundConstellationSection: React.FC<SoundConstellationSectionProps> = ({ stories }) => {
   const activeApiService = useOdiiApiService();
+  const { ref: viewportRef, isActive: isApiActive } = useViewportActivation<HTMLElement>({
+    rootMargin: '700px 0px',
+  });
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const indicatorThumbRef = useRef<HTMLSpanElement | null>(null);
   const scrollFrameRef = useRef<number | null>(null);
@@ -95,6 +99,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
 
   // 1. 지도 클릭 시 해당 지역 데이터 초기 로딩 (API + 캐시)
   useEffect(() => {
+    if (!isApiActive) return;
     let isMounted = true;
     if (scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0;
     setRenderScrollTop(0);
@@ -147,7 +152,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
     return () => {
       isMounted = false;
     };
-  }, [selectedRegionId, activeApiService, selectedRegion, stories]);
+  }, [selectedRegionId, activeApiService, isApiActive, selectedRegion, stories]);
 
   useEffect(() => () => {
     if (scrollFrameRef.current !== null) cancelAnimationFrame(scrollFrameRef.current);
@@ -278,7 +283,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
   };
 
   return (
-    <section aria-labelledby="sound-map-heading" className="w-full py-10 sm:py-14">
+    <section ref={viewportRef} aria-labelledby="sound-map-heading" className="w-full py-10 sm:py-14">
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
         <div className="pb-1">
           <h2 id="sound-map-heading" className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-[clamp(24px,3.2vw,36px)] font-bold tracking-[-0.045em] text-transparent">
