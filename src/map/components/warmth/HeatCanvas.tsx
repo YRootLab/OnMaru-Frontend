@@ -109,16 +109,27 @@ export default function HeatCanvas({ spots }: Props) {
     if (!map || mode !== 'warmth' || spots.length === 0) return;
     if (!window.kakao?.maps) return;
 
+    /*
+      카카오는 오버레이를 붙일 때 콘텐츠 크기를 한 번 재서 앵커 음수 마진을 박고
+      다시 재지 않는다. 캔버스를 직접 콘텐츠로 주면 캔버스를 키운 뒤 위치가 어긋난다.
+      그래서 크기 0짜리 홀더를 콘텐츠로 준다. 0을 재면 마진도 0이라,
+      홀더의 좌상단이 곧 지도 중심점이 되고 캔버스는 그 안에서 우리가 배치한다.
+    */
+    const holder = document.createElement('div');
+    holder.className = 'om-heat-holder';
+    holder.style.cssText = 'position:relative;width:0;height:0;pointer-events:none;';
+
     const canvas = document.createElement('canvas');
     canvas.className = 'om-heat-canvas';
+    canvas.style.position = 'absolute';
     canvas.style.pointerEvents = 'none';
-    canvas.style.display = 'block';
+    holder.appendChild(canvas);
 
     const overlay = new window.kakao.maps.CustomOverlay({
       position: map.getCenter(),
-      content: canvas,
-      xAnchor: 0.5,
-      yAnchor: 0.5,
+      content: holder,
+      xAnchor: 0,
+      yAnchor: 0,
       zIndex: 1, // 수요 집중도 뱃지(zIndex 25) 아래에 깔린다
     });
     overlay.setMap(map);
@@ -132,14 +143,18 @@ export default function HeatCanvas({ spots }: Props) {
       const lut = lutRef.current;
       if (!ctx || !projection || !node || !lut) return;
 
+      const viewW = node.clientWidth;
+      const viewH = node.clientHeight;
+
       /*
         화면보다 1.5배 넓게 그려둔다. 드래그하는 동안에는 오버레이가 지도와 같이
         움직이므로 다시 그릴 필요가 없고, 손을 놓았을 때(idle) 한 번만 갱신한다.
         ponytail: devicePixelRatio를 1로 고정한다. 히트맵은 원래 흐릿해서 2배로
         그려도 눈에 차이가 없고, 픽셀 수만 4배가 된다. 선명함이 필요해지면 여기부터 본다.
       */
-      const W = Math.min(2400, Math.round(node.clientWidth * 1.5));
-      const H = Math.min(2400, Math.round(node.clientHeight * 1.5));
+      const W = Math.min(2400, Math.round(viewW * 1.5));
+      const H = Math.min(2400, Math.round(viewH * 1.5));
+      // 첫 프레임에는 지도 노드 레이아웃이 아직 잡히기 전일 수 있다. ResizeObserver가 다시 부른다.
       if (W < 2 || H < 2) return;
 
       canvas.width = W;
@@ -147,9 +162,17 @@ export default function HeatCanvas({ spots }: Props) {
       canvas.style.width = `${W}px`;
       canvas.style.height = `${H}px`;
 
-      const center = map.getCenter();
-      const centerPt = projection.pointFromCoords(center);
       const radius = kernelRadius(level);
+
+      // 홀더의 좌상단이 지도 중심이다. 캔버스를 그 절반만큼 끌어올려 중심에 맞춘다.
+      const center = map.getCenter();
+      overlay.setPosition(center);
+      canvas.style.left = `${-W / 2}px`;
+      canvas.style.top = `${-H / 2}px`;
+
+      const centerPt = projection.pointFromCoords(center);
+      const originX = centerPt.x - W / 2;
+      const originY = centerPt.y - H / 2;
 
       // ── 1. 밀도 패스: 알파를 누적한다 ──
       ctx.clearRect(0, 0, W, H);
@@ -159,8 +182,8 @@ export default function HeatCanvas({ spots }: Props) {
         const pt = projection.pointFromCoords(
           new window.kakao.maps.LatLng(spot.lat, spot.lng),
         );
-        const x = W / 2 + (pt.x - centerPt.x);
-        const y = H / 2 + (pt.y - centerPt.y);
+        const x = pt.x - originX;
+        const y = pt.y - originY;
         if (x < -radius || y < -radius || x > W + radius || y > H + radius) continue;
 
         stampKernel(ctx, x, y, radius, Math.min(1, Math.max(0.12, spot.intensity)));
@@ -186,7 +209,6 @@ export default function HeatCanvas({ spots }: Props) {
       }
 
       ctx.putImageData(img, 0, 0);
-      overlay.setPosition(center);
     };
 
     const schedule = () => {
@@ -194,12 +216,30 @@ export default function HeatCanvas({ spots }: Props) {
       frame = requestAnimationFrame(paint);
     };
 
-    schedule();
+    /*
+      첫 장은 곧바로 그린다. rAF는 뒤이은 이벤트를 한 프레임으로 묶는 용도일 뿐인데,
+      백그라운드 탭에서는 rAF가 아예 돌지 않아 첫 장까지 rAF에 맡기면 영영 비어 있게 된다.
+    */
+    paint();
     window.kakao.maps.event.addListener(map, 'idle', schedule);
     window.kakao.maps.event.addListener(map, 'zoom_changed', schedule);
 
+    /*
+      지도 노드가 자리를 잡는 순간(첫 레이아웃)과 창 크기가 바뀔 때 다시 그린다.
+      idle은 지도를 움직여야만 오므로, 이것이 없으면 첫 프레임에 크기가 0이었을 때
+      영영 다시 그리지 않는다.
+    */
+    const node = map.getNode?.();
+    const ro = node ? new ResizeObserver(schedule) : null;
+    if (node && ro) ro.observe(node);
+
+    // 백그라운드에 있던 탭으로 돌아왔을 때 (그동안 idle도 rAF도 오지 않았다)
+    document.addEventListener('visibilitychange', schedule);
+
     return () => {
       cancelAnimationFrame(frame);
+      ro?.disconnect();
+      document.removeEventListener('visibilitychange', schedule);
       window.kakao.maps.event.removeListener(map, 'idle', schedule);
       window.kakao.maps.event.removeListener(map, 'zoom_changed', schedule);
       overlay.setMap(null);
@@ -207,4 +247,18 @@ export default function HeatCanvas({ spots }: Props) {
   }, [map, mode, spots, level, isDark]);
 
   return null;
+}
+
+/**
+ * 범례가 쓰는 CSS 그라데이션. 히트맵과 같은 램프에서 나오므로
+ * 지도 색과 범례 색이 어긋날 수 없다.
+ */
+export function rampCss(isDark: boolean): string {
+  const stops = isDark ? RAMP_DARK : RAMP_LIGHT;
+  const parts = Object.keys(stops)
+    .map(Number)
+    .sort((a, b) => a - b)
+    .map((at) => `${stops[at]} ${Math.round(at * 100)}%`);
+
+  return `linear-gradient(to right, ${parts.join(', ')})`;
 }

@@ -7,13 +7,12 @@ import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import { filterWarmth } from '@/map/warmth/warmthRepo';
 import {
-  MOOD_BANDS,
   PERIOD_OPTIONS,
-  bandSwatch,
   filterByPeriod,
   moodStatOf,
   type WarmthPeriod,
 } from '@/map/warmth/heatScale';
+import { rampCss } from './HeatCanvas';
 import type { WarmthFilter } from '@/map/types';
 
 /**
@@ -82,35 +81,46 @@ const Summary = styled.p`
   }
 `;
 
-const Scale = styled.ul`
+const Ramp = styled.div`
   display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+  flex-direction: column;
+  gap: 5px;
 `;
 
-const ScaleItem = styled.li`
+/*
+  바탕색을 깔고 그 위에 램프를 얹는다.
+  램프의 앞 구간은 완전히 투명해서, 바탕이 그대로 비치는 왼쪽 끝이
+  "아무것도 칠하지 않음 = 한적"이라는 뜻이 된다.
+*/
+const RampBar = styled.div<{ $gradient: string }>`
+  height: 8px;
+  border-radius: 2px;
+  background-color: rgba(78, 89, 104, 0.1);
+  background-image: ${({ $gradient }) => $gradient};
+
+  [data-theme='dark'] & {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+`;
+
+const RampEnds = styled.div`
   display: flex;
-  align-items: center;
-  gap: 5px;
+  justify-content: space-between;
   font-size: 11.5px;
   font-weight: 600;
   color: ${meok[700]};
-  white-space: nowrap;
 
   [data-theme='dark'] & {
     color: ${meok[400]};
   }
 `;
 
-const Swatch = styled.span<{ $color: string }>`
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  flex: none;
-  background: ${({ $color }) => $color};
+const RampNote = styled.p`
+  margin: 0;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: ${meok[500]};
 `;
 
 const Divider = styled.div`
@@ -204,23 +214,26 @@ export default function WarmthLegend() {
     <Root aria-label="온기 히트맵 범례">
       <Summary aria-live="polite">
         {stat.total === 0 ? (
-          '이 일대에는 아직 머문 온기가 없습니다'
+          '이 일대에 남은 한줄평이 아직 없습니다'
         ) : (
           <>
-            이 일대 온기 <b>{stat.total}</b>편 · 고즈넉함 <b>{100 - (percent ?? 0)}%</b> · 북적이는 정{' '}
+            이 일대 한줄평 <b>{stat.total}</b>편 · 고즈넉함 <b>{100 - (percent ?? 0)}%</b> · 북적이는 정{' '}
             <b>{percent}%</b>
           </>
         )}
       </Summary>
 
-      <Scale>
-        {MOOD_BANDS.map((band) => (
-          <ScaleItem key={band.id} title={band.hint}>
-            <Swatch $color={bandSwatch(band.id, isDark)} aria-hidden />
-            {band.label}
-          </ScaleItem>
-        ))}
-      </Scale>
+      <Ramp
+        role="img"
+        aria-label="히트맵 눈금. 칠하지 않은 곳이 한적하고, 진한 자국일수록 붐빈다"
+      >
+        <RampBar $gradient={rampCss(isDark)} />
+        <RampEnds>
+          <span>칠하지 않음</span>
+          <span>가장 붐빔</span>
+        </RampEnds>
+        <RampNote>색은 경고입니다. 여백이 지금 갈 만한 곳입니다.</RampNote>
+      </Ramp>
 
       <Divider />
 

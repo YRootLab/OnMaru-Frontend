@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
+import { useEffect, useMemo } from 'react';
 import { Global, css } from '@emotion/react';
 import {
   lightPalette,
@@ -14,6 +13,7 @@ import { paintOverlays, type OverlaySpec } from '@/map/hooks/overlay';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import { escapeHtml } from '@/map/utils/formatters';
 import type { HeatSpot, CongestionLevel } from '@/map/types';
+import HeatCanvas from './warmth/HeatCanvas';
 
 /**
  * 실시간 온기/발길 훈기(薰氣) 레이어
@@ -40,26 +40,18 @@ const CONGESTION_CONFIG = {
     badgeText: '온기 가득',
     iconSvg: ICONS.sparkles,
     light: {
-      core: lightPalette.juhong[500],
-      mid: lightPalette.hwanggeum[400],
-      edge: 'rgba(232, 90, 24, 0.22)',
       badgeBg: surface.light.card,
       badgeColor: meok[900],
       accentColor: lightPalette.juhong[500],
       tagBg: lightPalette.juhong[500],
       tagColor: surface.light.card,
-      glow: '0 0 28px rgba(232, 90, 24, 0.55)',
     },
     dark: {
-      core: darkPalette.juhong[500],
-      mid: darkPalette.hwanggeum[500],
-      edge: 'rgba(248, 87, 0, 0.25)',
       badgeBg: surface.dark.surface,
       badgeColor: meok[100],
       accentColor: darkPalette.juhong[400],
       tagBg: darkPalette.juhong[500],
       tagColor: meok[100],
-      glow: '0 0 32px rgba(248, 87, 0, 0.65)',
     },
   },
   busy: {
@@ -68,26 +60,18 @@ const CONGESTION_CONFIG = {
     badgeText: '따스한 정',
     iconSvg: ICONS.flame,
     light: {
-      core: lightPalette.hwanggeum[400],
-      mid: lightPalette.juhong[200],
-      edge: 'rgba(245, 166, 35, 0.2)',
       badgeBg: surface.light.card,
       badgeColor: meok[900],
       accentColor: lightPalette.hwanggeum[500],
       tagBg: lightPalette.hwanggeum[500],
       tagColor: surface.light.card,
-      glow: '0 0 24px rgba(245, 166, 35, 0.45)',
     },
     dark: {
-      core: darkPalette.hwanggeum[500],
-      mid: darkPalette.juhong[400],
-      edge: 'rgba(250, 170, 73, 0.22)',
       badgeBg: surface.dark.surface,
       badgeColor: meok[100],
       accentColor: darkPalette.hwanggeum[400],
       tagBg: darkPalette.hwanggeum[500],
       tagColor: meok[100],
-      glow: '0 0 28px rgba(250, 170, 73, 0.55)',
     },
   },
   moderate: {
@@ -96,26 +80,18 @@ const CONGESTION_CONFIG = {
     badgeText: '은은한 볕',
     iconSvg: ICONS.sun,
     light: {
-      core: lightPalette.hwanggeum[200],
-      mid: lightPalette.cheongrok[100],
-      edge: 'rgba(255, 204, 64, 0.16)',
       badgeBg: surface.light.card,
       badgeColor: meok[900],
       accentColor: lightPalette.hwanggeum[400],
       tagBg: lightPalette.hwanggeum[400],
       tagColor: meok[900],
-      glow: '0 0 20px rgba(245, 166, 35, 0.35)',
     },
     dark: {
-      core: darkPalette.hwanggeum[400],
-      mid: darkPalette.cheongrok[400],
-      edge: 'rgba(250, 170, 73, 0.18)',
       badgeBg: surface.dark.surface,
       badgeColor: meok[100],
       accentColor: darkPalette.hwanggeum[400],
       tagBg: darkPalette.hwanggeum[400],
       tagColor: meok[900],
-      glow: '0 0 24px rgba(250, 170, 73, 0.45)',
     },
   },
   relaxed: {
@@ -124,26 +100,18 @@ const CONGESTION_CONFIG = {
     badgeText: '고즈넉한 쉼',
     iconSvg: ICONS.wind,
     light: {
-      core: lightPalette.cheongrok[400],
-      mid: lightPalette.cheongrok[200],
-      edge: 'rgba(36, 152, 120, 0.16)',
       badgeBg: surface.light.card,
       badgeColor: meok[900],
       accentColor: lightPalette.cheongrok[500],
       tagBg: lightPalette.cheongrok[500],
       tagColor: surface.light.card,
-      glow: '0 0 18px rgba(36, 152, 120, 0.35)',
     },
     dark: {
-      core: darkPalette.cheongrok[500],
-      mid: darkPalette.cheongrok[400],
-      edge: 'rgba(0, 167, 106, 0.18)',
       badgeBg: surface.dark.surface,
       badgeColor: meok[100],
       accentColor: darkPalette.cheongrok[400],
       tagBg: darkPalette.cheongrok[500],
       tagColor: meok[100],
-      glow: '0 0 22px rgba(0, 167, 106, 0.45)',
     },
   },
 } as const;
@@ -157,45 +125,7 @@ function formatVisitorCompact(num: number): string {
 
 const styles = css`
   /* ------------------------------------------------------------
-   * 1. 전통 호롱불/등불 숨쉬는 훈기(薰氣) 블룸
-   * ------------------------------------------------------------ */
-  @keyframes om-heat-breathing {
-    0% {
-      transform: scale(0.93);
-      opacity: 0.65;
-    }
-    100% {
-      transform: scale(1.07);
-      opacity: 0.9;
-    }
-  }
-
-  .om-heat-container {
-    position: relative;
-    width: var(--om-heat-size, 160px);
-    height: var(--om-heat-size, 160px);
-    pointer-events: none;
-    user-select: none;
-  }
-
-  .om-heat-bloom {
-    position: absolute;
-    inset: -20%;
-    border-radius: 50%;
-    filter: blur(28px);
-    transition: transform 0.4s ease, opacity 0.4s ease;
-    animation: om-heat-breathing 4.5s ease-in-out infinite alternate;
-    opacity: 0.32;
-    mix-blend-mode: multiply;
-  }
-
-  [data-theme='dark'] .om-heat-bloom {
-    opacity: 0.42;
-    mix-blend-mode: screen;
-  }
-
-  /* ------------------------------------------------------------
-   * 2. 한지(창호지) 감성의 단아한 발길 훈기 뱃지
+   * 한지(창호지) 감성의 단아한 발길 훈기 뱃지
    * ------------------------------------------------------------ */
   .om-surge-pill-wrap {
     position: relative;
@@ -419,11 +349,6 @@ const styles = css`
     text-align: center;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .om-heat-bloom {
-      animation: none !important;
-    }
-  }
 `;
 
 interface ClusteredHeatSpot {
@@ -450,16 +375,17 @@ export default function WarmthLayer() {
   const { mode: colorMode } = useOnmaruTheme();
   const isDark = colorMode === 'dark';
 
-  useEffect(() => {
-    if (!map || mode !== 'warmth') return;
-
-    // 1. 기초 스팟 데이터 확보 (heatSpots 우선, 없을 시 장소/온기 데이터로 폴백)
-    let baseList: HeatSpot[] = heatSpots;
-    if (baseList.length === 0) {
+  /*
+    히트맵과 뱃지가 같은 스팟 목록을 본다.
+    heatSpots가 비면 화면에 잡힌 장소·온기 데이터로 폴백한다.
+  */
+  const baseList = useMemo<HeatSpot[]>(() => {
+    let list: HeatSpot[] = heatSpots;
+    if (list.length === 0) {
       const warmths = useMapStore.getState().warmths;
       const candidates = items.length > 0 ? items : warmths;
       if (candidates.length > 0) {
-        baseList = (candidates as any[]).slice(0, 40).map((it) => {
+        list = (candidates as any[]).slice(0, 40).map((it) => {
           const placeName = it.name || it.placeName || '';
           const addr = (it.addr || '').replace(/일대/g, '').trim();
           const parts = addr.split(/\s+/);
@@ -484,9 +410,13 @@ export default function WarmthLayer() {
       }
     }
 
-    if (baseList.length === 0) return;
+    return list;
+  }, [heatSpots, items]);
 
-    // 2. 화면 안 겹침 방지 스마트 클러스터링 (Smart Distance Clustering)
+  useEffect(() => {
+    if (!map || mode !== 'warmth' || baseList.length === 0) return;
+
+    // 화면 안 겹침 방지 스마트 클러스터링 (Smart Distance Clustering)
     // 줌 레벨에 따라 화면 상에서 65px 이내에 위치한 스팟들을 단일 거점 뱃지로 병합
     const projection = map.getProjection?.();
     const clusters: ClusteredHeatSpot[] = [];
@@ -564,30 +494,7 @@ export default function WarmthLayer() {
       const cfg = CONGESTION_CONFIG[item.congestionLevel] || CONGESTION_CONFIG.moderate;
       const pal = isDark ? cfg.dark : cfg.light;
 
-      // 블룸 크기: 줌 레벨과 강도에 맞추어 유기적으로 조절 (지형을 덮지 않는 은은한 호롱불 훈기)
-      const basePx = Math.max(120, 220 - level * 10);
-      const bloomSize = Math.round(basePx * (0.8 + item.intensity * 0.3));
-
-      // ─── [A] 유기적 가우시안 발광 블룸 ───
-      const bloomWrap = document.createElement('div');
-      bloomWrap.className = 'om-heat-container';
-      bloomWrap.style.setProperty('--om-heat-size', `${bloomSize}px`);
-
-      const bloom = document.createElement('div');
-      bloom.className = 'om-heat-bloom';
-      bloom.style.background = `radial-gradient(circle closest-side, ${pal.core} 0%, ${pal.mid} 40%, ${pal.edge} 75%, transparent 100%)`;
-      bloom.style.filter = `blur(${Math.round(bloomSize * 0.16)}px)`;
-      bloomWrap.appendChild(bloom);
-
-      specs.push({
-        lat: item.lat,
-        lng: item.lng,
-        el: bloomWrap,
-        yAnchor: 0.5,
-        zIndex: 2,
-      });
-
-      // ─── [B] 권역별 수요 집중도 뱃지 및 지능형 방향 팝오버 ───
+      // ─── 권역별 수요 집중도 뱃지 및 지능형 방향 팝오버 ───
       const pillWrap = document.createElement('div');
       pillWrap.className = 'om-surge-pill-wrap';
 
@@ -669,7 +576,12 @@ export default function WarmthLayer() {
     return () => {
       if (cleanup) cleanup();
     };
-  }, [map, mode, heatSpots, items, level, isDark]);
+  }, [map, mode, baseList, level, isDark]);
 
-  return <Global styles={styles} />;
+  return (
+    <>
+      <Global styles={styles} />
+      <HeatCanvas spots={baseList} />
+    </>
+  );
 }
