@@ -142,13 +142,15 @@ const styles = css`
     cursor: pointer;
     user-select: none;
     pointer-events: auto;
-    z-index: 15;
+    z-index: 25;
     transition: transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
-  .om-surge-pill-wrap:hover {
-    transform: translate(-50%, -54%) scale(1.08);
-    z-index: 50 !important;
+  .om-surge-pill-wrap:hover,
+  .om-surge-pill-wrap.is-hovered,
+  .om-surge-pill-wrap.is-open {
+    transform: translate(-50%, -52%) scale(1.06);
+    z-index: 99999 !important;
   }
 
   .om-surge-pill {
@@ -219,18 +221,20 @@ const styles = css`
     position: absolute;
     left: 50%;
     transform: translate(-50%, 6px) scale(0.94);
-    width: 240px;
+    width: 252px;
     padding: 14px 16px;
     border-radius: 18px;
-    border: none;
+    border: 1px solid rgba(0, 0, 0, 0.08);
     opacity: 0;
     pointer-events: none;
-    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-    z-index: 100;
+    transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 99999;
     display: flex;
     flex-direction: column;
     gap: 8px;
     font-family: ${GOTHIC_FONT};
+    background: #ffffff;
+    box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.24), 0 4px 16px rgba(0, 0, 0, 0.08);
   }
 
   /* 상단 배치 (기본) */
@@ -247,27 +251,31 @@ const styles = css`
 
   [data-theme='light'] .om-surge-popover,
   :root:not([data-theme='dark']) .om-surge-popover {
-    background: ${surface.light.card};
-    box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.16);
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.08);
+    box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.24), 0 4px 16px rgba(0, 0, 0, 0.08);
   }
 
   [data-theme='dark'] .om-surge-popover {
-    background: ${surface.dark.surface};
-    box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.75);
+    background: #1e1c18;
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.75), 0 4px 16px rgba(0, 0, 0, 0.4);
   }
 
   /*
-    터치 기기에는 hover가 없다. 예전에는 그래서 이 카드를 볼 방법이 아예 없었고,
-    탭하면 곧장 지도가 확대돼 정보를 지나쳤다. 탭으로 여는 상태를 따로 둔다.
+    터치 및 마우스 인터랙션: 호버나 열림 상태일 때 최상단 표시
   */
   .om-surge-pill-wrap:hover .om-surge-popover,
+  .om-surge-pill-wrap.is-hovered .om-surge-popover,
   .om-surge-pill-wrap.is-open .om-surge-popover {
     opacity: 1;
     transform: translate(-50%, 0) scale(1);
+    pointer-events: auto;
   }
 
-  .om-surge-pill-wrap.is-open {
-    z-index: 90;
+  .om-surge-pill-wrap.is-open,
+  .om-surge-pill-wrap.is-hovered {
+    z-index: 99999 !important;
   }
 
   /* 꼬리 화살표 */
@@ -277,12 +285,12 @@ const styles = css`
     top: 100%;
     left: 50%;
     transform: translateX(-50%);
-    border: 6px solid transparent;
-    border-top-color: ${surface.light.card};
+    border: 7px solid transparent;
+    border-top-color: #ffffff;
   }
 
   [data-theme='dark'] .om-surge-popover.dir-top::after {
-    border-top-color: ${surface.dark.surface};
+    border-top-color: #1e1c18;
   }
 
   .om-surge-popover.dir-bottom::after {
@@ -291,12 +299,12 @@ const styles = css`
     bottom: 100%;
     left: 50%;
     transform: translateX(-50%);
-    border: 6px solid transparent;
-    border-bottom-color: ${surface.light.card};
+    border: 7px solid transparent;
+    border-bottom-color: #ffffff;
   }
 
   [data-theme='dark'] .om-surge-popover.dir-bottom::after {
-    border-bottom-color: ${surface.dark.surface};
+    border-bottom-color: #1e1c18;
   }
 
   .om-popover-head {
@@ -505,6 +513,123 @@ const styles = css`
 
 `;
 
+interface MacroRegionDef {
+  key: string;
+  name: string;
+  lat: number;
+  lng: number;
+}
+
+const MACRO_REGIONS: Record<string, MacroRegionDef> = {
+  seoul: { key: 'seoul', name: '서울', lat: 37.5665, lng: 126.978 },
+  gyeonggi: { key: 'gyeonggi', name: '경기·인천', lat: 37.4, lng: 127.1 },
+  gangwon: { key: 'gangwon', name: '강원', lat: 37.75, lng: 128.35 },
+  chungbuk: { key: 'chungbuk', name: '충북', lat: 36.8, lng: 127.75 },
+  chungnam: { key: 'chungnam', name: '대전·충남', lat: 36.35, lng: 127.1 },
+  jeonbuk: { key: 'jeonbuk', name: '전북', lat: 35.75, lng: 127.15 },
+  jeonnam: { key: 'jeonnam', name: '광주·전남', lat: 34.95, lng: 126.9 },
+  gyeongbuk: { key: 'gyeongbuk', name: '대구·경북', lat: 36.25, lng: 128.7 },
+  gyeongnam: { key: 'gyeongnam', name: '부산·경남', lat: 35.3, lng: 128.6 },
+  jeju: { key: 'jeju', name: '제주', lat: 33.38, lng: 126.55 },
+};
+
+function getMacroRegion(district: string, name: string, lat: number, lng: number): MacroRegionDef {
+  const d = `${district} ${name}`;
+
+  if (lat < 34.0 || d.includes('제주') || d.includes('서귀포')) {
+    return MACRO_REGIONS.jeju;
+  }
+  if (
+    d.includes('서울') ||
+    (/(종로|중구|용산|성동|광진|동대문|중랑|성북|강북|도봉|노원|은평|서대문|마포|양천|강서|구로|금천|영등포|동작|관악|서초|강남|송파|강동)구/.test(d) &&
+      lat >= 37.42 && lat <= 37.7 && lng >= 126.75 && lng <= 127.2)
+  ) {
+    return MACRO_REGIONS.seoul;
+  }
+  if (
+    d.includes('경기') || d.includes('인천') ||
+    /(수원|성남|용인|고양|안양|부천|광명|평택|안산|과천|구리|남양주|오산|시흥|군포|의왕|하남|파주|이천|안성|김포|화성|광주|양주|포천|여주|연천|가평|양평|강화|옹진)/.test(d) ||
+    (lat >= 36.95 && lat <= 38.3 && lng >= 126.3 && lng <= 127.65)
+  ) {
+    return MACRO_REGIONS.gyeonggi;
+  }
+  if (
+    d.includes('강원') ||
+    /(춘천|원주|강릉|동해|태백|속초|삼척|홍천|횡성|영월|평창|정선|철원|화천|양구|인제|고성|양양)/.test(d) ||
+    (lat >= 37.05 && lng >= 127.8)
+  ) {
+    return MACRO_REGIONS.gangwon;
+  }
+  if (
+    d.includes('충북') || d.includes('충청북') ||
+    /(청주|충주|제천|보은|옥천|영동|증평|진천|괴산|음성|단양)/.test(d)
+  ) {
+    return MACRO_REGIONS.chungbuk;
+  }
+  if (
+    d.includes('충남') || d.includes('충청남') || d.includes('대전') || d.includes('세종') ||
+    /(천안|공주|보령|아산|서산|논산|계룡|당진|금산|부여|서천|청양|홍성|예산|태안|대덕|유성)/.test(d) ||
+    (lat >= 35.95 && lat <= 37.1 && lng >= 126.0 && lng <= 127.5)
+  ) {
+    return MACRO_REGIONS.chungnam;
+  }
+  if (
+    d.includes('전북') || d.includes('전라북') ||
+    /(전주|완산|덕진|군산|익산|정읍|남원|김제|완주|진안|무주|장수|임실|순창|고창|부안)/.test(d) ||
+    (lat >= 35.35 && lat < 36.15 && lng >= 126.3 && lng <= 127.85)
+  ) {
+    return MACRO_REGIONS.jeonbuk;
+  }
+  if (
+    d.includes('전남') || d.includes('전라남') || d.includes('광주') ||
+    /(목포|여수|순천|나주|광양|담양|곡성|구례|고흥|보성|화순|장흥|강진|해남|영암|무안|함평|영광|장성|완도|진도|신안)/.test(d) ||
+    (lat < 35.45 && lng <= 127.8)
+  ) {
+    return MACRO_REGIONS.jeonnam;
+  }
+  if (
+    d.includes('경북') || d.includes('경상북') || d.includes('대구') ||
+    /(포항|경주|김천|안동|구미|영주|영천|상주|문경|경산|의성|청송|영양|영덕|청도|고령|성주|칠곡|예천|봉화|울진|울릉)/.test(d) ||
+    (lat >= 35.6 && lng >= 128.1)
+  ) {
+    return MACRO_REGIONS.gyeongbuk;
+  }
+  if (
+    d.includes('경남') || d.includes('경상남') || d.includes('부산') || d.includes('울산') ||
+    /(창원|진주|통영|사천|김해|밀양|거제|양산|의령|함안|창녕|고성|남해|하동|산청|함양|거창|합천)/.test(d) ||
+    (lat < 35.6 && lng >= 127.8)
+  ) {
+    return MACRO_REGIONS.gyeongnam;
+  }
+
+  let nearest = MACRO_REGIONS.gyeonggi;
+  let minDist = Infinity;
+  for (const m of Object.values(MACRO_REGIONS)) {
+    const dist = (m.lat - lat) ** 2 + (m.lng - lng) ** 2;
+    if (dist < minDist) {
+      minDist = dist;
+      nearest = m;
+    }
+  }
+  return nearest;
+}
+
+function getCityDistrict(district: string, name: string): string {
+  const raw = (district || name || '').replace(/\s*일대$/, '').trim();
+  const siMatch = raw.match(/^([가-힣]+시)\s+[가-힣]+구$/);
+  if (siMatch) return siMatch[1];
+
+  const metroGuMatch = raw.match(/^[가-힣]+(?:특별시|광역시|특별자치시)\s+([가-힣]+(?:구|군))$/);
+  if (metroGuMatch) return metroGuMatch[1];
+
+  const parts = raw.split(/\s+/);
+  if (parts.length >= 2 && parts[0].endsWith('시') && parts[1].endsWith('구')) {
+    return parts[0];
+  }
+
+  return parts[0] || raw;
+}
+
 interface ClusteredHeatSpot {
   key: string;
   lat: number;
@@ -590,71 +715,142 @@ export default function WarmthLayer() {
     if (!map || mode !== 'warmth' || baseList.length === 0) return;
 
     /*
-      뱃지는 시군구(권역) 하나에 하나다.
-
-      혼잡도는 시군구 단위로 산출되는 값이다. 그런데 예전에는 화면 픽셀 거리로 묶어서,
-      같은 구 안에서도 스팟이 떨어져 있으면 뱃지가 갈라졌다. 그 결과 '중구'가 네 번 뜨고
-      네 개가 전부 같은 숫자를 보여줬다 — 하나의 사실을 네 번 말한 셈이다.
-      방문객 수는 한술 더 떠서 같은 구의 값을 뱃지 개수만큼 더하고 있었다.
-
-      데이터가 가진 정직한 해상도가 시군구이므로, 뱃지도 거기에 맞춘다.
+      시맨틱 줌(Semantic Zooming) 계층 구조:
+      1. 축소 뷰 (level >= 9, 큰 거): 전국 광역 시·도 단위 (서울, 경기·인천, 강원, 전북 등 ~10개)
+      2. 중간 뷰 (level 6~8, 작은 거): 시·군·구 단위 (수원시, 청주시, 안동시, 경주시, 종로구 등)
+      3. 상세 뷰 (level <= 5, 더 작은 거): 세부 한옥 명소/동 단위 (북촌 한옥마을 일대, 경기전 일대 등)
     */
     const zoneMap = new Map<string, ClusteredHeatSpot>();
 
-    baseList.forEach((spot) => {
-      const key = spot.district || spot.name;
-      const zone = zoneMap.get(key);
+    if (level >= 9) {
+      // ─── [Tier 1: 축소 뷰 (level >= 9) - 광역 시·도 단위 (큰 거)] ───
+      baseList.forEach((spot) => {
+        const macro = getMacroRegion(spot.district, spot.name, spot.lat, spot.lng);
+        const key = `macro-${macro.key}`;
+        const zone = zoneMap.get(key);
 
-      if (!zone) {
-        zoneMap.set(key, {
-          key: `zone-${key}`,
-          lat: spot.lat,
-          lng: spot.lng,
-          name: key,
-          count: 1,
-          district: key,
-          // 권역 단위 값이라 합치지 않는다. 더하면 같은 수를 여러 번 세게 된다.
-          visitorCount: spot.visitorCount,
-          congestionScore: spot.congestionScore,
-          congestionLevel: spot.congestionLevel,
-          surgeMultiplier: spot.surgeMultiplier,
-          intensity: spot.intensity,
-          series: spot.series,
-          primarySpot: spot,
-        });
-        return;
+        if (!zone) {
+          zoneMap.set(key, {
+            key,
+            lat: macro.lat,
+            lng: macro.lng,
+            name: macro.name,
+            count: 1,
+            district: macro.name,
+            visitorCount: spot.visitorCount,
+            congestionScore: spot.congestionScore,
+            congestionLevel: spot.congestionLevel,
+            surgeMultiplier: spot.surgeMultiplier,
+            intensity: spot.intensity,
+            series: spot.series ? [...spot.series] : undefined,
+            primarySpot: spot,
+          });
+          return;
+        }
+
+        zone.count += 1;
+        zone.visitorCount = Math.max(zone.visitorCount, spot.visitorCount);
+        zone.congestionScore = Math.round(
+          (zone.congestionScore * (zone.count - 1) + spot.congestionScore) / zone.count,
+        );
+        zone.congestionLevel = levelOf(zone.congestionScore);
+        zone.intensity = Math.max(zone.intensity, spot.intensity);
+        if (spot.visitorCount > (zone.primarySpot.visitorCount || 0)) {
+          zone.primarySpot = spot;
+        }
+        if (!zone.series && spot.series) {
+          zone.series = [...spot.series];
+        } else if (zone.series && spot.series) {
+          zone.series = zone.series.map((val, idx) =>
+            Math.round((val + (spot.series![idx] ?? val)) / 2),
+          );
+        }
+      });
+    } else {
+      /*
+        ─── [Tier 2: 그 외 모든 줌 - 시·군·구 단위] ───
+
+        확대해도 시군구보다 잘게 쪼개지 않는다.
+        혼잡도는 시군구 하나에 하나뿐인 값이라, 명소마다 뱃지를 세우면
+        같은 숫자를 수십 번 반복하게 된다 — 실제로 확대하면 '중구 ○○동 일대'가
+        열 개씩 떠서 전부 같은 값을 말하고 있었다.
+        더 잘게 보고 싶은 정보(개별 명소)는 마커와 한줄평 쪽지가 맡는다.
+      */
+      baseList.forEach((spot) => {
+        const cityDist = getCityDistrict(spot.district, spot.name);
+        const key = `city-${cityDist}`;
+        const zone = zoneMap.get(key);
+
+        if (!zone) {
+          zoneMap.set(key, {
+            key,
+            lat: spot.lat,
+            lng: spot.lng,
+            name: cityDist,
+            count: 1,
+            district: cityDist,
+            visitorCount: spot.visitorCount,
+            congestionScore: spot.congestionScore,
+            congestionLevel: spot.congestionLevel,
+            surgeMultiplier: spot.surgeMultiplier,
+            intensity: spot.intensity,
+            series: spot.series,
+            primarySpot: spot,
+          });
+          return;
+        }
+
+        zone.lat = (zone.lat * zone.count + spot.lat) / (zone.count + 1);
+        zone.lng = (zone.lng * zone.count + spot.lng) / (zone.count + 1);
+        zone.count += 1;
+        if (spot.visitorCount > zone.visitorCount) {
+          zone.visitorCount = spot.visitorCount;
+          zone.congestionScore = spot.congestionScore;
+          zone.congestionLevel = spot.congestionLevel;
+          zone.primarySpot = spot;
+        }
+        if (!zone.series && spot.series) zone.series = spot.series;
+      });
+
+      // 주소 표기 흔들림 병합
+      for (const [key, zone] of [...zoneMap]) {
+        if (zone.series) continue;
+        const host = [...zoneMap.values()].find(
+          (other) => other !== zone && other.series && other.district.endsWith(key),
+        );
+        if (!host) continue;
+        host.lat = (host.lat * host.count + zone.lat * zone.count) / (host.count + zone.count);
+        host.lng = (host.lng * host.count + zone.lng * zone.count) / (host.count + zone.count);
+        host.count += zone.count;
+        zoneMap.delete(key);
       }
-
-      // 뱃지는 권역의 무게중심에 선다 — 첫 스팟 위가 아니라 한옥들이 모인 가운데다.
-      zone.lat = (zone.lat * zone.count + spot.lat) / (zone.count + 1);
-      zone.lng = (zone.lng * zone.count + spot.lng) / (zone.count + 1);
-      zone.count += 1;
-      if (!zone.series && spot.series) zone.series = spot.series;
-    });
-
-    /*
-      주소 표기가 흔들려 같은 동네가 두 이름으로 갈리는 일이 있다 —
-      대부분 '전주시 완산구'로 잡히는데 한둘이 '완산구'로만 남는 식이다.
-      짧은 이름이 긴 이름의 꼬리면 같은 곳이므로, 시계열을 가진 쪽으로 합친다.
-    */
-    for (const [key, zone] of [...zoneMap]) {
-      if (zone.series) continue;
-
-      const host = [...zoneMap.values()].find(
-        (other) => other !== zone && other.series && other.district.endsWith(key),
-      );
-      if (!host) continue;
-
-      host.lat = (host.lat * host.count + zone.lat * zone.count) / (host.count + zone.count);
-      host.lng = (host.lng * host.count + zone.lng * zone.count) / (host.count + zone.count);
-      host.count += zone.count;
-      zoneMap.delete(key);
     }
 
-    // 화면에 걸린 권역은 전부 세운다. 권역 단위라 개수가 저절로 적다.
     const displayClusters = [...zoneMap.values()];
-
     const projection = map.getProjection?.();
+
+    // 겹침 방지 (화면 픽셀 거리 기반 디클러터링): 뱃지가 겹치지 않도록 필터링
+    let visibleClusters = displayClusters;
+    if (projection && level <= 8) {
+      const minDistancePx = level <= 5 ? 65 : 75;
+      const sorted = [...displayClusters].sort(
+        (a, b) => (b.visitorCount || 0) - (a.visitorCount || 0),
+      );
+      const placedPoints: { x: number; y: number }[] = [];
+      visibleClusters = sorted.filter((item) => {
+        const pt = projection.pointFromCoords(new window.kakao.maps.LatLng(item.lat, item.lng));
+        if (!pt) return true;
+        const collision = placedPoints.some((p) => {
+          const dx = p.x - pt.x;
+          const dy = p.y - pt.y;
+          return dx * dx + dy * dy < minDistancePx * minDistancePx;
+        });
+        if (collision) return false;
+        placedPoints.push(pt);
+        return true;
+      });
+    }
+
     const specs: OverlaySpec[] = [];
 
     const canHover =
@@ -664,12 +860,27 @@ export default function WarmthLayer() {
 
     const closeAllPopovers = () => {
       document
-        .querySelectorAll('.om-surge-pill-wrap.is-open')
-        .forEach((el) => el.classList.remove('is-open'));
+        .querySelectorAll('.om-surge-pill-wrap.is-open, .om-surge-pill-wrap.is-hovered')
+        .forEach((el) => {
+          el.classList.remove('is-open');
+          el.classList.remove('is-hovered');
+          const overlay = (el as any).__kakaoOverlay;
+          if (overlay && typeof overlay.setZIndex === 'function') {
+            overlay.setZIndex(25);
+          }
+          let parent: HTMLElement | null = (el as HTMLElement).parentElement;
+          while (parent && parent !== document.body) {
+            if (parent.style && (parent.style.position === 'absolute' || parent.style.zIndex)) {
+              parent.style.zIndex = '25';
+              break;
+            }
+            parent = parent.parentElement;
+          }
+        });
     };
 
     // 3. 발광 히트 블룸 및 지능형 팝오버 뱃지 렌더링
-    displayClusters.forEach((item) => {
+    visibleClusters.forEach((item) => {
       const cfg = CONGESTION_CONFIG[item.congestionLevel] || CONGESTION_CONFIG.moderate;
       const pal = isDark ? cfg.dark : cfg.light;
 
@@ -677,17 +888,17 @@ export default function WarmthLayer() {
       const pillWrap = document.createElement('div');
       pillWrap.className = 'om-surge-pill-wrap';
 
-      // 화면 상단 여백 계산 (화면 Y좌표가 160px 미만이면 아래로 팝오버 오픈)
+      // 화면 상단 여백 계산 (화면 Y좌표가 260px 미만이면 아래로 팝오버 오픈하여 화면 상단 잘림 방지)
       let popoverDir = 'dir-top';
       if (projection) {
         const screenPt = projection.pointFromCoords(new window.kakao.maps.LatLng(item.lat, item.lng));
-        if (screenPt && screenPt.y < 160) {
+        if (screenPt && screenPt.y < 260) {
           popoverDir = 'dir-bottom';
         }
       }
 
       const visitorText = formatVisitorCompact(item.visitorCount);
-      const zoneName = (item.district || item.name || '한옥 일대').replace(/\s*일대$/, '');
+      const zoneName = (item.name || item.district || '한옥 일대').replace(/\s*일대$/, '');
 
       /*
         뱃지에는 권역마다 '다른' 값을 싣는다.
@@ -735,6 +946,13 @@ export default function WarmthLayer() {
         ? `${Number(dayStamp.ymd.slice(4, 6))}월 ${Number(dayStamp.ymd.slice(6, 8))}일 ${dayStamp.weekday}`
         : '';
 
+      const hintText =
+        level >= 9
+          ? '눌러서 시·군·구 권역 둘러보기'
+          : level >= 6
+            ? '눌러서 세부 한옥 명소 둘러보기'
+            : '눌러서 상세 위치 보기';
+
       pillWrap.innerHTML = `
         <div class="om-surge-pill" style="background: ${pal.badgeBg}; color: ${pal.badgeColor};">
           <span class="om-surge-pill-icon" style="color: ${pal.accentColor};">${cfg.iconSvg}</span>
@@ -779,9 +997,36 @@ export default function WarmthLayer() {
             <span>${ICONS.mapPin} 한옥 ${item.count}곳</span>
           </div>
 
-          <div class="om-popover-hint">눌러서 이 권역 둘러보기</div>
+          <div class="om-popover-hint">${hintText}</div>
         </div>
       `;
+
+      const setZIndex = (z: number) => {
+        const overlay = (pillWrap as any).__kakaoOverlay;
+        if (overlay && typeof overlay.setZIndex === 'function') {
+          overlay.setZIndex(z);
+        }
+        let parent: HTMLElement | null = pillWrap.parentElement;
+        while (parent && parent !== document.body) {
+          if (parent.style && (parent.style.position === 'absolute' || parent.style.zIndex)) {
+            parent.style.zIndex = String(z);
+            break;
+          }
+          parent = parent.parentElement;
+        }
+      };
+
+      pillWrap.addEventListener('mouseenter', () => {
+        setZIndex(99999);
+        pillWrap.classList.add('is-hovered');
+      });
+
+      pillWrap.addEventListener('mouseleave', () => {
+        pillWrap.classList.remove('is-hovered');
+        if (!pillWrap.classList.contains('is-open')) {
+          setZIndex(25);
+        }
+      });
 
       pillWrap.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -794,15 +1039,18 @@ export default function WarmthLayer() {
         if (!canHover && !pillWrap.classList.contains('is-open')) {
           closeAllPopovers();
           pillWrap.classList.add('is-open');
+          setZIndex(99999);
           return;
         }
 
-        // 클릭 시 해당 지점으로 카메라 줌인 이동
+        // 클릭 시 단계별 줌인 이동 (큰거 -> 작은거 -> 더 작은거)
         const m = useMapStore.getState().map;
+        const nextLevel = level >= 9 ? 7 : level >= 6 ? 4 : Math.max(2, level - 1);
         if (m) {
-          m.setLevel(Math.max(2, m.getLevel() - 2), { animate: true });
+          m.setLevel(nextLevel, { animate: true });
           m.panTo(new window.kakao.maps.LatLng(item.lat, item.lng));
         }
+        useMapStore.getState().setCenter({ lat: item.lat, lng: item.lng }, nextLevel);
         useMapStore.getState().setSelectedHeatSpot(item.primarySpot);
         useMapStore.getState().setSelectedId(item.primarySpot.placeId);
       });
