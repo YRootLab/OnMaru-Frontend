@@ -40,7 +40,7 @@ export const VesselReveal: React.FC<VesselRevealProps> = ({
   duration = 0.85,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const hasBeenSeenRef = useRef(false);
+  const lockBloomedRef = useRef(false);
   // stage: 현재 캡슐/개화 상태. shouldAnimate: 이 stage로의 전환을 애니메이션으로 보여줄지 여부.
   // 마운트 시점의 최초 보정(새로고침 등으로 이미 화면에 보이는 섹션을 맞추는 것)은
   // shouldAnimate=false로 즉시 스냅시켜, 줄었다 커지는 진입 애니메이션이 보이지 않게 한다.
@@ -59,14 +59,15 @@ export const VesselReveal: React.FC<VesselRevealProps> = ({
       const entry = entries[0];
       if (!entry) return;
       const revealBoundary = entry.rootBounds?.bottom ?? window.innerHeight * exitThresholdRatio;
+      if (isInitial) lockBloomedRef.current = entry.boundingClientRect.top < revealBoundary;
       const next = getVesselRevealStage({
-        hasBeenSeen: hasBeenSeenRef.current,
+        lockBloomed: lockBloomedRef.current,
         isIntersecting: entry.isIntersecting,
         top: entry.boundingClientRect.top,
         revealBoundary,
       });
-      if (next === 'bloomed') hasBeenSeenRef.current = true;
-      const shouldAnimate = !isInitial && next === 'bloomed';
+      if (!next) return;
+      const shouldAnimate = !isInitial;
       isInitial = false;
       setState((prev) => (prev.stage === next ? prev : { stage: next, shouldAnimate }));
     }, {

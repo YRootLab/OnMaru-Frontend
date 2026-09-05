@@ -6,3 +6,6 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 - Refined Odii sound-map scrolling, list layout, image fallbacks, and neutral loading surfaces.
 - Added shared multi-agent project guidance and Git Flow policy.
+- Reworked the Odii archive into a paginated two-column story browser with an optional current-page place grouping view.
+- Added a source-grounded natural-language Odii assistant UI and server proxy contract for a future RAG/LangGraph backend.
+- Added ADR-0002 for story-first archive behavior and ADR-0003 for the cited RAG/LangGraph architecture.

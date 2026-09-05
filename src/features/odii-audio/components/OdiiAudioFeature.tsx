@@ -4,10 +4,9 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { motion, Variants } from 'framer-motion';
 import { StoryCarousel } from './StoryCarousel';
 import { CategoryTagFilter } from './CategoryTagFilter';
-import { EditorialStoryList, EditorialStoryListSkeleton } from './EditorialStoryList';
-import { OdiiStoryCardGrid } from './OdiiStoryCardGrid';
-import { OdiiOriginalStoryList } from './OdiiOriginalStoryList';
+import { OdiiArchiveBrowse } from './OdiiArchiveBrowse';
 import { OdiiArchiveMetaBar } from './OdiiArchiveMetaBar';
+import { OdiiQuestionAssistant } from './OdiiQuestionAssistant';
 import { SavedSoundDrawer } from './SavedSoundDrawer';
 import { OdiiAutoSliceRail } from './OdiiAutoSliceRail';
 import { OdiiEditorialRail } from './OdiiEditorialRail';
@@ -73,6 +72,8 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
   const activeApiService = useOdiiApiService(apiService);
   const selectedCategory = useOdiiAudioStore((s) => s.selectedCategory);
   const searchQuery = useOdiiAudioStore((s) => s.searchQuery);
+  const setSelectedCategory = useOdiiAudioStore((s) => s.setSelectedCategory);
+  const setSearchQuery = useOdiiAudioStore((s) => s.setSearchQuery);
   const isPlaying = useOdiiAudioStore((s) => s.isPlaying);
   const resolvedBackgroundVariant = backgroundVariant ?? 'default';
   const [storyList, setStoryList] = useState<OdiiStoryItem[]>(() => initialStories || []);
@@ -180,7 +181,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
     async function fetchArchiveData() {
       setIsArchiveLoading(true);
       try {
-        const page = await activeApiService.getStoryPage(selectedCategory, searchQuery, archivePage, 7);
+        const page = await activeApiService.getStoryPage(selectedCategory, searchQuery, archivePage, 12);
 
         if (isMounted) {
           if (page.items.length === 0 && archivePage > 1) {
@@ -243,6 +244,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
   return (
     <OdiiDependencyProvider apiService={activeApiService}>
       <div className="odii-feature relative isolate min-h-screen pb-24 text-[#211e19] selection:bg-[#ffd9e4] selection:text-[#b52f55]">
+        <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[620px] bg-[radial-gradient(ellipse_at_50%_0%,rgba(248,78,118,0.10),transparent_66%)]" aria-hidden="true" />
         <OdiiAtmosphereBackground
           variant={backgroundVariant}
           selectedCategory={selectedCategory}
@@ -311,7 +313,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                     <p className="mt-1 max-w-xl truncate text-xs sm:text-sm leading-5 text-[#786d5e]">{locationMessage}</p>
                   </div>
                   <div className="flex shrink-0 items-center justify-between gap-3 sm:flex-col sm:items-end sm:gap-1.5">
-                    <span className="text-right text-[10px] leading-4 text-[#8c7e6c]">
+                    <span className="text-right text-[10px] leading-4 text-[#8c7e6c] sm:pr-3">
                       <span className="block">{locationLabel}</span>
                       <strong className="block font-semibold text-[#655b4d]">내 주변 오디오 {nearbyStories.length}개</strong>
                     </span>
@@ -319,7 +321,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                       type="button"
                       onClick={handleLocate}
                       disabled={isLocating}
-                      className="inline-flex h-8 items-center gap-1.5 rounded-full  bg-white/55 px-3 text-[11px] font-medium text-[#655b4d]  transition-transform duration-300 hover:-translate-y-0.5 hover: hover:bg-white hover:text-[#211e19] disabled:cursor-wait disabled:opacity-50"
+                      className="inline-flex h-8 self-end items-center gap-1.5 rounded-full  bg-white/55 px-3 text-[11px] font-medium text-[#655b4d]  transition-transform duration-300 hover:-translate-y-0.5 hover: hover:bg-white hover:text-[#211e19] disabled:cursor-wait disabled:opacity-50"
                     >
                       {isLocating ? '위치 확인 중…' : '내 위치 사용'}
                       {!isLocating && <span aria-hidden="true" className="text-[13px] leading-none">›</span>}
@@ -357,13 +359,7 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                 <OdiiArchiveMetaBar resultCount={storyList.length} totalCount={archiveMeta.totalCount} />
 
                 <div className="relative min-h-[600px] overflow-visible">
-                  {isArchiveLoading ? (
-                    <EditorialStoryListSkeleton />
-                  ) : (
-                    <EditorialStoryList
-                      stories={storyList}
-                    />
-                  )}
+                  <OdiiArchiveBrowse stories={storyList} isLoading={isArchiveLoading} />
                 </div>
 
                 <div className="mt-8 flex flex-col items-center justify-between gap-3 pt-4 sm:flex-row">
@@ -396,6 +392,15 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
                     </button>
                   </div>
                 </div>
+
+                <OdiiQuestionAssistant
+                  filters={{ category: selectedCategory, query: searchQuery }}
+                  onOpenSource={(source) => {
+                    setSelectedCategory('전체');
+                    setSearchQuery(source.title);
+                    setArchivePage(1);
+                  }}
+                />
               </div>
             </section>
           </VesselReveal>

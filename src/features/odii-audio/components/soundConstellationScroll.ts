@@ -1,4 +1,4 @@
-const ITEM_HEIGHT = 90;
+export const VIRTUAL_ITEM_HEIGHT = 92;
 const OVERSCAN = 4;
 
 export interface VirtualRange {
@@ -8,7 +8,7 @@ export interface VirtualRange {
 
 export function getVirtualRange(scrollTop: number, containerHeight: number, totalCount: number): VirtualRange {
   return {
-    startIndex: Math.max(0, Math.floor(scrollTop / ITEM_HEIGHT) - OVERSCAN),
-    endIndex: Math.min(totalCount, Math.ceil((scrollTop + containerHeight) / ITEM_HEIGHT) + OVERSCAN),
+    startIndex: Math.max(0, Math.floor(scrollTop / VIRTUAL_ITEM_HEIGHT) - OVERSCAN),
+    endIndex: Math.min(totalCount, Math.ceil((scrollTop + containerHeight) / VIRTUAL_ITEM_HEIGHT) + OVERSCAN),
   };
 }

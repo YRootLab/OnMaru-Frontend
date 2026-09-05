@@ -6,14 +6,13 @@ import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore
 import { OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
 import { KOREA_MAP_VIEWBOX, KOREA_REGION_PATHS, KoreaRegionPath } from '@/features/odii-audio/data/koreaMapPaths';
 import { useOdiiApiService } from '@/features/odii-audio/context/OdiiDependencyContext';
-import { getVirtualRange } from './soundConstellationScroll';
+import { getVirtualRange, VIRTUAL_ITEM_HEIGHT } from './soundConstellationScroll';
 
 interface SoundConstellationSectionProps {
   stories: OdiiStoryItem[];
 }
 
 const [VB_WIDTH, VB_HEIGHT] = KOREA_MAP_VIEWBOX.split(' ').slice(2).map(Number);
-const ITEM_HEIGHT = 90; // 확대된 80px 썸네일과 2줄 서사를 포함한 가상 스크롤 아이템 높이 (px)
 const LIST_EDGE_INSET = 23; // 콘텐츠의 17px 여백 + 카드 내부 6px 패딩과 인디케이터의 시각적 시작점 일치
 const STORY_FALLBACK_IMAGES = [
   '/images/hanok/hanok-main.png',
@@ -255,7 +254,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
 
   // 4. 가상 스크롤(Virtual Scroll) 표시 범위 계산
   const totalCount = regionStories.length;
-  const totalHeight = totalCount * ITEM_HEIGHT;
+  const totalHeight = totalCount * VIRTUAL_ITEM_HEIGHT;
   const scrollContentHeight = totalHeight + 34;
   const indicatorTrackHeight = Math.max(0, containerHeight - LIST_EDGE_INSET * 2);
   const canScrollStories = scrollContentHeight > containerHeight;
@@ -294,7 +293,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
         <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)] lg:gap-6">
           {/* 좌측 SVG 지도 영역 */}
           <div className="relative min-h-[480px] p-4 sm:min-h-[560px] sm:p-6">
-            <div className="absolute left-4 top-4 z-20 flex items-center gap-2 rounded-full border border-white/80 bg-[#fffdf9]/85 px-3.5 py-2 text-[12px] text-[#786d5e] backdrop-blur-sm sm:left-6 sm:top-6">
+            <div className="absolute left-4 top-4 z-20 flex items-center gap-2 rounded-full border border-[#e5e5e3] bg-white/90 px-3.5 py-2 text-[12px] text-[#6b6b68] backdrop-blur-sm sm:left-6 sm:top-6">
               <span className="h-1.5 w-1.5 rounded-full bg-[#f84e76] animate-pulse" /> 지역을 눌러 탐색해보세요
             </div>
 
@@ -394,7 +393,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                   <div style={{ height: `${totalHeight}px`, position: 'relative' }}>
                     <div
                       style={{
-                        transform: `translateY(${startIndex * ITEM_HEIGHT}px)`,
+                        transform: `translateY(${startIndex * VIRTUAL_ITEM_HEIGHT}px)`,
                         position: 'absolute',
                         top: 0,
                         left: 0,
@@ -411,7 +410,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                             onClick={() => playStory(story)}
                             onMouseEnter={() => setIsListHovered(true)}
                             onMouseLeave={() => setIsListHovered(false)}
-                            style={{ height: `${ITEM_HEIGHT - 6}px` }}
+                            style={{ height: `${VIRTUAL_ITEM_HEIGHT - 8}px` }}
                             className={`flex w-full items-center gap-3.5 rounded-xl px-2.5 py-1.5 text-left transition-all duration-200 ${
                               active
                                 ? 'bg-[#fff0f5] ring-1 ring-[#f84e76]/30 shadow-xs'
@@ -471,7 +470,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                   >
                     <span
                       ref={indicatorThumbRef}
-                      className="absolute inset-x-0 rounded-full bg-[#8c7e6c]/40 transition-transform duration-100"
+                      className="absolute inset-x-0 rounded-full bg-[#8c7e6c]/40"
                       style={{ height: `${indicatorThumbHeight}px`, transform: `translateY(${indicatorThumbOffset}px)` }}
                     />
                   </div>

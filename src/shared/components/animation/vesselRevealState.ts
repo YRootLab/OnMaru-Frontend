@@ -1,18 +1,19 @@
 export type VesselRevealStage = 'vessel' | 'bloomed';
 
 interface VesselRevealStateInput {
-  hasBeenSeen: boolean;
+  lockBloomed: boolean;
   isIntersecting: boolean;
   top: number;
   revealBoundary: number;
 }
 
 export function getVesselRevealStage({
-  hasBeenSeen,
+  lockBloomed,
   isIntersecting,
   top,
   revealBoundary,
-}: VesselRevealStateInput): VesselRevealStage {
-  if (hasBeenSeen || isIntersecting || top < revealBoundary) return 'bloomed';
-  return 'vessel';
+}: VesselRevealStateInput): VesselRevealStage | null {
+  if (lockBloomed || isIntersecting) return 'bloomed';
+  if (top >= revealBoundary) return 'vessel';
+  return null;
 }

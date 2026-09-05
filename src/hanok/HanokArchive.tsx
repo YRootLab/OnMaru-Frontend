@@ -16,6 +16,7 @@ const Root = styled.div`
   min-height: 100vh;
   font-family: 'SpoqaHanSansNeo', sans-serif;
   color: ${meok[900]};
+  background: radial-gradient(ellipse 72% 30% at 50% 0%, rgba(43, 92, 230, 0.07), transparent 72%), #f5f5f4;
 `;
 
 const PageInner = styled.div`

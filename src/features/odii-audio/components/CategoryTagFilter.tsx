@@ -158,7 +158,7 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 
           className={`relative shrink-0 pb-1.5 text-sm transition-colors duration-200 ${selectedCategory === '전체' ? 'font-bold text-[#f84e76]' : 'font-medium text-[#8c7e6c] hover:text-[#211e19]'}`}
         >
           전체 보기
-          {selectedCategory === '전체' && <motion.span layoutId="odii-archive-filter" className="absolute -inset-x-1.5 bottom-[7px] h-[3px] rounded-full bg-[#f84e76]/70 shadow-[1px_1px_0_rgba(248,78,118,0.18)] -rotate-[1deg]" transition={{ type: 'spring', stiffness: 360, damping: 28 }} />}
+          {selectedCategory === '전체' && <motion.span layoutId="odii-archive-filter" className="absolute -inset-x-1.5 bottom-px h-[2px] rounded-full bg-[#f84e76]/70 shadow-[1px_1px_0_rgba(248,78,118,0.18)] -rotate-[1deg]" transition={{ type: 'spring', stiffness: 360, damping: 28 }} />}
         </button>
         {ODII_THEME_CATEGORIES.map((theme) => {
           const isSelected = selectedCategory === theme.keyword;
@@ -171,7 +171,7 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 
               className={`relative shrink-0 pb-1.5 text-sm transition-colors duration-200 ${isSelected ? 'font-bold text-[#f84e76]' : 'font-medium text-[#8c7e6c] hover:text-[#211e19]'}`}
             >
               {theme.label}
-              {isSelected && <motion.span layoutId="odii-archive-filter" className="absolute -inset-x-1.5 bottom-[7px] h-[3px] rounded-full bg-[#f84e76]/70 shadow-[1px_1px_0_rgba(248,78,118,0.18)] -rotate-[1deg]" transition={{ type: 'spring', stiffness: 360, damping: 28 }} />}
+              {isSelected && <motion.span layoutId="odii-archive-filter" className="absolute -inset-x-1.5 bottom-px h-[2px] rounded-full bg-[#f84e76]/70 shadow-[1px_1px_0_rgba(248,78,118,0.18)] -rotate-[1deg]" transition={{ type: 'spring', stiffness: 360, damping: 28 }} />}
             </button>
           );
         })}

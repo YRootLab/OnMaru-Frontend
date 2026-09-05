@@ -62,14 +62,14 @@ const HeaderContainer = styled('header', transientProps)<LandingProps>`
   background: ${({ $isLanding, $isScrolled }) =>
     $isLanding
       ? $isScrolled ? 'rgba(27, 25, 22, 0.74)' : 'rgba(27, 25, 22, 0.56)'
-      : $isScrolled ? 'rgba(244, 243, 239, 0.82)' : 'rgba(248, 247, 244, 0.68)'};
+      : $isScrolled ? 'rgba(247, 247, 246, 0.88)' : 'rgba(250, 250, 249, 0.74)'};
   backdrop-filter: blur(14px) saturate(150%);
   -webkit-backdrop-filter: blur(14px) saturate(150%);
   border-bottom: 1px solid ${({ $isLanding, $isScrolled }) =>
     $isLanding
       ? $isScrolled ? 'rgba(255, 248, 235, 0.18)' : 'rgba(255, 248, 235, 0.13)'
-      : $isScrolled ? 'rgba(77, 68, 55, 0.13)' : 'rgba(77, 68, 55, 0.1)'};
-  box-shadow: 0 12px 34px -10px rgba(23, 20, 18, 0.09);
+      : $isScrolled ? 'rgba(33, 30, 25, 0.12)' : 'rgba(33, 30, 25, 0.08)'};
+  box-shadow: 0 12px 34px -10px rgba(33, 30, 25, 0.07);
 
   transform: translateY(${({ $isHidden }) => ($isHidden ? 'calc(-100% - 16px)' : '0')});
   transition:
@@ -210,7 +210,7 @@ const DropdownMenu = styled(motion.div, transientProps)<LandingProps>`
   background: ${({ $isLanding, $isScrolled }) =>
     $isLanding
       ? $isScrolled ? 'rgba(27, 25, 22, 0.74)' : 'rgba(27, 25, 22, 0.56)'
-      : $isScrolled ? 'rgba(244, 243, 239, 0.82)' : 'rgba(248, 247, 244, 0.68)'};
+      : $isScrolled ? 'rgba(247, 247, 246, 0.9)' : 'rgba(250, 250, 249, 0.78)'};
   backdrop-filter: blur(${({ $isScrolled }) => ($isScrolled ? '22px' : '16px')}) saturate(150%);
   -webkit-backdrop-filter: blur(${({ $isScrolled }) => ($isScrolled ? '22px' : '16px')}) saturate(150%);
 
@@ -332,7 +332,7 @@ const MobileMenuPanel = styled(motion.nav, transientProps)<LandingProps>`
   background: ${({ $isLanding, $isScrolled }) =>
     $isLanding
       ? $isScrolled ? 'rgba(27, 25, 22, 0.82)' : 'rgba(27, 25, 22, 0.7)'
-      : $isScrolled ? 'rgba(244, 243, 239, 0.9)' : 'rgba(248, 247, 244, 0.8)'};
+      : $isScrolled ? 'rgba(247, 247, 246, 0.94)' : 'rgba(250, 250, 249, 0.86)'};
   backdrop-filter: blur(22px) saturate(150%);
   -webkit-backdrop-filter: blur(22px) saturate(150%);
 
@@ -359,7 +359,7 @@ const MobileMenuLink = styled(Link, transientProps)<LandingProps>`
 const MobileMenuDivider = styled('div', transientProps)<LandingProps>`
   height: 1px;
   margin: 4px 6px;
-  background: ${({ $isLanding }) => ($isLanding ? 'rgba(255, 248, 235, 0.13)' : 'rgba(77, 68, 55, 0.1)')};
+  background: ${({ $isLanding }) => ($isLanding ? 'rgba(255, 248, 235, 0.13)' : 'rgba(33, 30, 25, 0.09)')};
 `;
 
 const LoginButton = styled(Link, transientProps)<LandingProps>`
