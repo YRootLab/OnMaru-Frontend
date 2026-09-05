@@ -6,6 +6,7 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 import { motion } from 'framer-motion';
 import { getVesselRevealStage } from './vesselRevealState';
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 
 export interface VesselRevealProps {
   /** 감싸서 모핑 언폴딩/폴딩 효과를 적용할 자식 엘리먼트 */
@@ -40,7 +41,8 @@ export const VesselReveal: React.FC<VesselRevealProps> = ({
   duration = 0.85,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const lockBloomedRef = useRef(false);
+  const hasRevealedRef = useRef(false);
+  const prefersReducedMotion = usePrefersReducedMotion();
   // stage: 현재 캡슐/개화 상태. shouldAnimate: 이 stage로의 전환을 애니메이션으로 보여줄지 여부.
   // 마운트 시점의 최초 보정(새로고침 등으로 이미 화면에 보이는 섹션을 맞추는 것)은
   // shouldAnimate=false로 즉시 스냅시켜, 줄었다 커지는 진입 애니메이션이 보이지 않게 한다.
@@ -59,15 +61,16 @@ export const VesselReveal: React.FC<VesselRevealProps> = ({
       const entry = entries[0];
       if (!entry) return;
       const revealBoundary = entry.rootBounds?.bottom ?? window.innerHeight * exitThresholdRatio;
-      if (isInitial) lockBloomedRef.current = entry.boundingClientRect.top < revealBoundary;
+      if (isInitial && entry.boundingClientRect.top < revealBoundary) hasRevealedRef.current = true;
+      if (entry.isIntersecting) hasRevealedRef.current = true;
       const next = getVesselRevealStage({
-        lockBloomed: lockBloomedRef.current,
+        hasRevealed: hasRevealedRef.current,
         isIntersecting: entry.isIntersecting,
         top: entry.boundingClientRect.top,
         revealBoundary,
       });
       if (!next) return;
-      const shouldAnimate = !isInitial;
+      const shouldAnimate = !isInitial && !prefersReducedMotion;
       isInitial = false;
       setState((prev) => (prev.stage === next ? prev : { stage: next, shouldAnimate }));
     }, {
@@ -78,7 +81,7 @@ export const VesselReveal: React.FC<VesselRevealProps> = ({
     return () => {
       observer.disconnect();
     };
-  }, [exitThresholdRatio]);
+  }, [exitThresholdRatio, prefersReducedMotion]);
 
   const isBloomed = stage === 'bloomed';
 
@@ -101,7 +104,7 @@ export const VesselReveal: React.FC<VesselRevealProps> = ({
         duration: shouldAnimate ? duration : 0,
         ease: [0.22, 1, 0.36, 1],
       }}
-      className={`border overflow-hidden transition-colors duration-500 ${className}`}
+      className={`border overflow-hidden transition-colors duration-500 motion-reduce:transition-none ${className}`}
     >
       {children}
     </motion.div>
