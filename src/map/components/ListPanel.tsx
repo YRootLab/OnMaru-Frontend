@@ -2,7 +2,7 @@
 
 import styled from '@emotion/styled';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { meok } from '@/design-system/tokens';
+import { meok, surface } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import ModeToggle from './ModeToggle';
 import PlaceList from './PlaceList';
@@ -18,7 +18,7 @@ const Panel = styled.aside<{ $open: boolean }>`
   flex: none;
   width: ${({ $open }) => ($open ? `${PANEL_WIDTH}px` : '0px')};
   height: 100%;
-  background: #ffffff;
+  background: ${surface.light.card};
   border-radius: 24px;
 
   z-index: 21;
@@ -53,7 +53,7 @@ const HeaderArea = styled.div`
   flex-direction: column;
   gap: 10px;
   padding: 14px 16px 10px;
-  background: #ffffff;
+  background: ${surface.light.card};
 `;
 
 const ListArea = styled.div`
@@ -91,7 +91,7 @@ const Toggle = styled.button`
   transform: translateY(-50%);
 
   border-radius: 0 16px 16px 0;
-  background: #ffffff;
+  background: ${surface.light.card};
 
   color: ${meok[700]};
   cursor: pointer;
@@ -99,7 +99,7 @@ const Toggle = styled.button`
 
   &:hover {
     color: ${meok[900]};
-    background: #fafafa;
+    background: ${surface.light.card};
   }
 
   @media (max-width: 1023px) {

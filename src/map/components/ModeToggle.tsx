@@ -1,7 +1,7 @@
 'use client';
 
 import styled from '@emotion/styled';
-import { meok } from '@/design-system/tokens';
+import { meok, surface } from '@/design-system/tokens';
 import { MODE_COLOR, useMapStore } from '@/map/hooks/useMapStore';
 import type { MapMode } from '@/map/types';
 
@@ -22,7 +22,7 @@ const Track = styled.div`
 const Tab = styled.button<{ $active: boolean; $color: string }>`
 
   border-radius: 9999px;
-  background: ${({ $active }) => ($active ? '#FFFFFF' : 'transparent')};
+  background: ${({ $active }) => ($active ? surface.light.card : 'transparent')};
 
   color: ${({ $active, $color }) => ($active ? $color : meok[700])};
   font-family: inherit;

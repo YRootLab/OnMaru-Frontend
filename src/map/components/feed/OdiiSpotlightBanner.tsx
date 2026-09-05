@@ -3,7 +3,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { Compass, Headphones, Play } from 'lucide-react';
-import { lightPalette, meok } from '@/design-system/tokens';
+import { lightPalette, meok, surface } from '@/design-system/tokens';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { useCinematicTourStore } from '@/features/cinematic-tour/store/useCinematicTourStore';
 import { generateDynamicWaypoints } from '@/features/odii-audio/hooks/useOdiiPlaceStory';
@@ -14,7 +14,7 @@ const CardContainer = styled.div`
   margin: 10px 14px;
   padding: 14px 16px;
   border-radius: 18px;
-  background: linear-gradient(135deg, #fff5f8 0%, #ffffff 100%);
+  background: linear-gradient(135deg, ${lightPalette.jangmi[50]} 0%, ${surface.light.card} 100%);
 
   overflow: hidden;
   transition: transform 0.18s ease, box-shadow 0.18s ease;
@@ -110,7 +110,7 @@ const StartBtn = styled.button`
   border-radius: 9999px;
 
   background: ${lightPalette.jangmi[500]};
-  color: #ffffff;
+  color: ${surface.light.card};
   font-family: inherit;
   font-size: 12px;
   font-weight: 700;

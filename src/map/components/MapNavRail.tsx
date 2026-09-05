@@ -15,7 +15,7 @@ import {
   Map as MapIcon,
 } from 'lucide-react';
 import { useMapStore } from '@/map/hooks/useMapStore';
-import { lightPalette, meok } from '@/design-system/tokens';
+import { lightPalette, meok, surface } from '@/design-system/tokens';
 
 const RAIL_WIDTH = 68;
 
@@ -25,8 +25,8 @@ const RailContainer = styled.aside`
   bottom: 0;
   left: 0;
   width: ${RAIL_WIDTH}px;
-  background: #ffffff;
-  border-right: 1px solid #e5e8eb;
+  background: ${surface.light.card};
+  border-right: 1px solid ${meok[200]};
   z-index: 25;
   display: flex;
   flex-direction: column;
@@ -58,15 +58,15 @@ const BrandIconBadge = styled.div`
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  background: linear-gradient(135deg, ${lightPalette.cheongrok[500]} 0%, #166052 100%);
+  background: linear-gradient(135deg, ${lightPalette.cheongrok[500]} 0%, ${lightPalette.cheongrok[700]} 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
+  color: ${surface.light.card};
   font-size: 19px;
   font-weight: 800;
   letter-spacing: -0.5px;
-  box-shadow: 0 2px 8px rgba(30, 122, 104, 0.32);
+  box-shadow: 0 2px 8px rgba(0, 184, 130, 0.32);
 `;
 
 const NavList = styled.div`
@@ -90,12 +90,12 @@ const NavItemBtn = styled.button<{ $active: boolean }>`
   outline: none;
   cursor: pointer;
   background: ${({ $active }) => ($active ? lightPalette.cheongrok[500] : 'transparent')};
-  color: ${({ $active }) => ($active ? '#FFFFFF' : '#4E5968')};
+  color: ${({ $active }) => ($active ? surface.light.card : meok[700])};
   transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    background: ${({ $active }) => ($active ? lightPalette.cheongrok[500] : '#F2F4F6')};
-    color: ${({ $active }) => ($active ? '#FFFFFF' : '#191F28')};
+    background: ${({ $active }) => ($active ? lightPalette.cheongrok[500] : meok[100])};
+    color: ${({ $active }) => ($active ? surface.light.card : meok[900])};
   }
 
   &:active {
@@ -111,7 +111,7 @@ const NavItemIcon = styled.div<{ $active: boolean }>`
   width: 24px;
   height: 24px;
   margin-bottom: 4px;
-  color: ${({ $active }) => ($active ? '#FFFFFF' : '#333D4B')};
+  color: ${({ $active }) => ($active ? surface.light.card : meok[700])};
 `;
 
 const NavItemLabel = styled.span<{ $active: boolean }>`
@@ -137,7 +137,7 @@ const BottomArea = styled.div`
 const Divider = styled.div`
   width: 44px;
   height: 1px;
-  background: #e5e8eb;
+  background: ${meok[200]};
   margin: 8px 0;
 `;
 
@@ -147,11 +147,11 @@ const MapSubmenuPopover = styled.div`
   left: 74px;
   top: 70px;
   width: 180px;
-  background: #ffffff;
+  background: ${surface.light.card};
   border-radius: 16px;
   padding: 8px;
   box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.16), 0 2px 8px rgba(0, 0, 0, 0.06);
-  border: 1px solid #eef0f2;
+  border: 1px solid ${meok[200]};
   z-index: 100;
   display: flex;
   flex-direction: column;
@@ -187,8 +187,8 @@ const SubmenuItemBtn = styled.button<{ $active: boolean }>`
   transition: all 0.14s ease;
 
   &:hover {
-    background: ${({ $active }) => ($active ? lightPalette.cheongrok[50] : '#F4F6F8')};
-    color: ${({ $active }) => ($active ? lightPalette.cheongrok[500] : '#191F28')};
+    background: ${({ $active }) => ($active ? lightPalette.cheongrok[50] : meok[100])};
+    color: ${({ $active }) => ($active ? lightPalette.cheongrok[500] : meok[900])};
   }
 `;
 
@@ -284,7 +284,7 @@ export default function MapNavRail() {
             title="온마루 지도 (클릭하여 정보지도/온기지도 선택)"
           >
             <NavItemIcon $active={isMapActive}>
-              <MapPin size={21} fill={isMapActive ? '#FFFFFF' : 'none'} />
+              <MapPin size={21} fill={isMapActive ? surface.light.card : 'none'} />
             </NavItemIcon>
             <NavItemLabel $active={isMapActive}>
               <span>지도</span>
@@ -345,7 +345,7 @@ export default function MapNavRail() {
           title="실시간 여행자 온기 후기 및 훈기 레이어"
         >
           <NavItemIcon $active={isWarmthActive}>
-            <Flame size={20} fill={isWarmthActive ? '#FFFFFF' : 'none'} />
+            <Flame size={20} fill={isWarmthActive ? surface.light.card : 'none'} />
           </NavItemIcon>
           <NavItemLabel $active={isWarmthActive}>온기이야기</NavItemLabel>
         </NavItemBtn>

@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import styled from '@emotion/styled';
+import { surface } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import PlaceDetail from './PlaceDetail';
 import PopularPlacesPanel from './warmth/PopularPlacesPanel';
@@ -15,7 +16,7 @@ const DetailAside = styled.aside<{ $open: boolean }>`
   flex: none;
   width: ${({ $open }) => ($open ? `${PANEL_WIDTH}px` : '0px')};
   height: 100%;
-  background: #ffffff;
+  background: ${surface.light.card};
   border-radius: 24px;
 
   z-index: 22;

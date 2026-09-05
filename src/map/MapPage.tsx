@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
 import { Home, ChevronLeft } from 'lucide-react';
-import { meok } from '@/design-system/tokens';
+import { meok, surface } from '@/design-system/tokens';
 import { useMapStore } from './hooks/useMapStore';
 import { useMapData } from './hooks/useMapData';
 import BottomSheet from './components/BottomSheet';
@@ -29,7 +29,7 @@ const Root = styled.main`
   position: fixed;
   inset: 0;
   overflow: hidden;
-  background: #ffffff;
+  background: ${surface.light.card};
   font-family: ${FONT};
 `;
 
@@ -94,7 +94,7 @@ const FloatingHomeButton = styled.button`
   transition: all 0.2s ease-out;
 
   &:hover {
-    background: #ffffff;
+    background: ${surface.light.card};
     color: ${meok[900]};
     transform: translateY(-1px);
   }
@@ -134,7 +134,7 @@ const MobileBackButton = styled.button`
   flex: none;
 
   border-radius: 12px;
-  background: #ffffff;
+  background: ${surface.light.card};
 
   color: ${meok[700]};
   cursor: pointer;

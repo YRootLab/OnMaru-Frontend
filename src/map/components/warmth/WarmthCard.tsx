@@ -12,7 +12,7 @@ import {
   Leaf,
   ChevronRight,
 } from 'lucide-react';
-import { lightPalette, darkPalette, meok } from '@/design-system/tokens';
+import { lightPalette, darkPalette, meok, surface } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import { toggleHelpful } from '@/map/warmth/warmthRepo';
 import { formatRelativeTime } from '@/map/utils/formatters';
@@ -29,20 +29,20 @@ const CardWrapper = styled.article`
   padding: 16px;
   margin: 4px 0 10px;
   border-radius: 20px;
-  background: #f8f6f0;
+  background: ${surface.light.surface};
   border: none;
   transition: all 0.18s ease;
 
   &:hover {
-    background: #f2eee6;
+    background: ${surface.light.base};
     transform: translateY(-1px);
   }
 
   [data-theme='dark'] & {
-    background: #25221d;
+    background: ${surface.dark.surface};
 
     &:hover {
-      background: #2c2822;
+      background: ${surface.dark.card};
     }
   }
 `;
@@ -59,7 +59,7 @@ const CategoryIconBox = styled.div`
   width: 38px;
   height: 38px;
   border-radius: 12px;
-  background: #ffffff;
+  background: ${surface.light.card};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -67,7 +67,7 @@ const CategoryIconBox = styled.div`
   flex-shrink: 0;
 
   [data-theme='dark'] & {
-    background: #1c1a17;
+    background: ${surface.dark.app};
     color: ${meok[100]};
   }
 `;
@@ -231,7 +231,7 @@ const HelpfulButton = styled.button<{ $active: boolean }>`
 const RelatedPlaceBox = styled.div`
   margin-top: 12px;
   padding: 10px 12px;
-  background: #ffffff;
+  background: ${surface.light.card};
   border-radius: 14px;
   border: none;
   display: flex;
@@ -241,15 +241,15 @@ const RelatedPlaceBox = styled.div`
   transition: all 0.15s ease;
 
   &:hover {
-    background: #fbf9f4;
+    background: ${surface.light.base};
     transform: translateY(-1px);
   }
 
   [data-theme='dark'] & {
-    background: #1c1a17;
+    background: ${surface.dark.app};
 
     &:hover {
-      background: #25221d;
+      background: ${surface.dark.surface};
     }
   }
 `;
@@ -265,7 +265,7 @@ const RelatedThumb = styled.div`
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: #f0eae0;
+  background: ${meok[200]};
   display: flex;
   align-items: center;
   justify-content: center;

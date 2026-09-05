@@ -16,7 +16,7 @@ import {
   BookOpen,
   type LucideIcon,
 } from 'lucide-react';
-import { meok } from '@/design-system/tokens';
+import { meok, surface } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import type { MapMode } from '@/map/types';
 
@@ -69,7 +69,7 @@ const Chip = styled.button<{ $active: boolean }>`
   background: ${({ $active }) => ($active ? meok[900] : 'rgba(255, 255, 255, 0.94)')};
   backdrop-filter: blur(16px);
 
-  color: ${({ $active }) => ($active ? '#FFFFFF' : meok[700])};
+  color: ${({ $active }) => ($active ? surface.light.card : meok[700])};
   font-family: inherit;
   font-size: 13.5px;
   font-weight: 600;
@@ -79,8 +79,8 @@ const Chip = styled.button<{ $active: boolean }>`
 
   &:hover {
     transform: translateY(-1px);
-    background: ${({ $active }) => ($active ? meok[900] : '#ffffff')};
-    color: ${({ $active }) => ($active ? '#FFFFFF' : meok[900])};
+    background: ${({ $active }) => ($active ? meok[900] : surface.light.card)};
+    color: ${({ $active }) => ($active ? surface.light.card : meok[900])};
   }
 
   &:active {

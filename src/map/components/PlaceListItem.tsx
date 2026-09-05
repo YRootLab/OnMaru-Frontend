@@ -103,7 +103,7 @@ const ThumbnailBox = styled.div`
   flex-shrink: 0;
   border-radius: 14px;
   overflow: hidden;
-  background: #f0eae0;
+  background: ${meok[200]};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -176,8 +176,8 @@ const CategoryTag = styled.span<{ $category: PlaceCategory }>`
   border-radius: 6px;
   font-size: 11px;
   font-weight: 600;
-  color: ${({ $category }) => CATEGORY_STYLES[$category]?.main || '#1E7A68'};
-  background: ${({ $category }) => CATEGORY_STYLES[$category]?.lightBg || '#E6F5F0'};
+  color: ${({ $category }) => CATEGORY_STYLES[$category]?.main || lightPalette.cheongrok[500]};
+  background: ${({ $category }) => CATEGORY_STYLES[$category]?.lightBg || lightPalette.cheongrok[50]};
   flex-shrink: 0;
 `;
 

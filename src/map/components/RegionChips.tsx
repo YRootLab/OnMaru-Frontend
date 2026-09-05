@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import styled from '@emotion/styled';
-import { meok } from '@/design-system/tokens';
+import { meok, surface } from '@/design-system/tokens';
 import { DEFAULT_CENTER, useMapStore } from '@/map/hooks/useMapStore';
 import type { LatLng } from '@/map/types';
 
@@ -37,7 +37,7 @@ const Chip = styled.button<{ $active: boolean }>`
 
   border-radius: 9999px;
   background: ${({ $active }) => ($active ? meok[900] : 'transparent')};
-  color: ${({ $active }) => ($active ? '#FFFFFF' : meok[700])};
+  color: ${({ $active }) => ($active ? surface.light.card : meok[700])};
   font-family: inherit;
   font-size: 13px;
   font-weight: 500;

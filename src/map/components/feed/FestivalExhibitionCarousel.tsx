@@ -4,7 +4,7 @@ import React, { useRef } from 'react';
 import styled from '@emotion/styled';
 import Image from 'next/image';
 import { Calendar, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
-import { lightPalette, meok } from '@/design-system/tokens';
+import { lightPalette, meok, surface } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import type { Item } from '@/map/types';
 
@@ -128,7 +128,7 @@ const ThumbBox = styled.div`
   position: relative;
   width: 100%;
   height: 110px;
-  background: #f0eae0;
+  background: ${meok[200]};
 `;
 
 const CardBadge = styled.div`
@@ -143,9 +143,8 @@ const CardBadge = styled.div`
   border-radius: 9999px;
   font-size: 10px;
   font-weight: 800;
-  color: #ffffff;
+  color: ${surface.light.card};
   background: ${lightPalette.cheongrok[500]};
-
 `;
 
 const CardBody = styled.div`
