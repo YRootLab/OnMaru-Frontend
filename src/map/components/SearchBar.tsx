@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 import { Search, X, MapPin, Sparkles, RotateCcw, Globe } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
@@ -100,50 +100,44 @@ const Dropdown = styled.div`
   padding: 16px;
   border-radius: 20px;
   background: #ffffff;
-
+  border: 1px solid rgba(25, 31, 40, 0.08);
+  box-shadow: 0 12px 32px -4px rgba(25, 31, 40, 0.16);
+  user-select: none;
   backdrop-filter: blur(20px);
 `;
 
 const ResetAllBtn = styled.button`
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 6px;
   width: 100%;
-  padding: 9px 14px;
+  padding: 8px 10px;
   margin-bottom: 12px;
-
-  border-radius: 12px;
-  background: ${lightPalette.cheongrok[50]};
-  color: ${lightPalette.cheongrok[700]};
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 700;
+  border-radius: 10px;
+  background: rgba(25, 31, 40, 0.03);
+  border: 1px dashed rgba(25, 31, 40, 0.15);
+  color: ${meok[500]};
+  font-size: 12.5px;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
 
   &:hover {
-    background: ${lightPalette.cheongrok[100]};
-    transform: translateY(-1px);
-  }
-
-  &:active {
-    transform: scale(0.98);
+    background: ${lightPalette.cheongrok[50]};
+    color: ${lightPalette.cheongrok[700]};
   }
 `;
 
-const GroupTitle = styled.p`
-  margin: 0 0 8px;
-  font-size: 12px;
-  font-weight: 700;
-  color: ${meok[500]};
+const GroupTitle = styled.div`
   display: flex;
   align-items: center;
-  gap: 4px;
-
-  & + & {
-    margin-top: 14px;
-  }
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: ${meok[500]};
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
 `;
 
 const Suggestions = styled.div`
@@ -156,19 +150,19 @@ const Suggestion = styled.button`
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 5px 12px;
-
+  padding: 6px 12px;
   border-radius: 9999px;
-  background: rgba(25, 31, 40, 0.05);
+  background: rgba(25, 31, 40, 0.04);
+  color: ${meok[700]};
   font-family: inherit;
   font-size: 12.5px;
-  font-weight: 500;
-  color: ${meok[700]};
+  font-weight: 400;
   cursor: pointer;
+  border: none;
   transition: all 0.15s ease;
 
   &:hover {
-    background: ${lightPalette.cheongrok[50]};
+    background: rgba(40, 110, 95, 0.1);
     color: ${lightPalette.cheongrok[700]};
   }
 `;
@@ -176,12 +170,24 @@ const Suggestion = styled.button`
 export default function SearchBar({ className }: SearchBarProps) {
   const map = useMapStore((s) => s.map);
   const currentAddress = useMapStore((s) => s.currentAddress);
+  const searchQuery = useMapStore((s) => s.searchQuery);
+  const searchTrigger = useMapStore((s) => s.searchTrigger);
+  const setSearchQuery = useMapStore((s) => s.setSearchQuery);
   const [value, setValue] = useState('');
   const [open, setOpen] = useState(false);
+  const lastTriggerRef = useRef(searchTrigger);
+
+  useEffect(() => {
+    if (searchTrigger !== lastTriggerRef.current) {
+      performSearch(searchQuery);
+      lastTriggerRef.current = searchTrigger;
+    }
+  }, [searchTrigger, searchQuery]);
 
   // 전국 전체보기로 지도 및 검색 초기화
   const handleResetToNationwide = () => {
     setValue('');
+    setSearchQuery('');
     setOpen(false);
     const store = useMapStore.getState();
     store.setCurrentAddress('대한민국 전국');
@@ -203,6 +209,7 @@ export default function SearchBar({ className }: SearchBarProps) {
       if (!keyword) return;
 
       setValue(keyword);
+      setSearchQuery(keyword);
       setOpen(false);
 
       const store = useMapStore.getState();

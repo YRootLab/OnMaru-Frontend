@@ -46,6 +46,10 @@ interface MapState {
   /** 마지막으로 검색한 중심. 여기서 2km 벗어나면 재검색 버튼이 뜬다. */
   searchCenter: LatLng;
   isSearchDirty: boolean;
+  /** 검색창 키워드 (칩셋 클릭 또는 직접 입력 시 동기화) */
+  searchQuery: string;
+  /** 검색 실행 트리거를 위한 타임스탬프 */
+  searchTrigger: number;
   /** 같은 좌표/카테고리로 다시 부르기 위한 값. 증가시키면 useMapData가 재요청한다. */
   reloadNonce: number;
   panelOpen: boolean;
@@ -54,6 +58,8 @@ interface MapState {
   setMap: (map: KakaoMap | null) => void;
   setMode: (mode: MapMode) => void;
   setCategory: (category: string | null) => void;
+  setSearchQuery: (query: string) => void;
+  triggerSearch: (query: string) => void;
   setCenter: (center: LatLng, level?: number) => void;
   setUserLocation: (userLocation: LatLng | null) => void;
   setItems: (items: Item[]) => void;
@@ -106,6 +112,8 @@ export const useMapStore = create<MapState>((set, get) => ({
   currentAddress: '대한민국 전국',
   searchCenter: DEFAULT_CENTER,
   isSearchDirty: false,
+  searchQuery: '',
+  searchTrigger: 0,
   reloadNonce: 0,
   panelOpen: true,
   sheetSnap: 'half',
@@ -132,6 +140,12 @@ export const useMapStore = create<MapState>((set, get) => ({
       popularPanelOpen: false,
       fromPopularRanking: false,
     }),
+  setSearchQuery: (searchQuery) => set({ searchQuery }),
+  triggerSearch: (query) =>
+    set((state) => ({
+      searchQuery: query,
+      searchTrigger: state.searchTrigger + 1,
+    })),
   setCenter: (center, level) => set(level === undefined ? { center } : { center, level }),
   setUserLocation: (userLocation) => set({ userLocation }),
   setItems: (items) => set({ items }),
