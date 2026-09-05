@@ -1,4 +1,5 @@
 import { TourApiClient } from '@/lib/tour-api/tourApiClient';
+import { getCuratedPlace, toPlaceDetailData } from '@/map/data/curatedPlaces';
 import type { Item, PlaceCategory, PlaceDetailData } from '@/map/types';
 import { sanitizeHtml, toHttps } from '@/map/utils/formatters';
 import { distanceInMeters, isTraditionalPlace } from '@/map/utils/geo';
@@ -286,8 +287,14 @@ export class PlaceService {
   /** 장소 상세 정보 조회 */
   public static async getPlaceDetail(
     contentId: string,
-    contentTypeId = '12',
+    contentTypeId: string = '12',
   ): Promise<PlaceDetailData> {
+    // 1. 큐레이션된 전통 명소/씨앗 데이터 우선 검사 (죽녹원, 소쇄원, 하회마을 등)
+    const curated = getCuratedPlace(contentId);
+    if (curated && !/^\d+$/.test(contentId)) {
+      return toPlaceDetailData(curated);
+    }
+
     const signal = () => AbortSignal.timeout(REQUEST_TIMEOUT_MS);
 
     try {
@@ -389,6 +396,11 @@ export class PlaceService {
     contentId: string,
     contentTypeId: string,
   ): PlaceDetailData {
+    const curated = getCuratedPlace(contentId);
+    if (curated) {
+      return toPlaceDetailData(curated);
+    }
+
     return {
       contentId,
       contentTypeId,
