@@ -1,6 +1,7 @@
 'use client';
 
 import React, { FormEvent, useId, useState } from 'react';
+import { Search, X } from 'lucide-react';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { ODII_THEME_CATEGORIES } from '@/features/odii-audio/data/odiiCategoryData';
 
@@ -42,24 +43,51 @@ export const OdiiArchiveMetaBar: React.FC<Props> = ({ resultCount, totalCount })
   const hasFilter = selectedCategory !== '전체' || Boolean(searchQuery);
 
   return (
-    <div className="mb-5 flex flex-col gap-3 rounded-2xl  bg-white/65 p-3 sm:flex-row sm:items-center sm:justify-between sm:px-4">
-      <div className="flex min-w-0 items-center gap-2.5">
-        <span className="h-2 w-2 shrink-0 rounded-full bg-[#f84e76] " />
-        <span className="truncate text-xs font-semibold text-[#211e19]">{labelFor(selectedCategory)}</span>
-        {searchQuery && <span className="truncate text-[11px] text-[#8c7e6c]">“{searchQuery}”</span>}
-        <span className="shrink-0 text-[10px] text-[#a59a8d]">{totalCount ?? resultCount}개 결과</span>
+    <div className="mb-2 flex flex-col gap-3 border-b border-[#211e19]/10 py-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex min-w-0 items-center gap-2 text-xs">
+        <span className="font-semibold text-[#211e19]">{labelFor(selectedCategory)}</span>
+        <span className="text-[#d0c7bd]">·</span>
+        {searchQuery && (
+          <span className="truncate text-[#655b4d]">
+            “<strong className="font-semibold text-[#211e19]">{searchQuery}</strong>” 검색 결과
+          </span>
+        )}
+        <span className="shrink-0 text-[#a09282]">
+          {(totalCount ?? resultCount).toLocaleString()}개
+        </span>
       </div>
-      <form onSubmit={submit} className="flex min-w-0 items-center gap-2">
+
+      <form onSubmit={submit} className="flex min-w-0 items-center gap-2 sm:w-60">
         <label htmlFor={searchId} className="sr-only">오디오 이야기 검색</label>
-        <input
-          id={searchId}
-          value={draft}
-          onChange={(event) => setDraft(event.target.value)}
-          placeholder="장소나 이야기 검색"
-          className="h-8 min-w-0 flex-1 rounded-lg  bg-white px-2.5 text-[11px] text-[#211e19] outline-none placeholder:text-[#b0a398] focus: sm:w-44 sm:flex-none"
-        />
-        <button type="submit" className="h-8 rounded-lg bg-[#f84e76] px-3 text-[11px] font-semibold text-white transition-colors hover:bg-[#dc4569]">검색</button>
-        {hasFilter && <button type="button" onClick={reset} className="text-[11px] font-medium text-[#8c7e6c] hover:text-[#f84e76]">초기화</button>}
+        <div className="relative flex h-8 min-w-0 flex-1 items-center border-b border-[#211e19]/15 px-0.5 transition-colors duration-200 focus-within:border-[#f84e76]">
+          <Search size={14} className="mr-2 shrink-0 text-[#a09282]" strokeWidth={1.8} />
+          <input
+            id={searchId}
+            value={draft}
+            onChange={(event) => setDraft(event.target.value)}
+            placeholder="장소 또는 키워드 검색"
+            className="h-full w-full bg-transparent text-xs text-[#211e19] outline-none focus-visible:outline-none placeholder:text-[#b0a398]"
+          />
+          {draft && (
+            <button
+              type="button"
+              onClick={() => setDraft('')}
+              className="p-1 text-[#b0a398] transition-colors hover:text-[#211e19]"
+            >
+              <X size={12} />
+            </button>
+          )}
+        </div>
+        <button type="submit" className="shrink-0 text-xs font-semibold text-[#655b4d] transition-colors hover:text-[#f84e76]">검색</button>
+        {hasFilter && (
+          <button
+            type="button"
+            onClick={reset}
+            className="shrink-0 text-xs font-medium text-[#a09282] transition-colors hover:text-[#211e19]"
+          >
+            초기화
+          </button>
+        )}
       </form>
     </div>
   );

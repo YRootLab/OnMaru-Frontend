@@ -53,3 +53,6 @@ node_modules
 
 # local visual brainstorming artifacts
 .superpowers/
+
+# ADR toolkit runtime lock
+docs/decisions/.adr-toolkit.lock
