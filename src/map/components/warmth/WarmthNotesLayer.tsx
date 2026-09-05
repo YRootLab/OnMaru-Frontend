@@ -23,6 +23,7 @@ const ICONS = {
   mapPin: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>`,
   flame: `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>`,
   wind: `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.7 7.7A2.5 2.5 0 1 1 20 12H2"/><path d="M15.5 16.5A2.5 2.5 0 1 0 18 19H2"/><path d="M12.5 3.5A2.5 2.5 0 1 1 15 6H2"/></svg>`,
+  quote: `<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 7h4v4a4 4 0 0 1-4 4v-2a2 2 0 0 0 2-2H7V7Zm7 0h4v4a4 4 0 0 1-4 4v-2a2 2 0 0 0 2-2h-2V7Z"/></svg>`,
   chevronLeft: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>`,
   chevronRight: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>`,
 };
@@ -70,6 +71,72 @@ const styles = css`
   .om-warmth-note-wrap:hover {
     transform: translate(-50%, -100%) translateY(-5px) scale(1.03);
     z-index: 85 !important;
+  }
+
+  /* ------------------------------------------------------------
+   * 전국 뷰의 쪽지 핀
+   *
+   * 지도에서 채도 있는 색은 히트맵 하나뿐이다 — 색은 경고라는 규칙을 지켜야 하고,
+   * 한줄평은 데이터가 아니라 사람의 말이라 조용한 편이 맞다. 그래서 먹빛과 흰 종이만 쓴다.
+   * ------------------------------------------------------------ */
+  .om-warmth-note-wrap.is-compact {
+    transform: translate(-50%, -50%);
+    animation: none;
+  }
+
+  .om-warmth-note-wrap.is-compact:hover {
+    transform: translate(-50%, -50%) scale(1.06);
+  }
+
+  .om-note-pin {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 26px;
+    padding: 0 9px;
+    border-radius: 9999px;
+    background: ${surface.light.card};
+    box-shadow: 0 4px 14px -2px rgba(25, 31, 40, 0.22);
+    font-family: ${GOTHIC_FONT};
+    white-space: nowrap;
+  }
+
+  [data-theme='dark'] .om-note-pin {
+    background: ${surface.dark.surface};
+    box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.6);
+  }
+
+  .om-note-pin-mark {
+    display: inline-flex;
+    color: ${meok[400]};
+  }
+
+  .om-note-pin-place {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: ${meok[900]};
+  }
+
+  [data-theme='dark'] .om-note-pin-place {
+    color: ${meok[100]};
+  }
+
+  .om-note-pin-count {
+    min-width: 15px;
+    padding: 0 4px;
+    border-radius: 9999px;
+    background: ${meok[900]};
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 15px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  [data-theme='dark'] .om-note-pin-count {
+    background: ${meok[100]};
+    color: ${meok[900]};
   }
 
   .om-warmth-note-card {
@@ -275,10 +342,16 @@ export default function WarmthNotesLayer() {
     // 1. 온기 모드가 아니거나 지도가 없으면 표시하지 않음
     if (!map || mode !== 'warmth') return;
 
-    // 2. [원칙 1: 줌 레벨 분리 (Semantic Zooming)]
-    // 광역 뷰(level >= 8, 시·도 전국 조망)에서는 지도 여백을 위해 한줄평을 완전히 숨깁니다.
-    // 마을/동네 단위(level <= 7)로 지도를 확대했을 때 비로소 한옥들의 한줄평 카드가 나타납니다.
-    if (level >= 8) return;
+    /*
+      2. 줌에 따라 '형태'를 바꾼다 (Semantic Zooming)
+
+      예전에는 광역 뷰(level >= 8)에서 한줄평을 통째로 숨겼다. 그런데 지도 기본값이
+      level 11(전국)이라, 처음 지도를 연 사람은 한줄평이 있다는 사실조차 알 수 없었다.
+
+      숨기는 대신 작게 만든다 — 전국에서는 어디에 이야기가 쌓였는지 알려주는 쪽지 핀,
+      동네로 들어오면 문장이 보이는 카드. 여백은 카드를 접어서 지키고, 존재는 남긴다.
+    */
+    const compact = level >= 8;
 
     const bounds = map.getBounds?.();
     const projection = map.getProjection?.();
@@ -336,9 +409,17 @@ export default function WarmthNotesLayer() {
       });
     });
 
-    // 5. [원칙 4: 화면당 최대 개수 5개로 엄격 제한 & 여백의 미 복원]
-    const maxClusters = 5;
-    const finalClusters = clusters.slice(0, maxClusters);
+    /*
+      5. 화면당 개수 제한.
+
+      쪽지 핀은 작으니 조금 더 세워도 여백이 상하지 않는다. 카드는 크니 다섯 장까지다.
+      자를 때는 배열 순서가 아니라 쌓인 이야기가 많은 순으로 남긴다 —
+      순서대로 자르면 어느 곳이 남을지가 데이터 정렬 순서에 달린 우연이 된다.
+    */
+    const maxClusters = compact ? 12 : 5;
+    const finalClusters = [...clusters]
+      .sort((a, b) => b.notes.length - a.notes.length)
+      .slice(0, maxClusters);
 
     // 6. 오버레이 스펙 생성
     const specs: OverlaySpec[] = finalClusters.map((cluster) => {
@@ -347,6 +428,31 @@ export default function WarmthNotesLayer() {
 
       const el = document.createElement('div');
       el.className = 'om-warmth-note-wrap';
+
+      /*
+        전국 뷰에서는 쪽지 핀 하나로 줄인다.
+        문장은 읽을 수 없는 크기이므로 아예 싣지 않고, 장소와 쌓인 이야기 수만 말한다.
+        누르면 그 마을로 들어가면서 카드로 펴진다.
+      */
+      if (compact) {
+        el.classList.add('is-compact');
+        el.innerHTML = `
+          <div class="om-note-pin">
+            <span class="om-note-pin-mark">${ICONS.quote}</span>
+            <span class="om-note-pin-place">${escapeHtml(notes[0].placeName)}</span>
+            ${notes.length > 1 ? `<span class="om-note-pin-count">${notes.length}</span>` : ''}
+          </div>
+        `;
+
+        el.addEventListener('click', () => {
+          const m = useMapStore.getState().map;
+          if (!m) return;
+          m.setLevel(6, { animate: true });
+          m.panTo(new window.kakao.maps.LatLng(cluster.lat, cluster.lng));
+        });
+
+        return { lat: cluster.lat, lng: cluster.lng, el, yAnchor: 1.1, zIndex: 24 };
+      }
 
       const renderCardContent = () => {
         const note = notes[currentIndex];

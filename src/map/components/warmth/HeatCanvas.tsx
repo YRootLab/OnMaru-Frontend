@@ -101,12 +101,26 @@ export default function HeatCanvas({ spots }: Props) {
 
   const lutRef = useRef<Uint8ClampedArray | null>(null);
 
+  /*
+    스팟 목록은 ref로 넘긴다. 날짜 스크러버를 드래그하면 목록이 프레임마다 새로
+    오는데, 그때마다 아래 이펙트가 다시 돌면 오버레이를 지웠다 만들기를 반복한다.
+    오버레이는 한 번만 만들고, 목록이 바뀌면 다시 칠하기만 한다.
+  */
+  const spotsRef = useRef(spots);
+  const scheduleRef = useRef<(() => void) | null>(null);
+
   useEffect(() => {
     lutRef.current = bakeRamp(isDark ? RAMP_DARK : RAMP_LIGHT);
   }, [isDark]);
 
+  // 스팟(=선택한 날)이 바뀌면 다시 칠한다. rAF가 연속된 스크럽을 한 프레임으로 묶는다.
   useEffect(() => {
-    if (!map || mode !== 'warmth' || spots.length === 0) return;
+    spotsRef.current = spots;
+    scheduleRef.current?.();
+  }, [spots]);
+
+  useEffect(() => {
+    if (!map || mode !== 'warmth') return;
     if (!window.kakao?.maps) return;
 
     /*
@@ -178,7 +192,7 @@ export default function HeatCanvas({ spots }: Props) {
       ctx.clearRect(0, 0, W, H);
       let painted = 0;
 
-      for (const spot of spots) {
+      for (const spot of spotsRef.current) {
         const pt = projection.pointFromCoords(
           new window.kakao.maps.LatLng(spot.lat, spot.lng),
         );
@@ -215,6 +229,7 @@ export default function HeatCanvas({ spots }: Props) {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(paint);
     };
+    scheduleRef.current = schedule;
 
     /*
       첫 장은 곧바로 그린다. rAF는 뒤이은 이벤트를 한 프레임으로 묶는 용도일 뿐인데,
@@ -238,13 +253,14 @@ export default function HeatCanvas({ spots }: Props) {
 
     return () => {
       cancelAnimationFrame(frame);
+      scheduleRef.current = null;
       ro?.disconnect();
       document.removeEventListener('visibilitychange', schedule);
       window.kakao.maps.event.removeListener(map, 'idle', schedule);
       window.kakao.maps.event.removeListener(map, 'zoom_changed', schedule);
       overlay.setMap(null);
     };
-  }, [map, mode, spots, level, isDark]);
+  }, [map, mode, level, isDark]);
 
   return null;
 }

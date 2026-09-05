@@ -140,7 +140,19 @@ export interface HeatSpot {
   congestionLevel: CongestionLevel; // 'relaxed' | 'moderate' | 'busy' | 'surge'
   surgeMultiplier: number;   // 1.0x ~ 3.5x 수요 집중 배율
   intensity: number;         // 0.15 ~ 1.0 히트 블룸 확산 강도
+  /**
+   * 날짜별 혼잡도(0~100). heatDays와 길이가 같다.
+   * 날짜를 문지를 때마다 서버를 다시 부르지 않으려고 시계열째로 받아둔다.
+   * 시계열이 없는 권역은 비어 있고, 그때는 congestionScore 하나로 버틴다.
+   */
+  series?: number[];
   updatedAt?: string;
+}
+
+/** 스크러버가 훑는 날짜 한 칸. weekday는 데이터랩이 주는 '월요일' 형태 그대로다. */
+export interface HeatDay {
+  ymd: string;
+  weekday: string;
 }
 
 /**

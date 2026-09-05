@@ -43,8 +43,16 @@ export async function GET(request: Request) {
   const radius = Math.max(requestedRadius, level <= 5 ? 5000 : 15000);
 
   try {
-    // 1. 전국 지자체별 방문자 및 거주자 빅데이터 수집
-    const { visitorMap, localMap, maxVisitor } = await VisitorService.getDetailedData();
+    /*
+      1. 전국 지자체별 일별 방문객 시계열 수집 (벌크 1회 + 캐시).
+         '지금'은 시계열의 마지막 날이다 — 데이터랩 피드가 한 달가량 지연되므로
+         오늘 날짜를 지어내지 않고 실제로 채워진 마지막 날을 현재로 삼는다.
+    */
+    const { days, visitorSeries, localMap, maxVisitor } = await VisitorService.getDailySeries();
+    const lastIdx = Math.max(0, days.length - 1);
+
+    const visitorMap = new Map<string, number>();
+    for (const [name, arr] of visitorSeries) visitorMap.set(name, arr[lastIdx] ?? 0);
 
     const spots: HeatSpot[] = [];
 
@@ -232,8 +240,24 @@ export async function GET(request: Request) {
       });
     }
 
+    /*
+      스팟마다 날짜별 혼잡도를 붙인다. 스팟을 만드는 분기가 여럿이라
+      각 분기에서 따로 붙이지 않고 여기 한 곳에서 권역명으로 이어 붙인다.
+      덕분에 클라이언트는 날짜를 문질러도 서버를 다시 부르지 않는다.
+    */
+    for (const spot of spots) {
+      const arr = visitorSeries.get(spot.district);
+      if (!arr || arr.length === 0) continue;
+
+      const local = localMap.get(spot.district) || 120000;
+      spot.series = arr.map(
+        (v) => VisitorService.scoreOf(v, local, maxVisitor).congestionScore,
+      );
+    }
+
     return NextResponse.json({
       spots,
+      days,
       count: spots.length,
       updatedAt: new Date().toISOString(),
     });
