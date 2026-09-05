@@ -118,7 +118,7 @@ export default function ListPanel() {
         {/* 1. 상단 2단 헤더: (1) 검색바 + (2) 모드 토글 */}
         <HeaderArea>
           <SearchBar />
-          <ModeToggle />
+          <ModeToggle fullWidth />
         </HeaderArea>
 
         {/* 2. 메인 리스트 영역 (정보모드: PlaceList / 온기모드: WarmthFeed) */}

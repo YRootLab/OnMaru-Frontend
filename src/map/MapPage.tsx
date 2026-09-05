@@ -13,7 +13,6 @@ import KakaoMap from './components/KakaoMap';
 import ListPanel from './components/ListPanel';
 import ModeToggle from './components/ModeToggle';
 import PlaceMarkers from './components/PlaceMarkers';
-import SearchBar from './components/SearchBar';
 import WarmthLayer from './components/WarmthLayer';
 import WarmthNotesLayer from './components/warmth/WarmthNotesLayer';
 import WriteButton from './components/warmth/WriteButton';
@@ -106,47 +105,14 @@ const FloatingHomeButton = styled.button`
 
 const MobileTop = styled.div`
   position: absolute;
-  top: 12px;
-  left: 12px;
-  right: 12px;
+  top: 14px;
+  left: 14px;
   z-index: 20;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  align-items: center;
 
   @media (min-width: 1024px) {
     display: none;
-  }
-`;
-
-const MobileSearchBarRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const MobileBackButton = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  flex: none;
-
-  border-radius: 12px;
-  background: ${surface.light.card};
-
-  color: ${meok[700]};
-  cursor: pointer;
-  transition: all 0.15s ease;
-
-  &:hover {
-    background: rgba(25, 31, 40, 0.04);
-    color: ${meok[900]};
-  }
-
-  &:active {
-    transform: scale(0.95);
   }
 `;
 
@@ -203,22 +169,9 @@ export default function MapPage() {
         <DetailPanel />
       </FloatingPanelsContainer>
 
-      {/* 3. 모바일 탑 네비게이션 & 바텀시트 */}
+      {/* 3. 모바일 상단 모드 전환 (컴팩트 & 솔리드) */}
       <MobileTop>
-        <MobileSearchBarRow>
-          <MobileBackButton
-            type="button"
-            onClick={handleBack}
-            aria-label="온마루 메인으로 돌아가기"
-            title="온마루 메인으로 돌아가기"
-          >
-            <ChevronLeft size={22} />
-          </MobileBackButton>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <SearchBar />
-          </div>
-        </MobileSearchBarRow>
-        <ModeToggle />
+        <ModeToggle compact />
       </MobileTop>
 
       {/* 4. 시네마틱 공간 오디오 투어 플로팅 컨트롤러 */}

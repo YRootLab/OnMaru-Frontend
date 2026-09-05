@@ -109,6 +109,10 @@ export const FeaturedPlaceArea = styled.div`
   padding: 8px 16px 14px;
 `;
 
+export const ScrubberSection = styled.div`
+  padding: 0 16px 12px;
+`;
+
 /*
   클릭으로 상세를 여는 카드라 button으로 둔다.
   div + onClick이면 Tab으로 닿지 않고 Enter로도 열리지 않는다.

@@ -55,10 +55,10 @@ const Root = styled.div`
     범례를 왼쪽 위, 검색바 아래로 올려 시트에 가리지 않게 한다.
   */
   @media (max-width: 1023px) {
-    left: 12px;
+    left: 14px;
     right: auto;
     bottom: auto;
-    top: 108px;
+    top: 52px;
     padding: 8px 10px;
   }
 `;

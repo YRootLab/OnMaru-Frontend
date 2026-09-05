@@ -16,6 +16,7 @@ import { meok } from '@/design-system/tokens';
 import { useMapStore, DEFAULT_CENTER } from '@/map/hooks/useMapStore';
 import { countByPlace, regionOf, toReview } from '@/map/warmth/warmthRepo';
 import { filterByPeriod, PERIOD_OPTIONS, type WarmthPeriod } from '@/map/warmth/heatScale';
+import DateScrubber from './DateScrubber';
 import WarmthCard from './WarmthCard';
 import {
   FeedContainer,
@@ -28,6 +29,7 @@ import {
   RegionScroller,
   RegionChip,
   FeaturedPlaceArea,
+  ScrubberSection,
   FeaturedCard,
   FeaturedLeft,
   FeaturedIconBox,
@@ -316,6 +318,11 @@ export default function WarmthFeed() {
           </FeaturedCard>
         </FeaturedPlaceArea>
       )}
+
+      {/* 날씨/날짜별 혼잡도 스크러버 (차트) */}
+      <ScrubberSection>
+        <DateScrubber embedded />
+      </ScrubberSection>
 
       {/* 기간 필터 탭 (최근 3일, 1주, 1달, 전체) */}
       <PeriodFilterRow role="group" aria-label="온기 기간 필터">
