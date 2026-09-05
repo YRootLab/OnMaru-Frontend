@@ -1,7 +1,8 @@
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import styled from '@emotion/styled';
+import { Pause, Play } from 'lucide-react';
 import { lightPalette, meok, surface } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import { SNAP_CSS } from '@/map/components/BottomSheet';
@@ -89,6 +90,54 @@ const Head = styled.div`
   align-items: baseline;
   justify-content: space-between;
   gap: 16px;
+`;
+
+const HeadLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+`;
+
+/*
+  30일을 훑는 재생 버튼.
+
+  자동으로 도는 연출이 아니라 눌러야 시작한다 — 대신 한 번 누르면 주말마다
+  지도가 붉어졌다 가라앉는 리듬이 몸으로 읽힌다. 막대 하나씩 끌어서는
+  30일이 걸리는 이야기다.
+*/
+const PlayButton = styled.button<{ $playing: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+
+  background: ${({ $playing }) => ($playing ? meok[900] : 'rgba(78, 89, 104, 0.1)')};
+  color: ${({ $playing }) => ($playing ? '#ffffff' : meok[700])};
+  transition: background 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    background: ${({ $playing }) => ($playing ? meok[900] : 'rgba(78, 89, 104, 0.18)')};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${lightPalette.juhong[500]};
+    outline-offset: 2px;
+  }
+
+  [data-theme='dark'] & {
+    background: ${({ $playing }) => ($playing ? meok[100] : 'rgba(255, 255, 255, 0.12)')};
+    color: ${({ $playing }) => ($playing ? meok[900] : meok[200])};
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
 `;
 
 const Stamp = styled.p`
@@ -194,6 +243,24 @@ export default function DateScrubber({ embedded = false }: DateScrubberProps) {
 
   const trackRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState(false);
+  const [playing, setPlaying] = useState(false);
+
+  /*
+    재생 중에는 날짜를 한 칸씩 밀고, 끝에 닿으면 처음으로 돌아간다.
+    최신 값은 store에서 그때그때 읽는다 — 의존성에 인덱스를 넣으면
+    한 칸 옮길 때마다 타이머가 다시 서서 간격이 흔들린다.
+  */
+  useEffect(() => {
+    if (!playing || mode !== 'warmth' || days.length < 2) return;
+
+    const id = setInterval(() => {
+      const s = useMapStore.getState();
+      const next = s.heatDayIndex + 1;
+      s.setHeatDayIndex(next >= s.heatDays.length ? 0 : next);
+    }, 170);
+
+    return () => clearInterval(id);
+  }, [playing, mode, days.length]);
 
   /*
     막대 높이는 전국 평균이 아니라 지금 화면에 잡힌 권역들의 평균이다.
@@ -248,10 +315,22 @@ export default function DateScrubber({ embedded = false }: DateScrubberProps) {
       aria-label="날짜별 혼잡도"
     >
       <Head>
-        <Stamp>
-          {formatDay(today.ymd)}
-          {today.weekday ? <span>{today.weekday}</span> : null}
-        </Stamp>
+        <HeadLeft>
+          <PlayButton
+            type="button"
+            $playing={playing}
+            aria-pressed={playing}
+            aria-label={playing ? '날짜 흐름 멈추기' : '30일 흐름 재생'}
+            title={playing ? '멈추기' : '30일 흐름 보기'}
+            onClick={() => setPlaying((on) => !on)}
+          >
+            {playing ? <Pause size={13} fill="currentColor" /> : <Play size={13} fill="currentColor" />}
+          </PlayButton>
+          <Stamp>
+            {formatDay(today.ymd)}
+            {today.weekday ? <span>{today.weekday}</span> : null}
+          </Stamp>
+        </HeadLeft>
         <Verdict $tone={tone} aria-live="polite">
           {verdict}
         </Verdict>
@@ -267,6 +346,8 @@ export default function DateScrubber({ embedded = false }: DateScrubberProps) {
         aria-valuenow={index + 1}
         aria-valuetext={`${formatDay(today.ymd)} ${today.weekday} · ${verdict}`}
         onPointerDown={(e) => {
+          // 직접 잡으면 재생은 물러난다. 손이 우선이다.
+          setPlaying(false);
           setDragging(true);
           e.currentTarget.setPointerCapture(e.pointerId);
           setIndex(dayFromClientX(e.clientX));
