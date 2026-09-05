@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import React, { useMemo, useState } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { Pause, Play } from 'lucide-react';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
 
@@ -10,416 +11,149 @@ interface OdiiAutoSliceRailProps {
   storySets?: Record<string, OdiiStoryItem[]>;
 }
 
-const FALLBACK_IMAGES = [
-  'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=1200&q=80',
-  'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1200&q=80',
-  'https://images.unsplash.com/photo-1584467541268-b040f83be3fd?auto=format&fit=crop&w=1200&q=80',
-  'https://images.unsplash.com/photo-1578637387939-43c525550085?auto=format&fit=crop&w=1200&q=80',
-  'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1200&q=80',
-  'https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&w=1200&q=80',
-  'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1200&q=80',
-];
+const EASE = [0.16, 1, 0.3, 1] as const;
 
-function getFallbackImage(seed = ''): string {
-  const index = Array.from(seed).reduce((total, char) => total + char.charCodeAt(0), 0) % FALLBACK_IMAGES.length;
-  return FALLBACK_IMAGES[index];
-}
-
-function getValidImage(url?: string, seed?: string): string {
-  if (!url || typeof url !== 'string' || url.trim().length === 0) {
-    return getFallbackImage(seed);
-  }
-  return url;
-}
-
-function getUpcomingStories(stories: OdiiStoryItem[], activeIndex: number, count = 3): OdiiStoryItem[] {
-  if (stories.length < 2) return [];
-  return Array.from({ length: Math.min(count, stories.length - 1) }, (_, index) => stories[(activeIndex + index + 1) % stories.length]);
-}
-
-function getCategoryThemeBadge(story: OdiiStoryItem): string {
-  if (story.category && story.category !== '오디 이야기' && story.category !== '전체') {
-    return story.category;
-  }
-  if (story.badgeText && story.badgeText !== '대본 전용' && story.badgeText !== '음원 제공') {
-    return story.badgeText;
-  }
-  return story.locationName || '대한민국 문화유산';
+function getStoryLabel(story: OdiiStoryItem): string {
+  return story.locationName || (story.category !== '전체' ? story.category : '') || '대한민국 문화유산';
 }
 
 export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, storySets }) => {
-  const sectionRef = useRef<HTMLElement | null>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [previewIndex, setPreviewIndex] = useState(0);
-  const [transitionDirection, setTransitionDirection] = useState(1);
-  const [isSectionInView, setIsSectionInView] = useState(true);
-  const previewTimerRef = useRef<number | null>(null);
-
-  const currentStory = useOdiiAudioStore((s) => s.currentStory);
-  const isPlaying = useOdiiAudioStore((s) => s.isPlaying);
-  const setCurrentStory = useOdiiAudioStore((s) => s.setCurrentStory);
-  const setIsPlaying = useOdiiAudioStore((s) => s.setIsPlaying);
+  const shouldReduceMotion = useReducedMotion();
+  const [featuredIndex, setFeaturedIndex] = useState(0);
+  const currentStory = useOdiiAudioStore((state) => state.currentStory);
+  const isPlaying = useOdiiAudioStore((state) => state.isPlaying);
+  const setCurrentStory = useOdiiAudioStore((state) => state.setCurrentStory);
+  const setIsPlaying = useOdiiAudioStore((state) => state.setIsPlaying);
 
   const featured = useMemo(() => {
-    const apiStories = storySets?.['추천'];
-    if (apiStories?.length) return apiStories.slice(0, 7);
-    return stories.slice(0, 7);
+    const recommended = storySets?.['추천'];
+    return (recommended?.length ? recommended : stories).slice(0, 7);
   }, [stories, storySets]);
 
-  useEffect(() => {
-    featured.slice(0, 7).forEach((story) => {
-      const image = new window.Image();
-      image.src = getValidImage(story.imageUrl, story.stid);
-    });
-  }, [featured]);
+  if (featured.length === 0) return null;
 
-  const lead = featured[activeIndex] ?? featured[0];
-
-  const isClickThrottledRef = useRef(false);
-
-  const advanceTo = useCallback((targetIndex: number, direction = 1) => {
-    if (featured.length < 2) return;
-    if (isClickThrottledRef.current) return;
-    isClickThrottledRef.current = true;
-    setTimeout(() => {
-      isClickThrottledRef.current = false;
-    }, 280);
-
-    const nextIndex = (targetIndex + featured.length) % featured.length;
-    setTransitionDirection(direction >= 0 ? 1 : -1);
-    setPreviewIndex(nextIndex);
-
-    if (previewTimerRef.current !== null) {
-      window.clearTimeout(previewTimerRef.current);
-    }
-
-    previewTimerRef.current = window.setTimeout(() => {
-      setActiveIndex(nextIndex);
-      previewTimerRef.current = null;
-    }, 100);
-  }, [featured.length]);
-
-  useEffect(() => () => {
-    if (previewTimerRef.current !== null) {
-      window.clearTimeout(previewTimerRef.current);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (featured.length < 2 || !isSectionInView) return;
-    const timer = window.setInterval(() => {
-      advanceTo((activeIndex + 1) % featured.length, 1);
-    }, 7000);
-    return () => window.clearInterval(timer);
-  }, [activeIndex, advanceTo, featured.length, isSectionInView]);
-
-  useEffect(() => {
-    const section = sectionRef.current;
-    if (!section) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => setIsSectionInView(entry.isIntersecting),
-      { threshold: 0.15 }
-    );
-    observer.observe(section);
-    return () => observer.disconnect();
-  }, []);
-
-  if (!lead) return null;
-
-  const move = (nextDirection: number) => {
-    advanceTo((previewIndex + nextDirection + featured.length) % featured.length, nextDirection);
-  };
+  const story = featured[featuredIndex % featured.length];
+  const isStoryPlaying = currentStory.stid === story.stid && isPlaying;
 
   const play = () => {
-    if (currentStory.stid === lead.stid) {
-      setIsPlaying(!isPlaying);
-    } else {
-      setCurrentStory(lead);
-    }
+    if (currentStory.stid === story.stid) setIsPlaying(!isPlaying);
+    else setCurrentStory(story);
   };
 
-  const following = getUpcomingStories(featured, previewIndex, 3);
-  const nextStory = featured[(activeIndex + 1) % featured.length] ?? featured[0];
-  const leadImageUrl = getValidImage(lead.imageUrl, lead.stid);
-  const nextImageUrl = getValidImage(nextStory.imageUrl, nextStory.stid);
-
   return (
-    <section ref={sectionRef} className="w-full pb-12 sm:pb-16">
-      <div className="mx-auto w-full max-w-6xl">
-        
-        {/* 한 장면을 오래 듣고 다음 장면으로 이어지는 청음 스테이지 */}
-        <div className="relative flex min-w-0 items-center gap-3 overflow-visible">
-          
-          {/* Awwwards Interactive 3D Card Deck (모바일 전용 뷰) */}
-          <div className="relative w-full overflow-hidden rounded-[1.8rem] bg-[#1c1917] p-4  sm:hidden">
-            {/* 우측 상단 인디케이터 */}
-            <div className="absolute right-4 top-4 z-30">
-              <span className="rounded-full  bg-black/50 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-md">
-                {activeIndex + 1} / {featured.length}
-              </span>
-            </div>
+    <section aria-labelledby="odii-hero-heading" className="w-full pb-16 sm:pb-20">
+      <div className="mx-auto w-full max-w-6xl px-5 sm:px-6 lg:px-0">
+        <div className="py-10 sm:py-14 lg:py-20">
+          <div className="max-w-[720px]">
+            <motion.h1
+              id="odii-hero-heading"
+              initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.62, ease: EASE }}
+              className="font-odii-sans text-[clamp(42px,7.2vw,94px)] font-bold leading-[0.98] tracking-normal text-[#171715]"
+            >
+              한국의 장면을,
+              <br />
+              <span className="text-[#F84E76]">귀로</span> 걷다.
+            </motion.h1>
+            <motion.p
+              initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.62, ease: EASE, delay: 0.06 }}
+              className="mt-5 max-w-[20rem] text-[15px] leading-7 text-[#655b4d] sm:max-w-xl sm:text-[17px]"
+            >
+              사진보다 먼저 도착하는 소리로, 오래된 장소의 온기와 사람의 발자국을 들어보세요.
+            </motion.p>
+          </div>
 
-            {/* 3D Stacked Card Stage */}
-            <div className="relative h-[250px] w-full overflow-visible pt-2">
-              <AnimatePresence initial={false} mode="popLayout">
-                {/* 뒤에 깔린 카드 (Next Card Layer) */}
-                <motion.div
-                  key={`next-${nextStory.stid}`}
-                  className="absolute left-1/2 top-3 h-[220px] w-[88%] -translate-x-1/2 overflow-hidden rounded-2xl  bg-white/10 opacity-60  backdrop-blur-md pointer-events-none"
-                  initial={{ scale: 0.9, y: 12 }}
-                  animate={{ scale: 0.94, y: 8 }}
-                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                >
-                  <img src={nextImageUrl} alt="" className="h-full w-full object-cover opacity-50" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                </motion.div>
-
-                {/* 전면 메인 카드 (Active Hero Card Layer) */}
-                <motion.div
-                  key={`lead-${lead.stid}-${activeIndex}`}
-                  initial={{ opacity: 0, scale: 0.92, y: 16, rotate: transitionDirection * 4 }}
-                  animate={{ opacity: 1, scale: 1, y: 0, rotate: 0 }}
-                  exit={{ opacity: 0, scale: 0.88, x: transitionDirection * -120, rotate: transitionDirection * -10 }}
-                  transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1] }}
-                  className="relative z-20 mx-auto h-[235px] w-[96%] overflow-hidden rounded-2xl  bg-[#2a2421] "
-                >
-                  <img
-                    src={leadImageUrl}
-                    alt={lead.title}
-                    onError={(e) => { (e.target as HTMLImageElement).src = getFallbackImage(lead.stid); }}
-                    className="h-full w-full object-cover saturate-[1.1]"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-                  
-                  {/* 카드 내부 오버레이 콘텐츠 */}
-                  <div className="absolute inset-x-0 bottom-0 p-4 text-white">
-                    <span className="inline-flex items-center rounded-md  bg-white/15 px-2 py-0.5 text-[9px] font-semibold text-white/90 backdrop-blur-md">
-                      {getCategoryThemeBadge(lead)}
-                    </span>
-                    <h3 className="mt-1 line-clamp-1 font-odii-sans text-xl font-bold tracking-tight text-white drop-">
-                      {lead.title}
-                    </h3>
-                    <p className="mt-0.5 line-clamp-1 text-xs text-white/80">{lead.audioTitle}</p>
-                  </div>
-                </motion.div>
-              </AnimatePresence>
-            </div>
-
-            {/* 하단 재생 컨트롤바 */}
-            <div className="mt-2 flex items-center justify-between gap-3 px-1 pt-1">
-              <button
+          <motion.div
+            initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.62, ease: EASE, delay: 0.14 }}
+            className="mt-10 flex items-center gap-5 sm:mt-14 sm:gap-6"
+          >
+            <div className="relative shrink-0">
+              <motion.div
+                aria-hidden="true"
+                animate={
+                  shouldReduceMotion
+                    ? { opacity: isStoryPlaying ? 0.5 : 0 }
+                    : { opacity: isStoryPlaying ? [0.35, 0.6, 0.35] : 0, scale: isStoryPlaying ? [1, 1.12, 1] : 1 }
+                }
+                transition={isStoryPlaying && !shouldReduceMotion ? { duration: 2.6, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.4 }}
+                className="pointer-events-none absolute inset-[-14px] rounded-full bg-[#F84E76] blur-2xl"
+              />
+              <motion.button
                 type="button"
                 onClick={play}
-                className="flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-white text-xs font-bold text-[#211e19]  active:bg-white/90"
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.92 }}
+                transition={{ type: 'spring', stiffness: 420, damping: 22 }}
+                aria-label={isStoryPlaying ? '잠시 멈추기' : '지금 듣기'}
+                style={{ boxShadow: '0 18px 30px -12px rgba(23,21,21,0.45), inset 0 1px 0 rgba(255,255,255,0.08)' }}
+                className="relative flex h-20 w-20 items-center justify-center rounded-full bg-[#171715] text-white transition-colors duration-300 hover:bg-[#2B2925] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#F84E76] sm:h-24 sm:w-24"
               >
-                <span>{currentStory.stid === lead.stid && isPlaying ? '일시정지' : '이야기 듣기'}</span>
-                <span className="text-[11px] font-normal text-[#655b4d]">{lead.formattedDuration}</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => move(1)}
-                className="flex h-11 px-4 items-center justify-center rounded-xl  bg-white/10 text-xs font-semibold text-white backdrop-blur-md active:bg-white/20"
-              >
-                다음 장면 →
-              </button>
-            </div>
-          </div>
-
-          {/* 데스크탑 기본 레이아웃 */}
-          <div className="relative min-h-[320px] min-w-0 flex-1 rounded-[1.6rem] bg-[#6d6258]  hidden sm:block sm:min-h-[280px] md:h-[280px] md:min-h-0">
-            
-            <div className="absolute inset-0 overflow-hidden rounded-[1.6rem]">
-              <AnimatePresence initial={false} mode="sync">
-                <motion.div
-                  key={`${lead.stid}-${activeIndex}`}
-                  initial={{
-                    opacity: 0,
-                    x: transitionDirection * 35,
-                  }}
-                  animate={{
-                    opacity: 1,
-                    x: 0,
-                  }}
-                  exit={{
-                    opacity: 0,
-                    x: transitionDirection * -35,
-                  }}
-                  transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
-                  className="absolute inset-0 h-full w-full"
-                >
-                  <img
-                    src={leadImageUrl}
-                    alt={lead.title}
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = getFallbackImage(lead.stid);
-                    }}
-                    className="h-full w-full object-cover opacity-60 sm:opacity-35 saturate-105"
-                  />
-                  <div className="absolute inset-0 bg-black/[0.035] backdrop-blur-[2px]" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20 sm:bg-gradient-to-r sm:from-black/65 sm:via-black/30 sm:to-black/10" />
-                </motion.div>
-              </AnimatePresence>
-            </div>
-
-            {/* 우측 상단 뱃지 */}
-            <div className="absolute right-4 top-2.5 z-20">
-              <span className="px-2.5 py-0.5 rounded-full bg-black/50 text-white text-[10px] font-semibold backdrop-blur-md ">
-                {activeIndex + 1} / {featured.length}
-              </span>
-            </div>
-
-            {/* 메인 카드 정보 및 버튼 */}
-            <div className="pointer-events-none relative z-10 grid min-h-[320px] grid-cols-1 items-center gap-5 p-5 sm:min-h-[280px] sm:grid-cols-[minmax(0,1fr)_190px] sm:gap-7 sm:p-6 md:h-full md:min-h-0 lg:grid-cols-[minmax(0,1fr)_215px]">
-              <div className="pointer-events-auto relative min-h-[176px] min-w-0 sm:min-h-[184px]">
-                <AnimatePresence initial={false} mode="sync">
-                  <motion.div
-                    key={`${lead.stid}-${activeIndex}`}
-                    initial={{ opacity: 0, x: transitionDirection * 28 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: transitionDirection * -28 }}
-                    transition={{ duration: 0.36, delay: 0.02, ease: [0.16, 1, 0.3, 1] }}
-                    className="absolute inset-0 flex flex-col justify-center"
-                  >
-                  <span className="mb-3 inline-flex h-6 self-start items-center rounded-lg  bg-white/[0.12] px-2 text-[9px] font-semibold tracking-[0.04em] text-white/90 backdrop-blur-sm">
-                    {getCategoryThemeBadge(lead)}
-                  </span>
-                  <h2 className="max-w-xl font-odii-sans text-3xl sm:text-4xl font-bold text-white leading-[1.18] tracking-[-0.04em] drop-">
-                    {lead.title}
-                  </h2>
-                  <p className="mt-3 max-w-md line-clamp-2 text-sm font-medium leading-6 text-white/90 sm:text-[15px]">
-                    {lead.audioTitle}
-                  </p>
-                  <div className="mt-6 flex items-center gap-3 pointer-events-auto">
-                    <button
-                      type="button"
-                      onClick={play}
-                      className="flex items-center gap-1.5 rounded-full bg-white px-5 py-2.5 text-xs font-bold text-[#211e19]  transition-colors hover:bg-white/90 active:bg-white/80"
+                <AnimatePresence initial={false} mode="wait">
+                  {isStoryPlaying ? (
+                    <motion.span
+                      key="pause"
+                      initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.6 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.6 }}
+                      transition={{ duration: 0.18, ease: EASE }}
                     >
-                      <span>{currentStory.stid === lead.stid && isPlaying ? '일시정지' : '이야기 듣기'}</span>
-                      <span className="text-[11px] font-normal text-[#655b4d]">{lead.formattedDuration}</span>
-                    </button>
-                    {currentStory.stid === lead.stid && isPlaying ? (
-                      <div
-                        className="flex h-4 items-end gap-[2px] opacity-90"
-                        aria-label="재생 중"
-                      >
-                        {[0, 1, 2, 3, 4].map((bar) => (
-                          <motion.span
-                            key={bar}
-                            animate={{ height: ['4px', '13px', '6px', '10px', '4px'] }}
-                            transition={{ duration: 0.9 + bar * 0.08, repeat: Infinity, ease: 'easeInOut', delay: bar * 0.05 }}
-                            className="w-[2px] rounded-full bg-white"
-                          />
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="flex items-center text-white/70" aria-label="재생 대기">
-                        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07" /></svg>
-                      </div>
-                    )}
-                  </div>
-                  </motion.div>
+                      <Pause className="h-7 w-7" aria-hidden="true" fill="currentColor" />
+                    </motion.span>
+                  ) : (
+                    <motion.span
+                      key="play"
+                      initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.6 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.6 }}
+                      transition={{ duration: 0.18, ease: EASE }}
+                    >
+                      <Play className="ml-0.5 h-7 w-7" aria-hidden="true" fill="currentColor" />
+                    </motion.span>
+                  )}
                 </AnimatePresence>
-              </div>
-
-              {/* 메인 장면 오른쪽 서브 비주얼 카드 고정 규격 (찌부됨 방지) */}
-              <div className="pointer-events-none relative order-first mx-auto h-[198px] w-[150px] shrink-0 rounded-[1.2rem]  bg-white/10  hidden sm:block sm:order-none sm:h-[198px] sm:w-[150px] md:h-[202px] lg:h-[211px] lg:w-[160px] overflow-visible">
-                <div className="relative z-10 h-full w-full overflow-hidden rounded-[1.1rem]">
-                  <AnimatePresence initial={false} mode="sync">
-                    <motion.div
-                      key={`${lead.stid}-${activeIndex}`}
-                      initial={{ opacity: 0, x: transitionDirection * 35 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: transitionDirection * -35 }}
-                      transition={{ duration: 0.38, delay: 0.04, ease: [0.16, 1, 0.3, 1] }}
-                      className="absolute inset-0 h-full w-full overflow-hidden"
-                    >
-                      <img
-                        src={leadImageUrl}
-                        alt=""
-                        onError={(e) => { (e.target as HTMLImageElement).src = getFallbackImage(lead.stid); }}
-                        className="h-full w-full object-cover object-center"
-                      />
-                    </motion.div>
-                  </AnimatePresence>
-                </div>
-
-                {/* 서브 섬네일 카드의 오른쪽 지점에 수직 중앙으로 얹히는 다음 탐색 버튼 */}
-                <div className="pointer-events-auto absolute right-0 translate-x-1/2 top-1/2 z-30 -translate-y-1/2">
-                  <button
-                    type="button"
-                    aria-label="다음 이야기"
-                    onClick={() => move(1)}
-                    className="flex h-10 w-11 items-center justify-center rounded-xl  bg-white/95 text-[#211e19]  transition-[background-color,transform] duration-300 hover:scale-105 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-                  >
-                    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="m9 5 7 7-7 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                  </button>
-                </div>
-              </div>
+              </motion.button>
             </div>
-          </div>
 
-          {/* 우측 다음 장면 preview: 명시적 절대 슬롯 좌표 계산 (연타 시 찌그러짐/오프셋 방지) */}
-          <div className="relative hidden h-[224px] w-[250px] shrink-0 translate-y-1.5 items-center md:flex overflow-visible">
-            <div className="relative h-[216px] w-full overflow-visible">
-              <AnimatePresence initial={false} mode="sync">
-                {following.map((story, index) => {
-                  const imgUrl = getValidImage(story.imageUrl, story.stid);
-                  const isTopItem = index === 0;
-                  const slotY = index * 74;
-                  return (
-                    <motion.button
-                      key={story.stid}
-                      type="button"
-                      aria-label={`${story.title} 이야기 선택`}
-                      onClick={() => {
-                        advanceTo((previewIndex + index + 1) % featured.length, 1);
-                      }}
-                      initial={{ opacity: 0, y: slotY + 30, x: 0 }}
-                      animate={{ opacity: 1, y: slotY, x: 0 }}
-                      exit={
-                        isTopItem
-                          ? { opacity: 0, x: -24, y: slotY, scale: 0.97 }
-                          : { opacity: 0, y: slotY - 18, x: 0, scale: 0.97 }
-                      }
-                      transition={{
-                        duration: 0.32,
-                        ease: [0.16, 1, 0.3, 1],
-                      }}
-                      className="group absolute left-0 top-0 h-[68px] w-full overflow-hidden rounded-lg  bg-[#211e19]/[0.1] text-left   backdrop-blur-sm transition-[box-shadow,ring-color] duration-300 hover: hover:ring-white/45 hover: focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a94d35]"
-                    >
-                      <img
-                        src={imgUrl}
-                        alt=""
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = getFallbackImage(story.stid);
-                        }}
-                        className="relative z-0 h-full w-full object-cover opacity-50 transition-transform duration-500 group-hover:scale-[1.03]"
-                      />
-                      <div className="absolute inset-0 z-10 bg-gradient-to-r from-[#211e19]/80 via-[#211e19]/45 to-[#211e19]/15" />
-                      <div className="absolute inset-x-0 bottom-0 z-10 h-1/2 overflow-hidden bg-gradient-to-t from-white/[0.07] to-transparent">
-                        <motion.div
-                          animate={{ x: ['-6%', '6%', '-6%'], opacity: [0.1, 0.22, 0.1] }}
-                          transition={{ duration: 4.2 + index * 0.35, repeat: Infinity, ease: 'easeInOut' }}
-                          className="absolute -left-[8%] bottom-[-8px] h-5 w-[116%] rounded-[50%] bg-white/10 blur-[4px]"
-                          aria-hidden="true"
-                        />
-                      </div>
-                      <div className="absolute inset-x-0 bottom-0 z-20 flex items-end justify-between gap-2 p-2 pt-5 text-white">
-                        <div className="min-w-0">
-                          <p className="text-[9px] font-semibold tracking-[0.04em] text-white/80">{story.locationName || story.category}</p>
-                          <h4 className="mt-0.5 line-clamp-1 font-odii-sans text-xs font-bold leading-tight text-white">
-                            {story.title}
-                          </h4>
-                        </div>
-                      </div>
-                    </motion.button>
-                  );
-                })}
-              </AnimatePresence>
-            </div>
-          </div>
+            <AnimatePresence initial={false} mode="wait">
+              <motion.div
+                key={story.stid}
+                initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
+                transition={{ duration: 0.32, ease: EASE }}
+                className="min-w-0"
+              >
+                <p className="text-xs font-semibold uppercase tracking-wide text-[#8A8176]">
+                  {isStoryPlaying ? '지금 재생 중' : '지금 듣는 이야기'}
+                </p>
+                <p className="mt-1 truncate font-odii-sans text-lg font-bold leading-6 text-[#211e19] sm:text-xl">
+                  {story.title}
+                </p>
+                <p className="mt-1 truncate text-xs text-[#8A8176]">
+                  {getStoryLabel(story)}
+                  {story.formattedDuration ? ` · ${story.formattedDuration}` : ''}
+                </p>
+              </motion.div>
+            </AnimatePresence>
+          </motion.div>
 
+          {featured.length > 1 && (
+            <motion.button
+              type="button"
+              onClick={() => setFeaturedIndex((index) => index + 1)}
+              initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="mt-10 text-xs font-semibold text-[#8A8176] transition-colors duration-300 hover:text-[#F84E76] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#F84E76] sm:mt-14"
+            >
+              이번 주 인기 이야기 다음으로 ›
+            </motion.button>
+          )}
         </div>
       </div>
     </section>

@@ -62,13 +62,14 @@ const HeaderContainer = styled('header', transientProps)<LandingProps>`
   background: ${({ $isLanding, $isScrolled }) =>
     $isLanding
       ? $isScrolled ? 'rgba(27, 25, 22, 0.74)' : 'rgba(27, 25, 22, 0.56)'
-      : $isScrolled ? 'rgba(244, 243, 239, 0.82)' : 'rgba(248, 247, 244, 0.68)'};
-  backdrop-filter: blur(${({ $isScrolled }) => ($isScrolled ? '22px' : '16px')}) saturate(150%);
-  -webkit-backdrop-filter: blur(${({ $isScrolled }) => ($isScrolled ? '22px' : '16px')}) saturate(150%);
+      : $isScrolled ? 'rgba(247, 247, 246, 0.88)' : 'rgba(250, 250, 249, 0.74)'};
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
   border-bottom: 1px solid ${({ $isLanding, $isScrolled }) =>
     $isLanding
       ? $isScrolled ? 'rgba(255, 248, 235, 0.18)' : 'rgba(255, 248, 235, 0.13)'
-      : $isScrolled ? 'rgba(77, 68, 55, 0.13)' : 'rgba(77, 68, 55, 0.1)'};
+      : $isScrolled ? 'rgba(33, 30, 25, 0.12)' : 'rgba(33, 30, 25, 0.08)'};
+  box-shadow: 0 12px 34px -10px rgba(33, 30, 25, 0.07);
 
   transform: translateY(${({ $isHidden }) => ($isHidden ? 'calc(-100% - 16px)' : '0')});
   transition:
@@ -209,7 +210,7 @@ const DropdownMenu = styled(motion.div, transientProps)<LandingProps>`
   background: ${({ $isLanding, $isScrolled }) =>
     $isLanding
       ? $isScrolled ? 'rgba(27, 25, 22, 0.74)' : 'rgba(27, 25, 22, 0.56)'
-      : $isScrolled ? 'rgba(244, 243, 239, 0.82)' : 'rgba(248, 247, 244, 0.68)'};
+      : $isScrolled ? 'rgba(247, 247, 246, 0.9)' : 'rgba(250, 250, 249, 0.78)'};
   backdrop-filter: blur(${({ $isScrolled }) => ($isScrolled ? '22px' : '16px')}) saturate(150%);
   -webkit-backdrop-filter: blur(${({ $isScrolled }) => ($isScrolled ? '22px' : '16px')}) saturate(150%);
 
@@ -331,7 +332,7 @@ const MobileMenuPanel = styled(motion.nav, transientProps)<LandingProps>`
   background: ${({ $isLanding, $isScrolled }) =>
     $isLanding
       ? $isScrolled ? 'rgba(27, 25, 22, 0.82)' : 'rgba(27, 25, 22, 0.7)'
-      : $isScrolled ? 'rgba(244, 243, 239, 0.9)' : 'rgba(248, 247, 244, 0.8)'};
+      : $isScrolled ? 'rgba(247, 247, 246, 0.94)' : 'rgba(250, 250, 249, 0.86)'};
   backdrop-filter: blur(22px) saturate(150%);
   -webkit-backdrop-filter: blur(22px) saturate(150%);
 
@@ -358,29 +359,33 @@ const MobileMenuLink = styled(Link, transientProps)<LandingProps>`
 const MobileMenuDivider = styled('div', transientProps)<LandingProps>`
   height: 1px;
   margin: 4px 6px;
-  background: ${({ $isLanding }) => ($isLanding ? 'rgba(255, 248, 235, 0.13)' : 'rgba(77, 68, 55, 0.1)')};
+  background: ${({ $isLanding }) => ($isLanding ? 'rgba(255, 248, 235, 0.13)' : 'rgba(33, 30, 25, 0.09)')};
 `;
 
 const LoginButton = styled(Link, transientProps)<LandingProps>`
   font-family: 'SpoqaHanSansNeo', sans-serif;
   font-size: 13px;
   font-weight: 500;
+
   color: ${({ $isLanding, $isOdii }) => ($isOdii ? surface.light.card : $isLanding ? meok[900] : surface.light.base)};
   background: ${({ $isLanding, $isOdii }) => ($isOdii ? lightPalette.jangmi[500] : $isLanding ? 'rgba(250, 247, 240, 0.92)' : 'rgba(38, 35, 31, 0.92)')};
 
   border-radius: 999px;
   height: 32px;
-  padding: 0 13px 0 14px;
+  padding: 0 13px 0 17px;
   text-decoration: none;
   letter-spacing: -0.01em;
+  line-height: 1;
   display: inline-flex;
   align-items: center;
   gap: 6px;
 
-  transition: transform 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+  transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
 
   &:hover {
+
     background: ${({ $isLanding, $isOdii }) => ($isOdii ? lightPalette.jangmi[400] : $isLanding ? surface.light.card : meok[700])};
+
 
     transform: translateY(-1px);
 
@@ -422,7 +427,7 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
-    let frameId = 0;
+    let frameId: number | null = null;
     let previousY = window.scrollY;
     let accumulatedDistance = 0;
     let direction: 'up' | 'down' | null = null;
@@ -459,6 +464,7 @@ export default function Header() {
     };
 
     const updateHeader = () => {
+      frameId = null;
       const currentY = window.scrollY;
       const delta = currentY - previousY;
 
@@ -487,11 +493,18 @@ export default function Header() {
       }
 
       previousY = currentY;
-      frameId = window.requestAnimationFrame(updateHeader);
     };
 
-    frameId = window.requestAnimationFrame(updateHeader);
-    return () => window.cancelAnimationFrame(frameId);
+    const scheduleUpdate = () => {
+      if (frameId === null) frameId = window.requestAnimationFrame(updateHeader);
+    };
+
+    updateHeader();
+    window.addEventListener('scroll', scheduleUpdate, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', scheduleUpdate);
+      if (frameId !== null) window.cancelAnimationFrame(frameId);
+    };
   }, [isMapMenuOpen, isMobileMenuOpen, isLandingPage]);
 
   // 지도 페이지에서는 전체 화면 지도 몰입을 위해 전역 헤더를 숨긴다.

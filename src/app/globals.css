@@ -133,6 +133,7 @@ body {
 
 /* 오디 데이터 로딩용: 단순 점멸보다 콘텐츠의 결을 따라 흐르는 한지 질감 */
 .odii-skeleton {
+  background-color: #dededc !important;
   background-image: linear-gradient(
     105deg,
     transparent 0%,

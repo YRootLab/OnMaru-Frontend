@@ -6,6 +6,7 @@ import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore
 import { IOdiiApiService, OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
 import { ODII_THEME_CATEGORIES } from '@/features/odii-audio/data/odiiCategoryData';
 import { useOdiiApiService } from '@/features/odii-audio/context/OdiiDependencyContext';
+import { ODII_RAIL_VISIBLE_BUFFER, getVisibleRailPositions, shouldFetchRailCategory } from './odiiEditorialRailModel';
 
 interface OdiiEditorialRailProps {
   stories: OdiiStoryItem[];
@@ -89,7 +90,7 @@ interface EditorialRailCardProps {
 
 const EditorialRailCard = React.memo<EditorialRailCardProps>(({ story, position, offset, featuredLength, trackTransitionEnabled, onInteractRef }) => {
   const distance = Math.abs(offset);
-  const isVisible = distance <= 4;
+  const isVisible = distance <= ODII_RAIL_VISIBLE_BUFFER;
   const isActive = offset === 0;
   const initialImageSrc = story.imageUrl || fallbackImageFor(story);
   const tilt = isActive ? 0 : offset < 0
@@ -133,12 +134,12 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(({ story, position,
           image.src = fallbackImageFor(story);
         }}
       />
-      {!story.imageUrl && <span className="pointer-events-none absolute right-3 top-3 z-10 rounded-full bg-black/25 px-2 py-1 text-[9px] font-medium text-white/90 backdrop-blur-sm">참고용 이미지</span>}
+      {!story.imageUrl && <span className="pointer-events-none absolute right-3 top-3 z-10 rounded-full bg-black/25 px-2 py-1 text-[9px] font-medium text-white/90 backdrop-blur-sm">장소 분위기 이미지</span>}
       <div className="absolute inset-0 bg-gradient-to-t from-white/55 via-transparent to-black/5" />
-      <span className="pointer-events-none absolute left-4 top-4 z-10 text-[10px] font-semibold tabular-nums text-white mix-blend-difference drop-">
+      <span className="pointer-events-none absolute left-3 top-3 z-20 rounded-sm bg-white/90 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums leading-none text-[#211e19] shadow-[0_1px_2px_rgba(33,30,25,0.12)] backdrop-blur-sm sm:left-4 sm:top-4">
         {String((position % featuredLength) + 1).padStart(2, '0')}
       </span>
-      <div className={`absolute inset-x-0 bottom-0 px-4 py-4 text-[#211e19] backdrop-blur-[24px] sm:px-5 sm:py-5 ${isActive ? 'bg-[#fff0f5]/[0.68] ' : 'bg-white/[0.46] '}`}>
+      <div className={`absolute bottom-0 left-0 right-0 box-border w-full px-4 py-4 text-[#211e19] backdrop-blur-[24px] sm:px-5 sm:py-5 ${isActive ? 'bg-[#fff0f5]/[0.68] ' : 'bg-white/[0.46] '}`}>
         <p className="truncate text-[9px] font-semibold uppercase tracking-[0.12em] text-[#F84E76]">{story.category !== '오디 이야기' ? story.category : story.badgeText || '오디오 가이드'}</p>
         <h3 className="mt-1 line-clamp-2 font-odii-sans text-base font-semibold leading-tight tracking-[-0.03em] sm:text-lg">{story.title}</h3>
         <p className="mt-1 line-clamp-1 text-[10px] leading-4 text-[#8c7e6c]">{story.locationName || '대한민국 문화유산'}</p>
@@ -158,7 +159,6 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(({ story, position,
 const POSITION_CORRECTION_COOLDOWN_MS = 70;
 const TRANSITION_SAFETY_TIMEOUT_MS = 900;
 const RAIL_COPY_COUNT = 3;
-const RAIL_VISIBLE_BUFFER = 4;
 
 export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, storySets, apiService, isLoading = false, onApiError }) => {
   const activeApiService = useOdiiApiService(apiService);
@@ -166,7 +166,9 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
   const [selectedKeyword, setSelectedKeyword] = useState(ODII_THEME_CATEGORIES[0].keyword);
   const [isCategoryLoading, setIsCategoryLoading] = useState(false);
   const [categoryStories, setCategoryStories] = useState<OdiiStoryItem[] | null>(null);
+  const [isRailNearby, setIsRailNearby] = useState(false);
   const categoryCacheMapRef = useRef<Record<string, OdiiStoryItem[]>>({});
+  const categoryLoadPromisesRef = useRef<Record<string, Promise<OdiiStoryItem[]>>>({});
   const [cachedImageUrls, setCachedImageUrls] = useState<Record<string, string>>(() => {
     if (typeof window === 'undefined') return {};
     try {
@@ -178,6 +180,7 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
     }
   });
   const categoryRequestRef = useRef(0);
+  const categoryRequestPendingRef = useRef(false);
   const [activePosition, setActivePosition] = useState(0);
   const [trackTransitionEnabled, setTrackTransitionEnabled] = useState(true);
   const [autoResetToken, setAutoResetToken] = useState(0);
@@ -185,44 +188,45 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
   const inputLockedRef = useRef(false);
   const unlockTimerRef = useRef<number | null>(null);
   const cardInteractionRef = useRef<(position: number) => void>(() => undefined);
+  const railRef = useRef<HTMLElement>(null);
   const [trackMetrics, setTrackMetrics] = useState({ cardWidth: 225, cardStep: 245 });
 
-  // 1. 모든 테마 카테고리의 이야기 데이터 및 이미지 사전(Eager) Pre-reload
   useEffect(() => {
-    let isMounted = true;
+    const rail = railRef.current;
+    if (!rail) return;
 
-    // 복구 이미지 셋 전체 사전 프리로드
-    Object.values(FALLBACK_IMAGE_SETS).flat().forEach((url) => {
-      const img = new window.Image();
-      img.decoding = 'async';
-      img.src = url;
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsRailNearby(entry.isIntersecting),
+      { rootMargin: '320px 0px' },
+    );
+    observer.observe(rail);
+    return () => observer.disconnect();
+  }, []);
+
+  const loadCategoryStories = useCallback((keyword: string) => {
+    const cached = categoryCacheMapRef.current[keyword];
+    if (cached) return Promise.resolve(cached);
+
+    const pending = categoryLoadPromisesRef.current[keyword];
+    if (pending) return pending;
+
+    const request = activeApiService.getStoryList(undefined, keyword)
+      .then((nextStories) => {
+        const validStories = nextStories.filter((story) => story.audioUrl);
+        categoryCacheMapRef.current[keyword] = validStories;
+        return validStories;
+      });
+    categoryLoadPromisesRef.current[keyword] = request;
+    void request.then(() => {
+      if (categoryLoadPromisesRef.current[keyword] === request) {
+        delete categoryLoadPromisesRef.current[keyword];
+      }
+    }, () => {
+      if (categoryLoadPromisesRef.current[keyword] === request) {
+        delete categoryLoadPromisesRef.current[keyword];
+      }
     });
-
-    // 전체 카테고리 이야기 사전 로드 및 이미지 캐시 워밍
-    ODII_THEME_CATEGORIES.forEach((categoryItem) => {
-      activeApiService.getStoryList(undefined, categoryItem.keyword)
-        .then((fetchedStories) => {
-          if (!isMounted) return;
-          const filtered = fetchedStories.filter((s) => s.audioUrl);
-          categoryCacheMapRef.current[categoryItem.keyword] = filtered;
-
-          filtered.forEach((story) => {
-            const src = story.imageUrl || fallbackImageFor(story);
-            if (src) {
-              const img = new window.Image();
-              img.decoding = 'async';
-              img.src = src;
-            }
-          });
-        })
-        .catch(() => {
-          // ignore
-        });
-    });
-
-    return () => {
-      isMounted = false;
-    };
+    return request;
   }, [activeApiService]);
 
   const featured = useMemo(() => {
@@ -249,7 +253,6 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
     ));
   }, [cachedImageUrls, categoryStories, selectedKeyword, stories, storySets]);
 
-  const VIRTUAL_BUFFER = 4;
   const activeIndex = featured.length ? ((activePosition % featured.length) + featured.length) % featured.length : 0;
   const activeStory = featured[activeIndex] ?? featured[0];
 
@@ -257,7 +260,7 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
   const visibleVirtualPositions = useMemo(() => {
     const list: { pos: number; story: OdiiStoryItem }[] = [];
     if (!featured.length) return list;
-    for (let pos = activePosition - VIRTUAL_BUFFER; pos <= activePosition + VIRTUAL_BUFFER; pos++) {
+    for (const pos of getVisibleRailPositions(activePosition)) {
       const index = ((pos % featured.length) + featured.length) % featured.length;
       list.push({ pos, story: featured[index] });
     }
@@ -288,17 +291,17 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
   }, [selectedKeyword]);
 
   useEffect(() => {
-    if (categoryStories !== null) return;
+    if (!shouldFetchRailCategory({ isRailNearby, isSelected: true, isInteracted: false }) || categoryStories !== null || categoryRequestPendingRef.current) return;
     let isMounted = true;
     const requestId = categoryRequestRef.current + 1;
     categoryRequestRef.current = requestId;
+    categoryRequestPendingRef.current = true;
 
-    activeApiService.getStoryList(undefined, selectedKeyword)
+    setIsCategoryLoading(true);
+    loadCategoryStories(selectedKeyword)
       .then((nextStories) => {
         if (!isMounted || requestId !== categoryRequestRef.current) return;
-        const validStories = nextStories.filter((story) => story.audioUrl);
-        categoryCacheMapRef.current[selectedKeyword] = validStories;
-        setCategoryStories(validStories);
+        setCategoryStories(nextStories);
       })
       .catch(() => {
         if (!isMounted || requestId !== categoryRequestRef.current) return;
@@ -307,6 +310,7 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
       })
       .finally(() => {
         if (!isMounted || requestId !== categoryRequestRef.current) return;
+        categoryRequestPendingRef.current = false;
         setIsCategoryLoading(false);
         setTrackTransitionEnabled(true);
       });
@@ -314,7 +318,7 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
     return () => {
       isMounted = false;
     };
-  }, [activeApiService, categoryStories, onApiError, selectedKeyword]);
+  }, [categoryStories, isRailNearby, loadCategoryStories, onApiError, selectedKeyword]);
 
   useEffect(() => {
     const newlyCached = [...stories, ...(categoryStories || [])].reduce<Record<string, string>>((result, story) => {
@@ -336,17 +340,6 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
     }, 0);
     return () => window.clearTimeout(cacheId);
   }, [categoryStories, stories]);
-
-  useEffect(() => {
-    const imageSources = new Set(
-      featured.map((story) => story.imageUrl || fallbackImageFor(story)),
-    );
-    imageSources.forEach((source) => {
-      const image = new window.Image();
-      image.decoding = 'async';
-      image.src = source;
-    });
-  }, [featured]);
 
   const lockInputForTransition = useCallback(() => {
     inputLockedRef.current = true;
@@ -411,15 +404,17 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
       return;
     }
 
-    // 캐시 미스 시 배경에서 조용히 로드
+    setCategoryStories(null);
+    setIsCategoryLoading(true);
+
+    // 사용자가 선택한 카테고리만 요청한다.
     const requestId = categoryRequestRef.current + 1;
     categoryRequestRef.current = requestId;
-    activeApiService.getStoryList(undefined, keyword)
+    categoryRequestPendingRef.current = true;
+    loadCategoryStories(keyword)
       .then((nextStories) => {
         if (requestId !== categoryRequestRef.current) return;
-        const validStories = nextStories.filter((story) => story.audioUrl);
-        categoryCacheMapRef.current[keyword] = validStories;
-        setCategoryStories(validStories);
+        setCategoryStories(nextStories);
         setTrackTransitionEnabled(false);
         setActivePosition(0);
         window.requestAnimationFrame(() => {
@@ -429,8 +424,26 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
       .catch(() => {
         if (requestId !== categoryRequestRef.current) return;
         onApiError?.();
+      })
+      .finally(() => {
+        if (requestId !== categoryRequestRef.current) return;
+        categoryRequestPendingRef.current = false;
+        setIsCategoryLoading(false);
       });
   };
+
+  const preloadCategory = useCallback((keyword: string) => {
+    if (!shouldFetchRailCategory({ isRailNearby, isSelected: keyword === selectedKeyword, isInteracted: true })) return;
+    if (categoryCacheMapRef.current[keyword]) return;
+
+    loadCategoryStories(keyword)
+      .then((nextStories) => {
+        categoryCacheMapRef.current[keyword] = nextStories;
+      })
+      .catch(() => {
+        // Hover/focus preloads are optional and must not surface an error.
+      });
+  }, [isRailNearby, loadCategoryStories, selectedKeyword]);
 
   cardInteractionRef.current = (position) => {
     const offset = position - activePosition;
@@ -443,14 +456,14 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
 
   if (!activeStory && !showSkeleton) {
     return (
-      <section aria-label="오디 셀렉션" className="relative left-1/2 flex min-h-[355px] w-screen -translate-x-1/2 items-center justify-center py-3 sm:min-h-[430px] sm:py-5 lg:min-h-[465px]">
+      <section ref={railRef} aria-label="오디 셀렉션" className="relative mx-auto flex min-h-[355px] w-full max-w-6xl items-center justify-center overflow-hidden py-3 sm:min-h-[430px] sm:py-5 lg:min-h-[465px]">
         <p className="text-sm text-[#8c7e6c]">이 주제의 오디오 이야기를 찾지 못했습니다.</p>
       </section>
     );
   }
 
   return (
-    <section aria-label="오디 셀렉션" aria-busy={showSkeleton} style={{ contain: 'layout paint' }} className="relative w-full py-3 sm:py-5">
+    <section ref={railRef} aria-label="오디 셀렉션" aria-busy={showSkeleton} style={{ contain: 'layout paint' }} className="relative mx-auto w-full max-w-6xl overflow-hidden py-3 sm:py-5">
       <div className="w-full px-0">
         <div className="relative pb-2 pt-1 sm:pt-2">
           <div className="mx-auto mb-3 w-full max-w-6xl">
@@ -463,6 +476,8 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
                       key={category.id}
                       type="button"
                       onClick={() => handleCategoryChange(category.keyword)}
+                      onPointerEnter={() => preloadCategory(category.keyword)}
+                      onFocus={() => preloadCategory(category.keyword)}
                       aria-pressed={isSelected}
                       className={`select-none whitespace-nowrap text-xs transition-colors duration-300 sm:text-sm ${isSelected ? 'font-semibold text-[#f84e76]' : 'text-[#8c7e6c] hover:text-[#211e19]'}`}
                     >

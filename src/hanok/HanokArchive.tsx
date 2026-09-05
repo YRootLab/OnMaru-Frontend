@@ -16,6 +16,7 @@ const Root = styled.div`
   min-height: 100vh;
   font-family: 'SpoqaHanSansNeo', sans-serif;
   color: ${meok[900]};
+  background: radial-gradient(ellipse 72% 30% at 50% 0%, rgba(43, 92, 230, 0.07), transparent 72%), #f5f5f4;
 `;
 
 const PageInner = styled.div`
@@ -28,7 +29,9 @@ const PageInner = styled.div`
 // 한옥 페이지에 있는 동안만 body 자체를 한지톤으로 깐다(언마운트 시 자동 복원).
 const paperGround = css`
   body {
+
     background: ${surface.light.base};
+
   }
 `;
 

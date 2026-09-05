@@ -11,7 +11,7 @@ interface OdiiApiResponse {
 }
 
 // v3는 이전 구현에서 저장한 빈/불완전 응답 캐시를 사용하지 않도록 의도적으로 무효화한다.
-const DAILY_CACHE_PREFIX = 'onmaru_odii_api_cache_v3';
+const DAILY_CACHE_PREFIX = 'onmaru_odii_api_cache_v4';
 const dailyMemoryCache = new Map<string, unknown>();
 const inFlightRequests = new Map<string, Promise<unknown>>();
 
@@ -156,7 +156,7 @@ function mapStoryItem(item: Record<string, unknown>, index: number, category?: s
   const audioUrl = readText(item, 'audioUrl');
   const playTime = readText(item, 'playTime') || '180';
   const playTimeSeconds = Number(playTime);
-  const imageUrl = readText(item, 'imageUrl') || 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80';
+  const imageUrl = readText(item, 'imageUrl') || readText(item, 'firstimage') || readText(item, 'image');
   const mapX = readText(item, 'mapX') || '126.9780';
   const mapY = readText(item, 'mapY') || '37.5665';
   const distance = origin ? calculateDistanceKm(origin.mapX, origin.mapY, mapX, mapY) : null;

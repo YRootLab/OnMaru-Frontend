@@ -61,39 +61,39 @@ function getDailyIndex(length: number, keyword: string): number {
 const KeywordSpotlightSkeleton: React.FC = () => (
   <div className="grid min-h-[480px] lg:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.65fr)]">
     <article className="grid min-w-0 md:grid-cols-[minmax(240px,0.9fr)_minmax(0,1.1fr)]">
-      <div className="relative h-[280px] min-h-[280px] overflow-hidden bg-[#e8ded0] animate-pulse md:h-full md:min-h-[480px]">
+      <div className="relative h-[280px] min-h-[280px] overflow-hidden bg-[#e5e5e3] animate-pulse md:h-full md:min-h-[480px]">
         <div className="absolute inset-0 bg-gradient-to-t from-[#211e19]/30 via-transparent to-transparent" />
       </div>
       <div className="flex min-w-0 flex-col justify-between p-6 sm:p-8">
         <div>
-          <div className="h-3.5 w-28 bg-[#e5d9c7] animate-pulse rounded" />
-          <div className="mt-4 h-8 w-4/5 bg-[#dfd2be] animate-pulse rounded-md" />
-          <div className="mt-3 h-4 w-1/2 bg-[#e8ded0] animate-pulse rounded" />
+          <div className="h-3.5 w-28 bg-[#d9d9d7] animate-pulse rounded" />
+          <div className="mt-4 h-8 w-4/5 bg-[#cdcdca] animate-pulse rounded-md" />
+          <div className="mt-3 h-4 w-1/2 bg-[#e5e5e3] animate-pulse rounded" />
           <div className="mt-8 border-l-2  pl-4 space-y-2.5">
-            <div className="h-4 w-full bg-[#e8ded0] animate-pulse rounded" />
-            <div className="h-4 w-3/4 bg-[#e8ded0] animate-pulse rounded" />
+            <div className="h-4 w-full bg-[#e5e5e3] animate-pulse rounded" />
+            <div className="h-4 w-3/4 bg-[#e5e5e3] animate-pulse rounded" />
           </div>
         </div>
         <div className="mt-8 flex items-center gap-4   pt-4">
-          <div className="h-9 w-32 bg-[#dfd2be] animate-pulse rounded-full" />
-          <div className="h-4 w-20 bg-[#e8ded0] animate-pulse rounded" />
+          <div className="h-9 w-32 bg-[#cdcdca] animate-pulse rounded-full" />
+          <div className="h-4 w-20 bg-[#e5e5e3] animate-pulse rounded" />
         </div>
       </div>
     </article>
-    <aside className="  bg-[#f3ecdf] p-6 sm:p-8 lg: lg:border-t-0">
+    <aside className="  bg-[#f5f5f4] p-6 sm:p-8 lg: lg:border-t-0">
       <div className="flex items-end justify-between gap-3   pb-4">
-        <div className="h-4 w-28 bg-[#e5d9c7] animate-pulse rounded" />
-        <div className="h-3 w-6 bg-[#e5d9c7] animate-pulse rounded" />
+        <div className="h-4 w-28 bg-[#d9d9d7] animate-pulse rounded" />
+        <div className="h-3 w-6 bg-[#d9d9d7] animate-pulse rounded" />
       </div>
       <div className="divide-y divide-[#211e19]/12">
         {[1, 2, 3].map((i) => (
           <div key={i} className="flex items-center gap-3 py-4">
-            <div className="h-3 w-4 bg-[#e5d9c7] animate-pulse rounded" />
+            <div className="h-3 w-4 bg-[#d9d9d7] animate-pulse rounded" />
             <div className="min-w-0 flex-1 space-y-2">
-              <div className="h-3 w-20 bg-[#e8ded0] animate-pulse rounded" />
-              <div className="h-4 w-3/4 bg-[#dfd2be] animate-pulse rounded" />
+              <div className="h-3 w-20 bg-[#e5e5e3] animate-pulse rounded" />
+              <div className="h-4 w-3/4 bg-[#cdcdca] animate-pulse rounded" />
             </div>
-            <div className="h-8 w-8 rounded-full bg-[#e5d9c7] animate-pulse shrink-0" />
+            <div className="h-8 w-8 rounded-full bg-[#d9d9d7] animate-pulse shrink-0" />
           </div>
         ))}
       </div>
