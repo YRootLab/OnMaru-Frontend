@@ -12,6 +12,8 @@ import HanokMonthly from '@/hanok/sections/HanokMonthly';
 import HanokManifestoCta from '@/hanok/sections/HanokManifestoCta';
 import type { Village, VillageMeta } from '@/hanok/types';
 import { decodeHanokArchivePayload } from '@/hanok/data/hanokArchiveFallback';
+import { HANOK_REVEAL_SECTIONS } from '@/hanok/hanokSectionReveal';
+import { VesselReveal } from '@/shared/components/animation/VesselReveal';
 
 const loadVillageDetailModal = () => import('@/hanok/components/VillageDetailModal');
 const VillageDetailModal = dynamic(loadVillageDetailModal, { ssr: false });
@@ -148,38 +150,50 @@ export default function HanokArchive({ villages, meta }: HanokArchiveProps) {
       <Global styles={paperGround} />
       <PageInner>
         {/* 진입부는 질문을 던지고, 답(왜 한옥인가)은 맨 아래 매니페스토가 한다 */}
-        <Intro>
-          <Eyebrow>온마루 한옥도감</Eyebrow>
-          <PageTitle>지금 한옥은 어디에 남아 있을까</PageTitle>
-          <Lead>
-            궁궐과 고택, 서원과 전통마을, 그리고 하룻밤 머물 수 있는 집까지. 계절마다 한 곳을
-            골라 들여다보고 나머지는 도감과 지도로 기록합니다.
-          </Lead>
-          <SourceNote>
-            한국관광공사 TourAPI 실시간 연동 · 현재 <strong>{archiveData.meta.total}곳</strong> 수집
-          </SourceNote>
-        </Intro>
+        <VesselReveal id={HANOK_REVEAL_SECTIONS.intro}>
+          <Intro>
+            <Eyebrow>온마루 한옥도감</Eyebrow>
+            <PageTitle>지금 한옥은 어디에 남아 있을까</PageTitle>
+            <Lead>
+              궁궐과 고택, 서원과 전통마을, 그리고 하룻밤 머물 수 있는 집까지. 계절마다 한 곳을
+              골라 들여다보고 나머지는 도감과 지도로 기록합니다.
+            </Lead>
+            <SourceNote>
+              한국관광공사 TourAPI 실시간 연동 · 현재 <strong>{archiveData.meta.total}곳</strong> 수집
+            </SourceNote>
+          </Intro>
+        </VesselReveal>
 
         {/* 이 달의 한옥 큐레이션 */}
         <EditorialSection>
-          <HanokMonthly villages={archiveData.villages} onSelectVillage={setSelectedVillage} />
+          <VesselReveal id={HANOK_REVEAL_SECTIONS.monthly}>
+            <HanokMonthly villages={archiveData.villages} onSelectVillage={setSelectedVillage} />
+          </VesselReveal>
         </EditorialSection>
 
         {/* 아카이브 한 덩어리: 도감 → 스테이 → 지도 */}
         <ArchiveGroup>
-          <HanokGrid villages={archiveData.villages} onSelectVillage={setSelectedVillage} />
+          <VesselReveal id={HANOK_REVEAL_SECTIONS.grid}>
+            <HanokGrid villages={archiveData.villages} onSelectVillage={setSelectedVillage} />
+          </VesselReveal>
 
           <ArchiveSection>
-            <HanokStayAccordion villages={archiveData.villages} onSelectVillage={setSelectedVillage} />
+            <VesselReveal id={HANOK_REVEAL_SECTIONS.stay}>
+              <HanokStayAccordion villages={archiveData.villages} onSelectVillage={setSelectedVillage} />
+            </VesselReveal>
           </ArchiveSection>
 
           <ArchiveSection>
-            <HanokMap villages={archiveData.villages} onSelectVillage={setSelectedVillage} />
+            <VesselReveal id={HANOK_REVEAL_SECTIONS.map}>
+              <HanokMap villages={archiveData.villages} onSelectVillage={setSelectedVillage} />
+            </VesselReveal>
           </ArchiveSection>
         </ArchiveGroup>
 
         {/* 온마루 한옥 매니페스토 (자체 상하 여백을 가지고 있다) */}
-        <HanokManifestoCta />
+        <VesselReveal id={HANOK_REVEAL_SECTIONS.manifesto}>
+          <HanokManifestoCta />
+        </VesselReveal>
       </PageInner>
 
       {/* 마을 상세 인터랙티브 모달 */}

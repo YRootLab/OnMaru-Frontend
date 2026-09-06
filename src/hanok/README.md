@@ -38,6 +38,15 @@ NEXT_PUBLIC_KAKAO_MAP_KEY=your-javascript-key
 
 지도는 최초 HTML과 API 갱신을 막지 않도록 viewport 근처에서만 mount된다. 키가 없거나 SDK script가 실패하면 지도 영역 안에 원인을 표시하고, 한옥 snapshot과 나머지 화면은 그대로 유지한다.
 
+## 섹션 Reveal
+
+인트로, 이달의 한옥, 도감, 스테이, 전국 지도, 매니페스토는 `src/shared/components/animation/VesselReveal.tsx`를 그대로 사용한다. Hanok 내부에서 별도 observer나 animation state를 만들지 않는다.
+
+- 처음 reveal 경계에 진입하는 섹션만 축소 상태에서 최종 크기로 펼쳐진다.
+- 현재 viewport에 있거나 새로고침 위치보다 위에 있는 섹션은 완성 상태를 유지한다.
+- snapshot이 background refresh 데이터로 교체되어도 reveal wrapper identity는 유지된다.
+- reduced-motion, scale, duration, easing은 공용 모듈의 계약을 따른다.
+
 ## 검증
 
 ```bash

@@ -22,6 +22,7 @@ import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore
 import { OdiiStoryItem, OdiiStoryPage, IOdiiApiService } from '@/features/odii-audio/types/odii.types';
 import { OdiiDependencyProvider, useOdiiApiService } from '@/features/odii-audio/context/OdiiDependencyContext';
 import { loadOdiiInitialData } from './odiiInitialLoad';
+import { ODII_SECTION_CONTENT_CLASS } from './odiiSectionLayout';
 
 const AllStoriesModal = dynamic(
   () => import('./AllStoriesModal').then((module) => module.AllStoriesModal),
@@ -313,19 +314,21 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
           {/* 섹션 2: 한 단어로, 한 장면 */}
           <VesselReveal className="min-h-[650px] sm:min-h-[700px]">
             <div className="mt-4" data-odii-stage="themes">
-              <div className="mx-auto max-w-6xl pt-4">
-                <h3 className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-[clamp(24px,3.2vw,36px)] font-bold tracking-[-0.04em] text-transparent">
-                  장면을 따라 걷는 소리
-                </h3>
-              </div>
-              <div className="mt-2">
-                <OdiiEditorialRail
-                  key={retryToken}
-                  stories={storyList}
-                  storySets={heroStorySets}
-                  apiService={activeApiService}
-                  onApiError={handleApiError}
-                />
+              <div className={ODII_SECTION_CONTENT_CLASS}>
+                <div className="pt-4">
+                  <h3 className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-[clamp(24px,3.2vw,36px)] font-bold tracking-[-0.04em] text-transparent">
+                    장면을 따라 걷는 소리
+                  </h3>
+                </div>
+                <div className="mt-2">
+                  <OdiiEditorialRail
+                    key={retryToken}
+                    stories={storyList}
+                    storySets={heroStorySets}
+                    apiService={activeApiService}
+                    onApiError={handleApiError}
+                  />
+                </div>
               </div>
             </div>
           </VesselReveal>
