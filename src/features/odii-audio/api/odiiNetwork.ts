@@ -49,10 +49,10 @@ export const odiiNetworkClient: OdiiNetworkClient = {
       });
       return payload;
     } catch (error) {
-      console.error('[Odii Network] error', {
+      console.warn('[Odii Network] request warning', {
         type,
         durationMs: Math.round(performance.now() - startedAt),
-        error,
+        error: error instanceof Error ? error.message : error,
       });
       throw error instanceof Error ? error : new Error('Odii network request failed');
     } finally {
