@@ -1,51 +1,276 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
+import { KOREA_MAP_VIEWBOX, KOREA_REGION_PATHS, KoreaRegionPath } from '@/features/odii-audio/data/koreaMapPaths';
+import { useOdiiApiService } from '@/features/odii-audio/context/OdiiDependencyContext';
+import { getVirtualRange, VIRTUAL_ITEM_HEIGHT } from './soundConstellationScroll';
 
 interface SoundConstellationSectionProps {
   stories: OdiiStoryItem[];
 }
 
-type Region = {
-  id: string;
-  label: string;
-  shortLabel: string;
-  x: number;
-  y: number;
-  color: string;
-  keywords: string[];
-};
-
-const REGIONS: Region[] = [
-  { id: 'seoul', label: '서울·경기', shortLabel: '서울·경기', x: 42, y: 27, color: '#f84e76', keywords: ['서울', '경기', '인천'] },
-  { id: 'gangwon', label: '강원', shortLabel: '강원', x: 70, y: 18, color: '#6b9b80', keywords: ['강원'] },
-  { id: 'chungbuk', label: '충북', shortLabel: '충북', x: 59, y: 41, color: '#c08c53', keywords: ['충북'] },
-  { id: 'chungnam', label: '충남·대전', shortLabel: '충남', x: 35, y: 48, color: '#d27b62', keywords: ['충남', '대전', '세종'] },
-  { id: 'jeonbuk', label: '전북', shortLabel: '전북', x: 34, y: 65, color: '#9d7b9e', keywords: ['전북', '전주'] },
-  { id: 'jeonnam', label: '전남·광주', shortLabel: '전남', x: 22, y: 82, color: '#7695ad', keywords: ['전남', '광주'] },
-  { id: 'gyeongbuk', label: '경북·대구', shortLabel: '경북', x: 74, y: 59, color: '#b8865e', keywords: ['경북', '대구', '안동', '경주'] },
-  { id: 'gyeongnam', label: '경남·부산', shortLabel: '경남', x: 67, y: 82, color: '#8b9e6b', keywords: ['경남', '부산', '울산'] },
+const [VB_WIDTH, VB_HEIGHT] = KOREA_MAP_VIEWBOX.split(' ').slice(2).map(Number);
+const LIST_EDGE_INSET = 23; // 콘텐츠의 17px 여백 + 카드 내부 6px 패딩과 인디케이터의 시각적 시작점 일치
+const STORY_FALLBACK_IMAGES = [
+  '/images/hanok/hanok-main.png',
+  '/images/hanok/hanok-exterior.png',
+  '/images/hanok/hanok-interior.png',
+  '/images/hanok/hanok-porch.png',
+  '/images/hanok/giwa-detail.png',
 ];
 
-const MAP_PATH = 'M39 7 C34 12 29 17 27 24 C24 31 29 36 26 42 C22 49 25 57 21 64 C18 71 22 77 29 79 C35 81 36 89 43 92 C49 95 54 90 60 91 C67 92 70 86 76 83 C82 79 84 71 80 65 C77 60 82 53 78 47 C75 42 78 36 74 31 C71 27 75 19 69 16 C63 12 57 15 53 11 C49 7 44 4 39 7 Z';
-
-const normalizeText = (story: OdiiStoryItem) => `${story.locationName || ''} ${story.title} ${story.audioTitle} ${story.category}`;
-const getRegionStories = (stories: OdiiStoryItem[], region: Region) => {
+const normalizeText = (story: OdiiStoryItem) => `${story.locationName || ''} ${story.title} ${story.audioTitle || ''} ${story.category || ''}`;
+const imageForStory = (story: OdiiStoryItem) => {
+  if (story.imageUrl) return story.imageUrl;
+  const seed = Array.from(`${story.stid}${story.title}`).reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  return STORY_FALLBACK_IMAGES[seed % STORY_FALLBACK_IMAGES.length];
+};
+const getRegionStories = (stories: OdiiStoryItem[], region: KoreaRegionPath) => {
   const matched = stories.filter((story) => region.keywords.some((keyword) => normalizeText(story).includes(keyword)));
   return matched.length ? matched : stories.slice(0, 4);
 };
 
+// 초기 로딩 시 스켈레톤 UI
+const RegionStoryListSkeleton: React.FC = () => (
+  <div className="mt-1 flex-1 space-y-1.5 overflow-y-auto pr-1" aria-busy="true" aria-label="지역 오디오 이야기 로딩 중">
+    {Array.from({ length: 5 }, (_, index) => (
+      <div key={index} className="flex h-[84px] items-center gap-3 rounded-xl px-2.5 py-1.5 bg-transparent">
+        <div className="odii-skeleton h-[72px] w-[72px] shrink-0 rounded-xl bg-[#e4e4e2]" />
+        <div className="min-w-0 flex-1 space-y-2">
+          <div className="odii-skeleton h-3.5 w-3/4 rounded bg-[#d7d7d4]" />
+          <div className="odii-skeleton h-2.5 w-full rounded bg-[#e4e4e2]" />
+          <div className="odii-skeleton h-2.5 w-2/3 rounded bg-[#e4e4e2]" />
+        </div>
+        <div className="odii-skeleton h-3 w-8 shrink-0 rounded bg-[#e4e4e2]" />
+      </div>
+    ))}
+  </div>
+);
+
+// 오디오 이야기 스크립트/서사 요약 추출 함수 (텍스트 겹침 방지 가공)
+function getStoryExcerpt(story: OdiiStoryItem): string {
+  if (story.script && story.script.trim()) {
+    const firstSentence = story.script.split(/\r?\n/)[0]?.trim();
+    if (firstSentence && firstSentence.length > 3) {
+      return firstSentence.length > 70 ? `${firstSentence.slice(0, 70)}…` : firstSentence;
+    }
+  }
+  if (story.audioTitle && story.audioTitle !== story.title) {
+    return story.audioTitle;
+  }
+  return story.locationName ? `${story.locationName}에 남은 오디오 소리 이야기` : '장소에 머무는 아름다운 오디오 이야기';
+}
+
 export const SoundConstellationSection: React.FC<SoundConstellationSectionProps> = ({ stories }) => {
+  const activeApiService = useOdiiApiService();
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const indicatorThumbRef = useRef<HTMLSpanElement | null>(null);
+  const scrollFrameRef = useRef<number | null>(null);
+  const scrollMetricsRef = useRef<{ scrollTop: number; scrollHeight: number; clientHeight: number } | null>(null);
+
   const [selectedRegionId, setSelectedRegionId] = useState('seoul');
+  const [hoveredRegionId, setHoveredRegionId] = useState<string | null>(null);
+  const [isListHovered, setIsListHovered] = useState(false);
+  const [isRegionLoading, setIsRegionLoading] = useState(false);
+  const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
+
+  // 무한 스크롤 및 가상 스크롤 상태
+  const [renderScrollTop, setRenderScrollTop] = useState(0);
+  const [containerHeight, setContainerHeight] = useState(500);
+
+  const regionStoriesCacheRef = useRef<Record<string, { stories: OdiiStoryItem[]; page: number; hasMore: boolean }>>({});
+  const [loadedRegionStories, setLoadedRegionStories] = useState<OdiiStoryItem[] | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+
   const setCurrentStory = useOdiiAudioStore((state) => state.setCurrentStory);
   const currentStory = useOdiiAudioStore((state) => state.currentStory);
   const isPlaying = useOdiiAudioStore((state) => state.isPlaying);
   const setIsPlaying = useOdiiAudioStore((state) => state.setIsPlaying);
-  const selectedRegion = REGIONS.find((region) => region.id === selectedRegionId) || REGIONS[0];
-  const regionStories = useMemo(() => getRegionStories(stories, selectedRegion), [stories, selectedRegion]);
+
+  const selectedRegion = KOREA_REGION_PATHS.find((region) => region.id === selectedRegionId) || KOREA_REGION_PATHS[0];
+
+  // 1. 지도 클릭 시 해당 지역 데이터 초기 로딩 (API + 캐시)
+  useEffect(() => {
+    let isMounted = true;
+    if (scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0;
+    setRenderScrollTop(0);
+
+    const cached = regionStoriesCacheRef.current[selectedRegionId];
+    if (cached && cached.stories.length > 0) {
+      setLoadedRegionStories(cached.stories);
+      setCurrentPage(cached.page);
+      setHasMore(cached.hasMore);
+      setIsRegionLoading(false);
+      return;
+    }
+
+    const localMatch = stories.filter((story) =>
+      selectedRegion.keywords.some((keyword) => normalizeText(story).includes(keyword))
+    );
+
+    setIsRegionLoading(true);
+
+    activeApiService
+      .getStoryList(undefined, selectedRegion.keywords[0])
+      .then((newStories) => {
+        if (!isMounted) return;
+        let finalStories = newStories.filter((s) => Boolean(s && s.stid));
+        if (finalStories.length === 0) {
+          finalStories = localMatch.length ? localMatch : stories;
+        }
+
+        const hasNext = newStories.length >= 10;
+        regionStoriesCacheRef.current[selectedRegionId] = {
+          stories: finalStories,
+          page: 1,
+          hasMore: hasNext,
+        };
+
+        setLoadedRegionStories(finalStories);
+        setCurrentPage(1);
+        setHasMore(hasNext);
+      })
+      .catch(() => {
+        if (!isMounted) return;
+        const fallback = localMatch.length ? localMatch : stories;
+        setLoadedRegionStories(fallback);
+        setHasMore(false);
+      })
+      .finally(() => {
+        if (isMounted) setIsRegionLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedRegionId, activeApiService, selectedRegion, stories]);
+
+  useEffect(() => () => {
+    if (scrollFrameRef.current !== null) cancelAnimationFrame(scrollFrameRef.current);
+  }, []);
+
+  // 2. 무한 스크롤 다음 페이지 API 수급 함수
+  const loadNextPage = useCallback(() => {
+    if (isFetchingNextPage || !hasMore || isRegionLoading) return;
+
+    const nextPage = currentPage + 1;
+    setIsFetchingNextPage(true);
+
+    activeApiService
+      .getStoryList(undefined, selectedRegion.keywords[nextPage % selectedRegion.keywords.length] || selectedRegion.keywords[0])
+      .then((moreStories) => {
+        if (!moreStories || moreStories.length === 0) {
+          setHasMore(false);
+          if (regionStoriesCacheRef.current[selectedRegionId]) {
+            regionStoriesCacheRef.current[selectedRegionId].hasMore = false;
+          }
+          return;
+        }
+
+        setLoadedRegionStories((prev) => {
+          const currentList = prev || [];
+          const existingIds = new Set(currentList.map((s) => s.stid));
+          const uniqueNew = moreStories.filter((s) => s && s.stid && !existingIds.has(s.stid));
+          const updatedList = [...currentList, ...uniqueNew];
+
+          const hasNext = moreStories.length >= 10;
+          setHasMore(hasNext);
+          setCurrentPage(nextPage);
+
+          regionStoriesCacheRef.current[selectedRegionId] = {
+            stories: updatedList,
+            page: nextPage,
+            hasMore: hasNext,
+          };
+
+          return updatedList;
+        });
+      })
+      .catch(() => {
+        setHasMore(false);
+      })
+      .finally(() => {
+        setIsFetchingNextPage(false);
+      });
+  }, [isFetchingNextPage, hasMore, isRegionLoading, currentPage, activeApiService, selectedRegionId, selectedRegion.keywords]);
+
+  // 3. 스크롤 위치 감지 & 가상 스크롤 업데이트 & 무한 스크롤 트리거
+  const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
+    const target = event.currentTarget;
+    const currentScrollTop = target.scrollTop;
+    const currentScrollHeight = target.scrollHeight;
+    const currentClientHeight = target.clientHeight;
+
+    scrollMetricsRef.current = {
+      scrollTop: currentScrollTop,
+      scrollHeight: currentScrollHeight,
+      clientHeight: currentClientHeight,
+    };
+
+    if (scrollFrameRef.current === null) {
+      scrollFrameRef.current = requestAnimationFrame(() => {
+        const metrics = scrollMetricsRef.current;
+        scrollFrameRef.current = null;
+        if (!metrics) return;
+
+        const trackHeight = Math.max(0, metrics.clientHeight - LIST_EDGE_INSET * 2);
+        const thumbHeight = Math.max(18, trackHeight * (metrics.clientHeight / metrics.scrollHeight));
+        const maxThumbOffset = Math.max(0, trackHeight - thumbHeight);
+        const maxNativeScrollTop = Math.max(1, metrics.scrollHeight - metrics.clientHeight);
+        const thumbOffset = (metrics.scrollTop / maxNativeScrollTop) * maxThumbOffset;
+
+        if (indicatorThumbRef.current) {
+          indicatorThumbRef.current.style.height = `${thumbHeight}px`;
+          indicatorThumbRef.current.style.transform = `translateY(${thumbOffset}px)`;
+        }
+
+        setContainerHeight((previous) => previous === metrics.clientHeight ? previous : metrics.clientHeight);
+        setRenderScrollTop((previous) => {
+          const previousRange = getVirtualRange(previous, metrics.clientHeight, totalCount);
+          const nextRange = getVirtualRange(metrics.scrollTop, metrics.clientHeight, totalCount);
+          return previousRange.startIndex === nextRange.startIndex && previousRange.endIndex === nextRange.endIndex
+            ? previous
+            : metrics.scrollTop;
+        });
+      });
+    }
+
+    // 하단 100px 이내 접근 시 무한 스크롤 호출
+    if (
+      currentScrollHeight - (currentScrollTop + currentClientHeight) < 120 &&
+      hasMore &&
+      !isFetchingNextPage &&
+      !isRegionLoading
+    ) {
+      loadNextPage();
+    }
+  };
+
+  const regionStories = loadedRegionStories || getRegionStories(stories, selectedRegion);
+
+  // 4. 가상 스크롤(Virtual Scroll) 표시 범위 계산
+  const totalCount = regionStories.length;
+  const totalHeight = totalCount * VIRTUAL_ITEM_HEIGHT;
+  const scrollContentHeight = totalHeight + 34;
+  const indicatorTrackHeight = Math.max(0, containerHeight - LIST_EDGE_INSET * 2);
+  const canScrollStories = scrollContentHeight > containerHeight;
+  const indicatorThumbHeight = canScrollStories
+    ? Math.max(18, indicatorTrackHeight * (containerHeight / scrollContentHeight))
+    : 0;
+  const maxScrollTop = Math.max(1, scrollContentHeight - containerHeight);
+  const indicatorThumbOffset = canScrollStories
+    ? (renderScrollTop / maxScrollTop) * Math.max(0, indicatorTrackHeight - indicatorThumbHeight)
+    : 0;
+
+  const { startIndex, endIndex } = getVirtualRange(renderScrollTop, containerHeight, totalCount);
+  const visibleStories = useMemo(
+    () => regionStories.slice(startIndex, endIndex),
+    [regionStories, startIndex, endIndex]
+  );
 
   const playStory = (story: OdiiStoryItem) => {
     if (currentStory.stid === story.stid) setIsPlaying(!isPlaying);
@@ -55,54 +280,203 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
   return (
     <section aria-labelledby="sound-map-heading" className="w-full py-10 sm:py-14">
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
-        <div className="mb-6 flex flex-col gap-2 sm:mb-8 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="mb-2 text-[10px] font-semibold tracking-[0.18em] text-[#f84e76]">AUDIO HERITAGE MAP</p>
-            <h2 id="sound-map-heading" className="font-odii-sans text-2xl font-bold tracking-[-0.045em] text-[#211e19] sm:text-3xl">전국 문화유산 소리 지도</h2>
-            <p className="mt-2 text-xs leading-5 text-[#786d5e]">대한민국 8개 권역을 눌러 그곳에 남은 오디오 이야기를 들어보세요.</p>
-          </div>
-          <span className="text-xs text-[#8c7e6c]">{stories.length}개의 이야기 · 권역 선택형</span>
+        <div className="pb-1">
+          <h2 id="sound-map-heading" className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-[clamp(24px,3.2vw,36px)] font-bold tracking-[-0.045em] text-transparent">
+            지도로 듣는 이야기
+          </h2>
+          <p className="mt-1 max-w-xl text-xs sm:text-sm leading-5 text-[#786d5e]">
+            대한민국 지도에서 지역을 눌러 그곳에 남은 오디오 이야기를 들어보세요.
+          </p>
         </div>
 
-        <div className="grid gap-5 rounded-[28px]  bg-[#fbf8f2] p-3  sm:p-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(300px,.8fr)] lg:gap-6">
-          <div className="relative min-h-[480px] overflow-hidden rounded-[22px] bg-[#f4efe7] p-4 sm:min-h-[560px] sm:p-6">
-            <div className="absolute left-4 top-4 z-20 flex items-center gap-2 rounded-full  bg-[#fffdf9]/85 px-3 py-1.5 text-[10px] text-[#786d5e] backdrop-blur-sm sm:left-6 sm:top-6">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#f84e76]" /> 점선은 권역 경계 · 버튼을 눌러 탐색
+        {/* 복구된 좌측 지도 + 우측 가상 스크롤 리스트 분할 레이아웃 */}
+        <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)] lg:gap-6">
+          {/* 좌측 SVG 지도 영역 */}
+          <div className="relative min-h-[480px] p-4 sm:min-h-[560px] sm:p-6">
+            <div className="absolute left-4 top-4 z-20 flex items-center gap-2 rounded-full border border-[#e5e5e3] bg-white/90 px-3.5 py-2 text-[12px] text-[#6b6b68] backdrop-blur-sm sm:left-6 sm:top-6">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#f84e76] animate-pulse" /> 지역을 눌러 탐색해보세요
             </div>
 
-            <div className="relative mx-auto mt-12 h-[420px] w-full max-w-[620px] sm:mt-10 sm:h-[485px]">
-              <svg viewBox="0 0 100 100" className="absolute inset-[5%_12%] h-[90%] w-[76%] overflow-visible" aria-hidden="true">
-                <path d={MAP_PATH} fill="#fffdf9" stroke="#211e19" strokeOpacity=".28" strokeWidth=".55" vectorEffect="non-scaling-stroke" />
-                <path d="M28 27 C43 22 55 25 70 18 M26 42 C39 38 53 41 63 48 M23 63 C38 58 52 67 66 59 M29 79 C42 76 52 84 67 82 M53 11 C52 30 58 42 54 56 C52 70 59 82 60 91 M27 24 C31 43 28 59 35 70 M74 31 C66 39 69 53 76 64" fill="none" stroke="#211e19" strokeOpacity=".2" strokeDasharray="1.5 1.7" strokeWidth=".65" vectorEffect="non-scaling-stroke" />
-                <path d="M40 7 C34 14 30 21 28 29 M28 29 C25 38 26 44 22 52 M22 52 C19 63 20 73 29 79 M29 79 C38 86 40 93 49 92 M49 92 C60 94 71 86 78 78 M78 78 C84 69 80 58 78 48 M78 48 C76 36 77 27 69 17 M69 17 C58 11 48 3 40 7" fill="none" stroke="#f84e76" strokeOpacity=".55" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+            <div className="relative mx-auto mt-14 aspect-[800/759] w-full max-w-[520px] sm:mt-12">
+              <svg
+                viewBox={KOREA_MAP_VIEWBOX}
+                className="absolute inset-0 h-full w-full overflow-visible"
+                preserveAspectRatio="xMidYMid meet"
+                aria-hidden="true"
+              >
+                {KOREA_REGION_PATHS.map((region) => {
+                  const active = region.id === selectedRegionId;
+                  const hovered = region.id === hoveredRegionId;
+                  return (
+                    <motion.path
+                      key={region.id}
+                      d={region.d}
+                      onClick={() => setSelectedRegionId(region.id)}
+                      onHoverStart={() => setHoveredRegionId(region.id)}
+                      onHoverEnd={() => setHoveredRegionId((current) => (current === region.id ? null : current))}
+                      animate={{
+                        fill: active ? '#f84e76' : hovered ? '#e4e4e2' : '#f8f8f7',
+                        fillOpacity: active ? 0.92 : 1,
+                        filter: active
+                          ? (isListHovered ? 'drop-shadow(0 5px 16px rgba(248,78,118,0.45))' : 'drop-shadow(0 3px 8px rgba(248,78,118,0.22))')
+                          : 'drop-shadow(0 0px 0px rgba(0,0,0,0))',
+                      }}
+                      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                      stroke={active ? '#f84e76' : '#211e19'}
+                      strokeOpacity={active ? 0.5 : 0.18}
+                      strokeWidth={active ? 2.4 : 1.4}
+                      strokeLinejoin="round"
+                      vectorEffect="non-scaling-stroke"
+                      className="cursor-pointer"
+                    />
+                  );
+                })}
               </svg>
 
-              {REGIONS.map((region) => {
+              {KOREA_REGION_PATHS.map((region) => {
                 const active = region.id === selectedRegionId;
-                const count = getRegionStories(stories, region).length;
+                const cached = regionStoriesCacheRef.current[region.id];
+                const count = cached ? cached.stories.length : getRegionStories(stories, region).length;
                 return (
-                  <motion.button key={region.id} type="button" onClick={() => setSelectedRegionId(region.id)} whileHover={{ scale: 1.06 }} whileTap={{ scale: .97 }} style={{ left: `${region.x}%`, top: `${region.y}%`, '--region-color': region.color } as React.CSSProperties} className={`absolute z-10 -translate-x-1/2 -translate-y-1/2 rounded-full px-2.5 py-2 text-[10px] font-semibold  backdrop-blur-sm transition-colors sm:px-3 sm:text-xs ${active ? ' bg-[#211e19] text-white' : ' bg-[#fffdf9]/90 text-[#655b4d] hover:'}`} aria-pressed={active}>
-                    <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-[var(--region-color)]" />{region.shortLabel}<span className={active ? 'text-white/60' : 'text-[#a09587]'}>{count}</span></span>
-                  </motion.button>
+                  <div
+                    key={region.id}
+                    style={{ left: `${(region.centroid.x / VB_WIDTH) * 100}%`, top: `${(region.centroid.y / VB_HEIGHT) * 100}%` }}
+                    className="absolute z-10 -translate-x-1/2 -translate-y-1/2"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setSelectedRegionId(region.id)}
+                      className={`rounded-full px-2.5 py-1.5 text-[10px] font-semibold backdrop-blur-sm outline-none transition-all duration-300 sm:px-3 sm:text-xs ${
+                        active
+                          ? 'bg-[#211e19] text-white shadow-md'
+                          : 'bg-white/90 text-[#655b4d] shadow-[0_1px_4px_rgba(33,30,25,0.1)] hover:bg-white hover:text-[#f84e76]'
+                      }`}
+                      style={active && isListHovered ? { boxShadow: '0 4px 14px rgba(248,78,118,0.55)' } : undefined}
+                      aria-pressed={active}
+                    >
+                      <span className="flex items-center gap-1.5">
+                        {region.shortLabel}
+                        <span className={active ? 'text-white/80' : 'text-[#a09587]'}>{count}</span>
+                      </span>
+                    </button>
+                  </div>
                 );
               })}
-              <span className="absolute left-[52%] top-[96%] -translate-x-1/2 text-[10px] tracking-[.14em] text-[#a09587]">JEJU</span>
             </div>
           </div>
 
-          <aside aria-live="polite" className="flex min-h-[480px] flex-col rounded-[20px]  bg-[#fffdf9] p-4 sm:min-h-[560px] sm:p-5">
-            <div className="  pb-4">
-              <p className="text-[10px] font-semibold tracking-[.15em] text-[#f84e76]">SELECTED REGION</p>
-              <div className="mt-1 flex items-end justify-between gap-3"><h3 className="text-xl font-bold tracking-[-.04em] text-[#211e19]">{selectedRegion.label}</h3><span className="text-xs text-[#8c7e6c]">{regionStories.length}개 이야기</span></div>
-              <p className="mt-2 text-xs leading-5 text-[#786d5e]">이 권역에서 가장 먼저 들어볼 만한 문화유산 소리입니다.</p>
+          {/* 우측 가상 스크롤 + 무한 스크롤 이야기 리스트 패널 */}
+          <aside aria-live="polite" className="flex h-[480px] sm:h-[560px] flex-col rounded-2xl border border-[#211e19]/10 bg-white/85 px-1 py-4 backdrop-blur-md sm:px-1 sm:py-5 shadow-xs">
+            <div className="mx-2 pb-3 border-b border-[#211e19]/10 shrink-0">
+              <div className="flex items-end justify-between gap-3 px-1">
+                <h3 className="text-xl font-extrabold tracking-[-.04em] text-[#211e19]">{selectedRegion.label}</h3>
+                <span className="font-mono text-xs font-bold text-[#f84e76]">
+                  {isRegionLoading ? '조회 중…' : `${regionStories.length}개 이야기`}
+                </span>
+              </div>
             </div>
-            <div className="mt-3 flex-1 space-y-1 overflow-y-auto pr-1">
-              {regionStories.slice(0, 6).map((story, index) => {
-                const active = currentStory.stid === story.stid;
-                return <motion.button key={story.stid} type="button" onClick={() => playStory(story)} whileHover={{ x: 3 }} className={`flex w-full items-center gap-3 rounded-xl p-3 text-left transition-colors ${active ? 'bg-[#fff1f3]' : 'hover:bg-[#f7f4ee]'}`}><span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold ${active ? 'bg-[#f84e76] text-white' : 'bg-[#f2ede6] text-[#8c7e6c]'}`}>{String(index + 1).padStart(2, '0')}</span><span className="min-w-0 flex-1"><strong className="block truncate text-xs font-bold text-[#211e19]">{story.title}</strong><span className="mt-1 block truncate text-[10px] text-[#8c7e6c]">{story.locationName || story.audioTitle || '문화유산 오디오'}</span></span><span className={`shrink-0 text-[10px] font-semibold ${active ? 'text-[#f84e76]' : 'text-[#a09587]'}`}>{active && isPlaying ? '재생 중' : story.formattedDuration || '듣기'}</span></motion.button>;
-              })}
-            </div>
-            <button type="button" onClick={() => regionStories[0] && playStory(regionStories[0])} className="mt-4 flex h-11 items-center justify-center gap-2 rounded-full bg-[#211e19] text-xs font-bold text-white transition-colors hover:bg-[#f84e76]">{isPlaying && currentStory.stid === regionStories[0]?.stid ? '일시정지' : `${selectedRegion.shortLabel} 이야기 하나 듣기`} <span aria-hidden="true">▶</span></button>
+
+            {isRegionLoading ? (
+              <RegionStoryListSkeleton />
+            ) : (
+              <div className="relative flex-1 min-h-0 overflow-hidden mt-1 px-0.5">
+                {/* 얇고 핏한 상/하단 화이트 그라데이션 오버레이 */}
+                <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-[17px] bg-gradient-to-b from-white via-white/80 to-transparent" aria-hidden="true" />
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-[17px] bg-gradient-to-t from-white via-white/80 to-transparent" aria-hidden="true" />
+
+                <div
+                  ref={scrollContainerRef}
+                  onScroll={handleScroll}
+                  className="-mr-1 h-full overflow-y-auto px-0.5 pr-[10px] pb-[17px] pt-[17px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                >
+                  {/* 🚀 Virtual Scrolling 컨테이너 */}
+                  <div style={{ height: `${totalHeight}px`, position: 'relative' }}>
+                    <div
+                      style={{
+                        transform: `translateY(${startIndex * VIRTUAL_ITEM_HEIGHT}px)`,
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                      }}
+                      className="space-y-2"
+                    >
+                      {visibleStories.map((story) => {
+                        const active = currentStory.stid === story.stid;
+                        return (
+                          <button
+                            key={story.stid}
+                            type="button"
+                            onClick={() => playStory(story)}
+                            onMouseEnter={() => setIsListHovered(true)}
+                            onMouseLeave={() => setIsListHovered(false)}
+                            style={{ height: `${VIRTUAL_ITEM_HEIGHT - 8}px` }}
+                            className={`flex w-full items-center gap-3.5 rounded-xl px-2.5 py-1.5 text-left transition-all duration-200 ${
+                              active
+                                ? 'bg-[#fff0f5] ring-1 ring-[#f84e76]/30 shadow-xs'
+                                : 'hover:bg-[#f5f5f4]'
+                            }`}
+                          >
+                            <span className="relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-[8.7px] bg-[#f0f0ef]">
+                              <img
+                                src={imageForStory(story)}
+                                alt=""
+                                loading="lazy"
+                                className="h-full w-full scale-[2.6] object-cover"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = imageForStory({ ...story, imageUrl: '' });
+                                }}
+                              />
+                            </span>
+                            <span className="min-w-0 flex-1 pr-1">
+                              <span className="flex min-w-0 items-start gap-2">
+                                <strong className={`min-w-0 flex-1 line-clamp-2 font-odii-sans text-sm font-bold leading-snug ${active ? 'text-[#f84e76]' : 'text-[#211e19]'}`}>
+                                  {story.title}
+                                </strong>
+                                <span className={`mt-px shrink-0 text-[10px] font-normal ${active ? 'text-[#f84e76]' : 'text-[#a09587]'}`}>
+                                  {active && isPlaying ? '재생 중' : story.formattedDuration || '3:00'}
+                                </span>
+                              </span>
+                              <span className="mt-1 block line-clamp-2 text-[10px] leading-[1.4] text-[#786d5e]">
+                                {getStoryExcerpt(story)}
+                              </span>
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                {/* 🔄 무한 스크롤 추가 로딩 지디케이터 */}
+                {isFetchingNextPage && (
+                  <div className="flex items-center justify-center gap-2 py-3 text-xs font-bold text-[#f84e76]">
+                    <span className="h-3 w-3 animate-spin rounded-full border-2 border-[#f84e76] border-t-transparent" />
+                    <span>추가 이야기 불러오는 중…</span>
+                  </div>
+                )}
+
+                {!hasMore && regionStories.length > 5 && (
+                  <p className="py-3 text-center text-[10px] text-[#a09587]">
+                    {selectedRegion.label}의 모든 오디오 이야기를 확인했습니다.
+                  </p>
+                )}
+                </div>
+
+                {canScrollStories && (
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute right-[2px] top-[23px] z-30 w-[3px] rounded-full"
+                    style={{ height: `${indicatorTrackHeight}px` }}
+                  >
+                    <span
+                      ref={indicatorThumbRef}
+                      className="absolute inset-x-0 rounded-full bg-[#8c7e6c]/40"
+                      style={{ height: `${indicatorThumbHeight}px`, transform: `translateY(${indicatorThumbOffset}px)` }}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
           </aside>
         </div>
       </div>
