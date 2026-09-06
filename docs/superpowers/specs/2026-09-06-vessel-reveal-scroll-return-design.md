@@ -21,12 +21,12 @@ Odii 섹션의 기존 scale, y, opacity, border radius, duration, easing은 유�
 - `isInitialObservation`: 해당 섹션의 첫 IntersectionObserver callback인지 여부.
 - `isReloadProtected`: 첫 관찰 당시 섹션 상단이 reveal 경계보다 위에 있었는지 여부. 마운트 중에는 유지한다.
 - `isIntersecting`: 축소된 observer root 안에 섹션이 들어왔는지 여부.
-- `top`과 `revealBoundary`: 섹션이 observer 하단으로 사라지는지, 화면 위로 지나간 것인지 구분한다.
+- `top`, `revealBoundary`, `viewportBottom`: 최초 화면 노출 여부와 이후 observer 하단 이탈을 서로 다른 경계로 판정한다.
 
 전이 규칙:
 
-1. `useLayoutEffect`의 최초 동기 측정에서 `top < revealBoundary`이면 `bloomed`, `shouldAnimate: false`, `isReloadProtected: true`다.
-2. 최초 동기 측정에서 아직 아래에 있으면 `vessel`, `shouldAnimate: false`다.
+1. `useLayoutEffect`의 최초 동기 측정에서 `top < viewportBottom`이면 `bloomed`, `shouldAnimate: false`, `isReloadProtected: true`다.
+2. 최초 동기 측정에서 실제 viewport 아래에 있으면 `vessel`, `shouldAnimate: false`다.
 3. 보호되지 않은 섹션이 observer root에 진입하면 `bloomed`로 전환한다.
 4. 보호되지 않은 섹션이 `top >= revealBoundary`로 하단을 벗어나면 `vessel`로 전환한다.
 5. `top < revealBoundary`인데 intersect하지 않는 경우는 화면 위로 지나간 상태이므로 현재 stage를 유지한다.
@@ -46,6 +46,7 @@ Odii 섹션의 기존 scale, y, opacity, border radius, duration, easing은 유�
 순수 상태 테스트로 다음을 고정한다.
 
 - 초기 viewport/상단 섹션은 animation 없이 bloom된다.
+- 초기 viewport의 아래쪽 25%에 걸린 섹션도 reveal 경계와 무관하게 bloom 상태로 보호된다.
 - 초기 하단 섹션은 animation 없이 vessel로 남는다.
 - 새 섹션은 하단 경계 진입 시 bloom된다.
 - 본 섹션이 위로 스크롤하는 과정에서 하단 경계를 벗어나면 vessel로 돌아간다.

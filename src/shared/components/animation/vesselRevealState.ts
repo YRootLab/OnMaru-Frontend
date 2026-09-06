@@ -7,6 +7,7 @@ interface VesselRevealStateInput {
   isIntersecting: boolean;
   top: number;
   revealBoundary: number;
+  viewportBottom: number;
 }
 
 interface VesselRevealStateResult {
@@ -21,9 +22,10 @@ export function resolveVesselRevealState({
   isIntersecting,
   top,
   revealBoundary,
+  viewportBottom,
 }: VesselRevealStateInput): VesselRevealStateResult {
   if (isInitialObservation) {
-    const shouldProtect = top < revealBoundary;
+    const shouldProtect = top < viewportBottom;
     return {
       stage: shouldProtect ? 'bloomed' : 'vessel',
       isReloadProtected: shouldProtect,

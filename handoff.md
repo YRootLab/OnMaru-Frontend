@@ -19,14 +19,14 @@ Implemented:
 - Odii network URLs and raw payloads are replaceable through injected endpoint resolver and response decoder functions.
 - Odii archive page 1 supplies the hero subset, reducing parent initial requests from three to two while keeping nearby data independent.
 - Story carousel scroll measurements are animation-frame batched and drag snap offsets are cached.
-- Vessel reveals use a colocated pure state module: unseen sections bloom at the lower boundary, non-protected sections fold there on upward return, and sections visible/preceding at reload remain final without replay. Normal motion values are unchanged and reduced motion uses the same states with zero duration.
+- Vessel reveals use a colocated pure state module: unseen sections bloom at the 75% reveal boundary, non-protected sections fold there on upward return, and the full current viewport plus preceding sections are protected at reload without position drift or replay. Normal motion values are unchanged and reduced motion uses the same states with zero duration.
 - Hanok map region rebuilds and unmounts dispose listeners, overlays, markers, cluster resources, DOM listeners, and timers.
 - Hanok grid filtering/pagination is memoized; the detail modal is split from the initial bundle and prefetched during idle time.
 - Hanok stay accordion `flex` spring animation remains unchanged because perceptual equivalence was not established.
 
 Fresh verification:
 
-- `npx vitest run`: 22 files, 75 tests passed.
+- `npx vitest run`: 22 files, 76 tests passed.
 - `npx tsc --noEmit --pretty false`: passed.
 - `npm run build`: passed with Next.js 16.2.10.
 - `npm run lint`: repository baseline failed with 41 errors and 75 warnings outside the scoped fixes; details are recorded in `improvements.md`.
