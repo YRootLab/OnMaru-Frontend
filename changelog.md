@@ -5,6 +5,7 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 ## Unreleased
 
 - Refined Odii sound-map scrolling, list layout, image fallbacks, and neutral loading surfaces.
+- Optimized traditional hanok map markers (rest-state static with hover burst animation, yellow color tokens) and fixed zoom/viewport place loss on API failures.
 - Added shared multi-agent project guidance and Git Flow policy.
 - Reworked the Odii archive into a paginated two-column story browser with an optional current-page place grouping view.
 - Added a source-grounded natural-language Odii assistant UI and server proxy contract for a future RAG/LangGraph backend.
