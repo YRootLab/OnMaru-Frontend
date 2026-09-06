@@ -25,19 +25,20 @@ Odii 섹션의 기존 scale, y, opacity, border radius, duration, easing은 유�
 
 전이 규칙:
 
-1. 첫 관찰에서 `top < revealBoundary`이면 `bloomed`, `shouldAnimate: false`, `isReloadProtected: true`다.
-2. 첫 관찰에서 아직 아래에 있으면 `vessel`, `shouldAnimate: false`다.
+1. `useLayoutEffect`의 최초 동기 측정에서 `top < revealBoundary`이면 `bloomed`, `shouldAnimate: false`, `isReloadProtected: true`다.
+2. 최초 동기 측정에서 아직 아래에 있으면 `vessel`, `shouldAnimate: false`다.
 3. 보호되지 않은 섹션이 observer root에 진입하면 `bloomed`로 전환한다.
 4. 보호되지 않은 섹션이 `top >= revealBoundary`로 하단을 벗어나면 `vessel`로 전환한다.
 5. `top < revealBoundary`인데 intersect하지 않는 경우는 화면 위로 지나간 상태이므로 현재 stage를 유지한다.
-6. 첫 callback에서는 항상 duration 0이며, 이후 stage가 바뀔 때만 기존 duration을 사용한다.
+6. SSR과 hydration 기본 stage는 `bloomed`로 둔다. 현재 화면을 축소한 HTML로 먼저 그리지 않으며, 보이지 않는 아래 섹션은 layout effect에서 paint 전에 `vessel`로 맞춘다.
+7. 최초 동기 측정은 항상 duration 0이며, 이후 observer callback에서 stage가 바뀔 때만 기존 duration을 사용한다.
 
 `isReloadProtected`는 영구 저장소가 아니라 현재 mount의 초기 위치 snapshot이다. 따라서 route를 새로 방문했을 때는 새 scroll 위치를 기준으로 다시 계산하며, API data loading과 독립적으로 visual state를 결정한다.
 
 ## 코드 경계
 
 - `vesselRevealState.ts`: DOM과 무관한 순수 전이 함수 및 타입을 담당한다.
-- `VesselReveal.tsx`: 첫 관찰 여부와 초기 보호 flag를 ref로 보관하고 IntersectionObserver 결과를 순수 함수에 전달한다.
+- `VesselReveal.tsx`: paint 전 최초 위치를 측정하고 초기 보호 flag를 ref로 보관한 뒤 IntersectionObserver 결과를 순수 함수에 전달한다.
 - Odii 개별 섹션: 변경하지 않는다.
 
 ## 검증
