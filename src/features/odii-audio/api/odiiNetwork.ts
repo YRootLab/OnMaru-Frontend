@@ -88,10 +88,10 @@ export function createOdiiNetworkClient({
         });
         return decoded;
       } catch (error) {
-        console.error('[Odii Network] error', {
+        console.warn('[Odii Network] error', {
           type: request.type,
           durationMs: Math.round(performance.now() - startedAt),
-          error,
+          error: error instanceof Error ? error.message : error,
         });
         throw error instanceof Error ? error : new Error('Odii network request failed');
       } finally {
