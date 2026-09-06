@@ -31,7 +31,7 @@
 - Consumes: observer geometry `{ currentStage, isInitialObservation, isReloadProtected, isIntersecting, top, revealBoundary }`.
 - Produces: `resolveVesselRevealState(input): { stage: VesselRevealStage; isReloadProtected: boolean }`.
 
-- [ ] **Step 1: Write failing state-transition tests**
+- [x] **Step 1: Write failing state-transition tests**
 
 ```ts
 expect(resolveVesselRevealState({
@@ -47,13 +47,13 @@ expect(resolveVesselRevealState({
 })).toEqual({ stage: 'bloomed', isReloadProtected: true });
 ```
 
-- [ ] **Step 2: Run the focused test and confirm RED**
+- [x] **Step 2: Run the focused test and confirm RED**
 
 Run: `npx vitest run src/shared/components/animation/vesselRevealState.test.ts`
 
 Expected: FAIL because `resolveVesselRevealState` is not exported.
 
-- [ ] **Step 3: Implement the pure transition model**
+- [x] **Step 3: Implement the pure transition model**
 
 ```ts
 export function resolveVesselRevealState(input: VesselRevealStateInput): VesselRevealStateResult {
@@ -68,21 +68,21 @@ export function resolveVesselRevealState(input: VesselRevealStateInput): VesselR
 }
 ```
 
-- [ ] **Step 4: Run the focused test and confirm GREEN**
+- [x] **Step 4: Run the focused test and confirm GREEN**
 
 Run: `npx vitest run src/shared/components/animation/vesselRevealState.test.ts`
 
 Expected: all initial, downward reveal, upward fold, above-viewport preservation, and reload-protection cases pass.
 
-- [ ] **Step 5: Connect `VesselReveal` to the state module**
+- [x] **Step 5: Connect `VesselReveal` to the state module**
 
 Initialize the render state as `{ stage: 'bloomed', shouldAnimate: false }`. In `useIsomorphicLayoutEffect`, synchronously measure `getBoundingClientRect().top`, resolve the initial state before observing, save `isReloadProtected` in a ref, and process later observer callbacks as non-initial transitions. Set `shouldAnimate` only when the stage changes and reduced motion is disabled.
 
-- [ ] **Step 6: Document the module contract**
+- [x] **Step 6: Document the module contract**
 
 Create `src/shared/components/animation/README.md` describing the three geometry cases, mount-local reload protection, `prefers-reduced-motion`, unchanged visual parameters, and guidance that API/data loading must not control reveal state.
 
-- [ ] **Step 7: Run full verification**
+- [x] **Step 7: Run full verification**
 
 Run: `npx vitest run`
 
@@ -94,7 +94,7 @@ Run: `npx eslint src/shared/components/animation/VesselReveal.tsx src/shared/com
 
 Expected: tests, typecheck, build, and targeted lint pass.
 
-- [ ] **Step 8: Record and commit the change**
+- [x] **Step 8: Record and commit the change**
 
 Update `changelog.md` and `handoff.md` with the behavior and verification evidence.
 

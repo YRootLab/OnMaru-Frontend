@@ -5,10 +5,11 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 ## Unreleased
 
 - Prevented first-entry Odii scroll contention by waiting until the Sound Constellation actually enters the viewport and by giving its SVG paths complete initial Motion values.
+- Restored reversible Odii vessel reveals: unseen sections bloom while scrolling down, fold through the lower boundary while scrolling up, and do not replay from a shrunken state after reload.
 - Reduced `/odii` and `/hanok` server HTML by incrementally flushing Emotion styles instead of repeating accumulated CSS.
 - Added one-shot viewport activation for the Odii sound map and Hanok Kakao map while preserving their existing frames, UI, and motion.
 - Isolated Odii endpoint resolution and raw response decoding behind an injectable normalized transport adapter.
-- Consolidated Odii hero/archive loading, batched carousel scroll measurements, and made reveal state persist after first display.
+- Consolidated Odii hero/archive loading and batched carousel scroll measurements.
 - Added deterministic cleanup for Hanok map listeners, overlays, markers, clusters, and timers, plus memoized archive filtering and a deferred detail modal bundle.
 - Refined Odii sound-map scrolling, list layout, image fallbacks, and neutral loading surfaces.
 - Added shared multi-agent project guidance and Git Flow policy.
