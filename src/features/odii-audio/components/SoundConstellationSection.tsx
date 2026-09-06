@@ -8,6 +8,10 @@ import { KOREA_MAP_VIEWBOX, KOREA_REGION_PATHS, KoreaRegionPath } from '@/featur
 import { useOdiiApiService } from '@/features/odii-audio/context/OdiiDependencyContext';
 import { getVirtualRange, VIRTUAL_ITEM_HEIGHT } from './soundConstellationScroll';
 import { useViewportActivation } from '@/shared/hooks/useViewportActivation';
+import {
+  SOUND_CONSTELLATION_API_ROOT_MARGIN,
+  getRegionPathMotion,
+} from './soundConstellationMotion';
 
 interface SoundConstellationSectionProps {
   stories: OdiiStoryItem[];
@@ -68,7 +72,7 @@ function getStoryExcerpt(story: OdiiStoryItem): string {
 export const SoundConstellationSection: React.FC<SoundConstellationSectionProps> = ({ stories }) => {
   const activeApiService = useOdiiApiService();
   const { ref: viewportRef, isActive: isApiActive } = useViewportActivation<HTMLElement>({
-    rootMargin: '700px 0px',
+    rootMargin: SOUND_CONSTELLATION_API_ROOT_MARGIN,
   });
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const indicatorThumbRef = useRef<HTMLSpanElement | null>(null);
@@ -314,6 +318,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                 {KOREA_REGION_PATHS.map((region) => {
                   const active = region.id === selectedRegionId;
                   const hovered = region.id === hoveredRegionId;
+                  const pathMotion = getRegionPathMotion({ active, hovered, listHovered: isListHovered });
                   return (
                     <motion.path
                       key={region.id}
@@ -321,13 +326,8 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                       onClick={() => setSelectedRegionId(region.id)}
                       onHoverStart={() => setHoveredRegionId(region.id)}
                       onHoverEnd={() => setHoveredRegionId((current) => (current === region.id ? null : current))}
-                      animate={{
-                        fill: active ? '#f84e76' : hovered ? '#e4e4e2' : '#f8f8f7',
-                        fillOpacity: active ? 0.92 : 1,
-                        filter: active
-                          ? (isListHovered ? 'drop-shadow(0 5px 16px rgba(248,78,118,0.45))' : 'drop-shadow(0 3px 8px rgba(248,78,118,0.22))')
-                          : 'drop-shadow(0 0px 0px rgba(0,0,0,0))',
-                      }}
+                      initial={pathMotion}
+                      animate={pathMotion}
                       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                       stroke={active ? '#f84e76' : '#211e19'}
                       strokeOpacity={active ? 0.5 : 0.18}

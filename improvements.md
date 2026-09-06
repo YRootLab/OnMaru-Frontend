@@ -4,6 +4,7 @@ Backlog for follow-up improvements that are useful but not required to resume th
 
 ## Open
 
+- The landing route starts an 11 MB `anchae.glb` load for its required 3D scene. Navigating to Odii before the first decode completes can temporarily contend for main-thread time; reducing this further requires a compressed/optimized model or an explicitly approved change to landing asset activation timing.
 - The Hanok stay accordion still animates `flex` across up to seven image panels. It was retained because a transform-based replacement could not guarantee the same spring geometry and perceived motion; profile it again only with browser trace and visual comparison available.
 - The Hanok server still serializes the normalized village archive into the client boundary so every existing section is immediately functional. Reducing that RSC payload further requires a stable paginated backend/read-model contract or section-level loading UI approval.
 - Run desktop/mobile screenshot and interaction regression checks for `/odii` and `/hanok` when an automation browser is connected; this session had no available browser instance.

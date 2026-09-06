@@ -14,6 +14,8 @@ Implemented:
 
 - Emotion SSR insertion now flushes only newly inserted names; repeated stylesheet bodies were removed.
 - Shared one-shot viewport activation defers the Odii Sound Constellation API and Hanok interactive map/Kakao SDK.
+- The Odii Sound Constellation now activates at actual viewport entry instead of a 700px margin that opened during initial render on common desktop heights.
+- Sound-map SVG paths receive complete initial Motion values, eliminating repeated `fillOpacity: undefined` interpolation warnings on first entry.
 - Odii network URLs and raw payloads are replaceable through injected endpoint resolver and response decoder functions.
 - Odii archive page 1 supplies the hero subset, reducing parent initial requests from three to two while keeping nearby data independent.
 - Story carousel scroll measurements are animation-frame batched and drag snap offsets are cached.
@@ -44,6 +46,7 @@ Production artifact comparison:
 Open verification gap:
 
 - Browser discovery returned no available browser instances, and Playwright/Puppeteer are not installed in the repository. Desktop/mobile screenshots, real scroll traces, and interactive Kakao verification were therefore not claimed.
+- Next development-server logs confirmed that the repeated Sound Constellation Motion warnings disappeared after the first-entry fix and that an Odii reload did not immediately request its deferred API.
 
 Next step:
 

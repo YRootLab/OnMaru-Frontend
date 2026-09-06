@@ -4,6 +4,7 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+- Prevented first-entry Odii scroll contention by waiting until the Sound Constellation actually enters the viewport and by giving its SVG paths complete initial Motion values.
 - Reduced `/odii` and `/hanok` server HTML by incrementally flushing Emotion styles instead of repeating accumulated CSS.
 - Added one-shot viewport activation for the Odii sound map and Hanok Kakao map while preserving their existing frames, UI, and motion.
 - Isolated Odii endpoint resolution and raw response decoding behind an injectable normalized transport adapter.
