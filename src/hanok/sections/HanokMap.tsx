@@ -22,7 +22,7 @@ const Section = styled.section``;
 
 const MapLoadingState = styled.div`
   min-height: 580px;
-  background: rgba(247, 241, 230, 0.5);
+  background: #ffffff;
   border-radius: 28px;
   display: grid;
   place-items: center;

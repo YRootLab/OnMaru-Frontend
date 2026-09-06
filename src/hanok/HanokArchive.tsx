@@ -29,13 +29,10 @@ const PageInner = styled.div`
   padding: 0;
 `;
 
-// 페이지 바탕. PageContainer가 좌우 패딩을 가지고 있어 Root에 칠하면 양옆이 흰색으로 남는다.
-// 한옥 페이지에 있는 동안만 body 자체를 한지톤으로 깐다(언마운트 시 자동 복원).
+// PageContainer 바깥까지 같은 흰색을 유지하고, route를 떠나면 Emotion이 자동 복원한다.
 const paperGround = css`
   body {
-
     background: #ffffff;
-
   }
 `;
 

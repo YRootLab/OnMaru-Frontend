@@ -32,7 +32,7 @@ const Frame = styled.div`
   height: 580px;
   overflow: hidden;
   border-radius: 28px;
-  background: #f0f4fc;
+  background: #ffffff;
   border: 1px solid rgba(43, 92, 230, 0.12);
   box-shadow: none;
 `;
@@ -121,7 +121,7 @@ const MapLoadingState = styled.div`
   align-items: center;
   justify-content: center;
   gap: 10px;
-  background: rgba(240, 244, 252, 0.95);
+  background: #ffffff;
   color: ${KOBALT_PRIMARY};
   font-size: 13px;
   font-weight: 500;

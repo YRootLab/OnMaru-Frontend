@@ -23,11 +23,12 @@ Implemented:
 - Hanok map region rebuilds and unmounts dispose listeners, overlays, markers, cluster resources, DOM listeners, and timers.
 - Hanok grid filtering/pagination is memoized; the detail modal is split from the initial bundle and prefetched during idle time.
 - Hanok route rendering is snapshot-first and no longer awaits TourAPI. A cancellable client refresh replaces data only for valid non-empty payloads; the page and route body backgrounds are white.
+- Kakao map configuration accepts either `KAKAO_MAP_KEY` or `NEXT_PUBLIC_KAKAO_MAP_KEY` through `next.config.ts`; the local key remains gitignored. A route surface marker pins the Hanok document canvas, `PageContainer` gutters, and both deferred map loading layers to white without changing map controls or content animation.
 - Hanok stay accordion `flex` spring animation remains unchanged because perceptual equivalence was not established.
 
 Fresh verification:
 
-- `npx vitest run`: 23 files, 79 tests passed.
+- `npx vitest run`: 25 files, 84 tests passed.
 - `npx tsc --noEmit --pretty false`: passed.
 - `npm run build`: passed with Next.js 16.2.10.
 - `npm run lint`: repository baseline failed with 41 errors and 75 warnings outside the scoped fixes; details are recorded in `improvements.md`.
@@ -48,6 +49,7 @@ Open verification gap:
 
 - Browser discovery returned no available browser instances, and Playwright/Puppeteer are not installed in the repository. Desktop/mobile screenshots, real scroll traces, and interactive Kakao verification were therefore not claimed.
 - Next development-server logs confirmed that the repeated Sound Constellation Motion warnings disappeared after the first-entry fix and that an Odii reload did not immediately request its deferred API.
+- Kakao SDK returned HTTP 200 for the configured local origin, and live development logs showed `/map` issuing map data requests after center/zoom changes.
 - The detailed diagnosis, rejected alternatives, code paths, and remaining GLB trace gap are recorded in `troubleshooting-worklog/26.09.06 소리마루 첫 진입 스크롤 병목.md`.
 - Vessel reveal behavior and maintenance rules are documented in `src/shared/components/animation/README.md`; its debugging record is `troubleshooting-worklog/26.09.06 소리마루 섹션 리빌 복귀와 새로고침.md`.
 

@@ -5,11 +5,13 @@ import { usePathname } from 'next/navigation';
 import styled from '@emotion/styled';
 import { css } from '@emotion/react';
 import type { OnmaruTheme } from '@/design-system/tokens';
+import { getPageContainerPresentation } from './pageContainerPresentation';
 
-const StyledPageContainer = styled.div<{ $isFullBleed: boolean }>`
+const StyledPageContainer = styled.div<{ $isFullBleed: boolean; $background: string }>`
   width: 100%;
   min-height: 100vh;
   box-sizing: border-box;
+  background: ${({ $background }) => $background};
 
   ${({ $isFullBleed, theme }) =>
     $isFullBleed
@@ -34,9 +36,15 @@ const StyledPageContainer = styled.div<{ $isFullBleed: boolean }>`
 
 export default function PageContainer({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  // 지도는 무조건 풀블리드(여백/마진 제외). odii와 랜딩(/)도 풀블리드 유지
-  const isFullBleed = pathname.startsWith('/map') || pathname.startsWith('/odii') || pathname === '/';
+  const presentation = getPageContainerPresentation(pathname);
 
-  return <StyledPageContainer $isFullBleed={isFullBleed}>{children}</StyledPageContainer>;
+  return (
+    <StyledPageContainer
+      data-page-surface={presentation.surface}
+      $isFullBleed={presentation.isFullBleed}
+      $background={presentation.background}
+    >
+      {children}
+    </StyledPageContainer>
+  );
 }
-
