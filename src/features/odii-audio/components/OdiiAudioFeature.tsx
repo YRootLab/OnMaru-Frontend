@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { motion, Variants } from 'framer-motion';
 import { StoryCarousel } from './StoryCarousel';
@@ -102,34 +102,19 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
   const [savedStories, setSavedStories] = useState<OdiiStoryItem[]>([]);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem('onmaru_saved_odii_stories');
-      const parsed = stored ? JSON.parse(stored) : [];
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        setSavedStories(parsed);
-      }
-    } catch {
-      // ignore
-    }
-  }, []);
-
-  const handleToggleBookmark = (story: OdiiStoryItem) => {
-    setSavedStories((prev) => {
-      const exists = prev.some((s) => s.stid === story.stid);
-      let updated: OdiiStoryItem[];
-      if (exists) {
-        updated = prev.filter((s) => s.stid !== story.stid);
-      } else {
-        updated = [story, ...prev];
-      }
+    const timeoutId = window.setTimeout(() => {
       try {
-        localStorage.setItem('onmaru_saved_odii_stories', JSON.stringify(updated));
+        const stored = localStorage.getItem('onmaru_saved_odii_stories');
+        const parsed = stored ? JSON.parse(stored) : [];
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setSavedStories(parsed);
+        }
       } catch {
         // ignore
       }
-      return updated;
-    });
-  };
+    }, 0);
+    return () => window.clearTimeout(timeoutId);
+  }, []);
 
   const handleRemoveBookmark = (storyId: string) => {
     setSavedStories((prev) => {
@@ -142,8 +127,6 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
       return updated;
     });
   };
-
-  const bookmarkedIds = useMemo(() => new Set(savedStories.map((s) => s.stid)), [savedStories]);
 
   const [isNearbyLoading, setIsNearbyLoading] = useState(true);
   const [isArchiveLoading, setIsArchiveLoading] = useState(true);

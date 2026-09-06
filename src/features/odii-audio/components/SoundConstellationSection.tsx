@@ -86,6 +86,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
   const [containerHeight, setContainerHeight] = useState(500);
 
   const regionStoriesCacheRef = useRef<Record<string, { stories: OdiiStoryItem[]; page: number; hasMore: boolean }>>({});
+  const [regionStoryCounts, setRegionStoryCounts] = useState<Record<string, number>>({});
   const [loadedRegionStories, setLoadedRegionStories] = useState<OdiiStoryItem[] | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -101,27 +102,28 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
   useEffect(() => {
     if (!isApiActive) return;
     let isMounted = true;
-    if (scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0;
-    setRenderScrollTop(0);
 
-    const cached = regionStoriesCacheRef.current[selectedRegionId];
-    if (cached && cached.stories.length > 0) {
-      setLoadedRegionStories(cached.stories);
-      setCurrentPage(cached.page);
-      setHasMore(cached.hasMore);
-      setIsRegionLoading(false);
-      return;
-    }
+    async function loadRegionStories() {
+      if (scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0;
+      setRenderScrollTop(0);
 
-    const localMatch = stories.filter((story) =>
-      selectedRegion.keywords.some((keyword) => normalizeText(story).includes(keyword))
-    );
+      const cached = regionStoriesCacheRef.current[selectedRegionId];
+      if (cached && cached.stories.length > 0) {
+        setLoadedRegionStories(cached.stories);
+        setCurrentPage(cached.page);
+        setHasMore(cached.hasMore);
+        setIsRegionLoading(false);
+        return;
+      }
 
-    setIsRegionLoading(true);
+      const localMatch = stories.filter((story) =>
+        selectedRegion.keywords.some((keyword) => normalizeText(story).includes(keyword))
+      );
 
-    activeApiService
-      .getStoryList(undefined, selectedRegion.keywords[0])
-      .then((newStories) => {
+      setIsRegionLoading(true);
+
+      try {
+        const newStories = await activeApiService.getStoryList(undefined, selectedRegion.keywords[0]);
         if (!isMounted) return;
         let finalStories = newStories.filter((s) => Boolean(s && s.stid));
         if (finalStories.length === 0) {
@@ -136,18 +138,21 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
         };
 
         setLoadedRegionStories(finalStories);
+        setRegionStoryCounts((previous) => ({ ...previous, [selectedRegionId]: finalStories.length }));
         setCurrentPage(1);
         setHasMore(hasNext);
-      })
-      .catch(() => {
+      } catch {
         if (!isMounted) return;
         const fallback = localMatch.length ? localMatch : stories;
         setLoadedRegionStories(fallback);
+        setRegionStoryCounts((previous) => ({ ...previous, [selectedRegionId]: fallback.length }));
         setHasMore(false);
-      })
-      .finally(() => {
+      } finally {
         if (isMounted) setIsRegionLoading(false);
-      });
+      }
+    }
+
+    void loadRegionStories();
 
     return () => {
       isMounted = false;
@@ -176,24 +181,21 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
           return;
         }
 
-        setLoadedRegionStories((prev) => {
-          const currentList = prev || [];
-          const existingIds = new Set(currentList.map((s) => s.stid));
-          const uniqueNew = moreStories.filter((s) => s && s.stid && !existingIds.has(s.stid));
-          const updatedList = [...currentList, ...uniqueNew];
+        const currentList = regionStoriesCacheRef.current[selectedRegionId]?.stories ?? [];
+        const existingIds = new Set(currentList.map((story) => story.stid));
+        const uniqueNew = moreStories.filter((story) => story && story.stid && !existingIds.has(story.stid));
+        const updatedList = [...currentList, ...uniqueNew];
+        const hasNext = moreStories.length >= 10;
 
-          const hasNext = moreStories.length >= 10;
-          setHasMore(hasNext);
-          setCurrentPage(nextPage);
-
-          regionStoriesCacheRef.current[selectedRegionId] = {
-            stories: updatedList,
-            page: nextPage,
-            hasMore: hasNext,
-          };
-
-          return updatedList;
-        });
+        regionStoriesCacheRef.current[selectedRegionId] = {
+          stories: updatedList,
+          page: nextPage,
+          hasMore: hasNext,
+        };
+        setLoadedRegionStories(updatedList);
+        setRegionStoryCounts((previous) => ({ ...previous, [selectedRegionId]: updatedList.length }));
+        setHasMore(hasNext);
+        setCurrentPage(nextPage);
       })
       .catch(() => {
         setHasMore(false);
@@ -340,8 +342,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
 
               {KOREA_REGION_PATHS.map((region) => {
                 const active = region.id === selectedRegionId;
-                const cached = regionStoriesCacheRef.current[region.id];
-                const count = cached ? cached.stories.length : getRegionStories(stories, region).length;
+                const count = regionStoryCounts[region.id] ?? getRegionStories(stories, region).length;
                 return (
                   <div
                     key={region.id}
