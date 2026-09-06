@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic';
 import { meok } from '@/design-system/tokens';
 import SectionHeader from '@/hanok/components/SectionHeader';
 import type { Village } from '@/hanok/types';
+import { useViewportActivation } from '@/shared/hooks/useViewportActivation';
 
 // Dynamic import for Kakao map component (client side only)
 const HanokInteractiveMapFrame = dynamic(() => import('./HanokInteractiveMapFrame'), {
@@ -42,6 +43,10 @@ interface HanokMapProps {
 }
 
 export default function HanokMap({ villages, onSelectVillage }: HanokMapProps) {
+  const { ref: mapViewportRef, isActive: isMapActive } = useViewportActivation<HTMLDivElement>({
+    rootMargin: '800px 0px',
+  });
+
   return (
     <Section id="map" aria-labelledby="map-heading">
       <SectionHeader
@@ -52,8 +57,12 @@ export default function HanokMap({ villages, onSelectVillage }: HanokMapProps) {
         actionHref="/map"
       />
 
-      <MapWrapper>
-        <HanokInteractiveMapFrame villages={villages} onSelectVillage={onSelectVillage} />
+      <MapWrapper ref={mapViewportRef}>
+        {isMapActive ? (
+          <HanokInteractiveMapFrame villages={villages} onSelectVillage={onSelectVillage} />
+        ) : (
+          <MapLoadingState>지도를 불러오는 중</MapLoadingState>
+        )}
       </MapWrapper>
     </Section>
   );

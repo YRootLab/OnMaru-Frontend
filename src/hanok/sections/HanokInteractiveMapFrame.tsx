@@ -5,8 +5,9 @@ import Script from 'next/script';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
 import { lightPalette, meok } from '@/design-system/tokens';
-import { ArrowRight, MapPin, AlertCircle, ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
+import { MapPin, AlertCircle, ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
 import type { Village } from '@/hanok/types';
+import { createKakaoResourceScope, type KakaoResourceScope } from './kakaoMapResources';
 
 // Light Kobalt & Soft Gray Theme Tokens
 const KOBALT_PRIMARY = lightPalette.kobalt[500]; // #2B5CE6
@@ -372,6 +373,31 @@ interface HanokInteractiveMapFrameProps {
   onSelectVillage?: (v: Village) => void;
 }
 
+interface KakaoMapInstance {
+  getLevel(): number;
+  panTo(position: unknown): void;
+  relayout(): void;
+  setBounds(bounds: unknown, ...padding: number[]): void;
+  setLevel(level: number, options: { animate: boolean }): void;
+}
+
+interface KakaoOverlayInstance {
+  setMap(map: KakaoMapInstance | null): void;
+}
+
+interface KakaoMarkerInstance {
+  setMap(map: KakaoMapInstance | null): void;
+}
+
+interface KakaoClustererInstance {
+  addMarkers(markers: KakaoMarkerInstance[]): void;
+  clear(): void;
+}
+
+interface KakaoCluster {
+  getCenter(): unknown;
+}
+
 const REGIONS = ['전체', '서울', '경북', '전북', '경남', '충남', '강원', '경기', '전남'];
 
 const REGION_STORIES: Record<string, string> = {
@@ -390,18 +416,21 @@ export default function HanokInteractiveMapFrame({
   villages,
   onSelectVillage,
 }: HanokInteractiveMapFrameProps) {
+  const kakaoAppKey = process.env.NEXT_PUBLIC_KAKAO_MAP_KEY;
   const containerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<any>(null);
-  const clustererRef = useRef<any>(null);
-  const overlaysRef = useRef<any[]>([]);
-  const markersRef = useRef<any[]>([]);
+  const mapRef = useRef<KakaoMapInstance | null>(null);
+  const clustererRef = useRef<KakaoClustererInstance | null>(null);
+  const overlaysRef = useRef<KakaoOverlayInstance[]>([]);
+  const markersRef = useRef<KakaoMarkerInstance[]>([]);
+  const mapResourcesRef = useRef<KakaoResourceScope | null>(null);
+  const markerResourcesRef = useRef<KakaoResourceScope | null>(null);
 
   const [selectedRegion, setSelectedRegion] = useState('전체');
   const [isLoaded, setIsLoaded] = useState(false);
   const [isStoryExpanded, setIsStoryExpanded] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  const kakaoAppKey = process.env.NEXT_PUBLIC_KAKAO_MAP_KEY;
+  const [errorMessage, setErrorMessage] = useState<string | null>(() => kakaoAppKey
+    ? null
+    : 'NEXT_PUBLIC_KAKAO_MAP_KEY 환경 변수가 없습니다. 개발 서버(npm run dev)를 재시작해 보세요.');
 
   const validVillages = useMemo(
     () => villages.filter((v) => typeof v.lat === 'number' && typeof v.lng === 'number'),
@@ -414,7 +443,7 @@ export default function HanokInteractiveMapFrame({
   }, [validVillages, selectedRegion]);
 
   // 대한민국 전체 지점이 화면 100%에 맞춰 가득 차도록 바운즈 자동 계산
-  const fitKoreaBounds = useCallback((mapInstance: any, targets: Village[]) => {
+  const fitKoreaBounds = useCallback((mapInstance: KakaoMapInstance, targets: Village[]) => {
     if (!mapInstance || !window.kakao || !window.kakao.maps || targets.length === 0) return;
 
     const bounds = new window.kakao.maps.LatLngBounds();
@@ -445,13 +474,20 @@ export default function HanokInteractiveMapFrame({
         };
 
 
-        const map = new window.kakao.maps.Map(containerRef.current, options);
+        const map = new window.kakao.maps.Map(containerRef.current, options) as KakaoMapInstance;
         mapRef.current = map;
+        mapResourcesRef.current?.dispose();
+        const mapResources = createKakaoResourceScope((target, eventName, listener) => {
+          window.kakao.maps.event.removeListener(target, eventName, listener);
+        });
+        mapResourcesRef.current = mapResources;
 
         // 바탕 지도 클릭 시 스토리 패널 접기
-        window.kakao.maps.event.addListener(map, 'click', () => {
+        const handleMapClick = () => {
           setIsStoryExpanded(false);
-        });
+        };
+        window.kakao.maps.event.addListener(map, 'click', handleMapClick);
+        mapResources.trackListener(map, 'click', handleMapClick);
 
         // 클러스터러 스타일 (그림자 제거, 미디엄 폰트)
         if (window.kakao.maps.MarkerClusterer) {
@@ -490,18 +526,20 @@ export default function HanokInteractiveMapFrame({
                 fontFamily: 'SpoqaHanSansNeo, sans-serif',
               },
             ],
-          });
+          }) as KakaoClustererInstance;
           clustererRef.current = clusterer;
+          mapResources.trackCleanup(() => clusterer.clear());
         }
 
         setIsLoaded(true);
 
-        setTimeout(() => {
+        const relayoutTimer = window.setTimeout(() => {
           map.relayout();
           fitKoreaBounds(map, validVillages);
         }, 120);
+        mapResources.trackTimer(relayoutTimer, window.clearTimeout);
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('[KakaoMap] Map initialization error:', err);
       setErrorMessage('카카오 지도를 초기화하는 중 오류가 발생했습니다.');
     }
@@ -510,6 +548,12 @@ export default function HanokInteractiveMapFrame({
   // 마커 / 클러스터러 / 사진 아바타 오버레이 업데이트
   useEffect(() => {
     if (!isLoaded || !mapRef.current || !window.kakao || !window.kakao.maps) return;
+
+    markerResourcesRef.current?.dispose();
+    const markerResources = createKakaoResourceScope((target, eventName, listener) => {
+      window.kakao.maps.event.removeListener(target, eventName, listener);
+    });
+    markerResourcesRef.current = markerResources;
 
     // 기존 오버레이 및 마커 클리어
     overlaysRef.current.forEach((overlay) => overlay.setMap(null));
@@ -520,7 +564,7 @@ export default function HanokInteractiveMapFrame({
     }
     markersRef.current = [];
 
-    const newMarkers: any[] = [];
+    const newMarkers: KakaoMarkerInstance[] = [];
 
     regionVillages.forEach((village, idx) => {
       if (typeof village.lat !== 'number' || typeof village.lng !== 'number') return;
@@ -536,24 +580,27 @@ export default function HanokInteractiveMapFrame({
       content.className = 'custom-overlay-pin';
       content.innerHTML = `
         <div class="avatar-thumb">
-          <img src="${photoUrl}" alt="${village.name}" onerror="this.src='${FALLBACK_HANOK_IMAGES[0]}'" />
+          <img src="${photoUrl}" alt="${village.name}" loading="lazy" decoding="async" onerror="this.src='${FALLBACK_HANOK_IMAGES[0]}'" />
         </div>
         <div class="avatar-label">${village.name}</div>
       `;
 
-      content.addEventListener('click', (e) => {
+      const handleOverlayClick = (e: MouseEvent) => {
         e.stopPropagation();
         setIsStoryExpanded(false); // 핀 클릭 시 스토리 패널 자동 접기
         onSelectVillage?.(village);
         mapRef.current?.panTo(position);
-      });
+      };
+      content.addEventListener('click', handleOverlayClick);
+      markerResources.trackCleanup(() => content.removeEventListener('click', handleOverlayClick));
 
       const customOverlay = new window.kakao.maps.CustomOverlay({
         position,
         content,
         yAnchor: 0.5,
-      });
+      }) as KakaoOverlayInstance;
       overlaysRef.current.push(customOverlay);
+      markerResources.trackOverlay(customOverlay);
 
       // 2. 마커 클러스터러용 마커 객체
       const transparentImage = new window.kakao.maps.MarkerImage(
@@ -564,12 +611,15 @@ export default function HanokInteractiveMapFrame({
       const marker = new window.kakao.maps.Marker({
         position,
         image: transparentImage,
-      });
-      window.kakao.maps.event.addListener(marker, 'click', () => {
+      }) as KakaoMarkerInstance;
+      const handleMarkerClick = () => {
         setIsStoryExpanded(false); // 마커 클릭 시 스토리 패널 자동 접기
         onSelectVillage?.(village);
         mapRef.current?.panTo(position);
-      });
+      };
+      window.kakao.maps.event.addListener(marker, 'click', handleMarkerClick);
+      markerResources.trackListener(marker, 'click', handleMarkerClick);
+      markerResources.trackMarker(marker);
       newMarkers.push(marker);
     });
 
@@ -591,29 +641,44 @@ export default function HanokInteractiveMapFrame({
 
     // 줌 레벨 변경 시 동적 노출 갱신
     window.kakao.maps.event.addListener(mapRef.current, 'zoom_changed', syncOverlayVisibility);
+    markerResources.trackListener(mapRef.current, 'zoom_changed', syncOverlayVisibility);
 
     // 전국 전체 보기일 때 마커 클러스터러 적용
     if (selectedRegion === '전체' && clustererRef.current) {
       clustererRef.current.addMarkers(newMarkers);
 
       // 클러스터 클릭 시 스토리 패널 접기 및 해당 위치로 확대
-      window.kakao.maps.event.addListener(clustererRef.current, 'clusterclick', (cluster: any) => {
+      const handleClusterClick = (cluster: KakaoCluster) => {
+        const map = mapRef.current;
+        if (!map) return;
         setIsStoryExpanded(false); // 클러스터 클릭 시 스토리 패널 자동 접기
-        const level = mapRef.current.getLevel() - 2;
+        const level = map.getLevel() - 2;
         const targetLevel = level < 1 ? 1 : level;
-        mapRef.current.setLevel(targetLevel, { animate: true });
-        mapRef.current.panTo(cluster.getCenter());
-        setTimeout(syncOverlayVisibility, 250);
-      });
+        map.setLevel(targetLevel, { animate: true });
+        map.panTo(cluster.getCenter());
+        const visibilityTimer = window.setTimeout(syncOverlayVisibility, 250);
+        markerResources.trackTimer(visibilityTimer, window.clearTimeout);
+      };
+      window.kakao.maps.event.addListener(clustererRef.current, 'clusterclick', handleClusterClick);
+      markerResources.trackListener(clustererRef.current, 'clusterclick', handleClusterClick);
     }
+
+    return () => {
+      markerResources.dispose();
+      if (markerResourcesRef.current === markerResources) markerResourcesRef.current = null;
+      overlaysRef.current = [];
+      markersRef.current = [];
+    };
   }, [regionVillages, onSelectVillage, isLoaded, selectedRegion]);
 
-  // 스크립트가 이미 로드된 경우의 fallback
-  useEffect(() => {
-    if (window.kakao && window.kakao.maps && !isLoaded) {
-      initMap();
-    }
-  }, [initMap, isLoaded]);
+  useEffect(() => () => {
+    markerResourcesRef.current?.dispose();
+    mapResourcesRef.current?.dispose();
+    markerResourcesRef.current = null;
+    mapResourcesRef.current = null;
+    clustererRef.current = null;
+    mapRef.current = null;
+  }, []);
 
   // 컨테이너 최종 크기가 초기화 이후에 확정되면(웹폰트 로드, 레이아웃 시프트, 창 리사이즈)
   // 지도는 옛 크기 그대로 남아 오른쪽에 빈 띠가 생기고 바운즈도 어긋난 채 굳는다.
@@ -632,15 +697,6 @@ export default function HanokInteractiveMapFrame({
     observer.observe(el);
     return () => observer.disconnect();
   }, [isLoaded, selectedRegion, validVillages, fitKoreaBounds]);
-
-  // 키 체크
-  useEffect(() => {
-    if (!kakaoAppKey) {
-      setErrorMessage(
-        'NEXT_PUBLIC_KAKAO_MAP_KEY 환경 변수가 없습니다. 개발 서버(npm run dev)를 재시작해 보세요.'
-      );
-    }
-  }, [kakaoAppKey]);
 
   // 지역 클릭 시 지도 이동 및 바운즈 피팅
   const handleRegionClick = (region: string) => {
@@ -673,7 +729,7 @@ export default function HanokInteractiveMapFrame({
       {kakaoAppKey && (
         <Script
           src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoAppKey}&autoload=false&libraries=services,clusterer`}
-          onLoad={initMap}
+          onReady={initMap}
           onError={() => {
             setErrorMessage(
               '카카오 지도 SDK 스크립트를 불러오지 못했습니다. 카카오 개발자 센터에서 http://localhost:3000 도메인이 등록되어 있는지 확인해주세요.'
