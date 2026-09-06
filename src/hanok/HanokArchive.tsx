@@ -4,13 +4,14 @@ import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 import { Global, css } from '@emotion/react';
-import { meok, lightPalette, surface } from '@/design-system/tokens';
+import { meok, lightPalette } from '@/design-system/tokens';
 import HanokGrid from '@/hanok/sections/HanokGrid';
 import HanokMap from '@/hanok/sections/HanokMap';
 import HanokStayAccordion from '@/hanok/sections/HanokStayAccordion';
 import HanokMonthly from '@/hanok/sections/HanokMonthly';
 import HanokManifestoCta from '@/hanok/sections/HanokManifestoCta';
 import type { Village, VillageMeta } from '@/hanok/types';
+import { decodeHanokArchivePayload } from '@/hanok/data/hanokArchiveFallback';
 
 const loadVillageDetailModal = () => import('@/hanok/components/VillageDetailModal');
 const VillageDetailModal = dynamic(loadVillageDetailModal, { ssr: false });
@@ -19,7 +20,7 @@ const Root = styled.div`
   min-height: 100vh;
   font-family: 'SpoqaHanSansNeo', sans-serif;
   color: ${meok[900]};
-  background: radial-gradient(ellipse 72% 30% at 50% 0%, rgba(43, 92, 230, 0.07), transparent 72%), #f5f5f4;
+  background: #ffffff;
 `;
 
 const PageInner = styled.div`
@@ -33,7 +34,7 @@ const PageInner = styled.div`
 const paperGround = css`
   body {
 
-    background: ${surface.light.base};
+    background: #ffffff;
 
   }
 `;
@@ -103,6 +104,34 @@ interface HanokArchiveProps {
 
 export default function HanokArchive({ villages, meta }: HanokArchiveProps) {
   const [selectedVillage, setSelectedVillage] = useState<Village | null>(null);
+  const [archiveData, setArchiveData] = useState(() => ({ villages, meta }));
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 5000);
+
+    async function refreshArchive() {
+      try {
+        const response = await fetch('/api/tourapi', {
+          cache: 'no-store',
+          signal: controller.signal,
+        });
+        if (!response.ok) return;
+        const nextData = decodeHanokArchivePayload(await response.json());
+        if (nextData) setArchiveData(nextData);
+      } catch {
+        // Snapshot remains visible when the future backend is unavailable or changes shape.
+      } finally {
+        window.clearTimeout(timeoutId);
+      }
+    }
+
+    void refreshArchive();
+    return () => {
+      window.clearTimeout(timeoutId);
+      controller.abort();
+    };
+  }, []);
 
   useEffect(() => {
     const browserWindow = window as Window & {
@@ -130,25 +159,25 @@ export default function HanokArchive({ villages, meta }: HanokArchiveProps) {
             골라 들여다보고 나머지는 도감과 지도로 기록합니다.
           </Lead>
           <SourceNote>
-            한국관광공사 TourAPI 실시간 연동 · 현재 <strong>{meta.total}곳</strong> 수집
+            한국관광공사 TourAPI 실시간 연동 · 현재 <strong>{archiveData.meta.total}곳</strong> 수집
           </SourceNote>
         </Intro>
 
         {/* 이 달의 한옥 큐레이션 */}
         <EditorialSection>
-          <HanokMonthly villages={villages} onSelectVillage={setSelectedVillage} />
+          <HanokMonthly villages={archiveData.villages} onSelectVillage={setSelectedVillage} />
         </EditorialSection>
 
         {/* 아카이브 한 덩어리: 도감 → 스테이 → 지도 */}
         <ArchiveGroup>
-          <HanokGrid villages={villages} onSelectVillage={setSelectedVillage} />
+          <HanokGrid villages={archiveData.villages} onSelectVillage={setSelectedVillage} />
 
           <ArchiveSection>
-            <HanokStayAccordion villages={villages} onSelectVillage={setSelectedVillage} />
+            <HanokStayAccordion villages={archiveData.villages} onSelectVillage={setSelectedVillage} />
           </ArchiveSection>
 
           <ArchiveSection>
-            <HanokMap villages={villages} onSelectVillage={setSelectedVillage} />
+            <HanokMap villages={archiveData.villages} onSelectVillage={setSelectedVillage} />
           </ArchiveSection>
         </ArchiveGroup>
 

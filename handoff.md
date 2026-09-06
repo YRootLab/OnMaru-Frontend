@@ -22,11 +22,12 @@ Implemented:
 - Vessel reveals use a colocated pure state module: unseen sections bloom at the 75% reveal boundary, non-protected sections fold there on upward return, and the full current viewport plus preceding sections are protected at reload without position drift or replay. Normal motion values are unchanged and reduced motion uses the same states with zero duration.
 - Hanok map region rebuilds and unmounts dispose listeners, overlays, markers, cluster resources, DOM listeners, and timers.
 - Hanok grid filtering/pagination is memoized; the detail modal is split from the initial bundle and prefetched during idle time.
+- Hanok route rendering is snapshot-first and no longer awaits TourAPI. A cancellable client refresh replaces data only for valid non-empty payloads; the page and route body backgrounds are white.
 - Hanok stay accordion `flex` spring animation remains unchanged because perceptual equivalence was not established.
 
 Fresh verification:
 
-- `npx vitest run`: 22 files, 76 tests passed.
+- `npx vitest run`: 23 files, 79 tests passed.
 - `npx tsc --noEmit --pretty false`: passed.
 - `npm run build`: passed with Next.js 16.2.10.
 - `npm run lint`: repository baseline failed with 41 errors and 75 warnings outside the scoped fixes; details are recorded in `improvements.md`.
