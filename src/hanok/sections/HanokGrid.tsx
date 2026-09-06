@@ -1,14 +1,15 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import styled from '@emotion/styled';
 import { meok } from '@/design-system/tokens';
 import SectionHeader from '@/hanok/components/SectionHeader';
-import FilterBar, { ALL_TYPES, type VillageTypeFilter } from '@/hanok/components/FilterBar';
+import FilterBar, { type VillageTypeFilter } from '@/hanok/components/FilterBar';
 import VillageCard from '@/hanok/components/VillageCard';
 import Pagination from '@/hanok/components/Pagination';
 import type { Village } from '@/hanok/types';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getHanokGridPage } from './hanokGridModel';
 
 const Section = styled.section``;
 
@@ -43,8 +44,6 @@ const EmptyState = styled.div`
   font-size: 14px;
 `;
 
-const ITEMS_PER_PAGE = 12;
-
 interface HanokGridProps {
   villages: Village[];
   onSelectVillage: (v: Village) => void;
@@ -55,27 +54,26 @@ export default function HanokGrid({ villages, onSelectVillage }: HanokGridProps)
   const [activeBadges, setActiveBadges] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [activeType, activeBadges]);
-
-  const filtered = villages.filter((v) => {
-    if (v.type === '한옥 고택 스테이') return false;
-    if (activeType !== '전체' && v.type !== activeType) return false;
-    if (activeBadges.length > 0 && !activeBadges.every((b) => v.badges.includes(b))) return false;
-    return true;
-  });
-
-  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
-  const paginatedItems = filtered.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+  const { items: paginatedItems, totalPages, filteredCount } = useMemo(
+    () => getHanokGridPage(villages, { activeType, activeBadges }, currentPage),
+    [activeBadges, activeType, currentPage, villages],
   );
 
   const handleBadgeToggle = (badge: string) => {
+    setCurrentPage(1);
     setActiveBadges((prev) =>
       prev.includes(badge) ? prev.filter((b) => b !== badge) : [...prev, badge]
     );
+  };
+
+  const handleTypeChange = (type: VillageTypeFilter) => {
+    setCurrentPage(1);
+    setActiveType(type);
+  };
+
+  const handleResetBadges = () => {
+    setCurrentPage(1);
+    setActiveBadges([]);
   };
 
   const handlePageChange = (page: number) => {
@@ -91,16 +89,16 @@ export default function HanokGrid({ villages, onSelectVillage }: HanokGridProps)
       <SectionHeader
         id="grid-heading"
         title="한옥 도감"
-        subtitle={`궁궐부터 고택·서원·전통마을까지 ${filtered.length}곳`}
+        subtitle={`궁궐부터 고택·서원·전통마을까지 ${filteredCount}곳`}
       />
 
       <FilterBar
         villages={villages}
         activeType={activeType}
         activeBadges={activeBadges}
-        onTypeChange={setActiveType}
+        onTypeChange={handleTypeChange}
         onBadgeToggle={handleBadgeToggle}
-        onResetBadges={() => setActiveBadges([])}
+        onResetBadges={handleResetBadges}
       />
 
       {paginatedItems.length > 0 ? (

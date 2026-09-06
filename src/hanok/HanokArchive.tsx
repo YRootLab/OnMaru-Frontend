@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 import { Global, css } from '@emotion/react';
 import { meok, lightPalette, surface } from '@/design-system/tokens';
@@ -9,8 +10,10 @@ import HanokMap from '@/hanok/sections/HanokMap';
 import HanokStayAccordion from '@/hanok/sections/HanokStayAccordion';
 import HanokMonthly from '@/hanok/sections/HanokMonthly';
 import HanokManifestoCta from '@/hanok/sections/HanokManifestoCta';
-import VillageDetailModal from '@/hanok/components/VillageDetailModal';
 import type { Village, VillageMeta } from '@/hanok/types';
+
+const loadVillageDetailModal = () => import('@/hanok/components/VillageDetailModal');
+const VillageDetailModal = dynamic(loadVillageDetailModal, { ssr: false });
 
 const Root = styled.div`
   min-height: 100vh;
@@ -101,6 +104,19 @@ interface HanokArchiveProps {
 export default function HanokArchive({ villages, meta }: HanokArchiveProps) {
   const [selectedVillage, setSelectedVillage] = useState<Village | null>(null);
 
+  useEffect(() => {
+    const browserWindow = window as Window & {
+      requestIdleCallback?: (callback: () => void, options: { timeout: number }) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    if (browserWindow.requestIdleCallback) {
+      const idleId = browserWindow.requestIdleCallback(() => void loadVillageDetailModal(), { timeout: 2000 });
+      return () => browserWindow.cancelIdleCallback?.(idleId);
+    }
+    const timeoutId = window.setTimeout(() => void loadVillageDetailModal(), 600);
+    return () => window.clearTimeout(timeoutId);
+  }, []);
+
   return (
     <Root>
       <Global styles={paperGround} />
@@ -141,10 +157,12 @@ export default function HanokArchive({ villages, meta }: HanokArchiveProps) {
       </PageInner>
 
       {/* 마을 상세 인터랙티브 모달 */}
-      <VillageDetailModal
-        village={selectedVillage}
-        onClose={() => setSelectedVillage(null)}
-      />
+      {selectedVillage && (
+        <VillageDetailModal
+          village={selectedVillage}
+          onClose={() => setSelectedVillage(null)}
+        />
+      )}
     </Root>
   );
 }
