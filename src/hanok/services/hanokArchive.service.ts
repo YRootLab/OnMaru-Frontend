@@ -72,7 +72,7 @@ export class HanokArchiveService {
   /**
    * TourAPI에서 한옥 아카이브 실시간 데이터를 수집/변환합니다.
    */
-  public static async fetchRealtimeHanoks(): Promise<{
+  public static async fetchRealtimeHanoks(signal?: AbortSignal): Promise<{
     villages: Village[];
     curatedVillages: Village[];
     meta: VillageMeta;
@@ -93,7 +93,7 @@ export class HanokArchiveService {
           cat3: c.cat3,
           arrange: 'P',
           numOfRows: c.rows,
-        }),
+        }, signal),
       ),
     );
 

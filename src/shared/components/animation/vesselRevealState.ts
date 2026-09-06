@@ -1,19 +1,40 @@
 export type VesselRevealStage = 'vessel' | 'bloomed';
 
 interface VesselRevealStateInput {
-  lockBloomed: boolean;
+  currentStage: VesselRevealStage;
+  isInitialObservation: boolean;
+  isReloadProtected: boolean;
   isIntersecting: boolean;
   top: number;
   revealBoundary: number;
+  viewportBottom: number;
 }
 
-export function getVesselRevealStage({
-  lockBloomed,
+interface VesselRevealStateResult {
+  stage: VesselRevealStage;
+  isReloadProtected: boolean;
+}
+
+export function resolveVesselRevealState({
+  currentStage,
+  isInitialObservation,
+  isReloadProtected,
   isIntersecting,
   top,
   revealBoundary,
-}: VesselRevealStateInput): VesselRevealStage | null {
-  if (lockBloomed || isIntersecting) return 'bloomed';
-  if (top >= revealBoundary) return 'vessel';
-  return null;
+  viewportBottom,
+}: VesselRevealStateInput): VesselRevealStateResult {
+  if (isInitialObservation) {
+    const shouldProtect = top < viewportBottom;
+    return {
+      stage: shouldProtect ? 'bloomed' : 'vessel',
+      isReloadProtected: shouldProtect,
+    };
+  }
+
+  if (isReloadProtected) return { stage: 'bloomed', isReloadProtected: true };
+  if (isIntersecting) return { stage: 'bloomed', isReloadProtected: false };
+  if (top >= revealBoundary) return { stage: 'vessel', isReloadProtected: false };
+
+  return { stage: currentStage, isReloadProtected: false };
 }

@@ -1,15 +1,6 @@
 import { OdiiStoryItem, OdiiCategory, OdiiStoryPage } from '@/features/odii-audio/types/odii.types';
 import { OdiiNetworkClient, odiiNetworkClient } from './odiiNetwork';
 
-interface OdiiApiResponse {
-  response?: {
-    body?: {
-      items?: { item?: Record<string, unknown> | Record<string, unknown>[] };
-      totalCount?: number | string;
-    };
-  };
-}
-
 // v3는 이전 구현에서 저장한 빈/불완전 응답 캐시를 사용하지 않도록 의도적으로 무효화한다.
 const DAILY_CACHE_PREFIX = 'onmaru_odii_api_cache_v4';
 const dailyMemoryCache = new Map<string, unknown>();
@@ -217,7 +208,7 @@ export const createOdiiApiAdapter = (network: OdiiNetworkClient = odiiNetworkCli
 
     return getCachedRequest(requestKey, async () => {
       try {
-      const json = await network.request<OdiiApiResponse>({
+      const response = await network.request({
         type: 'stories',
         params: {
           numOfRows: String(safeNumOfRows),
@@ -225,17 +216,12 @@ export const createOdiiApiAdapter = (network: OdiiNetworkClient = odiiNetworkCli
           ...(keyword ? { keyword } : {}),
         },
       });
-      const body = json?.response?.body;
-      const rawItems = body?.items?.item;
-      const itemList = rawItems
-        ? (Array.isArray(rawItems) ? rawItems : [rawItems]) as Record<string, unknown>[]
-        : [];
-      const mappedStories = itemList.map((item, index) => mapStoryItem(item, index, category || keyword));
+      const mappedStories = response.items.map((item, index) => mapStoryItem(item, index, category || keyword));
       return {
         items: mappedStories,
         pageNo: safePageNo,
         numOfRows: safeNumOfRows,
-        totalCount: Number(body?.totalCount) || mappedStories.length,
+        totalCount: response.totalCount || mappedStories.length,
         source: 'api',
       };
       } catch (error) {
@@ -301,14 +287,11 @@ export const createOdiiApiAdapter = (network: OdiiNetworkClient = odiiNetworkCli
 
     return getCachedRequest(requestKey, async () => {
       try {
-        const json = await network.request<OdiiApiResponse>({
+        const response = await network.request({
           type: 'nearby',
           params: { xCoord: mapX, yCoord: mapY, radius: String(radius) },
         });
-        const rawItems = json?.response?.body?.items?.item;
-        if (!rawItems) return [];
-        const itemList = (Array.isArray(rawItems) ? rawItems : [rawItems]) as Record<string, unknown>[];
-        return itemList
+        return response.items
           .map((item, index) => mapStoryItem(item, index, '내 주변', { mapX, mapY }))
           .sort((left, right) => (
             (calculateDistanceKm(mapX, mapY, left.mapX, left.mapY) ?? Number.POSITIVE_INFINITY)

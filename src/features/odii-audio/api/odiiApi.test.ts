@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createOdiiApiAdapter } from './odiiApi';
-import type { OdiiNetworkClient } from './odiiNetwork';
+import type { OdiiNetworkClient, OdiiTransportResponse } from './odiiNetwork';
 
 const storyItem = {
   tid: 'story-1',
@@ -14,7 +14,7 @@ const storyItem = {
   mapY: '37.5665',
 };
 
-function makeNetwork(response: unknown): OdiiNetworkClient & { request: ReturnType<typeof vi.fn> } {
+function makeNetwork(response: OdiiTransportResponse): OdiiNetworkClient & { request: ReturnType<typeof vi.fn> } {
   return {
     request: vi.fn().mockResolvedValue(response),
   };
@@ -22,9 +22,7 @@ function makeNetwork(response: unknown): OdiiNetworkClient & { request: ReturnTy
 
 describe('Odii API adapter', () => {
   it('스토리 목록 API 응답을 화면 모델로 매핑하고 요청 파라미터를 전달한다', async () => {
-    const network = makeNetwork({
-      response: { body: { items: { item: [storyItem] }, totalCount: 1 } },
-    });
+    const network = makeNetwork({ items: [storyItem], totalCount: 1 });
     const api = createOdiiApiAdapter(network);
 
     const result = await api.getStoryPage(undefined, '테스트-스토리-파라미터', 2, 7);
@@ -42,10 +40,9 @@ describe('Odii API adapter', () => {
   });
 
   it('API 이미지가 없으면 공통 이미지를 주입하지 않는다', async () => {
-    const { imageUrl: _imageUrl, ...storyWithoutImage } = storyItem;
-    const network = makeNetwork({
-      response: { body: { items: { item: [storyWithoutImage] }, totalCount: 1 } },
-    });
+    const storyWithoutImage: Record<string, unknown> = { ...storyItem };
+    delete storyWithoutImage.imageUrl;
+    const network = makeNetwork({ items: [storyWithoutImage], totalCount: 1 });
     const api = createOdiiApiAdapter(network);
 
     const result = await api.getStoryList(undefined, '이미지-없음-테스트');
@@ -54,9 +51,7 @@ describe('Odii API adapter', () => {
   });
 
   it('위치 기반 API를 별도 타입으로 호출하고 거리순 결과를 반환한다', async () => {
-    const network = makeNetwork({
-      response: { body: { items: { item: [storyItem] } } },
-    });
+    const network = makeNetwork({ items: [storyItem], totalCount: 1 });
     const api = createOdiiApiAdapter(network);
 
     const result = await api.getNearbyStories('126.9780', '37.5665', 3000);
@@ -70,7 +65,7 @@ describe('Odii API adapter', () => {
   });
 
   it('같은 날짜의 같은 요청은 네트워크 의존성을 한 번만 호출한다', async () => {
-    const network = makeNetwork({ response: { body: { items: { item: [storyItem] } } } });
+    const network = makeNetwork({ items: [storyItem], totalCount: 1 });
     const api = createOdiiApiAdapter(network);
 
     await Promise.all([
