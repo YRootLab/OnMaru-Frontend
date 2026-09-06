@@ -160,7 +160,9 @@ export default function PlaceDetail() {
       .filter(Boolean);
   }, [data?.images, selectedItem?.image]);
 
-  const title = data?.title || selectedItem?.name || '장소 상세';
+  const rawTitle = data?.title;
+  const isGenericTitle = !rawTitle || rawTitle === '한옥 명소 상세' || rawTitle === '상세 정보';
+  const title = isGenericTitle ? selectedItem?.name || rawTitle || '장소 상세' : rawTitle;
   const addr = data?.addr1 || selectedItem?.addr || '';
   const tel = data?.tel || selectedItem?.tel;
 

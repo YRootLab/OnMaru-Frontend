@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { PlaceService } from '@/map/services/place.service';
 import { VisitorService } from '@/map/services/visitor.service';
 import { seedWarmth } from '@/map/warmth/seed';
+import { getCuratedPlace } from '@/map/data/curatedPlaces';
 import type { HeatSpot, CongestionLevel } from '@/map/types';
 
 /**
@@ -27,6 +28,30 @@ function extractZoneName(addr: string, district: string): string {
   }
   const main = district || parts[1] || parts[0] || '해당 권역';
   return sub ? `${main} ${sub} 일대` : `${main} 일대`;
+}
+
+/**
+ * 전국 한옥 시드 장소.
+ *
+ * 주소는 큐레이션 자료에서 가져온다 — 장소명만 넘기면 지자체 매칭이 실패해
+ * 혼잡도가 전국 평균값으로 뭉개지고 날짜별 시계열도 붙지 않는다.
+ */
+function seedPlaces() {
+  return seedWarmth().map((s) => {
+    const curated = getCuratedPlace(s.placeId || s.id, s.placeName);
+
+    return {
+      id: s.placeId || s.id,
+      name: s.placeName,
+      lat: s.lat,
+      lng: s.lng,
+      addr: curated?.addr1 || s.placeName,
+      category: 'spot' as const,
+      image: '',
+      tel: null,
+      dist: 0,
+    };
+  });
 }
 
 /**
@@ -66,24 +91,30 @@ export async function GET(request: Request) {
 
       // 공공 API 일일 호출 제한(에러 22) 또는 빈 응답 시 전국 전통 한옥 시드 장소로 안전 폴백
       if (places.length === 0) {
-        const seeds = seedWarmth();
-        places = seeds
-          .map((s) => ({
-            id: s.placeId || s.id,
-            name: s.placeName,
-            lat: s.lat,
-            lng: s.lng,
-            addr: s.placeName,
-            category: 'spot' as const,
-            image: '',
-            tel: null,
-            dist: 0,
-          }))
-          .filter((s) => {
-            const d = Math.hypot(s.lat - lat, s.lng - lng);
-            // 확대 레벨에서는 주변 반경, 축소 광역 뷰(level >= 8)에서는 전국(동·서·남·북) 고르게 매칭
-            return d < (level <= 5 ? 0.2 : level <= 7 ? 0.9 : 3.5);
-          });
+        places = seedPlaces().filter((s) => {
+          const d = Math.hypot(s.lat - lat, s.lng - lng);
+          // 확대 레벨에서는 주변 반경, 축소 광역 뷰(level >= 8)에서는 전국(동·서·남·북) 고르게 매칭
+          return d < (level <= 5 ? 0.2 : level <= 7 ? 0.9 : 3.5);
+        });
+      }
+
+      /*
+        축소 뷰에서는 전국 시드를 함께 얹는다.
+
+        TourAPI 위치검색은 반경이 22km에서 잘린다(place.service.ts). 그래서 전국을
+        조망해도 지도 한가운데 22km 안의 장소만 돌아오고, 전주·안동·경주처럼 실제로
+        발길이 두터운 곳이 '온기가 없는 동네'로 비어 보였다. 확대해야 나타나는 건
+        그곳에 온기가 없어서가 아니라 조회 반경 탓이므로, 넓게 볼 때는 전국을 채운다.
+      */
+      if (level >= 8) {
+        const seen = new Set(places.map((p) => `${p.lat.toFixed(3)}_${p.lng.toFixed(3)}`));
+
+        for (const seed of seedPlaces()) {
+          const key = `${seed.lat.toFixed(3)}_${seed.lng.toFixed(3)}`;
+          if (seen.has(key)) continue;
+          seen.add(key);
+          places.push(seed);
+        }
       }
 
       if (places.length > 0) {

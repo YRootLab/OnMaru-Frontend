@@ -20,6 +20,7 @@ export function paintOverlays(map: KakaoMap, specs: OverlaySpec[]): () => void {
       yAnchor,
       zIndex,
     });
+    (el as any).__kakaoOverlay = overlay;
     overlay.setMap(map);
     return overlay;
   });

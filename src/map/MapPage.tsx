@@ -57,8 +57,8 @@ const FloatingPanelsContainer = styled.div`
   }
 `;
 
-/** PC에서 지도 위에 뜨는 카테고리 칩 */
-const MapChips = styled.div`
+/** PC에서 지도 위에 뜨는 카테고리 칩 — 상세 패널 열리면 숨김 */
+const MapChips = styled.div<{ $hidden: boolean }>`
   position: absolute;
   top: 16px;
   right: 16px;
@@ -66,6 +66,11 @@ const MapChips = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
+
+  opacity: ${({ $hidden }) => ($hidden ? 0 : 1)};
+  pointer-events: ${({ $hidden }) => ($hidden ? 'none' : 'auto')};
+  transform: ${({ $hidden }) => ($hidden ? 'translateY(-6px)' : 'translateY(0)')};
+  transition: opacity 0.22s ease, transform 0.22s ease;
 
   @media (max-width: 1023px) {
     display: none;
@@ -119,6 +124,10 @@ const MobileTop = styled.div`
 export default function MapPage() {
   const router = useRouter();
   const panelOpen = useMapStore((s) => s.panelOpen);
+  const detailId = useMapStore((s) => s.detailId);
+  const popularPanelOpen = useMapStore((s) => s.popularPanelOpen);
+
+  const isDetailOpen = Boolean(detailId) || popularPanelOpen;
 
   // 지도 데이터(TourAPI 장소 + 온기 데이터) 패치 훅
   useMapData();
@@ -140,7 +149,7 @@ export default function MapPage() {
         <WarmthLayer />
         <WarmthNotesLayer />
         <CinematicTourMapLayer />
-        <MapChips>
+        <MapChips $hidden={isDetailOpen}>
           {!panelOpen && (
             <FloatingHomeButton
               type="button"

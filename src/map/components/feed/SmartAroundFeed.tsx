@@ -13,7 +13,13 @@ interface SmartAroundFeedProps {
 }
 
 const Wrapper = styled.div`
+  position: relative;
   padding: 12px 14px 14px;
+
+  &:hover .om-feed-floating-btn {
+    opacity: 1;
+    pointer-events: auto;
+  }
 `;
 
 const Header = styled.div`
@@ -32,42 +38,60 @@ const TitleBox = styled.div`
 const Title = styled.h3`
   margin: 0;
   font-size: 14.5px;
-  font-weight: 700;
+  font-weight: 600;
   color: ${meok[900]};
+  letter-spacing: -0.01em;
 `;
 
 const SubText = styled.span`
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 400;
   color: ${lightPalette.cheongrok[500]};
 `;
 
-const NavButtonGroup = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 4px;
+const FeedContainer = styled.div`
+  position: relative;
+  width: 100%;
 `;
 
-const NavArrowBtn = styled.button`
+const FloatingNavBtn = styled.button<{ $direction: 'left' | 'right' }>`
+  position: absolute;
+  top: calc(50% - 14px);
+  ${({ $direction }) => ($direction === 'left' ? 'left: 4px;' : 'right: 4px;')}
+  transform: translateY(-50%);
+  z-index: 10;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
 
-  background: rgba(25, 31, 40, 0.05);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(25, 31, 40, 0.08);
+  box-shadow: 0 4px 14px rgba(25, 31, 40, 0.16);
   color: ${meok[700]};
   cursor: pointer;
-  transition: all 0.15s ease;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    background: ${lightPalette.cheongrok[50]};
-    color: ${lightPalette.cheongrok[700]};
+    background: #ffffff;
+    color: ${meok[900]};
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 6px 18px rgba(25, 31, 40, 0.22);
   }
 
   &:active {
-    transform: scale(0.92);
+    transform: translateY(-50%) scale(0.95);
+  }
+
+  @media (max-width: 768px) {
+    display: none;
   }
 `;
 
@@ -130,7 +154,7 @@ const PhotoBadge = styled.div`
   backdrop-filter: blur(4px);
   color: #ffffff;
   font-size: 9.5px;
-  font-weight: 700;
+  font-weight: 600;
 `;
 
 const Body = styled.div`
@@ -143,17 +167,19 @@ const Body = styled.div`
 const Name = styled.h4`
   margin: 0;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
   color: ${meok[900]};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  letter-spacing: -0.01em;
 `;
 
 const MoodReview = styled.p`
   margin: 2px 0 4px;
   font-size: 11px;
-  color: ${meok[700]};
+  font-weight: 400;
+  color: ${meok[500]};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -168,7 +194,7 @@ const MetaRow = styled.div`
 `;
 
 const DistTag = styled.span`
-  font-weight: 600;
+  font-weight: 500;
   color: ${lightPalette.cheongrok[700]};
 `;
 
@@ -231,18 +257,30 @@ export default function SmartAroundFeed({ items }: SmartAroundFeedProps) {
           <Title>추천 한옥 명소</Title>
           <SubText>추천</SubText>
         </TitleBox>
-
-        <NavButtonGroup>
-          <NavArrowBtn type="button" onClick={() => scroll('left')} aria-label="이전 추천 명소">
-            <ChevronLeft size={15} />
-          </NavArrowBtn>
-          <NavArrowBtn type="button" onClick={() => scroll('right')} aria-label="다음 추천 명소">
-            <ChevronRight size={15} />
-          </NavArrowBtn>
-        </NavButtonGroup>
       </Header>
 
-      <Scroller ref={scrollerRef} onWheel={handleWheel} role="region" aria-label="추천 한옥 명소 목록">
+      <FeedContainer>
+        <FloatingNavBtn
+          className="om-feed-floating-btn"
+          $direction="left"
+          type="button"
+          onClick={() => scroll('left')}
+          aria-label="이전 추천 명소 보기"
+        >
+          <ChevronLeft size={18} />
+        </FloatingNavBtn>
+
+        <FloatingNavBtn
+          className="om-feed-floating-btn"
+          $direction="right"
+          type="button"
+          onClick={() => scroll('right')}
+          aria-label="다음 추천 명소 보기"
+        >
+          <ChevronRight size={18} />
+        </FloatingNavBtn>
+
+        <Scroller ref={scrollerRef} onWheel={handleWheel} role="region" aria-label="추천 한옥 명소 목록">
         {curatedSpots.map((item) => (
           <CuratedCard key={item.id} type="button" onClick={() => handleClick(item)}>
             <PhotoBox>
@@ -267,6 +305,7 @@ export default function SmartAroundFeed({ items }: SmartAroundFeedProps) {
           </CuratedCard>
         ))}
       </Scroller>
+      </FeedContainer>
     </Wrapper>
   );
 }

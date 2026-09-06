@@ -89,8 +89,8 @@ const Ramp = styled.div`
 
 /*
   바탕색을 깔고 그 위에 램프를 얹는다.
-  램프의 앞 구간은 완전히 투명해서, 바탕이 그대로 비치는 왼쪽 끝이
-  "아무것도 칠하지 않음 = 한적"이라는 뜻이 된다.
+  램프는 0에서만 완전히 투명하므로, 바탕이 그대로 비치는 자리는
+  "한적한 곳"이 아니라 "집계가 없는 곳"을 뜻한다.
 */
 const RampBar = styled.div<{ $gradient: string }>`
   height: 8px;
@@ -229,10 +229,10 @@ export default function WarmthLegend() {
       >
         <RampBar $gradient={rampCss(isDark)} />
         <RampEnds>
-          <span>칠하지 않음</span>
-          <span>가장 붐빔</span>
+          <span>한적</span>
+          <span>붐빔</span>
         </RampEnds>
-        <RampNote>색은 경고입니다. 여백이 지금 갈 만한 곳입니다.</RampNote>
+        <RampNote>아무 색도 없는 곳은 아직 집계가 닿지 않은 곳입니다.</RampNote>
       </Ramp>
 
       <Divider />
