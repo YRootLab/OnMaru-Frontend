@@ -15,8 +15,23 @@ const Section = styled.section``;
 
 const Grid = styled(motion.div)`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 20px;
+
+  @media (min-width: 540px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  @media (min-width: 800px) {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  @media (min-width: 1080px) {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
 `;
 
 const containerVariants = {
