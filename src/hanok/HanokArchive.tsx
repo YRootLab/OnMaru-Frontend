@@ -1,22 +1,28 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 import { Global, css } from '@emotion/react';
-import { meok, lightPalette, surface } from '@/design-system/tokens';
+import { meok, lightPalette } from '@/design-system/tokens';
 import HanokGrid from '@/hanok/sections/HanokGrid';
 import HanokMap from '@/hanok/sections/HanokMap';
 import HanokStayAccordion from '@/hanok/sections/HanokStayAccordion';
 import HanokMonthly from '@/hanok/sections/HanokMonthly';
 import HanokManifestoCta from '@/hanok/sections/HanokManifestoCta';
-import VillageDetailModal from '@/hanok/components/VillageDetailModal';
 import type { Village, VillageMeta } from '@/hanok/types';
+import { decodeHanokArchivePayload } from '@/hanok/data/hanokArchiveFallback';
+import { HANOK_REVEAL_SECTIONS } from '@/hanok/hanokSectionReveal';
+import { VesselReveal } from '@/shared/components/animation/VesselReveal';
+
+const loadVillageDetailModal = () => import('@/hanok/components/VillageDetailModal');
+const VillageDetailModal = dynamic(loadVillageDetailModal, { ssr: false });
 
 const Root = styled.div`
   min-height: 100vh;
   font-family: 'SpoqaHanSansNeo', sans-serif;
   color: ${meok[900]};
-  background: radial-gradient(ellipse 72% 30% at 50% 0%, rgba(43, 92, 230, 0.07), transparent 72%), #f5f5f4;
+  background: #ffffff;
 `;
 
 const PageInner = styled.div`
@@ -25,13 +31,10 @@ const PageInner = styled.div`
   padding: 0;
 `;
 
-// 페이지 바탕. PageContainer가 좌우 패딩을 가지고 있어 Root에 칠하면 양옆이 흰색으로 남는다.
-// 한옥 페이지에 있는 동안만 body 자체를 한지톤으로 깐다(언마운트 시 자동 복원).
+// PageContainer 바깥까지 같은 흰색을 유지하고, route를 떠나면 Emotion이 자동 복원한다.
 const paperGround = css`
   body {
-
-    background: ${surface.light.base};
-
+    background: #ffffff;
   }
 `;
 
@@ -100,51 +103,118 @@ interface HanokArchiveProps {
 
 export default function HanokArchive({ villages, meta }: HanokArchiveProps) {
   const [selectedVillage, setSelectedVillage] = useState<Village | null>(null);
+  const [archiveData, setArchiveData] = useState(() => ({ villages, meta }));
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 5000);
+
+    async function refreshArchive() {
+      try {
+        const response = await fetch('/api/tourapi', {
+          cache: 'no-store',
+          signal: controller.signal,
+        });
+        if (!response.ok) return;
+        const nextData = decodeHanokArchivePayload(await response.json());
+        if (nextData) setArchiveData(nextData);
+      } catch {
+        // Snapshot remains visible when the future backend is unavailable or changes shape.
+      } finally {
+        window.clearTimeout(timeoutId);
+      }
+    }
+
+    void refreshArchive();
+    return () => {
+      window.clearTimeout(timeoutId);
+      controller.abort();
+    };
+  }, []);
+
+  useEffect(() => {
+    const browserWindow = window as Window & {
+      requestIdleCallback?: (callback: () => void, options: { timeout: number }) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    if (browserWindow.requestIdleCallback) {
+      const idleId = browserWindow.requestIdleCallback(() => void loadVillageDetailModal(), { timeout: 2000 });
+      return () => browserWindow.cancelIdleCallback?.(idleId);
+    }
+    const timeoutId = window.setTimeout(() => void loadVillageDetailModal(), 600);
+    return () => window.clearTimeout(timeoutId);
+  }, []);
 
   return (
     <Root>
       <Global styles={paperGround} />
       <PageInner>
         {/* 진입부는 질문을 던지고, 답(왜 한옥인가)은 맨 아래 매니페스토가 한다 */}
-        <Intro>
-          <Eyebrow>온마루 한옥도감</Eyebrow>
-          <PageTitle>지금 한옥은 어디에 남아 있을까</PageTitle>
-          <Lead>
-            궁궐과 고택, 서원과 전통마을, 그리고 하룻밤 머물 수 있는 집까지. 계절마다 한 곳을
-            골라 들여다보고 나머지는 도감과 지도로 기록합니다.
-          </Lead>
-          <SourceNote>
-            한국관광공사 TourAPI 실시간 연동 · 현재 <strong>{meta.total}곳</strong> 수집
-          </SourceNote>
-        </Intro>
+        <VesselReveal id={HANOK_REVEAL_SECTIONS.intro} className="w-full py-6 sm:py-8 lg:py-10">
+          <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+            <Intro>
+              <Eyebrow>온마루 한옥도감</Eyebrow>
+              <PageTitle>지금 한옥은 어디에 남아 있을까</PageTitle>
+              <Lead>
+                궁궐과 고택, 서원과 전통마을, 그리고 하룻밤 머물 수 있는 집까지. 계절마다 한 곳을
+                골라 들여다보고 나머지는 도감과 지도로 기록합니다.
+              </Lead>
+              <SourceNote>
+                한국관광공사 TourAPI 실시간 연동 · 현재 <strong>{archiveData.meta.total}곳</strong> 수집
+              </SourceNote>
+            </Intro>
+          </div>
+        </VesselReveal>
 
         {/* 이 달의 한옥 큐레이션 */}
         <EditorialSection>
-          <HanokMonthly villages={villages} onSelectVillage={setSelectedVillage} />
+          <VesselReveal id={HANOK_REVEAL_SECTIONS.monthly} className="w-full py-6 sm:py-8 lg:py-10">
+            <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+              <HanokMonthly villages={archiveData.villages} onSelectVillage={setSelectedVillage} />
+            </div>
+          </VesselReveal>
         </EditorialSection>
 
         {/* 아카이브 한 덩어리: 도감 → 스테이 → 지도 */}
         <ArchiveGroup>
-          <HanokGrid villages={villages} onSelectVillage={setSelectedVillage} />
+          <VesselReveal id={HANOK_REVEAL_SECTIONS.grid} className="w-full py-6 sm:py-8 lg:py-10">
+            <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+              <HanokGrid villages={archiveData.villages} onSelectVillage={setSelectedVillage} />
+            </div>
+          </VesselReveal>
 
           <ArchiveSection>
-            <HanokStayAccordion villages={villages} onSelectVillage={setSelectedVillage} />
+            <VesselReveal id={HANOK_REVEAL_SECTIONS.stay} className="w-full py-6 sm:py-8 lg:py-10">
+              <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+                <HanokStayAccordion villages={archiveData.villages} onSelectVillage={setSelectedVillage} />
+              </div>
+            </VesselReveal>
           </ArchiveSection>
 
           <ArchiveSection>
-            <HanokMap villages={villages} onSelectVillage={setSelectedVillage} />
+            <VesselReveal id={HANOK_REVEAL_SECTIONS.map} className="w-full py-6 sm:py-8 lg:py-10">
+              <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+                <HanokMap villages={archiveData.villages} onSelectVillage={setSelectedVillage} />
+              </div>
+            </VesselReveal>
           </ArchiveSection>
         </ArchiveGroup>
 
         {/* 온마루 한옥 매니페스토 (자체 상하 여백을 가지고 있다) */}
-        <HanokManifestoCta />
+        <VesselReveal id={HANOK_REVEAL_SECTIONS.manifesto} className="w-full py-6 sm:py-8 lg:py-10">
+          <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+            <HanokManifestoCta />
+          </div>
+        </VesselReveal>
       </PageInner>
 
       {/* 마을 상세 인터랙티브 모달 */}
-      <VillageDetailModal
-        village={selectedVillage}
-        onClose={() => setSelectedVillage(null)}
-      />
+      {selectedVillage && (
+        <VillageDetailModal
+          village={selectedVillage}
+          onClose={() => setSelectedVillage(null)}
+        />
+      )}
     </Root>
   );
 }

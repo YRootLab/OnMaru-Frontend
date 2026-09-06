@@ -37,6 +37,7 @@
   },
   "devDependencies": {
     "@emotion/babel-plugin": "^11.13.5",
+    "@playwright/test": "^1.63.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

@@ -10,8 +10,8 @@ import type { Village } from '@/hanok/types';
 const Card = styled(motion.article, transientProps)`
   position: relative;
   width: 100%;
-  aspect-ratio: 3 / 4.4;
-  border-radius: 32px;
+  aspect-ratio: 3 / 4.2;
+  border-radius: 22px;
   overflow: hidden;
   cursor: pointer;
   user-select: none;
@@ -39,14 +39,14 @@ const GradientOverlay = styled.div`
   background: linear-gradient(
     to bottom,
     rgba(0, 0, 0, 0) 0%,
-    rgba(0, 0, 0, 0.15) 45%,
-    rgba(14, 18, 16, 0.65) 75%,
-    rgba(10, 14, 12, 0.85) 100%
+    rgba(0, 0, 0, 0.15) 40%,
+    rgba(14, 18, 16, 0.7) 70%,
+    rgba(10, 14, 12, 0.88) 100%
   );
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 20px 18px 18px;
+  padding: 16px 14px 14px;
   z-index: 2;
 `;
 
@@ -54,19 +54,23 @@ const HeaderRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 8px;
+  gap: 8px;
+  margin-bottom: 6px;
 `;
 
 const Name = styled.h3`
   font-family: 'SpoqaHanSansNeo', sans-serif;
-  font-size: clamp(20px, 2.2vw, 24px);
+  font-size: clamp(15px, 1.35vw, 18px);
   font-weight: 700;
   color: #ffffff;
   margin: 0;
   letter-spacing: -0.02em;
   line-height: 1.25;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  word-break: keep-all;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const TypeBadge = styled.span`
@@ -75,19 +79,19 @@ const TypeBadge = styled.span`
   -webkit-backdrop-filter: blur(12px);
 
   color: #ffffff;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
   border-radius: 9999px;
   white-space: nowrap;
   flex-shrink: 0;
 `;
 
 const Summary = styled.p`
-  font-size: 13px;
+  font-size: 12px;
   color: rgba(255, 255, 255, 0.88);
-  line-height: 1.55;
-  margin: 0 0 14px;
+  line-height: 1.45;
+  margin: 0 0 10px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -99,32 +103,32 @@ const Summary = styled.p`
 const BadgeRow = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 20px;
+  gap: 6px;
+  margin-bottom: 12px;
 `;
 
 const Badge = styled.span`
-  font-size: 11.5px;
+  font-size: 10.5px;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.9);
   background: rgba(255, 255, 255, 0.14);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  padding: 5px 14px;
+  padding: 3.5px 10px;
   border-radius: 9999px;
 
 `;
 
 const ActionButton = styled(motion.div, transientProps)`
   width: 100%;
-  height: 48px;
+  height: 38px;
   background: #ffffff;
   color: #191f28;
   border-radius: 9999px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 15px;
+  font-size: 13.5px;
   font-weight: 700;
   letter-spacing: -0.01em;
 

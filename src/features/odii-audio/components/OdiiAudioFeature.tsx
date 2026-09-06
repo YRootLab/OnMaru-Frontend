@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { motion, Variants } from 'framer-motion';
 import { StoryCarousel } from './StoryCarousel';
 import { CategoryTagFilter } from './CategoryTagFilter';
@@ -12,7 +13,6 @@ import { OdiiAutoSliceRail } from './OdiiAutoSliceRail';
 import { OdiiEditorialRail } from './OdiiEditorialRail';
 import { OdiiFooterCTA } from './OdiiFooterCTA';
 import { SoundConstellationSection } from './SoundConstellationSection';
-import { AllStoriesModal } from './AllStoriesModal';
 import { LocalMiniPlayer } from './LocalMiniPlayer';
 import { OdiiAtmosphereBackground } from './OdiiAtmosphereBackground';
 import { HanjiTearTransition } from '@/features/odii-audio/background/HanjiTearTransition';
@@ -21,6 +21,13 @@ import { VesselReveal } from '@/shared/components/animation/VesselReveal';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { OdiiStoryItem, OdiiStoryPage, IOdiiApiService } from '@/features/odii-audio/types/odii.types';
 import { OdiiDependencyProvider, useOdiiApiService } from '@/features/odii-audio/context/OdiiDependencyContext';
+import { loadOdiiInitialData } from './odiiInitialLoad';
+import { ODII_SECTION_CONTENT_CLASS } from './odiiSectionLayout';
+
+const AllStoriesModal = dynamic(
+  () => import('./AllStoriesModal').then((module) => module.AllStoriesModal),
+  { ssr: false },
+);
 
 const titleVariants: Variants = {
   hidden: { opacity: 0, y: 26 },
@@ -96,34 +103,19 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
   const [savedStories, setSavedStories] = useState<OdiiStoryItem[]>([]);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem('onmaru_saved_odii_stories');
-      const parsed = stored ? JSON.parse(stored) : [];
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        setSavedStories(parsed);
-      }
-    } catch {
-      // ignore
-    }
-  }, []);
-
-  const handleToggleBookmark = (story: OdiiStoryItem) => {
-    setSavedStories((prev) => {
-      const exists = prev.some((s) => s.stid === story.stid);
-      let updated: OdiiStoryItem[];
-      if (exists) {
-        updated = prev.filter((s) => s.stid !== story.stid);
-      } else {
-        updated = [story, ...prev];
-      }
+    const timeoutId = window.setTimeout(() => {
       try {
-        localStorage.setItem('onmaru_saved_odii_stories', JSON.stringify(updated));
+        const stored = localStorage.getItem('onmaru_saved_odii_stories');
+        const parsed = stored ? JSON.parse(stored) : [];
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setSavedStories(parsed);
+        }
       } catch {
         // ignore
       }
-      return updated;
-    });
-  };
+    }, 0);
+    return () => window.clearTimeout(timeoutId);
+  }, []);
 
   const handleRemoveBookmark = (storyId: string) => {
     setSavedStories((prev) => {
@@ -137,38 +129,68 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
     });
   };
 
-  const bookmarkedIds = useMemo(() => new Set(savedStories.map((s) => s.stid)), [savedStories]);
-
   const [isNearbyLoading, setIsNearbyLoading] = useState(true);
   const [isArchiveLoading, setIsArchiveLoading] = useState(true);
   const [apiError, setApiError] = useState<string | null>(null);
   const [retryToken, setRetryToken] = useState(0);
+  const [initialLoadVersion, setInitialLoadVersion] = useState(0);
+  const initialLoadCompleteRef = useRef(false);
+  const initialArchiveRef = useRef<OdiiStoryPage | null>(initialStories ? {
+    items: initialStories,
+    pageNo: 1,
+    numOfRows: 12,
+    totalCount: initialStories.length,
+    source: 'mock',
+  } : null);
+  const archiveScopeRef = useRef({ selectedCategory, searchQuery, archivePage });
   const handleApiError = useCallback(() => {
     setApiError('오디 이야기를 불러오지 못했습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.');
   }, []);
 
   useEffect(() => {
+    archiveScopeRef.current = { selectedCategory, searchQuery, archivePage };
+  }, [archivePage, searchQuery, selectedCategory]);
+
+  useEffect(() => {
     let isMounted = true;
 
-    async function loadInitialHeroAndNearby() {
+    initialLoadCompleteRef.current = false;
+
+    async function loadInitialContent() {
       try {
-        const [nearby, heroEntries] = await Promise.all([
-          activeApiService.getNearbyStories(),
-          activeApiService.getStoryList(),
-        ]);
+        const result = await loadOdiiInitialData(activeApiService);
 
         if (isMounted) {
-          setNearbyStories(nearby);
-          setHeroStorySets({ '추천': heroEntries.slice(0, 7) });
+          setNearbyStories(result.nearbyStories);
+          setHeroStorySets({ '추천': result.heroStories });
+
+          if (result.archive) {
+            initialArchiveRef.current = result.archive;
+
+            const scope = archiveScopeRef.current;
+            if (scope.selectedCategory === '전체' && !scope.searchQuery && scope.archivePage === 1) {
+              setStoryList(result.archive.items);
+              setArchiveMeta(result.archive);
+            }
+          }
+          if (result.archiveError || result.nearbyError) {
+            setApiError('오디 이야기를 불러오지 못했습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.');
+          }
+          setIsArchiveLoading(false);
+          initialLoadCompleteRef.current = true;
+          setInitialLoadVersion((version) => version + 1);
         }
       } catch {
-        if (isMounted) setApiError('오디 이야기를 불러오지 못했습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.');
+        if (isMounted) {
+          setApiError('오디 이야기를 불러오지 못했습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.');
+          setIsArchiveLoading(false);
+        }
       } finally {
         if (isMounted) setIsNearbyLoading(false);
       }
     }
 
-    loadInitialHeroAndNearby();
+    loadInitialContent();
 
     return () => {
       isMounted = false;
@@ -177,6 +199,19 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
 
   useEffect(() => {
     let isMounted = true;
+    if (!initialLoadCompleteRef.current) return;
+
+    const isInitialScope = selectedCategory === '전체' && !searchQuery && archivePage === 1;
+    if (isInitialScope && initialArchiveRef.current) {
+      const initialArchive = initialArchiveRef.current;
+      Promise.resolve().then(() => {
+        if (!isMounted) return;
+        setStoryList(initialArchive.items);
+        setArchiveMeta(initialArchive);
+        setIsArchiveLoading(false);
+      });
+      return;
+    }
 
     async function fetchArchiveData() {
       setIsArchiveLoading(true);
@@ -203,10 +238,12 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [activeApiService, archivePage, selectedCategory, searchQuery, retryToken]);
+  }, [activeApiService, archivePage, initialLoadVersion, selectedCategory, searchQuery, retryToken]);
 
   const retryApiRequests = () => {
     setApiError(null);
+    setIsNearbyLoading(true);
+    setIsArchiveLoading(true);
     setRetryToken((token) => token + 1);
   };
 
@@ -277,19 +314,21 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
           {/* 섹션 2: 한 단어로, 한 장면 */}
           <VesselReveal className="min-h-[650px] sm:min-h-[700px]">
             <div className="mt-4" data-odii-stage="themes">
-              <div className="mx-auto max-w-6xl pt-4">
-                <h3 className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-[clamp(24px,3.2vw,36px)] font-bold tracking-[-0.04em] text-transparent">
-                  장면을 따라 걷는 소리
-                </h3>
-              </div>
-              <div className="mt-2">
-                <OdiiEditorialRail
-                  key={retryToken}
-                  stories={storyList}
-                  storySets={heroStorySets}
-                  apiService={activeApiService}
-                  onApiError={handleApiError}
-                />
+              <div className={ODII_SECTION_CONTENT_CLASS}>
+                <div className="pt-4">
+                  <h3 className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-[clamp(24px,3.2vw,36px)] font-bold tracking-[-0.04em] text-transparent">
+                    장면을 따라 걷는 소리
+                  </h3>
+                </div>
+                <div className="mt-2">
+                  <OdiiEditorialRail
+                    key={retryToken}
+                    stories={storyList}
+                    storySets={heroStorySets}
+                    apiService={activeApiService}
+                    onApiError={handleApiError}
+                  />
+                </div>
               </div>
             </div>
           </VesselReveal>
@@ -421,7 +460,9 @@ export const OdiiAudioFeature: React.FC<OdiiAudioFeatureProps> = ({
       />
 
       <LocalMiniPlayer />
-      <AllStoriesModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} allStories={storyList} />
+      {isModalOpen && (
+        <AllStoriesModal isOpen onClose={() => setIsModalOpen(false)} allStories={storyList} />
+      )}
     </div>
     </OdiiDependencyProvider>
   );

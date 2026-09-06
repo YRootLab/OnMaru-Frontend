@@ -1,12 +1,6 @@
 import type { Metadata } from 'next';
 import HanokArchive from '@/hanok/HanokArchive';
-import type { Village, VillageMeta } from '@/hanok/types';
-import { HanokArchiveService } from '@/hanok/services/hanokArchive.service';
-
-async function getVillageData(): Promise<{ villages: Village[]; meta: VillageMeta }> {
-  // TourAPI 4.0 실시간 라이브 API 호출
-  return await HanokArchiveService.fetchRealtimeHanoks();
-}
+import { HANOK_ARCHIVE_FALLBACK } from '@/hanok/data/hanokArchiveFallback';
 
 export const metadata: Metadata = {
   title: '한옥도감 — 실시간 전국 전통 한옥 & 문화유산 도감 | 온마루',
@@ -19,8 +13,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function HanokPage() {
-  const { villages, meta } = await getVillageData();
+export default function HanokPage() {
+  const { villages, meta } = HANOK_ARCHIVE_FALLBACK;
 
   return <HanokArchive villages={villages} meta={meta} />;
 }

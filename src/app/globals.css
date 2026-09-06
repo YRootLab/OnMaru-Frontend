@@ -56,6 +56,15 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+html:has([data-page-surface='hanok']),
+html body:has([data-page-surface='hanok']) {
+  background-color: #ffffff;
+}
+
+html body:has([data-page-surface='hanok']) {
+  transition-property: color;
+}
+
 .odii-feature {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Apple SD Gothic Neo", Inter, sans-serif;
   /* design-system/tokens.ts의 jangmi 500/400/700/50 */

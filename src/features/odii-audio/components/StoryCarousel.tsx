@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
+import { getRailIndicator, shouldUpdateRailIndicator } from './storyCarouselMetrics';
 
 interface StoryCarouselProps {
   stories: OdiiStoryItem[];
@@ -257,6 +258,8 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
   const lastXRef = useRef(0);
   const lastTimeRef = useRef(0);
   const velocityRef = useRef(0);
+  const indicatorFrameRef = useRef<number | null>(null);
+  const snapMetricsRef = useRef<{ offsets: number[]; maxScroll: number }>({ offsets: [], maxScroll: 0 });
 
   const currentStory = useOdiiAudioStore((state) => state.currentStory);
   const isPlaying = useOdiiAudioStore((state) => state.isPlaying);
@@ -275,24 +278,35 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
     }
   };
 
-  const getNearestCardScrollLeft = (currentScrollLeft: number, velocity: number) => {
+  const measureSnapPoints = useCallback(() => {
     const rail = railRef.current;
-    if (!rail) return currentScrollLeft;
+    if (!rail) return;
 
     const cards = Array.from(rail.children) as HTMLElement[];
-    if (cards.length === 0) return currentScrollLeft;
+    if (cards.length === 0) {
+      snapMetricsRef.current = { offsets: [], maxScroll: 0 };
+      return;
+    }
 
     const firstCardLeft = cards[0].offsetLeft;
-    const maxScroll = rail.scrollWidth - rail.clientWidth;
-    
+    snapMetricsRef.current = {
+      offsets: cards.map((card) => card.offsetLeft - firstCardLeft),
+      maxScroll: rail.scrollWidth - rail.clientWidth,
+    };
+  }, []);
+
+  const getNearestCardScrollLeft = (currentScrollLeft: number, velocity: number) => {
+    if (snapMetricsRef.current.offsets.length === 0) measureSnapPoints();
+    const { offsets, maxScroll } = snapMetricsRef.current;
+    if (offsets.length === 0) return currentScrollLeft;
+
     // 속도 기반 미래 스크롤 예측 지점 (속도가 크면 1~2개 카드 이상 미끄러짐)
     const projectedLeft = currentScrollLeft - velocity * 180;
 
     let closestScrollLeft = 0;
     let minDistance = Math.abs(projectedLeft - 0);
 
-    for (let i = 0; i < cards.length; i++) {
-      const cardTarget = cards[i].offsetLeft - firstCardLeft;
+    for (const cardTarget of offsets) {
       const distance = Math.abs(projectedLeft - cardTarget);
       if (distance < minDistance) {
         minDistance = distance;
@@ -309,7 +323,8 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
 
     isMouseDownRef.current = true;
     isMovedRef.current = false;
-    startXRef.current = e.pageX - rail.offsetLeft;
+    measureSnapPoints();
+    startXRef.current = e.pageX;
     scrollLeftRef.current = rail.scrollLeft;
 
     lastXRef.current = e.pageX;
@@ -334,8 +349,7 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
     lastXRef.current = currentX;
     lastTimeRef.current = now;
 
-    const x = currentX - rail.offsetLeft;
-    const walk = (x - startXRef.current) * 1.1;
+    const walk = (currentX - startXRef.current) * 1.1;
     if (Math.abs(walk) > 6) {
       isMovedRef.current = true;
     }
@@ -355,18 +369,19 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
     rail.scrollTo({ left: targetLeft, behavior: 'smooth' });
   };
 
-  const updateRailIndicator = useCallback(() => {
-    const rail = railRef.current;
-    if (!rail) return;
-    const maxScrollLeft = rail.scrollWidth - rail.clientWidth;
-    if (maxScrollLeft <= 4) {
-      setRailIndicator({ left: 0, width: 100, index: 1 });
-      return;
-    }
-    const width = Math.max(18, Math.min(100, (rail.clientWidth / rail.scrollWidth) * 100));
-    const left = (rail.scrollLeft / maxScrollLeft) * (100 - width);
-    const index = Math.min(stories.length, Math.max(1, Math.round((rail.scrollLeft / maxScrollLeft) * (stories.length - 1)) + 1));
-    setRailIndicator({ left, width, index });
+  const scheduleRailIndicatorUpdate = useCallback(() => {
+    if (indicatorFrameRef.current !== null) return;
+    indicatorFrameRef.current = requestAnimationFrame(() => {
+      indicatorFrameRef.current = null;
+      const rail = railRef.current;
+      if (!rail) return;
+      const next = getRailIndicator({
+        scrollLeft: rail.scrollLeft,
+        scrollWidth: rail.scrollWidth,
+        clientWidth: rail.clientWidth,
+      }, stories.length);
+      setRailIndicator((previous) => shouldUpdateRailIndicator(previous, next) ? next : previous);
+    });
   }, [stories.length]);
 
   const moveRail = (direction: number) => {
@@ -379,14 +394,20 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
     const rail = railRef.current;
     if (!rail) return;
     rail.scrollLeft = 0;
-    updateRailIndicator();
-    rail.addEventListener('scroll', updateRailIndicator, { passive: true });
-    window.addEventListener('resize', updateRailIndicator);
-    return () => {
-      rail.removeEventListener('scroll', updateRailIndicator);
-      window.removeEventListener('resize', updateRailIndicator);
+    measureSnapPoints();
+    scheduleRailIndicatorUpdate();
+    const handleResize = () => {
+      measureSnapPoints();
+      scheduleRailIndicatorUpdate();
     };
-  }, [updateRailIndicator]);
+    rail.addEventListener('scroll', scheduleRailIndicatorUpdate, { passive: true });
+    window.addEventListener('resize', handleResize);
+    return () => {
+      rail.removeEventListener('scroll', scheduleRailIndicatorUpdate);
+      window.removeEventListener('resize', handleResize);
+      if (indicatorFrameRef.current !== null) cancelAnimationFrame(indicatorFrameRef.current);
+    };
+  }, [measureSnapPoints, scheduleRailIndicatorUpdate]);
 
   if (isLoading) {
     return <StoryCarouselSkeleton />;

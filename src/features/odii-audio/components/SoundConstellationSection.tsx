@@ -7,6 +7,11 @@ import { OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
 import { KOREA_MAP_VIEWBOX, KOREA_REGION_PATHS, KoreaRegionPath } from '@/features/odii-audio/data/koreaMapPaths';
 import { useOdiiApiService } from '@/features/odii-audio/context/OdiiDependencyContext';
 import { getVirtualRange, VIRTUAL_ITEM_HEIGHT } from './soundConstellationScroll';
+import { useViewportActivation } from '@/shared/hooks/useViewportActivation';
+import {
+  SOUND_CONSTELLATION_API_ROOT_MARGIN,
+  getRegionPathMotion,
+} from './soundConstellationMotion';
 
 interface SoundConstellationSectionProps {
   stories: OdiiStoryItem[];
@@ -66,6 +71,9 @@ function getStoryExcerpt(story: OdiiStoryItem): string {
 
 export const SoundConstellationSection: React.FC<SoundConstellationSectionProps> = ({ stories }) => {
   const activeApiService = useOdiiApiService();
+  const { ref: viewportRef, isActive: isApiActive } = useViewportActivation<HTMLElement>({
+    rootMargin: SOUND_CONSTELLATION_API_ROOT_MARGIN,
+  });
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const indicatorThumbRef = useRef<HTMLSpanElement | null>(null);
   const scrollFrameRef = useRef<number | null>(null);
@@ -82,6 +90,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
   const [containerHeight, setContainerHeight] = useState(500);
 
   const regionStoriesCacheRef = useRef<Record<string, { stories: OdiiStoryItem[]; page: number; hasMore: boolean }>>({});
+  const [regionStoryCounts, setRegionStoryCounts] = useState<Record<string, number>>({});
   const [loadedRegionStories, setLoadedRegionStories] = useState<OdiiStoryItem[] | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -95,28 +104,30 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
 
   // 1. 지도 클릭 시 해당 지역 데이터 초기 로딩 (API + 캐시)
   useEffect(() => {
+    if (!isApiActive) return;
     let isMounted = true;
-    if (scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0;
-    setRenderScrollTop(0);
 
-    const cached = regionStoriesCacheRef.current[selectedRegionId];
-    if (cached && cached.stories.length > 0) {
-      setLoadedRegionStories(cached.stories);
-      setCurrentPage(cached.page);
-      setHasMore(cached.hasMore);
-      setIsRegionLoading(false);
-      return;
-    }
+    async function loadRegionStories() {
+      if (scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0;
+      setRenderScrollTop(0);
 
-    const localMatch = stories.filter((story) =>
-      selectedRegion.keywords.some((keyword) => normalizeText(story).includes(keyword))
-    );
+      const cached = regionStoriesCacheRef.current[selectedRegionId];
+      if (cached && cached.stories.length > 0) {
+        setLoadedRegionStories(cached.stories);
+        setCurrentPage(cached.page);
+        setHasMore(cached.hasMore);
+        setIsRegionLoading(false);
+        return;
+      }
 
-    setIsRegionLoading(true);
+      const localMatch = stories.filter((story) =>
+        selectedRegion.keywords.some((keyword) => normalizeText(story).includes(keyword))
+      );
 
-    activeApiService
-      .getStoryList(undefined, selectedRegion.keywords[0])
-      .then((newStories) => {
+      setIsRegionLoading(true);
+
+      try {
+        const newStories = await activeApiService.getStoryList(undefined, selectedRegion.keywords[0]);
         if (!isMounted) return;
         let finalStories = newStories.filter((s) => Boolean(s && s.stid));
         if (finalStories.length === 0) {
@@ -131,23 +142,26 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
         };
 
         setLoadedRegionStories(finalStories);
+        setRegionStoryCounts((previous) => ({ ...previous, [selectedRegionId]: finalStories.length }));
         setCurrentPage(1);
         setHasMore(hasNext);
-      })
-      .catch(() => {
+      } catch {
         if (!isMounted) return;
         const fallback = localMatch.length ? localMatch : stories;
         setLoadedRegionStories(fallback);
+        setRegionStoryCounts((previous) => ({ ...previous, [selectedRegionId]: fallback.length }));
         setHasMore(false);
-      })
-      .finally(() => {
+      } finally {
         if (isMounted) setIsRegionLoading(false);
-      });
+      }
+    }
+
+    void loadRegionStories();
 
     return () => {
       isMounted = false;
     };
-  }, [selectedRegionId, activeApiService, selectedRegion, stories]);
+  }, [selectedRegionId, activeApiService, isApiActive, selectedRegion, stories]);
 
   useEffect(() => () => {
     if (scrollFrameRef.current !== null) cancelAnimationFrame(scrollFrameRef.current);
@@ -171,24 +185,21 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
           return;
         }
 
-        setLoadedRegionStories((prev) => {
-          const currentList = prev || [];
-          const existingIds = new Set(currentList.map((s) => s.stid));
-          const uniqueNew = moreStories.filter((s) => s && s.stid && !existingIds.has(s.stid));
-          const updatedList = [...currentList, ...uniqueNew];
+        const currentList = regionStoriesCacheRef.current[selectedRegionId]?.stories ?? [];
+        const existingIds = new Set(currentList.map((story) => story.stid));
+        const uniqueNew = moreStories.filter((story) => story && story.stid && !existingIds.has(story.stid));
+        const updatedList = [...currentList, ...uniqueNew];
+        const hasNext = moreStories.length >= 10;
 
-          const hasNext = moreStories.length >= 10;
-          setHasMore(hasNext);
-          setCurrentPage(nextPage);
-
-          regionStoriesCacheRef.current[selectedRegionId] = {
-            stories: updatedList,
-            page: nextPage,
-            hasMore: hasNext,
-          };
-
-          return updatedList;
-        });
+        regionStoriesCacheRef.current[selectedRegionId] = {
+          stories: updatedList,
+          page: nextPage,
+          hasMore: hasNext,
+        };
+        setLoadedRegionStories(updatedList);
+        setRegionStoryCounts((previous) => ({ ...previous, [selectedRegionId]: updatedList.length }));
+        setHasMore(hasNext);
+        setCurrentPage(nextPage);
       })
       .catch(() => {
         setHasMore(false);
@@ -278,7 +289,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
   };
 
   return (
-    <section aria-labelledby="sound-map-heading" className="w-full py-10 sm:py-14">
+    <section ref={viewportRef} aria-labelledby="sound-map-heading" className="w-full py-10 sm:py-14">
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
         <div className="pb-1">
           <h2 id="sound-map-heading" className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-odii-sans text-[clamp(24px,3.2vw,36px)] font-bold tracking-[-0.045em] text-transparent">
@@ -307,6 +318,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                 {KOREA_REGION_PATHS.map((region) => {
                   const active = region.id === selectedRegionId;
                   const hovered = region.id === hoveredRegionId;
+                  const pathMotion = getRegionPathMotion({ active, hovered, listHovered: isListHovered });
                   return (
                     <motion.path
                       key={region.id}
@@ -314,13 +326,8 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                       onClick={() => setSelectedRegionId(region.id)}
                       onHoverStart={() => setHoveredRegionId(region.id)}
                       onHoverEnd={() => setHoveredRegionId((current) => (current === region.id ? null : current))}
-                      animate={{
-                        fill: active ? '#f84e76' : hovered ? '#e4e4e2' : '#f8f8f7',
-                        fillOpacity: active ? 0.92 : 1,
-                        filter: active
-                          ? (isListHovered ? 'drop-shadow(0 5px 16px rgba(248,78,118,0.45))' : 'drop-shadow(0 3px 8px rgba(248,78,118,0.22))')
-                          : 'drop-shadow(0 0px 0px rgba(0,0,0,0))',
-                      }}
+                      initial={pathMotion}
+                      animate={pathMotion}
                       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                       stroke={active ? '#f84e76' : '#211e19'}
                       strokeOpacity={active ? 0.5 : 0.18}
@@ -335,8 +342,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
 
               {KOREA_REGION_PATHS.map((region) => {
                 const active = region.id === selectedRegionId;
-                const cached = regionStoriesCacheRef.current[region.id];
-                const count = cached ? cached.stories.length : getRegionStories(stories, region).length;
+                const count = regionStoryCounts[region.id] ?? getRegionStories(stories, region).length;
                 return (
                   <div
                     key={region.id}
