@@ -26,7 +26,7 @@ Implemented:
 
 Fresh verification:
 
-- `npx vitest run`: 21 files, 70 tests passed.
+- `npx vitest run`: 22 files, 72 tests passed.
 - `npx tsc --noEmit --pretty false`: passed.
 - `npm run build`: passed with Next.js 16.2.10.
 - `npm run lint`: repository baseline failed with 41 errors and 75 warnings outside the scoped fixes; details are recorded in `improvements.md`.
@@ -47,6 +47,7 @@ Open verification gap:
 
 - Browser discovery returned no available browser instances, and Playwright/Puppeteer are not installed in the repository. Desktop/mobile screenshots, real scroll traces, and interactive Kakao verification were therefore not claimed.
 - Next development-server logs confirmed that the repeated Sound Constellation Motion warnings disappeared after the first-entry fix and that an Odii reload did not immediately request its deferred API.
+- The detailed diagnosis, rejected alternatives, code paths, and remaining GLB trace gap are recorded in `troubleshooting-worklog/26.09.06 소리마루 첫 진입 스크롤 병목.md`.
 
 Next step:
 
