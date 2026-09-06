@@ -126,51 +126,6 @@ const styles = css`
 
   /* 정통 한옥 마커 전용: 그림자 연동 둥실 float
      ↑ 위로 올라갈수록 그림자가 흐릿해지고 작아짐 → 물리감 UP */
-  @keyframes om-traditional-float {
-    0%, 100% {
-      transform: translateY(-2px) scale(1);
-      box-shadow: 0 8px 20px -2px rgba(25, 31, 40, 0.28), 0 2px 6px rgba(25, 31, 40, 0.12);
-    }
-    50% {
-      transform: translateY(-10px) scale(1.018);
-      box-shadow: 0 18px 32px -6px rgba(25, 31, 40, 0.13), 0 4px 8px rgba(25, 31, 40, 0.06);
-    }
-  }
-
-  /* 정통 한옥 뱃지 마커: 그림자 연동 float */
-  @keyframes om-traditional-float-badge {
-    0%, 100% {
-      transform: translateY(0px) scale(1);
-      box-shadow: 0 6px 16px rgba(25, 31, 40, 0.22), 0 2px 4px rgba(25, 31, 40, 0.1);
-    }
-    50% {
-      transform: translateY(-7px) scale(1.03);
-      box-shadow: 0 16px 28px rgba(25, 31, 40, 0.11), 0 3px 6px rgba(25, 31, 40, 0.05);
-    }
-  }
-
-  /* ✦ 황금 별 반짝이 (label pin 전용) */
-  @keyframes om-sparkle-star {
-    0%, 55%, 100% { opacity: 0; transform: scale(0.4) rotate(-10deg); }
-    28% { opacity: 1; transform: scale(1.3) rotate(15deg); }
-    42% { opacity: 0.7; transform: scale(1.0) rotate(5deg); }
-  }
-
-  /* ◎ 황금 후광 링 (badge pin 전용) — 은은한 shimmer, 심박동 아님 */
-  @keyframes om-halo-ring {
-    0%, 65%, 100% { opacity: 0; transform: scale(0.92); }
-    32% { opacity: 0.42; transform: scale(1.18); }
-  }
-
-  /* 공통 별 반짝이 span */
-  .om-sparkle {
-    position: absolute;
-    pointer-events: none;
-    color: #d4af37;
-    line-height: 1;
-    animation: om-sparkle-star ease-in-out infinite;
-  }
-
   /* 클릭 bounce: 스프링감 있게 한번 점프 후 안착 */
   @keyframes om-click-bounce {
     0%   { transform: translateY(-2px) scale(1); }
@@ -319,36 +274,117 @@ const styles = css`
     opacity: 1 !important;
   }
 
-  /* 정통 한옥 label 핀: 그림자 연동 float + 황금 별 반짝이 */
+  /*
+    정통 한옥 label 핀.
+
+    예전에는 핀 하나가 무한 애니메이션을 여섯 개 돌렸다 — float 하나, 별 다섯.
+    그중 셋에는 filter: drop-shadow까지 붙어 있었다. 라벨 핀이 60개면 360개가
+    매 프레임 합성되니, 마커가 몰린 화면에서 눈에 띄게 느려졌다.
+
+    그렇다고 표식이 작으면 정통 한옥인지 알아볼 수가 없다. 그래서 나눈다 —
+    쉴 때는 '또렷하지만 가만히', 가리키면 '반짝인다'. 움직임은 사용자가 보고 있는
+    핀 하나에서만 일어나므로, 마커가 아무리 몰려도 상시 비용은 0이다.
+  */
+
+  /* 쉴 때: 금빛 테두리로 정통 한옥임을 알린다. 움직이지 않는다. */
   .om-pin--traditional {
-    animation: om-traditional-float 2.8s ease-in-out infinite;
-    animation-delay: var(--float-delay, 0s);
+    box-shadow:
+      0 0 0 1.5px rgba(245, 166, 35, 0.55),
+      0 6px 16px -2px rgba(25, 31, 40, 0.22);
   }
 
-  /* ✦ 황금 별 — 핀 좌상단에 뿅 나타났다 사라지는 스파클 (좌상단 그룹 1번째) */
   .om-pin--traditional::before {
     content: '✦';
     position: absolute;
-    top: -13px;
-    left: 3px;
-    font-size: 13px;
-    color: #d4af37;
+    top: -12px;
+    left: 1px;
+    font-size: 14px;
+    color: ${lightPalette.hwanggeum[400]};
     line-height: 1;
     pointer-events: none;
-    animation: om-sparkle-star 2.6s ease-in-out infinite;
-    animation-delay: var(--sparkle-delay, 0.4s);
+    transform-origin: 50% 50%;
+    transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* 가리켰을 때만 도는 반짝임. 한 번에 한 핀뿐이라 비용이 없다. */
+  @keyframes om-star-twinkle {
+    0% { transform: scale(1) rotate(0deg); }
+    45% { transform: scale(1.65) rotate(90deg); }
+    70% { transform: scale(1.15) rotate(150deg); }
+    100% { transform: scale(1.35) rotate(180deg); }
+  }
+
+  @keyframes om-star-burst {
+    0% { opacity: 0.35; transform: scale(0.5) rotate(0deg); }
+    50% { opacity: 1; transform: scale(1.5) rotate(70deg); }
+    100% { opacity: 0.95; transform: scale(1.1) rotate(110deg); }
+  }
+
+  /*
+    별무리.
+
+    쉴 때는 움직이지 않는다. 개수가 늘어도 상시 비용이 0인 이유다.
+    가리키면 시차를 두고 차례로 튀어올라, 핀 하나가 살아나는 것처럼 읽힌다.
+  */
+  .om-pin-stars {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: visible;
+  }
+
+  .om-pin-stars span {
+    position: absolute;
+    line-height: 1;
+    color: ${lightPalette.hwanggeum[400]};
+    opacity: 0.45;
+    transform-origin: 50% 50%;
+    transition: opacity 0.2s ease;
+  }
+
+  .om-pin--traditional:hover .om-pin-stars span,
+  .om-pin--traditional[data-hovered='true'] .om-pin-stars span,
+  .om-badge-pin--traditional:hover .om-pin-stars span,
+  .om-badge-pin--traditional[data-hovered='true'] .om-pin-stars span {
+    animation: om-star-burst 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+  }
+
+  .om-pin--traditional:hover .om-pin-stars span:nth-child(2),
+  .om-pin--traditional[data-hovered='true'] .om-pin-stars span:nth-child(2),
+  .om-badge-pin--traditional:hover .om-pin-stars span:nth-child(2),
+  .om-badge-pin--traditional[data-hovered='true'] .om-pin-stars span:nth-child(2) {
+    animation-delay: 0.07s;
+  }
+
+  .om-pin--traditional:hover .om-pin-stars span:nth-child(3),
+  .om-pin--traditional[data-hovered='true'] .om-pin-stars span:nth-child(3),
+  .om-badge-pin--traditional:hover .om-pin-stars span:nth-child(3),
+  .om-badge-pin--traditional[data-hovered='true'] .om-pin-stars span:nth-child(3) {
+    animation-delay: 0.14s;
+  }
+
+  .om-pin--traditional:hover .om-pin-stars span:nth-child(4),
+  .om-pin--traditional[data-hovered='true'] .om-pin-stars span:nth-child(4) {
+    animation-delay: 0.21s;
   }
 
   .om-pin--traditional:hover,
   .om-pin--traditional[data-hovered='true'] {
-    animation: none !important;
     transform: translateY(-10px) scale(1.12);
+    box-shadow:
+      0 0 0 2px rgba(245, 166, 35, 0.95),
+      0 14px 28px -6px rgba(25, 31, 40, 0.28);
   }
+
   .om-pin--traditional:hover::before,
   .om-pin--traditional[data-hovered='true']::before {
-    animation: none;
-    opacity: 0;
+    animation: om-star-twinkle 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   }
+
+  /*
+    ::after는 핀 꼬리 화살표가 쓰고 있다(.om-pin::after).
+    여기에 별을 얹으면 hover할 때 꼬리가 사라지므로 건드리지 않는다.
+  */
 
   .om-pin[data-selected='true']::after,
   .om-pin[data-detail='true']::after {
@@ -402,32 +438,22 @@ const styles = css`
     animation: none !important;
   }
 
-  /* 정통 한옥 뱃지 핀: 그림자 연동 float + 황금 후광 링 */
-  .om-badge-pin--traditional {
-    animation: om-traditional-float-badge 2.6s ease-in-out infinite;
-    animation-delay: var(--float-delay, 0s);
-  }
-
-  /* ◎ 황금 후광 링 — 마커 주위를 감싸는 골드 링이 주기적으로 나타났다 사라짐 */
+  /* 정통 한옥 뱃지 핀: 깜빡이지 않는 은은한 금빛 테두리 하나로 구분한다. */
   .om-badge-pin--traditional::before {
     content: '';
     position: absolute;
-    inset: -6px;
+    inset: -4px;
     border-radius: 50%;
-    border: 1.5px solid rgba(212, 175, 55, 0.65);
+    border: 1.5px solid rgba(255, 188, 26, 0.45);
     pointer-events: none;
-    animation: om-halo-ring 2.8s ease-in-out infinite;
-    animation-delay: var(--sparkle-delay, 0.6s);
   }
 
   .om-badge-pin--traditional:hover,
   .om-badge-pin--traditional[data-hovered='true'] {
-    animation: none !important;
     transform: translateY(-8px) scale(1.3);
   }
   .om-badge-pin--traditional:hover::before,
   .om-badge-pin--traditional[data-hovered='true']::before {
-    animation: none;
     opacity: 0;
   }
 
@@ -552,7 +578,9 @@ const styles = css`
     .om-cluster-pill,
     .om-pin-hover-card,
     .om-pin--traditional,
-    .om-badge-pin--traditional {
+    .om-badge-pin--traditional,
+    .om-pin--traditional::before,
+    .om-pin-stars span {
       transition: none !important;
       animation: none !important;
     }
@@ -730,7 +758,25 @@ export default function PlaceMarkers() {
     */
     const withLabel = level <= LABEL_MAX_LEVEL;
     const maxPins = withLabel ? LABEL_PIN_LIMIT : BADGE_PIN_LIMIT;
-    const targetItems = items.slice(0, maxPins);
+
+    /*
+      자르기 전에 화면 안 것만 남긴다.
+
+      예전에는 items를 배열 순서대로 잘랐다. items는 검색 중심 기준 거리순이라,
+      확대해서 검색 중심에서 떨어진 곳을 보면 그 화면의 장소들이 상한 밖으로 밀려
+      마커가 통째로 사라졌다 — '확대하면 마커가 없어진다'가 이것이다.
+
+      화면 기준으로 고르면 확대할수록 후보가 줄어 상한에 걸릴 일도 함께 사라진다.
+    */
+    const bounds = map.getBounds?.();
+    const visibleItems =
+      bounds && window.kakao?.maps
+        ? items.filter((it) =>
+            bounds.contain(new window.kakao.maps.LatLng(it.lat, it.lng)),
+          )
+        : items;
+
+    const targetItems = (visibleItems.length > 0 ? visibleItems : items).slice(0, maxPins);
 
     targetItems.forEach((item) => {
       const el = document.createElement('div');
@@ -797,25 +843,23 @@ export default function PlaceMarkers() {
           <span>${escapeHtml(item.name)}</span>
         `;
         if (isTraditional) {
-          // 마커마다 float와 sparkle 타이밍을 다르게 → 기계적 동조 방지
-          const floatDelay = (Math.random() * 2.4).toFixed(2);
-          const sparkleDelay = (Math.random() * 2.0 + 0.2).toFixed(2);
-          el.style.setProperty('--float-delay', `${floatDelay}s`);
-          el.style.setProperty('--sparkle-delay', `${sparkleDelay}s`);
-          // 별 반짝이: 좌상단 3개 + 우하단 2개 (북규칙하게 다른 타이밍)
-          const s1d = (Math.random() * 1.6 + 0.3).toFixed(2);
-          const s2d = (Math.random() * 1.8 + 0.8).toFixed(2);
-          const s3d = (Math.random() * 2.0 + 0.5).toFixed(2);
-          const s4d = (Math.random() * 1.4 + 1.0).toFixed(2);
-          const extra = document.createElement('span');
-          extra.innerHTML = `
-            <span class="om-sparkle" style="top:-9px;left:18px;font-size:13px;animation-duration:3.0s;animation-delay:${s1d}s;">✧</span>
-            <span class="om-sparkle" style="top:-17px;left:10px;font-size:12px;animation-duration:2.4s;animation-delay:${s2d}s;">✦</span>
-            <span class="om-sparkle" style="bottom:-13px;right:4px;font-size:15px;animation-duration:2.8s;animation-delay:${s3d}s;">✦</span>
-            <span class="om-sparkle" style="bottom:-9px;right:20px;font-size:12px;animation-duration:3.3s;animation-delay:${s4d}s;">✧</span>
+          /*
+            별무리.
+
+            문제는 별의 개수가 아니라 '항상 돌던 것'이었다. 예전에는 핀마다 무한
+            애니메이션이 여섯 개씩 돌아서, 마커가 몰리면 프레임이 무너졌다.
+            쉴 때는 정적으로 두고 가리켰을 때만 움직이면, 한 번에 한 핀이므로
+            개수를 늘려도 상시 비용은 그대로 0이다.
+          */
+          const stars = document.createElement('span');
+          stars.className = 'om-pin-stars';
+          stars.innerHTML = `
+            <span style="top:-15px;left:16px;font-size:11px;">✧</span>
+            <span style="top:-8px;left:-6px;font-size:9px;">✦</span>
+            <span style="bottom:-11px;right:2px;font-size:12px;">✦</span>
+            <span style="bottom:-6px;right:18px;font-size:9px;">✧</span>
           `;
-          extra.style.cssText = 'position:absolute;inset:0;pointer-events:none;overflow:visible;';
-          el.appendChild(extra);
+          el.appendChild(stars);
         }
       } else {
         el.className = `om-badge-pin${isTraditional ? ' om-badge-pin--traditional' : ''}`;
@@ -825,26 +869,15 @@ export default function PlaceMarkers() {
           </span>
         `;
         if (isTraditional) {
-          const floatDelay = (Math.random() * 2.2).toFixed(2);
-          const sparkleDelay = (Math.random() * 1.8 + 0.3).toFixed(2);
-          el.style.setProperty('--float-delay', `${floatDelay}s`);
-          el.style.setProperty('--sparkle-delay', `${sparkleDelay}s`);
-          // 별 반짝이: 좌상단 3개 + 우하단 2개
-          const s1d = (Math.random() * 1.5 + 0.3).toFixed(2);
-          const s2d = (Math.random() * 1.7 + 0.7).toFixed(2);
-          const s3d = (Math.random() * 1.9 + 0.4).toFixed(2);
-          const s4d = (Math.random() * 1.3 + 1.1).toFixed(2);
-          const s5d = (Math.random() * 2.0 + 0.6).toFixed(2);
-          const extra = document.createElement('span');
-          extra.innerHTML = `
-            <span class="om-sparkle" style="top:-13px;left:-1px;font-size:15px;animation-duration:2.7s;animation-delay:${s1d}s;">✦</span>
-            <span class="om-sparkle" style="top:-10px;left:13px;font-size:12px;animation-duration:3.1s;animation-delay:${s2d}s;">✧</span>
-            <span class="om-sparkle" style="top:-17px;left:6px;font-size:11px;animation-duration:2.3s;animation-delay:${s3d}s;">✦</span>
-            <span class="om-sparkle" style="bottom:-13px;right:-1px;font-size:14px;animation-duration:2.9s;animation-delay:${s4d}s;">✦</span>
-            <span class="om-sparkle" style="bottom:-9px;right:12px;font-size:11px;animation-duration:3.4s;animation-delay:${s5d}s;">✧</span>
+          // 뱃지 핀은 작으니 별도 셋. 쉴 때 정적, 가리키면 함께 튄다.
+          const stars = document.createElement('span');
+          stars.className = 'om-pin-stars';
+          stars.innerHTML = `
+            <span style="top:-12px;left:-4px;font-size:10px;">✦</span>
+            <span style="top:-9px;right:-5px;font-size:8px;">✧</span>
+            <span style="bottom:-10px;right:1px;font-size:10px;">✦</span>
           `;
-          extra.style.cssText = 'position:absolute;inset:0;pointer-events:none;overflow:visible;';
-          el.appendChild(extra);
+          el.appendChild(stars);
         }
       }
 

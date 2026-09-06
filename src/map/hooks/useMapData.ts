@@ -22,6 +22,29 @@ function radiusFromMap(map: KakaoMap): number {
   );
 }
 
+/**
+ * 조회 반경.
+ *
+ * 장소 조회의 중심은 지도 중심이 아니라 searchCenter(마지막 검색 지점)다.
+ * 팬할 때마다 다시 부르지 않으려는 설계인데, 반경만 현재 줌을 따라 줄어들고 있었다.
+ * 그래서 확대하면 조회 원이 searchCenter 주위로 쪼그라들고, 지도를 옮겨 보던 화면이
+ * 그 원 밖으로 밀려나 장소가 0개가 됐다 — '확대하면 핀이 사라진다'가 이것이다.
+ *
+ * 중심이 searchCenter라면 반경도 그 중심에서 지금 화면을 덮을 만큼이어야 한다.
+ */
+function searchRadius(map: KakaoMap, centerLat: number, centerLng: number): number {
+  const c = map.getCenter?.();
+  const offset = c
+    ? distanceInMeters(
+        { lat: centerLat, lng: centerLng },
+        { lat: c.getLat(), lng: c.getLng() },
+      )
+    : 0;
+
+  // 확대해도 최소 1km는 훑는다. 화면만 딱 맞추면 가장자리 장소가 매번 들락거린다.
+  return Math.max(1000, Math.round(offset + radiusFromMap(map)));
+}
+
 const CLIENT_CACHE_TTL = 30 * 60 * 1000; // 30분 클라이언트 인메모리 캐시 (화면 재방문 시 0ms 즉시 로드)
 const clientPlaceCache = new Map<string, { expiresAt: number; items: any[] }>();
 const clientHeatCache = new Map<
@@ -49,7 +72,7 @@ export function useMapData() {
       return;
     }
 
-    const radius = Math.round(radiusFromMap(map));
+    const radius = searchRadius(map, searchCenter.lat, searchCenter.lng);
     const roundedLat = Math.round(searchCenter.lat * 100) / 100;
     const roundedLng = Math.round(searchCenter.lng * 100) / 100;
     const roundedRadius = Math.round(radius / 1000) * 1000;
@@ -129,13 +152,29 @@ export function useMapData() {
         const items = Array.isArray(json.items) ? json.items : [];
         log.log('items', items.length, `${Math.round(performance.now() - t0)}ms`, json.error ?? '');
 
-        // 클라이언트 캐시에 저장
-        clientPlaceCache.set(cacheKey, {
-          expiresAt: Date.now() + CLIENT_CACHE_TTL,
-          items,
-        });
+        const failed = !res.ok || Boolean(json.error);
 
-        setItems(items);
+        /*
+          실패한 응답으로 화면을 덮지 않는다.
+
+          장소 조회는 확대할 때마다 다시 나간다(level이 의존성에 있다). 그런데 예전에는
+          실패든 성공이든 받은 그대로 setItems를 불러서, 한 번 타임아웃이 나면 핀이
+          통째로 사라졌다 — '확대하면 핀이 사라진다'가 이것이다.
+          게다가 그 빈 결과를 30분 캐시에 굳혀서 그 동네가 계속 비어 보였다.
+
+          실패는 캐시하지 않고, 이전에 보던 장소를 그대로 둔다.
+          진짜로 없는 지역은 성공 응답의 빈 배열로 오므로 정상적으로 비워진다.
+        */
+        if (!failed) {
+          clientPlaceCache.set(cacheKey, {
+            expiresAt: Date.now() + CLIENT_CACHE_TTL,
+            items,
+          });
+          setItems(items);
+        } else if (items.length > 0) {
+          // 관광공사가 죽었을 때 서버가 내어주는 저장된 한옥. 보여는 주되 캐시에는 넣지 않는다.
+          setItems(items);
+        }
 
         // 오디 도슨트 해설 데이터 동기화
         useOdiiAudioStore
@@ -149,7 +188,7 @@ export function useMapData() {
       .catch((err: unknown) => {
         if (err instanceof DOMException && err.name === 'AbortError') return;
         log.error('fetch 실패', err);
-        setItems([]);
+        // 네트워크가 끊겨도 보던 장소는 남긴다. 위와 같은 이유다.
         setError(err instanceof Error ? err.message : '장소를 불러오지 못했습니다');
       })
       .finally(() => {

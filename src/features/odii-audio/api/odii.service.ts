@@ -54,26 +54,59 @@ export class OdiiService {
 
   /**
    * Odii 오디오 가이드 공공 API 프록시 요청을 수행합니다.
+   * 공공포털 장애/타임아웃 시 502로 크래시되는 대신 빈 목록과 degraded 플래그를 반환하여
+   * 클라이언트가 안전하게 동작하도록 합니다.
    */
   public static async proxyRequest(request: NextRequest): Promise<NextResponse> {
     const apiKey = this.getApiKey();
     if (!apiKey) {
-      return NextResponse.json({ error: 'ODII_API_KEY가 설정되지 않았습니다' }, { status: 503 });
+      return NextResponse.json({
+        response: {
+          header: { resultCode: '9000', resultMsg: 'ODII_API_KEY_MISSING' },
+          body: { items: { item: [] }, numOfRows: 0, pageNo: 1, totalCount: 0 },
+        },
+        degraded: true,
+        error: 'ODII_API_KEY가 설정되지 않았습니다',
+      }, { status: 200 });
     }
 
     try {
       const upstream = await fetch(this.buildUpstreamUrl(request), {
         cache: 'no-store',
         headers: { Accept: 'application/json' },
+        signal: AbortSignal.timeout(6000), // 공공 API 6초 타임아웃
       });
-      const body = await upstream.json();
+
+      const text = await upstream.text();
+      let body: unknown;
+      try {
+        body = JSON.parse(text);
+      } catch {
+        // XML 에러 또는 비정상 텍스트 응답 시
+        return NextResponse.json({
+          response: {
+            header: { resultCode: '9001', resultMsg: 'INVALID_JSON_RESPONSE' },
+            body: { items: { item: [] }, numOfRows: 0, pageNo: 1, totalCount: 0 },
+          },
+          degraded: true,
+          error: '공공데이터포털에서 유효하지 않은 응답을 수신했습니다',
+        }, { status: 200 });
+      }
 
       return NextResponse.json(body, {
         status: upstream.status,
         headers: { 'Cache-Control': 'no-store' },
       });
     } catch (error) {
-      return NextResponse.json({ error: 'Odii API 호출에 실패했습니다' }, { status: 502 });
+      // ConnectTimeout, AbortError 등 공공포털 서버 다운/지연 시 안전한 폴백 제공
+      return NextResponse.json({
+        response: {
+          header: { resultCode: '9999', resultMsg: 'ODII_SERVICE_TIMEOUT_OR_UNAVAILABLE' },
+          body: { items: { item: [] }, numOfRows: 0, pageNo: 1, totalCount: 0 },
+        },
+        degraded: true,
+        error: error instanceof Error ? error.message : 'Odii API 호출에 실패했습니다',
+      }, { status: 200 });
     }
   }
 }

@@ -179,11 +179,13 @@ export class PlaceService {
               signal(),
             )
               .then((res) => {
+                // TourApiClient는 실패해도 예외 대신 null을 준다. null은 '없음'이 아니라 '못 가져옴'이다.
+                if (res === null) return { cType: '12', rows: [], failed: true };
                 const raw = res?.response?.body?.items?.item;
                 const rows = (Array.isArray(raw) ? raw : raw ? [raw] : []) as Record<string, unknown>[];
                 return { cType: '12', rows };
               })
-              .catch(() => ({ cType: '12', rows: [] })),
+              .catch(() => ({ cType: '12', rows: [], failed: true })),
           );
         }
       } else {
@@ -207,15 +209,31 @@ export class PlaceService {
             signal(),
           )
             .then((res) => {
+              // 위와 같다 — null은 '결과 없음'이 아니라 '호출 실패'다.
+              if (res === null) return { cType: '', rows: [], failed: true };
               const raw = res?.response?.body?.items?.item;
               const rows = (Array.isArray(raw) ? raw : raw ? [raw] : []) as Record<string, unknown>[];
               return { cType: String(targetParams.contentTypeId || ''), rows };
             })
-            .catch(() => ({ cType: '', rows: [] })),
+            .catch(() => ({ cType: '', rows: [], failed: true })),
         );
       }
 
       const results = await runPooled(fetchTasks);
+
+      /*
+        TourAPI 호출이 전부 실패했으면 '결과 없음'이 아니라 '못 가져옴'이다.
+
+        예전에는 실패를 조용히 빈 배열로 삼켜서, 8초 타임아웃이 나도 200 OK에
+        items: []로 내려갔다. 그러면 클라이언트는 그 지역에 장소가 없다고 믿고
+        핀을 지운 뒤 그 빈 결과를 30분간 캐시했다 — 확대할 때마다 재요청이 나가는데
+        한 번만 실패해도 그 동네가 30분 내내 비어 보였다.
+
+        구분해서 던지면 라우트가 error로 내려주고, 클라이언트가 기존 핀을 지키게 된다.
+      */
+      if (results.length > 0 && results.every((r) => 'failed' in r && r.failed)) {
+        throw new Error('관광공사 API 응답을 받지 못했습니다');
+      }
 
       results.forEach((value) => {
         const { cType, rows } = value;
