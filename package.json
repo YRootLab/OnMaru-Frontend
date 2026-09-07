@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "vitest run",
     "build:data": "node --env-file=.env.local scripts/build-data.mjs",
     "build:data:check": "node scripts/build-data.mjs --self-check",
     "test:odii": "vitest run src/features/odii-audio/api/odiiApi.test.ts",
