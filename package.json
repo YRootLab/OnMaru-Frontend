@@ -38,7 +38,6 @@
   "devDependencies": {
     "@emotion/babel-plugin": "^11.13.5",
     "@playwright/test": "^1.63.0",
-    "@rolldown/binding-darwin-x64": "^1.2.7",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -49,5 +48,10 @@
     "tailwindcss": "^3.4.19",
     "typescript": "^5",
     "vitest": "^4.1.10"
+  },
+  "optionalDependencies": {
+    "@rolldown/binding-darwin-arm64": "^1.2.7",
+    "@rolldown/binding-darwin-x64": "^1.2.7",
+    "@rolldown/binding-linux-x64-gnu": "^1.2.7"
   }
 }
