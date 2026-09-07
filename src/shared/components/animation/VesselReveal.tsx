@@ -61,7 +61,6 @@ export const VesselReveal: React.FC<VesselRevealProps> = ({
       isIntersecting: false,
       top: el.getBoundingClientRect().top,
       revealBoundary: initialBoundary,
-      viewportBottom: window.innerHeight,
     });
 
     let currentStage = initial.stage;
@@ -83,7 +82,6 @@ export const VesselReveal: React.FC<VesselRevealProps> = ({
         isIntersecting: entry.isIntersecting,
         top: entry.boundingClientRect.top,
         revealBoundary,
-        viewportBottom: window.innerHeight,
       });
 
       isReloadProtectedRef.current = next.isReloadProtected;
