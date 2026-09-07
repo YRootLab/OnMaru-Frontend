@@ -104,8 +104,12 @@ interface HanokArchiveProps {
 export default function HanokArchive({ villages, meta }: HanokArchiveProps) {
   const [selectedVillage, setSelectedVillage] = useState<Village | null>(null);
   const [archiveData, setArchiveData] = useState(() => ({ villages, meta }));
+  // 목데이터 스냅샷이 실데이터로 교체되며 이달의 한옥 이미지가 눈에 띄게 스왑되는 걸 막기 위해,
+  // 실데이터 확정 전까지는 스켈레톤을 보여준다.
+  const [isFeaturedReady, setIsFeaturedReady] = useState(false);
 
   useEffect(() => {
+    let isActive = true;
     const controller = new AbortController();
     const timeoutId = window.setTimeout(() => controller.abort(), 5000);
 
@@ -122,11 +126,13 @@ export default function HanokArchive({ villages, meta }: HanokArchiveProps) {
         // Snapshot remains visible when the future backend is unavailable or changes shape.
       } finally {
         window.clearTimeout(timeoutId);
+        if (isActive) setIsFeaturedReady(true);
       }
     }
 
     void refreshArchive();
     return () => {
+      isActive = false;
       window.clearTimeout(timeoutId);
       controller.abort();
     };
@@ -170,7 +176,7 @@ export default function HanokArchive({ villages, meta }: HanokArchiveProps) {
         <EditorialSection>
           <VesselReveal id={HANOK_REVEAL_SECTIONS.monthly} className="w-full py-6 sm:py-8 lg:py-10">
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
-              <HanokMonthly villages={archiveData.villages} onSelectVillage={setSelectedVillage} />
+              <HanokMonthly villages={archiveData.villages} onSelectVillage={setSelectedVillage} isFeaturedReady={isFeaturedReady} />
             </div>
           </VesselReveal>
         </EditorialSection>

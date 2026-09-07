@@ -2,6 +2,7 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
+import { keyframes } from '@emotion/react';
 import { motion } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
 import { meok, lightPalette } from '@/design-system/tokens';
@@ -48,6 +49,23 @@ const Photo = styled(motion.div, transientProps)<{ $bg: string | null }>`
     $bg
       ? `background-image: url("${$bg}"); background-size: cover; background-position: center;`
       : `background: linear-gradient(135deg, #e8ded2 0%, #d4c9bb 100%);`}
+`;
+
+const shimmer = keyframes`
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+`;
+
+const PhotoSkeleton = styled.div`
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, ${lightPalette.kobalt[50]} 25%, #eef1f6 50%, ${lightPalette.kobalt[50]} 75%);
+  background-size: 800px 100%;
+  animation: ${shimmer} 1.4s ease-in-out infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 `;
 
 const NoImageLabel = styled.div`
@@ -169,6 +187,7 @@ interface PolaroidCardProps {
   customHandText?: string;
   showOutsideMeta?: boolean;
   onClick?: (village: Village) => void;
+  isImageLoading?: boolean;
 }
 
 export default function PolaroidCard({
@@ -177,6 +196,7 @@ export default function PolaroidCard({
   customHandText,
   showOutsideMeta = false,
   onClick,
+  isImageLoading = false,
 }: PolaroidCardProps) {
   const rotate = ROTATIONS[index % ROTATIONS.length];
   const showTape = index % 2 === 0;
@@ -218,12 +238,18 @@ export default function PolaroidCard({
 
       <Frame>
         <PhotoArea>
-          <Photo
-            $bg={village.hasImage ? village.image : null}
-            whileHover={{ scale: 1.07 }}
-            transition={{ duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
-          />
-          {!village.hasImage && <NoImageLabel><Home size={32} /></NoImageLabel>}
+          {isImageLoading ? (
+            <PhotoSkeleton />
+          ) : (
+            <>
+              <Photo
+                $bg={village.hasImage ? village.image : null}
+                whileHover={{ scale: 1.07 }}
+                transition={{ duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
+              />
+              {!village.hasImage && <NoImageLabel><Home size={32} /></NoImageLabel>}
+            </>
+          )}
         </PhotoArea>
 
         <HandWritingCaption>

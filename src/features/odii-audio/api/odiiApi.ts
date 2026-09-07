@@ -225,14 +225,8 @@ export const createOdiiApiAdapter = (network: OdiiNetworkClient = odiiNetworkCli
         source: 'api',
       };
       } catch (error) {
-        console.warn('[Odii API Warning] API 호출 실패 (빈 목록 폴백):', error);
-        return {
-          items: [],
-          pageNo: safePageNo,
-          numOfRows: safeNumOfRows,
-          totalCount: 0,
-          source: 'mock',
-        };
+        console.warn('[Odii API Warning] API 호출 실패:', error);
+        throw error;
       }
     }, (value) => value.items.length > 0);
   },
