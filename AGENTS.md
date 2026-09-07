@@ -21,11 +21,22 @@
 
 ## Shared agent workflow
 
-- `AGENTS.md` is the shared source of truth for Codex, Claude, and Gemini. Read it before making changes; keep harness-specific entry files thin.
+- `AGENTS.md` is the shared source of truth for Codex, Claude, Gemini, Cline, and other agents. Read it before making changes; keep harness-specific entry files thin.
 - Treat source files as canonical. Do not edit generated output unless the task explicitly requires it.
 - Before claiming completion, committing, or releasing, run fresh verification appropriate to the touched code.
 - Record resumable work in `handoff.md`, deferred follow-ups in `improvements.md`, and human-readable meaningful changes in `changelog.md`.
 - Confirm exact targets before destructive operations. Do not delete, overwrite, or reset user work without explicit approval.
+
+## Work tracking
+
+- GitHub Issues are the Source of Truth for triaged, actionable work.
+- Keep `project-roadmap.md` limited to long-term Vision and milestone-level goals.
+- When the user raises an ad hoc request, record it immediately in `handoff.md` if it affects current-session continuity, or in `improvements.md` if it is an untriaged follow-up idea. Issue creation is not required at capture time.
+- During triage, keep a local note, link it to an existing Issue, promote it to a new Issue, or remove it only when completion is verified.
+- Immediately before creating a Pull Request, invoke `cleaning-work-logs` and reconcile the branch, work logs, related Issues, and PR description.
+- Immediately before merge, invoke `cleaning-work-logs` again because PR and Issue state may have changed during review.
+- Every PR must reference its related Issue. Use an auto-close keyword only when that PR's merge target should actually close the Issue.
+- Before closing an Issue, verify its acceptance criteria and merge state.
 
 ## Git Flow branch policy
 

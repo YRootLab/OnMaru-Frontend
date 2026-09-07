@@ -101,24 +101,4 @@ export function createOdiiNetworkClient({
   };
 }
 
-
-      const payload = await response.json() as TResponse;
-      console.info('[Odii Network] response', {
-        type,
-        status: response.status,
-        durationMs: Math.round(performance.now() - startedAt),
-        summary: summarizeResponse(payload),
-      });
-      return payload;
-    } catch (error) {
-      console.warn('[Odii Network] request warning', {
-        type,
-        durationMs: Math.round(performance.now() - startedAt),
-        error: error instanceof Error ? error.message : error,
-      });
-      throw error instanceof Error ? error : new Error('Odii network request failed');
-    } finally {
-      clearTimeout(timeoutId);
-    }
-  },
-};
+export const odiiNetworkClient = createOdiiNetworkClient();

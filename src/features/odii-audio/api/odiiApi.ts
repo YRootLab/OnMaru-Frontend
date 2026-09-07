@@ -207,7 +207,6 @@ export const createOdiiApiAdapter = (network: OdiiNetworkClient = odiiNetworkCli
     const requestKey = `stories:${category || ''}:${keyword}:${safePageNo}:${safeNumOfRows}`;
 
     return getCachedRequest(requestKey, async () => {
-      try {
       const response = await network.request({
         type: 'stories',
         params: {
@@ -224,16 +223,6 @@ export const createOdiiApiAdapter = (network: OdiiNetworkClient = odiiNetworkCli
         totalCount: response.totalCount || mappedStories.length,
         source: 'api',
       };
-      } catch (error) {
-        console.warn('[Odii API Warning] API 호출 실패 (빈 목록 폴백):', error);
-        return {
-          items: [],
-          pageNo: safePageNo,
-          numOfRows: safeNumOfRows,
-          totalCount: 0,
-          source: 'mock',
-        };
-      }
     }, (value) => value.items.length > 0);
   },
 
