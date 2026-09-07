@@ -10,6 +10,10 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 - Updated `WarmthFeed` 14-region carousel with clean flat chips and smooth gradient/backdrop-blur masks on navigation chevrons.
 - Fixed hovered marker z-index in `PlaceMarkers` and updated `warmthRepo` 14-province mapping.
 - Fixed build parsing error in `odiiNetwork.ts` by removing dangling code block and properly exporting `odiiNetworkClient`.
+
+- Configured project initial harness files (`CLINE.md`, `project-roadmap.md`, `CONTRIBUTING.md`) and enriched `AGENTS.md` with work tracking & issue-first guidelines.
+- Installed client-side Git Flow pre-push hook (`.githooks/pre-push`, `scripts/install_git_hooks.sh`) blocking accidental direct pushes to `develop`, `main`, and `release/*`.
+- Fixed syntax error and export in `odiiNetwork.ts`, resolved test runner config for Vitest/Playwright, and refined `OdiiEditorialRail` card index badge size/positioning.
 - Standardized `VesselReveal` morph width across `/hanok` to `w-full` with nested `max-w-6xl` padding containers, preventing edge clipping during scroll morphing.
 - Updated `/hanok` grid layout to a 4-column desktop layout (`repeat(4, 1fr)`) and optimized `VillageCard` font sizes, badges, and padding proportions.
 - Restored `PolaroidCard` frame `box-shadow` styling and converted Odii API network error handling to gracefully suppress Next.js dev overlay error popups.

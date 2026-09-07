@@ -1,14 +1,27 @@
 # handoff.md
 
-Current task:
+Current work:
+- Summary: Project initial harness setup & Git Flow push protection hooks
+- Issue/PR: none (harness initialization)
+- Branch: `feature/issue-based-developmenet-install`
 
-- Optimize `/odii` and `/hanok` loading, rendering, and transition bottlenecks without changing visible UI, colors, typography, interaction flow, or normal-motion parameters.
+Touched files:
+- `AGENTS.md`
+- `CLINE.md`
+- `CONTRIBUTING.md`
+- `project-roadmap.md`
+- `.githooks/pre-push`
+- `scripts/install_git_hooks.sh`
+- `changelog.md`
+- `src/features/odii-audio/api/odiiNetwork.ts`
+- `src/features/odii-audio/api/odiiApi.ts`
+- `vitest.config.mts`
 
-Branch and plan:
+Next step:
+- Create pull request into `develop` and verify CI checks.
 
-- Branch: `feature/odii-hanok-performance`
-- Design: `docs/superpowers/specs/2026-09-06-odii-hanok-performance-design.md`
-- Plan: `docs/superpowers/plans/2026-09-06-odii-hanok-performance.md`
+Ad hoc requests captured this session:
+- Issue-based development harness & Git Flow push protection for private repo.
 
 Implemented:
 

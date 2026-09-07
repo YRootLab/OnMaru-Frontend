@@ -7,4 +7,8 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  test: {
+    exclude: ['**/node_modules/**', '**/e2e/**'],
+  },
 });
+

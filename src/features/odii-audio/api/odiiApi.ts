@@ -208,6 +208,7 @@ export const createOdiiApiAdapter = (network: OdiiNetworkClient = odiiNetworkCli
 
     return getCachedRequest(requestKey, async () => {
       try {
+
       const response = await network.request({
         type: 'stories',
         params: {
