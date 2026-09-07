@@ -134,9 +134,8 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(({ story, position,
           image.src = fallbackImageFor(story);
         }}
       />
-      {!story.imageUrl && <span className="pointer-events-none absolute right-3 top-3 z-10 rounded-full bg-black/25 px-2 py-1 text-[9px] font-medium text-white/90 backdrop-blur-sm">장소 분위기 이미지</span>}
-      <div className="absolute inset-0 bg-gradient-to-t from-white/55 via-transparent to-black/5" />
-      <span className="pointer-events-none absolute left-3 top-3 z-20 rounded-sm bg-white/90 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums leading-none text-[#211e19] shadow-[0_1px_2px_rgba(33,30,25,0.12)] backdrop-blur-sm sm:left-4 sm:top-4">
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-white/55 via-transparent to-black/5" />
+      <span className="pointer-events-none absolute left-0 top-0 z-20 rounded-br-md bg-white/95 px-2 py-0.5 text-[9.5px] font-bold tabular-nums leading-none text-[#211e19] shadow-xs backdrop-blur-xs sm:px-2.5 sm:py-1 sm:text-[10px]">
         {String((position % featuredLength) + 1).padStart(2, '0')}
       </span>
       <div className={`absolute bottom-0 left-0 right-0 box-border w-full px-4 py-4 text-[#211e19] backdrop-blur-[24px] sm:px-5 sm:py-5 ${isActive ? 'bg-[#fff0f5]/[0.68] ' : 'bg-white/[0.46] '}`}>
