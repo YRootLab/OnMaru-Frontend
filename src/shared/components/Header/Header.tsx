@@ -613,13 +613,8 @@ export default function Header() {
             소리마루
           </NavLink>
 
-          {/* 임시 UI 비교 페이지 링크: 스터디 종료 후 이 블록만 제거 */}
-          <NavLink
-            href="/odii/section2-ui-improvements"
-            $isLanding={usesDarkSurface}
-            $isOdii={isOdiiPage}
-          >
-            임시 카드들
+          <NavLink href="/discover" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
+            ✨ 여정 탐색
           </NavLink>
         </CenterNav>
 
@@ -716,6 +711,7 @@ export default function Header() {
               <MobileMenuLink href="/map" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>정보지도</MobileMenuLink>
               <MobileMenuLink href="/map?mode=warmth" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>온기지도</MobileMenuLink>
               <MobileMenuLink href="/odii" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>소리마루</MobileMenuLink>
+              <MobileMenuLink href="/discover" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>✨ 여정 탐색</MobileMenuLink>
               <MobileMenuDivider $isLanding={usesDarkSurface} />
               <MobileMenuLink href="/auth/login" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>로그인</MobileMenuLink>
             </MobileMenuPanel>

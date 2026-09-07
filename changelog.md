@@ -4,6 +4,13 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+- Implemented AI Journey Curator (`/discover`) with interactive Knowledge Graph, Bento Grid (Map route, Hanok 3D, ODII audio, real-time Warmth), and natural language/mood search.
+- Added global GNB and mobile menu navigation link (`✨ 여정 탐색`) for the Journey Curator.
+- Redesigned Map `ModeToggle` with a Silicon Valley capsule form factor, semantic iconography (`Landmark` & `Flame`), live warmth pulse, and zero-shadow/zero-border aesthetic.
+- Updated `WarmthFeed` 14-region carousel with clean flat chips and smooth gradient/backdrop-blur masks on navigation chevrons.
+- Fixed hovered marker z-index in `PlaceMarkers` and updated `warmthRepo` 14-province mapping.
+- Fixed build parsing error in `odiiNetwork.ts` by removing dangling code block and properly exporting `odiiNetworkClient`.
+
 - Configured project initial harness files (`CLINE.md`, `project-roadmap.md`, `CONTRIBUTING.md`) and enriched `AGENTS.md` with work tracking & issue-first guidelines.
 - Installed client-side Git Flow pre-push hook (`.githooks/pre-push`, `scripts/install_git_hooks.sh`) blocking accidental direct pushes to `develop`, `main`, and `release/*`.
 - Fixed syntax error and export in `odiiNetwork.ts`, resolved test runner config for Vitest/Playwright, and refined `OdiiEditorialRail` card index badge size/positioning.

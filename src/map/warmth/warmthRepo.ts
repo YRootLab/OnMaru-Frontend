@@ -152,31 +152,38 @@ export function clusterWarmth(list: Warmth[], level: number): WarmthCell[] {
 // 피드 카드가 필요로 하는 모양은 Warmth에서 전부 유도할 수 있다 — 지어내지 않는다.
 // ─────────────────────────────────────────
 
-/** 좌표로 광역 지역을 되짚는다. 지도 칩(전주·안동·…)과 같은 이름을 쓴다. */
+/** 14대 광역 행정권역 앵커 좌표 */
 const REGION_ANCHORS: { name: string; lat: number; lng: number }[] = [
-  { name: '서울', lat: 37.5826, lng: 126.9832 },
-  { name: '전주', lat: 35.8156, lng: 127.15 },
-  { name: '안동', lat: 36.5391, lng: 128.5175 },
-  { name: '경주', lat: 35.832, lng: 129.216 },
-  { name: '담양', lat: 35.28, lng: 126.995 },
-  { name: '강릉', lat: 37.783, lng: 128.882 },
-  { name: '제주', lat: 33.386, lng: 126.802 },
-  { name: '아산', lat: 36.736, lng: 126.935 },
-  { name: '논산', lat: 36.205, lng: 127.09 },
-  { name: '순천', lat: 34.907, lng: 127.34 },
+  { name: '서울', lat: 37.5826, lng: 126.9832 }, // 서울 북촌/종로
+  { name: '경기', lat: 37.2636, lng: 127.0286 }, // 경기 수원/용인
+  { name: '인천', lat: 37.4563, lng: 126.7052 }, // 인천/강화
+  { name: '강원', lat: 37.783, lng: 128.882 }, // 강원 강릉/원주
+  { name: '대전', lat: 36.3504, lng: 127.3845 }, // 대전
+  { name: '세종', lat: 36.4800, lng: 127.2890 }, // 세종
+  { name: '충북', lat: 36.6424, lng: 127.4890 }, // 충북 청주/충주
+  { name: '충남', lat: 36.736, lng: 126.935 }, // 충남 아산
+  { name: '충남', lat: 36.205, lng: 127.09 }, // 충남 논산
+  { name: '전북', lat: 35.8156, lng: 127.15 }, // 전북 전주
+  { name: '전남광주통합특별시', lat: 35.1595, lng: 126.8526 }, // 광주
+  { name: '전남광주통합특별시', lat: 35.28, lng: 126.995 }, // 전남 담양
+  { name: '전남광주통합특별시', lat: 34.907, lng: 127.34 }, // 전남 순천
+  { name: '대구', lat: 35.8714, lng: 128.6014 }, // 대구
+  { name: '대구', lat: 36.5391, lng: 128.5175 }, // 안동 (영남 내륙)
+  { name: '부산', lat: 35.1796, lng: 129.0756 }, // 부산
+  { name: '부산', lat: 35.832, lng: 129.216 }, // 경주 (동남권)
+  { name: '제주', lat: 33.386, lng: 126.802 }, // 제주
 ];
 
-/** 가장 가까운 기준점의 이름. 80km를 넘으면 지역을 단정하지 않는다. */
+/** 좌표 기준 가장 가까운 14대 광역 권역 명칭을 반환합니다. */
 export function regionOf(lat: number, lng: number): string {
-  let best = { name: '', d: Infinity };
+  let best = { name: '전북', d: Infinity };
 
   for (const anchor of REGION_ANCHORS) {
-    // 지역 판정은 대략적인 근접도면 충분하다 (도 단위 제곱거리).
     const d = (anchor.lat - lat) ** 2 + (anchor.lng - lng) ** 2;
     if (d < best.d) best = { name: anchor.name, d };
   }
 
-  return best.d <= 0.55 ? best.name : '';
+  return best.d <= 2.5 ? best.name : '전국';
 }
 
 /** 정취 분위기별 기본 만족도 점수 (1: 또 가고 싶어요, 2: 좋았어요) */

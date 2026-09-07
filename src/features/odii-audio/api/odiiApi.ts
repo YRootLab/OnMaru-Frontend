@@ -208,25 +208,26 @@ export const createOdiiApiAdapter = (network: OdiiNetworkClient = odiiNetworkCli
 
     return getCachedRequest(requestKey, async () => {
       try {
-        const response = await network.request({
-          type: 'stories',
-          params: {
-            numOfRows: String(safeNumOfRows),
-            pageNo: String(safePageNo),
-            ...(keyword ? { keyword } : {}),
-          },
-        });
-        const mappedStories = response.items.map((item, index) => mapStoryItem(item, index, category || keyword));
-        return {
-          items: mappedStories,
-          pageNo: safePageNo,
-          numOfRows: safeNumOfRows,
-          totalCount: response.totalCount || mappedStories.length,
-          source: 'api',
-        };
+
+      const response = await network.request({
+        type: 'stories',
+        params: {
+          numOfRows: String(safeNumOfRows),
+          pageNo: String(safePageNo),
+          ...(keyword ? { keyword } : {}),
+        },
+      });
+      const mappedStories = response.items.map((item, index) => mapStoryItem(item, index, category || keyword));
+      return {
+        items: mappedStories,
+        pageNo: safePageNo,
+        numOfRows: safeNumOfRows,
+        totalCount: response.totalCount || mappedStories.length,
+        source: 'api',
+      };
       } catch (error) {
         console.warn('[Odii API Warning] API 호출 실패:', error);
-        throw error;
+        throw error instanceof Error ? error : new Error('Odii API request failed');
       }
     }, (value) => value.items.length > 0);
   },
@@ -298,8 +299,8 @@ export const createOdiiApiAdapter = (network: OdiiNetworkClient = odiiNetworkCli
             - (calculateDistanceKm(mapX, mapY, right.mapX, right.mapY) ?? Number.POSITIVE_INFINITY)
           ));
       } catch (error) {
-        console.warn('[Odii Nearby Warning] 위치 기반 조회 실패 (빈 목록 폴백):', error);
-        return [];
+        console.warn('[Odii Nearby Warning] 위치 기반 조회 실패:', error);
+        throw error instanceof Error ? error : new Error('Odii nearby request failed');
       }
     }, (value) => value.length > 0);
   }
