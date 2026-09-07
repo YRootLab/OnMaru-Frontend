@@ -243,9 +243,10 @@ const DetailsButton = styled.button`
 interface HanokMonthlyProps {
   villages: Village[];
   onSelectVillage?: (v: Village) => void;
+  isFeaturedReady?: boolean;
 }
 
-export default function HanokMonthly({ villages, onSelectVillage }: HanokMonthlyProps) {
+export default function HanokMonthly({ villages, onSelectVillage, isFeaturedReady = true }: HanokMonthlyProps) {
   const currentMonth = useMemo(() => new Date().getMonth() + 1, []);
   const korMonth = `${currentMonth}월`;
 
@@ -295,6 +296,7 @@ export default function HanokMonthly({ villages, onSelectVillage }: HanokMonthly
               index={0}
               customHandText={curationInfo.handNote}
               onClick={onSelectVillage}
+              isImageLoading={!isFeaturedReady}
             />
           </CardWrapper>
 
