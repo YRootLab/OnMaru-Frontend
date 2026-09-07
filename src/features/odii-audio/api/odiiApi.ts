@@ -208,22 +208,22 @@ export const createOdiiApiAdapter = (network: OdiiNetworkClient = odiiNetworkCli
 
     return getCachedRequest(requestKey, async () => {
       try {
-      const response = await network.request({
-        type: 'stories',
-        params: {
-          numOfRows: String(safeNumOfRows),
-          pageNo: String(safePageNo),
-          ...(keyword ? { keyword } : {}),
-        },
-      });
-      const mappedStories = response.items.map((item, index) => mapStoryItem(item, index, category || keyword));
-      return {
-        items: mappedStories,
-        pageNo: safePageNo,
-        numOfRows: safeNumOfRows,
-        totalCount: response.totalCount || mappedStories.length,
-        source: 'api',
-      };
+        const response = await network.request({
+          type: 'stories',
+          params: {
+            numOfRows: String(safeNumOfRows),
+            pageNo: String(safePageNo),
+            ...(keyword ? { keyword } : {}),
+          },
+        });
+        const mappedStories = response.items.map((item, index) => mapStoryItem(item, index, category || keyword));
+        return {
+          items: mappedStories,
+          pageNo: safePageNo,
+          numOfRows: safeNumOfRows,
+          totalCount: response.totalCount || mappedStories.length,
+          source: 'api',
+        };
       } catch (error) {
         console.warn('[Odii API Warning] API 호출 실패:', error);
         throw error;
