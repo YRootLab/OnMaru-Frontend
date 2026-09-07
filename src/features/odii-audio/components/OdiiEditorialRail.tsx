@@ -104,7 +104,7 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(({ story, position,
     <motion.button
       type="button"
       animate={{
-        opacity: isVisible ? (isActive ? 1 : 0.54) : 0,
+        opacity: isVisible ? 1 : 0,
         y: lift,
         rotate: tilt,
         scale: isActive ? 1 : distance === 1 ? 0.92 : 0.84,
@@ -116,25 +116,31 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(({ story, position,
       onMouseDown={(event) => event.preventDefault()}
       aria-label={`${story.title}${isActive ? ' 현재 선택됨' : ''}`}
     >
-      <img
-        src={initialImageSrc}
-        alt=""
-        draggable={false}
-        loading={distance <= 3 ? 'eager' : 'lazy'}
-        decoding="async"
-        className="h-full w-full object-cover"
-        onError={(event) => {
-          const image = event.currentTarget;
-          if (image.dataset.fallbackApplied === 'true') {
-            image.onerror = null;
-            image.src = FALLBACK_IMAGE_SETS.default[0];
-            return;
-          }
-          image.dataset.fallbackApplied = 'true';
-          image.src = fallbackImageFor(story);
-        }}
-      />
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-white/55 via-transparent to-black/5" />
+      <motion.div
+        className="absolute inset-0"
+        animate={{ opacity: isActive ? 1 : 0.54 }}
+        transition={{ duration: trackTransitionEnabled && isVisible ? 0.48 : 0, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <img
+          src={initialImageSrc}
+          alt=""
+          draggable={false}
+          loading={distance <= 3 ? 'eager' : 'lazy'}
+          decoding="async"
+          className="h-full w-full object-cover"
+          onError={(event) => {
+            const image = event.currentTarget;
+            if (image.dataset.fallbackApplied === 'true') {
+              image.onerror = null;
+              image.src = FALLBACK_IMAGE_SETS.default[0];
+              return;
+            }
+            image.dataset.fallbackApplied = 'true';
+            image.src = fallbackImageFor(story);
+          }}
+        />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-white/55 via-transparent to-black/5" />
+      </motion.div>
       <span className="pointer-events-none absolute left-0 top-0 z-20 rounded-br-md bg-white/95 px-2 py-0.5 text-[9.5px] font-bold tabular-nums leading-none text-[#211e19] shadow-xs backdrop-blur-xs sm:px-2.5 sm:py-1 sm:text-[10px]">
         {String((position % featuredLength) + 1).padStart(2, '0')}
       </span>
@@ -495,7 +501,7 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
               onDragStart={(event) => event.preventDefault()}
               draggable={false}
               aria-label="이전 이야기"
-              className="group absolute left-0 top-0 bottom-0 z-30 flex w-12 sm:w-16 lg:w-20 cursor-pointer items-center justify-start pl-2 sm:pl-4 bg-gradient-to-r from-white via-white/80 to-transparent transition-opacity duration-200 hover:from-white hover:via-white/95 active:opacity-80"
+              className="group absolute left-0 top-0 bottom-0 z-30 flex w-12 sm:w-16 lg:w-20 cursor-pointer items-center justify-start pl-2 sm:pl-4 bg-gradient-to-r from-white/55 via-white/20 to-transparent transition-opacity duration-200 hover:from-white hover:via-white/85 active:opacity-80"
             >
               <span className="flex h-11 w-9 items-center justify-center rounded-xl bg-white/40 text-[#211e19]  backdrop-blur-xs transition-transform duration-300 group-hover:scale-115 group-hover:bg-white group-hover:text-[#f84e76]">
                 <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
@@ -509,7 +515,7 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
               onDragStart={(event) => event.preventDefault()}
               draggable={false}
               aria-label="다음 이야기"
-              className="group absolute right-0 top-0 bottom-0 z-30 flex w-12 sm:w-16 lg:w-20 cursor-pointer items-center justify-end pr-2 sm:pr-4 bg-gradient-to-l from-white via-white/80 to-transparent transition-opacity duration-200 hover:from-white hover:via-white/95 active:opacity-80"
+              className="group absolute right-0 top-0 bottom-0 z-30 flex w-12 sm:w-16 lg:w-20 cursor-pointer items-center justify-end pr-2 sm:pr-4 bg-gradient-to-l from-white/55 via-white/20 to-transparent transition-opacity duration-200 hover:from-white hover:via-white/85 active:opacity-80"
             >
               <span className="flex h-11 w-9 items-center justify-center rounded-xl bg-white/40 text-[#211e19]  backdrop-blur-xs transition-transform duration-300 group-hover:scale-115 group-hover:bg-white group-hover:text-[#f84e76]">
                 <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
