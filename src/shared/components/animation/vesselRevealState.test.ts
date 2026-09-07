@@ -10,11 +10,10 @@ describe('resolveVesselRevealState', () => {
       isIntersecting: false,
       top: 200,
       revealBoundary: 720,
-      viewportBottom: 960,
     })).toEqual({ stage: 'bloomed', isReloadProtected: true });
   });
 
-  it('protects a section already visible below the reveal boundary on reload', () => {
+  it('does not protect a section only peeking past the reveal boundary on initial measurement, so it can still bloom-animate once scrolled fully into view', () => {
     expect(resolveVesselRevealState({
       currentStage: 'bloomed',
       isInitialObservation: true,
@@ -22,8 +21,7 @@ describe('resolveVesselRevealState', () => {
       isIntersecting: false,
       top: 760,
       revealBoundary: 720,
-      viewportBottom: 800,
-    })).toEqual({ stage: 'bloomed', isReloadProtected: true });
+    })).toEqual({ stage: 'vessel', isReloadProtected: false });
   });
 
   it('folds an unseen section below the reveal boundary during initial measurement', () => {
@@ -34,7 +32,6 @@ describe('resolveVesselRevealState', () => {
       isIntersecting: false,
       top: 900,
       revealBoundary: 720,
-      viewportBottom: 800,
     })).toEqual({ stage: 'vessel', isReloadProtected: false });
   });
 
@@ -46,7 +43,6 @@ describe('resolveVesselRevealState', () => {
       isIntersecting: true,
       top: 700,
       revealBoundary: 720,
-      viewportBottom: 960,
     })).toEqual({ stage: 'bloomed', isReloadProtected: false });
   });
 
@@ -58,7 +54,6 @@ describe('resolveVesselRevealState', () => {
       isIntersecting: false,
       top: 760,
       revealBoundary: 720,
-      viewportBottom: 960,
     })).toEqual({ stage: 'vessel', isReloadProtected: false });
   });
 
@@ -70,7 +65,6 @@ describe('resolveVesselRevealState', () => {
       isIntersecting: false,
       top: -500,
       revealBoundary: 720,
-      viewportBottom: 960,
     })).toEqual({ stage: 'bloomed', isReloadProtected: false });
   });
 
@@ -82,7 +76,6 @@ describe('resolveVesselRevealState', () => {
       isIntersecting: false,
       top: 760,
       revealBoundary: 720,
-      viewportBottom: 960,
     })).toEqual({ stage: 'bloomed', isReloadProtected: true });
   });
 });
