@@ -39,40 +39,67 @@ export const SectionTitle = styled.h3`
 `;
 
 
-export const PeriodFilterRow = styled.div`
+
+export const RegionCarouselWrapper = styled.div`
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 6px 16px 2px;
+  width: 100%;
+  margin-top: 2px;
 `;
 
-export const PeriodTabBtn = styled.button<{ $active: boolean }>`
-  height: 26px;
-  padding: 0 10px;
-  border-radius: 8px;
+export const RegionArrowBtn = styled.button<{ $direction: 'left' | 'right' }>`
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  ${({ $direction }) => ($direction === 'left' ? 'left: 0;' : 'right: 0;')}
+  z-index: 5;
+  width: 36px;
   border: none;
-  background: ${({ $active }) =>
-    $active ? 'rgba(232, 90, 24, 0.12)' : 'transparent'};
-  color: ${({ $active }) =>
-    $active ? lightPalette.juhong[700] : meok[500]};
-  font-family: inherit;
-  font-size: 11.5px;
-  font-weight: ${({ $active }) => ($active ? 700 : 500)};
+  background: ${({ $direction }) =>
+    $direction === 'left'
+      ? 'linear-gradient(to right, rgba(255, 255, 255, 1) 40%, rgba(255, 255, 255, 0.85) 65%, rgba(255, 255, 255, 0) 100%)'
+      : 'linear-gradient(to left, rgba(255, 255, 255, 1) 40%, rgba(255, 255, 255, 0.85) 65%, rgba(255, 255, 255, 0) 100%)'};
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: none;
+  display: flex;
+  align-items: center;
+  justify-content: ${({ $direction }) => ($direction === 'left' ? 'flex-start' : 'flex-end')};
+  padding: ${({ $direction }) => ($direction === 'left' ? '0 0 0 2px' : '0 2px 0 0')};
   cursor: pointer;
-  transition: all 0.12s ease;
+  color: #4b5563;
+  transition: color 0.15s ease, opacity 0.15s ease;
+
+  [data-theme='dark'] & {
+    background: ${({ $direction }) =>
+      $direction === 'left'
+        ? 'linear-gradient(to right, rgba(28, 26, 23, 1) 40%, rgba(28, 26, 23, 0.85) 65%, rgba(28, 26, 23, 0) 100%)'
+        : 'linear-gradient(to left, rgba(28, 26, 23, 1) 40%, rgba(28, 26, 23, 0.85) 65%, rgba(28, 26, 23, 0) 100%)'};
+    color: #9ca3af;
+  }
 
   &:hover {
-    background: rgba(232, 90, 24, 0.08);
-    color: ${lightPalette.juhong[700]};
+    color: #191f28;
+
+    [data-theme='dark'] & {
+      color: #ffffff;
+    }
+  }
+
+  &:active {
+    opacity: 0.75;
   }
 `;
 
 export const RegionScroller = styled.div`
   display: flex;
-  gap: 6px;
+  gap: 5px;
   overflow-x: auto;
-  padding-bottom: 4px;
+  padding: 4px 28px 6px 2px;
   scrollbar-width: none;
+  scroll-behavior: smooth;
+  width: 100%;
 
   &::-webkit-scrollbar {
     display: none;
@@ -81,23 +108,40 @@ export const RegionScroller = styled.div`
 
 export const RegionChip = styled.button<{ $active: boolean }>`
   flex: none;
-  padding: 6px 13px;
-
+  padding: 4.5px 10.5px;
   border-radius: 9999px;
-  background: ${({ $active }) =>
-    $active ? meok[900] : 'rgba(78, 89, 104, 0.07)'};
-  color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
+  border: ${({ $active }) => ($active ? '1.5px solid #222222' : '1px solid #e5e8eb')};
+  background: ${({ $active }) => ($active ? '#f2f4f6' : '#ffffff')};
+  color: ${({ $active }) => ($active ? '#191f28' : '#333d4b')};
   font-family: inherit;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 12.5px;
+  font-weight: ${({ $active }) => ($active ? 600 : 400)};
   cursor: pointer;
   white-space: nowrap;
+  box-shadow: none;
+  line-height: 1.35;
   transition: all 0.15s ease;
 
-  &:hover {
+  [data-theme='dark'] & {
+    border: ${({ $active }) =>
+      $active ? '1.5px solid rgba(255, 255, 255, 0.85)' : '1px solid rgba(255, 255, 255, 0.12)'};
     background: ${({ $active }) =>
-      $active ? meok[900] : 'rgba(78, 89, 104, 0.12)'};
-    color: ${({ $active }) => ($active ? '#ffffff' : meok[900])};
+      $active ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.04)'};
+    color: ${({ $active }) => ($active ? '#ffffff' : '#a1a1aa')};
+  }
+
+  &:hover {
+    background: ${({ $active }) => ($active ? '#f2f4f6' : '#f8f9fa')};
+    color: #191f28;
+    border-color: ${({ $active }) => ($active ? '#222222' : '#d1d5db')};
+
+    [data-theme='dark'] & {
+      background: ${({ $active }) =>
+        $active ? 'rgba(255, 255, 255, 0.18)' : 'rgba(255, 255, 255, 0.08)'};
+      color: #ffffff;
+      border-color: ${({ $active }) =>
+        $active ? 'rgba(255, 255, 255, 0.9)' : 'rgba(255, 255, 255, 0.22)'};
+    }
   }
 
   &:active {

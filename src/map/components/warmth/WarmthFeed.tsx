@@ -15,7 +15,7 @@ import {
 import { meok } from '@/design-system/tokens';
 import { useMapStore, DEFAULT_CENTER } from '@/map/hooks/useMapStore';
 import { countByPlace, regionOf, toReview } from '@/map/warmth/warmthRepo';
-import { filterByPeriod, PERIOD_OPTIONS, type WarmthPeriod } from '@/map/warmth/heatScale';
+import { filterByPeriod } from '@/map/warmth/heatScale';
 import DateScrubber from './DateScrubber';
 import WarmthCard from './WarmthCard';
 import {
@@ -24,8 +24,10 @@ import {
   SectionHeader,
   SectionTitleGroup,
   SectionTitle,
-  PeriodFilterRow,
-  PeriodTabBtn,
+  RegionCarouselWrapper,
+  RegionScroller,
+  RegionChip,
+  RegionArrowBtn,
   FeaturedPlaceArea,
   ScrubberSection,
   FeaturedCard,
@@ -50,6 +52,41 @@ import {
   PageIndicator,
 } from './WarmthFeed.styles';
 
+
+/** 사용자가 요청한 14대 광역 권역 필터 옵션 */
+export const REGION_OPTIONS = [
+  { id: 'all', label: '전국' },
+  { id: '서울', label: '서울' },
+  { id: '부산', label: '부산' },
+  { id: '대구', label: '대구' },
+  { id: '인천', label: '인천' },
+  { id: '대전', label: '대전' },
+  { id: '세종', label: '세종' },
+  { id: '경기', label: '경기' },
+  { id: '강원', label: '강원' },
+  { id: '충북', label: '충북' },
+  { id: '충남', label: '충남' },
+  { id: '전북', label: '전북' },
+  { id: '제주', label: '제주' },
+  { id: '전남광주통합특별시', label: '전남광주통합특별시' },
+] as const;
+
+export const REGION_CENTERS: Record<string, { lat: number; lng: number; level?: number }> = {
+  all: { lat: 36.3, lng: 127.8, level: 11 },
+  서울: { lat: 37.5826, lng: 126.9832, level: 6 },
+  부산: { lat: 35.1796, lng: 129.0756, level: 6 },
+  대구: { lat: 35.8714, lng: 128.6014, level: 6 },
+  인천: { lat: 37.4563, lng: 126.7052, level: 6 },
+  대전: { lat: 36.3504, lng: 127.3845, level: 6 },
+  세종: { lat: 36.4800, lng: 127.2890, level: 6 },
+  경기: { lat: 37.2636, lng: 127.0286, level: 7 },
+  강원: { lat: 37.7830, lng: 128.8820, level: 7 },
+  충북: { lat: 36.6424, lng: 127.4890, level: 7 },
+  충남: { lat: 36.7360, lng: 126.9350, level: 7 },
+  전북: { lat: 35.8156, lng: 127.1500, level: 6 },
+  제주: { lat: 33.3860, lng: 126.8020, level: 7 },
+  전남광주통합특별시: { lat: 35.1595, lng: 126.8526, level: 7 },
+};
 
 function renderPlaceIcon(type: string) {
   if (type.includes('스테이') || type.includes('숙소') || type.includes('고택')) {
@@ -85,7 +122,6 @@ export default function WarmthFeed() {
   */
   const allWarmths = useMapStore((s) => s.warmths);
   const period = useMapStore((s) => s.warmthPeriod);
-  const setWarmthPeriod = useMapStore((s) => s.setWarmthPeriod);
 
   /* 지도 범례에서 고른 기간 창을 피드도 그대로 따른다. */
   const warmths = useMemo(() => filterByPeriod(allWarmths, period), [allWarmths, period]);
@@ -94,6 +130,44 @@ export default function WarmthFeed() {
   const [sortOrder, setSortOrder] = useState<'recent' | 'place'>('recent');
   const [currentPage, setCurrentPage] = useState(1);
   const feedTopRef = useRef<HTMLDivElement>(null);
+  const regionScrollerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkScrollArrows = () => {
+    const el = regionScrollerRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 6);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 6);
+  };
+
+  useEffect(() => {
+    checkScrollArrows();
+    const el = regionScrollerRef.current;
+    if (!el) return;
+    const handleResize = () => checkScrollArrows();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const handleRegionScroll = (direction: 'left' | 'right') => {
+    const el = regionScrollerRef.current;
+    if (!el) return;
+    const delta = direction === 'left' ? -200 : 200;
+    el.scrollBy({ left: delta, behavior: 'smooth' });
+    setTimeout(checkScrollArrows, 320);
+  };
+
+  const handleRegionClick = (regionId: string) => {
+    setSelectedRegion(regionId);
+    const center = REGION_CENTERS[regionId];
+    if (center && map && window.kakao?.maps?.LatLng) {
+      map.panTo(new window.kakao.maps.LatLng(center.lat, center.lng));
+      if (center.level && map.setLevel) {
+        map.setLevel(center.level);
+      }
+    }
+  };
 
   const reviews = useMemo(() => warmths.map(toReview), [warmths]);
 
@@ -108,18 +182,35 @@ export default function WarmthFeed() {
       (a, b) => b[1].count - a[1].count,
     )[0];
 
-    if (!ranked) return null;
+    if (ranked) {
+      const [placeId, info] = ranked;
+      return {
+        placeId,
+        placeName: info.name,
+        count: info.count,
+        region: regionOf(info.lat, info.lng),
+        lat: info.lat,
+        lng: info.lng,
+      };
+    }
 
-    const [placeId, info] = ranked;
-    return {
-      placeId,
-      placeName: info.name,
-      count: info.count,
-      region: regionOf(info.lat, info.lng),
-      lat: info.lat,
-      lng: info.lng,
-    };
-  }, [warmths, selectedRegion]);
+    // 해당 지역에 온기가 아직 없는 경우 해당 권역의 대표 한옥/장소를 1위로 추천
+    if (selectedRegion !== 'all') {
+      const localItem = items.find((it) => regionOf(it.lat, it.lng) === selectedRegion);
+      if (localItem) {
+        return {
+          placeId: localItem.id,
+          placeName: localItem.name,
+          count: 1,
+          region: selectedRegion,
+          lat: localItem.lat,
+          lng: localItem.lng,
+        };
+      }
+    }
+
+    return null;
+  }, [warmths, selectedRegion, items]);
 
   const filteredReviews = useMemo(() => {
     let list =
@@ -219,6 +310,56 @@ export default function WarmthFeed() {
             <SectionTitle>실시간 방문객 집중 명소</SectionTitle>
           </SectionTitleGroup>
         </SectionHeader>
+
+        {/* 14대 광역 지역 선택 캐러셀 (좌우 화살표 포함) */}
+        <RegionCarouselWrapper>
+          {canScrollLeft && (
+            <RegionArrowBtn
+              type="button"
+              $direction="left"
+              onClick={() => handleRegionScroll('left')}
+              aria-label="이전 지역 보기"
+              title="이전 지역 보기"
+            >
+              <ChevronLeft size={17} strokeWidth={1.8} />
+            </RegionArrowBtn>
+          )}
+
+          <RegionScroller
+            ref={regionScrollerRef}
+            onScroll={checkScrollArrows}
+            role="tablist"
+            aria-label="지역별 필터"
+          >
+            {REGION_OPTIONS.map((reg) => {
+              const active = selectedRegion === reg.id;
+              return (
+                <RegionChip
+                  key={reg.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  $active={active}
+                  onClick={() => handleRegionClick(reg.id)}
+                >
+                  {reg.label}
+                </RegionChip>
+              );
+            })}
+          </RegionScroller>
+
+          {canScrollRight && (
+            <RegionArrowBtn
+              type="button"
+              $direction="right"
+              onClick={() => handleRegionScroll('right')}
+              aria-label="다음 지역 보기"
+              title="다음 지역 보기"
+            >
+              <ChevronRight size={17} strokeWidth={1.8} />
+            </RegionArrowBtn>
+          )}
+        </RegionCarouselWrapper>
       </StickyTop>
 
       {topPlace && (
@@ -264,20 +405,6 @@ export default function WarmthFeed() {
         <DateScrubber embedded />
       </ScrubberSection>
 
-      {/* 기간 필터 탭 (최근 3일, 1주, 1달, 전체) */}
-      <PeriodFilterRow role="group" aria-label="온기 기간 필터">
-        {PERIOD_OPTIONS.map((opt) => (
-          <PeriodTabBtn
-            key={opt.id}
-            type="button"
-            aria-pressed={period === opt.id}
-            $active={period === opt.id}
-            onClick={() => setWarmthPeriod(opt.id as WarmthPeriod)}
-          >
-            {opt.label}
-          </PeriodTabBtn>
-        ))}
-      </PeriodFilterRow>
 
       <ReviewSectionHeader>
         <ReviewSectionTitle>

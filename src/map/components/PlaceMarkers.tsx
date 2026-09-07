@@ -162,7 +162,7 @@ const styles = css`
   .om-pin[data-hovered='true'] {
     transform: translateY(-10px) scale(1.12);
     box-shadow: 0 12px 28px -2px rgba(25, 31, 40, 0.32);
-    z-index: 35 !important;
+    z-index: 100 !important;
     animation: none !important; /* float 중단 후 hover 상태 고정 */
   }
 
@@ -434,7 +434,7 @@ const styles = css`
   .om-badge-pin[data-hovered='true'] {
     transform: translateY(-8px) scale(1.3);
     box-shadow: 0 10px 26px rgba(25, 31, 40, 0.32);
-    z-index: 35 !important;
+    z-index: 100 !important;
     animation: none !important;
   }
 
@@ -910,8 +910,25 @@ export default function PlaceMarkers() {
         }
       });
 
-      el.addEventListener('mouseenter', buildHoverCard);
-      el.addEventListener('focus', buildHoverCard);
+      const handleMouseEnter = () => {
+        buildHoverCard();
+        overlay.setZIndex(100);
+        useMapStore.getState().setHoveredId(item.id);
+      };
+      const handleMouseLeave = () => {
+        const store = useMapStore.getState();
+        const isDetail = item.id === store.detailId;
+        const isSelected = item.id === store.selectedId;
+        overlay.setZIndex(isDetail ? 35 : isSelected ? 30 : 1);
+        if (store.hoveredId === item.id) {
+          store.setHoveredId(null);
+        }
+      };
+
+      el.addEventListener('mouseenter', handleMouseEnter);
+      el.addEventListener('mouseleave', handleMouseLeave);
+      el.addEventListener('focus', handleMouseEnter);
+      el.addEventListener('blur', handleMouseLeave);
 
       const overlay = new window.kakao.maps.CustomOverlay({
         position: new window.kakao.maps.LatLng(item.lat, item.lng),
@@ -949,7 +966,7 @@ export default function PlaceMarkers() {
       val.el.dataset.hovered = String(isHovered);
       val.el.dataset.dimmed = String(isDimmed);
 
-      const zIndex = isDetail ? 35 : isSelected ? 30 : isHovered ? 25 : 1;
+      const zIndex = isHovered ? 100 : isDetail ? 35 : isSelected ? 30 : 1;
       val.overlay.setZIndex(zIndex);
     });
   }, [selectedId, hoveredId, detailId]);
