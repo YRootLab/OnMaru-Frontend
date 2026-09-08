@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import styled from '@emotion/styled';
-import { Pause, Play } from 'lucide-react';
+import { IoPause, IoPlay } from 'react-icons/io5';
 import { lightPalette, meok, surface } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import { SNAP_CSS } from '@/map/components/BottomSheet';
@@ -324,7 +324,7 @@ export default function DateScrubber({ embedded = false }: DateScrubberProps) {
             title={playing ? '멈추기' : '30일 흐름 보기'}
             onClick={() => setPlaying((on) => !on)}
           >
-            {playing ? <Pause size={13} fill="currentColor" /> : <Play size={13} fill="currentColor" />}
+            {playing ? <IoPause size={13} /> : <IoPlay size={13} className="ml-0.5" />}
           </PlayButton>
           <Stamp>
             {formatDay(today.ymd)}

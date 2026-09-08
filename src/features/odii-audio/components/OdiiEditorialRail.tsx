@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { IoChevronBackOutline, IoChevronForwardOutline } from 'react-icons/io5';
 import { motion } from 'framer-motion';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { IOdiiApiService, OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
@@ -504,7 +505,7 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
               className="group absolute left-0 top-0 bottom-0 z-30 flex w-12 sm:w-16 lg:w-20 cursor-pointer items-center justify-start pl-2 sm:pl-4 bg-gradient-to-r from-white/55 via-white/20 to-transparent transition-opacity duration-200 hover:from-white hover:via-white/85 active:opacity-80"
             >
               <span className="flex h-11 w-9 items-center justify-center rounded-xl bg-white/40 text-[#211e19]  backdrop-blur-xs transition-transform duration-300 group-hover:scale-115 group-hover:bg-white group-hover:text-[#f84e76]">
-                <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                <IoChevronBackOutline size={22} />
               </span>
             </button>
 
@@ -518,7 +519,7 @@ export const OdiiEditorialRail = React.memo<OdiiEditorialRailProps>(({ stories, 
               className="group absolute right-0 top-0 bottom-0 z-30 flex w-12 sm:w-16 lg:w-20 cursor-pointer items-center justify-end pr-2 sm:pr-4 bg-gradient-to-l from-white/55 via-white/20 to-transparent transition-opacity duration-200 hover:from-white hover:via-white/85 active:opacity-80"
             >
               <span className="flex h-11 w-9 items-center justify-center rounded-xl bg-white/40 text-[#211e19]  backdrop-blur-xs transition-transform duration-300 group-hover:scale-115 group-hover:bg-white group-hover:text-[#f84e76]">
-                <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                <IoChevronForwardOutline size={22} />
               </span>
             </button>
 

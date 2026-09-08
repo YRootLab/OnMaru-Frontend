@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Heart } from 'lucide-react';
+import { IoHeart, IoCloseOutline } from 'react-icons/io5';
 import { OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 
@@ -46,7 +46,7 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
         aria-label={`마음 담아둔 소리 ${savedStories.length}개 열기`}
         className="fixed bottom-20 right-4 z-40 inline-flex items-center gap-2 bg-[#fbf8f2] px-3.5 py-2.5 text-xs font-semibold text-[#211e19] transition-colors hover:text-[#f84e76] sm:right-6"
       >
-        <Heart size={14} className="fill-current text-[#f84e76]" />
+        <IoHeart size={14} className="text-[#f84e76]" />
         마음 담아둔 소리
         <span className="font-mono text-[10px] text-[#8c7e6c]">{savedStories.length}</span>
       </button>
@@ -82,7 +82,7 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
                   aria-label="보관함 닫기"
                   className="flex h-8 w-8 items-center justify-center text-xl text-[#8c7e6c] transition-colors hover:text-[#a94d35]"
                 >
-                  ×
+                  <IoCloseOutline size={22} />
                 </button>
               </div>
 

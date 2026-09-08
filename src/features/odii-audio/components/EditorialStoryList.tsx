@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { IoPause, IoPlay } from 'react-icons/io5';
 import { AnimatePresence, motion, Variants } from 'framer-motion';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
@@ -112,7 +113,7 @@ export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({ stories 
                 <div className="flex shrink-0 items-center gap-2.5 sm:gap-4">
                   <span className="hidden text-xs font-medium text-[#8c7e6c] sm:inline-block">{story.formattedDuration || '3:00'}</span>
                   <button type="button" onClick={(event) => handlePlayClick(story, event)} className={`flex h-8 w-8 items-center justify-center rounded-full border transition-colors duration-200 ${isThisPlaying ? 'border-[#f84e76] bg-[#f84e76] text-white' : 'border-[#211e19]/15 bg-transparent text-[#655b4d] hover:border-[#f84e76] hover:text-[#f84e76]'}`} title={isThisPlaying ? '일시정지' : '재생'}>
-                    {isThisPlaying ? <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg> : <svg className="ml-0.5 h-3.5 w-3.5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>}
+                    {isThisPlaying ? <IoPause size={14} /> : <IoPlay size={14} className="ml-0.5" />}
                   </button>
                 </div>
               </motion.div>

@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
+import { IoChevronDownOutline } from 'react-icons/io5';
 import { lightPalette, meok } from '@/design-system/tokens';
-import { ChevronDown } from 'lucide-react';
 
 export const FeedContainer = styled.div`
   display: flex;
@@ -309,7 +309,7 @@ export const SortSelect = styled.select`
   }
 `;
 
-export const SortChevron = styled(ChevronDown)`
+export const SortChevron = styled(IoChevronDownOutline)`
   position: absolute;
   right: 0;
   pointer-events: none;

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import React, { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Heart } from 'lucide-react';
+import { IoPause, IoPlay, IoHeart, IoHeartOutline } from 'react-icons/io5';
 import { LocalMiniPlayer } from './LocalMiniPlayer';
 import { SavedSoundDrawer } from './SavedSoundDrawer';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
@@ -48,9 +48,9 @@ function storyMatchesTopic(story: OdiiStoryItem, keyword: string): boolean {
 
 function PlayGlyph({ playing = false }: { playing?: boolean }) {
   return playing ? (
-    <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h4v14H6V5zm8 0h4v14h-4V5z" /></svg>
+    <IoPause size={14} />
   ) : (
-    <svg className="ml-0.5 h-3.5 w-3.5 fill-current" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
+    <IoPlay size={14} className="ml-0.5" />
   );
 }
 
@@ -343,7 +343,7 @@ export const OdiiFreeformFeature: React.FC<OdiiFreeformFeatureProps> = ({ apiSer
                           {isActivePlaying ? '잠시 멈추기' : '이야기 듣기'}
                         </button>
                         <button type="button" onClick={() => toggleBookmark(activeStory)} className={`inline-flex items-center gap-1.5 text-xs font-bold transition-colors ${savedIds.has(activeStory.stid) ? 'text-[#f45b3d]' : 'text-[#6d6d66] hover:text-[#171717]'}`}>
-                          <Heart size={14} className={savedIds.has(activeStory.stid) ? 'fill-current' : ''} />
+                          {savedIds.has(activeStory.stid) ? <IoHeart size={14} /> : <IoHeartOutline size={14} />}
                           <span>{savedIds.has(activeStory.stid) ? '담아둔 소리' : '마음에 담기'}</span>
                         </button>
                       </div>
@@ -440,7 +440,7 @@ export const OdiiFreeformFeature: React.FC<OdiiFreeformFeatureProps> = ({ apiSer
                       <img src={story.imageUrl || FALLBACK_IMAGE} alt={story.title} className="h-full w-full object-cover grayscale-[0.18] transition-transform duration-700 group-hover:scale-105" />
                       <span className="absolute left-3 top-3 bg-[#171717] px-2 py-1 font-mono text-[10px] text-[#d5f05a]">0{index + 1}</span>
                       <button type="button" onClick={() => toggleBookmark(story)} aria-label={isSaved ? `${story.title} 담아두기 취소` : `${story.title} 마음에 담기`} className={`absolute right-3 top-3 flex h-8 w-8 items-center justify-center   transition-colors ${isSaved ? 'bg-[#f45b3d] text-[#171717]' : 'bg-[#e9e9e3] text-[#171717] hover:bg-[#d5f05a]'}`}>
-                        <Heart size={14} className={isSaved ? 'fill-current' : ''} />
+                        {isSaved ? <IoHeart size={14} /> : <IoHeartOutline size={14} />}
                       </button>
                       <button type="button" onClick={() => playStory(story)} className="absolute bottom-3 left-3 flex h-9 w-9 items-center justify-center rounded-full bg-[#2454ff] text-white opacity-0 transition-opacity group-hover:opacity-100" aria-label={`${story.title} 재생`}>
                         <PlayGlyph playing={currentStory.stid === story.stid && isPlaying} />

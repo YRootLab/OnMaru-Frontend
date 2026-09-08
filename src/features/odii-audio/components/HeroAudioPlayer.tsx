@@ -1,6 +1,15 @@
 'use client';
 
 import React from 'react';
+import {
+  IoBookmark,
+  IoBookmarkOutline,
+  IoPlay,
+  IoPause,
+  IoPlayBackOutline,
+  IoPlayForwardOutline,
+  IoVolumeMediumOutline,
+} from 'react-icons/io5';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { useOdiiAudioPlayer } from '@/features/odii-audio/hooks/useOdiiAudioPlayer';
 import { lightPalette } from '@/design-system/tokens';
@@ -99,22 +108,18 @@ export const HeroAudioPlayer: React.FC = () => {
                 : 'text-[#A09588] hover:text-white hover:bg-white/5'
             }`}
           >
-            <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
-              <path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z"/>
-            </svg>
+            {isBookmarked ? <IoBookmark size={14} /> : <IoBookmarkOutline size={14} />}
             <span>{isBookmarked ? '저장됨' : '북마크'}</span>
           </button>
 
-          {/* 메인 컨트롤러 (10초 이전 / SVG 재생-일시정지 / 10초 다음) */}
+          {/* 메인 컨트롤러 (10초 이전 / 재생-일시정지 / 10초 다음) */}
           <div className="flex items-center space-x-4">
             <button
               onClick={() => skipBackward(10)}
               className="p-2 text-[#A09588] hover:text-white transition-colors font-bold text-xs flex items-center space-x-1"
               title="10초 뒤로"
             >
-              <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                <path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/>
-              </svg>
+              <IoPlayBackOutline size={16} />
               <span>10s</span>
             </button>
 
@@ -125,16 +130,12 @@ export const HeroAudioPlayer: React.FC = () => {
             >
               {isPlaying ? (
                 <>
-                  <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24">
-                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
-                  </svg>
+                  <IoPause size={16} />
                   <span>일시정지</span>
                 </>
               ) : (
                 <>
-                  <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z"/>
-                  </svg>
+                  <IoPlay size={16} className="ml-0.5" />
                   <span>재생하기</span>
                 </>
               )}
@@ -146,16 +147,12 @@ export const HeroAudioPlayer: React.FC = () => {
               title="10초 앞으로"
             >
               <span>10s</span>
-              <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                <path d="M11.5 8c2.65 0 5.05.99 6.9 2.6L22 7v9h-9l3.62-3.62c-1.39-1.16-3.16-1.88-5.12-1.88-3.54 0-6.55 2.31-7.6 5.5l-2.37-.78C2.92 11.03 6.85 8 11.5 8z"/>
-              </svg>
+              <IoPlayForwardOutline size={16} />
             </button>
           </div>
 
           <div className="text-xs text-[#A09588] font-mono flex items-center space-x-1">
-            <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
-              <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
-            </svg>
+            <IoVolumeMediumOutline size={16} />
           </div>
         </div>
       </div>

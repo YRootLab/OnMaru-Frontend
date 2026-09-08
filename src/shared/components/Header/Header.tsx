@@ -6,6 +6,16 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import styled from '@emotion/styled';
+import {
+  IoSparklesOutline,
+  IoArrowForwardOutline,
+  IoHomeOutline,
+  IoBookOutline,
+  IoMapOutline,
+  IoHeadsetOutline,
+  IoMenuOutline,
+  IoCloseOutline,
+} from 'react-icons/io5';
 import { transientProps } from '@/design-system/styled';
 import { lightPalette, meok, surface } from '@/design-system/tokens';
 
@@ -378,6 +388,9 @@ const LoginButton = styled(Link, transientProps)<LandingProps>`
   }
 `;
 
+/* 개발 전용 카탈로그 링크 (프로덕션 번들에서는 제거) */
+const IS_DEV = process.env.NODE_ENV === 'development';
+
 export default function Header() {
   const pathname = usePathname();
   const isMapPage = pathname.startsWith('/map');
@@ -547,58 +560,40 @@ export default function Header() {
           </NavLink>
 
           <NavLink href="/discover" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
-            ✨ 여정 탐색
+            <IoSparklesOutline size={13} style={{ marginRight: 4, verticalAlign: '-1px' }} />
+            <span>여정 탐색</span>
           </NavLink>
+
+          {IS_DEV && (
+            <NavLink href="/dev/icons" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
+              아이콘
+            </NavLink>
+          )}
         </CenterNav>
 
       {/* 오른쪽 끝: 로그인 */}
       <RightSection>
         <LoginButton href="/auth/login" $isLanding={usesDarkSurface}>
           <span>로그인</span>
-          <svg
-            width="11"
-            height="11"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M5 12h14" />
-            <path d="M12 5l7 7-7 7" />
-          </svg>
+          <IoArrowForwardOutline size={12} />
         </LoginButton>
       </RightSection>
 
       <MobileTabNav aria-label="주요 탐색">
         <MobileTabLink href="/" $isLanding={usesDarkSurface} $isActive={pathname === '/'}>
-          <MobileTabIcon viewBox="0 0 24 24" aria-hidden="true">
-            <path d="m3 10 9-7 9 7" />
-            <path d="M5 9v11h14V9" />
-            <path d="M9 20v-6h6v6" />
-          </MobileTabIcon>
+          <IoHomeOutline size={19} aria-hidden="true" />
           <span>홈</span>
         </MobileTabLink>
         <MobileTabLink href="/hanok" $isLanding={usesDarkSurface} $isActive={pathname.startsWith('/hanok')}>
-          <MobileTabIcon viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M4 6.5h16" />
-            <path d="M6 4h12v16H6z" />
-            <path d="M9 10h6M9 14h6" />
-          </MobileTabIcon>
+          <IoBookOutline size={19} aria-hidden="true" />
           <span>한옥도감</span>
         </MobileTabLink>
         <MobileTabLink href="/map" $isLanding={usesDarkSurface} $isActive={pathname.startsWith('/map')}>
-          <MobileTabIcon viewBox="0 0 24 24" aria-hidden="true">
-            <path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3z" />
-            <path d="M9 3v15M15 6v15" />
-          </MobileTabIcon>
+          <IoMapOutline size={19} aria-hidden="true" />
           <span>지도</span>
         </MobileTabLink>
         <MobileTabLink href="/odii" $isLanding={usesDarkSurface} $isOdii $isActive={isOdiiPage}>
-          <MobileTabIcon viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M4 14v-4M8 18V6M12 15V9M16 20V4M20 14v-4" />
-          </MobileTabIcon>
+          <IoHeadsetOutline size={19} aria-hidden="true" />
           <span>오디</span>
         </MobileTabLink>
       </MobileTabNav>
@@ -612,21 +607,11 @@ export default function Header() {
           aria-controls="mobile-navigation"
           onClick={() => setIsMobileMenuOpen((prev) => !prev)}
         >
-          <motion.svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            animate={{ rotate: isMobileMenuOpen ? 90 : 0 }}
-            transition={{ duration: 0.18 }}
-          >
-            <path d="M4 7h16" />
-            <path d="M4 12h16" />
-            <path d="M4 17h16" />
-          </motion.svg>
+          {isMobileMenuOpen ? (
+            <IoCloseOutline size={20} />
+          ) : (
+            <IoMenuOutline size={20} />
+          )}
         </MobileMenuButton>
 
         <AnimatePresence>
@@ -643,7 +628,14 @@ export default function Header() {
               <MobileMenuLink href="/hanok" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>한옥도감</MobileMenuLink>
               <MobileMenuLink href="/map" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>지도</MobileMenuLink>
               <MobileMenuLink href="/odii" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>소리마루</MobileMenuLink>
-              <MobileMenuLink href="/discover" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>✨ 여정 탐색</MobileMenuLink>
+              <MobileMenuLink href="/discover" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <IoSparklesOutline size={15} /> 여정 탐색
+                </span>
+              </MobileMenuLink>
+              {IS_DEV && (
+                <MobileMenuLink href="/dev/icons" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>아이콘 (개발용)</MobileMenuLink>
+              )}
               <MobileMenuDivider $isLanding={usesDarkSurface} />
               <MobileMenuLink href="/auth/login" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>로그인</MobileMenuLink>
             </MobileMenuPanel>

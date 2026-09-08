@@ -1,59 +1,55 @@
 // ============================================================
-// 온마루 컬러 토큰 — Light / Dark
-//
-// 구조:
-//   lightPalette   — 라이트 전용 액센트 5색 (Hue별 7단계)
-//   darkPalette    — 다크 전용 액센트 5색 (OKLCH 검증, 7단계)
-//   meok           — 라이트/다크 공용 중성 그레이 (6단계)
-//   surface        — 배경 표면 토큰 (light / dark)
-//   semanticTokens — 역할별 매핑
-//   createTheme    — 최종 테마 객체
+// 온마루 컬러 토큰 (공용 7대 패밀리 & 시맨틱 시스템)
 // ============================================================
 
 // ------------------------------------------------------------
-// 1. 액센트 팔레트
+// 1. 공용 7대 계열 팔레트
 // ------------------------------------------------------------
 
-// 라이트 전용 — 맑고 생생한 한국 전통 현대화 컬러 램프
-export const lightPalette = {
-  // 🔴 단청 주홍 — 맑고 생동감 넘치는 비비드 주홍 / 대표 액션 컬러
+export const palette = {
+  // 🔴 빨강 — 단풍 레드 (에러 / 경고)
+  danpung: {
+    50: '#FFF1F0', 100: '#FFE4E1', 200: '#FFC1BA', 400: '#FF6B61',
+    500: '#FF3B30', 700: '#D62015', 900: '#7A0C05',
+  },
+  // 🟠 주황 — 단청 주홍 (메인 액션)
   juhong: {
-    50: '#FFF3EB', 100: '#FFE0D1', 200: '#FFBA99', 400: '#FF7842',
-    500: '#FF5414', 700: '#D93600', 900: '#7A1A00',
+    50: '#FFF4EB', 100: '#FFE4D1', 200: '#FFBD99', 400: '#FF7830',
+    500: '#FF5500', 700: '#D94000', 900: '#7A2400',
   },
-  // 🟢 대청 청록 — 청량하고 싱그러운 에메랄드 청록 / 내비게이션 및 지도
-  cheongrok: {
-    50: '#E8FAF3', 100: '#C0F3DF', 200: '#82E7C3', 400: '#26CF9A',
-    500: '#00B882', 700: '#00825B', 900: '#004530',
-  },
-  // 🟡 황금 기와 — 찬란하고 따스하게 빛나는 골든 앰버 / 배지, 별점, 장터용
+  // 🟡 노랑 — 황금 기와 (별점 / 하이라이트)
   hwanggeum: {
-    50: '#FFF9E6', 100: '#FFF0B8', 200: '#FFDE70', 400: '#FFBC1A',
-    500: '#FFA000', 700: '#D47F00', 900: '#704000',
+    50: '#FFFBE5', 100: '#FFF3BD', 200: '#FFE57A', 400: '#FFD026',
+    500: '#FFB800', 700: '#D99400', 900: '#704800',
   },
-  // 🌸 연지 장미 — 꽃잎처럼 화사하고 맑은 코랄 로즈 / 도슨트, 오디 API용
-  jangmi: {
-    50: '#FFF0F4', 100: '#FFD4E1', 200: '#FFA3BF', 400: '#FF5E8E',
-    500: '#FF2A6D', 700: '#D40D4E', 900: '#6E0025',
+  // 🟢 초록 — 대청 청록 (내비게이션 / 성공)
+  cheongrok: {
+    50: '#E6FAF2', 100: '#BEF4DC', 200: '#82E8BD', 400: '#26D68D',
+    500: '#00C471', 700: '#009454', 900: '#004D2B',
   },
-  // 🔵 청화 코발트 — 청화백자처럼 청명하고 시원한 울트라 코발트 블루 / 정보 안내, 링크, 데이터용
+  // 🔵 파랑 — 청화 코발트 (정보 안내)
   kobalt: {
-    50: '#EFF4FF', 100: '#DBE8FE', 200: '#B8D3FD', 400: '#6099FC',
-    500: '#2F68FF', 700: '#1748CF', 900: '#092270',
+    50: '#EBF2FF', 100: '#C7DAFF', 200: '#8FB5FF', 400: '#4D82FF',
+    500: '#1B5BFF', 700: '#0C44D9', 900: '#052275',
+  },
+  // 🟣 보라 — 자하 바이올렛 (야경 / 악센트)
+  jaha: {
+    50: '#F6EBFF', 100: '#E5C7FF', 200: '#CA8FFF', 400: '#A647FF',
+    500: '#8B1BFF', 700: '#670CD9', 900: '#360575',
+  },
+  // 🌸 분홍 — 연지 로즈 (문화재 / 도슨트)
+  jangmi: {
+    50: '#FFF0F6', 100: '#FFD4E5', 200: '#FFA3C7', 400: '#FF5C9F',
+    500: '#FF2A85', 700: '#D40D63', 900: '#6E0030',
   },
 } as const;
 
-// 다크 전용 — 다크 서피스(#1C1A17, #191f28) 위에서 선명하고 또렷하게 빛나는 비비드 램프
-export const darkPalette = {
-  juhong:   { 50: '#FFF5EE', 100: '#FFE4D6', 200: '#FFBD9E', 400: '#FF7E4A', 500: '#FF5B1D', 700: '#B83508', 900: '#521400' },
-  cheongrok:{ 50: '#ECFAF5', 100: '#C4F3E2', 200: '#8AE8C6', 400: '#2CD69F', 500: '#00BF88', 700: '#007D58', 900: '#003827' },
-  hwanggeum:{ 50: '#FFF9E6', 100: '#FFF0B8', 200: '#FFDE73', 400: '#FFBE1F', 500: '#FFA70A', 700: '#B87200', 900: '#4D2C00' },
-  jangmi:   { 50: '#FFF0F5', 100: '#FFD6E3', 200: '#FFA7C4', 400: '#FF6393', 500: '#FF3375', 700: '#BD124B', 900: '#4D001C' },
-  kobalt:   { 50: '#F0F5FF', 100: '#DCE8FF', 200: '#BAD4FF', 400: '#6B9EFF', 500: '#3B77FF', 700: '#1E50C7', 900: '#08205C' },
-} as const;
+// 하위 호환 별칭
+export const lightPalette = palette;
+export const darkPalette  = palette;
 
 // ------------------------------------------------------------
-// 2. 공용 중성색 (먹빛) — 라이트/다크 모두 참조
+// 2. 먹빛 중성색 (6단계)
 // ------------------------------------------------------------
 export const meok = {
   100: '#fafafa',
@@ -65,25 +61,63 @@ export const meok = {
 } as const;
 
 // ------------------------------------------------------------
-// 3. 표면 및 배경 (Surface)
+// 3. 표면 배경
 // ------------------------------------------------------------
 export const surface = {
   light: {
-    base:     '#fafafa',  // 화선지 오프화이트
-    surface:  '#f0f0f0',  // 한지 면
-    card:     '#FFFFFF',  // 카드 배경
-    elevated: '#FFFFFF',  // 팝업/모달 배경
+    base:     '#fafafa',  // 화선지 바탕
+    surface:  '#f0f0f0',  // 한지 표면
+    card:     '#FFFFFF',  // 카드 바탕
+    elevated: '#FFFFFF',  // 팝업 / 모달
   },
   dark: {
-    app:      '#1C1A17',  // 전통 먹빛 마루
-    surface:  '#24211D',  // 먹빛 결
+    app:      '#1C1A17',  // 먹빛 마루
+    surface:  '#24211D',  // 먹빛 표면
     card:     '#2D2924',  // 먹빛 카드
-    elevated: '#3A352E',  // 먹빛 부유
+    elevated: '#3A352E',  // 먹빛 팝업
+  },
+} as const;
+
+// 글래스 효과
+export const glass = {
+  light: {
+    thin:    'rgba(255, 255, 255, 0.65)',
+    regular: 'rgba(255, 255, 255, 0.82)',
+    thick:   'rgba(255, 255, 255, 0.94)',
+    border:  'rgba(25, 31, 40, 0.08)',
+    glow:    '0 8px 32px 0 rgba(25, 31, 40, 0.08)',
+  },
+  dark: {
+    thin:    'rgba(28, 26, 23, 0.65)',
+    regular: 'rgba(36, 33, 29, 0.82)',
+    thick:   'rgba(45, 41, 36, 0.94)',
+    border:  'rgba(255, 255, 255, 0.10)',
+    glow:    '0 8px 32px 0 rgba(0, 0, 0, 0.45)',
+  },
+} as const;
+
+// 그라데이션
+export const gradients = {
+  dancheong:      `linear-gradient(135deg, ${palette.juhong[500]} 0%, ${palette.hwanggeum[500]} 100%)`, // 주황 → 노랑
+  cheongrokBlue:  `linear-gradient(135deg, ${palette.cheongrok[500]} 0%, ${palette.kobalt[500]} 100%)`,  // 초록 → 파랑
+  jahaRose:       `linear-gradient(135deg, ${palette.jaha[500]} 0%, ${palette.jangmi[500]} 100%)`,       // 보라 → 분홍
+  danpungJuhong:  `linear-gradient(135deg, ${palette.danpung[500]} 0%, ${palette.juhong[500]} 100%)`,   // 빨강 → 주황
+  light: {
+    dancheong:      `linear-gradient(135deg, ${palette.juhong[500]} 0%, ${palette.hwanggeum[500]} 100%)`,
+    cheongrokBlue:  `linear-gradient(135deg, ${palette.cheongrok[500]} 0%, ${palette.kobalt[500]} 100%)`,
+    jahaRose:       `linear-gradient(135deg, ${palette.jaha[500]} 0%, ${palette.jangmi[500]} 100%)`,
+    danpungJuhong:  `linear-gradient(135deg, ${palette.danpung[500]} 0%, ${palette.juhong[500]} 100%)`,
+  },
+  dark: {
+    dancheong:      `linear-gradient(135deg, ${palette.juhong[400]} 0%, ${palette.hwanggeum[400]} 100%)`,
+    cheongrokBlue:  `linear-gradient(135deg, ${palette.cheongrok[400]} 0%, ${palette.kobalt[400]} 100%)`,
+    jahaRose:       `linear-gradient(135deg, ${palette.jaha[400]} 0%, ${palette.jangmi[400]} 100%)`,
+    danpungJuhong:  `linear-gradient(135deg, ${palette.danpung[400]} 0%, ${palette.juhong[400]} 100%)`,
   },
 } as const;
 
 // ------------------------------------------------------------
-// 4. 시맨틱 역할별 토큰 매핑
+// 4. 시맨틱 역할 토큰
 // ------------------------------------------------------------
 
 export type ColorMode = 'light' | 'dark';
@@ -107,39 +141,60 @@ export const semanticTokens = {
       inverse:   '#FFFFFF',
     },
     action: {
-      primary:        lightPalette.juhong[500],
-      primaryHover:   lightPalette.juhong[400],
-      primaryPressed: lightPalette.juhong[700],
-      primaryBg:      lightPalette.juhong[50],
-      primarySubtle:  lightPalette.juhong[100],
+      primary:        palette.juhong[500],
+      primaryHover:   palette.juhong[400],
+      primaryPressed: palette.juhong[700],
+      primaryBg:      palette.juhong[50],
+      primarySubtle:  palette.juhong[100],
     },
     nav: {
-      primary:        lightPalette.cheongrok[500],
-      primaryHover:   lightPalette.cheongrok[400],
-      primaryPressed: lightPalette.cheongrok[700],
-      primaryBg:      lightPalette.cheongrok[50],
-      primarySubtle:  lightPalette.cheongrok[100],
+      primary:        palette.cheongrok[500],
+      primaryHover:   palette.cheongrok[400],
+      primaryPressed: palette.cheongrok[700],
+      primaryBg:      palette.cheongrok[50],
+      primarySubtle:  palette.cheongrok[100],
     },
     badge: {
-      star:        lightPalette.hwanggeum[400],
-      starText:    lightPalette.hwanggeum[500],
-      starPressed: lightPalette.hwanggeum[700],
-      starBg:      lightPalette.hwanggeum[50],
-      starSubtle:  lightPalette.hwanggeum[100],
+      star:        palette.hwanggeum[400],
+      starText:    palette.hwanggeum[700],
+      starPressed: palette.hwanggeum[700],
+      starBg:      palette.hwanggeum[50],
+      starSubtle:  palette.hwanggeum[100],
     },
     docent: {
-      primary:        lightPalette.jangmi[500],
-      primaryHover:   lightPalette.jangmi[400],
-      primaryPressed: lightPalette.jangmi[700],
-      primaryBg:      lightPalette.jangmi[50],
-      primarySubtle:  lightPalette.jangmi[100],
+      primary:        palette.jangmi[500],
+      primaryHover:   palette.jangmi[400],
+      primaryPressed: palette.jangmi[700],
+      primaryBg:      palette.jangmi[50],
+      primarySubtle:  palette.jangmi[100],
     },
     info: {
-      primary:        lightPalette.kobalt[500],
-      primaryHover:   lightPalette.kobalt[400],
-      primaryPressed: lightPalette.kobalt[700],
-      primaryBg:      lightPalette.kobalt[50],
-      primarySubtle:  lightPalette.kobalt[100],
+      primary:        palette.kobalt[500],
+      primaryHover:   palette.kobalt[400],
+      primaryPressed: palette.kobalt[700],
+      primaryBg:      palette.kobalt[50],
+      primarySubtle:  palette.kobalt[100],
+    },
+    success: {
+      primary:        palette.cheongrok[500],
+      primaryHover:   palette.cheongrok[400],
+      primaryPressed: palette.cheongrok[700],
+      primaryBg:      palette.cheongrok[50],
+      primarySubtle:  palette.cheongrok[100],
+    },
+    warning: {
+      primary:        palette.hwanggeum[500],
+      primaryHover:   palette.hwanggeum[400],
+      primaryPressed: palette.hwanggeum[700],
+      primaryBg:      palette.hwanggeum[50],
+      primarySubtle:  palette.hwanggeum[100],
+    },
+    error: {
+      primary:        palette.danpung[500],
+      primaryHover:   palette.danpung[400],
+      primaryPressed: palette.danpung[700],
+      primaryBg:      palette.danpung[50],
+      primarySubtle:  palette.danpung[100],
     },
     neutral: {
       primary:  meok[700],
@@ -168,39 +223,60 @@ export const semanticTokens = {
       inverse:   surface.dark.app,
     },
     action: {
-      primary:        darkPalette.juhong[500],
-      primaryHover:   darkPalette.juhong[200],
-      primaryPressed: darkPalette.juhong[700],
-      primaryBg:      darkPalette.juhong[900],
-      primarySubtle:  darkPalette.juhong[700],
+      primary:        palette.juhong[500],
+      primaryHover:   palette.juhong[400],
+      primaryPressed: palette.juhong[700],
+      primaryBg:      palette.juhong[900],
+      primarySubtle:  palette.juhong[700],
     },
     nav: {
-      primary:        darkPalette.cheongrok[500],
-      primaryHover:   darkPalette.cheongrok[200],
-      primaryPressed: darkPalette.cheongrok[700],
-      primaryBg:      darkPalette.cheongrok[900],
-      primarySubtle:  darkPalette.cheongrok[700],
+      primary:        palette.cheongrok[500],
+      primaryHover:   palette.cheongrok[400],
+      primaryPressed: palette.cheongrok[700],
+      primaryBg:      palette.cheongrok[900],
+      primarySubtle:  palette.cheongrok[700],
     },
     badge: {
-      star:        darkPalette.hwanggeum[500],
-      starText:    darkPalette.hwanggeum[200],
-      starPressed: darkPalette.hwanggeum[700],
-      starBg:      darkPalette.hwanggeum[900],
-      starSubtle:  darkPalette.hwanggeum[700],
+      star:        palette.hwanggeum[400],
+      starText:    palette.hwanggeum[200],
+      starPressed: palette.hwanggeum[700],
+      starBg:      palette.hwanggeum[900],
+      starSubtle:  palette.hwanggeum[700],
     },
     docent: {
-      primary:        darkPalette.jangmi[500],
-      primaryHover:   darkPalette.jangmi[200],
-      primaryPressed: darkPalette.jangmi[700],
-      primaryBg:      darkPalette.jangmi[900],
-      primarySubtle:  darkPalette.jangmi[700],
+      primary:        palette.jangmi[500],
+      primaryHover:   palette.jangmi[400],
+      primaryPressed: palette.jangmi[700],
+      primaryBg:      palette.jangmi[900],
+      primarySubtle:  palette.jangmi[700],
     },
     info: {
-      primary:        darkPalette.kobalt[500],
-      primaryHover:   darkPalette.kobalt[200],
-      primaryPressed: darkPalette.kobalt[700],
-      primaryBg:      darkPalette.kobalt[900],
-      primarySubtle:  darkPalette.kobalt[700],
+      primary:        palette.kobalt[500],
+      primaryHover:   palette.kobalt[400],
+      primaryPressed: palette.kobalt[700],
+      primaryBg:      palette.kobalt[900],
+      primarySubtle:  palette.kobalt[700],
+    },
+    success: {
+      primary:        palette.cheongrok[500],
+      primaryHover:   palette.cheongrok[400],
+      primaryPressed: palette.cheongrok[700],
+      primaryBg:      palette.cheongrok[900],
+      primarySubtle:  palette.cheongrok[700],
+    },
+    warning: {
+      primary:        palette.hwanggeum[500],
+      primaryHover:   palette.hwanggeum[400],
+      primaryPressed: palette.hwanggeum[700],
+      primaryBg:      palette.hwanggeum[900],
+      primarySubtle:  palette.hwanggeum[700],
+    },
+    error: {
+      primary:        palette.danpung[500],
+      primaryHover:   palette.danpung[400],
+      primaryPressed: palette.danpung[700],
+      primaryBg:      palette.danpung[900],
+      primarySubtle:  palette.danpung[700],
     },
     neutral: {
       primary:  meok[200],
@@ -215,7 +291,7 @@ export const semanticTokens = {
 export type SemanticToken = keyof typeof semanticTokens.light;
 
 // ------------------------------------------------------------
-// 5. 최종 테마 객체 (Emotion CSS용)
+// 5. 테마 생성 함수
 // ------------------------------------------------------------
 
 export const createTheme = (mode: ColorMode) => {
@@ -225,17 +301,20 @@ export const createTheme = (mode: ColorMode) => {
     mode,
     colors: {
       ...s,
+      palette,
+      glass: glass[mode],
+      gradients: gradients[mode],
       metaball: {
-        core:        lightPalette.juhong[500],
-        spread1:     lightPalette.juhong[200],
-        spread2:     lightPalette.hwanggeum[400],
-        accent1:     lightPalette.jangmi[500],
-        accent2:     lightPalette.cheongrok[500],
-        darkCore:    darkPalette.juhong[500],     // 불투명도 .58
-        darkSpread1: darkPalette.juhong[400],     // 불투명도 .42
-        darkSpread2: darkPalette.hwanggeum[400],  // 불투명도 .38
-        darkAccent1: darkPalette.jangmi[400],     // 불투명도 .44
-        darkAccent2: darkPalette.cheongrok[400],  // 불투명도 .38
+        core:        palette.juhong[500],
+        spread1:     palette.juhong[200],
+        spread2:     palette.hwanggeum[400],
+        accent1:     palette.jangmi[500],
+        accent2:     palette.cheongrok[500],
+        darkCore:    palette.juhong[500],     // 코어
+        darkSpread1: palette.juhong[400],     // 퍼짐 1
+        darkSpread2: palette.hwanggeum[400],  // 퍼짐 2
+        darkAccent1: palette.jangmi[400],     // 악센트 1
+        darkAccent2: palette.cheongrok[400],  // 악센트 2
       },
     },
 
@@ -284,9 +363,9 @@ export const createTheme = (mode: ColorMode) => {
     layout: {
       maxWidth: '1340px',
       margin: {
-        sm: '16px', // Mobile (< 768px)
-        md: '16px', // Tablet (768px ~ 1024px)
-        lg: 'auto', // Large Desktop (>= 1280px, 당근 레이아웃: 0 auto)
+        sm: '16px', // 모바일
+        md: '16px', // 태블릿
+        lg: 'auto', // 데스크톱
       },
       padding: {
         sm: '16px',
@@ -305,14 +384,14 @@ export const createTheme = (mode: ColorMode) => {
       },
     },
 
-    // 라이트 그림자 — meok[900] 기반, 채도 있는 부드러운 그림자
+    // 라이트 그림자
     shadow: mode === 'light' ? {
       sm:   '0 1px 3px rgba(25, 31, 40, 0.05)',
       md:   '0 4px 12px rgba(25, 31, 40, 0.07)',
       lg:   '0 8px 24px rgba(25, 31, 40, 0.09)',
       xl:   '0 16px 48px rgba(25, 31, 40, 0.11)',
       glow: '0 0 20px rgba(232, 90, 24, 0.18)',
-    // 다크 그림자 — 순수 검정 대신 meok[900] 기반, 낮은 불투명도
+    // 다크 그림자
     } : {
       sm:   '0 1px 4px rgba(25, 31, 40, 0.18)',
       md:   '0 4px 12px rgba(25, 31, 40, 0.24)',

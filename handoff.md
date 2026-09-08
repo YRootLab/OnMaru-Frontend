@@ -1,17 +1,82 @@
 # handoff.md
 
 Current work:
-- Summary: Mindtrip-inspired floating pill capsule navbar & clean hover micro-interactions
-- Issue/PR: Issue #48, PR #49
-- Branch: `feature/navigation-bar-improvements`
+- Summary: 
+  1. Mobile map top category chips placement, bottom sheet chip cleanup, and design system tokens overhaul (Toss TDS-style unified single palette with 7 distinct color families, tuned `danpung` to pure primary red with 0% pink tint, concise noun-ending comments).
+  2. Complete Icon System Unification & Purge: Eliminated all non-react-library icons (inline SVGs, raw text symbols `➔`, `←`, `›`, `▲`, `▼`, `×`, `✕`, and emojis). Standardized the entire codebase to rounded React Icons (`react-icons/io5` Ionicons 5 + `react-icons/ri` Remix Icons for 5-tier sentiment emojis). Enforced cross-app semantic keyword consistency (Play/Pause, Bookmark, Search, Close, Chevrons, Hanok/Stay/Food/Cafe/Market, Odii Headset, Warmth Flame, Map/Pin, etc.). Clean TypeScript compilation (`npx tsc --noEmit` code 0).
+  3. Map Markers & Floating Chipset Icon Unification: Replaced all legacy hard-edged multi-colored raw SVG strings in `CATEGORY_STYLES` (`PlaceMarkers.tsx`), `WarmthLayer.tsx`, and `WarmthNotesLayer.tsx` with rounded `react-icons/io5` via `renderToStaticMarkup`. Now all map label pins (`.om-pin`), circular badge pins (`.om-badge-pin`), cluster pills (`.om-cluster-pill`), and warmth overlays perfectly match the top floating category chips in style, roundness, and category color.
+- Branch: `feat/map-responsive-chips-color-tokens`
 
 Touched files:
+- `src/map/components/PlaceMarkers.tsx`
+- `src/map/components/WarmthLayer.tsx`
+- `src/map/components/warmth/WarmthNotesLayer.tsx`
+- `src/design-system/tokens.ts`
+- `src/design-system/components.tsx`
 - `src/shared/components/Header/Header.tsx`
-- `changelog.md`
+- `src/map/MapPage.tsx`
+- `src/map/components/BottomSheet.tsx`
+- `src/map/components/CategoryChips.tsx`
+- `src/map/components/PlaceDetail.tsx`
+- `src/map/components/PlaceList.tsx`
+- `src/map/components/PlaceListItem.tsx`
+- `src/map/components/SearchBar.tsx`
+- `src/map/components/ModeToggle.tsx`
+- `src/map/components/MapNavRail.tsx`
+- `src/map/components/MobileBottomNav.tsx`
+- `src/map/components/KakaoMap.tsx`
+- `src/map/components/ListPanel.tsx`
+- `src/map/components/detail/PlaceDetailCarousel.tsx`
+- `src/map/components/detail/RoadviewModal.tsx`
+- `src/map/components/feed/FestivalExhibitionCarousel.tsx`
+- `src/map/components/feed/LiveNoticeBanner.tsx`
+- `src/map/components/feed/OdiiSpotlightBanner.tsx`
+- `src/map/components/feed/SmartAroundFeed.tsx`
+- `src/map/components/warmth/MoodSelector.tsx`
+- `src/map/components/warmth/PlaceWarmthSection.tsx`
+- `src/map/components/warmth/PopularPlacesPanel.tsx`
+- `src/map/components/warmth/WarmthCard.tsx`
+- `src/map/components/warmth/WarmthFeed.styles.ts`
+- `src/map/components/warmth/WarmthFeed.tsx`
+- `src/map/components/warmth/WarmthLegend.tsx`
+- `src/map/components/warmth/WriteButton.tsx`
+- `src/map/components/warmth/WriteWarmthModal.tsx`
+- `src/map/components/warmth/DateScrubber.tsx`
+- `src/hanok/sections/HanokHero.tsx`
+- `src/hanok/sections/HanokInteractiveMapFrame.tsx`
+- `src/hanok/sections/HanokManifestoCta.tsx`
+- `src/hanok/sections/HanokMonthly.tsx`
+- `src/hanok/sections/HanokStayAccordion.tsx`
+- `src/hanok/components/FilterBar.tsx`
+- `src/hanok/components/PolaroidCard.tsx`
+- `src/hanok/components/VillageDetailModal.tsx`
+- `src/features/odii-audio/components/AllStoriesModal.tsx`
+- `src/features/odii-audio/components/EditorialStoryList.tsx`
+- `src/features/odii-audio/components/HeroAudioPlayer.tsx`
+- `src/features/odii-audio/components/KeywordSpotlightSection.tsx`
+- `src/features/odii-audio/components/LocalMiniPlayer.tsx`
+- `src/features/odii-audio/components/OdiiArchiveBrowse.tsx`
+- `src/features/odii-audio/components/OdiiArchiveMetaBar.tsx`
+- `src/features/odii-audio/components/OdiiAutoSliceRail.tsx`
+- `src/features/odii-audio/components/OdiiEditorialRail.tsx`
+- `src/features/odii-audio/components/OdiiFreeformFeature.tsx`
+- `src/features/odii-audio/components/OdiiOriginalStoryList.tsx`
+- `src/features/odii-audio/components/OdiiQuestionAssistant.tsx`
+- `src/features/odii-audio/components/OdiiStoryCardGrid.tsx`
+- `src/features/odii-audio/components/SavedSoundDrawer.tsx`
+- `src/features/odii-audio/components/StoryCarousel.tsx`
+- `src/features/odii-audio/components/ZIndexStackedSection.tsx`
+- `src/features/odii-audio/components/ZTranslateCardStage.tsx`
+- `src/features/journey-curator/components/BentoJourneyGrid.tsx`
+- `src/features/journey-curator/components/JourneyHeroSearch.tsx`
+- `src/features/journey-curator/components/JourneyRefineBar.tsx`
+- `src/features/journey-curator/components/KnowledgeGraphView.tsx`
+- `src/features/journey-curator/data/curatedJourneys.ts`
+- `src/features/cinematic-tour/components/CinematicTourFloatingBar.tsx`
 - `handoff.md`
 
 Next step:
-- Review navigation bar interaction and test across desktop and mobile.
+- Verify browser rendering and user experience with unified rounded icons.
 
 Ad hoc requests captured this session:
 - Navigation bar enhancement: Mindtrip.ai-inspired floating pill capsule, clean hover micro-interactions, white-background frosted glass adaptation, and maintaining existing scroll hide/reveal logic.

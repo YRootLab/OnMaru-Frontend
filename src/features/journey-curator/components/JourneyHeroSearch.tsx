@@ -2,7 +2,16 @@
 
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
-import { Sparkles, ArrowRight, Compass } from 'lucide-react';
+import {
+  IoSparklesOutline,
+  IoArrowForwardOutline,
+  IoCompassOutline,
+  IoCloudOutline,
+  IoBagHandleOutline,
+  IoHeadsetOutline,
+  IoRainyOutline,
+  IoLeafOutline,
+} from 'react-icons/io5';
 import { lightPalette, meok, surface } from '@/design-system/tokens';
 import { MOOD_OPTIONS } from '../data/curatedJourneys';
 import { useJourneyStore } from '../store/useJourneyStore';
@@ -193,6 +202,23 @@ const MoodChip = styled.button<{ $active: boolean }>`
   }
 `;
 
+function getMoodIcon(id: string) {
+  switch (id) {
+    case 'quiet':
+      return <IoCloudOutline size={15} />;
+    case 'market':
+      return <IoBagHandleOutline size={15} />;
+    case 'story':
+      return <IoHeadsetOutline size={15} />;
+    case 'rainy':
+      return <IoRainyOutline size={15} />;
+    case 'rest':
+      return <IoLeafOutline size={15} />;
+    default:
+      return <IoSparklesOutline size={15} />;
+  }
+}
+
 export default function JourneyHeroSearch() {
   const currentQuery = useJourneyStore((s) => s.currentQuery);
   const setQuery = useJourneyStore((s) => s.setQuery);
@@ -209,7 +235,7 @@ export default function JourneyHeroSearch() {
   return (
     <Container>
       <EyebrowBadge>
-        <Sparkles size={14} />
+        <IoSparklesOutline size={14} />
         <span>인공지능 여정 큐레이터</span>
       </EyebrowBadge>
 
@@ -223,7 +249,7 @@ export default function JourneyHeroSearch() {
 
       <SearchForm onSubmit={handleSubmit}>
         <SearchIconWrap>
-          <Compass size={20} />
+          <IoCompassOutline size={20} />
         </SearchIconWrap>
         <Input
           type="text"
@@ -234,7 +260,7 @@ export default function JourneyHeroSearch() {
         />
         <SubmitButton type="submit" $disabled={isGenerating}>
           <span>{isGenerating ? '조립 중...' : '여정 탐색'}</span>
-          <ArrowRight size={14} />
+          <IoArrowForwardOutline size={14} />
         </SubmitButton>
       </SearchForm>
 
@@ -248,7 +274,7 @@ export default function JourneyHeroSearch() {
               $active={isActive}
               onClick={() => selectMood(mood.id)}
             >
-              <span>{mood.icon}</span>
+              <span style={{ display: 'inline-flex', alignItems: 'center' }}>{getMoodIcon(mood.id)}</span>
               <span>{mood.label}</span>
             </MoodChip>
           );

@@ -5,18 +5,15 @@ import Link from 'next/link';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import {
-  MapPin,
-  Clock,
-  Compass,
-  Landmark,
-  Headphones,
-  Flame,
-  ArrowRight,
-  Play,
-  Pause,
-  ExternalLink,
-  Volume2,
-} from 'lucide-react';
+  IoCompassOutline,
+  IoTimeOutline,
+  IoStorefrontOutline,
+  IoHeadsetOutline,
+  IoPlay,
+  IoPause,
+  IoFlame,
+  IoArrowForwardOutline,
+} from 'react-icons/io5';
 import { lightPalette, meok, surface } from '@/design-system/tokens';
 import { transientProps } from '@/design-system/styled';
 import { useJourneyStore } from '../store/useJourneyStore';
@@ -439,14 +436,14 @@ export default function BentoJourneyGrid() {
         {/* 1. Map Route Card */}
         <RouteCard>
           <CardBadge $color="#3b82f6">
-            <Compass size={14} />
+            <IoCompassOutline size={14} />
             <span>추천 공간 동선 (지도 연동)</span>
           </CardBadge>
           <CardTitle>{routeCard.title}</CardTitle>
 
           <RouteMeta>
             <MetaItem>
-              <Clock size={14} />
+              <IoTimeOutline size={14} />
               <span>총 소요: {routeCard.duration}</span>
             </MetaItem>
             <MetaItem>
@@ -468,14 +465,14 @@ export default function BentoJourneyGrid() {
 
           <ActionLink href={routeCard.mapLink} $color="#3b82f6">
             <span>지도에서 전체 동선 및 장소 보기</span>
-            <ArrowRight size={14} />
+            <IoArrowForwardOutline size={14} />
           </ActionLink>
         </RouteCard>
 
         {/* 2. Hanok Heritage Card */}
         <HanokCard>
           <CardBadge $color={lightPalette.cheongrok[500]}>
-            <Landmark size={14} />
+            <IoStorefrontOutline size={14} />
             <span>한옥 건축·문화재 도감</span>
           </CardBadge>
           <CardTitle>{hanokCard.title}</CardTitle>
@@ -488,14 +485,14 @@ export default function BentoJourneyGrid() {
 
           <ActionLink href={hanokCard.hanokLink} $color={lightPalette.cheongrok[500]}>
             <span>3D 한옥 조립 및 도감 보기</span>
-            <ArrowRight size={14} />
+            <IoArrowForwardOutline size={14} />
           </ActionLink>
         </HanokCard>
 
         {/* 3. ODII Audio Card */}
         <OdiiCard>
           <CardBadge $color="#8b5cf6">
-            <Headphones size={14} />
+            <IoHeadsetOutline size={14} />
             <span>소리마루 공간 오디오 해설</span>
           </CardBadge>
           <CardTitle>{odiiCard.title}</CardTitle>
@@ -506,7 +503,7 @@ export default function BentoJourneyGrid() {
               onClick={() => setIsPlaying(!isPlaying)}
               aria-label={isPlaying ? '오디오 일시정지' : '오디오 듣기'}
             >
-              {isPlaying ? <Pause size={18} /> : <Play size={18} style={{ marginLeft: 2 }} />}
+              {isPlaying ? <IoPause size={18} /> : <IoPlay size={18} style={{ marginLeft: 2 }} />}
             </PlayBtn>
             <AudioInfo>
               <AudioTitle>{odiiCard.subtitle}</AudioTitle>
@@ -520,14 +517,14 @@ export default function BentoJourneyGrid() {
 
           <ActionLink href={odiiCard.odiiLink} $color="#8b5cf6">
             <span>소리마루에서 전체 이야기 듣기</span>
-            <ArrowRight size={14} />
+            <IoArrowForwardOutline size={14} />
           </ActionLink>
         </OdiiCard>
 
         {/* 4. Warmth & Crowd Card */}
         <WarmthCard>
           <CardBadge $color={lightPalette.juhong[500]}>
-            <Flame size={14} />
+            <IoFlame size={14} />
             <span>실시간 온기 및 혼잡도</span>
           </CardBadge>
           <CardTitle>현재 상태: '{warmthCard.status}'</CardTitle>
@@ -549,7 +546,7 @@ export default function BentoJourneyGrid() {
 
           <ActionLink href="/map" $color={lightPalette.juhong[500]}>
             <span>실시간 여행자 온기 피드 보기</span>
-            <ArrowRight size={14} />
+            <IoArrowForwardOutline size={14} />
           </ActionLink>
         </WarmthCard>
       </BentoGrid>

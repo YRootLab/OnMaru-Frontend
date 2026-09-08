@@ -1,7 +1,7 @@
 'use client';
 
 import React, { FormEvent, useState } from 'react';
-import { ArrowUp, LoaderCircle, Search } from 'lucide-react';
+import { IoArrowUpOutline, IoReloadOutline, IoSearchOutline } from 'react-icons/io5';
 import type { OdiiAssistantFilters, OdiiAssistantResponse, OdiiAssistantSource } from '@/features/odii-audio/api/odiiAssistant.types';
 
 interface OdiiQuestionAssistantProps {
@@ -63,10 +63,10 @@ export function OdiiQuestionAssistant({ filters, onOpenSource }: OdiiQuestionAss
         <form onSubmit={ask} className="self-stretch">
           <label htmlFor="odii-natural-question" className="sr-only">찾고 싶은 오디오 이야기 질문</label>
           <div className="flex min-h-11 items-center gap-2 border-b border-[#211e19]/20 px-0.5 focus-within:border-[#f84e76]">
-            <Search size={15} className="shrink-0 text-[#8e8780]" strokeWidth={1.8} />
+            <IoSearchOutline size={16} className="shrink-0 text-[#8e8780]" />
             <input id="odii-natural-question" value={question} onChange={(event) => setQuestion(event.target.value)} maxLength={500} placeholder="예: 부여에서 짧게 들을 역사 이야기" className="min-w-0 flex-1 bg-transparent text-xs text-[#211e19] outline-none placeholder:text-[#a19b93]" />
             <button type="submit" disabled={!question.trim() || isLoading} aria-label="질문 보내기" className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#f84e76] text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-35">
-              {isLoading ? <LoaderCircle size={14} className="animate-spin" /> : <ArrowUp size={15} />}
+              {isLoading ? <IoReloadOutline size={14} className="animate-spin" /> : <IoArrowUpOutline size={16} />}
             </button>
           </div>
           {isLoading && <p className="mt-3 text-[11px] text-[#817a72]">오디 이야기에서 근거를 찾고 있어요.</p>}

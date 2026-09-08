@@ -2,6 +2,15 @@
 
 import { useEffect, useMemo } from 'react';
 import { Global, css } from '@emotion/react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import {
+  IoLocationOutline,
+  IoFlameOutline,
+  IoLeafOutline,
+  IoChatbubbleOutline,
+  IoChevronBackOutline,
+  IoChevronForwardOutline,
+} from 'react-icons/io5';
 import { meok, lightPalette, darkPalette, surface } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import { useMapStore } from '@/map/hooks/useMapStore';
@@ -21,12 +30,12 @@ import type { Item, Warmth } from '@/map/types';
 const GOTHIC_FONT = "'Pretendard', 'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif";
 
 const ICONS = {
-  mapPin: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>`,
-  flame: `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>`,
-  wind: `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.7 7.7A2.5 2.5 0 1 1 20 12H2"/><path d="M15.5 16.5A2.5 2.5 0 1 0 18 19H2"/><path d="M12.5 3.5A2.5 2.5 0 1 1 15 6H2"/></svg>`,
-  quote: `<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 7h4v4a4 4 0 0 1-4 4v-2a2 2 0 0 0 2-2H7V7Zm7 0h4v4a4 4 0 0 1-4 4v-2a2 2 0 0 0 2-2h-2V7Z"/></svg>`,
-  chevronLeft: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>`,
-  chevronRight: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>`,
+  mapPin: renderToStaticMarkup(<IoLocationOutline size={11} strokeWidth={32} />),
+  flame: renderToStaticMarkup(<IoFlameOutline size={10} strokeWidth={32} />),
+  wind: renderToStaticMarkup(<IoLeafOutline size={10} strokeWidth={32} />),
+  quote: renderToStaticMarkup(<IoChatbubbleOutline size={11} strokeWidth={32} />),
+  chevronLeft: renderToStaticMarkup(<IoChevronBackOutline size={12} strokeWidth={32} />),
+  chevronRight: renderToStaticMarkup(<IoChevronForwardOutline size={12} strokeWidth={32} />),
 };
 
 function formatTimeAgo(isoString: string): string {

@@ -4,16 +4,16 @@ import { useMemo, useState, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import {
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  Map,
-  RefreshCw,
-  AlertCircle,
-  Sparkles,
-  LayoutList,
-  Bookmark,
-} from 'lucide-react';
+  IoChevronDownOutline,
+  IoChevronBackOutline,
+  IoChevronForwardOutline,
+  IoMapOutline,
+  IoReloadOutline,
+  IoAlertCircleOutline,
+  IoSparklesOutline,
+  IoListOutline,
+  IoBookmark,
+} from 'react-icons/io5';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import { useBookmarkStore } from '@/map/hooks/useBookmarkStore';
@@ -93,7 +93,7 @@ const SortSelect = styled.select`
   }
 `;
 
-const SortChevron = styled(ChevronDown)`
+const SortChevron = styled(IoChevronDownOutline)`
   position: absolute;
   right: 0;
   pointer-events: none;
@@ -430,7 +430,7 @@ export default function PlaceList() {
       {/* 3. 장소 목록 헤더 */}
       <StickyHeader>
         <CountLabel aria-live="polite">
-          <LayoutList size={15} color={meok[700]} />
+          <IoListOutline size={15} color={meok[700]} />
           <span>{headerTitle}</span>
         </CountLabel>
 
@@ -464,12 +464,12 @@ export default function PlaceList() {
       ) : error ? (
         <EmptyStateBox role="alert">
           <EmptyIconBox>
-            <AlertCircle size={24} />
+            <IoAlertCircleOutline size={24} />
           </EmptyIconBox>
           <EmptyTitle>정보를 불러오지 못했습니다</EmptyTitle>
           <EmptyDesc>{error}</EmptyDesc>
           <ActionButton type="button" onClick={reload}>
-            <RefreshCw size={14} />
+            <IoReloadOutline size={14} />
             <span>다시 시도</span>
           </ActionButton>
         </EmptyStateBox>
@@ -477,9 +477,9 @@ export default function PlaceList() {
         <EmptyStateBox>
           <EmptyIconBox>
             {category === 'bookmark' ? (
-              <Bookmark size={24} color={lightPalette.juhong[500]} />
+              <IoBookmark size={24} color={lightPalette.juhong[500]} />
             ) : (
-              <Map size={24} />
+              <IoMapOutline size={24} />
             )}
           </EmptyIconBox>
           <EmptyTitle>
@@ -501,7 +501,7 @@ export default function PlaceList() {
                 onClick={() => useMapStore.getState().setCategory(null)}
                 style={{ width: '100%', justifyContent: 'center' }}
               >
-                <Sparkles size={14} />
+                <IoSparklesOutline size={14} />
                 <span>전체 명소 둘러보기</span>
               </ActionButton>
             )}
@@ -511,7 +511,7 @@ export default function PlaceList() {
                 onClick={handleZoomOut}
                 style={{ width: '100%', justifyContent: 'center' }}
               >
-                <Map size={14} />
+                <IoMapOutline size={14} />
                 <span>지도 영역 2배 넓히기</span>
               </ActionButton>
             )}
@@ -520,7 +520,7 @@ export default function PlaceList() {
               onClick={() => useMapStore.getState().setPopularPanelOpen(true)}
               style={{ width: '100%', justifyContent: 'center', background: 'rgba(232, 90, 24, 0.08)', color: lightPalette.juhong[500] }}
             >
-              <Sparkles size={14} />
+              <IoSparklesOutline size={14} />
               <span>전국 인기 명소 랭킹</span>
             </ActionButton>
           </div>
@@ -549,7 +549,7 @@ export default function PlaceList() {
                 disabled={validPage <= 1}
                 aria-label="이전 페이지로 이동"
               >
-                <ChevronLeft size={16} />
+                <IoChevronBackOutline size={16} />
                 <span>이전</span>
               </PageNavBtn>
 
@@ -575,7 +575,7 @@ export default function PlaceList() {
                 aria-label="다음 페이지로 이동"
               >
                 <span>다음</span>
-                <ChevronRight size={16} />
+                <IoChevronForwardOutline size={16} />
               </PageNavBtn>
             </PaginationWrapper>
           )}

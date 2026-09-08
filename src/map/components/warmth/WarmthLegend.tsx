@@ -52,13 +52,13 @@ const Root = styled.div`
 
   /*
     모바일은 바텀시트(z 30)가 화면 아래 절반을 덮는다.
-    범례를 왼쪽 위, 검색바 아래로 올려 시트에 가리지 않게 한다.
+    범례를 상단 바(모드 토글 + 칩셋) 아래로 올려 시트에 가리지 않게 한다.
   */
   @media (max-width: 1023px) {
-    left: 14px;
+    left: 12px;
     right: auto;
     bottom: auto;
-    top: 52px;
+    top: 54px;
     padding: 8px 10px;
   }
 `;
