@@ -46,6 +46,7 @@
 - Release branches: `release/*` merge into `main` and back into `develop`.
 - Emergency fixes: `hotfix/*` merge into `main` and back into `develop`.
 - Direct pushes, force pushes, and unreviewed merges to `develop` or `main` are prohibited.
+- After finishing development work, agents must not create a PR or merge on their own — always get the user's final approval first.
 - Required CI checks must pass and the branch must be current before every merge. Shared changes require at least one approval.
 - Create semantic version tags such as `v0.3.2` only from `main`.
 - Delete short-lived branches after merge. Release automation must use least-privilege permissions and avoid workflow loops.

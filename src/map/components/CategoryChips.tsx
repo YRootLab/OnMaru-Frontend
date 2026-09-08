@@ -77,9 +77,9 @@ const Chip = styled.button<{ $index: number; $active: boolean }>`
   display: flex;
   flex: none;
   align-items: center;
-  gap: 7px;
-  height: 38px;
-  padding: 0 16px;
+  gap: 5px;
+  height: 32px;
+  padding: 0 12px;
 
   border-radius: 9999px;
   background: ${({ $active }) => ($active ? meok[900] : 'rgba(255, 255, 255, 0.94)')};
@@ -88,42 +88,36 @@ const Chip = styled.button<{ $index: number; $active: boolean }>`
   border: 1px solid ${({ $active }) => ($active ? meok[900] : 'rgba(25, 31, 40, 0.08)')};
 
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
-  font-family: inherit;
-  font-size: 13.5px;
-  font-weight: 600;
+  font-family: 'SpoqaHanSansNeo', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
   white-space: nowrap;
   cursor: pointer;
   box-shadow: ${({ $active }) =>
     $active
-      ? '0 4px 14px rgba(25, 31, 40, 0.22)'
-      : '0 2px 8px rgba(0, 0, 0, 0.06)'};
+      ? '0 4px 12px rgba(25, 31, 40, 0.2)'
+      : '0 2px 6px rgba(0, 0, 0, 0.05)'};
 
   /* stagger pop-in: 마운트 시 순차 등장 */
   opacity: 0;
   animation: ${chipPopIn} 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  animation-delay: ${({ $index }) => $index * 45}ms;
+  animation-delay: ${({ $index }) => $index * 40}ms;
 
-  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 0.2s ease,
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.18s ease,
     background 0.18s ease,
     color 0.18s ease,
     border-color 0.18s ease;
 
-  [data-theme='dark'] & {
-    background: ${({ $active }) => ($active ? '#ffffff' : 'rgba(30, 32, 38, 0.92)')};
-    border-color: ${({ $active }) => ($active ? '#ffffff' : 'rgba(255, 255, 255, 0.1)')};
-    color: ${({ $active }) => ($active ? meok[900] : meok[200])};
+  &:hover {
+    color: ${({ $active }) => ($active ? '#ffffff' : meok[900])};
+    background: ${({ $active }) => ($active ? meok[900] : '#ffffff')};
+    transform: translateY(-1px);
     box-shadow: ${({ $active }) =>
       $active
-        ? '0 4px 14px rgba(255, 255, 255, 0.2)'
-        : '0 2px 8px rgba(0, 0, 0, 0.4)'};
-  }
-
-  &:hover {
-    transform: translateY(-1px);
-    background: ${({ $active }) => ($active ? meok[900] : surface.light.card)};
-    color: ${({ $active }) => ($active ? '#ffffff' : meok[900])};
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+        ? '0 6px 16px rgba(25, 31, 40, 0.22)'
+        : '0 4px 12px rgba(0, 0, 0, 0.08)'};
   }
 
   &:active {
@@ -136,15 +130,25 @@ const Chip = styled.button<{ $index: number; $active: boolean }>`
   }
 
   @media (max-width: 1023px) {
-    height: 34px;
-    padding: 0 12px;
-    font-size: 12.5px;
-    gap: 5px;
+    height: 32px;
+    padding: 0 11px;
+    font-size: 12px;
+    gap: 4px;
 
     svg {
-      width: 15px;
-      height: 15px;
+      width: 14px;
+      height: 14px;
     }
+  }
+
+  [data-theme='dark'] & {
+    background: ${({ $active }) => ($active ? '#ffffff' : 'rgba(30, 32, 38, 0.92)')};
+    border-color: ${({ $active }) => ($active ? '#ffffff' : 'rgba(255, 255, 255, 0.1)')};
+    color: ${({ $active }) => ($active ? meok[900] : meok[200])};
+    box-shadow: ${({ $active }) =>
+      $active
+        ? '0 4px 12px rgba(255, 255, 255, 0.2)'
+        : '0 2px 6px rgba(0, 0, 0, 0.4)'};
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -200,7 +204,7 @@ export default function CategoryChips() {
             aria-pressed={isActive}
             onClick={() => handleChipClick(item)}
           >
-            <Icon size={18} aria-hidden />
+            <Icon size={16} aria-hidden />
             <span>{item.label}</span>
           </Chip>
         );
