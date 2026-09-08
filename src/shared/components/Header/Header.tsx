@@ -8,6 +8,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import styled from '@emotion/styled';
 import { transientProps } from '@/design-system/styled';
 import { lightPalette, meok, surface } from '@/design-system/tokens';
+import GlobalMobileTabs from './GlobalMobileTabs';
+import MapMobileTabs from '@/map/components/MapMobileTabs';
+import { HEADER_EXIT_S } from '@/shared/navigation/mapEntranceTiming';
 
 interface LandingProps {
   $isLanding?: boolean;
@@ -15,6 +18,7 @@ interface LandingProps {
   $isActive?: boolean;
   $isScrolled?: boolean;
   $isHidden?: boolean;
+  $isMapPage?: boolean;
 }
 
 const NavigationBackdrop = styled(motion.div, transientProps)<LandingProps>`
@@ -33,19 +37,43 @@ const NavigationBackdrop = styled(motion.div, transientProps)<LandingProps>`
 
 const HeaderContainer = styled('header', transientProps)<LandingProps>`
   position: fixed;
-  top: 12px;
-  left: 24px;
-  right: 24px;
-  height: 54px;
+  top: 14px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  width: min(calc(100% - 40px), 1140px);
+  height: 46px;
   z-index: 100;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 28px;
-  border-radius: 16px;
+  padding: 0 10px 0 16px;
+  border-radius: 9999px;
 
-  @media (max-width: 1279px) {
-    padding: 0 16px;
+  /* 지도 페이지(데스크톱)는 자체 좌측 네비게이션 레일을 쓰므로 상단바가 필요 없다.
+     스크롤 숨김(isHidden)은 기존처럼 단순 슬라이드지만, 지도 진입(isMapPage)은
+     아래쪽 경첩을 축으로 위로 접히며 사라지는 flip으로 — 동시에 MapChips가 그
+     자리로 떠오르며 카드가 뒤집히듯 교체되는 느낌을 준다. 지속시간은
+     mapEntranceTiming의 HEADER_EXIT_S와 반드시 맞춰야 한다. */
+  transform: ${({ $isHidden, $isMapPage }) => {
+    if ($isMapPage) return 'perspective(900px) rotateX(-100deg)';
+    if ($isHidden) return 'translateY(calc(-100% - 24px))';
+    return 'perspective(900px) rotateX(0deg) translateY(0)';
+  }};
+  transform-origin: 50% 100%;
+  opacity: ${({ $isMapPage }) => ($isMapPage ? 0 : 1)};
+  pointer-events: ${({ $isHidden, $isMapPage }) => ($isHidden || $isMapPage ? 'none' : 'auto')};
+  transition:
+    transform ${HEADER_EXIT_S}s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity ${HEADER_EXIT_S}s ease,
+    visibility 0s ${({ $isMapPage }) => ($isMapPage ? HEADER_EXIT_S : 0)}s;
+  visibility: ${({ $isMapPage }) => ($isMapPage ? 'hidden' : 'visible')};
+  will-change: transform, opacity;
+  user-select: none;
+
+  @media (max-width: 1024px) {
+    width: calc(100% - 28px);
+    padding: 0 8px 0 14px;
   }
 
   @media (max-width: 767px) {
@@ -53,37 +81,61 @@ const HeaderContainer = styled('header', transientProps)<LandingProps>`
     right: 12px;
     bottom: max(12px, env(safe-area-inset-bottom));
     left: 12px;
-    height: 64px;
+    width: auto;
+    max-width: none;
+    height: 58px;
     padding: 0 8px;
     border-radius: 20px;
     transform: none;
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
   }
 
-  background: ${({ $isLanding, $isScrolled }) =>
-    $isLanding
-      ? $isScrolled ? 'rgba(27, 25, 22, 0.74)' : 'rgba(27, 25, 22, 0.56)'
-      : $isScrolled ? 'rgba(247, 247, 246, 0.88)' : 'rgba(250, 250, 249, 0.74)'};
-  backdrop-filter: blur(14px) saturate(150%);
-  -webkit-backdrop-filter: blur(14px) saturate(150%);
-  border-bottom: 1px solid ${({ $isLanding, $isScrolled }) =>
-    $isLanding
-      ? $isScrolled ? 'rgba(255, 248, 235, 0.18)' : 'rgba(255, 248, 235, 0.13)'
-      : $isScrolled ? 'rgba(33, 30, 25, 0.12)' : 'rgba(33, 30, 25, 0.08)'};
-  box-shadow: 0 12px 34px -10px rgba(33, 30, 25, 0.07);
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+`;
 
-  transform: translateY(${({ $isHidden }) => ($isHidden ? 'calc(-100% - 16px)' : '0')});
+const HeaderBackdrop = styled('div', transientProps)<LandingProps>`
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+
+  background: ${({ $isLanding, $isScrolled }) => {
+    if ($isLanding) {
+      return $isScrolled ? 'rgba(23, 21, 18, 0.78)' : 'rgba(23, 21, 18, 0.46)';
+    }
+    return $isScrolled ? 'rgba(255, 255, 255, 0.88)' : 'rgba(255, 255, 255, 0.75)';
+  }};
+
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+
+  border: 1px solid ${({ $isLanding, $isScrolled }) => {
+    if ($isLanding) {
+      return $isScrolled ? 'rgba(255, 248, 235, 0.14)' : 'rgba(255, 248, 235, 0.08)';
+    }
+    return $isScrolled ? 'rgba(0, 0, 0, 0.08)' : 'rgba(0, 0, 0, 0.05)';
+  }};
+
+  box-shadow: ${({ $isLanding, $isScrolled }) => {
+    if ($isLanding) {
+      return $isScrolled
+        ? '0 16px 36px -10px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.2)'
+        : '0 8px 24px -6px rgba(0, 0, 0, 0.3)';
+    }
+    return $isScrolled
+      ? '0 12px 32px -6px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.03)'
+      : '0 6px 20px -4px rgba(0, 0, 0, 0.04)';
+  }};
+
   transition:
-    transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
-    background-color 260ms ease,
-    border-color 260ms ease,
-    box-shadow 260ms ease,
-    backdrop-filter 260ms ease;
-  will-change: transform;
-  user-select: none;
-
-  @media (max-width: 767px) {
-    transform: none;
-  }
+    background-color 380ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 380ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 380ms cubic-bezier(0.16, 1, 0.3, 1);
 
   @media (prefers-reduced-motion: reduce) {
     transition: none;
@@ -94,6 +146,8 @@ const LeftSection = styled.div`
   display: flex;
   align-items: center;
   height: 100%;
+  position: relative;
+  z-index: 1;
 
   @media (max-width: 767px) {
     display: none;
@@ -104,21 +158,25 @@ const LogoLink = styled(Link)`
   display: flex;
   align-items: center;
   height: 100%;
-  transition: opacity 0.2s ease;
+  padding: 4px 8px;
+  border-radius: 9999px;
+  transition: opacity 200ms ease;
 
   &:hover {
-    opacity: 0.85;
+    opacity: 0.82;
   }
 `;
 
 const CenterNav = styled.nav`
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 4px;
   height: 100%;
+  position: relative;
+  z-index: 1;
 
-  @media (max-width: 640px) {
-    gap: 16px;
+  @media (max-width: 1024px) {
+    gap: 2px;
   }
 
   @media (max-width: 767px) {
@@ -129,118 +187,39 @@ const CenterNav = styled.nav`
 const NavLink = styled(Link, transientProps)<LandingProps>`
   position: relative;
   font-family: 'SpoqaHanSansNeo', sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  color: ${({ $isLanding }) => ($isLanding ? 'rgba(250, 250, 250, 0.88)' : meok[900])};
-  text-decoration: none;
-  letter-spacing: -0.01em;
-  display: flex;
-  align-items: center;
-  height: 100%;
-  transition: color 0.2s ease;
-
-  &::after {
-    content: '';
-    position: absolute;
-    right: 0;
-    bottom: 11px;
-    left: 0;
-    height: 1px;
-    background: currentColor;
-    transform: scaleX(0);
-    transform-origin: right;
-    transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  &:hover {
-    color: ${({ $isLanding, $isOdii }) => ($isOdii ? lightPalette.jangmi[500] : $isLanding ? lightPalette.hwanggeum[400] : lightPalette.juhong[700])};
-
-    &::after {
-      transform: scaleX(1);
-      transform-origin: left;
-    }
-  }
-`;
-
-const DropdownWrapper = styled.div`
-  position: relative;
-  height: 100%;
-  display: flex;
-  align-items: center;
-`;
-
-const DropdownTrigger = styled('button', transientProps)<LandingProps>`
-  background: none;
-
-  outline: none;
-  cursor: pointer;
-  font-family: 'SpoqaHanSansNeo', sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  color: ${({ $isLanding }) => ($isLanding ? 'rgba(250, 250, 250, 0.88)' : meok[900])};
-  letter-spacing: -0.01em;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  height: 100%;
-  padding: 0;
-  transition: color 0.2s ease;
-
-  &:hover {
-    color: ${({ $isLanding, $isOdii }) => ($isOdii ? lightPalette.jangmi[500] : $isLanding ? lightPalette.hwanggeum[400] : lightPalette.juhong[700])};
-  }
-`;
-
-const ChevronIcon = styled(motion.svg)`
-  width: 12px;
-  height: 12px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-`;
-
-const DropdownMenu = styled(motion.div, transientProps)<LandingProps>`
-  position: absolute;
-  top: calc(100% + 10px);
-  /* 메뉴 텍스트의 시작선을 트리거 "지도"의 첫 글자와 맞춘다. */
-  left: -14px;
-  min-width: 148px;
-  background: ${({ $isLanding, $isScrolled }) =>
-    $isLanding
-      ? $isScrolled ? 'rgba(27, 25, 22, 0.74)' : 'rgba(27, 25, 22, 0.56)'
-      : $isScrolled ? 'rgba(247, 247, 246, 0.9)' : 'rgba(250, 250, 249, 0.78)'};
-  backdrop-filter: blur(${({ $isScrolled }) => ($isScrolled ? '22px' : '16px')}) saturate(150%);
-  -webkit-backdrop-filter: blur(${({ $isScrolled }) => ($isScrolled ? '22px' : '16px')}) saturate(150%);
-
-  border-radius: 16px;
-  padding: 4px;
-
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  z-index: 101;
-`;
-
-const DropdownItem = styled(Link, transientProps)<LandingProps>`
-  font-family: 'SpoqaHanSansNeo', sans-serif;
   font-size: 13px;
-  font-weight: 400;
-  color: ${({ $isLanding }) => ($isLanding ? 'rgba(250, 250, 250, 0.88)' : meok[900])};
+  font-weight: 500;
+  color: ${({ $isLanding }) => ($isLanding ? 'rgba(255, 255, 255, 0.82)' : meok[700])};
   text-decoration: none;
-  min-height: 40px;
-  padding: 8px 10px;
-  border-radius: 9px;
-  display: flex;
+  letter-spacing: -0.02em;
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  transition: background-color 0.15s ease;
+  justify-content: center;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  background-color: transparent;
+  transition:
+    color 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 180ms cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    background: rgba(212, 32, 88, 0.12);
-    /* 전역 링크 스타일이나 브라우저 방문 링크 색상이 섞이지 않도록 기본 글자색을 고정한다. */
-    color: ${({ $isLanding }) => ($isLanding ? 'rgba(250, 250, 250, 0.88)' : meok[900])};
+    color: ${({ $isLanding, $isOdii }) =>
+      $isOdii
+        ? lightPalette.jangmi[500]
+        : $isLanding
+          ? '#ffffff'
+          : meok[900]};
+    background-color: ${({ $isLanding }) =>
+      $isLanding ? 'rgba(255, 255, 255, 0.07)' : 'rgba(0, 0, 0, 0.03)'};
+  }
+
+  &:active {
+    background-color: ${({ $isLanding }) =>
+      $isLanding ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.055)'};
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
   }
 `;
 
@@ -248,6 +227,8 @@ const RightSection = styled.div`
   display: flex;
   align-items: center;
   height: 100%;
+  position: relative;
+  z-index: 1;
 
   @media (max-width: 767px) {
     display: none;
@@ -256,52 +237,20 @@ const RightSection = styled.div`
 
 const MobileMenuWrapper = styled.div`
   position: relative;
+  z-index: 1;
   display: none;
-
 `;
 
-const MobileTabNav = styled.nav`
+const MobileTabNavWrap = styled.div`
   display: none;
+  position: relative;
+  z-index: 1;
 
   @media (max-width: 767px) {
+    display: block;
     width: 100%;
     height: 100%;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    align-items: stretch;
   }
-`;
-
-const MobileTabLink = styled(Link, transientProps)<LandingProps>`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  min-width: 0;
-  color: ${({ $isLanding, $isOdii, $isActive }) => {
-    if ($isActive && $isOdii) return lightPalette.jangmi[500];
-    if ($isActive) return $isLanding ? '#f8e6bd' : lightPalette.juhong[700];
-    return $isLanding ? 'rgba(250, 250, 250, 0.68)' : 'rgba(33, 30, 25, 0.68)';
-  }};
-  font-family: 'SpoqaHanSansNeo', sans-serif;
-  font-size: 10px;
-  font-weight: ${({ $isActive }) => ($isActive ? 600 : 400)};
-  letter-spacing: -0.02em;
-  text-decoration: none;
-  transition: color 180ms ease, transform 180ms ease;
-
-  &:active { transform: scale(0.94); }
-`;
-
-const MobileTabIcon = styled.svg`
-  width: 19px;
-  height: 19px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
 `;
 
 const MobileMenuButton = styled('button', transientProps)<LandingProps>`
@@ -364,36 +313,57 @@ const MobileMenuDivider = styled('div', transientProps)<LandingProps>`
 
 const LoginButton = styled(Link, transientProps)<LandingProps>`
   font-family: 'SpoqaHanSansNeo', sans-serif;
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 500;
 
-  color: ${({ $isLanding, $isOdii }) => ($isOdii ? surface.light.card : $isLanding ? meok[900] : surface.light.base)};
-  background: ${({ $isLanding, $isOdii }) => ($isOdii ? lightPalette.jangmi[500] : $isLanding ? 'rgba(250, 247, 240, 0.92)' : 'rgba(38, 35, 31, 0.92)')};
+  color: #ffffff;
+  background: ${({ $isLanding }) =>
+    $isLanding
+      ? 'rgba(20, 18, 16, 0.95)'
+      : 'rgba(28, 26, 23, 0.94)'};
+  border: 1px solid ${({ $isLanding }) =>
+    $isLanding ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.08)'};
 
-  border-radius: 999px;
-  height: 32px;
-  padding: 0 13px 0 17px;
+  border-radius: 9999px;
+  height: 30px;
+  padding: 0 13px 0 14px;
   text-decoration: none;
   letter-spacing: -0.01em;
   line-height: 1;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
+  box-shadow: ${({ $isLanding }) =>
+    $isLanding
+      ? '0 3px 10px rgba(0, 0, 0, 0.35)'
+      : '0 2px 8px rgba(0, 0, 0, 0.1)'};
 
-  transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
 
   &:hover {
+    color: #ffffff;
+    background: ${({ $isLanding }) =>
+      $isLanding
+        ? 'rgba(38, 35, 31, 1)'
+        : meok[700]};
+    border-color: ${({ $isLanding }) =>
+      $isLanding ? 'rgba(255, 255, 255, 0.25)' : 'rgba(0, 0, 0, 0.14)'};
+    box-shadow: ${({ $isLanding }) =>
+      $isLanding
+        ? '0 6px 18px rgba(0, 0, 0, 0.45)'
+        : '0 6px 18px rgba(0, 0, 0, 0.18)'};
 
-    background: ${({ $isLanding, $isOdii }) => ($isOdii ? lightPalette.jangmi[400] : $isLanding ? surface.light.card : meok[700])};
-
-
-    transform: translateY(-1px);
-
-    & > svg { transform: translateX(1px); }
+    & > svg {
+      transform: translateX(2px);
+      transition: transform 200ms ease;
+    }
   }
 
-  &:active {
-    transform: translateY(1px);
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
   }
 `;
 
@@ -402,12 +372,10 @@ export default function Header() {
   const isMapPage = pathname.startsWith('/map');
   const isLandingPage = pathname === '/';
   const isOdiiPage = pathname.startsWith('/odii');
-  const [isMapMenuOpen, setIsMapMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
   const [isLandingLight, setIsLandingLight] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   // 랜딩은 스크롤에 따라 먹빛 ↔ 한지색 배경이 전환된다.
@@ -417,10 +385,9 @@ export default function Header() {
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       const target = event.target as Node;
-      if (dropdownRef.current && !dropdownRef.current.contains(target)) {
-        setIsMapMenuOpen(false);
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(target)) {
+        setIsMobileMenuOpen(false);
       }
-      if (mobileMenuRef.current && !mobileMenuRef.current.contains(target)) setIsMobileMenuOpen(false);
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -471,7 +438,7 @@ export default function Header() {
       updateScrolled(currentY > 12);
       updateLandingSurface(currentY);
 
-      if (isMapMenuOpen || isMobileMenuOpen || currentY < 80) {
+      if (isMobileMenuOpen || currentY < 80) {
         accumulatedDistance = 0;
         direction = null;
         updateHidden(false);
@@ -505,12 +472,9 @@ export default function Header() {
       window.removeEventListener('scroll', scheduleUpdate);
       if (frameId !== null) window.cancelAnimationFrame(frameId);
     };
-  }, [isMapMenuOpen, isMobileMenuOpen, isLandingPage]);
+  }, [isMobileMenuOpen, isLandingPage]);
 
-  // 지도 페이지에서는 전체 화면 지도 몰입을 위해 전역 헤더를 숨긴다.
-  if (isMapPage) return null;
-
-  const isNavigationOpen = isMapMenuOpen || isMobileMenuOpen;
+  const isNavigationOpen = isMobileMenuOpen;
 
   return (
     <>
@@ -523,7 +487,6 @@ export default function Header() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.18, ease: 'easeOut' }}
             onClick={() => {
-              setIsMapMenuOpen(false);
               setIsMobileMenuOpen(false);
             }}
           />
@@ -534,80 +497,37 @@ export default function Header() {
         $isLanding={usesDarkSurface}
         $isScrolled={isScrolled}
         $isHidden={isHidden}
+        $isMapPage={isMapPage}
       >
+        <HeaderBackdrop
+          $isLanding={usesDarkSurface}
+          $isScrolled={isScrolled}
+          aria-hidden="true"
+        />
+
         {/* 맨 왼쪽: logo.png */}
         <LeftSection>
           <LogoLink href="/" aria-label="온마루 홈으로 이동">
             <Image
               src="/logo.png"
               alt="온마루 로고"
-              width={110}
-              height={32}
-              style={{ objectFit: 'contain', height: '32px', width: 'auto' }}
+              width={90}
+              height={24}
+              style={{ objectFit: 'contain', height: '24px', width: 'auto' }}
               priority
             />
           </LogoLink>
         </LeftSection>
 
-        {/* 가운데: 한옥도감, 지도 (드롭다운), 소리마루 */}
+        {/* 가운데: 한옥도감, 지도, 소리마루, 여정 탐색 */}
         <CenterNav>
           <NavLink href="/hanok" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
             한옥도감
           </NavLink>
 
-          <DropdownWrapper
-            ref={dropdownRef}
-            onMouseEnter={() => setIsMapMenuOpen(true)}
-            onMouseLeave={() => setIsMapMenuOpen(false)}
-          >
-            <DropdownTrigger
-              type="button"
-              onClick={() => setIsMapMenuOpen((prev) => !prev)}
-              aria-expanded={isMapMenuOpen}
-              aria-haspopup="true"
-              $isLanding={usesDarkSurface}
-              $isOdii={isOdiiPage}
-            >
-              지도
-              <ChevronIcon
-                viewBox="0 0 24 24"
-                animate={{ rotate: isMapMenuOpen ? 180 : 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                <polyline points="6 9 12 15 18 9" />
-              </ChevronIcon>
-            </DropdownTrigger>
-
-            <AnimatePresence>
-              {isMapMenuOpen && (
-                <DropdownMenu
-                  $isLanding={usesDarkSurface}
-                  $isScrolled={isScrolled}
-                  initial={{ opacity: 0, y: -8, scale: 0.97 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -5, scale: 0.98 }}
-                  transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                >
-                  <DropdownItem
-                    href="/map"
-                    $isLanding={usesDarkSurface}
-                    $isOdii={isOdiiPage}
-                    onClick={() => setIsMapMenuOpen(false)}
-                  >
-                    정보지도
-                  </DropdownItem>
-                  <DropdownItem
-                    href="/map?mode=warmth"
-                    $isLanding={usesDarkSurface}
-                    $isOdii={isOdiiPage}
-                    onClick={() => setIsMapMenuOpen(false)}
-                  >
-                    온기지도
-                  </DropdownItem>
-                </DropdownMenu>
-              )}
-            </AnimatePresence>
-          </DropdownWrapper>
+          <NavLink href="/map" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
+            지도
+          </NavLink>
 
           <NavLink href="/odii" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
             소리마루
@@ -620,11 +540,11 @@ export default function Header() {
 
       {/* 오른쪽 끝: 로그인 */}
       <RightSection>
-        <LoginButton href="/auth/login" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
+        <LoginButton href="/auth/login" $isLanding={usesDarkSurface}>
           <span>로그인</span>
           <svg
-            width="12"
-            height="12"
+            width="11"
+            height="11"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -638,37 +558,33 @@ export default function Header() {
         </LoginButton>
       </RightSection>
 
-      <MobileTabNav aria-label="주요 탐색">
-        <MobileTabLink href="/" $isLanding={usesDarkSurface} $isActive={pathname === '/'}>
-          <MobileTabIcon viewBox="0 0 24 24" aria-hidden="true">
-            <path d="m3 10 9-7 9 7" />
-            <path d="M5 9v11h14V9" />
-            <path d="M9 20v-6h6v6" />
-          </MobileTabIcon>
-          <span>홈</span>
-        </MobileTabLink>
-        <MobileTabLink href="/hanok" $isLanding={usesDarkSurface} $isActive={pathname.startsWith('/hanok')}>
-          <MobileTabIcon viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M4 6.5h16" />
-            <path d="M6 4h12v16H6z" />
-            <path d="M9 10h6M9 14h6" />
-          </MobileTabIcon>
-          <span>한옥도감</span>
-        </MobileTabLink>
-        <MobileTabLink href="/map" $isLanding={usesDarkSurface} $isActive={pathname.startsWith('/map')}>
-          <MobileTabIcon viewBox="0 0 24 24" aria-hidden="true">
-            <path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3z" />
-            <path d="M9 3v15M15 6v15" />
-          </MobileTabIcon>
-          <span>지도</span>
-        </MobileTabLink>
-        <MobileTabLink href="/odii" $isLanding={usesDarkSurface} $isOdii $isActive={isOdiiPage}>
-          <MobileTabIcon viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M4 14v-4M8 18V6M12 15V9M16 20V4M20 14v-4" />
-          </MobileTabIcon>
-          <span>오디</span>
-        </MobileTabLink>
-      </MobileTabNav>
+      <MobileTabNavWrap>
+        <AnimatePresence mode="wait" initial={false}>
+          {isMapPage ? (
+            <motion.div
+              key="map-tabs"
+              style={{ width: '100%', height: '100%' }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.16, ease: 'easeOut' }}
+            >
+              <MapMobileTabs />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="global-tabs"
+              style={{ width: '100%', height: '100%' }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.16, ease: 'easeOut' }}
+            >
+              <GlobalMobileTabs isLanding={usesDarkSurface} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </MobileTabNavWrap>
 
       <MobileMenuWrapper ref={mobileMenuRef}>
         <MobileMenuButton
@@ -708,8 +624,7 @@ export default function Header() {
               transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
             >
               <MobileMenuLink href="/hanok" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>한옥도감</MobileMenuLink>
-              <MobileMenuLink href="/map" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>정보지도</MobileMenuLink>
-              <MobileMenuLink href="/map?mode=warmth" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>온기지도</MobileMenuLink>
+              <MobileMenuLink href="/map" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>지도</MobileMenuLink>
               <MobileMenuLink href="/odii" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>소리마루</MobileMenuLink>
               <MobileMenuLink href="/discover" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>✨ 여정 탐색</MobileMenuLink>
               <MobileMenuDivider $isLanding={usesDarkSurface} />

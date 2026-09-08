@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
+import { motion, useReducedMotion } from 'framer-motion';
 import {
   MapPin,
   BookOpen,
@@ -11,15 +11,15 @@ import {
   Bookmark,
   Compass,
   User,
-  ChevronDown,
-  Map as MapIcon,
 } from 'lucide-react';
+import { transientProps } from '@/design-system/styled';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import { lightPalette, meok, surface } from '@/design-system/tokens';
+import { RAIL_ENTER_DELAY_S, RAIL_ENTER_DURATION_S, ENTRANCE_EASE } from '@/shared/navigation/mapEntranceTiming';
 
 const RAIL_WIDTH = 68;
 
-const RailContainer = styled.aside`
+const RailContainer = styled(motion.aside, transientProps)`
   position: absolute;
   top: 0;
   bottom: 0;
@@ -141,110 +141,24 @@ const Divider = styled.div`
   margin: 8px 0;
 `;
 
-/** 지도 하위 모드(정보지도 / 온기지도) 드롭다운 팝오버 */
-const MapSubmenuPopover = styled.div`
-  position: absolute;
-  left: 74px;
-  top: 70px;
-  width: 180px;
-  background: ${surface.light.card};
-  border-radius: 16px;
-  padding: 8px;
-  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.16), 0 2px 8px rgba(0, 0, 0, 0.06);
-  border: 1px solid ${meok[200]};
-  z-index: 100;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  animation: popover-in 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-
-  @keyframes popover-in {
-    from {
-      opacity: 0;
-      transform: translateX(-8px) scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0) scale(1);
-    }
-  }
-`;
-
-const SubmenuItemBtn = styled.button<{ $active: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: none;
-  background: ${({ $active }) => ($active ? lightPalette.cheongrok[50] : 'transparent')};
-  color: ${({ $active }) => ($active ? lightPalette.cheongrok[500] : meok[900])};
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: ${({ $active }) => ($active ? 700 : 500)};
-  cursor: pointer;
-  transition: all 0.14s ease;
-
-  &:hover {
-    background: ${({ $active }) => ($active ? lightPalette.cheongrok[50] : meok[100])};
-    color: ${({ $active }) => ($active ? lightPalette.cheongrok[500] : meok[900])};
-  }
-`;
-
-const SubmenuLeft = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const ActiveDot = styled.div`
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: ${lightPalette.cheongrok[500]};
-`;
-
 export default function MapNavRail() {
   const router = useRouter();
+  const prefersReducedMotion = useReducedMotion();
   const mode = useMapStore((s) => s.mode);
   const setMode = useMapStore((s) => s.setMode);
   const setCategory = useMapStore((s) => s.setCategory);
   const panelOpen = useMapStore((s) => s.panelOpen);
   const setPanelOpen = useMapStore((s) => s.setPanelOpen);
 
-  const [mapMenuOpen, setMapMenuOpen] = useState(false);
-  const mapMenuRef = useRef<HTMLDivElement>(null);
-
-  // 지도 드롭다운 서브메뉴 외부 클릭 시 닫기
-  useEffect(() => {
-    const handleDocClick = (e: MouseEvent) => {
-      if (mapMenuRef.current && !mapMenuRef.current.contains(e.target as Node)) {
-        setMapMenuOpen(false);
-      }
-    };
-    if (mapMenuOpen) {
-      document.addEventListener('mousedown', handleDocClick);
-    }
-    return () => document.removeEventListener('mousedown', handleDocClick);
-  }, [mapMenuOpen]);
-
   const handleSelectInfoMap = () => {
-    setMapMenuOpen(false);
     setMode('info');
     setCategory(null);
     if (!panelOpen) setPanelOpen(true);
   };
 
   const handleSelectWarmthMap = () => {
-    setMapMenuOpen(false);
     setMode('warmth');
     if (!panelOpen) setPanelOpen(true);
-  };
-
-  const handleToggleMapMenu = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setMapMenuOpen((prev) => !prev);
   };
 
   // 온마루 자체 카테고리 활성 판별
@@ -252,7 +166,17 @@ export default function MapNavRail() {
   const isWarmthActive = mode === 'warmth';
 
   return (
-    <RailContainer role="navigation" aria-label="온마루 메인 카테고리 네비게이션">
+    <RailContainer
+      role="navigation"
+      aria-label="온마루 메인 카테고리 네비게이션"
+      initial={prefersReducedMotion ? false : { x: '-100%', opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={
+        prefersReducedMotion
+          ? { duration: 0 }
+          : { duration: RAIL_ENTER_DURATION_S, delay: RAIL_ENTER_DELAY_S, ease: ENTRANCE_EASE }
+      }
+    >
       {/* 1. 상단 온마루 브랜드 로고 */}
       <LogoArea onClick={() => router.push('/')} title="온마루 메인 홈으로 이동">
         <BrandIconBadge>온</BrandIconBadge>
@@ -274,53 +198,19 @@ export default function MapNavRail() {
           <NavItemLabel $active={false}>한옥도감</NavItemLabel>
         </NavItemBtn>
 
-        {/* 온마루 카테고리 2: 지도 ⌵ (드롭다운: 정보지도 / 온기지도) */}
-        <div ref={mapMenuRef} style={{ width: '100%' }}>
-          <NavItemBtn
-            type="button"
-            $active={isMapActive}
-            onClick={handleToggleMapMenu}
-            aria-label="지도 서비스"
-            title="온마루 지도 (클릭하여 정보지도/온기지도 선택)"
-          >
-            <NavItemIcon $active={isMapActive}>
-              <MapPin size={21} fill={isMapActive ? surface.light.card : 'none'} />
-            </NavItemIcon>
-            <NavItemLabel $active={isMapActive}>
-              <span>지도</span>
-              <ChevronDown size={11} style={{ transform: mapMenuOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
-            </NavItemLabel>
-          </NavItemBtn>
-
-          {/* 지도 서브메뉴 팝오버: 정보지도 / 온기지도 */}
-          {mapMenuOpen && (
-            <MapSubmenuPopover>
-              <SubmenuItemBtn
-                type="button"
-                $active={mode === 'info'}
-                onClick={handleSelectInfoMap}
-              >
-                <SubmenuLeft>
-                  <MapIcon size={16} />
-                  <span>정보지도</span>
-                </SubmenuLeft>
-                {mode === 'info' && <ActiveDot />}
-              </SubmenuItemBtn>
-
-              <SubmenuItemBtn
-                type="button"
-                $active={mode === 'warmth'}
-                onClick={handleSelectWarmthMap}
-              >
-                <SubmenuLeft>
-                  <Flame size={16} />
-                  <span>온기지도</span>
-                </SubmenuLeft>
-                {mode === 'warmth' && <ActiveDot />}
-              </SubmenuItemBtn>
-            </MapSubmenuPopover>
-          )}
-        </div>
+        {/* 온마루 카테고리 2: 지도 (정보지도) — 온기지도 전환은 아래 '온기이야기' 항목과 패널 내 ModeToggle이 담당한다 */}
+        <NavItemBtn
+          type="button"
+          $active={isMapActive}
+          onClick={handleSelectInfoMap}
+          aria-label="정보지도"
+          title="온마루 정보지도"
+        >
+          <NavItemIcon $active={isMapActive}>
+            <MapPin size={21} fill={isMapActive ? surface.light.card : 'none'} />
+          </NavItemIcon>
+          <NavItemLabel $active={isMapActive}>지도</NavItemLabel>
+        </NavItemBtn>
 
         {/* 온마루 카테고리 3: 소리마루 (오디 도슨트) */}
         <NavItemBtn
