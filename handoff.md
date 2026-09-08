@@ -1,6 +1,16 @@
 # handoff.md
 
 Current work:
+- Summary: 
+  1. Completed OnMaru Admin Web Console (`/admin`) for Spring Boot API integration readiness with full mock datasets.
+  2. Implemented all 5 sub-issues under Epic #57 on branch `feat/admin-page`:
+     - Issue #52: API client & Auth guard (`src/lib/api/client.ts`, `useAdminAuth.ts`, `types.ts`).
+     - Issue #53: Admin Layout & 10 UI components (`AdminSidebar`, `AdminHeader`, `DataTable`, `StatCard`, `StatusBadge`, `ConfirmDialog`, `Pagination`, `EmptyState`, `TableSkeleton`, `Toast`).
+     - Issue #54: Dashboard (`/admin`) & Warmth Reviews (`/admin/reviews`) with batch actions and side panel.
+     - Issue #55: Moderation Reports (`/admin/reports`) & Curation overrides (`/admin/curation`).
+     - Issue #56: User RBAC (`/admin/users`), Pipeline console (`/admin/data`), and Admin login (`/admin/login`).
+  3. Verified 100% zero TypeScript errors (`npx tsc --noEmit`) and successful Next.js production build (`npm run build`).
+- Branch: `feat/admin-page`
 - Summary: /map page navigation-bar transition improvements.
   1. Fixed the bottom nav "jump" when navigating to `/map` from `/hanok` or `/odii`: `Header` now stays mounted and its mobile tab bar crossfades content (`GlobalMobileTabs` ↔ `MapMobileTabs`) inside the same fixed shell, instead of hard-swapping two differently-positioned/sized components.
   2. Desktop `/map` entrance choreography: GNB flips away with a 3D `rotateX` (calendar-page style, `backface-visibility: hidden`, weighted easing curves) while `MapNavRail` slides in from the left simultaneously; the floating list/detail panel then springs in; the category chip bar (`MapChips`) rises in last. All timing lives in `src/shared/navigation/mapEntranceTiming.ts`.
@@ -9,6 +19,7 @@ Current work:
   5. Added an `AGENTS.md` policy: agents must not create a PR or merge on their own after finishing dev work — always get the user's final approval first.
 - Branch: `feature/map-page-navigation-bar-improvements`
 - Related: Issue #48 / PR #49 (already merged into `develop`) redesigned the GNB into a slim floating capsule; this branch's `Header.tsx` changes build on top of that merged design rather than conflicting with it — `develop` was merged into this branch at commit `4a0556b`.
+
 
 Touched files:
 - `src/shared/components/Header/Header.tsx`
