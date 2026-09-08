@@ -1,27 +1,24 @@
 # handoff.md
 
 Current work:
-- Summary: Project initial harness setup & Git Flow push protection hooks
-- Issue/PR: none (harness initialization)
-- Branch: `feature/issue-based-developmenet-install`
+- Summary: Mindtrip-inspired floating pill capsule navbar & clean hover micro-interactions
+- Issue/PR: Issue #48, PR #49
+- Branch: `feature/navigation-bar-improvements`
 
 Touched files:
-- `AGENTS.md`
-- `CLINE.md`
-- `CONTRIBUTING.md`
-- `project-roadmap.md`
-- `.githooks/pre-push`
-- `scripts/install_git_hooks.sh`
+- `src/shared/components/Header/Header.tsx`
 - `changelog.md`
-- `src/features/odii-audio/api/odiiNetwork.ts`
-- `src/features/odii-audio/api/odiiApi.ts`
-- `vitest.config.mts`
+- `handoff.md`
 
 Next step:
-- Create pull request into `develop` and verify CI checks.
+- Review navigation bar interaction and test across desktop and mobile.
 
 Ad hoc requests captured this session:
-- Issue-based development harness & Git Flow push protection for private repo.
+- Navigation bar enhancement: Mindtrip.ai-inspired floating pill capsule, clean hover micro-interactions, white-background frosted glass adaptation, and maintaining existing scroll hide/reveal logic.
+- Navigation bar refinement: soften hover gray background to airy 3% tint and unify LoginButton to Hanok Archive black tone across all pages.
+- Navigation bar silhouette: slim down height to 46px (from 56px) with compact padding, 24px logo, 13px link typography, and 30px CTA button.
+- Navigation bar simplification: remove map 2-item dropdown menu (`정보지도`/`온기지도`) and simplify to a direct `지도` NavLink.
+- Navigation bar stability: remove vertical hover shift (`translateY`) across all navigation items for zero-motion typography stability.
 
 Implemented:
 
