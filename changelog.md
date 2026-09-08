@@ -4,6 +4,13 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+- Redesigned top navigation bar with a Mindtrip-inspired floating capsule pill (`border-radius: 9999px`) architecture, layered backdrop blur (`HeaderBackdrop`), and clean pill-shaped hover micro-interactions replacing rigid underline animations.
+- Removed upward Y-shift animation (`translateY(-1px)`) on navigation hover, ensuring stable, zero-motion typography where only the subtle 3% background tint and font color smoothly transition.
+- Simplified the `지도` navigation item from a 2-item dropdown menu (`정보지도`/`온기지도`) into a direct, clean `NavLink`, eliminating visual clutter in GNB and mobile menu.
+- Slimmed down navigation bar height to 46px (from 56px) with compact padding, 24px logo, 13px link typography, and 30px CTA button for an ultra-sleek, lightweight Mindtrip silhouette.
+- Refined navigation hover background to a soft, airy feather-light gray (`rgba(0, 0, 0, 0.03)` / `rgba(255, 255, 255, 0.07)`) for higher transparency and subtlety.
+- Unified the Login CTA button to a consistent black tone (`rgba(28, 26, 23, 0.94)` / `rgba(20, 18, 16, 0.95)` with `#ffffff` text and refined borders) matching the Hanok Archive (한옥도감) aesthetic across all pages.
+- Enhanced white/light mode surface adaptation with neutral frosted glass (`rgba(255, 255, 255, 0.88)` + 16px blur) and preserved scroll-direction hide/reveal thresholds (`320ms cubic-bezier(0.16, 1, 0.3, 1)`).
 - Implemented AI Journey Curator (`/discover`) with interactive Knowledge Graph, Bento Grid (Map route, Hanok 3D, ODII audio, real-time Warmth), and natural language/mood search.
 - Added global GNB and mobile menu navigation link (`✨ 여정 탐색`) for the Journey Curator.
 - Redesigned Map `ModeToggle` with a Silicon Valley capsule form factor, semantic iconography (`Landmark` & `Flame`), live warmth pulse, and zero-shadow/zero-border aesthetic.
