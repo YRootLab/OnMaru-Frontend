@@ -1,17 +1,19 @@
 # handoff.md
 
 Current work:
-- Summary: Mindtrip-inspired floating pill capsule navbar & clean hover micro-interactions
-- Issue/PR: Issue #48, PR #49
-- Branch: `feature/navigation-bar-improvements`
+- Summary: Mobile map top category chips placement, bottom sheet chip cleanup, and design system tokens overhaul (Toss TDS-style unified single palette with 7 distinct color families, tuned `danpung` to pure primary red with 0% pink tint, concise noun-ending comments)
+- Branch: `feat/map-responsive-chips-color-tokens`
 
 Touched files:
-- `src/shared/components/Header/Header.tsx`
-- `changelog.md`
+- `src/design-system/tokens.ts`
+- `src/map/MapPage.tsx`
+- `src/map/components/BottomSheet.tsx`
+- `src/map/components/CategoryChips.tsx`
+- `src/map/components/warmth/WarmthLegend.tsx`
 - `handoff.md`
 
 Next step:
-- Review navigation bar interaction and test across desktop and mobile.
+- Verify UI and feedback on the dedicated `feat/map-responsive-chips-color-tokens` branch.
 
 Ad hoc requests captured this session:
 - Navigation bar enhancement: Mindtrip.ai-inspired floating pill capsule, clean hover micro-interactions, white-background frosted glass adaptation, and maintaining existing scroll hide/reveal logic.
