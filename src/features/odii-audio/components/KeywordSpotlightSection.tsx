@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion, Variants } from 'framer-motion';
-import { Heart } from 'lucide-react';
+import { IoHeart, IoHeartOutline, IoPause, IoPlay } from 'react-icons/io5';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { OdiiStoryItem, IOdiiApiService } from '@/features/odii-audio/types/odii.types';
 import { ODII_THEME_CATEGORIES } from '@/features/odii-audio/data/odiiCategoryData';
@@ -269,9 +269,9 @@ export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = (
                         >
                           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#a94d35] text-white">
                             {isCurrentPlaying ? (
-                              <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19h4V5H6v14zm8-14v14h4v14h-4V5z" /></svg>
+                              <IoPause size={14} />
                             ) : (
-                              <svg className="ml-0.5 h-3.5 w-3.5 fill-current" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
+                              <IoPlay size={14} className="ml-0.5" />
                             )}
                           </span>
                           {isCurrentPlaying ? '잠시 멈추기' : '이야기 듣기'}
@@ -285,10 +285,11 @@ export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = (
                             aria-pressed={bookmarkedIds.has(spotlightStory.stid)}
                             className={`inline-flex items-center gap-1.5 text-xs font-semibold transition-colors ${bookmarkedIds.has(spotlightStory.stid) ? 'text-[#a94d35]' : 'text-[#8c7e6c] hover:text-[#a94d35]'}`}
                           >
-                            <Heart
-                              size={14}
-                              className={bookmarkedIds.has(spotlightStory.stid) ? 'fill-current' : ''}
-                            />
+                            {bookmarkedIds.has(spotlightStory.stid) ? (
+                              <IoHeart size={14} />
+                            ) : (
+                              <IoHeartOutline size={14} />
+                            )}
                             <span>{bookmarkedIds.has(spotlightStory.stid) ? '담아둔 소리' : '마음에 담기'}</span>
                           </button>
                         )}
@@ -326,9 +327,9 @@ export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = (
                           className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors ${isRelatedPlaying ? ' bg-[#a94d35] text-white' : ' text-[#211e19] hover: hover:text-[#a94d35]'}`}
                         >
                           {isRelatedPlaying ? (
-                            <svg className="h-3 w-3 fill-current" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19h4V5H6v14zm8-14h4v14h-4V5z" /></svg>
+                            <IoPause size={12} />
                           ) : (
-                            <svg className="ml-0.5 h-3 w-3 fill-current" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
+                            <IoPlay size={12} className="ml-0.5" />
                           )}
                         </button>
                       </div>

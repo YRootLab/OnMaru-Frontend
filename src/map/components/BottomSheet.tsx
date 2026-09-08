@@ -6,10 +6,10 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { meok } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import type { SheetSnap } from '@/map/types';
-import CategoryChips from './CategoryChips';
 import PlaceDetail from './PlaceDetail';
 import PlaceList from './PlaceList';
 import WarmthFeed from './warmth/WarmthFeed';
+import PopularPlacesPanel from './warmth/PopularPlacesPanel';
 
 const SNAPS: SheetSnap[] = ['peek', 'half', 'full'];
 /** 시트 높이. 지도 위에 뜨는 컨트롤이 시트를 피하려면 같은 값을 봐야 한다. */
@@ -76,14 +76,6 @@ const MotionView = styled(motion.div)`
   flex-direction: column;
 `;
 
-const TopSection = styled.div`
-  flex: none;
-`;
-
-const Chips = styled.div`
-  flex: none;
-  padding: 0 16px 10px;
-`;
 
 const ListArea = styled.div`
   flex: 1;
@@ -131,6 +123,7 @@ export default function BottomSheet() {
   const setSheetSnap = useMapStore((s) => s.setSheetSnap);
   const mode = useMapStore((s) => s.mode);
   const detailId = useMapStore((s) => s.detailId);
+  const popularPanelOpen = useMapStore((s) => s.popularPanelOpen);
 
   const sheetRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -198,7 +191,17 @@ export default function BottomSheet() {
 
         <ContentContainer>
           <AnimatePresence initial={false} mode="wait">
-            {detailId ? (
+            {popularPanelOpen ? (
+              <MotionView
+                key="popular"
+                initial={{ x: 20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: 20, opacity: 0 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+              >
+                <PopularPlacesPanel />
+              </MotionView>
+            ) : detailId ? (
               <MotionView
                 key="detail"
                 initial={{ x: 20, opacity: 0 }}
@@ -216,12 +219,6 @@ export default function BottomSheet() {
                 exit={{ x: -20, opacity: 0 }}
                 transition={{ duration: 0.25, ease: 'easeOut' }}
               >
-                <TopSection>
-                  <Chips>
-                    <CategoryChips />
-                  </Chips>
-                </TopSection>
-
                 <ListArea ref={listRef}>
                   {mode === 'warmth' ? <WarmthFeed /> : <PlaceList />}
                 </ListArea>

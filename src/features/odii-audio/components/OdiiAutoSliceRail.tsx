@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { Pause, Play } from 'lucide-react';
+import { IoPause, IoPlay, IoChevronForwardOutline } from 'react-icons/io5';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
 
@@ -102,7 +102,7 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
                       exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.6 }}
                       transition={{ duration: 0.18, ease: EASE }}
                     >
-                      <Pause className="h-7 w-7" aria-hidden="true" fill="currentColor" />
+                      <IoPause className="h-7 w-7" aria-hidden="true" />
                     </motion.span>
                   ) : (
                     <motion.span
@@ -112,7 +112,7 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
                       exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.6 }}
                       transition={{ duration: 0.18, ease: EASE }}
                     >
-                      <Play className="ml-0.5 h-7 w-7" aria-hidden="true" fill="currentColor" />
+                      <IoPlay className="ml-0.5 h-7 w-7" aria-hidden="true" />
                     </motion.span>
                   )}
                 </AnimatePresence>
@@ -149,9 +149,10 @@ export const OdiiAutoSliceRail: React.FC<OdiiAutoSliceRailProps> = ({ stories, s
               initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="mt-10 text-xs font-semibold text-[#8A8176] transition-colors duration-300 hover:text-[#F84E76] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#F84E76] sm:mt-14"
+              className="mt-10 inline-flex items-center gap-1 text-xs font-semibold text-[#8A8176] transition-colors duration-300 hover:text-[#F84E76] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#F84E76] sm:mt-14"
             >
-              이번 주 인기 이야기 다음으로 ›
+              <span>이번 주 인기 이야기 다음으로</span>
+              <IoChevronForwardOutline size={13} />
             </motion.button>
           )}
         </div>

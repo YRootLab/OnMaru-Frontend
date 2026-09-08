@@ -1,7 +1,7 @@
 'use client';
 
 import React, { FormEvent, useId, useState } from 'react';
-import { Search, X } from 'lucide-react';
+import { IoSearchOutline, IoCloseOutline } from 'react-icons/io5';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { ODII_THEME_CATEGORIES } from '@/features/odii-audio/data/odiiCategoryData';
 
@@ -60,7 +60,7 @@ export const OdiiArchiveMetaBar: React.FC<Props> = ({ resultCount, totalCount })
       <form onSubmit={submit} className="flex min-w-0 items-center gap-2 sm:w-60">
         <label htmlFor={searchId} className="sr-only">오디오 이야기 검색</label>
         <div className="relative flex h-8 min-w-0 flex-1 items-center border-b border-[#211e19]/15 px-0.5 transition-colors duration-200 focus-within:border-[#f84e76]">
-          <Search size={14} className="mr-2 shrink-0 text-[#a09282]" strokeWidth={1.8} />
+          <IoSearchOutline size={15} className="mr-2 shrink-0 text-[#a09282]" />
           <input
             id={searchId}
             value={draft}
@@ -74,7 +74,7 @@ export const OdiiArchiveMetaBar: React.FC<Props> = ({ resultCount, totalCount })
               onClick={() => setDraft('')}
               className="p-1 text-[#b0a398] transition-colors hover:text-[#211e19]"
             >
-              <X size={12} />
+              <IoCloseOutline size={14} />
             </button>
           )}
         </div>

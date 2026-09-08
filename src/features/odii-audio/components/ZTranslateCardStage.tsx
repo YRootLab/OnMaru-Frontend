@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { IoPlay, IoPause, IoTimeOutline } from 'react-icons/io5';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
 
@@ -95,16 +96,12 @@ export const ZTranslateCardStage: React.FC<ZTranslateCardStageProps> = ({ featur
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex items-end p-3 justify-between">
                     <div className="flex items-center space-x-2">
-                      {/* SVG 재생/정지 버튼 */}
-                      <div className="w-8 h-8 rounded-full bg-[#D42058] flex items-center justify-center ">
+                      {/* 재생/정지 버튼 */}
+                      <div className="w-8 h-8 rounded-full bg-[#D42058] flex items-center justify-center text-white">
                         {isThisPlaying ? (
-                          <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24">
-                            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
-                          </svg>
+                          <IoPause size={16} />
                         ) : (
-                          <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24">
-                            <path d="M8 5v14l11-7z"/>
-                          </svg>
+                          <IoPlay size={16} className="ml-0.5" />
                         )}
                       </div>
                       <span className="text-xs font-bold text-white">
@@ -119,8 +116,11 @@ export const ZTranslateCardStage: React.FC<ZTranslateCardStageProps> = ({ featur
                     <h3 className="text-base sm:text-lg font-bold text-white line-clamp-1 font-odii-sans group-hover:text-[#F8A8C0] transition-colors">
                     {story.title}
                   </h3>
-                  <p className="text-xs text-[#A09588] truncate mt-1">
-                    {story.audioTitle} • ⏱ {story.formattedDuration}
+                  <p className="text-xs text-[#A09588] truncate mt-1 flex items-center gap-1">
+                    <span>{story.audioTitle}</span>
+                    <span>•</span>
+                    <IoTimeOutline size={12} className="inline-block" />
+                    <span>{story.formattedDuration}</span>
                   </p>
                 </div>
               </div>

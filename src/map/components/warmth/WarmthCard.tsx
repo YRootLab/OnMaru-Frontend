@@ -3,15 +3,17 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import {
-  Landmark,
-  Home,
-  Utensils,
-  Coffee,
-  Store,
-  Flame,
-  Leaf,
-  ChevronRight,
-} from 'lucide-react';
+  IoStorefrontOutline,
+  IoHomeOutline,
+  IoRestaurantOutline,
+  IoCafeOutline,
+  IoBagHandleOutline,
+  IoFlame,
+  IoLeafOutline,
+  IoChevronForwardOutline,
+  IoChevronUpOutline,
+  IoChevronDownOutline,
+} from 'react-icons/io5';
 import { lightPalette, darkPalette, meok, surface } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import { toggleHelpful } from '@/map/warmth/warmthRepo';
@@ -299,18 +301,18 @@ const RelatedMeta = styled.span`
 
 function renderCategoryIcon(type: string) {
   if (type.includes('숙소') || type.includes('스테이') || type.includes('고택')) {
-    return <Home size={18} />;
+    return <IoHomeOutline size={18} />;
   }
   if (type.includes('음식') || type.includes('국밥') || type.includes('식당')) {
-    return <Utensils size={18} />;
+    return <IoRestaurantOutline size={18} />;
   }
   if (type.includes('카페') || type.includes('찻집')) {
-    return <Coffee size={18} />;
+    return <IoCafeOutline size={18} />;
   }
   if (type.includes('시장') || type.includes('쇼핑')) {
-    return <Store size={18} />;
+    return <IoBagHandleOutline size={18} />;
   }
-  return <Landmark size={18} />;
+  return <IoStorefrontOutline size={18} />;
 }
 
 export default function WarmthCard({ review, onHover }: WarmthCardProps) {
@@ -391,12 +393,12 @@ export default function WarmthCard({ review, onHover }: WarmthCardProps) {
               <CrowdMoodBadge $crowd={review.crowdMood}>
                 {review.crowdMood === '북적' ? (
                   <>
-                    <Flame size={12} strokeWidth={2.5} />
+                    <IoFlame size={12} />
                     <span>북적이는 활기</span>
                   </>
                 ) : (
                   <>
-                    <Leaf size={12} strokeWidth={2.5} />
+                    <IoLeafOutline size={12} />
                     <span>고즈넉한 쉼</span>
                   </>
                 )}
@@ -429,8 +431,19 @@ export default function WarmthCard({ review, onHover }: WarmthCardProps) {
                   e.stopPropagation();
                   setIsExpanded((prev) => !prev);
                 }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 2 }}
               >
-                {isExpanded ? '접기 ▲' : '더보기 ▼'}
+                {isExpanded ? (
+                  <>
+                    <span>접기</span>
+                    <IoChevronUpOutline size={13} />
+                  </>
+                ) : (
+                  <>
+                    <span>더보기</span>
+                    <IoChevronDownOutline size={13} />
+                  </>
+                )}
               </TextToggleBtn>
             )}
           </>
@@ -449,7 +462,7 @@ export default function WarmthCard({ review, onHover }: WarmthCardProps) {
           aria-label="이 온기에 공감하시나요? (따뜻해요)"
           title="따뜻해요 공감 남기기"
         >
-          <Flame size={14} fill={helpful ? lightPalette.juhong[500] : 'none'} />
+          <IoFlame size={14} color={helpful ? lightPalette.juhong[500] : undefined} />
           <span>따뜻해요 {helpfulCount > 0 ? helpfulCount : ''}</span>
         </HelpfulButton>
       </FooterMeta>
@@ -463,7 +476,7 @@ export default function WarmthCard({ review, onHover }: WarmthCardProps) {
             <RelatedMeta>{review.placeType}</RelatedMeta>
           </RelatedInfo>
         </RelatedLeft>
-        <ChevronRight size={16} color={lightPalette.juhong[400]} />
+        <IoChevronForwardOutline size={16} color={lightPalette.juhong[400]} />
       </RelatedPlaceBox>
     </CardWrapper>
   );

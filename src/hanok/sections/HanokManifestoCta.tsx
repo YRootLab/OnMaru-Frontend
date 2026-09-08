@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { meok, lightPalette } from '@/design-system/tokens';
 
-import { Home, Leaf, ArrowUpRight, ArrowRight } from 'lucide-react';
+import { IoHomeOutline, IoLeafOutline, IoArrowForwardOutline } from 'react-icons/io5';
 
 // 아카이브 덩어리를 빠져나와 다시 매거진 목소리로 돌아오는 자리라 위쪽을 크게 비운다.
 const Section = styled.section`
@@ -104,17 +104,17 @@ export default function HanokManifestoCta() {
         transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
       >
         <ManifestoParagraph>
-          한옥 <InlineIcon><Home /></InlineIcon>은 지나간 유산이 아니라 지금의 쉼터{' '}
-          <InlineIcon><Leaf /></InlineIcon>입니다. 수백 년을 버틴 대청마루에서{' '}
+          한옥 <InlineIcon><IoHomeOutline /></InlineIcon>은 지나간 유산이 아니라 지금의 쉼터{' '}
+          <InlineIcon><IoLeafOutline /></InlineIcon>입니다. 수백 년을 버틴 대청마루에서{' '}
           <HighlightText>당신의 하루</HighlightText>를 쉬어 가세요.
         </ManifestoParagraph>
 
         <ButtonRow>
           <CtaButton href="/map" $primary>
-            전국 지도 보기 <ArrowUpRight size={16} />
+            전국 지도 보기 <IoArrowForwardOutline size={16} />
           </CtaButton>
           <CtaButton href="#hanok-stays">
-            고택 스테이 둘러보기 <ArrowRight size={16} />
+            고택 스테이 둘러보기 <IoArrowForwardOutline size={16} />
           </CtaButton>
         </ButtonRow>
       </Container>

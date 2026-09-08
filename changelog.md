@@ -4,6 +4,8 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+- Standardized the entire icon system across 60+ components to rounded React library icons (`react-icons/io5` Ionicons 5 outline & round series, and `react-icons/ri` Remix Icons for 5-tier sentiment ratings). Completely purged all non-react-library icons, raw SVG polygons, and raw unicode symbols (`➔`, `←`, `›`, `▲`, `▼`, `×`, `✕`) for cross-app visual harmony.
+- Replaced legacy multi-colored raw SVG strings in `PlaceMarkers` (`CATEGORY_STYLES`), `WarmthLayer`, and `WarmthNotesLayer` with 1:1 matching rounded `react-icons/io5` SVGs (`IoStorefrontOutline`, `IoBookOutline`, `IoHomeOutline`, `IoRestaurantOutline`, `IoCafeOutline`, `IoSparklesOutline`, `IoCalendarOutline`, `IoBagHandleOutline`). All map label pins (`.om-pin`), circular badge pins (`.om-badge-pin`), cluster pills (`.om-cluster-pill`), and warmth overlays now perfectly match the top floating category chips in style, roundness, and category color.
 - Redesigned top navigation bar with a Mindtrip-inspired floating capsule pill (`border-radius: 9999px`) architecture, layered backdrop blur (`HeaderBackdrop`), and clean pill-shaped hover micro-interactions replacing rigid underline animations.
 - Removed upward Y-shift animation (`translateY(-1px)`) on navigation hover, ensuring stable, zero-motion typography where only the subtle 3% background tint and font color smoothly transition.
 - Simplified the `지도` navigation item from a 2-item dropdown menu (`정보지도`/`온기지도`) into a direct, clean `NavLink`, eliminating visual clutter in GNB and mobile menu.

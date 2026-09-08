@@ -3,7 +3,14 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Landmark, ShoppingBag, Headphones, Flame, MapPin, Share2 } from 'lucide-react';
+import {
+  IoLocationOutline,
+  IoStorefrontOutline,
+  IoBagHandleOutline,
+  IoHeadsetOutline,
+  IoFlame,
+  IoGitNetworkOutline,
+} from 'react-icons/io5';
 import { lightPalette, meok, surface } from '@/design-system/tokens';
 import { transientProps } from '@/design-system/styled';
 import type { GraphNode, NodeCategory } from '../types/journey.types';
@@ -198,15 +205,15 @@ const NodeBadge = styled.span`
 function renderCategoryIcon(category: NodeCategory) {
   switch (category) {
     case 'region':
-      return <MapPin />;
+      return <IoLocationOutline />;
     case 'hanok':
-      return <Landmark />;
+      return <IoStorefrontOutline />;
     case 'market':
-      return <ShoppingBag />;
+      return <IoBagHandleOutline />;
     case 'odii':
-      return <Headphones />;
+      return <IoHeadsetOutline />;
     case 'warmth':
-      return <Flame />;
+      return <IoFlame />;
   }
 }
 
@@ -224,7 +231,7 @@ export default function KnowledgeGraphView() {
       <GraphCard>
         <GraphHeader>
           <HeaderTitle>
-            <Share2 size={16} />
+            <IoGitNetworkOutline size={16} />
             <span>AI 여정 지식 그래프 · {plan.region}</span>
           </HeaderTitle>
 

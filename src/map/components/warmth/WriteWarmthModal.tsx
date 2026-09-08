@@ -2,7 +2,14 @@
 
 import React, { useState, useMemo } from 'react';
 import styled from '@emotion/styled';
-import { X, Flame, Users, Leaf, Check, MapPin, Search } from 'lucide-react';
+import {
+  IoCloseOutline,
+  IoFlame,
+  IoPeopleOutline,
+  IoLeafOutline,
+  IoCheckmarkOutline,
+  IoLocationOutline,
+} from 'react-icons/io5';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { addWarmth, loadWarmth } from '@/map/warmth/warmthRepo';
 import { useMapStore } from '@/map/hooks/useMapStore';
@@ -432,11 +439,11 @@ export default function WriteWarmthModal({
       <ModalCard $open={isOpen} onClick={(e) => e.stopPropagation()}>
         <ModalHeader>
           <ModalTitle>
-            <Flame size={20} color={lightPalette.juhong[500]} />
+            <IoFlame size={20} color={lightPalette.juhong[500]} />
             <span>온기 한 줄 남기기</span>
           </ModalTitle>
           <CloseBtn type="button" onClick={onClose} aria-label="닫기">
-            <X size={18} />
+            <IoCloseOutline size={20} />
           </CloseBtn>
         </ModalHeader>
 
@@ -459,7 +466,7 @@ export default function WriteWarmthModal({
 
             <PlaceInputWrap>
               <PlaceInputIcon>
-                <MapPin size={16} />
+                <IoLocationOutline size={16} />
               </PlaceInputIcon>
               <PlaceInput
                 type="text"
@@ -505,7 +512,7 @@ export default function WriteWarmthModal({
                 $active={mood === '한적'}
                 onClick={() => setMood('한적')}
               >
-                <Leaf size={16} />
+                <IoLeafOutline size={16} />
                 <span>한적해요</span>
               </MoodButton>
               <MoodButton
@@ -513,7 +520,7 @@ export default function WriteWarmthModal({
                 $active={mood === '북적'}
                 onClick={() => setMood('북적')}
               >
-                <Users size={16} />
+                <IoPeopleOutline size={16} />
                 <span>북적여요</span>
               </MoodButton>
             </MoodButtonGroup>
@@ -551,7 +558,7 @@ export default function WriteWarmthModal({
           <SubmitBtn type="submit" disabled={!text.trim() || isSuccess}>
             {isSuccess ? (
               <>
-                <Check size={18} />
+                <IoCheckmarkOutline size={18} />
                 <span>온기가 따뜻하게 남겨졌습니다!</span>
               </>
             ) : (

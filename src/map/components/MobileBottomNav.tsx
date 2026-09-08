@@ -3,7 +3,13 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
-import { Home, Users, MapPin, Headphones, Bookmark } from 'lucide-react';
+import {
+  IoHomeOutline,
+  IoPeopleOutline,
+  IoLocationOutline,
+  IoHeadsetOutline,
+  IoBookmarkOutline,
+} from 'react-icons/io5';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import { useBookmarkStore } from '@/map/hooks/useBookmarkStore';
@@ -156,7 +162,7 @@ export default function MobileBottomNav() {
         aria-label="온마루 메인 홈으로 이동"
       >
         <IconWrap $active={isHomeActive}>
-          <Home size={20} />
+          <IoHomeOutline size={20} />
         </IconWrap>
         <Label $active={isHomeActive}>홈</Label>
       </NavItem>
@@ -169,7 +175,7 @@ export default function MobileBottomNav() {
         aria-label="온기 커뮤니티 피드"
       >
         <IconWrap $active={isCommunityActive}>
-          <Users size={20} />
+          <IoPeopleOutline size={20} />
         </IconWrap>
         <Label $active={isCommunityActive}>온기피드</Label>
       </NavItem>
@@ -182,7 +188,7 @@ export default function MobileBottomNav() {
         aria-label="한옥 지도 탐색"
       >
         <IconWrap $active={isMapActive}>
-          <MapPin size={20} />
+          <IoLocationOutline size={20} />
         </IconWrap>
         <Label $active={isMapActive}>한옥지도</Label>
       </NavItem>
@@ -194,7 +200,7 @@ export default function MobileBottomNav() {
         aria-label="소리마루 오디오 도슨트"
       >
         <IconWrap>
-          <Headphones size={20} />
+          <IoHeadsetOutline size={20} />
           <CountBadge style={{ background: lightPalette.jangmi[500] }}>N</CountBadge>
         </IconWrap>
         <Label>소리마루</Label>
@@ -208,7 +214,7 @@ export default function MobileBottomNav() {
         aria-label="마음에 담은 장소 목록"
       >
         <IconWrap $active={isBookmarkActive}>
-          <Bookmark size={20} fill={isBookmarkActive ? 'currentColor' : 'none'} />
+          <IoBookmarkOutline size={20} />
           {bookmarkCount > 0 && <CountBadge>{bookmarkCount}</CountBadge>}
         </IconWrap>
         <Label $active={isBookmarkActive}>마음에담기</Label>

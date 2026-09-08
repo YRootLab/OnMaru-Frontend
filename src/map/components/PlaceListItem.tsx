@@ -4,17 +4,18 @@ import { memo, useEffect, useRef, useMemo } from 'react';
 import Image from 'next/image';
 import styled from '@emotion/styled';
 import {
-  Landmark,
-  Home,
-  Utensils,
-  Coffee,
-  Store,
-  Sparkles,
-  BookOpen,
-  Moon,
-  Headphones,
-  Bookmark,
-} from 'lucide-react';
+  IoStorefrontOutline,
+  IoHomeOutline,
+  IoRestaurantOutline,
+  IoCafeOutline,
+  IoBagHandleOutline,
+  IoSparklesOutline,
+  IoBookOutline,
+  IoCalendarOutline,
+  IoHeadsetOutline,
+  IoBookmark,
+  IoBookmarkOutline,
+} from 'react-icons/io5';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useBookmarkStore } from '@/map/hooks/useBookmarkStore';
 import { useMapStore } from '@/map/hooks/useMapStore';
@@ -257,23 +258,23 @@ const CATEGORY_LABELS: Record<PlaceCategory, string> = {
 function renderCategoryIcon(category: PlaceCategory) {
   switch (category) {
     case 'spot':
-      return <Landmark size={24} />;
+      return <IoStorefrontOutline size={24} />;
     case 'experience':
-      return <Sparkles size={24} />;
+      return <IoSparklesOutline size={24} />;
     case 'culture':
-      return <BookOpen size={24} />;
+      return <IoBookOutline size={24} />;
     case 'festival':
-      return <Moon size={24} />;
+      return <IoCalendarOutline size={24} />;
     case 'stay':
-      return <Home size={24} />;
+      return <IoHomeOutline size={24} />;
     case 'food':
-      return <Utensils size={24} />;
+      return <IoRestaurantOutline size={24} />;
     case 'cafe':
-      return <Coffee size={24} />;
+      return <IoCafeOutline size={24} />;
     case 'market':
-      return <Store size={24} />;
+      return <IoBagHandleOutline size={24} />;
     default:
-      return <Landmark size={24} />;
+      return <IoStorefrontOutline size={24} />;
   }
 }
 
@@ -385,7 +386,7 @@ function PlaceListItemComponent({
           <BadgeRow>
             {isRealTraditional ? (
               <TraditionalBadge title="정통 한옥 및 전통 문화재 인증 명소">
-                <Landmark size={10} />
+                <IoStorefrontOutline size={11} />
                 <span>정통 한옥</span>
               </TraditionalBadge>
             ) : (
@@ -394,7 +395,7 @@ function PlaceListItemComponent({
             <CategoryTag $category={item.category}>{catLabel}</CategoryTag>
             {hasOdii && (
               <OdiiBadge title="한국관광공사 공식 오디 오디오 도슨트 해설 지원 장소">
-                <Headphones size={10} />
+                <IoHeadsetOutline size={11} />
                 <span>오디 해설</span>
               </OdiiBadge>
             )}
@@ -416,7 +417,7 @@ function PlaceListItemComponent({
         title={isBookmarked ? '저장 해제' : '마음에 담기'}
         aria-label={isBookmarked ? `${item.name} 마음에 담기 취소` : `${item.name} 마음에 담기`}
       >
-        <Bookmark size={13} fill={isBookmarked ? 'currentColor' : 'none'} />
+        {isBookmarked ? <IoBookmark size={14} /> : <IoBookmarkOutline size={14} />}
       </BookmarkQuickBtn>
     </ItemContainer>
   );
