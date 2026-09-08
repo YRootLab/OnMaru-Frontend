@@ -388,6 +388,9 @@ const LoginButton = styled(Link, transientProps)<LandingProps>`
   }
 `;
 
+/* 개발 전용 카탈로그 링크 (프로덕션 번들에서는 제거) */
+const IS_DEV = process.env.NODE_ENV === 'development';
+
 export default function Header() {
   const pathname = usePathname();
   const isMapPage = pathname.startsWith('/map');
@@ -560,6 +563,12 @@ export default function Header() {
             <IoSparklesOutline size={13} style={{ marginRight: 4, verticalAlign: '-1px' }} />
             <span>여정 탐색</span>
           </NavLink>
+
+          {IS_DEV && (
+            <NavLink href="/dev/icons" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
+              아이콘
+            </NavLink>
+          )}
         </CenterNav>
 
       {/* 오른쪽 끝: 로그인 */}
@@ -624,6 +633,9 @@ export default function Header() {
                   <IoSparklesOutline size={15} /> 여정 탐색
                 </span>
               </MobileMenuLink>
+              {IS_DEV && (
+                <MobileMenuLink href="/dev/icons" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>아이콘 (개발용)</MobileMenuLink>
+              )}
               <MobileMenuDivider $isLanding={usesDarkSurface} />
               <MobileMenuLink href="/auth/login" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>로그인</MobileMenuLink>
             </MobileMenuPanel>
