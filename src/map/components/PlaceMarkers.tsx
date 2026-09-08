@@ -2,6 +2,17 @@
 
 import { useEffect, useRef } from 'react';
 import { Global, css } from '@emotion/react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import {
+  IoStorefrontOutline,
+  IoSparklesOutline,
+  IoBookOutline,
+  IoCalendarOutline,
+  IoHomeOutline,
+  IoRestaurantOutline,
+  IoCafeOutline,
+  IoBagHandleOutline,
+} from 'react-icons/io5';
 import { logger } from '@/lib/log';
 import { meok, lightPalette } from '@/design-system/tokens';
 import { escapeHtml, safeImageUrl } from '@/map/utils/formatters';
@@ -26,7 +37,31 @@ const PIN_MAX_LEVEL = 8; // 레벨 7~8: 고대비 원형 아이콘 뱃지 핀
 const LABEL_PIN_LIMIT = 60;
 const BADGE_PIN_LIMIT = 120;
 
-/** 각 카테고리별 고대비 선명 컬러 및 React SVG 아이콘 */
+/** 상단 카테고리 칩셋과 100% 동일한 둥근 React Icon (react-icons/io5) SVG 정적 생성 */
+export function renderCategoryIconSvg(category: PlaceCategory, size = 15): string {
+  switch (category) {
+    case 'spot':
+      return renderToStaticMarkup(<IoStorefrontOutline size={size} />);
+    case 'culture':
+      return renderToStaticMarkup(<IoBookOutline size={size} />);
+    case 'stay':
+      return renderToStaticMarkup(<IoHomeOutline size={size} />);
+    case 'food':
+      return renderToStaticMarkup(<IoRestaurantOutline size={size} />);
+    case 'cafe':
+      return renderToStaticMarkup(<IoCafeOutline size={size} />);
+    case 'experience':
+      return renderToStaticMarkup(<IoSparklesOutline size={size} />);
+    case 'festival':
+      return renderToStaticMarkup(<IoCalendarOutline size={size} />);
+    case 'market':
+      return renderToStaticMarkup(<IoBagHandleOutline size={size} />);
+    default:
+      return renderToStaticMarkup(<IoStorefrontOutline size={size} />);
+  }
+}
+
+/** 각 카테고리별 고대비 선명 컬러 및 둥근 React SVG 아이콘 */
 export const CATEGORY_STYLES: Record<
   PlaceCategory,
   {
@@ -37,69 +72,69 @@ export const CATEGORY_STYLES: Record<
     iconSvg: string;
   }
 > = {
-  // 1. spot (고택·명소): 기와(청화 코발트) + 기둥·마루(황금 기와) + 기단(단청 주홍) 3중 컬러
+  // 1. spot (고택·명소): 청화 코발트
   spot: {
     main: '#2F68FF',
-    lightBg: 'rgba(47, 104, 255, 0.1)',
-    lightBorder: 'rgba(47, 104, 255, 0.25)',
+    lightBg: 'rgba(47, 104, 255, 0.12)',
+    lightBorder: 'rgba(47, 104, 255, 0.28)',
     border: '#2F68FF',
-    iconSvg: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.5L21.5 8C20 8.5 17.5 9 12 9C6.5 9 4 8.5 2.5 8L12 2.5Z" fill="#2F68FF"/><path d="M12 2.5L22 8L20 9.5C16 9 13.5 9 12 9C10.5 9 8 9 4 9.5L2 8L12 2.5Z" stroke="#1748CF" stroke-width="0.5"/><rect x="4.5" y="9.5" width="15" height="1.8" rx="0.5" fill="#D47F00"/><rect x="5.5" y="11.3" width="2" height="6.7" rx="0.4" fill="#FFA000"/><rect x="11" y="11.3" width="2" height="6.7" rx="0.4" fill="#FFA000"/><rect x="16.5" y="11.3" width="2" height="6.7" rx="0.4" fill="#FFA000"/><rect x="8" y="12" width="2.5" height="5" rx="0.3" fill="#C0F3DF" stroke="#00825B" stroke-width="0.6"/><rect x="13.5" y="12" width="2.5" height="5" rx="0.3" fill="#C0F3DF" stroke="#00825B" stroke-width="0.6"/><rect x="3" y="18" width="18" height="2.5" rx="0.8" fill="#FF5414"/><rect x="2" y="20.5" width="20" height="1.5" rx="0.5" fill="#D93600"/></svg>`,
+    iconSvg: renderCategoryIconSvg('spot', 14),
   },
-  // 2. culture (문화재·서원): 서책 표지(청화 코발트) + 내지(황금 기와) + 책갈피(단청 주홍/연지 장미) 3중 컬러
+  // 2. culture (문화재·서원): 짙은 코발트 블루
   culture: {
     main: '#1748CF',
-    lightBg: 'rgba(47, 104, 255, 0.1)',
-    lightBorder: 'rgba(47, 104, 255, 0.25)',
+    lightBg: 'rgba(23, 72, 207, 0.12)',
+    lightBorder: 'rgba(23, 72, 207, 0.28)',
     border: '#1748CF',
-    iconSvg: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 5.5C3 4.4 3.9 3.5 5 3.5H11V19.5H5C3.9 19.5 3 18.6 3 17.5V5.5Z" fill="#2F68FF"/><path d="M21 5.5C21 4.4 20.1 3.5 19 3.5H13V19.5H19C20.1 19.5 21 18.6 21 17.5V5.5Z" fill="#1748CF"/><path d="M4.5 5C4.5 4.5 5 4 5.5 4H11V18.5H5.5C5 18.5 4.5 18 4.5 17.5V5Z" fill="#FFF0B8"/><path d="M19.5 5C19.5 4.5 19 4 18.5 4H13V18.5H18.5C19 18.5 19.5 18 19.5 17.5V5Z" fill="#FFDE70"/><circle cx="4" cy="6.5" r="0.8" fill="#FF2A6D"/><circle cx="4" cy="9.5" r="0.8" fill="#FF2A6D"/><circle cx="4" cy="13.5" r="0.8" fill="#FF2A6D"/><circle cx="4" cy="16.5" r="0.8" fill="#FF2A6D"/><path d="M12 3V21L14.5 19L17 21V16" fill="#FF5414"/></svg>`,
+    iconSvg: renderCategoryIconSvg('culture', 14),
   },
-  // 3. stay (한옥숙소): 처마(단청 주홍) + 꽃살문(대청 청록) + 마루(황금 기와) 3중 컬러
+  // 3. stay (한옥숙소): 단청 주홍
   stay: {
     main: '#FF5414',
-    lightBg: 'rgba(255, 84, 20, 0.1)',
-    lightBorder: 'rgba(255, 84, 20, 0.25)',
+    lightBg: 'rgba(255, 84, 20, 0.12)',
+    lightBorder: 'rgba(255, 84, 20, 0.28)',
     border: '#FF5414',
-    iconSvg: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3L2 9.5L3.5 11L12 5.5L20.5 11L22 9.5L12 3Z" fill="#D93600"/><path d="M12 4.5L5 9.5H19L12 4.5Z" fill="#FF5414"/><rect x="5" y="9.5" width="14" height="10" fill="#FFF9E6"/><rect x="4.5" y="9.5" width="1.5" height="10.5" fill="#D47F00"/><rect x="18" y="9.5" width="1.5" height="10.5" fill="#D47F00"/><rect x="8.5" y="11.5" width="7" height="8" rx="0.5" fill="#E8FAF3" stroke="#00B882" stroke-width="1"/><line x1="12" y1="11.5" x2="12" y2="19.5" stroke="#00B882" stroke-width="0.8"/><line x1="8.5" y1="15.5" x2="15.5" y2="15.5" stroke="#00B882" stroke-width="0.8"/><rect x="3" y="20" width="18" height="2" rx="0.5" fill="#FFA000"/></svg>`,
+    iconSvg: renderCategoryIconSvg('stay', 14),
   },
-  // 4. food (향토음식): 뚝배기(먹빛) + 온기(코발트) + 고명(청록, 황금, 연지) 3중 컬러
+  // 4. food (향토음식): 먹빛 주홍
   food: {
     main: '#D93600',
-    lightBg: 'rgba(217, 54, 0, 0.1)',
-    lightBorder: 'rgba(217, 54, 0, 0.25)',
+    lightBg: 'rgba(217, 54, 0, 0.12)',
+    lightBorder: 'rgba(217, 54, 0, 0.28)',
     border: '#D93600',
-    iconSvg: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 3.5C7.5 5 8.5 6 7.5 7.5" stroke="#6099FC" stroke-width="1.2" stroke-linecap="round"/><path d="M12 2C11.5 4 12.5 5 11.5 6.5" stroke="#26CF9A" stroke-width="1.4" stroke-linecap="round"/><path d="M16 3.5C15.5 5 16.5 6 15.5 7.5" stroke="#FF7842" stroke-width="1.2" stroke-linecap="round"/><ellipse cx="12" cy="11.5" rx="8.5" ry="2.5" fill="#3E2723"/><path d="M3.5 11.5C3.5 17 6.5 21 12 21C17.5 21 20.5 17 20.5 11.5H3.5Z" fill="#241B18"/><ellipse cx="12" cy="11.5" rx="7.2" ry="1.8" fill="#FF5414"/><circle cx="10" cy="11.5" r="1.3" fill="#00B882"/><circle cx="14" cy="11.5" r="1.3" fill="#FFBC1A"/><circle cx="12" cy="12" r="1.2" fill="#FF2A6D"/><rect x="7" y="21" width="10" height="1.5" rx="0.5" fill="#D47F00"/></svg>`,
+    iconSvg: renderCategoryIconSvg('food', 14),
   },
-  // 5. cafe (한옥카페·디저트): 고려청자 찻잔(대청 청록) + 전통차(황금 기와) + 꽃잎(연지 장미) 3중 컬러
+  // 5. cafe (한옥카페·디저트): 대청 청록
   cafe: {
     main: '#00B882',
-    lightBg: 'rgba(0, 184, 130, 0.1)',
-    lightBorder: 'rgba(0, 184, 130, 0.25)',
+    lightBg: 'rgba(0, 184, 130, 0.12)',
+    lightBorder: 'rgba(0, 184, 130, 0.28)',
     border: '#00B882',
-    iconSvg: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.5 3C8 4.5 9 5.5 8.5 7" stroke="#26CF9A" stroke-width="1.2" stroke-linecap="round"/><path d="M12 2.5C11.5 4 12.5 5 12 6.5" stroke="#FF5E8E" stroke-width="1.2" stroke-linecap="round"/><path d="M4 8H17V14C17 17.5 14 19 10.5 19C7 19 4 17.5 4 14V8Z" fill="#00B882"/><path d="M17 9.5H19C20.1 9.5 21 10.4 21 11.5C21 12.6 20.1 13.5 19 13.5H17" stroke="#00825B" stroke-width="1.8" stroke-linecap="round"/><ellipse cx="10.5" cy="8.2" rx="5.8" ry="1.4" fill="#FFBC1A"/><circle cx="11" cy="8.2" r="1" fill="#FF2A6D"/><path d="M3 19.5C3 19.5 6 21.5 11 21.5C16 21.5 19 19.5 19 19.5" stroke="#D47F00" stroke-width="2" stroke-linecap="round"/></svg>`,
+    iconSvg: renderCategoryIconSvg('cafe', 14),
   },
-  // 6. experience (한복·전통체험): 치마(연지 장미) + 저고리(청화 코발트) + 옷고름(황금 기와) 3중 컬러
+  // 6. experience (한복·전통체험): 연지 장미
   experience: {
     main: '#FF2A6D',
-    lightBg: 'rgba(255, 42, 109, 0.1)',
-    lightBorder: 'rgba(255, 42, 109, 0.25)',
+    lightBg: 'rgba(255, 42, 109, 0.12)',
+    lightBorder: 'rgba(255, 42, 109, 0.28)',
     border: '#FF2A6D',
-    iconSvg: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 4L12 7.5L17 4L20 8L17 10L15 8.5V11H9V8.5L7 10L4 8L7 4Z" fill="#2F68FF"/><path d="M10.5 6.5L12 7.5L13.5 6.5" stroke="#FFFFFF" stroke-width="1.2" stroke-linecap="round"/><path d="M12 8V14L13.5 13.5" stroke="#FFA000" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="8.2" r="1" fill="#D47F00"/><path d="M9 11C9 11 7 14 5 21C8 22 16 22 19 21C17 14 15 11 15 11H9Z" fill="#FF2A6D"/><path d="M12 11C11.5 14 11 17.5 10 21.5" stroke="#D40D4E" stroke-width="0.8" opacity="0.6"/><path d="M13.5 11C13.8 14 14.5 17.5 15.5 21.5" stroke="#D40D4E" stroke-width="0.8" opacity="0.6"/><circle cx="19.5" cy="5.5" r="1.5" fill="#FFBC1A"/><circle cx="4.5" cy="18.5" r="1.2" fill="#26CF9A"/></svg>`,
+    iconSvg: renderCategoryIconSvg('experience', 14),
   },
-  // 7. festival (야행·축제): 성곽(청화 코발트) + 야행 달빛(황금 기와) + 축제 불꽃(연지 장미) 3중 컬러
+  // 7. festival (야행·축제): 야행 보라
   festival: {
     main: '#673AB7',
     lightBg: 'rgba(103, 58, 183, 0.12)',
-    lightBorder: 'rgba(103, 58, 183, 0.25)',
+    lightBorder: 'rgba(103, 58, 183, 0.28)',
     border: '#673AB7',
-    iconSvg: `<svg stroke="currentColor" fill="currentColor" stroke-width="0" version="1" viewBox="0 0 48 48" enable-background="new 0 0 48 48" height="16" width="16" xmlns="http://www.w3.org/2000/svg"><polygon fill="#673AB7" points="16.5,18 0,42 33,42"/><polygon fill="#9575CD" points="33.6,24 19.2,42 48,42"/><path fill="#40C4FF" d="M42.9,6.3C43.6,7.4,44,8.6,44,10c0,3.9-3.1,7-7,7c-0.7,0-1.3-0.1-1.9-0.3c1.2,2,3.4,3.3,5.9,3.3 c3.9,0,7-3.1,7-7C48,9.8,45.9,7.1,42.9,6.3z"/></svg>`,
+    iconSvg: renderCategoryIconSvg('festival', 14),
   },
-  // 8. market (전통시장): 주홍 + 청록 + 황금 3색 천막 어닝 + 특산품 3중 컬러
+  // 8. market (전통시장): 청록 그린
   market: {
     main: '#00825B',
-    lightBg: 'rgba(0, 130, 91, 0.1)',
-    lightBorder: 'rgba(0, 130, 91, 0.25)',
+    lightBg: 'rgba(0, 130, 91, 0.12)',
+    lightBorder: 'rgba(0, 130, 91, 0.28)',
     border: '#00825B',
-    iconSvg: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 8L4.5 4H7.5L6.5 8H3Z" fill="#FF5414"/><path d="M6.5 8L7.5 4H10.5L9.5 8H6.5Z" fill="#FFA000"/><path d="M9.5 8L10.5 4H13.5L12.5 8H9.5Z" fill="#00B882"/><path d="M12.5 8L13.5 4H16.5L15.5 8H12.5Z" fill="#2F68FF"/><path d="M15.5 8L16.5 4H19.5L18.5 8H15.5Z" fill="#FF2A6D"/><path d="M18.5 8L19.5 4H21L20.5 8H18.5Z" fill="#FF5414"/><path d="M2.5 8C3.5 9.5 5.5 9.5 6.5 8C7.5 9.5 9.5 9.5 10.5 8C11.5 9.5 13.5 9.5 14.5 8C15.5 9.5 17.5 9.5 18.5 8C19.5 9.5 21 9 21.5 8" stroke="#D47F00" stroke-width="1.2" stroke-linecap="round"/><rect x="4" y="9.5" width="1.5" height="10" fill="#FFA000"/><rect x="18.5" y="9.5" width="1.5" height="10" fill="#FFA000"/><rect x="5.5" y="13" width="13" height="7" rx="0.5" fill="#FFF3EB" stroke="#FF5414" stroke-width="1"/><circle cx="8.5" cy="15.5" r="1.5" fill="#FF2A6D"/><circle cx="12" cy="15.5" r="1.5" fill="#00B882"/><circle cx="15.5" cy="15.5" r="1.5" fill="#FFA000"/><line x1="2" y1="20.5" x2="22" y2="20.5" stroke="#b0b8c1" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+    iconSvg: renderCategoryIconSvg('market', 14),
   },
 };
 
@@ -704,7 +739,7 @@ export default function PlaceMarkers() {
         el.className = 'om-cluster-pill';
         // regionName은 TourAPI 주소에서 온다 — 이스케이프하고 넣는다.
         el.innerHTML = `
-          <span class="om-cluster-icon-box" style="background: ${catStyle.lightBg}; color: ${catStyle.main}">
+          <span class="om-cluster-icon-box" style="background: ${catStyle.lightBg}; color: ${catStyle.main}; border: 1px solid ${catStyle.lightBorder};">
             ${catStyle.iconSvg}
           </span>
           <span class="om-cluster-region-name">${escapeHtml(regionName)}</span>
@@ -826,7 +861,7 @@ export default function PlaceMarkers() {
           ${imgSrc ? `<img src="${imgSrc}" alt="" class="om-pin-hover-thumb" />` : ''}
           <h5 class="om-pin-hover-title">${escapeHtml(item.name)}</h5>
           <div class="om-pin-hover-meta">
-            <span style="color: ${catStyle.main}; font-weight: 700;">${isTraditional ? '🏛️ ' : ''}${escapeHtml(catLabel)}</span>
+            <span style="color: ${catStyle.main}; font-weight: 700;">${escapeHtml(catLabel)}</span>
             <span>${escapeHtml(metaText)}</span>
           </div>
         `;
@@ -839,7 +874,7 @@ export default function PlaceMarkers() {
         el.className = `om-pin${isTraditional ? ' om-pin--traditional' : ''}`;
         el.style.position = 'relative';
         el.innerHTML = `
-          <span class="om-pin-icon-box" style="background: ${catStyle.lightBg}; border: 1px solid ${catStyle.lightBorder};">${catStyle.iconSvg}</span>
+          <span class="om-pin-icon-box" style="background: ${catStyle.lightBg}; border: 1px solid ${catStyle.lightBorder}; color: ${catStyle.main};">${catStyle.iconSvg}</span>
           <span>${escapeHtml(item.name)}</span>
         `;
         if (isTraditional) {
@@ -864,8 +899,8 @@ export default function PlaceMarkers() {
       } else {
         el.className = `om-badge-pin${isTraditional ? ' om-badge-pin--traditional' : ''}`;
         el.innerHTML = `
-          <span class="om-badge-icon-inner" style="background: ${catStyle.lightBg};">
-            ${catStyle.iconSvg}
+          <span class="om-badge-icon-inner" style="background: ${catStyle.lightBg}; color: ${catStyle.main}; border: 1.5px solid ${catStyle.lightBorder};">
+            ${renderCategoryIconSvg(item.category, 18)}
           </span>
         `;
         if (isTraditional) {

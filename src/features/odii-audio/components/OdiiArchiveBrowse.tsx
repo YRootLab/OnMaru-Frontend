@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { Pause, Play } from 'lucide-react';
+import { IoPlay, IoPause } from 'react-icons/io5';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import type { OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
 import { groupOdiiStoriesByPlace, type OdiiPlaceGroup } from '@/features/odii-audio/utils/odiiArchiveGrouping';
@@ -87,7 +87,7 @@ function StoryRow({ story, index }: StoryRowProps) {
       <div className="flex flex-col items-end gap-1.5">
         <span className="whitespace-nowrap text-[10px] font-medium text-[#9b9389]">{story.formattedDuration || '3:00'}</span>
         <button type="button" onClick={togglePlayback} aria-label={`${story.title} ${isThisPlaying ? '일시정지' : '재생'}`} className={`grid h-8 w-8 place-items-center rounded-full border transition-colors ${isThisPlaying ? 'border-[#f84e76] bg-[#f84e76] text-white' : 'border-[#211e19]/15 bg-white text-[#625d56] hover:border-[#f84e76] hover:text-[#f84e76]'}`}>
-          {isThisPlaying ? <Pause size={13} fill="currentColor" /> : <Play size={13} className="ml-0.5" fill="currentColor" />}
+          {isThisPlaying ? <IoPause size={13} /> : <IoPlay size={13} className="ml-0.5" />}
         </button>
       </div>
     </article>

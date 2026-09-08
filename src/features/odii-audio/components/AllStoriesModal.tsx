@@ -1,6 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
+import {
+  IoCloseOutline,
+  IoSearchOutline,
+  IoTimeOutline,
+  IoPause,
+  IoPlay,
+} from 'react-icons/io5';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { OdiiStoryItem, OdiiCategory } from '@/features/odii-audio/types/odii.types';
 
@@ -87,9 +94,10 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
           </div>
           <button
             onClick={onClose}
+            aria-label="닫기"
             className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-bold text-base transition-colors"
           >
-            ✕
+            <IoCloseOutline size={22} />
           </button>
         </div>
 
@@ -124,7 +132,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
               placeholder="이야기, 장소, 해설사 키워드로 검색"
               className="w-full pl-10 pr-4 py-2.5 bg-white/5  rounded-xl text-sm text-white placeholder-white/40 focus:outline-none focus:"
             />
-            <span className="absolute left-3.5 top-3 text-xs text-white/50">🔍</span>
+            <IoSearchOutline className="absolute left-3.5 top-3 text-base text-white/50" />
           </div>
         </div>
 
@@ -160,8 +168,9 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
                         <span className="px-2 py-0.5 text-[10px] font-bold bg-[#D42058] text-white rounded">
                           {story.category}
                         </span>
-                        <span className="text-xs text-white/60">
-                          ⏱ {story.formattedDuration}
+                        <span className="text-xs text-white/60 flex items-center gap-1">
+                          <IoTimeOutline size={13} />
+                          {story.formattedDuration}
                         </span>
                       </div>
                       <h4 className="text-sm sm:text-base font-bold text-white truncate">
@@ -186,13 +195,9 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
                     }`}
                   >
                     {isThisPlaying ? (
-                      <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
-                      </svg>
+                      <IoPause size={16} />
                     ) : (
-                      <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                        <path d="M8 5v14l11-7z"/>
-                      </svg>
+                      <IoPlay size={16} className="ml-0.5" />
                     )}
                   </button>
                 </div>

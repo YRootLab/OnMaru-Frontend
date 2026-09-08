@@ -3,7 +3,11 @@
 import React, { useRef } from 'react';
 import styled from '@emotion/styled';
 import Image from 'next/image';
-import { ChevronLeft, ChevronRight, Award } from 'lucide-react';
+import {
+  IoChevronBackOutline,
+  IoChevronForwardOutline,
+  IoRibbonOutline,
+} from 'react-icons/io5';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import type { Item } from '@/map/types';
@@ -253,9 +257,9 @@ export default function SmartAroundFeed({ items }: SmartAroundFeedProps) {
     <Wrapper>
       <Header>
         <TitleBox>
-          <Award size={15} color={lightPalette.cheongrok[500]} />
+          <IoRibbonOutline size={16} color={lightPalette.cheongrok[500]} />
           <Title>추천 한옥 명소</Title>
-          <SubText>추천</SubText>
+       
         </TitleBox>
       </Header>
 
@@ -267,7 +271,7 @@ export default function SmartAroundFeed({ items }: SmartAroundFeedProps) {
           onClick={() => scroll('left')}
           aria-label="이전 추천 명소 보기"
         >
-          <ChevronLeft size={18} />
+          <IoChevronBackOutline size={18} />
         </FloatingNavBtn>
 
         <FloatingNavBtn
@@ -277,7 +281,7 @@ export default function SmartAroundFeed({ items }: SmartAroundFeedProps) {
           onClick={() => scroll('right')}
           aria-label="다음 추천 명소 보기"
         >
-          <ChevronRight size={18} />
+          <IoChevronForwardOutline size={18} />
         </FloatingNavBtn>
 
         <Scroller ref={scrollerRef} onWheel={handleWheel} role="region" aria-label="추천 한옥 명소 목록">

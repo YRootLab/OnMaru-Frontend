@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
 import { motion, useReducedMotion } from 'framer-motion';
-import { Home, ChevronLeft } from 'lucide-react';
+import { IoChevronBackOutline } from 'react-icons/io5';
 import { transientProps } from '@/design-system/styled';
 import { meok, surface } from '@/design-system/tokens';
 import {
@@ -113,17 +113,40 @@ const FloatingHomeButton = styled.button`
   }
 `;
 
-const MobileTop = styled.div`
+const MobileTopBar = styled.div<{ $hidden: boolean }>`
   position: absolute;
-  top: 14px;
-  left: 14px;
-  z-index: 20;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  z-index: 25;
   display: flex;
   align-items: center;
+  gap: 8px;
+  pointer-events: none;
+
+  opacity: ${({ $hidden }) => ($hidden ? 0 : 1)};
+  transform: ${({ $hidden }) => ($hidden ? 'translateY(-6px)' : 'translateY(0)')};
+  transition: opacity 0.22s ease, transform 0.22s ease;
 
   @media (min-width: 1024px) {
     display: none;
   }
+
+  & > * {
+    pointer-events: auto;
+  }
+`;
+
+const MobileModeToggleWrapper = styled.div`
+  flex-shrink: 0;
+`;
+
+const MobileChipsScroller = styled.div`
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
 `;
 
 export default function MapPage() {
@@ -182,7 +205,7 @@ export default function MapPage() {
               aria-label="온마루 메인 홈으로 이동"
               title="온마루 메인 홈으로 이동"
             >
-              <ChevronLeft size={16} />
+              <IoChevronBackOutline size={16} />
               <span>온마루 홈</span>
             </FloatingHomeButton>
           )}
@@ -212,10 +235,15 @@ export default function MapPage() {
         <DetailPanel />
       </FloatingPanelsContainer>
 
-      {/* 3. 모바일 상단 모드 전환 (컴팩트 & 솔리드) */}
-      <MobileTop>
-        <ModeToggle compact />
-      </MobileTop>
+      {/* 3. 모바일 상단 헤더: 모드 전환(정보/온기) + 가로 스크롤 카테고리 칩셋 */}
+      <MobileTopBar $hidden={isDetailOpen}>
+        <MobileModeToggleWrapper>
+          <ModeToggle compact />
+        </MobileModeToggleWrapper>
+        <MobileChipsScroller>
+          <CategoryChips />
+        </MobileChipsScroller>
+      </MobileTopBar>
 
       {/* 4. 시네마틱 공간 오디오 투어 플로팅 컨트롤러 */}
       <CinematicTourFloatingBar />

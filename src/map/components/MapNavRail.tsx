@@ -4,14 +4,14 @@ import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
 import { motion, useReducedMotion } from 'framer-motion';
 import {
-  MapPin,
-  BookOpen,
-  Headphones,
-  Flame,
-  Bookmark,
-  Compass,
-  User,
-} from 'lucide-react';
+  IoBookOutline,
+  IoLocationOutline,
+  IoFlame,
+  IoHeadsetOutline,
+  IoBookmarkOutline,
+  IoHomeOutline,
+  IoPersonOutline,
+} from 'react-icons/io5';
 import { transientProps } from '@/design-system/styled';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import { lightPalette, meok, surface } from '@/design-system/tokens';
@@ -193,7 +193,7 @@ export default function MapNavRail() {
           title="디지털 한옥도감 & 문화유산 아카이브"
         >
           <NavItemIcon $active={false}>
-            <BookOpen size={21} />
+            <IoBookOutline size={22} />
           </NavItemIcon>
           <NavItemLabel $active={false}>한옥도감</NavItemLabel>
         </NavItemBtn>
@@ -207,7 +207,7 @@ export default function MapNavRail() {
           title="온마루 정보지도"
         >
           <NavItemIcon $active={isMapActive}>
-            <MapPin size={21} fill={isMapActive ? surface.light.card : 'none'} />
+            <IoLocationOutline size={22} />
           </NavItemIcon>
           <NavItemLabel $active={isMapActive}>지도</NavItemLabel>
         </NavItemBtn>
@@ -221,7 +221,7 @@ export default function MapNavRail() {
           title="공간 오디오 가이드 도슨트 소리마루"
         >
           <NavItemIcon $active={false}>
-            <Headphones size={21} />
+            <IoHeadsetOutline size={22} />
           </NavItemIcon>
           <NavItemLabel $active={false}>소리마루</NavItemLabel>
         </NavItemBtn>
@@ -235,7 +235,7 @@ export default function MapNavRail() {
           title="실시간 여행자 온기 후기 및 훈기 레이어"
         >
           <NavItemIcon $active={isWarmthActive}>
-            <Flame size={20} fill={isWarmthActive ? surface.light.card : 'none'} />
+            <IoFlame size={21} />
           </NavItemIcon>
           <NavItemLabel $active={isWarmthActive}>온기이야기</NavItemLabel>
         </NavItemBtn>
@@ -253,7 +253,7 @@ export default function MapNavRail() {
           title="마음에 담은 장소 보관함"
         >
           <NavItemIcon $active={mode === 'info' && useMapStore.getState().category === 'bookmark'}>
-            <Bookmark size={20} />
+            <IoBookmarkOutline size={21} />
           </NavItemIcon>
           <NavItemLabel $active={mode === 'info' && useMapStore.getState().category === 'bookmark'}>
             저장
@@ -272,7 +272,7 @@ export default function MapNavRail() {
           title="온마루 인터랙티브 3D 한옥 메인 홈으로 이동"
         >
           <NavItemIcon $active={false}>
-            <Compass size={20} />
+            <IoHomeOutline size={21} />
           </NavItemIcon>
           <NavItemLabel $active={false}>온마루 홈</NavItemLabel>
         </NavItemBtn>
@@ -285,7 +285,7 @@ export default function MapNavRail() {
           title="로그인 및 마이페이지"
         >
           <NavItemIcon $active={false}>
-            <User size={20} />
+            <IoPersonOutline size={21} />
           </NavItemIcon>
           <NavItemLabel $active={false}>로그인</NavItemLabel>
         </NavItemBtn>

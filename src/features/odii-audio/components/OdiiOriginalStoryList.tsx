@@ -2,7 +2,13 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Heart, Play, Pause, Music } from 'lucide-react';
+import {
+  IoHeart,
+  IoHeartOutline,
+  IoPlay,
+  IoPause,
+  IoMusicalNotesOutline,
+} from 'react-icons/io5';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
 
@@ -58,7 +64,7 @@ export const OdiiOriginalStoryList: React.FC<Props> = ({ stories, onBookmarkStor
             >
               <div className="flex min-w-0 items-center gap-3.5">
                 <span className={`flex w-6 shrink-0 items-center justify-center font-mono text-[11px] font-semibold ${current ? 'text-[#f84e76]' : 'text-[#8c7e6c]'}`}>
-                  {playing ? <Music size={12} className="animate-pulse text-[#f84e76]" /> : String(index + 1).padStart(2, '0')}
+                  {playing ? <IoMusicalNotesOutline size={13} className="animate-pulse text-[#f84e76]" /> : String(index + 1).padStart(2, '0')}
                 </span>
                 <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-[#e8e0d5]  sm:h-[52px] sm:w-[52px]">
                   <img src={imageFor(story, index)} alt={story.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = FALLBACK_IMAGES[0]; }} />
@@ -81,7 +87,7 @@ export const OdiiOriginalStoryList: React.FC<Props> = ({ stories, onBookmarkStor
                     aria-label={saved ? '마음에서 삭제' : '마음에 담기'}
                     className={`transition-transform hover:scale-110 ${saved ? 'text-[#f84e76]' : 'text-[#b1a396] hover:text-[#f84e76]'}`}
                   >
-                    <Heart size={16} className={saved ? 'fill-current' : ''} />
+                    {saved ? <IoHeart size={16} /> : <IoHeartOutline size={16} />}
                   </button>
                 )}
                 <span className="hidden font-mono text-[11px] text-[#8c7e6c] sm:inline-block">{story.formattedDuration || '3:00'}</span>
@@ -91,7 +97,7 @@ export const OdiiOriginalStoryList: React.FC<Props> = ({ stories, onBookmarkStor
                   aria-label={playing ? '일시정지' : '재생'}
                   className={`flex h-8 w-8 items-center justify-center rounded-full transition-all ${playing ? 'scale-105 bg-[#f84e76] text-white' : ' bg-white text-[#f84e76] hover: hover:bg-[#f84e76] hover:text-white'}`}
                 >
-                  {playing ? <Pause size={12} fill="currentColor" /> : <Play size={12} fill="currentColor" className="ml-0.5" />}
+                  {playing ? <IoPause size={13} /> : <IoPlay size={13} className="ml-0.5" />}
                 </button>
               </div>
             </motion.div>

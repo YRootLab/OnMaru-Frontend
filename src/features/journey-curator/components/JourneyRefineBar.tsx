@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
-import { Sparkles, CornerDownLeft, RefreshCw } from 'lucide-react';
+import { IoSparklesOutline, IoReturnDownBackOutline } from 'react-icons/io5';
 import { lightPalette, meok, surface } from '@/design-system/tokens';
 import { useJourneyStore } from '../store/useJourneyStore';
 
@@ -166,7 +166,7 @@ export default function JourneyRefineBar() {
     <Wrapper>
       <Box>
         <Header>
-          <Sparkles size={16} color={lightPalette.cheongrok[500]} />
+          <IoSparklesOutline size={16} color={lightPalette.cheongrok[500]} />
           <span>여정 조건을 실시간으로 재조정할 수 있어요</span>
         </Header>
 
@@ -179,7 +179,7 @@ export default function JourneyRefineBar() {
             aria-label="여정 조건 추가 입력"
           />
           <SendBtn type="submit" $disabled={isGenerating} title="조건 반영">
-            <CornerDownLeft size={14} />
+            <IoReturnDownBackOutline size={14} />
           </SendBtn>
         </InputRow>
 

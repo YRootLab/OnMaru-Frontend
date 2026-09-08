@@ -60,6 +60,14 @@ const MoodLabel = styled.span`
   white-space: nowrap;
 `;
 
+import {
+  RiEmotionLaughLine,
+  RiEmotionHappyLine,
+  RiEmotionNormalLine,
+  RiEmotionUnhappyLine,
+  RiEmotionSadLine,
+} from 'react-icons/ri';
+
 /** 5단계 감정 라벨 사전 */
 const MOOD_LABELS: Record<MoodValue, string> = {
   1: '또 가고 싶어요',
@@ -69,82 +77,17 @@ const MOOD_LABELS: Record<MoodValue, string> = {
   5: '별로였어요',
 };
 
-/** 1. 또 가고 싶어요: 활짝 웃는 얼굴 (반달눈 + 큰 미소) */
-function IconMood1({ size = 24 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <path d="M8 9.5c.5-.8 1.5-1 2-1s1.5.2 2 1" />
-      <path d="M12 9.5c.5-.8 1.5-1 2-1s1.5.2 2 1" />
-      <path d="M7.5 14.5c1.5 2.5 7.5 2.5 9 0" fill="currentColor" opacity="0.3" />
-      <path d="M7.5 14.5c1.5 2.5 7.5 2.5 9 0" />
-    </svg>
-  );
-}
-
-/** 2. 좋았어요: 웃는 얼굴 (동그란 눈 + 미소) */
-function IconMood2({ size = 24 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <circle cx="9" cy="9.5" r="1" fill="currentColor" />
-      <circle cx="15" cy="9.5" r="1" fill="currentColor" />
-      <path d="M8 14.5s1.5 2 4 2 4-2 4-2" />
-    </svg>
-  );
-}
-
-/** 3. 보통이에요: 무표정 (동그란 눈 + 일자 입) */
-function IconMood3({ size = 24 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <circle cx="9" cy="10" r="1" fill="currentColor" />
-      <circle cx="15" cy="10" r="1" fill="currentColor" />
-      <line x1="8.5" y1="15" x2="15.5" y2="15" />
-    </svg>
-  );
-}
-
-/** 4. 아쉬웠어요: 살짝 찡그림 (살짝 쳐진 눈썹 + 삐죽 입) */
-function IconMood4({ size = 24 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <path d="M8 9l2 1" />
-      <path d="M16 9l-2 1" />
-      <circle cx="9" cy="11" r="1" fill="currentColor" />
-      <circle cx="15" cy="11" r="1" fill="currentColor" />
-      <path d="M9 16s1.2-1.2 3-1.2 3 1.2 3 1.2" />
-    </svg>
-  );
-}
-
-/** 5. 별로였어요: 찡그린 얼굴 (역아치 입 + 찡그린 눈썹) */
-function IconMood5({ size = 24 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <path d="M7.5 9l2.5 1.5" />
-      <path d="M16.5 9l-2.5 1.5" />
-      <circle cx="9" cy="11.5" r="1" fill="currentColor" />
-      <circle cx="15" cy="11.5" r="1" fill="currentColor" />
-      <path d="M8 16.5s1.5-2 4-2 4 2 4 2" />
-    </svg>
-  );
-}
-
 export default function MoodSelector({
   value,
   onChange,
   readonly = false,
 }: MoodSelectorProps) {
   const moods: { val: MoodValue; icon: React.ReactNode }[] = [
-    { val: 1, icon: <IconMood1 /> },
-    { val: 2, icon: <IconMood2 /> },
-    { val: 3, icon: <IconMood3 /> },
-    { val: 4, icon: <IconMood4 /> },
-    { val: 5, icon: <IconMood5 /> },
+    { val: 1, icon: <RiEmotionLaughLine size={24} /> },
+    { val: 2, icon: <RiEmotionHappyLine size={24} /> },
+    { val: 3, icon: <RiEmotionNormalLine size={24} /> },
+    { val: 4, icon: <RiEmotionUnhappyLine size={24} /> },
+    { val: 5, icon: <RiEmotionSadLine size={24} /> },
   ];
 
   return (

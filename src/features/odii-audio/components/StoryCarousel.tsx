@@ -1,6 +1,12 @@
 'use client';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  IoPlay,
+  IoPause,
+  IoChevronBackOutline,
+  IoChevronForwardOutline,
+} from 'react-icons/io5';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
 import { getRailIndicator, shouldUpdateRailIndicator } from './storyCarouselMetrics';
@@ -149,13 +155,9 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
             : 'bg-white/95 text-[#211e19]  ring-white/90 '
         }`}>
           {isPlaying ? (
-            <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
-            </svg>
+            <IoPause size={14} />
           ) : (
-            <svg className="ml-0.5 h-3.5 w-3.5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M8 5v14l11-7z" />
-            </svg>
+            <IoPlay size={14} className="ml-0.5" />
           )}
         </span>
       </div>
@@ -476,7 +478,7 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
             onClick={() => moveRail(-1)}
             className="absolute left-2 top-1/2 z-30 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#e5e5e3] bg-white text-[#211e19] shadow-sm transition-colors duration-200 hover:border-[#d0d0cd] hover:bg-[#f8f8f7] sm:left-3 sm:h-9 sm:w-9"
           >
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="m14.5 5-7 7 7 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            <IoChevronBackOutline size={18} />
           </button>
         )}
         {railIndicator.width < 100 && railIndicator.left < 99 - railIndicator.width && (
@@ -486,7 +488,7 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
             onClick={() => moveRail(1)}
             className="absolute right-1 top-1/2 z-30 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full  bg-white/95 text-[#211e19]  backdrop-blur-md transition-all duration-200 hover:scale-110 hover:bg-white sm:right-2 sm:h-9 sm:w-9"
           >
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="m9.5 5 7 7-7 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            <IoChevronForwardOutline size={18} />
           </button>
         )}
       </div>
