@@ -2,10 +2,10 @@
 
 Current work:
 - Summary: 
-  1. Mobile map top category chips placement, bottom sheet chip cleanup, and design system tokens overhaul (Toss TDS-style unified single palette with 7 distinct color families, tuned `danpung` to pure primary red with 0% pink tint, concise noun-ending comments).
-  2. Complete Icon System Unification & Purge: Eliminated all non-react-library icons (inline SVGs, raw text symbols `➔`, `←`, `›`, `▲`, `▼`, `×`, `✕`, and emojis). Standardized the entire codebase to rounded React Icons (`react-icons/io5` Ionicons 5 + `react-icons/ri` Remix Icons for 5-tier sentiment emojis). Enforced cross-app semantic keyword consistency (Play/Pause, Bookmark, Search, Close, Chevrons, Hanok/Stay/Food/Cafe/Market, Odii Headset, Warmth Flame, Map/Pin, etc.). Clean TypeScript compilation (`npx tsc --noEmit` code 0).
-  3. Map Markers & Floating Chipset Icon Unification: Replaced all legacy hard-edged multi-colored raw SVG strings in `CATEGORY_STYLES` (`PlaceMarkers.tsx`), `WarmthLayer.tsx`, and `WarmthNotesLayer.tsx` with rounded `react-icons/io5` via `renderToStaticMarkup`. Now all map label pins (`.om-pin`), circular badge pins (`.om-badge-pin`), cluster pills (`.om-cluster-pill`), and warmth overlays perfectly match the top floating category chips in style, roundness, and category color.
-- Branch: `feat/map-responsive-chips-color-tokens`
+  1. Completed OnMaru Feature Specification document (`docs/FEATURES.md`).
+  2. Created new branch `feat/admin-page` from `develop`.
+  3. Formulated detailed GitHub Issue specifications for OnMaru Admin Page (`docs/admin-issues.md`), covering Foundation & Auth (#1), Common Layout & UI System (#2), Dashboard & Reviews (#3), Reports & Curation (#4), and Users & Pipeline & Login (#5).
+- Branch: `feat/admin-page`
 
 Touched files:
 - `src/map/components/PlaceMarkers.tsx`
