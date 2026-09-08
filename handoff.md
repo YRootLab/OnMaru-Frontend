@@ -2,7 +2,7 @@
 
 Current work:
 - Summary: Mindtrip-inspired floating pill capsule navbar & clean hover micro-interactions
-- Issue/PR: none
+- Issue/PR: #48
 - Branch: `feature/navigation-bar-improvements`
 
 Touched files:
