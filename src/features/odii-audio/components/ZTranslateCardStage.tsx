@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { IoPlay, IoPause, IoTimeOutline } from 'react-icons/io5';
+import { Play, Pause, Clock } from 'lucide-react';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
 
@@ -99,9 +99,9 @@ export const ZTranslateCardStage: React.FC<ZTranslateCardStageProps> = ({ featur
                       {/* 재생/정지 버튼 */}
                       <div className="w-8 h-8 rounded-full bg-[#D42058] flex items-center justify-center text-white">
                         {isThisPlaying ? (
-                          <IoPause size={16} />
+                          <Pause size={16} strokeWidth={2} />
                         ) : (
-                          <IoPlay size={16} className="ml-0.5" />
+                          <Play size={16} fill="currentColor" className="ml-0.5" />
                         )}
                       </div>
                       <span className="text-xs font-bold text-white">
@@ -119,7 +119,7 @@ export const ZTranslateCardStage: React.FC<ZTranslateCardStageProps> = ({ featur
                   <p className="text-xs text-[#A09588] truncate mt-1 flex items-center gap-1">
                     <span>{story.audioTitle}</span>
                     <span>•</span>
-                    <IoTimeOutline size={12} className="inline-block" />
+                    <Clock size={12} strokeWidth={2} className="inline-block" />
                     <span>{story.formattedDuration}</span>
                   </p>
                 </div>

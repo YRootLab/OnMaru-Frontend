@@ -8,17 +8,7 @@ import { transientProps } from '@/design-system/styled';
 import { meok, lightPalette } from '@/design-system/tokens';
 import SectionHeader from '@/hanok/components/SectionHeader';
 import type { Village } from '@/hanok/types';
-import {
-  IoHomeOutline,
-  IoFlame,
-  IoCafeOutline,
-  IoSparklesOutline,
-  IoLeafOutline,
-  IoTrailSignOutline,
-  IoReloadOutline,
-  IoArrowForwardOutline,
-  IoOpenOutline,
-} from 'react-icons/io5';
+import { Home, Flame, Coffee, Sparkles, Leaf, MapPin, RotateCcw, ArrowRight, ExternalLink } from 'lucide-react';
 
 const pulseAnimation = keyframes`
   0% { opacity: 0.6; transform: scale(0.9); }
@@ -439,13 +429,13 @@ const FALLBACK_STAYS: Village[] = [
 const REGION_TABS = ['전체', '경북', '전북', '강원', '경남', '충남', '서울', '경기'];
 
 const ICONS = [
-  <IoHomeOutline size={20} key="home" />,
-  <IoFlame size={20} key="flame" />,
-  <IoLeafOutline size={20} key="trees" />,
-  <IoCafeOutline size={20} key="coffee" />,
-  <IoSparklesOutline size={20} key="sparkles" />,
-  <IoLeafOutline size={20} key="leaf" />,
-  <IoTrailSignOutline size={20} key="mountain" />,
+  <Home size={20} strokeWidth={2} key="home" />,
+  <Flame size={20} strokeWidth={2} key="flame" />,
+  <Leaf size={20} strokeWidth={2} key="trees" />,
+  <Coffee size={20} strokeWidth={2} key="coffee" />,
+  <Sparkles size={20} strokeWidth={2} key="sparkles" />,
+  <Leaf size={20} strokeWidth={2} key="leaf" />,
+  <MapPin size={20} strokeWidth={2} key="mountain" />,
 ];
 const BATCH_SIZE = 7;
 
@@ -565,7 +555,7 @@ export default function HanokStayAccordion({
                             rel="noopener noreferrer"
                             onClick={(e) => e.stopPropagation()}
                           >
-                            실시간 예약하기 <IoOpenOutline size={13} />
+                            실시간 예약하기 <ExternalLink size={13} strokeWidth={2} />
                           </DirectBookingBtn>
                           {onSelectVillage && (
                             <DetailActionBtn
@@ -574,7 +564,7 @@ export default function HanokStayAccordion({
                                 onSelectVillage(item);
                               }}
                             >
-                              도감 상세 보기 <IoArrowForwardOutline size={13} />
+                              도감 상세 보기 <ArrowRight size={13} strokeWidth={2} />
                             </DetailActionBtn>
                           )}
                         </ActionGroup>
@@ -592,7 +582,7 @@ export default function HanokStayAccordion({
                 {page + 1} / {maxPages} · {selectedRegion} {regionFilteredStays.length}곳
               </BatchInfo>
               <RefreshBtn onClick={handleNextBatch}>
-                <IoReloadOutline size={14} /> 다른 스테이 보기
+                <RotateCcw size={14} strokeWidth={2} /> 다른 스테이 보기
               </RefreshBtn>
             </ControlsRow>
           )}

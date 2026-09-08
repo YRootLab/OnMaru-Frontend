@@ -4,15 +4,15 @@ import { useEffect, useRef } from 'react';
 import { Global, css } from '@emotion/react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import {
-  IoStorefrontOutline,
-  IoSparklesOutline,
-  IoBookOutline,
-  IoCalendarOutline,
-  IoHomeOutline,
-  IoRestaurantOutline,
-  IoCafeOutline,
-  IoBagHandleOutline,
-} from 'react-icons/io5';
+  Landmark,
+  Sparkles,
+  BookOpen,
+  Calendar,
+  Home,
+  Utensils,
+  Coffee,
+  ShoppingBag,
+} from 'lucide-react';
 import { logger } from '@/lib/log';
 import { meok, lightPalette } from '@/design-system/tokens';
 import { escapeHtml, safeImageUrl } from '@/map/utils/formatters';
@@ -37,27 +37,27 @@ const PIN_MAX_LEVEL = 8; // 레벨 7~8: 고대비 원형 아이콘 뱃지 핀
 const LABEL_PIN_LIMIT = 60;
 const BADGE_PIN_LIMIT = 120;
 
-/** 상단 카테고리 칩셋과 100% 동일한 둥근 React Icon (react-icons/io5) SVG 정적 생성 */
+/** 상단 카테고리 칩셋과 100% 동일한 둥근 Lucide Icon SVG 정적 생성 */
 export function renderCategoryIconSvg(category: PlaceCategory, size = 15): string {
   switch (category) {
     case 'spot':
-      return renderToStaticMarkup(<IoStorefrontOutline size={size} />);
+      return renderToStaticMarkup(<Landmark size={size} strokeWidth={2} />);
     case 'culture':
-      return renderToStaticMarkup(<IoBookOutline size={size} />);
+      return renderToStaticMarkup(<BookOpen size={size} strokeWidth={2} />);
     case 'stay':
-      return renderToStaticMarkup(<IoHomeOutline size={size} />);
+      return renderToStaticMarkup(<Home size={size} strokeWidth={2} />);
     case 'food':
-      return renderToStaticMarkup(<IoRestaurantOutline size={size} />);
+      return renderToStaticMarkup(<Utensils size={size} strokeWidth={2} />);
     case 'cafe':
-      return renderToStaticMarkup(<IoCafeOutline size={size} />);
+      return renderToStaticMarkup(<Coffee size={size} strokeWidth={2} />);
     case 'experience':
-      return renderToStaticMarkup(<IoSparklesOutline size={size} />);
+      return renderToStaticMarkup(<Sparkles size={size} strokeWidth={2} />);
     case 'festival':
-      return renderToStaticMarkup(<IoCalendarOutline size={size} />);
+      return renderToStaticMarkup(<Calendar size={size} strokeWidth={2} />);
     case 'market':
-      return renderToStaticMarkup(<IoBagHandleOutline size={size} />);
+      return renderToStaticMarkup(<ShoppingBag size={size} strokeWidth={2} />);
     default:
-      return renderToStaticMarkup(<IoStorefrontOutline size={size} />);
+      return renderToStaticMarkup(<Landmark size={size} strokeWidth={2} />);
   }
 }
 

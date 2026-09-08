@@ -3,15 +3,15 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import {
-  IoSparklesOutline,
-  IoArrowForwardOutline,
-  IoCompassOutline,
-  IoCloudOutline,
-  IoBagHandleOutline,
-  IoHeadsetOutline,
-  IoRainyOutline,
-  IoLeafOutline,
-} from 'react-icons/io5';
+  Sparkles,
+  ArrowRight,
+  Compass,
+  Cloud,
+  ShoppingBag,
+  Headphones,
+  CloudRain,
+  Leaf,
+} from 'lucide-react';
 import { lightPalette, meok, surface } from '@/design-system/tokens';
 import { MOOD_OPTIONS } from '../data/curatedJourneys';
 import { useJourneyStore } from '../store/useJourneyStore';
@@ -205,17 +205,17 @@ const MoodChip = styled.button<{ $active: boolean }>`
 function getMoodIcon(id: string) {
   switch (id) {
     case 'quiet':
-      return <IoCloudOutline size={15} />;
+      return <Cloud size={15} />;
     case 'market':
-      return <IoBagHandleOutline size={15} />;
+      return <ShoppingBag size={15} />;
     case 'story':
-      return <IoHeadsetOutline size={15} />;
+      return <Headphones size={15} />;
     case 'rainy':
-      return <IoRainyOutline size={15} />;
+      return <CloudRain size={15} />;
     case 'rest':
-      return <IoLeafOutline size={15} />;
+      return <Leaf size={15} />;
     default:
-      return <IoSparklesOutline size={15} />;
+      return <Sparkles size={15} />;
   }
 }
 
@@ -235,7 +235,7 @@ export default function JourneyHeroSearch() {
   return (
     <Container>
       <EyebrowBadge>
-        <IoSparklesOutline size={14} />
+        <Sparkles size={14} />
         <span>인공지능 여정 큐레이터</span>
       </EyebrowBadge>
 
@@ -249,7 +249,7 @@ export default function JourneyHeroSearch() {
 
       <SearchForm onSubmit={handleSubmit}>
         <SearchIconWrap>
-          <IoCompassOutline size={20} />
+          <Compass size={20} />
         </SearchIconWrap>
         <Input
           type="text"
@@ -260,7 +260,7 @@ export default function JourneyHeroSearch() {
         />
         <SubmitButton type="submit" $disabled={isGenerating}>
           <span>{isGenerating ? '조립 중...' : '여정 탐색'}</span>
-          <IoArrowForwardOutline size={14} />
+          <ArrowRight size={14} />
         </SubmitButton>
       </SearchForm>
 

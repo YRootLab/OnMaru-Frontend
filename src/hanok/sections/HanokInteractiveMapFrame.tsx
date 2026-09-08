@@ -4,13 +4,7 @@ import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import Script from 'next/script';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  IoAlertCircleOutline,
-  IoLocationOutline,
-  IoChevronBackOutline,
-  IoChevronForwardOutline,
-  IoBookOutline,
-} from 'react-icons/io5';
+import { AlertCircle, MapPin, ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 import type { Village } from '@/hanok/types';
 import { createKakaoResourceScope, type KakaoResourceScope } from './kakaoMapResources';
@@ -746,7 +740,7 @@ export default function HanokInteractiveMapFrame({
 
       {errorMessage ? (
         <MapLoadingState style={{ color: '#ef4444' }}>
-          <IoAlertCircleOutline size={24} />
+          <AlertCircle size={24} strokeWidth={2} />
           <div>{errorMessage}</div>
           <ErrorSubtext>
             Kakao Developers 콘솔 → [내 애플리케이션] → [플랫폼] → [Web 사이트 도메인]에 현재 개발 도메인이 등록되어 있어야 합니다.
@@ -754,7 +748,7 @@ export default function HanokInteractiveMapFrame({
         </MapLoadingState>
       ) : !isLoaded ? (
         <MapLoadingState>
-          <IoLocationOutline size={22} />
+          <MapPin size={22} strokeWidth={2} />
           지도를 불러오는 중입니다…
         </MapLoadingState>
       ) : null}
@@ -790,7 +784,7 @@ export default function HanokInteractiveMapFrame({
             <PanelHeaderRow>
               <PanelSubHeader>한옥 이야기</PanelSubHeader>
               <CollapseBtn onClick={() => setIsStoryExpanded(false)}>
-                <IoChevronBackOutline size={16} />
+                <ChevronLeft size={16} strokeWidth={2} />
               </CollapseBtn>
             </PanelHeaderRow>
 
@@ -830,9 +824,9 @@ export default function HanokInteractiveMapFrame({
             exit={{ opacity: 0, x: -10 }}
             onClick={() => setIsStoryExpanded(true)}
           >
-            <IoBookOutline size={15} style={{ color: KOBALT_PRIMARY }} />
+            <BookOpen size={15} strokeWidth={2} style={{ color: KOBALT_PRIMARY }} />
             <span>한옥 이야기 ({regionVillages.length}곳)</span>
-            <IoChevronForwardOutline size={15} />
+            <ChevronRight size={15} strokeWidth={2} />
           </CollapsedPillBtn>
         )}
       </AnimatePresence>

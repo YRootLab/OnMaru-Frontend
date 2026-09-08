@@ -1,12 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  IoPlay,
-  IoPause,
-  IoChevronBackOutline,
-  IoChevronForwardOutline,
-} from 'react-icons/io5';
+import { Play, Pause, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
 import { getRailIndicator, shouldUpdateRailIndicator } from './storyCarouselMetrics';
@@ -155,9 +150,9 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
             : 'bg-white/95 text-[#211e19]  ring-white/90 '
         }`}>
           {isPlaying ? (
-            <IoPause size={14} />
+            <Pause size={14} strokeWidth={2} />
           ) : (
-            <IoPlay size={14} className="ml-0.5" />
+            <Play size={14} fill="currentColor" className="ml-0.5" />
           )}
         </span>
       </div>
@@ -478,7 +473,7 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
             onClick={() => moveRail(-1)}
             className="absolute left-2 top-1/2 z-30 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#e5e5e3] bg-white text-[#211e19] shadow-sm transition-colors duration-200 hover:border-[#d0d0cd] hover:bg-[#f8f8f7] sm:left-3 sm:h-9 sm:w-9"
           >
-            <IoChevronBackOutline size={18} />
+            <ChevronLeft size={18} strokeWidth={2} />
           </button>
         )}
         {railIndicator.width < 100 && railIndicator.left < 99 - railIndicator.width && (
@@ -488,7 +483,7 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
             onClick={() => moveRail(1)}
             className="absolute right-1 top-1/2 z-30 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full  bg-white/95 text-[#211e19]  backdrop-blur-md transition-all duration-200 hover:scale-110 hover:bg-white sm:right-2 sm:h-9 sm:w-9"
           >
-            <IoChevronForwardOutline size={18} />
+            <ChevronRight size={18} strokeWidth={2} />
           </button>
         )}
       </div>

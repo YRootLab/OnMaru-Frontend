@@ -4,14 +4,14 @@ import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
 import { motion, useReducedMotion } from 'framer-motion';
 import {
-  IoBookOutline,
-  IoLocationOutline,
-  IoFlame,
-  IoHeadsetOutline,
-  IoBookmarkOutline,
-  IoHomeOutline,
-  IoPersonOutline,
-} from 'react-icons/io5';
+  BookOpen,
+  MapPin,
+  Headphones,
+  Flame,
+  Bookmark,
+  Home,
+  User,
+} from 'lucide-react';
 import { transientProps } from '@/design-system/styled';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import { lightPalette, meok, surface } from '@/design-system/tokens';
@@ -194,7 +194,7 @@ export default function MapNavRail() {
           title="한옥도감"
         >
           <NavItemIcon>
-            <IoBookOutline size={19} />
+            <BookOpen size={19} strokeWidth={2} />
           </NavItemIcon>
         </NavItemBtn>
 
@@ -207,7 +207,7 @@ export default function MapNavRail() {
           title="정보지도"
         >
           <NavItemIcon>
-            <IoLocationOutline size={19} />
+            <MapPin size={19} strokeWidth={2} />
           </NavItemIcon>
         </NavItemBtn>
 
@@ -220,7 +220,7 @@ export default function MapNavRail() {
           title="소리마루"
         >
           <NavItemIcon>
-            <IoHeadsetOutline size={19} />
+            <Headphones size={19} strokeWidth={2} />
           </NavItemIcon>
         </NavItemBtn>
 
@@ -233,7 +233,7 @@ export default function MapNavRail() {
           title="온기이야기"
         >
           <NavItemIcon>
-            <IoFlame size={19} />
+            <Flame size={19} strokeWidth={2} />
           </NavItemIcon>
         </NavItemBtn>
 
@@ -250,7 +250,7 @@ export default function MapNavRail() {
           title="마음에 담은 장소"
         >
           <NavItemIcon>
-            <IoBookmarkOutline size={19} />
+            <Bookmark size={19} strokeWidth={2} />
           </NavItemIcon>
         </NavItemBtn>
       </NavList>
@@ -266,7 +266,7 @@ export default function MapNavRail() {
           title="온마루 홈"
         >
           <NavItemIcon>
-            <IoHomeOutline size={19} />
+            <Home size={19} strokeWidth={2} />
           </NavItemIcon>
         </NavItemBtn>
 
@@ -278,7 +278,7 @@ export default function MapNavRail() {
           title="로그인"
         >
           <NavItemIcon>
-            <IoPersonOutline size={19} />
+            <User size={19} strokeWidth={2} />
           </NavItemIcon>
         </NavItemBtn>
       </BottomArea>

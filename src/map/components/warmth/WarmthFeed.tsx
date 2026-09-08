@@ -1,17 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import {
-  IoFlame,
-  IoChevronBackOutline,
-  IoChevronForwardOutline,
-  IoChatbubbleEllipsesOutline,
-  IoStorefrontOutline,
-  IoHomeOutline,
-  IoRestaurantOutline,
-  IoCafeOutline,
-  IoBagHandleOutline,
-} from 'react-icons/io5';
+import { Flame, ChevronLeft, ChevronRight, MessageCircle, Landmark, Home, Utensils, Coffee, ShoppingBag } from 'lucide-react';
 import { meok } from '@/design-system/tokens';
 import { useMapStore, DEFAULT_CENTER } from '@/map/hooks/useMapStore';
 import { countByPlace, regionOf, toReview } from '@/map/warmth/warmthRepo';
@@ -90,18 +80,18 @@ export const REGION_CENTERS: Record<string, { lat: number; lng: number; level?: 
 
 function renderPlaceIcon(type: string) {
   if (type.includes('스테이') || type.includes('숙소') || type.includes('고택')) {
-    return <IoHomeOutline size={20} />;
+    return <Home size={20} strokeWidth={2} />;
   }
   if (type.includes('음식') || type.includes('식당')) {
-    return <IoRestaurantOutline size={20} />;
+    return <Utensils size={20} strokeWidth={2} />;
   }
   if (type.includes('카페') || type.includes('다원')) {
-    return <IoCafeOutline size={20} />;
+    return <Coffee size={20} strokeWidth={2} />;
   }
   if (type.includes('시장')) {
-    return <IoBagHandleOutline size={20} />;
+    return <ShoppingBag size={20} strokeWidth={2} />;
   }
-  return <IoStorefrontOutline size={20} />;
+  return <Landmark size={20} strokeWidth={2} />;
 }
 
 export default function WarmthFeed() {
@@ -306,7 +296,7 @@ export default function WarmthFeed() {
       <StickyTop>
         <SectionHeader>
           <SectionTitleGroup>
-            <IoFlame size={18} color="#FF6B00" />
+            <Flame size={18} strokeWidth={2} color="#FF6B00" />
             <SectionTitle>실시간 방문객 집중 명소</SectionTitle>
           </SectionTitleGroup>
         </SectionHeader>
@@ -321,7 +311,7 @@ export default function WarmthFeed() {
               aria-label="이전 지역 보기"
               title="이전 지역 보기"
             >
-              <IoChevronBackOutline size={17} />
+              <ChevronLeft size={17} strokeWidth={2} />
             </RegionArrowBtn>
           )}
 
@@ -356,7 +346,7 @@ export default function WarmthFeed() {
               aria-label="다음 지역 보기"
               title="다음 지역 보기"
             >
-              <IoChevronForwardOutline size={17} />
+              <ChevronRight size={17} strokeWidth={2} />
             </RegionArrowBtn>
           )}
         </RegionCarouselWrapper>
@@ -375,7 +365,7 @@ export default function WarmthFeed() {
               <FeaturedIconBox>{renderPlaceIcon(topPlace.placeName)}</FeaturedIconBox>
               <FeaturedInfo>
                 <FeaturedRank>
-                  <IoFlame size={12} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
+                  <Flame size={12} strokeWidth={2} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
                   <span>실시간 방문 집중 1위</span>
                 </FeaturedRank>
                 <FeaturedName>{topPlace.placeName}</FeaturedName>
@@ -395,7 +385,7 @@ export default function WarmthFeed() {
               title="1위~10위 인기 장소 전체 순위 보기"
             >
               <span>더보기</span>
-              <IoChevronForwardOutline size={13} />
+              <ChevronRight size={13} strokeWidth={2} />
             </MoreBtn>
           </FeaturedCard>
         </FeaturedPlaceArea>
@@ -409,7 +399,7 @@ export default function WarmthFeed() {
 
       <ReviewSectionHeader>
         <ReviewSectionTitle>
-          <IoChatbubbleEllipsesOutline size={16} color={meok[700]} />
+          <MessageCircle size={16} strokeWidth={2} color={meok[700]} />
           <span>여행자들이 남긴 온기 이야기</span>
         </ReviewSectionTitle>
 
@@ -456,7 +446,7 @@ export default function WarmthFeed() {
                   disabled={validPage <= 1}
                   aria-label="이전 페이지로 이동"
                 >
-                  <IoChevronBackOutline size={15} />
+                  <ChevronLeft size={15} strokeWidth={2} />
                   <span>이전</span>
                 </PageNavBtn>
 
@@ -482,7 +472,7 @@ export default function WarmthFeed() {
                   aria-label="다음 페이지로 이동"
                 >
                   <span>다음</span>
-                  <IoChevronForwardOutline size={15} />
+                  <ChevronRight size={15} strokeWidth={2} />
                 </PageNavBtn>
               </PaginationWrapper>
             )}

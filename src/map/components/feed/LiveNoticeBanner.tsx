@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
-import { IoMegaphoneOutline } from 'react-icons/io5';
+import { Megaphone } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 
 const NOTICES = [
@@ -84,7 +84,7 @@ export default function LiveNoticeBanner() {
   return (
     <Container role="status" aria-label="실시간 문화재 소식 안내">
       <IconWrap>
-        <IoMegaphoneOutline size={15} />
+        <Megaphone size={15} strokeWidth={2} />
       </IconWrap>
       <TextScroller>
         <NoticeText key={index}>{NOTICES[index]}</NoticeText>

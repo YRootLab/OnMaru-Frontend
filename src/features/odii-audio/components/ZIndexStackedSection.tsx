@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { IoPlay, IoPause } from 'react-icons/io5';
+import { Play, Pause } from 'lucide-react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { OdiiChapterPresentation } from '@/features/odii-audio/types/odiiChapter.types';
@@ -132,9 +132,9 @@ export const ZIndexStackedSection: React.FC<ZIndexStackedSectionProps> = ({ chap
                             }`}
                           >
                             {isThisPlaying ? (
-                              <IoPause size={14} />
+                              <Pause size={14} strokeWidth={2} />
                             ) : (
-                              <IoPlay size={14} className="ml-0.5" />
+                              <Play size={14} fill="currentColor" className="ml-0.5" />
                             )}
                           </button>
                         </div>

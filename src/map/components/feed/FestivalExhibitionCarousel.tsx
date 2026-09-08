@@ -4,11 +4,11 @@ import React, { useRef } from 'react';
 import styled from '@emotion/styled';
 import Image from 'next/image';
 import {
-  IoCalendarOutline,
-  IoChevronBackOutline,
-  IoChevronForwardOutline,
-  IoSparklesOutline,
-} from 'react-icons/io5';
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Sparkles,
+} from 'lucide-react';
 import { lightPalette, meok, surface } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import type { Item } from '@/map/types';
@@ -297,13 +297,13 @@ export default function FestivalExhibitionCarousel({ festivals }: FestivalExhibi
     <SectionWrapper>
       <SectionHeader>
         <TitleGroup>
-          <IoSparklesOutline size={15} color={lightPalette.cheongrok[500]} />
+          <Sparkles size={15} color={lightPalette.cheongrok[500]} strokeWidth={2} />
           <SectionTitle>진행 중인 축제·기획전</SectionTitle>
         
         </TitleGroup>
         <MoreBtn type="button" onClick={() => setCategory('festival')}>
           <span>전체보기</span>
-          <IoChevronForwardOutline size={13} />
+          <ChevronRight size={13} strokeWidth={2} />
         </MoreBtn>
       </SectionHeader>
 
@@ -315,7 +315,7 @@ export default function FestivalExhibitionCarousel({ festivals }: FestivalExhibi
           onClick={() => scroll('left')}
           aria-label="이전 축제 보기"
         >
-          <IoChevronBackOutline size={18} />
+          <ChevronLeft size={18} strokeWidth={2} />
         </FloatingNavBtn>
 
         <FloatingNavBtn
@@ -325,7 +325,7 @@ export default function FestivalExhibitionCarousel({ festivals }: FestivalExhibi
           onClick={() => scroll('right')}
           aria-label="다음 축제 보기"
         >
-          <IoChevronForwardOutline size={18} />
+          <ChevronRight size={18} strokeWidth={2} />
         </FloatingNavBtn>
 
         <Scroller ref={scrollerRef} onWheel={handleWheel} role="region" aria-label="진행 중인 축제 및 기획전 목록">
@@ -345,7 +345,7 @@ export default function FestivalExhibitionCarousel({ festivals }: FestivalExhibi
                   <div style={{ width: '100%', height: '100%', background: '#eae4d9' }} />
                 )}
                 <CardBadge>
-                  <IoSparklesOutline size={10} />
+                  <Sparkles size={10} strokeWidth={2} />
                   <span>축제·기획전</span>
                 </CardBadge>
               </ThumbBox>
@@ -353,7 +353,7 @@ export default function FestivalExhibitionCarousel({ festivals }: FestivalExhibi
               <CardBody>
                 <CardTitle title={item.name}>{item.name}</CardTitle>
                 <CardDateRow>
-                  <IoCalendarOutline size={12} />
+                  <Calendar size={12} strokeWidth={2} />
                   <span>야간 개방 및 특별 행사 진행</span>
                 </CardDateRow>
                 <CardAddr>{item.addr || '전통 한옥 명소'}</CardAddr>

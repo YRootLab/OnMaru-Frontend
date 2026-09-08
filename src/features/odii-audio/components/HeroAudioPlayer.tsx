@@ -1,15 +1,7 @@
 'use client';
 
 import React from 'react';
-import {
-  IoBookmark,
-  IoBookmarkOutline,
-  IoPlay,
-  IoPause,
-  IoPlayBackOutline,
-  IoPlayForwardOutline,
-  IoVolumeMediumOutline,
-} from 'react-icons/io5';
+import { Bookmark, BookmarkCheck, Play, Pause, SkipBack, SkipForward, Volume2 } from 'lucide-react';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { useOdiiAudioPlayer } from '@/features/odii-audio/hooks/useOdiiAudioPlayer';
 import { lightPalette } from '@/design-system/tokens';
@@ -108,7 +100,7 @@ export const HeroAudioPlayer: React.FC = () => {
                 : 'text-[#A09588] hover:text-white hover:bg-white/5'
             }`}
           >
-            {isBookmarked ? <IoBookmark size={14} /> : <IoBookmarkOutline size={14} />}
+            {isBookmarked ? <BookmarkCheck size={14} strokeWidth={2} fill="currentColor" /> : <Bookmark size={14} strokeWidth={2} />}
             <span>{isBookmarked ? '저장됨' : '북마크'}</span>
           </button>
 
@@ -119,7 +111,7 @@ export const HeroAudioPlayer: React.FC = () => {
               className="p-2 text-[#A09588] hover:text-white transition-colors font-bold text-xs flex items-center space-x-1"
               title="10초 뒤로"
             >
-              <IoPlayBackOutline size={16} />
+              <SkipBack size={16} strokeWidth={2} />
               <span>10s</span>
             </button>
 
@@ -130,12 +122,12 @@ export const HeroAudioPlayer: React.FC = () => {
             >
               {isPlaying ? (
                 <>
-                  <IoPause size={16} />
+                  <Pause size={16} strokeWidth={2} />
                   <span>일시정지</span>
                 </>
               ) : (
                 <>
-                  <IoPlay size={16} className="ml-0.5" />
+                  <Play size={16} fill="currentColor" className="ml-0.5" />
                   <span>재생하기</span>
                 </>
               )}
@@ -147,12 +139,12 @@ export const HeroAudioPlayer: React.FC = () => {
               title="10초 앞으로"
             >
               <span>10s</span>
-              <IoPlayForwardOutline size={16} />
+              <SkipForward size={16} strokeWidth={2} />
             </button>
           </div>
 
           <div className="text-xs text-[#A09588] font-mono flex items-center space-x-1">
-            <IoVolumeMediumOutline size={16} />
+            <Volume2 size={16} strokeWidth={2} />
           </div>
         </div>
       </div>

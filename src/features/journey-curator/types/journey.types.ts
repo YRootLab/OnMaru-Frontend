@@ -2,10 +2,12 @@ export type NodeCategory = 'region' | 'hanok' | 'market' | 'odii' | 'warmth';
 
 export type MoodId = 'quiet' | 'market' | 'story' | 'rainy' | 'rest';
 
+import React from 'react';
+
 export interface MoodOption {
   id: MoodId;
   label: string;
-  icon: string;
+  icon: React.ReactNode;
   query: string;
 }
 

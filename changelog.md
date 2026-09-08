@@ -55,3 +55,8 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 - Reworked the Odii archive into a paginated two-column story browser with an optional current-page place grouping view.
 - Added a source-grounded natural-language Odii assistant UI and server proxy contract for a future RAG/LangGraph backend.
 - Added ADR-0002 for story-first archive behavior and ADR-0003 for the cited RAG/LangGraph architecture.
+
+## [Unreleased] 
+### Changed 
+- Migrated all icons in the project to lucide-react. Removed react-icons dependency. (Resolves #60, #61, #62, #63, #64)
+- Replaced emoji usages in data files (e.g. curatedJourneys.ts) with lucide-react components.
