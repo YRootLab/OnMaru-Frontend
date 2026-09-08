@@ -2,7 +2,7 @@
 
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
-import { IoStorefrontOutline, IoFlame } from 'react-icons/io5';
+import { Landmark, Flame } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { MODE_COLOR, useMapStore } from '@/map/hooks/useMapStore';
 import type { MapMode } from '@/map/types';
@@ -10,12 +10,12 @@ import type { MapMode } from '@/map/types';
 interface ModeOption {
   id: MapMode;
   label: string;
-  icon: React.ComponentType<{ size?: number; className?: string }>;
+  icon: React.ComponentType<{ size?: number; className?: string; strokeWidth?: number }>;
 }
 
 const MODES: ModeOption[] = [
-  { id: 'info', label: '정보', icon: IoStorefrontOutline },
-  { id: 'warmth', label: '온기', icon: IoFlame },
+  { id: 'info', label: '정보', icon: Landmark },
+  { id: 'warmth', label: '온기', icon: Flame },
 ];
 
 interface ModeToggleProps {
@@ -190,7 +190,7 @@ export default function ModeToggle({ fullWidth, compact }: ModeToggleProps) {
             onClick={() => setMode(id)}
           >
             <IconWrap $mode={id} $active={isActive} $compact={compact}>
-              <IconComponent size={compact ? 13 : 15} />
+              <IconComponent size={compact ? 13 : 15} strokeWidth={2} />
             </IconWrap>
             <span>{label}</span>
             {id === 'warmth' && isActive && <LivePulseDot $active={isActive} />}

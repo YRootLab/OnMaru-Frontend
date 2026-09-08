@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import { meok, lightPalette } from '@/design-system/tokens';
-import { IoSparklesOutline, IoArrowForwardOutline } from 'react-icons/io5';
+import { Sparkles, ArrowRight } from 'lucide-react';
 import PolaroidCard from '@/hanok/components/PolaroidCard';
 import type { Village } from '@/hanok/types';
 
@@ -313,13 +313,13 @@ export default function HanokMonthly({ villages, onSelectVillage, isFeaturedRead
 
             <StorySection>
               <QuoteHeader>
-                <IoSparklesOutline size={15} /> 에디터 노트
+                <Sparkles size={15} strokeWidth={2} /> 에디터 노트
               </QuoteHeader>
               <CommentText>{curationInfo.curatorComment}</CommentText>
             </StorySection>
 
             <DetailsButton onClick={() => onSelectVillage?.(targetVillage)}>
-              {targetVillage.name} 자세히 보기 <IoArrowForwardOutline size={16} />
+              {targetVillage.name} 자세히 보기 <ArrowRight size={16} strokeWidth={2} />
             </DetailsButton>
           </EditorialContent>
         </CuratedFeaturedContainer>

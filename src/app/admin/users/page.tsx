@@ -15,15 +15,13 @@ import { useAdminAuth } from '@/admin/hooks/useAdminAuth';
 import { AdminUser, AdminRole } from '@/admin/types';
 import { mockUsers } from '@/admin/mock/users.mock';
 import {
-  IoSearchOutline,
-  IoRefreshOutline,
-  IoShieldCheckmarkOutline,
-  IoPersonRemoveOutline,
-  IoPersonAddOutline,
-  IoInformationCircleOutline,
-  IoCloseOutline,
-  IoAlertCircleOutline,
-} from 'react-icons/io5';
+  Search,
+  RotateCcw,
+  UserX,
+  X,
+  Info,
+  AlertCircle,
+} from 'lucide-react';
 
 export default function AdminUsersPage() {
   const { user: currentUser, isAdmin } = useAdminAuth();
@@ -164,7 +162,7 @@ export default function AdminUsersPage() {
         <EmptyState
           title="접근 권한이 없습니다"
           description="사용자 권한 관리 및 제재 화면은 최고 관리자(ADMIN)만 접근할 수 있습니다."
-          icon={<IoAlertCircleOutline size={48} color={palette.danpung[500]} />}
+          icon={<AlertCircle size={48} color={palette.danpung[500]} strokeWidth={1.8} />}
         />
       </div>
     );
@@ -395,9 +393,10 @@ export default function AdminUsersPage() {
             alignItems: 'center',
           }}
         >
-          <IoSearchOutline
+          <Search
             size={16}
             color={meok[400]}
+            strokeWidth={2}
             style={{ position: 'absolute', left: '12px' }}
           />
           <input
@@ -509,7 +508,7 @@ export default function AdminUsersPage() {
             gap: '6px',
           }}
         >
-          <IoRefreshOutline size={15} />
+          <RotateCcw size={15} strokeWidth={2} />
           <span>초기화</span>
         </button>
       </div>
@@ -582,7 +581,7 @@ export default function AdminUsersPage() {
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <IoPersonRemoveOutline size={20} color={palette.danpung[500]} />
+                <UserX size={20} color={palette.danpung[500]} strokeWidth={2} />
                 <h3 style={{ fontSize: '17px', fontWeight: 700, color: meok[900], margin: 0 }}>
                   사용자 이용 정지
                 </h3>
@@ -592,7 +591,7 @@ export default function AdminUsersPage() {
                 onClick={() => setSuspendTarget(null)}
                 style={{ border: 'none', background: 'none', cursor: 'pointer', color: meok[400] }}
               >
-                <IoCloseOutline size={22} />
+                <X size={20} strokeWidth={2} />
               </button>
             </div>
 
@@ -732,7 +731,7 @@ export default function AdminUsersPage() {
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <IoInformationCircleOutline size={20} color={palette.juhong[500]} />
+                <Info size={20} color={palette.juhong[500]} strokeWidth={2} />
                 <h3 style={{ fontSize: '17px', fontWeight: 700, color: meok[900], margin: 0 }}>
                   사용자 활동 상세
                 </h3>
@@ -742,7 +741,7 @@ export default function AdminUsersPage() {
                 onClick={() => setActivityTarget(null)}
                 style={{ border: 'none', background: 'none', cursor: 'pointer', color: meok[400] }}
               >
-                <IoCloseOutline size={22} />
+                <X size={20} strokeWidth={2} />
               </button>
             </div>
 

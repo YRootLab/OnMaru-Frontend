@@ -2,15 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import {
-  IoPlay,
-  IoPause,
-  IoChevronBackOutline,
-  IoChevronForwardOutline,
-  IoCloseOutline,
-  IoPlayBackOutline,
-  IoPlayForwardOutline,
-} from 'react-icons/io5';
+import { Play, Pause, ChevronLeft, ChevronRight, X, SkipBack, SkipForward } from 'lucide-react';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { useOdiiAudioPlayer } from '@/features/odii-audio/hooks/useOdiiAudioPlayer';
 import { lightPalette, meok } from '@/design-system/tokens';
@@ -19,7 +11,7 @@ const formatTime = (seconds: number) => `${Math.floor(Math.max(0, seconds || 0) 
 
 const PlayIcon: React.FC<{ size?: number }> = ({ size = 16 }) => {
   const isPlaying = useOdiiAudioStore((s) => s.isPlaying);
-  return isPlaying ? <IoPause size={size} /> : <IoPlay size={size} className="ml-0.5" />;
+  return isPlaying ? <Pause size={size} strokeWidth={2} /> : <Play size={size} fill="currentColor" className="ml-0.5" />;
 };
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80';
@@ -141,10 +133,10 @@ export const LocalMiniPlayer: React.FC = () => {
               <>
                 <header className="flex items-center justify-between   pb-4">
                   <button type="button" onClick={() => setIsTranscriptOpen(false)} className="inline-flex items-center gap-1 text-xs font-bold text-[#a94d35] hover:text-[#7f3725]">
-                    <IoChevronBackOutline size={14} /> 오디오 플레이어로
+                    <ChevronLeft size={14} strokeWidth={2} /> 오디오 플레이어로
                   </button>
                   <button type="button" onClick={closePlayer} className="flex h-8 w-8 items-center justify-center rounded-full text-[#655b4d] hover:bg-[#eee6da]" aria-label="패널 닫기">
-                    <IoCloseOutline size={20} />
+                    <X size={20} strokeWidth={2} />
                   </button>
                 </header>
 
@@ -191,7 +183,7 @@ export const LocalMiniPlayer: React.FC = () => {
                     지금 재생 중
                   </span>
                   <button type="button" onClick={closePlayer} className="flex h-8 w-8 items-center justify-center rounded-full text-[#655b4d] hover:bg-[#eee6da]" aria-label="패널 닫기">
-                    <IoCloseOutline size={20} />
+                    <X size={20} strokeWidth={2} />
                   </button>
                 </div>
 
@@ -235,7 +227,7 @@ export const LocalMiniPlayer: React.FC = () => {
 
                 <div className="mt-4 flex items-center justify-center gap-6">
                   <button type="button" onClick={() => skipBackward(10)} className="px-3 py-1.5 rounded-full bg-[#f2ece2] text-xs font-bold text-[#655b4d] hover:bg-[#e8dfd2] inline-flex items-center gap-1">
-                    <IoPlayBackOutline size={13} />
+                    <SkipBack size={13} strokeWidth={2} />
                     <span>10초 전</span>
                   </button>
                   <button type="button" onClick={() => setIsPlaying(!isPlaying)} className="flex h-13 w-13 items-center justify-center rounded-full bg-[#a94d35] text-white  hover:bg-[#8f3e29]">
@@ -243,7 +235,7 @@ export const LocalMiniPlayer: React.FC = () => {
                   </button>
                   <button type="button" onClick={() => skipForward(10)} className="px-3 py-1.5 rounded-full bg-[#f2ece2] text-xs font-bold text-[#655b4d] hover:bg-[#e8dfd2] inline-flex items-center gap-1">
                     <span>10초 후</span>
-                    <IoPlayForwardOutline size={13} />
+                    <SkipForward size={13} strokeWidth={2} />
                   </button>
                 </div>
 
@@ -261,7 +253,7 @@ export const LocalMiniPlayer: React.FC = () => {
                         className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#a94d35]/10 text-xs font-bold text-[#a94d35] hover:bg-[#a94d35]/20 transition"
                       >
                         <span>전체 대본 보기</span>
-                        <IoChevronForwardOutline size={13} />
+                        <ChevronRight size={13} strokeWidth={2} />
                       </button>
                     </div>
 

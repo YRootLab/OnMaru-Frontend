@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
-import { IoPricetagOutline, IoReloadOutline } from 'react-icons/io5';
+import { Tag, RotateCcw } from 'lucide-react';
 import { meok, lightPalette } from '@/design-system/tokens';
 import type { Village } from '@/hanok/types';
 
@@ -231,7 +231,7 @@ export default function FilterBar({
       {allBadges.length > 0 && (
         <BadgeContainer>
           <BadgeHeader>
-            <IoPricetagOutline size={13} />
+            <Tag size={13} strokeWidth={2} />
             <span>특징 태그</span>
           </BadgeHeader>
           <BadgeList>
@@ -251,7 +251,7 @@ export default function FilterBar({
           </BadgeList>
           {activeBadges.length > 0 && (
             <ResetBtn onClick={onResetBadges || (() => activeBadges.forEach((b) => onBadgeToggle(b)))}>
-              <IoReloadOutline size={12} /> 태그 초기화
+              <RotateCcw size={12} strokeWidth={2} /> 태그 초기화
             </ResetBtn>
           )}
         </BadgeContainer>

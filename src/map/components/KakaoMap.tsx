@@ -5,15 +5,15 @@ import Script from 'next/script';
 import styled from '@emotion/styled';
 import { Global, css } from '@emotion/react';
 import {
-  IoAirplaneOutline,
-  IoCloseOutline,
-  IoReloadOutline,
-  IoLocateOutline,
-  IoSunnyOutline,
-  IoMoonOutline,
-  IoAddOutline,
-  IoRemoveOutline,
-} from 'react-icons/io5';
+  Plane,
+  X,
+  RotateCcw,
+  LocateFixed,
+  Sun,
+  Moon,
+  Plus,
+  Minus,
+} from 'lucide-react';
 import { meok, lightPalette } from '@/design-system/tokens';
 import { KAKAO_SDK_SRC, useKakaoMap } from '@/map/hooks/useKakaoMap';
 import { DEFAULT_CENTER, useMapStore } from '@/map/hooks/useMapStore';
@@ -532,11 +532,11 @@ export default function KakaoMap() {
         <FlightBanner>
           <span className="step-badge">{flightState.step + 1} / {FLIGHT_STOPS.length}</span>
           <span className="hub-name flex items-center gap-1">
-            <IoAirplaneOutline size={14} />
+            <Plane size={14} strokeWidth={2} />
             <span>시네마틱 투어 중: {currentFlightStop.name}</span>
           </span>
           <button type="button" className="stop-btn" onClick={stopFlight}>
-            <IoCloseOutline size={14} />
+            <X size={14} strokeWidth={2} />
             <span>종료</span>
           </button>
         </FlightBanner>
@@ -544,7 +544,7 @@ export default function KakaoMap() {
 
       {isSearchDirty && !flightState.active && (
         <Research type="button" onClick={() => useMapStore.getState().clearSearchDirty()}>
-          <IoReloadOutline size={16} aria-hidden />
+          <RotateCcw size={16} strokeWidth={2} aria-hidden />
           이 지역 재검색
         </Research>
       )}
@@ -560,9 +560,9 @@ export default function KakaoMap() {
             title="내 현재 위치로 이동"
           >
             {isLocating ? (
-              <IoReloadOutline size={18} className="animate-spin" style={{ animation: 'spin 1s linear infinite' }} />
+              <RotateCcw size={18} strokeWidth={2} className="animate-spin" style={{ animation: 'spin 1s linear infinite' }} />
             ) : (
-              <IoLocateOutline size={18} />
+              <LocateFixed size={18} strokeWidth={2} />
             )}
           </ControlButton>
           <ControlButton
@@ -572,7 +572,7 @@ export default function KakaoMap() {
             $active={flightState.active}
             title={flightState.active ? '스카이뷰 비행 투어 중지' : '전국 4대 한옥 스카이뷰 비행 투어'}
           >
-            <IoAirplaneOutline size={18} />
+            <Plane size={18} strokeWidth={2} />
           </ControlButton>
           <ControlButton
             type="button"
@@ -581,17 +581,17 @@ export default function KakaoMap() {
             $active={isNight}
             title={isNight ? '주간 뷰로 전환' : '달빛 야행(야경) 모드로 전환'}
           >
-            {isNight ? <IoSunnyOutline size={18} color="#f59e0b" /> : <IoMoonOutline size={18} />}
+            {isNight ? <Sun size={18} color="#f59e0b" strokeWidth={2} /> : <Moon size={18} strokeWidth={2} />}
           </ControlButton>
         </Stack>
 
         {/* 2. 줌 인/아웃 컨트롤 */}
         <Stack>
           <ControlButton type="button" aria-label="확대" onClick={() => zoom(-1)}>
-            <IoAddOutline size={18} />
+            <Plus size={18} strokeWidth={2} />
           </ControlButton>
           <ControlButton type="button" aria-label="축소" onClick={() => zoom(1)}>
-            <IoRemoveOutline size={18} />
+            <Minus size={18} strokeWidth={2} />
           </ControlButton>
         </Stack>
       </Controls>

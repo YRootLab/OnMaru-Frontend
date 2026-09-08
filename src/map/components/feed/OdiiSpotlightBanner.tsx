@@ -2,7 +2,7 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
-import { IoCompassOutline, IoHeadsetOutline, IoPlay } from 'react-icons/io5';
+import { Compass, Headphones, Play } from 'lucide-react';
 import { lightPalette, meok, surface } from '@/design-system/tokens';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { useCinematicTourStore } from '@/features/cinematic-tour/store/useCinematicTourStore';
@@ -185,7 +185,7 @@ export default function OdiiSpotlightBanner() {
       <BackgroundAura />
       <TopRow>
         <Badge>
-          <IoCompassOutline size={13} />
+          <Compass size={13} strokeWidth={2} />
           <span>공간 오디오 투어</span>
         </Badge>
         <DurationText>{spotlightStory.formattedDuration || '약 10분'}</DurationText>
@@ -198,12 +198,12 @@ export default function OdiiSpotlightBanner() {
 
       <ActionRow>
         <DocentTag>
-          <IoHeadsetOutline size={14} />
+          <Headphones size={14} strokeWidth={2} />
           <span>{spotlightStory.speaker ?? '문화해설사 도슨트'}</span>
         </DocentTag>
 
         <StartBtn type="button" onClick={handleStart}>
-          <IoPlay size={13} className="ml-0.5" />
+          <Play size={13} fill="currentColor" className="ml-0.5" />
           <span>투어 시작</span>
         </StartBtn>
       </ActionRow>

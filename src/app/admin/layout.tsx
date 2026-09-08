@@ -10,7 +10,7 @@ import { useAdminAuth } from '@/admin/hooks/useAdminAuth';
 import { AdminSidebar } from '@/admin/components/AdminSidebar';
 import { AdminHeader } from '@/admin/components/AdminHeader';
 import { meok, palette } from '@/design-system/tokens';
-import { IoShieldOutline, IoLockClosedOutline } from 'react-icons/io5';
+import { ShieldAlert, Lock } from 'lucide-react';
 
 export default function AdminLayout({
   children,
@@ -96,7 +96,7 @@ export default function AdminLayout({
             marginBottom: '20px',
           }}
         >
-          <IoShieldOutline />
+          <ShieldAlert size={32} strokeWidth={1.8} />
         </div>
         <h2 style={{ fontSize: '20px', fontWeight: 700, color: meok[900], marginBottom: '8px' }}>
           접근 권한이 없습니다
@@ -167,7 +167,7 @@ export default function AdminLayout({
                 marginBottom: '16px',
               }}
             >
-              <IoLockClosedOutline />
+              <Lock size={28} strokeWidth={1.8} />
             </div>
             <h3 style={{ fontSize: '18px', fontWeight: 700, color: meok[900], marginBottom: '6px' }}>
               최고 관리자(ADMIN) 전용 메뉴입니다

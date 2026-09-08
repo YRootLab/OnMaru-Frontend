@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
-import { IoCameraOutline, IoCloseOutline, IoAlertCircleOutline } from 'react-icons/io5';
+import { Camera, X, AlertCircle } from 'lucide-react';
 import { meok, lightPalette, darkPalette } from '@/design-system/tokens';
 
 const Backdrop = styled.div`
@@ -202,12 +202,12 @@ export default function RoadviewModal({
           <TitleBox>
             <Title>{placeName}</Title>
             <SubBadge>
-              <IoCameraOutline size={13} />
+              <Camera size={13} strokeWidth={2} />
               <span>현장 360° 둘러보기</span>
             </SubBadge>
           </TitleBox>
           <CloseButton type="button" onClick={onClose} aria-label="닫기">
-            <IoCloseOutline size={20} />
+            <X size={20} strokeWidth={2} />
           </CloseButton>
         </Header>
 
@@ -216,7 +216,7 @@ export default function RoadviewModal({
 
           {error && (
             <FallbackOverlay>
-              <IoAlertCircleOutline size={32} color={lightPalette.juhong[500]} />
+              <AlertCircle size={32} color={lightPalette.juhong[500]} strokeWidth={1.8} />
               <h4 style={{ fontSize: '15px', fontWeight: 700, margin: 0 }}>거리 풍경을 불러올 수 없습니다</h4>
               <p>{error}</p>
             </FallbackOverlay>

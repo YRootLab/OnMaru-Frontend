@@ -2,26 +2,25 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
-  IoCloseOutline,
-  IoShareSocialOutline,
-  IoNavigateOutline,
-  IoReloadOutline,
-  IoAlertCircleOutline,
-  IoCheckmarkOutline,
-  IoRibbonOutline,
-  IoCompassOutline,
-  IoPlay,
-  IoHeadsetOutline,
-  IoFlame,
-  IoCarOutline,
-  IoTicketOutline,
-  IoCameraOutline,
-  IoChevronBackOutline,
-  IoChevronDownOutline,
-  IoChevronUpOutline,
-  IoBookmark,
-  IoBookmarkOutline,
-} from 'react-icons/io5';
+  X,
+  Share2,
+  Navigation,
+  RotateCcw,
+  AlertCircle,
+  Check,
+  Award,
+  Compass,
+  Play,
+  Headphones,
+  Flame,
+  Car,
+  Ticket,
+  Camera,
+  ChevronLeft,
+  ChevronDown,
+  ChevronUp,
+  Bookmark,
+} from 'lucide-react';
 import { logger } from '@/lib/log';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useOdiiPlaceStory } from '@/features/odii-audio/hooks/useOdiiPlaceStory';
@@ -330,12 +329,12 @@ export default function PlaceDetail() {
             aria-label="실시간 인기 순위 목록으로 돌아가기"
             title="실시간 인기 순위 목록으로 뒤로가기"
           >
-            <IoChevronBackOutline size={16} />
+            <ChevronLeft size={16} strokeWidth={2} />
             <span>인기 순위</span>
           </BackToPopularBtn>
         ) : (
           <HeaderBadge>
-            <IoRibbonOutline size={13} />
+            <Award size={13} strokeWidth={2} />
             <span>추천명소</span>
           </HeaderBadge>
         )}
@@ -350,7 +349,7 @@ export default function PlaceDetail() {
               background: isBookmarked ? 'rgba(232, 90, 24, 0.1)' : undefined,
             }}
           >
-            {isBookmarked ? <IoBookmark size={16} /> : <IoBookmarkOutline size={16} />}
+            <Bookmark size={16} strokeWidth={2} fill={isBookmarked ? 'currentColor' : 'none'} />
           </CloseButton>
           <CloseButton
             type="button"
@@ -358,7 +357,7 @@ export default function PlaceDetail() {
             aria-label="상세 정보 닫기"
             title="닫기 (ESC)"
           >
-            <IoCloseOutline size={20} />
+            <X size={20} strokeWidth={2} />
           </CloseButton>
         </HeaderActionGroup>
       </HeaderBar>
@@ -373,10 +372,10 @@ export default function PlaceDetail() {
           </SkeletonBox>
         ) : error && !data && !selectedItem ? (
           <ErrorBox role="alert">
-            <IoAlertCircleOutline size={32} color={lightPalette.cheongrok[700]} style={{ marginBottom: 12 }} />
+            <AlertCircle size={32} color={lightPalette.cheongrok[700]} strokeWidth={1.8} style={{ marginBottom: 12 }} />
             <p style={{ margin: '0 0 16px', fontSize: 14, color: meok[700] }}>{error}</p>
             <ShareButton type="button" onClick={reload}>
-              <IoReloadOutline size={14} />
+              <RotateCcw size={14} strokeWidth={2} />
               <span>다시 시도</span>
             </ShareButton>
           </ErrorBox>
@@ -404,9 +403,9 @@ export default function PlaceDetail() {
                 <SmartFeatureRow>
                   {smartFeatures.map((feat, idx) => (
                     <SmartFeatureChip key={idx} $type={feat.type}>
-                      {feat.type === 'audio' && <IoHeadsetOutline size={12} />}
-                      {feat.type === 'free' && <IoTicketOutline size={12} />}
-                      {feat.type === 'parking' && <IoCarOutline size={12} />}
+                      {feat.type === 'audio' && <Headphones size={12} strokeWidth={2} />}
+                      {feat.type === 'free' && <Ticket size={12} strokeWidth={2} />}
+                      {feat.type === 'parking' && <Car size={12} strokeWidth={2} />}
                       <span>{feat.label}</span>
                     </SmartFeatureChip>
                   ))}
@@ -432,7 +431,7 @@ export default function PlaceDetail() {
                   onClick={handleStartCinematicTour}
                   title="시네마틱 오디오 투어 시작"
                 >
-                  <IoHeadsetOutline size={18} />
+                  <Headphones size={18} strokeWidth={2} />
                   <span>오디 투어</span>
                 </HeroActionTile>
               )}
@@ -442,7 +441,7 @@ export default function PlaceDetail() {
                 onClick={() => setIsRoadviewOpen(true)}
                 title="카카오 현장 360도 거리 풍경 둘러보기"
               >
-                <IoCameraOutline size={18} />
+                <Camera size={18} strokeWidth={2} />
                 <span>거리 풍경</span>
               </HeroActionTile>
 
@@ -454,12 +453,12 @@ export default function PlaceDetail() {
                   onClick={handleNavClick}
                   title="카카오맵 길찾기"
                 >
-                  <IoNavigateOutline size={18} />
+                  <Navigation size={18} strokeWidth={2} />
                   <span>길찾기</span>
                 </HeroActionLink>
               ) : (
                 <HeroActionTile type="button" disabled title="좌표 정보 없음">
-                  <IoNavigateOutline size={18} />
+                  <Navigation size={18} strokeWidth={2} />
                   <span>길찾기</span>
                 </HeroActionTile>
               )}
@@ -473,7 +472,7 @@ export default function PlaceDetail() {
                 }}
                 title="방문객 온기(후기) 보기"
               >
-                <IoFlame size={18} />
+                <Flame size={18} strokeWidth={2} />
                 <span>온기 남기기</span>
               </HeroActionTile>
             </HeroActionGrid>
@@ -482,7 +481,7 @@ export default function PlaceDetail() {
               <CinematicBanner>
                 <CinematicHeader>
                   <CinematicBadge>
-                    <IoCompassOutline size={13} />
+                    <Compass size={13} strokeWidth={2} />
                     <span>시네마틱 공간 오디오 투어</span>
                   </CinematicBadge>
                   <CinematicDuration>
@@ -494,7 +493,7 @@ export default function PlaceDetail() {
                   {matchedOdiiStory.speaker ?? '도슨트'}와 함께 지도를 따라 걷는 {matchedOdiiStory.waypoints?.length || 4}대 경유지 코스
                 </CinematicDesc>
                 <CinematicStartButton type="button" onClick={handleStartCinematicTour}>
-                  <IoPlay size={15} className="ml-0.5" />
+                  <Play size={15} strokeWidth={2} className="ml-0.5" />
                   <span>시네마틱 투어 시작하기</span>
                 </CinematicStartButton>
               </CinematicBanner>
@@ -578,9 +577,9 @@ export default function PlaceDetail() {
                   >
                     <span>{isOverviewExpanded ? '접기' : '더보기'}</span>
                     {isOverviewExpanded ? (
-                      <IoChevronUpOutline size={12} />
+                      <ChevronUp size={12} strokeWidth={2} />
                     ) : (
-                      <IoChevronDownOutline size={12} />
+                      <ChevronDown size={12} strokeWidth={2} />
                     )}
                   </ToggleMoreBtn>
                 )}
@@ -607,12 +606,12 @@ export default function PlaceDetail() {
           aria-label={isBookmarked ? '마음에 담긴 장소' : '마음에 담기'}
           title={isBookmarked ? '저장 해제' : '마음에 담기'}
         >
-          {isBookmarked ? <IoBookmark size={16} /> : <IoBookmarkOutline size={16} />}
+          <Bookmark size={16} strokeWidth={2} fill={isBookmarked ? 'currentColor' : 'none'} />
           <span>{isBookmarked ? '저장됨' : '마음에 담기'}</span>
         </BookmarkButton>
 
         <ShareButton type="button" onClick={handleShare} aria-label="장소 링크 공유하기">
-          {copied ? <IoCheckmarkOutline size={16} color={lightPalette.cheongrok[700]} /> : <IoShareSocialOutline size={16} />}
+          {copied ? <Check size={16} color={lightPalette.cheongrok[700]} strokeWidth={2} /> : <Share2 size={16} strokeWidth={2} />}
           <span>{copied ? '복사됨' : '공유하기'}</span>
         </ShareButton>
 
@@ -624,7 +623,7 @@ export default function PlaceDetail() {
             onClick={handleNavClick}
             aria-label="카카오맵으로 길찾기"
           >
-            <IoNavigateOutline size={16} />
+            <Navigation size={16} strokeWidth={2} />
             <span>길찾기</span>
           </NavButton>
         )}

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import styled from '@emotion/styled';
+import { Home, BookOpen, Map, Headphones } from 'lucide-react';
 import { transientProps } from '@/design-system/styled';
 import { lightPalette } from '@/design-system/tokens';
 
@@ -44,16 +45,6 @@ const TabLink = styled(Link, transientProps)<TabProps>`
   }
 `;
 
-const TabIcon = styled.svg`
-  width: 19px;
-  height: 19px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-`;
-
 /** 사이트 공통 하단 탭 (홈 / 한옥도감 / 지도 / 오디) — Header의 데스크톱 GNB를 모바일 폭에서 대체한다. */
 export default function GlobalMobileTabs({ isLanding }: { isLanding: boolean }) {
   const pathname = usePathname();
@@ -62,32 +53,19 @@ export default function GlobalMobileTabs({ isLanding }: { isLanding: boolean }) 
   return (
     <Nav aria-label="주요 탐색">
       <TabLink href="/" $isLanding={isLanding} $isActive={pathname === '/'}>
-        <TabIcon viewBox="0 0 24 24" aria-hidden="true">
-          <path d="m3 10 9-7 9 7" />
-          <path d="M5 9v11h14V9" />
-          <path d="M9 20v-6h6v6" />
-        </TabIcon>
+        <Home size={19} strokeWidth={2} aria-hidden="true" />
         <span>홈</span>
       </TabLink>
       <TabLink href="/hanok" $isLanding={isLanding} $isActive={pathname.startsWith('/hanok')}>
-        <TabIcon viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M4 6.5h16" />
-          <path d="M6 4h12v16H6z" />
-          <path d="M9 10h6M9 14h6" />
-        </TabIcon>
+        <BookOpen size={19} strokeWidth={2} aria-hidden="true" />
         <span>한옥도감</span>
       </TabLink>
       <TabLink href="/map" $isLanding={isLanding} $isActive={pathname.startsWith('/map')}>
-        <TabIcon viewBox="0 0 24 24" aria-hidden="true">
-          <path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3z" />
-          <path d="M9 3v15M15 6v15" />
-        </TabIcon>
+        <Map size={19} strokeWidth={2} aria-hidden="true" />
         <span>지도</span>
       </TabLink>
       <TabLink href="/odii" $isLanding={isLanding} $isOdii $isActive={isOdiiPage}>
-        <TabIcon viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M4 14v-4M8 18V6M12 15V9M16 20V4M20 14v-4" />
-        </TabIcon>
+        <Headphones size={19} strokeWidth={2} aria-hidden="true" />
         <span>오디</span>
       </TabLink>
     </Nav>

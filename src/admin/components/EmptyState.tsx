@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { meok, palette } from '@/design-system/tokens';
-import { IoFileTrayOutline } from 'react-icons/io5';
+import { Inbox } from 'lucide-react';
 
 interface EmptyStateProps {
   title?: string;
@@ -51,7 +51,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           marginBottom: '16px',
         }}
       >
-        {icon || <IoFileTrayOutline />}
+        {icon || <Inbox size={26} strokeWidth={1.8} />}
       </div>
 
       <div

@@ -3,14 +3,14 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import {
-  IoChevronBackOutline,
-  IoChevronForwardOutline,
-  IoStorefrontOutline,
-  IoHomeOutline,
-  IoRestaurantOutline,
-  IoCafeOutline,
-  IoBagHandleOutline,
-} from 'react-icons/io5';
+  ChevronLeft,
+  ChevronRight,
+  Landmark,
+  Home,
+  Utensils,
+  Coffee,
+  ShoppingBag,
+} from 'lucide-react';
 import { meok } from '@/design-system/tokens';
 import type { PlaceCategory } from '@/map/types';
 
@@ -121,20 +121,20 @@ const FallbackText = styled.span`
 `;
 
 function renderCategoryFallback(category?: PlaceCategory | string) {
-  let icon = <IoStorefrontOutline size={28} />;
+  let icon = <Landmark size={28} strokeWidth={2} />;
   let label = '한국의 아름다운 전통 공간';
 
   if (category === 'stay') {
-    icon = <IoHomeOutline size={28} />;
+    icon = <Home size={28} strokeWidth={2} />;
     label = '마당이 있는 한옥 스테이';
   } else if (category === 'food') {
-    icon = <IoRestaurantOutline size={28} />;
+    icon = <Utensils size={28} strokeWidth={2} />;
     label = '대를 이어온 전통의 손맛';
   } else if (category === 'cafe') {
-    icon = <IoCafeOutline size={28} />;
+    icon = <Coffee size={28} strokeWidth={2} />;
     label = '처마 밑 은은한 다도 향기';
   } else if (category === 'market') {
-    icon = <IoBagHandleOutline size={28} />;
+    icon = <ShoppingBag size={28} strokeWidth={2} />;
     label = '정겨운 전통시장 풍경';
   }
 
@@ -158,9 +158,9 @@ export default function PlaceDetailCarousel({
   category,
 }: PlaceDetailCarouselProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [failedImages, setFailedImages] = useState<Record<number, boolean>>({});
 
-  const validImages = images.filter((_, idx) => !failedImages[idx]);
+  // 유효한 이미지 URL만 필터링
+  const validImages = images.filter((img) => img && typeof img === 'string');
 
   return (
     <ImageContainer $hasImages={validImages.length > 0}>
@@ -169,12 +169,7 @@ export default function PlaceDetailCarousel({
           <CarouselTrack $index={currentSlide}>
             {validImages.map((src, idx) => (
               <CarouselSlide key={idx}>
-                <SlideImg
-                  src={src}
-                  alt={`${title} 사진 ${idx + 1}`}
-                  onError={() => setFailedImages((prev) => ({ ...prev, [idx]: true }))}
-                  loading={idx === 0 ? 'eager' : 'lazy'}
-                />
+                <SlideImg src={src} alt={`${title} 사진 ${idx + 1}`} />
               </CarouselSlide>
             ))}
           </CarouselTrack>
@@ -188,7 +183,7 @@ export default function PlaceDetailCarousel({
                   onClick={() => setCurrentSlide((prev) => Math.max(0, prev - 1))}
                   aria-label="이전 사진 보기"
                 >
-                  <IoChevronBackOutline size={18} />
+                  <ChevronLeft size={18} strokeWidth={2} />
                 </CarouselNavBtn>
               )}
               {currentSlide < validImages.length - 1 && (
@@ -198,7 +193,7 @@ export default function PlaceDetailCarousel({
                   onClick={() => setCurrentSlide((prev) => Math.min(validImages.length - 1, prev + 1))}
                   aria-label="다음 사진 보기"
                 >
-                  <IoChevronForwardOutline size={18} />
+                  <ChevronRight size={18} strokeWidth={2} />
                 </CarouselNavBtn>
               )}
 

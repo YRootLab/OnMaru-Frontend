@@ -1,13 +1,13 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 import {
-  IoSearchOutline,
-  IoCloseOutline,
-  IoLocationOutline,
-  IoSparklesOutline,
-  IoReloadOutline,
-  IoGlobeOutline,
-} from 'react-icons/io5';
+  Search,
+  X,
+  MapPin,
+  Sparkles,
+  RotateCcw,
+  Globe,
+} from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { DEFAULT_CENTER, DEFAULT_LEVEL, useMapStore } from '@/map/hooks/useMapStore';
 
@@ -281,7 +281,7 @@ export default function SearchBar({ className }: SearchBarProps) {
     <Wrap className={className}>
       <Field onSubmit={handleSubmit}>
         <SearchSubmitBtn type="submit" aria-label="검색 실행">
-          <IoSearchOutline size={18} aria-hidden />
+          <Search size={18} strokeWidth={2} aria-hidden />
         </SearchSubmitBtn>
 
         <Input
@@ -302,7 +302,7 @@ export default function SearchBar({ className }: SearchBarProps) {
               title="전국 지도로 초기화"
               onClick={handleResetToNationwide}
             >
-              <IoReloadOutline size={14} />
+              <RotateCcw size={14} strokeWidth={2} />
             </ActionIconBtn>
           )}
 
@@ -314,7 +314,7 @@ export default function SearchBar({ className }: SearchBarProps) {
                 setValue('');
               }}
             >
-              <IoCloseOutline size={16} />
+              <X size={16} strokeWidth={2} />
             </ActionIconBtn>
           )}
         </ButtonGroup>
@@ -327,13 +327,13 @@ export default function SearchBar({ className }: SearchBarProps) {
               type="button"
               onMouseDown={handleResetToNationwide}
             >
-              <IoGlobeOutline size={16} />
+              <Globe size={16} strokeWidth={2} />
               <span>전국 지도로 초기화</span>
             </ResetAllBtn>
           )}
 
           <GroupTitle>
-            <IoSparklesOutline size={14} color={lightPalette.cheongrok[500]} />
+            <Sparkles size={14} color={lightPalette.cheongrok[500]} strokeWidth={2} />
             <span>추천 검색어</span>
           </GroupTitle>
           <Suggestions>
@@ -343,14 +343,14 @@ export default function SearchBar({ className }: SearchBarProps) {
                 type="button"
                 onMouseDown={() => performSearch(keyword)}
               >
-                <IoLocationOutline size={13} color={lightPalette.cheongrok[500]} />
+                <MapPin size={13} color={lightPalette.cheongrok[500]} strokeWidth={2} />
                 <span>{keyword}</span>
               </Suggestion>
             ))}
           </Suggestions>
 
           <GroupTitle style={{ marginTop: 14 }}>
-            <IoLocationOutline size={14} color={lightPalette.cheongrok[500]} />
+            <MapPin size={14} color={lightPalette.cheongrok[500]} strokeWidth={2} />
             <span>인기 지역</span>
           </GroupTitle>
           <Suggestions>

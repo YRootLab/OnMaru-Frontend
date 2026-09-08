@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
-import { IoCloseOutline, IoStorefrontOutline } from 'react-icons/io5';
+import { X, Landmark } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import type { RankedPlace } from '@/map/types';
@@ -256,7 +256,7 @@ export default function PopularPlacesPanel() {
           onClick={() => setPopularPanelOpen(false)}
           aria-label="인기 장소 패널 닫기"
         >
-          <IoCloseOutline size={20} />
+          <X size={20} strokeWidth={2} />
         </CloseBtn>
       </TopBar>
 
@@ -316,7 +316,7 @@ export default function PopularPlacesPanel() {
                 />
               ) : (
                 <PlaceholderThumb>
-                  <IoStorefrontOutline size={22} />
+                  <Landmark size={22} strokeWidth={2} />
                 </PlaceholderThumb>
               )}
             </RightCol>

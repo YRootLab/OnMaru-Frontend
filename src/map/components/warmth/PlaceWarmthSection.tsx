@@ -2,13 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import styled from '@emotion/styled';
-import {
-  IoFlame,
-  IoLeafOutline,
-  IoPeopleOutline,
-  IoAddOutline,
-  IoChatbubbleEllipsesOutline,
-} from 'react-icons/io5';
+import { Flame, Leaf, Users, Plus, MessageCircle } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import { distanceInMeters } from '@/map/utils/geo';
@@ -317,12 +311,12 @@ export default function PlaceWarmthSection({
       <SectionContainer id="place-warmth-section">
         <SectionHeader>
           <TitleBox>
-            <IoFlame size={16} color={lightPalette.juhong[500]} />
+            <Flame size={16} strokeWidth={2} color={lightPalette.juhong[500]} />
             <SectionTitle>머문 이들의 온기</SectionTitle>
             <CountBadge>{matchedWarmths.length}</CountBadge>
           </TitleBox>
           <WriteButton type="button" onClick={() => setIsModalOpen(true)}>
-            <IoAddOutline size={14} />
+            <Plus size={14} strokeWidth={2} />
             <span>온기 남기기</span>
           </WriteButton>
         </SectionHeader>
@@ -334,7 +328,7 @@ export default function PlaceWarmthSection({
                 <CardTop>
                   <LeftBadges>
                     <MoodBadge $mood={item.mood}>
-                      {item.mood === '한적' ? <IoLeafOutline size={12} /> : <IoPeopleOutline size={12} />}
+                      {item.mood === '한적' ? <Leaf size={12} strokeWidth={2} /> : <Users size={12} strokeWidth={2} />}
                       <span>{item.mood}</span>
                     </MoodBadge>
                   </LeftBadges>
@@ -367,12 +361,12 @@ export default function PlaceWarmthSection({
         ) : (
           <EmptyBox>
             <EmptyIconBox>
-              <IoChatbubbleEllipsesOutline size={20} />
+              <MessageCircle size={20} strokeWidth={2} />
             </EmptyIconBox>
             <EmptyTitle>아직 등록된 온기가 없습니다</EmptyTitle>
             <EmptySub>이 고즈넉한 장소에 첫 번째 온기 한 줄을 남겨보세요!</EmptySub>
             <EmptyActionBtn type="button" onClick={() => setIsModalOpen(true)}>
-              <IoAddOutline size={14} />
+              <Plus size={14} strokeWidth={2} />
               <span>첫 온기 남기기</span>
             </EmptyActionBtn>
           </EmptyBox>
