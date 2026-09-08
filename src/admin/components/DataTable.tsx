@@ -9,7 +9,7 @@ import { meok, palette } from '@/design-system/tokens';
 import { TableSkeleton } from './TableSkeleton';
 import { EmptyState } from './EmptyState';
 import { Pagination } from './Pagination';
-import { IoChevronUp, IoChevronDown } from 'react-icons/io5';
+import { ChevronUp, ChevronDown } from 'lucide-react';
 
 export interface ColumnDef<T> {
   key: string;
@@ -153,11 +153,11 @@ export function DataTable<T>({
                     >
                       <span>{col.label}</span>
                       {col.sortable && isSorted && (
-                        <span>
+                        <span style={{ display: 'inline-flex' }}>
                           {sortDirection === 'asc' ? (
-                            <IoChevronUp size={12} />
+                            <ChevronUp size={12} strokeWidth={2.2} />
                           ) : (
-                            <IoChevronDown size={12} />
+                            <ChevronDown size={12} strokeWidth={2.2} />
                           )}
                         </span>
                       )}

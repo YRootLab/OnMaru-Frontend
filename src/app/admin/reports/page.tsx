@@ -14,14 +14,14 @@ import { EmptyState } from '@/admin/components/EmptyState';
 import { ReportItem, ReportStatus } from '@/admin/types';
 import { mockReports } from '@/admin/mock/reports.mock';
 import {
-  IoShieldOutline,
-  IoEyeOffOutline,
-  IoTrashOutline,
-  IoCloseCircleOutline,
-  IoPersonRemoveOutline,
-  IoCheckmarkCircleOutline,
-  IoTimeOutline,
-} from 'react-icons/io5';
+  ShieldAlert,
+  EyeOff,
+  Trash2,
+  XCircle,
+  UserX,
+  CheckCircle2,
+  Clock,
+} from 'lucide-react';
 
 export default function AdminReportsPage() {
   const [reports, setReports] = useState<ReportItem[]>(mockReports);
@@ -357,7 +357,7 @@ export default function AdminReportsPage() {
                         gap: '4px',
                       }}
                     >
-                      <IoShieldOutline size={13} />
+                      <ShieldAlert size={14} strokeWidth={2} />
                       {report.reasonLabel}
                     </span>
                     <StatusBadge status={report.status} />
@@ -365,7 +365,7 @@ export default function AdminReportsPage() {
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '12px', color: meok[500] }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <IoTimeOutline size={14} />
+                      <Clock size={14} strokeWidth={2} />
                       <span>신고 접수: {new Date(report.createdAt).toLocaleString('ko-KR')}</span>
                     </div>
                     <span>
@@ -508,7 +508,7 @@ export default function AdminReportsPage() {
                           gap: '4px',
                         }}
                       >
-                        <IoEyeOffOutline size={14} />
+                        <EyeOff size={14} strokeWidth={2} />
                         <span>숨김 처리</span>
                       </button>
 
@@ -530,7 +530,7 @@ export default function AdminReportsPage() {
                           gap: '4px',
                         }}
                       >
-                        <IoTrashOutline size={14} />
+                        <Trash2 size={14} strokeWidth={2} />
                         <span>삭제</span>
                       </button>
 
@@ -552,7 +552,7 @@ export default function AdminReportsPage() {
                           gap: '4px',
                         }}
                       >
-                        <IoCloseCircleOutline size={14} />
+                        <XCircle size={14} strokeWidth={2} />
                         <span>반려</span>
                       </button>
 
@@ -574,13 +574,13 @@ export default function AdminReportsPage() {
                           gap: '4px',
                         }}
                       >
-                        <IoPersonRemoveOutline size={14} />
+                        <UserX size={14} strokeWidth={2} />
                         <span>작성자 정지</span>
                       </button>
                     </div>
                   ) : (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: meok[500] }}>
-                      <IoCheckmarkCircleOutline size={16} color={palette.cheongrok[500]} />
+                      <CheckCircle2 size={16} strokeWidth={2} color={palette.cheongrok[500]} />
                       <span>
                         처리 완료 ({report.resolvedAt ? new Date(report.resolvedAt).toLocaleDateString() : '-'}, {report.resolvedBy ?? '관리자'})
                       </span>

@@ -20,12 +20,11 @@ import {
   mockPipelineSummary,
 } from '@/admin/mock/dashboard.mock';
 import {
-  IoArrowForwardOutline,
-  IoSyncOutline,
-  IoAlertCircleOutline,
-  IoFlameOutline,
-  IoShieldOutline,
-} from 'react-icons/io5';
+  ArrowRight,
+  RefreshCw,
+  Flame,
+  ShieldAlert,
+} from 'lucide-react';
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -126,7 +125,7 @@ export default function AdminDashboardPage() {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <IoFlameOutline size={18} color={palette.juhong[500]} />
+              <Flame size={18} color={palette.juhong[500]} strokeWidth={2} />
               <h2 style={{ fontSize: '15px', fontWeight: 700, color: meok[900], margin: 0 }}>
                 최근 온기
               </h2>
@@ -144,7 +143,7 @@ export default function AdminDashboardPage() {
               }}
             >
               <span>전체보기</span>
-              <IoArrowForwardOutline size={13} />
+              <ArrowRight size={14} strokeWidth={2} />
             </Link>
           </div>
 
@@ -205,7 +204,7 @@ export default function AdminDashboardPage() {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <IoShieldOutline size={18} color={palette.danpung[500]} />
+              <ShieldAlert size={18} color={palette.danpung[500]} strokeWidth={2} />
               <h2 style={{ fontSize: '15px', fontWeight: 700, color: meok[900], margin: 0 }}>
                 처리 대기 신고
               </h2>
@@ -223,7 +222,7 @@ export default function AdminDashboardPage() {
               }}
             >
               <span>처리하기</span>
-              <IoArrowForwardOutline size={13} />
+              <ArrowRight size={14} strokeWidth={2} />
             </Link>
           </div>
 
@@ -315,7 +314,7 @@ export default function AdminDashboardPage() {
                 opacity: isRebuilding ? 0.6 : 1,
               }}
             >
-              <IoSyncOutline size={15} className={isRebuilding ? 'animate-spin' : ''} />
+              <RefreshCw size={15} strokeWidth={2} className={isRebuilding ? 'animate-spin' : ''} />
               <span>{isRebuilding ? '갱신 중...' : '지금 갱신하기'}</span>
             </button>
           )}

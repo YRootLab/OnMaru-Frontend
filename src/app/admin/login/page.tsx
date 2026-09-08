@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { meok, palette } from '@/design-system/tokens';
 import { setAccessToken } from '@/lib/api/client';
 import { AdminRole, AdminUser } from '@/admin/types';
-import { IoLockClosedOutline, IoMailOutline, IoAlertCircleOutline } from 'react-icons/io5';
+import { Lock, Mail, AlertCircle } from 'lucide-react';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -127,7 +127,7 @@ export default function AdminLoginPage() {
               color: palette.danpung[700],
             }}
           >
-            <IoAlertCircleOutline size={16} />
+            <AlertCircle size={16} strokeWidth={2} />
             <span>{errorMessage}</span>
           </div>
         )}
@@ -139,7 +139,7 @@ export default function AdminLoginPage() {
               이메일 주소
             </label>
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-              <IoMailOutline size={16} color={meok[400]} style={{ position: 'absolute', left: '12px' }} />
+              <Mail size={16} color={meok[400]} strokeWidth={2} style={{ position: 'absolute', left: '12px' }} />
               <input
                 type="email"
                 placeholder="admin@onmaru.kr"
@@ -165,7 +165,7 @@ export default function AdminLoginPage() {
               비밀번호
             </label>
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-              <IoLockClosedOutline size={16} color={meok[400]} style={{ position: 'absolute', left: '12px' }} />
+              <Lock size={16} color={meok[400]} strokeWidth={2} style={{ position: 'absolute', left: '12px' }} />
               <input
                 type="password"
                 placeholder="비밀번호 입력"

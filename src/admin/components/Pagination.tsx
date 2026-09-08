@@ -3,10 +3,9 @@
 // ============================================================
 // 관리자 페이지네이션 (src/admin/components/Pagination.tsx)
 // ============================================================
-
 import React from 'react';
 import { meok, palette } from '@/design-system/tokens';
-import { IoChevronBack, IoChevronForward } from 'react-icons/io5';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface PaginationProps {
   currentPage: number;
@@ -72,7 +71,7 @@ export const Pagination: React.FC<PaginationProps> = ({
           transition: 'background-color 0.15s ease',
         }}
       >
-        <IoChevronBack size={14} />
+        <ChevronLeft size={16} strokeWidth={2} />
       </button>
 
       {pages.map((p) => {
@@ -119,7 +118,7 @@ export const Pagination: React.FC<PaginationProps> = ({
           transition: 'background-color 0.15s ease',
         }}
       >
-        <IoChevronForward size={14} />
+        <ChevronRight size={16} strokeWidth={2} />
       </button>
     </div>
   );

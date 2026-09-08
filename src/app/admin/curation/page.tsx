@@ -22,13 +22,13 @@ import {
   CURATION_PRESET_BADGES,
 } from '@/admin/mock/curation.mock';
 import {
-  IoSearchOutline,
-  IoRefreshOutline,
-  IoCloseOutline,
-  IoAddOutline,
-  IoImageOutline,
-  IoCloudUploadOutline,
-} from 'react-icons/io5';
+  Search,
+  RotateCcw,
+  X,
+  Plus,
+  ImageIcon,
+  CloudUpload,
+} from 'lucide-react';
 
 export default function AdminCurationPage() {
   const [activeCategory, setActiveCategory] = useState<CurationCategory>('VILLAGE');
@@ -223,7 +223,7 @@ export default function AdminCurationPage() {
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           ) : (
-            <IoImageOutline size={20} color={meok[400]} />
+            <ImageIcon size={20} color={meok[400]} strokeWidth={1.8} />
           )}
         </div>
       ),
@@ -364,7 +364,7 @@ export default function AdminCurationPage() {
                     color: meok[500],
                   }}
                 >
-                  <IoCloseOutline size={12} />
+                  <X size={12} strokeWidth={2} />
                 </button>
               </span>
             ))}
@@ -388,7 +388,7 @@ export default function AdminCurationPage() {
                   cursor: 'pointer',
                 }}
               >
-                <IoAddOutline size={14} />
+                <Plus size={14} strokeWidth={2} />
               </button>
 
               {/* 뱃지 추가 팝오버 */}
@@ -664,7 +664,7 @@ export default function AdminCurationPage() {
               transition: 'all 0.12s ease',
             }}
           >
-            <IoCloudUploadOutline size={16} />
+            <CloudUpload size={16} strokeWidth={2} />
             <span>변경사항 반영</span>
             {modifiedIds.size > 0 && (
               <span
@@ -705,9 +705,10 @@ export default function AdminCurationPage() {
             alignItems: 'center',
           }}
         >
-          <IoSearchOutline
+          <Search
             size={16}
             color={meok[400]}
+            strokeWidth={2}
             style={{ position: 'absolute', left: '12px' }}
           />
           <input
@@ -819,7 +820,7 @@ export default function AdminCurationPage() {
             gap: '6px',
           }}
         >
-          <IoRefreshOutline size={15} />
+          <RotateCcw size={15} strokeWidth={2} />
           <span>초기화</span>
         </button>
       </div>

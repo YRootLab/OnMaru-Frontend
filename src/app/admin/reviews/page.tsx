@@ -13,15 +13,13 @@ import { Toast } from '@/admin/components/Toast';
 import { WarmthReview, ReviewStatus } from '@/admin/types';
 import { mockReviews } from '@/admin/mock/reviews.mock';
 import {
-  IoSearchOutline,
-  IoRefreshOutline,
-  IoCloseOutline,
-  IoEllipsisHorizontal,
-  IoShieldOutline,
-  IoEyeOffOutline,
-  IoTrashOutline,
-  IoPersonRemoveOutline,
-} from 'react-icons/io5';
+  Search,
+  RotateCcw,
+  X,
+  MoreHorizontal,
+  EyeOff,
+  Trash2,
+} from 'lucide-react';
 
 export default function AdminReviewsPage() {
   const [reviews, setReviews] = useState<WarmthReview[]>(mockReviews);
@@ -318,7 +316,7 @@ export default function AdminReviewsPage() {
               borderRadius: '6px',
             }}
           >
-            <IoEllipsisHorizontal size={16} />
+            <MoreHorizontal size={16} strokeWidth={2} />
           </button>
         </div>
       ),
@@ -358,7 +356,7 @@ export default function AdminReviewsPage() {
             backgroundColor: '#FFFFFF',
           }}
         >
-          <IoSearchOutline size={16} color={meok[400]} />
+          <Search size={16} color={meok[400]} strokeWidth={2} />
           <input
             type="text"
             placeholder="닉네임, 장소, 내용 검색"
@@ -489,7 +487,7 @@ export default function AdminReviewsPage() {
             cursor: 'pointer',
           }}
         >
-          <IoRefreshOutline size={15} />
+          <RotateCcw size={15} strokeWidth={2} />
           <span>초기화</span>
         </button>
 
@@ -670,7 +668,7 @@ export default function AdminReviewsPage() {
                     padding: '4px',
                   }}
                 >
-                  <IoCloseOutline size={22} />
+                  <X size={20} strokeWidth={2} />
                 </button>
               </div>
 
@@ -844,7 +842,7 @@ export default function AdminReviewsPage() {
                     cursor: 'pointer',
                   }}
                 >
-                  <IoEyeOffOutline size={15} />
+                  <EyeOff size={15} strokeWidth={2} />
                   <span>숨김</span>
                 </button>
               )}
@@ -877,7 +875,7 @@ export default function AdminReviewsPage() {
                     cursor: 'pointer',
                   }}
                 >
-                  <IoTrashOutline size={15} />
+                  <Trash2 size={15} strokeWidth={2} />
                   <span>삭제</span>
                 </button>
               )}

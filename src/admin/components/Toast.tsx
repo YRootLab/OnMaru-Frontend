@@ -6,7 +6,7 @@
 
 import React, { useEffect } from 'react';
 import { palette } from '@/design-system/tokens';
-import { IoCheckmarkCircle, IoAlertCircle, IoInformationCircle } from 'react-icons/io5';
+import { CheckCircle2, AlertCircle, Info } from 'lucide-react';
 
 export type ToastType = 'success' | 'error' | 'info';
 
@@ -39,10 +39,10 @@ export const Toast: React.FC<ToastProps> = ({
 
   const Icon =
     type === 'success'
-      ? IoCheckmarkCircle
+      ? CheckCircle2
       : type === 'error'
-      ? IoAlertCircle
-      : IoInformationCircle;
+      ? AlertCircle
+      : Info;
 
   return (
     <div
@@ -72,7 +72,7 @@ export const Toast: React.FC<ToastProps> = ({
           to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
-      <Icon size={18} />
+      <Icon size={18} strokeWidth={2.2} />
       <span>{message}</span>
     </div>
   );
