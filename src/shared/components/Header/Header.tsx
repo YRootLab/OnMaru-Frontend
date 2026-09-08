@@ -20,7 +20,11 @@ import { transientProps } from '@/design-system/styled';
 import { lightPalette, meok, surface } from '@/design-system/tokens';
 import GlobalMobileTabs from './GlobalMobileTabs';
 import MapMobileTabs from '@/map/components/MapMobileTabs';
-import { HEADER_EXIT_S } from '@/shared/navigation/mapEntranceTiming';
+import { HEADER_EXIT_S, FLIP_TRANSFORM_EASE, FLIP_OPACITY_EASE } from '@/shared/navigation/mapEntranceTiming';
+
+/** 캡슐형 GNB의 높이 — /map의 MapChips가 "같은 자리를 이어받는" 느낌을 내려면
+ *  이 값을 그대로 써야 한다. */
+export const HEADER_HEIGHT = 46;
 
 interface LandingProps {
   $isLanding?: boolean;
@@ -52,7 +56,7 @@ const HeaderContainer = styled('header', transientProps)<LandingProps>`
   right: 0;
   margin: 0 auto;
   width: min(calc(100% - 40px), 1140px);
-  height: 46px;
+  height: ${HEADER_HEIGHT}px;
   z-index: 100;
   display: flex;
   align-items: center;
@@ -62,20 +66,24 @@ const HeaderContainer = styled('header', transientProps)<LandingProps>`
 
   /* 지도 페이지(데스크톱)는 자체 좌측 네비게이션 레일을 쓰므로 상단바가 필요 없다.
      스크롤 숨김(isHidden)은 기존처럼 단순 슬라이드지만, 지도 진입(isMapPage)은
-     아래쪽 경첩을 축으로 위로 접히며 사라지는 flip으로 — 동시에 MapChips가 그
-     자리로 떠오르며 카드가 뒤집히듯 교체되는 느낌을 준다. 지속시간은
+     달력 페이지가 위 경첩을 축으로 넘어가듯 3D flip으로 사라진다 — 동시에
+     MapChips가 그 자리로 아래에서 tilt-in하며 나타나 카드가 뒤집혀 교체되는
+     느낌을 준다. backface-visibility로 뒤집힌 뒷면이 비치지 않게 하고, opacity는
+     거의 직각(엣지온)이 될 때 확 사라지도록 별도 곡선을 쓴다. 지속시간은
      mapEntranceTiming의 HEADER_EXIT_S와 반드시 맞춰야 한다. */
   transform: ${({ $isHidden, $isMapPage }) => {
-    if ($isMapPage) return 'perspective(900px) rotateX(-100deg)';
+    if ($isMapPage) return 'perspective(700px) rotateX(-100deg)';
     if ($isHidden) return 'translateY(calc(-100% - 24px))';
-    return 'perspective(900px) rotateX(0deg) translateY(0)';
+    return 'perspective(700px) rotateX(0deg) translateY(0)';
   }};
-  transform-origin: 50% 100%;
+  transform-origin: 50% 0%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   opacity: ${({ $isMapPage }) => ($isMapPage ? 0 : 1)};
   pointer-events: ${({ $isHidden, $isMapPage }) => ($isHidden || $isMapPage ? 'none' : 'auto')};
   transition:
-    transform ${HEADER_EXIT_S}s cubic-bezier(0.16, 1, 0.3, 1),
-    opacity ${HEADER_EXIT_S}s ease,
+    transform ${HEADER_EXIT_S}s cubic-bezier(${FLIP_TRANSFORM_EASE.join(', ')}),
+    opacity ${HEADER_EXIT_S}s cubic-bezier(${FLIP_OPACITY_EASE.join(', ')}),
     visibility 0s ${({ $isMapPage }) => ($isMapPage ? HEADER_EXIT_S : 0)}s;
   visibility: ${({ $isMapPage }) => ($isMapPage ? 'hidden' : 'visible')};
   will-change: transform, opacity;
