@@ -2,8 +2,15 @@
 
 import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
+import { motion, useReducedMotion } from 'framer-motion';
 import { IoChevronBackOutline } from 'react-icons/io5';
+import { transientProps } from '@/design-system/styled';
 import { meok, surface } from '@/design-system/tokens';
+import {
+  FLOATING_ENTER_DELAY_S,
+  FLOATING_SPRING_TRANSITION,
+  CATEGORY_RISE_S,
+} from '@/shared/navigation/mapEntranceTiming';
 import { useMapStore } from './hooks/useMapStore';
 import { useMapData } from './hooks/useMapData';
 import BottomSheet from './components/BottomSheet';
@@ -17,10 +24,10 @@ import WarmthLayer from './components/WarmthLayer';
 import WarmthNotesLayer from './components/warmth/WarmthNotesLayer';
 import WriteButton from './components/warmth/WriteButton';
 import WarmthLegend from './components/warmth/WarmthLegend';
-import MobileBottomNav from './components/MobileBottomNav';
-import MapNavRail from './components/MapNavRail';
+import MapNavRail, { RAIL_INSET, RAIL_WIDTH } from './components/MapNavRail';
 import CinematicTourMapLayer from '@/features/cinematic-tour/components/CinematicTourMapLayer';
 import CinematicTourFloatingBar from '@/features/cinematic-tour/components/CinematicTourFloatingBar';
+import { HEADER_HEIGHT } from '@/shared/components/Header/Header';
 
 const FONT = "'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif";
 
@@ -40,12 +47,13 @@ const MapArea = styled.div`
   height: 100%;
 `;
 
-/** 2. 플로팅 듀얼 패널 컨테이너 (좌측 68px 네비게이션 레일 옆 80px에 배치) */
-const FloatingPanelsContainer = styled.div`
+/** 2. 플로팅 듀얼 패널 컨테이너 — 얇아진 좌측 레일(MapNavRail) 옆에 같은 14px
+ *  마진 리듬으로 배치한다. */
+const FloatingPanelsContainer = styled(motion.div, transientProps)`
   position: absolute;
-  top: 16px;
-  bottom: 16px;
-  left: 80px;
+  top: ${RAIL_INSET}px;
+  bottom: ${RAIL_INSET}px;
+  left: ${RAIL_INSET + RAIL_WIDTH + RAIL_INSET}px;
   z-index: 20;
   display: flex;
   align-items: stretch;
@@ -57,20 +65,19 @@ const FloatingPanelsContainer = styled.div`
   }
 `;
 
-/** PC에서 지도 위에 뜨는 카테고리 칩 — 상세 패널 열리면 숨김 */
-const MapChips = styled.div<{ $hidden: boolean }>`
+/** PC에서 지도 위에 뜨는 카테고리 칩 — 상세 패널 열리면 숨김.
+ *  지도 진입 시에는 Header가 flip으로 사라지는 것과 같은 순간, 이 자리로
+ *  아래에서 올라오며 나타나 마치 카드가 뒤집혀 교체되는 것처럼 보이게 한다.
+ *  높이를 HEADER_HEIGHT로 맞춰서 "그 자리를 이어받는" 느낌을 낸다. */
+const MapChips = styled(motion.div, transientProps)`
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: ${RAIL_INSET}px;
+  right: ${RAIL_INSET}px;
+  height: ${HEADER_HEIGHT}px;
   z-index: 30;
   display: flex;
   align-items: center;
   gap: 10px;
-
-  opacity: ${({ $hidden }) => ($hidden ? 0 : 1)};
-  pointer-events: ${({ $hidden }) => ($hidden ? 'none' : 'auto')};
-  transform: ${({ $hidden }) => ($hidden ? 'translateY(-6px)' : 'translateY(0)')};
-  transition: opacity 0.22s ease, transform 0.22s ease;
 
   @media (max-width: 1023px) {
     display: none;
@@ -81,30 +88,35 @@ const MapChips = styled.div<{ $hidden: boolean }>`
 const FloatingHomeButton = styled.button`
   display: flex;
   align-items: center;
-  gap: 6px;
-  height: 36px;
-  padding: 0 14px 0 10px;
+  gap: 5px;
+  height: 32px;
+  padding: 0 13px 0 9px;
 
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(25, 31, 40, 0.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 
   color: ${meok[700]};
-  font-family: inherit;
+  font-family: 'SpoqaHanSansNeo', sans-serif;
   font-size: 13px;
   font-weight: 500;
+  letter-spacing: -0.02em;
   white-space: nowrap;
   cursor: pointer;
-  transition: all 0.2s ease-out;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    background: ${surface.light.card};
+    background: #ffffff;
     color: ${meok[900]};
     transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   }
 
   &:active {
-    transform: scale(0.97);
+    transform: scale(0.96);
   }
 `;
 
@@ -146,6 +158,7 @@ const MobileChipsScroller = styled.div`
 
 export default function MapPage() {
   const router = useRouter();
+  const prefersReducedMotion = useReducedMotion();
   const panelOpen = useMapStore((s) => s.panelOpen);
   const detailId = useMapStore((s) => s.detailId);
   const popularPanelOpen = useMapStore((s) => s.popularPanelOpen);
@@ -172,7 +185,18 @@ export default function MapPage() {
         <WarmthLayer />
         <WarmthNotesLayer />
         <CinematicTourMapLayer />
-        <MapChips $hidden={isDetailOpen}>
+        <MapChips
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 22, rotateX: 40 }}
+          animate={{ opacity: isDetailOpen ? 0 : 1, y: isDetailOpen ? -6 : 0, rotateX: 0 }}
+          transition={
+            prefersReducedMotion ? { duration: 0 } : { duration: CATEGORY_RISE_S, ease: 'easeOut' }
+          }
+          style={{
+            transformPerspective: 700,
+            transformOrigin: '50% 100%',
+            pointerEvents: isDetailOpen ? 'none' : 'auto',
+          }}
+        >
           {!panelOpen && (
             <FloatingHomeButton
               type="button"
@@ -195,8 +219,17 @@ export default function MapPage() {
       {/* 2. 네이버 지도 스타일: 좌측 고정 세로 네비게이션 레일 (GNB) */}
       <MapNavRail />
 
-      {/* 3. 지도 위에 떠 있는 좌측 리스트 + 우측 상세 플로팅 카드 */}
-      <FloatingPanelsContainer>
+      {/* 3. 지도 위에 떠 있는 좌측 리스트 + 우측 상세 플로팅 카드 —
+          좌측 레일 쪽에서 오른쪽으로, 레일이 자리 잡을 즈음 차분한 스프링으로 등장한다. */}
+      <FloatingPanelsContainer
+        initial={prefersReducedMotion ? false : { opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={
+          prefersReducedMotion
+            ? { duration: 0 }
+            : { ...FLOATING_SPRING_TRANSITION, delay: FLOATING_ENTER_DELAY_S }
+        }
+      >
         <ListPanel />
         <DetailPanel />
       </FloatingPanelsContainer>
@@ -215,7 +248,6 @@ export default function MapPage() {
       <CinematicTourFloatingBar />
 
       <BottomSheet />
-      <MobileBottomNav />
     </Root>
   );
 }

@@ -1,38 +1,50 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
+import { motion, useReducedMotion } from 'framer-motion';
 import {
   IoBookOutline,
   IoLocationOutline,
-  IoChevronDownOutline,
-  IoMapOutline,
   IoFlame,
   IoHeadsetOutline,
   IoBookmarkOutline,
   IoHomeOutline,
   IoPersonOutline,
 } from 'react-icons/io5';
+import { transientProps } from '@/design-system/styled';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import { lightPalette, meok, surface } from '@/design-system/tokens';
+import { RAIL_ENTER_DELAY_S, RAIL_ENTER_DURATION_S, ENTRANCE_EASE } from '@/shared/navigation/mapEntranceTiming';
 
-const RAIL_WIDTH = 68;
+export const RAIL_WIDTH = 60;
+export const RAIL_INSET = 14;
 
-const RailContainer = styled.aside`
+/** Header.tsx의 캡슐형 GNB와 같은 유리질감(블러+반투명+가느다란 보더)을 쓰는
+ *  얇고 떠 있는 세로 레일 — 예전의 68px 꽉찬 화이트 사이드바 대신, 뷰포트에서
+ *  14px 띄운 캡슐로 /hanok·/odii의 상단 GNB와 톤을 맞춘다. */
+const RailContainer = styled(motion.aside, transientProps)`
   position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
+  top: ${RAIL_INSET}px;
+  bottom: ${RAIL_INSET}px;
+  left: ${RAIL_INSET}px;
   width: ${RAIL_WIDTH}px;
-  background: ${surface.light.card};
-  border-right: 1px solid ${meok[200]};
   z-index: 25;
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 10px 0;
+  gap: 2px;
+  border-radius: 22px;
   user-select: none;
-  box-shadow: 1px 0 8px rgba(0, 0, 0, 0.04);
+
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 12px 32px -8px rgba(0, 0, 0, 0.1),
+    0 4px 12px -4px rgba(0, 0, 0, 0.04);
 
   @media (max-width: 1023px) {
     display: none;
@@ -45,7 +57,7 @@ const LogoArea = styled.div`
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 64px;
+  height: 44px;
   cursor: pointer;
   transition: transform 0.15s ease;
 
@@ -55,75 +67,63 @@ const LogoArea = styled.div`
 `;
 
 const BrandIconBadge = styled.div`
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
   background: linear-gradient(135deg, ${lightPalette.cheongrok[500]} 0%, ${lightPalette.cheongrok[700]} 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   color: ${surface.light.card};
-  font-size: 19px;
+  font-size: 15px;
   font-weight: 800;
   letter-spacing: -0.5px;
-  box-shadow: 0 2px 8px rgba(0, 184, 130, 0.32);
+  box-shadow: 0 2px 6px rgba(0, 184, 130, 0.28);
 `;
 
 const NavList = styled.div`
   display: flex;
   flex-direction: column;
+  align-items: center;
   width: 100%;
+  gap: 2px;
   flex: 1;
 `;
 
-/** 온마루 내비게이션 아이템 버튼 (온마루 대청 청록 액센트) */
+/** 아이콘 전용 슬림 네비게이션 버튼 — 라벨은 title 툴팁으로 대체해 폭을 줄인다. */
 const NavItemBtn = styled.button<{ $active: boolean }>`
   position: relative;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  height: 66px;
+  width: 40px;
+  height: 40px;
   padding: 0;
   border: none;
   outline: none;
+  border-radius: 12px;
   cursor: pointer;
-  background: ${({ $active }) => ($active ? lightPalette.cheongrok[500] : 'transparent')};
-  color: ${({ $active }) => ($active ? surface.light.card : meok[700])};
-  transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+  background: ${({ $active }) => ($active ? lightPalette.cheongrok[50] : 'transparent')};
+  color: ${({ $active }) => ($active ? lightPalette.cheongrok[700] : meok[500])};
+  transition:
+    background-color 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    color 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 150ms cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    background: ${({ $active }) => ($active ? lightPalette.cheongrok[500] : meok[100])};
-    color: ${({ $active }) => ($active ? surface.light.card : meok[900])};
+    background: ${({ $active }) => ($active ? lightPalette.cheongrok[50] : 'rgba(0, 0, 0, 0.045)')};
+    color: ${({ $active }) => ($active ? lightPalette.cheongrok[700] : meok[900])};
   }
 
   &:active {
-    transform: scale(0.96);
+    transform: scale(0.92);
   }
 `;
 
-const NavItemIcon = styled.div<{ $active: boolean }>`
-  position: relative;
+const NavItemIcon = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
-  margin-bottom: 4px;
-  color: ${({ $active }) => ($active ? surface.light.card : meok[700])};
-`;
-
-const NavItemLabel = styled.span<{ $active: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  font-size: 11.5px;
-  font-weight: ${({ $active }) => ($active ? 700 : 500)};
-  letter-spacing: -0.3px;
-  line-height: 1.2;
-  white-space: nowrap;
 `;
 
 const BottomArea = styled.div`
@@ -131,120 +131,35 @@ const BottomArea = styled.div`
   flex-direction: column;
   align-items: center;
   width: 100%;
-  padding-bottom: 14px;
+  gap: 2px;
+  padding-bottom: 2px;
 `;
 
 const Divider = styled.div`
-  width: 44px;
+  width: 24px;
   height: 1px;
-  background: ${meok[200]};
-  margin: 8px 0;
-`;
-
-/** 지도 하위 모드(정보지도 / 온기지도) 드롭다운 팝오버 */
-const MapSubmenuPopover = styled.div`
-  position: absolute;
-  left: 74px;
-  top: 70px;
-  width: 180px;
-  background: ${surface.light.card};
-  border-radius: 16px;
-  padding: 8px;
-  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.16), 0 2px 8px rgba(0, 0, 0, 0.06);
-  border: 1px solid ${meok[200]};
-  z-index: 100;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  animation: popover-in 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-
-  @keyframes popover-in {
-    from {
-      opacity: 0;
-      transform: translateX(-8px) scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0) scale(1);
-    }
-  }
-`;
-
-const SubmenuItemBtn = styled.button<{ $active: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: none;
-  background: ${({ $active }) => ($active ? lightPalette.cheongrok[50] : 'transparent')};
-  color: ${({ $active }) => ($active ? lightPalette.cheongrok[500] : meok[900])};
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: ${({ $active }) => ($active ? 700 : 500)};
-  cursor: pointer;
-  transition: all 0.14s ease;
-
-  &:hover {
-    background: ${({ $active }) => ($active ? lightPalette.cheongrok[50] : meok[100])};
-    color: ${({ $active }) => ($active ? lightPalette.cheongrok[500] : meok[900])};
-  }
-`;
-
-const SubmenuLeft = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const ActiveDot = styled.div`
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: ${lightPalette.cheongrok[500]};
+  background: rgba(0, 0, 0, 0.08);
+  margin: 6px 0;
 `;
 
 export default function MapNavRail() {
   const router = useRouter();
+  const prefersReducedMotion = useReducedMotion();
   const mode = useMapStore((s) => s.mode);
   const setMode = useMapStore((s) => s.setMode);
   const setCategory = useMapStore((s) => s.setCategory);
   const panelOpen = useMapStore((s) => s.panelOpen);
   const setPanelOpen = useMapStore((s) => s.setPanelOpen);
 
-  const [mapMenuOpen, setMapMenuOpen] = useState(false);
-  const mapMenuRef = useRef<HTMLDivElement>(null);
-
-  // 지도 드롭다운 서브메뉴 외부 클릭 시 닫기
-  useEffect(() => {
-    const handleDocClick = (e: MouseEvent) => {
-      if (mapMenuRef.current && !mapMenuRef.current.contains(e.target as Node)) {
-        setMapMenuOpen(false);
-      }
-    };
-    if (mapMenuOpen) {
-      document.addEventListener('mousedown', handleDocClick);
-    }
-    return () => document.removeEventListener('mousedown', handleDocClick);
-  }, [mapMenuOpen]);
-
   const handleSelectInfoMap = () => {
-    setMapMenuOpen(false);
     setMode('info');
     setCategory(null);
     if (!panelOpen) setPanelOpen(true);
   };
 
   const handleSelectWarmthMap = () => {
-    setMapMenuOpen(false);
     setMode('warmth');
     if (!panelOpen) setPanelOpen(true);
-  };
-
-  const handleToggleMapMenu = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setMapMenuOpen((prev) => !prev);
   };
 
   // 온마루 자체 카테고리 활성 판별
@@ -252,13 +167,23 @@ export default function MapNavRail() {
   const isWarmthActive = mode === 'warmth';
 
   return (
-    <RailContainer role="navigation" aria-label="온마루 메인 카테고리 네비게이션">
+    <RailContainer
+      role="navigation"
+      aria-label="온마루 메인 카테고리 네비게이션"
+      initial={prefersReducedMotion ? false : { x: '-100%', opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={
+        prefersReducedMotion
+          ? { duration: 0 }
+          : { duration: RAIL_ENTER_DURATION_S, delay: RAIL_ENTER_DELAY_S, ease: ENTRANCE_EASE }
+      }
+    >
       {/* 1. 상단 온마루 브랜드 로고 */}
       <LogoArea onClick={() => router.push('/')} title="온마루 메인 홈으로 이동">
         <BrandIconBadge>온</BrandIconBadge>
       </LogoArea>
 
-      {/* 2. 온마루 자체 카테고리 목록 (한옥도감, 지도 ⌵, 소리마루, 온기이야기, 저장) */}
+      {/* 2. 온마루 자체 카테고리 목록 (한옥도감, 지도, 소리마루, 온기이야기, 저장) — 라벨은 title 툴팁으로 대체 */}
       <NavList>
         {/* 온마루 카테고리 1: 한옥도감 */}
         <NavItemBtn
@@ -266,61 +191,25 @@ export default function MapNavRail() {
           $active={false}
           onClick={() => router.push('/hanok')}
           aria-label="한옥도감"
-          title="디지털 한옥도감 & 문화유산 아카이브"
+          title="한옥도감"
         >
-          <NavItemIcon $active={false}>
-            <IoBookOutline size={22} />
+          <NavItemIcon>
+            <IoBookOutline size={19} />
           </NavItemIcon>
-          <NavItemLabel $active={false}>한옥도감</NavItemLabel>
         </NavItemBtn>
 
-        {/* 온마루 카테고리 2: 지도 ⌵ (드롭다운: 정보지도 / 온기지도) */}
-        <div ref={mapMenuRef} style={{ width: '100%' }}>
-          <NavItemBtn
-            type="button"
-            $active={isMapActive}
-            onClick={handleToggleMapMenu}
-            aria-label="지도 서비스"
-            title="온마루 지도 (클릭하여 정보지도/온기지도 선택)"
-          >
-            <NavItemIcon $active={isMapActive}>
-              <IoLocationOutline size={22} />
-            </NavItemIcon>
-            <NavItemLabel $active={isMapActive}>
-              <span>지도</span>
-              <IoChevronDownOutline size={12} style={{ transform: mapMenuOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
-            </NavItemLabel>
-          </NavItemBtn>
-
-          {/* 지도 서브메뉴 팝오버: 정보지도 / 온기지도 */}
-          {mapMenuOpen && (
-            <MapSubmenuPopover>
-              <SubmenuItemBtn
-                type="button"
-                $active={mode === 'info'}
-                onClick={handleSelectInfoMap}
-              >
-                <SubmenuLeft>
-                  <IoMapOutline size={17} />
-                  <span>정보지도</span>
-                </SubmenuLeft>
-                {mode === 'info' && <ActiveDot />}
-              </SubmenuItemBtn>
-
-              <SubmenuItemBtn
-                type="button"
-                $active={mode === 'warmth'}
-                onClick={handleSelectWarmthMap}
-              >
-                <SubmenuLeft>
-                  <IoFlame size={17} />
-                  <span>온기지도</span>
-                </SubmenuLeft>
-                {mode === 'warmth' && <ActiveDot />}
-              </SubmenuItemBtn>
-            </MapSubmenuPopover>
-          )}
-        </div>
+        {/* 온마루 카테고리 2: 지도 (정보지도) — 온기지도 전환은 아래 '온기이야기' 항목과 패널 내 ModeToggle이 담당한다 */}
+        <NavItemBtn
+          type="button"
+          $active={isMapActive}
+          onClick={handleSelectInfoMap}
+          aria-label="정보지도"
+          title="정보지도"
+        >
+          <NavItemIcon>
+            <IoLocationOutline size={19} />
+          </NavItemIcon>
+        </NavItemBtn>
 
         {/* 온마루 카테고리 3: 소리마루 (오디 도슨트) */}
         <NavItemBtn
@@ -328,12 +217,11 @@ export default function MapNavRail() {
           $active={false}
           onClick={() => router.push('/odii')}
           aria-label="소리마루"
-          title="공간 오디오 가이드 도슨트 소리마루"
+          title="소리마루"
         >
-          <NavItemIcon $active={false}>
-            <IoHeadsetOutline size={22} />
+          <NavItemIcon>
+            <IoHeadsetOutline size={19} />
           </NavItemIcon>
-          <NavItemLabel $active={false}>소리마루</NavItemLabel>
         </NavItemBtn>
 
         {/* 온마루 카테고리 4: 온기이야기 (지도 내 온기 후기 & 온도 모드 바로가기) */}
@@ -342,12 +230,11 @@ export default function MapNavRail() {
           $active={isWarmthActive}
           onClick={handleSelectWarmthMap}
           aria-label="온기이야기"
-          title="실시간 여행자 온기 후기 및 훈기 레이어"
+          title="온기이야기"
         >
-          <NavItemIcon $active={isWarmthActive}>
-            <IoFlame size={21} />
+          <NavItemIcon>
+            <IoFlame size={19} />
           </NavItemIcon>
-          <NavItemLabel $active={isWarmthActive}>온기이야기</NavItemLabel>
         </NavItemBtn>
 
         {/* 온마루 카테고리 5: 저장한 장소 */}
@@ -360,14 +247,11 @@ export default function MapNavRail() {
             if (!panelOpen) setPanelOpen(true);
           }}
           aria-label="마음에 담은 장소"
-          title="마음에 담은 장소 보관함"
+          title="마음에 담은 장소"
         >
-          <NavItemIcon $active={mode === 'info' && useMapStore.getState().category === 'bookmark'}>
-            <IoBookmarkOutline size={21} />
+          <NavItemIcon>
+            <IoBookmarkOutline size={19} />
           </NavItemIcon>
-          <NavItemLabel $active={mode === 'info' && useMapStore.getState().category === 'bookmark'}>
-            저장
-          </NavItemLabel>
         </NavItemBtn>
       </NavList>
 
@@ -379,12 +263,11 @@ export default function MapNavRail() {
           $active={false}
           onClick={() => router.push('/')}
           aria-label="온마루 3D 홈으로 이동"
-          title="온마루 인터랙티브 3D 한옥 메인 홈으로 이동"
+          title="온마루 홈"
         >
-          <NavItemIcon $active={false}>
-            <IoHomeOutline size={21} />
+          <NavItemIcon>
+            <IoHomeOutline size={19} />
           </NavItemIcon>
-          <NavItemLabel $active={false}>온마루 홈</NavItemLabel>
         </NavItemBtn>
 
         <NavItemBtn
@@ -392,12 +275,11 @@ export default function MapNavRail() {
           $active={false}
           onClick={() => router.push('/auth/login')}
           aria-label="마이 / 로그인"
-          title="로그인 및 마이페이지"
+          title="로그인"
         >
-          <NavItemIcon $active={false}>
-            <IoPersonOutline size={21} />
+          <NavItemIcon>
+            <IoPersonOutline size={19} />
           </NavItemIcon>
-          <NavItemLabel $active={false}>로그인</NavItemLabel>
         </NavItemBtn>
       </BottomArea>
     </RailContainer>

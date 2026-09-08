@@ -18,6 +18,13 @@ import {
 } from 'react-icons/io5';
 import { transientProps } from '@/design-system/styled';
 import { lightPalette, meok, surface } from '@/design-system/tokens';
+import GlobalMobileTabs from './GlobalMobileTabs';
+import MapMobileTabs from '@/map/components/MapMobileTabs';
+import { HEADER_EXIT_S, FLIP_TRANSFORM_EASE, FLIP_OPACITY_EASE } from '@/shared/navigation/mapEntranceTiming';
+
+/** 캡슐형 GNB의 높이 — /map의 MapChips가 "같은 자리를 이어받는" 느낌을 내려면
+ *  이 값을 그대로 써야 한다. */
+export const HEADER_HEIGHT = 46;
 
 interface LandingProps {
   $isLanding?: boolean;
@@ -25,6 +32,7 @@ interface LandingProps {
   $isActive?: boolean;
   $isScrolled?: boolean;
   $isHidden?: boolean;
+  $isMapPage?: boolean;
 }
 
 const NavigationBackdrop = styled(motion.div, transientProps)<LandingProps>`
@@ -48,7 +56,7 @@ const HeaderContainer = styled('header', transientProps)<LandingProps>`
   right: 0;
   margin: 0 auto;
   width: min(calc(100% - 40px), 1140px);
-  height: 46px;
+  height: ${HEADER_HEIGHT}px;
   z-index: 100;
   display: flex;
   align-items: center;
@@ -56,9 +64,29 @@ const HeaderContainer = styled('header', transientProps)<LandingProps>`
   padding: 0 10px 0 16px;
   border-radius: 9999px;
 
-  transform: translateY(${({ $isHidden }) => ($isHidden ? 'calc(-100% - 24px)' : '0')});
-  transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: transform;
+  /* 지도 페이지(데스크톱)는 자체 좌측 네비게이션 레일을 쓰므로 상단바가 필요 없다.
+     스크롤 숨김(isHidden)은 기존처럼 단순 슬라이드지만, 지도 진입(isMapPage)은
+     달력 페이지가 위 경첩을 축으로 넘어가듯 3D flip으로 사라진다 — 동시에
+     MapChips가 그 자리로 아래에서 tilt-in하며 나타나 카드가 뒤집혀 교체되는
+     느낌을 준다. backface-visibility로 뒤집힌 뒷면이 비치지 않게 하고, opacity는
+     거의 직각(엣지온)이 될 때 확 사라지도록 별도 곡선을 쓴다. 지속시간은
+     mapEntranceTiming의 HEADER_EXIT_S와 반드시 맞춰야 한다. */
+  transform: ${({ $isHidden, $isMapPage }) => {
+    if ($isMapPage) return 'perspective(700px) rotateX(-100deg)';
+    if ($isHidden) return 'translateY(calc(-100% - 24px))';
+    return 'perspective(700px) rotateX(0deg) translateY(0)';
+  }};
+  transform-origin: 50% 0%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  opacity: ${({ $isMapPage }) => ($isMapPage ? 0 : 1)};
+  pointer-events: ${({ $isHidden, $isMapPage }) => ($isHidden || $isMapPage ? 'none' : 'auto')};
+  transition:
+    transform ${HEADER_EXIT_S}s cubic-bezier(${FLIP_TRANSFORM_EASE.join(', ')}),
+    opacity ${HEADER_EXIT_S}s cubic-bezier(${FLIP_OPACITY_EASE.join(', ')}),
+    visibility 0s ${({ $isMapPage }) => ($isMapPage ? HEADER_EXIT_S : 0)}s;
+  visibility: ${({ $isMapPage }) => ($isMapPage ? 'hidden' : 'visible')};
+  will-change: transform, opacity;
   user-select: none;
 
   @media (max-width: 1024px) {
@@ -77,6 +105,9 @@ const HeaderContainer = styled('header', transientProps)<LandingProps>`
     padding: 0 8px;
     border-radius: 20px;
     transform: none;
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -228,50 +259,16 @@ const MobileMenuWrapper = styled.div`
   display: none;
 `;
 
-const MobileTabNav = styled.nav`
+const MobileTabNavWrap = styled.div`
   display: none;
   position: relative;
   z-index: 1;
 
   @media (max-width: 767px) {
+    display: block;
     width: 100%;
     height: 100%;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    align-items: stretch;
   }
-`;
-
-const MobileTabLink = styled(Link, transientProps)<LandingProps>`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  min-width: 0;
-  color: ${({ $isLanding, $isOdii, $isActive }) => {
-    if ($isActive && $isOdii) return lightPalette.jangmi[500];
-    if ($isActive) return $isLanding ? '#f8e6bd' : lightPalette.juhong[700];
-    return $isLanding ? 'rgba(250, 250, 250, 0.68)' : 'rgba(33, 30, 25, 0.68)';
-  }};
-  font-family: 'SpoqaHanSansNeo', sans-serif;
-  font-size: 10px;
-  font-weight: ${({ $isActive }) => ($isActive ? 600 : 400)};
-  letter-spacing: -0.02em;
-  text-decoration: none;
-  transition: color 180ms ease, transform 180ms ease;
-
-  &:active { transform: scale(0.94); }
-`;
-
-const MobileTabIcon = styled.svg`
-  width: 19px;
-  height: 19px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
 `;
 
 const MobileMenuButton = styled('button', transientProps)<LandingProps>`
@@ -498,8 +495,6 @@ export default function Header() {
     };
   }, [isMobileMenuOpen, isLandingPage]);
 
-  // 지도 페이지에서는 전체 화면 지도 몰입을 위해 전역 헤더를 숨긴다.
-  if (isMapPage) return null;
 
   const isNavigationOpen = isMobileMenuOpen;
 
@@ -524,6 +519,7 @@ export default function Header() {
         $isLanding={usesDarkSurface}
         $isScrolled={isScrolled}
         $isHidden={isHidden}
+        $isMapPage={isMapPage}
       >
         <HeaderBackdrop
           $isLanding={usesDarkSurface}
@@ -579,24 +575,33 @@ export default function Header() {
         </LoginButton>
       </RightSection>
 
-      <MobileTabNav aria-label="주요 탐색">
-        <MobileTabLink href="/" $isLanding={usesDarkSurface} $isActive={pathname === '/'}>
-          <IoHomeOutline size={19} aria-hidden="true" />
-          <span>홈</span>
-        </MobileTabLink>
-        <MobileTabLink href="/hanok" $isLanding={usesDarkSurface} $isActive={pathname.startsWith('/hanok')}>
-          <IoBookOutline size={19} aria-hidden="true" />
-          <span>한옥도감</span>
-        </MobileTabLink>
-        <MobileTabLink href="/map" $isLanding={usesDarkSurface} $isActive={pathname.startsWith('/map')}>
-          <IoMapOutline size={19} aria-hidden="true" />
-          <span>지도</span>
-        </MobileTabLink>
-        <MobileTabLink href="/odii" $isLanding={usesDarkSurface} $isOdii $isActive={isOdiiPage}>
-          <IoHeadsetOutline size={19} aria-hidden="true" />
-          <span>오디</span>
-        </MobileTabLink>
-      </MobileTabNav>
+      <MobileTabNavWrap>
+        <AnimatePresence mode="wait" initial={false}>
+          {isMapPage ? (
+            <motion.div
+              key="map-tabs"
+              style={{ width: '100%', height: '100%' }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.16, ease: 'easeOut' }}
+            >
+              <MapMobileTabs />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="global-tabs"
+              style={{ width: '100%', height: '100%' }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.16, ease: 'easeOut' }}
+            >
+              <GlobalMobileTabs isLanding={usesDarkSurface} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </MobileTabNavWrap>
 
       <MobileMenuWrapper ref={mobileMenuRef}>
         <MobileMenuButton
