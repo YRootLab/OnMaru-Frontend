@@ -55,6 +55,12 @@ Verified this session:
 - `npx tsc --noEmit`: passed cleanly (code 0).
 - Reload stability on dark mode confirmed.
 
+
+PR prep 2026-09-10:
+- Branch: `hotfix/odii-page` targeting `develop`.
+- Related Issues for PR reference: #62 and #64 because this fixes map/ODII regressions after the Lucide migration.
+- Do not close #68 or #69 from this PR; they remain follow-up UI/theme work.
+
 Next step:
 - User verification of reload behavior and dark mode appearance on `/map`.
 - 지도 카테고리 칩은 PR #66의 가로 스크롤 수축 동작을 유지하면서, mask로 그림자가 잘리는 문제를 제거하고 둥근 pill 스타일/진입 애니메이션을 복원했다. 현재 아이콘은 lucide-react 기준을 유지한다.
