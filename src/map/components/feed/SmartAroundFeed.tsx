@@ -414,7 +414,7 @@ export default function SmartAroundFeed({ items }: SmartAroundFeedProps) {
           onClick={() => scroll('left')}
           aria-label="이전 추천 명소 보기"
         >
-          <IoChevronBackOutline size={18} />
+          <ChevronLeft size={18} strokeWidth={2} />
         </FloatingNavBtn>
 
         <FloatingNavBtn
@@ -424,7 +424,7 @@ export default function SmartAroundFeed({ items }: SmartAroundFeedProps) {
           onClick={() => scroll('right')}
           aria-label="다음 추천 명소 보기"
         >
-          <IoChevronForwardOutline size={18} />
+          <ChevronRight size={18} strokeWidth={2} />
         </FloatingNavBtn>
 
         <Scroller ref={scrollerRef} onWheel={handleWheel} role="region" aria-label="추천 한옥 명소 목록">

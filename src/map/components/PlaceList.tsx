@@ -4,16 +4,16 @@ import { useMemo, useState, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import {
-  IoChevronDownOutline,
-  IoChevronBackOutline,
-  IoChevronForwardOutline,
-  IoMapOutline,
-  IoReloadOutline,
-  IoAlertCircleOutline,
-  IoSparklesOutline,
-  IoListOutline,
-  IoBookmark,
-} from 'react-icons/io5';
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Map,
+  RotateCcw,
+  AlertCircle,
+  Sparkles,
+  List,
+  Bookmark,
+} from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import { useBookmarkStore } from '@/map/hooks/useBookmarkStore';
@@ -99,7 +99,7 @@ const SortSelect = styled.select`
   }
 `;
 
-const SortChevron = styled(IoChevronDownOutline)`
+const SortChevron = styled(ChevronDown)`
   position: absolute;
   right: 0;
   pointer-events: none;
@@ -484,7 +484,7 @@ export default function PlaceList() {
       {/* 3. 장소 목록 헤더 */}
       <StickyHeader>
         <CountLabel aria-live="polite">
-          <IoListOutline size={15} color={meok[700]} />
+          <List size={15} color={meok[700]} strokeWidth={2} />
           <span>{headerTitle}</span>
         </CountLabel>
 
@@ -497,7 +497,7 @@ export default function PlaceList() {
             <option value="dist">거리순</option>
             <option value="name">이름순</option>
           </SortSelect>
-          <SortChevron size={14} />
+          <SortChevron size={14} strokeWidth={2} />
         </SortDropdownWrapper>
       </StickyHeader>
 
@@ -521,12 +521,12 @@ export default function PlaceList() {
       ) : error ? (
         <EmptyStateBox role="alert">
           <EmptyIconBox>
-            <IoAlertCircleOutline size={24} />
+            <AlertCircle size={24} strokeWidth={2} />
           </EmptyIconBox>
           <EmptyTitle>정보를 불러오지 못했습니다</EmptyTitle>
           <EmptyDesc>{error}</EmptyDesc>
           <ActionButton type="button" onClick={reload}>
-            <IoReloadOutline size={14} />
+            <RotateCcw size={14} strokeWidth={2} />
             <span>다시 시도</span>
           </ActionButton>
         </EmptyStateBox>
@@ -534,9 +534,9 @@ export default function PlaceList() {
         <EmptyStateBox>
           <EmptyIconBox>
             {category === 'bookmark' ? (
-              <IoBookmark size={24} color={lightPalette.juhong[500]} />
+              <Bookmark size={24} color={lightPalette.juhong[500]} fill="currentColor" strokeWidth={2} />
             ) : (
-              <IoMapOutline size={24} />
+              <Map size={24} strokeWidth={2} />
             )}
           </EmptyIconBox>
           <EmptyTitle>
@@ -558,7 +558,7 @@ export default function PlaceList() {
                 onClick={() => useMapStore.getState().setCategory(null)}
                 style={{ width: '100%', justifyContent: 'center' }}
               >
-                <IoSparklesOutline size={14} />
+                <Sparkles size={14} strokeWidth={2} />
                 <span>전체 명소 둘러보기</span>
               </ActionButton>
             )}
@@ -568,7 +568,7 @@ export default function PlaceList() {
                 onClick={handleZoomOut}
                 style={{ width: '100%', justifyContent: 'center' }}
               >
-                <IoMapOutline size={14} />
+                <Map size={14} strokeWidth={2} />
                 <span>지도 영역 2배 넓히기</span>
               </ActionButton>
             )}
@@ -577,7 +577,7 @@ export default function PlaceList() {
               onClick={() => useMapStore.getState().setPopularPanelOpen(true)}
               style={{ width: '100%', justifyContent: 'center', background: 'rgba(232, 90, 24, 0.08)', color: lightPalette.juhong[500] }}
             >
-              <IoSparklesOutline size={14} />
+              <Sparkles size={14} strokeWidth={2} />
               <span>전국 인기 명소 랭킹</span>
             </ActionButton>
           </div>
@@ -606,7 +606,7 @@ export default function PlaceList() {
                 disabled={validPage <= 1}
                 aria-label="이전 페이지로 이동"
               >
-                <IoChevronBackOutline size={16} />
+                <ChevronLeft size={16} strokeWidth={2} />
                 <span>이전</span>
               </PageNavBtn>
 
@@ -632,7 +632,7 @@ export default function PlaceList() {
                 aria-label="다음 페이지로 이동"
               >
                 <span>다음</span>
-                <IoChevronForwardOutline size={16} />
+                <ChevronRight size={16} strokeWidth={2} />
               </PageNavBtn>
             </PaginationWrapper>
           )}

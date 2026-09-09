@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { IoHeart, IoHeartOutline, IoPlay, IoPause } from 'react-icons/io5';
+import { Heart, Play, Pause } from 'lucide-react';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
 
@@ -111,9 +111,9 @@ export const OdiiStoryCardGrid: React.FC<OdiiStoryCardGridProps> = ({
                     }`}
                   >
                     {isCurrent && isPlaying ? (
-                      <IoPause size={15} />
+                      <Pause size={15} strokeWidth={2} />
                     ) : (
-                      <IoPlay size={15} className="ml-0.5" />
+                      <Play size={15} fill="currentColor" className="ml-0.5" />
                     )}
                   </button>
                 </div>
@@ -132,7 +132,7 @@ export const OdiiStoryCardGrid: React.FC<OdiiStoryCardGridProps> = ({
                           isBookmarked ? 'text-[#f84e76]' : 'text-[#b0a398] hover:text-[#f84e76]'
                         }`}
                       >
-                        {isBookmarked ? <IoHeart size={16} /> : <IoHeartOutline size={16} />}
+                        {isBookmarked ? <Heart size={16} strokeWidth={2} fill="currentColor" /> : <Heart size={16} strokeWidth={2} />}
                       </button>
                     )}
                   </div>

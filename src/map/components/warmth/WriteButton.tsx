@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
-import { IoCreateOutline } from 'react-icons/io5';
+import { PenLine } from 'lucide-react';
 import { lightPalette } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import WriteWarmthModal from './WriteWarmthModal';
@@ -63,7 +63,7 @@ export default function WriteButton() {
         onClick={() => setIsOpen(true)}
         aria-label="장소에 대한 온기 후기 남기기"
       >
-        <IoCreateOutline size={18} />
+        <PenLine size={18} strokeWidth={2} />
         <span>온기 남기기</span>
       </FloatingBtn>
 

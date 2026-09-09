@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
-import { IoChevronBackOutline, IoChevronForwardOutline } from 'react-icons/io5';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { meok, surface } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import ModeToggle from './ModeToggle';
@@ -168,7 +168,7 @@ export default function ListPanel() {
         aria-label={panelOpen ? '목록 패널 접기' : '목록 패널 펼치기'}
         onClick={togglePanel}
       >
-        {panelOpen ? <IoChevronBackOutline size={16} /> : <IoChevronForwardOutline size={16} />}
+        {panelOpen ? <ChevronLeft size={16} strokeWidth={2} /> : <ChevronRight size={16} strokeWidth={2} />}
       </Toggle>
     </Panel>
   );

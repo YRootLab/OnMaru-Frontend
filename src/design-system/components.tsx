@@ -4,9 +4,9 @@
 // styled / css / useOnmaruTheme 세 가지 방식 모두 포함
 // ============================================================
 
-import styled       from '@emotion/styled'
-import { css }      from '@emotion/react'
-import { IoMoonOutline, IoSunnyOutline } from 'react-icons/io5'
+import { css } from '@emotion/react'
+import styled from '@emotion/styled'
+import { Moon, Sun } from 'lucide-react'
 import { useOnmaruTheme } from './ThemeProvider'
 import type { OnmaruTheme } from './tokens'
 
@@ -364,11 +364,11 @@ export function ThemeToggleButton() {
     >
       {mode === 'light' ? (
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-          <IoMoonOutline size={14} /> 야간 모드
+          <Moon size={14} strokeWidth={2} /> 야간 모드
         </span>
       ) : (
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-          <IoSunnyOutline size={14} /> 주간 모드
+          <Sun size={14} strokeWidth={2} /> 주간 모드
         </span>
       )}
     </button>

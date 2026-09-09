@@ -4,18 +4,17 @@ import { memo, useEffect, useRef, useMemo } from 'react';
 import Image from 'next/image';
 import styled from '@emotion/styled';
 import {
-  IoStorefrontOutline,
-  IoHomeOutline,
-  IoRestaurantOutline,
-  IoCafeOutline,
-  IoBagHandleOutline,
-  IoSparklesOutline,
-  IoBookOutline,
-  IoCalendarOutline,
-  IoHeadsetOutline,
-  IoBookmark,
-  IoBookmarkOutline,
-} from 'react-icons/io5';
+  Landmark,
+  Home,
+  Utensils,
+  Coffee,
+  ShoppingBag,
+  Sparkles,
+  BookOpen,
+  Calendar,
+  Headphones,
+  Bookmark,
+} from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useBookmarkStore } from '@/map/hooks/useBookmarkStore';
 import { useMapStore } from '@/map/hooks/useMapStore';
@@ -284,23 +283,23 @@ const CATEGORY_LABELS: Record<PlaceCategory, string> = {
 function renderCategoryIcon(category: PlaceCategory) {
   switch (category) {
     case 'spot':
-      return <IoStorefrontOutline size={24} />;
+      return <Landmark size={24} strokeWidth={2} />;
     case 'experience':
-      return <IoSparklesOutline size={24} />;
+      return <Sparkles size={24} strokeWidth={2} />;
     case 'culture':
-      return <IoBookOutline size={24} />;
+      return <BookOpen size={24} strokeWidth={2} />;
     case 'festival':
-      return <IoCalendarOutline size={24} />;
+      return <Calendar size={24} strokeWidth={2} />;
     case 'stay':
-      return <IoHomeOutline size={24} />;
+      return <Home size={24} strokeWidth={2} />;
     case 'food':
-      return <IoRestaurantOutline size={24} />;
+      return <Utensils size={24} strokeWidth={2} />;
     case 'cafe':
-      return <IoCafeOutline size={24} />;
+      return <Coffee size={24} strokeWidth={2} />;
     case 'market':
-      return <IoBagHandleOutline size={24} />;
+      return <ShoppingBag size={24} strokeWidth={2} />;
     default:
-      return <IoStorefrontOutline size={24} />;
+      return <Landmark size={24} strokeWidth={2} />;
   }
 }
 
@@ -458,7 +457,7 @@ function PlaceListItemComponent({
         title={isBookmarked ? '저장 해제' : '마음에 담기'}
         aria-label={isBookmarked ? `${item.name} 마음에 담기 취소` : `${item.name} 마음에 담기`}
       >
-        {isBookmarked ? <IoBookmark size={14} /> : <IoBookmarkOutline size={14} />}
+        <Bookmark size={14} strokeWidth={2} fill={isBookmarked ? 'currentColor' : 'none'} />
       </BookmarkQuickBtn>
     </ItemContainer>
   );

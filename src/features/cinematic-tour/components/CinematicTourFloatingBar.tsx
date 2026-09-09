@@ -3,16 +3,16 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import {
-  IoPlay,
-  IoPause,
-  IoPlayBackOutline,
-  IoPlayForwardOutline,
-  IoCloseOutline,
-  IoCameraOutline,
-  IoCompassOutline,
-  IoHeadsetOutline,
-  IoOpenOutline,
-} from 'react-icons/io5';
+  Play,
+  Pause,
+  SkipBack,
+  SkipForward,
+  X,
+  Camera,
+  Compass,
+  Headphones,
+  ExternalLink,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { lightPalette, darkPalette, meok, surface } from '@/design-system/tokens';
 import { useCinematicTourStore } from '@/features/cinematic-tour/store/useCinematicTourStore';
@@ -347,7 +347,7 @@ export default function CinematicTourFloatingBar() {
       <TopRow>
         <BadgeTitleGroup>
           <TourBadge>
-            <IoCompassOutline size={13} />
+            <Compass size={13} />
             <span>시네마틱 투어</span>
           </TourBadge>
           <TourTitle>{story.title}</TourTitle>
@@ -359,10 +359,10 @@ export default function CinematicTourFloatingBar() {
             onClick={() => router.push(`/odii?storyId=${story.tid}`)}
             title="오디 전체 해설 및 대본 페이지로 이동"
           >
-            <IoOpenOutline size={16} />
+            <ExternalLink size={16} />
           </IconButton>
           <IconButton type="button" onClick={stopTour} title="투어 종료">
-            <IoCloseOutline size={18} />
+            <X size={18} />
           </IconButton>
         </ActionGroup>
       </TopRow>
@@ -389,7 +389,7 @@ export default function CinematicTourFloatingBar() {
         {totalSentences > 1 && (
           <SubtitleMetaRow>
             <SubtitleIndexBadge>
-              <IoHeadsetOutline size={11} />
+              <Headphones size={11} />
               <span>해설 자막 ({activeSentenceIndex + 1}/{totalSentences})</span>
             </SubtitleIndexBadge>
           </SubtitleMetaRow>
@@ -399,7 +399,7 @@ export default function CinematicTourFloatingBar() {
         </SubtitleLine>
         {currentPhotoTip && (
           <PhotoTipPill>
-            <IoCameraOutline size={13} />
+            <Camera size={13} />
             <span>포토 스팟: {currentPhotoTip}</span>
           </PhotoTipPill>
         )}
@@ -418,11 +418,11 @@ export default function CinematicTourFloatingBar() {
             disabled={activeWaypointIndex === 0}
             title="이전 스팟"
           >
-            <IoPlayBackOutline size={18} />
+            <SkipBack size={18} />
           </IconButton>
 
           <PlayBtn type="button" onClick={togglePlay} title={isPlaying ? '일시정지' : '재생'}>
-            {isPlaying ? <IoPause size={20} /> : <IoPlay size={20} style={{ marginLeft: 2 }} />}
+            {isPlaying ? <Pause size={20} /> : <Play size={20} style={{ marginLeft: 2 }} />}
           </PlayBtn>
 
           <IconButton
@@ -431,12 +431,12 @@ export default function CinematicTourFloatingBar() {
             disabled={activeWaypointIndex >= waypoints.length - 1}
             title="다음 스팟"
           >
-            <IoPlayForwardOutline size={18} />
+            <SkipForward size={18} />
           </IconButton>
         </MainButtons>
 
         <TimeText style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <IoHeadsetOutline size={13} />
+          <Headphones size={13} />
           <span>{story.speaker ?? '도슨트'}</span>
         </TimeText>
       </ControlsRow>

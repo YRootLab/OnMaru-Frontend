@@ -6,16 +6,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import styled from '@emotion/styled';
-import {
-  IoSparklesOutline,
-  IoArrowForwardOutline,
-  IoHomeOutline,
-  IoBookOutline,
-  IoMapOutline,
-  IoHeadsetOutline,
-  IoMenuOutline,
-  IoCloseOutline,
-} from 'react-icons/io5';
+import { Sparkles, ArrowRight, Menu, X } from 'lucide-react';
 import { transientProps } from '@/design-system/styled';
 import { lightPalette, meok, surface } from '@/design-system/tokens';
 import GlobalMobileTabs from './GlobalMobileTabs';
@@ -583,7 +574,7 @@ export default function Header() {
           </NavLink>
 
           <NavLink href="/discover" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
-            <IoSparklesOutline size={13} style={{ marginRight: 4, verticalAlign: '-1px' }} />
+            <Sparkles size={13} style={{ marginRight: 4, verticalAlign: '-1px' }} />
             <span>여정 탐색</span>
           </NavLink>
 
@@ -598,7 +589,7 @@ export default function Header() {
       <RightSection $isMapPage={isMapPage}>
         <LoginButton href="/auth/login" $isLanding={usesDarkSurface}>
           <span>로그인</span>
-          <IoArrowForwardOutline size={12} />
+          <ArrowRight size={12} />
         </LoginButton>
       </RightSection>
 
@@ -643,9 +634,9 @@ export default function Header() {
           onClick={() => setIsMobileMenuOpen((prev) => !prev)}
         >
           {isMobileMenuOpen ? (
-            <IoCloseOutline size={20} />
+            <X size={20} />
           ) : (
-            <IoMenuOutline size={20} />
+            <Menu size={20} />
           )}
         </MobileMenuButton>
 
@@ -665,7 +656,7 @@ export default function Header() {
               <MobileMenuLink href="/odii" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>소리마루</MobileMenuLink>
               <MobileMenuLink href="/discover" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <IoSparklesOutline size={15} /> 여정 탐색
+                  <Sparkles size={15} /> 여정 탐색
                 </span>
               </MobileMenuLink>
               {IS_DEV && (

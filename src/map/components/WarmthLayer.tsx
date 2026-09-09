@@ -4,13 +4,13 @@ import { useEffect, useMemo } from 'react';
 import { Global, css } from '@emotion/react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import {
-  IoSparklesOutline,
-  IoFlameOutline,
-  IoSunnyOutline,
-  IoLeafOutline,
-  IoLocationOutline,
-  IoPeopleOutline,
-} from 'react-icons/io5';
+  Sparkles,
+  Flame,
+  Sun,
+  Leaf,
+  MapPin,
+  Users,
+} from 'lucide-react';
 import {
   lightPalette,
   darkPalette,
@@ -41,12 +41,12 @@ import {
 const GOTHIC_FONT = "'Pretendard', 'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif";
 
 const ICONS = {
-  sparkles: renderToStaticMarkup(<IoSparklesOutline size={13} strokeWidth={32} />),
-  flame: renderToStaticMarkup(<IoFlameOutline size={13} strokeWidth={32} />),
-  sun: renderToStaticMarkup(<IoSunnyOutline size={13} strokeWidth={32} />),
-  wind: renderToStaticMarkup(<IoLeafOutline size={13} strokeWidth={32} />),
-  mapPin: renderToStaticMarkup(<IoLocationOutline size={12} strokeWidth={32} />),
-  users: renderToStaticMarkup(<IoPeopleOutline size={12} strokeWidth={32} />),
+  sparkles: renderToStaticMarkup(<Sparkles size={13} strokeWidth={2} />),
+  flame: renderToStaticMarkup(<Flame size={13} strokeWidth={2} />),
+  sun: renderToStaticMarkup(<Sun size={13} strokeWidth={2} />),
+  wind: renderToStaticMarkup(<Leaf size={13} strokeWidth={2} />),
+  mapPin: renderToStaticMarkup(<MapPin size={12} strokeWidth={2} />),
+  users: renderToStaticMarkup(<Users size={12} strokeWidth={2} />),
 };
 
 const CONGESTION_CONFIG = {

@@ -3,14 +3,7 @@
 import { useEffect, useMemo } from 'react';
 import { Global, css } from '@emotion/react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import {
-  IoLocationOutline,
-  IoFlameOutline,
-  IoLeafOutline,
-  IoChatbubbleOutline,
-  IoChevronBackOutline,
-  IoChevronForwardOutline,
-} from 'react-icons/io5';
+import { MapPin, Flame, Leaf, MessageCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { meok, lightPalette, darkPalette, surface } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import { useMapStore } from '@/map/hooks/useMapStore';
@@ -30,12 +23,12 @@ import type { Item, Warmth } from '@/map/types';
 const GOTHIC_FONT = "'Pretendard', 'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif";
 
 const ICONS = {
-  mapPin: renderToStaticMarkup(<IoLocationOutline size={11} strokeWidth={32} />),
-  flame: renderToStaticMarkup(<IoFlameOutline size={10} strokeWidth={32} />),
-  wind: renderToStaticMarkup(<IoLeafOutline size={10} strokeWidth={32} />),
-  quote: renderToStaticMarkup(<IoChatbubbleOutline size={11} strokeWidth={32} />),
-  chevronLeft: renderToStaticMarkup(<IoChevronBackOutline size={12} strokeWidth={32} />),
-  chevronRight: renderToStaticMarkup(<IoChevronForwardOutline size={12} strokeWidth={32} />),
+  mapPin: renderToStaticMarkup(<MapPin size={11} strokeWidth={2} />),
+  flame: renderToStaticMarkup(<Flame size={10} strokeWidth={2} />),
+  wind: renderToStaticMarkup(<Leaf size={10} strokeWidth={2} />),
+  quote: renderToStaticMarkup(<MessageCircle size={11} strokeWidth={2} />),
+  chevronLeft: renderToStaticMarkup(<ChevronLeft size={12} strokeWidth={2} />),
+  chevronRight: renderToStaticMarkup(<ChevronRight size={12} strokeWidth={2} />),
 };
 
 function formatTimeAgo(isoString: string): string {

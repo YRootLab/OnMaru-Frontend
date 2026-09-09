@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { IoPlay, IoPause } from 'react-icons/io5';
+import { Play, Pause } from 'lucide-react';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import type { OdiiStoryItem } from '@/features/odii-audio/types/odii.types';
 import { groupOdiiStoriesByPlace, type OdiiPlaceGroup } from '@/features/odii-audio/utils/odiiArchiveGrouping';
@@ -112,9 +112,11 @@ function StoryRow({ story, index }: StoryRowProps) {
         <p className="mt-1 truncate text-[11px] text-[#817a72]">{story.audioTitle || story.locationName || '오디오 가이드'}</p>
       </div>
 
+
       <span className="shrink-0 self-start whitespace-nowrap rounded-full bg-[#211e19]/[0.05] px-2 py-1 text-[10px] font-semibold text-[#786d5e]">
         {story.formattedDuration || '3:00'}
       </span>
+
     </article>
   );
 }

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
+import { SmilePlus, Smile, Meh, Frown, Angry } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 
 export type MoodValue = 1 | 2 | 3 | 4 | 5;
@@ -60,13 +61,6 @@ const MoodLabel = styled.span`
   white-space: nowrap;
 `;
 
-import {
-  RiEmotionLaughLine,
-  RiEmotionHappyLine,
-  RiEmotionNormalLine,
-  RiEmotionUnhappyLine,
-  RiEmotionSadLine,
-} from 'react-icons/ri';
 
 /** 5단계 감정 라벨 사전 */
 const MOOD_LABELS: Record<MoodValue, string> = {
@@ -83,11 +77,11 @@ export default function MoodSelector({
   readonly = false,
 }: MoodSelectorProps) {
   const moods: { val: MoodValue; icon: React.ReactNode }[] = [
-    { val: 1, icon: <RiEmotionLaughLine size={24} /> },
-    { val: 2, icon: <RiEmotionHappyLine size={24} /> },
-    { val: 3, icon: <RiEmotionNormalLine size={24} /> },
-    { val: 4, icon: <RiEmotionUnhappyLine size={24} /> },
-    { val: 5, icon: <RiEmotionSadLine size={24} /> },
+    { val: 1, icon: <SmilePlus size={24} strokeWidth={1.8} /> },
+    { val: 2, icon: <Smile size={24} strokeWidth={1.8} /> },
+    { val: 3, icon: <Meh size={24} strokeWidth={1.8} /> },
+    { val: 4, icon: <Frown size={24} strokeWidth={1.8} /> },
+    { val: 5, icon: <Angry size={24} strokeWidth={1.8} /> },
   ];
 
   return (

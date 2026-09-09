@@ -3,8 +3,10 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
-import { motion } from 'framer-motion';
-import { IoChevronBackOutline } from 'react-icons/io5';
+
+import { motion, useReducedMotion } from 'framer-motion';
+import { ChevronLeft } from 'lucide-react';
+
 import { transientProps } from '@/design-system/styled';
 import { meok, surface } from '@/design-system/tokens';
 import {
@@ -297,7 +299,7 @@ export default function MapPage() {
               aria-label="온마루 메인 홈으로 이동"
               title="온마루 메인 홈으로 이동"
             >
-              <IoChevronBackOutline size={16} />
+              <ChevronLeft size={16} strokeWidth={2} />
               <span>온마루 홈</span>
             </FloatingHomeButton>
           )}

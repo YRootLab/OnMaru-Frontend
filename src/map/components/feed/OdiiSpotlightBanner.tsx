@@ -247,7 +247,7 @@ export default function OdiiSpotlightBanner() {
         </DocentTag>
 
         <StartBtn type="button" onClick={handleStart}>
-          <IoPlay size={13} className="ml-0.5" />
+          <Play size={13} fill="currentColor" className="ml-0.5" />
           <span>투어 시작</span>
         </StartBtn>
       </ActionRow>

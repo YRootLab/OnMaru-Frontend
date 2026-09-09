@@ -5,7 +5,7 @@ import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
 import { meok, lightPalette } from '@/design-system/tokens';
-import { IoSparklesOutline, IoArrowForwardOutline } from 'react-icons/io5';
+import { Sparkles, ArrowRight } from 'lucide-react';
 import type { Village } from '@/hanok/types';
 
 const HeroContainer = styled.section`
@@ -177,7 +177,7 @@ export default function HanokHero({ villages, onSelectVillage }: HanokHeroProps)
       <ContentOverlay>
         <EyebrowBadge>
           <span className="stamp" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-            <IoSparklesOutline size={13} /> 온마루 스페셜 큐레이션
+            <Sparkles size={13} strokeWidth={2} /> 온마루 스페셜 큐레이션
           </span>
           <span>{current.region} · {current.type}</span>
         </EyebrowBadge>
@@ -198,7 +198,7 @@ export default function HanokHero({ villages, onSelectVillage }: HanokHeroProps)
           </Indicators>
 
           <DetailBtn onClick={() => onSelectVillage(current)}>
-            자세히 보기 <IoArrowForwardOutline size={14} />
+            자세히 보기 <ArrowRight size={14} strokeWidth={2} />
           </DetailBtn>
         </ControlsRow>
       </ContentOverlay>

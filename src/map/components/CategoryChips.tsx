@@ -19,6 +19,7 @@ import {
 } from 'react-icons/io5';
 import { transientProps } from '@/design-system/styled';
 import { meok } from '@/design-system/tokens';
+
 import { useMapStore } from '@/map/hooks/useMapStore';
 import type { MapMode } from '@/map/types';
 
@@ -26,26 +27,26 @@ interface CategoryItem {
   id: string;
   label: string;
   keyword: string;
-  icon: React.ComponentType<{ size?: number; className?: string; 'aria-hidden'?: boolean }>;
+  icon: React.ComponentType<{ size?: number; className?: string; 'aria-hidden'?: boolean; strokeWidth?: number }>;
 }
 
 const CATEGORIES: Record<MapMode, CategoryItem[]> = {
   info: [
-    { id: 'spot', label: '고택·명소', keyword: '고택', icon: IoStorefrontOutline },
-    { id: 'experience', label: '한복·전통체험', keyword: '체험', icon: IoSparklesOutline },
-    { id: 'culture', label: '문화재·서원', keyword: '서원', icon: IoBookOutline },
-    { id: 'festival', label: '야행·축제', keyword: '축제', icon: IoCalendarOutline },
-    { id: 'stay', label: '한옥숙소', keyword: '한옥스테이', icon: IoHomeOutline },
-    { id: 'food', label: '향토음식', keyword: '향토음식', icon: IoRestaurantOutline },
-    { id: 'cafe', label: '한옥카페·디저트', keyword: '한옥카페', icon: IoCafeOutline },
-    { id: 'market', label: '전통시장', keyword: '전통시장', icon: IoBagHandleOutline },
+    { id: 'spot', label: '고택·명소', keyword: '고택', icon: Landmark },
+    { id: 'experience', label: '한복·전통체험', keyword: '체험', icon: Sparkles },
+    { id: 'culture', label: '문화재·서원', keyword: '서원', icon: BookOpen },
+    { id: 'festival', label: '야행·축제', keyword: '축제', icon: Calendar },
+    { id: 'stay', label: '한옥숙소', keyword: '한옥스테이', icon: Home },
+    { id: 'food', label: '향토음식', keyword: '향토음식', icon: Utensils },
+    { id: 'cafe', label: '한옥카페·디저트', keyword: '한옥카페', icon: Coffee },
+    { id: 'market', label: '전통시장', keyword: '전통시장', icon: ShoppingBag },
   ],
   warmth: [
-    { id: 'all', label: '모든 온기', keyword: '', icon: IoFlameOutline },
-    { id: 'busy', label: '북적이는 곳', keyword: '북적', icon: IoPeopleOutline },
-    { id: 'quiet', label: '한적한 곳', keyword: '한적', icon: IoLeafOutline },
-    { id: 'today', label: '오늘의 온기', keyword: '오늘', icon: IoCalendarOutline },
-    { id: 'mine', label: '내 온기', keyword: '내온기', icon: IoHeartOutline },
+    { id: 'all', label: '모든 온기', keyword: '', icon: Flame },
+    { id: 'busy', label: '북적이는 곳', keyword: '북적', icon: Users },
+    { id: 'quiet', label: '한적한 곳', keyword: '한적', icon: Leaf },
+    { id: 'today', label: '오늘의 온기', keyword: '오늘', icon: Calendar },
+    { id: 'mine', label: '내 온기', keyword: '내온기', icon: Heart },
   ],
 };
 
