@@ -20,7 +20,8 @@ import { transientProps } from '@/design-system/styled';
 import { lightPalette, meok, surface } from '@/design-system/tokens';
 import GlobalMobileTabs from './GlobalMobileTabs';
 import MapMobileTabs from '@/map/components/MapMobileTabs';
-import { HEADER_EXIT_S, FLIP_TRANSFORM_EASE, FLIP_OPACITY_EASE } from '@/shared/navigation/mapEntranceTiming';
+import { HEADER_EXIT_S, ENTRANCE_EASE } from '@/shared/navigation/mapEntranceTiming';
+import { useMapEntranceStore } from '@/shared/navigation/mapEntranceState';
 
 /** 캡슐형 GNB의 높이 — /map의 MapChips가 "같은 자리를 이어받는" 느낌을 내려면
  *  이 값을 그대로 써야 한다. */
@@ -64,29 +65,17 @@ const HeaderContainer = styled('header', transientProps)<LandingProps>`
   padding: 0 10px 0 16px;
   border-radius: 9999px;
 
-  /* 지도 페이지(데스크톱)는 자체 좌측 네비게이션 레일을 쓰므로 상단바가 필요 없다.
-     스크롤 숨김(isHidden)은 기존처럼 단순 슬라이드지만, 지도 진입(isMapPage)은
-     달력 페이지가 위 경첩을 축으로 넘어가듯 3D flip으로 사라진다 — 동시에
-     MapChips가 그 자리로 아래에서 tilt-in하며 나타나 카드가 뒤집혀 교체되는
-     느낌을 준다. backface-visibility로 뒤집힌 뒷면이 비치지 않게 하고, opacity는
-     거의 직각(엣지온)이 될 때 확 사라지도록 별도 곡선을 쓴다. 지속시간은
-     mapEntranceTiming의 HEADER_EXIT_S와 반드시 맞춰야 한다. */
-  transform: ${({ $isHidden, $isMapPage }) => {
-    if ($isMapPage) return 'perspective(700px) rotateX(-100deg)';
-    if ($isHidden) return 'translateY(calc(-100% - 24px))';
-    return 'perspective(700px) rotateX(0deg) translateY(0)';
-  }};
-  transform-origin: 50% 0%;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  opacity: ${({ $isMapPage }) => ($isMapPage ? 0 : 1)};
+  /* 지도 페이지(데스크톱)는 자체 좌측 네비게이션 레일을 쓰므로 상단바가 필요 없다 —
+     회전(flip) 없이, 스크롤 숨김(isHidden)과 같은 방식으로 위로 자연스럽게
+     슬라이드되며 사라진다. 지속시간은 mapEntranceTiming의 HEADER_EXIT_S와
+     반드시 맞춰야 한다. */
+  transform: translateY(${({ $isHidden, $isMapPage }) => ($isHidden || $isMapPage ? 'calc(-100% - 24px)' : '0')});
   pointer-events: ${({ $isHidden, $isMapPage }) => ($isHidden || $isMapPage ? 'none' : 'auto')};
   transition:
-    transform ${HEADER_EXIT_S}s cubic-bezier(${FLIP_TRANSFORM_EASE.join(', ')}),
-    opacity ${HEADER_EXIT_S}s cubic-bezier(${FLIP_OPACITY_EASE.join(', ')}),
+    transform ${HEADER_EXIT_S}s cubic-bezier(${ENTRANCE_EASE.join(', ')}),
     visibility 0s ${({ $isMapPage }) => ($isMapPage ? HEADER_EXIT_S : 0)}s;
   visibility: ${({ $isMapPage }) => ($isMapPage ? 'hidden' : 'visible')};
-  will-change: transform, opacity;
+  will-change: transform;
   user-select: none;
 
   @media (max-width: 1024px) {
@@ -94,7 +83,12 @@ const HeaderContainer = styled('header', transientProps)<LandingProps>`
     padding: 0 8px 0 14px;
   }
 
-  @media (max-width: 767px) {
+  /* 지도 페이지는 1024px 미만에서 좌측 네비게이션 레일(MapNavRail)이 사라지고
+     BottomSheet/모바일 카테고리 칩으로 전환된다 — 그 전환 지점과 이 하단
+     탭바로의 전환 지점이 어긋나면(예전엔 767px), 768~1023px 구간에서 레일도
+     탭바도 없는 빈 화면이 생긴다. 그래서 지도 페이지에서는 이 임계값을
+     MapNavRail과 동일한 1023px로 맞춘다. 지도 외 페이지는 기존 767px 그대로. */
+  @media (max-width: ${({ $isMapPage }) => ($isMapPage ? 1023 : 767)}px) {
     top: auto;
     right: 12px;
     bottom: max(12px, env(safe-area-inset-bottom));
@@ -105,9 +99,17 @@ const HeaderContainer = styled('header', transientProps)<LandingProps>`
     padding: 0 8px;
     border-radius: 20px;
     transform: none;
-    opacity: 1;
     pointer-events: auto;
     visibility: visible;
+    /* 데스크톱 숨김용 transform(translateY -100%-24px)·visibility 지연
+       트랜지션을 그대로 물려받으면, top:14px→bottom:12px처럼 보간 불가능한
+       값 전환과 맞물려 "0.38초간 안 보이다가 엉뚱한 방향으로 훅 나타나는"
+       것처럼 보인다. 이 구간에서는 즉시 전환하고, 실제 "아래서 위로 스프링"
+       연출은 안쪽 탭 아이콘(motion.div)이 담당한다. */
+    transition: none;
+    /* 아이콘이 아래서 위로 스프링을 그리며 올라올 때, 캡슐 테두리 밖으로
+       삐져나가지 않고 알약 모양 안에서 자연스럽게 "차오르듯" 드러나야 한다. */
+    overflow: hidden;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -160,14 +162,16 @@ const HeaderBackdrop = styled('div', transientProps)<LandingProps>`
   }
 `;
 
-const LeftSection = styled.div`
+const LeftSection = styled('div', transientProps)<LandingProps>`
   display: flex;
   align-items: center;
   height: 100%;
   position: relative;
   z-index: 1;
 
-  @media (max-width: 767px) {
+  /* 지도 페이지는 MapNavRail과 같은 1023px에서 하단 탭바로 전환된다 —
+     HeaderContainer와 동일한 이유로 이 임계값도 맞춰야 한다. */
+  @media (max-width: ${({ $isMapPage }) => ($isMapPage ? 1023 : 767)}px) {
     display: none;
   }
 `;
@@ -185,7 +189,7 @@ const LogoLink = styled(Link)`
   }
 `;
 
-const CenterNav = styled.nav`
+const CenterNav = styled('nav', transientProps)<LandingProps>`
   display: flex;
   align-items: center;
   gap: 4px;
@@ -197,7 +201,7 @@ const CenterNav = styled.nav`
     gap: 2px;
   }
 
-  @media (max-width: 767px) {
+  @media (max-width: ${({ $isMapPage }) => ($isMapPage ? 1023 : 767)}px) {
     display: none;
   }
 `;
@@ -241,14 +245,14 @@ const NavLink = styled(Link, transientProps)<LandingProps>`
   }
 `;
 
-const RightSection = styled.div`
+const RightSection = styled('div', transientProps)<LandingProps>`
   display: flex;
   align-items: center;
   height: 100%;
   position: relative;
   z-index: 1;
 
-  @media (max-width: 767px) {
+  @media (max-width: ${({ $isMapPage }) => ($isMapPage ? 1023 : 767)}px) {
     display: none;
   }
 `;
@@ -259,12 +263,12 @@ const MobileMenuWrapper = styled.div`
   display: none;
 `;
 
-const MobileTabNavWrap = styled.div`
+const MobileTabNavWrap = styled('div', transientProps)<LandingProps>`
   display: none;
   position: relative;
   z-index: 1;
 
-  @media (max-width: 767px) {
+  @media (max-width: ${({ $isMapPage }) => ($isMapPage ? 1023 : 767)}px) {
     display: block;
     width: 100%;
     height: 100%;
@@ -393,11 +397,34 @@ export default function Header() {
   const isMapPage = pathname.startsWith('/map');
   const isLandingPage = pathname === '/';
   const isOdiiPage = pathname.startsWith('/odii');
+  const recordNavigation = useMapEntranceStore((s) => s.recordNavigation);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
   const [isLandingLight, setIsLandingLight] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+
+  // 지도 페이지가 1023px 미만(MapNavRail이 사라지는 지점)으로 좁아졌는지 —
+  // 이 값이 바뀌는 순간에 맞춰 하단 탭바 아이콘이 "아래서 위로" 스프링으로
+  // 튀어 오르게 한다. CSS 미디어쿼리만으로는 top:14px→bottom:12px 같은
+  // 보간 불가능한 값 전환 때문에 애니메이션을 줄 수 없어 JS로 별도 추적한다.
+  const [isNarrowMapChrome, setIsNarrowMapChrome] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth <= 1023;
+  });
+
+  useEffect(() => {
+    if (!isMapPage || typeof window === 'undefined') return;
+    const mql = window.matchMedia('(max-width: 1023px)');
+    const update = () => setIsNarrowMapChrome(mql.matches);
+    update();
+    mql.addEventListener('change', update);
+    return () => mql.removeEventListener('change', update);
+  }, [isMapPage]);
+
+  useEffect(() => {
+    recordNavigation(pathname);
+  }, [pathname, recordNavigation]);
 
   // 랜딩은 스크롤에 따라 먹빛 ↔ 한지색 배경이 전환된다.
   // 밝은 구간에서는 다른 페이지와 동일한 라이트 글래스를 사용한다.
@@ -528,7 +555,7 @@ export default function Header() {
         />
 
         {/* 맨 왼쪽: logo.png */}
-        <LeftSection>
+        <LeftSection $isMapPage={isMapPage}>
           <LogoLink href="/" aria-label="온마루 홈으로 이동">
             <Image
               src="/logo.png"
@@ -542,7 +569,7 @@ export default function Header() {
         </LeftSection>
 
         {/* 가운데: 한옥도감, 지도, 소리마루, 여정 탐색 */}
-        <CenterNav>
+        <CenterNav $isMapPage={isMapPage}>
           <NavLink href="/hanok" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
             한옥도감
           </NavLink>
@@ -568,23 +595,26 @@ export default function Header() {
         </CenterNav>
 
       {/* 오른쪽 끝: 로그인 */}
-      <RightSection>
+      <RightSection $isMapPage={isMapPage}>
         <LoginButton href="/auth/login" $isLanding={usesDarkSurface}>
           <span>로그인</span>
           <IoArrowForwardOutline size={12} />
         </LoginButton>
       </RightSection>
 
-      <MobileTabNavWrap>
+      <MobileTabNavWrap $isMapPage={isMapPage}>
         <AnimatePresence mode="wait" initial={false}>
           {isMapPage ? (
             <motion.div
               key="map-tabs"
               style={{ width: '100%', height: '100%' }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              initial={{ opacity: 0, y: 0 }}
+              animate={{ opacity: 1, y: isNarrowMapChrome ? 0 : 26 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.16, ease: 'easeOut' }}
+              transition={{
+                opacity: { duration: 0.16, ease: 'easeOut' },
+                y: { type: 'spring', stiffness: 420, damping: 30 },
+              }}
             >
               <MapMobileTabs />
             </motion.div>

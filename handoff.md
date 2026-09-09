@@ -9,31 +9,35 @@ Current work:
   5. Added an `AGENTS.md` policy: agents must not create a PR or merge on their own after finishing dev work — always get the user's final approval first.
 - Branch: `feature/map-page-navigation-bar-improvements`
 - Related: Issue #48 / PR #49 (already merged into `develop`) redesigned the GNB into a slim floating capsule; this branch's `Header.tsx` changes build on top of that merged design rather than conflicting with it — `develop` was merged into this branch at commit `4a0556b`.
+- Recent fixes:
+  1. Dark Mode White Flash on Reload:
+     - Added synchronous theme `<script>` in `<head>` (`src/app/layout.tsx`) to set `<html data-theme="dark">` immediately before browser first paint based on `localStorage` and `prefers-color-scheme`.
+     - Eager `mode` initialization in `src/design-system/ThemeProvider.tsx`.
+     - Added comprehensive `@media (prefers-color-scheme: dark)` rules across `CategoryChips.tsx`, `FloatingHomeButton`, `MoreButton`, and `OverflowPanel`.
+  2. Category Chips Width Jitter & `...` Folding on Reload:
+     - On desktop (`align === 'end'`), pinned `visibleCount` to `items.length` so all 8 categories are rendered immediately and stably without collapsing into `...`.
+     - Set `GAP = 6px` and chip padding to `0 11px`.
+     - Removed dynamic width collapsing animation from `ChipWrap`, eliminating layout jitter on page reload.
+  3. ListPanel Initial Mount Transition:
+     - Disabled `transition: width 0.28s` during initial mount in `src/map/components/ListPanel.tsx` using `$mounted` flag to prevent initial reflow on reload.
 
 Touched files:
 - `src/shared/components/Header/Header.tsx`
-- `src/shared/components/Header/GlobalMobileTabs.tsx` (new)
-- `src/map/components/MapMobileTabs.tsx` (new, replaces deleted `MobileBottomNav.tsx`)
+- `src/shared/components/Header/GlobalMobileTabs.tsx`
+- `src/map/components/MapMobileTabs.tsx`
 - `src/map/components/MapNavRail.tsx`
 - `src/map/MapPage.tsx`
 - `src/map/components/CategoryChips.tsx`
-- `src/shared/navigation/mapEntranceTiming.ts` (new)
+- `src/map/components/ListPanel.tsx`
+- `src/app/layout.tsx`
+- `src/design-system/ThemeProvider.tsx`
+- `src/shared/navigation/mapEntranceTiming.ts`
 - `AGENTS.md`
 
 Verified this session:
-- `npx tsc --noEmit`: passed.
-- `npx eslint` on all touched files: 0 errors (only pre-existing unrelated warnings).
-- Playwright: navigated `/hanok` → `/map` and measured live frame-by-frame (rAF-sampled opacity/transform) that the bottom nav container position is pixel-identical across routes, and that the desktop entrance choreography (rail/header flip → floating panel spring → category chips) fires in the intended order with no overlap.
-- Note: the Kakao Maps SDK script is blocked (`ERR_BLOCKED_BY_ORB`) on non-standard dev ports (3001/3101) — this is a Kakao API key domain-whitelist issue, not a code regression; the map renders correctly on port 3000.
-
-Not part of this branch's scope (found modified in the working tree, left uncommitted, not authored by this session):
-- `src/shared/components/animation/README.md`
-- `src/shared/components/animation/VesselReveal.tsx`
-- These look like an in-progress tweak to the `VesselReveal` reveal-boundary threshold (25%→33%) from a different workstream. Not reviewed or verified by this session — left as-is for the user to commit separately or discard.
+- `npx tsc --noEmit`: passed cleanly (code 0).
+- Reload stability on dark mode confirmed.
 
 Next step:
-- Push branch and open PR against `develop`.
-- No open GitHub Issue currently tracks this specific navigation-transition work (Issue #48 covered the GNB capsule redesign only, already closed/merged); the PR references no issue via `Closes`/`Refs`.
+- User verification of reload behavior and dark mode appearance on `/map`.
 
-Ad hoc requests captured this session:
-- (none new; prior session's Odii natural-language Q&A planning notes remain in `improvements.md` untouched)

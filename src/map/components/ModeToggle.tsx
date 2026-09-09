@@ -34,23 +34,19 @@ const pulseAnim = keyframes`
   }
 `;
 
+/* 트랜디한 느낌을 위해 "회색 트랙 + 흰 필" 대신 CategoryChips의 활성 칩과 같은
+   진한 다크 필(meok[900])로 통일했다 — 대비가 뚜렷하고 앱 전체 톤과도 맞는다. */
 const Track = styled.div<{ $fullWidth?: boolean; $compact?: boolean }>`
   position: relative;
   display: ${({ $fullWidth }) => ($fullWidth ? 'grid' : 'inline-grid')};
   grid-template-columns: 1fr 1fr;
   align-items: center;
   width: ${({ $fullWidth }) => ($fullWidth ? '100%' : 'auto')};
-  height: ${({ $compact }) => ($compact ? '34px' : '38px')};
+  height: ${({ $compact }) => ($compact ? '36px' : '40px')};
   padding: 3px;
-  border-radius: 9999px;
+  border-radius: 12px;
   background: rgba(25, 31, 40, 0.05);
-  border: none;
-  box-shadow: none;
   user-select: none;
-
-  [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.08);
-  }
 `;
 
 const SlidingPill = styled.div<{ $activeMode: MapMode; $compact?: boolean }>`
@@ -59,19 +55,14 @@ const SlidingPill = styled.div<{ $activeMode: MapMode; $compact?: boolean }>`
   bottom: 3px;
   left: 3px;
   width: calc(50% - 3px);
-  border-radius: 9999px;
-  background: #ffffff;
-  border: none;
-  box-shadow: none;
+  border-radius: 9px;
+  background: ${meok[900]};
+  box-shadow: 0 2px 8px rgba(25, 31, 40, 0.22);
   transform: ${({ $activeMode }) =>
     $activeMode === 'warmth' ? 'translateX(100%)' : 'translateX(0%)'};
   transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 1;
   pointer-events: none;
-
-  [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.16);
-  }
 
   @media (prefers-reduced-motion: reduce) {
     transition: none;
@@ -89,9 +80,9 @@ const Tab = styled.button<{ $active: boolean; $compact?: boolean }>`
   min-width: ${({ $compact }) => ($compact ? '48px' : '56px')};
   padding: ${({ $compact }) => ($compact ? '0 12px' : '0 16px')};
   border: none;
-  border-radius: 9999px;
+  border-radius: 9px;
   background: transparent;
-  color: ${({ $active }) => ($active ? '#191f28' : meok[500])};
+  color: ${({ $active }) => ($active ? '#ffffff' : meok[500])};
   font-family: inherit;
   font-size: ${({ $compact }) => ($compact ? '12.5px' : '13.5px')};
   font-weight: ${({ $active }) => ($active ? 700 : 500)};
@@ -102,15 +93,8 @@ const Tab = styled.button<{ $active: boolean; $compact?: boolean }>`
     color 0.2s ease,
     transform 0.15s ease;
 
-  [data-theme='dark'] & {
-    color: ${({ $active }) => ($active ? '#ffffff' : '#9ca3af')};
-  }
-
   &:hover {
-    color: ${({ $active }) => ($active ? '#191f28' : meok[900])};
-    [data-theme='dark'] & {
-      color: #ffffff;
-    }
+    color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
   }
 
   &:active {
@@ -130,8 +114,8 @@ const IconWrap = styled.span<{ $mode: MapMode; $active: boolean; $compact?: bool
   color: ${({ $mode, $active }) =>
     $active
       ? $mode === 'warmth'
-        ? lightPalette.juhong[500]
-        : lightPalette.cheongrok[500]
+        ? lightPalette.juhong[400]
+        : lightPalette.cheongrok[400]
       : 'currentColor'};
   transform: ${({ $active }) => ($active ? 'scale(1.05)' : 'scale(0.95)')};
   transition:
@@ -150,7 +134,7 @@ const LivePulseDot = styled.span<{ $active: boolean }>`
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: ${lightPalette.juhong[500]};
+  background: ${lightPalette.juhong[400]};
   margin-left: -2px;
 
   &::after {
@@ -161,7 +145,7 @@ const LivePulseDot = styled.span<{ $active: boolean }>`
     width: 9px;
     height: 9px;
     border-radius: 50%;
-    background: ${lightPalette.juhong[500]};
+    background: ${lightPalette.juhong[400]};
     animation: ${pulseAnim} 2s cubic-bezier(0.24, 0, 0.38, 1) infinite;
     pointer-events: none;
     opacity: ${({ $active }) => ($active ? 1 : 0)};

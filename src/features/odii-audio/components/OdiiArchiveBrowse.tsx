@@ -35,13 +35,15 @@ function storyContext(story: OdiiStoryItem) {
 
 function ArchiveSkeleton() {
   return (
-    <div aria-busy="true" aria-label="이야기 목록 로딩 중" className="grid grid-cols-1 gap-x-8 sm:grid-cols-2">
+    <div aria-busy="true" aria-label="이야기 목록 로딩 중" className="grid grid-cols-1 gap-3 sm:grid-cols-2">
       {Array.from({ length: 12 }, (_, index) => (
-        <div key={index} className="grid grid-cols-[24px_76px_minmax(0,1fr)_32px] items-center gap-3 border-b border-[#211e19]/[0.08] py-4 sm:grid-cols-[26px_82px_minmax(0,1fr)_32px] sm:gap-3.5">
-          <div className="odii-skeleton h-3 w-5 rounded bg-[#e5e5e3]" />
-          <div className="odii-skeleton h-[76px] w-[76px] rounded-[12px] bg-[#d9d9d7] sm:h-[82px] sm:w-[82px]" />
-          <div className="space-y-2.5"><div className="odii-skeleton h-2.5 w-24 rounded bg-[#e5e5e3]" /><div className="odii-skeleton h-4 w-4/5 rounded bg-[#cdcdca]" /><div className="odii-skeleton h-2.5 w-2/5 rounded bg-[#e5e5e3]" /></div>
-          <div className="odii-skeleton h-8 w-8 rounded-full bg-[#e5e5e3]" />
+        <div key={index} className="flex items-center gap-4 rounded-2xl border border-[#211e19]/[0.06] bg-white p-3">
+          <div className="odii-skeleton h-20 w-20 shrink-0 rounded-xl bg-[#e5e5e3] sm:h-[86px] sm:w-[86px]" />
+          <div className="min-w-0 flex-1 space-y-2.5">
+            <div className="odii-skeleton h-2.5 w-24 rounded bg-[#e5e5e3]" />
+            <div className="odii-skeleton h-4 w-4/5 rounded bg-[#cdcdca]" />
+            <div className="odii-skeleton h-2.5 w-2/5 rounded bg-[#e5e5e3]" />
+          </div>
         </div>
       ))}
     </div>
@@ -71,40 +73,63 @@ function StoryRow({ story, index }: StoryRowProps) {
   return (
     <article
       onClick={() => selectStory(story)}
-      className={`group grid cursor-pointer grid-cols-[24px_76px_minmax(0,1fr)_32px] items-center gap-3 border-b border-[#211e19]/[0.08] py-4 transition-colors duration-200 sm:grid-cols-[26px_82px_minmax(0,1fr)_32px] sm:gap-3.5 ${isCurrent ? 'bg-[#fff8fa]' : 'hover:bg-[#f8f8f7]'}`}
+      className={`group relative flex cursor-pointer items-center gap-4 rounded-2xl border p-3 transition-all duration-300 ${
+        isCurrent
+          ? 'border-[#f84e76]/25 bg-[#fff8fa] shadow-[0_10px_26px_rgba(248,78,118,0.12)]'
+          : 'border-[#211e19]/[0.06] bg-white hover:-translate-y-0.5 hover:border-[#211e19]/[0.1] hover:shadow-[0_10px_26px_rgba(33,30,25,0.08)]'
+      }`}
     >
-      <span className={`text-center font-mono text-[11px] font-semibold ${isCurrent ? 'text-[#f84e76]' : 'text-[#a19b93]'}`}>
-        {isThisPlaying ? '●' : String(index + 1).padStart(2, '0')}
-      </span>
-      <div className="relative h-[76px] w-[76px] overflow-hidden rounded-[12px] bg-[#e5e5e3] sm:h-[82px] sm:w-[82px]">
-        <img src={imageFor(story, index)} alt="" loading="lazy" decoding="async" className="h-full w-full scale-[1.18] object-cover" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = FALLBACK_IMAGES[0]; }} />
+      <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-[#e5e5e3] sm:h-[86px] sm:w-[86px]">
+        <img src={imageFor(story, index)} alt="" loading="lazy" decoding="async" className="h-full w-full scale-[1.18] object-cover transition-transform duration-500 group-hover:scale-[1.28]" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = FALLBACK_IMAGES[0]; }} />
+
+        <span className="absolute left-1.5 top-1.5 rounded-md bg-black/45 px-1.5 py-0.5 font-mono text-[9.5px] font-bold leading-none text-white backdrop-blur-sm">
+          {String(index + 1).padStart(2, '0')}
+        </span>
+
+        <div className={`absolute inset-0 flex items-center justify-center bg-black/35 transition-opacity duration-200 ${isThisPlaying ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+          <button
+            type="button"
+            onClick={togglePlayback}
+            aria-label={`${story.title} ${isThisPlaying ? '일시정지' : '재생'}`}
+            className="grid h-9 w-9 place-items-center rounded-full bg-white text-[#f84e76] shadow-lg transition-transform active:scale-90"
+          >
+            {isThisPlaying ? <IoPause size={15} /> : <IoPlay size={15} className="ml-0.5" />}
+          </button>
+        </div>
+
+        {isThisPlaying && (
+          <span className="absolute bottom-1.5 right-1.5 flex h-3 items-end gap-[2px]" aria-hidden="true">
+            <span className="eq-bar w-[2.5px] rounded-full bg-[#f84e76]" style={{ animationDelay: '0ms' }} />
+            <span className="eq-bar w-[2.5px] rounded-full bg-[#f84e76]" style={{ animationDelay: '180ms' }} />
+            <span className="eq-bar w-[2.5px] rounded-full bg-[#f84e76]" style={{ animationDelay: '90ms' }} />
+          </span>
+        )}
       </div>
-      <div className="min-w-0">
+
+      <div className="min-w-0 flex-1">
         <p className="truncate text-[10px] leading-4 text-[#817a72]">{storyContext(story)}</p>
         <h3 className={`mt-0.5 line-clamp-2 font-odii-sans text-[15px] font-bold leading-snug tracking-[-0.028em] sm:text-base ${isCurrent ? 'text-[#f84e76]' : 'text-[#211e19]'}`}>{story.title}</h3>
         <p className="mt-1 truncate text-[11px] text-[#817a72]">{story.audioTitle || story.locationName || '오디오 가이드'}</p>
       </div>
-      <div className="flex flex-col items-end gap-1.5">
-        <span className="whitespace-nowrap text-[10px] font-medium text-[#9b9389]">{story.formattedDuration || '3:00'}</span>
-        <button type="button" onClick={togglePlayback} aria-label={`${story.title} ${isThisPlaying ? '일시정지' : '재생'}`} className={`grid h-8 w-8 place-items-center rounded-full border transition-colors ${isThisPlaying ? 'border-[#f84e76] bg-[#f84e76] text-white' : 'border-[#211e19]/15 bg-white text-[#625d56] hover:border-[#f84e76] hover:text-[#f84e76]'}`}>
-          {isThisPlaying ? <IoPause size={13} /> : <IoPlay size={13} className="ml-0.5" />}
-        </button>
-      </div>
+
+      <span className="shrink-0 self-start whitespace-nowrap rounded-full bg-[#211e19]/[0.05] px-2 py-1 text-[10px] font-semibold text-[#786d5e]">
+        {story.formattedDuration || '3:00'}
+      </span>
     </article>
   );
 }
 
 function PlaceGroupCard({ group, startIndex }: { group: OdiiPlaceGroup; startIndex: number }) {
   return (
-    <section className="border-b border-[#211e19]/[0.1] py-4 sm:border sm:border-[#211e19]/[0.1] sm:p-4">
-      <header className="mb-2.5 flex items-center gap-3">
+    <section className="rounded-2xl border border-[#211e19]/[0.07] bg-[#fbfaf8] p-4">
+      <header className="mb-3 flex items-center gap-3">
         <img src={imageFor(group.representative, startIndex)} alt="" loading="lazy" decoding="async" className="h-14 w-14 rounded-[10px] object-cover" />
         <div className="min-w-0">
           <h3 className="truncate font-odii-sans text-[15px] font-bold tracking-[-0.03em] text-[#211e19]">{group.label}</h3>
           <p className="mt-0.5 text-[10px] text-[#817a72]">현재 결과의 이야기 {group.stories.length}개</p>
         </div>
       </header>
-      <div className="border-t border-[#211e19]/[0.08]">
+      <div className="flex flex-col gap-2.5">
         {group.stories.map((story, index) => <StoryRow key={story.stid} story={story} index={startIndex + index} />)}
       </div>
     </section>
@@ -126,9 +151,9 @@ export function OdiiArchiveBrowse({ stories, isLoading }: OdiiArchiveBrowseProps
       {isLoading ? <ArchiveSkeleton /> : stories.length === 0 ? (
         <div className="py-16 text-center text-xs text-[#655f58]">선택한 조건에 해당하는 오디오 가이드가 없습니다.</div>
       ) : view === 'stories' ? (
-        <div className="grid grid-cols-1 gap-x-8 sm:grid-cols-2">{stories.map((story, index) => <StoryRow key={story.stid} story={story} index={index} />)}</div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-3">{stories.map((story, index) => <StoryRow key={story.stid} story={story} index={index} />)}</div>
       ) : (
-        <div className="grid grid-cols-1 gap-x-5 sm:grid-cols-2">{groups.map((group, index) => <PlaceGroupCard key={group.key} group={group} startIndex={index * 10} />)}</div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">{groups.map((group, index) => <PlaceGroupCard key={group.key} group={group} startIndex={index * 10} />)}</div>
       )}
     </div>
   );

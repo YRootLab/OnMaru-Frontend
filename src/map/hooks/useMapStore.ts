@@ -101,7 +101,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   heatDays: [],
   heatDayIndex: 0,
   warmthPeriod: 'all',
-  loading: false,
+  loading: true,
   error: null,
   selectedId: null,
   hoveredId: null,

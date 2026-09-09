@@ -3,8 +3,6 @@ import styled from '@emotion/styled';
 import {
   IoSearchOutline,
   IoCloseOutline,
-  IoLocationOutline,
-  IoSparklesOutline,
   IoReloadOutline,
   IoGlobeOutline,
 } from 'react-icons/io5';
@@ -29,7 +27,7 @@ const Field = styled.form`
   gap: 6px;
   height: 44px;
   padding: 0 12px 0 12px;
-  border-radius: 9999px;
+  border-radius: 14px;
   background: rgba(25, 31, 40, 0.05);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
@@ -58,6 +56,7 @@ const SearchSubmitBtn = styled.button`
 const Input = styled.input`
   flex: 1;
   min-width: 0;
+  width: 100%;
 
   outline: none;
   background: transparent;
@@ -65,6 +64,11 @@ const Input = styled.input`
   font-size: 14px;
   font-weight: 500;
   color: ${meok[900]};
+  /* placeholder가 좁은 패널 폭에서 중간에 뚝 끊기지 않고 "..."으로
+     자연스럽게 줄어들도록 한다. */
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 
   &::placeholder {
     color: ${meok[400]};
@@ -287,7 +291,7 @@ export default function SearchBar({ className }: SearchBarProps) {
         <Input
           type="search"
           value={value}
-          placeholder="지역이나 장소를 검색하세요 (예: 전주, 북촌, 하회마을)"
+          placeholder="지역이나 장소 검색 (예: 전주, 북촌)"
           aria-label="장소 검색"
           onChange={(e) => setValue(e.target.value)}
           onFocus={() => setOpen(true)}
@@ -333,7 +337,6 @@ export default function SearchBar({ className }: SearchBarProps) {
           )}
 
           <GroupTitle>
-            <IoSparklesOutline size={14} color={lightPalette.cheongrok[500]} />
             <span>추천 검색어</span>
           </GroupTitle>
           <Suggestions>
@@ -343,14 +346,12 @@ export default function SearchBar({ className }: SearchBarProps) {
                 type="button"
                 onMouseDown={() => performSearch(keyword)}
               >
-                <IoLocationOutline size={13} color={lightPalette.cheongrok[500]} />
                 <span>{keyword}</span>
               </Suggestion>
             ))}
           </Suggestions>
 
           <GroupTitle style={{ marginTop: 14 }}>
-            <IoLocationOutline size={14} color={lightPalette.cheongrok[500]} />
             <span>인기 지역</span>
           </GroupTitle>
           <Suggestions>

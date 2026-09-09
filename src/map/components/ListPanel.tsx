@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { IoChevronBackOutline, IoChevronForwardOutline } from 'react-icons/io5';
 import { meok, surface } from '@/design-system/tokens';
@@ -9,11 +10,11 @@ import PlaceList from './PlaceList';
 import SearchBar from './SearchBar';
 import WarmthFeed from './warmth/WarmthFeed';
 
-const PANEL_WIDTH = 380;
-const PANEL_WIDTH_COMPACT = 340;
+const PANEL_WIDTH = 400;
+const PANEL_WIDTH_COMPACT = 358;
 
 /* ── 호갱노노 스타일: 지도 위에 떠 있는 둥근 플로팅 카드 ── */
-const Panel = styled.aside<{ $open: boolean }>`
+const Panel = styled.aside<{ $open: boolean; $mounted: boolean }>`
   position: relative;
   flex: none;
   width: ${({ $open }) => ($open ? `${PANEL_WIDTH}px` : '0px')};
@@ -24,7 +25,7 @@ const Panel = styled.aside<{ $open: boolean }>`
   z-index: 21;
   pointer-events: auto;
   overflow: hidden;
-  transition: width 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+  transition: ${({ $mounted }) => ($mounted ? 'width 0.28s cubic-bezier(0.32, 0.72, 0, 1)' : 'none')};
 
   @media (min-width: 1024px) and (max-width: 1439px) {
     width: ${({ $open }) => ($open ? `${PANEL_WIDTH_COMPACT}px` : '0px')};
@@ -36,6 +37,7 @@ const Panel = styled.aside<{ $open: boolean }>`
 `;
 
 const Inner = styled.div`
+  position: relative;
   display: flex;
   flex-direction: column;
   width: ${PANEL_WIDTH}px;
@@ -51,20 +53,32 @@ const HeaderArea = styled.div`
   flex: none;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 14px 16px 10px;
+  padding: 14px 14px 12px;
   background: ${surface.light.card};
+  /* 스크롤되는 리스트 위에 항상 고정된 "유틸리티 존"이라는 걸 옅은 경계로
+     드러낸다 — 검색바/토글과 그 아래 피드가 그냥 이어붙은 것처럼 밋밋해
+     보이지 않도록. */
+  border-bottom: 1px solid rgba(25, 31, 40, 0.06);
+  z-index: 10;
+`;
+
+const ModeToggleContainer = styled.div`
+  margin-top: 8px;
 `;
 
 const ListArea = styled.div`
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  /* 하단 BottomFadeGradient(48px)가 항상 떠 있어서, 목록이 짧으면(예: 검색
+     결과 1곳) 마지막 아이템이 그 흰 그라데이션에 가려 잘려 보인다. 스크롤로
+     그라데이션을 벗어날 수 있도록 그 높이보다 넉넉한 여백을 항상 확보한다. */
+  padding-bottom: 60px;
   scrollbar-width: thin;
   scrollbar-color: rgba(78, 89, 104, 0.2) transparent;
 
   &::-webkit-scrollbar {
-    width: 6px;
+    width: 5px;
   }
   &::-webkit-scrollbar-track {
     background: transparent;
@@ -76,6 +90,17 @@ const ListArea = styled.div`
   &::-webkit-scrollbar-thumb:hover {
     background: rgba(78, 89, 104, 0.35);
   }
+`;
+
+const BottomFadeGradient = styled.div`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.7) 45%, rgba(255, 255, 255, 0) 100%);
+  pointer-events: none;
+  z-index: 15;
 `;
 
 const Toggle = styled.button`
@@ -112,19 +137,29 @@ export default function ListPanel() {
   const togglePanel = useMapStore((s) => s.togglePanel);
   const mode = useMapStore((s) => s.mode);
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
-    <Panel $open={panelOpen}>
+    <Panel $open={panelOpen} $mounted={mounted}>
       <Inner>
-        {/* 1. 상단 2단 헤더: (1) 검색바 + (2) 모드 토글 */}
+        {/* 1. 상단 2단 헤더: (1) 검색바 + (2) 모드 토글 [정보 | 온기] */}
         <HeaderArea>
           <SearchBar />
-          <ModeToggle fullWidth />
+          <ModeToggleContainer>
+            <ModeToggle fullWidth />
+          </ModeToggleContainer>
         </HeaderArea>
 
         {/* 2. 메인 리스트 영역 (정보모드: PlaceList / 온기모드: WarmthFeed) */}
         <ListArea>
           {mode === 'warmth' ? <WarmthFeed /> : <PlaceList />}
         </ListArea>
+
+        {/* 3. 하단 세로 페이드 그라데이션 */}
+        <BottomFadeGradient aria-hidden="true" />
       </Inner>
 
       <Toggle
