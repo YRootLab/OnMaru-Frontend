@@ -57,3 +57,4 @@ Verified this session:
 
 Next step:
 - User verification of reload behavior and dark mode appearance on `/map`.
+- 지도 카테고리 칩은 PR #66의 가로 스크롤 수축 동작을 유지하면서, mask로 그림자가 잘리는 문제를 제거하고 둥근 pill 스타일/진입 애니메이션을 복원했다. 현재 아이콘은 lucide-react 기준을 유지한다.

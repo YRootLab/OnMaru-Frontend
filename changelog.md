@@ -62,3 +62,4 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 ### Changed 
 - Migrated all icons in the project to lucide-react. Removed react-icons dependency. (Resolves #60, #61, #62, #63, #64)
 - Replaced emoji usages in data files (e.g. curatedJourneys.ts) with lucide-react components.
+- 지도 카테고리 칩의 mask 기반 edge fade를 제거해 그림자 잘림을 막고, PR #66 이전의 둥근 pill 크기와 stagger pop-in 동작을 복원했다.
