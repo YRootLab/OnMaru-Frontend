@@ -79,21 +79,12 @@ const LogoArea = styled.div`
   }
 `;
 
-const BrandIconBadge = styled.div`
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, ${lightPalette.cheongrok[500]} 0%, ${lightPalette.cheongrok[700]} 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: ${surface.light.card};
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-  box-shadow: 0 2px 6px rgba(0, 184, 130, 0.28);
 const BrandMark = styled.span`
-
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 26px;
+  line-height: 1;
+  color: ${lightPalette.cheongrok[700]};
 `;
 
 /** 로고 영역과 메뉴 목록을 가르는 얇은 구분선 — 아래 BottomArea의 Divider와
