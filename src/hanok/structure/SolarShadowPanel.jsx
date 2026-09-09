@@ -27,7 +27,14 @@ const INK_SUB = meok[700];
 const INK_WEAK = meok[500];
 const LINE = 'rgba(78, 89, 104, 0.14)';
 const ACCENT = lightPalette.juhong[500];
-const ACCENT_VIVID = lightPalette.juhong[500];
+
+/**
+ * 손잡이와 채움이 절기 사이를 건너는 시간·곡선.
+ *
+ * sceneStore의 TWEEN_MS(420ms) / easeInOutCubic과 같은 값이라야 한다.
+ * 다르면 손은 먼저 붙고 3D 볕은 뒤늦게 따라온다.
+ */
+const SLIDE = '0.42s cubic-bezier(0.65, 0, 0.35, 1)';
 
 /**
  * 계절별 온마루 세맨틱 토큰 매핑
@@ -75,6 +82,12 @@ const riseIn = keyframes`
   to   { opacity: 1; transform: translate(-50%, 0); }
 `;
 
+/** 위와 같은 동작이지만 가로 중앙 정렬을 쓰지 않는 자리용. */
+const fadeUp = keyframes`
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+`;
+
 const Stage = styled.section`
   position: absolute;
   inset: 0;
@@ -98,6 +111,11 @@ const Copy = styled.div`
   text-align: center;
   pointer-events: none !important;
 
+  /*
+    3D가 상단 55%를 쓰므로 글은 그 아래에서 시작해야 하고, 아래로는 조작 카드가 올라온다.
+    카드가 터치 규격(트랙 44px)을 갖추면서 두꺼워진 만큼 이 띠의 글자·여백을 줄여 상쇄한다.
+    좁고 낮은 화면(≤660px)에서 둘이 맞닿던 자리다.
+  */
   @media (max-width: 767px) {
     top: 48vh;
   }
@@ -115,6 +133,10 @@ const TermTag = styled.p`
   color: ${(props) => props.accentColor || lightPalette.juhong[500]};
   white-space: nowrap;
 
+  @media (max-width: 767px) {
+    margin-bottom: 8px;
+  }
+
   em {
     padding: 2px 8px;
     border-radius: 9999px;
@@ -130,23 +152,32 @@ const TermTag = styled.p`
 const Headline = styled.h2`
   margin: 0 auto;
   font-size: clamp(22px, 3.2vw, 44px);
-  font-weight: 300;
+  /* 300은 국문에서 400으로 폴백되기 쉽고, 크림 바탕에서 큰 글자가 날아간다. */
+  font-weight: 400;
   letter-spacing: -0.02em;
   line-height: 1.25;
   word-break: keep-all;
   white-space: nowrap;
   color: ${INK};
   text-align: center;
+  /* key가 절기마다 갈리므로 리마운트된다. 그 리마운트에 실제 동작을 붙인다. */
+  animation: ${fadeUp} 0.32s ease-out;
 
-  @media (max-width: 600px) {
+  /* 가장 긴 문장(21자)이 한 줄에 안 들어가기 시작하는 폭. */
+  @media (max-width: 768px) {
+    font-size: clamp(20px, 3.2vw, 44px);
     white-space: normal;
     text-wrap: balance;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
   }
 `;
 
 const Stats = styled.dl`
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   gap: clamp(16px, 2.4vw, 28px);
   margin: 0 0 6px;
@@ -154,10 +185,29 @@ const Stats = styled.dl`
 
 const Stat = styled.div`
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 8px;
   white-space: nowrap !important;
   word-break: keep-all !important;
+
+  /*
+    이 화면의 주인공은 그림자다. 고도는 원인, 그림자는 결과다.
+    둘을 같은 크기로 늘어놓으면 스펙시트 한 줄로 읽힌다 — 주인공만 세로로 세워 키운다.
+  */
+  &[data-lead='true'] {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+  }
+
+  /* 좁은 화면에서는 카드가 두꺼워지면 위 본문과 맞닿는다. 한 줄로 되돌린다. */
+  @media (max-width: 767px) {
+    &[data-lead='true'] {
+      flex-direction: row;
+      align-items: baseline;
+      gap: 8px;
+    }
+  }
 `;
 
 /** '1m당 그림자', '남중고도' 등의 수치 타이틀 무조건 한 줄 고정 */
@@ -175,10 +225,19 @@ const StatValue = styled.dd`
   font-size: clamp(17px, 1.9vw, 24px);
   font-weight: 500;
   letter-spacing: -0.02em;
+  /* 자리를 고정폭으로 잡아, 값이 갈릴 때 옆 글자가 흔들리지 않는다. */
   font-variant-numeric: tabular-nums;
   color: ${INK};
   white-space: nowrap !important;
   word-break: keep-all !important;
+  /* 8단 스냅이라 숫자는 끊어서 바뀐다. 짧게 받아내면 계기판처럼 읽힌다. */
+  animation: ${fadeUp} 0.2s ease-out;
+
+  &[data-lead='true'] {
+    font-size: clamp(28px, 3.4vw, 42px);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+  }
 
   small {
     margin-left: 2px;
@@ -186,6 +245,16 @@ const StatValue = styled.dd`
     font-weight: 500;
     color: ${INK_SUB};
     white-space: nowrap !important;
+  }
+
+  @media (max-width: 767px) {
+    &[data-lead='true'] {
+      font-size: 26px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
   }
 `;
 
@@ -197,6 +266,18 @@ const Note = styled.p`
   word-break: keep-all;
   color: ${INK_SUB};
   pointer-events: none !important;
+  /* 헤드라인보다 한 박자 늦게 올라온다. */
+  animation: ${fadeUp} 0.32s 0.06s ease-out both;
+
+  @media (max-width: 767px) {
+    margin-top: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 `;
 
 /** 카드 바닥의 잔글씨. 상단 카피에 두면 지붕과 겹쳐 읽히지 않는다. */
@@ -223,7 +304,8 @@ const LocationButton = styled.button`
   font-family: inherit;
   font-size: 12px;
   line-height: 1.2;
-  color: ${ACCENT};
+  /* 카드가 계절색으로 물드는데 여기만 주홍으로 남아 있었다. */
+  color: ${(props) => props.accentColor || ACCENT};
   cursor: pointer;
   transition: background 0.2s ease-out;
 
@@ -236,7 +318,7 @@ const LocationButton = styled.button`
   }
 
   &:focus-visible {
-    outline: 2px solid ${ACCENT_VIVID};
+    outline: 2px solid currentColor;
     outline-offset: 2px;
   }
 `;
@@ -260,40 +342,69 @@ const Controller = styled.div`
  * 흰 카드 하나.
  * 3D 모델 및 그림자 하단부를 절대 침범하지 않도록 슬림하고 밀도 높은 반응형 카드 구성.
  */
+/*
+  카드 바탕(#FFFFFF)과 모달 배경 그라디언트의 마지막 스톱이 둘 다 흰색이라,
+  카드가 서는 하단에서는 경계가 아예 없었다. 테두리와 그림자로 면을 띄운다.
+  backdrop-filter는 평평한 흰 바탕을 흐리는 것이라 보이는 효과 없이 GPU만 썼다 — 뺀다.
+*/
 const Card = styled.div`
   position: relative;
   padding: 10px 18px 6px;
   border-radius: 16px;
   background: ${surface.light.card};
-  backdrop-filter: blur(16px);
+  border: 1px solid ${LINE};
+  box-shadow: 0 6px 24px rgba(28, 24, 20, 0.1);
+
   @media (max-width: 767px) {
-    padding: 8px 12px 4px;
+    padding: 6px 12px 4px;
     border-radius: 14px;
   }
 `;
 
-/** 숫자를 풀어 쓴 한 줄. 값과 문장이 늘 같은 절기를 말하도록 카드 안에 함께 둔다. */
-/** 통계 오른쪽 끝에 붙어, 손을 대면 조용히 사라진다. */
+/**
+ * 손대기 전에만 서는 안내.
+ *
+ * 전에는 통계 줄의 세 번째 칸이었다. opacity로만 지워서 손을 대는 순간
+ * 카드 오른쪽에 빈 칸이 그대로 남았다(dl 안의 p라 마크업도 어긋났다).
+ * '오늘로 돌아가기'와 같은 자리를 나눠 쓴다 — 둘은 동시에 서지 않는다.
+ */
 const Hint = styled.p`
-  margin: 0 0 0 auto;
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 12px);
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.82);
   font-size: 12px;
   font-weight: 500;
+  white-space: nowrap;
   color: ${INK_WEAK};
-  transition: opacity 0.4s ease-out;
+  pointer-events: none;
+  animation: ${riseIn} 0.3s ease-out;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 `;
 
 /** 손잡이를 잡는 판. 실제 눈금은 안쪽 레일이 갖는다. */
 const Track = styled.div`
   position: relative;
-  height: 28px;
+  /* 손가락이 닿는 면. 보이는 두께는 Rail이 따로 가지므로 키워도 눈금은 그대로다. */
+  height: 44px;
   cursor: pointer;
   touch-action: none;
 
+  /* 판 전체를 두르면 눈금에서 한참 떨어진 데 테가 생긴다. 초점은 손잡이에 건다. */
   &:focus-visible {
     outline: none;
   }
 
   &:focus-visible span[data-knob] {
+    box-shadow: 0 1px 6px rgba(28, 24, 20, 0.18),
+      0 0 0 5px ${(props) => `${props.accentColor || lightPalette.juhong[500]}40`};
   }
 `;
 
@@ -305,7 +416,7 @@ const Rail = styled.div`
   height: 4px;
   margin-top: -2px;
   border-radius: 2px;
-  background: #eceef1;
+  background: ${meok[200]};
 `;
 
 const Fill = styled.div`
@@ -315,7 +426,7 @@ const Fill = styled.div`
   height: 100%;
   border-radius: 2px;
   background: ${(props) => props.accentColor || lightPalette.juhong[500]};
-  transition: background-color 0.35s ease;
+  transition: width ${SLIDE}, background-color 0.35s ease;
 `;
 
 const Tick = styled.span`
@@ -325,13 +436,20 @@ const Tick = styled.span`
   height: 5px;
   margin: -2.5px 0 0 -2.5px;
   border-radius: 50%;
-  background: #d5d9de;
+  background: ${meok[400]};
 
   &[data-passed='true'] {
     background: rgba(255, 255, 255, 0.92);
   }
 `;
 
+/**
+ * 이 화면에서 손으로 잡는 유일한 물건.
+ *
+ * 전에는 테두리도 그림자도 없는 흰 원이었다 — 흰 카드 위에서 사실상 보이지 않았다.
+ * (border-color / box-shadow를 트랜지션하면서 정작 둘 다 선언이 없었다.)
+ * 계절색 테를 둘러 눈에 잡히게 하고, 3D 볕과 같은 곡선으로 칸 사이를 건넌다.
+ */
 const Knob = styled.span`
   position: absolute;
   top: 50%;
@@ -339,21 +457,24 @@ const Knob = styled.span`
   height: 22px;
   margin: -11px 0 0 -11px;
   border-radius: 50%;
-  background: #ffffff;
-  transition: border-color 0.35s ease, box-shadow 0.2s ease-out;
+  background: ${surface.light.card};
+  border: 2px solid ${(props) => props.accentColor || lightPalette.juhong[500]};
+  box-shadow: 0 1px 6px rgba(28, 24, 20, 0.18);
+  transition: left ${SLIDE}, border-color 0.35s ease, box-shadow 0.2s ease-out;
 `;
 
 const Labels = styled.div`
   position: relative;
-  height: 18px;
+  height: 24px;
   margin-top: 8px;
 `;
 
 const Label = styled.button`
   position: absolute;
-  top: 0;
+  /* 레이아웃 높이는 그대로 두고 손가락이 닿는 면만 넓힌다 (18px → 30px). */
+  top: -6px;
+  padding: 6px;
   transform: translateX(-50%);
-  padding: 0 2px;
   background: none;
   font-family: inherit;
   font-size: 11px;
@@ -374,7 +495,7 @@ const Label = styled.button`
   }
 
   &:focus-visible {
-    outline: 2px solid ${lightPalette.juhong[500]};
+    outline: 2px solid ${(props) => props.accentColor || lightPalette.juhong[500]};
     outline-offset: 2px;
     border-radius: 4px;
   }
@@ -402,7 +523,7 @@ const BackToToday = styled.button`
   }
 
   &:focus-visible {
-    outline: 2px solid ${ACCENT_VIVID};
+    outline: 2px solid currentColor;
     outline-offset: 2px;
   }
 
@@ -558,34 +679,36 @@ export default function SolarShadowPanel() {
       </Copy>
 
       <Controller>
-        {showReturn && (
+        {/* 카드 위 한 자리를 두 상태가 나눠 쓴다. 손대기 전엔 안내, 옮긴 뒤엔 되돌리기. */}
+        {showReturn ? (
           <BackToToday type="button" onClick={returnToBase} style={{ color: seasonTheme.primary }}>
             오늘로 돌아가기
           </BackToToday>
+        ) : (
+          !touched && <Hint>절기를 옮겨 그림자를 보세요</Hint>
         )}
 
         <Card>
           <Stats>
-            <Stat>
-              <StatLabel>남중고도</StatLabel>
-              <StatValue>
-                {view.altitude}
-                <small>°</small>
-              </StatValue>
-            </Stat>
-
-            <Stat>
+            <Stat data-lead="true">
               <StatLabel>1m당 그림자</StatLabel>
-              <StatValue>
+              <StatValue key={`${view.id}-shadow`} data-lead="true">
                 {Math.round(view.shadow)}
                 <small>cm</small>
               </StatValue>
             </Stat>
 
-            <Hint style={{ opacity: touched ? 0 : 1 }}>절기를 옮겨 그림자를 보세요</Hint>
+            <Stat>
+              <StatLabel>남중고도</StatLabel>
+              <StatValue key={`${view.id}-altitude`}>
+                {view.altitude}
+                <small>°</small>
+              </StatValue>
+            </Stat>
           </Stats>
 
           <Track
+            accentColor={seasonTheme.primary}
             tabIndex={0}
             role="slider"
             aria-label="절기"
@@ -620,7 +743,11 @@ export default function SolarShadowPanel() {
                 type="button"
                 accentColor={seasonTheme.primary}
                 data-active={i === index}
-                style={{ left: `${(i / LAST) * 100}%` }}
+                style={{
+                  left: `${(i / LAST) * 100}%`,
+                  /* 양 끝은 중앙 정렬하면 절반이 카드 밖으로 나간다. 안쪽으로 붙인다. */
+                  transform: `translateX(${i === 0 ? '0%' : i === LAST ? '-100%' : '-50%'})`,
+                }}
                 onClick={() => moveTo(i)}
               >
                 {stop.name}
@@ -636,13 +763,17 @@ export default function SolarShadowPanel() {
             </span>
 
             {isSecure && locationState === 'idle' && (
-              <LocationButton type="button" onClick={requestLocation}>
+              <LocationButton
+                type="button"
+                accentColor={seasonTheme.primary}
+                onClick={requestLocation}
+              >
                 내 위치로 보기
               </LocationButton>
             )}
 
             {isSecure && locationState === 'requesting' && (
-              <LocationButton type="button" disabled>
+              <LocationButton type="button" accentColor={seasonTheme.primary} disabled>
                 확인 중…
               </LocationButton>
             )}
