@@ -68,7 +68,7 @@ const TitleBox = styled.div`
 
 const Title = styled.h3`
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 500;
   color: ${meok[900]};
   margin: 0;
 

@@ -95,8 +95,8 @@ const TitleBox = styled.div`
 
 const Title = styled.h3`
   margin: 0;
-  font-size: 16.5px;
-  font-weight: 700;
+  font-size: 14.5px;
+  font-weight: 500;
   color: ${meok[900]};
   letter-spacing: -0.02em;
 `;
@@ -224,9 +224,8 @@ const DistanceOverlay = styled.div`
   background: rgba(25, 31, 40, 0.68);
   backdrop-filter: blur(4px);
   color: #ffffff;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-size: 9.5px;
+  font-weight: 500;
 `;
 
 const Body = styled.div`
@@ -238,8 +237,8 @@ const Body = styled.div`
 
 const Name = styled.h4`
   margin: 0;
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 500;
   color: ${meok[900]};
   white-space: nowrap;
   overflow: hidden;

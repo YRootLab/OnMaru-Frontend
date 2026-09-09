@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { STAY_TYPE } from '@/hanok/types';
 import type { Village } from '@/hanok/types';
 import { getHanokGridPage } from './hanokGridModel';
 
@@ -34,7 +35,7 @@ describe('getHanokGridPage', () => {
     const villages = [
       village('matched', '고택·종택', ['고택', '국가지정']),
       village('partial', '고택·종택', ['고택']),
-      village('stay', '한옥 고택 스테이', ['고택', '국가지정']),
+      village('stay', STAY_TYPE, ['고택', '국가지정']),
     ];
 
     const result = getHanokGridPage(
@@ -44,6 +45,18 @@ describe('getHanokGridPage', () => {
     );
 
     expect(result.items.map((item) => item.id)).toEqual(['matched']);
+    expect(result.filteredCount).toBe(1);
+  });
+
+  // 유형 필터가 '전체'면 스테이 제외 가드만이 스테이를 걸러낼 수 있다.
+  // 위 테스트는 activeType이 '고택·종택'이라 가드가 고장나도 통과해서,
+  // type 문자열이 서비스와 어긋난 채 오래 남아 있었다.
+  it('excludes stays even when no type filter is applied', () => {
+    const villages = [village('house', '고택·종택'), village('stay', STAY_TYPE)];
+
+    const result = getHanokGridPage(villages, { activeType: '전체', activeBadges: [] }, 1);
+
+    expect(result.items.map((item) => item.id)).toEqual(['house']);
     expect(result.filteredCount).toBe(1);
   });
 });

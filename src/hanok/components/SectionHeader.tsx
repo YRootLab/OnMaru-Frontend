@@ -14,10 +14,10 @@ const Wrapper = styled.div`
 `;
 
 const Title = styled.h2`
-  font-family: 'SpoqaHanSansNeo', sans-serif;
-  font-size: clamp(20px, 2.4vw, 28px);
-  font-weight: 700;
-  letter-spacing: -0.03em;
+  font-family: var(--font-hanok);
+  font-size: clamp(21px, 2.4vw, 28px);
+  font-weight: 500;
+  letter-spacing: -0.022em;
   color: ${meok[900]};
   margin: 0;
   line-height: 1.25;
@@ -34,7 +34,8 @@ const RightGroup = styled.div`
 `;
 
 const Subtitle = styled.p`
-  font-size: 13.5px;
+  font-size: 13px;
+  font-weight: 400;
   color: ${meok[500]};
   margin: 0;
   line-height: 1.5;
@@ -46,7 +47,7 @@ const ActionLink = styled.a`
   align-items: center;
   gap: 4px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   color: ${lightPalette.kobalt[500]};
   text-decoration: none;
   white-space: nowrap;

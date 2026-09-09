@@ -24,7 +24,7 @@ const Nav = styled.nav`
 
 const LogoLink = styled(Link)`
   font-size: 17px;
-  font-weight: 700;
+  font-weight: 500;
   color: ${meok[900]};
   text-decoration: none;
   letter-spacing: -0.02em;
@@ -51,7 +51,7 @@ const MenuItem = styled.li``;
 
 const MenuAnchor = styled.a<{ $active: boolean }>`
   font-size: 15px;
-  font-weight: ${({ $active }) => ($active ? 600 : 500)};
+  font-weight: ${({ $active }) => ($active ? 500 : 400)};
   color: ${({ $active }) => ($active ? meok[900] : meok[700])};
   text-decoration: none;
   transition: color 0.2s ease;
@@ -87,7 +87,7 @@ const HamburgerBtn = styled.button`
 `;
 
 const MENU_ITEMS: { label: string; href: string; section: SectionId }[] = [
-  { label: '한옥 도감', href: '#grid', section: 'grid' },
+  { label: '한옥도감', href: '#grid', section: 'grid' },
   { label: '전국 지도', href: '#map', section: 'map' },
   { label: '이달의 한옥', href: '#monthly', section: 'monthly' },
 ];

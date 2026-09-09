@@ -2,13 +2,12 @@
 
 import { useEffect, useMemo } from 'react';
 import { Global, css } from '@emotion/react';
-import { renderToStaticMarkup } from 'react-dom/server';
-import { MapPin, Flame, Leaf, MessageCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { meok, lightPalette, darkPalette, surface } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import { paintOverlays, type OverlaySpec } from '@/map/hooks/overlay';
 import { escapeHtml } from '@/map/utils/formatters';
+import { mapIconSvg } from '@/map/utils/mapIconSvg';
 import { getCuratedPlace } from '@/map/data/curatedPlaces';
 import type { Item, Warmth } from '@/map/types';
 
@@ -20,15 +19,15 @@ import type { Item, Warmth } from '@/map/types';
  * 차례대로 넘겨볼 수 있도록 스마트 클러스터링과 페이징을 제공합니다.
  */
 
-const GOTHIC_FONT = "'Pretendard', 'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif";
+const GOTHIC_FONT = "'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif";
 
 const ICONS = {
-  mapPin: renderToStaticMarkup(<MapPin size={11} strokeWidth={2} />),
-  flame: renderToStaticMarkup(<Flame size={10} strokeWidth={2} />),
-  wind: renderToStaticMarkup(<Leaf size={10} strokeWidth={2} />),
-  quote: renderToStaticMarkup(<MessageCircle size={11} strokeWidth={2} />),
-  chevronLeft: renderToStaticMarkup(<ChevronLeft size={12} strokeWidth={2} />),
-  chevronRight: renderToStaticMarkup(<ChevronRight size={12} strokeWidth={2} />),
+  mapPin: mapIconSvg('mapPin', 11),
+  flame: mapIconSvg('flame', 10),
+  wind: mapIconSvg('leaf', 10),
+  quote: mapIconSvg('messageCircle', 11),
+  chevronLeft: mapIconSvg('chevronLeft', 12),
+  chevronRight: mapIconSvg('chevronRight', 12),
 };
 
 function formatTimeAgo(isoString: string): string {
@@ -116,7 +115,7 @@ const styles = css`
 
   .om-note-pin-place {
     font-size: 11.5px;
-    font-weight: 600;
+    font-weight: 500;
     color: ${meok[900]};
   }
 

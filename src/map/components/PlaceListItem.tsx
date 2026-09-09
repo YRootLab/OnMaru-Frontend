@@ -159,11 +159,9 @@ const Row1 = styled.div`
 
 const Title = styled.h4<{ $isSelected?: boolean }>`
   margin: 0;
-  font-size: 15.5px;
-  font-weight: 700;
-  line-height: 1.35;
-  color: ${({ $isSelected }) =>
-    $isSelected ? lightPalette.cheongrok[700] : meok[900]};
+  font-size: 15px;
+  font-weight: 500;
+  color: ${meok[900]};
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -206,8 +204,7 @@ const TraditionalBadge = styled.span`
   padding: 2px 6.5px;
   border-radius: 6px;
   font-size: 10.5px;
-  font-weight: 600;
-  line-height: 1.4;
+  font-weight: 500;
   color: ${lightPalette.cheongrok[700]};
   background: rgba(30, 122, 104, 0.08);
   white-space: nowrap;
@@ -244,7 +241,8 @@ const MetaRow = styled.div`
 const DistanceHighlight = styled.span`
   font-weight: 700;
   font-size: 12.5px;
-  color: ${lightPalette.cheongrok[700]};
+  font-weight: 500;
+  color: ${meok[700]};
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
 `;

@@ -56,7 +56,7 @@ const FaceButton = styled.button<{ $selected: boolean; $readonly: boolean }>`
 
 const MoodLabel = styled.span`
   font-size: 13.5px;
-  font-weight: 600;
+  font-weight: 500;
   color: ${meok[900]};
   white-space: nowrap;
 `;

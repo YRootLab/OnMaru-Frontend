@@ -54,7 +54,7 @@ const WEIGHTS = [1.25, 1.5, 1.75, 2] as const;
 
 const Page = styled.main`
   padding: 32px 0 80px;
-  font-family: 'Pretendard', 'SpoqaHanSansNeo', -apple-system, sans-serif;
+  font-family: 'Spoqa Han Sans Neo', -apple-system, sans-serif;
   color: ${meok[900]};
 `;
 
@@ -116,7 +116,7 @@ const Chip = styled.button<{ $active: boolean; $swatch?: string }>`
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
   font-family: inherit;
   font-size: 12.5px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
 
   &::before {
@@ -163,7 +163,7 @@ const Slot = styled.div`
 
 const Name = styled.span<{ $dark: boolean }>`
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.35;
   text-align: center;
   word-break: break-all;

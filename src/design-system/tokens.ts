@@ -320,9 +320,9 @@ export const createTheme = (mode: ColorMode) => {
 
     typography: {
       fontFamily: {
-        sans: '"SpoqaHanSansNeo", system-ui, sans-serif',
-        serif: '"SpoqaHanSansNeo", system-ui, sans-serif',
-        traditional: '"ChungjuKimsaeng", "SpoqaHanSansNeo", serif',
+        sans: '"Spoqa Han Sans Neo", system-ui, sans-serif',
+        serif: '"Spoqa Han Sans Neo", system-ui, sans-serif',
+        traditional: '"Spoqa Han Sans Neo", sans-serif',
       },
       fontSize: {
         xs: '0.75rem', sm: '0.875rem', base: '1rem', lg: '1.125rem',
@@ -340,7 +340,9 @@ export const createTheme = (mode: ColorMode) => {
         p1: '18px', p2: '16px', p3: '14px', p4: '12px',
         headline: '18px', headlineCaps: '14px', inputField: '16px',
       },
-      fontWeight: { regular: 400, medium: 500, semibold: 600, bold: 700 },
+      // Spoqa Han Sans Neo가 실제로 가진 굵기는 100/300/400/500/700뿐이다.
+      // 600(semibold)은 없어서 CSS 폰트 매칭이 700으로 올려 잡으므로 넣지 않는다.
+      fontWeight: { thin: 100, light: 300, regular: 400, medium: 500, bold: 700 },
       lineHeight:  { tight: 1.25, normal: 1.6, loose: 1.8 },
     },
 

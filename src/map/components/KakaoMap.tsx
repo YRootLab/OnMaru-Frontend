@@ -177,7 +177,7 @@ const FlightBanner = styled.div`
     border-radius: 9999px;
     background: ${lightPalette.juhong[500]};
     font-size: 11px;
-    font-weight: 800;
+    font-weight: 700;
   }
 
   button.stop-btn {
@@ -189,7 +189,7 @@ const FlightBanner = styled.div`
     background: rgba(255, 255, 255, 0.15);
     color: #ffffff;
     font-size: 11.5px;
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
     transition: background 0.15s ease;
 
@@ -216,7 +216,7 @@ const Research = styled.button`
   color: ${meok[900]};
   font-family: inherit;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   animation: research-in 0.24s ease-out both;
 

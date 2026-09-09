@@ -82,16 +82,16 @@ export const HeroContent = styled.div`
 
 export const HeroRegion = styled.span`
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   color: ${lightPalette.kobalt[100]};
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 `;
 
 export const HeroTitle = styled.h2`
-  font-family: 'SpoqaHanSansNeo', sans-serif;
+  font-family: var(--font-hanok);
   font-size: clamp(24px, 3.5vw, 32px);
-  font-weight: 700;
+  font-weight: 500;
   margin: 4px 0 0;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
   color: #ffffff;
@@ -112,8 +112,8 @@ export const MetaRow = styled.div`
 export const TypeBadge = styled.span`
   background: ${lightPalette.kobalt[50]};
   color: ${lightPalette.kobalt[700]};
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 11.5px;
+  font-weight: 500;
   padding: 4px 12px;
   border-radius: 9999px;
 
@@ -136,8 +136,8 @@ export const NoteHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 500;
   color: ${lightPalette.kobalt[500]};
   margin-bottom: 12px;
 `;
@@ -150,7 +150,7 @@ export const HeaderBadge = styled.div`
 
 export const SourceTag = styled.span`
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 500;
   color: #1a49c6;
   background: #eef3ff;
   padding: 3px 9px;
@@ -171,6 +171,7 @@ export const StoryContainer = styled.div<{ $isExpanded: boolean }>`
 
 export const StoryParagraph = styled.p`
   font-size: 14px;
+  font-weight: 400;
   color: ${meok[700]};
   line-height: 1.78;
   margin: 0 0 14px;
@@ -187,7 +188,7 @@ export const ExpandBtn = styled.button`
   background: transparent;
   color: ${lightPalette.kobalt[500]};
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   padding: 6px 0 0;
   margin-top: 8px;
@@ -201,8 +202,8 @@ export const ExpandBtn = styled.button`
 `;
 
 export const SectionTitle = styled.h3`
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 400;
   color: ${meok[900]};
   margin: 24px 0 12px;
   display: flex;
@@ -245,14 +246,14 @@ export const InfoContentBox = styled.div`
 
 export const InfoLabel = styled.div`
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   color: ${meok[500]};
   margin-bottom: 3px;
 `;
 
 export const InfoVal = styled.div`
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 400;
   color: ${meok[700]};
   line-height: 1.5;
   word-break: keep-all;
@@ -260,7 +261,7 @@ export const InfoVal = styled.div`
   a {
     color: ${lightPalette.kobalt[500]};
     text-decoration: underline;
-    font-weight: 600;
+    font-weight: 400;
     &:hover {
       color: ${lightPalette.kobalt[700]};
     }
@@ -283,7 +284,7 @@ export const RepeatItemCard = styled.div`
 
 export const RepeatTitleText = styled.div`
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 400;
   color: ${lightPalette.kobalt[700]};
   margin-bottom: 4px;
 `;
@@ -353,7 +354,7 @@ export const SkeletonLine = styled.div`
 
 export const BadgeTitle = styled.div`
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   color: ${meok[500]};
   margin-bottom: 8px;
 `;
@@ -392,7 +393,7 @@ export const MapBtn = styled.a`
   color: #ffffff;
   border-radius: 14px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 400;
   text-decoration: none;
   transition: background 0.15s ease, transform 0.15s ease;
 

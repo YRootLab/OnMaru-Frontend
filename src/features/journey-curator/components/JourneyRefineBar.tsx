@@ -33,8 +33,8 @@ const Header = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13.5px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 500;
   color: #191f28;
 
   [data-theme='dark'] & {

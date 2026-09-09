@@ -56,7 +56,7 @@ const Segment = styled.button<{ $active: boolean }>`
   background: transparent;
   padding: 9px 22px;
   font-size: 14px;
-  font-weight: ${({ $active }) => ($active ? 700 : 500)};
+  font-weight: ${({ $active }) => ($active ? 700 : 400)};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
   cursor: pointer;
   outline: none;
@@ -98,8 +98,9 @@ const BadgeHeader = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12.5px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
   color: ${lightPalette.kobalt[700]};
   margin-right: 4px;
   white-space: nowrap;
@@ -119,8 +120,8 @@ const BadgeChip = styled.button<{ $active: boolean }>`
       ? `linear-gradient(135deg, ${lightPalette.kobalt[500]} 0%, ${lightPalette.kobalt[700]} 100%)`
       : '#ffffff'};
   color: ${({ $active }) => ($active ? '#ffffff' : lightPalette.kobalt[700])};
-  font-size: 12.5px;
-  font-weight: ${({ $active }) => ($active ? 700 : 500)};
+  font-size: 12px;
+  font-weight: ${({ $active }) => ($active ? 500 : 400)};
   padding: 5px 14px;
   border-radius: 9999px;
   cursor: pointer;
@@ -140,7 +141,7 @@ const ResetBtn = styled.button`
   background: transparent;
   color: ${meok[500]};
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 400;
   padding: 4px 10px;
   border-radius: 9999px;
   cursor: pointer;

@@ -2,15 +2,7 @@
 
 import { useEffect, useMemo } from 'react';
 import { Global, css } from '@emotion/react';
-import { renderToStaticMarkup } from 'react-dom/server';
-import {
-  Sparkles,
-  Flame,
-  Sun,
-  Leaf,
-  MapPin,
-  Users,
-} from 'lucide-react';
+import { mapIconSvg } from '@/map/utils/mapIconSvg';
 import {
   lightPalette,
   darkPalette,
@@ -38,15 +30,15 @@ import {
  * 은은한 호롱불/등불 훈기 블룸과 단아한 한지(창호지) 뱃지로 시각화합니다.
  */
 
-const GOTHIC_FONT = "'Pretendard', 'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif";
+const GOTHIC_FONT = "'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif";
 
 const ICONS = {
-  sparkles: renderToStaticMarkup(<Sparkles size={13} strokeWidth={2} />),
-  flame: renderToStaticMarkup(<Flame size={13} strokeWidth={2} />),
-  sun: renderToStaticMarkup(<Sun size={13} strokeWidth={2} />),
-  wind: renderToStaticMarkup(<Leaf size={13} strokeWidth={2} />),
-  mapPin: renderToStaticMarkup(<MapPin size={12} strokeWidth={2} />),
-  users: renderToStaticMarkup(<Users size={12} strokeWidth={2} />),
+  sparkles: mapIconSvg('sparkles', 13),
+  flame: mapIconSvg('flame', 13),
+  sun: mapIconSvg('sun', 13),
+  wind: mapIconSvg('leaf', 13),
+  mapPin: mapIconSvg('mapPin', 12),
+  users: mapIconSvg('users', 12),
 };
 
 const CONGESTION_CONFIG = {
@@ -325,7 +317,7 @@ const styles = css`
 
   .om-popover-title {
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 500;
     color: ${meok[900]};
     white-space: nowrap;
     overflow: hidden;
@@ -516,7 +508,7 @@ const styles = css`
     background: rgba(120, 120, 120, 0.08);
     font-size: 10.5px;
     color: ${lightPalette.juhong[500]};
-    font-weight: 600;
+    font-weight: 500;
     text-align: center;
   }
 

@@ -80,14 +80,11 @@ const LogoArea = styled.div`
 `;
 
 const BrandMark = styled.span`
-  display: inline-block;
-  white-space: nowrap;
-  color: ${lightPalette.cheongrok[700]};
-  font-size: 19px;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 26px;
   line-height: 1;
-  letter-spacing: 0.5px;
-  transform: rotate(-90deg);
-  transform-origin: center;
+  color: ${lightPalette.cheongrok[700]};
 `;
 
 /** 로고 영역과 메뉴 목록을 가르는 얇은 구분선 — 아래 BottomArea의 Divider와
