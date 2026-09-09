@@ -6,10 +6,10 @@ import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import {
   BookOpen,
-  MapPin,
+  Bookmark,
   Flame,
   Headphones,
-  Bookmark,
+  MapPin,
   User,
 } from 'lucide-react';
 import { transientProps } from '@/design-system/styled';

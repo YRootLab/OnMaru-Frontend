@@ -2,20 +2,21 @@
 
 import React, { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import styled from '@emotion/styled';
+import { keyframes } from '@emotion/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Landmark,
-  Sparkles,
   BookOpen,
   Calendar,
-  Home,
-  Utensils,
   Coffee,
-  ShoppingBag,
   Flame,
-  Users,
-  Leaf,
   Heart,
+  Home,
+  Landmark,
+  Leaf,
+  ShoppingBag,
+  Sparkles,
+  Users,
+  Utensils,
 } from 'lucide-react';
 import { transientProps } from '@/design-system/styled';
 import { meok } from '@/design-system/tokens';
@@ -52,18 +53,23 @@ const CATEGORIES: Record<MapMode, CategoryItem[]> = {
 
 const GAP = 6;
 
-/** 스크롤 가능한 방향의 가장자리를 부드럽게 지워, "여기서 잘렸다"가 아니라
- *  "옆으로 더 있다"는 걸 알려주는 페이드 폭. 지도 위에 뜨는 배경이 지도
- *  이미지라 색이 일정하지 않으므로, 불투명 그라디언트 오버레이 대신
- *  mask-image로 칩 자체를 옅게 만든다 — 뒤에 뭐가 있든 자연스럽게 비친다. */
-const EDGE_FADE_WIDTH = 28;
+const chipPopIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+`;
 
 /** 카테고리 칩이 가용 폭보다 많아지면 "···"로 접는 대신, 가로로 자연스럽게
  *  스크롤되도록 한다 — 네이버맵/카카오맵의 카테고리 필터 행과 같은 익숙한
  *  패턴. 터치는 브라우저 네이티브 스크롤에 맡기고, 마우스 사용자를 위해
  *  누르고 끄는(press-drag) 스크롤과 휠→가로 스크롤 변환을 함께 지원한다.
- *  스크롤할 더 있는 쪽 가장자리는 --fade-start/--fade-end로 폭을 조절해
- *  옅게 사라지고, 끝까지 스크롤하면 그 쪽은 다시 또렷해진다. */
+ *  PR #66의 가로 스크롤 수축 동작은 유지하되, mask-image는 쓰지 않는다.
+ *  mask가 칩의 box-shadow까지 같이 잘라서 지도 위에서 그림자가 끊겨 보였기 때문이다. */
 const Scroller = styled.div`
   position: relative;
   display: flex;
@@ -76,26 +82,7 @@ const Scroller = styled.div`
   -webkit-overflow-scrolling: touch;
   cursor: grab;
   user-select: none;
-  /* ModeGroup은 위치 이동 없이 opacity만 크로스페이드된다 — 칩 box-shadow가
-     잘리지 않을 정도의 여백만 있으면 된다. */
-  padding: 10px 4px 16px;
-
-  --fade-start: 0px;
-  --fade-end: 0px;
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent 0,
-    black var(--fade-start),
-    black calc(100% - var(--fade-end)),
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    to right,
-    transparent 0,
-    black var(--fade-start),
-    black calc(100% - var(--fade-end)),
-    transparent 100%
-  );
+  padding: 2px 4px 12px;
 
   &::-webkit-scrollbar {
     display: none;
@@ -106,27 +93,26 @@ const Scroller = styled.div`
   }
 `;
 
-/** 정보⇄온기 모드가 바뀔 때 이 그룹 전체가 조용히 opacity로만 교체된다 —
- *  위아래 이동(translateY)이나 스프링 바운스 없이 짧은 easeOut 크로스페이드만
- *  써서 산만하지 않게 차분한 전환을 준다. 나가는 그룹과 들어오는 그룹이 겹치는
- *  동안(순차 대기 없이) 같은 자리를 차지해야 크로스페이드처럼 보이므로
- *  absolute로 겹쳐 쌓는다. */
+/** 정보⇄온기 모드가 바뀔 때 그룹 전체를 짧게 페이드한다.
+ *  absolute 겹침을 쓰면 스크롤러의 실제 폭/높이 계산이 흐려져 칩이 눌려
+ *  보일 수 있으므로, 실제 콘텐츠 크기를 가진 flex row로 둔다. */
 const ModeGroup = styled(motion.div, transientProps)<{ $align: 'start' | 'end' }>`
-  position: absolute;
-  inset: 0;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: ${({ $align }) => ($align === 'end' ? 'flex-end' : 'flex-start')};
   gap: ${GAP}px;
+  width: max-content;
+  min-width: 100%;
 `;
 
-const Chip = styled.button<{ $active: boolean }>`
+const Chip = styled.button<{ $active: boolean; $index: number }>`
   display: flex;
   flex: none;
   align-items: center;
   gap: 5px;
   height: 32px;
-  padding: 0 11px;
+  padding: 0 12px;
 
   border-radius: 9999px;
   background: ${({ $active }) => ($active ? meok[900] : 'rgba(255, 255, 255, 0.94)')};
@@ -145,6 +131,9 @@ const Chip = styled.button<{ $active: boolean }>`
     $active
       ? '0 4px 12px rgba(25, 31, 40, 0.2)'
       : '0 2px 6px rgba(0, 0, 0, 0.05)'};
+  opacity: 0;
+  animation: ${chipPopIn} 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: ${({ $index }) => $index * 40}ms;
 
   transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
     box-shadow 0.18s ease,
@@ -173,7 +162,7 @@ const Chip = styled.button<{ $active: boolean }>`
 
   @media (max-width: 1023px) {
     height: 32px;
-    padding: 0 11px;
+    padding: 0 12px;
     font-size: 12px;
     gap: 4px;
 
@@ -203,6 +192,12 @@ const Chip = styled.button<{ $active: boolean }>`
           ? '0 4px 12px rgba(255, 255, 255, 0.2)'
           : '0 2px 6px rgba(0, 0, 0, 0.4)'};
     }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    opacity: 1;
+    animation: none;
+    transition: none;
   }
 `;
 
@@ -260,16 +255,12 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
     }
   };
 
-  // 스크롤 위치에 따라 좌/우 가장자리 페이드 폭을 갱신 — 더 스크롤할 수
-  // 있는 쪽만 옅어지고, 끝에 닿으면 그 쪽은 다시 또렷해진다.
+  // 스크롤 위치가 바뀔 때 레이아웃을 재측정해 브라우저의 네이티브 가로
+  // 스크롤 수축 상태를 안정화한다. 시각적 fade mask는 그림자를 자르므로 제거했다.
   const updateEdgeFade = useCallback(() => {
     const el = containerRef.current;
     if (!el) return;
-    const maxScrollLeft = el.scrollWidth - el.clientWidth;
-    const canScrollLeft = el.scrollLeft > 1;
-    const canScrollRight = el.scrollLeft < maxScrollLeft - 1;
-    el.style.setProperty('--fade-start', canScrollLeft ? `${EDGE_FADE_WIDTH}px` : '0px');
-    el.style.setProperty('--fade-end', canScrollRight ? `${EDGE_FADE_WIDTH}px` : '0px');
+    el.style.setProperty('--scroll-left', `${el.scrollLeft}px`);
   }, []);
 
   // 마우스로 누른 채 좌우로 끌면 스크롤되는 press-drag. 터치는 브라우저
@@ -357,7 +348,7 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
       onClickCapture={handleClickCapture}
       onWheel={handleWheel}
     >
-      <AnimatePresence initial={false}>
+      <AnimatePresence initial={false} mode="wait">
         <ModeGroup
           key={mode}
           $align={align}
@@ -366,7 +357,7 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.18, ease: 'easeOut' }}
         >
-          {items.map((item) => {
+          {items.map((item, index) => {
             const Icon = item.icon;
             const isActive = isItemActive(item);
             return (
@@ -374,6 +365,7 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
                 <Chip
                   type="button"
                   $active={isActive}
+                  $index={index}
                   aria-pressed={isActive}
                   onClick={() => handleChipClick(item)}
                 >

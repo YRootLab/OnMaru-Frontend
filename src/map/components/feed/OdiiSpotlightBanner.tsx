@@ -211,7 +211,7 @@ export default function OdiiSpotlightBanner() {
         <ActionRow>
           <SkeletonBar $w="84px" $h="14px" />
           <StartBtn type="button" disabled style={{ opacity: 0.5, cursor: 'default' }}>
-            <Play size={13} fill="currentColor" className="ml-0.5" />
+            <Play size={13} className="ml-0.5" />
             <span>투어 시작</span>
           </StartBtn>
         </ActionRow>

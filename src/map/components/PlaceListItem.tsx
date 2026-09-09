@@ -463,4 +463,3 @@ function PlaceListItemComponent({
 }
 
 export const PlaceListItem = memo(PlaceListItemComponent);
-

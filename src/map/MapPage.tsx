@@ -85,10 +85,10 @@ const MapChips = styled(motion.div, transientProps)<{ $interactive: boolean }>`
   top: ${RAIL_INSET + 14}px;
   right: ${RAIL_INSET}px;
   left: ${RAIL_INSET}px;
-  height: 44px;
+  height: 54px;
   z-index: 30;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: flex-start;
   gap: 10px;
   pointer-events: none;
@@ -346,4 +346,3 @@ export default function MapPage() {
     </Root>
   );
 }
-

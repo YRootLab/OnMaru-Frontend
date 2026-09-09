@@ -1,6 +1,12 @@
 # handoff.md
 
 Current work:
+- 2026-09-09 ad hoc fix:
+  - User reported `/odii` no longer opened after it worked previously.
+  - Current worktree initially had no diff; reproduction showed `npx tsc --noEmit` failing because the Lucide migration removed `react-icons` while several `/odii` and `/map` components still referenced `react-icons/io5` or old `Io*` names.
+  - Replaced the remaining references with existing `lucide-react` icons in Odii archive/search UI and map feed/navigation components.
+  - Verification: `npx tsc --noEmit` passed, and dev server `HEAD /odii` returned 200 on `http://localhost:3001/odii`.
+  - Remaining separate issue: production `npm run build` now passes compile/typecheck but fails while prerendering `/map` with `Invalid hook call`; `/map` also returns 500 in dev. This is not in the `/odii` route itself but still blocks a full production build.
 - Summary: 
   1. Created new branch `feat/hanok-dogam` from clean `develop`.
   2. Ready to begin Hanok Dogam (한옥도감) development.
@@ -49,6 +55,12 @@ Verified this session:
 - `npx tsc --noEmit`: passed cleanly (code 0).
 - Reload stability on dark mode confirmed.
 
+
+PR prep 2026-09-10:
+- Branch: `hotfix/odii-page` targeting `develop`.
+- Related Issues for PR reference: #62 and #64 because this fixes map/ODII regressions after the Lucide migration.
+- Do not close #68 or #69 from this PR; they remain follow-up UI/theme work.
+
 Next step:
 - User verification of reload behavior and dark mode appearance on `/map`.
-
+- 지도 카테고리 칩은 PR #66의 가로 스크롤 수축 동작을 유지하면서, mask로 그림자가 잘리는 문제를 제거하고 둥근 pill 스타일/진입 애니메이션을 복원했다. 현재 아이콘은 lucide-react 기준을 유지한다.
