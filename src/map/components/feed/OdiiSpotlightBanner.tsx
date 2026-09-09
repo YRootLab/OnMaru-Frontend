@@ -2,8 +2,28 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
-import { Compass, Headphones, Play } from 'lucide-react';
+import { keyframes } from '@emotion/react';
+import { IoPlay } from 'react-icons/io5';
 import { lightPalette, meok, surface } from '@/design-system/tokens';
+
+const bannerShimmer = keyframes`
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+`;
+
+const SkeletonBar = styled.div<{ $w: string; $h: string; $radius?: string }>`
+  width: ${({ $w }) => $w};
+  height: ${({ $h }) => $h};
+  border-radius: ${({ $radius }) => $radius || '6px'};
+  background: linear-gradient(90deg, rgba(25, 31, 40, 0.05) 25%, rgba(25, 31, 40, 0.09) 50%, rgba(25, 31, 40, 0.05) 75%);
+  background-size: 200% 100%;
+  animation: ${bannerShimmer} 1.6s ease-in-out infinite;
+
+  [data-theme='dark'] & {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.06) 25%, rgba(255, 255, 255, 0.12) 50%, rgba(255, 255, 255, 0.06) 75%);
+    background-size: 200% 100%;
+  }
+`;
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
 import { useCinematicTourStore } from '@/features/cinematic-tour/store/useCinematicTourStore';
 import { generateDynamicWaypoints } from '@/features/odii-audio/hooks/useOdiiPlaceStory';
@@ -11,8 +31,8 @@ import { useMapStore } from '@/map/hooks/useMapStore';
 
 const CardContainer = styled.div`
   position: relative;
-  margin: 10px 14px;
-  padding: 14px 16px;
+  margin: 0 14px;
+  padding: 16px 18px;
   border-radius: 18px;
   background: linear-gradient(135deg, ${lightPalette.jangmi[50]} 0%, ${surface.light.card} 100%);
 
@@ -21,7 +41,6 @@ const CardContainer = styled.div`
 
   &:hover {
     transform: translateY(-1px);
-
   }
 `;
 
@@ -66,7 +85,7 @@ const DurationText = styled.span`
 
 const StoryTitle = styled.h4`
   margin: 0 0 4px;
-  font-size: 15px;
+  font-size: 16.5px;
   font-weight: 700;
   color: ${meok[900]};
   letter-spacing: -0.01em;
@@ -171,7 +190,34 @@ export default function OdiiSpotlightBanner() {
     return closest;
   }, [availableStories, center.lat, center.lng, currentAddress]);
 
-  if (!spotlightStory) return null;
+  if (!spotlightStory) {
+    return (
+      <CardContainer aria-busy="true" aria-label="공간 오디오 투어 불러오는 중">
+        <BackgroundAura />
+        <TopRow>
+          <Badge>
+            <span>공간 오디오 투어</span>
+          </Badge>
+          <SkeletonBar $w="44px" $h="13px" $radius="9999px" />
+        </TopRow>
+
+        <div style={{ margin: '0 0 4px', height: '21px', display: 'flex', alignItems: 'center' }}>
+          <SkeletonBar $w="64%" $h="16.5px" />
+        </div>
+        <div style={{ margin: '0 0 12px', height: '17px', display: 'flex', alignItems: 'center' }}>
+          <SkeletonBar $w="86%" $h="12px" />
+        </div>
+
+        <ActionRow>
+          <SkeletonBar $w="84px" $h="14px" />
+          <StartBtn type="button" disabled style={{ opacity: 0.5, cursor: 'default' }}>
+            <IoPlay size={13} className="ml-0.5" />
+            <span>투어 시작</span>
+          </StartBtn>
+        </ActionRow>
+      </CardContainer>
+    );
+  }
 
   const handleStart = () => {
     if (!spotlightStory.waypoints || spotlightStory.waypoints.length === 0) {
@@ -185,7 +231,6 @@ export default function OdiiSpotlightBanner() {
       <BackgroundAura />
       <TopRow>
         <Badge>
-          <Compass size={13} strokeWidth={2} />
           <span>공간 오디오 투어</span>
         </Badge>
         <DurationText>{spotlightStory.formattedDuration || '약 10분'}</DurationText>
@@ -198,7 +243,6 @@ export default function OdiiSpotlightBanner() {
 
       <ActionRow>
         <DocentTag>
-          <Headphones size={14} strokeWidth={2} />
           <span>{spotlightStory.speaker ?? '문화해설사 도슨트'}</span>
         </DocentTag>
 

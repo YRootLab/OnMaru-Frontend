@@ -12,13 +12,16 @@ const NOTICES = [
   '전국 한옥스테이 품질인증 숙소 안내',
 ];
 
+/* 카드형 박스 대신 "실시간 티커" 느낌의 얇은 필 — 아래 축제 카드 섹션과
+   시각적으로 다른 무게감을 줘서 단조롭게 쌓인 느낌을 덜어낸다. */
 const Container = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 14px;
-  margin: 10px 14px 4px;
-  border-radius: 12px;
+  height: 32px;
+  padding: 0 14px;
+  margin: 12px 14px;
+  border-radius: 9999px;
   background: rgba(30, 122, 104, 0.06);
   cursor: pointer;
   transition: all 0.2s ease;
@@ -50,16 +53,14 @@ const NoticeText = styled.p`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  animation: notice-fade 0.4s ease;
+  animation: notice-fade 0.35s ease;
 
   @keyframes notice-fade {
     from {
       opacity: 0;
-      transform: translateY(4px);
     }
     to {
       opacity: 1;
-      transform: translateY(0);
     }
   }
 `;

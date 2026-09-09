@@ -43,12 +43,13 @@ export const OdiiArchiveMetaBar: React.FC<Props> = ({ resultCount, totalCount })
   const hasFilter = selectedCategory !== '전체' || Boolean(searchQuery);
 
   return (
-    <div className="mb-2 flex flex-col gap-3 border-b border-[#211e19]/10 py-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="mb-3 flex flex-col gap-3 py-1 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex min-w-0 items-center gap-2 text-xs">
-        <span className="font-semibold text-[#211e19]">{labelFor(selectedCategory)}</span>
-        <span className="text-[#d0c7bd]">·</span>
+        <span className="inline-flex items-center rounded-full bg-[#211e19]/[0.05] px-2.5 py-1 font-bold text-[#211e19]">
+          {labelFor(selectedCategory)}
+        </span>
         {searchQuery && (
-          <span className="truncate text-[#655b4d]">
+          <span className="truncate text-[#786d5e]">
             “<strong className="font-semibold text-[#211e19]">{searchQuery}</strong>” 검색 결과
           </span>
         )}
@@ -57,28 +58,36 @@ export const OdiiArchiveMetaBar: React.FC<Props> = ({ resultCount, totalCount })
         </span>
       </div>
 
-      <form onSubmit={submit} className="flex min-w-0 items-center gap-2 sm:w-60">
+      <form onSubmit={submit} className="flex min-w-0 items-center gap-2 sm:w-72">
         <label htmlFor={searchId} className="sr-only">오디오 이야기 검색</label>
-        <div className="relative flex h-8 min-w-0 flex-1 items-center border-b border-[#211e19]/15 px-0.5 transition-colors duration-200 focus-within:border-[#f84e76]">
-          <Search size={15} strokeWidth={2} className="mr-2 shrink-0 text-[#a09282]" />
+
+        <div className="group relative flex h-10 min-w-0 flex-1 items-center gap-2 rounded-full border border-[#211e19]/[0.07] bg-white px-4 shadow-[0_1px_3px_rgba(33,30,25,0.04)] transition-all duration-200 focus-within:border-[#f84e76]/40 focus-within:shadow-[0_6px_18px_rgba(248,78,118,0.14)]">
+          <IoSearchOutline size={15} className="shrink-0 text-[#b0a398] transition-colors group-focus-within:text-[#f84e76]" />
+
           <input
             id={searchId}
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
             placeholder="장소 또는 키워드 검색"
-            className="h-full w-full bg-transparent text-xs text-[#211e19] outline-none focus-visible:outline-none placeholder:text-[#b0a398]"
+            className="h-full w-full min-w-0 bg-transparent text-xs text-[#211e19] outline-none focus-visible:outline-none placeholder:text-[#b0a398]"
           />
           {draft && (
             <button
               type="button"
               onClick={() => setDraft('')}
-              className="p-1 text-[#b0a398] transition-colors hover:text-[#211e19]"
+              aria-label="검색어 지우기"
+              className="grid shrink-0 place-items-center rounded-full p-1 text-[#b0a398] transition-colors hover:bg-[#211e19]/5 hover:text-[#211e19]"
             >
               <X size={14} strokeWidth={2} />
             </button>
           )}
         </div>
-        <button type="submit" className="shrink-0 text-xs font-semibold text-[#655b4d] transition-colors hover:text-[#f84e76]">검색</button>
+        <button
+          type="submit"
+          className="h-10 shrink-0 rounded-full bg-[#211e19] px-4 text-xs font-bold text-white transition-colors hover:bg-[#f84e76]"
+        >
+          검색
+        </button>
         {hasFilter && (
           <button
             type="button"

@@ -2,8 +2,69 @@
 
 import React, { useRef } from 'react';
 import styled from '@emotion/styled';
+import { keyframes } from '@emotion/react';
 import Image from 'next/image';
-import { Award, ChevronLeft, ChevronRight } from 'lucide-react';
+
+const feedShimmer = keyframes`
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+`;
+
+const SkeletonCuratedCard = styled.div`
+  flex: none;
+  width: 240px;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid rgba(25, 31, 40, 0.07);
+  box-shadow: 0 1px 3px rgba(25, 31, 40, 0.02);
+  overflow: hidden;
+
+  [data-theme='dark'] & {
+    background: #1f2125;
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+`;
+
+const SkeletonPhoto = styled.div`
+  width: 100%;
+  aspect-ratio: 16 / 11;
+  background: linear-gradient(90deg, #f0f0ee 25%, #e6e6e3 50%, #f0f0ee 75%);
+  background-size: 200% 100%;
+  animation: ${feedShimmer} 1.6s ease-in-out infinite;
+
+  [data-theme='dark'] & {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.06) 25%, rgba(255, 255, 255, 0.12) 50%, rgba(255, 255, 255, 0.06) 75%);
+    background-size: 200% 100%;
+  }
+`;
+
+const SkeletonCardBody = styled.div`
+  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+`;
+
+const SkeletonBar = styled.div<{ $w: string; $h: string; $radius?: string }>`
+  width: ${({ $w }) => $w};
+  height: ${({ $h }) => $h};
+  border-radius: ${({ $radius }) => $radius || '4px'};
+  background: linear-gradient(90deg, #f0f0ee 25%, #e6e6e3 50%, #f0f0ee 75%);
+  background-size: 200% 100%;
+  animation: ${feedShimmer} 1.6s ease-in-out infinite;
+
+  [data-theme='dark'] & {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.06) 25%, rgba(255, 255, 255, 0.12) 50%, rgba(255, 255, 255, 0.06) 75%);
+    background-size: 200% 100%;
+  }
+`;
+import {
+  IoChevronBackOutline,
+  IoChevronForwardOutline,
+} from 'react-icons/io5';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import type { Item } from '@/map/types';
@@ -14,7 +75,7 @@ interface SmartAroundFeedProps {
 
 const Wrapper = styled.div`
   position: relative;
-  padding: 12px 14px 14px;
+  padding: 0 14px;
 
   &:hover .om-feed-floating-btn {
     opacity: 1;
@@ -26,7 +87,7 @@ const Header = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 `;
 
 const TitleBox = styled.div`
@@ -37,10 +98,10 @@ const TitleBox = styled.div`
 
 const Title = styled.h3`
   margin: 0;
-  font-size: 14.5px;
-  font-weight: 600;
+  font-size: 16.5px;
+  font-weight: 700;
   color: ${meok[900]};
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 `;
 
 const SubText = styled.span`
@@ -97,12 +158,12 @@ const FloatingNavBtn = styled.button<{ $direction: 'left' | 'right' }>`
 
 const Scroller = styled.div`
   display: flex;
-  gap: 12px;
+  gap: 14px;
   overflow-x: auto;
   scroll-behavior: smooth;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
-  padding-bottom: 6px;
+  padding: 6px 2px 14px;
 
   &::-webkit-scrollbar {
     display: none;
@@ -111,25 +172,34 @@ const Scroller = styled.div`
 
 const CuratedCard = styled.button`
   flex: none;
-  width: 190px;
+  width: 240px;
   scroll-snap-align: start;
   display: flex;
   flex-direction: column;
 
-  border-radius: 14px;
-  background: rgba(25, 31, 40, 0.03);
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid rgba(25, 31, 40, 0.07);
+  box-shadow: 0 1px 3px rgba(25, 31, 40, 0.02);
   overflow: hidden;
   text-align: left;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.3s ease;
 
   &:hover {
-    background: rgba(25, 31, 40, 0.06);
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(25, 31, 40, 0.04);
+    border-color: rgba(25, 31, 40, 0.12);
+
+    img {
+      transform: scale(1.04);
+    }
   }
 
   &:active {
-    transform: scale(0.98);
+    transform: translateY(0) scale(0.99);
   }
 `;
 
@@ -138,36 +208,41 @@ const PhotoBox = styled.div`
   width: 100%;
   aspect-ratio: 16 / 11;
   background: #f0eae0;
+  overflow: hidden;
+
+  img {
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  }
 `;
 
-const PhotoBadge = styled.div`
+const DistanceOverlay = styled.div`
   position: absolute;
-  top: 6px;
+  bottom: 6px;
   right: 6px;
   z-index: 2;
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  padding: 2px 6px;
+  padding: 2.5px 7px;
   border-radius: 9999px;
-  background: rgba(25, 31, 40, 0.72);
+  background: rgba(25, 31, 40, 0.68);
   backdrop-filter: blur(4px);
   color: #ffffff;
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: 600;
+  letter-spacing: -0.01em;
 `;
 
 const Body = styled.div`
-  padding: 8px 10px 10px;
+  padding: 10px 12px 12px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 `;
 
 const Name = styled.h4`
   margin: 0;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 700;
   color: ${meok[900]};
   white-space: nowrap;
   overflow: hidden;
@@ -176,8 +251,8 @@ const Name = styled.h4`
 `;
 
 const MoodReview = styled.p`
-  margin: 2px 0 4px;
-  font-size: 11px;
+  margin: 1px 0 4px;
+  font-size: 11.5px;
   font-weight: 400;
   color: ${meok[500]};
   white-space: nowrap;
@@ -185,18 +260,55 @@ const MoodReview = styled.p`
   text-overflow: ellipsis;
 `;
 
-const MetaRow = styled.div`
+const TagRow = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  font-size: 10.5px;
-  color: ${meok[500]};
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-top: 2px;
 `;
 
-const DistTag = styled.span`
+const HashTag = styled.span`
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
   font-weight: 500;
   color: ${lightPalette.cheongrok[700]};
+  background: rgba(30, 122, 104, 0.08);
+  padding: 2px 7px;
+  border-radius: 6px;
+  letter-spacing: -0.01em;
 `;
+
+function getPlaceTags(item: Item): string[] {
+  const tags: string[] = [];
+
+  // 1. 지역 추출 (예: '서울 종로구 ...' -> '#종로', '전북 전주시 ...' -> '#전주')
+  if (item.addr) {
+    const parts = item.addr.split(' ');
+    if (parts.length >= 2) {
+      const city = parts[1].replace(/특별시|광역시|특별자치시|특별자치도|도|시|군|구/g, '').trim();
+      if (city && city.length >= 2) {
+        tags.push(`#${city}`);
+      }
+    }
+  }
+
+  // 2. 카테고리 태그 (예: #고택명소, #한옥카페, #한옥숙소, #문화재, #전통체험)
+  const categoryTagMap: Record<string, string> = {
+    spot: '#고택명소',
+    cafe: '#한옥카페',
+    stay: '#한옥숙소',
+    experience: '#전통체험',
+    culture: '#문화재·서원',
+    festival: '#축제·야행',
+    food: '#향토음식',
+    market: '#전통시장',
+  };
+  tags.push(categoryTagMap[item.category] || '#한옥명소');
+
+  return tags;
+}
 
 // 분위기 한줄평 자동 큐레이션 생성기
 function getMoodReview(name: string, category: string): string {
@@ -213,11 +325,48 @@ export default function SmartAroundFeed({ items }: SmartAroundFeedProps) {
   const map = useMapStore((s) => s.map);
   const setSelectedId = useMapStore((s) => s.setSelectedId);
   const setDetailId = useMapStore((s) => s.setDetailId);
+  const loading = useMapStore((s) => s.loading);
 
   // 이미지가 있고 매력적인 상위 12개 장소 선별
   const curatedSpots = items
     .filter((item) => Boolean(item.image))
     .slice(0, 12);
+
+  // 초기 로딩 시 섹션이 사라지지 않고 정위치에서 스켈레톤 유지 (CLS 방지)
+  if (loading && items.length === 0) {
+    return (
+      <Wrapper aria-busy="true" aria-label="추천 한옥 명소 불러오는 중">
+        <Header>
+          <TitleBox>
+            <Title>추천 한옥 명소</Title>
+            <SubText>AI 감성 큐레이션</SubText>
+          </TitleBox>
+        </Header>
+
+        <FeedContainer>
+          <Scroller role="region" aria-label="추천 한옥 명소 로딩 중">
+            {[1, 2, 3].map((key) => (
+              <SkeletonCuratedCard key={key}>
+                <SkeletonPhoto />
+                <SkeletonCardBody>
+                  <div style={{ height: '18px', display: 'flex', alignItems: 'center' }}>
+                    <SkeletonBar $w="68%" $h="15px" />
+                  </div>
+                  <div style={{ margin: '1px 0 4px', height: '15px', display: 'flex', alignItems: 'center' }}>
+                    <SkeletonBar $w="88%" $h="12px" />
+                  </div>
+                  <div style={{ display: 'flex', gap: '5px', marginTop: '2px' }}>
+                    <SkeletonBar $w="48px" $h="19px" $radius="6px" />
+                    <SkeletonBar $w="54px" $h="19px" $radius="6px" />
+                  </div>
+                </SkeletonCardBody>
+              </SkeletonCuratedCard>
+            ))}
+          </Scroller>
+        </FeedContainer>
+      </Wrapper>
+    );
+  }
 
   if (curatedSpots.length === 0) return null;
 
@@ -253,9 +402,7 @@ export default function SmartAroundFeed({ items }: SmartAroundFeedProps) {
     <Wrapper>
       <Header>
         <TitleBox>
-          <Award size={16} strokeWidth={2} color={lightPalette.cheongrok[500]} />
           <Title>추천 한옥 명소</Title>
-       
         </TitleBox>
       </Header>
 
@@ -288,19 +435,27 @@ export default function SmartAroundFeed({ items }: SmartAroundFeedProps) {
                 src={item.image!}
                 alt={item.name}
                 fill
-                sizes="190px"
+                sizes="240px"
                 style={{ objectFit: 'cover' }}
                 unoptimized
               />
+              {item.dist ? (
+                <DistanceOverlay>
+                  {Math.round(item.dist) >= 1000
+                    ? `${(item.dist / 1000).toFixed(1)}km`
+                    : `${Math.round(item.dist)}m`}
+                </DistanceOverlay>
+              ) : null}
             </PhotoBox>
 
             <Body>
               <Name title={item.name}>{item.name}</Name>
               <MoodReview>{getMoodReview(item.name, item.category)}</MoodReview>
-              <MetaRow>
-                <span>{item.category === 'cafe' ? '한옥카페' : item.category === 'stay' ? '한옥숙소' : '명소'}</span>
-                {item.dist ? <DistTag>{Math.round(item.dist)}m</DistTag> : null}
-              </MetaRow>
+              <TagRow>
+                {getPlaceTags(item).map((tag) => (
+                  <HashTag key={tag}>{tag}</HashTag>
+                ))}
+              </TagRow>
             </Body>
           </CuratedCard>
         ))}

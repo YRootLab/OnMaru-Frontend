@@ -227,13 +227,15 @@ export function OnmaruThemeProvider({
   followSystem = true,
 }: OnmaruThemeProviderProps) {
 
-  const [mode, setModeState] = useState<ColorMode>(defaultMode)
+  const [mode, setModeState] = useState<ColorMode>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('onmaru-color-mode') as ColorMode | null
+      if (saved === 'light' || saved === 'dark') return saved
+      if (followSystem && window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark'
+    }
+    return defaultMode
+  })
 
-  // 컴포넌트가 클라이언트에 마운트된 이후에 로컬 스토리지/시스템 설정 반영.
-  // 서버는 localStorage와 matchMedia를 볼 수 없으므로 defaultMode로 렌더하고,
-  // 실제 값은 마운트 후에 반영해야 한다. 이펙트에서 상태를 넣는 것이 유일한 방법이라
-  // set-state-in-effect 규칙을 이 지점에서만 해제한다.
-  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     const saved = localStorage.getItem('onmaru-color-mode') as ColorMode | null
     if (saved === 'light' || saved === 'dark') {
@@ -243,7 +245,6 @@ export function OnmaruThemeProvider({
       setModeState(isDark ? 'dark' : 'light')
     }
   }, [followSystem])
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   const theme = mode === 'dark' ? darkTheme : lightTheme
 
