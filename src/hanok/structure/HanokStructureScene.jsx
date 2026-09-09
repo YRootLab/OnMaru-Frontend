@@ -53,6 +53,19 @@ const SEASON_VIEWS = [
   { minWidth: 0, dir: [10, 20, 48], target: [-1, 5.0, 0], fov: 46, fit: 0.88 },
 ];
 
+/**
+ * 화면 아래에서 절기 조작 카드가 차지하는 몫.
+ *
+ * SCREEN_BANDS는 "아래 조작 바와 그 위 그림자만 피하면 된다"고 적어두고 그만큼
+ * 비켜서지만, 절기 구도는 그 계산을 타지 않고 SEASON_VIEWS로 따로 선다 —
+ * 그래서 카드의 존재를 모른 채 한옥을 화면 한가운데 세우고 둘이 겹쳤다.
+ *
+ * 모델이 들어갈 자리를 이 몫만큼 좁히고(fit), 남은 자리의 한가운데로 시선을
+ * 끌어올린다(lift). 두 값이 같은 상수에서 나와야 한옥이 위로 붙으면서도
+ * 머리가 화면 밖으로 나가지 않는다.
+ */
+const CONTROL_BAND = 0.22;
+
 const lerp = (from, to, t) => from + (to - from) * t;
 
 /**
@@ -98,19 +111,34 @@ function resolveShots(model, size) {
       const halfTan = Math.tan(toRad(view.fov) / 2);
       const aspect = Math.max(size.width / size.height, 0.1);
 
+      // 카드가 덮는 몫을 뺀 나머지에 모델을 담는다.
+      const fit = view.fit * (1 - CONTROL_BAND);
+
       // 세로·가로 중 더 물러나야 하는 쪽이 거리를 정한다.
       const distance = Math.max(
-        spread / Math.sin(Math.atan(halfTan) * view.fit),
-        spread / Math.sin(Math.atan(halfTan * aspect) * view.fit),
+        spread / Math.sin(Math.atan(halfTan) * fit),
+        spread / Math.sin(Math.atan(halfTan * aspect) * fit),
       );
 
+      /*
+        시선은 화면 한가운데에 맺힌다. 카드가 아래 CONTROL_BAND를 덮으므로
+        남은 자리의 한가운데는 그 절반만큼 위에 있다 — 그만큼 시선을 내리면
+        모델과 그림자가 통째로 올라와 카드 위에 선다.
+      */
+      const visibleHeight = 2 * distance * halfTan;
+      const target = [
+        view.target[0],
+        view.target[1] - visibleHeight * (CONTROL_BAND / 2),
+        view.target[2],
+      ];
+
       const length = Math.hypot(...view.dir);
-      const position = view.dir.map((v, i) => view.target[i] + (v / length) * distance);
+      const position = target.map((v, i) => v + (view.dir[i] / length) * distance);
 
       return {
         p: shot.p,
         position,
-        target: view.target,
+        target,
         fov: view.fov,
         near: Math.max(0.01, distance / 200),
         far: distance * 6,

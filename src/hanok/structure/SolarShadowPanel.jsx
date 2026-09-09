@@ -189,10 +189,10 @@ const Headline = styled.h2`
 
 const Stats = styled.dl`
   display: flex;
-  align-items: flex-end;
+  align-items: baseline;
   justify-content: space-between;
   gap: clamp(16px, 2.4vw, 28px);
-  margin: 0 0 6px;
+  margin: 0 0 2px;
 `;
 
 const Stat = styled.div`
@@ -201,25 +201,6 @@ const Stat = styled.div`
   gap: 8px;
   white-space: nowrap !important;
   word-break: keep-all !important;
-
-  /*
-    이 화면의 주인공은 그림자다. 고도는 원인, 그림자는 결과다.
-    둘을 같은 크기로 늘어놓으면 스펙시트 한 줄로 읽힌다 — 주인공만 세로로 세워 키운다.
-  */
-  &[data-lead='true'] {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0;
-  }
-
-  /* 좁은 화면에서는 카드가 두꺼워지면 위 본문과 맞닿는다. 한 줄로 되돌린다. */
-  @media (max-width: 767px) {
-    &[data-lead='true'] {
-      flex-direction: row;
-      align-items: baseline;
-      gap: 8px;
-    }
-  }
 `;
 
 /** '1m당 그림자', '남중고도' 등의 수치 타이틀 무조건 한 줄 고정 */
@@ -245,9 +226,13 @@ const StatValue = styled.dd`
   /* 8단 스냅이라 숫자는 끊어서 바뀐다. 짧게 받아내면 계기판처럼 읽힌다. */
   animation: ${fadeUp} 0.2s ease-out;
 
+  /*
+    이 화면의 주인공은 그림자다. 고도는 원인, 그림자는 결과다.
+    둘을 같은 크기로 늘어놓으면 스펙시트 한 줄로 읽힌다 — 주인공만 키운다.
+    세로로 세우면 카드가 두꺼워져 한옥을 파고들므로 한 줄에 둔다.
+  */
   &[data-lead='true'] {
-    font-size: clamp(28px, 3.4vw, 42px);
-    line-height: 1.05;
+    font-size: clamp(24px, 2.8vw, 34px);
     letter-spacing: -0.03em;
   }
 
@@ -261,7 +246,7 @@ const StatValue = styled.dd`
 
   @media (max-width: 767px) {
     &[data-lead='true'] {
-      font-size: 26px;
+      font-size: 24px;
     }
   }
 
@@ -423,64 +408,69 @@ const Track = styled.div`
   }
 
   &:focus-visible span[data-knob] {
-    box-shadow: 0 1px 6px rgba(28, 24, 20, 0.18),
-      0 0 0 5px ${(props) => `${props.accentColor || lightPalette.juhong[500]}40`};
+    box-shadow: 0 0 0 4px ${(props) => `${props.accentColor || lightPalette.juhong[500]}40`};
   }
 `;
 
+/*
+  눈금자.
+
+  알약 레일에 둥근 손잡이를 얹으면 어느 앱에나 있는 기본 슬라이더로 읽힌다.
+  절기는 한 해를 여덟로 나눈 눈금이므로 계기의 눈금자로 그린다 —
+  가는 실선 하나에 세로 눈금 여덟, 지금 선 자리만 길고 진하다.
+
+  눈금이 서는 바닥선이자 지나온 자리를 재는 기준선. 아래 11px은 손잡이와 나눠 쓴다.
+*/
+const RULE_BOTTOM = '11px';
+
 const Rail = styled.div`
   position: absolute;
-  top: 50%;
   left: 0;
   right: 0;
-  height: 4px;
-  margin-top: -2px;
-  border-radius: 2px;
+  bottom: ${RULE_BOTTOM};
+  height: 1px;
   background: ${meok[200]};
 `;
 
 const Fill = styled.div`
   position: absolute;
-  top: 0;
   left: 0;
-  height: 100%;
-  border-radius: 2px;
+  bottom: 0;
+  height: 1px;
   background: ${(props) => props.accentColor || lightPalette.juhong[500]};
   transition: width ${SLIDE}, background-color 0.35s ease;
 `;
 
 const Tick = styled.span`
   position: absolute;
-  top: 50%;
-  width: 5px;
-  height: 5px;
-  margin: -2.5px 0 0 -2.5px;
-  border-radius: 50%;
+  bottom: 0;
+  width: 1px;
+  height: 7px;
+  margin-left: -0.5px;
   background: ${meok[400]};
+  transition: background-color 0.35s ease;
 
   &[data-passed='true'] {
-    background: rgba(255, 255, 255, 0.92);
+    background: ${meok[700]};
   }
 `;
 
 /**
- * 이 화면에서 손으로 잡는 유일한 물건.
+ * 지금 선 자리를 가리키는 날.
  *
- * 전에는 테두리도 그림자도 없는 흰 원이었다 — 흰 카드 위에서 사실상 보이지 않았다.
- * (border-color / box-shadow를 트랜지션하면서 정작 둘 다 선언이 없었다.)
- * 계절색 테를 둘러 눈에 잡히게 하고, 3D 볕과 같은 곡선으로 칸 사이를 건넌다.
+ * 눈금자 위의 지침이라 눈금과 같은 바닥선에서 자란다. 둥근 손잡이를 얹으면
+ * 눈금자가 도로 기본 슬라이더로 보인다 — 눈금 중 하나가 길어진 것처럼 세운다.
+ * 잡는 면은 Track이 44px로 따로 갖고 있으므로 얇아도 조작에는 지장이 없다.
  */
 const Knob = styled.span`
   position: absolute;
-  top: 50%;
-  width: 22px;
-  height: 22px;
-  margin: -11px 0 0 -11px;
-  border-radius: 50%;
-  background: ${surface.light.card};
-  border: 2px solid ${(props) => props.accentColor || lightPalette.juhong[500]};
-  box-shadow: 0 1px 6px rgba(28, 24, 20, 0.18);
-  transition: left ${SLIDE}, border-color 0.35s ease, box-shadow 0.2s ease-out;
+  bottom: ${RULE_BOTTOM};
+  width: 3px;
+  height: 20px;
+  margin-left: -1.5px;
+  border-radius: 1.5px;
+  background: ${(props) => props.accentColor || lightPalette.juhong[500]};
+  transition: left ${SLIDE}, background-color 0.35s ease, box-shadow 0.2s ease-out;
 `;
 
 const Labels = styled.div`
@@ -498,15 +488,16 @@ const Label = styled.button`
   background: none;
   font-family: inherit;
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 18px;
   white-space: nowrap;
   color: ${INK_WEAK};
   cursor: pointer;
   transition: color 0.25s ease-out;
 
+  /* 전에는 활성/비활성이 같은 500이라 굵기 변화가 없었다. */
   &[data-active='true'] {
-    font-weight: 500;
+    font-weight: 600;
     color: ${(props) => props.accentColor || lightPalette.juhong[500]};
   }
 
@@ -710,7 +701,7 @@ export default function SolarShadowPanel() {
 
         <Card>
           <Stats>
-            <Stat data-lead="true">
+            <Stat>
               <StatLabel>1m당 그림자</StatLabel>
               <StatValue key={`${view.id}-shadow`} data-lead="true">
                 {Math.round(view.shadow)}
