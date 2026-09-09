@@ -361,7 +361,7 @@ export default function FestivalExhibitionCarousel({ festivals }: FestivalExhibi
           </TitleGroup>
           <MoreBtn type="button" disabled style={{ opacity: 0.5, cursor: 'default' }}>
             <span>전체보기</span>
-            <IoChevronForwardOutline size={13} />
+            <ChevronRight size={13} />
           </MoreBtn>
         </SectionHeader>
 

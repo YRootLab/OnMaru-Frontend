@@ -14,6 +14,7 @@ import {
   Calendar,
   Headphones,
   Bookmark,
+  Store,
 } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useBookmarkStore } from '@/map/hooks/useBookmarkStore';
@@ -421,13 +422,13 @@ function PlaceListItemComponent({
             <CategoryTag $category={item.category}>{cleanCatLabel}</CategoryTag>
             {showTraditionalBadge && (
               <TraditionalBadge title="정통 한옥 및 전통 문화재 인증 명소">
-                <IoStorefrontOutline size={10.5} />
+                <Store size={10.5} />
                 <span>정통 한옥</span>
               </TraditionalBadge>
             )}
             {hasOdii && (
               <OdiiBadge title="한국관광공사 공식 오디 오디오 도슨트 해설 지원 장소">
-                <IoHeadsetOutline size={10.5} />
+                <Headphones size={10.5} />
                 <span>오디 해설</span>
               </OdiiBadge>
             )}
