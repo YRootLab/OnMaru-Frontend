@@ -39,11 +39,6 @@ const CATEGORY_NAMES: Record<string, string> = {
   market: '전통시장',
 };
 
-const pulse = keyframes`
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-`;
-
 const StickyHeader = styled.div`
   position: sticky;
   top: 0;
@@ -51,8 +46,19 @@ const StickyHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px 8px;
+  padding: 12px 14px 8px;
   background: #ffffff;
+`;
+
+const FeedWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  /* LiveNoticeBanner의 margin-bottom(12px)과 합쳐 아래 섹션들 사이 간격(32px)과
+     동일한 리듬을 만든다 — 배너 바로 아래 "진행 중인 축제·기획전"만 유독
+     붙어 보이지 않도록. */
+  margin-top: 20px;
+  margin-bottom: 40px;
 `;
 
 const CountLabel = styled.span`
@@ -62,7 +68,7 @@ const CountLabel = styled.span`
   font-size: 13.5px;
   font-weight: 500;
   color: ${meok[900]};
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 `;
 
 const SortDropdownWrapper = styled.div`
@@ -104,6 +110,8 @@ const ListContainer = styled.ul`
   list-style: none;
   margin: 0;
   padding: 0;
+  width: 100%;
+  box-sizing: border-box;
 `;
 
 /* ── 페이지네이션 스타일 ── */
@@ -174,40 +182,64 @@ const PageNumberBtn = styled.button<{ $active: boolean }>`
   }
 `;
 
-/* ── 스켈레톤 로딩 ── */
+const shimmer = keyframes`
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+`;
+
+/* ── 스켈레톤 로딩 (AGENTS.md 규칙: 정확한 크기 예약 & 중립 그레이 쉬머) ── */
 const SkeletonWrapper = styled.div`
   display: flex;
   flex-direction: column;
+  padding-bottom: 24px;
 `;
 
 const SkeletonItem = styled.div`
   display: flex;
-  gap: 12px;
-  padding: 14px 16px;
-  border-bottom: 1px solid rgba(78, 89, 104, 0.08);
-  animation: ${pulse} 1.5s ease-in-out infinite;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 14px;
+  box-sizing: border-box;
+  width: 100%;
 `;
 
 const SkeletonThumb = styled.div`
-  width: 72px;
-  height: 72px;
-  border-radius: 10px;
-  background: rgba(78, 89, 104, 0.08);
+  width: 88px;
+  height: 88px;
+  border-radius: 11.2px;
+  background: linear-gradient(90deg, #f2f2f0 25%, #e6e6e3 50%, #f2f2f0 75%);
+  background-size: 200% 100%;
+  animation: ${shimmer} 1.6s ease-in-out infinite;
   flex-shrink: 0;
+
+  @media (max-width: 1023px) {
+    width: 80px;
+    height: 80px;
+    border-radius: 10.2px;
+  }
 `;
 
 const SkeletonContent = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
+  justify-content: center;
+  gap: 6px;
   flex: 1;
+  min-width: 0;
+  padding: 2px 36px 2px 0;
 `;
 
-const SkeletonBar = styled.div<{ $w: string; $h: string }>`
+const SkeletonBar = styled.div<{ $w: string; $h: string; $radius?: string }>`
   width: ${({ $w }) => $w};
   height: ${({ $h }) => $h};
-  border-radius: 4px;
-  background: rgba(78, 89, 104, 0.08);
+  border-radius: ${({ $radius }) => $radius || '4px'};
+  background: linear-gradient(90deg, #f2f2f0 25%, #e6e6e3 50%, #f2f2f0 75%);
+  background-size: 200% 100%;
+  animation: ${shimmer} 1.6s ease-in-out infinite;
 `;
 
 /* ── 빈 상태 / 에러 상태 ── */
@@ -336,10 +368,25 @@ export default function PlaceList() {
     });
   }, [items, sortOrder, category, bookmarks, userLocation, center]);
 
-  // 필터, 정렬, 지역 변경 시 1페이지로 리셋
-  useEffect(() => {
+  // 필터, 정렬, 지역 변경 시 1페이지로 리셋 — effect가 아니라 렌더 중 비교로
+  // 처리해(React 공식 권장 패턴) 불필요한 커밋 사이클을 만들지 않는다.
+  const resetKey = `${category ?? ''}|${currentAddress ?? ''}|${sortOrder}|${items.length}`;
+  const [prevResetKey, setPrevResetKey] = useState(resetKey);
+  if (resetKey !== prevResetKey) {
+    setPrevResetKey(resetKey);
     setCurrentPage(1);
-  }, [category, currentAddress, sortOrder, items.length]);
+  }
+
+  // 사용자가 명시적으로 카테고리를 변경할 때만 최상단으로 이동
+  // (새로고침 시나 주소 지오코딩 완료 시 아래에서 위로 올라오는 스크롤 현상 방지)
+  const isMountedRef = useRef(false);
+  useEffect(() => {
+    if (!isMountedRef.current) {
+      isMountedRef.current = true;
+      return;
+    }
+    listTopRef.current?.scrollIntoView({ behavior: 'auto', block: 'start' });
+  }, [category]);
 
   const totalPages = Math.max(1, Math.ceil(sortedItems.length / ITEMS_PER_PAGE));
   const validPage = Math.min(currentPage, totalPages);
@@ -377,15 +424,22 @@ export default function PlaceList() {
     return items.filter((item) => item.category === 'festival');
   }, [items]);
 
-  // 정확한 헤더 타이틀 라벨 계산
+  // 정확한 헤더 타이틀 라벨 계산 (로딩 중 '0곳' 깜빡임 방지)
   const headerTitle = useMemo(() => {
+    const regionName = currentAddress ? currentAddress.replace(/대한민국\s*/, '') || '전국' : '전체';
+    if (loading && items.length === 0) {
+      if (category) {
+        const name = CATEGORY_NAMES[category] || '한옥명소';
+        return `${name} 목록`;
+      }
+      return `${regionName} 명소 목록`;
+    }
     if (category) {
       const name = CATEGORY_NAMES[category] || '한옥명소';
       return `${name} ${sortedItems.length}곳`;
     }
-    const regionName = currentAddress ? currentAddress.replace(/대한민국\s*/, '') || '전국' : '전체';
     return `${regionName} ${sortedItems.length}곳`;
-  }, [category, currentAddress, sortedItems.length]);
+  }, [category, currentAddress, sortedItems.length, loading, items.length]);
 
   // 장소 선택 핸들러: 스토어에 selectedId, detailId 지정 및 지도 이동
   const handleSelect = (item: Item) => {
@@ -415,7 +469,7 @@ export default function PlaceList() {
 
       {/* 2. 전체 탭일 때 네이버 지도 스타일의 풍성한 스마트 큐레이션 피드 렌더링 */}
       {isAllCategory && (
-        <>
+        <FeedWrapper>
           {/* 진행 중인 지역 축제 & 기획전 캐러셀 */}
           <FestivalExhibitionCarousel festivals={festivalItems} />
 
@@ -424,7 +478,7 @@ export default function PlaceList() {
 
           {/* 네이버 스마트어라운드형 추천 포토 카드 피드 */}
           <SmartAroundFeed items={sortedItems} />
-        </>
+        </FeedWrapper>
       )}
 
       {/* 3. 장소 목록 헤더 */}
@@ -450,13 +504,16 @@ export default function PlaceList() {
       {/* 4. 장소 목록 컨텐츠 */}
       {loading && items.length === 0 ? (
         <SkeletonWrapper aria-busy="true" aria-label="장소 목록을 불러오는 중입니다">
-          {[1, 2, 3, 4, 5].map((key) => (
+          {[1, 2, 3, 4, 5, 6].map((key) => (
             <SkeletonItem key={key}>
               <SkeletonThumb />
               <SkeletonContent>
-                <SkeletonBar $w="65%" $h="16px" />
-                <SkeletonBar $w="45%" $h="13px" />
-                <SkeletonBar $w="30%" $h="12px" />
+                <SkeletonBar $w="64%" $h="19px" $radius="4px" />
+                <div style={{ display: 'flex', gap: '5px' }}>
+                  <SkeletonBar $w="50px" $h="20px" $radius="6px" />
+                  <SkeletonBar $w="62px" $h="20px" $radius="6px" />
+                </div>
+                <SkeletonBar $w="48%" $h="15px" $radius="4px" />
               </SkeletonContent>
             </SkeletonItem>
           ))}

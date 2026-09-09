@@ -2,7 +2,64 @@
 
 import React, { useRef } from 'react';
 import styled from '@emotion/styled';
+import { keyframes } from '@emotion/react';
 import Image from 'next/image';
+
+const carouselShimmer = keyframes`
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+`;
+
+const SkeletonFestivalCard = styled.div`
+  flex: none;
+  width: 248px;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid rgba(25, 31, 40, 0.07);
+  box-shadow: 0 1px 3px rgba(25, 31, 40, 0.02);
+  overflow: hidden;
+
+  [data-theme='dark'] & {
+    background: #1f2125;
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+`;
+
+const SkeletonFestivalThumb = styled.div`
+  width: 100%;
+  height: 136px;
+  background: linear-gradient(90deg, #f0f0ee 25%, #e6e6e3 50%, #f0f0ee 75%);
+  background-size: 200% 100%;
+  animation: ${carouselShimmer} 1.6s ease-in-out infinite;
+
+  [data-theme='dark'] & {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.06) 25%, rgba(255, 255, 255, 0.12) 50%, rgba(255, 255, 255, 0.06) 75%);
+    background-size: 200% 100%;
+  }
+`;
+
+const SkeletonFestivalBody = styled.div`
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+`;
+
+const SkeletonBar = styled.div<{ $w: string; $h: string }>`
+  width: ${({ $w }) => $w};
+  height: ${({ $h }) => $h};
+  border-radius: 4px;
+  background: linear-gradient(90deg, #f0f0ee 25%, #e6e6e3 50%, #f0f0ee 75%);
+  background-size: 200% 100%;
+  animation: ${carouselShimmer} 1.6s ease-in-out infinite;
+
+  [data-theme='dark'] & {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.06) 25%, rgba(255, 255, 255, 0.12) 50%, rgba(255, 255, 255, 0.06) 75%);
+    background-size: 200% 100%;
+  }
+`;
 import {
   Calendar,
   ChevronLeft,
@@ -19,7 +76,7 @@ interface FestivalExhibitionCarouselProps {
 
 const SectionWrapper = styled.div`
   position: relative;
-  padding: 14px 14px 6px;
+  padding: 0 14px;
 
   &:hover .om-carousel-floating-btn {
     opacity: 1;
@@ -31,7 +88,7 @@ const SectionHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 `;
 
 const TitleGroup = styled.div`
@@ -45,7 +102,7 @@ const SectionTitle = styled.h3`
   font-size: 14px;
   font-weight: 500;
   color: ${meok[900]};
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 `;
 
 const BadgeTitle = styled.span`
@@ -119,12 +176,12 @@ const FloatingNavBtn = styled.button<{ $direction: 'left' | 'right' }>`
 
 const Scroller = styled.div`
   display: flex;
-  gap: 12px;
+  gap: 14px;
   overflow-x: auto;
   scroll-behavior: smooth;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
-  padding-bottom: 8px;
+  padding: 6px 2px 14px;
 
   &::-webkit-scrollbar {
     display: none;
@@ -133,31 +190,45 @@ const Scroller = styled.div`
 
 const FestivalCard = styled.button`
   flex: none;
-  width: 220px;
+  width: 248px;
   scroll-snap-align: start;
 
-  border-radius: 14px;
-  background: rgba(25, 31, 40, 0.03);
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid rgba(25, 31, 40, 0.07);
+  box-shadow: 0 1px 3px rgba(25, 31, 40, 0.02);
   overflow: hidden;
   text-align: left;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.3s ease;
 
   &:hover {
-    background: rgba(25, 31, 40, 0.06);
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(25, 31, 40, 0.04);
+    border-color: rgba(25, 31, 40, 0.12);
+
+    img {
+      transform: scale(1.04);
+    }
   }
 
   &:active {
-    transform: scale(0.98);
+    transform: translateY(0) scale(0.99);
   }
 `;
 
 const ThumbBox = styled.div`
   position: relative;
   width: 100%;
-  height: 110px;
+  height: 136px;
   background: ${meok[200]};
+  overflow: hidden;
+
+  img {
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  }
 `;
 
 const CardBadge = styled.div`
@@ -262,6 +333,8 @@ export default function FestivalExhibitionCarousel({ festivals }: FestivalExhibi
   const scrollerRef = useRef<HTMLDivElement>(null);
   const map = useMapStore((s) => s.map);
   const setCategory = useMapStore((s) => s.setCategory);
+  const loading = useMapStore((s) => s.loading);
+  const items = useMapStore((s) => s.items);
 
   const displayList = festivals.length > 0 ? festivals : FALLBACK_FESTIVALS;
 
@@ -277,6 +350,44 @@ export default function FestivalExhibitionCarousel({ festivals }: FestivalExhibi
       scrollerRef.current.scrollLeft += e.deltaY;
     }
   };
+
+  // 초기 로딩 시 섹션이 사라지거나 갑자기 튀어나오지 않도록 스켈레톤 유지
+  if (loading && items.length === 0) {
+    return (
+      <SectionWrapper aria-busy="true" aria-label="진행 중인 축제 및 기획전 불러오는 중">
+        <SectionHeader>
+          <TitleGroup>
+            <SectionTitle>진행 중인 축제·기획전</SectionTitle>
+          </TitleGroup>
+          <MoreBtn type="button" disabled style={{ opacity: 0.5, cursor: 'default' }}>
+            <span>전체보기</span>
+            <IoChevronForwardOutline size={13} />
+          </MoreBtn>
+        </SectionHeader>
+
+        <CarouselContainer>
+          <Scroller role="region" aria-label="축제 및 기획전 로딩 중">
+            {[1, 2, 3].map((key) => (
+              <SkeletonFestivalCard key={key}>
+                <SkeletonFestivalThumb />
+                <SkeletonFestivalBody>
+                  <div style={{ margin: '0 0 4px', height: '17px', display: 'flex', alignItems: 'center' }}>
+                    <SkeletonBar $w="72%" $h="14px" />
+                  </div>
+                  <div style={{ height: '14px', display: 'flex', alignItems: 'center' }}>
+                    <SkeletonBar $w="48%" $h="11px" />
+                  </div>
+                  <div style={{ marginTop: '3px', height: '14px', display: 'flex', alignItems: 'center' }}>
+                    <SkeletonBar $w="60%" $h="11px" />
+                  </div>
+                </SkeletonFestivalBody>
+              </SkeletonFestivalCard>
+            ))}
+          </Scroller>
+        </CarouselContainer>
+      </SectionWrapper>
+    );
+  }
 
   const handleClick = (item: Item) => {
     const store = useMapStore.getState();
@@ -297,9 +408,7 @@ export default function FestivalExhibitionCarousel({ festivals }: FestivalExhibi
     <SectionWrapper>
       <SectionHeader>
         <TitleGroup>
-          <Sparkles size={15} color={lightPalette.cheongrok[500]} strokeWidth={2} />
           <SectionTitle>진행 중인 축제·기획전</SectionTitle>
-        
         </TitleGroup>
         <MoreBtn type="button" onClick={() => setCategory('festival')}>
           <span>전체보기</span>
@@ -337,7 +446,7 @@ export default function FestivalExhibitionCarousel({ festivals }: FestivalExhibi
                     src={item.image}
                     alt={item.name}
                     fill
-                    sizes="220px"
+                    sizes="248px"
                     style={{ objectFit: 'cover' }}
                     unoptimized
                   />

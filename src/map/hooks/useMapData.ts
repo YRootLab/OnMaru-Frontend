@@ -68,7 +68,6 @@ export function useMapData() {
   useEffect(() => {
     const { setItems, setLoading, setError, setWarmths } = useMapStore.getState();
     if (!map) {
-      setLoading(false);
       return;
     }
 

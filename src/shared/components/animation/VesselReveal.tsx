@@ -19,16 +19,16 @@ export interface VesselRevealProps {
   scaleFrom?: number;
   /** 진입 초기 라운드 캡슐 곡률 (기본값: '2.2rem') */
   roundedFrom?: string;
-  /** 하단 캡슐 모핑 트리거 뷰포트 비율 (기본값: 0.75 = 화면 하단 25% 영역 진입 시 선제적 언폴딩/폴딩) */
+  /** 하단 캡슐 모핑 트리거 뷰포트 비율 (기본값: 0.67 = 화면 하단 33% 영역 진입 시 선제적 언폴딩/폴딩) */
   exitThresholdRatio?: number;
-  /** 애니메이션 지속 시간 (기본값: 0.85s) */
+  /** 애니메이션 지속 시간 (기본값: 0.75s) */
   duration?: number;
 }
 
 /**
- * ## VesselReveal (선제적 하단 25% 영역 스크롤 모핑 디자인 패턴)
+ * ## VesselReveal (선제적 하단 33% 영역 스크롤 모핑 디자인 패턴)
  * 
- * 아직 보지 않은 섹션은 화면 하단 25% 영역(`vh * 0.75`)에 진입할 때 92% -> 100%로 개화합니다.
+ * 아직 보지 않은 섹션은 화면 하단 33% 영역(`vh * 0.67`)에 진입할 때 92% -> 100%로 개화합니다.
  * 위로 되돌아가 하단 경계로 사라질 때 다시 접히며, 새로고침 당시 보이거나 위에 있던 섹션은 펼쳐진 상태를 유지합니다.
  */
 export const VesselReveal: React.FC<VesselRevealProps> = ({
@@ -37,8 +37,8 @@ export const VesselReveal: React.FC<VesselRevealProps> = ({
   id,
   scaleFrom = 0.92,
   roundedFrom = '2.2rem',
-  exitThresholdRatio = 0.75,
-  duration = 0.85,
+  exitThresholdRatio = 0.67,
+  duration = 0.75,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const isReloadProtectedRef = useRef(false);

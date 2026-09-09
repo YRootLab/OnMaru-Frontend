@@ -1,24 +1,29 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { Alex_Brush } from 'next/font/google';
 import styled from '@emotion/styled';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
-  BookOpen,
-  MapPin,
-  Headphones,
-  Flame,
-  Bookmark,
-  Home,
-  User,
-} from 'lucide-react';
+  IoBookOutline,
+  IoLocationOutline,
+  IoFlame,
+  IoHeadsetOutline,
+  IoBookmarkOutline,
+  IoPersonOutline,
+} from 'react-icons/io5';
 import { transientProps } from '@/design-system/styled';
 import { useMapStore } from '@/map/hooks/useMapStore';
-import { lightPalette, meok, surface } from '@/design-system/tokens';
+import { lightPalette, meok } from '@/design-system/tokens';
 import { RAIL_ENTER_DELAY_S, RAIL_ENTER_DURATION_S, ENTRANCE_EASE } from '@/shared/navigation/mapEntranceTiming';
+import { useMapEntranceStore } from '@/shared/navigation/mapEntranceState';
 
 export const RAIL_WIDTH = 60;
 export const RAIL_INSET = 14;
+
+/** "OnMaru" 워드마크용 고급스러운 브러시 필기체 — 박스/아이콘 없이 글자 자체로
+ *  브랜드를 표현한다. */
+const brandScript = Alex_Brush({ subsets: ['latin'], weight: '400' });
 
 /** Header.tsx의 캡슐형 GNB와 같은 유리질감(블러+반투명+가느다란 보더)을 쓰는
  *  얇고 떠 있는 세로 레일 — 예전의 68px 꽉찬 화이트 사이드바 대신, 뷰포트에서
@@ -51,18 +56,26 @@ const RailContainer = styled(motion.aside, transientProps)`
   }
 `;
 
-/** 상단 온마루 브랜드 로고 영역 */
+/** 상단 온마루 브랜드 로고 영역 — 60px 폭 레일에 "OnMaru"를 가로로는 못 넣으니
+ *  세로로 눕혀서(아래→위로 읽힘) 필기체 워드마크를 그대로 보여준다. 박스/아이콘
+ *  없이 글자 자체가 로고다. */
 const LogoArea = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 44px;
+  height: 56px;
   cursor: pointer;
   transition: transform 0.15s ease;
 
   &:hover {
-    transform: scale(1.06);
+    transform: scale(1.04);
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${lightPalette.cheongrok[500]};
+    outline-offset: 2px;
+    border-radius: 8px;
   }
 `;
 
@@ -79,6 +92,17 @@ const BrandIconBadge = styled.div`
   font-weight: 700;
   letter-spacing: -0.5px;
   box-shadow: 0 2px 6px rgba(0, 184, 130, 0.28);
+const BrandMark = styled.span`
+
+`;
+
+/** 로고 영역과 메뉴 목록을 가르는 얇은 구분선 — 아래 BottomArea의 Divider와
+ *  같은 스타일을 재사용해 로고 아래에 메뉴가 시작되는 지점을 명확히 한다. */
+const LogoDivider = styled.div`
+  width: 24px;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.08);
+  margin: 4px 0 8px;
 `;
 
 const NavList = styled.div`
@@ -144,7 +168,6 @@ const Divider = styled.div`
 
 export default function MapNavRail() {
   const router = useRouter();
-  const prefersReducedMotion = useReducedMotion();
   const mode = useMapStore((s) => s.mode);
   const setMode = useMapStore((s) => s.setMode);
   const setCategory = useMapStore((s) => s.setCategory);
@@ -165,23 +188,39 @@ export default function MapNavRail() {
   // 온마루 자체 카테고리 활성 판별
   const isMapActive = true; // 현재 /map 페이지
   const isWarmthActive = mode === 'warmth';
+  const isRouteEntrance = useMapEntranceStore((s) => s.isRouteEntrance);
 
   return (
     <RailContainer
       role="navigation"
       aria-label="온마루 메인 카테고리 네비게이션"
-      initial={prefersReducedMotion ? false : { x: '-100%', opacity: 0 }}
+      initial={isRouteEntrance ? { x: '-100%', opacity: 0 } : false}
       animate={{ x: 0, opacity: 1 }}
       transition={
-        prefersReducedMotion
-          ? { duration: 0 }
-          : { duration: RAIL_ENTER_DURATION_S, delay: RAIL_ENTER_DELAY_S, ease: ENTRANCE_EASE }
+        isRouteEntrance
+          ? { duration: RAIL_ENTER_DURATION_S, delay: RAIL_ENTER_DELAY_S, ease: ENTRANCE_EASE }
+          : { duration: 0 }
       }
     >
-      {/* 1. 상단 온마루 브랜드 로고 */}
-      <LogoArea onClick={() => router.push('/')} title="온마루 메인 홈으로 이동">
-        <BrandIconBadge>온</BrandIconBadge>
+      {/* 1. 상단 온마루 브랜드 로고 — 워드마크가 장식용 텍스트라 aria-hidden 처리하고,
+          div 자체에 버튼 접근성(role/tabIndex/키보드)을 직접 부여한다. */}
+      <LogoArea
+        role="button"
+        tabIndex={0}
+        onClick={() => router.push('/')}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            router.push('/');
+          }
+        }}
+        aria-label="온마루 메인 홈으로 이동"
+        title="온마루 메인 홈으로 이동"
+      >
+        <BrandMark className={brandScript.className} aria-hidden="true">OnMaru</BrandMark>
       </LogoArea>
+
+      <LogoDivider />
 
       {/* 2. 온마루 자체 카테고리 목록 (한옥도감, 지도, 소리마루, 온기이야기, 저장) — 라벨은 title 툴팁으로 대체 */}
       <NavList>
@@ -255,21 +294,10 @@ export default function MapNavRail() {
         </NavItemBtn>
       </NavList>
 
-      {/* 3. 하단 유틸리티 메뉴 (온마루 홈, 마이/로그인) */}
+      {/* 3. 하단 유틸리티 메뉴 (마이/로그인) — 홈 이동은 위 브랜드 로고가 이미
+          담당하므로 별도의 "온마루 홈" 항목을 중복으로 두지 않는다. */}
       <BottomArea>
         <Divider />
-        <NavItemBtn
-          type="button"
-          $active={false}
-          onClick={() => router.push('/')}
-          aria-label="온마루 3D 홈으로 이동"
-          title="온마루 홈"
-        >
-          <NavItemIcon>
-            <Home size={19} strokeWidth={2} />
-          </NavItemIcon>
-        </NavItemBtn>
-
         <NavItemBtn
           type="button"
           $active={false}
