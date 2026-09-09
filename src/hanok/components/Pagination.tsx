@@ -17,7 +17,7 @@ const PageBtn = styled.button<{ $active?: boolean; $disabled?: boolean }>`
   background: ${({ $active }) => ($active ? meok[900] : '#ffffff')};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
   font-size: 14px;
-  font-weight: ${({ $active }) => ($active ? 600 : 450)};
+  font-weight: ${({ $active }) => ($active ? 500 : 400)};
   min-width: 40px;
   height: 40px;
   padding: 0 12px;

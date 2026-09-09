@@ -145,7 +145,7 @@ const Row1 = styled.div`
 const Title = styled.h4`
   margin: 0;
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 500;
   color: ${meok[900]};
   overflow: hidden;
   text-overflow: ellipsis;
@@ -193,7 +193,7 @@ const TraditionalBadge = styled.span`
   padding: 2px 7px;
   border-radius: 9999px;
   font-size: 10.5px;
-  font-weight: 600;
+  font-weight: 500;
   color: ${lightPalette.cheongrok[700]};
   background: rgba(0, 184, 130, 0.1);
   border: 1px solid rgba(0, 184, 130, 0.2);
@@ -226,7 +226,7 @@ const OdiiBadge = styled.span`
 
 const DistanceRow = styled.div`
   font-size: 12.5px;
-  font-weight: 600;
+  font-weight: 500;
   color: ${meok[700]};
   font-variant-numeric: tabular-nums;
   margin-top: 2px;

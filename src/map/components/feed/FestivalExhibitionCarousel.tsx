@@ -43,7 +43,7 @@ const TitleGroup = styled.div`
 const SectionTitle = styled.h3`
   margin: 0;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   color: ${meok[900]};
   letter-spacing: -0.01em;
 `;
@@ -183,7 +183,7 @@ const CardBody = styled.div`
 const CardTitle = styled.h4`
   margin: 0 0 4px;
   font-size: 13.5px;
-  font-weight: 600;
+  font-weight: 500;
   color: ${meok[900]};
   white-space: nowrap;
   overflow: hidden;

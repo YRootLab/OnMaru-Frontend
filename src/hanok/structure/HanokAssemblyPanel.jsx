@@ -16,14 +16,14 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 // 읽기 전용 아카이브의 단계 정의. 실제 경로는 .../data/hanok.data
 // (브리프 경로에서 /data/ 세그먼트가 빠져 있었다). hanok.data.ts는 수정하지 않는다.
-import { STAGES } from '@/temp/archive/hanok-viewer/data/hanok.data';
-import { MODEL_URL, BEAT_RANGES } from '@/scroll-core/constants';
+import { STAGES } from './stages';
+import { MODEL_URL } from './constants';
 useGLTF.preload(MODEL_URL);
-import { assemblyProgress, useSceneStore } from '@/scroll-core/sceneStore';
-import { meok } from '@/design-system/tokens';
-import { clamp01, easeOut as easeOutCubic, usePrefersReducedMotion } from './LandingSectionFrame';
+import { assemblyProgress, useSceneStore } from './sceneStore';
+import { meok, lightPalette } from '@/design-system/tokens';
+import { clamp01 } from './motion';
 
-const FONT = "'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif";
+const FONT = 'var(--font-hanok)';
 const EASE = [0.22, 1, 0.36, 1];
 
 const smoothstep = (edge0, edge1, x) => {
@@ -32,15 +32,14 @@ const smoothstep = (edge0, edge1, x) => {
 };
 
 // ─────────────────────────────────────────
-// 구간 — 전역 progress 0.45 ~ 0.70
+// 단계 창
+//
+// 예전에는 전역 스크롤 구간을 잘라 local을 만들었지만, 지금은 모달이 단계 버튼으로
+// local을 직접 몰아준다. 창의 경계값은 그대로 두어 조립 순서와 카메라가 그대로 산다.
 // ─────────────────────────────────────────
 
-export const RANGE = BEAT_RANGES.BEAT4;
-
-const [RANGE_START, RANGE_END] = RANGE;
-
-/** localProgress(0~1)를 7단계에 나눠 담는 창. 앞 0.06 진입, 뒤 0.06 완성 여운. */
-const STAGE_WINDOWS = [
+/** local(0~1)을 7단계에 나눠 담는 창. 앞 0.01 진입, 뒤 0.17 완성 여운. */
+export const STAGE_WINDOWS = [
   [0.01, 0.12], // 01 기단
   [0.12, 0.23], // 02 댓돌
   [0.23, 0.35], // 03 초석과 기둥
@@ -50,10 +49,10 @@ const STAGE_WINDOWS = [
   [0.71, 0.83], // 07 기와 (0.83 완공)
 ];
 
-const RESULT_AT = 0.83;
+export const RESULT_AT = 0.83;
 
 /** 진행 중이거나 방금 끝난 단계. 진입 구간에서는 -1. */
-const activeStageOf = (local) => {
+export const activeStageOf = (local) => {
   let index = -1;
   for (let i = 0; i < STAGE_WINDOWS.length; i += 1) {
     if (local >= STAGE_WINDOWS[i][0]) index = i;
@@ -89,7 +88,6 @@ const statusOf = (local, i) => {
  */
 export function AssemblyModel() {
   const { scene } = useGLTF(MODEL_URL);
-  const reduced = usePrefersReducedMotion();
 
   const { parts, offset, root } = useMemo(() => {
     const cloned = scene.clone(true);
@@ -155,15 +153,10 @@ export function AssemblyModel() {
     return { parts: built, offset: [-center.x, -yMin, -center.z], root: cloned };
   }, [scene]);
 
-const easeInOutCubic = (t) =>
-  t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-
-const lerp = (a, b, t) => a + (b - a) * t;
-
   /*
     매 프레임 107개 부재 및 STAGES 데이터 기반 카메라를 보간 계산한다.
   */
-  useFrame(({ camera, size }) => {
+  useFrame(() => {
     const local = assemblyProgress.current;
 
     // 1. 107개 부재 조립 애니메이션
@@ -196,72 +189,14 @@ const lerp = (a, b, t) => a + (b - a) * t;
       }
     }
 
-    // 2. STAGES 데이터 기반 단계별 카메라 보간 애니메이션
-    const activeStage = local >= RESULT_AT ? STAGES.length - 1 : activeStageOf(local);
-    if (activeStage >= 0 && activeStage < STAGES.length) {
-      const i = activeStage;
-      const isCompleted = local >= RESULT_AT;
+    /*
+      카메라는 씬(HanokStructureScene)의 FramedCamera가 잡는다.
 
-      const cur = STAGES[i];
-      const next = STAGES[Math.min(i + 1, STAGES.length - 1)];
-
-      const [start, end] = STAGE_WINDOWS[i];
-      const stageLocalProgress = isCompleted ? 1 : clamp01((local - start) / (end - start));
-
-      // [6] 접근성 (prefers-reduced-motion): reduced인 경우 linear, 아니면 easeInOutCubic
-      const t = reduced ? stageLocalProgress : easeInOutCubic(stageLocalProgress);
-
-      const isMobile = size.width < 768;
-
-      const curPos = new THREE.Vector3(...cur.cameraPos);
-      const nextPos = new THREE.Vector3(...next.cameraPos);
-
-      const curTargetVec = new THREE.Vector3(
-        ...(isMobile && cur.mobileCameraTarget ? cur.mobileCameraTarget : cur.cameraTarget),
-      );
-      const nextTargetVec = new THREE.Vector3(
-        ...(isMobile && next.mobileCameraTarget ? next.mobileCameraTarget : next.cameraTarget),
-      );
-
-      // position 및 target 보간
-      const lerpedPos = new THREE.Vector3().lerpVectors(curPos, nextPos, t);
-      const lerpedTarget = new THREE.Vector3().lerpVectors(curTargetVec, nextTargetVec, t);
-
-      // [방안 A] 카메라 타겟을 데스크톱에서 좌측으로 Shift하여 3D 한옥을 우측에 배치하고 좌측 45%를 '순수 여백'으로 확보
-      if (!isMobile) {
-        lerpedTarget.x -= 2.2;
-        lerpedPos.x -= 2.2;
-      }
-
-      // [3] 단계 진입 시 미세한 무게감 강조 모션 (Punch Effect)
-      if (!reduced && stageLocalProgress <= 0.15) {
-        const punch = Math.sin((stageLocalProgress / 0.15) * Math.PI) * 0.4;
-        const dirFromTarget = lerpedPos.clone().sub(lerpedTarget);
-        dirFromTarget.multiplyScalar(1 - punch * 0.012);
-        lerpedPos.copy(lerpedTarget).add(dirFromTarget);
-      }
-
-      // [4] 반응형 카메라 보정 (모바일 1.55x, 태블릿 1.2x 거리 늘림 및 fov +6)
-      let distanceScale = 1;
-      if (size.width < 768) distanceScale = 1.55;
-      else if (size.width < 1280) distanceScale = 1.2;
-
-      const dir = lerpedPos.clone().sub(lerpedTarget).normalize();
-      const dist = lerpedPos.distanceTo(lerpedTarget) * distanceScale;
-      const finalPos = lerpedTarget.clone().add(dir.multiplyScalar(dist));
-
-      camera.position.copy(finalPos);
-      camera.lookAt(lerpedTarget);
-
-      // fov 보간
-      const baseFov = lerp(cur.fov ?? 45, next.fov ?? 45, t);
-      const finalFov = isMobile ? baseFov + 6 : baseFov;
-
-      if (Math.abs(camera.fov - finalFov) > 0.01) {
-        camera.fov = finalFov;
-        camera.updateProjectionMatrix();
-      }
-    }
+      원래 여기서 STAGES의 단계별 cameraPos로 부재를 하나씩 클로즈업했는데, 그 좌표는
+      전체화면 뷰어 시절 값이라 모달에서는 앞 단계가 돌덩이로 화면을 가득 채우거나
+      아예 프레임 밖으로 나갔다. 한 자리에 서서 일곱 켜가 쌓이는 걸 보는 편이
+      "일곱 켜로 선다"는 이야기에도 맞다.
+    */
   });
 
   return (
@@ -276,7 +211,7 @@ const lerp = (a, b, t) => a + (b - a) * t;
 // ─────────────────────────────────────────
 
 const Stage = styled.section`
-  position: fixed;
+  position: absolute;
   inset: 0;
   z-index: 5;
   display: flex;
@@ -301,6 +236,8 @@ const Left = styled.div`
   @media (max-width: 768px) {
     flex: 0 0 45%;
     padding: 20px;
+    /* 글이 아래로 내려오므로 단계 조작 바(한 줄, 약 64px) 높이만큼 비운다. */
+    padding-bottom: 76px;
     justify-content: flex-end;
   }
 `;
@@ -334,10 +271,10 @@ const TitleLine = styled.h2`
   display: flex;
   align-items: baseline;
   font-size: clamp(48px, 5.5vw, 76px);
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-weight: 100;
+  letter-spacing: -0.015em;
   line-height: 1.05;
-  background: linear-gradient(135deg, #ffffff 0%, #f7e3be 45%, #d4af37 85%, #f5a623 100%);
+  background: linear-gradient(135deg, ${meok[900]} 0%, ${meok[700]} 34%, ${lightPalette.juhong[700]} 72%, ${lightPalette.hwanggeum[700]} 100%);
   background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -346,7 +283,8 @@ const TitleLine = styled.h2`
 
 const StepNumber = styled.span`
   margin-right: 16px;
-  background: linear-gradient(135deg, #ffffff 0%, #f7e3be 45%, #d4af37 85%, #f5a623 100%);
+  font-weight: 500;
+  background: linear-gradient(135deg, ${meok[900]} 0%, ${meok[700]} 34%, ${lightPalette.juhong[700]} 72%, ${lightPalette.hwanggeum[700]} 100%);
   background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -360,7 +298,7 @@ const Description = styled(motion.p)`
   font-weight: 400;
   line-height: 1.75;
   letter-spacing: -0.015em;
-  color: ${meok[100]};
+  color: ${meok[700]};
 `;
 
 const ResultWrapper = styled(motion.div)`
@@ -376,10 +314,10 @@ const ResultWrapper = styled(motion.div)`
 const Result = styled(motion.p)`
   margin: 0;
   font-size: clamp(26px, 3.0vw, 42px);
-  font-weight: 800;
-  letter-spacing: -0.025em;
+  font-weight: 400;
+  letter-spacing: -0.02em;
   line-height: 1.35;
-  background: linear-gradient(135deg, #ffffff 0%, #f7e3be 45%, #d4af37 85%, #f5a623 100%);
+  background: linear-gradient(135deg, ${meok[900]} 0%, ${meok[700]} 34%, ${lightPalette.juhong[700]} 72%, ${lightPalette.hwanggeum[700]} 100%);
   background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -407,33 +345,27 @@ const Bar = styled.span`
   width: ${(props) => (props.status === 'current' ? '44px' : '28px')};
   background: ${(props) =>
     props.status === 'current'
-      ? '#ffffff'
+      ? meok[900]
       : props.status === 'done'
-        ? 'rgba(255, 255, 255, 0.45)'
-        : 'rgba(255, 255, 255, 0.18)'};
+        ? lightPalette.juhong[400]
+        : 'rgba(25, 31, 40, 0.16)'};
 `;
 
 // ─────────────────────────────────────────
 // LandingHanokAssembly
 // ─────────────────────────────────────────
 
-export default function LandingHanokAssembly({ progress }) {
+export default function HanokAssemblyPanel({ local }) {
   const setAssembling = useSceneStore((s) => s.setAssembling);
 
-  const active = progress >= RANGE_START && progress < RANGE_END;
-  const local = clamp01((progress - RANGE_START) / (RANGE_END - RANGE_START));
+  // 렌더링 단계에서 즉시 동기화 (useEffect 1프레임 딜레이 및 되감기 리셋 방지)
+  assemblyProgress.current = clamp01(local);
 
-  // 렌더링 단계에서 즉시 동기화 (useEffect 1프레임 딜레이 및 역방향 스크롤 리셋 방지)
-  assemblyProgress.current = local;
-
-  // 고정 캔버스에 "지금은 조립 중"이라고 알린다. 완성된 한옥이 물러나고 부재가 날아온다.
+  // 캔버스에 "지금은 조립 중"이라고 알린다. 완성된 한옥이 물러나고 부재가 날아온다.
   useEffect(() => {
-    setAssembling(active);
-  }, [active, setAssembling]);
-
-  useEffect(() => () => useSceneStore.getState().setAssembling(false), []);
-
-  if (!active) return null;
+    setAssembling(true);
+    return () => useSceneStore.getState().setAssembling(false);
+  }, [setAssembling]);
 
   const activeIndex = activeStageOf(local);
   const displayIndex = Math.max(0, activeIndex); // 진입 구간에서는 첫 단계 텍스트를 보여둔다

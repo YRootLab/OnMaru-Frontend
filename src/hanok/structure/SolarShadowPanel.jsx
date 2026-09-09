@@ -4,19 +4,14 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 
-import { BEAT_RANGES } from '@/scroll-core/constants';
-import { useSceneStore } from '@/scroll-core/sceneStore';
+import { useSceneStore } from './sceneStore';
 import useUserLocation from '@/hooks/useUserLocation';
 import SHADOW from '@/data/solarShadow.json';
 import { altitudeToSeasonValue, getDayOfYear, getNoonSolarAltitude } from '@/utils/solar';
 
-import { clamp01, easeOut, usePrefersReducedMotion } from './LandingSectionFrame';
+import { clamp01, easeOut, usePrefersReducedMotion } from './motion';
 
-export const RANGE = BEAT_RANGES.BEAT3;
-
-const [START, END] = RANGE;
-
-const FONT = "'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif";
+const FONT = 'var(--font-hanok)';
 
 // ─────────────────────────────────────────
 // 색
@@ -46,16 +41,6 @@ const SEASON_ACCENTS = {
   summer: { primary: lightPalette.juhong[500], bg: lightPalette.juhong[50] },
   autumn: { primary: lightPalette.hwanggeum[500], bg: lightPalette.hwanggeum[50] },
   winter: { primary: lightPalette.kobalt[500], bg: lightPalette.kobalt[50] },
-};
-
-/**
- * 섹션 배경화면 (Section Background) 계절별 그라데이션 토큰 연동
- */
-const SEASON_STAGE_BG = {
-  spring: `radial-gradient(ellipse 85% 70% at 50% 25%, ${lightPalette.jangmi[50]}FA 0%, ${lightPalette.juhong[50]}C8 45%, ${surface.light.base} 100%)`,
-  summer: `radial-gradient(ellipse 85% 70% at 50% 25%, ${lightPalette.hwanggeum[50]}FA 0%, ${lightPalette.juhong[50]}B8 45%, ${surface.light.base} 100%)`,
-  autumn: `radial-gradient(ellipse 85% 70% at 50% 25%, ${lightPalette.hwanggeum[100]}F0 0%, ${lightPalette.hwanggeum[50]}C8 45%, ${surface.light.base} 100%)`,
-  winter: `radial-gradient(ellipse 85% 70% at 50% 25%, ${lightPalette.kobalt[50]}FA 0%, ${lightPalette.cheongrok[50]}B8 45%, ${surface.light.base} 100%)`,
 };
 
 /**
@@ -91,7 +76,7 @@ const riseIn = keyframes`
 `;
 
 const Stage = styled.section`
-  position: fixed;
+  position: absolute;
   inset: 0;
   z-index: 5;
   pointer-events: none !important;
@@ -124,9 +109,9 @@ const TermTag = styled.p`
   justify-content: center;
   gap: 8px;
   margin: 0 0 10px;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
   color: ${(props) => props.accentColor || lightPalette.juhong[500]};
   white-space: nowrap;
 
@@ -145,8 +130,8 @@ const TermTag = styled.p`
 const Headline = styled.h2`
   margin: 0 auto;
   font-size: clamp(22px, 3.2vw, 44px);
-  font-weight: 700;
-  letter-spacing: -0.03em;
+  font-weight: 300;
+  letter-spacing: -0.02em;
   line-height: 1.25;
   word-break: keep-all;
   white-space: nowrap;
@@ -167,16 +152,6 @@ const Stats = styled.dl`
   margin: 0 0 6px;
 `;
 
-const StatGroup = styled.div`
-  display: flex;
-  align-items: center;
-  gap: clamp(14px, 2vw, 24px);
-
-  @media (max-width: 600px) {
-    gap: 10px;
-  }
-`;
-
 const Stat = styled.div`
   display: flex;
   align-items: center;
@@ -188,8 +163,8 @@ const Stat = styled.div`
 /** '1m당 그림자', '남중고도' 등의 수치 타이틀 무조건 한 줄 고정 */
 const StatLabel = styled.dt`
   font-size: clamp(11px, 1.1vw, 13px);
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  font-weight: 500;
+  letter-spacing: 0.06em;
   color: ${INK_WEAK};
   white-space: nowrap !important;
   word-break: keep-all !important;
@@ -198,7 +173,7 @@ const StatLabel = styled.dt`
 const StatValue = styled.dd`
   margin: 0;
   font-size: clamp(17px, 1.9vw, 24px);
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
   color: ${INK};
@@ -298,31 +273,6 @@ const Card = styled.div`
 `;
 
 /** 숫자를 풀어 쓴 한 줄. 값과 문장이 늘 같은 절기를 말하도록 카드 안에 함께 둔다. */
-const StatNote = styled.dd`
-  align-self: center;
-  margin: 0 0 0 4px;
-  font-size: 12px;
-  line-height: 1.45;
-  word-break: keep-all;
-  text-wrap: balance;
-  color: ${INK_SUB};
-
-  @media (max-width: 900px) {
-    display: none;
-  }
-`;
-
-const ReachText = styled.p`
-  margin: 8px 0 0;
-  font-size: 13px;
-  font-weight: 500;
-  line-height: 1.45;
-  color: ${ACCENT};
-  text-align: center;
-  word-break: keep-all;
-  text-wrap: balance;
-`;
-
 /** 통계 오른쪽 끝에 붙어, 손을 대면 조용히 사라진다. */
 const Hint = styled.p`
   margin: 0 0 0 auto;
@@ -415,7 +365,7 @@ const Label = styled.button`
   transition: color 0.25s ease-out;
 
   &[data-active='true'] {
-    font-weight: 700;
+    font-weight: 500;
     color: ${(props) => props.accentColor || lightPalette.juhong[500]};
   }
 
@@ -441,7 +391,7 @@ const BackToToday = styled.button`
   backdrop-filter: blur(8px);
   font-family: inherit;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   white-space: nowrap;
   color: ${ACCENT};
   cursor: pointer;
@@ -465,10 +415,11 @@ const BackToToday = styled.button`
 // LandingSolarShadow
 // ─────────────────────────────────────────
 
-export default function LandingSolarShadow({ progress }) {
+export default function SolarShadowPanel() {
   const reduced = usePrefersReducedMotion();
   const { latitude, cityName, locationState, isSecure, requestLocation } = useUserLocation();
   const setSun = useSceneStore((s) => s.setSun);
+  const setAssembling = useSceneStore((s) => s.setAssembling);
 
   // 오늘에 가장 가까운 절기. 손대지 않았으면 여기가 기준점이다.
   const baseIndex = useMemo(() => stopIndexForDay(getDayOfYear(new Date())), []);
@@ -488,16 +439,24 @@ export default function LandingSolarShadow({ progress }) {
 
   const view = STOPS[index];
   const pair = view.pairId ? STOPS.find((stop) => stop.id === view.pairId) : null;
-  const inRange = progress >= START && progress < END;
 
   /*
-    고정 캔버스의 주광에 이 절기의 남중고도를 넘긴다.
-    3D 그림자 길이는 저쪽에서 높이 / tan(고도)로 떨어지므로, 화면의 그림자와
-    위에 적힌 숫자가 같은 값에서 나온다. 구간 밖에서는 놓아준다.
+    씬 모드를 직접 선언한다. 조립 모달을 먼저 열었다면 store에 assembling이 남아 있어
+    완성된 한옥 대신 기단만 선 조립 모델이 서고, 그림자를 드리울 몸체가 없다.
+    앞 모달의 정리(cleanup) 순서에 기대지 않는다.
   */
   useEffect(() => {
-    setSun(inRange ? { altitude: view.altitude, value: view.seasonValue } : null);
-  }, [inRange, view.altitude, view.seasonValue, setSun]);
+    setAssembling(false);
+  }, [setAssembling]);
+
+  /*
+    캔버스의 주광에 이 절기의 남중고도를 넘긴다.
+    3D 그림자 길이는 저쪽에서 높이 / tan(고도)로 떨어지므로, 화면의 그림자와
+    위에 적힌 숫자가 같은 값에서 나온다.
+  */
+  useEffect(() => {
+    setSun({ altitude: view.altitude, value: view.seasonValue });
+  }, [view.altitude, view.seasonValue, setSun]);
 
   useEffect(
     () => () => {
@@ -506,8 +465,6 @@ export default function LandingSolarShadow({ progress }) {
     },
     [],
   );
-
-  if (!inRange) return null;
 
   const today = new Date();
   const todayAltitude = getNoonSolarAltitude(latitude, today);
@@ -586,10 +543,9 @@ export default function LandingSolarShadow({ progress }) {
   const showReturn = touched && index !== baseIndex;
   const percent = (index / LAST) * 100;
   const seasonTheme = SEASON_ACCENTS[view.season] || SEASON_ACCENTS.summer;
-  const seasonStageBg = SEASON_STAGE_BG[view.season] || SEASON_STAGE_BG.spring;
 
   return (
-    <Stage aria-label="절기에 따른 처마 그림자" bgGradient={seasonStageBg}>
+    <Stage aria-label="절기에 따른 처마 그림자">
       <Copy>
         <TermTag accentColor={seasonTheme.primary} bgAccent={seasonTheme.bg}>
           {`${view.name} · ${view.month}월 ${view.day}일`}

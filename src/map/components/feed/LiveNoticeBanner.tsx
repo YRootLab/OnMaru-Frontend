@@ -45,7 +45,7 @@ const TextScroller = styled.div`
 const NoticeText = styled.p`
   margin: 0;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   color: ${meok[900]};
   white-space: nowrap;
   overflow: hidden;

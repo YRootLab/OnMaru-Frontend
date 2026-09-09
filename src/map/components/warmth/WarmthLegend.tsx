@@ -42,7 +42,7 @@ const Root = styled.div`
   backdrop-filter: blur(16px);
   border: none;
   box-shadow: 0 6px 24px -4px rgba(0, 0, 0, 0.12);
-  font-family: 'Pretendard', 'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+  font-family: 'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
 
   [data-theme='dark'] & {
     background: ${surface.dark.surface};
@@ -66,7 +66,7 @@ const Root = styled.div`
 const Summary = styled.p`
   margin: 0;
   font-size: 12.5px;
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.35;
   color: ${meok[900]};
   white-space: nowrap;
@@ -76,7 +76,7 @@ const Summary = styled.p`
   }
 
   b {
-    font-weight: 800;
+    font-weight: 700;
     font-variant-numeric: tabular-nums;
   }
 `;
@@ -107,7 +107,7 @@ const RampEnds = styled.div`
   display: flex;
   justify-content: space-between;
   font-size: 11.5px;
-  font-weight: 600;
+  font-weight: 500;
   color: ${meok[700]};
 
   [data-theme='dark'] & {
@@ -141,7 +141,7 @@ const PeriodRow = styled.div`
 const PeriodLabel = styled.span`
   margin-right: 2px;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 500;
   color: ${meok[500]};
 `;
 
@@ -154,7 +154,7 @@ const PeriodBtn = styled.button<{ $active: boolean }>`
   color: ${({ $active }) => ($active ? surface.light.card : meok[700])};
   font-family: inherit;
   font-size: 11.5px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
 

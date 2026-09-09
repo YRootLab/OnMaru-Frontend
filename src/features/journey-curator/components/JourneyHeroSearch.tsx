@@ -34,15 +34,17 @@ const EyebrowBadge = styled.div`
   border-radius: 9999px;
   background: rgba(0, 184, 130, 0.08);
   color: ${lightPalette.cheongrok[500]};
-  font-size: 12.5px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
   margin-bottom: 16px;
 `;
 
 const Title = styled.h1`
-  font-family: 'MaruBuri', serif, sans-serif;
+  font-family: var(--font-hanok);
   font-size: 36px;
-  font-weight: 700;
+  /* 36px — 크기가 이미 위계를 만든다. 굵기는 덜어낸다 */
+  font-weight: 300;
   color: #191f28;
   letter-spacing: -0.03em;
   margin: 0 0 12px;
@@ -134,7 +136,8 @@ const SubmitButton = styled.button<{ $disabled?: boolean }>`
   color: #ffffff;
   font-family: inherit;
   font-size: 14px;
-  font-weight: 600;
+  /* 검색 실행 — 이 화면의 주 행동 */
+  font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.18s ease;
@@ -174,7 +177,7 @@ const MoodChip = styled.button<{ $active: boolean }>`
   color: ${({ $active }) => ($active ? '#191f28' : '#333d4b')};
   font-family: inherit;
   font-size: 13px;
-  font-weight: ${({ $active }) => ($active ? 600 : 400)};
+  font-weight: ${({ $active }) => ($active ? 500 : 400)};
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.18s ease;

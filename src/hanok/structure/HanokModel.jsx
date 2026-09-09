@@ -5,7 +5,7 @@ import { useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 
-import { usePrefersReducedMotion } from '@/components/landing/LandingSectionFrame';
+import { usePrefersReducedMotion } from './motion';
 
 export const MODEL_URL = '/anchae.glb';
 useGLTF.preload(MODEL_URL);

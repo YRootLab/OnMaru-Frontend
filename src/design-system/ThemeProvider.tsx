@@ -42,24 +42,7 @@ const OnmaruThemeContext = createContext<OnmaruThemeContextValue | null>(null)
 // ─────────────────────────────────────────
 
 const createGlobalStyles = (theme: OnmaruTheme) => css`
-  /* ── SpoqaHanSansNeo 폰트 */
-  @font-face { font-family: 'SpoqaHanSansNeo'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/SpoqaHanSansNeo-Thin.woff') format('woff'); font-weight: 100; font-display: swap; }
-  @font-face { font-family: 'SpoqaHanSansNeo'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/SpoqaHanSansNeo-Light.woff') format('woff'); font-weight: 300; font-display: swap; }
-  @font-face { font-family: 'SpoqaHanSansNeo'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/SpoqaHanSansNeo-Regular.woff') format('woff'); font-weight: 400; font-display: swap; }
-  @font-face { font-family: 'SpoqaHanSansNeo'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/SpoqaHanSansNeo-Medium.woff') format('woff'); font-weight: 500; font-display: swap; }
-  @font-face { font-family: 'SpoqaHanSansNeo'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/SpoqaHanSansNeo-Bold.woff') format('woff'); font-weight: 700; font-display: swap; }
-
-  /* ── 충주시 김생체 전통 폰트 */
-  @font-face { font-family: 'ChungjuKimsaeng'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2312-1@1.1/ChungjuKimSaengTTF.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
-  @font-face { font-family: 'ChungjuKimsaeng'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2312-1@1.1/ChungjuKimSaengTTF.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
-  @font-face { font-family: 'ChungjuKimsaeng'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2312-1@1.1/ChungjuKimSaengTTF.woff2') format('woff2'); font-weight: 800; font-style: normal; font-display: swap; }
-
-  /* ── 네이버 마루 부리 (MaruBuri) 폰트 */
-  @font-face { font-family: 'MaruBuri'; src: url('https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-ExtraLight.woff2') format('woff2'); font-weight: 200; font-display: swap; }
-  @font-face { font-family: 'MaruBuri'; src: url('https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-Light.woff2') format('woff2'); font-weight: 300; font-display: swap; }
-  @font-face { font-family: 'MaruBuri'; src: url('https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-Regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
-  @font-face { font-family: 'MaruBuri'; src: url('https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-SemiBold.woff2') format('woff2'); font-weight: 600; font-display: swap; }
-  @font-face { font-family: 'MaruBuri'; src: url('https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-Bold.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+  /* 폰트 로드는 globals.css의 Spoqa @import 한 줄이 전부다. 여기엔 두지 않는다. */
 
   /* ── CSS Reset + Base */
   *, *::before, *::after {
@@ -161,12 +144,27 @@ const createGlobalStyles = (theme: OnmaruTheme) => css`
     }
   }
 
-  /* ── Typography base */
+  /* ── Typography base
+     클수록 가볍게. 큰 글자는 크기만으로 이미 눈에 띄므로 굵기까지 얹으면 뭉친다.
+     반대로 작은 제목은 굵기가 없으면 본문에 묻힌다. */
   h1, h2, h3, h4, h5, h6 {
     font-family:  ${theme.typography.fontFamily.sans};
-    font-weight:  ${theme.typography.fontWeight.semibold};
     line-height:  ${theme.typography.lineHeight.tight};
     color:        ${theme.colors.text.primary};
+  }
+
+  h1, h2 {
+    font-weight:    ${theme.typography.fontWeight.light};
+    letter-spacing: -0.02em;
+  }
+
+  h3, h4 {
+    font-weight:    ${theme.typography.fontWeight.regular};
+    letter-spacing: -0.015em;
+  }
+
+  h5, h6 {
+    font-weight: ${theme.typography.fontWeight.medium};
   }
 
   a {

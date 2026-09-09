@@ -111,17 +111,18 @@ const Header = styled.div`
 `;
 
 const Title = styled(motion.h2)`
-  font-family: 'SpoqaHanSansNeo', sans-serif;
+  font-family: var(--font-hanok);
   font-size: clamp(28px, 4vw, 44px);
-  font-weight: 700;
+  font-weight: 300;
   color: ${meok[900]};
   margin: 0 0 10px;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   line-height: 1.2;
 `;
 
 const Subtitle = styled.p`
-  font-size: clamp(13.5px, 1.4vw, 15.5px);
+  font-size: clamp(14px, 1.4vw, 15px);
+  font-weight: 400;
   color: ${meok[500]};
   margin: 0;
   line-height: 1.7;
@@ -156,11 +157,11 @@ const CategoryMeta = styled.div`
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-family: 'SpoqaHanSansNeo', sans-serif;
-  font-size: 13px;
-  font-weight: 700;
+  font-family: var(--font-hanok);
+  font-size: 12px;
+  font-weight: 500;
   color: ${lightPalette.kobalt[500]};
-  letter-spacing: 0.12em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   margin-bottom: 8px;
 
@@ -175,9 +176,9 @@ const CategoryMeta = styled.div`
 `;
 
 const FeaturedTitle = styled.h3`
-  font-family: 'SpoqaHanSansNeo', sans-serif;
+  font-family: var(--font-hanok);
   font-size: clamp(26px, 3.2vw, 38px);
-  font-weight: 700;
+  font-weight: 400;
   color: ${meok[900]};
   margin: 0 0 6px;
   letter-spacing: -0.025em;
@@ -185,8 +186,8 @@ const FeaturedTitle = styled.h3`
 `;
 
 const SubRegionTag = styled.p`
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 13.5px;
+  font-weight: 400;
   color: ${meok[500]};
   margin: 0 0 24px;
 `;
@@ -207,12 +208,13 @@ const QuoteHeader = styled.div`
   gap: 6px;
   color: ${meok[500]};
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 500;
+  letter-spacing: 0.04em;
   margin-bottom: 12px;
 `;
 
 const CommentText = styled.p`
-  font-family: 'NostalgicGukhanbakOchungiWriterKim', 'SpoqaHanSansNeo', cursive, sans-serif;
+  font-family: var(--font-hanok);
   font-size: clamp(19px, 1.9vw, 23px);
   color: ${meok[900]};
   line-height: 1.7;
@@ -226,7 +228,7 @@ const DetailsButton = styled.button`
   gap: 8px;
   background: transparent;
   color: ${lightPalette.kobalt[500]};
-  font-size: 14.5px;
+  font-size: 14px;
   font-weight: 700;
   padding: 13px 26px;
   border-radius: 9999px;
@@ -284,9 +286,7 @@ export default function HanokMonthly({ villages, onSelectVillage, isFeaturedRead
           >
             이달의 한옥
           </Title>
-          <Subtitle>
-            에디터가 계절에 맞는 한옥 한 곳을 매달 고릅니다.
-          </Subtitle>
+          <Subtitle>{korMonth}에는 어느 마루에 앉아 볼까요?</Subtitle>
         </Header>
 
         <CuratedFeaturedContainer>

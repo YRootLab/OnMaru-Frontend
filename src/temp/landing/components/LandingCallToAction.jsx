@@ -10,7 +10,7 @@ import SHADOW from '@/data/solarShadow.json';
 
 import { usePrefersReducedMotion } from './LandingSectionFrame';
 
-const FONT = "'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif";
+const FONT = "'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, sans-serif";
 
 const START = 0.84;
 
@@ -329,7 +329,7 @@ const Card = styled(Link)`
 
 const CardTag = styled.span`
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 500;
   color: ${meok[700]};
 
   [data-primary='true'] & {
@@ -357,7 +357,7 @@ const CardDesc = styled.p`
 const CardAction = styled.span`
   margin-top: 16px;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 500;
   color: ${meok[700]};
 
   [data-primary='true'] & {
@@ -391,7 +391,7 @@ const NextVisitTitle = styled.h4`
     margin-bottom: 10px;
   }
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 500;
   color: ${meok[700]};
 `;
 

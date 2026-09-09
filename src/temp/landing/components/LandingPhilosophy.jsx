@@ -6,7 +6,7 @@ import styled from '@emotion/styled';
 import { BEAT_RANGES } from '../scroll-core/constants';
 import { clamp01, easeOutQuad, progressIn, usePrefersReducedMotion } from './LandingSectionFrame';
 
-const FONT = "'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif";
+const FONT = "'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, sans-serif";
 
 const INK = '244, 239, 228'; // #F4EFE4 — alpha를 calc로 섞어야 해서 채널로 둔다
 

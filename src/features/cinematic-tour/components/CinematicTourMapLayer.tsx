@@ -33,7 +33,7 @@ const styles = css`
     margin-bottom: 4px;
     border-radius: 9999px;
     font-size: 11px;
-    font-weight: 800;
+    font-weight: 700;
     white-space: nowrap;
 
     backdrop-filter: blur(6px);
@@ -64,7 +64,7 @@ const styles = css`
     background: ${lightPalette.jangmi[500]};
     color: #ffffff;
     font-size: 12px;
-    font-weight: 800;
+    font-weight: 700;
     box-shadow: 0 2px 8px rgba(212, 32, 88, 0.35);
   }
 

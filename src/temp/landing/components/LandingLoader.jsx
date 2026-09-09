@@ -37,7 +37,7 @@ const Content = styled.div`
 const Title = styled.h3`
   margin: 0;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: -0.02em;
   color: ${meok[800]};
 `;
@@ -68,7 +68,7 @@ const ProgressBar = styled.div`
 const Percent = styled.span`
   font-size: 13px;
   font-weight: 700;
-  font-family: monospace, sans-serif;
+  font-family: var(--font-hanok);
   color: ${lightPalette.juhong[500]};
   letter-spacing: 0.05em;
 `;

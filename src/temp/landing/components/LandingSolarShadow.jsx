@@ -16,7 +16,7 @@ export const RANGE = BEAT_RANGES.BEAT3;
 
 const [START, END] = RANGE;
 
-const FONT = "'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif";
+const FONT = "'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, sans-serif";
 
 // ─────────────────────────────────────────
 // 색
@@ -125,7 +125,7 @@ const TermTag = styled.p`
   gap: 8px;
   margin: 0 0 10px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.02em;
   color: ${(props) => props.accentColor || lightPalette.juhong[500]};
   white-space: nowrap;
@@ -188,7 +188,7 @@ const Stat = styled.div`
 /** '1m당 그림자', '남중고도' 등의 수치 타이틀 무조건 한 줄 고정 */
 const StatLabel = styled.dt`
   font-size: clamp(11px, 1.1vw, 13px);
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.02em;
   color: ${INK_WEAK};
   white-space: nowrap !important;
@@ -441,7 +441,7 @@ const BackToToday = styled.button`
   backdrop-filter: blur(8px);
   font-family: inherit;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   white-space: nowrap;
   color: ${ACCENT};
   cursor: pointer;

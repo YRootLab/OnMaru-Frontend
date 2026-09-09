@@ -585,7 +585,7 @@ function CameraHud() {
         borderRadius: 8,
         background: 'rgba(16, 14, 12, 0.82)',
         color: '#F5A623',
-        font: '11px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace',
+        font: '11px/1.6 'Spoqa Han Sans Neo', sans-serif',
         pointerEvents: 'none',
       }}
     >

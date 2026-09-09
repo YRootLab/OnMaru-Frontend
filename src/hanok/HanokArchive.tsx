@@ -10,6 +10,7 @@ import HanokMap from '@/hanok/sections/HanokMap';
 import HanokStayAccordion from '@/hanok/sections/HanokStayAccordion';
 import HanokMonthly from '@/hanok/sections/HanokMonthly';
 import HanokManifestoCta from '@/hanok/sections/HanokManifestoCta';
+import HanokStructureCards from '@/hanok/structure/HanokStructureCards';
 import type { Village, VillageMeta } from '@/hanok/types';
 import { decodeHanokArchivePayload } from '@/hanok/data/hanokArchiveFallback';
 import { HANOK_REVEAL_SECTIONS } from '@/hanok/hanokSectionReveal';
@@ -20,7 +21,7 @@ const VillageDetailModal = dynamic(loadVillageDetailModal, { ssr: false });
 
 const Root = styled.div`
   min-height: 100vh;
-  font-family: 'SpoqaHanSansNeo', sans-serif;
+  font-family: var(--font-hanok);
   color: ${meok[900]};
   background: #ffffff;
 `;
@@ -58,20 +59,20 @@ const Intro = styled.header`
 `;
 
 const Eyebrow = styled.p`
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: ${lightPalette.kobalt[500]};
   margin: 0 0 14px;
 `;
 
 const PageTitle = styled.h1`
-  font-family: 'SpoqaHanSansNeo', sans-serif;
+  font-family: var(--font-hanok);
   font-size: clamp(32px, 5.2vw, 56px);
-  font-weight: 700;
-  line-height: 1.25;
-  letter-spacing: -0.035em;
+  font-weight: 300;
+  line-height: 1.22;
+  letter-spacing: -0.02em;
   color: ${meok[900]};
   margin: 0 0 18px;
   word-break: keep-all;
@@ -79,6 +80,7 @@ const PageTitle = styled.h1`
 
 const Lead = styled.p`
   font-size: clamp(15px, 1.6vw, 17px);
+  font-weight: 400;
   line-height: 1.75;
   color: ${meok[700]};
   margin: 0 0 20px;
@@ -162,15 +164,27 @@ export default function HanokArchive({ villages, meta }: HanokArchiveProps) {
               <Eyebrow>온마루 한옥도감</Eyebrow>
               <PageTitle>지금 한옥은 어디에 남아 있을까</PageTitle>
               <Lead>
-                궁궐과 고택, 서원과 전통마을, 그리고 하룻밤 머물 수 있는 집까지. 계절마다 한 곳을
-                골라 들여다보고 나머지는 도감과 지도로 기록합니다.
+                궁궐과 고택, 서원과 전통마을, 하룻밤 머물 수 있는 집까지.
+                계절마다 한 곳씩 들여다봅니다.
               </Lead>
               <SourceNote>
-                한국관광공사 TourAPI 실시간 연동 · 현재 <strong>{archiveData.meta.total}곳</strong> 수집
+                한국관광공사 관광정보 API(TourAPI)에서 실시간으로 가져옵니다 · 지금{' '}
+                <strong>{archiveData.meta.total}곳</strong>
               </SourceNote>
             </Intro>
           </div>
         </VesselReveal>
+
+        {/*
+          구조 챕터 — 절기에 따른 처마 그림자, 7단계 부재 조립.
+          카드를 눌러야 3D 모달이 열리므로 도감 본문 스크롤은 그대로 둔다.
+          (랜딩에서 옮겨 왔다. 원본은 src/temp/landing/)
+        */}
+        <EditorialSection>
+          <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+            <HanokStructureCards />
+          </div>
+        </EditorialSection>
 
         {/* 이 달의 한옥 큐레이션 */}
         <EditorialSection>
@@ -217,6 +231,7 @@ export default function HanokArchive({ villages, meta }: HanokArchiveProps) {
       {/* 마을 상세 인터랙티브 모달 */}
       {selectedVillage && (
         <VillageDetailModal
+          key={selectedVillage.id}
           village={selectedVillage}
           onClose={() => setSelectedVillage(null)}
         />

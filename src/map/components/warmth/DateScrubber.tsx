@@ -22,7 +22,7 @@ import type { SheetSnap } from '@/map/types';
  */
 
 const FONT =
-  "'Pretendard', 'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif";
+  "'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif";
 
 interface DateScrubberProps {
   embedded?: boolean;
@@ -143,7 +143,7 @@ const PlayButton = styled.button<{ $playing: boolean }>`
 const Stamp = styled.p`
   margin: 0;
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 500;
   color: ${meok[900]};
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -163,7 +163,7 @@ const Stamp = styled.p`
 const Verdict = styled.p<{ $tone: 'quiet' | 'busy' | 'flat' }>`
   margin: 0;
   font-size: 13.5px;
-  font-weight: 700;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   color: ${({ $tone }) =>

@@ -60,7 +60,7 @@ const CountLabel = styled.span`
   align-items: center;
   gap: 6px;
   font-size: 13.5px;
-  font-weight: 600;
+  font-weight: 500;
   color: ${meok[900]};
   letter-spacing: -0.01em;
 `;
@@ -235,7 +235,7 @@ const EmptyIconBox = styled.div`
 const EmptyTitle = styled.h4`
   margin: 0 0 6px;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 500;
   color: ${meok[900]};
 `;
 

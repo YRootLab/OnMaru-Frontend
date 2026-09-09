@@ -1,33 +1,15 @@
-/* ── 나눔손글씨 펜 (Nanum Pen Script) — 폴라로이드 캡션용 */
-@import url('https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap');
+/* ── Spoqa Han Sans Neo — 본문/UI 기본 서체. 제공 굵기는 100/300/400/500/700.
+   600은 없으므로 쓰지 말 것 (CSS 폰트 매칭이 700으로 올려 잡아 볼드가 된다). */
+@import url(//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSansNeo.css);
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@font-face {
-  font-family: 'ChungjuKimsaeng';
-  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2312-1@1.1/ChungjuKimSaengTTF.woff2') format('woff2');
-  font-weight: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'NostalgicGukhanbakOchungiWriterKim';
-  src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2607161334@griunxhangeulochungikim-regular/griunxhangeulochungikim-regular/GriunXHangeulOCHUNGIKIM-Regular.woff2') format('woff2');
-  font-weight: 400;
-  font-display: swap;
-}
-
-
-/* ── 마루 부리 (MaruBuri) 폰트 */
-@font-face { font-family: 'MaruBuri'; src: url('https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-ExtraLight.woff2') format('woff2'); font-weight: 200; font-display: swap; }
-@font-face { font-family: 'MaruBuri'; src: url('https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-Light.woff2') format('woff2'); font-weight: 300; font-display: swap; }
-@font-face { font-family: 'MaruBuri'; src: url('https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-Regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
-@font-face { font-family: 'MaruBuri'; src: url('https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-SemiBold.woff2') format('woff2'); font-weight: 600; font-display: swap; }
-@font-face { font-family: 'MaruBuri'; src: url('https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-Bold.woff2') format('woff2'); font-weight: 700; font-display: swap; }
-
 :root {
+  /* 서체는 Spoqa 하나만 쓴다. 로드도 위 @import 한 줄이 전부.
+     장식용 3종(충주김생·마루부리·나눔펜)과 monospace는 전부 제거됨. */
+  --font-hanok: 'Spoqa Han Sans Neo', sans-serif;
   --background: var(--color-bg-app);
   --foreground: var(--color-text-primary);
 }
@@ -51,7 +33,7 @@ body {
   flex-direction: column;
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-hanok);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -66,7 +48,7 @@ html body:has([data-page-surface='hanok']) {
 }
 
 .odii-feature {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Apple SD Gothic Neo", Inter, sans-serif;
+  font-family: var(--font-hanok);
   /* design-system/tokens.ts의 jangmi 500/400/700/50 */
   --odii-primary: #F84E76;
   --odii-primary-hover: #FF5F81;

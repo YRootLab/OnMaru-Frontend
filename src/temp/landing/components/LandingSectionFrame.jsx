@@ -99,7 +99,7 @@ export default function BeatFrame({ children }) {
         alignItems: 'center',
         justifyContent: 'center',
         pointerEvents: 'none',
-        fontFamily: "'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif",
+        fontFamily: "'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, sans-serif",
         fontSize: 'clamp(20px, 3vw, 36px)',
         fontWeight: 700,
         letterSpacing: '-0.03em',

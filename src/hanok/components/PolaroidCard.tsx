@@ -91,8 +91,8 @@ const HandWritingCaption = styled.div`
 `;
 
 const HandWritingText = styled.p`
-  font-family: 'NostalgicGukhanbakOchungiWriterKim', 'SpoqaHanSansNeo', cursive, sans-serif;
-  font-size: 20px;
+  font-family: var(--font-hanok);
+  font-size: 21px;
   font-weight: 400;
   color: ${meok[900]};
   margin: 0;
@@ -139,9 +139,9 @@ const OutsideMeta = styled.div`
 `;
 
 const OutsideTitle = styled.h3`
-  font-family: 'SpoqaHanSansNeo', sans-serif;
-  font-size: 16.5px;
-  font-weight: 700;
+  font-family: var(--font-hanok);
+  font-size: 16px;
+  font-weight: 300;
   color: ${meok[900]};
   margin: 0;
   letter-spacing: -0.02em;
@@ -154,9 +154,9 @@ const OutsideBadges = styled.div`
   gap: 6px;
 
   span {
-    font-family: 'SpoqaHanSansNeo', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
+    font-family: var(--font-hanok);
+    font-size: 11.5px;
+    font-weight: 500;
     color: ${lightPalette.kobalt[500]};
     background: rgba(78, 89, 104, 0.06);
     padding: 3px 10px;
@@ -169,9 +169,9 @@ const DetailButton = styled.div`
   align-items: center;
   gap: 4px;
   margin-top: 4px;
-  font-family: 'SpoqaHanSansNeo', sans-serif;
+  font-family: var(--font-hanok);
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 400;
   color: ${meok[900]};
   transition: color 0.2s ease, transform 0.2s ease;
 

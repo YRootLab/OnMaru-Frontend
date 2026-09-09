@@ -59,7 +59,7 @@ const EyebrowBadge = styled.div`
   padding: 6px 14px;
   border-radius: 9999px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 400;
   color: #ffffff;
 
   margin-bottom: 16px;
@@ -71,9 +71,9 @@ const EyebrowBadge = styled.div`
 `;
 
 const Title = styled.h2`
-  font-family: 'SpoqaHanSansNeo', sans-serif;
+  font-family: var(--font-hanok);
   font-size: clamp(28px, 4vw, 42px);
-  font-weight: 700;
+  font-weight: 400;
   color: #ffffff;
   margin: 0 0 12px;
   letter-spacing: -0.02em;
@@ -124,7 +124,7 @@ const DetailBtn = styled.button`
   background: #ffffff;
   color: ${meok[900]};
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   padding: 10px 22px;
   border-radius: 9999px;
 

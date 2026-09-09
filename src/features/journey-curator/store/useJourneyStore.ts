@@ -4,7 +4,10 @@ import { JOURNEY_PLANS, matchJourneyPlan, MOOD_OPTIONS } from '../data/curatedJo
 
 interface JourneyState {
   currentQuery: string;
-  activeMood: MoodId;
+  /** 아직 아무것도 검색하지 않았으면 null. 무드 칩도 눌리지 않은 상태다. */
+  activeMood: MoodId | null;
+  /** 한 번이라도 검색했는가. 홈은 검색 전에는 검색창만 보여준다. */
+  hasSearched: boolean;
   selectedNodeId: string | null;
   currentPlan: BentoJourneyPlan;
   isGenerating: boolean;
@@ -17,8 +20,11 @@ interface JourneyState {
 }
 
 export const useJourneyStore = create<JourneyState>((set, get) => ({
-  currentQuery: '사람이 붐비지 않고 고즈넉하게 한옥 골목을 산책할 수 있는 곳',
-  activeMood: 'quiet',
+  // 홈은 빈 검색창에서 시작한다. currentPlan은 검색 전에는 쓰이지 않지만,
+  // 결과 컴포넌트들이 항상 플랜 하나를 전제하므로 기본값으로 채워 둔다.
+  currentQuery: '',
+  activeMood: null,
+  hasSearched: false,
   selectedNodeId: null,
   currentPlan: JOURNEY_PLANS.quiet,
   isGenerating: false,
@@ -33,6 +39,7 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
       currentQuery: option?.query || '',
       selectedNodeId: null,
       isGenerating: true,
+      hasSearched: true,
     });
 
     setTimeout(() => {
@@ -51,7 +58,7 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
     const query = customQuery ?? get().currentQuery;
     if (!query.trim()) return;
 
-    set({ isGenerating: true, selectedNodeId: null });
+    set({ isGenerating: true, selectedNodeId: null, hasSearched: true });
 
     // 실시간 AI 쿼리 분석 및 그래프 노드 매핑 연출 (280ms)
     setTimeout(() => {
@@ -66,7 +73,7 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
 
   refinePlan: async (prompt) => {
     if (!prompt.trim()) return;
-    set({ isGenerating: true });
+    set({ isGenerating: true, hasSearched: true });
 
     setTimeout(() => {
       const matched = matchJourneyPlan(prompt);

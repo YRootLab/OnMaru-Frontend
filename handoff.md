@@ -2,15 +2,15 @@
 
 Current work:
 - Summary: 
-  1. Completed OnMaru Admin Web Console (#52~#57) and merged PR #59 into `develop`.
-  2. Created new branch `feat/migrate-lucide-icons` from updated `develop`.
-  3. Created GitHub Issues for full Lucide icon migration:
-     - #60: [Epic] 전체 아이콘 시스템 Lucide Icons(lucide-react) 전면 마이그레이션
-     - #61: [Icons #1] 공용 컴포넌트(GNB, Layout) 및 관리자(Admin) 콘솔 Lucide 아이콘 마이그레이션
-     - #62: [Icons #2] 지도(Map) 및 온기 피드(Warmth) 영역 Lucide 아이콘 마이그레이션
-     - #63: [Icons #3] 한옥도감(Hanok) 및 여정 큐레이터(Journey/Tour) 영역 Lucide 아이콘 마이그레이션
-     - #64: [Icons #4] 오디(ODII) 오디오 도슨트 영역 Lucide 아이콘 마이그레이션 및 react-icons 의존성 정리
-- Branch: `feat/migrate-lucide-icons`
+  1. Created new branch `feat/hanok-dogam` from clean `develop`.
+  2. Ready to begin Hanok Dogam (한옥도감) development.
+- Branch: `feat/hanok-dogam`
+- Related: Hanok Dogam feature development.
+- Summary:
+  1. Created new branch `feat/hanok-dogam` from clean `develop`.
+  2. **Font**: `globals.css` body `font-family` → `var(--font-hanok)` (Spoqa Han Sans Neo). CDN import already present from prior session.
+  3. **Font weights**: Reduced all `font-weight: 600/700` in `src/hanok/**` to 300–500 range. Affected files: `HanokHero.tsx`, `VillageCard.tsx`, `ArchiveNav.tsx`, `PolaroidCard.tsx`, `HanokManifestoCta.tsx`, `HanokMonthly.tsx`, `HanokStayAccordion.tsx`, `HanokArchive.tsx`, `VillageDetailModal.styles.ts`.
+  4. `npx tsc --noEmit`: passed (no errors).
 - Summary: /map page navigation-bar transition improvements.
   1. Fixed the bottom nav "jump" when navigating to `/map` from `/hanok` or `/odii`: `Header` now stays mounted and its mobile tab bar crossfades content (`GlobalMobileTabs` ↔ `MapMobileTabs`) inside the same fixed shell, instead of hard-swapping two differently-positioned/sized components.
   2. Desktop `/map` entrance choreography: GNB flips away with a 3D `rotateX` (calendar-page style, `backface-visibility: hidden`, weighted easing curves) while `MapNavRail` slides in from the left simultaneously; the floating list/detail panel then springs in; the category chip bar (`MapChips`) rises in last. All timing lives in `src/shared/navigation/mapEntranceTiming.ts`.

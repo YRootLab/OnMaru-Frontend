@@ -99,7 +99,7 @@ const MapCanvas = styled.div`
     -webkit-backdrop-filter: blur(8px);
     border: 1px solid ${KOBALT_BORDER};
     border-radius: 10px;
-    font-size: 10.5px;
+    font-size: 11px;
     font-weight: 500;
     letter-spacing: -0.01em;
     color: ${meok[900]};
@@ -108,7 +108,7 @@ const MapCanvas = styled.div`
     overflow: hidden;
     text-overflow: ellipsis;
     box-shadow: none;
-    font-family: 'SpoqaHanSansNeo', sans-serif;
+    font-family: var(--font-hanok);
     transition: all 0.2s ease;
   }
 `;
@@ -173,7 +173,7 @@ const RegionChip = styled.button<{ $active: boolean }>`
   border-radius: 9999px;
   padding: 5px 11px;
   font-size: 12px;
-  font-weight: ${({ $active }) => ($active ? 600 : 400)};
+  font-weight: ${({ $active }) => ($active ? 500 : 400)};
   white-space: nowrap;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -254,9 +254,9 @@ const CollapseBtn = styled.button`
 `;
 
 const PanelTitle = styled.h3`
-  font-family: 'SpoqaHanSansNeo', sans-serif;
+  font-family: var(--font-hanok);
   font-size: 17px;
-  font-weight: 600;
+  font-weight: 500;
   color: ${meok[900]};
   margin: 0 0 4px;
   line-height: 1.25;
@@ -506,10 +506,10 @@ export default function HanokInteractiveMapFrame({
                 color: '#1A3898',
                 textAlign: 'center',
                 lineHeight: '43px',
-                fontWeight: '600',
+                fontWeight: '500',
                 fontSize: '13px',
                 boxShadow: 'none',
-                fontFamily: 'SpoqaHanSansNeo, sans-serif',
+                fontFamily: 'var(--font-hanok)',
               },
               {
                 width: '54px',
@@ -520,10 +520,10 @@ export default function HanokInteractiveMapFrame({
                 color: '#ffffff',
                 textAlign: 'center',
                 lineHeight: '50px',
-                fontWeight: '600',
+                fontWeight: '500',
                 fontSize: '14px',
                 boxShadow: 'none',
-                fontFamily: 'SpoqaHanSansNeo, sans-serif',
+                fontFamily: 'var(--font-hanok)',
               },
             ],
           }) as KakaoClustererInstance;

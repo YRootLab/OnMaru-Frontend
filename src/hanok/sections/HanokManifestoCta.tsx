@@ -23,11 +23,11 @@ const Container = styled(motion.div)`
 `;
 
 const ManifestoParagraph = styled.h2`
-  font-family: 'SpoqaHanSansNeo', sans-serif;
+  font-family: var(--font-hanok);
   font-size: clamp(22px, 3.6vw, 38px);
-  font-weight: 700;
+  font-weight: 300;
   line-height: 1.6;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.015em;
   color: ${meok[900]};
   margin: 0 0 40px;
   word-break: keep-all;
@@ -60,6 +60,7 @@ const InlineIcon = styled.span`
 
 const HighlightText = styled.span`
   color: ${lightPalette.kobalt[500]};
+  font-weight: 700;
 `;
 
 const ButtonRow = styled.div`
@@ -78,8 +79,8 @@ const CtaButton = styled(Link, {
   background: ${({ $primary }) =>
     $primary ? lightPalette.kobalt[500] : 'rgba(255, 255, 255, 0.9)'};
   color: ${({ $primary }) => ($primary ? '#ffffff' : meok[900])};
-  font-size: 14.5px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: ${({ $primary }) => ($primary ? 700 : 500)};
   padding: 14px 28px;
   border-radius: 9999px;
   text-decoration: none;

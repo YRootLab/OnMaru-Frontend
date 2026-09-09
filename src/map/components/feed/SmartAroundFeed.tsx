@@ -38,7 +38,7 @@ const TitleBox = styled.div`
 const Title = styled.h3`
   margin: 0;
   font-size: 14.5px;
-  font-weight: 600;
+  font-weight: 500;
   color: ${meok[900]};
   letter-spacing: -0.01em;
 `;
@@ -154,7 +154,7 @@ const PhotoBadge = styled.div`
   backdrop-filter: blur(4px);
   color: #ffffff;
   font-size: 9.5px;
-  font-weight: 600;
+  font-weight: 500;
 `;
 
 const Body = styled.div`
@@ -167,7 +167,7 @@ const Body = styled.div`
 const Name = styled.h4`
   margin: 0;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   color: ${meok[900]};
   white-space: nowrap;
   overflow: hidden;

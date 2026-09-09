@@ -29,7 +29,7 @@ import CinematicTourMapLayer from '@/features/cinematic-tour/components/Cinemati
 import CinematicTourFloatingBar from '@/features/cinematic-tour/components/CinematicTourFloatingBar';
 import { HEADER_HEIGHT } from '@/shared/components/Header/Header';
 
-const FONT = "'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif";
+const FONT = "'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, sans-serif";
 
 const Root = styled.main`
   position: fixed;
@@ -100,7 +100,7 @@ const FloatingHomeButton = styled.button`
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 
   color: ${meok[700]};
-  font-family: 'SpoqaHanSansNeo', sans-serif;
+  font-family: 'Spoqa Han Sans Neo', sans-serif;
   font-size: 13px;
   font-weight: 500;
   letter-spacing: -0.02em;

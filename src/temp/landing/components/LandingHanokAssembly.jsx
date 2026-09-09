@@ -23,7 +23,7 @@ import { assemblyProgress, useSceneStore } from '../scroll-core/sceneStore';
 import { meok } from '@/design-system/tokens';
 import { clamp01, easeOut as easeOutCubic, usePrefersReducedMotion } from './LandingSectionFrame';
 
-const FONT = "'SpoqaHanSansNeo', -apple-system, BlinkMacSystemFont, sans-serif";
+const FONT = "'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, sans-serif";
 const EASE = [0.22, 1, 0.36, 1];
 
 const smoothstep = (edge0, edge1, x) => {
@@ -334,7 +334,7 @@ const TitleLine = styled.h2`
   display: flex;
   align-items: baseline;
   font-size: clamp(48px, 5.5vw, 76px);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.05;
   background: linear-gradient(135deg, #ffffff 0%, #f7e3be 45%, #d4af37 85%, #f5a623 100%);
@@ -376,7 +376,7 @@ const ResultWrapper = styled(motion.div)`
 const Result = styled(motion.p)`
   margin: 0;
   font-size: clamp(26px, 3.0vw, 42px);
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.025em;
   line-height: 1.35;
   background: linear-gradient(135deg, #ffffff 0%, #f7e3be 45%, #d4af37 85%, #f5a623 100%);

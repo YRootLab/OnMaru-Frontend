@@ -76,7 +76,7 @@ const BrandIconBadge = styled.div`
   justify-content: center;
   color: ${surface.light.card};
   font-size: 15px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: -0.5px;
   box-shadow: 0 2px 6px rgba(0, 184, 130, 0.28);
 `;

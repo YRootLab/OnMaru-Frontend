@@ -78,7 +78,7 @@ const PlaceTitleRow = styled.div`
 const PlaceName = styled.h4`
   margin: 0;
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 500;
   color: ${meok[900]};
   overflow: hidden;
   text-overflow: ellipsis;
@@ -161,7 +161,7 @@ const TextToggleBtn = styled.button`
   background: transparent;
   color: ${meok[700]};
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
 
   &:hover {
@@ -197,7 +197,7 @@ const HelpfulButton = styled.button<{ $active: boolean }>`
     $active ? lightPalette.juhong[700] : meok[700]};
   font-family: inherit;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
 
@@ -276,7 +276,7 @@ const RelatedInfo = styled.div`
 const RelatedName = styled.h5`
   margin: 0;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   color: ${meok[900]};
   overflow: hidden;
   text-overflow: ellipsis;

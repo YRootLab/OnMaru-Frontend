@@ -1,3 +1,4 @@
+import { STAY_TYPE } from '@/hanok/types';
 import type { Village } from '@/hanok/types';
 
 export interface HanokGridFilters {
@@ -19,7 +20,7 @@ export function getHanokGridPage(
   currentPage: number,
 ): HanokGridPage {
   const filtered = villages.filter((village) => {
-    if (village.type === '한옥 고택 스테이') return false;
+    if (village.type === STAY_TYPE) return false;
     if (activeType !== '전체' && village.type !== activeType) return false;
     return activeBadges.length === 0 || activeBadges.every((badge) => village.badges.includes(badge));
   });

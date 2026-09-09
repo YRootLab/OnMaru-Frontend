@@ -26,7 +26,7 @@ const TabButton = styled.button<{ $active?: boolean }>`
   border: none;
   background: none;
   color: ${({ $active }) => ($active ? lightPalette.juhong[700] : 'rgba(33, 30, 25, 0.68)')};
-  font-family: 'SpoqaHanSansNeo', sans-serif;
+  font-family: 'Spoqa Han Sans Neo', sans-serif;
   font-size: 10px;
   font-weight: ${({ $active }) => ($active ? 600 : 400)};
   letter-spacing: -0.02em;
@@ -59,7 +59,7 @@ const CountBadge = styled.span`
   background: ${lightPalette.juhong[500]};
   color: #ffffff;
   font-size: 9px;
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1;
 `;
 

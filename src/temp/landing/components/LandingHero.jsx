@@ -158,7 +158,7 @@ const Copy = styled.div`
   z-index: 2;
   max-width: 96vw;
   text-align: center;
-  font-family: 'SpoqaHanSansNeo', sans-serif;
+  font-family: 'Spoqa Han Sans Neo', sans-serif;
   letter-spacing: -0.03em;
   line-height: 1.55;
   will-change: opacity, transform;
@@ -316,7 +316,7 @@ export default function LandingHero({ progress }) {
             fontWeight: 500,
             letterSpacing: '0.14em',
             color: 'rgba(250, 250, 250, 0.65)',
-            fontFamily: 'SpoqaHanSansNeo, sans-serif',
+            fontFamily: 'Spoqa Han Sans Neo, sans-serif',
             marginBottom: '4px',
           }}
         >

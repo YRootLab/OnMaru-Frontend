@@ -52,7 +52,7 @@ const Badge = styled.div`
   padding: 2.5px 8px;
   border-radius: 9999px;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 700;
   color: ${lightPalette.jangmi[500]};
   background: ${lightPalette.jangmi[50]};
 
@@ -60,14 +60,14 @@ const Badge = styled.div`
 
 const DurationText = styled.span`
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 500;
   color: ${meok[500]};
 `;
 
 const StoryTitle = styled.h4`
   margin: 0 0 4px;
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 500;
   color: ${meok[900]};
   letter-spacing: -0.01em;
   white-space: nowrap;
@@ -97,7 +97,7 @@ const DocentTag = styled.div`
   align-items: center;
   gap: 4px;
   font-size: 11.5px;
-  font-weight: 600;
+  font-weight: 500;
   color: ${lightPalette.jangmi[700]};
 `;
 
