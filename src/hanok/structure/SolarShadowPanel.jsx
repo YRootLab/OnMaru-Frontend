@@ -20,12 +20,11 @@ const FONT = 'var(--font-hanok)';
 // 액센트는 주홍 하나로 통일했다 — 전에는 주홍과 금색이 한 화면에서 갈라져 있었다.
 // ─────────────────────────────────────────
 
-import { lightPalette, meok, surface } from '@/design-system/tokens';
+import { lightPalette, meok } from '@/design-system/tokens';
 
 const INK = meok[900];
 const INK_SUB = meok[700];
 const INK_WEAK = meok[500];
-const LINE = 'rgba(78, 89, 104, 0.14)';
 const ACCENT = lightPalette.juhong[500];
 
 /**
@@ -284,9 +283,8 @@ const Basis = styled.p`
   justify-content: center;
   flex-wrap: wrap;
   gap: 8px;
-  margin: 10px 0 0;
-  padding-top: 10px;
-  border-top: 1px solid ${LINE};
+  /* 구분선 대신 여백으로 뗀다. */
+  margin: 18px 0 0;
   font-size: 11px;
   line-height: 1.4;
   text-align: center;
@@ -343,26 +341,22 @@ const Controller = styled.div`
   }
 `;
 
-/**
- * 흰 카드 하나.
- * 3D 모델 및 그림자 하단부를 절대 침범하지 않도록 슬림하고 밀도 높은 반응형 카드 구성.
- */
 /*
-  카드 바탕(#FFFFFF)과 모달 배경 그라디언트의 마지막 스톱이 둘 다 흰색이라,
-  카드가 서는 하단에서는 경계가 아예 없었다. 테두리와 그림자로 면을 띄운다.
-  backdrop-filter는 평평한 흰 바탕을 흐리는 것이라 보이는 효과 없이 GPU만 썼다 — 뺀다.
+  판을 걷는다.
+
+  흰 바탕 위의 흰 판이라 테두리와 그림자로 억지로 띄워야 했던 자리다.
+  구도가 아래 띠(CONTROL_BAND)를 비워 두므로 판 자체가 필요 없다 —
+  글자와 눈금만 남으면 배경 위에 그대로 선다.
+
+  이 화면에서 그림자는 한옥이 드리우는 것 하나여야 한다. UI에 그림자를 놓으면
+  같은 화면에서 그것과 경쟁한다.
 */
 const Card = styled.div`
   position: relative;
   padding: 10px 18px 6px;
-  border-radius: 16px;
-  background: ${surface.light.card};
-  border: 1px solid ${LINE};
-  box-shadow: 0 6px 24px rgba(28, 24, 20, 0.1);
 
   @media (max-width: 767px) {
     padding: 6px 12px 4px;
-    border-radius: 14px;
   }
 `;
 
@@ -407,8 +401,11 @@ const Track = styled.div`
     outline: none;
   }
 
+  /* 초점 표시는 장식이 아니라 접근성이라 남긴다. 그림자 대신 outline으로 그린다. */
   &:focus-visible span[data-knob] {
-    box-shadow: 0 0 0 4px ${(props) => `${props.accentColor || lightPalette.juhong[500]}40`};
+    outline: 2px solid ${(props) => props.accentColor || lightPalette.juhong[500]};
+    outline-offset: 3px;
+    border-radius: 3px;
   }
 `;
 
@@ -470,7 +467,7 @@ const Knob = styled.span`
   margin-left: -1.5px;
   border-radius: 1.5px;
   background: ${(props) => props.accentColor || lightPalette.juhong[500]};
-  transition: left ${SLIDE}, background-color 0.35s ease, box-shadow 0.2s ease-out;
+  transition: left ${SLIDE}, background-color 0.35s ease;
 `;
 
 const Labels = styled.div`
@@ -520,7 +517,6 @@ const BackToToday = styled.button`
   padding: 6px 14px;
   border-radius: 9999px;
   background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(8px);
   font-family: inherit;
   font-size: 13px;
   font-weight: 500;
@@ -790,7 +786,7 @@ export default function SolarShadowPanel() {
             )}
 
             {locationState === 'denied' && (
-              <LocationButton type="button" disabled style={{ color: INK_WEAK, borderColor: LINE }}>
+              <LocationButton type="button" disabled style={{ color: INK_WEAK }}>
                 위치 권한 차단됨
               </LocationButton>
             )}
