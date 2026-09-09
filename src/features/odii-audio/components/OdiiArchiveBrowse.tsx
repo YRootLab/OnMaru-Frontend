@@ -93,7 +93,7 @@ function StoryRow({ story, index }: StoryRowProps) {
             aria-label={`${story.title} ${isThisPlaying ? '일시정지' : '재생'}`}
             className="grid h-9 w-9 place-items-center rounded-full bg-white text-[#f84e76] shadow-lg transition-transform active:scale-90"
           >
-            {isThisPlaying ? <IoPause size={15} /> : <IoPlay size={15} className="ml-0.5" />}
+            {isThisPlaying ? <Pause size={15} /> : <Play size={15} className="ml-0.5" />}
           </button>
         </div>
 

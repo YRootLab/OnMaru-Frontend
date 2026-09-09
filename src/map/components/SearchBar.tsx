@@ -1,11 +1,11 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 import {
-  IoSearchOutline,
-  IoCloseOutline,
-  IoReloadOutline,
-  IoGlobeOutline,
-} from 'react-icons/io5';
+  Search,
+  X,
+  RotateCcw,
+  Globe,
+} from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { DEFAULT_CENTER, DEFAULT_LEVEL, useMapStore } from '@/map/hooks/useMapStore';
 

@@ -4,19 +4,19 @@ import React, { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  IoStorefrontOutline,
-  IoSparklesOutline,
-  IoBookOutline,
-  IoCalendarOutline,
-  IoHomeOutline,
-  IoRestaurantOutline,
-  IoCafeOutline,
-  IoBagHandleOutline,
-  IoFlameOutline,
-  IoPeopleOutline,
-  IoLeafOutline,
-  IoHeartOutline,
-} from 'react-icons/io5';
+  Landmark,
+  Sparkles,
+  BookOpen,
+  Calendar,
+  Home,
+  Utensils,
+  Coffee,
+  ShoppingBag,
+  Flame,
+  Users,
+  Leaf,
+  Heart,
+} from 'lucide-react';
 import { transientProps } from '@/design-system/styled';
 import { meok } from '@/design-system/tokens';
 

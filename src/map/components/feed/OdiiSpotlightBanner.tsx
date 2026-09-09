@@ -3,7 +3,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
-import { IoPlay } from 'react-icons/io5';
+import { Play } from 'lucide-react';
 import { lightPalette, meok, surface } from '@/design-system/tokens';
 
 const bannerShimmer = keyframes`
@@ -211,7 +211,7 @@ export default function OdiiSpotlightBanner() {
         <ActionRow>
           <SkeletonBar $w="84px" $h="14px" />
           <StartBtn type="button" disabled style={{ opacity: 0.5, cursor: 'default' }}>
-            <IoPlay size={13} className="ml-0.5" />
+            <Play size={13} fill="currentColor" className="ml-0.5" />
             <span>투어 시작</span>
           </StartBtn>
         </ActionRow>

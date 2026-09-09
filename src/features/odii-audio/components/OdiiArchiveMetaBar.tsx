@@ -62,7 +62,7 @@ export const OdiiArchiveMetaBar: React.FC<Props> = ({ resultCount, totalCount })
         <label htmlFor={searchId} className="sr-only">오디오 이야기 검색</label>
 
         <div className="group relative flex h-10 min-w-0 flex-1 items-center gap-2 rounded-full border border-[#211e19]/[0.07] bg-white px-4 shadow-[0_1px_3px_rgba(33,30,25,0.04)] transition-all duration-200 focus-within:border-[#f84e76]/40 focus-within:shadow-[0_6px_18px_rgba(248,78,118,0.14)]">
-          <IoSearchOutline size={15} className="shrink-0 text-[#b0a398] transition-colors group-focus-within:text-[#f84e76]" />
+          <Search size={15} className="shrink-0 text-[#b0a398] transition-colors group-focus-within:text-[#f84e76]" />
 
           <input
             id={searchId}
