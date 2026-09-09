@@ -95,6 +95,20 @@ const Stage = styled.section`
   pointer-events: none !important;
   font-family: ${FONT};
   background: transparent;
+
+  /*
+    좁은 화면에서는 3D가 위를 쓰고 글과 조작 카드가 아래를 나눠 쓴다.
+
+    둘 다 절대배치로 vh 상수를 잡아두면 화면이 낮을 때 서로 파고든다 —
+    카드가 두꺼워지거나 문장이 한 줄 늘 때마다 상수를 다시 재야 했다.
+    아래에서부터 쌓아 올리면 겹칠 자리가 없다. 글이 길면 3D 쪽으로 밀려 올라갈 뿐이다.
+  */
+  @media (max-width: 767px) {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding-bottom: 1.5vh;
+  }
 `;
 
 /**
@@ -111,13 +125,11 @@ const Copy = styled.div`
   text-align: center;
   pointer-events: none !important;
 
-  /*
-    3D가 상단 55%를 쓰므로 글은 그 아래에서 시작해야 하고, 아래로는 조작 카드가 올라온다.
-    카드가 터치 규격(트랙 44px)을 갖추면서 두꺼워진 만큼 이 띠의 글자·여백을 줄여 상쇄한다.
-    좁고 낮은 화면(≤660px)에서 둘이 맞닿던 자리다.
-  */
+  /* 흐름으로 내려온다. 자리는 Stage의 flex가 정한다 (top: 48vh 상수를 대신한다). */
   @media (max-width: 767px) {
-    top: 48vh;
+    position: relative;
+    top: auto;
+    margin-bottom: 16px;
   }
 `;
 
@@ -332,9 +344,17 @@ const Controller = styled.div`
   width: min(92vw, 660px);
   pointer-events: auto;
 
+  /*
+    relative를 유지해야 한다. 안쪽의 안내/되돌리기 pill이 이 상자를 기준으로 서므로
+    static으로 두면 Stage에 붙어 카드 위가 아니라 화면 위로 날아간다.
+  */
   @media (max-width: 767px) {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    transform: none;
     width: min(94vw, 440px);
-    bottom: 1.5vh;
+    margin: 0 auto;
   }
 `;
 
