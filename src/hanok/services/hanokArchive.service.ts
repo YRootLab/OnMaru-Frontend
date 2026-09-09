@@ -1,3 +1,4 @@
+import { STAY_TYPE } from '@/hanok/types';
 import type { Village, VillageMeta } from '@/hanok/types';
 import { TourApiClient } from '@/lib/tour-api/tourApiClient';
 
@@ -78,7 +79,7 @@ export class HanokArchiveService {
     meta: VillageMeta;
   }> {
     const configs = [
-      { key: 'STAY_HANOK', ...CATEGORY_MAPPINGS.STAY_HANOK, type: '한옥스테이' as const, rows: 100 },
+      { key: 'STAY_HANOK', ...CATEGORY_MAPPINGS.STAY_HANOK, type: STAY_TYPE, rows: 100 },
       { key: 'VILLAGE', ...CATEGORY_MAPPINGS.VILLAGE, type: '전통마을' as const, rows: 100 },
       { key: 'HERITAGE_HOUSE', ...CATEGORY_MAPPINGS.HERITAGE_HOUSE, type: '고택·종택' as const, rows: 100 },
       { key: 'PALACE', ...CATEGORY_MAPPINGS.PALACE, type: '궁궐·누각' as const, rows: 50 },

@@ -23,9 +23,10 @@ const SectionHeader = styled.div`
 `;
 
 const SectionTitle = styled.h2`
-  font-family: 'MaruBuri', serif, sans-serif;
+  font-family: var(--font-hanok);
   font-size: 24px;
-  font-weight: 700;
+  font-weight: 300;
+  letter-spacing: -0.02em;
   color: #191f28;
   letter-spacing: -0.02em;
   margin: 0;
@@ -100,14 +101,15 @@ const CardBadge = styled.div<{ $color: string }>`
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 500;
+  letter-spacing: 0.06em;
   color: ${({ $color }) => $color};
   margin-bottom: 12px;
 `;
 
 const CardTitle = styled.h3`
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 500;
   color: #191f28;
   margin: 0 0 16px;
   letter-spacing: -0.02em;
@@ -191,13 +193,13 @@ const StopHeader = styled.div`
 
 const StopTime = styled.span`
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 500;
   color: #3b82f6;
 `;
 
 const StopName = styled.span`
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   color: #191f28;
 
   [data-theme='dark'] & {
@@ -309,7 +311,7 @@ const AudioInfo = styled.div`
 
 const AudioTitle = styled.span`
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 500;
   color: #191f28;
 
   [data-theme='dark'] & {
@@ -382,7 +384,7 @@ const GaugeMeta = styled.div`
   display: flex;
   justify-content: space-between;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 400;
   color: #6b7280;
 
   [data-theme='dark'] & {

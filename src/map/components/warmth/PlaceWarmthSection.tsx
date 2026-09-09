@@ -38,7 +38,7 @@ const TitleBox = styled.div`
 const SectionTitle = styled.h3`
   margin: 0;
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 500;
   color: ${meok[900]};
 `;
 
@@ -70,7 +70,7 @@ const WriteButton = styled.button`
   color: ${lightPalette.juhong[700]};
   font-family: inherit;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
 
@@ -168,7 +168,7 @@ const TagItem = styled.span`
   background: ${lightPalette.juhong[50]};
   color: ${lightPalette.juhong[700]};
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 500;
 `;
 
 const WarmthText = styled.p`
@@ -206,7 +206,7 @@ const EmptyIconBox = styled.div`
 
 const EmptyTitle = styled.div`
   font-size: 13.5px;
-  font-weight: 600;
+  font-weight: 500;
   color: ${meok[900]};
   margin-bottom: 4px;
 `;
@@ -229,7 +229,7 @@ const EmptyActionBtn = styled.button`
   color: #ffffff;
   font-family: inherit;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
 
   transition: background 0.15s ease;

@@ -85,7 +85,7 @@ const ModalTitle = styled.h3`
   gap: 8px;
   margin: 0;
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 500;
   color: ${meok[900]};
 `;
 
@@ -115,7 +115,7 @@ const FormSection = styled.div`
 const SectionLabel = styled.label`
   display: block;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 500;
   color: ${meok[900]};
   margin-bottom: 8px;
 `;
@@ -140,7 +140,7 @@ const RegionChip = styled.button<{ $active: boolean }>`
 
   font-family: inherit;
   font-size: 12.5px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   background: ${({ $active }) => ($active ? lightPalette.juhong[500] : '#f2f4f6')};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
@@ -178,7 +178,7 @@ const PlaceInput = styled.input`
   color: ${meok[900]};
   font-family: inherit;
   font-size: 13.5px;
-  font-weight: 600;
+  font-weight: 500;
   outline: none;
 
   &::placeholder {
@@ -214,7 +214,7 @@ const PlaceOption = styled.button`
   color: ${meok[900]};
   font-family: inherit;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   text-align: left;
   cursor: pointer;
   transition: background 0.12s ease;
@@ -249,7 +249,7 @@ const MoodButton = styled.button<{ $active: boolean }>`
   background: ${({ $active }) => ($active ? lightPalette.juhong[500] : '#f2f4f6')};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
   font-size: 13.5px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
 
@@ -272,7 +272,7 @@ const TagChip = styled.button<{ $selected: boolean }>`
   background: ${({ $selected }) => ($selected ? lightPalette.juhong[500] : '#f2f4f6')};
   color: ${({ $selected }) => ($selected ? '#ffffff' : meok[700])};
   font-size: 12.5px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
 

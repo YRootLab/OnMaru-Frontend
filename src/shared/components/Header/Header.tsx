@@ -199,9 +199,10 @@ const CenterNav = styled('nav', transientProps)<LandingProps>`
 
 const NavLink = styled(Link, transientProps)<LandingProps>`
   position: relative;
-  font-family: 'SpoqaHanSansNeo', sans-serif;
+  font-family: 'Spoqa Han Sans Neo', sans-serif;
   font-size: 13px;
-  font-weight: 500;
+  /* 네비게이션은 읽히기만 하면 된다. 강조는 hover 색이 맡는다 */
+  font-weight: 400;
   color: ${({ $isLanding }) => ($isLanding ? 'rgba(255, 255, 255, 0.82)' : meok[700])};
   text-decoration: none;
   letter-spacing: -0.02em;
@@ -309,7 +310,7 @@ const MobileMenuLink = styled(Link, transientProps)<LandingProps>`
   align-items: center;
   border-radius: 10px;
   color: ${({ $isLanding }) => ($isLanding ? 'rgba(250, 250, 250, 0.9)' : meok[900])};
-  font-family: 'SpoqaHanSansNeo', sans-serif;
+  font-family: 'Spoqa Han Sans Neo', sans-serif;
   font-size: 15px;
   text-decoration: none;
 
@@ -325,9 +326,10 @@ const MobileMenuDivider = styled('div', transientProps)<LandingProps>`
 `;
 
 const LoginButton = styled(Link, transientProps)<LandingProps>`
-  font-family: 'SpoqaHanSansNeo', sans-serif;
+  font-family: 'Spoqa Han Sans Neo', sans-serif;
   font-size: 12.5px;
-  font-weight: 500;
+  /* 헤더에서 유일하게 굵은 지점 — 네비가 400이라 이 하나가 확실히 선다 */
+  font-weight: 700;
 
   color: #ffffff;
   background: ${({ $isLanding }) =>
@@ -573,7 +575,7 @@ export default function Header() {
             소리마루
           </NavLink>
 
-          <NavLink href="/discover" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
+          <NavLink href="/" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
             <Sparkles size={13} style={{ marginRight: 4, verticalAlign: '-1px' }} />
             <span>여정 탐색</span>
           </NavLink>
@@ -654,7 +656,7 @@ export default function Header() {
               <MobileMenuLink href="/hanok" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>한옥도감</MobileMenuLink>
               <MobileMenuLink href="/map" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>지도</MobileMenuLink>
               <MobileMenuLink href="/odii" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>소리마루</MobileMenuLink>
-              <MobileMenuLink href="/discover" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
+              <MobileMenuLink href="/" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                   <Sparkles size={15} /> 여정 탐색
                 </span>

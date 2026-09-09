@@ -40,8 +40,9 @@ export const HeaderBadge = styled.div`
   border-radius: 9999px;
   background: rgba(78, 89, 104, 0.08);
   color: ${meok[700]};
-  font-size: 11.5px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
   border: none;
 
   [data-theme='dark'] & {
@@ -60,7 +61,7 @@ export const BackToPopularBtn = styled.button`
   color: ${meok[900]};
   font-family: inherit;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 500;
   border: none;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -118,7 +119,7 @@ export const TitleSection = styled.div`
 export const PlaceTitle = styled.h2`
   margin: 0 0 4px;
   font-size: 19px;
-  font-weight: 700;
+  font-weight: 500;
   color: ${meok[900]};
   line-height: 1.35;
   letter-spacing: -0.02em;
@@ -144,8 +145,8 @@ export const BadgeRow = styled.div`
 export const Badge = styled.span`
   padding: 3px 9px;
   border-radius: 9999px;
-  font-size: 11.5px;
-  font-weight: 500;
+  font-size: 11px;
+  font-weight: 400;
   color: ${meok[700]};
   background: rgba(78, 89, 104, 0.07);
   border: none;
@@ -165,7 +166,7 @@ export const SmartFeatureChip = styled.span<{ $type?: 'free' | 'parking' | 'audi
   padding: 3px 8px;
   border-radius: 8px;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 500;
   color: ${({ $type }) =>
     $type === 'audio' ? lightPalette.jangmi[700] : meok[700]};
   background: ${({ $type }) =>
@@ -214,7 +215,7 @@ export const LiveWarmthStatus = styled.div`
   align-items: center;
   gap: 7px;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 500;
   color: ${meok[900]};
   min-width: 0;
   overflow: hidden;
@@ -305,7 +306,7 @@ export const HeroActionTile = styled.button<{ $highlight?: boolean; $isWarmth?: 
 
   span {
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 500;
     white-space: nowrap;
   }
 `;
@@ -337,7 +338,7 @@ export const HeroActionLink = styled.a`
 
   span {
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 500;
     white-space: nowrap;
   }
 `;
@@ -372,7 +373,7 @@ export const CoreLabel = styled.span`
 
 export const CoreValue = styled.span`
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   color: ${meok[900]};
   text-align: right;
   word-break: keep-all;
@@ -383,10 +384,10 @@ export const OverviewSection = styled.div`
   margin-top: 6px;
 `;
 
-export const SectionTitle = styled.h3`
+export const SectionTitle = styled.h3` /* 14px — 작은 제목이라 500으로 본문과 갈라 준다 */
   margin: 0 0 8px;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 500;
   color: ${meok[900]};
 `;
 
@@ -416,7 +417,7 @@ export const ToggleMoreBtn = styled.button`
   color: ${lightPalette.cheongrok[700]};
   font-family: inherit;
   font-size: 12.5px;
-  font-weight: 600;
+  font-weight: 400;
   cursor: pointer;
 
   &:hover {
@@ -453,7 +454,7 @@ export const BookmarkButton = styled.button<{ $active: boolean }>`
     $active ? lightPalette.juhong[700] : meok[900]};
   font-family: inherit;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
 
@@ -487,7 +488,7 @@ export const ShareButton = styled.button`
   color: ${meok[900]};
   font-family: inherit;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 400;
   cursor: pointer;
   transition: background 0.15s ease;
 
@@ -512,7 +513,8 @@ export const NavButton = styled.a`
   color: #ffffff;
   font-family: inherit;
   font-size: 13.5px;
-  font-weight: 600;
+  /* 길찾기 — 상세 패널의 주 행동 */
+  font-weight: 700;
   text-decoration: none;
   cursor: pointer;
   transition: background 0.15s ease;
@@ -585,7 +587,8 @@ export const CinematicBadge = styled.span`
   align-items: center;
   gap: 5px;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 500;
+  letter-spacing: 0.06em;
   color: ${lightPalette.jangmi[500]};
 
   [data-theme='dark'] & {
@@ -596,13 +599,13 @@ export const CinematicBadge = styled.span`
 export const CinematicDuration = styled.span`
   font-size: 11px;
   color: ${meok[500]};
-  font-weight: 600;
+  font-weight: 400;
 `;
 
 export const CinematicTitle = styled.h4`
   margin: 0;
   font-size: 13.5px;
-  font-weight: 700;
+  font-weight: 500;
   color: ${meok[900]};
   line-height: 1.35;
 

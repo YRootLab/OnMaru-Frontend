@@ -2,20 +2,10 @@
 
 import { useEffect, useRef } from 'react';
 import { Global, css } from '@emotion/react';
-import { renderToStaticMarkup } from 'react-dom/server';
-import {
-  Landmark,
-  Sparkles,
-  BookOpen,
-  Calendar,
-  Home,
-  Utensils,
-  Coffee,
-  ShoppingBag,
-} from 'lucide-react';
 import { logger } from '@/lib/log';
 import { meok, lightPalette } from '@/design-system/tokens';
 import { escapeHtml, safeImageUrl } from '@/map/utils/formatters';
+import { mapIconSvg, type MapIconName } from '@/map/utils/mapIconSvg';
 import { calculateTravelEstimate, isTraditionalPlace, shortRegionName } from '@/map/utils/geo';
 import { useMapStore } from '../hooks/useMapStore';
 import type { Item, PlaceCategory } from '../types';
@@ -37,28 +27,20 @@ const PIN_MAX_LEVEL = 8; // 레벨 7~8: 고대비 원형 아이콘 뱃지 핀
 const LABEL_PIN_LIMIT = 60;
 const BADGE_PIN_LIMIT = 120;
 
-/** 상단 카테고리 칩셋과 100% 동일한 둥근 Lucide Icon SVG 정적 생성 */
+/** 카테고리별 지도 마커 아이콘. 상단 카테고리 칩셋과 같은 lucide 아이콘을 쓴다. */
+const CATEGORY_ICONS: Record<PlaceCategory, MapIconName> = {
+  spot: 'landmark',
+  culture: 'bookOpen',
+  stay: 'home',
+  food: 'utensils',
+  cafe: 'coffee',
+  experience: 'sparkles',
+  festival: 'calendar',
+  market: 'shoppingBag',
+};
+
 export function renderCategoryIconSvg(category: PlaceCategory, size = 15): string {
-  switch (category) {
-    case 'spot':
-      return renderToStaticMarkup(<Landmark size={size} strokeWidth={2} />);
-    case 'culture':
-      return renderToStaticMarkup(<BookOpen size={size} strokeWidth={2} />);
-    case 'stay':
-      return renderToStaticMarkup(<Home size={size} strokeWidth={2} />);
-    case 'food':
-      return renderToStaticMarkup(<Utensils size={size} strokeWidth={2} />);
-    case 'cafe':
-      return renderToStaticMarkup(<Coffee size={size} strokeWidth={2} />);
-    case 'experience':
-      return renderToStaticMarkup(<Sparkles size={size} strokeWidth={2} />);
-    case 'festival':
-      return renderToStaticMarkup(<Calendar size={size} strokeWidth={2} />);
-    case 'market':
-      return renderToStaticMarkup(<ShoppingBag size={size} strokeWidth={2} />);
-    default:
-      return renderToStaticMarkup(<Landmark size={size} strokeWidth={2} />);
-  }
+  return mapIconSvg(CATEGORY_ICONS[category] ?? 'landmark', size);
 }
 
 /** 각 카테고리별 고대비 선명 컬러 및 둥근 React SVG 아이콘 */
@@ -582,7 +564,7 @@ const styles = css`
     background: ${lightPalette.cheongrok[500]};
     color: #ffffff;
     font-size: 11.5px;
-    font-weight: 800;
+    font-weight: 700;
     font-variant-numeric: tabular-nums;
   }
 

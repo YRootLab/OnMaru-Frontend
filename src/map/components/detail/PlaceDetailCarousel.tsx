@@ -115,7 +115,7 @@ const FallbackIconWrap = styled.div`
 
 const FallbackText = styled.span`
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   color: ${meok[700]};
   letter-spacing: -0.2px;
 `;

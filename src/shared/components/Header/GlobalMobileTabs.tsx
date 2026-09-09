@@ -33,9 +33,10 @@ const TabLink = styled(Link, transientProps)<TabProps>`
     if ($isActive) return $isLanding ? '#f8e6bd' : lightPalette.juhong[700];
     return $isLanding ? 'rgba(250, 250, 250, 0.68)' : 'rgba(33, 30, 25, 0.68)';
   }};
-  font-family: 'SpoqaHanSansNeo', sans-serif;
+  font-family: 'Spoqa Han Sans Neo', sans-serif;
   font-size: 10px;
-  font-weight: ${({ $isActive }) => ($isActive ? 600 : 400)};
+  /* 10px에선 500과 400이 구분되지 않는다. 활성 탭만 bold로 갈라 준다 */
+  font-weight: ${({ $isActive }) => ($isActive ? 700 : 400)};
   letter-spacing: -0.02em;
   text-decoration: none;
   transition: color 180ms ease, transform 180ms ease;

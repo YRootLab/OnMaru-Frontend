@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
 import { meok, lightPalette } from '@/design-system/tokens';
 import SectionHeader from '@/hanok/components/SectionHeader';
+import { STAY_TYPE } from '@/hanok/types';
 import type { Village } from '@/hanok/types';
 import { Home, Flame, Coffee, Sparkles, Leaf, MapPin, RotateCcw, ArrowRight, ExternalLink } from 'lucide-react';
 
@@ -38,7 +39,7 @@ const RegionFilterChip = styled.button<{ $active: boolean }>`
     $active ? lightPalette.kobalt[500] : '#ffffff'};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[900])};
   font-size: 13px;
-  font-weight: 600;
+  font-weight: ${({ $active }) => ($active ? 500 : 400)};
   padding: 8px 18px;
   border-radius: 9999px;
   cursor: pointer;
@@ -166,9 +167,9 @@ const TagRow = styled.div`
 `;
 
 const StayTag = styled.span`
-  font-size: 11.5px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: ${lightPalette.kobalt[100]};
   background: rgba(255, 255, 255, 0.2);
@@ -180,7 +181,7 @@ const StayTag = styled.span`
 
 const LiveAvailableTag = styled.span`
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 500;
   color: #10b981;
   background: rgba(16, 185, 129, 0.18);
 
@@ -201,9 +202,10 @@ const PulseDot = styled.span`
 `;
 
 const StayTitle = styled.h3`
-  font-family: 'SpoqaHanSansNeo', sans-serif;
+  font-family: var(--font-hanok);
   font-size: clamp(20px, 2.5vw, 26px);
-  font-weight: 700;
+  font-weight: 500;
+  letter-spacing: -0.02em;
   margin: 0 0 6px;
   line-height: 1.25;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
@@ -211,7 +213,8 @@ const StayTitle = styled.h3`
 `;
 
 const StayDesc = styled.p`
-  font-size: 13.5px;
+  font-size: 13px;
+  font-weight: 400;
   color: rgba(255, 255, 255, 0.85);
   line-height: 1.5;
   margin: 0;
@@ -236,7 +239,7 @@ const DirectBookingBtn = styled.a`
   background: linear-gradient(135deg, ${lightPalette.kobalt[500]} 0%, ${lightPalette.kobalt[700]} 100%);
   color: #ffffff;
   font-size: 12.5px;
-  font-weight: 700;
+  font-weight: 400;
   padding: 9px 16px;
   border-radius: 9999px;
   text-decoration: none;
@@ -258,7 +261,7 @@ const DetailActionBtn = styled.button`
   backdrop-filter: blur(10px);
   color: #ffffff;
   font-size: 12.5px;
-  font-weight: 600;
+  font-weight: 700;
   padding: 9px 16px;
   border-radius: 9999px;
   cursor: pointer;
@@ -290,7 +293,7 @@ const ControlsRow = styled.div`
 
 const BatchInfo = styled.span`
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 400;
   color: ${meok[500]};
 `;
 
@@ -299,7 +302,7 @@ const RefreshBtn = styled.button`
   background: #ffffff;
   color: ${meok[900]};
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 500;
   padding: 8px 18px;
   border-radius: 9999px;
   cursor: pointer;
@@ -333,12 +336,12 @@ const FALLBACK_STAYS: Village[] = [
     addr: '강원특별자치도 강릉시 운정길 63',
     lat: 37.7865,
     lng: 128.8872,
-    type: '한옥 고택 스테이',
+    type: STAY_TYPE,
     badges: ['고택숙박', '세계유산', '전통정원'],
     image: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=1200&q=80',
     hasImage: true,
     summary: '300년 사대부 가옥 열화당과 연못 정자 활래정.',
-    overview: '조선 사대부 대저택 강릉 선교장에서 선비의 기품과 수중 정자 활래정의 정취를 누리며 머무는 품격 높은 한옥 스테이입니다.',
+    overview: '300년 된 사대부 가옥에서 하룻밤 묵습니다. 연못 위에 세운 정자 활래정과 사랑채 열화당을 함께 둘러볼 수 있습니다.',
   },
   {
     id: 'stay-2',
@@ -347,12 +350,12 @@ const FALLBACK_STAYS: Village[] = [
     addr: '전북특별자치도 전주시 완산구 향교길 45',
     lat: 35.814,
     lng: 127.153,
-    type: '한옥 고택 스테이',
+    type: STAY_TYPE,
     badges: ['민속문화재', '고택숙박', '도심접근'],
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
     hasImage: true,
     summary: '1908년에 지은 전주 한옥마을 최고(最古) 고택.',
-    overview: '조선 왕실 후손이 건립한 전주 대표 한옥 학인당은 100년이 넘는 기와지붕과 고풍스러운 툇마루에서 전통 차와 온돌의 온기를 전합니다.',
+    overview: '조선 왕실 후손이 1908년에 지은 고택입니다. 100년 넘은 기와지붕 아래 툇마루에서 전통 차를 마시고 온돌방에서 묵습니다.',
   },
   {
     id: 'stay-3',
@@ -361,12 +364,12 @@ const FALLBACK_STAYS: Village[] = [
     addr: '경상북도 안동시 임동면 지례예술촌길 427',
     lat: 36.562,
     lng: 128.91,
-    type: '한옥 고택 스테이',
+    type: STAY_TYPE,
     badges: ['산자락', '호수뷰', '고택숙박'],
     image: 'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=1200&q=80',
     hasImage: true,
     summary: '임하호 물안개를 마루에서 바라보는 산자락 고택.',
-    overview: '물안개 피어오르는 임하호 산자락 끝에 위치하여 툇마루에 앉아 자연의 쉼을 만끽하는 고즈넉한 사대부 한옥 스테이입니다.',
+    overview: '임하호가 내려다보이는 산자락 끝 사대부 고택입니다. 툇마루에 앉으면 아침마다 호수 위로 물안개가 오릅니다.',
   },
   {
     id: 'stay-4',
@@ -375,12 +378,12 @@ const FALLBACK_STAYS: Village[] = [
     addr: '경상북도 경주시 첨성로 81-5',
     lat: 35.834,
     lng: 129.215,
-    type: '한옥 고택 스테이',
+    type: STAY_TYPE,
     badges: ['첨성대근처', '조선시대', '포토스팟'],
     image: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80',
     hasImage: true,
     summary: '첨성대와 황리단길을 걸어서 오가는 경주 한옥.',
-    overview: '첨성대와 대릉원 돌담길을 따라 걸을 수 있는 최적의 위치에 전통 기와지붕과 현대식 아늑함을 접목한 명품 한옥 스테이입니다.',
+    overview: '첨성대와 대릉원 돌담길을 걸어서 오갑니다. 전통 기와지붕은 그대로 두고 실내는 현대식으로 고쳤습니다.',
   },
   {
     id: 'stay-5',
@@ -389,12 +392,12 @@ const FALLBACK_STAYS: Village[] = [
     addr: '경상남도 함양군 지곡면 개평길 59-1',
     lat: 35.565,
     lng: 127.767,
-    type: '한옥 고택 스테이',
+    type: STAY_TYPE,
     badges: ['국가지정', '선비마을', '고택숙박'],
     image: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=1200&q=80',
     hasImage: true,
     summary: '조선 오현 정여창의 생가, 돌담과 솔숲의 개평마을.',
-    overview: '돌담길과 솔숲이 어우러진 개평한옥마을의 으뜸 고택으로 조선 시대 사대부 가옥의 웅장함을 직접 입실해 경험할 수 있습니다.',
+    overview: '조선 오현 정여창의 생가입니다. 돌담길과 솔숲이 이어진 개평한옥마을에서 사대부 가옥 구조를 방 안에서 직접 봅니다.',
   },
   {
     id: 'stay-6',
@@ -403,12 +406,12 @@ const FALLBACK_STAYS: Village[] = [
     addr: '충청남도 공주시 관광단지길 12',
     lat: 36.462,
     lng: 127.115,
-    type: '한옥 고택 스테이',
+    type: STAY_TYPE,
     badges: ['온돌구들', '전통체험', '공공건축물'],
     image: 'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=1200&q=80',
     hasImage: true,
     summary: '참나무 장작으로 직접 불을 때는 황토 온돌방.',
-    overview: '백제의 숨결이 흐르는 공주한옥마을 단지 내 전통 참나무 구들목 장작불을 직접 때는 최고급 온돌 힐링 한옥 스테이입니다.',
+    overview: '백제의 도읍 공주, 한옥마을 안에 있는 숙박동입니다. 참나무 장작으로 직접 불을 때는 황토 온돌방에서 묵습니다.',
   },
   {
     id: 'stay-7',
@@ -417,16 +420,31 @@ const FALLBACK_STAYS: Village[] = [
     addr: '서울특별시 은평구 진관길 24-10',
     lat: 37.641,
     lng: 126.942,
-    type: '한옥 고택 스테이',
+    type: STAY_TYPE,
     badges: ['도심접근', '북한산뷰', '신조성마을'],
     image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
     hasImage: true,
-    summary: '안방 대창 너머로 북한산 절경이 드는 도심 한옥.',
-    overview: '은평 한옥마을 정중앙에 위치하여 북한산 마루와 맑은 공기를 품고 도심 속 휴식을 제공하는 모던 프라이빗 한옥스테이입니다.',
+    summary: '안방 대청 너머로 북한산 능선이 드는 도심 한옥.',
+    overview: '은평한옥마을 한가운데 자리한 독채 한옥입니다. 안방 대청 너머로 북한산 능선이 그대로 들어옵니다.',
   },
 ];
 
-const REGION_TABS = ['전체', '경북', '전북', '강원', '경남', '충남', '서울', '경기'];
+const REGION_TABS = [
+  '전체',
+  '서울',
+  '부산',
+  '대구',
+  '인천',
+  '대전',
+  '세종',
+  '경기',
+  '강원',
+  '충북',
+  '충남',
+  '전북',
+  '제주',
+  '전남광주통합특별시',
+];
 
 const ICONS = [
   <Home size={20} strokeWidth={2} key="home" />,
@@ -456,7 +474,7 @@ export default function HanokStayAccordion({
     // 예전엔 '고택' 뱃지만 붙어도 스테이로 셌다. 그러면 묵을 수 없는 고택까지 '숙소 N곳'에
     // 들어가고, 도감(스테이 제외)과 합이 전체 수집분을 넘어선다. 실제 숙박(contentTypeId 32)만.
     // 아코디언은 사진이 전부다. 이미지 없는 항목은 까만 빈 알약으로 남아 없느니만 못하다.
-    const fetched = villages.filter((v) => v.type === '한옥 고택 스테이' && v.hasImage);
+    const fetched = villages.filter((v) => v.type === STAY_TYPE && v.hasImage);
     if (fetched.length >= 3) return fetched;
     return FALLBACK_STAYS;
   }, [villages]);
@@ -487,8 +505,10 @@ export default function HanokStayAccordion({
     <Section id="hanok-stays" aria-labelledby="stay-heading">
       <SectionHeader
         id="stay-heading"
-        title="지역별 한옥 고택 스테이"
-        subtitle={`대청마루와 온돌을 갖춘 전국 고택 숙소 ${regionFilteredStays.length}곳`}
+        title="지역별 고택 스테이"
+        // 부제는 도감 전체 규모를 말한다. 지역을 골라도 흔들리지 않아야
+        // '전국'이라는 말과 어긋나지 않는다. 지금 몇 곳을 보고 있는지는 하단 페이저가 맡는다.
+        subtitle={`대청마루와 온돌을 갖춘 전국 고택 스테이 ${allStays.length}곳`}
       />
 
       <RegionFilterBar>
@@ -590,8 +610,8 @@ export default function HanokStayAccordion({
       ) : (
         <EmptyState role="status" aria-live="polite">
           {selectedRegion === '전체'
-            ? '등록된 한옥 스테이가 아직 없습니다.'
-            : `${selectedRegion}에 등록된 스테이가 없습니다. 다른 지역을 선택해 보세요.`}
+            ? '등록된 고택 스테이가 아직 없습니다.'
+            : `${selectedRegion}에는 아직 고택 스테이가 없습니다. 다른 지역을 골라 보세요.`}
         </EmptyState>
       )}
     </Section>

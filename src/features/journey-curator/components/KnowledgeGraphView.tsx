@@ -60,7 +60,7 @@ const HeaderTitle = styled.div`
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 500;
   color: #4e5968;
   letter-spacing: -0.01em;
 
@@ -188,7 +188,8 @@ const NodeTextWrap = styled.div`
 
 const NodeLabel = styled.span<{ $active: boolean }>`
   font-size: 13px;
-  font-weight: ${({ $active }) => ($active ? 700 : 600)};
+  /* 700 대 600은 Spoqa에서 둘 다 Bold라 구분이 안 됐다 */
+  font-weight: ${({ $active }) => ($active ? 700 : 400)};
   color: #191f28;
 
   [data-theme='dark'] & {
@@ -197,9 +198,9 @@ const NodeLabel = styled.span<{ $active: boolean }>`
 `;
 
 const NodeBadge = styled.span`
-  font-size: 10.5px;
+  font-size: 11px;
   color: #8b95a1;
-  font-weight: 500;
+  font-weight: 400;
 `;
 
 function renderCategoryIcon(category: NodeCategory) {

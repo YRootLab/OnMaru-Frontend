@@ -33,7 +33,7 @@ export const SectionTitleGroup = styled.div`
 export const SectionTitle = styled.h3`
   margin: 0;
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 500;
   color: ${meok[900]};
   letter-spacing: -0.02em;
 `;
@@ -234,7 +234,7 @@ export const FeaturedRank = styled.span`
 export const FeaturedName = styled.h4`
   margin: 0 0 2px;
   font-size: 14.5px;
-  font-weight: 700;
+  font-weight: 500;
   color: ${meok[900]};
   overflow: hidden;
   text-overflow: ellipsis;
@@ -258,7 +258,7 @@ export const MoreBtn = styled.button`
   color: ${meok[900]};
   font-family: inherit;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   flex-shrink: 0;
   transition: all 0.15s ease;
@@ -279,7 +279,7 @@ export const ReviewSectionHeader = styled.div`
 export const ReviewSectionTitle = styled.h4`
   margin: 0;
   font-size: 14.5px;
-  font-weight: 700;
+  font-weight: 500;
   color: ${meok[900]};
   display: flex;
   align-items: center;
@@ -354,7 +354,7 @@ export const PageNavBtn = styled.button`
   color: ${meok[700]};
   font-family: inherit;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
 

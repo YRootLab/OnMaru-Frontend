@@ -59,9 +59,9 @@ const HeaderRow = styled.div`
 `;
 
 const Name = styled.h3`
-  font-family: 'SpoqaHanSansNeo', sans-serif;
+  font-family: var(--font-hanok);
   font-size: clamp(15px, 1.35vw, 18px);
-  font-weight: 700;
+  font-weight: 400;
   color: #ffffff;
   margin: 0;
   letter-spacing: -0.02em;
@@ -80,7 +80,7 @@ const TypeBadge = styled.span`
 
   color: #ffffff;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 500;
   padding: 4px 10px;
   border-radius: 9999px;
   white-space: nowrap;
@@ -88,9 +88,10 @@ const TypeBadge = styled.span`
 `;
 
 const Summary = styled.p`
-  font-size: 12px;
+  font-size: 12.5px;
+  font-weight: 400;
   color: rgba(255, 255, 255, 0.88);
-  line-height: 1.45;
+  line-height: 1.5;
   margin: 0 0 10px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -108,8 +109,8 @@ const BadgeRow = styled.div`
 `;
 
 const Badge = styled.span`
-  font-size: 10.5px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 500;
   color: rgba(255, 255, 255, 0.9);
   background: rgba(255, 255, 255, 0.14);
   backdrop-filter: blur(8px);
@@ -128,8 +129,8 @@ const ActionButton = styled(motion.div, transientProps)`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13.5px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 500;
   letter-spacing: -0.01em;
 
   transition: background-color 0.2s ease, transform 0.2s ease;

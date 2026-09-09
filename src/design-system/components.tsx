@@ -35,7 +35,8 @@ export const CTAButton = styled.button<{ size?: 'sm' | 'md' | 'lg' }>`
     const t = theme as OnmaruTheme
     return size === 'sm' ? t.typography.fontSize.sm : t.typography.fontSize.base
   }};
-  font-weight:     ${({ theme }) => (theme as OnmaruTheme).typography.fontWeight.medium};
+  /* 페이지의 주 행동 버튼 — 여기만 bold를 쓴다 */
+  font-weight:     ${({ theme }) => (theme as OnmaruTheme).typography.fontWeight.bold};
   border-radius:   ${({ theme }) => (theme as OnmaruTheme).borderRadius.lg};
   background:      ${({ theme }) => (theme as OnmaruTheme).colors.action.primary};
   color:           #ffffff;
@@ -146,7 +147,8 @@ export const InfoTag = styled.span`
     return `${t.spacing[1]} ${t.spacing[3]}`
   }};
   font-size:     ${({ theme }) => (theme as OnmaruTheme).typography.fontSize.xs};
-  font-weight:   ${({ theme }) => (theme as OnmaruTheme).typography.fontWeight.medium};
+  /* 보조 정보 태그 — 배경색이 이미 구분해 주므로 굵기까지 올리지 않는다 */
+  font-weight:   ${({ theme }) => (theme as OnmaruTheme).typography.fontWeight.regular};
   border-radius: ${({ theme }) => (theme as OnmaruTheme).borderRadius.full};
   background:    ${({ theme }) => (theme as OnmaruTheme).colors.info.primaryBg};
   color:         ${({ theme }) => (theme as OnmaruTheme).colors.info.primary};
@@ -243,9 +245,10 @@ export const TabItem = styled.button<{ active?: boolean }>`
   cursor:          pointer;
   font-family:     ${({ theme }) => (theme as OnmaruTheme).typography.fontFamily.sans};
   font-size:       10px;
+  /* 10px에서 500 대 400은 차이가 안 보인다. 활성 탭은 bold로 확실히 갈라 준다 */
   font-weight:     ${({ active, theme }) =>
     active
-      ? (theme as OnmaruTheme).typography.fontWeight.medium
+      ? (theme as OnmaruTheme).typography.fontWeight.bold
       : (theme as OnmaruTheme).typography.fontWeight.regular
   };
   color: ${({ active, theme }) => {
@@ -322,7 +325,9 @@ export const metaballContainerCss = (theme: OnmaruTheme) => css`
 export const sectionHeaderCss = (theme: OnmaruTheme) => css`
   font-family: ${theme.typography.fontFamily.sans};
   font-size:   ${theme.typography.fontSize['2xl']};
-  font-weight: ${theme.typography.fontWeight.medium};
+  /* 24px — 이 크기부터는 굵기를 덜어야 읽기 편하다 */
+  font-weight: ${theme.typography.fontWeight.light};
+  letter-spacing: -0.02em;
   color:       ${theme.colors.text.primary};
   line-height: ${theme.typography.lineHeight.tight};
   letter-spacing: -0.02em;

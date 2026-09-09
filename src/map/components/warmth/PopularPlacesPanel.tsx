@@ -36,7 +36,7 @@ const TopBar = styled.div`
 const Title = styled.h3`
   margin: 0;
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 500;
   color: ${meok[900]};
   letter-spacing: -0.02em;
 `;
@@ -93,7 +93,7 @@ const RegionChip = styled.button<{ $active: boolean }>`
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
   font-family: inherit;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.15s ease;
@@ -143,7 +143,7 @@ const LeftCol = styled.div`
 
 const RankNum = styled.span<{ $rank: number }>`
   font-size: 16px;
-  font-weight: 800;
+  font-weight: 700;
   color: ${({ $rank }) =>
     $rank === 1
       ? lightPalette.juhong[500]
@@ -165,7 +165,7 @@ const PlaceInfo = styled.div`
 const Name = styled.h4`
   margin: 0 0 4px;
   font-size: 14.5px;
-  font-weight: 700;
+  font-weight: 500;
   color: ${meok[900]};
   overflow: hidden;
   text-overflow: ellipsis;

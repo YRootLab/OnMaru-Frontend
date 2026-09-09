@@ -47,7 +47,7 @@ import {
 } from './VillageDetailModal.styles';
 
 interface VillageDetailModalProps {
-  village: Village | null;
+  village: Village;
   onClose: () => void;
 }
 
@@ -84,18 +84,16 @@ export default function VillageDetailModal({ village, onClose }: VillageDetailMo
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeImageIdx, setActiveImageIdx] = useState<number | null>(null);
   const [detailData, setDetailData] = useState<VillageDetailResponse | null>(null);
-  const [isLoadingOverview, setIsLoadingOverview] = useState(false);
+  // key로 마을마다 새로 마운트되므로, 뜨는 순간이 곧 불러오기 시작이다.
+  const [isLoadingOverview, setIsLoadingOverview] = useState(true);
 
+  /*
+    마을이 바뀌면 부모가 key로 이 컴포넌트를 다시 마운트한다 — 그래서 여기서 상태를
+    되돌릴 필요가 없다. 예전에는 effect 본문에서 setDetailData(null)로 직접 되돌렸는데,
+    그건 렌더가 연쇄로 겹치는 패턴이다.
+  */
   useEffect(() => {
-    if (!village) {
-      setDetailData(null);
-      setActiveImageIdx(null);
-      setIsExpanded(false);
-      return;
-    }
-
     let isMounted = true;
-    setIsLoadingOverview(true);
 
     fetch(`/api/tourapi/detail?id=${village.id}`)
       .then((res) => {
@@ -121,7 +119,7 @@ export default function VillageDetailModal({ village, onClose }: VillageDetailMo
   }, [village]);
 
   const fetchedOverview = detailData?.overview ? cleanTourApiHtml(detailData.overview) : null;
-  const currentStoryText = fetchedOverview || village?.overview || village?.summary || '';
+  const currentStoryText = fetchedOverview || village.overview || village.summary || '';
 
   const paragraphs = useMemo(() => {
     if (!currentStoryText) return [];
@@ -135,7 +133,7 @@ export default function VillageDetailModal({ village, onClose }: VillageDetailMo
 
   const galleryImages = useMemo(() => {
     const list: string[] = [];
-    if (village?.image) list.push(village.image);
+    if (village.image) list.push(village.image);
     if (detailData?.images && detailData.images.length > 0) {
       for (const img of detailData.images) {
         if (!list.includes(img)) list.push(img);
@@ -148,7 +146,7 @@ export default function VillageDetailModal({ village, onClose }: VillageDetailMo
     if (activeImageIdx !== null && galleryImages[activeImageIdx]) {
       return galleryImages[activeImageIdx];
     }
-    return village?.hasImage ? village.image : galleryImages[0] || null;
+    return village.hasImage ? village.image : galleryImages[0] || null;
   }, [activeImageIdx, galleryImages, village]);
 
   const homepageInfo = useMemo(() => {
@@ -215,10 +213,10 @@ export default function VillageDetailModal({ village, onClose }: VillageDetailMo
                       <span>
                         {fetchedOverview
                           ? '한국관광공사 문화유산 & 한옥 원본 상세 글'
-                          : '온마루 한옥 도감 에디토리얼'}
+                          : '온마루 한옥도감 에디토리얼'}
                       </span>
                     </HeaderBadge>
-                    {fetchedOverview && <SourceTag>TourAPI 4.0 실시간 연동</SourceTag>}
+                    {fetchedOverview && <SourceTag>한국관광공사 관광정보 API(TourAPI 4.0)</SourceTag>}
                   </NoteHeader>
                   <StoryContainer $isExpanded={isExpanded}>
                     {paragraphs.map((p, idx) => (

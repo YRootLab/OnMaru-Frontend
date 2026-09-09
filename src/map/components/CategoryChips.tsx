@@ -135,7 +135,7 @@ const Chip = styled.button<{ $active: boolean }>`
   border: 1px solid ${({ $active }) => ($active ? meok[900] : 'rgba(25, 31, 40, 0.08)')};
 
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
-  font-family: 'SpoqaHanSansNeo', sans-serif;
+  font-family: 'Spoqa Han Sans Neo', sans-serif;
   font-size: 13px;
   font-weight: 500;
   letter-spacing: -0.02em;

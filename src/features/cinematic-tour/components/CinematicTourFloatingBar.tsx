@@ -81,7 +81,8 @@ const TourBadge = styled.div`
   padding: 3px 9px;
   border-radius: 9999px;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 500;
+  letter-spacing: 0.06em;
   white-space: nowrap;
   color: #ffffff;
   background: linear-gradient(135deg, ${lightPalette.juhong[500]} 0%, ${lightPalette.jangmi[500]} 100%);
@@ -91,7 +92,7 @@ const TourBadge = styled.div`
 const TourTitle = styled.h4`
   margin: 0;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -157,7 +158,7 @@ const WaypointChip = styled.button<{ $active: boolean }>`
   border-radius: 9999px;
   border: none;
   font-size: 11.5px;
-  font-weight: 700;
+  font-weight: 500;
   white-space: nowrap;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -214,8 +215,8 @@ const SubtitleMetaRow = styled.div`
 `;
 
 const SubtitleIndexBadge = styled.span`
-  font-size: 10.5px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 500;
   color: ${lightPalette.jangmi[700]};
   display: inline-flex;
   align-items: center;
@@ -229,7 +230,8 @@ const SubtitleIndexBadge = styled.span`
 const SubtitleLine = styled.p`
   margin: 0;
   font-size: 13.5px;
-  font-weight: 600;
+  /* 자막 본문 — 읽는 글이지 강조하는 글이 아니다 */
+  font-weight: 400;
   line-height: 1.5;
   color: ${meok[900]};
   word-break: keep-all;
@@ -257,7 +259,7 @@ const PhotoTipPill = styled.div`
   gap: 5px;
   margin-top: 6px;
   font-size: 11.5px;
-  font-weight: 700;
+  font-weight: 500;
   color: ${lightPalette.jangmi[700]};
 
   [data-theme='dark'] & {
@@ -276,7 +278,7 @@ const TimeText = styled.span`
   font-size: 11.5px;
   font-variant-numeric: tabular-nums;
   color: ${meok[500]};
-  font-weight: 600;
+  font-weight: 400;
 `;
 
 const MainButtons = styled.div`

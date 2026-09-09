@@ -103,7 +103,7 @@ export default function HanokGrid({ villages, onSelectVillage }: HanokGridProps)
     <Section id="grid" aria-labelledby="grid-heading">
       <SectionHeader
         id="grid-heading"
-        title="한옥 도감"
+        title="한옥도감"
         subtitle={`궁궐부터 고택·서원·전통마을까지 ${filteredCount}곳`}
       />
 
