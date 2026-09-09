@@ -5,13 +5,13 @@ import { Alex_Brush } from 'next/font/google';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import {
-  IoBookOutline,
-  IoLocationOutline,
-  IoFlame,
-  IoHeadsetOutline,
-  IoBookmarkOutline,
-  IoPersonOutline,
-} from 'react-icons/io5';
+  BookOpen,
+  Bookmark,
+  Flame,
+  Headphones,
+  MapPin,
+  User,
+} from 'lucide-react';
 import { transientProps } from '@/design-system/styled';
 import { useMapStore } from '@/map/hooks/useMapStore';
 import { lightPalette, meok } from '@/design-system/tokens';

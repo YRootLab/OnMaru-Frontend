@@ -1,6 +1,12 @@
 # handoff.md
 
 Current work:
+- 2026-09-09 ad hoc fix:
+  - User reported `/odii` no longer opened after it worked previously.
+  - Current worktree initially had no diff; reproduction showed `npx tsc --noEmit` failing because the Lucide migration removed `react-icons` while several `/odii` and `/map` components still referenced `react-icons/io5` or old `Io*` names.
+  - Replaced the remaining references with existing `lucide-react` icons in Odii archive/search UI and map feed/navigation components.
+  - Verification: `npx tsc --noEmit` passed, and dev server `HEAD /odii` returned 200 on `http://localhost:3001/odii`.
+  - Remaining separate issue: production `npm run build` now passes compile/typecheck but fails while prerendering `/map` with `Invalid hook call`; `/map` also returns 500 in dev. This is not in the `/odii` route itself but still blocks a full production build.
 - Summary: 
   1. Completed OnMaru Admin Web Console (#52~#57) and merged PR #59 into `develop`.
   2. Created new branch `feat/migrate-lucide-icons` from updated `develop`.
@@ -51,4 +57,3 @@ Verified this session:
 
 Next step:
 - User verification of reload behavior and dark mode appearance on `/map`.
-
