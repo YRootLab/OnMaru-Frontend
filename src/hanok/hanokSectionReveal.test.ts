@@ -5,10 +5,13 @@ describe('HANOK_REVEAL_SECTION_IDS', () => {
   it('defines one stable boundary for each major archive section', () => {
     expect(HANOK_REVEAL_SECTION_IDS).toEqual([
       'hanok-intro',
+      'hanok-distribution',
       'hanok-monthly',
       'hanok-grid',
       'hanok-stay',
       'hanok-map',
+      'hanok-structure',
+      'hanok-parts',
       'hanok-manifesto',
     ]);
   });

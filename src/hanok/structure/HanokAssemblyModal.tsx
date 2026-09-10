@@ -18,7 +18,7 @@
   주저앉는다. 무대와 여백을 형제로 두어야 100%가 Scroller 높이로 떨어진다.
 */
 
-import { useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
 
 import { meok, lightPalette, surface } from '@/design-system/tokens';
@@ -180,9 +180,17 @@ const ScrollHint = styled.p`
   pointer-events: none;
 `;
 
-export default function HanokAssemblyModal({ onClose }: { onClose: () => void }) {
+interface HanokAssemblyModalProps {
+  onClose: () => void;
+  /** 처음부터가 아니라 이 켜에서 열린다. 부재 목록에서 눌러 들어오는 길. */
+  initialStage?: number;
+}
+
+export default function HanokAssemblyModal({ onClose, initialStage }: HanokAssemblyModalProps) {
   const scrollerRef = useRef<HTMLDivElement | null>(null);
-  const [local, setLocal] = useState(0);
+  const [local, setLocal] = useState(() =>
+    initialStage === undefined ? 0 : endOfStage(initialStage),
+  );
 
   const readProgress = () => {
     const el = scrollerRef.current;
@@ -202,6 +210,28 @@ export default function HanokAssemblyModal({ onClose }: { onClose: () => void })
       behavior: 'smooth',
     });
   };
+
+  /*
+    지정된 켜에서 문을 연다.
+
+    scrollTop은 스크롤러가 자리를 잡은 뒤라야 먹힌다 — travel(스크롤 가능 거리)이 0인
+    첫 프레임에 쓰면 그대로 0에 머문다. 레이아웃이 끝난 다음 프레임에 한 번만 옮기고,
+    여기서는 smooth를 쓰지 않는다. 목록에서 켜를 찍어 들어온 사람에게 그 켜는
+    '이미 서 있는 상태'여야지, 처음부터 훑고 지나가는 연출이 아니다.
+  */
+  useLayoutEffect(() => {
+    if (initialStage === undefined) return undefined;
+
+    const frame = requestAnimationFrame(() => {
+      const el = scrollerRef.current;
+      if (!el) return;
+
+      const travel = el.scrollHeight - el.clientHeight;
+      if (travel > 0) el.scrollTop = endOfStage(initialStage) * travel;
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [initialStage]);
 
   const activeIndex = Math.max(0, activeStageOf(local));
 
