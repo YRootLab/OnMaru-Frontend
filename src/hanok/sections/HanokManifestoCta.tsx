@@ -105,9 +105,9 @@ export default function HanokManifestoCta() {
         transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
       >
         <ManifestoParagraph>
-          한옥 <InlineIcon><Home strokeWidth={2} /></InlineIcon>은 지나간 유산이 아니라 지금의 쉼터{' '}
-          <InlineIcon><Leaf strokeWidth={2} /></InlineIcon>입니다. 수백 년을 버틴 대청마루에서{' '}
-          <HighlightText>당신의 하루</HighlightText>를 쉬어 가세요.
+          한옥 <InlineIcon><Home strokeWidth={2} /></InlineIcon>은 지나간 유산이 아니라 지금 우리에게 필요한 쉼터{' '}
+          <InlineIcon><Leaf strokeWidth={2} /></InlineIcon>입니다. 수백 년을 버틴 대청마루에{' '}
+          <HighlightText>당신의 하루</HighlightText>도 쉬어 갑니다.
         </ManifestoParagraph>
 
         <ButtonRow>

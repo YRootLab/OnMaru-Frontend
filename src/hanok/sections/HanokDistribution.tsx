@@ -170,7 +170,7 @@ export default function HanokDistribution({ villages }: HanokDistributionProps) 
     <Section id="distribution" aria-labelledby="distribution-heading">
       <SectionHeader
         id="distribution-heading"
-        title="한옥은 어디에 남아 있나"
+        title="남은 자리는 고르지 않다"
       />
 
       <StatRow>
@@ -182,7 +182,7 @@ export default function HanokDistribution({ villages }: HanokDistributionProps) 
           </StatValue>
         </Stat>
         <Stat>
-          <StatLabel>기록된 시도</StatLabel>
+          <StatLabel>기록된 시·도</StatLabel>
           <StatValue>
             {regions.length}
             <StatUnit>곳</StatUnit>
@@ -199,8 +199,8 @@ export default function HanokDistribution({ villages }: HanokDistributionProps) 
 
       <Finding>
         {topThree.map(([name]) => name).join(' · ')} 세 곳에만{' '}
-        <strong>전체의 {topThreeShare}%</strong>가 몰려 있습니다. 한옥이 고르게 남은 게
-        아니라, 남은 자리가 정해져 있다는 뜻입니다.
+        <strong>전체의 {topThreeShare}%</strong>가 몰려 있습니다. 고르게 남은 게 아니라,
+        남을 곳이 애초에 정해져 있었다는 뜻입니다.
       </Finding>
 
       <Rows>

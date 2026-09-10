@@ -16,16 +16,23 @@ export interface Village {
   addr: string;
   lat: number | null;
   lng: number | null;
+  /*
+    라이브 서비스(hanokArchive.service.ts)가 실제로 만들어내는 유형 7종만 남긴다.
+    '도심형'·'집성촌형'·'체험형' 같은 옛 분류는 여기서 지워졌다 — 정적 스냅샷은 더 이상
+    그 이름을 쓰지 않는다(scripts/build-fallback.mjs가 항상 이 7종으로 재생성한다).
+    `| string` 캐치올도 없앴다 — 오타 하나가 필터를 조용히 무력화하는 대신
+    컴파일 시점에 잡히게 한다. 이 목록은 src/hanok/lib/classify.mjs의
+    LIVE_VILLAGE_TYPES와 정확히 같은 집합이어야 하고, 어긋나면
+    classify.contract.test.ts가 잡는다.
+  */
   type:
-    | '도심형'
-    | '집성촌형'
-    | '체험형'
-    | '한옥 공공건축물'
-    | '궁궐 한옥'
-    | '사대부 고택'
+    | '고택'
+    | '민속마을'
+    | '고궁'
+    | '생가'
+    | '문'
     | '서원·향교'
-    | typeof STAY_TYPE
-    | string;
+    | typeof STAY_TYPE;
   badges: string[];
   image: string | null;
   hasImage: boolean;

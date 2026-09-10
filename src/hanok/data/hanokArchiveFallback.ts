@@ -11,7 +11,14 @@ function toHttps(url: string | null): string | null {
   return url.startsWith('http://') ? `https://${url.slice(7)}` : url;
 }
 
-const villages: Village[] = snapshot.map((item) => ({
+/*
+  scripts/build-fallback.mjs가 만드는 그대로다 — { generatedAt, sourceTotals, villages }.
+  villages 하나만 있는 배열이던 옛 스냅샷과 달리, 언제 만들었고(generatedAt) 관광공사
+  원본이 몇 건이었는지(sourceTotals)까지 스냅샷 자신이 들고 있다. byType·badgeStats·
+  imageRate·total은 그래도 villages에서 다시 센다 — 스냅샷을 손으로 잘라내도
+  숫자가 항상 실제 배열과 맞아야 한다.
+*/
+const villages: Village[] = snapshot.villages.map((item) => ({
   id: String(item.id),
   name: item.name,
   rawTitle: item.rawTitle,
@@ -41,12 +48,13 @@ function createMeta(items: Village[]): VillageMeta {
   }
 
   return {
-    generatedAt: '2026-08-06T14:03:03.871Z',
+    generatedAt: snapshot.generatedAt,
     total: items.length,
     byType,
     imageRate: items.length > 0 ? imageCount / items.length : 0,
     badgeStats,
     badgeFallbackCount: 0,
+    sourceTotals: snapshot.sourceTotals,
   };
 }
 

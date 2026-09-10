@@ -1,6 +1,14 @@
 import { STAY_TYPE } from '@/hanok/types';
 import type { Village, VillageMeta } from '@/hanok/types';
 import { TourApiClient } from '@/lib/tour-api/tourApiClient';
+import {
+  CATEGORY_MAPPINGS,
+  classifyHeritageHouse,
+  resolveRegion,
+  assignBadges,
+  inKorea,
+  toHttps,
+} from '@/hanok/lib/classify.mjs';
 
 /** areaBasedList2가 돌려주는 항목 중 이 도감이 읽는 필드만. */
 interface TourApiItem {
@@ -31,60 +39,16 @@ interface TourApiItem {
   정작 도감의 중심인 A02010400 고택(110건)과 A02010600 민속마을(58건)은
   한 번도 요청하지 않았다. '고택·종택 38곳'이라 적혀 있었지만 진짜 고택은 0곳이었다.
 
-  아래 이름은 전부 categoryCode2가 돌려준 관광공사 공식 명칭이다. 임의로 짓지 않는다.
-  코드를 바꿀 때는 반드시 categoryCode2로 이름을 다시 확인할 것.
+  카테고리 코드·지역/유형/뱃지 분류 규칙은 src/hanok/lib/classify.mjs 하나에만 있다.
+  정적 스냅샷을 만드는 scripts/build-fallback.mjs도 같은 파일을 가져다 쓴다 — 라이브와
+  스냅샷이 서로 다른 유형·뱃지 체계로 갈라지는 걸 막으려면 규칙이 두 곳에 있으면 안 된다.
+  코드를 바꿀 때는 반드시 classify.mjs 한 곳만 고치고, categoryCode2로 이름을 다시 확인할 것.
 
   제외한 것과 이유:
     A02010800 사찰(705건)      — 목조 전통건축이지만 종교 건축이고, 수가 커서 도감을 잠식한다
     A02010200 성(91건)         — 대부분 석축 성곽이라 한옥이 아니다
     A02010700 유적지/사적지(1247건) — 석조부도 같은 비건축물이 섞인 잡버킷
 */
-export const CATEGORY_MAPPINGS = {
-  STAY_HANOK: { contentTypeId: '32', cat1: 'B02', cat2: 'B0201', cat3: 'B02011600' },
-  HERITAGE_HOUSE: { contentTypeId: '12', cat1: 'A02', cat2: 'A0201', cat3: 'A02010400' },
-  FOLK_VILLAGE: { contentTypeId: '12', cat1: 'A02', cat2: 'A0201', cat3: 'A02010600' },
-  PALACE: { contentTypeId: '12', cat1: 'A02', cat2: 'A0201', cat3: 'A02010100' },
-  BIRTHPLACE: { contentTypeId: '12', cat1: 'A02', cat2: 'A0201', cat3: 'A02010500' },
-  GATE: { contentTypeId: '12', cat1: 'A02', cat2: 'A0201', cat3: 'A02010300' },
-};
-
-const AREA_MAP: Record<string, string> = {
-  '1': '서울', '2': '인천', '3': '대전', '4': '대구', '5': '광주', '6': '부산', '7': '울산', '8': '세종',
-  '31': '경기', '32': '강원', '33': '충북', '34': '충남', '35': '경북', '36': '경남', '37': '전북', '38': '전남', '39': '제주',
-};
-
-const REGION_ALIASES: Record<string, string> = {
-  서울특별시: '서울', 부산광역시: '부산', 대구광역시: '대구', 인천광역시: '인천',
-  광주광역시: '광주', 대전광역시: '대전', 울산광역시: '울산', 세종특별자치시: '세종',
-  경기도: '경기', 강원도: '강원', 강원특별자치도: '강원',
-  충청북도: '충북', 충청남도: '충남', 전라북도: '전북', 전북특별자치도: '전북',
-  전라남도: '전남', 경상북도: '경북', 경상남도: '경남',
-  제주도: '제주', 제주특별자치도: '제주',
-};
-
-/*
-  전남·광주 통합으로 TourAPI 주소 접두어에 '전남광주통합특별시'가 섞여 나온다.
-  areacode가 비어 있는 항목이 이 접두어로만 지역을 말하므로, 별칭표로는 못 푼다 —
-  하나의 접두어가 전남과 광주 둘을 가리키기 때문이다. 뒤따르는 시군구로 가른다.
-
-  구 이름은 다른 시에도 있지만(동구·서구·남구·북구) 여기서는 접두어가 이미
-  통합시로 한정하므로 헷갈릴 자리가 없다.
-*/
-const MERGED_JEONNAM_GWANGJU = '전남광주통합특별시';
-const GWANGJU_DISTRICTS = ['동구', '서구', '남구', '북구', '광산구'];
-
-const BADGE_RULES = [
-  { badge: '세계유산', keywords: ['세계유산', '유네스코', 'UNESCO'] },
-  { badge: '국가지정', keywords: ['국보', '보물', '사적', '명승'] },
-  { badge: '민속마을', keywords: ['중요민속문화재', '국가민속문화재', '민속마을'] },
-  { badge: '공공건축물', keywords: ['주민센터', '도서관', '박물관', '상촌재', '무계원', '공공'] },
-  { badge: '조선시대', keywords: ['조선', '이조'] },
-  { badge: '궁궐', keywords: ['궁궐', '경복궁', '창덕궁', '덕수궁', '집옥재', '낙선재', '석어당'] },
-  { badge: '고택', keywords: ['고택', '종택', '종가', '선교장'] },
-  { badge: '서원·향교', keywords: ['서원', '향교'] },
-  { badge: '돌담길', keywords: ['돌담', '담장'] },
-  { badge: '전통체험', keywords: ['체험', '체험관'] },
-];
 
 const CURATION_KEYWORDS = [
   '경복궁', '강릉 선교장', '남산골한옥마을', '구례 운조루', '하회마을',
@@ -92,41 +56,7 @@ const CURATION_KEYWORDS = [
   '논산 명재고택', '은평한옥마을',
 ];
 
-function inKorea(lat: number, lng: number): boolean {
-  return lat >= 33 && lat <= 39 && lng >= 124 && lng <= 132;
-}
-
-function toHttps(url?: string | null): string | null {
-  const s = String(url ?? '').trim();
-  if (!s) return null;
-  return s.startsWith('http://') ? `https://${s.slice(7)}` : s;
-}
-
 export class HanokArchiveService {
-  public static resolveRegion(areacode: string, addr: string): string {
-    if (AREA_MAP[areacode]) return AREA_MAP[areacode];
-
-    const parts = addr.split(' ');
-    const head = parts[0] ?? '';
-
-    if (head === MERGED_JEONNAM_GWANGJU) {
-      return GWANGJU_DISTRICTS.includes(parts[1] ?? '') ? '광주' : '전남';
-    }
-
-    return REGION_ALIASES[head] || head || '기타';
-  }
-
-  public static assignBadges(title: string, addr: string): string[] {
-    const text = `${title} ${addr}`;
-    const badges: string[] = [];
-    for (const rule of BADGE_RULES) {
-      if (rule.keywords.some((kw) => text.includes(kw))) {
-        badges.push(rule.badge);
-      }
-    }
-    return badges.slice(0, 3);
-  }
-
   /**
    * 한 카테고리를 끝까지 받아온다.
    *
@@ -223,16 +153,19 @@ export class HanokArchiveService {
           id,
           name: title,
           rawTitle: title,
-          type: config.type,
-          region: this.resolveRegion(String(item.areacode || ''), addr),
+          type: config.type === '고택' ? classifyHeritageHouse(title, addr) : config.type,
+          region: resolveRegion(String(item.areacode || ''), addr),
           lat: validCoords ? lat : null,
           lng: validCoords ? lng : null,
           addr,
           image: toHttps(item.firstimage || item.firstimage2),
           hasImage,
-          summary: `${title} - ${addr}`,
+          // TourAPI 목록 응답엔 설명이 없다. 이름을 그대로 되풀이하는 대신 주소를 보여준다 —
+          // 전에는 `${title} - ${addr}`라 적어, 카드마다 제목 바로 아래에 그 제목이
+          // 한 번 더 찍혔다.
+          summary: addr,
           overview: '',
-          badges: this.assignBadges(title, addr),
+          badges: assignBadges(title, addr),
         });
       }
     });

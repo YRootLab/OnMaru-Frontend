@@ -2,7 +2,6 @@
 
 import React, { useState, useMemo } from 'react';
 import styled from '@emotion/styled';
-import { keyframes } from '@emotion/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
 import { meok, lightPalette } from '@/design-system/tokens';
@@ -10,12 +9,6 @@ import SectionHeader from '@/hanok/components/SectionHeader';
 import { STAY_TYPE } from '@/hanok/types';
 import type { Village } from '@/hanok/types';
 import { Home, Flame, Coffee, Sparkles, Leaf, MapPin, RotateCcw, ArrowRight, ExternalLink } from 'lucide-react';
-
-const pulseAnimation = keyframes`
-  0% { opacity: 0.6; transform: scale(0.9); }
-  50% { opacity: 1; transform: scale(1.2); }
-  100% { opacity: 0.6; transform: scale(0.9); }
-`;
 
 const Section = styled.section`
   position: relative;
@@ -183,36 +176,11 @@ const TagRow = styled.div`
 const StayTag = styled.span`
   font-size: 11px;
   font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
   color: ${lightPalette.kobalt[100]};
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(8px);
   padding: 3px 10px;
   border-radius: 9999px;
-
-`;
-
-const LiveAvailableTag = styled.span`
-  font-size: 11px;
-  font-weight: 500;
-  color: #10b981;
-  background: rgba(16, 185, 129, 0.18);
-
-  padding: 3px 10px;
-  border-radius: 9999px;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  backdrop-filter: blur(8px);
-`;
-
-const PulseDot = styled.span`
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: #10b981;
-  animation: ${pulseAnimation} 1.6s ease-in-out infinite;
 `;
 
 const StayTitle = styled.h3`
@@ -224,6 +192,11 @@ const StayTitle = styled.h3`
   line-height: 1.25;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
   color: #ffffff;
+  /* 긴 시설명이 3줄까지 늘어나며 바로 아래 버튼과 붙던 걸 막는다 */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 `;
 
 const StayDesc = styled.p`
@@ -332,7 +305,7 @@ const RefreshBtn = styled.button`
 `;
 
 /*
-  빈 지역은 막다른 길이 아니다. 실제 고택 스테이는 경북·전북에 몰려 있어
+  빈 지역은 막다른 길이 아니다. 실제 한옥 스테이는 경북·전북에 몰려 있어
   부산·제주 같은 곳은 한두 곳뿐이거나 아예 없다. 그 사실을 숨기지 않되,
   "없다"로 끝내지 말고 다음 행동을 쥐여 준다.
 */
@@ -604,7 +577,7 @@ export default function HanokStayAccordion({
     <Section id="hanok-stays" aria-labelledby="stay-heading">
       <SectionHeader
         id="stay-heading"
-        title="지역별 고택 스테이"
+        title="지역별 한옥 스테이"
         // 부제는 도감 전체 규모를 말한다. 지역을 골라도 흔들리지 않아야
         // '전국'이라는 말과 어긋나지 않는다. 지금 몇 곳을 보고 있는지는 하단 페이저가 맡는다.
         subtitle={`${allStays.length}곳`}
@@ -662,15 +635,17 @@ export default function HanokStayAccordion({
                         transition={{ duration: 0.22 }}
                       >
                         <InfoGroup>
+                          {/*
+                            유형 태그는 뺐다 — 이 섹션 전체가 이미 '한옥 스테이'라,
+                            알약마다 같은 말을 반복하는 태그였다.
+                            '실시간 예약 연동' 배지도 뺐다 — getBookingUrl이 실제로 하는 일은
+                            예약 페이지가 있으면 그리로, 없으면 네이버 검색으로 보내는 것뿐이라
+                            실시간 연동이라는 말과는 달랐다.
+                          */}
                           <TagRow>
                             <StayTag>{item.region}</StayTag>
-                            <StayTag>{item.type}</StayTag>
-                            <LiveAvailableTag>
-                              <PulseDot /> 실시간 예약 연동
-                            </LiveAvailableTag>
                           </TagRow>
                           <StayTitle>{item.name}</StayTitle>
-                          {/* TourAPI 목록 응답엔 설명이 없다. 없으면 주소라도 보여준다. */}
                           <StayDesc>{item.summary || item.addr}</StayDesc>
                         </InfoGroup>
 
@@ -681,7 +656,7 @@ export default function HanokStayAccordion({
                             rel="noopener noreferrer"
                             onClick={(e) => e.stopPropagation()}
                           >
-                            실시간 예약하기 <ExternalLink size={13} strokeWidth={2} />
+                            지금 예약하기 <ExternalLink size={13} strokeWidth={2} />
                           </DirectBookingBtn>
                           {onSelectVillage && (
                             <DetailActionBtn
@@ -717,7 +692,7 @@ export default function HanokStayAccordion({
         <EmptyState role="status" aria-live="polite">
           {selectedRegion === '전체' ? (
             <>
-              <EmptyHeadline>아직 기록된 고택 스테이가 없습니다</EmptyHeadline>
+              <EmptyHeadline>아직 기록된 한옥 스테이가 없습니다</EmptyHeadline>
               <EmptyHint>잠시 뒤에 다시 열어 보시겠어요?</EmptyHint>
             </>
           ) : (
@@ -729,7 +704,7 @@ export default function HanokStayAccordion({
                 알려주시면 도감에 더하겠습니다.
               </EmptyHint>
               <EmptyAction type="button" onClick={() => handleRegionSelect('전체')}>
-                전국 고택 스테이 {allStays.length}곳 보기
+                전국 한옥 스테이 {allStays.length}곳 보기
               </EmptyAction>
             </>
           )}

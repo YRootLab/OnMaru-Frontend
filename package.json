@@ -10,6 +10,8 @@
     "test": "vitest run",
     "build:data": "node --env-file=.env.local scripts/build-data.mjs",
     "build:data:check": "node scripts/build-data.mjs --self-check",
+    "build:fallback": "node --env-file=.env.local scripts/build-fallback.mjs",
+    "build:fallback:check": "node scripts/build-fallback.mjs --self-check",
     "test:odii": "vitest run src/features/odii-audio/api/odiiApi.test.ts",
     "test:odii:live": "node scripts/test-odii-api.mjs",
     "probe": "node --env-file=.env.local scripts/probe-tourapi.mjs",

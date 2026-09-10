@@ -11,8 +11,6 @@ import HanokStayAccordion from '@/hanok/sections/HanokStayAccordion';
 import HanokMap from '@/hanok/sections/HanokMap';
 import HanokMonthly from '@/hanok/sections/HanokMonthly';
 import HanokManifestoCta from '@/hanok/sections/HanokManifestoCta';
-import HanokStructureCards from '@/hanok/structure/HanokStructureCards';
-import HanokParts from '@/hanok/structure/HanokParts';
 import type { Village, VillageMeta } from '@/hanok/types';
 import { decodeHanokArchivePayload } from '@/hanok/data/hanokArchiveFallback';
 import { HANOK_REVEAL_SECTIONS } from '@/hanok/hanokSectionReveal';
@@ -60,15 +58,6 @@ const ArchiveSection = styled.div`
 const Intro = styled.header`
   padding: clamp(40px, 7vh, 88px) 0 clamp(8px, 2vh, 20px);
   max-width: 760px;
-`;
-
-const Eyebrow = styled.p`
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: ${lightPalette.kobalt[500]};
-  margin: 0 0 14px;
 `;
 
 const PageTitle = styled.h1`
@@ -167,16 +156,15 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
         <VesselReveal id={HANOK_REVEAL_SECTIONS.intro} className="w-full py-6 sm:py-8 lg:py-10">
           <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
             <Intro>
-              <Eyebrow>온마루 한옥도감</Eyebrow>
               <PageTitle>지금 한옥은 어디에 남아 있을까</PageTitle>
               <Lead>
                 궁궐과 고택, 서원과 전통마을, 하룻밤 머물 수 있는 집까지.
                 계절마다 한 곳씩 들여다봅니다.
               </Lead>
-              <SourceNote>
+              {/* <SourceNote>
                 한국관광공사 관광정보 API(TourAPI)에서 실시간으로 가져옵니다 · 지금{' '}
                 <strong>{archiveData.meta.total}곳</strong>
-              </SourceNote>
+              </SourceNote> */}
             </Intro>
           </div>
         </VesselReveal>
@@ -231,36 +219,6 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
               </div>
             </VesselReveal>
           </ArchiveSection>
-        </ChapterBreak>
-
-        {/*
-          구조 챕터 — 절기에 따른 처마 그림자, 7단계 부재 조립.
-          카드를 눌러야 3D 모달이 열리므로 도감 본문 스크롤은 그대로 둔다.
-          (랜딩에서 옮겨 왔다. 원본은 src/temp/landing/)
-
-          전에는 진입부 바로 다음이었다. 한옥을 한 채도 보기 전에 처마의 원리부터 꺼내는
-          꼴이라 볼거리로만 읽혔고, 이 섹션만 모달로 나가는 인터랙션이라 초반 흐름을 끊었다.
-          여러 채를 훑은 뒤 "그런데 이 집들은 왜 이렇게 지었나"로 들어와야 매니페스토의
-          근거가 된다.
-        */}
-        <ChapterBreak>
-          <VesselReveal id={HANOK_REVEAL_SECTIONS.structure} className="w-full py-6 sm:py-8 lg:py-10">
-            <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
-              <HanokStructureCards />
-            </div>
-          </VesselReveal>
-
-          {/*
-            카드는 3D로 들어가는 문이고, 이 목록은 문을 열지 않아도 읽히는 본문이다.
-            같은 챕터라 여백을 크게 두지 않고 바로 잇는다.
-          */}
-          <EditorialSection>
-            <VesselReveal id={HANOK_REVEAL_SECTIONS.parts} className="w-full py-6 sm:py-8 lg:py-10">
-              <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
-                <HanokParts />
-              </div>
-            </VesselReveal>
-          </EditorialSection>
         </ChapterBreak>
 
         {/* 온마루 한옥 매니페스토 (자체 상하 여백을 가지고 있다) */}

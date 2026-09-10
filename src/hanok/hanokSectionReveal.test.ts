@@ -10,8 +10,6 @@ describe('HANOK_REVEAL_SECTION_IDS', () => {
       'hanok-grid',
       'hanok-stay',
       'hanok-map',
-      'hanok-structure',
-      'hanok-parts',
       'hanok-manifesto',
     ]);
   });

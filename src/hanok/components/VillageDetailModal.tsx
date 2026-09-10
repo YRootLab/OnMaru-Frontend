@@ -3,6 +3,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { X, MapPin, ChevronDown, ArrowRight, Sparkles, BookOpen, Clock, Calendar, Car, Phone, Globe, Info, Images } from 'lucide-react';
+import { STAY_TYPE } from '@/hanok/types';
 import type { Village, VillageDetailResponse } from '@/hanok/types';
 import { filterLabel } from '@/hanok/filterLabels';
 import {
@@ -82,6 +83,9 @@ function extractHomepageUrl(homepageHtml?: string | null): { url: string | null;
 }
 
 export default function VillageDetailModal({ village, onClose }: VillageDetailModalProps) {
+  // 숙소는 관람 시설이 아니다 — '관람', '문화유산 화보' 같은 말은 고궁·고택·민속마을에 맞는
+  // 말이지, 묵어가는 곳에는 맞지 않는다. 여기서만 문구를 바꿔 끼운다.
+  const isStay = village.type === STAY_TYPE;
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeImageIdx, setActiveImageIdx] = useState<number | null>(null);
   const [detailData, setDetailData] = useState<VillageDetailResponse | null>(null);
@@ -242,7 +246,7 @@ export default function VillageDetailModal({ village, onClose }: VillageDetailMo
               {!isLoadingOverview && hasOperationalInfo && (
                 <>
                   <SectionTitle>
-                    <Info size={16} strokeWidth={2} /> 관람 및 이용 안내
+                    <Info size={16} strokeWidth={2} /> {isStay ? '이용 안내' : '관람 및 이용 안내'}
                   </SectionTitle>
                   <InfoGrid>
                     {detailData?.usetime && (
@@ -315,7 +319,7 @@ export default function VillageDetailModal({ village, onClose }: VillageDetailMo
               {!isLoadingOverview && detailData?.repeatInfo && detailData.repeatInfo.length > 0 && (
                 <>
                   <SectionTitle>
-                    <BookOpen size={16} strokeWidth={2} /> 세부 관람 및 이용 요금 안내
+                    <BookOpen size={16} strokeWidth={2} /> {isStay ? '이용 요금 안내' : '세부 관람 및 이용 요금 안내'}
                   </SectionTitle>
                   <RepeatList>
                     {detailData.repeatInfo.map((info, idx) => (
@@ -331,7 +335,7 @@ export default function VillageDetailModal({ village, onClose }: VillageDetailMo
               {galleryImages.length > 1 && (
                 <GallerySection>
                   <SectionTitle>
-                    <Images size={16} strokeWidth={2} /> 문화유산 화보 갤러리 ({galleryImages.length})
+                    <Images size={16} strokeWidth={2} /> {isStay ? '사진' : '문화유산 화보 갤러리'} ({galleryImages.length})
                   </SectionTitle>
                   <GalleryGrid>
                     {galleryImages.map((img, idx) => (
