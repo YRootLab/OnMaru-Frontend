@@ -60,13 +60,6 @@ export const activeStageOf = (local) => {
   return index;
 };
 
-const statusOf = (local, i) => {
-  const [start, end] = STAGE_WINDOWS[i];
-  if (local >= end) return 'done';
-  if (local >= start) return 'current';
-  return 'wait';
-};
-
 // ─────────────────────────────────────────
 // 3D — 아카이브 조립 로직 이식
 // ─────────────────────────────────────────
@@ -266,29 +259,71 @@ const Layer = styled(motion.div)`
   right: 0;
 `;
 
+const titleGradient = `linear-gradient(135deg, ${meok[900]} 0%, ${meok[700]} 34%, ${lightPalette.juhong[700]} 72%, ${lightPalette.hwanggeum[700]} 100%)`;
+const titleGradientDark = `linear-gradient(135deg, ${meok[100]} 0%, ${meok[400]} 34%, ${lightPalette.juhong[400]} 72%, ${lightPalette.hwanggeum[400]} 100%)`;
+
 const TitleLine = styled.h2`
   margin: 0;
   display: flex;
   align-items: baseline;
-  font-size: clamp(48px, 5.5vw, 76px);
+  font-size: clamp(36px, 4vw, 56px);
   font-weight: 100;
   letter-spacing: -0.015em;
   line-height: 1.05;
-  background: linear-gradient(135deg, ${meok[900]} 0%, ${meok[700]} 34%, ${lightPalette.juhong[700]} 72%, ${lightPalette.hwanggeum[700]} 100%);
+  background: ${titleGradient};
   background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: ${goldShimmer} 6s ease-in-out infinite;
+
+  [data-theme='dark'] & {
+    background: ${titleGradientDark};
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
 `;
 
 const StepNumber = styled.span`
   margin-right: 16px;
+  font-size: 0.6em;
   font-weight: 500;
-  background: linear-gradient(135deg, ${meok[900]} 0%, ${meok[700]} 34%, ${lightPalette.juhong[700]} 72%, ${lightPalette.hwanggeum[700]} 100%);
+  background: ${titleGradient};
   background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: ${goldShimmer} 6s ease-in-out infinite;
+
+  [data-theme='dark'] & {
+    background: ${titleGradientDark};
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+`;
+
+/** 설명문에서 강조할 구절을 감싸는 형광펜 표시. */
+const Highlight = styled.mark`
+  background: none;
+  background-image: linear-gradient(
+    120deg,
+    rgba(255, 208, 38, 0.5) 0%,
+    rgba(255, 208, 38, 0.5) 100%
+  );
+  background-repeat: no-repeat;
+  background-size: 100% 40%;
+  background-position: 0 88%;
+  color: inherit;
+  font-weight: 500;
+  padding: 0 1px;
+
+  [data-theme='dark'] & {
+    background-image: linear-gradient(
+      120deg,
+      rgba(255, 208, 38, 0.3) 0%,
+      rgba(255, 208, 38, 0.3) 100%
+    );
+  }
 `;
 
 const Description = styled(motion.p)`
@@ -299,7 +334,21 @@ const Description = styled(motion.p)`
   line-height: 1.75;
   letter-spacing: -0.015em;
   color: ${meok[700]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
+
+/** "**강조**" 구간을 Highlight로 감싸 펼친다. */
+const renderDesc = (text) =>
+  text.split(/(\*\*[^*]+\*\*)/g).map((chunk, i) =>
+    chunk.startsWith('**') && chunk.endsWith('**') ? (
+      <Highlight key={i}>{chunk.slice(2, -2)}</Highlight>
+    ) : (
+      chunk
+    ),
+  );
 
 const ResultWrapper = styled(motion.div)`
   position: absolute;
@@ -317,7 +366,7 @@ const Result = styled(motion.p)`
   font-weight: 400;
   letter-spacing: -0.02em;
   line-height: 1.35;
-  background: linear-gradient(135deg, ${meok[900]} 0%, ${meok[700]} 34%, ${lightPalette.juhong[700]} 72%, ${lightPalette.hwanggeum[700]} 100%);
+  background: ${titleGradient};
   background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -327,28 +376,13 @@ const Result = styled(motion.p)`
   &:hover {
     animation-duration: 2.5s;
   }
-`;
 
-const Bars = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 40px;
-`;
-
-const Bar = styled.span`
-  height: 2px;
-  border-radius: 1px;
-  transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-    background-color 0.4s ease-out;
-
-  width: ${(props) => (props.status === 'current' ? '44px' : '28px')};
-  background: ${(props) =>
-    props.status === 'current'
-      ? meok[900]
-      : props.status === 'done'
-        ? lightPalette.juhong[400]
-        : 'rgba(25, 31, 40, 0.16)'};
+  [data-theme='dark'] & {
+    background: ${titleGradientDark};
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
 `;
 
 // ─────────────────────────────────────────
@@ -410,25 +444,12 @@ export default function HanokAssemblyPanel({ local }) {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, ease: EASE, delay: 0.08 }}
                 >
-                  {stage.desc}
+                  {renderDesc(stage.desc)}
                 </Description>
               </Layer>
             )}
           </AnimatePresence>
         </TextStack>
-
-        <Bars
-          role="progressbar"
-          aria-label="한옥 7단계 조립 진행 상태"
-          aria-valuemin={1}
-          aria-valuemax={7}
-          aria-valuenow={Math.max(1, activeIndex + 1)}
-          aria-valuetext={activeIndex >= 0 ? `${activeIndex + 1}단계 ${STAGES[activeIndex]?.nameKo || ''}` : '조립 준비'}
-        >
-          {STAGES.map((s, i) => (
-            <Bar key={s.id} status={statusOf(local, i)} />
-          ))}
-        </Bars>
       </Left>
     </Stage>
   );

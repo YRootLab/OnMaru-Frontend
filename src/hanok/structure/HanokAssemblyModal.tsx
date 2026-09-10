@@ -53,12 +53,21 @@ const Body = styled.div`
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: radial-gradient(
-    ellipse 90% 80% at 62% 30%,
-    ${lightPalette.hwanggeum[50]} 0%,
-    ${surface.light.base} 58%,
-    #ffffff 100%
-  );
+  background: ${surface.light.base};
+
+  --sim-fade: rgba(255, 255, 255, 0.94);
+  --sim-pill: rgba(255, 255, 255, 0.9);
+  --sim-pill-border: rgba(25, 31, 40, 0.12);
+  --sim-ink-weak: ${meok[500]};
+
+  [data-theme='dark'] & {
+    background: ${surface.dark.surface};
+
+    --sim-fade: rgba(28, 26, 23, 0.94);
+    --sim-pill: rgba(45, 41, 36, 0.9);
+    --sim-pill-border: rgba(255, 255, 255, 0.12);
+    --sim-ink-weak: ${meok[400]};
+  }
 `;
 
 const Scroller = styled.div`
@@ -107,7 +116,7 @@ const Controls = styled.div`
   overflow-x: auto;
   overscroll-behavior-x: contain;
   scrollbar-width: none;
-  background: linear-gradient(to top, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0));
+  background: linear-gradient(to top, var(--sim-fade), rgba(255, 255, 255, 0));
 
   &::-webkit-scrollbar {
     display: none;
@@ -132,11 +141,11 @@ const StepButton = styled.button<{ $active: boolean; $done: boolean }>`
 
   border: 1px solid
     ${({ $active, $done }) =>
-      $active ? 'transparent' : $done ? lightPalette.juhong[200] : 'rgba(25, 31, 40, 0.12)'};
+      $active ? 'transparent' : $done ? lightPalette.juhong[200] : 'var(--sim-pill-border)'};
   border-radius: 9999px;
-  background: ${({ $active }) => ($active ? meok[900] : 'rgba(255, 255, 255, 0.9)')};
+  background: ${({ $active }) => ($active ? meok[900] : 'var(--sim-pill)')};
   color: ${({ $active, $done }) =>
-    $active ? '#ffffff' : $done ? lightPalette.juhong[700] : meok[500]};
+    $active ? '#ffffff' : $done ? lightPalette.juhong[700] : 'var(--sim-ink-weak)'};
   font-family: inherit;
   font-size: 12px;
   font-weight: 500;
@@ -167,7 +176,7 @@ const ScrollHint = styled.p`
   text-align: center;
   font-size: 12.5px;
   font-weight: 400;
-  color: ${meok[500]};
+  color: var(--sim-ink-weak);
   pointer-events: none;
 `;
 
