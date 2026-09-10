@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { AlertCircle, MapPin, ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
 import { lightPalette, meok } from '@/design-system/tokens';
 import type { Village } from '@/hanok/types';
+import { filterLabel } from '@/hanok/filterLabels';
 import { createKakaoResourceScope, type KakaoResourceScope } from './kakaoMapResources';
 
 // Light Kobalt & Soft Gray Theme Tokens
@@ -809,7 +810,7 @@ export default function HanokInteractiveMapFrame({
                   <MiniInfo>
                     <MiniTitle>{v.name}</MiniTitle>
                     <MiniMeta>
-                      {v.region} · {v.type}
+                      {v.region} · {filterLabel(v.type)}
                     </MiniMeta>
                   </MiniInfo>
                 </MiniCard>

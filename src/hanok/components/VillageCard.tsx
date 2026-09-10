@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
 import { meok, lightPalette } from '@/design-system/tokens';
 import type { Village } from '@/hanok/types';
+import { filterLabel } from '@/hanok/filterLabels';
 
 const Card = styled(motion.article, transientProps)`
   position: relative;
@@ -166,7 +167,7 @@ export default function VillageCard({ village, onClick }: VillageCardProps) {
       <GradientOverlay>
         <HeaderRow>
           <Name>{village.name}</Name>
-          <TypeBadge>{village.type}</TypeBadge>
+          <TypeBadge>{filterLabel(village.type)}</TypeBadge>
         </HeaderRow>
 
         {village.summary && <Summary>{village.summary}</Summary>}
@@ -174,7 +175,7 @@ export default function VillageCard({ village, onClick }: VillageCardProps) {
         <BadgeRow>
           <Badge>{village.region}</Badge>
           {village.badges.slice(0, 2).map((b) => (
-            <Badge key={b}>#{b}</Badge>
+            <Badge key={b}>#{filterLabel(b)}</Badge>
           ))}
         </BadgeRow>
 

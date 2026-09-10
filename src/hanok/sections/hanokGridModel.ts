@@ -20,6 +20,8 @@ export function getHanokGridPage(
   currentPage: number,
 ): HanokGridPage {
   const filtered = villages.filter((village) => {
+    // 스테이는 아래 '지역별 고택 스테이' 섹션이 따로 맡는다. 여기서 빼지 않으면
+    // 같은 100곳이 두 번 세어져 도감 곳수와 전체 수집분의 합이 어긋난다.
     if (village.type === STAY_TYPE) return false;
     if (activeType !== '전체' && village.type !== activeType) return false;
     return activeBadges.length === 0 || activeBadges.every((badge) => village.badges.includes(badge));

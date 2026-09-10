@@ -33,8 +33,10 @@ const RegionFilterBar = styled.div`
   }
 `;
 
-const RegionFilterChip = styled.button<{ $active: boolean }>`
-
+const RegionFilterChip = styled.button<{ $active: boolean; $empty?: boolean }>`
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
   background: ${({ $active }) =>
     $active ? lightPalette.kobalt[500] : '#ffffff'};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[900])};
@@ -44,13 +46,25 @@ const RegionFilterChip = styled.button<{ $active: boolean }>`
   border-radius: 9999px;
   cursor: pointer;
   white-space: nowrap;
+  /* 0곳인 지역도 지우지 않는다. 스테이가 어디에 몰려 있고 어디가 비어 있는지가
+     이 섹션이 하려는 말이다. 눌러도 빈 화면이 아니라 제보 권유가 받아 준다. */
+  opacity: ${({ $active, $empty }) => (!$active && $empty ? 0.45 : 1)};
   transition: all 0.18s ease;
 
   &:hover {
     border-color: ${lightPalette.kobalt[400]};
     background: ${({ $active }) =>
       $active ? lightPalette.kobalt[500] : '#f8fafc'};
+    opacity: 1;
   }
+`;
+
+/* 개수는 지역명보다 한 단계 물러나 있어야 이름이 먼저 읽힌다 */
+const RegionChipCount = styled.span<{ $active: boolean }>`
+  font-size: 11px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  color: ${({ $active }) => ($active ? 'rgba(255, 255, 255, 0.75)' : meok[400])};
 `;
 
 const AccordionContainer = styled.div`
@@ -317,15 +331,58 @@ const RefreshBtn = styled.button`
   }
 `;
 
+/*
+  빈 지역은 막다른 길이 아니다. 실제 고택 스테이는 경북·전북에 몰려 있어
+  부산·제주 같은 곳은 한두 곳뿐이거나 아예 없다. 그 사실을 숨기지 않되,
+  "없다"로 끝내지 말고 다음 행동을 쥐여 준다.
+*/
 const EmptyState = styled.div`
   min-height: 240px;
   background: rgba(78, 89, 104, 0.03);
-
   border-radius: 24px;
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 32px 24px;
+  text-align: center;
+`;
+
+const EmptyHeadline = styled.p`
+  margin: 0;
+  font-size: clamp(16px, 1.8vw, 19px);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  color: ${meok[900]};
+  word-break: keep-all;
+`;
+
+const EmptyHint = styled.p`
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 400;
+  line-height: 1.7;
   color: ${meok[500]};
-  font-size: 14px;
+  word-break: keep-all;
+`;
+
+const EmptyAction = styled.button`
+  margin-top: 6px;
+  padding: 10px 22px;
+  border-radius: 9999px;
+  background: ${meok[900]};
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+
+  &:hover {
+    opacity: 0.88;
+    transform: translateY(-1px);
+  }
 `;
 
 const FALLBACK_STAYS: Village[] = [
@@ -484,6 +541,16 @@ export default function HanokStayAccordion({
     return allStays.filter((s) => s.region.includes(selectedRegion));
   }, [allStays, selectedRegion]);
 
+  // 칩마다 filter를 돌리면 지역 수만큼 전체 순회가 반복된다. 한 번에 세어 둔다.
+  const countByRegion = useMemo(() => {
+    const counts: Record<string, number> = { 전체: allStays.length };
+    for (const tab of REGION_TABS) {
+      if (tab === '전체') continue;
+      counts[tab] = allStays.filter((s) => s.region.includes(tab)).length;
+    }
+    return counts;
+  }, [allStays]);
+
   const maxPages = Math.max(1, Math.ceil(regionFilteredStays.length / BATCH_SIZE));
   const currentBatch = useMemo(() => {
     const start = (page % maxPages) * BATCH_SIZE;
@@ -508,19 +575,26 @@ export default function HanokStayAccordion({
         title="지역별 고택 스테이"
         // 부제는 도감 전체 규모를 말한다. 지역을 골라도 흔들리지 않아야
         // '전국'이라는 말과 어긋나지 않는다. 지금 몇 곳을 보고 있는지는 하단 페이저가 맡는다.
-        subtitle={`대청마루와 온돌을 갖춘 전국 고택 스테이 ${allStays.length}곳`}
+        subtitle={`${allStays.length}곳`}
       />
 
       <RegionFilterBar>
-        {REGION_TABS.map((reg) => (
-          <RegionFilterChip
-            key={reg}
-            $active={selectedRegion === reg}
-            onClick={() => handleRegionSelect(reg)}
-          >
-            {reg}
-          </RegionFilterChip>
-        ))}
+        {REGION_TABS.map((reg) => {
+          const count = countByRegion[reg] ?? 0;
+          const isActive = selectedRegion === reg;
+          return (
+            <RegionFilterChip
+              key={reg}
+              $active={isActive}
+              $empty={count === 0}
+              onClick={() => handleRegionSelect(reg)}
+              aria-label={`${reg} ${count}곳`}
+            >
+              {reg}
+              <RegionChipCount $active={isActive}>{count}</RegionChipCount>
+            </RegionFilterChip>
+          );
+        })}
       </RegionFilterBar>
 
       {currentBatch.length > 0 ? (
@@ -609,9 +683,24 @@ export default function HanokStayAccordion({
         </>
       ) : (
         <EmptyState role="status" aria-live="polite">
-          {selectedRegion === '전체'
-            ? '등록된 고택 스테이가 아직 없습니다.'
-            : `${selectedRegion}에는 아직 고택 스테이가 없습니다. 다른 지역을 골라 보세요.`}
+          {selectedRegion === '전체' ? (
+            <>
+              <EmptyHeadline>아직 기록된 고택 스테이가 없습니다</EmptyHeadline>
+              <EmptyHint>잠시 뒤에 다시 열어 보시겠어요?</EmptyHint>
+            </>
+          ) : (
+            <>
+              <EmptyHeadline>{selectedRegion}에는 아직 묵어갈 한옥이 없습니다</EmptyHeadline>
+              <EmptyHint>
+                이 지역에서 하룻밤 묵어본 한옥이 있으신가요?
+                <br />
+                알려주시면 도감에 더하겠습니다.
+              </EmptyHint>
+              <EmptyAction type="button" onClick={() => handleRegionSelect('전체')}>
+                전국 고택 스테이 {allStays.length}곳 보기
+              </EmptyAction>
+            </>
+          )}
         </EmptyState>
       )}
     </Section>

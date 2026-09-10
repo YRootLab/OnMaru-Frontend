@@ -52,7 +52,6 @@ export default function HanokMap({ villages, onSelectVillage }: HanokMapProps) {
       <SectionHeader
         id="map-heading"
         title="전국 지도"
-        subtitle="지도에서 내 주변에 남은 한옥을 찾아보세요"
         actionLabel="전체 지도 열기 ↗"
         actionHref="/map"
       />

@@ -7,6 +7,7 @@ import { meok, lightPalette } from '@/design-system/tokens';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import PolaroidCard from '@/hanok/components/PolaroidCard';
 import type { Village } from '@/hanok/types';
+import { filterLabel } from '@/hanok/filterLabels';
 
 // 12개월치 에디터 큐레이션 스토리 데이터 (미리 작성되어 자동 운영 가능)
 //
@@ -24,7 +25,7 @@ const MONTHLY_CURATIONS: Record<number, MonthlyCuration> = {
   1: {
     contentId: '126508', // 경복궁
     handNote: '눈 내린 궁궐에서',
-    curatorComment: '서설이 덮인 기와지붕 아래에서 새해 첫 숨을 고릅니다. 왕실의 온기가 남은 낙선재 툇마루에 잠시 앉아 보세요.',
+    curatorComment: '첫눈이 덮인 기와지붕 아래에서 새해 첫 숨을 고릅니다. 왕실의 온기가 남은 낙선재 툇마루에 잠시 앉아 보세요.',
     matchKeyword: '경복궁',
   },
   2: {
@@ -42,13 +43,13 @@ const MONTHLY_CURATIONS: Record<number, MonthlyCuration> = {
   4: {
     contentId: '128994', // 구례 운조루 고택
     handNote: '살구꽃 흩날리는 구례에서',
-    curatorComment: '지리산 자락 솟을대문 너머로 꽃잎이 날립니다. 누구나 쌀을 퍼 가게 했던 타인능해 쌀궤에서 나눔의 뜻을 읽습니다.',
+    curatorComment: '지리산 자락 솟을대문 너머로 꽃잎이 날립니다. 굶는 이가 없도록 쌀독을 열어 둔 집, 그 쌀궤가 아직 그 자리에 있습니다.',
     matchKeyword: '운조루',
   },
   5: {
     contentId: '894027', // 안동 하회마을
     handNote: '신록이 짙어지는 하회에서',
-    curatorComment: '낙동강이 마을을 휘돌아 나가고 솔숲이 초록으로 차오릅니다. 양진당 대청 툇간을 스치는 바람에 마음을 풀어 놓습니다.',
+    curatorComment: '낙동강이 마을을 휘돌아 나가고 솔숲이 초록으로 차오릅니다. 양진당 대청마루에 앉으면 강바람이 등을 스치고 지나갑니다.',
     matchKeyword: '하회',
   },
   6: {
@@ -71,7 +72,7 @@ const MONTHLY_CURATIONS: Record<number, MonthlyCuration> = {
   },
   9: {
     contentId: '126001', // 외암민속마을
-    handNote: '달빛 기우는 돌담길에서',
+    handNote: '가을 번지는 돌담길에서',
     curatorComment: '높고 푸른 하늘 아래 돌담길이 굽이집니다. 노랗게 익어가는 초가와 기와 사이로 가을이 번집니다.',
     matchKeyword: '외암',
   },
@@ -84,7 +85,7 @@ const MONTHLY_CURATIONS: Record<number, MonthlyCuration> = {
   11: {
     contentId: '1992090', // 논산 명재고택(윤증고택)
     handNote: '낙엽 쌓인 명재고택에서',
-    curatorComment: '장독대 위로 노란 은행잎이 쌓입니다. 비움의 미학이 담긴 명재고택에서 늦가을의 차분함을 누립니다.',
+    curatorComment: '장독대 위로 노란 은행잎이 쌓입니다. 담장도 대문도 두지 않은 집이라, 마당이 그대로 트여 있습니다.',
     matchKeyword: '명재',
   },
   12: {
@@ -306,10 +307,10 @@ export default function HanokMonthly({ villages, onSelectVillage, isFeaturedRead
             viewport={{ once: true }}
             transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
           >
-            <CategoryMeta>CURATOR&apos;S CHOICE · 계절의 기억</CategoryMeta>
+            <CategoryMeta>계절이 고른 한 곳</CategoryMeta>
 
             <FeaturedTitle>{targetVillage.name}</FeaturedTitle>
-            <SubRegionTag>{targetVillage.addr || targetVillage.region} · {targetVillage.type}</SubRegionTag>
+            <SubRegionTag>{targetVillage.addr || targetVillage.region} · {filterLabel(targetVillage.type)}</SubRegionTag>
 
             <StorySection>
               <QuoteHeader>

@@ -31,11 +31,10 @@ describe('getHanokGridPage', () => {
     expect(first.totalPages).toBe(2);
   });
 
-  it('excludes stays and applies every selected badge', () => {
+  it('applies every selected badge', () => {
     const villages = [
       village('matched', '고택·종택', ['고택', '국가지정']),
       village('partial', '고택·종택', ['고택']),
-      village('stay', STAY_TYPE, ['고택', '국가지정']),
     ];
 
     const result = getHanokGridPage(
@@ -58,5 +57,19 @@ describe('getHanokGridPage', () => {
 
     expect(result.items.map((item) => item.id)).toEqual(['house']);
     expect(result.filteredCount).toBe(1);
+  });
+
+  // 유형 칩은 실제 데이터의 type과 완전일치해야 한다. 예전엔 칩이 '궁궐 한옥',
+  // 데이터가 '궁궐·누각'이라 7개 칩 전부가 0건이었다.
+  it('matches the type values the archive service actually emits', () => {
+    const villages = [
+      village('palace', '궁궐·누각'),
+      village('house', '고택·종택'),
+      village('stay', STAY_TYPE),
+    ];
+
+    const result = getHanokGridPage(villages, { activeType: '궁궐·누각', activeBadges: [] }, 1);
+
+    expect(result.items.map((item) => item.id)).toEqual(['palace']);
   });
 });

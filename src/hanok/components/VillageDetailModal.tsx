@@ -4,6 +4,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { X, MapPin, ChevronDown, ArrowRight, Sparkles, BookOpen, Clock, Calendar, Car, Phone, Globe, Info, Images } from 'lucide-react';
 import type { Village, VillageDetailResponse } from '@/hanok/types';
+import { filterLabel } from '@/hanok/filterLabels';
 import {
   Overlay,
   ModalCard,
@@ -71,11 +72,11 @@ function extractHomepageUrl(homepageHtml?: string | null): { url: string | null;
   if (hrefMatch && hrefMatch[1]) {
     const rawUrl = hrefMatch[1].trim();
     const cleanUrl = rawUrl.startsWith('http://') ? `https://${rawUrl.slice(7)}` : rawUrl;
-    return { url: cleanUrl, label: '공식 웹사이트 바로가기' };
+    return { url: cleanUrl, label: '공식 웹사이트' };
   }
   const cleanText = cleanTourApiHtml(homepageHtml);
   if (cleanText.startsWith('http')) {
-    return { url: cleanText, label: '공식 웹사이트 바로가기' };
+    return { url: cleanText, label: '공식 웹사이트' };
   }
   return { url: null, label: '' };
 }
@@ -191,7 +192,7 @@ export default function VillageDetailModal({ village, onClose }: VillageDetailMo
 
             <Body>
               <MetaRow>
-                <TypeBadge>{village.type}</TypeBadge>
+                <TypeBadge>{filterLabel(village.type)}</TypeBadge>
                 <AddrText>
                   <MapPin size={13} strokeWidth={2} style={{ display: 'inline', marginRight: 4 }} />
                   {village.addr}
@@ -212,7 +213,7 @@ export default function VillageDetailModal({ village, onClose }: VillageDetailMo
                       {fetchedOverview ? <BookOpen size={16} strokeWidth={2} /> : <Sparkles size={16} strokeWidth={2} />}
                       <span>
                         {fetchedOverview
-                          ? '한국관광공사 문화유산 & 한옥 원본 상세 글'
+                          ? '한국관광공사 원문'
                           : '온마루 한옥도감 에디토리얼'}
                       </span>
                     </HeaderBadge>
@@ -225,7 +226,7 @@ export default function VillageDetailModal({ village, onClose }: VillageDetailMo
                   </StoryContainer>
                   {isLongContent && (
                     <ExpandBtn onClick={() => setIsExpanded(!isExpanded)}>
-                      {isExpanded ? '접기' : '더보기 (스토리 전문 읽기)'}{' '}
+                      {isExpanded ? '접기' : '전문 읽기'}{' '}
                       <ChevronDown
                         size={14}
                         strokeWidth={2}
@@ -250,7 +251,7 @@ export default function VillageDetailModal({ village, onClose }: VillageDetailMo
                           <Clock size={16} strokeWidth={2} />
                         </InfoIconBox>
                         <InfoContentBox>
-                          <InfoLabel>관람 / 이용 시간</InfoLabel>
+                          <InfoLabel>이용 시간</InfoLabel>
                           <InfoVal>{cleanTourApiHtml(detailData.usetime)}</InfoVal>
                         </InfoContentBox>
                       </InfoCard>
@@ -262,7 +263,7 @@ export default function VillageDetailModal({ village, onClose }: VillageDetailMo
                           <Calendar size={16} strokeWidth={2} />
                         </InfoIconBox>
                         <InfoContentBox>
-                          <InfoLabel>정기 휴무일</InfoLabel>
+                          <InfoLabel>휴무일</InfoLabel>
                           <InfoVal>{cleanTourApiHtml(detailData.restdate)}</InfoVal>
                         </InfoContentBox>
                       </InfoCard>
@@ -274,7 +275,7 @@ export default function VillageDetailModal({ village, onClose }: VillageDetailMo
                           <Car size={16} strokeWidth={2} />
                         </InfoIconBox>
                         <InfoContentBox>
-                          <InfoLabel>주차 시설</InfoLabel>
+                          <InfoLabel>주차</InfoLabel>
                           <InfoVal>{cleanTourApiHtml(detailData.parking)}</InfoVal>
                         </InfoContentBox>
                       </InfoCard>
@@ -348,10 +349,10 @@ export default function VillageDetailModal({ village, onClose }: VillageDetailMo
 
               {village.badges.length > 0 && (
                 <>
-                  <BadgeTitle>주요 특징 태그</BadgeTitle>
+                  <BadgeTitle>특징 태그</BadgeTitle>
                   <BadgeList>
                     {village.badges.map((b) => (
-                      <TagBadge key={b}>#{b}</TagBadge>
+                      <TagBadge key={b}>#{filterLabel(b)}</TagBadge>
                     ))}
                   </BadgeList>
                 </>
@@ -359,7 +360,7 @@ export default function VillageDetailModal({ village, onClose }: VillageDetailMo
 
               <ActionRow>
                 <MapBtn href={`/map?lat=${village.lat}&lng=${village.lng}`}>
-                  <MapPin size={15} strokeWidth={2} /> 지도에서 위치 탐색하기 <ArrowRight size={14} strokeWidth={2} />
+                  <MapPin size={15} strokeWidth={2} /> 지도에서 위치 보기 <ArrowRight size={14} strokeWidth={2} />
                 </MapBtn>
               </ActionRow>
             </Body>

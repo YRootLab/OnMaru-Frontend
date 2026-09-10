@@ -7,6 +7,7 @@ import { transientProps } from '@/design-system/styled';
 import { meok, lightPalette } from '@/design-system/tokens';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import type { Village } from '@/hanok/types';
+import { filterLabel } from '@/hanok/filterLabels';
 
 const HeroContainer = styled.section`
   position: relative;
@@ -179,7 +180,7 @@ export default function HanokHero({ villages, onSelectVillage }: HanokHeroProps)
           <span className="stamp" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
             <Sparkles size={13} strokeWidth={2} /> 온마루 스페셜 큐레이션
           </span>
-          <span>{current.region} · {current.type}</span>
+          <span>{current.region} · {filterLabel(current.type)}</span>
         </EyebrowBadge>
 
         <Title>{current.name}</Title>
