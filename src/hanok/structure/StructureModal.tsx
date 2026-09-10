@@ -19,7 +19,7 @@ const Overlay = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(0px, 2vw, 28px);
+  padding: clamp(12px, 2vw, 28px);
   background: rgba(25, 31, 40, 0.52);
   backdrop-filter: blur(3px);
 `;
@@ -29,9 +29,13 @@ const Shell = styled.div`
   width: min(1180px, 100%);
   height: min(760px, 100%);
   overflow: hidden;
-  border-radius: clamp(0px, 1.4vw, 18px);
+  border-radius: clamp(18px, 2.4vw, 28px);
   background: ${surface.light.base};
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
+
+  [data-theme='dark'] & {
+    background: ${surface.dark.surface};
+  }
 `;
 
 const CloseButton = styled.button`
@@ -49,6 +53,7 @@ const CloseButton = styled.button`
   border-radius: 9999px;
   background: rgba(255, 255, 255, 0.86);
   color: ${meok[700]};
+  transition: background 0.2s ease-out, color 0.2s ease-out;
   font-family: inherit;
   font-size: 12.5px;
   font-weight: 500;
@@ -57,6 +62,17 @@ const CloseButton = styled.button`
   &:hover {
     background: #ffffff;
     color: ${meok[900]};
+  }
+
+  [data-theme='dark'] & {
+    border-color: rgba(255, 255, 255, 0.14);
+    background: rgba(45, 41, 36, 0.86);
+    color: ${meok[400]};
+
+    &:hover {
+      background: ${surface.dark.elevated};
+      color: ${meok[100]};
+    }
   }
 `;
 

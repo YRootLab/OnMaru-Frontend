@@ -282,15 +282,32 @@ const ASSEMBLY_LIGHT = { key: 3.4, rim: 1.6, ambient: 1.6 };
  */
 const MODEL_SCALE = 1.35;
 
-/** 0.42 — 더 진하면 무겁고, 더 옅으면 계절에 따른 길이 변화가 눈에 안 들어온다 */
-const SHADOW_OPACITY = 0.42;
+/*
+  0.5 — 이 화면의 주인공은 그림자다.
+
+  0.42는 랜딩에서 물려받은 값이고, 거기서는 한옥이 스크롤 속 한 장면이었다. 여기서는
+  그림자 자체를 보라는 화면인데 화면에서 가장 짙은 게 헤드라인 글자였다. 주인공이
+  제일 짙어야 눈이 간다. 더 올리면 무겁고, 더 내리면 계절별 길이 변화가 눈에 안 들어온다.
+*/
+const SHADOW_OPACITY = 0.5;
 const SHADOW_COLOR = '#3A2E1F';
+
+/*
+  먹빛 바탕에서의 그림자.
+
+  캔버스가 투명이라 그림자는 바탕색 위에 얹힌다 — 밝은 바탕에서는 짙은 갈색 하나로
+  충분하지만, 먹빛 바탕에서는 그 갈색이 바탕과 같은 어둠이라 그림자가 통째로 묻힌다.
+  색은 완전한 검정으로 내리고 농도는 올려서, 바탕보다 확실히 더 어두운 자리를 만든다.
+  (한옥이 선 자리는 모달 배경이 가장 밝게 잡아두므로 그림자가 떨어질 여지가 있다.)
+*/
+const SHADOW_OPACITY_DARK = 0.62;
+const SHADOW_COLOR_DARK = '#000000';
 
 /**
  * 한옥 장면 한 벌. 구도를 잡으려면 모델 치수가 필요해서
  * 캔버스 안에서 bounding box를 한 번 재고 카메라·조명을 함께 배치한다.
  */
-export default function HanokStructureScene({ progress }) {
+export default function HanokStructureScene({ progress, dark = false }) {
   const { scene } = useGLTF(MODEL_URL);
   const size = useThree((s) => s.size);
 
@@ -379,17 +396,21 @@ export default function HanokStructureScene({ progress }) {
         {/* 그림자를 받는 바닥 */}
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
           <planeGeometry args={[120, 120]} />
-          <shadowMaterial opacity={SHADOW_OPACITY} transparent />
+          <shadowMaterial
+            color={dark ? SHADOW_COLOR_DARK : SHADOW_COLOR}
+            opacity={dark ? SHADOW_OPACITY_DARK : SHADOW_OPACITY}
+            transparent
+          />
         </mesh>
 
         <ContactShadows
           position={[0, 0, 0]}
-          opacity={SHADOW_OPACITY * 0.6}
+          opacity={(dark ? SHADOW_OPACITY_DARK : SHADOW_OPACITY) * 0.6}
           scale={model.footprint * 2.5}
           blur={2.0}
           far={model.height * 2}
           resolution={1024}
-          color={SHADOW_COLOR}
+          color={dark ? SHADOW_COLOR_DARK : SHADOW_COLOR}
         />
       </group>
     </>

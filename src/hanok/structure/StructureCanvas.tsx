@@ -14,6 +14,8 @@ import styled from '@emotion/styled';
 import * as THREE from 'three';
 import { Canvas } from '@react-three/fiber';
 
+import { useOnmaruTheme } from '@/design-system/ThemeProvider';
+
 // 3D는 도감 본문보다 무겁다. 모달을 열 때 비로소 받아온다.
 const HanokStructureScene = dynamic(() => import('./HanokStructureScene'), { ssr: false });
 
@@ -25,6 +27,15 @@ const Layer = styled.div`
 `;
 
 export default function StructureCanvas({ progress }: { progress: number }) {
+  /*
+    씬 안에서는 테마를 읽을 수 없다.
+
+    react-three-fiber는 자체 리컨실러로 그리므로 바깥 React 트리의 컨텍스트가 <Canvas>
+    안까지 따라 들어가지 않는다. 그림자 농도는 바탕색에 따라 달라져야 하니, 컨텍스트가
+    살아 있는 여기서 읽어 값으로 건넨다.
+  */
+  const { mode } = useOnmaruTheme();
+
   return (
     <Layer aria-hidden="true">
       <Canvas
@@ -35,7 +46,7 @@ export default function StructureCanvas({ progress }: { progress: number }) {
         style={{ position: 'absolute', inset: 0, background: 'transparent' }}
       >
         <Suspense fallback={null}>
-          <HanokStructureScene progress={progress} />
+          <HanokStructureScene progress={progress} dark={mode === 'dark'} />
         </Suspense>
       </Canvas>
     </Layer>
