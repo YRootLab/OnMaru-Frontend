@@ -39,6 +39,11 @@ export interface VillageMeta {
   byType: Record<string, number>;
   imageRate: number;
   badgeStats: Record<string, number>;
+  /**
+   * 유형별로 관광공사가 가진 전체 건수. 수집분(byType)과 다를 수 있다.
+   * 화면이 '전수'인지 '수집분'인지 말하려면 이 값이 있어야 한다.
+   */
+  sourceTotals?: Record<string, number>;
   badgeFallbackCount: number;
 }
 
