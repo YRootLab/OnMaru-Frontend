@@ -27,10 +27,11 @@ const FALLBACK_HANOK_IMAGES = [
   '/images/hanok/maru-detail.png',
 ];
 
+/* HanokMap의 MapWrapper와 같은 식이어야 한다. 다르면 프레임이 감싸는 상자를 비집는다. */
 const Frame = styled.div`
   position: relative;
   width: 100%;
-  height: 580px;
+  height: clamp(360px, 60vh, 580px);
   overflow: hidden;
   border-radius: 28px;
   background: #ffffff;

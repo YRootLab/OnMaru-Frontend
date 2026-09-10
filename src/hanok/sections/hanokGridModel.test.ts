@@ -31,10 +31,14 @@ describe('getHanokGridPage', () => {
     expect(first.totalPages).toBe(2);
   });
 
-  it('applies every selected badge', () => {
+  // 태그는 좁히는 장치가 아니라 넓히는 장치다. every였을 때는 희박한 태그 둘만 골라도
+  // 교집합이 비어 빈 화면이 나왔다.
+  it('keeps places matching any selected badge', () => {
     const villages = [
-      village('matched', '고택·종택', ['고택', '국가지정']),
-      village('partial', '고택·종택', ['고택']),
+      village('both', '고택·종택', ['고택', '국가지정']),
+      village('one', '고택·종택', ['고택']),
+      village('other', '고택·종택', ['국가지정']),
+      village('none', '고택·종택', ['돌담길']),
     ];
 
     const result = getHanokGridPage(
@@ -43,8 +47,8 @@ describe('getHanokGridPage', () => {
       1,
     );
 
-    expect(result.items.map((item) => item.id)).toEqual(['matched']);
-    expect(result.filteredCount).toBe(1);
+    expect(result.items.map((item) => item.id)).toEqual(['both', 'one', 'other']);
+    expect(result.filteredCount).toBe(3);
   });
 
   // 유형 필터가 '전체'면 스테이 제외 가드만이 스테이를 걸러낼 수 있다.

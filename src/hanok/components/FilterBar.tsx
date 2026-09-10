@@ -113,6 +113,13 @@ const BadgeList = styled.div`
   flex: 1;
 `;
 
+/* 칩 안의 개수. 색을 따로 주지 않고 흐리기만 해서 태그 이름을 가리지 않는다. */
+const BadgeCount = styled.span`
+  margin-left: 5px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.6;
+`;
+
 const BadgeChip = styled.button<{ $active: boolean }>`
   background: ${({ $active }) =>
     $active
@@ -209,13 +216,26 @@ export default function FilterBar({
     return ['전체', ...[...present].sort((a, b) => a.localeCompare(b, 'ko'))];
   }, [villages]);
 
-  const allBadges = useMemo(() => {
-    const present = new Set<string>();
+  /*
+    태그마다 몇 곳인지 세어 둔다.
+
+    세계유산 1곳, 돌담길 2곳처럼 희박한 태그가 섞여 있어서, 개수를 안 적으면 눌러 본
+    뒤에야 한 곳뿐인 걸 알게 된다. 세는 모집단은 그리드와 같아야 한다 —
+    getHanokGridPage가 스테이를 빼므로 여기서도 뺀다. 안 그러면 적힌 수보다 적게 나온다.
+  */
+  const badgeCounts = useMemo(() => {
+    const counts = new Map<string, number>();
     for (const v of villages) {
-      for (const b of v.badges) present.add(b);
+      if (v.type === STAY_TYPE) continue;
+      for (const b of v.badges) counts.set(b, (counts.get(b) ?? 0) + 1);
     }
-    return MAJOR_BADGES.filter((b) => present.has(b));
-  }, [villages, MAJOR_BADGES]);
+    return counts;
+  }, [villages]);
+
+  const allBadges = useMemo(
+    () => MAJOR_BADGES.filter((b) => (badgeCounts.get(b) ?? 0) > 0),
+    [badgeCounts, MAJOR_BADGES],
+  );
 
   return (
     <Wrapper>
@@ -264,8 +284,10 @@ export default function FilterBar({
                   $active={isActive}
                   onClick={() => onBadgeToggle(b)}
                   aria-pressed={isActive}
+                  aria-label={`${filterLabel(b)} ${badgeCounts.get(b)}곳`}
                 >
                   #{filterLabel(b)}
+                  <BadgeCount>{badgeCounts.get(b)}</BadgeCount>
                 </BadgeChip>
               );
             })}

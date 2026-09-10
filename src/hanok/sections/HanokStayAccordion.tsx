@@ -486,21 +486,34 @@ const FALLBACK_STAYS: Village[] = [
   },
 ];
 
-const REGION_TABS = [
-  '전체',
+/*
+  시도를 행정구역 순으로 적어 둔 기준표. 탭 자체는 여기서 바로 그리지 않는다.
+
+  전에는 이 배열이 곧 탭이었다. 그래서 두 가지가 동시에 틀렸다 —
+  경북·경남·전남·광주·울산이 아예 빠져 있어 고택이 가장 많은 지역을 고를 수 없었고,
+  마지막의 '전남광주통합특별시'는 region 값('전남'·'광주')과 겹치는 글자가 없어
+  영원히 0곳인 칩으로 남아 있었다. 0곳 칩 다섯 개가 나란히 선 화면이 그 결과다.
+
+  순서만 여기서 정하고, 실제로 설 탭은 수집분에 있는 지역으로 고른다.
+*/
+const REGION_ORDER = [
   '서울',
   '부산',
   '대구',
   '인천',
+  '광주',
   '대전',
+  '울산',
   '세종',
   '경기',
   '강원',
   '충북',
   '충남',
   '전북',
+  '전남',
+  '경북',
+  '경남',
   '제주',
-  '전남광주통합특별시',
 ];
 
 const ICONS = [
@@ -528,13 +541,32 @@ export default function HanokStayAccordion({
   const [page, setPage] = useState(0);
 
   const allStays = useMemo(() => {
-    // 예전엔 '고택' 뱃지만 붙어도 스테이로 셌다. 그러면 묵을 수 없는 고택까지 '숙소 N곳'에
-    // 들어가고, 도감(스테이 제외)과 합이 전체 수집분을 넘어선다. 실제 숙박(contentTypeId 32)만.
-    // 아코디언은 사진이 전부다. 이미지 없는 항목은 까만 빈 알약으로 남아 없느니만 못하다.
-    const fetched = villages.filter((v) => v.type === STAY_TYPE && v.hasImage);
+    /*
+      예전엔 '고택' 뱃지만 붙어도 스테이로 셌다. 그러면 묵을 수 없는 고택까지 '숙소 N곳'에
+      들어가고, 도감(스테이 제외)과 합이 전체 수집분을 넘어선다. 실제 숙박만 센다.
+
+      여기에 hasImage 조건이 하나 더 붙어 있었다. 사진 없는 알약이 볼품없다는 이유였는데,
+      도감 그리드는 스테이를 통째로 빼므로 그렇게 걸러진 곳은 페이지 어디에도 남지 않았다.
+      인트로가 259곳이라 적고 도감이 159곳, 여기가 88곳이던 산술이 그 12곳이다.
+      PillImageLayer가 사진 없을 때 쓸 바탕을 이미 갖고 있으니 조건을 걷는다.
+    */
+    const fetched = villages.filter((v) => v.type === STAY_TYPE);
     if (fetched.length >= 3) return fetched;
     return FALLBACK_STAYS;
   }, [villages]);
+
+  /*
+    설 탭은 수집분이 정한다.
+
+    한 곳도 없는 지역을 세워 두면 '눌러도 아무 일이 없는 칩'이 되고, 그런 칩이 여럿이면
+    데이터가 비어 보인다. 없는 지역은 아예 세우지 않는다.
+  */
+  const regionTabs = useMemo(() => {
+    const present = REGION_ORDER.filter((region) =>
+      allStays.some((stay) => stay.region.includes(region)),
+    );
+    return ['전체', ...present];
+  }, [allStays]);
 
   const regionFilteredStays = useMemo(() => {
     if (selectedRegion === '전체') return allStays;
@@ -544,12 +576,12 @@ export default function HanokStayAccordion({
   // 칩마다 filter를 돌리면 지역 수만큼 전체 순회가 반복된다. 한 번에 세어 둔다.
   const countByRegion = useMemo(() => {
     const counts: Record<string, number> = { 전체: allStays.length };
-    for (const tab of REGION_TABS) {
+    for (const tab of regionTabs) {
       if (tab === '전체') continue;
       counts[tab] = allStays.filter((s) => s.region.includes(tab)).length;
     }
     return counts;
-  }, [allStays]);
+  }, [allStays, regionTabs]);
 
   const maxPages = Math.max(1, Math.ceil(regionFilteredStays.length / BATCH_SIZE));
   const currentBatch = useMemo(() => {
@@ -579,7 +611,7 @@ export default function HanokStayAccordion({
       />
 
       <RegionFilterBar>
-        {REGION_TABS.map((reg) => {
+        {regionTabs.map((reg) => {
           const count = countByRegion[reg] ?? 0;
           const isActive = selectedRegion === reg;
           return (

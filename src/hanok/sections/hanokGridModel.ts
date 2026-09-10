@@ -24,7 +24,15 @@ export function getHanokGridPage(
     // 같은 100곳이 두 번 세어져 도감 곳수와 전체 수집분의 합이 어긋난다.
     if (village.type === STAY_TYPE) return false;
     if (activeType !== '전체' && village.type !== activeType) return false;
-    return activeBadges.length === 0 || activeBadges.every((badge) => village.badges.includes(badge));
+    /*
+      고른 태그 중 하나라도 걸리면 남긴다.
+
+      전에는 every였다 — 고른 태그를 전부 가진 곳만 남겼다. 수집분의 태그 분포가
+      세계유산 1곳, 돌담길 2곳, 궁궐 3곳처럼 희박해서, 두 개만 눌러도 교집합이
+      사실상 비었다. 태그 칩은 좁히는 장치가 아니라 넓히는 장치로 읽히므로
+      '둘 다'가 아니라 '둘 중 아무거나'가 맞다.
+    */
+    return activeBadges.length === 0 || activeBadges.some((badge) => village.badges.includes(badge));
   });
   const safePage = Math.max(1, currentPage);
 
