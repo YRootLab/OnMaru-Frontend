@@ -16,13 +16,22 @@ import { meok, lightPalette, surface } from '@/design-system/tokens';
 
 const SolarShadowModal = dynamic(() => import('./SolarShadowModal'), { ssr: false });
 const HanokAssemblyModal = dynamic(() => import('./HanokAssemblyModal'), { ssr: false });
+const HanokExploreModal = dynamic(() => import('./HanokExploreModal'), { ssr: false });
 
-type OpenModal = 'shadow' | 'assembly' | null;
+type OpenModal = 'shadow' | 'assembly' | 'explore' | null;
 
+/*
+  카드 셋은 각각 다른 축이다 — 빛(절기), 순서(조립), 부재(뜯어보기).
+  같은 한옥을 세 방향에서 여는 문이라 나란히 서야 한다.
+*/
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: clamp(12px, 1.6vw, 20px);
+
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 
   @media (max-width: 720px) {
     grid-template-columns: 1fr;
@@ -170,6 +179,34 @@ const AssemblyPreview = styled(Preview)`
   }
 `;
 
+/** 부재 세 조각 중 하나에만 불이 들어온 정지 프레임. 누르면 저렇게 된다는 뜻. */
+const ExplorePreview = styled(Preview)`
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 10px;
+  padding-bottom: 22%;
+
+  span {
+    width: 14%;
+    border-radius: 3px;
+    background: ${meok[400]};
+  }
+
+  span:nth-of-type(1) {
+    height: 38%;
+  }
+
+  span:nth-of-type(2) {
+    height: 56%;
+    background: ${lightPalette.kobalt[500]};
+  }
+
+  span:nth-of-type(3) {
+    height: 30%;
+  }
+`;
+
 export default function HanokStructureCards() {
   const [open, setOpen] = useState<OpenModal>(null);
   const close = () => setOpen(null);
@@ -218,10 +255,33 @@ export default function HanokStructureCards() {
             7단계 조립 열기 <span aria-hidden="true">→</span>
           </Cue>
         </Card>
+
+        <Card
+          type="button"
+          onClick={() => setOpen('explore')}
+          $tint={lightPalette.kobalt[50]}
+          $edge={lightPalette.kobalt[100]}
+        >
+          <Eyebrow $color={lightPalette.kobalt[700]}>부재</Eyebrow>
+          <CardTitle>기둥을 누르면 기둥 이야기가 열린다</CardTitle>
+          <CardDesc>
+            완성된 한옥을 직접 눌러 보세요. 누른 부재에 불이 들어오고 그 켜의 이름과
+            하는 일이 열립니다.
+          </CardDesc>
+          <ExplorePreview aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </ExplorePreview>
+          <Cue $color={lightPalette.kobalt[700]}>
+            한 채 뜯어보기 <span aria-hidden="true">→</span>
+          </Cue>
+        </Card>
       </Grid>
 
       {open === 'shadow' && <SolarShadowModal onClose={close} />}
       {open === 'assembly' && <HanokAssemblyModal onClose={close} />}
+      {open === 'explore' && <HanokExploreModal onClose={close} />}
     </>
   );
 }

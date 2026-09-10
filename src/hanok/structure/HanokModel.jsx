@@ -6,8 +6,12 @@ import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 
 import { usePrefersReducedMotion } from './motion';
+import { stageIndexForMesh } from './stages';
 
 export const MODEL_URL = '/anchae.glb';
+
+/** 고른 켜에 얹는 은은한 발광. 색을 바꾸지 않고 '지금 이것'만 말하는 정도. */
+const HIGHLIGHT_EMISSIVE = 0x4a3a12;
 useGLTF.preload(MODEL_URL);
 
 const WIRE_OPACITY = 0.85;
@@ -56,7 +60,11 @@ const wire = createWireframeMaterials();
  * 언제·얼마나 보이는지는 Beat2가 정하고(getBeat2Scene), 여기서는 mesh에 먹이기만 한다.
  * 흔들리는 것은 Beat3a의 버튼이 신호를 보낼 때뿐이다.
  */
-export default function HanokModel({ wireframe = { on: false, drawn: 1, scale: 1 } }) {
+export default function HanokModel({
+  wireframe = { on: false, drawn: 1, scale: 1 },
+  onSelectMesh,
+  highlightStage = -1,
+}) {
   const { scene } = useGLTF(MODEL_URL);
   const reduced = usePrefersReducedMotion();
 
@@ -126,6 +134,30 @@ export default function HanokModel({ wireframe = { on: false, drawn: 1, scale: 1
     };
   }, [scene]);
 
+  /*
+    고른 켜에 불을 넣는다.
+
+    재질을 갈아끼우지 않고 emissive만 올린다 — 색과 질감은 그대로 두고 '지금 이것'만
+    말하면 된다. 재질은 위에서 메시마다 복제해 두었으므로 여기서 건드려도 다른 켜나
+    다른 모달의 한옥으로 새지 않는다.
+  */
+  useEffect(() => {
+    if (wireframe.on) return undefined;
+
+    states.forEach((entry) => {
+      const lit = highlightStage >= 0 && stageIndexForMesh(entry.mesh.name) === highlightStage;
+
+      materialsOf(entry.original).forEach((mat) => {
+        if (!mat.emissive) return;
+        mat.emissive.setHex(lit ? HIGHLIGHT_EMISSIVE : 0x000000);
+        mat.emissiveIntensity = lit ? 1 : 0;
+        mat.needsUpdate = true;
+      });
+    });
+
+    return undefined;
+  }, [highlightStage, states, wireframe.on]);
+
   useEffect(() => {
     if (wireframe.on) {
       states.forEach((entry) => {
@@ -145,6 +177,19 @@ export default function HanokModel({ wireframe = { on: false, drawn: 1, scale: 1
 
     return undefined;
   }, [wireframe.on, states]);
+
+  /*
+    떠날 때 커서를 돌려놓는다.
+
+    부재 위에 손을 얹은 채로 모달이 닫히면 pointerOut이 오지 않는다 — 캔버스가
+    먼저 사라지기 때문이다. 그대로 두면 도감 본문에서 계속 손가락 커서가 뜬다.
+  */
+  useEffect(
+    () => () => {
+      document.body.style.cursor = '';
+    },
+    [],
+  );
 
   /*
     마우스 틸팅.
@@ -204,7 +249,20 @@ export default function HanokModel({ wireframe = { on: false, drawn: 1, scale: 1
     <group ref={shakeRef}>
       <group ref={tiltRef}>
         <group position={offset} scale={wireframe.on ? wireframe.scale : 1}>
-          <primitive object={root} />
+          <primitive
+            object={root}
+            onClick={
+              onSelectMesh
+                ? (event) => {
+                    // 광선에 걸린 것 중 맨 앞 하나만. 안 그러면 벽 뒤 기둥까지 함께 집힌다.
+                    event.stopPropagation();
+                    onSelectMesh(event.object?.name ?? '');
+                  }
+                : undefined
+            }
+            onPointerOver={onSelectMesh ? () => { document.body.style.cursor = 'pointer'; } : undefined}
+            onPointerOut={onSelectMesh ? () => { document.body.style.cursor = ''; } : undefined}
+          />
 
           {wireframe.on && <primitive object={glow} scale={GLOW_SCALE} />}
         </group>

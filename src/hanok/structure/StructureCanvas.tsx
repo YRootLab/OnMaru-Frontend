@@ -19,14 +19,29 @@ import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 // 3D는 도감 본문보다 무겁다. 모달을 열 때 비로소 받아온다.
 const HanokStructureScene = dynamic(() => import('./HanokStructureScene'), { ssr: false });
 
-const Layer = styled.div`
+/*
+  기본은 포인터를 끊어 둔다 — 3D는 배경이고 그 위의 글과 조작이 손을 받아야 한다.
+  부재를 눌러 들어가는 화면에서만 연다.
+*/
+const Layer = styled.div<{ $interactive: boolean }>`
   position: absolute;
   inset: 0;
   z-index: 1;
-  pointer-events: none;
+  pointer-events: ${({ $interactive }) => ($interactive ? 'auto' : 'none')};
 `;
 
-export default function StructureCanvas({ progress }: { progress: number }) {
+interface StructureCanvasProps {
+  progress: number;
+  /** 부재를 눌러 고르는 화면에서만 넘긴다. 넘기면 캔버스가 포인터를 받는다. */
+  onSelectMesh?: (meshName: string) => void;
+  highlightStage?: number;
+}
+
+export default function StructureCanvas({
+  progress,
+  onSelectMesh,
+  highlightStage = -1,
+}: StructureCanvasProps) {
   /*
     씬 안에서는 테마를 읽을 수 없다.
 
@@ -37,7 +52,7 @@ export default function StructureCanvas({ progress }: { progress: number }) {
   const { mode } = useOnmaruTheme();
 
   return (
-    <Layer aria-hidden="true">
+    <Layer aria-hidden="true" $interactive={Boolean(onSelectMesh)}>
       <Canvas
         dpr={[1, 2]}
         /* 그림자 맵이 이 연출의 전부다. 이 플래그 없이는 벽이 비어 있다. */
@@ -46,7 +61,12 @@ export default function StructureCanvas({ progress }: { progress: number }) {
         style={{ position: 'absolute', inset: 0, background: 'transparent' }}
       >
         <Suspense fallback={null}>
-          <HanokStructureScene progress={progress} dark={mode === 'dark'} />
+          <HanokStructureScene
+            progress={progress}
+            dark={mode === 'dark'}
+            onSelectMesh={onSelectMesh}
+            highlightStage={highlightStage}
+          />
         </Suspense>
       </Canvas>
     </Layer>

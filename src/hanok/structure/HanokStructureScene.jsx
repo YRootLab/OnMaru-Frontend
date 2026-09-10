@@ -307,7 +307,7 @@ const SHADOW_COLOR_DARK = '#000000';
  * 한옥 장면 한 벌. 구도를 잡으려면 모델 치수가 필요해서
  * 캔버스 안에서 bounding box를 한 번 재고 카메라·조명을 함께 배치한다.
  */
-export default function HanokStructureScene({ progress, dark = false }) {
+export default function HanokStructureScene({ progress, dark = false, onSelectMesh, highlightStage = -1 }) {
   const { scene } = useGLTF(MODEL_URL);
   const size = useThree((s) => s.size);
 
@@ -390,7 +390,11 @@ export default function HanokStructureScene({ progress, dark = false }) {
       */}
       <group>
         <group scale={model.normalizedScale * MODEL_SCALE}>
-          {assembling ? <AssemblyModel /> : <HanokModel />}
+          {assembling ? (
+            <AssemblyModel />
+          ) : (
+            <HanokModel onSelectMesh={onSelectMesh} highlightStage={highlightStage} />
+          )}
         </group>
 
         {/* 그림자를 받는 바닥 */}

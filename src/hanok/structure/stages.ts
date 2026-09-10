@@ -21,6 +21,21 @@ export interface HanokStageData {
   from: [number, number, number];
 }
 
+/**
+ * 메시 하나가 어느 켜에 속하는지.
+ *
+ * 모델의 107개 이름이 전부 keyword로 걸린다(SM_Baeryeom_Pillar_01A_003 → 초석과 기둥).
+ * 전수 확인했고 미매칭은 0이지만, 모델이 갈릴 수 있으므로 못 찾으면 -1을 돌려준다.
+ * 조립 패널은 여기에 더해 높이로 떨어뜨리는 폴백을 갖는다 — 그쪽은 부재 하나도
+ * 빠뜨리면 안 되고, 이쪽은 누른 것을 못 읽으면 아무 일도 안 일어나면 그만이다.
+ */
+export function stageIndexForMesh(meshName: string): number {
+  const name = meshName.toLowerCase();
+  return STAGES.findIndex((stage) =>
+    stage.meshKeywords.some((keyword) => name.includes(keyword.toLowerCase())),
+  );
+}
+
 export const STAGES: HanokStageData[] = [
   {
     step: 1,
