@@ -1,9 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { STAY_TYPE } from '@/hanok/types';
 import type { Village } from '@/hanok/types';
-import { getHanokGridPage } from './hanokGridModel';
+import { EMPTY_FILTERS, getHanokGridPage, type HanokFilters } from './hanokGridModel';
 
-function village(id: string, type = '고택·종택', badges: string[] = []): Village {
+function village(
+  id: string,
+  type = '고택',
+  badges: string[] = [],
+  extra: Partial<Village> = {},
+): Village {
   return {
     id,
     name: id,
@@ -17,14 +22,20 @@ function village(id: string, type = '고택·종택', badges: string[] = []): Vi
     hasImage: false,
     summary: id,
     overview: '',
+    ...extra,
   };
 }
+
+const filters = (patch: Partial<HanokFilters> = {}): HanokFilters => ({
+  ...EMPTY_FILTERS,
+  ...patch,
+});
 
 describe('getHanokGridPage', () => {
   it('keeps stable ids and a twelve-item page', () => {
     const villages = Array.from({ length: 14 }, (_, index) => village(`v-${index}`));
-    const first = getHanokGridPage(villages, { activeType: '전체', activeBadges: [] }, 1);
-    const second = getHanokGridPage(villages, { activeType: '전체', activeBadges: [] }, 1);
+    const first = getHanokGridPage(villages, filters(), 1);
+    const second = getHanokGridPage(villages, filters(), 1);
 
     expect(first.items).toHaveLength(12);
     expect(second.items.map((item) => item.id)).toEqual(first.items.map((item) => item.id));
@@ -35,15 +46,15 @@ describe('getHanokGridPage', () => {
   // 교집합이 비어 빈 화면이 나왔다.
   it('keeps places matching any selected badge', () => {
     const villages = [
-      village('both', '고택·종택', ['고택', '국가지정']),
-      village('one', '고택·종택', ['고택']),
-      village('other', '고택·종택', ['국가지정']),
-      village('none', '고택·종택', ['돌담길']),
+      village('both', '고택', ['고택', '국가지정']),
+      village('one', '고택', ['고택']),
+      village('other', '고택', ['국가지정']),
+      village('none', '고택', ['돌담길']),
     ];
 
     const result = getHanokGridPage(
       villages,
-      { activeType: '고택·종택', activeBadges: ['고택', '국가지정'] },
+      filters({ activeType: '고택', activeBadges: ['고택', '국가지정'] }),
       1,
     );
 
@@ -52,28 +63,76 @@ describe('getHanokGridPage', () => {
   });
 
   // 유형 필터가 '전체'면 스테이 제외 가드만이 스테이를 걸러낼 수 있다.
-  // 위 테스트는 activeType이 '고택·종택'이라 가드가 고장나도 통과해서,
-  // type 문자열이 서비스와 어긋난 채 오래 남아 있었다.
   it('excludes stays even when no type filter is applied', () => {
-    const villages = [village('house', '고택·종택'), village('stay', STAY_TYPE)];
+    const villages = [village('house', '고택'), village('stay', STAY_TYPE)];
 
-    const result = getHanokGridPage(villages, { activeType: '전체', activeBadges: [] }, 1);
+    const result = getHanokGridPage(villages, filters(), 1);
 
     expect(result.items.map((item) => item.id)).toEqual(['house']);
     expect(result.filteredCount).toBe(1);
   });
 
-  // 유형 칩은 실제 데이터의 type과 완전일치해야 한다. 예전엔 칩이 '궁궐 한옥',
-  // 데이터가 '궁궐·누각'이라 7개 칩 전부가 0건이었다.
+  // 유형 칩은 실제 데이터의 type과 완전일치해야 한다. 관광공사 분류표의 공식 명칭을
+  // 그대로 쓰므로, 이름을 임의로 손보면 칩 전체가 0건이 된다.
   it('matches the type values the archive service actually emits', () => {
     const villages = [
-      village('palace', '궁궐·누각'),
-      village('house', '고택·종택'),
+      village('palace', '고궁'),
+      village('house', '고택'),
       village('stay', STAY_TYPE),
     ];
 
-    const result = getHanokGridPage(villages, { activeType: '궁궐·누각', activeBadges: [] }, 1);
+    const result = getHanokGridPage(villages, filters({ activeType: '고궁' }), 1);
 
     expect(result.items.map((item) => item.id)).toEqual(['palace']);
+  });
+
+  it('filters by region', () => {
+    const villages = [
+      village('seoul', '고택', [], { region: '서울' }),
+      village('andong', '고택', [], { region: '경북' }),
+    ];
+
+    const result = getHanokGridPage(villages, filters({ region: '경북' }), 1);
+
+    expect(result.items.map((item) => item.id)).toEqual(['andong']);
+  });
+
+  it('searches name and address, ignoring spacing', () => {
+    const villages = [
+      village('namsan', '민속마을', [], { name: '남산골한옥마을', addr: '서울 중구' }),
+      village('bukchon', '민속마을', [], { name: '북촌한옥마을', addr: '서울 종로구' }),
+      village('unjoru', '고택', [], { name: '구례 운조루', addr: '전남 구례군' }),
+    ];
+
+    // 사람이 띄어쓰기를 정확히 맞출 이유가 없다.
+    expect(
+      getHanokGridPage(villages, filters({ query: '남산골 한옥마을' }), 1).items.map((i) => i.id),
+    ).toEqual(['namsan']);
+
+    // 이름으로 못 찾으면 주소로도 걸려야 한다.
+    expect(
+      getHanokGridPage(villages, filters({ query: '구례' }), 1).items.map((i) => i.id),
+    ).toEqual(['unjoru']);
+  });
+
+  /*
+    5쪽을 보다가 검색어를 넣어 결과가 1쪽으로 줄면, 5쪽은 빈 배열을 돌려준다 —
+    조건에 맞는 곳이 있는데도 '없습니다'가 뜬다.
+  */
+  it('pulls an out-of-range page back to the last page that has items', () => {
+    const villages = Array.from({ length: 14 }, (_, index) => village(`v-${index}`));
+
+    const result = getHanokGridPage(villages, filters(), 5);
+
+    expect(result.totalPages).toBe(2);
+    expect(result.items).toHaveLength(2);
+  });
+
+  it('reports zero pages without crashing when nothing matches', () => {
+    const result = getHanokGridPage([village('only')], filters({ query: '없는이름' }), 3);
+
+    expect(result.items).toEqual([]);
+    expect(result.filteredCount).toBe(0);
+    expect(result.totalPages).toBe(0);
   });
 });

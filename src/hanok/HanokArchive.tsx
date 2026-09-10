@@ -16,6 +16,7 @@ import HanokParts from '@/hanok/structure/HanokParts';
 import type { Village, VillageMeta } from '@/hanok/types';
 import { decodeHanokArchivePayload } from '@/hanok/data/hanokArchiveFallback';
 import { HANOK_REVEAL_SECTIONS } from '@/hanok/hanokSectionReveal';
+import type { HanokFilterState } from '@/hanok/sections/hanokFilterQuery';
 import { VesselReveal } from '@/shared/components/animation/VesselReveal';
 
 const loadVillageDetailModal = () => import('@/hanok/components/VillageDetailModal');
@@ -104,9 +105,11 @@ const SourceNote = styled.p`
 interface HanokArchiveProps {
   villages: Village[];
   meta: VillageMeta;
+  /** 주소창에 실려 온 도감 필터. 서버에서 읽어 내려온다. */
+  initialFilters: HanokFilterState;
 }
 
-export default function HanokArchive({ villages, meta }: HanokArchiveProps) {
+export default function HanokArchive({ villages, meta, initialFilters }: HanokArchiveProps) {
   const [selectedVillage, setSelectedVillage] = useState<Village | null>(null);
   const [archiveData, setArchiveData] = useState(() => ({ villages, meta }));
   // 목데이터 스냅샷이 실데이터로 교체되며 이달의 한옥 이미지가 눈에 띄게 스왑되는 걸 막기 위해,
@@ -205,7 +208,11 @@ export default function HanokArchive({ villages, meta }: HanokArchiveProps) {
         <ChapterBreak>
           <VesselReveal id={HANOK_REVEAL_SECTIONS.grid} className="w-full py-6 sm:py-8 lg:py-10">
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
-              <HanokGrid villages={archiveData.villages} onSelectVillage={setSelectedVillage} />
+              <HanokGrid
+                villages={archiveData.villages}
+                onSelectVillage={setSelectedVillage}
+                initialFilters={initialFilters}
+              />
             </div>
           </VesselReveal>
 

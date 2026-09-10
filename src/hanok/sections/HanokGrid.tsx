@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { meok } from '@/design-system/tokens';
 import SectionHeader from '@/hanok/components/SectionHeader';
@@ -10,6 +10,7 @@ import Pagination from '@/hanok/components/Pagination';
 import type { Village } from '@/hanok/types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getHanokGridPage } from './hanokGridModel';
+import { EMPTY_STATE, toSearchParams, type HanokFilterState } from './hanokFilterQuery';
 
 const Section = styled.section``;
 
@@ -53,50 +54,84 @@ const EmptyState = styled.div`
   min-height: 240px;
   background: rgba(78, 89, 104, 0.04);
   border-radius: 20px;
-  display: grid;
-  place-items: center;
-  color: ${meok[400]};
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: ${meok[500]};
   font-size: 14px;
+  text-align: center;
+  word-break: keep-all;
+
+  p {
+    margin: 0;
+  }
+`;
+
+/*
+  빈 화면에서 나가는 문.
+
+  '필터를 지우고 다시 찾아보세요'라고만 적혀 있었다. 어느 필터가 걸려 있는지 알려면
+  위로 올라가 네 줄을 훑어야 하는데, 지우는 건 여기서 한 번이면 된다.
+*/
+const ResetAll = styled.button`
+  padding: 8px 16px;
+  border: 1px solid ${meok[200]};
+  border-radius: 9999px;
+  background: #ffffff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: ${meok[700]};
+  cursor: pointer;
+
+  &:hover {
+    background: ${meok[100]};
+    color: ${meok[900]};
+  }
 `;
 
 interface HanokGridProps {
   villages: Village[];
   onSelectVillage: (v: Village) => void;
+  initialFilters: HanokFilterState;
 }
 
-export default function HanokGrid({ villages, onSelectVillage }: HanokGridProps) {
-  const [activeType, setActiveType] = useState<VillageTypeFilter>('전체');
-  const [activeBadges, setActiveBadges] = useState<string[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
+export default function HanokGrid({ villages, onSelectVillage, initialFilters }: HanokGridProps) {
+  /*
+    필터 넷과 쪽수를 한 덩어리로 든다.
+
+    따로 들면 '거르면 1쪽으로 돌아간다'는 규칙을 네 군데에 따로 적어야 하고, 한 군데를
+    빠뜨리면 5쪽을 보던 중에 검색어를 넣었을 때 빈 화면이 뜬다.
+  */
+  const [state, setState] = useState<HanokFilterState>(initialFilters);
+
+  // 고른 것을 주소창에 되싣는다. replaceState라 방문 기록이 필터 조작마다 쌓이지 않는다.
+  useEffect(() => {
+    const search = toSearchParams(state);
+    window.history.replaceState(null, '', search ? `?${search}` : window.location.pathname);
+  }, [state]);
 
   const { items: paginatedItems, totalPages, filteredCount } = useMemo(
-    () => getHanokGridPage(villages, { activeType, activeBadges }, currentPage),
-    [activeBadges, activeType, currentPage, villages],
+    () => getHanokGridPage(villages, state, state.page),
+    [state, villages],
   );
 
-  const handleBadgeToggle = (badge: string) => {
-    setCurrentPage(1);
-    setActiveBadges((prev) =>
-      prev.includes(badge) ? prev.filter((b) => b !== badge) : [...prev, badge]
-    );
-  };
+  /** 거르는 조건이 바뀌면 늘 첫 쪽으로 돌아간다. */
+  const narrow = (patch: Partial<HanokFilterState>) =>
+    setState((prev) => ({ ...prev, ...patch, page: 1 }));
 
-  const handleTypeChange = (type: VillageTypeFilter) => {
-    setCurrentPage(1);
-    setActiveType(type);
-  };
-
-  const handleResetBadges = () => {
-    setCurrentPage(1);
-    setActiveBadges([]);
-  };
+  const handleBadgeToggle = (badge: string) =>
+    narrow({
+      activeBadges: state.activeBadges.includes(badge)
+        ? state.activeBadges.filter((b) => b !== badge)
+        : [...state.activeBadges, badge],
+    });
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    const element = document.getElementById('grid-heading');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
+    setState((prev) => ({ ...prev, page }));
+    document.getElementById('grid-heading')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
@@ -109,18 +144,22 @@ export default function HanokGrid({ villages, onSelectVillage }: HanokGridProps)
 
       <FilterBar
         villages={villages}
-        activeType={activeType}
-        activeBadges={activeBadges}
-        onTypeChange={handleTypeChange}
+        query={state.query}
+        region={state.region}
+        activeType={state.activeType}
+        activeBadges={state.activeBadges}
+        onQueryChange={(query) => narrow({ query })}
+        onRegionChange={(region) => narrow({ region })}
+        onTypeChange={(activeType: VillageTypeFilter) => narrow({ activeType })}
         onBadgeToggle={handleBadgeToggle}
-        onResetBadges={handleResetBadges}
+        onResetBadges={() => narrow({ activeBadges: [] })}
       />
 
       {paginatedItems.length > 0 ? (
         <>
           <AnimatePresence mode="wait">
             <Grid
-              key={`${activeType}-${activeBadges.join(',')}-${currentPage}`}
+              key={`${state.activeType}-${state.region}-${state.query}-${state.activeBadges.join(',')}-${state.page}`}
               variants={containerVariants}
               initial="hidden"
               animate="show"
@@ -134,14 +173,21 @@ export default function HanokGrid({ villages, onSelectVillage }: HanokGridProps)
             </Grid>
           </AnimatePresence>
           <Pagination
-            currentPage={currentPage}
+            currentPage={state.page}
             totalPages={totalPages}
             onPageChange={handlePageChange}
           />
         </>
       ) : (
         <EmptyState role="status" aria-live="polite">
-          조건에 맞는 한옥이 없습니다. 필터를 지우고 다시 찾아보세요.
+          <p>
+            {state.query
+              ? `'${state.query}'에 걸리는 한옥이 없습니다.`
+              : '조건에 맞는 한옥이 없습니다.'}
+          </p>
+          <ResetAll type="button" onClick={() => setState(EMPTY_STATE)}>
+            조건 모두 지우기
+          </ResetAll>
         </EmptyState>
       )}
     </Section>
