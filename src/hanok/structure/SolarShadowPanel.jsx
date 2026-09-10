@@ -3,6 +3,7 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
+import { MapPin } from 'lucide-react';
 
 import { useSceneStore } from './sceneStore';
 import useUserLocation from '@/hooks/useUserLocation';
@@ -412,6 +413,9 @@ const Basis = styled.p`
 
 const LocationButton = styled.button`
   pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   padding: 4px 10px;
   border-radius: 9999px;
   background: transparent;
@@ -489,12 +493,13 @@ const Card = styled.div`
 const Hint = styled.p`
   position: absolute;
   left: 50%;
-  bottom: calc(100% - 6px);
+  bottom: calc(100% - 12px);
   transform: translateX(-50%);
   margin: 0;
   padding: 6px 14px;
-  border: 1px solid var(--sim-pill-border);
   border-radius: 9999px;
+  /* 테두리가 아니라 번짐 없는 테. 자리를 차지하지 않아 알약 크기가 그대로다. */
+  box-shadow: 0 0 0 1px var(--sim-pill-border);
   background: var(--sim-pill);
   font-size: 12px;
   font-weight: 500;
@@ -681,11 +686,12 @@ const Label = styled.button`
 const BackToToday = styled.button`
   position: absolute;
   left: 50%;
-  bottom: calc(100% - 6px);
+  bottom: calc(100% - 12px);
   transform: translateX(-50%);
   padding: 6px 14px;
-  border: 1px solid var(--sim-pill-border);
   border-radius: 9999px;
+  /* 테두리가 아니라 번짐 없는 테. 자리를 차지하지 않아 알약 크기가 그대로다. */
+  box-shadow: 0 0 0 1px var(--sim-pill-border);
   background: var(--sim-pill-strong);
   font-family: inherit;
   font-size: 13px;
@@ -976,10 +982,8 @@ export default function SolarShadowPanel() {
             </span>
 
             {isSecure && locationState === 'idle' && (
-              <LocationButton
-                type="button"
-                onClick={requestLocation}
-              >
+              <LocationButton type="button" onClick={requestLocation}>
+                <MapPin size={13} strokeWidth={2} aria-hidden="true" />
                 내 위치로 보기
               </LocationButton>
             )}

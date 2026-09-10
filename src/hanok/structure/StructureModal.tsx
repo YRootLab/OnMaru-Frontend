@@ -9,6 +9,7 @@
 
 import { useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
+import { X } from 'lucide-react';
 
 import { meok, surface } from '@/design-system/tokens';
 
@@ -114,7 +115,7 @@ export default function StructureModal({ title, onClose, children }: StructureMo
     >
       <Shell ref={shellRef} role="dialog" aria-modal="true" aria-label={title} tabIndex={-1}>
         <CloseButton type="button" onClick={onClose}>
-          닫기 <span aria-hidden="true">✕</span>
+          닫기 <X size={14} strokeWidth={2} aria-hidden="true" />
         </CloseButton>
 
         {children}
