@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
-import { meok, lightPalette, surface } from '@/design-system/tokens';
+import { meok, palette, surface } from '@/design-system/tokens';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import PolaroidCard from '@/features/hanok-archive/components/PolaroidCard';
 import type { Village } from '@/features/hanok-archive/types';
@@ -154,16 +154,16 @@ const CommentText = styled.p`
   }
 `;
 
-/* 형광펜으로 그은 느낌 — 줄바꿈마다 표시가 끊기지 않도록 clone으로 배경을 이어 붙인다 */
+/* 형광펜으로 그은 느낌 — 황금빛 햇살이 드리운 듯한 은은한 전통 책갈피 톤 */
 const Highlight = styled.span`
-  background: rgba(135, 206, 250, 0.55);
+  background: rgba(255, 208, 38, 0.32);
   padding: 0.05em 0.25em;
   border-radius: 3px;
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
 
   [data-theme='dark'] & {
-    background: rgba(135, 206, 250, 0.35);
+    background: rgba(255, 208, 38, 0.22);
   }
 `;
 
@@ -171,19 +171,30 @@ const DetailsButton = styled.button`
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: transparent;
-  color: ${lightPalette.kobalt[500]};
+  background: ${palette.kobalt[50]};
+  color: ${palette.kobalt[700]};
   font-size: 14px;
-  font-weight: 700;
-  padding: 13px 26px;
+  font-weight: 600;
+  padding: 12px 24px;
   border-radius: 9999px;
+  border: none;
   cursor: pointer;
   transition: all 0.22s ease;
 
   &:hover {
-    background: ${lightPalette.kobalt[500]};
+    background: ${palette.kobalt[500]};
     color: #ffffff;
     transform: translateY(-2px);
+  }
+
+  [data-theme='dark'] & {
+    background: rgba(27, 91, 255, 0.18);
+    color: ${palette.kobalt[400]};
+
+    &:hover {
+      background: ${palette.kobalt[500]};
+      color: #ffffff;
+    }
   }
 `;
 

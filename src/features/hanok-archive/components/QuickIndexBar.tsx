@@ -2,7 +2,7 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
-import { meok, lightPalette, surface } from '@/design-system/tokens';
+import { meok, palette, surface } from '@/design-system/tokens';
 import { BookOpen, Home, Sun, MapPin } from 'lucide-react';
 
 const IndexContainer = styled.nav`
@@ -93,22 +93,22 @@ export default function QuickIndexBar({ className }: QuickIndexBarProps) {
   return (
     <IndexContainer className={className} aria-label="한옥 마루 주요 챕터 바로가기">
       <IndexChip type="button" onClick={() => scrollTo('grid')}>
-        <BookOpen size={15} strokeWidth={2} color={lightPalette.kobalt[500]} />
+        <BookOpen size={15} strokeWidth={2} color={palette.kobalt[500]} />
         <span>전국 한옥 도감</span>
       </IndexChip>
 
       <IndexChip type="button" onClick={() => scrollTo('hanok-stays')}>
-        <Home size={15} strokeWidth={2} color="#D97706" />
+        <Home size={15} strokeWidth={2} color={palette.cheongrok[500]} />
         <span>지역별 한옥 스테이</span>
       </IndexChip>
 
       <IndexChip type="button" onClick={() => scrollTo('structure')}>
-        <Sun size={15} strokeWidth={2} color="#EA580C" />
+        <Sun size={15} strokeWidth={2} color={palette.hwanggeum[500]} />
         <span>3D 구조 & 처마 일조 랩</span>
       </IndexChip>
 
       <IndexChip type="button" onClick={() => scrollTo('map')}>
-        <MapPin size={15} strokeWidth={2} color="#059669" />
+        <MapPin size={15} strokeWidth={2} color={palette.juhong[500]} />
         <span>전국 공간 지도</span>
       </IndexChip>
     </IndexContainer>

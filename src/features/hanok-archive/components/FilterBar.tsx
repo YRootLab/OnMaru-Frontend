@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import { Tag, RotateCcw, Search, X } from 'lucide-react';
-import { meok, lightPalette, surface } from '@/design-system/tokens';
+import { meok, palette, surface } from '@/design-system/tokens';
 import { STAY_TYPE, type Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
 
@@ -63,13 +63,13 @@ const SearchBox = styled.div`
   min-width: 200px;
   height: 42px;
   padding: 0 12px;
-  border: 1px solid ${lightPalette.kobalt[100]};
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 12px;
   background: #ffffff;
   color: ${meok[500]};
 
   &:focus-within {
-    border-color: ${lightPalette.kobalt[500]};
+    border-color: ${palette.kobalt[500]};
   }
 
   [data-theme='dark'] & {
@@ -132,7 +132,7 @@ const ClearButton = styled.button`
 const RegionSelect = styled.select`
   height: 42px;
   padding: 0 12px;
-  border: 1px solid ${lightPalette.kobalt[100]};
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 12px;
   background: #ffffff;
   font-family: inherit;
@@ -141,7 +141,7 @@ const RegionSelect = styled.select`
   cursor: pointer;
 
   &:focus-visible {
-    outline: 2px solid ${lightPalette.kobalt[500]};
+    outline: 2px solid ${palette.kobalt[500]};
     outline-offset: 1px;
   }
 
@@ -170,7 +170,7 @@ const SegmentScrollContainer = styled.div`
 
 const SegmentControl = styled.div`
   display: inline-flex;
-  background: ${lightPalette.kobalt[50]};
+  background: rgba(0, 0, 0, 0.04);
   padding: 5px;
   border-radius: 9999px;
   gap: 4px;
@@ -195,7 +195,7 @@ const Segment = styled.button<{ $active: boolean }>`
   user-select: none;
 
   &:hover {
-    color: ${({ $active }) => ($active ? '#ffffff' : lightPalette.kobalt[700])};
+    color: ${({ $active }) => ($active ? '#ffffff' : palette.kobalt[700])};
   }
 
   [data-theme='dark'] & {
@@ -206,7 +206,7 @@ const Segment = styled.button<{ $active: boolean }>`
 const SegmentPill = styled(motion.div)`
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, ${lightPalette.kobalt[500]} 0%, ${lightPalette.kobalt[700]} 100%);
+  background: linear-gradient(135deg, ${palette.kobalt[500]} 0%, ${palette.kobalt[700]} 100%);
   border-radius: 9999px;
   z-index: 0;
 `;
@@ -223,11 +223,11 @@ const BadgeContainer = styled.div`
   gap: 10px;
   flex-wrap: wrap;
   padding: 10px 16px;
-  background: rgba(248, 250, 255, 0.7);
+  background: #f5f5f4;
   border-radius: 18px;
 
   [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.05);
+    background: #24211D;
   }
 `;
 
@@ -236,11 +236,15 @@ const BadgeHeader = styled.div`
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0.04em;
-  color: ${lightPalette.kobalt[700]};
+  color: ${meok[700]};
   margin-right: 4px;
   white-space: nowrap;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 const BadgeList = styled.div`
@@ -258,40 +262,51 @@ const BadgeCount = styled.span`
   opacity: 0.6;
 `;
 
-const BadgeChip = styled.button<{ $active: boolean }>`
-  background: ${({ $active }) =>
-    $active
-      ? `linear-gradient(135deg, ${lightPalette.kobalt[500]} 0%, ${lightPalette.kobalt[700]} 100%)`
-      : '#ffffff'};
-  color: ${({ $active }) => ($active ? '#ffffff' : lightPalette.kobalt[700])};
+function getBadgeVariant(badge: string): 'cheongrok' | 'hwanggeum' | 'jaha' | 'kobalt' {
+  if (badge.includes('스테이') || badge.includes('체험') || badge.includes('정원') || badge.includes('쉼')) {
+    return 'cheongrok';
+  }
+  if (badge.includes('국가') || badge.includes('유네스코') || badge.includes('보물') || badge.includes('명승')) {
+    return 'hwanggeum';
+  }
+  if (badge.includes('선비') || badge.includes('서원') || badge.includes('종택') || badge.includes('고택')) {
+    return 'jaha';
+  }
+  return 'kobalt';
+}
+
+const BadgeChip = styled.button<{ $active: boolean; $variant?: 'cheongrok' | 'hwanggeum' | 'jaha' | 'kobalt' }>`
+  background: ${({ $active, $variant }) => {
+    if (!$active) return '#ffffff';
+    if ($variant === 'cheongrok') return `linear-gradient(135deg, ${palette.cheongrok[500]} 0%, ${palette.cheongrok[700]} 100%)`;
+    if ($variant === 'hwanggeum') return `linear-gradient(135deg, ${palette.hwanggeum[500]} 0%, ${palette.hwanggeum[700]} 100%)`;
+    if ($variant === 'jaha') return `linear-gradient(135deg, ${palette.jaha[500]} 0%, ${palette.jaha[700]} 100%)`;
+    return `linear-gradient(135deg, ${palette.kobalt[500]} 0%, ${palette.kobalt[700]} 100%)`;
+  }};
+  color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
   font-size: 12px;
-  font-weight: ${({ $active }) => ($active ? 500 : 400)};
-  padding: 5px 14px;
+  font-weight: ${({ $active }) => ($active ? 600 : 400)};
+  padding: 6px 14px;
   border-radius: 9999px;
+  border: none;
   cursor: pointer;
   transition: all 0.18s ease;
   white-space: nowrap;
 
   &:hover {
-    border-color: ${lightPalette.kobalt[400]};
-    background: ${({ $active }) =>
-      $active
-        ? `linear-gradient(135deg, ${lightPalette.kobalt[400]} 0%, ${lightPalette.kobalt[700]} 100%)`
-        : lightPalette.kobalt[50]};
+    background: ${({ $active }) => ($active ? undefined : meok[100])};
+    color: ${meok[900]};
   }
 
   [data-theme='dark'] & {
-    background: ${({ $active }) =>
-      $active
-        ? `linear-gradient(135deg, ${lightPalette.kobalt[500]} 0%, ${lightPalette.kobalt[700]} 100%)`
-        : 'rgba(255, 255, 255, 0.06)'};
-  }
-
-  [data-theme='dark'] &:hover {
-    background: ${({ $active }) =>
-      $active
-        ? `linear-gradient(135deg, ${lightPalette.kobalt[400]} 0%, ${lightPalette.kobalt[700]} 100%)`
-        : 'rgba(255, 255, 255, 0.1)'};
+    background: ${({ $active, $variant }) => {
+      if (!$active) return 'rgba(255, 255, 255, 0.07)';
+      if ($variant === 'cheongrok') return palette.cheongrok[700];
+      if ($variant === 'hwanggeum') return palette.hwanggeum[700];
+      if ($variant === 'jaha') return palette.jaha[700];
+      return palette.kobalt[700];
+    }};
+    color: ${({ $active }) => ($active ? '#ffffff' : meok[200])};
   }
 `;
 
@@ -299,9 +314,10 @@ const ResetBtn = styled.button`
   background: transparent;
   color: ${meok[500]};
   font-size: 12px;
-  font-weight: 400;
+  font-weight: 500;
   padding: 4px 10px;
   border-radius: 9999px;
+  border: none;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -310,18 +326,16 @@ const ResetBtn = styled.button`
   transition: all 0.18s ease;
 
   &:hover {
-    color: ${meok[900]};
-    border-color: ${meok[400]};
-    background: rgba(0, 0, 0, 0.04);
+    color: ${palette.juhong[500]};
+    background: rgba(255, 85, 0, 0.08);
   }
 
   [data-theme='dark'] & {
     color: ${meok[400]};
-  }
-
-  [data-theme='dark'] &:hover {
-    color: ${meok[100]};
-    background: rgba(255, 255, 255, 0.08);
+    &:hover {
+      color: ${palette.juhong[400]};
+      background: rgba(255, 85, 0, 0.15);
+    }
   }
 `;
 
@@ -487,7 +501,7 @@ export default function FilterBar({
       {allBadges.length > 0 && (
         <BadgeContainer>
           <BadgeHeader>
-            <Tag size={13} strokeWidth={2} />
+            <Tag size={13} strokeWidth={2} color={palette.hwanggeum[700]} />
             <span>특징 태그</span>
           </BadgeHeader>
           <BadgeList>
@@ -497,6 +511,7 @@ export default function FilterBar({
                 <BadgeChip
                   key={b}
                   $active={isActive}
+                  $variant={getBadgeVariant(b)}
                   onClick={() => onBadgeToggle(b)}
                   aria-pressed={isActive}
                   aria-label={`${filterLabel(b)} ${badgeCounts.get(b)}곳`}

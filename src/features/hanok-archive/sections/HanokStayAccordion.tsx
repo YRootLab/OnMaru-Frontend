@@ -4,7 +4,7 @@ import React, { useState, useMemo } from 'react';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
-import { meok, lightPalette, surface } from '@/design-system/tokens';
+import { meok, palette, surface } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
 import { STAY_TYPE } from '@/features/hanok-archive/types';
 import type { Village } from '@/features/hanok-archive/types';
@@ -31,35 +31,33 @@ const RegionFilterChip = styled.button<{ $active: boolean; $empty?: boolean }>`
   align-items: baseline;
   gap: 5px;
   background: ${({ $active }) =>
-    $active ? lightPalette.kobalt[500] : '#ffffff'};
+    $active ? palette.kobalt[500] : '#ffffff'};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[900])};
   font-size: 13px;
   font-weight: ${({ $active }) => ($active ? 500 : 400)};
   padding: 8px 18px;
   border-radius: 9999px;
+  border: none;
   cursor: pointer;
   white-space: nowrap;
-  /* 0곳인 지역도 지우지 않는다. 스테이가 어디에 몰려 있고 어디가 비어 있는지가
-     이 섹션이 하려는 말이다. 눌러도 빈 화면이 아니라 제보 권유가 받아 준다. */
   opacity: ${({ $active, $empty }) => (!$active && $empty ? 0.45 : 1)};
   transition: all 0.18s ease;
 
   &:hover {
-    border-color: ${lightPalette.kobalt[400]};
     background: ${({ $active }) =>
-      $active ? lightPalette.kobalt[500] : '#f8fafc'};
+      $active ? palette.kobalt[500] : '#f8fafc'};
     opacity: 1;
   }
 
   [data-theme='dark'] & {
     background: ${({ $active }) =>
-      $active ? lightPalette.kobalt[500] : surface.dark.card};
+      $active ? palette.kobalt[500] : surface.dark.card};
     color: ${({ $active }) => ($active ? '#ffffff' : meok[100])};
   }
 
   [data-theme='dark'] &:hover {
     background: ${({ $active }) =>
-      $active ? lightPalette.kobalt[500] : 'rgba(255, 255, 255, 0.1)'};
+      $active ? palette.kobalt[500] : 'rgba(255, 255, 255, 0.1)'};
   }
 `;
 
@@ -271,7 +269,7 @@ const ActionGroup = styled.div`
 `;
 
 const DirectBookingBtn = styled.a`
-  background: #1c52e0;
+  background: ${palette.cheongrok[700]};
   color: #ffffff;
   font-size: 12.5px;
   font-weight: 500;
@@ -282,13 +280,19 @@ const DirectBookingBtn = styled.a`
   align-items: center;
   gap: 4px;
   white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(28, 82, 224, 0.3);
-  transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+  border: none;
+  transition: transform 0.18s ease, background 0.18s ease;
 
   &:hover {
-    background: #1542be;
+    background: ${palette.cheongrok[900]};
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(28, 82, 224, 0.4);
+  }
+
+  [data-theme='dark'] & {
+    background: ${palette.cheongrok[500]};
+    &:hover {
+      background: ${palette.cheongrok[400]};
+    }
   }
 `;
 
@@ -358,7 +362,6 @@ const RefreshBtn = styled.button`
   transition: all 0.2s ease;
 
   &:hover {
-    border-color: ${lightPalette.kobalt[400]};
     background: #f8fafc;
   }
 

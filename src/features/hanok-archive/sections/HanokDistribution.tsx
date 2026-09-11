@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
-import { meok, lightPalette } from '@/design-system/tokens';
+import { meok, palette } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
@@ -95,7 +95,7 @@ const Finding = styled.p`
 
   strong {
     font-weight: 700;
-    color: ${lightPalette.hwanggeum[700]};
+    color: ${palette.hwanggeum[700]};
   }
 `;
 
@@ -122,7 +122,7 @@ const Bar = styled.span<{ $ratio: number }>`
   height: 100%;
   /* 데이터 끝만 둥글게 — 기준선 쪽은 각지게 두어야 0에서 시작한다는 게 보인다 */
   border-radius: 0 4px 4px 0;
-  background: ${lightPalette.kobalt[500]};
+  background: ${palette.kobalt[500]};
   transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.16s ease;
 `;
 
@@ -138,17 +138,16 @@ const Row = styled(motion.li)`
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    background: rgba(47, 104, 255, 0.08);
+    background: rgba(27, 91, 255, 0.06);
     transform: translateX(4px);
   }
 
   &:hover ${Bar} {
-    background: ${lightPalette.kobalt[400]};
-    box-shadow: 0 0 8px rgba(47, 104, 255, 0.3);
+    background: ${palette.kobalt[400]};
   }
 
   [data-theme='dark'] &:hover {
-    background: rgba(47, 104, 255, 0.15);
+    background: rgba(27, 91, 255, 0.12);
   }
 `;
 
@@ -177,7 +176,7 @@ const Count = styled.span`
 
 const Percent = styled.span`
   margin-left: 4px;
-  color: ${lightPalette.hwanggeum[700]};
+  color: ${palette.hwanggeum[700]};
   opacity: 0;
   transition: opacity 0.16s ease;
 
