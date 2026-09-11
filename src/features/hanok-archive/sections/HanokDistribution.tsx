@@ -131,20 +131,24 @@ const Row = styled(motion.li)`
   grid-template-columns: 52px 1fr auto;
   align-items: center;
   gap: 12px;
-  padding: 7px 10px;
-  border-radius: 10px;
-  transition: background-color 0.16s ease;
+  padding: 8px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    background: rgba(78, 89, 104, 0.04);
+    background: rgba(47, 104, 255, 0.08);
+    transform: translateX(4px);
   }
 
   &:hover ${Bar} {
     background: ${lightPalette.kobalt[400]};
+    box-shadow: 0 0 8px rgba(47, 104, 255, 0.3);
   }
 
   [data-theme='dark'] &:hover {
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(47, 104, 255, 0.15);
   }
 `;
 
@@ -184,9 +188,10 @@ const Percent = styled.span`
 
 interface HanokDistributionProps {
   villages: Village[];
+  onSelectRegion?: (region: string) => void;
 }
 
-export default function HanokDistribution({ villages }: HanokDistributionProps) {
+export default function HanokDistribution({ villages, onSelectRegion }: HanokDistributionProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
   const { regions, total, typeCount, topType } = useMemo(() => {
     const byRegion = new Map<string, number>();
@@ -220,7 +225,8 @@ export default function HanokDistribution({ villages }: HanokDistributionProps) 
     <Section id="distribution" aria-labelledby="distribution-heading">
       <SectionHeader
         id="distribution-heading"
-        title="남은 자리는 고르지 않다"
+        title="전국 한옥 분포 & 지역별 탐색"
+        subtitle={onSelectRegion ? "지역을 선택하면 아래 도감에서 바로 확인할 수 있습니다" : undefined}
       />
 
       <StatRow>
@@ -249,14 +255,24 @@ export default function HanokDistribution({ villages }: HanokDistributionProps) 
 
       <Finding>
         {topThree.map(([name]) => name).join(' · ')} 세 곳에만{' '}
-        <strong>전체의 {topThreeShare}%</strong>가 몰려 있습니다. 고르게 남은 게 아니라,
-        남을 곳이 애초에 정해져 있었다는 뜻입니다.
+        <strong>전체의 {topThreeShare}%</strong>가 자리잡고 있습니다.
+        {onSelectRegion && ' 관심 있는 지역을 탭하여 해당 지역의 고택과 스테이를 탐색해보세요.'}
       </Finding>
 
       <Rows>
         {regions.map(([name, count], index) => (
           <Row
             key={name}
+            role={onSelectRegion ? 'button' : undefined}
+            tabIndex={onSelectRegion ? 0 : undefined}
+            title={onSelectRegion ? `${name} 한옥 ${count}곳 도감에서 보기` : undefined}
+            onClick={() => onSelectRegion?.(name)}
+            onKeyDown={(e) => {
+              if (onSelectRegion && (e.key === 'Enter' || e.key === ' ')) {
+                e.preventDefault();
+                onSelectRegion(name);
+              }
+            }}
             initial={prefersReducedMotion ? false : { opacity: 0, x: -8 }}
             whileInView={{ opacity: 1, x: 0 }}
             whileHover={prefersReducedMotion ? undefined : { x: 2 }}

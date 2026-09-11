@@ -26,7 +26,7 @@ const villages: Village[] = snapshot.villages.map((item) => ({
   addr: item.addr,
   lat: Number.isFinite(item.lat) ? item.lat : null,
   lng: Number.isFinite(item.lng) ? item.lng : null,
-  type: item.type,
+  type: item.type as Village['type'],
   badges: item.badges,
   image: toHttps(item.image),
   hasImage: Boolean(item.image),

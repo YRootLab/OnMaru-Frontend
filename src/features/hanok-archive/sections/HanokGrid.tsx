@@ -112,14 +112,17 @@ interface HanokGridProps {
   villages: Village[];
   onSelectVillage: (v: Village) => void;
   initialFilters: HanokFilterState;
+  externalRegion?: string | null;
 }
 
-export default function HanokGrid({ villages, onSelectVillage, initialFilters }: HanokGridProps) {
+export default function HanokGrid({
+  villages,
+  onSelectVillage,
+  initialFilters,
+  externalRegion,
+}: HanokGridProps) {
   /*
     필터 넷과 쪽수를 한 덩어리로 든다.
-
-    따로 들면 '거르면 1쪽으로 돌아간다'는 규칙을 네 군데에 따로 적어야 하고, 한 군데를
-    빠뜨리면 5쪽을 보던 중에 검색어를 넣었을 때 빈 화면이 뜬다.
   */
   const [state, setState] = useState<HanokFilterState>(initialFilters);
 
@@ -128,6 +131,14 @@ export default function HanokGrid({ villages, onSelectVillage, initialFilters }:
     const search = toSearchParams(state);
     window.history.replaceState(null, '', search ? `?${search}` : window.location.pathname);
   }, [state]);
+
+  // 상단 분포도 등 외부에서 지역이 선택되면 즉시 필터에 반영하고 도감으로 스크롤
+  useEffect(() => {
+    if (externalRegion) {
+      setState((prev) => ({ ...prev, region: externalRegion, page: 1 }));
+      document.getElementById('grid')?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [externalRegion]);
 
   const { items: paginatedItems, totalPages, filteredCount } = useMemo(
     () => getHanokGridPage(villages, state, state.page),
@@ -154,8 +165,8 @@ export default function HanokGrid({ villages, onSelectVillage, initialFilters }:
     <Section id="grid" aria-labelledby="grid-heading">
       <SectionHeader
         id="grid-heading"
-        title="찾는 곳이 있나요?"
-        subtitle={`${filteredCount}곳`}
+        title="전국 한옥 아카이브 도감"
+        subtitle={`${filteredCount}곳의 기록`}
       />
 
       <FilterBar

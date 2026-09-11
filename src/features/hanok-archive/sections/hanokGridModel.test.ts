@@ -5,7 +5,7 @@ import { EMPTY_FILTERS, getHanokGridPage, type HanokFilters } from './hanokGridM
 
 function village(
   id: string,
-  type = '고택',
+  type: Village['type'] = '고택',
   badges: string[] = [],
   extra: Partial<Village> = {},
 ): Village {

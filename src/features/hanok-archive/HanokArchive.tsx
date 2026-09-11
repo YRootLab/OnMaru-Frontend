@@ -19,6 +19,7 @@ import { HANOK_REVEAL_SECTIONS } from '@/features/hanok-archive/hanokSectionReve
 import type { HanokFilterState } from '@/features/hanok-archive/sections/hanokFilterQuery';
 import { VesselReveal } from '@/shared/components/animation/VesselReveal';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
+import QuickIndexBar from '@/features/hanok-archive/components/QuickIndexBar';
 
 const loadVillageDetailModal = () => import('@/features/hanok-archive/components/VillageDetailModal');
 const VillageDetailModal = dynamic(loadVillageDetailModal, { ssr: false });
@@ -178,6 +179,7 @@ interface HanokArchiveProps {
 export default function HanokArchive({ villages, meta, initialFilters }: HanokArchiveProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
   const [selectedVillage, setSelectedVillage] = useState<Village | null>(null);
+  const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
   const [archiveData, setArchiveData] = useState(() => ({ villages, meta }));
   const [showIntroVideo, setShowIntroVideo] = useState(false);
   const [introVideoReady, setIntroVideoReady] = useState(false);
@@ -229,7 +231,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
     <Root>
       <Global styles={paperGround} />
       <PageInner>
-        {/* 진입부는 질문을 던지고, 답(왜 한옥인가)은 맨 아래 매니페스토가 한다 */}
+        {/* 진입부: 한국의 정취를 담은 동영상 히어로 */}
         <VesselReveal id={HANOK_REVEAL_SECTIONS.intro} className="w-full">
           <IntroStage>
             <IntroPoster aria-hidden="true" $visible={!introVideoReady} />
@@ -255,39 +257,40 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
                   궁궐과 고택, 서원과 전통마을, 하룻밤 머물 수 있는 집까지.
                   계절마다 한 곳씩 들여다봅니다.
                 </Lead>
-                {/* <SourceNote>
-                  한국관광공사 관광정보 API(TourAPI)에서 실시간으로 가져옵니다 · 지금{' '}
-                  <strong>{archiveData.meta.total}곳</strong>
-                </SourceNote> */}
               </Intro>
             </IntroContent>
           </IntroStage>
         </VesselReveal>
 
-        {/*
-          진입부가 던진 "어디에 남아 있을까"에 숫자로 곧장 답한다.
+        {/* 1. 실용적인 핵심 챕터 바로가기 플로팅 앵커 허브 */}
+        <QuickIndexBar />
 
-          전에는 이 섹션이 네 번째였다 — 질문과 답 사이에 구조 챕터와 이달의 한옥이
-          끼어 있어서, 답이 나올 때쯤 독자는 질문을 이미 놓친 뒤였다.
-        */}
-        <HeroLeadOutSection>
-          <VesselReveal id={HANOK_REVEAL_SECTIONS.distribution} className="w-full">
-            <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
-              <HanokDistribution villages={archiveData.villages} />
-            </div>
-          </VesselReveal>
-        </HeroLeadOutSection>
-
-        {/* 전체 규모를 본 눈을 한 채로 좁힌다 — 이 달의 한옥 큐레이션 */}
+        {/* 2. 감성적인 첫인상: 이 달의 한옥 대표 큐레이션 에디토리얼 화보 */}
         <EditorialSection>
           <VesselReveal id={HANOK_REVEAL_SECTIONS.monthly} className="w-full">
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
-              <HanokMonthly villages={archiveData.villages} onSelectVillage={setSelectedVillage} isFeaturedReady={isFeaturedReady} />
+              <HanokMonthly
+                villages={archiveData.villages}
+                onSelectVillage={setSelectedVillage}
+                isFeaturedReady={isFeaturedReady}
+              />
             </div>
           </VesselReveal>
         </EditorialSection>
 
-        {/* 아카이브 한 덩어리: 도감 → 스테이 */}
+        {/* 3. 데이터 탐색: 전국 한옥 분포 & 인터랙티브 지역 선택기 */}
+        <HeroLeadOutSection>
+          <VesselReveal id={HANOK_REVEAL_SECTIONS.distribution} className="w-full">
+            <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+              <HanokDistribution
+                villages={archiveData.villages}
+                onSelectRegion={setSelectedRegion}
+              />
+            </div>
+          </VesselReveal>
+        </HeroLeadOutSection>
+
+        {/* 4. 아카이브 덩어리: 전국 한옥 도감 ➔ 지역별 한옥 스테이 */}
         <ChapterBreak>
           <VesselReveal id={HANOK_REVEAL_SECTIONS.grid} className="w-full">
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
@@ -295,6 +298,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
                 villages={archiveData.villages}
                 onSelectVillage={setSelectedVillage}
                 initialFilters={initialFilters}
+                externalRegion={selectedRegion}
               />
             </div>
           </VesselReveal>
@@ -302,7 +306,10 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
           <ArchiveSection>
             <VesselReveal id={HANOK_REVEAL_SECTIONS.stay} className="w-full">
               <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
-                <HanokStayAccordion villages={archiveData.villages} onSelectVillage={setSelectedVillage} />
+                <HanokStayAccordion
+                  villages={archiveData.villages}
+                  onSelectVillage={setSelectedVillage}
+                />
               </div>
             </VesselReveal>
           </ArchiveSection>

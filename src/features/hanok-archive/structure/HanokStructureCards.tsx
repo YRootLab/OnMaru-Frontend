@@ -13,6 +13,7 @@ import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 
 import { meok, lightPalette, surface } from '@/design-system/tokens';
+import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
 
 const SolarShadowModal = dynamic(() => import('./SolarShadowModal'), { ssr: false });
 const HanokAssemblyModal = dynamic(() => import('./HanokAssemblyModal'), { ssr: false });
@@ -209,6 +210,11 @@ export default function HanokStructureCards() {
 
   return (
     <>
+      <SectionHeader
+        id="structure-heading"
+        title="한옥 공간 미학과 구조의 과학"
+        subtitle="24절기 처마 일조 분석과 7단계 3D 부재 결구"
+      />
       <Grid>
         <Card type="button" onClick={() => setOpen('shadow')}>
           <Eyebrow $color={lightPalette.hwanggeum[700]}>빛</Eyebrow>

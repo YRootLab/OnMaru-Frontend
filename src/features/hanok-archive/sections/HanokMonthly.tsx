@@ -205,7 +205,8 @@ export default function HanokMonthly({ villages, onSelectVillage, isFeaturedRead
   const korMonth = `${currentMonth}월`;
 
   const curationInfo = useMemo(() => {
-    return MONTHLY_CURATIONS[currentMonth] || MONTHLY_CURATIONS[8];
+    const curations = MONTHLY_CURATIONS as Record<number, (typeof MONTHLY_CURATIONS)[keyof typeof MONTHLY_CURATIONS]>;
+    return curations[currentMonth] || curations[8];
   }, [currentMonth]);
 
   /*

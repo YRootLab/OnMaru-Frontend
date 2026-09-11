@@ -153,7 +153,7 @@ export class HanokArchiveService {
           id,
           name: title,
           rawTitle: title,
-          type: config.type === '고택' ? classifyHeritageHouse(title, addr) : config.type,
+          type: (config.type === '고택' ? classifyHeritageHouse(title, addr) : config.type) as Village['type'],
           region: resolveRegion(String(item.areacode || ''), addr),
           lat: validCoords ? lat : null,
           lng: validCoords ? lng : null,
