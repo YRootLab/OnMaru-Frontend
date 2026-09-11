@@ -31,6 +31,10 @@ const ManifestoParagraph = styled.h2`
   color: ${meok[900]};
   margin: 0 0 40px;
   word-break: keep-all;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 const InlineIcon = styled.span`
@@ -55,6 +59,14 @@ const InlineIcon = styled.span`
   svg {
     width: clamp(16px, 2.2vw, 22px);
     height: clamp(16px, 2.2vw, 22px);
+  }
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  [data-theme='dark'] &:hover {
+    background: rgba(255, 255, 255, 0.16);
   }
 `;
 
@@ -92,6 +104,17 @@ const CtaButton = styled(Link, {
       $primary ? lightPalette.kobalt[700] : '#f8fafc'};
     border-color: ${lightPalette.kobalt[500]};
     transform: translateY(-2px);
+  }
+
+  [data-theme='dark'] & {
+    background: ${({ $primary }) =>
+      $primary ? lightPalette.kobalt[500] : 'rgba(255, 255, 255, 0.08)'};
+    color: ${({ $primary }) => ($primary ? '#ffffff' : meok[100])};
+  }
+
+  [data-theme='dark'] &:hover {
+    background: ${({ $primary }) =>
+      $primary ? lightPalette.kobalt[700] : 'rgba(255, 255, 255, 0.14)'};
   }
 `;
 

@@ -5,7 +5,7 @@ import Script from 'next/script';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertCircle, MapPin, ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
-import { lightPalette, meok } from '@/design-system/tokens';
+import { lightPalette, meok, surface } from '@/design-system/tokens';
 import type { Village } from '@/hanok/types';
 import { filterLabel } from '@/hanok/filterLabels';
 import { createKakaoResourceScope, type KakaoResourceScope } from './kakaoMapResources';
@@ -37,6 +37,10 @@ const Frame = styled.div`
   background: #ffffff;
   border: 1px solid rgba(43, 92, 230, 0.12);
   box-shadow: none;
+
+  [data-theme='dark'] & {
+    background: ${surface.dark.card};
+  }
 `;
 
 const MapCanvas = styled.div`
@@ -130,6 +134,10 @@ const MapLoadingState = styled.div`
   z-index: 10;
   text-align: center;
   padding: 16px;
+
+  [data-theme='dark'] & {
+    background: ${surface.dark.card};
+  }
 `;
 
 const ErrorSubtext = styled.p`
@@ -138,6 +146,10 @@ const ErrorSubtext = styled.p`
   max-width: 340px;
   line-height: 1.45;
   margin-top: 2px;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 /* ── Bottom Floating Region Bar (Flat White Glass Dock) ── */
@@ -163,6 +175,10 @@ const BottomRegionBar = styled.div`
   &::-webkit-scrollbar {
     display: none;
   }
+
+  [data-theme='dark'] & {
+    background: rgba(45, 41, 36, 0.92);
+  }
 `;
 
 const RegionChip = styled.button<{ $active: boolean }>`
@@ -187,6 +203,10 @@ const RegionChip = styled.button<{ $active: boolean }>`
         : KOBALT_SUBTLE};
     color: ${({ $active }) => ($active ? '#ffffff' : KOBALT_PRIMARY)};
   }
+
+  [data-theme='dark'] & {
+    color: ${({ $active }) => ($active ? '#ffffff' : meok[100])};
+  }
 `;
 
 /* ── Left Collapsible Story Side Panel (Flat Light Glass Drawer) ── */
@@ -210,6 +230,10 @@ const LeftPanel = styled(motion.div)`
   scrollbar-width: none;
   &::-webkit-scrollbar {
     display: none;
+  }
+
+  [data-theme='dark'] & {
+    background: rgba(45, 41, 36, 0.94);
   }
 
   @media (max-width: 900px) {
@@ -253,6 +277,10 @@ const CollapseBtn = styled.button`
     background: ${KOBALT_PRIMARY};
     color: #ffffff;
   }
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 const PanelTitle = styled.h3`
@@ -262,6 +290,10 @@ const PanelTitle = styled.h3`
   color: ${meok[900]};
   margin: 0 0 4px;
   line-height: 1.25;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 const PanelCountBadge = styled.span`
@@ -282,6 +314,10 @@ const PanelDesc = styled.p`
   color: ${meok[700]};
   line-height: 1.45;
   margin: 0 0 10px;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 const MiniCardList = styled.div`
@@ -305,6 +341,14 @@ const MiniCard = styled(motion.div)`
     background: ${KOBALT_LIGHT};
     border-color: ${KOBALT_PRIMARY};
     box-shadow: none;
+  }
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  [data-theme='dark'] &:hover {
+    background: rgba(255, 255, 255, 0.12);
   }
 `;
 
@@ -333,12 +377,20 @@ const MiniTitle = styled.h4`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 const MiniMeta = styled.div`
   font-size: 11px;
   font-weight: 400;
   color: ${meok[500]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 /* ── Collapsed Floating Trigger Pill (Flat Glass) ── */
@@ -367,6 +419,11 @@ const CollapsedPillBtn = styled(motion.button)`
     background: ${KOBALT_LIGHT};
     border-color: ${KOBALT_PRIMARY};
     color: ${KOBALT_PRIMARY};
+  }
+
+  [data-theme='dark'] & {
+    background: rgba(45, 41, 36, 0.92);
+    color: ${meok[100]};
   }
 `;
 

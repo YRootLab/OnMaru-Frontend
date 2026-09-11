@@ -3,7 +3,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import dynamic from 'next/dynamic';
-import { meok } from '@/design-system/tokens';
+import { meok, surface } from '@/design-system/tokens';
 import SectionHeader from '@/hanok/components/SectionHeader';
 import type { Village } from '@/hanok/types';
 import { useViewportActivation } from '@/shared/hooks/useViewportActivation';
@@ -29,6 +29,11 @@ const MapLoadingState = styled.div`
   place-items: center;
   color: ${meok[500]};
   font-size: 14px;
+
+  [data-theme='dark'] & {
+    background: ${surface.dark.card};
+    color: ${meok[400]};
+  }
 `;
 
 /*
@@ -56,7 +61,7 @@ export default function HanokMap({ villages, onSelectVillage }: HanokMapProps) {
     <Section id="map" aria-labelledby="map-heading">
       <SectionHeader
         id="map-heading"
-        title="전국 지도"
+        title="어디 있는지 한눈에"
         actionLabel="전체 지도 열기 ↗"
         actionHref="/map"
       />

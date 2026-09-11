@@ -22,6 +22,10 @@ const Title = styled.h2`
   margin: 0;
   line-height: 1.25;
   flex-shrink: 0;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 const RightGroup = styled.div`
@@ -40,6 +44,10 @@ const Subtitle = styled.p`
   margin: 0;
   line-height: 1.5;
   text-align: right;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 const ActionLink = styled.a`

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
-import { meok, lightPalette } from '@/design-system/tokens';
+import { meok, surface } from '@/design-system/tokens';
 
 const Wrapper = styled.div`
   display: flex;

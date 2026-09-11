@@ -8,6 +8,8 @@ export const HANOK_REVEAL_SECTIONS = {
   monthly: 'hanok-monthly',
   grid: 'hanok-grid',
   stay: 'hanok-stay',
+  structure: 'hanok-structure',
+  parts: 'hanok-parts',
   map: 'hanok-map',
   manifesto: 'hanok-manifesto',
 } as const;

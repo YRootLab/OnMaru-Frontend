@@ -92,7 +92,7 @@ const HandWritingCaption = styled.div`
 `;
 
 const HandWritingText = styled.p`
-  font-family: var(--font-hanok);
+  font-family: 'GeuriunXGukhanbakSingoyangI', var(--font-hanok);
   font-size: 21px;
   font-weight: 400;
   color: ${meok[900]};
@@ -147,6 +147,10 @@ const OutsideTitle = styled.h3`
   margin: 0;
   letter-spacing: -0.02em;
   line-height: 1.3;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 const OutsideBadges = styled.div`
@@ -179,6 +183,10 @@ const DetailButton = styled.div`
   .polaroid-card:hover & {
     color: ${lightPalette.kobalt[500]};
     transform: translateX(3px);
+  }
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
   }
 `;
 

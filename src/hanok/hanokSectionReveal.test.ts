@@ -9,6 +9,8 @@ describe('HANOK_REVEAL_SECTION_IDS', () => {
       'hanok-monthly',
       'hanok-grid',
       'hanok-stay',
+      'hanok-structure',
+      'hanok-parts',
       'hanok-map',
       'hanok-manifesto',
     ]);

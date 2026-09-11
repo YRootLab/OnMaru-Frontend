@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import { Tag, RotateCcw, Search, X } from 'lucide-react';
-import { meok, lightPalette } from '@/design-system/tokens';
+import { meok, lightPalette, surface } from '@/design-system/tokens';
 import { STAY_TYPE, type Village } from '@/hanok/types';
 import { filterLabel } from '@/hanok/filterLabels';
 
@@ -71,6 +71,12 @@ const SearchBox = styled.div`
   &:focus-within {
     border-color: ${lightPalette.kobalt[500]};
   }
+
+  [data-theme='dark'] & {
+    border-color: rgba(255, 255, 255, 0.14);
+    background: ${surface.dark.card};
+    color: ${meok[400]};
+  }
 `;
 
 const SearchInput = styled.input`
@@ -88,6 +94,14 @@ const SearchInput = styled.input`
   &::placeholder {
     color: ${meok[500]};
   }
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+
+    &::placeholder {
+      color: ${meok[500]};
+    }
+  }
 `;
 
 const ClearButton = styled.button`
@@ -103,6 +117,15 @@ const ClearButton = styled.button`
 
   &:hover {
     background: rgba(78, 89, 104, 0.18);
+  }
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.1);
+    color: ${meok[400]};
+  }
+
+  [data-theme='dark'] &:hover {
+    background: rgba(255, 255, 255, 0.16);
   }
 `;
 
@@ -120,6 +143,12 @@ const RegionSelect = styled.select`
   &:focus-visible {
     outline: 2px solid ${lightPalette.kobalt[500]};
     outline-offset: 1px;
+  }
+
+  [data-theme='dark'] & {
+    border-color: rgba(255, 255, 255, 0.14);
+    background: ${surface.dark.card};
+    color: ${meok[100]};
   }
 `;
 
@@ -145,6 +174,10 @@ const SegmentControl = styled.div`
   padding: 5px;
   border-radius: 9999px;
   gap: 4px;
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.06);
+  }
 `;
 
 const Segment = styled.button<{ $active: boolean }>`
@@ -163,6 +196,10 @@ const Segment = styled.button<{ $active: boolean }>`
 
   &:hover {
     color: ${({ $active }) => ($active ? '#ffffff' : lightPalette.kobalt[700])};
+  }
+
+  [data-theme='dark'] & {
+    color: ${({ $active }) => ($active ? '#ffffff' : meok[400])};
   }
 `;
 
@@ -188,6 +225,10 @@ const BadgeContainer = styled.div`
   padding: 10px 16px;
   background: rgba(248, 250, 255, 0.7);
   border-radius: 18px;
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.05);
+  }
 `;
 
 const BadgeHeader = styled.div`
@@ -238,6 +279,20 @@ const BadgeChip = styled.button<{ $active: boolean }>`
         ? `linear-gradient(135deg, ${lightPalette.kobalt[400]} 0%, ${lightPalette.kobalt[700]} 100%)`
         : lightPalette.kobalt[50]};
   }
+
+  [data-theme='dark'] & {
+    background: ${({ $active }) =>
+      $active
+        ? `linear-gradient(135deg, ${lightPalette.kobalt[500]} 0%, ${lightPalette.kobalt[700]} 100%)`
+        : 'rgba(255, 255, 255, 0.06)'};
+  }
+
+  [data-theme='dark'] &:hover {
+    background: ${({ $active }) =>
+      $active
+        ? `linear-gradient(135deg, ${lightPalette.kobalt[400]} 0%, ${lightPalette.kobalt[700]} 100%)`
+        : 'rgba(255, 255, 255, 0.1)'};
+  }
 `;
 
 const ResetBtn = styled.button`
@@ -258,6 +313,15 @@ const ResetBtn = styled.button`
     color: ${meok[900]};
     border-color: ${meok[400]};
     background: rgba(0, 0, 0, 0.04);
+  }
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
+
+  [data-theme='dark'] &:hover {
+    color: ${meok[100]};
+    background: rgba(255, 255, 255, 0.08);
   }
 `;
 

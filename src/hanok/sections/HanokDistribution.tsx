@@ -2,9 +2,11 @@
 
 import React, { useMemo } from 'react';
 import styled from '@emotion/styled';
+import { motion } from 'framer-motion';
 import { meok, lightPalette } from '@/design-system/tokens';
 import SectionHeader from '@/hanok/components/SectionHeader';
 import { filterLabel } from '@/hanok/filterLabels';
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import type { Village } from '@/hanok/types';
 
 /*
@@ -26,6 +28,10 @@ const StatRow = styled.dl`
   background: rgba(78, 89, 104, 0.03);
   border-radius: 20px;
 
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.04);
+  }
+
   @media (max-width: 560px) {
     grid-template-columns: 1fr;
     gap: 18px;
@@ -44,6 +50,10 @@ const StatLabel = styled.dt`
   font-weight: 500;
   letter-spacing: 0.06em;
   color: ${meok[500]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 const StatValue = styled.dd`
@@ -54,6 +64,10 @@ const StatValue = styled.dd`
   line-height: 1.1;
   color: ${meok[900]};
   font-variant-numeric: tabular-nums;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 const StatUnit = styled.span`
@@ -61,6 +75,10 @@ const StatUnit = styled.span`
   font-size: 0.45em;
   font-weight: 400;
   color: ${meok[500]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 const Finding = styled.p`
@@ -71,9 +89,13 @@ const Finding = styled.p`
   color: ${meok[700]};
   word-break: keep-all;
 
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
+
   strong {
     font-weight: 700;
-    color: ${lightPalette.kobalt[500]};
+    color: ${lightPalette.hwanggeum[700]};
   }
 `;
 
@@ -84,27 +106,6 @@ const Rows = styled.ol`
   margin: 0;
   padding: 0;
   list-style: none;
-`;
-
-const Row = styled.li`
-  display: grid;
-  grid-template-columns: 52px 1fr auto;
-  align-items: center;
-  gap: 12px;
-  padding: 7px 10px;
-  border-radius: 10px;
-  transition: background-color 0.16s ease;
-
-  &:hover {
-    background: rgba(78, 89, 104, 0.04);
-  }
-`;
-
-const RegionName = styled.span`
-  font-size: 13px;
-  font-weight: 500;
-  color: ${meok[900]};
-  white-space: nowrap;
 `;
 
 /* 막대는 값을 글자로도 옆에 적어 두므로 스크린리더에는 감춘다 */
@@ -122,7 +123,40 @@ const Bar = styled.span<{ $ratio: number }>`
   /* 데이터 끝만 둥글게 — 기준선 쪽은 각지게 두어야 0에서 시작한다는 게 보인다 */
   border-radius: 0 4px 4px 0;
   background: ${lightPalette.kobalt[500]};
-  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.16s ease;
+`;
+
+const Row = styled(motion.li)`
+  display: grid;
+  grid-template-columns: 52px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  transition: background-color 0.16s ease;
+
+  &:hover {
+    background: rgba(78, 89, 104, 0.04);
+  }
+
+  &:hover ${Bar} {
+    background: ${lightPalette.kobalt[400]};
+  }
+
+  [data-theme='dark'] &:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+`;
+
+const RegionName = styled.span`
+  font-size: 13px;
+  font-weight: 500;
+  color: ${meok[900]};
+  white-space: nowrap;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 const Count = styled.span`
@@ -131,6 +165,21 @@ const Count = styled.span`
   color: ${meok[700]};
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
+`;
+
+const Percent = styled.span`
+  margin-left: 4px;
+  color: ${lightPalette.hwanggeum[700]};
+  opacity: 0;
+  transition: opacity 0.16s ease;
+
+  ${Row}:hover & {
+    opacity: 1;
+  }
 `;
 
 interface HanokDistributionProps {
@@ -138,6 +187,7 @@ interface HanokDistributionProps {
 }
 
 export default function HanokDistribution({ villages }: HanokDistributionProps) {
+  const prefersReducedMotion = usePrefersReducedMotion();
   const { regions, total, typeCount, topType } = useMemo(() => {
     const byRegion = new Map<string, number>();
     const byType = new Map<string, number>();
@@ -204,13 +254,23 @@ export default function HanokDistribution({ villages }: HanokDistributionProps) 
       </Finding>
 
       <Rows>
-        {regions.map(([name, count]) => (
-          <Row key={name}>
+        {regions.map(([name, count], index) => (
+          <Row
+            key={name}
+            initial={prefersReducedMotion ? false : { opacity: 0, x: -8 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            whileHover={prefersReducedMotion ? undefined : { x: 2 }}
+            whileTap={prefersReducedMotion ? undefined : { scale: 0.99 }}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{ duration: 0.32, delay: Math.min(index * 0.03, 0.3), ease: [0.16, 1, 0.3, 1] }}
+          >
             <RegionName>{name}</RegionName>
             <Track aria-hidden="true">
               <Bar $ratio={count / max} />
             </Track>
-            <Count>{count}곳</Count>
+            <Count>
+              {count}곳<Percent>· {Math.round((count / total) * 100)}%</Percent>
+            </Count>
           </Row>
         ))}
       </Rows>

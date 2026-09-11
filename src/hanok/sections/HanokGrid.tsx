@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import styled from '@emotion/styled';
-import { meok } from '@/design-system/tokens';
+import { meok, surface } from '@/design-system/tokens';
 import SectionHeader from '@/hanok/components/SectionHeader';
 import FilterBar, { type VillageTypeFilter } from '@/hanok/components/FilterBar';
 import VillageCard from '@/hanok/components/VillageCard';
@@ -67,6 +67,11 @@ const EmptyState = styled.div`
   p {
     margin: 0;
   }
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.05);
+    color: ${meok[400]};
+  }
 `;
 
 /*
@@ -89,6 +94,17 @@ const ResetAll = styled.button`
   &:hover {
     background: ${meok[100]};
     color: ${meok[900]};
+  }
+
+  [data-theme='dark'] & {
+    border-color: rgba(255, 255, 255, 0.14);
+    background: ${surface.dark.card};
+    color: ${meok[400]};
+  }
+
+  [data-theme='dark'] &:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: ${meok[100]};
   }
 `;
 
@@ -138,7 +154,7 @@ export default function HanokGrid({ villages, onSelectVillage, initialFilters }:
     <Section id="grid" aria-labelledby="grid-heading">
       <SectionHeader
         id="grid-heading"
-        title="한옥도감"
+        title="찾는 곳이 있나요?"
         subtitle={`${filteredCount}곳`}
       />
 

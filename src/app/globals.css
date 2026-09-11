@@ -2,6 +2,15 @@
    600은 없으므로 쓰지 말 것 (CSS 폰트 매칭이 700으로 올려 잡아 볼드가 된다). */
 @import url(//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSansNeo.css);
 
+/* ── 손글씨 서체 — 이달의 한옥 폴라로이드 캡션·에디터 노트 두 곳 전용.
+   기본 서체(--font-hanok)에는 안 섞는다 — 위 주석대로 장식 서체는 걷어낸 상태다. */
+@font-face {
+  font-family: 'GeuriunXGukhanbakSingoyangI';
+  src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2607161334@x-6/x/GriunXHangeul_Gowoon-Rg.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
