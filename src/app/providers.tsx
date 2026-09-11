@@ -12,7 +12,7 @@ function ThemedToaster() {
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <EmotionRegistry>
-      <OnmaruThemeProvider defaultMode="light" followSystem>
+      <OnmaruThemeProvider defaultMode="system">
         {children}
         <ThemedToaster />
       </OnmaruThemeProvider>

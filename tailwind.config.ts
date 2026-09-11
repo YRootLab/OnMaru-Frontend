@@ -9,6 +9,11 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      // src/design-system/tokens.ts의 typography.fontSize와 값을 맞춘다 — 거기 없는
+      // 유일한 단계가 micro(10px, 배지·타임스탬프)라서 여기서만 확장해 준다.
+      fontSize: {
+        micro: '0.625rem',
+      },
       fontFamily: {
         maruburi: ['MaruBuri', 'serif'],
         'odii-sans': ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'Apple SD Gothic Neo', 'Inter', 'sans-serif'],

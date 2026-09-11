@@ -6,9 +6,10 @@
 
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Moon, Sun } from 'lucide-react'
+import { Moon, Sun, Monitor } from 'lucide-react'
 import { useOnmaruTheme } from './ThemeProvider'
-import type { OnmaruTheme } from './tokens'
+import type { OnmaruTheme, ThemePreference } from './tokens'
+import { fontSize } from './tokens'
 
 
 // ─────────────────────────────────────────
@@ -244,7 +245,7 @@ export const TabItem = styled.button<{ active?: boolean }>`
   background:      none;
   cursor:          pointer;
   font-family:     ${({ theme }) => (theme as OnmaruTheme).typography.fontFamily.sans};
-  font-size:       10px;
+  font-size:       ${fontSize.micro};
   /* 10px에서 500 대 400은 차이가 안 보인다. 활성 탭은 bold로 확실히 갈라 준다 */
   font-weight:     ${({ active, theme }) =>
     active
@@ -377,6 +378,66 @@ export function ThemeToggleButton() {
         </span>
       )}
     </button>
+  )
+}
+
+/**
+ * 라이트 / 다크 / 시스템 3단 화면 모드 스위치.
+ * 'system' 선택 시 OS 다크모드 설정 변경에 실시간으로 따라간다.
+ */
+export function ThemeModeSwitch() {
+  const { preference, setMode, theme } = useOnmaruTheme()
+
+  const options: { value: ThemePreference; label: string; Icon: typeof Sun }[] = [
+    { value: 'light', label: '라이트', Icon: Sun },
+    { value: 'dark', label: '다크', Icon: Moon },
+    { value: 'system', label: '시스템', Icon: Monitor },
+  ]
+
+  return (
+    <div
+      role="radiogroup"
+      aria-label="화면 모드"
+      css={css`
+        display: inline-flex;
+        padding: 3px;
+        gap: 2px;
+        background: ${theme.colors.bg.surface};
+        border-radius: ${theme.borderRadius.full};
+      `}
+    >
+      {options.map(({ value, label, Icon }) => {
+        const active = preference === value
+        return (
+          <button
+            key={value}
+            type="button"
+            role="radio"
+            aria-checked={active}
+            onClick={() => setMode(value)}
+            css={css`
+              display: inline-flex;
+              align-items: center;
+              gap: 4px;
+              padding: 6px 12px;
+              border: none;
+              border-radius: ${theme.borderRadius.full};
+              background: ${active ? theme.colors.bg.card : 'transparent'};
+              color: ${active ? theme.colors.text.primary : theme.colors.text.muted};
+              font-family: ${theme.typography.fontFamily.sans};
+              font-size: ${theme.typography.fontSize.xs};
+              font-weight: ${active ? theme.typography.fontWeight.bold : theme.typography.fontWeight.regular};
+              box-shadow: ${active ? theme.shadow.sm : 'none'};
+              cursor: pointer;
+              transition: ${theme.transition.fast};
+            `}
+          >
+            <Icon size={13} strokeWidth={2} />
+            {label}
+          </button>
+        )
+      })}
+    </div>
   )
 }
 
