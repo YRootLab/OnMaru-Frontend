@@ -2,7 +2,7 @@
 // 관리자 데이터 파이프라인 Mock 데이터 (src/admin/mock/pipeline.mock.ts)
 // ============================================================
 
-import { PipelineStatus } from '@/admin/types';
+import { PipelineStatus } from '@/features/admin/types';
 
 export const mockPipelineStatus: PipelineStatus = {
   lastBuildAt: '2026.08.04 04:00 (2시간 전)',

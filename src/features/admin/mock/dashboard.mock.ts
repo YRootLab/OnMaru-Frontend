@@ -2,7 +2,7 @@
 // 대시보드 Mock 데이터 (src/admin/mock/dashboard.mock.ts)
 // ============================================================
 
-import { DashboardStatCard } from '@/admin/types';
+import { DashboardStatCard } from '@/features/admin/types';
 
 export const mockDashboardStats: DashboardStatCard[] = [
   {

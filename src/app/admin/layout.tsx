@@ -6,9 +6,9 @@
 
 import React, { useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useAdminAuth } from '@/admin/hooks/useAdminAuth';
-import { AdminSidebar } from '@/admin/components/AdminSidebar';
-import { AdminHeader } from '@/admin/components/AdminHeader';
+import { useAdminAuth } from '@/features/admin/hooks/useAdminAuth';
+import { AdminSidebar } from '@/features/admin/components/AdminSidebar';
+import { AdminHeader } from '@/features/admin/components/AdminHeader';
 import { meok, palette } from '@/design-system/tokens';
 import { ShieldAlert, Lock } from 'lucide-react';
 

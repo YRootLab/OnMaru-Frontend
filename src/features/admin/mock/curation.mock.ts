@@ -2,7 +2,7 @@
 // 관리자 큐레이션 Mock 데이터 (src/admin/mock/curation.mock.ts)
 // ============================================================
 
-import { CurationItem } from '@/admin/types';
+import { CurationItem } from '@/features/admin/types';
 
 export const CURATION_PRESET_BADGES = [
   '전통 온돌',

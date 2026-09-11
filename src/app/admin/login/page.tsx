@@ -8,7 +8,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { meok, palette } from '@/design-system/tokens';
 import { setAccessToken } from '@/lib/api/client';
-import { AdminRole, AdminUser } from '@/admin/types';
+import { AdminRole, AdminUser } from '@/features/admin/types';
 import { Lock, Mail, AlertCircle } from 'lucide-react';
 
 export default function AdminLoginPage() {

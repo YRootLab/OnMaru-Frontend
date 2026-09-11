@@ -7,12 +7,12 @@
 import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { meok, palette } from '@/design-system/tokens';
-import { StatusBadge } from '@/admin/components/StatusBadge';
-import { ConfirmDialog } from '@/admin/components/ConfirmDialog';
-import { Toast } from '@/admin/components/Toast';
-import { EmptyState } from '@/admin/components/EmptyState';
-import { ReportItem, ReportStatus } from '@/admin/types';
-import { mockReports } from '@/admin/mock/reports.mock';
+import { StatusBadge } from '@/features/admin/components/StatusBadge';
+import { ConfirmDialog } from '@/features/admin/components/ConfirmDialog';
+import { Toast } from '@/features/admin/components/Toast';
+import { EmptyState } from '@/features/admin/components/EmptyState';
+import { ReportItem, ReportStatus } from '@/features/admin/types';
+import { mockReports } from '@/features/admin/mock/reports.mock';
 import {
   ShieldAlert,
   EyeOff,

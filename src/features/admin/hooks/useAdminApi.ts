@@ -6,7 +6,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { apiGet, apiPost, apiPatch, apiDelete } from '@/lib/api/client';
-import { ApiError } from '@/admin/types';
+import { ApiError } from '@/features/admin/types';
 
 interface UseApiQueryOptions<T> {
   initialData?: T;

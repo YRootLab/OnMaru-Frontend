@@ -2,7 +2,7 @@
 // 온기(후기) Mock 데이터 (src/admin/mock/reviews.mock.ts) - 25건+
 // ============================================================
 
-import { WarmthReview } from '@/admin/types';
+import { WarmthReview } from '@/features/admin/types';
 
 export const mockReviews: WarmthReview[] = [
   {

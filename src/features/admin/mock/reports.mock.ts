@@ -2,7 +2,7 @@
 // 관리자 신고 처리 Mock 데이터 (src/admin/mock/reports.mock.ts)
 // ============================================================
 
-import { ReportItem, ReportReason } from '@/admin/types';
+import { ReportItem, ReportReason } from '@/features/admin/types';
 
 export const REASON_LABEL_MAP: Record<ReportReason, string> = {
   ABUSE: '욕설/비방',

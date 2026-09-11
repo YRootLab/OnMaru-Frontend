@@ -6,12 +6,12 @@
 
 import React, { useState, useMemo } from 'react';
 import { meok, palette } from '@/design-system/tokens';
-import { DataTable, ColumnDef } from '@/admin/components/DataTable';
-import { StatusBadge } from '@/admin/components/StatusBadge';
-import { ConfirmDialog } from '@/admin/components/ConfirmDialog';
-import { Toast } from '@/admin/components/Toast';
-import { WarmthReview, ReviewStatus } from '@/admin/types';
-import { mockReviews } from '@/admin/mock/reviews.mock';
+import { DataTable, ColumnDef } from '@/features/admin/components/DataTable';
+import { StatusBadge } from '@/features/admin/components/StatusBadge';
+import { ConfirmDialog } from '@/features/admin/components/ConfirmDialog';
+import { Toast } from '@/features/admin/components/Toast';
+import { WarmthReview, ReviewStatus } from '@/features/admin/types';
+import { mockReviews } from '@/features/admin/mock/reviews.mock';
 import {
   Search,
   RotateCcw,

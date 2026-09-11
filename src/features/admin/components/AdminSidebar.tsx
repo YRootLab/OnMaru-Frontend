@@ -8,7 +8,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { palette, meok } from '@/design-system/tokens';
-import { useAdminAuth } from '@/admin/hooks/useAdminAuth';
+import { useAdminAuth } from '@/features/admin/hooks/useAdminAuth';
 import {
   LayoutDashboard,
   Flame,

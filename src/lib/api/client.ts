@@ -2,7 +2,7 @@
 // 온마루 공용 API 클라이언트 (src/lib/api/client.ts)
 // ============================================================
 
-import { ApiError } from '@/admin/types';
+import { ApiError } from '@/features/admin/types';
 
 const BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
 export const USE_MOCK = !BASE;

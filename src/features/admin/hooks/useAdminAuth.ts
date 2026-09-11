@@ -6,7 +6,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { AdminRole, AdminUser } from '@/admin/types';
+import { AdminRole, AdminUser } from '@/features/admin/types';
 import { getAccessToken, setAccessToken, removeAccessToken, USE_MOCK } from '@/lib/api/client';
 
 const DEFAULT_MOCK_USER: AdminUser = {

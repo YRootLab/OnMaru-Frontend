@@ -2,7 +2,7 @@
 // 관리자 사용자 Mock 데이터 (src/admin/mock/users.mock.ts)
 // ============================================================
 
-import { AdminUser } from '@/admin/types';
+import { AdminUser } from '@/features/admin/types';
 
 export const mockUsers: AdminUser[] = [
   {

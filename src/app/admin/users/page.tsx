@@ -6,14 +6,14 @@
 
 import React, { useState, useMemo } from 'react';
 import { meok, palette } from '@/design-system/tokens';
-import { DataTable, ColumnDef } from '@/admin/components/DataTable';
-import { StatusBadge } from '@/admin/components/StatusBadge';
-import { ConfirmDialog } from '@/admin/components/ConfirmDialog';
-import { Toast } from '@/admin/components/Toast';
-import { EmptyState } from '@/admin/components/EmptyState';
-import { useAdminAuth } from '@/admin/hooks/useAdminAuth';
-import { AdminUser, AdminRole } from '@/admin/types';
-import { mockUsers } from '@/admin/mock/users.mock';
+import { DataTable, ColumnDef } from '@/features/admin/components/DataTable';
+import { StatusBadge } from '@/features/admin/components/StatusBadge';
+import { ConfirmDialog } from '@/features/admin/components/ConfirmDialog';
+import { Toast } from '@/features/admin/components/Toast';
+import { EmptyState } from '@/features/admin/components/EmptyState';
+import { useAdminAuth } from '@/features/admin/hooks/useAdminAuth';
+import { AdminUser, AdminRole } from '@/features/admin/types';
+import { mockUsers } from '@/features/admin/mock/users.mock';
 import {
   Search,
   RotateCcw,
