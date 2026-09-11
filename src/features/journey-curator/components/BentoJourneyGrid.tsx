@@ -1,11 +1,27 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
-import { Compass, Clock, Landmark, Headphones, Play, Pause, Flame, ArrowRight } from 'lucide-react';
-import { lightPalette, meok, surface } from '@/design-system/tokens';
+import {
+  Compass,
+  Clock,
+  Landmark,
+  Headphones,
+  Play,
+  Pause,
+  Flame,
+  ArrowRight,
+  Sparkles,
+  Bookmark,
+  BookmarkCheck,
+} from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import { useAuth } from '@/features/auth';
+import { useSavedJourneyStore } from '../store/useSavedJourneyStore';
+import { lightPalette, meok, surface , fontSize } from '@/design-system/tokens';
 import { transientProps } from '@/design-system/styled';
 import { useJourneyStore } from '../store/useJourneyStore';
 
@@ -18,13 +34,107 @@ const Container = styled.div`
 const SectionHeader = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   margin-bottom: 20px;
+`;
+
+const HeaderRow = styled.div`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+`;
+
+const BookmarkBtn = styled.button<{ $saved: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  border: 1px solid ${({ $saved }) => ($saved ? '#00b882' : 'rgba(0, 0, 0, 0.1)')};
+  background: ${({ $saved }) => ($saved ? 'rgba(0, 184, 130, 0.1)' : '#ffffff')};
+  color: ${({ $saved }) => ($saved ? '#00b882' : '#4e5968')};
+  font-size: ${fontSize.xs};
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  flex-shrink: 0;
+
+  [data-theme='dark'] & {
+    background: ${({ $saved }) => ($saved ? 'rgba(0, 184, 130, 0.15)' : '#24211d')};
+    border-color: ${({ $saved }) => ($saved ? '#00b882' : 'rgba(255, 255, 255, 0.12)')};
+    color: ${({ $saved }) => ($saved ? '#00b882' : '#a1a1aa')};
+  }
+
+  &:hover {
+    transform: translateY(-1px);
+    border-color: #00b882;
+    color: #00b882;
+  }
+`;
+
+const DayTabsWrap = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+`;
+
+const DayTabBtn = styled.button<{ $active: boolean }>`
+  padding: 5px 14px;
+  border-radius: 9999px;
+  font-size: ${fontSize.xs};
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid ${({ $active }) => ($active ? '#3b82f6' : 'rgba(0, 0, 0, 0.08)')};
+  background: ${({ $active }) => ($active ? '#3b82f6' : 'transparent')};
+  color: ${({ $active }) => ($active ? '#ffffff' : '#6b7280')};
+  transition: all 0.18s ease;
+  white-space: nowrap;
+
+  [data-theme='dark'] & {
+    border-color: ${({ $active }) => ($active ? '#3b82f6' : 'rgba(255, 255, 255, 0.1)')};
+    color: ${({ $active }) => ($active ? '#ffffff' : '#9ca3af')};
+  }
+
+  &:hover {
+    background: ${({ $active }) => ($active ? '#3b82f6' : 'rgba(0, 0, 0, 0.04)')};
+
+    [data-theme='dark'] & {
+      background: ${({ $active }) => ($active ? '#3b82f6' : 'rgba(255, 255, 255, 0.06)')};
+    }
+  }
+`;
+
+const DayTitleBadge = styled.div`
+  font-size: ${fontSize.xs};
+  color: #3b82f6;
+  font-weight: 500;
+  margin-bottom: 8px;
+`;
+
+const AiBadge = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: ${fontSize.micro};
+  font-weight: 500;
+  color: ${lightPalette.cheongrok[500]};
+  background: rgba(0, 184, 130, 0.08);
+  border: 1px solid rgba(0, 184, 130, 0.2);
+  padding: 3px 10px;
+  border-radius: 9999px;
+  width: fit-content;
 `;
 
 const SectionTitle = styled.h2`
   font-family: var(--font-hanok);
-  font-size: 24px;
+  font-size: ${fontSize['2xl']};
   font-weight: 300;
   letter-spacing: -0.02em;
   color: #191f28;
@@ -37,7 +147,7 @@ const SectionTitle = styled.h2`
 `;
 
 const SectionTagline = styled.p`
-  font-size: 14px;
+  font-size: ${fontSize.sm};
   color: #6b7280;
   margin: 0;
 
@@ -100,7 +210,7 @@ const CardBadge = styled.div<{ $color: string }>`
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   letter-spacing: 0.06em;
   color: ${({ $color }) => $color};
@@ -108,7 +218,7 @@ const CardBadge = styled.div<{ $color: string }>`
 `;
 
 const CardTitle = styled.h3`
-  font-size: 18px;
+  font-size: ${fontSize.lg};
   font-weight: 500;
   color: #191f28;
   margin: 0 0 16px;
@@ -123,7 +233,7 @@ const RouteMeta = styled.div`
   display: flex;
   align-items: center;
   gap: 16px;
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   color: #4e5968;
   margin-bottom: 20px;
 
@@ -192,13 +302,13 @@ const StopHeader = styled.div`
 `;
 
 const StopTime = styled.span`
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   color: #3b82f6;
 `;
 
 const StopName = styled.span`
-  font-size: 14px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
   color: #191f28;
 
@@ -208,7 +318,7 @@ const StopName = styled.span`
 `;
 
 const StopDesc = styled.span`
-  font-size: 12.5px;
+  font-size: ${fontSize.xs};
   color: #6b7280;
 
   [data-theme='dark'] & {
@@ -248,7 +358,7 @@ const HanokImageWrap = styled.div`
 `;
 
 const HanokDesc = styled.p`
-  font-size: 13.5px;
+  font-size: ${fontSize.sm};
   line-height: 1.6;
   color: #4e5968;
   margin: 0 0 20px;
@@ -310,7 +420,7 @@ const AudioInfo = styled.div`
 `;
 
 const AudioTitle = styled.span`
-  font-size: 14px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
   color: #191f28;
 
@@ -320,7 +430,7 @@ const AudioTitle = styled.span`
 `;
 
 const AudioNarrator = styled.span`
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   color: #6b7280;
 
   [data-theme='dark'] & {
@@ -333,7 +443,7 @@ const ExcerptBox = styled.blockquote`
   padding: 0 0 0 14px;
   border-left: 2px solid #8b5cf6;
   font-style: italic;
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   line-height: 1.6;
   color: #4e5968;
 
@@ -383,7 +493,7 @@ const GaugeFill = styled.div<{ $pct: number }>`
 const GaugeMeta = styled.div`
   display: flex;
   justify-content: space-between;
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   font-weight: 400;
   color: #6b7280;
 
@@ -397,7 +507,7 @@ const ActionLink = styled(Link, transientProps)<{ $color?: string }>`
   align-items: center;
   gap: 6px;
   margin-top: auto;
-  font-size: 13.5px;
+  font-size: ${fontSize.sm};
   font-weight: 700;
   color: ${({ $color }) => $color || '#191f28'};
   text-decoration: none;
@@ -413,16 +523,83 @@ const ActionLink = styled(Link, transientProps)<{ $color?: string }>`
 `;
 
 export default function BentoJourneyGrid() {
+  const router = useRouter();
   const plan = useJourneyStore((s) => s.currentPlan);
+  const isGenerating = useJourneyStore((s) => s.isGenerating);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [selectedDayIdx, setSelectedDayIdx] = useState(0);
+
+  const { isLoggedIn } = useAuth();
+  const saveJourney = useSavedJourneyStore((s) => s.saveJourney);
+  const removeJourney = useSavedJourneyStore((s) => s.removeJourney);
+  const isSaved = useSavedJourneyStore((s) => s.isSaved);
+  const loadSaved = useSavedJourneyStore((s) => s.loadSaved);
+
+  useEffect(() => {
+    loadSaved();
+  }, [loadSaved]);
+
+  useEffect(() => {
+    setSelectedDayIdx(0);
+  }, [plan.id]);
+
+  const isCurrentSaved = isSaved(plan.id, plan.title);
+
+  const handleBookmarkToggle = () => {
+    if (!isLoggedIn) {
+      toast.info('로그인하시면 나만의 AI 여정 코스를 보관할 수 있습니다.', {
+        action: {
+          label: '로그인하기',
+          onClick: () => router.push('/auth/login'),
+        },
+      });
+      return;
+    }
+
+    if (isCurrentSaved) {
+      removeJourney(plan.id);
+      toast.success('여정 보관이 취소되었습니다.');
+    } else {
+      saveJourney(plan);
+      toast.success(`✨ '${plan.title}' 여정이 마이페이지에 저장되었습니다!`);
+    }
+  };
 
   const { routeCard, hanokCard, sorimaruCard, warmthCard } = plan;
+  const days = routeCard.days;
+  const hasMultipleDays = Array.isArray(days) && days.length > 1;
+  const activeDay = hasMultipleDays ? days[selectedDayIdx] || days[0] : null;
+
+  const currentStops = activeDay ? activeDay.stops : routeCard.stops;
+  const currentDuration = activeDay ? activeDay.duration : routeCard.duration;
+  const currentWalkingTime = activeDay ? activeDay.walkingTime : routeCard.walkingTime;
+  const currentMapLink = activeDay?.mapLink || routeCard.mapLink;
 
   return (
-    <Container>
+    <Container style={{ opacity: isGenerating ? 0.6 : 1, transition: 'opacity 0.25s ease' }}>
       <SectionHeader>
-        <SectionTitle>{plan.title}</SectionTitle>
-        <SectionTagline>{plan.tagline}</SectionTagline>
+        <HeaderRow>
+          <div>
+            {plan.isAiGenerated && (
+              <AiBadge>
+                <Sparkles size={12} />
+                <span>Gemini AI & TourAPI 실시간 생성</span>
+              </AiBadge>
+            )}
+            <SectionTitle>{plan.title}</SectionTitle>
+            <SectionTagline>{plan.tagline}</SectionTagline>
+          </div>
+
+          <BookmarkBtn
+            type="button"
+            $saved={isCurrentSaved}
+            onClick={handleBookmarkToggle}
+            title={isCurrentSaved ? '보관 취소' : '여정 보관하기'}
+          >
+            {isCurrentSaved ? <BookmarkCheck size={15} /> : <Bookmark size={15} />}
+            <span>{isCurrentSaved ? '보관됨' : '여정 저장하기'}</span>
+          </BookmarkBtn>
+        </HeaderRow>
       </SectionHeader>
 
       <BentoGrid>
@@ -432,20 +609,45 @@ export default function BentoJourneyGrid() {
             <Compass size={14} strokeWidth={2} />
             <span>추천 공간 동선 (지도 연동)</span>
           </CardBadge>
-          <CardTitle>{routeCard.title}</CardTitle>
+
+          {hasMultipleDays && (
+            <DayTabsWrap>
+              {days.map((day, idx) => (
+                <DayTabBtn
+                  key={day.dayNumber}
+                  type="button"
+                  $active={selectedDayIdx === idx}
+                  onClick={() => setSelectedDayIdx(idx)}
+                >
+                  {day.dayNumber}일차
+                </DayTabBtn>
+              ))}
+            </DayTabsWrap>
+          )}
+
+          {activeDay?.dayTitle && <DayTitleBadge>{activeDay.dayTitle}</DayTitleBadge>}
+
+          <CardTitle>
+            {hasMultipleDays
+              ? `${activeDay?.dayNumber}일차: ${activeDay?.theme || routeCard.title}`
+              : routeCard.title}
+          </CardTitle>
 
           <RouteMeta>
             <MetaItem>
               <Clock size={14} strokeWidth={2} />
-              <span>총 소요: {routeCard.duration}</span>
+              <span>
+                {hasMultipleDays ? `${activeDay?.dayNumber}일차 소요: ` : '총 소요: '}
+                {currentDuration}
+              </span>
             </MetaItem>
             <MetaItem>
-              <span>{routeCard.walkingTime}</span>
+              <span>{currentWalkingTime}</span>
             </MetaItem>
           </RouteMeta>
 
           <Timeline>
-            {routeCard.stops.map((stop, idx) => (
+            {currentStops.map((stop, idx) => (
               <TimelineStop key={idx}>
                 <StopHeader>
                   <StopTime>{stop.time}</StopTime>
@@ -456,8 +658,12 @@ export default function BentoJourneyGrid() {
             ))}
           </Timeline>
 
-          <ActionLink href={routeCard.mapLink} $color="#3b82f6">
-            <span>지도에서 전체 동선 및 장소 보기</span>
+          <ActionLink href={currentMapLink} $color="#3b82f6">
+            <span>
+              {hasMultipleDays
+                ? `${activeDay?.dayNumber}일차 지도 및 동선 보기`
+                : '지도에서 전체 동선 및 장소 보기'}
+            </span>
             <ArrowRight size={14} strokeWidth={2} />
           </ActionLink>
         </RouteCard>

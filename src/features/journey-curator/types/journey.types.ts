@@ -37,10 +37,22 @@ export interface RouteStop {
   description: string;
 }
 
+export interface JourneyDay {
+  dayNumber: number; // 1, 2, 3
+  dayTitle: string; // 예: "1일차: 빗소리 흐르는 소쇄원과 대숲 산책"
+  theme?: string;
+  duration: string;
+  walkingTime: string;
+  stops: RouteStop[];
+  mapLink: string;
+}
+
 export interface BentoRouteCard {
   title: string;
   duration: string;
   walkingTime: string;
+  totalDays?: number;
+  days?: JourneyDay[];
   stops: RouteStop[];
   mapLink: string;
 }
@@ -85,4 +97,12 @@ export interface BentoJourneyPlan {
   hanokCard: BentoHanokCard;
   sorimaruCard: BentoSorimaruCard;
   warmthCard: BentoWarmthCard;
+  refineSuggestions?: string[];
+  isAiGenerated?: boolean;
+}
+
+export interface SavedJourney {
+  id: string;
+  savedAt: string; // ISO string
+  plan: BentoJourneyPlan;
 }

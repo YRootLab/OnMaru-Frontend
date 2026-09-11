@@ -12,7 +12,7 @@ import {
   CloudRain,
   Leaf,
 } from 'lucide-react';
-import { lightPalette, meok, surface } from '@/design-system/tokens';
+import { lightPalette, meok, surface , fontSize } from '@/design-system/tokens';
 import { MOOD_OPTIONS } from '../data/curatedJourneys';
 import { useJourneyStore } from '../store/useJourneyStore';
 
@@ -34,7 +34,7 @@ const EyebrowBadge = styled.div`
   border-radius: 9999px;
   background: rgba(0, 184, 130, 0.08);
   color: ${lightPalette.cheongrok[500]};
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   letter-spacing: 0.02em;
   margin-bottom: 16px;
@@ -42,7 +42,7 @@ const EyebrowBadge = styled.div`
 
 const Title = styled.h1`
   font-family: var(--font-hanok);
-  font-size: 36px;
+  font-size: ${fontSize['4xl']};
   /* 36px — 크기가 이미 위계를 만든다. 굵기는 덜어낸다 */
   font-weight: 300;
   color: #191f28;
@@ -54,12 +54,12 @@ const Title = styled.h1`
   }
 
   @media (max-width: 768px) {
-    font-size: 28px;
+    font-size: ${fontSize['3xl']};
   }
 `;
 
 const Subtitle = styled.p`
-  font-size: 15.5px;
+  font-size: ${fontSize.base};
   line-height: 1.6;
   color: #4e5968;
   margin: 0 0 28px;
@@ -70,7 +70,7 @@ const Subtitle = styled.p`
   }
 
   @media (max-width: 768px) {
-    font-size: 14px;
+    font-size: ${fontSize.sm};
   }
 `;
 
@@ -113,7 +113,7 @@ const Input = styled.input`
   background: transparent;
   outline: none;
   font-family: inherit;
-  font-size: 15px;
+  font-size: ${fontSize.sm};
   color: #191f28;
 
   [data-theme='dark'] & {
@@ -135,7 +135,7 @@ const SubmitButton = styled.button<{ $disabled?: boolean }>`
   background: #191f28;
   color: #ffffff;
   font-family: inherit;
-  font-size: 14px;
+  font-size: ${fontSize.sm};
   /* 검색 실행 — 이 화면의 주 행동 */
   font-weight: 700;
   cursor: pointer;
@@ -176,7 +176,7 @@ const MoodChip = styled.button<{ $active: boolean }>`
   background: ${({ $active }) => ($active ? '#f2f4f6' : '#ffffff')};
   color: ${({ $active }) => ($active ? '#191f28' : '#333d4b')};
   font-family: inherit;
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: ${({ $active }) => ($active ? 500 : 400)};
   cursor: pointer;
   white-space: nowrap;

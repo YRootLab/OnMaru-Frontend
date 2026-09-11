@@ -6,9 +6,10 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import styled from '@emotion/styled';
-import { ArrowRight, Menu, X, Sparkles, BookOpen, Map, Headphones } from 'lucide-react';
+import { ArrowRight, Menu, X, Sparkles, BookOpen, Map, Headphones, Sun, Moon, Monitor } from 'lucide-react';
 import { transientProps } from '@/design-system/styled';
-import { lightPalette, meok, surface } from '@/design-system/tokens';
+import { lightPalette, meok, surface , fontSize } from '@/design-system/tokens';
+import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import { useAuth } from '@/features/auth';
 import GlobalMobileTabs from './GlobalMobileTabs';
 import MapMobileTabs from '@/features/map/components/MapMobileTabs';
@@ -202,7 +203,7 @@ const CenterNav = styled('nav', transientProps)<LandingProps>`
 const NavLink = styled(Link, transientProps)<LandingProps>`
   position: relative;
   font-family: 'Spoqa Han Sans Neo', sans-serif;
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   /* 네비게이션은 읽히기만 하면 된다. 강조는 hover 색이 맡는다 */
   font-weight: 400;
   color: ${({ $isLanding }) => ($isLanding ? 'rgba(255, 255, 255, 0.82)' : meok[700])};
@@ -313,7 +314,7 @@ const MobileMenuLink = styled(Link, transientProps)<LandingProps>`
   border-radius: 10px;
   color: ${({ $isLanding }) => ($isLanding ? 'rgba(250, 250, 250, 0.9)' : meok[900])};
   font-family: 'Spoqa Han Sans Neo', sans-serif;
-  font-size: 15px;
+  font-size: ${fontSize.sm};
   text-decoration: none;
 
   &:active {
@@ -329,7 +330,7 @@ const MobileMenuDivider = styled('div', transientProps)<LandingProps>`
 
 const LoginButton = styled(Link, transientProps)<LandingProps>`
   font-family: 'Spoqa Han Sans Neo', sans-serif;
-  font-size: 12.5px;
+  font-size: ${fontSize.xs};
   /* 헤더에서 유일하게 굵은 지점 — 네비가 400이라 이 하나가 확실히 선다 */
   font-weight: 700;
 
@@ -384,6 +385,34 @@ const LoginButton = styled(Link, transientProps)<LandingProps>`
   }
 `;
 
+const ThemeToggleBtn = styled('button', transientProps)<LandingProps>`
+  width: 30px;
+  height: 30px;
+  border-radius: 9999px;
+  border: 1px solid ${({ $isLanding }) => ($isLanding ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.08)')};
+  background: ${({ $isLanding }) => ($isLanding ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)')};
+  color: ${({ $isLanding }) => ($isLanding ? '#ffffff' : meok[700])};
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-right: 6px;
+  transition: all 180ms ease;
+
+  &:hover {
+    background: ${({ $isLanding }) => ($isLanding ? 'rgba(255, 255, 255, 0.18)' : 'rgba(0, 0, 0, 0.08)')};
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+`;
+
 /* 개발 전용 카탈로그 링크 (프로덕션 번들에서는 제거) */
 const IS_DEV = process.env.NODE_ENV === 'development';
 
@@ -394,6 +423,7 @@ export default function Header() {
   const isSoriMaruPage = pathname.startsWith('/sorimaru') || pathname.startsWith('/sorimaru');
   const recordNavigation = useMapEntranceStore((s) => s.recordNavigation);
   const { user, isLoggedIn } = useAuth();
+  const { preference, toggleMode, setMode } = useOnmaruTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
@@ -587,8 +617,24 @@ export default function Header() {
           </NavLink>
         </CenterNav>
 
-      {/* 오른쪽 끝: 로그인 / 마이페이지 */}
+      {/* 오른쪽 끝: 테마 변경 + 로그인 / 마이페이지 */}
       <RightSection $isMapPage={isMapPage}>
+        <ThemeToggleBtn
+          type="button"
+          $isLanding={usesDarkSurface}
+          onClick={toggleMode}
+          title={`현재 화면 모드: ${preference === 'light' ? '라이트' : preference === 'dark' ? '다크' : '시스템'} (클릭 시 순환)`}
+          aria-label="화면 테마 모드 변경"
+        >
+          {preference === 'light' ? (
+            <Sun size={14} />
+          ) : preference === 'dark' ? (
+            <Moon size={14} />
+          ) : (
+            <Monitor size={14} />
+          )}
+        </ThemeToggleBtn>
+
         <LoginButton href={isLoggedIn ? '/mypage' : '/auth/login'} $isLanding={usesDarkSurface}>
           <span>{isLoggedIn ? (user?.nickname ?? '마이페이지') : '로그인'}</span>
           <ArrowRight size={12} />
@@ -674,6 +720,50 @@ export default function Header() {
                 </span>
               </MobileMenuLink>
               <MobileMenuDivider $isLanding={usesDarkSurface} />
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '8px 12px',
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: '13px',
+                    color: usesDarkSurface ? 'rgba(250, 250, 250, 0.75)' : meok[700],
+                  }}
+                >
+                  화면 모드
+                </span>
+                <div style={{ display: 'flex', gap: '4px' }}>
+                  {(['light', 'dark', 'system'] as const).map((opt) => (
+                    <button
+                      key={opt}
+                      type="button"
+                      onClick={() => setMode(opt)}
+                      style={{
+                        padding: '4px 10px',
+                        borderRadius: '9999px',
+                        border: 'none',
+                        background:
+                          preference === opt ? 'rgba(0, 184, 130, 0.2)' : 'transparent',
+                        color:
+                          preference === opt
+                            ? '#00b882'
+                            : usesDarkSurface
+                            ? '#a1a1aa'
+                            : meok[700],
+                        fontSize: '12px',
+                        fontWeight: preference === opt ? 600 : 400,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {opt === 'light' ? '라이트' : opt === 'dark' ? '다크' : '시스템'}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <MobileMenuLink href={isLoggedIn ? '/mypage' : '/auth/login'} $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
                 {isLoggedIn ? (user?.nickname ?? '마이페이지') : '로그인'}
               </MobileMenuLink>
