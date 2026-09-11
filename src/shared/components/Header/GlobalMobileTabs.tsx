@@ -59,7 +59,7 @@ export default function GlobalMobileTabs({ isLanding }: { isLanding: boolean }) 
       </TabLink>
       <TabLink href="/hanok" $isLanding={isLanding} $isActive={pathname.startsWith('/hanok')}>
         <BookOpen size={19} strokeWidth={2} aria-hidden="true" />
-        <span>한옥도감</span>
+        <span>한옥 마루</span>
       </TabLink>
       <TabLink href="/map" $isLanding={isLanding} $isActive={pathname.startsWith('/map')}>
         <Map size={19} strokeWidth={2} aria-hidden="true" />

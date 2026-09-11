@@ -561,10 +561,10 @@ export default function Header() {
           </LogoLink>
         </LeftSection>
 
-        {/* 가운데: 한옥도감, 지도, 소리마루, 여정 탐색 */}
+        {/* 가운데: 한옥 마루, 지도, 소리마루, 여정 탐색 */}
         <CenterNav $isMapPage={isMapPage}>
           <NavLink href="/hanok" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
-            한옥도감
+            한옥 마루
           </NavLink>
 
           <NavLink href="/map" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
@@ -653,7 +653,7 @@ export default function Header() {
               exit={{ opacity: 0, y: -6, scale: 0.98 }}
               transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
             >
-              <MobileMenuLink href="/hanok" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>한옥도감</MobileMenuLink>
+              <MobileMenuLink href="/hanok" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>한옥 마루</MobileMenuLink>
               <MobileMenuLink href="/map" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>지도</MobileMenuLink>
               <MobileMenuLink href="/odii" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>소리마루</MobileMenuLink>
               <MobileMenuLink href="/" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>

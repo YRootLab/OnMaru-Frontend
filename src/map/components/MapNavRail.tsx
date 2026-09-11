@@ -213,15 +213,15 @@ export default function MapNavRail() {
 
       <LogoDivider />
 
-      {/* 2. 온마루 자체 카테고리 목록 (한옥도감, 지도, 소리마루, 온기이야기, 저장) — 라벨은 title 툴팁으로 대체 */}
+      {/* 2. 온마루 자체 카테고리 목록 (한옥 마루, 지도, 소리마루, 온기이야기, 저장) — 라벨은 title 툴팁으로 대체 */}
       <NavList>
-        {/* 온마루 카테고리 1: 한옥도감 */}
+        {/* 온마루 카테고리 1: 한옥 마루 */}
         <NavItemBtn
           type="button"
           $active={false}
           onClick={() => router.push('/hanok')}
-          aria-label="한옥도감"
-          title="한옥도감"
+          aria-label="한옥 마루"
+          title="한옥 마루"
         >
           <NavItemIcon>
             <BookOpen size={19} strokeWidth={2} />
