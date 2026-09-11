@@ -16,7 +16,7 @@ import {
   Minus,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { meok, lightPalette } from '@/design-system/tokens';
+import { meok, lightPalette , fontSize } from '@/design-system/tokens';
 import { KAKAO_SDK_SRC, useKakaoMap } from '@/features/map/hooks/useKakaoMap';
 import { DEFAULT_CENTER, useMapStore } from '@/features/map/hooks/useMapStore';
 import type { LatLng } from '@/features/map/types';
@@ -58,7 +58,7 @@ const mapGlobalStyles = css`
     padding: 3.5px 10px;
     margin-bottom: 6px;
     border-radius: 9999px;
-    font-size: 11.5px;
+    font-size: ${fontSize.xs};
     font-weight: 700;
     white-space: nowrap;
     background: #ffffff;
@@ -168,7 +168,7 @@ const FlightBanner = styled.div`
   }
 
   span.hub-name {
-    font-size: 13px;
+    font-size: ${fontSize.xs};
     font-weight: 700;
     color: #ffffff;
     letter-spacing: -0.2px;
@@ -178,7 +178,7 @@ const FlightBanner = styled.div`
     padding: 2px 7px;
     border-radius: 9999px;
     background: ${lightPalette.juhong[500]};
-    font-size: 11px;
+    font-size: ${fontSize.micro};
     font-weight: 700;
   }
 
@@ -190,7 +190,7 @@ const FlightBanner = styled.div`
     border-radius: 9999px;
     background: rgba(255, 255, 255, 0.15);
     color: #ffffff;
-    font-size: 11.5px;
+    font-size: ${fontSize.xs};
     font-weight: 500;
     cursor: pointer;
     transition: background 0.15s ease;
@@ -217,7 +217,7 @@ const Research = styled.button`
 
   color: ${meok[900]};
   font-family: inherit;
-  font-size: 14px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
   cursor: pointer;
   animation: research-in 0.24s ease-out both;

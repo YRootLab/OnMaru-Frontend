@@ -66,7 +66,7 @@ import {
   ChevronRight,
   Sparkles,
 } from 'lucide-react';
-import { lightPalette, meok, surface } from '@/design-system/tokens';
+import { lightPalette, meok, surface , fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import type { Item } from '@/features/map/types';
 
@@ -99,14 +99,14 @@ const TitleGroup = styled.div`
 
 const SectionTitle = styled.h3`
   margin: 0;
-  font-size: 14px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
   color: ${meok[900]};
   letter-spacing: -0.02em;
 `;
 
 const BadgeTitle = styled.span`
-  font-size: 10.5px;
+  font-size: ${fontSize.micro};
   font-weight: 500;
   color: ${lightPalette.cheongrok[500]};
 `;
@@ -117,7 +117,7 @@ const MoreBtn = styled.button`
   gap: 2px;
 
   background: transparent;
-  font-size: 11.5px;
+  font-size: ${fontSize.xs};
   font-weight: 400;
   color: ${meok[400]};
   cursor: pointer;
@@ -241,7 +241,7 @@ const CardBadge = styled.div`
   gap: 3px;
   padding: 2px 7px;
   border-radius: 9999px;
-  font-size: 10px;
+  font-size: ${fontSize.micro};
   font-weight: 700;
   color: ${surface.light.card};
   background: ${lightPalette.cheongrok[500]};
@@ -253,7 +253,7 @@ const CardBody = styled.div`
 
 const CardTitle = styled.h4`
   margin: 0 0 4px;
-  font-size: 13.5px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
   color: ${meok[900]};
   white-space: nowrap;
@@ -266,14 +266,14 @@ const CardDateRow = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   color: ${lightPalette.cheongrok[700]};
   font-weight: 500;
 `;
 
 const CardAddr = styled.div`
   margin-top: 3px;
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   font-weight: 400;
   color: ${meok[400]};
   white-space: nowrap;

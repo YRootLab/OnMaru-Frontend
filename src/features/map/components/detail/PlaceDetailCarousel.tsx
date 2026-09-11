@@ -11,7 +11,7 @@ import {
   Coffee,
   ShoppingBag,
 } from 'lucide-react';
-import { meok } from '@/design-system/tokens';
+import { meok , fontSize } from '@/design-system/tokens';
 import type { PlaceCategory } from '@/features/map/types';
 
 const ImageContainer = styled.div<{ $hasImages: boolean }>`
@@ -114,7 +114,7 @@ const FallbackIconWrap = styled.div`
 `;
 
 const FallbackText = styled.span`
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   color: ${meok[700]};
   letter-spacing: -0.2px;

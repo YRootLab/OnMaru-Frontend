@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
 import { Home, Users, MapPin, Headphones, Bookmark } from 'lucide-react';
-import { lightPalette } from '@/design-system/tokens';
+import { lightPalette , fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 
@@ -27,7 +27,7 @@ const TabButton = styled.button<{ $active?: boolean }>`
   background: none;
   color: ${({ $active }) => ($active ? lightPalette.juhong[700] : 'rgba(33, 30, 25, 0.68)')};
   font-family: 'Spoqa Han Sans Neo', sans-serif;
-  font-size: 10px;
+  font-size: ${fontSize.micro};
   font-weight: ${({ $active }) => ($active ? 600 : 400)};
   letter-spacing: -0.02em;
   cursor: pointer;
@@ -58,7 +58,7 @@ const CountBadge = styled.span`
   border-radius: 9999px;
   background: ${lightPalette.juhong[500]};
   color: #ffffff;
-  font-size: 9px;
+  font-size: ${fontSize.micro};
   font-weight: 700;
   line-height: 1;
 `;

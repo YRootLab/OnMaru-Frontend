@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import styled from '@emotion/styled';
 import { Flame, Leaf, Users, Plus, MessageCircle } from 'lucide-react';
-import { lightPalette, meok } from '@/design-system/tokens';
+import { lightPalette, meok , fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { distanceInMeters } from '@/features/map/utils/geo';
 import WriteWarmthModal from './WriteWarmthModal';
@@ -37,7 +37,7 @@ const TitleBox = styled.div`
 
 const SectionTitle = styled.h3`
   margin: 0;
-  font-size: 15px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
   color: ${meok[900]};
 `;
@@ -52,7 +52,7 @@ const CountBadge = styled.span`
   border-radius: 9999px;
   background: ${lightPalette.juhong[50]};
   color: ${lightPalette.juhong[700]};
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   border: none;
@@ -69,7 +69,7 @@ const WriteButton = styled.button`
   background: ${lightPalette.juhong[50]};
   color: ${lightPalette.juhong[700]};
   font-family: inherit;
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -125,7 +125,7 @@ const MoodBadge = styled.span<{ $mood?: '한적' | '북적' }>`
   gap: 4px;
   padding: 2.5px 7px;
   border-radius: 6px;
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   font-weight: 700;
   color: ${lightPalette.juhong[700]};
   background: ${lightPalette.juhong[50]};
@@ -142,12 +142,12 @@ const MineBadge = styled.span`
   border-radius: 4px;
   background: ${meok[900]};
   color: #ffffff;
-  font-size: 10px;
+  font-size: ${fontSize.micro};
   font-weight: 700;
 `;
 
 const TimeText = styled.span`
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   color: ${meok[400]};
 `;
 
@@ -167,13 +167,13 @@ const TagItem = styled.span`
   border-radius: 6px;
   background: ${lightPalette.juhong[50]};
   color: ${lightPalette.juhong[700]};
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   font-weight: 500;
 `;
 
 const WarmthText = styled.p`
   margin: 0;
-  font-size: 13.5px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
   line-height: 1.55;
   color: ${meok[900]};
@@ -205,14 +205,14 @@ const EmptyIconBox = styled.div`
 `;
 
 const EmptyTitle = styled.div`
-  font-size: 13.5px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
   color: ${meok[900]};
   margin-bottom: 4px;
 `;
 
 const EmptySub = styled.div`
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   color: ${meok[500]};
   margin-bottom: 12px;
 `;
@@ -228,7 +228,7 @@ const EmptyActionBtn = styled.button`
   background: ${lightPalette.juhong[500]};
   color: #ffffff;
   font-family: inherit;
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   cursor: pointer;
 

@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import styled from '@emotion/styled';
-import { meok, surface } from '@/design-system/tokens';
+import { meok, surface , fontSize } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { filterWarmth } from '@/features/map/warmth/warmthRepo';
@@ -65,7 +65,7 @@ const Root = styled.div`
 
 const Summary = styled.p`
   margin: 0;
-  font-size: 12.5px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   line-height: 1.35;
   color: ${meok[900]};
@@ -106,7 +106,7 @@ const RampBar = styled.div<{ $gradient: string }>`
 const RampEnds = styled.div`
   display: flex;
   justify-content: space-between;
-  font-size: 11.5px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   color: ${meok[700]};
 
@@ -117,7 +117,7 @@ const RampEnds = styled.div`
 
 const RampNote = styled.p`
   margin: 0;
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   font-weight: 500;
   line-height: 1.4;
   color: ${meok[500]};
@@ -140,7 +140,7 @@ const PeriodRow = styled.div`
 
 const PeriodLabel = styled.span`
   margin-right: 2px;
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   font-weight: 500;
   color: ${meok[500]};
 `;
@@ -153,7 +153,7 @@ const PeriodBtn = styled.button<{ $active: boolean }>`
   background: ${({ $active }) => ($active ? meok[900] : 'rgba(78, 89, 104, 0.08)')};
   color: ${({ $active }) => ($active ? surface.light.card : meok[700])};
   font-family: inherit;
-  font-size: 11.5px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;

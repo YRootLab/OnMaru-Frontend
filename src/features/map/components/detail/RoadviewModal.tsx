@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
 import { Camera, X, AlertCircle } from 'lucide-react';
-import { meok, lightPalette, darkPalette } from '@/design-system/tokens';
+import { meok, lightPalette, darkPalette , fontSize } from '@/design-system/tokens';
 
 const Backdrop = styled.div`
   position: fixed;
@@ -67,7 +67,7 @@ const TitleBox = styled.div`
 `;
 
 const Title = styled.h3`
-  font-size: 15px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
   color: ${meok[900]};
   margin: 0;
@@ -85,7 +85,7 @@ const SubBadge = styled.span`
   border-radius: 9999px;
   background: ${lightPalette.cheongrok[50]};
   color: ${lightPalette.cheongrok[700]};
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   font-weight: 700;
 
   [data-theme='dark'] & {
@@ -144,7 +144,7 @@ const FallbackOverlay = styled.div`
   background: #1c1a17;
 
   p {
-    font-size: 14px;
+    font-size: ${fontSize.sm};
     color: ${meok[400]};
     margin: 0;
     max-width: 320px;

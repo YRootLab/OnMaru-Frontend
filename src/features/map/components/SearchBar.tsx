@@ -6,7 +6,7 @@ import {
   RotateCcw,
   Globe,
 } from 'lucide-react';
-import { lightPalette, meok } from '@/design-system/tokens';
+import { lightPalette, meok , fontSize } from '@/design-system/tokens';
 import { DEFAULT_CENTER, DEFAULT_LEVEL, useMapStore } from '@/features/map/hooks/useMapStore';
 
 const RECENT = ['전주 한옥마을', '북촌 한옥마을', '안동 하회마을', '경주 양동마을', '경복궁'];
@@ -61,7 +61,7 @@ const Input = styled.input`
   outline: none;
   background: transparent;
   font-family: inherit;
-  font-size: 14px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
   color: ${meok[900]};
   /* placeholder가 좁은 패널 폭에서 중간에 뚝 끊기지 않고 "..."으로
@@ -128,7 +128,7 @@ const ResetAllBtn = styled.button`
   background: rgba(25, 31, 40, 0.03);
   border: 1px dashed rgba(25, 31, 40, 0.15);
   color: ${meok[500]};
-  font-size: 12.5px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -143,7 +143,7 @@ const GroupTitle = styled.div`
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   font-weight: 500;
   color: ${meok[500]};
   letter-spacing: 0.3px;
@@ -166,7 +166,7 @@ const Suggestion = styled.button`
   background: rgba(25, 31, 40, 0.04);
   color: ${meok[700]};
   font-family: inherit;
-  font-size: 12.5px;
+  font-size: ${fontSize.xs};
   font-weight: 400;
   cursor: pointer;
   border: none;

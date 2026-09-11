@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
-import { lightPalette, darkPalette, meok } from '@/design-system/tokens';
+import { lightPalette, darkPalette, meok , fontSize } from '@/design-system/tokens';
 
 export const pulse = keyframes`
   0%, 100% { opacity: 1; }
@@ -40,7 +40,7 @@ export const HeaderBadge = styled.div`
   border-radius: 9999px;
   background: rgba(78, 89, 104, 0.08);
   color: ${meok[700]};
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   font-weight: 500;
   letter-spacing: 0.06em;
   border: none;
@@ -60,7 +60,7 @@ export const BackToPopularBtn = styled.button`
   background: rgba(78, 89, 104, 0.08);
   color: ${meok[900]};
   font-family: inherit;
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   border: none;
   cursor: pointer;
@@ -118,7 +118,7 @@ export const TitleSection = styled.div`
 
 export const PlaceTitle = styled.h2`
   margin: 0 0 4px;
-  font-size: 19px;
+  font-size: ${fontSize.lg};
   font-weight: 500;
   color: ${meok[900]};
   line-height: 1.35;
@@ -132,7 +132,7 @@ export const PlaceTitle = styled.h2`
 
 export const PlaceAddress = styled.p`
   margin: 0 0 10px;
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   color: ${meok[500]};
 `;
 
@@ -145,7 +145,7 @@ export const BadgeRow = styled.div`
 export const Badge = styled.span`
   padding: 3px 9px;
   border-radius: 9999px;
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   font-weight: 400;
   color: ${meok[700]};
   background: rgba(78, 89, 104, 0.07);
@@ -165,7 +165,7 @@ export const SmartFeatureChip = styled.span<{ $type?: 'free' | 'parking' | 'audi
   gap: 4px;
   padding: 3px 8px;
   border-radius: 8px;
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   font-weight: 500;
   color: ${({ $type }) =>
     $type === 'audio' ? lightPalette.jangmi[700] : meok[700]};
@@ -214,7 +214,7 @@ export const LiveWarmthStatus = styled.div`
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   color: ${meok[900]};
   min-width: 0;
@@ -237,7 +237,7 @@ export const LiveWarmthPulse = styled.span<{ $busy: boolean }>`
 `;
 
 export const LiveWarmthCount = styled.span`
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   color: ${lightPalette.juhong[500]};
   font-weight: 700;
   flex-shrink: 0;
@@ -305,7 +305,7 @@ export const HeroActionTile = styled.button<{ $highlight?: boolean; $isWarmth?: 
   }
 
   span {
-    font-size: 11px;
+    font-size: ${fontSize.micro};
     font-weight: 500;
     white-space: nowrap;
   }
@@ -337,7 +337,7 @@ export const HeroActionLink = styled.a`
   }
 
   span {
-    font-size: 11px;
+    font-size: ${fontSize.micro};
     font-weight: 500;
     white-space: nowrap;
   }
@@ -366,13 +366,13 @@ export const CoreRow = styled.div`
 `;
 
 export const CoreLabel = styled.span`
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   color: ${meok[500]};
   flex-shrink: 0;
 `;
 
 export const CoreValue = styled.span`
-  font-size: 14px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
   color: ${meok[900]};
   text-align: right;
@@ -386,14 +386,14 @@ export const OverviewSection = styled.div`
 
 export const SectionTitle = styled.h3` /* 14px — 작은 제목이라 500으로 본문과 갈라 준다 */
   margin: 0 0 8px;
-  font-size: 14px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
   color: ${meok[900]};
 `;
 
 export const OverviewText = styled.p<{ $expanded: boolean }>`
   margin: 0;
-  font-size: 13.5px;
+  font-size: ${fontSize.sm};
   line-height: 1.7;
   color: ${meok[700]};
   word-break: keep-all;
@@ -416,7 +416,7 @@ export const ToggleMoreBtn = styled.button`
   background: transparent;
   color: ${lightPalette.cheongrok[700]};
   font-family: inherit;
-  font-size: 12.5px;
+  font-size: ${fontSize.xs};
   font-weight: 400;
   cursor: pointer;
 
@@ -453,7 +453,7 @@ export const BookmarkButton = styled.button<{ $active: boolean }>`
   color: ${({ $active }) =>
     $active ? lightPalette.juhong[700] : meok[900]};
   font-family: inherit;
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -487,7 +487,7 @@ export const ShareButton = styled.button`
   background: rgba(78, 89, 104, 0.08);
   color: ${meok[900]};
   font-family: inherit;
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: 400;
   cursor: pointer;
   transition: background 0.15s ease;
@@ -512,7 +512,7 @@ export const NavButton = styled.a`
   background: ${meok[900]};
   color: #ffffff;
   font-family: inherit;
-  font-size: 13.5px;
+  font-size: ${fontSize.sm};
   /* 길찾기 — 상세 패널의 주 행동 */
   font-weight: 700;
   text-decoration: none;
@@ -586,7 +586,7 @@ export const CinematicBadge = styled.span`
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   font-weight: 500;
   letter-spacing: 0.06em;
   color: ${lightPalette.jangmi[500]};
@@ -597,14 +597,14 @@ export const CinematicBadge = styled.span`
 `;
 
 export const CinematicDuration = styled.span`
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   color: ${meok[500]};
   font-weight: 400;
 `;
 
 export const CinematicTitle = styled.h4`
   margin: 0;
-  font-size: 13.5px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
   color: ${meok[900]};
   line-height: 1.35;
@@ -616,7 +616,7 @@ export const CinematicTitle = styled.h4`
 
 export const CinematicDesc = styled.p`
   margin: 0;
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   color: ${meok[700]};
   line-height: 1.4;
 
@@ -638,7 +638,7 @@ export const CinematicStartButton = styled.button`
   background: ${lightPalette.jangmi[500]};
   color: #ffffff;
   font-family: inherit;
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: 700;
   cursor: pointer;
   transition: all 0.15s ease;

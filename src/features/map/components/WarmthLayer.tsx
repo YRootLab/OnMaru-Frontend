@@ -8,7 +8,7 @@ import {
   darkPalette,
   meok,
   surface,
-} from '@/design-system/tokens';
+ fontSize, } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import { paintOverlays, type OverlaySpec } from '@/features/map/hooks/overlay';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
@@ -178,7 +178,7 @@ const styles = css`
   }
 
   .om-surge-pill-name {
-    font-size: 12.5px;
+    font-size: ${fontSize.xs};
     font-weight: 700;
     letter-spacing: -0.2px;
     white-space: nowrap;
@@ -189,7 +189,7 @@ const styles = css`
     색은 히트맵 램프와 같은 말을 한다 — 붉은 쪽이 피할 곳, 청록이 갈 만한 곳.
   */
   .om-surge-pill-delta {
-    font-size: 12px;
+    font-size: ${fontSize.xs};
     font-weight: 700;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
@@ -316,7 +316,7 @@ const styles = css`
   }
 
   .om-popover-title {
-    font-size: 14px;
+    font-size: ${fontSize.sm};
     font-weight: 500;
     color: ${meok[900]};
     white-space: nowrap;
@@ -334,7 +334,7 @@ const styles = css`
     gap: 4px;
     padding: 3px 8px;
     border-radius: 9999px;
-    font-size: 11px;
+    font-size: ${fontSize.micro};
     font-weight: 700;
     white-space: nowrap;
   }
@@ -360,7 +360,7 @@ const styles = css`
     justify-content: space-between;
     gap: 10px;
     margin: 0;
-    font-size: 12px;
+    font-size: ${fontSize.xs};
   }
 
   .om-now-day {
@@ -451,7 +451,7 @@ const styles = css`
   }
 
   .om-week-label {
-    font-size: 10.5px;
+    font-size: ${fontSize.micro};
     font-weight: 500;
     color: ${meok[500]};
     line-height: 1;
@@ -468,7 +468,7 @@ const styles = css`
 
   .om-week-say {
     margin: 0;
-    font-size: 12px;
+    font-size: ${fontSize.xs};
     font-weight: 500;
     color: ${meok[700]};
   }
@@ -490,7 +490,7 @@ const styles = css`
     display: flex;
     align-items: center;
     gap: 12px;
-    font-size: 11.5px;
+    font-size: ${fontSize.xs};
     color: ${meok[500]};
   }
 
@@ -506,7 +506,7 @@ const styles = css`
     padding: 6px 8px;
     border-radius: 8px;
     background: rgba(120, 120, 120, 0.08);
-    font-size: 10.5px;
+    font-size: ${fontSize.micro};
     color: ${lightPalette.juhong[500]};
     font-weight: 500;
     text-align: center;

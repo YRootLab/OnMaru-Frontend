@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { Megaphone } from 'lucide-react';
-import { lightPalette, meok } from '@/design-system/tokens';
+import { lightPalette, meok , fontSize } from '@/design-system/tokens';
 
 const NOTICES = [
   '전국 한옥마을 문화재 야행 및 달빛음악회 일정 안내',
@@ -47,7 +47,7 @@ const TextScroller = styled.div`
 
 const NoticeText = styled.p`
   margin: 0;
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   color: ${meok[900]};
   white-space: nowrap;

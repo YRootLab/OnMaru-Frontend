@@ -65,7 +65,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
-import { lightPalette, meok } from '@/design-system/tokens';
+import { lightPalette, meok , fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import type { Item } from '@/features/map/types';
 
@@ -98,14 +98,14 @@ const TitleBox = styled.div`
 
 const Title = styled.h3`
   margin: 0;
-  font-size: 14.5px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
   color: ${meok[900]};
   letter-spacing: -0.02em;
 `;
 
 const SubText = styled.span`
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   font-weight: 400;
   color: ${lightPalette.cheongrok[500]};
 `;
@@ -227,7 +227,7 @@ const DistanceOverlay = styled.div`
   background: rgba(25, 31, 40, 0.68);
   backdrop-filter: blur(4px);
   color: #ffffff;
-  font-size: 9.5px;
+  font-size: ${fontSize.micro};
   font-weight: 500;
 `;
 
@@ -240,7 +240,7 @@ const Body = styled.div`
 
 const Name = styled.h4`
   margin: 0;
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   color: ${meok[900]};
   white-space: nowrap;
@@ -251,7 +251,7 @@ const Name = styled.h4`
 
 const MoodReview = styled.p`
   margin: 1px 0 4px;
-  font-size: 11.5px;
+  font-size: ${fontSize.xs};
   font-weight: 400;
   color: ${meok[500]};
   white-space: nowrap;
@@ -270,7 +270,7 @@ const TagRow = styled.div`
 const HashTag = styled.span`
   display: inline-flex;
   align-items: center;
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   font-weight: 500;
   color: ${lightPalette.cheongrok[700]};
   background: rgba(30, 122, 104, 0.08);

@@ -16,7 +16,7 @@ import {
   Bookmark,
   Store,
 } from 'lucide-react';
-import { lightPalette, meok } from '@/design-system/tokens';
+import { lightPalette, meok , fontSize } from '@/design-system/tokens';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
@@ -159,7 +159,7 @@ const Row1 = styled.div`
 
 const Title = styled.h4<{ $isSelected?: boolean }>`
   margin: 0;
-  font-size: 15px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
   color: ${meok[900]};
   overflow: hidden;
@@ -182,7 +182,7 @@ const CategoryTag = styled.span<{ $category: PlaceCategory }>`
   align-items: center;
   padding: 2px 7px;
   border-radius: 6px;
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   font-weight: 600;
   line-height: 1.4;
   color: ${({ $category }) =>
@@ -203,7 +203,7 @@ const TraditionalBadge = styled.span`
   gap: 3px;
   padding: 2px 6.5px;
   border-radius: 6px;
-  font-size: 10.5px;
+  font-size: ${fontSize.micro};
   font-weight: 500;
   color: ${lightPalette.cheongrok[700]};
   background: rgba(30, 122, 104, 0.08);
@@ -217,7 +217,7 @@ const SorimaruBadge = styled.span`
   gap: 3px;
   padding: 2px 6.5px;
   border-radius: 6px;
-  font-size: 10.5px;
+  font-size: ${fontSize.micro};
   font-weight: 700;
   line-height: 1.4;
   color: ${lightPalette.jangmi[700]};
@@ -230,7 +230,7 @@ const MetaRow = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   color: ${meok[500]};
   white-space: nowrap;
   overflow: hidden;
@@ -240,7 +240,7 @@ const MetaRow = styled.div`
 
 const DistanceHighlight = styled.span`
   font-weight: 700;
-  font-size: 12.5px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   color: ${meok[700]};
   font-variant-numeric: tabular-nums;
@@ -250,12 +250,12 @@ const DistanceHighlight = styled.span`
 const TravelTimeText = styled.span`
   font-weight: 500;
   color: ${meok[500]};
-  font-size: 11.5px;
+  font-size: ${fontSize.xs};
 `;
 
 const DotDivider = styled.span`
   color: ${meok[400]};
-  font-size: 10px;
+  font-size: ${fontSize.micro};
   padding: 0 1px;
 `;
 

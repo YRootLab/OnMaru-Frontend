@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { X, Landmark } from 'lucide-react';
-import { lightPalette, meok } from '@/design-system/tokens';
+import { lightPalette, meok , fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import type { RankedPlace } from '@/features/map/types';
 
@@ -35,7 +35,7 @@ const TopBar = styled.div`
 
 const Title = styled.h3`
   margin: 0;
-  font-size: 16px;
+  font-size: ${fontSize.base};
   font-weight: 500;
   color: ${meok[900]};
   letter-spacing: -0.02em;
@@ -67,7 +67,7 @@ const SubHeader = styled.div`
 
 const SubText = styled.p`
   margin: 0 0 12px;
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   color: ${meok[500]};
 `;
 
@@ -92,7 +92,7 @@ const RegionChip = styled.button<{ $active: boolean }>`
     $active ? meok[900] : 'rgba(78, 89, 104, 0.07)'};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
   font-family: inherit;
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
@@ -142,7 +142,7 @@ const LeftCol = styled.div`
 `;
 
 const RankNum = styled.span<{ $rank: number }>`
-  font-size: 16px;
+  font-size: ${fontSize.base};
   font-weight: 700;
   color: ${({ $rank }) =>
     $rank === 1
@@ -164,7 +164,7 @@ const PlaceInfo = styled.div`
 
 const Name = styled.h4`
   margin: 0 0 4px;
-  font-size: 14.5px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
   color: ${meok[900]};
   overflow: hidden;
@@ -174,7 +174,7 @@ const Name = styled.h4`
 
 const Meta = styled.p`
   margin: 0;
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   color: ${meok[500]};
   display: flex;
   align-items: center;

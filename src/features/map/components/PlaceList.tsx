@@ -14,7 +14,7 @@ import {
   List,
   Bookmark,
 } from 'lucide-react';
-import { lightPalette, meok } from '@/design-system/tokens';
+import { lightPalette, meok , fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import { distanceInMeters } from '@/features/map/utils/geo';
@@ -65,7 +65,7 @@ const CountLabel = styled.span`
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 13.5px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
   color: ${meok[900]};
   letter-spacing: -0.02em;
@@ -82,7 +82,7 @@ const SortSelect = styled.select`
   background: transparent;
 
   font-family: inherit;
-  font-size: 12.5px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   color: ${meok[500]};
   padding: 2px 18px 2px 4px;
@@ -135,7 +135,7 @@ const PageNavBtn = styled.button`
   background: rgba(78, 89, 104, 0.06);
   color: ${meok[500]};
   font-family: inherit;
-  font-size: 12.5px;
+  font-size: ${fontSize.xs};
   font-weight: 400;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -170,7 +170,7 @@ const PageNumberBtn = styled.button<{ $active: boolean }>`
   background: ${({ $active }) => ($active ? meok[900] : 'transparent')};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
   font-family: inherit;
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: ${({ $active }) => ($active ? 700 : 500)};
   cursor: pointer;
   transition: all 0.15s ease;
@@ -266,14 +266,14 @@ const EmptyIconBox = styled.div`
 
 const EmptyTitle = styled.h4`
   margin: 0 0 6px;
-  font-size: 15px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
   color: ${meok[900]};
 `;
 
 const EmptyDesc = styled.p`
   margin: 0 0 18px;
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: 400;
   color: ${meok[500]};
   line-height: 1.5;
@@ -290,7 +290,7 @@ const ActionButton = styled.button`
   background: rgba(78, 89, 104, 0.08);
   color: ${meok[700]};
   font-family: inherit;
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;

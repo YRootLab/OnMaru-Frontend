@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { Global, css } from '@emotion/react';
 import { logger } from '@/lib/log';
-import { meok, lightPalette } from '@/design-system/tokens';
+import { meok, lightPalette , fontSize } from '@/design-system/tokens';
 import { escapeHtml, safeImageUrl } from '@/features/map/utils/formatters';
 import { mapIconSvg, type MapIconName } from '@/features/map/utils/mapIconSvg';
 import { calculateTravelEstimate, isTraditionalPlace, shortRegionName } from '@/features/map/utils/geo';
@@ -164,7 +164,7 @@ const styles = css`
     background: #ffffff;
     border: 1.5px solid rgba(25, 31, 40, 0.12);
     box-shadow: 0 4px 16px -2px rgba(25, 31, 40, 0.22), 0 1px 4px rgba(25, 31, 40, 0.1);
-    font-size: 13px;
+    font-size: ${fontSize.xs};
     font-weight: 700;
     line-height: 1;
     color: ${meok[900]};
@@ -262,7 +262,7 @@ const styles = css`
   }
 
   .om-pin-hover-title {
-    font-size: 13px;
+    font-size: ${fontSize.xs};
     font-weight: 700;
     color: ${meok[900]};
     overflow: hidden;
@@ -275,7 +275,7 @@ const styles = css`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 11px;
+    font-size: ${fontSize.micro};
     color: ${meok[500]};
   }
 
@@ -315,7 +315,7 @@ const styles = css`
     position: absolute;
     top: -12px;
     left: 1px;
-    font-size: 14px;
+    font-size: ${fontSize.sm};
     color: ${lightPalette.hwanggeum[400]};
     line-height: 1;
     pointer-events: none;
@@ -547,7 +547,7 @@ const styles = css`
   }
 
   .om-cluster-region-name {
-    font-size: 13px;
+    font-size: ${fontSize.xs};
     font-weight: 700;
     color: ${meok[900]};
     letter-spacing: -0.2px;
@@ -563,7 +563,7 @@ const styles = css`
     border-radius: 9999px;
     background: ${lightPalette.cheongrok[500]};
     color: #ffffff;
-    font-size: 11.5px;
+    font-size: ${fontSize.xs};
     font-weight: 700;
     font-variant-numeric: tabular-nums;
   }
@@ -871,10 +871,10 @@ export default function PlaceMarkers() {
           const stars = document.createElement('span');
           stars.className = 'om-pin-stars';
           stars.innerHTML = `
-            <span style="top:-15px;left:16px;font-size:11px;">✧</span>
-            <span style="top:-8px;left:-6px;font-size:9px;">✦</span>
-            <span style="bottom:-11px;right:2px;font-size:12px;">✦</span>
-            <span style="bottom:-6px;right:18px;font-size:9px;">✧</span>
+            <span style="top:-15px;left:16px;font-size:${fontSize.micro};">✧</span>
+            <span style="top:-8px;left:-6px;font-size:${fontSize.micro};">✦</span>
+            <span style="bottom:-11px;right:2px;font-size:${fontSize.xs};">✦</span>
+            <span style="bottom:-6px;right:18px;font-size:${fontSize.micro};">✧</span>
           `;
           el.appendChild(stars);
         }
@@ -890,9 +890,9 @@ export default function PlaceMarkers() {
           const stars = document.createElement('span');
           stars.className = 'om-pin-stars';
           stars.innerHTML = `
-            <span style="top:-12px;left:-4px;font-size:10px;">✦</span>
-            <span style="top:-9px;right:-5px;font-size:8px;">✧</span>
-            <span style="bottom:-10px;right:1px;font-size:10px;">✦</span>
+            <span style="top:-12px;left:-4px;font-size:${fontSize.micro};">✦</span>
+            <span style="top:-9px;right:-5px;font-size:${fontSize.micro};">✧</span>
+            <span style="bottom:-10px;right:1px;font-size:${fontSize.micro};">✦</span>
           `;
           el.appendChild(stars);
         }

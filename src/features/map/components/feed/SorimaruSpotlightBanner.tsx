@@ -4,7 +4,7 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { Play } from 'lucide-react';
-import { lightPalette, meok, surface } from '@/design-system/tokens';
+import { lightPalette, meok, surface , fontSize } from '@/design-system/tokens';
 
 const bannerShimmer = keyframes`
   0% { background-position: -200% 0; }
@@ -70,7 +70,7 @@ const Badge = styled.div`
   gap: 4px;
   padding: 2.5px 8px;
   border-radius: 9999px;
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   font-weight: 700;
   color: ${lightPalette.jangmi[500]};
   background: ${lightPalette.jangmi[50]};
@@ -78,14 +78,14 @@ const Badge = styled.div`
 `;
 
 const DurationText = styled.span`
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   font-weight: 500;
   color: ${meok[500]};
 `;
 
 const StoryTitle = styled.h4`
   margin: 0 0 4px;
-  font-size: 15px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
   color: ${meok[900]};
   letter-spacing: -0.01em;
@@ -96,7 +96,7 @@ const StoryTitle = styled.h4`
 
 const StoryExcerpt = styled.p`
   margin: 0 0 12px;
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   line-height: 1.4;
   color: ${meok[700]};
   white-space: nowrap;
@@ -115,7 +115,7 @@ const DocentTag = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 11.5px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   color: ${lightPalette.jangmi[700]};
 `;
@@ -131,7 +131,7 @@ const StartBtn = styled.button`
   background: ${lightPalette.jangmi[500]};
   color: ${surface.light.card};
   font-family: inherit;
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   font-weight: 700;
   cursor: pointer;
   transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);

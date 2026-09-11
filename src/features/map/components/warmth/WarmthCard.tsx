@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { Landmark, Home, Utensils, Coffee, ShoppingBag, Flame, Leaf, ChevronRight, ChevronUp, ChevronDown } from 'lucide-react';
-import { lightPalette, darkPalette, meok, surface } from '@/design-system/tokens';
+import { lightPalette, darkPalette, meok, surface , fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { toggleHelpful } from '@/features/map/warmth/warmthRepo';
 import { formatRelativeTime } from '@/features/map/utils/formatters';
@@ -77,7 +77,7 @@ const PlaceTitleRow = styled.div`
 
 const PlaceName = styled.h4`
   margin: 0;
-  font-size: 15px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
   color: ${meok[900]};
   overflow: hidden;
@@ -95,7 +95,7 @@ const CrowdMoodBadge = styled.span<{ $crowd?: '북적' | '한적' }>`
   gap: 3px;
   padding: 2px 7px;
   border-radius: 9999px;
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   font-weight: 700;
   white-space: nowrap;
   flex-shrink: 0;
@@ -114,7 +114,7 @@ const CrowdMoodBadge = styled.span<{ $crowd?: '북적' | '한적' }>`
 
 const PlaceMeta = styled.p`
   margin: 0;
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   color: ${meok[500]};
 `;
 
@@ -134,7 +134,7 @@ const TagSection = styled.div`
 
 const ReviewText = styled.p<{ $expanded: boolean }>`
   margin: 0;
-  font-size: 13.5px;
+  font-size: ${fontSize.sm};
   line-height: 1.6;
   color: ${meok[900]};
   word-break: keep-all;
@@ -160,7 +160,7 @@ const TextToggleBtn = styled.button`
   border: none;
   background: transparent;
   color: ${meok[700]};
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   cursor: pointer;
 
@@ -179,7 +179,7 @@ const FooterMeta = styled.div`
 `;
 
 const MetaDate = styled.span`
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   color: ${meok[500]};
 `;
 
@@ -196,7 +196,7 @@ const HelpfulButton = styled.button<{ $active: boolean }>`
   color: ${({ $active }) =>
     $active ? lightPalette.juhong[700] : meok[700]};
   font-family: inherit;
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -275,7 +275,7 @@ const RelatedInfo = styled.div`
 
 const RelatedName = styled.h5`
   margin: 0;
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   color: ${meok[900]};
   overflow: hidden;
@@ -284,7 +284,7 @@ const RelatedName = styled.h5`
 `;
 
 const RelatedMeta = styled.span`
-  font-size: 11.5px;
+  font-size: ${fontSize.xs};
   color: ${meok[500]};
 `;
 

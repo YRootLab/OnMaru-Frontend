@@ -18,7 +18,7 @@ import {
   Heart,
 } from 'lucide-react';
 import { transientProps } from '@/design-system/styled';
-import { meok } from '@/design-system/tokens';
+import { meok , fontSize } from '@/design-system/tokens';
 
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import type { MapMode } from '@/features/map/types';
@@ -136,7 +136,7 @@ const Chip = styled.button<{ $active: boolean }>`
 
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
   font-family: 'Spoqa Han Sans Neo', sans-serif;
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   letter-spacing: -0.02em;
   white-space: nowrap;
@@ -174,7 +174,7 @@ const Chip = styled.button<{ $active: boolean }>`
   @media (max-width: 1023px) {
     height: 32px;
     padding: 0 11px;
-    font-size: 12px;
+    font-size: ${fontSize.xs};
     gap: 4px;
 
     svg {

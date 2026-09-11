@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { ChevronDown } from 'lucide-react';
-import { lightPalette, meok } from '@/design-system/tokens';
+import { lightPalette, meok , fontSize } from '@/design-system/tokens';
 
 export const FeedContainer = styled.div`
   display: flex;
@@ -32,7 +32,7 @@ export const SectionTitleGroup = styled.div`
 
 export const SectionTitle = styled.h3`
   margin: 0;
-  font-size: 15px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
   color: ${meok[900]};
   letter-spacing: -0.02em;
@@ -114,7 +114,7 @@ export const RegionChip = styled.button<{ $active: boolean }>`
   background: ${({ $active }) => ($active ? '#f2f4f6' : '#ffffff')};
   color: ${({ $active }) => ($active ? '#191f28' : '#333d4b')};
   font-family: inherit;
-  font-size: 12.5px;
+  font-size: ${fontSize.xs};
   font-weight: ${({ $active }) => ($active ? 600 : 400)};
   cursor: pointer;
   white-space: nowrap;
@@ -224,7 +224,7 @@ export const FeaturedInfo = styled.div`
 `;
 
 export const FeaturedRank = styled.span`
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   font-weight: 700;
   color: ${lightPalette.juhong[500]};
   display: block;
@@ -233,7 +233,7 @@ export const FeaturedRank = styled.span`
 
 export const FeaturedName = styled.h4`
   margin: 0 0 2px;
-  font-size: 14.5px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
   color: ${meok[900]};
   overflow: hidden;
@@ -243,7 +243,7 @@ export const FeaturedName = styled.h4`
 
 export const FeaturedMeta = styled.p`
   margin: 0;
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   color: ${meok[500]};
 `;
 
@@ -257,7 +257,7 @@ export const MoreBtn = styled.button`
   background: #ffffff;
   color: ${meok[900]};
   font-family: inherit;
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   cursor: pointer;
   flex-shrink: 0;
@@ -278,7 +278,7 @@ export const ReviewSectionHeader = styled.div`
 
 export const ReviewSectionTitle = styled.h4`
   margin: 0;
-  font-size: 14.5px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
   color: ${meok[900]};
   display: flex;
@@ -297,7 +297,7 @@ export const SortSelect = styled.select`
   background: transparent;
 
   font-family: inherit;
-  font-size: 12.5px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   color: ${meok[700]};
   padding: 2px 16px 2px 4px;
@@ -329,7 +329,7 @@ export const EmptyState = styled.div`
   padding: 40px 16px;
   text-align: center;
   color: ${meok[500]};
-  font-size: 13.5px;
+  font-size: ${fontSize.sm};
   line-height: 1.6;
 `;
 
@@ -353,7 +353,7 @@ export const PageNavBtn = styled.button`
   background: rgba(78, 89, 104, 0.06);
   color: ${meok[700]};
   font-family: inherit;
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -389,7 +389,7 @@ export const PageNumberBtn = styled.button<{ $active: boolean }>`
     $active ? lightPalette.juhong[500] : 'transparent'};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
   font-family: inherit;
-  font-size: 12.5px;
+  font-size: ${fontSize.xs};
   font-weight: ${({ $active }) => ($active ? 700 : 500)};
   cursor: pointer;
   transition: all 0.15s ease;
@@ -402,7 +402,7 @@ export const PageNumberBtn = styled.button<{ $active: boolean }>`
 `;
 
 export const PageIndicator = styled.span`
-  font-size: 11.5px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   color: ${meok[500]};
   margin-left: 4px;

@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { transientProps } from '@/design-system/styled';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
-import { lightPalette, meok } from '@/design-system/tokens';
+import { lightPalette, meok , fontSize } from '@/design-system/tokens';
 import { RAIL_ENTER_DELAY_S, RAIL_ENTER_DURATION_S, ENTRANCE_EASE } from '@/shared/navigation/mapEntranceTiming';
 import { useMapEntranceStore } from '@/shared/navigation/mapEntranceState';
 
@@ -82,7 +82,7 @@ const LogoArea = styled.div`
 const BrandMark = styled.span`
   writing-mode: vertical-rl;
   transform: rotate(180deg);
-  font-size: 26px;
+  font-size: ${fontSize['2xl']};
   line-height: 1;
   color: ${lightPalette.cheongrok[700]};
 `;

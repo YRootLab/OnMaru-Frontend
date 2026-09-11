@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo } from 'react';
 import { Global, css } from '@emotion/react';
-import { meok, lightPalette, darkPalette, surface } from '@/design-system/tokens';
+import { meok, lightPalette, darkPalette, surface , fontSize } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { paintOverlays, type OverlaySpec } from '@/features/map/hooks/overlay';
@@ -114,7 +114,7 @@ const styles = css`
   }
 
   .om-note-pin-place {
-    font-size: 11.5px;
+    font-size: ${fontSize.xs};
     font-weight: 500;
     color: ${meok[900]};
   }
@@ -129,7 +129,7 @@ const styles = css`
     border-radius: 9999px;
     background: ${meok[900]};
     color: #ffffff;
-    font-size: 10px;
+    font-size: ${fontSize.micro};
     font-weight: 700;
     line-height: 15px;
     text-align: center;
@@ -189,7 +189,7 @@ const styles = css`
   }
 
   .om-note-place {
-    font-size: 11.5px;
+    font-size: ${fontSize.xs};
     font-weight: 700;
     color: ${meok[900]};
     white-space: nowrap;
@@ -261,7 +261,7 @@ const styles = css`
   }
 
   .om-note-page-indicator {
-    font-size: 10px;
+    font-size: ${fontSize.micro};
     font-weight: 700;
     color: ${meok[500]};
     font-variant-numeric: tabular-nums;
@@ -273,7 +273,7 @@ const styles = css`
     gap: 2.5px;
     padding: 1.5px 5.5px;
     border-radius: 9999px;
-    font-size: 9.5px;
+    font-size: ${fontSize.micro};
     font-weight: 700;
     white-space: nowrap;
   }
@@ -302,7 +302,7 @@ const styles = css`
   .om-note-body {
     flex: 1;
     padding: 0 8px;
-    font-size: 12.5px;
+    font-size: ${fontSize.xs};
     line-height: 1.45;
     font-weight: 500;
     color: ${meok[900]};
@@ -325,7 +325,7 @@ const styles = css`
     align-items: center;
     justify-content: space-between;
     margin-top: 4px;
-    font-size: 10px;
+    font-size: ${fontSize.micro};
     color: ${meok[500]};
   }
 
@@ -333,7 +333,7 @@ const styles = css`
     border: none;
     background: transparent;
     padding: 2px 6px;
-    font-size: 10px;
+    font-size: ${fontSize.micro};
     font-weight: 700;
     color: ${lightPalette.juhong[500]};
     cursor: pointer;

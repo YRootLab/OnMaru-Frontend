@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import styled from '@emotion/styled';
 import { X, Flame, Users, Leaf, Check, MapPin } from 'lucide-react';
-import { lightPalette, meok } from '@/design-system/tokens';
+import { lightPalette, meok , fontSize } from '@/design-system/tokens';
 import { addWarmth, loadWarmth } from '@/features/map/warmth/warmthRepo';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import MoodSelector, { type MoodValue } from './MoodSelector';
@@ -84,7 +84,7 @@ const ModalTitle = styled.h3`
   align-items: center;
   gap: 8px;
   margin: 0;
-  font-size: 18px;
+  font-size: ${fontSize.lg};
   font-weight: 500;
   color: ${meok[900]};
 `;
@@ -114,7 +114,7 @@ const FormSection = styled.div`
 
 const SectionLabel = styled.label`
   display: block;
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   color: ${meok[900]};
   margin-bottom: 8px;
@@ -139,7 +139,7 @@ const RegionChip = styled.button<{ $active: boolean }>`
   border-radius: 9999px;
 
   font-family: inherit;
-  font-size: 12.5px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   cursor: pointer;
   background: ${({ $active }) => ($active ? lightPalette.juhong[500] : '#f2f4f6')};
@@ -177,7 +177,7 @@ const PlaceInput = styled.input`
   background: #f2f4f6;
   color: ${meok[900]};
   font-family: inherit;
-  font-size: 13.5px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
   outline: none;
 
@@ -213,7 +213,7 @@ const PlaceOption = styled.button`
   background: transparent;
   color: ${meok[900]};
   font-family: inherit;
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   text-align: left;
   cursor: pointer;
@@ -226,7 +226,7 @@ const PlaceOption = styled.button`
 `;
 
 const PlaceOptionAddr = styled.span`
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   color: ${meok[400]};
   font-weight: 400;
 `;
@@ -248,7 +248,7 @@ const MoodButton = styled.button<{ $active: boolean }>`
 
   background: ${({ $active }) => ($active ? lightPalette.juhong[500] : '#f2f4f6')};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
-  font-size: 13.5px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -271,7 +271,7 @@ const TagChip = styled.button<{ $selected: boolean }>`
 
   background: ${({ $selected }) => ($selected ? lightPalette.juhong[500] : '#f2f4f6')};
   color: ${({ $selected }) => ($selected ? '#ffffff' : meok[700])};
-  font-size: 12.5px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -291,7 +291,7 @@ const TextArea = styled.textarea`
   background: #f2f4f6;
   color: ${meok[900]};
   font-family: inherit;
-  font-size: 14px;
+  font-size: ${fontSize.sm};
   line-height: 1.5;
   resize: none;
   outline: none;
@@ -308,7 +308,7 @@ const TextArea = styled.textarea`
 
 const CharCount = styled.div`
   text-align: right;
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   color: ${meok[400]};
   margin-top: 4px;
 `;
@@ -326,7 +326,7 @@ const SubmitBtn = styled.button`
   background: ${lightPalette.juhong[500]};
   color: #ffffff;
   font-family: inherit;
-  font-size: 15px;
+  font-size: ${fontSize.sm};
   font-weight: 700;
   cursor: pointer;
   transition: all 0.18s ease;

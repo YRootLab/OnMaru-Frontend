@@ -3,7 +3,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { SmilePlus, Smile, Meh, Frown, Angry } from 'lucide-react';
-import { lightPalette, meok } from '@/design-system/tokens';
+import { lightPalette, meok , fontSize } from '@/design-system/tokens';
 
 export type MoodValue = 1 | 2 | 3 | 4 | 5;
 
@@ -55,7 +55,7 @@ const FaceButton = styled.button<{ $selected: boolean; $readonly: boolean }>`
 `;
 
 const MoodLabel = styled.span`
-  font-size: 13.5px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
   color: ${meok[900]};
   white-space: nowrap;

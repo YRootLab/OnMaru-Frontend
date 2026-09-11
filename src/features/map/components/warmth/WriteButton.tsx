@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { PenLine } from 'lucide-react';
-import { lightPalette } from '@/design-system/tokens';
+import { lightPalette , fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import WriteWarmthModal from './WriteWarmthModal';
 
@@ -22,7 +22,7 @@ const FloatingBtn = styled.button`
   background: ${lightPalette.juhong[500]};
   color: #ffffff;
   font-family: inherit;
-  font-size: 14px;
+  font-size: ${fontSize.sm};
   font-weight: 700;
 
   cursor: pointer;
@@ -44,7 +44,7 @@ const FloatingBtn = styled.button`
     bottom: 236px; /* 모바일: 줌 컨트롤 상단 */
     height: 40px;
     padding: 0 14px;
-    font-size: 13px;
+    font-size: ${fontSize.xs};
   }
 `;
 
