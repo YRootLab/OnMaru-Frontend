@@ -67,8 +67,19 @@ export interface VillageDetailResponse {
   restdate?: string | null;
   parking?: string | null;
   expguide?: string | null;
+  checkin?: string | null;
+  checkout?: string | null;
+  roomtype?: string | null;
+  roomcount?: string | null;
+  subfacility?: string | null;
+  barbecue?: string | null;
+  chkcooking?: string | null;
+  refundregulation?: string | null;
   repeatInfo?: RepeatInfoItem[];
   images?: string[];
+  lat?: number | null;
+  lng?: number | null;
+  addr?: string | null;
   source: 'TourAPI' | 'none';
   item?: any;
 }

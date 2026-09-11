@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
-import { meok, lightPalette } from '@/design-system/tokens';
+import { meok, lightPalette, surface } from '@/design-system/tokens';
 
 export const Overlay = styled(motion.div)`
   position: fixed;
@@ -26,6 +26,10 @@ export const ModalCard = styled(motion.div)`
   scrollbar-width: none;
   &::-webkit-scrollbar {
     display: none;
+  }
+
+  [data-theme='dark'] & {
+    background: ${surface.dark.card};
   }
 `;
 
@@ -117,11 +121,19 @@ export const TypeBadge = styled.span`
   padding: 4px 12px;
   border-radius: 9999px;
 
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.08);
+    color: ${lightPalette.kobalt[400]};
+  }
 `;
 
 export const AddrText = styled.span`
   font-size: 13px;
   color: ${meok[500]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 export const CuratorsNoteSection = styled.div`
@@ -130,6 +142,10 @@ export const CuratorsNoteSection = styled.div`
   border-radius: 20px;
   padding: 20px 22px;
   margin-bottom: 24px;
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.05);
+  }
 `;
 
 export const NoteHeader = styled.div`
@@ -155,6 +171,11 @@ export const SourceTag = styled.span`
   background: #eef3ff;
   padding: 3px 9px;
   border-radius: 6px;
+
+  [data-theme='dark'] & {
+    color: ${lightPalette.kobalt[400]};
+    background: rgba(255, 255, 255, 0.08);
+  }
 `;
 
 export const StoryContainer = styled.div<{ $isExpanded: boolean }>`
@@ -180,6 +201,10 @@ export const StoryParagraph = styled.p`
 
   &:last-of-type {
     margin-bottom: 0;
+  }
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
   }
 `;
 
@@ -209,6 +234,10 @@ export const SectionTitle = styled.h3`
   display: flex;
   align-items: center;
   gap: 6px;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 export const InfoGrid = styled.div`
@@ -226,6 +255,10 @@ export const InfoCard = styled.div`
   display: flex;
   gap: 12px;
   align-items: flex-start;
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.05);
+  }
 `;
 
 export const InfoIconBox = styled.div`
@@ -237,6 +270,11 @@ export const InfoIconBox = styled.div`
   display: grid;
   place-items: center;
   flex-shrink: 0;
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.08);
+    color: ${lightPalette.kobalt[400]};
+  }
 `;
 
 export const InfoContentBox = styled.div`
@@ -249,6 +287,10 @@ export const InfoLabel = styled.div`
   font-weight: 500;
   color: ${meok[500]};
   margin-bottom: 3px;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 export const InfoVal = styled.div`
@@ -266,6 +308,10 @@ export const InfoVal = styled.div`
       color: ${lightPalette.kobalt[700]};
     }
   }
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 export const RepeatList = styled.div`
@@ -280,6 +326,10 @@ export const RepeatItemCard = styled.div`
 
   border-radius: 12px;
   padding: 12px 16px;
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.05);
+  }
 `;
 
 export const RepeatTitleText = styled.div`
@@ -287,6 +337,10 @@ export const RepeatTitleText = styled.div`
   font-weight: 400;
   color: ${lightPalette.kobalt[700]};
   margin-bottom: 4px;
+
+  [data-theme='dark'] & {
+    color: ${lightPalette.kobalt[400]};
+  }
 `;
 
 export const RepeatContentText = styled.div`
@@ -295,6 +349,10 @@ export const RepeatContentText = styled.div`
   line-height: 1.6;
   white-space: pre-wrap;
   word-break: keep-all;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 export const GallerySection = styled.div`
@@ -309,17 +367,23 @@ export const GalleryGrid = styled.div`
 `;
 
 export const GalleryThumb = styled.button<{ $active: boolean }>`
+  position: relative;
   aspect-ratio: 4 / 3;
   border-radius: 10px;
   overflow: hidden;
-
+  border: 2px solid ${({ $active }) => ($active ? lightPalette.kobalt[500] : 'transparent')};
   padding: 0;
   background: #eee;
-  cursor: pointer;
-  transition: transform 0.15s ease, border-color 0.15s ease;
+  cursor: zoom-in;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
 
   &:hover {
     transform: scale(1.04);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.08);
   }
 
   img {
@@ -350,6 +414,16 @@ export const SkeletonLine = styled.div`
   background-size: 800px 100%;
   animation: shimmer 1.4s ease-in-out infinite;
   ${shimmer}
+
+  [data-theme='dark'] & {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.06) 25%,
+      rgba(255, 255, 255, 0.14) 50%,
+      rgba(255, 255, 255, 0.06) 75%
+    );
+    background-size: 800px 100%;
+  }
 `;
 
 export const BadgeTitle = styled.div`
@@ -357,6 +431,10 @@ export const BadgeTitle = styled.div`
   font-weight: 500;
   color: ${meok[500]};
   margin-bottom: 8px;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 export const BadgeList = styled.div`
@@ -374,6 +452,10 @@ export const TagBadge = styled.span`
   padding: 4px 11px;
   border-radius: 9999px;
 
+  [data-theme='dark'] & {
+    color: ${lightPalette.kobalt[400]};
+    background: rgba(255, 255, 255, 0.08);
+  }
 `;
 
 export const ActionRow = styled.div`
@@ -393,7 +475,7 @@ export const MapBtn = styled.a`
   color: #ffffff;
   border-radius: 14px;
   font-size: 14px;
-  font-weight: 400;
+  font-weight: 500;
   text-decoration: none;
   transition: background 0.15s ease, transform 0.15s ease;
 
@@ -404,4 +486,214 @@ export const MapBtn = styled.a`
   &:active {
     transform: scale(0.98);
   }
+`;
+
+export const BookingModalBtn = styled.a`
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 48px;
+  background: #1c52e0;
+  color: #ffffff;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.15s ease, transform 0.15s ease;
+
+  &:hover {
+    background: #1542be;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+`;
+
+export const BookmarkBtn = styled.button<{ $bookmarked: boolean }>`
+  position: absolute;
+  top: 16px;
+  right: 64px;
+  z-index: 10;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: ${({ $bookmarked }) => ($bookmarked ? '#eef3ff' : 'rgba(255, 255, 255, 0.9)')};
+  backdrop-filter: blur(8px);
+  color: ${({ $bookmarked }) => ($bookmarked ? lightPalette.kobalt[500] : meok[900])};
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  border: 1px solid ${({ $bookmarked }) => ($bookmarked ? lightPalette.kobalt[200] : 'transparent')};
+  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+
+  &:hover {
+    transform: scale(1.08);
+    background: #ffffff;
+  }
+`;
+
+export const BookmarkActionBtn = styled.button<{ $bookmarked: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 48px;
+  padding: 0 18px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  background: ${({ $bookmarked }) => ($bookmarked ? '#eef3ff' : '#f4f5f7')};
+  color: ${({ $bookmarked }) => ($bookmarked ? lightPalette.kobalt[700] : meok[700])};
+  border: 1px solid ${({ $bookmarked }) => ($bookmarked ? lightPalette.kobalt[200] : 'transparent')};
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: ${({ $bookmarked }) => ($bookmarked ? '#e2ecff' : '#e9ebef')};
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  [data-theme='dark'] & {
+    background: ${({ $bookmarked }) => ($bookmarked ? 'rgba(77, 130, 255, 0.16)' : 'rgba(255, 255, 255, 0.08)')};
+    color: ${({ $bookmarked }) => ($bookmarked ? lightPalette.kobalt[400] : meok[400])};
+  }
+
+  [data-theme='dark'] &:hover {
+    background: ${({ $bookmarked }) => ($bookmarked ? 'rgba(77, 130, 255, 0.24)' : 'rgba(255, 255, 255, 0.14)')};
+  }
+`;
+
+export const HeroZoomBadge = styled.button`
+  position: absolute;
+  bottom: 20px;
+  right: 24px;
+  z-index: 5;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.18s ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.8);
+    transform: scale(1.04);
+  }
+`;
+
+export const LightboxOverlay = styled(motion.div)`
+  position: fixed;
+  inset: 0;
+  z-index: 1000000;
+  background: rgba(10, 12, 16, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  user-select: none;
+`;
+
+export const LightboxCloseBtn = styled.button`
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  color: #ffffff;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: all 0.18s ease;
+  z-index: 10;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.08);
+  }
+`;
+
+export const LightboxImageWrapper = styled.div`
+  position: relative;
+  max-width: 90vw;
+  max-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const LightboxImg = styled(motion.img)`
+  max-width: 90vw;
+  max-height: 78vh;
+  object-fit: contain;
+  border-radius: 16px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.75);
+`;
+
+export const LightboxNavBtn = styled.button<{ $dir: 'left' | 'right' }>`
+  position: absolute;
+  top: 50%;
+  ${({ $dir }) => ($dir === 'left' ? 'left: 24px;' : 'right: 24px;')}
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(10px);
+  color: #ffffff;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: all 0.18s ease;
+  z-index: 10;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.35);
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  @media (max-width: 640px) {
+    width: 40px;
+    height: 40px;
+    ${({ $dir }) => ($dir === 'left' ? 'left: 12px;' : 'right: 12px;')}
+  }
+`;
+
+export const LightboxFooter = styled.div`
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #ffffff;
+  font-size: 14px;
+`;
+
+export const LightboxCounter = styled.span`
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(8px);
+  padding: 4px 14px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
 `;

@@ -16,7 +16,7 @@ export class HanokDetailService {
       // 1. detailCommon2 호출
       const commonJson = await TourApiClient.get(
         'detailCommon2',
-        { contentId: cleanId },
+        { contentId: cleanId, mapinfoYN: 'Y', addrinfoYN: 'Y', overviewYN: 'Y' },
         signal,
       );
 
@@ -66,12 +66,27 @@ export class HanokDetailService {
       const imgList = Array.isArray(rawImgItems) ? rawImgItems : rawImgItems ? [rawImgItems] : [];
 
       const overview = commonItem.overview ? String(commonItem.overview).trim() : null;
-      const homepage = commonItem.homepage ? String(commonItem.homepage).trim() : null;
-      const tel = commonItem.tel || introItem.infocenter || introItem.infocenterlodging || null;
+      const reservationurl = introItem.reservationurl ? String(introItem.reservationurl).trim() : null;
+      const homepage = commonItem.homepage ? String(commonItem.homepage).trim() : reservationurl;
+      const tel =
+        commonItem.tel ||
+        introItem.infocenter ||
+        introItem.infocenterlodging ||
+        introItem.reservationlodging ||
+        null;
       const usetime = introItem.usetime || introItem.usetimeleports || introItem.opentimefood || null;
       const restdate = introItem.restdate || introItem.restdateculture || introItem.restdatefood || null;
       const parking = introItem.parking || introItem.parkinglodging || null;
       const expguide = introItem.expguide || null;
+
+      const checkin = introItem.checkintime ? String(introItem.checkintime).trim() : null;
+      const checkout = introItem.checkouttime ? String(introItem.checkouttime).trim() : null;
+      const roomtype = introItem.roomtype ? String(introItem.roomtype).trim() : null;
+      const roomcount = introItem.roomcount ? String(introItem.roomcount).trim() : null;
+      const subfacility = introItem.subfacility ? String(introItem.subfacility).trim() : null;
+      const barbecue = introItem.barbecue ? String(introItem.barbecue).trim() : null;
+      const chkcooking = introItem.chkcooking ? String(introItem.chkcooking).trim() : null;
+      const refundregulation = introItem.refundregulation ? String(introItem.refundregulation).trim() : null;
 
       const repeatInfo = infoList
         .map((i: any) => ({
@@ -84,6 +99,12 @@ export class HanokDetailService {
         .map((i: any) => toHttps(i.originimgurl || i.smallimageurl))
         .filter(Boolean) as string[];
 
+      const rawLat = parseFloat(String(commonItem.mapy ?? ''));
+      const rawLng = parseFloat(String(commonItem.mapx ?? ''));
+      const lat = !isNaN(rawLat) && rawLat > 0 ? rawLat : null;
+      const lng = !isNaN(rawLng) && rawLng > 0 ? rawLng : null;
+      const addr = commonItem.addr1 ? String(commonItem.addr1).trim() : null;
+
       return {
         overview,
         homepage,
@@ -92,8 +113,19 @@ export class HanokDetailService {
         restdate,
         parking,
         expguide,
+        checkin,
+        checkout,
+        roomtype,
+        roomcount,
+        subfacility,
+        barbecue,
+        chkcooking,
+        refundregulation,
         repeatInfo,
         images,
+        lat,
+        lng,
+        addr,
         item: commonItem,
         source: 'TourAPI',
       };
