@@ -54,7 +54,7 @@ const Root = styled.div`
 const PageInner = styled.div`
   width: 100%;
   margin: 0;
-  padding: 0;
+  padding: 0 0 clamp(64px, 8vh, 120px);
 `;
 
 // PageContainer 바깥까지 같은 바탕을 유지하고, route를 떠나면 Emotion이 자동 복원한다.
@@ -68,19 +68,24 @@ const paperGround = css`
   }
 `;
 
-// 섹션 완급: 매거진(이달의 한옥·매니페스토)은 넓게 비우고,
-// 아카이브 3종(도감·스테이·지도)은 붙여서 한 덩어리로 읽히게 한다.
+// 1. 중간 호흡: 통계(분포도) → 큐레이션(이달의 한옥), 구조 카드 → 부재 목록 등
 const EditorialSection = styled.div`
-  padding-top: clamp(28px, 4vh, 52px);
+  padding-top: clamp(56px, 7.5vh, 96px);
 `;
 
-// 챕터가 갈리는 자리. 아카이브 덩어리로 들어갈 때와 거기서 빠져나올 때 크게 비운다.
+// 2. 어두운 인트로 영상 배경 바로 다음 자리: 첫 본문으로 넘어올 때 서사적인 여유를 준다
+const HeroLeadOutSection = styled.div`
+  padding-top: clamp(64px, 8.5vh, 108px);
+`;
+
+// 3. 챕터 대전환: 이달의 한옥 → 도감, 스테이 → 3D 구조, 부재 목록 → 지도
 const ChapterBreak = styled.div`
-  padding-top: clamp(88px, 12vh, 160px);
+  padding-top: clamp(96px, 12vh, 160px);
 `;
 
+// 4. 동일 아카이브 내 서브 챕터 연결: 도감 그리드 → 스테이 아코디언
 const ArchiveSection = styled.div`
-  padding-top: clamp(36px, 4.5vh, 60px);
+  padding-top: clamp(56px, 7vh, 88px);
 `;
 
 const IntroStage = styled.div`
@@ -265,13 +270,13 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
           전에는 이 섹션이 네 번째였다 — 질문과 답 사이에 구조 챕터와 이달의 한옥이
           끼어 있어서, 답이 나올 때쯤 독자는 질문을 이미 놓친 뒤였다.
         */}
-        <EditorialSection>
+        <HeroLeadOutSection>
           <VesselReveal id={HANOK_REVEAL_SECTIONS.distribution} className="w-full">
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
               <HanokDistribution villages={archiveData.villages} />
             </div>
           </VesselReveal>
-        </EditorialSection>
+        </HeroLeadOutSection>
 
         {/* 전체 규모를 본 눈을 한 채로 좁힌다 — 이 달의 한옥 큐레이션 */}
         <EditorialSection>
@@ -327,14 +332,14 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
           </EditorialSection>
         </ChapterBreak>
 
-        {/* 부재를 읽고 난 뒤 지도로 — 어느 채가 어디 있는지 짚어 준다 */}
-        <EditorialSection>
+        {/* 부재를 읽고 난 뒤 지도로 — 어느 채가 어디 있는지 짚어 준다 (구조에서 지도로의 대전환) */}
+        <ChapterBreak>
           <VesselReveal id={HANOK_REVEAL_SECTIONS.map} className="w-full">
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
               <HanokMap villages={archiveData.villages} onSelectVillage={setSelectedVillage} />
             </div>
           </VesselReveal>
-        </EditorialSection>
+        </ChapterBreak>
 
         {/* 온마루 한옥 매니페스토 (자체 상하 여백을 가지고 있다) */}
         <VesselReveal id={HANOK_REVEAL_SECTIONS.manifesto} className="w-full">
