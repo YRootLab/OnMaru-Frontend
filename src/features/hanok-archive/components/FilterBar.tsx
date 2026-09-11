@@ -5,8 +5,8 @@ import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import { Tag, RotateCcw, Search, X } from 'lucide-react';
 import { meok, lightPalette, surface } from '@/design-system/tokens';
-import { STAY_TYPE, type Village } from '@/hanok/types';
-import { filterLabel } from '@/hanok/filterLabels';
+import { STAY_TYPE, type Village } from '@/features/hanok-archive/types';
+import { filterLabel } from '@/features/hanok-archive/filterLabels';
 
 /*
   유형 값은 문자열 그대로다.

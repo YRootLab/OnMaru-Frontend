@@ -7,8 +7,8 @@ import { motion } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
 import { meok, lightPalette } from '@/design-system/tokens';
 import { Home, ArrowRight } from 'lucide-react';
-import type { Village } from '@/hanok/types';
-import { filterLabel } from '@/hanok/filterLabels';
+import type { Village } from '@/features/hanok-archive/types';
+import { filterLabel } from '@/features/hanok-archive/filterLabels';
 
 // 각 인덱스에 고정된 회전각 (자연스러운 폴라로이드 느낌)
 const ROTATIONS = [-4.2, 2.8, -2.1, 3.5];

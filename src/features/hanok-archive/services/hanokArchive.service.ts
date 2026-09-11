@@ -1,5 +1,5 @@
-import { STAY_TYPE } from '@/hanok/types';
-import type { Village, VillageMeta } from '@/hanok/types';
+import { STAY_TYPE } from '@/features/hanok-archive/types';
+import type { Village, VillageMeta } from '@/features/hanok-archive/types';
 import { TourApiClient } from '@/lib/tour-api/tourApiClient';
 import {
   CATEGORY_MAPPINGS,
@@ -8,7 +8,7 @@ import {
   assignBadges,
   inKorea,
   toHttps,
-} from '@/hanok/lib/classify.mjs';
+} from '@/features/hanok-archive/lib/classify.mjs';
 
 /** areaBasedList2가 돌려주는 항목 중 이 도감이 읽는 필드만. */
 interface TourApiItem {

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { HanokDetailService } from '@/hanok/services/hanokDetail.service';
+import { HanokDetailService } from '@/features/hanok-archive/services/hanokDetail.service';
 
 /**
  * 한옥 아카이브 항목 상세 조회 API (Thin Controller)

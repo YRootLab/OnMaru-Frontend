@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
-import HanokArchive from '@/hanok/HanokArchive';
-import { HANOK_ARCHIVE_FALLBACK } from '@/hanok/data/hanokArchiveFallback';
-import { readFilterState } from '@/hanok/sections/hanokFilterQuery';
+import HanokArchive from '@/features/hanok-archive/HanokArchive';
+import { HANOK_ARCHIVE_FALLBACK } from '@/features/hanok-archive/data/hanokArchiveFallback';
+import { readFilterState } from '@/features/hanok-archive/sections/hanokFilterQuery';
 
 export const metadata: Metadata = {
   title: '한옥도감 — 실시간 전국 전통 한옥 & 문화유산 도감 | 온마루',

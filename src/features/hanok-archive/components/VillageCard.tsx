@@ -5,8 +5,8 @@ import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
 import { meok, lightPalette } from '@/design-system/tokens';
-import type { Village } from '@/hanok/types';
-import { filterLabel } from '@/hanok/filterLabels';
+import type { Village } from '@/features/hanok-archive/types';
+import { filterLabel } from '@/features/hanok-archive/filterLabels';
 
 const Card = styled(motion.article, transientProps)`
   position: relative;

@@ -6,8 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
 import { meok, lightPalette } from '@/design-system/tokens';
 import { Sparkles, ArrowRight } from 'lucide-react';
-import type { Village } from '@/hanok/types';
-import { filterLabel } from '@/hanok/filterLabels';
+import type { Village } from '@/features/hanok-archive/types';
+import { filterLabel } from '@/features/hanok-archive/filterLabels';
 
 const HeroContainer = styled.section`
   position: relative;

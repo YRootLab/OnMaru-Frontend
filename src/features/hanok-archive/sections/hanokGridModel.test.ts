@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { STAY_TYPE } from '@/hanok/types';
-import type { Village } from '@/hanok/types';
+import { STAY_TYPE } from '@/features/hanok-archive/types';
+import type { Village } from '@/features/hanok-archive/types';
 import { EMPTY_FILTERS, getHanokGridPage, type HanokFilters } from './hanokGridModel';
 
 function village(

@@ -1,5 +1,5 @@
-import { STAY_TYPE } from '@/hanok/types';
-import type { Village } from '@/hanok/types';
+import { STAY_TYPE } from '@/features/hanok-archive/types';
+import type { Village } from '@/features/hanok-archive/types';
 
 /*
   도감을 거르는 한 벌.

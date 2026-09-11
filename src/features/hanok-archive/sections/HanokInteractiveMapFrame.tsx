@@ -6,8 +6,8 @@ import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertCircle, MapPin, ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
 import { lightPalette, meok, surface } from '@/design-system/tokens';
-import type { Village } from '@/hanok/types';
-import { filterLabel } from '@/hanok/filterLabels';
+import type { Village } from '@/features/hanok-archive/types';
+import { filterLabel } from '@/features/hanok-archive/filterLabels';
 import { createKakaoResourceScope, type KakaoResourceScope } from './kakaoMapResources';
 
 // Light Kobalt & Soft Gray Theme Tokens

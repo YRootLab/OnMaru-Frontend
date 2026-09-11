@@ -5,9 +5,9 @@ import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
 import { meok, lightPalette, surface } from '@/design-system/tokens';
-import SectionHeader from '@/hanok/components/SectionHeader';
-import { STAY_TYPE } from '@/hanok/types';
-import type { Village } from '@/hanok/types';
+import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
+import { STAY_TYPE } from '@/features/hanok-archive/types';
+import type { Village } from '@/features/hanok-archive/types';
 import { Home, Flame, Coffee, Sparkles, Leaf, MapPin, RotateCcw, ArrowRight, ExternalLink } from 'lucide-react';
 
 const Section = styled.section`

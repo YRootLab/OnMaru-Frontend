@@ -1,5 +1,5 @@
 import snapshot from '@/data/hanokVillages.fallback.json';
-import type { Village, VillageMeta } from '@/hanok/types';
+import type { Village, VillageMeta } from '@/features/hanok-archive/types';
 
 export interface HanokArchiveData {
   villages: Village[];

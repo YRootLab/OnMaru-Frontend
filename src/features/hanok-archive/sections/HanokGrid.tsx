@@ -3,11 +3,11 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { meok, surface } from '@/design-system/tokens';
-import SectionHeader from '@/hanok/components/SectionHeader';
-import FilterBar, { type VillageTypeFilter } from '@/hanok/components/FilterBar';
-import VillageCard from '@/hanok/components/VillageCard';
-import Pagination from '@/hanok/components/Pagination';
-import type { Village } from '@/hanok/types';
+import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
+import FilterBar, { type VillageTypeFilter } from '@/features/hanok-archive/components/FilterBar';
+import VillageCard from '@/features/hanok-archive/components/VillageCard';
+import Pagination from '@/features/hanok-archive/components/Pagination';
+import type { Village } from '@/features/hanok-archive/types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getHanokGridPage } from './hanokGridModel';
 import { EMPTY_STATE, toSearchParams, type HanokFilterState } from './hanokFilterQuery';

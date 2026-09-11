@@ -5,10 +5,10 @@ import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import { meok, lightPalette, surface } from '@/design-system/tokens';
 import { Sparkles, ArrowRight } from 'lucide-react';
-import PolaroidCard from '@/hanok/components/PolaroidCard';
-import type { Village } from '@/hanok/types';
-import { filterLabel } from '@/hanok/filterLabels';
-import { MONTHLY_CURATIONS } from '@/hanok/data/monthlyCurations.mjs';
+import PolaroidCard from '@/features/hanok-archive/components/PolaroidCard';
+import type { Village } from '@/features/hanok-archive/types';
+import { filterLabel } from '@/features/hanok-archive/filterLabels';
+import { MONTHLY_CURATIONS } from '@/features/hanok-archive/data/monthlyCurations.mjs';
 
 const Section = styled.section`
   padding: 0;

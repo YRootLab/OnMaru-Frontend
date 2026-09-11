@@ -26,7 +26,7 @@ import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 
 import { meok, lightPalette } from '@/design-system/tokens';
-import SectionHeader from '@/hanok/components/SectionHeader';
+import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
 import { STAGES } from './stages';
 
 const HanokAssemblyModal = dynamic(() => import('./HanokAssemblyModal'), { ssr: false });

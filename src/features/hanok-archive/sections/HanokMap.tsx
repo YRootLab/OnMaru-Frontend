@@ -4,8 +4,8 @@ import React from 'react';
 import styled from '@emotion/styled';
 import dynamic from 'next/dynamic';
 import { meok, surface } from '@/design-system/tokens';
-import SectionHeader from '@/hanok/components/SectionHeader';
-import type { Village } from '@/hanok/types';
+import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
+import type { Village } from '@/features/hanok-archive/types';
 import { useViewportActivation } from '@/shared/hooks/useViewportActivation';
 
 // Dynamic import for Kakao map component (client side only)

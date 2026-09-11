@@ -4,10 +4,10 @@ import React, { useMemo } from 'react';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import { meok, lightPalette } from '@/design-system/tokens';
-import SectionHeader from '@/hanok/components/SectionHeader';
-import { filterLabel } from '@/hanok/filterLabels';
+import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
+import { filterLabel } from '@/features/hanok-archive/filterLabels';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
-import type { Village } from '@/hanok/types';
+import type { Village } from '@/features/hanok-archive/types';
 
 /*
   진입부는 "지금 한옥은 어디에 남아 있을까"라고 묻는다. 도감과 지도는 개별 한 채씩을

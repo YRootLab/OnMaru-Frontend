@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import Link from 'next/link';
-import type { SectionId } from '@/hanok/types';
+import type { SectionId } from '@/features/hanok-archive/types';
 import { lightPalette, meok } from '@/design-system/tokens';
 
 const Nav = styled.nav`
