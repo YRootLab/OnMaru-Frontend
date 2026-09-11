@@ -14,7 +14,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { lightPalette, darkPalette, meok, surface } from '@/design-system/tokens';
+import { lightPalette, darkPalette, meok, surface , fontSize } from '@/design-system/tokens';
 import { useCinematicTourStore } from '@/features/cinematic-tour/store/useCinematicTourStore';
 
 const Container = styled.div`
@@ -80,7 +80,7 @@ const TourBadge = styled.div`
   gap: 5px;
   padding: 3px 9px;
   border-radius: 9999px;
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   font-weight: 500;
   letter-spacing: 0.06em;
   white-space: nowrap;
@@ -91,7 +91,7 @@ const TourBadge = styled.div`
 
 const TourTitle = styled.h4`
   margin: 0;
-  font-size: 14px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
@@ -157,7 +157,7 @@ const WaypointChip = styled.button<{ $active: boolean }>`
   padding: 0 10px;
   border-radius: 9999px;
   border: none;
-  font-size: 11.5px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   white-space: nowrap;
   cursor: pointer;
@@ -215,7 +215,7 @@ const SubtitleMetaRow = styled.div`
 `;
 
 const SubtitleIndexBadge = styled.span`
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   font-weight: 500;
   color: ${lightPalette.jangmi[700]};
   display: inline-flex;
@@ -229,7 +229,7 @@ const SubtitleIndexBadge = styled.span`
 
 const SubtitleLine = styled.p`
   margin: 0;
-  font-size: 13.5px;
+  font-size: ${fontSize.sm};
   /* 자막 본문 — 읽는 글이지 강조하는 글이 아니다 */
   font-weight: 400;
   line-height: 1.5;
@@ -258,7 +258,7 @@ const PhotoTipPill = styled.div`
   align-items: center;
   gap: 5px;
   margin-top: 6px;
-  font-size: 11.5px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   color: ${lightPalette.jangmi[700]};
 
@@ -275,7 +275,7 @@ const ControlsRow = styled.div`
 `;
 
 const TimeText = styled.span`
-  font-size: 11.5px;
+  font-size: ${fontSize.xs};
   font-variant-numeric: tabular-nums;
   color: ${meok[500]};
   font-weight: 400;

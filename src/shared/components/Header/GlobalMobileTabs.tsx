@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import styled from '@emotion/styled';
 import { Home, BookOpen, Map, Headphones } from 'lucide-react';
 import { transientProps } from '@/design-system/styled';
-import { lightPalette } from '@/design-system/tokens';
+import { lightPalette , fontSize } from '@/design-system/tokens';
 
 interface TabProps {
   $isLanding?: boolean;
@@ -35,7 +35,7 @@ const TabLink = styled(Link, transientProps)<TabProps>`
     return $isLanding ? 'rgba(250, 250, 250, 0.68)' : 'rgba(33, 30, 25, 0.68)';
   }};
   font-family: 'Spoqa Han Sans Neo', sans-serif;
-  font-size: 10px;
+  font-size: ${fontSize.micro};
   /* 10px에선 500과 400이 구분되지 않는다. 활성 탭만 bold로 갈라 준다 */
   font-weight: ${({ $isActive }) => ($isActive ? 700 : 400)};
   letter-spacing: -0.02em;
