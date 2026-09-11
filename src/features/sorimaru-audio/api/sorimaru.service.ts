@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export class SorimaruService {
+  // 실제 한국관광공사 공공데이터 상품명은 'Odii'다 — '소리마루'는 온마루 자체 브랜드명일 뿐,
+  // data.go.kr에 등록된 엔드포인트 경로는 이름을 바꿔도 그대로다.
   private static readonly BASE_URL =
     process.env.SORIMARU_API_URL ||
     process.env.NEXT_PUBLIC_SORIMARU_API_URL ||
-    'https://apis.data.go.kr/B551011/Sorimaru';
+    'https://apis.data.go.kr/B551011/Odii';
 
   private static getApiKey(): string {
     const key = process.env.SORIMARU_API_KEY || process.env.NEXT_PUBLIC_SORIMARU_API_KEY || '';
