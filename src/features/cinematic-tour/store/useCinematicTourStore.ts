@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { OdiiStoryItem, TourWaypoint } from '@/features/odii-audio/types/odii.types';
-import { useMapStore } from '@/map/hooks/useMapStore';
+import { useMapStore } from '@/features/map/hooks/useMapStore';
 
 export function parseScriptSentences(script: string): string[] {
   if (!script) return [];

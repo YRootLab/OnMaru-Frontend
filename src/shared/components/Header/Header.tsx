@@ -10,7 +10,7 @@ import { Sparkles, ArrowRight, Menu, X } from 'lucide-react';
 import { transientProps } from '@/design-system/styled';
 import { lightPalette, meok, surface } from '@/design-system/tokens';
 import GlobalMobileTabs from './GlobalMobileTabs';
-import MapMobileTabs from '@/map/components/MapMobileTabs';
+import MapMobileTabs from '@/features/map/components/MapMobileTabs';
 import { HEADER_EXIT_S, ENTRANCE_EASE } from '@/shared/navigation/mapEntranceTiming';
 import { useMapEntranceStore } from '@/shared/navigation/mapEntranceState';
 

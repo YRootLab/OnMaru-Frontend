@@ -1,5 +1,5 @@
 import { TourApiClient } from '@/lib/tour-api/tourApiClient';
-import { toHttps } from '@/map/utils/formatters';
+import { toHttps } from '@/features/map/utils/formatters';
 
 export class HanokDetailService {
   /**

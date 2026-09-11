@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import { Global, css } from '@emotion/react';
 import { lightPalette, darkPalette, meok, surface } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
-import { useMapStore } from '@/map/hooks/useMapStore';
+import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useCinematicTourStore } from '@/features/cinematic-tour/store/useCinematicTourStore';
 
 const styles = css`

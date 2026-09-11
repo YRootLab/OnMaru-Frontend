@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { PlaceService } from '@/map/services/place.service';
+import { PlaceService } from '@/features/map/services/place.service';
 
 /**
  * 장소 상세 정보 조회 API (Thin Controller)

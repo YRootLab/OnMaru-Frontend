@@ -25,7 +25,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { meok } from '@/design-system/tokens';
-import { useBookmarkStore } from '@/map/hooks/useBookmarkStore';
+import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import { STAY_TYPE } from '@/features/hanok-archive/types';
 import type { Village, VillageDetailResponse } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
