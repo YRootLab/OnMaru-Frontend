@@ -19,7 +19,7 @@ export function EditorialCaptionVariant({ stories, selectedStoryId, onSelectStor
                 sizes="(max-width: 640px) 206px, 244px"
                 className="transition-transform duration-700 [@media(hover:hover)_and_(pointer:fine)]:group-hover:scale-[1.035] motion-reduce:transition-none"
               />
-              <span className="absolute left-3 top-3 rounded-full bg-[#fffdf9]/90 px-2.5 py-1 text-[9px] font-bold text-[#d94068]  backdrop-blur-sm">
+              <span className="absolute left-3 top-3 rounded-full bg-[#fffdf9]/90 px-2.5 py-1 text-[10px] font-bold text-[#d94068]  backdrop-blur-sm">
                 {story.category}
               </span>
               <div className="absolute bottom-3 right-3">
@@ -28,7 +28,7 @@ export function EditorialCaptionVariant({ stories, selectedStoryId, onSelectStor
             </div>
             <div className="px-1 pt-4">
               <p className="truncate text-[10px] text-[#8c7e6c]">{story.location}</p>
-              <h3 className="mt-1.5 line-clamp-2 min-h-[2.85rem] font-sorimaru-sans text-[17px] font-bold leading-[1.35] tracking-[-0.04em] text-[#211e19]">
+              <h3 className="mt-1.5 line-clamp-2 min-h-[2.85rem] font-sorimaru-sans text-[16px] font-bold leading-[1.35] tracking-[-0.04em] text-[#211e19]">
                 {story.title}
               </h3>
               <div className="mt-3 flex items-center justify-between gap-3   pt-3">

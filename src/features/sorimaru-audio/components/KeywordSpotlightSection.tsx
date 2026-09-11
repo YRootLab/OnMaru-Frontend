@@ -275,7 +275,7 @@ export const KeywordSpotlightSection: React.FC<KeywordSpotlightSectionProps> = (
                             )}
                           </span>
                           {isCurrentPlaying ? '잠시 멈추기' : '이야기 듣기'}
-                          <span className="font-mono text-[11px] font-normal text-[#8c7e6c]">{spotlightStory.formattedDuration || '오디오'}</span>
+                          <span className="font-mono text-[10px] font-normal text-[#8c7e6c]">{spotlightStory.formattedDuration || '오디오'}</span>
                         </button>
 
                         {onBookmarkStory && (

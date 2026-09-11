@@ -67,7 +67,7 @@ export const SoundWaveVisualizer: React.FC<SoundWaveVisualizerProps> = ({
     <div className="flex items-center gap-1">
       <canvas ref={canvasRef} width={80} height={24} className="h-6 w-20" />
       {isPlaying && (
-        <span className="animate-pulse text-[9px] font-bold text-[#d4af37] uppercase tracking-wider">
+        <span className="animate-pulse text-[10px] font-bold text-[#d4af37] uppercase tracking-wider">
           LIVE SOUND
         </span>
       )}

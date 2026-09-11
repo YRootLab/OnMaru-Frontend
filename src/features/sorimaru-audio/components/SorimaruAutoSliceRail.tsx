@@ -50,17 +50,17 @@ export const SorimaruAutoSliceRail: React.FC<SorimaruAutoSliceRailProps> = ({ st
               initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.62, ease: EASE }}
-              className="font-sorimaru-sans text-[clamp(42px,7.2vw,94px)] font-bold leading-[0.98] tracking-normal text-[#171715]"
+              className="font-sorimaru-sans text-[clamp(42px,7.2vw,94px)] font-bold leading-[0.98] tracking-normal text-[#191f28]"
             >
               한국의 장면을,
               <br />
-              <span className="text-[#F84E76]">귀로</span> 걷다.
+              <span className="text-[#FF2A85]">귀로</span> 걷다.
             </motion.h1>
             <motion.p
               initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.62, ease: EASE, delay: 0.06 }}
-              className="mt-5 max-w-[20rem] text-[15px] leading-7 text-[#655b4d] sm:max-w-xl sm:text-[17px]"
+              className="mt-5 max-w-[20rem] text-sm leading-7 text-[#4e5968] sm:max-w-xl sm:text-base"
             >
               사진보다 먼저 도착하는 소리로, 오래된 장소의 온기와 사람의 발자국을 들어보세요.
             </motion.p>
@@ -81,7 +81,7 @@ export const SorimaruAutoSliceRail: React.FC<SorimaruAutoSliceRailProps> = ({ st
                     : { opacity: isStoryPlaying ? [0.35, 0.6, 0.35] : 0, scale: isStoryPlaying ? [1, 1.12, 1] : 1 }
                 }
                 transition={isStoryPlaying && !shouldReduceMotion ? { duration: 2.6, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.4 }}
-                className="pointer-events-none absolute inset-[-14px] rounded-full bg-[#F84E76] blur-2xl"
+                className="pointer-events-none absolute inset-[-14px] rounded-full bg-[#FF2A85] blur-2xl"
               />
               <motion.button
                 type="button"
@@ -91,7 +91,7 @@ export const SorimaruAutoSliceRail: React.FC<SorimaruAutoSliceRailProps> = ({ st
                 transition={{ type: 'spring', stiffness: 420, damping: 22 }}
                 aria-label={isStoryPlaying ? '잠시 멈추기' : '지금 듣기'}
                 style={{ boxShadow: '0 18px 30px -12px rgba(23,21,21,0.45), inset 0 1px 0 rgba(255,255,255,0.08)' }}
-                className="relative flex h-20 w-20 items-center justify-center rounded-full bg-[#171715] text-white transition-colors duration-300 hover:bg-[#2B2925] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#F84E76] sm:h-24 sm:w-24"
+                className="relative flex h-20 w-20 items-center justify-center rounded-full bg-[#191f28] text-white transition-colors duration-300 hover:bg-[#2B2925] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF2A85] sm:h-24 sm:w-24"
               >
                 <AnimatePresence initial={false} mode="wait">
                   {isStoryPlaying ? (
@@ -128,13 +128,13 @@ export const SorimaruAutoSliceRail: React.FC<SorimaruAutoSliceRailProps> = ({ st
                 transition={{ duration: 0.32, ease: EASE }}
                 className="min-w-0"
               >
-                <p className="text-xs font-semibold uppercase tracking-wide text-[#8A8176]">
+                <p className="text-xs font-semibold uppercase tracking-wide text-[#8b95a1]">
                   {isStoryPlaying ? '지금 재생 중' : '지금 듣는 이야기'}
                 </p>
-                <p className="mt-1 truncate font-sorimaru-sans text-lg font-bold leading-6 text-[#211e19] sm:text-xl">
+                <p className="mt-1 truncate font-sorimaru-sans text-lg font-bold leading-6 text-[#191f28] sm:text-xl">
                   {story.title}
                 </p>
-                <p className="mt-1 truncate text-xs text-[#8A8176]">
+                <p className="mt-1 truncate text-xs text-[#8b95a1]">
                   {getStoryLabel(story)}
                   {story.formattedDuration ? ` · ${story.formattedDuration}` : ''}
                 </p>
@@ -149,7 +149,7 @@ export const SorimaruAutoSliceRail: React.FC<SorimaruAutoSliceRailProps> = ({ st
               initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="mt-10 inline-flex items-center gap-1 text-xs font-semibold text-[#8A8176] transition-colors duration-300 hover:text-[#F84E76] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#F84E76] sm:mt-14"
+              className="mt-10 inline-flex items-center gap-1 text-xs font-semibold text-[#8b95a1] transition-colors duration-300 hover:text-[#FF2A85] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF2A85] sm:mt-14"
             >
               <span>이번 주 인기 이야기 다음으로</span>
               <ChevronRight size={13} strokeWidth={2} />

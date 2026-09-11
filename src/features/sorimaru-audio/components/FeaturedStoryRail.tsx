@@ -250,7 +250,7 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories, s
                 </div>
 
                 {!isLead && isPlayingStory && (
-                  <span className="absolute right-3 top-3 rounded-full bg-[#a94d35] px-2 py-1 text-[9px] font-bold text-white ">
+                  <span className="absolute right-3 top-3 rounded-full bg-[#a94d35] px-2 py-1 text-[10px] font-bold text-white ">
                     재생 중
                   </span>
                 )}
@@ -260,7 +260,7 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories, s
         </div>
 
         <div className="mt-4 flex items-center justify-between   pt-3">
-          <span className="text-[11px] text-[#8c7e6c]">
+          <span className="text-[10px] text-[#8c7e6c]">
             {String(normalizedIndex + 1).padStart(2, '0')} / {String(featured.length).padStart(2, '0')}
             <span className="ml-2">카드를 고르면 앞으로 이동합니다</span>
           </span>

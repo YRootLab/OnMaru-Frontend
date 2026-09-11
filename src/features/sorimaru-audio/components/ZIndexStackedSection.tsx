@@ -111,7 +111,7 @@ export const ZIndexStackedSection: React.FC<ZIndexStackedSectionProps> = ({ chap
                           }`}
                         >
                           <div className="min-w-0 pr-2">
-                            <span className="text-[9px] font-bold text-[#a94d35]">
+                            <span className="text-[10px] font-bold text-[#a94d35]">
                               {story.locationName || '소리 공간'}
                             </span>
                             <h4 className="mt-0.5 truncate font-sorimaru-sans text-xs font-bold text-[#211e19]">

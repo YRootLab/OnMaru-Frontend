@@ -97,7 +97,7 @@ export const SorimaruStoryCardGrid: React.FC<SorimaruStoryCardGridProps> = ({
                     }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-black/5 transition-opacity duration-300 group-hover:opacity-90" />
-                  <span className="absolute left-2 top-2 rounded-md bg-black/40 px-2 py-0.5 font-mono text-[9px] font-bold text-white backdrop-blur-xs">
+                  <span className="absolute left-2 top-2 rounded-md bg-black/40 px-2 py-0.5 font-mono text-[10px] font-bold text-white backdrop-blur-xs">
                     {String(index + 1).padStart(2, '0')}
                   </span>
                   <button

@@ -34,7 +34,7 @@ export const ZTranslateCardStage: React.FC<ZTranslateCardStageProps> = ({ featur
 
       {/* 헤더 */}
       <div className="text-center relative z-20 mb-8 px-4">
-        <span className="text-[11px] font-extrabold tracking-widest text-[#F8A8C0] uppercase px-3 py-1 rounded-full bg-white/5  inline-block mb-3">
+        <span className="text-[10px] font-extrabold tracking-widest text-[#F8A8C0] uppercase px-3 py-1 rounded-full bg-white/5  inline-block mb-3">
           SHOPIFY EDITIONS INSPIRED • 3D STAGE
         </span>
         <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight font-sorimaru-sans text-white">

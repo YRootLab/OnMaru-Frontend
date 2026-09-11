@@ -57,12 +57,12 @@ export const SorimaruOriginalStoryList: React.FC<Props> = ({ stories, onBookmark
               className={`group flex cursor-pointer items-center justify-between gap-3 rounded-xl px-2.5 py-3 transition-all duration-300 ${current ? 'bg-[#fff0f5]  ' : 'hover:bg-[#fff8fa]'}`}
             >
               <div className="flex min-w-0 items-center gap-3.5">
-                <span className={`flex w-6 shrink-0 items-center justify-center font-mono text-[11px] font-semibold ${current ? 'text-[#f84e76]' : 'text-[#8c7e6c]'}`}>
+                <span className={`flex w-6 shrink-0 items-center justify-center font-mono text-[10px] font-semibold ${current ? 'text-[#f84e76]' : 'text-[#8c7e6c]'}`}>
                   {playing ? <Music2 size={13} strokeWidth={2} className="animate-pulse text-[#f84e76]" /> : String(index + 1).padStart(2, '0')}
                 </span>
                 <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-[#e8e0d5]  sm:h-[52px] sm:w-[52px]">
                   <img src={imageFor(story, index)} alt={story.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = FALLBACK_IMAGES[0]; }} />
-                  {playing && <span className="absolute inset-0 flex items-center justify-center bg-[#f84e76]/80 text-[8px] font-bold tracking-widest text-white">PLAY</span>}
+                  {playing && <span className="absolute inset-0 flex items-center justify-center bg-[#f84e76]/80 text-[10px] font-bold tracking-widest text-white">PLAY</span>}
                 </div>
                 <div className="min-w-0 pr-1">
                   <div className="flex min-w-0 items-center gap-1.5 text-[10px]">
@@ -70,7 +70,7 @@ export const SorimaruOriginalStoryList: React.FC<Props> = ({ stories, onBookmark
                     <span className="truncate text-[#8c7e6c]">· {story.locationName || '대한민국 문화유산'}</span>
                   </div>
                   <h4 className={`truncate font-sorimaru-sans text-xs font-semibold sm:text-sm ${current ? 'text-[#f84e76]' : 'text-[#211e19] group-hover:text-[#f84e76]'}`}>{story.title}</h4>
-                  <p className="truncate text-[11px] text-[#786d5e]">{story.audioTitle}</p>
+                  <p className="truncate text-[10px] text-[#786d5e]">{story.audioTitle}</p>
                 </div>
               </div>
               <div className="flex shrink-0 items-center gap-2 sm:gap-3">
@@ -84,7 +84,7 @@ export const SorimaruOriginalStoryList: React.FC<Props> = ({ stories, onBookmark
                     {saved ? <Heart size={16} strokeWidth={2} fill="currentColor" /> : <Heart size={16} strokeWidth={2} />}
                   </button>
                 )}
-                <span className="hidden font-mono text-[11px] text-[#8c7e6c] sm:inline-block">{story.formattedDuration || '3:00'}</span>
+                <span className="hidden font-mono text-[10px] text-[#8c7e6c] sm:inline-block">{story.formattedDuration || '3:00'}</span>
                 <button
                   type="button"
                   onClick={(event) => play(story, event)}

@@ -45,7 +45,7 @@ export function StudySectionFrame({
         </div>
       </div>
       {children}
-      <p className="mt-4 max-w-2xl text-[11px] leading-5 text-[#8c7e6c]">{detail}</p>
+      <p className="mt-4 max-w-2xl text-[10px] leading-5 text-[#8c7e6c]">{detail}</p>
     </section>
   );
 }
@@ -103,7 +103,7 @@ export function StudyPlayControl({
       aria-pressed={isSelected}
       className={`inline-flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#f84e76] font-bold text-white  transition-[width,background-color] hover:bg-[#e33f69] focus-visible:outline-none focus-visible: focus-visible:ring-[#211e19] focus-visible:ring-offset-2 motion-reduce:transition-none ${compact && !isSelected ? 'w-11 text-[10px]' : 'min-w-11 px-3 text-[10px]'}`}
     >
-      <span aria-hidden="true" className={isSelected ? 'text-[8px]' : 'translate-x-px text-[9px]'}>{isSelected ? 'Ⅱ' : '▶'}</span>
+      <span aria-hidden="true" className={isSelected ? 'text-[10px]' : 'translate-x-px text-[10px]'}>{isSelected ? 'Ⅱ' : '▶'}</span>
       {(!compact || isSelected) && <span>{label}</span>}
     </button>
   );

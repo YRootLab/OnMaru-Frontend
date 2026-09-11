@@ -124,10 +124,10 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
       onMouseLeave={() => setIsHovered(false)}
       aria-pressed={isCurrent}
       style={isHovered && !isCurrent ? { backgroundColor: `color-mix(in srgb, ${accentColor} 12%, white)` } : undefined}
-      className={`group grid w-[min(94vw,25.5rem)] shrink-0 snap-start grid-cols-[125px_minmax(0,1fr)] gap-4 overflow-hidden rounded-xl border p-3 text-left transition-colors duration-200 sm:w-[25.5rem] sm:grid-cols-[132px_minmax(0,1fr)] ${
+      className={`group grid w-[min(94vw,25.5rem)] shrink-0 snap-start grid-cols-[125px_minmax(0,1fr)] gap-4 overflow-hidden rounded-2xl p-3 text-left transition-colors duration-200 sm:w-[25.5rem] sm:grid-cols-[132px_minmax(0,1fr)] ${
         isCurrent
-          ? 'border-[#f84e76]/45 bg-white'
-          : 'border-[#e5e5e3] bg-white hover:border-[#d7d7d4]'
+          ? 'bg-[#FFF0F6]'
+          : 'bg-[#f8f8f7] hover:bg-[#f0f0f0]'
       }`}
     >
       <div className="relative min-h-[136px] overflow-hidden rounded-[10px] bg-[#e5e5e3] sm:min-h-[144px]">
@@ -146,8 +146,8 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
         {/* 재생 컨트롤 원형 버블 */}
         <span className={`absolute bottom-2.5 left-2.5 inline-flex h-8 w-8 items-center justify-center rounded-full  backdrop-blur-xs transition-all duration-300 sm:h-8.5 sm:w-8.5 ${
           isPlaying
-            ? 'bg-[#a94d35] text-white  ring-white/90 '
-            : 'bg-white/95 text-[#211e19]  ring-white/90 '
+            ? 'bg-[#FF2A85] text-white  ring-white/90 '
+            : 'bg-white/95 text-[#191f28]  ring-white/90 '
         }`}>
           {isPlaying ? (
             <Pause size={14} strokeWidth={2} />
@@ -160,32 +160,32 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
       <div className="flex min-w-0 flex-col justify-between py-0.5 pr-0.5">
         <div className="min-w-0">
           {/* 1. 메인 타이틀 */}
-          <h3 className={`font-sorimaru-sans text-[14px] font-bold leading-tight tracking-[-0.035em] transition-colors duration-300 line-clamp-1 ${
-            isCurrent ? 'text-[#a94d35]' : 'text-[#211e19] group-hover:text-[#a94d35]'
+          <h3 className={`font-sorimaru-sans text-sm sm:text-base font-bold leading-tight tracking-[-0.035em] transition-colors duration-300 line-clamp-1 ${
+            isCurrent ? 'text-[#FF2A85]' : 'text-[#191f28] group-hover:text-[#FF2A85]'
           }`}>
             {story.title}
           </h3>
 
           {/* 2. 서브타이틀 / 오디오 소제목 */}
-          <p className="mt-0.5 truncate text-[10px] font-medium leading-4 text-[#655b4d]">
+          <p className="mt-0.5 truncate text-micro font-medium leading-4 text-[#4e5968]">
             {story.audioTitle}
           </p>
 
           <div className="mt-1 flex min-w-0 items-center gap-1.5">
-            <span className="inline-flex rounded-[4px] bg-[#f84e76]/10 px-1.5 py-px text-[10px] font-semibold leading-4 text-[#f84e76]">
+            <span className="inline-flex rounded-[4px] bg-[#FF2A85]/10 px-1.5 py-px text-micro font-semibold leading-4 text-[#FF2A85]">
               {story.category}
             </span>
-            <span className="truncate text-[10px] font-medium leading-4 text-[#786d5e]" title={story.locationName || '대한민국 문화유산'}>
+            <span className="truncate text-micro font-medium leading-4 text-[#8b95a1]" title={story.locationName || '대한민국 문화유산'}>
               {story.locationName || '대한민국 문화유산'}
             </span>
           </div>
 
-          <p className="mt-1 line-clamp-2 text-[10px] leading-relaxed text-[#786d5e]">{getScriptExcerpt(story.script)}</p>
+          <p className="mt-1 line-clamp-2 text-micro leading-relaxed text-[#8b95a1]">{getScriptExcerpt(story.script)}</p>
         </div>
 
-        <div className="mt-2.5 flex items-center justify-between border-t border-[#211e19]/[0.07] pt-2 text-[9.5px] text-[#786d5e]">
-          <span className="font-mono font-semibold text-[#655b4d]">{formatDuration(story)}</span>
-          <span className="truncate font-medium text-[#8c7e6c]">{story.speaker || '온마루 도슨트'}</span>
+        <div className="mt-2.5 flex items-center justify-between pt-2 text-micro text-[#8b95a1]">
+          <span className="font-mono font-semibold text-[#4e5968]">{formatDuration(story)}</span>
+          <span className="truncate font-medium text-[#8b95a1]">{story.speaker || '온마루 도슨트'}</span>
         </div>
       </div>
     </button>
@@ -198,47 +198,47 @@ export const StoryCarouselSkeleton: React.FC = () => (
       {[1, 2, 3].map((id) => (
         <div
           key={id}
-          className="grid min-h-[176px] w-[min(94vw,25.5rem)] shrink-0 grid-cols-[125px_minmax(0,1fr)] gap-4 overflow-hidden rounded-xl border border-[#e5e5e3] bg-white p-3 sm:min-h-[184px] sm:w-[25.5rem] sm:grid-cols-[132px_minmax(0,1fr)]"
+          className="grid min-h-[176px] w-[min(94vw,25.5rem)] shrink-0 grid-cols-[125px_minmax(0,1fr)] gap-4 overflow-hidden rounded-2xl bg-[#f8f8f7] p-3 sm:min-h-[184px] sm:w-[25.5rem] sm:grid-cols-[132px_minmax(0,1fr)]"
         >
           {/* 섬네일 스켈레톤 */}
           <div className="sorimaru-skeleton relative h-auto min-h-[176px] w-full self-stretch overflow-hidden rounded-[10px] bg-[#e5e5e3] sm:min-h-[184px]">
-            <div className="sorimaru-skeleton absolute bottom-2.5 left-2.5 h-8 w-8 rounded-full bg-[#dfd2be]" />
+            <div className="sorimaru-skeleton absolute bottom-2.5 left-2.5 h-8 w-8 rounded-full bg-[#d9d9d7]" />
           </div>
 
           {/* 우측 텍스트 정보 스켈레톤 */}
           <div className="flex flex-col justify-between py-0.5 pr-0.5">
             <div>
               {/* 타이틀 스켈레톤 */}
-              <div className="sorimaru-skeleton h-4 w-4/5 rounded-md bg-[#dfd2be]" />
+              <div className="sorimaru-skeleton h-4 w-4/5 rounded-md bg-[#d9d9d7]" />
               {/* 서브타이틀 스켈레톤 */}
-              <div className="sorimaru-skeleton mt-0.5 h-3.5 w-3/5 rounded bg-[#e8ded0]" />
+              <div className="sorimaru-skeleton mt-0.5 h-3.5 w-3/5 rounded bg-[#d9d9d7]" />
               {/* 주제 태그 + 장소 스켈레톤 */}
               <div className="mt-1">
-                <div className="sorimaru-skeleton h-4 w-16 rounded-full bg-[#e8ded0]" />
+                <div className="sorimaru-skeleton h-4 w-16 rounded-full bg-[#d9d9d7]" />
                 <div className="mt-0.5 flex items-start gap-1">
-                  <div className="sorimaru-skeleton mt-0.5 h-3 w-3 rounded-full bg-[#e5d9c7]" />
+                  <div className="sorimaru-skeleton mt-0.5 h-3 w-3 rounded-full bg-[#e5e5e3]" />
                   <div className="flex-1 space-y-1">
-                    <div className="sorimaru-skeleton h-3.5 w-full rounded bg-[#e5d9c7]" />
-                    <div className="sorimaru-skeleton h-3.5 w-3/4 rounded bg-[#e5d9c7]" />
+                    <div className="sorimaru-skeleton h-3.5 w-full rounded bg-[#e5e5e3]" />
+                    <div className="sorimaru-skeleton h-3.5 w-3/4 rounded bg-[#e5e5e3]" />
                   </div>
                 </div>
               </div>
               {/* 한지 오디오 인용구 박스 스켈레톤 */}
               <div className="mt-1 rounded-r-lg border-l-2  bg-[#211e19]/04 py-1 pl-2 pr-1 space-y-1.5">
-                <div className="sorimaru-skeleton h-3 w-full rounded bg-[#e8ded0]" />
-                <div className="sorimaru-skeleton h-3 w-3/4 rounded bg-[#e8ded0]" />
+                <div className="sorimaru-skeleton h-3 w-full rounded bg-[#d9d9d7]" />
+                <div className="sorimaru-skeleton h-3 w-3/4 rounded bg-[#d9d9d7]" />
               </div>
             </div>
             <div className="mt-2 flex items-center justify-between   pt-1.5">
-              <div className="sorimaru-skeleton h-3.5 w-10 rounded bg-[#e5d9c7]" />
-              <div className="sorimaru-skeleton h-3.5 w-20 rounded bg-[#e5d9c7]" />
+              <div className="sorimaru-skeleton h-3.5 w-10 rounded bg-[#e5e5e3]" />
+              <div className="sorimaru-skeleton h-3.5 w-20 rounded bg-[#e5e5e3]" />
             </div>
           </div>
         </div>
       ))}
     </div>
     <div className="h-[18px] px-6 sm:px-8" aria-hidden="true">
-      <div className="sorimaru-skeleton ml-auto h-3 w-16 rounded bg-[#e5d9c7]" />
+      <div className="sorimaru-skeleton ml-auto h-3 w-16 rounded bg-[#e5e5e3]" />
     </div>
   </div>
 );
@@ -412,9 +412,9 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
 
   if (stories.length === 0) {
     return (
-      <div className="rounded-2xl   bg-[#fbf8f2] px-5 py-8 text-center">
-        <p className="text-xs font-semibold text-[#655b4d]">아직 주변 이야기를 찾지 못했어요.</p>
-        <p className="mt-1 text-[11px] text-[#8c7e6c]">위치를 허용하면 가까운 오디오부터 보여드릴게요.</p>
+      <div className="rounded-2xl   bg-[#f8f8f7] px-5 py-8 text-center">
+        <p className="text-xs font-semibold text-[#4e5968]">아직 주변 이야기를 찾지 못했어요.</p>
+        <p className="mt-1 text-micro text-[#8b95a1]">위치를 허용하면 가까운 오디오부터 보여드릴게요.</p>
       </div>
     );
   }
@@ -471,7 +471,7 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
             type="button"
             aria-label="이전 주변 오디오 보기"
             onClick={() => moveRail(-1)}
-            className="absolute left-2 top-1/2 z-30 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-[#e5e5e3] bg-white text-[#211e19] shadow-sm transition-colors duration-200 hover:border-[#d0d0cd] hover:bg-[#f8f8f7] sm:left-3 sm:h-9 sm:w-9"
+            className="absolute left-2 top-1/2 z-30 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white text-[#191f28] transition-colors duration-200 hover:bg-[#f8f8f7] sm:left-3 sm:h-9 sm:w-9"
           >
             <ChevronLeft size={18} strokeWidth={2} />
           </button>
@@ -481,7 +481,7 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
             type="button"
             aria-label="다음 주변 오디오 보기"
             onClick={() => moveRail(1)}
-            className="absolute right-1 top-1/2 z-30 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full  bg-white/95 text-[#211e19]  backdrop-blur-md transition-all duration-200 hover:scale-110 hover:bg-white sm:right-2 sm:h-9 sm:w-9"
+            className="absolute right-1 top-1/2 z-30 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full  bg-white/95 text-[#191f28]  backdrop-blur-md transition-all duration-200 hover:scale-110 hover:bg-white sm:right-2 sm:h-9 sm:w-9"
           >
             <ChevronRight size={18} strokeWidth={2} />
           </button>
@@ -490,9 +490,9 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
 
       {/* 📍 하단 우측 독립 인덱스 카운터 (01 / 19) */}
       {railIndicator.width < 100 && (
-        <div className="flex items-center justify-end px-6 pt-1 pb-3 text-[11px] font-medium tracking-[0.08em] text-[#8c7e6c] sm:px-8 sm:pb-4" aria-live="polite">
+        <div className="flex items-center justify-end px-6 pt-1 pb-3 text-micro font-medium tracking-[0.08em] text-[#8b95a1] sm:px-8 sm:pb-4" aria-live="polite">
           <span className="font-mono">
-            <strong className="font-bold text-[#a94d35]">{String(railIndicator.index).padStart(2, '0')}</strong> / {String(stories.length).padStart(2, '0')}
+            <strong className="font-bold text-[#FF2A85]">{String(railIndicator.index).padStart(2, '0')}</strong> / {String(stories.length).padStart(2, '0')}
           </span>
         </div>
       )}

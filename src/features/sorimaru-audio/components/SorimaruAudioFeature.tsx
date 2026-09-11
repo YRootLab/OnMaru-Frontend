@@ -280,7 +280,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
 
   return (
     <SorimaruDependencyProvider apiService={activeApiService}>
-      <div className="sorimaru-feature relative isolate min-h-screen pb-24 text-[#211e19] selection:bg-[#ffd9e4] selection:text-[#b52f55]">
+      <div className="sorimaru-feature relative isolate min-h-screen pb-24 text-[#191f28] selection:bg-[#FFD4E5] selection:text-[#D40D63]">
         <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[620px] bg-[radial-gradient(ellipse_at_50%_0%,rgba(248,78,118,0.10),transparent_66%)]" aria-hidden="true" />
         <SorimaruAtmosphereBackground
           variant={backgroundVariant}
@@ -289,9 +289,9 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
         />
         <div className="relative z-10">
           {apiError && (
-            <div role="alert" className="fixed left-1/2 top-20 z-[60] flex w-[min(92vw,460px)] -translate-x-1/2 items-center justify-between gap-4 rounded-2xl  bg-[#fffaf3] px-4 py-3 text-sm text-[#655b4d] ">
+            <div role="alert" className="fixed left-1/2 top-20 z-[60] flex w-[min(92vw,460px)] -translate-x-1/2 items-center justify-between gap-4 rounded-2xl bg-[#f8f8f7] px-4 py-3 text-sm text-[#4e5968]">
               <span>{apiError}</span>
-              <button type="button" onClick={retryApiRequests} className="shrink-0 rounded-full bg-[#a94d35] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#8e3d2d]">
+              <button type="button" onClick={retryApiRequests} className="shrink-0 rounded-full bg-[#FF2A85] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#D40D63]">
                 다시 시도
               </button>
             </div>
@@ -349,21 +349,21 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                 <motion.div variants={titleVariants} className="flex flex-col gap-4 pb-1 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
                   <div className="min-w-0">
                     <h2 id="nearby-stories-heading" className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-sorimaru-sans text-[clamp(24px,3.2vw,36px)] font-bold tracking-[-0.045em] text-transparent">오늘, 여기에서</h2>
-                    <p className="mt-1 max-w-xl truncate text-xs sm:text-sm leading-5 text-[#786d5e]">{locationMessage}</p>
+                    <p className="mt-1 max-w-xl truncate text-xs sm:text-sm leading-5 text-[#4e5968]">{locationMessage}</p>
                   </div>
                   <div className="flex shrink-0 items-center justify-between gap-3 sm:flex-col sm:items-end sm:gap-1.5">
-                    <span className="text-right text-[10px] leading-4 text-[#8c7e6c] sm:pr-3">
+                    <span className="text-right text-micro leading-4 text-[#4e5968] sm:pr-3">
                       <span className="block">{locationLabel}</span>
-                      <strong className="block font-semibold text-[#655b4d]">내 주변 오디오 {nearbyStories.length}개</strong>
+                      <strong className="block font-semibold text-[#4e5968]">내 주변 오디오 {nearbyStories.length}개</strong>
                     </span>
                     <button
                       type="button"
                       onClick={handleLocate}
                       disabled={isLocating}
-                      className="inline-flex h-8 self-end items-center gap-1.5 rounded-full  bg-white/55 px-3 text-[11px] font-medium text-[#655b4d]  transition-transform duration-300 hover:-translate-y-0.5 hover: hover:bg-white hover:text-[#211e19] disabled:cursor-wait disabled:opacity-50"
+                      className="inline-flex h-8 self-end items-center gap-1.5 rounded-full  bg-white/55 px-3 text-micro font-medium text-[#4e5968]  transition-transform duration-300 hover:-translate-y-0.5 hover: hover:bg-white hover:text-[#191f28] disabled:cursor-wait disabled:opacity-50"
                     >
                       {isLocating ? '위치 확인 중…' : '내 위치 사용'}
-                      {!isLocating && <span aria-hidden="true" className="text-[13px] leading-none">›</span>}
+                      {!isLocating && <span aria-hidden="true" className="text-xs leading-none">›</span>}
                     </button>
                   </div>
                 </motion.div>
@@ -387,7 +387,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                   <h2 id="archive-heading" className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-sorimaru-sans text-[clamp(24px,3.2vw,36px)] font-bold tracking-[-0.045em] text-transparent">
                     오디로 듣는 한국
                   </h2>
-                  <p className="mt-1 max-w-xl text-xs sm:text-sm leading-5 text-[#786d5e]">
+                  <p className="mt-1 max-w-xl text-xs sm:text-sm leading-5 text-[#4e5968]">
                     처마 끝 바람 소리부터 천년 고도의 숨결까지, 마음에 머무는 이야기 트랙.
                   </p>
                 </motion.div>
@@ -402,7 +402,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                 </div>
 
                 <div className="mt-8 flex flex-col items-center justify-between gap-3 pt-4 sm:flex-row">
-                  <span className="text-[11px] text-[#8c7e6c]">
+                  <span className="text-micro text-[#4e5968]">
                     {archiveMeta.totalCount > 0 ? `${archiveMeta.totalCount.toLocaleString()}개 중 ${archiveMeta.pageNo}페이지` : '검색 결과 없음'}
                   </span>
                   <div className="flex flex-wrap items-center justify-end gap-2">
@@ -413,11 +413,11 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                         setArchivePage((page) => Math.max(1, page - 1));
                       }}
                       disabled={archivePage <= 1 || isArchiveLoading}
-                      className="h-9 rounded-full px-3.5 text-xs font-semibold text-[#f84e76] transition-colors hover:bg-[#fff0f5] disabled:cursor-not-allowed disabled:opacity-30"
+                      className="h-9 rounded-full px-3.5 text-xs font-semibold text-[#FF2A85] transition-colors hover:bg-[#FFF0F6] disabled:cursor-not-allowed disabled:opacity-30"
                     >
                       이전
                     </button>
-                    <span className="min-w-16 text-center text-xs font-semibold text-[#211e19]">{archivePage} / {totalArchivePages}</span>
+                    <span className="min-w-16 text-center text-xs font-semibold text-[#191f28]">{archivePage} / {totalArchivePages}</span>
                     <button
                       type="button"
                       onClick={() => {
@@ -425,7 +425,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                         setArchivePage((page) => Math.min(totalArchivePages, page + 1));
                       }}
                       disabled={archivePage >= totalArchivePages || isArchiveLoading}
-                      className="h-9 rounded-full px-3.5 text-xs font-semibold text-[#f84e76] transition-colors hover:bg-[#fff0f5] disabled:cursor-not-allowed disabled:opacity-30"
+                      className="h-9 rounded-full px-3.5 text-xs font-semibold text-[#FF2A85] transition-colors hover:bg-[#FFF0F6] disabled:cursor-not-allowed disabled:opacity-30"
                     >
                       다음
                     </button>

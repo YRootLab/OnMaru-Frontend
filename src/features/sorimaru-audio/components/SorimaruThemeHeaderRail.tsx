@@ -100,7 +100,7 @@ export const SorimaruThemeHeaderRail: React.FC = () => {
     <section className="w-full py-8">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 pb-4  ">
         <div>
-          <span className="text-[11px] font-bold tracking-[0.2em] text-[#a94d35] uppercase">
+          <span className="text-[10px] font-bold tracking-[0.2em] text-[#a94d35] uppercase">
             Sorimaru Audio Curation
           </span>
           <h2 className="font-sorimaru-sans text-2xl sm:text-3xl font-semibold text-[#211e19] mt-1">
@@ -133,12 +133,12 @@ export const SorimaruThemeHeaderRail: React.FC = () => {
               {/* 상단 태그 뱃지 */}
               <div className="flex items-center justify-between mb-4">
                 <span
-                  className="px-2.5 py-1 rounded-full text-[11px] font-semibold text-white/90 bg-white/10 backdrop-blur-md "
+                  className="px-2.5 py-1 rounded-full text-[10px] font-semibold text-white/90 bg-white/10 backdrop-blur-md "
                   style={{ color: theme.accentColor }}
                 >
                   {theme.tag} 오디오
                 </span>
-                <span className="text-[11px] text-white/50">
+                <span className="text-[10px] text-white/50">
                   {theme.placeCount}개 장소
                 </span>
               </div>
@@ -153,7 +153,7 @@ export const SorimaruThemeHeaderRail: React.FC = () => {
 
               {/* 장소 예시 샘플 */}
               <div className="mt-5 pt-3   flex items-center justify-between">
-                <p className="text-[11px] text-white/50 truncate max-w-[85%]">
+                <p className="text-[10px] text-white/50 truncate max-w-[85%]">
                   {theme.examples}
                 </p>
                 <span

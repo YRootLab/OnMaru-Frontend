@@ -79,7 +79,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
         {/* 모달 헤더 */}
         <div className="flex items-center justify-between p-6  ">
           <div>
-            <span className="text-[11px] font-bold text-[#F8A8C0] uppercase tracking-wider block mb-0.5">
+            <span className="text-micro font-bold text-[#F8A8C0] uppercase tracking-wider block mb-0.5">
               COMPLETE AUDIO COLLECTION
             </span>
             <h2 className="font-sorimaru-sans text-xl font-semibold text-white sm:text-2xl">
@@ -108,7 +108,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
                   className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap ${
                     isSel
                       ? 'bg-[#D42058] text-white '
-                      : 'bg-white/5 text-[#A09588]  hover:bg-white/10 hover:text-white'
+                      : 'bg-white/5 text-[#8b95a1]  hover:bg-white/10 hover:text-white'
                   }`}
                 >
                   {cat}
@@ -133,7 +133,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
         {/* 오디오 이야기 리스트 스크롤 영역 */}
         <div className="flex-1 overflow-y-auto p-6 space-y-3 scrollbar-thin scrollbar-thumb-white/20">
           {filtered.length === 0 ? (
-            <div className="py-12 text-center text-[#A09588] text-sm">
+            <div className="py-12 text-center text-[#8b95a1] text-sm">
               일치하는 이야기가 없습니다.
             </div>
           ) : (
@@ -148,7 +148,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
                   className={`flex items-center justify-between p-4 rounded-2xl transition-all cursor-pointer ${
                     isCurrent
                       ? 'bg-[#D42058]/20  text-white'
-                      : 'bg-white/5  hover:bg-white/10 hover: text-[#A09588]'
+                      : 'bg-white/5  hover:bg-white/10 hover: text-[#8b95a1]'
                   }`}
                 >
                   <div className="flex items-center space-x-4 min-w-0">
@@ -159,7 +159,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
                     />
                     <div className="min-w-0">
                       <div className="flex items-center space-x-2 mb-1">
-                        <span className="px-2 py-0.5 text-[10px] font-bold bg-[#D42058] text-white rounded">
+                        <span className="px-2 py-0.5 text-micro font-bold bg-[#D42058] text-white rounded">
                           {story.category}
                         </span>
                         <span className="text-xs text-white/60 flex items-center gap-1">
@@ -170,9 +170,9 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
                       <h4 className="text-sm sm:text-base font-bold text-white truncate">
                         {story.title}
                       </h4>
-                      <p className="mt-0.5 text-xs text-[#A09588]">
+                      <p className="mt-0.5 text-xs text-[#8b95a1]">
                         <span className="block truncate">{story.locationName || story.title}</span>
-                        <span className="mt-0.5 block truncate text-[10px]">{story.speaker}</span>
+                        <span className="mt-0.5 block truncate text-micro">{story.speaker}</span>
                       </p>
                     </div>
                   </div>

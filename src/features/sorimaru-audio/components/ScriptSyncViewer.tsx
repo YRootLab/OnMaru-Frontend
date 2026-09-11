@@ -34,13 +34,13 @@ export const ScriptSyncViewer: React.FC = () => {
       <section className="rounded-3xl  bg-[#fbf8f2] p-6  sm:p-8">
         <div className="flex items-start justify-between gap-4   pb-4">
           <div>
-            <p className="text-[11px] font-bold tracking-[0.16em] text-[#a94d35]">NARRATIVE SCRIPT</p>
+            <p className="text-[10px] font-bold tracking-[0.16em] text-[#a94d35]">NARRATIVE SCRIPT</p>
             <h3 className="mt-1 font-sorimaru-sans text-lg font-semibold tracking-[-0.03em]">듣고 있는 이야기</h3>
           </div>
           {isPlaying && <span className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-[#a94d35] px-2.5 py-1 text-[10px] font-bold text-white"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />재생 중</span>}
         </div>
 
-        <blockquote className="mt-6 border-l-2  pl-4 font-sorimaru-sans text-[15px] leading-7 text-[#3c342a] sm:text-base">
+        <blockquote className="mt-6 border-l-2  pl-4 font-sorimaru-sans text-[14px] leading-7 text-[#3c342a] sm:text-base">
           {previewLines.map((line, index) => (
             <p key={line.id} className={line.id === parsedScriptLines[activeScriptIndex]?.id ? 'font-semibold text-[#211e19]' : index === 0 ? '' : 'mt-2'}>
               {line.text}
@@ -63,13 +63,13 @@ export const ScriptSyncViewer: React.FC = () => {
         <div className="fixed inset-0 z-[70] flex items-end bg-[#211e19]/50 p-0 backdrop-blur-sm sm:items-center sm:justify-center sm:p-6" role="dialog" aria-modal="true" aria-label="오디오 대본 전체 보기">
           <div className="flex max-h-[86vh] w-full max-w-2xl flex-col rounded-t-3xl bg-[#fbf8f2]  sm:rounded-3xl">
             <div className="flex items-center justify-between   px-6 py-5 sm:px-8">
-              <div><p className="text-[11px] font-bold tracking-[0.16em] text-[#a94d35]">FULL TRANSCRIPT</p><h3 className="mt-1 font-sorimaru-sans text-xl font-semibold">오디오 대본</h3></div>
+              <div><p className="text-[10px] font-bold tracking-[0.16em] text-[#a94d35]">FULL TRANSCRIPT</p><h3 className="mt-1 font-sorimaru-sans text-xl font-semibold">오디오 대본</h3></div>
               <button type="button" onClick={() => setIsTranscriptOpen(false)} className="rounded-full p-2 text-[#655b4d] transition hover:bg-[#eee6da] hover:text-[#211e19]" aria-label="대본 닫기">✕</button>
             </div>
             <div className="overflow-y-auto px-6 py-5 sm:px-8">
               {parsedScriptLines.map((line, index) => {
                 const isActive = index === activeScriptIndex;
-                return <p key={line.id} ref={isActive ? activeItemRef : null} onClick={() => seekTo(line.timeSec)} className={`cursor-pointer rounded-2xl px-4 py-3 text-[15px] leading-7 transition sm:text-base ${isActive ? 'bg-[#f0ded5] font-semibold text-[#211e19]' : 'text-[#655b4d] hover:bg-[#f2ece2]'}`}><span className="mr-3 text-xs font-mono text-[#a94d35]">{formatTime(line.timeSec)}</span>{line.text}</p>;
+                return <p key={line.id} ref={isActive ? activeItemRef : null} onClick={() => seekTo(line.timeSec)} className={`cursor-pointer rounded-2xl px-4 py-3 text-[14px] leading-7 transition sm:text-base ${isActive ? 'bg-[#f0ded5] font-semibold text-[#211e19]' : 'text-[#655b4d] hover:bg-[#f2ece2]'}`}><span className="mr-3 text-xs font-mono text-[#a94d35]">{formatTime(line.timeSec)}</span>{line.text}</p>;
               })}
             </div>
             <div className="  px-6 py-4 text-xs text-[#786d5e] sm:px-8">문장을 누르면 해당 오디오 구간으로 이동합니다.</div>

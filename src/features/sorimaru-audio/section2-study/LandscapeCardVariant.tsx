@@ -22,16 +22,16 @@ export function LandscapeCardVariant({ stories, selectedStoryId, onSelectStory }
                 sizes="(max-width: 640px) 137px, 163px"
                 className="transition-transform duration-700 [@media(hover:hover)_and_(pointer:fine)]:group-hover:scale-[1.04] motion-reduce:transition-none"
               />
-              <span className="absolute left-3 top-3 rounded-full  bg-black/20 px-2 py-1 text-[8px] font-semibold text-white backdrop-blur-md">
+              <span className="absolute left-3 top-3 rounded-full  bg-black/20 px-2 py-1 text-[10px] font-semibold text-white backdrop-blur-md">
                 {story.category}
               </span>
             </div>
             <div className="flex min-w-0 flex-col p-4 sm:p-5">
-              <p className="truncate text-[9px] text-[#8c7e6c]">{story.location}</p>
-              <h3 className="mt-2 line-clamp-3 font-sorimaru-sans text-[17px] font-bold leading-[1.35] tracking-[-0.04em] text-[#211e19] sm:text-[19px]">
+              <p className="truncate text-[10px] text-[#8c7e6c]">{story.location}</p>
+              <h3 className="mt-2 line-clamp-3 font-sorimaru-sans text-[16px] font-bold leading-[1.35] tracking-[-0.04em] text-[#211e19] sm:text-[18px]">
                 {story.title}
               </h3>
-              <p className="mt-2 line-clamp-2 text-[9px] leading-4 text-[#786d5e] sm:text-[10px]">{story.audioTitle}</p>
+              <p className="mt-2 line-clamp-2 text-[10px] leading-4 text-[#786d5e] sm:text-[10px]">{story.audioTitle}</p>
               <div className="mt-auto flex items-center justify-between gap-2   pt-3">
                 <span className="text-[10px] font-semibold tabular-nums text-[#655b4d]">{story.duration}</span>
                 <StudyPlayControl story={story} selectedStoryId={selectedStoryId} onSelectStory={onSelectStory} compact />

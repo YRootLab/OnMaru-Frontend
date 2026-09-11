@@ -295,7 +295,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
           <h2 id="sound-map-heading" className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-sorimaru-sans text-[clamp(24px,3.2vw,36px)] font-bold tracking-[-0.045em] text-transparent">
             지도로 듣는 이야기
           </h2>
-          <p className="mt-1 max-w-xl text-xs sm:text-sm leading-5 text-[#786d5e]">
+          <p className="mt-1 max-w-xl text-xs sm:text-sm leading-5 text-[#4e5968]">
             대한민국 지도에서 지역을 눌러 그곳에 남은 오디오 이야기를 들어보세요.
           </p>
         </div>
@@ -304,8 +304,8 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
         <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)] lg:gap-6">
           {/* 좌측 SVG 지도 영역 */}
           <div className="relative min-h-[480px] p-4 sm:min-h-[560px] sm:p-6">
-            <div className="absolute left-4 top-4 z-20 flex items-center gap-2 rounded-full border border-[#e5e5e3] bg-white/90 px-3.5 py-2 text-[12px] text-[#6b6b68] backdrop-blur-sm sm:left-6 sm:top-6">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#f84e76] animate-pulse" /> 지역을 눌러 탐색해보세요
+            <div className="absolute left-4 top-4 z-20 flex items-center gap-2 rounded-full bg-white/90 px-3.5 py-2 text-xs text-[#4e5968] backdrop-blur-sm sm:left-6 sm:top-6">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#FF2A85] animate-pulse" /> 지역을 눌러 탐색해보세요
             </div>
 
             <div className="relative mx-auto mt-14 aspect-[800/759] w-full max-w-[520px] sm:mt-12">
@@ -329,7 +329,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                       initial={pathMotion}
                       animate={pathMotion}
                       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                      stroke={active ? '#f84e76' : '#211e19'}
+                      stroke={active ? '#FF2A85' : '#211e19'}
                       strokeOpacity={active ? 0.5 : 0.18}
                       strokeWidth={active ? 2.4 : 1.4}
                       strokeLinejoin="round"
@@ -352,17 +352,16 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                     <button
                       type="button"
                       onClick={() => setSelectedRegionId(region.id)}
-                      className={`rounded-full px-2.5 py-1.5 text-[10px] font-semibold backdrop-blur-sm outline-none transition-all duration-300 sm:px-3 sm:text-xs ${
+                      className={`rounded-full px-2.5 py-1.5 text-micro font-semibold backdrop-blur-sm outline-none transition-all duration-300 sm:px-3 sm:text-xs ${
                         active
-                          ? 'bg-[#211e19] text-white shadow-md'
-                          : 'bg-white/90 text-[#655b4d] shadow-[0_1px_4px_rgba(33,30,25,0.1)] hover:bg-white hover:text-[#f84e76]'
+                          ? 'bg-[#211e19] text-white'
+                          : 'bg-white/90 text-[#4e5968] hover:bg-white hover:text-[#FF2A85]'
                       }`}
-                      style={active && isListHovered ? { boxShadow: '0 4px 14px rgba(248,78,118,0.55)' } : undefined}
                       aria-pressed={active}
                     >
                       <span className="flex items-center gap-1.5">
                         {region.shortLabel}
-                        <span className={active ? 'text-white/80' : 'text-[#a09587]'}>{count}</span>
+                        <span className={active ? 'text-white/80' : 'text-[#8b95a1]'}>{count}</span>
                       </span>
                     </button>
                   </div>
@@ -372,11 +371,11 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
           </div>
 
           {/* 우측 가상 스크롤 + 무한 스크롤 이야기 리스트 패널 */}
-          <aside aria-live="polite" className="flex h-[480px] sm:h-[560px] flex-col rounded-2xl border border-[#211e19]/10 bg-white/85 px-1 py-4 backdrop-blur-md sm:px-1 sm:py-5 shadow-xs">
-            <div className="mx-2 pb-3 border-b border-[#211e19]/10 shrink-0">
+          <aside aria-live="polite" className="flex h-[480px] sm:h-[560px] flex-col rounded-2xl bg-white/85 px-1 py-4 backdrop-blur-md sm:px-1 sm:py-5">
+            <div className="mx-2 pb-3 shrink-0">
               <div className="flex items-end justify-between gap-3 px-1">
-                <h3 className="text-xl font-extrabold tracking-[-.04em] text-[#211e19]">{selectedRegion.label}</h3>
-                <span className="font-mono text-xs font-bold text-[#f84e76]">
+                <h3 className="text-xl font-extrabold tracking-[-.04em] text-[#191f28]">{selectedRegion.label}</h3>
+                <span className="font-mono text-xs font-bold text-[#FF2A85]">
                   {isRegionLoading ? '조회 중…' : `${regionStories.length}개 이야기`}
                 </span>
               </div>
@@ -419,7 +418,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                             style={{ height: `${VIRTUAL_ITEM_HEIGHT - 8}px` }}
                             className={`flex w-full items-center gap-3.5 rounded-xl px-2.5 py-1.5 text-left transition-all duration-200 ${
                               active
-                                ? 'bg-[#fff0f5] ring-1 ring-[#f84e76]/30 shadow-xs'
+                                ? 'bg-[#FFF0F6]'
                                 : 'hover:bg-[#f5f5f4]'
                             }`}
                           >
@@ -436,14 +435,14 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                             </span>
                             <span className="min-w-0 flex-1 pr-1">
                               <span className="flex min-w-0 items-start gap-2">
-                                <strong className={`min-w-0 flex-1 line-clamp-2 font-sorimaru-sans text-sm font-bold leading-snug ${active ? 'text-[#f84e76]' : 'text-[#211e19]'}`}>
+                                <strong className={`min-w-0 flex-1 line-clamp-2 font-sorimaru-sans text-sm font-bold leading-snug ${active ? 'text-[#FF2A85]' : 'text-[#191f28]'}`}>
                                   {story.title}
                                 </strong>
-                                <span className={`mt-px shrink-0 text-[10px] font-normal ${active ? 'text-[#f84e76]' : 'text-[#a09587]'}`}>
+                                <span className={`mt-px shrink-0 text-micro font-normal ${active ? 'text-[#FF2A85]' : 'text-[#8b95a1]'}`}>
                                   {active && isPlaying ? '재생 중' : story.formattedDuration || '3:00'}
                                 </span>
                               </span>
-                              <span className="mt-1 block line-clamp-2 text-[10px] leading-[1.4] text-[#786d5e]">
+                              <span className="mt-1 block line-clamp-2 text-micro leading-[1.4] text-[#4e5968]">
                                 {getStoryExcerpt(story)}
                               </span>
                             </span>
@@ -455,14 +454,14 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
 
                 {/* 🔄 무한 스크롤 추가 로딩 지디케이터 */}
                 {isFetchingNextPage && (
-                  <div className="flex items-center justify-center gap-2 py-3 text-xs font-bold text-[#f84e76]">
-                    <span className="h-3 w-3 animate-spin rounded-full border-2 border-[#f84e76] border-t-transparent" />
+                  <div className="flex items-center justify-center gap-2 py-3 text-xs font-bold text-[#FF2A85]">
+                    <span className="h-3 w-3 animate-spin rounded-full border-2 border-[#FF2A85] border-t-transparent" />
                     <span>추가 이야기 불러오는 중…</span>
                   </div>
                 )}
 
                 {!hasMore && regionStories.length > 5 && (
-                  <p className="py-3 text-center text-[10px] text-[#a09587]">
+                  <p className="py-3 text-center text-micro text-[#8b95a1]">
                     {selectedRegion.label}의 모든 오디오 이야기를 확인했습니다.
                   </p>
                 )}
@@ -476,7 +475,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                   >
                     <span
                       ref={indicatorThumbRef}
-                      className="absolute inset-x-0 rounded-full bg-[#8c7e6c]/40"
+                      className="absolute inset-x-0 rounded-full bg-[#4e5968]/40"
                       style={{ height: `${indicatorThumbHeight}px`, transform: `translateY(${indicatorThumbOffset}px)` }}
                     />
                   </div>

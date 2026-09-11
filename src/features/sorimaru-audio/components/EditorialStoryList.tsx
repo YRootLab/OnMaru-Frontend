@@ -95,19 +95,19 @@ export const EditorialStoryList: React.FC<EditorialStoryListProps> = ({ stories 
                 className={`group relative grid cursor-pointer grid-cols-[24px_76px_minmax(0,1fr)_auto] items-center gap-3 px-1 py-3.5 transition-colors duration-300 sm:grid-cols-[30px_80px_minmax(0,1fr)_auto] sm:gap-4 sm:py-4 ${isCurrent ? 'bg-[#fff8fa]' : 'hover:bg-[#faf8f4]'}`}
               >
                 <div className="text-center">
-                  {isThisPlaying ? <span className="mx-auto block h-1.5 w-1.5 rounded-full bg-[#f84e76]" /> : <span className={`font-mono text-[11px] font-semibold ${isCurrent ? 'text-[#f84e76]' : 'text-[#a09282]'}`}>{trackNum}</span>}
+                  {isThisPlaying ? <span className="mx-auto block h-1.5 w-1.5 rounded-full bg-[#f84e76]" /> : <span className={`font-mono text-[10px] font-semibold ${isCurrent ? 'text-[#f84e76]' : 'text-[#a09282]'}`}>{trackNum}</span>}
                 </div>
 
                 <div className="relative h-16 w-[76px] shrink-0 overflow-hidden rounded-[10px] bg-[#f3eee8] sm:w-20">
                   <img src={imageFor(story, index)} alt={story.title} loading="lazy" decoding="async" className="h-full w-full scale-[1.12] object-cover" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = LIST_FALLBACK_IMAGES[0]; }} />
-                  {!story.imageUrl && <span className="absolute bottom-1 left-1 rounded bg-black/45 px-1 py-0.5 text-[8px] font-medium text-white/90">참고용</span>}
+                  {!story.imageUrl && <span className="absolute bottom-1 left-1 rounded bg-black/45 px-1 py-0.5 text-[10px] font-medium text-white/90">참고용</span>}
                   {isThisPlaying && <div className="absolute inset-0 grid place-items-center bg-[#211e19]/45"><span className="h-2 w-2 rounded-full bg-[#f84e76]" /></div>}
                 </div>
 
                 <div className="min-w-0 pr-1">
                   <div className="mb-1 flex min-w-0 items-center gap-1.5 text-[10px] text-[#8c7e6c]">{categoryLabelFor(story) && <><span className="shrink-0 font-medium text-[#f84e76]">{categoryLabelFor(story)}</span><span className="text-[#d1c9bf]">·</span></>}<span className="truncate">{story.locationName || '대한민국 문화유산'}</span></div>
-                  <h4 className={`truncate font-sorimaru-sans text-[15px] font-bold tracking-[-0.025em] sm:text-base ${isCurrent ? 'text-[#f84e76]' : 'text-[#211e19]'}`}>{story.title}</h4>
-                  <p className="mt-1 truncate text-[11px] text-[#786d5e]">{story.audioTitle || story.locationName || '대한민국 문화유산'}</p>
+                  <h4 className={`truncate font-sorimaru-sans text-[14px] font-bold tracking-[-0.025em] sm:text-base ${isCurrent ? 'text-[#f84e76]' : 'text-[#211e19]'}`}>{story.title}</h4>
+                  <p className="mt-1 truncate text-[10px] text-[#786d5e]">{story.audioTitle || story.locationName || '대한민국 문화유산'}</p>
                 </div>
 
                 <div className="flex shrink-0 items-center gap-2.5 sm:gap-4">

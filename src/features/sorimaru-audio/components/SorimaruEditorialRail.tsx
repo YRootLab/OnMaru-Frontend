@@ -142,14 +142,14 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(({ story, position,
         />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-white/55 via-transparent to-black/5" />
       </motion.div>
-      <span className="pointer-events-none absolute left-0 top-0 z-20 rounded-br-md bg-white/95 px-2 py-0.5 text-[9.5px] font-bold tabular-nums leading-none text-[#211e19] shadow-xs backdrop-blur-xs sm:px-2.5 sm:py-1 sm:text-[10px]">
+      <span className="pointer-events-none absolute left-0 top-0 z-20 rounded-br-md bg-white/95 px-2 py-0.5 text-micro font-bold tabular-nums leading-none text-[#191f28] backdrop-blur-xs sm:px-2.5 sm:py-1 sm:text-micro">
         {String((position % featuredLength) + 1).padStart(2, '0')}
       </span>
-      <div className={`absolute bottom-0 left-0 right-0 box-border w-full px-4 py-4 text-[#211e19] backdrop-blur-[24px] sm:px-5 sm:py-5 ${isActive ? 'bg-[#fff0f5]/[0.68] ' : 'bg-white/[0.46] '}`}>
-        <p className="truncate text-[9px] font-semibold uppercase tracking-[0.12em] text-[#F84E76]">{story.category !== '오디 이야기' ? story.category : story.badgeText || '오디오 가이드'}</p>
-        <h3 className="mt-1 line-clamp-2 font-sorimaru-sans text-base font-semibold leading-tight tracking-[-0.03em] sm:text-lg">{story.title}</h3>
-        <p className="mt-1 line-clamp-1 text-[10px] leading-4 text-[#8c7e6c]">{story.locationName || '대한민국 문화유산'}</p>
-        {isActive && <span className="mt-2 inline-flex items-center gap-2 text-[10px] text-[#f84e76]">{durationFor(story)} <span className="text-[#8c7e6c]">↗</span></span>}
+      <div className={`absolute bottom-0 left-0 right-0 box-border w-full px-4 py-4 text-[#191f28] backdrop-blur-[24px] sm:px-5 sm:py-5 ${isActive ? 'bg-[#FFF0F6]/[0.68] ' : 'bg-white/[0.46] '}`}>
+        <p className="truncate text-micro font-semibold uppercase tracking-[0.12em] text-[#FF2A85]">{story.category !== '오디 이야기' ? story.category : story.badgeText || '오디오 가이드'}</p>
+        <h3 className="mt-1 line-clamp-2 font-sorimaru-sans text-sm font-semibold leading-tight tracking-[-0.03em] sm:text-base">{story.title}</h3>
+        <p className="mt-1 line-clamp-1 text-micro leading-4 text-[#4e5968]">{story.locationName || '대한민국 문화유산'}</p>
+        {isActive && <span className="mt-2 inline-flex items-center gap-2 text-micro text-[#FF2A85]">{durationFor(story)} <span className="text-[#4e5968]">↗</span></span>}
       </div>
     </motion.button>
   );
@@ -463,7 +463,7 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(({ s
   if (!activeStory && !showSkeleton) {
     return (
       <section ref={railRef} aria-label="오디 셀렉션" className="relative mx-auto flex min-h-[355px] w-full max-w-6xl items-center justify-center overflow-hidden py-3 sm:min-h-[430px] sm:py-5 lg:min-h-[465px]">
-        <p className="text-sm text-[#8c7e6c]">이 주제의 오디오 이야기를 찾지 못했습니다.</p>
+        <p className="text-sm text-[#4e5968]">이 주제의 오디오 이야기를 찾지 못했습니다.</p>
       </section>
     );
   }
@@ -485,7 +485,7 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(({ s
                       onPointerEnter={() => preloadCategory(category.keyword)}
                       onFocus={() => preloadCategory(category.keyword)}
                       aria-pressed={isSelected}
-                      className={`select-none whitespace-nowrap text-xs transition-colors duration-300 sm:text-sm ${isSelected ? 'font-semibold text-[#f84e76]' : 'text-[#8c7e6c] hover:text-[#211e19]'}`}
+                      className={`select-none whitespace-nowrap text-xs transition-colors duration-300 sm:text-sm ${isSelected ? 'font-semibold text-[#FF2A85]' : 'text-[#4e5968] hover:text-[#191f28]'}`}
                     >
                       #{category.keyword === '시장' ? '전통시장' : category.keyword === '마을' ? '전통마을' : category.keyword === '궁' ? '궁궐' : category.keyword === '길' ? '자연' : category.keyword}
                     </button>
@@ -504,7 +504,7 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(({ s
               aria-label="이전 이야기"
               className="group absolute left-0 top-0 bottom-0 z-30 flex w-12 sm:w-16 lg:w-20 cursor-pointer items-center justify-start pl-2 sm:pl-4 bg-gradient-to-r from-white/55 via-white/20 to-transparent transition-opacity duration-200 hover:from-white hover:via-white/85 active:opacity-80"
             >
-              <span className="flex h-11 w-9 items-center justify-center rounded-xl bg-white/40 text-[#211e19]  backdrop-blur-xs transition-transform duration-300 group-hover:scale-115 group-hover:bg-white group-hover:text-[#f84e76]">
+              <span className="flex h-11 w-9 items-center justify-center rounded-xl bg-white/40 text-[#191f28]  backdrop-blur-xs transition-transform duration-300 group-hover:scale-115 group-hover:bg-white group-hover:text-[#FF2A85]">
                 <ChevronLeft size={22} strokeWidth={2} />
               </span>
             </button>
@@ -518,7 +518,7 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(({ s
               aria-label="다음 이야기"
               className="group absolute right-0 top-0 bottom-0 z-30 flex w-12 sm:w-16 lg:w-20 cursor-pointer items-center justify-end pr-2 sm:pr-4 bg-gradient-to-l from-white/55 via-white/20 to-transparent transition-opacity duration-200 hover:from-white hover:via-white/85 active:opacity-80"
             >
-              <span className="flex h-11 w-9 items-center justify-center rounded-xl bg-white/40 text-[#211e19]  backdrop-blur-xs transition-transform duration-300 group-hover:scale-115 group-hover:bg-white group-hover:text-[#f84e76]">
+              <span className="flex h-11 w-9 items-center justify-center rounded-xl bg-white/40 text-[#191f28]  backdrop-blur-xs transition-transform duration-300 group-hover:scale-115 group-hover:bg-white group-hover:text-[#FF2A85]">
                 <ChevronRight size={22} strokeWidth={2} />
               </span>
             </button>
@@ -530,11 +530,11 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(({ s
                     key={index}
                     className={`h-[250px] w-[135px] shrink-0 animate-pulse overflow-hidden  bg-white/70  sm:h-[330px] sm:w-[200px] lg:h-[370px] lg:w-[225px] ${index % 2 ? 'translate-y-2 rotate-[1.2deg]' : '-translate-y-1 rotate-[-1.2deg]'}`}
                   >
-                    <div className="h-[62%] bg-gradient-to-br from-[#f4e8eb] via-[#eee7e3] to-[#e5dfe0]" />
+                    <div className="h-[62%] bg-[#f0f0f0]" />
                     <div className="space-y-3 bg-white/70 px-4 py-5 sm:px-5 sm:py-6">
-                      <div className="h-2.5 w-16 rounded bg-[#f8b3c4]/55" />
-                      <div className="h-4 w-4/5 rounded bg-[#d8d1cc]/70" />
-                      <div className="h-3 w-3/5 rounded bg-[#e3dcd7]/75" />
+                      <div className="h-2.5 w-16 rounded bg-[#FFA3C7]/55" />
+                      <div className="h-4 w-4/5 rounded bg-[#e5e5e3]/70" />
+                      <div className="h-3 w-3/5 rounded bg-[#d9d9d7]/75" />
                     </div>
                   </div>
                 ))}
@@ -575,7 +575,7 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(({ s
           <div className="relative z-30 flex items-center justify-center pt-1.5 sm:pt-2">
             <div className="flex items-center gap-1.5">
               {featured.map((story, index) => (
-                <button key={`${story.stid}-${index}`} type="button" onClick={() => moveTo(index)} className={`h-1 rounded-full transition-all duration-300 ${index === activeIndex ? 'w-8 bg-[#f84e76]' : 'w-1.5 bg-[#211e19]/20 hover:bg-[#211e19]/50'}`} aria-label={`${index + 1}번째 이야기 선택`} />
+                <button key={`${story.stid}-${index}`} type="button" onClick={() => moveTo(index)} className={`h-1 rounded-full transition-all duration-300 ${index === activeIndex ? 'w-8 bg-[#FF2A85]' : 'w-1.5 bg-[#211e19]/20 hover:bg-[#211e19]/50'}`} aria-label={`${index + 1}번째 이야기 선택`} />
               ))}
             </div>
           </div>

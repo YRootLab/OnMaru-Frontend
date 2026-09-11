@@ -406,7 +406,7 @@ export const SorimaruFreeformFeature: React.FC<SorimaruFreeformFeatureProps> = (
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   <button type="button" onClick={() => moveNearby(-1)} aria-label="이전 주변 이야기" className="flex h-9 w-9 items-center justify-center  text-lg transition-colors hover: hover:bg-[#d5f05a] hover:text-[#171717]">←</button>
-                  <button type="button" onClick={() => playStory(nearbyStory)} aria-label={isNearbyPlaying ? '주변 이야기 일시정지' : '주변 이야기 재생'} className="flex h-9 min-w-24 items-center justify-center gap-2 bg-[#d5f05a] px-3 text-[11px] font-bold text-[#171717] transition-transform hover:-translate-y-0.5">
+                  <button type="button" onClick={() => playStory(nearbyStory)} aria-label={isNearbyPlaying ? '주변 이야기 일시정지' : '주변 이야기 재생'} className="flex h-9 min-w-24 items-center justify-center gap-2 bg-[#d5f05a] px-3 text-[10px] font-bold text-[#171717] transition-transform hover:-translate-y-0.5">
                     <PlayGlyph playing={isNearbyPlaying} />
                     {isNearbyPlaying ? '일시정지' : '재생'}
                   </button>
