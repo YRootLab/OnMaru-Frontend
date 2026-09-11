@@ -210,7 +210,7 @@ export default function VillageCard({ village, onClick }: VillageCardProps) {
         <TopBadgeRow>
           <DocentTag>
             <Headphones size={11} color={palette.jangmi[400]} />
-            <span>오디오 도슨트</span>
+            <span>소리마루 도슨트</span>
           </DocentTag>
         </TopBadgeRow>
       )}

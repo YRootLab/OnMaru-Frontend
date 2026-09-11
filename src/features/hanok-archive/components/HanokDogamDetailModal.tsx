@@ -28,7 +28,7 @@ import type { Village, VillageDetailResponse } from '@/features/hanok-archive/ty
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
 import { useHanokOdii } from '@/features/hanok-archive/hooks/useHanokOdii';
 import { useHanokTranquility } from '@/features/hanok-archive/hooks/useHanokTranquility';
-import HanokAudioPlayer from './HanokAudioPlayer';
+import SoriMaruBridgeCard from './SoriMaruBridgeCard';
 import TranquilityGauge from './TranquilityGauge';
 import {
   Overlay,
@@ -264,8 +264,8 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
               </AddrText>
             </MetaRow>
 
-            {/* 한국관광공사 Odii 오디오 도슨트 (관련도 높은 공식 해설 음원) */}
-            <HanokAudioPlayer stories={odiiStories} hanokName={village.name} />
+            {/* 소리마루(Odii) 오디오 도슨트 연계 (소리 관련은 모두 소리마루에서 일원화 청취) */}
+            <SoriMaruBridgeCard stories={odiiStories} hanokName={village.name} />
 
             {/* 한국관광공사 DataLab 실시간 고즈넉 지수 & 골든타임 */}
             <TranquilityGauge data={tranquilityData} loading={isLoadingTranquility} />
