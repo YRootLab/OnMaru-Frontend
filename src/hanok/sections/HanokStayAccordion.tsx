@@ -4,7 +4,7 @@ import React, { useState, useMemo } from 'react';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
-import { meok, lightPalette } from '@/design-system/tokens';
+import { meok, lightPalette, surface } from '@/design-system/tokens';
 import SectionHeader from '@/hanok/components/SectionHeader';
 import { STAY_TYPE } from '@/hanok/types';
 import type { Village } from '@/hanok/types';
@@ -49,6 +49,17 @@ const RegionFilterChip = styled.button<{ $active: boolean; $empty?: boolean }>`
     background: ${({ $active }) =>
       $active ? lightPalette.kobalt[500] : '#f8fafc'};
     opacity: 1;
+  }
+
+  [data-theme='dark'] & {
+    background: ${({ $active }) =>
+      $active ? lightPalette.kobalt[500] : surface.dark.card};
+    color: ${({ $active }) => ($active ? '#ffffff' : meok[100])};
+  }
+
+  [data-theme='dark'] &:hover {
+    background: ${({ $active }) =>
+      $active ? lightPalette.kobalt[500] : 'rgba(255, 255, 255, 0.1)'};
   }
 `;
 
@@ -117,98 +128,139 @@ const PillImageLayer = styled(motion.div, transientProps)<{ $bg: string | null }
     inset: 0;
     background: linear-gradient(
       180deg,
-      rgba(0, 0, 0, 0.05) 0%,
-      rgba(0, 0, 0, 0.15) 45%,
-      rgba(0, 0, 0, 0.76) 100%
+      rgba(0, 0, 0, 0.02) 0%,
+      rgba(0, 0, 0, 0.15) 35%,
+      rgba(0, 0, 0, 0.72) 70%,
+      rgba(0, 0, 0, 0.92) 100%
     );
   }
 `;
 
-const PillIconButton = styled(motion.div, transientProps)<{ $active: boolean }>`
+const CollapsedIconButton = styled(motion.div, transientProps)`
   position: absolute;
   bottom: 20px;
-  left: 20px;
+  left: 50%;
+  transform: translateX(-50%);
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: ${({ $active }) => ($active ? '#ffffff' : 'rgba(255, 255, 255, 0.88)')};
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   display: grid;
   place-items: center;
-  font-size: 20px;
   color: ${meok[900]};
   z-index: 5;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 `;
 
 const ActiveContentOverlay = styled(motion.div, transientProps)`
   position: absolute;
-  bottom: 24px;
-  left: 76px;
-  right: 28px;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
   z-index: 5;
   color: #ffffff;
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
+  flex-direction: column;
+  gap: 10px;
 
   @media (max-width: 640px) {
-    flex-direction: column;
-    align-items: flex-start;
-    left: 76px;
-    bottom: 20px;
+    bottom: 16px;
+    left: 16px;
+    right: 16px;
+    gap: 8px;
   }
 `;
 
-const InfoGroup = styled.div`
-  max-width: 420px;
+const ContentHeader = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 `;
 
 const TagRow = styled.div`
   display: flex;
   gap: 8px;
-  margin-bottom: 8px;
   align-items: center;
-  flex-wrap: wrap;
 `;
 
 const StayTag = styled.span`
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 500;
-  color: ${lightPalette.kobalt[100]};
-  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(8px);
-  padding: 3px 10px;
+  padding: 4px 11px;
   border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  letter-spacing: -0.01em;
 `;
 
 const StayTitle = styled.h3`
   font-family: var(--font-hanok);
-  font-size: clamp(20px, 2.5vw, 26px);
+  font-size: clamp(19px, 2.3vw, 25px);
   font-weight: 500;
   letter-spacing: -0.02em;
-  margin: 0 0 6px;
-  line-height: 1.25;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  margin: 0;
+  line-height: 1.28;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
   color: #ffffff;
-  /* 긴 시설명이 3줄까지 늘어나며 바로 아래 버튼과 붙던 걸 막는다 */
+  word-break: keep-all;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 `;
 
-const StayDesc = styled.p`
-  font-size: 13px;
+const StayAddress = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.85);
-  line-height: 1.5;
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  color: rgba(255, 255, 255, 0.88);
+  line-height: 1.4;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  min-width: 0;
+  width: 100%;
+`;
+
+const StayAddressText = styled.span`
   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  word-break: keep-all;
+  flex: 1;
+  min-width: 0;
+`;
+
+const BottomActionRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
+`;
+
+const ActiveIconButton = styled.div`
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #ffffff;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: grid;
+  place-items: center;
+  color: ${meok[900]};
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  transition: transform 0.18s ease;
+
+  &:hover {
+    transform: scale(1.06);
+  }
 `;
 
 const ActionGroup = styled.div`
@@ -216,48 +268,51 @@ const ActionGroup = styled.div`
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
-
-  @media (max-width: 640px) {
-    width: 100%;
-  }
 `;
 
 const DirectBookingBtn = styled.a`
-  background: linear-gradient(135deg, ${lightPalette.kobalt[500]} 0%, ${lightPalette.kobalt[700]} 100%);
+  background: #1c52e0;
   color: #ffffff;
   font-size: 12.5px;
-  font-weight: 400;
-  padding: 9px 16px;
+  font-weight: 500;
+  padding: 9px 15px;
   border-radius: 9999px;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   gap: 4px;
   white-space: nowrap;
-  transition: transform 0.18s ease, opacity 0.18s ease;
+  box-shadow: 0 2px 8px rgba(28, 82, 224, 0.3);
+  transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
 
   &:hover {
-    opacity: 0.95;
-    transform: scale(1.04);
+    background: #1542be;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(28, 82, 224, 0.4);
   }
 `;
 
 const DetailActionBtn = styled.button`
-
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(45, 52, 43, 0.78);
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   color: #ffffff;
   font-size: 12.5px;
-  font-weight: 700;
-  padding: 9px 16px;
+  font-weight: 500;
+  padding: 9px 15px;
   border-radius: 9999px;
   cursor: pointer;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   transition: all 0.18s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.32);
-    border-color: #ffffff;
+    background: rgba(45, 52, 43, 0.95);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
   }
 `;
 
@@ -282,6 +337,10 @@ const BatchInfo = styled.span`
   font-size: 13px;
   font-weight: 400;
   color: ${meok[500]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 const RefreshBtn = styled.button`
@@ -302,6 +361,15 @@ const RefreshBtn = styled.button`
     border-color: ${lightPalette.kobalt[400]};
     background: #f8fafc;
   }
+
+  [data-theme='dark'] & {
+    background: ${surface.dark.card};
+    color: ${meok[100]};
+  }
+
+  [data-theme='dark'] &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
 `;
 
 /*
@@ -320,6 +388,10 @@ const EmptyState = styled.div`
   gap: 10px;
   padding: 32px 24px;
   text-align: center;
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.04);
+  }
 `;
 
 const EmptyHeadline = styled.p`
@@ -329,6 +401,10 @@ const EmptyHeadline = styled.p`
   letter-spacing: -0.02em;
   color: ${meok[900]};
   word-break: keep-all;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 const EmptyHint = styled.p`
@@ -338,6 +414,10 @@ const EmptyHint = styled.p`
   line-height: 1.7;
   color: ${meok[500]};
   word-break: keep-all;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 const EmptyAction = styled.button`
@@ -355,6 +435,11 @@ const EmptyAction = styled.button`
   &:hover {
     opacity: 0.88;
     transform: translateY(-1px);
+  }
+
+  [data-theme='dark'] & {
+    background: ${meok[100]};
+    color: ${meok[900]};
   }
 `;
 
@@ -577,7 +662,7 @@ export default function HanokStayAccordion({
     <Section id="hanok-stays" aria-labelledby="stay-heading">
       <SectionHeader
         id="stay-heading"
-        title="지역별 한옥 스테이"
+        title="하룻밤 묵어가기"
         // 부제는 도감 전체 규모를 말한다. 지역을 골라도 흔들리지 않아야
         // '전국'이라는 말과 어긋나지 않는다. 지금 몇 곳을 보고 있는지는 하단 페이저가 맡는다.
         subtitle={`${allStays.length}곳`}
@@ -622,53 +707,63 @@ export default function HanokStayAccordion({
                 >
                   <PillImageLayer $bg={item.hasImage ? item.image : null} />
 
-                  <PillIconButton $active={isActive}>
-                    {icon}
-                  </PillIconButton>
+                  {!isActive && (
+                    <CollapsedIconButton>
+                      <Home size={20} strokeWidth={2} />
+                    </CollapsedIconButton>
+                  )}
 
                   <AnimatePresence>
                     {isActive && (
                       <ActiveContentOverlay
-                        initial={{ opacity: 0, x: -12 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -12 }}
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 8 }}
                         transition={{ duration: 0.22 }}
                       >
-                        <InfoGroup>
-                          {/*
-                            유형 태그는 뺐다 — 이 섹션 전체가 이미 '한옥 스테이'라,
-                            알약마다 같은 말을 반복하는 태그였다.
-                            '실시간 예약 연동' 배지도 뺐다 — getBookingUrl이 실제로 하는 일은
-                            예약 페이지가 있으면 그리로, 없으면 네이버 검색으로 보내는 것뿐이라
-                            실시간 연동이라는 말과는 달랐다.
-                          */}
+                        <ContentHeader>
                           <TagRow>
                             <StayTag>{item.region}</StayTag>
                           </TagRow>
                           <StayTitle>{item.name}</StayTitle>
-                          <StayDesc>{item.summary || item.addr}</StayDesc>
-                        </InfoGroup>
+                          <StayAddress>
+                            <MapPin size={13} strokeWidth={2} style={{ flexShrink: 0 }} />
+                            <StayAddressText>{item.addr}</StayAddressText>
+                          </StayAddress>
+                        </ContentHeader>
 
-                        <ActionGroup>
-                          <DirectBookingBtn
-                            href={getBookingUrl(item)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
+                        <BottomActionRow>
+                          <ActiveIconButton
+                            aria-label="한옥 숙소"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (onSelectVillage) onSelectVillage(item);
+                            }}
                           >
-                            지금 예약하기 <ExternalLink size={13} strokeWidth={2} />
-                          </DirectBookingBtn>
-                          {onSelectVillage && (
-                            <DetailActionBtn
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onSelectVillage(item);
-                              }}
+                            <Home size={20} strokeWidth={2} />
+                          </ActiveIconButton>
+
+                          <ActionGroup>
+                            <DirectBookingBtn
+                              href={getBookingUrl(item)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
                             >
-                              도감 상세 보기 <ArrowRight size={13} strokeWidth={2} />
-                            </DetailActionBtn>
-                          )}
-                        </ActionGroup>
+                              지금 예약하기 <ExternalLink size={13} strokeWidth={2} />
+                            </DirectBookingBtn>
+                            {onSelectVillage && (
+                              <DetailActionBtn
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onSelectVillage(item);
+                                }}
+                              >
+                                상세보기 <ArrowRight size={13} strokeWidth={2} />
+                              </DetailActionBtn>
+                            )}
+                          </ActionGroup>
+                        </BottomActionRow>
                       </ActiveContentOverlay>
                     )}
                   </AnimatePresence>
