@@ -26,8 +26,6 @@ export const LocalMiniPlayer: React.FC = () => {
   const isExpanded = useSorimaruAudioStore((s) => s.isPlayerExpanded);
   const setIsPlaying = useSorimaruAudioStore((s) => s.setIsPlaying);
   const setIsExpanded = useSorimaruAudioStore((s) => s.setIsPlayerExpanded);
-  const skipForward = useSorimaruAudioStore((s) => s.skipForward);
-  const skipBackward = useSorimaruAudioStore((s) => s.skipBackward);
   const { seekTo } = useSorimaruAudioPlayer();
   const [isVisible, setIsVisible] = useState(false);
   const [isTranscriptOpen, setIsTranscriptOpen] = useState(false);
@@ -71,26 +69,26 @@ export const LocalMiniPlayer: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 16 }}
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] left-3 right-3 z-[110] mx-auto w-auto max-w-xl overflow-hidden rounded-[1.35rem]  bg-[#fbf8f2]/95 px-3.5 pt-2.5 pb-3.5  backdrop-blur-xl md:bottom-[calc(1.25rem+env(safe-area-inset-bottom))] md:z-50 sm:px-4 sm:pt-3 sm:pb-4"
+            className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] left-3 right-3 z-[110] mx-auto w-auto max-w-xl overflow-hidden rounded-[1.35rem]  bg-[#f8f8f7]/95 px-3.5 pt-2.5 pb-3.5  backdrop-blur-xl md:bottom-[calc(1.25rem+env(safe-area-inset-bottom))] md:z-50 sm:px-4 sm:pt-3 sm:pb-4"
           >
       <div className="flex items-center gap-3">
         <button type="button" onClick={() => setIsExpanded(true)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
           <img src={story.imageUrl || FALLBACK_IMAGE} alt="" className="h-10 w-10 shrink-0 rounded-xl object-cover "/>
           <span className="min-w-0">
-            <span className="block truncate font-sorimaru-sans text-sm font-semibold text-[#211e19]">
+            <span className="block truncate font-sorimaru-sans text-sm font-semibold text-[#191f28]">
               {story.title}
             </span>
-            <span className="block text-[11px] text-[#786d5e]">
-              <span className="text-[#a94d35] font-semibold">{story.category}</span>
+            <span className="block text-micro text-[#8b95a1]">
+              <span className="text-[#FF2A85] font-semibold">{story.category}</span>
               <span className="ml-2">{formatTime(currentTime)} / {formatTime(duration)}</span>
             </span>
           </span>
         </button>
 
-        <button type="button" onClick={() => setIsPlaying(!isPlaying)} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#a94d35] text-white  hover:bg-[#8f3e29] transition-transform hover:scale-105">
+        <button type="button" onClick={() => setIsPlaying(!isPlaying)} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#FF2A85] text-white  hover:bg-[#D40D63] transition-transform hover:scale-105">
           <PlayIcon />
         </button>
-        <button type="button" onClick={() => setIsExpanded(true)} className="hidden items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold text-[#655b4d] hover:bg-[#eee6da] sm:flex">
+        <button type="button" onClick={() => setIsExpanded(true)} className="hidden items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold text-[#4e5968] hover:bg-[#f0f0f0] sm:flex">
           대본 보기
         </button>
       </div>
@@ -99,7 +97,7 @@ export const LocalMiniPlayer: React.FC = () => {
       <div className="absolute bottom-1.5 left-4 right-4 sm:left-5 sm:right-5">
         <div className="h-[2.5px] w-full overflow-hidden rounded-full bg-[#211e19]/10">
           <div
-            className="h-full rounded-full bg-[#a94d35] transition-[width] duration-300"
+            className="h-full rounded-full bg-[#FF2A85] transition-[width] duration-300"
             style={{ width: `${audioProgress}%` }}
           />
         </div>
@@ -125,39 +123,39 @@ export const LocalMiniPlayer: React.FC = () => {
             exit={{ opacity: 0, y: 18, scale: 0.98 }}
             transition={{ type: 'spring', damping: 30, stiffness: 340 }}
             onClick={(event) => event.stopPropagation()}
-            className={`absolute bottom-0 left-0 right-0 flex flex-col overflow-y-auto rounded-t-3xl bg-[#fbf8f2] p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))]  [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
+            className={`absolute bottom-0 left-0 right-0 flex flex-col overflow-y-auto rounded-t-3xl bg-[#f8f8f7] p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))]  [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
               isTranscriptOpen ? 'max-h-[88dvh]' : 'max-h-[90dvh]'
             } lg:bottom-6 lg:left-1/2 lg:right-auto lg:ml-[-230px] lg:w-[460px] lg:rounded-3xl lg:p-7 ${isTranscriptOpen ? 'lg:max-h-[86vh]' : ''}`}
           >
             {isTranscriptOpen ? (
               <>
                 <header className="flex items-center justify-between   pb-4">
-                  <button type="button" onClick={() => setIsTranscriptOpen(false)} className="inline-flex items-center gap-1 text-xs font-bold text-[#a94d35] hover:text-[#7f3725]">
+                  <button type="button" onClick={() => setIsTranscriptOpen(false)} className="inline-flex items-center gap-1 text-xs font-bold text-[#FF2A85] hover:text-[#D40D63]">
                     <ChevronLeft size={14} strokeWidth={2} /> 오디오 플레이어로
                   </button>
-                  <button type="button" onClick={closePlayer} className="flex h-8 w-8 items-center justify-center rounded-full text-[#655b4d] hover:bg-[#eee6da]" aria-label="패널 닫기">
+                  <button type="button" onClick={closePlayer} className="flex h-8 w-8 items-center justify-center rounded-full text-[#4e5968] hover:bg-[#f0f0f0]" aria-label="패널 닫기">
                     <X size={20} strokeWidth={2} />
                   </button>
                 </header>
 
                 <div className="flex items-center justify-between py-4">
                   <div>
-                    <span className="px-2 py-0.5 rounded-full bg-[#f1e5d6] text-[10px] font-bold text-[#a94d35]">
+                    <span className="px-2 py-0.5 rounded-full bg-[#FFF0F6] text-micro font-bold text-[#FF2A85]">
                       {story.category}
                     </span>
-                    <h2 className="mt-1.5 max-w-[280px] truncate font-sorimaru-sans text-lg font-semibold text-[#211e19]">
+                    <h2 className="mt-1.5 max-w-[280px] truncate font-sorimaru-sans text-lg font-semibold text-[#191f28]">
                       {story.title}
                     </h2>
-                    <p className="text-xs text-[#655b4d]">{story.locationName || '대한민국 문화유산'}</p>
+                    <p className="text-xs text-[#4e5968]">{story.locationName || '대한민국 문화유산'}</p>
                   </div>
-                  <button type="button" onClick={() => setIsPlaying(!isPlaying)} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#a94d35] text-white ">
+                  <button type="button" onClick={() => setIsPlaying(!isPlaying)} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#FF2A85] text-white ">
                     <PlayIcon />
                   </button>
                 </div>
 
                 <div className="relative pl-5 pr-2 pt-2">
-                  <div className="pointer-events-none absolute bottom-0 left-0 top-0 w-0.5 bg-[#dfd2c2]" />
-                  <motion.div className="pointer-events-none absolute left-0 top-0 w-0.5 bg-[#a94d35]" animate={{ height: `${transcriptProgress}%` }} transition={{ duration: 0.45 }} />
+                  <div className="pointer-events-none absolute bottom-0 left-0 top-0 w-0.5 bg-[#e5e5e3]" />
+                  <motion.div className="pointer-events-none absolute left-0 top-0 w-0.5 bg-[#FF2A85]" animate={{ height: `${transcriptProgress}%` }} transition={{ duration: 0.45 }} />
                   <div className="space-y-2">
                     {lines.map((line) => (
                       <button
@@ -166,8 +164,8 @@ export const LocalMiniPlayer: React.FC = () => {
                         onClick={() => seekTo(line.timeSec)}
                         className={`block w-full rounded-xl px-3.5 py-3 text-left text-sm leading-6 transition ${
                           line.id === lines[activeIndex]?.id
-                            ? 'bg-[#f3e9dc] font-semibold text-[#211e19] '
-                            : 'text-[#655b4d] hover:bg-[#f5eee4]'
+                            ? 'bg-[#e5e5e3] font-semibold text-[#191f28] '
+                            : 'text-[#4e5968] hover:bg-[#f5f5f4]'
                         }`}
                       >
                         {line.text}
@@ -179,10 +177,10 @@ export const LocalMiniPlayer: React.FC = () => {
             ) : (
               <>
                 <div className="mb-4 flex items-center justify-between">
-                  <span className="px-2.5 py-1 rounded-full bg-[#a94d35]/10 text-[10px] font-bold text-[#a94d35] tracking-wider">
+                  <span className="px-2.5 py-1 rounded-full bg-[#FF2A85]/10 text-micro font-bold text-[#FF2A85] tracking-wider">
                     지금 재생 중
                   </span>
-                  <button type="button" onClick={closePlayer} className="flex h-8 w-8 items-center justify-center rounded-full text-[#655b4d] hover:bg-[#eee6da]" aria-label="패널 닫기">
+                  <button type="button" onClick={closePlayer} className="flex h-8 w-8 items-center justify-center rounded-full text-[#4e5968] hover:bg-[#f0f0f0]" aria-label="패널 닫기">
                     <X size={20} strokeWidth={2} />
                   </button>
                 </div>
@@ -192,20 +190,20 @@ export const LocalMiniPlayer: React.FC = () => {
                 {/* 메인 타이틀 & 서브타이틀 UX 개선 */}
                 <div className="mt-4">
                   <div className="flex items-center space-x-2">
-                    <span className="px-2 py-0.5 rounded-full bg-[#f1e5d6] text-[10px] font-bold text-[#a94d35]">
+                    <span className="px-2 py-0.5 rounded-full bg-[#FFF0F6] text-micro font-bold text-[#FF2A85]">
                       {story.category}
                     </span>
-                    <span className="text-xs font-medium text-[#655b4d]">
+                    <span className="text-xs font-medium text-[#4e5968]">
                       {story.locationName || '대한민국 문화유산'}
                     </span>
                   </div>
 
-                  <h2 className="mt-2 font-sorimaru-sans text-xl sm:text-2xl font-bold text-[#211e19] leading-tight">
+                  <h2 className="mt-2 font-sorimaru-sans text-xl sm:text-2xl font-bold text-[#191f28] leading-tight">
                     {story.title}
                   </h2>
-                  <p className="mt-1 text-xs leading-5 text-[#655b4d] sm:text-sm">
+                  <p className="mt-1 text-xs leading-5 text-[#4e5968] sm:text-sm">
                     <span className="block">{story.audioTitle}</span>
-                    <span className="mt-0.5 block text-[#8f7e6c] font-medium">{story.speaker || '온마루 문화해설사'}</span>
+                    <span className="mt-0.5 block text-[#8b95a1] font-medium">{story.speaker || '온마루 문화해설사'}</span>
                   </p>
                 </div>
 
@@ -217,23 +215,23 @@ export const LocalMiniPlayer: React.FC = () => {
                     max={duration || 100}
                     value={currentTime}
                     onChange={(event) => seekTo(Number(event.target.value))}
-                    className="w-full accent-[#a94d35] cursor-pointer"
+                    className="w-full accent-[#FF2A85] cursor-pointer"
                   />
-                  <div className="flex justify-between text-xs font-mono text-[#786d5e] mt-1">
+                  <div className="flex justify-between text-xs font-mono text-[#8b95a1] mt-1">
                     <span>{formatTime(currentTime)}</span>
                     <span>{formatTime(duration)}</span>
                   </div>
                 </div>
 
                 <div className="mt-4 flex items-center justify-center gap-6">
-                  <button type="button" onClick={() => skipBackward(10)} className="px-3 py-1.5 rounded-full bg-[#f2ece2] text-xs font-bold text-[#655b4d] hover:bg-[#e8dfd2] inline-flex items-center gap-1">
+                  <button type="button" onClick={() => seekTo(Math.max(0, currentTime - 10))} className="px-3 py-1.5 rounded-full bg-[#f5f5f4] text-xs font-bold text-[#4e5968] hover:bg-[#e5e5e3] inline-flex items-center gap-1">
                     <SkipBack size={13} strokeWidth={2} />
                     <span>10초 전</span>
                   </button>
-                  <button type="button" onClick={() => setIsPlaying(!isPlaying)} className="flex h-13 w-13 items-center justify-center rounded-full bg-[#a94d35] text-white  hover:bg-[#8f3e29]">
+                  <button type="button" onClick={() => setIsPlaying(!isPlaying)} className="flex h-13 w-13 items-center justify-center rounded-full bg-[#FF2A85] text-white  hover:bg-[#D40D63]">
                     <PlayIcon size={20} />
                   </button>
-                  <button type="button" onClick={() => skipForward(10)} className="px-3 py-1.5 rounded-full bg-[#f2ece2] text-xs font-bold text-[#655b4d] hover:bg-[#e8dfd2] inline-flex items-center gap-1">
+                  <button type="button" onClick={() => seekTo(Math.min(duration || currentTime + 10, currentTime + 10))} className="px-3 py-1.5 rounded-full bg-[#f5f5f4] text-xs font-bold text-[#4e5968] hover:bg-[#e5e5e3] inline-flex items-center gap-1">
                     <span>10초 후</span>
                     <SkipForward size={13} strokeWidth={2} />
                   </button>
@@ -244,20 +242,20 @@ export const LocalMiniPlayer: React.FC = () => {
                   <section className="mt-5   pt-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-[10px] font-bold tracking-[0.14em] text-[#a94d35]">실시간 자막</p>
-                        <h3 className="mt-0.5 font-sorimaru-sans text-sm font-semibold text-[#211e19]">해설 대본</h3>
+                        <p className="text-micro font-bold tracking-[0.14em] text-[#FF2A85]">실시간 자막</p>
+                        <h3 className="mt-0.5 font-sorimaru-sans text-sm font-semibold text-[#191f28]">해설 대본</h3>
                       </div>
                       <button
                         type="button"
                         onClick={() => setIsTranscriptOpen(true)}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#a94d35]/10 text-xs font-bold text-[#a94d35] hover:bg-[#a94d35]/20 transition"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#FF2A85]/10 text-xs font-bold text-[#FF2A85] hover:bg-[#FF2A85]/20 transition"
                       >
                         <span>전체 대본 보기</span>
                         <ChevronRight size={13} strokeWidth={2} />
                       </button>
                     </div>
 
-                    <div className="relative mt-3 h-36 overflow-hidden rounded-xl bg-[#f5efe5] p-3">
+                    <div className="relative mt-3 h-36 overflow-hidden rounded-xl bg-[#f5f5f4] p-3">
                       <div className="space-y-1.5">
                         {previewLines.map((line) => (
                           <button
@@ -266,8 +264,8 @@ export const LocalMiniPlayer: React.FC = () => {
                             onClick={() => seekTo(line.timeSec)}
                             className={`block w-full rounded-lg px-2.5 py-1.5 text-left text-xs sm:text-sm leading-relaxed transition ${
                               line.id === lines[activeIndex]?.id
-                                ? 'bg-[#a94d35] font-semibold text-white '
-                                : 'text-[#655b4d] hover:text-[#211e19]'
+                                ? 'bg-[#FF2A85] font-semibold text-white '
+                                : 'text-[#4e5968] hover:text-[#191f28]'
                             }`}
                           >
                             {line.text}
