@@ -81,7 +81,7 @@ export default function HanokAudioPlayer({ stories, hanokName }: HanokAudioPlaye
 
       <HeaderRow>
         <BadgeBox>
-          <Headphones size={14} color={palette.cheongrok[700]} />
+          <Headphones size={14} />
           <BadgeText>한국관광공사 Odii 오디오 도슨트</BadgeText>
         </BadgeBox>
         <QualityTag>공식 해설 음원</QualityTag>
@@ -177,23 +177,33 @@ const BadgeBox = styled.div`
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: ${palette.cheongrok[50]};
+  background: ${palette.jangmi[50]};
   padding: 4px 10px;
   border-radius: 9999px;
   border: none;
+  color: ${palette.jangmi[700]};
+
+  svg {
+    color: ${palette.jangmi[700]};
+  }
 
   [data-theme='dark'] & {
-    background: rgba(0, 196, 113, 0.15);
+    background: rgba(255, 42, 133, 0.16);
+    color: ${palette.jangmi[400]};
+
+    svg {
+      color: ${palette.jangmi[400]};
+    }
   }
 `;
 
 const BadgeText = styled.span`
   font-size: 12px;
   font-weight: 700;
-  color: ${palette.cheongrok[700]};
+  color: ${palette.jangmi[700]};
 
   [data-theme='dark'] & {
-    color: ${palette.cheongrok[400]};
+    color: ${palette.jangmi[400]};
   }
 `;
 
@@ -257,7 +267,7 @@ const PlayBtn = styled.button`
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: ${meok[900]};
+  background: ${palette.jangmi[500]};
   color: #ffffff;
   border: none;
   box-shadow: none;
@@ -266,7 +276,7 @@ const PlayBtn = styled.button`
   flex-shrink: 0;
 
   &:hover {
-    background: ${palette.cheongrok[700]};
+    background: ${palette.jangmi[700]};
     transform: scale(1.05);
   }
 
@@ -275,9 +285,9 @@ const PlayBtn = styled.button`
   }
 
   [data-theme='dark'] & {
-    background: ${palette.cheongrok[700]};
+    background: ${palette.jangmi[500]};
     &:hover {
-      background: ${palette.cheongrok[500]};
+      background: ${palette.jangmi[400]};
     }
   }
 `;
@@ -345,7 +355,7 @@ const ProgressBar = styled.input`
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background: ${palette.cheongrok[700]};
+    background: ${palette.jangmi[500]};
     cursor: pointer;
     transition: transform 0.1s ease;
     border: none;
@@ -381,13 +391,13 @@ const ScriptToggleBtn = styled.button`
   cursor: pointer;
 
   &:hover {
-    color: ${palette.cheongrok[700]};
+    color: ${palette.jangmi[700]};
   }
 
   [data-theme='dark'] & {
     color: ${meok[200]};
     &:hover {
-      color: ${palette.cheongrok[400]};
+      color: ${palette.jangmi[400]};
     }
   }
 `;

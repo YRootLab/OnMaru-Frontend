@@ -198,7 +198,7 @@ export default function VillageCard({ village, onClick }: VillageCardProps) {
       {isDocentAvailable && (
         <TopBadgeRow>
           <DocentTag>
-            <Headphones size={11} color={palette.cheongrok[400]} />
+            <Headphones size={11} color={palette.jangmi[400]} />
             <span>오디오 도슨트</span>
           </DocentTag>
         </TopBadgeRow>
