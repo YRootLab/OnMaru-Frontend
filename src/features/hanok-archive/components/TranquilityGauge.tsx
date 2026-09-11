@@ -1,0 +1,251 @@
+'use client';
+
+import React from 'react';
+import styled from '@emotion/styled';
+import { Activity, Clock, ShieldCheck, Sparkles } from 'lucide-react';
+import { meok, lightPalette, surface } from '@/design-system/tokens';
+import type { TranquilityData } from '../hooks/useHanokTranquility';
+
+interface TranquilityGaugeProps {
+  data: TranquilityData | null;
+  loading?: boolean;
+}
+
+export default function TranquilityGauge({ data, loading }: TranquilityGaugeProps) {
+  if (loading) {
+    return (
+      <Container>
+        <HeaderRow>
+          <BadgeBox>
+            <Activity size={14} color={lightPalette.kobalt[500]} />
+            <BadgeText>관광 빅데이터 실시간 분석 중...</BadgeText>
+          </BadgeBox>
+        </HeaderRow>
+      </Container>
+    );
+  }
+
+  if (!data) return null;
+
+  return (
+    <Container>
+      <HeaderRow>
+        <BadgeBox>
+          <Activity size={14} color={lightPalette.kobalt[500]} />
+          <BadgeText>한국관광공사 DataLab 실시간 고즈넉 지수</BadgeText>
+        </BadgeBox>
+        <DistrictTag>{data.district} 권역</DistrictTag>
+      </HeaderRow>
+
+      <MainRow>
+        <ScoreBox>
+          <ScoreNumber>{data.score}</ScoreNumber>
+          <ScoreMax>/ 100</ScoreMax>
+        </ScoreBox>
+
+        <LevelBadge style={{ backgroundColor: `${data.badgeColor}15`, color: data.badgeColor, borderColor: `${data.badgeColor}40` }}>
+          <Sparkles size={13} />
+          <span>{data.level}</span>
+        </LevelBadge>
+      </MainRow>
+
+      {/* 게이지 바 */}
+      <GaugeTrack>
+        <GaugeFill
+          style={{
+            width: `${data.score}%`,
+            backgroundColor: data.badgeColor,
+          }}
+        />
+      </GaugeTrack>
+
+      <InfoCardsRow>
+        <InfoPill>
+          <Clock size={13} />
+          <PillLabel>추천 골든타임:</PillLabel>
+          <PillVal>{data.goldenHour}</PillVal>
+        </InfoPill>
+      </InfoCardsRow>
+
+      <AdviceText>
+        <ShieldCheck size={14} style={{ flexShrink: 0, marginTop: 2 }} />
+        <span>{data.advice}</span>
+      </AdviceText>
+    </Container>
+  );
+}
+
+const Container = styled.div`
+  background: #f8f8f7;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 18px;
+  padding: 20px 22px;
+  margin-top: 16px;
+  margin-bottom: 24px;
+  transition: all 0.2s ease;
+
+  [data-theme='dark'] & {
+    background: #232220;
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+`;
+
+const HeaderRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+`;
+
+const BadgeBox = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(43, 108, 176, 0.08);
+  padding: 4px 10px;
+  border-radius: 9999px;
+
+  [data-theme='dark'] & {
+    background: rgba(43, 108, 176, 0.25);
+  }
+`;
+
+const BadgeText = styled.span`
+  font-size: 12px;
+  font-weight: 700;
+  color: ${lightPalette.kobalt[500]};
+
+  [data-theme='dark'] & {
+    color: #90cdf4;
+  }
+`;
+
+const DistrictTag = styled.span`
+  font-size: 11.5px;
+  font-weight: 500;
+  color: ${meok[500]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
+`;
+
+const MainRow = styled.div`
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 10px;
+`;
+
+const ScoreBox = styled.div`
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+`;
+
+const ScoreNumber = styled.span`
+  font-family: var(--font-hanok);
+  font-size: 32px;
+  font-weight: 700;
+  color: ${meok[900]};
+  line-height: 1;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
+`;
+
+const ScoreMax = styled.span`
+  font-size: 13px;
+  color: ${meok[400]};
+`;
+
+const LevelBadge = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  border: 1px solid;
+`;
+
+const GaugeTrack = styled.div`
+  width: 100%;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 9999px;
+  overflow: hidden;
+  margin-bottom: 14px;
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.08);
+  }
+`;
+
+const GaugeFill = styled.div`
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+`;
+
+const InfoCardsRow = styled.div`
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+`;
+
+const InfoPill = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: ${meok[700]};
+  background: #ffffff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+
+  [data-theme='dark'] & {
+    background: #1c1a17;
+    border-color: rgba(255, 255, 255, 0.08);
+    color: ${meok[200]};
+  }
+`;
+
+const PillLabel = styled.span`
+  font-weight: 600;
+  color: ${meok[500]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
+`;
+
+const PillVal = styled.span`
+  font-weight: 700;
+  color: ${meok[900]};
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
+`;
+
+const AdviceText = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: ${meok[500]};
+  background: rgba(0, 0, 0, 0.02);
+  padding: 10px 12px;
+  border-radius: 8px;
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.04);
+    color: ${meok[200]};
+  }
+`;

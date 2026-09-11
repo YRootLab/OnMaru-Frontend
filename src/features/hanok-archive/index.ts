@@ -12,3 +12,8 @@ export * from './data/hanokArchiveFallback';
 // Services
 export { HanokArchiveService } from './services/hanokArchive.service';
 export { HanokDetailService } from './services/hanokDetail.service';
+
+// Hooks
+export { useHanokOdii } from './hooks/useHanokOdii';
+export { useHanokTranquility } from './hooks/useHanokTranquility';
+

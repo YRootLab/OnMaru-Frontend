@@ -5,6 +5,7 @@ import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
 import { meok, lightPalette } from '@/design-system/tokens';
+import { Headphones } from 'lucide-react';
 import type { Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
 
@@ -142,12 +143,44 @@ const ActionButton = styled(motion.div, transientProps)`
   }
 `;
 
+const TopBadgeRow = styled.div`
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 3;
+  display: flex;
+  gap: 6px;
+`;
+
+const DocentTag = styled.span`
+  background: rgba(28, 26, 23, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 3.5px 9px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+`;
+
+const HAS_DOCENT_TYPES = ['고궁', '민속마을'];
+const HAS_DOCENT_NAMES = ['경복궁', '선교장', '하회', '운조루', '임청각', '최부자', '소쇄원', '창덕궁', '창경궁', '덕수궁', '종묘', '남산골'];
+
 interface VillageCardProps {
   village: Village;
   onClick?: (village: Village) => void;
 }
 
 export default function VillageCard({ village, onClick }: VillageCardProps) {
+  const isDocentAvailable =
+    HAS_DOCENT_TYPES.includes(village.type) ||
+    HAS_DOCENT_NAMES.some((n) => village.name.includes(n));
+
   return (
     <Card
       className="village-card"
@@ -162,6 +195,15 @@ export default function VillageCard({ village, onClick }: VillageCardProps) {
         if (e.key === 'Enter' || e.key === ' ') onClick?.(village);
       }}
     >
+      {isDocentAvailable && (
+        <TopBadgeRow>
+          <DocentTag>
+            <Headphones size={11} color="#63b3ed" />
+            <span>오디오 도슨트</span>
+          </DocentTag>
+        </TopBadgeRow>
+      )}
+
       <ImageLayer $bg={village.hasImage ? village.image : null} />
 
       <GradientOverlay>

@@ -662,7 +662,7 @@ export default function HanokStayAccordion({
     <Section id="hanok-stays" aria-labelledby="stay-heading">
       <SectionHeader
         id="stay-heading"
-        title="하룻밤 묵어가기"
+        title="지역별 한옥 스테이"
         // 부제는 도감 전체 규모를 말한다. 지역을 골라도 흔들리지 않아야
         // '전국'이라는 말과 어긋나지 않는다. 지금 몇 곳을 보고 있는지는 하단 페이저가 맡는다.
         subtitle={`${allStays.length}곳`}

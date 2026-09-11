@@ -29,6 +29,10 @@ import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import { STAY_TYPE } from '@/features/hanok-archive/types';
 import type { Village, VillageDetailResponse } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
+import { useHanokOdii } from '@/features/hanok-archive/hooks/useHanokOdii';
+import { useHanokTranquility } from '@/features/hanok-archive/hooks/useHanokTranquility';
+import HanokAudioPlayer from './HanokAudioPlayer';
+import TranquilityGauge from './TranquilityGauge';
 import {
   Overlay,
   ModalCard,
@@ -134,6 +138,18 @@ export default function VillageDetailModal({ village, onClose }: VillageDetailMo
   const [detailData, setDetailData] = useState<VillageDetailResponse | null>(null);
   // key로 마을마다 새로 마운트되므로, 뜨는 순간이 곧 불러오기 시작이다.
   const [isLoadingOverview, setIsLoadingOverview] = useState(true);
+
+  const { stories: odiiStories } = useHanokOdii(
+    village.name,
+    village.lat ?? detailData?.lat,
+    village.lng ?? detailData?.lng,
+  );
+
+  const { data: tranquilityData, loading: isLoadingTranquility } = useHanokTranquility(
+    village.lat ?? detailData?.lat,
+    village.lng ?? detailData?.lng,
+    village.addr || detailData?.addr || undefined,
+  );
 
   const isBookmarked = useBookmarkStore((s) => s.isBookmarked(village.id));
   const toggleBookmark = useBookmarkStore((s) => s.toggleBookmark);
@@ -320,6 +336,12 @@ export default function VillageDetailModal({ village, onClose }: VillageDetailMo
                   {village.addr}
                 </AddrText>
               </MetaRow>
+
+              {/* 한국관광공사 Odii 오디오 도슨트 (음원 스트리밍 및 해설 대본) */}
+              <HanokAudioPlayer stories={odiiStories} hanokName={village.name} />
+
+              {/* 한국관광공사 DataLab 실시간 고즈넉 지수 & 골든타임 */}
+              <TranquilityGauge data={tranquilityData} loading={isLoadingTranquility} />
 
               {!isStay && (
                 isLoadingOverview ? (
