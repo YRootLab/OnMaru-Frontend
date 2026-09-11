@@ -6,9 +6,10 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import styled from '@emotion/styled';
-import { Sparkles, ArrowRight, Menu, X } from 'lucide-react';
+import { Sparkles, ArrowRight, Menu, X, BookOpen, Map, Headphones } from 'lucide-react';
 import { transientProps } from '@/design-system/styled';
 import { lightPalette, meok, surface } from '@/design-system/tokens';
+import { useAuth } from '@/features/auth';
 import GlobalMobileTabs from './GlobalMobileTabs';
 import MapMobileTabs from '@/features/map/components/MapMobileTabs';
 import { HEADER_EXIT_S, ENTRANCE_EASE } from '@/shared/navigation/mapEntranceTiming';
@@ -392,6 +393,7 @@ export default function Header() {
   const isLandingPage = pathname === '/';
   const isSoriMaruPage = pathname.startsWith('/sorimaru') || pathname.startsWith('/sorimaru');
   const recordNavigation = useMapEntranceStore((s) => s.recordNavigation);
+  const { user, isLoggedIn } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
@@ -565,15 +567,18 @@ export default function Header() {
         {/* 가운데: 한옥 마루, 지도, 소리마루, 여정 탐색 */}
         <CenterNav $isMapPage={isMapPage}>
           <NavLink href="/hanok" $isLanding={usesDarkSurface} $isSoriMaru={isSoriMaruPage}>
-            한옥 마루
+            <BookOpen size={13} style={{ marginRight: 4, verticalAlign: '-1px' }} />
+            <span>한옥 마루</span>
           </NavLink>
 
           <NavLink href="/map" $isLanding={usesDarkSurface} $isSoriMaru={isSoriMaruPage}>
-            지도
+            <Map size={13} style={{ marginRight: 4, verticalAlign: '-1px' }} />
+            <span>지도</span>
           </NavLink>
 
           <NavLink href="/sorimaru" $isLanding={usesDarkSurface} $isSoriMaru={isSoriMaruPage}>
-            소리마루
+            <Headphones size={13} style={{ marginRight: 4, verticalAlign: '-1px' }} />
+            <span>소리마루</span>
           </NavLink>
 
           <NavLink href="/" $isLanding={usesDarkSurface} $isSoriMaru={isSoriMaruPage}>
@@ -588,10 +593,10 @@ export default function Header() {
           )}
         </CenterNav>
 
-      {/* 오른쪽 끝: 로그인 */}
+      {/* 오른쪽 끝: 로그인 / 마이페이지 */}
       <RightSection $isMapPage={isMapPage}>
-        <LoginButton href="/auth/login" $isLanding={usesDarkSurface}>
-          <span>로그인</span>
+        <LoginButton href={isLoggedIn ? '/mypage' : '/auth/login'} $isLanding={usesDarkSurface}>
+          <span>{isLoggedIn ? (user?.nickname ?? '마이페이지') : '로그인'}</span>
           <ArrowRight size={12} />
         </LoginButton>
       </RightSection>
@@ -654,9 +659,21 @@ export default function Header() {
               exit={{ opacity: 0, y: -6, scale: 0.98 }}
               transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
             >
-              <MobileMenuLink href="/hanok" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>한옥 마루</MobileMenuLink>
-              <MobileMenuLink href="/map" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>지도</MobileMenuLink>
-              <MobileMenuLink href="/sorimaru" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>소리마루</MobileMenuLink>
+              <MobileMenuLink href="/hanok" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <BookOpen size={15} /> 한옥 마루
+                </span>
+              </MobileMenuLink>
+              <MobileMenuLink href="/map" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <Map size={15} /> 지도
+                </span>
+              </MobileMenuLink>
+              <MobileMenuLink href="/sorimaru" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <Headphones size={15} /> 소리마루
+                </span>
+              </MobileMenuLink>
               <MobileMenuLink href="/" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                   <Sparkles size={15} /> 여정 탐색
@@ -666,7 +683,9 @@ export default function Header() {
                 <MobileMenuLink href="/dev/icons" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>아이콘 (개발용)</MobileMenuLink>
               )}
               <MobileMenuDivider $isLanding={usesDarkSurface} />
-              <MobileMenuLink href="/auth/login" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>로그인</MobileMenuLink>
+              <MobileMenuLink href={isLoggedIn ? '/mypage' : '/auth/login'} $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
+                {isLoggedIn ? (user?.nickname ?? '마이페이지') : '로그인'}
+              </MobileMenuLink>
             </MobileMenuPanel>
           )}
         </AnimatePresence>
