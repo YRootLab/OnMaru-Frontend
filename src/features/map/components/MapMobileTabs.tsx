@@ -83,7 +83,7 @@ export default function MapMobileTabs() {
         <IconSlot>
           <Home size={19} />
         </IconSlot>
-        <span>홈</span>
+        <span>여정 탐색</span>
       </TabButton>
 
       <TabButton

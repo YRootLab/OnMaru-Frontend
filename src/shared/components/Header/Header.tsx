@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import styled from '@emotion/styled';
-import { Sparkles, ArrowRight, Menu, X, BookOpen, Map, Headphones } from 'lucide-react';
+import { ArrowRight, Menu, X } from 'lucide-react';
 import { transientProps } from '@/design-system/styled';
 import { lightPalette, meok, surface } from '@/design-system/tokens';
 import { useAuth } from '@/features/auth';
@@ -564,26 +564,22 @@ export default function Header() {
           </LogoLink>
         </LeftSection>
 
-        {/* 가운데: 한옥 마루, 지도, 소리마루, 여정 탐색 */}
+        {/* 가운데: 여정 탐색, 한옥 마루, 소리마루, 지도 */}
         <CenterNav $isMapPage={isMapPage}>
-          <NavLink href="/hanok" $isLanding={usesDarkSurface} $isSoriMaru={isSoriMaruPage}>
-            <BookOpen size={13} style={{ marginRight: 4, verticalAlign: '-1px' }} />
-            <span>한옥 마루</span>
+          <NavLink href="/" $isLanding={usesDarkSurface} $isSoriMaru={isSoriMaruPage}>
+            여정 탐색
           </NavLink>
 
-          <NavLink href="/map" $isLanding={usesDarkSurface} $isSoriMaru={isSoriMaruPage}>
-            <Map size={13} style={{ marginRight: 4, verticalAlign: '-1px' }} />
-            <span>지도</span>
+          <NavLink href="/hanok" $isLanding={usesDarkSurface} $isSoriMaru={isSoriMaruPage}>
+            한옥 마루
           </NavLink>
 
           <NavLink href="/sorimaru" $isLanding={usesDarkSurface} $isSoriMaru={isSoriMaruPage}>
-            <Headphones size={13} style={{ marginRight: 4, verticalAlign: '-1px' }} />
-            <span>소리마루</span>
+            소리마루
           </NavLink>
 
-          <NavLink href="/" $isLanding={usesDarkSurface} $isSoriMaru={isSoriMaruPage}>
-            <Sparkles size={13} style={{ marginRight: 4, verticalAlign: '-1px' }} />
-            <span>여정 탐색</span>
+          <NavLink href="/map" $isLanding={usesDarkSurface} $isSoriMaru={isSoriMaruPage}>
+            지도
           </NavLink>
 
           {IS_DEV && (
@@ -659,26 +655,10 @@ export default function Header() {
               exit={{ opacity: 0, y: -6, scale: 0.98 }}
               transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
             >
-              <MobileMenuLink href="/hanok" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <BookOpen size={15} /> 한옥 마루
-                </span>
-              </MobileMenuLink>
-              <MobileMenuLink href="/map" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <Map size={15} /> 지도
-                </span>
-              </MobileMenuLink>
-              <MobileMenuLink href="/sorimaru" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <Headphones size={15} /> 소리마루
-                </span>
-              </MobileMenuLink>
-              <MobileMenuLink href="/" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <Sparkles size={15} /> 여정 탐색
-                </span>
-              </MobileMenuLink>
+              <MobileMenuLink href="/" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>여정 탐색</MobileMenuLink>
+              <MobileMenuLink href="/hanok" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>한옥 마루</MobileMenuLink>
+              <MobileMenuLink href="/sorimaru" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>소리마루</MobileMenuLink>
+              <MobileMenuLink href="/map" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>지도</MobileMenuLink>
               {IS_DEV && (
                 <MobileMenuLink href="/dev/icons" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>아이콘 (개발용)</MobileMenuLink>
               )}

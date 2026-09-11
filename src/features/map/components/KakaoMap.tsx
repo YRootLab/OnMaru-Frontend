@@ -15,6 +15,7 @@ import {
   Plus,
   Minus,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { meok, lightPalette } from '@/design-system/tokens';
 import { KAKAO_SDK_SRC, useKakaoMap } from '@/features/map/hooks/useKakaoMap';
 import { DEFAULT_CENTER, useMapStore } from '@/features/map/hooks/useMapStore';
@@ -450,7 +451,7 @@ export default function KakaoMap() {
 
   const locate = () => {
     if (typeof window === 'undefined' || !navigator.geolocation) {
-      alert('현재 환경에서 위치 정보를 지원하지 않습니다.');
+      toast.error('현재 환경에서 위치 정보를 지원하지 않습니다.');
       return;
     }
 
@@ -469,9 +470,9 @@ export default function KakaoMap() {
         (fallbackErr) => {
           setIsLocating(false);
           if (fallbackErr.code === fallbackErr.PERMISSION_DENIED) {
-            alert('브라우저 상단 주소창 왼쪽의 위치 권한을 [허용]으로 변경해 주세요.');
+            toast.error('브라우저 상단 주소창 왼쪽의 위치 권한을 [허용]으로 변경해 주세요.');
           } else {
-            alert('현재 위치 정보를 가져올 수 없습니다. 기본 위치로 유지됩니다.');
+            toast.error('현재 위치 정보를 가져올 수 없습니다. 기본 위치로 유지됩니다.');
           }
         },
         { enableHighAccuracy: false, timeout: 10000, maximumAge: 0 },
