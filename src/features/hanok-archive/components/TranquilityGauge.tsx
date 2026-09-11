@@ -3,7 +3,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { Activity, Clock, ShieldCheck, Sparkles } from 'lucide-react';
-import { meok, lightPalette, surface } from '@/design-system/tokens';
+import { meok, palette } from '@/design-system/tokens';
 import type { TranquilityData } from '../hooks/useHanokTranquility';
 
 interface TranquilityGaugeProps {
@@ -17,7 +17,7 @@ export default function TranquilityGauge({ data, loading }: TranquilityGaugeProp
       <Container>
         <HeaderRow>
           <BadgeBox>
-            <Activity size={14} color={lightPalette.kobalt[500]} />
+            <Activity size={14} color={palette.cheongrok[700]} />
             <BadgeText>관광 빅데이터 실시간 분석 중...</BadgeText>
           </BadgeBox>
         </HeaderRow>
@@ -31,7 +31,7 @@ export default function TranquilityGauge({ data, loading }: TranquilityGaugeProp
     <Container>
       <HeaderRow>
         <BadgeBox>
-          <Activity size={14} color={lightPalette.kobalt[500]} />
+          <Activity size={14} color={palette.cheongrok[700]} />
           <BadgeText>한국관광공사 DataLab 실시간 고즈넉 지수</BadgeText>
         </BadgeBox>
         <DistrictTag>{data.district} 권역</DistrictTag>
@@ -43,7 +43,7 @@ export default function TranquilityGauge({ data, loading }: TranquilityGaugeProp
           <ScoreMax>/ 100</ScoreMax>
         </ScoreBox>
 
-        <LevelBadge style={{ backgroundColor: `${data.badgeColor}15`, color: data.badgeColor, borderColor: `${data.badgeColor}40` }}>
+        <LevelBadge style={{ backgroundColor: `${data.badgeColor}18`, color: data.badgeColor }}>
           <Sparkles size={13} />
           <span>{data.level}</span>
         </LevelBadge>
@@ -61,14 +61,14 @@ export default function TranquilityGauge({ data, loading }: TranquilityGaugeProp
 
       <InfoCardsRow>
         <InfoPill>
-          <Clock size={13} />
+          <Clock size={13} color={palette.cheongrok[700]} />
           <PillLabel>추천 골든타임:</PillLabel>
           <PillVal>{data.goldenHour}</PillVal>
         </InfoPill>
       </InfoCardsRow>
 
       <AdviceText>
-        <ShieldCheck size={14} style={{ flexShrink: 0, marginTop: 2 }} />
+        <ShieldCheck size={14} color={palette.cheongrok[700]} style={{ flexShrink: 0, marginTop: 2 }} />
         <span>{data.advice}</span>
       </AdviceText>
     </Container>
@@ -76,17 +76,16 @@ export default function TranquilityGauge({ data, loading }: TranquilityGaugeProp
 }
 
 const Container = styled.div`
-  background: #f8f8f7;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 18px;
-  padding: 20px 22px;
+  background: #f5f5f4;
+  border: none;
+  box-shadow: none;
+  border-radius: 20px;
+  padding: 22px 24px;
   margin-top: 16px;
   margin-bottom: 24px;
-  transition: all 0.2s ease;
 
   [data-theme='dark'] & {
-    background: #232220;
-    border-color: rgba(255, 255, 255, 0.1);
+    background: #24211D;
   }
 `;
 
@@ -101,22 +100,23 @@ const BadgeBox = styled.div`
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(43, 108, 176, 0.08);
+  background: ${palette.cheongrok[50]};
   padding: 4px 10px;
   border-radius: 9999px;
+  border: none;
 
   [data-theme='dark'] & {
-    background: rgba(43, 108, 176, 0.25);
+    background: rgba(0, 196, 113, 0.15);
   }
 `;
 
 const BadgeText = styled.span`
   font-size: 12px;
   font-weight: 700;
-  color: ${lightPalette.kobalt[500]};
+  color: ${palette.cheongrok[700]};
 
   [data-theme='dark'] & {
-    color: #90cdf4;
+    color: ${palette.cheongrok[400]};
   }
 `;
 
@@ -166,9 +166,10 @@ const LevelBadge = styled.div`
   gap: 5px;
   font-size: 13px;
   font-weight: 700;
-  padding: 4px 12px;
+  padding: 5px 13px;
   border-radius: 9999px;
-  border: 1px solid;
+  border: none;
+  box-shadow: none;
 `;
 
 const GaugeTrack = styled.div`
@@ -178,6 +179,7 @@ const GaugeTrack = styled.div`
   border-radius: 9999px;
   overflow: hidden;
   margin-bottom: 14px;
+  border: none;
 
   [data-theme='dark'] & {
     background: rgba(255, 255, 255, 0.08);
@@ -204,13 +206,13 @@ const InfoPill = styled.div`
   font-size: 12px;
   color: ${meok[700]};
   background: #ffffff;
-  padding: 6px 12px;
-  border-radius: 8px;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: none;
+  box-shadow: none;
 
   [data-theme='dark'] & {
-    background: #1c1a17;
-    border-color: rgba(255, 255, 255, 0.08);
+    background: #1C1A17;
     color: ${meok[200]};
   }
 `;
@@ -241,8 +243,10 @@ const AdviceText = styled.div`
   line-height: 1.5;
   color: ${meok[500]};
   background: rgba(0, 0, 0, 0.02);
-  padding: 10px 12px;
-  border-radius: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: none;
+  box-shadow: none;
 
   [data-theme='dark'] & {
     background: rgba(255, 255, 255, 0.04);

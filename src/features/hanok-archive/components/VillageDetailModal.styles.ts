@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
-import { meok, lightPalette, surface } from '@/design-system/tokens';
+import { meok, palette, surface } from '@/design-system/tokens';
 
 export const Overlay = styled(motion.div)`
   position: fixed;
@@ -22,6 +22,8 @@ export const ModalCard = styled(motion.div)`
   max-height: 88vh;
   overflow-y: auto;
   position: relative;
+  border: none;
+  box-shadow: none;
 
   scrollbar-width: none;
   &::-webkit-scrollbar {
@@ -42,7 +44,7 @@ export const ImageHero = styled.div<{ $bg: string | null }>`
   ${({ $bg }) =>
     $bg
       ? `background-image: url("${$bg}"); background-size: cover; background-position: center;`
-      : 'background: linear-gradient(135deg, #2B5CE6 0%, #1A3898 100%);'}
+      : 'background: linear-gradient(135deg, #1C1A17 0%, #2D2924 100%);'}
 
   &::after {
     content: '';
@@ -60,7 +62,8 @@ export const CloseBtn = styled.button`
   width: 38px;
   height: 38px;
   border-radius: 50%;
-
+  border: none;
+  box-shadow: none;
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(8px);
   color: ${meok[900]};
@@ -78,25 +81,27 @@ export const CloseBtn = styled.button`
 export const HeroContent = styled.div`
   position: absolute;
   bottom: 20px;
-  left: 24px;
-  right: 24px;
-  z-index: 2;
-  color: #ffffff;
+  left: 28px;
+  right: 28px;
+  z-index: 4;
 `;
 
 export const HeroRegion = styled.span`
-  font-size: 12px;
+  display: inline-block;
+  font-size: 13px;
   font-weight: 500;
-  color: ${lightPalette.kobalt[100]};
-  letter-spacing: 0.12em;
+  color: ${palette.hwanggeum[200]};
+  margin-bottom: 6px;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
 `;
 
 export const HeroTitle = styled.h2`
   font-family: var(--font-hanok);
   font-size: clamp(24px, 3.5vw, 32px);
-  font-weight: 500;
-  margin: 4px 0 0;
+  font-weight: 400;
+  margin: 0;
+  line-height: 1.25;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
   color: #ffffff;
 `;
@@ -114,16 +119,18 @@ export const MetaRow = styled.div`
 `;
 
 export const TypeBadge = styled.span`
-  background: ${lightPalette.kobalt[50]};
-  color: ${lightPalette.kobalt[700]};
+  background: ${palette.cheongrok[50]};
+  color: ${palette.cheongrok[700]};
   font-size: 11.5px;
-  font-weight: 500;
+  font-weight: 600;
   padding: 4px 12px;
   border-radius: 9999px;
+  border: none;
+  box-shadow: none;
 
   [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.08);
-    color: ${lightPalette.kobalt[400]};
+    background: rgba(0, 196, 113, 0.15);
+    color: ${palette.cheongrok[400]};
   }
 `;
 
@@ -137,14 +144,15 @@ export const AddrText = styled.span`
 `;
 
 export const CuratorsNoteSection = styled.div`
-  background: #f8fbff;
-
+  background: #f5f5f4;
   border-radius: 20px;
   padding: 20px 22px;
   margin-bottom: 24px;
+  border: none;
+  box-shadow: none;
 
   [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.05);
+    background: #24211D;
   }
 `;
 
@@ -153,9 +161,13 @@ export const NoteHeader = styled.div`
   align-items: center;
   justify-content: space-between;
   font-size: 12px;
-  font-weight: 500;
-  color: ${lightPalette.kobalt[500]};
+  font-weight: 600;
+  color: ${palette.cheongrok[700]};
   margin-bottom: 12px;
+
+  [data-theme='dark'] & {
+    color: ${palette.cheongrok[400]};
+  }
 `;
 
 export const HeaderBadge = styled.div`
@@ -167,13 +179,15 @@ export const HeaderBadge = styled.div`
 export const SourceTag = styled.span`
   font-size: 11px;
   font-weight: 500;
-  color: #1a49c6;
-  background: #eef3ff;
+  color: ${meok[700]};
+  background: ${meok[200]};
   padding: 3px 9px;
   border-radius: 6px;
+  border: none;
+  box-shadow: none;
 
   [data-theme='dark'] & {
-    color: ${lightPalette.kobalt[400]};
+    color: ${meok[400]};
     background: rgba(255, 255, 255, 0.08);
   }
 `;
@@ -209,20 +223,24 @@ export const StoryParagraph = styled.p`
 `;
 
 export const ExpandBtn = styled.button`
-
   background: transparent;
-  color: ${lightPalette.kobalt[500]};
+  color: ${palette.cheongrok[700]};
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   padding: 6px 0 0;
   margin-top: 8px;
   display: flex;
   align-items: center;
   gap: 4px;
+  border: none;
 
   &:hover {
     text-decoration: underline;
+  }
+
+  [data-theme='dark'] & {
+    color: ${palette.cheongrok[400]};
   }
 `;
 
@@ -248,16 +266,17 @@ export const InfoGrid = styled.div`
 `;
 
 export const InfoCard = styled.div`
-  background: #fcfcfd;
-
+  background: #f5f5f4;
   border-radius: 14px;
   padding: 14px 16px;
   display: flex;
   gap: 12px;
   align-items: flex-start;
+  border: none;
+  box-shadow: none;
 
   [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.05);
+    background: #24211D;
   }
 `;
 
@@ -265,15 +284,16 @@ export const InfoIconBox = styled.div`
   width: 32px;
   height: 32px;
   border-radius: 10px;
-  background: ${lightPalette.kobalt[50]};
-  color: ${lightPalette.kobalt[500]};
+  background: ${palette.cheongrok[50]};
+  color: ${palette.cheongrok[700]};
   display: grid;
   place-items: center;
   flex-shrink: 0;
+  border: none;
 
   [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.08);
-    color: ${lightPalette.kobalt[400]};
+    background: rgba(0, 196, 113, 0.15);
+    color: ${palette.cheongrok[400]};
   }
 `;
 
@@ -301,16 +321,19 @@ export const InfoVal = styled.div`
   word-break: keep-all;
 
   a {
-    color: ${lightPalette.kobalt[500]};
+    color: ${palette.cheongrok[700]};
     text-decoration: underline;
-    font-weight: 400;
+    font-weight: 500;
     &:hover {
-      color: ${lightPalette.kobalt[700]};
+      color: ${palette.cheongrok[900]};
     }
   }
 
   [data-theme='dark'] & {
     color: ${meok[400]};
+    a {
+      color: ${palette.cheongrok[400]};
+    }
   }
 `;
 
@@ -322,24 +345,25 @@ export const RepeatList = styled.div`
 `;
 
 export const RepeatItemCard = styled.div`
-  background: rgba(248, 250, 255, 0.7);
-
+  background: #f5f5f4;
   border-radius: 12px;
   padding: 12px 16px;
+  border: none;
+  box-shadow: none;
 
   [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.05);
+    background: #24211D;
   }
 `;
 
 export const RepeatTitleText = styled.div`
   font-size: 13px;
-  font-weight: 400;
-  color: ${lightPalette.kobalt[700]};
+  font-weight: 600;
+  color: ${palette.cheongrok[700]};
   margin-bottom: 4px;
 
   [data-theme='dark'] & {
-    color: ${lightPalette.kobalt[400]};
+    color: ${palette.cheongrok[400]};
   }
 `;
 
@@ -371,15 +395,15 @@ export const GalleryThumb = styled.button<{ $active: boolean }>`
   aspect-ratio: 4 / 3;
   border-radius: 10px;
   overflow: hidden;
-  border: 2px solid ${({ $active }) => ($active ? lightPalette.kobalt[500] : 'transparent')};
+  border: ${({ $active }) => ($active ? `2px solid ${palette.cheongrok[700]}` : 'none')};
+  box-shadow: none;
   padding: 0;
   background: #eee;
   cursor: zoom-in;
-  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  transition: transform 0.18s ease;
 
   &:hover {
     transform: scale(1.04);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 
   [data-theme='dark'] & {
@@ -447,14 +471,16 @@ export const BadgeList = styled.div`
 export const TagBadge = styled.span`
   font-size: 12px;
   font-weight: 500;
-  color: ${lightPalette.kobalt[700]};
-  background: ${lightPalette.kobalt[50]};
+  color: ${palette.cheongrok[700]};
+  background: ${palette.cheongrok[50]};
   padding: 4px 11px;
   border-radius: 9999px;
+  border: none;
+  box-shadow: none;
 
   [data-theme='dark'] & {
-    color: ${lightPalette.kobalt[400]};
-    background: rgba(255, 255, 255, 0.08);
+    color: ${palette.cheongrok[400]};
+    background: rgba(0, 196, 113, 0.15);
   }
 `;
 
@@ -471,20 +497,30 @@ export const MapBtn = styled.a`
   justify-content: center;
   gap: 6px;
   height: 48px;
-  background: ${lightPalette.kobalt[500]};
+  background: ${meok[900]};
   color: #ffffff;
   border-radius: 14px;
   font-size: 14px;
   font-weight: 500;
   text-decoration: none;
+  border: none;
+  box-shadow: none;
   transition: background 0.15s ease, transform 0.15s ease;
 
   &:hover {
-    background: ${lightPalette.kobalt[700]};
+    background: #000000;
   }
 
   &:active {
     transform: scale(0.98);
+  }
+
+  [data-theme='dark'] & {
+    background: ${meok[200]};
+    color: ${meok[900]};
+    &:hover {
+      background: #ffffff;
+    }
   }
 `;
 
@@ -495,20 +531,29 @@ export const BookingModalBtn = styled.a`
   justify-content: center;
   gap: 6px;
   height: 48px;
-  background: #1c52e0;
+  background: ${palette.cheongrok[700]};
   color: #ffffff;
   border-radius: 14px;
   font-size: 14px;
   font-weight: 500;
   text-decoration: none;
+  border: none;
+  box-shadow: none;
   transition: background 0.15s ease, transform 0.15s ease;
 
   &:hover {
-    background: #1542be;
+    background: ${palette.cheongrok[900]};
   }
 
   &:active {
     transform: scale(0.98);
+  }
+
+  [data-theme='dark'] & {
+    background: ${palette.cheongrok[500]};
+    &:hover {
+      background: ${palette.cheongrok[400]};
+    }
   }
 `;
 
@@ -520,14 +565,15 @@ export const BookmarkBtn = styled.button<{ $bookmarked: boolean }>`
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: ${({ $bookmarked }) => ($bookmarked ? '#eef3ff' : 'rgba(255, 255, 255, 0.9)')};
+  background: ${({ $bookmarked }) => ($bookmarked ? palette.cheongrok[50] : 'rgba(255, 255, 255, 0.9)')};
   backdrop-filter: blur(8px);
-  color: ${({ $bookmarked }) => ($bookmarked ? lightPalette.kobalt[500] : meok[900])};
+  color: ${({ $bookmarked }) => ($bookmarked ? palette.cheongrok[700] : meok[900])};
   cursor: pointer;
   display: grid;
   place-items: center;
-  border: 1px solid ${({ $bookmarked }) => ($bookmarked ? lightPalette.kobalt[200] : 'transparent')};
-  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+  border: none;
+  box-shadow: none;
+  transition: transform 0.18s ease, background 0.18s ease;
 
   &:hover {
     transform: scale(1.08);
@@ -546,13 +592,14 @@ export const BookmarkActionBtn = styled.button<{ $bookmarked: boolean }>`
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  background: ${({ $bookmarked }) => ($bookmarked ? '#eef3ff' : '#f4f5f7')};
-  color: ${({ $bookmarked }) => ($bookmarked ? lightPalette.kobalt[700] : meok[700])};
-  border: 1px solid ${({ $bookmarked }) => ($bookmarked ? lightPalette.kobalt[200] : 'transparent')};
+  border: none;
+  box-shadow: none;
+  background: ${({ $bookmarked }) => ($bookmarked ? palette.cheongrok[50] : '#f5f5f4')};
+  color: ${({ $bookmarked }) => ($bookmarked ? palette.cheongrok[700] : meok[700])};
   transition: all 0.15s ease;
 
   &:hover {
-    background: ${({ $bookmarked }) => ($bookmarked ? '#e2ecff' : '#e9ebef')};
+    background: ${({ $bookmarked }) => ($bookmarked ? palette.cheongrok[100] : '#eaeaea')};
     transform: translateY(-1px);
   }
 
@@ -561,12 +608,8 @@ export const BookmarkActionBtn = styled.button<{ $bookmarked: boolean }>`
   }
 
   [data-theme='dark'] & {
-    background: ${({ $bookmarked }) => ($bookmarked ? 'rgba(77, 130, 255, 0.16)' : 'rgba(255, 255, 255, 0.08)')};
-    color: ${({ $bookmarked }) => ($bookmarked ? lightPalette.kobalt[400] : meok[400])};
-  }
-
-  [data-theme='dark'] &:hover {
-    background: ${({ $bookmarked }) => ($bookmarked ? 'rgba(77, 130, 255, 0.24)' : 'rgba(255, 255, 255, 0.14)')};
+    background: ${({ $bookmarked }) => ($bookmarked ? 'rgba(0, 196, 113, 0.2)' : 'rgba(255, 255, 255, 0.08)')};
+    color: ${({ $bookmarked }) => ($bookmarked ? palette.cheongrok[400] : meok[400])};
   }
 `;
 
@@ -578,7 +621,8 @@ export const HeroZoomBadge = styled.button`
   background: rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: none;
+  box-shadow: none;
   color: #ffffff;
   font-size: 12px;
   font-weight: 500;
@@ -618,6 +662,7 @@ export const LightboxCloseBtn = styled.button`
   width: 44px;
   height: 44px;
   border-radius: 50%;
+  border: none;
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(10px);
   color: #ffffff;
@@ -658,6 +703,7 @@ export const LightboxNavBtn = styled.button<{ $dir: 'left' | 'right' }>`
   width: 48px;
   height: 48px;
   border-radius: 50%;
+  border: none;
   background: rgba(255, 255, 255, 0.18);
   backdrop-filter: blur(10px);
   color: #ffffff;

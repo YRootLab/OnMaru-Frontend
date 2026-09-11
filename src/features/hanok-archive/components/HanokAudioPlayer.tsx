@@ -2,8 +2,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import styled from '@emotion/styled';
-import { Headphones, Play, Pause, RotateCcw, FileText, ChevronDown, ChevronUp, Volume2 } from 'lucide-react';
-import { meok, lightPalette, surface } from '@/design-system/tokens';
+import { Headphones, Play, Pause, RotateCcw, FileText, ChevronDown, ChevronUp } from 'lucide-react';
+import { meok, palette } from '@/design-system/tokens';
 import type { OdiiStory } from '../hooks/useHanokOdii';
 
 interface HanokAudioPlayerProps {
@@ -81,7 +81,7 @@ export default function HanokAudioPlayer({ stories, hanokName }: HanokAudioPlaye
 
       <HeaderRow>
         <BadgeBox>
-          <Headphones size={15} color={lightPalette.kobalt[500]} />
+          <Headphones size={14} color={palette.cheongrok[700]} />
           <BadgeText>한국관광공사 Odii 오디오 도슨트</BadgeText>
         </BadgeBox>
         <QualityTag>공식 해설 음원</QualityTag>
@@ -106,7 +106,7 @@ export default function HanokAudioPlayer({ stories, hanokName }: HanokAudioPlaye
       {/* 오디오 컨트롤 바 */}
       <PlayerControls>
         <PlayBtn onClick={togglePlay} aria-label={isPlaying ? '일시정지' : '재생'}>
-          {isPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" />}
+          {isPlaying ? <Pause size={17} fill="currentColor" /> : <Play size={17} fill="currentColor" />}
         </PlayBtn>
 
         <TimeDisplay>{formatSeconds(currentTime)}</TimeDisplay>
@@ -153,17 +153,16 @@ export default function HanokAudioPlayer({ stories, hanokName }: HanokAudioPlaye
 }
 
 const Container = styled.div`
-  background: #f8f8f7;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 18px;
-  padding: 20px 22px;
-  margin-top: 20px;
+  background: #f5f5f4;
+  border: none;
+  box-shadow: none;
+  border-radius: 20px;
+  padding: 22px 24px;
+  margin-top: 16px;
   margin-bottom: 24px;
-  transition: all 0.2s ease;
 
   [data-theme='dark'] & {
-    background: #232220;
-    border-color: rgba(255, 255, 255, 0.1);
+    background: #24211D;
   }
 `;
 
@@ -178,22 +177,23 @@ const BadgeBox = styled.div`
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(43, 108, 176, 0.08);
+  background: ${palette.cheongrok[50]};
   padding: 4px 10px;
   border-radius: 9999px;
+  border: none;
 
   [data-theme='dark'] & {
-    background: rgba(43, 108, 176, 0.25);
+    background: rgba(0, 196, 113, 0.15);
   }
 `;
 
 const BadgeText = styled.span`
   font-size: 12px;
   font-weight: 700;
-  color: ${lightPalette.kobalt[500]};
+  color: ${palette.cheongrok[700]};
 
   [data-theme='dark'] & {
-    color: #90cdf4;
+    color: ${palette.cheongrok[400]};
   }
 `;
 
@@ -231,15 +231,15 @@ const StoryTitle = styled.h4`
 const SelectorSelect = styled.select`
   font-size: 12px;
   background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: none;
+  box-shadow: none;
   border-radius: 8px;
-  padding: 4px 8px;
+  padding: 6px 10px;
   color: ${meok[700]};
   cursor: pointer;
 
   [data-theme='dark'] & {
-    background: #1c1a17;
-    border-color: rgba(255, 255, 255, 0.15);
+    background: #1C1A17;
     color: ${meok[200]};
   }
 `;
@@ -257,20 +257,28 @@ const PlayBtn = styled.button`
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: ${lightPalette.kobalt[500]};
+  background: ${meok[900]};
   color: #ffffff;
   border: none;
+  box-shadow: none;
   cursor: pointer;
   transition: transform 0.15s ease, background-color 0.2s ease;
   flex-shrink: 0;
 
   &:hover {
-    background: #1e4e8c;
+    background: ${palette.cheongrok[700]};
     transform: scale(1.05);
   }
 
   &:active {
     transform: scale(0.96);
+  }
+
+  [data-theme='dark'] & {
+    background: ${palette.cheongrok[700]};
+    &:hover {
+      background: ${palette.cheongrok[500]};
+    }
   }
 `;
 
@@ -284,6 +292,7 @@ const SecondaryBtn = styled.button`
   background: transparent;
   color: ${meok[500]};
   border: none;
+  box-shadow: none;
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
@@ -323,40 +332,38 @@ const ProgressBarWrapper = styled.div`
 
 const ProgressBar = styled.input`
   width: 100%;
-  height: 5px;
-  border-radius: 5px;
+  height: 6px;
+  border-radius: 6px;
   appearance: none;
-  background: rgba(0, 0, 0, 0.12);
+  background: rgba(0, 0, 0, 0.08);
   outline: none;
   cursor: pointer;
+  border: none;
 
   &::-webkit-slider-thumb {
     appearance: none;
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background: ${lightPalette.kobalt[500]};
+    background: ${palette.cheongrok[700]};
     cursor: pointer;
     transition: transform 0.1s ease;
+    border: none;
   }
 
   &::-webkit-slider-thumb:hover {
-    transform: scale(1.2);
+    transform: scale(1.25);
   }
 
   [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.12);
   }
 `;
 
 const ScriptSection = styled.div`
   margin-top: 14px;
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
   padding-top: 12px;
-
-  [data-theme='dark'] & {
-    border-color: rgba(255, 255, 255, 0.08);
-  }
+  border: none;
 `;
 
 const ScriptToggleBtn = styled.button`
@@ -366,6 +373,7 @@ const ScriptToggleBtn = styled.button`
   width: 100%;
   background: none;
   border: none;
+  box-shadow: none;
   padding: 4px 0;
   font-size: 12.5px;
   font-weight: 600;
@@ -373,13 +381,13 @@ const ScriptToggleBtn = styled.button`
   cursor: pointer;
 
   &:hover {
-    color: ${lightPalette.kobalt[500]};
+    color: ${palette.cheongrok[700]};
   }
 
   [data-theme='dark'] & {
     color: ${meok[200]};
     &:hover {
-      color: #90cdf4;
+      color: ${palette.cheongrok[400]};
     }
   }
 `;
@@ -392,10 +400,11 @@ const ScriptToggleLeft = styled.div`
 
 const ScriptContent = styled.div`
   margin-top: 10px;
-  padding: 14px;
+  padding: 16px;
   background: #ffffff;
-  border-radius: 10px;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  border: none;
+  box-shadow: none;
   max-height: 180px;
   overflow-y: auto;
   font-size: 13px;
@@ -411,8 +420,7 @@ const ScriptContent = styled.div`
   }
 
   [data-theme='dark'] & {
-    background: #1c1a17;
-    border-color: rgba(255, 255, 255, 0.08);
+    background: #1C1A17;
     color: ${meok[200]};
   }
 `;

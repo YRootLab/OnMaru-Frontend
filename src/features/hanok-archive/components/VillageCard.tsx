@@ -4,7 +4,7 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
-import { meok, lightPalette } from '@/design-system/tokens';
+import { meok, palette } from '@/design-system/tokens';
 import { Headphones } from 'lucide-react';
 import type { Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
@@ -27,7 +27,7 @@ const ImageLayer = styled(motion.div, transientProps)<{ $bg: string | null }>`
   ${({ $bg }) =>
     $bg
       ? `background-image: url("${$bg}"); background-size: cover; background-position: center;`
-      : `background: linear-gradient(135deg, ${lightPalette.kobalt[700]} 0%, ${meok[900]} 100%);`}
+      : `background: linear-gradient(135deg, ${palette.cheongrok[900]} 0%, ${meok[900]} 100%);`}
   transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
 
   .village-card:hover & {
@@ -156,7 +156,8 @@ const DocentTag = styled.span`
   background: rgba(28, 26, 23, 0.75);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: none;
+  box-shadow: none;
   color: #ffffff;
   font-size: 10.5px;
   font-weight: 600;
@@ -165,7 +166,6 @@ const DocentTag = styled.span`
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 `;
 
 const HAS_DOCENT_TYPES = ['고궁', '민속마을'];
@@ -198,7 +198,7 @@ export default function VillageCard({ village, onClick }: VillageCardProps) {
       {isDocentAvailable && (
         <TopBadgeRow>
           <DocentTag>
-            <Headphones size={11} color="#63b3ed" />
+            <Headphones size={11} color={palette.cheongrok[400]} />
             <span>오디오 도슨트</span>
           </DocentTag>
         </TopBadgeRow>
