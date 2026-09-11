@@ -5,10 +5,12 @@
 // ============================================================
 
 import { useAuth } from '@/features/auth';
-import { meok } from '@/design-system/tokens';
+import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 
 export default function LoginPage() {
   const { loginWithKakao } = useAuth();
+  const { theme } = useOnmaruTheme();
+  const c = theme.colors;
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', padding: '64px 20px' }}>
@@ -23,10 +25,10 @@ export default function LoginPage() {
         }}
       >
         <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <div style={{ fontSize: '26px', fontWeight: 800, color: meok[900], letterSpacing: '-0.02em' }}>
+          <div style={{ fontSize: '26px', fontWeight: 800, color: c.text.primary, letterSpacing: '-0.02em' }}>
             온마루
           </div>
-          <p style={{ fontSize: '14px', color: meok[500], margin: 0, lineHeight: 1.5 }}>
+          <p style={{ fontSize: '14px', color: c.text.muted, margin: 0, lineHeight: 1.5 }}>
             카카오 계정으로 로그인하고
             <br />
             온마루의 모든 이야기를 만나보세요.
@@ -56,7 +58,7 @@ export default function LoginPage() {
           카카오로 시작하기
         </button>
 
-        <p style={{ fontSize: '12px', color: meok[400], textAlign: 'center', margin: 0 }}>
+        <p style={{ fontSize: '12px', color: c.text.muted, textAlign: 'center', margin: 0 }}>
           별도의 회원가입 없이, 카카오 로그인만으로 온마루 이용을 시작할 수 있어요.
         </p>
       </div>

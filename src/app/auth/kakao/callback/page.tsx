@@ -8,12 +8,13 @@ import { Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { useAuth } from '@/features/auth';
-import { meok } from '@/design-system/tokens';
+import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 
 function KakaoCallbackInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { completeKakaoLogin } = useAuth();
+  const { theme } = useOnmaruTheme();
 
   useEffect(() => {
     const code = searchParams.get('code');
@@ -37,7 +38,7 @@ function KakaoCallbackInner() {
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', padding: '80px 20px' }}>
-      <p style={{ fontSize: '14px', color: meok[500] }}>카카오 로그인 처리 중입니다...</p>
+      <p style={{ fontSize: '14px', color: theme.colors.text.muted }}>카카오 로그인 처리 중입니다...</p>
     </div>
   );
 }

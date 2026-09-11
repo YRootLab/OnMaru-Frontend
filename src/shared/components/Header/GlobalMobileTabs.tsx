@@ -56,7 +56,7 @@ export default function GlobalMobileTabs({ isLanding }: { isLanding: boolean }) 
     <Nav aria-label="주요 탐색">
       <TabLink href="/" $isLanding={isLanding} $isActive={pathname === '/'}>
         <Home size={19} strokeWidth={2} aria-hidden="true" />
-        <span>여정 탐색</span>
+        <span>온마루</span>
       </TabLink>
       <TabLink href="/hanok" $isLanding={isLanding} $isActive={pathname.startsWith('/hanok')}>
         <BookOpen size={19} strokeWidth={2} aria-hidden="true" />
