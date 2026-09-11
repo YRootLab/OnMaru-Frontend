@@ -6,7 +6,7 @@ import { loadWarmth } from '@/map/warmth/warmthRepo';
 import { distanceInMeters } from './useKakaoMap';
 import { useMapStore } from './useMapStore';
 import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
-import type { HeatDay, KakaoMap } from '@/map/types';
+import type { HeatDay, Item, KakaoMap } from '@/map/types';
 
 const log = logger('map');
 
@@ -148,7 +148,7 @@ export function useMapData() {
     fetch(`/api/map/places?${params}`, { signal: controller.signal })
       .then(async (res) => {
         const json = await res.json().catch(() => ({}));
-        const items = Array.isArray(json.items) ? json.items : [];
+        const items: Item[] = Array.isArray(json.items) ? json.items : [];
         log.log('items', items.length, `${Math.round(performance.now() - t0)}ms`, json.error ?? '');
 
         const failed = !res.ok || Boolean(json.error);
@@ -169,10 +169,28 @@ export function useMapData() {
             expiresAt: Date.now() + CLIENT_CACHE_TTL,
             items,
           });
-          setItems(items);
+
+          // 외부 URL 파라미터나 사용자가 선택한 타겟 상세 항목이 새 API 응답에 없어도 유실되지 않도록 보존
+          const currentDetailId = useMapStore.getState().detailId;
+          const currentItems = useMapStore.getState().items;
+          const targetItem = currentItems.find((it) => it.id === currentDetailId);
+          const nextItems =
+            targetItem && !items.some((it) => it.id === targetItem.id)
+              ? [targetItem, ...items]
+              : items;
+
+          setItems(nextItems);
         } else if (items.length > 0) {
           // 관광공사가 죽었을 때 서버가 내어주는 저장된 한옥. 보여는 주되 캐시에는 넣지 않는다.
-          setItems(items);
+          const currentDetailId = useMapStore.getState().detailId;
+          const currentItems = useMapStore.getState().items;
+          const targetItem = currentItems.find((it) => it.id === currentDetailId);
+          const nextItems =
+            targetItem && !items.some((it) => it.id === targetItem.id)
+              ? [targetItem, ...items]
+              : items;
+
+          setItems(nextItems);
         }
 
         // 오디 도슨트 해설 데이터 동기화

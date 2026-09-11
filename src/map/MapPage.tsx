@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import styled from '@emotion/styled';
+import type { Item, PlaceCategory } from './types';
 
 import { motion, useReducedMotion } from 'framer-motion';
 import { ChevronLeft } from 'lucide-react';
@@ -246,6 +247,87 @@ export default function MapPage() {
       window.removeEventListener('resize', recalc);
     };
   }, [panelOpen]);
+
+  // 쿼리 스트링(위치 보기 등)으로 전달된 좌표 및 장소 정보 추출
+  const searchParams = useSearchParams();
+  const queryLat = searchParams?.get('lat') || null;
+  const queryLng = searchParams?.get('lng') || null;
+  const queryId = searchParams?.get('id') || null;
+  const queryTitle = searchParams?.get('title') || null;
+  const queryAddr = searchParams?.get('addr') || null;
+  const queryImage = searchParams?.get('image') || null;
+  const queryCategory = searchParams?.get('category') || null;
+
+  const parsedLat = parseFloat(queryLat || '');
+  const parsedLng = parseFloat(queryLng || '');
+  const hasTargetLocation =
+    !isNaN(parsedLat) &&
+    !isNaN(parsedLng) &&
+    parsedLat >= 33 &&
+    parsedLat <= 39 &&
+    parsedLng >= 124 &&
+    parsedLng <= 132;
+
+  useEffect(() => {
+    if (!hasTargetLocation) return;
+
+    const targetId = queryId || `target_${parsedLat}_${parsedLng}`;
+    const targetItem: Item = {
+      id: targetId,
+      name: queryTitle || '한옥 장소',
+      category: (queryCategory as PlaceCategory) || 'stay',
+      lat: parsedLat,
+      lng: parsedLng,
+      addr: queryAddr || '',
+      image: queryImage || null,
+      tel: null,
+      dist: 0,
+      isTraditional: true,
+    };
+
+    const targetCoord = { lat: parsedLat, lng: parsedLng };
+
+    // 1. 카카오맵 인스턴스가 이미 존재하면 즉시 해당 좌표로 시점 이동
+    const currentMap = useMapStore.getState().map;
+    if (currentMap && window.kakao?.maps) {
+      currentMap.setLevel(4, { animate: false });
+      currentMap.setCenter(new window.kakao.maps.LatLng(parsedLat, parsedLng));
+    }
+
+    // 2. Zustand MapStore 상태 즉시 업데이트 (목록, 선택 ID, 상세 ID, 중심 좌표)
+    useMapStore.setState((state) => {
+      const existingIdx = state.items.findIndex((it) => it.id === targetId);
+      let nextItems = state.items;
+      if (existingIdx === -1) {
+        nextItems = [targetItem, ...state.items];
+      } else {
+        nextItems = [...state.items];
+        nextItems[existingIdx] = { ...nextItems[existingIdx], ...targetItem };
+      }
+
+      return {
+        center: targetCoord,
+        searchCenter: targetCoord,
+        level: 4,
+        selectedId: targetId,
+        detailId: targetId,
+        panelOpen: true,
+        sheetSnap: 'full',
+        isSearchDirty: false,
+        items: nextItems,
+        category: queryCategory || state.category,
+      };
+    });
+  }, [
+    hasTargetLocation,
+    parsedLat,
+    parsedLng,
+    queryId,
+    queryTitle,
+    queryAddr,
+    queryImage,
+    queryCategory,
+  ]);
 
   // 지도 데이터(TourAPI 장소 + 온기 데이터) 패치 훅
   useMapData();

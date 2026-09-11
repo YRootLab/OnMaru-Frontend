@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Script from 'next/script';
 import styled from '@emotion/styled';
 import { Global, css } from '@emotion/react';
@@ -318,9 +319,30 @@ export default function KakaoMap() {
   const myLocationOverlayRef = useRef<any>(null);
   const myLocationCircleRef = useRef<any>(null);
 
-  // 지도 페이지 진입 시 사용자 현재 위치로 자동 이동 및 주변 장소 탐색
+  const searchParams = useSearchParams();
+  const queryLat = searchParams?.get('lat');
+  const queryLng = searchParams?.get('lng');
+  const parsedQueryLat = parseFloat(queryLat || '');
+  const parsedQueryLng = parseFloat(queryLng || '');
+  const hasQueryCoords =
+    !isNaN(parsedQueryLat) &&
+    !isNaN(parsedQueryLng) &&
+    parsedQueryLat >= 33 &&
+    parsedQueryLat <= 39 &&
+    parsedQueryLng >= 124 &&
+    parsedQueryLng <= 132;
+
+  // URL 파라미터 좌표가 넘어온 경우 지도 로드 즉시 해당 위치로 정밀 이동
   useEffect(() => {
-    if (!map || hasAutoLocatedRef.current) return;
+    if (!map || !hasQueryCoords || !window.kakao?.maps) return;
+    hasAutoLocatedRef.current = true;
+    map.setLevel(4, { animate: false });
+    map.setCenter(new window.kakao.maps.LatLng(parsedQueryLat, parsedQueryLng));
+  }, [map, hasQueryCoords, parsedQueryLat, parsedQueryLng]);
+
+  // 지도 페이지 진입 시 사용자 현재 위치로 자동 이동 및 주변 장소 탐색 (단, 타겟 URL 좌표가 없을 때만 실행)
+  useEffect(() => {
+    if (!map || hasAutoLocatedRef.current || hasQueryCoords) return;
     hasAutoLocatedRef.current = true;
 
     if (typeof window !== 'undefined' && navigator.geolocation) {
@@ -345,7 +367,7 @@ export default function KakaoMap() {
         { enableHighAccuracy: true, timeout: 6000, maximumAge: 120000 },
       );
     }
-  }, [map]);
+  }, [map, hasQueryCoords]);
 
   const moveTo = (target: LatLng, targetLevel = 3, accuracy?: number) => {
     const currentMap = useMapStore.getState().map;
