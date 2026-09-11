@@ -5,7 +5,7 @@ import { logger } from '@/lib/log';
 import { loadWarmth } from '@/features/map/warmth/warmthRepo';
 import { distanceInMeters } from './useKakaoMap';
 import { useMapStore } from './useMapStore';
-import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
+import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import type { HeatDay, Item, KakaoMap } from '@/features/map/types';
 
 const log = logger('map');
@@ -194,9 +194,9 @@ export function useMapData() {
         }
 
         // 오디 도슨트 해설 데이터 동기화
-        useOdiiAudioStore
+        useSorimaruAudioStore
           .getState()
-          .fetchRegionalOdiiStories(searchCenter.lng, searchCenter.lat);
+          .fetchRegionalSorimaruStories(searchCenter.lng, searchCenter.lat);
 
         if (!res.ok || json.error) {
           setError(typeof json.error === 'string' ? json.error : '장소를 불러오지 못했습니다');

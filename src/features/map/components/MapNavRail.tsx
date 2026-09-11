@@ -27,7 +27,7 @@ const brandScript = Alex_Brush({ subsets: ['latin'], weight: '400' });
 
 /** Header.tsx의 캡슐형 GNB와 같은 유리질감(블러+반투명+가느다란 보더)을 쓰는
  *  얇고 떠 있는 세로 레일 — 예전의 68px 꽉찬 화이트 사이드바 대신, 뷰포트에서
- *  14px 띄운 캡슐로 /hanok·/odii의 상단 GNB와 톤을 맞춘다. */
+ *  14px 띄운 캡슐로 /hanok·/sorimaru의 상단 GNB와 톤을 맞춘다. */
 const RailContainer = styled(motion.aside, transientProps)`
   position: absolute;
   top: ${RAIL_INSET}px;
@@ -245,7 +245,7 @@ export default function MapNavRail() {
         <NavItemBtn
           type="button"
           $active={false}
-          onClick={() => router.push('/odii')}
+          onClick={() => router.push('/sorimaru')}
           aria-label="소리마루"
           title="소리마루"
         >

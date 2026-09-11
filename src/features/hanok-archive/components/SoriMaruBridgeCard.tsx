@@ -5,22 +5,22 @@ import styled from '@emotion/styled';
 import { Headphones, ArrowRight, Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { meok, palette } from '@/design-system/tokens';
-import type { OdiiStory } from '../hooks/useHanokOdii';
-import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
+import type { AudioGuideStory } from '../hooks/useHanokAudioGuide';
+import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 
 interface SoriMaruBridgeCardProps {
-  stories: OdiiStory[];
+  stories: AudioGuideStory[];
   hanokName: string;
 }
 
 /**
- * 소리마루(Odii) 연계 브릿지 카드:
+ * 소리마루 연계 브릿지 카드:
  * 한옥 마루 페이지에서 오디오를 직접 재생하여 소리마루와 기능이 겹치는 문제를 해결하고,
- * 소리 관련 모든 경험을 전문 공간인 '소리마루(/odii)'로 유기적으로 연결합니다.
+ * 소리 관련 모든 경험을 전문 공간인 '소리마루(/sorimaru)'로 유기적으로 연결합니다.
  */
 export default function SoriMaruBridgeCard({ stories, hanokName }: SoriMaruBridgeCardProps) {
   const router = useRouter();
-  const setCurrentStory = useOdiiAudioStore((s) => s.setCurrentStory);
+  const setCurrentStory = useSorimaruAudioStore((s) => s.setCurrentStory);
 
   if (!stories || stories.length === 0) return null;
 
@@ -36,7 +36,7 @@ export default function SoriMaruBridgeCard({ stories, hanokName }: SoriMaruBridg
       stlid: String(primaryStory.stlid),
       title: primaryStory.title || hanokName,
       audioTitle: primaryStory.audioTitle || `${hanokName} 공간 해설`,
-      speaker: '한국관광공사 문화해설사',
+      speaker: '문화해설사 도슨트',
       category: '한옥',
       mapX: '126.9780',
       mapY: '37.5665',
@@ -46,7 +46,7 @@ export default function SoriMaruBridgeCard({ stories, hanokName }: SoriMaruBridg
       imageUrl: primaryStory.imageUrl || '',
     });
 
-    router.push('/odii');
+    router.push('/sorimaru');
   };
 
   const formatSeconds = (sec: number) => {
@@ -62,7 +62,7 @@ export default function SoriMaruBridgeCard({ stories, hanokName }: SoriMaruBridg
           <Headphones size={13} />
           <span>소리마루 도슨트 연계</span>
         </BadgeBox>
-        <OfficialTag>한국관광공사 Odii 공식 음원</OfficialTag>
+        <OfficialTag>소리마루 공식 도슨트 음원</OfficialTag>
       </HeaderRow>
 
       <ContentBody>

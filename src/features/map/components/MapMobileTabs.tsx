@@ -116,7 +116,7 @@ export default function MapMobileTabs() {
         <span>한옥지도</span>
       </TabButton>
 
-      <TabButton type="button" onClick={() => router.push('/odii')} aria-label="소리마루 오디오 도슨트">
+      <TabButton type="button" onClick={() => router.push('/sorimaru')} aria-label="소리마루 오디오 도슨트">
         <IconSlot>
           <Headphones size={19} />
         </IconSlot>

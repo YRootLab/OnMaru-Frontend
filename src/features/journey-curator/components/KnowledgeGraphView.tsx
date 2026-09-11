@@ -164,7 +164,7 @@ const NodeIconWrap = styled.div<{ $category: NodeCategory }>`
         return lightPalette.cheongrok[500];
       case 'market':
         return '#f59e0b';
-      case 'odii':
+      case 'sorimaru':
         return '#8b5cf6';
       case 'warmth':
         return lightPalette.juhong[500];
@@ -211,7 +211,7 @@ function renderCategoryIcon(category: NodeCategory) {
       return <Store />;
     case 'market':
       return <ShoppingBag />;
-    case 'odii':
+    case 'sorimaru':
       return <Headphones />;
     case 'warmth':
       return <Flame />;
@@ -240,7 +240,7 @@ export default function KnowledgeGraphView() {
             <LegendItem $color="#3b82f6">지역 권역</LegendItem>
             <LegendItem $color={lightPalette.cheongrok[500]}>한옥 건축</LegendItem>
             <LegendItem $color="#f59e0b">전통시장</LegendItem>
-            <LegendItem $color="#8b5cf6">소리마루 ODII</LegendItem>
+            <LegendItem $color="#8b5cf6">소리마루 SORIMARU</LegendItem>
             <LegendItem $color={lightPalette.juhong[500]}>실시간 온기</LegendItem>
           </Legend>
         </GraphHeader>

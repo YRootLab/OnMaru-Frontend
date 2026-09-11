@@ -26,7 +26,7 @@ import { meok, palette, surface } from '@/design-system/tokens';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import type { Village, VillageDetailResponse } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
-import { useHanokOdii } from '@/features/hanok-archive/hooks/useHanokOdii';
+import { useHanokAudioGuide } from '@/features/hanok-archive/hooks/useHanokAudioGuide';
 import { useHanokTranquility } from '@/features/hanok-archive/hooks/useHanokTranquility';
 import SoriMaruBridgeCard from './SoriMaruBridgeCard';
 import TranquilityGauge from './TranquilityGauge';
@@ -126,8 +126,8 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
   const { isBookmarked, toggleBookmark } = useBookmarkStore();
   const bookmarked = isBookmarked(village.id);
 
-  // 한국관광공사 Odii 오디오 도슨트 (문화재/도감 전용 정밀 매칭)
-  const { stories: odiiStories } = useHanokOdii(village.name, village.lat, village.lng, false);
+  // 소리마루 오디오 도슨트 (문화재/도감 전용 정밀 매칭)
+  const { stories: audioGuideStories } = useHanokAudioGuide(village.name, village.lat, village.lng, false);
 
   // 한국관광공사 데이터랩 실시간 고즈넉 지수
   const { data: tranquilityData, loading: isLoadingTranquility } = useHanokTranquility(
@@ -264,8 +264,8 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
               </AddrText>
             </MetaRow>
 
-            {/* 소리마루(Odii) 오디오 도슨트 연계 (소리 관련은 모두 소리마루에서 일원화 청취) */}
-            <SoriMaruBridgeCard stories={odiiStories} hanokName={village.name} />
+            {/* 소리마루 오디오 도슨트 연계 (소리 관련은 모두 소리마루에서 일원화 청취) */}
+            <SoriMaruBridgeCard stories={audioGuideStories} hanokName={village.name} />
 
             {/* 한국관광공사 DataLab 실시간 고즈넉 지수 & 골든타임 */}
             <TranquilityGauge data={tranquilityData} loading={isLoadingTranquility} />

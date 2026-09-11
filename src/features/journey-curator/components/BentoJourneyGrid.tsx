@@ -258,8 +258,8 @@ const HanokDesc = styled.p`
   }
 `;
 
-/* ── 3. ODII Card ── */
-const OdiiCard = styled(BaseCard)`
+/* ── 3. SORIMARU Card ── */
+const SorimaruCard = styled(BaseCard)`
   grid-column: 1 / 2;
   grid-row: 2 / 3;
 
@@ -416,7 +416,7 @@ export default function BentoJourneyGrid() {
   const plan = useJourneyStore((s) => s.currentPlan);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  const { routeCard, hanokCard, odiiCard, warmthCard } = plan;
+  const { routeCard, hanokCard, sorimaruCard, warmthCard } = plan;
 
   return (
     <Container>
@@ -482,13 +482,13 @@ export default function BentoJourneyGrid() {
           </ActionLink>
         </HanokCard>
 
-        {/* 3. ODII Audio Card */}
-        <OdiiCard>
+        {/* 3. SORIMARU Audio Card */}
+        <SorimaruCard>
           <CardBadge $color="#8b5cf6">
             <Headphones size={14} strokeWidth={2} />
             <span>소리마루 공간 오디오 해설</span>
           </CardBadge>
-          <CardTitle>{odiiCard.title}</CardTitle>
+          <CardTitle>{sorimaruCard.title}</CardTitle>
 
           <AudioPlayBox>
             <PlayBtn
@@ -499,20 +499,20 @@ export default function BentoJourneyGrid() {
               {isPlaying ? <Pause size={18} strokeWidth={2} /> : <Play size={18} fill="currentColor" style={{ marginLeft: 2 }} />}
             </PlayBtn>
             <AudioInfo>
-              <AudioTitle>{odiiCard.subtitle}</AudioTitle>
+              <AudioTitle>{sorimaruCard.subtitle}</AudioTitle>
               <AudioNarrator>
-                {odiiCard.narrator} · {odiiCard.duration}
+                {sorimaruCard.narrator} · {sorimaruCard.duration}
               </AudioNarrator>
             </AudioInfo>
           </AudioPlayBox>
 
-          <ExcerptBox>"{odiiCard.excerpt}"</ExcerptBox>
+          <ExcerptBox>"{sorimaruCard.excerpt}"</ExcerptBox>
 
-          <ActionLink href={odiiCard.odiiLink} $color="#8b5cf6">
+          <ActionLink href={sorimaruCard.sorimaruLink} $color="#8b5cf6">
             <span>소리마루에서 전체 이야기 듣기</span>
             <ArrowRight size={14} strokeWidth={2} />
           </ActionLink>
-        </OdiiCard>
+        </SorimaruCard>
 
         {/* 4. Warmth & Crowd Card */}
         <WarmthCard>

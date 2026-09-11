@@ -20,7 +20,8 @@ export const HEADER_HEIGHT = 46;
 
 interface LandingProps {
   $isLanding?: boolean;
-  $isOdii?: boolean;
+  $isSoriMaru?: boolean;
+  $isSorimaru?: boolean;
   $isActive?: boolean;
   $isScrolled?: boolean;
   $isHidden?: boolean;
@@ -217,8 +218,8 @@ const NavLink = styled(Link, transientProps)<LandingProps>`
     background-color 180ms cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    color: ${({ $isLanding, $isOdii }) =>
-      $isOdii
+    color: ${({ $isLanding, $isSoriMaru, $isSorimaru }) =>
+      ($isSoriMaru || $isSorimaru)
         ? lightPalette.jangmi[500]
         : $isLanding
           ? '#ffffff'
@@ -389,7 +390,7 @@ export default function Header() {
   const pathname = usePathname();
   const isMapPage = pathname.startsWith('/map');
   const isLandingPage = pathname === '/';
-  const isOdiiPage = pathname.startsWith('/odii');
+  const isSoriMaruPage = pathname.startsWith('/sorimaru') || pathname.startsWith('/sorimaru');
   const recordNavigation = useMapEntranceStore((s) => s.recordNavigation);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -563,25 +564,25 @@ export default function Header() {
 
         {/* 가운데: 한옥 마루, 지도, 소리마루, 여정 탐색 */}
         <CenterNav $isMapPage={isMapPage}>
-          <NavLink href="/hanok" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
+          <NavLink href="/hanok" $isLanding={usesDarkSurface} $isSoriMaru={isSoriMaruPage}>
             한옥 마루
           </NavLink>
 
-          <NavLink href="/map" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
+          <NavLink href="/map" $isLanding={usesDarkSurface} $isSoriMaru={isSoriMaruPage}>
             지도
           </NavLink>
 
-          <NavLink href="/odii" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
+          <NavLink href="/sorimaru" $isLanding={usesDarkSurface} $isSoriMaru={isSoriMaruPage}>
             소리마루
           </NavLink>
 
-          <NavLink href="/" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
+          <NavLink href="/" $isLanding={usesDarkSurface} $isSoriMaru={isSoriMaruPage}>
             <Sparkles size={13} style={{ marginRight: 4, verticalAlign: '-1px' }} />
             <span>여정 탐색</span>
           </NavLink>
 
           {IS_DEV && (
-            <NavLink href="/dev/icons" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
+            <NavLink href="/dev/icons" $isLanding={usesDarkSurface} $isSoriMaru={isSoriMaruPage}>
               아이콘
             </NavLink>
           )}
@@ -655,7 +656,7 @@ export default function Header() {
             >
               <MobileMenuLink href="/hanok" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>한옥 마루</MobileMenuLink>
               <MobileMenuLink href="/map" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>지도</MobileMenuLink>
-              <MobileMenuLink href="/odii" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>소리마루</MobileMenuLink>
+              <MobileMenuLink href="/sorimaru" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>소리마루</MobileMenuLink>
               <MobileMenuLink href="/" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                   <Sparkles size={15} /> 여정 탐색

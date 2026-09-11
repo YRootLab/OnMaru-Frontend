@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { OdiiStoryItem, TourWaypoint } from '@/features/odii-audio/types/odii.types';
+import { SorimaruStoryItem, TourWaypoint } from '@/features/sorimaru-audio/types/sorimaru.types';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 
 export function parseScriptSentences(script: string): string[] {
@@ -58,7 +58,7 @@ export function calculateActiveSentenceIndex(
 
 interface CinematicTourState {
   isActive: boolean;
-  story: OdiiStoryItem | null;
+  story: SorimaruStoryItem | null;
   activeWaypointIndex: number;
   isPlaying: boolean;
   currentTime: number;
@@ -69,7 +69,7 @@ interface CinematicTourState {
   currentPhotoTip?: string;
 
   // Actions
-  startTour: (story: OdiiStoryItem, initialWaypointIndex?: number) => void;
+  startTour: (story: SorimaruStoryItem, initialWaypointIndex?: number) => void;
   stopTour: () => void;
   togglePlay: () => void;
   setIsPlaying: (isPlaying: boolean) => void;
@@ -91,7 +91,7 @@ export const useCinematicTourStore = create<CinematicTourState>((set, get) => ({
   totalSentences: 0,
   currentPhotoTip: undefined,
 
-  startTour: (story: OdiiStoryItem, initialWaypointIndex = 0) => {
+  startTour: (story: SorimaruStoryItem, initialWaypointIndex = 0) => {
     const waypoints = story.waypoints ?? [];
     const initialWp = waypoints[initialWaypointIndex];
     const playTimeSec = parseInt(story.playTime, 10) || 300;

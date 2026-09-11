@@ -4,10 +4,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { Headphones, Play, Pause, RotateCcw, FileText, ChevronDown, ChevronUp } from 'lucide-react';
 import { meok, palette } from '@/design-system/tokens';
-import type { OdiiStory } from '../hooks/useHanokOdii';
+import type { SorimaruStory } from '../hooks/useHanokSorimaru';
 
 interface HanokAudioPlayerProps {
-  stories: OdiiStory[];
+  stories: SorimaruStory[];
   hanokName: string;
 }
 
@@ -82,7 +82,7 @@ export default function HanokAudioPlayer({ stories, hanokName }: HanokAudioPlaye
       <HeaderRow>
         <BadgeBox>
           <Headphones size={14} />
-          <BadgeText>한국관광공사 Odii 오디오 도슨트</BadgeText>
+          <BadgeText>한국관광공사 Sorimaru 오디오 도슨트</BadgeText>
         </BadgeBox>
         <QualityTag>공식 해설 음원</QualityTag>
       </HeaderRow>

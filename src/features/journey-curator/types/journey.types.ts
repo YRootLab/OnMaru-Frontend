@@ -1,4 +1,4 @@
-export type NodeCategory = 'region' | 'hanok' | 'market' | 'odii' | 'warmth';
+export type NodeCategory = 'region' | 'hanok' | 'market' | 'sorimaru' | 'warmth';
 
 export type MoodId = 'quiet' | 'market' | 'story' | 'rainy' | 'rest';
 
@@ -54,14 +54,14 @@ export interface BentoHanokCard {
   hanokLink: string;
 }
 
-export interface BentoOdiiCard {
+export interface BentoSorimaruCard {
   title: string;
   subtitle: string;
   duration: string;
   audioUrl?: string;
   narrator: string;
   excerpt: string;
-  odiiLink: string;
+  sorimaruLink: string;
 }
 
 export interface BentoWarmthCard {
@@ -83,6 +83,6 @@ export interface BentoJourneyPlan {
   edges: GraphEdge[];
   routeCard: BentoRouteCard;
   hanokCard: BentoHanokCard;
-  odiiCard: BentoOdiiCard;
+  sorimaruCard: BentoSorimaruCard;
   warmthCard: BentoWarmthCard;
 }

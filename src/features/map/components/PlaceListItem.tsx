@@ -19,8 +19,8 @@ import {
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
-import { useOdiiAudioStore } from '@/features/odii-audio/store/useOdiiAudioStore';
-import { matchOdiiStory } from '@/features/odii-audio/hooks/useOdiiPlaceStory';
+import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
+import { matchSorimaruStory } from '@/features/sorimaru-audio/hooks/useSorimaruPlaceStory';
 import { calculateTravelEstimate } from '@/features/map/utils/geo';
 import { CATEGORY_STYLES } from './PlaceMarkers';
 import type { Item, PlaceCategory } from '@/features/map/types';
@@ -211,7 +211,7 @@ const TraditionalBadge = styled.span`
   flex-shrink: 0;
 `;
 
-const OdiiBadge = styled.span`
+const SorimaruBadge = styled.span`
   display: inline-flex;
   align-items: center;
   gap: 3px;
@@ -330,7 +330,7 @@ function PlaceListItemComponent({
 
   const userLocation = useMapStore((s) => s.userLocation);
   const center = useMapStore((s) => s.center);
-  const availableStories = useOdiiAudioStore((s) => s.availableStories);
+  const availableStories = useSorimaruAudioStore((s) => s.availableStories);
   const isBookmarked = useBookmarkStore((s) => s.isBookmarked(item.id));
   const toggleBookmark = useBookmarkStore((s) => s.toggleBookmark);
 
@@ -338,8 +338,8 @@ function PlaceListItemComponent({
     return calculateTravelEstimate(item, userLocation, center);
   }, [item, userLocation, center]);
 
-  const hasOdii = useMemo(() => {
-    return Boolean(matchOdiiStory(item, availableStories));
+  const hasSorimaru = useMemo(() => {
+    return Boolean(matchSorimaruStory(item, availableStories));
   }, [item, availableStories]);
 
   const isRealTraditional = useMemo(() => {
@@ -424,11 +424,11 @@ function PlaceListItemComponent({
                 <span>정통 한옥</span>
               </TraditionalBadge>
             )}
-            {hasOdii && (
-              <OdiiBadge title="한국관광공사 공식 오디 오디오 도슨트 해설 지원 장소">
+            {hasSorimaru && (
+              <SorimaruBadge title="한국관광공사 공식 오디 오디오 도슨트 해설 지원 장소">
                 <Headphones size={10.5} />
                 <span>오디 해설</span>
-              </OdiiBadge>
+              </SorimaruBadge>
             )}
           </BadgeRow>
 

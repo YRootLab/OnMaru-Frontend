@@ -9,7 +9,8 @@ import { lightPalette } from '@/design-system/tokens';
 
 interface TabProps {
   $isLanding?: boolean;
-  $isOdii?: boolean;
+  $isSoriMaru?: boolean;
+  $isSorimaru?: boolean;
   $isActive?: boolean;
 }
 
@@ -28,8 +29,8 @@ const TabLink = styled(Link, transientProps)<TabProps>`
   justify-content: center;
   gap: 4px;
   min-width: 0;
-  color: ${({ $isLanding, $isOdii, $isActive }) => {
-    if ($isActive && $isOdii) return lightPalette.jangmi[500];
+  color: ${({ $isLanding, $isSoriMaru, $isSorimaru, $isActive }) => {
+    if ($isActive && ($isSoriMaru || $isSorimaru)) return lightPalette.jangmi[500];
     if ($isActive) return $isLanding ? '#f8e6bd' : lightPalette.juhong[700];
     return $isLanding ? 'rgba(250, 250, 250, 0.68)' : 'rgba(33, 30, 25, 0.68)';
   }};
@@ -46,10 +47,10 @@ const TabLink = styled(Link, transientProps)<TabProps>`
   }
 `;
 
-/** 사이트 공통 하단 탭 (홈 / 한옥도감 / 지도 / 오디) — Header의 데스크톱 GNB를 모바일 폭에서 대체한다. */
+/** 사이트 공통 하단 탭 (홈 / 한옥 마루 / 지도 / 소리마루) — Header의 데스크톱 GNB를 모바일 폭에서 대체한다. */
 export default function GlobalMobileTabs({ isLanding }: { isLanding: boolean }) {
   const pathname = usePathname();
-  const isOdiiPage = pathname.startsWith('/odii');
+  const isSoriMaruPage = pathname.startsWith('/sorimaru') || pathname.startsWith('/sorimaru');
 
   return (
     <Nav aria-label="주요 탐색">
@@ -65,9 +66,9 @@ export default function GlobalMobileTabs({ isLanding }: { isLanding: boolean }) 
         <Map size={19} strokeWidth={2} aria-hidden="true" />
         <span>지도</span>
       </TabLink>
-      <TabLink href="/odii" $isLanding={isLanding} $isOdii $isActive={isOdiiPage}>
+      <TabLink href="/sorimaru" $isLanding={isLanding} $isSoriMaru $isActive={isSoriMaruPage}>
         <Headphones size={19} strokeWidth={2} aria-hidden="true" />
-        <span>오디</span>
+        <span>소리마루</span>
       </TabLink>
     </Nav>
   );

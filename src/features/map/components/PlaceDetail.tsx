@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import { logger } from '@/lib/log';
 import { lightPalette, meok } from '@/design-system/tokens';
-import { useOdiiPlaceStory } from '@/features/odii-audio/hooks/useOdiiPlaceStory';
+import { useSorimaruPlaceStory } from '@/features/sorimaru-audio/hooks/useSorimaruPlaceStory';
 import { useCinematicTourStore } from '@/features/cinematic-tour/store/useCinematicTourStore';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
@@ -223,7 +223,7 @@ export default function PlaceDetail() {
 
   const navLinks = createKakaoNavigationLinks(title, lat, lng);
 
-  const { story: matchedOdiiStory } = useOdiiPlaceStory(
+  const { story: matchedSorimaruStory } = useSorimaruPlaceStory(
     title,
     hasValidCoords ? lat : undefined,
     hasValidCoords ? lng : undefined,
@@ -231,7 +231,7 @@ export default function PlaceDetail() {
 
   const smartFeatures = useMemo(() => {
     const list: { label: string; type: 'free' | 'parking' | 'audio' | 'general' }[] = [];
-    if (matchedOdiiStory) {
+    if (matchedSorimaruStory) {
       list.push({ label: '오디 도슨트 해설', type: 'audio' });
     }
     const fee = data?.intro?.['이용요금'] || '';
@@ -248,13 +248,13 @@ export default function PlaceDetail() {
       list.push({ label: '유선 문의 가능', type: 'general' });
     }
     return list;
-  }, [matchedOdiiStory, data?.intro, selectedItem?.category, tel]);
+  }, [matchedSorimaruStory, data?.intro, selectedItem?.category, tel]);
 
   const startTour = useCinematicTourStore((s) => s.startTour);
 
   const handleStartCinematicTour = () => {
-    if (!matchedOdiiStory) return;
-    startTour(matchedOdiiStory);
+    if (!matchedSorimaruStory) return;
+    startTour(matchedSorimaruStory);
     const store = useMapStore.getState();
     if (store.sheetSnap === 'full') {
       store.setSheetSnap('peek');
@@ -424,7 +424,7 @@ export default function PlaceDetail() {
 
             {/* 원클릭 퀵 액션 타일 바 (오디 해설이 지원되는 장소에만 '오디 투어' 타일 노출) */}
             <HeroActionGrid>
-              {matchedOdiiStory && (
+              {matchedSorimaruStory && (
                 <HeroActionTile
                   type="button"
                   $highlight
@@ -477,7 +477,7 @@ export default function PlaceDetail() {
               </HeroActionTile>
             </HeroActionGrid>
 
-            {matchedOdiiStory && (
+            {matchedSorimaruStory && (
               <CinematicBanner>
                 <CinematicHeader>
                   <CinematicBadge>
@@ -485,12 +485,12 @@ export default function PlaceDetail() {
                     <span>시네마틱 공간 오디오 투어</span>
                   </CinematicBadge>
                   <CinematicDuration>
-                    {matchedOdiiStory.formattedDuration || '약 10분'}
+                    {matchedSorimaruStory.formattedDuration || '약 10분'}
                   </CinematicDuration>
                 </CinematicHeader>
-                <CinematicTitle>{matchedOdiiStory.audioTitle}</CinematicTitle>
+                <CinematicTitle>{matchedSorimaruStory.audioTitle}</CinematicTitle>
                 <CinematicDesc>
-                  {matchedOdiiStory.speaker ?? '도슨트'}와 함께 지도를 따라 걷는 {matchedOdiiStory.waypoints?.length || 4}대 경유지 코스
+                  {matchedSorimaruStory.speaker ?? '도슨트'}와 함께 지도를 따라 걷는 {matchedSorimaruStory.waypoints?.length || 4}대 경유지 코스
                 </CinematicDesc>
                 <CinematicStartButton type="button" onClick={handleStartCinematicTour}>
                   <Play size={15} strokeWidth={2} className="ml-0.5" />

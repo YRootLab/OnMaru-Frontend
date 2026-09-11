@@ -14,6 +14,6 @@ export { HanokArchiveService } from './services/hanokArchive.service';
 export { HanokDetailService } from './services/hanokDetail.service';
 
 // Hooks
-export { useHanokOdii } from './hooks/useHanokOdii';
+export { useHanokAudioGuide, useHanokSorimaru } from './hooks/useHanokAudioGuide';
 export { useHanokTranquility } from './hooks/useHanokTranquility';
 

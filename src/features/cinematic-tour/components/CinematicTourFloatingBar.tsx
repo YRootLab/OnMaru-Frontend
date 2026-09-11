@@ -358,7 +358,7 @@ export default function CinematicTourFloatingBar() {
         <ActionGroup>
           <IconButton
             type="button"
-            onClick={() => router.push(`/odii?storyId=${story.tid}`)}
+            onClick={() => router.push(`/sorimaru?storyId=${story.tid}`)}
             title="오디 전체 해설 및 대본 페이지로 이동"
           >
             <ExternalLink size={16} />

@@ -21,7 +21,7 @@ import { distanceInMeters } from '@/features/map/utils/geo';
 import { PlaceListItem } from './PlaceListItem';
 import LiveNoticeBanner from './feed/LiveNoticeBanner';
 import FestivalExhibitionCarousel from './feed/FestivalExhibitionCarousel';
-import OdiiSpotlightBanner from './feed/OdiiSpotlightBanner';
+import SorimaruSpotlightBanner from './feed/SorimaruSpotlightBanner';
 import SmartAroundFeed from './feed/SmartAroundFeed';
 import type { Item, PlaceCategory } from '@/features/map/types';
 
@@ -473,8 +473,8 @@ export default function PlaceList() {
           {/* 진행 중인 지역 축제 & 기획전 캐러셀 */}
           <FestivalExhibitionCarousel festivals={festivalItems} />
 
-          {/* 오디(Odii) 시네마틱 오디오 투어 스포트라이트 배너 */}
-          <OdiiSpotlightBanner />
+          {/* 오디(Sorimaru) 시네마틱 오디오 투어 스포트라이트 배너 */}
+          <SorimaruSpotlightBanner />
 
           {/* 네이버 스마트어라운드형 추천 포토 카드 피드 */}
           <SmartAroundFeed items={sortedItems} />
