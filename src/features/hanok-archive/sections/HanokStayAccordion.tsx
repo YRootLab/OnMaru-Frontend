@@ -591,11 +591,13 @@ const BATCH_SIZE = 7;
 interface HanokStayAccordionProps {
   villages: Village[];
   onSelectVillage?: (v: Village) => void;
+  onSelectStay?: (stay: Village) => void;
 }
 
 export default function HanokStayAccordion({
   villages,
   onSelectVillage,
+  onSelectStay,
 }: HanokStayAccordionProps) {
   const [selectedRegion, setSelectedRegion] = useState('전체');
   const [activeIndex, setActiveIndex] = useState(0);
@@ -740,7 +742,8 @@ export default function HanokStayAccordion({
                             aria-label="한옥 숙소"
                             onClick={(e) => {
                               e.stopPropagation();
-                              if (onSelectVillage) onSelectVillage(item);
+                              if (onSelectStay) onSelectStay(item);
+                              else if (onSelectVillage) onSelectVillage(item);
                             }}
                           >
                             <Home size={20} strokeWidth={2} />
@@ -755,14 +758,15 @@ export default function HanokStayAccordion({
                             >
                               지금 예약하기 <ExternalLink size={13} strokeWidth={2} />
                             </DirectBookingBtn>
-                            {onSelectVillage && (
+                            {(onSelectStay || onSelectVillage) && (
                               <DetailActionBtn
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  onSelectVillage(item);
+                                  if (onSelectStay) onSelectStay(item);
+                                  else if (onSelectVillage) onSelectVillage(item);
                                 }}
                               >
-                                상세보기 <ArrowRight size={13} strokeWidth={2} />
+                                숙소 상세 <ArrowRight size={13} strokeWidth={2} />
                               </DetailActionBtn>
                             )}
                           </ActionGroup>

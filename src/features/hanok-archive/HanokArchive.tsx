@@ -21,8 +21,11 @@ import { VesselReveal } from '@/shared/components/animation/VesselReveal';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import QuickIndexBar from '@/features/hanok-archive/components/QuickIndexBar';
 
-const loadVillageDetailModal = () => import('@/features/hanok-archive/components/VillageDetailModal');
-const VillageDetailModal = dynamic(loadVillageDetailModal, { ssr: false });
+const loadDogamDetailModal = () => import('@/features/hanok-archive/components/HanokDogamDetailModal');
+const HanokDogamDetailModal = dynamic(loadDogamDetailModal, { ssr: false });
+
+const loadStayDetailModal = () => import('@/features/hanok-archive/components/HanokStayDetailModal');
+const HanokStayDetailModal = dynamic(loadStayDetailModal, { ssr: false });
 
 const INTRO_VIDEO_SRC = '/videos/hanok-neungsohwa-loop.mp4';
 
@@ -178,7 +181,8 @@ interface HanokArchiveProps {
 
 export default function HanokArchive({ villages, meta, initialFilters }: HanokArchiveProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
-  const [selectedVillage, setSelectedVillage] = useState<Village | null>(null);
+  const [selectedDogamVillage, setSelectedDogamVillage] = useState<Village | null>(null);
+  const [selectedStay, setSelectedStay] = useState<Village | null>(null);
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
   const [archiveData, setArchiveData] = useState(() => ({ villages, meta }));
   const [showIntroVideo, setShowIntroVideo] = useState(false);
@@ -217,7 +221,14 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
     };
   }, []);
 
-  useEffect(() => scheduleIdle(() => void loadVillageDetailModal(), 2000), []);
+  useEffect(
+    () =>
+      scheduleIdle(() => {
+        void loadDogamDetailModal();
+        void loadStayDetailModal();
+      }, 2000),
+    []
+  );
 
   // 인트로 뒷배경 영상 — 초기 렌더에는 CSS 그라디언트 포스터만 보이고,
   // 마운트 후 한가할 때 영상을 불러와 재생 준비가 되면 크로스페이드한다.
@@ -271,7 +282,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
               <HanokMonthly
                 villages={archiveData.villages}
-                onSelectVillage={setSelectedVillage}
+                onSelectVillage={setSelectedDogamVillage}
                 isFeaturedReady={isFeaturedReady}
               />
             </div>
@@ -296,7 +307,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
               <HanokGrid
                 villages={archiveData.villages}
-                onSelectVillage={setSelectedVillage}
+                onSelectVillage={setSelectedDogamVillage}
                 initialFilters={initialFilters}
                 externalRegion={selectedRegion}
               />
@@ -308,7 +319,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
               <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
                 <HanokStayAccordion
                   villages={archiveData.villages}
-                  onSelectVillage={setSelectedVillage}
+                  onSelectStay={setSelectedStay}
                 />
               </div>
             </VesselReveal>
@@ -343,7 +354,16 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
         <ChapterBreak>
           <VesselReveal id={HANOK_REVEAL_SECTIONS.map} className="w-full">
             <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
-              <HanokMap villages={archiveData.villages} onSelectVillage={setSelectedVillage} />
+              <HanokMap
+                villages={archiveData.villages}
+                onSelectVillage={(v) => {
+                  if (v.type === '한옥스테이') {
+                    setSelectedStay(v);
+                  } else {
+                    setSelectedDogamVillage(v);
+                  }
+                }}
+              />
             </div>
           </VesselReveal>
         </ChapterBreak>
@@ -356,12 +376,21 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
         </VesselReveal>
       </PageInner>
 
-      {/* 마을 상세 인터랙티브 모달 */}
-      {selectedVillage && (
-        <VillageDetailModal
-          key={selectedVillage.id}
-          village={selectedVillage}
-          onClose={() => setSelectedVillage(null)}
+      {/* 1. 전국 한옥 도감 상세 모달 (건축 및 역사 해설, 오디오 도슨트, 고즈넉 지수) */}
+      {selectedDogamVillage && (
+        <HanokDogamDetailModal
+          key={selectedDogamVillage.id}
+          village={selectedDogamVillage}
+          onClose={() => setSelectedDogamVillage(null)}
+        />
+      )}
+
+      {/* 2. 지역별 한옥 스테이 상세 모달 (숙박 이용 안내, 객실, 실시간 예약) */}
+      {selectedStay && (
+        <HanokStayDetailModal
+          key={selectedStay.id}
+          stay={selectedStay}
+          onClose={() => setSelectedStay(null)}
         />
       )}
     </Root>

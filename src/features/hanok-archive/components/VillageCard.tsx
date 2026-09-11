@@ -169,7 +169,11 @@ const DocentTag = styled.span`
 `;
 
 const HAS_DOCENT_TYPES = ['고궁', '민속마을'];
-const HAS_DOCENT_NAMES = ['경복궁', '선교장', '하회', '운조루', '임청각', '최부자', '소쇄원', '창덕궁', '창경궁', '덕수궁', '종묘', '남산골'];
+const HAS_DOCENT_NAMES = [
+  '경복궁', '선교장', '하회', '운조루', '임청각', '최부자',
+  '소쇄원', '창덕궁', '창경궁', '덕수궁', '종묘', '남산골',
+  '도산서원', '병산서원', '낙안읍성', '외암', '양동',
+];
 
 interface VillageCardProps {
   village: Village;
@@ -178,8 +182,15 @@ interface VillageCardProps {
 
 export default function VillageCard({ village, onClick }: VillageCardProps) {
   const isDocentAvailable =
-    HAS_DOCENT_TYPES.includes(village.type) ||
-    HAS_DOCENT_NAMES.some((n) => village.name.includes(n));
+    village.type !== '한옥스테이' &&
+    (HAS_DOCENT_TYPES.includes(village.type) ||
+      HAS_DOCENT_NAMES.some((n) => village.name.includes(n)));
+
+  const description =
+    village.summary ||
+    (village.overview
+      ? village.overview.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim()
+      : '');
 
   return (
     <Card
@@ -212,7 +223,7 @@ export default function VillageCard({ village, onClick }: VillageCardProps) {
           <TypeBadge>{filterLabel(village.type)}</TypeBadge>
         </HeaderRow>
 
-        {village.summary && <Summary>{village.summary}</Summary>}
+        {description && <Summary>{description}</Summary>}
 
         <BadgeRow>
           <Badge>{village.region}</Badge>
@@ -221,7 +232,7 @@ export default function VillageCard({ village, onClick }: VillageCardProps) {
           ))}
         </BadgeRow>
 
-        <ActionButton>자세히 보기</ActionButton>
+        <ActionButton>도감 해설 보기</ActionButton>
       </GradientOverlay>
     </Card>
   );

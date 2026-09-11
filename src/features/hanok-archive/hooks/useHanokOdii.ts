@@ -11,13 +11,19 @@ export interface OdiiStory {
   imageUrl?: string;
 }
 
-export function useHanokOdii(name?: string, lat?: number | null, lng?: number | null) {
+export function useHanokOdii(
+  name?: string,
+  lat?: number | null,
+  lng?: number | null,
+  isStay?: boolean
+) {
   const [stories, setStories] = useState<OdiiStory[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!name && (!lat || !lng)) {
+    // 한옥 스테이(숙박 전용 시설)이거나 이름이 없으면 오디 문화재 도슨트 조회를 수행하지 않음
+    if (isStay || !name) {
       setStories([]);
       return;
     }
@@ -30,16 +36,29 @@ export function useHanokOdii(name?: string, lat?: number | null, lng?: number | 
       setError(null);
 
       try {
-        // 1. 이름 기반 우선 검색 (예: '경복궁', '선교장', '운조루', '하회마을' 등)
-        // 불필요한 수식어('안동 하회마을 [유네스코 세계유산]' -> '하회마을') 정제
-        const cleanName = (name || '')
+        // 1. 이름 정제 및 핵심 고유명사 키워드 추출
+        // 예: '안동 하회마을 [유네스코 세계유산]' -> '안동 하회마을' -> 핵심: '하회마을' (키워드: '하회')
+        const rawClean = (name || '')
           .replace(/\[.*?\]|\(.*?\)/g, '')
           .replace(/(안채|사랑채|행랑채|별채|일원|보존회)/g, '')
-          .trim()
-          .split(' ')[0] || name || '';
+          .trim();
 
+        // 광역/시/군 지역 접두어 목록
+        const REGION_PREFIX_REGEX = /^(서울|경기|강원|충북|충남|전북|전남|경북|경남|제주|부산|대구|인천|광주|대전|울산|세종|안동|강릉|경주|전주|남원|공주|담양|구례|밀양|영주|봉화|함양|순천|나주|보성|영암)\s+/;
+        
+        let coreName = rawClean.replace(REGION_PREFIX_REGEX, '').trim();
+        if (!coreName || coreName.length < 2) {
+          coreName = rawClean;
+        }
+
+        // 관련도 검증에 사용할 핵심 검색어 (최소 2글자)
+        const matchKeyword = coreName
+          .replace(/(고택|종택|가옥|생가|마을|한옥|서원|향교|궁|터)$/g, '')
+          .trim() || coreName;
+
+        // 2. 1차 시도: 핵심 고유명사 기반 검색 (예: '선교장', '하회마을', '운조루', '임청각', '경복궁', '소쇄원')
         let res = await fetch(
-          `/api/odii?type=stories&keyword=${encodeURIComponent(cleanName)}&numOfRows=5`,
+          `/api/odii?type=stories&keyword=${encodeURIComponent(coreName)}&numOfRows=10`,
           { signal: controller.signal }
         );
 
@@ -47,10 +66,10 @@ export function useHanokOdii(name?: string, lat?: number | null, lng?: number | 
         let items = json?.response?.body?.items?.item;
         let list = Array.isArray(items) ? items : items ? [items] : [];
 
-        // 2. 검색 결과가 없고 좌표가 있으면 반경 1.5km 위치 기반 검색 시도
-        if (list.length === 0 && Number.isFinite(lat) && Number.isFinite(lng)) {
+        // 3. 만약 결과가 없고 coreName과 rawClean이 다르면 rawClean으로 2차 검색
+        if (list.length === 0 && coreName !== rawClean) {
           res = await fetch(
-            `/api/odii?type=nearby&xCoord=${lng}&yCoord=${lat}&radius=1500&numOfRows=5`,
+            `/api/odii?type=stories&keyword=${encodeURIComponent(rawClean)}&numOfRows=10`,
             { signal: controller.signal }
           );
           json = await res.json();
@@ -58,19 +77,37 @@ export function useHanokOdii(name?: string, lat?: number | null, lng?: number | 
           list = Array.isArray(items) ? items : items ? [items] : [];
         }
 
+        // 4. 엄격한 관련도 검증 (Strict Relevance Filter):
+        // 검색된 오디오 가이드 제목/설명에 해당 한옥의 핵심 키워드가 반드시 포함되어야 함.
+        // 엉뚱한 도시 내 타 관광지(예: 공주한옥마을에 무령왕릉 오디오가 뜨는 현상 등)를 철저히 차단.
+        const validKeyword = matchKeyword.length >= 2 ? matchKeyword : coreName;
+        const filteredList = list.filter((it: any) => {
+          if (!it || !it.audioUrl) return false;
+          const aTitle = String(it.audioTitle || '');
+          const sTitle = String(it.title || '');
+          const script = String(it.script || '');
+
+          // 건축물 핵심 키워드가 제목이나 스크립트에 분명히 존재하는지 검증
+          return (
+            aTitle.includes(validKeyword) ||
+            sTitle.includes(validKeyword) ||
+            aTitle.includes(coreName) ||
+            sTitle.includes(coreName) ||
+            script.includes(coreName)
+          );
+        });
+
         if (isMounted) {
-          const parsedStories: OdiiStory[] = list
-            .filter((it: any) => it && it.audioUrl)
-            .map((it: any) => ({
-              stid: Number(it.stid || it.stlid || Math.random()),
-              stlid: Number(it.stlid || 0),
-              title: String(it.title || name || ''),
-              audioTitle: String(it.audioTitle || it.title || '전통 공간 오디오 가이드'),
-              script: String(it.script || '').trim(),
-              playTime: Number(it.playTime || 0),
-              audioUrl: String(it.audioUrl || '').replace(/^http:\/\//i, 'https://'),
-              imageUrl: it.imageUrl ? String(it.imageUrl).replace(/^http:\/\//i, 'https://') : undefined,
-            }));
+          const parsedStories: OdiiStory[] = filteredList.map((it: any) => ({
+            stid: Number(it.stid || it.stlid || Math.random()),
+            stlid: Number(it.stlid || 0),
+            title: String(it.title || name || ''),
+            audioTitle: String(it.audioTitle || it.title || `${name} 해설`),
+            script: String(it.script || '').trim(),
+            playTime: Number(it.playTime || 0),
+            audioUrl: String(it.audioUrl || '').replace(/^http:\/\//i, 'https://'),
+            imageUrl: it.imageUrl ? String(it.imageUrl).replace(/^http:\/\//i, 'https://') : undefined,
+          }));
 
           setStories(parsedStories);
         }
@@ -89,7 +126,7 @@ export function useHanokOdii(name?: string, lat?: number | null, lng?: number | 
       isMounted = false;
       controller.abort();
     };
-  }, [name, lat, lng]);
+  }, [name, lat, lng, isStay]);
 
   return { stories, loading, error };
 }
