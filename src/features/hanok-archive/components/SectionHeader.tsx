@@ -2,7 +2,7 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
-import { meok, lightPalette } from '@/design-system/tokens';
+import { meok, lightPalette, fluidHeading, fontSize } from '@/design-system/tokens';
 
 const Wrapper = styled.div`
   display: flex;
@@ -15,7 +15,7 @@ const Wrapper = styled.div`
 
 const Title = styled.h2`
   font-family: var(--font-hanok);
-  font-size: clamp(21px, 2.4vw, 28px);
+  font-size: ${fluidHeading.section};
   font-weight: 500;
   letter-spacing: -0.022em;
   color: ${meok[900]};
@@ -38,7 +38,7 @@ const RightGroup = styled.div`
 `;
 
 const Subtitle = styled.p`
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: 400;
   color: ${meok[500]};
   margin: 0;
@@ -54,7 +54,7 @@ const ActionLink = styled.a`
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   color: ${lightPalette.kobalt[500]};
   text-decoration: none;

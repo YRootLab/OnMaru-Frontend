@@ -20,7 +20,7 @@ import {
   Sparkles,
   Navigation,
 } from 'lucide-react';
-import { meok, palette, surface } from '@/design-system/tokens';
+import { meok, palette, surface , fontSize } from '@/design-system/tokens';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import type { Village, VillageDetailResponse } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
@@ -445,7 +445,7 @@ const StayBadge = styled.div`
   gap: 5px;
   background: ${palette.cheongrok[50]};
   color: ${palette.cheongrok[700]};
-  font-size: 11.5px;
+  font-size: ${fontSize.xs};
   font-weight: 600;
   padding: 4px 11px;
   border-radius: 9999px;
@@ -478,7 +478,7 @@ const StoryHeader = styled.div`
 
 const StoryHeaderTitle = styled.h4`
   margin: 0;
-  font-size: 14px;
+  font-size: ${fontSize.sm};
   font-weight: 700;
   color: ${meok[900]};
 
@@ -489,7 +489,7 @@ const StoryHeaderTitle = styled.h4`
 
 const StoryText = styled.p`
   margin: 0;
-  font-size: 13.5px;
+  font-size: ${fontSize.sm};
   line-height: 1.7;
   color: ${meok[700]};
   word-break: keep-all;
@@ -505,7 +505,7 @@ const DirectBookingButton = styled.a`
   border-radius: 9999px;
   background: ${palette.cheongrok[700]};
   color: #ffffff;
-  font-size: 14px;
+  font-size: ${fontSize.sm};
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -534,7 +534,7 @@ const MapGuideBtn = styled.a`
   border-radius: 9999px;
   background: #f5f5f4;
   color: ${meok[900]};
-  font-size: 13.5px;
+  font-size: ${fontSize.sm};
   font-weight: 600;
   display: flex;
   align-items: center;

@@ -12,7 +12,7 @@ import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 
-import { meok, lightPalette, surface } from '@/design-system/tokens';
+import { meok, lightPalette, surface, fluidHeading , fontSize } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
 
 const SolarShadowModal = dynamic(() => import('./SolarShadowModal'), { ssr: false });
@@ -80,7 +80,7 @@ const Card = styled.button`
 `;
 
 const Eyebrow = styled.span<{ $color: string }>`
-  font-size: 11.5px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -88,7 +88,7 @@ const Eyebrow = styled.span<{ $color: string }>`
 `;
 
 const CardTitle = styled.span`
-  font-size: clamp(19px, 2.2vw, 24px);
+  font-size: ${fluidHeading.card};
   font-weight: 500;
   letter-spacing: -0.022em;
   line-height: 1.3;
@@ -101,7 +101,7 @@ const CardTitle = styled.span`
 `;
 
 const CardDesc = styled.span`
-  font-size: 14px;
+  font-size: ${fontSize.sm};
   font-weight: 400;
   line-height: 1.7;
   color: ${meok[700]};
@@ -117,7 +117,7 @@ const Cue = styled.span<{ $color: string }>`
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   color: ${({ $color }) => $color};
 `;

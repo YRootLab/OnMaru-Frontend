@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import { Tag, RotateCcw, Search, X } from 'lucide-react';
-import { meok, palette, surface } from '@/design-system/tokens';
+import { meok, palette, surface , fontSize } from '@/design-system/tokens';
 import { STAY_TYPE, type Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
 
@@ -88,7 +88,7 @@ const SearchInput = styled.input`
   outline: none;
   background: none;
   font-family: inherit;
-  font-size: 14px;
+  font-size: ${fontSize.sm};
   color: ${meok[900]};
 
   &::placeholder {
@@ -136,7 +136,7 @@ const RegionSelect = styled.select`
   border-radius: 12px;
   background: #ffffff;
   font-family: inherit;
-  font-size: 14px;
+  font-size: ${fontSize.sm};
   color: ${meok[900]};
   cursor: pointer;
 
@@ -184,7 +184,7 @@ const Segment = styled.button<{ $active: boolean }>`
   position: relative;
   background: transparent;
   padding: 9px 22px;
-  font-size: 14px;
+  font-size: ${fontSize.sm};
   font-weight: ${({ $active }) => ($active ? 700 : 400)};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
   cursor: pointer;
@@ -235,7 +235,7 @@ const BadgeHeader = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   font-weight: 600;
   letter-spacing: 0.04em;
   color: ${meok[700]};
@@ -284,7 +284,7 @@ const BadgeChip = styled.button<{ $active: boolean; $variant?: 'cheongrok' | 'hw
     return `linear-gradient(135deg, ${palette.kobalt[500]} 0%, ${palette.kobalt[700]} 100%)`;
   }};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   font-weight: ${({ $active }) => ($active ? 600 : 400)};
   padding: 6px 14px;
   border-radius: 9999px;
@@ -313,7 +313,7 @@ const BadgeChip = styled.button<{ $active: boolean; $variant?: 'cheongrok' | 'hw
 const ResetBtn = styled.button`
   background: transparent;
   color: ${meok[500]};
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   padding: 4px 10px;
   border-radius: 9999px;

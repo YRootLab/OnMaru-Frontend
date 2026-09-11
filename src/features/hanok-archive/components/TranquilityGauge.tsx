@@ -3,7 +3,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { Activity, Clock, ShieldCheck, Sparkles } from 'lucide-react';
-import { meok, palette } from '@/design-system/tokens';
+import { meok, palette , fontSize } from '@/design-system/tokens';
 import type { TranquilityData } from '../hooks/useHanokTranquility';
 
 interface TranquilityGaugeProps {
@@ -111,7 +111,7 @@ const BadgeBox = styled.div`
 `;
 
 const BadgeText = styled.span`
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   font-weight: 700;
   color: ${palette.cheongrok[700]};
 
@@ -121,7 +121,7 @@ const BadgeText = styled.span`
 `;
 
 const DistrictTag = styled.span`
-  font-size: 11.5px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   color: ${meok[500]};
 
@@ -145,7 +145,7 @@ const ScoreBox = styled.div`
 
 const ScoreNumber = styled.span`
   font-family: var(--font-hanok);
-  font-size: 32px;
+  font-size: ${fontSize['3xl']};
   font-weight: 700;
   color: ${meok[900]};
   line-height: 1;
@@ -156,7 +156,7 @@ const ScoreNumber = styled.span`
 `;
 
 const ScoreMax = styled.span`
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   color: ${meok[400]};
 `;
 
@@ -164,7 +164,7 @@ const LevelBadge = styled.div`
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: 700;
   padding: 5px 13px;
   border-radius: 9999px;
@@ -203,7 +203,7 @@ const InfoPill = styled.div`
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   color: ${meok[700]};
   background: #ffffff;
   padding: 8px 14px;
@@ -239,7 +239,7 @@ const AdviceText = styled.div`
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  font-size: 12.5px;
+  font-size: ${fontSize.xs};
   line-height: 1.5;
   color: ${meok[500]};
   background: rgba(0, 0, 0, 0.02);

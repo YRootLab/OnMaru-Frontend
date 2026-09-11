@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 import { Global, css } from '@emotion/react';
-import { meok, lightPalette, surface } from '@/design-system/tokens';
+import { meok, lightPalette, surface, fluidHeading, fontSize } from '@/design-system/tokens';
 import HanokGrid from '@/features/hanok-archive/sections/HanokGrid';
 import HanokDistribution from '@/features/hanok-archive/sections/HanokDistribution';
 import HanokStayAccordion from '@/features/hanok-archive/sections/HanokStayAccordion';
@@ -143,7 +143,7 @@ const Intro = styled.header`
 
 const PageTitle = styled.h1`
   font-family: var(--font-hanok);
-  font-size: clamp(32px, 5.2vw, 56px);
+  font-size: ${fluidHeading.display};
   font-weight: 300;
   line-height: 1.22;
   letter-spacing: -0.02em;
@@ -153,7 +153,7 @@ const PageTitle = styled.h1`
 `;
 
 const Lead = styled.p`
-  font-size: clamp(15px, 1.6vw, 17px);
+  font-size: ${fontSize.base};
   font-weight: 400;
   line-height: 1.75;
   color: rgba(255, 255, 255, 0.78);
@@ -162,7 +162,7 @@ const Lead = styled.p`
 `;
 
 const SourceNote = styled.p`
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   color: ${meok[500]};
   margin: 0;
 

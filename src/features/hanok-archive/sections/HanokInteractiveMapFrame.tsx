@@ -5,7 +5,7 @@ import Script from 'next/script';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertCircle, MapPin, ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
-import { lightPalette, meok, surface } from '@/design-system/tokens';
+import { lightPalette, meok, surface , fontSize } from '@/design-system/tokens';
 import type { Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
 import { createKakaoResourceScope, type KakaoResourceScope } from './kakaoMapResources';
@@ -105,7 +105,7 @@ const MapCanvas = styled.div`
     -webkit-backdrop-filter: blur(8px);
     border: 1px solid ${KOBALT_BORDER};
     border-radius: 10px;
-    font-size: 11px;
+    font-size: ${fontSize.micro};
     font-weight: 500;
     letter-spacing: -0.01em;
     color: ${meok[900]};
@@ -129,7 +129,7 @@ const MapLoadingState = styled.div`
   gap: 10px;
   background: #ffffff;
   color: ${KOBALT_PRIMARY};
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   z-index: 10;
   text-align: center;
@@ -141,7 +141,7 @@ const MapLoadingState = styled.div`
 `;
 
 const ErrorSubtext = styled.p`
-  font-size: 11.5px;
+  font-size: ${fontSize.xs};
   color: ${meok[700]};
   max-width: 340px;
   line-height: 1.45;
@@ -190,7 +190,7 @@ const RegionChip = styled.button<{ $active: boolean }>`
   border: none;
   border-radius: 9999px;
   padding: 5px 11px;
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   font-weight: ${({ $active }) => ($active ? 500 : 400)};
   white-space: nowrap;
   cursor: pointer;
@@ -254,7 +254,7 @@ const PanelHeaderRow = styled.div`
 `;
 
 const PanelSubHeader = styled.div`
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   font-weight: 500;
   letter-spacing: 0.03em;
   color: ${KOBALT_PRIMARY};
@@ -285,7 +285,7 @@ const CollapseBtn = styled.button`
 
 const PanelTitle = styled.h3`
   font-family: var(--font-hanok);
-  font-size: 17px;
+  font-size: ${fontSize.base};
   font-weight: 500;
   color: ${meok[900]};
   margin: 0 0 4px;
@@ -298,7 +298,7 @@ const PanelTitle = styled.h3`
 
 const PanelCountBadge = styled.span`
   display: inline-block;
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   font-weight: 500;
   color: ${KOBALT_PRIMARY};
   background: ${KOBALT_LIGHT};
@@ -310,7 +310,7 @@ const PanelCountBadge = styled.span`
 `;
 
 const PanelDesc = styled.p`
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   color: ${meok[700]};
   line-height: 1.45;
   margin: 0 0 10px;
@@ -370,7 +370,7 @@ const MiniInfo = styled.div`
 `;
 
 const MiniTitle = styled.h4`
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   color: ${meok[900]};
   margin: 0 0 2px;
@@ -384,7 +384,7 @@ const MiniTitle = styled.h4`
 `;
 
 const MiniMeta = styled.div`
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   font-weight: 400;
   color: ${meok[500]};
 
@@ -409,7 +409,7 @@ const CollapsedPillBtn = styled(motion.button)`
   align-items: center;
   gap: 6px;
   color: ${meok[900]};
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   cursor: pointer;
   box-shadow: none;

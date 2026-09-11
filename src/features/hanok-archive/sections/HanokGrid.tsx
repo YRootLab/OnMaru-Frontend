@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import styled from '@emotion/styled';
-import { meok, surface } from '@/design-system/tokens';
+import { meok, surface , fontSize } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
 import FilterBar, { type VillageTypeFilter } from '@/features/hanok-archive/components/FilterBar';
 import VillageCard from '@/features/hanok-archive/components/VillageCard';
@@ -60,7 +60,7 @@ const EmptyState = styled.div`
   justify-content: center;
   gap: 14px;
   color: ${meok[500]};
-  font-size: 14px;
+  font-size: ${fontSize.sm};
   text-align: center;
   word-break: keep-all;
 
@@ -86,7 +86,7 @@ const ResetAll = styled.button`
   border-radius: 9999px;
   background: #ffffff;
   font-family: inherit;
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   color: ${meok[700]};
   cursor: pointer;

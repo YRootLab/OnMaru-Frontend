@@ -4,7 +4,7 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { Headphones, ArrowRight, Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { meok, palette } from '@/design-system/tokens';
+import { meok, palette , fontSize } from '@/design-system/tokens';
 import type { AudioGuideStory } from '../hooks/useHanokAudioGuide';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 
@@ -116,7 +116,7 @@ const BadgeBox = styled.div`
   gap: 6px;
   background: ${palette.jangmi[50]};
   color: ${palette.jangmi[700]};
-  font-size: 11.5px;
+  font-size: ${fontSize.xs};
   font-weight: 700;
   padding: 4px 10px;
   border-radius: 9999px;
@@ -136,7 +136,7 @@ const BadgeBox = styled.div`
 `;
 
 const OfficialTag = styled.span`
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   font-weight: 500;
   color: ${meok[500]};
 
@@ -150,7 +150,7 @@ const ContentBody = styled.div`
 `;
 
 const StoryTitle = styled.h4`
-  font-size: 15px;
+  font-size: ${fontSize.sm};
   font-weight: 700;
   color: ${meok[900]};
   margin: 0 0 6px;
@@ -162,7 +162,7 @@ const StoryTitle = styled.h4`
 `;
 
 const GuideDesc = styled.p`
-  font-size: 12.5px;
+  font-size: ${fontSize.xs};
   line-height: 1.6;
   color: ${meok[700]};
   margin: 0;
@@ -206,7 +206,7 @@ const ListenInSoriMaruBtn = styled.button`
   border-radius: 9999px;
   background: ${palette.jangmi[500]};
   color: #ffffff;
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: 600;
   border: none;
   cursor: pointer;

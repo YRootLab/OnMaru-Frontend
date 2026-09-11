@@ -25,7 +25,7 @@ import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 
-import { meok, lightPalette } from '@/design-system/tokens';
+import { meok, lightPalette, fluidHeading, fontSize } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
 import { STAGES } from './stages';
 
@@ -96,7 +96,7 @@ const Row = styled.button`
 `;
 
 const Step = styled.span`
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.04em;
@@ -105,7 +105,7 @@ const Step = styled.span`
 
 const Name = styled.h3`
   margin: 0;
-  font-size: clamp(17px, 1.9vw, 21px);
+  font-size: ${fluidHeading.label};
   font-weight: 500;
   letter-spacing: -0.022em;
   line-height: 1.3;
@@ -115,7 +115,7 @@ const Name = styled.h3`
   small {
     display: block;
     margin-top: 3px;
-    font-size: 12px;
+    font-size: ${fontSize.xs};
     font-weight: 400;
     letter-spacing: 0.02em;
     color: ${meok[500]};
@@ -132,7 +132,7 @@ const Name = styled.h3`
 
 const Desc = styled.p`
   margin: 0;
-  font-size: clamp(14px, 1.4vw, 15px);
+  font-size: ${fontSize.sm};
   font-weight: 400;
   line-height: 1.8;
   color: ${meok[700]};
@@ -167,7 +167,7 @@ const Cue = styled.span`
   align-items: center;
   gap: 5px;
   margin-top: 10px;
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   color: ${lightPalette.kobalt[500]};
 

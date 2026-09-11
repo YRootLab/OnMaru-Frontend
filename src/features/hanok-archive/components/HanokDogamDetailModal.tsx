@@ -22,7 +22,7 @@ import {
   Landmark,
   Navigation,
 } from 'lucide-react';
-import { meok, palette, surface } from '@/design-system/tokens';
+import { meok, palette, surface , fontSize } from '@/design-system/tokens';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import type { Village, VillageDetailResponse } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
@@ -544,7 +544,7 @@ const NaverDirectionsBtn = styled.a`
   border-radius: 9999px;
   background: ${palette.kobalt[500]};
   color: #ffffff;
-  font-size: 14px;
+  font-size: ${fontSize.sm};
   font-weight: 600;
   display: flex;
   align-items: center;

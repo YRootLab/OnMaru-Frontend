@@ -4,7 +4,7 @@ import React, { useState, useMemo } from 'react';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
-import { meok, palette, surface } from '@/design-system/tokens';
+import { meok, palette, surface, fluidHeading , fontSize } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
 import { STAY_TYPE } from '@/features/hanok-archive/types';
 import type { Village } from '@/features/hanok-archive/types';
@@ -33,7 +33,7 @@ const RegionFilterChip = styled.button<{ $active: boolean; $empty?: boolean }>`
   background: ${({ $active }) =>
     $active ? palette.kobalt[500] : '#ffffff'};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[900])};
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: ${({ $active }) => ($active ? 500 : 400)};
   padding: 8px 18px;
   border-radius: 9999px;
@@ -63,7 +63,7 @@ const RegionFilterChip = styled.button<{ $active: boolean; $empty?: boolean }>`
 
 /* 개수는 지역명보다 한 단계 물러나 있어야 이름이 먼저 읽힌다 */
 const RegionChipCount = styled.span<{ $active: boolean }>`
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   font-weight: 400;
   font-variant-numeric: tabular-nums;
   color: ${({ $active }) => ($active ? 'rgba(255, 255, 255, 0.75)' : meok[400])};
@@ -184,7 +184,7 @@ const TagRow = styled.div`
 `;
 
 const StayTag = styled.span`
-  font-size: 11.5px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   color: #ffffff;
   background: rgba(0, 0, 0, 0.45);
@@ -197,7 +197,7 @@ const StayTag = styled.span`
 
 const StayTitle = styled.h3`
   font-family: var(--font-hanok);
-  font-size: clamp(19px, 2.3vw, 25px);
+  font-size: ${fluidHeading.card};
   font-weight: 500;
   letter-spacing: -0.02em;
   margin: 0;
@@ -215,7 +215,7 @@ const StayAddress = styled.div`
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 12.5px;
+  font-size: ${fontSize.xs};
   font-weight: 400;
   color: rgba(255, 255, 255, 0.88);
   line-height: 1.4;
@@ -271,7 +271,7 @@ const ActionGroup = styled.div`
 const DirectBookingBtn = styled.a`
   background: ${palette.cheongrok[700]};
   color: #ffffff;
-  font-size: 12.5px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   padding: 9px 15px;
   border-radius: 9999px;
@@ -302,7 +302,7 @@ const DetailActionBtn = styled.button`
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: #ffffff;
-  font-size: 12.5px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   padding: 9px 15px;
   border-radius: 9999px;
@@ -338,7 +338,7 @@ const ControlsRow = styled.div`
 `;
 
 const BatchInfo = styled.span`
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: 400;
   color: ${meok[500]};
 
@@ -351,7 +351,7 @@ const RefreshBtn = styled.button`
 
   background: #ffffff;
   color: ${meok[900]};
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   padding: 8px 18px;
   border-radius: 9999px;
@@ -399,7 +399,7 @@ const EmptyState = styled.div`
 
 const EmptyHeadline = styled.p`
   margin: 0;
-  font-size: clamp(16px, 1.8vw, 19px);
+  font-size: ${fluidHeading.label};
   font-weight: 300;
   letter-spacing: -0.02em;
   color: ${meok[900]};
@@ -412,7 +412,7 @@ const EmptyHeadline = styled.p`
 
 const EmptyHint = styled.p`
   margin: 0;
-  font-size: 13.5px;
+  font-size: ${fontSize.sm};
   font-weight: 400;
   line-height: 1.7;
   color: ${meok[500]};
@@ -430,7 +430,7 @@ const EmptyAction = styled.button`
   background: ${meok[900]};
   color: #ffffff;
   font-family: inherit;
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: 700;
   cursor: pointer;
   transition: opacity 0.18s ease, transform 0.18s ease;

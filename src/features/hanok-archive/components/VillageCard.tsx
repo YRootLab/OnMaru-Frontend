@@ -4,7 +4,7 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
-import { meok, palette } from '@/design-system/tokens';
+import { meok, palette, fluidHeading , fontSize } from '@/design-system/tokens';
 import { Headphones } from 'lucide-react';
 import type { Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
@@ -62,7 +62,7 @@ const HeaderRow = styled.div`
 
 const Name = styled.h3`
   font-family: var(--font-hanok);
-  font-size: clamp(15px, 1.35vw, 18px);
+  font-size: ${fluidHeading.label};
   font-weight: 400;
   color: #ffffff;
   margin: 0;
@@ -81,7 +81,7 @@ const TypeBadge = styled.span`
   -webkit-backdrop-filter: blur(12px);
 
   color: #ffffff;
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   font-weight: 500;
   padding: 4px 10px;
   border-radius: 9999px;
@@ -90,7 +90,7 @@ const TypeBadge = styled.span`
 `;
 
 const Summary = styled.p`
-  font-size: 12.5px;
+  font-size: ${fontSize.xs};
   font-weight: 400;
   color: rgba(255, 255, 255, 0.88);
   line-height: 1.5;
@@ -111,7 +111,7 @@ const BadgeRow = styled.div`
 `;
 
 const Badge = styled.span`
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   font-weight: 500;
   color: rgba(255, 255, 255, 0.9);
   background: rgba(255, 255, 255, 0.14);
@@ -131,7 +131,7 @@ const ActionButton = styled(motion.div, transientProps)`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   letter-spacing: -0.01em;
 
@@ -159,7 +159,7 @@ const DocentTag = styled.span`
   border: none;
   box-shadow: none;
   color: #ffffff;
-  font-size: 10.5px;
+  font-size: ${fontSize.micro};
   font-weight: 600;
   padding: 3.5px 9px;
   border-radius: 9999px;

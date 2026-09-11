@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
-import { meok, lightPalette } from '@/design-system/tokens';
+import { meok, lightPalette, fluidHeading , fontSize } from '@/design-system/tokens';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import type { Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
@@ -59,7 +59,7 @@ const EyebrowBadge = styled.div`
   -webkit-backdrop-filter: blur(12px);
   padding: 6px 14px;
   border-radius: 9999px;
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   font-weight: 400;
   color: #ffffff;
 
@@ -73,7 +73,7 @@ const EyebrowBadge = styled.div`
 
 const Title = styled.h2`
   font-family: var(--font-hanok);
-  font-size: clamp(28px, 4vw, 42px);
+  font-size: ${fluidHeading.hero};
   font-weight: 400;
   color: #ffffff;
   margin: 0 0 12px;
@@ -82,7 +82,7 @@ const Title = styled.h2`
 `;
 
 const Description = styled.p`
-  font-size: 15px;
+  font-size: ${fontSize.sm};
   color: rgba(255, 255, 255, 0.85);
   line-height: 1.65;
   max-width: 680px;
@@ -124,7 +124,7 @@ const DetailBtn = styled.button`
   gap: 8px;
   background: #ffffff;
   color: ${meok[900]};
-  font-size: 14px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
   padding: 10px 22px;
   border-radius: 9999px;

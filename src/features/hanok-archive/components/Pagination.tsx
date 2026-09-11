@@ -2,7 +2,7 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
-import { meok, surface } from '@/design-system/tokens';
+import { meok, surface , fontSize } from '@/design-system/tokens';
 
 const Wrapper = styled.div`
   display: flex;
@@ -16,7 +16,7 @@ const Wrapper = styled.div`
 const PageBtn = styled.button<{ $active?: boolean; $disabled?: boolean }>`
   background: ${({ $active }) => ($active ? meok[900] : '#ffffff')};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
-  font-size: 14px;
+  font-size: ${fontSize.sm};
   font-weight: ${({ $active }) => ($active ? 500 : 400)};
   min-width: 40px;
   height: 40px;
@@ -40,7 +40,7 @@ const PageBtn = styled.button<{ $active?: boolean; $disabled?: boolean }>`
 const Dots = styled.span`
   color: ${meok[400]};
   padding: 0 4px;
-  font-size: 14px;
+  font-size: ${fontSize.sm};
 `;
 
 interface PaginationProps {

@@ -4,7 +4,7 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { meok, lightPalette } from '@/design-system/tokens';
+import { meok, lightPalette, fluidHeading , fontSize } from '@/design-system/tokens';
 
 import { Home, Leaf, ArrowRight } from 'lucide-react';
 
@@ -24,7 +24,7 @@ const Container = styled(motion.div)`
 
 const ManifestoParagraph = styled.h2`
   font-family: var(--font-hanok);
-  font-size: clamp(22px, 3.6vw, 38px);
+  font-size: ${fluidHeading.feature};
   font-weight: 300;
   line-height: 1.6;
   letter-spacing: -0.015em;
@@ -91,7 +91,7 @@ const CtaButton = styled(Link, {
   background: ${({ $primary }) =>
     $primary ? lightPalette.kobalt[500] : 'rgba(255, 255, 255, 0.9)'};
   color: ${({ $primary }) => ($primary ? '#ffffff' : meok[900])};
-  font-size: 14px;
+  font-size: ${fontSize.sm};
   font-weight: ${({ $primary }) => ($primary ? 700 : 500)};
   padding: 14px 28px;
   border-radius: 9999px;

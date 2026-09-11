@@ -11,7 +11,7 @@ import { useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 import { X } from 'lucide-react';
 
-import { meok, surface } from '@/design-system/tokens';
+import { meok, surface , fontSize } from '@/design-system/tokens';
 
 const Overlay = styled.div`
   position: fixed;
@@ -56,7 +56,7 @@ const CloseButton = styled.button`
   color: ${meok[700]};
   transition: background 0.2s ease-out, color 0.2s ease-out;
   font-family: inherit;
-  font-size: 12.5px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   cursor: pointer;
 

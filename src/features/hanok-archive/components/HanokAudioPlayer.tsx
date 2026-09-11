@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { Headphones, Play, Pause, RotateCcw, FileText, ChevronDown, ChevronUp } from 'lucide-react';
-import { meok, palette } from '@/design-system/tokens';
+import { meok, palette , fontSize } from '@/design-system/tokens';
 import type { SorimaruStory } from '../hooks/useHanokSorimaru';
 
 interface HanokAudioPlayerProps {
@@ -198,7 +198,7 @@ const BadgeBox = styled.div`
 `;
 
 const BadgeText = styled.span`
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   font-weight: 700;
   color: ${palette.jangmi[700]};
 
@@ -208,7 +208,7 @@ const BadgeText = styled.span`
 `;
 
 const QualityTag = styled.span`
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   font-weight: 500;
   color: ${meok[500]};
 
@@ -227,7 +227,7 @@ const StoryTitleBox = styled.div`
 `;
 
 const StoryTitle = styled.h4`
-  font-size: 15px;
+  font-size: ${fontSize.sm};
   font-weight: 600;
   color: ${meok[900]};
   margin: 0;
@@ -239,7 +239,7 @@ const StoryTitle = styled.h4`
 `;
 
 const SelectorSelect = styled.select`
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   background: #ffffff;
   border: none;
   box-shadow: none;
@@ -322,7 +322,7 @@ const SecondaryBtn = styled.button`
 `;
 
 const TimeDisplay = styled.span`
-  font-size: 11.5px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   font-variant-numeric: tabular-nums;
   color: ${meok[500]};
@@ -385,7 +385,7 @@ const ScriptToggleBtn = styled.button`
   border: none;
   box-shadow: none;
   padding: 4px 0;
-  font-size: 12.5px;
+  font-size: ${fontSize.xs};
   font-weight: 600;
   color: ${meok[700]};
   cursor: pointer;
@@ -417,7 +417,7 @@ const ScriptContent = styled.div`
   box-shadow: none;
   max-height: 180px;
   overflow-y: auto;
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   line-height: 1.7;
   color: ${meok[700]};
   word-break: keep-all;

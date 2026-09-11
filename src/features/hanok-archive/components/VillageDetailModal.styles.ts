@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
-import { meok, palette, surface } from '@/design-system/tokens';
+import { meok, palette, surface, fluidHeading, fontSize } from '@/design-system/tokens';
 
 export const Overlay = styled(motion.div)`
   position: fixed;
@@ -88,7 +88,7 @@ export const HeroContent = styled.div`
 
 export const HeroRegion = styled.span`
   display: inline-block;
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   color: ${palette.hwanggeum[200]};
   margin-bottom: 6px;
@@ -98,7 +98,7 @@ export const HeroRegion = styled.span`
 
 export const HeroTitle = styled.h2`
   font-family: var(--font-hanok);
-  font-size: clamp(24px, 3.5vw, 32px);
+  font-size: ${fluidHeading.feature};
   font-weight: 400;
   margin: 0;
   line-height: 1.25;
@@ -121,7 +121,7 @@ export const MetaRow = styled.div`
 export const TypeBadge = styled.span`
   background: ${palette.cheongrok[50]};
   color: ${palette.cheongrok[700]};
-  font-size: 11.5px;
+  font-size: ${fontSize.xs};
   font-weight: 600;
   padding: 4px 12px;
   border-radius: 9999px;
@@ -135,7 +135,7 @@ export const TypeBadge = styled.span`
 `;
 
 export const AddrText = styled.span`
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   color: ${meok[500]};
 
   [data-theme='dark'] & {
@@ -160,7 +160,7 @@ export const NoteHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   font-weight: 600;
   color: ${palette.cheongrok[700]};
   margin-bottom: 12px;
@@ -177,7 +177,7 @@ export const HeaderBadge = styled.div`
 `;
 
 export const SourceTag = styled.span`
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   font-weight: 500;
   color: ${meok[700]};
   background: ${meok[200]};
@@ -205,7 +205,7 @@ export const StoryContainer = styled.div<{ $isExpanded: boolean }>`
 `;
 
 export const StoryParagraph = styled.p`
-  font-size: 14px;
+  font-size: ${fontSize.sm};
   font-weight: 400;
   color: ${meok[700]};
   line-height: 1.78;
@@ -225,7 +225,7 @@ export const StoryParagraph = styled.p`
 export const ExpandBtn = styled.button`
   background: transparent;
   color: ${palette.cheongrok[700]};
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: 600;
   cursor: pointer;
   padding: 6px 0 0;
@@ -245,7 +245,7 @@ export const ExpandBtn = styled.button`
 `;
 
 export const SectionTitle = styled.h3`
-  font-size: 16px;
+  font-size: ${fontSize.base};
   font-weight: 400;
   color: ${meok[900]};
   margin: 24px 0 12px;
@@ -303,7 +303,7 @@ export const InfoContentBox = styled.div`
 `;
 
 export const InfoLabel = styled.div`
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   color: ${meok[500]};
   margin-bottom: 3px;
@@ -314,7 +314,7 @@ export const InfoLabel = styled.div`
 `;
 
 export const InfoVal = styled.div`
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: 400;
   color: ${meok[700]};
   line-height: 1.5;
@@ -357,7 +357,7 @@ export const RepeatItemCard = styled.div`
 `;
 
 export const RepeatTitleText = styled.div`
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: 600;
   color: ${palette.cheongrok[700]};
   margin-bottom: 4px;
@@ -368,7 +368,7 @@ export const RepeatTitleText = styled.div`
 `;
 
 export const RepeatContentText = styled.div`
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   color: ${meok[700]};
   line-height: 1.6;
   white-space: pre-wrap;
@@ -451,7 +451,7 @@ export const SkeletonLine = styled.div`
 `;
 
 export const BadgeTitle = styled.div`
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   color: ${meok[500]};
   margin-bottom: 8px;
@@ -469,7 +469,7 @@ export const BadgeList = styled.div`
 `;
 
 export const TagBadge = styled.span`
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   color: ${palette.cheongrok[700]};
   background: ${palette.cheongrok[50]};
@@ -500,7 +500,7 @@ export const MapBtn = styled.a`
   background: ${meok[900]};
   color: #ffffff;
   border-radius: 14px;
-  font-size: 14px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
   text-decoration: none;
   border: none;
@@ -534,7 +534,7 @@ export const BookingModalBtn = styled.a`
   background: ${palette.cheongrok[700]};
   color: #ffffff;
   border-radius: 14px;
-  font-size: 14px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
   text-decoration: none;
   border: none;
@@ -589,7 +589,7 @@ export const BookmarkActionBtn = styled.button<{ $bookmarked: boolean }>`
   height: 48px;
   padding: 0 18px;
   border-radius: 14px;
-  font-size: 14px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
   cursor: pointer;
   border: none;
@@ -624,7 +624,7 @@ export const HeroZoomBadge = styled.button`
   border: none;
   box-shadow: none;
   color: #ffffff;
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   padding: 6px 14px;
   border-radius: 9999px;
@@ -731,7 +731,7 @@ export const LightboxFooter = styled.div`
   align-items: center;
   gap: 12px;
   color: #ffffff;
-  font-size: 14px;
+  font-size: ${fontSize.sm};
 `;
 
 export const LightboxCounter = styled.span`
@@ -739,7 +739,7 @@ export const LightboxCounter = styled.span`
   backdrop-filter: blur(8px);
   padding: 4px 14px;
   border-radius: 9999px;
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   letter-spacing: 0.05em;
 `;

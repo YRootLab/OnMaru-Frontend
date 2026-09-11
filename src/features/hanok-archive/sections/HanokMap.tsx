@@ -3,7 +3,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import dynamic from 'next/dynamic';
-import { meok, surface } from '@/design-system/tokens';
+import { meok, surface , fontSize } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
 import type { Village } from '@/features/hanok-archive/types';
 import { useViewportActivation } from '@/shared/hooks/useViewportActivation';
@@ -28,7 +28,7 @@ const MapLoadingState = styled.div`
   display: grid;
   place-items: center;
   color: ${meok[500]};
-  font-size: 14px;
+  font-size: ${fontSize.sm};
 
   [data-theme='dark'] & {
     background: ${surface.dark.card};

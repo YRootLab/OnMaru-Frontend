@@ -5,7 +5,7 @@ import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { motion } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
-import { meok, lightPalette } from '@/design-system/tokens';
+import { meok, lightPalette , fontSize } from '@/design-system/tokens';
 import { Home, ArrowRight } from 'lucide-react';
 import type { Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
@@ -75,7 +75,7 @@ const NoImageLabel = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 32px;
+  font-size: ${fontSize['3xl']};
   opacity: 0.25;
 `;
 
@@ -93,7 +93,7 @@ const HandWritingCaption = styled.div`
 
 const HandWritingText = styled.p`
   font-family: 'GeuriunXGukhanbakSingoyangI', var(--font-hanok);
-  font-size: 21px;
+  font-size: ${fontSize.xl};
   font-weight: 400;
   color: ${meok[900]};
   margin: 0;
@@ -141,7 +141,7 @@ const OutsideMeta = styled.div`
 
 const OutsideTitle = styled.h3`
   font-family: var(--font-hanok);
-  font-size: 16px;
+  font-size: ${fontSize.base};
   font-weight: 300;
   color: ${meok[900]};
   margin: 0;
@@ -160,7 +160,7 @@ const OutsideBadges = styled.div`
 
   span {
     font-family: var(--font-hanok);
-    font-size: 11.5px;
+    font-size: ${fontSize.xs};
     font-weight: 500;
     color: ${lightPalette.kobalt[500]};
     background: rgba(78, 89, 104, 0.06);
@@ -175,7 +175,7 @@ const DetailButton = styled.div`
   gap: 4px;
   margin-top: 4px;
   font-family: var(--font-hanok);
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: 400;
   color: ${meok[900]};
   transition: color 0.2s ease, transform 0.2s ease;

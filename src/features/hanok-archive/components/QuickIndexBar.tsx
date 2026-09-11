@@ -2,7 +2,7 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
-import { meok, palette, surface } from '@/design-system/tokens';
+import { meok, palette, surface , fontSize } from '@/design-system/tokens';
 import { BookOpen, Home, Sun, MapPin } from 'lucide-react';
 
 const IndexContainer = styled.nav`
@@ -46,7 +46,7 @@ const IndexChip = styled.button`
   background: transparent;
   color: ${meok[700]};
   font-family: inherit;
-  font-size: 13.5px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
   letter-spacing: -0.01em;
   cursor: pointer;
@@ -74,7 +74,7 @@ const IndexChip = styled.button`
 
   @media (max-width: 640px) {
     padding: 6px 10px;
-    font-size: 12px;
+    font-size: ${fontSize.xs};
   }
 `;
 

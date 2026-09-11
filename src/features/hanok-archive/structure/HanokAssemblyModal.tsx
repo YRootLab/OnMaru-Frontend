@@ -21,7 +21,7 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
 
-import { meok, lightPalette, surface } from '@/design-system/tokens';
+import { meok, lightPalette, surface , fontSize } from '@/design-system/tokens';
 import { ASSEMBLY_RANGE } from './constants';
 import { STAGES } from './stages';
 import { clamp01 } from './motion';
@@ -147,7 +147,7 @@ const StepButton = styled.button<{ $active: boolean; $done: boolean }>`
   color: ${({ $active, $done }) =>
     $active ? '#ffffff' : $done ? lightPalette.juhong[700] : 'var(--sim-ink-weak)'};
   font-family: inherit;
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   letter-spacing: 0.04em;
   white-space: nowrap;
@@ -159,7 +159,7 @@ const StepButton = styled.button<{ $active: boolean; $done: boolean }>`
   }
 
   small {
-    font-size: 11px;
+    font-size: ${fontSize.micro};
     font-weight: 500;
     opacity: 0.72;
   }
@@ -174,7 +174,7 @@ const ScrollHint = styled.p`
   z-index: 10;
   margin: 0;
   text-align: center;
-  font-size: 12.5px;
+  font-size: ${fontSize.xs};
   font-weight: 400;
   color: var(--sim-ink-weak);
   pointer-events: none;

@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
-import { meok, palette, surface } from '@/design-system/tokens';
+import { meok, palette, surface, fluidHeading , fontSize } from '@/design-system/tokens';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import PolaroidCard from '@/features/hanok-archive/components/PolaroidCard';
 import type { Village } from '@/features/hanok-archive/types';
@@ -27,7 +27,7 @@ const Header = styled.div`
 
 const Title = styled(motion.h2)`
   font-family: var(--font-hanok);
-  font-size: clamp(28px, 4vw, 44px);
+  font-size: ${fluidHeading.hero};
   font-weight: 300;
   color: ${meok[900]};
   margin: 0 0 10px;
@@ -84,7 +84,7 @@ const EditorialContent = styled(motion.div)`
 
 const FeaturedTitle = styled.h3`
   font-family: var(--font-hanok);
-  font-size: clamp(26px, 3.2vw, 38px);
+  font-size: ${fluidHeading.feature};
   font-weight: 400;
   color: ${meok[900]};
   margin: 0 0 6px;
@@ -97,7 +97,7 @@ const FeaturedTitle = styled.h3`
 `;
 
 const SubRegionTag = styled.p`
-  font-size: 13.5px;
+  font-size: ${fontSize.sm};
   font-weight: 400;
   color: ${meok[500]};
   margin: 0 0 24px;
@@ -131,7 +131,7 @@ const QuoteHeader = styled.div`
   align-items: center;
   gap: 6px;
   color: ${meok[500]};
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   letter-spacing: 0.04em;
   margin-bottom: 12px;
@@ -173,7 +173,7 @@ const DetailsButton = styled.button`
   gap: 8px;
   background: ${palette.kobalt[50]};
   color: ${palette.kobalt[700]};
-  font-size: 14px;
+  font-size: ${fontSize.sm};
   font-weight: 600;
   padding: 12px 24px;
   border-radius: 9999px;

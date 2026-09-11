@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import Link from 'next/link';
 import type { SectionId } from '@/features/hanok-archive/types';
-import { lightPalette, meok } from '@/design-system/tokens';
+import { lightPalette, meok , fontSize } from '@/design-system/tokens';
 
 const Nav = styled.nav`
   position: sticky;
@@ -23,7 +23,7 @@ const Nav = styled.nav`
 `;
 
 const LogoLink = styled(Link)`
-  font-size: 17px;
+  font-size: ${fontSize.base};
   font-weight: 500;
   color: ${meok[900]};
   text-decoration: none;
@@ -50,7 +50,7 @@ const MenuList = styled.ul`
 const MenuItem = styled.li``;
 
 const MenuAnchor = styled.a<{ $active: boolean }>`
-  font-size: 15px;
+  font-size: ${fontSize.sm};
   font-weight: ${({ $active }) => ($active ? 500 : 400)};
   color: ${({ $active }) => ($active ? meok[900] : meok[700])};
   text-decoration: none;
