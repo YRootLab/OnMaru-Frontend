@@ -50,8 +50,8 @@ export interface SorimaruBackgroundPresentation {
 }
 
 export interface SorimaruBackgroundPalette {
-  canvas: '#ffffff';
-  paper: '#ffffff';
+  canvas: string;
+  paper: string;
   lightRgb: string;
   fiberRgb: string;
   shadowRgb: string;

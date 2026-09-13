@@ -5,7 +5,7 @@ import styled from '@emotion/styled';
 import { Search, X } from 'lucide-react';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { SORIMARU_THEME_CATEGORIES } from '@/features/sorimaru-audio/data/sorimaruCategoryData';
-import { palette, meok } from '@/design-system/tokens';
+import { palette, meok, surface } from '@/design-system/tokens';
 
 interface Props {
   resultCount: number;
@@ -52,6 +52,11 @@ const FilterChip = styled.span`
   padding: 0.25rem 0.625rem;
   font-weight: 700;
   color: ${meok[900]};
+
+  [data-theme='dark'] & {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: ${meok[100]};
+  }
 `;
 
 const SearchForm = styled.form`
@@ -81,6 +86,16 @@ const InputWrapper = styled.div`
   &:focus-within {
     background-color: #FFF0F6;
   }
+
+  [data-theme='dark'] & {
+    background-color: ${surface.dark.card};
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    &:focus-within {
+      background-color: ${surface.dark.elevated};
+      border-color: ${palette.jangmi[500]};
+    }
+  }
 `;
 
 const StyledSearchInput = styled.input`
@@ -95,6 +110,14 @@ const StyledSearchInput = styled.input`
 
   &::placeholder {
     color: ${meok[500]};
+  }
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+
+    &::placeholder {
+      color: ${meok[400]};
+    }
   }
 `;
 
@@ -114,6 +137,15 @@ const ClearBtn = styled.button`
     background-color: rgba(33, 30, 25, 0.05);
     color: ${meok[900]};
   }
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+      color: ${meok[100]};
+    }
+  }
 `;
 
 const SubmitBtn = styled.button`
@@ -132,6 +164,14 @@ const SubmitBtn = styled.button`
   &:hover {
     background-color: ${palette.jangmi[500]};
   }
+
+  [data-theme='dark'] & {
+    background-color: ${palette.jangmi[500]};
+
+    &:hover {
+      background-color: ${palette.jangmi[700]};
+    }
+  }
 `;
 
 const ResetBtn = styled.button`
@@ -146,6 +186,14 @@ const ResetBtn = styled.button`
 
   &:hover {
     color: ${meok[900]};
+  }
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+
+    &:hover {
+      color: ${meok[100]};
+    }
   }
 `;
 

@@ -33,6 +33,11 @@ const CardBox = styled.div`
   background-color: #f8f8f7;
   padding: 1.25rem;
 
+  [data-theme='dark'] & {
+    background-color: ${surface.dark.card};
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
   @media (min-width: 640px) {
     grid-template-columns: minmax(0, 1fr) minmax(260px, 0.8fr);
     align-items: start;
@@ -46,6 +51,10 @@ const QuestionHeading = styled.h3`
   font-weight: 700;
   letter-spacing: -0.035em;
   color: ${meok[900]};
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 const QuestionDesc = styled.p`
@@ -53,6 +62,10 @@ const QuestionDesc = styled.p`
   font-size: ${fontSize.xs};
   line-height: 1.25rem;
   color: ${meok[700]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 const SuggestionsRow = styled.div`
@@ -78,6 +91,17 @@ const SuggestionButton = styled.button`
     background-color: ${palette.jangmi[50]};
     color: ${palette.jangmi[700]};
   }
+
+  [data-theme='dark'] & {
+    background-color: ${surface.dark.surface};
+    color: ${meok[200]};
+    border: 1px solid rgba(255, 255, 255, 0.06);
+
+    &:hover {
+      background-color: rgba(255, 92, 159, 0.2);
+      color: ${palette.jangmi[400]};
+    }
+  }
 `;
 
 const FormContainer = styled.form`
@@ -97,6 +121,16 @@ const InputWrapper = styled.div`
   &:focus-within {
     background-color: ${palette.jangmi[50]};
   }
+
+  [data-theme='dark'] & {
+    background-color: ${surface.dark.surface};
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    &:focus-within {
+      background-color: ${surface.dark.elevated};
+      border-color: ${palette.jangmi[500]};
+    }
+  }
 `;
 
 const StyledInput = styled.input`
@@ -110,6 +144,14 @@ const StyledInput = styled.input`
 
   &::placeholder {
     color: ${meok[500]};
+  }
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+
+    &::placeholder {
+      color: ${meok[400]};
+    }
   }
 `;
 
@@ -141,6 +183,10 @@ const HelperText = styled.p`
   font-size: ${fontSize.micro};
   color: ${meok[700]};
   line-height: 1.25rem;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 const ResultCard = styled.div`
@@ -148,6 +194,11 @@ const ResultCard = styled.div`
   border-radius: 18px;
   background-color: #ffffff;
   padding: 1.25rem;
+
+  [data-theme='dark'] & {
+    background-color: ${surface.dark.surface};
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
 
   @media (min-width: 640px) {
     padding: 1.5rem;
@@ -158,6 +209,10 @@ const ResultAnswer = styled.p`
   font-size: ${fontSize.sm};
   line-height: 1.5rem;
   color: ${meok[900]};
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 const SourcesRow = styled.div`
@@ -167,6 +222,10 @@ const SourcesRow = styled.div`
   gap: 0.5rem;
   border-top: 1px solid ${meok[200]};
   padding-top: 1rem;
+
+  [data-theme='dark'] & {
+    border-top-color: rgba(255, 255, 255, 0.08);
+  }
 `;
 
 const SourceButton = styled.button`
@@ -183,6 +242,15 @@ const SourceButton = styled.button`
     background-color: ${palette.jangmi[50]};
   }
 
+  [data-theme='dark'] & {
+    background-color: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+
+    &:hover {
+      background-color: rgba(255, 92, 159, 0.15);
+    }
+  }
+
   & .title {
     display: block;
     overflow: hidden;
@@ -191,6 +259,10 @@ const SourceButton = styled.button`
     font-size: ${fontSize.xs};
     font-weight: 600;
     color: ${meok[900]};
+
+    [data-theme='dark'] & {
+      color: ${meok[100]};
+    }
   }
 
   & .desc {
@@ -201,6 +273,10 @@ const SourceButton = styled.button`
     white-space: nowrap;
     font-size: ${fontSize.micro};
     color: ${meok[700]};
+
+    [data-theme='dark'] & {
+      color: ${meok[400]};
+    }
   }
 `;
 

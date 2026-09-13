@@ -16,14 +16,12 @@ import { SorimaruFooterCTA } from './SorimaruFooterCTA';
 import { SoundConstellationSection } from './SoundConstellationSection';
 import { LocalMiniPlayer } from './LocalMiniPlayer';
 import { SorimaruAtmosphereBackground } from './SorimaruAtmosphereBackground';
-import { HanjiTearTransition } from '@/features/sorimaru-audio/background/HanjiTearTransition';
 import type { SorimaruBackgroundVariant } from '@/features/sorimaru-audio/background/sorimaruBackground.types';
 import { VesselReveal } from '@/shared/components/animation/VesselReveal';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { SorimaruStoryItem, SorimaruStoryPage, ISorimaruApiService } from '@/features/sorimaru-audio/types/sorimaru.types';
 import { SorimaruDependencyProvider, useSorimaruApiService } from '@/features/sorimaru-audio/context/SorimaruDependencyContext';
 import { loadSorimaruInitialData } from './sorimaruInitialLoad';
-import { SORIMARU_SECTION_CONTENT_CLASS } from './sorimaruSectionLayout';
 import { palette, meok, surface, fontSize } from '@/design-system/tokens';
 
 const AllStoriesModal = dynamic(
@@ -62,6 +60,13 @@ const FeatureContainer = styled.div`
   padding-bottom: 6rem;
   color: ${meok[900]};
   font-family: var(--font-hanok);
+  background-color: transparent;
+  transition: background-color 0.3s ease, color 0.3s ease;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+    background-color: ${surface.dark.app};
+  }
 
   &::selection {
     background-color: #FFD4E5;
@@ -78,6 +83,10 @@ const TopRadialGlow = styled.div`
   z-index: -10;
   height: 620px;
   background: radial-gradient(ellipse at 50% 0%, rgba(248, 78, 118, 0.1), transparent 66%);
+
+  [data-theme='dark'] & {
+    background: radial-gradient(ellipse at 50% 0%, rgba(248, 78, 118, 0.05), transparent 66%);
+  }
 `;
 
 const ContentLayer = styled.div`
@@ -102,6 +111,13 @@ const ErrorAlert = styled.div`
   font-size: 0.875rem;
   color: ${meok[700]};
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+
+  [data-theme='dark'] & {
+    background-color: ${surface.dark.card};
+    color: ${meok[200]};
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
 `;
 
 const RetryButton = styled.button`
@@ -154,6 +170,12 @@ const SectionGradientTitle = styled.h2`
   font-weight: 700;
   letter-spacing: -0.045em;
   color: transparent;
+
+  [data-theme='dark'] & {
+    background: linear-gradient(to right, #ffffff, #d9d9d7, #b0b8c1);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
 `;
 
 const CenteredContainer = styled.div`
@@ -188,6 +210,51 @@ const NearbyHeader = styled(motion.div)`
   }
 `;
 
+const SectionDescription = styled.p`
+  margin-top: 4px;
+  max-width: 36rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: ${meok[700]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
+`;
+
+const SectionSubText = styled.span`
+  color: ${meok[700]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
+`;
+
+const SectionStrongText = styled.strong`
+  display: block;
+  font-weight: 600;
+  color: ${meok[700]};
+
+  [data-theme='dark'] & {
+    color: ${meok[200]};
+  }
+`;
+
+const PageIndicator = styled.span`
+  min-width: 4rem;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: ${meok[900]};
+
+  [data-theme='dark'] & {
+    color: ${meok[200]};
+  }
+`;
+
 const LocationButton = styled.button`
   display: inline-flex;
   height: 2rem;
@@ -204,10 +271,21 @@ const LocationButton = styled.button`
   cursor: pointer;
   transition: all 0.3s ease;
 
+  [data-theme='dark'] & {
+    background-color: rgba(45, 41, 36, 0.7);
+    color: ${meok[200]};
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
   &:hover {
     transform: translateY(-2px);
     background-color: #ffffff;
     color: ${meok[900]};
+
+    [data-theme='dark'] & {
+      background-color: ${surface.dark.elevated};
+      color: #ffffff;
+    }
   }
 
   &:disabled {
@@ -226,10 +304,18 @@ const PaginationPill = styled.button`
   background: none;
   border: none;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease;
 
   &:hover {
     background-color: #FFF0F6;
+  }
+
+  [data-theme='dark'] & {
+    color: ${palette.jangmi[400]};
+
+    &:hover {
+      background-color: rgba(255, 92, 159, 0.15);
+    }
   }
 
   &:disabled {
@@ -493,23 +579,11 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
             {/* 섹션 2: 한 단어로, 한 장면 */}
             <VesselReveal style={{ minHeight: '650px' }}>
               <div style={{ marginTop: '1rem' }} data-sorimaru-stage="themes">
-                <div className={SORIMARU_SECTION_CONTENT_CLASS}>
+                <CenteredContainer>
                   <div style={{ paddingTop: '1rem' }}>
-                    <h3
-                      style={{
-                        display: 'inline-block',
-                        background: 'linear-gradient(to right, #211e19, #403b35, #6a6158)',
-                        WebkitBackgroundClip: 'text',
-                        backgroundClip: 'text',
-                        fontFamily: 'var(--font-hanok)',
-                        fontSize: 'clamp(24px, 3.2vw, 36px)',
-                        fontWeight: 700,
-                        letterSpacing: '-0.04em',
-                        color: 'transparent',
-                      }}
-                    >
+                    <SectionGradientTitle as="h3">
                       장면을 따라 걷는 소리
-                    </h3>
+                    </SectionGradientTitle>
                   </div>
                   <div style={{ marginTop: '0.5rem' }}>
                     <SorimaruEditorialRail
@@ -520,7 +594,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                       onApiError={handleApiError}
                     />
                   </div>
-                </div>
+                </CenteredContainer>
               </div>
             </VesselReveal>
 
@@ -529,7 +603,6 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
             </VesselReveal>
 
             {/* 섹션 3: 오늘, 여기에서 */}
-            <HanjiTearTransition stage="nearby" variant={resolvedBackgroundVariant} />
             <VesselReveal style={{ minHeight: '440px', width: '100%', padding: '1.5rem 0' }}>
               <section aria-labelledby="nearby-stories-heading" style={{ width: '100%' }} data-sorimaru-stage="nearby">
                 <CenteredContainer>
@@ -538,16 +611,16 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                       <SectionGradientTitle id="nearby-stories-heading">
                         오늘, 여기에서
                       </SectionGradientTitle>
-                      <p style={{ marginTop: 4, maxWidth: '36rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '0.875rem', lineHeight: '1.25rem', color: meok[700] }}>
+                      <SectionDescription>
                         {locationMessage}
-                      </p>
+                      </SectionDescription>
                     </div>
                     <div style={{ display: 'flex', flexShrink: 0, alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
-                      <span style={{ textAlign: 'right', fontSize: fontSize.micro, lineHeight: '1rem', color: meok[700] }}>
-                        <span style={{ display: 'block' }}>{locationLabel}</span>
-                        <strong style={{ display: 'block', fontWeight: 600, color: meok[700] }}>
+                      <span style={{ textAlign: 'right', fontSize: fontSize.micro, lineHeight: '1rem' }}>
+                        <SectionSubText style={{ display: 'block' }}>{locationLabel}</SectionSubText>
+                        <SectionStrongText>
                           내 주변 오디오 {nearbyStories.length}개
-                        </strong>
+                        </SectionStrongText>
                       </span>
                       <LocationButton
                         type="button"
@@ -568,7 +641,6 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
             </VesselReveal>
 
             {/* 오디오 아카이브 섹션 (통합 메인 뷰) */}
-            <HanjiTearTransition stage="archive" variant={resolvedBackgroundVariant} />
             <VesselReveal id="sorimaru-archive" style={{ minHeight: '900px', width: '100%', padding: '2rem 0' }}>
               <section style={{ width: '100%' }} data-sorimaru-stage="archive">
                 <CenteredContainer>
@@ -576,9 +648,9 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                     <SectionGradientTitle id="archive-heading">
                       오디로 듣는 한국
                     </SectionGradientTitle>
-                    <p style={{ marginTop: 4, maxWidth: '36rem', fontSize: '0.875rem', lineHeight: '1.25rem', color: meok[700] }}>
+                    <SectionDescription>
                       처마 끝 바람 소리부터 천년 고도의 숨결까지, 마음에 머무는 이야기 트랙.
-                    </p>
+                    </SectionDescription>
                   </motion.div>
 
                   <motion.div variants={contentVariants}>
@@ -591,9 +663,9 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                   </div>
 
                   <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', paddingTop: '1rem' }}>
-                    <span style={{ fontSize: fontSize.micro, color: meok[700] }}>
+                    <SectionSubText style={{ fontSize: fontSize.micro }}>
                       {archiveMeta.totalCount > 0 ? `${archiveMeta.totalCount.toLocaleString()}개 중 ${archiveMeta.pageNo}페이지` : '검색 결과 없음'}
-                    </span>
+                    </SectionSubText>
                     <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'flex-end', gap: '0.5rem' }}>
                       <PaginationPill
                         type="button"
@@ -605,9 +677,9 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                       >
                         이전
                       </PaginationPill>
-                      <span style={{ minWidth: '4rem', textAlign: 'center', fontSize: '0.75rem', fontWeight: 600, color: meok[900] }}>
+                      <PageIndicator>
                         {archivePage} / {totalArchivePages}
-                      </span>
+                      </PageIndicator>
                       <PaginationPill
                         type="button"
                         onClick={() => {

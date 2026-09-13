@@ -6,7 +6,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { Pause, Play, ChevronRight } from 'lucide-react';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { SorimaruStoryItem } from '@/features/sorimaru-audio/types/sorimaru.types';
-import { palette, meok } from '@/design-system/tokens';
+import { palette, meok, surface } from '@/design-system/tokens';
 
 interface SorimaruAutoSliceRailProps {
   stories: SorimaruStoryItem[];
@@ -68,6 +68,14 @@ const HeroHeading = styled(motion.h1)`
   span.accent {
     color: ${palette.jangmi[500]};
   }
+
+  [data-theme='dark'] & {
+    color: #ffffff;
+
+    span.accent {
+      color: ${palette.jangmi[400]};
+    }
+  }
 `;
 
 const HeroDesc = styled(motion.p)`
@@ -80,6 +88,10 @@ const HeroDesc = styled(motion.p)`
   @media (min-width: 640px) {
     max-width: 36rem;
     font-size: 1rem;
+  }
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
   }
 `;
 
@@ -118,6 +130,17 @@ const MainPlayCircle = styled(motion.button)`
     outline-offset: 4px;
   }
 
+  [data-theme='dark'] & {
+    background-color: ${surface.dark.card};
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 18px 30px -12px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+
+    &:hover {
+      background-color: ${surface.dark.elevated};
+    }
+  }
+
   @media (min-width: 640px) {
     height: 6rem;
     width: 6rem;
@@ -150,8 +173,57 @@ const NextPopularButton = styled(motion.button)`
     color: ${palette.jangmi[500]};
   }
 
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+
+    &:hover {
+      color: ${palette.jangmi[400]};
+    }
+  }
+
   @media (min-width: 640px) {
     margin-top: 3.5rem;
+  }
+`;
+
+const PlayingSubLabel = styled.p`
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: ${meok[500]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
+`;
+
+const PlayingTitle = styled.p`
+  margin-top: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-hanok);
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.5rem;
+  color: ${meok[900]};
+
+  [data-theme='dark'] & {
+    color: #ffffff;
+  }
+`;
+
+const PlayingMeta = styled.p`
+  margin-top: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  color: ${meok[500]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
   }
 `;
 
@@ -260,16 +332,16 @@ export const SorimaruAutoSliceRail: React.FC<SorimaruAutoSliceRailProps> = ({ st
                 transition={{ duration: 0.32, ease: EASE }}
                 style={{ minWidth: 0 }}
               >
-                <p style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: meok[500] }}>
+                <PlayingSubLabel>
                   {isStoryPlaying ? '지금 재생 중' : '지금 듣는 이야기'}
-                </p>
-                <p style={{ marginTop: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'var(--font-hanok)', fontSize: '1.125rem', fontWeight: 700, lineHeight: '1.5rem', color: meok[900] }}>
+                </PlayingSubLabel>
+                <PlayingTitle>
                   {story.title}
-                </p>
-                <p style={{ marginTop: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '0.75rem', color: meok[500] }}>
+                </PlayingTitle>
+                <PlayingMeta>
                   {getStoryLabel(story)}
                   {story.formattedDuration ? ` · ${story.formattedDuration}` : ''}
-                </p>
+                </PlayingMeta>
               </motion.div>
             </AnimatePresence>
           </ControlsRow>

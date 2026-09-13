@@ -35,6 +35,12 @@ const FloatingBarContainer = styled(motion.div)`
   backdrop-filter: blur(24px);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
 
+  [data-theme='dark'] & {
+    background-color: rgba(36, 33, 29, 0.95);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
   @media (min-width: 640px) {
     padding: 0.75rem 1rem 1rem;
   }
@@ -86,12 +92,20 @@ const StoryTitle = styled.span`
   font-size: ${fontSize.sm};
   font-weight: 600;
   color: ${meok[900]};
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 const StorySubMeta = styled.span`
   display: block;
   font-size: ${fontSize.micro};
   color: ${meok[500]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 
   .category {
     color: ${palette.jangmi[500]};
@@ -203,6 +217,12 @@ const DrawerPanel = styled(motion.aside)<{ $isTranscriptOpen: boolean }>`
   }
   max-height: ${({ $isTranscriptOpen }) => ($isTranscriptOpen ? '88dvh' : '90dvh')};
 
+  [data-theme='dark'] & {
+    background-color: ${surface.dark.card};
+    color: ${meok[100]};
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
   @media (min-width: 1024px) {
     bottom: 1.5rem;
     left: 50%;
@@ -212,6 +232,10 @@ const DrawerPanel = styled(motion.aside)<{ $isTranscriptOpen: boolean }>`
     border-radius: 1.5rem;
     padding: 1.75rem;
     max-height: ${({ $isTranscriptOpen }) => ($isTranscriptOpen ? '86vh' : 'auto')};
+
+    [data-theme='dark'] & {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
   }
 `;
 
@@ -236,6 +260,10 @@ const BackToPlayerBtn = styled.button`
   &:hover {
     color: ${palette.jangmi[700]};
   }
+
+  [data-theme='dark'] & {
+    color: ${palette.jangmi[400]};
+  }
 `;
 
 const CloseBtn = styled.button`
@@ -253,6 +281,15 @@ const CloseBtn = styled.button`
   &:hover {
     background-color: ${meok[200]};
   }
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+      color: ${meok[100]};
+    }
+  }
 `;
 
 const CategoryBadge = styled.span`
@@ -262,6 +299,11 @@ const CategoryBadge = styled.span`
   font-size: ${fontSize.micro};
   font-weight: 700;
   color: ${palette.jangmi[500]};
+
+  [data-theme='dark'] & {
+    background-color: rgba(255, 92, 159, 0.18);
+    color: ${palette.jangmi[400]};
+  }
 `;
 
 const PlayingStatusBadge = styled.span`
@@ -272,6 +314,11 @@ const PlayingStatusBadge = styled.span`
   font-weight: 700;
   color: ${palette.jangmi[500]};
   letter-spacing: 0.05em;
+
+  [data-theme='dark'] & {
+    background-color: rgba(255, 92, 159, 0.18);
+    color: ${palette.jangmi[400]};
+  }
 `;
 
 const ScriptProgressTrack = styled.div`
@@ -282,6 +329,10 @@ const ScriptProgressTrack = styled.div`
   bottom: 0;
   width: 2px;
   background-color: #e5e5e3;
+
+  [data-theme='dark'] & {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
 `;
 
 const ScriptProgressActive = styled(motion.div)`
@@ -319,6 +370,24 @@ const ScriptLineBtn = styled.button<{ $active: boolean }>`
           background-color: #f5f5f4;
         }
       `}
+
+  [data-theme='dark'] & {
+    ${({ $active }) =>
+      $active
+        ? `
+          background-color: rgba(255, 255, 255, 0.12);
+          font-weight: 600;
+          color: #ffffff;
+        `
+        : `
+          background: none;
+          color: ${meok[400]};
+          &:hover {
+            background-color: rgba(255, 255, 255, 0.06);
+            color: ${meok[200]};
+          }
+        `}
+  }
 `;
 
 const BigPlayBtn = styled.button`
@@ -355,6 +424,16 @@ const SkipTimeBtn = styled.button`
   &:hover {
     background-color: #e5e5e3;
   }
+
+  [data-theme='dark'] & {
+    background-color: ${surface.dark.surface};
+    color: ${meok[200]};
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    &:hover {
+      background-color: ${surface.dark.elevated};
+    }
+  }
 `;
 
 const PreviewLineBtn = styled.button<{ $active: boolean }>`
@@ -387,6 +466,24 @@ const PreviewLineBtn = styled.button<{ $active: boolean }>`
           color: ${meok[900]};
         }
       `}
+
+  [data-theme='dark'] & {
+    ${({ $active }) =>
+      $active
+        ? `
+          background-color: ${palette.jangmi[500]};
+          font-weight: 600;
+          color: #ffffff;
+        `
+        : `
+          background: none;
+          color: ${meok[400]};
+          &:hover {
+            color: ${meok[100]};
+            background-color: rgba(255, 255, 255, 0.05);
+          }
+        `}
+  }
 `;
 
 export const LocalMiniPlayer: React.FC = () => {

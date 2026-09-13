@@ -7,7 +7,7 @@ import { EditorialCaptionVariant } from './EditorialCaptionVariant';
 import { LandscapeCardVariant } from './LandscapeCardVariant';
 import { OverlayInfoVariant } from './OverlayInfoVariant';
 import { SECTION2_STUDY_STORIES } from './studyData';
-import { palette, meok } from '@/design-system/tokens';
+import { palette, meok, surface } from '@/design-system/tokens';
 
 const MainContainer = styled.main`
   position: relative;
@@ -16,6 +16,11 @@ const MainContainer = styled.main`
   padding-bottom: 6rem;
   color: #211e19;
   font-family: var(--font-hanok);
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+    background-color: ${surface.dark.app};
+  }
 `;
 
 const BackgroundGlow = styled.div`
@@ -30,6 +35,13 @@ const BackgroundGlow = styled.div`
     radial-gradient(circle at 12% 12%, rgba(248, 78, 118, 0.12), transparent 32%),
     radial-gradient(circle at 82% 4%, rgba(206, 178, 136, 0.22), transparent 31%),
     linear-gradient(180deg, #fffaf5 0%, rgba(255, 250, 245, 0) 100%);
+
+  [data-theme='dark'] & {
+    background:
+      radial-gradient(circle at 12% 12%, rgba(248, 78, 118, 0.05), transparent 32%),
+      radial-gradient(circle at 82% 4%, rgba(206, 178, 136, 0.08), transparent 31%),
+      linear-gradient(180deg, #121110 0%, rgba(18, 17, 16, 0) 100%);
+  }
 `;
 
 const HeaderContainer = styled.header`
@@ -85,6 +97,10 @@ const MainTitle = styled.h1`
   line-height: 1.04;
   letter-spacing: -0.065em;
   color: #211e19;
+
+  [data-theme='dark'] & {
+    color: #ffffff;
+  }
 `;
 
 const MainDesc = styled.p`
@@ -96,6 +112,10 @@ const MainDesc = styled.p`
   @media (min-width: 640px) {
     font-size: 1rem;
     line-height: 1.75rem;
+  }
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
   }
 `;
 
@@ -112,6 +132,10 @@ const MetaGrid = styled.div`
   @media (min-width: 640px) {
     width: 270px;
   }
+
+  [data-theme='dark'] & {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
 `;
 
 const MetaCell = styled.div`
@@ -126,6 +150,17 @@ const MetaCell = styled.div`
     display: block;
     margin-top: 0.25rem;
     color: #403930;
+  }
+
+  [data-theme='dark'] & {
+    background-color: ${surface.dark.card};
+
+    span {
+      color: ${meok[400]};
+    }
+    strong {
+      color: ${meok[100]};
+    }
   }
 `;
 

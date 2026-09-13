@@ -5,30 +5,26 @@ import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { SORIMARU_REGION_CHIPS, SORIMARU_THEME_CATEGORIES } from '@/features/sorimaru-audio/data/sorimaruCategoryData';
-import { palette, meok, fontSize } from '@/design-system/tokens';
+import { palette, meok, surface, fontSize } from '@/design-system/tokens';
 
-interface CategoryTagFilterProps {
-  variant?: 'default' | 'compact' | 'store';
+export interface CategoryTagFilterProps {
+  variant?: 'default' | 'store' | 'compact';
 }
 
 const ScrollRail = styled.div`
   display: flex;
-  align-items: center;
   overflow-x: auto;
   scrollbar-width: none;
   &::-webkit-scrollbar {
     display: none;
   }
+  align-items: center;
 `;
 
 const StoreThemeButton = styled.button<{ $selected: boolean }>`
-  display: flex;
-  height: 2.25rem;
   flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0.75rem;
-  padding: 0 1rem;
+  border-radius: 9999px;
+  padding: 0.375rem 1rem;
   font-size: 0.75rem;
   font-weight: 700;
   transition: all 0.2s ease;
@@ -49,6 +45,23 @@ const StoreThemeButton = styled.button<{ $selected: boolean }>`
           color: ${palette.jangmi[500]};
         }
       `}
+
+  [data-theme='dark'] & {
+    ${({ $selected }) =>
+      $selected
+        ? `
+          background: linear-gradient(to right, ${palette.jangmi[500]}, ${palette.jangmi[700]});
+          color: #ffffff;
+        `
+        : `
+          background: none;
+          color: ${meok[400]};
+          &:hover {
+            background-color: ${surface.dark.card};
+            color: ${palette.jangmi[400]};
+          }
+        `}
+  }
 `;
 
 const StoreRegionButton = styled.button<{ $selected: boolean }>`
@@ -75,6 +88,24 @@ const StoreRegionButton = styled.button<{ $selected: boolean }>`
           color: ${palette.jangmi[500]};
         }
       `}
+
+  [data-theme='dark'] & {
+    ${({ $selected }) =>
+      $selected
+        ? `
+          background-color: ${palette.jangmi[500]};
+          color: #ffffff;
+        `
+        : `
+          background-color: rgba(45, 41, 36, 0.7);
+          color: ${meok[400]};
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          &:hover {
+            background-color: ${surface.dark.card};
+            color: ${palette.jangmi[400]};
+          }
+        `}
+  }
 `;
 
 const CompactThemeButton = styled.button<{ $selected: boolean }>`
@@ -101,6 +132,24 @@ const CompactThemeButton = styled.button<{ $selected: boolean }>`
           color: ${palette.jangmi[500]};
         }
       `}
+
+  [data-theme='dark'] & {
+    ${({ $selected }) =>
+      $selected
+        ? `
+          background: linear-gradient(to right, ${palette.jangmi[500]}, ${palette.jangmi[700]});
+          color: #ffffff;
+        `
+        : `
+          background-color: rgba(45, 41, 36, 0.8);
+          color: ${meok[400]};
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          &:hover {
+            background-color: ${surface.dark.card};
+            color: ${palette.jangmi[400]};
+          }
+        `}
+  }
 `;
 
 const CompactRegionButton = styled.button<{ $selected: boolean }>`
@@ -127,6 +176,24 @@ const CompactRegionButton = styled.button<{ $selected: boolean }>`
           color: ${palette.jangmi[500]};
         }
       `}
+
+  [data-theme='dark'] & {
+    ${({ $selected }) =>
+      $selected
+        ? `
+          background-color: ${palette.jangmi[500]};
+          color: #ffffff;
+        `
+        : `
+          background-color: rgba(45, 41, 36, 0.6);
+          color: ${meok[400]};
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          &:hover {
+            background-color: ${surface.dark.card};
+            color: ${palette.jangmi[400]};
+          }
+        `}
+  }
 `;
 
 const NavUnderlineButton = styled.button<{ $selected: boolean }>`
@@ -152,6 +219,20 @@ const NavUnderlineButton = styled.button<{ $selected: boolean }>`
           color: ${meok[900]};
         }
       `}
+
+  [data-theme='dark'] & {
+    ${({ $selected }) =>
+      $selected
+        ? `
+          color: ${palette.jangmi[400]};
+        `
+        : `
+          color: ${meok[400]};
+          &:hover {
+            color: ${meok[100]};
+          }
+        `}
+  }
 `;
 
 const RegionTextButton = styled.button<{ $selected: boolean }>`
@@ -175,6 +256,42 @@ const RegionTextButton = styled.button<{ $selected: boolean }>`
           color: ${meok[900]};
         }
       `}
+
+  [data-theme='dark'] & {
+    ${({ $selected }) =>
+      $selected
+        ? `
+          color: ${palette.jangmi[400]};
+        `
+        : `
+          color: ${meok[400]};
+          &:hover {
+            color: ${meok[100]};
+          }
+        `}
+  }
+`;
+
+const StoreFilterRailBox = styled.div`
+  border-radius: 1rem;
+  background-color: rgba(255, 255, 255, 0.75);
+  padding: 0.375rem;
+  backdrop-filter: blur(12px);
+
+  [data-theme='dark'] & {
+    background-color: rgba(36, 33, 29, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+`;
+
+const FilterSectionTitle = styled.span`
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: ${meok[900]};
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 'default' }) => {
@@ -195,12 +312,12 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 
     return (
       <div style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 0.25rem' }}>
-          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: meok[900] }}>테마별 탐색</span>
+          <FilterSectionTitle>테마별 탐색</FilterSectionTitle>
           <span style={{ fontSize: fontSize.micro, fontWeight: 500, color: meok[500] }}>주제 오디오</span>
         </div>
 
         {/* 주 메뉴 메인 필터 레일 */}
-        <div style={{ borderRadius: '1rem', backgroundColor: 'rgba(255, 255, 255, 0.75)', padding: '0.375rem', backdropFilter: 'blur(12px)' }}>
+        <StoreFilterRailBox>
           <ScrollRail style={{ gap: '0.25rem' }}>
             <StoreThemeButton
               type="button"
@@ -224,7 +341,7 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 
               );
             })}
           </ScrollRail>
-        </div>
+        </StoreFilterRailBox>
 
         {/* 소메뉴 지역 필터 칩 */}
         <ScrollRail style={{ gap: '0.5rem', padding: '0.25rem 0.25rem 0' }}>

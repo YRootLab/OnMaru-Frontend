@@ -59,6 +59,10 @@ const SectionHeading = styled.h2`
   font-weight: 700;
   letter-spacing: -0.045em;
   color: #211e19;
+
+  [data-theme='dark'] & {
+    color: #ffffff;
+  }
 `;
 
 const HeaderDescCol = styled.div`
@@ -74,6 +78,10 @@ const SubTitle = styled.p`
   font-weight: 700;
   letter-spacing: -0.025em;
   color: #403930;
+
+  [data-theme='dark'] & {
+    color: ${meok[200]};
+  }
 `;
 
 const SubDesc = styled.p`
@@ -81,6 +89,10 @@ const SubDesc = styled.p`
   font-size: 0.75rem;
   line-height: 1.25rem;
   color: #786d5e;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 const DetailText = styled.p`
@@ -89,6 +101,10 @@ const DetailText = styled.p`
   font-size: 10px;
   line-height: 1.25rem;
   color: #8c7e6c;
+
+  [data-theme='dark'] & {
+    color: ${meok[500]};
+  }
 `;
 
 export function StudySectionFrame({

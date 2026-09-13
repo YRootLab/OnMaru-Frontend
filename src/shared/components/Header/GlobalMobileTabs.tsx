@@ -45,6 +45,14 @@ const TabLink = styled(Link, transientProps)<TabProps>`
   &:active {
     transform: scale(0.94);
   }
+
+  [data-theme='dark'] & {
+    color: ${({ $isLanding, $isSoriMaru, $isSorimaru, $isActive }) => {
+      if ($isActive && ($isSoriMaru || $isSorimaru)) return lightPalette.jangmi[400];
+      if ($isActive) return '#f8e6bd';
+      return 'rgba(250, 250, 250, 0.68)';
+    }};
+  }
 `;
 
 /** 사이트 공통 하단 탭 (홈 / 한옥 마루 / 지도 / 소리마루) — Header의 데스크톱 GNB를 모바일 폭에서 대체한다. */

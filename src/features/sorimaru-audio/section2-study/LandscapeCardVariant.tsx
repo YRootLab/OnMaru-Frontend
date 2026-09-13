@@ -2,6 +2,7 @@
 
 import styled from '@emotion/styled';
 import { MotionStudyCard, StudyImage, StudyPlayControl, StudyRail, StudySectionFrame, StudyVariantProps } from './StudyPrimitives';
+import { meok, surface } from '@/design-system/tokens';
 
 const CardItem = styled.div`
   display: grid;
@@ -16,6 +17,11 @@ const CardItem = styled.div`
     height: 218px;
     width: 370px;
     border-radius: 24px;
+  }
+
+  [data-theme='dark'] & {
+    background-color: ${surface.dark.card};
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   &:hover .zoom-target {
@@ -65,6 +71,10 @@ const LocationText = styled.p`
   white-space: nowrap;
   font-size: 10px;
   color: #8c7e6c;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 const TitleHeading = styled.h3`
@@ -82,6 +92,10 @@ const TitleHeading = styled.h3`
   @media (min-width: 640px) {
     font-size: 18px;
   }
+
+  [data-theme='dark'] & {
+    color: #ffffff;
+  }
 `;
 
 const AudioTitle = styled.p`
@@ -93,6 +107,10 @@ const AudioTitle = styled.p`
   font-size: 10px;
   line-height: 1rem;
   color: #786d5e;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 const FooterRow = styled.div`
@@ -109,6 +127,10 @@ const DurationText = styled.span`
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: #655b4d;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 export function LandscapeCardVariant({ stories, selectedStoryId, onSelectStory }: StudyVariantProps) {

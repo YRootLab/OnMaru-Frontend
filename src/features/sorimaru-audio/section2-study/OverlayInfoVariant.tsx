@@ -3,6 +3,8 @@
 import styled from '@emotion/styled';
 import { MotionStudyCard, StudyImage, StudyPlayControl, StudyRail, StudySectionFrame, StudyVariantProps } from './StudyPrimitives';
 
+import { meok, surface } from '@/design-system/tokens';
+
 const CardItem = styled.div`
   position: relative;
   height: 354px;
@@ -65,6 +67,11 @@ const OverlayPanel = styled.div`
     right: 1rem;
     bottom: 1rem;
   }
+
+  [data-theme='dark'] & {
+    background-color: rgba(28, 26, 23, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
 `;
 
 const LocationText = styled.p`
@@ -73,6 +80,10 @@ const LocationText = styled.p`
   white-space: nowrap;
   font-size: 10px;
   color: #786d5e;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 const TitleHeading = styled.h3`
@@ -88,6 +99,10 @@ const TitleHeading = styled.h3`
   line-height: 1.35;
   letter-spacing: -0.035em;
   color: #211e19;
+
+  [data-theme='dark'] & {
+    color: #ffffff;
+  }
 `;
 
 const FooterRow = styled.div`
@@ -105,6 +120,10 @@ const AudioTitle = styled.p`
   white-space: nowrap;
   font-size: 10px;
   color: #786d5e;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 const DurationText = styled.p`
@@ -113,6 +132,10 @@ const DurationText = styled.p`
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: #655b4d;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 export function OverlayInfoVariant({ stories, selectedStoryId, onSelectStory }: StudyVariantProps) {

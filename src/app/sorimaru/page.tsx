@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function SoriMaruPage() {
-  return <SorimaruAudioFeature />;
+  return <SorimaruAudioFeature backgroundVariant="hanji-journey" />;
 }

@@ -151,6 +151,26 @@ const HeaderBackdrop = styled('div', transientProps)<LandingProps>`
     border-color 380ms cubic-bezier(0.16, 1, 0.3, 1),
     box-shadow 380ms cubic-bezier(0.16, 1, 0.3, 1);
 
+  [data-theme='dark'] & {
+    background: ${({ $isLanding, $isScrolled }) => {
+      if ($isLanding) {
+        return $isScrolled ? 'rgba(23, 21, 18, 0.78)' : 'rgba(23, 21, 18, 0.46)';
+      }
+      return $isScrolled ? 'rgba(28, 26, 23, 0.88)' : 'rgba(28, 26, 23, 0.75)';
+    }};
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: ${({ $isLanding, $isScrolled }) => {
+      if ($isLanding) {
+        return $isScrolled
+          ? '0 16px 36px -10px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.2)'
+          : '0 8px 24px -6px rgba(0, 0, 0, 0.3)';
+      }
+      return $isScrolled
+        ? '0 12px 32px -6px rgba(0, 0, 0, 0.4), 0 4px 12px -2px rgba(0, 0, 0, 0.25)'
+        : '0 6px 20px -4px rgba(0, 0, 0, 0.3)';
+    }};
+  }
+
   @media (prefers-reduced-motion: reduce) {
     transition: none;
   }
@@ -235,6 +255,22 @@ const NavLink = styled(Link, transientProps)<LandingProps>`
       $isLanding ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.055)'};
   }
 
+  [data-theme='dark'] & {
+    color: ${({ $isLanding }) => ($isLanding ? 'rgba(255, 255, 255, 0.82)' : meok[200])};
+
+    &:hover {
+      color: ${({ $isLanding, $isSoriMaru, $isSorimaru }) =>
+        ($isSoriMaru || $isSorimaru)
+          ? lightPalette.jangmi[400]
+          : '#ffffff'};
+      background-color: rgba(255, 255, 255, 0.08);
+    }
+
+    &:active {
+      background-color: rgba(255, 255, 255, 0.14);
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     transition: none;
   }
@@ -284,6 +320,11 @@ const MobileMenuButton = styled('button', transientProps)<LandingProps>`
   transition: background-color 180ms ease, transform 180ms ease;
 
   &:active { transform: scale(0.96); }
+
+  [data-theme='dark'] & {
+    color: #faf9f6;
+    background: rgba(255, 248, 235, 0.1);
+  }
 `;
 
 const MobileMenuPanel = styled(motion.nav, transientProps)<LandingProps>`
@@ -304,6 +345,11 @@ const MobileMenuPanel = styled(motion.nav, transientProps)<LandingProps>`
 
   border-radius: 16px;
 
+  [data-theme='dark'] & {
+    background: ${({ $isScrolled }) =>
+      $isScrolled ? 'rgba(27, 25, 22, 0.94)' : 'rgba(27, 25, 22, 0.88)'};
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
 `;
 
 const MobileMenuLink = styled(Link, transientProps)<LandingProps>`
@@ -320,12 +366,24 @@ const MobileMenuLink = styled(Link, transientProps)<LandingProps>`
   &:active {
     background: ${({ $isLanding }) => ($isLanding ? 'rgba(255, 248, 235, 0.12)' : 'rgba(169, 77, 53, 0.1)')};
   }
+
+  [data-theme='dark'] & {
+    color: rgba(250, 250, 250, 0.9);
+
+    &:active {
+      background: rgba(255, 248, 235, 0.12);
+    }
+  }
 `;
 
 const MobileMenuDivider = styled('div', transientProps)<LandingProps>`
   height: 1px;
   margin: 4px 6px;
   background: ${({ $isLanding }) => ($isLanding ? 'rgba(255, 248, 235, 0.13)' : 'rgba(33, 30, 25, 0.09)')};
+
+  [data-theme='dark'] & {
+    background: rgba(255, 248, 235, 0.13);
+  }
 `;
 
 const LoginButton = styled(Link, transientProps)<LandingProps>`
@@ -380,6 +438,17 @@ const LoginButton = styled(Link, transientProps)<LandingProps>`
     }
   }
 
+  [data-theme='dark'] & {
+    color: #ffffff;
+    background: rgba(20, 18, 16, 0.95);
+    border-color: rgba(255, 255, 255, 0.16);
+
+    &:hover {
+      background: rgba(38, 35, 31, 1);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     transition: none;
   }
@@ -406,6 +475,16 @@ const ThemeToggleBtn = styled('button', transientProps)<LandingProps>`
 
   &:active {
     transform: scale(0.95);
+  }
+
+  [data-theme='dark'] & {
+    border-color: rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.18);
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {

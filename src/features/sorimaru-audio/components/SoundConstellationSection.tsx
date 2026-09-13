@@ -14,7 +14,7 @@ import {
   SOUND_CONSTELLATION_API_ROOT_MARGIN,
   getRegionPathMotion,
 } from './soundConstellationMotion';
-import { palette, meok, fontSize } from '@/design-system/tokens';
+import { palette, meok, surface, fontSize } from '@/design-system/tokens';
 
 interface SoundConstellationSectionProps {
   stories: SorimaruStoryItem[];
@@ -45,8 +45,8 @@ const getRegionStories = (stories: SorimaruStoryItem[], region: KoreaRegionPath)
 // Styled Components
 // ==========================================
 const pulseKeyframe = keyframes`
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.15); }
 `;
 
 const spinKeyframe = keyframes`
@@ -92,6 +92,12 @@ const MainHeading = styled.h2`
   font-size: clamp(24px, 3.2vw, 36px);
   font-weight: 700;
   letter-spacing: -0.045em;
+
+  [data-theme='dark'] & {
+    background: linear-gradient(to right, #ffffff, #d9d9d7, #b0b8c1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
 `;
 
 const SubDesc = styled.p`
@@ -100,6 +106,10 @@ const SubDesc = styled.p`
   font-size: ${fontSize.xs};
   line-height: 1.25rem;
   color: ${meok[700]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 
   @media (min-width: 640px) {
     font-size: ${fontSize.sm};
@@ -143,6 +153,12 @@ const MapHintPill = styled.div`
   color: ${meok[700]};
   backdrop-filter: blur(4px);
 
+  [data-theme='dark'] & {
+    background-color: rgba(36, 33, 29, 0.9);
+    color: ${meok[200]};
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
   @media (min-width: 640px) {
     left: 1.5rem;
     top: 1.5rem;
@@ -175,6 +191,10 @@ const StyledSvg = styled.svg`
   width: 100%;
   height: 100%;
   overflow: visible;
+
+  [data-theme='dark'] & path {
+    stroke: rgba(255, 255, 255, 0.25);
+  }
 `;
 
 const RegionPin = styled.div`
@@ -196,9 +216,20 @@ const RegionPinButton = styled.button<{ isActive: boolean }>`
   background-color: ${(props) => (props.isActive ? meok[900] : 'rgba(255, 255, 255, 0.9)')};
   color: ${(props) => (props.isActive ? '#ffffff' : meok[700])};
 
+  [data-theme='dark'] & {
+    background-color: ${(props) => (props.isActive ? palette.jangmi[500] : 'rgba(45, 41, 36, 0.9)')};
+    color: ${(props) => (props.isActive ? '#ffffff' : meok[200])};
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
   &:hover {
     background-color: ${(props) => (props.isActive ? meok[900] : '#ffffff')};
     color: ${(props) => (props.isActive ? '#ffffff' : palette.jangmi[500])};
+
+    [data-theme='dark'] & {
+      background-color: ${(props) => (props.isActive ? palette.jangmi[700] : surface.dark.elevated)};
+      color: ${(props) => (props.isActive ? '#ffffff' : palette.jangmi[400])};
+    }
   }
 
   @media (min-width: 640px) {
@@ -215,6 +246,12 @@ const AsidePanel = styled.aside`
   background-color: rgba(255, 255, 255, 0.85);
   padding: 1rem 0.25rem;
   backdrop-filter: blur(12px);
+
+  [data-theme='dark'] & {
+    background-color: rgba(36, 33, 29, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  }
 
   @media (min-width: 640px) {
     height: 560px;
@@ -239,6 +276,10 @@ const RegionLabel = styled.h3`
   font-weight: 800;
   letter-spacing: -0.04em;
   color: ${meok[900]};
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 const StoriesCount = styled.span`
@@ -266,6 +307,10 @@ const TopGradientFade = styled.div`
   z-index: 20;
   height: 17px;
   background: linear-gradient(to bottom, #ffffff, rgba(255, 255, 255, 0.8), transparent);
+
+  [data-theme='dark'] & {
+    background: linear-gradient(to bottom, rgba(36, 33, 29, 0.95), rgba(36, 33, 29, 0.8), transparent);
+  }
 `;
 
 const BottomGradientFade = styled.div`
@@ -277,6 +322,10 @@ const BottomGradientFade = styled.div`
   z-index: 20;
   height: 17px;
   background: linear-gradient(to top, #ffffff, rgba(255, 255, 255, 0.8), transparent);
+
+  [data-theme='dark'] & {
+    background: linear-gradient(to top, rgba(36, 33, 29, 0.95), rgba(36, 33, 29, 0.8), transparent);
+  }
 `;
 
 const ScrollContent = styled.div`
@@ -307,6 +356,14 @@ const StoryItemButton = styled.button<{ isActive: boolean }>`
   &:hover {
     background-color: ${(props) => (props.isActive ? palette.jangmi[50] : meok[200])};
   }
+
+  [data-theme='dark'] & {
+    background-color: ${(props) => (props.isActive ? 'rgba(255, 92, 159, 0.2)' : 'transparent')};
+
+    &:hover {
+      background-color: ${(props) => (props.isActive ? 'rgba(255, 92, 159, 0.25)' : 'rgba(255, 255, 255, 0.06)')};
+    }
+  }
 `;
 
 const StoryThumb = styled.span`
@@ -317,6 +374,10 @@ const StoryThumb = styled.span`
   overflow: hidden;
   border-radius: 8.7px;
   background-color: #f0f0ef;
+
+  [data-theme='dark'] & {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
 
   & img {
     height: 100%;
@@ -351,6 +412,10 @@ const StoryTitle = styled.strong<{ isActive: boolean }>`
   font-weight: 700;
   line-height: 1.35;
   color: ${(props) => (props.isActive ? palette.jangmi[500] : meok[900])};
+
+  [data-theme='dark'] & {
+    color: ${(props) => (props.isActive ? palette.jangmi[400] : meok[100])};
+  }
 `;
 
 const DurationStatus = styled.span<{ isActive: boolean }>`
@@ -359,6 +424,10 @@ const DurationStatus = styled.span<{ isActive: boolean }>`
   font-size: ${fontSize.micro};
   font-weight: 400;
   color: ${(props) => (props.isActive ? palette.jangmi[500] : meok[500])};
+
+  [data-theme='dark'] & {
+    color: ${(props) => (props.isActive ? palette.jangmi[400] : meok[400])};
+  }
 `;
 
 const ExcerptText = styled.span`
@@ -370,6 +439,10 @@ const ExcerptText = styled.span`
   font-size: ${fontSize.micro};
   line-height: 1.4;
   color: ${meok[700]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 const LoadingSpinnerWrapper = styled.div`

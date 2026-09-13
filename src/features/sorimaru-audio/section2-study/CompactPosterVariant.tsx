@@ -3,7 +3,7 @@
 import styled from '@emotion/styled';
 import { motion, useReducedMotion } from 'framer-motion';
 import { MotionStudyCard, StudyImage, StudyPlayControl, StudyRail, StudySectionFrame, StudyVariantProps } from './StudyPrimitives';
-import { palette, meok } from '@/design-system/tokens';
+import { palette, meok, surface } from '@/design-system/tokens';
 
 const CardItem = styled.div`
   display: flex;
@@ -15,6 +15,11 @@ const CardItem = styled.div`
   background-color: #fffdf9;
   @media (min-width: 640px) {
     width: 232px;
+  }
+
+  [data-theme='dark'] & {
+    background-color: ${surface.dark.card};
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   &:hover .zoom-target {
@@ -50,6 +55,11 @@ const CategoryBadge = styled.span`
   font-weight: 700;
   color: ${palette.jangmi[700]};
   backdrop-filter: blur(4px);
+
+  [data-theme='dark'] & {
+    background-color: rgba(28, 26, 23, 0.85);
+    color: ${palette.jangmi[400]};
+  }
 `;
 
 const BodyArea = styled.div`
@@ -66,6 +76,10 @@ const LocationText = styled.p`
   white-space: nowrap;
   font-size: 10px;
   color: #8c7e6c;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 const TitleHeading = styled.h3`
@@ -81,6 +95,10 @@ const TitleHeading = styled.h3`
   line-height: 1.35;
   letter-spacing: -0.035em;
   color: #211e19;
+
+  [data-theme='dark'] & {
+    color: #ffffff;
+  }
 `;
 
 const AudioTitleText = styled.p`
@@ -90,6 +108,10 @@ const AudioTitleText = styled.p`
   white-space: nowrap;
   font-size: 10px;
   color: #786d5e;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 const BottomRow = styled.div`
@@ -106,6 +128,10 @@ const DurationText = styled.span`
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: #655b4d;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 export function CompactPosterVariant({ stories, selectedStoryId, onSelectStory }: StudyVariantProps) {

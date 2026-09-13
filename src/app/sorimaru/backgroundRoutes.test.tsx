@@ -9,8 +9,8 @@ import BeVer4Page from './be-ver4/page';
 type VariantElement = ReactElement<{ backgroundVariant?: string }>;
 
 describe('Sorimaru background routes', () => {
-  it('leaves the production Sorimaru route on the compatibility background', () => {
-    expect((SorimaruPage() as VariantElement).props.backgroundVariant).toBeUndefined();
+  it('puts the production Sorimaru route on the hanji-journey background', () => {
+    expect((SorimaruPage() as VariantElement).props.backgroundVariant).toBe('hanji-journey');
   });
 
   it.each([

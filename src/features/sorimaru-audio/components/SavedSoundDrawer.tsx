@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Heart, X } from 'lucide-react';
 import { SorimaruStoryItem } from '@/features/sorimaru-audio/types/sorimaru.types';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
-import { palette, meok, fontSize } from '@/design-system/tokens';
+import { palette, meok, surface, fontSize } from '@/design-system/tokens';
 
 interface SavedSoundDrawerProps {
   savedStories: SorimaruStoryItem[];
@@ -30,7 +30,14 @@ const FloatingOpenButton = styled.button`
   cursor: pointer;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   border-radius: 9999px;
-  transition: color 0.2s ease;
+  transition: color 0.2s ease, background-color 0.2s ease;
+
+  [data-theme='dark'] & {
+    background-color: rgba(36, 33, 29, 0.95);
+    color: ${meok[100]};
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  }
 
   &:hover {
     color: ${palette.jangmi[500]};
@@ -62,6 +69,12 @@ const DrawerAside = styled(motion.aside)`
   color: ${meok[900]};
   box-shadow: -8px 0 32px rgba(0, 0, 0, 0.15);
 
+  [data-theme='dark'] & {
+    background-color: ${surface.dark.card};
+    color: ${meok[100]};
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
   @media (min-width: 640px) {
     padding: 2rem;
   }
@@ -73,6 +86,10 @@ const DrawerHeader = styled.div`
   justify-content: space-between;
   padding-bottom: 1.25rem;
   border-bottom: 1px solid rgba(33, 30, 25, 0.08);
+
+  [data-theme='dark'] & {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+  }
 `;
 
 const CloseButton = styled.button`
@@ -89,6 +106,14 @@ const CloseButton = styled.button`
 
   &:hover {
     color: ${palette.jangmi[500]};
+  }
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+
+    &:hover {
+      color: ${palette.jangmi[400]};
+    }
   }
 `;
 
@@ -107,6 +132,10 @@ const ItemRow = styled.div`
   gap: 0.75rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid rgba(33, 30, 25, 0.06);
+
+  [data-theme='dark'] & {
+    border-bottom-color: rgba(255, 255, 255, 0.06);
+  }
 `;
 
 const ThumbBox = styled.div`
@@ -117,10 +146,24 @@ const ThumbBox = styled.div`
   border-radius: 8px;
   background-color: #e5e5e3;
 
+  [data-theme='dark'] & {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+
   img {
     height: 100%;
     width: 100%;
     object-fit: cover;
+  }
+`;
+
+const DrawerSubText = styled.p`
+  font-size: 0.75rem;
+  line-height: 1.25rem;
+  color: ${meok[700]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
   }
 `;
 
@@ -204,9 +247,9 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
                 </CloseButton>
               </DrawerHeader>
 
-              <p style={{ marginTop: '1rem', fontSize: '0.75rem', lineHeight: '1.25rem', color: meok[700] }}>
+              <DrawerSubText style={{ marginTop: '1rem' }}>
                 좋아하는 이야기를 이곳에 모아두면 다음 방문에도 이어서 들을 수 있어요.
-              </p>
+              </DrawerSubText>
 
               <ScrollList>
                 {savedStories.length === 0 ? (

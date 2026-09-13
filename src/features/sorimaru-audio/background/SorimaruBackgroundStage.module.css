@@ -32,8 +32,6 @@
   inset: -12%;
   opacity: calc(.24 * var(--sorimaru-bg-hanji) * var(--sorimaru-bg-stage-strength));
   background-image:
-    repeating-linear-gradient(8deg, rgba(var(--sorimaru-bg-fiber-rgb), .035) 0 1px, transparent 1px 11px),
-    repeating-linear-gradient(98deg, rgba(var(--sorimaru-bg-light-rgb), .82) 0 1px, transparent 1px 17px),
     radial-gradient(ellipse at 12% 24%, rgba(var(--sorimaru-bg-fiber-rgb), .028), transparent 31%),
     radial-gradient(ellipse at 78% 74%, rgba(var(--sorimaru-bg-fiber-rgb), .02), transparent 28%);
   filter: blur(.25px);
@@ -61,25 +59,7 @@
 }
 
 .thresholdShadow {
-  left: var(--sorimaru-bg-shadow-left);
-  top: var(--sorimaru-bg-shadow-top);
-  width: min(49vw, 660px);
-  height: min(78vh, 840px);
-  opacity: calc(.11 * var(--sorimaru-bg-threshold) * var(--sorimaru-bg-stage-strength));
-  rotate: -4deg;
-  border-radius: 2rem;
-  background-image:
-    repeating-linear-gradient(90deg, transparent 0 68px, rgba(var(--sorimaru-bg-shadow-rgb), .76) 69px 73px),
-    repeating-linear-gradient(0deg, transparent 0 84px, rgba(var(--sorimaru-bg-shadow-rgb), .58) 85px 89px);
-  mask-image: linear-gradient(125deg, transparent 3%, #000 30%, #000 69%, transparent 94%);
-  filter: blur(3px);
-  transform-origin: 50% 0;
-  transition:
-    left 1.2s cubic-bezier(.22, 1, .36, 1),
-    top 1.2s cubic-bezier(.22, 1, .36, 1),
-    width 1.2s cubic-bezier(.22, 1, .36, 1),
-    opacity 1.1s ease,
-    rotate 1.2s cubic-bezier(.22, 1, .36, 1);
+  display: none !important;
 }
 
 .thresholdBar {
@@ -206,6 +186,54 @@
   background:
     linear-gradient(90deg, rgba(var(--sorimaru-bg-shadow-rgb), .014), transparent 13% 87%, rgba(var(--sorimaru-bg-shadow-rgb), .014)),
     linear-gradient(0deg, rgba(var(--sorimaru-bg-shadow-rgb), .012), transparent 18%);
+}
+
+.deckleEdge {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  opacity: calc(.85 * var(--sorimaru-bg-hanji) * var(--sorimaru-bg-stage-strength));
+  transition: opacity 1.1s ease;
+}
+
+.deckleEdgeLeft,
+.deckleEdgeRight {
+  position: absolute;
+  top: 0;
+  width: 22px;
+  height: 100%;
+}
+
+.deckleEdgeLeft { left: 0; }
+.deckleEdgeRight { right: 0; transform: scaleX(-1); }
+
+.deckleBody {
+  fill: var(--sorimaru-bg-canvas);
+}
+
+.deckleShadow {
+  fill: none;
+  stroke: rgba(var(--sorimaru-bg-shadow-rgb), .1);
+  stroke-width: 3;
+  filter: blur(2px);
+  translate: 2px 0;
+}
+
+.deckleFringe {
+  fill: none;
+  stroke: rgba(var(--sorimaru-bg-fiber-rgb), .16);
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 2 1 4 1 3 2;
+}
+
+@media (max-width: 700px) {
+  .deckleEdgeLeft,
+  .deckleEdgeRight {
+    width: 12px;
+  }
 }
 
 /* One spatial sequence: each Sorimaru section moves the same materials. */
@@ -403,27 +431,29 @@
 .tear svg {
   position: absolute;
   left: 0;
-  top: -30px;
+  top: -18px;
   width: 100%;
-  height: 52px;
+  height: 32px;
   overflow: visible;
 }
 
-.tearBody { fill: rgba(255, 255, 255, .98); }
+.tearBody {
+  fill: rgba(255, 255, 255, .98);
+}
 .tearFringe {
   fill: none;
   stroke: rgba(255, 255, 255, .98);
-  stroke-width: 5;
+  stroke-width: 4px;
   stroke-linecap: round;
   stroke-linejoin: round;
-  stroke-dasharray: 3 1 7 2;
+  stroke-dasharray: 4 1 8 2;
 }
 .tearShadow {
   fill: none;
-  stroke: rgba(70, 70, 70, .07);
-  stroke-width: 9;
-  translate: 0 4px;
-  filter: blur(3px);
+  stroke: rgba(70, 70, 70, .065);
+  stroke-width: 7px;
+  translate: 0 2.5px;
+  filter: blur(2.5px);
 }
 
 @keyframes hospitality-breathe {
@@ -443,12 +473,7 @@
   }
 
   .thresholdShadow {
-    width: 76vw;
-    height: 64vh;
-    opacity: calc(.075 * var(--sorimaru-bg-threshold) * var(--sorimaru-bg-stage-strength));
-    background-image:
-      repeating-linear-gradient(90deg, transparent 0 45px, rgba(var(--sorimaru-bg-shadow-rgb), .7) 46px 49px),
-      repeating-linear-gradient(0deg, transparent 0 58px, rgba(var(--sorimaru-bg-shadow-rgb), .52) 59px 62px);
+    display: none !important;
   }
 
   .gardenShadow {
@@ -460,7 +485,12 @@
   .paperRule { width: 31vw; }
   .stage[data-variant='hanji-journey'][data-stage='archive'] .paperSheet { width: 108%; right: -4%; }
   .warmthPoint { width: 58px; }
-  .tear svg { top: -22px; height: 40px; }
+  .tear svg {
+    left: 0;
+    width: 100%;
+    top: -14px;
+    height: 26px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -471,3 +501,67 @@
     transition-duration: .12s !important;
   }
 }
+
+/* ────────────────────────────────────────────────────────────
+   Dark Mode Support (먹빛 고택 야경 테마)
+   ──────────────────────────────────────────────────────────── */
+:global([data-theme='dark']) .stage {
+  --sorimaru-bg-canvas: #1c1a17 !important;
+  background: #1c1a17 !important;
+  background-color: #1c1a17 !important;
+}
+
+:global([data-theme='dark']) .stage[data-variant='hanji-journey'],
+:global([data-theme='dark']) .stage[data-stage='archive'],
+:global([data-theme='dark']) .stage[data-stage='closing'] {
+  background: #1c1a17 !important;
+  background-color: #1c1a17 !important;
+}
+
+:global([data-theme='dark']) .hospitalityLight {
+  opacity: calc(.18 * var(--sorimaru-bg-light) * var(--sorimaru-bg-stage-strength)) !important;
+}
+
+:global([data-theme='dark']) .paperSheet {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: linear-gradient(135deg, rgba(38, 35, 31, 0.96), rgba(28, 26, 23, 0.9));
+  box-shadow: -14px 18px 42px rgba(0, 0, 0, 0.6);
+}
+
+:global([data-theme='dark']) .deckleBody {
+  fill: #1c1a17 !important;
+}
+
+:global([data-theme='dark']) .deckleEdge {
+  opacity: calc(.85 * var(--sorimaru-bg-hanji) * var(--sorimaru-bg-stage-strength)) !important;
+}
+
+:global([data-theme='dark']) .deckleFringe {
+  stroke: rgba(240, 235, 225, 0.28) !important;
+  stroke-width: 1px !important;
+}
+
+:global([data-theme='dark']) .deckleShadow {
+  stroke: rgba(0, 0, 0, 0.5) !important;
+  stroke-width: 2.5px !important;
+  filter: blur(2px) !important;
+}
+
+:global([data-theme='dark']) .tearBody {
+  fill: rgba(255, 255, 255, 0.02) !important;
+}
+
+:global([data-theme='dark']) .tearFringe {
+  stroke: rgba(240, 235, 225, 0.2) !important;
+  stroke-width: 1.2px !important;
+  stroke-dasharray: 4 1 8 2 !important;
+}
+
+:global([data-theme='dark']) .tearShadow {
+  stroke: rgba(0, 0, 0, 0.3) !important;
+  stroke-width: 2.5px !important;
+  filter: blur(1.5px) !important;
+  translate: 0 1px !important;
+}
+
+

@@ -2,7 +2,7 @@
 
 import styled from '@emotion/styled';
 import { MotionStudyCard, StudyImage, StudyPlayControl, StudyRail, StudySectionFrame, StudyVariantProps } from './StudyPrimitives';
-import { palette } from '@/design-system/tokens';
+import { palette, meok } from '@/design-system/tokens';
 
 const CardItem = styled.div`
   width: 206px;
@@ -46,6 +46,11 @@ const CategoryBadge = styled.span`
   font-weight: 700;
   color: ${palette.jangmi[700]};
   backdrop-filter: blur(4px);
+
+  [data-theme='dark'] & {
+    background-color: rgba(28, 26, 23, 0.85);
+    color: ${palette.jangmi[400]};
+  }
 `;
 
 const PlayControlSlot = styled.div`
@@ -66,6 +71,10 @@ const LocationText = styled.p`
   white-space: nowrap;
   font-size: 10px;
   color: #8c7e6c;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 const TitleHeading = styled.h3`
@@ -81,6 +90,10 @@ const TitleHeading = styled.h3`
   line-height: 1.35;
   letter-spacing: -0.04em;
   color: #211e19;
+
+  [data-theme='dark'] & {
+    color: #ffffff;
+  }
 `;
 
 const SubRow = styled.div`
@@ -98,6 +111,10 @@ const AudioTitle = styled.p`
   white-space: nowrap;
   font-size: 10px;
   color: #786d5e;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 const DurationText = styled.span`
@@ -106,6 +123,10 @@ const DurationText = styled.span`
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: ${palette.jangmi[700]};
+
+  [data-theme='dark'] & {
+    color: ${palette.jangmi[400]};
+  }
 `;
 
 export function EditorialCaptionVariant({ stories, selectedStoryId, onSelectStory }: StudyVariantProps) {

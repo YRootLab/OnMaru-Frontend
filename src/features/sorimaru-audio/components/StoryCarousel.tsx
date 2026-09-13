@@ -7,7 +7,7 @@ import { Play, Pause, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { SorimaruStoryItem } from '@/features/sorimaru-audio/types/sorimaru.types';
 import { getRailIndicator, shouldUpdateRailIndicator } from './storyCarouselMetrics';
-import { palette, meok, fontSize } from '@/design-system/tokens';
+import { palette, meok, surface, fontSize } from '@/design-system/tokens';
 
 interface StoryCarouselProps {
   stories: SorimaruStoryItem[];
@@ -46,30 +46,21 @@ function getDominantColor(imageUrl: string): Promise<string> {
   if (cached) return Promise.resolve(cached);
 
   return new Promise((resolve) => {
-    const image = new window.Image();
+    const image = new Image();
     image.crossOrigin = 'anonymous';
     image.onload = () => {
       try {
         const canvas = document.createElement('canvas');
-        canvas.width = 16;
-        canvas.height = 16;
+        canvas.width = 1;
+        canvas.height = 1;
         const context = canvas.getContext('2d', { willReadFrequently: true });
-        if (!context) throw new Error('Canvas unavailable');
-        context.drawImage(image, 0, 0, 16, 16);
-        const pixels = context.getImageData(0, 0, 16, 16).data;
-        let red = 0;
-        let green = 0;
-        let blue = 0;
-        let count = 0;
-        for (let index = 0; index < pixels.length; index += 16) {
-          const brightness = (pixels[index] + pixels[index + 1] + pixels[index + 2]) / 3;
-          if (pixels[index + 3] < 180 || brightness < 18 || brightness > 238) continue;
-          red += pixels[index];
-          green += pixels[index + 1];
-          blue += pixels[index + 2];
-          count += 1;
+        if (!context) {
+          resolve('#e5e5e3');
+          return;
         }
-        const color = count ? `rgb(${Math.round(red / count)}, ${Math.round(green / count)}, ${Math.round(blue / count)})` : '#e5e5e3';
+        context.drawImage(image, 0, 0, 1, 1);
+        const [r, g, b] = context.getImageData(0, 0, 1, 1).data;
+        const color = `rgb(${r}, ${g}, ${b})`;
         dominantColorCache.set(imageUrl, color);
         resolve(color);
       } catch {
@@ -124,6 +115,23 @@ const CardButton = styled.button<{ $isCurrent: boolean; $isHovered: boolean; $ac
   &:hover {
     background-color: ${({ $isCurrent, $accentColor }) =>
       $isCurrent ? '#FFF0F6' : `color-mix(in srgb, ${$accentColor} 12%, white)`};
+  }
+
+  [data-theme='dark'] & {
+    background-color: ${({ $isCurrent, $isHovered, $accentColor }) =>
+      $isCurrent
+        ? 'rgba(255, 92, 159, 0.22)'
+        : $isHovered
+        ? `color-mix(in srgb, ${$accentColor} 18%, ${surface.dark.card})`
+        : surface.dark.surface};
+    border: 1px solid rgba(255, 255, 255, 0.06);
+
+    &:hover {
+      background-color: ${({ $isCurrent, $accentColor }) =>
+        $isCurrent
+          ? 'rgba(255, 92, 159, 0.25)'
+          : `color-mix(in srgb, ${$accentColor} 18%, ${surface.dark.card})`};
+    }
   }
 `;
 
@@ -181,6 +189,20 @@ const PlayBubble = styled.span<{ $isPlaying: boolean }>`
         background-color: rgba(255, 255, 255, 0.95);
         color: ${meok[900]};
       `}
+
+  [data-theme='dark'] & {
+    ${({ $isPlaying }) =>
+      $isPlaying
+        ? `
+          background-color: ${palette.jangmi[500]};
+          color: #ffffff;
+        `
+        : `
+          background-color: rgba(45, 41, 36, 0.9);
+          color: ${meok[100]};
+          border: 1px solid rgba(255, 255, 255, 0.1);
+        `}
+  }
 `;
 
 const CardInfoCol = styled.div`
@@ -206,6 +228,10 @@ const CardMainTitle = styled.h3<{ $isCurrent: boolean }>`
   overflow: hidden;
   color: ${({ $isCurrent }) => ($isCurrent ? palette.jangmi[500] : meok[900])};
 
+  [data-theme='dark'] & {
+    color: ${({ $isCurrent }) => ($isCurrent ? palette.jangmi[400] : meok[100])};
+  }
+
   @media (min-width: 640px) {
     font-size: 1rem;
   }
@@ -220,6 +246,10 @@ const CardSubTitle = styled.p`
   font-weight: 500;
   line-height: 1rem;
   color: ${meok[700]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 const CategoryLocationRow = styled.div`
@@ -239,6 +269,11 @@ const MiniCategoryTag = styled.span`
   font-weight: 600;
   line-height: 1rem;
   color: ${palette.jangmi[500]};
+
+  [data-theme='dark'] & {
+    color: ${palette.jangmi[400]};
+    background-color: rgba(255, 92, 159, 0.15);
+  }
 `;
 
 const LocationSpan = styled.span`
@@ -249,6 +284,10 @@ const LocationSpan = styled.span`
   font-weight: 500;
   line-height: 1rem;
   color: ${meok[500]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 const ExcerptText = styled.p`
@@ -260,6 +299,10 @@ const ExcerptText = styled.p`
   font-size: ${fontSize.micro};
   line-height: 1.4;
   color: ${meok[500]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 const CardBottomMeta = styled.div`
@@ -270,6 +313,10 @@ const CardBottomMeta = styled.div`
   padding-top: 0.5rem;
   font-size: ${fontSize.micro};
   color: ${meok[500]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 interface NearbyStoryCardProps {
@@ -455,6 +502,10 @@ const EdgeFadeLeft = styled.div`
   width: 3rem;
   background: linear-gradient(to right, #ffffff, rgba(255, 255, 255, 0.95), transparent);
 
+  [data-theme='dark'] & {
+    background: linear-gradient(to right, ${surface.dark.app}, rgba(28, 26, 23, 0.95), transparent);
+  }
+
   @media (min-width: 640px) {
     width: 4rem;
   }
@@ -469,6 +520,10 @@ const EdgeFadeRight = styled.div`
   z-index: 10;
   width: 1.5rem;
   background: linear-gradient(to left, #ffffff, rgba(255, 255, 255, 0.6), transparent);
+
+  [data-theme='dark'] & {
+    background: linear-gradient(to left, ${surface.dark.app}, rgba(28, 26, 23, 0.6), transparent);
+  }
 
   @media (min-width: 640px) {
     width: 2.25rem;
@@ -492,6 +547,18 @@ const FloatingNavBtn = styled.button<{ $side: 'left' | 'right' }>`
   border: none;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  [data-theme='dark'] & {
+    background-color: ${surface.dark.card};
+    color: ${meok[100]};
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    &:hover {
+      background-color: ${surface.dark.elevated};
+      color: ${palette.jangmi[400]};
+    }
+  }
 
   ${({ $side }) =>
     $side === 'left'

@@ -7,7 +7,7 @@ import { Play, Pause } from 'lucide-react';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import type { SorimaruStoryItem } from '@/features/sorimaru-audio/types/sorimaru.types';
 import { groupSorimaruStoriesByPlace, type SorimaruPlaceGroup } from '@/features/sorimaru-audio/utils/sorimaruArchiveGrouping';
-import { palette, meok, fontSize } from '@/design-system/tokens';
+import { palette, meok, surface, fontSize } from '@/design-system/tokens';
 
 interface SorimaruArchiveBrowseProps {
   stories: SorimaruStoryItem[];
@@ -30,13 +30,13 @@ function imageFor(story: SorimaruStoryItem, index: number) {
   return FALLBACK_IMAGES[seed % FALLBACK_IMAGES.length];
 }
 
-function storyContext(story: SorimaruStoryItem) {
-  const location = story.locationName || '대한민국 문화유산';
-  const category = story.category && story.category !== '오디 이야기' ? story.category : '';
-  return category ? `${category} · ${location}` : location;
+function storyContext(story: SorimaruStoryItem): string {
+  if (story.locationName) return story.locationName;
+  if (story.category && story.category !== '오디 이야기') return story.category;
+  return '대한민국 소리 기행';
 }
 
-const shimmerAnim = keyframes`
+const shimmerKeyframe = keyframes`
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 `;
@@ -44,7 +44,7 @@ const shimmerAnim = keyframes`
 const SkeletonBox = styled.div`
   background: linear-gradient(90deg, #f0f0f0 25%, #e5e5e3 50%, #f0f0f0 75%);
   background-size: 200% 100%;
-  animation: ${shimmerAnim} 1.6s ease-in-out infinite;
+  animation: ${shimmerKeyframe} 1.6s ease-in-out infinite;
   border-radius: 4px;
 `;
 
@@ -96,8 +96,48 @@ const StoryArticle = styled.article<{ $isCurrent: boolean }>`
     background-color: ${({ $isCurrent }) => ($isCurrent ? '#FFF0F6' : '#f0f0f0')};
   }
 
+  [data-theme='dark'] & {
+    background-color: ${({ $isCurrent }) => ($isCurrent ? 'rgba(255, 92, 159, 0.2)' : surface.dark.surface)};
+    border: 1px solid rgba(255, 255, 255, 0.06);
+
+    &:hover {
+      background-color: ${({ $isCurrent }) => ($isCurrent ? 'rgba(255, 92, 159, 0.25)' : surface.dark.card)};
+    }
+  }
+
   &:hover img {
     transform: scale(1.28);
+  }
+`;
+
+const StoryRowTitle = styled.h3<{ $isCurrent: boolean }>`
+  margin-top: 2px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-family: var(--font-hanok);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.028em;
+  color: ${({ $isCurrent }) => ($isCurrent ? palette.jangmi[500] : meok[900])};
+
+  [data-theme='dark'] & {
+    color: ${({ $isCurrent }) => ($isCurrent ? palette.jangmi[400] : meok[100])};
+  }
+`;
+
+const StoryRowSub = styled.p`
+  margin-top: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: ${fontSize.micro};
+  color: ${meok[700]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
   }
 `;
 
@@ -189,6 +229,11 @@ const DurationPill = styled.span`
   font-size: ${fontSize.micro};
   font-weight: 600;
   color: ${meok[700]};
+
+  [data-theme='dark'] & {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: ${meok[200]};
+  }
 `;
 
 interface StoryRowProps {
@@ -250,29 +295,15 @@ function StoryRow({ story, index }: StoryRowProps) {
       </ThumbSlot>
 
       <div style={{ minWidth: 0, flex: 1 }}>
-        <p style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: fontSize.micro, lineHeight: '1rem', color: meok[700] }}>
+        <StoryRowSub style={{ marginTop: 0, lineHeight: '1rem' }}>
           {storyContext(story)}
-        </p>
-        <h3
-          style={{
-            marginTop: 2,
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-            fontFamily: 'var(--font-hanok)',
-            fontSize: '0.875rem',
-            fontWeight: 700,
-            lineHeight: 1.35,
-            letterSpacing: '-0.028em',
-            color: isCurrent ? palette.jangmi[500] : meok[900],
-          }}
-        >
+        </StoryRowSub>
+        <StoryRowTitle $isCurrent={isCurrent}>
           {story.title}
-        </h3>
-        <p style={{ marginTop: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: fontSize.micro, color: meok[700] }}>
+        </StoryRowTitle>
+        <StoryRowSub>
           {story.audioTitle || story.locationName || '오디오 가이드'}
-        </p>
+        </StoryRowSub>
       </div>
 
       <DurationPill>{story.formattedDuration || '3:00'}</DurationPill>
@@ -284,6 +315,11 @@ const PlaceGroupSection = styled.section`
   border-radius: 1rem;
   background-color: #f5f5f4;
   padding: 1rem;
+
+  [data-theme='dark'] & {
+    background-color: ${surface.dark.card};
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
 `;
 
 const PlaceGroupHeader = styled.header`
@@ -300,18 +336,43 @@ const PlaceGroupHeader = styled.header`
   }
 `;
 
+const PlaceGroupTitle = styled.h3`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-hanok);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: ${meok[900]};
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
+`;
+
+const PlaceGroupCount = styled.p`
+  margin-top: 2px;
+  font-size: ${fontSize.micro};
+  color: ${meok[700]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
+`;
+
 function PlaceGroupCard({ group, startIndex }: { group: SorimaruPlaceGroup; startIndex: number }) {
   return (
     <PlaceGroupSection>
       <PlaceGroupHeader>
         <img src={imageFor(group.representative, startIndex)} alt="" loading="lazy" decoding="async" />
         <div style={{ minWidth: 0 }}>
-          <h3 style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'var(--font-hanok)', fontSize: '0.875rem', fontWeight: 700, letterSpacing: '-0.03em', color: meok[900] }}>
+          <PlaceGroupTitle>
             {group.label}
-          </h3>
-          <p style={{ marginTop: 2, fontSize: fontSize.micro, color: meok[700] }}>
+          </PlaceGroupTitle>
+          <PlaceGroupCount>
             현재 결과의 이야기 {group.stories.length}개
-          </p>
+          </PlaceGroupCount>
         </div>
       </PlaceGroupHeader>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>

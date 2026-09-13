@@ -6,7 +6,7 @@ import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { motion } from 'framer-motion';
 import SHADOW from '@/data/solarShadow.json';
-import { palette, meok, fontSize } from '@/design-system/tokens';
+import { palette, meok, surface, fontSize } from '@/design-system/tokens';
 
 function getNextSolarTerm(now = new Date()) {
   const year = now.getFullYear();
@@ -47,6 +47,13 @@ const GlassCard = styled(motion.div)`
   padding: 2rem;
   color: ${meok[900]};
   backdrop-filter: blur(12px);
+
+  [data-theme='dark'] & {
+    background: linear-gradient(to bottom right, ${surface.dark.card}, #24211D);
+    color: ${meok[100]};
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
   @media (min-width: 640px) {
     padding: 3.5rem;
   }
@@ -57,6 +64,10 @@ const RadialOverlay = styled.div`
   position: absolute;
   inset: 0;
   background: radial-gradient(circle, rgba(255, 255, 255, 0.6) 0%, transparent 60%, rgba(255, 240, 246, 0.8) 100%);
+
+  [data-theme='dark'] & {
+    background: radial-gradient(circle, rgba(45, 41, 36, 0.4) 0%, transparent 60%, rgba(36, 33, 29, 0.8) 100%);
+  }
 `;
 
 const GlowOrbRight = styled.div`
@@ -102,6 +113,12 @@ const SolarBadge = styled.div`
   font-weight: 700;
   color: ${palette.jangmi[500]};
   backdrop-filter: blur(4px);
+
+  [data-theme='dark'] & {
+    background: rgba(255, 92, 159, 0.15);
+    color: ${palette.jangmi[400]};
+    border: 1px solid rgba(255, 92, 159, 0.25);
+  }
 `;
 
 const PulseDot = styled.span`
@@ -119,6 +136,11 @@ const MainHeading = styled.h2`
   font-weight: 800;
   letter-spacing: -0.025em;
   color: ${meok[900]};
+
+  [data-theme='dark'] & {
+    color: #ffffff;
+  }
+
   @media (min-width: 640px) {
     font-size: ${fontSize['4xl']};
   }
@@ -130,6 +152,11 @@ const Description = styled.p`
   font-size: ${fontSize.xs};
   line-height: 1.625;
   color: ${meok[700]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
+
   @media (min-width: 640px) {
     font-size: ${fontSize.sm};
   }
@@ -205,6 +232,17 @@ const SecondaryCtaLink = styled(Link)`
     background: ${palette.jangmi[50]};
   }
 
+  [data-theme='dark'] & {
+    background: ${surface.dark.surface};
+    color: ${meok[100]};
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
+    &:hover {
+      background: ${surface.dark.elevated};
+      color: #ffffff;
+    }
+  }
+
   @media (min-width: 640px) {
     width: auto;
   }
@@ -215,6 +253,10 @@ const SubText = styled.p`
   font-size: ${fontSize.micro};
   font-weight: 500;
   color: ${meok[500]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 export const SorimaruFooterCTA: React.FC = () => {

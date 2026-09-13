@@ -20,6 +20,7 @@ import type { HanokFilterState } from '@/features/hanok-archive/sections/hanokFi
 import { VesselReveal } from '@/shared/components/animation/VesselReveal';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import QuickIndexBar from '@/features/hanok-archive/components/QuickIndexBar';
+import { HanjiDeckleEdge } from '@/shared/components/HanjiDeckleEdge';
 
 const loadDogamDetailModal = () => import('@/features/hanok-archive/components/HanokDogamDetailModal');
 const HanokDogamDetailModal = dynamic(loadDogamDetailModal, { ssr: false });
@@ -255,6 +256,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
 
   return (
     <Root>
+      <HanjiDeckleEdge />
       <Global styles={paperGround} />
       <PageInner>
         {/* 진입부: 한국의 정취를 담은 동영상 히어로 */}

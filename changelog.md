@@ -4,6 +4,16 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+- Completely removed artificial horizontal hanji tear lines (`HanjiTearTransition` returns null, tags removed) to eliminate floating strip/dot artifacts and let sections breathe with negative space and smooth atmospheric backgrounds.
+- Added authentic vertical hanji deckle edge frame to Hanok Maru (`/hanok`) via new shared Emotion component `<HanjiDeckleEdge />` (`src/shared/components/HanjiDeckleEdge`), unifying traditional aesthetic framing across both Sorimaru and Hanok Maru with full dark-mode and mobile support.
+- Removed protruding horizontal deckle fiber needle lines (`LEFT_DECKLE_FIBERS`, `RIGHT_DECKLE_FIBERS`) and background window lattice grid pattern (`.thresholdShadow` and repeating-linear-gradients).
+- Restored Section 2 ("장면을 따라 걷는 소리") horizontal gutters and aligned all section widths using `CenteredContainer` (`max-width: 72rem`, `padding: 0 1rem` to `2rem`).
+- Implemented comprehensive, end-to-end Dark Mode (`[data-theme='dark']`) support across the entire Sorimaru experience:
+  - Applied OnMaru dark tokens from `src/design-system/tokens.ts` (`surface.dark.app` `#1C1A17`, `surface.dark.surface` `#24211D`, `surface.dark.card` `#2D2924`, `meok[100]` `#fafafa`, `meok[400]` `#b0b8c1`).
+  - Added full dark mode styles to `SorimaruBackgroundStage.module.css`: dark atmospheric canvas, translucent night-sky paper sheets, and dark hanji tear fringe boundaries.
+  - Added dark mode support to GNB `Header.tsx` (backdrop glass, nav links, theme toggle button, login button, mobile menu panel) and `GlobalMobileTabs.tsx` so non-landing pages do not render a bright white header capsule in dark mode.
+  - Added dark mode styles to `SorimaruAutoSliceRail` (hero typography, play circle, now-playing text) and the Section 2 study variants (`Section2UiImprovements`, `StudyPrimitives`, `CompactPosterVariant`, `EditorialCaptionVariant`, `LandscapeCardVariant`, `OverlayInfoVariant`).
+  - Supported dark surfaces and typography across all subcomponents: `SorimaruAtmosphereBackground`, `SorimaruEditorialRail`, `SoundConstellationSection`, `StoryCarousel`, `CategoryTagFilter`, `SorimaruArchiveBrowse`, `SorimaruArchiveMetaBar`, `LocalMiniPlayer`, `SavedSoundDrawer`, `SorimaruQuestionAssistant`, and `SorimaruFooterCTA`.
 - Migrated all of Sorimaru (`src/features/sorimaru-audio`) to Emotion CSS and unified color styling with design system tokens (`src/design-system/tokens.ts`):
   - Converted all 26 components in `src/features/sorimaru-audio/components/` and `src/features/sorimaru-audio/section2-study/` to semantic Emotion styled components.
   - Purged all Tailwind CSS classes, `--tw-*` CSS variables, and `@tailwind` directives from `globals.css` and the entire codebase.

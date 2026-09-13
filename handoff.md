@@ -2,12 +2,13 @@
 
 Current work:
 - Summary:
-  1. Migrated all 26 components in `src/features/sorimaru-audio` to Emotion CSS.
-  2. Purged all Tailwind CSS classes, `--tw-*` CSS variables, and `@tailwind` directives across the codebase.
-  3. Deleted `tailwind.config.ts`, removed tailwindcss from `postcss.config.mjs` and `package.json`.
-  4. Unified all colors with `src/design-system/tokens.ts` (`palette.jangmi`, `meok`, `surface`, `fontSize`).
-  5. Preserved 100% of custom animations, audio synchronization, vinyl disc animations, 3D Z-translate card stages, and SVG constellation map interactions.
-  6. Verified: `npx tsc --noEmit` passed (0 errors), all 40 sorimaru tests passed, `npm run build` succeeded (34/34 pages).
+  1. Restored Section 2 ("장면을 따라 걷는 소리") horizontal gutters by wrapping it in `CenteredContainer` (`max-width: 72rem`, `padding: 0 1rem` to `2rem`) matching Section 3 and 4.
+  2. Implemented full dark mode (`[data-theme='dark']`) support across all 12 components in `src/features/sorimaru-audio`.
+  3. Completely removed horizontal hanji tear lines (`HanjiTearTransition` returns null, tags removed) to eliminate artificial dot/strip artifacts and let sections breathe with negative space and smooth atmospheric backgrounds.
+  4. Added vertical hanji deckle edge frame to Hanok Maru (`/hanok`) via new shared Emotion component `<HanjiDeckleEdge />` (`src/shared/components/HanjiDeckleEdge`).
+  5. Removed protruding horizontal deckle fiber needle lines (`LEFT_DECKLE_FIBERS`, `RIGHT_DECKLE_FIBERS`) and grid / graph-paper pattern (창호 격자 모눈종이 효과) from background.
+  6. Migrated all 26 components in `src/features/sorimaru-audio` to Emotion CSS and purged Tailwind CSS from the codebase.
+  7. Verified: `npx tsc --noEmit` clean (0 errors), all 45 sorimaru tests passed, `npm run build` verified.
 - Branch: `feat/hanok-dogam-2`
 - Related: PR #71 targeting `develop`.
 - Summary:

@@ -5,6 +5,8 @@ import styled from '@emotion/styled';
 import { SorimaruBackgroundStage } from '@/features/sorimaru-audio/background/SorimaruBackgroundStage';
 import type { SorimaruBackgroundVariant } from '@/features/sorimaru-audio/background/sorimaruBackground.types';
 
+import { surface } from '@/design-system/tokens';
+
 interface SorimaruAtmosphereBackgroundProps {
   variant?: SorimaruBackgroundVariant;
   selectedCategory?: string;
@@ -18,6 +20,11 @@ const FixedAtmosphere = styled.div`
   z-index: 0;
   overflow: hidden;
   background-color: #ffffff;
+  transition: background-color 0.3s ease;
+
+  [data-theme='dark'] & {
+    background-color: ${surface.dark.app};
+  }
 `;
 
 const LayerInner = styled.div`
@@ -30,6 +37,10 @@ const RadialMask = styled.div`
   position: absolute;
   inset: 0;
   background-image: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.96), transparent 72%);
+
+  [data-theme='dark'] & {
+    background-image: radial-gradient(circle at 50% 0%, rgba(28, 26, 23, 0.96), transparent 72%);
+  }
 `;
 
 export const SorimaruAtmosphereBackground: React.FC<SorimaruAtmosphereBackgroundProps> = ({

@@ -17,6 +17,15 @@ export const SORIMARU_BACKGROUND_PALETTE: SorimaruBackgroundPalette = {
   accentRgb: '145, 145, 145',
 };
 
+export const SORIMARU_BACKGROUND_DARK_PALETTE: SorimaruBackgroundPalette = {
+  canvas: '#1C1A17',
+  paper: '#24211D',
+  lightRgb: '45, 41, 36',
+  fiberRgb: '215, 210, 200',
+  shadowRgb: '0, 0, 0',
+  accentRgb: '212, 13, 99',
+};
+
 export const SORIMARU_BACKGROUND_STAGES = [
   'featured',
   'themes',
@@ -49,7 +58,7 @@ const TEAR_BOUNDARIES: Record<SorimaruBackgroundVariant, readonly SorimaruBackgr
   default: [],
   'warmth-grain': [],
   'changho-breeze': [],
-  'hanji-journey': ['nearby', 'archive'],
+  'hanji-journey': ['themes', 'nearby', 'archive', 'closing'],
   'onmaru-signature': ['archive'],
 };
 
@@ -84,7 +93,7 @@ const VARIANT_PRESENTATIONS: Record<SorimaruBackgroundVariant, SorimaruBackgroun
     thresholdShadow: 0.22,
     gardenShadow: 0.18,
     warmthField: 0.2,
-    paperDepth: 1,
+    paperDepth: 0,
   },
   'onmaru-signature': {
     hanjiAir: 0.64,

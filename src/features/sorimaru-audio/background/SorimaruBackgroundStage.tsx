@@ -4,10 +4,12 @@ import type { CSSProperties } from 'react';
 import { motion, useTransform } from 'framer-motion';
 import {
   SORIMARU_BACKGROUND_PALETTE,
+  SORIMARU_BACKGROUND_DARK_PALETTE,
   resolveSorimaruBackgroundPresentation,
 } from './sorimaruBackgroundScenes';
 import type { SorimaruBackgroundVariant } from './sorimaruBackground.types';
 import { useSorimaruBackgroundController } from './useSorimaruBackgroundController';
+import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import styles from './SorimaruBackgroundStage.module.css';
 
 interface SorimaruBackgroundStageProps {
@@ -20,11 +22,18 @@ type BackgroundVariables = CSSProperties & Record<`--sorimaru-bg-${string}`, str
 
 const WARMTH_POINTS = Array.from({ length: 6 }, (_, index) => index);
 
+const DECKLE_EDGE_PATH =
+  'M18 0 L14 55 L20 110 L16 165 L22 220 L15 275 L19 330 L13 385 L21 440 L17 495 L14 550 L20 605 L16 660 L23 715 L15 770 L18 825 L12 880 L20 935 L16 990 L22 1045 L14 1100 L19 1155 L17 1200';
+
 export function SorimaruBackgroundStage({
   variant,
   selectedCategory,
   isPlaying,
 }: SorimaruBackgroundStageProps) {
+  const { mode } = useOnmaruTheme();
+  const isDark = mode === 'dark';
+  const palette = isDark ? SORIMARU_BACKGROUND_DARK_PALETTE : SORIMARU_BACKGROUND_PALETTE;
+
   const { scene, motion: motionState, pointerX, pointerY, scrollProgress } =
     useSorimaruBackgroundController({ variant, selectedCategory, isPlaying });
   const presentation = resolveSorimaruBackgroundPresentation(variant);
@@ -34,12 +43,12 @@ export function SorimaruBackgroundStage({
   const shadowY = useTransform(scrollProgress, [0, 1], motionState.drift ? [-3, 3] : [0, 0]);
 
   const stageStyle: BackgroundVariables = {
-    '--sorimaru-bg-canvas': SORIMARU_BACKGROUND_PALETTE.canvas,
-    '--sorimaru-bg-paper-surface': SORIMARU_BACKGROUND_PALETTE.paper,
-    '--sorimaru-bg-light-rgb': SORIMARU_BACKGROUND_PALETTE.lightRgb,
-    '--sorimaru-bg-fiber-rgb': SORIMARU_BACKGROUND_PALETTE.fiberRgb,
-    '--sorimaru-bg-shadow-rgb': SORIMARU_BACKGROUND_PALETTE.shadowRgb,
-    '--sorimaru-bg-accent-rgb': SORIMARU_BACKGROUND_PALETTE.accentRgb,
+    '--sorimaru-bg-canvas': palette.canvas,
+    '--sorimaru-bg-paper-surface': palette.paper,
+    '--sorimaru-bg-light-rgb': palette.lightRgb,
+    '--sorimaru-bg-fiber-rgb': palette.fiberRgb,
+    '--sorimaru-bg-shadow-rgb': palette.shadowRgb,
+    '--sorimaru-bg-accent-rgb': palette.accentRgb,
     '--sorimaru-bg-hanji': presentation.hanjiAir.toString(),
     '--sorimaru-bg-light': presentation.hospitalityLight.toString(),
     '--sorimaru-bg-threshold': presentation.thresholdShadow.toString(),
@@ -89,6 +98,18 @@ export function SorimaruBackgroundStage({
         <span className={styles.paperSeal} />
       </div>
       <div className={styles.edgeVignette} />
+      <div className={styles.deckleEdge}>
+        <svg className={styles.deckleEdgeLeft} viewBox="0 0 32 1200" preserveAspectRatio="none">
+          <path className={styles.deckleBody} d={`${DECKLE_EDGE_PATH} L0 1200 L0 0 Z`} />
+          <path className={styles.deckleShadow} d={DECKLE_EDGE_PATH} />
+          <path className={styles.deckleFringe} d={DECKLE_EDGE_PATH} />
+        </svg>
+        <svg className={styles.deckleEdgeRight} viewBox="0 0 32 1200" preserveAspectRatio="none">
+          <path className={styles.deckleBody} d={`${DECKLE_EDGE_PATH} L0 1200 L0 0 Z`} />
+          <path className={styles.deckleShadow} d={DECKLE_EDGE_PATH} />
+          <path className={styles.deckleFringe} d={DECKLE_EDGE_PATH} />
+        </svg>
+      </div>
     </div>
   );
 }

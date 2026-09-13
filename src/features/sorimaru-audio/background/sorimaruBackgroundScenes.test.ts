@@ -32,7 +32,7 @@ describe('Sorimaru background scene model', () => {
   it('limits strong tear boundaries to the approved variants and stages', () => {
     expect(getSorimaruTearBoundaries('warmth-grain')).toEqual([]);
     expect(getSorimaruTearBoundaries('changho-breeze')).toEqual([]);
-    expect(getSorimaruTearBoundaries('hanji-journey')).toEqual(['nearby', 'archive']);
+    expect(getSorimaruTearBoundaries('hanji-journey')).toEqual(['themes', 'nearby', 'archive', 'closing']);
     expect(getSorimaruTearBoundaries('onmaru-signature')).toEqual(['archive']);
   });
 
@@ -70,7 +70,7 @@ describe('Sorimaru background scene model', () => {
     expect(resolveSorimaruBackgroundPresentation('hanji-journey')).toMatchObject({
       warmthField: 0.2,
       thresholdShadow: 0.22,
-      paperDepth: 1,
+      paperDepth: 0,
     });
     expect(resolveSorimaruBackgroundPresentation('onmaru-signature')).toMatchObject({
       warmthField: 0.68,

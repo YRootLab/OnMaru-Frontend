@@ -9,7 +9,7 @@ import { ISorimaruApiService, SorimaruStoryItem } from '@/features/sorimaru-audi
 import { SORIMARU_THEME_CATEGORIES } from '@/features/sorimaru-audio/data/sorimaruCategoryData';
 import { useSorimaruApiService } from '@/features/sorimaru-audio/context/SorimaruDependencyContext';
 import { SORIMARU_RAIL_VISIBLE_BUFFER, getVisibleRailPositions, shouldFetchRailCategory } from './sorimaruEditorialRailModel';
-import { palette, meok, fontSize } from '@/design-system/tokens';
+import { palette, meok, surface, fontSize } from '@/design-system/tokens';
 
 interface SorimaruEditorialRailProps {
   stories: SorimaruStoryItem[];
@@ -38,24 +38,24 @@ const FALLBACK_IMAGE_SETS = {
   palace: [
     '/images/hanok/giwa-detail.png',
     '/images/hanok/hanok-main.png',
-    '/images/hanok/changho-detail.png',
+    '/images/hanok/hanok-interior.png',
   ],
   nature: [
     '/images/hanok/hanok-porch.png',
+    '/images/hanok/hanok-interior.png',
     '/images/hanok/maru-detail.png',
-    '/images/hanok/ondol-detail.png',
   ],
   sound: [
-    '/images/hanok/maru-detail.png',
     '/images/hanok/changho-detail.png',
-    '/images/hanok/ondol-detail.png',
+    '/images/hanok/giwa-detail.png',
+    '/images/hanok/hanok-main.png',
   ],
   default: [
     '/images/hanok/hanok-main.png',
     '/images/hanok/hanok-exterior.png',
-    '/images/hanok/giwa-detail.png',
+    '/images/hanok/hanok-interior.png',
   ],
-} as const;
+};
 
 const getFallbackImageSet = (story: SorimaruStoryItem) => {
   const category = `${story.category} ${story.title} ${story.locationName || ''}`;
@@ -94,10 +94,18 @@ const CardMotionButton = styled(motion.button)<{ $isActive: boolean }>`
   text-align: left;
   outline: none;
   border: none;
+  border-radius: 1.25rem;
   cursor: pointer;
   z-index: ${({ $isActive }) => ($isActive ? 20 : 10)};
   box-shadow: ${({ $isActive }) => ($isActive ? '0 16px 36px rgba(0,0,0,0.18)' : '0 4px 12px rgba(0,0,0,0.06)')};
   filter: ${({ $isActive }) => ($isActive ? 'none' : 'grayscale(0.15)')};
+  transition: box-shadow 0.3s ease;
+
+  [data-theme='dark'] & {
+    background-color: ${surface.dark.card};
+    box-shadow: ${({ $isActive }) => ($isActive ? '0 16px 36px rgba(0,0,0,0.5)' : '0 4px 12px rgba(0,0,0,0.3)')};
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
 
   &:hover {
     filter: grayscale(0);
@@ -127,8 +135,74 @@ const CardBottomPanel = styled.div<{ $isActive: boolean }>`
   background-color: ${({ $isActive }) =>
     $isActive ? 'rgba(255, 240, 246, 0.68)' : 'rgba(255, 255, 255, 0.46)'};
 
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+    background-color: ${({ $isActive }) =>
+      $isActive ? 'rgba(45, 41, 36, 0.92)' : 'rgba(36, 33, 29, 0.85)'};
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
   @media (min-width: 640px) {
     padding: 1.25rem;
+  }
+`;
+
+const CardNumberBadge = styled.span`
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 20;
+  border-bottom-right-radius: 6px;
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 2px 8px;
+  font-family: monospace;
+  font-size: ${fontSize.micro};
+  font-weight: 700;
+  line-height: 1;
+  color: ${meok[900]};
+  backdrop-filter: blur(4px);
+
+  [data-theme='dark'] & {
+    background-color: rgba(28, 26, 23, 0.92);
+    color: ${meok[100]};
+  }
+`;
+
+const CarouselStageWrapper = styled.div`
+  position: relative;
+  isolation: isolate;
+  margin-top: 0;
+  height: 410px;
+  overflow: hidden;
+  background-color: transparent;
+  padding-top: 0.5rem;
+  padding-bottom: 1rem;
+  border-radius: 1.25rem;
+  transition: background-color 0.3s ease;
+
+  [data-theme='dark'] & {
+    background-color: ${surface.dark.surface};
+  }
+`;
+
+const CategoryTabButton = styled.button<{ $isSelected: boolean }>`
+  user-select: none;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  transition: color 0.3s ease;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: ${({ $isSelected }) => ($isSelected ? 600 : 400)};
+  color: ${({ $isSelected }) => ($isSelected ? palette.jangmi[500] : meok[700])};
+
+  [data-theme='dark'] & {
+    color: ${({ $isSelected }) => ($isSelected ? palette.jangmi[400] : meok[400])};
+
+    &:hover {
+      color: ${({ $isSelected }) => ($isSelected ? palette.jangmi[400] : meok[200])};
+    }
   }
 `;
 
@@ -215,26 +289,9 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(
           />
         </motion.div>
 
-        <span
-          style={{
-            pointerEvents: 'none',
-            position: 'absolute',
-            left: 0,
-            top: 0,
-            zIndex: 20,
-            borderBottomRightRadius: 6,
-            backgroundColor: 'rgba(255, 255, 255, 0.95)',
-            padding: '2px 8px',
-            fontFamily: 'monospace',
-            fontSize: fontSize.micro,
-            fontWeight: 700,
-            lineHeight: 1,
-            color: meok[900],
-            backdropFilter: 'blur(4px)',
-          }}
-        >
+        <CardNumberBadge>
           {String(((position % featuredLength) + featuredLength) % featuredLength + 1).padStart(2, '0')}
-        </span>
+        </CardNumberBadge>
 
         <CardBottomPanel $isActive={isActive}>
           <p
@@ -251,36 +308,12 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(
           >
             {story.category !== '오디 이야기' ? story.category : story.badgeText || '오디오 가이드'}
           </p>
-          <h3
-            style={{
-              marginTop: 4,
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden',
-              fontFamily: 'var(--font-hanok)',
-              fontSize: '0.875rem',
-              fontWeight: 600,
-              lineHeight: 1.25,
-              letterSpacing: '-0.03em',
-              color: meok[900],
-            }}
-          >
+          <CardTitle>
             {story.title}
-          </h3>
-          <p
-            style={{
-              marginTop: 4,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              fontSize: fontSize.micro,
-              lineHeight: '1rem',
-              color: meok[700],
-            }}
-          >
+          </CardTitle>
+          <CardSub>
             {story.locationName || '대한민국 문화유산'}
-          </p>
+          </CardSub>
           {isActive && (
             <span
               style={{
@@ -337,6 +370,12 @@ const NavSideButton = styled.button<{ $side: 'left' | 'right' }>`
         }
         @media (min-width: 640px) { width: 4rem; padding-left: 1rem; }
         @media (min-width: 1024px) { width: 5rem; }
+        [data-theme='dark'] & {
+          background: linear-gradient(to right, rgba(28, 26, 23, 0.75), rgba(28, 26, 23, 0.2), transparent);
+          &:hover {
+            background: linear-gradient(to right, rgba(28, 26, 23, 0.95), rgba(28, 26, 23, 0.7), transparent);
+          }
+        }
       `
       : `
         right: 0;
@@ -348,6 +387,12 @@ const NavSideButton = styled.button<{ $side: 'left' | 'right' }>`
         }
         @media (min-width: 640px) { width: 4rem; padding-right: 1rem; }
         @media (min-width: 1024px) { width: 5rem; }
+        [data-theme='dark'] & {
+          background: linear-gradient(to left, rgba(28, 26, 23, 0.75), rgba(28, 26, 23, 0.2), transparent);
+          &:hover {
+            background: linear-gradient(to left, rgba(28, 26, 23, 0.95), rgba(28, 26, 23, 0.7), transparent);
+          }
+        }
       `}
 
   &:active {
@@ -365,12 +410,55 @@ const NavSideButton = styled.button<{ $side: 'left' | 'right' }>`
     color: ${meok[900]};
     backdrop-filter: blur(4px);
     transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+
+    [data-theme='dark'] & {
+      background-color: rgba(45, 41, 36, 0.85);
+      color: ${meok[200]};
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
   }
 
   &:hover span.icon-box {
     transform: scale(1.15);
     background-color: #ffffff;
     color: ${palette.jangmi[500]};
+
+    [data-theme='dark'] & {
+      background-color: ${surface.dark.elevated};
+      color: ${palette.jangmi[400]};
+    }
+  }
+`;
+
+const CardTitle = styled.h3`
+  margin-top: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-family: var(--font-hanok);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.03em;
+  color: ${meok[900]};
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
+`;
+
+const CardSub = styled.p`
+  margin-top: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: ${fontSize.micro};
+  line-height: 1rem;
+  color: ${meok[700]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
   }
 `;
 
@@ -775,45 +863,24 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
                   {SORIMARU_THEME_CATEGORIES.map((category) => {
                     const isSelected = selectedKeyword === category.keyword;
                     return (
-                      <button
+                      <CategoryTabButton
                         key={category.id}
                         type="button"
                         onClick={() => handleCategoryChange(category.keyword)}
                         onPointerEnter={() => preloadCategory(category.keyword)}
                         onFocus={() => preloadCategory(category.keyword)}
                         aria-pressed={isSelected}
-                        style={{
-                          userSelect: 'none',
-                          whiteSpace: 'nowrap',
-                          fontSize: '0.75rem',
-                          transition: 'color 0.3s ease',
-                          background: 'none',
-                          border: 'none',
-                          cursor: 'pointer',
-                          fontWeight: isSelected ? 600 : 400,
-                          color: isSelected ? palette.jangmi[500] : meok[700],
-                        }}
+                        $isSelected={isSelected}
                       >
                         #{category.keyword === '시장' ? '전통시장' : category.keyword === '마을' ? '전통마을' : category.keyword === '궁' ? '궁궐' : category.keyword === '길' ? '자연' : category.keyword}
-                      </button>
+                      </CategoryTabButton>
                     );
                   })}
                 </div>
               </nav>
             </div>
 
-            <div
-              style={{
-                position: 'relative',
-                isolation: 'isolate',
-                marginTop: 0,
-                height: 410,
-                overflow: 'hidden',
-                backgroundColor: '#ffffff',
-                paddingTop: '0.5rem',
-                paddingBottom: '1rem',
-              }}
-            >
+            <CarouselStageWrapper>
               {/* 좌측 탐색 버튼 */}
               <NavSideButton
                 type="button"
@@ -879,7 +946,7 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
                   ))}
                 </div>
               )}
-            </div>
+            </CarouselStageWrapper>
 
             {/* 하단 인디케이터 바 */}
             <div style={{ position: 'relative', zIndex: 30, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: '0.375rem' }}>
