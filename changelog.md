@@ -10,6 +10,9 @@ Lightweight human-readable summary of meaningful repository changes. This does n
   - Deleted `tailwind.config.ts`, and removed `tailwindcss` plugin/dependency from `postcss.config.mjs` and `package.json`.
   - Preserved 100% of custom audio controls, script synchronization, SVG interactive constellation map, 3D Z-translate perspective stages, and floating vinyl disc animations.
 
+- Fixed leftover `react-icons/io5` and `Io*` references after the Lucide migration so `/odii` can compile and respond again in dev.
+
+- Implemented OnMaru Admin Web Console (`/admin` suite) for Spring Boot backend readiness with complete mock datasets and dual-mode API client (`src/lib/api/client.ts`):
   - **Issue #52 (Foundation & Auth)**: Dual-mode API client (`apiGet`, `apiPost`, `apiPatch`, `apiDelete`), JWT refresh interceptor, RBAC `useAdminAuth` hook (`ADMIN`, `EDITOR`, `USER`).
   - **Issue #53 (Layout & Reusable UI System)**: 240px `AdminSidebar` with active indicators & badges, 60px blurred `AdminHeader`, `DataTable` with pagination and selection, `StatCard`, `StatusBadge`, `ConfirmDialog`, `Pagination`, `EmptyState`, `TableSkeleton`, and `Toast`.
   - **Issue #54 (Dashboard & Reviews)**: `/admin` KPI overview (today's warmth, pending reports, new signups, total users) with manual pipeline rebuild modal, and `/admin/reviews` with multi-filter bar, sticky batch action bar, and 400px slide-in detail drawer.
@@ -65,3 +68,4 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 ### Changed 
 - Migrated all icons in the project to lucide-react. Removed react-icons dependency. (Resolves #60, #61, #62, #63, #64)
 - Replaced emoji usages in data files (e.g. curatedJourneys.ts) with lucide-react components.
+- 지도 카테고리 칩의 mask 기반 edge fade를 제거해 그림자 잘림을 막고, PR #66 이전의 둥근 pill 크기와 stagger pop-in 동작을 복원했다.

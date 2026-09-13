@@ -61,13 +61,11 @@ const SkeletonBar = styled.div<{ $w: string; $h: string; $radius?: string }>`
     background-size: 200% 100%;
   }
 `;
-import {
-  ChevronLeft,
-  ChevronRight,
-} from 'lucide-react';
-import { lightPalette, meok , fontSize } from '@/design-system/tokens';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { lightPalette, meok, fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import type { Item } from '@/features/map/types';
+
 
 interface SmartAroundFeedProps {
   items: Item[];
