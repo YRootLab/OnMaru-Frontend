@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import styled from '@emotion/styled';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
@@ -8,6 +9,7 @@ import { ISorimaruApiService, SorimaruStoryItem } from '@/features/sorimaru-audi
 import { SORIMARU_THEME_CATEGORIES } from '@/features/sorimaru-audio/data/sorimaruCategoryData';
 import { useSorimaruApiService } from '@/features/sorimaru-audio/context/SorimaruDependencyContext';
 import { SORIMARU_RAIL_VISIBLE_BUFFER, getVisibleRailPositions, shouldFetchRailCategory } from './sorimaruEditorialRailModel';
+import { palette, meok, fontSize } from '@/design-system/tokens';
 
 interface SorimaruEditorialRailProps {
   stories: SorimaruStoryItem[];
@@ -72,13 +74,63 @@ const fallbackImageFor = (story: SorimaruStoryItem) => {
   return imageSet[seed % imageSet.length];
 };
 
-const isTrustedSorimaruImage = (imageUrl: string) => (
-  /^https?:\/\//i.test(imageUrl)
-  && !imageUrl.includes('unsplash.com')
-  && !imageUrl.includes('pixabay.com')
-);
+const isTrustedSorimaruImage = (imageUrl: string) =>
+  /^https?:\/\//i.test(imageUrl) &&
+  !imageUrl.includes('unsplash.com') &&
+  !imageUrl.includes('pixabay.com');
 
-const durationFor = (story: SorimaruStoryItem) => story.formattedDuration || `${Math.floor((Number(story.playTime) || 0) / 60)}:${String((Number(story.playTime) || 0) % 60).padStart(2, '0')}`;
+const durationFor = (story: SorimaruStoryItem) =>
+  story.formattedDuration ||
+  `${Math.floor((Number(story.playTime) || 0) / 60)}:${String((Number(story.playTime) || 0) % 60).padStart(2, '0')}`;
+
+const CardMotionButton = styled(motion.button)<{ $isActive: boolean }>`
+  position: relative;
+  height: 250px;
+  width: 135px;
+  flex-shrink: 0;
+  user-select: none;
+  overflow: hidden;
+  background-color: #ffffff;
+  text-align: left;
+  outline: none;
+  border: none;
+  cursor: pointer;
+  z-index: ${({ $isActive }) => ($isActive ? 20 : 10)};
+  box-shadow: ${({ $isActive }) => ($isActive ? '0 16px 36px rgba(0,0,0,0.18)' : '0 4px 12px rgba(0,0,0,0.06)')};
+  filter: ${({ $isActive }) => ($isActive ? 'none' : 'grayscale(0.15)')};
+
+  &:hover {
+    filter: grayscale(0);
+  }
+
+  @media (min-width: 640px) {
+    height: 330px;
+    width: 200px;
+  }
+  @media (min-width: 1024px) {
+    height: 370px;
+    width: 225px;
+  }
+`;
+
+const CardBottomPanel = styled.div<{ $isActive: boolean }>`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 1rem;
+  color: ${meok[900]};
+  backdrop-filter: blur(24px);
+
+  background-color: ${({ $isActive }) =>
+    $isActive ? 'rgba(255, 240, 246, 0.68)' : 'rgba(255, 255, 255, 0.46)'};
+
+  @media (min-width: 640px) {
+    padding: 1.25rem;
+  }
+`;
 
 interface EditorialRailCardProps {
   story: SorimaruStoryItem;
@@ -89,498 +141,763 @@ interface EditorialRailCardProps {
   onInteractRef: React.MutableRefObject<(position: number) => void>;
 }
 
-const EditorialRailCard = React.memo<EditorialRailCardProps>(({ story, position, offset, featuredLength, trackTransitionEnabled, onInteractRef }) => {
-  const distance = Math.abs(offset);
-  const isVisible = distance <= SORIMARU_RAIL_VISIBLE_BUFFER;
-  const isActive = offset === 0;
-  const initialImageSrc = story.imageUrl || fallbackImageFor(story);
-  const tilt = isActive ? 0 : offset < 0
-    ? (Math.abs(offset) % 2 === 1 ? 1.6 : -1.6)
-    : (offset % 2 === 1 ? -1.6 : 1.6);
-  const lift = isActive ? 0 : offset < 0
-    ? (Math.abs(offset) % 2 === 1 ? -6 : 6)
-    : (offset % 2 === 1 ? 6 : -6);
+const EditorialRailCard = React.memo<EditorialRailCardProps>(
+  ({ story, position, offset, featuredLength, trackTransitionEnabled, onInteractRef }) => {
+    const distance = Math.abs(offset);
+    const isVisible = distance <= SORIMARU_RAIL_VISIBLE_BUFFER;
+    const isActive = offset === 0;
+    const initialImageSrc = story.imageUrl || fallbackImageFor(story);
+    const tilt = isActive
+      ? 0
+      : offset < 0
+      ? Math.abs(offset) % 2 === 1
+        ? 1.6
+        : -1.6
+      : offset % 2 === 1
+      ? -1.6
+      : 1.6;
+    const lift = isActive
+      ? 0
+      : offset < 0
+      ? Math.abs(offset) % 2 === 1
+        ? -6
+        : 6
+      : offset % 2 === 1
+      ? 6
+      : -6;
 
-  return (
-    <motion.button
-      type="button"
-      animate={{
-        opacity: isVisible ? 1 : 0,
-        y: lift,
-        rotate: tilt,
-        scale: isActive ? 1 : distance === 1 ? 0.92 : 0.84,
-      }}
-      transition={{ duration: trackTransitionEnabled && isVisible ? 0.48 : 0, ease: [0.16, 1, 0.3, 1] }}
-      onClick={() => onInteractRef.current(position)}
-      className={`relative h-[250px] w-[135px] shrink-0 select-none overflow-hidden bg-white text-left outline-none focus:outline-none focus-visible:outline-none focus-visible: sm:h-[330px] sm:w-[200px] lg:h-[370px] lg:w-[225px] ${isActive ? 'z-20  ' : 'z-10   grayscale-[0.15] hover:grayscale-0'}`}
-      draggable={false}
-      onMouseDown={(event) => event.preventDefault()}
-      aria-label={`${story.title}${isActive ? ' 현재 선택됨' : ''}`}
-    >
-      <motion.div
-        className="absolute inset-0"
-        animate={{ opacity: isActive ? 1 : 0.54 }}
+    return (
+      <CardMotionButton
+        type="button"
+        animate={{
+          opacity: isVisible ? 1 : 0,
+          y: lift,
+          rotate: tilt,
+          scale: isActive ? 1 : distance === 1 ? 0.92 : 0.84,
+        }}
         transition={{ duration: trackTransitionEnabled && isVisible ? 0.48 : 0, ease: [0.16, 1, 0.3, 1] }}
+        onClick={() => onInteractRef.current(position)}
+        $isActive={isActive}
+        draggable={false}
+        onMouseDown={(event) => event.preventDefault()}
+        aria-label={`${story.title}${isActive ? ' 현재 선택됨' : ''}`}
       >
-        <img
-          src={initialImageSrc}
-          alt=""
-          draggable={false}
-          loading={distance <= 3 ? 'eager' : 'lazy'}
-          decoding="async"
-          className="h-full w-full object-cover"
-          onError={(event) => {
-            const image = event.currentTarget;
-            if (image.dataset.fallbackApplied === 'true') {
-              image.onerror = null;
-              image.src = FALLBACK_IMAGE_SETS.default[0];
-              return;
-            }
-            image.dataset.fallbackApplied = 'true';
-            image.src = fallbackImageFor(story);
+        <motion.div
+          style={{ position: 'absolute', inset: 0 }}
+          animate={{ opacity: isActive ? 1 : 0.54 }}
+          transition={{ duration: trackTransitionEnabled && isVisible ? 0.48 : 0, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <img
+            src={initialImageSrc}
+            alt=""
+            draggable={false}
+            loading={distance <= 3 ? 'eager' : 'lazy'}
+            decoding="async"
+            style={{ height: '100%', width: '100%', objectFit: 'cover' }}
+            onError={(event) => {
+              const image = event.currentTarget;
+              if (image.dataset.fallbackApplied === 'true') {
+                image.onerror = null;
+                image.src = FALLBACK_IMAGE_SETS.default[0];
+                return;
+              }
+              image.dataset.fallbackApplied = 'true';
+              image.src = fallbackImageFor(story);
+            }}
+          />
+          <div
+            style={{
+              pointerEvents: 'none',
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(to top, rgba(255, 255, 255, 0.55), transparent 60%, rgba(0, 0, 0, 0.05))',
+            }}
+          />
+        </motion.div>
+
+        <span
+          style={{
+            pointerEvents: 'none',
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            zIndex: 20,
+            borderBottomRightRadius: 6,
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            padding: '2px 8px',
+            fontFamily: 'monospace',
+            fontSize: fontSize.micro,
+            fontWeight: 700,
+            lineHeight: 1,
+            color: meok[900],
+            backdropFilter: 'blur(4px)',
           }}
-        />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-white/55 via-transparent to-black/5" />
-      </motion.div>
-      <span className="pointer-events-none absolute left-0 top-0 z-20 rounded-br-md bg-white/95 px-2 py-0.5 text-micro font-bold tabular-nums leading-none text-[#191f28] backdrop-blur-xs sm:px-2.5 sm:py-1 sm:text-micro">
-        {String((position % featuredLength) + 1).padStart(2, '0')}
-      </span>
-      <div className={`absolute bottom-0 left-0 right-0 box-border w-full px-4 py-4 text-[#191f28] backdrop-blur-[24px] sm:px-5 sm:py-5 ${isActive ? 'bg-[#FFF0F6]/[0.68] ' : 'bg-white/[0.46] '}`}>
-        <p className="truncate text-micro font-semibold uppercase tracking-[0.12em] text-[#FF2A85]">{story.category !== '오디 이야기' ? story.category : story.badgeText || '오디오 가이드'}</p>
-        <h3 className="mt-1 line-clamp-2 font-sorimaru-sans text-sm font-semibold leading-tight tracking-[-0.03em] sm:text-base">{story.title}</h3>
-        <p className="mt-1 line-clamp-1 text-micro leading-4 text-[#4e5968]">{story.locationName || '대한민국 문화유산'}</p>
-        {isActive && <span className="mt-2 inline-flex items-center gap-2 text-micro text-[#FF2A85]">{durationFor(story)} <span className="text-[#4e5968]">↗</span></span>}
-      </div>
-    </motion.button>
-  );
-}, (previous, next) => {
-  const previousVisible = Math.abs(previous.offset) <= 4;
-  const nextVisible = Math.abs(next.offset) <= 4;
-  if (!previousVisible && !nextVisible) return previous.story === next.story;
-  return previous.story === next.story
-    && previous.offset === next.offset
-    && previous.trackTransitionEnabled === next.trackTransitionEnabled;
-});
+        >
+          {String(((position % featuredLength) + featuredLength) % featuredLength + 1).padStart(2, '0')}
+        </span>
 
-const POSITION_CORRECTION_COOLDOWN_MS = 70;
-const TRANSITION_SAFETY_TIMEOUT_MS = 900;
-const RAIL_COPY_COUNT = 3;
-
-export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(({ stories, storySets, apiService, isLoading = false, onApiError }) => {
-  const activeApiService = useSorimaruApiService(apiService);
-  const setCurrentStory = useSorimaruAudioStore((state) => state.setCurrentStory);
-  const [selectedKeyword, setSelectedKeyword] = useState(SORIMARU_THEME_CATEGORIES[0].keyword);
-  const [isCategoryLoading, setIsCategoryLoading] = useState(false);
-  const [categoryStories, setCategoryStories] = useState<SorimaruStoryItem[] | null>(null);
-  const [isRailNearby, setIsRailNearby] = useState(false);
-  const categoryCacheMapRef = useRef<Record<string, SorimaruStoryItem[]>>({});
-  const categoryLoadPromisesRef = useRef<Record<string, Promise<SorimaruStoryItem[]>>>({});
-  const [cachedImageUrls, setCachedImageUrls] = useState<Record<string, string>>(() => {
-    if (typeof window === 'undefined') return {};
-    try {
-      const stored = window.localStorage.getItem('onmaru_sorimaru_story_images');
-      const parsed = stored ? JSON.parse(stored) : {};
-      return parsed && typeof parsed === 'object' ? parsed : {};
-    } catch {
-      return {};
-    }
-  });
-  const categoryRequestRef = useRef(0);
-  const categoryRequestPendingRef = useRef(false);
-  const [activePosition, setActivePosition] = useState(0);
-  const [trackTransitionEnabled, setTrackTransitionEnabled] = useState(true);
-  const [autoResetToken, setAutoResetToken] = useState(0);
-  const resetTimerRef = useRef<number | null>(null);
-  const inputLockedRef = useRef(false);
-  const unlockTimerRef = useRef<number | null>(null);
-  const cardInteractionRef = useRef<(position: number) => void>(() => undefined);
-  const railRef = useRef<HTMLElement>(null);
-  const [trackMetrics, setTrackMetrics] = useState({ cardWidth: 225, cardStep: 245 });
-
-  useEffect(() => {
-    const rail = railRef.current;
-    if (!rail) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => setIsRailNearby(entry.isIntersecting),
-      { rootMargin: '320px 0px' },
+        <CardBottomPanel $isActive={isActive}>
+          <p
+            style={{
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              fontSize: fontSize.micro,
+              fontWeight: 600,
+              textTransform: 'uppercase',
+              letterSpacing: '0.12em',
+              color: palette.jangmi[500],
+            }}
+          >
+            {story.category !== '오디 이야기' ? story.category : story.badgeText || '오디오 가이드'}
+          </p>
+          <h3
+            style={{
+              marginTop: 4,
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              fontFamily: 'var(--font-hanok)',
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              lineHeight: 1.25,
+              letterSpacing: '-0.03em',
+              color: meok[900],
+            }}
+          >
+            {story.title}
+          </h3>
+          <p
+            style={{
+              marginTop: 4,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              fontSize: fontSize.micro,
+              lineHeight: '1rem',
+              color: meok[700],
+            }}
+          >
+            {story.locationName || '대한민국 문화유산'}
+          </p>
+          {isActive && (
+            <span
+              style={{
+                marginTop: 8,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                fontSize: fontSize.micro,
+                color: palette.jangmi[500],
+              }}
+            >
+              {durationFor(story)} <span style={{ color: meok[700] }}>↗</span>
+            </span>
+          )}
+        </CardBottomPanel>
+      </CardMotionButton>
     );
-    observer.observe(rail);
-    return () => observer.disconnect();
-  }, []);
+  },
+  (previous, next) => {
+    const previousVisible = Math.abs(previous.offset) <= 4;
+    const nextVisible = Math.abs(next.offset) <= 4;
+    if (!previousVisible && !nextVisible) return previous.story === next.story;
+    return (
+      previous.story === next.story &&
+      previous.offset === next.offset &&
+      previous.trackTransitionEnabled === next.trackTransitionEnabled
+    );
+  }
+);
 
-  const loadCategoryStories = useCallback((keyword: string) => {
-    const cached = categoryCacheMapRef.current[keyword];
-    if (cached) return Promise.resolve(cached);
+const TRANSITION_SAFETY_TIMEOUT_MS = 900;
 
-    const pending = categoryLoadPromisesRef.current[keyword];
-    if (pending) return pending;
+const NavSideButton = styled.button<{ $side: 'left' | 'right' }>`
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 30;
+  display: flex;
+  width: 3rem;
+  cursor: pointer;
+  align-items: center;
+  border: none;
+  transition: all 0.2s ease;
 
-    const request = activeApiService.getStoryList(undefined, keyword)
-      .then((nextStories) => {
-        const validStories = nextStories.filter((story) => story.audioUrl);
-        categoryCacheMapRef.current[keyword] = validStories;
-        return validStories;
-      });
-    categoryLoadPromisesRef.current[keyword] = request;
-    void request.then(() => {
-      if (categoryLoadPromisesRef.current[keyword] === request) {
-        delete categoryLoadPromisesRef.current[keyword];
-      }
-    }, () => {
-      if (categoryLoadPromisesRef.current[keyword] === request) {
-        delete categoryLoadPromisesRef.current[keyword];
-      }
-    });
-    return request;
-  }, [activeApiService]);
-
-  const featured = useMemo(() => {
-    const category = SORIMARU_THEME_CATEGORIES.find((item) => item.keyword === selectedKeyword) ?? SORIMARU_THEME_CATEGORIES[0];
-    const localCategoryStories = storySets?.[category.label] ?? stories.filter((story) => {
-      const searchable = `${story.category} ${story.title} ${story.locationName}`.toLowerCase();
-      return searchable.includes(category.keyword.toLowerCase());
-    });
-    const recommendationStories = storySets?.['추천'];
-    const cachedCategory = categoryCacheMapRef.current[selectedKeyword];
-
-    const source = categoryStories !== null
-      ? categoryStories
-      : (cachedCategory && cachedCategory.length)
-        ? cachedCategory
-        : localCategoryStories.length
-          ? localCategoryStories
-          : (recommendationStories?.length ? recommendationStories : stories);
-
-    return source.filter((story) => Boolean(story.audioUrl)).slice(0, 10).map((story) => (
-      !story.imageUrl && cachedImageUrls[story.stid]
-        ? { ...story, imageUrl: cachedImageUrls[story.stid] }
-        : story
-    ));
-  }, [cachedImageUrls, categoryStories, selectedKeyword, stories, storySets]);
-
-  const activeIndex = featured.length ? ((activePosition % featured.length) + featured.length) % featured.length : 0;
-  const activeStory = featured[activeIndex] ?? featured[0];
-
-  // React-Window 스타일 가상화(Virtualization): 현재 화면 중심(activePosition) 기준 ±4개 카드만 DOM에 유지
-  const visibleVirtualPositions = useMemo(() => {
-    const list: { pos: number; story: SorimaruStoryItem }[] = [];
-    if (!featured.length) return list;
-    for (const pos of getVisibleRailPositions(activePosition)) {
-      const index = ((pos % featured.length) + featured.length) % featured.length;
-      list.push({ pos, story: featured[index] });
-    }
-    return list;
-  }, [activePosition, featured]);
-
-  useEffect(() => {
-    const updateTrackMetrics = () => {
-      if (window.innerWidth < 640) {
-        setTrackMetrics({ cardWidth: 135, cardStep: 150 });
-      } else if (window.innerWidth < 1024) {
-        setTrackMetrics({ cardWidth: 200, cardStep: 220 });
-      } else {
-        setTrackMetrics({ cardWidth: 225, cardStep: 245 });
-      }
-    };
-    updateTrackMetrics();
-    window.addEventListener('resize', updateTrackMetrics);
-    return () => window.removeEventListener('resize', updateTrackMetrics);
-  }, []);
-
-  useEffect(() => {
-    const resetId = window.setTimeout(() => {
-      setActivePosition(0);
-      setTrackTransitionEnabled(true);
-    }, 0);
-    return () => window.clearTimeout(resetId);
-  }, [selectedKeyword]);
-
-  useEffect(() => {
-    if (!shouldFetchRailCategory({ isRailNearby, isSelected: true, isInteracted: false }) || categoryStories !== null || categoryRequestPendingRef.current) return;
-    let isMounted = true;
-    const requestId = categoryRequestRef.current + 1;
-    categoryRequestRef.current = requestId;
-    categoryRequestPendingRef.current = true;
-
-    setIsCategoryLoading(true);
-    loadCategoryStories(selectedKeyword)
-      .then((nextStories) => {
-        if (!isMounted || requestId !== categoryRequestRef.current) return;
-        setCategoryStories(nextStories);
-      })
-      .catch(() => {
-        if (!isMounted || requestId !== categoryRequestRef.current) return;
-        onApiError?.();
-        setCategoryStories([]);
-      })
-      .finally(() => {
-        if (!isMounted || requestId !== categoryRequestRef.current) return;
-        categoryRequestPendingRef.current = false;
-        setIsCategoryLoading(false);
-        setTrackTransitionEnabled(true);
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [categoryStories, isRailNearby, loadCategoryStories, onApiError, selectedKeyword]);
-
-  useEffect(() => {
-    const newlyCached = [...stories, ...(categoryStories || [])].reduce<Record<string, string>>((result, story) => {
-      if (story.stid && isTrustedSorimaruImage(story.imageUrl)) result[story.stid] = story.imageUrl;
-      return result;
-    }, {});
-    if (!Object.keys(newlyCached).length) return;
-
-    const cacheId = window.setTimeout(() => {
-      setCachedImageUrls((previous) => {
-        const next = { ...previous, ...newlyCached };
-        try {
-          window.localStorage.setItem('onmaru_sorimaru_story_images', JSON.stringify(next));
-        } catch {
-          // ignore storage failures
+  ${({ $side }) =>
+    $side === 'left'
+      ? `
+        left: 0;
+        justify-content: flex-start;
+        padding-left: 0.5rem;
+        background: linear-gradient(to right, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.2), transparent);
+        &:hover {
+          background: linear-gradient(to right, #ffffff, rgba(255, 255, 255, 0.85), transparent);
         }
-        return next;
+        @media (min-width: 640px) { width: 4rem; padding-left: 1rem; }
+        @media (min-width: 1024px) { width: 5rem; }
+      `
+      : `
+        right: 0;
+        justify-content: flex-end;
+        padding-right: 0.5rem;
+        background: linear-gradient(to left, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.2), transparent);
+        &:hover {
+          background: linear-gradient(to left, #ffffff, rgba(255, 255, 255, 0.85), transparent);
+        }
+        @media (min-width: 640px) { width: 4rem; padding-right: 1rem; }
+        @media (min-width: 1024px) { width: 5rem; }
+      `}
+
+  &:active {
+    opacity: 0.8;
+  }
+
+  span.icon-box {
+    display: flex;
+    height: 2.75rem;
+    width: 2.25rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.75rem;
+    background-color: rgba(255, 255, 255, 0.4);
+    color: ${meok[900]};
+    backdrop-filter: blur(4px);
+    transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+  }
+
+  &:hover span.icon-box {
+    transform: scale(1.15);
+    background-color: #ffffff;
+    color: ${palette.jangmi[500]};
+  }
+`;
+
+const IndicatorDot = styled.button<{ $active: boolean }>`
+  height: 4px;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  ${({ $active }) =>
+    $active
+      ? `
+        width: 2rem;
+        background-color: ${palette.jangmi[500]};
+      `
+      : `
+        width: 6px;
+        background-color: rgba(33, 30, 25, 0.2);
+        &:hover {
+          background-color: rgba(33, 30, 25, 0.5);
+        }
+      `}
+`;
+
+export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
+  ({ stories, storySets, apiService, isLoading = false, onApiError }) => {
+    const activeApiService = useSorimaruApiService(apiService);
+    const setCurrentStory = useSorimaruAudioStore((state) => state.setCurrentStory);
+    const [selectedKeyword, setSelectedKeyword] = useState(SORIMARU_THEME_CATEGORIES[0].keyword);
+    const [isCategoryLoading, setIsCategoryLoading] = useState(false);
+    const [categoryStories, setCategoryStories] = useState<SorimaruStoryItem[] | null>(null);
+    const [isRailNearby, setIsRailNearby] = useState(false);
+    const categoryCacheMapRef = useRef<Record<string, SorimaruStoryItem[]>>({});
+    const categoryLoadPromisesRef = useRef<Record<string, Promise<SorimaruStoryItem[]>>>({});
+    const [cachedImageUrls, setCachedImageUrls] = useState<Record<string, string>>(() => {
+      if (typeof window === 'undefined') return {};
+      try {
+        const stored = window.localStorage.getItem('onmaru_sorimaru_story_images');
+        const parsed = stored ? JSON.parse(stored) : {};
+        return parsed && typeof parsed === 'object' ? parsed : {};
+      } catch {
+        return {};
+      }
+    });
+    const categoryRequestRef = useRef(0);
+    const categoryRequestPendingRef = useRef(false);
+    const [activePosition, setActivePosition] = useState(0);
+    const [trackTransitionEnabled, setTrackTransitionEnabled] = useState(true);
+    const [autoResetToken, setAutoResetToken] = useState(0);
+    const resetTimerRef = useRef<number | null>(null);
+    const inputLockedRef = useRef(false);
+    const unlockTimerRef = useRef<number | null>(null);
+    const cardInteractionRef = useRef<(position: number) => void>(() => undefined);
+    const railRef = useRef<HTMLElement>(null);
+    const [trackMetrics, setTrackMetrics] = useState({ cardWidth: 225, cardStep: 245 });
+
+    useEffect(() => {
+      const rail = railRef.current;
+      if (!rail) return;
+
+      const observer = new IntersectionObserver(([entry]) => setIsRailNearby(entry.isIntersecting), {
+        rootMargin: '320px 0px',
       });
-    }, 0);
-    return () => window.clearTimeout(cacheId);
-  }, [categoryStories, stories]);
+      observer.observe(rail);
+      return () => observer.disconnect();
+    }, []);
 
-  const lockInputForTransition = useCallback(() => {
-    inputLockedRef.current = true;
-    if (unlockTimerRef.current !== null) {
-      window.clearTimeout(unlockTimerRef.current);
-    }
-    unlockTimerRef.current = window.setTimeout(() => {
-      inputLockedRef.current = false;
-      unlockTimerRef.current = null;
-    }, TRANSITION_SAFETY_TIMEOUT_MS);
-  }, []);
+    const loadCategoryStories = useCallback(
+      (keyword: string) => {
+        const cached = categoryCacheMapRef.current[keyword];
+        if (cached) return Promise.resolve(cached);
 
-  const moveBy = useCallback((delta: number, resetAuto = true) => {
-    if (!delta || featured.length < 2 || inputLockedRef.current) return;
-    if (resetAuto) lockInputForTransition();
-    if (resetAuto) setAutoResetToken((token) => token + 1);
-    setActivePosition((position) => position + delta);
-  }, [featured.length, lockInputForTransition]);
+        const pending = categoryLoadPromisesRef.current[keyword];
+        if (pending) return pending;
 
-  const moveTo = useCallback((index: number) => {
-    let delta = index - activeIndex;
-    if (delta > featured.length / 2) delta -= featured.length;
-    if (delta < -featured.length / 2) delta += featured.length;
-    moveBy(delta);
-  }, [activeIndex, featured.length, moveBy]);
+        const request = activeApiService.getStoryList(undefined, keyword).then((nextStories) => {
+          const validStories = nextStories.filter((story) => story.audioUrl);
+          categoryCacheMapRef.current[keyword] = validStories;
+          return validStories;
+        });
+        categoryLoadPromisesRef.current[keyword] = request;
+        void request.then(
+          () => {
+            if (categoryLoadPromisesRef.current[keyword] === request) {
+              delete categoryLoadPromisesRef.current[keyword];
+            }
+          },
+          () => {
+            if (categoryLoadPromisesRef.current[keyword] === request) {
+              delete categoryLoadPromisesRef.current[keyword];
+            }
+          }
+        );
+        return request;
+      },
+      [activeApiService]
+    );
 
-  useEffect(() => {
-    if (featured.length < 2) return;
-    const timer = window.setInterval(() => moveBy(1, false), 7000);
-    return () => window.clearInterval(timer);
-  }, [autoResetToken, featured.length, moveBy]);
+    const featured = useMemo(() => {
+      const category =
+        SORIMARU_THEME_CATEGORIES.find((item) => item.keyword === selectedKeyword) ??
+        SORIMARU_THEME_CATEGORIES[0];
+      const localCategoryStories =
+        storySets?.[category.label] ??
+        stories.filter((story) => {
+          const searchable = `${story.category} ${story.title} ${story.locationName}`.toLowerCase();
+          return searchable.includes(category.keyword.toLowerCase());
+        });
+      const recommendationStories = storySets?.['추천'];
+      const cachedCategory = categoryCacheMapRef.current[selectedKeyword];
 
-  useEffect(() => () => {
-    if (resetTimerRef.current !== null) window.clearTimeout(resetTimerRef.current);
-    if (unlockTimerRef.current !== null) window.clearTimeout(unlockTimerRef.current);
-  }, []);
+      const source =
+        categoryStories !== null
+          ? categoryStories
+          : cachedCategory && cachedCategory.length
+          ? cachedCategory
+          : localCategoryStories.length
+          ? localCategoryStories
+          : recommendationStories?.length
+          ? recommendationStories
+          : stories;
 
-  const handleTrackTransitionEnd = useCallback((event: React.TransitionEvent<HTMLDivElement>) => {
-    if (event.target !== event.currentTarget || event.propertyName !== 'transform') return;
-    if (unlockTimerRef.current !== null) {
-      window.clearTimeout(unlockTimerRef.current);
-      unlockTimerRef.current = null;
-    }
-    inputLockedRef.current = false;
-  }, []);
+      return source
+        .filter((story) => Boolean(story.audioUrl))
+        .slice(0, 10)
+        .map((story) =>
+          !story.imageUrl && cachedImageUrls[story.stid]
+            ? { ...story, imageUrl: cachedImageUrls[story.stid] }
+            : story
+        );
+    }, [cachedImageUrls, categoryStories, selectedKeyword, stories, storySets]);
 
-  const handleCategoryChange = (keyword: string) => {
-    if (keyword === selectedKeyword || inputLockedRef.current) return;
-    if (resetTimerRef.current !== null) window.clearTimeout(resetTimerRef.current);
+    const activeIndex = featured.length
+      ? ((activePosition % featured.length) + featured.length) % featured.length
+      : 0;
+    const activeStory = featured[activeIndex] ?? featured[0];
 
-    setSelectedKeyword(keyword);
+    const visibleVirtualPositions = useMemo(() => {
+      const list: { pos: number; story: SorimaruStoryItem }[] = [];
+      if (!featured.length) return list;
+      for (const pos of getVisibleRailPositions(activePosition)) {
+        const index = ((pos % featured.length) + featured.length) % featured.length;
+        list.push({ pos, story: featured[index] });
+      }
+      return list;
+    }, [activePosition, featured]);
 
-    // 0ms 캐시 즉시 적용 (가상화 윈도잉 0ms 렌더링)
-    const cached = categoryCacheMapRef.current[keyword];
-    if (cached && cached.length) {
-      setCategoryStories(cached);
-      setTrackTransitionEnabled(false);
-      setActivePosition(0);
-      window.requestAnimationFrame(() => {
+    useEffect(() => {
+      const updateTrackMetrics = () => {
+        if (window.innerWidth < 640) {
+          setTrackMetrics({ cardWidth: 135, cardStep: 150 });
+        } else if (window.innerWidth < 1024) {
+          setTrackMetrics({ cardWidth: 200, cardStep: 220 });
+        } else {
+          setTrackMetrics({ cardWidth: 225, cardStep: 245 });
+        }
+      };
+      updateTrackMetrics();
+      window.addEventListener('resize', updateTrackMetrics);
+      return () => window.removeEventListener('resize', updateTrackMetrics);
+    }, []);
+
+    useEffect(() => {
+      const resetId = window.setTimeout(() => {
+        setActivePosition(0);
         setTrackTransitionEnabled(true);
-      });
-      return;
-    }
+      }, 0);
+      return () => window.clearTimeout(resetId);
+    }, [selectedKeyword]);
 
-    setCategoryStories(null);
-    setIsCategoryLoading(true);
+    useEffect(() => {
+      if (
+        !shouldFetchRailCategory({ isRailNearby, isSelected: true, isInteracted: false }) ||
+        categoryStories !== null ||
+        categoryRequestPendingRef.current
+      )
+        return;
+      let isMounted = true;
+      const requestId = categoryRequestRef.current + 1;
+      categoryRequestRef.current = requestId;
+      categoryRequestPendingRef.current = true;
 
-    // 사용자가 선택한 카테고리만 요청한다.
-    const requestId = categoryRequestRef.current + 1;
-    categoryRequestRef.current = requestId;
-    categoryRequestPendingRef.current = true;
-    loadCategoryStories(keyword)
-      .then((nextStories) => {
-        if (requestId !== categoryRequestRef.current) return;
-        setCategoryStories(nextStories);
+      setIsCategoryLoading(true);
+      loadCategoryStories(selectedKeyword)
+        .then((nextStories) => {
+          if (!isMounted || requestId !== categoryRequestRef.current) return;
+          setCategoryStories(nextStories);
+        })
+        .catch(() => {
+          if (!isMounted || requestId !== categoryRequestRef.current) return;
+          onApiError?.();
+          setCategoryStories([]);
+        })
+        .finally(() => {
+          if (!isMounted || requestId !== categoryRequestRef.current) return;
+          categoryRequestPendingRef.current = false;
+          setIsCategoryLoading(false);
+          setTrackTransitionEnabled(true);
+        });
+
+      return () => {
+        isMounted = false;
+      };
+    }, [categoryStories, isRailNearby, loadCategoryStories, onApiError, selectedKeyword]);
+
+    useEffect(() => {
+      const newlyCached = [...stories, ...(categoryStories || [])].reduce<Record<string, string>>(
+        (result, story) => {
+          if (story.stid && isTrustedSorimaruImage(story.imageUrl)) result[story.stid] = story.imageUrl;
+          return result;
+        },
+        {}
+      );
+      if (!Object.keys(newlyCached).length) return;
+
+      const cacheId = window.setTimeout(() => {
+        setCachedImageUrls((previous) => {
+          const next = { ...previous, ...newlyCached };
+          try {
+            window.localStorage.setItem('onmaru_sorimaru_story_images', JSON.stringify(next));
+          } catch {
+            // ignore
+          }
+          return next;
+        });
+      }, 0);
+      return () => window.clearTimeout(cacheId);
+    }, [categoryStories, stories]);
+
+    const lockInputForTransition = useCallback(() => {
+      inputLockedRef.current = true;
+      if (unlockTimerRef.current !== null) {
+        window.clearTimeout(unlockTimerRef.current);
+      }
+      unlockTimerRef.current = window.setTimeout(() => {
+        inputLockedRef.current = false;
+        unlockTimerRef.current = null;
+      }, TRANSITION_SAFETY_TIMEOUT_MS);
+    }, []);
+
+    const moveBy = useCallback(
+      (delta: number, resetAuto = true) => {
+        if (!delta || featured.length < 2 || inputLockedRef.current) return;
+        if (resetAuto) lockInputForTransition();
+        if (resetAuto) setAutoResetToken((token) => token + 1);
+        setActivePosition((position) => position + delta);
+      },
+      [featured.length, lockInputForTransition]
+    );
+
+    const moveTo = useCallback(
+      (index: number) => {
+        let delta = index - activeIndex;
+        if (delta > featured.length / 2) delta -= featured.length;
+        if (delta < -featured.length / 2) delta += featured.length;
+        moveBy(delta);
+      },
+      [activeIndex, featured.length, moveBy]
+    );
+
+    useEffect(() => {
+      if (featured.length < 2) return;
+      const timer = window.setInterval(() => moveBy(1, false), 7000);
+      return () => window.clearInterval(timer);
+    }, [autoResetToken, featured.length, moveBy]);
+
+    useEffect(
+      () => () => {
+        if (resetTimerRef.current !== null) window.clearTimeout(resetTimerRef.current);
+        if (unlockTimerRef.current !== null) window.clearTimeout(unlockTimerRef.current);
+      },
+      []
+    );
+
+    const handleTrackTransitionEnd = useCallback((event: React.TransitionEvent<HTMLDivElement>) => {
+      if (event.target !== event.currentTarget || event.propertyName !== 'transform') return;
+      if (unlockTimerRef.current !== null) {
+        window.clearTimeout(unlockTimerRef.current);
+        unlockTimerRef.current = null;
+      }
+      inputLockedRef.current = false;
+    }, []);
+
+    const handleCategoryChange = (keyword: string) => {
+      if (keyword === selectedKeyword || inputLockedRef.current) return;
+      if (resetTimerRef.current !== null) window.clearTimeout(resetTimerRef.current);
+
+      setSelectedKeyword(keyword);
+
+      const cached = categoryCacheMapRef.current[keyword];
+      if (cached && cached.length) {
+        setCategoryStories(cached);
         setTrackTransitionEnabled(false);
         setActivePosition(0);
         window.requestAnimationFrame(() => {
           setTrackTransitionEnabled(true);
         });
-      })
-      .catch(() => {
-        if (requestId !== categoryRequestRef.current) return;
-        onApiError?.();
-      })
-      .finally(() => {
-        if (requestId !== categoryRequestRef.current) return;
-        categoryRequestPendingRef.current = false;
-        setIsCategoryLoading(false);
-      });
-  };
+        return;
+      }
 
-  const preloadCategory = useCallback((keyword: string) => {
-    if (!shouldFetchRailCategory({ isRailNearby, isSelected: keyword === selectedKeyword, isInteracted: true })) return;
-    if (categoryCacheMapRef.current[keyword]) return;
+      setCategoryStories(null);
+      setIsCategoryLoading(true);
 
-    loadCategoryStories(keyword)
-      .then((nextStories) => {
-        categoryCacheMapRef.current[keyword] = nextStories;
-      })
-      .catch(() => {
-        // Hover/focus preloads are optional and must not surface an error.
-      });
-  }, [isRailNearby, loadCategoryStories, selectedKeyword]);
+      const requestId = categoryRequestRef.current + 1;
+      categoryRequestRef.current = requestId;
+      categoryRequestPendingRef.current = true;
+      loadCategoryStories(keyword)
+        .then((nextStories) => {
+          if (requestId !== categoryRequestRef.current) return;
+          setCategoryStories(nextStories);
+          setTrackTransitionEnabled(false);
+          setActivePosition(0);
+          window.requestAnimationFrame(() => {
+            setTrackTransitionEnabled(true);
+          });
+        })
+        .catch(() => {
+          if (requestId !== categoryRequestRef.current) return;
+          onApiError?.();
+        })
+        .finally(() => {
+          if (requestId !== categoryRequestRef.current) return;
+          categoryRequestPendingRef.current = false;
+          setIsCategoryLoading(false);
+        });
+    };
 
-  cardInteractionRef.current = (position) => {
-    const offset = position - activePosition;
-    const story = visibleVirtualPositions.find((item) => item.pos === position)?.story;
-    moveBy(offset);
-    if (offset === 0 && story) setCurrentStory(story);
-  };
+    const preloadCategory = useCallback(
+      (keyword: string) => {
+        if (
+          !shouldFetchRailCategory({
+            isRailNearby,
+            isSelected: keyword === selectedKeyword,
+            isInteracted: true,
+          })
+        )
+          return;
+        if (categoryCacheMapRef.current[keyword]) return;
 
-  const showSkeleton = !activeStory && (isLoading || isCategoryLoading);
-
-  if (!activeStory && !showSkeleton) {
-    return (
-      <section ref={railRef} aria-label="오디 셀렉션" className="relative mx-auto flex min-h-[355px] w-full max-w-6xl items-center justify-center overflow-hidden py-3 sm:min-h-[430px] sm:py-5 lg:min-h-[465px]">
-        <p className="text-sm text-[#4e5968]">이 주제의 오디오 이야기를 찾지 못했습니다.</p>
-      </section>
+        loadCategoryStories(keyword).then((nextStories) => {
+          categoryCacheMapRef.current[keyword] = nextStories;
+        });
+      },
+      [isRailNearby, loadCategoryStories, selectedKeyword]
     );
-  }
 
-  return (
-    <section ref={railRef} aria-label="오디 셀렉션" aria-busy={showSkeleton} style={{ contain: 'layout paint' }} className="relative mx-auto w-full max-w-6xl overflow-hidden py-3 sm:py-5">
-      <div className="w-full px-0">
-        <div className="relative pb-2 pt-1 sm:pt-2">
-          <div className="mx-auto mb-3 w-full max-w-6xl">
-            <nav aria-label="장면 카테고리" className="overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              <div className="flex min-w-max items-center gap-4">
-                {SORIMARU_THEME_CATEGORIES.map((category) => {
-                  const isSelected = selectedKeyword === category.keyword;
-                  return (
-                    <button
-                      key={category.id}
-                      type="button"
-                      onClick={() => handleCategoryChange(category.keyword)}
-                      onPointerEnter={() => preloadCategory(category.keyword)}
-                      onFocus={() => preloadCategory(category.keyword)}
-                      aria-pressed={isSelected}
-                      className={`select-none whitespace-nowrap text-xs transition-colors duration-300 sm:text-sm ${isSelected ? 'font-semibold text-[#FF2A85]' : 'text-[#4e5968] hover:text-[#191f28]'}`}
-                    >
-                      #{category.keyword === '시장' ? '전통시장' : category.keyword === '마을' ? '전통마을' : category.keyword === '궁' ? '궁궐' : category.keyword === '길' ? '자연' : category.keyword}
-                    </button>
-                  );
-                })}
-              </div>
-            </nav>
-          </div>
-          <div className="relative isolate mt-0 h-[325px] overflow-hidden bg-white pt-2 pb-4 sm:h-[410px] lg:h-[455px]">
-            {/* Leading (좌측) 풀 높이 리니어 그라데이션 탐색 버튼 */}
-            <button
-              type="button"
-              onClick={() => moveBy(-1)}
-              onDragStart={(event) => event.preventDefault()}
-              draggable={false}
-              aria-label="이전 이야기"
-              className="group absolute left-0 top-0 bottom-0 z-30 flex w-12 sm:w-16 lg:w-20 cursor-pointer items-center justify-start pl-2 sm:pl-4 bg-gradient-to-r from-white/55 via-white/20 to-transparent transition-opacity duration-200 hover:from-white hover:via-white/85 active:opacity-80"
-            >
-              <span className="flex h-11 w-9 items-center justify-center rounded-xl bg-white/40 text-[#191f28]  backdrop-blur-xs transition-transform duration-300 group-hover:scale-115 group-hover:bg-white group-hover:text-[#FF2A85]">
-                <ChevronLeft size={22} strokeWidth={2} />
-              </span>
-            </button>
+    cardInteractionRef.current = (position) => {
+      const offset = position - activePosition;
+      const story = visibleVirtualPositions.find((item) => item.pos === position)?.story;
+      moveBy(offset);
+      if (offset === 0 && story) setCurrentStory(story);
+    };
 
-            {/* Trailing (우측) 풀 높이 리니어 그라데이션 탐색 버튼 */}
-            <button
-              type="button"
-              onClick={() => moveBy(1)}
-              onDragStart={(event) => event.preventDefault()}
-              draggable={false}
-              aria-label="다음 이야기"
-              className="group absolute right-0 top-0 bottom-0 z-30 flex w-12 sm:w-16 lg:w-20 cursor-pointer items-center justify-end pr-2 sm:pr-4 bg-gradient-to-l from-white/55 via-white/20 to-transparent transition-opacity duration-200 hover:from-white hover:via-white/85 active:opacity-80"
-            >
-              <span className="flex h-11 w-9 items-center justify-center rounded-xl bg-white/40 text-[#191f28]  backdrop-blur-xs transition-transform duration-300 group-hover:scale-115 group-hover:bg-white group-hover:text-[#FF2A85]">
-                <ChevronRight size={22} strokeWidth={2} />
-              </span>
-            </button>
+    const showSkeleton = !activeStory && (isLoading || isCategoryLoading);
 
-            {showSkeleton && (
-              <div className="absolute inset-x-0 top-7 flex items-start justify-center gap-4 px-4 sm:gap-5 lg:gap-5">
-                {[0, 1, 2, 3, 4, 5, 6].map((index) => (
-                  <div
-                    key={index}
-                    className={`h-[250px] w-[135px] shrink-0 animate-pulse overflow-hidden  bg-white/70  sm:h-[330px] sm:w-[200px] lg:h-[370px] lg:w-[225px] ${index % 2 ? 'translate-y-2 rotate-[1.2deg]' : '-translate-y-1 rotate-[-1.2deg]'}`}
-                  >
-                    <div className="h-[62%] bg-[#f0f0f0]" />
-                    <div className="space-y-3 bg-white/70 px-4 py-5 sm:px-5 sm:py-6">
-                      <div className="h-2.5 w-16 rounded bg-[#FFA3C7]/55" />
-                      <div className="h-4 w-4/5 rounded bg-[#e5e5e3]/70" />
-                      <div className="h-3 w-3/5 rounded bg-[#d9d9d7]/75" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-            {!showSkeleton && <div
-              className="absolute left-1/2 top-7 flex items-start"
+    if (!activeStory && !showSkeleton) {
+      return (
+        <section
+          ref={railRef}
+          aria-label="오디 셀렉션"
+          style={{
+            position: 'relative',
+            marginLeft: 'auto',
+            marginRight: 'auto',
+            display: 'flex',
+            minHeight: 355,
+            width: '100%',
+            maxWidth: '72rem',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden',
+            padding: '0.75rem 0',
+          }}
+        >
+          <p style={{ fontSize: '0.875rem', color: meok[700] }}>이 주제의 오디오 이야기를 찾지 못했습니다.</p>
+        </section>
+      );
+    }
+
+    return (
+      <section
+        ref={railRef}
+        aria-label="오디 셀렉션"
+        aria-busy={showSkeleton}
+        style={{
+          contain: 'layout paint',
+          position: 'relative',
+          marginLeft: 'auto',
+          marginRight: 'auto',
+          width: '100%',
+          maxWidth: '72rem',
+          overflow: 'hidden',
+          padding: '0.75rem 0',
+        }}
+      >
+        <div style={{ width: '100%', padding: 0 }}>
+          <div style={{ position: 'relative', paddingBottom: '0.5rem', paddingTop: '0.25rem' }}>
+            <div style={{ marginLeft: 'auto', marginRight: 'auto', marginBottom: '0.75rem', width: '100%', maxWidth: '72rem' }}>
+              <nav style={{ overflowX: 'auto', scrollbarWidth: 'none' }} aria-label="장면 카테고리">
+                <div style={{ display: 'flex', minWidth: 'max-content', alignItems: 'center', gap: '1rem' }}>
+                  {SORIMARU_THEME_CATEGORIES.map((category) => {
+                    const isSelected = selectedKeyword === category.keyword;
+                    return (
+                      <button
+                        key={category.id}
+                        type="button"
+                        onClick={() => handleCategoryChange(category.keyword)}
+                        onPointerEnter={() => preloadCategory(category.keyword)}
+                        onFocus={() => preloadCategory(category.keyword)}
+                        aria-pressed={isSelected}
+                        style={{
+                          userSelect: 'none',
+                          whiteSpace: 'nowrap',
+                          fontSize: '0.75rem',
+                          transition: 'color 0.3s ease',
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          fontWeight: isSelected ? 600 : 400,
+                          color: isSelected ? palette.jangmi[500] : meok[700],
+                        }}
+                      >
+                        #{category.keyword === '시장' ? '전통시장' : category.keyword === '마을' ? '전통마을' : category.keyword === '궁' ? '궁궐' : category.keyword === '길' ? '자연' : category.keyword}
+                      </button>
+                    );
+                  })}
+                </div>
+              </nav>
+            </div>
+
+            <div
               style={{
-                transform: `translate3d(${-trackMetrics.cardStep * activePosition}px, 0, 0)`,
-                transition: trackTransitionEnabled ? 'transform 480ms cubic-bezier(0.16, 1, 0.3, 1)' : 'none',
-                willChange: 'transform',
+                position: 'relative',
+                isolation: 'isolate',
+                marginTop: 0,
+                height: 410,
+                overflow: 'hidden',
+                backgroundColor: '#ffffff',
+                paddingTop: '0.5rem',
+                paddingBottom: '1rem',
               }}
-              onTransitionEnd={handleTrackTransitionEnd}
             >
-              {visibleVirtualPositions.map(({ pos, story }) => (
+              {/* 좌측 탐색 버튼 */}
+              <NavSideButton
+                type="button"
+                onClick={() => moveBy(-1)}
+                onDragStart={(event) => event.preventDefault()}
+                draggable={false}
+                aria-label="이전 이야기"
+                $side="left"
+              >
+                <span className="icon-box">
+                  <ChevronLeft size={22} strokeWidth={2} />
+                </span>
+              </NavSideButton>
+
+              {/* 우측 탐색 버튼 */}
+              <NavSideButton
+                type="button"
+                onClick={() => moveBy(1)}
+                onDragStart={(event) => event.preventDefault()}
+                draggable={false}
+                aria-label="다음 이야기"
+                $side="right"
+              >
+                <span className="icon-box">
+                  <ChevronRight size={22} strokeWidth={2} />
+                </span>
+              </NavSideButton>
+
+              {!showSkeleton && (
                 <div
-                  key={pos}
                   style={{
                     position: 'absolute',
-                    left: `${pos * trackMetrics.cardStep - trackMetrics.cardWidth / 2}px`,
-                    top: 0,
+                    left: '50%',
+                    top: '1.75rem',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    transform: `translate3d(${-trackMetrics.cardStep * activePosition}px, 0, 0)`,
+                    transition: trackTransitionEnabled
+                      ? 'transform 480ms cubic-bezier(0.16, 1, 0.3, 1)'
+                      : 'none',
+                    willChange: 'transform',
                   }}
+                  onTransitionEnd={handleTrackTransitionEnd}
                 >
-                  <EditorialRailCard
-                    story={story}
-                    position={pos}
-                    offset={pos - activePosition}
-                    featuredLength={featured.length}
-                    trackTransitionEnabled={trackTransitionEnabled}
-                    onInteractRef={cardInteractionRef}
-                  />
+                  {visibleVirtualPositions.map(({ pos, story: cardStory }) => (
+                    <div
+                      key={pos}
+                      style={{
+                        position: 'absolute',
+                        left: `${pos * trackMetrics.cardStep - trackMetrics.cardWidth / 2}px`,
+                        top: 0,
+                      }}
+                    >
+                      <EditorialRailCard
+                        story={cardStory}
+                        position={pos}
+                        offset={pos - activePosition}
+                        featuredLength={featured.length}
+                        trackTransitionEnabled={trackTransitionEnabled}
+                        onInteractRef={cardInteractionRef}
+                      />
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>}
-          </div>
+              )}
+            </div>
 
-          {/* 하단 인디케이터 바 */}
-          <div className="relative z-30 flex items-center justify-center pt-1.5 sm:pt-2">
-            <div className="flex items-center gap-1.5">
-              {featured.map((story, index) => (
-                <button key={`${story.stid}-${index}`} type="button" onClick={() => moveTo(index)} className={`h-1 rounded-full transition-all duration-300 ${index === activeIndex ? 'w-8 bg-[#FF2A85]' : 'w-1.5 bg-[#211e19]/20 hover:bg-[#211e19]/50'}`} aria-label={`${index + 1}번째 이야기 선택`} />
-              ))}
+            {/* 하단 인디케이터 바 */}
+            <div style={{ position: 'relative', zIndex: 30, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: '0.375rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                {featured.map((storyItem, index) => (
+                  <IndicatorDot
+                    key={`${storyItem.stid}-${index}`}
+                    type="button"
+                    onClick={() => moveTo(index)}
+                    $active={index === activeIndex}
+                    aria-label={`${index + 1}번째 이야기 선택`}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
-  );
-});
+      </section>
+    );
+  }
+);

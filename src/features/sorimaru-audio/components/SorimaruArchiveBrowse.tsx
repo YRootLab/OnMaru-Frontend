@@ -1,10 +1,13 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
+import styled from '@emotion/styled';
+import { keyframes } from '@emotion/react';
 import { Play, Pause } from 'lucide-react';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import type { SorimaruStoryItem } from '@/features/sorimaru-audio/types/sorimaru.types';
 import { groupSorimaruStoriesByPlace, type SorimaruPlaceGroup } from '@/features/sorimaru-audio/utils/sorimaruArchiveGrouping';
+import { palette, meok, fontSize } from '@/design-system/tokens';
 
 interface SorimaruArchiveBrowseProps {
   stories: SorimaruStoryItem[];
@@ -33,22 +36,160 @@ function storyContext(story: SorimaruStoryItem) {
   return category ? `${category} · ${location}` : location;
 }
 
+const shimmerAnim = keyframes`
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+`;
+
+const SkeletonBox = styled.div`
+  background: linear-gradient(90deg, #f0f0f0 25%, #e5e5e3 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: ${shimmerAnim} 1.6s ease-in-out infinite;
+  border-radius: 4px;
+`;
+
+const SkeletonGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+
+  @media (min-width: 640px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+`;
+
 function ArchiveSkeleton() {
   return (
-    <div aria-busy="true" aria-label="이야기 목록 로딩 중" className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+    <SkeletonGrid aria-busy="true" aria-label="이야기 목록 로딩 중">
       {Array.from({ length: 12 }, (_, index) => (
-        <div key={index} className="flex items-center gap-4 rounded-2xl bg-[#f8f8f7] p-3">
-          <div className="sorimaru-skeleton h-20 w-20 shrink-0 rounded-xl bg-[#e5e5e3] sm:h-[86px] sm:w-[86px]" />
-          <div className="min-w-0 flex-1 space-y-2.5">
-            <div className="sorimaru-skeleton h-2.5 w-24 rounded bg-[#e5e5e3]" />
-            <div className="sorimaru-skeleton h-4 w-4/5 rounded bg-[#cdcdca]" />
-            <div className="sorimaru-skeleton h-2.5 w-2/5 rounded bg-[#e5e5e3]" />
+        <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderRadius: '1rem', backgroundColor: '#f8f8f7', padding: '0.75rem' }}>
+          <SkeletonBox style={{ height: 80, width: 80, flexShrink: 0, borderRadius: 12 }} />
+          <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <SkeletonBox style={{ height: 10, width: 96 }} />
+            <SkeletonBox style={{ height: 16, width: '80%' }} />
+            <SkeletonBox style={{ height: 10, width: '40%' }} />
           </div>
         </div>
       ))}
-    </div>
+    </SkeletonGrid>
   );
 }
+
+const eqAnim = keyframes`
+  0%, 100% { height: 3px; }
+  50% { height: 12px; }
+`;
+
+const StoryArticle = styled.article<{ $isCurrent: boolean }>`
+  position: relative;
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  gap: 1rem;
+  border-radius: 1rem;
+  padding: 0.75rem;
+  transition: all 0.3s ease;
+
+  background-color: ${({ $isCurrent }) => ($isCurrent ? '#FFF0F6' : '#f8f8f7')};
+
+  &:hover {
+    background-color: ${({ $isCurrent }) => ($isCurrent ? '#FFF0F6' : '#f0f0f0')};
+  }
+
+  &:hover img {
+    transform: scale(1.28);
+  }
+`;
+
+const ThumbSlot = styled.div`
+  position: relative;
+  height: 5rem;
+  width: 5rem;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  background-color: #e5e5e3;
+
+  @media (min-width: 640px) {
+    height: 86px;
+    width: 86px;
+  }
+`;
+
+const StoryThumbImg = styled.img`
+  height: 100%;
+  width: 100%;
+  transform: scale(1.18);
+  object-fit: cover;
+  transition: transform 0.5s ease;
+`;
+
+const IndexBadge = styled.span`
+  position: absolute;
+  left: 0.375rem;
+  top: 0.375rem;
+  border-radius: 6px;
+  background-color: rgba(0, 0, 0, 0.45);
+  padding: 2px 4px;
+  font-family: monospace;
+  font-size: ${fontSize.micro};
+  font-weight: 700;
+  line-height: 1;
+  color: #ffffff;
+  backdrop-filter: blur(4px);
+`;
+
+const PlayHoverOverlay = styled.div<{ $show: boolean }>`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.35);
+  transition: opacity 0.2s ease;
+  opacity: ${({ $show }) => ($show ? 1 : 0)};
+
+  article:hover & {
+    opacity: 1;
+  }
+`;
+
+const PlayCircle = styled.button`
+  display: grid;
+  height: 2.25rem;
+  width: 2.25rem;
+  place-items: center;
+  border-radius: 9999px;
+  background-color: #ffffff;
+  color: ${palette.jangmi[500]};
+  border: none;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+
+  &:active {
+    transform: scale(0.9);
+  }
+`;
+
+const EqBar = styled.span<{ $delay: string }>`
+  width: 2.5px;
+  border-radius: 9999px;
+  background-color: ${palette.jangmi[500]};
+  animation: ${eqAnim} 0.8s ease-in-out infinite;
+  animation-delay: ${({ $delay }) => $delay};
+`;
+
+const DurationPill = styled.span`
+  flex-shrink: 0;
+  align-self: flex-start;
+  white-space: nowrap;
+  border-radius: 9999px;
+  background-color: rgba(33, 30, 25, 0.05);
+  padding: 0.25rem 0.5rem;
+  font-size: ${fontSize.micro};
+  font-weight: 600;
+  color: ${meok[700]};
+`;
 
 interface StoryRowProps {
   story: SorimaruStoryItem;
@@ -71,72 +212,149 @@ function StoryRow({ story, index }: StoryRowProps) {
   };
 
   return (
-    <article
-      onClick={() => selectStory(story)}
-      className={`group relative flex cursor-pointer items-center gap-4 rounded-2xl p-3 transition-all duration-300 ${
-        isCurrent
-          ? 'bg-[#FFF0F6]'
-          : 'bg-[#f8f8f7] hover:bg-[#f0f0f0]'
-      }`}
-    >
-      <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-[#e5e5e3] sm:h-[86px] sm:w-[86px]">
-        <img src={imageFor(story, index)} alt="" loading="lazy" decoding="async" className="h-full w-full scale-[1.18] object-cover transition-transform duration-500 group-hover:scale-[1.28]" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = FALLBACK_IMAGES[0]; }} />
+    <StoryArticle onClick={() => selectStory(story)} $isCurrent={isCurrent}>
+      <ThumbSlot>
+        <StoryThumbImg
+          src={imageFor(story, index)}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          onError={(event) => {
+            event.currentTarget.onerror = null;
+            event.currentTarget.src = FALLBACK_IMAGES[0];
+          }}
+        />
 
-        <span className="absolute left-1.5 top-1.5 rounded-md bg-black/45 px-1.5 py-0.5 font-mono text-micro font-bold leading-none text-white backdrop-blur-sm">
-          {String(index + 1).padStart(2, '0')}
-        </span>
+        <IndexBadge>{String(index + 1).padStart(2, '0')}</IndexBadge>
 
-        <div className={`absolute inset-0 flex items-center justify-center bg-black/35 transition-opacity duration-200 ${isThisPlaying ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-          <button
+        <PlayHoverOverlay $show={isThisPlaying}>
+          <PlayCircle
             type="button"
             onClick={togglePlayback}
             aria-label={`${story.title} ${isThisPlaying ? '일시정지' : '재생'}`}
-            className="grid h-9 w-9 place-items-center rounded-full bg-white text-[#FF2A85] transition-transform active:scale-90"
           >
-            {isThisPlaying ? <Pause size={15} /> : <Play size={15} className="ml-0.5" />}
-          </button>
-        </div>
+            {isThisPlaying ? <Pause size={15} /> : <Play size={15} style={{ marginLeft: 2 }} />}
+          </PlayCircle>
+        </PlayHoverOverlay>
 
         {isThisPlaying && (
-          <span className="absolute bottom-1.5 right-1.5 flex h-3 items-end gap-[2px]" aria-hidden="true">
-            <span className="eq-bar w-[2.5px] rounded-full bg-[#FF2A85]" style={{ animationDelay: '0ms' }} />
-            <span className="eq-bar w-[2.5px] rounded-full bg-[#FF2A85]" style={{ animationDelay: '180ms' }} />
-            <span className="eq-bar w-[2.5px] rounded-full bg-[#FF2A85]" style={{ animationDelay: '90ms' }} />
+          <span
+            style={{ position: 'absolute', bottom: 6, right: 6, display: 'flex', height: 12, alignItems: 'flex-end', gap: 2 }}
+            aria-hidden="true"
+          >
+            <EqBar $delay="0ms" />
+            <EqBar $delay="180ms" />
+            <EqBar $delay="90ms" />
           </span>
         )}
+      </ThumbSlot>
+
+      <div style={{ minWidth: 0, flex: 1 }}>
+        <p style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: fontSize.micro, lineHeight: '1rem', color: meok[700] }}>
+          {storyContext(story)}
+        </p>
+        <h3
+          style={{
+            marginTop: 2,
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            fontFamily: 'var(--font-hanok)',
+            fontSize: '0.875rem',
+            fontWeight: 700,
+            lineHeight: 1.35,
+            letterSpacing: '-0.028em',
+            color: isCurrent ? palette.jangmi[500] : meok[900],
+          }}
+        >
+          {story.title}
+        </h3>
+        <p style={{ marginTop: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: fontSize.micro, color: meok[700] }}>
+          {story.audioTitle || story.locationName || '오디오 가이드'}
+        </p>
       </div>
 
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-micro leading-4 text-[#4e5968]">{storyContext(story)}</p>
-        <h3 className={`mt-0.5 line-clamp-2 font-sorimaru-sans text-sm font-bold leading-snug tracking-[-0.028em] sm:text-base ${isCurrent ? 'text-[#FF2A85]' : 'text-[#191f28]'}`}>{story.title}</h3>
-        <p className="mt-1 truncate text-micro text-[#4e5968]">{story.audioTitle || story.locationName || '오디오 가이드'}</p>
-      </div>
-
-
-      <span className="shrink-0 self-start whitespace-nowrap rounded-full bg-[#211e19]/[0.05] px-2 py-1 text-micro font-semibold text-[#4e5968]">
-        {story.formattedDuration || '3:00'}
-      </span>
-
-    </article>
+      <DurationPill>{story.formattedDuration || '3:00'}</DurationPill>
+    </StoryArticle>
   );
 }
+
+const PlaceGroupSection = styled.section`
+  border-radius: 1rem;
+  background-color: #f5f5f4;
+  padding: 1rem;
+`;
+
+const PlaceGroupHeader = styled.header`
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  img {
+    height: 3.5rem;
+    width: 3.5rem;
+    border-radius: 10px;
+    object-fit: cover;
+  }
+`;
 
 function PlaceGroupCard({ group, startIndex }: { group: SorimaruPlaceGroup; startIndex: number }) {
   return (
-    <section className="rounded-2xl bg-[#f5f5f4] p-4">
-      <header className="mb-3 flex items-center gap-3">
-        <img src={imageFor(group.representative, startIndex)} alt="" loading="lazy" decoding="async" className="h-14 w-14 rounded-[10px] object-cover" />
-        <div className="min-w-0">
-          <h3 className="truncate font-sorimaru-sans text-sm font-bold tracking-[-0.03em] text-[#191f28]">{group.label}</h3>
-          <p className="mt-0.5 text-micro text-[#4e5968]">현재 결과의 이야기 {group.stories.length}개</p>
+    <PlaceGroupSection>
+      <PlaceGroupHeader>
+        <img src={imageFor(group.representative, startIndex)} alt="" loading="lazy" decoding="async" />
+        <div style={{ minWidth: 0 }}>
+          <h3 style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'var(--font-hanok)', fontSize: '0.875rem', fontWeight: 700, letterSpacing: '-0.03em', color: meok[900] }}>
+            {group.label}
+          </h3>
+          <p style={{ marginTop: 2, fontSize: fontSize.micro, color: meok[700] }}>
+            현재 결과의 이야기 {group.stories.length}개
+          </p>
         </div>
-      </header>
-      <div className="flex flex-col gap-2.5">
-        {group.stories.map((story, index) => <StoryRow key={story.stid} story={story} index={startIndex + index} />)}
+      </PlaceGroupHeader>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
+        {group.stories.map((story, index) => (
+          <StoryRow key={story.stid} story={story} index={startIndex + index} />
+        ))}
       </div>
-    </section>
+    </PlaceGroupSection>
   );
 }
+
+const ViewTabBtn = styled.button<{ $active: boolean }>`
+  position: relative;
+  padding: 0.25rem 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  transition: color 0.2s ease;
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  ${({ $active }) =>
+    $active
+      ? `
+        font-weight: 600;
+        color: ${palette.jangmi[500]};
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          height: 2px;
+          width: calc(100% + 8px);
+          background-color: ${palette.jangmi[500]};
+        }
+      `
+      : `
+        color: ${meok[700]};
+        &:hover {
+          color: ${meok[900]};
+        }
+      `}
+`;
 
 export function SorimaruArchiveBrowse({ stories, isLoading }: SorimaruArchiveBrowseProps) {
   const [view, setView] = useState<ArchiveView>('stories');
@@ -144,18 +362,63 @@ export function SorimaruArchiveBrowse({ stories, isLoading }: SorimaruArchiveBro
 
   return (
     <div>
-      <div className="mb-1 flex items-center gap-1 pb-1" role="tablist" aria-label="아카이브 표시 방식">
-        <button type="button" role="tab" aria-selected={view === 'stories'} onClick={() => setView('stories')} className={`relative px-1 pb-2 pt-1 text-xs transition-colors ${view === 'stories' ? 'font-semibold text-[#FF2A85] after:absolute after:bottom-0 after:left-1/2 after:h-[2px] after:w-[calc(100%+8px)] after:-translate-x-1/2 after:bg-[#FF2A85]' : 'text-[#4e5968] hover:text-[#191f28]'}`}>이야기</button>
-        <button type="button" role="tab" aria-selected={view === 'places'} onClick={() => setView('places')} className={`relative ml-4 px-1 pb-2 pt-1 text-xs transition-colors ${view === 'places' ? 'font-semibold text-[#FF2A85] after:absolute after:bottom-0 after:left-1/2 after:h-[2px] after:w-[calc(100%+8px)] after:-translate-x-1/2 after:bg-[#FF2A85]' : 'text-[#4e5968] hover:text-[#191f28]'}`}>장소별 묶어 보기</button>
-        {view === 'places' && <span className="ml-auto pb-2 text-micro text-[#8b95a1]">현재 결과 기준</span>}
+      <div style={{ marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4, paddingBottom: 4 }} role="tablist" aria-label="아카이브 표시 방식">
+        <ViewTabBtn
+          type="button"
+          role="tab"
+          aria-selected={view === 'stories'}
+          onClick={() => setView('stories')}
+          $active={view === 'stories'}
+        >
+          이야기
+        </ViewTabBtn>
+        <ViewTabBtn
+          type="button"
+          role="tab"
+          aria-selected={view === 'places'}
+          onClick={() => setView('places')}
+          $active={view === 'places'}
+          style={{ marginLeft: '1rem' }}
+        >
+          장소별 묶어 보기
+        </ViewTabBtn>
+        {view === 'places' && (
+          <span style={{ marginLeft: 'auto', paddingBottom: 8, fontSize: fontSize.micro, color: meok[500] }}>
+            현재 결과 기준
+          </span>
+        )}
       </div>
 
-      {isLoading ? <ArchiveSkeleton /> : stories.length === 0 ? (
-        <div className="py-16 text-center text-xs text-[#4e5968]">선택한 조건에 해당하는 오디오 가이드가 없습니다.</div>
+      {isLoading ? (
+        <ArchiveSkeleton />
+      ) : stories.length === 0 ? (
+        <div style={{ padding: '4rem 0', textAlign: 'center', fontSize: '0.75rem', color: meok[700] }}>
+          선택한 조건에 해당하는 오디오 가이드가 없습니다.
+        </div>
       ) : view === 'stories' ? (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-3">{stories.map((story, index) => <StoryRow key={story.stid} story={story} index={index} />)}</div>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: '0.75rem',
+          }}
+        >
+          {stories.map((story, index) => (
+            <StoryRow key={story.stid} story={story} index={index} />
+          ))}
+        </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">{groups.map((group, index) => <PlaceGroupCard key={group.key} group={group} startIndex={index * 10} />)}</div>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gap: '1rem',
+          }}
+        >
+          {groups.map((group, index) => (
+            <PlaceGroupCard key={group.key} group={group} startIndex={index * 10} />
+          ))}
+        </div>
       )}
     </div>
   );

@@ -2,8 +2,11 @@
 
 import React, { useMemo } from 'react';
 import Link from 'next/link';
+import styled from '@emotion/styled';
+import { keyframes } from '@emotion/react';
 import { motion } from 'framer-motion';
 import SHADOW from '@/data/solarShadow.json';
+import { palette, meok, fontSize } from '@/design-system/tokens';
 
 function getNextSolarTerm(now = new Date()) {
   const year = now.getFullYear();
@@ -18,6 +21,202 @@ function getNextSolarTerm(now = new Date()) {
   };
 }
 
+const pulseAnimation = keyframes`
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+`;
+
+const SectionContainer = styled.section`
+  width: 100%;
+  padding: 3rem 0;
+  @media (min-width: 640px) {
+    padding: 4rem 0;
+  }
+`;
+
+const ContentWrapper = styled.div`
+  width: 100%;
+  text-align: center;
+`;
+
+const GlassCard = styled(motion.div)`
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.5rem;
+  background: linear-gradient(to bottom right, #ffffff, ${palette.jangmi[50]});
+  padding: 2rem;
+  color: ${meok[900]};
+  backdrop-filter: blur(12px);
+  @media (min-width: 640px) {
+    padding: 3.5rem;
+  }
+`;
+
+const RadialOverlay = styled.div`
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.6) 0%, transparent 60%, rgba(255, 240, 246, 0.8) 100%);
+`;
+
+const GlowOrbRight = styled.div`
+  pointer-events: none;
+  position: absolute;
+  top: -4rem;
+  right: -4rem;
+  width: 14rem;
+  height: 14rem;
+  border-radius: 9999px;
+  background: rgba(255, 42, 133, 0.1);
+  filter: blur(48px);
+`;
+
+const GlowOrbLeft = styled.div`
+  pointer-events: none;
+  position: absolute;
+  bottom: -4rem;
+  left: -4rem;
+  width: 14rem;
+  height: 14rem;
+  border-radius: 9999px;
+  background: rgba(255, 163, 199, 0.15);
+  filter: blur(48px);
+`;
+
+const InnerBody = styled.div`
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const SolarBadge = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: 9999px;
+  background: ${palette.jangmi[50]};
+  padding: 0.25rem 0.875rem;
+  font-size: ${fontSize.xs};
+  font-weight: 700;
+  color: ${palette.jangmi[500]};
+  backdrop-filter: blur(4px);
+`;
+
+const PulseDot = styled.span`
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 9999px;
+  background: ${palette.jangmi[500]};
+  animation: ${pulseAnimation} 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+`;
+
+const MainHeading = styled.h2`
+  margin-top: 1.25rem;
+  font-family: inherit;
+  font-size: ${fontSize['2xl']};
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: ${meok[900]};
+  @media (min-width: 640px) {
+    font-size: ${fontSize['4xl']};
+  }
+`;
+
+const Description = styled.p`
+  margin-top: 0.875rem;
+  max-width: 36rem;
+  font-size: ${fontSize.xs};
+  line-height: 1.625;
+  color: ${meok[700]};
+  @media (min-width: 640px) {
+    font-size: ${fontSize.sm};
+  }
+`;
+
+const ButtonRow = styled.div`
+  margin-top: 2rem;
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.875rem;
+  @media (min-width: 640px) {
+    width: auto;
+    flex-direction: row;
+  }
+`;
+
+const PrimaryCtaLink = styled(Link)`
+  position: relative;
+  display: inline-flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: linear-gradient(to right, ${palette.jangmi[500]}, ${palette.jangmi[700]});
+  padding: 0.875rem 1.75rem;
+  font-size: ${fontSize.xs};
+  font-weight: 700;
+  color: #ffffff;
+  text-decoration: none;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(to right, ${palette.jangmi[700]}, #c8244c);
+  }
+
+  @media (min-width: 640px) {
+    width: auto;
+  }
+
+  & .arrow {
+    display: inline-block;
+    transition: transform 0.3s ease;
+  }
+
+  &:hover .arrow {
+    transform: translateX(4px);
+  }
+`;
+
+const SecondaryCtaLink = styled(Link)`
+  display: inline-flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: #ffffff;
+  padding: 0.875rem 1.75rem;
+  font-size: ${fontSize.xs};
+  font-weight: 700;
+  color: ${palette.jangmi[500]};
+  text-decoration: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    background: ${palette.jangmi[50]};
+  }
+
+  @media (min-width: 640px) {
+    width: auto;
+  }
+`;
+
+const SubText = styled.p`
+  margin-top: 2rem;
+  font-size: ${fontSize.micro};
+  font-weight: 500;
+  color: ${meok[500]};
+`;
+
 export const SorimaruFooterCTA: React.FC = () => {
   const term = useMemo(() => getNextSolarTerm(), []);
 
@@ -29,57 +228,50 @@ export const SorimaruFooterCTA: React.FC = () => {
   })();
 
   return (
-    <section aria-label="다음에 또 방문하기" className="w-full py-12 sm:py-16">
-      <div className="w-full text-center">
-        <motion.div
+    <SectionContainer aria-label="다음에 또 방문하기">
+      <ContentWrapper>
+        <GlassCard
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: [0.12, 1, 0.2, 1] }}
-          className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-white to-[#FFF0F6] p-8 text-[#191f28] backdrop-blur-md sm:p-14"
         >
           {/* 분위기 비네트 래디얼 오버레이 */}
-          <div className="pointer-events-none absolute inset-0 bg-radial from-white/60 via-transparent to-[#FFF0F6]/80" />
-          <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[#FF2A85]/10 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-16 -left-16 h-56 w-56 rounded-full bg-[#FFA3C7]/15 blur-3xl" />
+          <RadialOverlay />
+          <GlowOrbRight />
+          <GlowOrbLeft />
 
-          <div className="relative z-10 flex flex-col items-center">
+          <InnerBody>
             {/* 절기 알림 뱃지 */}
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF0F6] px-3.5 py-1 text-xs font-bold text-[#FF2A85] backdrop-blur-xs">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#FF2A85] animate-pulse" />
+            <SolarBadge>
+              <PulseDot />
               <span>{termText}</span>
-            </div>
+            </SolarBadge>
 
-            <h2 className="mt-5 font-sorimaru-sans text-2xl font-extrabold tracking-tight text-[#191f28] sm:text-4xl">
+            <MainHeading>
               다음 계절에도, 새로운 이야기를 만나요
-            </h2>
+            </MainHeading>
 
-            <p className="mt-3.5 max-w-xl text-xs leading-relaxed text-[#4e5968] sm:text-sm">
+            <Description>
               계절과 날짜가 바뀌면 오늘의 대표 이야기도 새롭게 열립니다.
               다음에 돌아왔을 때 다른 장소의 온기를 이어서 들어보세요.
-            </p>
+            </Description>
 
             {/* CTA 버튼 모음 */}
-            <div className="mt-8 flex w-full flex-col items-center justify-center gap-3.5 sm:w-auto sm:flex-row">
-              <Link
-                href="/map"
-                className="group relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-[#FF2A85] to-[#D40D63] px-7 py-3.5 text-xs font-bold text-white transition-all duration-300 hover:-translate-y-0.5 hover:from-[#D40D63] hover:to-[#c8244c] sm:w-auto"
-              >
+            <ButtonRow>
+              <PrimaryCtaLink href="/map">
                 <span>전국 한옥 지도에서 둘러보기</span>
-                <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
-              </Link>
-              <Link
-                href="/"
-                className="inline-flex w-full items-center justify-center rounded-full bg-white px-7 py-3.5 text-xs font-bold text-[#FF2A85] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#FFF0F6] sm:w-auto"
-              >
+                <span className="arrow">→</span>
+              </PrimaryCtaLink>
+              <SecondaryCtaLink href="/">
                 온마루 3D 한옥 스토리가기 🇰🇷
-              </Link>
-            </div>
+              </SecondaryCtaLink>
+            </ButtonRow>
 
-            <p className="mt-8 text-micro font-medium text-[#8b95a1]">오늘의 소리는 내일 또 다른 장면으로 이어집니다.</p>
-          </div>
-        </motion.div>
-      </div>
-    </section>
+            <SubText>오늘의 소리는 내일 또 다른 장면으로 이어집니다.</SubText>
+          </InnerBody>
+        </GlassCard>
+      </ContentWrapper>
+    </SectionContainer>
   );
 };

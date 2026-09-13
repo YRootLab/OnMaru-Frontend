@@ -1,9 +1,11 @@
 'use client';
 
 import React, { FormEvent, useId, useState } from 'react';
+import styled from '@emotion/styled';
 import { Search, X } from 'lucide-react';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { SORIMARU_THEME_CATEGORIES } from '@/features/sorimaru-audio/data/sorimaruCategoryData';
+import { palette, meok } from '@/design-system/tokens';
 
 interface Props {
   resultCount: number;
@@ -19,6 +21,133 @@ const labelFor = (keyword: string) => {
   if (keyword === '길') return '자연/둘레길';
   return category?.label || keyword;
 };
+
+const BarWrapper = styled.div`
+  margin-bottom: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.25rem 0;
+
+  @media (min-width: 640px) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+`;
+
+const MetaInfoGroup = styled.div`
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+`;
+
+const FilterChip = styled.span`
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  background-color: rgba(33, 30, 25, 0.05);
+  padding: 0.25rem 0.625rem;
+  font-weight: 700;
+  color: ${meok[900]};
+`;
+
+const SearchForm = styled.form`
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.5rem;
+
+  @media (min-width: 640px) {
+    width: 18rem;
+  }
+`;
+
+const InputWrapper = styled.div`
+  position: relative;
+  display: flex;
+  height: 2.5rem;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  background-color: #f5f5f4;
+  padding: 0 1rem;
+  transition: background-color 0.2s ease;
+
+  &:focus-within {
+    background-color: #FFF0F6;
+  }
+`;
+
+const StyledSearchInput = styled.input`
+  height: 100%;
+  width: 100%;
+  min-width: 0;
+  background: transparent;
+  font-size: 0.75rem;
+  color: ${meok[900]};
+  outline: none;
+  border: none;
+
+  &::placeholder {
+    color: ${meok[500]};
+  }
+`;
+
+const ClearBtn = styled.button`
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 9999px;
+  padding: 0.25rem;
+  color: ${meok[500]};
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background-color: rgba(33, 30, 25, 0.05);
+    color: ${meok[900]};
+  }
+`;
+
+const SubmitBtn = styled.button`
+  height: 2.5rem;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  background-color: #211e19;
+  padding: 0 1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: ${palette.jangmi[500]};
+  }
+`;
+
+const ResetBtn = styled.button`
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: ${meok[500]};
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: ${meok[900]};
+  }
+`;
 
 export const SorimaruArchiveMetaBar: React.FC<Props> = ({ resultCount, totalCount }) => {
   const selectedCategory = useSorimaruAudioStore((state) => state.selectedCategory);
@@ -43,61 +172,48 @@ export const SorimaruArchiveMetaBar: React.FC<Props> = ({ resultCount, totalCoun
   const hasFilter = selectedCategory !== '전체' || Boolean(searchQuery);
 
   return (
-    <div className="mb-3 flex flex-col gap-3 py-1 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex min-w-0 items-center gap-2 text-xs">
-        <span className="inline-flex items-center rounded-full bg-[#211e19]/[0.05] px-2.5 py-1 font-bold text-[#191f28]">
-          {labelFor(selectedCategory)}
-        </span>
+    <BarWrapper>
+      <MetaInfoGroup>
+        <FilterChip>{labelFor(selectedCategory)}</FilterChip>
         {searchQuery && (
-          <span className="truncate text-[#4e5968]">
-            “<strong className="font-semibold text-[#191f28]">{searchQuery}</strong>” 검색 결과
+          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: meok[700] }}>
+            “<strong style={{ fontWeight: 600, color: meok[900] }}>{searchQuery}</strong>” 검색 결과
           </span>
         )}
-        <span className="shrink-0 text-[#8b95a1]">
+        <span style={{ flexShrink: 0, color: meok[500] }}>
           {(totalCount ?? resultCount).toLocaleString()}개
         </span>
-      </div>
+      </MetaInfoGroup>
 
-      <form onSubmit={submit} className="flex min-w-0 items-center gap-2 sm:w-72">
-        <label htmlFor={searchId} className="sr-only">오디오 이야기 검색</label>
+      <SearchForm onSubmit={submit}>
+        <label htmlFor={searchId} style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0,0,0,0)' }}>
+          오디오 이야기 검색
+        </label>
 
-        <div className="group relative flex h-10 min-w-0 flex-1 items-center gap-2 rounded-full bg-[#f5f5f4] px-4 transition-all duration-200 focus-within:bg-[#FFF0F6]">
-          <Search size={15} className="shrink-0 text-[#8b95a1] transition-colors group-focus-within:text-[#FF2A85]" />
+        <InputWrapper>
+          <Search size={15} style={{ flexShrink: 0, color: meok[500] }} />
 
-          <input
+          <StyledSearchInput
             id={searchId}
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
             placeholder="장소 또는 키워드 검색"
-            className="h-full w-full min-w-0 bg-transparent text-xs text-[#191f28] outline-none focus-visible:outline-none placeholder:text-[#8b95a1]"
           />
           {draft && (
-            <button
-              type="button"
-              onClick={() => setDraft('')}
-              aria-label="검색어 지우기"
-              className="grid shrink-0 place-items-center rounded-full p-1 text-[#8b95a1] transition-colors hover:bg-[#211e19]/5 hover:text-[#191f28]"
-            >
+            <ClearBtn type="button" onClick={() => setDraft('')} aria-label="검색어 지우기">
               <X size={14} strokeWidth={2} />
-            </button>
+            </ClearBtn>
           )}
-        </div>
-        <button
-          type="submit"
-          className="h-10 shrink-0 rounded-full bg-[#211e19] px-4 text-xs font-bold text-white transition-colors hover:bg-[#FF2A85]"
-        >
+        </InputWrapper>
+        <SubmitBtn type="submit">
           검색
-        </button>
+        </SubmitBtn>
         {hasFilter && (
-          <button
-            type="button"
-            onClick={reset}
-            className="shrink-0 text-xs font-medium text-[#8b95a1] transition-colors hover:text-[#191f28]"
-          >
+          <ResetBtn type="button" onClick={reset}>
             초기화
-          </button>
+          </ResetBtn>
         )}
-      </form>
-    </div>
+      </SearchForm>
+    </BarWrapper>
   );
 };

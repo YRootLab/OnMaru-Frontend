@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
+import styled from '@emotion/styled';
 import { motion, Variants } from 'framer-motion';
 import { StoryCarousel } from './StoryCarousel';
 import { CategoryTagFilter } from './CategoryTagFilter';
@@ -23,6 +24,7 @@ import { SorimaruStoryItem, SorimaruStoryPage, ISorimaruApiService } from '@/fea
 import { SorimaruDependencyProvider, useSorimaruApiService } from '@/features/sorimaru-audio/context/SorimaruDependencyContext';
 import { loadSorimaruInitialData } from './sorimaruInitialLoad';
 import { SORIMARU_SECTION_CONTENT_CLASS } from './sorimaruSectionLayout';
+import { palette, meok, surface, fontSize } from '@/design-system/tokens';
 
 const AllStoriesModal = dynamic(
   () => import('./AllStoriesModal').then((module) => module.AllStoriesModal),
@@ -53,18 +55,195 @@ const contentVariants: Variants = {
   },
 };
 
+const FeatureContainer = styled.div`
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  padding-bottom: 6rem;
+  color: ${meok[900]};
+  font-family: var(--font-hanok);
+
+  &::selection {
+    background-color: #FFD4E5;
+    color: #D40D63;
+  }
+`;
+
+const TopRadialGlow = styled.div`
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: -10;
+  height: 620px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(248, 78, 118, 0.1), transparent 66%);
+`;
+
+const ContentLayer = styled.div`
+  position: relative;
+  z-index: 10;
+`;
+
+const ErrorAlert = styled.div`
+  position: fixed;
+  left: 50%;
+  top: 5rem;
+  z-index: 60;
+  display: flex;
+  width: min(92vw, 460px);
+  transform: translateX(-50%);
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-radius: 1rem;
+  background-color: #f8f8f7;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: ${meok[700]};
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+`;
+
+const RetryButton = styled.button`
+  flex-shrink: 0;
+  border-radius: 9999px;
+  background-color: ${palette.jangmi[500]};
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: ${palette.jangmi[700]};
+  }
+`;
+
+const MainSections = styled.main`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  @media (min-width: 640px) {
+    gap: 1.5rem;
+  }
+`;
+
+const HeroStageDiv = styled(motion.div)`
+  min-height: 520px;
+  padding-top: 6rem;
+
+  @media (min-width: 640px) {
+    min-height: 560px;
+    padding-top: 7rem;
+  }
+  @media (min-width: 1024px) {
+    padding-top: 8rem;
+  }
+`;
+
+const SectionGradientTitle = styled.h2`
+  display: inline-block;
+  background: linear-gradient(to right, #211e19, #403b35, #6a6158);
+  -webkit-background-clip: text;
+  background-clip: text;
+  font-family: var(--font-hanok);
+  font-size: clamp(24px, 3.2vw, 36px);
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  color: transparent;
+`;
+
+const CenteredContainer = styled.div`
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 72rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+
+  @media (min-width: 640px) {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+  @media (min-width: 1024px) {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+`;
+
+const NearbyHeader = styled(motion.div)`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-bottom: 0.25rem;
+
+  @media (min-width: 640px) {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+`;
+
+const LocationButton = styled.button`
+  display: inline-flex;
+  height: 2rem;
+  align-self: flex-end;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: 9999px;
+  background-color: rgba(255, 255, 255, 0.55);
+  padding: 0 0.75rem;
+  font-size: ${fontSize.micro};
+  font-weight: 500;
+  color: ${meok[700]};
+  border: 1px solid rgba(33, 30, 25, 0.08);
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    background-color: #ffffff;
+    color: ${meok[900]};
+  }
+
+  &:disabled {
+    cursor: wait;
+    opacity: 0.5;
+  }
+`;
+
+const PaginationPill = styled.button`
+  height: 2.25rem;
+  border-radius: 9999px;
+  padding: 0 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: ${palette.jangmi[500]};
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #FFF0F6;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.3;
+  }
+`;
+
 export interface SorimaruAudioFeatureProps {
-  /** 외부에서 주입 가능한 API 서비스 (기본값: sorimaruApiAdapter) */
   apiService?: ISorimaruApiService;
-  /** 외부에서 주입받는 아카이브 오디오 스토리 데이터 */
   initialStories?: SorimaruStoryItem[];
-  /** 외부에서 주입받는 내 주변 오디오 스토리 데이터 */
   initialNearbyStories?: SorimaruStoryItem[];
-  /** 외부에서 주입받는 히어로 오디오 스토리 세트 */
   initialHeroStorySets?: Record<string, SorimaruStoryItem[]>;
-  /** 외부 위치 변경 이벤트 콜백 */
   onLocationChange?: (latitude: number, longitude: number) => void;
-  /** 비교 시안에서만 사용하는 오디 배경 시스템 */
   backgroundVariant?: SorimaruBackgroundVariant;
 }
 
@@ -135,13 +314,17 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   const [retryToken, setRetryToken] = useState(0);
   const [initialLoadVersion, setInitialLoadVersion] = useState(0);
   const initialLoadCompleteRef = useRef(false);
-  const initialArchiveRef = useRef<SorimaruStoryPage | null>(initialStories ? {
-    items: initialStories,
-    pageNo: 1,
-    numOfRows: 12,
-    totalCount: initialStories.length,
-    source: 'mock',
-  } : null);
+  const initialArchiveRef = useRef<SorimaruStoryPage | null>(
+    initialStories
+      ? {
+          items: initialStories,
+          pageNo: 1,
+          numOfRows: 12,
+          totalCount: initialStories.length,
+          source: 'mock',
+        }
+      : null
+  );
   const archiveScopeRef = useRef({ selectedCategory, searchQuery, archivePage });
   const handleApiError = useCallback(() => {
     setApiError('오디 이야기를 불러오지 못했습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.');
@@ -153,7 +336,6 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
 
   useEffect(() => {
     let isMounted = true;
-
     initialLoadCompleteRef.current = false;
 
     async function loadInitialContent() {
@@ -274,196 +456,200 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
         setLocationMessage('위치 권한을 확인하지 못했습니다. 권한 없이도 전국 큐레이션을 둘러볼 수 있어요.');
         setIsLocating(false);
       },
-      { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
     );
   };
 
   return (
     <SorimaruDependencyProvider apiService={activeApiService}>
-      <div className="sorimaru-feature relative isolate min-h-screen pb-24 text-[#191f28] selection:bg-[#FFD4E5] selection:text-[#D40D63]">
-        <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[620px] bg-[radial-gradient(ellipse_at_50%_0%,rgba(248,78,118,0.10),transparent_66%)]" aria-hidden="true" />
+      <FeatureContainer>
+        <TopRadialGlow aria-hidden="true" />
         <SorimaruAtmosphereBackground
           variant={backgroundVariant}
           selectedCategory={selectedCategory}
           isPlaying={isPlaying}
         />
-        <div className="relative z-10">
+        <ContentLayer>
           {apiError && (
-            <div role="alert" className="fixed left-1/2 top-20 z-[60] flex w-[min(92vw,460px)] -translate-x-1/2 items-center justify-between gap-4 rounded-2xl bg-[#f8f8f7] px-4 py-3 text-sm text-[#4e5968]">
+            <ErrorAlert role="alert">
               <span>{apiError}</span>
-              <button type="button" onClick={retryApiRequests} className="shrink-0 rounded-full bg-[#FF2A85] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#D40D63]">
+              <RetryButton type="button" onClick={retryApiRequests}>
                 다시 시도
-              </button>
-            </div>
+              </RetryButton>
+            </ErrorAlert>
           )}
-          <main className="space-y-4 sm:space-y-6">
-          {/* 섹션 1: 히어로 큐레이션 레일 (헤더와 적절한 탑 여백 확보) */}
-          <motion.div
-            data-sorimaru-stage="featured"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
-            className="min-h-[520px] pt-24 sm:min-h-[560px] sm:pt-28 lg:pt-32"
-          >
-            <SorimaruAutoSliceRail
-              stories={storyList}
-              storySets={heroStorySets}
-            />
-          </motion.div>
 
-          {/* 섹션 2: 한 단어로, 한 장면 */}
-          <VesselReveal className="min-h-[650px] sm:min-h-[700px]">
-            <div className="mt-4" data-sorimaru-stage="themes">
-              <div className={SORIMARU_SECTION_CONTENT_CLASS}>
-                <div className="pt-4">
-                  <h3 className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-sorimaru-sans text-[clamp(24px,3.2vw,36px)] font-bold tracking-[-0.04em] text-transparent">
-                    장면을 따라 걷는 소리
-                  </h3>
-                </div>
-                <div className="mt-2">
-                  <SorimaruEditorialRail
-                    key={retryToken}
-                    stories={storyList}
-                    storySets={heroStorySets}
-                    apiService={activeApiService}
-                    onApiError={handleApiError}
-                  />
+          <MainSections>
+            {/* 섹션 1: 히어로 큐레이션 레일 */}
+            <HeroStageDiv
+              data-sorimaru-stage="featured"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+            >
+              <SorimaruAutoSliceRail stories={storyList} storySets={heroStorySets} />
+            </HeroStageDiv>
+
+            {/* 섹션 2: 한 단어로, 한 장면 */}
+            <VesselReveal style={{ minHeight: '650px' }}>
+              <div style={{ marginTop: '1rem' }} data-sorimaru-stage="themes">
+                <div className={SORIMARU_SECTION_CONTENT_CLASS}>
+                  <div style={{ paddingTop: '1rem' }}>
+                    <h3
+                      style={{
+                        display: 'inline-block',
+                        background: 'linear-gradient(to right, #211e19, #403b35, #6a6158)',
+                        WebkitBackgroundClip: 'text',
+                        backgroundClip: 'text',
+                        fontFamily: 'var(--font-hanok)',
+                        fontSize: 'clamp(24px, 3.2vw, 36px)',
+                        fontWeight: 700,
+                        letterSpacing: '-0.04em',
+                        color: 'transparent',
+                      }}
+                    >
+                      장면을 따라 걷는 소리
+                    </h3>
+                  </div>
+                  <div style={{ marginTop: '0.5rem' }}>
+                    <SorimaruEditorialRail
+                      key={retryToken}
+                      stories={storyList}
+                      storySets={heroStorySets}
+                      apiService={activeApiService}
+                      onApiError={handleApiError}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          </VesselReveal>
+            </VesselReveal>
 
-          <VesselReveal className="w-full">
-            <SoundConstellationSection stories={storyList} />
-          </VesselReveal>
+            <VesselReveal style={{ width: '100%' }}>
+              <SoundConstellationSection stories={storyList} />
+            </VesselReveal>
 
-          {/* 섹션 3: 오늘, 여기에서 */}
-          <HanjiTearTransition stage="nearby" variant={resolvedBackgroundVariant} />
-          <VesselReveal className="min-h-[440px] sm:min-h-[470px] w-full py-6 sm:py-8">
-            <section
-              aria-labelledby="nearby-stories-heading"
-              className="w-full"
-              data-sorimaru-stage="nearby"
-            >
-              <div className="mx-auto w-full max-w-6xl">
-                <motion.div variants={titleVariants} className="flex flex-col gap-4 pb-1 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
-                  <div className="min-w-0">
-                    <h2 id="nearby-stories-heading" className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-sorimaru-sans text-[clamp(24px,3.2vw,36px)] font-bold tracking-[-0.045em] text-transparent">오늘, 여기에서</h2>
-                    <p className="mt-1 max-w-xl truncate text-xs sm:text-sm leading-5 text-[#4e5968]">{locationMessage}</p>
+            {/* 섹션 3: 오늘, 여기에서 */}
+            <HanjiTearTransition stage="nearby" variant={resolvedBackgroundVariant} />
+            <VesselReveal style={{ minHeight: '440px', width: '100%', padding: '1.5rem 0' }}>
+              <section aria-labelledby="nearby-stories-heading" style={{ width: '100%' }} data-sorimaru-stage="nearby">
+                <CenteredContainer>
+                  <NearbyHeader variants={titleVariants}>
+                    <div style={{ minWidth: 0 }}>
+                      <SectionGradientTitle id="nearby-stories-heading">
+                        오늘, 여기에서
+                      </SectionGradientTitle>
+                      <p style={{ marginTop: 4, maxWidth: '36rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '0.875rem', lineHeight: '1.25rem', color: meok[700] }}>
+                        {locationMessage}
+                      </p>
+                    </div>
+                    <div style={{ display: 'flex', flexShrink: 0, alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>
+                      <span style={{ textAlign: 'right', fontSize: fontSize.micro, lineHeight: '1rem', color: meok[700] }}>
+                        <span style={{ display: 'block' }}>{locationLabel}</span>
+                        <strong style={{ display: 'block', fontWeight: 600, color: meok[700] }}>
+                          내 주변 오디오 {nearbyStories.length}개
+                        </strong>
+                      </span>
+                      <LocationButton
+                        type="button"
+                        onClick={handleLocate}
+                        disabled={isLocating}
+                      >
+                        {isLocating ? '위치 확인 중…' : '내 위치 사용'}
+                        {!isLocating && <span aria-hidden="true" style={{ fontSize: '0.75rem', lineHeight: 1 }}>›</span>}
+                      </LocationButton>
+                    </div>
+                  </NearbyHeader>
+
+                  <motion.div variants={contentVariants} style={{ marginTop: '1.25rem' }}>
+                    <StoryCarousel stories={nearbyStories} isLoading={isNearbyLoading || isLocating} />
+                  </motion.div>
+                </CenteredContainer>
+              </section>
+            </VesselReveal>
+
+            {/* 오디오 아카이브 섹션 (통합 메인 뷰) */}
+            <HanjiTearTransition stage="archive" variant={resolvedBackgroundVariant} />
+            <VesselReveal id="sorimaru-archive" style={{ minHeight: '900px', width: '100%', padding: '2rem 0' }}>
+              <section style={{ width: '100%' }} data-sorimaru-stage="archive">
+                <CenteredContainer>
+                  <motion.div variants={titleVariants} style={{ marginBottom: '1rem' }}>
+                    <SectionGradientTitle id="archive-heading">
+                      오디로 듣는 한국
+                    </SectionGradientTitle>
+                    <p style={{ marginTop: 4, maxWidth: '36rem', fontSize: '0.875rem', lineHeight: '1.25rem', color: meok[700] }}>
+                      처마 끝 바람 소리부터 천년 고도의 숨결까지, 마음에 머무는 이야기 트랙.
+                    </p>
+                  </motion.div>
+
+                  <motion.div variants={contentVariants}>
+                    <CategoryTagFilter />
+                  </motion.div>
+                  <SorimaruArchiveMetaBar resultCount={storyList.length} totalCount={archiveMeta.totalCount} />
+
+                  <div style={{ position: 'relative', minHeight: 600, overflow: 'visible' }}>
+                    <SorimaruArchiveBrowse stories={storyList} isLoading={isArchiveLoading} />
                   </div>
-                  <div className="flex shrink-0 items-center justify-between gap-3 sm:flex-col sm:items-end sm:gap-1.5">
-                    <span className="text-right text-micro leading-4 text-[#4e5968] sm:pr-3">
-                      <span className="block">{locationLabel}</span>
-                      <strong className="block font-semibold text-[#4e5968]">내 주변 오디오 {nearbyStories.length}개</strong>
+
+                  <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', paddingTop: '1rem' }}>
+                    <span style={{ fontSize: fontSize.micro, color: meok[700] }}>
+                      {archiveMeta.totalCount > 0 ? `${archiveMeta.totalCount.toLocaleString()}개 중 ${archiveMeta.pageNo}페이지` : '검색 결과 없음'}
                     </span>
-                    <button
-                      type="button"
-                      onClick={handleLocate}
-                      disabled={isLocating}
-                      className="inline-flex h-8 self-end items-center gap-1.5 rounded-full  bg-white/55 px-3 text-micro font-medium text-[#4e5968]  transition-transform duration-300 hover:-translate-y-0.5 hover: hover:bg-white hover:text-[#191f28] disabled:cursor-wait disabled:opacity-50"
-                    >
-                      {isLocating ? '위치 확인 중…' : '내 위치 사용'}
-                      {!isLocating && <span aria-hidden="true" className="text-xs leading-none">›</span>}
-                    </button>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                      <PaginationPill
+                        type="button"
+                        onClick={() => {
+                          setIsArchiveLoading(true);
+                          setArchivePage((page) => Math.max(1, page - 1));
+                        }}
+                        disabled={archivePage <= 1 || isArchiveLoading}
+                      >
+                        이전
+                      </PaginationPill>
+                      <span style={{ minWidth: '4rem', textAlign: 'center', fontSize: '0.75rem', fontWeight: 600, color: meok[900] }}>
+                        {archivePage} / {totalArchivePages}
+                      </span>
+                      <PaginationPill
+                        type="button"
+                        onClick={() => {
+                          setIsArchiveLoading(true);
+                          setArchivePage((page) => Math.min(totalArchivePages, page + 1));
+                        }}
+                        disabled={archivePage >= totalArchivePages || isArchiveLoading}
+                      >
+                        다음
+                      </PaginationPill>
+                    </div>
                   </div>
-                </motion.div>
 
-                <motion.div variants={contentVariants} className="mt-5">
-                  <StoryCarousel stories={nearbyStories} isLoading={isNearbyLoading || isLocating} />
-                </motion.div>
+                  <SorimaruQuestionAssistant
+                    filters={{ category: selectedCategory, query: searchQuery }}
+                    onOpenSource={(source) => {
+                      setSelectedCategory('전체');
+                      setSearchQuery(source.title);
+                      setArchivePage(1);
+                    }}
+                  />
+                </CenteredContainer>
+              </section>
+            </VesselReveal>
+
+            {/* 하단 이탈 방지 & 재방문 CTA */}
+            <VesselReveal style={{ minHeight: '220px' }}>
+              <div data-sorimaru-stage="closing">
+                <SorimaruFooterCTA />
               </div>
-            </section>
-          </VesselReveal>
+            </VesselReveal>
+          </MainSections>
+        </ContentLayer>
 
-          {/* 오디오 아카이브 섹션 (통합 메인 뷰) */}
-          <HanjiTearTransition stage="archive" variant={resolvedBackgroundVariant} />
-          <VesselReveal id="sorimaru-archive" className="min-h-[900px] w-full py-8 sm:py-12">
-            <section
-              className="w-full"
-              data-sorimaru-stage="archive"
-            >
-              <div className="mx-auto w-full max-w-6xl">
-                <motion.div variants={titleVariants} className="mb-4">
-                  <h2 id="archive-heading" className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-sorimaru-sans text-[clamp(24px,3.2vw,36px)] font-bold tracking-[-0.045em] text-transparent">
-                    오디로 듣는 한국
-                  </h2>
-                  <p className="mt-1 max-w-xl text-xs sm:text-sm leading-5 text-[#4e5968]">
-                    처마 끝 바람 소리부터 천년 고도의 숨결까지, 마음에 머무는 이야기 트랙.
-                  </p>
-                </motion.div>
+        {/* 마음 담은 소리 보관함 (재방문 드라이버) */}
+        <SavedSoundDrawer savedStories={savedStories} onRemoveBookmark={handleRemoveBookmark} />
 
-                <motion.div variants={contentVariants}>
-                  <CategoryTagFilter />
-                </motion.div>
-                <SorimaruArchiveMetaBar resultCount={storyList.length} totalCount={archiveMeta.totalCount} />
-
-                <div className="relative min-h-[600px] overflow-visible">
-                  <SorimaruArchiveBrowse stories={storyList} isLoading={isArchiveLoading} />
-                </div>
-
-                <div className="mt-8 flex flex-col items-center justify-between gap-3 pt-4 sm:flex-row">
-                  <span className="text-micro text-[#4e5968]">
-                    {archiveMeta.totalCount > 0 ? `${archiveMeta.totalCount.toLocaleString()}개 중 ${archiveMeta.pageNo}페이지` : '검색 결과 없음'}
-                  </span>
-                  <div className="flex flex-wrap items-center justify-end gap-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsArchiveLoading(true);
-                        setArchivePage((page) => Math.max(1, page - 1));
-                      }}
-                      disabled={archivePage <= 1 || isArchiveLoading}
-                      className="h-9 rounded-full px-3.5 text-xs font-semibold text-[#FF2A85] transition-colors hover:bg-[#FFF0F6] disabled:cursor-not-allowed disabled:opacity-30"
-                    >
-                      이전
-                    </button>
-                    <span className="min-w-16 text-center text-xs font-semibold text-[#191f28]">{archivePage} / {totalArchivePages}</span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsArchiveLoading(true);
-                        setArchivePage((page) => Math.min(totalArchivePages, page + 1));
-                      }}
-                      disabled={archivePage >= totalArchivePages || isArchiveLoading}
-                      className="h-9 rounded-full px-3.5 text-xs font-semibold text-[#FF2A85] transition-colors hover:bg-[#FFF0F6] disabled:cursor-not-allowed disabled:opacity-30"
-                    >
-                      다음
-                    </button>
-                  </div>
-                </div>
-
-                <SorimaruQuestionAssistant
-                  filters={{ category: selectedCategory, query: searchQuery }}
-                  onOpenSource={(source) => {
-                    setSelectedCategory('전체');
-                    setSearchQuery(source.title);
-                    setArchivePage(1);
-                  }}
-                />
-              </div>
-            </section>
-          </VesselReveal>
-
-          {/* 하단 이탈 방지 & 재방문 CTA */}
-          <VesselReveal className="min-h-[220px] sm:min-h-[260px]">
-            <div data-sorimaru-stage="closing">
-              <SorimaruFooterCTA />
-            </div>
-          </VesselReveal>
-          </main>
-        </div>
-
-      {/* 마음 담은 소리 보관함 (재방문 드라이버) */}
-      <SavedSoundDrawer
-        savedStories={savedStories}
-        onRemoveBookmark={handleRemoveBookmark}
-      />
-
-      <LocalMiniPlayer />
-      {isModalOpen && (
-        <AllStoriesModal isOpen onClose={() => setIsModalOpen(false)} allStories={storyList} />
-      )}
-    </div>
+        <LocalMiniPlayer />
+        {isModalOpen && (
+          <AllStoriesModal isOpen onClose={() => setIsModalOpen(false)} allStories={storyList} />
+        )}
+      </FeatureContainer>
     </SorimaruDependencyProvider>
   );
 };

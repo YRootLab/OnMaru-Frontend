@@ -1,18 +1,187 @@
 'use client';
 
 import React from 'react';
+import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { SORIMARU_REGION_CHIPS, SORIMARU_THEME_CATEGORIES } from '@/features/sorimaru-audio/data/sorimaruCategoryData';
+import { palette, meok, fontSize } from '@/design-system/tokens';
 
 interface CategoryTagFilterProps {
   variant?: 'default' | 'compact' | 'store';
 }
 
+const ScrollRail = styled.div`
+  display: flex;
+  align-items: center;
+  overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+const StoreThemeButton = styled.button<{ $selected: boolean }>`
+  display: flex;
+  height: 2.25rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  padding: 0 1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+
+  ${({ $selected }) =>
+    $selected
+      ? `
+        background: linear-gradient(to right, ${palette.jangmi[500]}, ${palette.jangmi[700]});
+        color: #ffffff;
+      `
+      : `
+        background: none;
+        color: ${meok[700]};
+        &:hover {
+          background-color: #ffffff;
+          color: ${palette.jangmi[500]};
+        }
+      `}
+`;
+
+const StoreRegionButton = styled.button<{ $selected: boolean }>`
+  flex-shrink: 0;
+  border-radius: 9999px;
+  padding: 0.25rem 0.875rem;
+  font-size: ${fontSize.micro};
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+
+  ${({ $selected }) =>
+    $selected
+      ? `
+        background-color: #211e19;
+        color: #ffffff;
+      `
+      : `
+        background-color: rgba(255, 255, 255, 0.7);
+        color: ${meok[700]};
+        &:hover {
+          background-color: #ffffff;
+          color: ${palette.jangmi[500]};
+        }
+      `}
+`;
+
+const CompactThemeButton = styled.button<{ $selected: boolean }>`
+  flex-shrink: 0;
+  border-radius: 9999px;
+  padding: 0.375rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+
+  ${({ $selected }) =>
+    $selected
+      ? `
+        background: linear-gradient(to right, ${palette.jangmi[500]}, ${palette.jangmi[700]});
+        color: #ffffff;
+      `
+      : `
+        background-color: rgba(255, 255, 255, 0.8);
+        color: ${meok[700]};
+        &:hover {
+          background-color: #ffffff;
+          color: ${palette.jangmi[500]};
+        }
+      `}
+`;
+
+const CompactRegionButton = styled.button<{ $selected: boolean }>`
+  flex-shrink: 0;
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: ${fontSize.micro};
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+
+  ${({ $selected }) =>
+    $selected
+      ? `
+        background-color: #211e19;
+        color: #ffffff;
+      `
+      : `
+        background-color: rgba(255, 255, 255, 0.6);
+        color: ${meok[700]};
+        &:hover {
+          background-color: #ffffff;
+          color: ${palette.jangmi[500]};
+        }
+      `}
+`;
+
+const NavUnderlineButton = styled.button<{ $selected: boolean }>`
+  position: relative;
+  flex-shrink: 0;
+  padding-bottom: 0.375rem;
+  font-size: 0.875rem;
+  transition: color 0.2s ease;
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  ${({ $selected }) =>
+    $selected
+      ? `
+        font-weight: 700;
+        color: ${palette.jangmi[500]};
+      `
+      : `
+        font-weight: 500;
+        color: ${meok[700]};
+        &:hover {
+          color: ${meok[900]};
+        }
+      `}
+`;
+
+const RegionTextButton = styled.button<{ $selected: boolean }>`
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+
+  ${({ $selected }) =>
+    $selected
+      ? `
+        font-weight: 700;
+        color: ${palette.jangmi[500]};
+      `
+      : `
+        font-weight: 500;
+        color: ${meok[700]};
+        &:hover {
+          color: ${meok[900]};
+        }
+      `}
+`;
+
 export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 'default' }) => {
   const selectedCategory = useSorimaruAudioStore((s) => s.selectedCategory);
   const setSelectedCategory = useSorimaruAudioStore((s) => s.setSelectedCategory);
   const setSearchQuery = useSorimaruAudioStore((s) => s.setSearchQuery);
+
   const handleRegionClick = (region: string) => {
     if (selectedCategory === region) {
       setSelectedCategory('전체');
@@ -24,184 +193,189 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 
 
   if (variant === 'store') {
     return (
-      <div className="mb-6 space-y-3">
-        <div className="flex items-center justify-between px-1">
-          <span className="text-xs font-bold text-[#191f28]">테마별 탐색</span>
-          <span className="text-micro font-medium text-[#8b95a1]">주제 오디오</span>
+      <div style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 0.25rem' }}>
+          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: meok[900] }}>테마별 탐색</span>
+          <span style={{ fontSize: fontSize.micro, fontWeight: 500, color: meok[500] }}>주제 오디오</span>
         </div>
 
         {/* 주 메뉴 메인 필터 레일 */}
-        <div className="rounded-2xl bg-white/75 p-1.5 backdrop-blur-md">
-          <div className="flex items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <button
+        <div style={{ borderRadius: '1rem', backgroundColor: 'rgba(255, 255, 255, 0.75)', padding: '0.375rem', backdropFilter: 'blur(12px)' }}>
+          <ScrollRail style={{ gap: '0.25rem' }}>
+            <StoreThemeButton
               type="button"
               onClick={() => { setSelectedCategory('전체'); setSearchQuery(''); }}
-              className={`flex h-9 shrink-0 items-center justify-center rounded-xl px-4 text-xs font-bold transition-all duration-200 ${
-                selectedCategory === '전체'
-                  ? 'bg-gradient-to-r from-[#FF2A85] to-[#D40D63] text-white'
-                  : 'text-[#4e5968] hover:bg-white hover:text-[#FF2A85]'
-              }`}
+              $selected={selectedCategory === '전체'}
             >
               전체
-            </button>
+            </StoreThemeButton>
             {SORIMARU_THEME_CATEGORIES.map((theme) => {
               const isSelected = selectedCategory === theme.keyword;
               const label = theme.keyword === '마을' ? '전통마을' : theme.label.split('/')[0];
               return (
-                <button
+                <StoreThemeButton
                   key={theme.id}
                   type="button"
                   onClick={() => { setSelectedCategory(theme.keyword); setSearchQuery(''); }}
-                  className={`flex h-9 shrink-0 items-center justify-center rounded-xl px-4 text-xs font-bold transition-all duration-200 ${
-                    isSelected
-                      ? 'bg-gradient-to-r from-[#FF2A85] to-[#D40D63] text-white'
-                      : 'text-[#4e5968] hover:bg-white hover:text-[#FF2A85]'
-                  }`}
+                  $selected={isSelected}
                 >
                   {label}
-                </button>
+                </StoreThemeButton>
               );
             })}
-          </div>
+          </ScrollRail>
         </div>
 
         {/* 소메뉴 지역 필터 칩 */}
-        <div className="flex items-center gap-2 overflow-x-auto px-1 pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <span className="shrink-0 text-micro font-bold text-[#4e5968]">지역</span>
+        <ScrollRail style={{ gap: '0.5rem', padding: '0.25rem 0.25rem 0' }}>
+          <span style={{ flexShrink: 0, fontSize: fontSize.micro, fontWeight: 700, color: meok[700] }}>지역</span>
           {SORIMARU_REGION_CHIPS.map((region) => {
             const isSelected = selectedCategory === region;
             return (
-              <button
+              <StoreRegionButton
                 key={region}
                 type="button"
                 onClick={() => handleRegionClick(region)}
-                className={`shrink-0 rounded-full px-3.5 py-1 text-micro font-semibold transition-all duration-200 ${
-                  isSelected
-                    ? 'bg-[#211e19] text-white'
-                    : 'bg-white/70 text-[#4e5968] hover:bg-white hover:text-[#FF2A85]'
-                }`}
+                $selected={isSelected}
               >
                 {region}
-              </button>
+              </StoreRegionButton>
             );
           })}
-        </div>
+        </ScrollRail>
       </div>
     );
   }
 
   if (variant === 'compact') {
     return (
-      <div className="mb-5 space-y-2.5 px-1">
-        <div className="flex items-center gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <span className="mr-1 shrink-0 text-micro font-bold text-[#4e5968]">주제</span>
-          <button
+      <div style={{ marginBottom: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.625rem', padding: '0 0.25rem' }}>
+        <ScrollRail style={{ gap: '0.5rem' }}>
+          <span style={{ marginRight: '0.25rem', flexShrink: 0, fontSize: fontSize.micro, fontWeight: 700, color: meok[700] }}>주제</span>
+          <CompactThemeButton
             type="button"
             onClick={() => { setSelectedCategory('전체'); setSearchQuery(''); }}
-            className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-bold transition-all duration-200 ${
-              selectedCategory === '전체'
-                ? 'bg-gradient-to-r from-[#FF2A85] to-[#D40D63] text-white'
-                : 'bg-white/80 text-[#4e5968] hover:bg-white hover:text-[#FF2A85]'
-            }`}
+            $selected={selectedCategory === '전체'}
           >
             전체
-          </button>
+          </CompactThemeButton>
           {SORIMARU_THEME_CATEGORIES.map((theme) => {
             const isSelected = selectedCategory === theme.keyword;
             return (
-              <button
+              <CompactThemeButton
                 key={theme.id}
                 type="button"
                 onClick={() => { setSelectedCategory(theme.keyword); setSearchQuery(''); }}
-                className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-bold transition-all duration-200 ${
-                  isSelected
-                    ? 'bg-gradient-to-r from-[#FF2A85] to-[#D40D63] text-white'
-                    : 'bg-white/80 text-[#4e5968] hover:bg-white hover:text-[#FF2A85]'
-                }`}
+                $selected={isSelected}
               >
                 {theme.keyword === '마을' ? '전통마을' : theme.label.split('/')[0]}
-              </button>
+              </CompactThemeButton>
             );
           })}
-        </div>
-        <div className="flex items-center gap-2 overflow-x-auto pl-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <span className="mr-1 shrink-0 text-micro font-bold text-[#4e5968]">지역</span>
+        </ScrollRail>
+        <ScrollRail style={{ gap: '0.5rem', paddingLeft: '0.25rem' }}>
+          <span style={{ marginRight: '0.25rem', flexShrink: 0, fontSize: fontSize.micro, fontWeight: 700, color: meok[700] }}>지역</span>
           {SORIMARU_REGION_CHIPS.map((region) => {
             const isSelected = selectedCategory === region;
             return (
-              <button
+              <CompactRegionButton
                 key={region}
                 type="button"
                 onClick={() => handleRegionClick(region)}
-                className={`shrink-0 rounded-full px-3 py-1 text-micro font-semibold transition-all duration-200 ${
-                  isSelected
-                    ? 'bg-[#211e19] text-white'
-                    : 'bg-white/60 text-[#4e5968] hover:bg-white hover:text-[#FF2A85]'
-                }`}
+                $selected={isSelected}
               >
                 {region}
-              </button>
+              </CompactRegionButton>
             );
           })}
-        </div>
+        </ScrollRail>
       </div>
     );
   }
 
   // Default Variant: 메인 오디오 아카이브 필터바 (섹션 5 전용)
   return (
-    <div className="w-full py-3.5 sm:py-4">
-      <nav aria-label="오디오 이야기 주제" className="flex items-center gap-5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-6">
-        <button
+    <div style={{ width: '100%', padding: '0.875rem 0' }}>
+      <ScrollRail as="nav" aria-label="오디오 이야기 주제" style={{ gap: '1.25rem' }}>
+        <NavUnderlineButton
           type="button"
           onClick={() => { setSelectedCategory('전체'); setSearchQuery(''); }}
-          className={`relative shrink-0 pb-1.5 text-sm transition-colors duration-200 ${selectedCategory === '전체' ? 'font-bold text-[#FF2A85]' : 'font-medium text-[#4e5968] hover:text-[#191f28]'}`}
+          $selected={selectedCategory === '전체'}
         >
           전체 보기
-          {selectedCategory === '전체' && <motion.span layoutId="sorimaru-archive-filter" className="absolute -inset-x-1.5 bottom-px h-[2px] rounded-full bg-[#FF2A85]/70 -rotate-[1deg]" transition={{ type: 'spring', stiffness: 360, damping: 28 }} />}
-        </button>
+          {selectedCategory === '전체' && (
+            <motion.span
+              layoutId="sorimaru-archive-filter"
+              style={{
+                position: 'absolute',
+                left: -6,
+                right: -6,
+                bottom: 1,
+                height: 2,
+                borderRadius: 9999,
+                backgroundColor: 'rgba(255, 42, 133, 0.7)',
+                transform: 'rotate(-1deg)',
+              }}
+              transition={{ type: 'spring', stiffness: 360, damping: 28 }}
+            />
+          )}
+        </NavUnderlineButton>
         {SORIMARU_THEME_CATEGORIES.map((theme) => {
           const isSelected = selectedCategory === theme.keyword;
           return (
-            <button
+            <NavUnderlineButton
               key={theme.id}
               type="button"
               onClick={() => { setSelectedCategory(theme.keyword); setSearchQuery(''); }}
               title={theme.description}
-              className={`relative shrink-0 pb-1.5 text-sm transition-colors duration-200 ${isSelected ? 'font-bold text-[#FF2A85]' : 'font-medium text-[#4e5968] hover:text-[#191f28]'}`}
+              $selected={isSelected}
             >
               {theme.label}
-              {isSelected && <motion.span layoutId="sorimaru-archive-filter" className="absolute -inset-x-1.5 bottom-px h-[2px] rounded-full bg-[#FF2A85]/70 -rotate-[1deg]" transition={{ type: 'spring', stiffness: 360, damping: 28 }} />}
-            </button>
+              {isSelected && (
+                <motion.span
+                  layoutId="sorimaru-archive-filter"
+                  style={{
+                    position: 'absolute',
+                    left: -6,
+                    right: -6,
+                    bottom: 1,
+                    height: 2,
+                    borderRadius: 9999,
+                    backgroundColor: 'rgba(255, 42, 133, 0.7)',
+                    transform: 'rotate(-1deg)',
+                  }}
+                  transition={{ type: 'spring', stiffness: 360, damping: 28 }}
+                />
+              )}
+            </NavUnderlineButton>
           );
         })}
-      </nav>
+      </ScrollRail>
 
-      <div className="mt-3 flex items-center gap-3 overflow-x-auto text-xs [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <span className="shrink-0 font-medium text-[#8b95a1]">지역</span>
-        <span className="h-3 w-px shrink-0 bg-[#211e19]/10" />
-        <button
+      <ScrollRail style={{ marginTop: '0.75rem', gap: '0.75rem', fontSize: '0.75rem' }}>
+        <span style={{ flexShrink: 0, fontWeight: 500, color: meok[500] }}>지역</span>
+        <span style={{ height: '0.75rem', width: 1, flexShrink: 0, backgroundColor: 'rgba(33, 30, 25, 0.1)' }} />
+        <RegionTextButton
           type="button"
           onClick={() => { setSelectedCategory('전체'); setSearchQuery(''); }}
-          className={`shrink-0 transition-colors duration-200 ${!SORIMARU_REGION_CHIPS.includes(selectedCategory as (typeof SORIMARU_REGION_CHIPS)[number]) ? 'font-bold text-[#FF2A85]' : 'font-medium text-[#4e5968] hover:text-[#191f28]'}`}
+          $selected={!SORIMARU_REGION_CHIPS.includes(selectedCategory as (typeof SORIMARU_REGION_CHIPS)[number])}
         >
           전체
-        </button>
+        </RegionTextButton>
         {SORIMARU_REGION_CHIPS.map((region) => {
           const isSelected = selectedCategory === region;
           return (
-            <button
+            <RegionTextButton
               key={region}
               type="button"
               onClick={() => handleRegionClick(region)}
-              className={`shrink-0 transition-colors duration-200 ${isSelected ? 'font-bold text-[#FF2A85]' : 'font-medium text-[#4e5968] hover:text-[#191f28]'}`}
+              $selected={isSelected}
             >
               {region}
-            </button>
+            </RegionTextButton>
           );
         })}
-      </div>
-
+      </ScrollRail>
     </div>
   );
 };

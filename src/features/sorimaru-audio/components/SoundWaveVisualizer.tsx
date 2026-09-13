@@ -1,13 +1,41 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
+import styled from '@emotion/styled';
+import { keyframes } from '@emotion/react';
 import { motion } from 'framer-motion';
+import { palette, meok } from '@/design-system/tokens';
 
 interface SoundWaveVisualizerProps {
   isPlaying: boolean;
   color?: string;
   barCount?: number;
 }
+
+const pulseAnim = keyframes`
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+`;
+
+const VisualizerWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+`;
+
+const Canvas = styled.canvas`
+  height: 1.5rem;
+  width: 5rem;
+`;
+
+const LiveBadge = styled.span`
+  font-size: 10px;
+  font-weight: 700;
+  color: #d4af37;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  animation: ${pulseAnim} 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+`;
 
 export const SoundWaveVisualizer: React.FC<SoundWaveVisualizerProps> = ({
   isPlaying,
@@ -64,42 +92,118 @@ export const SoundWaveVisualizer: React.FC<SoundWaveVisualizerProps> = ({
   }, [isPlaying, color, barCount]);
 
   return (
-    <div className="flex items-center gap-1">
-      <canvas ref={canvasRef} width={80} height={24} className="h-6 w-20" />
+    <VisualizerWrapper>
+      <Canvas ref={canvasRef} width={80} height={24} />
       {isPlaying && (
-        <span className="animate-pulse text-[10px] font-bold text-[#d4af37] uppercase tracking-wider">
+        <LiveBadge>
           LIVE SOUND
-        </span>
+        </LiveBadge>
       )}
-    </div>
+    </VisualizerWrapper>
   );
 };
+
+const VinylWrapper = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const VinylDisc = styled(motion.div)`
+  position: relative;
+  display: flex;
+  height: 6rem;
+  width: 6rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background-color: #111111;
+  padding: 0.25rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+
+  @media (min-width: 640px) {
+    height: 7rem;
+    width: 7rem;
+  }
+`;
+
+const TextureRing1 = styled.div`
+  position: absolute;
+  inset: 0.5rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+`;
+
+const TextureRing2 = styled.div`
+  position: absolute;
+  inset: 1rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+`;
+
+const TextureRing3 = styled.div`
+  position: absolute;
+  inset: 1.5rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+`;
+
+const AlbumArtCenter = styled.div`
+  height: 2.5rem;
+  width: 2.5rem;
+  overflow: hidden;
+  border-radius: 9999px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+
+  @media (min-width: 640px) {
+    height: 3rem;
+    width: 3rem;
+  }
+
+  & img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+  }
+`;
+
+const CenterPinHole = styled.div`
+  position: absolute;
+  height: 0.75rem;
+  width: 0.75rem;
+  border-radius: 9999px;
+  background-color: #fbf8f2;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+`;
 
 export const FloatingVinylDisc: React.FC<{ imageUrl: string; isPlaying: boolean }> = ({
   imageUrl,
   isPlaying,
 }) => {
   return (
-    <div className="relative flex items-center justify-center">
+    <VinylWrapper>
       {/* 바깥쪽 회전 바이닐 LP 판 */}
-      <motion.div
+      <VinylDisc
         animate={{ rotate: isPlaying ? 360 : 0 }}
         transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
-        className="relative flex h-24 w-24 items-center justify-center rounded-full bg-[#111111] p-1   sm:h-28 sm:w-28"
       >
         {/* LP 텍스처 링 */}
-        <div className="absolute inset-2 rounded-full " />
-        <div className="absolute inset-4 rounded-full " />
-        <div className="absolute inset-6 rounded-full " />
+        <TextureRing1 />
+        <TextureRing2 />
+        <TextureRing3 />
 
         {/* 앨범 아트 섬네일 중심 */}
-        <div className="h-10 w-10 overflow-hidden rounded-full   sm:h-12 sm:w-12">
-          <img src={imageUrl || 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80'} alt="" className="h-full w-full object-cover" />
-        </div>
-      </motion.div>
+        <AlbumArtCenter>
+          <img
+            src={imageUrl || 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80'}
+            alt=""
+          />
+        </AlbumArtCenter>
+      </VinylDisc>
 
       {/* 중앙 핀 홀 */}
-      <div className="absolute h-3 w-3 rounded-full bg-[#fbf8f2] " />
-    </div>
+      <CenterPinHole />
+    </VinylWrapper>
   );
 };

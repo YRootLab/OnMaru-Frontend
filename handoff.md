@@ -1,11 +1,15 @@
 # handoff.md
 
 Current work:
-- Summary: 
-  1. Created new branch `feat/hanok-dogam` from clean `develop`.
-  2. Ready to begin Hanok Dogam (한옥도감) development.
-- Branch: `feat/hanok-dogam`
-- Related: Hanok Dogam feature development.
+- Summary:
+  1. Migrated all 26 components in `src/features/sorimaru-audio` to Emotion CSS.
+  2. Purged all Tailwind CSS classes, `--tw-*` CSS variables, and `@tailwind` directives across the codebase.
+  3. Deleted `tailwind.config.ts`, removed tailwindcss from `postcss.config.mjs` and `package.json`.
+  4. Unified all colors with `src/design-system/tokens.ts` (`palette.jangmi`, `meok`, `surface`, `fontSize`).
+  5. Preserved 100% of custom animations, audio synchronization, vinyl disc animations, 3D Z-translate card stages, and SVG constellation map interactions.
+  6. Verified: `npx tsc --noEmit` passed (0 errors), all 40 sorimaru tests passed, `npm run build` succeeded (34/34 pages).
+- Branch: `feat/hanok-dogam-2`
+- Related: PR #71 targeting `develop`.
 - Summary:
   1. Created new branch `feat/hanok-dogam` from clean `develop`.
   2. **Font**: `globals.css` body `font-family` → `var(--font-hanok)` (Spoqa Han Sans Neo). CDN import already present from prior session.

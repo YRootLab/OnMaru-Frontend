@@ -1,10 +1,13 @@
 'use client';
 
 import React from 'react';
+import styled from '@emotion/styled';
+import { keyframes } from '@emotion/react';
 import { motion } from 'framer-motion';
 import { Heart, Play, Pause } from 'lucide-react';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { SorimaruStoryItem } from '@/features/sorimaru-audio/types/sorimaru.types';
+import { palette, meok, fontSize } from '@/design-system/tokens';
 
 interface SorimaruStoryCardGridProps {
   stories: SorimaruStoryItem[];
@@ -33,15 +36,218 @@ const categoryLabelFor = (story: SorimaruStoryItem) => {
   return labels[story.category] || (story.category !== '오디 이야기' ? story.category : '문화유산');
 };
 
+const shimmer = keyframes`
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+`;
+
+const SkeletonBox = styled.div`
+  background: linear-gradient(90deg, #eee8df 25%, #f5f0e8 50%, #eee8df 75%);
+  background-size: 200% 100%;
+  animation: ${shimmer} 1.5s infinite;
+`;
+
+const SkeletonCard = styled.div`
+  overflow: hidden;
+  border-radius: 22px;
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 0.5rem;
+`;
+
+const GridContainer = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+
+  @media (min-width: 640px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+`;
+
+const StoryCard = styled(motion.article)<{ isCurrent: boolean }>`
+  position: relative;
+  display: flex;
+  min-height: 124px;
+  align-items: center;
+  gap: 0.875rem;
+  border-radius: 1rem;
+  padding: 0.75rem;
+  backdrop-filter: blur(12px);
+  transition: all 0.3s ease;
+  border: 1px solid ${(props) => (props.isCurrent ? 'rgba(255, 42, 133, 0.4)' : 'rgba(255, 255, 255, 0.7)')};
+  background: ${(props) =>
+    props.isCurrent
+      ? `linear-gradient(to right, ${palette.jangmi[50]}, #ffffff, #ffffff)`
+      : 'rgba(255, 255, 255, 0.8)'};
+  box-shadow: ${(props) =>
+    props.isCurrent
+      ? '0 10px 15px -3px rgba(255, 42, 133, 0.1), 0 0 0 1px rgba(255, 42, 133, 0.2)'
+      : 'none'};
+
+  &:hover {
+    border-color: rgba(255, 42, 133, 0.3);
+    background-color: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 20px 25px -5px rgba(110, 0, 48, 0.05);
+  }
+`;
+
+const Thumbnail = styled.div`
+  position: relative;
+  height: 96px;
+  width: 104px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  background-color: #f3eee8;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+
+  @media (min-width: 640px) {
+    height: 108px;
+    width: 118px;
+  }
+
+  & img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  ${StoryCard}:hover & img {
+    transform: scale(1.15);
+  }
+`;
+
+const ThumbnailGradient = styled.div`
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.05));
+  transition: opacity 0.3s ease;
+
+  ${StoryCard}:hover & {
+    opacity: 0.9;
+  }
+`;
+
+const IndexPill = styled.span`
+  position: absolute;
+  left: 0.5rem;
+  top: 0.5rem;
+  border-radius: 0.375rem;
+  background-color: rgba(0, 0, 0, 0.4);
+  padding: 0.125rem 0.5rem;
+  font-family: monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: #ffffff;
+  backdrop-filter: blur(4px);
+`;
+
+const PlayButton = styled.button<{ isCurrent: boolean }>`
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  background-color: ${(props) => (props.isCurrent ? palette.jangmi[500] : 'rgba(255, 255, 255, 0.95)')};
+  color: ${(props) => (props.isCurrent ? '#ffffff' : palette.jangmi[500])};
+
+  &:hover {
+    background-color: ${palette.jangmi[500]};
+    color: #ffffff;
+    transform: scale(1.1);
+  }
+`;
+
+const InfoCol = styled.div`
+  min-width: 0;
+  flex: 1;
+  padding: 0.25rem 0.25rem 0.25rem 0;
+`;
+
+const TopMetaRow = styled.div`
+  margin-bottom: 0.375rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+`;
+
+const CategoryTag = styled.span`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border-radius: 0.375rem;
+  background-color: rgba(255, 42, 133, 0.1);
+  padding: 0.125rem 0.5rem;
+  font-size: 10px;
+  font-weight: 700;
+  color: ${palette.jangmi[500]};
+`;
+
+const BookmarkButton = styled.button<{ isBookmarked: boolean }>`
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: ${(props) => (props.isBookmarked ? palette.jangmi[500] : meok[400])};
+  transition: transform 0.2s ease, color 0.2s ease;
+
+  &:hover {
+    transform: scale(1.25);
+    color: ${palette.jangmi[500]};
+  }
+`;
+
+const CardTitle = styled.h4`
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 38px;
+  font-size: ${fontSize.sm};
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.03em;
+  color: ${meok[900]};
+  transition: color 0.2s ease;
+
+  ${StoryCard}:hover & {
+    color: ${palette.jangmi[500]};
+  }
+`;
+
+const BottomMetaRow = styled.div`
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 10px;
+  color: ${meok[500]};
+`;
+
 const CardSkeleton = () => (
-  <div className="overflow-hidden rounded-[22px]  bg-white/70 p-2">
-    <div className="sorimaru-skeleton h-44 rounded-[16px] bg-[#eee8df] sm:h-52" />
-    <div className="space-y-3 px-3 pb-3 pt-4">
-      <div className="sorimaru-skeleton h-2.5 w-20 rounded bg-[#eee8df]" />
-      <div className="sorimaru-skeleton h-4 w-4/5 rounded bg-[#e8e0d5]" />
-      <div className="sorimaru-skeleton h-2.5 w-2/5 rounded bg-[#eee8df]" />
+  <SkeletonCard>
+    <SkeletonBox style={{ height: 176, borderRadius: 16 }} />
+    <div style={{ padding: '1rem 0.75rem 0.75rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      <SkeletonBox style={{ height: 10, width: 80, borderRadius: 4 }} />
+      <SkeletonBox style={{ height: 16, width: '80%', borderRadius: 4 }} />
+      <SkeletonBox style={{ height: 10, width: '40%', borderRadius: 4 }} />
     </div>
-  </div>
+  </SkeletonCard>
 );
 
 export const SorimaruStoryCardGrid: React.FC<SorimaruStoryCardGridProps> = ({
@@ -64,90 +270,78 @@ export const SorimaruStoryCardGrid: React.FC<SorimaruStoryCardGridProps> = ({
   };
 
   return (
-    <div aria-busy={isLoading} className="w-full">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div aria-busy={isLoading} style={{ width: '100%' }}>
+      <GridContainer>
         {isLoading
           ? Array.from({ length: 6 }, (_, index) => <CardSkeleton key={index} />)
           : stories.slice(0, 6).map((story, index) => {
             const isCurrent = currentStory.stid === story.stid;
-            const isBookmarked = bookmarkedIds?.has(story.stid);
+            const isBookmarked = bookmarkedIds?.has(story.stid) ?? false;
             const imageUrl = story.imageUrl || fallbackImageFor(story, index);
 
             return (
-              <motion.article
+              <StoryCard
                 key={`${story.stid}-${index}`}
                 layout
+                isCurrent={isCurrent}
                 whileHover={{ y: -6 }}
                 transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                className={`group flex min-h-[124px] items-center gap-3.5 rounded-2xl border p-3 backdrop-blur-md transition-all duration-300 ${
-                  isCurrent
-                    ? 'border-[#f84e76]/40 bg-gradient-to-r from-[#fff0f5] via-white to-white shadow-lg shadow-[#f84e76]/10 ring-1 ring-[#f84e76]/20'
-                    : 'border-white/70 bg-white/80 hover:border-[#f84e76]/30 hover:bg-white/95 hover:shadow-xl hover:shadow-rose-950/5'
-                }`}
               >
-                {/* 썸네일 컨테이너: 크기 스케일 업 (104px -> 120px) & hover:scale-115 스케일 이펙트 */}
-                <div className="relative h-[96px] w-[104px] shrink-0 overflow-hidden rounded-xl bg-[#f3eee8] shadow-inner sm:h-[108px] sm:w-[118px]">
+                <Thumbnail>
                   <img
                     src={imageUrl}
                     alt={story.title}
-                    className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-115"
                     onError={(event) => {
                       event.currentTarget.onerror = null;
                       event.currentTarget.src = FALLBACK_IMAGES[0];
                     }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-black/5 transition-opacity duration-300 group-hover:opacity-90" />
-                  <span className="absolute left-2 top-2 rounded-md bg-black/40 px-2 py-0.5 font-mono text-[10px] font-bold text-white backdrop-blur-xs">
+                  <ThumbnailGradient />
+                  <IndexPill>
                     {String(index + 1).padStart(2, '0')}
-                  </span>
-                  <button
+                  </IndexPill>
+                  <PlayButton
                     type="button"
+                    isCurrent={isCurrent}
                     onClick={() => handlePlay(story)}
                     aria-label={`${story.title} ${isCurrent && isPlaying ? '일시정지' : '재생'}`}
-                    className={`absolute bottom-2 right-2 flex h-9 w-9 items-center justify-center rounded-full shadow-md transition-all duration-300 group-hover:scale-110 ${
-                      isCurrent
-                        ? 'bg-[#f84e76] text-white shadow-[#f84e76]/40'
-                        : 'bg-white/95 text-[#f84e76] shadow-black/10 hover:bg-[#f84e76] hover:text-white'
-                    }`}
                   >
                     {isCurrent && isPlaying ? (
                       <Pause size={15} strokeWidth={2} />
                     ) : (
-                      <Play size={15} fill="currentColor" className="ml-0.5" />
+                      <Play size={15} fill="currentColor" style={{ marginLeft: 2 }} />
                     )}
-                  </button>
-                </div>
+                  </PlayButton>
+                </Thumbnail>
 
-                <div className="min-w-0 flex-1 py-1 pr-1">
-                  <div className="mb-1.5 flex items-center justify-between gap-2">
-                    <span className="truncate rounded-md bg-[#f84e76]/10 px-2 py-0.5 text-[10px] font-bold text-[#f84e76]">
-                      {categoryLabelFor(story)}
-                    </span>
+                <InfoCol>
+                  <TopMetaRow>
+                    <CategoryTag>{categoryLabelFor(story)}</CategoryTag>
                     {onBookmarkStory && (
-                      <button
+                      <BookmarkButton
                         type="button"
+                        isBookmarked={isBookmarked}
                         onClick={() => onBookmarkStory(story)}
                         aria-label={isBookmarked ? '마음에서 삭제' : '마음에 담기'}
-                        className={`transition-all duration-200 hover:scale-125 ${
-                          isBookmarked ? 'text-[#f84e76]' : 'text-[#b0a398] hover:text-[#f84e76]'
-                        }`}
                       >
                         {isBookmarked ? <Heart size={16} strokeWidth={2} fill="currentColor" /> : <Heart size={16} strokeWidth={2} />}
-                      </button>
+                      </BookmarkButton>
                     )}
-                  </div>
-                  <h4 className="line-clamp-2 min-h-[38px] font-sorimaru-sans text-sm font-bold leading-snug tracking-[-0.03em] text-[#211e19] transition-colors group-hover:text-[#f84e76]">
-                    {story.title}
-                  </h4>
-                  <div className="mt-2 flex items-center justify-between gap-2 text-[10px] text-[#8c7e6c]">
-                    <span className="truncate font-medium">{story.locationName || '대한민국 문화유산'}</span>
-                    <span className="shrink-0 font-mono font-semibold">{story.formattedDuration || '3:00'}</span>
-                  </div>
-                </div>
-              </motion.article>
+                  </TopMetaRow>
+                  <CardTitle>{story.title}</CardTitle>
+                  <BottomMetaRow>
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 500 }}>
+                      {story.locationName || '대한민국 문화유산'}
+                    </span>
+                    <span style={{ flexShrink: 0, fontFamily: 'monospace', fontWeight: 600 }}>
+                      {story.formattedDuration || '3:00'}
+                    </span>
+                  </BottomMetaRow>
+                </InfoCol>
+              </StoryCard>
             );
           })}
-      </div>
+      </GridContainer>
     </div>
   );
 };

@@ -1,11 +1,150 @@
 'use client';
 
 import { useState } from 'react';
+import styled from '@emotion/styled';
 import { CompactPosterVariant } from './CompactPosterVariant';
 import { EditorialCaptionVariant } from './EditorialCaptionVariant';
 import { LandscapeCardVariant } from './LandscapeCardVariant';
 import { OverlayInfoVariant } from './OverlayInfoVariant';
 import { SECTION2_STUDY_STORIES } from './studyData';
+import { palette, meok } from '@/design-system/tokens';
+
+const MainContainer = styled.main`
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+  padding-bottom: 6rem;
+  color: #211e19;
+  font-family: var(--font-hanok);
+`;
+
+const BackgroundGlow = styled.div`
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: -10;
+  height: 620px;
+  background:
+    radial-gradient(circle at 12% 12%, rgba(248, 78, 118, 0.12), transparent 32%),
+    radial-gradient(circle at 82% 4%, rgba(206, 178, 136, 0.22), transparent 31%),
+    linear-gradient(180deg, #fffaf5 0%, rgba(255, 250, 245, 0) 100%);
+`;
+
+const HeaderContainer = styled.header`
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 72rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-bottom: 3rem;
+  padding-top: 3rem;
+  @media (min-width: 640px) {
+    padding-bottom: 4rem;
+    padding-top: 5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+  @media (min-width: 1024px) {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+`;
+
+const HeaderInner = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding-bottom: 2.5rem;
+  @media (min-width: 640px) {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding-bottom: 3rem;
+  }
+`;
+
+const TitleColumn = styled.div`
+  max-width: 48rem;
+`;
+
+const CategoryTag = styled.p`
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: ${palette.jangmi[500]};
+`;
+
+const MainTitle = styled.h1`
+  margin-top: 1rem;
+  font-family: var(--font-hanok);
+  font-size: clamp(34px, 5.5vw, 64px);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -0.065em;
+  color: #211e19;
+`;
+
+const MainDesc = styled.p`
+  margin-top: 1.25rem;
+  max-width: 42rem;
+  font-size: 0.875rem;
+  line-height: 1.5rem;
+  color: #655b4d;
+  @media (min-width: 640px) {
+    font-size: 1rem;
+    line-height: 1.75rem;
+  }
+`;
+
+const MetaGrid = styled.div`
+  display: grid;
+  width: 100%;
+  max-width: 20rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border-radius: 18px;
+  background-color: rgba(33, 30, 25, 0.1);
+  font-size: 10px;
+  @media (min-width: 640px) {
+    width: 270px;
+  }
+`;
+
+const MetaCell = styled.div`
+  background-color: rgba(255, 253, 249, 0.9);
+  padding: 0.75rem;
+
+  span {
+    display: block;
+    color: #8c7e6c;
+  }
+  strong {
+    display: block;
+    margin-top: 0.25rem;
+    color: #403930;
+  }
+`;
+
+const ContentContainer = styled.div`
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 72rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  @media (min-width: 640px) {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+  @media (min-width: 1024px) {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+`;
 
 export function Section2UiImprovements() {
   const [selectedStoryId, setSelectedStoryId] = useState<string | null>(null);
@@ -16,37 +155,40 @@ export function Section2UiImprovements() {
   };
 
   return (
-    <main className="sorimaru-feature relative isolate overflow-x-clip pb-24 text-[#211e19]">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[620px] bg-[radial-gradient(circle_at_12%_12%,rgba(248,78,118,0.12),transparent_32%),radial-gradient(circle_at_82%_4%,rgba(206,178,136,0.22),transparent_31%),linear-gradient(180deg,#fffaf5_0%,rgba(255,250,245,0)_100%)]"
-      />
-      <header className="mx-auto w-full max-w-6xl pb-12 pt-12 sm:pb-16 sm:pt-20">
-        <div className="flex flex-col gap-8   pb-10 sm:flex-row sm:items-end sm:justify-between sm:pb-12">
-          <div className="max-w-3xl">
-            <p className="text-[10px] font-bold tracking-[0.22em] text-[#f84e76]">SORIMARU · SECTION 2 UI IMPROVEMENTS</p>
-            <h1 className="mt-4 font-sorimaru-sans text-[clamp(34px,5.5vw,64px)] font-bold leading-[1.04] tracking-[-0.065em] text-[#211e19]">
+    <MainContainer>
+      <BackgroundGlow aria-hidden="true" />
+      <HeaderContainer>
+        <HeaderInner>
+          <TitleColumn>
+            <CategoryTag>SORIMARU · SECTION 2 UI IMPROVEMENTS</CategoryTag>
+            <MainTitle>
               같은 이야기를,
               <br />
               네 가지 호흡으로.
-            </h1>
-            <p className="mt-5 max-w-2xl text-sm leading-6 text-[#655b4d] sm:text-base sm:leading-7">
+            </MainTitle>
+            <MainDesc>
               기존 “장면을 골라 듣다”를 그대로 둔 채, 카드 높이와 정보 위치, 여백과 모서리만 달리해 비교하는 독립 시안 페이지입니다.
-            </p>
-          </div>
-          <div className="grid w-full max-w-xs grid-cols-2 gap-px overflow-hidden rounded-[18px]  bg-[#211e19]/10 text-[10px] sm:w-[270px]">
-            <div className="bg-[#fffdf9]/90 p-3"><span className="block text-[#8c7e6c]">데이터</span><strong className="mt-1 block text-[#403930]">목 스토리 5개</strong></div>
-            <div className="bg-[#fffdf9]/90 p-3"><span className="block text-[#8c7e6c]">범위</span><strong className="mt-1 block text-[#403930]">카드 UI 4안</strong></div>
-          </div>
-        </div>
-      </header>
+            </MainDesc>
+          </TitleColumn>
+          <MetaGrid>
+            <MetaCell>
+              <span>데이터</span>
+              <strong>목 스토리 5개</strong>
+            </MetaCell>
+            <MetaCell>
+              <span>범위</span>
+              <strong>카드 UI 4안</strong>
+            </MetaCell>
+          </MetaGrid>
+        </HeaderInner>
+      </HeaderContainer>
 
-      <div className="mx-auto w-full max-w-6xl">
+      <ContentContainer>
         <CompactPosterVariant {...sharedProps} />
         <OverlayInfoVariant {...sharedProps} />
         <EditorialCaptionVariant {...sharedProps} />
         <LandscapeCardVariant {...sharedProps} />
-      </div>
-    </main>
+      </ContentContainer>
+    </MainContainer>
   );
 }

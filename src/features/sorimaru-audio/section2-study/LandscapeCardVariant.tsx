@@ -1,6 +1,115 @@
 'use client';
 
+import styled from '@emotion/styled';
 import { MotionStudyCard, StudyImage, StudyPlayControl, StudyRail, StudySectionFrame, StudyVariantProps } from './StudyPrimitives';
+
+const CardItem = styled.div`
+  display: grid;
+  height: 196px;
+  width: 310px;
+  flex-shrink: 0;
+  grid-template-columns: 44% 1fr;
+  overflow: hidden;
+  border-radius: 20px;
+  background-color: #fffdf9;
+  @media (min-width: 640px) {
+    height: 218px;
+    width: 370px;
+    border-radius: 24px;
+  }
+
+  &:hover .zoom-target {
+    transform: scale(1.04);
+  }
+`;
+
+const ImageArea = styled.div`
+  position: relative;
+  overflow: hidden;
+  background-color: #ddd2c5;
+
+  .zoom-target {
+    transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+  }
+`;
+
+const CategoryBadge = styled.span`
+  position: absolute;
+  left: 0.75rem;
+  top: 0.75rem;
+  border-radius: 9999px;
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 0.25rem 0.5rem;
+  font-size: 10px;
+  font-weight: 600;
+  color: #ffffff;
+  backdrop-filter: blur(12px);
+`;
+
+const ContentArea = styled.div`
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  padding: 1rem;
+  @media (min-width: 640px) {
+    padding: 1.25rem;
+  }
+`;
+
+const LocationText = styled.p`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10px;
+  color: #8c7e6c;
+`;
+
+const TitleHeading = styled.h3`
+  margin-top: 0.5rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-family: var(--font-hanok);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.04em;
+  color: #211e19;
+  @media (min-width: 640px) {
+    font-size: 18px;
+  }
+`;
+
+const AudioTitle = styled.p`
+  margin-top: 0.5rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 10px;
+  line-height: 1rem;
+  color: #786d5e;
+`;
+
+const FooterRow = styled.div`
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+`;
+
+const DurationText = styled.span`
+  font-size: 10px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: #655b4d;
+`;
 
 export function LandscapeCardVariant({ stories, selectedStoryId, onSelectStory }: StudyVariantProps) {
   return (
@@ -10,33 +119,32 @@ export function LandscapeCardVariant({ stories, selectedStoryId, onSelectStory }
       description="이미지와 정보를 좌우로 배치한 구성"
       detail="포스터 비율에서 가장 크게 벗어난 안입니다. 세로 점유를 줄이는 대신 한 번에 보이는 카드 수를 낮추고, 제목과 부가 정보를 편하게 읽도록 구성했습니다."
     >
-      <StudyRail className="gap-4 sm:gap-5">
+      <StudyRail gap="1rem">
         {stories.map((story) => (
-          <MotionStudyCard
-            key={story.id}
-            className="group grid h-[196px] w-[310px] shrink-0 grid-cols-[44%_1fr] overflow-hidden rounded-[20px]  bg-[#fffdf9]  sm:h-[218px] sm:w-[370px] sm:rounded-[24px]"
-          >
-            <div className="relative overflow-hidden bg-[#ddd2c5]">
-              <StudyImage
-                story={story}
-                sizes="(max-width: 640px) 137px, 163px"
-                className="transition-transform duration-700 [@media(hover:hover)_and_(pointer:fine)]:group-hover:scale-[1.04] motion-reduce:transition-none"
-              />
-              <span className="absolute left-3 top-3 rounded-full  bg-black/20 px-2 py-1 text-[10px] font-semibold text-white backdrop-blur-md">
-                {story.category}
-              </span>
-            </div>
-            <div className="flex min-w-0 flex-col p-4 sm:p-5">
-              <p className="truncate text-[10px] text-[#8c7e6c]">{story.location}</p>
-              <h3 className="mt-2 line-clamp-3 font-sorimaru-sans text-[16px] font-bold leading-[1.35] tracking-[-0.04em] text-[#211e19] sm:text-[18px]">
-                {story.title}
-              </h3>
-              <p className="mt-2 line-clamp-2 text-[10px] leading-4 text-[#786d5e] sm:text-[10px]">{story.audioTitle}</p>
-              <div className="mt-auto flex items-center justify-between gap-2   pt-3">
-                <span className="text-[10px] font-semibold tabular-nums text-[#655b4d]">{story.duration}</span>
-                <StudyPlayControl story={story} selectedStoryId={selectedStoryId} onSelectStory={onSelectStory} compact />
-              </div>
-            </div>
+          <MotionStudyCard key={story.id}>
+            <CardItem>
+              <ImageArea>
+                <StudyImage
+                  story={story}
+                  sizes="(max-width: 640px) 137px, 163px"
+                  className="zoom-target"
+                />
+                <CategoryBadge>
+                  {story.category}
+                </CategoryBadge>
+              </ImageArea>
+              <ContentArea>
+                <LocationText>{story.location}</LocationText>
+                <TitleHeading>
+                  {story.title}
+                </TitleHeading>
+                <AudioTitle>{story.audioTitle}</AudioTitle>
+                <FooterRow>
+                  <DurationText>{story.duration}</DurationText>
+                  <StudyPlayControl story={story} selectedStoryId={selectedStoryId} onSelectStory={onSelectStory} compact />
+                </FooterRow>
+              </ContentArea>
+            </CardItem>
           </MotionStudyCard>
         ))}
       </StudyRail>

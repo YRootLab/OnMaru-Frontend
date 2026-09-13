@@ -23,6 +23,8 @@ export interface VesselRevealProps {
   exitThresholdRatio?: number;
   /** 애니메이션 지속 시간 (기본값: 0.75s) */
   duration?: number;
+  /** 커스텀 인라인 스타일 */
+  style?: React.CSSProperties;
 }
 
 /**
@@ -39,6 +41,7 @@ export const VesselReveal: React.FC<VesselRevealProps> = ({
   roundedFrom = '2.2rem',
   exitThresholdRatio = 0.67,
   duration = 0.75,
+  style,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const isReloadProtectedRef = useRef(false);
@@ -112,15 +115,20 @@ export const VesselReveal: React.FC<VesselRevealProps> = ({
         opacity: isBloomed ? 1 : 0.88,
       }}
       style={{
+        borderStyle: 'solid',
+        borderWidth: '1px',
+        overflow: 'hidden',
         borderRadius: isBloomed ? '0.5rem' : roundedFrom,
         borderColor: isBloomed ? 'rgba(33, 30, 25, 0)' : 'rgba(33, 30, 25, 0.12)',
         boxShadow: isBloomed ? '0 0px 0px rgba(0, 0, 0, 0)' : '0 16px 36px rgba(33, 30, 25, 0.08)',
+        transition: prefersReducedMotion ? 'none' : 'border-color 0.5s ease',
+        ...style,
       }}
       transition={{
         duration: shouldAnimate ? duration : 0,
         ease: [0.22, 1, 0.36, 1],
       }}
-      className={`border overflow-hidden transition-colors duration-500 motion-reduce:transition-none ${className}`}
+      className={className}
     >
       {children}
     </motion.div>

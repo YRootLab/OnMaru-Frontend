@@ -1,15 +1,308 @@
 'use client';
 
 import React, { useState } from 'react';
+import styled from '@emotion/styled';
+import { keyframes } from '@emotion/react';
 import { X, Search, Clock, Pause, Play } from 'lucide-react';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { SorimaruStoryItem, SorimaruCategory } from '@/features/sorimaru-audio/types/sorimaru.types';
+import { palette, meok, surface, fontSize } from '@/design-system/tokens';
 
 interface AllStoriesModalProps {
   isOpen: boolean;
   onClose: () => void;
   allStories: SorimaruStoryItem[];
 }
+
+const fadeIn = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
+
+const pulseAnim = keyframes`
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+`;
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(12px);
+  animation: ${fadeIn} 0.2s ease-out;
+`;
+
+const ModalContainer = styled.div`
+  background-color: ${surface.dark.app};
+  color: #ffffff;
+  width: 100%;
+  max-width: 56rem;
+  max-height: 85vh;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+`;
+
+const ModalHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+`;
+
+const HeaderBadge = styled.span`
+  font-size: ${fontSize.micro};
+  font-weight: 700;
+  color: ${palette.jangmi[200]};
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: block;
+  margin-bottom: 0.125rem;
+`;
+
+const HeaderTitle = styled.h2`
+  font-family: inherit;
+  font-size: ${fontSize.xl};
+  font-weight: 600;
+  color: #ffffff;
+
+  @media (min-width: 640px) {
+    font-size: ${fontSize['2xl']};
+  }
+`;
+
+const CloseButton = styled.button`
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+`;
+
+const ControlBar = styled.div`
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background-color: #141210;
+`;
+
+const CategoryChipsRail = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+const ChipButton = styled.button<{ isSelected: boolean }>`
+  padding: 0.375rem 0.875rem;
+  border-radius: 9999px;
+  font-size: ${fontSize.xs};
+  font-weight: 700;
+  white-space: nowrap;
+  border: 1px solid ${(props) => (props.isSelected ? palette.jangmi[700] : 'rgba(255, 255, 255, 0.1)')};
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: ${(props) => (props.isSelected ? palette.jangmi[700] : 'rgba(255, 255, 255, 0.05)')};
+  color: ${(props) => (props.isSelected ? '#ffffff' : meok[500])};
+
+  &:hover {
+    background-color: ${(props) => (props.isSelected ? palette.jangmi[700] : 'rgba(255, 255, 255, 0.1)')};
+    color: #ffffff;
+  }
+`;
+
+const SearchInputWrapper = styled.div`
+  position: relative;
+`;
+
+const SearchInput = styled.input`
+  width: 100%;
+  padding: 0.625rem 1rem 0.625rem 2.5rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  font-size: ${fontSize.sm};
+  color: #ffffff;
+  outline: none;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  &:focus {
+    border-color: ${palette.jangmi[500]};
+  }
+`;
+
+const SearchIconWrapper = styled.div`
+  position: absolute;
+  left: 0.875rem;
+  top: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+`;
+
+const StoryListArea = styled.div`
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+`;
+
+const EmptyState = styled.div`
+  padding: 3rem 0;
+  text-align: center;
+  color: ${meok[500]};
+  font-size: ${fontSize.sm};
+`;
+
+const StoryCard = styled.div<{ isCurrent: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid ${(props) => (props.isCurrent ? palette.jangmi[700] : 'rgba(255, 255, 255, 0.08)')};
+  background-color: ${(props) => (props.isCurrent ? 'rgba(212, 32, 88, 0.2)' : 'rgba(255, 255, 255, 0.05)')};
+  color: ${(props) => (props.isCurrent ? '#ffffff' : meok[500])};
+
+  &:hover {
+    background-color: ${(props) => (props.isCurrent ? 'rgba(212, 32, 88, 0.25)' : 'rgba(255, 255, 255, 0.1)')};
+  }
+`;
+
+const CardLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-width: 0;
+`;
+
+const CardThumb = styled.img`
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 0.75rem;
+  object-fit: cover;
+  flex-shrink: 0;
+`;
+
+const CardInfo = styled.div`
+  min-width: 0;
+`;
+
+const MetaRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+`;
+
+const CategoryTag = styled.span`
+  padding: 0.125rem 0.5rem;
+  font-size: ${fontSize.micro};
+  font-weight: 700;
+  background-color: ${palette.jangmi[700]};
+  color: #ffffff;
+  border-radius: 0.25rem;
+`;
+
+const DurationText = styled.span`
+  font-size: ${fontSize.xs};
+  color: rgba(255, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+`;
+
+const StoryTitle = styled.h4`
+  font-size: ${fontSize.sm};
+  font-weight: 700;
+  color: #ffffff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  @media (min-width: 640px) {
+    font-size: ${fontSize.base};
+  }
+`;
+
+const StoryDesc = styled.p`
+  margin-top: 0.125rem;
+  font-size: ${fontSize.xs};
+  color: ${meok[500]};
+
+  & .loc {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  & .spk {
+    display: block;
+    margin-top: 0.125rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: ${fontSize.micro};
+  }
+`;
+
+const PlayActionBtn = styled.button<{ isPlaying: boolean }>`
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: ${fontSize.sm};
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-left: 0.75rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: ${(props) => (props.isPlaying ? palette.jangmi[700] : 'rgba(255, 255, 255, 0.1)')};
+  color: #ffffff;
+  animation: ${(props) => (props.isPlaying ? `${pulseAnim} 2s infinite` : 'none')};
+
+  &:hover {
+    background-color: ${palette.jangmi[700]};
+  }
+`;
 
 const MODAL_CATEGORIES: SorimaruCategory[] = [
   '전체',
@@ -74,132 +367,117 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fade-in">
-      <div className="bg-[#1C1814] text-white w-full max-w-4xl max-h-[85vh] rounded-3xl   flex flex-col overflow-hidden">
+    <ModalOverlay onClick={onClose}>
+      <ModalContainer onClick={(e) => e.stopPropagation()}>
         {/* 모달 헤더 */}
-        <div className="flex items-center justify-between p-6  ">
+        <ModalHeader>
           <div>
-            <span className="text-micro font-bold text-[#F8A8C0] uppercase tracking-wider block mb-0.5">
+            <HeaderBadge>
               COMPLETE AUDIO COLLECTION
-            </span>
-            <h2 className="font-sorimaru-sans text-xl font-semibold text-white sm:text-2xl">
+            </HeaderBadge>
+            <HeaderTitle>
               오디(Sorimaru) 전체 이야기 아카이브
-            </h2>
+            </HeaderTitle>
           </div>
-          <button
-            onClick={onClose}
-            aria-label="닫기"
-            className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-bold text-base transition-colors"
-          >
+          <CloseButton onClick={onClose} aria-label="닫기">
             <X size={22} strokeWidth={2} />
-          </button>
-        </div>
+          </CloseButton>
+        </ModalHeader>
 
         {/* 카테고리 필터 & 검색 */}
-        <div className="p-6   space-y-4 bg-[#141210]">
+        <ControlBar>
           {/* 카테고리 태그 칩 */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          <CategoryChipsRail>
             {MODAL_CATEGORIES.map((cat) => {
               const isSel = activeCat === cat;
               return (
-                <button
+                <ChipButton
                   key={cat}
+                  isSelected={isSel}
                   onClick={() => setActiveCat(cat)}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap ${
-                    isSel
-                      ? 'bg-[#D42058] text-white '
-                      : 'bg-white/5 text-[#8b95a1]  hover:bg-white/10 hover:text-white'
-                  }`}
                 >
                   {cat}
-                </button>
+                </ChipButton>
               );
             })}
-          </div>
+          </CategoryChipsRail>
 
           {/* 검색창 */}
-          <div className="relative">
-            <input
+          <SearchInputWrapper>
+            <SearchInput
               type="text"
               value={modalSearch}
               onChange={(e) => setModalSearch(e.target.value)}
               placeholder="이야기, 장소, 해설사 키워드로 검색"
-              className="w-full pl-10 pr-4 py-2.5 bg-white/5  rounded-xl text-sm text-white placeholder-white/40 focus:outline-none focus:"
             />
-            <Search className="absolute left-3.5 top-3 text-base text-white/50" strokeWidth={2} />
-          </div>
-        </div>
+            <SearchIconWrapper>
+              <Search size={16} strokeWidth={2} />
+            </SearchIconWrapper>
+          </SearchInputWrapper>
+        </ControlBar>
 
         {/* 오디오 이야기 리스트 스크롤 영역 */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-3 scrollbar-thin scrollbar-thumb-white/20">
+        <StoryListArea>
           {filtered.length === 0 ? (
-            <div className="py-12 text-center text-[#8b95a1] text-sm">
+            <EmptyState>
               일치하는 이야기가 없습니다.
-            </div>
+            </EmptyState>
           ) : (
             filtered.map((story, index) => {
               const isCurrent = currentStory.stid === story.stid;
               const isThisPlaying = isCurrent && isPlaying;
 
               return (
-                <div
+                <StoryCard
                   key={`${story.stid}-${index}`}
+                  isCurrent={isCurrent}
                   onClick={() => handlePlayStory(story)}
-                  className={`flex items-center justify-between p-4 rounded-2xl transition-all cursor-pointer ${
-                    isCurrent
-                      ? 'bg-[#D42058]/20  text-white'
-                      : 'bg-white/5  hover:bg-white/10 hover: text-[#8b95a1]'
-                  }`}
                 >
-                  <div className="flex items-center space-x-4 min-w-0">
-                    <img
+                  <CardLeft>
+                    <CardThumb
                       src={story.imageUrl || 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80'}
                       alt={story.title}
-                      className="w-14 h-14 rounded-xl object-cover  flex-shrink-0"
                     />
-                    <div className="min-w-0">
-                      <div className="flex items-center space-x-2 mb-1">
-                        <span className="px-2 py-0.5 text-micro font-bold bg-[#D42058] text-white rounded">
+                    <CardInfo>
+                      <MetaRow>
+                        <CategoryTag>
                           {story.category}
-                        </span>
-                        <span className="text-xs text-white/60 flex items-center gap-1">
+                        </CategoryTag>
+                        <DurationText>
                           <Clock size={13} strokeWidth={2} />
                           {story.formattedDuration}
-                        </span>
-                      </div>
-                      <h4 className="text-sm sm:text-base font-bold text-white truncate">
+                        </DurationText>
+                      </MetaRow>
+                      <StoryTitle>
                         {story.title}
-                      </h4>
-                      <p className="mt-0.5 text-xs text-[#8b95a1]">
-                        <span className="block truncate">{story.locationName || story.title}</span>
-                        <span className="mt-0.5 block truncate text-micro">{story.speaker}</span>
-                      </p>
-                    </div>
-                  </div>
+                      </StoryTitle>
+                      <StoryDesc>
+                        <span className="loc">{story.locationName || story.title}</span>
+                        <span className="spk">{story.speaker}</span>
+                      </StoryDesc>
+                    </CardInfo>
+                  </CardLeft>
 
-                  <button
+                  <PlayActionBtn
+                    isPlaying={isThisPlaying}
                     onClick={(e) => {
                       e.stopPropagation();
                       handlePlayStory(story);
                     }}
-                    className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ml-3 ${
-                      isThisPlaying
-                        ? 'bg-[#D42058] text-white  animate-pulse'
-                        : 'bg-white/10 text-white hover:bg-[#D42058]'
-                    }`}
+                    aria-label={isThisPlaying ? '일시정지' : '재생'}
                   >
                     {isThisPlaying ? (
                       <Pause size={16} strokeWidth={2} />
                     ) : (
-                      <Play size={16} fill="currentColor" className="ml-0.5" />
+                      <Play size={16} fill="currentColor" style={{ marginLeft: 2 }} />
                     )}
-                  </button>
-                </div>
+                  </PlayActionBtn>
+                </StoryCard>
               );
             })
           )}
-        </div>
-      </div>
-    </div>
+        </StoryListArea>
+      </ModalContainer>
+    </ModalOverlay>
   );
 };

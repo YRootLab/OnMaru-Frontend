@@ -1,10 +1,13 @@
 'use client';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import styled from '@emotion/styled';
+import { keyframes } from '@emotion/react';
 import { Play, Pause, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { SorimaruStoryItem } from '@/features/sorimaru-audio/types/sorimaru.types';
 import { getRailIndicator, shouldUpdateRailIndicator } from './storyCarouselMetrics';
+import { palette, meok, fontSize } from '@/design-system/tokens';
 
 interface StoryCarouselProps {
   stories: SorimaruStoryItem[];
@@ -91,6 +94,184 @@ function scheduleIdleWork(callback: () => void): () => void {
   return () => window.clearTimeout(timeoutId);
 }
 
+const CardButton = styled.button<{ $isCurrent: boolean; $isHovered: boolean; $accentColor: string }>`
+  display: grid;
+  width: min(94vw, 25.5rem);
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  grid-template-columns: 125px minmax(0, 1fr);
+  gap: 1rem;
+  overflow: hidden;
+  border-radius: 1rem;
+  padding: 0.75rem;
+  text-align: left;
+  transition: background-color 0.2s ease;
+  border: none;
+  cursor: pointer;
+
+  @media (min-width: 640px) {
+    width: 25.5rem;
+    grid-template-columns: 132px minmax(0, 1fr);
+  }
+
+  background-color: ${({ $isCurrent, $isHovered, $accentColor }) =>
+    $isCurrent
+      ? '#FFF0F6'
+      : $isHovered
+      ? `color-mix(in srgb, ${$accentColor} 12%, white)`
+      : '#f8f8f7'};
+
+  &:hover {
+    background-color: ${({ $isCurrent, $accentColor }) =>
+      $isCurrent ? '#FFF0F6' : `color-mix(in srgb, ${$accentColor} 12%, white)`};
+  }
+`;
+
+const ThumbnailContainer = styled.div`
+  position: relative;
+  min-height: 136px;
+  overflow: hidden;
+  border-radius: 10px;
+  background-color: #e5e5e3;
+
+  @media (min-width: 640px) {
+    min-height: 144px;
+  }
+`;
+
+const ThumbnailPhoto = styled.img<{ $isCurrent: boolean }>`
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  filter: ${({ $isCurrent }) =>
+    $isCurrent ? 'brightness(0.95) saturate(0.88)' : 'brightness(0.9) saturate(0.82)'};
+`;
+
+const BottomGradient = styled.div`
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(33, 30, 25, 0.65), transparent 60%);
+`;
+
+const PlayBubble = styled.span<{ $isPlaying: boolean }>`
+  position: absolute;
+  bottom: 0.625rem;
+  left: 0.625rem;
+  display: inline-flex;
+  height: 2rem;
+  width: 2rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  backdrop-filter: blur(4px);
+  transition: all 0.3s ease;
+
+  @media (min-width: 640px) {
+    height: 2.125rem;
+    width: 2.125rem;
+  }
+
+  ${({ $isPlaying }) =>
+    $isPlaying
+      ? `
+        background-color: ${palette.jangmi[500]};
+        color: #ffffff;
+      `
+      : `
+        background-color: rgba(255, 255, 255, 0.95);
+        color: ${meok[900]};
+      `}
+`;
+
+const CardInfoCol = styled.div`
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-top: 0.125rem;
+  padding-bottom: 0.125rem;
+  padding-right: 0.125rem;
+`;
+
+const CardMainTitle = styled.h3<{ $isCurrent: boolean }>`
+  font-family: var(--font-hanok);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.035em;
+  transition: color 0.3s ease;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: ${({ $isCurrent }) => ($isCurrent ? palette.jangmi[500] : meok[900])};
+
+  @media (min-width: 640px) {
+    font-size: 1rem;
+  }
+`;
+
+const CardSubTitle = styled.p`
+  margin-top: 0.125rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: ${fontSize.micro};
+  font-weight: 500;
+  line-height: 1rem;
+  color: ${meok[700]};
+`;
+
+const CategoryLocationRow = styled.div`
+  margin-top: 0.25rem;
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.375rem;
+`;
+
+const MiniCategoryTag = styled.span`
+  display: inline-flex;
+  border-radius: 4px;
+  background-color: rgba(255, 42, 133, 0.1);
+  padding: 1px 0.375rem;
+  font-size: ${fontSize.micro};
+  font-weight: 600;
+  line-height: 1rem;
+  color: ${palette.jangmi[500]};
+`;
+
+const LocationSpan = styled.span`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: ${fontSize.micro};
+  font-weight: 500;
+  line-height: 1rem;
+  color: ${meok[500]};
+`;
+
+const ExcerptText = styled.p`
+  margin-top: 0.25rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: ${fontSize.micro};
+  line-height: 1.4;
+  color: ${meok[500]};
+`;
+
+const CardBottomMeta = styled.div`
+  margin-top: 0.625rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.5rem;
+  font-size: ${fontSize.micro};
+  color: ${meok[500]};
+`;
+
 interface NearbyStoryCardProps {
   story: SorimaruStoryItem;
   isCurrent: boolean;
@@ -117,137 +298,244 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
   }, [imageSrc]);
 
   return (
-    <button
+    <CardButton
       type="button"
       onClick={onSelect}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       aria-pressed={isCurrent}
-      style={isHovered && !isCurrent ? { backgroundColor: `color-mix(in srgb, ${accentColor} 12%, white)` } : undefined}
-      className={`group grid w-[min(94vw,25.5rem)] shrink-0 snap-start grid-cols-[125px_minmax(0,1fr)] gap-4 overflow-hidden rounded-2xl p-3 text-left transition-colors duration-200 sm:w-[25.5rem] sm:grid-cols-[132px_minmax(0,1fr)] ${
-        isCurrent
-          ? 'bg-[#FFF0F6]'
-          : 'bg-[#f8f8f7] hover:bg-[#f0f0f0]'
-      }`}
+      $isCurrent={isCurrent}
+      $isHovered={isHovered}
+      $accentColor={accentColor}
     >
-      <div className="relative min-h-[136px] overflow-hidden rounded-[10px] bg-[#e5e5e3] sm:min-h-[144px]">
-        <img
+      <ThumbnailContainer>
+        <ThumbnailPhoto
           src={imageSrc}
           alt=""
           loading="lazy"
           decoding="async"
+          $isCurrent={isCurrent}
           onError={(event) => {
             (event.target as HTMLImageElement).src = FALLBACK_IMAGES[0];
           }}
-          className={`h-full w-full object-cover ${isCurrent ? 'brightness-95 saturate-[0.88]' : 'brightness-[0.9] saturate-[0.82]'}`}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#211e19]/65 via-transparent to-transparent" />
+        <BottomGradient />
 
-        {/* 재생 컨트롤 원형 버블 */}
-        <span className={`absolute bottom-2.5 left-2.5 inline-flex h-8 w-8 items-center justify-center rounded-full  backdrop-blur-xs transition-all duration-300 sm:h-8.5 sm:w-8.5 ${
-          isPlaying
-            ? 'bg-[#FF2A85] text-white  ring-white/90 '
-            : 'bg-white/95 text-[#191f28]  ring-white/90 '
-        }`}>
+        <PlayBubble $isPlaying={isPlaying}>
           {isPlaying ? (
             <Pause size={14} strokeWidth={2} />
           ) : (
-            <Play size={14} fill="currentColor" className="ml-0.5" />
+            <Play size={14} fill="currentColor" style={{ marginLeft: 2 }} />
           )}
-        </span>
-      </div>
+        </PlayBubble>
+      </ThumbnailContainer>
 
-      <div className="flex min-w-0 flex-col justify-between py-0.5 pr-0.5">
-        <div className="min-w-0">
-          {/* 1. 메인 타이틀 */}
-          <h3 className={`font-sorimaru-sans text-sm sm:text-base font-bold leading-tight tracking-[-0.035em] transition-colors duration-300 line-clamp-1 ${
-            isCurrent ? 'text-[#FF2A85]' : 'text-[#191f28] group-hover:text-[#FF2A85]'
-          }`}>
+      <CardInfoCol>
+        <div style={{ minWidth: 0 }}>
+          <CardMainTitle $isCurrent={isCurrent}>
             {story.title}
-          </h3>
+          </CardMainTitle>
 
-          {/* 2. 서브타이틀 / 오디오 소제목 */}
-          <p className="mt-0.5 truncate text-micro font-medium leading-4 text-[#4e5968]">
+          <CardSubTitle>
             {story.audioTitle}
-          </p>
+          </CardSubTitle>
 
-          <div className="mt-1 flex min-w-0 items-center gap-1.5">
-            <span className="inline-flex rounded-[4px] bg-[#FF2A85]/10 px-1.5 py-px text-micro font-semibold leading-4 text-[#FF2A85]">
+          <CategoryLocationRow>
+            <MiniCategoryTag>
               {story.category}
-            </span>
-            <span className="truncate text-micro font-medium leading-4 text-[#8b95a1]" title={story.locationName || '대한민국 문화유산'}>
+            </MiniCategoryTag>
+            <LocationSpan title={story.locationName || '대한민국 문화유산'}>
               {story.locationName || '대한민국 문화유산'}
-            </span>
-          </div>
+            </LocationSpan>
+          </CategoryLocationRow>
 
-          <p className="mt-1 line-clamp-2 text-micro leading-relaxed text-[#8b95a1]">{getScriptExcerpt(story.script)}</p>
+          <ExcerptText>{getScriptExcerpt(story.script)}</ExcerptText>
         </div>
 
-        <div className="mt-2.5 flex items-center justify-between pt-2 text-micro text-[#8b95a1]">
-          <span className="font-mono font-semibold text-[#4e5968]">{formatDuration(story)}</span>
-          <span className="truncate font-medium text-[#8b95a1]">{story.speaker || '온마루 도슨트'}</span>
-        </div>
-      </div>
-    </button>
+        <CardBottomMeta>
+          <span style={{ fontFamily: 'monospace', fontWeight: 600, color: meok[700] }}>
+            {formatDuration(story)}
+          </span>
+          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 500, color: meok[500] }}>
+            {story.speaker || '온마루 도슨트'}
+          </span>
+        </CardBottomMeta>
+      </CardInfoCol>
+    </CardButton>
   );
 };
 
+const shimmerKeyframe = keyframes`
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+`;
+
+const SkeletonBox = styled.div`
+  background: linear-gradient(90deg, #f0f0f0 25%, #e5e5e3 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: ${shimmerKeyframe} 1.6s ease-in-out infinite;
+  border-radius: 4px;
+`;
+
 export const StoryCarouselSkeleton: React.FC = () => (
-  <div aria-label="주변 오디오 로딩 중" className="relative w-full overflow-hidden">
-    <div className="flex gap-4 overflow-x-auto px-6 pt-3 pb-8 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:px-8">
+  <div aria-label="주변 오디오 로딩 중" style={{ position: 'relative', width: '100%', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', gap: '1rem', overflowX: 'auto', padding: '0.75rem 1.5rem 2rem', scrollbarWidth: 'none' }}>
       {[1, 2, 3].map((id) => (
         <div
           key={id}
-          className="grid min-h-[176px] w-[min(94vw,25.5rem)] shrink-0 grid-cols-[125px_minmax(0,1fr)] gap-4 overflow-hidden rounded-2xl bg-[#f8f8f7] p-3 sm:min-h-[184px] sm:w-[25.5rem] sm:grid-cols-[132px_minmax(0,1fr)]"
+          style={{
+            display: 'grid',
+            minHeight: '176px',
+            width: 'min(94vw, 25.5rem)',
+            flexShrink: 0,
+            gridTemplateColumns: '125px minmax(0, 1fr)',
+            gap: '1rem',
+            overflow: 'hidden',
+            borderRadius: '1rem',
+            backgroundColor: '#f8f8f7',
+            padding: '0.75rem',
+          }}
         >
-          {/* 섬네일 스켈레톤 */}
-          <div className="sorimaru-skeleton relative h-auto min-h-[176px] w-full self-stretch overflow-hidden rounded-[10px] bg-[#e5e5e3] sm:min-h-[184px]">
-            <div className="sorimaru-skeleton absolute bottom-2.5 left-2.5 h-8 w-8 rounded-full bg-[#d9d9d7]" />
-          </div>
-
-          {/* 우측 텍스트 정보 스켈레톤 */}
-          <div className="flex flex-col justify-between py-0.5 pr-0.5">
+          <SkeletonBox style={{ minHeight: '176px', width: '100%', borderRadius: 10, position: 'relative' }}>
+            <div style={{ position: 'absolute', bottom: 10, left: 10, height: 32, width: 32, borderRadius: '50%', backgroundColor: '#d9d9d7' }} />
+          </SkeletonBox>
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '2px' }}>
             <div>
-              {/* 타이틀 스켈레톤 */}
-              <div className="sorimaru-skeleton h-4 w-4/5 rounded-md bg-[#d9d9d7]" />
-              {/* 서브타이틀 스켈레톤 */}
-              <div className="sorimaru-skeleton mt-0.5 h-3.5 w-3/5 rounded bg-[#d9d9d7]" />
-              {/* 주제 태그 + 장소 스켈레톤 */}
-              <div className="mt-1">
-                <div className="sorimaru-skeleton h-4 w-16 rounded-full bg-[#d9d9d7]" />
-                <div className="mt-0.5 flex items-start gap-1">
-                  <div className="sorimaru-skeleton mt-0.5 h-3 w-3 rounded-full bg-[#e5e5e3]" />
-                  <div className="flex-1 space-y-1">
-                    <div className="sorimaru-skeleton h-3.5 w-full rounded bg-[#e5e5e3]" />
-                    <div className="sorimaru-skeleton h-3.5 w-3/4 rounded bg-[#e5e5e3]" />
-                  </div>
-                </div>
-              </div>
-              {/* 한지 오디오 인용구 박스 스켈레톤 */}
-              <div className="mt-1 rounded-r-lg border-l-2  bg-[#211e19]/04 py-1 pl-2 pr-1 space-y-1.5">
-                <div className="sorimaru-skeleton h-3 w-full rounded bg-[#d9d9d7]" />
-                <div className="sorimaru-skeleton h-3 w-3/4 rounded bg-[#d9d9d7]" />
+              <SkeletonBox style={{ height: 16, width: '80%', borderRadius: 6 }} />
+              <SkeletonBox style={{ marginTop: 4, height: 14, width: '60%' }} />
+              <div style={{ marginTop: 6, display: 'flex', gap: 4 }}>
+                <SkeletonBox style={{ height: 16, width: 64, borderRadius: 9999 }} />
+                <SkeletonBox style={{ height: 14, width: 80 }} />
               </div>
             </div>
-            <div className="mt-2 flex items-center justify-between   pt-1.5">
-              <div className="sorimaru-skeleton h-3.5 w-10 rounded bg-[#e5e5e3]" />
-              <div className="sorimaru-skeleton h-3.5 w-20 rounded bg-[#e5e5e3]" />
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
+              <SkeletonBox style={{ height: 14, width: 40 }} />
+              <SkeletonBox style={{ height: 14, width: 80 }} />
             </div>
           </div>
         </div>
       ))}
     </div>
-    <div className="h-[18px] px-6 sm:px-8" aria-hidden="true">
-      <div className="sorimaru-skeleton ml-auto h-3 w-16 rounded bg-[#e5e5e3]" />
-    </div>
   </div>
 );
+
+const CarouselOuter = styled.div`
+  position: relative;
+  width: 100%;
+`;
+
+const ScrollTrack = styled.div<{ $isDragging: boolean }>`
+  display: flex;
+  gap: 0.875rem;
+  touch-action: pan-x;
+  overflow-x: auto;
+  padding: 0.75rem 1.5rem 2rem;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  overflow-anchor: none;
+  cursor: ${({ $isDragging }) => ($isDragging ? 'grabbing' : 'grab')};
+  user-select: ${({ $isDragging }) => ($isDragging ? 'none' : 'auto')};
+
+  @media (min-width: 640px) {
+    padding-left: 2rem;
+    padding-right: 2rem;
+    padding-bottom: 2.25rem;
+  }
+`;
+
+const EdgeFadeLeft = styled.div`
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 10;
+  width: 3rem;
+  background: linear-gradient(to right, #ffffff, rgba(255, 255, 255, 0.95), transparent);
+
+  @media (min-width: 640px) {
+    width: 4rem;
+  }
+`;
+
+const EdgeFadeRight = styled.div`
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 10;
+  width: 1.5rem;
+  background: linear-gradient(to left, #ffffff, rgba(255, 255, 255, 0.6), transparent);
+
+  @media (min-width: 640px) {
+    width: 2.25rem;
+  }
+`;
+
+const FloatingNavBtn = styled.button<{ $side: 'left' | 'right' }>`
+  position: absolute;
+  top: 50%;
+  z-index: 30;
+  display: flex;
+  height: 2rem;
+  width: 2rem;
+  transform: translateY(-50%);
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background-color: #ffffff;
+  color: ${meok[900]};
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  ${({ $side }) =>
+    $side === 'left'
+      ? `
+        left: 0.5rem;
+        @media (min-width: 640px) { left: 0.75rem; }
+      `
+      : `
+        right: 0.25rem;
+        @media (min-width: 640px) { right: 0.5rem; }
+      `}
+
+  &:hover {
+    background-color: #f8f8f7;
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  @media (min-width: 640px) {
+    height: 2.25rem;
+    width: 2.25rem;
+  }
+`;
+
+const CounterContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0.25rem 1.5rem 0.75rem;
+  font-size: ${fontSize.micro};
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: ${meok[500]};
+
+  @media (min-width: 640px) {
+    padding-left: 2rem;
+    padding-right: 2rem;
+    padding-bottom: 1rem;
+  }
+`;
 
 export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading }) => {
   const railRef = useRef<HTMLDivElement | null>(null);
   const [railIndicator, setRailIndicator] = useState({ left: 0, width: 100, index: 1 });
   const [isDragging, setIsDragging] = useState(false);
-
   const isMouseDownRef = useRef(false);
   const startXRef = useRef(0);
   const scrollLeftRef = useRef(0);
@@ -297,7 +585,6 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
     const { offsets, maxScroll } = snapMetricsRef.current;
     if (offsets.length === 0) return currentScrollLeft;
 
-    // 속도 기반 미래 스크롤 예측 지점 (속도가 크면 1~2개 카드 이상 미끄러짐)
     const projectedLeft = currentScrollLeft - velocity * 180;
 
     let closestScrollLeft = 0;
@@ -361,7 +648,6 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
     const rail = railRef.current;
     if (!rail) return;
 
-    // 관성 속도 및 가까운 카드 위치로 100% 부드러운 스무스 정렬
     const targetLeft = getNearestCardScrollLeft(rail.scrollLeft, velocityRef.current);
     rail.scrollTo({ left: targetLeft, behavior: 'smooth' });
   };
@@ -372,12 +658,15 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
       indicatorFrameRef.current = null;
       const rail = railRef.current;
       if (!rail) return;
-      const next = getRailIndicator({
-        scrollLeft: rail.scrollLeft,
-        scrollWidth: rail.scrollWidth,
-        clientWidth: rail.clientWidth,
-      }, stories.length);
-      setRailIndicator((previous) => shouldUpdateRailIndicator(previous, next) ? next : previous);
+      const next = getRailIndicator(
+        {
+          scrollLeft: rail.scrollLeft,
+          scrollWidth: rail.scrollWidth,
+          clientWidth: rail.clientWidth,
+        },
+        stories.length
+      );
+      setRailIndicator((previous) => (shouldUpdateRailIndicator(previous, next) ? next : previous));
     });
   }, [stories.length]);
 
@@ -412,18 +701,17 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
 
   if (stories.length === 0) {
     return (
-      <div className="rounded-2xl   bg-[#f8f8f7] px-5 py-8 text-center">
-        <p className="text-xs font-semibold text-[#4e5968]">아직 주변 이야기를 찾지 못했어요.</p>
-        <p className="mt-1 text-micro text-[#8b95a1]">위치를 허용하면 가까운 오디오부터 보여드릴게요.</p>
+      <div style={{ borderRadius: '1rem', backgroundColor: '#f8f8f7', padding: '2rem 1.25rem', textAlign: 'center' }}>
+        <p style={{ fontSize: '0.75rem', fontWeight: 600, color: meok[700] }}>아직 주변 이야기를 찾지 못했어요.</p>
+        <p style={{ marginTop: '0.25rem', fontSize: fontSize.micro, color: meok[500] }}>위치를 허용하면 가까운 오디오부터 보여드릴게요.</p>
       </div>
     );
   }
 
   return (
-    <div aria-label="주변 오디오 목록" className="relative w-full">
-      {/* 스크롤 트랙 컨테이너 (하단/좌측 그림자 절단 방지를 위해 pt-3 pb-8 스페이싱 확보) */}
-      <div className="relative">
-        <div
+    <CarouselOuter aria-label="주변 오디오 목록">
+      <div style={{ position: 'relative' }}>
+        <ScrollTrack
           ref={railRef}
           tabIndex={0}
           aria-label="주변 오디오를 좌우로 살펴보기"
@@ -441,10 +729,7 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
               moveRail(1);
             }
           }}
-          className={`flex gap-3.5 touch-pan-x overflow-x-auto px-6 pt-3 pb-8 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:px-8 sm:pb-9 ${
-            isDragging ? 'cursor-grabbing select-none' : 'cursor-grab'
-          }`}
-          style={{ overflowAnchor: 'none' }}
+          $isDragging={isDragging}
         >
           {stories.map((story, index) => (
             <NearbyStoryCard
@@ -455,47 +740,45 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
               onSelect={() => handleCardClick(story)}
             />
           ))}
-        </div>
+        </ScrollTrack>
 
-        {/* 🌟 슬림하고 콤팩트한 가장자리 리니어 그라데이션 오버레이 */}
-        {railIndicator.left > 0.5 && (
-          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-gradient-to-r from-white via-white/95 to-transparent sm:w-16" aria-hidden="true" />
-        )}
+        {railIndicator.left > 0.5 && <EdgeFadeLeft aria-hidden="true" />}
         {railIndicator.width < 100 && railIndicator.left < 99 - railIndicator.width && (
-          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-6 bg-gradient-to-l from-white via-white/60 to-transparent sm:w-9" aria-hidden="true" />
+          <EdgeFadeRight aria-hidden="true" />
         )}
 
-        {/* 좌/우 플로팅 네비게이션 화살표 버튼 (z-30 배치) */}
         {railIndicator.left > 0.5 && (
-          <button
+          <FloatingNavBtn
             type="button"
             aria-label="이전 주변 오디오 보기"
             onClick={() => moveRail(-1)}
-            className="absolute left-2 top-1/2 z-30 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white text-[#191f28] transition-colors duration-200 hover:bg-[#f8f8f7] sm:left-3 sm:h-9 sm:w-9"
+            $side="left"
           >
             <ChevronLeft size={18} strokeWidth={2} />
-          </button>
+          </FloatingNavBtn>
         )}
         {railIndicator.width < 100 && railIndicator.left < 99 - railIndicator.width && (
-          <button
+          <FloatingNavBtn
             type="button"
             aria-label="다음 주변 오디오 보기"
             onClick={() => moveRail(1)}
-            className="absolute right-1 top-1/2 z-30 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full  bg-white/95 text-[#191f28]  backdrop-blur-md transition-all duration-200 hover:scale-110 hover:bg-white sm:right-2 sm:h-9 sm:w-9"
+            $side="right"
           >
             <ChevronRight size={18} strokeWidth={2} />
-          </button>
+          </FloatingNavBtn>
         )}
       </div>
 
-      {/* 📍 하단 우측 독립 인덱스 카운터 (01 / 19) */}
       {railIndicator.width < 100 && (
-        <div className="flex items-center justify-end px-6 pt-1 pb-3 text-micro font-medium tracking-[0.08em] text-[#8b95a1] sm:px-8 sm:pb-4" aria-live="polite">
-          <span className="font-mono">
-            <strong className="font-bold text-[#FF2A85]">{String(railIndicator.index).padStart(2, '0')}</strong> / {String(stories.length).padStart(2, '0')}
+        <CounterContainer aria-live="polite">
+          <span style={{ fontFamily: 'monospace' }}>
+            <strong style={{ fontWeight: 700, color: palette.jangmi[500] }}>
+              {String(railIndicator.index).padStart(2, '0')}
+            </strong>{' '}
+            / {String(stories.length).padStart(2, '0')}
           </span>
-        </div>
+        </CounterContainer>
       )}
-    </div>
+    </CarouselOuter>
   );
 };

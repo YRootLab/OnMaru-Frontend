@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import styled from '@emotion/styled';
+import { keyframes } from '@emotion/react';
 import { motion } from 'framer-motion';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { SorimaruStoryItem } from '@/features/sorimaru-audio/types/sorimaru.types';
@@ -12,13 +14,14 @@ import {
   SOUND_CONSTELLATION_API_ROOT_MARGIN,
   getRegionPathMotion,
 } from './soundConstellationMotion';
+import { palette, meok, fontSize } from '@/design-system/tokens';
 
 interface SoundConstellationSectionProps {
   stories: SorimaruStoryItem[];
 }
 
 const [VB_WIDTH, VB_HEIGHT] = KOREA_MAP_VIEWBOX.split(' ').slice(2).map(Number);
-const LIST_EDGE_INSET = 23; // 콘텐츠의 17px 여백 + 카드 내부 6px 패딩과 인디케이터의 시각적 시작점 일치
+const LIST_EDGE_INSET = 23;
 const STORY_FALLBACK_IMAGES = [
   '/images/hanok/hanok-main.png',
   '/images/hanok/hanok-exterior.png',
@@ -38,24 +41,379 @@ const getRegionStories = (stories: SorimaruStoryItem[], region: KoreaRegionPath)
   return matched.length ? matched : stories.slice(0, 4);
 };
 
-// 초기 로딩 시 스켈레톤 UI
+// ==========================================
+// Styled Components
+// ==========================================
+const pulseKeyframe = keyframes`
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+`;
+
+const spinKeyframe = keyframes`
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+`;
+
+const shimmerKeyframe = keyframes`
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+`;
+
+const SectionWrapper = styled.section`
+  width: 100%;
+  padding: 2.5rem 0;
+
+  @media (min-width: 640px) {
+    padding: 3.5rem 0;
+  }
+`;
+
+const InnerContainer = styled.div`
+  margin: 0 auto;
+  width: 100%;
+  max-width: 72rem;
+  padding: 0 1rem;
+
+  @media (min-width: 640px) {
+    padding: 0 2rem;
+  }
+`;
+
+const SectionHeader = styled.div`
+  padding-bottom: 0.25rem;
+`;
+
+const MainHeading = styled.h2`
+  display: inline-block;
+  background: linear-gradient(to right, #211e19, #403b35, #6a6158);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-family: inherit;
+  font-size: clamp(24px, 3.2vw, 36px);
+  font-weight: 700;
+  letter-spacing: -0.045em;
+`;
+
+const SubDesc = styled.p`
+  margin-top: 0.25rem;
+  max-width: 36rem;
+  font-size: ${fontSize.xs};
+  line-height: 1.25rem;
+  color: ${meok[700]};
+
+  @media (min-width: 640px) {
+    font-size: ${fontSize.sm};
+  }
+`;
+
+const LayoutGrid = styled.div`
+  margin-top: 1.25rem;
+  display: grid;
+  gap: 1.25rem;
+
+  @media (min-width: 1024px) {
+    grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+    gap: 1.5rem;
+  }
+`;
+
+const MapStage = styled.div`
+  position: relative;
+  min-height: 480px;
+  padding: 1rem;
+
+  @media (min-width: 640px) {
+    min-height: 560px;
+    padding: 1.5rem;
+  }
+`;
+
+const MapHintPill = styled.div`
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 0.5rem 0.875rem;
+  font-size: ${fontSize.xs};
+  color: ${meok[700]};
+  backdrop-filter: blur(4px);
+
+  @media (min-width: 640px) {
+    left: 1.5rem;
+    top: 1.5rem;
+  }
+`;
+
+const PulseDot = styled.span`
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 9999px;
+  background-color: ${palette.jangmi[500]};
+  animation: ${pulseKeyframe} 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+`;
+
+const MapSvgWrapper = styled.div`
+  position: relative;
+  margin: 3.5rem auto 0;
+  aspect-ratio: 800 / 759;
+  width: 100%;
+  max-width: 520px;
+
+  @media (min-width: 640px) {
+    margin-top: 3rem;
+  }
+`;
+
+const StyledSvg = styled.svg`
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+`;
+
+const RegionPin = styled.div`
+  position: absolute;
+  z-index: 10;
+  transform: translate(-50%, -50%);
+`;
+
+const RegionPinButton = styled.button<{ isActive: boolean }>`
+  border: none;
+  border-radius: 9999px;
+  padding: 0.375rem 0.625rem;
+  font-size: ${fontSize.micro};
+  font-weight: 600;
+  backdrop-filter: blur(4px);
+  outline: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: ${(props) => (props.isActive ? meok[900] : 'rgba(255, 255, 255, 0.9)')};
+  color: ${(props) => (props.isActive ? '#ffffff' : meok[700])};
+
+  &:hover {
+    background-color: ${(props) => (props.isActive ? meok[900] : '#ffffff')};
+    color: ${(props) => (props.isActive ? '#ffffff' : palette.jangmi[500])};
+  }
+
+  @media (min-width: 640px) {
+    padding: 0.375rem 0.75rem;
+    font-size: ${fontSize.xs};
+  }
+`;
+
+const AsidePanel = styled.aside`
+  display: flex;
+  height: 480px;
+  flex-direction: column;
+  border-radius: 1rem;
+  background-color: rgba(255, 255, 255, 0.85);
+  padding: 1rem 0.25rem;
+  backdrop-filter: blur(12px);
+
+  @media (min-width: 640px) {
+    height: 560px;
+    padding: 1.25rem 0.25rem;
+  }
+`;
+
+const AsideHeader = styled.div`
+  margin: 0 0.5rem;
+  padding-bottom: 0.75rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+`;
+
+const RegionLabel = styled.h3`
+  font-size: ${fontSize.xl};
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: ${meok[900]};
+`;
+
+const StoriesCount = styled.span`
+  font-family: monospace;
+  font-size: ${fontSize.xs};
+  font-weight: 700;
+  color: ${palette.jangmi[500]};
+`;
+
+const ScrollWrapper = styled.div`
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  margin-top: 0.25rem;
+  padding: 0 0.125rem;
+`;
+
+const TopGradientFade = styled.div`
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 20;
+  height: 17px;
+  background: linear-gradient(to bottom, #ffffff, rgba(255, 255, 255, 0.8), transparent);
+`;
+
+const BottomGradientFade = styled.div`
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  height: 17px;
+  background: linear-gradient(to top, #ffffff, rgba(255, 255, 255, 0.8), transparent);
+`;
+
+const ScrollContent = styled.div`
+  margin-right: -0.25rem;
+  height: 100%;
+  overflow-y: auto;
+  padding: 17px 10px 17px 2px;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+const StoryItemButton = styled.button<{ isActive: boolean }>`
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.875rem;
+  border-radius: 0.75rem;
+  padding: 0.375rem 0.625rem;
+  text-align: left;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: ${(props) => (props.isActive ? palette.jangmi[50] : 'transparent')};
+
+  &:hover {
+    background-color: ${(props) => (props.isActive ? palette.jangmi[50] : meok[200])};
+  }
+`;
+
+const StoryThumb = styled.span`
+  position: relative;
+  height: 72px;
+  width: 72px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 8.7px;
+  background-color: #f0f0ef;
+
+  & img {
+    height: 100%;
+    width: 100%;
+    transform: scale(2.6);
+    object-fit: cover;
+  }
+`;
+
+const StoryInfo = styled.span`
+  min-width: 0;
+  flex: 1;
+  padding-right: 0.25rem;
+`;
+
+const StoryHeadRow = styled.span`
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 0.5rem;
+`;
+
+const StoryTitle = styled.strong<{ isActive: boolean }>`
+  min-width: 0;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-family: inherit;
+  font-size: ${fontSize.sm};
+  font-weight: 700;
+  line-height: 1.35;
+  color: ${(props) => (props.isActive ? palette.jangmi[500] : meok[900])};
+`;
+
+const DurationStatus = styled.span<{ isActive: boolean }>`
+  margin-top: 1px;
+  flex-shrink: 0;
+  font-size: ${fontSize.micro};
+  font-weight: 400;
+  color: ${(props) => (props.isActive ? palette.jangmi[500] : meok[500])};
+`;
+
+const ExcerptText = styled.span`
+  margin-top: 0.25rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: ${fontSize.micro};
+  line-height: 1.4;
+  color: ${meok[700]};
+`;
+
+const LoadingSpinnerWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+  font-size: ${fontSize.xs};
+  font-weight: 700;
+  color: ${palette.jangmi[500]};
+
+  & .spinner {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 9999px;
+    border: 2px solid ${palette.jangmi[500]};
+    border-top-color: transparent;
+    animation: ${spinKeyframe} 1s linear infinite;
+  }
+`;
+
+const SkeletonShimmer = styled.div`
+  background: linear-gradient(90deg, #e4e4e2 25%, #ecece9 50%, #e4e4e2 75%);
+  background-size: 200% 100%;
+  animation: ${shimmerKeyframe} 1.5s infinite;
+`;
+
 const RegionStoryListSkeleton: React.FC = () => (
-  <div className="mt-1 flex-1 space-y-1.5 overflow-y-auto pr-1" aria-busy="true" aria-label="지역 오디오 이야기 로딩 중">
+  <div style={{ marginTop: '0.25rem', flex: 1, overflowY: 'auto', paddingRight: '0.25rem', display: 'flex', flexDirection: 'column', gap: '0.375rem' }} aria-busy="true" aria-label="지역 오디오 이야기 로딩 중">
     {Array.from({ length: 5 }, (_, index) => (
-      <div key={index} className="flex h-[84px] items-center gap-3 rounded-xl px-2.5 py-1.5 bg-transparent">
-        <div className="sorimaru-skeleton h-[72px] w-[72px] shrink-0 rounded-xl bg-[#e4e4e2]" />
-        <div className="min-w-0 flex-1 space-y-2">
-          <div className="sorimaru-skeleton h-3.5 w-3/4 rounded bg-[#d7d7d4]" />
-          <div className="sorimaru-skeleton h-2.5 w-full rounded bg-[#e4e4e2]" />
-          <div className="sorimaru-skeleton h-2.5 w-2/3 rounded bg-[#e4e4e2]" />
+      <div key={index} style={{ display: 'flex', height: 84, alignItems: 'center', gap: '0.75rem', borderRadius: '0.75rem', padding: '0.375rem 0.625rem' }}>
+        <SkeletonShimmer style={{ height: 72, width: 72, flexShrink: 0, borderRadius: '0.75rem' }} />
+        <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          <SkeletonShimmer style={{ height: 14, width: '75%', borderRadius: 4 }} />
+          <SkeletonShimmer style={{ height: 10, width: '100%', borderRadius: 4 }} />
+          <SkeletonShimmer style={{ height: 10, width: '66%', borderRadius: 4 }} />
         </div>
-        <div className="sorimaru-skeleton h-3 w-8 shrink-0 rounded bg-[#e4e4e2]" />
+        <SkeletonShimmer style={{ height: 12, width: 32, flexShrink: 0, borderRadius: 4 }} />
       </div>
     ))}
   </div>
 );
 
-// 오디오 이야기 스크립트/서사 요약 추출 함수 (텍스트 겹침 방지 가공)
 function getStoryExcerpt(story: SorimaruStoryItem): string {
   if (story.script && story.script.trim()) {
     const firstSentence = story.script.split(/\r?\n/)[0]?.trim();
@@ -102,7 +460,6 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
 
   const selectedRegion = KOREA_REGION_PATHS.find((region) => region.id === selectedRegionId) || KOREA_REGION_PATHS[0];
 
-  // 1. 지도 클릭 시 해당 지역 데이터 초기 로딩 (API + 캐시)
   useEffect(() => {
     if (!isApiActive) return;
     let isMounted = true;
@@ -167,7 +524,6 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
     if (scrollFrameRef.current !== null) cancelAnimationFrame(scrollFrameRef.current);
   }, []);
 
-  // 2. 무한 스크롤 다음 페이지 API 수급 함수
   const loadNextPage = useCallback(() => {
     if (isFetchingNextPage || !hasMore || isRegionLoading) return;
 
@@ -209,7 +565,6 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
       });
   }, [isFetchingNextPage, hasMore, isRegionLoading, currentPage, activeApiService, selectedRegionId, selectedRegion.keywords]);
 
-  // 3. 스크롤 위치 감지 & 가상 스크롤 업데이트 & 무한 스크롤 트리거
   const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
     const target = event.currentTarget;
     const currentScrollTop = target.scrollTop;
@@ -250,7 +605,6 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
       });
     }
 
-    // 하단 100px 이내 접근 시 무한 스크롤 호출
     if (
       currentScrollHeight - (currentScrollTop + currentClientHeight) < 120 &&
       hasMore &&
@@ -263,7 +617,6 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
 
   const regionStories = loadedRegionStories || getRegionStories(stories, selectedRegion);
 
-  // 4. 가상 스크롤(Virtual Scroll) 표시 범위 계산
   const totalCount = regionStories.length;
   const totalHeight = totalCount * VIRTUAL_ITEM_HEIGHT;
   const scrollContentHeight = totalHeight + 34;
@@ -289,29 +642,26 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
   };
 
   return (
-    <section ref={viewportRef} aria-labelledby="sound-map-heading" className="w-full py-10 sm:py-14">
-      <div className="mx-auto w-full max-w-6xl px-4 sm:px-8">
-        <div className="pb-1">
-          <h2 id="sound-map-heading" className="inline-block bg-gradient-to-r from-[#211e19] via-[#403b35] to-[#6a6158] bg-clip-text font-sorimaru-sans text-[clamp(24px,3.2vw,36px)] font-bold tracking-[-0.045em] text-transparent">
+    <SectionWrapper ref={viewportRef} aria-labelledby="sound-map-heading">
+      <InnerContainer>
+        <SectionHeader>
+          <MainHeading id="sound-map-heading">
             지도로 듣는 이야기
-          </h2>
-          <p className="mt-1 max-w-xl text-xs sm:text-sm leading-5 text-[#4e5968]">
+          </MainHeading>
+          <SubDesc>
             대한민국 지도에서 지역을 눌러 그곳에 남은 오디오 이야기를 들어보세요.
-          </p>
-        </div>
+          </SubDesc>
+        </SectionHeader>
 
-        {/* 복구된 좌측 지도 + 우측 가상 스크롤 리스트 분할 레이아웃 */}
-        <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)] lg:gap-6">
-          {/* 좌측 SVG 지도 영역 */}
-          <div className="relative min-h-[480px] p-4 sm:min-h-[560px] sm:p-6">
-            <div className="absolute left-4 top-4 z-20 flex items-center gap-2 rounded-full bg-white/90 px-3.5 py-2 text-xs text-[#4e5968] backdrop-blur-sm sm:left-6 sm:top-6">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#FF2A85] animate-pulse" /> 지역을 눌러 탐색해보세요
-            </div>
+        <LayoutGrid>
+          <MapStage>
+            <MapHintPill>
+              <PulseDot /> 지역을 눌러 탐색해보세요
+            </MapHintPill>
 
-            <div className="relative mx-auto mt-14 aspect-[800/759] w-full max-w-[520px] sm:mt-12">
-              <svg
+            <MapSvgWrapper>
+              <StyledSvg
                 viewBox={KOREA_MAP_VIEWBOX}
-                className="absolute inset-0 h-full w-full overflow-visible"
                 preserveAspectRatio="xMidYMid meet"
                 aria-hidden="true"
               >
@@ -329,72 +679,61 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                       initial={pathMotion}
                       animate={pathMotion}
                       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                      stroke={active ? '#FF2A85' : '#211e19'}
+                      stroke={active ? palette.jangmi[500] : '#211e19'}
                       strokeOpacity={active ? 0.5 : 0.18}
                       strokeWidth={active ? 2.4 : 1.4}
                       strokeLinejoin="round"
                       vectorEffect="non-scaling-stroke"
-                      className="cursor-pointer"
+                      style={{ cursor: 'pointer' }}
                     />
                   );
                 })}
-              </svg>
+              </StyledSvg>
 
               {KOREA_REGION_PATHS.map((region) => {
                 const active = region.id === selectedRegionId;
                 const count = regionStoryCounts[region.id] ?? getRegionStories(stories, region).length;
                 return (
-                  <div
+                  <RegionPin
                     key={region.id}
                     style={{ left: `${(region.centroid.x / VB_WIDTH) * 100}%`, top: `${(region.centroid.y / VB_HEIGHT) * 100}%` }}
-                    className="absolute z-10 -translate-x-1/2 -translate-y-1/2"
                   >
-                    <button
+                    <RegionPinButton
                       type="button"
+                      isActive={active}
                       onClick={() => setSelectedRegionId(region.id)}
-                      className={`rounded-full px-2.5 py-1.5 text-micro font-semibold backdrop-blur-sm outline-none transition-all duration-300 sm:px-3 sm:text-xs ${
-                        active
-                          ? 'bg-[#211e19] text-white'
-                          : 'bg-white/90 text-[#4e5968] hover:bg-white hover:text-[#FF2A85]'
-                      }`}
                       aria-pressed={active}
                     >
-                      <span className="flex items-center gap-1.5">
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
                         {region.shortLabel}
-                        <span className={active ? 'text-white/80' : 'text-[#8b95a1]'}>{count}</span>
+                        <span style={{ color: active ? 'rgba(255, 255, 255, 0.8)' : meok[500] }}>{count}</span>
                       </span>
-                    </button>
-                  </div>
+                    </RegionPinButton>
+                  </RegionPin>
                 );
               })}
-            </div>
-          </div>
+            </MapSvgWrapper>
+          </MapStage>
 
-          {/* 우측 가상 스크롤 + 무한 스크롤 이야기 리스트 패널 */}
-          <aside aria-live="polite" className="flex h-[480px] sm:h-[560px] flex-col rounded-2xl bg-white/85 px-1 py-4 backdrop-blur-md sm:px-1 sm:py-5">
-            <div className="mx-2 pb-3 shrink-0">
-              <div className="flex items-end justify-between gap-3 px-1">
-                <h3 className="text-xl font-extrabold tracking-[-.04em] text-[#191f28]">{selectedRegion.label}</h3>
-                <span className="font-mono text-xs font-bold text-[#FF2A85]">
-                  {isRegionLoading ? '조회 중…' : `${regionStories.length}개 이야기`}
-                </span>
-              </div>
-            </div>
+          <AsidePanel aria-live="polite">
+            <AsideHeader>
+              <RegionLabel>{selectedRegion.label}</RegionLabel>
+              <StoriesCount>
+                {isRegionLoading ? '조회 중…' : `${regionStories.length}개 이야기`}
+              </StoriesCount>
+            </AsideHeader>
 
             {isRegionLoading ? (
               <RegionStoryListSkeleton />
             ) : (
-              <div className="relative flex-1 min-h-0 overflow-hidden mt-1 px-0.5">
-                {/* 얇고 핏한 상/하단 화이트 그라데이션 오버레이 */}
-                <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-[17px] bg-gradient-to-b from-white via-white/80 to-transparent" aria-hidden="true" />
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-[17px] bg-gradient-to-t from-white via-white/80 to-transparent" aria-hidden="true" />
+              <ScrollWrapper>
+                <TopGradientFade aria-hidden="true" />
+                <BottomGradientFade aria-hidden="true" />
 
-                <div
+                <ScrollContent
                   ref={scrollContainerRef}
                   onScroll={handleScroll}
-                  className="-mr-1 h-full overflow-y-auto px-0.5 pr-[10px] pb-[17px] pt-[17px] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                 >
-                  {/* 🚀 Virtual Scrolling 컨테이너 */}
                   <div style={{ height: `${totalHeight}px`, position: 'relative' }}>
                     <div
                       style={{
@@ -403,88 +742,99 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                         top: 0,
                         left: 0,
                         right: 0,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.5rem',
                       }}
-                      className="space-y-2"
                     >
                       {visibleStories.map((story) => {
                         const active = currentStory.stid === story.stid;
                         return (
-                          <button
+                          <StoryItemButton
                             key={story.stid}
                             type="button"
+                            isActive={active}
                             onClick={() => playStory(story)}
                             onMouseEnter={() => setIsListHovered(true)}
                             onMouseLeave={() => setIsListHovered(false)}
                             style={{ height: `${VIRTUAL_ITEM_HEIGHT - 8}px` }}
-                            className={`flex w-full items-center gap-3.5 rounded-xl px-2.5 py-1.5 text-left transition-all duration-200 ${
-                              active
-                                ? 'bg-[#FFF0F6]'
-                                : 'hover:bg-[#f5f5f4]'
-                            }`}
                           >
-                            <span className="relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-[8.7px] bg-[#f0f0ef]">
+                            <StoryThumb>
                               <img
                                 src={imageForStory(story)}
                                 alt=""
                                 loading="lazy"
-                                className="h-full w-full scale-[2.6] object-cover"
                                 onError={(e) => {
                                   (e.target as HTMLImageElement).src = imageForStory({ ...story, imageUrl: '' });
                                 }}
                               />
-                            </span>
-                            <span className="min-w-0 flex-1 pr-1">
-                              <span className="flex min-w-0 items-start gap-2">
-                                <strong className={`min-w-0 flex-1 line-clamp-2 font-sorimaru-sans text-sm font-bold leading-snug ${active ? 'text-[#FF2A85]' : 'text-[#191f28]'}`}>
+                            </StoryThumb>
+                            <StoryInfo>
+                              <StoryHeadRow>
+                                <StoryTitle isActive={active}>
                                   {story.title}
-                                </strong>
-                                <span className={`mt-px shrink-0 text-micro font-normal ${active ? 'text-[#FF2A85]' : 'text-[#8b95a1]'}`}>
+                                </StoryTitle>
+                                <DurationStatus isActive={active}>
                                   {active && isPlaying ? '재생 중' : story.formattedDuration || '3:00'}
-                                </span>
-                              </span>
-                              <span className="mt-1 block line-clamp-2 text-micro leading-[1.4] text-[#4e5968]">
+                                </DurationStatus>
+                              </StoryHeadRow>
+                              <ExcerptText>
                                 {getStoryExcerpt(story)}
-                              </span>
-                            </span>
-                          </button>
+                              </ExcerptText>
+                            </StoryInfo>
+                          </StoryItemButton>
                         );
                       })}
                     </div>
                   </div>
 
-                {/* 🔄 무한 스크롤 추가 로딩 지디케이터 */}
-                {isFetchingNextPage && (
-                  <div className="flex items-center justify-center gap-2 py-3 text-xs font-bold text-[#FF2A85]">
-                    <span className="h-3 w-3 animate-spin rounded-full border-2 border-[#FF2A85] border-t-transparent" />
-                    <span>추가 이야기 불러오는 중…</span>
-                  </div>
-                )}
+                  {isFetchingNextPage && (
+                    <LoadingSpinnerWrapper>
+                      <span className="spinner" />
+                      <span>추가 이야기 불러오는 중…</span>
+                    </LoadingSpinnerWrapper>
+                  )}
 
-                {!hasMore && regionStories.length > 5 && (
-                  <p className="py-3 text-center text-micro text-[#8b95a1]">
-                    {selectedRegion.label}의 모든 오디오 이야기를 확인했습니다.
-                  </p>
-                )}
-                </div>
+                  {!hasMore && regionStories.length > 5 && (
+                    <p style={{ padding: '0.75rem 0', textAlign: 'center', fontSize: fontSize.micro, color: meok[500] }}>
+                      {selectedRegion.label}의 모든 오디오 이야기를 확인했습니다.
+                    </p>
+                  )}
+                </ScrollContent>
 
                 {canScrollStories && (
                   <div
                     aria-hidden="true"
-                    className="pointer-events-none absolute right-[2px] top-[23px] z-30 w-[3px] rounded-full"
-                    style={{ height: `${indicatorTrackHeight}px` }}
+                    style={{
+                      pointerEvents: 'none',
+                      position: 'absolute',
+                      right: 2,
+                      top: 23,
+                      zIndex: 30,
+                      width: 3,
+                      borderRadius: 9999,
+                      height: `${indicatorTrackHeight}px`,
+                    }}
                   >
                     <span
                       ref={indicatorThumbRef}
-                      className="absolute inset-x-0 rounded-full bg-[#4e5968]/40"
-                      style={{ height: `${indicatorThumbHeight}px`, transform: `translateY(${indicatorThumbOffset}px)` }}
+                      style={{
+                        position: 'absolute',
+                        left: 0,
+                        right: 0,
+                        borderRadius: 9999,
+                        backgroundColor: 'rgba(78, 89, 104, 0.4)',
+                        height: `${indicatorThumbHeight}px`,
+                        transform: `translateY(${indicatorThumbOffset}px)`,
+                      }}
                     />
                   </div>
                 )}
-              </div>
+              </ScrollWrapper>
             )}
-          </aside>
-        </div>
-      </div>
-    </section>
+          </AsidePanel>
+        </LayoutGrid>
+      </InnerContainer>
+    </SectionWrapper>
   );
 };

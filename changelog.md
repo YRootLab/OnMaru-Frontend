@@ -4,7 +4,12 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
-- Implemented OnMaru Admin Web Console (`/admin` suite) for Spring Boot backend readiness with complete mock datasets and dual-mode API client (`src/lib/api/client.ts`):
+- Migrated all of Sorimaru (`src/features/sorimaru-audio`) to Emotion CSS and unified color styling with design system tokens (`src/design-system/tokens.ts`):
+  - Converted all 26 components in `src/features/sorimaru-audio/components/` and `src/features/sorimaru-audio/section2-study/` to semantic Emotion styled components.
+  - Purged all Tailwind CSS classes, `--tw-*` CSS variables, and `@tailwind` directives from `globals.css` and the entire codebase.
+  - Deleted `tailwind.config.ts`, and removed `tailwindcss` plugin/dependency from `postcss.config.mjs` and `package.json`.
+  - Preserved 100% of custom audio controls, script synchronization, SVG interactive constellation map, 3D Z-translate perspective stages, and floating vinyl disc animations.
+
   - **Issue #52 (Foundation & Auth)**: Dual-mode API client (`apiGet`, `apiPost`, `apiPatch`, `apiDelete`), JWT refresh interceptor, RBAC `useAdminAuth` hook (`ADMIN`, `EDITOR`, `USER`).
   - **Issue #53 (Layout & Reusable UI System)**: 240px `AdminSidebar` with active indicators & badges, 60px blurred `AdminHeader`, `DataTable` with pagination and selection, `StatCard`, `StatusBadge`, `ConfirmDialog`, `Pagination`, `EmptyState`, `TableSkeleton`, and `Toast`.
   - **Issue #54 (Dashboard & Reviews)**: `/admin` KPI overview (today's warmth, pending reports, new signups, total users) with manual pipeline rebuild modal, and `/admin/reviews` with multi-filter bar, sticky batch action bar, and 400px slide-in detail drawer.

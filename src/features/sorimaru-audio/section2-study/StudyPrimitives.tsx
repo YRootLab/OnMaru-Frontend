@@ -2,8 +2,10 @@
 
 import Image from 'next/image';
 import React, { useState } from 'react';
+import styled from '@emotion/styled';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Section2StudyStory, getNextStudySelection, getStudyPlaybackLabel } from './studyData';
+import { palette, meok } from '@/design-system/tokens';
 
 const IMAGE_FALLBACK = '/images/hanok/hanok-main.png';
 
@@ -21,6 +23,74 @@ interface StudySectionFrameProps {
   children: React.ReactNode;
 }
 
+const SectionFrameRoot = styled.section`
+  padding-top: 3.5rem;
+  padding-bottom: 3.5rem;
+  @media (min-width: 640px) {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+  }
+`;
+
+const SectionHeader = styled.div`
+  margin-bottom: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  @media (min-width: 640px) {
+    margin-bottom: 2.25rem;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+`;
+
+const VariantTag = styled.p`
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: ${palette.jangmi[500]};
+`;
+
+const SectionHeading = styled.h2`
+  margin-top: 0.5rem;
+  font-family: var(--font-hanok);
+  font-size: clamp(25px, 3vw, 36px);
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  color: #211e19;
+`;
+
+const HeaderDescCol = styled.div`
+  max-width: 24rem;
+  @media (min-width: 640px) {
+    text-align: right;
+  }
+`;
+
+const SubTitle = styled.p`
+  font-family: var(--font-hanok);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: #403930;
+`;
+
+const SubDesc = styled.p`
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  line-height: 1.25rem;
+  color: #786d5e;
+`;
+
+const DetailText = styled.p`
+  margin-top: 1rem;
+  max-width: 42rem;
+  font-size: 10px;
+  line-height: 1.25rem;
+  color: #8c7e6c;
+`;
+
 export function StudySectionFrame({
   number,
   title,
@@ -31,32 +101,71 @@ export function StudySectionFrame({
   const headingId = `section2-study-${number}`;
 
   return (
-    <section aria-labelledby={headingId} className="  py-14 sm:py-20">
-      <div className="mb-7 flex flex-col gap-4 sm:mb-9 sm:flex-row sm:items-end sm:justify-between">
+    <SectionFrameRoot aria-labelledby={headingId}>
+      <SectionHeader>
         <div>
-          <p className="text-[10px] font-bold tracking-[0.2em] text-[#f84e76]">VARIANT {number}</p>
-          <h2 id={headingId} className="mt-2 font-sorimaru-sans text-[clamp(25px,3vw,36px)] font-bold tracking-[-0.045em] text-[#211e19]">
+          <VariantTag>VARIANT {number}</VariantTag>
+          <SectionHeading id={headingId}>
             장면을 골라 듣다
-          </h2>
+          </SectionHeading>
         </div>
-        <div className="max-w-sm sm:text-right">
-          <p className="font-sorimaru-sans text-base font-bold tracking-[-0.025em] text-[#403930]">{title}</p>
-          <p className="mt-1 text-xs leading-5 text-[#786d5e]">{description}</p>
-        </div>
-      </div>
+        <HeaderDescCol>
+          <SubTitle>{title}</SubTitle>
+          <SubDesc>{description}</SubDesc>
+        </HeaderDescCol>
+      </SectionHeader>
       {children}
-      <p className="mt-4 max-w-2xl text-[10px] leading-5 text-[#8c7e6c]">{detail}</p>
-    </section>
+      <DetailText>{detail}</DetailText>
+    </SectionFrameRoot>
   );
 }
 
-export function StudyRail({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+const RailOuter = styled.div`
+  margin-left: -1rem;
+  margin-right: -1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-bottom: 1.25rem;
+  overflow-x: auto;
+  scrollbar-color: rgba(33, 30, 25, 0.22) transparent;
+  scrollbar-width: thin;
+  @media (min-width: 640px) {
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+`;
+
+const RailInner = styled.div<{ $gap?: string }>`
+  display: flex;
+  width: max-content;
+  max-width: none;
+  align-items: stretch;
+  gap: ${({ $gap }) => $gap || '1rem'};
+`;
+
+export function StudyRail({
+  children,
+  className = '',
+  gap = '1rem',
+}: {
+  children: React.ReactNode;
+  className?: string;
+  gap?: string;
+}) {
   return (
-    <div className="-mx-4 overflow-x-auto px-4 pb-5 [scrollbar-color:rgba(33,30,25,0.22)_transparent] [scrollbar-width:thin] sm:mx-0 sm:px-0">
-      <div className={`flex w-max max-w-none items-stretch ${className}`}>{children}</div>
-    </div>
+    <RailOuter>
+      <RailInner className={className} $gap={gap}>
+        {children}
+      </RailInner>
+    </RailOuter>
   );
 }
+
+const StyledImage = styled(Image)`
+  object-fit: cover;
+`;
 
 export function StudyImage({
   story,
@@ -70,16 +179,48 @@ export function StudyImage({
   const [src, setSrc] = useState(story.imageSrc);
 
   return (
-    <Image
+    <StyledImage
       src={src}
       alt={`${story.title} 풍경`}
       fill
       sizes={sizes}
-      className={`object-cover ${className}`}
+      className={className}
       onError={() => setSrc(IMAGE_FALLBACK)}
     />
   );
 }
+
+const PlayButton = styled.button<{ $compact?: boolean; $selected?: boolean }>`
+  display: inline-flex;
+  height: 2.75rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  border-radius: 9999px;
+  background-color: ${palette.jangmi[500]};
+  font-weight: 700;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  transition: width 0.2s ease, background-color 0.2s ease;
+  font-size: 10px;
+  ${({ $compact, $selected }) =>
+    $compact && !$selected
+      ? `width: 2.75rem;`
+      : `min-width: 2.75rem; padding-left: 0.75rem; padding-right: 0.75rem;`}
+
+  &:hover {
+    background-color: ${palette.jangmi[700]};
+  }
+  &:focus-visible {
+    outline: 2px solid #211e19;
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+`;
 
 export function StudyPlayControl({
   story,
@@ -96,20 +237,29 @@ export function StudyPlayControl({
   const label = getStudyPlaybackLabel(selectedStoryId, story.id);
 
   return (
-    <button
+    <PlayButton
       type="button"
       onClick={() => onSelectStory(getNextStudySelection(selectedStoryId, story.id))}
       aria-label={`${story.title} ${isSelected ? '재생 멈추기' : '재생하기'}`}
       aria-pressed={isSelected}
-      className={`inline-flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#f84e76] font-bold text-white  transition-[width,background-color] hover:bg-[#e33f69] focus-visible:outline-none focus-visible: focus-visible:ring-[#211e19] focus-visible:ring-offset-2 motion-reduce:transition-none ${compact && !isSelected ? 'w-11 text-[10px]' : 'min-w-11 px-3 text-[10px]'}`}
+      $compact={compact}
+      $selected={isSelected}
     >
-      <span aria-hidden="true" className={isSelected ? 'text-[10px]' : 'translate-x-px text-[10px]'}>{isSelected ? 'Ⅱ' : '▶'}</span>
+      <span aria-hidden="true" style={{ fontSize: 10 }}>{isSelected ? 'Ⅱ' : '▶'}</span>
       {(!compact || isSelected) && <span>{label}</span>}
-    </button>
+    </PlayButton>
   );
 }
 
-export function MotionStudyCard({ children, className }: { children: React.ReactNode; className: string }) {
+export function MotionStudyCard({
+  children,
+  className,
+  style,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
   const reduceMotion = useReducedMotion();
 
   return (
@@ -117,6 +267,7 @@ export function MotionStudyCard({ children, className }: { children: React.React
       whileHover={reduceMotion ? undefined : { y: -5 }}
       transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
       className={className}
+      style={style}
     >
       {children}
     </motion.article>

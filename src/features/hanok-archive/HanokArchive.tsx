@@ -61,6 +61,21 @@ const PageInner = styled.div`
   padding: 0 0 clamp(64px, 8vh, 120px);
 `;
 
+const SectionContainer = styled.div`
+  margin: 0 auto;
+  width: 100%;
+  max-width: 72rem;
+  padding: 0 1rem;
+
+  @media (min-width: 640px) {
+    padding: 0 1.5rem;
+  }
+`;
+
+const StyledVesselReveal = styled(VesselReveal)`
+  width: 100%;
+`;
+
 // PageContainer 바깥까지 같은 바탕을 유지하고, route를 떠나면 Emotion이 자동 복원한다.
 const paperGround = css`
   body {
@@ -243,7 +258,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
       <Global styles={paperGround} />
       <PageInner>
         {/* 진입부: 한국의 정취를 담은 동영상 히어로 */}
-        <VesselReveal id={HANOK_REVEAL_SECTIONS.intro} className="w-full">
+        <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.intro}>
           <IntroStage>
             <IntroPoster aria-hidden="true" $visible={!introVideoReady} />
             {showIntroVideo && (
@@ -261,7 +276,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
               </IntroVideo>
             )}
             <IntroScrim aria-hidden="true" />
-            <IntroContent className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+            <IntroContent>
               <Intro>
                 <PageTitle>지금 한옥은 어디에 남아 있을까</PageTitle>
                 <Lead>
@@ -271,58 +286,58 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
               </Intro>
             </IntroContent>
           </IntroStage>
-        </VesselReveal>
+        </StyledVesselReveal>
 
         {/* 1. 실용적인 핵심 챕터 바로가기 플로팅 앵커 허브 */}
         <QuickIndexBar />
 
         {/* 2. 감성적인 첫인상: 이 달의 한옥 대표 큐레이션 에디토리얼 화보 */}
         <EditorialSection>
-          <VesselReveal id={HANOK_REVEAL_SECTIONS.monthly} className="w-full">
-            <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+          <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.monthly}>
+            <SectionContainer>
               <HanokMonthly
                 villages={archiveData.villages}
                 onSelectVillage={setSelectedDogamVillage}
                 isFeaturedReady={isFeaturedReady}
               />
-            </div>
-          </VesselReveal>
+            </SectionContainer>
+          </StyledVesselReveal>
         </EditorialSection>
 
         {/* 3. 데이터 탐색: 전국 한옥 분포 & 인터랙티브 지역 선택기 */}
         <HeroLeadOutSection>
-          <VesselReveal id={HANOK_REVEAL_SECTIONS.distribution} className="w-full">
-            <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+          <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.distribution}>
+            <SectionContainer>
               <HanokDistribution
                 villages={archiveData.villages}
                 onSelectRegion={setSelectedRegion}
               />
-            </div>
-          </VesselReveal>
+            </SectionContainer>
+          </StyledVesselReveal>
         </HeroLeadOutSection>
 
         {/* 4. 아카이브 덩어리: 전국 한옥 도감 ➔ 지역별 한옥 스테이 */}
         <ChapterBreak>
-          <VesselReveal id={HANOK_REVEAL_SECTIONS.grid} className="w-full">
-            <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+          <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.grid}>
+            <SectionContainer>
               <HanokGrid
                 villages={archiveData.villages}
                 onSelectVillage={setSelectedDogamVillage}
                 initialFilters={initialFilters}
                 externalRegion={selectedRegion}
               />
-            </div>
-          </VesselReveal>
+            </SectionContainer>
+          </StyledVesselReveal>
 
           <ArchiveSection>
-            <VesselReveal id={HANOK_REVEAL_SECTIONS.stay} className="w-full">
-              <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+            <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.stay}>
+              <SectionContainer>
                 <HanokStayAccordion
                   villages={archiveData.villages}
                   onSelectStay={setSelectedStay}
                 />
-              </div>
-            </VesselReveal>
+              </SectionContainer>
+            </StyledVesselReveal>
           </ArchiveSection>
         </ChapterBreak>
 
@@ -331,29 +346,29 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
           카드를 눌러야 3D 모달이 열리므로 도감 본문 스크롤은 그대로 둔다.
         */}
         <ChapterBreak>
-          <VesselReveal id={HANOK_REVEAL_SECTIONS.structure} className="w-full">
-            <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+          <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.structure}>
+            <SectionContainer>
               <HanokStructureCards />
-            </div>
-          </VesselReveal>
+            </SectionContainer>
+          </StyledVesselReveal>
 
           {/*
             카드는 3D로 들어가는 문이고, 이 목록은 문을 열지 않아도 읽히는 본문이다.
             같은 챕터라 여백을 크게 두지 않고 바로 잇는다.
           */}
           <EditorialSection>
-            <VesselReveal id={HANOK_REVEAL_SECTIONS.parts} className="w-full">
-              <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+            <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.parts}>
+              <SectionContainer>
                 <HanokParts />
-              </div>
-            </VesselReveal>
+              </SectionContainer>
+            </StyledVesselReveal>
           </EditorialSection>
         </ChapterBreak>
 
         {/* 부재를 읽고 난 뒤 지도로 — 어느 채가 어디 있는지 짚어 준다 (구조에서 지도로의 대전환) */}
         <ChapterBreak>
-          <VesselReveal id={HANOK_REVEAL_SECTIONS.map} className="w-full">
-            <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+          <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.map}>
+            <SectionContainer>
               <HanokMap
                 villages={archiveData.villages}
                 onSelectVillage={(v) => {
@@ -364,16 +379,16 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
                   }
                 }}
               />
-            </div>
-          </VesselReveal>
+            </SectionContainer>
+          </StyledVesselReveal>
         </ChapterBreak>
 
         {/* 온마루 한옥 매니페스토 (자체 상하 여백을 가지고 있다) */}
-        <VesselReveal id={HANOK_REVEAL_SECTIONS.manifesto} className="w-full">
-          <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+        <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.manifesto}>
+          <SectionContainer>
             <HanokManifestoCta />
-          </div>
-        </VesselReveal>
+          </SectionContainer>
+        </StyledVesselReveal>
       </PageInner>
 
       {/* 1. 전국 한옥 도감 상세 모달 (건축 및 역사 해설, 오디오 도슨트, 고즈넉 지수) */}

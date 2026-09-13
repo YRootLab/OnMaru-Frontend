@@ -1,10 +1,13 @@
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import styled from '@emotion/styled';
+import { css } from '@emotion/react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { SorimaruStoryItem } from '@/features/sorimaru-audio/types/sorimaru.types';
 import { SORIMARU_HERO_TABS, SORIMARU_THEME_CATEGORIES } from '@/features/sorimaru-audio/data/sorimaruCategoryData';
+import { palette, meok } from '@/design-system/tokens';
 
 interface FeaturedStoryRailProps {
   stories: SorimaruStoryItem[];
@@ -19,16 +22,6 @@ const FALLBACK_IMAGES = [
   'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1200&q=80',
   'https://images.unsplash.com/photo-1565008447742-97f6f38c985c?auto=format&fit=crop&w=1200&q=80',
   'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1200&q=80',
-];
-
-const BOARD_LAYOUTS = [
-  'col-span-2 min-h-[360px] md:col-span-7 md:row-span-6 md:min-h-0',
-  'col-span-1 min-h-[220px] md:col-span-5 md:row-span-3 md:min-h-0',
-  'col-span-1 min-h-[220px] md:col-span-5 md:row-span-3 md:min-h-0',
-  'col-span-1 min-h-[230px] md:col-span-4 md:row-span-4 md:min-h-0',
-  'col-span-1 min-h-[230px] md:col-span-3 md:row-span-4 md:min-h-0',
-  'col-span-1 min-h-[230px] md:col-span-5 md:row-span-4 md:min-h-0',
-  'col-span-2 min-h-[250px] md:col-span-7 md:row-span-4 md:min-h-0',
 ];
 
 function getFallbackImage(seed = ''): string {
@@ -46,6 +39,291 @@ function getValidImage(url?: string, seed?: string): string {
 function formatCategory(story: SorimaruStoryItem): string {
   return story.category || story.locationName || '한국의 문화 이야기';
 }
+
+const SectionWrapper = styled.section`
+  width: 100%;
+  padding-bottom: 3rem;
+
+  @media (min-width: 640px) {
+    padding-bottom: 4rem;
+  }
+`;
+
+const TabsRail = styled.div`
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+const TabButton = styled.button<{ $active: boolean }>`
+  white-space: nowrap;
+  border-radius: 9999px;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+
+  ${({ $active }) =>
+    $active
+      ? `
+        background-color: #211e19;
+        color: #ffffff;
+      `
+      : `
+        background-color: #f7f4ee;
+        color: #655b4d;
+        &:hover {
+          background-color: #ede5d8;
+          color: #211e19;
+        }
+      `}
+`;
+
+const BentoGrid = styled.div`
+  display: grid;
+  grid-auto-rows: 72px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.625rem;
+
+  @media (min-width: 768px) {
+    grid-auto-rows: 68px;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+`;
+
+const getCardLayout = (index: number) => {
+  switch (index) {
+    case 0:
+      return css`
+        grid-column: span 2;
+        min-height: 360px;
+        @media (min-width: 768px) {
+          grid-column: span 7;
+          grid-row: span 6;
+          min-height: 0;
+        }
+      `;
+    case 1:
+    case 2:
+      return css`
+        grid-column: span 1;
+        min-height: 220px;
+        @media (min-width: 768px) {
+          grid-column: span 5;
+          grid-row: span 3;
+          min-height: 0;
+        }
+      `;
+    case 3:
+      return css`
+        grid-column: span 1;
+        min-height: 230px;
+        @media (min-width: 768px) {
+          grid-column: span 4;
+          grid-row: span 4;
+          min-height: 0;
+        }
+      `;
+    case 4:
+      return css`
+        grid-column: span 1;
+        min-height: 230px;
+        @media (min-width: 768px) {
+          grid-column: span 3;
+          grid-row: span 4;
+          min-height: 0;
+        }
+      `;
+    case 5:
+      return css`
+        grid-column: span 1;
+        min-height: 230px;
+        @media (min-width: 768px) {
+          grid-column: span 5;
+          grid-row: span 4;
+          min-height: 0;
+        }
+      `;
+    case 6:
+      return css`
+        grid-column: span 2;
+        min-height: 250px;
+        @media (min-width: 768px) {
+          grid-column: span 7;
+          grid-row: span 4;
+          min-height: 0;
+        }
+      `;
+    default:
+      return css`
+        grid-column: span 2;
+        min-height: 240px;
+        @media (min-width: 768px) {
+          grid-column: span 4;
+          grid-row: span 3;
+        }
+      `;
+  }
+};
+
+const CardArticle = styled(motion.article)<{ $index: number; $isLead: boolean }>`
+  position: relative;
+  overflow: hidden;
+  border-radius: 1rem;
+  background-color: #fbf8f2;
+  outline: none;
+  cursor: pointer;
+  transition: box-shadow 0.3s ease;
+  ${({ $index }) => getCardLayout($index)}
+
+  &:hover img {
+    transform: scale(1.02);
+  }
+  &:focus-visible {
+    outline: 2px solid rgba(169, 77, 53, 0.7);
+    outline-offset: 2px;
+  }
+`;
+
+const CardPhoto = styled.img<{ $isLead: boolean }>`
+  position: absolute;
+  object-fit: cover;
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.7s ease, filter 0.7s ease;
+
+  ${({ $isLead }) =>
+    $isLead
+      ? `
+        top: 0;
+        bottom: 0;
+        right: 0;
+        height: 100%;
+        width: 47%;
+        opacity: 0.65;
+        filter: grayscale(0.2) saturate(0.65);
+        @media (min-width: 640px) {
+          width: 43%;
+        }
+      `
+      : `
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 40%;
+        width: 100%;
+        opacity: 0.7;
+        filter: grayscale(0.15) saturate(0.7);
+      `}
+`;
+
+const LeadGlowGradient = styled.div`
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 52%;
+  background: linear-gradient(to right, #fbf8f2, rgba(251, 248, 242, 0.1), transparent);
+`;
+
+const CardContent = styled.div<{ $isLead: boolean }>`
+  z-index: 10;
+  color: #211e19;
+
+  ${({ $isLead }) =>
+    $isLead
+      ? `
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        display: flex;
+        width: 70%;
+        flex-direction: column;
+        justify-content: flex-end;
+        background-color: rgba(251, 248, 242, 0.96);
+        padding: 1.25rem;
+        @media (min-width: 640px) {
+          width: 63%;
+          padding: 1.5rem;
+        }
+      `
+      : `
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        top: 40%;
+        background-color: #fbf8f2;
+        padding: 0.875rem;
+        @media (min-width: 640px) {
+          padding: 1rem;
+        }
+      `}
+`;
+
+const CardCategoryText = styled.p<{ $isLead: boolean }>`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: ${({ $isLead }) => ($isLead ? '0.75rem' : '10px')};
+  font-weight: 600;
+  color: #8c7e6c;
+`;
+
+const CardHeading = styled.h3<{ $isLead: boolean }>`
+  margin-top: 0.25rem;
+  font-family: var(--font-hanok);
+  font-size: ${({ $isLead }) => ($isLead ? '1.5rem' : '0.875rem')};
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.035em;
+  color: #211e19;
+
+  @media (min-width: 640px) {
+    font-size: ${({ $isLead }) => ($isLead ? '1.875rem' : '1rem')};
+  }
+`;
+
+const PlayLeadButton = styled.button`
+  display: inline-flex;
+  height: 2.5rem;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  background-color: #211e19;
+  padding: 0 1rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fffaf3;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: ${palette.juhong[700]};
+  }
+`;
+
+const SubBadgePlaying = styled.span`
+  position: absolute;
+  right: 0.75rem;
+  top: 0.75rem;
+  border-radius: 9999px;
+  background-color: ${palette.juhong[700]};
+  padding: 0.25rem 0.5rem;
+  font-size: 10px;
+  font-weight: 700;
+  color: #ffffff;
+`;
 
 export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories, storySets }) => {
   const sectionRef = useRef<HTMLElement | null>(null);
@@ -71,12 +349,13 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories, s
 
     const keywords = [activeTab, activeTabMeta?.keyword].filter(Boolean) as string[];
     const matched = stories.filter((story) =>
-      keywords.some((keyword) =>
-        story.category.includes(keyword) ||
-        story.title.includes(keyword) ||
-        story.audioTitle.includes(keyword) ||
-        story.locationName?.includes(keyword),
-      ),
+      keywords.some(
+        (keyword) =>
+          story.category.includes(keyword) ||
+          story.title.includes(keyword) ||
+          story.audioTitle.includes(keyword) ||
+          story.locationName?.includes(keyword)
+      )
     );
 
     return (matched.length ? matched : stories).slice(0, 7);
@@ -85,7 +364,7 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories, s
   const normalizedIndex = featured.length > 0 ? activeIndex % featured.length : 0;
   const boardStories = useMemo(
     () => featured.map((_, index) => featured[(normalizedIndex + index) % featured.length]),
-    [featured, normalizedIndex],
+    [featured, normalizedIndex]
   );
   const lead = boardStories[0];
 
@@ -101,10 +380,9 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories, s
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => setIsSectionInView(entry.isIntersecting),
-      { threshold: 0.15 },
-    );
+    const observer = new IntersectionObserver(([entry]) => setIsSectionInView(entry.isIntersecting), {
+      threshold: 0.15,
+    });
     observer.observe(section);
     return () => observer.disconnect();
   }, []);
@@ -132,18 +410,13 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories, s
   };
 
   return (
-    <section ref={sectionRef} className="w-full pb-12 sm:pb-16">
+    <SectionWrapper ref={sectionRef}>
       <div>
-        <div role="tablist" aria-label="오디 핵심 카테고리" className="mb-4 flex items-center gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <TabsRail role="tablist" aria-label="오디 핵심 카테고리">
           {SORIMARU_HERO_TABS.map((tab) => {
             const isActive = activeTab === tab.id;
-            const tabClass = [
-              'whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-semibold transition-colors duration-300',
-              isActive ? 'bg-[#211e19] text-white' : 'bg-[#f7f4ee] text-[#655b4d] hover:bg-[#ede5d8] hover:text-[#211e19]',
-            ].join(' ');
-
             return (
-              <button
+              <TabButton
                 key={tab.id}
                 type="button"
                 role="tab"
@@ -153,39 +426,22 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories, s
                   setActiveIndex(0);
                   setAutoplayVersion((version) => version + 1);
                 }}
-                className={tabClass}
+                $active={isActive}
               >
                 {tab.label}
-              </button>
+              </TabButton>
             );
           })}
-        </div>
+        </TabsRail>
 
-        <div className="grid auto-rows-[72px] grid-cols-2 gap-2.5 md:auto-rows-[68px] md:grid-cols-12">
+        <BentoGrid>
           {boardStories.map((story, index) => {
             const imageUrl = getValidImage(story.imageUrl, story.stid);
             const isLead = index === 0;
             const isPlayingStory = currentStory.stid === story.stid && isPlaying;
-            const cardClass = [
-              'group relative overflow-hidden rounded-2xl  bg-[#fbf8f2] outline-none ring-offset-2 transition-shadow duration-300 focus-visible: focus-visible:ring-[#a94d35]/70',
-              BOARD_LAYOUTS[index] || 'col-span-2 min-h-[240px] md:col-span-4 md:row-span-3',
-              isLead ? '  ring-[#a94d35]/60' : ' hover:',
-            ].join(' ');
-            const imageClass = [
-              'absolute object-cover transition-[transform,opacity,filter] duration-700 ease-[cubic-bezier(.16,1,.3,1)] group-hover:scale-[1.02]',
-              isLead
-                ? 'inset-y-0 right-0 h-full w-[47%] opacity-[0.65] grayscale-[0.2] saturate-[0.65] sm:w-[43%]'
-                : 'inset-x-0 top-0 h-[40%] w-full opacity-[0.7] grayscale-[0.15] saturate-[0.7]',
-            ].join(' ');
-            const contentClass = [
-              'z-10 text-[#211e19]',
-              isLead
-                ? 'absolute inset-y-0 left-0 flex w-[70%] flex-col justify-end bg-[#fbf8f2]/96 p-5 sm:w-[63%] sm:p-6'
-                : 'absolute inset-x-0 bottom-0 top-[40%]   bg-[#fbf8f2] p-3.5 sm:p-4',
-            ].join(' ');
 
             return (
-              <motion.article
+              <CardArticle
                 key={`${story.stid}-${index}`}
                 layout
                 tabIndex={0}
@@ -201,78 +457,93 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories, s
                 animate={{ opacity: 1, x: 0 }}
                 whileHover={shouldReduceMotion ? undefined : { y: -3 }}
                 transition={{ layout: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } }}
-                className={cardClass}
+                $index={index}
+                $isLead={isLead}
               >
-                <img
+                <CardPhoto
                   src={imageUrl}
                   alt={story.title}
                   onError={(event) => {
                     (event.target as HTMLImageElement).src = getFallbackImage(story.stid);
                   }}
-                  className={imageClass}
+                  $isLead={isLead}
                 />
-                {isLead && <div className="pointer-events-none absolute inset-y-0 right-0 w-[52%] bg-gradient-to-r from-[#fbf8f2] via-[#fbf8f2]/10 to-transparent" />}
+                {isLead && <LeadGlowGradient />}
 
-                <div className={contentClass}>
-                  <p className={isLead ? 'truncate text-xs font-semibold text-[#8c7e6c]' : 'truncate text-[10px] font-semibold text-[#8c7e6c]'}>
+                <CardContent $isLead={isLead}>
+                  <CardCategoryText $isLead={isLead}>
                     {story.locationName || formatCategory(story)}
-                  </p>
-                  <h3 className={isLead ? 'mt-1 font-sorimaru-sans text-2xl font-bold leading-tight tracking-[-0.035em] sm:text-3xl' : 'mt-1 font-sorimaru-sans text-sm font-bold leading-tight tracking-[-0.035em] sm:text-base'}>
+                  </CardCategoryText>
+                  <CardHeading $isLead={isLead}>
                     {story.title}
-                  </h3>
+                  </CardHeading>
 
                   {isLead ? (
                     <>
-                      <p className="mt-2 max-w-lg text-xs leading-5 text-[#655b4d] sm:text-sm">{story.audioTitle}</p>
-                      <div className="mt-4 flex items-center gap-3">
-                        <button
+                      <p style={{ marginTop: '0.5rem', maxWidth: '32rem', fontSize: '0.75rem', lineHeight: '1.25rem', color: '#655b4d' }}>
+                        {story.audioTitle}
+                      </p>
+                      <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <PlayLeadButton
                           type="button"
                           onClick={(event) => {
                             event.stopPropagation();
                             play();
                           }}
                           aria-label={story.title + ' ' + (isPlayingStory ? '일시정지' : '듣기')}
-                          className="inline-flex h-10 items-center gap-2 rounded-full bg-[#211e19] px-4 text-xs font-bold text-[#fffaf3]  transition-colors hover:bg-[#a94d35]"
                         >
                           <span aria-hidden="true">{isPlayingStory ? 'Ⅱ' : '▶'}</span>
                           {isPlayingStory ? '일시정지' : '이야기 듣기'}
-                          {story.formattedDuration && <span className="font-normal text-[#d8d0c5]">{story.formattedDuration}</span>}
-                        </button>
-                        <span className="text-[10px] text-[#8c7e6c]">{activeMeta?.label || '오늘의 추천'}</span>
+                          {story.formattedDuration && (
+                            <span style={{ fontWeight: 400, color: '#d8d0c5' }}>{story.formattedDuration}</span>
+                          )}
+                        </PlayLeadButton>
+                        <span style={{ fontSize: 10, color: '#8c7e6c' }}>{activeMeta?.label || '오늘의 추천'}</span>
                       </div>
                     </>
                   ) : (
-                    <div className="mt-2 flex items-center justify-between gap-2 text-[10px] text-[#786d5e]">
-                      <span className="truncate">{activeMeta?.label || formatCategory(story)}</span>
-                      <span className="shrink-0">{story.formattedDuration || '오디오'}</span>
+                    <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', fontSize: 10, color: '#786d5e' }}>
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {activeMeta?.label || formatCategory(story)}
+                      </span>
+                      <span style={{ flexShrink: 0 }}>{story.formattedDuration || '오디오'}</span>
                     </div>
                   )}
-                </div>
+                </CardContent>
 
                 {!isLead && isPlayingStory && (
-                  <span className="absolute right-3 top-3 rounded-full bg-[#a94d35] px-2 py-1 text-[10px] font-bold text-white ">
+                  <SubBadgePlaying>
                     재생 중
-                  </span>
+                  </SubBadgePlaying>
                 )}
-              </motion.article>
+              </CardArticle>
             );
           })}
-        </div>
+        </BentoGrid>
 
-        <div className="mt-4 flex items-center justify-between   pt-3">
-          <span className="text-[10px] text-[#8c7e6c]">
+        <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '0.75rem' }}>
+          <span style={{ fontSize: 10, color: '#8c7e6c' }}>
             {String(normalizedIndex + 1).padStart(2, '0')} / {String(featured.length).padStart(2, '0')}
-            <span className="ml-2">카드를 고르면 앞으로 이동합니다</span>
+            <span style={{ marginLeft: '0.5rem' }}>카드를 고르면 앞으로 이동합니다</span>
           </span>
           <button
             type="button"
             onClick={() => move(1)}
-            className="text-xs font-semibold text-[#211e19] underline decoration-[#a94d35]/50 underline-offset-4 transition-colors hover:text-[#a94d35]"
+            style={{
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              color: '#211e19',
+              textDecoration: 'underline',
+              textUnderlineOffset: 4,
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+            }}
           >
             다음 이야기 →
           </button>
         </div>
       </div>
-    </section>
+    </SectionWrapper>
   );
 };

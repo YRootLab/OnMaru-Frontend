@@ -1,14 +1,251 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import styled from '@emotion/styled';
+import { keyframes } from '@emotion/react';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { useSorimaruAudioPlayer } from '@/features/sorimaru-audio/hooks/useSorimaruAudioPlayer';
+import { palette, meok } from '@/design-system/tokens';
 
 function formatTime(seconds: number) {
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = Math.floor(seconds % 60);
   return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
 }
+
+const SectionCard = styled.section`
+  border-radius: 1.5rem;
+  background-color: #fbf8f2;
+  padding: 1.5rem;
+
+  @media (min-width: 640px) {
+    padding: 2rem;
+  }
+`;
+
+const SectionHeader = styled.div`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1rem;
+`;
+
+const CategoryLabel = styled.p`
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: ${palette.juhong[700]};
+`;
+
+const HeadingTitle = styled.h3`
+  margin-top: 0.25rem;
+  font-family: var(--font-hanok);
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: #211e19;
+`;
+
+const pulseDot = keyframes`
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+`;
+
+const PlayingBadge = styled.span`
+  margin-top: 0.25rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: 9999px;
+  background-color: ${palette.juhong[700]};
+  padding: 0.25rem 0.625rem;
+  font-size: 10px;
+  font-weight: 700;
+  color: #ffffff;
+
+  span.dot {
+    height: 6px;
+    width: 6px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    animation: ${pulseDot} 1.5s infinite;
+  }
+`;
+
+const BlockquoteArea = styled.blockquote`
+  margin-top: 1.5rem;
+  border-left: 2px solid ${palette.juhong[700]};
+  padding-left: 1rem;
+  font-family: var(--font-hanok);
+  font-size: 14px;
+  line-height: 1.75rem;
+  color: #3c342a;
+
+  @media (min-width: 640px) {
+    font-size: 1rem;
+  }
+`;
+
+const ExcerptParagraph = styled.p<{ $active: boolean; $isFirst: boolean }>`
+  ${({ $active }) =>
+    $active
+      ? `
+        font-weight: 600;
+        color: #211e19;
+      `
+      : `
+        color: inherit;
+      `}
+  ${({ $isFirst }) => (!$isFirst ? 'margin-top: 0.5rem;' : '')}
+`;
+
+const FooterBar = styled.div`
+  margin-top: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 1rem;
+`;
+
+const MetaTimeSpan = styled.span`
+  font-size: 0.75rem;
+  color: #786d5e;
+
+  span.count {
+    margin-left: 0.5rem;
+  }
+`;
+
+const ViewFullBtn = styled.button`
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: ${palette.juhong[700]};
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: #7f3725;
+  }
+`;
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  align-items: flex-end;
+  background-color: rgba(33, 30, 25, 0.5);
+  padding: 0;
+  backdrop-filter: blur(4px);
+
+  @media (min-width: 640px) {
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+  }
+`;
+
+const ModalContent = styled.div`
+  display: flex;
+  max-height: 86vh;
+  width: 100%;
+  max-width: 42rem;
+  flex-direction: column;
+  border-top-left-radius: 1.5rem;
+  border-top-right-radius: 1.5rem;
+  background-color: #fbf8f2;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+
+  @media (min-width: 640px) {
+    border-radius: 1.5rem;
+  }
+`;
+
+const ModalHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(33, 30, 25, 0.08);
+
+  @media (min-width: 640px) {
+    padding: 1.25rem 2rem;
+  }
+`;
+
+const CloseModalBtn = styled.button`
+  border-radius: 9999px;
+  padding: 0.5rem;
+  color: #655b4d;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background-color: #eee6da;
+    color: #211e19;
+  }
+`;
+
+const ScrollListArea = styled.div`
+  overflow-y: auto;
+  padding: 1.25rem 1.5rem;
+
+  @media (min-width: 640px) {
+    padding: 1.25rem 2rem;
+  }
+`;
+
+const TranscriptLine = styled.p<{ $active: boolean }>`
+  cursor: pointer;
+  border-radius: 1rem;
+  padding: 0.75rem 1rem;
+  font-size: 14px;
+  line-height: 1.75rem;
+  transition: all 0.15s ease;
+
+  @media (min-width: 640px) {
+    font-size: 1rem;
+  }
+
+  ${({ $active }) =>
+    $active
+      ? `
+        background-color: #f0ded5;
+        font-weight: 600;
+        color: #211e19;
+      `
+      : `
+        color: #655b4d;
+        &:hover {
+          background-color: #f2ece2;
+        }
+      `}
+
+  span.time {
+    margin-right: 0.75rem;
+    font-size: 0.75rem;
+    font-family: monospace;
+    color: ${palette.juhong[700]};
+  }
+`;
+
+const ModalFooter = styled.div`
+  padding: 1rem 1.5rem;
+  font-size: 0.75rem;
+  color: #786d5e;
+  border-top: 1px solid rgba(33, 30, 25, 0.06);
+
+  @media (min-width: 640px) {
+    padding: 1rem 2rem;
+  }
+`;
 
 export const ScriptSyncViewer: React.FC = () => {
   const isPlaying = useSorimaruAudioStore((s) => s.isPlaying);
@@ -31,50 +268,80 @@ export const ScriptSyncViewer: React.FC = () => {
 
   return (
     <>
-      <section className="rounded-3xl  bg-[#fbf8f2] p-6  sm:p-8">
-        <div className="flex items-start justify-between gap-4   pb-4">
+      <SectionCard>
+        <SectionHeader>
           <div>
-            <p className="text-[10px] font-bold tracking-[0.16em] text-[#a94d35]">NARRATIVE SCRIPT</p>
-            <h3 className="mt-1 font-sorimaru-sans text-lg font-semibold tracking-[-0.03em]">듣고 있는 이야기</h3>
+            <CategoryLabel>NARRATIVE SCRIPT</CategoryLabel>
+            <HeadingTitle>듣고 있는 이야기</HeadingTitle>
           </div>
-          {isPlaying && <span className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-[#a94d35] px-2.5 py-1 text-[10px] font-bold text-white"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />재생 중</span>}
-        </div>
+          {isPlaying && (
+            <PlayingBadge>
+              <span className="dot" />
+              재생 중
+            </PlayingBadge>
+          )}
+        </SectionHeader>
 
-        <blockquote className="mt-6 border-l-2  pl-4 font-sorimaru-sans text-[14px] leading-7 text-[#3c342a] sm:text-base">
+        <BlockquoteArea>
           {previewLines.map((line, index) => (
-            <p key={line.id} className={line.id === parsedScriptLines[activeScriptIndex]?.id ? 'font-semibold text-[#211e19]' : index === 0 ? '' : 'mt-2'}>
+            <ExcerptParagraph
+              key={line.id}
+              $active={line.id === parsedScriptLines[activeScriptIndex]?.id}
+              $isFirst={index === 0}
+            >
               {line.text}
-            </p>
+            </ExcerptParagraph>
           ))}
-        </blockquote>
+        </BlockquoteArea>
 
-        <div className="mt-6 flex items-center justify-between   pt-4">
-          <span className="text-xs text-[#786d5e]">
+        <FooterBar>
+          <MetaTimeSpan>
             <span>{formatTime(parsedScriptLines[activeScriptIndex]?.timeSec ?? 0)}</span>
-            <span className="ml-2">대본 {parsedScriptLines.length}개 구간</span>
-          </span>
-          <button type="button" onClick={() => setIsTranscriptOpen(true)} className="text-sm font-semibold text-[#a94d35] underline decoration-[#a94d35]/40 underline-offset-4 transition hover:text-[#7f3725]">
+            <span className="count">대본 {parsedScriptLines.length}개 구간</span>
+          </MetaTimeSpan>
+          <ViewFullBtn type="button" onClick={() => setIsTranscriptOpen(true)}>
             대본 전체 보기 →
-          </button>
-        </div>
-      </section>
+          </ViewFullBtn>
+        </FooterBar>
+      </SectionCard>
 
       {isTranscriptOpen && (
-        <div className="fixed inset-0 z-[70] flex items-end bg-[#211e19]/50 p-0 backdrop-blur-sm sm:items-center sm:justify-center sm:p-6" role="dialog" aria-modal="true" aria-label="오디오 대본 전체 보기">
-          <div className="flex max-h-[86vh] w-full max-w-2xl flex-col rounded-t-3xl bg-[#fbf8f2]  sm:rounded-3xl">
-            <div className="flex items-center justify-between   px-6 py-5 sm:px-8">
-              <div><p className="text-[10px] font-bold tracking-[0.16em] text-[#a94d35]">FULL TRANSCRIPT</p><h3 className="mt-1 font-sorimaru-sans text-xl font-semibold">오디오 대본</h3></div>
-              <button type="button" onClick={() => setIsTranscriptOpen(false)} className="rounded-full p-2 text-[#655b4d] transition hover:bg-[#eee6da] hover:text-[#211e19]" aria-label="대본 닫기">✕</button>
-            </div>
-            <div className="overflow-y-auto px-6 py-5 sm:px-8">
+        <ModalOverlay role="dialog" aria-modal="true" aria-label="오디오 대본 전체 보기">
+          <ModalContent>
+            <ModalHeader>
+              <div>
+                <CategoryLabel>FULL TRANSCRIPT</CategoryLabel>
+                <h3 style={{ marginTop: '0.25rem', fontFamily: 'var(--font-hanok)', fontSize: '1.25rem', fontWeight: 600 }}>
+                  오디오 대본
+                </h3>
+              </div>
+              <CloseModalBtn type="button" onClick={() => setIsTranscriptOpen(false)} aria-label="대본 닫기">
+                ✕
+              </CloseModalBtn>
+            </ModalHeader>
+
+            <ScrollListArea>
               {parsedScriptLines.map((line, index) => {
                 const isActive = index === activeScriptIndex;
-                return <p key={line.id} ref={isActive ? activeItemRef : null} onClick={() => seekTo(line.timeSec)} className={`cursor-pointer rounded-2xl px-4 py-3 text-[14px] leading-7 transition sm:text-base ${isActive ? 'bg-[#f0ded5] font-semibold text-[#211e19]' : 'text-[#655b4d] hover:bg-[#f2ece2]'}`}><span className="mr-3 text-xs font-mono text-[#a94d35]">{formatTime(line.timeSec)}</span>{line.text}</p>;
+                return (
+                  <TranscriptLine
+                    key={line.id}
+                    ref={isActive ? activeItemRef : null}
+                    onClick={() => seekTo(line.timeSec)}
+                    $active={isActive}
+                  >
+                    <span className="time">{formatTime(line.timeSec)}</span>
+                    {line.text}
+                  </TranscriptLine>
+                );
               })}
-            </div>
-            <div className="  px-6 py-4 text-xs text-[#786d5e] sm:px-8">문장을 누르면 해당 오디오 구간으로 이동합니다.</div>
-          </div>
-        </div>
+            </ScrollListArea>
+
+            <ModalFooter>
+              문장을 누르면 해당 오디오 구간으로 이동합니다.
+            </ModalFooter>
+          </ModalContent>
+        </ModalOverlay>
       )}
     </>
   );

@@ -1,20 +1,393 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import styled from '@emotion/styled';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Play, Pause, ChevronLeft, ChevronRight, X, SkipBack, SkipForward } from 'lucide-react';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { useSorimaruAudioPlayer } from '@/features/sorimaru-audio/hooks/useSorimaruAudioPlayer';
-import { lightPalette, meok } from '@/design-system/tokens';
+import { palette, meok, surface, fontSize } from '@/design-system/tokens';
 
-const formatTime = (seconds: number) => `${Math.floor(Math.max(0, seconds || 0) / 60)}:${String(Math.floor(Math.max(0, seconds || 0) % 60)).padStart(2, '0')}`;
+const formatTime = (seconds: number) =>
+  `${Math.floor(Math.max(0, seconds || 0) / 60)}:${String(Math.floor(Math.max(0, seconds || 0) % 60)).padStart(2, '0')}`;
 
 const PlayIcon: React.FC<{ size?: number }> = ({ size = 16 }) => {
   const isPlaying = useSorimaruAudioStore((s) => s.isPlaying);
-  return isPlaying ? <Pause size={size} strokeWidth={2} /> : <Play size={size} fill="currentColor" className="ml-0.5" />;
+  return isPlaying ? <Pause size={size} strokeWidth={2} /> : <Play size={size} fill="currentColor" style={{ marginLeft: 2 }} />;
 };
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80';
+
+const FloatingBarContainer = styled(motion.div)`
+  position: fixed;
+  bottom: calc(5.5rem + env(safe-area-inset-bottom));
+  left: 0.75rem;
+  right: 0.75rem;
+  z-index: 110;
+  margin-left: auto;
+  margin-right: auto;
+  width: auto;
+  max-width: 36rem;
+  overflow: hidden;
+  border-radius: 1.35rem;
+  background-color: rgba(248, 248, 247, 0.95);
+  padding: 0.625rem 0.875rem 0.875rem;
+  backdrop-filter: blur(24px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+
+  @media (min-width: 640px) {
+    padding: 0.75rem 1rem 1rem;
+  }
+  @media (min-width: 768px) {
+    bottom: calc(1.25rem + env(safe-area-inset-bottom));
+    z-index: 50;
+  }
+`;
+
+const MiniPlayerContent = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+`;
+
+const ExpandButton = styled.button`
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+`;
+
+const ThumbnailImg = styled.img`
+  height: 2.5rem;
+  width: 2.5rem;
+  flex-shrink: 0;
+  border-radius: 0.75rem;
+  object-fit: cover;
+`;
+
+const MetaTextCol = styled.span`
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+`;
+
+const StoryTitle = styled.span`
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-hanok);
+  font-size: ${fontSize.sm};
+  font-weight: 600;
+  color: ${meok[900]};
+`;
+
+const StorySubMeta = styled.span`
+  display: block;
+  font-size: ${fontSize.micro};
+  color: ${meok[500]};
+
+  .category {
+    color: ${palette.jangmi[500]};
+    font-weight: 600;
+  }
+  .time {
+    margin-left: 0.5rem;
+  }
+`;
+
+const PlayCircleBtn = styled.button`
+  display: flex;
+  height: 2.5rem;
+  width: 2.5rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background-color: ${palette.jangmi[500]};
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+
+  &:hover {
+    background-color: ${palette.jangmi[700]};
+    transform: scale(1.05);
+  }
+`;
+
+const ScriptOpenBtn = styled.button`
+  display: none;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: 9999px;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: ${meok[700]};
+  border: none;
+  background: none;
+  cursor: pointer;
+
+  &:hover {
+    background-color: ${meok[200]};
+  }
+
+  @media (min-width: 640px) {
+    display: flex;
+  }
+`;
+
+const ProgressSlot = styled.div`
+  position: absolute;
+  bottom: 0.375rem;
+  left: 1rem;
+  right: 1rem;
+
+  @media (min-width: 640px) {
+    left: 1.25rem;
+    right: 1.25rem;
+  }
+`;
+
+const ProgressTrack = styled.div`
+  height: 2.5px;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 9999px;
+  background-color: rgba(33, 30, 25, 0.1);
+`;
+
+const ProgressFill = styled.div<{ $width: number }>`
+  height: 100%;
+  border-radius: 9999px;
+  background-color: ${palette.jangmi[500]};
+  transition: width 0.3s ease;
+  width: ${({ $width }) => $width}%;
+`;
+
+const DrawerBackdrop = styled(motion.div)`
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background-color: rgba(33, 30, 25, 0.4);
+  backdrop-filter: blur(4px);
+
+  @media (min-width: 768px) {
+    z-index: 60;
+  }
+`;
+
+const DrawerPanel = styled(motion.aside)<{ $isTranscriptOpen: boolean }>`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  border-top-left-radius: 1.5rem;
+  border-top-right-radius: 1.5rem;
+  background-color: #f8f8f7;
+  padding: 1.5rem;
+  padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  max-height: ${({ $isTranscriptOpen }) => ($isTranscriptOpen ? '88dvh' : '90dvh')};
+
+  @media (min-width: 1024px) {
+    bottom: 1.5rem;
+    left: 50%;
+    right: auto;
+    margin-left: -230px;
+    width: 460px;
+    border-radius: 1.5rem;
+    padding: 1.75rem;
+    max-height: ${({ $isTranscriptOpen }) => ($isTranscriptOpen ? '86vh' : 'auto')};
+  }
+`;
+
+const DrawerHeader = styled.header`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 1rem;
+`;
+
+const BackToPlayerBtn = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: ${palette.jangmi[500]};
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    color: ${palette.jangmi[700]};
+  }
+`;
+
+const CloseBtn = styled.button`
+  display: flex;
+  height: 2rem;
+  width: 2rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  color: ${meok[700]};
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    background-color: ${meok[200]};
+  }
+`;
+
+const CategoryBadge = styled.span`
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  background-color: #FFF0F6;
+  font-size: ${fontSize.micro};
+  font-weight: 700;
+  color: ${palette.jangmi[500]};
+`;
+
+const PlayingStatusBadge = styled.span`
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  background-color: rgba(255, 42, 133, 0.1);
+  font-size: ${fontSize.micro};
+  font-weight: 700;
+  color: ${palette.jangmi[500]};
+  letter-spacing: 0.05em;
+`;
+
+const ScriptProgressTrack = styled.div`
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: #e5e5e3;
+`;
+
+const ScriptProgressActive = styled(motion.div)`
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2px;
+  background-color: ${palette.jangmi[500]};
+`;
+
+const ScriptLineBtn = styled.button<{ $active: boolean }>`
+  display: block;
+  width: 100%;
+  border-radius: 0.75rem;
+  padding: 0.75rem 0.875rem;
+  text-align: left;
+  font-size: 0.875rem;
+  line-height: 1.5rem;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  border: none;
+  cursor: pointer;
+
+  ${({ $active }) =>
+    $active
+      ? `
+        background-color: #e5e5e3;
+        font-weight: 600;
+        color: ${meok[900]};
+      `
+      : `
+        background: none;
+        color: ${meok[700]};
+        &:hover {
+          background-color: #f5f5f4;
+        }
+      `}
+`;
+
+const BigPlayBtn = styled.button`
+  display: flex;
+  height: 3.25rem;
+  width: 3.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background-color: ${palette.jangmi[500]};
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: ${palette.jangmi[700]};
+  }
+`;
+
+const SkipTimeBtn = styled.button`
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  background-color: #f5f5f4;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: ${meok[700]};
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #e5e5e3;
+  }
+`;
+
+const PreviewLineBtn = styled.button<{ $active: boolean }>`
+  display: block;
+  width: 100%;
+  border-radius: 0.5rem;
+  padding: 0.375rem 0.625rem;
+  text-align: left;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  transition: all 0.15s ease;
+  border: none;
+  cursor: pointer;
+
+  @media (min-width: 640px) {
+    font-size: 0.875rem;
+  }
+
+  ${({ $active }) =>
+    $active
+      ? `
+        background-color: ${palette.jangmi[500]};
+        font-weight: 600;
+        color: #ffffff;
+      `
+      : `
+        background: none;
+        color: ${meok[700]};
+        &:hover {
+          color: ${meok[900]};
+        }
+      `}
+`;
 
 export const LocalMiniPlayer: React.FC = () => {
   const story = useSorimaruAudioStore((s) => s.currentStory);
@@ -49,238 +422,276 @@ export const LocalMiniPlayer: React.FC = () => {
     if (!isExpanded) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = previousOverflow; };
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
   }, [isExpanded]);
 
   const previewStart = Math.max(0, Math.min(activeIndex, Math.max(0, lines.length - 6)));
   const previewLines = lines.slice(previewStart, previewStart + 6);
   const audioProgress = duration > 0 ? Math.min(100, (currentTime / duration) * 100) : 0;
   const transcriptProgress = lines.length ? ((activeIndex + 1) / lines.length) * 100 : 0;
-  const closePlayer = () => { setIsTranscriptOpen(false); setIsExpanded(false); };
+  const closePlayer = () => {
+    setIsTranscriptOpen(false);
+    setIsExpanded(false);
+  };
 
   return (
     <>
       {/* 하단 플로팅 미니 플레이어 */}
       <AnimatePresence>
         {isVisible && (
-          <motion.div
+          <FloatingBarContainer
             key="mini-player-floating-bar"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 16 }}
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] left-3 right-3 z-[110] mx-auto w-auto max-w-xl overflow-hidden rounded-[1.35rem]  bg-[#f8f8f7]/95 px-3.5 pt-2.5 pb-3.5  backdrop-blur-xl md:bottom-[calc(1.25rem+env(safe-area-inset-bottom))] md:z-50 sm:px-4 sm:pt-3 sm:pb-4"
           >
-      <div className="flex items-center gap-3">
-        <button type="button" onClick={() => setIsExpanded(true)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
-          <img src={story.imageUrl || FALLBACK_IMAGE} alt="" className="h-10 w-10 shrink-0 rounded-xl object-cover "/>
-          <span className="min-w-0">
-            <span className="block truncate font-sorimaru-sans text-sm font-semibold text-[#191f28]">
-              {story.title}
-            </span>
-            <span className="block text-micro text-[#8b95a1]">
-              <span className="text-[#FF2A85] font-semibold">{story.category}</span>
-              <span className="ml-2">{formatTime(currentTime)} / {formatTime(duration)}</span>
-            </span>
-          </span>
-        </button>
+            <MiniPlayerContent>
+              <ExpandButton type="button" onClick={() => setIsExpanded(true)}>
+                <ThumbnailImg src={story.imageUrl || FALLBACK_IMAGE} alt="" />
+                <MetaTextCol>
+                  <StoryTitle>{story.title}</StoryTitle>
+                  <StorySubMeta>
+                    <span className="category">{story.category}</span>
+                    <span className="time">{formatTime(currentTime)} / {formatTime(duration)}</span>
+                  </StorySubMeta>
+                </MetaTextCol>
+              </ExpandButton>
 
-        <button type="button" onClick={() => setIsPlaying(!isPlaying)} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#FF2A85] text-white  hover:bg-[#D40D63] transition-transform hover:scale-105">
-          <PlayIcon />
-        </button>
-        <button type="button" onClick={() => setIsExpanded(true)} className="hidden items-center gap-1 rounded-full px-3 py-1.5 text-xs font-semibold text-[#4e5968] hover:bg-[#f0f0f0] sm:flex">
-          대본 보기
-        </button>
-      </div>
+              <PlayCircleBtn type="button" onClick={() => setIsPlaying(!isPlaying)}>
+                <PlayIcon />
+              </PlayCircleBtn>
+              <ScriptOpenBtn type="button" onClick={() => setIsExpanded(true)}>
+                대본 보기
+              </ScriptOpenBtn>
+            </MiniPlayerContent>
 
-      {/* 🎵 미니 플레이어 최하단 바닥면에 착 붙는 슬림(h-[2.5px]) 둥근 프로그레스 바 */}
-      <div className="absolute bottom-1.5 left-4 right-4 sm:left-5 sm:right-5">
-        <div className="h-[2.5px] w-full overflow-hidden rounded-full bg-[#211e19]/10">
-          <div
-            className="h-full rounded-full bg-[#FF2A85] transition-[width] duration-300"
-            style={{ width: `${audioProgress}%` }}
-          />
-        </div>
-      </div>
-    </motion.div>
-  )}
-</AnimatePresence>
+            {/* 🎵 미니 플레이어 바닥면 프로그레스 바 */}
+            <ProgressSlot>
+              <ProgressTrack>
+                <ProgressFill $width={audioProgress} />
+              </ProgressTrack>
+            </ProgressSlot>
+          </FloatingBarContainer>
+        )}
+      </AnimatePresence>
 
-    {/* 확장 플레이어 & 전체 대본 Drawer */}
-    <AnimatePresence>
-      {isExpanded && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[200] bg-[#211e19]/40 backdrop-blur-sm md:z-[60]"
-          onClick={closePlayer}
-        >
-          <motion.aside
-            layout
-            initial={{ opacity: 0, y: 18, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 18, scale: 0.98 }}
-            transition={{ type: 'spring', damping: 30, stiffness: 340 }}
-            onClick={(event) => event.stopPropagation()}
-            className={`absolute bottom-0 left-0 right-0 flex flex-col overflow-y-auto rounded-t-3xl bg-[#f8f8f7] p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))]  [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
-              isTranscriptOpen ? 'max-h-[88dvh]' : 'max-h-[90dvh]'
-            } lg:bottom-6 lg:left-1/2 lg:right-auto lg:ml-[-230px] lg:w-[460px] lg:rounded-3xl lg:p-7 ${isTranscriptOpen ? 'lg:max-h-[86vh]' : ''}`}
+      {/* 확장 플레이어 & 전체 대본 Drawer */}
+      <AnimatePresence>
+        {isExpanded && (
+          <DrawerBackdrop
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closePlayer}
           >
-            {isTranscriptOpen ? (
-              <>
-                <header className="flex items-center justify-between   pb-4">
-                  <button type="button" onClick={() => setIsTranscriptOpen(false)} className="inline-flex items-center gap-1 text-xs font-bold text-[#FF2A85] hover:text-[#D40D63]">
-                    <ChevronLeft size={14} strokeWidth={2} /> 오디오 플레이어로
-                  </button>
-                  <button type="button" onClick={closePlayer} className="flex h-8 w-8 items-center justify-center rounded-full text-[#4e5968] hover:bg-[#f0f0f0]" aria-label="패널 닫기">
-                    <X size={20} strokeWidth={2} />
-                  </button>
-                </header>
+            <DrawerPanel
+              layout
+              initial={{ opacity: 0, y: 18, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 18, scale: 0.98 }}
+              transition={{ type: 'spring', damping: 30, stiffness: 340 }}
+              onClick={(event) => event.stopPropagation()}
+              $isTranscriptOpen={isTranscriptOpen}
+            >
+              {isTranscriptOpen ? (
+                <>
+                  <DrawerHeader>
+                    <BackToPlayerBtn type="button" onClick={() => setIsTranscriptOpen(false)}>
+                      <ChevronLeft size={14} strokeWidth={2} /> 오디오 플레이어로
+                    </BackToPlayerBtn>
+                    <CloseBtn type="button" onClick={closePlayer} aria-label="패널 닫기">
+                      <X size={20} strokeWidth={2} />
+                    </CloseBtn>
+                  </DrawerHeader>
 
-                <div className="flex items-center justify-between py-4">
-                  <div>
-                    <span className="px-2 py-0.5 rounded-full bg-[#FFF0F6] text-micro font-bold text-[#FF2A85]">
-                      {story.category}
-                    </span>
-                    <h2 className="mt-1.5 max-w-[280px] truncate font-sorimaru-sans text-lg font-semibold text-[#191f28]">
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 0' }}>
+                    <div>
+                      <CategoryBadge>{story.category}</CategoryBadge>
+                      <h2
+                        style={{
+                          marginTop: '0.375rem',
+                          maxWidth: 280,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          fontFamily: 'var(--font-hanok)',
+                          fontSize: '1.125rem',
+                          fontWeight: 600,
+                          color: meok[900],
+                        }}
+                      >
+                        {story.title}
+                      </h2>
+                      <p style={{ fontSize: '0.75rem', color: meok[700] }}>{story.locationName || '대한민국 문화유산'}</p>
+                    </div>
+                    <PlayCircleBtn
+                      type="button"
+                      onClick={() => setIsPlaying(!isPlaying)}
+                      style={{ height: '2.75rem', width: '2.75rem' }}
+                    >
+                      <PlayIcon />
+                    </PlayCircleBtn>
+                  </div>
+
+                  <div style={{ position: 'relative', paddingLeft: '1.25rem', paddingRight: '0.5rem', paddingTop: '0.5rem' }}>
+                    <ScriptProgressTrack />
+                    <ScriptProgressActive
+                      animate={{ height: `${transcriptProgress}%` }}
+                      transition={{ duration: 0.45 }}
+                    />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      {lines.map((line) => (
+                        <ScriptLineBtn
+                          key={line.id}
+                          type="button"
+                          onClick={() => seekTo(line.timeSec)}
+                          $active={line.id === lines[activeIndex]?.id}
+                        >
+                          {line.text}
+                        </ScriptLineBtn>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <PlayingStatusBadge>지금 재생 중</PlayingStatusBadge>
+                    <CloseBtn type="button" onClick={closePlayer} aria-label="패널 닫기">
+                      <X size={20} strokeWidth={2} />
+                    </CloseBtn>
+                  </div>
+
+                  <motion.img
+                    layoutId="sorimaru-player-art"
+                    src={story.imageUrl || FALLBACK_IMAGE}
+                    alt={story.title}
+                    style={{
+                      height: '9rem',
+                      width: '100%',
+                      borderRadius: '1rem',
+                      objectFit: 'cover',
+                    }}
+                  />
+
+                  {/* 메인 타이틀 & 서브타이틀 UX */}
+                  <div style={{ marginTop: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <CategoryBadge>{story.category}</CategoryBadge>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 500, color: meok[700] }}>
+                        {story.locationName || '대한민국 문화유산'}
+                      </span>
+                    </div>
+
+                    <h2
+                      style={{
+                        marginTop: '0.5rem',
+                        fontFamily: 'var(--font-hanok)',
+                        fontSize: '1.25rem',
+                        fontWeight: 700,
+                        color: meok[900],
+                        lineHeight: 1.25,
+                      }}
+                    >
                       {story.title}
                     </h2>
-                    <p className="text-xs text-[#4e5968]">{story.locationName || '대한민국 문화유산'}</p>
-                  </div>
-                  <button type="button" onClick={() => setIsPlaying(!isPlaying)} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#FF2A85] text-white ">
-                    <PlayIcon />
-                  </button>
-                </div>
-
-                <div className="relative pl-5 pr-2 pt-2">
-                  <div className="pointer-events-none absolute bottom-0 left-0 top-0 w-0.5 bg-[#e5e5e3]" />
-                  <motion.div className="pointer-events-none absolute left-0 top-0 w-0.5 bg-[#FF2A85]" animate={{ height: `${transcriptProgress}%` }} transition={{ duration: 0.45 }} />
-                  <div className="space-y-2">
-                    {lines.map((line) => (
-                      <button
-                        key={line.id}
-                        type="button"
-                        onClick={() => seekTo(line.timeSec)}
-                        className={`block w-full rounded-xl px-3.5 py-3 text-left text-sm leading-6 transition ${
-                          line.id === lines[activeIndex]?.id
-                            ? 'bg-[#e5e5e3] font-semibold text-[#191f28] '
-                            : 'text-[#4e5968] hover:bg-[#f5f5f4]'
-                        }`}
-                      >
-                        {line.text}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="mb-4 flex items-center justify-between">
-                  <span className="px-2.5 py-1 rounded-full bg-[#FF2A85]/10 text-micro font-bold text-[#FF2A85] tracking-wider">
-                    지금 재생 중
-                  </span>
-                  <button type="button" onClick={closePlayer} className="flex h-8 w-8 items-center justify-center rounded-full text-[#4e5968] hover:bg-[#f0f0f0]" aria-label="패널 닫기">
-                    <X size={20} strokeWidth={2} />
-                  </button>
-                </div>
-
-                <motion.img layoutId="sorimaru-player-art" src={story.imageUrl || FALLBACK_IMAGE} alt={story.title} className="h-36 w-full rounded-2xl object-cover  sm:h-48"/>
-
-                {/* 메인 타이틀 & 서브타이틀 UX 개선 */}
-                <div className="mt-4">
-                  <div className="flex items-center space-x-2">
-                    <span className="px-2 py-0.5 rounded-full bg-[#FFF0F6] text-micro font-bold text-[#FF2A85]">
-                      {story.category}
-                    </span>
-                    <span className="text-xs font-medium text-[#4e5968]">
-                      {story.locationName || '대한민국 문화유산'}
-                    </span>
+                    <p style={{ marginTop: '0.25rem', fontSize: '0.75rem', lineHeight: '1.25rem', color: meok[700] }}>
+                      <span style={{ display: 'block' }}>{story.audioTitle}</span>
+                      <span style={{ marginTop: '0.125rem', display: 'block', color: meok[500], fontWeight: 500 }}>
+                        {story.speaker || '온마루 문화해설사'}
+                      </span>
+                    </p>
                   </div>
 
-                  <h2 className="mt-2 font-sorimaru-sans text-xl sm:text-2xl font-bold text-[#191f28] leading-tight">
-                    {story.title}
-                  </h2>
-                  <p className="mt-1 text-xs leading-5 text-[#4e5968] sm:text-sm">
-                    <span className="block">{story.audioTitle}</span>
-                    <span className="mt-0.5 block text-[#8b95a1] font-medium">{story.speaker || '온마루 문화해설사'}</span>
-                  </p>
-                </div>
-
-                {/* 오디오 탐색 프로그레스 바 & 컨트롤 */}
-                <div className="mt-5">
-                  <input
-                    type="range"
-                    min={0}
-                    max={duration || 100}
-                    value={currentTime}
-                    onChange={(event) => seekTo(Number(event.target.value))}
-                    className="w-full accent-[#FF2A85] cursor-pointer"
-                  />
-                  <div className="flex justify-between text-xs font-mono text-[#8b95a1] mt-1">
-                    <span>{formatTime(currentTime)}</span>
-                    <span>{formatTime(duration)}</span>
-                  </div>
-                </div>
-
-                <div className="mt-4 flex items-center justify-center gap-6">
-                  <button type="button" onClick={() => seekTo(Math.max(0, currentTime - 10))} className="px-3 py-1.5 rounded-full bg-[#f5f5f4] text-xs font-bold text-[#4e5968] hover:bg-[#e5e5e3] inline-flex items-center gap-1">
-                    <SkipBack size={13} strokeWidth={2} />
-                    <span>10초 전</span>
-                  </button>
-                  <button type="button" onClick={() => setIsPlaying(!isPlaying)} className="flex h-13 w-13 items-center justify-center rounded-full bg-[#FF2A85] text-white  hover:bg-[#D40D63]">
-                    <PlayIcon size={20} />
-                  </button>
-                  <button type="button" onClick={() => seekTo(Math.min(duration || currentTime + 10, currentTime + 10))} className="px-3 py-1.5 rounded-full bg-[#f5f5f4] text-xs font-bold text-[#4e5968] hover:bg-[#e5e5e3] inline-flex items-center gap-1">
-                    <span>10초 후</span>
-                    <SkipForward size={13} strokeWidth={2} />
-                  </button>
-                </div>
-
-                {/* 대본 미리보기 & 전체 대본 보기 전환 */}
-                {previewLines.length > 0 && (
-                  <section className="mt-5   pt-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-micro font-bold tracking-[0.14em] text-[#FF2A85]">실시간 자막</p>
-                        <h3 className="mt-0.5 font-sorimaru-sans text-sm font-semibold text-[#191f28]">해설 대본</h3>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setIsTranscriptOpen(true)}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#FF2A85]/10 text-xs font-bold text-[#FF2A85] hover:bg-[#FF2A85]/20 transition"
-                      >
-                        <span>전체 대본 보기</span>
-                        <ChevronRight size={13} strokeWidth={2} />
-                      </button>
+                  {/* 오디오 탐색 프로그레스 바 & 컨트롤 */}
+                  <div style={{ marginTop: '1.25rem' }}>
+                    <input
+                      type="range"
+                      min={0}
+                      max={duration || 100}
+                      value={currentTime}
+                      onChange={(event) => seekTo(Number(event.target.value))}
+                      style={{ width: '100%', accentColor: palette.jangmi[500], cursor: 'pointer' }}
+                    />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', fontFamily: 'monospace', color: meok[500], marginTop: '0.25rem' }}>
+                      <span>{formatTime(currentTime)}</span>
+                      <span>{formatTime(duration)}</span>
                     </div>
+                  </div>
 
-                    <div className="relative mt-3 h-36 overflow-hidden rounded-xl bg-[#f5f5f4] p-3">
-                      <div className="space-y-1.5">
-                        {previewLines.map((line) => (
-                          <button
-                            key={line.id}
-                            type="button"
-                            onClick={() => seekTo(line.timeSec)}
-                            className={`block w-full rounded-lg px-2.5 py-1.5 text-left text-xs sm:text-sm leading-relaxed transition ${
-                              line.id === lines[activeIndex]?.id
-                                ? 'bg-[#FF2A85] font-semibold text-white '
-                                : 'text-[#4e5968] hover:text-[#191f28]'
-                            }`}
-                          >
-                            {line.text}
-                          </button>
-                        ))}
+                  <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1.5rem' }}>
+                    <SkipTimeBtn type="button" onClick={() => seekTo(Math.max(0, currentTime - 10))}>
+                      <SkipBack size={13} strokeWidth={2} />
+                      <span>10초 전</span>
+                    </SkipTimeBtn>
+                    <BigPlayBtn type="button" onClick={() => setIsPlaying(!isPlaying)}>
+                      <PlayIcon size={20} />
+                    </BigPlayBtn>
+                    <SkipTimeBtn type="button" onClick={() => seekTo(Math.min(duration || currentTime + 10, currentTime + 10))}>
+                      <span>10초 후</span>
+                      <SkipForward size={13} strokeWidth={2} />
+                    </SkipTimeBtn>
+                  </div>
+
+                  {/* 대본 미리보기 & 전체 대본 보기 전환 */}
+                  {previewLines.length > 0 && (
+                    <section style={{ marginTop: '1.25rem', paddingTop: '1rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div>
+                          <p style={{ fontSize: fontSize.micro, fontWeight: 700, letterSpacing: '0.14em', color: palette.jangmi[500] }}>
+                            실시간 자막
+                          </p>
+                          <h3 style={{ marginTop: '0.125rem', fontFamily: 'var(--font-hanok)', fontSize: '0.875rem', fontWeight: 600, color: meok[900] }}>
+                            해설 대본
+                          </h3>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setIsTranscriptOpen(true)}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.25rem',
+                            padding: '0.375rem 0.75rem',
+                            borderRadius: '9999px',
+                            backgroundColor: 'rgba(255, 42, 133, 0.1)',
+                            fontSize: '0.75rem',
+                            fontWeight: 700,
+                            color: palette.jangmi[500],
+                            border: 'none',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <span>전체 대본 보기</span>
+                          <ChevronRight size={13} strokeWidth={2} />
+                        </button>
                       </div>
-                    </div>
-                  </section>
-                )}
-              </>
-            )}
-          </motion.aside>
-        </motion.div>
-      )}
-    </AnimatePresence>
+
+                      <div style={{ position: 'relative', marginTop: '0.75rem', height: '9rem', overflow: 'hidden', borderRadius: '0.75rem', backgroundColor: '#f5f5f4', padding: '0.75rem' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+                          {previewLines.map((line) => (
+                            <PreviewLineBtn
+                              key={line.id}
+                              type="button"
+                              onClick={() => seekTo(line.timeSec)}
+                              $active={line.id === lines[activeIndex]?.id}
+                            >
+                              {line.text}
+                            </PreviewLineBtn>
+                          ))}
+                        </div>
+                      </div>
+                    </section>
+                  )}
+                </>
+              )}
+            </DrawerPanel>
+          </DrawerBackdrop>
+        )}
+      </AnimatePresence>
     </>
   );
 };

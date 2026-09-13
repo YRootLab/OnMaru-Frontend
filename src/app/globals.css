@@ -11,10 +11,6 @@
   font-display: swap;
 }
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 :root {
   /* 서체는 Spoqa 하나만 쓴다. 로드도 위 @import 한 줄이 전부.
      장식용 3종(충주김생·마루부리·나눔펜)과 monospace는 전부 제거됨. */
@@ -64,61 +60,6 @@ html body:has([data-page-surface='hanok']) {
   --sorimaru-primary-pressed: #961F3F;
   --sorimaru-primary-bg: #FFF1F3;
   --sorimaru-primary-subtle: #FFBBC3;
-}
-
-/* 기존 오디의 테라코타 포인트를 장미(jangmi) 계열로 통일 */
-.sorimaru-feature [class~="text-[#a94d35]"] {
-  color: var(--sorimaru-primary) !important;
-}
-
-.sorimaru-feature [class~="bg-[#a94d35]"] {
-  background-color: var(--sorimaru-primary) !important;
-}
-
-.sorimaru-feature [class~="border-[#a94d35]"] {
-  border-color: var(--sorimaru-primary) !important;
-}
-
-.sorimaru-feature [class~="ring-[#a94d35]"] {
-  --tw-ring-color: var(--sorimaru-primary) !important;
-}
-
-.sorimaru-feature [class~="from-[#a94d35]"] {
-  --tw-gradient-from: var(--sorimaru-primary) var(--tw-gradient-from-position) !important;
-  --tw-gradient-to: rgb(248 78 118 / 0) var(--tw-gradient-to-position) !important;
-}
-
-.sorimaru-feature [class~="hover:bg-[#a94d35]"]:hover {
-  background-color: var(--sorimaru-primary-hover) !important;
-}
-
-.sorimaru-feature [class~="hover:text-[#a94d35]"]:hover {
-  color: var(--sorimaru-primary-hover) !important;
-}
-
-/* 장미 토큰의 투명도 단계도 기존 테라코타 없이 동일한 색조로 유지 */
-.sorimaru-feature :is([class~="text-[#a94d35]/40"], [class~="text-[#a94d35]/50"], [class~="text-[#a94d35]/65"]) {
-  color: color-mix(in srgb, var(--sorimaru-primary) 65%, transparent) !important;
-}
-
-.sorimaru-feature :is([class~="bg-[#a94d35]/10"], [class~="bg-[#a94d35]/20"], [class~="bg-[#a94d35]/30"], [class~="bg-[#a94d35]/35"]) {
-  background-color: color-mix(in srgb, var(--sorimaru-primary) 12%, transparent) !important;
-}
-
-.sorimaru-feature :is([class~="bg-[#a94d35]/50"], [class~="bg-[#a94d35]/65"], [class~="bg-[#a94d35]/80"]) {
-  background-color: color-mix(in srgb, var(--sorimaru-primary-pressed) 58%, transparent) !important;
-}
-
-.sorimaru-feature :is([class~="border-[#a94d35]/20"], [class~="border-[#a94d35]/25"], [class~="border-[#a94d35]/30"], [class~="border-[#a94d35]/35"], [class~="border-[#a94d35]/50"], [class~="border-[#a94d35]/60"]) {
-  border-color: color-mix(in srgb, var(--sorimaru-primary) 42%, transparent) !important;
-}
-
-.sorimaru-feature :is([class~="ring-[#a94d35]/10"], [class~="ring-[#a94d35]/20"], [class~="ring-[#a94d35]/25"], [class~="ring-[#a94d35]/50"], [class~="ring-[#a94d35]/60"], [class~="ring-[#a94d35]/70"]) {
-  --tw-ring-color: color-mix(in srgb, var(--sorimaru-primary) 48%, transparent) !important;
-}
-
-.sorimaru-feature :is([class~="hover:border-[#a94d35]/25"], [class~="hover:border-[#a94d35]/35"], [class~="hover:border-[#a94d35]/50"]):hover {
-  border-color: var(--sorimaru-primary-hover) !important;
 }
 
 .sorimaru-atmosphere-layer {

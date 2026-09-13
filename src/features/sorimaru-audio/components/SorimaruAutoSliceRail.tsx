@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
+import styled from '@emotion/styled';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { Pause, Play, ChevronRight } from 'lucide-react';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { SorimaruStoryItem } from '@/features/sorimaru-audio/types/sorimaru.types';
+import { palette, meok } from '@/design-system/tokens';
 
 interface SorimaruAutoSliceRailProps {
   stories: SorimaruStoryItem[];
@@ -16,6 +18,142 @@ const EASE = [0.16, 1, 0.3, 1] as const;
 function getStoryLabel(story: SorimaruStoryItem): string {
   return story.locationName || (story.category !== '전체' ? story.category : '') || '대한민국 문화유산';
 }
+
+const SectionRoot = styled.section`
+  width: 100%;
+  padding-bottom: 4rem;
+
+  @media (min-width: 640px) {
+    padding-bottom: 5rem;
+  }
+`;
+
+const SectionContainer = styled.div`
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 72rem;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+
+  @media (min-width: 640px) {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+  @media (min-width: 1024px) {
+    padding-left: 0;
+    padding-right: 0;
+  }
+`;
+
+const HeroBody = styled.div`
+  padding: 2.5rem 0;
+
+  @media (min-width: 640px) {
+    padding: 3.5rem 0;
+  }
+  @media (min-width: 1024px) {
+    padding: 5rem 0;
+  }
+`;
+
+const HeroHeading = styled(motion.h1)`
+  font-family: var(--font-hanok);
+  font-size: clamp(42px, 7.2vw, 94px);
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: normal;
+  color: ${meok[900]};
+
+  span.accent {
+    color: ${palette.jangmi[500]};
+  }
+`;
+
+const HeroDesc = styled(motion.p)`
+  margin-top: 1.25rem;
+  max-width: 20rem;
+  font-size: 0.875rem;
+  line-height: 1.75rem;
+  color: ${meok[700]};
+
+  @media (min-width: 640px) {
+    max-width: 36rem;
+    font-size: 1rem;
+  }
+`;
+
+const ControlsRow = styled(motion.div)`
+  margin-top: 2.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+
+  @media (min-width: 640px) {
+    margin-top: 3.5rem;
+    gap: 1.5rem;
+  }
+`;
+
+const MainPlayCircle = styled(motion.button)`
+  position: relative;
+  display: flex;
+  height: 5rem;
+  width: 5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background-color: ${meok[900]};
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 18px 30px -12px rgba(23, 21, 21, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #2B2925;
+  }
+  &:focus-visible {
+    outline: 2px solid ${palette.jangmi[500]};
+    outline-offset: 4px;
+  }
+
+  @media (min-width: 640px) {
+    height: 6rem;
+    width: 6rem;
+  }
+`;
+
+const GlowRing = styled(motion.div)`
+  pointer-events: none;
+  position: absolute;
+  inset: -14px;
+  border-radius: 9999px;
+  background-color: ${palette.jangmi[500]};
+  filter: blur(24px);
+`;
+
+const NextPopularButton = styled(motion.button)`
+  margin-top: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: ${meok[500]};
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: ${palette.jangmi[500]};
+  }
+
+  @media (min-width: 640px) {
+    margin-top: 3.5rem;
+  }
+`;
 
 export const SorimaruAutoSliceRail: React.FC<SorimaruAutoSliceRailProps> = ({ stories, storySets }) => {
   const shouldReduceMotion = useReducedMotion();
@@ -41,39 +179,36 @@ export const SorimaruAutoSliceRail: React.FC<SorimaruAutoSliceRailProps> = ({ st
   };
 
   return (
-    <section aria-labelledby="sorimaru-hero-heading" className="w-full pb-16 sm:pb-20">
-      <div className="mx-auto w-full max-w-6xl px-5 sm:px-6 lg:px-0">
-        <div className="py-10 sm:py-14 lg:py-20">
-          <div className="max-w-[720px]">
-            <motion.h1
+    <SectionRoot aria-labelledby="sorimaru-hero-heading">
+      <SectionContainer>
+        <HeroBody>
+          <div style={{ maxWidth: 720 }}>
+            <HeroHeading
               id="sorimaru-hero-heading"
               initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.62, ease: EASE }}
-              className="font-sorimaru-sans text-[clamp(42px,7.2vw,94px)] font-bold leading-[0.98] tracking-normal text-[#191f28]"
             >
               한국의 장면을,
               <br />
-              <span className="text-[#FF2A85]">귀로</span> 걷다.
-            </motion.h1>
-            <motion.p
+              <span className="accent">귀로</span> 걷다.
+            </HeroHeading>
+            <HeroDesc
               initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.62, ease: EASE, delay: 0.06 }}
-              className="mt-5 max-w-[20rem] text-sm leading-7 text-[#4e5968] sm:max-w-xl sm:text-base"
             >
               사진보다 먼저 도착하는 소리로, 오래된 장소의 온기와 사람의 발자국을 들어보세요.
-            </motion.p>
+            </HeroDesc>
           </div>
 
-          <motion.div
+          <ControlsRow
             initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.62, ease: EASE, delay: 0.14 }}
-            className="mt-10 flex items-center gap-5 sm:mt-14 sm:gap-6"
           >
-            <div className="relative shrink-0">
-              <motion.div
+            <div style={{ position: 'relative', flexShrink: 0 }}>
+              <GlowRing
                 aria-hidden="true"
                 animate={
                   shouldReduceMotion
@@ -81,17 +216,14 @@ export const SorimaruAutoSliceRail: React.FC<SorimaruAutoSliceRailProps> = ({ st
                     : { opacity: isStoryPlaying ? [0.35, 0.6, 0.35] : 0, scale: isStoryPlaying ? [1, 1.12, 1] : 1 }
                 }
                 transition={isStoryPlaying && !shouldReduceMotion ? { duration: 2.6, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.4 }}
-                className="pointer-events-none absolute inset-[-14px] rounded-full bg-[#FF2A85] blur-2xl"
               />
-              <motion.button
+              <MainPlayCircle
                 type="button"
                 onClick={play}
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.92 }}
                 transition={{ type: 'spring', stiffness: 420, damping: 22 }}
                 aria-label={isStoryPlaying ? '잠시 멈추기' : '지금 듣기'}
-                style={{ boxShadow: '0 18px 30px -12px rgba(23,21,21,0.45), inset 0 1px 0 rgba(255,255,255,0.08)' }}
-                className="relative flex h-20 w-20 items-center justify-center rounded-full bg-[#191f28] text-white transition-colors duration-300 hover:bg-[#2B2925] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF2A85] sm:h-24 sm:w-24"
               >
                 <AnimatePresence initial={false} mode="wait">
                   {isStoryPlaying ? (
@@ -102,7 +234,7 @@ export const SorimaruAutoSliceRail: React.FC<SorimaruAutoSliceRailProps> = ({ st
                       exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.6 }}
                       transition={{ duration: 0.18, ease: EASE }}
                     >
-                      <Pause className="h-7 w-7" strokeWidth={2} aria-hidden="true" />
+                      <Pause style={{ height: '1.75rem', width: '1.75rem' }} strokeWidth={2} aria-hidden="true" />
                     </motion.span>
                   ) : (
                     <motion.span
@@ -112,11 +244,11 @@ export const SorimaruAutoSliceRail: React.FC<SorimaruAutoSliceRailProps> = ({ st
                       exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.6 }}
                       transition={{ duration: 0.18, ease: EASE }}
                     >
-                      <Play className="ml-0.5 h-7 w-7" fill="currentColor" aria-hidden="true" />
+                      <Play style={{ marginLeft: 2, height: '1.75rem', width: '1.75rem' }} fill="currentColor" aria-hidden="true" />
                     </motion.span>
                   )}
                 </AnimatePresence>
-              </motion.button>
+              </MainPlayCircle>
             </div>
 
             <AnimatePresence initial={false} mode="wait">
@@ -126,37 +258,36 @@ export const SorimaruAutoSliceRail: React.FC<SorimaruAutoSliceRailProps> = ({ st
                 animate={{ opacity: 1, y: 0 }}
                 exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
                 transition={{ duration: 0.32, ease: EASE }}
-                className="min-w-0"
+                style={{ minWidth: 0 }}
               >
-                <p className="text-xs font-semibold uppercase tracking-wide text-[#8b95a1]">
+                <p style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: meok[500] }}>
                   {isStoryPlaying ? '지금 재생 중' : '지금 듣는 이야기'}
                 </p>
-                <p className="mt-1 truncate font-sorimaru-sans text-lg font-bold leading-6 text-[#191f28] sm:text-xl">
+                <p style={{ marginTop: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'var(--font-hanok)', fontSize: '1.125rem', fontWeight: 700, lineHeight: '1.5rem', color: meok[900] }}>
                   {story.title}
                 </p>
-                <p className="mt-1 truncate text-xs text-[#8b95a1]">
+                <p style={{ marginTop: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '0.75rem', color: meok[500] }}>
                   {getStoryLabel(story)}
                   {story.formattedDuration ? ` · ${story.formattedDuration}` : ''}
                 </p>
               </motion.div>
             </AnimatePresence>
-          </motion.div>
+          </ControlsRow>
 
           {featured.length > 1 && (
-            <motion.button
+            <NextPopularButton
               type="button"
               onClick={() => setFeaturedIndex((index) => index + 1)}
               initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.3 }}
-              className="mt-10 inline-flex items-center gap-1 text-xs font-semibold text-[#8b95a1] transition-colors duration-300 hover:text-[#FF2A85] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FF2A85] sm:mt-14"
             >
               <span>이번 주 인기 이야기 다음으로</span>
               <ChevronRight size={13} strokeWidth={2} />
-            </motion.button>
+            </NextPopularButton>
           )}
-        </div>
-      </div>
-    </section>
+        </HeroBody>
+      </SectionContainer>
+    </SectionRoot>
   );
 };

@@ -1,6 +1,112 @@
 'use client';
 
+import styled from '@emotion/styled';
 import { MotionStudyCard, StudyImage, StudyPlayControl, StudyRail, StudySectionFrame, StudyVariantProps } from './StudyPrimitives';
+import { palette } from '@/design-system/tokens';
+
+const CardItem = styled.div`
+  width: 206px;
+  flex-shrink: 0;
+  @media (min-width: 640px) {
+    width: 244px;
+  }
+
+  &:hover .zoom-target {
+    transform: scale(1.035);
+  }
+`;
+
+const ImageArea = styled.div`
+  position: relative;
+  height: 244px;
+  overflow: hidden;
+  border-radius: 16px;
+  background-color: #ddd2c5;
+  @media (min-width: 640px) {
+    height: 286px;
+    border-radius: 20px;
+  }
+
+  .zoom-target {
+    transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+  }
+`;
+
+const CategoryBadge = styled.span`
+  position: absolute;
+  left: 0.75rem;
+  top: 0.75rem;
+  border-radius: 9999px;
+  background-color: rgba(255, 253, 249, 0.9);
+  padding: 0.25rem 0.625rem;
+  font-size: 10px;
+  font-weight: 700;
+  color: ${palette.jangmi[700]};
+  backdrop-filter: blur(4px);
+`;
+
+const PlayControlSlot = styled.div`
+  position: absolute;
+  bottom: 0.75rem;
+  right: 0.75rem;
+`;
+
+const CaptionArea = styled.div`
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+  padding-top: 1rem;
+`;
+
+const LocationText = styled.p`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10px;
+  color: #8c7e6c;
+`;
+
+const TitleHeading = styled.h3`
+  margin-top: 0.375rem;
+  min-height: 2.85rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-family: var(--font-hanok);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.04em;
+  color: #211e19;
+`;
+
+const SubRow = styled.div`
+  margin-top: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+`;
+
+const AudioTitle = styled.p`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10px;
+  color: #786d5e;
+`;
+
+const DurationText = styled.span`
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: ${palette.jangmi[700]};
+`;
 
 export function EditorialCaptionVariant({ stories, selectedStoryId, onSelectStory }: StudyVariantProps) {
   return (
@@ -10,32 +116,34 @@ export function EditorialCaptionVariant({ stories, selectedStoryId, onSelectStor
       description="이미지와 캡션의 프레임을 분리한 구성"
       detail="그림에만 입체감을 주고 텍스트는 배경 위에 직접 놓았습니다. 카드 덩어리감이 줄어들어 사진집을 넘기는 듯한 에디토리얼 리듬이 생깁니다."
     >
-      <StudyRail className="gap-6 sm:gap-8">
+      <StudyRail gap="1.5rem">
         {stories.map((story) => (
-          <MotionStudyCard key={story.id} className="group w-[206px] shrink-0 sm:w-[244px]">
-            <div className="relative h-[244px] overflow-hidden rounded-[16px]  bg-[#ddd2c5]  sm:h-[286px] sm:rounded-[20px]">
-              <StudyImage
-                story={story}
-                sizes="(max-width: 640px) 206px, 244px"
-                className="transition-transform duration-700 [@media(hover:hover)_and_(pointer:fine)]:group-hover:scale-[1.035] motion-reduce:transition-none"
-              />
-              <span className="absolute left-3 top-3 rounded-full bg-[#fffdf9]/90 px-2.5 py-1 text-[10px] font-bold text-[#d94068]  backdrop-blur-sm">
-                {story.category}
-              </span>
-              <div className="absolute bottom-3 right-3">
-                <StudyPlayControl story={story} selectedStoryId={selectedStoryId} onSelectStory={onSelectStory} compact />
-              </div>
-            </div>
-            <div className="px-1 pt-4">
-              <p className="truncate text-[10px] text-[#8c7e6c]">{story.location}</p>
-              <h3 className="mt-1.5 line-clamp-2 min-h-[2.85rem] font-sorimaru-sans text-[16px] font-bold leading-[1.35] tracking-[-0.04em] text-[#211e19]">
-                {story.title}
-              </h3>
-              <div className="mt-3 flex items-center justify-between gap-3   pt-3">
-                <p className="truncate text-[10px] text-[#786d5e]">{story.audioTitle}</p>
-                <span className="shrink-0 text-[10px] font-semibold tabular-nums text-[#d94068]">{story.duration}</span>
-              </div>
-            </div>
+          <MotionStudyCard key={story.id}>
+            <CardItem>
+              <ImageArea>
+                <StudyImage
+                  story={story}
+                  sizes="(max-width: 640px) 206px, 244px"
+                  className="zoom-target"
+                />
+                <CategoryBadge>
+                  {story.category}
+                </CategoryBadge>
+                <PlayControlSlot>
+                  <StudyPlayControl story={story} selectedStoryId={selectedStoryId} onSelectStory={onSelectStory} compact />
+                </PlayControlSlot>
+              </ImageArea>
+              <CaptionArea>
+                <LocationText>{story.location}</LocationText>
+                <TitleHeading>
+                  {story.title}
+                </TitleHeading>
+                <SubRow>
+                  <AudioTitle>{story.audioTitle}</AudioTitle>
+                  <DurationText>{story.duration}</DurationText>
+                </SubRow>
+              </CaptionArea>
+            </CardItem>
           </MotionStudyCard>
         ))}
       </StudyRail>
