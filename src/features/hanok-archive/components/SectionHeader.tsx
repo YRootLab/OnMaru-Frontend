@@ -65,6 +65,14 @@ const ActionLink = styled.a`
   &:hover {
     color: ${lightPalette.kobalt[700]};
   }
+
+  [data-theme='dark'] & {
+    color: ${lightPalette.kobalt[400]};
+
+    &:hover {
+      color: ${lightPalette.kobalt[200]};
+    }
+  }
 `;
 
 interface SectionHeaderProps {

@@ -4,7 +4,7 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { meok, lightPalette, fluidHeading , fontSize } from '@/design-system/tokens';
+import { meok, palette, lightPalette, surface, fluidHeading , fontSize } from '@/design-system/tokens';
 
 import { Home, Leaf, ArrowRight } from 'lucide-react';
 
@@ -73,6 +73,10 @@ const InlineIcon = styled.span`
 const HighlightText = styled.span`
   color: ${lightPalette.kobalt[500]};
   font-weight: 700;
+
+  [data-theme='dark'] & {
+    color: ${palette.kobalt[400]};
+  }
 `;
 
 const ButtonRow = styled.div`
@@ -95,6 +99,7 @@ const CtaButton = styled(Link, {
   font-weight: ${({ $primary }) => ($primary ? 700 : 500)};
   padding: 14px 28px;
   border-radius: 9999px;
+  border: 1px solid ${({ $primary }) => ($primary ? 'transparent' : 'rgba(78, 89, 104, 0.12)')};
   text-decoration: none;
   white-space: nowrap;
   transition: all 0.2s ease;
@@ -108,13 +113,15 @@ const CtaButton = styled(Link, {
 
   [data-theme='dark'] & {
     background: ${({ $primary }) =>
-      $primary ? lightPalette.kobalt[500] : 'rgba(255, 255, 255, 0.08)'};
+      $primary ? lightPalette.kobalt[500] : surface.dark.card};
     color: ${({ $primary }) => ($primary ? '#ffffff' : meok[100])};
+    border-color: rgba(255, 255, 255, 0.12);
   }
 
   [data-theme='dark'] &:hover {
     background: ${({ $primary }) =>
-      $primary ? lightPalette.kobalt[700] : 'rgba(255, 255, 255, 0.14)'};
+      $primary ? lightPalette.kobalt[700] : 'rgba(255, 255, 255, 0.12)'};
+    border-color: rgba(255, 255, 255, 0.25);
   }
 `;
 

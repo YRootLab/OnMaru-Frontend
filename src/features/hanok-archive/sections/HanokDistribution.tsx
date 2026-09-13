@@ -26,10 +26,12 @@ const StatRow = styled.dl`
   margin: 0 0 clamp(28px, 4vh, 40px);
   padding: clamp(20px, 3vw, 28px) clamp(18px, 3vw, 32px);
   background: rgba(78, 89, 104, 0.03);
+  border: 1px solid rgba(78, 89, 104, 0.06);
   border-radius: 20px;
 
   [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.08);
   }
 
   @media (max-width: 560px) {
@@ -90,12 +92,16 @@ const Finding = styled.p`
   word-break: keep-all;
 
   [data-theme='dark'] & {
-    color: ${meok[400]};
+    color: ${meok[200]};
   }
 
   strong {
     font-weight: 700;
     color: ${palette.hwanggeum[700]};
+
+    [data-theme='dark'] & {
+      color: ${palette.hwanggeum[400]};
+    }
   }
 `;
 
@@ -112,8 +118,15 @@ const Rows = styled.ol`
 const Track = styled.span`
   display: block;
   width: 100%;
-  height: 10px;
+  height: 8px;
   min-width: 0;
+  background: rgba(78, 89, 104, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.08);
+  }
 `;
 
 const Bar = styled.span<{ $ratio: number }>`
@@ -124,6 +137,10 @@ const Bar = styled.span<{ $ratio: number }>`
   border-radius: 0 4px 4px 0;
   background: ${palette.kobalt[500]};
   transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.16s ease;
+
+  [data-theme='dark'] & {
+    background: linear-gradient(90deg, ${palette.kobalt[500]} 0%, ${palette.kobalt[400]} 100%);
+  }
 `;
 
 const Row = styled(motion.li)`
@@ -147,7 +164,11 @@ const Row = styled(motion.li)`
   }
 
   [data-theme='dark'] &:hover {
-    background: rgba(27, 91, 255, 0.12);
+    background: rgba(255, 255, 255, 0.07);
+  }
+
+  [data-theme='dark'] &:hover ${Bar} {
+    background: ${palette.kobalt[200]};
   }
 `;
 
@@ -170,7 +191,7 @@ const Count = styled.span`
   white-space: nowrap;
 
   [data-theme='dark'] & {
-    color: ${meok[400]};
+    color: ${meok[200]};
   }
 `;
 
@@ -179,6 +200,10 @@ const Percent = styled.span`
   color: ${palette.hwanggeum[700]};
   opacity: 0;
   transition: opacity 0.16s ease;
+
+  [data-theme='dark'] & {
+    color: ${palette.hwanggeum[400]};
+  }
 
   ${Row}:hover & {
     opacity: 1;

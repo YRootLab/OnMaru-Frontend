@@ -259,6 +259,12 @@ const ActiveIconButton = styled.div`
   &:hover {
     transform: scale(1.06);
   }
+
+  [data-theme='dark'] & {
+    background: ${surface.dark.card};
+    color: ${meok[100]};
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+  }
 `;
 
 const ActionGroup = styled.div`

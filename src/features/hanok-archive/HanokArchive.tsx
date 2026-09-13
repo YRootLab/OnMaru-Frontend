@@ -83,8 +83,10 @@ const paperGround = css`
     background: #ffffff;
   }
 
-  [data-theme='dark'] body {
-    background: ${surface.dark.app};
+  [data-theme='dark'] body,
+  html[data-theme='dark'],
+  html[data-theme='dark'] body {
+    background: ${surface.dark.app} !important;
   }
 `;
 

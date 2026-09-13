@@ -25,7 +25,7 @@ import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 
-import { meok, lightPalette, fluidHeading, fontSize } from '@/design-system/tokens';
+import { meok, palette, lightPalette, fluidHeading, fontSize } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
 import { STAGES } from './stages';
 
@@ -170,6 +170,10 @@ const Cue = styled.span`
   font-size: ${fontSize.xs};
   font-weight: 500;
   color: ${lightPalette.kobalt[500]};
+
+  [data-theme='dark'] & {
+    color: ${palette.kobalt[400]};
+  }
 
   span {
     transition: transform 0.18s ease-out;

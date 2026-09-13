@@ -48,8 +48,15 @@ html body:has([data-page-surface='hanok']) {
   background-color: #ffffff;
 }
 
+[data-theme='dark'] html:has([data-page-surface='hanok']),
+[data-theme='dark'] body:has([data-page-surface='hanok']),
+html[data-theme='dark']:has([data-page-surface='hanok']),
+html[data-theme='dark'] body:has([data-page-surface='hanok']) {
+  background-color: #1C1A17;
+}
+
 html body:has([data-page-surface='hanok']) {
-  transition-property: color;
+  transition-property: color, background-color;
 }
 
 .sorimaru-feature {

@@ -22,6 +22,7 @@ const PageBtn = styled.button<{ $active?: boolean; $disabled?: boolean }>`
   height: 40px;
   padding: 0 12px;
   border-radius: 9999px;
+  border: 1px solid rgba(78, 89, 104, 0.12);
   cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
   opacity: ${({ $disabled }) => ($disabled ? 0.4 : 1)};
   transition: all 0.2s ease;
@@ -35,12 +36,28 @@ const PageBtn = styled.button<{ $active?: boolean; $disabled?: boolean }>`
     background: ${({ $active }) => ($active ? meok[900] : meok[100])};
     color: ${({ $active }) => ($active ? '#ffffff' : meok[900])};
   }
+
+  [data-theme='dark'] & {
+    background: ${({ $active }) => ($active ? meok[100] : surface.dark.card)};
+    color: ${({ $active }) => ($active ? meok[900] : meok[200])};
+    border-color: rgba(255, 255, 255, 0.12);
+
+    &:hover:not(:disabled) {
+      background: ${({ $active }) => ($active ? '#ffffff' : 'rgba(255, 255, 255, 0.12)')};
+      color: ${({ $active }) => ($active ? meok[900] : '#ffffff')};
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+  }
 `;
 
 const Dots = styled.span`
   color: ${meok[400]};
   padding: 0 4px;
   font-size: ${fontSize.sm};
+
+  [data-theme='dark'] & {
+    color: ${meok[500]};
+  }
 `;
 
 interface PaginationProps {

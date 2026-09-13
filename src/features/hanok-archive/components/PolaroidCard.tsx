@@ -33,6 +33,12 @@ const Frame = styled.div`
   border-radius: 2px;
   position: relative;
   overflow: visible;
+
+  [data-theme='dark'] & {
+    background: #24211D;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  }
 `;
 
 const PhotoArea = styled.div`
@@ -102,6 +108,10 @@ const HandWritingText = styled.p`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 const TapeStrip = styled.div<{ $left?: boolean }>`
@@ -166,6 +176,11 @@ const OutsideBadges = styled.div`
     background: rgba(78, 89, 104, 0.06);
     padding: 3px 10px;
     border-radius: 9999px;
+
+    [data-theme='dark'] & {
+      color: ${lightPalette.kobalt[400]};
+      background: rgba(255, 255, 255, 0.08);
+    }
   }
 `;
 

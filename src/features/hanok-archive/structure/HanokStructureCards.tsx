@@ -12,7 +12,7 @@ import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 
-import { meok, lightPalette, surface, fluidHeading , fontSize } from '@/design-system/tokens';
+import { meok, palette, lightPalette, surface, fluidHeading , fontSize } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
 
 const SolarShadowModal = dynamic(() => import('./SolarShadowModal'), { ssr: false });
@@ -79,12 +79,16 @@ const Card = styled.button`
   }
 `;
 
-const Eyebrow = styled.span<{ $color: string }>`
+const Eyebrow = styled.span<{ $color: string; $darkColor?: string }>`
   font-size: ${fontSize.xs};
   font-weight: 500;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: ${({ $color }) => $color};
+
+  [data-theme='dark'] & {
+    color: ${({ $darkColor, $color }) => $darkColor || $color};
+  }
 `;
 
 const CardTitle = styled.span`
@@ -112,7 +116,7 @@ const CardDesc = styled.span`
   }
 `;
 
-const Cue = styled.span<{ $color: string }>`
+const Cue = styled.span<{ $color: string; $darkColor?: string }>`
   margin-top: 4px;
   display: inline-flex;
   align-items: center;
@@ -120,6 +124,10 @@ const Cue = styled.span<{ $color: string }>`
   font-size: ${fontSize.xs};
   font-weight: 500;
   color: ${({ $color }) => $color};
+
+  [data-theme='dark'] & {
+    color: ${({ $darkColor, $color }) => $darkColor || $color};
+  }
 `;
 
 /** 카드 안에서 무엇을 보게 되는지 먼저 보여주는 정지 프레임. */
@@ -217,19 +225,19 @@ export default function HanokStructureCards() {
       />
       <Grid>
         <Card type="button" onClick={() => setOpen('shadow')}>
-          <Eyebrow $color={lightPalette.hwanggeum[700]}>빛</Eyebrow>
+          <Eyebrow $color={lightPalette.hwanggeum[700]} $darkColor={palette.hwanggeum[400]}>빛</Eyebrow>
           <CardTitle>처마는 어떻게 여름 볕을 자르고 겨울 볕을 들이나</CardTitle>
           <CardDesc>
             절기를 옮겨 보세요. 남중고도에 따라 처마 그림자가 실제 비율로 늘고 줄어듭니다.
           </CardDesc>
           <ShadowPreview aria-hidden="true" />
-          <Cue $color={lightPalette.hwanggeum[700]}>
+          <Cue $color={lightPalette.hwanggeum[700]} $darkColor={palette.hwanggeum[400]}>
             그림자 시뮬레이션 열기 <span aria-hidden="true">→</span>
           </Cue>
         </Card>
 
         <Card type="button" onClick={() => setOpen('assembly')}>
-          <Eyebrow $color={lightPalette.juhong[700]}>뼈대</Eyebrow>
+          <Eyebrow $color={lightPalette.juhong[700]} $darkColor={palette.juhong[400]}>뼈대</Eyebrow>
           <CardTitle>기단에서 기와까지, 한옥은 일곱 켜로 선다</CardTitle>
           <CardDesc>
             스크롤을 내리며 한 켜씩 세워 보세요. 못 하나 없이 부재가 제자리를 찾아 들어갑니다.
@@ -243,7 +251,7 @@ export default function HanokStructureCards() {
             <span />
             <span />
           </AssemblyPreview>
-          <Cue $color={lightPalette.juhong[700]}>
+          <Cue $color={lightPalette.juhong[700]} $darkColor={palette.juhong[400]}>
             7단계 조립 열기 <span aria-hidden="true">→</span>
           </Cue>
         </Card>
