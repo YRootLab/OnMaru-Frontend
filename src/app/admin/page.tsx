@@ -8,17 +8,17 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { meok, palette } from '@/design-system/tokens';
-import { StatCard } from '@/admin/components/StatCard';
-import { ConfirmDialog } from '@/admin/components/ConfirmDialog';
-import { Toast } from '@/admin/components/Toast';
-import { EmptyState } from '@/admin/components/EmptyState';
-import { useAdminAuth } from '@/admin/hooks/useAdminAuth';
+import { StatCard } from '@/features/admin/components/StatCard';
+import { ConfirmDialog } from '@/features/admin/components/ConfirmDialog';
+import { Toast } from '@/features/admin/components/Toast';
+import { EmptyState } from '@/features/admin/components/EmptyState';
+import { useAdminAuth } from '@/features/admin/hooks/useAdminAuth';
 import {
   mockDashboardStats,
   mockRecentReviews,
   mockPendingReports,
   mockPipelineSummary,
-} from '@/admin/mock/dashboard.mock';
+} from '@/features/admin/mock/dashboard.mock';
 import {
   ArrowRight,
   RefreshCw,

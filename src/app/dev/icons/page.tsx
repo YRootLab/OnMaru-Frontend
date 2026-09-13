@@ -16,7 +16,7 @@ import { useState } from 'react';
 import styled from '@emotion/styled';
 import * as Lucide from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { semanticTokens, palette, meok, surface } from '@/design-system/tokens';
+import { semanticTokens, palette, meok, surface , fontSize } from '@/design-system/tokens';
 
 /* ── 1. 이 프로젝트가 쓰는 아이콘 ── */
 const NAMES = [
@@ -60,14 +60,14 @@ const Page = styled.main`
 
 const Title = styled.h1`
   margin: 0 0 6px;
-  font-size: 24px;
+  font-size: ${fontSize['2xl']};
   font-weight: 700;
   letter-spacing: -0.02em;
 `;
 
 const Lead = styled.p`
   margin: 0 0 20px;
-  font-size: 13.5px;
+  font-size: ${fontSize.sm};
   line-height: 1.65;
   color: ${meok[700]};
 
@@ -79,7 +79,7 @@ const Lead = styled.p`
     padding: 1px 5px;
     border-radius: 5px;
     background: rgba(25, 31, 40, 0.06);
-    font-size: 12.5px;
+    font-size: ${fontSize.xs};
   }
 `;
 
@@ -115,7 +115,7 @@ const Chip = styled.button<{ $active: boolean; $swatch?: string }>`
   background: ${({ $active }) => ($active ? meok[900] : '#ffffff')};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
   font-family: inherit;
-  font-size: 12.5px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   cursor: pointer;
 
@@ -130,7 +130,7 @@ const Chip = styled.button<{ $active: boolean; $swatch?: string }>`
 
 const LibMeta = styled.p`
   margin: 12px 0;
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   color: ${meok[500]};
 `;
 
@@ -162,7 +162,7 @@ const Slot = styled.div`
 `;
 
 const Name = styled.span<{ $dark: boolean }>`
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   font-weight: 500;
   line-height: 1.35;
   text-align: center;
@@ -171,7 +171,7 @@ const Name = styled.span<{ $dark: boolean }>`
 `;
 
 const Empty = styled.span`
-  font-size: 11px;
+  font-size: ${fontSize.micro};
   color: ${meok[400]};
 `;
 

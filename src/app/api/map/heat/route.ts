@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import { PlaceService } from '@/map/services/place.service';
-import { VisitorService } from '@/map/services/visitor.service';
-import { seedWarmth } from '@/map/warmth/seed';
-import { getCuratedPlace } from '@/map/data/curatedPlaces';
-import type { HeatSpot, CongestionLevel } from '@/map/types';
+import { PlaceService } from '@/features/map/services/place.service';
+import { VisitorService } from '@/features/map/services/visitor.service';
+import { seedWarmth } from '@/features/map/warmth/seed';
+import { getCuratedPlace } from '@/features/map/data/curatedPlaces';
+import type { HeatSpot, CongestionLevel } from '@/features/map/types';
 
 /**
  * 주소로부터 행정동/지역 권역명 추출 (상호명 대신 '삼성동 일대', '청담동 일대' 등 지역 권역 명칭 산출)

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { PopularPlaceService } from '@/map/services/popular.service';
+import { PopularPlaceService } from '@/features/map/services/popular.service';
 
 /**
  * 실시간 인기 장소 랭킹 목록 조회 API (Thin Controller)

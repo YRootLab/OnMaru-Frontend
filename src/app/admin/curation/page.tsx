@@ -7,20 +7,20 @@
 import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { meok, palette } from '@/design-system/tokens';
-import { DataTable, ColumnDef } from '@/admin/components/DataTable';
-import { ConfirmDialog } from '@/admin/components/ConfirmDialog';
-import { Toast } from '@/admin/components/Toast';
+import { DataTable, ColumnDef } from '@/features/admin/components/DataTable';
+import { ConfirmDialog } from '@/features/admin/components/ConfirmDialog';
+import { Toast } from '@/features/admin/components/Toast';
 import {
   CurationItem,
   CurationCategory,
   HanokCurationType,
-} from '@/admin/types';
+} from '@/features/admin/types';
 import {
   mockVillages,
   mockStays,
   mockRoutes,
   CURATION_PRESET_BADGES,
-} from '@/admin/mock/curation.mock';
+} from '@/features/admin/mock/curation.mock';
 import {
   Search,
   RotateCcw,

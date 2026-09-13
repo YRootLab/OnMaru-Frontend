@@ -1,9 +1,15 @@
 'use client';
 
+import { Suspense } from 'react';
 import dynamic from 'next/dynamic';
 
-const MapPage = dynamic(() => import('@/map/MapPage'), { ssr: false });
+const MapPage = dynamic(() => import('@/features/map/MapPage'), { ssr: false });
+
 
 export default function Page() {
-  return <MapPage />;
+  return (
+    <Suspense fallback={null}>
+      <MapPage />
+    </Suspense>
+  );
 }

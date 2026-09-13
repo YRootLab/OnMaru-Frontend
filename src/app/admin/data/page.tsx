@@ -6,10 +6,10 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { meok, palette } from '@/design-system/tokens';
-import { Toast } from '@/admin/components/Toast';
-import { EmptyState } from '@/admin/components/EmptyState';
-import { useAdminAuth } from '@/admin/hooks/useAdminAuth';
-import { mockPipelineStatus } from '@/admin/mock/pipeline.mock';
+import { Toast } from '@/features/admin/components/Toast';
+import { EmptyState } from '@/features/admin/components/EmptyState';
+import { useAdminAuth } from '@/features/admin/hooks/useAdminAuth';
+import { mockPipelineStatus } from '@/features/admin/mock/pipeline.mock';
 import {
   RefreshCw,
   AlertCircle,

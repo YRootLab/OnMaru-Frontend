@@ -6,11 +6,13 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import styled from '@emotion/styled';
-import { Sparkles, ArrowRight, Menu, X } from 'lucide-react';
+import { ArrowRight, Menu, X, Sparkles, BookOpen, Map, Headphones, Sun, Moon, Monitor } from 'lucide-react';
 import { transientProps } from '@/design-system/styled';
-import { lightPalette, meok, surface } from '@/design-system/tokens';
+import { lightPalette, meok, surface , fontSize } from '@/design-system/tokens';
+import { useOnmaruTheme } from '@/design-system/ThemeProvider';
+import { useAuth } from '@/features/auth';
 import GlobalMobileTabs from './GlobalMobileTabs';
-import MapMobileTabs from '@/map/components/MapMobileTabs';
+import MapMobileTabs from '@/features/map/components/MapMobileTabs';
 import { HEADER_EXIT_S, ENTRANCE_EASE } from '@/shared/navigation/mapEntranceTiming';
 import { useMapEntranceStore } from '@/shared/navigation/mapEntranceState';
 
@@ -20,7 +22,8 @@ export const HEADER_HEIGHT = 46;
 
 interface LandingProps {
   $isLanding?: boolean;
-  $isOdii?: boolean;
+  $isSoriMaru?: boolean;
+  $isSorimaru?: boolean;
   $isActive?: boolean;
   $isScrolled?: boolean;
   $isHidden?: boolean;
@@ -148,6 +151,26 @@ const HeaderBackdrop = styled('div', transientProps)<LandingProps>`
     border-color 380ms cubic-bezier(0.16, 1, 0.3, 1),
     box-shadow 380ms cubic-bezier(0.16, 1, 0.3, 1);
 
+  [data-theme='dark'] & {
+    background: ${({ $isLanding, $isScrolled }) => {
+      if ($isLanding) {
+        return $isScrolled ? 'rgba(23, 21, 18, 0.78)' : 'rgba(23, 21, 18, 0.46)';
+      }
+      return $isScrolled ? 'rgba(28, 26, 23, 0.88)' : 'rgba(28, 26, 23, 0.75)';
+    }};
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: ${({ $isLanding, $isScrolled }) => {
+      if ($isLanding) {
+        return $isScrolled
+          ? '0 16px 36px -10px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.2)'
+          : '0 8px 24px -6px rgba(0, 0, 0, 0.3)';
+      }
+      return $isScrolled
+        ? '0 12px 32px -6px rgba(0, 0, 0, 0.4), 0 4px 12px -2px rgba(0, 0, 0, 0.25)'
+        : '0 6px 20px -4px rgba(0, 0, 0, 0.3)';
+    }};
+  }
+
   @media (prefers-reduced-motion: reduce) {
     transition: none;
   }
@@ -200,7 +223,7 @@ const CenterNav = styled('nav', transientProps)<LandingProps>`
 const NavLink = styled(Link, transientProps)<LandingProps>`
   position: relative;
   font-family: 'Spoqa Han Sans Neo', sans-serif;
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   /* 네비게이션은 읽히기만 하면 된다. 강조는 hover 색이 맡는다 */
   font-weight: 400;
   color: ${({ $isLanding }) => ($isLanding ? 'rgba(255, 255, 255, 0.82)' : meok[700])};
@@ -217,8 +240,8 @@ const NavLink = styled(Link, transientProps)<LandingProps>`
     background-color 180ms cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    color: ${({ $isLanding, $isOdii }) =>
-      $isOdii
+    color: ${({ $isLanding, $isSoriMaru, $isSorimaru }) =>
+      ($isSoriMaru || $isSorimaru)
         ? lightPalette.jangmi[500]
         : $isLanding
           ? '#ffffff'
@@ -230,6 +253,22 @@ const NavLink = styled(Link, transientProps)<LandingProps>`
   &:active {
     background-color: ${({ $isLanding }) =>
       $isLanding ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.055)'};
+  }
+
+  [data-theme='dark'] & {
+    color: ${({ $isLanding }) => ($isLanding ? 'rgba(255, 255, 255, 0.82)' : meok[200])};
+
+    &:hover {
+      color: ${({ $isLanding, $isSoriMaru, $isSorimaru }) =>
+        ($isSoriMaru || $isSorimaru)
+          ? lightPalette.jangmi[400]
+          : '#ffffff'};
+      background-color: rgba(255, 255, 255, 0.08);
+    }
+
+    &:active {
+      background-color: rgba(255, 255, 255, 0.14);
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -281,6 +320,11 @@ const MobileMenuButton = styled('button', transientProps)<LandingProps>`
   transition: background-color 180ms ease, transform 180ms ease;
 
   &:active { transform: scale(0.96); }
+
+  [data-theme='dark'] & {
+    color: #faf9f6;
+    background: rgba(255, 248, 235, 0.1);
+  }
 `;
 
 const MobileMenuPanel = styled(motion.nav, transientProps)<LandingProps>`
@@ -301,6 +345,11 @@ const MobileMenuPanel = styled(motion.nav, transientProps)<LandingProps>`
 
   border-radius: 16px;
 
+  [data-theme='dark'] & {
+    background: ${({ $isScrolled }) =>
+      $isScrolled ? 'rgba(27, 25, 22, 0.94)' : 'rgba(27, 25, 22, 0.88)'};
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
 `;
 
 const MobileMenuLink = styled(Link, transientProps)<LandingProps>`
@@ -311,11 +360,19 @@ const MobileMenuLink = styled(Link, transientProps)<LandingProps>`
   border-radius: 10px;
   color: ${({ $isLanding }) => ($isLanding ? 'rgba(250, 250, 250, 0.9)' : meok[900])};
   font-family: 'Spoqa Han Sans Neo', sans-serif;
-  font-size: 15px;
+  font-size: ${fontSize.sm};
   text-decoration: none;
 
   &:active {
     background: ${({ $isLanding }) => ($isLanding ? 'rgba(255, 248, 235, 0.12)' : 'rgba(169, 77, 53, 0.1)')};
+  }
+
+  [data-theme='dark'] & {
+    color: rgba(250, 250, 250, 0.9);
+
+    &:active {
+      background: rgba(255, 248, 235, 0.12);
+    }
   }
 `;
 
@@ -323,11 +380,15 @@ const MobileMenuDivider = styled('div', transientProps)<LandingProps>`
   height: 1px;
   margin: 4px 6px;
   background: ${({ $isLanding }) => ($isLanding ? 'rgba(255, 248, 235, 0.13)' : 'rgba(33, 30, 25, 0.09)')};
+
+  [data-theme='dark'] & {
+    background: rgba(255, 248, 235, 0.13);
+  }
 `;
 
 const LoginButton = styled(Link, transientProps)<LandingProps>`
   font-family: 'Spoqa Han Sans Neo', sans-serif;
-  font-size: 12.5px;
+  font-size: ${fontSize.xs};
   /* 헤더에서 유일하게 굵은 지점 — 네비가 400이라 이 하나가 확실히 선다 */
   font-weight: 700;
 
@@ -377,6 +438,55 @@ const LoginButton = styled(Link, transientProps)<LandingProps>`
     }
   }
 
+  [data-theme='dark'] & {
+    color: #ffffff;
+    background: rgba(20, 18, 16, 0.95);
+    border-color: rgba(255, 255, 255, 0.16);
+
+    &:hover {
+      background: rgba(38, 35, 31, 1);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+`;
+
+const ThemeToggleBtn = styled('button', transientProps)<LandingProps>`
+  width: 30px;
+  height: 30px;
+  border-radius: 9999px;
+  border: 1px solid ${({ $isLanding }) => ($isLanding ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.08)')};
+  background: ${({ $isLanding }) => ($isLanding ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)')};
+  color: ${({ $isLanding }) => ($isLanding ? '#ffffff' : meok[700])};
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-right: 6px;
+  transition: all 180ms ease;
+
+  &:hover {
+    background: ${({ $isLanding }) => ($isLanding ? 'rgba(255, 255, 255, 0.18)' : 'rgba(0, 0, 0, 0.08)')};
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  [data-theme='dark'] & {
+    border-color: rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.18);
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     transition: none;
   }
@@ -389,8 +499,10 @@ export default function Header() {
   const pathname = usePathname();
   const isMapPage = pathname.startsWith('/map');
   const isLandingPage = pathname === '/';
-  const isOdiiPage = pathname.startsWith('/odii');
+  const isSoriMaruPage = pathname.startsWith('/sorimaru') || pathname.startsWith('/sorimaru');
   const recordNavigation = useMapEntranceStore((s) => s.recordNavigation);
+  const { user, isLoggedIn } = useAuth();
+  const { preference, toggleMode, setMode } = useOnmaruTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
@@ -561,36 +673,49 @@ export default function Header() {
           </LogoLink>
         </LeftSection>
 
-        {/* 가운데: 한옥도감, 지도, 소리마루, 여정 탐색 */}
+        {/* 가운데: 온마루, 한옥 마루, 소리마루, 지도 */}
         <CenterNav $isMapPage={isMapPage}>
-          <NavLink href="/hanok" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
-            한옥도감
-          </NavLink>
-
-          <NavLink href="/map" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
-            지도
-          </NavLink>
-
-          <NavLink href="/odii" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
-            소리마루
-          </NavLink>
-
-          <NavLink href="/" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
+          <NavLink href="/" $isLanding={usesDarkSurface} $isSoriMaru={isSoriMaruPage}>
             <Sparkles size={13} style={{ marginRight: 4, verticalAlign: '-1px' }} />
-            <span>여정 탐색</span>
+            <span>온마루</span>
           </NavLink>
 
-          {IS_DEV && (
-            <NavLink href="/dev/icons" $isLanding={usesDarkSurface} $isOdii={isOdiiPage}>
-              아이콘
-            </NavLink>
-          )}
+          <NavLink href="/hanok" $isLanding={usesDarkSurface} $isSoriMaru={isSoriMaruPage}>
+            <BookOpen size={13} style={{ marginRight: 4, verticalAlign: '-1px' }} />
+            <span>한옥 마루</span>
+          </NavLink>
+
+          <NavLink href="/sorimaru" $isLanding={usesDarkSurface} $isSoriMaru={isSoriMaruPage}>
+            <Headphones size={13} style={{ marginRight: 4, verticalAlign: '-1px' }} />
+            <span>소리마루</span>
+          </NavLink>
+
+          <NavLink href="/map" $isLanding={usesDarkSurface} $isSoriMaru={isSoriMaruPage}>
+            <Map size={13} style={{ marginRight: 4, verticalAlign: '-1px' }} />
+            <span>지도</span>
+          </NavLink>
         </CenterNav>
 
-      {/* 오른쪽 끝: 로그인 */}
+      {/* 오른쪽 끝: 테마 변경 + 로그인 / 마이페이지 */}
       <RightSection $isMapPage={isMapPage}>
-        <LoginButton href="/auth/login" $isLanding={usesDarkSurface}>
-          <span>로그인</span>
+        <ThemeToggleBtn
+          type="button"
+          $isLanding={usesDarkSurface}
+          onClick={toggleMode}
+          title={`현재 화면 모드: ${preference === 'light' ? '라이트' : preference === 'dark' ? '다크' : '시스템'} (클릭 시 순환)`}
+          aria-label="화면 테마 모드 변경"
+        >
+          {preference === 'light' ? (
+            <Sun size={14} />
+          ) : preference === 'dark' ? (
+            <Moon size={14} />
+          ) : (
+            <Monitor size={14} />
+          )}
+        </ThemeToggleBtn>
+
+        <LoginButton href={isLoggedIn ? '/mypage' : '/auth/login'} $isLanding={usesDarkSurface}>
+          <span>{isLoggedIn ? (user?.nickname ?? '마이페이지') : '로그인'}</span>
           <ArrowRight size={12} />
         </LoginButton>
       </RightSection>
@@ -653,19 +778,74 @@ export default function Header() {
               exit={{ opacity: 0, y: -6, scale: 0.98 }}
               transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
             >
-              <MobileMenuLink href="/hanok" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>한옥도감</MobileMenuLink>
-              <MobileMenuLink href="/map" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>지도</MobileMenuLink>
-              <MobileMenuLink href="/odii" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>소리마루</MobileMenuLink>
               <MobileMenuLink href="/" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <Sparkles size={15} /> 여정 탐색
+                  <Sparkles size={15} /> 온마루
                 </span>
               </MobileMenuLink>
-              {IS_DEV && (
-                <MobileMenuLink href="/dev/icons" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>아이콘 (개발용)</MobileMenuLink>
-              )}
+              <MobileMenuLink href="/hanok" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <BookOpen size={15} /> 한옥 마루
+                </span>
+              </MobileMenuLink>
+              <MobileMenuLink href="/sorimaru" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <Headphones size={15} /> 소리마루
+                </span>
+              </MobileMenuLink>
+              <MobileMenuLink href="/map" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <Map size={15} /> 지도
+                </span>
+              </MobileMenuLink>
               <MobileMenuDivider $isLanding={usesDarkSurface} />
-              <MobileMenuLink href="/auth/login" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>로그인</MobileMenuLink>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '8px 12px',
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: '13px',
+                    color: usesDarkSurface ? 'rgba(250, 250, 250, 0.75)' : meok[700],
+                  }}
+                >
+                  화면 모드
+                </span>
+                <div style={{ display: 'flex', gap: '4px' }}>
+                  {(['light', 'dark', 'system'] as const).map((opt) => (
+                    <button
+                      key={opt}
+                      type="button"
+                      onClick={() => setMode(opt)}
+                      style={{
+                        padding: '4px 10px',
+                        borderRadius: '9999px',
+                        border: 'none',
+                        background:
+                          preference === opt ? 'rgba(0, 184, 130, 0.2)' : 'transparent',
+                        color:
+                          preference === opt
+                            ? '#00b882'
+                            : usesDarkSurface
+                            ? '#a1a1aa'
+                            : meok[700],
+                        fontSize: '12px',
+                        fontWeight: preference === opt ? 600 : 400,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {opt === 'light' ? '라이트' : opt === 'dark' ? '다크' : '시스템'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <MobileMenuLink href={isLoggedIn ? '/mypage' : '/auth/login'} $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
+                {isLoggedIn ? (user?.nickname ?? '마이페이지') : '로그인'}
+              </MobileMenuLink>
             </MobileMenuPanel>
           )}
         </AnimatePresence>

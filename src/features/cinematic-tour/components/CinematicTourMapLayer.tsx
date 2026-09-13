@@ -2,9 +2,9 @@
 
 import { useEffect, useRef } from 'react';
 import { Global, css } from '@emotion/react';
-import { lightPalette, darkPalette, meok, surface } from '@/design-system/tokens';
+import { lightPalette, darkPalette, meok, surface , fontSize } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
-import { useMapStore } from '@/map/hooks/useMapStore';
+import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useCinematicTourStore } from '@/features/cinematic-tour/store/useCinematicTourStore';
 
 const styles = css`
@@ -32,7 +32,7 @@ const styles = css`
     padding: 3px 8px;
     margin-bottom: 4px;
     border-radius: 9999px;
-    font-size: 11px;
+    font-size: ${fontSize.micro};
     font-weight: 700;
     white-space: nowrap;
 
@@ -63,7 +63,7 @@ const styles = css`
     transform: rotate(-45deg);
     background: ${lightPalette.jangmi[500]};
     color: #ffffff;
-    font-size: 12px;
+    font-size: ${fontSize.xs};
     font-weight: 700;
     box-shadow: 0 2px 8px rgba(212, 32, 88, 0.35);
   }

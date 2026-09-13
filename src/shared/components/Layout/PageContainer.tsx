@@ -4,7 +4,7 @@ import React from 'react';
 import { usePathname } from 'next/navigation';
 import styled from '@emotion/styled';
 import { css } from '@emotion/react';
-import type { OnmaruTheme } from '@/design-system/tokens';
+import { surface, type OnmaruTheme } from '@/design-system/tokens';
 import { getPageContainerPresentation } from './pageContainerPresentation';
 
 const StyledPageContainer = styled.div<{ $isFullBleed: boolean; $background: string }>`
@@ -12,6 +12,15 @@ const StyledPageContainer = styled.div<{ $isFullBleed: boolean; $background: str
   min-height: 100vh;
   box-sizing: border-box;
   background: ${({ $background }) => $background};
+
+  /*
+    한옥도감은 본문 배경을 흰색으로 못박아 둔다(위 $background). 다크모드에서 그
+    흰색이 그대로 남으면 헤더 여백과 좌우 거터가 본문(Root)만 따로 어두워진 채
+    하얗게 떠 보인다 — 이 컨테이너가 본문보다 바깥에 있어 본문의 다크 처리가 못 덮는다.
+  */
+  [data-theme='dark'] &[data-page-surface='hanok'] {
+    background: ${surface.dark.app};
+  }
 
   ${({ $isFullBleed, theme }) =>
     $isFullBleed

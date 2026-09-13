@@ -15,6 +15,7 @@ import JourneyHeroSearch from './JourneyHeroSearch';
 import KnowledgeGraphView from './KnowledgeGraphView';
 import BentoJourneyGrid from './BentoJourneyGrid';
 import JourneyRefineBar from './JourneyRefineBar';
+import JourneyAssemblyLoader from './JourneyAssemblyLoader';
 
 /**
  * 검색 전에는 검색창을 화면 가운데에 세운다.
@@ -41,9 +42,12 @@ const Landing = styled.div<{ $centered: boolean }>`
 
 export default function JourneyHome() {
   const hasSearched = useJourneyStore((s) => s.hasSearched);
+  const isGenerating = useJourneyStore((s) => s.isGenerating);
 
   return (
     <main>
+      <JourneyAssemblyLoader />
+
       <Landing $centered={!hasSearched}>
         <JourneyHeroSearch />
       </Landing>

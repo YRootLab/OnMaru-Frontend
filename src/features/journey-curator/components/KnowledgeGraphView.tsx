@@ -1,18 +1,21 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   MapPin,
-  Store,
+  Landmark,
   ShoppingBag,
   Headphones,
   Flame,
   Network,
+  Sparkles,
+  ArrowUpRight,
+  RotateCcw,
+  X,
 } from 'lucide-react';
-import { lightPalette, meok, surface } from '@/design-system/tokens';
-import { transientProps } from '@/design-system/styled';
+import { lightPalette , fontSize } from '@/design-system/tokens';
 import type { GraphNode, NodeCategory } from '../types/journey.types';
 import { useJourneyStore } from '../store/useJourneyStore';
 
@@ -25,33 +28,34 @@ const Container = styled.div`
 const GraphCard = styled.div`
   position: relative;
   width: 100%;
-  height: 340px;
+  height: 400px;
   background: #ffffff;
-  border-radius: 24px;
+  border-radius: 28px;
   border: 1px solid rgba(0, 0, 0, 0.07);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.04);
   overflow: hidden;
+  user-select: none;
 
   [data-theme='dark'] & {
     background: #1c1a17;
     border-color: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45);
   }
 
   @media (max-width: 768px) {
-    height: 380px;
+    height: 440px;
   }
 `;
 
 const GraphHeader = styled.div`
   position: absolute;
-  top: 16px;
-  left: 20px;
-  right: 20px;
+  top: 18px;
+  left: 22px;
+  right: 22px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  z-index: 10;
+  z-index: 20;
   pointer-events: none;
 `;
 
@@ -59,13 +63,13 @@ const HeaderTitle = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: ${fontSize.sm};
   font-weight: 500;
-  color: #4e5968;
-  letter-spacing: -0.01em;
+  color: #191f28;
+  pointer-events: auto;
 
   [data-theme='dark'] & {
-    color: #a1a1aa;
+    color: #f8f9fa;
   }
 `;
 
@@ -75,7 +79,7 @@ const Legend = styled.div`
   gap: 12px;
   pointer-events: auto;
 
-  @media (max-width: 640px) {
+  @media (max-width: 768px) {
     display: none;
   }
 `;
@@ -84,7 +88,7 @@ const LegendItem = styled.span<{ $color: string }>`
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 11.5px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   color: #6b7280;
 
@@ -101,77 +105,105 @@ const LegendItem = styled.span<{ $color: string }>`
   }
 `;
 
-const SvgCanvas = styled.svg`
+const Controls = styled.div`
+  position: absolute;
+  bottom: 18px;
+  right: 20px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const ResetBtn = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 9999px;
+  padding: 5px 12px;
+  font-size: ${fontSize.xs};
+  color: #6b7280;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+
+  [data-theme='dark'] & {
+    background: #272420;
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #9ca3af;
+  }
+
+  &:hover {
+    background: #ffffff;
+    color: #191f28;
+    transform: translateY(-1px);
+
+    [data-theme='dark'] & {
+      background: #312d28;
+      color: #ffffff;
+    }
+  }
+`;
+
+const CanvasLayer = styled.canvas`
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   pointer-events: none;
+  z-index: 5;
 `;
 
-const NodeButton = styled(motion.button, transientProps)<{
-  $active: boolean;
+const NodeElement = styled.div<{
   $category: NodeCategory;
-  $left: number;
-  $top: number;
+  $active: boolean;
+  $color: string;
 }>`
   position: absolute;
-  left: ${({ $left }) => $left}%;
-  top: ${({ $top }) => $top}%;
-  transform: translate(-50%, -50%);
-  z-index: 5;
+  z-index: 10;
   display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 8px 14px;
   border-radius: 9999px;
-  border: ${({ $active }) =>
-    $active ? '1.5px solid #191f28' : '1px solid rgba(0, 0, 0, 0.08)'};
-  background: ${({ $active }) => ($active ? '#ffffff' : 'rgba(255, 255, 255, 0.94)')};
-  box-shadow: ${({ $active }) =>
-    $active ? '0 6px 20px rgba(0, 0, 0, 0.12)' : '0 2px 8px rgba(0, 0, 0, 0.04)'};
-  cursor: pointer;
-  white-space: nowrap;
-  font-family: inherit;
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: grab;
+  transform: translate(-50%, -50%);
+  background: ${({ $active }) => ($active ? '#ffffff' : 'rgba(255, 255, 255, 0.92)')};
+  border: 1.5px solid ${({ $active, $color }) => ($active ? $color : 'rgba(0, 0, 0, 0.08)')};
+  box-shadow: ${({ $active, $color }) =>
+    $active
+      ? `0 8px 24px ${$color}33, 0 2px 6px rgba(0,0,0,0.06)`
+      : '0 4px 16px rgba(0, 0, 0, 0.05)'};
+  transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+  backdrop-filter: blur(8px);
 
-  [data-theme='dark'] & {
-    background: ${({ $active }) => ($active ? '#2d2924' : '#24211d')};
-    border-color: ${({ $active }) =>
-      $active ? 'rgba(255, 255, 255, 0.9)' : 'rgba(255, 255, 255, 0.12)'};
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  &:active {
+    cursor: grabbing;
+    transform: translate(-50%, -50%) scale(1.05);
   }
 
-  &:hover {
-    transform: translate(-50%, -50%) scale(1.06);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  [data-theme='dark'] & {
+    background: ${({ $active }) => ($active ? '#2b2722' : 'rgba(36, 33, 29, 0.94)')};
+    border-color: ${({ $active, $color }) => ($active ? $color : 'rgba(255, 255, 255, 0.1)')};
+    box-shadow: ${({ $active, $color }) =>
+      $active
+        ? `0 8px 24px ${$color}44`
+        : '0 4px 20px rgba(0, 0, 0, 0.35)'};
   }
 `;
 
-const NodeIconWrap = styled.div<{ $category: NodeCategory }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
+const NodeIcon = styled.div<{ $color: string }>`
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  color: #ffffff;
-  background: ${({ $category }) => {
-    switch ($category) {
-      case 'region':
-        return '#3b82f6';
-      case 'hanok':
-        return lightPalette.cheongrok[500];
-      case 'market':
-        return '#f59e0b';
-      case 'odii':
-        return '#8b5cf6';
-      case 'warmth':
-        return lightPalette.juhong[500];
-      default:
-        return '#6b7280';
-    }
-  }};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${({ $color }) => `${$color}18`};
+  color: ${({ $color }) => $color};
+  flex-shrink: 0;
 
   svg {
     width: 13px;
@@ -179,18 +211,11 @@ const NodeIconWrap = styled.div<{ $category: NodeCategory }>`
   }
 `;
 
-const NodeTextWrap = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-`;
-
 const NodeLabel = styled.span<{ $active: boolean }>`
-  font-size: 13px;
-  /* 700 대 600은 Spoqa에서 둘 다 Bold라 구분이 안 됐다 */
-  font-weight: ${({ $active }) => ($active ? 700 : 400)};
+  font-size: ${fontSize.xs};
+  font-weight: ${({ $active }) => ($active ? 600 : 500)};
   color: #191f28;
+  white-space: nowrap;
 
   [data-theme='dark'] & {
     color: #f8f9fa;
@@ -198,127 +223,461 @@ const NodeLabel = styled.span<{ $active: boolean }>`
 `;
 
 const NodeBadge = styled.span`
-  font-size: 11px;
-  color: #8b95a1;
-  font-weight: 400;
+  font-size: ${fontSize.micro};
+  padding: 1px 6px;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.05);
+  color: #6b7280;
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.08);
+    color: #9ca3af;
+  }
 `;
 
-function renderCategoryIcon(category: NodeCategory) {
+const InspectorCard = styled(motion.div)`
+  position: absolute;
+  bottom: 16px;
+  left: 20px;
+  right: 20px;
+  max-width: 480px;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 16px 20px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.1);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  backdrop-filter: blur(12px);
+
+  [data-theme='dark'] & {
+    background: #24211d;
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  }
+`;
+
+const InspectorTop = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const InspectorTitle = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: ${fontSize.sm};
+  font-weight: 600;
+  color: #191f28;
+
+  [data-theme='dark'] & {
+    color: #ffffff;
+  }
+`;
+
+const CloseBtn = styled.button`
+  border: none;
+  background: transparent;
+  color: #8b95a1;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+
+  &:hover {
+    color: #191f28;
+    background: rgba(0, 0, 0, 0.05);
+
+    [data-theme='dark'] & {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.08);
+    }
+  }
+`;
+
+const InspectorDesc = styled.p`
+  font-size: ${fontSize.xs};
+  line-height: 1.5;
+  color: #4e5968;
+  margin: 0;
+
+  [data-theme='dark'] & {
+    color: #a1a1aa;
+  }
+`;
+
+const CATEGORY_COLORS: Record<NodeCategory, string> = {
+  region: '#3b82f6',
+  hanok: '#00b882',
+  market: '#f59e0b',
+  sorimaru: '#8b5cf6',
+  warmth: '#ff5414',
+};
+
+function renderNodeIcon(category: NodeCategory) {
   switch (category) {
     case 'region':
       return <MapPin />;
     case 'hanok':
-      return <Store />;
+      return <Landmark />;
     case 'market':
       return <ShoppingBag />;
-    case 'odii':
+    case 'sorimaru':
       return <Headphones />;
     case 'warmth':
       return <Flame />;
   }
 }
 
+interface PhysicsNode {
+  id: string;
+  label: string;
+  category: NodeCategory;
+  badge?: string;
+  description?: string;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  isDragging?: boolean;
+}
+
 export default function KnowledgeGraphView() {
   const plan = useJourneyStore((s) => s.currentPlan);
-  const selectedNodeId = useJourneyStore((s) => s.selectedNodeId);
-  const selectNode = useJourneyStore((s) => s.selectNode);
+  const isGenerating = useJourneyStore((s) => s.isGenerating);
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const [physicsNodes, setPhysicsNodes] = useState<PhysicsNode[]>([]);
+  const [selectedNode, setSelectedNode] = useState<PhysicsNode | null>(null);
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
 
-  const { nodes, edges } = plan;
+  const draggingNodeRef = useRef<{ id: string; offsetX: number; offsetY: number } | null>(null);
+  const animFrameRef = useRef<number | null>(null);
+  const particleOffsetRef = useRef<number>(0);
+
+  // 물리 시뮬레이션 초기화 (방사형 황금비율 배치)
+  const initSimulation = useCallback(() => {
+    if (!containerRef.current) return;
+    const width = containerRef.current.clientWidth || 800;
+    const height = containerRef.current.clientHeight || 400;
+
+    const rawNodes = plan.nodes || [];
+    const centerX = width / 2;
+    const centerY = height / 2;
+
+    // 각 카테고리별 유기적 방사형 각도
+    const layoutAngles: Record<NodeCategory, { angle: number; dist: number }> = {
+      region: { angle: Math.PI, dist: width * 0.32 }, // 왼쪽 중심
+      hanok: { angle: -Math.PI * 0.65, dist: width * 0.22 }, // 북서쪽
+      market: { angle: Math.PI * 0.65, dist: width * 0.24 }, // 남서쪽
+      sorimaru: { angle: -Math.PI * 0.2, dist: width * 0.3 }, // 북동쪽
+      warmth: { angle: Math.PI * 0.25, dist: width * 0.32 }, // 남동쪽
+    };
+
+    const initialNodes: PhysicsNode[] = rawNodes.map((n, i) => {
+      const preset = layoutAngles[n.category] || {
+        angle: (i / rawNodes.length) * Math.PI * 2,
+        dist: width * 0.25,
+      };
+      return {
+        id: n.id,
+        label: n.label,
+        category: n.category,
+        badge: n.badge,
+        description: n.description || `${n.label}에 얽힌 고유한 이야기와 온기`,
+        x: centerX + Math.cos(preset.angle) * preset.dist,
+        y: centerY + Math.sin(preset.angle) * preset.dist * 0.65,
+        vx: 0,
+        vy: 0,
+      };
+    });
+
+    setPhysicsNodes(initialNodes);
+  }, [plan.nodes]);
+
+  useEffect(() => {
+    initSimulation();
+  }, [initSimulation]);
+
+  // 물리 시뮬레이션 루프 & 캔버스 렌더링
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || !containerRef.current) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let isRunning = true;
+
+    const render = () => {
+      if (!isRunning) return;
+
+      const width = containerRef.current?.clientWidth || 800;
+      const height = containerRef.current?.clientHeight || 400;
+
+      // Retina 디스플레이 대응
+      const dpr = window.devicePixelRatio || 1;
+      if (canvas.width !== width * dpr || canvas.height !== height * dpr) {
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+      }
+      ctx.save();
+      ctx.scale(dpr, dpr);
+      ctx.clearRect(0, 0, width, height);
+
+      particleOffsetRef.current = (particleOffsetRef.current + 0.008) % 1;
+      const pOffset = particleOffsetRef.current;
+
+      // 은은한 중심 원형 물결 (온기 레이더 링)
+      const centerX = width / 2;
+      const centerY = height / 2;
+      ctx.strokeStyle = 'rgba(0, 184, 130, 0.04)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, 110, 0, Math.PI * 2);
+      ctx.arc(centerX, centerY, 190, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // 에지(곡선 링크) 렌더링
+      const edges = plan.edges || [];
+      physicsNodes.forEach((src) => {
+        edges
+          .filter((e) => e.source === src.id)
+          .forEach((edge) => {
+            const tgt = physicsNodes.find((n) => n.id === edge.target);
+            if (!tgt) return;
+
+            const isHighlighted =
+              hoveredNodeId === src.id ||
+              hoveredNodeId === tgt.id ||
+              selectedNode?.id === src.id ||
+              selectedNode?.id === tgt.id;
+
+            // 부드러운 베지어 곡선 중간 제어점
+            const midX = (src.x + tgt.x) / 2;
+            const midY = (src.y + tgt.y) / 2 - 12;
+
+            ctx.beginPath();
+            ctx.moveTo(src.x, src.y);
+            ctx.quadraticCurveTo(midX, midY, tgt.x, tgt.y);
+
+            const strokeColor = isHighlighted
+              ? '#00b882'
+              : 'rgba(100, 116, 139, 0.2)';
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = isHighlighted ? 2.4 : 1.2;
+            if (edge.dashed) {
+              ctx.setLineDash([4, 4]);
+            } else {
+              ctx.setLineDash([]);
+            }
+            ctx.stroke();
+
+            // 곡선을 따라 흐르는 빛의 파티클 (Pulse)
+            const t = (pOffset + (edge.id.charCodeAt(0) % 5) * 0.2) % 1;
+            const px = (1 - t) * (1 - t) * src.x + 2 * (1 - t) * t * midX + t * t * tgt.x;
+            const py = (1 - t) * (1 - t) * src.y + 2 * (1 - t) * t * midY + t * t * tgt.y;
+
+            ctx.beginPath();
+            ctx.arc(px, py, isHighlighted ? 3.5 : 2, 0, Math.PI * 2);
+            ctx.fillStyle = isHighlighted ? '#00b882' : 'rgba(212, 175, 55, 0.7)';
+            ctx.fill();
+          });
+      });
+
+      // 물리 엔진 연산: 노드 간 반발력 + 탄성 스프링
+      setPhysicsNodes((prevNodes) => {
+        if (prevNodes.length === 0) return prevNodes;
+
+        return prevNodes.map((node) => {
+          if (node.isDragging) return node;
+
+          let fx = 0;
+          let fy = 0;
+
+          // 1. 노드 간 반발력 (Coulomb repulsion)
+          prevNodes.forEach((other) => {
+            if (other.id === node.id) return;
+            const dx = node.x - other.x;
+            const dy = node.y - other.y;
+            const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+            if (dist < 180) {
+              const rep = 800 / (dist * dist);
+              fx += (dx / dist) * rep;
+              fy += (dy / dist) * rep;
+            }
+          });
+
+          // 2. 화면 중심 인력 (Center gravity)
+          const cdx = centerX - node.x;
+          const cdy = centerY - node.y;
+          fx += cdx * 0.003;
+          fy += cdy * 0.003;
+
+          // 3. 감쇠 및 속도 적용
+          const vx = (node.vx + fx) * 0.85;
+          const vy = (node.vy + fy) * 0.85;
+
+          // 화면 경계 안전 여백
+          const margin = 50;
+          const nx = Math.max(margin, Math.min(width - margin, node.x + vx));
+          const ny = Math.max(margin, Math.min(height - margin, node.y + vy));
+
+          return { ...node, x: nx, y: ny, vx, vy };
+        });
+      });
+
+      ctx.restore();
+      animFrameRef.current = requestAnimationFrame(render);
+    };
+
+    animFrameRef.current = requestAnimationFrame(render);
+    return () => {
+      isRunning = false;
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+    };
+  }, [plan.edges, hoveredNodeId, selectedNode]);
+
+  // 마우스 드래그 핸들러
+  const handleMouseDown = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    const node = physicsNodes.find((n) => n.id === id);
+    if (!node) return;
+
+    draggingNodeRef.current = {
+      id,
+      offsetX: e.clientX - node.x,
+      offsetY: e.clientY - node.y,
+    };
+
+    setPhysicsNodes((nodes) =>
+      nodes.map((n) => (n.id === id ? { ...n, isDragging: true } : n)),
+    );
+  };
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!draggingNodeRef.current || !containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const curX = e.clientX - rect.left;
+    const curY = e.clientY - rect.top;
+
+    const draggingId = draggingNodeRef.current.id;
+    setPhysicsNodes((nodes) =>
+      nodes.map((n) => (n.id === draggingId ? { ...n, x: curX, y: curY, vx: 0, vy: 0 } : n)),
+    );
+  }, []);
+
+  const handleMouseUp = useCallback(() => {
+    if (!draggingNodeRef.current) return;
+    const draggingId = draggingNodeRef.current.id;
+    draggingNodeRef.current = null;
+
+    setPhysicsNodes((nodes) =>
+      nodes.map((n) => (n.id === draggingId ? { ...n, isDragging: false } : n)),
+    );
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [handleMouseMove, handleMouseUp]);
 
   return (
     <Container>
-      <GraphCard>
+      <GraphCard
+        ref={containerRef}
+        style={{ opacity: isGenerating ? 0.6 : 1, transition: 'opacity 0.25s ease' }}
+      >
         <GraphHeader>
           <HeaderTitle>
-            <Network size={16} />
+            <Network size={16} color={lightPalette.cheongrok[500]} />
             <span>AI 여정 지식 그래프 · {plan.region}</span>
           </HeaderTitle>
 
           <Legend>
-            <LegendItem $color="#3b82f6">지역 권역</LegendItem>
-            <LegendItem $color={lightPalette.cheongrok[500]}>한옥 건축</LegendItem>
-            <LegendItem $color="#f59e0b">전통시장</LegendItem>
-            <LegendItem $color="#8b5cf6">소리마루 ODII</LegendItem>
-            <LegendItem $color={lightPalette.juhong[500]}>실시간 온기</LegendItem>
+            <LegendItem $color={CATEGORY_COLORS.region}>지역 권역</LegendItem>
+            <LegendItem $color={CATEGORY_COLORS.hanok}>한옥 건축</LegendItem>
+            <LegendItem $color={CATEGORY_COLORS.market}>전통시장</LegendItem>
+            <LegendItem $color={CATEGORY_COLORS.sorimaru}>소리마루 SORIMARU</LegendItem>
+            <LegendItem $color={CATEGORY_COLORS.warmth}>실시간 온기</LegendItem>
           </Legend>
         </GraphHeader>
 
-        {/* SVG 에지 연결선 */}
-        <SvgCanvas>
-          <defs>
-            <linearGradient id="edgeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.4" />
-              <stop offset="50%" stopColor="#00b882" stopOpacity="0.6" />
-              <stop offset="100%" stopColor="#ff5414" stopOpacity="0.5" />
-            </linearGradient>
-          </defs>
+        {/* 2D 캔버스 (유기적 베지어 곡선 & 펄스 파티클) */}
+        <CanvasLayer ref={canvasRef} />
 
-          {edges.map((edge) => {
-            const srcNode = nodes.find((n) => n.id === edge.source);
-            const tgtNode = nodes.find((n) => n.id === edge.target);
-            if (!srcNode || !tgtNode) return null;
-
-            const isHighlighted =
-              hoveredNodeId === edge.source ||
-              hoveredNodeId === edge.target ||
-              selectedNodeId === edge.source ||
-              selectedNodeId === edge.target;
-
-            // 곡선 경로 (Bézier)
-            const x1 = `${srcNode.x}%`;
-            const y1 = `${srcNode.y}%`;
-            const x2 = `${tgtNode.x}%`;
-            const y2 = `${tgtNode.y}%`;
-
-            return (
-              <g key={edge.id}>
-                <line
-                  x1={x1}
-                  y1={y1}
-                  x2={x2}
-                  y2={y2}
-                  stroke={isHighlighted ? '#191f28' : 'rgba(0, 0, 0, 0.12)'}
-                  strokeWidth={isHighlighted ? 2.2 : 1.2}
-                  strokeDasharray={edge.dashed ? '4,4' : undefined}
-                  style={{ transition: 'stroke 0.2s ease, stroke-width 0.2s ease' }}
-                />
-              </g>
-            );
-          })}
-        </SvgCanvas>
-
-        {/* 인터랙티브 노드들 */}
-        {nodes.map((node) => {
-          const isSelected = selectedNodeId === node.id;
-          const isHovered = hoveredNodeId === node.id;
+        {/* 인터랙티브 드래그 가능 노드 요소들 */}
+        {physicsNodes.map((node) => {
+          const isSelected = selectedNode?.id === node.id;
+          const color = CATEGORY_COLORS[node.category] || '#00b882';
 
           return (
-            <NodeButton
+            <NodeElement
               key={node.id}
-              type="button"
-              $active={isSelected || isHovered}
               $category={node.category}
-              $left={node.x}
-              $top={node.y}
-              onClick={() => selectNode(isSelected ? null : node.id)}
+              $active={isSelected || hoveredNodeId === node.id}
+              $color={color}
+              style={{ left: `${node.x}px`, top: `${node.y}px` }}
+              onMouseDown={(e) => handleMouseDown(e, node.id)}
+              onClick={() => setSelectedNode(isSelected ? null : node)}
               onMouseEnter={() => setHoveredNodeId(node.id)}
               onMouseLeave={() => setHoveredNodeId(null)}
-              initial={{ scale: 0.85, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.3 }}
             >
-              <NodeIconWrap $category={node.category}>
-                {renderCategoryIcon(node.category)}
-              </NodeIconWrap>
-              <NodeTextWrap>
-                <NodeLabel $active={isSelected || isHovered}>{node.label}</NodeLabel>
-                {node.badge && <NodeBadge>{node.badge}</NodeBadge>}
-              </NodeTextWrap>
-            </NodeButton>
+              <NodeIcon $color={color}>{renderNodeIcon(node.category)}</NodeIcon>
+              <NodeLabel $active={isSelected}>{node.label}</NodeLabel>
+              {node.badge && <NodeBadge>{node.badge}</NodeBadge>}
+            </NodeElement>
           );
         })}
+
+        {/* 우측 하단 컨트롤 */}
+        <Controls>
+          <ResetBtn type="button" onClick={initSimulation} title="노드 배치 원래대로">
+            <RotateCcw size={12} />
+            <span>위치 초기화</span>
+          </ResetBtn>
+        </Controls>
+
+        {/* 노드 클릭 시 나타나는 플로팅 인스펙터 */}
+        <AnimatePresence>
+          {selectedNode && (
+            <InspectorCard
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 15 }}
+              transition={{ duration: 0.2 }}
+            >
+              <InspectorTop>
+                <InspectorTitle>
+                  <span
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: '50%',
+                      background: CATEGORY_COLORS[selectedNode.category],
+                    }}
+                  />
+                  <span>{selectedNode.label}</span>
+                  {selectedNode.badge && <NodeBadge>{selectedNode.badge}</NodeBadge>}
+                </InspectorTitle>
+                <CloseBtn onClick={() => setSelectedNode(null)}>
+                  <X size={14} />
+                </CloseBtn>
+              </InspectorTop>
+              <InspectorDesc>{selectedNode.description}</InspectorDesc>
+            </InspectorCard>
+          )}
+        </AnimatePresence>
       </GraphCard>
     </Container>
   );

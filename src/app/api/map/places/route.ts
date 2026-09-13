@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import { PlaceService, PLACE_CATEGORIES } from '@/map/services/place.service';
-import { getCuratedPlace } from '@/map/data/curatedPlaces';
-import { seedWarmth } from '@/map/warmth/seed';
-import { distanceInMeters } from '@/map/utils/geo';
-import type { Item, PlaceCategory } from '@/map/types';
+import { PlaceService, PLACE_CATEGORIES } from '@/features/map/services/place.service';
+import { getCuratedPlace } from '@/features/map/data/curatedPlaces';
+import { seedWarmth } from '@/features/map/warmth/seed';
+import { distanceInMeters } from '@/features/map/utils/geo';
+import type { Item, PlaceCategory } from '@/features/map/types';
 
 /**
  * 관광공사 API가 응답하지 않을 때 내어줄 한옥 명소.

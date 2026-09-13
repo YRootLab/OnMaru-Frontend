@@ -1,17 +1,16 @@
 # handoff.md
 
 Current work:
-- 2026-09-09 ad hoc fix:
-  - User reported `/odii` no longer opened after it worked previously.
-  - Current worktree initially had no diff; reproduction showed `npx tsc --noEmit` failing because the Lucide migration removed `react-icons` while several `/odii` and `/map` components still referenced `react-icons/io5` or old `Io*` names.
-  - Replaced the remaining references with existing `lucide-react` icons in Odii archive/search UI and map feed/navigation components.
-  - Verification: `npx tsc --noEmit` passed, and dev server `HEAD /odii` returned 200 on `http://localhost:3001/odii`.
-  - Remaining separate issue: production `npm run build` now passes compile/typecheck but fails while prerendering `/map` with `Invalid hook call`; `/map` also returns 500 in dev. This is not in the `/odii` route itself but still blocks a full production build.
-- Summary: 
-  1. Created new branch `feat/hanok-dogam` from clean `develop`.
-  2. Ready to begin Hanok Dogam (한옥도감) development.
-- Branch: `feat/hanok-dogam`
-- Related: Hanok Dogam feature development.
+- Summary:
+  1. Restored Section 2 ("장면을 따라 걷는 소리") horizontal gutters by wrapping it in `CenteredContainer` (`max-width: 72rem`, `padding: 0 1rem` to `2rem`) matching Section 3 and 4.
+  2. Implemented full dark mode (`[data-theme='dark']`) support across all 12 components in `src/features/sorimaru-audio`.
+  3. Completely removed horizontal hanji tear lines (`HanjiTearTransition` returns null, tags removed) to eliminate artificial dot/strip artifacts and let sections breathe with negative space and smooth atmospheric backgrounds.
+  4. Added vertical hanji deckle edge frame to Hanok Maru (`/hanok`) via new shared Emotion component `<HanjiDeckleEdge />` (`src/shared/components/HanjiDeckleEdge`).
+  5. Removed protruding horizontal deckle fiber needle lines (`LEFT_DECKLE_FIBERS`, `RIGHT_DECKLE_FIBERS`) and grid / graph-paper pattern (창호 격자 모눈종이 효과) from background.
+  6. Migrated all 26 components in `src/features/sorimaru-audio` to Emotion CSS and purged Tailwind CSS from the codebase.
+  7. Verified: `npx tsc --noEmit` clean (0 errors), all 45 sorimaru tests passed, `npm run build` verified.
+- Branch: `feat/hanok-dogam-2`
+- Related: PR #71 targeting `develop`.
 - Summary:
   1. Created new branch `feat/hanok-dogam` from clean `develop`.
   2. **Font**: `globals.css` body `font-family` → `var(--font-hanok)` (Spoqa Han Sans Neo). CDN import already present from prior session.

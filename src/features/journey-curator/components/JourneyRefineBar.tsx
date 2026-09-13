@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { Sparkles, CornerDownLeft } from 'lucide-react';
-import { lightPalette, meok, surface } from '@/design-system/tokens';
+import { lightPalette, meok, surface , fontSize } from '@/design-system/tokens';
 import { useJourneyStore } from '../store/useJourneyStore';
 
 const Wrapper = styled.div`
@@ -33,7 +33,7 @@ const Header = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: ${fontSize.xs};
   font-weight: 500;
   color: #191f28;
 
@@ -73,7 +73,7 @@ const Input = styled.input`
   background: transparent;
   outline: none;
   font-family: inherit;
-  font-size: 13.5px;
+  font-size: ${fontSize.sm};
   color: #191f28;
 
   [data-theme='dark'] & {
@@ -120,7 +120,7 @@ const SuggestionPills = styled.div`
 `;
 
 const Pill = styled.button`
-  font-size: 12px;
+  font-size: ${fontSize.xs};
   color: #6b7280;
   background: transparent;
   border: 1px solid rgba(0, 0, 0, 0.08);
@@ -150,15 +150,28 @@ export default function JourneyRefineBar() {
   const [refineText, setRefineText] = useState('');
   const refinePlan = useJourneyStore((s) => s.refinePlan);
   const isGenerating = useJourneyStore((s) => s.isGenerating);
+  const currentPlan = useJourneyStore((s) => s.currentPlan);
+
+  const defaultSuggestions = [
+    '+ 전통 찻집 위주',
+    '+ 비 오는 날 운치',
+    '+ 걷는 시간 줄이기',
+    '+ 역사 해설 중심',
+  ];
+
+  const suggestions = currentPlan?.refineSuggestions?.length
+    ? currentPlan.refineSuggestions
+    : defaultSuggestions;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!refineText.trim()) return;
+    if (!refineText.trim() || isGenerating) return;
     refinePlan(refineText);
     setRefineText('');
   };
 
   const handlePillClick = (text: string) => {
+    if (isGenerating) return;
     refinePlan(text);
   };
 
@@ -167,7 +180,11 @@ export default function JourneyRefineBar() {
       <Box>
         <Header>
           <Sparkles size={16} color={lightPalette.cheongrok[500]} />
-          <span>여정 조건을 실시간으로 재조정할 수 있어요</span>
+          <span>
+            {isGenerating
+              ? '여정 조건을 반영하여 새로운 코스를 구성하는 중...'
+              : '여정 조건을 실시간으로 재조정할 수 있어요'}
+          </span>
         </Header>
 
         <InputRow onSubmit={handleSubmit}>
@@ -177,6 +194,7 @@ export default function JourneyRefineBar() {
             onChange={(e) => setRefineText(e.target.value)}
             placeholder="예: 근처 조용한 전통 찻집도 포함해줘 / 많이 걷지 않는 코스로 바꿔줘"
             aria-label="여정 조건 추가 입력"
+            disabled={isGenerating}
           />
           <SendBtn type="submit" $disabled={isGenerating} title="조건 반영">
             <CornerDownLeft size={14} />
@@ -184,18 +202,16 @@ export default function JourneyRefineBar() {
         </InputRow>
 
         <SuggestionPills>
-          <Pill type="button" onClick={() => handlePillClick('조용한 한옥 찻집 위주로')}>
-            + 전통 찻집 위주
-          </Pill>
-          <Pill type="button" onClick={() => handlePillClick('비 오는 날 더 운치 있는 곳으로')}>
-            + 비 오는 날 운치
-          </Pill>
-          <Pill type="button" onClick={() => handlePillClick('덜 걷고 툇마루에서 쉴 수 있는 곳')}>
-            + 걷는 시간 줄이기
-          </Pill>
-          <Pill type="button" onClick={() => handlePillClick('이야기 해설이 풍부한 코스로')}>
-            + 역사 해설 중심
-          </Pill>
+          {suggestions.map((item, idx) => (
+            <Pill
+              key={`${item}-${idx}`}
+              type="button"
+              disabled={isGenerating}
+              onClick={() => handlePillClick(item)}
+            >
+              {item.startsWith('+') ? item : `+ ${item}`}
+            </Pill>
+          ))}
         </SuggestionPills>
       </Box>
     </Wrapper>

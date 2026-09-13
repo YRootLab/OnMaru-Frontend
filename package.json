@@ -10,6 +10,8 @@
     "test": "vitest run",
     "build:data": "node --env-file=.env.local scripts/build-data.mjs",
     "build:data:check": "node scripts/build-data.mjs --self-check",
+    "build:fallback": "node --env-file=.env.local scripts/build-fallback.mjs",
+    "build:fallback:check": "node scripts/build-fallback.mjs --self-check",
     "test:odii": "vitest run src/features/odii-audio/api/odiiApi.test.ts",
     "test:odii:live": "node scripts/test-odii-api.mjs",
     "probe": "node --env-file=.env.local scripts/probe-tourapi.mjs",
@@ -32,6 +34,7 @@
     "next": "16.2.10",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "sonner": "^2.0.8",
     "three": "^0.185.1",
     "zustand": "^5.0.14"
   },
@@ -45,7 +48,6 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
     "postcss": "^8.5.25",
-    "tailwindcss": "^3.4.19",
     "typescript": "^5",
     "vitest": "^4.1.10"
   },

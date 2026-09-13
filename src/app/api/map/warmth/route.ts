@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { seedWarmth } from '@/map/warmth/seed';
+import { seedWarmth } from '@/features/map/warmth/seed';
 
 /**
  * 여행자 온기 이야기(리뷰 및 한줄평) API

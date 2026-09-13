@@ -121,6 +121,8 @@ export const gradients = {
 // ------------------------------------------------------------
 
 export type ColorMode = 'light' | 'dark';
+/** 사용자가 고르는 값 — 'system'은 OS 설정을 그대로 따라간다. */
+export type ThemePreference = ColorMode | 'system';
 
 export const semanticTokens = {
   light: {
@@ -291,7 +293,39 @@ export const semanticTokens = {
 export type SemanticToken = keyof typeof semanticTokens.light;
 
 // ------------------------------------------------------------
-// 5. 테마 생성 함수
+// 5. 타이포그래피 스케일 (라이트/다크 공통 — 글자 크기는 모드를 안 탄다)
+// ------------------------------------------------------------
+
+// 역할별 글자 크기 — 페이지가 달라도 "제목은 제목끼리, 본문은 본문끼리" 같은 값을 쓰기 위한
+// 유일한 기준 스케일이다. 여기 없는 임의의 px 값을 새로 만들지 말고 이 중에서 고른다.
+// styled-component에서는 theme prop 없이도 `import { fontSize } from './tokens'`로 바로 쓸 수 있다.
+export const fontSize = {
+  micro: '0.625rem',  // 10px — 배지 · 타임스탬프 · 초소형 라벨
+  xs:    '0.75rem',   // 12px — 캡션 · 보조/메타 텍스트
+  sm:    '0.875rem',  // 14px — 본문(작게) · 카드/리스트 제목
+  base:  '1rem',      // 16px — 본문
+  lg:    '1.125rem',  // 18px — 강조 본문 · 소제목
+  xl:    '1.25rem',   // 20px — 카드 섹션 제목
+  '2xl': '1.5rem',    // 24px — 섹션 제목
+  '3xl': '1.875rem',  // 30px — 페이지 제목
+  '4xl': '2.25rem',   // 36px — 히어로 제목(모바일)
+  '5xl': '3rem',      // 48px — 히어로 제목(PC)
+  '6xl': '3.75rem',   // 60px — 랜딩 초대형 타이틀
+} as const;
+
+// 뷰포트에 따라 흐르는 제목용 프리셋 — 페이지마다 clamp() 범위를 따로 만들지 않고 여기서 고른다.
+// (예: HanokHero의 히어로 제목과 HanokMonthly의 히어로 제목이 예전엔 각자 다른 clamp 값을 썼다.)
+export const fluidHeading = {
+  display: 'clamp(2rem, 5vw, 3.5rem)',         // 32px → 56px — 최상위 페이지 타이틀
+  hero:    'clamp(1.75rem, 4vw, 2.625rem)',    // 28px → 42px — 섹션 히어로 대제목
+  feature: 'clamp(1.5rem, 3.2vw, 2.25rem)',    // 24px → 36px — 강조 카드 · 모달 제목
+  section: 'clamp(1.3125rem, 2.4vw, 1.75rem)', // 21px → 28px — 리스트형 섹션 헤더
+  card:    'clamp(1.1875rem, 2.2vw, 1.5rem)',  // 19px → 24px — 카드 · 패널 제목
+  label:   'clamp(1rem, 1.7vw, 1.3125rem)',    // 16px → 21px — 소형 카드 이름표 · 라벨형 제목
+} as const;
+
+// ------------------------------------------------------------
+// 6. 테마 생성 함수
 // ------------------------------------------------------------
 
 export const createTheme = (mode: ColorMode) => {
@@ -324,10 +358,7 @@ export const createTheme = (mode: ColorMode) => {
         serif: '"Spoqa Han Sans Neo", system-ui, sans-serif',
         traditional: '"Spoqa Han Sans Neo", sans-serif',
       },
-      fontSize: {
-        xs: '0.75rem', sm: '0.875rem', base: '1rem', lg: '1.125rem',
-        xl: '1.25rem', '2xl': '1.5rem', '3xl': '1.875rem', '4xl': '2.25rem',
-      },
+      fontSize,
       mobile: {
         d1: '56px', d2: '36px', d3: '32px',
         h1: '28px', h2: '24px', h3: '20px',

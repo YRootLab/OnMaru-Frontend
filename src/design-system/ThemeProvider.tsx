@@ -19,8 +19,11 @@ import {
   darkTheme,
   createTheme,
   type ColorMode,
+  type ThemePreference,
   type OnmaruTheme,
-} from './tokens'
+ fontSize, } from './tokens';
+
+const STORAGE_KEY = 'onmaru-color-mode'
 
 
 // ─────────────────────────────────────────
@@ -29,9 +32,12 @@ import {
 
 interface OnmaruThemeContextValue {
   theme:      OnmaruTheme
+  /** 실제로 적용된 라이트/다크 — 'system' 선택 시 OS 값으로 이미 풀려 있다. */
   mode:       ColorMode
+  /** 사용자가 고른 값. 'system'이면 OS 다크모드 변경에 실시간으로 따라간다. */
+  preference: ThemePreference
   toggleMode: () => void
-  setMode:    (mode: ColorMode) => void
+  setMode:    (preference: ThemePreference) => void
 }
 
 const OnmaruThemeContext = createContext<OnmaruThemeContextValue | null>(null)
@@ -52,7 +58,7 @@ const createGlobalStyles = (theme: OnmaruTheme) => css`
   }
 
   html {
-    font-size: 16px;
+    font-size: ${fontSize.base};
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -214,71 +220,67 @@ const createGlobalStyles = (theme: OnmaruTheme) => css`
 
 interface OnmaruThemeProviderProps {
   children:     ReactNode
-  defaultMode?: ColorMode
-  /** true면 시스템 다크모드 자동 감지 */
-  followSystem?: boolean
+  defaultMode?: ThemePreference
+}
+
+function readStoredPreference(fallback: ThemePreference): ThemePreference {
+  if (typeof window === 'undefined') return fallback
+  const saved = localStorage.getItem(STORAGE_KEY)
+  if (saved === 'light' || saved === 'dark' || saved === 'system') return saved
+  return fallback
+}
+
+function systemPrefersDark(): boolean {
+  if (typeof window === 'undefined') return false
+  return window.matchMedia('(prefers-color-scheme: dark)').matches
 }
 
 export function OnmaruThemeProvider({
   children,
-  defaultMode  = 'light',
-  followSystem = true,
+  defaultMode = 'system',
 }: OnmaruThemeProviderProps) {
 
-  const [mode, setModeState] = useState<ColorMode>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('onmaru-color-mode') as ColorMode | null
-      if (saved === 'light' || saved === 'dark') return saved
-      if (followSystem && window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark'
-    }
-    return defaultMode
-  })
+  // 사용자가 고른 값('system' 포함) — 실제 렌더에 쓰는 mode는 아래에서 이 값을 풀어낸다.
+  const [preference, setPreferenceState] = useState<ThemePreference>(() => readStoredPreference(defaultMode))
+  const [isSystemDark, setIsSystemDark] = useState<boolean>(() => systemPrefersDark())
 
+  // SSR에서는 window가 없어 defaultMode로 렌더된다 — 하이드레이션 직후 저장값/OS 값으로 다시 맞춘다.
   useEffect(() => {
-    const saved = localStorage.getItem('onmaru-color-mode') as ColorMode | null
-    if (saved === 'light' || saved === 'dark') {
-      setModeState(saved)
-    } else if (followSystem) {
-      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-      setModeState(isDark ? 'dark' : 'light')
-    }
-  }, [followSystem])
-
-  const theme = mode === 'dark' ? darkTheme : lightTheme
-
-  // 시스템 다크모드 변경 감지
-  useEffect(() => {
-    // mounted 플래그로 막던 코드였는데, 그 플래그는 첫 이펙트에서야 true가 되고
-    // 이 이펙트의 의존성에는 없어서 재실행되지 않았다. 결과적으로 리스너가 한 번도
-    // 붙지 않았다. useEffect 자체가 클라이언트에서만 도니 가드는 불필요하다.
-    if (!followSystem) return
-    const mq = window.matchMedia('(prefers-color-scheme: dark)')
-    const handler = (e: MediaQueryListEvent) => {
-      const saved = localStorage.getItem('onmaru-color-mode')
-      if (!saved) setModeState(e.matches ? 'dark' : 'light')
-    }
-    mq.addEventListener('change', handler)
-    return () => mq.removeEventListener('change', handler)
-  }, [followSystem])
-
-  const setMode = useCallback((next: ColorMode) => {
-    setModeState(next)
-    localStorage.setItem('onmaru-color-mode', next)
-    // HTML attribute로도 노출 (CSS 셀렉터 활용 가능)
-    document.documentElement.setAttribute('data-theme', next)
+    setPreferenceState(readStoredPreference(defaultMode))
+    setIsSystemDark(systemPrefersDark())
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const toggleMode = useCallback(() => {
-    setMode(mode === 'light' ? 'dark' : 'light')
-  }, [mode, setMode])
+  // 시스템 다크모드 변경 감지 — preference가 'system'일 때만 화면에 반영된다.
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)')
+    const handler = (e: MediaQueryListEvent) => setIsSystemDark(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
 
-  // data-theme 초기화
+  const mode: ColorMode = preference === 'system' ? (isSystemDark ? 'dark' : 'light') : preference
+  const theme = mode === 'dark' ? darkTheme : lightTheme
+
+  const setMode = useCallback((next: ThemePreference) => {
+    setPreferenceState(next)
+    localStorage.setItem(STORAGE_KEY, next)
+  }, [])
+
+  // 라이트 → 다크 → 시스템 순으로 순환한다.
+  const toggleMode = useCallback(() => {
+    const order: ThemePreference[] = ['light', 'dark', 'system']
+    const next = order[(order.indexOf(preference) + 1) % order.length]
+    setMode(next)
+  }, [preference, setMode])
+
+  // data-theme는 항상 "실제 적용된" mode를 반영한다 — [data-theme='dark'] CSS가 이 값을 본다.
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', mode)
   }, [mode])
 
   return (
-    <OnmaruThemeContext.Provider value={{ theme, mode, toggleMode, setMode }}>
+    <OnmaruThemeContext.Provider value={{ theme, mode, preference, toggleMode, setMode }}>
       <EmotionThemeProvider theme={theme}>
         <Global styles={createGlobalStyles(theme)} />
         {children}

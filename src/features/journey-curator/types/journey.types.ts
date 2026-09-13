@@ -1,4 +1,4 @@
-export type NodeCategory = 'region' | 'hanok' | 'market' | 'odii' | 'warmth';
+export type NodeCategory = 'region' | 'hanok' | 'market' | 'sorimaru' | 'warmth';
 
 export type MoodId = 'quiet' | 'market' | 'story' | 'rainy' | 'rest';
 
@@ -37,10 +37,22 @@ export interface RouteStop {
   description: string;
 }
 
+export interface JourneyDay {
+  dayNumber: number; // 1, 2, 3
+  dayTitle: string; // 예: "1일차: 빗소리 흐르는 소쇄원과 대숲 산책"
+  theme?: string;
+  duration: string;
+  walkingTime: string;
+  stops: RouteStop[];
+  mapLink: string;
+}
+
 export interface BentoRouteCard {
   title: string;
   duration: string;
   walkingTime: string;
+  totalDays?: number;
+  days?: JourneyDay[];
   stops: RouteStop[];
   mapLink: string;
 }
@@ -54,14 +66,14 @@ export interface BentoHanokCard {
   hanokLink: string;
 }
 
-export interface BentoOdiiCard {
+export interface BentoSorimaruCard {
   title: string;
   subtitle: string;
   duration: string;
   audioUrl?: string;
   narrator: string;
   excerpt: string;
-  odiiLink: string;
+  sorimaruLink: string;
 }
 
 export interface BentoWarmthCard {
@@ -83,6 +95,14 @@ export interface BentoJourneyPlan {
   edges: GraphEdge[];
   routeCard: BentoRouteCard;
   hanokCard: BentoHanokCard;
-  odiiCard: BentoOdiiCard;
+  sorimaruCard: BentoSorimaruCard;
   warmthCard: BentoWarmthCard;
+  refineSuggestions?: string[];
+  isAiGenerated?: boolean;
+}
+
+export interface SavedJourney {
+  id: string;
+  savedAt: string; // ISO string
+  plan: BentoJourneyPlan;
 }

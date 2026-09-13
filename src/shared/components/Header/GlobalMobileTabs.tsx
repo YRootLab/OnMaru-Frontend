@@ -5,11 +5,12 @@ import { usePathname } from 'next/navigation';
 import styled from '@emotion/styled';
 import { Home, BookOpen, Map, Headphones } from 'lucide-react';
 import { transientProps } from '@/design-system/styled';
-import { lightPalette } from '@/design-system/tokens';
+import { lightPalette , fontSize } from '@/design-system/tokens';
 
 interface TabProps {
   $isLanding?: boolean;
-  $isOdii?: boolean;
+  $isSoriMaru?: boolean;
+  $isSorimaru?: boolean;
   $isActive?: boolean;
 }
 
@@ -28,13 +29,13 @@ const TabLink = styled(Link, transientProps)<TabProps>`
   justify-content: center;
   gap: 4px;
   min-width: 0;
-  color: ${({ $isLanding, $isOdii, $isActive }) => {
-    if ($isActive && $isOdii) return lightPalette.jangmi[500];
+  color: ${({ $isLanding, $isSoriMaru, $isSorimaru, $isActive }) => {
+    if ($isActive && ($isSoriMaru || $isSorimaru)) return lightPalette.jangmi[500];
     if ($isActive) return $isLanding ? '#f8e6bd' : lightPalette.juhong[700];
     return $isLanding ? 'rgba(250, 250, 250, 0.68)' : 'rgba(33, 30, 25, 0.68)';
   }};
   font-family: 'Spoqa Han Sans Neo', sans-serif;
-  font-size: 10px;
+  font-size: ${fontSize.micro};
   /* 10px에선 500과 400이 구분되지 않는다. 활성 탭만 bold로 갈라 준다 */
   font-weight: ${({ $isActive }) => ($isActive ? 700 : 400)};
   letter-spacing: -0.02em;
@@ -44,30 +45,38 @@ const TabLink = styled(Link, transientProps)<TabProps>`
   &:active {
     transform: scale(0.94);
   }
+
+  [data-theme='dark'] & {
+    color: ${({ $isLanding, $isSoriMaru, $isSorimaru, $isActive }) => {
+      if ($isActive && ($isSoriMaru || $isSorimaru)) return lightPalette.jangmi[400];
+      if ($isActive) return '#f8e6bd';
+      return 'rgba(250, 250, 250, 0.68)';
+    }};
+  }
 `;
 
-/** 사이트 공통 하단 탭 (홈 / 한옥도감 / 지도 / 오디) — Header의 데스크톱 GNB를 모바일 폭에서 대체한다. */
+/** 사이트 공통 하단 탭 (홈 / 한옥 마루 / 지도 / 소리마루) — Header의 데스크톱 GNB를 모바일 폭에서 대체한다. */
 export default function GlobalMobileTabs({ isLanding }: { isLanding: boolean }) {
   const pathname = usePathname();
-  const isOdiiPage = pathname.startsWith('/odii');
+  const isSoriMaruPage = pathname.startsWith('/sorimaru') || pathname.startsWith('/sorimaru');
 
   return (
     <Nav aria-label="주요 탐색">
       <TabLink href="/" $isLanding={isLanding} $isActive={pathname === '/'}>
         <Home size={19} strokeWidth={2} aria-hidden="true" />
-        <span>홈</span>
+        <span>온마루</span>
       </TabLink>
       <TabLink href="/hanok" $isLanding={isLanding} $isActive={pathname.startsWith('/hanok')}>
         <BookOpen size={19} strokeWidth={2} aria-hidden="true" />
-        <span>한옥도감</span>
+        <span>한옥 마루</span>
+      </TabLink>
+      <TabLink href="/sorimaru" $isLanding={isLanding} $isSoriMaru $isActive={isSoriMaruPage}>
+        <Headphones size={19} strokeWidth={2} aria-hidden="true" />
+        <span>소리마루</span>
       </TabLink>
       <TabLink href="/map" $isLanding={isLanding} $isActive={pathname.startsWith('/map')}>
         <Map size={19} strokeWidth={2} aria-hidden="true" />
         <span>지도</span>
-      </TabLink>
-      <TabLink href="/odii" $isLanding={isLanding} $isOdii $isActive={isOdiiPage}>
-        <Headphones size={19} strokeWidth={2} aria-hidden="true" />
-        <span>오디</span>
       </TabLink>
     </Nav>
   );

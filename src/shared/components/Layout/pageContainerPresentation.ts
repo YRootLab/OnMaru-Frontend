@@ -5,7 +5,7 @@ export interface PageContainerPresentation {
 }
 
 export function getPageContainerPresentation(pathname: string): PageContainerPresentation {
-  const isFullBleed = pathname.startsWith('/map') || pathname.startsWith('/odii');
+  const isFullBleed = pathname.startsWith('/map') || pathname.startsWith('/sorimaru') || pathname.startsWith('/sorimaru');
 
   return {
     isFullBleed,

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { BentoJourneyPlan, MoodId } from '../types/journey.types';
-import { JOURNEY_PLANS, matchJourneyPlan, MOOD_OPTIONS } from '../data/curatedJourneys';
+import { JOURNEY_PLANS, MOOD_OPTIONS } from '../data/curatedJourneys';
+import { fetchCuratedJourney } from '../api/journeyCuratorApi';
 
 interface JourneyState {
   currentQuery: string;
@@ -13,15 +14,13 @@ interface JourneyState {
   isGenerating: boolean;
 
   setQuery: (query: string) => void;
-  selectMood: (moodId: MoodId) => void;
+  selectMood: (moodId: MoodId) => Promise<void>;
   selectNode: (nodeId: string | null) => void;
   submitSearch: (customQuery?: string) => Promise<void>;
   refinePlan: (prompt: string) => Promise<void>;
 }
 
 export const useJourneyStore = create<JourneyState>((set, get) => ({
-  // 홈은 빈 검색창에서 시작한다. currentPlan은 검색 전에는 쓰이지 않지만,
-  // 결과 컴포넌트들이 항상 플랜 하나를 전제하므로 기본값으로 채워 둔다.
   currentQuery: '',
   activeMood: null,
   hasSearched: false,
@@ -31,23 +30,31 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
 
   setQuery: (query) => set({ currentQuery: query }),
 
-  selectMood: (moodId) => {
+  selectMood: async (moodId) => {
     const option = MOOD_OPTIONS.find((m) => m.id === moodId);
-    const plan = JOURNEY_PLANS[moodId] || JOURNEY_PLANS.quiet;
+    const query = option?.query || option?.label || '';
+    const initialFallback = JOURNEY_PLANS[moodId] || JOURNEY_PLANS.quiet;
+
     set({
       activeMood: moodId,
-      currentQuery: option?.query || '',
+      currentQuery: query,
       selectedNodeId: null,
       isGenerating: true,
       hasSearched: true,
     });
 
-    setTimeout(() => {
+    try {
+      const plan = await fetchCuratedJourney({ query, mood: moodId });
       set({
         currentPlan: plan,
         isGenerating: false,
       });
-    }, 280);
+    } catch {
+      set({
+        currentPlan: initialFallback,
+        isGenerating: false,
+      });
+    }
   },
 
   selectNode: (nodeId) => {
@@ -60,29 +67,32 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
 
     set({ isGenerating: true, selectedNodeId: null, hasSearched: true });
 
-    // 실시간 AI 쿼리 분석 및 그래프 노드 매핑 연출 (280ms)
-    setTimeout(() => {
-      const matched = matchJourneyPlan(query);
+    try {
+      const plan = await fetchCuratedJourney({ query });
       set({
-        currentPlan: matched,
-        activeMood: (matched.id as MoodId) || 'quiet',
+        currentPlan: plan,
+        activeMood: (plan.id as MoodId) || null,
         isGenerating: false,
       });
-    }, 320);
+    } catch {
+      set({ isGenerating: false });
+    }
   },
 
   refinePlan: async (prompt) => {
     if (!prompt.trim()) return;
+    const currentPlan = get().currentPlan;
     set({ isGenerating: true, hasSearched: true });
 
-    setTimeout(() => {
-      const matched = matchJourneyPlan(prompt);
+    try {
+      const plan = await fetchCuratedJourney({ query: prompt, previousPlan: currentPlan });
       set({
-        currentPlan: matched,
-        activeMood: (matched.id as MoodId) || 'quiet',
+        currentPlan: plan,
         currentQuery: prompt,
         isGenerating: false,
       });
-    }, 320);
+    } catch {
+      set({ isGenerating: false });
+    }
   },
 }));

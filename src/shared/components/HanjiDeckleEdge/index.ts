@@ -1,0 +1,1 @@
+export { HanjiDeckleEdge } from './HanjiDeckleEdge';
