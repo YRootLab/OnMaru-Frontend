@@ -1,6 +1,11 @@
 # handoff.md
 
 Current work:
+- Summary: Made theme mode selection explicit for logged-in and logged-out users.
+  - Added `src/design-system/themePreferenceLabels.ts` so `system` is shown as `자동` while keeping the persisted value compatible.
+  - Updated the global header theme button to open an `자동` / `라이트` / `다크` picker instead of cycling modes blindly.
+  - Updated the `/map` desktop rail theme control with the same picker because the global header is hidden there.
+  - My Page's existing `ThemeModeSwitch` now uses `자동` wording and avoids the monitor icon.
 - Summary: Updated `system` theme resolution to use local time of day.
   - `src/design-system/timeTheme.ts` resolves 07:00-18:59 to light and 19:00-06:59 to dark.
   - `ThemeProvider` and the initial `beforeInteractive` theme script now use the same time-aware rule to avoid first-paint mismatch for automatic mode.

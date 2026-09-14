@@ -1,15 +1,18 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import styled from '@emotion/styled';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   BookOpen,
   Bookmark,
+  Check,
   Headphones,
   MapPin,
   Moon,
+  Sparkles,
   Sun,
   User,
 } from 'lucide-react';
@@ -19,6 +22,12 @@ import { lightPalette, meok , fontSize } from '@/design-system/tokens';
 import { RAIL_ENTER_DELAY_S, RAIL_ENTER_DURATION_S, ENTRANCE_EASE } from '@/shared/navigation/mapEntranceTiming';
 import { useMapEntranceStore } from '@/shared/navigation/mapEntranceState';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
+import {
+  getThemePreferenceLabel,
+  getThemePreferenceSummary,
+  getThemeTriggerLabel,
+} from '@/design-system/themePreferenceLabels';
+import type { ThemePreference } from '@/design-system/tokens';
 
 export const RAIL_WIDTH = 68;
 export const RAIL_INSET = 14;
@@ -179,9 +188,107 @@ const Divider = styled.div`
   }
 `;
 
+const ThemeRailItemWrap = styled.div`
+  position: relative;
+  width: 58px;
+`;
+
+const ThemeRailPopover = styled(motion.div)`
+  position: absolute;
+  left: calc(100% + 10px);
+  bottom: 0;
+  width: 214px;
+  padding: 6px;
+  border-radius: 16px;
+  background: rgba(250, 250, 249, 0.94);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.14);
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  z-index: 3;
+
+  [data-theme='dark'] & {
+    background: rgba(27, 25, 22, 0.94);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.36);
+  }
+`;
+
+const ThemeRailChoiceButton = styled.button<{ $active: boolean }>`
+  width: 100%;
+  min-height: 48px;
+  border: 0;
+  border-radius: 12px;
+  padding: 8px 9px;
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) 18px;
+  align-items: center;
+  gap: 8px;
+  background: ${({ $active }) => ($active ? 'rgba(0, 0, 0, 0.055)' : 'transparent')};
+  color: ${meok[900]};
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 160ms ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.045);
+  }
+
+  [data-theme='dark'] & {
+    color: #ffffff;
+    background: ${({ $active }) => ($active ? 'rgba(255, 255, 255, 0.12)' : 'transparent')};
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+`;
+
+const ThemeRailChoiceIcon = styled.span`
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const ThemeRailChoiceCopy = styled.span`
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+`;
+
+const ThemeRailChoiceTitle = styled.span`
+  font-size: ${fontSize.xs};
+  font-weight: 700;
+  line-height: 1.2;
+`;
+
+const ThemeRailChoiceSummary = styled.span`
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.25;
+  color: rgba(87, 79, 68, 0.76);
+
+  [data-theme='dark'] & {
+    color: rgba(255, 255, 255, 0.66);
+  }
+`;
+
+const ThemeRailChoiceCheck = styled.span`
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+`;
+
 export default function MapNavRail() {
   const router = useRouter();
-  const { mode: themeMode, toggleMode } = useOnmaruTheme();
+  const { preference, mode: themeMode, setMode: setThemeMode } = useOnmaruTheme();
+  const [isThemePickerOpen, setIsThemePickerOpen] = useState(false);
+  const themePickerRef = useRef<HTMLDivElement>(null);
   const mode = useMapStore((s) => s.mode);
   const setMode = useMapStore((s) => s.setMode);
   const setCategory = useMapStore((s) => s.setCategory);
@@ -197,6 +304,29 @@ export default function MapNavRail() {
   // 온마루 자체 카테고리 활성 판별
   const isMapActive = true; // 현재 /map 페이지
   const isRouteEntrance = useMapEntranceStore((s) => s.isRouteEntrance);
+  const themeOptions: ThemePreference[] = ['system', 'light', 'dark'];
+  const ThemeTriggerIcon = themeMode === 'dark' ? Moon : Sun;
+  const themeTriggerLabel = getThemeTriggerLabel({ preference, mode: themeMode });
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      const target = event.target as Node;
+      if (themePickerRef.current && !themePickerRef.current.contains(target)) {
+        setIsThemePickerOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (!isThemePickerOpen) return;
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === 'Escape') setIsThemePickerOpen(false);
+    }
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isThemePickerOpen]);
 
   return (
     <RailContainer
@@ -303,18 +433,66 @@ export default function MapNavRail() {
       {/* 3. 하단 유틸리티 메뉴 (다크모드 전환 / 마이) */}
       <BottomArea>
         <Divider />
-        <NavItemBtn
-          type="button"
-          $active={false}
-          onClick={toggleMode}
-          aria-label={themeMode === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환'}
-          title={themeMode === 'dark' ? '라이트 모드 전환' : '다크 모드 전환'}
-        >
-          <NavItemIcon>
-            {themeMode === 'dark' ? <Sun size={19} strokeWidth={2} /> : <Moon size={19} strokeWidth={2} />}
-          </NavItemIcon>
-          <NavItemLabel>{themeMode === 'dark' ? '라이트' : '다크'}</NavItemLabel>
-        </NavItemBtn>
+        <ThemeRailItemWrap ref={themePickerRef}>
+          <NavItemBtn
+            type="button"
+            $active={preference === 'system'}
+            onClick={() => setIsThemePickerOpen((open) => !open)}
+            aria-label={themeTriggerLabel}
+            title={themeTriggerLabel}
+            aria-haspopup="menu"
+            aria-expanded={isThemePickerOpen}
+          >
+            <NavItemIcon>
+              <ThemeTriggerIcon size={19} strokeWidth={2} />
+            </NavItemIcon>
+            <NavItemLabel>{preference === 'system' ? '자동' : getThemePreferenceLabel(preference)}</NavItemLabel>
+          </NavItemBtn>
+
+          <AnimatePresence>
+            {isThemePickerOpen && (
+              <ThemeRailPopover
+                role="menu"
+                aria-label="화면 모드 선택"
+                initial={{ opacity: 0, x: -4, scale: 0.98 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
+                exit={{ opacity: 0, x: -4, scale: 0.98 }}
+                transition={{ duration: 0.14, ease: 'easeOut' }}
+              >
+                {themeOptions.map((option) => {
+                  const active = preference === option;
+                  const OptionIcon = option === 'dark' ? Moon : option === 'light' ? Sun : Sparkles;
+                  return (
+                    <ThemeRailChoiceButton
+                      key={option}
+                      type="button"
+                      role="menuitemradio"
+                      aria-checked={active}
+                      $active={active}
+                      onClick={() => {
+                        setThemeMode(option);
+                        setIsThemePickerOpen(false);
+                      }}
+                    >
+                      <ThemeRailChoiceIcon>
+                        <OptionIcon size={15} strokeWidth={2} />
+                      </ThemeRailChoiceIcon>
+                      <ThemeRailChoiceCopy>
+                        <ThemeRailChoiceTitle>{getThemePreferenceLabel(option)}</ThemeRailChoiceTitle>
+                        <ThemeRailChoiceSummary>
+                          {getThemePreferenceSummary({ preference: option, mode: themeMode })}
+                        </ThemeRailChoiceSummary>
+                      </ThemeRailChoiceCopy>
+                      <ThemeRailChoiceCheck aria-hidden="true">
+                        {active ? <Check size={14} strokeWidth={2.4} /> : null}
+                      </ThemeRailChoiceCheck>
+                    </ThemeRailChoiceButton>
+                  );
+                })}
+              </ThemeRailPopover>
+            )}
+          </AnimatePresence>
+        </ThemeRailItemWrap>
         <NavItemBtn
           type="button"
           $active={false}
