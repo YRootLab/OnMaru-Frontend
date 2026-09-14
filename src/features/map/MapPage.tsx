@@ -32,7 +32,6 @@ import WarmthLegend from './components/warmth/WarmthLegend';
 import MapNavRail, { RAIL_INSET, RAIL_WIDTH } from './components/MapNavRail';
 import CinematicTourMapLayer from '@/features/cinematic-tour/components/CinematicTourMapLayer';
 import CinematicTourFloatingBar from '@/features/cinematic-tour/components/CinematicTourFloatingBar';
-import WarmthParticleLayer from './components/WarmthParticleLayer';
 import MapCursorTrail from './components/MapCursorTrail';
 import { StampSealAnimation, useStampStore } from '@/features/stamp';
 
@@ -396,7 +395,6 @@ export default function MapPage() {
         <WarmthLayer />
         <WarmthNotesLayer />
         <CinematicTourMapLayer />
-        <WarmthParticleLayer />
         <MapCursorTrail />
         <MapChips
           $interactive={!isDetailOpen}

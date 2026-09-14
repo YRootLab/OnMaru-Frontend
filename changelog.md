@@ -10,10 +10,10 @@ Lightweight human-readable summary of meaningful repository changes. This does n
   - Zustand persist 기반 로컬스토리지 영구 보관 및 사용자 계정 동기화.
   - 지도 좌측 네비게이션 레일(`MapNavRail.tsx`)에 [수결첩] 전용 바로가기 메뉴 추가.
 - **지도 인터랙티브 효과**:
-  - 온기 모드 전용 60fps 등불 불꽃 Canvas 파티클 레이어 (`WarmthParticleLayer.tsx`).
   - 마우스 커서 이동 시 은은한 금빛 잔상 트레일 (`MapCursorTrail.tsx`).
   - 마커 클릭 시 방사형 파동(Ripple Wave) 및 선택 핀 주변 은은한 동심원 Glow Ring 효과.
   - 수결첩에 기록된 방문 한옥 핀에 붉은 관인 체크 뱃지 표식 표시.
+  - 온기 모드 시야를 방해하던 하단 파티클(뽀글거림) 레이어를 제거하여 단정한 지도 뷰 유지.
 - **지도 축소 시 마커 뭉침 현상 개선 및 모드 토글 정제**:
   - `PIN_MAX_LEVEL = 6`으로 조정하여 축소 시(레벨 7 이상) 시·군·구 권역별 스마트 클러스터 캡슐(`om-cluster-pill`)로 자동 통합.
   - 뱃지 핀 배경을 불투명 화이트(`#ffffff`)로 변경하고, 주변으로 돌출되던 별무리와 화살표 꼬리를 정리하여 단정한 원형 토큰으로 개선.
