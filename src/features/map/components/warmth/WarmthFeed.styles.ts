@@ -122,9 +122,9 @@ export const RegionChip = styled.button<{ $active: boolean }>`
   flex: none;
   padding: 4.5px 10.5px;
   border-radius: 9999px;
-  border: ${({ $active }) => ($active ? '1.5px solid #222222' : '1px solid #e5e8eb')};
-  background: ${({ $active }) => ($active ? '#f2f4f6' : '#ffffff')};
-  color: ${({ $active }) => ($active ? '#191f28' : '#333d4b')};
+  border: none;
+  background: ${({ $active }) => ($active ? '#191f28' : 'rgba(0,0,0,0.05)')};
+  color: ${({ $active }) => ($active ? '#ffffff' : '#333d4b')};
   font-family: inherit;
   font-size: ${fontSize.xs};
   font-weight: ${({ $active }) => ($active ? 600 : 400)};
@@ -135,24 +135,20 @@ export const RegionChip = styled.button<{ $active: boolean }>`
   transition: all 0.15s ease;
 
   [data-theme='dark'] & {
-    border: ${({ $active }) =>
-      $active ? '1.5px solid rgba(255, 255, 255, 0.85)' : '1px solid rgba(255, 255, 255, 0.12)'};
+    border: none;
     background: ${({ $active }) =>
-      $active ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.04)'};
+      $active ? 'rgba(255, 255, 255, 0.18)' : 'rgba(255, 255, 255, 0.06)'};
     color: ${({ $active }) => ($active ? '#ffffff' : '#a1a1aa')};
   }
 
   &:hover {
-    background: ${({ $active }) => ($active ? '#f2f4f6' : '#f8f9fa')};
-    color: #191f28;
-    border-color: ${({ $active }) => ($active ? '#222222' : '#d1d5db')};
+    background: ${({ $active }) => ($active ? '#191f28' : 'rgba(0,0,0,0.08)')};
+    color: ${({ $active }) => ($active ? '#ffffff' : '#191f28')};
 
     [data-theme='dark'] & {
       background: ${({ $active }) =>
-        $active ? 'rgba(255, 255, 255, 0.18)' : 'rgba(255, 255, 255, 0.08)'};
+        $active ? 'rgba(255, 255, 255, 0.22)' : 'rgba(255, 255, 255, 0.1)'};
       color: #ffffff;
-      border-color: ${({ $active }) =>
-        $active ? 'rgba(255, 255, 255, 0.9)' : 'rgba(255, 255, 255, 0.22)'};
     }
   }
 
@@ -322,21 +318,19 @@ export const SortWrapper = styled.div`
   align-items: center;
   border-radius: 9999px;
   background: rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: none;
   transition: all 0.15s ease;
 
   &:hover {
     background: rgba(0, 0, 0, 0.07);
-    border-color: rgba(0, 0, 0, 0.14);
   }
 
   [data-theme='dark'] & {
     background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.12);
+    border: none;
 
     &:hover {
       background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.18);
     }
   }
 `;

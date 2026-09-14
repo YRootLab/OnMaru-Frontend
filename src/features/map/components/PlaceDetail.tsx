@@ -185,7 +185,7 @@ export default function PlaceDetail() {
   const badges = useMemo(() => {
     const list: string[] = [];
     if (isRealTraditional) {
-      list.push('🏛️ 정통 한옥');
+      list.push('정통 한옥');
     } else {
       list.push('주변 연계 시설');
     }

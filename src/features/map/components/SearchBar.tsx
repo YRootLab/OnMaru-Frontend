@@ -33,7 +33,6 @@ const Field = styled.form`
 
   &:focus-within {
     background: #ffffff;
-    box-shadow: 0 4px 14px rgba(25, 31, 40, 0.08);
   }
 
   [data-theme='dark'] & {
@@ -41,7 +40,6 @@ const Field = styled.form`
 
     &:focus-within {
       background: rgba(255, 255, 255, 0.12);
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
     }
   }
 `;
@@ -140,15 +138,15 @@ const Dropdown = styled.div`
   padding: 16px;
   border-radius: 20px;
   background: #ffffff;
-  border: 1px solid rgba(25, 31, 40, 0.08);
-  box-shadow: 0 12px 32px -4px rgba(25, 31, 40, 0.16);
+  border: none;
+  box-shadow: 0 8px 24px rgba(25, 31, 40, 0.12);
   user-select: none;
   backdrop-filter: blur(20px);
 
   [data-theme='dark'] & {
     background: ${surface.dark.card};
-    border-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.6);
+    border: none;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
   }
 `;
 
@@ -161,7 +159,7 @@ const ResetAllBtn = styled.button`
   margin-bottom: 12px;
   border-radius: 10px;
   background: rgba(25, 31, 40, 0.03);
-  border: 1px dashed rgba(25, 31, 40, 0.15);
+  border: none;
   color: ${meok[500]};
   font-size: ${fontSize.xs};
   font-weight: 500;

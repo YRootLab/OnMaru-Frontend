@@ -336,17 +336,13 @@ const styles = css`
   }
 
   .om-pin--traditional::before {
-    content: '✦';
+    content: '';
     position: absolute;
     top: -14px;
     left: 1px;
-    font-size: ${fontSize.base};
-    color: #EAB308;
-    text-shadow: 0 0 6px rgba(250, 204, 21, 0.7);
-    line-height: 1;
+    width: 14px;
+    height: 14px;
     pointer-events: none;
-    transform-origin: 50% 50%;
-    transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   /*
@@ -967,11 +963,12 @@ export default function PlaceMarkers() {
           */
           const stars = document.createElement('span');
           stars.className = 'om-pin-stars';
+          const starSvg = mapIconSvg('star', 11);
           stars.innerHTML = `
-            <span style="top:-16px;left:14px;font-size:${fontSize.sm};">✧</span>
-            <span style="top:-9px;left:-6px;font-size:${fontSize.sm};">✦</span>
-            <span style="bottom:-13px;right:2px;font-size:${fontSize.base};">✦</span>
-            <span style="bottom:-7px;right:18px;font-size:${fontSize.sm};">✧</span>
+            <span style="top:-16px;left:14px;color:#EAB308;display:inline-flex;">${starSvg}</span>
+            <span style="top:-9px;left:-6px;color:#EAB308;display:inline-flex;">${starSvg}</span>
+            <span style="bottom:-13px;right:2px;color:#EAB308;display:inline-flex;">${starSvg}</span>
+            <span style="bottom:-7px;right:18px;color:#EAB308;display:inline-flex;">${starSvg}</span>
           `;
           el.appendChild(stars);
         }
@@ -986,10 +983,11 @@ export default function PlaceMarkers() {
           // 뱃지 핀은 작으니 별도 셋. 쉴 때 정적, 가리키면 함께 튄다.
           const stars = document.createElement('span');
           stars.className = 'om-pin-stars';
+          const starSvg = mapIconSvg('star', 11);
           stars.innerHTML = `
-            <span style="top:-13px;left:-4px;font-size:${fontSize.sm};">✦</span>
-            <span style="top:-10px;right:-5px;font-size:${fontSize.sm};">✧</span>
-            <span style="bottom:-11px;right:1px;font-size:${fontSize.sm};">✦</span>
+            <span style="top:-13px;left:-4px;color:#EAB308;display:inline-flex;">${starSvg}</span>
+            <span style="top:-10px;right:-5px;color:#EAB308;display:inline-flex;">${starSvg}</span>
+            <span style="bottom:-11px;right:1px;color:#EAB308;display:inline-flex;">${starSvg}</span>
           `;
           el.appendChild(stars);
         }
