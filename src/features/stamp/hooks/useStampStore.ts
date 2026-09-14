@@ -3,6 +3,8 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import type { CollectedStamp, StampDef } from '../types';
 import { STAMP_DEFINITIONS } from '../data/stampDefs';
 
+import { isTraditionalPlace } from '@/features/map/utils/geo';
+
 interface CheckInResult {
   success: boolean;
   alreadyVisited: boolean;
@@ -16,7 +18,7 @@ interface StampStoreState {
   activeStampModal: StampDef | null;
 
   // Actions
-  checkIn: (place: { id: string; name: string; address?: string }) => CheckInResult;
+  checkIn: (place: { id: string; name: string; address?: string; isTraditional?: boolean }) => CheckInResult;
   isPlaceVisited: (placeId: string) => boolean;
   isStampUnlocked: (stampId: string) => boolean;
   getUnlockedStampsCount: () => number;
@@ -25,49 +27,80 @@ interface StampStoreState {
   syncWithServer: (userId?: string) => Promise<void>;
 }
 
-// Helper to determine the best matching stamp for a given place
-function findMatchingStamps(place: { id: string; name: string; address?: string }): StampDef[] {
+// Helper to determine the best matching stamp for a given place with strict Hanok verification
+function findMatchingStamps(place: { id: string; name: string; address?: string; isTraditional?: boolean }): StampDef[] {
+  // 1. 한옥·고택·전통문화재 검증 (비한옥 상업/일반 시설은 수결 발급 대상 제외)
+  const isEligible = place.isTraditional ?? isTraditionalPlace(place.name);
+  if (!isEligible) {
+    return [];
+  }
+
   const matches: StampDef[] = [];
   const text = `${place.name} ${place.address || ''}`.toLowerCase();
 
-  // 1. Direct keywords / placeId matches
-  if (text.includes('북촌') || text.includes('인사동') || text.includes('종로')) {
-    const s = STAMP_DEFINITIONS.find((d) => d.id === 'stamp_bukchon');
-    if (s) matches.push(s);
-  } else if (text.includes('은평') || text.includes('진관')) {
+  // 2. 지역별 정밀 매칭 (지명 및 문화재 키워드)
+  if (text.includes('은평') || text.includes('진관')) {
     const s = STAMP_DEFINITIONS.find((d) => d.id === 'stamp_eunpyeong');
     if (s) matches.push(s);
-  } else if (text.includes('수원') || text.includes('화성') || text.includes('행궁')) {
+  } else if (text.includes('북촌') || text.includes('인사동') || text.includes('종로') || text.includes('서울')) {
+    const s = STAMP_DEFINITIONS.find((d) => d.id === 'stamp_bukchon');
+    if (s) matches.push(s);
+  } else if (
+    text.includes('수원') || text.includes('화성') || text.includes('행궁') ||
+    text.includes('경기') || text.includes('용인') || text.includes('양평') ||
+    text.includes('가평') || text.includes('파주') || text.includes('안성') || text.includes('이천')
+  ) {
     const s = STAMP_DEFINITIONS.find((d) => d.id === 'stamp_hwaseong');
     if (s) matches.push(s);
-  } else if (text.includes('강릉') || text.includes('선교장') || text.includes('오죽헌')) {
+  } else if (
+    text.includes('강릉') || text.includes('선교장') || text.includes('오죽헌') ||
+    text.includes('강원') || text.includes('춘천') || text.includes('속초') ||
+    text.includes('원주') || text.includes('영월') || text.includes('평창') || text.includes('정선')
+  ) {
     const s = STAMP_DEFINITIONS.find((d) => d.id === 'stamp_gangneung');
     if (s) matches.push(s);
-  } else if (text.includes('아산') || text.includes('외암') || text.includes('충청') || text.includes('공주') || text.includes('부여')) {
+  } else if (
+    text.includes('아산') || text.includes('외암') || text.includes('충청') ||
+    text.includes('충남') || text.includes('충북') || text.includes('대전') ||
+    text.includes('세종') || text.includes('공주') || text.includes('부여') ||
+    text.includes('청주') || text.includes('천안') || text.includes('충주')
+  ) {
     const s = STAMP_DEFINITIONS.find((d) => d.id === 'stamp_oeam');
-    if (s) matches.push(s);
-  } else if (text.includes('전주') || text.includes('경기전') || text.includes('남원') || text.includes('전라')) {
-    const s = STAMP_DEFINITIONS.find((d) => d.id === 'stamp_jeonju');
     if (s) matches.push(s);
   } else if (text.includes('구례') || text.includes('운조루') || text.includes('지리산') || text.includes('담양')) {
     const s = STAMP_DEFINITIONS.find((d) => d.id === 'stamp_unjoru');
     if (s) matches.push(s);
-  } else if (text.includes('안동') || text.includes('하회') || text.includes('도산')) {
-    const s = STAMP_DEFINITIONS.find((d) => d.id === 'stamp_andong');
+  } else if (
+    text.includes('전주') || text.includes('경기전') || text.includes('전라') ||
+    text.includes('전북') || text.includes('전남') || text.includes('광주') ||
+    text.includes('남원') || text.includes('순천') || text.includes('나주') || text.includes('여수')
+  ) {
+    const s = STAMP_DEFINITIONS.find((d) => d.id === 'stamp_jeonju');
     if (s) matches.push(s);
-  } else if (text.includes('경주') || text.includes('양동') || text.includes('교촌') || text.includes('경상')) {
+  } else if (
+    text.includes('경주') || text.includes('양동') || text.includes('교촌') ||
+    text.includes('포항') || text.includes('영주')
+  ) {
     const s = STAMP_DEFINITIONS.find((d) => d.id === 'stamp_yangdong');
+    if (s) matches.push(s);
+  } else if (
+    text.includes('안동') || text.includes('하회') || text.includes('도산') ||
+    text.includes('경상') || text.includes('경북') || text.includes('경남') ||
+    text.includes('부산') || text.includes('대구') || text.includes('울산') ||
+    text.includes('창원') || text.includes('진주') || text.includes('통영')
+  ) {
+    const s = STAMP_DEFINITIONS.find((d) => d.id === 'stamp_andong');
     if (s) matches.push(s);
   } else if (text.includes('제주') || text.includes('성읍') || text.includes('서귀포')) {
     const s = STAMP_DEFINITIONS.find((d) => d.id === 'stamp_jeju_seongup');
     if (s) matches.push(s);
   } else {
-    // Default fallback to Bukchon common stamp
+    // 한옥으로 검증되었으나 세부 권역이 특정되지 않은 경우 기본 전통 수결
     const fallback = STAMP_DEFINITIONS[0];
     matches.push(fallback);
   }
 
-  // 2. Night Hanok check (past 18:00 or before 06:00)
+  // 3. 야간 달빛 고택 야행 특별 인장 (18시 이후 또는 야경/야행 명소)
   const currentHour = new Date().getHours();
   if (currentHour >= 18 || currentHour < 6 || text.includes('야경') || text.includes('야행')) {
     const nightStamp = STAMP_DEFINITIONS.find((d) => d.id === 'stamp_night_hanok');
@@ -100,6 +133,15 @@ export const useStampStore = create<StampStoreState>()(
         const alreadyVisited = visitedPlaceIds.includes(place.id);
 
         const matchingDefs = findMatchingStamps(place);
+        if (matchingDefs.length === 0) {
+          return {
+            success: false,
+            alreadyVisited,
+            stampsAwarded: [],
+            primaryStamp: null as unknown as StampDef,
+          };
+        }
+
         const primaryStamp = matchingDefs[0];
         const stampsAwarded: StampDef[] = [];
         const nowIso = new Date().toISOString();
@@ -146,7 +188,7 @@ export const useStampStore = create<StampStoreState>()(
         set({
           collectedStamps: updatedStamps,
           visitedPlaceIds: updatedPlaces,
-          activeStampModal: stampsAwarded.length > 0 ? stampsAwarded[0] : null,
+          activeStampModal: stampsAwarded.length > 0 ? stampsAwarded[0] : primaryStamp,
         });
 
         return {

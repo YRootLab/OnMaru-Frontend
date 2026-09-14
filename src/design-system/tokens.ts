@@ -355,8 +355,10 @@ export const createTheme = (mode: ColorMode) => {
     typography: {
       fontFamily: {
         sans: '"Spoqa Han Sans Neo", system-ui, sans-serif',
-        serif: '"Spoqa Han Sans Neo", system-ui, sans-serif',
-        traditional: '"Spoqa Han Sans Neo", sans-serif',
+        serif: '"GyeongbokgungSumunjangTitle", serif',
+        traditionalTitle: '"GyeongbokgungSumunjangTitle", "Spoqa Han Sans Neo", serif',
+        traditionalBody: '"GyeongbokgungSumunjangBodyText", "Spoqa Han Sans Neo", serif',
+        traditional: '"GyeongbokgungSumunjangTitle", "Spoqa Han Sans Neo", serif',
       },
       fontSize,
       mobile: {

@@ -3,9 +3,10 @@
 import { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, X, Check, Award } from 'lucide-react';
+import { X, Check, Award } from 'lucide-react';
 import type { StampDef } from '../types';
 import { meok } from '@/design-system/tokens';
+import { stampAudio } from '../utils/sound';
 
 const Overlay = styled(motion.div)`
   position: fixed;
@@ -14,8 +15,8 @@ const Overlay = styled(motion.div)`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(14, 16, 22, 0.72);
-  backdrop-filter: blur(8px);
+  background: rgba(14, 16, 22, 0.76);
+  backdrop-filter: blur(10px);
   padding: 20px;
 `;
 
@@ -23,16 +24,17 @@ const SealCard = styled(motion.div)`
   position: relative;
   width: 100%;
   max-width: 420px;
-  border-radius: 20px;
+  border-radius: 24px;
   background: #ffffff;
-  padding: 32px 24px;
+  padding: 36px 26px 30px;
   text-align: center;
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
   overflow: hidden;
 
   [data-theme='dark'] & {
-    background: #20242d;
+    background: #1c1a17;
     color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 `;
 
@@ -40,15 +42,15 @@ const HanjiBackdrop = styled.div`
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(circle at 50% 30%, rgba(212, 175, 55, 0.08) 0%, transparent 70%);
+  background: radial-gradient(circle at 50% 35%, rgba(212, 175, 55, 0.12) 0%, transparent 70%);
 `;
 
 const CloseButton = styled.button`
   position: absolute;
   top: 16px;
   right: 16px;
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -60,7 +62,7 @@ const CloseButton = styled.button`
   transition: background 0.15s ease, color 0.15s ease;
 
   &:hover {
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(0, 0, 0, 0.06);
     color: ${meok[900]};
   }
 
@@ -70,41 +72,70 @@ const CloseButton = styled.button`
   }
 `;
 
+const SealStage = styled.div`
+  position: relative;
+  width: 140px;
+  height: 140px;
+  margin: 8px auto 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const SealPulseWave = styled(motion.div)<{ $color: string }>`
+  position: absolute;
+  inset: -16px;
+  border-radius: 36px;
+  border: 3px solid ${({ $color }) => $color};
+  pointer-events: none;
+`;
+
 const SealStampRing = styled(motion.div)<{ $color: string }>`
   position: relative;
   width: 120px;
   height: 120px;
-  margin: 10px auto 20px;
-  border-radius: 24px;
-  border: 4px solid ${({ $color }) => $color};
+  border-radius: 26px;
+  border: 4.5px solid ${({ $color }) => $color};
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   color: ${({ $color }) => $color};
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.95);
 
   [data-theme='dark'] & {
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(28, 26, 23, 0.85);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   }
 
   &::before {
     content: '';
     position: absolute;
     inset: 4px;
-    border: 1px dashed ${({ $color }) => $color};
-    border-radius: 18px;
-    opacity: 0.65;
+    border: 1.5px dashed ${({ $color }) => $color};
+    border-radius: 19px;
+    opacity: 0.7;
   }
 `;
 
 const HanziSealText = styled.span`
-  font-family: 'Batang', 'Song Myung', serif;
-  font-size: 38px;
-  font-weight: 900;
+  font-family: var(--font-traditional);
+  font-size: 40px;
+  font-weight: 700;
   letter-spacing: 0.08em;
   line-height: 1;
+`;
+
+const SparkParticle = styled(motion.div)<{ $color: string }>`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: ${({ $color }) => $color};
+  pointer-events: none;
 `;
 
 const RarityTag = styled.div<{ $rarity: string }>`
@@ -113,9 +144,9 @@ const RarityTag = styled.div<{ $rarity: string }>`
   gap: 4px;
   font-size: 11.5px;
   font-weight: 700;
-  padding: 3px 10px;
+  padding: 4px 12px;
   border-radius: 9999px;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   background: ${({ $rarity }) =>
     $rarity === 'legendary'
       ? 'rgba(212, 175, 55, 0.18)'
@@ -128,11 +159,22 @@ const RarityTag = styled.div<{ $rarity: string }>`
       : $rarity === 'rare'
       ? '#6d28d9'
       : '#b91c1c'};
+
+  [data-theme='dark'] & {
+    color: ${({ $rarity }) =>
+      $rarity === 'legendary'
+        ? '#fbbf24'
+        : $rarity === 'rare'
+        ? '#a78bfa'
+        : '#f87171'};
+  }
 `;
 
 const StampTitle = styled.h3`
-  font-size: 20px;
-  font-weight: 800;
+  font-family: var(--font-traditional);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   margin: 0 0 6px 0;
   color: ${meok[900]};
 
@@ -142,10 +184,11 @@ const StampTitle = styled.h3`
 `;
 
 const StampDesc = styled.p`
-  font-size: 13.5px;
-  line-height: 1.5;
-  color: ${meok[500]};
-  margin: 0 0 20px 0;
+  font-family: var(--font-traditional-body);
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: ${meok[700]};
+  margin: 0 0 24px 0;
   word-break: keep-all;
 
   [data-theme='dark'] & {
@@ -155,9 +198,9 @@ const StampDesc = styled.p`
 
 const ConfirmBtn = styled.button<{ $color: string }>`
   width: 100%;
-  height: 44px;
+  height: 48px;
   border: none;
-  border-radius: 12px;
+  border-radius: 14px;
   background: ${({ $color }) => $color};
   color: #ffffff;
   font-size: 14.5px;
@@ -165,8 +208,9 @@ const ConfirmBtn = styled.button<{ $color: string }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 7px;
   cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
   transition: opacity 0.2s ease, transform 0.1s ease;
 
   &:hover {
@@ -177,6 +221,8 @@ const ConfirmBtn = styled.button<{ $color: string }>`
     transform: scale(0.98);
   }
 `;
+
+const SPARKS_COUNT = 14;
 
 interface StampSealAnimationProps {
   stamp: StampDef | null;
@@ -189,7 +235,10 @@ export default function StampSealAnimation({ stamp, onClose }: StampSealAnimatio
   useEffect(() => {
     if (stamp) {
       setStamped(false);
-      const timer = setTimeout(() => setStamped(true), 150);
+      const timer = setTimeout(() => {
+        setStamped(true);
+        stampAudio.playStampSound();
+      }, 160);
       return () => clearTimeout(timer);
     }
   }, [stamp]);
@@ -205,9 +254,14 @@ export default function StampSealAnimation({ stamp, onClose }: StampSealAnimatio
         onClick={onClose}
       >
         <SealCard
-          initial={{ scale: 0.9, opacity: 0, y: 16 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          exit={{ scale: 0.9, opacity: 0, y: 16 }}
+          initial={{ scale: 0.9, opacity: 0, y: 20 }}
+          animate={{
+            scale: 1,
+            opacity: 1,
+            y: stamped ? [0, -6, 2, 0] : 0,
+          }}
+          transition={{ duration: 0.35, ease: 'easeOut' }}
+          exit={{ scale: 0.9, opacity: 0, y: 20 }}
           onClick={(e) => e.stopPropagation()}
         >
           <HanjiBackdrop />
@@ -228,26 +282,56 @@ export default function StampSealAnimation({ stamp, onClose }: StampSealAnimatio
             </span>
           </RarityTag>
 
-          <AnimatePresence>
-            {stamped && (
-              <SealStampRing
-                $color={stamp.color}
-                initial={{ scale: 2.2, rotate: -18, opacity: 0 }}
-                animate={{
-                  scale: [2.2, 0.92, 1],
-                  rotate: [-18, 4, 0],
-                  opacity: 1,
-                }}
-                transition={{
-                  duration: 0.45,
-                  times: [0, 0.75, 1],
-                  ease: 'easeOut',
-                }}
-              >
-                <HanziSealText>{stamp.sealText}</HanziSealText>
-              </SealStampRing>
-            )}
-          </AnimatePresence>
+          <SealStage>
+            <AnimatePresence>
+              {stamped && (
+                <>
+                  <SealPulseWave
+                    $color={stamp.color}
+                    initial={{ scale: 0.8, opacity: 0.9 }}
+                    animate={{ scale: 1.55, opacity: 0 }}
+                    transition={{ duration: 0.55, ease: 'easeOut' }}
+                  />
+
+                  {Array.from({ length: SPARKS_COUNT }).map((_, i) => {
+                    const angle = (i * (360 / SPARKS_COUNT) * Math.PI) / 180;
+                    const dist = 55 + (i % 3) * 16;
+                    return (
+                      <SparkParticle
+                        key={i}
+                        $color={i % 2 === 0 ? stamp.color : '#d4af37'}
+                        initial={{ x: 0, y: 0, scale: 0, opacity: 1 }}
+                        animate={{
+                          x: Math.cos(angle) * dist,
+                          y: Math.sin(angle) * dist,
+                          scale: [0, 1.4, 0],
+                          opacity: [1, 1, 0],
+                        }}
+                        transition={{ duration: 0.55, ease: 'easeOut' }}
+                      />
+                    );
+                  })}
+
+                  <SealStampRing
+                    $color={stamp.color}
+                    initial={{ scale: 2.3, rotate: -20, opacity: 0 }}
+                    animate={{
+                      scale: [2.3, 0.92, 1],
+                      rotate: [-20, 3, 0],
+                      opacity: 1,
+                    }}
+                    transition={{
+                      duration: 0.42,
+                      times: [0, 0.72, 1],
+                      ease: 'easeOut',
+                    }}
+                  >
+                    <HanziSealText>{stamp.sealText}</HanziSealText>
+                  </SealStampRing>
+                </>
+              )}
+            </AnimatePresence>
+          </SealStage>
 
           <StampTitle>{stamp.name}</StampTitle>
           <StampDesc>{stamp.description}</StampDesc>

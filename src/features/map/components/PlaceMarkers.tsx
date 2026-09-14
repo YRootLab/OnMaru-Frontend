@@ -232,8 +232,10 @@ const styles = css`
     bottom: calc(100% + 12px);
     left: 50%;
     transform: translate(-50%, 6px) scale(0.9);
-    width: 195px;
-    padding: 10px;
+    width: max-content;
+    min-width: 220px;
+    max-width: 275px;
+    padding: 10px 12px;
     background: #ffffff;
     border-radius: 14px;
     box-shadow: 0 12px 32px -4px rgba(25, 31, 40, 0.22), 0 1px 4px rgba(25, 31, 40, 0.08);
@@ -244,6 +246,13 @@ const styles = css`
     display: flex;
     flex-direction: column;
     gap: 6px;
+    box-sizing: border-box;
+  }
+
+  [data-theme='dark'] .om-pin-hover-card {
+    background: #24211c;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.5), 0 1px 4px rgba(0, 0, 0, 0.3);
   }
 
   .om-pin:hover .om-pin-hover-card,
@@ -256,28 +265,65 @@ const styles = css`
 
   .om-pin-hover-thumb {
     width: 100%;
-    height: 84px;
-    border-radius: 8px;
+    height: 90px;
+    border-radius: 9px;
     object-fit: cover;
     background: #f0eae0;
   }
 
   .om-pin-hover-title {
-    font-size: ${fontSize.xs};
+    font-family: var(--font-traditional);
+    font-size: 14px;
     font-weight: 700;
     color: ${meok[900]};
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     margin: 0;
+    line-height: 1.35;
+  }
+
+  [data-theme='dark'] .om-pin-hover-title {
+    color: #ffffff;
   }
 
   .om-pin-hover-meta {
+    font-family: var(--font-traditional-body);
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    font-size: ${fontSize.micro};
+    gap: 5px;
+    font-size: 11.5px;
     color: ${meok[500]};
+    white-space: nowrap;
+    line-height: 1.4;
+  }
+
+  .om-pin-hover-cat {
+    flex-shrink: 0;
+  }
+
+  .om-pin-hover-sep {
+    color: ${meok[400]};
+    flex-shrink: 0;
+    margin: 0 1px;
+  }
+
+  .om-pin-hover-dist {
+    flex-shrink: 0;
+    color: ${meok[500]};
+    white-space: nowrap;
+  }
+
+  [data-theme='dark'] .om-pin-hover-meta {
+    color: ${meok[400]};
+  }
+
+  [data-theme='dark'] .om-pin-hover-sep {
+    color: rgba(255, 255, 255, 0.25);
+  }
+
+  [data-theme='dark'] .om-pin-hover-dist {
+    color: ${meok[400]};
   }
 
   /* 마커 클릭 시 방사형 파동 효과 (Ripple Wave) */
@@ -917,11 +963,15 @@ export default function PlaceMarkers() {
         예전에는 검색 중심에서 잰 값을 "도보 3분"이라고만 써서, 지도를 옮기면
         사용자에게서 30km 떨어진 곳이 도보 3분으로 보였다.
       */
-      const metaText = calculateTravelEstimate(
+      const estimate = calculateTravelEstimate(
         { lat: item.lat, lng: item.lng },
         userLocation,
         searchCenter,
-      ).fullLabel;
+      );
+      const metaText = estimate.fullLabel;
+      const distInfo = estimate.travelTimeStr
+        ? `${estimate.distanceStr} · ${estimate.travelTimeStr}`
+        : estimate.distanceStr;
 
       const isTraditional = item.isTraditional ?? isTraditionalPlace(item.name);
 
@@ -957,8 +1007,8 @@ export default function PlaceMarkers() {
           ${imgSrc ? `<img src="${imgSrc}" alt="" class="om-pin-hover-thumb" />` : ''}
           <h5 class="om-pin-hover-title">${escapeHtml(item.name)}</h5>
           <div class="om-pin-hover-meta">
-            <span style="color: ${catStyle.main}; font-weight: 700;">${escapeHtml(catLabel)}</span>
-            <span>${escapeHtml(metaText)}</span>
+            <span class="om-pin-hover-cat" style="color: ${catStyle.main}; font-weight: 700;">${escapeHtml(catLabel)}</span>
+            ${distInfo ? `<span class="om-pin-hover-sep">·</span><span class="om-pin-hover-dist">${escapeHtml(distInfo)}</span>` : ''}
           </div>
         `;
         el.appendChild(card);

@@ -354,14 +354,14 @@ export default function WarmthFeed() {
 
       {topPlace && (
         <FeaturedPlaceArea>
-          <FeaturedCard
-            type="button"
-            onClick={() =>
-              handlePlaceClick(topPlace.placeId, topPlace.placeName, topPlace.lat, topPlace.lng)
-            }
-            title="장소 상세 보기"
-          >
-            <FeaturedLeft>
+          <FeaturedCard>
+            <FeaturedLeft
+              type="button"
+              onClick={() =>
+                handlePlaceClick(topPlace.placeId, topPlace.placeName, topPlace.lat, topPlace.lng)
+              }
+              title="장소 상세 보기"
+            >
               <FeaturedIconBox>{renderPlaceIcon(topPlace.placeName)}</FeaturedIconBox>
               <FeaturedInfo>
                 <FeaturedRank>
@@ -377,8 +377,7 @@ export default function WarmthFeed() {
 
             <MoreBtn
               type="button"
-              onClick={(e) => {
-                e.stopPropagation();
+              onClick={() => {
                 setPopularPanelOpen(true);
                 setSheetSnap('half');
               }}

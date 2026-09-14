@@ -1,9 +1,11 @@
 'use client';
 
 import styled from '@emotion/styled';
+import { motion } from 'framer-motion';
 import { meok } from '@/design-system/tokens';
 import { KOREA_MAP_VIEWBOX, KOREA_REGION_PATHS } from '@/shared/data/koreaMapPaths';
 import type { RegionCode } from '../types';
+import { stampAudio } from '../utils/sound';
 
 interface KoreaMapCanvasProps {
   selectedRegion: RegionCode;
@@ -14,7 +16,7 @@ interface KoreaMapCanvasProps {
 const MapWrap = styled.div`
   position: relative;
   width: 100%;
-  max-width: 300px;
+  max-width: 540px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -24,12 +26,13 @@ const MapWrap = styled.div`
 
 const SvgContainer = styled.svg`
   width: 100%;
+  height: auto;
   aspect-ratio: 800 / 759;
   overflow: visible;
-  filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.04));
+  filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.06));
 
   [data-theme='dark'] & {
-    filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.3));
+    filter: drop-shadow(0 6px 28px rgba(0, 0, 0, 0.45));
   }
 `;
 
@@ -90,30 +93,33 @@ const RegionPath = styled.path<{ $active: boolean; $unlocked: boolean }>`
 `;
 
 const RegionText = styled.text<{ $active: boolean; $unlocked: boolean }>`
-  font-size: 19px;
-  font-weight: ${({ $active, $unlocked }) => ($active ? '800' : $unlocked ? '700' : '600')};
+  font-family: var(--font-traditional);
+  font-size: 25px;
+  font-weight: 700;
   fill: ${({ $active, $unlocked }) =>
-    $active ? '#b45309' : $unlocked ? meok[900] : meok[500]};
+    $active ? '#92400e' : $unlocked ? meok[900] : meok[700]};
   pointer-events: none;
   text-anchor: middle;
   dominant-baseline: central;
   paint-order: stroke fill;
   stroke: #ffffff;
-  stroke-width: 4px;
+  stroke-width: 5px;
   stroke-linejoin: round;
   user-select: none;
 
   [data-theme='dark'] & {
     fill: ${({ $active, $unlocked }) =>
-      $active ? '#fbbf24' : $unlocked ? '#f8f8f7' : meok[400]};
-    stroke: #1c1a17;
+      $active ? '#fde68a' : $unlocked ? '#ffffff' : meok[400]};
+    stroke: #181614;
+    stroke-width: 5px;
   }
 `;
 
 const MapHint = styled.div`
-  margin-top: 8px;
+  margin-top: 10px;
   text-align: center;
-  font-size: 11px;
+  font-size: 11.5px;
+  font-weight: 500;
   color: ${meok[500]};
 
   [data-theme='dark'] & {
@@ -165,6 +171,7 @@ export default function KoreaMapCanvas({
   unlockedRegions,
 }: KoreaMapCanvasProps) {
   const handleRegionClick = (pathId: string) => {
+    stampAudio.playMapClickSound();
     const targetCode = getRegionCodeForPath(pathId);
     if (pathId === 'seoul') {
       if (selectedRegion === 'seoul' || selectedRegion === 'gyeonggi') {
@@ -213,22 +220,37 @@ export default function KoreaMapCanvas({
                 aria-label={`${region.label} 권역 ${unlocked ? '방문 완료' : '미방문'}`}
               />
 
+              {/* 활성화 권역 외곽선 펄스 링 */}
+              {active && (
+                <motion.circle
+                  cx={region.centroid.x}
+                  cy={region.centroid.y + (unlocked ? 16 : 0)}
+                  r="34"
+                  fill="none"
+                  stroke="#d4af37"
+                  strokeWidth="2.5"
+                  initial={{ scale: 0.8, opacity: 0.9 }}
+                  animate={{ scale: [0.8, 1.35, 0.8], opacity: [0.9, 0.25, 0.9] }}
+                  transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+                />
+              )}
+
               {/* 전통 수결(인장) 획득 배지 */}
               {unlocked && (
-                <g transform={`translate(${region.centroid.x}, ${region.centroid.y - 14})`}>
+                <g transform={`translate(${region.centroid.x}, ${region.centroid.y - 18})`}>
                   <circle
-                    r="11"
+                    r="14"
                     fill="#b91c1c"
                     stroke="#d4af37"
-                    strokeWidth="1.5"
+                    strokeWidth="2"
                   />
                   <text
                     y="1"
                     textAnchor="middle"
                     dominantBaseline="central"
                     fill="#ffffff"
-                    fontSize="10"
-                    fontWeight="800"
+                    fontSize="13"
+                    fontWeight="900"
                     fontFamily="sans-serif"
                   >
                     印
@@ -238,7 +260,7 @@ export default function KoreaMapCanvas({
 
               <RegionText
                 x={region.centroid.x}
-                y={region.centroid.y + (unlocked ? 11 : 0)}
+                y={region.centroid.y + (unlocked ? 16 : 0)}
                 $active={active}
                 $unlocked={unlocked}
               >
@@ -248,7 +270,7 @@ export default function KoreaMapCanvas({
           );
         })}
       </SvgContainer>
-      <MapHint>지도를 눌러 권역별 인장을 모아보세요</MapHint>
+      <MapHint>지도를 눌러 권역별 인장을 탐색해보세요</MapHint>
     </MapWrap>
   );
 }

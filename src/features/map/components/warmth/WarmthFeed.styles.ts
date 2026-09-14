@@ -165,16 +165,8 @@ export const ScrubberSection = styled.div`
   padding: 0 16px 12px;
 `;
 
-/*
-  클릭으로 상세를 여는 카드라 button으로 둔다.
-  div + onClick이면 Tab으로 닿지 않고 Enter로도 열리지 않는다.
-*/
-export const FeaturedCard = styled.button`
+export const FeaturedCard = styled.div`
   width: 100%;
-  text-align: left;
-  font-family: inherit;
-  cursor: pointer;
-
   padding: 14px 16px;
   background: #f8f6f0;
   border-radius: 18px;
@@ -182,32 +174,32 @@ export const FeaturedCard = styled.button`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  cursor: pointer;
+  gap: 12px;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-
-  &:hover {
-    background: #f2eee6;
-    transform: translateY(-1px);
-  }
-
-  &:active {
-    transform: scale(0.985);
-  }
 
   [data-theme='dark'] & {
     background: #25221d;
-
-    &:hover {
-      background: #2c2822;
-    }
   }
 `;
 
-export const FeaturedLeft = styled.div`
+export const FeaturedLeft = styled.button`
   display: flex;
   align-items: center;
   gap: 10px;
   min-width: 0;
+  flex: 1;
+  text-align: left;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  border-radius: 8px;
+  transition: opacity 0.15s ease;
+
+  &:hover {
+    opacity: 0.85;
+  }
 `;
 
 export const FeaturedIconBox = styled.div`
@@ -240,9 +232,10 @@ export const FeaturedRank = styled.span`
 `;
 
 export const FeaturedName = styled.h4`
+  font-family: var(--font-traditional);
   margin: 0 0 2px;
-  font-size: ${fontSize.sm};
-  font-weight: 500;
+  font-size: 15px;
+  font-weight: 700;
   color: ${meok[900]};
   overflow: hidden;
   text-overflow: ellipsis;

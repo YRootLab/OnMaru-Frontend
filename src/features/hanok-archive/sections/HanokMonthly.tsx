@@ -26,13 +26,13 @@ const Header = styled.div`
 `;
 
 const Title = styled(motion.h2)`
-  font-family: var(--font-hanok);
+  font-family: var(--font-traditional-title);
   font-size: ${fluidHeading.hero};
-  font-weight: 300;
+  font-weight: 700;
   color: ${meok[900]};
   margin: 0 0 10px;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
 
   [data-theme='dark'] & {
     color: ${meok[100]};
@@ -40,7 +40,8 @@ const Title = styled(motion.h2)`
 `;
 
 const Subtitle = styled.p`
-  font-size: clamp(14px, 1.4vw, 15px);
+  font-family: var(--font-traditional-body);
+  font-size: clamp(14px, 1.4vw, 15.5px);
   font-weight: 400;
   color: ${meok[500]};
   margin: 0;
@@ -83,12 +84,12 @@ const EditorialContent = styled(motion.div)`
 `;
 
 const FeaturedTitle = styled.h3`
-  font-family: var(--font-hanok);
+  font-family: var(--font-traditional-title);
   font-size: ${fluidHeading.feature};
-  font-weight: 400;
+  font-weight: 700;
   color: ${meok[900]};
   margin: 0 0 6px;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.01em;
   line-height: 1.25;
 
   [data-theme='dark'] & {

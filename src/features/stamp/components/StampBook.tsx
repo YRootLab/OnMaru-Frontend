@@ -15,9 +15,9 @@ import { useAuth } from '@/features/auth/hooks/useAuth';
 
 const Root = styled.div`
   width: 100%;
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 32px 20px 80px;
+  padding: 16px 0 80px;
+  background: transparent;
+  color: inherit;
 `;
 
 const Header = styled.header`
@@ -28,12 +28,14 @@ const Badge = styled.div`
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: 9999px;
   background: rgba(212, 175, 55, 0.14);
   color: #b45309;
-  font-size: 11.5px;
+  font-family: var(--font-traditional);
+  font-size: 12.5px;
   font-weight: 700;
+  letter-spacing: 0.02em;
   margin-bottom: 8px;
 
   [data-theme='dark'] & {
@@ -43,9 +45,10 @@ const Badge = styled.div`
 `;
 
 const Title = styled.h1`
-  font-size: 26px;
-  font-weight: 900;
-  letter-spacing: -0.02em;
+  font-family: var(--font-traditional);
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   margin: 0 0 8px 0;
   color: ${meok[900]};
 
@@ -55,10 +58,12 @@ const Title = styled.h1`
 `;
 
 const Subtitle = styled.p`
-  font-size: 14px;
+  font-family: var(--font-traditional-body);
+  font-size: 15px;
   color: ${meok[500]};
   margin: 0;
-  line-height: 1.5;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
 
   [data-theme='dark'] & {
     color: ${meok[400]};
@@ -93,21 +98,25 @@ const UserSyncLeft = styled.div`
 
 const HeroGrid = styled.div`
   display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 28px;
+  grid-template-columns: minmax(420px, 1.25fr) minmax(300px, 0.95fr);
+  gap: 36px;
   align-items: center;
-  padding: 24px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.85);
-  margin-bottom: 32px;
+  padding: 32px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(25, 31, 40, 0.06);
+  margin-bottom: 36px;
 
   [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 960px) {
     grid-template-columns: 1fr;
-    gap: 20px;
+    padding: 20px;
+    gap: 24px;
   }
 `;
 
@@ -115,6 +124,7 @@ const StatsContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
+  justify-content: center;
 `;
 
 const StatRow = styled.div`
@@ -156,6 +166,45 @@ const StatValue = styled.div`
     font-weight: 500;
     color: ${meok[500]};
     margin-left: 2px;
+  }
+`;
+
+const ProgressBarTrack = styled.div`
+  width: 100%;
+  height: 6px;
+  border-radius: 9999px;
+  background: rgba(25, 31, 40, 0.08);
+  margin-top: 10px;
+  overflow: hidden;
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.1);
+  }
+`;
+
+const ProgressBarFill = styled.div<{ $percent: number }>`
+  height: 100%;
+  width: ${({ $percent }) => Math.min(100, Math.max(0, $percent))}%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #d4af37, #f59e0b);
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+`;
+
+const GuideNote = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: rgba(212, 175, 55, 0.08);
+  color: #92400e;
+  font-family: var(--font-traditional-body);
+  font-size: 13px;
+  line-height: 1.5;
+
+  [data-theme='dark'] & {
+    background: rgba(245, 158, 11, 0.1);
+    color: #fde68a;
   }
 `;
 
@@ -202,8 +251,8 @@ const TabButton = styled.button<{ $active: boolean }>`
 
 const StampsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+  gap: 16px;
 `;
 
 export default function StampBook() {
@@ -231,6 +280,9 @@ export default function StampBook() {
 
   const filteredStamps = STAMP_DEFINITIONS.filter((stamp) => {
     if (selectedRegion === 'all') return true;
+    if (selectedRegion === 'seoul' || selectedRegion === 'gyeonggi') {
+      return stamp.region === 'seoul' || stamp.region === 'gyeonggi' || stamp.region === 'all';
+    }
     return stamp.region === selectedRegion || stamp.region === 'all';
   });
 
@@ -293,7 +345,15 @@ export default function StampBook() {
               <span>전국 완파 달성률</span>
             </StatLabel>
             <StatValue>{progressPercent}%</StatValue>
+            <ProgressBarTrack>
+              <ProgressBarFill $percent={progressPercent} />
+            </ProgressBarTrack>
           </StatBox>
+
+          <GuideNote>
+            <MapPin size={15} style={{ flexShrink: 0 }} />
+            <span>지도의 각 권역을 누르면 해당 지역의 한옥 인장만 모아볼 수 있습니다.</span>
+          </GuideNote>
         </StatsContainer>
       </HeroGrid>
 
