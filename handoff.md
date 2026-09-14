@@ -1,6 +1,11 @@
 # handoff.md
 
 Current work:
+- Summary: Updated `system` theme resolution to use local time of day.
+  - `src/design-system/timeTheme.ts` resolves 07:00-18:59 to light and 19:00-06:59 to dark.
+  - `ThemeProvider` and the initial `beforeInteractive` theme script now use the same time-aware rule to avoid first-paint mismatch for automatic mode.
+  - Explicit user selections for `light` or `dark` remain respected.
+  - Verified: focused time theme test, `npx tsc --noEmit`, `npm test` (45 files, 135 tests), `npm run check:env`, and `npm run build` passed.
 - Summary: Added local and CI controls to prevent Odii/Sorimaru env alias regressions.
   - `.env.local` remains ignored, while `.env.example` is explicitly unignored and tracked as a safe template.
   - Added `npm run check:env` via `scripts/validate-env-contract.mjs` to validate Odii key aliases, `.gitignore` env rules, and accidental tracked secret env files.
