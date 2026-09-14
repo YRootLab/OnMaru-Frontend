@@ -93,8 +93,8 @@ const UserSyncLeft = styled.div`
 
 const HeroGrid = styled.div`
   display: grid;
-  grid-template-columns: 240px 1fr;
-  gap: 24px;
+  grid-template-columns: 280px 1fr;
+  gap: 28px;
   align-items: center;
   padding: 24px;
   border-radius: 20px;
@@ -105,9 +105,9 @@ const HeroGrid = styled.div`
     background: rgba(255, 255, 255, 0.04);
   }
 
-  @media (max-width: 680px) {
+  @media (max-width: 768px) {
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: 20px;
   }
 `;
 

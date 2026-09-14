@@ -2,6 +2,7 @@
 
 import styled from '@emotion/styled';
 import { meok } from '@/design-system/tokens';
+import { KOREA_MAP_VIEWBOX, KOREA_REGION_PATHS } from '@/shared/data/koreaMapPaths';
 import type { RegionCode } from '../types';
 
 interface KoreaMapCanvasProps {
@@ -13,163 +14,241 @@ interface KoreaMapCanvasProps {
 const MapWrap = styled.div`
   position: relative;
   width: 100%;
-  max-width: 280px;
+  max-width: 300px;
   margin: 0 auto;
-  aspect-ratio: 4 / 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   user-select: none;
 `;
 
 const SvgContainer = styled.svg`
   width: 100%;
-  height: 100%;
+  aspect-ratio: 800 / 759;
   overflow: visible;
+  filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.04));
+
+  [data-theme='dark'] & {
+    filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.3));
+  }
+`;
+
+const RegionGroup = styled.g`
+  cursor: pointer;
+  outline: none;
+
+  &:focus-visible path {
+    stroke: #d4af37;
+    stroke-width: 3px;
+  }
 `;
 
 const RegionPath = styled.path<{ $active: boolean; $unlocked: boolean }>`
-  cursor: pointer;
-  stroke: ${({ $active }) => ($active ? '#d4af37' : 'rgba(25, 31, 40, 0.15)')};
-  stroke-width: ${({ $active }) => ($active ? '2px' : '1px')};
+  stroke: ${({ $active, $unlocked }) =>
+    $active
+      ? '#b45309'
+      : $unlocked
+      ? '#d4af37'
+      : 'rgba(25, 31, 40, 0.16)'};
+  stroke-width: ${({ $active }) => ($active ? '3.5px' : '1.8px')};
   stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
   fill: ${({ $active, $unlocked }) =>
     $active
-      ? 'rgba(212, 175, 55, 0.35)'
+      ? 'rgba(212, 175, 55, 0.48)'
       : $unlocked
-      ? 'rgba(212, 175, 55, 0.18)'
+      ? 'rgba(212, 175, 55, 0.24)'
       : 'rgba(25, 31, 40, 0.04)'};
-  transition: all 0.2s ease;
+  transition: all 0.22s ease;
 
   [data-theme='dark'] & {
-    stroke: ${({ $active }) => ($active ? '#f59e0b' : 'rgba(255, 255, 255, 0.12)')};
+    stroke: ${({ $active, $unlocked }) =>
+      $active
+        ? '#fbbf24'
+        : $unlocked
+        ? '#f59e0b'
+        : 'rgba(255, 255, 255, 0.12)'};
     fill: ${({ $active, $unlocked }) =>
       $active
-        ? 'rgba(245, 158, 11, 0.4)'
+        ? 'rgba(245, 158, 11, 0.52)'
         : $unlocked
-        ? 'rgba(245, 158, 11, 0.2)'
-        : 'rgba(255, 255, 255, 0.05)'};
+        ? 'rgba(245, 158, 11, 0.24)'
+        : 'rgba(255, 255, 255, 0.04)'};
   }
 
   &:hover {
     fill: ${({ $unlocked }) =>
-      $unlocked ? 'rgba(212, 175, 55, 0.45)' : 'rgba(25, 31, 40, 0.1)'};
+      $unlocked ? 'rgba(212, 175, 55, 0.55)' : 'rgba(25, 31, 40, 0.09)'};
     stroke: #d4af37;
+
+    [data-theme='dark'] & {
+      fill: ${({ $unlocked }) =>
+        $unlocked ? 'rgba(245, 158, 11, 0.6)' : 'rgba(255, 255, 255, 0.1)'};
+      stroke: #fbbf24;
+    }
   }
 `;
 
-const RegionLabel = styled.text<{ $active: boolean; $unlocked: boolean }>`
-  font-size: 9px;
-  font-weight: ${({ $active }) => ($active ? '800' : '600')};
+const RegionText = styled.text<{ $active: boolean; $unlocked: boolean }>`
+  font-size: 19px;
+  font-weight: ${({ $active, $unlocked }) => ($active ? '800' : $unlocked ? '700' : '600')};
   fill: ${({ $active, $unlocked }) =>
-    $active
-      ? '#b45309'
-      : $unlocked
-      ? meok[900]
-      : meok[400]};
+    $active ? '#b45309' : $unlocked ? meok[900] : meok[500]};
   pointer-events: none;
   text-anchor: middle;
   dominant-baseline: central;
+  paint-order: stroke fill;
+  stroke: #ffffff;
+  stroke-width: 4px;
+  stroke-linejoin: round;
+  user-select: none;
 
   [data-theme='dark'] & {
     fill: ${({ $active, $unlocked }) =>
-      $active
-        ? '#fbbf24'
-        : $unlocked
-        ? '#ffffff'
-        : meok[500]};
+      $active ? '#fbbf24' : $unlocked ? '#f8f8f7' : meok[400]};
+    stroke: #1c1a17;
   }
 `;
 
-// Stylized polygonal representation of Korean provinces on a 200x260 grid
-const PROVINCES: {
-  id: RegionCode;
-  name: string;
-  d: string;
-  labelX: number;
-  labelY: number;
-}[] = [
-  {
-    id: 'seoul',
-    name: '서울',
-    d: 'M 72,56 L 82,54 L 84,66 L 74,68 Z',
-    labelX: 78,
-    labelY: 61,
-  },
-  {
-    id: 'gyeonggi',
-    name: '경기',
-    d: 'M 54,42 L 88,40 L 98,54 L 94,84 L 62,86 L 52,70 Z',
-    labelX: 62,
-    labelY: 52,
-  },
-  {
-    id: 'gangwon',
-    name: '강원',
-    d: 'M 92,30 L 142,38 L 158,80 L 118,92 L 96,52 Z',
-    labelX: 126,
-    labelY: 60,
-  },
-  {
-    id: 'chungcheong',
-    name: '충청',
-    d: 'M 48,88 L 112,86 L 126,124 L 72,132 L 44,106 Z',
-    labelX: 82,
-    labelY: 108,
-  },
-  {
-    id: 'gyeongsang',
-    name: '경상',
-    d: 'M 120,96 L 160,84 L 176,142 L 150,188 L 114,178 L 116,130 Z',
-    labelX: 142,
-    labelY: 140,
-  },
-  {
-    id: 'jeolla',
-    name: '전라',
-    d: 'M 46,134 L 110,126 L 112,182 L 56,198 L 36,160 Z',
-    labelX: 74,
-    labelY: 162,
-  },
-  {
-    id: 'jeju',
-    name: '제주',
-    d: 'M 52,228 Q 78,222 100,228 Q 80,244 52,228 Z',
-    labelX: 76,
-    labelY: 231,
-  },
-];
+const MapHint = styled.div`
+  margin-top: 8px;
+  text-align: center;
+  font-size: 11px;
+  color: ${meok[500]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
+`;
+
+function getRegionCodeForPath(pathId: string): RegionCode {
+  switch (pathId) {
+    case 'seoul':
+      return 'seoul';
+    case 'gangwon':
+      return 'gangwon';
+    case 'chungbuk':
+    case 'chungnam':
+      return 'chungcheong';
+    case 'jeonbuk':
+    case 'jeonnam':
+      return 'jeolla';
+    case 'gyeongbuk':
+    case 'gyeongnam':
+      return 'gyeongsang';
+    case 'jeju':
+      return 'jeju';
+    default:
+      return 'all';
+  }
+}
+
+function isPathUnlocked(pathId: string, unlockedRegions: Set<string>): boolean {
+  if (pathId === 'seoul') {
+    return unlockedRegions.has('seoul') || unlockedRegions.has('gyeonggi');
+  }
+  const code = getRegionCodeForPath(pathId);
+  return unlockedRegions.has(code);
+}
+
+function isPathActive(pathId: string, selectedRegion: RegionCode): boolean {
+  if (selectedRegion === 'all') return false;
+  if (pathId === 'seoul') {
+    return selectedRegion === 'seoul' || selectedRegion === 'gyeonggi';
+  }
+  return getRegionCodeForPath(pathId) === selectedRegion;
+}
 
 export default function KoreaMapCanvas({
   selectedRegion,
   onSelectRegion,
   unlockedRegions,
 }: KoreaMapCanvasProps) {
+  const handleRegionClick = (pathId: string) => {
+    const targetCode = getRegionCodeForPath(pathId);
+    if (pathId === 'seoul') {
+      if (selectedRegion === 'seoul' || selectedRegion === 'gyeonggi') {
+        onSelectRegion('all');
+      } else {
+        onSelectRegion('seoul');
+      }
+      return;
+    }
+    if (selectedRegion === targetCode) {
+      onSelectRegion('all');
+    } else {
+      onSelectRegion(targetCode);
+    }
+  };
+
   return (
     <MapWrap>
-      <SvgContainer viewBox="20 15 170 240" aria-label="전국 한옥 지도 권역">
-        {PROVINCES.map((prov) => {
-          const isActive = selectedRegion === prov.id;
-          const isUnlocked = unlockedRegions.has(prov.id);
+      <SvgContainer
+        viewBox={KOREA_MAP_VIEWBOX}
+        preserveAspectRatio="xMidYMid meet"
+        aria-label="전국 한옥 지도 권역"
+      >
+        {KOREA_REGION_PATHS.map((region) => {
+          const active = isPathActive(region.id, selectedRegion);
+          const unlocked = isPathUnlocked(region.id, unlockedRegions);
 
           return (
-            <g key={prov.id} onClick={() => onSelectRegion(isActive ? 'all' : prov.id)}>
+            <RegionGroup
+              key={region.id}
+              onClick={() => handleRegionClick(region.id)}
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleRegionClick(region.id);
+                }
+              }}
+            >
+              <title>{`${region.label}: ${unlocked ? '방문 완료 (인장 획득)' : '미방문'} — 클릭하여 필터`}</title>
               <RegionPath
-                d={prov.d}
-                $active={isActive}
-                $unlocked={isUnlocked}
+                d={region.d}
+                $active={active}
+                $unlocked={unlocked}
                 role="button"
-                aria-label={`${prov.name} 권역 ${isUnlocked ? '방문 완료' : '미방문'}`}
+                aria-label={`${region.label} 권역 ${unlocked ? '방문 완료' : '미방문'}`}
               />
-              <RegionLabel
-                x={prov.labelX}
-                y={prov.labelY}
-                $active={isActive}
-                $unlocked={isUnlocked}
+
+              {/* 전통 수결(인장) 획득 배지 */}
+              {unlocked && (
+                <g transform={`translate(${region.centroid.x}, ${region.centroid.y - 14})`}>
+                  <circle
+                    r="11"
+                    fill="#b91c1c"
+                    stroke="#d4af37"
+                    strokeWidth="1.5"
+                  />
+                  <text
+                    y="1"
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    fill="#ffffff"
+                    fontSize="10"
+                    fontWeight="800"
+                    fontFamily="sans-serif"
+                  >
+                    印
+                  </text>
+                </g>
+              )}
+
+              <RegionText
+                x={region.centroid.x}
+                y={region.centroid.y + (unlocked ? 11 : 0)}
+                $active={active}
+                $unlocked={unlocked}
               >
-                {prov.name}
-              </RegionLabel>
-            </g>
+                {region.shortLabel}
+              </RegionText>
+            </RegionGroup>
           );
         })}
       </SvgContainer>
+      <MapHint>지도를 눌러 권역별 인장을 모아보세요</MapHint>
     </MapWrap>
   );
 }
