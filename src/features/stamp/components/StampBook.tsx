@@ -13,23 +13,11 @@ import StampLeaderboard from './StampLeaderboard';
 import StampSealAnimation from './StampSealAnimation';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 
-const PageWrapper = styled.div`
-  min-height: calc(100vh - 48px);
-  width: 100%;
-  background: #f8f8f7;
-  color: ${meok[900]};
-
-  [data-theme='dark'] & {
-    background: #141210;
-    color: #f8f8f7;
-  }
-`;
-
 const Root = styled.div`
   width: 100%;
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 32px 20px 80px;
+  padding: 16px 0 80px;
+  background: transparent;
+  color: inherit;
 `;
 
 const Header = styled.header`
@@ -55,7 +43,7 @@ const Badge = styled.div`
 `;
 
 const Title = styled.h1`
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 900;
   letter-spacing: -0.02em;
   margin: 0 0 8px 0;
@@ -67,7 +55,7 @@ const Title = styled.h1`
 `;
 
 const Subtitle = styled.p`
-  font-size: 14px;
+  font-size: 14.5px;
   color: ${meok[500]};
   margin: 0;
   line-height: 1.5;
@@ -105,23 +93,25 @@ const UserSyncLeft = styled.div`
 
 const HeroGrid = styled.div`
   display: grid;
-  grid-template-columns: minmax(280px, 320px) 1fr;
-  gap: 28px;
+  grid-template-columns: minmax(420px, 1.25fr) minmax(300px, 0.95fr);
+  gap: 36px;
   align-items: center;
-  padding: 24px;
-  border-radius: 20px;
-  background: #ffffff;
+  padding: 32px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(12px);
   border: 1px solid rgba(25, 31, 40, 0.06);
-  margin-bottom: 32px;
+  margin-bottom: 36px;
 
   [data-theme='dark'] & {
     background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 960px) {
     grid-template-columns: 1fr;
-    gap: 20px;
+    padding: 20px;
+    gap: 24px;
   }
 `;
 
@@ -129,6 +119,7 @@ const StatsContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
+  justify-content: center;
 `;
 
 const StatRow = styled.div`
@@ -170,6 +161,44 @@ const StatValue = styled.div`
     font-weight: 500;
     color: ${meok[500]};
     margin-left: 2px;
+  }
+`;
+
+const ProgressBarTrack = styled.div`
+  width: 100%;
+  height: 6px;
+  border-radius: 9999px;
+  background: rgba(25, 31, 40, 0.08);
+  margin-top: 10px;
+  overflow: hidden;
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.1);
+  }
+`;
+
+const ProgressBarFill = styled.div<{ $percent: number }>`
+  height: 100%;
+  width: ${({ $percent }) => Math.min(100, Math.max(0, $percent))}%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #d4af37, #f59e0b);
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+`;
+
+const GuideNote = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: rgba(212, 175, 55, 0.08);
+  color: #92400e;
+  font-size: 12.5px;
+  line-height: 1.5;
+
+  [data-theme='dark'] & {
+    background: rgba(245, 158, 11, 0.1);
+    color: #fde68a;
   }
 `;
 
@@ -216,8 +245,8 @@ const TabButton = styled.button<{ $active: boolean }>`
 
 const StampsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+  gap: 16px;
 `;
 
 export default function StampBook() {
@@ -252,9 +281,8 @@ export default function StampBook() {
   });
 
   return (
-    <PageWrapper>
-      <Root>
-        <Header>
+    <Root>
+      <Header>
         <Badge>
           <Award size={13} />
           <span>전국 한옥 수결첩 (手決帖)</span>
@@ -311,7 +339,15 @@ export default function StampBook() {
               <span>전국 완파 달성률</span>
             </StatLabel>
             <StatValue>{progressPercent}%</StatValue>
+            <ProgressBarTrack>
+              <ProgressBarFill $percent={progressPercent} />
+            </ProgressBarTrack>
           </StatBox>
+
+          <GuideNote>
+            <MapPin size={15} style={{ flexShrink: 0 }} />
+            <span>지도의 각 권역을 누르면 해당 지역의 한옥 인장만 모아볼 수 있습니다.</span>
+          </GuideNote>
         </StatsContainer>
       </HeroGrid>
 
@@ -368,6 +404,5 @@ export default function StampBook() {
         onClose={closeStampModal}
       />
     </Root>
-  </PageWrapper>
-);
+  );
 }

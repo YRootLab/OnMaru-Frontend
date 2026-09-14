@@ -16,7 +16,7 @@ interface KoreaMapCanvasProps {
 const MapWrap = styled.div`
   position: relative;
   width: 100%;
-  max-width: 340px;
+  max-width: 540px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -26,12 +26,13 @@ const MapWrap = styled.div`
 
 const SvgContainer = styled.svg`
   width: 100%;
+  height: auto;
   aspect-ratio: 800 / 759;
   overflow: visible;
-  filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.04));
+  filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.06));
 
   [data-theme='dark'] & {
-    filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.3));
+    filter: drop-shadow(0 6px 28px rgba(0, 0, 0, 0.45));
   }
 `;
 

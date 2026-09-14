@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { StampBook } from '@/features/stamp';
-import StampsNav from '@/features/stamp/components/StampsNav';
 
 export const metadata: Metadata = {
   title: '수결첩 — 나의 전국 한옥 탐방 인장첩 | 온마루',
@@ -13,10 +12,6 @@ export const metadata: Metadata = {
 };
 
 export default function StampsPage() {
-  return (
-    <main>
-      <StampsNav />
-      <StampBook />
-    </main>
-  );
+  return <StampBook />;
 }
+
