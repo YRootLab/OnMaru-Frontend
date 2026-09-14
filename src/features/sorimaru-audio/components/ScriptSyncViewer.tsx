@@ -40,10 +40,10 @@ const CategoryLabel = styled.p`
 
 const HeadingTitle = styled.h3`
   margin-top: 0.25rem;
-  font-family: var(--font-hanok);
-  font-size: 1.125rem;
-  font-weight: 600;
-  letter-spacing: -0.03em;
+  font-family: var(--font-traditional-title);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   color: #211e19;
 `;
 
@@ -69,7 +69,7 @@ const PlayingBadge = styled.span`
     width: 6px;
     border-radius: 50%;
     background-color: #ffffff;
-    animation: ${pulseDot} 1.5s infinite;
+    animation: ${pulseDot} 1.4s ease-in-out infinite;
   }
 `;
 
@@ -77,13 +77,13 @@ const BlockquoteArea = styled.blockquote`
   margin-top: 1.5rem;
   border-left: 2px solid ${palette.juhong[700]};
   padding-left: 1rem;
-  font-family: var(--font-hanok);
-  font-size: 14px;
-  line-height: 1.75rem;
+  font-family: var(--font-traditional-body);
+  font-size: 15px;
+  line-height: 1.85rem;
   color: #3c342a;
 
   @media (min-width: 640px) {
-    font-size: 1rem;
+    font-size: 1.05rem;
   }
 `;
 
@@ -203,15 +203,16 @@ const ScrollListArea = styled.div`
 `;
 
 const TranscriptLine = styled.p<{ $active: boolean }>`
+  font-family: var(--font-traditional-body);
   cursor: pointer;
   border-radius: 1rem;
   padding: 0.75rem 1rem;
-  font-size: 14px;
-  line-height: 1.75rem;
+  font-size: 15px;
+  line-height: 1.8;
   transition: all 0.15s ease;
 
   @media (min-width: 640px) {
-    font-size: 1rem;
+    font-size: 1.05rem;
   }
 
   ${({ $active }) =>

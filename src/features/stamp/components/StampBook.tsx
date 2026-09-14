@@ -58,10 +58,12 @@ const Title = styled.h1`
 `;
 
 const Subtitle = styled.p`
-  font-size: 14.5px;
+  font-family: var(--font-traditional-body);
+  font-size: 15px;
   color: ${meok[500]};
   margin: 0;
-  line-height: 1.5;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
 
   [data-theme='dark'] & {
     color: ${meok[400]};
@@ -196,7 +198,8 @@ const GuideNote = styled.div`
   border-radius: 12px;
   background: rgba(212, 175, 55, 0.08);
   color: #92400e;
-  font-size: 12.5px;
+  font-family: var(--font-traditional-body);
+  font-size: 13px;
   line-height: 1.5;
 
   [data-theme='dark'] & {

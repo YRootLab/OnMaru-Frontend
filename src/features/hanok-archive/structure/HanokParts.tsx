@@ -104,15 +104,17 @@ const Step = styled.span`
 `;
 
 const Name = styled.h3`
+  font-family: var(--font-traditional-title);
   margin: 0;
   font-size: ${fluidHeading.label};
-  font-weight: 500;
-  letter-spacing: -0.022em;
-  line-height: 1.3;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.35;
   color: ${meok[900]};
   word-break: keep-all;
 
   small {
+    font-family: var(--font-traditional-body);
     display: block;
     margin-top: 3px;
     font-size: ${fontSize.xs};
@@ -131,8 +133,9 @@ const Name = styled.h3`
 `;
 
 const Desc = styled.p`
+  font-family: var(--font-traditional-body);
   margin: 0;
-  font-size: ${fontSize.sm};
+  font-size: 14.5px;
   font-weight: 400;
   line-height: 1.8;
   color: ${meok[700]};

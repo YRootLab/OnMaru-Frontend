@@ -184,8 +184,9 @@ const StampTitle = styled.h3`
 `;
 
 const StampDesc = styled.p`
-  font-size: 13.5px;
-  line-height: 1.55;
+  font-family: var(--font-traditional-body);
+  font-size: 14.5px;
+  line-height: 1.65;
   color: ${meok[700]};
   margin: 0 0 24px 0;
   word-break: keep-all;

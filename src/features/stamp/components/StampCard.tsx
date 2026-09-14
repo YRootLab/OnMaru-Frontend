@@ -130,10 +130,11 @@ const Title = styled.h4<{ $unlocked: boolean }>`
 `;
 
 const MetaText = styled.p<{ $unlocked: boolean }>`
-  font-size: 11px;
+  font-family: var(--font-traditional-body);
+  font-size: 11.5px;
   color: ${meok[500]};
   margin: 0;
-  line-height: 1.4;
+  line-height: 1.45;
   word-break: keep-all;
 
   [data-theme='dark'] & {
