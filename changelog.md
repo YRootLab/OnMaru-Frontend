@@ -4,6 +4,8 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+- Fixed `JourneyAssemblyLoader` automatically popping up upon entering the home/OnMaru page (`/`). The AI journey loading modal and mini-game are now only activated when the user actually initiates a search via the "여정 탐색" button or selects a mood chip.
+
 - Completely removed artificial horizontal hanji tear lines (`HanjiTearTransition` returns null, tags removed) to eliminate floating strip/dot artifacts and let sections breathe with negative space and smooth atmospheric backgrounds.
 - Added authentic vertical hanji deckle edge frame to Hanok Maru (`/hanok`) via new shared Emotion component `<HanjiDeckleEdge />` (`src/shared/components/HanjiDeckleEdge`), unifying traditional aesthetic framing across both Sorimaru and Hanok Maru with full dark-mode and mobile support.
 - Removed protruding horizontal deckle fiber needle lines (`LEFT_DECKLE_FIBERS`, `RIGHT_DECKLE_FIBERS`) and background window lattice grid pattern (`.thresholdShadow` and repeating-linear-gradients).

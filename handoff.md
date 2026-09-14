@@ -1,6 +1,9 @@
 # handoff.md
 
 Current work:
+- Fixed `JourneyAssemblyLoader` (`src/features/journey-curator/components/JourneyAssemblyLoader.tsx`):
+  - Resolved bug where the AI loading modal / Omok minigame would automatically pop up immediately when navigating to the home ("온마루") page.
+  - Added `hasStarted` tracking so the loader modal only activates when the user explicitly triggers a journey search via the "여정 탐색" button or selects a mood chip.
 - Summary:
   1. Restored Section 2 ("장면을 따라 걷는 소리") horizontal gutters by wrapping it in `CenteredContainer` (`max-width: 72rem`, `padding: 0 1rem` to `2rem`) matching Section 3 and 4.
   2. Implemented full dark mode (`[data-theme='dark']`) support across all 12 components in `src/features/sorimaru-audio`.
