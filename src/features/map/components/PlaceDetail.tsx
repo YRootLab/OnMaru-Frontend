@@ -20,6 +20,7 @@ import {
   ChevronDown,
   ChevronUp,
   Bookmark,
+  CheckCircle2,
 } from 'lucide-react';
 import { logger } from '@/lib/log';
 import { lightPalette, meok } from '@/design-system/tokens';
@@ -28,6 +29,7 @@ import { useCinematicTourStore } from '@/features/cinematic-tour/store/useCinema
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import { usePlaceDetail } from '@/features/map/hooks/usePlaceDetail';
+import { useStampStore } from '@/features/stamp/hooks/useStampStore';
 import { calculateTravelEstimate } from '@/features/map/utils/geo';
 import { createKakaoNavigationLinks } from '@/features/map/utils/navigation';
 import PlaceDetailCarousel from './detail/PlaceDetailCarousel';
@@ -55,6 +57,12 @@ import {
   HeroActionGrid,
   HeroActionTile,
   HeroActionLink,
+  StampCheckInBanner,
+  StampBannerLeft,
+  StampBannerText,
+  StampBannerTitle,
+  StampBannerSub,
+  StampActionBtn,
   CoreInfoBox,
   CoreRow,
   CoreLabel,
@@ -185,7 +193,7 @@ export default function PlaceDetail() {
   const badges = useMemo(() => {
     const list: string[] = [];
     if (isRealTraditional) {
-      list.push('🏛️ 정통 한옥');
+      list.push('정통 한옥');
     } else {
       list.push('주변 연계 시설');
     }
@@ -305,6 +313,9 @@ export default function PlaceDetail() {
 
   const isBookmarked = useBookmarkStore((s) => s.isBookmarked(detailId || ''));
   const toggleBookmark = useBookmarkStore((s) => s.toggleBookmark);
+
+  const isPlaceVisited = useStampStore((s) => s.isPlaceVisited(detailId || ''));
+  const checkIn = useStampStore((s) => s.checkIn);
 
   const handleToggleBookmark = () => {
     if (!detailId) return;
@@ -476,6 +487,47 @@ export default function PlaceDetail() {
                 <span>온기 남기기</span>
               </HeroActionTile>
             </HeroActionGrid>
+
+            {/* 한옥 수결첩 방문 스탬프 체크인 */}
+            <StampCheckInBanner $isVisited={isPlaceVisited}>
+              <StampBannerLeft>
+                <Award size={18} color={isPlaceVisited ? '#059669' : '#b45309'} />
+                <StampBannerText>
+                  <StampBannerTitle>
+                    {isPlaceVisited ? '수결첩에 보관된 한옥' : '한옥 수결첩 방문 기록'}
+                  </StampBannerTitle>
+                  <StampBannerSub>
+                    {isPlaceVisited
+                      ? '전국 한옥 수결첩에 인장이 기록되었습니다'
+                      : '이곳을 유람하셨다면 수결(스탬프)을 남겨보세요'}
+                  </StampBannerSub>
+                </StampBannerText>
+              </StampBannerLeft>
+              <StampActionBtn
+                type="button"
+                $isVisited={isPlaceVisited}
+                onClick={() => {
+                  if (!detailId) return;
+                  checkIn({
+                    id: detailId,
+                    name: title,
+                    address: addr,
+                  });
+                }}
+              >
+                {isPlaceVisited ? (
+                  <>
+                    <CheckCircle2 size={13} strokeWidth={2.5} />
+                    <span>기록 완료</span>
+                  </>
+                ) : (
+                  <>
+                    <Award size={13} strokeWidth={2} />
+                    <span>인장 찍기</span>
+                  </>
+                )}
+              </StampActionBtn>
+            </StampCheckInBanner>
 
             {matchedSorimaruStory && (
               <CinematicBanner>

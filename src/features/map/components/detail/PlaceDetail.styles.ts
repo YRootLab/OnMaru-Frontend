@@ -268,6 +268,85 @@ export const LiveWarmthPulse = styled.span<{ $busy: boolean }>`
   box-shadow: 0 0 0 3px ${({ $busy }) => ($busy ? 'rgba(232, 90, 24, 0.2)' : 'rgba(245, 166, 35, 0.2)')};
 `;
 
+export const StampCheckInBanner = styled.div<{ $isVisited: boolean }>`
+  margin: 0 16px 14px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: ${({ $isVisited }) =>
+    $isVisited ? 'rgba(5, 150, 105, 0.08)' : 'rgba(212, 175, 55, 0.12)'};
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  transition: all 0.2s ease;
+
+  [data-theme='dark'] & {
+    background: ${({ $isVisited }) =>
+      $isVisited ? 'rgba(5, 150, 105, 0.18)' : 'rgba(212, 175, 55, 0.18)'};
+  }
+`;
+
+export const StampBannerLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+`;
+
+export const StampBannerText = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+`;
+
+export const StampBannerTitle = styled.span`
+  font-size: ${fontSize.xs};
+  font-weight: 700;
+  color: ${meok[900]};
+
+  [data-theme='dark'] & {
+    color: #ffffff;
+  }
+`;
+
+export const StampBannerSub = styled.span`
+  font-size: ${fontSize.micro};
+  color: ${meok[500]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
+`;
+
+export const StampActionBtn = styled.button<{ $isVisited: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: ${fontSize.micro};
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  background: ${({ $isVisited }) => ($isVisited ? 'rgba(5, 150, 105, 0.15)' : '#b91c1c')};
+  color: ${({ $isVisited }) => ($isVisited ? '#047857' : '#ffffff')};
+  transition: opacity 0.15s ease, transform 0.1s ease;
+
+  &:hover {
+    opacity: 0.92;
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+
+  [data-theme='dark'] & {
+    background: ${({ $isVisited }) => ($isVisited ? 'rgba(5, 150, 105, 0.25)' : '#b91c1c')};
+    color: ${({ $isVisited }) => ($isVisited ? '#34d399' : '#ffffff')};
+  }
+`;
+
 export const LiveWarmthCount = styled.span`
   font-size: ${fontSize.micro};
   color: ${lightPalette.juhong[500]};

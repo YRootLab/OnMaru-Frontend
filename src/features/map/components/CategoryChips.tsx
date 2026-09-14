@@ -118,7 +118,7 @@ const Chip = styled.button<{ $active: boolean; $index: number }>`
   background: ${({ $active }) => ($active ? meok[900] : 'rgba(255, 255, 255, 0.94)')};
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid ${({ $active }) => ($active ? meok[900] : 'rgba(25, 31, 40, 0.08)')};
+  border: none;
 
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
   font-family: 'Spoqa Han Sans Neo', sans-serif;
@@ -127,10 +127,7 @@ const Chip = styled.button<{ $active: boolean; $index: number }>`
   letter-spacing: -0.02em;
   white-space: nowrap;
   cursor: pointer;
-  box-shadow: ${({ $active }) =>
-    $active
-      ? '0 4px 12px rgba(25, 31, 40, 0.2)'
-      : '0 2px 6px rgba(0, 0, 0, 0.05)'};
+  box-shadow: none;
   opacity: 0;
   animation: ${chipPopIn} 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   animation-delay: ${({ $index }) => $index * 40}ms;
@@ -145,10 +142,6 @@ const Chip = styled.button<{ $active: boolean; $index: number }>`
     color: ${({ $active }) => ($active ? '#ffffff' : meok[900])};
     background: ${({ $active }) => ($active ? meok[900] : '#ffffff')};
     transform: translateY(-1px);
-    box-shadow: ${({ $active }) =>
-      $active
-        ? '0 6px 16px rgba(25, 31, 40, 0.22)'
-        : '0 4px 12px rgba(0, 0, 0, 0.08)'};
   }
 
   &:active {
@@ -174,23 +167,17 @@ const Chip = styled.button<{ $active: boolean; $index: number }>`
 
   [data-theme='dark'] & {
     background: ${({ $active }) => ($active ? '#ffffff' : 'rgba(30, 32, 38, 0.92)')};
-    border-color: ${({ $active }) => ($active ? '#ffffff' : 'rgba(255, 255, 255, 0.1)')};
+    border: none;
     color: ${({ $active }) => ($active ? meok[900] : meok[200])};
-    box-shadow: ${({ $active }) =>
-      $active
-        ? '0 4px 12px rgba(255, 255, 255, 0.2)'
-        : '0 2px 6px rgba(0, 0, 0, 0.4)'};
+    box-shadow: none;
   }
 
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme='light']) & {
       background: ${({ $active }) => ($active ? '#ffffff' : 'rgba(30, 32, 38, 0.92)')};
-      border-color: ${({ $active }) => ($active ? '#ffffff' : 'rgba(255, 255, 255, 0.1)')};
+      border: none;
       color: ${({ $active }) => ($active ? meok[900] : meok[200])};
-      box-shadow: ${({ $active }) =>
-        $active
-          ? '0 4px 12px rgba(255, 255, 255, 0.2)'
-          : '0 2px 6px rgba(0, 0, 0, 0.4)'};
+      box-shadow: none;
     }
   }
 
