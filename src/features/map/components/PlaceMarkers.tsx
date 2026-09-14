@@ -8,14 +8,15 @@ import { escapeHtml, safeImageUrl } from '@/features/map/utils/formatters';
 import { mapIconSvg, type MapIconName } from '@/features/map/utils/mapIconSvg';
 import { calculateTravelEstimate, isTraditionalPlace, shortRegionName } from '@/features/map/utils/geo';
 import { useMapStore } from '../hooks/useMapStore';
+import { useStampStore } from '@/features/stamp/hooks/useStampStore';
 import type { Item, PlaceCategory } from '../types';
 
 const log = logger('map');
 
 /** 확대/축소 단계 정의 */
-const LABEL_MAX_LEVEL = 6; // 레벨 1~6: 선명한 이름표 포함 핀 마커 상시 노출 (가시성 대폭 향상)
-const PIN_MAX_LEVEL = 8; // 레벨 7~8: 고대비 원형 아이콘 뱃지 핀
-// 레벨 9~11: 광역 지역별 스마트 클러스터 뱃지
+const LABEL_MAX_LEVEL = 5; // 레벨 1~5: 선명한 이름표 포함 핀 마커 상시 노출
+const PIN_MAX_LEVEL = 6; // 레벨 6: 깔끔한 원형 아이콘 뱃지 핀 (단일 근거리)
+// 레벨 7+: 광역 스마트 클러스터 뱃지 (축소 시 뭉침/겹침 완전 방지)
 
 /**
  * 한 화면에 올리는 핀 개수 상한.
@@ -25,7 +26,7 @@ const PIN_MAX_LEVEL = 8; // 레벨 7~8: 고대비 원형 아이콘 뱃지 핀
  * 배지 핀(34px 원)은 겹쳐도 읽히므로 상한을 더 준다.
  */
 const LABEL_PIN_LIMIT = 60;
-const BADGE_PIN_LIMIT = 120;
+const BADGE_PIN_LIMIT = 40;
 
 /** 카테고리별 지도 마커 아이콘. 상단 카테고리 칩셋과 같은 lucide 아이콘을 쓴다. */
 const CATEGORY_ICONS: Record<PlaceCategory, MapIconName> = {
@@ -279,14 +280,68 @@ const styles = css`
     color: ${meok[500]};
   }
 
+  /* 마커 클릭 시 방사형 파동 효과 (Ripple Wave) */
+  @keyframes om-ripple-expand {
+    0% {
+      transform: translate(-50%, -50%) scale(0.3);
+      opacity: 0.85;
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(2.8);
+      opacity: 0;
+    }
+  }
+
+  .om-pin-ripple {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    pointer-events: none;
+    border: 2px solid #d4af37;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.4) 0%, rgba(212, 175, 55, 0) 75%);
+    animation: om-ripple-expand 0.55s cubic-bezier(0.12, 0.8, 0.32, 1) forwards;
+    z-index: 10;
+  }
+
+  /* 선택된 핀 주변 은은한 동심원 Glow Ring */
+  @keyframes om-glow-ring {
+    0%, 100% {
+      box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7), 0 8px 24px -2px rgba(25, 31, 40, 0.45);
+    }
+    50% {
+      box-shadow: 0 0 0 8px rgba(212, 175, 55, 0), 0 10px 28px -2px rgba(25, 31, 40, 0.55);
+    }
+  }
+
+  /* 수결첩에 기록된 방문 한옥 인장 표식 */
+  .om-pin-stamp-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: #b91c1c;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 4px rgba(185, 28, 28, 0.4);
+    pointer-events: none;
+    z-index: 5;
+  }
+
   /* 선택된 핀의 스프링 점프 & 펄스 오라 */
   .om-pin[data-selected='true'],
   .om-pin[data-detail='true'] {
     color: #ffffff !important;
     background: #191F28 !important;
-    border-color: #191F28 !important;
+    border-color: #d4af37 !important;
     box-shadow: 0 8px 26px -2px rgba(25, 31, 40, 0.45);
-    animation: om-click-bounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+    animation: om-click-bounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, om-glow-ring 2.4s ease-in-out infinite !important;
     z-index: 40 !important;
     opacity: 1 !important;
   }
@@ -487,16 +542,17 @@ const styles = css`
   }
 
   /* 3. 중간 확대 시: 선명한 원형 아이콘 뱃지 마커 (34px) */
+  /* 3. 중간 확대 시: 선명한 원형 아이콘 뱃지 마커 (32px) */
   .om-badge-pin {
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
-    background: transparent;
-    box-shadow: 0 4px 16px rgba(25, 31, 40, 0.18), 0 1px 4px rgba(25, 31, 40, 0.1);
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(25, 31, 40, 0.16);
     cursor: pointer;
     transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
     user-select: none;
@@ -506,65 +562,36 @@ const styles = css`
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 34px;
-    height: 34px;
+    width: 100%;
+    height: 100%;
     border-radius: 50%;
     flex-shrink: 0;
   }
 
   .om-badge-pin:hover,
   .om-badge-pin[data-hovered='true'] {
-    transform: translateY(-8px) scale(1.3);
-    box-shadow: 0 10px 26px rgba(25, 31, 40, 0.32);
+    transform: translateY(-4px) scale(1.18);
+    box-shadow: 0 6px 18px rgba(25, 31, 40, 0.24);
     z-index: 100 !important;
-    animation: none !important;
   }
 
-  /* 정통 한옥 뱃지 핀: 선명한 황금빛 테두리와 후광으로 또렷하게 구분한다. */
+  /* 정통 한옥 뱃지 핀: 깔끔한 황금빛 테두리 단일 링 */
   .om-badge-pin--traditional {
-    border-radius: 50%;
-    box-shadow:
-      0 0 0 2.5px #FDE047,
-      0 0 14px rgba(245, 158, 11, 0.6) !important;
-  }
-
-  .om-badge-pin--traditional::before {
-    content: '';
-    position: absolute;
-    inset: -3px;
-    border-radius: 50%;
-    border: 2.5px solid #EAB308;
-    box-shadow: 0 0 8px rgba(250, 204, 21, 0.7);
-    pointer-events: none;
+    border: 2px solid #EAB308 !important;
+    box-shadow: 0 2px 10px rgba(234, 179, 8, 0.35) !important;
   }
 
   [data-theme='dark'] .om-badge-pin--traditional {
-    filter: invert(100%) hue-rotate(180deg) brightness(105%) contrast(95%);
     background: #191F28 !important;
-    box-shadow:
-      0 0 0 2.5px #FDE047,
-      0 0 18px rgba(250, 204, 21, 0.9) !important;
-  }
-
-  [data-theme='dark'] .om-badge-pin--traditional::before {
-    border: 2.5px solid #FACC15;
-    box-shadow: 0 0 12px rgba(250, 204, 21, 0.95);
-  }
-
-  .om-badge-pin--traditional:hover,
-  .om-badge-pin--traditional[data-hovered='true'] {
-    transform: translateY(-8px) scale(1.3);
-  }
-  .om-badge-pin--traditional:hover::before,
-  .om-badge-pin--traditional[data-hovered='true']::before {
-    opacity: 0.5;
+    border: 2px solid #FACC15 !important;
+    box-shadow: 0 2px 12px rgba(250, 204, 21, 0.5) !important;
   }
 
   .om-badge-pin[data-selected='true'],
   .om-badge-pin[data-detail='true'] {
-    transform: translateY(-6px) scale(1.35);
+    transform: translateY(-4px) scale(1.25);
     background: #191F28 !important;
-    box-shadow: 0 8px 28px rgba(25, 31, 40, 0.45);
+    box-shadow: 0 6px 20px rgba(25, 31, 40, 0.45);
     z-index: 40 !important;
     opacity: 1 !important;
     animation: om-click-bounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
@@ -574,26 +601,6 @@ const styles = css`
   .om-badge-pin[data-detail='true'] .om-badge-icon-inner {
     background: #ffffff !important;
     border-color: #ffffff !important;
-  }
-
-  .om-badge-pin::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    top: 100%;
-    width: 7px;
-    height: 7px;
-    background: #ffffff;
-    border-right: 1.5px solid rgba(25, 31, 40, 0.12);
-    border-bottom: 1.5px solid rgba(25, 31, 40, 0.12);
-    transform: translate(-50%, -4px) rotate(45deg);
-  }
-
-  .om-badge-pin[data-selected='true']::after,
-  .om-badge-pin[data-detail='true']::after {
-    background: #191F28 !important;
-    border-right: 1.5px solid #191F28 !important;
-    border-bottom: 1.5px solid #191F28 !important;
   }
 
   /* 4. 전국/광역 축소 조망 시: 스마트 클러스터 뱃지 */
@@ -728,11 +735,17 @@ interface ClusterGroup {
 /**
  * 줌 레벨에 맞춘 공간 격자 클러스터링.
  *
- * 클러스터는 level > PIN_MAX_LEVEL(8)에서만 뜨므로 실제로 들어오는 값은 9·10·11이다.
- * 레벨이 한 칸 오를 때마다 축척이 두 배가 되니 셀도 두 배로 키운다.
+ * 축소 시(level >= 7) 너무 뭉개지지 않고 시·군·구 단위로 자연스럽게 묶이도록
+ * 레벨별로 정교하게 조절된 공간 셀 크기를 적용한다.
  */
 function clusterNearbyItems(items: Item[], level: number): ClusterGroup[] {
-  const cellSize = level >= 11 ? 0.9 : level >= 10 ? 0.55 : 0.32;
+  const cellSize =
+    level >= 11 ? 0.85 :
+    level >= 10 ? 0.45 :
+    level >= 9 ? 0.22 :
+    level >= 8 ? 0.08 :
+    level >= 7 ? 0.04 :
+    0.02;
   const grid = new Map<string, Item[]>();
 
   for (const item of items) {
@@ -810,6 +823,7 @@ export default function PlaceMarkers() {
         const regionName = extractClusterRegionName(cluster.items);
         const topItem = cluster.items[0];
         const catStyle = CATEGORY_STYLES[topItem.category] || CATEGORY_STYLES.spot;
+        const isSingle = count === 1;
 
         const el = document.createElement('div');
         el.className = 'om-cluster-pill';
@@ -818,28 +832,34 @@ export default function PlaceMarkers() {
           <span class="om-cluster-icon-box" style="background: ${catStyle.lightBg}; color: ${catStyle.main}; border: 1px solid ${catStyle.lightBorder};">
             ${catStyle.iconSvg}
           </span>
-          <span class="om-cluster-region-name">${escapeHtml(regionName)}</span>
-          <span class="om-cluster-count-badge" style="background: ${catStyle.main}">
-            ${count}
-          </span>
+          <span class="om-cluster-region-name">${escapeHtml(isSingle ? topItem.name : regionName)}</span>
+          ${!isSingle ? `<span class="om-cluster-count-badge" style="background: ${catStyle.main}">${count}</span>` : ''}
         `;
 
         el.setAttribute('role', 'button');
         el.setAttribute('tabindex', '0');
-        el.setAttribute('aria-label', `${regionName} 지역 ${count}곳. 확대해서 보기`);
+        el.setAttribute('aria-label', isSingle ? `${topItem.name}. 상세 보기` : `${regionName} 지역 ${count}곳. 확대해서 보기`);
 
-        const zoomIn = () => {
-          const currentLevel = map.getLevel();
-          const targetLevel = Math.max(1, currentLevel - 3);
-          map.setLevel(targetLevel, { animate: true });
-          map.panTo(new window.kakao.maps.LatLng(cluster.lat, cluster.lng));
+        const handleClick = () => {
+          if (isSingle) {
+            const store = useMapStore.getState();
+            store.setSelectedId(topItem.id);
+            store.setDetailId(topItem.id);
+            store.map?.panTo(new window.kakao.maps.LatLng(topItem.lat, topItem.lng));
+            store.setSheetSnap('full');
+          } else {
+            const currentLevel = map.getLevel();
+            const targetLevel = Math.max(1, currentLevel - 2);
+            map.setLevel(targetLevel, { animate: true });
+            map.panTo(new window.kakao.maps.LatLng(cluster.lat, cluster.lng));
+          }
         };
 
-        el.addEventListener('click', zoomIn);
+        el.addEventListener('click', handleClick);
         el.addEventListener('keydown', (event) => {
           if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
-            zoomIn();
+            handleClick();
           }
         });
 
@@ -975,22 +995,10 @@ export default function PlaceMarkers() {
       } else {
         el.className = `om-badge-pin${isTraditional ? ' om-badge-pin--traditional' : ''}`;
         el.innerHTML = `
-          <span class="om-badge-icon-inner" style="background: ${catStyle.lightBg}; color: ${catStyle.main}; border: 1.5px solid ${catStyle.lightBorder};">
-            ${renderCategoryIconSvg(item.category, 18)}
+          <span class="om-badge-icon-inner" style="background: #ffffff; color: ${catStyle.main};">
+            ${renderCategoryIconSvg(item.category, 16)}
           </span>
         `;
-        if (isTraditional) {
-          // 뱃지 핀은 작으니 별도 셋. 쉴 때 정적, 가리키면 함께 튄다.
-          const stars = document.createElement('span');
-          stars.className = 'om-pin-stars';
-          const starSvg = mapIconSvg('star', 11);
-          stars.innerHTML = `
-            <span style="top:-13px;left:-4px;color:#EAB308;display:inline-flex;">${starSvg}</span>
-            <span style="top:-10px;right:-5px;color:#EAB308;display:inline-flex;">${starSvg}</span>
-            <span style="bottom:-11px;right:1px;color:#EAB308;display:inline-flex;">${starSvg}</span>
-          `;
-          el.appendChild(stars);
-        }
       }
 
       el.dataset.category = item.category;
@@ -1006,7 +1014,25 @@ export default function PlaceMarkers() {
         `${item.name}, ${catLabel}${metaText ? `, ${metaText}` : ''}. 상세 정보 열기`,
       );
 
+      // 수결첩에 기록된 장소인 경우 붉은 인장 표식 부착
+      const isVisited = useStampStore.getState().isPlaceVisited(item.id);
+      if (isVisited) {
+        const badge = document.createElement('span');
+        badge.className = 'om-pin-stamp-badge';
+        badge.setAttribute('title', '수결첩에 기록된 한옥');
+        badge.innerHTML = `<svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+        el.appendChild(badge);
+      }
+
       const open = () => {
+        // 1. 방사형 Ripple 파동 연출 생성
+        const ripple = document.createElement('span');
+        ripple.className = 'om-pin-ripple';
+        el.appendChild(ripple);
+        setTimeout(() => {
+          if (ripple.parentNode) ripple.parentNode.removeChild(ripple);
+        }, 580);
+
         const store = useMapStore.getState();
         store.setSelectedId(item.id);
         store.setDetailId(item.id);

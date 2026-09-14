@@ -32,6 +32,9 @@ import WarmthLegend from './components/warmth/WarmthLegend';
 import MapNavRail, { RAIL_INSET, RAIL_WIDTH } from './components/MapNavRail';
 import CinematicTourMapLayer from '@/features/cinematic-tour/components/CinematicTourMapLayer';
 import CinematicTourFloatingBar from '@/features/cinematic-tour/components/CinematicTourFloatingBar';
+import WarmthParticleLayer from './components/WarmthParticleLayer';
+import MapCursorTrail from './components/MapCursorTrail';
+import { StampSealAnimation, useStampStore } from '@/features/stamp';
 
 const FONT = "'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, sans-serif";
 
@@ -362,6 +365,9 @@ export default function MapPage() {
   const isRouteEntrance = useMapEntranceStore((s) => s.isRouteEntrance);
   const setRouteEntrance = useMapEntranceStore((s) => s.setRouteEntrance);
 
+  const activeStampModal = useStampStore((s) => s.activeStampModal);
+  const closeStampModal = useStampStore((s) => s.closeStampModal);
+
   // 한옥·오디 등 타 페이지에서 진입 시 1회 발동한 후,
   // 지도 내부 조작 시 재발동하지 않도록 연출 완료 후 false로 리셋
   useEffect(() => {
@@ -390,6 +396,8 @@ export default function MapPage() {
         <WarmthLayer />
         <WarmthNotesLayer />
         <CinematicTourMapLayer />
+        <WarmthParticleLayer />
+        <MapCursorTrail />
         <MapChips
           $interactive={!isDetailOpen}
           style={{ left: chipsMinLeft }}
@@ -456,6 +464,12 @@ export default function MapPage() {
       <CinematicTourFloatingBar />
 
       <BottomSheet />
+
+      {/* 5. 한옥 수결첩 인장 획득 연출 모달 */}
+      <StampSealAnimation
+        stamp={activeStampModal}
+        onClose={closeStampModal}
+      />
     </Root>
   );
 }

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import {
+  Award,
   BookOpen,
   Bookmark,
   Headphones,
@@ -278,6 +279,20 @@ export default function MapNavRail() {
             <Headphones size={19} strokeWidth={2} />
           </NavItemIcon>
           <NavItemLabel>소리마루</NavItemLabel>
+        </NavItemBtn>
+
+        {/* 온마루 카테고리 4: 수결첩 (한옥 스탬프북) */}
+        <NavItemBtn
+          type="button"
+          $active={false}
+          onClick={() => router.push('/stamps')}
+          aria-label="한옥 수결첩"
+          title="한옥 수결첩"
+        >
+          <NavItemIcon>
+            <Award size={19} strokeWidth={2} />
+          </NavItemIcon>
+          <NavItemLabel>수결첩</NavItemLabel>
         </NavItemBtn>
 
 

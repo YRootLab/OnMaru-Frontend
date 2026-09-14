@@ -1,7 +1,12 @@
 # handoff.md
 
 Current work:
-- Map page (`/map`) logo.png insertion and comprehensive dark mode compatibility:
+- 전국 한옥 수결첩(手決帖) 스탬프 시스템 및 지도 인터랙티브 효과 구현 완료:
+  - 수결첩 시스템: `src/features/stamp/` 모듈, `/stamps` 라우트, 상세창 체크인 연동, 도장 연출 모달, 8도 SVG 지도, 랭킹 리더보드.
+  - 지도 인터랙티브: 온기 모드 Canvas 파티클, 금빛 커서 잔상 트레일, 핀 클릭 Ripple 및 Glow Ring, 방문 한옥 뱃지.
+  - 지도 축소 마커 겹침 해결: `PIN_MAX_LEVEL = 6` 및 시·군·구 스마트 클러스터링(`om-cluster-pill`), 뱃지 핀 불투명 화이트 적용 및 불필요한 별무리 제거.
+  - 모드 토글 정제: 라이트 모드 화이트 필 적용 및 온기 옆 붉은 점 제거.
+  - 검증: `npx tsc --noEmit` 0 errors 통과, 브라우저 서브에이전트로 모드 전환, 핀 클릭, 인장 획득, 수결첩, 축소 클러스터링 전체 경로 시각 검증 완료.
   - Navigation Rail (`MapNavRail.tsx`): Replaced text script brandmark with `/logo.png` (36x36 contain, rounded 10px). Added a dedicated theme toggle button (Sun/Moon) synced with `useOnmaruTheme()`.
   - Comprehensive Dark Mode styling across all map components:
     - Map viewport & canvas (`KakaoMap.tsx`): Synchronized map moonlight filter (`isNight`) with `useOnmaruTheme()` mode, added dark mode styling for controls stack, control buttons, and research button.
