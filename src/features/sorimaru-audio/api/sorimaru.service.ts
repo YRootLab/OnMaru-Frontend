@@ -6,10 +6,17 @@ export class SorimaruService {
   private static readonly BASE_URL =
     process.env.SORIMARU_API_URL ||
     process.env.NEXT_PUBLIC_SORIMARU_API_URL ||
+    process.env.ODII_API_URL ||
+    process.env.NEXT_PUBLIC_ODII_API_URL ||
     'https://apis.data.go.kr/B551011/Odii';
 
   private static getApiKey(): string {
-    const key = process.env.SORIMARU_API_KEY || process.env.NEXT_PUBLIC_SORIMARU_API_KEY || '';
+    const key =
+      process.env.SORIMARU_API_KEY ||
+      process.env.NEXT_PUBLIC_SORIMARU_API_KEY ||
+      process.env.ODII_API_KEY ||
+      process.env.NEXT_PUBLIC_ODII_API_KEY ||
+      '';
     try {
       return decodeURIComponent(key);
     } catch {
