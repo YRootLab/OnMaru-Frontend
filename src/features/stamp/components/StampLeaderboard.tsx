@@ -128,12 +128,14 @@ const Nickname = styled.span`
 `;
 
 const UserTitle = styled.span`
-  font-size: 11px;
-  font-weight: 600;
+  font-family: var(--font-traditional);
+  font-size: 11.5px;
+  font-weight: 700;
   color: #b45309;
   background: rgba(212, 175, 55, 0.15);
-  padding: 1px 6px;
+  padding: 2px 7px;
   border-radius: 4px;
+  letter-spacing: 0.02em;
 
   [data-theme='dark'] & {
     color: #fbbf24;

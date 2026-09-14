@@ -120,9 +120,9 @@ const SealStampRing = styled(motion.div)<{ $color: string }>`
 `;
 
 const HanziSealText = styled.span`
-  font-family: 'Batang', 'Song Myung', serif;
+  font-family: var(--font-traditional);
   font-size: 40px;
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: 0.08em;
   line-height: 1;
 `;
@@ -171,9 +171,10 @@ const RarityTag = styled.div<{ $rarity: string }>`
 `;
 
 const StampTitle = styled.h3`
-  font-size: 21px;
-  font-weight: 900;
-  letter-spacing: -0.02em;
+  font-family: var(--font-traditional);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   margin: 0 0 6px 0;
   color: ${meok[900]};
 

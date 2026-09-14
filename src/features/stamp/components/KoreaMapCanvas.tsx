@@ -93,8 +93,9 @@ const RegionPath = styled.path<{ $active: boolean; $unlocked: boolean }>`
 `;
 
 const RegionText = styled.text<{ $active: boolean; $unlocked: boolean }>`
-  font-size: 24px;
-  font-weight: ${({ $active, $unlocked }) => ($active ? '900' : $unlocked ? '800' : '700')};
+  font-family: var(--font-traditional);
+  font-size: 25px;
+  font-weight: 700;
   fill: ${({ $active, $unlocked }) =>
     $active ? '#92400e' : $unlocked ? meok[900] : meok[700]};
   pointer-events: none;

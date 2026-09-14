@@ -136,12 +136,13 @@ export const TitleSection = styled.div`
 `;
 
 export const PlaceTitle = styled.h2`
+  font-family: var(--font-traditional);
   margin: 0 0 4px;
-  font-size: ${fontSize.lg};
-  font-weight: 500;
+  font-size: 20px;
+  font-weight: 700;
   color: ${meok[900]};
   line-height: 1.35;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -300,7 +301,8 @@ export const StampBannerText = styled.div`
 `;
 
 export const StampBannerTitle = styled.span`
-  font-size: ${fontSize.xs};
+  font-family: var(--font-traditional);
+  font-size: 13px;
   font-weight: 700;
   color: ${meok[900]};
 

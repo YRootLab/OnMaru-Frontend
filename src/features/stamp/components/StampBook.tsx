@@ -28,12 +28,14 @@ const Badge = styled.div`
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: 9999px;
   background: rgba(212, 175, 55, 0.14);
   color: #b45309;
-  font-size: 11.5px;
+  font-family: var(--font-traditional);
+  font-size: 12.5px;
   font-weight: 700;
+  letter-spacing: 0.02em;
   margin-bottom: 8px;
 
   [data-theme='dark'] & {
@@ -43,9 +45,10 @@ const Badge = styled.div`
 `;
 
 const Title = styled.h1`
-  font-size: 28px;
-  font-weight: 900;
-  letter-spacing: -0.02em;
+  font-family: var(--font-traditional);
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   margin: 0 0 8px 0;
   color: ${meok[900]};
 

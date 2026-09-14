@@ -109,16 +109,17 @@ const SealFrame = styled.div<{ $unlocked: boolean; $color: string }>`
 `;
 
 const SealText = styled.span`
-  font-family: 'Batang', 'Song Myung', serif;
+  font-family: var(--font-traditional);
   font-size: 24px;
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: 0.05em;
   line-height: 1;
 `;
 
 const Title = styled.h4<{ $unlocked: boolean }>`
-  font-size: 13.5px;
-  font-weight: 800;
+  font-family: var(--font-traditional);
+  font-size: 14.5px;
+  font-weight: 700;
   margin: 0 0 4px 0;
   color: ${({ $unlocked }) => ($unlocked ? meok[900] : meok[500])};
   letter-spacing: -0.01em;
