@@ -1,7 +1,7 @@
 export type PlaceSlipMotion = {
   initial: { opacity: number; y: number; scaleY: number };
   animate: { opacity: number; y: number; scaleY: number };
-  transition: { duration: number; delay?: number; ease?: number[] };
+  transition: { duration: number; delay?: number; ease?: [number, number, number, number] };
 };
 
 export function getPlaceSlipMotion(options: { reducedMotion: boolean; index?: number }): PlaceSlipMotion {

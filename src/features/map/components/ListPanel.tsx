@@ -9,6 +9,7 @@ import ModeToggle from './ModeToggle';
 import PlaceList from './PlaceList';
 import SearchBar from './SearchBar';
 import WarmthFeed from './warmth/WarmthFeed';
+import RegionReviewPanel from '@/features/visit-review/components/RegionReviewPanel';
 
 const PANEL_WIDTH = 400;
 const PANEL_WIDTH_COMPACT = 358;
@@ -155,7 +156,14 @@ export default function ListPanel() {
 
         {/* 2. 메인 리스트 영역 (정보모드: PlaceList / 온기모드: WarmthFeed) */}
         <ListArea>
-          {mode === 'warmth' ? <WarmthFeed /> : <PlaceList />}
+          {mode === 'warmth' ? (
+            <WarmthFeed />
+          ) : (
+            <>
+              <RegionReviewPanel />
+              <PlaceList />
+            </>
+          )}
         </ListArea>
 
         {/* 3. 하단 세로 페이드 그라데이션 */}

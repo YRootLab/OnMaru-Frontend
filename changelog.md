@@ -4,6 +4,8 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+- Wired the backend feature delta into frontend surfaces: `/discover` now starts journey runs and consumes SSE/snapshot recovery, `/map` info mode shows VisitReview region/review data, map place cards use canonical saved-place actions with guest login intent, `/mypage` shows the monthly timeline, and logout/account deletion clears private client state.
+- Added typed repositories for journey curator, VisitReview, saved resources, and member timeline backend APIs with focused contract tests.
 - Added backend feature foundation modules for API error/cursor/CSRF handling, cookie/idempotency `apiRequest`, journey SSE run reduction, VisitReview validation and stale-response protection, saved place login intent, member timeline contracts, and the shared place-slip motion primitive.
 - Added a frontend design spec for the backend feature delta covering `/discover` REST+SSE journey runs, `/map` VisitReview, shared canonical place saves, My Page monthly timeline, auth/CSRF/cache rules, neutral "place slip" motion, and performance verification requirements.
 - Completely removed artificial horizontal hanji tear lines (`HanjiTearTransition` returns null, tags removed) to eliminate floating strip/dot artifacts and let sections breathe with negative space and smooth atmospheric backgrounds.

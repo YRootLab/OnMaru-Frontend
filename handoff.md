@@ -1,6 +1,15 @@
 # handoff.md
 
 Current work:
+- Summary: Wired the backend feature delta into user-facing frontend surfaces.
+  - `/discover` now runs through the backend journey repository, listens to run SSE events, falls back to snapshot recovery, and renders the existing knowledge graph/bento board after the server snapshot arrives.
+  - `/map` info mode now includes a VisitReview region panel with region aggregate loading, explicit review loading, stale-response protection, and neutral reveal motion.
+  - Map place rows now use the canonical saved-place button, including guest Kakao-login save intent capture and optimistic logged-in save/unsave.
+  - `/mypage` now includes the monthly member timeline surface backed by the server timeline repository.
+  - Auth logout/account deletion now clears private local/session state, including pending saved-resource intents.
+  - Verified: `npx tsc --noEmit` passed, `npm test` passed (40 files, 125 tests), `npm run build` passed, and local dev routes `/discover`, `/map`, `/mypage` returned HTTP 200.
+  - Dev server: running at `http://localhost:3000`.
+- Note: Hanok/Odii place-save buttons are ready through the shared saved-resource repository/component, but full per-card wiring still depends on those surfaces exposing the backend canonical `placeId` in their view models rather than legacy TourAPI/Odii identifiers.
 - Summary: Implemented backend feature delta foundation from the spec using TDD and `frontend-senior-engineer` boundaries.
   - Added contract-aware API foundation: normalized errors, cursor guard, in-memory CSRF provider, cookie/idempotency `apiRequest`, and compatibility helpers.
   - Added pure journey SSE parser/reducer for stage, heartbeat, terminal, reset, snapshot recovery, and BASELINE labeling.

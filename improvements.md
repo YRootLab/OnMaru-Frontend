@@ -4,6 +4,8 @@ Backlog for follow-up improvements that are useful but not required to resume th
 
 ## Open
 
+- Expose canonical backend `placeId` in Hanok and Odii view models so the shared saved-place button can be attached to those cards without falling back to legacy TourAPI `contentId` or Odii `stid`.
+
 - Re-design the `OdiiEditorialRail` card index badge UI (currently restored to a compact top-left rounded white badge); explore more native editorial numbering styles.
 
 - The landing route starts an 11 MB `anchae.glb` load for its required 3D scene. Navigating to Odii before the first decode completes can temporarily contend for main-thread time; reducing this further requires a compressed/optimized model or an explicitly approved change to landing asset activation timing.
