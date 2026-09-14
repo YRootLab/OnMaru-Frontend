@@ -6,7 +6,7 @@ import {
   Search,
   X,
 } from 'lucide-react';
-import { lightPalette, meok , fontSize } from '@/design-system/tokens';
+import { lightPalette, meok, surface, fontSize } from '@/design-system/tokens';
 import { DEFAULT_CENTER, DEFAULT_LEVEL, useMapStore } from '@/features/map/hooks/useMapStore';
 
 const RECENT = ['전주 한옥마을', '북촌 한옥마을', '안동 하회마을', '경주 양동마을', '경복궁'];
@@ -34,6 +34,15 @@ const Field = styled.form`
   &:focus-within {
     background: #ffffff;
     box-shadow: 0 4px 14px rgba(25, 31, 40, 0.08);
+  }
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.08);
+
+    &:focus-within {
+      background: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+    }
   }
 `;
 
@@ -64,14 +73,20 @@ const Input = styled.input`
   font-size: ${fontSize.sm};
   font-weight: 500;
   color: ${meok[900]};
-  /* placeholder가 좁은 패널 폭에서 중간에 뚝 끊기지 않고 "..."으로
-     자연스럽게 줄어들도록 한다. */
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
 
   &::placeholder {
     color: ${meok[400]};
+  }
+
+  [data-theme='dark'] & {
+    color: #ffffff;
+
+    &::placeholder {
+      color: ${meok[400]};
+    }
   }
 `;
 
@@ -100,6 +115,16 @@ const ActionIconBtn = styled.button`
     background: rgba(25, 31, 40, 0.16);
     color: ${meok[900]};
   }
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.1);
+    color: ${meok[400]};
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.18);
+      color: #ffffff;
+    }
+  }
 `;
 
 const Dropdown = styled.div`
@@ -115,6 +140,12 @@ const Dropdown = styled.div`
   box-shadow: 0 12px 32px -4px rgba(25, 31, 40, 0.16);
   user-select: none;
   backdrop-filter: blur(20px);
+
+  [data-theme='dark'] & {
+    background: ${surface.dark.card};
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.6);
+  }
 `;
 
 const ResetAllBtn = styled.button`
@@ -137,6 +168,17 @@ const ResetAllBtn = styled.button`
     background: ${lightPalette.cheongrok[50]};
     color: ${lightPalette.cheongrok[700]};
   }
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: ${meok[400]};
+
+    &:hover {
+      background: rgba(45, 212, 191, 0.15);
+      color: #2dd4bf;
+    }
+  }
 `;
 
 const GroupTitle = styled.div`
@@ -149,6 +191,10 @@ const GroupTitle = styled.div`
   letter-spacing: 0.3px;
   text-transform: uppercase;
   margin-bottom: 8px;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 const Suggestions = styled.div`
@@ -175,6 +221,16 @@ const Suggestion = styled.button`
   &:hover {
     background: rgba(40, 110, 95, 0.1);
     color: ${lightPalette.cheongrok[700]};
+  }
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.08);
+    color: ${meok[200]};
+
+    &:hover {
+      background: rgba(45, 212, 191, 0.2);
+      color: #2dd4bf;
+    }
   }
 `;
 

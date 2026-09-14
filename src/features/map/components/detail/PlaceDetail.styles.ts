@@ -19,6 +19,10 @@ export const DetailWrapper = styled.div`
   background: #ffffff;
   overflow: hidden;
   outline: none;
+
+  [data-theme='dark'] & {
+    background: #2D2924;
+  }
 `;
 
 export const HeaderBar = styled.header`
@@ -30,6 +34,11 @@ export const HeaderBar = styled.header`
   justify-content: space-between;
   background: #ffffff;
   z-index: 5;
+
+  [data-theme='dark'] & {
+    background: #2D2924;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
 `;
 
 export const HeaderBadge = styled.div`
@@ -103,6 +112,16 @@ export const CloseButton = styled.button`
   &:active {
     transform: scale(0.92);
   }
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.08);
+    color: ${meok[400]};
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.14);
+      color: #ffffff;
+    }
+  }
 `;
 
 export const ScrollBody = styled.div`
@@ -128,12 +147,20 @@ export const PlaceTitle = styled.h2`
   -webkit-box-orient: vertical;
   overflow: hidden;
   outline: none;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 export const PlaceAddress = styled.p`
   margin: 0 0 10px;
   font-size: ${fontSize.xs};
   color: ${meok[500]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 export const BadgeRow = styled.div`
@@ -377,6 +404,10 @@ export const CoreValue = styled.span`
   color: ${meok[900]};
   text-align: right;
   word-break: keep-all;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 export const OverviewSection = styled.div`
@@ -389,6 +420,10 @@ export const SectionTitle = styled.h3` /* 14px — 작은 제목이라 500으로
   font-size: ${fontSize.sm};
   font-weight: 500;
   color: ${meok[900]};
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 export const OverviewText = styled.p<{ $expanded: boolean }>`
@@ -407,6 +442,10 @@ export const OverviewText = styled.p<{ $expanded: boolean }>`
     -webkit-box-orient: vertical;
     overflow: hidden;
   `}
+
+  [data-theme='dark'] & {
+    color: ${meok[200]};
+  }
 `;
 
 export const ToggleMoreBtn = styled.button`
@@ -431,6 +470,11 @@ export const BottomActionArea = styled.div`
   background: #ffffff;
   display: flex;
   gap: 8px;
+
+  [data-theme='dark'] & {
+    background: #2D2924;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
 `;
 
 export const HeaderActionGroup = styled.div`
@@ -499,6 +543,16 @@ export const ShareButton = styled.button`
   &:active {
     transform: scale(0.97);
   }
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.08);
+    color: ${meok[200]};
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.14);
+      color: #ffffff;
+    }
+  }
 `;
 
 export const NavButton = styled.a`
@@ -525,6 +579,15 @@ export const NavButton = styled.a`
 
   &:active {
     transform: scale(0.97);
+  }
+
+  [data-theme='dark'] & {
+    background: #ffffff;
+    color: ${meok[900]};
+
+    &:hover {
+      background: #e5e5e5;
+    }
   }
 `;
 

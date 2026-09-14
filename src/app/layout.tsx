@@ -8,6 +8,9 @@ import PageContainer from '@/shared/components/Layout/PageContainer'
 export const metadata: Metadata = {
   title: '온마루 — 한옥의 온기를 잇다',
   description: '전국 한옥의 온기와 이야기를 연결하는 플랫폼',
+  icons: {
+    icon: '/favicon.ico',
+  },
 }
 
 export default function RootLayout({

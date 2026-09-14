@@ -7,6 +7,10 @@ export const FeedContainer = styled.div`
   flex-direction: column;
   height: 100%;
   background: #ffffff;
+
+  [data-theme='dark'] & {
+    background: #2D2924;
+  }
 `;
 
 export const StickyTop = styled.div`
@@ -15,6 +19,10 @@ export const StickyTop = styled.div`
   z-index: 5;
   background: #ffffff;
   padding: 12px 16px 8px;
+
+  [data-theme='dark'] & {
+    background: #2D2924;
+  }
 `;
 
 export const SectionHeader = styled.div`
@@ -36,6 +44,10 @@ export const SectionTitle = styled.h3`
   font-weight: 500;
   color: ${meok[900]};
   letter-spacing: -0.02em;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 
@@ -239,6 +251,10 @@ export const FeaturedName = styled.h4`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 export const FeaturedMeta = styled.p`
@@ -267,6 +283,16 @@ export const MoreBtn = styled.button`
     background: ${meok[900]};
     color: #ffffff;
   }
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.1);
+    color: ${meok[200]};
+
+    &:hover {
+      background: #ffffff;
+      color: ${meok[900]};
+    }
+  }
 `;
 
 export const ReviewSectionHeader = styled.div`
@@ -284,6 +310,10 @@ export const ReviewSectionTitle = styled.h4`
   display: flex;
   align-items: center;
   gap: 5px;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 export const SortWrapper = styled.div`

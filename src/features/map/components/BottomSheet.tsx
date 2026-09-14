@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import styled from '@emotion/styled';
 import { AnimatePresence, animate, motion } from 'framer-motion';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
+import { surface } from '@/design-system/tokens';
 import type { SheetSnap } from '@/features/map/types';
 import ModeToggle from './ModeToggle';
 import PlaceDetail from './PlaceDetail';
@@ -65,6 +66,11 @@ const Sheet = styled.div<{ $height: string; $dragging: boolean }>`
   transition: ${({ $dragging }) => ($dragging ? 'none' : `height 0.4s ${IDLE_EASE}`)};
   overflow: hidden;
 
+  [data-theme='dark'] & {
+    background: ${surface.dark.card};
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  }
+
   @media (min-width: 1024px) {
     display: none;
   }
@@ -84,6 +90,10 @@ const Handle = styled.div`
   margin: 10px auto;
   border-radius: 9999px;
   background: rgba(78, 89, 104, 0.28);
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.24);
+  }
 `;
 
 const ContentContainer = styled.div`

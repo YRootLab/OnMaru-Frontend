@@ -29,6 +29,14 @@ const Container = styled.div`
   &:hover {
     background: rgba(30, 122, 104, 0.1);
   }
+
+  [data-theme='dark'] & {
+    background: rgba(45, 212, 191, 0.12);
+
+    &:hover {
+      background: rgba(45, 212, 191, 0.18);
+    }
+  }
 `;
 
 const IconWrap = styled.div`
@@ -37,6 +45,10 @@ const IconWrap = styled.div`
   justify-content: center;
   color: ${lightPalette.cheongrok[500]};
   flex-shrink: 0;
+
+  [data-theme='dark'] & {
+    color: #2dd4bf;
+  }
 `;
 
 const TextScroller = styled.div`
@@ -54,6 +66,10 @@ const NoticeText = styled.p`
   overflow: hidden;
   text-overflow: ellipsis;
   animation: notice-fade 0.35s ease;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 
   @keyframes notice-fade {
     from {

@@ -39,6 +39,14 @@ const ItemContainer = styled.li`
   padding: 8px 14px;
   box-sizing: border-box;
   width: 100%;
+  border-radius: 14px;
+  transition: background-color 0.15s ease;
+
+  [data-theme='dark'] & {
+    &:hover {
+      background: rgba(255, 255, 255, 0.04);
+    }
+  }
 `;
 
 const ItemButton = styled.button<{ $isSelected: boolean }>`
@@ -63,6 +71,12 @@ const ItemButton = styled.button<{ $isSelected: boolean }>`
     }
     h4 {
       color: ${lightPalette.cheongrok[700]};
+    }
+  }
+
+  [data-theme='dark'] & {
+    &:hover h4 {
+      color: #2dd4bf;
     }
   }
 
@@ -97,6 +111,16 @@ const BookmarkQuickBtn = styled.button<{ $active: boolean }>`
     background: ${({ $active }) => ($active ? 'rgba(232, 90, 24, 0.2)' : 'rgba(25, 31, 40, 0.08)')};
     color: ${({ $active }) => ($active ? lightPalette.juhong[700] : meok[700])};
     transform: scale(1.1);
+  }
+
+  [data-theme='dark'] & {
+    background: ${({ $active }) => ($active ? 'rgba(232, 90, 24, 0.2)' : 'rgba(255, 255, 255, 0.06)')};
+    color: ${({ $active }) => ($active ? '#f97316' : meok[400])};
+
+    &:hover {
+      background: ${({ $active }) => ($active ? 'rgba(232, 90, 24, 0.28)' : 'rgba(255, 255, 255, 0.12)')};
+      color: ${({ $active }) => ($active ? '#fb923c' : '#ffffff')};
+    }
   }
 
   &:active {
@@ -167,6 +191,10 @@ const Title = styled.h4<{ $isSelected?: boolean }>`
   white-space: nowrap;
   letter-spacing: -0.025em;
   transition: color 0.15s ease;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 const BadgeRow = styled.div`
@@ -245,12 +273,20 @@ const DistanceHighlight = styled.span`
   color: ${meok[700]};
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
+
+  [data-theme='dark'] & {
+    color: ${meok[200]};
+  }
 `;
 
 const TravelTimeText = styled.span`
   font-weight: 500;
   color: ${meok[500]};
   font-size: ${fontSize.xs};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 const DotDivider = styled.span`
@@ -264,6 +300,10 @@ const DistrictText = styled.span`
   color: ${meok[500]};
   overflow: hidden;
   text-overflow: ellipsis;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 /** 카테고리별 한글 명칭 */

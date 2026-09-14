@@ -41,6 +41,10 @@ const Root = styled.main`
   overflow: hidden;
   background: ${surface.light.card};
   font-family: ${FONT};
+
+  [data-theme='dark'] & {
+    background: ${surface.dark.app};
+  }
 `;
 
 /** 1. 전체 화면을 시원하게 채우는 풀사이즈 지도 영역 */

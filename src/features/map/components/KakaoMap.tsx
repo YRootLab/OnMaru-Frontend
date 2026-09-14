@@ -16,7 +16,8 @@ import {
   Minus,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { meok, lightPalette , fontSize } from '@/design-system/tokens';
+import { meok, lightPalette, surface, fontSize } from '@/design-system/tokens';
+import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import { KAKAO_SDK_SRC, useKakaoMap } from '@/features/map/hooks/useKakaoMap';
 import { DEFAULT_CENTER, useMapStore } from '@/features/map/hooks/useMapStore';
 import type { LatLng } from '@/features/map/types';
@@ -214,13 +215,22 @@ const Research = styled.button`
 
   border-radius: 9999px;
   background: #ffffff;
+  border: none;
 
   color: ${meok[900]};
   font-family: inherit;
   font-size: ${fontSize.sm};
   font-weight: 500;
   cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
   animation: research-in 0.24s ease-out both;
+
+  [data-theme='dark'] & {
+    background: ${surface.dark.card};
+    color: ${meok[100]};
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+  }
 
   @keyframes research-in {
     from {
@@ -258,6 +268,13 @@ const Stack = styled.div`
   border-radius: 12px;
   background: #ffffff;
   overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+
+  [data-theme='dark'] & {
+    background: ${surface.dark.card};
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
 `;
 
 const ControlButton = styled.button<{ $active?: boolean }>`
@@ -266,6 +283,7 @@ const ControlButton = styled.button<{ $active?: boolean }>`
   justify-content: center;
   width: 40px;
   height: 40px;
+  border: none;
 
   background: ${({ $active }) => ($active ? '#191F28' : '#ffffff')};
   color: ${({ $active }) => ($active ? '#FFFFFF' : meok[700])};
@@ -284,6 +302,20 @@ const ControlButton = styled.button<{ $active?: boolean }>`
   &:active {
     transform: scale(0.94);
   }
+
+  [data-theme='dark'] & {
+    background: ${({ $active }) => ($active ? '#ffffff' : 'transparent')};
+    color: ${({ $active }) => ($active ? meok[900] : meok[200])};
+
+    & + & {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    &:hover {
+      background: ${({ $active }) => ($active ? '#ffffff' : 'rgba(255, 255, 255, 0.08)')};
+      color: ${({ $active }) => ($active ? meok[900] : '#ffffff')};
+    }
+  }
 `;
 
 /** 4대 전국 한옥 시네마틱 드론 비행 코스 */
@@ -297,11 +329,12 @@ const FLIGHT_STOPS = [
 export default function KakaoMap() {
   const containerRef = useRef<HTMLDivElement>(null);
   const initMap = useKakaoMap(containerRef);
+  const { mode: themeMode, setMode: setThemePreference } = useOnmaruTheme();
+  const isEffectiveNight = themeMode === 'dark';
   const map = useMapStore((s) => s.map);
   const isSearchDirty = useMapStore((s) => s.isSearchDirty);
   const panelOpen = useMapStore((s) => s.panelOpen);
   const [isLocating, setIsLocating] = useState(false);
-  const [isNight, setIsNight] = useState(false);
   const [flightState, setFlightState] = useState<{ active: boolean; step: number }>({
     active: false,
     step: 0,
@@ -547,7 +580,7 @@ export default function KakaoMap() {
         ref={containerRef}
         role="application"
         aria-label="한옥 위치 지도"
-        $isNight={isNight}
+        $isNight={isEffectiveNight}
       />
 
       {/* 시네마틱 드론 비행 플로팅 알림 바 */}
@@ -600,11 +633,11 @@ export default function KakaoMap() {
           <ControlButton
             type="button"
             aria-label="달빛 야행 모드 전환"
-            onClick={() => setIsNight((prev) => !prev)}
-            $active={isNight}
-            title={isNight ? '주간 뷰로 전환' : '달빛 야행(야경) 모드로 전환'}
+            onClick={() => setThemePreference(isEffectiveNight ? 'light' : 'dark')}
+            $active={isEffectiveNight}
+            title={isEffectiveNight ? '주간 뷰(라이트 모드)로 전환' : '달빛 야행(다크 모드)으로 전환'}
           >
-            {isNight ? <Sun size={18} color="#f59e0b" strokeWidth={2} /> : <Moon size={18} strokeWidth={2} />}
+            {isEffectiveNight ? <Sun size={18} color="#f59e0b" strokeWidth={2} /> : <Moon size={18} strokeWidth={2} />}
           </ControlButton>
         </Stack>
 

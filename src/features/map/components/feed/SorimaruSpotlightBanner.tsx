@@ -42,6 +42,11 @@ const CardContainer = styled.div`
   &:hover {
     transform: translateY(-1px);
   }
+
+  [data-theme='dark'] & {
+    background: linear-gradient(135deg, rgba(212, 32, 88, 0.15) 0%, ${surface.dark.card} 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
 `;
 
 const BackgroundAura = styled.div`
@@ -74,7 +79,6 @@ const Badge = styled.div`
   font-weight: 700;
   color: ${lightPalette.jangmi[500]};
   background: ${lightPalette.jangmi[50]};
-
 `;
 
 const DurationText = styled.span`
@@ -92,6 +96,10 @@ const StoryTitle = styled.h4`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 const StoryExcerpt = styled.p`
@@ -102,6 +110,10 @@ const StoryExcerpt = styled.p`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 const ActionRow = styled.div`

@@ -14,7 +14,7 @@ import {
   List,
   Bookmark,
 } from 'lucide-react';
-import { lightPalette, meok , fontSize } from '@/design-system/tokens';
+import { lightPalette, meok, surface, fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import { distanceInMeters } from '@/features/map/utils/geo';
@@ -48,15 +48,16 @@ const StickyHeader = styled.div`
   justify-content: space-between;
   padding: 12px 14px 8px;
   background: #ffffff;
+
+  [data-theme='dark'] & {
+    background: ${surface.dark.card};
+  }
 `;
 
 const FeedWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 32px;
-  /* LiveNoticeBanner의 margin-bottom(12px)과 합쳐 아래 섹션들 사이 간격(32px)과
-     동일한 리듬을 만든다 — 배너 바로 아래 "진행 중인 축제·기획전"만 유독
-     붙어 보이지 않도록. */
   margin-top: 20px;
   margin-bottom: 40px;
 `;
@@ -69,6 +70,10 @@ const CountLabel = styled.span`
   font-weight: 500;
   color: ${meok[900]};
   letter-spacing: -0.02em;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 const SortDropdownWrapper = styled.div`
@@ -97,6 +102,14 @@ const SortSelect = styled.select`
     outline: 2px solid ${meok[500]};
     border-radius: 4px;
   }
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+
+    &:hover {
+      color: ${meok[200]};
+    }
+  }
 `;
 
 const SortChevron = styled(ChevronDown)`
@@ -104,6 +117,10 @@ const SortChevron = styled(ChevronDown)`
   right: 0;
   pointer-events: none;
   color: ${meok[500]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 const ListContainer = styled.ul`
@@ -149,6 +166,16 @@ const PageNavBtn = styled.button`
     opacity: 0.35;
     cursor: not-allowed;
   }
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.06);
+    color: ${meok[400]};
+
+    &:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+    }
+  }
 `;
 
 const PageNumberGroup = styled.div`
@@ -179,6 +206,16 @@ const PageNumberBtn = styled.button<{ $active: boolean }>`
     background: ${({ $active }) =>
       $active ? '#000000' : 'rgba(78, 89, 104, 0.08)'};
     color: ${({ $active }) => ($active ? '#ffffff' : meok[900])};
+  }
+
+  [data-theme='dark'] & {
+    background: ${({ $active }) => ($active ? '#ffffff' : 'transparent')};
+    color: ${({ $active }) => ($active ? meok[900] : meok[400])};
+
+    &:hover:not(:disabled) {
+      background: ${({ $active }) => ($active ? '#ffffff' : 'rgba(255, 255, 255, 0.08)')};
+      color: ${({ $active }) => ($active ? meok[900] : '#ffffff')};
+    }
   }
 `;
 
