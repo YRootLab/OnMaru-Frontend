@@ -4,6 +4,7 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+- Added an environment contract guard for Odii/Sorimaru API keys: `.env.example` is now the tracked template, `.env.local` stays ignored, `npm run check:env` validates supported aliases, pre-push runs the same check locally, and GitHub Actions verifies the contract on PR/push.
 - Wired the backend feature delta into frontend surfaces: `/discover` now starts journey runs and consumes SSE/snapshot recovery, `/map` info mode shows VisitReview region/review data, map place cards use canonical saved-place actions with guest login intent, `/mypage` shows the monthly timeline, and logout/account deletion clears private client state.
 - Added typed repositories for journey curator, VisitReview, saved resources, and member timeline backend APIs with focused contract tests.
 - Added backend feature foundation modules for API error/cursor/CSRF handling, cookie/idempotency `apiRequest`, journey SSE run reduction, VisitReview validation and stale-response protection, saved place login intent, member timeline contracts, and the shared place-slip motion primitive.

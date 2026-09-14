@@ -1,6 +1,11 @@
 # handoff.md
 
 Current work:
+- Summary: Added local and CI controls to prevent Odii/Sorimaru env alias regressions.
+  - `.env.local` remains ignored, while `.env.example` is explicitly unignored and tracked as a safe template.
+  - Added `npm run check:env` via `scripts/validate-env-contract.mjs` to validate Odii key aliases, `.gitignore` env rules, and accidental tracked secret env files.
+  - Wired the same check into `.githooks/pre-push` and `.github/workflows/env-contract.yml`.
+  - Verified: `npm run check:env`, focused validator tests, `npx tsc --noEmit`, `npm test` (42 files, 131 tests), and `npm run build` passed.
 - Summary: Wired the backend feature delta into user-facing frontend surfaces.
   - `/discover` now runs through the backend journey repository, listens to run SSE events, falls back to snapshot recovery, and renders the existing knowledge graph/bento board after the server snapshot arrives.
   - `/map` info mode now includes a VisitReview region panel with region aggregate loading, explicit review loading, stale-response protection, and neutral reveal motion.
