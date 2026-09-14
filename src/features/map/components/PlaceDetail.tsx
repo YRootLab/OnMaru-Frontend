@@ -30,7 +30,8 @@ import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import { usePlaceDetail } from '@/features/map/hooks/usePlaceDetail';
 import { useStampStore } from '@/features/stamp/hooks/useStampStore';
-import { calculateTravelEstimate } from '@/features/map/utils/geo';
+import { stampAudio } from '@/features/stamp/utils/sound';
+import { calculateTravelEstimate, isTraditionalPlace } from '@/features/map/utils/geo';
 import { createKakaoNavigationLinks } from '@/features/map/utils/navigation';
 import PlaceDetailCarousel from './detail/PlaceDetailCarousel';
 import PlaceWarmthSection from './warmth/PlaceWarmthSection';
@@ -178,9 +179,7 @@ export default function PlaceDetail() {
 
   const isRealTraditional = useMemo(() => {
     if (selectedItem?.isTraditional !== undefined) return selectedItem.isTraditional;
-    return /(한옥|고택|종택|향교|서원|사당|궁궐|성곽|누각|정자|기와|초가|전통|다원|다도|명옥헌|임청각|명재|선교장|운현궁|낙선재|대청|마루|온돌|당\b|재\b|헌\b|루\b|정\b|각\b|원\b)/i.test(
-      title,
-    );
+    return isTraditionalPlace(title);
   }, [selectedItem?.isTraditional, title]);
 
   const userLocation = useMapStore((s) => s.userLocation);
@@ -316,6 +315,7 @@ export default function PlaceDetail() {
 
   const isPlaceVisited = useStampStore((s) => s.isPlaceVisited(detailId || ''));
   const checkIn = useStampStore((s) => s.checkIn);
+  const openStampModal = useStampStore((s) => s.openStampModal);
 
   const handleToggleBookmark = () => {
     if (!detailId) return;
@@ -488,46 +488,53 @@ export default function PlaceDetail() {
               </HeroActionTile>
             </HeroActionGrid>
 
-            {/* 한옥 수결첩 방문 스탬프 체크인 */}
-            <StampCheckInBanner $isVisited={isPlaceVisited}>
-              <StampBannerLeft>
-                <Award size={18} color={isPlaceVisited ? '#059669' : '#b45309'} />
-                <StampBannerText>
-                  <StampBannerTitle>
-                    {isPlaceVisited ? '수결첩에 보관된 한옥' : '한옥 수결첩 방문 기록'}
-                  </StampBannerTitle>
-                  <StampBannerSub>
-                    {isPlaceVisited
-                      ? '전국 한옥 수결첩에 인장이 기록되었습니다'
-                      : '이곳을 유람하셨다면 수결(스탬프)을 남겨보세요'}
-                  </StampBannerSub>
-                </StampBannerText>
-              </StampBannerLeft>
-              <StampActionBtn
-                type="button"
-                $isVisited={isPlaceVisited}
-                onClick={() => {
-                  if (!detailId) return;
-                  checkIn({
-                    id: detailId,
-                    name: title,
-                    address: addr,
-                  });
-                }}
-              >
-                {isPlaceVisited ? (
-                  <>
-                    <CheckCircle2 size={13} strokeWidth={2.5} />
-                    <span>기록 완료</span>
-                  </>
-                ) : (
-                  <>
-                    <Award size={13} strokeWidth={2} />
-                    <span>인장 찍기</span>
-                  </>
-                )}
-              </StampActionBtn>
-            </StampCheckInBanner>
+            {/* 정통 한옥·문화재 명소에만 수결첩 방문 스탬프 체크인 활성화 */}
+            {isRealTraditional && (
+              <StampCheckInBanner $isVisited={isPlaceVisited}>
+                <StampBannerLeft>
+                  <Award size={18} color={isPlaceVisited ? '#059669' : '#b45309'} />
+                  <StampBannerText>
+                    <StampBannerTitle>
+                      {isPlaceVisited ? '수결첩에 보관된 한옥' : '한옥 수결첩 방문 기록'}
+                    </StampBannerTitle>
+                    <StampBannerSub>
+                      {isPlaceVisited
+                        ? '전국 한옥 수결첩에 인장이 기록되었습니다 (클릭하여 인장 보기)'
+                        : '유서 깊은 한옥을 유람하셨다면 전통 수결(인장)을 남겨보세요'}
+                    </StampBannerSub>
+                  </StampBannerText>
+                </StampBannerLeft>
+                <StampActionBtn
+                  type="button"
+                  $isVisited={isPlaceVisited}
+                  onClick={() => {
+                    if (!detailId) return;
+                    const res = checkIn({
+                      id: detailId,
+                      name: title,
+                      address: addr,
+                      isTraditional: true,
+                    });
+                    stampAudio.playStampSound();
+                    if (res.primaryStamp) {
+                      openStampModal(res.primaryStamp);
+                    }
+                  }}
+                >
+                  {isPlaceVisited ? (
+                    <>
+                      <CheckCircle2 size={13} strokeWidth={2.5} />
+                      <span>수결 확인</span>
+                    </>
+                  ) : (
+                    <>
+                      <Award size={13} strokeWidth={2} />
+                      <span>인장 찍기</span>
+                    </>
+                  )}
+                </StampActionBtn>
+              </StampCheckInBanner>
+            )}
 
             {matchedSorimaruStory && (
               <CinematicBanner>

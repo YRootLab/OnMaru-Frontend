@@ -112,13 +112,28 @@ export function calculateTravelEstimate(
  * "명옥헌"처럼 한글로 끝나는 이름에서는 경계가 생기지 않아 한 번도 매치되지 않았다.
  * 접미사는 정규식 대신 "이름이 그 글자로 끝나는가"로 직접 판정한다.
  */
-const TRADITIONAL_KEYWORDS = [
-  '한옥', '고택', '종택', '향교', '서원', '사당', '궁궐', '성곽', '누각',
-  '기와', '초가', '전통', '다원', '다도', '온돌', '민속마을', '한옥마을',
+/** 한옥과 무관한 일반 상업·의료·학업·행정 시설 제외 키워드 */
+const NON_TRADITIONAL_EXCLUSIONS = [
+  '병원', '의원', '약국', '치과', '한의원', '학원', '독서실', '세차', '주차장', '주차',
+  '정육', '마트', '슈퍼', '부동산', '공인중개사', '헤어', '미용', '네일',
+  '헬스', '피트니스', '필라테스', '스크린', '노래', 'pc방', '세탁', '주유소',
+  '카센터', '충전소', '호프', '클럽', '편의점', '모텔', '아파트', '빌라',
+  '오피스텔', '주민센터', '행정복지센터', '치안센터', '파출소', '소방서', '우체국',
+  '세무서', '구청', '시청', '법원', '식당', '순대', '국밥', '치킨', '피자', '포차',
 ];
 
-/** 이름 끝 한 글자로 고택류를 판별한다 (예: 임청각, 선교장, 명옥헌). */
-const TRADITIONAL_SUFFIXES = ['당', '재', '헌', '루', '각', '정', '원', '장', '묘', '전'];
+/** 정통 한옥·문화재 명칭 키워드 */
+const TRADITIONAL_KEYWORDS = [
+  '한옥', '고택', '종택', '향교', '서원', '사당', '궁궐', '성곽', '누각',
+  '기와', '초가', '와가', '민속마을', '한옥마을', '선교장', '운조루', '경기전',
+  '하회', '양동', '외암', '성읍', '임청각', '부용대', '오죽헌', '화성행궁',
+  '창덕궁', '경복궁', '덕수궁', '창경궁', '경희궁', '종묘', '도산서원',
+  '병산서원', '소수서원', '옥산서원', '필암서원', '돈암서원', '무성서원',
+  '전통한옥', '전통가옥', '전통고택', '전통문화', '전통마을',
+];
+
+/** 고택·정자·누각류 전통 접미사 ('원'·'장'·'당'은 병원·세차장·식당 오인 방지를 위해 단독 접미사에서 제외) */
+const TRADITIONAL_SUFFIXES = ['헌', '루', '각', '정사', '종택', '고택', '재', '전', '묘'];
 
 /** TourAPI 분류코드 기준 — 고궁/전통건조물/민속마을 계열. */
 function isTraditionalCat3(cat3: string): boolean {
@@ -126,21 +141,25 @@ function isTraditionalCat3(cat3: string): boolean {
 }
 
 export function isTraditionalPlace(name: string, cat3 = ''): boolean {
-  if (isTraditionalCat3(cat3)) return true;
-
-  const title = name.trim();
+  const title = (name || '').trim();
   if (!title) return false;
 
+  // 1. 일반 상업/의료/편의시설 명칭은 무조건 제외
+  if (NON_TRADITIONAL_EXCLUSIONS.some((ex) => title.includes(ex))) {
+    return false;
+  }
+
+  // 2. 문화재/한옥 공인 분류코드
+  if (isTraditionalCat3(cat3)) return true;
+
+  // 3. 정통 한옥/문화재 핵심 키워드 매칭
   if (TRADITIONAL_KEYWORDS.some((keyword) => title.includes(keyword))) return true;
 
-  /*
-    접미사는 이름 전체가 2~5글자일 때만 본다.
-    "전통시장"처럼 앞에서 이미 걸리는 것과 달리, "정"·"원"은 흔한 글자라
-    긴 이름("정자동 주민센터")까지 훑으면 일반 시설이 통째로 딸려온다.
-  */
-  if (title.length >= 2 && title.length <= 5) {
-    const last = title[title.length - 1];
-    if (TRADITIONAL_SUFFIXES.includes(last)) return true;
+  // 4. 전통 정자·누각·고택 접미사 판별 (명옥헌, 영남루, 광한루, 촉석루 등)
+  if (title.length >= 2 && title.length <= 6) {
+    if (TRADITIONAL_SUFFIXES.some((suf) => title.endsWith(suf))) {
+      return true;
+    }
   }
 
   return false;

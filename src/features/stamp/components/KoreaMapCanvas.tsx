@@ -1,9 +1,11 @@
 'use client';
 
 import styled from '@emotion/styled';
+import { motion } from 'framer-motion';
 import { meok } from '@/design-system/tokens';
 import { KOREA_MAP_VIEWBOX, KOREA_REGION_PATHS } from '@/shared/data/koreaMapPaths';
 import type { RegionCode } from '../types';
+import { stampAudio } from '../utils/sound';
 
 interface KoreaMapCanvasProps {
   selectedRegion: RegionCode;
@@ -167,6 +169,7 @@ export default function KoreaMapCanvas({
   unlockedRegions,
 }: KoreaMapCanvasProps) {
   const handleRegionClick = (pathId: string) => {
+    stampAudio.playMapClickSound();
     const targetCode = getRegionCodeForPath(pathId);
     if (pathId === 'seoul') {
       if (selectedRegion === 'seoul' || selectedRegion === 'gyeonggi') {
@@ -214,6 +217,21 @@ export default function KoreaMapCanvas({
                 role="button"
                 aria-label={`${region.label} 권역 ${unlocked ? '방문 완료' : '미방문'}`}
               />
+
+              {/* 활성화 권역 외곽선 펄스 링 */}
+              {active && (
+                <motion.circle
+                  cx={region.centroid.x}
+                  cy={region.centroid.y + (unlocked ? 16 : 0)}
+                  r="34"
+                  fill="none"
+                  stroke="#d4af37"
+                  strokeWidth="2.5"
+                  initial={{ scale: 0.8, opacity: 0.9 }}
+                  animate={{ scale: [0.8, 1.35, 0.8], opacity: [0.9, 0.25, 0.9] }}
+                  transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+                />
+              )}
 
               {/* 전통 수결(인장) 획득 배지 */}
               {unlocked && (
