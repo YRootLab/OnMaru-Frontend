@@ -377,7 +377,7 @@ function PlaceGroupCard({ group, startIndex }: { group: SorimaruPlaceGroup; star
       </PlaceGroupHeader>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
         {group.stories.map((story, index) => (
-          <StoryRow key={story.stid} story={story} index={startIndex + index} />
+          <StoryRow key={`${story.stid}-${index}`} story={story} index={startIndex + index} />
         ))}
       </div>
     </PlaceGroupSection>
@@ -465,7 +465,7 @@ export function SorimaruArchiveBrowse({ stories, isLoading }: SorimaruArchiveBro
           }}
         >
           {stories.map((story, index) => (
-            <StoryRow key={story.stid} story={story} index={index} />
+            <StoryRow key={`${story.stid}-${index}`} story={story} index={index} />
           ))}
         </div>
       ) : (

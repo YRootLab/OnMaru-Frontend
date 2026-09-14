@@ -56,6 +56,10 @@ const Overlay = styled.div<{ $open: boolean }>`
   opacity: ${({ $open }) => ($open ? 1 : 0)};
   pointer-events: ${({ $open }) => ($open ? 'auto' : 'none')};
   transition: opacity 0.22s ease;
+
+  [data-theme='dark'] & {
+    background: rgba(0, 0, 0, 0.72);
+  }
 `;
 
 const ModalCard = styled.div<{ $open: boolean }>`
@@ -70,6 +74,12 @@ const ModalCard = styled.div<{ $open: boolean }>`
 
   transform: ${({ $open }) => ($open ? 'scale(1) translateY(0)' : 'scale(0.95) translateY(12px)')};
   transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+
+  [data-theme='dark'] & {
+    background: #24211D;
+    color: #F3F4F6;
+    border: none;
+  }
 `;
 
 const ModalHeader = styled.div`
@@ -87,6 +97,10 @@ const ModalTitle = styled.h3`
   font-size: ${fontSize.lg};
   font-weight: 500;
   color: ${meok[900]};
+
+  [data-theme='dark'] & {
+    color: #F3F4F6;
+  }
 `;
 
 const CloseBtn = styled.button`
@@ -106,6 +120,16 @@ const CloseBtn = styled.button`
     background: #e5e8eb;
     color: ${meok[900]};
   }
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.08);
+    color: #9CA3AF;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.16);
+      color: #ffffff;
+    }
+  }
 `;
 
 const FormSection = styled.div`
@@ -118,6 +142,10 @@ const SectionLabel = styled.label`
   font-weight: 500;
   color: ${meok[900]};
   margin-bottom: 8px;
+
+  [data-theme='dark'] & {
+    color: #D1D5DB;
+  }
 `;
 
 /* ── 1. 지역 선택기 (Region Scroller) ── */
@@ -148,6 +176,15 @@ const RegionChip = styled.button<{ $active: boolean }>`
 
   &:hover {
     background: ${({ $active }) => ($active ? lightPalette.juhong[500] : '#e5e8eb')};
+  }
+
+  [data-theme='dark'] & {
+    background: ${({ $active }) => ($active ? '#e85a18' : 'rgba(255, 255, 255, 0.08)')};
+    color: ${({ $active }) => ($active ? '#ffffff' : '#9CA3AF')};
+
+    &:hover {
+      background: ${({ $active }) => ($active ? '#e85a18' : 'rgba(255, 255, 255, 0.14)')};
+    }
   }
 `;
 
@@ -190,6 +227,20 @@ const PlaceInput = styled.input`
     background: ${lightPalette.juhong[50]};
     color: ${lightPalette.juhong[900]};
   }
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.06);
+    color: #F3F4F6;
+
+    &::placeholder {
+      color: #6B7280;
+    }
+
+    &:focus {
+      background: rgba(232, 90, 24, 0.12);
+      color: #ffffff;
+    }
+  }
 `;
 
 const PlaceDropdown = styled.div`
@@ -200,6 +251,11 @@ const PlaceDropdown = styled.div`
   background: #fafbfc;
 
   padding: 4px;
+
+  [data-theme='dark'] & {
+    background: #1C1A17;
+    border: none;
+  }
 `;
 
 const PlaceOption = styled.button`
@@ -223,12 +279,25 @@ const PlaceOption = styled.button`
     background: ${lightPalette.juhong[50]};
     color: ${lightPalette.juhong[700]};
   }
+
+  [data-theme='dark'] & {
+    color: #E5E7EB;
+
+    &:hover {
+      background: rgba(232, 90, 24, 0.18);
+      color: #FBBF24;
+    }
+  }
 `;
 
 const PlaceOptionAddr = styled.span`
   font-size: ${fontSize.micro};
   color: ${meok[400]};
   font-weight: 400;
+
+  [data-theme='dark'] & {
+    color: #9CA3AF;
+  }
 `;
 
 /* ── 3. 장소 혼잡도 분위기 ── */
@@ -256,6 +325,15 @@ const MoodButton = styled.button<{ $active: boolean }>`
   &:hover {
     background: ${({ $active }) => ($active ? lightPalette.juhong[500] : '#e5e8eb')};
   }
+
+  [data-theme='dark'] & {
+    background: ${({ $active }) => ($active ? '#e85a18' : 'rgba(255, 255, 255, 0.08)')};
+    color: ${({ $active }) => ($active ? '#ffffff' : '#D1D5DB')};
+
+    &:hover {
+      background: ${({ $active }) => ($active ? '#e85a18' : 'rgba(255, 255, 255, 0.14)')};
+    }
+  }
 `;
 
 /* ── 4. 추천 키워드 태그 ── */
@@ -278,6 +356,15 @@ const TagChip = styled.button<{ $selected: boolean }>`
 
   &:hover {
     background: ${({ $selected }) => ($selected ? lightPalette.juhong[500] : '#e5e8eb')};
+  }
+
+  [data-theme='dark'] & {
+    background: ${({ $selected }) => ($selected ? '#e85a18' : 'rgba(255, 255, 255, 0.08)')};
+    color: ${({ $selected }) => ($selected ? '#ffffff' : '#D1D5DB')};
+
+    &:hover {
+      background: ${({ $selected }) => ($selected ? '#e85a18' : 'rgba(255, 255, 255, 0.14)')};
+    }
   }
 `;
 
@@ -304,6 +391,19 @@ const TextArea = styled.textarea`
   &:focus {
     background: #eef1f4;
   }
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.06);
+    color: #F3F4F6;
+
+    &::placeholder {
+      color: #6B7280;
+    }
+
+    &:focus {
+      background: rgba(255, 255, 255, 0.09);
+    }
+  }
 `;
 
 const CharCount = styled.div`
@@ -311,6 +411,10 @@ const CharCount = styled.div`
   font-size: ${fontSize.xs};
   color: ${meok[400]};
   margin-top: 4px;
+
+  [data-theme='dark'] & {
+    color: #6B7280;
+  }
 `;
 
 const SubmitBtn = styled.button`
@@ -339,6 +443,19 @@ const SubmitBtn = styled.button`
     background: #d1d5db;
     color: #9ca3af;
     cursor: not-allowed;
+  }
+
+  [data-theme='dark'] & {
+    background: linear-gradient(135deg, #e85a18 0%, #d4af37 100%);
+
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, #f06a2b 0%, #e5bd47 100%);
+    }
+
+    &:disabled {
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.3);
+    }
   }
 `;
 

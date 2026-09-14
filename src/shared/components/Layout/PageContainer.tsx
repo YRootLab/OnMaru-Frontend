@@ -19,7 +19,7 @@ const StyledPageContainer = styled.div<{ $isFullBleed: boolean; $background: str
     하얗게 떠 보인다 — 이 컨테이너가 본문보다 바깥에 있어 본문의 다크 처리가 못 덮는다.
   */
   [data-theme='dark'] &[data-page-surface='hanok'] {
-    background: ${surface.dark.app};
+    background: transparent;
   }
 
   ${({ $isFullBleed, theme }) =>

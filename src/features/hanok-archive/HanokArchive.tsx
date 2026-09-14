@@ -21,6 +21,7 @@ import { VesselReveal } from '@/shared/components/animation/VesselReveal';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import QuickIndexBar from '@/features/hanok-archive/components/QuickIndexBar';
 import { HanjiDeckleEdge } from '@/shared/components/HanjiDeckleEdge';
+import { HanokAtmosphereBackground } from '@/shared/components/HanokBackground';
 
 const loadDogamDetailModal = () => import('@/features/hanok-archive/components/HanokDogamDetailModal');
 const HanokDogamDetailModal = dynamic(loadDogamDetailModal, { ssr: false });
@@ -48,11 +49,11 @@ const Root = styled.div`
   min-height: 100vh;
   font-family: var(--font-hanok);
   color: ${meok[900]};
-  background: #ffffff;
+  background: transparent;
 
   [data-theme='dark'] & {
     color: ${meok[100]};
-    background: ${surface.dark.app};
+    background: transparent;
   }
 `;
 
@@ -113,6 +114,23 @@ const ArchiveSection = styled.div`
 const IntroStage = styled.div`
   position: relative;
   overflow: hidden;
+  max-width: 1200px;
+  margin: 12px auto 0;
+  border-radius: 24px;
+  min-height: clamp(260px, 32vh, 340px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  @media (max-width: 1120px) {
+    margin: 8px 16px 0;
+  }
+
+  @media (max-width: 640px) {
+    margin: 4px 8px 0;
+    border-radius: 18px;
+    min-height: 240px;
+  }
 `;
 
 const IntroPoster = styled.div<{ $visible: boolean }>`
@@ -135,48 +153,71 @@ const IntroVideo = styled.video<{ $visible: boolean }>`
   transition: opacity 0.6s ease;
 `;
 
-/* 흰 텍스트 대비를 위해 살짝만 어둡게 — 영상 자체는 잘 보이게 둔다 */
+/* 흰 텍스트 대비 및 중앙 텍스트 가독성을 위한 시네마틱 스크림 */
 const IntroScrim = styled.div`
   position: absolute;
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  background: linear-gradient(
-    180deg,
-    rgba(10, 9, 8, 0.42) 0%,
-    rgba(10, 9, 8, 0.18) 45%,
-    rgba(10, 9, 8, 0.45) 100%
+  background: radial-gradient(
+    ellipse at center,
+    rgba(10, 9, 8, 0.5) 0%,
+    rgba(10, 9, 8, 0.35) 60%,
+    rgba(10, 9, 8, 0.65) 100%
   );
 `;
 
 const IntroContent = styled.div`
   position: relative;
   z-index: 2;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: clamp(48px, 6vh, 72px) clamp(20px, 4vw, 40px) clamp(56px, 7vh, 80px);
 `;
 
 const Intro = styled.header`
-  padding: clamp(56px, 10vh, 112px) 0 clamp(28px, 5vh, 56px);
-  max-width: 760px;
+  max-width: 980px;
+  width: 100%;
+  text-align: center;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 
 const PageTitle = styled.h1`
   font-family: var(--font-hanok);
-  font-size: ${fluidHeading.display};
+  font-size: clamp(1.6rem, 3.2vw, 2.75rem);
   font-weight: 300;
-  line-height: 1.22;
+  line-height: 1.25;
   letter-spacing: -0.02em;
-  color: ${meok[100]};
-  margin: 0 0 18px;
-  word-break: keep-all;
+  color: #ffffff;
+  margin: 0 0 14px;
+  text-align: center;
+  white-space: nowrap;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.5);
+
+  @media (max-width: 520px) {
+    white-space: normal;
+    word-break: keep-all;
+  }
 `;
 
 const Lead = styled.p`
-  font-size: ${fontSize.base};
+  font-size: clamp(0.875rem, 1.25vw, 1.05rem);
   font-weight: 400;
-  line-height: 1.75;
-  color: rgba(255, 255, 255, 0.78);
-  margin: 0 0 20px;
-  word-break: keep-all;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.88);
+  margin: 0;
+  text-align: center;
+  white-space: nowrap;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
+
+  @media (max-width: 860px) {
+    white-space: normal;
+    word-break: keep-all;
+  }
 `;
 
 const SourceNote = styled.p`
@@ -258,6 +299,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
 
   return (
     <Root>
+      <HanokAtmosphereBackground />
       <HanjiDeckleEdge />
       <Global styles={paperGround} />
       <PageInner>

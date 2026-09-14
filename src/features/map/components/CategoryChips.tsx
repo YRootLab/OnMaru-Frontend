@@ -235,9 +235,7 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
   const handleChipClick = (item: CategoryItem) => {
     // 1. 온기 모드에서는 카테고리 필터 변경 (이미 선택된 것을 다시 누르면 'all'로 초기화)
     if (mode === 'warmth') {
-      if (item.id === 'all') {
-        setCategory(null);
-      } else if (category === item.id) {
+      if (item.id === 'all' || category === item.id) {
         setCategory(null);
       } else {
         setCategory(item.id);
@@ -245,13 +243,14 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
       return;
     }
 
-    // 2. 정보 모드에서는 카테고리 필터 설정과 함께 검색 실행
+    // 2. 정보 모드에서는 카테고리 필터 토글 & 패널 열기
     if (category === item.id) {
       setCategory(null);
-      triggerSearch('');
     } else {
       setCategory(item.id);
-      triggerSearch(item.keyword || item.label);
+      if (!useMapStore.getState().panelOpen) {
+        useMapStore.getState().setPanelOpen(true);
+      }
     }
   };
 
@@ -273,7 +272,8 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
     const container = containerRef.current;
     if (!container) return;
     dragRef.current = { startX: e.clientX, startScrollLeft: container.scrollLeft, moved: false };
-    container.setPointerCapture(e.pointerId);
+    // pointerdown 시점에 즉시 setPointerCapture를 호출하면 자식 버튼의 click 이벤트가 막히므로
+    // 실제 드래그 이동이 발생했을 때만 캡처를 활성화한다.
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -281,14 +281,23 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
     const container = containerRef.current;
     if (!drag || !container) return;
     const dx = e.clientX - drag.startX;
-    if (Math.abs(dx) > 4) drag.moved = true;
-    container.scrollLeft = drag.startScrollLeft - dx;
-    updateEdgeFade();
+    if (!drag.moved && Math.abs(dx) > 5) {
+      drag.moved = true;
+      try {
+        container.setPointerCapture(e.pointerId);
+      } catch {
+        // 무시
+      }
+    }
+    if (drag.moved) {
+      container.scrollLeft = drag.startScrollLeft - dx;
+      updateEdgeFade();
+    }
   };
 
   const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
     const container = containerRef.current;
-    if (container) {
+    if (container && dragRef.current?.moved) {
       try {
         container.releasePointerCapture(e.pointerId);
       } catch {

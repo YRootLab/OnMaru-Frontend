@@ -4,6 +4,28 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+- **Map Page (`/map`)**: Added `/logo.png` to the Left Navigation Rail and implemented comprehensive Dark Mode support:
+  - Replaced text cursive script brandmark in `MapNavRail.tsx` with high-resolution `/logo.png` symbol mark.
+  - Added dedicated dark/light mode toggle button to the navigation rail, synchronized with `useOnmaruTheme()`.
+  - Seamless dark theme support across all map UI:
+    - KakaoMap night mode (`Canvas` moonlight filter) synchronized directly with the global dark theme.
+    - Side navigation rail, list panel (`ListPanel.tsx`), search bar (`SearchBar.tsx`), mode toggle (`ModeToggle.tsx`), place list (`PlaceList.tsx`), place list item (`PlaceListItem.tsx`), detail panel (`DetailPanel.tsx`, `PlaceDetail.styles.ts`), popular ranking panel (`PopularPlacesPanel.tsx`), and mobile bottom sheet (`BottomSheet.tsx`).
+    - Smart around feed, festival carousel, sorimaru spotlight, and live notice ticker banners.
+    - Map control stack and research floating button.
+
+- Implemented traditional Korean ambient background effects for Sorimaru and Hanok Maru:
+  - **Sorimaru (`/sorimaru`)**: Added `[Eaves Droplet Ripple]` (concentric water ripple waves simulating raindrops falling from the hanok eaves) and `[Hanji Ink Wash Bleed]` (authentic soft Korean ink diffusion along the vertical hanji deckle edges).
+  - **Hanok Maru (`/hanok`)**: Added `<HanokAtmosphereBackground />` featuring the authentic royal **Irworobongdo (日月五峰圖, Sun and Moon and the Five Peaks)** folding screen motif:
+    - White Moon on the left and Red Sun on the right with subtle celestial pulse animations.
+    - Five stylized mountain peaks (오봉) with traditional ink ridges.
+    - Twin waterfalls (쌍폭포) cascading between peaks.
+    - Swaying wave lines at the bottom and red pine trees (적송) flanking both sides.
+    - 6-panel vertical folding screen creases with full dark mode (`[data-theme='dark']`) and mobile responsive support.
+  - Full support for dark mode (`[data-theme='dark']`), responsive layouts, and `prefers-reduced-motion` accessibility.
+
+
+- Fixed `JourneyAssemblyLoader` automatically popping up upon entering the home/OnMaru page (`/`). The AI journey loading modal and mini-game are now only activated when the user actually initiates a search via the "여정 탐색" button or selects a mood chip.
+
 - Completely removed artificial horizontal hanji tear lines (`HanjiTearTransition` returns null, tags removed) to eliminate floating strip/dot artifacts and let sections breathe with negative space and smooth atmospheric backgrounds.
 - Added authentic vertical hanji deckle edge frame to Hanok Maru (`/hanok`) via new shared Emotion component `<HanjiDeckleEdge />` (`src/shared/components/HanjiDeckleEdge`), unifying traditional aesthetic framing across both Sorimaru and Hanok Maru with full dark-mode and mobile support.
 - Removed protruding horizontal deckle fiber needle lines (`LEFT_DECKLE_FIBERS`, `RIGHT_DECKLE_FIBERS`) and background window lattice grid pattern (`.thresholdShadow` and repeating-linear-gradients).

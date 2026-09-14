@@ -183,6 +183,7 @@ const SegmentControl = styled.div`
 const Segment = styled.button<{ $active: boolean }>`
   position: relative;
   background: transparent;
+  border: none;
   padding: 9px 22px;
   font-size: ${fontSize.sm};
   font-weight: ${({ $active }) => ($active ? 700 : 400)};

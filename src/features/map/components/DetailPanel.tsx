@@ -29,6 +29,12 @@ const DetailAside = styled.aside<{ $open: boolean }>`
     transform 0.28s cubic-bezier(0.32, 0.72, 0, 1),
     opacity 0.28s cubic-bezier(0.32, 0.72, 0, 1);
 
+  [data-theme='dark'] & {
+    background: ${surface.dark.card};
+    box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.6), 0 4px 12px -4px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
   @media (min-width: 1024px) and (max-width: 1439px) {
     width: ${({ $open }) => ($open ? `${PANEL_WIDTH_COMPACT}px` : '0px')};
   }

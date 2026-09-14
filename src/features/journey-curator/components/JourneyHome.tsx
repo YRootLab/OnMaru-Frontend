@@ -16,6 +16,7 @@ import KnowledgeGraphView from './KnowledgeGraphView';
 import BentoJourneyGrid from './BentoJourneyGrid';
 import JourneyRefineBar from './JourneyRefineBar';
 import JourneyAssemblyLoader from './JourneyAssemblyLoader';
+import { HanjiDeckleEdge } from '@/shared/components/HanjiDeckleEdge';
 
 /**
  * 검색 전에는 검색창을 화면 가운데에 세운다.
@@ -46,6 +47,7 @@ export default function JourneyHome() {
 
   return (
     <main>
+      <HanjiDeckleEdge />
       <JourneyAssemblyLoader />
 
       <Landing $centered={!hasSearched}>

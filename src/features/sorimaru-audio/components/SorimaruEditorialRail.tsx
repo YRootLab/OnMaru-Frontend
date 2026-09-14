@@ -90,20 +90,24 @@ const CardMotionButton = styled(motion.button)<{ $isActive: boolean }>`
   flex-shrink: 0;
   user-select: none;
   overflow: hidden;
-  background-color: #ffffff;
+  border-radius: 1.25rem;
+  contain: paint;
+  isolation: isolate;
+  background-color: transparent;
   text-align: left;
   outline: none;
   border: none;
-  border-radius: 1.25rem;
   cursor: pointer;
   z-index: ${({ $isActive }) => ($isActive ? 20 : 10)};
-  box-shadow: ${({ $isActive }) => ($isActive ? '0 16px 36px rgba(0,0,0,0.18)' : '0 4px 12px rgba(0,0,0,0.06)')};
-  filter: ${({ $isActive }) => ($isActive ? 'none' : 'grayscale(0.15)')};
-  transition: box-shadow 0.3s ease;
+  box-shadow: ${({ $isActive }) =>
+    $isActive ? '0 12px 28px rgba(0, 0, 0, 0.12)' : '0 4px 14px rgba(0, 0, 0, 0.04)'};
+  filter: ${({ $isActive }) => ($isActive ? 'none' : 'grayscale(0.12)')};
+  transition: box-shadow 0.3s ease, filter 0.3s ease;
 
   [data-theme='dark'] & {
     background-color: ${surface.dark.card};
-    box-shadow: ${({ $isActive }) => ($isActive ? '0 16px 36px rgba(0,0,0,0.5)' : '0 4px 12px rgba(0,0,0,0.3)')};
+    box-shadow: ${({ $isActive }) =>
+      $isActive ? '0 14px 32px rgba(0, 0, 0, 0.45)' : '0 4px 14px rgba(0, 0, 0, 0.25)'};
     border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
@@ -144,28 +148,6 @@ const CardBottomPanel = styled.div<{ $isActive: boolean }>`
 
   @media (min-width: 640px) {
     padding: 1.25rem;
-  }
-`;
-
-const CardNumberBadge = styled.span`
-  pointer-events: none;
-  position: absolute;
-  left: 0;
-  top: 0;
-  z-index: 20;
-  border-bottom-right-radius: 6px;
-  background-color: rgba(255, 255, 255, 0.95);
-  padding: 2px 8px;
-  font-family: monospace;
-  font-size: ${fontSize.micro};
-  font-weight: 700;
-  line-height: 1;
-  color: ${meok[900]};
-  backdrop-filter: blur(4px);
-
-  [data-theme='dark'] & {
-    background-color: rgba(28, 26, 23, 0.92);
-    color: ${meok[100]};
   }
 `;
 
@@ -288,10 +270,6 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(
             }}
           />
         </motion.div>
-
-        <CardNumberBadge>
-          {String(((position % featuredLength) + featuredLength) % featuredLength + 1).padStart(2, '0')}
-        </CardNumberBadge>
 
         <CardBottomPanel $isActive={isActive}>
           <p
