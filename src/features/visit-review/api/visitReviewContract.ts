@@ -6,6 +6,9 @@ export type VisitReviewReportReason = 'SPAM' | 'ABUSE' | 'PERSONAL_DATA' | 'COPY
 export type VisitReview = {
   id: string;
   placeId: string;
+  placeName: string;
+  lat: number;
+  lng: number;
   text: string;
   likeCount: number;
   likedByMe: boolean;

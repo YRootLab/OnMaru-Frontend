@@ -6,13 +6,15 @@ Current work:
   - Added `npm run check:env` via `scripts/validate-env-contract.mjs` to validate Odii key aliases, `.gitignore` env rules, and accidental tracked secret env files.
   - Wired the same check into `.githooks/pre-push` and `.github/workflows/env-contract.yml`.
   - Verified: `npm run check:env`, focused validator tests, `npx tsc --noEmit`, `npm test` (42 files, 131 tests), and `npm run build` passed.
-- Summary: Wired the backend feature delta into user-facing frontend surfaces.
-  - `/discover` now runs through the backend journey repository, listens to run SSE events, falls back to snapshot recovery, and renders the existing knowledge graph/bento board after the server snapshot arrives.
-  - `/map` info mode now includes a VisitReview region panel with region aggregate loading, explicit review loading, stale-response protection, and neutral reveal motion.
+- Summary: Re-mapped the backend feature delta into the existing product surfaces without changing established UI.
+  - Home `/` remains the real journey search surface. `fetchCuratedJourney` now uses the backend journey repository and authoritative snapshot board when `NEXT_PUBLIC_API_BASE_URL` is configured, while preserving the existing local `/api/journey-curator` fallback for local/dev mode.
+  - `/discover` now redirects to `/` so there is no second journey UI.
+  - `/map` warmth mode remains the owner of "여행자들이 남긴 온기 이야기". Server VisitReview data is converted into the existing `Warmth[]` model so current region/category/sort UI keeps working.
+  - Removed the mistakenly placed VisitReview panel from `/map` info mode.
   - Map place rows now use the canonical saved-place button, including guest Kakao-login save intent capture and optimistic logged-in save/unsave.
   - `/mypage` now includes the monthly member timeline surface backed by the server timeline repository.
   - Auth logout/account deletion now clears private local/session state, including pending saved-resource intents.
-  - Verified: `npx tsc --noEmit` passed, `npm test` passed (40 files, 125 tests), `npm run build` passed, and local dev routes `/discover`, `/map`, `/mypage` returned HTTP 200.
+  - Verified after remap: `npx tsc --noEmit` passed, `npm test` passed (44 files, 133 tests), `npm run build` passed, and local dev routes `/`, `/map`, `/mypage` returned HTTP 200 while `/discover` returned 307 to `/`.
   - Dev server: running at `http://localhost:3000`.
 - Note: Hanok/Odii place-save buttons are ready through the shared saved-resource repository/component, but full per-card wiring still depends on those surfaces exposing the backend canonical `placeId` in their view models rather than legacy TourAPI/Odii identifiers.
 - Summary: Implemented backend feature delta foundation from the spec using TDD and `frontend-senior-engineer` boundaries.

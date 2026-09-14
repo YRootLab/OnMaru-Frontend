@@ -32,6 +32,9 @@ describe('visit review contract state', () => {
           {
             id: 'r2',
             placeId: 'p2',
+            placeName: '전주 한옥마을',
+            lat: 35.812,
+            lng: 127.146,
             text: '전주 후기',
             likeCount: 0,
             likedByMe: false,
@@ -52,6 +55,9 @@ describe('visit review contract state', () => {
           {
             id: 'r1',
             placeId: 'p1',
+            placeName: '북촌 한옥마을',
+            lat: 37.5826,
+            lng: 126.9832,
             text: '서울 후기',
             likeCount: 0,
             likedByMe: false,

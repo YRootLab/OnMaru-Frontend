@@ -1,5 +1,5 @@
-import DiscoverExperience from '@/features/journey-curator/components/DiscoverExperience';
+import { redirect } from 'next/navigation';
 
 export default function DiscoverPage() {
-  return <DiscoverExperience />;
+  redirect('/');
 }

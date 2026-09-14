@@ -9,7 +9,6 @@ import ModeToggle from './ModeToggle';
 import PlaceList from './PlaceList';
 import SearchBar from './SearchBar';
 import WarmthFeed from './warmth/WarmthFeed';
-import RegionReviewPanel from '@/features/visit-review/components/RegionReviewPanel';
 
 const PANEL_WIDTH = 400;
 const PANEL_WIDTH_COMPACT = 358;
@@ -180,10 +179,7 @@ export default function ListPanel() {
           {mode === 'warmth' ? (
             <WarmthFeed />
           ) : (
-            <>
-              <RegionReviewPanel />
-              <PlaceList />
-            </>
+            <PlaceList />
           )}
         </ListArea>
 

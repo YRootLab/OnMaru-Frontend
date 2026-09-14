@@ -67,6 +67,9 @@ const fixtureReviews: VisitReview[] = [
   {
     id: 'review-jeonju-1',
     placeId: 'p-hanok-01',
+    placeName: '전주 한옥마을',
+    lat: 35.812,
+    lng: 127.146,
     text: '해 질 무렵 골목을 따라 걷기 좋았어요. 짧게 머물러도 한옥의 결이 잘 느껴졌습니다.',
     likeCount: 12,
     likedByMe: false,
@@ -77,6 +80,9 @@ const fixtureReviews: VisitReview[] = [
   {
     id: 'review-jeonju-2',
     placeId: 'p-cafe-01',
+    placeName: '한옥 차방',
+    lat: 35.813,
+    lng: 127.148,
     text: '차 한 잔 마시며 쉬기 좋았고, 안내가 조용해서 여행 중간 쉼표로 괜찮았습니다.',
     likeCount: 5,
     likedByMe: true,
