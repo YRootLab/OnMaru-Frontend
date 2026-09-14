@@ -13,6 +13,18 @@ import StampLeaderboard from './StampLeaderboard';
 import StampSealAnimation from './StampSealAnimation';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 
+const PageWrapper = styled.div`
+  min-height: calc(100vh - 48px);
+  width: 100%;
+  background: #f8f8f7;
+  color: ${meok[900]};
+
+  [data-theme='dark'] & {
+    background: #141210;
+    color: #f8f8f7;
+  }
+`;
+
 const Root = styled.div`
   width: 100%;
   max-width: 900px;
@@ -93,16 +105,18 @@ const UserSyncLeft = styled.div`
 
 const HeroGrid = styled.div`
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: minmax(280px, 320px) 1fr;
   gap: 28px;
   align-items: center;
   padding: 24px;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.85);
+  background: #ffffff;
+  border: 1px solid rgba(25, 31, 40, 0.06);
   margin-bottom: 32px;
 
   [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
   }
 
   @media (max-width: 768px) {
@@ -231,12 +245,16 @@ export default function StampBook() {
 
   const filteredStamps = STAMP_DEFINITIONS.filter((stamp) => {
     if (selectedRegion === 'all') return true;
+    if (selectedRegion === 'seoul' || selectedRegion === 'gyeonggi') {
+      return stamp.region === 'seoul' || stamp.region === 'gyeonggi' || stamp.region === 'all';
+    }
     return stamp.region === selectedRegion || stamp.region === 'all';
   });
 
   return (
-    <Root>
-      <Header>
+    <PageWrapper>
+      <Root>
+        <Header>
         <Badge>
           <Award size={13} />
           <span>전국 한옥 수결첩 (手決帖)</span>
@@ -350,5 +368,6 @@ export default function StampBook() {
         onClose={closeStampModal}
       />
     </Root>
-  );
+  </PageWrapper>
+);
 }

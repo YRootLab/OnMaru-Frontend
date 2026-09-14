@@ -14,7 +14,7 @@ interface KoreaMapCanvasProps {
 const MapWrap = styled.div`
   position: relative;
   width: 100%;
-  max-width: 300px;
+  max-width: 340px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -90,30 +90,32 @@ const RegionPath = styled.path<{ $active: boolean; $unlocked: boolean }>`
 `;
 
 const RegionText = styled.text<{ $active: boolean; $unlocked: boolean }>`
-  font-size: 19px;
-  font-weight: ${({ $active, $unlocked }) => ($active ? '800' : $unlocked ? '700' : '600')};
+  font-size: 24px;
+  font-weight: ${({ $active, $unlocked }) => ($active ? '900' : $unlocked ? '800' : '700')};
   fill: ${({ $active, $unlocked }) =>
-    $active ? '#b45309' : $unlocked ? meok[900] : meok[500]};
+    $active ? '#92400e' : $unlocked ? meok[900] : meok[700]};
   pointer-events: none;
   text-anchor: middle;
   dominant-baseline: central;
   paint-order: stroke fill;
   stroke: #ffffff;
-  stroke-width: 4px;
+  stroke-width: 5px;
   stroke-linejoin: round;
   user-select: none;
 
   [data-theme='dark'] & {
     fill: ${({ $active, $unlocked }) =>
-      $active ? '#fbbf24' : $unlocked ? '#f8f8f7' : meok[400]};
-    stroke: #1c1a17;
+      $active ? '#fde68a' : $unlocked ? '#ffffff' : meok[400]};
+    stroke: #181614;
+    stroke-width: 5px;
   }
 `;
 
 const MapHint = styled.div`
-  margin-top: 8px;
+  margin-top: 10px;
   text-align: center;
-  font-size: 11px;
+  font-size: 11.5px;
+  font-weight: 500;
   color: ${meok[500]};
 
   [data-theme='dark'] & {
@@ -215,20 +217,20 @@ export default function KoreaMapCanvas({
 
               {/* 전통 수결(인장) 획득 배지 */}
               {unlocked && (
-                <g transform={`translate(${region.centroid.x}, ${region.centroid.y - 14})`}>
+                <g transform={`translate(${region.centroid.x}, ${region.centroid.y - 18})`}>
                   <circle
-                    r="11"
+                    r="14"
                     fill="#b91c1c"
                     stroke="#d4af37"
-                    strokeWidth="1.5"
+                    strokeWidth="2"
                   />
                   <text
                     y="1"
                     textAnchor="middle"
                     dominantBaseline="central"
                     fill="#ffffff"
-                    fontSize="10"
-                    fontWeight="800"
+                    fontSize="13"
+                    fontWeight="900"
                     fontFamily="sans-serif"
                   >
                     印
@@ -238,7 +240,7 @@ export default function KoreaMapCanvas({
 
               <RegionText
                 x={region.centroid.x}
-                y={region.centroid.y + (unlocked ? 11 : 0)}
+                y={region.centroid.y + (unlocked ? 16 : 0)}
                 $active={active}
                 $unlocked={unlocked}
               >
@@ -248,7 +250,7 @@ export default function KoreaMapCanvas({
           );
         })}
       </SvgContainer>
-      <MapHint>지도를 눌러 권역별 인장을 모아보세요</MapHint>
+      <MapHint>지도를 눌러 권역별 인장을 탐색해보세요</MapHint>
     </MapWrap>
   );
 }
