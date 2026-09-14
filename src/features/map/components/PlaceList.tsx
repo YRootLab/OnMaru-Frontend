@@ -14,7 +14,7 @@ import {
   List,
   Bookmark,
 } from 'lucide-react';
-import { lightPalette, meok , fontSize } from '@/design-system/tokens';
+import { lightPalette, meok, surface, fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import { distanceInMeters } from '@/features/map/utils/geo';
@@ -48,15 +48,16 @@ const StickyHeader = styled.div`
   justify-content: space-between;
   padding: 12px 14px 8px;
   background: #ffffff;
+
+  [data-theme='dark'] & {
+    background: ${surface.dark.card};
+  }
 `;
 
 const FeedWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 32px;
-  /* LiveNoticeBanner의 margin-bottom(12px)과 합쳐 아래 섹션들 사이 간격(32px)과
-     동일한 리듬을 만든다 — 배너 바로 아래 "진행 중인 축제·기획전"만 유독
-     붙어 보이지 않도록. */
   margin-top: 20px;
   margin-bottom: 40px;
 `;
@@ -69,41 +70,78 @@ const CountLabel = styled.span`
   font-weight: 500;
   color: ${meok[900]};
   letter-spacing: -0.02em;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 const SortDropdownWrapper = styled.div`
   position: relative;
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.07);
+    border-color: rgba(0, 0, 0, 0.14);
+  }
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.12);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+  }
 `;
 
 const SortSelect = styled.select`
   appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
   background: transparent;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
 
   font-family: inherit;
   font-size: ${fontSize.xs};
   font-weight: 500;
-  color: ${meok[500]};
-  padding: 2px 18px 2px 4px;
+  color: ${meok[700]};
+  padding: 4px 24px 4px 10px;
   cursor: pointer;
-  outline: none;
 
-  &:hover {
-    color: ${meok[700]};
+  [data-theme='dark'] & {
+    color: ${meok[200]};
+    background-color: transparent;
+
+    option {
+      background-color: #25221d;
+      color: #ffffff;
+    }
   }
 
-  &:focus-visible {
-    outline: 2px solid ${meok[500]};
-    border-radius: 4px;
+  option {
+    background-color: #ffffff;
+    color: ${meok[900]};
   }
 `;
 
 const SortChevron = styled(ChevronDown)`
   position: absolute;
-  right: 0;
+  right: 7px;
   pointer-events: none;
   color: ${meok[500]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 const ListContainer = styled.ul`
@@ -149,6 +187,16 @@ const PageNavBtn = styled.button`
     opacity: 0.35;
     cursor: not-allowed;
   }
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.06);
+    color: ${meok[400]};
+
+    &:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+    }
+  }
 `;
 
 const PageNumberGroup = styled.div`
@@ -179,6 +227,16 @@ const PageNumberBtn = styled.button<{ $active: boolean }>`
     background: ${({ $active }) =>
       $active ? '#000000' : 'rgba(78, 89, 104, 0.08)'};
     color: ${({ $active }) => ($active ? '#ffffff' : meok[900])};
+  }
+
+  [data-theme='dark'] & {
+    background: ${({ $active }) => ($active ? '#ffffff' : 'transparent')};
+    color: ${({ $active }) => ($active ? meok[900] : meok[400])};
+
+    &:hover:not(:disabled) {
+      background: ${({ $active }) => ($active ? '#ffffff' : 'rgba(255, 255, 255, 0.08)')};
+      color: ${({ $active }) => ($active ? meok[900] : '#ffffff')};
+    }
   }
 `;
 
@@ -327,28 +385,32 @@ export default function PlaceList() {
   const listTopRef = useRef<HTMLDivElement>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // 정렬 및 북마크 필터링 처리 (GPS 내 위치 또는 지도 중심 기준 정밀 정렬)
+  // 정렬 및 카테고리/북마크 필터링 처리 (GPS 내 위치 또는 지도 중심 기준 정밀 정렬)
   const sortedItems = useMemo(() => {
     let list = [...items];
-    if (category === 'bookmark') {
-      const bookmarkedIdSet = new Set(bookmarks.map((b) => b.id));
-      list = list.filter((item) => bookmarkedIdSet.has(item.id));
-      const existingIds = new Set(list.map((item) => item.id));
-      bookmarks.forEach((b) => {
-        if (!existingIds.has(b.id)) {
-          list.push({
-            id: b.id,
-            name: b.name,
-            category: (b.category as PlaceCategory) || 'spot',
-            lat: b.lat || 37.5665,
-            lng: b.lng || 126.978,
-            addr: b.addr || '',
-            image: b.image || null,
-            tel: null,
-            dist: null,
-          });
-        }
-      });
+    if (category && category !== 'all') {
+      if (category === 'bookmark') {
+        const bookmarkedIdSet = new Set(bookmarks.map((b) => b.id));
+        list = list.filter((item) => bookmarkedIdSet.has(item.id));
+        const existingIds = new Set(list.map((item) => item.id));
+        bookmarks.forEach((b) => {
+          if (!existingIds.has(b.id)) {
+            list.push({
+              id: b.id,
+              name: b.name,
+              category: (b.category as PlaceCategory) || 'spot',
+              lat: b.lat || 37.5665,
+              lng: b.lng || 126.978,
+              addr: b.addr || '',
+              image: b.image || null,
+              tel: null,
+              dist: null,
+            });
+          }
+        });
+      } else {
+        list = list.filter((item) => item.category === category);
+      }
     }
     if (sortOrder === 'name') {
       return list.sort((a, b) => a.name.localeCompare(b.name, 'ko'));

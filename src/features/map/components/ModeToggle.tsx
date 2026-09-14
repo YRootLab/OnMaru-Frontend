@@ -47,6 +47,10 @@ const Track = styled.div<{ $fullWidth?: boolean; $compact?: boolean }>`
   border-radius: 12px;
   background: rgba(25, 31, 40, 0.05);
   user-select: none;
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.08);
+  }
 `;
 
 const SlidingPill = styled.div<{ $activeMode: MapMode; $compact?: boolean }>`
@@ -63,6 +67,11 @@ const SlidingPill = styled.div<{ $activeMode: MapMode; $compact?: boolean }>`
   transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 1;
   pointer-events: none;
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.18);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  }
 
   @media (prefers-reduced-motion: reduce) {
     transition: none;
@@ -95,6 +104,14 @@ const Tab = styled.button<{ $active: boolean; $compact?: boolean }>`
 
   &:hover {
     color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
+  }
+
+  [data-theme='dark'] & {
+    color: ${({ $active }) => ($active ? '#ffffff' : meok[400])};
+
+    &:hover {
+      color: #ffffff;
+    }
   }
 
   &:active {

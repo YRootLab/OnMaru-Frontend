@@ -15,7 +15,7 @@ import {
   Headphones,
   Store,
 } from 'lucide-react';
-import { lightPalette, meok , fontSize } from '@/design-system/tokens';
+import { lightPalette, meok, fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { matchSorimaruStory } from '@/features/sorimaru-audio/hooks/useSorimaruPlaceStory';
@@ -38,6 +38,14 @@ const ItemContainer = styled.li`
   padding: 8px 14px;
   box-sizing: border-box;
   width: 100%;
+  border-radius: 14px;
+  transition: background-color 0.15s ease;
+
+  [data-theme='dark'] & {
+    &:hover {
+      background: rgba(255, 255, 255, 0.04);
+    }
+  }
 `;
 
 const ItemButton = styled.button<{ $isSelected: boolean }>`
@@ -62,6 +70,12 @@ const ItemButton = styled.button<{ $isSelected: boolean }>`
     }
     h4 {
       color: ${lightPalette.cheongrok[700]};
+    }
+  }
+
+  [data-theme='dark'] & {
+    &:hover h4 {
+      color: #2dd4bf;
     }
   }
 
@@ -145,6 +159,10 @@ const Title = styled.h4<{ $isSelected?: boolean }>`
   white-space: nowrap;
   letter-spacing: -0.025em;
   transition: color 0.15s ease;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 const BadgeRow = styled.div`
@@ -178,15 +196,25 @@ const CategoryTag = styled.span<{ $category: PlaceCategory }>`
 const TraditionalBadge = styled.span`
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  padding: 2px 6.5px;
+  gap: 3.5px;
+  padding: 2px 7.5px;
   border-radius: 6px;
   font-size: ${fontSize.micro};
-  font-weight: 500;
-  color: ${lightPalette.cheongrok[700]};
-  background: rgba(30, 122, 104, 0.08);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #854d0e;
+  background: #fef08a;
+  border: 1px solid #facc15;
+  box-shadow: 0 1px 4px rgba(245, 158, 11, 0.2);
   white-space: nowrap;
   flex-shrink: 0;
+
+  [data-theme='dark'] & {
+    color: #fef08a;
+    background: rgba(234, 179, 8, 0.28);
+    border: 1px solid #facc15;
+    box-shadow: 0 0 10px rgba(250, 204, 21, 0.45);
+  }
 `;
 
 const SorimaruBadge = styled.span`
@@ -223,12 +251,20 @@ const DistanceHighlight = styled.span`
   color: ${meok[700]};
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
+
+  [data-theme='dark'] & {
+    color: ${meok[200]};
+  }
 `;
 
 const TravelTimeText = styled.span`
   font-weight: 500;
   color: ${meok[500]};
   font-size: ${fontSize.xs};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 const DotDivider = styled.span`
@@ -242,6 +278,10 @@ const DistrictText = styled.span`
   color: ${meok[500]};
   overflow: hidden;
   text-overflow: ellipsis;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 /** 카테고리별 한글 명칭 */

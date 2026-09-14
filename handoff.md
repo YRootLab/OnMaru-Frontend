@@ -24,6 +24,13 @@ Current work:
 - Spec: `docs/superpowers/specs/2026-09-14-backend-feature-delta-fe-design.md`
 - Source backend docs: `/Users/yangseunghyeon/Development/OnMaru/OnMaruBE/docs/toFE`
 - Next step: review/approve the spec, then create a detailed implementation plan before touching feature code.
+- Map page (`/map`) logo.png insertion and comprehensive dark mode compatibility:
+  - Navigation Rail (`MapNavRail.tsx`): Replaced text script brandmark with `/logo.png` (36x36 contain, rounded 10px). Added a dedicated theme toggle button (Sun/Moon) synced with `useOnmaruTheme()`.
+  - Comprehensive Dark Mode styling across all map components:
+    - Map viewport & canvas (`KakaoMap.tsx`): Synchronized map moonlight filter (`isNight`) with `useOnmaruTheme()` mode, added dark mode styling for controls stack, control buttons, and research button.
+    - Side panels: `ListPanel.tsx`, `SearchBar.tsx`, `ModeToggle.tsx`, `PlaceList.tsx`, `PlaceListItem.tsx`, `DetailPanel.tsx`, `PlaceDetail.styles.ts`, `PopularPlacesPanel.tsx`, `WarmthFeed.styles.ts`, `BottomSheet.tsx`.
+    - Feed sections: `SmartAroundFeed.tsx`, `FestivalExhibitionCarousel.tsx`, `SorimaruSpotlightBanner.tsx`, `LiveNoticeBanner.tsx`.
+  - Verification: `npx tsc --noEmit` passed (0 errors), browser subagent verified light mode and dark mode transitions (all side panels, controls, and detail cards render in luxury dark mode `#1C1A17`/`#2D2924`).
 - Summary:
   1. Restored Section 2 ("장면을 따라 걷는 소리") horizontal gutters by wrapping it in `CenteredContainer` (`max-width: 72rem`, `padding: 0 1rem` to `2rem`) matching Section 3 and 4.
   2. Implemented full dark mode (`[data-theme='dark']`) support across all 12 components in `src/features/sorimaru-audio`.

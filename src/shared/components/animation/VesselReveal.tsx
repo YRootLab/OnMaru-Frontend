@@ -115,13 +115,8 @@ export const VesselReveal: React.FC<VesselRevealProps> = ({
         opacity: isBloomed ? 1 : 0.88,
       }}
       style={{
-        borderStyle: 'solid',
-        borderWidth: '1px',
-        overflow: 'hidden',
-        borderRadius: isBloomed ? '0.5rem' : roundedFrom,
-        borderColor: isBloomed ? 'rgba(33, 30, 25, 0)' : 'rgba(33, 30, 25, 0.12)',
-        boxShadow: isBloomed ? '0 0px 0px rgba(0, 0, 0, 0)' : '0 16px 36px rgba(33, 30, 25, 0.08)',
-        transition: prefersReducedMotion ? 'none' : 'border-color 0.5s ease',
+        border: 'none',
+        boxShadow: 'none',
         ...style,
       }}
       transition={{

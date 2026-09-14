@@ -1,20 +1,28 @@
 import styled from '@emotion/styled';
 import { ChevronDown } from 'lucide-react';
-import { lightPalette, meok , fontSize } from '@/design-system/tokens';
+import { lightPalette, meok, surface, fontSize } from '@/design-system/tokens';
 
 export const FeedContainer = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100%;
-  background: #ffffff;
+  min-height: 100%;
+  background: ${surface.light.card};
+
+  [data-theme='dark'] & {
+    background: ${surface.dark.card};
+  }
 `;
 
 export const StickyTop = styled.div`
   position: sticky;
   top: 0;
   z-index: 5;
-  background: #ffffff;
+  background: ${surface.light.card};
   padding: 12px 16px 8px;
+
+  [data-theme='dark'] & {
+    background: ${surface.dark.card};
+  }
 `;
 
 export const SectionHeader = styled.div`
@@ -36,6 +44,10 @@ export const SectionTitle = styled.h3`
   font-weight: 500;
   color: ${meok[900]};
   letter-spacing: -0.02em;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 
@@ -239,6 +251,10 @@ export const FeaturedName = styled.h4`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 export const FeaturedMeta = styled.p`
@@ -267,6 +283,16 @@ export const MoreBtn = styled.button`
     background: ${meok[900]};
     color: #ffffff;
   }
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.1);
+    color: ${meok[200]};
+
+    &:hover {
+      background: #ffffff;
+      color: ${meok[900]};
+    }
+  }
 `;
 
 export const ReviewSectionHeader = styled.div`
@@ -284,45 +310,85 @@ export const ReviewSectionTitle = styled.h4`
   display: flex;
   align-items: center;
   gap: 5px;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 export const SortWrapper = styled.div`
   position: relative;
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.07);
+    border-color: rgba(0, 0, 0, 0.14);
+  }
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.12);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+  }
 `;
 
 export const SortSelect = styled.select`
   appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
   background: transparent;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
 
   font-family: inherit;
   font-size: ${fontSize.xs};
   font-weight: 500;
   color: ${meok[700]};
-  padding: 2px 16px 2px 4px;
+  padding: 4px 24px 4px 10px;
   cursor: pointer;
-  outline: none;
 
-  &:hover {
-    color: ${meok[900]};
+  [data-theme='dark'] & {
+    color: ${meok[200]};
+    background-color: transparent;
+
+    option {
+      background-color: #25221d;
+      color: #ffffff;
+    }
+  }
+
+  option {
+    background-color: #ffffff;
+    color: #191f28;
   }
 `;
 
 export const SortChevron = styled(ChevronDown)`
   position: absolute;
-  right: 0;
+  right: 7px;
   pointer-events: none;
   color: ${meok[500]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 export const FeedScroll = styled.div`
-  flex: 1;
-  overflow-y: auto;
-  padding: 8px 16px 40px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  padding: 8px 16px 40px;
 `;
 
 export const EmptyState = styled.div`

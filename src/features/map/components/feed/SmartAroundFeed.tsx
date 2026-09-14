@@ -100,6 +100,10 @@ const Title = styled.h3`
   font-weight: 500;
   color: ${meok[900]};
   letter-spacing: -0.02em;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 const SubText = styled.span`
@@ -143,6 +147,17 @@ const FloatingNavBtn = styled.button<{ $direction: 'left' | 'right' }>`
     color: ${meok[900]};
     transform: translateY(-50%) scale(1.1);
     box-shadow: 0 6px 18px rgba(25, 31, 40, 0.22);
+  }
+
+  [data-theme='dark'] & {
+    background: rgba(30, 32, 38, 0.92);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: ${meok[200]};
+
+    &:hover {
+      background: rgba(45, 48, 56, 0.95);
+      color: #ffffff;
+    }
   }
 
   &:active {
@@ -196,6 +211,11 @@ const CuratedCard = styled.button`
     }
   }
 
+  [data-theme='dark'] & {
+    background: #1f2125;
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
   &:active {
     transform: translateY(0) scale(0.99);
   }
@@ -245,6 +265,10 @@ const Name = styled.h4`
   overflow: hidden;
   text-overflow: ellipsis;
   letter-spacing: -0.01em;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 const MoodReview = styled.p`

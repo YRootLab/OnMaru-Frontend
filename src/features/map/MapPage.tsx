@@ -41,6 +41,10 @@ const Root = styled.main`
   overflow: hidden;
   background: ${surface.light.card};
   font-family: ${FONT};
+
+  [data-theme='dark'] & {
+    background: ${surface.dark.app};
+  }
 `;
 
 /** 1. 전체 화면을 시원하게 채우는 풀사이즈 지도 영역 */
@@ -165,6 +169,28 @@ const FloatingHomeButton = styled.button`
   }
 `;
 
+/** 온기 모드 우측 하단 컨트롤 클러스터: [온기 남기기] 플로팅 버튼 및 그 바로 아래 [온기 범례] 카드 */
+const WarmthControlsCluster = styled.div`
+  position: absolute;
+  right: 76px;
+  bottom: 16px;
+  z-index: 16;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  pointer-events: none;
+
+  & > * {
+    pointer-events: auto;
+  }
+
+  @media (max-width: 1023px) {
+    right: 16px;
+    bottom: 140px;
+  }
+`;
+
 const MobileTopBar = styled.div<{ $hidden: boolean }>`
   position: absolute;
   top: 12px;
@@ -204,6 +230,7 @@ const CHIPS_PANELS_GAP = 16;
 
 export default function MapPage() {
   const router = useRouter();
+  const mode = useMapStore((s) => s.mode);
   const panelOpen = useMapStore((s) => s.panelOpen);
   const detailId = useMapStore((s) => s.detailId);
   const popularPanelOpen = useMapStore((s) => s.popularPanelOpen);
@@ -387,10 +414,14 @@ export default function MapPage() {
           )}
           <CategoryChips align="start" />
         </MapChips>
-        <WriteButton />
 
-        {/* 온기 모드에서만: 히트맵 범례 · 화면 요약 · 기간 창 */}
-        <WarmthLegend />
+        {/* 온기 모드 우측 하단: [온기 남기기] 버튼 및 그 바로 아래 [온기 범례] 카드 클러스터 */}
+        {mode === 'warmth' && (
+          <WarmthControlsCluster>
+            <WriteButton />
+            <WarmthLegend />
+          </WarmthControlsCluster>
+        )}
       </MapArea>
 
       {/* 2. 네이버 지도 스타일: 좌측 고정 세로 네비게이션 레일 (GNB) */}

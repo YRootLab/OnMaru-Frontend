@@ -34,6 +34,8 @@ interface MapState {
   heatDayIndex: number;
   /** 온기 히트맵·피드가 함께 보는 기간 창. 좁히면 '지금 이 동네'가 보인다. */
   warmthPeriod: WarmthPeriod;
+  /** 온기 시각화 모드: 'district'(시·군 행정구역 경계) | 'heatmap'(초기 원형 히트맵) */
+  warmthViewType: 'district' | 'heatmap';
   loading: boolean;
   error: string | null;
   selectedId: string | null;
@@ -58,6 +60,7 @@ interface MapState {
   setMap: (map: KakaoMap | null) => void;
   setMode: (mode: MapMode) => void;
   setCategory: (category: string | null) => void;
+  setWarmthViewType: (viewType: 'district' | 'heatmap') => void;
   setSearchQuery: (query: string) => void;
   triggerSearch: (query: string) => void;
   setCenter: (center: LatLng, level?: number) => void;
@@ -101,6 +104,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   heatDays: [],
   heatDayIndex: 0,
   warmthPeriod: 'all',
+  warmthViewType: 'district',
   loading: true,
   error: null,
   selectedId: null,
@@ -140,6 +144,7 @@ export const useMapStore = create<MapState>((set, get) => ({
       popularPanelOpen: false,
       fromPopularRanking: false,
     }),
+  setWarmthViewType: (warmthViewType) => set({ warmthViewType }),
   setSearchQuery: (searchQuery) => set({ searchQuery }),
   triggerSearch: (query) =>
     set((state) => ({

@@ -1,15 +1,16 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Alex_Brush } from 'next/font/google';
+import Image from 'next/image';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import {
   BookOpen,
   Bookmark,
-  Flame,
   Headphones,
   MapPin,
+  Moon,
+  Sun,
   User,
 } from 'lucide-react';
 import { transientProps } from '@/design-system/styled';
@@ -17,17 +18,13 @@ import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { lightPalette, meok , fontSize } from '@/design-system/tokens';
 import { RAIL_ENTER_DELAY_S, RAIL_ENTER_DURATION_S, ENTRANCE_EASE } from '@/shared/navigation/mapEntranceTiming';
 import { useMapEntranceStore } from '@/shared/navigation/mapEntranceState';
+import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 
-export const RAIL_WIDTH = 60;
+export const RAIL_WIDTH = 68;
 export const RAIL_INSET = 14;
 
-/** "OnMaru" 워드마크용 고급스러운 브러시 필기체 — 박스/아이콘 없이 글자 자체로
- *  브랜드를 표현한다. */
-const brandScript = Alex_Brush({ subsets: ['latin'], weight: '400' });
-
 /** Header.tsx의 캡슐형 GNB와 같은 유리질감(블러+반투명+가느다란 보더)을 쓰는
- *  얇고 떠 있는 세로 레일 — 예전의 68px 꽉찬 화이트 사이드바 대신, 뷰포트에서
- *  14px 띄운 캡슐로 /hanok·/sorimaru의 상단 GNB와 톤을 맞춘다. */
+ *  얇고 떠 있는 세로 레일 — 다크 모드에서는 깊이감 있는 먹빛 플로팅 캡슐로 전환된다. */
 const RailContainer = styled(motion.aside, transientProps)`
   position: absolute;
   top: ${RAIL_INSET}px;
@@ -43,33 +40,40 @@ const RailContainer = styled(motion.aside, transientProps)`
   border-radius: 22px;
   user-select: none;
 
-  background: rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.82);
   backdrop-filter: blur(16px) saturate(160%);
   -webkit-backdrop-filter: blur(16px) saturate(160%);
   border: 1px solid rgba(0, 0, 0, 0.06);
   box-shadow:
     0 12px 32px -8px rgba(0, 0, 0, 0.1),
     0 4px 12px -4px rgba(0, 0, 0, 0.04);
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+
+  [data-theme='dark'] & {
+    background: rgba(28, 26, 23, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow:
+      0 12px 32px -8px rgba(0, 0, 0, 0.5),
+      0 4px 12px -4px rgba(0, 0, 0, 0.3);
+  }
 
   @media (max-width: 1023px) {
     display: none;
   }
 `;
 
-/** 상단 온마루 브랜드 로고 영역 — 60px 폭 레일에 "OnMaru"를 가로로는 못 넣으니
- *  세로로 눕혀서(아래→위로 읽힘) 필기체 워드마크를 그대로 보여준다. 박스/아이콘
- *  없이 글자 자체가 로고다. */
+/** 상단 온마루 브랜드 로고 영역 (logo.png) */
 const LogoArea = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 56px;
+  height: 44px;
   cursor: pointer;
   transition: transform 0.15s ease;
 
   &:hover {
-    transform: scale(1.04);
+    transform: scale(1.08);
   }
 
   &:focus-visible {
@@ -79,21 +83,15 @@ const LogoArea = styled.div`
   }
 `;
 
-const BrandMark = styled.span`
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  font-size: ${fontSize['2xl']};
-  line-height: 1;
-  color: ${lightPalette.cheongrok[700]};
-`;
-
-/** 로고 영역과 메뉴 목록을 가르는 얇은 구분선 — 아래 BottomArea의 Divider와
- *  같은 스타일을 재사용해 로고 아래에 메뉴가 시작되는 지점을 명확히 한다. */
 const LogoDivider = styled.div`
-  width: 24px;
+  width: 28px;
   height: 1px;
   background: rgba(0, 0, 0, 0.08);
-  margin: 4px 0 8px;
+  margin: 4px 0 6px;
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.12);
+  }
 `;
 
 const NavList = styled.div`
@@ -101,23 +99,24 @@ const NavList = styled.div`
   flex-direction: column;
   align-items: center;
   width: 100%;
-  gap: 2px;
+  gap: 4px;
   flex: 1;
 `;
 
-/** 아이콘 전용 슬림 네비게이션 버튼 — 라벨은 title 툴팁으로 대체해 폭을 줄인다. */
+/** 아이콘 + 한글 라벨 네비게이션 버튼 */
 const NavItemBtn = styled.button<{ $active: boolean }>`
   position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  padding: 0;
+  width: 58px;
+  padding: 6px 2px 5px;
   border: none;
   outline: none;
   border-radius: 12px;
   cursor: pointer;
+  gap: 3px;
   background: ${({ $active }) => ($active ? lightPalette.cheongrok[50] : 'transparent')};
   color: ${({ $active }) => ($active ? lightPalette.cheongrok[700] : meok[500])};
   transition:
@@ -133,12 +132,31 @@ const NavItemBtn = styled.button<{ $active: boolean }>`
   &:active {
     transform: scale(0.92);
   }
+
+  [data-theme='dark'] & {
+    background: ${({ $active }) => ($active ? 'rgba(0, 168, 150, 0.25)' : 'transparent')};
+    color: ${({ $active }) => ($active ? '#2dd4bf' : meok[400])};
+
+    &:hover {
+      background: ${({ $active }) => ($active ? 'rgba(0, 168, 150, 0.32)' : 'rgba(255, 255, 255, 0.08)')};
+      color: ${({ $active }) => ($active ? '#2dd4bf' : '#ffffff')};
+    }
+  }
 `;
 
 const NavItemIcon = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+`;
+
+const NavItemLabel = styled.span`
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  text-align: center;
+  white-space: nowrap;
 `;
 
 const BottomArea = styled.div`
@@ -155,10 +173,15 @@ const Divider = styled.div`
   height: 1px;
   background: rgba(0, 0, 0, 0.08);
   margin: 6px 0;
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.12);
+  }
 `;
 
 export default function MapNavRail() {
   const router = useRouter();
+  const { mode: themeMode, toggleMode } = useOnmaruTheme();
   const mode = useMapStore((s) => s.mode);
   const setMode = useMapStore((s) => s.setMode);
   const setCategory = useMapStore((s) => s.setCategory);
@@ -171,14 +194,8 @@ export default function MapNavRail() {
     if (!panelOpen) setPanelOpen(true);
   };
 
-  const handleSelectWarmthMap = () => {
-    setMode('warmth');
-    if (!panelOpen) setPanelOpen(true);
-  };
-
   // 온마루 자체 카테고리 활성 판별
   const isMapActive = true; // 현재 /map 페이지
-  const isWarmthActive = mode === 'warmth';
   const isRouteEntrance = useMapEntranceStore((s) => s.isRouteEntrance);
 
   return (
@@ -193,8 +210,7 @@ export default function MapNavRail() {
           : { duration: 0 }
       }
     >
-      {/* 1. 상단 온마루 브랜드 로고 — 워드마크가 장식용 텍스트라 aria-hidden 처리하고,
-          div 자체에 버튼 접근성(role/tabIndex/키보드)을 직접 부여한다. */}
+      {/* 1. 상단 온마루 브랜드 로고 (/logo.png) */}
       <LogoArea
         role="button"
         tabIndex={0}
@@ -208,37 +224,46 @@ export default function MapNavRail() {
         aria-label="온마루 메인 홈으로 이동"
         title="온마루 메인 홈으로 이동"
       >
-        <BrandMark className={brandScript.className} aria-hidden="true">OnMaru</BrandMark>
+        <Image
+          src="/logo.png"
+          alt="온마루 로고"
+          width={36}
+          height={36}
+          style={{ objectFit: 'contain', borderRadius: '10px' }}
+          priority
+        />
       </LogoArea>
 
       <LogoDivider />
 
-      {/* 2. 온마루 자체 카테고리 목록 (한옥 마루, 지도, 소리마루, 온기이야기, 저장) — 라벨은 title 툴팁으로 대체 */}
+      {/* 2. 온마루 자체 카테고리 목록 (한옥마루, 지도, 소리마루, 온기이야기, 저장) */}
       <NavList>
         {/* 온마루 카테고리 1: 한옥 마루 */}
         <NavItemBtn
           type="button"
           $active={false}
           onClick={() => router.push('/hanok')}
-          aria-label="한옥 마루"
-          title="한옥 마루"
+          aria-label="한옥마루"
+          title="한옥마루"
         >
           <NavItemIcon>
             <BookOpen size={19} strokeWidth={2} />
           </NavItemIcon>
+          <NavItemLabel>한옥마루</NavItemLabel>
         </NavItemBtn>
 
-        {/* 온마루 카테고리 2: 지도 (정보지도) — 온기지도 전환은 아래 '온기이야기' 항목과 패널 내 ModeToggle이 담당한다 */}
+        {/* 온마루 카테고리 2: 지도 (정보지도) */}
         <NavItemBtn
           type="button"
           $active={isMapActive}
           onClick={handleSelectInfoMap}
-          aria-label="정보지도"
-          title="정보지도"
+          aria-label="지도"
+          title="지도"
         >
           <NavItemIcon>
             <MapPin size={19} strokeWidth={2} />
           </NavItemIcon>
+          <NavItemLabel>지도</NavItemLabel>
         </NavItemBtn>
 
         {/* 온마루 카테고리 3: 소리마루 (오디 도슨트) */}
@@ -252,20 +277,9 @@ export default function MapNavRail() {
           <NavItemIcon>
             <Headphones size={19} strokeWidth={2} />
           </NavItemIcon>
+          <NavItemLabel>소리마루</NavItemLabel>
         </NavItemBtn>
 
-        {/* 온마루 카테고리 4: 온기이야기 (지도 내 온기 후기 & 온도 모드 바로가기) */}
-        <NavItemBtn
-          type="button"
-          $active={isWarmthActive}
-          onClick={handleSelectWarmthMap}
-          aria-label="온기이야기"
-          title="온기이야기"
-        >
-          <NavItemIcon>
-            <Flame size={19} strokeWidth={2} />
-          </NavItemIcon>
-        </NavItemBtn>
 
         {/* 온마루 카테고리 5: 저장한 장소 */}
         <NavItemBtn
@@ -282,13 +296,25 @@ export default function MapNavRail() {
           <NavItemIcon>
             <Bookmark size={19} strokeWidth={2} />
           </NavItemIcon>
+          <NavItemLabel>저장</NavItemLabel>
         </NavItemBtn>
       </NavList>
 
-      {/* 3. 하단 유틸리티 메뉴 (마이/로그인) — 홈 이동은 위 브랜드 로고가 이미
-          담당하므로 별도의 "온마루 홈" 항목을 중복으로 두지 않는다. */}
+      {/* 3. 하단 유틸리티 메뉴 (다크모드 전환 / 마이) */}
       <BottomArea>
         <Divider />
+        <NavItemBtn
+          type="button"
+          $active={false}
+          onClick={toggleMode}
+          aria-label={themeMode === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환'}
+          title={themeMode === 'dark' ? '라이트 모드 전환' : '다크 모드 전환'}
+        >
+          <NavItemIcon>
+            {themeMode === 'dark' ? <Sun size={19} strokeWidth={2} /> : <Moon size={19} strokeWidth={2} />}
+          </NavItemIcon>
+          <NavItemLabel>{themeMode === 'dark' ? '라이트' : '다크'}</NavItemLabel>
+        </NavItemBtn>
         <NavItemBtn
           type="button"
           $active={false}
@@ -299,6 +325,7 @@ export default function MapNavRail() {
           <NavItemIcon>
             <User size={19} strokeWidth={2} />
           </NavItemIcon>
+          <NavItemLabel>마이</NavItemLabel>
         </NavItemBtn>
       </BottomArea>
     </RailContainer>

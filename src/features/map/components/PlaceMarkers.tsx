@@ -303,24 +303,85 @@ const styles = css`
     핀 하나에서만 일어나므로, 마커가 아무리 몰려도 상시 비용은 0이다.
   */
 
-  /* 쉴 때: 금빛 테두리로 정통 한옥임을 알린다. 움직이지 않는다. */
+  /* 쉴 때: 또렷한 금빛 테두리와 황금빛 후광으로 정통 한옥임을 선명하게 알린다. */
   .om-pin--traditional {
+    border: 2px solid #EAB308 !important;
     box-shadow:
-      0 0 0 1.5px rgba(245, 166, 35, 0.55),
-      0 6px 16px -2px rgba(25, 31, 40, 0.22);
+      0 0 0 2.5px #FDE047,
+      0 4px 16px rgba(234, 179, 8, 0.45),
+      0 2px 6px rgba(0, 0, 0, 0.08) !important;
+  }
+
+  .om-pin--traditional::after {
+    border-right: 2px solid #EAB308 !important;
+    border-bottom: 2px solid #EAB308 !important;
+    background: #ffffff !important;
+  }
+
+  /* 전통/한옥 식별 칩 (노란색 뱃지) */
+  .om-pin-trad-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5px 5.5px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    background: #FEF08A;
+    color: #854D0E;
+    border: 1px solid #FACC15;
+    flex-shrink: 0;
   }
 
   .om-pin--traditional::before {
     content: '✦';
     position: absolute;
-    top: -12px;
+    top: -14px;
     left: 1px;
-    font-size: ${fontSize.sm};
-    color: ${lightPalette.hwanggeum[400]};
+    font-size: ${fontSize.base};
+    color: #EAB308;
+    text-shadow: 0 0 6px rgba(250, 204, 21, 0.7);
     line-height: 1;
     pointer-events: none;
     transform-origin: 50% 50%;
     transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /*
+    다크 모드: 지도 캔버스의 invert(92%) hue-rotate(180deg) 필터로 인해
+    단순 노란색을 주면 명도가 역전되어 탁한 검갈색(dark brown)으로 변해 보이지 않게 된다.
+    따라서 핀 자체에 역필터(invert(100%) hue-rotate(180deg))를 적용하고 어두운 배경과
+    선명한 황금색 테두리를 지정하여 캔버스 필터를 통과한 후에도 화면상에 찬란한 순수 노란색이 온전히 발색되도록 한다.
+  */
+  [data-theme='dark'] .om-pin--traditional {
+    filter: invert(100%) hue-rotate(180deg) brightness(105%) contrast(95%);
+    background: #191F28 !important;
+    color: #ffffff !important;
+    border: 2px solid #FACC15 !important;
+    box-shadow:
+      0 0 0 2.5px #FDE047,
+      0 0 18px rgba(250, 204, 21, 0.85),
+      0 6px 18px rgba(0, 0, 0, 0.6) !important;
+  }
+
+  [data-theme='dark'] .om-pin--traditional::after {
+    background: #191F28 !important;
+    border-right: 2px solid #FACC15 !important;
+    border-bottom: 2px solid #FACC15 !important;
+  }
+
+  [data-theme='dark'] .om-pin--traditional .om-pin-trad-chip {
+    background: #FEF08A !important;
+    color: #854D0E !important;
+    border: 1px solid #FACC15 !important;
+    font-weight: 800 !important;
+  }
+
+  [data-theme='dark'] .om-pin--traditional::before {
+    color: #FACC15 !important;
+    text-shadow: 0 0 8px rgba(250, 204, 21, 0.95) !important;
   }
 
   /* 가리켰을 때만 도는 반짝임. 한 번에 한 핀뿐이라 비용이 없다. */
@@ -339,7 +400,6 @@ const styles = css`
 
   /*
     별무리.
-
     쉴 때는 움직이지 않는다. 개수가 늘어도 상시 비용이 0인 이유다.
     가리키면 시차를 두고 차례로 튀어올라, 핀 하나가 살아나는 것처럼 읽힌다.
   */
@@ -353,10 +413,18 @@ const styles = css`
   .om-pin-stars span {
     position: absolute;
     line-height: 1;
-    color: ${lightPalette.hwanggeum[400]};
-    opacity: 0.45;
+    color: #EAB308;
+    opacity: 1;
+    font-weight: 700;
+    text-shadow: 0 0 6px rgba(250, 204, 21, 0.7);
     transform-origin: 50% 50%;
     transition: opacity 0.2s ease;
+  }
+
+  [data-theme='dark'] .om-pin-stars span {
+    color: #FACC15 !important;
+    opacity: 1 !important;
+    text-shadow: 0 0 8px rgba(250, 204, 21, 0.95) !important;
   }
 
   .om-pin--traditional:hover .om-pin-stars span,
@@ -389,8 +457,9 @@ const styles = css`
   .om-pin--traditional[data-hovered='true'] {
     transform: translateY(-10px) scale(1.12);
     box-shadow:
-      0 0 0 2px rgba(245, 166, 35, 0.95),
-      0 14px 28px -6px rgba(25, 31, 40, 0.28);
+      0 0 0 3px #FDE047,
+      0 0 24px rgba(250, 204, 21, 0.95),
+      0 14px 28px -6px rgba(25, 31, 40, 0.28) !important;
   }
 
   .om-pin--traditional:hover::before,
@@ -455,14 +524,35 @@ const styles = css`
     animation: none !important;
   }
 
-  /* 정통 한옥 뱃지 핀: 깜빡이지 않는 은은한 금빛 테두리 하나로 구분한다. */
+  /* 정통 한옥 뱃지 핀: 선명한 황금빛 테두리와 후광으로 또렷하게 구분한다. */
+  .om-badge-pin--traditional {
+    border-radius: 50%;
+    box-shadow:
+      0 0 0 2.5px #FDE047,
+      0 0 14px rgba(245, 158, 11, 0.6) !important;
+  }
+
   .om-badge-pin--traditional::before {
     content: '';
     position: absolute;
-    inset: -4px;
+    inset: -3px;
     border-radius: 50%;
-    border: 1.5px solid rgba(255, 188, 26, 0.45);
+    border: 2.5px solid #EAB308;
+    box-shadow: 0 0 8px rgba(250, 204, 21, 0.7);
     pointer-events: none;
+  }
+
+  [data-theme='dark'] .om-badge-pin--traditional {
+    filter: invert(100%) hue-rotate(180deg) brightness(105%) contrast(95%);
+    background: #191F28 !important;
+    box-shadow:
+      0 0 0 2.5px #FDE047,
+      0 0 18px rgba(250, 204, 21, 0.9) !important;
+  }
+
+  [data-theme='dark'] .om-badge-pin--traditional::before {
+    border: 2.5px solid #FACC15;
+    box-shadow: 0 0 12px rgba(250, 204, 21, 0.95);
   }
 
   .om-badge-pin--traditional:hover,
@@ -471,7 +561,7 @@ const styles = css`
   }
   .om-badge-pin--traditional:hover::before,
   .om-badge-pin--traditional[data-hovered='true']::before {
-    opacity: 0;
+    opacity: 0.5;
   }
 
   .om-badge-pin[data-selected='true'],
@@ -683,6 +773,7 @@ export default function PlaceMarkers() {
   const map = useMapStore((s) => s.map);
   const mode = useMapStore((s) => s.mode);
   const items = useMapStore((s) => s.items);
+  const category = useMapStore((s) => s.category);
   const level = useMapStore((s) => s.level);
   const selectedId = useMapStore((s) => s.selectedId);
   const hoveredId = useMapStore((s) => s.hoveredId);
@@ -693,7 +784,7 @@ export default function PlaceMarkers() {
   // 현재 지도에 올라가 있는 오버레이 인스턴스 및 엘리먼트 맵 (리렌더링 시 DOM 재생성 방지)
   const overlayMapRef = useRef<Map<string, OverlayRecord>>(new Map());
 
-  // [1] 오버레이 생성 및 지도 배치 (아이템 목록, 모드, 줌 티어가 변경될 때만 실행)
+  // [1] 오버레이 생성 및 지도 배치 (아이템 목록, 카테고리, 모드, 줌 티어가 변경될 때만 실행)
   useEffect(() => {
     if (!map || mode !== 'info' || items.length === 0 || !window.kakao?.maps) {
       // 기존 오버레이 정리
@@ -706,10 +797,17 @@ export default function PlaceMarkers() {
     overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));
     overlayMapRef.current.clear();
 
+    const activeItems =
+      category && category !== 'all' && category !== 'bookmark'
+        ? items.filter((it) => it.category === category)
+        : items;
+
+    if (activeItems.length === 0) return;
+
     const isCluster = level > PIN_MAX_LEVEL;
 
     if (isCluster) {
-      const clusters = clusterNearbyItems(items, level);
+      const clusters = clusterNearbyItems(activeItems, level);
 
       clusters.forEach((cluster, idx) => {
         const count = cluster.items.length;
@@ -788,12 +886,12 @@ export default function PlaceMarkers() {
     const bounds = map.getBounds?.();
     const visibleItems =
       bounds && window.kakao?.maps
-        ? items.filter((it) =>
+        ? activeItems.filter((it) =>
             bounds.contain(new window.kakao.maps.LatLng(it.lat, it.lng)),
           )
-        : items;
+        : activeItems;
 
-    const targetItems = (visibleItems.length > 0 ? visibleItems : items).slice(0, maxPins);
+    const targetItems = (visibleItems.length > 0 ? visibleItems : activeItems).slice(0, maxPins);
 
     targetItems.forEach((item) => {
       const el = document.createElement('div');
@@ -855,26 +953,25 @@ export default function PlaceMarkers() {
       if (withLabel) {
         el.className = `om-pin${isTraditional ? ' om-pin--traditional' : ''}`;
         el.style.position = 'relative';
+        const tradLabel = item.name.includes('한옥') || item.name.includes('고택') || item.category === 'stay' ? '한옥' : '전통';
         el.innerHTML = `
           <span class="om-pin-icon-box" style="background: ${catStyle.lightBg}; border: 1px solid ${catStyle.lightBorder}; color: ${catStyle.main};">${catStyle.iconSvg}</span>
+          ${isTraditional ? `<span class="om-pin-trad-chip">${tradLabel}</span>` : ''}
           <span>${escapeHtml(item.name)}</span>
         `;
         if (isTraditional) {
           /*
             별무리.
-
-            문제는 별의 개수가 아니라 '항상 돌던 것'이었다. 예전에는 핀마다 무한
-            애니메이션이 여섯 개씩 돌아서, 마커가 몰리면 프레임이 무너졌다.
-            쉴 때는 정적으로 두고 가리켰을 때만 움직이면, 한 번에 한 핀이므로
-            개수를 늘려도 상시 비용은 그대로 0이다.
+            가리키면 시차를 두고 차례로 튀어올라, 핀 하나가 살아나는 것처럼 읽힌다.
+            상시 황금빛으로 또렷하게 반짝인다.
           */
           const stars = document.createElement('span');
           stars.className = 'om-pin-stars';
           stars.innerHTML = `
-            <span style="top:-15px;left:16px;font-size:${fontSize.micro};">✧</span>
-            <span style="top:-8px;left:-6px;font-size:${fontSize.micro};">✦</span>
-            <span style="bottom:-11px;right:2px;font-size:${fontSize.xs};">✦</span>
-            <span style="bottom:-6px;right:18px;font-size:${fontSize.micro};">✧</span>
+            <span style="top:-16px;left:14px;font-size:${fontSize.sm};">✧</span>
+            <span style="top:-9px;left:-6px;font-size:${fontSize.sm};">✦</span>
+            <span style="bottom:-13px;right:2px;font-size:${fontSize.base};">✦</span>
+            <span style="bottom:-7px;right:18px;font-size:${fontSize.sm};">✧</span>
           `;
           el.appendChild(stars);
         }
@@ -890,9 +987,9 @@ export default function PlaceMarkers() {
           const stars = document.createElement('span');
           stars.className = 'om-pin-stars';
           stars.innerHTML = `
-            <span style="top:-12px;left:-4px;font-size:${fontSize.micro};">✦</span>
-            <span style="top:-9px;right:-5px;font-size:${fontSize.micro};">✧</span>
-            <span style="bottom:-10px;right:1px;font-size:${fontSize.micro};">✦</span>
+            <span style="top:-13px;left:-4px;font-size:${fontSize.sm};">✦</span>
+            <span style="top:-10px;right:-5px;font-size:${fontSize.sm};">✧</span>
+            <span style="bottom:-11px;right:1px;font-size:${fontSize.sm};">✦</span>
           `;
           el.appendChild(stars);
         }
@@ -966,7 +1063,7 @@ export default function PlaceMarkers() {
       예전에는 `level > 8`, `level <= 6` 두 불리언만 넣어서 9→10→11 사이 변화가
       이펙트를 깨우지 못했다 — 클러스터 격자 크기가 처음 값에 얼어붙었다.
     */
-  }, [map, mode, items, level, userLocation, searchCenter]);
+  }, [map, mode, items, category, level, userLocation, searchCenter]);
 
   // [2] 선택/호버/상세보기 상태만 DOM 실시간 업데이트 (오버레이 재생성 0회, 0.1ms 초고속 반영)
   useEffect(() => {

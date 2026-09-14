@@ -1,47 +1,15 @@
 'use client';
 
 import React from 'react';
-import styled from '@emotion/styled';
 import { SorimaruBackgroundStage } from '@/features/sorimaru-audio/background/SorimaruBackgroundStage';
 import type { SorimaruBackgroundVariant } from '@/features/sorimaru-audio/background/sorimaruBackground.types';
-
-import { surface } from '@/design-system/tokens';
+import { HanokAtmosphereBackground } from '@/shared/components/HanokBackground';
 
 interface SorimaruAtmosphereBackgroundProps {
   variant?: SorimaruBackgroundVariant;
   selectedCategory?: string;
   isPlaying?: boolean;
 }
-
-const FixedAtmosphere = styled.div`
-  pointer-events: none;
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  background-color: #ffffff;
-  transition: background-color 0.3s ease;
-
-  [data-theme='dark'] & {
-    background-color: ${surface.dark.app};
-  }
-`;
-
-const LayerInner = styled.div`
-  position: absolute;
-  inset: 0;
-  opacity: 1;
-`;
-
-const RadialMask = styled.div`
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.96), transparent 72%);
-
-  [data-theme='dark'] & {
-    background-image: radial-gradient(circle at 50% 0%, rgba(28, 26, 23, 0.96), transparent 72%);
-  }
-`;
 
 export const SorimaruAtmosphereBackground: React.FC<SorimaruAtmosphereBackgroundProps> = ({
   variant = 'default',
@@ -58,11 +26,5 @@ export const SorimaruAtmosphereBackground: React.FC<SorimaruAtmosphereBackground
     );
   }
 
-  return (
-    <FixedAtmosphere aria-hidden="true">
-      <LayerInner>
-        <RadialMask />
-      </LayerInner>
-    </FixedAtmosphere>
-  );
+  return <HanokAtmosphereBackground />;
 };

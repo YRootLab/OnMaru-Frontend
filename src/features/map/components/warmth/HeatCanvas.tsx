@@ -239,10 +239,12 @@ export default function HeatCanvas({ spots }: Props) {
   const map = useMapStore((s) => s.map);
   const mode = useMapStore((s) => s.mode);
   const level = useMapStore((s) => s.level);
+  const warmthViewType = useMapStore((s) => s.warmthViewType);
   const { mode: colorMode } = useOnmaruTheme();
   const isDark = colorMode === 'dark';
 
   const lutRef = useRef<Uint8ClampedArray | null>(null);
+  const warmthViewTypeRef = useRef(warmthViewType);
 
   /*
     스팟 목록은 ref로 넘긴다. 날짜 스크러버를 드래그하면 목록이 프레임마다 새로
@@ -257,6 +259,12 @@ export default function HeatCanvas({ spots }: Props) {
     key: '',
     paths: new Map(),
   });
+
+  // 뷰 모드(행정구역 경계 vs 순수 원형 히트맵)가 바뀌면 다시 칠한다.
+  useEffect(() => {
+    warmthViewTypeRef.current = warmthViewType;
+    scheduleRef.current?.();
+  }, [warmthViewType]);
 
   // 경계 데이터는 온기 모드에 들어올 때 한 번만 받고, 도착하면 다시 칠한다.
   useEffect(() => {
@@ -402,82 +410,103 @@ export default function HeatCanvas({ spots }: Props) {
 
       let painted = 0;
 
-      // ── 경계를 그대로 칠한다 ──
-      ctx.fillStyle = '#000000';
-      ctx.strokeStyle = '#000000';
-      ctx.lineWidth = 1.5;
-      ctx.lineJoin = 'round';
-
-      for (const [feature, weight] of filled) {
-        const min = project(feature.bbox[0], feature.bbox[3]);
-        const max = project(feature.bbox[2], feature.bbox[1]);
-        // 화면 밖 권역은 좌표를 옮기지도 않는다 — 전국에는 250개가 있다.
-        if (max.x < 0 || max.y < 0 || min.x > W || min.y > H) continue;
-
-        /*
-          투영한 경로는 지도가 움직이기 전까지 그대로다.
-          날짜를 재생하면 170ms마다 다시 칠하는데, 그때마다 좌표 수만 개를 다시
-          투영할 이유가 없다 — 바뀌는 것은 알파뿐이다.
-        */
-        let path = pathCache.get(feature);
-
-        if (!path) {
-          path = new Path2D();
-
-          for (const ring of feature.rings) {
-            for (let i = 0; i < ring.length; i++) {
-              const { x, y } = project(ring[i][0], ring[i][1]);
-              if (i === 0) path.moveTo(x, y);
-              else path.lineTo(x, y);
-            }
-            path.closePath();
+      if (warmthViewTypeRef.current === 'heatmap') {
+        // ── [초기 버전] 순수 원형 밀도 히트맵 (행정 경계선 없는 부드러운 방사형 가우시안 훈기) ──
+        const radius = Math.min(220, Math.max(52, Math.round(baseRadius * 1.55)));
+        for (const spot of spotsRef.current) {
+          if (painted >= MAX_KERNELS) break;
+          const { x, y } = project(spot.lng, spot.lat);
+          if (
+            x < -radius ||
+            y < -radius ||
+            x > W + radius ||
+            y > H + radius
+          ) {
+            continue;
           }
 
-          pathCache.set(feature, path);
+          const weight = Math.min(1, Math.max(0.18, spot.intensity));
+          stampKernel(ctx, x, y, radius, weight);
+          painted += 1;
+        }
+      } else {
+        // ── [행정구역 버전] 시·군·구 행정 경계(districts.json) 폴리곤 채색 ──
+        ctx.fillStyle = '#000000';
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 1.5;
+        ctx.lineJoin = 'round';
+
+        for (const [feature, weight] of filled) {
+          const min = project(feature.bbox[0], feature.bbox[3]);
+          const max = project(feature.bbox[2], feature.bbox[1]);
+          // 화면 밖 권역은 좌표를 옮기지도 않는다 — 전국에는 250개가 있다.
+          if (max.x < 0 || max.y < 0 || min.x > W || min.y > H) continue;
+
+          /*
+            투영한 경로는 지도가 움직이기 전까지 그대로다.
+            날짜를 재생하면 170ms마다 다시 칠하는데, 그때마다 좌표 수만 개를 다시
+            투영할 이유가 없다 — 바뀌는 것은 알파뿐이다.
+          */
+          let path = pathCache.get(feature);
+
+          if (!path) {
+            path = new Path2D();
+
+            for (const ring of feature.rings) {
+              for (let i = 0; i < ring.length; i++) {
+                const { x, y } = project(ring[i][0], ring[i][1]);
+                if (i === 0) path.moveTo(x, y);
+                else path.lineTo(x, y);
+              }
+              path.closePath();
+            }
+
+            pathCache.set(feature, path);
+          }
+
+          /*
+            권역이 화면보다 커지면 면을 물린다.
+
+            확대해 한 구 안에 들어가면 그 구가 화면을 통째로 덮는데, 그때 경계선은
+            이미 화면 밖이라 형태는 아무 정보도 주지 못하면서 색만 짙게 남는다.
+            값은 뱃지가 말하고 있으니, 여기서는 지도가 읽히는 쪽을 택한다.
+          */
+          const cover = (Math.abs(max.x - min.x) * Math.abs(max.y - min.y)) / (W * H);
+          const damp = cover > 1 ? Math.max(0.4, 1 / Math.sqrt(cover)) : 1;
+
+          ctx.globalAlpha = weight * damp;
+          ctx.fill(path);
+
+          /*
+            테두리를 면보다 한 칸 진하게 얹는다.
+
+            평평한 면은 지형 타일 위에서 묽어 보인다. 커널은 가운데가 진해서 저절로
+            형태가 잡혔지만 채우기는 그렇지 않다. 경계를 쓰기로 한 이상 경계가 읽혀야
+            하므로 가장자리를 살린다 — 알파만 올리므로 색은 같은 램프에서 나온다.
+            색 하나로만 말한다는 규칙은 그대로다.
+          */
+          ctx.globalAlpha = Math.min(1, weight + 0.22);
+          ctx.stroke(path);
+
+          painted += 1;
         }
 
-        /*
-          권역이 화면보다 커지면 면을 물린다.
+        // ── 경계 밖 스팟은 예전 방식대로 ──
+        for (const spot of loose) {
+          if (painted >= MAX_KERNELS) break;
+          const radius = baseRadius;
+          if (
+            spot.x < -radius ||
+            spot.y < -radius ||
+            spot.x > W + radius ||
+            spot.y > H + radius
+          ) {
+            continue;
+          }
 
-          확대해 한 구 안에 들어가면 그 구가 화면을 통째로 덮는데, 그때 경계선은
-          이미 화면 밖이라 형태는 아무 정보도 주지 못하면서 색만 짙게 남는다.
-          값은 뱃지가 말하고 있으니, 여기서는 지도가 읽히는 쪽을 택한다.
-        */
-        const cover = (Math.abs(max.x - min.x) * Math.abs(max.y - min.y)) / (W * H);
-        const damp = cover > 1 ? Math.max(0.4, 1 / Math.sqrt(cover)) : 1;
-
-        ctx.globalAlpha = weight * damp;
-        ctx.fill(path);
-
-        /*
-          테두리를 면보다 한 칸 진하게 얹는다.
-
-          평평한 면은 지형 타일 위에서 묽어 보인다. 커널은 가운데가 진해서 저절로
-          형태가 잡혔지만 채우기는 그렇지 않다. 경계를 쓰기로 한 이상 경계가 읽혀야
-          하므로 가장자리를 살린다 — 알파만 올리므로 색은 같은 램프에서 나온다.
-          색 하나로만 말한다는 규칙은 그대로다.
-        */
-        ctx.globalAlpha = Math.min(1, weight + 0.22);
-        ctx.stroke(path);
-
-        painted += 1;
-      }
-
-      // ── 경계 밖 스팟은 예전 방식대로 ──
-      for (const spot of loose) {
-        if (painted >= MAX_KERNELS) break;
-        const radius = baseRadius;
-        if (
-          spot.x < -radius ||
-          spot.y < -radius ||
-          spot.x > W + radius ||
-          spot.y > H + radius
-        ) {
-          continue;
+          stampKernel(ctx, spot.x, spot.y, radius, spot.weight);
+          painted += 1;
         }
-
-        stampKernel(ctx, spot.x, spot.y, radius, spot.weight);
-        painted += 1;
       }
 
       ctx.globalAlpha = 1;

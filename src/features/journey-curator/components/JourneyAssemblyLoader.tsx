@@ -108,35 +108,36 @@ export default function JourneyAssemblyLoader() {
   const [gameMode, setGameMode] = useState<'omok' | 'wordsearch'>('omok');
   const [userDismissed, setUserDismissed] = useState(false);
   const [hasCompleted, setHasCompleted] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
 
-  // Sync completion state
+  // Sync completion state: 사용자가 여정 탐색(생성)을 실제로 시작했을 때만 동작
   useEffect(() => {
-    if (!isGenerating && !hasCompleted) {
-      setHasCompleted(true);
-    } else if (isGenerating) {
+    if (isGenerating) {
+      setHasStarted(true);
       setHasCompleted(false);
       setUserDismissed(false);
       setGameMode('omok');
+    } else if (hasStarted) {
+      setHasCompleted(true);
     }
-  }, [isGenerating, hasCompleted]);
-
-  // Don't render if user closed the modal or if generation has not started
-  if (userDismissed || (!isGenerating && !hasCompleted)) {
-    return null;
-  }
+  }, [isGenerating, hasStarted]);
 
   const handleClose = () => {
     setUserDismissed(true);
+    setHasStarted(false);
   };
+
+  const isVisible = hasStarted && !userDismissed;
 
   return (
     <AnimatePresence>
-      <Overlay
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.2 }}
-      >
+      {isVisible && (
+        <Overlay
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+        >
         <LoaderCard
           initial={{ scale: 0.92, opacity: 0, y: 15 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -176,6 +177,7 @@ export default function JourneyAssemblyLoader() {
           )}
         </LoaderCard>
       </Overlay>
+      )}
     </AnimatePresence>
   );
 }

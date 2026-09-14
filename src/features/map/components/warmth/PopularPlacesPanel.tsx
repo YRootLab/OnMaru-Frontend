@@ -23,6 +23,10 @@ const PanelRoot = styled.div`
   flex-direction: column;
   height: 100%;
   background: #ffffff;
+
+  [data-theme='dark'] & {
+    background: #2D2924;
+  }
 `;
 
 /* ── 1. 상단 타이틀 바 & 닫기 ── */
@@ -39,6 +43,10 @@ const Title = styled.h3`
   font-weight: 500;
   color: ${meok[900]};
   letter-spacing: -0.02em;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 const CloseBtn = styled.button`
@@ -58,6 +66,16 @@ const CloseBtn = styled.button`
     background: rgba(25, 31, 40, 0.1);
     color: ${meok[900]};
   }
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.08);
+    color: ${meok[400]};
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.14);
+      color: #ffffff;
+    }
+  }
 `;
 
 /* ── 2. 서브 설명 & 가로 스크롤 지역 칩 ── */
@@ -69,6 +87,10 @@ const SubText = styled.p`
   margin: 0 0 12px;
   font-size: ${fontSize.xs};
   color: ${meok[500]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 const RegionScroller = styled.div`
@@ -103,6 +125,18 @@ const RegionChip = styled.button<{ $active: boolean }>`
       $active ? meok[900] : 'rgba(78, 89, 104, 0.12)'};
     color: ${({ $active }) => ($active ? '#ffffff' : meok[900])};
   }
+
+  [data-theme='dark'] & {
+    background: ${({ $active }) =>
+      $active ? '#ffffff' : 'rgba(255, 255, 255, 0.08)'};
+    color: ${({ $active }) => ($active ? meok[900] : meok[400])};
+
+    &:hover {
+      background: ${({ $active }) =>
+        $active ? '#ffffff' : 'rgba(255, 255, 255, 0.14)'};
+      color: ${({ $active }) => ($active ? meok[900] : '#ffffff')};
+    }
+  }
 `;
 
 /* ── 3. 랭킹 장소 목록 (1위~10위) ── */
@@ -130,6 +164,14 @@ const PlaceRow = styled.div`
 
   &:active {
     transform: scale(0.985);
+  }
+
+  [data-theme='dark'] & {
+    background: #2D2924;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
   }
 `;
 
@@ -170,6 +212,10 @@ const Name = styled.h4`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 `;
 
 const Meta = styled.p`
@@ -179,6 +225,10 @@ const Meta = styled.p`
   display: flex;
   align-items: center;
   gap: 6px;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 `;
 
 const RightCol = styled.div`

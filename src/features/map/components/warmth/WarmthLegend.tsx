@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react';
 import styled from '@emotion/styled';
+import { MapPin, Flame } from 'lucide-react';
 import { meok, surface , fontSize } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
@@ -25,59 +26,56 @@ import type { WarmthFilter } from '@/features/map/types';
  * 지도를 옮길 때마다 숫자가 따라 움직여서, 색이 실제로 데이터라는 것이 드러난다.
  */
 
-const Root = styled.div`
-  position: absolute;
-  left: 16px;
-  bottom: 16px;
-  z-index: 16;
+const Root = styled.div<{ $isDark: boolean }>`
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 10px 12px;
+  padding: 11px 14px;
   width: max-content;
   max-width: calc(100vw - 32px);
 
-  border-radius: 16px;
-  background: ${surface.light.card};
+  border-radius: 18px;
+  background: ${({ $isDark }) => ($isDark ? 'rgba(28, 26, 23, 0.94)' : 'rgba(255, 255, 255, 0.95)')};
   backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: none;
-  box-shadow: 0 6px 24px -4px rgba(0, 0, 0, 0.12);
+  box-shadow: ${({ $isDark }) =>
+    $isDark ? '0 4px 16px rgba(0, 0, 0, 0.4)' : '0 4px 14px rgba(0, 0, 0, 0.08)'};
   font-family: 'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+  transition: all 0.2s ease;
 
   [data-theme='dark'] & {
-    background: ${surface.dark.surface};
+    background: rgba(28, 26, 23, 0.94);
     border: none;
-    box-shadow: 0 6px 24px -4px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
   }
 
-  /*
-    모바일은 바텀시트(z 30)가 화면 아래 절반을 덮는다.
-    범례를 상단 바(모드 토글 + 칩셋) 아래로 올려 시트에 가리지 않게 한다.
-  */
   @media (max-width: 1023px) {
-    left: 12px;
-    right: auto;
-    bottom: auto;
-    top: 54px;
     padding: 8px 10px;
   }
 `;
 
-const Summary = styled.p`
+const Summary = styled.p<{ $isDark: boolean }>`
   margin: 0;
   font-size: ${fontSize.xs};
   font-weight: 500;
   line-height: 1.35;
-  color: ${meok[900]};
+  color: ${({ $isDark }) => ($isDark ? '#F3F4F6' : meok[900])};
   white-space: nowrap;
 
   [data-theme='dark'] & {
-    color: ${meok[100]};
+    color: #F3F4F6;
   }
 
   b {
     font-weight: 700;
+    color: ${({ $isDark }) => ($isDark ? '#FBBF24' : meok[900])};
     font-variant-numeric: tabular-nums;
+
+    [data-theme='dark'] & {
+      color: #FBBF24;
+    }
   }
 `;
 
@@ -103,29 +101,33 @@ const RampBar = styled.div<{ $gradient: string }>`
   }
 `;
 
-const RampEnds = styled.div`
+const RampEnds = styled.div<{ $isDark: boolean }>`
   display: flex;
   justify-content: space-between;
   font-size: ${fontSize.xs};
   font-weight: 500;
-  color: ${meok[700]};
+  color: ${({ $isDark }) => ($isDark ? '#9CA3AF' : meok[700])};
 
   [data-theme='dark'] & {
-    color: ${meok[400]};
+    color: #9CA3AF;
   }
 `;
 
-const RampNote = styled.p`
+const RampNote = styled.p<{ $isDark: boolean }>`
   margin: 0;
   font-size: ${fontSize.micro};
   font-weight: 500;
   line-height: 1.4;
-  color: ${meok[500]};
+  color: ${({ $isDark }) => ($isDark ? '#9CA3AF' : meok[500])};
+
+  [data-theme='dark'] & {
+    color: #9CA3AF;
+  }
 `;
 
-const Divider = styled.div`
+const Divider = styled.div<{ $isDark: boolean }>`
   height: 1px;
-  background: rgba(78, 89, 104, 0.12);
+  background: ${({ $isDark }) => ($isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(78, 89, 104, 0.12)')};
 
   [data-theme='dark'] & {
     background: rgba(255, 255, 255, 0.1);
@@ -138,28 +140,53 @@ const PeriodRow = styled.div`
   gap: 4px;
 `;
 
-const PeriodLabel = styled.span`
+const PeriodLabel = styled.span<{ $isDark: boolean }>`
   margin-right: 2px;
   font-size: ${fontSize.micro};
   font-weight: 500;
-  color: ${meok[500]};
+  color: ${({ $isDark }) => ($isDark ? '#9CA3AF' : meok[500])};
+
+  [data-theme='dark'] & {
+    color: #9CA3AF;
+  }
 `;
 
-const PeriodBtn = styled.button<{ $active: boolean }>`
+const PeriodBtn = styled.button<{ $active: boolean; $isDark: boolean }>`
   padding: 3px 9px;
   border-radius: 9999px;
   border: none;
 
-  background: ${({ $active }) => ($active ? meok[900] : 'rgba(78, 89, 104, 0.08)')};
-  color: ${({ $active }) => ($active ? surface.light.card : meok[700])};
+  background: ${({ $active, $isDark }) =>
+    $active
+      ? $isDark
+        ? '#F59E0B'
+        : meok[900]
+      : $isDark
+        ? 'rgba(255, 255, 255, 0.08)'
+        : 'rgba(78, 89, 104, 0.08)'};
+  color: ${({ $active, $isDark }) =>
+    $active
+      ? $isDark
+        ? '#1C1A17'
+        : '#ffffff'
+      : $isDark
+        ? '#D1D5DB'
+        : meok[700]};
   font-family: inherit;
   font-size: ${fontSize.xs};
-  font-weight: 500;
+  font-weight: ${({ $active }) => ($active ? 700 : 500)};
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: all 0.15s ease;
 
   &:hover {
-    background: ${({ $active }) => ($active ? meok[900] : 'rgba(78, 89, 104, 0.16)')};
+    background: ${({ $active, $isDark }) =>
+      $active
+        ? $isDark
+          ? '#F59E0B'
+          : meok[900]
+        : $isDark
+          ? 'rgba(255, 255, 255, 0.14)'
+          : 'rgba(78, 89, 104, 0.16)'};
   }
 
   &:focus-visible {
@@ -168,8 +195,74 @@ const PeriodBtn = styled.button<{ $active: boolean }>`
   }
 
   [data-theme='dark'] & {
-    background: ${({ $active }) => ($active ? meok[100] : 'rgba(255, 255, 255, 0.1)')};
-    color: ${({ $active }) => ($active ? meok[900] : meok[400])};
+    background: ${({ $active }) => ($active ? '#F59E0B' : 'rgba(255, 255, 255, 0.08)')};
+    color: ${({ $active }) => ($active ? '#1C1A17' : '#D1D5DB')};
+
+    &:hover {
+      background: ${({ $active }) => ($active ? '#F59E0B' : 'rgba(255, 255, 255, 0.14)')};
+    }
+  }
+`;
+
+const ViewTypeSegment = styled.div<{ $isDark: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 12px;
+  background: ${({ $isDark }) => ($isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(78, 89, 104, 0.08)')};
+  border: none;
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+  }
+`;
+
+const ViewTypeBtn = styled.button<{ $active: boolean; $isDark: boolean }>`
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 9px;
+  border: none;
+  font-family: inherit;
+  font-size: ${fontSize.xs};
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+
+  background: ${({ $active, $isDark }) =>
+    $active
+      ? $isDark
+        ? '#3A3630'
+        : '#ffffff'
+      : 'transparent'};
+  color: ${({ $active, $isDark }) =>
+    $active
+      ? $isDark
+        ? '#FBBF24'
+        : meok[900]
+      : $isDark
+        ? '#9CA3AF'
+        : meok[500]};
+  box-shadow: none;
+
+  &:hover {
+    color: ${({ $isDark }) => ($isDark ? '#ffffff' : meok[900])};
+  }
+
+  [data-theme='dark'] & {
+    background: ${({ $active }) => ($active ? '#3A3630' : 'transparent')};
+    color: ${({ $active }) => ($active ? '#FBBF24' : '#9CA3AF')};
+    box-shadow: none;
+
+    &:hover {
+      color: #ffffff;
+    }
   }
 `;
 
@@ -179,6 +272,8 @@ export default function WarmthLegend() {
   const category = useMapStore((s) => s.category);
   const period = useMapStore((s) => s.warmthPeriod);
   const setPeriod = useMapStore((s) => s.setWarmthPeriod);
+  const warmthViewType = useMapStore((s) => s.warmthViewType);
+  const setWarmthViewType = useMapStore((s) => s.setWarmthViewType);
   const map = useMapStore((s) => s.map);
   const center = useMapStore((s) => s.center);
   const level = useMapStore((s) => s.level);
@@ -206,13 +301,43 @@ export default function WarmthLegend() {
     // center/level은 값 자체를 쓰진 않지만, 지도가 움직였다는 신호로 필요하다.
   }, [warmths, period, category, map, center, level]);
 
+  const rampGradient = useMemo(() => rampCss(isDark), [isDark]);
+
   if (mode !== 'warmth') return null;
 
   const percent = stat.ratio === null ? null : Math.round(stat.ratio * 100);
 
   return (
-    <Root aria-label="온기 히트맵 범례">
-      <Summary aria-live="polite">
+    <Root $isDark={isDark} aria-label="온기 히트맵 범례">
+      {/* 보기 모드 세그먼트 스위처: [시·군 행정별 | 원형 히트맵] */}
+      <ViewTypeSegment $isDark={isDark} role="tablist" aria-label="온기 표시 방식">
+        <ViewTypeBtn
+          type="button"
+          role="tab"
+          aria-selected={warmthViewType === 'district'}
+          $active={warmthViewType === 'district'}
+          $isDark={isDark}
+          onClick={() => setWarmthViewType('district')}
+          title="시·군·구 행정구역 경계선과 권역별 통계로 보기"
+        >
+          <MapPin size={13} strokeWidth={2.2} />
+          <span>시·군 행정별</span>
+        </ViewTypeBtn>
+        <ViewTypeBtn
+          type="button"
+          role="tab"
+          aria-selected={warmthViewType === 'heatmap'}
+          $active={warmthViewType === 'heatmap'}
+          $isDark={isDark}
+          onClick={() => setWarmthViewType('heatmap')}
+          title="초기 버전의 부드러운 원형 밀도 히트맵으로 보기"
+        >
+          <Flame size={13} strokeWidth={2.2} />
+          <span>원형 히트맵</span>
+        </ViewTypeBtn>
+      </ViewTypeSegment>
+
+      <Summary $isDark={isDark} aria-live="polite">
         {stat.total === 0 ? (
           '이 일대에 남은 한줄평이 아직 없습니다'
         ) : (
@@ -223,28 +348,26 @@ export default function WarmthLegend() {
         )}
       </Summary>
 
-      <Ramp
-        role="img"
-        aria-label="히트맵 눈금. 칠하지 않은 곳이 한적하고, 진한 자국일수록 붐빈다"
-      >
-        <RampBar $gradient={rampCss(isDark)} />
-        <RampEnds>
+      <Ramp>
+        <RampBar $gradient={rampGradient} aria-hidden="true" />
+        <RampEnds $isDark={isDark}>
           <span>한적</span>
           <span>붐빔</span>
         </RampEnds>
-        <RampNote>아무 색도 없는 곳은 아직 집계가 닿지 않은 곳입니다.</RampNote>
+        <RampNote $isDark={isDark}>아무 색도 없는 곳은 아직 집계가 닿지 않은 곳입니다.</RampNote>
       </Ramp>
 
-      <Divider />
+      <Divider $isDark={isDark} />
 
       <PeriodRow role="group" aria-label="온기 기간">
-        <PeriodLabel>기간</PeriodLabel>
+        <PeriodLabel $isDark={isDark}>기간</PeriodLabel>
         {PERIOD_OPTIONS.map((option) => (
           <PeriodBtn
             key={option.id}
             type="button"
             aria-pressed={period === option.id}
             $active={period === option.id}
+            $isDark={isDark}
             onClick={() => setPeriod(option.id as WarmthPeriod)}
           >
             {option.label}

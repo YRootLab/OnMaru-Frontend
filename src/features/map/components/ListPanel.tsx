@@ -28,6 +28,12 @@ const Panel = styled.aside<{ $open: boolean; $mounted: boolean }>`
   overflow: hidden;
   transition: ${({ $mounted }) => ($mounted ? 'width 0.28s cubic-bezier(0.32, 0.72, 0, 1)' : 'none')};
 
+  [data-theme='dark'] & {
+    background: ${surface.dark.card};
+    box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.6), 0 4px 12px -4px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
   @media (min-width: 1024px) and (max-width: 1439px) {
     width: ${({ $open }) => ($open ? `${PANEL_WIDTH_COMPACT}px` : '0px')};
   }
@@ -56,11 +62,13 @@ const HeaderArea = styled.div`
   flex-direction: column;
   padding: 14px 14px 12px;
   background: ${surface.light.card};
-  /* 스크롤되는 리스트 위에 항상 고정된 "유틸리티 존"이라는 걸 옅은 경계로
-     드러낸다 — 검색바/토글과 그 아래 피드가 그냥 이어붙은 것처럼 밋밋해
-     보이지 않도록. */
   border-bottom: 1px solid rgba(25, 31, 40, 0.06);
   z-index: 10;
+
+  [data-theme='dark'] & {
+    background: ${surface.dark.card};
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
 `;
 
 const ModeToggleContainer = styled.div`
@@ -71,9 +79,6 @@ const ListArea = styled.div`
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  /* 하단 BottomFadeGradient(48px)가 항상 떠 있어서, 목록이 짧으면(예: 검색
-     결과 1곳) 마지막 아이템이 그 흰 그라데이션에 가려 잘려 보인다. 스크롤로
-     그라데이션을 벗어날 수 있도록 그 높이보다 넉넉한 여백을 항상 확보한다. */
   padding-bottom: 60px;
   scrollbar-width: thin;
   scrollbar-color: rgba(78, 89, 104, 0.2) transparent;
@@ -102,6 +107,10 @@ const BottomFadeGradient = styled.div`
   background: linear-gradient(to top, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.7) 45%, rgba(255, 255, 255, 0) 100%);
   pointer-events: none;
   z-index: 15;
+
+  [data-theme='dark'] & {
+    background: linear-gradient(to top, rgba(45, 41, 36, 0.98) 0%, rgba(45, 41, 36, 0.7) 45%, rgba(45, 41, 36, 0) 100%);
+  }
 `;
 
 const Toggle = styled.button`
@@ -126,6 +135,18 @@ const Toggle = styled.button`
   &:hover {
     color: ${meok[900]};
     background: ${surface.light.card};
+  }
+
+  [data-theme='dark'] & {
+    background: ${surface.dark.card};
+    color: ${meok[200]};
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-left: none;
+
+    &:hover {
+      color: #ffffff;
+      background: ${surface.dark.card};
+    }
   }
 
   @media (max-width: 1023px) {

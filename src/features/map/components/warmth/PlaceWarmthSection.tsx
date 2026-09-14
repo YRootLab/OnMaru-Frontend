@@ -40,6 +40,10 @@ const SectionTitle = styled.h3`
   font-size: ${fontSize.sm};
   font-weight: 500;
   color: ${meok[900]};
+
+  [data-theme='dark'] & {
+    color: #ffffff;
+  }
 `;
 
 const CountBadge = styled.span`
@@ -178,6 +182,10 @@ const WarmthText = styled.p`
   line-height: 1.55;
   color: ${meok[900]};
   word-break: keep-all;
+
+  [data-theme='dark'] & {
+    color: #f1f5f9;
+  }
 `;
 
 const EmptyBox = styled.div`
@@ -188,8 +196,11 @@ const EmptyBox = styled.div`
   padding: 24px 16px;
   border-radius: 16px;
   background: #fafafa;
-
   text-align: center;
+
+  [data-theme='dark'] & {
+    background: #25221d;
+  }
 `;
 
 const EmptyIconBox = styled.div`
@@ -202,6 +213,11 @@ const EmptyIconBox = styled.div`
   background: ${lightPalette.juhong[50]};
   color: ${lightPalette.juhong[500]};
   margin-bottom: 10px;
+
+  [data-theme='dark'] & {
+    background: rgba(248, 87, 0, 0.2);
+    color: #fb923c;
+  }
 `;
 
 const EmptyTitle = styled.div`
@@ -209,12 +225,20 @@ const EmptyTitle = styled.div`
   font-weight: 500;
   color: ${meok[900]};
   margin-bottom: 4px;
+
+  [data-theme='dark'] & {
+    color: #ffffff;
+  }
 `;
 
 const EmptySub = styled.div`
   font-size: ${fontSize.xs};
   color: ${meok[500]};
   margin-bottom: 12px;
+
+  [data-theme='dark'] & {
+    color: #cbd5e1;
+  }
 `;
 
 const EmptyActionBtn = styled.button`
