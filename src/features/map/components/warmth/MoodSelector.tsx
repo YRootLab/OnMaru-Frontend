@@ -21,6 +21,10 @@ const Container = styled.div<{ $readonly: boolean }>`
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.06);
+  }
 `;
 
 const FacesWrapper = styled.div`
@@ -52,6 +56,10 @@ const FaceButton = styled.button<{ $selected: boolean; $readonly: boolean }>`
       transform: scale(1.15);
     }
   `}
+
+  [data-theme='dark'] & {
+    color: ${({ $selected }) => ($selected ? '#F59E0B' : '#9CA3AF')};
+  }
 `;
 
 const MoodLabel = styled.span`
@@ -59,6 +67,10 @@ const MoodLabel = styled.span`
   font-weight: 500;
   color: ${meok[900]};
   white-space: nowrap;
+
+  [data-theme='dark'] & {
+    color: #F3F4F6;
+  }
 `;
 
 

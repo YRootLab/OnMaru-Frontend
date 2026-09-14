@@ -7,7 +7,6 @@ import { motion } from 'framer-motion';
 import {
   BookOpen,
   Bookmark,
-  Flame,
   Headphones,
   MapPin,
   Moon,
@@ -21,7 +20,7 @@ import { RAIL_ENTER_DELAY_S, RAIL_ENTER_DURATION_S, ENTRANCE_EASE } from '@/shar
 import { useMapEntranceStore } from '@/shared/navigation/mapEntranceState';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 
-export const RAIL_WIDTH = 60;
+export const RAIL_WIDTH = 68;
 export const RAIL_INSET = 14;
 
 /** Header.tsx의 캡슐형 GNB와 같은 유리질감(블러+반투명+가느다란 보더)을 쓰는
@@ -69,7 +68,7 @@ const LogoArea = styled.div`
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 48px;
+  height: 44px;
   cursor: pointer;
   transition: transform 0.15s ease;
 
@@ -85,10 +84,10 @@ const LogoArea = styled.div`
 `;
 
 const LogoDivider = styled.div`
-  width: 24px;
+  width: 28px;
   height: 1px;
   background: rgba(0, 0, 0, 0.08);
-  margin: 4px 0 8px;
+  margin: 4px 0 6px;
 
   [data-theme='dark'] & {
     background: rgba(255, 255, 255, 0.12);
@@ -100,23 +99,24 @@ const NavList = styled.div`
   flex-direction: column;
   align-items: center;
   width: 100%;
-  gap: 2px;
+  gap: 4px;
   flex: 1;
 `;
 
-/** 아이콘 전용 슬림 네비게이션 버튼 */
+/** 아이콘 + 한글 라벨 네비게이션 버튼 */
 const NavItemBtn = styled.button<{ $active: boolean }>`
   position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  padding: 0;
+  width: 58px;
+  padding: 6px 2px 5px;
   border: none;
   outline: none;
   border-radius: 12px;
   cursor: pointer;
+  gap: 3px;
   background: ${({ $active }) => ($active ? lightPalette.cheongrok[50] : 'transparent')};
   color: ${({ $active }) => ($active ? lightPalette.cheongrok[700] : meok[500])};
   transition:
@@ -148,6 +148,15 @@ const NavItemIcon = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+`;
+
+const NavItemLabel = styled.span`
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  text-align: center;
+  white-space: nowrap;
 `;
 
 const BottomArea = styled.div`
@@ -185,14 +194,8 @@ export default function MapNavRail() {
     if (!panelOpen) setPanelOpen(true);
   };
 
-  const handleSelectWarmthMap = () => {
-    setMode('warmth');
-    if (!panelOpen) setPanelOpen(true);
-  };
-
   // 온마루 자체 카테고리 활성 판별
   const isMapActive = true; // 현재 /map 페이지
-  const isWarmthActive = mode === 'warmth';
   const isRouteEntrance = useMapEntranceStore((s) => s.isRouteEntrance);
 
   return (
@@ -233,32 +236,34 @@ export default function MapNavRail() {
 
       <LogoDivider />
 
-      {/* 2. 온마루 자체 카테고리 목록 (한옥 마루, 지도, 소리마루, 온기이야기, 저장) — 라벨은 title 툴팁으로 대체 */}
+      {/* 2. 온마루 자체 카테고리 목록 (한옥마루, 지도, 소리마루, 온기이야기, 저장) */}
       <NavList>
         {/* 온마루 카테고리 1: 한옥 마루 */}
         <NavItemBtn
           type="button"
           $active={false}
           onClick={() => router.push('/hanok')}
-          aria-label="한옥 마루"
-          title="한옥 마루"
+          aria-label="한옥마루"
+          title="한옥마루"
         >
           <NavItemIcon>
             <BookOpen size={19} strokeWidth={2} />
           </NavItemIcon>
+          <NavItemLabel>한옥마루</NavItemLabel>
         </NavItemBtn>
 
-        {/* 온마루 카테고리 2: 지도 (정보지도) — 온기지도 전환은 아래 '온기이야기' 항목과 패널 내 ModeToggle이 담당한다 */}
+        {/* 온마루 카테고리 2: 지도 (정보지도) */}
         <NavItemBtn
           type="button"
           $active={isMapActive}
           onClick={handleSelectInfoMap}
-          aria-label="정보지도"
-          title="정보지도"
+          aria-label="지도"
+          title="지도"
         >
           <NavItemIcon>
             <MapPin size={19} strokeWidth={2} />
           </NavItemIcon>
+          <NavItemLabel>지도</NavItemLabel>
         </NavItemBtn>
 
         {/* 온마루 카테고리 3: 소리마루 (오디 도슨트) */}
@@ -272,20 +277,9 @@ export default function MapNavRail() {
           <NavItemIcon>
             <Headphones size={19} strokeWidth={2} />
           </NavItemIcon>
+          <NavItemLabel>소리마루</NavItemLabel>
         </NavItemBtn>
 
-        {/* 온마루 카테고리 4: 온기이야기 (지도 내 온기 후기 & 온도 모드 바로가기) */}
-        <NavItemBtn
-          type="button"
-          $active={isWarmthActive}
-          onClick={handleSelectWarmthMap}
-          aria-label="온기이야기"
-          title="온기이야기"
-        >
-          <NavItemIcon>
-            <Flame size={19} strokeWidth={2} />
-          </NavItemIcon>
-        </NavItemBtn>
 
         {/* 온마루 카테고리 5: 저장한 장소 */}
         <NavItemBtn
@@ -302,11 +296,11 @@ export default function MapNavRail() {
           <NavItemIcon>
             <Bookmark size={19} strokeWidth={2} />
           </NavItemIcon>
+          <NavItemLabel>저장</NavItemLabel>
         </NavItemBtn>
       </NavList>
 
-      {/* 3. 하단 유틸리티 메뉴 (마이/로그인) — 홈 이동은 위 브랜드 로고가 이미
-          담당하므로 별도의 "온마루 홈" 항목을 중복으로 두지 않는다. */}
+      {/* 3. 하단 유틸리티 메뉴 (다크모드 전환 / 마이) */}
       <BottomArea>
         <Divider />
         <NavItemBtn
@@ -319,6 +313,7 @@ export default function MapNavRail() {
           <NavItemIcon>
             {themeMode === 'dark' ? <Sun size={19} strokeWidth={2} /> : <Moon size={19} strokeWidth={2} />}
           </NavItemIcon>
+          <NavItemLabel>{themeMode === 'dark' ? '라이트' : '다크'}</NavItemLabel>
         </NavItemBtn>
         <NavItemBtn
           type="button"
@@ -330,6 +325,7 @@ export default function MapNavRail() {
           <NavItemIcon>
             <User size={19} strokeWidth={2} />
           </NavItemIcon>
+          <NavItemLabel>마이</NavItemLabel>
         </NavItemBtn>
       </BottomArea>
     </RailContainer>

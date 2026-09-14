@@ -8,22 +8,21 @@ import { useMapStore } from '@/features/map/hooks/useMapStore';
 import WriteWarmthModal from './WriteWarmthModal';
 
 const FloatingBtn = styled.button`
-  position: absolute;
-  right: 76px;
-  bottom: 16px;
-  z-index: 15;
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  height: 44px;
+  height: 42px;
   padding: 0 18px;
 
   border-radius: 9999px;
+  border: none;
   background: ${lightPalette.juhong[500]};
   color: #ffffff;
   font-family: inherit;
   font-size: ${fontSize.sm};
   font-weight: 700;
+  box-shadow: 0 2px 8px rgba(232, 90, 24, 0.25);
 
   cursor: pointer;
   white-space: nowrap;
@@ -32,17 +31,26 @@ const FloatingBtn = styled.button`
   &:hover {
     background: ${lightPalette.juhong[700]};
     transform: translateY(-2px);
-
+    box-shadow: 0 4px 12px rgba(232, 90, 24, 0.35);
   }
 
   &:active {
     transform: scale(0.96);
   }
 
+  [data-theme='dark'] & {
+    background: linear-gradient(135deg, #e85a18 0%, #d4af37 100%);
+    box-shadow: 0 2px 10px rgba(232, 90, 24, 0.35);
+    border: none;
+
+    &:hover {
+      background: linear-gradient(135deg, #f06a2b 0%, #e5bd47 100%);
+      box-shadow: 0 4px 14px rgba(232, 90, 24, 0.45);
+    }
+  }
+
   @media (max-width: 1023px) {
-    right: 16px;
-    bottom: 236px; /* 모바일: 줌 컨트롤 상단 */
-    height: 40px;
+    height: 38px;
     padding: 0 14px;
     font-size: ${fontSize.xs};
   }

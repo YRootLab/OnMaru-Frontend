@@ -630,15 +630,6 @@ export default function KakaoMap() {
           >
             <Plane size={18} strokeWidth={2} />
           </ControlButton>
-          <ControlButton
-            type="button"
-            aria-label="달빛 야행 모드 전환"
-            onClick={() => setThemePreference(isEffectiveNight ? 'light' : 'dark')}
-            $active={isEffectiveNight}
-            title={isEffectiveNight ? '주간 뷰(라이트 모드)로 전환' : '달빛 야행(다크 모드)으로 전환'}
-          >
-            {isEffectiveNight ? <Sun size={18} color="#f59e0b" strokeWidth={2} /> : <Moon size={18} strokeWidth={2} />}
-          </ControlButton>
         </Stack>
 
         {/* 2. 줌 인/아웃 컨트롤 */}

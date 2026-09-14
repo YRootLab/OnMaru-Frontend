@@ -149,7 +149,7 @@ export const PlaceTitle = styled.h2`
   outline: none;
 
   [data-theme='dark'] & {
-    color: ${meok[100]};
+    color: #ffffff;
   }
 `;
 
@@ -159,7 +159,7 @@ export const PlaceAddress = styled.p`
   color: ${meok[500]};
 
   [data-theme='dark'] & {
-    color: ${meok[400]};
+    color: #e2e8f0;
   }
 `;
 
@@ -177,6 +177,11 @@ export const Badge = styled.span`
   color: ${meok[700]};
   background: rgba(78, 89, 104, 0.07);
   border: none;
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.1);
+    color: #f1f5f9;
+  }
 `;
 
 export const SmartFeatureRow = styled.div`
@@ -202,9 +207,9 @@ export const SmartFeatureChip = styled.span<{ $type?: 'free' | 'parking' | 'audi
 
   [data-theme='dark'] & {
     background: ${({ $type }) =>
-      $type === 'audio' ? 'rgba(248, 78, 118, 0.15)' : 'rgba(255, 255, 255, 0.06)'};
+      $type === 'audio' ? 'rgba(248, 78, 118, 0.2)' : 'rgba(255, 255, 255, 0.1)'};
     color: ${({ $type }) =>
-      $type === 'audio' ? darkPalette.jangmi[400] : meok[400]};
+      $type === 'audio' ? '#f472b6' : '#e2e8f0'};
   }
 `;
 
@@ -250,7 +255,7 @@ export const LiveWarmthStatus = styled.div`
   white-space: nowrap;
 
   [data-theme='dark'] & {
-    color: ${meok[100]};
+    color: #ffffff;
   }
 `;
 
@@ -396,6 +401,10 @@ export const CoreLabel = styled.span`
   font-size: ${fontSize.xs};
   color: ${meok[500]};
   flex-shrink: 0;
+
+  [data-theme='dark'] & {
+    color: #cbd5e1;
+  }
 `;
 
 export const CoreValue = styled.span`
@@ -406,7 +415,7 @@ export const CoreValue = styled.span`
   word-break: keep-all;
 
   [data-theme='dark'] & {
-    color: ${meok[100]};
+    color: #ffffff;
   }
 `;
 
@@ -422,7 +431,7 @@ export const SectionTitle = styled.h3` /* 14px — 작은 제목이라 500으로
   color: ${meok[900]};
 
   [data-theme='dark'] & {
-    color: ${meok[100]};
+    color: #ffffff;
   }
 `;
 
@@ -444,7 +453,7 @@ export const OverviewText = styled.p<{ $expanded: boolean }>`
   `}
 
   [data-theme='dark'] & {
-    color: ${meok[200]};
+    color: #f1f5f9;
   }
 `;
 

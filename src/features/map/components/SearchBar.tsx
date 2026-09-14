@@ -67,8 +67,12 @@ const Input = styled.input`
   min-width: 0;
   width: 100%;
 
-  outline: none;
-  background: transparent;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  -webkit-appearance: none;
+  appearance: none;
   font-family: inherit;
   font-size: ${fontSize.sm};
   font-weight: 500;

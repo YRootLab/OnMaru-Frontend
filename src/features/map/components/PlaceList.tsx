@@ -78,43 +78,64 @@ const CountLabel = styled.span`
 
 const SortDropdownWrapper = styled.div`
   position: relative;
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.07);
+    border-color: rgba(0, 0, 0, 0.14);
+  }
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.12);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+  }
 `;
 
 const SortSelect = styled.select`
   appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
   background: transparent;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
 
   font-family: inherit;
   font-size: ${fontSize.xs};
   font-weight: 500;
-  color: ${meok[500]};
-  padding: 2px 18px 2px 4px;
+  color: ${meok[700]};
+  padding: 4px 24px 4px 10px;
   cursor: pointer;
-  outline: none;
-
-  &:hover {
-    color: ${meok[700]};
-  }
-
-  &:focus-visible {
-    outline: 2px solid ${meok[500]};
-    border-radius: 4px;
-  }
 
   [data-theme='dark'] & {
-    color: ${meok[400]};
+    color: ${meok[200]};
+    background-color: transparent;
 
-    &:hover {
-      color: ${meok[200]};
+    option {
+      background-color: #25221d;
+      color: #ffffff;
     }
+  }
+
+  option {
+    background-color: #ffffff;
+    color: ${meok[900]};
   }
 `;
 
 const SortChevron = styled(ChevronDown)`
   position: absolute;
-  right: 0;
+  right: 7px;
   pointer-events: none;
   color: ${meok[500]};
 
@@ -364,28 +385,32 @@ export default function PlaceList() {
   const listTopRef = useRef<HTMLDivElement>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // 정렬 및 북마크 필터링 처리 (GPS 내 위치 또는 지도 중심 기준 정밀 정렬)
+  // 정렬 및 카테고리/북마크 필터링 처리 (GPS 내 위치 또는 지도 중심 기준 정밀 정렬)
   const sortedItems = useMemo(() => {
     let list = [...items];
-    if (category === 'bookmark') {
-      const bookmarkedIdSet = new Set(bookmarks.map((b) => b.id));
-      list = list.filter((item) => bookmarkedIdSet.has(item.id));
-      const existingIds = new Set(list.map((item) => item.id));
-      bookmarks.forEach((b) => {
-        if (!existingIds.has(b.id)) {
-          list.push({
-            id: b.id,
-            name: b.name,
-            category: (b.category as PlaceCategory) || 'spot',
-            lat: b.lat || 37.5665,
-            lng: b.lng || 126.978,
-            addr: b.addr || '',
-            image: b.image || null,
-            tel: null,
-            dist: null,
-          });
-        }
-      });
+    if (category && category !== 'all') {
+      if (category === 'bookmark') {
+        const bookmarkedIdSet = new Set(bookmarks.map((b) => b.id));
+        list = list.filter((item) => bookmarkedIdSet.has(item.id));
+        const existingIds = new Set(list.map((item) => item.id));
+        bookmarks.forEach((b) => {
+          if (!existingIds.has(b.id)) {
+            list.push({
+              id: b.id,
+              name: b.name,
+              category: (b.category as PlaceCategory) || 'spot',
+              lat: b.lat || 37.5665,
+              lng: b.lng || 126.978,
+              addr: b.addr || '',
+              image: b.image || null,
+              tel: null,
+              dist: null,
+            });
+          }
+        });
+      } else {
+        list = list.filter((item) => item.category === category);
+      }
     }
     if (sortOrder === 'name') {
       return list.sort((a, b) => a.name.localeCompare(b.name, 'ko'));

@@ -512,6 +512,129 @@ const styles = css`
     text-align: center;
   }
 
+  /* ─── 호롱불 동그라미 온기 버블 (신규 뷰) ─── */
+  @keyframes om-bubble-pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(232, 90, 24, 0.6), 0 4px 16px rgba(232, 90, 24, 0.35);
+      transform: scale(1);
+    }
+    50% {
+      box-shadow: 0 0 0 14px rgba(232, 90, 24, 0), 0 6px 24px rgba(232, 90, 24, 0.6);
+      transform: scale(1.05);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(232, 90, 24, 0), 0 4px 16px rgba(232, 90, 24, 0.35);
+      transform: scale(1);
+    }
+  }
+
+  @keyframes om-bubble-pulse-gold {
+    0% {
+      box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.55), 0 4px 14px rgba(245, 158, 11, 0.3);
+      transform: scale(1);
+    }
+    50% {
+      box-shadow: 0 0 0 12px rgba(245, 158, 11, 0), 0 6px 22px rgba(245, 158, 11, 0.5);
+      transform: scale(1.04);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(245, 158, 11, 0), 0 4px 14px rgba(245, 158, 11, 0.3);
+      transform: scale(1);
+    }
+  }
+
+  .om-warmth-bubble-wrap {
+    position: relative;
+    user-select: none;
+    z-index: 25;
+    cursor: pointer;
+    font-family: ${GOTHIC_FONT};
+  }
+
+  .om-warmth-bubble {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s ease;
+    text-align: center;
+    color: #ffffff;
+    padding: 6px;
+    box-sizing: border-box;
+  }
+
+  .om-warmth-bubble-wrap:hover .om-warmth-bubble,
+  .om-warmth-bubble-wrap.is-hovered .om-warmth-bubble {
+    transform: scale(1.15) translateY(-3px) !important;
+    z-index: 100 !important;
+  }
+
+  .om-warmth-bubble--surge {
+    background: radial-gradient(circle at 35% 35%, #ff8c5a 0%, #e85a18 65%, #bf3900 100%);
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    animation: om-bubble-pulse 2.4s infinite ease-in-out;
+  }
+
+  .om-warmth-bubble--busy {
+    background: radial-gradient(circle at 35% 35%, #ffd269 0%, #f59e0b 65%, #cb6e04 100%);
+    border: 2px solid rgba(255, 255, 255, 0.85);
+    animation: om-bubble-pulse-gold 2.8s infinite ease-in-out;
+  }
+
+  .om-warmth-bubble--moderate {
+    background: radial-gradient(circle at 35% 35%, #ffea9f 0%, #fbbf24 65%, #d97706 100%);
+    border: 1.5px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 4px 14px rgba(251, 191, 36, 0.4);
+  }
+
+  [data-theme='dark'] .om-warmth-bubble--surge {
+    border-color: #ffd0b5;
+    box-shadow: 0 0 20px rgba(232, 90, 24, 0.8);
+  }
+
+  [data-theme='dark'] .om-warmth-bubble--busy {
+    border-color: #fef08a;
+    box-shadow: 0 0 18px rgba(245, 158, 11, 0.75);
+  }
+
+  [data-theme='dark'] .om-warmth-bubble--moderate {
+    border-color: #fef08a;
+    box-shadow: 0 0 14px rgba(251, 191, 36, 0.6);
+  }
+
+  .om-bubble-icon {
+    font-size: 14px;
+    line-height: 1;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+    margin-bottom: 2px;
+  }
+
+  .om-bubble-count {
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .om-bubble-name {
+    font-size: 9.5px;
+    font-weight: 600;
+    line-height: 1.1;
+    opacity: 0.95;
+    max-width: 62px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+    margin-top: 1px;
+  }
 `;
 
 interface MacroRegionDef {
@@ -656,6 +779,7 @@ export default function WarmthLayer() {
   const level = useMapStore((s) => s.level);
   const heatDayIndex = useMapStore((s) => s.heatDayIndex);
   const heatDays = useMapStore((s) => s.heatDays);
+  const warmthViewType = useMapStore((s) => s.warmthViewType);
   const { mode: colorMode } = useOnmaruTheme();
   const isDark = colorMode === 'dark';
 
@@ -861,7 +985,9 @@ export default function WarmthLayer() {
 
     const closeAllPopovers = () => {
       document
-        .querySelectorAll('.om-surge-pill-wrap.is-open, .om-surge-pill-wrap.is-hovered')
+        .querySelectorAll(
+          '.om-surge-pill-wrap.is-open, .om-surge-pill-wrap.is-hovered, .om-warmth-bubble-wrap.is-open, .om-warmth-bubble-wrap.is-hovered',
+        )
         .forEach((el) => {
           el.classList.remove('is-open');
           el.classList.remove('is-hovered');
@@ -880,14 +1006,15 @@ export default function WarmthLayer() {
         });
     };
 
-    // 3. 발광 히트 블룸 및 지능형 팝오버 뱃지 렌더링
+    // 3. 발광 히트 블룸 및 지능형 팝오버 뱃지 / 온기 버블 렌더링
     visibleClusters.forEach((item) => {
       const cfg = CONGESTION_CONFIG[item.congestionLevel] || CONGESTION_CONFIG.moderate;
       const pal = isDark ? cfg.dark : cfg.light;
 
-      // ─── 권역별 수요 집중도 뱃지 및 지능형 방향 팝오버 ───
+      // ─── 뷰 방식 분기: [🏷️ 시·군 행정별 뱃지] vs [♨️ 원형 히트맵 버블] ───
+      const isBubble = warmthViewType === 'heatmap';
       const pillWrap = document.createElement('div');
-      pillWrap.className = 'om-surge-pill-wrap';
+      pillWrap.className = isBubble ? 'om-warmth-bubble-wrap' : 'om-surge-pill-wrap';
 
       // 화면 상단 여백 계산 (화면 Y좌표가 260px 미만이면 아래로 팝오버 오픈하여 화면 상단 잘림 방지)
       let popoverDir = 'dir-top';
@@ -954,12 +1081,27 @@ export default function WarmthLayer() {
             ? '눌러서 세부 한옥 명소 둘러보기'
             : '눌러서 상세 위치 보기';
 
+      const bubbleSize = Math.max(54, Math.min(84, Math.round(52 + (item.intensity || 0.5) * 32)));
+      const bubbleIcon = item.congestionLevel === 'surge' ? '🔥' : item.congestionLevel === 'busy' ? '✨' : '☀️';
+
+      const triggerHtml = isBubble
+        ? `
+          <div class="om-warmth-bubble om-warmth-bubble--${item.congestionLevel}" style="width: ${bubbleSize}px; height: ${bubbleSize}px;">
+            <span class="om-bubble-icon">${bubbleIcon}</span>
+            <span class="om-bubble-count">${visitorText}</span>
+            <span class="om-bubble-name">${escapeHtml(zoneName)}</span>
+          </div>
+        `
+        : `
+          <div class="om-surge-pill" style="background: ${pal.badgeBg}; color: ${pal.badgeColor};">
+            <span class="om-surge-pill-icon" style="color: ${pal.accentColor};">${cfg.iconSvg}</span>
+            <span class="om-surge-pill-name">${escapeHtml(zoneName)}</span>
+            ${deltaText ? `<span class="om-surge-pill-delta ${deltaClass}">${deltaText}</span>` : ''}
+          </div>
+        `;
+
       pillWrap.innerHTML = `
-        <div class="om-surge-pill" style="background: ${pal.badgeBg}; color: ${pal.badgeColor};">
-          <span class="om-surge-pill-icon" style="color: ${pal.accentColor};">${cfg.iconSvg}</span>
-          <span class="om-surge-pill-name">${escapeHtml(zoneName)}</span>
-          ${deltaText ? `<span class="om-surge-pill-delta ${deltaClass}">${deltaText}</span>` : ''}
-        </div>
+        ${triggerHtml}
 
         <div class="om-surge-popover ${popoverDir}">
           <div class="om-popover-head">
@@ -1068,7 +1210,7 @@ export default function WarmthLayer() {
     // 지도 아무 데나 누르면 펴둔 카드를 접는다 (데스크톱에서는 열린 카드가 없어 무해하다)
     const onDocumentClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement | null;
-      if (target?.closest('.om-surge-pill-wrap')) return;
+      if (target?.closest('.om-surge-pill-wrap, .om-warmth-bubble-wrap')) return;
       closeAllPopovers();
     };
     document.addEventListener('click', onDocumentClick);
@@ -1079,7 +1221,7 @@ export default function WarmthLayer() {
       closeAllPopovers();
       if (cleanup) cleanup();
     };
-  }, [map, mode, baseList, level, isDark, heatDays, heatDayIndex]);
+  }, [map, mode, baseList, level, isDark, heatDays, heatDayIndex, warmthViewType]);
 
   return (
     <>

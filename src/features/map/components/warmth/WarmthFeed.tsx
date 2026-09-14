@@ -412,7 +412,7 @@ export default function WarmthFeed() {
             <option value="recent">최신순</option>
             <option value="place">이야기 많은 곳</option>
           </SortSelect>
-          <SortChevron size={13} />
+          <SortChevron size={14} strokeWidth={2} />
         </SortWrapper>
       </ReviewSectionHeader>
 
