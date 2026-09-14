@@ -1,6 +1,8 @@
 # handoff.md
 
 Current work:
+- Summary: Added implementation plan for the backend feature delta foundation, scoped to typed API/CSRF/cursor/error contracts, journey SSE reducer, VisitReview reducer, saved intent/timeline contracts, and the place-slip motion primitive.
+- Plan: `docs/superpowers/plans/2026-09-14-backend-feature-delta-foundation.md`
 - Summary: Captured backend-to-FE feature delta design spec for `/discover` REST+SSE journey runs, `/map` VisitReview, shared canonical place saves, My Page monthly timeline, auth/CSRF/cache rules, neutral motion design, and frontend performance constraints.
 - Spec: `docs/superpowers/specs/2026-09-14-backend-feature-delta-fe-design.md`
 - Source backend docs: `/Users/yangseunghyeon/Development/OnMaru/OnMaruBE/docs/toFE`
