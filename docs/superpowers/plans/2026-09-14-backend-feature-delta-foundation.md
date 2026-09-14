@@ -66,7 +66,7 @@
   - `function createCsrfTokenProvider(fetcher: typeof fetch, baseUrl: string): { getToken(): Promise<CsrfToken>; reset(): void }`
   - `function apiRequest<T>(path: string, options?: ApiRequestOptions): Promise<T>`
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 ```ts
 import { describe, expect, it, vi } from 'vitest';
@@ -144,23 +144,23 @@ describe('api contract foundation', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run src/lib/api/client.contract.test.ts`
 
 Expected: FAIL because `errors.ts`, `cursor.ts`, `csrf.ts`, `apiRequest`, and `resetApiClientForTests` do not exist yet.
 
-- [ ] **Step 3: Implement minimal foundation**
+- [x] **Step 3: Implement minimal foundation**
 
 Implement the exported functions exactly as described in the interfaces. Keep existing `apiGet`, `apiPost`, `apiPatch`, and `apiDelete` exports working by delegating to `apiRequest`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run src/lib/api/client.contract.test.ts`
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/api/errors.ts src/lib/api/cursor.ts src/lib/api/csrf.ts src/lib/api/client.ts src/lib/api/client.contract.test.ts
@@ -184,7 +184,7 @@ git commit -m "feat(api): add backend contract request foundation"
   - `function reduceJourneyRunState(state: JourneyRunUiState, event: JourneyRunUiEvent): JourneyRunUiState`
   - `function shouldRecoverJourneySnapshot(state: JourneyRunUiState): boolean`
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -254,23 +254,23 @@ describe('journey run reducer', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run src/features/journey-curator/reducers/journeyRunReducer.test.ts`
 
 Expected: FAIL because the parser and reducer modules do not exist.
 
-- [ ] **Step 3: Implement parser and reducer**
+- [x] **Step 3: Implement parser and reducer**
 
 Implement strict event names: `run.stage`, `run.terminal`, `heartbeat`, and `reset`. Throw `Error('Unsupported journey SSE event')` for unknown events.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run src/features/journey-curator/reducers/journeyRunReducer.test.ts`
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/features/journey-curator/api/journeyContract.ts src/features/journey-curator/reducers/journeySseParser.ts src/features/journey-curator/reducers/journeyRunReducer.ts src/features/journey-curator/reducers/journeyRunReducer.test.ts
@@ -291,7 +291,7 @@ git commit -m "feat(journey): add run event reducer foundation"
   - `function createInitialVisitReviewListState(): VisitReviewListState`
   - `function reduceVisitReviewListState(state: VisitReviewListState, event: VisitReviewListEvent): VisitReviewListState`
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -345,23 +345,23 @@ describe('visit review contract state', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run src/features/visit-review/reducers/visitReviewListReducer.test.ts`
 
 Expected: FAIL because the modules do not exist.
 
-- [ ] **Step 3: Implement validation and reducer**
+- [x] **Step 3: Implement validation and reducer**
 
 Reducer events must keep old review list on `region-load-started` and replace list only when `requestSeq` matches the latest active request.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run src/features/visit-review/reducers/visitReviewListReducer.test.ts`
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/features/visit-review/api/visitReviewContract.ts src/features/visit-review/reducers/visitReviewListReducer.ts src/features/visit-review/reducers/visitReviewListReducer.test.ts
@@ -384,7 +384,7 @@ git commit -m "feat(map): add visit review reducer foundation"
   - `function isSupportedTimelineItem(item: TimelineItem): boolean`
   - `function formatTimelineDayLabel(date: string, locale?: string): string`
 
-- [ ] **Step 1: Write failing tests**
+- [x] **Step 1: Write failing tests**
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -429,7 +429,7 @@ describe('member timeline contract', () => {
 });
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run:
 
@@ -439,11 +439,11 @@ npx vitest run src/features/saved-resources/store/saveIntentStore.test.ts src/fe
 
 Expected: FAIL because the modules do not exist.
 
-- [ ] **Step 3: Implement contracts and store**
+- [x] **Step 3: Implement contracts and store**
 
 Use a tiny injected `StorageLike` object so tests can use memory storage and production can use sessionStorage. Store only one pending `PLACE` intent.
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run:
 
@@ -453,7 +453,7 @@ npx vitest run src/features/saved-resources/store/saveIntentStore.test.ts src/fe
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/features/saved-resources/api/savedResourcesContract.ts src/features/saved-resources/store/saveIntentStore.ts src/features/saved-resources/store/saveIntentStore.test.ts src/features/member-timeline/api/memberTimelineContract.ts src/features/member-timeline/api/memberTimelineContract.test.ts
@@ -470,7 +470,7 @@ git commit -m "feat(saved): add save intent and timeline contracts"
 - Produces:
   - `function getPlaceSlipMotion(options: { reducedMotion: boolean; index?: number }): { initial: Record<string, unknown>; animate: Record<string, unknown>; transition: Record<string, unknown> }`
 
-- [ ] **Step 1: Write failing test**
+- [x] **Step 1: Write failing test**
 
 ```ts
 import { describe, expect, it } from 'vitest';
@@ -492,23 +492,23 @@ describe('place slip motion', () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run src/shared/motion/placeSlip.test.ts`
 
 Expected: FAIL because the module does not exist.
 
-- [ ] **Step 3: Implement motion primitive**
+- [x] **Step 3: Implement motion primitive**
 
 Use delay `Math.min((index ?? 0) * 0.05, 0.28)`, duration `0.32`, and easing `[0.16, 1, 0.3, 1]`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run src/shared/motion/placeSlip.test.ts`
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/shared/motion/placeSlip.ts src/shared/motion/placeSlip.test.ts
@@ -525,7 +525,7 @@ git commit -m "feat(ui): add place slip motion primitive"
 - Consumes: all modules from Tasks 1-5.
 - Produces: verified worklog entries and clean git status.
 
-- [ ] **Step 1: Run focused tests**
+- [x] **Step 1: Run focused tests**
 
 Run:
 
@@ -535,23 +535,23 @@ npx vitest run src/lib/api/client.contract.test.ts src/features/journey-curator/
 
 Expected: PASS.
 
-- [ ] **Step 2: Run TypeScript**
+- [x] **Step 2: Run TypeScript**
 
 Run: `npx tsc --noEmit`
 
 Expected: PASS.
 
-- [ ] **Step 3: Run build output baseline**
+- [x] **Step 3: Run build output baseline**
 
 Run: `npm run build`
 
 Expected: PASS, or document pre-existing unrelated failures in `handoff.md`.
 
-- [ ] **Step 4: Update logs**
+- [x] **Step 4: Update logs**
 
 Add a short summary to `handoff.md` and `changelog.md` describing the contract foundation, tests, and any verification gaps.
 
-- [ ] **Step 5: Commit logs**
+- [x] **Step 5: Commit logs**
 
 ```bash
 git add handoff.md changelog.md

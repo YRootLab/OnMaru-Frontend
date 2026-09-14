@@ -1,6 +1,14 @@
 # handoff.md
 
 Current work:
+- Summary: Implemented backend feature delta foundation from the spec using TDD and `frontend-senior-engineer` boundaries.
+  - Added contract-aware API foundation: normalized errors, cursor guard, in-memory CSRF provider, cookie/idempotency `apiRequest`, and compatibility helpers.
+  - Added pure journey SSE parser/reducer for stage, heartbeat, terminal, reset, snapshot recovery, and BASELINE labeling.
+  - Added VisitReview contract validation and stale region response reducer.
+  - Added saved `PLACE` guest intent store with injected storage/clock and member timeline contract helpers.
+  - Added shared place-slip motion primitive for transform/opacity-only reveals with reduced-motion behavior.
+  - Verified: focused foundation tests passed (6 files, 12 tests), `npx tsc --noEmit` passed, `npm test` passed (35 files, 119 tests before final docs-only update), `npm run build` passed.
+- Next step: implement Phase 2 UI wiring for `/discover` or continue with `/map` VisitReview container integration, using the new foundation modules.
 - Summary: Added implementation plan for the backend feature delta foundation, scoped to typed API/CSRF/cursor/error contracts, journey SSE reducer, VisitReview reducer, saved intent/timeline contracts, and the place-slip motion primitive.
 - Plan: `docs/superpowers/plans/2026-09-14-backend-feature-delta-foundation.md`
 - Summary: Captured backend-to-FE feature delta design spec for `/discover` REST+SSE journey runs, `/map` VisitReview, shared canonical place saves, My Page monthly timeline, auth/CSRF/cache rules, neutral motion design, and frontend performance constraints.
