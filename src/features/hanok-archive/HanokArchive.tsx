@@ -19,7 +19,6 @@ import { HANOK_REVEAL_SECTIONS } from '@/features/hanok-archive/hanokSectionReve
 import type { HanokFilterState } from '@/features/hanok-archive/sections/hanokFilterQuery';
 import { VesselReveal } from '@/shared/components/animation/VesselReveal';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
-import QuickIndexBar from '@/features/hanok-archive/components/QuickIndexBar';
 import { HanjiDeckleEdge } from '@/shared/components/HanjiDeckleEdge';
 import { HanokAtmosphereBackground } from '@/shared/components/HanokBackground';
 
@@ -334,10 +333,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
           </IntroStage>
         </StyledVesselReveal>
 
-        {/* 1. 실용적인 핵심 챕터 바로가기 플로팅 앵커 허브 */}
-        <QuickIndexBar />
-
-        {/* 2. 감성적인 첫인상: 이 달의 한옥 대표 큐레이션 에디토리얼 화보 */}
+        {/* 감성적인 첫인상: 이 달의 한옥 대표 큐레이션 에디토리얼 화보 */}
         <EditorialSection>
           <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.monthly}>
             <SectionContainer>
