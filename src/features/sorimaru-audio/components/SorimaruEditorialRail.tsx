@@ -91,7 +91,6 @@ const CardMotionButton = styled(motion.button)<{ $isActive: boolean }>`
   user-select: none;
   overflow: hidden;
   border-radius: 1.25rem;
-  contain: paint;
   isolation: isolate;
   background-color: transparent;
   text-align: left;
@@ -135,6 +134,9 @@ const CardBottomPanel = styled.div<{ $isActive: boolean }>`
   padding: 1rem;
   color: ${meok[900]};
   backdrop-filter: blur(24px);
+  border-bottom-left-radius: 1.25rem;
+  border-bottom-right-radius: 1.25rem;
+  overflow: hidden;
 
   background-color: ${({ $isActive }) =>
     $isActive ? 'rgba(255, 240, 246, 0.68)' : 'rgba(255, 255, 255, 0.46)'};
@@ -239,7 +241,7 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(
         aria-label={`${story.title}${isActive ? ' 현재 선택됨' : ''}`}
       >
         <motion.div
-          style={{ position: 'absolute', inset: 0 }}
+          style={{ position: 'absolute', inset: 0, borderRadius: '1.25rem', overflow: 'hidden' }}
           animate={{ opacity: isActive ? 1 : 0.54 }}
           transition={{ duration: trackTransitionEnabled && isVisible ? 0.48 : 0, ease: [0.16, 1, 0.3, 1] }}
         >
@@ -823,7 +825,6 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
         aria-label="오디 셀렉션"
         aria-busy={showSkeleton}
         style={{
-          contain: 'layout paint',
           position: 'relative',
           marginLeft: 'auto',
           marginRight: 'auto',
