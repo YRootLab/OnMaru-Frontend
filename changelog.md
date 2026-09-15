@@ -4,6 +4,7 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+- Fixed the Onmaru landing header so light mode keeps the same white navigation surface as the other top-level pages.
 - Replaced the header and map rail theme cycle button with an explicit `자동` / `라이트` / `다크` picker while preserving existing light navigation styling.
 - Made `system` theme mode time-aware: it now resolves to light during local daytime and dark at night, while still preserving explicit user choices for light or dark.
 - Added an environment contract guard for Odii/Sorimaru API keys: `.env.example` is now the tracked template, `.env.local` stays ignored, `npm run check:env` validates supported aliases, pre-push runs the same check locally, and GitHub Actions verifies the contract on PR/push.

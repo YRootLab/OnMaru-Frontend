@@ -1,6 +1,10 @@
 # handoff.md
 
 Current work:
+- Summary: Fixed the Onmaru landing header surface in light mode.
+  - Root cause: `Header` treated the `/` landing hero as a dark surface based only on route/scroll state, even when the applied theme was `light`.
+  - Added `src/shared/components/Header/headerSurface.ts` to make the rule explicit: landing dark surface is used only when the applied theme is `dark`.
+  - Added regression coverage for light-mode landing and dark-mode landing behavior.
 - Summary: Made theme mode selection explicit for logged-in and logged-out users.
   - Added `src/design-system/themePreferenceLabels.ts` so `system` is shown as `자동` while keeping the persisted value compatible.
   - Updated the global header theme button to open an `자동` / `라이트` / `다크` picker instead of cycling modes blindly.

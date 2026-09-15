@@ -21,6 +21,7 @@ import GlobalMobileTabs from './GlobalMobileTabs';
 import MapMobileTabs from '@/features/map/components/MapMobileTabs';
 import { HEADER_EXIT_S, ENTRANCE_EASE } from '@/shared/navigation/mapEntranceTiming';
 import { useMapEntranceStore } from '@/shared/navigation/mapEntranceState';
+import { shouldUseLandingDarkSurface } from './headerSurface';
 
 /** 캡슐형 GNB의 높이 — /map의 MapChips가 "같은 자리를 이어받는" 느낌을 내려면
  *  이 값을 그대로 써야 한다. */
@@ -665,7 +666,11 @@ export default function Header() {
 
   // 랜딩은 스크롤에 따라 먹빛 ↔ 한지색 배경이 전환된다.
   // 밝은 구간에서는 다른 페이지와 동일한 라이트 글래스를 사용한다.
-  const usesDarkSurface = isLandingPage && !isLandingLight;
+  const usesDarkSurface = shouldUseLandingDarkSurface({
+    isLandingPage,
+    isLandingLight,
+    themeMode,
+  });
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
