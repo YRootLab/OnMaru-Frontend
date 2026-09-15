@@ -14,7 +14,9 @@ interface SorimaruAudioState {
   selectedCategory: string;
   searchQuery: string;
   isBookmarked: boolean;
+  savedStories: SorimaruStoryItem[];
   isPlayerExpanded: boolean;
+  playbackRate: number;
 
   // Actions
   setAvailableStories: (stories: SorimaruStoryItem[]) => void;
@@ -28,7 +30,11 @@ interface SorimaruAudioState {
   setSelectedCategory: (category: string) => void;
   setSearchQuery: (query: string) => void;
   toggleBookmark: () => void;
+  hydrateSavedStories: () => void;
+  toggleSavedStory: (story: SorimaruStoryItem) => void;
+  removeSavedStory: (storyId: string) => void;
   setIsPlayerExpanded: (isExpanded: boolean) => void;
+  setPlaybackRate: (rate: number) => void;
   
   // Audio Seek & Controls
   skipForward: (seconds?: number) => void;
@@ -63,7 +69,9 @@ export const useSorimaruAudioStore = create<SorimaruAudioState>((set, get) => ({
   selectedCategory: '전체',
   searchQuery: '',
   isBookmarked: false,
+  savedStories: [],
   isPlayerExpanded: false,
+  playbackRate: 1.0,
 
   setAvailableStories: (availableStories: SorimaruStoryItem[]) => set({ availableStories }),
 
@@ -94,8 +102,8 @@ export const useSorimaruAudioStore = create<SorimaruAudioState>((set, get) => ({
       }
 
       set({ availableStories: unique });
-      if (!get().currentStory && unique.length > 0) {
-        set({ currentStory: unique[0] });
+      if ((!get().currentStory || !get().currentStory.audioUrl) && unique.length > 0) {
+        get().setCurrentStory(unique[0]);
       }
     } catch {
       // API 오류 시 빈 목록 유지
@@ -103,6 +111,7 @@ export const useSorimaruAudioStore = create<SorimaruAudioState>((set, get) => ({
   },
 
   setCurrentStory: (story: SorimaruStoryItem) => {
+    if (!story.audioUrl?.trim()) return;
     const playTimeSec = parseInt(story.playTime, 10) || 300;
     const parsed = parseScriptToLines(story.script, playTimeSec);
     set({
@@ -150,7 +159,47 @@ export const useSorimaruAudioStore = create<SorimaruAudioState>((set, get) => ({
   setSelectedCategory: (selectedCategory: string) => set({ selectedCategory }),
   setSearchQuery: (searchQuery: string) => set({ searchQuery }),
   toggleBookmark: () => set((state) => ({ isBookmarked: !state.isBookmarked })),
-  setIsPlayerExpanded: (isPlayerExpanded: boolean) => set({ isPlayerExpanded }),
+  hydrateSavedStories: () => {
+    if (typeof window === 'undefined') return;
+    try {
+      const stored = localStorage.getItem('onmaru_saved_sorimaru_stories');
+      const parsed = stored ? JSON.parse(stored) : [];
+      if (Array.isArray(parsed)) set({ savedStories: parsed });
+    } catch {
+      set({ savedStories: [] });
+    }
+  },
+  toggleSavedStory: (story: SorimaruStoryItem) =>
+    set((state) => {
+      const storyKey = story.stid || story.title;
+      const alreadySaved = state.savedStories.some((saved) => (saved.stid || saved.title) === storyKey);
+      const savedStories = alreadySaved
+        ? state.savedStories.filter((saved) => (saved.stid || saved.title) !== storyKey)
+        : [...state.savedStories, story];
+
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('onmaru_saved_sorimaru_stories', JSON.stringify(savedStories));
+        } catch {
+          // Local storage can be unavailable in private browsing contexts.
+        }
+      }
+      return { savedStories };
+    }),
+  removeSavedStory: (storyId: string) =>
+    set((state) => {
+      const savedStories = state.savedStories.filter((saved) => saved.stid !== storyId);
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('onmaru_saved_sorimaru_stories', JSON.stringify(savedStories));
+        } catch {
+          // Local storage can be unavailable in private browsing contexts.
+        }
+      }
+      return { savedStories };
+    }),
+  setIsPlayerExpanded: (isExpanded: boolean) => set({ isPlayerExpanded: isExpanded }),
+  setPlaybackRate: (playbackRate: number) => set({ playbackRate }),
 
   skipForward: (seconds = 10) => {
     const state = get();

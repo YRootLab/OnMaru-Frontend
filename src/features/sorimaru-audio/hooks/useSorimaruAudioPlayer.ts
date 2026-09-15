@@ -5,6 +5,8 @@ const hasMediaSession = () => typeof navigator !== 'undefined' && 'mediaSession'
 
 export function useSorimaruAudioPlayer() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
 
   const currentStory = useSorimaruAudioStore((s) => s.currentStory);
   const isPlaying = useSorimaruAudioStore((s) => s.isPlaying);
@@ -56,6 +58,9 @@ export function useSorimaruAudioPlayer() {
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
       audio.removeEventListener('ended', handleEnded);
+      audioContextRef.current?.close().catch(() => undefined);
+      audioContextRef.current = null;
+      analyserRef.current = null;
     };
   }, [setCurrentTime, setDuration, setIsPlaying]);
 
@@ -79,11 +84,21 @@ export function useSorimaruAudioPlayer() {
     if (!audio) return;
 
     if (isPlaying) {
+      audioContextRef.current?.resume().catch(() => undefined);
       audio.play().catch(() => setIsPlaying(false));
     } else {
       audio.pause();
     }
   }, [isPlaying, setIsPlaying]);
+
+  // 배속 설정 동기화
+  const playbackRate = useSorimaruAudioStore((s) => s.playbackRate);
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.playbackRate = playbackRate;
+    }
+  }, [playbackRate]);
 
   // Seek 시 오디오 위치 동기화
   const seekTo = (seconds: number) => {
@@ -140,6 +155,7 @@ export function useSorimaruAudioPlayer() {
 
   return {
     audioRef,
+    analyserRef,
     seekTo,
   };
 }

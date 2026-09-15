@@ -50,6 +50,20 @@ describe('Sorimaru API adapter', () => {
     expect(result[0].imageUrl).toBe('');
   });
 
+  it('음원 URL이 없는 항목은 재생 목록에서 제외한다', async () => {
+    const network = makeNetwork({
+      items: [{ ...storyItem, stid: 'silent-story', audioUrl: '' }, storyItem],
+      totalCount: 2,
+    });
+    const api = createSorimaruApiAdapter(network);
+
+    const result = await api.getStoryPage(undefined, '재생 가능 항목', 1, 12);
+
+    expect(result.items).toHaveLength(1);
+    expect(result.items[0].stid).toBe('stid-1');
+    expect(result.totalCount).toBe(1);
+  });
+
   it('위치 기반 API를 별도 타입으로 호출하고 거리순 결과를 반환한다', async () => {
     const network = makeNetwork({ items: [storyItem], totalCount: 1 });
     const api = createSorimaruApiAdapter(network);

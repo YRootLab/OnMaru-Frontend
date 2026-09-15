@@ -25,7 +25,7 @@ describe('loadSorimaruInitialData', () => {
 
     const result = await loadSorimaruInitialData(service);
 
-    expect(service.getStoryPage).toHaveBeenCalledWith('전체', '', 1, 12);
+    expect(service.getStoryPage).toHaveBeenCalledWith('전체', '한옥', 1, 12);
     expect(service.getStoryPage).toHaveBeenCalledTimes(1);
     expect(service.getStoryList).not.toHaveBeenCalled();
     expect(result.heroStories).toEqual(stories.slice(0, 7));

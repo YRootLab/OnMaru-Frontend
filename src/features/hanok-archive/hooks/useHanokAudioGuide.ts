@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { sorimaruApiAdapter } from '@/features/sorimaru-audio/api/sorimaruApi';
 
 export interface AudioGuideStory {
   stid: number;
@@ -26,9 +27,8 @@ export function useHanokAudioGuide(
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // 한옥 스테이(숙박 전용 시설)이거나 이름이 없으면 소리마루 문화재 도슨트 조회를 건너뜁니다
     if (isStay || !name) {
-      setStories([]);
+      setTimeout(() => setStories([]), 0);
       return;
     }
 
@@ -61,30 +61,17 @@ export function useHanokAudioGuide(
           .trim() || coreName;
 
         // 2. 1차 시도: 핵심 고유명사 기반 검색 (예: '선교장', '하회마을', '운조루', '임청각', '경복궁', '소쇄원')
-        let res = await fetch(
-          `/api/sorimaru?type=stories&keyword=${encodeURIComponent(coreName)}&numOfRows=10`,
-          { signal: controller.signal }
-        );
-
-        let json = await res.json();
-        let items = json?.response?.body?.items?.item;
-        let list = Array.isArray(items) ? items : items ? [items] : [];
+        let list = await sorimaruApiAdapter.getStoryList(undefined, coreName);
 
         // 3. 만약 결과가 없고 coreName과 rawClean이 다르면 rawClean으로 2차 검색
         if (list.length === 0 && coreName !== rawClean) {
-          res = await fetch(
-            `/api/sorimaru?type=stories&keyword=${encodeURIComponent(rawClean)}&numOfRows=10`,
-            { signal: controller.signal }
-          );
-          json = await res.json();
-          items = json?.response?.body?.items?.item;
-          list = Array.isArray(items) ? items : items ? [items] : [];
+          list = await sorimaruApiAdapter.getStoryList(undefined, rawClean);
         }
 
         // 4. 엄격한 관련도 검증 (Strict Relevance Filter):
         // 검색된 오디오 가이드 제목/설명에 해당 한옥의 핵심 키워드가 반드시 포함되어야 함.
         const validKeyword = matchKeyword.length >= 2 ? matchKeyword : coreName;
-        const filteredList = list.filter((it: any) => {
+        const filteredList = list.filter((it) => {
           if (!it || !it.audioUrl) return false;
           const aTitle = String(it.audioTitle || '');
           const sTitle = String(it.title || '');
@@ -100,7 +87,7 @@ export function useHanokAudioGuide(
         });
 
         if (isMounted) {
-          const parsedStories: AudioGuideStory[] = filteredList.map((it: any) => ({
+          const parsedStories: AudioGuideStory[] = filteredList.map((it) => ({
             stid: Number(it.stid || it.stlid || Math.random()),
             stlid: Number(it.stlid || 0),
             title: String(it.title || name || ''),
@@ -113,9 +100,11 @@ export function useHanokAudioGuide(
 
           setStories(parsedStories);
         }
-      } catch (err: any) {
-        if (err.name !== 'AbortError' && isMounted) {
+      } catch (err: unknown) {
+        if (err instanceof Error && err.name !== 'AbortError' && isMounted) {
           setError(err.message || '오디오 가이드 조회 실패');
+        } else if (isMounted && !(err instanceof Error)) {
+          setError('오디오 가이드 조회 실패');
         }
       } finally {
         if (isMounted) setLoading(false);

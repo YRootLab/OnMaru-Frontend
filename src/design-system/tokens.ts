@@ -54,9 +54,12 @@ export const darkPalette  = palette;
 export const meok = {
   100: '#fafafa',
   200: '#f0f0f0',
+  300: '#d9d9d7',
   400: '#b0b8c1',
   500: '#8b95a1',
+  600: '#65707c',
   700: '#4e5968',
+  800: '#303842',
   900: '#191f28',
 } as const;
 

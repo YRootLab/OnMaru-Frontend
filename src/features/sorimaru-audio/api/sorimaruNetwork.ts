@@ -1,4 +1,4 @@
-export type SorimaruNetworkRequestType = 'stories' | 'nearby';
+export type SorimaruNetworkRequestType = 'stories' | 'nearby' | 'themes';
 
 export interface SorimaruNetworkRequest {
   type: SorimaruNetworkRequestType;
@@ -27,12 +27,52 @@ export interface CreateSorimaruNetworkClientOptions {
   timeoutMs?: number;
 }
 
-const CLIENT_API_ENDPOINT = process.env.NEXT_PUBLIC_SORIMARU_API_ENDPOINT || '/api/sorimaru';
+const CLIENT_API_ENDPOINT = process.env.NEXT_PUBLIC_SORIMARU_API_URL || process.env.NEXT_PUBLIC_ODII_API_URL || 'https://apis.data.go.kr/B551011/Odii';
+const CLIENT_API_KEY = process.env.NEXT_PUBLIC_SORIMARU_API_KEY || process.env.NEXT_PUBLIC_ODII_API_KEY || '';
 const REQUEST_TIMEOUT_MS = 45_000;
 
+function getApiKey(): string {
+  try {
+    return decodeURIComponent(CLIENT_API_KEY);
+  } catch {
+    return CLIENT_API_KEY;
+  }
+}
+
 export const defaultSorimaruEndpointResolver: SorimaruEndpointResolver = ({ type, params }) => {
-  const query = new URLSearchParams({ type, ...params });
-  return `${CLIENT_API_ENDPOINT}?${query.toString()}`;
+  const operation =
+    type === 'nearby'
+      ? 'storyLocationBasedList'
+      : type === 'themes'
+        ? params.keyword
+          ? 'themeSearchList'
+          : 'themeBasedList'
+        : params.keyword
+          ? 'storySearchList'
+          : 'storyBasedList';
+
+  const upstream = new URL(`${CLIENT_API_ENDPOINT}/${operation}`);
+  
+  upstream.searchParams.set('MobileOS', 'ETC');
+  upstream.searchParams.set('MobileApp', 'OnMaruFE');
+  upstream.searchParams.set('_type', 'json');
+  upstream.searchParams.set('langCode', 'ko');
+  upstream.searchParams.set('serviceKey', getApiKey());
+
+  if (type === 'nearby') {
+    if (params.xCoord) upstream.searchParams.set('xCoord', params.xCoord);
+    if (params.yCoord) upstream.searchParams.set('yCoord', params.yCoord);
+    upstream.searchParams.set('radius', params.radius || '3000');
+    return upstream.toString();
+  }
+
+  upstream.searchParams.set('numOfRows', params.numOfRows || '7');
+  upstream.searchParams.set('pageNo', params.pageNo || '1');
+  
+  const keyword = params.keyword?.trim();
+  if (keyword) upstream.searchParams.set('keyword', keyword);
+
+  return upstream.toString();
 };
 
 export const defaultSorimaruResponseDecoder: SorimaruResponseDecoder = (payload) => {

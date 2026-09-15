@@ -3,6 +3,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
+import { ChevronRight, Filter, Play, Pause } from 'lucide-react';
+import { useSorimaruImage, getSorimaruFallbackImage } from '@/features/sorimaru-audio/hooks/useSorimaruImage';
 import { motion } from 'framer-motion';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { SorimaruStoryItem } from '@/features/sorimaru-audio/types/sorimaru.types';
@@ -22,19 +24,11 @@ interface SoundConstellationSectionProps {
 
 const [VB_WIDTH, VB_HEIGHT] = KOREA_MAP_VIEWBOX.split(' ').slice(2).map(Number);
 const LIST_EDGE_INSET = 23;
-const STORY_FALLBACK_IMAGES = [
-  '/images/hanok/hanok-main.png',
-  '/images/hanok/hanok-exterior.png',
-  '/images/hanok/hanok-interior.png',
-  '/images/hanok/hanok-porch.png',
-  '/images/hanok/giwa-detail.png',
-];
 
 const normalizeText = (story: SorimaruStoryItem) => `${story.locationName || ''} ${story.title} ${story.audioTitle || ''} ${story.category || ''}`;
 const imageForStory = (story: SorimaruStoryItem) => {
   if (story.imageUrl) return story.imageUrl;
-  const seed = Array.from(`${story.stid}${story.title}`).reduce((sum, char) => sum + char.charCodeAt(0), 0);
-  return STORY_FALLBACK_IMAGES[seed % STORY_FALLBACK_IMAGES.length];
+  return getSorimaruFallbackImage(story);
 };
 const getRegionStories = (stories: SorimaruStoryItem[], region: KoreaRegionPath) => {
   const matched = stories.filter((story) => region.keywords.some((keyword) => normalizeText(story).includes(keyword)));
@@ -500,6 +494,59 @@ function getStoryExcerpt(story: SorimaruStoryItem): string {
   return story.locationName ? `${story.locationName}에 남은 오디오 소리 이야기` : '장소에 머무는 아름다운 오디오 이야기';
 }
 
+function RegionStoryItem({
+  story,
+  active,
+  isPlaying,
+  onClick,
+  onMouseEnter,
+  onMouseLeave
+}: {
+  story: SorimaruStoryItem;
+  active: boolean;
+  isPlaying: boolean;
+  onClick: () => void;
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
+}) {
+  const imgSrc = useSorimaruImage(story);
+  return (
+    <StoryItemButton
+      type="button"
+      isActive={active}
+      onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      style={{ height: `${VIRTUAL_ITEM_HEIGHT - 8}px` }}
+    >
+      <StoryThumb>
+        <img
+          src={imgSrc}
+          alt=""
+          loading="lazy"
+          referrerPolicy="no-referrer"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = getSorimaruFallbackImage(story);
+          }}
+        />
+      </StoryThumb>
+      <StoryInfo>
+        <StoryHeadRow>
+          <StoryTitle isActive={active}>
+            {story.title}
+          </StoryTitle>
+          <DurationStatus isActive={active}>
+            {active && isPlaying ? '재생 중' : story.formattedDuration || '3:00'}
+          </DurationStatus>
+        </StoryHeadRow>
+        <ExcerptText>
+          {getStoryExcerpt(story)}
+        </ExcerptText>
+      </StoryInfo>
+    </StoryItemButton>
+  );
+}
+
 export const SoundConstellationSection: React.FC<SoundConstellationSectionProps> = ({ stories }) => {
   const activeApiService = useSorimaruApiService();
   const { ref: viewportRef, isActive: isApiActive } = useViewportActivation<HTMLElement>({
@@ -823,39 +870,15 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                       {visibleStories.map((story) => {
                         const active = currentStory.stid === story.stid;
                         return (
-                          <StoryItemButton
+                          <RegionStoryItem
                             key={story.stid}
-                            type="button"
-                            isActive={active}
+                            story={story}
+                            active={active}
+                            isPlaying={isPlaying}
                             onClick={() => playStory(story)}
                             onMouseEnter={() => setIsListHovered(true)}
                             onMouseLeave={() => setIsListHovered(false)}
-                            style={{ height: `${VIRTUAL_ITEM_HEIGHT - 8}px` }}
-                          >
-                            <StoryThumb>
-                              <img
-                                src={imageForStory(story)}
-                                alt=""
-                                loading="lazy"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).src = imageForStory({ ...story, imageUrl: '' });
-                                }}
-                              />
-                            </StoryThumb>
-                            <StoryInfo>
-                              <StoryHeadRow>
-                                <StoryTitle isActive={active}>
-                                  {story.title}
-                                </StoryTitle>
-                                <DurationStatus isActive={active}>
-                                  {active && isPlaying ? '재생 중' : story.formattedDuration || '3:00'}
-                                </DurationStatus>
-                              </StoryHeadRow>
-                              <ExcerptText>
-                                {getStoryExcerpt(story)}
-                              </ExcerptText>
-                            </StoryInfo>
-                          </StoryItemButton>
+                          />
                         );
                       })}
                     </div>

@@ -367,20 +367,20 @@ export default function MapNavRail() {
 
       <LogoDivider />
 
-      {/* 2. 온마루 자체 카테고리 목록 (한옥마루, 지도, 소리마루, 온기이야기, 저장) */}
+      {/* 2. 온마루 자체 카테고리 목록 (한옥 이야기, 지도, 소리마루, 수결첩, 저장) */}
       <NavList>
-        {/* 온마루 카테고리 1: 한옥 마루 */}
+        {/* 온마루 카테고리 1: 한옥 이야기 */}
         <NavItemBtn
           type="button"
           $active={false}
           onClick={() => router.push('/hanok')}
-          aria-label="한옥마루"
-          title="한옥마루"
+          aria-label="한옥 이야기"
+          title="한옥 이야기"
         >
           <NavItemIcon>
             <BookOpen size={19} strokeWidth={2} />
           </NavItemIcon>
-          <NavItemLabel>한옥마루</NavItemLabel>
+          <NavItemLabel>한옥 이야기</NavItemLabel>
         </NavItemBtn>
 
         {/* 온마루 카테고리 2: 지도 (정보지도) */}
@@ -397,7 +397,7 @@ export default function MapNavRail() {
           <NavItemLabel>지도</NavItemLabel>
         </NavItemBtn>
 
-        {/* 온마루 카테고리 3: 소리마루 (오디 도슨트) */}
+        {/* 온마루 카테고리 3: 소리마루 (오디오 해설) */}
         <NavItemBtn
           type="button"
           $active={false}

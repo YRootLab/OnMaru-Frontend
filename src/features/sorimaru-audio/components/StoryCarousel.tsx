@@ -2,6 +2,9 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
+import { useGSAP } from '@gsap/react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { keyframes } from '@emotion/react';
 import { Play, Pause, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
@@ -14,19 +17,9 @@ interface StoryCarouselProps {
   isLoading?: boolean;
 }
 
-const FALLBACK_IMAGES = [
-  '/images/hanok/hanok-main.png',
-  '/images/hanok/hanok-exterior.png',
-  '/images/hanok/hanok-interior.png',
-  '/images/hanok/hanok-porch.png',
-  '/images/hanok/giwa-detail.png',
-];
+import { useSorimaruImage, getSorimaruFallbackImage } from '@/features/sorimaru-audio/hooks/useSorimaruImage';
 
-function imageForStory(story: SorimaruStoryItem): string {
-  if (story.imageUrl) return story.imageUrl;
-  const seed = Array.from(`${story.stid}${story.title}`).reduce((total, char) => total + char.charCodeAt(0), 0);
-  return FALLBACK_IMAGES[seed % FALLBACK_IMAGES.length];
-}
+gsap.registerPlugin(ScrollTrigger);
 
 function getScriptExcerpt(script = ''): string {
   const line = script.split(/\r?\n/).find((item) => item.trim());
@@ -327,7 +320,7 @@ interface NearbyStoryCardProps {
 }
 
 const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isPlaying, onSelect }) => {
-  const imageSrc = imageForStory(story);
+  const imageSrc = useSorimaruImage(story);
   const [isHovered, setIsHovered] = useState(false);
   const [accentColor, setAccentColor] = useState(() => dominantColorCache.get(imageSrc) || '#e5e5e3');
 
@@ -346,6 +339,7 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
 
   return (
     <CardButton
+      data-story-card
       type="button"
       onClick={onSelect}
       onMouseEnter={() => setIsHovered(true)}
@@ -362,8 +356,9 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
           loading="lazy"
           decoding="async"
           $isCurrent={isCurrent}
+          referrerPolicy="no-referrer"
           onError={(event) => {
-            (event.target as HTMLImageElement).src = FALLBACK_IMAGES[0];
+            (event.target as HTMLImageElement).src = getSorimaruFallbackImage(story);
           }}
         />
         <BottomGradient />
@@ -617,6 +612,19 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
   const isPlaying = useSorimaruAudioStore((state) => state.isPlaying);
   const setCurrentStory = useSorimaruAudioStore((state) => state.setCurrentStory);
   const setIsPlaying = useSorimaruAudioStore((state) => state.setIsPlaying);
+
+  useGSAP(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    gsap.from('[data-story-card]', {
+      opacity: 0,
+      y: 16,
+      filter: 'blur(7px)',
+      duration: 0.8,
+      stagger: 0.09,
+      ease: 'power2.out',
+      scrollTrigger: { trigger: railRef.current, start: 'top 84%', once: true },
+    });
+  }, { scope: railRef, dependencies: [stories.length] });
 
   const handleCardClick = (story: SorimaruStoryItem) => {
     if (isMovedRef.current) {

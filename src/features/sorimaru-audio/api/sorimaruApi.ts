@@ -144,7 +144,7 @@ function calculateDistanceKm(fromX: string, fromY: string, toX: string, toY: str
 function mapStoryItem(item: Record<string, unknown>, index: number, category?: string, origin?: { mapX: string; mapY: string }): SorimaruStoryItem {
   const title = readText(item, 'title') || readText(item, 'storyTitle') || '한국의 문화 이야기';
   const stid = readText(item, 'stid') || readText(item, 'tid') || String(index + 1);
-  const audioUrl = readText(item, 'audioUrl');
+  const audioUrl = readText(item, 'audioUrl').replace(/^http:\/\//i, 'https://');
   const playTime = readText(item, 'playTime') || '180';
   const playTimeSeconds = Number(playTime);
   const imageUrl = readText(item, 'imageUrl') || readText(item, 'firstimage') || readText(item, 'image');
@@ -160,7 +160,7 @@ function mapStoryItem(item: Record<string, unknown>, index: number, category?: s
     title,
     audioTitle: readText(item, 'audioTitle') || readText(item, 'storyTitle') || title || '오디오 해설',
     speaker: '문화해설사 도슨트',
-    category: (category && category !== '전체' ? category : '') as SorimaruCategory || readText(item, 'themaCategory') || '오디 이야기',
+    category: (category && category !== '전체' ? category : '') as SorimaruCategory || readText(item, 'themaCategory') || '소리 이야기',
     distance: distance === null ? undefined : formatDistance(distance),
     mapX,
     mapY,
@@ -172,7 +172,7 @@ function mapStoryItem(item: Record<string, unknown>, index: number, category?: s
     audioUrl,
     imageUrl,
     locationName: [readText(item, 'addr1'), readText(item, 'addr2')].filter(Boolean).join(' ') || '대한민국 문화유산',
-    badgeText: (category && category !== '전체' && category !== '오디 이야기')
+    badgeText: (category && category !== '전체' && category !== '오디 이야기' && category !== '소리 이야기')
       ? category
       : readText(item, 'themaCategory') || [readText(item, 'addr1'), readText(item, 'addr2')].filter(Boolean).join(' ') || '대한민국 문화유산',
   };
@@ -217,12 +217,14 @@ export const createSorimaruApiAdapter = (network: SorimaruNetworkClient = sorima
           ...(keyword ? { keyword } : {}),
         },
       });
-      const mappedStories = response.items.map((item, index) => mapStoryItem(item, index, category || keyword));
+      const mappedStories = response.items
+        .map((item, index) => mapStoryItem(item, index, category || keyword))
+        .filter(isPlayableStory);
       return {
         items: mappedStories,
         pageNo: safePageNo,
         numOfRows: safeNumOfRows,
-        totalCount: response.totalCount || mappedStories.length,
+        totalCount: mappedStories.length < response.totalCount ? mappedStories.length : response.totalCount || mappedStories.length,
         source: 'api',
       };
       } catch (error) {

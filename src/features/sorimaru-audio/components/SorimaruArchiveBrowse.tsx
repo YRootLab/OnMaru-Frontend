@@ -16,23 +16,11 @@ interface SorimaruArchiveBrowseProps {
 
 type ArchiveView = 'stories' | 'places';
 
-const FALLBACK_IMAGES = [
-  '/images/hanok/hanok-main.png',
-  '/images/hanok/hanok-exterior.png',
-  '/images/hanok/hanok-interior.png',
-  '/images/hanok/hanok-porch.png',
-  '/images/hanok/giwa-detail.png',
-];
-
-function imageFor(story: SorimaruStoryItem, index: number) {
-  if (story.imageUrl) return story.imageUrl;
-  const seed = Array.from(`${story.stid}${story.title}`).reduce((sum, char) => sum + char.charCodeAt(0), index);
-  return FALLBACK_IMAGES[seed % FALLBACK_IMAGES.length];
-}
+import { useSorimaruImage, getSorimaruFallbackImage } from '@/features/sorimaru-audio/hooks/useSorimaruImage';
 
 function storyContext(story: SorimaruStoryItem): string {
   if (story.locationName) return story.locationName;
-  if (story.category && story.category !== '오디 이야기') return story.category;
+  if (story.category && story.category !== '오디 이야기' && story.category !== '소리 이야기') return story.category;
   return '대한민국 소리 기행';
 }
 
@@ -244,11 +232,11 @@ interface StoryRowProps {
 function StoryRow({ story, index }: StoryRowProps) {
   const currentStory = useSorimaruAudioStore((state) => state.currentStory);
   const isPlaying = useSorimaruAudioStore((state) => state.isPlaying);
-  const selectStory = useSorimaruAudioStore((state) => state.selectStory);
   const setCurrentStory = useSorimaruAudioStore((state) => state.setCurrentStory);
   const setIsPlaying = useSorimaruAudioStore((state) => state.setIsPlaying);
   const isCurrent = currentStory.stid === story.stid;
   const isThisPlaying = isCurrent && isPlaying;
+  const imgSrc = useSorimaruImage(story, index);
 
   const togglePlayback = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -256,17 +244,23 @@ function StoryRow({ story, index }: StoryRowProps) {
     else setCurrentStory(story);
   };
 
+  const playStory = () => {
+    if (isCurrent) setIsPlaying(!isPlaying);
+    else setCurrentStory(story);
+  };
+
   return (
-    <StoryArticle onClick={() => selectStory(story)} $isCurrent={isCurrent}>
+    <StoryArticle onClick={playStory} $isCurrent={isCurrent}>
       <ThumbSlot>
         <StoryThumbImg
-          src={imageFor(story, index)}
+          src={imgSrc}
           alt=""
           loading="lazy"
           decoding="async"
+          referrerPolicy="no-referrer"
           onError={(event) => {
             event.currentTarget.onerror = null;
-            event.currentTarget.src = FALLBACK_IMAGES[0];
+            event.currentTarget.src = getSorimaruFallbackImage(story, index);
           }}
         />
 
@@ -362,10 +356,21 @@ const PlaceGroupCount = styled.p`
 `;
 
 function PlaceGroupCard({ group, startIndex }: { group: SorimaruPlaceGroup; startIndex: number }) {
+  const imgSrc = useSorimaruImage(group.representative, startIndex);
   return (
     <PlaceGroupSection>
       <PlaceGroupHeader>
-        <img src={imageFor(group.representative, startIndex)} alt="" loading="lazy" decoding="async" />
+        <img 
+          src={imgSrc} 
+          alt="" 
+          loading="lazy" 
+          decoding="async"
+          referrerPolicy="no-referrer"
+          onError={(event) => {
+            event.currentTarget.onerror = null;
+            event.currentTarget.src = getSorimaruFallbackImage(group.representative, startIndex);
+          }}
+        />
         <div style={{ minWidth: 0 }}>
           <PlaceGroupTitle>
             {group.label}

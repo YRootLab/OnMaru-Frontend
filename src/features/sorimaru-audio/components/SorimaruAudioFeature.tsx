@@ -149,8 +149,12 @@ const MainSections = styled.main`
 `;
 
 const HeroStageDiv = styled(motion.div)`
-  padding-top: clamp(52px, 6.8vh, 80px);
+  padding-top: 3.25rem;
   padding-bottom: clamp(40px, 5vh, 64px);
+
+  @media (min-width: 768px) {
+    padding-top: clamp(6rem, 10vh, 8rem);
+  }
 `;
 
 const SectionGradientTitle = styled.h2`
@@ -340,6 +344,9 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   const setSelectedCategory = useSorimaruAudioStore((s) => s.setSelectedCategory);
   const setSearchQuery = useSorimaruAudioStore((s) => s.setSearchQuery);
   const isPlaying = useSorimaruAudioStore((s) => s.isPlaying);
+  const savedStories = useSorimaruAudioStore((s) => s.savedStories);
+  const hydrateSavedStories = useSorimaruAudioStore((s) => s.hydrateSavedStories);
+  const removeSavedStory = useSorimaruAudioStore((s) => s.removeSavedStory);
   const resolvedBackgroundVariant = backgroundVariant ?? 'default';
   const [storyList, setStoryList] = useState<SorimaruStoryItem[]>(() => initialStories || []);
   const [nearbyStories, setNearbyStories] = useState<SorimaruStoryItem[]>(() => initialNearbyStories || []);
@@ -357,35 +364,10 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   const [locationMessage, setLocationMessage] = useState('내 위치를 허용하면 반경 3km의 실제 오디오를 찾아드려요.');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // 로컬 스토리지 기반 '마음 담은 소리' 스크랩 보관함 관리 (SSR 하이드레이션 안전 처리)
-  const [savedStories, setSavedStories] = useState<SorimaruStoryItem[]>([]);
-
   useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      try {
-        const stored = localStorage.getItem('onmaru_saved_sorimaru_stories');
-        const parsed = stored ? JSON.parse(stored) : [];
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setSavedStories(parsed);
-        }
-      } catch {
-        // ignore
-      }
-    }, 0);
+    const timeoutId = window.setTimeout(hydrateSavedStories, 0);
     return () => window.clearTimeout(timeoutId);
-  }, []);
-
-  const handleRemoveBookmark = (storyId: string) => {
-    setSavedStories((prev) => {
-      const updated = prev.filter((s) => s.stid !== storyId);
-      try {
-        localStorage.setItem('onmaru_saved_sorimaru_stories', JSON.stringify(updated));
-      } catch {
-        // ignore
-      }
-      return updated;
-    });
-  };
+  }, [hydrateSavedStories]);
 
   const [isNearbyLoading, setIsNearbyLoading] = useState(true);
   const [isArchiveLoading, setIsArchiveLoading] = useState(true);
@@ -406,7 +388,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   );
   const archiveScopeRef = useRef({ selectedCategory, searchQuery, archivePage });
   const handleApiError = useCallback(() => {
-    setApiError('오디 이야기를 불러오지 못했습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.');
+    setApiError('소리마루 이야기를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
   }, []);
 
   useEffect(() => {
@@ -435,7 +417,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
             }
           }
           if (result.archiveError || result.nearbyError) {
-            setApiError('오디 이야기를 불러오지 못했습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.');
+            setApiError('소리마루 이야기를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
           }
           setIsArchiveLoading(false);
           initialLoadCompleteRef.current = true;
@@ -443,7 +425,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
         }
       } catch {
         if (isMounted) {
-          setApiError('오디 이야기를 불러오지 못했습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.');
+          setApiError('소리마루 이야기를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
           setIsArchiveLoading(false);
         }
       } finally {
@@ -488,7 +470,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
           setArchiveMeta(page);
         }
       } catch {
-        if (isMounted) setApiError('오디 이야기를 불러오지 못했습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.');
+        if (isMounted) setApiError('소리마루 이야기를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
       } finally {
         if (isMounted) setIsArchiveLoading(false);
       }
@@ -639,7 +621,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                 <CenteredContainer>
                   <motion.div variants={titleVariants} style={{ marginBottom: '1rem' }}>
                     <SectionGradientTitle id="archive-heading">
-                      오디로 듣는 한국
+                      소리로 만나는 한국
                     </SectionGradientTitle>
                     <SectionDescription>
                       처마 끝 바람 소리부터 천년 고도의 숨결까지, 마음에 머무는 이야기 트랙.
@@ -708,7 +690,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
         </ContentLayer>
 
         {/* 마음 담은 소리 보관함 (재방문 드라이버) */}
-        <SavedSoundDrawer savedStories={savedStories} onRemoveBookmark={handleRemoveBookmark} />
+        <SavedSoundDrawer savedStories={savedStories} onRemoveBookmark={removeSavedStory} />
 
         <LocalMiniPlayer />
         {isModalOpen && (
