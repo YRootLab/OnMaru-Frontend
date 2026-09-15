@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { getAccessToken, setAccessToken, removeAccessToken, apiPost, apiDelete, USE_MOCK } from '@/lib/api/client';
 import { OnmaruUser } from '../types';
 import { buildKakaoAuthorizeUrl } from '../api/kakaoAuth';
+import { clearPrivateClientState } from '../privateState';
 
 const USER_STORAGE_KEY = 'onmaru_user';
 
@@ -58,7 +59,7 @@ export function useAuth() {
 
   const logout = useCallback(() => {
     removeAccessToken();
-    localStorage.removeItem(USER_STORAGE_KEY);
+    clearPrivateClientState();
     setUser(null);
     toast.success('로그아웃했어요.');
     router.push('/');
@@ -74,7 +75,7 @@ export function useAuth() {
       }
     }
     removeAccessToken();
-    localStorage.removeItem(USER_STORAGE_KEY);
+    clearPrivateClientState();
     setUser(null);
     toast.success('탈퇴가 완료됐어요. 그동안 온마루를 이용해 주셔서 감사해요.');
     router.push('/');

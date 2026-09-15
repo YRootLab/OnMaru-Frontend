@@ -6,15 +6,22 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import styled from '@emotion/styled';
-import { ArrowRight, Menu, X, Sparkles, BookOpen, Map, Headphones, Sun, Moon, Monitor } from 'lucide-react';
+import { ArrowRight, Check, Menu, X, Sparkles, BookOpen, Map, Headphones, Sun, Moon } from 'lucide-react';
 import { transientProps } from '@/design-system/styled';
-import { lightPalette, meok, surface , fontSize } from '@/design-system/tokens';
+import { lightPalette, meok, fontSize } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
+import {
+  getThemePreferenceLabel,
+  getThemePreferenceSummary,
+  getThemeTriggerLabel,
+} from '@/design-system/themePreferenceLabels';
+import type { ThemePreference } from '@/design-system/tokens';
 import { useAuth } from '@/features/auth';
 import GlobalMobileTabs from './GlobalMobileTabs';
 import MapMobileTabs from '@/features/map/components/MapMobileTabs';
 import { HEADER_EXIT_S, ENTRANCE_EASE } from '@/shared/navigation/mapEntranceTiming';
 import { useMapEntranceStore } from '@/shared/navigation/mapEntranceState';
+import { shouldUseLandingDarkSurface } from './headerSurface';
 
 /** 캡슐형 GNB의 높이 — /map의 MapChips가 "같은 자리를 이어받는" 느낌을 내려면
  *  이 값을 그대로 써야 한다. */
@@ -28,6 +35,8 @@ interface LandingProps {
   $isScrolled?: boolean;
   $isHidden?: boolean;
   $isMapPage?: boolean;
+  $isAuto?: boolean;
+  $active?: boolean;
 }
 
 const NavigationBackdrop = styled(motion.div, transientProps)<LandingProps>`
@@ -259,7 +268,7 @@ const NavLink = styled(Link, transientProps)<LandingProps>`
     color: ${({ $isLanding }) => ($isLanding ? 'rgba(255, 255, 255, 0.82)' : meok[200])};
 
     &:hover {
-      color: ${({ $isLanding, $isSoriMaru, $isSorimaru }) =>
+      color: ${({ $isSoriMaru, $isSorimaru }) =>
         ($isSoriMaru || $isSorimaru)
           ? lightPalette.jangmi[400]
           : '#ffffff'};
@@ -455,6 +464,7 @@ const LoginButton = styled(Link, transientProps)<LandingProps>`
 `;
 
 const ThemeToggleBtn = styled('button', transientProps)<LandingProps>`
+  position: relative;
   width: 30px;
   height: 30px;
   border-radius: 9999px;
@@ -465,7 +475,7 @@ const ThemeToggleBtn = styled('button', transientProps)<LandingProps>`
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  margin-right: 6px;
+  margin-right: 0;
   transition: all 180ms ease;
 
   &:hover {
@@ -477,6 +487,20 @@ const ThemeToggleBtn = styled('button', transientProps)<LandingProps>`
     transform: scale(0.95);
   }
 
+  ${({ $isAuto, $isLanding }) => $isAuto ? `
+    &::after {
+      content: '';
+      position: absolute;
+      right: 4px;
+      bottom: 4px;
+      width: 6px;
+      height: 6px;
+      border-radius: 9999px;
+      background: ${$isLanding ? '#ffffff' : meok[700]};
+      box-shadow: 0 0 0 2px ${$isLanding ? 'rgba(20, 18, 16, 0.95)' : 'rgba(255, 255, 255, 0.82)'};
+    }
+  ` : ''}
+
   [data-theme='dark'] & {
     border-color: rgba(255, 255, 255, 0.16);
     background: rgba(255, 255, 255, 0.08);
@@ -485,6 +509,11 @@ const ThemeToggleBtn = styled('button', transientProps)<LandingProps>`
     &:hover {
       background: rgba(255, 255, 255, 0.18);
     }
+
+    &::after {
+      background: #ffffff;
+      box-shadow: 0 0 0 2px rgba(28, 26, 23, 0.9);
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -492,8 +521,110 @@ const ThemeToggleBtn = styled('button', transientProps)<LandingProps>`
   }
 `;
 
-/* 개발 전용 카탈로그 링크 (프로덕션 번들에서는 제거) */
-const IS_DEV = process.env.NODE_ENV === 'development';
+const ThemePickerWrap = styled.div`
+  position: relative;
+  display: inline-flex;
+  margin-right: 6px;
+`;
+
+const ThemePickerPopover = styled(motion.div, transientProps)<LandingProps>`
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 214px;
+  padding: 6px;
+  border-radius: 16px;
+  background: ${({ $isLanding }) => ($isLanding ? 'rgba(27, 25, 22, 0.9)' : 'rgba(250, 250, 249, 0.94)')};
+  border: 1px solid ${({ $isLanding }) => ($isLanding ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)')};
+  box-shadow: ${({ $isLanding }) =>
+    $isLanding
+      ? '0 16px 36px rgba(0, 0, 0, 0.32)'
+      : '0 16px 36px rgba(0, 0, 0, 0.12)'};
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  z-index: 3;
+
+  [data-theme='dark'] & {
+    background: rgba(27, 25, 22, 0.94);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.36);
+  }
+`;
+
+const ThemeChoiceButton = styled('button', transientProps)<LandingProps>`
+  width: 100%;
+  min-height: 48px;
+  border: 0;
+  border-radius: 12px;
+  padding: 8px 9px;
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) 18px;
+  align-items: center;
+  gap: 8px;
+  background: ${({ $active, $isLanding }) =>
+    $active
+      ? $isLanding ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.055)'
+      : 'transparent'};
+  color: ${({ $isLanding }) => ($isLanding ? '#ffffff' : meok[900])};
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 160ms ease;
+
+  &:hover {
+    background: ${({ $isLanding }) => ($isLanding ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.045)')};
+  }
+
+  [data-theme='dark'] & {
+    color: #ffffff;
+    background: ${({ $active }) => ($active ? 'rgba(255, 255, 255, 0.12)' : 'transparent')};
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+`;
+
+const ThemeChoiceIcon = styled.span`
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const ThemeChoiceCopy = styled.span`
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+`;
+
+const ThemeChoiceTitle = styled.span`
+  font-family: 'Spoqa Han Sans Neo', sans-serif;
+  font-size: ${fontSize.xs};
+  font-weight: 700;
+  line-height: 1.2;
+`;
+
+const ThemeChoiceSummary = styled.span`
+  font-family: 'Spoqa Han Sans Neo', sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.25;
+  color: rgba(87, 79, 68, 0.76);
+
+  [data-theme='dark'] & {
+    color: rgba(255, 255, 255, 0.66);
+  }
+`;
+
+const ThemeChoiceCheck = styled.span`
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+`;
 
 export default function Header() {
   const pathname = usePathname();
@@ -502,12 +633,14 @@ export default function Header() {
   const isSoriMaruPage = pathname.startsWith('/sorimaru') || pathname.startsWith('/sorimaru');
   const recordNavigation = useMapEntranceStore((s) => s.recordNavigation);
   const { user, isLoggedIn } = useAuth();
-  const { preference, toggleMode, setMode } = useOnmaruTheme();
+  const { preference, mode: themeMode, setMode } = useOnmaruTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isThemePickerOpen, setIsThemePickerOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
   const [isLandingLight, setIsLandingLight] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const themePickerRef = useRef<HTMLDivElement>(null);
 
   // 지도 페이지가 1023px 미만(MapNavRail이 사라지는 지점)으로 좁아졌는지 —
   // 이 값이 바뀌는 순간에 맞춰 하단 탭바 아이콘이 "아래서 위로" 스프링으로
@@ -533,7 +666,11 @@ export default function Header() {
 
   // 랜딩은 스크롤에 따라 먹빛 ↔ 한지색 배경이 전환된다.
   // 밝은 구간에서는 다른 페이지와 동일한 라이트 글래스를 사용한다.
-  const usesDarkSurface = isLandingPage && !isLandingLight;
+  const usesDarkSurface = shouldUseLandingDarkSurface({
+    isLandingPage,
+    isLandingLight,
+    themeMode,
+  });
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -541,10 +678,22 @@ export default function Header() {
       if (mobileMenuRef.current && !mobileMenuRef.current.contains(target)) {
         setIsMobileMenuOpen(false);
       }
+      if (themePickerRef.current && !themePickerRef.current.contains(target)) {
+        setIsThemePickerOpen(false);
+      }
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (!isThemePickerOpen) return;
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === 'Escape') setIsThemePickerOpen(false);
+    }
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isThemePickerOpen]);
 
   useEffect(() => {
     let frameId: number | null = null;
@@ -629,6 +778,9 @@ export default function Header() {
 
 
   const isNavigationOpen = isMobileMenuOpen;
+  const themeOptions: ThemePreference[] = ['system', 'light', 'dark'];
+  const ThemeTriggerIcon = themeMode === 'dark' ? Moon : Sun;
+  const themeTriggerLabel = getThemeTriggerLabel({ preference, mode: themeMode });
 
   return (
     <>
@@ -698,21 +850,66 @@ export default function Header() {
 
       {/* 오른쪽 끝: 테마 변경 + 로그인 / 마이페이지 */}
       <RightSection $isMapPage={isMapPage}>
-        <ThemeToggleBtn
-          type="button"
-          $isLanding={usesDarkSurface}
-          onClick={toggleMode}
-          title={`화면 모드 변경 (현재: ${preference === 'light' ? '라이트' : preference === 'dark' ? '다크' : '시스템'})`}
-          aria-label="화면 모드 변경"
-        >
-          {preference === 'light' ? (
-            <Sun size={14} />
-          ) : preference === 'dark' ? (
-            <Moon size={14} />
-          ) : (
-            <Monitor size={14} />
-          )}
-        </ThemeToggleBtn>
+        <ThemePickerWrap ref={themePickerRef}>
+          <ThemeToggleBtn
+            type="button"
+            $isLanding={usesDarkSurface}
+            $isAuto={preference === 'system'}
+            onClick={() => setIsThemePickerOpen((open) => !open)}
+            title={themeTriggerLabel}
+            aria-label={themeTriggerLabel}
+            aria-haspopup="menu"
+            aria-expanded={isThemePickerOpen}
+          >
+            <ThemeTriggerIcon size={14} />
+          </ThemeToggleBtn>
+
+          <AnimatePresence>
+            {isThemePickerOpen && (
+              <ThemePickerPopover
+                $isLanding={usesDarkSurface}
+                role="menu"
+                aria-label="화면 모드 선택"
+                initial={{ opacity: 0, y: -4, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -4, scale: 0.98 }}
+                transition={{ duration: 0.14, ease: 'easeOut' }}
+              >
+                {themeOptions.map((option) => {
+                  const active = preference === option;
+                  const OptionIcon = option === 'dark' ? Moon : option === 'light' ? Sun : Sparkles;
+                  return (
+                    <ThemeChoiceButton
+                      key={option}
+                      type="button"
+                      role="menuitemradio"
+                      aria-checked={active}
+                      $active={active}
+                      $isLanding={usesDarkSurface}
+                      onClick={() => {
+                        setMode(option);
+                        setIsThemePickerOpen(false);
+                      }}
+                    >
+                      <ThemeChoiceIcon>
+                        <OptionIcon size={15} strokeWidth={2} />
+                      </ThemeChoiceIcon>
+                      <ThemeChoiceCopy>
+                        <ThemeChoiceTitle>{getThemePreferenceLabel(option)}</ThemeChoiceTitle>
+                        <ThemeChoiceSummary>
+                          {getThemePreferenceSummary({ preference: option, mode: themeMode })}
+                        </ThemeChoiceSummary>
+                      </ThemeChoiceCopy>
+                      <ThemeChoiceCheck aria-hidden="true">
+                        {active ? <Check size={14} strokeWidth={2.4} /> : null}
+                      </ThemeChoiceCheck>
+                    </ThemeChoiceButton>
+                  );
+                })}
+              </ThemePickerPopover>
+            )}
+          </AnimatePresence>
+        </ThemePickerWrap>
 
         <LoginButton href={isLoggedIn ? '/mypage' : '/auth/login'} $isLanding={usesDarkSurface}>
           <span>{isLoggedIn ? (user?.nickname ?? '마이페이지') : '로그인'}</span>

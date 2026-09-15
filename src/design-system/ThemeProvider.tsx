@@ -22,6 +22,7 @@ import {
   type ThemePreference,
   type OnmaruTheme,
  fontSize, } from './tokens';
+import { resolveTimeAwareSystemMode } from './timeTheme';
 
 const STORAGE_KEY = 'onmaru-color-mode'
 
@@ -32,9 +33,9 @@ const STORAGE_KEY = 'onmaru-color-mode'
 
 interface OnmaruThemeContextValue {
   theme:      OnmaruTheme
-  /** 실제로 적용된 라이트/다크 — 'system' 선택 시 OS 값으로 이미 풀려 있다. */
+  /** 실제로 적용된 라이트/다크 — 'system' 선택 시 사용자 로컬 시간 기준으로 이미 풀려 있다. */
   mode:       ColorMode
-  /** 사용자가 고른 값. 'system'이면 OS 다크모드 변경에 실시간으로 따라간다. */
+  /** 사용자가 고른 값. 'system'이면 사용자 로컬 시간대에 맞춰 라이트/다크를 고른다. */
   preference: ThemePreference
   toggleMode: () => void
   setMode:    (preference: ThemePreference) => void
@@ -235,6 +236,11 @@ function systemPrefersDark(): boolean {
   return window.matchMedia('(prefers-color-scheme: dark)').matches
 }
 
+function localHour(): number {
+  if (typeof window === 'undefined') return 12
+  return new Date().getHours()
+}
+
 export function OnmaruThemeProvider({
   children,
   defaultMode = 'system',
@@ -243,11 +249,13 @@ export function OnmaruThemeProvider({
   // 사용자가 고른 값('system' 포함) — 실제 렌더에 쓰는 mode는 아래에서 이 값을 풀어낸다.
   const [preference, setPreferenceState] = useState<ThemePreference>(() => readStoredPreference(defaultMode))
   const [isSystemDark, setIsSystemDark] = useState<boolean>(() => systemPrefersDark())
+  const [hour, setHour] = useState<number>(() => localHour())
 
   // SSR에서는 window가 없어 defaultMode로 렌더된다 — 하이드레이션 직후 저장값/OS 값으로 다시 맞춘다.
   useEffect(() => {
     setPreferenceState(readStoredPreference(defaultMode))
     setIsSystemDark(systemPrefersDark())
+    setHour(localHour())
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -259,7 +267,15 @@ export function OnmaruThemeProvider({
     return () => mq.removeEventListener('change', handler)
   }, [])
 
-  const mode: ColorMode = preference === 'system' ? (isSystemDark ? 'dark' : 'light') : preference
+  useEffect(() => {
+    const timer = window.setInterval(() => setHour(localHour()), 60_000)
+    return () => window.clearInterval(timer)
+  }, [])
+
+  const mode: ColorMode =
+    preference === 'system'
+      ? resolveTimeAwareSystemMode({ hour, prefersDark: isSystemDark })
+      : preference
   const theme = mode === 'dark' ? darkTheme : lightTheme
 
   const setMode = useCallback((next: ThemePreference) => {

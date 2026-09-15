@@ -6,6 +6,8 @@ import { loadWarmth } from '@/features/map/warmth/warmthRepo';
 import { distanceInMeters } from './useKakaoMap';
 import { useMapStore } from './useMapStore';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
+import { visitReviewsToWarmths } from '@/features/map/warmth/visitReviewWarmthAdapter';
+import { defaultVisitReviewRepository } from '@/features/visit-review/api/visitReviewApi';
 import type { HeatDay, Item, KakaoMap } from '@/features/map/types';
 
 const log = logger('map');
@@ -66,6 +68,28 @@ export function useMapData() {
   }, []);
 
   useEffect(() => {
+    if (mode !== 'warmth') return;
+
+    let cancelled = false;
+    defaultVisitReviewRepository
+      .listReviews({ scope: 'ALL', limit: 50 })
+      .then((page) => {
+        if (cancelled) return;
+        const serverWarmths = visitReviewsToWarmths(page.items);
+        if (serverWarmths.length > 0) {
+          useMapStore.getState().setWarmths(loadWarmth(serverWarmths));
+        }
+      })
+      .catch((err) => {
+        log.warn('서버 온기 이야기 동기화 폴백 유지', err);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [mode, reloadNonce]);
+
+  useEffect(() => {
     const { setItems, setLoading, setError, setWarmths } = useMapStore.getState();
     if (!map) {
       return;
@@ -111,19 +135,20 @@ export function useMapData() {
         });
     }
 
-    // 2. 온기 이야기 API 실시간 연동
-    fetch(`/api/map/warmth?${warmthParams}`, { signal: controller.signal })
-      .then(async (res) => {
-        const json = await res.json().catch(() => ({}));
-        if (Array.isArray(json.warmths) && json.warmths.length > 0) {
-          const merged = loadWarmth(json.warmths);
-          setWarmths(merged);
-        }
-      })
-      .catch((err) => {
-        if (err instanceof DOMException && err.name === 'AbortError') return;
-        log.warn('온기 API 동기화 폴백 유지', err);
-      });
+    if (mode !== 'warmth') {
+      fetch(`/api/map/warmth?${warmthParams}`, { signal: controller.signal })
+        .then(async (res) => {
+          const json = await res.json().catch(() => ({}));
+          if (Array.isArray(json.warmths) && json.warmths.length > 0) {
+            const merged = loadWarmth(json.warmths);
+            setWarmths(merged);
+          }
+        })
+        .catch((err) => {
+          if (err instanceof DOMException && err.name === 'AbortError') return;
+          log.warn('온기 API 동기화 폴백 유지', err);
+        });
+    }
 
     // 2. 장소 목록 조회 (클라이언트 메모리 캐시 히트 시 즉각 렌더링)
     const cached = clientPlaceCache.get(cacheKey);

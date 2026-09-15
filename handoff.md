@@ -1,6 +1,54 @@
 # handoff.md
 
 Current work:
+- Summary: Added an FE-visible backend `toFE` implementation status note.
+  - Document: `docs/specs/TOFE_IMPLEMENTATION_STATUS.md`
+  - Captures implemented FE foundation, remaining Journey/VisitReview/saved-place/timeline gaps, and exact backend specs that should be resent before final integration.
+- Summary: Fixed the Onmaru landing header surface in light mode.
+  - Root cause: `Header` treated the `/` landing hero as a dark surface based only on route/scroll state, even when the applied theme was `light`.
+  - Added `src/shared/components/Header/headerSurface.ts` to make the rule explicit: landing dark surface is used only when the applied theme is `dark`.
+  - Added regression coverage for light-mode landing and dark-mode landing behavior.
+- Summary: Made theme mode selection explicit for logged-in and logged-out users.
+  - Added `src/design-system/themePreferenceLabels.ts` so `system` is shown as `자동` while keeping the persisted value compatible.
+  - Updated the global header theme button to open an `자동` / `라이트` / `다크` picker instead of cycling modes blindly.
+  - Updated the `/map` desktop rail theme control with the same picker because the global header is hidden there.
+  - My Page's existing `ThemeModeSwitch` now uses `자동` wording and avoids the monitor icon.
+- Summary: Updated `system` theme resolution to use local time of day.
+  - `src/design-system/timeTheme.ts` resolves 07:00-18:59 to light and 19:00-06:59 to dark.
+  - `ThemeProvider` and the initial `beforeInteractive` theme script now use the same time-aware rule to avoid first-paint mismatch for automatic mode.
+  - Explicit user selections for `light` or `dark` remain respected.
+  - Verified: focused time theme test, `npx tsc --noEmit`, `npm test` (45 files, 135 tests), `npm run check:env`, and `npm run build` passed.
+- Summary: Added local and CI controls to prevent Odii/Sorimaru env alias regressions.
+  - `.env.local` remains ignored, while `.env.example` is explicitly unignored and tracked as a safe template.
+  - Added `npm run check:env` via `scripts/validate-env-contract.mjs` to validate Odii key aliases, `.gitignore` env rules, and accidental tracked secret env files.
+  - Wired the same check into `.githooks/pre-push` and `.github/workflows/env-contract.yml`.
+  - Verified: `npm run check:env`, focused validator tests, `npx tsc --noEmit`, `npm test` (42 files, 131 tests), and `npm run build` passed.
+- Summary: Re-mapped the backend feature delta into the existing product surfaces without changing established UI.
+  - Home `/` remains the real journey search surface. `fetchCuratedJourney` now uses the backend journey repository and authoritative snapshot board when `NEXT_PUBLIC_API_BASE_URL` is configured, while preserving the existing local `/api/journey-curator` fallback for local/dev mode.
+  - `/discover` now redirects to `/` so there is no second journey UI.
+  - `/map` warmth mode remains the owner of "여행자들이 남긴 온기 이야기". Server VisitReview data is converted into the existing `Warmth[]` model so current region/category/sort UI keeps working.
+  - Removed the mistakenly placed VisitReview panel from `/map` info mode.
+  - Map place rows now use the canonical saved-place button, including guest Kakao-login save intent capture and optimistic logged-in save/unsave.
+  - `/mypage` now includes the monthly member timeline surface backed by the server timeline repository.
+  - Auth logout/account deletion now clears private local/session state, including pending saved-resource intents.
+  - Verified after remap: `npx tsc --noEmit` passed, `npm test` passed (44 files, 133 tests), `npm run build` passed, and local dev routes `/`, `/map`, `/mypage` returned HTTP 200 while `/discover` returned 307 to `/`.
+  - Dev server: running at `http://localhost:3000`.
+- Note: Hanok/Odii place-save buttons are ready through the shared saved-resource repository/component, but full per-card wiring still depends on those surfaces exposing the backend canonical `placeId` in their view models rather than legacy TourAPI/Odii identifiers.
+- Summary: Implemented backend feature delta foundation from the spec using TDD and `frontend-senior-engineer` boundaries.
+  - Added contract-aware API foundation: normalized errors, cursor guard, in-memory CSRF provider, cookie/idempotency `apiRequest`, and compatibility helpers.
+  - Added pure journey SSE parser/reducer for stage, heartbeat, terminal, reset, snapshot recovery, and BASELINE labeling.
+  - Added VisitReview contract validation and stale region response reducer.
+  - Added saved `PLACE` guest intent store with injected storage/clock and member timeline contract helpers.
+  - Added shared place-slip motion primitive for transform/opacity-only reveals with reduced-motion behavior.
+  - Verified: focused foundation tests passed (6 files, 12 tests), `npx tsc --noEmit` passed, `npm test` passed (35 files, 119 tests before final docs-only update), `npm run build` passed.
+- Next step: implement Phase 2 UI wiring for `/discover` or continue with `/map` VisitReview container integration, using the new foundation modules.
+- Summary: Added implementation plan for the backend feature delta foundation, scoped to typed API/CSRF/cursor/error contracts, journey SSE reducer, VisitReview reducer, saved intent/timeline contracts, and the place-slip motion primitive.
+- Plan: `docs/superpowers/plans/2026-09-14-backend-feature-delta-foundation.md`
+- Summary: Captured backend-to-FE feature delta design spec for `/discover` REST+SSE journey runs, `/map` VisitReview, shared canonical place saves, My Page monthly timeline, auth/CSRF/cache rules, neutral motion design, and frontend performance constraints.
+- Spec: `docs/superpowers/specs/2026-09-14-backend-feature-delta-fe-design.md`
+- Source backend docs: `/Users/yangseunghyeon/Development/OnMaru/OnMaruBE/docs/toFE`
+- Next step: review/approve the spec, then create a detailed implementation plan before touching feature code.
+- Map page (`/map`) logo.png insertion and comprehensive dark mode compatibility:
 - 전국 한옥 수결첩(手決帖) 스탬프 시스템 및 지도 인터랙티브 효과 구현 완료:
   - 수결첩 시스템: `src/features/stamp/` 모듈, `/stamps` 라우트, 상세창 체크인 연동, 도장 연출 모달, 8도 SVG 지도, 랭킹 리더보드.
   - 지도 인터랙티브: 금빛 커서 잔상 트레일, 핀 클릭 Ripple 및 Glow Ring, 방문 한옥 뱃지 (하단 뽀글거리는 파티클 레이어 제거).

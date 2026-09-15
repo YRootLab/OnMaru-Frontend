@@ -13,17 +13,16 @@ import {
   BookOpen,
   Calendar,
   Headphones,
-  Bookmark,
   Store,
 } from 'lucide-react';
-import { lightPalette, meok , fontSize } from '@/design-system/tokens';
-import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
+import { lightPalette, meok, fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { matchSorimaruStory } from '@/features/sorimaru-audio/hooks/useSorimaruPlaceStory';
 import { calculateTravelEstimate } from '@/features/map/utils/geo';
 import { CATEGORY_STYLES } from './PlaceMarkers';
 import type { Item, PlaceCategory } from '@/features/map/types';
+import SavePlaceButton from '@/features/saved-resources/components/SavePlaceButton';
 
 interface PlaceListItemProps {
   item: Item;
@@ -90,42 +89,11 @@ const ItemButton = styled.button<{ $isSelected: boolean }>`
   }
 `;
 
-const BookmarkQuickBtn = styled.button<{ $active: boolean }>`
+const SaveButtonSlot = styled.div`
   position: absolute;
   top: 9px;
   right: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  border: none;
-  background: ${({ $active }) => ($active ? 'rgba(232, 90, 24, 0.12)' : 'rgba(25, 31, 40, 0.04)')};
-  color: ${({ $active }) => ($active ? lightPalette.juhong[500] : meok[400])};
-  cursor: pointer;
   z-index: 3;
-  transition: all 0.15s ease;
-
-  &:hover {
-    background: ${({ $active }) => ($active ? 'rgba(232, 90, 24, 0.2)' : 'rgba(25, 31, 40, 0.08)')};
-    color: ${({ $active }) => ($active ? lightPalette.juhong[700] : meok[700])};
-    transform: scale(1.1);
-  }
-
-  [data-theme='dark'] & {
-    background: ${({ $active }) => ($active ? 'rgba(232, 90, 24, 0.2)' : 'rgba(255, 255, 255, 0.06)')};
-    color: ${({ $active }) => ($active ? '#f97316' : meok[400])};
-
-    &:hover {
-      background: ${({ $active }) => ($active ? 'rgba(232, 90, 24, 0.28)' : 'rgba(255, 255, 255, 0.12)')};
-      color: ${({ $active }) => ($active ? '#fb923c' : '#ffffff')};
-    }
-  }
-
-  &:active {
-    transform: scale(0.9);
-  }
 `;
 
 const ThumbnailBox = styled.div<{ $isSelected?: boolean }>`
@@ -381,8 +349,6 @@ function PlaceListItemComponent({
   const userLocation = useMapStore((s) => s.userLocation);
   const center = useMapStore((s) => s.center);
   const availableStories = useSorimaruAudioStore((s) => s.availableStories);
-  const isBookmarked = useBookmarkStore((s) => s.isBookmarked(item.id));
-  const toggleBookmark = useBookmarkStore((s) => s.toggleBookmark);
 
   const travelEstimate = useMemo(() => {
     return calculateTravelEstimate(item, userLocation, center);
@@ -417,19 +383,6 @@ function PlaceListItemComponent({
     if (!isRealTraditional) return false;
     return item.category === 'spot' || item.category === 'culture';
   }, [isRealTraditional, item.category]);
-
-  const handleBookmarkClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    toggleBookmark({
-      id: item.id,
-      name: item.name,
-      category: item.category,
-      addr: item.addr || undefined,
-      image: item.image || undefined,
-      lat: item.lat,
-      lng: item.lng,
-    });
-  };
 
   const district = getDistrictFromAddr(item.addr);
 
@@ -499,15 +452,14 @@ function PlaceListItemComponent({
         </Content>
       </ItemButton>
 
-      <BookmarkQuickBtn
-        type="button"
-        $active={isBookmarked}
-        onClick={handleBookmarkClick}
-        title={isBookmarked ? '저장 해제' : '마음에 담기'}
-        aria-label={isBookmarked ? `${item.name} 마음에 담기 취소` : `${item.name} 마음에 담기`}
-      >
-        <Bookmark size={14} strokeWidth={2} fill={isBookmarked ? 'currentColor' : 'none'} />
-      </BookmarkQuickBtn>
+      <SaveButtonSlot>
+        <SavePlaceButton
+          placeId={item.id}
+          placeName={item.name}
+          initialSaved={item.savedByMe}
+          compact
+        />
+      </SaveButtonSlot>
     </ItemContainer>
   );
 }
