@@ -4,6 +4,9 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+- Added restrained reading-flow motion to Hanok data and history: one-shot growing distribution bars, synchronized count-up values, and centered paragraph focus inside the detail modal.
+- Reserved the responsive “이달의 픽” footprint during hydration so the following Hanok distribution chart no longer appears briefly and shifts out of view.
+- Kept the Hanok regional distribution chart visible when a degraded live TourAPI response omits regional data.
 - Fixed Sorimaru’s initial listening data to load a playable themed story search. The upstream base list currently contains metadata-only rows, so audio-less entries are now excluded before they reach the player.
 - Improved the Sorimaru expanded player: background scrolling now locks without a layout jump, touch overscroll stays inside the drawer, and Roadview uses a responsive 16:9 canvas with resize relayout and a motion-safe fallback image.
 - The expanded Sorimaru player now pairs Roadview and playback controls with a scrollable synchronized transcript on desktop, then stacks them for mobile.
@@ -129,6 +132,11 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## [Unreleased] 
 ### Changed 
+- Removed empty and duplicate Hanok detail tags, normalized both galleries, and assigned distinct AnimatePresence keys to the detail and lightbox overlays so opening a photo no longer triggers duplicate React key warnings.
+- Fixed horizontal clipping in the Hanok AI story panel by wrapping the complete result in a forced single-column grid, constraining every content boundary, and rendering sources as multiline full-width rows.
+- Prevented address-only Hanok summaries from appearing as AI history, merged verified snapshot descriptions into address-only live list records, delayed Gemini context until TourAPI detail resolution, and updated the grounded-search model candidates to the current Gemini 3.x Flash models.
+- Fixed the global theme toggle hydration mismatch by deferring browser-only preference, time, and viewport state until after the server-matching first render, adding a server snapshot guard to the header UI, and preserving the pre-hydration `data-theme` paint.
+- Added a source-grounded AI story panel to Hanok Dogam details, with history summaries, timelines, on-site observation points, public source links, neutral loading states, request cancellation, and a non-hallucinatory TourAPI fallback; repaired both Hanok detail modals to call the existing TourAPI detail endpoint instead of the removed `/api/village/:id` route.
 - Migrated all icons in the project to lucide-react. Removed react-icons dependency. (Resolves #60, #61, #62, #63, #64)
 - Replaced emoji usages in data files (e.g. curatedJourneys.ts) with lucide-react components.
 - 지도 카테고리 칩의 mask 기반 edge fade를 제거해 그림자 잘림을 막고, PR #66 이전의 둥근 pill 크기와 stagger pop-in 동작을 복원했다.

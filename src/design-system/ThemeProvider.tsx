@@ -11,13 +11,13 @@ import React, {
   useState,
   useCallback,
   useEffect,
+  useRef,
   type ReactNode,
 } from 'react'
 import { ThemeProvider as EmotionThemeProvider, Global, css } from '@emotion/react'
 import {
   lightTheme,
   darkTheme,
-  createTheme,
   type ColorMode,
   type ThemePreference,
   type OnmaruTheme,
@@ -247,17 +247,24 @@ export function OnmaruThemeProvider({
 }: OnmaruThemeProviderProps) {
 
   // 사용자가 고른 값('system' 포함) — 실제 렌더에 쓰는 mode는 아래에서 이 값을 풀어낸다.
-  const [preference, setPreferenceState] = useState<ThemePreference>(() => readStoredPreference(defaultMode))
-  const [isSystemDark, setIsSystemDark] = useState<boolean>(() => systemPrefersDark())
-  const [hour, setHour] = useState<number>(() => localHour())
+  // 서버와 첫 클라이언트 렌더는 같은 값으로 시작해야 한다. 저장값과 브라우저
+  // 환경은 hydration이 끝난 다음 프레임에 반영한다.
+  const [preference, setPreferenceState] = useState<ThemePreference>(defaultMode)
+  const [isSystemDark, setIsSystemDark] = useState(false)
+  const [hour, setHour] = useState(12)
+  const hasResolvedClientTheme = useRef(false)
 
-  // SSR에서는 window가 없어 defaultMode로 렌더된다 — 하이드레이션 직후 저장값/OS 값으로 다시 맞춘다.
+  // beforeInteractive 스크립트가 실제 data-theme를 먼저 적용하므로 화면 깜빡임은
+  // 막고, React 상태만 hydration 뒤에 안전하게 동기화한다.
   useEffect(() => {
-    setPreferenceState(readStoredPreference(defaultMode))
-    setIsSystemDark(systemPrefersDark())
-    setHour(localHour())
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    const frameId = window.requestAnimationFrame(() => {
+      hasResolvedClientTheme.current = true
+      setPreferenceState(readStoredPreference(defaultMode))
+      setIsSystemDark(systemPrefersDark())
+      setHour(localHour())
+    })
+    return () => window.cancelAnimationFrame(frameId)
+  }, [defaultMode])
 
   // 시스템 다크모드 변경 감지 — preference가 'system'일 때만 화면에 반영된다.
   useEffect(() => {
@@ -292,6 +299,9 @@ export function OnmaruThemeProvider({
 
   // data-theme는 항상 "실제 적용된" mode를 반영한다 — [data-theme='dark'] CSS가 이 값을 본다.
   useEffect(() => {
+    // 첫 effect에서 beforeInteractive가 적용한 실제 테마를 SSR 기본값으로
+    // 덮어쓰지 않는다. 클라이언트 환경을 읽은 뒤부터 React가 관리한다.
+    if (!hasResolvedClientTheme.current) return
     document.documentElement.setAttribute('data-theme', mode)
   }, [mode])
 

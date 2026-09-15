@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
@@ -26,6 +26,10 @@ import { shouldUseLandingDarkSurface } from './headerSurface';
 /** 캡슐형 GNB의 높이 — /map의 MapChips가 "같은 자리를 이어받는" 느낌을 내려면
  *  이 값을 그대로 써야 한다. */
 export const HEADER_HEIGHT = 46;
+
+const subscribeToHydration = () => () => undefined;
+const getClientHydrationSnapshot = () => true;
+const getServerHydrationSnapshot = () => false;
 
 interface LandingProps {
   $isLanding?: boolean;
@@ -640,6 +644,13 @@ export default function Header() {
   const recordNavigation = useMapEntranceStore((s) => s.recordNavigation);
   const { user, isLoggedIn } = useAuth();
   const { preference, mode: themeMode, setMode } = useOnmaruTheme();
+  const hasHydrated = useSyncExternalStore(
+    subscribeToHydration,
+    getClientHydrationSnapshot,
+    getServerHydrationSnapshot,
+  );
+  const renderedPreference = hasHydrated ? preference : 'system';
+  const renderedThemeMode = hasHydrated ? themeMode : 'light';
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isThemePickerOpen, setIsThemePickerOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -652,10 +663,7 @@ export default function Header() {
   // 이 값이 바뀌는 순간에 맞춰 하단 탭바 아이콘이 "아래서 위로" 스프링으로
   // 튀어 오르게 한다. CSS 미디어쿼리만으로는 top:14px→bottom:12px 같은
   // 보간 불가능한 값 전환 때문에 애니메이션을 줄 수 없어 JS로 별도 추적한다.
-  const [isNarrowMapChrome, setIsNarrowMapChrome] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return window.innerWidth <= 1023;
-  });
+  const [isNarrowMapChrome, setIsNarrowMapChrome] = useState(false);
 
   useEffect(() => {
     if (!isMapPage || typeof window === 'undefined') return;
@@ -675,7 +683,7 @@ export default function Header() {
   const usesDarkSurface = shouldUseLandingDarkSurface({
     isLandingPage,
     isLandingLight,
-    themeMode,
+    themeMode: renderedThemeMode,
   });
 
   useEffect(() => {
@@ -785,8 +793,11 @@ export default function Header() {
 
   const isNavigationOpen = isMobileMenuOpen;
   const themeOptions: ThemePreference[] = ['system', 'light', 'dark'];
-  const ThemeTriggerIcon = themeMode === 'dark' ? Moon : Sun;
-  const themeTriggerLabel = getThemeTriggerLabel({ preference, mode: themeMode });
+  const ThemeTriggerIcon = renderedThemeMode === 'dark' ? Moon : Sun;
+  const themeTriggerLabel = getThemeTriggerLabel({
+    preference: renderedPreference,
+    mode: renderedThemeMode,
+  });
 
   return (
     <>
@@ -860,7 +871,7 @@ export default function Header() {
           <ThemeToggleBtn
             type="button"
             $isLanding={usesDarkSurface}
-            $isAuto={preference === 'system'}
+            $isAuto={renderedPreference === 'system'}
             onClick={() => setIsThemePickerOpen((open) => !open)}
             title={themeTriggerLabel}
             aria-label={themeTriggerLabel}
@@ -882,7 +893,7 @@ export default function Header() {
                 transition={{ duration: 0.14, ease: 'easeOut' }}
               >
                 {themeOptions.map((option) => {
-                  const active = preference === option;
+                  const active = renderedPreference === option;
                   const OptionIcon = option === 'dark' ? Moon : option === 'light' ? Sun : Sparkles;
                   return (
                     <ThemeChoiceButton
@@ -903,7 +914,7 @@ export default function Header() {
                       <ThemeChoiceCopy>
                         <ThemeChoiceTitle>{getThemePreferenceLabel(option)}</ThemeChoiceTitle>
                         <ThemeChoiceSummary>
-                          {getThemePreferenceSummary({ preference: option, mode: themeMode })}
+                          {getThemePreferenceSummary({ preference: option, mode: renderedThemeMode })}
                         </ThemeChoiceSummary>
                       </ThemeChoiceCopy>
                       <ThemeChoiceCheck aria-hidden="true">
@@ -1029,15 +1040,15 @@ export default function Header() {
                         borderRadius: '9999px',
                         border: 'none',
                         background:
-                          preference === opt ? 'rgba(0, 184, 130, 0.2)' : 'transparent',
+                          renderedPreference === opt ? 'rgba(0, 184, 130, 0.2)' : 'transparent',
                         color:
-                          preference === opt
+                          renderedPreference === opt
                             ? '#00b882'
                             : usesDarkSurface
                             ? '#a1a1aa'
                             : meok[700],
                         fontSize: '12px',
-                        fontWeight: preference === opt ? 600 : 400,
+                        fontWeight: renderedPreference === opt ? 600 : 400,
                         cursor: 'pointer',
                       }}
                     >

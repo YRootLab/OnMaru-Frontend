@@ -95,6 +95,17 @@ const EditorialSection = styled.div`
   padding-top: clamp(56px, 7.5vh, 96px);
 `;
 
+// Reserve the completed monthly feature's footprint before its client content
+// finishes hydrating. Without this, the following distribution chart briefly
+// occupies this space and is then pushed below the viewport.
+const MonthlyEditorialSection = styled(EditorialSection)`
+  min-height: 913px;
+
+  @media (min-width: 901px) {
+    min-height: 565px;
+  }
+`;
+
 // 2. 어두운 인트로 영상 배경 바로 다음 자리: 첫 본문으로 넘어올 때 서사적인 여유를 준다
 const HeroLeadOutSection = styled.div`
   padding-top: clamp(64px, 8.5vh, 108px);
@@ -262,7 +273,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
         });
         if (!response.ok) return;
         const nextData = decodeHanokArchivePayload(await response.json());
-        if (nextData) setArchiveData(nextData);
+        if (isActive && nextData) setArchiveData(nextData);
       } catch {
         // Snapshot remains visible when the future backend is unavailable or changes shape.
       } finally {
@@ -334,7 +345,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
         </StyledVesselReveal>
 
         {/* 감성적인 첫인상: 이 달의 한옥 대표 큐레이션 에디토리얼 화보 */}
-        <EditorialSection>
+        <MonthlyEditorialSection>
           <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.monthly}>
             <SectionContainer>
               <HanokMonthly
@@ -344,7 +355,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
               />
             </SectionContainer>
           </StyledVesselReveal>
-        </EditorialSection>
+        </MonthlyEditorialSection>
 
         {/* 3. 데이터 탐색: 전국 한옥 분포 & 인터랙티브 지역 선택기 */}
         <HeroLeadOutSection>

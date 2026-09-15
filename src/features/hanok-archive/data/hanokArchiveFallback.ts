@@ -63,10 +63,49 @@ export const HANOK_ARCHIVE_FALLBACK: HanokArchiveData = {
   meta: createMeta(villages),
 };
 
+const fallbackVillageById = new Map(villages.map((village) => [village.id, village]));
+
+function normalizeComparableText(value: string): string {
+  return value.replace(/\s+/g, '').trim();
+}
+
+function preserveSnapshotDescription(village: Village): Village {
+  const snapshotVillage = fallbackVillageById.get(village.id);
+  if (!snapshotVillage) return village;
+
+  const liveSummary = village.summary?.trim() ?? '';
+  const summaryIsAddress = normalizeComparableText(liveSummary) === normalizeComparableText(village.addr ?? '');
+
+  return {
+    ...village,
+    summary: (!liveSummary || summaryIsAddress) && snapshotVillage.summary
+      ? snapshotVillage.summary
+      : liveSummary,
+    overview: village.overview?.trim() || snapshotVillage.overview,
+  };
+}
+
 export function decodeHanokArchivePayload(value: unknown): HanokArchiveData | null {
   if (!value || typeof value !== 'object') return null;
   const candidate = value as Partial<HanokArchiveData>;
   if (!Array.isArray(candidate.villages) || candidate.villages.length === 0) return null;
   if (!candidate.meta || typeof candidate.meta.total !== 'number') return null;
-  return candidate as HanokArchiveData;
+
+  // The distribution section is driven by `region`. A partially degraded API
+  // response used to replace the complete snapshot and then make the chart
+  // disappear because HanokDistribution correctly renders nothing without
+  // regional data. Keep the snapshot unless the live payload can support that
+  // section as well.
+  const hasRegionalData = candidate.villages.some((village) => (
+    village
+    && typeof village === 'object'
+    && typeof (village as Partial<Village>).region === 'string'
+    && Boolean((village as Partial<Village>).region?.trim())
+  ));
+  if (!hasRegionalData) return null;
+
+  return {
+    ...(candidate as HanokArchiveData),
+    villages: (candidate.villages as Village[]).map(preserveSnapshotDescription),
+  };
 }

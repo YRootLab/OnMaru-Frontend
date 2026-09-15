@@ -1,7 +1,10 @@
 'use client';
 
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { AnimatePresence } from 'framer-motion';
+import { useGSAP } from '@gsap/react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
   X,
   MapPin,
@@ -30,6 +33,7 @@ import { useHanokAudioGuide } from '@/features/hanok-archive/hooks/useHanokAudio
 import { useHanokTranquility } from '@/features/hanok-archive/hooks/useHanokTranquility';
 import SoriMaruBridgeCard from './SoriMaruBridgeCard';
 import TranquilityGauge from './TranquilityGauge';
+import HanokAiStoryPanel from './HanokAiStoryPanel';
 import {
   Overlay,
   ModalCard,
@@ -81,6 +85,9 @@ import {
   LightboxCounter,
 } from './VillageDetailModal.styles';
 import styled from '@emotion/styled';
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface HanokDogamDetailModalProps {
   village: Village;
@@ -117,6 +124,9 @@ function extractHomepageUrl(homepageHtml?: string | null): { url: string | null;
 }
 
 export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDetailModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  const storyRef = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = usePrefersReducedMotion();
   const [detailData, setDetailData] = useState<VillageDetailResponse | null>(null);
   const [isLoadingOverview, setIsLoadingOverview] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -150,9 +160,8 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
 
   useEffect(() => {
     let isMounted = true;
-    setIsLoadingOverview(true);
 
-    fetch(`/api/village/${village.id}`)
+    fetch(`/api/tourapi/detail?id=${encodeURIComponent(village.id)}`)
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
@@ -189,16 +198,60 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
 
   const isLongContent = currentStoryText.length > 280;
 
-  const galleryImages = useMemo(() => {
-    const imgs: string[] = [];
-    if (village.hasImage && village.image) imgs.push(village.image);
-    if (detailData?.images) {
-      detailData.images.forEach((img) => {
-        if (typeof img === 'string' && !imgs.includes(img)) imgs.push(img);
-      });
+  useGSAP(() => {
+    const story = storyRef.current;
+    const scroller = modalRef.current;
+    if (!story || !scroller) return;
+
+    const paragraphsInView = gsap.utils.toArray<HTMLElement>('[data-reading-paragraph]', story);
+    if (prefersReducedMotion || paragraphsInView.length < 2) {
+      gsap.set(paragraphsInView, { opacity: 1, filter: 'blur(0px)' });
+      return;
     }
-    return imgs;
+
+    gsap.set(paragraphsInView, { opacity: 0.34, filter: 'blur(0.65px)' });
+
+    const triggers = paragraphsInView.map((paragraph) => ScrollTrigger.create({
+      trigger: paragraph,
+      scroller,
+      start: 'top 62%',
+      end: 'bottom 38%',
+      onToggle: ({ isActive }) => {
+        gsap.to(paragraph, {
+          opacity: isActive ? 1 : 0.34,
+          filter: isActive ? 'blur(0px)' : 'blur(0.65px)',
+          duration: 0.42,
+          ease: 'power2.out',
+          overwrite: true,
+        });
+      },
+    }));
+
+    ScrollTrigger.refresh();
+    return () => triggers.forEach((trigger) => trigger.kill());
+  }, {
+    scope: storyRef,
+    dependencies: [paragraphs, isExpanded, prefersReducedMotion],
+    revertOnUpdate: true,
+  });
+
+  const galleryImages = useMemo(() => {
+    const imgs = new Set<string>();
+    const addImage = (value: unknown) => {
+      if (typeof value !== 'string') return;
+      const image = value.trim();
+      if (image) imgs.add(image);
+    };
+    if (village.hasImage) addImage(village.image);
+    if (detailData?.images) {
+      detailData.images.forEach(addImage);
+    }
+    return Array.from(imgs);
   }, [village, detailData]);
+
+  const displayBadges = useMemo(() => (
+    Array.from(new Set(village.badges.map((badge) => badge.trim()).filter(Boolean)))
+  ), [village.badges]);
 
   const currentHeroImage = useMemo(() => {
     if (activeImageIdx !== null && galleryImages[activeImageIdx]) {
@@ -220,12 +273,14 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
   return (
     <AnimatePresence>
       <Overlay
+        key="hanok-dogam-detail"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
       >
         <ModalCard
+          ref={modalRef}
           initial={{ scale: 0.94, opacity: 0, y: 16 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.96, opacity: 0, y: 12 }}
@@ -264,6 +319,17 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
               </AddrText>
             </MetaRow>
 
+            <HanokAiStoryPanel
+              key={village.id}
+              village={village}
+              overview={
+                fetchedOverview
+                || cleanTourApiHtml(village.overview)
+                || cleanTourApiHtml(village.summary)
+              }
+              isContextLoading={isLoadingOverview}
+            />
+
             {/* 소리마루 오디오 도슨트 연계 (소리 관련은 모두 소리마루에서 일원화 청취) */}
             <SoriMaruBridgeCard stories={audioGuideStories} hanokName={village.name} />
 
@@ -290,13 +356,13 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
                   )}
                 </NoteHeader>
 
-                <StoryContainer $isExpanded={isExpanded}>
+                <StoryContainer ref={storyRef} $isExpanded={isExpanded}>
                   {paragraphs.length > 0 ? (
                     paragraphs.map((p, idx) => (
-                      <StoryParagraph key={idx}>{p}</StoryParagraph>
+                      <StoryParagraph data-reading-paragraph key={idx}>{p}</StoryParagraph>
                     ))
                   ) : (
-                    <StoryParagraph>
+                    <StoryParagraph data-reading-paragraph>
                       {village.name}의 건축 양식과 문화유산 기록을 수록 중입니다.
                     </StoryParagraph>
                   )}
@@ -436,11 +502,11 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
             )}
 
             {/* 문화유산 태그 */}
-            {village.badges.length > 0 && (
+            {displayBadges.length > 0 && (
               <div>
                 <BadgeTitle>문화유산 분류</BadgeTitle>
                 <BadgeList>
-                  {village.badges.map((b) => (
+                  {displayBadges.map((b) => (
                     <TagBadge key={b}>#{filterLabel(b)}</TagBadge>
                   ))}
                 </BadgeList>
@@ -474,6 +540,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
       {/* 라이트박스 전체화면 뷰어 */}
       {zoomedImageIdx !== null && galleryImages[zoomedImageIdx] && (
         <LightboxOverlay
+          key="hanok-dogam-lightbox"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}

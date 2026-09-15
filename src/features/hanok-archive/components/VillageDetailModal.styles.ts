@@ -21,6 +21,7 @@ export const ModalCard = styled(motion.div)`
   width: 100%;
   max-height: 88vh;
   overflow-y: auto;
+  overflow-x: hidden;
   position: relative;
   border: none;
   box-shadow: none;
@@ -107,7 +108,20 @@ export const HeroTitle = styled.h2`
 `;
 
 export const Body = styled.div`
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   padding: 24px 28px 32px;
+  overflow-x: hidden;
+
+  & > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  @media (max-width: 560px) {
+    padding: 20px 18px 28px;
+  }
 `;
 
 export const MetaRow = styled.div`
