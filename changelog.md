@@ -132,7 +132,7 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## [Unreleased] 
 ### Changed 
-- Fixed horizontal clipping in the Hanok AI story panel by constraining grid and flex children, wrapping long generated text, and making source links mobile-width rows.
+- Fixed horizontal clipping in the Hanok AI story panel by wrapping the complete result in a forced single-column grid, constraining every content boundary, and rendering sources as multiline full-width rows.
 - Prevented address-only Hanok summaries from appearing as AI history, merged verified snapshot descriptions into address-only live list records, delayed Gemini context until TourAPI detail resolution, and updated the grounded-search model candidates to the current Gemini 3.x Flash models.
 - Fixed the global theme toggle hydration mismatch by deferring browser-only preference, time, and viewport state until after the server-matching first render, adding a server snapshot guard to the header UI, and preserving the pre-hydration `data-theme` paint.
 - Added a source-grounded AI story panel to Hanok Dogam details, with history summaries, timelines, on-site observation points, public source links, neutral loading states, request cancellation, and a non-hallucinatory TourAPI fallback; repaired both Hanok detail modals to call the existing TourAPI detail endpoint instead of the removed `/api/village/:id` route.

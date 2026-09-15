@@ -15,7 +15,9 @@ interface HanokAiStoryPanelProps {
 }
 
 const Panel = styled.section`
+  box-sizing: border-box;
   width: 100%;
+  max-width: 100%;
   min-width: 0;
   min-height: 382px;
   margin-bottom: 24px;
@@ -25,6 +27,11 @@ const Panel = styled.section`
   color: ${meok[900]};
   overflow: hidden;
 
+  & > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+
   [data-theme='dark'] & {
     background: #24211d;
     color: ${meok[100]};
@@ -32,11 +39,7 @@ const Panel = styled.section`
 `;
 
 const Header = styled.header`
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
+  display: block;
   margin-bottom: 18px;
 `;
 
@@ -73,20 +76,48 @@ const AiLabel = styled.span`
   font-size: ${fontSize.micro};
   font-weight: 600;
   white-space: nowrap;
+  width: fit-content;
+  margin-top: 10px;
 
   [data-theme='dark'] & { background: rgba(255, 255, 255, 0.08); color: ${meok[300]}; }
 `;
 
 const Summary = styled.p`
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   margin: 0 0 20px;
   color: ${meok[700]};
   font-size: ${fontSize.sm};
   line-height: 1.82;
   letter-spacing: -0.01em;
-  word-break: keep-all;
+  white-space: pre-wrap;
+  word-break: break-word;
   overflow-wrap: anywhere;
 
   [data-theme='dark'] & { color: ${meok[300]}; }
+`;
+
+const StoryContent = styled.div`
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+
+  & > * {
+    grid-column: 1;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  p, li, strong, span, a {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
 `;
 
 const Subheading = styled.h4`
@@ -102,15 +133,16 @@ const Subheading = styled.h4`
 `;
 
 const Timeline = styled.ol`
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   margin: 0;
   padding: 0;
   list-style: none;
 `;
 
 const TimelineItem = styled.li`
-  display: grid;
-  grid-template-columns: minmax(60px, 82px) minmax(0, 1fr);
-  gap: 12px;
+  display: block;
   min-width: 0;
   padding: 10px 0;
   border-top: 1px solid #e5e5e3;
@@ -123,6 +155,8 @@ const Period = styled.span`
   font-size: ${fontSize.xs};
   font-weight: 600;
   overflow-wrap: anywhere;
+  display: block;
+  margin-bottom: 6px;
 
   [data-theme='dark'] & { color: ${palette.cheongrok[400]}; }
 `;
@@ -130,12 +164,14 @@ const Period = styled.span`
 const EventText = styled.div`
   min-width: 0;
   strong { display: block; margin-bottom: 3px; font-size: ${fontSize.sm}; font-weight: 600; }
-  strong, p { overflow-wrap: anywhere; word-break: keep-all; }
+  strong, p { max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
   p { margin: 0; color: ${meok[600]}; font-size: ${fontSize.xs}; line-height: 1.62; }
   [data-theme='dark'] & p { color: ${meok[400]}; }
 `;
 
 const Highlights = styled.ul`
+  width: 100%;
+  min-width: 0;
   display: grid;
   gap: 7px;
   margin: 0;
@@ -149,15 +185,16 @@ const Highlights = styled.ul`
     font-size: ${fontSize.xs};
     line-height: 1.62;
     overflow-wrap: anywhere;
-    word-break: keep-all;
+    word-break: break-word;
   }
   li::before { content: ''; position: absolute; left: 0; top: 0.7em; width: 4px; height: 4px; border-radius: 50%; background: ${palette.cheongrok[500]}; }
   [data-theme='dark'] & li { color: ${meok[300]}; }
 `;
 
 const SourceRow = styled.div`
-  display: flex;
-  flex-wrap: wrap;
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 7px;
   margin-top: 20px;
   padding-top: 14px;
@@ -181,7 +218,15 @@ const SourceLink = styled.a`
   font-size: ${fontSize.micro};
   text-decoration: none;
 
-  span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  align-items: flex-start;
+  line-height: 1.5;
+
+  span {
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
   &:hover { background: #e5e5e3; color: ${meok[900]}; }
   [data-theme='dark'] & { background: rgba(255,255,255,0.06); color: ${meok[300]}; }
 `;
@@ -195,6 +240,8 @@ const Disclaimer = styled.p`
   color: ${meok[500]};
   font-size: ${fontSize.micro};
   line-height: 1.5;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 `;
 
 const RetryButton = styled.button`
@@ -326,7 +373,7 @@ export default function HanokAiStoryPanel({
       )}
 
       {story && (
-        <>
+        <StoryContent>
           <Summary>{story.summary}</Summary>
 
           {story.timeline.length > 0 && (
@@ -372,7 +419,7 @@ export default function HanokAiStoryPanel({
               <RotateCw size={14} /> AI 해설 다시 검색
             </RetryButton>
           )}
-        </>
+        </StoryContent>
       )}
     </Panel>
   );
