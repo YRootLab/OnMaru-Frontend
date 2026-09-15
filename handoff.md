@@ -133,3 +133,29 @@ PR prep 2026-09-10:
 Next step:
 - User verification of reload behavior and dark mode appearance on `/map`.
 - 지도 카테고리 칩은 PR #66의 가로 스크롤 수축 동작을 유지하면서, mask로 그림자가 잘리는 문제를 제거하고 둥근 pill 스타일/진입 애니메이션을 복원했다. 현재 아이콘은 lucide-react 기준을 유지한다.
+
+## 2026-09-15 — 한옥 도감 AI 장소 해설
+
+- `도감 해설 보기` 상세 모달의 주소 아래에 `이 장소에 얽힌 이야기` 패널을 추가했다.
+- 서버 전용 `/api/hanok/story`가 Gemini Google Search grounding을 사용해 장소명·주소가 일치하는 공개 자료를 조사하고, 역사 요약·시간의 층위·현장 관찰 포인트·클릭 가능한 출처를 반환한다.
+- API 키 또는 검색 결과가 없을 때는 사실을 만들어내지 않고 기존 TourAPI/도감 설명으로 돌아간다.
+- 로딩 패널은 최종 패널과 같은 최소 높이를 확보하고 중립 회색 스켈레톤을 사용한다.
+- 프로세스 메모리에서 장소별 결과를 24시간 캐시하며 최대 80개를 유지한다.
+- 도감/숙소 상세 모달이 존재하지 않는 `/api/village/:id`를 호출하던 문제를 실제 `/api/tourapi/detail?id=...` 엔드포인트로 수정해 기존 TourAPI 설명도 다시 로드되게 했다.
+
+## 2026-09-15 — 테마 버튼 hydration 불일치 수정
+
+- `ThemeProvider`의 서버 렌더와 첫 클라이언트 렌더가 모두 `defaultMode`에서 시작하도록 통일했다.
+- localStorage 테마, 로컬 시간, 시스템 테마는 hydration 이후 animation frame에서 반영해 헤더 버튼의 label과 Emotion class 불일치를 제거했다.
+- 초기 effect가 `beforeInteractive` 테마를 SSR 기본값으로 덮어쓰지 않도록 보호해 다크 모드 첫 화면도 유지했다.
+- 모바일 지도 폭 감지도 서버와 동일한 초기값에서 시작하도록 정리했다.
+- 헤더 표시값에도 `useSyncExternalStore`의 서버 스냅샷을 적용해 Fast Refresh가 Provider 상태를 보존한 경우에도 hydration 시 버튼 속성과 Emotion class가 항상 `자동/라이트` 기준으로 일치하게 했다.
+
+## 2026-09-15 — AI 해설 주소 오인 및 Gemini 모델 수정
+
+- 도감 `summary`에 들어 있던 주소를 AI 해설 폴백으로 사용하지 않도록 제거했다.
+- TourAPI 상세 설명 로딩이 끝난 뒤 해당 설명만 Gemini 컨텍스트로 전달하며, 주소형 텍스트는 서버에서도 다시 차단한다.
+- Gemini 모델 후보를 현재 키가 노출하는 `gemini-3.8-flash` → `3.7-flash` → `3.6-flash` 순서로 갱신했다.
+- 현재 로컬 키는 정상 인식되지만 Gemini API가 429 할당량 응답을 반환한다. 할당량 회복 전에는 TourAPI 설명 또는 명시적인 재시도 안내를 표시한다.
+- 유효한 도감 `summary`는 다시 공공 기록 해설로 활용하고, 주소형 summary만 서버에서 제외한다. 공공 설명이 있으면 실패/재시도 문구와 일반적인 관찰 포인트를 노출하지 않는다.
+- 라이브 목록 응답이 `summary`에 주소만 제공하더라도 같은 ID의 정적 스냅샷 설명을 병합해 보존한다. 카드와 AI 패널 모두 주소 대신 실제 도감 설명을 받는다.

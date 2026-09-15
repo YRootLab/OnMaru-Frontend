@@ -125,7 +125,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
 
   useEffect(() => {
     let isMounted = true;
-    fetch(`/api/village/${stay.id}`)
+    fetch(`/api/tourapi/detail?id=${encodeURIComponent(stay.id)}`)
       .then((res) => (res.ok ? res.json() : null))
       .then((data: VillageDetailResponse | null) => {
         if (isMounted && data) setDetailData(data);

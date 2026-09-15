@@ -63,6 +63,28 @@ export const HANOK_ARCHIVE_FALLBACK: HanokArchiveData = {
   meta: createMeta(villages),
 };
 
+const fallbackVillageById = new Map(villages.map((village) => [village.id, village]));
+
+function normalizeComparableText(value: string): string {
+  return value.replace(/\s+/g, '').trim();
+}
+
+function preserveSnapshotDescription(village: Village): Village {
+  const snapshotVillage = fallbackVillageById.get(village.id);
+  if (!snapshotVillage) return village;
+
+  const liveSummary = village.summary?.trim() ?? '';
+  const summaryIsAddress = normalizeComparableText(liveSummary) === normalizeComparableText(village.addr ?? '');
+
+  return {
+    ...village,
+    summary: (!liveSummary || summaryIsAddress) && snapshotVillage.summary
+      ? snapshotVillage.summary
+      : liveSummary,
+    overview: village.overview?.trim() || snapshotVillage.overview,
+  };
+}
+
 export function decodeHanokArchivePayload(value: unknown): HanokArchiveData | null {
   if (!value || typeof value !== 'object') return null;
   const candidate = value as Partial<HanokArchiveData>;
@@ -82,5 +104,8 @@ export function decodeHanokArchivePayload(value: unknown): HanokArchiveData | nu
   ));
   if (!hasRegionalData) return null;
 
-  return candidate as HanokArchiveData;
+  return {
+    ...(candidate as HanokArchiveData),
+    villages: (candidate.villages as Village[]).map(preserveSnapshotDescription),
+  };
 }

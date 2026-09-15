@@ -33,6 +33,7 @@ import { useHanokAudioGuide } from '@/features/hanok-archive/hooks/useHanokAudio
 import { useHanokTranquility } from '@/features/hanok-archive/hooks/useHanokTranquility';
 import SoriMaruBridgeCard from './SoriMaruBridgeCard';
 import TranquilityGauge from './TranquilityGauge';
+import HanokAiStoryPanel from './HanokAiStoryPanel';
 import {
   Overlay,
   ModalCard,
@@ -160,7 +161,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
   useEffect(() => {
     let isMounted = true;
 
-    fetch(`/api/village/${village.id}`)
+    fetch(`/api/tourapi/detail?id=${encodeURIComponent(village.id)}`)
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
@@ -309,6 +310,17 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
                 {village.addr}
               </AddrText>
             </MetaRow>
+
+            <HanokAiStoryPanel
+              key={village.id}
+              village={village}
+              overview={
+                fetchedOverview
+                || cleanTourApiHtml(village.overview)
+                || cleanTourApiHtml(village.summary)
+              }
+              isContextLoading={isLoadingOverview}
+            />
 
             {/* 소리마루 오디오 도슨트 연계 (소리 관련은 모두 소리마루에서 일원화 청취) */}
             <SoriMaruBridgeCard stories={audioGuideStories} hanokName={village.name} />

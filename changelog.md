@@ -132,6 +132,9 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## [Unreleased] 
 ### Changed 
+- Prevented address-only Hanok summaries from appearing as AI history, merged verified snapshot descriptions into address-only live list records, delayed Gemini context until TourAPI detail resolution, and updated the grounded-search model candidates to the current Gemini 3.x Flash models.
+- Fixed the global theme toggle hydration mismatch by deferring browser-only preference, time, and viewport state until after the server-matching first render, adding a server snapshot guard to the header UI, and preserving the pre-hydration `data-theme` paint.
+- Added a source-grounded AI story panel to Hanok Dogam details, with history summaries, timelines, on-site observation points, public source links, neutral loading states, request cancellation, and a non-hallucinatory TourAPI fallback; repaired both Hanok detail modals to call the existing TourAPI detail endpoint instead of the removed `/api/village/:id` route.
 - Migrated all icons in the project to lucide-react. Removed react-icons dependency. (Resolves #60, #61, #62, #63, #64)
 - Replaced emoji usages in data files (e.g. curatedJourneys.ts) with lucide-react components.
 - 지도 카테고리 칩의 mask 기반 edge fade를 제거해 그림자 잘림을 막고, PR #66 이전의 둥근 pill 크기와 stagger pop-in 동작을 복원했다.

@@ -29,4 +29,17 @@ describe('decodeHanokArchivePayload', () => {
       meta: { ...HANOK_ARCHIVE_FALLBACK.meta, total: 1 },
     })).toBeNull();
   });
+
+  it('preserves the snapshot story when a live list response only supplies the address as summary', () => {
+    const snapshotVillage = HANOK_ARCHIVE_FALLBACK.villages.find((village) => (
+      village.id === '1055245'
+    )) ?? HANOK_ARCHIVE_FALLBACK.villages[0];
+    const decoded = decodeHanokArchivePayload({
+      villages: [{ ...snapshotVillage, summary: snapshotVillage.addr, overview: '' }],
+      meta: { ...HANOK_ARCHIVE_FALLBACK.meta, total: 1 },
+    });
+
+    expect(decoded?.villages[0].summary).toBe(snapshotVillage.summary);
+    expect(decoded?.villages[0].summary).not.toBe(snapshotVillage.addr);
+  });
 });
