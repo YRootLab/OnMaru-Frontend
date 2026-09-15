@@ -149,8 +149,12 @@ const MainSections = styled.main`
 `;
 
 const HeroStageDiv = styled(motion.div)`
-  padding-top: clamp(52px, 6.8vh, 80px);
+  padding-top: 3.25rem;
   padding-bottom: clamp(40px, 5vh, 64px);
+
+  @media (min-width: 768px) {
+    padding-top: clamp(6rem, 10vh, 8rem);
+  }
 `;
 
 const SectionGradientTitle = styled.h2`

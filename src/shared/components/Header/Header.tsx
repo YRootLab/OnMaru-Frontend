@@ -109,6 +109,12 @@ const HeaderContainer = styled('header', transientProps)<LandingProps>`
   @media (prefers-reduced-motion: reduce) {
     transition: none;
   }
+
+  body[data-sorimaru-player-open='true'] & {
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+  }
 `;
 
 const HeaderBackdrop = styled('div', transientProps)<LandingProps>`

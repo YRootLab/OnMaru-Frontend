@@ -396,24 +396,6 @@ const HeartSaveButton = styled(motion.button)<{ $saved: boolean }>`
   }
 `;
 
-const CategoryBadge = styled.span`
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25rem 0.625rem;
-  border-radius: 9999px;
-  background-color: #efefed;
-  font-size: ${fontSize.micro};
-  font-weight: 700;
-  color: ${meok[700]};
-  border: 1px solid rgba(0, 0, 0, 0.05);
-
-  [data-theme='dark'] & {
-    background-color: rgba(255, 255, 255, 0.08);
-    color: ${meok[200]};
-    border: 1px solid rgba(255, 255, 255, 0.08);
-  }
-`;
-
 const PlayingStatusBadge = styled.div`
   display: inline-flex;
   align-items: center;
@@ -793,6 +775,7 @@ export const LocalMiniPlayer: React.FC = () => {
     const scrollY = window.scrollY;
     const bodyStyle = document.body.style;
     const rootStyle = document.documentElement.style;
+    const previousModalState = document.body.dataset.sorimaruPlayerOpen;
     const previous = {
       bodyOverflow: bodyStyle.overflow,
       bodyPosition: bodyStyle.position,
@@ -811,6 +794,7 @@ export const LocalMiniPlayer: React.FC = () => {
     bodyStyle.paddingRight = scrollbarWidth > 0 ? `${scrollbarWidth}px` : '';
     rootStyle.overflow = 'hidden';
     rootStyle.overscrollBehavior = 'none';
+    document.body.dataset.sorimaruPlayerOpen = 'true';
 
     return () => {
       bodyStyle.overflow = previous.bodyOverflow;
@@ -820,6 +804,8 @@ export const LocalMiniPlayer: React.FC = () => {
       bodyStyle.paddingRight = previous.bodyPaddingRight;
       rootStyle.overflow = previous.rootOverflow;
       rootStyle.overscrollBehavior = previous.rootOverscrollBehavior;
+      if (previousModalState === undefined) delete document.body.dataset.sorimaruPlayerOpen;
+      else document.body.dataset.sorimaruPlayerOpen = previousModalState;
       window.scrollTo(0, scrollY);
     };
   }, [isExpanded]);
@@ -940,10 +926,9 @@ export const LocalMiniPlayer: React.FC = () => {
 
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 0 1.25rem' }}>
                     <div>
-                      <CategoryBadge>{story.category}</CategoryBadge>
                       <h2
                         style={{
-                          marginTop: '0.5rem',
+                          marginTop: 0,
                           maxWidth: 280,
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
@@ -1050,8 +1035,7 @@ export const LocalMiniPlayer: React.FC = () => {
 
                   {/* 메인 타이틀 & 서브타이틀 UX */}
                   <div style={{ marginTop: '1.25rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <CategoryBadge>{story.category}</CategoryBadge>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
                       <span style={{ fontSize: '0.8125rem', fontWeight: 500, color: meok[500] }}>
                         {story.locationName || '대한민국 문화유산'}
                       </span>

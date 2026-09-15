@@ -4,6 +4,7 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+- Fixed Sorimaru’s initial listening data to load a playable themed story search. The upstream base list currently contains metadata-only rows, so audio-less entries are now excluded before they reach the player.
 - Improved the Sorimaru expanded player: background scrolling now locks without a layout jump, touch overscroll stays inside the drawer, and Roadview uses a responsive 16:9 canvas with resize relayout and a motion-safe fallback image.
 - The expanded Sorimaru player now pairs Roadview and playback controls with a scrollable synchronized transcript on desktop, then stacks them for mobile.
 - Added a heart control to the expanded Sorimaru player and connected it to the persisted saved-sounds drawer.

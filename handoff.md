@@ -1,6 +1,8 @@
 # handoff.md
 
 Current work:
+- Sorimaru playback data fix: the public base-list endpoint currently returns metadata rows with no `audioUrl`, so initial listening content now uses the playable `한옥` story search. The adapter excludes media-less rows and the store rejects them as a final guard. Verified against the live API: the themed search returns playable URLs.
+- Verified after the playback fix: `npx tsc --noEmit` and the focused Sorimaru API/initial-load Vitest suite pass.
 - Sorimaru player UX pass: the expanded drawer preserves page position while locking background scroll, contains touch overscroll, and uses a Roadview canvas that relayouts responsively. `npx tsc --noEmit` passes.
 - Expanded-player layout: at 768px and above, Roadview and playback controls occupy the left column while the synchronized transcript is a scrollable right column; mobile keeps the same reading order vertically.
 - Saved sounds: the expanded player now has a heart button. It shares one persisted store with the "saved sounds" drawer, so saved and removed items update immediately.
