@@ -1,6 +1,9 @@
 # handoff.md
 
 Current work:
+- Summary: Added an FE-visible backend `toFE` implementation status note.
+  - Document: `docs/specs/TOFE_IMPLEMENTATION_STATUS.md`
+  - Captures implemented FE foundation, remaining Journey/VisitReview/saved-place/timeline gaps, and exact backend specs that should be resent before final integration.
 - Summary: Fixed the Onmaru landing header surface in light mode.
   - Root cause: `Header` treated the `/` landing hero as a dark surface based only on route/scroll state, even when the applied theme was `light`.
   - Added `src/shared/components/Header/headerSurface.ts` to make the rule explicit: landing dark surface is used only when the applied theme is `dark`.

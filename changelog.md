@@ -4,6 +4,7 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+- Added `docs/specs/TOFE_IMPLEMENTATION_STATUS.md` to make backend `toFE` implementation coverage, gaps, and refreshed BE spec needs visible to the FE team.
 - Fixed the Onmaru landing header so light mode keeps the same white navigation surface as the other top-level pages.
 - Replaced the header and map rail theme cycle button with an explicit `자동` / `라이트` / `다크` picker while preserving existing light navigation styling.
 - Made `system` theme mode time-aware: it now resolves to light during local daytime and dark at night, while still preserving explicit user choices for light or dark.
