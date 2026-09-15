@@ -136,12 +136,13 @@ export const TitleSection = styled.div`
 `;
 
 export const PlaceTitle = styled.h2`
+  font-family: var(--font-traditional);
   margin: 0 0 4px;
-  font-size: ${fontSize.lg};
-  font-weight: 500;
+  font-size: 20px;
+  font-weight: 700;
   color: ${meok[900]};
   line-height: 1.35;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -266,6 +267,86 @@ export const LiveWarmthPulse = styled.span<{ $busy: boolean }>`
   flex-shrink: 0;
   background: ${({ $busy }) => ($busy ? lightPalette.juhong[500] : lightPalette.hwanggeum[500])};
   box-shadow: 0 0 0 3px ${({ $busy }) => ($busy ? 'rgba(232, 90, 24, 0.2)' : 'rgba(245, 166, 35, 0.2)')};
+`;
+
+export const StampCheckInBanner = styled.div<{ $isVisited: boolean }>`
+  margin: 0 16px 14px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: ${({ $isVisited }) =>
+    $isVisited ? 'rgba(5, 150, 105, 0.08)' : 'rgba(212, 175, 55, 0.12)'};
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  transition: all 0.2s ease;
+
+  [data-theme='dark'] & {
+    background: ${({ $isVisited }) =>
+      $isVisited ? 'rgba(5, 150, 105, 0.18)' : 'rgba(212, 175, 55, 0.18)'};
+  }
+`;
+
+export const StampBannerLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+`;
+
+export const StampBannerText = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+`;
+
+export const StampBannerTitle = styled.span`
+  font-family: var(--font-traditional);
+  font-size: 13px;
+  font-weight: 700;
+  color: ${meok[900]};
+
+  [data-theme='dark'] & {
+    color: #ffffff;
+  }
+`;
+
+export const StampBannerSub = styled.span`
+  font-size: ${fontSize.micro};
+  color: ${meok[500]};
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
+`;
+
+export const StampActionBtn = styled.button<{ $isVisited: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: ${fontSize.micro};
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  background: ${({ $isVisited }) => ($isVisited ? 'rgba(5, 150, 105, 0.15)' : '#b91c1c')};
+  color: ${({ $isVisited }) => ($isVisited ? '#047857' : '#ffffff')};
+  transition: opacity 0.15s ease, transform 0.1s ease;
+
+  &:hover {
+    opacity: 0.92;
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+
+  [data-theme='dark'] & {
+    background: ${({ $isVisited }) => ($isVisited ? 'rgba(5, 150, 105, 0.25)' : '#b91c1c')};
+    color: ${({ $isVisited }) => ($isVisited ? '#34d399' : '#ffffff')};
+  }
 `;
 
 export const LiveWarmthCount = styled.span`
@@ -425,9 +506,10 @@ export const OverviewSection = styled.div`
 `;
 
 export const SectionTitle = styled.h3` /* 14px — 작은 제목이라 500으로 본문과 갈라 준다 */
+  font-family: var(--font-traditional-title);
   margin: 0 0 8px;
-  font-size: ${fontSize.sm};
-  font-weight: 500;
+  font-size: 15px;
+  font-weight: 700;
   color: ${meok[900]};
 
   [data-theme='dark'] & {
@@ -436,9 +518,10 @@ export const SectionTitle = styled.h3` /* 14px — 작은 제목이라 500으로
 `;
 
 export const OverviewText = styled.p<{ $expanded: boolean }>`
+  font-family: var(--font-traditional-body);
   margin: 0;
-  font-size: ${fontSize.sm};
-  line-height: 1.7;
+  font-size: 14.5px;
+  line-height: 1.75;
   color: ${meok[700]};
   word-break: keep-all;
   white-space: pre-line;
@@ -675,9 +758,10 @@ export const CinematicDuration = styled.span`
 `;
 
 export const CinematicTitle = styled.h4`
+  font-family: var(--font-traditional-title);
   margin: 0;
-  font-size: ${fontSize.sm};
-  font-weight: 500;
+  font-size: 15px;
+  font-weight: 700;
   color: ${meok[900]};
   line-height: 1.35;
 
@@ -687,10 +771,11 @@ export const CinematicTitle = styled.h4`
 `;
 
 export const CinematicDesc = styled.p`
+  font-family: var(--font-traditional-body);
   margin: 0;
-  font-size: ${fontSize.xs};
+  font-size: 13px;
   color: ${meok[700]};
-  line-height: 1.4;
+  line-height: 1.45;
 
   [data-theme='dark'] & {
     color: ${meok[400]};

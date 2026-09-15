@@ -33,21 +33,21 @@ interface CategoryItem {
 
 const CATEGORIES: Record<MapMode, CategoryItem[]> = {
   info: [
-    { id: 'spot', label: '고택·명소', keyword: '고택', icon: Landmark },
-    { id: 'experience', label: '한복·전통체험', keyword: '체험', icon: Sparkles },
-    { id: 'culture', label: '문화재·서원', keyword: '서원', icon: BookOpen },
-    { id: 'festival', label: '야행·축제', keyword: '축제', icon: Calendar },
-    { id: 'stay', label: '한옥숙소', keyword: '한옥스테이', icon: Home },
-    { id: 'food', label: '향토음식', keyword: '향토음식', icon: Utensils },
-    { id: 'cafe', label: '한옥카페·디저트', keyword: '한옥카페', icon: Coffee },
-    { id: 'market', label: '전통시장', keyword: '전통시장', icon: ShoppingBag },
+    { id: 'spot', label: '고택', keyword: '고택', icon: Landmark },
+    { id: 'experience', label: '전통 체험', keyword: '체험', icon: Sparkles },
+    { id: 'culture', label: '문화유산', keyword: '서원', icon: BookOpen },
+    { id: 'festival', label: '축제', keyword: '축제', icon: Calendar },
+    { id: 'stay', label: '한옥 숙소', keyword: '한옥스테이', icon: Home },
+    { id: 'food', label: '전통 맛집', keyword: '향토음식', icon: Utensils },
+    { id: 'cafe', label: '한옥 카페', keyword: '한옥카페', icon: Coffee },
+    { id: 'market', label: '전통 시장', keyword: '전통시장', icon: ShoppingBag },
   ],
   warmth: [
-    { id: 'all', label: '모든 온기', keyword: '', icon: Flame },
+    { id: 'all', label: '전체 온기', keyword: '', icon: Flame },
     { id: 'busy', label: '북적이는 곳', keyword: '북적', icon: Users },
     { id: 'quiet', label: '한적한 곳', keyword: '한적', icon: Leaf },
-    { id: 'today', label: '오늘의 온기', keyword: '오늘', icon: Calendar },
-    { id: 'mine', label: '내 온기', keyword: '내온기', icon: Heart },
+    { id: 'today', label: '오늘 이야기', keyword: '오늘', icon: Calendar },
+    { id: 'mine', label: '내가 쓴 글', keyword: '내온기', icon: Heart },
   ],
 };
 
@@ -118,7 +118,7 @@ const Chip = styled.button<{ $active: boolean; $index: number }>`
   background: ${({ $active }) => ($active ? meok[900] : 'rgba(255, 255, 255, 0.94)')};
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid ${({ $active }) => ($active ? meok[900] : 'rgba(25, 31, 40, 0.08)')};
+  border: none;
 
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
   font-family: 'Spoqa Han Sans Neo', sans-serif;
@@ -127,10 +127,7 @@ const Chip = styled.button<{ $active: boolean; $index: number }>`
   letter-spacing: -0.02em;
   white-space: nowrap;
   cursor: pointer;
-  box-shadow: ${({ $active }) =>
-    $active
-      ? '0 4px 12px rgba(25, 31, 40, 0.2)'
-      : '0 2px 6px rgba(0, 0, 0, 0.05)'};
+  box-shadow: none;
   opacity: 0;
   animation: ${chipPopIn} 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   animation-delay: ${({ $index }) => $index * 40}ms;
@@ -145,10 +142,6 @@ const Chip = styled.button<{ $active: boolean; $index: number }>`
     color: ${({ $active }) => ($active ? '#ffffff' : meok[900])};
     background: ${({ $active }) => ($active ? meok[900] : '#ffffff')};
     transform: translateY(-1px);
-    box-shadow: ${({ $active }) =>
-      $active
-        ? '0 6px 16px rgba(25, 31, 40, 0.22)'
-        : '0 4px 12px rgba(0, 0, 0, 0.08)'};
   }
 
   &:active {
@@ -174,23 +167,17 @@ const Chip = styled.button<{ $active: boolean; $index: number }>`
 
   [data-theme='dark'] & {
     background: ${({ $active }) => ($active ? '#ffffff' : 'rgba(30, 32, 38, 0.92)')};
-    border-color: ${({ $active }) => ($active ? '#ffffff' : 'rgba(255, 255, 255, 0.1)')};
+    border: none;
     color: ${({ $active }) => ($active ? meok[900] : meok[200])};
-    box-shadow: ${({ $active }) =>
-      $active
-        ? '0 4px 12px rgba(255, 255, 255, 0.2)'
-        : '0 2px 6px rgba(0, 0, 0, 0.4)'};
+    box-shadow: none;
   }
 
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme='light']) & {
       background: ${({ $active }) => ($active ? '#ffffff' : 'rgba(30, 32, 38, 0.92)')};
-      border-color: ${({ $active }) => ($active ? '#ffffff' : 'rgba(255, 255, 255, 0.1)')};
+      border: none;
       color: ${({ $active }) => ($active ? meok[900] : meok[200])};
-      box-shadow: ${({ $active }) =>
-        $active
-          ? '0 4px 12px rgba(255, 255, 255, 0.2)'
-          : '0 2px 6px rgba(0, 0, 0, 0.4)'};
+      box-shadow: none;
     }
   }
 

@@ -20,6 +20,7 @@ import {
   ChevronDown,
   ChevronUp,
   Bookmark,
+  CheckCircle2,
 } from 'lucide-react';
 import { logger } from '@/lib/log';
 import { lightPalette, meok } from '@/design-system/tokens';
@@ -28,7 +29,9 @@ import { useCinematicTourStore } from '@/features/cinematic-tour/store/useCinema
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import { usePlaceDetail } from '@/features/map/hooks/usePlaceDetail';
-import { calculateTravelEstimate } from '@/features/map/utils/geo';
+import { useStampStore } from '@/features/stamp/hooks/useStampStore';
+import { stampAudio } from '@/features/stamp/utils/sound';
+import { calculateTravelEstimate, isTraditionalPlace } from '@/features/map/utils/geo';
 import { createKakaoNavigationLinks } from '@/features/map/utils/navigation';
 import PlaceDetailCarousel from './detail/PlaceDetailCarousel';
 import PlaceWarmthSection from './warmth/PlaceWarmthSection';
@@ -55,6 +58,12 @@ import {
   HeroActionGrid,
   HeroActionTile,
   HeroActionLink,
+  StampCheckInBanner,
+  StampBannerLeft,
+  StampBannerText,
+  StampBannerTitle,
+  StampBannerSub,
+  StampActionBtn,
   CoreInfoBox,
   CoreRow,
   CoreLabel,
@@ -170,9 +179,7 @@ export default function PlaceDetail() {
 
   const isRealTraditional = useMemo(() => {
     if (selectedItem?.isTraditional !== undefined) return selectedItem.isTraditional;
-    return /(한옥|고택|종택|향교|서원|사당|궁궐|성곽|누각|정자|기와|초가|전통|다원|다도|명옥헌|임청각|명재|선교장|운현궁|낙선재|대청|마루|온돌|당\b|재\b|헌\b|루\b|정\b|각\b|원\b)/i.test(
-      title,
-    );
+    return isTraditionalPlace(title);
   }, [selectedItem?.isTraditional, title]);
 
   const userLocation = useMapStore((s) => s.userLocation);
@@ -185,7 +192,7 @@ export default function PlaceDetail() {
   const badges = useMemo(() => {
     const list: string[] = [];
     if (isRealTraditional) {
-      list.push('🏛️ 정통 한옥');
+      list.push('정통 한옥');
     } else {
       list.push('주변 연계 시설');
     }
@@ -305,6 +312,10 @@ export default function PlaceDetail() {
 
   const isBookmarked = useBookmarkStore((s) => s.isBookmarked(detailId || ''));
   const toggleBookmark = useBookmarkStore((s) => s.toggleBookmark);
+
+  const isPlaceVisited = useStampStore((s) => s.isPlaceVisited(detailId || ''));
+  const checkIn = useStampStore((s) => s.checkIn);
+  const openStampModal = useStampStore((s) => s.openStampModal);
 
   const handleToggleBookmark = () => {
     if (!detailId) return;
@@ -429,20 +440,20 @@ export default function PlaceDetail() {
                   type="button"
                   $highlight
                   onClick={handleStartCinematicTour}
-                  title="시네마틱 오디오 투어 시작"
+                  title="현장 오디오 해설 듣기"
                 >
                   <Headphones size={18} strokeWidth={2} />
-                  <span>오디 투어</span>
+                  <span>오디오 해설</span>
                 </HeroActionTile>
               )}
 
               <HeroActionTile
                 type="button"
                 onClick={() => setIsRoadviewOpen(true)}
-                title="카카오 현장 360도 거리 풍경 둘러보기"
+                title="현장 360도 로드뷰 둘러보기"
               >
                 <Camera size={18} strokeWidth={2} />
-                <span>거리 풍경</span>
+                <span>로드뷰</span>
               </HeroActionTile>
 
               {hasValidCoords ? (
@@ -477,12 +488,60 @@ export default function PlaceDetail() {
               </HeroActionTile>
             </HeroActionGrid>
 
+            {/* 정통 한옥·문화재 명소에만 수결첩 방문 스탬프 체크인 활성화 */}
+            {isRealTraditional && (
+              <StampCheckInBanner $isVisited={isPlaceVisited}>
+                <StampBannerLeft>
+                  <Award size={18} color={isPlaceVisited ? '#059669' : '#b45309'} />
+                  <StampBannerText>
+                    <StampBannerTitle>
+                      {isPlaceVisited ? '수결첩에 보관된 한옥' : '한옥 수결첩 방문 기록'}
+                    </StampBannerTitle>
+                    <StampBannerSub>
+                      {isPlaceVisited
+                        ? '수결첩에 도장을 남겼어요 · 눌러서 확인하기'
+                        : '이곳을 다녀오셨다면 방문 도장을 남겨보세요'}
+                    </StampBannerSub>
+                  </StampBannerText>
+                </StampBannerLeft>
+                <StampActionBtn
+                  type="button"
+                  $isVisited={isPlaceVisited}
+                  onClick={() => {
+                    if (!detailId) return;
+                    const res = checkIn({
+                      id: detailId,
+                      name: title,
+                      address: addr,
+                      isTraditional: true,
+                    });
+                    stampAudio.playStampSound();
+                    if (res.primaryStamp) {
+                      openStampModal(res.primaryStamp);
+                    }
+                  }}
+                >
+                  {isPlaceVisited ? (
+                    <>
+                      <CheckCircle2 size={13} strokeWidth={2.5} />
+                      <span>도장 보기</span>
+                    </>
+                  ) : (
+                    <>
+                      <Award size={13} strokeWidth={2} />
+                      <span>도장 찍기</span>
+                    </>
+                  )}
+                </StampActionBtn>
+              </StampCheckInBanner>
+            )}
+
             {matchedSorimaruStory && (
               <CinematicBanner>
                 <CinematicHeader>
                   <CinematicBadge>
                     <Compass size={13} strokeWidth={2} />
-                    <span>시네마틱 공간 오디오 투어</span>
+                    <span>오디오 도슨트</span>
                   </CinematicBadge>
                   <CinematicDuration>
                     {matchedSorimaruStory.formattedDuration || '약 10분'}
@@ -490,11 +549,11 @@ export default function PlaceDetail() {
                 </CinematicHeader>
                 <CinematicTitle>{matchedSorimaruStory.audioTitle}</CinematicTitle>
                 <CinematicDesc>
-                  {matchedSorimaruStory.speaker ?? '도슨트'}와 함께 지도를 따라 걷는 {matchedSorimaruStory.waypoints?.length || 4}대 경유지 코스
+                  {matchedSorimaruStory.speaker ?? '해설사'}와 함께 지도를 따라 걷는 코스
                 </CinematicDesc>
                 <CinematicStartButton type="button" onClick={handleStartCinematicTour}>
                   <Play size={15} strokeWidth={2} className="ml-0.5" />
-                  <span>시네마틱 투어 시작하기</span>
+                  <span>오디오 해설 듣기</span>
                 </CinematicStartButton>
               </CinematicBanner>
             )}
@@ -513,20 +572,20 @@ export default function PlaceDetail() {
                 <CoreLabel>카테고리</CoreLabel>
                 <CoreValue>
                   {selectedItem?.category === 'stay'
-                    ? isRealTraditional ? '정통 한옥숙소' : '주변 연계숙소'
+                    ? isRealTraditional ? '한옥 숙소' : '주변 숙소'
                     : selectedItem?.category === 'experience'
-                      ? '한복·전통체험'
+                      ? '전통 체험'
                       : selectedItem?.category === 'culture'
-                        ? '문화재·서원'
+                        ? '문화유산'
                         : selectedItem?.category === 'festival'
-                          ? '야행·문화축제'
+                          ? '축제'
                           : selectedItem?.category === 'food'
-                            ? isRealTraditional ? '향토·전통음식' : '주변 일반음식점'
+                            ? isRealTraditional ? '전통 맛집' : '일반 음식점'
                             : selectedItem?.category === 'cafe'
-                              ? isRealTraditional ? '전통 찻집·한옥카페' : '주변 일반카페'
+                              ? isRealTraditional ? '한옥 카페' : '일반 카페'
                               : selectedItem?.category === 'market'
-                                ? '전통시장'
-                                : isRealTraditional ? '고택·명소' : '관광명소'}
+                                ? '전통 시장'
+                                : isRealTraditional ? '고택' : '명소'}
                 </CoreValue>
               </CoreRow>
 

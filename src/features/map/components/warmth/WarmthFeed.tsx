@@ -354,19 +354,19 @@ export default function WarmthFeed() {
 
       {topPlace && (
         <FeaturedPlaceArea>
-          <FeaturedCard
-            type="button"
-            onClick={() =>
-              handlePlaceClick(topPlace.placeId, topPlace.placeName, topPlace.lat, topPlace.lng)
-            }
-            title="장소 상세 보기"
-          >
-            <FeaturedLeft>
+          <FeaturedCard>
+            <FeaturedLeft
+              type="button"
+              onClick={() =>
+                handlePlaceClick(topPlace.placeId, topPlace.placeName, topPlace.lat, topPlace.lng)
+              }
+              title="장소 상세 보기"
+            >
               <FeaturedIconBox>{renderPlaceIcon(topPlace.placeName)}</FeaturedIconBox>
               <FeaturedInfo>
                 <FeaturedRank>
                   <Flame size={12} strokeWidth={2} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
-                  <span>실시간 방문 집중 1위</span>
+                  <span>지금 가장 많은 분이 찾은 곳</span>
                 </FeaturedRank>
                 <FeaturedName>{topPlace.placeName}</FeaturedName>
                 <FeaturedMeta>
@@ -377,12 +377,11 @@ export default function WarmthFeed() {
 
             <MoreBtn
               type="button"
-              onClick={(e) => {
-                e.stopPropagation();
+              onClick={() => {
                 setPopularPanelOpen(true);
                 setSheetSnap('half');
               }}
-              title="1위~10위 인기 장소 전체 순위 보기"
+              title="인기 장소 순위 보기"
             >
               <span>더보기</span>
               <ChevronRight size={13} strokeWidth={2} />
@@ -400,7 +399,7 @@ export default function WarmthFeed() {
       <ReviewSectionHeader>
         <ReviewSectionTitle>
           <MessageCircle size={16} strokeWidth={2} color={meok[700]} />
-          <span>여행자들이 남긴 온기 이야기</span>
+          <span>다녀간 분들의 온기 이야기</span>
         </ReviewSectionTitle>
 
         <SortWrapper>
@@ -421,12 +420,12 @@ export default function WarmthFeed() {
         {filteredReviews.length === 0 ? (
           <EmptyState>
             {category === 'mine'
-              ? '아직 내가 남긴 온기가 없습니다.'
+              ? '아직 남긴 온기가 없어요.'
               : selectedRegion === 'all'
-                ? '선택하신 조건에 해당하는 온기가 아직 없습니다.'
-                : `${selectedRegion}에 남겨진 온기가 아직 없습니다.`}
+                ? '조건에 맞는 이야기가 아직 없어요.'
+                : `${selectedRegion}에 남겨진 온기가 아직 없어요.`}
             <br />
-            이곳에 첫 번째 따뜻한 온기를 불어넣어 보세요.
+            첫 번째 이야기를 남겨보세요.
           </EmptyState>
         ) : (
           <>

@@ -60,7 +60,7 @@ const SkeletonGrid = styled.div`
 
 function ArchiveSkeleton() {
   return (
-    <SkeletonGrid aria-busy="true" aria-label="이야기 목록 로딩 중">
+    <SkeletonGrid aria-busy="true" aria-label="이야기를 불러오는 중이에요">
       {Array.from({ length: 12 }, (_, index) => (
         <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderRadius: '1rem', backgroundColor: '#f8f8f7', padding: '0.75rem' }}>
           <SkeletonBox style={{ height: 80, width: 80, flexShrink: 0, borderRadius: 12 }} />
@@ -454,7 +454,7 @@ export function SorimaruArchiveBrowse({ stories, isLoading }: SorimaruArchiveBro
         <ArchiveSkeleton />
       ) : stories.length === 0 ? (
         <div style={{ padding: '4rem 0', textAlign: 'center', fontSize: '0.75rem', color: meok[700] }}>
-          선택한 조건에 해당하는 오디오 가이드가 없습니다.
+          조건에 맞는 이야기가 아직 없어요.
         </div>
       ) : view === 'stories' ? (
         <div

@@ -952,7 +952,7 @@ export default function Header() {
         <MobileMenuButton
           type="button"
           $isLanding={usesDarkSurface}
-          aria-label="메뉴 열기"
+          aria-label="메뉴"
           aria-expanded={isMobileMenuOpen}
           aria-controls="mobile-navigation"
           onClick={() => setIsMobileMenuOpen((prev) => !prev)}

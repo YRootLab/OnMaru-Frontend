@@ -182,8 +182,8 @@ export default function JourneyRefineBar() {
           <Sparkles size={16} color={lightPalette.cheongrok[500]} />
           <span>
             {isGenerating
-              ? '여정 조건을 반영하여 새로운 코스를 구성하는 중...'
-              : '여정 조건을 실시간으로 재조정할 수 있어요'}
+              ? '요청하신 내용을 반영해 코스를 다시 짜고 있어요'
+              : '원하는 조건을 더해 코스를 바꿔보세요'}
           </span>
         </Header>
 
@@ -192,11 +192,11 @@ export default function JourneyRefineBar() {
             type="text"
             value={refineText}
             onChange={(e) => setRefineText(e.target.value)}
-            placeholder="예: 근처 조용한 전통 찻집도 포함해줘 / 많이 걷지 않는 코스로 바꿔줘"
+            placeholder="예: 조용한 전통 찻집 포함하기, 덜 걷는 코스로 바꾸기"
             aria-label="여정 조건 추가 입력"
             disabled={isGenerating}
           />
-          <SendBtn type="submit" $disabled={isGenerating} title="조건 반영">
+          <SendBtn type="submit" $disabled={isGenerating} title="조건 적용하기">
             <CornerDownLeft size={14} />
           </SendBtn>
         </InputRow>

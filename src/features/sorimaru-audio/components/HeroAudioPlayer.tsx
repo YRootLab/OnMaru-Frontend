@@ -340,7 +340,7 @@ export const HeroAudioPlayer: React.FC = () => {
             $active={isBookmarked}
           >
             {isBookmarked ? <BookmarkCheck size={14} strokeWidth={2} fill="currentColor" /> : <Bookmark size={14} strokeWidth={2} />}
-            <span>{isBookmarked ? '저장됨' : '북마크'}</span>
+            <span>{isBookmarked ? '저장됨' : '담아두기'}</span>
           </BookmarkBtn>
 
           {/* 메인 컨트롤러 (10초 이전 / 재생-일시정지 / 10초 다음) */}

@@ -122,9 +122,9 @@ export const RegionChip = styled.button<{ $active: boolean }>`
   flex: none;
   padding: 4.5px 10.5px;
   border-radius: 9999px;
-  border: ${({ $active }) => ($active ? '1.5px solid #222222' : '1px solid #e5e8eb')};
-  background: ${({ $active }) => ($active ? '#f2f4f6' : '#ffffff')};
-  color: ${({ $active }) => ($active ? '#191f28' : '#333d4b')};
+  border: none;
+  background: ${({ $active }) => ($active ? '#191f28' : 'rgba(0,0,0,0.05)')};
+  color: ${({ $active }) => ($active ? '#ffffff' : '#333d4b')};
   font-family: inherit;
   font-size: ${fontSize.xs};
   font-weight: ${({ $active }) => ($active ? 600 : 400)};
@@ -135,24 +135,20 @@ export const RegionChip = styled.button<{ $active: boolean }>`
   transition: all 0.15s ease;
 
   [data-theme='dark'] & {
-    border: ${({ $active }) =>
-      $active ? '1.5px solid rgba(255, 255, 255, 0.85)' : '1px solid rgba(255, 255, 255, 0.12)'};
+    border: none;
     background: ${({ $active }) =>
-      $active ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.04)'};
+      $active ? 'rgba(255, 255, 255, 0.18)' : 'rgba(255, 255, 255, 0.06)'};
     color: ${({ $active }) => ($active ? '#ffffff' : '#a1a1aa')};
   }
 
   &:hover {
-    background: ${({ $active }) => ($active ? '#f2f4f6' : '#f8f9fa')};
-    color: #191f28;
-    border-color: ${({ $active }) => ($active ? '#222222' : '#d1d5db')};
+    background: ${({ $active }) => ($active ? '#191f28' : 'rgba(0,0,0,0.08)')};
+    color: ${({ $active }) => ($active ? '#ffffff' : '#191f28')};
 
     [data-theme='dark'] & {
       background: ${({ $active }) =>
-        $active ? 'rgba(255, 255, 255, 0.18)' : 'rgba(255, 255, 255, 0.08)'};
+        $active ? 'rgba(255, 255, 255, 0.22)' : 'rgba(255, 255, 255, 0.1)'};
       color: #ffffff;
-      border-color: ${({ $active }) =>
-        $active ? 'rgba(255, 255, 255, 0.9)' : 'rgba(255, 255, 255, 0.22)'};
     }
   }
 
@@ -169,16 +165,8 @@ export const ScrubberSection = styled.div`
   padding: 0 16px 12px;
 `;
 
-/*
-  클릭으로 상세를 여는 카드라 button으로 둔다.
-  div + onClick이면 Tab으로 닿지 않고 Enter로도 열리지 않는다.
-*/
-export const FeaturedCard = styled.button`
+export const FeaturedCard = styled.div`
   width: 100%;
-  text-align: left;
-  font-family: inherit;
-  cursor: pointer;
-
   padding: 14px 16px;
   background: #f8f6f0;
   border-radius: 18px;
@@ -186,32 +174,32 @@ export const FeaturedCard = styled.button`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  cursor: pointer;
+  gap: 12px;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-
-  &:hover {
-    background: #f2eee6;
-    transform: translateY(-1px);
-  }
-
-  &:active {
-    transform: scale(0.985);
-  }
 
   [data-theme='dark'] & {
     background: #25221d;
-
-    &:hover {
-      background: #2c2822;
-    }
   }
 `;
 
-export const FeaturedLeft = styled.div`
+export const FeaturedLeft = styled.button`
   display: flex;
   align-items: center;
   gap: 10px;
   min-width: 0;
+  flex: 1;
+  text-align: left;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  border-radius: 8px;
+  transition: opacity 0.15s ease;
+
+  &:hover {
+    opacity: 0.85;
+  }
 `;
 
 export const FeaturedIconBox = styled.div`
@@ -244,9 +232,10 @@ export const FeaturedRank = styled.span`
 `;
 
 export const FeaturedName = styled.h4`
+  font-family: var(--font-traditional);
   margin: 0 0 2px;
-  font-size: ${fontSize.sm};
-  font-weight: 500;
+  font-size: 15px;
+  font-weight: 700;
   color: ${meok[900]};
   overflow: hidden;
   text-overflow: ellipsis;
@@ -322,21 +311,19 @@ export const SortWrapper = styled.div`
   align-items: center;
   border-radius: 9999px;
   background: rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: none;
   transition: all 0.15s ease;
 
   &:hover {
     background: rgba(0, 0, 0, 0.07);
-    border-color: rgba(0, 0, 0, 0.14);
   }
 
   [data-theme='dark'] & {
     background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.12);
+    border: none;
 
     &:hover {
       background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.18);
     }
   }
 `;

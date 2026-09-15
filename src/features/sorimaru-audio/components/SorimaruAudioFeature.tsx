@@ -23,6 +23,7 @@ import { SorimaruStoryItem, SorimaruStoryPage, ISorimaruApiService } from '@/fea
 import { SorimaruDependencyProvider, useSorimaruApiService } from '@/features/sorimaru-audio/context/SorimaruDependencyContext';
 import { loadSorimaruInitialData } from './sorimaruInitialLoad';
 import { palette, meok, surface, fontSize } from '@/design-system/tokens';
+import { HanjiDeckleEdge } from '@/shared/components/HanjiDeckleEdge';
 
 const AllStoriesModal = dynamic(
   () => import('./AllStoriesModal').then((module) => module.AllStoriesModal),
@@ -140,24 +141,16 @@ const RetryButton = styled.button`
 const MainSections = styled.main`
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 2rem;
 
   @media (min-width: 640px) {
-    gap: 1.5rem;
+    gap: 3rem;
   }
 `;
 
 const HeroStageDiv = styled(motion.div)`
-  min-height: 520px;
-  padding-top: 6rem;
-
-  @media (min-width: 640px) {
-    min-height: 560px;
-    padding-top: 7rem;
-  }
-  @media (min-width: 1024px) {
-    padding-top: 8rem;
-  }
+  padding-top: clamp(52px, 6.8vh, 80px);
+  padding-bottom: clamp(40px, 5vh, 64px);
 `;
 
 const SectionGradientTitle = styled.h2`
@@ -549,7 +542,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   return (
     <SorimaruDependencyProvider apiService={activeApiService}>
       <FeatureContainer>
-        <TopRadialGlow aria-hidden="true" />
+        <HanjiDeckleEdge />
         <SorimaruAtmosphereBackground
           variant={backgroundVariant}
           selectedCategory={selectedCategory}

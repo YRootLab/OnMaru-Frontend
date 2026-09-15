@@ -28,15 +28,15 @@ import type { Item, PlaceCategory } from '@/features/map/types';
 const ITEMS_PER_PAGE = 10;
 
 const CATEGORY_NAMES: Record<string, string> = {
-  bookmark: '마음에 담은 곳',
-  spot: '고택·명소',
-  experience: '한복·전통체험',
-  culture: '문화재·서원',
-  festival: '야행·축제',
-  stay: '한옥숙소',
-  food: '향토음식',
-  cafe: '한옥카페·디저트',
-  market: '전통시장',
+  bookmark: '저장한 장소',
+  spot: '고택',
+  experience: '전통 체험',
+  culture: '문화유산',
+  festival: '축제',
+  stay: '한옥 숙소',
+  food: '전통 맛집',
+  cafe: '한옥 카페',
+  market: '전통 시장',
 };
 
 const StickyHeader = styled.div`
@@ -585,7 +585,7 @@ export default function PlaceList() {
           <EmptyIconBox>
             <AlertCircle size={24} strokeWidth={2} />
           </EmptyIconBox>
-          <EmptyTitle>정보를 불러오지 못했습니다</EmptyTitle>
+          <EmptyTitle>정보를 가져오지 못했어요</EmptyTitle>
           <EmptyDesc>{error}</EmptyDesc>
           <ActionButton type="button" onClick={reload}>
             <RotateCcw size={14} strokeWidth={2} />
@@ -603,15 +603,15 @@ export default function PlaceList() {
           </EmptyIconBox>
           <EmptyTitle>
             {category === 'bookmark'
-              ? '아직 마음에 담은 장소가 없습니다'
-              : '현재 반경에 장소가 없습니다'}
+              ? '아직 저장한 장소가 없어요'
+              : '주변에 등록된 한옥이 없어요'}
           </EmptyTitle>
           <EmptyDesc>
             {category === 'bookmark'
-              ? '마음에 드는 한옥 명소의 [마음에 담기]를 눌러\n나만의 여행 지도를 만들어보세요.'
+              ? '마음에 드는 장소의 하트를 눌러\n나만의 여행 지도를 만들어보세요.'
               : category
-                ? `선택하신 '${CATEGORY_NAMES[category] || category}' 장소가 가까운 반경에 없습니다.`
-                : '지도 영역을 넓히거나 전국 인기 명소를 둘러보세요.'}
+                ? `근처에 '${CATEGORY_NAMES[category] || category}' 장소가 없어요.`
+                : '지도를 축소하거나 다른 지역을 둘러보세요.'}
           </EmptyDesc>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', maxWidth: '240px' }}>
             {category && (
@@ -631,7 +631,7 @@ export default function PlaceList() {
                 style={{ width: '100%', justifyContent: 'center' }}
               >
                 <Map size={14} strokeWidth={2} />
-                <span>지도 영역 2배 넓히기</span>
+                <span>검색 반경 넓히기</span>
               </ActionButton>
             )}
             <ActionButton
@@ -640,7 +640,7 @@ export default function PlaceList() {
               style={{ width: '100%', justifyContent: 'center', background: 'rgba(232, 90, 24, 0.08)', color: lightPalette.juhong[500] }}
             >
               <Sparkles size={14} strokeWidth={2} />
-              <span>전국 인기 명소 랭킹</span>
+              <span>인기 한옥 둘러보기</span>
             </ActionButton>
           </div>
         </EmptyStateBox>

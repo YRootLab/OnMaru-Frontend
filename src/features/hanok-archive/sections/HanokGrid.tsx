@@ -165,7 +165,7 @@ export default function HanokGrid({
     <Section id="grid" aria-labelledby="grid-heading">
       <SectionHeader
         id="grid-heading"
-        title="전국 한옥 아카이브 도감"
+        title="전국 한옥 도감"
         subtitle={`${filteredCount}곳의 기록`}
       />
 
@@ -209,8 +209,8 @@ export default function HanokGrid({
         <EmptyState role="status" aria-live="polite">
           <p>
             {state.query
-              ? `'${state.query}'에 걸리는 한옥이 없습니다.`
-              : '조건에 맞는 한옥이 없습니다.'}
+              ? `'${state.query}' 검색 결과가 없어요.`
+              : '조건에 맞는 한옥을 찾지 못했어요.'}
           </p>
           <ResetAll type="button" onClick={() => setState(EMPTY_STATE)}>
             조건 모두 지우기

@@ -72,19 +72,20 @@ const EyebrowBadge = styled.div`
 `;
 
 const Title = styled.h2`
-  font-family: var(--font-hanok);
+  font-family: var(--font-traditional-title);
   font-size: ${fluidHeading.hero};
-  font-weight: 400;
+  font-weight: 700;
   color: #ffffff;
   margin: 0 0 12px;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 `;
 
 const Description = styled.p`
-  font-size: ${fontSize.sm};
-  color: rgba(255, 255, 255, 0.85);
-  line-height: 1.65;
+  font-family: var(--font-traditional-body);
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.7;
   max-width: 680px;
   margin: 0 0 24px;
   display: -webkit-box;

@@ -163,7 +163,7 @@ const styles = css`
     border-radius: 9999px;
     border: none;
     backdrop-filter: blur(10px);
-    box-shadow: 0 4px 18px -2px rgba(25, 31, 40, 0.16), 0 1px 3px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 8px rgba(25, 31, 40, 0.1);
     font-family: ${GOTHIC_FONT};
     transition: all 0.2s ease;
   }
@@ -225,7 +225,7 @@ const styles = css`
     width: 252px;
     padding: 14px 16px;
     border-radius: 18px;
-    border: 1px solid rgba(0, 0, 0, 0.08);
+    border: none;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -235,7 +235,7 @@ const styles = css`
     gap: 8px;
     font-family: ${GOTHIC_FONT};
     background: #ffffff;
-    box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.24), 0 4px 16px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   }
 
   /* 상단 배치 (기본) */
@@ -253,14 +253,14 @@ const styles = css`
   [data-theme='light'] .om-surge-popover,
   :root:not([data-theme='dark']) .om-surge-popover {
     background: #ffffff;
-    border-color: rgba(0, 0, 0, 0.08);
-    box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.24), 0 4px 16px rgba(0, 0, 0, 0.08);
+    border: none;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   }
 
   [data-theme='dark'] .om-surge-popover {
     background: #1e1c18;
-    border-color: rgba(255, 255, 255, 0.12);
-    box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.75), 0 4px 16px rgba(0, 0, 0, 0.4);
+    border: none;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
   }
 
   /*
@@ -576,35 +576,32 @@ const styles = css`
 
   .om-warmth-bubble--surge {
     background: radial-gradient(circle at 35% 35%, #ff8c5a 0%, #e85a18 65%, #bf3900 100%);
-    border: 2px solid rgba(255, 255, 255, 0.9);
+    border: none;
     animation: om-bubble-pulse 2.4s infinite ease-in-out;
   }
 
   .om-warmth-bubble--busy {
     background: radial-gradient(circle at 35% 35%, #ffd269 0%, #f59e0b 65%, #cb6e04 100%);
-    border: 2px solid rgba(255, 255, 255, 0.85);
+    border: none;
     animation: om-bubble-pulse-gold 2.8s infinite ease-in-out;
   }
 
   .om-warmth-bubble--moderate {
     background: radial-gradient(circle at 35% 35%, #ffea9f 0%, #fbbf24 65%, #d97706 100%);
-    border: 1.5px solid rgba(255, 255, 255, 0.8);
-    box-shadow: 0 4px 14px rgba(251, 191, 36, 0.4);
+    border: none;
+    box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
   }
 
   [data-theme='dark'] .om-warmth-bubble--surge {
-    border-color: #ffd0b5;
-    box-shadow: 0 0 20px rgba(232, 90, 24, 0.8);
+    box-shadow: 0 0 16px rgba(232, 90, 24, 0.65);
   }
 
   [data-theme='dark'] .om-warmth-bubble--busy {
-    border-color: #fef08a;
-    box-shadow: 0 0 18px rgba(245, 158, 11, 0.75);
+    box-shadow: 0 0 14px rgba(245, 158, 11, 0.6);
   }
 
   [data-theme='dark'] .om-warmth-bubble--moderate {
-    border-color: #fef08a;
-    box-shadow: 0 0 14px rgba(251, 191, 36, 0.6);
+    box-shadow: 0 0 12px rgba(251, 191, 36, 0.5);
   }
 
   .om-bubble-icon {
@@ -1082,7 +1079,7 @@ export default function WarmthLayer() {
             : '눌러서 상세 위치 보기';
 
       const bubbleSize = Math.max(54, Math.min(84, Math.round(52 + (item.intensity || 0.5) * 32)));
-      const bubbleIcon = item.congestionLevel === 'surge' ? '🔥' : item.congestionLevel === 'busy' ? '✨' : '☀️';
+      const bubbleIcon = item.congestionLevel === 'surge' ? ICONS.flame : item.congestionLevel === 'busy' ? ICONS.sparkles : ICONS.sun;
 
       const triggerHtml = isBubble
         ? `

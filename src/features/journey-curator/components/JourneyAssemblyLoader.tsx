@@ -150,7 +150,7 @@ export default function JourneyAssemblyLoader() {
 
           <StepBadge $isCompleted={hasCompleted}>
             <Sparkles size={12} />
-            <span>{hasCompleted ? '온마루 AI 경로 조립 완료' : '온마루 AI 여정 짓는 중'}</span>
+            <span>{hasCompleted ? '여정 추천이 끝났어요!' : '맞춤 여정을 찾는 중이에요'}</span>
           </StepBadge>
 
           <Title>
@@ -158,8 +158,8 @@ export default function JourneyAssemblyLoader() {
           </Title>
           <Subtitle>
             {gameMode === 'omok'
-              ? '온마루 AI가 여정을 짓는 동안, 툇마루에서 오목 한 판 즐겨보세요.'
-              : '아직 AI가 경로를 엮는 중이에요! 숨겨진 전통 낱말을 찾아보세요.'}
+              ? '여정을 준비하는 동안 가볍게 오목 한 판 즐겨보세요.'
+              : '여정을 준비하는 동안 숨겨진 전통 낱말을 찾아보세요.'}
           </Subtitle>
 
           {gameMode === 'omok' ? (

@@ -286,14 +286,14 @@ const DistrictText = styled.span`
 
 /** 카테고리별 한글 명칭 */
 const CATEGORY_LABELS: Record<PlaceCategory, string> = {
-  spot: '고택·명소',
-  experience: '한복·전통체험',
-  culture: '문화재·서원',
-  festival: '야행·축제',
-  stay: '한옥숙소',
-  food: '향토음식',
-  cafe: '한옥카페·디저트',
-  market: '전통시장',
+  spot: '고택',
+  experience: '전통 체험',
+  culture: '문화유산',
+  festival: '축제',
+  stay: '한옥 숙소',
+  food: '전통 맛집',
+  cafe: '한옥 카페',
+  market: '전통 시장',
 };
 
 /** 카테고리별 SVG 폴백 아이콘 렌더링 */
@@ -366,15 +366,15 @@ function PlaceListItemComponent({
   }, [item.isTraditional, item.name]);
 
   const cleanCatLabel = useMemo(() => {
-    if (item.category === 'stay') return isRealTraditional ? '한옥숙소' : '연계숙소';
-    if (item.category === 'cafe') return isRealTraditional ? '한옥카페' : '일반카페';
-    if (item.category === 'food') return isRealTraditional ? '향토음식' : '일반음식';
-    if (item.category === 'spot') return '고택·명소';
-    if (item.category === 'market') return '전통시장';
-    if (item.category === 'culture') return '문화재·서원';
-    if (item.category === 'experience') return '한복·전통체험';
-    if (item.category === 'festival') return '야행·축제';
-    return CATEGORY_LABELS[item.category] || '한옥명소';
+    if (item.category === 'stay') return isRealTraditional ? '한옥 숙소' : '주변 숙소';
+    if (item.category === 'cafe') return isRealTraditional ? '한옥 카페' : '일반 카페';
+    if (item.category === 'food') return isRealTraditional ? '전통 맛집' : '일반 음식점';
+    if (item.category === 'spot') return '고택';
+    if (item.category === 'market') return '전통 시장';
+    if (item.category === 'culture') return '문화유산';
+    if (item.category === 'experience') return '전통 체험';
+    if (item.category === 'festival') return '축제';
+    return CATEGORY_LABELS[item.category] || '한옥 명소';
   }, [item.category, isRealTraditional]);
 
   // '정통 한옥' 뱃지는 고택이나 문화재/서원 중 실제 전통 가옥일 때만 부가 배지로 단정하게 병기
