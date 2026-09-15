@@ -644,7 +644,7 @@ export default function KnowledgeGraphView() {
         <Controls>
           <ResetBtn type="button" onClick={initSimulation} title="노드 배치 원래대로">
             <RotateCcw size={12} />
-            <span>위치 초기화</span>
+            <span>원래 위치로</span>
           </ResetBtn>
         </Controls>
 

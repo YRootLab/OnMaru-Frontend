@@ -321,7 +321,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
             {!isLoadingOverview && hasOperationalInfo && (
               <>
                 <SectionTitle>
-                  <Info size={16} strokeWidth={2} /> 관람 및 개방 안내
+                  <Info size={16} strokeWidth={2} /> 관람 안내
                 </SectionTitle>
                 <InfoGrid>
                   {detailData?.usetime && (
@@ -342,7 +342,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
                         <Calendar size={16} strokeWidth={2} />
                       </InfoIconBox>
                       <InfoContentBox>
-                        <InfoLabel>정기 휴무</InfoLabel>
+                        <InfoLabel>쉬는 날</InfoLabel>
                         <InfoVal>{cleanTourApiHtml(detailData.restdate)}</InfoVal>
                       </InfoContentBox>
                     </InfoCard>
@@ -354,7 +354,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
                         <Car size={16} strokeWidth={2} />
                       </InfoIconBox>
                       <InfoContentBox>
-                        <InfoLabel>주차 시설</InfoLabel>
+                        <InfoLabel>주차</InfoLabel>
                         <InfoVal>{cleanTourApiHtml(detailData.parking)}</InfoVal>
                       </InfoContentBox>
                     </InfoCard>
@@ -366,7 +366,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
                         <Phone size={16} strokeWidth={2} />
                       </InfoIconBox>
                       <InfoContentBox>
-                        <InfoLabel>문의 및 안내</InfoLabel>
+                        <InfoLabel>문의처</InfoLabel>
                         <InfoVal>{cleanTourApiHtml(detailData.tel)}</InfoVal>
                       </InfoContentBox>
                     </InfoCard>
@@ -378,7 +378,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
                         <Globe size={16} strokeWidth={2} />
                       </InfoIconBox>
                       <InfoContentBox>
-                        <InfoLabel>공식 안내 웹사이트</InfoLabel>
+                        <InfoLabel>홈페이지</InfoLabel>
                         <InfoVal>
                           <a href={homepageInfo.url} target="_blank" rel="noopener noreferrer">
                             {homepageInfo.label}{' '}
@@ -396,7 +396,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
             {!isLoadingOverview && detailData?.repeatInfo && detailData.repeatInfo.length > 0 && (
               <>
                 <SectionTitle>
-                  <Landmark size={16} strokeWidth={2} /> 주요 채 및 공간 안내
+                  <Landmark size={16} strokeWidth={2} /> 주요 공간
                 </SectionTitle>
                 <RepeatList>
                   {detailData.repeatInfo.map((item, idx) => (
@@ -413,7 +413,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
             {galleryImages.length > 1 && (
               <GallerySection>
                 <SectionTitle>
-                  <Images size={16} strokeWidth={2} /> 전통 건축 갤러리 ({galleryImages.length}장)
+                  <Images size={16} strokeWidth={2} /> 사진 둘러보기 ({galleryImages.length}장)
                 </SectionTitle>
                 <GalleryGrid>
                   {galleryImages.map((img, idx) => (
@@ -454,7 +454,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <Navigation size={15} strokeWidth={2} /> 네이버 지도 길찾기
+                <Navigation size={15} strokeWidth={2} /> 길찾기
               </NaverDirectionsBtn>
 
               <BookmarkActionBtn
@@ -464,7 +464,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
                 title={bookmarked ? '저장 목록에서 제거' : '도감에 저장'}
               >
                 <Bookmark size={15} strokeWidth={2} fill={bookmarked ? 'currentColor' : 'none'} />
-                {bookmarked ? '도감에 저장됨' : '도감 저장'}
+                {bookmarked ? '저장됨' : '저장하기'}
               </BookmarkActionBtn>
             </ActionRow>
           </Body>

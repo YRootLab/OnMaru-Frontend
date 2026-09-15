@@ -13,8 +13,8 @@ interface ModeOption {
 }
 
 const MODES: ModeOption[] = [
-  { id: 'info', label: '정보', icon: Landmark },
-  { id: 'warmth', label: '온기', icon: Flame },
+  { id: 'info', label: '한옥 정보', icon: Landmark },
+  { id: 'warmth', label: '여행자 온기', icon: Flame },
 ];
 
 interface ModeToggleProps {

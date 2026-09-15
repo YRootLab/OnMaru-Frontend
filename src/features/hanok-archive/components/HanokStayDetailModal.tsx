@@ -216,16 +216,16 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
             <StayStorySection>
               <StoryHeader>
                 <Sparkles size={16} color={palette.cheongrok[500]} />
-                <StoryHeaderTitle>숙소 소개 및 머뭄의 정취</StoryHeaderTitle>
+                <StoryHeaderTitle>숙소 소개</StoryHeaderTitle>
               </StoryHeader>
               <StoryText>
-                {stayIntroText || '전통 한옥의 온돌과 대청마루에서 사계절의 정취를 느끼며 묵어갈 수 있는 전통 숙소입니다.'}
+                {stayIntroText || '한옥의 온돌과 마루에서 사계절 정취를 느끼며 머물 수 있는 곳이에요.'}
               </StoryText>
             </StayStorySection>
 
             {/* 숙박 이용 안내 (체크인/아웃, 주차, 편의시설) */}
             <SectionTitle>
-              <Sparkles size={16} strokeWidth={2} /> 손님 이용 안내 및 숙소 정보
+              <Sparkles size={16} strokeWidth={2} /> 이용 안내
             </SectionTitle>
             <InfoGrid>
               <InfoCard>
@@ -233,7 +233,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                   <Clock size={16} strokeWidth={2} />
                 </InfoIconBox>
                 <InfoContentBox>
-                  <InfoLabel>입실 / 퇴실 시간</InfoLabel>
+                  <InfoLabel>입실 · 퇴실</InfoLabel>
                   <InfoVal>
                     {detailData?.checkin || detailData?.checkout
                       ? `입실 ${detailData.checkin || '15:00'} · 퇴실 ${detailData.checkout || '11:00'}`
@@ -247,7 +247,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                   <Home size={16} strokeWidth={2} />
                 </InfoIconBox>
                 <InfoContentBox>
-                  <InfoLabel>객실 및 구조</InfoLabel>
+                  <InfoLabel>객실 구조</InfoLabel>
                   <InfoVal>
                     {detailData?.roomtype
                       ? `${cleanTourApiHtml(detailData.roomtype)}${detailData?.roomcount ? ` (${cleanTourApiHtml(detailData.roomcount)})` : ''}`
@@ -261,7 +261,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                   <Car size={16} strokeWidth={2} />
                 </InfoIconBox>
                 <InfoContentBox>
-                  <InfoLabel>주차 시설</InfoLabel>
+                  <InfoLabel>주차</InfoLabel>
                   <InfoVal>
                     {cleanTourApiHtml(detailData?.parking) || '숙소 전용 또는 인근 주차 가능'}
                   </InfoVal>
@@ -273,7 +273,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                   <Coffee size={16} strokeWidth={2} />
                 </InfoIconBox>
                 <InfoContentBox>
-                  <InfoLabel>편의시설 및 서비스</InfoLabel>
+                  <InfoLabel>편의시설</InfoLabel>
                   <InfoVal>
                     {cleanTourApiHtml(detailData?.subfacility) ||
                       `${detailData?.barbecue ? '바비큐 가능 · ' : ''}전통차 다도 체험 · 정원 마당 · Wi-Fi`}
@@ -286,7 +286,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                   <Phone size={16} strokeWidth={2} />
                 </InfoIconBox>
                 <InfoContentBox>
-                  <InfoLabel>예약 및 문의 전화</InfoLabel>
+                  <InfoLabel>문의 전화</InfoLabel>
                   <InfoVal>
                     {cleanTourApiHtml(detailData?.tel) || '사전 온라인 예약 및 유선 문의'}
                   </InfoVal>
@@ -298,7 +298,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                   <Globe size={16} strokeWidth={2} />
                 </InfoIconBox>
                 <InfoContentBox>
-                  <InfoLabel>온라인 예약처</InfoLabel>
+                  <InfoLabel>예약 링크</InfoLabel>
                   <InfoVal>
                     {homepageInfo.url ? (
                       <a href={homepageInfo.url} target="_blank" rel="noopener noreferrer">
@@ -318,7 +318,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
             {galleryImages.length > 1 && (
               <GallerySection>
                 <SectionTitle>
-                  <Images size={16} strokeWidth={2} /> 숙소 및 마당 사진 ({galleryImages.length}장)
+                  <Images size={16} strokeWidth={2} /> 숙소 사진 ({galleryImages.length}장)
                 </SectionTitle>
                 <GalleryGrid>
                   {galleryImages.map((img, idx) => (
@@ -347,7 +347,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                지금 예약하기 <ExternalLink size={15} strokeWidth={2} />
+                예약하러 가기 <ExternalLink size={15} strokeWidth={2} />
               </DirectBookingButton>
 
               <MapGuideBtn
@@ -365,7 +365,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                 title={bookmarked ? '저장 목록에서 제거' : '숙소 저장'}
               >
                 <Bookmark size={15} strokeWidth={2} fill={bookmarked ? 'currentColor' : 'none'} />
-                {bookmarked ? '저장됨' : '저장'}
+                {bookmarked ? '저장됨' : '저장하기'}
               </BookmarkActionBtn>
             </ActionRow>
           </Body>

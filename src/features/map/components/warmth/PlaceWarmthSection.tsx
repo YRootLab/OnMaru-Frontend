@@ -387,11 +387,11 @@ export default function PlaceWarmthSection({
             <EmptyIconBox>
               <MessageCircle size={20} strokeWidth={2} />
             </EmptyIconBox>
-            <EmptyTitle>아직 등록된 온기가 없습니다</EmptyTitle>
-            <EmptySub>이 고즈넉한 장소에 첫 번째 온기 한 줄을 남겨보세요!</EmptySub>
+            <EmptyTitle>아직 남긴 온기가 없어요</EmptyTitle>
+            <EmptySub>첫 번째 이야기를 남겨보세요.</EmptySub>
             <EmptyActionBtn type="button" onClick={() => setIsModalOpen(true)}>
               <Plus size={14} strokeWidth={2} />
-              <span>첫 온기 남기기</span>
+              <span>이야기 남기기</span>
             </EmptyActionBtn>
           </EmptyBox>
         )}

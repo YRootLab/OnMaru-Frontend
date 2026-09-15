@@ -560,7 +560,7 @@ export default function WriteWarmthModal({
         <form onSubmit={handleSubmit}>
           {/* 1. 지역 및 장소 선택기 */}
           <FormSection>
-            <SectionLabel>남길 지역 및 장소 선택</SectionLabel>
+            <SectionLabel>어디를 다녀오셨나요?</SectionLabel>
             <RegionScroller>
               {REGIONS.map((region) => (
                 <RegionChip
@@ -586,7 +586,7 @@ export default function WriteWarmthModal({
                   setPlaceQuery(e.target.value);
                   setIsDropdownOpen(true);
                 }}
-                placeholder="장소명을 검색하거나 직접 입력하세요 (예: 경기전)"
+                placeholder="장소 이름을 검색해보세요 (예: 경기전)"
                 required
               />
             </PlaceInputWrap>
@@ -609,13 +609,13 @@ export default function WriteWarmthModal({
 
           {/* 2. 표정 감정 선택기 */}
           <FormSection>
-            <SectionLabel>이곳에서의 전반적인 느낌 (표정 선택)</SectionLabel>
+            <SectionLabel>이곳에서 어떤 기분이 드셨나요?</SectionLabel>
             <MoodSelector value={score} onChange={(val) => setScore(val)} />
           </FormSection>
 
           {/* 3. 장소 혼잡도 분위기 */}
           <FormSection>
-            <SectionLabel>현재 이 장소의 분위기</SectionLabel>
+            <SectionLabel>지금 분위기는 어때요?</SectionLabel>
             <MoodButtonGroup>
               <MoodButton
                 type="button"
@@ -638,7 +638,7 @@ export default function WriteWarmthModal({
 
           {/* 4. 추천 키워드 태그 */}
           <FormSection>
-            <SectionLabel>방문 키워드 (선택)</SectionLabel>
+            <SectionLabel>어울리는 분위기를 골라보세요 (선택)</SectionLabel>
             <TagWrap>
               {PRESET_TAGS.map((tag) => (
                 <TagChip
@@ -655,11 +655,11 @@ export default function WriteWarmthModal({
 
           {/* 5. 한줄평 본문 */}
           <FormSection>
-            <SectionLabel>이곳에 머문 느낌이나 꿀팁</SectionLabel>
+            <SectionLabel>남기고 싶은 이야기나 꿀팁</SectionLabel>
             <TextArea
               value={text}
               onChange={(e) => setText(e.target.value.slice(0, 80))}
-              placeholder="예: 마당에 피어난 배롱나무 꽃이 너무 예뻐요. 아침 일찍 방문을 추천합니다!"
+              placeholder="예: 마당에 핀 배롱나무 꽃이 참 예뻐요. 아침 일찍 들르는 걸 추천해요."
               required
             />
             <CharCount>{text.length} / 80자</CharCount>
@@ -669,7 +669,7 @@ export default function WriteWarmthModal({
             {isSuccess ? (
               <>
                 <Check size={18} strokeWidth={2} />
-                <span>온기가 따뜻하게 남겨졌습니다!</span>
+                <span>이야기를 남겼어요!</span>
               </>
             ) : (
               <span>온기 등록하기</span>

@@ -254,9 +254,9 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
               <ScrollList>
                 {savedStories.length === 0 ? (
                   <div style={{ padding: '4rem 0', textAlign: 'center', fontSize: '0.75rem', lineHeight: '1.5rem', color: meok[700] }}>
-                    아직 담아둔 소리가 없습니다.
+                    담아둔 소리가 아직 없어요.
                     <br />
-                    이야기 옆의 하트를 눌러보세요.
+                    이야기 옆 하트를 누르면 담을 수 있어요.
                   </div>
                 ) : (
                   savedStories.map((story, index) => {
@@ -298,7 +298,7 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
                               onClick={() => onRemoveBookmark(story.stid)}
                               style={{ fontSize: fontSize.micro, color: meok[700], background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                             >
-                              담아두기 취소
+                              담기 취소
                             </button>
                           </div>
                         </div>
@@ -309,7 +309,7 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
               </ScrollList>
 
               <p style={{ paddingTop: '1rem', fontSize: fontSize.micro, color: meok[700], borderTop: '1px solid rgba(33, 30, 25, 0.08)' }}>
-                이 기기의 브라우저에 저장됩니다.
+                이 기기에만 저장돼요.
               </p>
             </DrawerAside>
           </div>

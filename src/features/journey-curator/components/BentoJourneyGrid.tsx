@@ -547,7 +547,7 @@ export default function BentoJourneyGrid() {
 
   const handleBookmarkToggle = () => {
     if (!isLoggedIn) {
-      toast.info('로그인하시면 나만의 AI 여정 코스를 보관할 수 있습니다.', {
+      toast.info('로그인하면 마음에 드는 여정을 저장할 수 있어요.', {
         action: {
           label: '로그인하기',
           onClick: () => router.push('/auth/login'),
@@ -558,10 +558,10 @@ export default function BentoJourneyGrid() {
 
     if (isCurrentSaved) {
       removeJourney(plan.id);
-      toast.success('여정 보관이 취소되었습니다.');
+      toast.success('여정 저장을 취소했어요.');
     } else {
       saveJourney(plan);
-      toast.success(`✨ '${plan.title}' 여정이 마이페이지에 저장되었습니다!`);
+      toast.success(`✨ '${plan.title}' 여정을 저장했어요!`);
     }
   };
 
@@ -583,7 +583,7 @@ export default function BentoJourneyGrid() {
             {plan.isAiGenerated && (
               <AiBadge>
                 <Sparkles size={12} />
-                <span>Gemini AI & TourAPI 실시간 생성</span>
+                <span>실시간 맞춤 여정</span>
               </AiBadge>
             )}
             <SectionTitle>{plan.title}</SectionTitle>
@@ -594,10 +594,10 @@ export default function BentoJourneyGrid() {
             type="button"
             $saved={isCurrentSaved}
             onClick={handleBookmarkToggle}
-            title={isCurrentSaved ? '보관 취소' : '여정 보관하기'}
+            title={isCurrentSaved ? '저장 취소' : '여정 저장하기'}
           >
             {isCurrentSaved ? <BookmarkCheck size={15} /> : <Bookmark size={15} />}
-            <span>{isCurrentSaved ? '보관됨' : '여정 저장하기'}</span>
+            <span>{isCurrentSaved ? '저장됨' : '여정 저장하기'}</span>
           </BookmarkBtn>
         </HeaderRow>
       </SectionHeader>
@@ -607,7 +607,7 @@ export default function BentoJourneyGrid() {
         <RouteCard>
           <CardBadge $color="#3b82f6">
             <Compass size={14} strokeWidth={2} />
-            <span>추천 공간 동선 (지도 연동)</span>
+            <span>추천 코스 동선</span>
           </CardBadge>
 
           {hasMultipleDays && (
@@ -661,8 +661,8 @@ export default function BentoJourneyGrid() {
           <ActionLink href={currentMapLink} $color="#3b82f6">
             <span>
               {hasMultipleDays
-                ? `${activeDay?.dayNumber}일차 지도 및 동선 보기`
-                : '지도에서 전체 동선 및 장소 보기'}
+                ? `${activeDay?.dayNumber}일차 동선 지도로 보기`
+                : '지도에서 전체 동선 보기'}
             </span>
             <ArrowRight size={14} strokeWidth={2} />
           </ActionLink>
@@ -672,7 +672,7 @@ export default function BentoJourneyGrid() {
         <HanokCard>
           <CardBadge $color={lightPalette.cheongrok[500]}>
             <Landmark size={14} strokeWidth={2} />
-            <span>한옥 건축·문화재 도감</span>
+            <span>한옥 도감</span>
           </CardBadge>
           <CardTitle>{hanokCard.title}</CardTitle>
 
@@ -683,7 +683,7 @@ export default function BentoJourneyGrid() {
           <HanokDesc>{hanokCard.architecturalPoint}</HanokDesc>
 
           <ActionLink href={hanokCard.hanokLink} $color={lightPalette.cheongrok[500]}>
-            <span>3D 한옥 조립 및 도감 보기</span>
+            <span>한옥 구조 살펴보기</span>
             <ArrowRight size={14} strokeWidth={2} />
           </ActionLink>
         </HanokCard>
@@ -692,7 +692,7 @@ export default function BentoJourneyGrid() {
         <SorimaruCard>
           <CardBadge $color="#8b5cf6">
             <Headphones size={14} strokeWidth={2} />
-            <span>소리마루 공간 오디오 해설</span>
+            <span>공간 오디오 해설</span>
           </CardBadge>
           <CardTitle>{sorimaruCard.title}</CardTitle>
 
@@ -715,7 +715,7 @@ export default function BentoJourneyGrid() {
           <ExcerptBox>"{sorimaruCard.excerpt}"</ExcerptBox>
 
           <ActionLink href={sorimaruCard.sorimaruLink} $color="#8b5cf6">
-            <span>소리마루에서 전체 이야기 듣기</span>
+            <span>오디오 전체 이야기 듣기</span>
             <ArrowRight size={14} strokeWidth={2} />
           </ActionLink>
         </SorimaruCard>
@@ -724,9 +724,9 @@ export default function BentoJourneyGrid() {
         <WarmthCard>
           <CardBadge $color={lightPalette.juhong[500]}>
             <Flame size={14} strokeWidth={2} />
-            <span>실시간 온기 및 혼잡도</span>
+            <span>실시간 분위기와 혼잡도</span>
           </CardBadge>
-          <CardTitle>현재 상태: '{warmthCard.status}'</CardTitle>
+          <CardTitle>현재 분위기: '{warmthCard.status}'</CardTitle>
 
           <GaugeWrap>
             <GaugeBar>
@@ -744,7 +744,7 @@ export default function BentoJourneyGrid() {
           <HanokDesc>{warmthCard.vibeComment}</HanokDesc>
 
           <ActionLink href="/map" $color={lightPalette.juhong[500]}>
-            <span>실시간 여행자 온기 피드 보기</span>
+            <span>여행자 온기 이야기 보기</span>
             <ArrowRight size={14} strokeWidth={2} />
           </ActionLink>
         </WarmthCard>

@@ -769,7 +769,7 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
   if (stories.length === 0) {
     return (
       <div style={{ borderRadius: '1rem', backgroundColor: '#f8f8f7', padding: '2rem 1.25rem', textAlign: 'center' }}>
-        <p style={{ fontSize: '0.75rem', fontWeight: 600, color: meok[700] }}>아직 주변 이야기를 찾지 못했어요.</p>
+        <p style={{ fontSize: '0.75rem', fontWeight: 600, color: meok[700] }}>가까운 이야기를 찾는 중이에요.</p>
         <p style={{ marginTop: '0.25rem', fontSize: fontSize.micro, color: meok[500] }}>위치를 허용하면 가까운 오디오부터 보여드릴게요.</p>
       </div>
     );

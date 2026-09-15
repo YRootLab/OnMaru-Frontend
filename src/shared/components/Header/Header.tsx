@@ -702,8 +702,8 @@ export default function Header() {
           type="button"
           $isLanding={usesDarkSurface}
           onClick={toggleMode}
-          title={`현재 화면 모드: ${preference === 'light' ? '라이트' : preference === 'dark' ? '다크' : '시스템'} (클릭 시 순환)`}
-          aria-label="화면 테마 모드 변경"
+          title={`화면 모드 변경 (현재: ${preference === 'light' ? '라이트' : preference === 'dark' ? '다크' : '시스템'})`}
+          aria-label="화면 모드 변경"
         >
           {preference === 'light' ? (
             <Sun size={14} />
@@ -755,7 +755,7 @@ export default function Header() {
         <MobileMenuButton
           type="button"
           $isLanding={usesDarkSurface}
-          aria-label="메뉴 열기"
+          aria-label="메뉴"
           aria-expanded={isMobileMenuOpen}
           aria-controls="mobile-navigation"
           onClick={() => setIsMobileMenuOpen((prev) => !prev)}
