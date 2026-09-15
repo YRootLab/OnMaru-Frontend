@@ -1,6 +1,11 @@
 # handoff.md
 
 Current work:
+- Sorimaru player UX pass: the expanded drawer preserves page position while locking background scroll, contains touch overscroll, and uses a Roadview canvas that relayouts responsively. `npx tsc --noEmit` passes.
+- Expanded-player layout: at 768px and above, Roadview and playback controls occupy the left column while the synchronized transcript is a scrollable right column; mobile keeps the same reading order vertically.
+- Saved sounds: the expanded player now has a heart button. It shares one persisted store with the "saved sounds" drawer, so saved and removed items update immediately.
+- Audio-reactive visual layer: Web Audio analyser data now drives a GSAP aura over Roadview while playback is active. The animation only mutates transform and opacity and honors reduced motion.
+- Sorimaru motion pass: hero media now has restrained GSAP parallax and ink-like reveal; story cards reveal with one staggered, reduced-motion-safe GSAP sequence.
 - 전국 한옥 수결첩(手決帖) 스탬프 시스템 및 지도 인터랙티브 효과 구현 완료:
   - 수결첩 시스템: `src/features/stamp/` 모듈, `/stamps` 라우트, 상세창 체크인 연동, 도장 연출 모달, 8도 SVG 지도, 랭킹 리더보드.
   - 지도 인터랙티브: 금빛 커서 잔상 트레일, 핀 클릭 Ripple 및 Glow Ring, 방문 한옥 뱃지 (하단 뽀글거리는 파티클 레이어 제거).

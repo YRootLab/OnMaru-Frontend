@@ -47,7 +47,7 @@ describe('createSorimaruNetworkClient', () => {
       totalCount: 4,
     });
     expect(fetcher).toHaveBeenCalledWith(
-      '/api/sorimaru?type=stories&pageNo=1',
+      expect.stringContaining('/B551011/Odii/storyBasedList?'),
       expect.any(Object),
     );
   });

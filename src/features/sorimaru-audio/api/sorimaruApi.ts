@@ -144,7 +144,7 @@ function calculateDistanceKm(fromX: string, fromY: string, toX: string, toY: str
 function mapStoryItem(item: Record<string, unknown>, index: number, category?: string, origin?: { mapX: string; mapY: string }): SorimaruStoryItem {
   const title = readText(item, 'title') || readText(item, 'storyTitle') || '한국의 문화 이야기';
   const stid = readText(item, 'stid') || readText(item, 'tid') || String(index + 1);
-  const audioUrl = readText(item, 'audioUrl');
+  const audioUrl = readText(item, 'audioUrl').replace(/^http:\/\//i, 'https://');
   const playTime = readText(item, 'playTime') || '180';
   const playTimeSeconds = Number(playTime);
   const imageUrl = readText(item, 'imageUrl') || readText(item, 'firstimage') || readText(item, 'image');
@@ -217,12 +217,14 @@ export const createSorimaruApiAdapter = (network: SorimaruNetworkClient = sorima
           ...(keyword ? { keyword } : {}),
         },
       });
-      const mappedStories = response.items.map((item, index) => mapStoryItem(item, index, category || keyword));
+      const mappedStories = response.items
+        .map((item, index) => mapStoryItem(item, index, category || keyword))
+        .filter(isPlayableStory);
       return {
         items: mappedStories,
         pageNo: safePageNo,
         numOfRows: safeNumOfRows,
-        totalCount: response.totalCount || mappedStories.length,
+        totalCount: mappedStories.length < response.totalCount ? mappedStories.length : response.totalCount || mappedStories.length,
         source: 'api',
       };
       } catch (error) {

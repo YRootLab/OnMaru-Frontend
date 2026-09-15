@@ -10,7 +10,9 @@ export interface SorimaruInitialData {
 
 export async function loadSorimaruInitialData(service: ISorimaruApiService): Promise<SorimaruInitialData> {
   const [archiveResult, nearbyResult] = await Promise.allSettled([
-    service.getStoryPage('전체', '', 1, 12),
+    // The upstream base list contains metadata-only rows. Start with a themed
+    // search so every item handed to the listening UI has a playable source.
+    service.getStoryPage('전체', '한옥', 1, 12),
     service.getNearbyStories(),
   ]);
   const archive = archiveResult.status === 'fulfilled' ? archiveResult.value : null;

@@ -1,14 +1,19 @@
 'use client';
 
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { useGSAP } from '@gsap/react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Pause, Play, ChevronRight } from 'lucide-react';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { SorimaruStoryItem } from '@/features/sorimaru-audio/types/sorimaru.types';
 import { palette, meok } from '@/design-system/tokens';
 
 const INTRO_VIDEO_SRC = '/videos/hanok-neungsohwa-loop.mp4';
+
+gsap.registerPlugin(ScrollTrigger);
 
 interface SorimaruAutoSliceRailProps {
   stories: SorimaruStoryItem[];
@@ -48,6 +53,7 @@ const IntroPoster = styled.div<{ $visible: boolean }>`
   background: linear-gradient(135deg, ${meok[900]} 0%, #201c18 50%, ${meok[700]} 100%);
   opacity: ${({ $visible }) => ($visible ? 1 : 0)};
   transition: opacity 0.6s ease;
+  will-change: transform;
 `;
 
 const IntroVideo = styled.video<{ $visible: boolean }>`
@@ -59,6 +65,7 @@ const IntroVideo = styled.video<{ $visible: boolean }>`
   object-fit: cover;
   opacity: ${({ $visible }) => ($visible ? 1 : 0)};
   transition: opacity 0.6s ease;
+  will-change: transform;
 `;
 
 /* 흰 텍스트 대비 및 중앙 텍스트 가독성을 위한 시네마틱 스크림 */
@@ -144,6 +151,8 @@ const GlassPlayerBar = styled(motion.div)`
 `;
 
 const PlayCircleButton = styled(motion.button)`
+  position: relative;
+  overflow: hidden;
   display: flex;
   height: 42px;
   width: 42px;
@@ -160,6 +169,29 @@ const PlayCircleButton = styled(motion.button)`
 
   &:hover {
     background-color: #f5f5f4;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border: 1px solid rgba(139, 122, 73, 0.5);
+    border-radius: inherit;
+    opacity: 0;
+    transform: scale(0.78);
+  }
+
+  &:hover::after {
+    animation: quiet-ripple 1.6s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  }
+
+  @keyframes quiet-ripple {
+    from { opacity: 0.55; transform: scale(0.78); }
+    to { opacity: 0; transform: scale(1.55); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &:hover::after { animation: none; }
   }
 `;
 
@@ -239,6 +271,8 @@ const NextTrackButton = styled.button`
 
 export const SorimaruAutoSliceRail: React.FC<SorimaruAutoSliceRailProps> = ({ stories, storySets }) => {
   const shouldReduceMotion = useReducedMotion();
+  const stageRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const [featuredIndex, setFeaturedIndex] = useState(0);
   const [showIntroVideo, setShowIntroVideo] = useState(false);
   const [introVideoReady, setIntroVideoReady] = useState(false);
@@ -253,6 +287,22 @@ export const SorimaruAutoSliceRail: React.FC<SorimaruAutoSliceRailProps> = ({ st
     const timer = window.setTimeout(() => setShowIntroVideo(true), 1200);
     return () => window.clearTimeout(timer);
   }, [shouldReduceMotion]);
+
+  useGSAP(() => {
+    if (shouldReduceMotion) return;
+    const media = stageRef.current?.querySelectorAll('.sorimaru-hero-media');
+    if (!media?.length) return;
+
+    gsap.fromTo(media, { scale: 1.045, yPercent: -1.5 }, {
+      scale: 1,
+      yPercent: 2.5,
+      ease: 'none',
+      scrollTrigger: { trigger: stageRef.current, start: 'top bottom', end: 'bottom top', scrub: 1.4 },
+    });
+    gsap.fromTo(contentRef.current, { opacity: 0, filter: 'blur(10px)', y: 8 }, {
+      opacity: 1, filter: 'blur(0px)', y: 0, duration: 1.05, ease: 'power2.out',
+    });
+  }, { scope: stageRef, dependencies: [shouldReduceMotion, showIntroVideo] });
 
   const featured = useMemo(() => {
     const recommended = storySets?.['추천'];
@@ -270,10 +320,11 @@ export const SorimaruAutoSliceRail: React.FC<SorimaruAutoSliceRailProps> = ({ st
   };
 
   return (
-    <IntroStage aria-label="소리마루 오디오 히어로">
-      <IntroPoster aria-hidden="true" $visible={!introVideoReady} />
+    <IntroStage ref={stageRef} aria-label="소리마루 오디오 히어로">
+      <IntroPoster className="sorimaru-hero-media" aria-hidden="true" $visible={!introVideoReady} />
       {showIntroVideo && (
         <IntroVideo
+          className="sorimaru-hero-media"
           aria-hidden="true"
           autoPlay
           muted
@@ -287,7 +338,7 @@ export const SorimaruAutoSliceRail: React.FC<SorimaruAutoSliceRailProps> = ({ st
         </IntroVideo>
       )}
       <IntroScrim aria-hidden="true" />
-      <IntroContent>
+      <IntroContent ref={contentRef}>
         <PageTitle>한국의 장면을, 귀로 걷다</PageTitle>
         <Lead>
           사진보다 먼저 도착하는 소리로, 오래된 장소의 온기와 사람의 발자국을 들어보세요.

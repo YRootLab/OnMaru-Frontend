@@ -4,6 +4,12 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+- Improved the Sorimaru expanded player: background scrolling now locks without a layout jump, touch overscroll stays inside the drawer, and Roadview uses a responsive 16:9 canvas with resize relayout and a motion-safe fallback image.
+- The expanded Sorimaru player now pairs Roadview and playback controls with a scrollable synchronized transcript on desktop, then stacks them for mobile.
+- Added a heart control to the expanded Sorimaru player and connected it to the persisted saved-sounds drawer.
+- Added a Web Audio analyser-backed GSAP aura to the Sorimaru Roadview player, making playback energy visible without layout or paint-heavy animation.
+- Added restrained GSAP parallax/reveal motion to the Sorimaru hero and staggered story-card entry motion.
+
 - **전국 한옥 수결첩 (手決帖) 스탬프 시스템 (`src/features/stamp`, `/stamps`)**:
   - 장소 상세 정보창(`PlaceDetail.tsx`)에서 "한옥 수결첩 방문 기록 / 인장 찍기" 기능 및 역동적인 전통 인주 도장 찍힘 연출 모달(`StampSealAnimation.tsx`) 구현.
   - 전국 8도 권역별 인터랙티브 SVG 지도 채색(`KoreaMapCanvas.tsx`), 스탬프 도감(`StampBook.tsx`, `StampCard.tsx`), 순례 랭킹 리더보드(`StampLeaderboard.tsx`).
