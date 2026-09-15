@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
+    "check:env": "node scripts/validate-env-contract.mjs",
     "build:data": "node --env-file=.env.local scripts/build-data.mjs",
     "build:data:check": "node scripts/build-data.mjs --self-check",
     "build:fallback": "node --env-file=.env.local scripts/build-fallback.mjs",

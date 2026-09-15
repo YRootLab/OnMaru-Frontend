@@ -11,6 +11,15 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 - Added a Web Audio analyser-backed GSAP aura to the Sorimaru Roadview player, making playback energy visible without layout or paint-heavy animation.
 - Added restrained GSAP parallax/reveal motion to the Sorimaru hero and staggered story-card entry motion.
 
+- Added `docs/specs/TOFE_IMPLEMENTATION_STATUS.md` to make backend `toFE` implementation coverage, gaps, and refreshed BE spec needs visible to the FE team.
+- Fixed the Onmaru landing header so light mode keeps the same white navigation surface as the other top-level pages.
+- Replaced the header and map rail theme cycle button with an explicit `자동` / `라이트` / `다크` picker while preserving existing light navigation styling.
+- Made `system` theme mode time-aware: it now resolves to light during local daytime and dark at night, while still preserving explicit user choices for light or dark.
+- Added an environment contract guard for Odii/Sorimaru API keys: `.env.example` is now the tracked template, `.env.local` stays ignored, `npm run check:env` validates supported aliases, pre-push runs the same check locally, and GitHub Actions verifies the contract on PR/push.
+- Re-mapped backend feature delta wiring to the existing product surfaces without changing established UI: home `/` journey search now uses the backend journey run path when a backend base URL is configured, `/discover` redirects to `/`, `/map` warmth mode keeps the existing "여행자들이 남긴 온기 이야기" UI while ingesting server VisitReview data through a Warmth adapter, map place cards use canonical saved-place actions with guest login intent, `/mypage` shows the monthly timeline, and logout/account deletion clears private client state.
+- Added typed repositories for journey curator, VisitReview, saved resources, and member timeline backend APIs with focused contract tests.
+- Added backend feature foundation modules for API error/cursor/CSRF handling, cookie/idempotency `apiRequest`, journey SSE run reduction, VisitReview validation and stale-response protection, saved place login intent, member timeline contracts, and the shared place-slip motion primitive.
+- Added a frontend design spec for the backend feature delta covering `/discover` REST+SSE journey runs, `/map` VisitReview, shared canonical place saves, My Page monthly timeline, auth/CSRF/cache rules, neutral "place slip" motion, and performance verification requirements.
 - **전국 한옥 수결첩 (手決帖) 스탬프 시스템 (`src/features/stamp`, `/stamps`)**:
   - 장소 상세 정보창(`PlaceDetail.tsx`)에서 "한옥 수결첩 방문 기록 / 인장 찍기" 기능 및 역동적인 전통 인주 도장 찍힘 연출 모달(`StampSealAnimation.tsx`) 구현.
   - 전국 8도 권역별 인터랙티브 SVG 지도 채색(`KoreaMapCanvas.tsx`), 스탬프 도감(`StampBook.tsx`, `StampCard.tsx`), 순례 랭킹 리더보드(`StampLeaderboard.tsx`).

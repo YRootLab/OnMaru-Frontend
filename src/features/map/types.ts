@@ -38,6 +38,8 @@ export interface Item {
   dist: number | null;
   /** 정통 한옥·문화재·고택 엔티티 여부 (일반 숙소/시설과 차별화) */
   isTraditional?: boolean;
+  /** 로그인 회원 기준 backend canonical PLACE 찜 여부 */
+  savedByMe?: boolean;
 }
 
 /** 한 줄 온기. 당근 한줄평처럼 짧게, 장소 하나에 여러 개가 쌓인다. */
@@ -161,4 +163,3 @@ export interface HeatDay {
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type KakaoMap = any;
-

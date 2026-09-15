@@ -6,9 +6,10 @@
 
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Moon, Sun, Monitor } from 'lucide-react'
+import { Moon, Sparkles, Sun } from 'lucide-react'
 import { useOnmaruTheme } from './ThemeProvider'
 import type { OnmaruTheme, ThemePreference } from './tokens'
+import { getThemePreferenceLabel } from './themePreferenceLabels'
 import { fontSize } from './tokens'
 
 
@@ -382,16 +383,16 @@ export function ThemeToggleButton() {
 }
 
 /**
- * 라이트 / 다크 / 시스템 3단 화면 모드 스위치.
- * 'system' 선택 시 OS 다크모드 설정 변경에 실시간으로 따라간다.
+ * 라이트 / 다크 / 자동 3단 화면 모드 스위치.
+ * 'system' 선택 시 사용자 로컬 시간에 맞춰 라이트/다크를 고른다.
  */
 export function ThemeModeSwitch() {
   const { preference, setMode, theme } = useOnmaruTheme()
 
   const options: { value: ThemePreference; label: string; Icon: typeof Sun }[] = [
-    { value: 'light', label: '라이트', Icon: Sun },
-    { value: 'dark', label: '다크', Icon: Moon },
-    { value: 'system', label: '시스템', Icon: Monitor },
+    { value: 'system', label: getThemePreferenceLabel('system'), Icon: Sparkles },
+    { value: 'light', label: getThemePreferenceLabel('light'), Icon: Sun },
+    { value: 'dark', label: getThemePreferenceLabel('dark'), Icon: Moon },
   ]
 
   return (

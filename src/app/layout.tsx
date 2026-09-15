@@ -30,7 +30,9 @@ export default function RootLayout({
                 try {
                   var saved = localStorage.getItem('onmaru-color-mode');
                   var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                  var mode = (saved === 'dark' || saved === 'light') ? saved : (prefersDark ? 'dark' : 'light');
+                  var hour = new Date().getHours();
+                  var timeMode = hour >= 7 && hour < 19 ? 'light' : 'dark';
+                  var mode = (saved === 'dark' || saved === 'light') ? saved : timeMode;
                   document.documentElement.setAttribute('data-theme', mode);
                 } catch (e) {}
               })();

@@ -176,7 +176,11 @@ export default function ListPanel() {
 
         {/* 2. 메인 리스트 영역 (정보모드: PlaceList / 온기모드: WarmthFeed) */}
         <ListArea>
-          {mode === 'warmth' ? <WarmthFeed /> : <PlaceList />}
+          {mode === 'warmth' ? (
+            <WarmthFeed />
+          ) : (
+            <PlaceList />
+          )}
         </ListArea>
 
         {/* 3. 하단 세로 페이드 그라데이션 */}

@@ -19,6 +19,7 @@ import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import type { OnmaruTheme } from '@/design-system/tokens';
 import { useSavedJourneyStore } from '@/features/journey-curator/store/useSavedJourneyStore';
 import { useJourneyStore } from '@/features/journey-curator/store/useJourneyStore';
+import MonthlyTimeline from '@/features/member-timeline/components/MonthlyTimeline';
 
 export default function MyPage() {
   const router = useRouter();
@@ -105,6 +106,8 @@ export default function MyPage() {
         <SectionRow title="화면 모드" theme={theme}>
           <ThemeModeSwitch />
         </SectionRow>
+
+        <MonthlyTimeline />
 
         {/* 보관한 AI 여정 코스 */}
         <Section title={`보관한 AI 여정 코스 ${savedJourneys.length > 0 ? `(${savedJourneys.length})` : ''}`} theme={theme}>

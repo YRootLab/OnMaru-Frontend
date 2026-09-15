@@ -8,6 +8,9 @@ set -euo pipefail
 
 protected_pattern='^refs/heads/(main|develop|release/.+)$'
 
+echo "pre-push: checking environment contract..." >&2
+npm run check:env
+
 if [[ "${ALLOW_DIRECT_PUSH:-}" == "1" ]]; then
   echo "pre-push: ALLOW_DIRECT_PUSH=1 set, skipping protected-branch check." >&2
   exit 0
