@@ -263,7 +263,7 @@ export const SorimaruThemeHeaderRail: React.FC = () => {
           </SectionTitle>
         </div>
         <SectionSubtitle>
-          한국관광공사 공공 오디오 가이드 실시간 연동 (총 6,524개 음원 중 엄선)
+          공공 문화유산 오디오 해설 실시간 연동 (총 6,524개 음원 중 엄선)
         </SectionSubtitle>
       </SectionHeader>
 

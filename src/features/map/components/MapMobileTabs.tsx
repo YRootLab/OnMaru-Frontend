@@ -79,11 +79,11 @@ export default function MapMobileTabs() {
 
   return (
     <Nav aria-label="지도 탐색">
-      <TabButton type="button" onClick={() => router.push('/')} aria-label="온마루 메인 홈으로 이동">
+      <TabButton type="button" onClick={() => router.push('/')} aria-label="홈으로 이동">
         <IconSlot>
           <Home size={19} />
         </IconSlot>
-        <span>온마루</span>
+        <span>홈</span>
       </TabButton>
 
       <TabButton
@@ -93,7 +93,7 @@ export default function MapMobileTabs() {
           setMode('warmth');
           setSheetSnap('half');
         }}
-        aria-label="온기 커뮤니티 피드"
+        aria-label="온기 피드 둘러보기"
       >
         <IconSlot>
           <Users size={19} />
@@ -113,7 +113,7 @@ export default function MapMobileTabs() {
         <IconSlot>
           <MapPin size={19} />
         </IconSlot>
-        <span>한옥지도</span>
+        <span>지도</span>
       </TabButton>
 
       <TabButton type="button" onClick={() => router.push('/sorimaru')} aria-label="소리마루 오디오 도슨트">

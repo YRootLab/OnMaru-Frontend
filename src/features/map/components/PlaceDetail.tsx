@@ -239,7 +239,7 @@ export default function PlaceDetail() {
   const smartFeatures = useMemo(() => {
     const list: { label: string; type: 'free' | 'parking' | 'audio' | 'general' }[] = [];
     if (matchedSorimaruStory) {
-      list.push({ label: '오디 도슨트 해설', type: 'audio' });
+      list.push({ label: '오디오 해설', type: 'audio' });
     }
     const fee = data?.intro?.['이용요금'] || '';
     if (fee.includes('무료') || (!fee && selectedItem?.category === 'spot')) {
@@ -433,7 +433,7 @@ export default function PlaceDetail() {
               <LiveWarmthCount>{warmthMetrics.countLabel}</LiveWarmthCount>
             </LiveWarmthMeter>
 
-            {/* 원클릭 퀵 액션 타일 바 (오디 해설이 지원되는 장소에만 '오디 투어' 타일 노출) */}
+            {/* 원클릭 퀵 액션 타일 바 (소리마루 오디오 해설이 지원되는 장소에만 '오디오 해설' 타일 노출) */}
             <HeroActionGrid>
               {matchedSorimaruStory && (
                 <HeroActionTile
@@ -541,7 +541,7 @@ export default function PlaceDetail() {
                 <CinematicHeader>
                   <CinematicBadge>
                     <Compass size={13} strokeWidth={2} />
-                    <span>오디오 도슨트</span>
+                    <span>오디오 해설</span>
                   </CinematicBadge>
                   <CinematicDuration>
                     {matchedSorimaruStory.formattedDuration || '약 10분'}

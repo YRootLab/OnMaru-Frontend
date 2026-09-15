@@ -281,10 +281,10 @@ export const ZTranslateCardStage: React.FC<ZTranslateCardStageProps> = ({ featur
           SHOPIFY EDITIONS INSPIRED • 3D STAGE
         </BadgePill>
         <StageHeading>
-          3차원 Z-축 공간으로 만나는 오디 큐레이션
+          3차원 공간으로 만나는 소리마루 이야기
         </StageHeading>
         <StageDesc>
-          카드를 터치하면 오디오가 재생되며, 이미 재생 중인 카드를 다시 터치하면 일시정지됩니다.
+          카드를 누르면 소리를 들을 수 있고, 다시 누르면 잠시 멈춰요.
         </StageDesc>
       </HeaderBox>
 

@@ -673,16 +673,16 @@ export default function Header() {
           </LogoLink>
         </LeftSection>
 
-        {/* 가운데: 온마루, 한옥 마루, 소리마루, 지도 */}
+        {/* 가운데: 홈, 한옥 이야기, 소리마루, 지도 */}
         <CenterNav $isMapPage={isMapPage}>
           <NavLink href="/" $isLanding={usesDarkSurface} $isSoriMaru={isSoriMaruPage}>
             <Sparkles size={13} style={{ marginRight: 4, verticalAlign: '-1px' }} />
-            <span>온마루</span>
+            <span>홈</span>
           </NavLink>
 
           <NavLink href="/hanok" $isLanding={usesDarkSurface} $isSoriMaru={isSoriMaruPage}>
             <BookOpen size={13} style={{ marginRight: 4, verticalAlign: '-1px' }} />
-            <span>한옥 마루</span>
+            <span>한옥 이야기</span>
           </NavLink>
 
           <NavLink href="/sorimaru" $isLanding={usesDarkSurface} $isSoriMaru={isSoriMaruPage}>
@@ -780,12 +780,12 @@ export default function Header() {
             >
               <MobileMenuLink href="/" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <Sparkles size={15} /> 온마루
+                  <Sparkles size={15} /> 홈
                 </span>
               </MobileMenuLink>
               <MobileMenuLink href="/hanok" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <BookOpen size={15} /> 한옥 마루
+                  <BookOpen size={15} /> 한옥 이야기
                 </span>
               </MobileMenuLink>
               <MobileMenuLink href="/sorimaru" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>

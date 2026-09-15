@@ -333,7 +333,7 @@ export function SorimaruQuestionAssistant({ filters, onOpenSource }: SorimaruQue
       <CardBox>
         <div>
           <QuestionHeading id="sorimaru-question-heading">어떤 이야기를 찾고 있나요?</QuestionHeading>
-          <QuestionDesc>장소, 분위기, 듣는 시간으로 자연스럽게 물어보세요. 답변에는 오디 이야기 출처를 함께 보여드립니다.</QuestionDesc>
+          <QuestionDesc>장소, 분위기, 듣는 시간으로 자연스럽게 물어보세요. 답변과 함께 관련 소리마루 이야기를 추천해 드려요.</QuestionDesc>
           <SuggestionsRow>
             {SUGGESTIONS.map((suggestion) => (
               <SuggestionButton key={suggestion} type="button" onClick={() => setQuestion(suggestion)}>
@@ -362,7 +362,7 @@ export function SorimaruQuestionAssistant({ filters, onOpenSource }: SorimaruQue
               {isLoading ? <RotateCcw size={14} strokeWidth={2} className="spinning" /> : <ArrowUp size={16} strokeWidth={2} />}
             </SubmitButton>
           </InputWrapper>
-          {isLoading && <HelperText>오디 이야기에서 근거를 찾고 있어요.</HelperText>}
+          {isLoading && <HelperText>소리마루 이야기에서 추천 장소를 찾고 있어요.</HelperText>}
           {error && <HelperText>{error.includes('아직 구성되지') ? '자연어 안내는 준비 중입니다. 지금은 카테고리와 검색으로 이야기를 찾아보세요.' : error}</HelperText>}
         </FormContainer>
       </CardBox>

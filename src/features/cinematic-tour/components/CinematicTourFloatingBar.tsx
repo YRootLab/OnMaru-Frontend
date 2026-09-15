@@ -359,7 +359,7 @@ export default function CinematicTourFloatingBar() {
           <IconButton
             type="button"
             onClick={() => router.push(`/sorimaru?storyId=${story.tid}`)}
-            title="오디 전체 해설 및 대본 페이지로 이동"
+            title="소리마루 해설과 대본 보기"
           >
             <ExternalLink size={16} />
           </IconButton>

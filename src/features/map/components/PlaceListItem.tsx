@@ -475,9 +475,9 @@ function PlaceListItemComponent({
               </TraditionalBadge>
             )}
             {hasSorimaru && (
-              <SorimaruBadge title="한국관광공사 공식 오디 오디오 도슨트 해설 지원 장소">
+              <SorimaruBadge title="소리마루 오디오 해설 지원 장소">
                 <Headphones size={10.5} />
-                <span>오디 해설</span>
+                <span>오디오 해설</span>
               </SorimaruBadge>
             )}
           </BadgeRow>

@@ -32,7 +32,7 @@ function imageFor(story: SorimaruStoryItem, index: number) {
 
 function storyContext(story: SorimaruStoryItem): string {
   if (story.locationName) return story.locationName;
-  if (story.category && story.category !== '오디 이야기') return story.category;
+  if (story.category && story.category !== '오디 이야기' && story.category !== '소리 이야기') return story.category;
   return '대한민국 소리 기행';
 }
 

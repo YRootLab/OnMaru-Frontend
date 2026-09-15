@@ -412,7 +412,7 @@ export const FeaturedStoryRail: React.FC<FeaturedStoryRailProps> = ({ stories, s
   return (
     <SectionWrapper ref={sectionRef}>
       <div>
-        <TabsRail role="tablist" aria-label="오디 핵심 카테고리">
+        <TabsRail role="tablist" aria-label="소리마루 핵심 카테고리">
           {SORIMARU_HERO_TABS.map((tab) => {
             const isActive = activeTab === tab.id;
             return (

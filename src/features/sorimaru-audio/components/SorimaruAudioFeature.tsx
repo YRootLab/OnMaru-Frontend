@@ -406,7 +406,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   );
   const archiveScopeRef = useRef({ selectedCategory, searchQuery, archivePage });
   const handleApiError = useCallback(() => {
-    setApiError('오디 이야기를 불러오지 못했습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.');
+    setApiError('소리마루 이야기를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
   }, []);
 
   useEffect(() => {
@@ -435,7 +435,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
             }
           }
           if (result.archiveError || result.nearbyError) {
-            setApiError('오디 이야기를 불러오지 못했습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.');
+            setApiError('소리마루 이야기를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
           }
           setIsArchiveLoading(false);
           initialLoadCompleteRef.current = true;
@@ -443,7 +443,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
         }
       } catch {
         if (isMounted) {
-          setApiError('오디 이야기를 불러오지 못했습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.');
+          setApiError('소리마루 이야기를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
           setIsArchiveLoading(false);
         }
       } finally {
@@ -488,7 +488,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
           setArchiveMeta(page);
         }
       } catch {
-        if (isMounted) setApiError('오디 이야기를 불러오지 못했습니다. 네트워크 상태를 확인하고 다시 시도해 주세요.');
+        if (isMounted) setApiError('소리마루 이야기를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
       } finally {
         if (isMounted) setIsArchiveLoading(false);
       }
@@ -639,7 +639,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                 <CenteredContainer>
                   <motion.div variants={titleVariants} style={{ marginBottom: '1rem' }}>
                     <SectionGradientTitle id="archive-heading">
-                      오디로 듣는 한국
+                      소리로 만나는 한국
                     </SectionGradientTitle>
                     <SectionDescription>
                       처마 끝 바람 소리부터 천년 고도의 숨결까지, 마음에 머무는 이야기 트랙.

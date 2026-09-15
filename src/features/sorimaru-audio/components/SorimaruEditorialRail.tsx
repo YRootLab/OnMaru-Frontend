@@ -286,7 +286,7 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(
               color: palette.jangmi[500],
             }}
           >
-            {story.category !== '오디 이야기' ? story.category : story.badgeText || '오디오 가이드'}
+            {story.category && story.category !== '오디 이야기' && story.category !== '소리 이야기' ? story.category : story.badgeText || '소리마루 해설'}
           </p>
           <CardTitle>
             {story.title}
@@ -799,7 +799,7 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
       return (
         <section
           ref={railRef}
-          aria-label="오디 셀렉션"
+          aria-label="소리마루 추천"
           style={{
             position: 'relative',
             marginLeft: 'auto',
@@ -814,7 +814,7 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
             padding: '0.75rem 0',
           }}
         >
-          <p style={{ fontSize: '0.875rem', color: meok[700] }}>이 주제의 오디오 이야기를 찾지 못했습니다.</p>
+          <p style={{ fontSize: '0.875rem', color: meok[700] }}>이 주제의 이야기를 찾지 못했어요.</p>
         </section>
       );
     }
@@ -822,7 +822,7 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
     return (
       <section
         ref={railRef}
-        aria-label="오디 셀렉션"
+        aria-label="소리마루 추천"
         aria-busy={showSkeleton}
         style={{
           position: 'relative',

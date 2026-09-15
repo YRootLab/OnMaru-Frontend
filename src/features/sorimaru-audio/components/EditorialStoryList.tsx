@@ -29,16 +29,16 @@ const imageFor = (story: SorimaruStoryItem, index: number) => {
 
 const categoryLabelFor = (story: SorimaruStoryItem) => {
   const categoryLabels: Record<string, string> = {
-    한옥: '한옥/고택',
-    시장: '전통시장',
-    마을: '전통마을',
-    궁: '궁궐/역사',
-    길: '자연/둘레길',
+    한옥: '한옥과 고택',
+    시장: '전통 시장',
+    마을: '마을과 골목',
+    궁: '궁궐과 역사',
+    길: '자연과 숲길',
   };
-  if (story.category && story.category !== '오디 이야기') return categoryLabels[story.category] || story.category;
-  if (story.title.includes('한옥') || story.title.includes('고택')) return '한옥/고택';
-  if (story.title.includes('시장')) return '전통시장';
-  if (story.title.includes('궁') || story.title.includes('왕')) return '궁궐/역사';
+  if (story.category && story.category !== '오디 이야기' && story.category !== '소리 이야기') return categoryLabels[story.category] || story.category;
+  if (story.title.includes('한옥') || story.title.includes('고택')) return '한옥과 고택';
+  if (story.title.includes('시장')) return '전통 시장';
+  if (story.title.includes('궁') || story.title.includes('왕')) return '궁궐과 역사';
   return story.badgeText === '음원 제공' ? '문화유산' : '';
 };
 

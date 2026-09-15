@@ -160,7 +160,7 @@ function mapStoryItem(item: Record<string, unknown>, index: number, category?: s
     title,
     audioTitle: readText(item, 'audioTitle') || readText(item, 'storyTitle') || title || '오디오 해설',
     speaker: '문화해설사 도슨트',
-    category: (category && category !== '전체' ? category : '') as SorimaruCategory || readText(item, 'themaCategory') || '오디 이야기',
+    category: (category && category !== '전체' ? category : '') as SorimaruCategory || readText(item, 'themaCategory') || '소리 이야기',
     distance: distance === null ? undefined : formatDistance(distance),
     mapX,
     mapY,
@@ -172,7 +172,7 @@ function mapStoryItem(item: Record<string, unknown>, index: number, category?: s
     audioUrl,
     imageUrl,
     locationName: [readText(item, 'addr1'), readText(item, 'addr2')].filter(Boolean).join(' ') || '대한민국 문화유산',
-    badgeText: (category && category !== '전체' && category !== '오디 이야기')
+    badgeText: (category && category !== '전체' && category !== '오디 이야기' && category !== '소리 이야기')
       ? category
       : readText(item, 'themaCategory') || [readText(item, 'addr1'), readText(item, 'addr2')].filter(Boolean).join(' ') || '대한민국 문화유산',
   };
