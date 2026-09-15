@@ -236,15 +236,22 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
   });
 
   const galleryImages = useMemo(() => {
-    const imgs: string[] = [];
-    if (village.hasImage && village.image) imgs.push(village.image);
+    const imgs = new Set<string>();
+    const addImage = (value: unknown) => {
+      if (typeof value !== 'string') return;
+      const image = value.trim();
+      if (image) imgs.add(image);
+    };
+    if (village.hasImage) addImage(village.image);
     if (detailData?.images) {
-      detailData.images.forEach((img) => {
-        if (typeof img === 'string' && !imgs.includes(img)) imgs.push(img);
-      });
+      detailData.images.forEach(addImage);
     }
-    return imgs;
+    return Array.from(imgs);
   }, [village, detailData]);
+
+  const displayBadges = useMemo(() => (
+    Array.from(new Set(village.badges.map((badge) => badge.trim()).filter(Boolean)))
+  ), [village.badges]);
 
   const currentHeroImage = useMemo(() => {
     if (activeImageIdx !== null && galleryImages[activeImageIdx]) {
@@ -266,6 +273,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
   return (
     <AnimatePresence>
       <Overlay
+        key="hanok-dogam-detail"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -494,11 +502,11 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
             )}
 
             {/* 문화유산 태그 */}
-            {village.badges.length > 0 && (
+            {displayBadges.length > 0 && (
               <div>
                 <BadgeTitle>문화유산 분류</BadgeTitle>
                 <BadgeList>
-                  {village.badges.map((b) => (
+                  {displayBadges.map((b) => (
                     <TagBadge key={b}>#{filterLabel(b)}</TagBadge>
                   ))}
                 </BadgeList>
@@ -532,6 +540,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
       {/* 라이트박스 전체화면 뷰어 */}
       {zoomedImageIdx !== null && galleryImages[zoomedImageIdx] && (
         <LightboxOverlay
+          key="hanok-dogam-lightbox"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}

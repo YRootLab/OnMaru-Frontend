@@ -143,14 +143,17 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
   }, [detailData, stay]);
 
   const galleryImages = useMemo(() => {
-    const imgs: string[] = [];
-    if (stay.hasImage && stay.image) imgs.push(stay.image);
+    const imgs = new Set<string>();
+    const addImage = (value: unknown) => {
+      if (typeof value !== 'string') return;
+      const image = value.trim();
+      if (image) imgs.add(image);
+    };
+    if (stay.hasImage) addImage(stay.image);
     if (detailData?.images) {
-      detailData.images.forEach((img) => {
-        if (typeof img === 'string' && !imgs.includes(img)) imgs.push(img);
-      });
+      detailData.images.forEach(addImage);
     }
-    return imgs;
+    return Array.from(imgs);
   }, [stay, detailData]);
 
   const currentHeroImage = useMemo(() => {
@@ -165,6 +168,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
   return (
     <AnimatePresence>
       <Overlay
+        key="hanok-stay-detail"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -375,6 +379,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
       {/* 라이트박스 전체화면 뷰어 */}
       {zoomedImageIdx !== null && galleryImages[zoomedImageIdx] && (
         <LightboxOverlay
+          key="hanok-stay-lightbox"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
