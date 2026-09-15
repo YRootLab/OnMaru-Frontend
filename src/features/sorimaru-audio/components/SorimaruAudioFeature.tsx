@@ -141,16 +141,16 @@ const RetryButton = styled.button`
 const MainSections = styled.main`
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 2rem;
 
   @media (min-width: 640px) {
-    gap: 1.5rem;
+    gap: 3rem;
   }
 `;
 
 const HeroStageDiv = styled(motion.div)`
   padding-top: clamp(52px, 6.8vh, 80px);
-  padding-bottom: clamp(16px, 2vh, 32px);
+  padding-bottom: clamp(40px, 5vh, 64px);
 `;
 
 const SectionGradientTitle = styled.h2`

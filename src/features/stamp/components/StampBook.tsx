@@ -291,17 +291,17 @@ export default function StampBook() {
       <Header>
         <Badge>
           <Award size={13} />
-          <span>전국 한옥 수결첩 (手決帖)</span>
+          <span>한옥 수결첩</span>
         </Badge>
-        <Title>나의 한옥 탐방 인장첩</Title>
+        <Title>나의 한옥 방문 도장첩</Title>
         <Subtitle>
-          전국 8도의 유서 깊은 고택과 한옥 명소를 거닐며 획득한 나만의 전통 수결(인장)입니다.
+          전국 한옥을 여행하며 모은 방문 도장이에요.
         </Subtitle>
 
         <UserSyncBanner>
           <UserSyncLeft>
             <User size={14} />
-            <span>{user ? `${user.nickname || user.email} 님의 계정과 안전하게 동기화됨` : '비로그인 상태 — 브라우저에 임시 보관 중'}</span>
+            <span>{user ? `${user.nickname || user.email} 님과 안전하게 동기화됨` : '로그인하면 도장을 안전하게 보관할 수 있어요'}</span>
           </UserSyncLeft>
           {user && (
             <ShieldCheck size={16} color="#059669" />
@@ -321,7 +321,7 @@ export default function StampBook() {
             <StatBox>
               <StatLabel>
                 <Award size={12} />
-                <span>수집한 인장</span>
+                <span>모은 도장</span>
               </StatLabel>
               <StatValue>
                 {unlockedCount} <span>/ {totalStampsCount}</span>
@@ -331,7 +331,7 @@ export default function StampBook() {
             <StatBox>
               <StatLabel>
                 <MapPin size={12} />
-                <span>탐방한 권역</span>
+                <span>방문한 지역</span>
               </StatLabel>
               <StatValue>
                 {unlockedRegions.size} <span>/ 7도</span>
@@ -342,7 +342,7 @@ export default function StampBook() {
           <StatBox>
             <StatLabel>
               <Sparkles size={12} />
-              <span>전국 완파 달성률</span>
+              <span>전국 달성률</span>
             </StatLabel>
             <StatValue>{progressPercent}%</StatValue>
             <ProgressBarTrack>
@@ -352,7 +352,7 @@ export default function StampBook() {
 
           <GuideNote>
             <MapPin size={15} style={{ flexShrink: 0 }} />
-            <span>지도의 각 권역을 누르면 해당 지역의 한옥 인장만 모아볼 수 있습니다.</span>
+            <span>지도를 누르면 그 지역의 도장만 모아볼 수 있어요.</span>
           </GuideNote>
         </StatsContainer>
       </HeroGrid>
@@ -363,13 +363,13 @@ export default function StampBook() {
           $active={activeTab === 'stamps'}
           onClick={() => setActiveTab('stamps')}
         >
-          스탬프 모음
+          도장 모음
         </TabButton>
         <TabButton
           $active={activeTab === 'leaderboard'}
           onClick={() => setActiveTab('leaderboard')}
         >
-          전국 순례 랭킹
+          탐방 랭킹
         </TabButton>
 
         {activeTab === 'stamps' && (

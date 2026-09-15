@@ -212,7 +212,7 @@ export default function StampCard({ stamp, collected, onClick }: StampCardProps)
           onClick();
         }
       }}
-      aria-label={`${stamp.name} - ${isUnlocked ? '수집 완료' : '미수집'}`}
+      aria-label={`${stamp.name} - ${isUnlocked ? '도장 획득' : '미방문'}`}
     >
       <SealFrame $unlocked={isUnlocked} $color={stamp.color}>
         {isUnlocked ? (

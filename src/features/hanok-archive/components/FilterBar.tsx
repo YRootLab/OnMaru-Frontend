@@ -445,7 +445,7 @@ export default function FilterBar({
             type="search"
             value={query}
             onChange={(e) => onQueryChange(e.target.value)}
-            placeholder="이름이나 지역으로 찾기 — 북촌, 안동, 종택"
+            placeholder="이름이나 지역으로 찾아보세요 (예: 북촌, 안동)"
             aria-label="한옥 이름이나 주소로 찾기"
           />
           {query && (
@@ -525,7 +525,7 @@ export default function FilterBar({
           </BadgeList>
           {activeBadges.length > 0 && (
             <ResetBtn onClick={onResetBadges || (() => activeBadges.forEach((b) => onBadgeToggle(b)))}>
-              <RotateCcw size={12} strokeWidth={2} /> 태그 초기화
+              <RotateCcw size={12} strokeWidth={2} /> 선택한 태그 지우기
             </ResetBtn>
           )}
         </BadgeContainer>

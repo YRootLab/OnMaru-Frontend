@@ -339,7 +339,7 @@ export const ScriptSyncViewer: React.FC = () => {
             </ScrollListArea>
 
             <ModalFooter>
-              문장을 누르면 해당 오디오 구간으로 이동합니다.
+              문장을 누르면 그 부분부터 바로 들을 수 있어요.
             </ModalFooter>
           </ModalContent>
         </ModalOverlay>

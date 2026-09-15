@@ -306,21 +306,21 @@ const PlayActionBtn = styled.button<{ isPlaying: boolean }>`
 
 const MODAL_CATEGORIES: SorimaruCategory[] = [
   '전체',
-  '한옥/고택',
-  '전통시장/장터',
-  '마을/골목길',
-  '궁궐/역사',
-  '소리/문화',
-  '자연/둘레길',
+  '한옥과 고택',
+  '전통 시장',
+  '마을과 골목',
+  '궁궐과 역사',
+  '소리와 문화',
+  '자연과 숲길',
 ];
 
 const MODAL_CATEGORY_KEYWORDS: Record<string, string[]> = {
-  '한옥/고택': ['한옥', '고택', '한옥마을'],
-  '전통시장/장터': ['시장', '장터', '시전'],
-  '마을/골목길': ['마을', '골목', '길'],
-  '궁궐/역사': ['궁', '역사', '유적'],
-  '소리/문화': ['소리', '전통', '문화'],
-  '자연/둘레길': ['자연', '둘레길', '산', '공원'],
+  '한옥과 고택': ['한옥', '고택', '한옥마을'],
+  '전통 시장': ['시장', '장터', '시전'],
+  '마을과 골목': ['마을', '골목', '길'],
+  '궁궐과 역사': ['궁', '역사', '유적'],
+  '소리와 문화': ['소리', '전통', '문화'],
+  '자연과 숲길': ['자연', '둘레길', '산', '공원'],
 };
 
 export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
@@ -376,7 +376,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
               COMPLETE AUDIO COLLECTION
             </HeaderBadge>
             <HeaderTitle>
-              오디(Sorimaru) 전체 이야기 아카이브
+              소리마루 이야기 전체보기
             </HeaderTitle>
           </div>
           <CloseButton onClick={onClose} aria-label="닫기">
@@ -408,7 +408,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
               type="text"
               value={modalSearch}
               onChange={(e) => setModalSearch(e.target.value)}
-              placeholder="이야기, 장소, 해설사 키워드로 검색"
+              placeholder="이야기 제목이나 장소로 검색해 보세요"
             />
             <SearchIconWrapper>
               <Search size={16} strokeWidth={2} />
@@ -420,7 +420,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
         <StoryListArea>
           {filtered.length === 0 ? (
             <EmptyState>
-              일치하는 이야기가 없습니다.
+              찾으시는 이야기가 없어요.
             </EmptyState>
           ) : (
             filtered.map((story, index) => {

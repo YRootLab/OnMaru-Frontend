@@ -239,15 +239,15 @@ export default function JourneyHeroSearch() {
     <Container>
       <EyebrowBadge>
         <Sparkles size={14} />
-        <span>인공지능 여정 큐레이터</span>
+        <span>나만의 한옥 여정</span>
       </EyebrowBadge>
 
-      <Title>어떤 한국을 만나고 싶으세요?</Title>
+      <Title>어떤 한옥 여행을 떠나고 싶으세요?</Title>
 
       <Subtitle>
-        당신의 기분, 걷고 싶은 빠르기, 마음에 품은 정취를 자유롭게 들려주세요.
+        원하는 분위기나 가고 싶은 지역을 편하게 적어보세요.
         <br />
-        온마루의 한옥 문화재, 공간 오디오, 실시간 온기가 당신만의 여정으로 조립됩니다.
+        한옥과 주변 이야기, 현장 소리를 모아 꼭 맞는 코스를 추천해 드릴게요.
       </Subtitle>
 
       <SearchForm onSubmit={handleSubmit}>
@@ -258,11 +258,11 @@ export default function JourneyHeroSearch() {
           type="text"
           value={currentQuery}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="예: 서울에서 비 오는 날 고즈넉하게 한옥과 시장을 걷고 싶어"
+          placeholder="예: 비 오는 날 걷기 좋은 고즈넉한 서울 한옥길"
           aria-label="여정 검색어 입력"
         />
         <SubmitButton type="submit" $disabled={isGenerating}>
-          <span>{isGenerating ? '조립 중...' : '여정 탐색'}</span>
+          <span>{isGenerating ? '여정 찾는 중...' : '여정 찾기'}</span>
           <ArrowRight size={14} />
         </SubmitButton>
       </SearchForm>

@@ -338,7 +338,7 @@ export default function StampSealAnimation({ stamp, onClose }: StampSealAnimatio
 
           <ConfirmBtn $color={stamp.color} onClick={onClose}>
             <Check size={16} strokeWidth={2.5} />
-            <span>수결첩에 보관 완료</span>
+            <span>인장첩에 담았어요</span>
           </ConfirmBtn>
         </SealCard>
       </Overlay>

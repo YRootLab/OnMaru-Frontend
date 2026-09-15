@@ -5,31 +5,31 @@ import type { BentoJourneyPlan, MoodOption } from '../types/journey.types';
 export const MOOD_OPTIONS: MoodOption[] = [
   {
     id: 'quiet',
-    label: '조용히 걷고 싶어요',
+    label: '조용한 산책',
     icon: <Cloud size={16} strokeWidth={2} />,
     query: '사람이 붐비지 않고 고즈넉하게 한옥 골목을 산책할 수 있는 곳',
   },
   {
     id: 'market',
-    label: '정겨운 전통시장',
+    label: '정겨운 시장',
     icon: <ShoppingBag size={16} strokeWidth={2} />,
     query: '한옥의 정취와 활기찬 전통시장 먹거리를 함께 즐길 수 있는 여정',
   },
   {
     id: 'story',
-    label: '이야기를 들으며 걷기',
+    label: '이야기와 해설',
     icon: <Headphones size={16} strokeWidth={2} />,
     query: '문화재 해설과 역사적 숨은 이야기가 얽혀있는 유서 깊은 장소',
   },
   {
     id: 'rainy',
-    label: '비 오는 날의 고즈넉함',
+    label: '비 오는 날 운치',
     icon: <CloudRain size={16} strokeWidth={2} />,
     query: '빗소리와 기와 처마의 낙숫물이 아름다운 전통 한옥 정원',
   },
   {
     id: 'rest',
-    label: '지친 날의 쉼',
+    label: '편안한 쉼',
     icon: <Leaf size={16} strokeWidth={2} />,
     query: '걸음 수를 줄이고 툇마루에서 여유롭게 쉴 수 있는 힐링 한옥',
   },

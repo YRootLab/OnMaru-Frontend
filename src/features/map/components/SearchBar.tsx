@@ -342,14 +342,14 @@ export default function SearchBar({ className }: SearchBarProps) {
   return (
     <Wrap className={className}>
       <Field onSubmit={handleSubmit}>
-        <SearchSubmitBtn type="submit" aria-label="검색 실행">
+        <SearchSubmitBtn type="submit" aria-label="검색하기">
           <Search size={18} strokeWidth={2} aria-hidden />
         </SearchSubmitBtn>
 
         <Input
           type="search"
           value={value}
-          placeholder="지역이나 장소 검색 (예: 전주, 북촌)"
+          placeholder="지역이나 한옥 이름을 검색해 보세요"
           aria-label="장소 검색"
           onChange={(e) => setValue(e.target.value)}
           onFocus={() => setOpen(true)}
@@ -360,8 +360,8 @@ export default function SearchBar({ className }: SearchBarProps) {
           {isSearched && (
             <ActionIconBtn
               type="button"
-              aria-label="전국 지도로 초기화"
-              title="전국 지도로 초기화"
+              aria-label="전국 지도로 돌아가기"
+              title="전국 지도로 돌아가기"
               onClick={handleResetToNationwide}
             >
               <RotateCcw size={14} strokeWidth={2} />
@@ -390,7 +390,7 @@ export default function SearchBar({ className }: SearchBarProps) {
               onMouseDown={handleResetToNationwide}
             >
               <Globe size={16} strokeWidth={2} />
-              <span>전국 지도로 초기화</span>
+              <span>전국 지도로 돌아가기</span>
             </ResetAllBtn>
           )}
 
