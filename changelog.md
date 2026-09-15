@@ -4,6 +4,9 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+- Added restrained reading-flow motion to Hanok data and history: one-shot growing distribution bars, synchronized count-up values, and centered paragraph focus inside the detail modal.
+- Reserved the responsive “이달의 픽” footprint during hydration so the following Hanok distribution chart no longer appears briefly and shifts out of view.
+- Kept the Hanok regional distribution chart visible when a degraded live TourAPI response omits regional data.
 - Fixed Sorimaru’s initial listening data to load a playable themed story search. The upstream base list currently contains metadata-only rows, so audio-less entries are now excluded before they reach the player.
 - Improved the Sorimaru expanded player: background scrolling now locks without a layout jump, touch overscroll stays inside the drawer, and Roadview uses a responsive 16:9 canvas with resize relayout and a motion-safe fallback image.
 - The expanded Sorimaru player now pairs Roadview and playback controls with a scrollable synchronized transcript on desktop, then stacks them for mobile.

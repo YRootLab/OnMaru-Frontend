@@ -1,6 +1,9 @@
 # handoff.md
 
 Current work:
+- Hanok reading-flow motion: the regional distribution now uses one-shot GSAP `scaleX` bars with synchronized count-up values; the detail modal uses its own scroll container to focus the centered history paragraph while dimming surrounding paragraphs. Reduced-motion users receive the final readable state immediately.
+- Hanok monthly layout stability: the monthly feature now reserves its final responsive height before hydration, preventing the distribution chart from flashing in its space and then being pushed below the viewport.
+- Hanok distribution stability: live `/api/tourapi` payloads without regional data no longer replace the complete local snapshot, preventing the chart below “이달의 픽” from appearing briefly and then disappearing.
 - Sorimaru playback data fix: the public base-list endpoint currently returns metadata rows with no `audioUrl`, so initial listening content now uses the playable `한옥` story search. The adapter excludes media-less rows and the store rejects them as a final guard. Verified against the live API: the themed search returns playable URLs.
 - Verified after the playback fix: `npx tsc --noEmit` and the focused Sorimaru API/initial-load Vitest suite pass.
 - Sorimaru player UX pass: the expanded drawer preserves page position while locking background scroll, contains touch overscroll, and uses a Roadview canvas that relayouts responsively. `npx tsc --noEmit` passes.

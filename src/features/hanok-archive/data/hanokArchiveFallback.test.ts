@@ -22,4 +22,11 @@ describe('decodeHanokArchivePayload', () => {
       meta: { ...HANOK_ARCHIVE_FALLBACK.meta, total: 0 },
     })).toBeNull();
   });
+
+  it('rejects a live response without regional data so the distribution chart stays visible', () => {
+    expect(decodeHanokArchivePayload({
+      villages: [{ ...HANOK_ARCHIVE_FALLBACK.villages[0], region: '' }],
+      meta: { ...HANOK_ARCHIVE_FALLBACK.meta, total: 1 },
+    })).toBeNull();
+  });
 });

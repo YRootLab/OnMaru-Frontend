@@ -68,5 +68,19 @@ export function decodeHanokArchivePayload(value: unknown): HanokArchiveData | nu
   const candidate = value as Partial<HanokArchiveData>;
   if (!Array.isArray(candidate.villages) || candidate.villages.length === 0) return null;
   if (!candidate.meta || typeof candidate.meta.total !== 'number') return null;
+
+  // The distribution section is driven by `region`. A partially degraded API
+  // response used to replace the complete snapshot and then make the chart
+  // disappear because HanokDistribution correctly renders nothing without
+  // regional data. Keep the snapshot unless the live payload can support that
+  // section as well.
+  const hasRegionalData = candidate.villages.some((village) => (
+    village
+    && typeof village === 'object'
+    && typeof (village as Partial<Village>).region === 'string'
+    && Boolean((village as Partial<Village>).region?.trim())
+  ));
+  if (!hasRegionalData) return null;
+
   return candidate as HanokArchiveData;
 }
