@@ -15,12 +15,15 @@ interface HanokAiStoryPanelProps {
 }
 
 const Panel = styled.section`
+  width: 100%;
+  min-width: 0;
   min-height: 382px;
   margin-bottom: 24px;
   padding: 22px;
   border-radius: 20px;
   background: #f8f8f7;
   color: ${meok[900]};
+  overflow: hidden;
 
   [data-theme='dark'] & {
     background: #24211d;
@@ -32,6 +35,7 @@ const Header = styled.header`
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 16px;
   margin-bottom: 18px;
 `;
@@ -68,6 +72,7 @@ const AiLabel = styled.span`
   color: ${meok[600]};
   font-size: ${fontSize.micro};
   font-weight: 600;
+  white-space: nowrap;
 
   [data-theme='dark'] & { background: rgba(255, 255, 255, 0.08); color: ${meok[300]}; }
 `;
@@ -79,6 +84,7 @@ const Summary = styled.p`
   line-height: 1.82;
   letter-spacing: -0.01em;
   word-break: keep-all;
+  overflow-wrap: anywhere;
 
   [data-theme='dark'] & { color: ${meok[300]}; }
 `;
@@ -103,8 +109,9 @@ const Timeline = styled.ol`
 
 const TimelineItem = styled.li`
   display: grid;
-  grid-template-columns: 82px 1fr;
+  grid-template-columns: minmax(60px, 82px) minmax(0, 1fr);
   gap: 12px;
+  min-width: 0;
   padding: 10px 0;
   border-top: 1px solid #e5e5e3;
 
@@ -115,12 +122,15 @@ const Period = styled.span`
   color: ${palette.cheongrok[700]};
   font-size: ${fontSize.xs};
   font-weight: 600;
+  overflow-wrap: anywhere;
 
   [data-theme='dark'] & { color: ${palette.cheongrok[400]}; }
 `;
 
 const EventText = styled.div`
+  min-width: 0;
   strong { display: block; margin-bottom: 3px; font-size: ${fontSize.sm}; font-weight: 600; }
+  strong, p { overflow-wrap: anywhere; word-break: keep-all; }
   p { margin: 0; color: ${meok[600]}; font-size: ${fontSize.xs}; line-height: 1.62; }
   [data-theme='dark'] & p { color: ${meok[400]}; }
 `;
@@ -138,6 +148,8 @@ const Highlights = styled.ul`
     color: ${meok[700]};
     font-size: ${fontSize.xs};
     line-height: 1.62;
+    overflow-wrap: anywhere;
+    word-break: keep-all;
   }
   li::before { content: ''; position: absolute; left: 0; top: 0.7em; width: 4px; height: 4px; border-radius: 50%; background: ${palette.cheongrok[500]}; }
   [data-theme='dark'] & li { color: ${meok[300]}; }
@@ -150,6 +162,7 @@ const SourceRow = styled.div`
   margin-top: 20px;
   padding-top: 14px;
   border-top: 1px solid #e5e5e3;
+  min-width: 0;
 
   [data-theme='dark'] & { border-color: rgba(255, 255, 255, 0.08); }
 `;
@@ -158,6 +171,8 @@ const SourceLink = styled.a`
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  width: 100%;
+  min-width: 0;
   max-width: 100%;
   padding: 5px 8px;
   border-radius: 7px;
@@ -166,9 +181,13 @@ const SourceLink = styled.a`
   font-size: ${fontSize.micro};
   text-decoration: none;
 
-  span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   &:hover { background: #e5e5e3; color: ${meok[900]}; }
   [data-theme='dark'] & { background: rgba(255,255,255,0.06); color: ${meok[300]}; }
+`;
+
+const SourceIcon = styled(ExternalLink)`
+  flex: 0 0 auto;
 `;
 
 const Disclaimer = styled.p`
@@ -335,7 +354,7 @@ export default function HanokAiStoryPanel({
             <SourceRow aria-label="해설 출처">
               {story.sources.map((source, index) => (
                 <SourceLink key={source.url} href={source.url} target="_blank" rel="noopener noreferrer">
-                  <span>{index + 1}. {source.title}</span><ExternalLink size={11} />
+                  <span>{index + 1}. {source.title}</span><SourceIcon size={11} />
                 </SourceLink>
               ))}
             </SourceRow>

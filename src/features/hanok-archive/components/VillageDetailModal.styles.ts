@@ -21,6 +21,7 @@ export const ModalCard = styled(motion.div)`
   width: 100%;
   max-height: 88vh;
   overflow-y: auto;
+  overflow-x: hidden;
   position: relative;
   border: none;
   box-shadow: none;
