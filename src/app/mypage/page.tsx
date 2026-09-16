@@ -8,7 +8,8 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { Bookmark, Flame, ChevronRight, MapPin, X, Compass, Sparkles } from 'lucide-react';
+import { Bookmark, Flame, ChevronRight, MapPin, X, Compass, Sparkles, Heart, Music, PenLine, Check } from 'lucide-react';
+import type { SavedJourneyDetail } from '@/features/journey-curator/types/exploration.types';
 import { useAuth } from '@/features/auth';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import { loadWarmth, filterWarmth } from '@/features/map/warmth/warmthRepo';
@@ -19,7 +20,9 @@ import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import type { OnmaruTheme } from '@/design-system/tokens';
 import { useSavedJourneyStore } from '@/features/journey-curator/store/useSavedJourneyStore';
 import { useJourneyStore } from '@/features/journey-curator/store/useJourneyStore';
+import { useSavedExplorationStore } from '@/features/journey-curator/store/useSavedExplorationStore';
 import MonthlyTimeline from '@/features/member-timeline/components/MonthlyTimeline';
+import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 
 export default function MyPage() {
   const router = useRouter();
@@ -34,9 +37,26 @@ export default function MyPage() {
   const removeJourney = useSavedJourneyStore((s) => s.removeJourney);
   const loadSavedJourneys = useSavedJourneyStore((s) => s.loadSaved);
 
+  const savedExplorations = useSavedExplorationStore((s) => s.details);
+  const removeSavedExploration = useSavedExplorationStore((s) => s.removeSaved);
+  const renameSavedExploration = useSavedExplorationStore((s) => s.renameSaved);
+  const loadSavedExplorations = useSavedExplorationStore((s) => s.loadSaved);
+
+  const savedSounds = useSorimaruAudioStore((s) => s.savedStories);
+  const hydrateSounds = useSorimaruAudioStore((s) => s.hydrateSavedStories);
+  const removeSavedSound = useSorimaruAudioStore((s) => s.removeSavedStory);
+
   useEffect(() => {
     loadSavedJourneys();
   }, [loadSavedJourneys]);
+
+  useEffect(() => {
+    loadSavedExplorations();
+  }, [loadSavedExplorations]);
+
+  useEffect(() => {
+    hydrateSounds();
+  }, [hydrateSounds]);
 
   useEffect(() => {
     if (!isLoading && !isLoggedIn) {
@@ -109,7 +129,40 @@ export default function MyPage() {
 
         <MonthlyTimeline />
 
-        {/* 보관한 AI 여정 코스 */}
+        {/* 저장한 여정 (이야기길 — 실데이터 board) */}
+        <Section title={`저장한 여정 ${savedExplorations.length > 0 ? `(${savedExplorations.length})` : ''}`} theme={theme}>
+          {savedExplorations.length === 0 ? (
+            <EmptyState text="아직 저장한 여정이 없어요." linkHref="/" linkText="홈에서 여정 찾기" theme={theme} />
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {savedExplorations.map((item) => (
+                <SavedExplorationRow
+                  key={item.id}
+                  item={item}
+                  theme={theme}
+                  onOpen={() => {
+                    useJourneyStore
+                      .getState()
+                      .hydrateBoard(
+                        item.board,
+                        item.pinnedRefs,
+                        { hanokDogan: [], nearbyAudio: [], nearbyFood: [] },
+                        item.savedAt,
+                      );
+                    router.push('/');
+                  }}
+                  onRemove={() => {
+                    removeSavedExploration(item.id);
+                    toast.success(`'${item.title}' 저장을 취소했어요.`);
+                  }}
+                  onRename={(title) => renameSavedExploration(item.id, title)}
+                />
+              ))}
+            </div>
+          )}
+        </Section>
+
+        {/* 보관한 AI 여정 코스 (옛 계약) */}
         <Section title={`보관한 AI 여정 코스 ${savedJourneys.length > 0 ? `(${savedJourneys.length})` : ''}`} theme={theme}>
           {savedJourneys.length === 0 ? (
             <EmptyState text="아직 보관한 맞춤 여정이 없어요." linkHref="/" linkText="홈에서 여정 짓기" theme={theme} />
@@ -156,6 +209,86 @@ export default function MyPage() {
                     onClick={() => {
                       removeJourney(item.id);
                       toast.success(`'${item.plan.title}' 보관을 취소했어요.`);
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '26px',
+                      height: '26px',
+                      borderRadius: '50%',
+                      border: 'none',
+                      background: 'transparent',
+                      color: c.text.muted,
+                      cursor: 'pointer',
+                      flexShrink: 0,
+                    }}
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </Section>
+
+        {/* 마음에 담은 소리 */}
+        <Section title={`마음에 담은 소리 ${savedSounds.length > 0 ? `(${savedSounds.length})` : ''}`} theme={theme}>
+          {savedSounds.length === 0 ? (
+            <EmptyState text="소리마루에서 마음에 드는 소리를 담아보세요." linkHref="/sorimaru" linkText="소리마루 둘러보기" theme={theme} />
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {savedSounds.map((sound) => (
+                <div
+                  key={sound.stid || sound.title}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '12px 14px',
+                    borderRadius: '12px',
+                    backgroundColor: c.bg.surface,
+                  }}
+                >
+                  {sound.imageUrl ? (
+                    <img
+                      src={sound.imageUrl}
+                      alt=""
+                      style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'cover', flexShrink: 0 }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '8px',
+                        backgroundColor: c.bg.card,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <Music size={16} color={c.text.muted} />
+                    </div>
+                  )}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: '13.5px', fontWeight: 700, color: c.text.primary, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {sound.title}
+                    </div>
+                    {sound.locationName && (
+                      <div style={{ fontSize: '11.5px', color: c.text.muted, display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px' }}>
+                        <MapPin size={10} />
+                        {sound.locationName}
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    aria-label={`${sound.title} 마음 담기 취소`}
+                    onClick={() => {
+                      removeSavedSound(sound.stid);
+                      toast.success(`'${sound.title}' 소리를 목록에서 제거했어요.`);
                     }}
                     style={{
                       display: 'flex',
@@ -342,6 +475,135 @@ export default function MyPage() {
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+function SavedExplorationRow({
+  item,
+  theme,
+  onOpen,
+  onRemove,
+  onRename,
+}: {
+  item: SavedJourneyDetail;
+  theme: OnmaruTheme;
+  onOpen: () => void;
+  onRemove: () => void;
+  onRename: (title: string) => void;
+}) {
+  const c = theme.colors;
+  const [isEditing, setIsEditing] = useState(false);
+  const [draft, setDraft] = useState(item.title);
+
+  function commitRename() {
+    const trimmed = draft.trim();
+    if (trimmed && trimmed !== item.title) onRename(trimmed);
+    setIsEditing(false);
+  }
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '12px 14px',
+        borderRadius: '12px',
+        backgroundColor: c.bg.surface,
+        gap: '10px',
+      }}
+    >
+      {isEditing ? (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            commitRename();
+          }}
+          style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: '8px' }}
+        >
+          <input
+            autoFocus
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onBlur={commitRename}
+            style={{
+              flex: 1,
+              minWidth: 0,
+              fontSize: '13.5px',
+              fontWeight: 700,
+              color: c.text.primary,
+              border: `1px solid ${c.border.subtle}`,
+              borderRadius: '6px',
+              padding: '4px 8px',
+              background: c.bg.card,
+            }}
+          />
+          <button
+            type="submit"
+            aria-label="이름 저장"
+            style={{ display: 'flex', border: 'none', background: 'transparent', color: c.success.primary, cursor: 'pointer', flexShrink: 0 }}
+          >
+            <Check size={16} />
+          </button>
+        </form>
+      ) : (
+        <div onClick={onOpen} style={{ flex: 1, minWidth: 0, cursor: 'pointer' }}>
+          <div style={{ fontSize: '11px', fontWeight: 600, color: c.action.primary, marginBottom: '3px' }}>
+            후보 {item.board.candidates.length}곳
+          </div>
+          <div style={{ fontSize: '13.5px', fontWeight: 700, color: c.text.primary, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {item.title}
+          </div>
+        </div>
+      )}
+
+      {!isEditing && (
+        <button
+          type="button"
+          aria-label={`${item.title} 이름 수정`}
+          onClick={() => {
+            setDraft(item.title);
+            setIsEditing(true);
+          }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '26px',
+            height: '26px',
+            borderRadius: '50%',
+            border: 'none',
+            background: 'transparent',
+            color: c.text.muted,
+            cursor: 'pointer',
+            flexShrink: 0,
+          }}
+        >
+          <PenLine size={13} />
+        </button>
+      )}
+
+      <button
+        type="button"
+        aria-label={`${item.title} 저장 취소`}
+        onClick={onRemove}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '26px',
+          height: '26px',
+          borderRadius: '50%',
+          border: 'none',
+          background: 'transparent',
+          color: c.text.muted,
+          cursor: 'pointer',
+          flexShrink: 0,
+        }}
+      >
+        <X size={14} />
+      </button>
     </div>
   );
 }
