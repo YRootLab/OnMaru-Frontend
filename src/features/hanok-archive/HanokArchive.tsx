@@ -66,10 +66,10 @@ const SectionContainer = styled.div`
   margin: 0 auto;
   width: 100%;
   max-width: 72rem;
-  padding: 0 1rem;
+  padding: clamp(28px, 4vw, 48px) 1rem;
 
   @media (min-width: 640px) {
-    padding: 0 1.5rem;
+    padding: clamp(32px, 4vw, 56px) 1.5rem;
   }
 `;
 

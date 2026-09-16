@@ -12,7 +12,7 @@ describe('theme preference labels', () => {
 
   it('summarizes automatic mode with the currently applied mode', () => {
     expect(getThemePreferenceSummary({ preference: 'system', mode: 'light' })).toBe(
-      '시간에 따라 낮/밤 전환 · 현재 라이트',
+      '낮/밤 자동 · 현재 라이트',
     );
   });
 

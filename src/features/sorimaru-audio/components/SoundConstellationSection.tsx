@@ -3,7 +3,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
-import { ChevronRight, Filter, Play, Pause } from 'lucide-react';
 import { useSorimaruImage, getSorimaruFallbackImage } from '@/features/sorimaru-audio/hooks/useSorimaruImage';
 import { motion } from 'framer-motion';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
@@ -26,10 +25,6 @@ const [VB_WIDTH, VB_HEIGHT] = KOREA_MAP_VIEWBOX.split(' ').slice(2).map(Number);
 const LIST_EDGE_INSET = 23;
 
 const normalizeText = (story: SorimaruStoryItem) => `${story.locationName || ''} ${story.title} ${story.audioTitle || ''} ${story.category || ''}`;
-const imageForStory = (story: SorimaruStoryItem) => {
-  if (story.imageUrl) return story.imageUrl;
-  return getSorimaruFallbackImage(story);
-};
 const getRegionStories = (stories: SorimaruStoryItem[], region: KoreaRegionPath) => {
   const matched = stories.filter((story) => region.keywords.some((keyword) => normalizeText(story).includes(keyword)));
   return matched.length ? matched : stories.slice(0, 4);
@@ -238,13 +233,15 @@ const AsidePanel = styled.aside`
   flex-direction: column;
   border-radius: 1rem;
   background-color: rgba(255, 255, 255, 0.85);
+  border: 0.85px solid rgba(205, 205, 202, 0.72);
+  box-shadow: none;
   padding: 1rem 0.25rem;
   backdrop-filter: blur(12px);
 
   [data-theme='dark'] & {
     background-color: rgba(36, 33, 29, 0.88);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    border: 0.85px solid rgba(255, 255, 255, 0.08);
+    box-shadow: none;
   }
 
   @media (min-width: 640px) {

@@ -75,21 +75,6 @@ const FeatureContainer = styled.div`
   }
 `;
 
-const TopRadialGlow = styled.div`
-  pointer-events: none;
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  z-index: -10;
-  height: 620px;
-  background: radial-gradient(ellipse at 50% 0%, rgba(248, 78, 118, 0.1), transparent 66%);
-
-  [data-theme='dark'] & {
-    background: radial-gradient(ellipse at 50% 0%, rgba(248, 78, 118, 0.05), transparent 66%);
-  }
-`;
-
 const ContentLayer = styled.div`
   position: relative;
   z-index: 10;
@@ -347,7 +332,6 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   const savedStories = useSorimaruAudioStore((s) => s.savedStories);
   const hydrateSavedStories = useSorimaruAudioStore((s) => s.hydrateSavedStories);
   const removeSavedStory = useSorimaruAudioStore((s) => s.removeSavedStory);
-  const resolvedBackgroundVariant = backgroundVariant ?? 'default';
   const [storyList, setStoryList] = useState<SorimaruStoryItem[]>(() => initialStories || []);
   const [nearbyStories, setNearbyStories] = useState<SorimaruStoryItem[]>(() => initialNearbyStories || []);
   const [heroStorySets, setHeroStorySets] = useState<Record<string, SorimaruStoryItem[]>>(() => initialHeroStorySets || {});
@@ -573,7 +557,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
               </div>
             </VesselReveal>
 
-            <VesselReveal style={{ width: '100%' }}>
+            <VesselReveal style={{ minHeight: '760px', width: '100%', padding: '1.5rem 0' }}>
               <SoundConstellationSection stories={storyList} />
             </VesselReveal>
 
