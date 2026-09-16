@@ -14,8 +14,8 @@ interface PlayerTranscriptPanelProps {
 const Panel = styled.section`
   position: relative;
   display: flex;
-  min-height: 18rem;
-  height: min(52vh, 38rem);
+  min-height: 0;
+  height: 100%;
   flex-direction: column;
   overflow: hidden;
   border-radius: 0.875rem;
@@ -23,33 +23,26 @@ const Panel = styled.section`
   color: #292927;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.84), 0 12px 28px rgba(17, 20, 20, 0.08);
 
-  @media (min-width: 768px) {
-    height: 100%;
-    min-height: 32rem;
-  }
+  @media (min-width: 768px) { min-height: 0; }
 `;
 
 const LampHeader = styled.header`
   position: relative;
   z-index: 1;
   flex: 0 0 auto;
-  padding: 1.25rem 1.25rem 1rem;
+  padding: 0.875rem 1.25rem 0.75rem;
   background: #f8f8f7;
   border-bottom: 1px solid #d9d9d7;
 `;
 
 const Eyebrow = styled.p`
-  margin: 0;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: #6f706d;
+  display: none;
 `;
 
 const HeaderTitle = styled.h3`
-  margin: 0.375rem 0 0;
+  margin: 0;
   font-family: var(--font-hanok);
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 650;
   color: #292927;
 `;
@@ -60,7 +53,7 @@ const Scroller = styled.div`
   overflow-y: auto;
   overscroll-behavior: contain;
   scroll-behavior: smooth;
-  padding: 4.25rem 1.25rem;
+  padding: 2.25rem 1.25rem;
   scrollbar-color: #cdcdca transparent;
 `;
 
@@ -75,7 +68,7 @@ const Line = styled.button<{ $active: boolean }>`
   padding: 0.85rem 1rem 0.85rem 1.125rem;
   text-align: left;
   font-family: var(--font-hanok);
-  font-size: 1.05rem;
+  font-size: 0.975rem;
   font-weight: ${({ $active }) => ($active ? 650 : 500)};
   line-height: 1.72;
   color: #292927;
@@ -109,7 +102,7 @@ const Line = styled.button<{ $active: boolean }>`
   }
 
   @media (min-width: 768px) {
-    font-size: 1.18rem;
+    font-size: 1.08rem;
     line-height: 1.78;
   }
 
@@ -143,7 +136,6 @@ export function TranscriptSkeleton() {
   return (
     <Panel data-testid="transcript-skeleton" aria-label="대본 불러오는 중">
       <LampHeader>
-        <Eyebrow>실시간 해설 대본</Eyebrow>
         <HeaderTitle>이야기를 준비하고 있어요</HeaderTitle>
       </LampHeader>
       <Scroller aria-hidden="true">
@@ -170,7 +162,6 @@ export function PlayerTranscriptPanel({
   return (
     <Panel aria-label="실시간 해설 대본">
       <LampHeader>
-        <Eyebrow>실시간 해설 대본</Eyebrow>
         <HeaderTitle>실시간 해설 대본</HeaderTitle>
       </LampHeader>
       <Scroller onScroll={onTranscriptScroll}>

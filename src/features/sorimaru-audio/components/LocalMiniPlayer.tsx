@@ -279,17 +279,18 @@ const DrawerPanel = styled(motion.aside)`
   position: relative;
   width: 100%;
   max-width: 32rem;
-  max-height: 90vh;
+  height: min(100dvh, 52rem);
+  max-height: 100dvh;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
+  overflow: hidden;
   overscroll-behavior: contain;
   touch-action: pan-y;
   border-top-left-radius: 1.75rem;
   border-top-right-radius: 1.75rem;
   background-color: #f8f8f7;
   padding: 1.5rem;
-  padding-bottom: calc(1.75rem + env(safe-area-inset-bottom));
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
   box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.25);
   scrollbar-width: none;
   &::-webkit-scrollbar {
@@ -691,10 +692,12 @@ const SpeedButton = styled(motion.button)`
 const PlayerExperienceGrid = styled.div`
   display: grid;
   min-height: 0;
+  flex: 1;
+  grid-template-rows: minmax(0, 0.9fr) minmax(0, 1.1fr);
   gap: 1.5rem;
 
   @media (min-width: 768px) {
-    flex: 1;
+    grid-template-rows: none;
     grid-template-columns: minmax(0, 1.2fr) minmax(15rem, 0.8fr);
     align-items: stretch;
   }
