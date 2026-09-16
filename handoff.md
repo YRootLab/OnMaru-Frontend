@@ -1,6 +1,13 @@
 # handoff.md
 
 Current work:
+- Odii expanded-player redesign is specified for this session: replace the
+  separate transcript preview/full-view flow with one readable scroll panel;
+  center the currently playing line with a reduced-motion-safe transition;
+  dim inactive lines to 60%; remove the redundant status badge and full-view
+  action; add up to seven normalized content tags; retain Roadview with an
+  equal-size image fallback; use light neutral gray surfaces rather than the
+  current muddy treatment. Awaiting implementation-plan review.
 - Hanok reading-flow motion: the regional distribution now uses one-shot GSAP `scaleX` bars with synchronized count-up values; the detail modal uses its own scroll container to focus the centered history paragraph while dimming surrounding paragraphs. Reduced-motion users receive the final readable state immediately.
 - Hanok monthly layout stability: the monthly feature now reserves its final responsive height before hydration, preventing the distribution chart from flashing in its space and then being pushed below the viewport.
 - Hanok distribution stability: live `/api/tourapi` payloads without regional data no longer replace the complete local snapshot, preventing the chart below “이달의 픽” from appearing briefly and then disappearing.
