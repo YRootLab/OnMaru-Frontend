@@ -297,7 +297,7 @@ const PaginationPill = styled.button`
   padding: 0 0.875rem;
   font-size: 0.75rem;
   font-weight: 600;
-  color: ${palette.jangmi[500]};
+  color: ${palette.jangmi[400]};
   background: none;
   border: none;
   cursor: pointer;
@@ -688,9 +688,6 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
             </VesselReveal>
           </MainSections>
         </ContentLayer>
-
-        {/* 마음 담은 소리 보관함 (재방문 드라이버) */}
-        <SavedSoundDrawer savedStories={savedStories} onRemoveBookmark={removeSavedStory} />
 
         <LocalMiniPlayer />
         {isModalOpen && (

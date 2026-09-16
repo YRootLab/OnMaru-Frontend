@@ -163,7 +163,7 @@ const PulseDot = styled.span`
   width: 0.375rem;
   height: 0.375rem;
   border-radius: 9999px;
-  background-color: ${palette.jangmi[500]};
+  background-color: ${palette.jangmi[400]};
   animation: ${pulseKeyframe} 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 `;
 
@@ -211,17 +211,17 @@ const RegionPinButton = styled.button<{ isActive: boolean }>`
   color: ${(props) => (props.isActive ? '#ffffff' : meok[700])};
 
   [data-theme='dark'] & {
-    background-color: ${(props) => (props.isActive ? palette.jangmi[500] : 'rgba(45, 41, 36, 0.9)')};
+    background-color: ${(props) => (props.isActive ? palette.jangmi[400] : 'rgba(45, 41, 36, 0.9)')};
     color: ${(props) => (props.isActive ? '#ffffff' : meok[200])};
     border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   &:hover {
     background-color: ${(props) => (props.isActive ? meok[900] : '#ffffff')};
-    color: ${(props) => (props.isActive ? '#ffffff' : palette.jangmi[500])};
+    color: ${(props) => (props.isActive ? '#ffffff' : palette.jangmi[400])};
 
     [data-theme='dark'] & {
-      background-color: ${(props) => (props.isActive ? palette.jangmi[700] : surface.dark.elevated)};
+      background-color: ${(props) => (props.isActive ? palette.jangmi[500] : surface.dark.elevated)};
       color: ${(props) => (props.isActive ? '#ffffff' : palette.jangmi[400])};
     }
   }
@@ -280,7 +280,7 @@ const StoriesCount = styled.span`
   font-family: monospace;
   font-size: ${fontSize.xs};
   font-weight: 700;
-  color: ${palette.jangmi[500]};
+  color: ${palette.jangmi[400]};
 `;
 
 const ScrollWrapper = styled.div`
@@ -405,7 +405,7 @@ const StoryTitle = styled.strong<{ isActive: boolean }>`
   font-size: ${fontSize.sm};
   font-weight: 700;
   line-height: 1.35;
-  color: ${(props) => (props.isActive ? palette.jangmi[500] : meok[900])};
+  color: ${(props) => (props.isActive ? palette.jangmi[400] : meok[900])};
 
   [data-theme='dark'] & {
     color: ${(props) => (props.isActive ? palette.jangmi[400] : meok[100])};
@@ -417,7 +417,7 @@ const DurationStatus = styled.span<{ isActive: boolean }>`
   flex-shrink: 0;
   font-size: ${fontSize.micro};
   font-weight: 400;
-  color: ${(props) => (props.isActive ? palette.jangmi[500] : meok[500])};
+  color: ${(props) => (props.isActive ? palette.jangmi[400] : meok[500])};
 
   [data-theme='dark'] & {
     color: ${(props) => (props.isActive ? palette.jangmi[400] : meok[400])};
@@ -447,13 +447,13 @@ const LoadingSpinnerWrapper = styled.div`
   padding: 0.75rem 0;
   font-size: ${fontSize.xs};
   font-weight: 700;
-  color: ${palette.jangmi[500]};
+  color: ${palette.jangmi[400]};
 
   & .spinner {
     width: 0.75rem;
     height: 0.75rem;
     border-radius: 9999px;
-    border: 2px solid ${palette.jangmi[500]};
+    border: 2px solid ${palette.jangmi[400]};
     border-top-color: transparent;
     animation: ${spinKeyframe} 1s linear infinite;
   }
@@ -799,7 +799,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                       initial={pathMotion}
                       animate={pathMotion}
                       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                      stroke={active ? palette.jangmi[500] : '#211e19'}
+                      stroke={active ? palette.jangmi[400] : '#211e19'}
                       strokeOpacity={active ? 0.5 : 0.18}
                       strokeWidth={active ? 2.4 : 1.4}
                       strokeLinejoin="round"

@@ -219,7 +219,7 @@ const CardMainTitle = styled.h3<{ $isCurrent: boolean }>`
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  color: ${({ $isCurrent }) => ($isCurrent ? palette.jangmi[500] : meok[900])};
+  color: ${({ $isCurrent }) => ($isCurrent ? palette.jangmi[400] : meok[900])};
 
   [data-theme='dark'] & {
     color: ${({ $isCurrent }) => ($isCurrent ? palette.jangmi[400] : meok[100])};
@@ -261,7 +261,7 @@ const MiniCategoryTag = styled.span`
   font-size: ${fontSize.micro};
   font-weight: 600;
   line-height: 1rem;
-  color: ${palette.jangmi[500]};
+  color: ${palette.jangmi[400]};
 
   [data-theme='dark'] & {
     color: ${palette.jangmi[400]};
@@ -847,7 +847,7 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
       {railIndicator.width < 100 && (
         <CounterContainer aria-live="polite">
           <span style={{ fontFamily: 'monospace' }}>
-            <strong style={{ fontWeight: 700, color: palette.jangmi[500] }}>
+            <strong style={{ fontWeight: 700, color: palette.jangmi[400] }}>
               {String(railIndicator.index).padStart(2, '0')}
             </strong>{' '}
             / {String(stories.length).padStart(2, '0')}

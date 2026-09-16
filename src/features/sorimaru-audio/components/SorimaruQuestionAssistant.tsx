@@ -89,7 +89,7 @@ const SuggestionButton = styled.button`
 
   &:hover {
     background-color: ${palette.jangmi[50]};
-    color: ${palette.jangmi[700]};
+    color: ${palette.jangmi[500]};
   }
 
   [data-theme='dark'] & {
@@ -128,7 +128,7 @@ const InputWrapper = styled.div`
 
     &:focus-within {
       background-color: ${surface.dark.elevated};
-      border-color: ${palette.jangmi[500]};
+      border-color: ${palette.jangmi[400]};
     }
   }
 `;

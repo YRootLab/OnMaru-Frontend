@@ -111,7 +111,7 @@ const SolarBadge = styled.div`
   padding: 0.25rem 0.875rem;
   font-size: ${fontSize.xs};
   font-weight: 700;
-  color: ${palette.jangmi[500]};
+  color: ${palette.jangmi[400]};
   backdrop-filter: blur(4px);
 
   [data-theme='dark'] & {
@@ -125,7 +125,7 @@ const PulseDot = styled.span`
   width: 0.375rem;
   height: 0.375rem;
   border-radius: 9999px;
-  background: ${palette.jangmi[500]};
+  background: ${palette.jangmi[400]};
   animation: ${pulseAnimation} 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 `;
 
@@ -222,7 +222,7 @@ const SecondaryCtaLink = styled(Link)`
   padding: 0.875rem 1.75rem;
   font-size: ${fontSize.xs};
   font-weight: 700;
-  color: ${palette.jangmi[500]};
+  color: ${palette.jangmi[400]};
   text-decoration: none;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
