@@ -171,6 +171,7 @@ function mapStoryItem(item: Record<string, unknown>, index: number, category?: s
       : '3분 00초',
     audioUrl,
     imageUrl,
+    tags: [readText(item, 'themaCategory'), readText(item, 'tag'), readText(item, 'tags')].filter(Boolean),
     locationName: [readText(item, 'addr1'), readText(item, 'addr2')].filter(Boolean).join(' ') || '대한민국 문화유산',
     badgeText: (category && category !== '전체' && category !== '오디 이야기' && category !== '소리 이야기')
       ? category

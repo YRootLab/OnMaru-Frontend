@@ -1,6 +1,14 @@
 # handoff.md
 
 Current work:
+- Odii expanded-player redesign implemented: the player now presents one
+  complete dark transcript panel with a restrained lamp-inspired header,
+  60%-opacity inactive lines, active-line centering, direct line seeks, and
+  an image/Roadview media frame. The redundant current-status badge and full
+  transcript action are removed from the active player flow. Up to seven
+  stable tags are rendered from API tags plus available story metadata.
+  Focused Vitest (5 tests), TypeScript, and production build passed. Repository
+  lint remains blocked by 80 pre-existing errors outside this change.
 - Odii expanded-player redesign is specified for this session: replace the
   separate transcript preview/full-view flow with one readable scroll panel;
   center the currently playing line with a reduced-motion-safe transition;
