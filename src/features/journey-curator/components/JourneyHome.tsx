@@ -12,8 +12,8 @@ import styled from '@emotion/styled';
 
 import { useJourneyStore } from '../store/useJourneyStore';
 import JourneyHeroSearch from './JourneyHeroSearch';
-import KnowledgeGraphView from './KnowledgeGraphView';
-import BentoJourneyGrid from './BentoJourneyGrid';
+import JourneyFlowRailSection from './JourneyFlowRailSection';
+import JourneyEnrichmentSections from './JourneyEnrichmentSections';
 import JourneyRefineBar from './JourneyRefineBar';
 import JourneyAssemblyLoader from './JourneyAssemblyLoader';
 import { HanjiDeckleEdge } from '@/shared/components/HanjiDeckleEdge';
@@ -56,8 +56,8 @@ export default function JourneyHome() {
 
       {hasSearched && (
         <>
-          <KnowledgeGraphView />
-          <BentoJourneyGrid />
+          <JourneyFlowRailSection />
+          <JourneyEnrichmentSections />
           <JourneyRefineBar />
         </>
       )}
