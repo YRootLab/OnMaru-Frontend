@@ -17,7 +17,7 @@ dashboard: a place view sits beside a continuous, readable narration.
 | Role | Value | Use |
 | --- | --- | --- |
 | Canvas | `#f8f8f7` | Expanded-player page surface |
-| Reading well | `#f1f1ef` | Transcript scroll area |
+| Reading well | `#171918` | Transcript scroll area |
 | Rule | `#e5e5e3` | Dividers and inactive control boundaries |
 | Ink | `#292927` | Active transcript and primary type |
 | Secondary ink | `#6f706d` | Metadata and inactive transcript copy |
@@ -30,7 +30,14 @@ it never uses viewport-relative font sizing.
 
 The signature interaction is a quiet reading cursor: the current sentence is
 the visual anchor while the list moves beneath it. This replaces decorative
-cards, gradients, and persistent status badges.
+cards and persistent status badges.
+
+The transcript panel uses a restrained lamp-inspired header treatment. Its
+upper edge has a static, very low-contrast teal-gray conic light that fades
+before it reaches the first line. It frames the transcript label without
+running behind copy or pulsing during reading. The effect is a local dark
+listening surface, not a page-wide black background, and is removed under
+reduced motion if its entrance transition is enabled.
 
 ## Layout
 
@@ -52,7 +59,7 @@ player.
 
 - Each parsed script line is a keyboard-accessible seek target.
 - Non-current lines render at `opacity: 0.6` (with readable contrast).
-- The current line uses full opacity, stronger weight, an understated neutral
+- The current line uses full opacity, stronger weight, an understated cool-gray
   fill, and a thin gold leading marker. Gold is never used as a surface fill.
 - When active playback advances, the current line scrolls into the vertical
   center of the transcript panel using a short, reduced-motion-safe smooth
@@ -78,11 +85,17 @@ API response can later change shape without changing the UI component.
 
 ## Loading and Errors
 
-The Roadview fallback preserves its loaded media aspect ratio. Missing script
-lines hide the transcript panel rather than leave an empty box. If Roadview is
-unavailable, the image fallback is shown in the identical media frame. Any
-future transcript skeleton must reserve each line row's final height and use
-neutral gray shimmer only.
+While Roadview or its image fallback initializes, the media skeleton occupies
+the exact loaded media aspect ratio. Place metadata reserves its label, title,
+tag row, timeline, and controls. The transcript skeleton reserves the complete
+transcript panel height: its lamp header, the centered current-line row, and
+surrounding line rows all match the final spacing and reading scale. Skeletons
+use neutral gray shimmer only, never warm/yellow fills.
+
+Missing script lines hide the transcript panel rather than leave an empty box.
+If Roadview is unavailable, the image fallback is shown in the identical media
+frame. A media error falls back in place; transcript load errors render an
+inline, stable-height message without affecting the left-column controls.
 
 ## Verification
 
@@ -93,13 +106,16 @@ neutral gray shimmer only.
   invokes its supplied seek callback.
 - Run TypeScript, focused Vitest tests, lint, and production build.
 - Inspect desktop and mobile screenshots for readable transcript sizing,
-  non-overlapping tags, Roadview/image parity, and reduced-motion behavior.
+  non-overlapping tags, Roadview/image parity, skeleton layout parity, and
+  reduced-motion behavior.
 
 ## Self-review
 
 - No placeholder requirements remain.
 - Gold is scoped to existing active-playback semantics rather than default
   surface styling.
+- The lamp inspiration is constrained to a non-animated, panel-local header
+  wash so it cannot reduce transcript contrast or become decorative noise.
 - The layout, component boundaries, and tests all refer to the same one-panel
   transcript model.
 - The scope is limited to the expanded Odii player and its local data shaping.
