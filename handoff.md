@@ -1,6 +1,10 @@
 # handoff.md
 
 Current work:
+- Odii transcript refinement: long API narration is now split into sentence
+  cues and rendered in three-sentence numbered listening segments. The large
+  white quote card is removed; playback keeps only the active sentence at full
+  opacity while surrounding sentences remain at 60%.
 - Odii expanded-player redesign implemented: the player now presents one
   complete dark transcript panel with a restrained lamp-inspired header,
   60%-opacity inactive lines, active-line centering, direct line seeks, and

@@ -9,6 +9,7 @@ interface PlayerTranscriptPanelProps {
   activeLineId: number | undefined;
   onSeek: (timeSec: number) => void;
   isLoading?: boolean;
+  isPlaying?: boolean;
 }
 
 const Panel = styled.section`
@@ -18,10 +19,9 @@ const Panel = styled.section`
   height: 100%;
   flex-direction: column;
   overflow: hidden;
-  border-radius: 0.875rem;
-  background: #f1f1ef;
+  background: #f8f8f7;
   color: #292927;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.84), 0 12px 28px rgba(17, 20, 20, 0.08);
+  border-top: 1px solid #d9d9d7;
 
   @media (min-width: 768px) { min-height: 0; }
 `;
@@ -31,8 +31,8 @@ const LampHeader = styled.header`
   z-index: 1;
   flex: 0 0 auto;
   padding: 0.875rem 1.25rem 0.75rem;
-  background: #f8f8f7;
-  border-bottom: 1px solid #d9d9d7;
+  background: transparent;
+  border-bottom: 0;
 `;
 
 const Eyebrow = styled.p`
@@ -45,6 +45,18 @@ const HeaderTitle = styled.h3`
   font-size: 1rem;
   font-weight: 650;
   color: #292927;
+`;
+
+const Segment = styled.section`
+  & + & { margin-top: 1.5rem; }
+`;
+
+const SegmentLabel = styled.p`
+  margin: 0 0 0.35rem 1.125rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #8a8b88;
 `;
 
 const Scroller = styled.div`
@@ -76,9 +88,7 @@ const Line = styled.button<{ $active: boolean }>`
   cursor: pointer;
   transition: background-color 220ms ease, opacity 220ms ease, color 220ms ease;
 
-  & + & {
-    margin-top: 0.5rem;
-  }
+  & + & { margin-top: 0.2rem; }
 
   &::before {
     content: '';
@@ -154,6 +164,7 @@ export function PlayerTranscriptPanel({
   activeLineId,
   onSeek,
   isLoading = false,
+  isPlaying = false,
 }: PlayerTranscriptPanelProps) {
   const { activeLineRef, onTranscriptScroll, requestSeek } = useTranscriptFollow({ activeLineId, onSeek });
 
@@ -164,20 +175,17 @@ export function PlayerTranscriptPanel({
       <LampHeader>
         <HeaderTitle>실시간 해설 대본</HeaderTitle>
       </LampHeader>
-      <Scroller onScroll={onTranscriptScroll}>
-        {lines.map((line) => {
-          const isActive = line.id === activeLineId;
+      <Scroller onScroll={onTranscriptScroll} data-playing={isPlaying}>
+        {Array.from({ length: Math.ceil(lines.length / 3) }, (_, segmentIndex) => {
+          const segmentLines = lines.slice(segmentIndex * 3, segmentIndex * 3 + 3);
           return (
-            <Line
-              key={line.id}
-              ref={isActive ? activeLineRef : undefined}
-              type="button"
-              aria-current={isActive}
-              $active={isActive}
-              onClick={() => requestSeek(line.timeSec)}
-            >
-              {line.text}
-            </Line>
+            <Segment key={segmentLines[0]?.id} aria-label={`${String(segmentIndex + 1).padStart(2, '0')}번 해설 구간`}>
+              <SegmentLabel>{String(segmentIndex + 1).padStart(2, '0')}</SegmentLabel>
+              {segmentLines.map((line) => {
+                const isActive = line.id === activeLineId;
+                return <Line key={line.id} ref={isActive ? activeLineRef : undefined} type="button" aria-current={isActive} $active={isActive} onClick={() => requestSeek(line.timeSec)}>{line.text}</Line>;
+              })}
+            </Segment>
           );
         })}
       </Scroller>

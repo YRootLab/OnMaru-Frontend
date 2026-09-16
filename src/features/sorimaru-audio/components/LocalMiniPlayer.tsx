@@ -1114,6 +1114,7 @@ export const LocalMiniPlayer: React.FC = () => {
                       activeLineId={lines[activeIndex]?.id}
                       onSeek={seekTo}
                       isLoading={!lines.length}
+                      isPlaying={isPlaying}
                     />
                   </PlayerExperienceGrid>
                 </>

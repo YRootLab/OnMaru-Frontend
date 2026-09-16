@@ -132,6 +132,8 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## [Unreleased] 
 ### Changed 
+- Split long Odii narration text into timed sentence cues and present it as
+  numbered listening segments, with only the active sentence at full opacity.
 - Redesigned the expanded Odii player around one readable, scrollable
   transcript panel with a restrained dark lamp header, centered active
   sentence tracking, 60% inactive sentence opacity, direct sentence seeks,
