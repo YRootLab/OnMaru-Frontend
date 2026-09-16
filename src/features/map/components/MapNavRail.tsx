@@ -32,6 +32,8 @@ import type { ThemePreference } from '@/design-system/tokens';
 
 export const RAIL_WIDTH = 68;
 export const RAIL_INSET = 14;
+const ONMARU_LOGO_LIGHT_SRC = '/images/logo/onmaru-logo-ivory.png';
+const ONMARU_LOGO_DARK_SRC = '/images/logo/onmaru-logo-dark-charcoal.png';
 
 /** Header.tsx의 캡슐형 GNB와 같은 유리질감(블러+반투명+가느다란 보더)을 쓰는
  *  얇고 떠 있는 세로 레일 — 다크 모드에서는 깊이감 있는 먹빛 플로팅 캡슐로 전환된다. */
@@ -72,7 +74,7 @@ const RailContainer = styled(motion.aside, transientProps)`
   }
 `;
 
-/** 상단 온마루 브랜드 로고 영역 (logo.png) */
+/** 상단 온마루 브랜드 로고 영역 */
 const LogoArea = styled.div`
   display: flex;
   align-items: center;
@@ -308,6 +310,7 @@ export default function MapNavRail() {
   const themeOptions: ThemePreference[] = ['system', 'light', 'dark'];
   const ThemeTriggerIcon = themeMode === 'dark' ? Moon : Sun;
   const themeTriggerLabel = getThemeTriggerLabel({ preference, mode: themeMode });
+  const logoSrc = themeMode === 'dark' ? ONMARU_LOGO_DARK_SRC : ONMARU_LOGO_LIGHT_SRC;
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -341,7 +344,7 @@ export default function MapNavRail() {
           : { duration: 0 }
       }
     >
-      {/* 1. 상단 온마루 브랜드 로고 (/logo.png) */}
+      {/* 1. 상단 온마루 브랜드 로고 */}
       <LogoArea
         role="button"
         tabIndex={0}
@@ -356,7 +359,7 @@ export default function MapNavRail() {
         title="온마루 메인 홈으로 이동"
       >
         <Image
-          src="/logo.png"
+          src={logoSrc}
           alt="온마루 로고"
           width={36}
           height={36}

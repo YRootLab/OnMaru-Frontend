@@ -26,6 +26,8 @@ import { shouldUseLandingDarkSurface } from './headerSurface';
 /** 캡슐형 GNB의 높이 — /map의 MapChips가 "같은 자리를 이어받는" 느낌을 내려면
  *  이 값을 그대로 써야 한다. */
 export const HEADER_HEIGHT = 46;
+const ONMARU_LOGO_LIGHT_SRC = '/images/logo/onmaru-logo-ivory.png';
+const ONMARU_LOGO_DARK_SRC = '/images/logo/onmaru-logo-dark-charcoal.png';
 
 const subscribeToHydration = () => () => undefined;
 const getClientHydrationSnapshot = () => true;
@@ -553,6 +555,7 @@ const ThemePickerPopover = styled(motion.div, transientProps)<LandingProps>`
   backdrop-filter: blur(22px) saturate(150%);
   -webkit-backdrop-filter: blur(22px) saturate(150%);
   z-index: 3;
+  transform-origin: top right;
 
   [data-theme='dark'] & {
     background: rgba(27, 25, 22, 0.94);
@@ -685,6 +688,7 @@ export default function Header() {
     isLandingLight,
     themeMode: renderedThemeMode,
   });
+  const logoSrc = renderedThemeMode === 'dark' ? ONMARU_LOGO_DARK_SRC : ONMARU_LOGO_LIGHT_SRC;
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -828,15 +832,15 @@ export default function Header() {
           aria-hidden="true"
         />
 
-        {/* 맨 왼쪽: logo.png */}
+        {/* 맨 왼쪽: 온마루 로고 */}
         <LeftSection $isMapPage={isMapPage}>
           <LogoLink href="/" aria-label="온마루 홈으로 이동">
             <Image
-              src="/logo.png"
+              src={logoSrc}
               alt="온마루 로고"
-              width={90}
-              height={24}
-              style={{ objectFit: 'contain', height: '24px', width: 'auto' }}
+              width={28}
+              height={28}
+              style={{ objectFit: 'contain', height: '28px', width: '28px', borderRadius: '7px' }}
               priority
             />
           </LogoLink>
@@ -866,8 +870,8 @@ export default function Header() {
         </CenterNav>
 
       {/* 오른쪽 끝: 테마 변경 + 로그인 / 마이페이지 */}
-      <RightSection $isMapPage={isMapPage}>
-        <ThemePickerWrap ref={themePickerRef}>
+      <RightSection $isMapPage={isMapPage} ref={themePickerRef}>
+        <ThemePickerWrap>
           <ThemeToggleBtn
             type="button"
             $isLanding={usesDarkSurface}
@@ -881,57 +885,58 @@ export default function Header() {
             <ThemeTriggerIcon size={14} />
           </ThemeToggleBtn>
 
-          <AnimatePresence>
-            {isThemePickerOpen && (
-              <ThemePickerPopover
-                $isLanding={usesDarkSurface}
-                role="menu"
-                aria-label="화면 모드 선택"
-                initial={{ opacity: 0, y: -4, scale: 0.98 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -4, scale: 0.98 }}
-                transition={{ duration: 0.14, ease: 'easeOut' }}
-              >
-                {themeOptions.map((option) => {
-                  const active = renderedPreference === option;
-                  const OptionIcon = option === 'dark' ? Moon : option === 'light' ? Sun : Sparkles;
-                  return (
-                    <ThemeChoiceButton
-                      key={option}
-                      type="button"
-                      role="menuitemradio"
-                      aria-checked={active}
-                      $active={active}
-                      $isLanding={usesDarkSurface}
-                      onClick={() => {
-                        setMode(option);
-                        setIsThemePickerOpen(false);
-                      }}
-                    >
-                      <ThemeChoiceIcon>
-                        <OptionIcon size={15} strokeWidth={2} />
-                      </ThemeChoiceIcon>
-                      <ThemeChoiceCopy>
-                        <ThemeChoiceTitle>{getThemePreferenceLabel(option)}</ThemeChoiceTitle>
-                        <ThemeChoiceSummary>
-                          {getThemePreferenceSummary({ preference: option, mode: renderedThemeMode })}
-                        </ThemeChoiceSummary>
-                      </ThemeChoiceCopy>
-                      <ThemeChoiceCheck aria-hidden="true">
-                        {active ? <Check size={14} strokeWidth={2.4} /> : null}
-                      </ThemeChoiceCheck>
-                    </ThemeChoiceButton>
-                  );
-                })}
-              </ThemePickerPopover>
-            )}
-          </AnimatePresence>
         </ThemePickerWrap>
 
         <LoginButton href={isLoggedIn ? '/mypage' : '/auth/login'} $isLanding={usesDarkSurface}>
           <span>{isLoggedIn ? (user?.nickname ?? '마이페이지') : '로그인'}</span>
           <ArrowRight size={12} />
         </LoginButton>
+
+        <AnimatePresence>
+          {isThemePickerOpen && (
+            <ThemePickerPopover
+              $isLanding={usesDarkSurface}
+              role="menu"
+              aria-label="화면 모드 선택"
+              initial={{ opacity: 0, y: -4, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -4, scale: 0.98 }}
+              transition={{ duration: 0.14, ease: 'easeOut' }}
+            >
+              {themeOptions.map((option) => {
+                const active = renderedPreference === option;
+                const OptionIcon = option === 'dark' ? Moon : option === 'light' ? Sun : Sparkles;
+                return (
+                  <ThemeChoiceButton
+                    key={option}
+                    type="button"
+                    role="menuitemradio"
+                    aria-checked={active}
+                    $active={active}
+                    $isLanding={usesDarkSurface}
+                    onClick={() => {
+                      setMode(option);
+                      setIsThemePickerOpen(false);
+                    }}
+                  >
+                    <ThemeChoiceIcon>
+                      <OptionIcon size={15} strokeWidth={2} />
+                    </ThemeChoiceIcon>
+                    <ThemeChoiceCopy>
+                      <ThemeChoiceTitle>{getThemePreferenceLabel(option)}</ThemeChoiceTitle>
+                      <ThemeChoiceSummary>
+                        {getThemePreferenceSummary({ preference: option, mode: renderedThemeMode })}
+                      </ThemeChoiceSummary>
+                    </ThemeChoiceCopy>
+                    <ThemeChoiceCheck aria-hidden="true">
+                      {active ? <Check size={14} strokeWidth={2.4} /> : null}
+                    </ThemeChoiceCheck>
+                  </ThemeChoiceButton>
+                );
+              })}
+            </ThemePickerPopover>
+          )}
+        </AnimatePresence>
       </RightSection>
 
       <MobileTabNavWrap $isMapPage={isMapPage}>

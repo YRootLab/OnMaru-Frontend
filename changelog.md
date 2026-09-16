@@ -4,6 +4,7 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+- Added new OnMaru app logo assets, switched the global header and map rail logo by light/dark theme, aligned the header theme picker under the right action group, restored the neutral gray VesselReveal border with proper Hanok section breathing room during scroll reveal, refreshed Sorimaru section 2 edge fades and shadow clearance to match the neutral page canvas, restored the section 3 map story list boundary with a thin no-shadow frame, and stabilized the map story section reveal animation.
 - Added restrained reading-flow motion to Hanok data and history: one-shot growing distribution bars, synchronized count-up values, and centered paragraph focus inside the detail modal.
 - Reserved the responsive “이달의 픽” footprint during hydration so the following Hanok distribution chart no longer appears briefly and shifts out of view.
 - Kept the Hanok regional distribution chart visible when a degraded live TourAPI response omits regional data.
