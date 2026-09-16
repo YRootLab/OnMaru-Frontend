@@ -11,55 +11,12 @@
   font-display: swap;
 }
 
-/* ── 경복궁 수문장 제목체 — 전통 한옥 고택 제목, 인장첩 수결 및 지도 권역 강조 서체 */
-@font-face {
-  font-family: 'GyeongbokgungSumunjangTitle';
-  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2511-3@1.0/Sumunjang_TitleL.woff2') format('woff2');
-  font-weight: 300;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'GyeongbokgungSumunjangTitle';
-  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2511-3@1.0/Sumunjang_TitleM.woff2') format('woff2');
-  font-weight: 500;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'GyeongbokgungSumunjangTitle';
-  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2511-3@1.0/Sumunjang_TitleB.woff2') format('woff2');
-  font-weight: 700;
-  font-display: swap;
-}
-
-/* ── 경복궁 수문장 본문체 — 전통 이야기, 고택 해설, 수결첩 서정적 설명문 강조 서체 */
-@font-face {
-  font-family: 'GyeongbokgungSumunjangBodyText';
-  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2511-3@1.0/Sumunjang_BodyL.woff2') format('woff2');
-  font-weight: 300;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'GyeongbokgungSumunjangBodyText';
-  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2511-3@1.0/Sumunjang_BodyM.woff2') format('woff2');
-  font-weight: 500;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'GyeongbokgungSumunjangBodyText';
-  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2511-3@1.0/Sumunjang_BodyB.woff2') format('woff2');
-  font-weight: 700;
-  font-display: swap;
-}
 
 :root {
   --font-hanok: 'Spoqa Han Sans Neo', sans-serif;
-  --font-traditional: 'GyeongbokgungSumunjangTitle', 'Spoqa Han Sans Neo', serif;
-  --font-traditional-title: 'GyeongbokgungSumunjangTitle', 'Spoqa Han Sans Neo', serif;
-  --font-traditional-body: 'GyeongbokgungSumunjangBodyText', 'Spoqa Han Sans Neo', serif;
+  --font-traditional: 'Spoqa Han Sans Neo', sans-serif;
+  --font-traditional-title: 'Spoqa Han Sans Neo', sans-serif;
+  --font-traditional-body: 'Spoqa Han Sans Neo', sans-serif;
   --background: var(--color-bg-app);
   --foreground: var(--color-text-primary);
 }

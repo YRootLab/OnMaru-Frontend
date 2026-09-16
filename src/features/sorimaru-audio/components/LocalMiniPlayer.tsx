@@ -396,6 +396,35 @@ const HeartSaveButton = styled(motion.button)<{ $saved: boolean }>`
   }
 `;
 
+/* 미니 플레이어 바 전용 슬림 하트 버튼 */
+const MiniHeartBtn = styled(motion.button)<{ $saved: boolean }>`
+  display: inline-flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  cursor: pointer;
+  color: ${({ $saved }) => ($saved ? '#8b7a49' : meok[600])};
+  background: ${({ $saved }) => ($saved ? 'rgba(139, 122, 73, 0.1)' : 'transparent')};
+  border: none;
+  transition: background 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    background: ${({ $saved }) => ($saved ? 'rgba(139, 122, 73, 0.18)' : 'rgba(0, 0, 0, 0.05)')};
+  }
+
+  [data-theme='dark'] & {
+    color: ${({ $saved }) => ($saved ? '#c8b77a' : meok[400])};
+    background: ${({ $saved }) => ($saved ? 'rgba(200, 183, 122, 0.12)' : 'transparent')};
+
+    &:hover {
+      background: ${({ $saved }) => ($saved ? 'rgba(200, 183, 122, 0.2)' : 'rgba(255, 255, 255, 0.08)')};
+    }
+  }
+`;
+
 const PlayingStatusBadge = styled.div`
   display: inline-flex;
   align-items: center;
@@ -870,6 +899,16 @@ export const LocalMiniPlayer: React.FC = () => {
               >
                 <PlayIcon />
               </PlayCircleBtn>
+              <MiniHeartBtn
+                type="button"
+                $saved={isSaved}
+                whileTap={{ scale: 0.88 }}
+                onClick={(e) => { e.stopPropagation(); toggleSavedStory(story); }}
+                aria-label={isSaved ? '마음에 담은 소리에서 제거' : '마음에 담기'}
+                title={isSaved ? '마음에 담음' : '마음에 담기'}
+              >
+                <Heart size={16} strokeWidth={2.2} fill={isSaved ? 'currentColor' : 'none'} />
+              </MiniHeartBtn>
               <ScriptOpenBtn type="button" onClick={() => setIsExpanded(true)}>
                 대본 보기
               </ScriptOpenBtn>

@@ -179,7 +179,7 @@ const CategoryTabButton = styled.button<{ $isSelected: boolean }>`
   border: none;
   cursor: pointer;
   font-weight: ${({ $isSelected }) => ($isSelected ? 600 : 400)};
-  color: ${({ $isSelected }) => ($isSelected ? palette.jangmi[500] : meok[700])};
+  color: ${({ $isSelected }) => ($isSelected ? palette.jangmi[400] : meok[700])};
 
   [data-theme='dark'] & {
     color: ${({ $isSelected }) => ($isSelected ? palette.jangmi[400] : meok[400])};
@@ -283,7 +283,7 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(
               fontWeight: 600,
               textTransform: 'uppercase',
               letterSpacing: '0.12em',
-              color: palette.jangmi[500],
+              color: palette.jangmi[400],
             }}
           >
             {story.category && story.category !== '오디 이야기' && story.category !== '소리 이야기' ? story.category : story.badgeText || '소리마루 해설'}
@@ -302,7 +302,7 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(
                 alignItems: 'center',
                 gap: 8,
                 fontSize: fontSize.micro,
-                color: palette.jangmi[500],
+                color: palette.jangmi[400],
               }}
             >
               {durationFor(story)} <span style={{ color: meok[700] }}>↗</span>
@@ -401,7 +401,7 @@ const NavSideButton = styled.button<{ $side: 'left' | 'right' }>`
   &:hover span.icon-box {
     transform: scale(1.15);
     background-color: #ffffff;
-    color: ${palette.jangmi[500]};
+    color: ${palette.jangmi[400]};
 
     [data-theme='dark'] & {
       background-color: ${surface.dark.elevated};

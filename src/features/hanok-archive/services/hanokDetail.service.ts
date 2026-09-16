@@ -14,9 +14,11 @@ export class HanokDetailService {
 
     try {
       // 1. detailCommon2 호출
+      // overviewYN/addrinfoYN/mapinfoYN을 붙이면 이 키의 TourAPI 등급에서 INVALID_REQUEST_PARAMETER_ERROR가
+      // 난다 — 반면 아무 YN 없이 불러도 overview/addr1/mapx/mapy는 기본 응답에 이미 포함된다.
       const commonJson = await TourApiClient.get(
         'detailCommon2',
-        { contentId: cleanId, mapinfoYN: 'Y', addrinfoYN: 'Y', overviewYN: 'Y' },
+        { contentId: cleanId },
         signal,
       );
 

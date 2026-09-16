@@ -80,6 +80,7 @@ const SearchForm = styled.form`
   max-width: 680px;
   display: flex;
   align-items: center;
+  gap: 8px;
   background: #ffffff;
   border-radius: 9999px;
   padding: 6px 8px 6px 18px;
@@ -109,6 +110,7 @@ const SearchIconWrap = styled.div`
 
 const Input = styled.input`
   flex: 1;
+  min-width: 0;
   border: none;
   background: transparent;
   outline: none;

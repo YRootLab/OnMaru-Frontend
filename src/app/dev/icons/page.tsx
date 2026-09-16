@@ -28,7 +28,7 @@ const NAMES = [
   'Images', 'Inbox', 'Info', 'Landmark', 'Layers', 'LayoutDashboard', 'Leaf', 'List',
   'LocateFixed', 'Lock', 'LogOut', 'Mail', 'Map', 'MapPin', 'Megaphone', 'Meh', 'Menu',
   'MessageCircle', 'Minus', 'Moon', 'MoreHorizontal', 'Music2', 'Navigation', 'Network',
-  'Pause', 'PenLine', 'Phone', 'Plane', 'Play', 'Plus', 'RefreshCw', 'RotateCcw', 'Search',
+  'Pause', 'PenLine', 'Phone', 'Plane', 'Play', 'Plus', 'Printer', 'RefreshCw', 'RotateCcw', 'Search',
   'Share2', 'ShieldAlert', 'ShoppingBag', 'SkipBack', 'SkipForward', 'Smile', 'SmilePlus',
   'Sparkles', 'Square', 'Star', 'Store', 'Sun', 'Tag', 'Ticket', 'Trash2', 'User', 'UserX',
   'Users', 'Utensils', 'Volume2', 'Wand2', 'X', 'XCircle',
