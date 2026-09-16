@@ -286,6 +286,14 @@ export const SorimaruRoadview: React.FC<SorimaruRoadviewProps> = ({
     }
   };
 
+  const retryRoadview = () => {
+    roadviewInstanceRef.current = null;
+    setError(false);
+    setLoaded(false);
+    setShowGuide(true);
+    initRoadview();
+  };
+
   return (
     <Container $isFullscreen={isFullscreen}>
       {/* 360 파노라마 로드뷰 캔버스 */}
@@ -323,6 +331,11 @@ export const SorimaruRoadview: React.FC<SorimaruRoadviewProps> = ({
         </StatusChip>
 
         <ButtonGroup>
+          {error && (
+            <IconButton type="button" onClick={retryRoadview} title="현장 뷰 다시 불러오기" aria-label="현장 뷰 다시 불러오기">
+              <RefreshCw size={13} strokeWidth={2} />
+            </IconButton>
+          )}
           {loaded && (
             <IconButton type="button" onClick={handleResetAngle} title="시점 초기화" aria-label="시점 초기화">
               <RotateCw size={13} strokeWidth={2} />

@@ -19,9 +19,9 @@ const Panel = styled.section`
   flex-direction: column;
   overflow: hidden;
   border-radius: 0.875rem;
-  background: #171918;
-  color: #f5f5f4;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 18px 40px rgba(17, 20, 20, 0.16);
+  background: #f1f1ef;
+  color: #292927;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.84), 0 12px 28px rgba(17, 20, 20, 0.08);
 
   @media (min-width: 768px) {
     height: 100%;
@@ -32,25 +32,10 @@ const Panel = styled.section`
 const LampHeader = styled.header`
   position: relative;
   z-index: 1;
-  overflow: hidden;
   flex: 0 0 auto;
   padding: 1.25rem 1.25rem 1rem;
-  background:
-    linear-gradient(180deg, rgba(122, 166, 158, 0.16), rgba(23, 25, 24, 0)),
-    radial-gradient(80% 120% at 50% -20%, rgba(187, 210, 202, 0.22), transparent 70%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 50%;
-    width: min(18rem, 70%);
-    height: 1px;
-    transform: translateX(-50%);
-    background: rgba(214, 231, 225, 0.6);
-    box-shadow: 0 0 24px rgba(180, 217, 205, 0.56);
-  }
+  background: #f8f8f7;
+  border-bottom: 1px solid #d9d9d7;
 `;
 
 const Eyebrow = styled.p`
@@ -58,7 +43,7 @@ const Eyebrow = styled.p`
   font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.08em;
-  color: #b8d3ca;
+  color: #6f706d;
 `;
 
 const HeaderTitle = styled.h3`
@@ -66,7 +51,7 @@ const HeaderTitle = styled.h3`
   font-family: var(--font-hanok);
   font-size: 1.125rem;
   font-weight: 650;
-  color: #f8f8f7;
+  color: #292927;
 `;
 
 const Scroller = styled.div`
@@ -76,7 +61,7 @@ const Scroller = styled.div`
   overscroll-behavior: contain;
   scroll-behavior: smooth;
   padding: 4.25rem 1.25rem;
-  scrollbar-color: rgba(230, 234, 231, 0.35) transparent;
+  scrollbar-color: #cdcdca transparent;
 `;
 
 const Line = styled.button<{ $active: boolean }>`
@@ -86,14 +71,14 @@ const Line = styled.button<{ $active: boolean }>`
   margin: 0;
   border: 0;
   border-radius: 0.5rem;
-  background: ${({ $active }) => ($active ? 'rgba(221, 232, 227, 0.11)' : 'transparent')};
+  background: ${({ $active }) => ($active ? '#ffffff' : 'transparent')};
   padding: 0.85rem 1rem 0.85rem 1.125rem;
   text-align: left;
   font-family: var(--font-hanok);
   font-size: 1.05rem;
   font-weight: ${({ $active }) => ($active ? 650 : 500)};
   line-height: 1.72;
-  color: #f5f5f4;
+  color: #292927;
   opacity: ${({ $active }) => ($active ? 1 : 0.6)};
   cursor: pointer;
   transition: background-color 220ms ease, opacity 220ms ease, color 220ms ease;
@@ -114,12 +99,12 @@ const Line = styled.button<{ $active: boolean }>`
   }
 
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: #e5e5e3;
     opacity: 0.88;
   }
 
   &:focus-visible {
-    outline: 2px solid #b8d3ca;
+    outline: 2px solid #6f706d;
     outline-offset: 2px;
   }
 
@@ -137,7 +122,7 @@ const SkeletonLine = styled.div<{ $wide?: boolean }>`
   height: 1.3rem;
   width: ${({ $wide }) => ($wide ? '94%' : '72%')};
   border-radius: 0.25rem;
-  background: linear-gradient(90deg, #2a2d2b 25%, #383d39 50%, #2a2d2b 75%);
+  background: linear-gradient(90deg, #d9d9d7 25%, #e5e5e3 50%, #d9d9d7 75%);
   background-size: 200% 100%;
   animation: transcriptShimmer 1.7s ease-in-out infinite;
 
@@ -158,7 +143,7 @@ export function TranscriptSkeleton() {
   return (
     <Panel data-testid="transcript-skeleton" aria-label="대본 불러오는 중">
       <LampHeader>
-        <Eyebrow>해설 대본</Eyebrow>
+        <Eyebrow>실시간 해설 대본</Eyebrow>
         <HeaderTitle>이야기를 준비하고 있어요</HeaderTitle>
       </LampHeader>
       <Scroller aria-hidden="true">
@@ -185,8 +170,8 @@ export function PlayerTranscriptPanel({
   return (
     <Panel aria-label="실시간 해설 대본">
       <LampHeader>
-        <Eyebrow>해설 대본</Eyebrow>
-        <HeaderTitle>듣는 동안 따라 읽기</HeaderTitle>
+        <Eyebrow>실시간 해설 대본</Eyebrow>
+        <HeaderTitle>실시간 해설 대본</HeaderTitle>
       </LampHeader>
       <Scroller onScroll={onTranscriptScroll}>
         {lines.map((line) => {

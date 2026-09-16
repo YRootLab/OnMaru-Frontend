@@ -309,7 +309,9 @@ const DrawerPanel = styled(motion.aside)`
 
   @media (min-width: 1024px) {
     border-radius: 1.75rem;
-    max-height: 88vh;
+    height: min(88vh, 52rem);
+    max-height: min(88vh, 52rem);
+    overflow: hidden;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
   }
 `;
@@ -688,9 +690,11 @@ const SpeedButton = styled(motion.button)`
 
 const PlayerExperienceGrid = styled.div`
   display: grid;
+  min-height: 0;
   gap: 1.5rem;
 
   @media (min-width: 768px) {
+    flex: 1;
     grid-template-columns: minmax(0, 1.2fr) minmax(15rem, 0.8fr);
     align-items: stretch;
   }
@@ -698,42 +702,9 @@ const PlayerExperienceGrid = styled.div`
 
 const PlaybackColumn = styled.div`
   min-width: 0;
-`;
-
-const TranscriptSidebar = styled.section`
-  display: flex;
-  min-height: 15rem;
-  flex-direction: column;
-  border-radius: 1.25rem;
-  background: #f1f1ef;
-  padding: 1rem;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
-
-  @media (min-width: 768px) {
-    min-height: 0;
-  }
-
-  [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.06);
-  }
-
-  & > section {
-    display: flex;
-    min-height: 0;
-    flex: 1;
-    flex-direction: column;
-    margin-top: 0 !important;
-    padding-top: 0 !important;
-    border-top: 0 !important;
-  }
-
-  & > section > div:last-child {
-    min-height: 0;
-    flex: 1;
-    height: auto !important;
-    overflow-y: auto !important;
-    overscroll-behavior: contain;
-  }
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 `;
 
 export const LocalMiniPlayer: React.FC = () => {
