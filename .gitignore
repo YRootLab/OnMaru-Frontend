@@ -57,3 +57,6 @@ node_modules
 
 # ADR toolkit runtime lock
 docs/decisions/.adr-toolkit.lock
+
+# 로컬 전용 트러블슈팅 기록 — 팀 참고용, git에는 안 올림
+new/troubleshooting-notes.md
