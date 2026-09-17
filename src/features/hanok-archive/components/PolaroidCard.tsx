@@ -120,7 +120,7 @@ const TapeStrip = styled.div<{ $left?: boolean }>`
   ${({ $left }) => ($left ? 'left: 20px;' : 'right: 20px;')}
   width: 44px;
   height: 22px;
-  background: rgba(64, 104, 232, 0.28);
+  background: ${lightPalette.juhong[300]}47;
   border-radius: 2px;
   transform: rotate(${({ $left }) => ($left ? '-5deg' : '4deg')});
   z-index: 10;
@@ -212,6 +212,8 @@ interface PolaroidCardProps {
   showOutsideMeta?: boolean;
   onClick?: (village: Village) => void;
   isImageLoading?: boolean;
+  /** 빨래집게처럼 다른 방식으로 이미 고정돼 있을 때는 테이프를 겹치지 않는다 */
+  enableTape?: boolean;
 }
 
 export default function PolaroidCard({
@@ -221,9 +223,10 @@ export default function PolaroidCard({
   showOutsideMeta = false,
   onClick,
   isImageLoading = false,
+  enableTape = true,
 }: PolaroidCardProps) {
   const rotate = ROTATIONS[index % ROTATIONS.length];
-  const showTape = index % 2 === 0;
+  const showTape = enableTape && index % 2 === 0;
   const tapeLeft = index % 4 < 2;
 
   const regionName = village.region || '한옥';

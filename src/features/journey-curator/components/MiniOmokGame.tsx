@@ -41,9 +41,8 @@ const TurnBadge = styled.div<{ $isUserTurn: boolean }>`
   border-radius: 9999px;
   background: ${({ $isUserTurn }) =>
     $isUserTurn ? 'rgba(0, 184, 130, 0.12)' : 'rgba(212, 175, 55, 0.12)'};
-  border: 1px solid
-    ${({ $isUserTurn }) =>
-      $isUserTurn ? 'rgba(0, 184, 130, 0.35)' : 'rgba(212, 175, 55, 0.35)'};
+  border: none;
+  box-shadow: none;
   color: ${({ $isUserTurn }) => ($isUserTurn ? '#00b882' : '#d4af37')};
   font-weight: 600;
   font-size: ${fontSize.xs};
@@ -56,27 +55,34 @@ const DifficultyBadge = styled.div`
   font-size: ${fontSize.xs};
   color: #ff5414;
   background: rgba(255, 84, 20, 0.1);
-  border: 1px solid rgba(255, 84, 20, 0.25);
-  padding: 3px 8px;
+  border: none;
+  box-shadow: none;
+  padding: 4px 9px;
   border-radius: 6px;
-  font-weight: 500;
+  font-weight: 600;
 `;
 
-/* 중간 톤의 따뜻한 원목 갈색 바둑판 */
+/* 모던한 플랫 원목 바둑판 (노 보더, 노 섀도우) */
 const BoardContainer = styled.div`
   position: relative;
   width: 340px;
   height: 340px;
-  background: linear-gradient(145deg, #c89e6e 0%, #ba8e5c 100%);
-  border: 4px solid #835c34;
+  background: #deb887;
+  border: none;
   border-radius: 12px;
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35), inset 0 2px 6px rgba(255, 255, 255, 0.25);
+  box-shadow: none;
   display: grid;
   grid-template-columns: repeat(${BOARD_SIZE}, 1fr);
   grid-template-rows: repeat(${BOARD_SIZE}, 1fr);
   padding: 12px;
   user-select: none;
   touch-action: manipulation;
+
+  [data-theme='dark'] & {
+    background: #2b241d;
+    border: none;
+    box-shadow: none;
+  }
 
   @media (max-width: 400px) {
     width: 295px;
@@ -89,6 +95,7 @@ const Cell = styled.button<{ $stone: Stone }>`
   position: relative;
   background: transparent;
   border: none;
+  box-shadow: none;
   padding: 0;
   margin: 0;
   cursor: ${({ $stone }) => ($stone ? 'default' : 'pointer')};
@@ -97,7 +104,7 @@ const Cell = styled.button<{ $stone: Stone }>`
   align-items: center;
   justify-content: center;
 
-  /* Traditional Board Dark Brown Grid Lines */
+  /* Traditional Board Grid Lines */
   &::before {
     content: '';
     position: absolute;
@@ -105,7 +112,7 @@ const Cell = styled.button<{ $stone: Stone }>`
     left: 0;
     right: 0;
     height: 1.5px;
-    background: #54391e;
+    background: rgba(74, 48, 24, 0.45);
     transform: translateY(-50%);
     pointer-events: none;
   }
@@ -117,9 +124,14 @@ const Cell = styled.button<{ $stone: Stone }>`
     top: 0;
     bottom: 0;
     width: 1.5px;
-    background: #54391e;
+    background: rgba(74, 48, 24, 0.45);
     transform: translateX(-50%);
     pointer-events: none;
+  }
+
+  [data-theme='dark'] &::before,
+  [data-theme='dark'] &::after {
+    background: rgba(255, 255, 255, 0.15);
   }
 `;
 
@@ -131,6 +143,12 @@ const StarPointDot = styled.div`
   background: #3e2712;
   z-index: 1;
   pointer-events: none;
+  border: none;
+  box-shadow: none;
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.4);
+  }
 `;
 
 const StonePiece = styled(motion.div)<{ $color: 'B' | 'W'; $isLast?: boolean }>`
@@ -139,17 +157,24 @@ const StonePiece = styled(motion.div)<{ $color: 'B' | 'W'; $isLast?: boolean }>`
   height: 84%;
   border-radius: 50%;
   z-index: 2;
-  box-shadow: 0 4px 7px rgba(0, 0, 0, 0.45);
+  border: none;
+  box-shadow: none;
 
   ${({ $color }) =>
     $color === 'B'
       ? `
-    background: radial-gradient(circle at 35% 35%, #4a4a4a, #111111 80%);
-    border: 1px solid #1f1f1f;
+    background: #191f28;
+
+    [data-theme='dark'] & {
+      background: #111317;
+    }
   `
       : `
-    background: radial-gradient(circle at 35% 35%, #ffffff, #dcdcdc 85%);
-    border: 1px solid #c0c0c0;
+    background: #ffffff;
+
+    [data-theme='dark'] & {
+      background: #f0f0f0;
+    }
   `}
 
   ${({ $isLast }) =>
@@ -165,7 +190,8 @@ const StonePiece = styled(motion.div)<{ $color: 'B' | 'W'; $isLast?: boolean }>`
       transform: translate(-50%, -50%);
       border-radius: 50%;
       background: #ff5414;
-      box-shadow: 0 0 6px rgba(255, 84, 20, 0.8);
+      border: none;
+      box-shadow: none;
     }
   `}
 `;
@@ -185,16 +211,25 @@ const ActionButton = styled.button`
   gap: 6px;
   padding: 6px 14px;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #e5e7eb;
+  background: rgba(0, 0, 0, 0.05);
+  border: none;
+  box-shadow: none;
+  color: #374151;
   font-size: ${fontSize.xs};
   cursor: pointer;
   transition: all 0.2s;
 
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.08);
+    color: #e5e7eb;
+  }
+
   &:hover {
-    background: rgba(255, 255, 255, 0.14);
-    border-color: rgba(255, 255, 255, 0.25);
+    background: rgba(0, 0, 0, 0.09);
+
+    [data-theme='dark'] & {
+      background: rgba(255, 255, 255, 0.14);
+    }
   }
 
   &:disabled {
@@ -206,8 +241,9 @@ const ActionButton = styled.button`
 const FinishedBanner = styled(motion.div)`
   width: 100%;
   max-width: 340px;
-  background: linear-gradient(135deg, rgba(0, 184, 130, 0.16), rgba(212, 175, 55, 0.16));
-  border: 1px solid rgba(0, 184, 130, 0.4);
+  background: rgba(0, 184, 130, 0.12);
+  border: none;
+  box-shadow: none;
   border-radius: 12px;
   padding: 10px 14px;
   margin-top: 14px;
@@ -215,6 +251,10 @@ const FinishedBanner = styled(motion.div)`
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+
+  [data-theme='dark'] & {
+    background: rgba(0, 184, 130, 0.16);
+  }
 `;
 
 const CompleteText = styled.div`
@@ -222,14 +262,19 @@ const CompleteText = styled.div`
   align-items: center;
   gap: 6px;
   font-size: ${fontSize.xs};
-  font-weight: 500;
-  color: #f8f9fa;
+  font-weight: 600;
+  color: #191f28;
+
+  [data-theme='dark'] & {
+    color: #f8f9fa;
+  }
 `;
 
 const ViewJourneyBtn = styled.button`
   background: #00b882;
   color: #ffffff;
   border: none;
+  box-shadow: none;
   padding: 6px 12px;
   border-radius: 8px;
   font-size: ${fontSize.xs};
@@ -246,7 +291,7 @@ const ViewJourneyBtn = styled.button`
 const WinnerOverlay = styled(motion.div)`
   position: absolute;
   inset: 0;
-  background: rgba(14, 16, 22, 0.88);
+  background: rgba(248, 248, 247, 0.96);
   border-radius: 12px;
   z-index: 10;
   display: flex;
@@ -256,6 +301,32 @@ const WinnerOverlay = styled(motion.div)`
   gap: 12px;
   padding: 20px;
   text-align: center;
+  border: none;
+  box-shadow: none;
+
+  [data-theme='dark'] & {
+    background: rgba(28, 26, 23, 0.96);
+  }
+`;
+
+const WinnerTitle = styled.div`
+  font-size: 18px;
+  font-weight: 700;
+  color: #191f28;
+
+  [data-theme='dark'] & {
+    color: #f8f9fa;
+  }
+`;
+
+const WinnerDesc = styled.div`
+  font-size: 12.5px;
+  color: #6b7280;
+  max-width: 260px;
+
+  [data-theme='dark'] & {
+    color: #a1a1aa;
+  }
 `;
 
 // ==========================================
@@ -605,18 +676,18 @@ export default function MiniOmokGame({
               exit={{ opacity: 0 }}
             >
               <Award size={36} color={winner === 'B' ? '#00b882' : '#d4af37'} />
-              <div style={{ color: '#fff', fontSize: '18px', fontWeight: 600 }}>
+              <WinnerTitle>
                 {winner === 'B'
-                  ? '🎉 흑돌(사용자) 승리!'
-                  : winner === 'W'
-                  ? '백돌(온마루 AI) 승리!'
-                  : '무승부입니다!'}
-              </div>
-              <div style={{ color: '#9ca3af', fontSize: '12.5px', maxWidth: '260px' }}>
+                   ? '🎉 흑돌(사용자) 승리!'
+                   : winner === 'W'
+                   ? '백돌(온마루 AI) 승리!'
+                   : '무승부입니다!'}
+              </WinnerTitle>
+              <WinnerDesc>
                 {winner === 'B'
-                  ? '축하합니다! 고수 AI를 제압하셨습니다.'
-                  : '날카로운 공방이었습니다! 다음 판에 설욕해보세요.'}
-              </div>
+                   ? '축하합니다! 고수 AI를 제압하셨습니다.'
+                   : '날카로운 공방이었습니다! 다음 판에 설욕해보세요.'}
+              </WinnerDesc>
 
               {!isGenerationComplete ? (
                 <>
@@ -624,11 +695,11 @@ export default function MiniOmokGame({
                     style={{
                       color: '#d4af37',
                       fontSize: '13px',
-                      fontWeight: 500,
+                      fontWeight: 600,
                       margin: '6px 0 2px',
                     }}
                   >
-                    ⏳ 아직 온마루 AI가 추천 경로를 추천 중이에요!
+                    ⏳ 아직 온마루 AI가 맞춤 경로를 추천 중이에요!
                   </div>
                   <div
                     style={{
@@ -644,7 +715,7 @@ export default function MiniOmokGame({
                       <ViewJourneyBtn
                         style={{
                           width: '100%',
-                          background: 'linear-gradient(135deg, #00b882, #059669)',
+                          background: '#00b882',
                           padding: '8px 12px',
                         }}
                         onClick={onGoToWordSearch}

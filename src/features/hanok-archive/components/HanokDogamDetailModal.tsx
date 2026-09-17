@@ -33,7 +33,6 @@ import { useHanokAudioGuide } from '@/features/hanok-archive/hooks/useHanokAudio
 import { useHanokTranquility } from '@/features/hanok-archive/hooks/useHanokTranquility';
 import SoriMaruBridgeCard from './SoriMaruBridgeCard';
 import TranquilityGauge from './TranquilityGauge';
-import HanokAiStoryPanel from './HanokAiStoryPanel';
 import {
   Overlay,
   ModalCard,
@@ -319,23 +318,6 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
               </AddrText>
             </MetaRow>
 
-            <HanokAiStoryPanel
-              key={village.id}
-              village={village}
-              overview={
-                fetchedOverview
-                || cleanTourApiHtml(village.overview)
-                || cleanTourApiHtml(village.summary)
-              }
-              isContextLoading={isLoadingOverview}
-            />
-
-            {/* 소리마루 오디오 도슨트 연계 (소리 관련은 모두 소리마루에서 일원화 청취) */}
-            <SoriMaruBridgeCard stories={audioGuideStories} hanokName={village.name} />
-
-            {/* 한국관광공사 DataLab 실시간 고즈넉 지수 & 골든타임 */}
-            <TranquilityGauge data={tranquilityData} loading={isLoadingTranquility} />
-
             {/* 🏛️ 전통 건축 및 역사 해설 (사용자 요청: 설명이 있는 건축물이면 풍성하게 노출) */}
             {isLoadingOverview && !village.summary ? (
               <OverviewSkeleton>
@@ -382,6 +364,12 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
                 )}
               </CuratorsNoteSection>
             )}
+
+            {/* 소리마루 오디오 도슨트 연계 (소리 관련은 모두 소리마루에서 일원화 청취) */}
+            <SoriMaruBridgeCard stories={audioGuideStories} hanokName={village.name} />
+
+            {/* 한국관광공사 DataLab 실시간 고즈넉 지수 & 골든타임 */}
+            <TranquilityGauge data={tranquilityData} loading={isLoadingTranquility} />
 
             {/* 관람 및 개방 안내 */}
             {!isLoadingOverview && hasOperationalInfo && (

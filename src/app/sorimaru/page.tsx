@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { SorimaruAudioFeature } from '@/features/sorimaru-audio/components/SorimaruAudioFeature';
 import { Metadata } from 'next';
 
@@ -7,5 +8,10 @@ export const metadata: Metadata = {
 };
 
 export default function SoriMaruPage() {
-  return <SorimaruAudioFeature backgroundVariant="hanji-journey" />;
+  return (
+    <Suspense fallback={null}>
+      <SorimaruAudioFeature backgroundVariant="hanji-journey" />
+    </Suspense>
+  );
 }
+

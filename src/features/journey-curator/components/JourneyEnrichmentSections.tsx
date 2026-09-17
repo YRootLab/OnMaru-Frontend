@@ -53,7 +53,7 @@ const BlockTitle = styled.h3`
   }
 `;
 
-/* ── 한옥 도감: 잡지식 좌우 배치, 첫 문장은 리드로 ── */
+/* ── 공간 기록: 잡지식 좌우 배치, 첫 문장은 리드로 ── */
 
 const DoganList = styled.div`
   display: flex;
@@ -381,7 +381,7 @@ export default function JourneyEnrichmentSections() {
     <Wrap>
       {hanokDogan.length > 0 && (
         <Block>
-          <BlockTitle>한옥 도감</BlockTitle>
+          <BlockTitle>공간 기록</BlockTitle>
           <DoganList>
             {hanokDogan.map((entry, idx) => {
               const [lede, rest] = entry.overview ? splitLede(entry.overview) : ['', ''];

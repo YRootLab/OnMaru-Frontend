@@ -681,7 +681,7 @@ export default function BentoJourneyGrid() {
         <HanokCard>
           <CardBadge $color={lightPalette.cheongrok[500]}>
             <Landmark size={14} strokeWidth={2} />
-            <span>한옥 도감</span>
+            <span>공간 기록</span>
           </CardBadge>
           <CardTitle>{hanokCard.title}</CardTitle>
 

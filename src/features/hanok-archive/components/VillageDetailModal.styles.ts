@@ -294,20 +294,22 @@ export const InfoCard = styled.div`
   }
 `;
 
+// 토스 스타일: 단순 정보(운영시간·주차 등)는 상태값이 아니라서 굳이 컬러를 안 쓴다.
+// 색은 "무료 입장료"처럼 실제로 눈에 띄어야 할 정보에만 남겨 둔다.
 export const InfoIconBox = styled.div`
   width: 32px;
   height: 32px;
   border-radius: 10px;
-  background: ${palette.cheongrok[50]};
-  color: ${palette.cheongrok[700]};
+  background: ${meok[200]};
+  color: ${meok[700]};
   display: grid;
   place-items: center;
   flex-shrink: 0;
   border: none;
 
   [data-theme='dark'] & {
-    background: rgba(0, 196, 113, 0.15);
-    color: ${palette.cheongrok[400]};
+    background: rgba(255, 255, 255, 0.08);
+    color: ${meok[400]};
   }
 `;
 
@@ -335,18 +337,18 @@ export const InfoVal = styled.div`
   word-break: keep-all;
 
   a {
-    color: ${palette.cheongrok[700]};
+    color: ${meok[900]};
     text-decoration: underline;
-    font-weight: 500;
+    font-weight: 700;
     &:hover {
-      color: ${palette.cheongrok[900]};
+      color: ${meok[700]};
     }
   }
 
   [data-theme='dark'] & {
     color: ${meok[400]};
     a {
-      color: ${palette.cheongrok[400]};
+      color: ${meok[100]};
     }
   }
 `;
@@ -373,11 +375,11 @@ export const RepeatItemCard = styled.div`
 export const RepeatTitleText = styled.div`
   font-size: ${fontSize.xs};
   font-weight: 600;
-  color: ${palette.cheongrok[700]};
+  color: ${meok[700]};
   margin-bottom: 4px;
 
   [data-theme='dark'] & {
-    color: ${palette.cheongrok[400]};
+    color: ${meok[300]};
   }
 `;
 

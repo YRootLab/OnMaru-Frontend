@@ -12,7 +12,7 @@
  */
 
 import styled from '@emotion/styled';
-import { Check, HelpCircle, Pin, X } from 'lucide-react';
+import { Check, HelpCircle } from 'lucide-react';
 import { meok, palette, fontSize } from '@/design-system/tokens';
 import type { JourneyCandidate, PlaceResource } from '../types/exploration.types';
 
@@ -127,46 +127,7 @@ const UnavailableNote = styled.p`
   margin: 0;
 `;
 
-const Footer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: auto;
-  padding-top: 6px;
-`;
 
-const PinButton = styled.button<{ $active: boolean }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  font-size: ${fontSize.xs};
-  font-weight: 500;
-  color: ${({ $active }) => ($active ? palette.juhong[500] : meok[500])};
-
-  &:hover {
-    color: ${palette.juhong[500]};
-  }
-`;
-
-const EvidenceButton = styled.button`
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  font-size: ${fontSize.xs};
-  font-weight: 500;
-  color: ${meok[500]};
-  text-decoration: underline;
-  text-underline-offset: 3px;
-
-  &:hover {
-    color: ${meok[900]};
-  }
-`;
 
 const UNAVAILABLE_LABEL: Record<string, string> = {
   OPERATING_HOURS: '운영시간',
@@ -180,8 +141,6 @@ interface JourneyPlaceCardProps {
   regionTitle: string;
   state?: PlaceCardState;
   isPinned?: boolean;
-  onTogglePin?: () => void;
-  onOpenEvidence?: () => void;
 }
 
 export default function JourneyPlaceCard({
@@ -191,8 +150,6 @@ export default function JourneyPlaceCard({
   regionTitle,
   state = 'default',
   isPinned = false,
-  onTogglePin,
-  onOpenEvidence,
 }: JourneyPlaceCardProps) {
   const accent = state !== 'default' ? STATE_ACCENT[state] : null;
 
@@ -229,15 +186,7 @@ export default function JourneyPlaceCard({
         </UnavailableNote>
       )}
 
-      <Footer>
-        <PinButton type="button" $active={isPinned} onClick={onTogglePin} disabled={!onTogglePin}>
-          <Pin size={13} strokeWidth={2} fill={isPinned ? 'currentColor' : 'none'} />
-          {isPinned ? '고정됨' : '고정하기'}
-        </PinButton>
-        <EvidenceButton type="button" onClick={onOpenEvidence} disabled={!onOpenEvidence}>
-          근거 보기
-        </EvidenceButton>
-      </Footer>
+
     </Card>
   );
 }

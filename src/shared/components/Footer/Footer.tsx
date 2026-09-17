@@ -15,11 +15,11 @@ const FooterWrapper = styled.footer`
   font-family: 'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   padding: clamp(36px, 4vw, 52px) clamp(20px, 3.5vw, 48px) clamp(16px, 2vw, 24px);
 
-  /* 라이트 모드 은은한 한지 실버-인디고 앰비언트 */
+  /* 라이트 모드 은은한 온마루 단청 주홍-금빛 앰비언트 */
   background:
-    radial-gradient(circle at 80% 20%, rgba(200, 214, 242, 0.45) 0%, transparent 60%),
-    radial-gradient(circle at 20% 80%, rgba(218, 226, 244, 0.55) 0%, transparent 65%),
-    linear-gradient(180deg, #f7f8fa 0%, #ebedf2 100%);
+    radial-gradient(circle at 85% 15%, rgba(255, 110, 25, 0.08) 0%, transparent 55%),
+    radial-gradient(circle at 15% 85%, rgba(255, 175, 50, 0.07) 0%, transparent 60%),
+    linear-gradient(180deg, #faf9f8 0%, #f3f1ee 100%);
   color: ${meok[700]};
   border-top: 1px solid rgba(0, 0, 0, 0.06);
   transition:
@@ -28,28 +28,28 @@ const FooterWrapper = styled.footer`
 
   &:hover {
     background:
-      radial-gradient(circle at 80% 20%, rgba(188, 208, 252, 0.72) 0%, transparent 60%),
-      radial-gradient(circle at 20% 80%, rgba(210, 224, 255, 0.8) 0%, transparent 65%),
-      linear-gradient(180deg, #fafbfe 0%, #eff1f6 100%);
-    border-top-color: rgba(0, 0, 0, 0.09);
+      radial-gradient(circle at 85% 15%, rgba(255, 110, 25, 0.13) 0%, transparent 55%),
+      radial-gradient(circle at 15% 85%, rgba(255, 175, 50, 0.11) 0%, transparent 60%),
+      linear-gradient(180deg, #fdfcfb 0%, #f6f4f1 100%);
+    border-top-color: rgba(255, 110, 25, 0.16);
   }
 
-  /* 다크 모드 딥 오로라 미드나이트-퍼플 메쉬 */
+  /* 다크 모드 딥 앰버 & 단청 주홍 앰비언트 */
   [data-theme='dark'] & {
     background:
-      radial-gradient(circle at 78% 25%, rgba(118, 102, 168, 0.32) 0%, transparent 55%),
-      radial-gradient(circle at 22% 80%, rgba(46, 68, 118, 0.38) 0%, transparent 65%),
-      linear-gradient(180deg, #181924 0%, #0d0e15 100%);
+      radial-gradient(circle at 80% 20%, rgba(255, 95, 10, 0.13) 0%, transparent 55%),
+      radial-gradient(circle at 18% 85%, rgba(255, 165, 40, 0.09) 0%, transparent 60%),
+      linear-gradient(180deg, #1C1A17 0%, #131210 100%);
     color: rgba(255, 255, 255, 0.7);
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
   }
 
   [data-theme='dark'] &:hover {
     background:
-      radial-gradient(circle at 78% 25%, rgba(148, 126, 215, 0.48) 0%, transparent 55%),
-      radial-gradient(circle at 22% 80%, rgba(68, 98, 172, 0.54) 0%, transparent 65%),
-      linear-gradient(180deg, #1e202e 0%, #11131c 100%);
-    border-top-color: rgba(255, 255, 255, 0.14);
+      radial-gradient(circle at 80% 20%, rgba(255, 95, 10, 0.20) 0%, transparent 55%),
+      radial-gradient(circle at 18% 85%, rgba(255, 165, 40, 0.15) 0%, transparent 60%),
+      linear-gradient(180deg, #22201c 0%, #161512 100%);
+    border-top-color: rgba(255, 105, 15, 0.22);
   }
 `;
 
@@ -64,14 +64,14 @@ const CursorSpotlight = styled.div<{ $x: number; $y: number; $visible: boolean }
 
   background: radial-gradient(
     600px circle at ${({ $x }) => $x}px ${({ $y }) => $y}px,
-    rgba(255, 255, 255, 0.1),
+    rgba(255, 120, 30, 0.06),
     transparent 80%
   );
 
   [data-theme='dark'] & {
     background: radial-gradient(
       600px circle at ${({ $x }) => $x}px ${({ $y }) => $y}px,
-      rgba(150, 160, 255, 0.12),
+      rgba(255, 120, 30, 0.10),
       transparent 80%
     );
   }
