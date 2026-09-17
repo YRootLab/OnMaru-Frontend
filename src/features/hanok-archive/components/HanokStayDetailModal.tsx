@@ -19,6 +19,7 @@ import {
   ChevronRight,
   Sparkles,
   Navigation,
+  Compass,
 } from 'lucide-react';
 import { meok, palette, surface , fontSize } from '@/design-system/tokens';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
@@ -318,6 +319,72 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
               </InfoCard>
             </InfoGrid>
 
+            {/* 당근/토스 스타일: 숙소 반경 2km 1박 2일 몰입형 시공간 코스 */}
+            <ItinerarySection>
+              <ItineraryHeader>
+                <Compass size={16} color={palette.cheongrok[500]} />
+                <ItineraryHeaderTitle>이 고택을 품은 1박 2일 시공간 코스</ItineraryHeaderTitle>
+                {stay.region === '경북' && (
+                  <GyeongbukTag>경북 헤리티지 특화</GyeongbukTag>
+                )}
+              </ItineraryHeader>
+              <ItinerarySubtitle>
+                숙소 반경 2km 이내의 문화재 산책, 종가 미식, 온마루 사운드스케이프를 엮은 동선입니다.
+              </ItinerarySubtitle>
+              
+              <TimelineBox>
+                <TimelineDay>
+                  <TimelineDayTitle>DAY 1 · 고택의 낮과 밤</TimelineDayTitle>
+                  <TimelineStep>
+                    <TimelineDot />
+                    <TimelineContent>
+                      <strong>14:00 인근 문화재·서원 산책</strong>
+                      <span>고즈넉한 서원 툇마루에서 즐기는 여유 (반경 1.5km)</span>
+                    </TimelineContent>
+                  </TimelineStep>
+                  <TimelineStep>
+                    <TimelineDot />
+                    <TimelineContent>
+                      <strong>16:00 {stay.name} 입실 & 마루 쉼</strong>
+                      <span>전통 온돌방 짐 풀기 및 웰컴 전통차 한 잔</span>
+                    </TimelineContent>
+                  </TimelineStep>
+                  <TimelineStep>
+                    <TimelineDot />
+                    <TimelineContent>
+                      <strong>18:30 지역 향토 미식 & 종가 밥상</strong>
+                      <span>발효 장독대의 깊은 맛을 담은 저녁 식사</span>
+                    </TimelineContent>
+                  </TimelineStep>
+                  <TimelineStep>
+                    <TimelineDot />
+                    <TimelineContent>
+                      <strong>20:30 달빛 고택 산책 & 소리마루 오디오</strong>
+                      <span>처마 밑 풀벌레 소리와 은은한 청사초롱 밤 정취</span>
+                    </TimelineContent>
+                  </TimelineStep>
+                </TimelineDay>
+
+                <TimelineDay>
+                  <TimelineDayTitle>DAY 2 · 햇살과 아침의 정취</TimelineDayTitle>
+                  <TimelineStep>
+                    <TimelineDot />
+                    <TimelineContent>
+                      <strong>08:30 처마 일조 산책 & 아침 조식</strong>
+                      <span>계절 햇살이 드는 마당 거닐기</span>
+                    </TimelineContent>
+                  </TimelineStep>
+                  <TimelineStep>
+                    <TimelineDot />
+                    <TimelineContent>
+                      <strong>11:00 체크아웃 & 로컬 장터 둘러보기</strong>
+                      <span>지역 특산품과 전통 공예품을 만나는 시간</span>
+                    </TimelineContent>
+                  </TimelineStep>
+                </TimelineDay>
+              </TimelineBox>
+            </ItinerarySection>
+
             {/* 숙소 사진 갤러리 */}
             {galleryImages.length > 1 && (
               <GallerySection>
@@ -351,7 +418,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                예약하러 가기 <ExternalLink size={15} strokeWidth={2} />
+                실시간 예약 & 공실 확인 <ExternalLink size={15} strokeWidth={2} />
               </DirectBookingButton>
 
               <MapGuideBtn
@@ -471,6 +538,130 @@ const StayStorySection = styled.div`
 
   [data-theme='dark'] & {
     background: #24211D;
+  }
+`;
+
+const ItinerarySection = styled.div`
+  background: #fbfbfa;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 18px;
+  padding: 20px 22px;
+  margin-top: 14px;
+  margin-bottom: 24px;
+
+  [data-theme='dark'] & {
+    background: #201D1A;
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+`;
+
+const ItineraryHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+`;
+
+const ItineraryHeaderTitle = styled.h4`
+  margin: 0;
+  font-size: ${fontSize.sm};
+  font-weight: 700;
+  color: ${meok[900]};
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
+`;
+
+const GyeongbukTag = styled.span`
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: ${fontSize.micro};
+  font-weight: 700;
+  background: ${palette.hwanggeum[400]};
+  color: ${meok[900]};
+`;
+
+const ItinerarySubtitle = styled.p`
+  margin: 0 0 16px;
+  font-size: ${fontSize.xs};
+  color: ${meok[500]};
+  line-height: 1.5;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
+`;
+
+const TimelineBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`;
+
+const TimelineDay = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
+const TimelineDayTitle = styled.div`
+  font-size: ${fontSize.xs};
+  font-weight: 700;
+  color: ${palette.cheongrok[700]};
+
+  [data-theme='dark'] & {
+    color: ${palette.cheongrok[400]};
+  }
+`;
+
+const TimelineStep = styled.div`
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding-left: 14px;
+  border-left: 2px solid rgba(0, 0, 0, 0.08);
+
+  [data-theme='dark'] & {
+    border-left-color: rgba(255, 255, 255, 0.12);
+  }
+`;
+
+const TimelineDot = styled.div`
+  position: absolute;
+  left: -5px;
+  top: 4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: ${palette.cheongrok[500]};
+`;
+
+const TimelineContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: ${fontSize.xs};
+
+  strong {
+    font-weight: 600;
+    color: ${meok[900]};
+  }
+
+  span {
+    color: ${meok[600]};
+    line-height: 1.4;
+  }
+
+  [data-theme='dark'] & {
+    strong {
+      color: ${meok[100]};
+    }
+    span {
+      color: ${meok[300]};
+    }
   }
 `;
 

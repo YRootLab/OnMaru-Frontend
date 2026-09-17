@@ -6,13 +6,12 @@ import styled from '@emotion/styled';
 import { Global, css } from '@emotion/react';
 import { meok, lightPalette, surface, fluidHeading, fontSize } from '@/design-system/tokens';
 import HanokGrid from '@/features/hanok-archive/sections/HanokGrid';
-import HanokDistribution from '@/features/hanok-archive/sections/HanokDistribution';
 import HanokStayAccordion from '@/features/hanok-archive/sections/HanokStayAccordion';
 import HanokMap from '@/features/hanok-archive/sections/HanokMap';
 import HanokMonthly from '@/features/hanok-archive/sections/HanokMonthly';
+import KCultureThemeFeed from '@/features/hanok-archive/components/KCultureThemeFeed';
 import HanokManifestoCta from '@/features/hanok-archive/sections/HanokManifestoCta';
 import HanokStructureCards from '@/features/hanok-archive/structure/HanokStructureCards';
-import HanokParts from '@/features/hanok-archive/structure/HanokParts';
 import type { Village, VillageMeta } from '@/features/hanok-archive/types';
 import { decodeHanokArchivePayload } from '@/features/hanok-archive/data/hanokArchiveFallback';
 import { HANOK_REVEAL_SECTIONS } from '@/features/hanok-archive/hanokSectionReveal';
@@ -104,11 +103,6 @@ const MonthlyEditorialSection = styled(EditorialSection)`
   @media (min-width: 901px) {
     min-height: 565px;
   }
-`;
-
-// 2. 어두운 인트로 영상 배경 바로 다음 자리: 첫 본문으로 넘어올 때 서사적인 여유를 준다
-const HeroLeadOutSection = styled.div`
-  padding-top: clamp(64px, 8.5vh, 108px);
 `;
 
 // 3. 챕터 대전환: 이달의 한옥 → 도감, 스테이 → 3D 구조, 부재 목록 → 지도
@@ -252,7 +246,6 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
   const prefersReducedMotion = usePrefersReducedMotion();
   const [selectedDogamVillage, setSelectedDogamVillage] = useState<Village | null>(null);
   const [selectedStay, setSelectedStay] = useState<Village | null>(null);
-  const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
   const [archiveData, setArchiveData] = useState(() => ({ villages, meta }));
   const [showIntroVideo, setShowIntroVideo] = useState(false);
   const [introVideoReady, setIntroVideoReady] = useState(false);
@@ -381,17 +374,22 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
           </StyledVesselReveal>
         </MonthlyEditorialSection>
 
-        {/* 3. 데이터 탐색: 전국 한옥 분포 & 인터랙티브 지역 선택기 */}
-        <HeroLeadOutSection>
-          <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.distribution}>
+        {/* K-컬처 & 웰니스 테마 큐레이션: K-드라마, 촌캉스, 야간기행, 종가 미식 (토스/당근 스타일) */}
+        <EditorialSection>
+          <StyledVesselReveal id="hanok-kculture-themes">
             <SectionContainer>
-              <HanokDistribution
-                villages={archiveData.villages}
-                onSelectRegion={setSelectedRegion}
+              <KCultureThemeFeed
+                onSelectContent={(contentId) => {
+                  const target = archiveData.villages.find((v) => v.id === contentId);
+                  if (target) {
+                    if (target.type === '한옥스테이') setSelectedStay(target);
+                    else setSelectedDogamVillage(target);
+                  }
+                }}
               />
             </SectionContainer>
           </StyledVesselReveal>
-        </HeroLeadOutSection>
+        </EditorialSection>
 
         {/* 4. 아카이브 덩어리: 전국 한옥 도감 ➔ 지역별 한옥 스테이 */}
         <ChapterBreak>
@@ -401,7 +399,6 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
                 villages={archiveData.villages}
                 onSelectVillage={setSelectedDogamVillage}
                 initialFilters={initialFilters}
-                externalRegion={selectedRegion}
               />
             </SectionContainer>
           </StyledVesselReveal>
@@ -428,18 +425,6 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
               <HanokStructureCards />
             </SectionContainer>
           </StyledVesselReveal>
-
-          {/*
-            카드는 3D로 들어가는 문이고, 이 목록은 문을 열지 않아도 읽히는 본문이다.
-            같은 챕터라 여백을 크게 두지 않고 바로 잇는다.
-          */}
-          <EditorialSection>
-            <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.parts}>
-              <SectionContainer>
-                <HanokParts />
-              </SectionContainer>
-            </StyledVesselReveal>
-          </EditorialSection>
         </ChapterBreak>
 
         {/* 부재를 읽고 난 뒤 지도로 — 어느 채가 어디 있는지 짚어 준다 (구조에서 지도로의 대전환) */}
