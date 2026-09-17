@@ -47,7 +47,7 @@ export default function JourneyHome() {
 
   return (
     <main>
-      <HanjiDeckleEdge />
+      {/* <HanjiDeckleEdge /> */}
       <JourneyAssemblyLoader />
 
       <Landing $centered={!hasSearched}>

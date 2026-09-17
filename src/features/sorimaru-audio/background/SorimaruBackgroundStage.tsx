@@ -65,7 +65,7 @@ export function SorimaruBackgroundStage({
       <div className={styles.hanjiFiber} />
       <div className={styles.edgeVignette} />
 
-      <div className={styles.deckleEdge}>
+      {/* <div className={styles.deckleEdge}>
         <svg className={styles.deckleEdgeLeft} viewBox="0 0 32 1200" preserveAspectRatio="none">
           <path className={styles.deckleBody} d={`${DECKLE_EDGE_PATH} L0 1200 L0 0 Z`} />
           <path className={styles.deckleShadow} d={DECKLE_EDGE_PATH} />
@@ -76,7 +76,7 @@ export function SorimaruBackgroundStage({
           <path className={styles.deckleShadow} d={DECKLE_EDGE_PATH} />
           <path className={styles.deckleFringe} d={DECKLE_EDGE_PATH} />
         </svg>
-      </div>
+      </div> */}
     </div>
   );
 }

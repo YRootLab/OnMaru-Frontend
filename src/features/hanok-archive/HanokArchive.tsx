@@ -327,7 +327,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
   return (
     <Root>
       <HanokAtmosphereBackground />
-      <HanjiDeckleEdge />
+      {/* <HanjiDeckleEdge /> */}
       <Global styles={paperGround} />
       <PageInner>
         {/* 진입부: 한국의 정취를 담은 동영상 히어로 */}
