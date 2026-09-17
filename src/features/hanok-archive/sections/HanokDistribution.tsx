@@ -1,18 +1,13 @@
 'use client';
 
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo } from 'react';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
-import { useGSAP } from '@gsap/react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { meok, palette, fluidHeading, fontSize } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import type { Village } from '@/features/hanok-archive/types';
-
-gsap.registerPlugin(ScrollTrigger);
 
 /*
   진입부는 "지금 한옥은 어디에 남아 있을까"라고 묻는다. 도감과 지도는 개별 한 채씩을
@@ -139,7 +134,6 @@ const Bar = styled.span<{ $ratio: number }>`
   width: ${({ $ratio }) => Math.max($ratio * 100, 1.5)}%;
   height: 100%;
   transform-origin: left center;
-  will-change: transform;
   /* 데이터 끝만 둥글게 — 기준선 쪽은 각지게 두어야 0에서 시작한다는 게 보인다 */
   border-radius: 0 4px 4px 0;
   background: ${palette.kobalt[500]};
@@ -224,7 +218,6 @@ interface HanokDistributionProps {
 
 export default function HanokDistribution({ villages, onSelectRegion }: HanokDistributionProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
-  const sectionRef = useRef<HTMLElement>(null);
   const { regions, total, typeCount, topType } = useMemo(() => {
     const byRegion = new Map<string, number>();
     const byType = new Map<string, number>();
@@ -251,60 +244,10 @@ export default function HanokDistribution({ villages, onSelectRegion }: HanokDis
     total > 0 ? (topThree.reduce((sum, [, n]) => sum + n, 0) / total) * 100 : 0,
   );
 
-  useGSAP(() => {
-    const section = sectionRef.current;
-    if (!section) return;
-
-    const bars = gsap.utils.toArray<HTMLElement>('[data-distribution-bar]', section);
-    const counters = gsap.utils.toArray<HTMLElement>('[data-count-target]', section);
-
-    if (prefersReducedMotion) {
-      gsap.set(bars, { scaleX: 1, clearProps: 'willChange' });
-      counters.forEach((counter) => {
-        counter.textContent = counter.dataset.countTarget || '0';
-      });
-      return;
-    }
-
-    gsap.set(bars, { scaleX: 0 });
-    counters.forEach((counter) => {
-      counter.textContent = '0';
-    });
-
-    const timeline = gsap.timeline({
-      scrollTrigger: {
-        trigger: section,
-        start: 'top 78%',
-        once: true,
-      },
-    });
-
-    timeline.to(bars, {
-      scaleX: 1,
-      duration: 0.9,
-      stagger: 0.035,
-      ease: 'power3.out',
-      onComplete: () => gsap.set(bars, { clearProps: 'willChange' }),
-    });
-
-    counters.forEach((counter) => {
-      const target = Number(counter.dataset.countTarget || 0);
-      const value = { current: 0 };
-      timeline.to(value, {
-        current: target,
-        duration: 0.78,
-        ease: 'power2.out',
-        onUpdate: () => {
-          counter.textContent = String(Math.round(value.current));
-        },
-      }, 0.05);
-    });
-  }, { scope: sectionRef, dependencies: [regions, prefersReducedMotion], revertOnUpdate: true });
-
   if (regions.length === 0) return null;
 
   return (
-    <Section ref={sectionRef} id="distribution" aria-labelledby="distribution-heading">
+    <Section id="distribution" aria-labelledby="distribution-heading">
       <SectionHeader
         id="distribution-heading"
         title="전국 한옥 분포 & 지역별 탐색"
@@ -315,14 +258,14 @@ export default function HanokDistribution({ villages, onSelectRegion }: HanokDis
         <Stat>
           <StatLabel>수집한 한옥</StatLabel>
           <StatValue>
-            <span data-count-target={total}>{total}</span>
+            {total}
             <StatUnit>곳</StatUnit>
           </StatValue>
         </Stat>
         <Stat>
           <StatLabel>기록된 시·도</StatLabel>
           <StatValue>
-            <span data-count-target={regions.length}>{regions.length}</span>
+            {regions.length}
             <StatUnit>곳</StatUnit>
           </StatValue>
         </Stat>
@@ -330,7 +273,7 @@ export default function HanokDistribution({ villages, onSelectRegion }: HanokDis
           <StatLabel>가장 많은 유형</StatLabel>
           <StatValue>
             {topType ? filterLabel(topType) : '—'}
-            <StatUnit>외 <span data-count-target={Math.max(typeCount - 1, 0)}>{Math.max(typeCount - 1, 0)}</span>종</StatUnit>
+            <StatUnit>외 {Math.max(typeCount - 1, 0)}종</StatUnit>
           </StatValue>
         </Stat>
       </StatRow>
@@ -342,7 +285,7 @@ export default function HanokDistribution({ villages, onSelectRegion }: HanokDis
       </Finding>
 
       <Rows>
-        {regions.map(([name, count], index) => (
+        {regions.map(([name, count]) => (
           <Row
             key={name}
             role={onSelectRegion ? 'button' : undefined}
@@ -357,15 +300,13 @@ export default function HanokDistribution({ villages, onSelectRegion }: HanokDis
             }}
             whileHover={prefersReducedMotion ? undefined : { x: 2 }}
             whileTap={prefersReducedMotion ? undefined : { scale: 0.99 }}
-            viewport={{ once: true, margin: '-40px' }}
-            transition={{ duration: 0.32, delay: Math.min(index * 0.03, 0.3), ease: [0.16, 1, 0.3, 1] }}
           >
             <RegionName>{name}</RegionName>
             <Track aria-hidden="true">
-              <Bar data-distribution-bar $ratio={count / max} />
+              <Bar $ratio={count / max} />
             </Track>
             <Count>
-              <span data-count-target={count}>{count}</span>곳<Percent>· {Math.round((count / total) * 100)}%</Percent>
+              {count}곳<Percent>· {Math.round((count / total) * 100)}%</Percent>
             </Count>
           </Row>
         ))}

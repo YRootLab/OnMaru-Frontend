@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 import { Global, css } from '@emotion/react';
@@ -259,8 +259,16 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
   // 목데이터 스냅샷이 실데이터로 교체되며 이달의 한옥 이미지가 눈에 띄게 스왑되는 걸 막기 위해,
   // 실데이터 확정 전까지는 스켈레톤을 보여준다.
   const [isFeaturedReady, setIsFeaturedReady] = useState(false);
+  // 스냅샷 → 실데이터 교체는 방문당 딱 한 번이어야 한다. 개발 모드의 StrictMode
+  // 이중 실행처럼 이 effect가 두 번 걸리면 archiveData가 다시 한번 바뀌어 regions
+  // 참조도 또 바뀌고, 이미 끝난 분포 차트 입장 연출이 또 리셋된다 — "표가 나타났다가
+  // 안 나타나"가 재발했던 원인. isActive 가드는 취소만 막을 뿐 두 번째로 실제 도착한
+  // 응답까지는 못 막으므로, 교체 자체를 컴포넌트 생애주기당 한 번으로 못박는다.
+  const hasSwappedRef = useRef(false);
 
   useEffect(() => {
+    if (hasSwappedRef.current) return undefined;
+
     let isActive = true;
     const controller = new AbortController();
     const timeoutId = window.setTimeout(() => controller.abort(), 5000);
@@ -273,7 +281,10 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
         });
         if (!response.ok) return;
         const nextData = decodeHanokArchivePayload(await response.json());
-        if (isActive && nextData) setArchiveData(nextData);
+        if (isActive && nextData && !hasSwappedRef.current) {
+          hasSwappedRef.current = true;
+          setArchiveData(nextData);
+        }
       } catch {
         // Snapshot remains visible when the future backend is unavailable or changes shape.
       } finally {
@@ -298,6 +309,19 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
       }, 2000),
     []
   );
+
+  // 탭이 백그라운드로 갔다 돌아오면 브라우저가 그동안 안 그린 화면을 그대로 들고 있다가
+  // 어색하게 멈춰 보일 때가 있다. 탭이 다시 보일 때 한 번 리플로우를 강제해 최신 상태로
+  // 다시 그리게 한다 — 비용은 거의 없고, 문제가 없을 땐 그냥 아무 변화도 없다.
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        void document.body.offsetHeight;
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
 
   // 인트로 뒷배경 영상 — 초기 렌더에는 CSS 그라디언트 포스터만 보이고,
   // 마운트 후 한가할 때 영상을 불러와 재생 준비가 되면 크로스페이드한다.
