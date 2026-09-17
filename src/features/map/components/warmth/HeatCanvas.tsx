@@ -72,8 +72,20 @@ function bakeRamp(stops: Record<number, string>): Uint8ClampedArray {
 }
 
 /**
+ * 좌표에서 뽑는 결정적 0~1 난수. 팬/줌을 해도 같은 스팟은 항상 같은 값이 나와,
+ * 다시 그릴 때마다 온기 덩어리 모양이 흔들리지 않는다.
+ */
+function seedFromCoords(lng: number, lat: number): number {
+  const s = Math.sin(lng * 12.9898 + lat * 78.233) * 43758.5453;
+  return s - Math.floor(s);
+}
+
+/**
  * 커널 하나. 가운데가 진하고 가장자리로 갈수록 흐려지는 가우시안 근사다.
  * 이 모양이 곧 히트맵의 해상도라, blur 필터를 따로 쓸 필요가 없다.
+ *
+ * 완벽한 정원은 찍어 붙인 티가 난다. seed로 타원비(0.82~1.18)와 회전각을 살짝
+ * 흔들어 뭉게구름에 가까운 온기 덩어리로 보이게 한다.
  */
 function stampKernel(
   ctx: CanvasRenderingContext2D,
@@ -81,8 +93,17 @@ function stampKernel(
   y: number,
   r: number,
   weight: number,
+  seed = 0,
 ) {
-  const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+  const aspect = 0.82 + seed * 0.36;
+  const angle = seed * Math.PI;
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+  ctx.scale(1, aspect);
+
+  const g = ctx.createRadialGradient(0, 0, 0, 0, 0, r);
   g.addColorStop(0, 'rgba(0, 0, 0, 1)');
   g.addColorStop(0.35, 'rgba(0, 0, 0, 0.55)');
   g.addColorStop(0.7, 'rgba(0, 0, 0, 0.16)');
@@ -91,8 +112,9 @@ function stampKernel(
   ctx.globalAlpha = weight;
   ctx.fillStyle = g;
   ctx.beginPath();
-  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.arc(0, 0, r, 0, Math.PI * 2);
   ctx.fill();
+  ctx.restore();
 }
 
 /*
@@ -393,7 +415,7 @@ export default function HeatCanvas({ spots }: Props) {
       const pathCache = pathCacheRef.current.paths;
 
       const filled = new Map<DistrictFeature, number>();
-      const loose: { x: number; y: number; weight: number }[] = [];
+      const loose: { x: number; y: number; weight: number; seed: number }[] = [];
 
       for (const spot of spotsRef.current) {
         const weight = Math.min(1, Math.max(0.12, spot.intensity));
@@ -405,13 +427,13 @@ export default function HeatCanvas({ spots }: Props) {
         }
 
         const { x, y } = project(spot.lng, spot.lat);
-        loose.push({ x, y, weight });
+        loose.push({ x, y, weight, seed: seedFromCoords(spot.lng, spot.lat) });
       }
 
       let painted = 0;
 
       if (warmthViewTypeRef.current === 'heatmap') {
-        // ── [초기 버전] 순수 원형 밀도 히트맵 (행정 경계선 없는 부드러운 방사형 가우시안 훈기) ──
+        // ── [원형 히트맵 모드] 부드러운 방사형 가우시안 원형 훈기 채색 ──
         const radius = Math.min(220, Math.max(52, Math.round(baseRadius * 1.55)));
         for (const spot of spotsRef.current) {
           if (painted >= MAX_KERNELS) break;
@@ -426,11 +448,11 @@ export default function HeatCanvas({ spots }: Props) {
           }
 
           const weight = Math.min(1, Math.max(0.18, spot.intensity));
-          stampKernel(ctx, x, y, radius, weight);
+          stampKernel(ctx, x, y, radius, weight, seedFromCoords(spot.lng, spot.lat));
           painted += 1;
         }
       } else {
-        // ── [행정구역 버전] 시·군·구 행정 경계(districts.json) 폴리곤 채색 ──
+        // ── [시·군 행정별 모드] 시·군·구 행정 경계(districts.json) 폴리곤 채색 ──
         ctx.fillStyle = '#000000';
         ctx.strokeStyle = '#000000';
         ctx.lineWidth = 1.5;
@@ -466,7 +488,6 @@ export default function HeatCanvas({ spots }: Props) {
 
           /*
             권역이 화면보다 커지면 면을 물린다.
-
             확대해 한 구 안에 들어가면 그 구가 화면을 통째로 덮는데, 그때 경계선은
             이미 화면 밖이라 형태는 아무 정보도 주지 못하면서 색만 짙게 남는다.
             값은 뱃지가 말하고 있으니, 여기서는 지도가 읽히는 쪽을 택한다.
@@ -479,11 +500,6 @@ export default function HeatCanvas({ spots }: Props) {
 
           /*
             테두리를 면보다 한 칸 진하게 얹는다.
-
-            평평한 면은 지형 타일 위에서 묽어 보인다. 커널은 가운데가 진해서 저절로
-            형태가 잡혔지만 채우기는 그렇지 않다. 경계를 쓰기로 한 이상 경계가 읽혀야
-            하므로 가장자리를 살린다 — 알파만 올리므로 색은 같은 램프에서 나온다.
-            색 하나로만 말한다는 규칙은 그대로다.
           */
           ctx.globalAlpha = Math.min(1, weight + 0.22);
           ctx.stroke(path);
@@ -491,7 +507,7 @@ export default function HeatCanvas({ spots }: Props) {
           painted += 1;
         }
 
-        // ── 경계 밖 스팟은 예전 방식대로 ──
+        // ── 경계 밖 스팟(섬, 해안 등)은 원형 커널로 보완 ──
         for (const spot of loose) {
           if (painted >= MAX_KERNELS) break;
           const radius = baseRadius;
@@ -504,7 +520,7 @@ export default function HeatCanvas({ spots }: Props) {
             continue;
           }
 
-          stampKernel(ctx, spot.x, spot.y, radius, spot.weight);
+          stampKernel(ctx, spot.x, spot.y, radius, spot.weight, spot.seed);
           painted += 1;
         }
       }
