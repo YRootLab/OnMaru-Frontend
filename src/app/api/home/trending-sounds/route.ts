@@ -95,10 +95,18 @@ export async function GET() {
       }),
     );
 
-    /* 5. 성공한 것만 최대 MAX_TRACKS개 반환 */
+    /* 5. 성공한 것만, id 중복 제거 후 최대 MAX_TRACKS개 반환.
+       서로 다른 지역 키워드가 같은 소리마루 트랙(story.stid)으로 매칭될 수 있어
+       (예: 두 지역 다 동일 트랙이 "첫 결과"인 경우), 그대로 두면 React key가 겹친다. */
+    const seenIds = new Set<string>();
     const sounds: TrendingSound[] = results
       .filter((r): r is PromiseFulfilledResult<TrendingSound> => r.status === 'fulfilled' && r.value !== null)
       .map((r) => r.value)
+      .filter((sound) => {
+        if (seenIds.has(sound.id)) return false;
+        seenIds.add(sound.id);
+        return true;
+      })
       .slice(0, MAX_TRACKS);
 
     return NextResponse.json(

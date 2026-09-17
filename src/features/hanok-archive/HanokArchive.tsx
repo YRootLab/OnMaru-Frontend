@@ -98,33 +98,31 @@ const paperGround = css`
 `;
 
 // 1. 중간 호흡: 통계(분포도) → 큐레이션(이달의 한옥), 구조 카드 → 부재 목록 등
+// 이제 얇은 구분선이 섹션 경계를 표시해 주니, 그 역할까지 여백이 떠맡을 필요가 없어 줄였다.
 const EditorialSection = styled.div`
-  padding-top: clamp(56px, 7.5vh, 96px);
+  padding-top: clamp(40px, 5vh, 64px);
 `;
 
-// 빨랫줄 섹션 밑에서 다음 섹션으로 자연스럽게 이어주는 짧은 안내 문구
-const NarrativeBridge = styled.p`
-  text-align: center;
-  font-family: var(--font-traditional-body);
-  font-size: ${fontSize.sm};
-  font-weight: 500;
-  color: ${meok[500]};
-  margin: 28px 0 0;
-  letter-spacing: 0.01em;
+// 큰 타이틀 바로 위에 놓는 얇은 회색 구분선 — 섹션이 여기서 나뉜다는 걸 여백 대신 선으로 보여준다
+const SectionDivider = styled.hr`
+  border: none;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.08);
+  margin: 0 0 28px;
 
   [data-theme='dark'] & {
-    color: ${meok[400]};
+    background: rgba(255, 255, 255, 0.1);
   }
 `;
 
 // 3. 챕터 대전환: 이달의 한옥 → 도감, 스테이 → 3D 구조, 부재 목록 → 지도
 const ChapterBreak = styled.div`
-  padding-top: clamp(96px, 12vh, 160px);
+  padding-top: clamp(56px, 7vh, 96px);
 `;
 
 // 4. 동일 아카이브 내 서브 챕터 연결: 도감 그리드 → 스테이 아코디언
 const ArchiveSection = styled.div`
-  padding-top: clamp(56px, 7vh, 88px);
+  padding-top: clamp(40px, 5vh, 64px);
 `;
 
 const IntroStage = styled.div`
@@ -157,18 +155,17 @@ const IntroContent = styled.div`
   z-index: 2;
   width: 100%;
   display: flex;
-  justify-content: center;
-  padding: clamp(48px, 6vh, 72px) clamp(20px, 4vw, 40px) clamp(56px, 7vh, 80px);
+  justify-content: flex-start;
+  padding: clamp(24px, 4vh, 40px) 0;
 `;
 
 const Intro = styled.header`
-  max-width: 980px;
   width: 100%;
-  text-align: center;
-  margin: 0 auto;
+  text-align: left;
+  margin: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
 `;
 
 // 히어로 안, 제목과 리드 문구 사이에 폴라로이드 빨랫줄을 끼워 넣는 자리
@@ -180,12 +177,12 @@ const HeroClothesline = styled.div`
 const PageTitle = styled.h1`
   font-family: var(--font-hanok);
   font-size: clamp(1.6rem, 3.2vw, 2.75rem);
-  font-weight: 300;
+  font-weight: 700;
   line-height: 1.25;
   letter-spacing: -0.02em;
   color: ${meok[900]};
   margin: 0 0 14px;
-  text-align: center;
+  text-align: left;
   white-space: nowrap;
 
   [data-theme='dark'] & {
@@ -204,7 +201,7 @@ const Lead = styled.p`
   line-height: 1.7;
   color: ${meok[600]};
   margin: 0;
-  text-align: center;
+  text-align: left;
   white-space: nowrap;
 
   [data-theme='dark'] & {
@@ -313,7 +310,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
           <IntroStage>
             <IntroContent>
               <Intro>
-                <PageTitle>지금 한옥은 어디에 남아 있을까</PageTitle>
+                <PageTitle>지금 한옥은 어디에 남아 있을까?</PageTitle>
                 <HeroClothesline>
                   <HanokPolaroidClothesline
                     villages={archiveData.villages}
@@ -329,17 +326,11 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
           </IntroStage>
         </StyledVesselReveal>
 
-        {/* 히어로 바로 아래: 다음 섹션으로 넘어가는 안내 문구 */}
-        <EditorialSection>
-          <SectionContainer>
-            <NarrativeBridge>지금부터 하나하나 살펴봅니다.</NarrativeBridge>
-          </SectionContainer>
-뒤에        </EditorialSection>
-
         {/* K-컬처 & 웰니스 테마 큐레이션: K-드라마, 촌캉스, 야간기행, 종가 미식 (토스/당근 스타일) */}
         <EditorialSection>
           <StyledVesselReveal id="hanok-kculture-themes">
             <SectionContainer>
+              <SectionDivider />
               <KCultureThemeFeed
                 onSelectContent={(contentId) => {
                   const target = archiveData.villages.find((v) => v.id === contentId);
@@ -357,6 +348,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
         <ChapterBreak>
           <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.grid}>
             <SectionContainer>
+              <SectionDivider />
               <HanokGrid
                 villages={archiveData.villages}
                 onSelectVillage={setSelectedDogamVillage}
@@ -368,6 +360,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
           <ArchiveSection>
             <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.stay}>
               <SectionContainer>
+                <SectionDivider />
                 <HanokStayAccordion
                   villages={archiveData.villages}
                   onSelectStay={setSelectedStay}
@@ -384,6 +377,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
         <ChapterBreak>
           <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.structure}>
             <SectionContainer>
+              <SectionDivider />
               <HanokStructureCards />
             </SectionContainer>
           </StyledVesselReveal>
@@ -393,6 +387,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
         <ChapterBreak>
           <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.map}>
             <SectionContainer>
+              <SectionDivider />
               <HanokMap
                 villages={archiveData.villages}
                 onSelectVillage={(v) => {

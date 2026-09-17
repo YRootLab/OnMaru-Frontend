@@ -1,6 +1,13 @@
 # handoff.md
 
 Current work:
+- Screen Hanok (K-Culture) pure TourAPI 4.0 dynamic integration & hardcoding purge:
+  - Completely removed all keyword arrays and place name hardcodings from `src/app/api/tourapi/kculture/route.ts`.
+  - Dynamically fetches all real Hanok heritage sites nationwide using TourAPI 4.0 official category codes (`A02010400` Heritage House, `A02010600` Folk Village, `A02010100` Royal Palace) via `areaBasedList2`.
+  - Automatically synthesizes rich K-Content metadata across three pillars: K-Drama/Historical Drama (`[K-DRAMA]`), Korean Cinema (`[CINEMA]`), and K-POP Music Video / Pictorial (`[K-POP / MEDIA]`) with 1-night-2-days immersive itineraries and region-specific tags.
+  - Successfully tested and verified 90+ real Hanok locations loaded dynamically with high-res photos.
+  - Verified `npx tsc --noEmit` cleanly passed (0 errors) and browser verified live card rendering at `/hanok`.
+
 - Search bar consolidation & Refinement chips integration: removed the duplicate bottom search box (`JourneyRefineBar`) from `JourneyHome.tsx`. Integrated the `+` refinement chip recommendations (`+ 전통 찻집 위주`, `+ 비 오는 날 운치`, `+ 걷는 시간 줄이기`, `+ 역사 해설 중심`) directly under the primary top search bar (`JourneyHeroSearch.tsx`) in compact mode when `hasSearched` is true. Styled chips with clean borderless/shadowless aesthetic and dark mode compatibility.
 - Exploration search query & Gemini AI fallback: fixed the issue where complex/freeform natural language search queries (e.g., "대전에서 빵 투어", "성수동 카페", "조용한 쉼") returned `NO_RESULTS` errors. Implemented multi-tier keyword resolution (`KOREAN_REGIONS` dictionary with 50+ regions/landmarks, Korean postposition particle cleaning `cleanKoreanTerm`, `extractKeywords`, and `searchRealSpotsMultiKeywords`). Added `generateGeminiDirectSpots` as a direct synthesis fallback using Gemini Flash models with valid coords and addresses, ensuring users always receive rich, tailored 3-spot itineraries without failure.
 - Sorimaru trending audio playback fix: fixed the issue where clicking trending audio cards on the home discovery feed navigated to `/sorimaru?track=...` without playing. `SorimaruAudioFeature` now parses URL search parameters (`track`, `keyword`, `query`, `title`, `autoPlay`), selects the matching Odii story, and triggers instant playback with `setCurrentStory` and `setIsPlaying(true)`. Wrapped with `<Suspense>` in `src/app/sorimaru/page.tsx` for client-rendering safety. Troubleshooting note recorded in `기록/트러블슈팅_소리마루재생.md`.
@@ -209,5 +216,14 @@ Next step:
   - 로딩 중: `SkeletonCard` 3개 표시 (AGENTS.md 스켈레톤 룰 준수 — 최종 UI와 동일 크기)
   - `FALLBACK_SOUNDS`: 폴백 시 기존 강릉/안동/경주 트랙 표시
 - 검증: `npx tsc --noEmit` exit code 0.
+
+## 2026-09-17 — 한옥 이야기 레이아웃 여백 정돈, U자형 빨랫줄 & 잔여 공백 제거
+
+- **트러블슈팅 문서 생성**: `기록/트러블슈팅_한옥이야기_레이아웃및빨랫줄.md`
+- **히어로 불필요한 여백/마진 제거**: `IntroContent`의 좌우 40px 패딩 제거(`clamp(24px, 4vh, 40px) 0`), `Intro` 헤더 `max-width: 980px` 제약 해제.
+- **타이틀 정렬 및 스타일 개선**: "지금 한옥은 어디에 남아 있을까?" 및 설명문을 본문과 일치하도록 좌측 정렬, `font-weight: 700`(Bold) 적용 및 물음표 반영.
+- **폴라로이드 빨랫줄 U자 곡선화 및 정밀 결합**: 2차 베지에 SVG 포물선 패스(`SvgRope`)로 완만한 U자 처짐 구현, 사진을 줄 앞으로 전진 배치(`z-index`), 미니 원목 집게와 줄의 좌표 오차를 0으로 맞물림.
+- **잔여 브릿지 공백 제거**: 히어로와 K-컬처 테마 큐레이션 사이에 방치되어 있던 레거시 `<EditorialSection><SectionContainer><NarrativeBridge>...</NarrativeBridge></SectionContainer></EditorialSection>`(높이 146.4px 빈 박스) 제거.
+- **검증**: `npx tsc --noEmit` exit code 0, 브라우저 화면 검증 완료.
 
 

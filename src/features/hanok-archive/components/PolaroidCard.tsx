@@ -27,9 +27,8 @@ const Frame = styled.div`
   background: #ffffff;
   padding: 12px 12px 60px;
   box-shadow:
-    0 4px 16px rgba(25, 31, 40, 0.10),
-    0 1px 4px rgba(25, 31, 40, 0.06),
-    0 12px 40px rgba(25, 31, 40, 0.08);
+    0 1px 3px rgba(25, 31, 40, 0.06),
+    0 4px 10px rgba(25, 31, 40, 0.06);
   border-radius: 2px;
   position: relative;
   overflow: visible;
@@ -37,7 +36,7 @@ const Frame = styled.div`
   [data-theme='dark'] & {
     background: #24211D;
     border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
   }
 `;
 

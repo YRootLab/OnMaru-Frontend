@@ -23,12 +23,17 @@ const MainWrapper = styled.main`
   }
 `;
 
+// height는 JS로 안전선까지만 고정하지만, 거기서 딱 잘라내면 그라데이션이 아직 안 옅어진
+// 채로 네모난 단면이 보인다. mask로 바닥 쪽을 한 번 더 부드럽게 죽여서, 안전선에 닿을
+// 때는 이미 거의 투명해진 뒤라 어떤 각도로 움직여도 각지게 잘리는 게 안 보이게 한다.
 const AmbientGlowLayer = styled.div`
   position: absolute;
   inset: 0;
   pointer-events: none;
   overflow: hidden;
   z-index: 0;
+  mask-image: linear-gradient(to bottom, black 0%, black 60%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 60%, transparent 100%);
 `;
 
 /** GSAP 살아 숨쉬는 유기적 단청 주홍 & 금빛 앰비언트 오르브들 */
@@ -46,12 +51,12 @@ const PrimaryGlowOrb = styled(GlowOrbBase)`
   height: clamp(190px, 24vw, 320px);
   border-radius: 46% 54% 50% 50% / 52% 48% 52% 48%;
 
-  /* 살짝 진한 주황 — 아래 SecondaryGlowOrb의 옅은 주황과 겹쳐 섞인다 */
+  /* 진한 주황 — 아래 SecondaryGlowOrb의 옅은 주황과 대비되도록 깊게, 다만 살짝 연하게 */
   background: radial-gradient(
     circle at 45% 45%,
-    rgba(255, 110, 20, 0.38) 0%,
-    rgba(255, 150, 60, 0.20) 40%,
-    rgba(255, 190, 120, 0.09) 62%,
+    rgba(224, 68, 0, 0.4) 0%,
+    rgba(240, 100, 20, 0.20) 40%,
+    rgba(255, 160, 90, 0.08) 62%,
     rgba(255, 255, 255, 0) 78%
   );
   filter: blur(28px);
@@ -59,9 +64,9 @@ const PrimaryGlowOrb = styled(GlowOrbBase)`
   [data-theme='dark'] & {
     background: radial-gradient(
       circle at 45% 45%,
-      rgba(255, 120, 30, 0.42) 0%,
-      rgba(255, 160, 70, 0.24) 40%,
-      rgba(255, 200, 130, 0.11) 62%,
+      rgba(235, 80, 10, 0.44) 0%,
+      rgba(250, 115, 35, 0.24) 40%,
+      rgba(255, 175, 105, 0.10) 62%,
       rgba(28, 26, 23, 0) 78%
     );
     filter: blur(32px);
@@ -78,9 +83,9 @@ const SecondaryGlowOrb = styled(GlowOrbBase)`
   /* 은은하고 옅은 주황 — 위 PrimaryGlowOrb의 진한 주황과 겹쳐 섞인다 */
   background: radial-gradient(
     circle at 55% 50%,
-    rgba(255, 175, 90, 0.26) 0%,
-    rgba(255, 195, 130, 0.15) 38%,
-    rgba(255, 215, 160, 0.07) 65%,
+    rgba(255, 175, 90, 0.20) 0%,
+    rgba(255, 195, 130, 0.11) 38%,
+    rgba(255, 215, 160, 0.05) 65%,
     rgba(255, 255, 255, 0) 80%
   );
   filter: blur(24px);
@@ -88,9 +93,9 @@ const SecondaryGlowOrb = styled(GlowOrbBase)`
   [data-theme='dark'] & {
     background: radial-gradient(
       circle at 55% 50%,
-      rgba(255, 185, 100, 0.30) 0%,
-      rgba(255, 200, 140, 0.18) 38%,
-      rgba(255, 220, 165, 0.08) 65%,
+      rgba(255, 185, 100, 0.24) 0%,
+      rgba(255, 200, 140, 0.14) 38%,
+      rgba(255, 220, 165, 0.06) 65%,
       rgba(28, 26, 23, 0) 80%
     );
     filter: blur(28px);
@@ -135,6 +140,7 @@ const ContentLayer = styled.div`
 export default function JourneyHome() {
   const hasSearched = useJourneyStore((s) => s.hasSearched);
   const mainRef = useRef<HTMLElement>(null);
+  const glowLayerRef = useRef<HTMLDivElement>(null);
   const orb1Ref = useRef<HTMLDivElement>(null);
   const orb2Ref = useRef<HTMLDivElement>(null);
   const searchFormRef = useRef<HTMLFormElement>(null);
@@ -147,11 +153,11 @@ export default function JourneyHome() {
     const orb2 = orb2Ref.current;
     if (!orb1 || !orb2) return;
 
-    // 검색창 바로 위 카테고리 칩까지 여백이 20px 안팎이라 그라데이션을 검색창 중앙에 맞추면
-    // 절반도 못 그리고 잘린다. 대신 "카테고리 칩 위 안전선"을 하한으로 잡고, 그 하한에
-    // 오브의 아래쪽 끝이 딱 맞닿도록(=최대한 아래로) 배치한다. vh 같은 뷰포트 단위는
-    // flex 중앙정렬 레이아웃과 어긋나기 쉬워 실제 DOM 위치를 직접 측정해서 쓴다.
-    const CHIP_SAFE_GAP = 22;
+    // 오르브는 검색창 뒤에서 움직여야 하므로 위치는 검색창 중앙에 고정한다.
+    // "카테고리를 넘으면 안 된다"는 위치 계산이 아니라 glowLayer 자체를 안전선
+    // 높이로 물리적으로 잘라내는 것으로 전담한다 — vh 같은 뷰포트 단위는 flex
+    // 중앙정렬 레이아웃과 어긋나기 쉬워 실제 DOM 위치를 직접 측정해서 쓴다.
+    const CHIP_SAFE_GAP = 10;
     const positionOrbs = () => {
       const mainTop = mainRef.current?.getBoundingClientRect().top;
       const searchRect = searchFormRef.current?.getBoundingClientRect();
@@ -161,15 +167,22 @@ export default function JourneyHome() {
         ? moodChipsRef.current.getBoundingClientRect().top - mainTop
         : searchRect.bottom - mainTop + 200;
 
-      // 그라데이션은 62% 지점부터 이미 거의 안 보이고 78%부터 완전히 투명해서,
-      // 요소의 실제 박스 절반 높이가 아니라 "눈에 보이는" 반경만 침범 여부를 따지면 된다.
-      const VISIBLE_FRACTION = 0.68;
-      const safeBottom = chipsTop - CHIP_SAFE_GAP;
-      const orb1MaxHalf = ((orb1.offsetHeight * 1.08) / 2) * VISIBLE_FRACTION;
-      const orb2MaxHalf = ((orb2.offsetHeight * 0.95) / 2) * VISIBLE_FRACTION;
+      const safeBottom = Math.max(0, chipsTop - CHIP_SAFE_GAP);
 
-      orb1.style.top = `${safeBottom - orb1MaxHalf}px`;
-      orb2.style.top = `${safeBottom - orb2MaxHalf + 10}px`;
+      // 계산이 또 틀려도 이 밑으로는 물리적으로 그려질 수 없게 레이어 자체를 잘라낸다.
+      if (glowLayerRef.current) {
+        glowLayerRef.current.style.height = `${safeBottom}px`;
+      }
+
+      // "검색창 뒤에서" 움직이도록 오르브 중심을 검색창 세로 중앙에 그대로 맞춘다.
+      // 예전엔 여기서 안전선과 다시 비교해(Math.min) 안전선을 넘을 것 같으면 오르브를
+      // 위로 밀어 올렸는데, 검색창~카테고리 간격이 20px 안팎이라 오르브 절반 크기가
+      // 그보다 훨씬 커서 거의 항상 밀려 올라갔다 — 그래서 계속 제목 뒤에 가 있었다.
+      // 이제 안전선 준수는 위 물리적 클립(overflow: hidden)이 전담하므로, 위치 자체는
+      // 검색창 중앙에 고정해도 된다.
+      const searchCenter = (searchRect.top + searchRect.bottom) / 2 - mainTop;
+      orb1.style.top = `${searchCenter}px`;
+      orb2.style.top = `${searchCenter + 6}px`;
     };
 
     positionOrbs();
@@ -233,7 +246,7 @@ export default function JourneyHome() {
       });
 
       gsap.to(orb2, {
-        y: '+=25',
+        y: '-=25',
         duration: 3.0,
         ease: 'sine.inOut',
         yoyo: true,
@@ -259,7 +272,7 @@ export default function JourneyHome() {
     <MainWrapper ref={mainRef}>
       {/* 🟠 검색 전에만 작동하는 눈이 편안하며 생동감 넘치는 교차 유영 앰비언트 그라데이션 */}
       {!hasSearched && (
-        <AmbientGlowLayer aria-hidden="true">
+        <AmbientGlowLayer ref={glowLayerRef} aria-hidden="true">
           <PrimaryGlowOrb ref={orb1Ref} />
           <SecondaryGlowOrb ref={orb2Ref} />
         </AmbientGlowLayer>

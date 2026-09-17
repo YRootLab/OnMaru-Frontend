@@ -1,116 +1,26 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
+import { keyframes } from '@emotion/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Sparkles,
   MapPin,
-  Calendar,
   Compass,
-  ArrowRight,
-  Headphones,
   CheckCircle2,
   ChevronRight,
-  Flame,
   Award,
+  Clapperboard,
 } from 'lucide-react';
-import { meok, palette, lightPalette, surface, fluidHeading, fontSize } from '@/design-system/tokens';
+import { meok, palette, lightPalette, surface, fontSize } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
-import {
-  KCULTURE_CATEGORIES,
-  KCULTURE_REGIONS,
-  KCULTURE_THEME_ITEMS,
-  type KCultureCategoryKey,
-  type KCultureRegionKey,
-  type KCultureThemeItem,
-} from '@/features/hanok-archive/data/kcultureThemes';
+import type { KCultureThemeItem } from '@/features/hanok-archive/data/kcultureThemes';
 
 const Section = styled.section`
   position: relative;
 `;
 
-/* 토스 스타일 부드러운 필터 칩 바 */
-const FilterBar = styled.div`
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 8px;
-  margin-bottom: 12px;
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-`;
-
-const RegionFilterBar = styled.div`
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  padding-bottom: 12px;
-  margin-bottom: 24px;
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-`;
-
-const FilterChip = styled.button<{ $active: boolean }>`
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 18px;
-  border-radius: 9999px;
-  border: none;
-  background: ${({ $active }) => ($active ? palette.kobalt[500] : 'rgba(78, 89, 104, 0.05)')};
-  color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
-  font-family: inherit;
-  font-size: ${fontSize.sm};
-  font-weight: ${({ $active }) => ($active ? 600 : 500)};
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-
-  &:hover {
-    background: ${({ $active }) => ($active ? palette.kobalt[500] : 'rgba(78, 89, 104, 0.1)')};
-  }
-
-  [data-theme='dark'] & {
-    background: ${({ $active }) => ($active ? palette.kobalt[500] : 'rgba(255, 255, 255, 0.06)')};
-    color: ${({ $active }) => ($active ? '#ffffff' : meok[200])};
-  }
-`;
-
-const RegionChip = styled.button<{ $active: boolean }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 14px;
-  border-radius: 9999px;
-  border: 1px solid ${({ $active }) => ($active ? palette.kobalt[500] : 'rgba(78, 89, 104, 0.15)')};
-  background: ${({ $active }) => ($active ? 'rgba(27, 91, 255, 0.08)' : 'transparent')};
-  color: ${({ $active }) => ($active ? lightPalette.kobalt[500] : meok[600])};
-  font-family: inherit;
-  font-size: ${fontSize.xs};
-  font-weight: ${({ $active }) => ($active ? 700 : 500)};
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.18s ease;
-
-  &:hover {
-    border-color: ${lightPalette.kobalt[500]};
-    color: ${lightPalette.kobalt[500]};
-  }
-
-  [data-theme='dark'] & {
-    border-color: ${({ $active }) => ($active ? palette.kobalt[400] : 'rgba(255, 255, 255, 0.15)')};
-    background: ${({ $active }) => ($active ? 'rgba(77, 130, 255, 0.15)' : 'transparent')};
-    color: ${({ $active }) => ($active ? palette.kobalt[400] : meok[300])};
-  }
-`;
-
-/* 당근 & 토스 스타일 에디토리얼 그리드 */
+/* 에디토리얼 그리드 (2열 반응형) */
 const CardsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -182,12 +92,12 @@ const BadgeRow = styled.div`
 const CategoryBadge = styled.span`
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 5px 12px;
+  gap: 5px;
+  padding: 6px 13px;
   border-radius: 9999px;
   font-size: ${fontSize.xs};
   font-weight: 600;
-  background: rgba(0, 0, 0, 0.65);
+  background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(8px);
   color: #ffffff;
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -213,8 +123,9 @@ const ImageLocation = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.95);
   font-size: ${fontSize.xs};
+  font-weight: 500;
   z-index: 2;
 `;
 
@@ -227,7 +138,7 @@ const CardBody = styled.div`
 
 const Eyebrow = styled.div`
   font-size: ${fontSize.xs};
-  font-weight: 600;
+  font-weight: 700;
   color: ${lightPalette.kobalt[500]};
   margin-bottom: 6px;
   letter-spacing: -0.01em;
@@ -239,7 +150,7 @@ const Eyebrow = styled.div`
 
 const CardTitle = styled.h3`
   font-family: var(--font-hanok);
-  font-size: clamp(17px, 1.6vw, 20px);
+  font-size: clamp(18px, 1.6vw, 21px);
   font-weight: 600;
   color: ${meok[900]};
   margin: 0 0 8px;
@@ -259,23 +170,6 @@ const CardSubtitle = styled.p`
   flex: 1;
 
   [data-theme='dark'] & {
-    color: ${meok[300]};
-  }
-`;
-
-const QuoteBox = styled.blockquote`
-  margin: 0 0 18px;
-  padding: 12px 14px;
-  background: rgba(78, 89, 104, 0.04);
-  border-left: 3px solid ${lightPalette.kobalt[500]};
-  border-radius: 0 10px 10px 0;
-  font-size: ${fontSize.xs};
-  font-style: italic;
-  color: ${meok[700]};
-  line-height: 1.55;
-
-  [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.04);
     color: ${meok[300]};
   }
 `;
@@ -381,216 +275,239 @@ const DayItem = styled.div`
   }
 `;
 
+/* ── 중립 그레이 스켈레톤 로딩 (AGENTS.md 규칙: 최종 카드와 동일한 형태/크기) ── */
+const shimmerAnim = keyframes`
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+`;
+
+const SkeletonCard = styled.div`
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-radius: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+
+  [data-theme='dark'] & {
+    background: ${surface.dark.card};
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+`;
+
+const SkeletonThumb = styled.div`
+  width: 100%;
+  height: 220px;
+  background: linear-gradient(90deg, #f0f0ee 25%, #e4e4e2 50%, #f0f0ee 75%);
+  background-size: 200% 100%;
+  animation: ${shimmerAnim} 1.6s infinite ease-in-out;
+
+  [data-theme='dark'] & {
+    background: linear-gradient(90deg, #252422 25%, #32302d 50%, #252422 75%);
+    background-size: 200% 100%;
+  }
+`;
+
+const SkeletonBody = styled.div`
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+const SkeletonBar = styled.div<{ $w: string; $h: string }>`
+  width: ${({ $w }) => $w};
+  height: ${({ $h }) => $h};
+  border-radius: 6px;
+  background: linear-gradient(90deg, #f0f0ee 25%, #e4e4e2 50%, #f0f0ee 75%);
+  background-size: 200% 100%;
+  animation: ${shimmerAnim} 1.6s infinite ease-in-out;
+
+  [data-theme='dark'] & {
+    background: linear-gradient(90deg, #252422 25%, #32302d 50%, #252422 75%);
+    background-size: 200% 100%;
+  }
+`;
+
 interface KCultureThemeFeedProps {
   onSelectContent?: (contentId: string) => void;
 }
 
 export default function KCultureThemeFeed({ onSelectContent }: KCultureThemeFeedProps) {
-  const [selectedCategory, setSelectedCategory] = useState<KCultureCategoryKey>('all');
-  const [selectedRegion, setSelectedRegion] = useState<KCultureRegionKey>('all');
   const [expandedCourseId, setExpandedCourseId] = useState<string | null>(null);
-  const [liveItems, setLiveItems] = useState<KCultureThemeItem[] | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [liveItems, setLiveItems] = useState<KCultureThemeItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     let ignore = false;
-    async function fetchLiveKCulture() {
+    async function fetchScreenHanok() {
       setIsLoading(true);
       try {
-        const res = await fetch(`/api/tourapi/kculture?category=${selectedCategory}&region=${selectedRegion}`);
+        const res = await fetch('/api/tourapi/kculture?category=kdrama');
         if (!res.ok) throw new Error('API failed');
         const data = await res.json();
         if (!ignore && data?.items && Array.isArray(data.items) && data.items.length > 0) {
           const mapped: KCultureThemeItem[] = data.items.map((it: any) => ({
-            id: `live-${it.id}`,
-            category: it.category,
-            categoryLabel: it.categoryLabel,
-            categoryIcon: it.categoryIcon,
+            id: `tour-${it.id}`,
+            category: 'kdrama',
+            categoryLabel: '스크린 속 한옥',
+            categoryIcon: '🎬',
             isGyeongbukSpecial: it.region === '경북',
-            eyebrow: it.drama || '한국관광공사 TourAPI 4.0 인증 문화유산',
+            eyebrow: it.drama || 'K-콘텐츠 & 사극 속 전통 한옥 문화유산',
             title: it.title,
-            subtitle: `${it.region}의 역사와 정취가 깃든 전통 명소입니다.`,
+            subtitle: it.subtitle || `${it.region}의 역사와 정취가 깃든 전통 한옥 명소입니다.`,
             contentId: it.id,
             villageName: it.title,
             region: it.region,
             addr: it.addr,
-            image: it.image || 'https://tong.visitkorea.or.kr/cms/resource/48/2993048_image2_1.jpg',
-            tags: it.tags || ['#TourAPI공공데이터', '#전통문화유산', '#K컬처'],
+            image: it.image || 'https://tong.visitkorea.or.kr/cms/resource/80/3095780_image2_1.jpg',
+            tags: it.tags || ['#드라마촬영지', '#전통한옥', '#문화유산', '#TourAPI'],
             coursePreview: it.coursePreview || {
-              day1: ['14:00 전통 유적지 산책', '16:30 인근 고택 체크인', '18:30 향토 미식', '20:30 야경 산책'],
+              day1: ['14:00 촬영 명소 산책', '16:30 인근 고택 체크인', '18:30 향토 미식', '20:30 야경 산책'],
               day2: ['08:30 아침 산책 & 다도', '11:00 로컬 명소 탐방'],
             },
           }));
           setLiveItems(mapped);
         }
       } catch {
-        // 네트워크 실패 시 정적 큐레이션 폴백 유지
+        // 목데이터를 쓰지 않고 빈 배열 유지 (사용자 명시적 요청)
+        if (!ignore) setLiveItems([]);
       } finally {
         if (!ignore) setIsLoading(false);
       }
     }
 
-    fetchLiveKCulture();
+    fetchScreenHanok();
     return () => {
       ignore = true;
     };
-  }, [selectedCategory, selectedRegion]);
-
-  const displayItems = useMemo(() => {
-    let items = liveItems && liveItems.length > 0 ? liveItems : KCULTURE_THEME_ITEMS;
-    if (selectedCategory !== 'all') {
-      items = items.filter((item) => item.category === selectedCategory);
-    }
-    if (selectedRegion !== 'all') {
-      items = items.filter((item) => item.region === selectedRegion || item.region.includes(selectedRegion) || item.tags.some(t => t.includes(selectedRegion)));
-    }
-    return items;
-  }, [selectedCategory, selectedRegion, liveItems]);
+  }, []);
 
   return (
-    <Section aria-labelledby="kculture-heading">
+    <Section aria-labelledby="screen-hanok-heading">
       <SectionHeader
-        id="kculture-heading"
-        title="전국 K-컬처 테마 큐레이션"
-        subtitle="한국관광공사 TourAPI(12:드라마촬영지 · 15:달빛야행축제 · 39:종가미식) 실시간 데이터로 엮어낸 1박 2일 시공간 코스"
+        id="screen-hanok-heading"
+        title="스크린 속 한옥"
+        subtitle="드라마 · 영화 · K-POP 뮤직비디오의 배경이 된 전국의 아름다운 전통 한옥과 명소 (TourAPI 4.0)"
       />
 
-      {/* 1. K-컬처 테마 카테고리 탭 (K-드라마 · 달빛 야간기행 · 종가 다도 & 미식) */}
-      <FilterBar role="tablist" aria-label="테마 카테고리">
-        {KCULTURE_CATEGORIES.map((cat) => {
-          const isActive = selectedCategory === cat.key;
-          return (
-            <FilterChip
-              key={cat.key}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              $active={isActive}
-              onClick={() => setSelectedCategory(cat.key)}
-            >
-              <span>{cat.icon}</span>
-              <span>{cat.label}</span>
-            </FilterChip>
-          );
-        })}
-      </FilterBar>
-
-      {/* 2. 전국 권역/지역 필터 태그 바 */}
-      <RegionFilterBar role="tablist" aria-label="전국 지역 필터">
-        {KCULTURE_REGIONS.map((reg) => {
-          const isActive = selectedRegion === reg.key;
-          return (
-            <RegionChip
-              key={reg.key}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              $active={isActive}
-              onClick={() => setSelectedRegion(reg.key)}
-            >
-              <span>{reg.label}</span>
-            </RegionChip>
-          );
-        })}
-      </RegionFilterBar>
-
       <CardsGrid>
-        <AnimatePresence mode="popLayout">
-          {displayItems.map((item) => {
-            const isCourseOpen = expandedCourseId === item.id;
+        {/* 로딩 중일 때는 동일한 레이아웃 크기의 스켈레톤 4개 표시 */}
+        {isLoading && (
+          <>
+            {[1, 2, 3, 4].map((i) => (
+              <SkeletonCard key={i} aria-hidden="true">
+                <SkeletonThumb />
+                <SkeletonBody>
+                  <SkeletonBar $w="40%" $h="14px" />
+                  <SkeletonBar $w="70%" $h="22px" />
+                  <SkeletonBar $w="90%" $h="16px" />
+                  <SkeletonBar $w="60%" $h="16px" />
+                  <SkeletonBar $w="100%" $h="40px" />
+                </SkeletonBody>
+              </SkeletonCard>
+            ))}
+          </>
+        )}
 
-            return (
-              <ThemeCard
-                key={item.id}
-                layout
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.28, ease: 'easeOut' }}
-              >
-                <CardImageContainer>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={item.image} alt={item.title} loading="lazy" />
-                  <ImageScrim />
+        {/* API 실시간 데이터 렌더링 (목데이터 없음) */}
+        {!isLoading && liveItems.length > 0 && (
+          <AnimatePresence mode="popLayout">
+            {liveItems.map((item) => {
+              const isCourseOpen = expandedCourseId === item.id;
 
-                  <BadgeRow>
-                    <CategoryBadge>
-                      {item.categoryIcon} {item.categoryLabel}
-                    </CategoryBadge>
-                    {item.isGyeongbukSpecial && (
-                      <SpecialBadge>
-                        <Award size={13} /> 경북 헤리티지 특화
-                      </SpecialBadge>
-                    )}
-                  </BadgeRow>
+              return (
+                <ThemeCard
+                  key={item.id}
+                  layout
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.28, ease: 'easeOut' }}
+                >
+                  <CardImageContainer>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={item.image} alt={item.title} loading="lazy" />
+                    <ImageScrim />
 
-                  <ImageLocation>
-                    <MapPin size={13} />
-                    <span>
-                      {item.region} · {item.villageName}
-                    </span>
-                  </ImageLocation>
-                </CardImageContainer>
+                    <BadgeRow>
+                      <CategoryBadge>
+                        <span>{item.categoryIcon}</span> {item.categoryLabel}
+                      </CategoryBadge>
+                      {item.isGyeongbukSpecial && (
+                        <SpecialBadge>
+                          <Award size={13} /> 경북 헤리티지 특화
+                        </SpecialBadge>
+                      )}
+                    </BadgeRow>
 
-                <CardBody>
-                  <Eyebrow>{item.eyebrow}</Eyebrow>
-                  <CardTitle>{item.title}</CardTitle>
-                  <CardSubtitle>{item.subtitle}</CardSubtitle>
+                    <ImageLocation>
+                      <MapPin size={13} />
+                      <span>
+                        {item.region} · {item.villageName}
+                      </span>
+                    </ImageLocation>
+                  </CardImageContainer>
 
-                  {item.quote && <QuoteBox>{item.quote}</QuoteBox>}
+                  <CardBody>
+                    <Eyebrow>{item.eyebrow}</Eyebrow>
+                    <CardTitle>{item.title}</CardTitle>
+                    <CardSubtitle>{item.subtitle}</CardSubtitle>
 
-                  <TagsRow>
-                    {item.tags.map((tag, i) => (
-                      <TagChip key={i}>{tag}</TagChip>
-                    ))}
-                  </TagsRow>
+                    <TagsRow>
+                      {item.tags.map((tag, i) => (
+                        <TagChip key={i}>{tag}</TagChip>
+                      ))}
+                    </TagsRow>
 
-                  <CourseToggleBtn
-                    type="button"
-                    $open={isCourseOpen}
-                    onClick={() => setExpandedCourseId(isCourseOpen ? null : item.id)}
-                  >
-                    <span>
-                      <Compass size={14} /> 1박 2일 몰입형 시공간 코스 보기
-                    </span>
-                    <ChevronRight size={14} className="arrow" />
-                  </CourseToggleBtn>
+                    <CourseToggleBtn
+                      type="button"
+                      $open={isCourseOpen}
+                      onClick={() => setExpandedCourseId(isCourseOpen ? null : item.id)}
+                    >
+                      <span>
+                        <Compass size={14} /> 1박 2일 몰입형 시공간 코스 보기
+                      </span>
+                      <ChevronRight size={14} className="arrow" />
+                    </CourseToggleBtn>
 
-                  <AnimatePresence>
-                    {isCourseOpen && (
-                      <CourseTimeline
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <DaySection>
-                          <DayTitle>DAY 1. 고택의 낮과 밤</DayTitle>
-                          {item.coursePreview.day1.map((step, idx) => (
-                            <DayItem key={idx}>
-                              <CheckCircle2 size={12} color={lightPalette.kobalt[500]} style={{ flexShrink: 0, marginTop: 2 }} />
-                              <span>{step}</span>
-                            </DayItem>
-                          ))}
-                        </DaySection>
+                    <AnimatePresence>
+                      {isCourseOpen && (
+                        <CourseTimeline
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <DaySection>
+                            <DayTitle>DAY 1. 스크린 속 한옥의 낮과 밤</DayTitle>
+                            {item.coursePreview.day1.map((step, idx) => (
+                              <DayItem key={idx}>
+                                <CheckCircle2 size={12} color={lightPalette.kobalt[500]} style={{ flexShrink: 0, marginTop: 2 }} />
+                                <span>{step}</span>
+                              </DayItem>
+                            ))}
+                          </DaySection>
 
-                        <DaySection>
-                          <DayTitle>DAY 2. 아침의 정취와 여정</DayTitle>
-                          {item.coursePreview.day2.map((step, idx) => (
-                            <DayItem key={idx}>
-                              <CheckCircle2 size={12} color={lightPalette.kobalt[500]} style={{ flexShrink: 0, marginTop: 2 }} />
-                              <span>{step}</span>
-                            </DayItem>
-                          ))}
-                        </DaySection>
-                      </CourseTimeline>
-                    )}
-                  </AnimatePresence>
-                </CardBody>
-              </ThemeCard>
-            );
-          })}
-        </AnimatePresence>
+                          <DaySection>
+                            <DayTitle>DAY 2. 아침의 정취와 여정</DayTitle>
+                            {item.coursePreview.day2.map((step, idx) => (
+                              <DayItem key={idx}>
+                                <CheckCircle2 size={12} color={lightPalette.kobalt[500]} style={{ flexShrink: 0, marginTop: 2 }} />
+                                <span>{step}</span>
+                              </DayItem>
+                            ))}
+                          </DaySection>
+                        </CourseTimeline>
+                      )}
+                    </AnimatePresence>
+                  </CardBody>
+                </ThemeCard>
+              );
+            })}
+          </AnimatePresence>
+        )}
       </CardsGrid>
     </Section>
   );
