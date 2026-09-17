@@ -163,18 +163,17 @@ const SectionGradientTitle = styled.h2`
 const CenteredContainer = styled.div`
   margin-left: auto;
   margin-right: auto;
-  width: 100%;
-  max-width: 72rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  width: min(calc(100% - 40px), 1140px);
+  max-width: 1140px;
+  padding-left: 0;
+  padding-right: 0;
 
-  @media (min-width: 640px) {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+  @media (max-width: 1024px) {
+    width: calc(100% - 28px);
   }
-  @media (min-width: 1024px) {
-    padding-left: 2rem;
-    padding-right: 2rem;
+
+  @media (max-width: 640px) {
+    width: calc(100% - 24px);
   }
 `;
 

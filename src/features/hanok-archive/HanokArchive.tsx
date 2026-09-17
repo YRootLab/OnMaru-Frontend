@@ -58,17 +58,28 @@ const Root = styled.div`
 const PageInner = styled.div`
   width: 100%;
   margin: 0;
-  padding: 0 0 clamp(64px, 8vh, 120px);
+  padding-top: 76px;
+  padding-bottom: clamp(64px, 8vh, 120px);
+
+  @media (max-width: 767px) {
+    padding-top: 20px;
+  }
 `;
 
 const SectionContainer = styled.div`
   margin: 0 auto;
-  width: 100%;
-  max-width: 72rem;
-  padding: clamp(28px, 4vw, 48px) 1rem;
+  width: min(calc(100% - 40px), 1140px);
+  max-width: 1140px;
+  padding: clamp(28px, 4vw, 48px) 0;
 
-  @media (min-width: 640px) {
-    padding: clamp(32px, 4vw, 56px) 1.5rem;
+  @media (max-width: 1024px) {
+    width: calc(100% - 28px);
+    padding: clamp(24px, 4vw, 40px) 0;
+  }
+
+  @media (max-width: 640px) {
+    width: calc(100% - 24px);
+    padding: clamp(20px, 4vw, 32px) 0;
   }
 `;
 
@@ -118,20 +129,23 @@ const ArchiveSection = styled.div`
 const IntroStage = styled.div`
   position: relative;
   overflow: hidden;
-  max-width: 1200px;
-  margin: 12px auto 0;
+  width: min(calc(100% - 40px), 1140px);
+  max-width: 1140px;
+  margin: 0 auto;
   border-radius: 24px;
   min-height: clamp(260px, 32vh, 340px);
   display: flex;
   align-items: center;
   justify-content: center;
 
-  @media (max-width: 1120px) {
-    margin: 8px 16px 0;
+  @media (max-width: 1024px) {
+    width: calc(100% - 28px);
+    margin: 0 auto;
   }
 
   @media (max-width: 640px) {
-    margin: 4px 8px 0;
+    width: calc(100% - 24px);
+    margin: 0 auto;
     border-radius: 18px;
     min-height: 240px;
   }

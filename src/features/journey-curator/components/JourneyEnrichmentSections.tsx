@@ -19,12 +19,21 @@ import { meok, palette, fontSize } from '@/design-system/tokens';
 import { useJourneyStore } from '../store/useJourneyStore';
 
 const Wrap = styled.section`
-  max-width: 1120px;
+  width: min(calc(100% - 40px), 1140px);
+  max-width: 1140px;
   margin: 0 auto;
-  padding: 8px 20px 48px;
+  padding: 8px 0 48px;
   display: flex;
   flex-direction: column;
   gap: 44px;
+
+  @media (max-width: 1024px) {
+    width: calc(100% - 28px);
+  }
+
+  @media (max-width: 640px) {
+    width: calc(100% - 24px);
+  }
 `;
 
 const Block = styled.div`

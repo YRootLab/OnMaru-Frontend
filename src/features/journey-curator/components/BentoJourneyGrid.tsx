@@ -26,9 +26,18 @@ import { transientProps } from '@/design-system/styled';
 import { useJourneyStore } from '../store/useJourneyStore';
 
 const Container = styled.div`
-  max-width: 1120px;
+  width: min(calc(100% - 40px), 1140px);
+  max-width: 1140px;
   margin: 0 auto;
-  padding: 0 20px 48px;
+  padding: 0 0 48px;
+
+  @media (max-width: 1024px) {
+    width: calc(100% - 28px);
+  }
+
+  @media (max-width: 640px) {
+    width: calc(100% - 24px);
+  }
 `;
 
 const SectionHeader = styled.div`

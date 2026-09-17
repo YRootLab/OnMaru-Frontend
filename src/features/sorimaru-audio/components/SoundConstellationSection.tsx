@@ -59,12 +59,16 @@ const SectionWrapper = styled.section`
 
 const InnerContainer = styled.div`
   margin: 0 auto;
-  width: 100%;
-  max-width: 72rem;
-  padding: 0 1rem;
+  width: min(calc(100% - 40px), 1140px);
+  max-width: 1140px;
+  padding: 0;
 
-  @media (min-width: 640px) {
-    padding: 0 2rem;
+  @media (max-width: 1024px) {
+    width: calc(100% - 28px);
+  }
+
+  @media (max-width: 640px) {
+    width: calc(100% - 24px);
   }
 `;
 
