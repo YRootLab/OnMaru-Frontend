@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 import { motion, Variants } from 'framer-motion';
+import { useSearchParams } from 'next/navigation';
 import { StoryCarousel } from './StoryCarousel';
 import { CategoryTagFilter } from './CategoryTagFilter';
 import { SorimaruArchiveBrowse } from './SorimaruArchiveBrowse';
@@ -163,18 +164,17 @@ const SectionGradientTitle = styled.h2`
 const CenteredContainer = styled.div`
   margin-left: auto;
   margin-right: auto;
-  width: 100%;
-  max-width: 72rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  width: min(calc(100% - 40px), 1140px);
+  max-width: 1140px;
+  padding-left: 0;
+  padding-right: 0;
 
-  @media (min-width: 640px) {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+  @media (max-width: 1024px) {
+    width: calc(100% - 28px);
   }
-  @media (min-width: 1024px) {
-    padding-left: 2rem;
-    padding-right: 2rem;
+
+  @media (max-width: 640px) {
+    width: calc(100% - 24px);
   }
 `;
 
@@ -323,6 +323,13 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   onLocationChange,
   backgroundVariant,
 }) => {
+  const searchParams = useSearchParams();
+  const trackParam = searchParams.get('track');
+  const keywordParam = searchParams.get('keyword') || searchParams.get('query');
+  const titleParam = searchParams.get('title');
+  const stidParam = searchParams.get('stid');
+  const autoPlayParam = searchParams.get('autoPlay');
+
   const activeApiService = useSorimaruApiService(apiService);
   const selectedCategory = useSorimaruAudioStore((s) => s.selectedCategory);
   const searchQuery = useSorimaruAudioStore((s) => s.searchQuery);
@@ -391,6 +398,61 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
           setNearbyStories(result.nearbyStories);
           setHeroStorySets({ '추천': result.heroStories });
 
+          const allLoaded = [
+            ...(result.heroStories || []),
+            ...(result.nearbyStories || []),
+            ...(result.archive?.items || []),
+          ];
+
+          // URL 파라미터(?track=1, ?keyword=선교장, ?title=... 등) 매칭 및 재생
+          let targetStory: SorimaruStoryItem | null = null;
+
+          if (stidParam) {
+            targetStory = allLoaded.find((s) => s.stid === stidParam) || null;
+          }
+          if (!targetStory && titleParam) {
+            targetStory = allLoaded.find((s) => s.title?.includes(titleParam) || (s.audioTitle && s.audioTitle.includes(titleParam))) || null;
+          }
+          if (!targetStory && keywordParam) {
+            targetStory = allLoaded.find((s) => 
+              s.title?.includes(keywordParam) || 
+              (s.locationName && s.locationName.includes(keywordParam)) ||
+              (s.audioTitle && s.audioTitle.includes(keywordParam))
+            ) || null;
+          }
+          if (!targetStory && trackParam) {
+            const trackIdx = parseInt(trackParam, 10) - 1;
+            if (trackIdx >= 0 && trackIdx < allLoaded.length) {
+              targetStory = allLoaded[trackIdx];
+            }
+          }
+
+          // 초기 목록에서 못 찾았으나 검색 키워드가 있는 경우 API로 추가 탐색
+          if (!targetStory && keywordParam) {
+            try {
+              const extraStories = await activeApiService.getStoryList(undefined, keywordParam);
+              const extraMatch = extraStories.find((s) => Boolean(s.audioUrl));
+              if (extraMatch) {
+                targetStory = extraMatch;
+              }
+            } catch {
+              // fallback
+            }
+          }
+
+          // 재생 대상이 결정되었거나 전역 플레이어가 비어있을 때 적절한 스토리 할당
+          if (targetStory && targetStory.audioUrl) {
+            useSorimaruAudioStore.getState().setCurrentStory(targetStory);
+            if (autoPlayParam !== 'false') {
+              useSorimaruAudioStore.getState().setIsPlaying(true);
+            }
+          } else if ((!useSorimaruAudioStore.getState().currentStory || !useSorimaruAudioStore.getState().currentStory.audioUrl) && allLoaded.length > 0) {
+            const firstPlayable = allLoaded.find((s) => Boolean(s.audioUrl));
+            if (firstPlayable) {
+              useSorimaruAudioStore.getState().selectStory(firstPlayable);
+            }
+          }
+
           if (result.archive) {
             initialArchiveRef.current = result.archive;
 
@@ -422,7 +484,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [activeApiService, retryToken]);
+  }, [activeApiService, retryToken, trackParam, keywordParam, titleParam, stidParam, autoPlayParam]);
 
   useEffect(() => {
     let isMounted = true;

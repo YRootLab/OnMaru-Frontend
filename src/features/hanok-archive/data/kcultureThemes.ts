@@ -30,10 +30,10 @@ export interface KCultureThemeItem {
 }
 
 export const KCULTURE_CATEGORIES = [
-  { key: 'all', label: '전체 테마', icon: '✨' },
-  { key: 'kdrama', label: 'K-드라마 명장면', icon: '🎬' },
-  { key: 'night', label: '달빛 야간기행', icon: '🌙' },
-  { key: 'heritage_food', label: '종가 다도 & 미식', icon: '🍵' },
+  { key: 'all', label: '전체', icon: '✨' },
+  { key: 'kdrama', label: '스크린 속 한옥', icon: '🎬' },
+  { key: 'night', label: '달빛 고택 야행', icon: '🌙' },
+  { key: 'heritage_food', label: '툇마루 다도 & 미식', icon: '🍵' },
 ] as const;
 
 export type KCultureCategoryKey = (typeof KCULTURE_CATEGORIES)[number]['key'];
@@ -58,7 +58,7 @@ export const KCULTURE_THEME_ITEMS: KCultureThemeItem[] = [
   {
     id: 'kculture-1',
     category: 'kdrama',
-    categoryLabel: 'K-드라마 명장면',
+    categoryLabel: '스크린 속 한옥',
     categoryIcon: '🎬',
     isGyeongbukSpecial: true,
     eyebrow: '드라마 <미스터 션샤인> 명대사의 무대 (TourAPI: 12)',
@@ -80,7 +80,7 @@ export const KCULTURE_THEME_ITEMS: KCultureThemeItem[] = [
   {
     id: 'kculture-2',
     category: 'night',
-    categoryLabel: '달빛 야간기행',
+    categoryLabel: '달빛 고택 야행',
     categoryIcon: '🌙',
     isGyeongbukSpecial: false,
     eyebrow: '한국관광공사 국가유산 야간 축제 (TourAPI: 15)',
@@ -102,7 +102,7 @@ export const KCULTURE_THEME_ITEMS: KCultureThemeItem[] = [
   {
     id: 'kculture-3',
     category: 'night',
-    categoryLabel: '달빛 야간기행',
+    categoryLabel: '달빛 고택 야행',
     categoryIcon: '🌙',
     isGyeongbukSpecial: true,
     eyebrow: '신라 천년의 달빛, 교촌한옥마을 (TourAPI: 15)',
@@ -124,7 +124,7 @@ export const KCULTURE_THEME_ITEMS: KCultureThemeItem[] = [
   {
     id: 'kculture-4',
     category: 'heritage_food',
-    categoryLabel: '종가 다도 & 미식',
+    categoryLabel: '툇마루 다도 & 미식',
     categoryIcon: '🍵',
     isGyeongbukSpecial: true,
     eyebrow: '500년 내림 발효 손맛과 반가 미식 (TourAPI: 12/39)',

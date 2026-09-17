@@ -252,7 +252,7 @@ export default function JourneyRailPreviewPage() {
                 {liveAiGenerated ? 'Gemini가 실제 후보 중에서 골랐어요.' : 'AI 응답 실패로 TourAPI 상위 결과를 그대로 보여줘요.'}
               </StatusText>
               <div style={{ height: 12 }} />
-              <JourneyFlowRail board={liveBoard} pinnedRefs={[]} onOpenEvidence={setOpenRef} />
+              <JourneyFlowRail board={liveBoard} />
             </>
           )}
         </Section>
@@ -264,8 +264,6 @@ export default function JourneyRailPreviewPage() {
           <QuerySummary>{JOURNEY_BOARD_INITIAL.querySummary}</QuerySummary>
           <JourneyFlowRail
             board={JOURNEY_BOARD_INITIAL}
-            pinnedRefs={[]}
-            onOpenEvidence={setOpenRef}
           />
         </Section>
       )}
@@ -279,18 +277,16 @@ export default function JourneyRailPreviewPage() {
               order={1}
               candidate={JOURNEY_PROPOSAL.board.candidates[0]}
               place={PLACE_YISANG}
-              regionTitle="서울 종로구 서촌"
+              regionTitle="서울 종로구 서춌"
               state="pinned"
               isPinned
-              onOpenEvidence={() => setOpenRef(PLACE_YISANG.ref)}
             />
             <JourneyPlaceCard
               order={2}
               candidate={JOURNEY_PROPOSAL.board.candidates[1]}
               place={PLACE_SUSEONGDONG}
-              regionTitle="서울 종로구 서촌"
+              regionTitle="서울 종로구 서춌"
               state="kept"
-              onOpenEvidence={() => setOpenRef(PLACE_SUSEONGDONG.ref)}
             />
             <JourneyPlaceCard
               order={3}
@@ -302,17 +298,15 @@ export default function JourneyRailPreviewPage() {
                 constraintChecks: [],
               }}
               place={PLACE_TONGIN}
-              regionTitle="서울 종로구 서촌"
+              regionTitle="서울 종로구 서춌"
               state="removed"
-              onOpenEvidence={() => setOpenRef(PLACE_TONGIN.ref)}
             />
             <JourneyPlaceCard
               order={3}
               candidate={JOURNEY_PROPOSAL.board.candidates[2]}
               place={PLACE_DILKUSHA}
-              regionTitle="서울 종로구 서촌"
+              regionTitle="서울 종로구 서춌"
               state="added"
-              onOpenEvidence={() => setOpenRef(PLACE_DILKUSHA.ref)}
             />
           </DiffRow>
         </Section>

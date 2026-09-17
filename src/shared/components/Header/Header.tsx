@@ -22,12 +22,12 @@ import MapMobileTabs from '@/features/map/components/MapMobileTabs';
 import { HEADER_EXIT_S, ENTRANCE_EASE } from '@/shared/navigation/mapEntranceTiming';
 import { useMapEntranceStore } from '@/shared/navigation/mapEntranceState';
 import { shouldUseLandingDarkSurface } from './headerSurface';
+import { useJourneyStore } from '@/features/journey-curator/store/useJourneyStore';
 
 /** 캡슐형 GNB의 높이 — /map의 MapChips가 "같은 자리를 이어받는" 느낌을 내려면
  *  이 값을 그대로 써야 한다. */
 export const HEADER_HEIGHT = 46;
-const ONMARU_LOGO_LIGHT_SRC = '/images/logo/onmaru-logo-ivory.png';
-const ONMARU_LOGO_DARK_SRC = '/images/logo/onmaru-logo-dark-charcoal.png';
+const ONMARU_LOGO_SRC = '/logo.png';
 
 const subscribeToHydration = () => () => undefined;
 const getClientHydrationSnapshot = () => true;
@@ -141,30 +141,30 @@ const HeaderBackdrop = styled('div', transientProps)<LandingProps>`
 
   background: ${({ $isLanding, $isScrolled }) => {
     if ($isLanding) {
-      return $isScrolled ? 'rgba(23, 21, 18, 0.78)' : 'rgba(23, 21, 18, 0.46)';
+      return $isScrolled ? 'rgba(23, 21, 18, 0.45)' : 'rgba(23, 21, 18, 0.22)';
     }
-    return $isScrolled ? 'rgba(255, 255, 255, 0.88)' : 'rgba(255, 255, 255, 0.75)';
+    return $isScrolled ? 'rgba(255, 255, 255, 0.48)' : 'rgba(255, 255, 255, 0.28)';
   }};
 
-  backdrop-filter: blur(16px) saturate(160%);
-  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  backdrop-filter: blur(8px) saturate(125%);
+  -webkit-backdrop-filter: blur(8px) saturate(125%);
 
   border: 1px solid ${({ $isLanding, $isScrolled }) => {
     if ($isLanding) {
-      return $isScrolled ? 'rgba(255, 248, 235, 0.14)' : 'rgba(255, 248, 235, 0.08)';
+      return $isScrolled ? 'rgba(255, 255, 255, 0.12)' : 'rgba(255, 255, 255, 0.07)';
     }
-    return $isScrolled ? 'rgba(0, 0, 0, 0.08)' : 'rgba(0, 0, 0, 0.05)';
+    return $isScrolled ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.35)';
   }};
 
   box-shadow: ${({ $isLanding, $isScrolled }) => {
     if ($isLanding) {
       return $isScrolled
-        ? '0 16px 36px -10px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.2)'
-        : '0 8px 24px -6px rgba(0, 0, 0, 0.3)';
+        ? '0 14px 34px -6px rgba(0, 0, 0, 0.45), 0 3px 10px rgba(0, 0, 0, 0.2)'
+        : '0 8px 24px -4px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.14)';
     }
     return $isScrolled
-      ? '0 12px 32px -6px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.03)'
-      : '0 6px 20px -4px rgba(0, 0, 0, 0.04)';
+      ? '0 12px 30px -4px rgba(0, 0, 0, 0.09), 0 3px 8px -1px rgba(0, 0, 0, 0.035)'
+      : '0 8px 24px -4px rgba(0, 0, 0, 0.065), 0 2px 8px -2px rgba(0, 0, 0, 0.025)';
   }};
 
   transition:
@@ -175,20 +175,20 @@ const HeaderBackdrop = styled('div', transientProps)<LandingProps>`
   [data-theme='dark'] & {
     background: ${({ $isLanding, $isScrolled }) => {
       if ($isLanding) {
-        return $isScrolled ? 'rgba(23, 21, 18, 0.78)' : 'rgba(23, 21, 18, 0.46)';
+        return $isScrolled ? 'rgba(23, 21, 18, 0.45)' : 'rgba(23, 21, 18, 0.22)';
       }
-      return $isScrolled ? 'rgba(28, 26, 23, 0.88)' : 'rgba(28, 26, 23, 0.75)';
+      return $isScrolled ? 'rgba(28, 26, 23, 0.52)' : 'rgba(28, 26, 23, 0.30)';
     }};
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: ${({ $isLanding, $isScrolled }) => {
       if ($isLanding) {
         return $isScrolled
-          ? '0 16px 36px -10px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.2)'
-          : '0 8px 24px -6px rgba(0, 0, 0, 0.3)';
+          ? '0 14px 34px -6px rgba(0, 0, 0, 0.45), 0 3px 10px rgba(0, 0, 0, 0.2)'
+          : '0 8px 24px -4px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.14)';
       }
       return $isScrolled
-        ? '0 12px 32px -6px rgba(0, 0, 0, 0.4), 0 4px 12px -2px rgba(0, 0, 0, 0.25)'
-        : '0 6px 20px -4px rgba(0, 0, 0, 0.3)';
+        ? '0 12px 30px -4px rgba(0, 0, 0, 0.38), 0 3px 10px -1px rgba(0, 0, 0, 0.22)'
+        : '0 8px 24px -4px rgba(0, 0, 0, 0.28), 0 2px 8px -2px rgba(0, 0, 0, 0.15)';
     }};
   }
 
@@ -214,13 +214,28 @@ const LeftSection = styled('div', transientProps)<LandingProps>`
 const LogoLink = styled(Link)`
   display: flex;
   align-items: center;
+  gap: 7px;
   height: 100%;
-  padding: 4px 8px;
+  padding: 4px 6px;
   border-radius: 9999px;
+  text-decoration: none;
   transition: opacity 200ms ease;
 
   &:hover {
     opacity: 0.82;
+  }
+`;
+
+const LogoTitle = styled.span<{ $isLanding?: boolean }>`
+  font-family: var(--font-hanok);
+  font-weight: 900;
+  font-size: 1.05rem;
+  letter-spacing: -0.03em;
+  color: ${({ $isLanding }) => ($isLanding ? '#ffffff' : meok[900])};
+  white-space: nowrap;
+
+  [data-theme='dark'] & {
+    color: #ffffff;
   }
 `;
 
@@ -645,6 +660,7 @@ export default function Header() {
   const isLandingPage = pathname === '/';
   const isSoriMaruPage = pathname.startsWith('/sorimaru') || pathname.startsWith('/sorimaru');
   const recordNavigation = useMapEntranceStore((s) => s.recordNavigation);
+  const resetJourney = useJourneyStore((s) => s.resetJourney);
   const { user, isLoggedIn } = useAuth();
   const { preference, mode: themeMode, setMode } = useOnmaruTheme();
   const hasHydrated = useSyncExternalStore(
@@ -688,7 +704,6 @@ export default function Header() {
     isLandingLight,
     themeMode: renderedThemeMode,
   });
-  const logoSrc = renderedThemeMode === 'dark' ? ONMARU_LOGO_DARK_SRC : ONMARU_LOGO_LIGHT_SRC;
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -832,23 +847,24 @@ export default function Header() {
           aria-hidden="true"
         />
 
-        {/* 맨 왼쪽: 온마루 로고 */}
+        {/* 맨 왼쪽: 온마루 로고 + 볼드 브랜드 텍스트 */}
         <LeftSection $isMapPage={isMapPage}>
-          <LogoLink href="/" aria-label="온마루 홈으로 이동">
+          <LogoLink href="/" aria-label="온마루 홈으로 이동" onClick={resetJourney}>
             <Image
-              src={logoSrc}
+              src={ONMARU_LOGO_SRC}
               alt="온마루 로고"
-              width={28}
-              height={28}
-              style={{ objectFit: 'contain', height: '28px', width: '28px', borderRadius: '7px' }}
+              width={26}
+              height={26}
+              style={{ objectFit: 'contain', height: '26px', width: '26px', borderRadius: '6px' }}
               priority
             />
+            <LogoTitle $isLanding={usesDarkSurface}>온마루</LogoTitle>
           </LogoLink>
         </LeftSection>
 
         {/* 가운데: 홈, 한옥 이야기, 소리마루, 지도 */}
         <CenterNav $isMapPage={isMapPage}>
-          <NavLink href="/" $isLanding={usesDarkSurface} $isSoriMaru={isSoriMaruPage}>
+          <NavLink href="/" $isLanding={usesDarkSurface} $isSoriMaru={isSoriMaruPage} onClick={resetJourney}>
             <Sparkles size={13} style={{ marginRight: 4, verticalAlign: '-1px' }} />
             <span>홈</span>
           </NavLink>
@@ -997,7 +1013,14 @@ export default function Header() {
               exit={{ opacity: 0, y: -6, scale: 0.98 }}
               transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
             >
-              <MobileMenuLink href="/" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
+              <MobileMenuLink
+                href="/"
+                $isLanding={usesDarkSurface}
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  resetJourney();
+                }}
+              >
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                   <Sparkles size={15} /> 홈
                 </span>

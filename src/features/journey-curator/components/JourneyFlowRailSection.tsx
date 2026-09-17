@@ -47,9 +47,18 @@ type ViewMode = 'JOURNEY' | 'MAP' | 'RELATION';
 const VIEW_LABEL: Record<ViewMode, string> = { JOURNEY: '여정', MAP: '지도', RELATION: '연결' };
 
 const Wrap = styled.section`
-  max-width: 1120px;
+  width: min(calc(100% - 40px), 1140px);
+  max-width: 1140px;
   margin: 0 auto;
-  padding: 32px 20px 8px;
+  padding: 32px 0 8px;
+
+  @media (max-width: 1024px) {
+    width: calc(100% - 28px);
+  }
+
+  @media (max-width: 640px) {
+    width: calc(100% - 24px);
+  }
 `;
 
 const SectionTitle = styled.h2`
@@ -107,23 +116,7 @@ const StatusText = styled.p`
   padding: 4px 0;
 `;
 
-const EvidencePanel = styled.div`
-  margin-top: 12px;
-  padding-top: 16px;
-  border-top: 1px solid ${meok[200]};
-`;
 
-const EvidenceItem = styled.p`
-  font-size: ${fontSize.xs};
-  color: ${meok[600]};
-  line-height: 1.7;
-  margin: 0 0 6px;
-
-  b {
-    color: ${meok[800]};
-    font-weight: 500;
-  }
-`;
 
 const DiffRow = styled.div`
   display: flex;
@@ -200,13 +193,10 @@ export default function JourneyFlowRailSection() {
   const board = useJourneyStore((s) => s.explorationBoard);
   const boardCreatedAt = useJourneyStore((s) => s.boardCreatedAt);
   const isExploring = useJourneyStore((s) => s.isExploring);
-  const pinnedRefs = useJourneyStore((s) => s.pinnedRefs);
-  const togglePin = useJourneyStore((s) => s.togglePin);
   const pendingProposal = useJourneyStore((s) => s.pendingProposal);
   const applyProposal = useJourneyStore((s) => s.applyProposal);
   const dismissProposal = useJourneyStore((s) => s.dismissProposal);
 
-  const [openRef, setOpenRef] = useState<ResourceRef | null>(null);
   const [activeView, setActiveView] = useState<ViewMode>('JOURNEY');
   const reduceMotion = useReducedMotion();
 
@@ -238,8 +228,7 @@ export default function JourneyFlowRailSection() {
         const place = findPlace(board, candidate.placeRef);
         if (!place) return null;
         const isRemoved = removedIds.has(candidate.placeRef.id);
-        const isPinned = pinnedRefs.some((r) => r.id === candidate.placeRef.id);
-        const state: PlaceCardState = isRemoved ? 'removed' : isPinned ? 'pinned' : 'kept';
+        const state: PlaceCardState = isRemoved ? 'removed' : 'kept';
         return { order: idx + 1, candidate, place, state };
       })
       .filter((x): x is NonNullable<typeof x> => x !== null);
@@ -310,10 +299,6 @@ export default function JourneyFlowRailSection() {
     );
   }
 
-  const openCandidate = openRef ? board.candidates.find((c) => c.placeRef.id === openRef.id) : null;
-  const openEvidence = openCandidate
-    ? board.evidence.filter((e) => openCandidate.evidenceRefs.includes(e.id))
-    : [];
 
   return (
     <AnimatePresence mode="wait">
@@ -360,35 +345,22 @@ export default function JourneyFlowRailSection() {
           {activeView === 'JOURNEY' && (
             <JourneyFlowRail
               board={board}
-              pinnedRefs={pinnedRefs}
-              onTogglePin={togglePin}
-              onOpenEvidence={setOpenRef}
             />
           )}
 
           {activeView === 'MAP' && (
-            <JourneyMapView board={board} focusedRef={openRef} onFocus={setOpenRef} />
+            <JourneyMapView board={board} focusedRef={null} onFocus={() => {}} />
           )}
 
           {activeView === 'RELATION' && (
             <JourneyRelationView
               board={board}
-              focusedRef={openRef}
-              onFocus={setOpenRef}
-              onOpenEvidence={setOpenRef}
+              focusedRef={null}
+              onFocus={() => {}}
             />
           )}
 
-          {openCandidate && (
-            <EvidencePanel>
-              {openEvidence.map((e) => (
-                <EvidenceItem key={e.id}>
-                  <b>{e.sourceName}</b> — {e.summary} {e.asOf ? `(${e.asOf} 기준)` : ''}
-                </EvidenceItem>
-              ))}
-              {openEvidence.length === 0 && <EvidenceItem>연결된 근거가 없다.</EvidenceItem>}
-            </EvidencePanel>
-          )}
+
         </Wrap>
       </motion.div>
     </AnimatePresence>

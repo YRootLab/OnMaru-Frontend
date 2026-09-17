@@ -23,22 +23,22 @@ const Overlay = styled(motion.div)`
 const LoaderCard = styled(motion.div)`
   width: 100%;
   max-width: 440px;
-  background: #ffffff;
+  background: #f8f8f7;
   border-radius: 24px;
   padding: 28px 24px 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: none;
+  box-shadow: none;
   position: relative;
   overflow: hidden;
 
   [data-theme='dark'] & {
     background: #1c1a17;
-    border-color: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 32px 80px rgba(0, 0, 0, 0.7);
+    border: none;
+    box-shadow: none;
   }
 `;
 
@@ -48,6 +48,7 @@ const CloseButton = styled.button`
   right: 18px;
   background: transparent;
   border: none;
+  box-shadow: none;
   color: #9ca3af;
   cursor: pointer;
   padding: 6px;
@@ -58,8 +59,13 @@ const CloseButton = styled.button`
   transition: all 0.2s;
 
   &:hover {
-    color: #f3f4f6;
-    background: rgba(255, 255, 255, 0.1);
+    color: #191f28;
+    background: rgba(0, 0, 0, 0.06);
+
+    [data-theme='dark'] & {
+      color: #f3f4f6;
+      background: rgba(255, 255, 255, 0.1);
+    }
   }
 `;
 
@@ -67,16 +73,15 @@ const StepBadge = styled.div<{ $isCompleted?: boolean }>`
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 3px 12px;
+  padding: 4px 14px;
   border-radius: 9999px;
   background: ${({ $isCompleted }) =>
-    $isCompleted ? 'rgba(0, 184, 130, 0.12)' : 'rgba(212, 175, 55, 0.12)'};
-  border: 1px solid
-    ${({ $isCompleted }) =>
-      $isCompleted ? 'rgba(0, 184, 130, 0.3)' : 'rgba(212, 175, 55, 0.3)'};
+    $isCompleted ? 'rgba(0, 184, 130, 0.12)' : 'rgba(212, 175, 55, 0.14)'};
+  border: none;
+  box-shadow: none;
   color: ${({ $isCompleted }) => ($isCompleted ? '#00b882' : '#d4af37')};
   font-size: 11.5px;
-  font-weight: 500;
+  font-weight: 600;
   margin-bottom: 8px;
 `;
 

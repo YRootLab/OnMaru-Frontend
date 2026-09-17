@@ -17,7 +17,7 @@ export default function TranquilityGauge({ data, loading }: TranquilityGaugeProp
       <Container>
         <HeaderRow>
           <BadgeBox>
-            <Activity size={14} color={palette.cheongrok[700]} />
+            <Activity size={14} color={palette.kobalt[500]} />
             <BadgeText>관광 빅데이터 실시간 분석 중...</BadgeText>
           </BadgeBox>
         </HeaderRow>
@@ -31,7 +31,7 @@ export default function TranquilityGauge({ data, loading }: TranquilityGaugeProp
     <Container>
       <HeaderRow>
         <BadgeBox>
-          <Activity size={14} color={palette.cheongrok[700]} />
+          <Activity size={14} color={palette.kobalt[500]} />
           <BadgeText>한국관광공사 DataLab 실시간 고즈넉 지수</BadgeText>
         </BadgeBox>
         <DistrictTag>{data.district} 권역</DistrictTag>
@@ -61,14 +61,14 @@ export default function TranquilityGauge({ data, loading }: TranquilityGaugeProp
 
       <InfoCardsRow>
         <InfoPill>
-          <Clock size={13} color={palette.cheongrok[700]} />
+          <Clock size={13} color={palette.hwanggeum[700]} />
           <PillLabel>추천 골든타임:</PillLabel>
           <PillVal>{data.goldenHour}</PillVal>
         </InfoPill>
       </InfoCardsRow>
 
       <AdviceText>
-        <ShieldCheck size={14} color={palette.cheongrok[700]} style={{ flexShrink: 0, marginTop: 2 }} />
+        <ShieldCheck size={14} color={palette.juhong[600]} style={{ flexShrink: 0, marginTop: 2 }} />
         <span>{data.advice}</span>
       </AdviceText>
     </Container>
@@ -100,23 +100,23 @@ const BadgeBox = styled.div`
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: ${palette.cheongrok[50]};
+  background: ${palette.kobalt[50]};
   padding: 4px 10px;
   border-radius: 9999px;
   border: none;
 
   [data-theme='dark'] & {
-    background: rgba(0, 196, 113, 0.15);
+    background: rgba(74, 111, 160, 0.2);
   }
 `;
 
 const BadgeText = styled.span`
   font-size: ${fontSize.xs};
   font-weight: 700;
-  color: ${palette.cheongrok[700]};
+  color: ${palette.kobalt[700]};
 
   [data-theme='dark'] & {
-    color: ${palette.cheongrok[400]};
+    color: ${palette.kobalt[400]};
   }
 `;
 

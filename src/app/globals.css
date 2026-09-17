@@ -51,20 +51,30 @@ button {
   font-family: inherit;
 }
 
-html:has([data-page-surface='hanok']),
-html body:has([data-page-surface='hanok']) {
+html {
+  min-height: 100%;
   background-color: #ffffff;
+  color: #191f28;
 }
 
-[data-theme='dark'] html:has([data-page-surface='hanok']),
-[data-theme='dark'] body:has([data-page-surface='hanok']),
-html[data-theme='dark']:has([data-page-surface='hanok']),
-html[data-theme='dark'] body:has([data-page-surface='hanok']) {
+html[data-theme='dark'],
+html[data-theme='dark'] body,
+[data-theme='dark'] body {
   background-color: #1C1A17;
+  color: #f8f9fa;
+  color-scheme: dark;
 }
 
-html body:has([data-page-surface='hanok']) {
-  transition-property: color, background-color;
+html[data-theme='light'],
+html[data-theme='light'] body,
+[data-theme='light'] body {
+  background-color: #ffffff;
+  color: #191f28;
+  color-scheme: light;
+}
+
+html, body {
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .sorimaru-feature {

@@ -79,12 +79,9 @@ function distanceLabel(distanceMeters: number | null, band: DistanceBand): strin
 
 interface JourneyFlowRailProps {
   board: JourneyBoard;
-  pinnedRefs: ResourceRef[];
-  onTogglePin?: (ref: ResourceRef) => void;
-  onOpenEvidence?: (ref: ResourceRef) => void;
 }
 
-export default function JourneyFlowRail({ board, pinnedRefs, onTogglePin, onOpenEvidence }: JourneyFlowRailProps) {
+export default function JourneyFlowRail({ board }: JourneyFlowRailProps) {
   const regionTitle = board.regionRef ? findRegionTitle(board) : '';
   const railRef = useRef<HTMLDivElement>(null);
   const reduceMotion = usePrefersReducedMotion();
@@ -109,7 +106,7 @@ export default function JourneyFlowRail({ board, pinnedRefs, onTogglePin, onOpen
       {board.candidates.map((candidate, idx) => {
         const place = findPlace(board, candidate.placeRef);
         if (!place) return null;
-        const isPinned = pinnedRefs.some((r) => r.id === place.ref.id);
+        const isPinned = false;
         const leg = board.legs.find((l) => l.order === idx + 1 && l.fromRef.id === place.ref.id);
 
         return (
@@ -119,10 +116,8 @@ export default function JourneyFlowRail({ board, pinnedRefs, onTogglePin, onOpen
               candidate={candidate}
               place={place}
               regionTitle={regionTitle}
-              state={isPinned ? 'pinned' : 'default'}
-              isPinned={isPinned}
-              onTogglePin={onTogglePin ? () => onTogglePin(place.ref) : undefined}
-              onOpenEvidence={onOpenEvidence ? () => onOpenEvidence(place.ref) : undefined}
+              state={'default'}
+              isPinned={false}
             />
             {leg && (
               <ConnectorWrap

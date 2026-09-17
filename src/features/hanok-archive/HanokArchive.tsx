@@ -4,11 +4,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 import { Global, css } from '@emotion/react';
-import { meok, lightPalette, surface, fluidHeading, fontSize } from '@/design-system/tokens';
+import { meok, lightPalette, surface, fontSize } from '@/design-system/tokens';
 import HanokGrid from '@/features/hanok-archive/sections/HanokGrid';
 import HanokStayAccordion from '@/features/hanok-archive/sections/HanokStayAccordion';
 import HanokMap from '@/features/hanok-archive/sections/HanokMap';
-import HanokMonthly from '@/features/hanok-archive/sections/HanokMonthly';
+import HanokPolaroidClothesline from '@/features/hanok-archive/sections/HanokPolaroidClothesline';
 import KCultureThemeFeed from '@/features/hanok-archive/components/KCultureThemeFeed';
 import HanokManifestoCta from '@/features/hanok-archive/sections/HanokManifestoCta';
 import HanokStructureCards from '@/features/hanok-archive/structure/HanokStructureCards';
@@ -17,7 +17,6 @@ import { decodeHanokArchivePayload } from '@/features/hanok-archive/data/hanokAr
 import { HANOK_REVEAL_SECTIONS } from '@/features/hanok-archive/hanokSectionReveal';
 import type { HanokFilterState } from '@/features/hanok-archive/sections/hanokFilterQuery';
 import { VesselReveal } from '@/shared/components/animation/VesselReveal';
-import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { HanjiDeckleEdge } from '@/shared/components/HanjiDeckleEdge';
 import { HanokAtmosphereBackground } from '@/shared/components/HanokBackground';
 
@@ -26,8 +25,6 @@ const HanokDogamDetailModal = dynamic(loadDogamDetailModal, { ssr: false });
 
 const loadStayDetailModal = () => import('@/features/hanok-archive/components/HanokStayDetailModal');
 const HanokStayDetailModal = dynamic(loadStayDetailModal, { ssr: false });
-
-const INTRO_VIDEO_SRC = '/videos/hanok-neungsohwa-loop.mp4';
 
 /* 급하지 않은 일감을 마운트 직후로 미룬다 — 모달 프리로드, 인트로 영상 지연 로드가 같은 모양이라 하나로 묶는다 */
 function scheduleIdle(callback: () => void, timeout = 2000): () => void {
@@ -58,17 +55,28 @@ const Root = styled.div`
 const PageInner = styled.div`
   width: 100%;
   margin: 0;
-  padding: 0 0 clamp(64px, 8vh, 120px);
+  padding-top: 76px;
+  padding-bottom: clamp(64px, 8vh, 120px);
+
+  @media (max-width: 767px) {
+    padding-top: 20px;
+  }
 `;
 
 const SectionContainer = styled.div`
   margin: 0 auto;
-  width: 100%;
-  max-width: 72rem;
-  padding: clamp(28px, 4vw, 48px) 1rem;
+  width: min(calc(100% - 40px), 1140px);
+  max-width: 1140px;
+  padding: clamp(28px, 4vw, 48px) 0;
 
-  @media (min-width: 640px) {
-    padding: clamp(32px, 4vw, 56px) 1.5rem;
+  @media (max-width: 1024px) {
+    width: calc(100% - 28px);
+    padding: clamp(24px, 4vw, 40px) 0;
+  }
+
+  @media (max-width: 640px) {
+    width: calc(100% - 24px);
+    padding: clamp(20px, 4vw, 32px) 0;
   }
 `;
 
@@ -90,85 +98,56 @@ const paperGround = css`
 `;
 
 // 1. 중간 호흡: 통계(분포도) → 큐레이션(이달의 한옥), 구조 카드 → 부재 목록 등
+// 이제 얇은 구분선이 섹션 경계를 표시해 주니, 그 역할까지 여백이 떠맡을 필요가 없어 줄였다.
 const EditorialSection = styled.div`
-  padding-top: clamp(56px, 7.5vh, 96px);
+  padding-top: clamp(40px, 5vh, 64px);
 `;
 
-// Reserve the completed monthly feature's footprint before its client content
-// finishes hydrating. Without this, the following distribution chart briefly
-// occupies this space and is then pushed below the viewport.
-const MonthlyEditorialSection = styled(EditorialSection)`
-  min-height: 913px;
+// 큰 타이틀 바로 위에 놓는 얇은 회색 구분선 — 섹션이 여기서 나뉜다는 걸 여백 대신 선으로 보여준다
+const SectionDivider = styled.hr`
+  border: none;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.08);
+  margin: 0 0 28px;
 
-  @media (min-width: 901px) {
-    min-height: 565px;
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.1);
   }
 `;
 
 // 3. 챕터 대전환: 이달의 한옥 → 도감, 스테이 → 3D 구조, 부재 목록 → 지도
 const ChapterBreak = styled.div`
-  padding-top: clamp(96px, 12vh, 160px);
+  padding-top: clamp(56px, 7vh, 96px);
 `;
 
 // 4. 동일 아카이브 내 서브 챕터 연결: 도감 그리드 → 스테이 아코디언
 const ArchiveSection = styled.div`
-  padding-top: clamp(56px, 7vh, 88px);
+  padding-top: clamp(40px, 5vh, 64px);
 `;
 
 const IntroStage = styled.div`
   position: relative;
   overflow: hidden;
-  max-width: 1200px;
-  margin: 12px auto 0;
+  width: min(calc(100% - 40px), 1140px);
+  max-width: 1140px;
+  margin: 0 auto;
   border-radius: 24px;
-  min-height: clamp(260px, 32vh, 340px);
+  min-height: clamp(220px, 24vh, 280px);
   display: flex;
   align-items: center;
   justify-content: center;
 
-  @media (max-width: 1120px) {
-    margin: 8px 16px 0;
+  @media (max-width: 1024px) {
+    width: calc(100% - 28px);
+    margin: 0 auto;
   }
 
   @media (max-width: 640px) {
-    margin: 4px 8px 0;
+    width: calc(100% - 24px);
+    margin: 0 auto;
     border-radius: 18px;
     min-height: 240px;
   }
-`;
-
-const IntroPoster = styled.div<{ $visible: boolean }>`
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background: linear-gradient(135deg, ${meok[900]} 0%, ${meok[700]} 100%);
-  opacity: ${({ $visible }) => ($visible ? 1 : 0)};
-  transition: opacity 0.6s ease;
-`;
-
-const IntroVideo = styled.video<{ $visible: boolean }>`
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: ${({ $visible }) => ($visible ? 1 : 0)};
-  transition: opacity 0.6s ease;
-`;
-
-/* 흰 텍스트 대비 및 중앙 텍스트 가독성을 위한 시네마틱 스크림 */
-const IntroScrim = styled.div`
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(10, 9, 8, 0.5) 0%,
-    rgba(10, 9, 8, 0.35) 60%,
-    rgba(10, 9, 8, 0.65) 100%
-  );
 `;
 
 const IntroContent = styled.div`
@@ -176,31 +155,39 @@ const IntroContent = styled.div`
   z-index: 2;
   width: 100%;
   display: flex;
-  justify-content: center;
-  padding: clamp(48px, 6vh, 72px) clamp(20px, 4vw, 40px) clamp(56px, 7vh, 80px);
+  justify-content: flex-start;
+  padding: clamp(24px, 4vh, 40px) 0;
 `;
 
 const Intro = styled.header`
-  max-width: 980px;
   width: 100%;
-  text-align: center;
-  margin: 0 auto;
+  text-align: left;
+  margin: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
+`;
+
+// 히어로 안, 제목과 리드 문구 사이에 폴라로이드 빨랫줄을 끼워 넣는 자리
+const HeroClothesline = styled.div`
+  width: 100%;
+  margin: 22px 0;
 `;
 
 const PageTitle = styled.h1`
   font-family: var(--font-hanok);
   font-size: clamp(1.6rem, 3.2vw, 2.75rem);
-  font-weight: 300;
+  font-weight: 700;
   line-height: 1.25;
   letter-spacing: -0.02em;
-  color: #ffffff;
+  color: ${meok[900]};
   margin: 0 0 14px;
-  text-align: center;
+  text-align: left;
   white-space: nowrap;
-  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.5);
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
 
   @media (max-width: 520px) {
     white-space: normal;
@@ -212,11 +199,14 @@ const Lead = styled.p`
   font-size: clamp(0.875rem, 1.25vw, 1.05rem);
   font-weight: 400;
   line-height: 1.7;
-  color: rgba(255, 255, 255, 0.88);
+  color: ${meok[600]};
   margin: 0;
-  text-align: center;
+  text-align: left;
   white-space: nowrap;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
 
   @media (max-width: 860px) {
     white-space: normal;
@@ -243,15 +233,9 @@ interface HanokArchiveProps {
 }
 
 export default function HanokArchive({ villages, meta, initialFilters }: HanokArchiveProps) {
-  const prefersReducedMotion = usePrefersReducedMotion();
   const [selectedDogamVillage, setSelectedDogamVillage] = useState<Village | null>(null);
   const [selectedStay, setSelectedStay] = useState<Village | null>(null);
   const [archiveData, setArchiveData] = useState(() => ({ villages, meta }));
-  const [showIntroVideo, setShowIntroVideo] = useState(false);
-  const [introVideoReady, setIntroVideoReady] = useState(false);
-  // 목데이터 스냅샷이 실데이터로 교체되며 이달의 한옥 이미지가 눈에 띄게 스왑되는 걸 막기 위해,
-  // 실데이터 확정 전까지는 스켈레톤을 보여준다.
-  const [isFeaturedReady, setIsFeaturedReady] = useState(false);
   // 스냅샷 → 실데이터 교체는 방문당 딱 한 번이어야 한다. 개발 모드의 StrictMode
   // 이중 실행처럼 이 effect가 두 번 걸리면 archiveData가 다시 한번 바뀌어 regions
   // 참조도 또 바뀌고, 이미 끝난 분포 차트 입장 연출이 또 리셋된다 — "표가 나타났다가
@@ -282,7 +266,6 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
         // Snapshot remains visible when the future backend is unavailable or changes shape.
       } finally {
         window.clearTimeout(timeoutId);
-        if (isActive) setIsFeaturedReady(true);
       }
     }
 
@@ -316,42 +299,24 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
 
-  // 인트로 뒷배경 영상 — 초기 렌더에는 CSS 그라디언트 포스터만 보이고,
-  // 마운트 후 한가할 때 영상을 불러와 재생 준비가 되면 크로스페이드한다.
-  // 모션을 줄이길 원하면 영상을 아예 요청하지 않고 포스터로 둔다.
-  useEffect(() => {
-    if (prefersReducedMotion) return undefined;
-    return scheduleIdle(() => setShowIntroVideo(true), 2000);
-  }, [prefersReducedMotion]);
-
   return (
     <Root>
       <HanokAtmosphereBackground />
       {/* <HanjiDeckleEdge /> */}
       <Global styles={paperGround} />
       <PageInner>
-        {/* 진입부: 한국의 정취를 담은 동영상 히어로 */}
+        {/* 진입부: 한국의 정취를 담은 히어로 */}
         <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.intro}>
           <IntroStage>
-            <IntroPoster aria-hidden="true" $visible={!introVideoReady} />
-            {showIntroVideo && (
-              <IntroVideo
-                aria-hidden="true"
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="none"
-                $visible={introVideoReady}
-                onCanPlay={() => setIntroVideoReady(true)}
-              >
-                <source src={INTRO_VIDEO_SRC} type="video/mp4" />
-              </IntroVideo>
-            )}
-            <IntroScrim aria-hidden="true" />
             <IntroContent>
               <Intro>
-                <PageTitle>지금 한옥은 어디에 남아 있을까</PageTitle>
+                <PageTitle>지금 한옥은 어디에 남아 있을까?</PageTitle>
+                <HeroClothesline>
+                  <HanokPolaroidClothesline
+                    villages={archiveData.villages}
+                    onSelectVillage={setSelectedDogamVillage}
+                  />
+                </HeroClothesline>
                 <Lead>
                   궁궐과 고택, 서원과 전통마을, 하룻밤 머물 수 있는 집까지.
                   계절마다 한 곳씩 들여다봅니다.
@@ -361,23 +326,11 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
           </IntroStage>
         </StyledVesselReveal>
 
-        {/* 감성적인 첫인상: 이 달의 한옥 대표 큐레이션 에디토리얼 화보 */}
-        <MonthlyEditorialSection>
-          <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.monthly}>
-            <SectionContainer>
-              <HanokMonthly
-                villages={archiveData.villages}
-                onSelectVillage={setSelectedDogamVillage}
-                isFeaturedReady={isFeaturedReady}
-              />
-            </SectionContainer>
-          </StyledVesselReveal>
-        </MonthlyEditorialSection>
-
         {/* K-컬처 & 웰니스 테마 큐레이션: K-드라마, 촌캉스, 야간기행, 종가 미식 (토스/당근 스타일) */}
         <EditorialSection>
           <StyledVesselReveal id="hanok-kculture-themes">
             <SectionContainer>
+              <SectionDivider />
               <KCultureThemeFeed
                 onSelectContent={(contentId) => {
                   const target = archiveData.villages.find((v) => v.id === contentId);
@@ -395,6 +348,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
         <ChapterBreak>
           <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.grid}>
             <SectionContainer>
+              <SectionDivider />
               <HanokGrid
                 villages={archiveData.villages}
                 onSelectVillage={setSelectedDogamVillage}
@@ -406,6 +360,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
           <ArchiveSection>
             <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.stay}>
               <SectionContainer>
+                <SectionDivider />
                 <HanokStayAccordion
                   villages={archiveData.villages}
                   onSelectStay={setSelectedStay}
@@ -422,6 +377,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
         <ChapterBreak>
           <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.structure}>
             <SectionContainer>
+              <SectionDivider />
               <HanokStructureCards />
             </SectionContainer>
           </StyledVesselReveal>
@@ -431,6 +387,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
         <ChapterBreak>
           <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.map}>
             <SectionContainer>
+              <SectionDivider />
               <HanokMap
                 villages={archiveData.villages}
                 onSelectVillage={(v) => {

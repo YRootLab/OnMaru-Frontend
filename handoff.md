@@ -1,6 +1,20 @@
 # handoff.md
 
 Current work:
+- Screen Hanok (K-Culture) pure TourAPI 4.0 dynamic integration & hardcoding purge:
+  - Completely removed all keyword arrays and place name hardcodings from `src/app/api/tourapi/kculture/route.ts`.
+  - Dynamically fetches all real Hanok heritage sites nationwide using TourAPI 4.0 official category codes (`A02010400` Heritage House, `A02010600` Folk Village, `A02010100` Royal Palace) via `areaBasedList2`.
+  - Automatically synthesizes rich K-Content metadata across three pillars: K-Drama/Historical Drama (`[K-DRAMA]`), Korean Cinema (`[CINEMA]`), and K-POP Music Video / Pictorial (`[K-POP / MEDIA]`) with 1-night-2-days immersive itineraries and region-specific tags.
+  - Successfully tested and verified 90+ real Hanok locations loaded dynamically with high-res photos.
+  - Verified `npx tsc --noEmit` cleanly passed (0 errors) and browser verified live card rendering at `/hanok`.
+
+- Search bar consolidation & Refinement chips integration: removed the duplicate bottom search box (`JourneyRefineBar`) from `JourneyHome.tsx`. Integrated the `+` refinement chip recommendations (`+ 전통 찻집 위주`, `+ 비 오는 날 운치`, `+ 걷는 시간 줄이기`, `+ 역사 해설 중심`) directly under the primary top search bar (`JourneyHeroSearch.tsx`) in compact mode when `hasSearched` is true. Styled chips with clean borderless/shadowless aesthetic and dark mode compatibility.
+- Exploration search query & Gemini AI fallback: fixed the issue where complex/freeform natural language search queries (e.g., "대전에서 빵 투어", "성수동 카페", "조용한 쉼") returned `NO_RESULTS` errors. Implemented multi-tier keyword resolution (`KOREAN_REGIONS` dictionary with 50+ regions/landmarks, Korean postposition particle cleaning `cleanKoreanTerm`, `extractKeywords`, and `searchRealSpotsMultiKeywords`). Added `generateGeminiDirectSpots` as a direct synthesis fallback using Gemini Flash models with valid coords and addresses, ensuring users always receive rich, tailored 3-spot itineraries without failure.
+- Sorimaru trending audio playback fix: fixed the issue where clicking trending audio cards on the home discovery feed navigated to `/sorimaru?track=...` without playing. `SorimaruAudioFeature` now parses URL search parameters (`track`, `keyword`, `query`, `title`, `autoPlay`), selects the matching Odii story, and triggers instant playback with `setCurrentStory` and `setIsPlaying(true)`. Wrapped with `<Suspense>` in `src/app/sorimaru/page.tsx` for client-rendering safety. Troubleshooting note recorded in `기록/트러블슈팅_소리마루재생.md`.
+- Home discovery feed & mini-games polish: removed all borders and shadows from assembly loading modal (`JourneyAssemblyLoader`), mini Omok game (`MiniOmokGame`), and traditional word search puzzle (`TraditionalWordSearch`) to adhere to flat modern minimalist design rules with full light/dark mode support.
+- Footer gradient: upgraded footer ambient lighting to OnMaru signature Dancheong Juhong & golden amber ambient gradients.
+- Reset search on Home: clicking the OnMaru logo or Home navigation resets the search state back to the fresh initial hero & discovery feed.
+- Verified: `npx tsc --noEmit` cleanly passed.
 - Hanok reading-flow motion: the regional distribution now uses one-shot GSAP `scaleX` bars with synchronized count-up values; the detail modal uses its own scroll container to focus the centered history paragraph while dimming surrounding paragraphs. Reduced-motion users receive the final readable state immediately.
 - Hanok monthly layout stability: the monthly feature now reserves its final responsive height before hydration, preventing the distribution chart from flashing in its space and then being pushed below the viewport.
 - Hanok distribution stability: live `/api/tourapi` payloads without regional data no longer replace the complete local snapshot, preventing the chart below “이달의 픽” from appearing briefly and then disappearing.
@@ -175,3 +189,41 @@ Next step:
 - 도감 태그에서 빈 문자열을 제거하고 중복 값을 합쳐 사진 확대 상태 변경 시 `key=""` 충돌이 발생하지 않게 했다.
 - 도감/숙소 갤러리 URL도 trim 후 빈 값 제거와 Set 중복 제거를 적용했다.
 - 실제 남은 원인은 `AnimatePresence` 안에서 동시에 렌더되는 상세 Overlay와 LightboxOverlay가 둘 다 key가 없던 것이었다. 도감/숙소 각각의 두 오버레이에 명시적인 고유 key를 추가했다.
+
+## 2026-09-17 — 검색 결과 UI 정리
+
+- **고정하기 / 근거보기 버튼 제거**: `JourneyPlaceCard`의 Footer 전체(PinButton, EvidenceButton) 삭제. `onTogglePin` / `onOpenEvidence` props 제거.
+- **세로 구분 바 제거**: `JourneyFlowRailSection`의 `EvidencePanel` (border-top 세로 바 포함) 및 `openRef`/`openEvidence` 상태 전부 제거.
+- **한옥 도감 → 공간 기록**: `JourneyEnrichmentSections.tsx`, `BentoJourneyGrid.tsx`, `useJourneyStore.ts` 일괄 변경.
+- **JourneyRelationView**: `onOpenEvidence` optional prop으로 변경해 하위 호환성 유지.
+- 검증: `npx tsc --noEmit` exit code 0.
+
+## 2026-09-17 — 인기 지역 소리마루 ASMR 큐레이션
+
+홈 피드 "지금 많이 듣는 소리마루" 섹션을 하드코딩 배열에서 실시간 큐레이션으로 교체.
+
+- **API Route 신설**: `src/app/api/home/trending-sounds/route.ts`
+  - VisitorService.getDailySeries()(히트맵 캐시 공유, 6h TTL)로 최근 7일 외지인 방문자 합산 → 상위 지역 추출
+  - `regionSoundKeywords.ts` 매핑 테이블로 시군구명 → 소리마루 검색어 변환
+  - `sorimaruApiAdapter.getFirstStoryByKeyword()` 병렬 호출 → 최대 3개 트랙 반환
+  - 오류/빈 응답은 빈 배열 → 클라이언트 FALLBACK_SOUNDS로 graceful degradation
+  - Cache-Control: s-maxage=21600 (6시간)
+- **매핑 테이블 신설**: `src/features/journey-curator/data/regionSoundKeywords.ts`
+  - 17개 시군구 → keyword + displayName 매핑 + `findRegionEntry()` 부분 일치 함수
+- **JourneyDiscoveryFeed.tsx 수정**:
+  - `TRENDING_SOUNDS` 하드코딩 배열 제거
+  - `useTrendingSounds()` 커스텀 훅 추가 (fetch + cancelled 패턴)
+  - 로딩 중: `SkeletonCard` 3개 표시 (AGENTS.md 스켈레톤 룰 준수 — 최종 UI와 동일 크기)
+  - `FALLBACK_SOUNDS`: 폴백 시 기존 강릉/안동/경주 트랙 표시
+- 검증: `npx tsc --noEmit` exit code 0.
+
+## 2026-09-17 — 한옥 이야기 레이아웃 여백 정돈, U자형 빨랫줄 & 잔여 공백 제거
+
+- **트러블슈팅 문서 생성**: `기록/트러블슈팅_한옥이야기_레이아웃및빨랫줄.md`
+- **히어로 불필요한 여백/마진 제거**: `IntroContent`의 좌우 40px 패딩 제거(`clamp(24px, 4vh, 40px) 0`), `Intro` 헤더 `max-width: 980px` 제약 해제.
+- **타이틀 정렬 및 스타일 개선**: "지금 한옥은 어디에 남아 있을까?" 및 설명문을 본문과 일치하도록 좌측 정렬, `font-weight: 700`(Bold) 적용 및 물음표 반영.
+- **폴라로이드 빨랫줄 U자 곡선화 및 정밀 결합**: 2차 베지에 SVG 포물선 패스(`SvgRope`)로 완만한 U자 처짐 구현, 사진을 줄 앞으로 전진 배치(`z-index`), 미니 원목 집게와 줄의 좌표 오차를 0으로 맞물림.
+- **잔여 브릿지 공백 제거**: 히어로와 K-컬처 테마 큐레이션 사이에 방치되어 있던 레거시 `<EditorialSection><SectionContainer><NarrativeBridge>...</NarrativeBridge></SectionContainer></EditorialSection>`(높이 146.4px 빈 박스) 제거.
+- **검증**: `npx tsc --noEmit` exit code 0, 브라우저 화면 검증 완료.
+
+

@@ -27,9 +27,8 @@ const Frame = styled.div`
   background: #ffffff;
   padding: 12px 12px 60px;
   box-shadow:
-    0 4px 16px rgba(25, 31, 40, 0.10),
-    0 1px 4px rgba(25, 31, 40, 0.06),
-    0 12px 40px rgba(25, 31, 40, 0.08);
+    0 1px 3px rgba(25, 31, 40, 0.06),
+    0 4px 10px rgba(25, 31, 40, 0.06);
   border-radius: 2px;
   position: relative;
   overflow: visible;
@@ -37,7 +36,7 @@ const Frame = styled.div`
   [data-theme='dark'] & {
     background: #24211D;
     border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
   }
 `;
 
@@ -120,7 +119,7 @@ const TapeStrip = styled.div<{ $left?: boolean }>`
   ${({ $left }) => ($left ? 'left: 20px;' : 'right: 20px;')}
   width: 44px;
   height: 22px;
-  background: rgba(64, 104, 232, 0.28);
+  background: ${lightPalette.juhong[300]}47;
   border-radius: 2px;
   transform: rotate(${({ $left }) => ($left ? '-5deg' : '4deg')});
   z-index: 10;
@@ -212,6 +211,8 @@ interface PolaroidCardProps {
   showOutsideMeta?: boolean;
   onClick?: (village: Village) => void;
   isImageLoading?: boolean;
+  /** 빨래집게처럼 다른 방식으로 이미 고정돼 있을 때는 테이프를 겹치지 않는다 */
+  enableTape?: boolean;
 }
 
 export default function PolaroidCard({
@@ -221,9 +222,10 @@ export default function PolaroidCard({
   showOutsideMeta = false,
   onClick,
   isImageLoading = false,
+  enableTape = true,
 }: PolaroidCardProps) {
   const rotate = ROTATIONS[index % ROTATIONS.length];
-  const showTape = index % 2 === 0;
+  const showTape = enableTape && index % 2 === 0;
   const tapeLeft = index % 4 < 2;
 
   const regionName = village.region || '한옥';

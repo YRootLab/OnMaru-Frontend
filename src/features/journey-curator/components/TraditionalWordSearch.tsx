@@ -208,23 +208,25 @@ const ThemeTag = styled.div`
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 3px 10px;
+  padding: 4px 10px;
   border-radius: 9999px;
-  background: rgba(212, 175, 55, 0.1);
-  border: 1px solid rgba(212, 175, 55, 0.3);
+  background: rgba(212, 175, 55, 0.12);
+  border: none;
+  box-shadow: none;
   color: #d4af37;
   font-size: 11.5px;
-  font-weight: 500;
+  font-weight: 600;
 `;
 
 const DifficultyBadge = styled.div`
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 8px;
+  padding: 4px 8px;
   border-radius: 6px;
   background: rgba(255, 84, 20, 0.1);
-  border: 1px solid rgba(255, 84, 20, 0.25);
+  border: none;
+  box-shadow: none;
   color: #ff5414;
   font-size: 11px;
   font-weight: 600;
@@ -268,25 +270,24 @@ const WordTag = styled.div<{ $isFound: boolean }>`
   border-radius: 6px;
   font-size: 11.5px;
   font-weight: 500;
+  border: none;
+  box-shadow: none;
   transition: all 0.25s;
 
   ${({ $isFound }) =>
     $isFound
       ? `
-    background: rgba(0, 184, 130, 0.16);
-    border: 1px solid rgba(0, 184, 130, 0.4);
+    background: rgba(0, 184, 130, 0.15);
     color: #00b882;
     text-decoration: line-through;
-    opacity: 0.8;
+    opacity: 0.85;
   `
       : `
-    background: rgba(0, 0, 0, 0.04);
-    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: rgba(0, 0, 0, 0.05);
     color: #4b5563;
 
     [data-theme='dark'] & {
-      background: rgba(255, 255, 255, 0.06);
-      border-color: rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.07);
       color: #d1d5db;
     }
   `}
@@ -299,16 +300,16 @@ const GridBoard = styled.div`
   gap: 4px;
   width: 350px;
   height: 350px;
-  background: #fbf7ee;
-  border: 3px solid #8e6840;
+  background: #ebe5d8;
+  border: none;
   border-radius: 14px;
   padding: 8px;
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.2), inset 0 2px 6px rgba(255, 255, 255, 0.6);
+  box-shadow: none;
 
   [data-theme='dark'] & {
-    background: linear-gradient(145deg, #2b251e 0%, #1e1914 100%);
-    border-color: #634324;
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4), inset 0 2px 6px rgba(255, 255, 255, 0.06);
+    background: #28231d;
+    border: none;
+    box-shadow: none;
   }
 
   @media (max-width: 400px) {
@@ -323,19 +324,18 @@ const CellButton = styled.button<{ $isSelected: boolean; $isFound: boolean }>`
   position: relative;
   background: ${({ $isFound, $isSelected }) =>
     $isFound
-      ? 'rgba(0, 184, 130, 0.25)'
+      ? 'rgba(0, 184, 130, 0.22)'
       : $isSelected
-      ? 'rgba(212, 175, 55, 0.35)'
-      : 'rgba(0, 0, 0, 0.03)'};
-  border: 1.5px solid
-    ${({ $isFound, $isSelected }) =>
-      $isFound ? '#00b882' : $isSelected ? '#d4af37' : 'rgba(0, 0, 0, 0.08)'};
+      ? 'rgba(255, 120, 20, 0.22)'
+      : '#ffffff'};
+  border: none;
+  box-shadow: none;
   border-radius: 7px;
   color: ${({ $isFound, $isSelected }) =>
-    $isFound ? '#00b882' : $isSelected ? '#b8860b' : '#1f2937'};
+    $isFound ? '#008a60' : $isSelected ? '#d94b00' : '#191f28'};
   font-family: var(--font-hanok);
   font-size: ${fontSize.base};
-  font-weight: 600;
+  font-weight: ${({ $isFound, $isSelected }) => ($isFound || $isSelected ? 700 : 500)};
   cursor: pointer;
   outline: none;
   display: flex;
@@ -350,12 +350,12 @@ const CellButton = styled.button<{ $isSelected: boolean; $isFound: boolean }>`
       $isFound
         ? 'rgba(0, 184, 130, 0.28)'
         : $isSelected
-        ? 'rgba(212, 175, 55, 0.38)'
-        : 'rgba(255, 255, 255, 0.05)'};
-    border-color: ${({ $isFound, $isSelected }) =>
-      $isFound ? '#00b882' : $isSelected ? '#d4af37' : 'rgba(255, 255, 255, 0.08)'};
+        ? 'rgba(255, 120, 20, 0.35)'
+        : 'rgba(255, 255, 255, 0.07)'};
     color: ${({ $isFound, $isSelected }) =>
-      $isFound ? '#4ade80' : $isSelected ? '#ffd700' : '#f3f4f6'};
+      $isFound ? '#4ade80' : $isSelected ? '#ff9d5c' : '#f3f4f6'};
+    border: none;
+    box-shadow: none;
   }
 
   &:hover {
@@ -365,7 +365,7 @@ const CellButton = styled.button<{ $isSelected: boolean; $isFound: boolean }>`
 
     [data-theme='dark'] & {
       background: ${({ $isFound }) =>
-        $isFound ? 'rgba(0, 184, 130, 0.3)' : 'rgba(255, 255, 255, 0.12)'};
+        $isFound ? 'rgba(0, 184, 130, 0.35)' : 'rgba(255, 255, 255, 0.12)'};
     }
   }
 
@@ -390,7 +390,8 @@ const ActionButton = styled.button`
   padding: 6px 12px;
   border-radius: 8px;
   background: rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: none;
+  box-shadow: none;
   color: #374151;
   font-size: 11.5px;
   cursor: pointer;
@@ -398,16 +399,14 @@ const ActionButton = styled.button`
 
   [data-theme='dark'] & {
     background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.12);
     color: #e5e7eb;
   }
 
   &:hover {
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.09);
 
     [data-theme='dark'] & {
       background: rgba(255, 255, 255, 0.14);
-      border-color: rgba(255, 255, 255, 0.25);
     }
   }
 `;
@@ -415,8 +414,9 @@ const ActionButton = styled.button`
 const FinishedBanner = styled(motion.div)`
   width: 100%;
   max-width: 350px;
-  background: linear-gradient(135deg, rgba(0, 184, 130, 0.18), rgba(212, 175, 55, 0.18));
-  border: 1px solid rgba(0, 184, 130, 0.45);
+  background: rgba(0, 184, 130, 0.12);
+  border: none;
+  box-shadow: none;
   border-radius: 12px;
   padding: 10px 14px;
   margin-top: 12px;
@@ -424,7 +424,10 @@ const FinishedBanner = styled(motion.div)`
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  box-shadow: 0 4px 16px rgba(0, 184, 130, 0.2);
+
+  [data-theme='dark'] & {
+    background: rgba(0, 184, 130, 0.16);
+  }
 `;
 
 const CompleteText = styled.div`
@@ -444,6 +447,7 @@ const ViewJourneyBtn = styled.button`
   background: #00b882;
   color: #ffffff;
   border: none;
+  box-shadow: none;
   padding: 6px 12px;
   border-radius: 8px;
   font-size: ${fontSize.xs};

@@ -33,7 +33,7 @@ interface JourneyState {
   /** explorationBoard가 확정된 시각. PDF 인쇄에 "생성일"로 쓴다 — 지어내지 않는다. */
   boardCreatedAt: string | null;
   isExploring: boolean;
-  /** 고른 장소들에 곁들이는 실데이터 3종 — 한옥 도감 / 근처 오디 해설 / 근처 맛집. */
+  /** 고른 장소들에 곁들이는 실데이터 3종 — 공간 기록 / 근처 오디 해설 / 근처 맛집. */
   hanokDogan: HanokDoganEntry[];
   nearbyAudio: NearbyAudioStory[];
   nearbyFood: NearbyFoodPlace[];
@@ -53,6 +53,7 @@ interface JourneyState {
   togglePin: (ref: ResourceRef) => void;
   applyProposal: () => void;
   dismissProposal: () => void;
+  resetJourney: () => void;
   /** 로그인 왕복(카카오) 뒤 sessionStorage에 맡겨뒀던 board나 저장된 여정을 되돌려놓는다. */
   hydrateBoard: (
     board: JourneyBoard,
@@ -202,6 +203,25 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
   },
 
   dismissProposal: () => set({ pendingProposal: null }),
+
+  resetJourney: () => {
+    set({
+      currentQuery: '',
+      activeMood: null,
+      hasSearched: false,
+      selectedNodeId: null,
+      isGenerating: false,
+      explorationBoard: null,
+      boardCreatedAt: null,
+      isExploring: false,
+      hanokDogan: [],
+      nearbyAudio: [],
+      nearbyFood: [],
+      pinnedRefs: [],
+      pendingProposal: null,
+      lastError: null,
+    });
+  },
 
   hydrateBoard: (board, pinnedRefs, enrichment, createdAt) => {
     set({

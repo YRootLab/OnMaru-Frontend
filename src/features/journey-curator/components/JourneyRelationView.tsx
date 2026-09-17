@@ -101,7 +101,7 @@ interface JourneyRelationViewProps {
   board: JourneyBoard;
   focusedRef: ResourceRef | null;
   onFocus: (ref: ResourceRef) => void;
-  onOpenEvidence: (ref: ResourceRef) => void;
+  onOpenEvidence?: (ref: ResourceRef) => void;
 }
 
 export default function JourneyRelationView({ board, focusedRef, onFocus, onOpenEvidence }: JourneyRelationViewProps) {
@@ -128,9 +128,11 @@ export default function JourneyRelationView({ board, focusedRef, onFocus, onOpen
             <RelText type="button" onClick={() => onFocus(clickTarget)}>
               <b>{sourceTitle}</b> · {rel.label} · <b>{targetTitle}</b>
             </RelText>
-            <EvidenceButton type="button" onClick={() => onOpenEvidence(rel.sourceRef)}>
-              근거
-            </EvidenceButton>
+            {onOpenEvidence && (
+              <EvidenceButton type="button" onClick={() => onOpenEvidence(rel.sourceRef)}>
+                근거
+              </EvidenceButton>
+            )}
           </Row>
         );
       })}
