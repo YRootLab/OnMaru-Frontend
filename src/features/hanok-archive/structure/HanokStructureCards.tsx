@@ -1,18 +1,28 @@
 'use client';
 
 /*
-  구조 챕터 진입 카드 두 장.
+  한옥 건축의 비밀과 공간 과학 챕터 진입 카드 (2종)
+  1. ☀️ 빛 (절기 일조량 & 남중고도 처마 시뮬레이션)
+  2. 🪵 뼈대 (못 없는 짜맞춤 결구 & 7단계 부재 조립)
 
-  절기 그림자와 7단계 조립은 도감의 대표 연출이라, 텍스트 링크로 접어두면 지나쳐 버린다.
-  무엇을 보게 되는지 카드 안에서 먼저 보여주고 누를 이유를 만든다.
-  3D는 모달을 열 때 비로소 받아온다 — 도감 본문 스크롤에는 아무 비용도 얹지 않는다.
+  3D 무거운 렌더러는 모달을 클릭할 때 비로소 로드하여 메인 스크롤 성능을 60fps로 보존하고,
+  카드 자체에서 인터랙티브 프리뷰와 감성적인 에디토리얼 연출로 클릭할 명확한 동기를 부여합니다.
 */
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
+import { keyframes } from '@emotion/react';
+import {
+  SunMedium,
+  Layers,
+  ArrowUpRight,
+  Sparkles,
+  Compass,
+  CheckCircle2,
+} from 'lucide-react';
 
-import { meok, palette, lightPalette, surface, fluidHeading , fontSize } from '@/design-system/tokens';
+import { meok, palette, lightPalette, surface, fluidHeading, fontSize } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
 
 const SolarShadowModal = dynamic(() => import('./SolarShadowModal'), { ssr: false });
@@ -20,83 +30,108 @@ const HanokAssemblyModal = dynamic(() => import('./HanokAssemblyModal'), { ssr: 
 
 type OpenModal = 'shadow' | 'assembly' | null;
 
-/*
-  카드 두 장은 각각 다른 축이다 — 빛(절기), 순서(조립).
-  같은 한옥을 두 방향에서 여는 문이라 나란히 서야 한다.
-*/
+const SectionWrapper = styled.section`
+  position: relative;
+  width: 100%;
+`;
+
 const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(12px, 1.6vw, 20px);
+  gap: clamp(16px, 2.2vw, 28px);
 
-  @media (max-width: 720px) {
+  @media (max-width: 840px) {
     grid-template-columns: 1fr;
   }
 `;
 
-/*
-  이 도감의 카드 언어는 색 배경이 아니라 중성 워시다 (분포 섹션의 통계 박스와 같은
-  rgba(78, 89, 104, 0.03)). 두 카드만 채도 있는 파스텔로 서 있으면 도감 전체에서
-  여기만 배너처럼 튄다. 구분은 배경색이 아니라 Eyebrow·Cue의 악센트 컬러가 진다.
-*/
-const Card = styled.button`
+const CardContainer = styled.button<{ $accentColor: string; $accentBg: string }>`
+  position: relative;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-  padding: clamp(20px, 2.4vw, 30px);
+  align-items: stretch;
+  padding: clamp(24px, 2.8vw, 36px);
+  border-radius: 28px;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  background: #ffffff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
   text-align: left;
-
-  border: none;
-  border-radius: 20px;
-  background: rgba(78, 89, 104, 0.03);
   font-family: inherit;
   cursor: pointer;
+  overflow: hidden;
   transition:
-    background-color 0.18s ease-out,
-    transform 0.18s ease-out;
+    transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.28s ease;
 
   &:hover {
-    background: rgba(78, 89, 104, 0.06);
-    transform: translateY(-2px);
+    transform: translateY(-5px);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.08);
+    border-color: ${({ $accentColor }) => $accentColor};
   }
 
   &:focus-visible {
-    outline: 2px solid ${meok[900]};
-    outline-offset: 3px;
+    outline: 2px solid ${({ $accentColor }) => $accentColor};
+    outline-offset: 4px;
   }
 
   [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.04);
+    background: ${surface.dark.card};
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.24);
   }
 
   [data-theme='dark'] &:hover {
-    background: rgba(255, 255, 255, 0.07);
-  }
-
-  [data-theme='dark'] &:focus-visible {
-    outline-color: ${meok[100]};
+    border-color: ${({ $accentColor }) => $accentColor};
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.38);
   }
 `;
 
-const Eyebrow = styled.span<{ $color: string; $darkColor?: string }>`
+const CardTopRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+`;
+
+const Badge = styled.div<{ $color: string; $bg: string }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 9999px;
   font-size: ${fontSize.xs};
-  font-weight: 500;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  font-weight: 700;
   color: ${({ $color }) => $color};
+  background: ${({ $bg }) => $bg};
+  letter-spacing: -0.01em;
+`;
+
+const HintTag = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: ${fontSize.micro};
+  font-weight: 600;
+  color: ${meok[500]};
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(78, 89, 104, 0.06);
 
   [data-theme='dark'] & {
-    color: ${({ $darkColor, $color }) => $darkColor || $color};
+    color: ${meok[400]};
+    background: rgba(255, 255, 255, 0.06);
   }
 `;
 
-const CardTitle = styled.span`
-  font-size: ${fluidHeading.card};
-  font-weight: 500;
-  letter-spacing: -0.022em;
-  line-height: 1.3;
+const CardTitle = styled.h3`
+  font-family: var(--font-hanok);
+  font-size: clamp(19px, 1.8vw, 23px);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.35;
   color: ${meok[900]};
+  margin: 0 0 10px;
   word-break: keep-all;
 
   [data-theme='dark'] & {
@@ -104,111 +139,228 @@ const CardTitle = styled.span`
   }
 `;
 
-const CardDesc = styled.span`
+const CardDesc = styled.p`
   font-size: ${fontSize.sm};
   font-weight: 400;
-  line-height: 1.7;
+  line-height: 1.65;
   color: ${meok[700]};
+  margin: 0 0 20px;
   word-break: keep-all;
 
   [data-theme='dark'] & {
-    color: ${meok[400]};
+    color: ${meok[300]};
   }
 `;
 
-const Cue = styled.span<{ $color: string; $darkColor?: string }>`
-  margin-top: 4px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: ${fontSize.xs};
-  font-weight: 500;
-  color: ${({ $color }) => $color};
+/* =========================================================================
+   인터랙티브 프리뷰 비주얼 영역 (빛: 태양 궤적 & 처마, 뼈대: 7켜 결구 상승)
+   ========================================================================= */
 
-  [data-theme='dark'] & {
-    color: ${({ $darkColor, $color }) => $darkColor || $color};
-  }
-`;
-
-/** 카드 안에서 무엇을 보게 되는지 먼저 보여주는 정지 프레임. */
-const Preview = styled.span`
+const PreviewCanvas = styled.div`
   position: relative;
-  display: block;
   width: 100%;
-  height: clamp(96px, 12vw, 132px);
-  margin-top: 6px;
+  height: 140px;
+  margin-bottom: 20px;
+  border-radius: 18px;
+  background: #f8f8f7;
   overflow: hidden;
-  border-radius: 12px;
-  background: ${surface.light.card};
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   [data-theme='dark'] & {
-    background: ${surface.dark.card};
+    background: #24211D;
+    border-color: rgba(255, 255, 255, 0.05);
   }
 `;
 
-/** 처마 한 겹과 그 아래로 뻗는 그림자. 절기가 바뀌면 이 길이가 바뀐다. */
-const ShadowPreview = styled(Preview)`
-  &::before {
-    content: '';
+/* ☀️ 태양 궤적 & 처마 그림자 애니메이션 */
+const sunOrbit = keyframes`
+  0% { transform: translate(-40px, 30px); opacity: 0.8; }
+  50% { transform: translate(0px, 0px); opacity: 1; }
+  100% { transform: translate(40px, 20px); opacity: 0.8; }
+`;
+
+const shadowLengthen = keyframes`
+  0% { transform: scaleX(0.7) skewX(-32deg); opacity: 0.75; }
+  50% { transform: scaleX(1.15) skewX(-32deg); opacity: 0.95; }
+  100% { transform: scaleX(0.7) skewX(-32deg); opacity: 0.75; }
+`;
+
+const SolarPreviewGraphic = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
+
+  /* 태양 궤적선 (Arc) */
+  .sun-arc {
     position: absolute;
-    left: 14%;
-    top: 26%;
+    top: 20%;
+    left: 20%;
+    right: 20%;
+    height: 60px;
+    border-top: 2px dashed rgba(217, 148, 0, 0.35);
+    border-radius: 50% 50% 0 0;
+  }
+
+  /* 움직이는 태양 오브젝트 */
+  .sun-orb {
+    position: absolute;
+    top: 18%;
+    left: 48%;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #ffd026 0%, #ff9800 100%);
+    box-shadow: 0 0 16px rgba(255, 184, 0, 0.6);
+    animation: ${sunOrbit} 4s ease-in-out infinite alternate;
+  }
+
+  /* 전통 처마선 (Eaves Roofline) */
+  .roof-curve {
+    position: absolute;
+    top: 48%;
+    left: 18%;
     width: 44%;
-    height: 12%;
-    border-radius: 3px;
-    background: ${meok[700]};
+    height: 8px;
+    background: ${meok[800]};
+    border-radius: 3px 12px 3px 3px;
+    transform: rotate(-4deg);
+
+    [data-theme='dark'] & {
+      background: #e5e5e3;
+    }
   }
 
-  &::after {
-    content: '';
+  /* 처마 밑으로 뻗는 계절 그림자 */
+  .eaves-shadow {
     position: absolute;
-    left: 22%;
-    top: 58%;
-    width: 62%;
-    height: 9%;
+    bottom: 24%;
+    left: 36%;
+    width: 46%;
+    height: 10px;
     border-radius: 3px;
-    background: linear-gradient(to right, rgba(58, 46, 31, 0.42), rgba(58, 46, 31, 0.06));
-    transform: skewX(-38deg);
+    background: linear-gradient(to right, rgba(58, 46, 31, 0.6), rgba(58, 46, 31, 0.08));
+    transform-origin: left center;
+    animation: ${shadowLengthen} 3.6s ease-in-out infinite;
+
+    [data-theme='dark'] & {
+      background: linear-gradient(to right, rgba(255, 208, 38, 0.35), rgba(255, 208, 38, 0.02));
+    }
+  }
+
+  /* 절기 고도 텍스트 라벨 */
+  .season-indicator {
+    position: absolute;
+    bottom: 10px;
+    right: 14px;
+    font-size: 11px;
+    font-weight: 600;
+    color: ${lightPalette.hwanggeum[700]};
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    [data-theme='dark'] & {
+      color: ${palette.hwanggeum[400]};
+    }
   }
 `;
 
-/** 아래에서부터 쌓여 올라가는 부재 일곱 켜. */
-const AssemblyPreview = styled(Preview)`
+/* 🪵 7단계 결구 조립 부재 애니메이션 */
+const layerRise = keyframes`
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+`;
+
+const AssemblyPreviewGraphic = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column-reverse;
-  align-items: stretch;
   justify-content: center;
-  gap: 4px;
-  /* 세로 패딩을 %로 주면 가로 길이 기준이라 내용 높이를 다 먹는다. px로 잡는다. */
-  padding: 14px 24%;
+  align-items: center;
+  gap: 5px;
+  padding: 16px 28%;
 
-  span {
-    display: block;
-    flex: 0 0 8px;
-    border-radius: 2px;
+  .layer-bar {
+    width: 100%;
+    height: 8px;
+    border-radius: 3px;
     background: ${lightPalette.juhong[400]};
+    animation: ${layerRise} 2.6s ease-in-out infinite;
   }
 
-  span:nth-of-type(1) {
-    opacity: 1;
+  .layer-1 { width: 92%; opacity: 1; animation-delay: 0s; background: #65707c; } /* 석조 기단 */
+  .layer-2 { width: 78%; opacity: 0.9; animation-delay: 0.1s; background: #8b95a1; } /* 디딤돌 */
+  .layer-3 { width: 84%; opacity: 0.82; animation-delay: 0.2s; background: #d94000; } /* 목조 기둥 */
+  .layer-4 { width: 88%; opacity: 0.72; animation-delay: 0.3s; background: #ff5500; } /* 대청 마루 */
+  .layer-5 { width: 80%; opacity: 0.60; animation-delay: 0.4s; background: #ff7830; } /* 황토 벽체 */
+  .layer-6 { width: 74%; opacity: 0.48; animation-delay: 0.5s; background: #ffbd99; } /* 창호 */
+  .layer-7 { width: 100%; opacity: 0.35; animation-delay: 0.6s; background: #ff3b30; } /* 기와 지붕 */
+
+  .joinery-indicator {
+    position: absolute;
+    bottom: 10px;
+    right: 14px;
+    font-size: 11px;
+    font-weight: 600;
+    color: ${lightPalette.juhong[700]};
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    [data-theme='dark'] & {
+      color: ${palette.juhong[400]};
+    }
   }
-  span:nth-of-type(2) {
-    opacity: 0.88;
+`;
+
+/* 태그 칩 */
+const TagRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 20px;
+`;
+
+const Tag = styled.span`
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: ${fontSize.micro};
+  background: rgba(78, 89, 104, 0.05);
+  color: ${meok[700]};
+  font-weight: 500;
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.05);
+    color: ${meok[300]};
   }
-  span:nth-of-type(3) {
-    opacity: 0.76;
+`;
+
+/* 카드 하단 액션 버튼 */
+const ActionBtn = styled.div<{ $color: string; $bg: string }>`
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 13px 18px;
+  border-radius: 14px;
+  background: ${({ $bg }) => $bg};
+  color: ${({ $color }) => $color};
+  font-size: ${fontSize.sm};
+  font-weight: 700;
+  transition: all 0.2s ease;
+
+  svg {
+    transition: transform 0.22s ease;
   }
-  span:nth-of-type(4) {
-    opacity: 0.62;
-  }
-  span:nth-of-type(5) {
-    opacity: 0.46;
-  }
-  span:nth-of-type(6) {
-    opacity: 0.3;
-  }
-  span:nth-of-type(7) {
-    opacity: 0.16;
+
+  ${CardContainer}:hover & svg {
+    transform: translate(2px, -2px);
   }
 `;
 
@@ -217,48 +369,112 @@ export default function HanokStructureCards() {
   const close = () => setOpen(null);
 
   return (
-    <>
+    <SectionWrapper aria-labelledby="structure-heading">
       <SectionHeader
         id="structure-heading"
-        title="한옥 공간 미학과 구조의 과학"
-        subtitle="24절기 처마 일조 분석과 7단계 3D 부재 결구"
+        title="한옥은 왜 이렇게 생겼을까"
+        subtitle="처마의 각도와 기둥이 서는 순서 — 자연을 거스르지 않는 3D 인터랙티브 공간 과학"
       />
-      <Grid>
-        <Card type="button" onClick={() => setOpen('shadow')}>
-          <Eyebrow $color={lightPalette.hwanggeum[700]} $darkColor={palette.hwanggeum[400]}>빛</Eyebrow>
-          <CardTitle>처마는 어떻게 여름 볕을 자르고 겨울 볕을 들이나</CardTitle>
-          <CardDesc>
-            절기를 옮겨 보세요. 남중고도에 따라 처마 그림자가 실제 비율로 늘고 줄어듭니다.
-          </CardDesc>
-          <ShadowPreview aria-hidden="true" />
-          <Cue $color={lightPalette.hwanggeum[700]} $darkColor={palette.hwanggeum[400]}>
-            그림자 시뮬레이션 열기 <span aria-hidden="true">→</span>
-          </Cue>
-        </Card>
 
-        <Card type="button" onClick={() => setOpen('assembly')}>
-          <Eyebrow $color={lightPalette.juhong[700]} $darkColor={palette.juhong[400]}>뼈대</Eyebrow>
-          <CardTitle>기단에서 기와까지, 한옥은 일곱 켜로 선다</CardTitle>
+      <Grid>
+        {/* 1. 빛: 절기 일조량 & 남중고도 처마 시뮬레이션 */}
+        <CardContainer
+          type="button"
+          onClick={() => setOpen('shadow')}
+          $accentColor={palette.hwanggeum[500]}
+          $accentBg="rgba(255, 184, 0, 0.08)"
+          aria-label="처마 그림자 시뮬레이션 열기"
+        >
+          <CardTopRow>
+            <Badge $color={lightPalette.hwanggeum[700]} $bg="rgba(217, 148, 0, 0.12)">
+              <SunMedium size={14} /> 자연의 빛과 일조 과학
+            </Badge>
+            <HintTag>
+              <Compass size={12} /> 3D 태양 궤적 시뮬레이터
+            </HintTag>
+          </CardTopRow>
+
+          <CardTitle>처마는 왜 여름엔 그늘을, 겨울엔 볕을 줄까</CardTitle>
           <CardDesc>
-            스크롤을 내리며 한 켜씩 세워 보세요. 못 하나 없이 부재가 제자리를 찾아 들어갑니다.
+            봄·여름·가을·겨울 24절기를 슬라이더로 옮겨 보세요. 남중고도(29°~77°) 변화에 따라 처마 밑으로 드리우는 그림자가 실제 건축 비율로 시시각각 변화합니다.
           </CardDesc>
-          <AssemblyPreview aria-hidden="true">
-            <span />
-            <span />
-            <span />
-            <span />
-            <span />
-            <span />
-            <span />
-          </AssemblyPreview>
-          <Cue $color={lightPalette.juhong[700]} $darkColor={palette.juhong[400]}>
-            7단계 조립 열기 <span aria-hidden="true">→</span>
-          </Cue>
-        </Card>
+
+          <PreviewCanvas aria-hidden="true">
+            <SolarPreviewGraphic>
+              <div className="sun-arc" />
+              <div className="sun-orb" />
+              <div className="roof-curve" />
+              <div className="eaves-shadow" />
+              <div className="season-indicator">
+                <Sparkles size={12} /> 하지 77° ➔ 동지 29°
+              </div>
+            </SolarPreviewGraphic>
+          </PreviewCanvas>
+
+          <TagRow>
+            <Tag>#남중고도시뮬레이션</Tag>
+            <Tag>#여름그늘_겨울햇살</Tag>
+            <Tag>#친환경패시브건축</Tag>
+          </TagRow>
+
+          <ActionBtn $color={lightPalette.hwanggeum[700]} $bg="rgba(217, 148, 0, 0.1)">
+            <span>3D 그림자 시뮬레이션 시작하기</span>
+            <ArrowUpRight size={18} />
+          </ActionBtn>
+        </CardContainer>
+
+        {/* 2. 뼈대: 못 없는 결구 & 7단계 부재 조립 */}
+        <CardContainer
+          type="button"
+          onClick={() => setOpen('assembly')}
+          $accentColor={palette.juhong[500]}
+          $accentBg="rgba(255, 85, 0, 0.08)"
+          aria-label="7단계 부재 조립 열기"
+        >
+          <CardTopRow>
+            <Badge $color={lightPalette.juhong[700]} $bg="rgba(217, 64, 0, 0.12)">
+              <Layers size={14} /> 못 없는 맞춤과 결구의 미학
+            </Badge>
+            <HintTag>
+              <CheckCircle2 size={12} /> 3D 인터랙티브 결구 뷰어
+            </HintTag>
+          </CardTopRow>
+
+          <CardTitle>쇠못 하나 없이, 한옥은 어떻게 일곱 켜로 설까</CardTitle>
+          <CardDesc>
+            기단부터 지붕까지 한 켜씩 세워 보세요. 사개맞춤과 장부맞춤으로 서로를 꽉 물어주어 지진과 비바람에도 흔들리지 않는 전통 목조 결구의 정수를 경험합니다.
+          </CardDesc>
+
+          <PreviewCanvas aria-hidden="true">
+            <AssemblyPreviewGraphic>
+              <div className="layer-bar layer-1" />
+              <div className="layer-bar layer-2" />
+              <div className="layer-bar layer-3" />
+              <div className="layer-bar layer-4" />
+              <div className="layer-bar layer-5" />
+              <div className="layer-bar layer-6" />
+              <div className="layer-bar layer-7" />
+              <div className="joinery-indicator">
+                <Sparkles size={12} /> 기단에서 기와까지 7단계
+              </div>
+            </AssemblyPreviewGraphic>
+          </PreviewCanvas>
+
+          <TagRow>
+            <Tag>#사개맞춤_짜맞춤</Tag>
+            <Tag>#7단계입체결구</Tag>
+            <Tag>#전통목조건축미학</Tag>
+          </TagRow>
+
+          <ActionBtn $color={lightPalette.juhong[700]} $bg="rgba(217, 64, 0, 0.1)">
+            <span>3D 7단계 조립 탐색하기</span>
+            <ArrowUpRight size={18} />
+          </ActionBtn>
+        </CardContainer>
       </Grid>
 
       {open === 'shadow' && <SolarShadowModal onClose={close} />}
       {open === 'assembly' && <HanokAssemblyModal onClose={close} />}
-    </>
+    </SectionWrapper>
   );
 }

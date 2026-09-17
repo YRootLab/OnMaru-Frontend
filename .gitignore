@@ -43,6 +43,10 @@ data/build-errors.json
 # vercel
 .vercel
 
+# 개인 트러블슈팅 노트 (비공개)
+/트러블슈팅
+/기록
+
 # typescript
 *.tsbuildinfo
 tsconfig.tsbuildinfo

@@ -1,18 +1,17 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 import { Global, css } from '@emotion/react';
 import { meok, lightPalette, surface, fluidHeading, fontSize } from '@/design-system/tokens';
 import HanokGrid from '@/features/hanok-archive/sections/HanokGrid';
-import HanokDistribution from '@/features/hanok-archive/sections/HanokDistribution';
 import HanokStayAccordion from '@/features/hanok-archive/sections/HanokStayAccordion';
 import HanokMap from '@/features/hanok-archive/sections/HanokMap';
 import HanokMonthly from '@/features/hanok-archive/sections/HanokMonthly';
+import KCultureThemeFeed from '@/features/hanok-archive/components/KCultureThemeFeed';
 import HanokManifestoCta from '@/features/hanok-archive/sections/HanokManifestoCta';
 import HanokStructureCards from '@/features/hanok-archive/structure/HanokStructureCards';
-import HanokParts from '@/features/hanok-archive/structure/HanokParts';
 import type { Village, VillageMeta } from '@/features/hanok-archive/types';
 import { decodeHanokArchivePayload } from '@/features/hanok-archive/data/hanokArchiveFallback';
 import { HANOK_REVEAL_SECTIONS } from '@/features/hanok-archive/hanokSectionReveal';
@@ -104,11 +103,6 @@ const MonthlyEditorialSection = styled(EditorialSection)`
   @media (min-width: 901px) {
     min-height: 565px;
   }
-`;
-
-// 2. 어두운 인트로 영상 배경 바로 다음 자리: 첫 본문으로 넘어올 때 서사적인 여유를 준다
-const HeroLeadOutSection = styled.div`
-  padding-top: clamp(64px, 8.5vh, 108px);
 `;
 
 // 3. 챕터 대전환: 이달의 한옥 → 도감, 스테이 → 3D 구조, 부재 목록 → 지도
@@ -252,15 +246,22 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
   const prefersReducedMotion = usePrefersReducedMotion();
   const [selectedDogamVillage, setSelectedDogamVillage] = useState<Village | null>(null);
   const [selectedStay, setSelectedStay] = useState<Village | null>(null);
-  const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
   const [archiveData, setArchiveData] = useState(() => ({ villages, meta }));
   const [showIntroVideo, setShowIntroVideo] = useState(false);
   const [introVideoReady, setIntroVideoReady] = useState(false);
   // 목데이터 스냅샷이 실데이터로 교체되며 이달의 한옥 이미지가 눈에 띄게 스왑되는 걸 막기 위해,
   // 실데이터 확정 전까지는 스켈레톤을 보여준다.
   const [isFeaturedReady, setIsFeaturedReady] = useState(false);
+  // 스냅샷 → 실데이터 교체는 방문당 딱 한 번이어야 한다. 개발 모드의 StrictMode
+  // 이중 실행처럼 이 effect가 두 번 걸리면 archiveData가 다시 한번 바뀌어 regions
+  // 참조도 또 바뀌고, 이미 끝난 분포 차트 입장 연출이 또 리셋된다 — "표가 나타났다가
+  // 안 나타나"가 재발했던 원인. isActive 가드는 취소만 막을 뿐 두 번째로 실제 도착한
+  // 응답까지는 못 막으므로, 교체 자체를 컴포넌트 생애주기당 한 번으로 못박는다.
+  const hasSwappedRef = useRef(false);
 
   useEffect(() => {
+    if (hasSwappedRef.current) return undefined;
+
     let isActive = true;
     const controller = new AbortController();
     const timeoutId = window.setTimeout(() => controller.abort(), 5000);
@@ -273,7 +274,10 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
         });
         if (!response.ok) return;
         const nextData = decodeHanokArchivePayload(await response.json());
-        if (isActive && nextData) setArchiveData(nextData);
+        if (isActive && nextData && !hasSwappedRef.current) {
+          hasSwappedRef.current = true;
+          setArchiveData(nextData);
+        }
       } catch {
         // Snapshot remains visible when the future backend is unavailable or changes shape.
       } finally {
@@ -299,6 +303,19 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
     []
   );
 
+  // 탭이 백그라운드로 갔다 돌아오면 브라우저가 그동안 안 그린 화면을 그대로 들고 있다가
+  // 어색하게 멈춰 보일 때가 있다. 탭이 다시 보일 때 한 번 리플로우를 강제해 최신 상태로
+  // 다시 그리게 한다 — 비용은 거의 없고, 문제가 없을 땐 그냥 아무 변화도 없다.
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        void document.body.offsetHeight;
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
+
   // 인트로 뒷배경 영상 — 초기 렌더에는 CSS 그라디언트 포스터만 보이고,
   // 마운트 후 한가할 때 영상을 불러와 재생 준비가 되면 크로스페이드한다.
   // 모션을 줄이길 원하면 영상을 아예 요청하지 않고 포스터로 둔다.
@@ -310,7 +327,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
   return (
     <Root>
       <HanokAtmosphereBackground />
-      <HanjiDeckleEdge />
+      {/* <HanjiDeckleEdge /> */}
       <Global styles={paperGround} />
       <PageInner>
         {/* 진입부: 한국의 정취를 담은 동영상 히어로 */}
@@ -357,17 +374,22 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
           </StyledVesselReveal>
         </MonthlyEditorialSection>
 
-        {/* 3. 데이터 탐색: 전국 한옥 분포 & 인터랙티브 지역 선택기 */}
-        <HeroLeadOutSection>
-          <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.distribution}>
+        {/* K-컬처 & 웰니스 테마 큐레이션: K-드라마, 촌캉스, 야간기행, 종가 미식 (토스/당근 스타일) */}
+        <EditorialSection>
+          <StyledVesselReveal id="hanok-kculture-themes">
             <SectionContainer>
-              <HanokDistribution
-                villages={archiveData.villages}
-                onSelectRegion={setSelectedRegion}
+              <KCultureThemeFeed
+                onSelectContent={(contentId) => {
+                  const target = archiveData.villages.find((v) => v.id === contentId);
+                  if (target) {
+                    if (target.type === '한옥스테이') setSelectedStay(target);
+                    else setSelectedDogamVillage(target);
+                  }
+                }}
               />
             </SectionContainer>
           </StyledVesselReveal>
-        </HeroLeadOutSection>
+        </EditorialSection>
 
         {/* 4. 아카이브 덩어리: 전국 한옥 도감 ➔ 지역별 한옥 스테이 */}
         <ChapterBreak>
@@ -377,7 +399,6 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
                 villages={archiveData.villages}
                 onSelectVillage={setSelectedDogamVillage}
                 initialFilters={initialFilters}
-                externalRegion={selectedRegion}
               />
             </SectionContainer>
           </StyledVesselReveal>
@@ -404,18 +425,6 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
               <HanokStructureCards />
             </SectionContainer>
           </StyledVesselReveal>
-
-          {/*
-            카드는 3D로 들어가는 문이고, 이 목록은 문을 열지 않아도 읽히는 본문이다.
-            같은 챕터라 여백을 크게 두지 않고 바로 잇는다.
-          */}
-          <EditorialSection>
-            <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.parts}>
-              <SectionContainer>
-                <HanokParts />
-              </SectionContainer>
-            </StyledVesselReveal>
-          </EditorialSection>
         </ChapterBreak>
 
         {/* 부재를 읽고 난 뒤 지도로 — 어느 채가 어디 있는지 짚어 준다 (구조에서 지도로의 대전환) */}

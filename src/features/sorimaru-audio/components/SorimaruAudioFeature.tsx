@@ -508,7 +508,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   return (
     <SorimaruDependencyProvider apiService={activeApiService}>
       <FeatureContainer>
-        <HanjiDeckleEdge />
+        {/* <HanjiDeckleEdge /> */}
         <SorimaruAtmosphereBackground
           variant={backgroundVariant}
           selectedCategory={selectedCategory}

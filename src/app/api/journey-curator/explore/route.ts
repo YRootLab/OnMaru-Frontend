@@ -126,7 +126,9 @@ async function pickCandidates(
   pinnedSpots: RawSpot[],
   slotsNeeded: number,
 ): Promise<{ title: string; querySummary: string; picks: GeminiPick[] } | null> {
-  const apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+  // 서버 전용 라우트라 NEXT_PUBLIC_ 접두 변수는 쓰지 않는다 — 그 접두는 클라이언트
+  // 번들에 그대로 인라인되므로 API 키에는 절대 붙이면 안 된다.
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey || slotsNeeded <= 0) return null;
 
   const allowlist = spots

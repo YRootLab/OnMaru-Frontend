@@ -59,9 +59,11 @@ const DeckleFringe = styled.path<{ $isDark: boolean }>`
 `;
 
 export function HanjiDeckleEdge() {
-  const { mode } = useOnmaruTheme();
-  const isDark = mode === 'dark';
+  // const { mode } = useOnmaruTheme();
+  // const isDark = mode === 'dark';
 
+  return null;
+  /*
   return (
     <Container aria-hidden="true">
       <DeckleLeft viewBox="0 0 32 1200" preserveAspectRatio="none">
@@ -74,5 +76,6 @@ export function HanjiDeckleEdge() {
       </DeckleRight>
     </Container>
   );
+  */
 }
 
