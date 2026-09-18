@@ -11,6 +11,7 @@ export interface KCultureThemeItem {
   category: 'kdrama' | 'night' | 'heritage_food';
   categoryLabel: string;
   categoryIcon: string;
+  mediaType?: 'drama' | 'movie' | 'mv';
   isGyeongbukSpecial?: boolean;
   title: string;
   subtitle: string;
@@ -60,6 +61,7 @@ export const KCULTURE_THEME_ITEMS: KCultureThemeItem[] = [
     category: 'kdrama',
     categoryLabel: '스크린 속 한옥',
     categoryIcon: '🎬',
+    mediaType: 'drama',
     isGyeongbukSpecial: true,
     eyebrow: '드라마 <미스터 션샤인> 명대사의 무대 (TourAPI: 12)',
     title: '합시다, 러브. 만휴정의 외나무다리',

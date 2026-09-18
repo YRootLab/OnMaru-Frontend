@@ -18,8 +18,6 @@ import {
   Layers,
   ArrowUpRight,
   Sparkles,
-  Compass,
-  CheckCircle2,
 } from 'lucide-react';
 
 import { meok, palette, lightPalette, surface, fluidHeading, fontSize } from '@/design-system/tokens';
@@ -45,12 +43,12 @@ const Grid = styled.div`
   }
 `;
 
-const CardContainer = styled.button<{ $accentColor: string; $accentBg: string }>`
+const CardContainer = styled.button<{ $accentColor: string }>`
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  padding: clamp(24px, 2.8vw, 36px);
+  padding: 0;
   border-radius: 28px;
   border: 1px solid rgba(0, 0, 0, 0.07);
   background: #ffffff;
@@ -87,41 +85,19 @@ const CardContainer = styled.button<{ $accentColor: string; $accentBg: string }>
   }
 `;
 
-const CardTopRow = styled.div`
+const CardBody = styled.div`
+  padding: clamp(22px, 2.6vw, 30px) clamp(24px, 2.8vw, 36px) clamp(24px, 2.8vw, 36px);
+`;
+
+const SectionLabel = styled.div<{ $color: string }>`
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-`;
-
-const Badge = styled.div<{ $color: string; $bg: string }>`
-  display: inline-flex;
-  align-items: center;
   gap: 6px;
-  padding: 6px 14px;
-  border-radius: 9999px;
   font-size: ${fontSize.xs};
   font-weight: 700;
+  letter-spacing: 0.04em;
   color: ${({ $color }) => $color};
-  background: ${({ $bg }) => $bg};
-  letter-spacing: -0.01em;
-`;
-
-const HintTag = styled.span`
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: ${fontSize.micro};
-  font-weight: 600;
-  color: ${meok[500]};
-  padding: 4px 10px;
-  border-radius: 6px;
-  background: rgba(78, 89, 104, 0.06);
-
-  [data-theme='dark'] & {
-    color: ${meok[400]};
-    background: rgba(255, 255, 255, 0.06);
-  }
+  margin-bottom: 10px;
 `;
 
 const CardTitle = styled.h3`
@@ -156,22 +132,19 @@ const CardDesc = styled.p`
    인터랙티브 프리뷰 비주얼 영역 (빛: 태양 궤적 & 처마, 뼈대: 7켜 결구 상승)
    ========================================================================= */
 
-const PreviewCanvas = styled.div`
+const PreviewCanvas = styled.div<{ $bg: string }>`
   position: relative;
   width: 100%;
-  height: 140px;
-  margin-bottom: 20px;
-  border-radius: 18px;
-  background: #f8f8f7;
+  height: clamp(160px, 20vw, 200px);
+  background: ${({ $bg }) => $bg};
   overflow: hidden;
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   display: flex;
   align-items: center;
   justify-content: center;
 
   [data-theme='dark'] & {
-    background: #24211D;
-    border-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.06);
   }
 `;
 
@@ -318,42 +291,15 @@ const AssemblyPreviewGraphic = styled.div`
   }
 `;
 
-/* 태그 칩 */
-const TagRow = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 20px;
-`;
-
-const Tag = styled.span`
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: ${fontSize.micro};
-  background: rgba(78, 89, 104, 0.05);
-  color: ${meok[700]};
-  font-weight: 500;
-
-  [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.05);
-    color: ${meok[300]};
-  }
-`;
-
-/* 카드 하단 액션 버튼 */
-const ActionBtn = styled.div<{ $color: string; $bg: string }>`
-  margin-top: auto;
+/* 카드 하단 — 이미 카드 전체가 버튼이니, 여기는 텍스트 링크 정도로만 존재를 알린다 */
+const MoreLink = styled.div<{ $color: string }>`
+  margin-top: 18px;
   display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 13px 18px;
-  border-radius: 14px;
-  background: ${({ $bg }) => $bg};
+  gap: 4px;
   color: ${({ $color }) => $color};
   font-size: ${fontSize.sm};
-  font-weight: 700;
-  transition: all 0.2s ease;
+  font-weight: 600;
 
   svg {
     transition: transform 0.22s ease;
@@ -373,7 +319,7 @@ export default function HanokStructureCards() {
       <SectionHeader
         id="structure-heading"
         title="한옥은 왜 이렇게 생겼을까"
-        subtitle="처마의 각도와 기둥이 서는 순서 — 자연을 거스르지 않는 3D 인터랙티브 공간 과학"
+       
       />
 
       <Grid>
@@ -382,24 +328,9 @@ export default function HanokStructureCards() {
           type="button"
           onClick={() => setOpen('shadow')}
           $accentColor={palette.hwanggeum[500]}
-          $accentBg="rgba(255, 184, 0, 0.08)"
           aria-label="처마 그림자 시뮬레이션 열기"
         >
-          <CardTopRow>
-            <Badge $color={lightPalette.hwanggeum[700]} $bg="rgba(217, 148, 0, 0.12)">
-              <SunMedium size={14} /> 자연의 빛과 일조 과학
-            </Badge>
-            <HintTag>
-              <Compass size={12} /> 3D 태양 궤적 시뮬레이터
-            </HintTag>
-          </CardTopRow>
-
-          <CardTitle>처마는 왜 여름엔 그늘을, 겨울엔 볕을 줄까</CardTitle>
-          <CardDesc>
-            봄·여름·가을·겨울 24절기를 슬라이더로 옮겨 보세요. 남중고도(29°~77°) 변화에 따라 처마 밑으로 드리우는 그림자가 실제 건축 비율로 시시각각 변화합니다.
-          </CardDesc>
-
-          <PreviewCanvas aria-hidden="true">
+          <PreviewCanvas $bg="rgba(255, 184, 0, 0.07)" aria-hidden="true">
             <SolarPreviewGraphic>
               <div className="sun-arc" />
               <div className="sun-orb" />
@@ -411,16 +342,21 @@ export default function HanokStructureCards() {
             </SolarPreviewGraphic>
           </PreviewCanvas>
 
-          <TagRow>
-            <Tag>#남중고도시뮬레이션</Tag>
-            <Tag>#여름그늘_겨울햇살</Tag>
-            <Tag>#친환경패시브건축</Tag>
-          </TagRow>
+          <CardBody>
+            <SectionLabel $color={lightPalette.hwanggeum[700]}>
+              <SunMedium size={14} /> 자연의 빛과 일조 과학
+            </SectionLabel>
 
-          <ActionBtn $color={lightPalette.hwanggeum[700]} $bg="rgba(217, 148, 0, 0.1)">
-            <span>3D 그림자 시뮬레이션 시작하기</span>
-            <ArrowUpRight size={18} />
-          </ActionBtn>
+            <CardTitle>처마는 왜 여름엔 그늘을, 겨울엔 볕을 줄까</CardTitle>
+            <CardDesc>
+              봄·여름·가을·겨울 24절기를 슬라이더로 옮겨 보세요. 남중고도(29°~77°) 변화에 따라 처마 밑으로 드리우는 그림자가 실제 건축 비율로 시시각각 변화합니다.
+            </CardDesc>
+
+            <MoreLink $color={lightPalette.hwanggeum[700]}>
+              <span>3D로 보기</span>
+              <ArrowUpRight size={16} />
+            </MoreLink>
+          </CardBody>
         </CardContainer>
 
         {/* 2. 뼈대: 못 없는 결구 & 7단계 부재 조립 */}
@@ -428,24 +364,9 @@ export default function HanokStructureCards() {
           type="button"
           onClick={() => setOpen('assembly')}
           $accentColor={palette.juhong[500]}
-          $accentBg="rgba(255, 85, 0, 0.08)"
           aria-label="7단계 부재 조립 열기"
         >
-          <CardTopRow>
-            <Badge $color={lightPalette.juhong[700]} $bg="rgba(217, 64, 0, 0.12)">
-              <Layers size={14} /> 못 없는 맞춤과 결구의 미학
-            </Badge>
-            <HintTag>
-              <CheckCircle2 size={12} /> 3D 인터랙티브 결구 뷰어
-            </HintTag>
-          </CardTopRow>
-
-          <CardTitle>쇠못 하나 없이, 한옥은 어떻게 일곱 켜로 설까</CardTitle>
-          <CardDesc>
-            기단부터 지붕까지 한 켜씩 세워 보세요. 사개맞춤과 장부맞춤으로 서로를 꽉 물어주어 지진과 비바람에도 흔들리지 않는 전통 목조 결구의 정수를 경험합니다.
-          </CardDesc>
-
-          <PreviewCanvas aria-hidden="true">
+          <PreviewCanvas $bg="rgba(217, 64, 0, 0.06)" aria-hidden="true">
             <AssemblyPreviewGraphic>
               <div className="layer-bar layer-1" />
               <div className="layer-bar layer-2" />
@@ -460,16 +381,21 @@ export default function HanokStructureCards() {
             </AssemblyPreviewGraphic>
           </PreviewCanvas>
 
-          <TagRow>
-            <Tag>#사개맞춤_짜맞춤</Tag>
-            <Tag>#7단계입체결구</Tag>
-            <Tag>#전통목조건축미학</Tag>
-          </TagRow>
+          <CardBody>
+            <SectionLabel $color={lightPalette.juhong[700]}>
+              <Layers size={14} /> 못 없는 맞춤과 결구의 미학
+            </SectionLabel>
 
-          <ActionBtn $color={lightPalette.juhong[700]} $bg="rgba(217, 64, 0, 0.1)">
-            <span>3D 7단계 조립 탐색하기</span>
-            <ArrowUpRight size={18} />
-          </ActionBtn>
+            <CardTitle>쇠못 하나 없이, 한옥은 어떻게 일곱 켜로 설까</CardTitle>
+            <CardDesc>
+              기단부터 지붕까지 한 켜씩 세워 보세요. 사개맞춤과 장부맞춤으로 서로를 꽉 물어주어 지진과 비바람에도 흔들리지 않는 전통 목조 결구의 정수를 경험합니다.
+            </CardDesc>
+
+            <MoreLink $color={lightPalette.juhong[700]}>
+              <span>3D로 보기</span>
+              <ArrowUpRight size={16} />
+            </MoreLink>
+          </CardBody>
         </CardContainer>
       </Grid>
 

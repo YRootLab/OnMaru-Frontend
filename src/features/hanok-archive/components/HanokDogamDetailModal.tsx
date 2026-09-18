@@ -68,9 +68,6 @@ import {
   GalleryThumb,
   OverviewSkeleton,
   SkeletonLine,
-  BadgeTitle,
-  BadgeList,
-  TagBadge,
   ActionRow,
   MapBtn,
   BookmarkActionBtn,
@@ -247,10 +244,6 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
     }
     return Array.from(imgs);
   }, [village, detailData]);
-
-  const displayBadges = useMemo(() => (
-    Array.from(new Set(village.badges.map((badge) => badge.trim()).filter(Boolean)))
-  ), [village.badges]);
 
   const currentHeroImage = useMemo(() => {
     if (activeImageIdx !== null && galleryImages[activeImageIdx]) {
@@ -489,18 +482,6 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
               </GallerySection>
             )}
 
-            {/* 문화유산 태그 */}
-            {displayBadges.length > 0 && (
-              <div>
-                <BadgeTitle>문화유산 분류</BadgeTitle>
-                <BadgeList>
-                  {displayBadges.map((b) => (
-                    <TagBadge key={b}>#{filterLabel(b)}</TagBadge>
-                  ))}
-                </BadgeList>
-              </div>
-            )}
-
             {/* 하단 액션 버튼 바 */}
             <ActionRow>
               <NaverDirectionsBtn
@@ -597,7 +578,7 @@ const NaverDirectionsBtn = styled.a`
   flex: 1.5;
   height: 48px;
   border-radius: 9999px;
-  background: ${palette.kobalt[500]};
+  background: ${palette.juhong[500]};
   color: #ffffff;
   font-size: ${fontSize.sm};
   font-weight: 600;
@@ -609,15 +590,15 @@ const NaverDirectionsBtn = styled.a`
   transition: all 0.2s ease;
 
   &:hover {
-    background: ${palette.kobalt[700]};
+    background: ${palette.juhong[700]};
     transform: translateY(-1px);
   }
 
   [data-theme='dark'] & {
-    background: ${palette.kobalt[500]};
+    background: ${palette.juhong[500]};
     color: #ffffff;
     &:hover {
-      background: ${palette.kobalt[400]};
+      background: ${palette.juhong[400]};
     }
   }
 `;

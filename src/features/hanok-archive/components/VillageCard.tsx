@@ -89,39 +89,6 @@ const TypeBadge = styled.span`
   flex-shrink: 0;
 `;
 
-const Summary = styled.p`
-  font-size: ${fontSize.xs};
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.88);
-  line-height: 1.5;
-  margin: 0 0 10px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  word-break: keep-all;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
-`;
-
-const BadgeRow = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 12px;
-`;
-
-const Badge = styled.span`
-  font-size: ${fontSize.micro};
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
-  background: rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  padding: 3.5px 10px;
-  border-radius: 9999px;
-
-`;
-
 const ActionButton = styled(motion.div, transientProps)`
   width: 100%;
   height: 38px;
@@ -186,12 +153,6 @@ export default function VillageCard({ village, onClick }: VillageCardProps) {
     (HAS_DOCENT_TYPES.includes(village.type) ||
       HAS_DOCENT_NAMES.some((n) => village.name.includes(n)));
 
-  const description =
-    village.summary ||
-    (village.overview
-      ? village.overview.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim()
-      : '');
-
   return (
     <Card
       className="village-card"
@@ -222,15 +183,6 @@ export default function VillageCard({ village, onClick }: VillageCardProps) {
           <Name>{village.name}</Name>
           <TypeBadge>{filterLabel(village.type)}</TypeBadge>
         </HeaderRow>
-
-        {description && <Summary>{description}</Summary>}
-
-        <BadgeRow>
-          <Badge>{village.region}</Badge>
-          {village.badges.slice(0, 2).map((b) => (
-            <Badge key={b}>#{filterLabel(b)}</Badge>
-          ))}
-        </BadgeRow>
 
         <ActionButton>도감 해설 보기</ActionButton>
       </GradientOverlay>

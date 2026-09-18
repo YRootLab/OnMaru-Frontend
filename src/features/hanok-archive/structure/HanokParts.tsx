@@ -172,10 +172,10 @@ const Cue = styled.span`
   margin-top: 10px;
   font-size: ${fontSize.xs};
   font-weight: 500;
-  color: ${lightPalette.kobalt[500]};
+  color: ${lightPalette.juhong[500]};
 
   [data-theme='dark'] & {
-    color: ${palette.kobalt[400]};
+    color: ${palette.juhong[400]};
   }
 
   span {

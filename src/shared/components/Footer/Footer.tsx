@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import styled from '@emotion/styled';
 import { fontSize, meok } from '@/design-system/tokens';
+import { VesselReveal } from '@/shared/components/animation/VesselReveal';
 import PolicyModal, { type PolicyTabKey } from './PolicyModal';
 
 const FooterWrapper = styled.footer`
@@ -290,6 +291,12 @@ export default function Footer() {
 
   return (
     <>
+      {/* 카드처럼 보이면 안 되니 VesselReveal 기본 테두리/그림자/스케일은 지우고 블러+페이드만 은은하게 남긴다 */}
+      <VesselReveal
+        scaleFrom={0.98}
+        blurFrom="6px"
+        style={{ borderWidth: 0, borderRadius: 0, boxShadow: 'none', overflow: 'visible' }}
+      >
       <FooterWrapper
         aria-label="푸터 네비게이션"
         onMouseEnter={() => setIsHovered(true)}
@@ -368,6 +375,7 @@ export default function Footer() {
           </ContentArea>
         </FooterInner>
       </FooterWrapper>
+      </VesselReveal>
 
       {/* 정책 & 이용약관 & 오픈소스 라이선스 모달 */}
       {activePolicyTab && (

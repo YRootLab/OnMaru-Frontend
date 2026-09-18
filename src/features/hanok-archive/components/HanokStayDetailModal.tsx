@@ -324,9 +324,6 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
               <ItineraryHeader>
                 <Compass size={16} color={palette.cheongrok[500]} />
                 <ItineraryHeaderTitle>이 고택을 품은 1박 2일 시공간 코스</ItineraryHeaderTitle>
-                {stay.region === '경북' && (
-                  <GyeongbukTag>경북 헤리티지 특화</GyeongbukTag>
-                )}
               </ItineraryHeader>
               <ItinerarySubtitle>
                 숙소 반경 2km 이내의 문화재 산책, 종가 미식, 온마루 사운드스케이프를 엮은 동선입니다.
@@ -572,15 +569,6 @@ const ItineraryHeaderTitle = styled.h4`
   [data-theme='dark'] & {
     color: ${meok[100]};
   }
-`;
-
-const GyeongbukTag = styled.span`
-  padding: 2px 8px;
-  border-radius: 9999px;
-  font-size: ${fontSize.micro};
-  font-weight: 700;
-  background: ${palette.hwanggeum[400]};
-  color: ${meok[900]};
 `;
 
 const ItinerarySubtitle = styled.p`

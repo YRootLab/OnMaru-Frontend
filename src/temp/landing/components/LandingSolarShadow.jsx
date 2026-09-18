@@ -36,16 +36,21 @@ const ACCENT_VIVID = lightPalette.juhong[500];
 
 /**
  * 계절별 온마루 세맨틱 토큰 매핑
+ *
+ * 토스가 파랑 하나만 브랜드 컬러로 남기고 나머지는 흰/회/차콜로 비우듯, 온마루는
+ * 주황(juhong) 하나만 브랜드 컬러로 쓴다 — 겨울도 파랑(kobalt) 대신 같은 주황 계열의
+ * 더 짙은 톤(juhong[800])으로 표현해 파랑이 화면에 섞이지 않게 한다. 여름의 밝은
+ * juhong[500]과는 명도 차이만으로 계절을 구분한다.
  * - 봄 (spring): jangmi[500] (#D42058) / jangmi[50] (#FFF0F4)
  * - 여름 (summer): juhong[500] (#E85A18) / juhong[50] (#FFF0E6)
  * - 가을 (autumn): hwanggeum[500] (#C07808) / hwanggeum[50] (#FFF8E0)
- * - 겨울 (winter): kobalt[500] (#2B5CE6) / kobalt[50] (#EBF0FF)
+ * - 겨울 (winter): juhong[800] (#A82E00) / juhong[200] (#FFCBA8)
  */
 const SEASON_ACCENTS = {
   spring: { primary: lightPalette.jangmi[500], bg: lightPalette.jangmi[50] },
   summer: { primary: lightPalette.juhong[500], bg: lightPalette.juhong[50] },
   autumn: { primary: lightPalette.hwanggeum[500], bg: lightPalette.hwanggeum[50] },
-  winter: { primary: lightPalette.kobalt[500], bg: lightPalette.kobalt[50] },
+  winter: { primary: lightPalette.juhong[800], bg: lightPalette.juhong[200] },
 };
 
 /**
@@ -55,7 +60,7 @@ const SEASON_STAGE_BG = {
   spring: `radial-gradient(ellipse 85% 70% at 50% 25%, ${lightPalette.jangmi[50]}FA 0%, ${lightPalette.juhong[50]}C8 45%, ${surface.light.base} 100%)`,
   summer: `radial-gradient(ellipse 85% 70% at 50% 25%, ${lightPalette.hwanggeum[50]}FA 0%, ${lightPalette.juhong[50]}B8 45%, ${surface.light.base} 100%)`,
   autumn: `radial-gradient(ellipse 85% 70% at 50% 25%, ${lightPalette.hwanggeum[100]}F0 0%, ${lightPalette.hwanggeum[50]}C8 45%, ${surface.light.base} 100%)`,
-  winter: `radial-gradient(ellipse 85% 70% at 50% 25%, ${lightPalette.kobalt[50]}FA 0%, ${lightPalette.cheongrok[50]}B8 45%, ${surface.light.base} 100%)`,
+  winter: `radial-gradient(ellipse 85% 70% at 50% 25%, ${lightPalette.juhong[200]}FA 0%, ${lightPalette.cheongrok[50]}B8 45%, ${surface.light.base} 100%)`,
 };
 
 /**

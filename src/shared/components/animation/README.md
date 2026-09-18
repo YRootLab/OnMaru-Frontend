@@ -8,7 +8,7 @@ UI 렌더링 및 모션 적용은 `VesselReveal.tsx`, 위치 및 스크롤 방�
 ## 📐 핵심 애니메이션 규칙 (Scroll Reveal Transition Rules)
 
 ### 1. 하향 스크롤 시 최초 1회 리빌 (Downscroll Discovery)
-- 사용자가 아래로 스크롤하여 뷰포트 하단(Reveal Boundary: viewport 하단 33% 지점)을 통해 **새롭게 진입하는 미노출 섹션**만 `scaleFrom` (0.96) -> origin `1.0` 스케일 업 및 페이드인 애니메이션을 부드럽게 1회 실행하며 `bloomed` 상태로 안착합니다.
+- 사용자가 아래로 스크롤하여 뷰포트 하단(Reveal Boundary: viewport 하단 33% 지점)을 통해 **새롭게 진입하는 미노출 섹션**만 `scaleFrom` (0.96) -> origin `1.0` 스케일 업, `blurFrom`(8px) -> `0px` 블러 해제, 약간 아래(`y: 6px`)에서 제자리로 올라오는 페이드인 애니메이션을 부드럽게 1회 실행하며 `bloomed` 상태로 안착합니다.
 
 ### 2. 상향 스크롤 및 화면 밖 이탈 시 상태 고정 (Upward Exit & Re-entry Persistence)
 - **상단 이탈 시**: 스크롤을 내려 섹션이 뷰포트 위쪽으로 지나갈 때 어떠한 축소나 되감기 애니메이션도 실행하지 않습니다.
@@ -27,7 +27,7 @@ UI 렌더링 및 모션 적용은 `VesselReveal.tsx`, 위치 및 스크롤 방�
 ## 🛠️ 유지보수 및 아키텍처 경계
 
 - **데이터 상태 독립성**: API loading, skeleton, 비동기 응답 완료 여부로 reveal 상태를 임의 조작하지 않습니다. 애니메이션 상태 전이는 오직 뷰포트의 기하학적 위치(`top`, `revealBoundary`)와 `isInitialObservation`에 의해서만 결정됩니다.
-- **시각적 토큰 보존**: `scaleFrom`, `roundedFrom`, `duration`, `ease`는 `VesselReveal`의 기본 시각 디자인 계약입니다. 상태 로직 수정 시 이 값들을 임의로 훼손하지 않습니다.
+- **시각적 토큰 보존**: `scaleFrom`, `roundedFrom`, `blurFrom`, `duration`, `ease`는 `VesselReveal`의 기본 시각 디자인 계약입니다. 상태 로직 수정 시 이 값들을 임의로 훼손하지 않습니다.
 - **접근성 준수 (`prefers-reduced-motion`)**: 사용자가 모션 감소 설정을 활성화한 경우 동일한 stage(`bloomed`)가 즉시 적용되며 transition duration은 0으로 처리됩니다.
 
 ---

@@ -93,7 +93,7 @@ export default function QuickIndexBar({ className }: QuickIndexBarProps) {
   return (
     <IndexContainer className={className} aria-label="한옥 마루 주요 챕터 바로가기">
       <IndexChip type="button" onClick={() => scrollTo('grid')}>
-        <BookOpen size={15} strokeWidth={2} color={palette.kobalt[500]} />
+        <BookOpen size={15} strokeWidth={2} color={palette.juhong[500]} />
         <span>전국 한옥 도감</span>
       </IndexChip>
 

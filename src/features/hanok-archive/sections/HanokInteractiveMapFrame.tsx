@@ -10,12 +10,13 @@ import type { Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
 import { createKakaoResourceScope, type KakaoResourceScope } from './kakaoMapResources';
 
-// Light Kobalt & Soft Gray Theme Tokens
-const KOBALT_PRIMARY = lightPalette.kobalt[500]; // #2B5CE6
-const KOBALT_DEEP = lightPalette.kobalt[700]; // #1A3898
-const KOBALT_LIGHT = lightPalette.kobalt[50]; // #EEF3FF
-const KOBALT_SUBTLE = 'rgba(43, 92, 230, 0.08)';
-const KOBALT_BORDER = 'rgba(43, 92, 230, 0.18)';
+// 브랜드 메인 컬러(주황) 통일 — 지도 패널만 파랑(kobalt)을 따로 쓰면 화면에 파랑이 섞여
+// "핵심 몇 곳만 포인트 컬러, 나머지는 무채색" 원칙이 깨진다. 톤은 그대로 두고 계열만 바꾼다.
+const JUHONG_PRIMARY = lightPalette.juhong[500]; // #FF5500
+const JUHONG_DEEP = lightPalette.juhong[700]; // #D94000
+const JUHONG_LIGHT = lightPalette.juhong[50]; // #FFF4EB
+const JUHONG_SUBTLE = 'rgba(255, 85, 0, 0.08)';
+const JUHONG_BORDER = 'rgba(255, 85, 0, 0.18)';
 
 // Default Fallback Hanok Photos
 const FALLBACK_HANOK_IMAGES = [
@@ -35,7 +36,7 @@ const Frame = styled.div`
   overflow: hidden;
   border-radius: 28px;
   background: #ffffff;
-  border: 1px solid rgba(43, 92, 230, 0.12);
+  border: 1px solid rgba(255, 85, 0, 0.12);
   box-shadow: none;
 
   [data-theme='dark'] & {
@@ -63,14 +64,14 @@ const MapCanvas = styled.div`
       transform: translate(-50%, -60%) scale(1.15);
 
       .avatar-thumb {
-        border-color: ${KOBALT_PRIMARY};
+        border-color: ${JUHONG_PRIMARY};
         box-shadow: none;
       }
 
       .avatar-label {
         background: #ffffff;
-        border-color: ${KOBALT_PRIMARY};
-        color: ${KOBALT_DEEP};
+        border-color: ${JUHONG_PRIMARY};
+        color: ${JUHONG_DEEP};
         box-shadow: none;
       }
     }
@@ -83,7 +84,7 @@ const MapCanvas = styled.div`
     border: 2px solid #ffffff;
     background-size: cover;
     background-position: center;
-    background-color: ${KOBALT_PRIMARY};
+    background-color: ${JUHONG_PRIMARY};
     box-shadow: none;
     flex-shrink: 0;
     transition: all 0.2s ease;
@@ -103,7 +104,7 @@ const MapCanvas = styled.div`
     background: rgba(255, 255, 255, 0.94);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    border: 1px solid ${KOBALT_BORDER};
+    border: 1px solid ${JUHONG_BORDER};
     border-radius: 10px;
     font-size: ${fontSize.micro};
     font-weight: 500;
@@ -128,7 +129,7 @@ const MapLoadingState = styled.div`
   justify-content: center;
   gap: 10px;
   background: #ffffff;
-  color: ${KOBALT_PRIMARY};
+  color: ${JUHONG_PRIMARY};
   font-size: ${fontSize.xs};
   font-weight: 500;
   z-index: 10;
@@ -162,7 +163,7 @@ const BottomRegionBar = styled.div`
   background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid ${KOBALT_BORDER};
+  border: 1px solid ${JUHONG_BORDER};
   border-radius: 9999px;
   padding: 3px 4px;
   display: flex;
@@ -184,7 +185,7 @@ const BottomRegionBar = styled.div`
 const RegionChip = styled.button<{ $active: boolean }>`
   background: ${({ $active }) =>
     $active
-      ? `linear-gradient(135deg, ${KOBALT_PRIMARY} 0%, ${KOBALT_DEEP} 100%)`
+      ? `linear-gradient(135deg, ${JUHONG_PRIMARY} 0%, ${JUHONG_DEEP} 100%)`
       : 'transparent'};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[900])};
   border: none;
@@ -199,9 +200,9 @@ const RegionChip = styled.button<{ $active: boolean }>`
   &:hover {
     background: ${({ $active }) =>
       $active
-        ? `linear-gradient(135deg, ${KOBALT_PRIMARY} 0%, ${KOBALT_DEEP} 100%)`
-        : KOBALT_SUBTLE};
-    color: ${({ $active }) => ($active ? '#ffffff' : KOBALT_PRIMARY)};
+        ? `linear-gradient(135deg, ${JUHONG_PRIMARY} 0%, ${JUHONG_DEEP} 100%)`
+        : JUHONG_SUBTLE};
+    color: ${({ $active }) => ($active ? '#ffffff' : JUHONG_PRIMARY)};
   }
 
   [data-theme='dark'] & {
@@ -220,7 +221,7 @@ const LeftPanel = styled(motion.div)`
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid ${KOBALT_BORDER};
+  border: 1px solid ${JUHONG_BORDER};
   border-radius: 18px;
   padding: 16px;
   display: flex;
@@ -257,11 +258,11 @@ const PanelSubHeader = styled.div`
   font-size: ${fontSize.micro};
   font-weight: 500;
   letter-spacing: 0.03em;
-  color: ${KOBALT_PRIMARY};
+  color: ${JUHONG_PRIMARY};
 `;
 
 const CollapseBtn = styled.button`
-  background: rgba(43, 92, 230, 0.08);
+  background: rgba(255, 85, 0, 0.08);
   border: none;
   border-radius: 50%;
   width: 24px;
@@ -274,7 +275,7 @@ const CollapseBtn = styled.button`
   transition: all 0.15s ease;
 
   &:hover {
-    background: ${KOBALT_PRIMARY};
+    background: ${JUHONG_PRIMARY};
     color: #ffffff;
   }
 
@@ -300,9 +301,9 @@ const PanelCountBadge = styled.span`
   display: inline-block;
   font-size: ${fontSize.micro};
   font-weight: 500;
-  color: ${KOBALT_PRIMARY};
-  background: ${KOBALT_LIGHT};
-  border: 1px solid ${KOBALT_BORDER};
+  color: ${JUHONG_PRIMARY};
+  background: ${JUHONG_LIGHT};
+  border: 1px solid ${JUHONG_BORDER};
   padding: 2px 9px;
   border-radius: 9999px;
   margin-bottom: 10px;
@@ -331,15 +332,15 @@ const MiniCard = styled(motion.div)`
   align-items: center;
   gap: 10px;
   background: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(43, 92, 230, 0.1);
+  border: 1px solid rgba(255, 85, 0, 0.1);
   border-radius: 12px;
   padding: 7px;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    background: ${KOBALT_LIGHT};
-    border-color: ${KOBALT_PRIMARY};
+    background: ${JUHONG_LIGHT};
+    border-color: ${JUHONG_PRIMARY};
     box-shadow: none;
   }
 
@@ -356,11 +357,11 @@ const MiniThumb = styled.div<{ $bg: string | null }>`
   width: 42px;
   height: 42px;
   border-radius: 10px;
-  background-color: ${KOBALT_LIGHT};
+  background-color: ${JUHONG_LIGHT};
   ${({ $bg }) =>
     $bg
       ? `background-image: url("${$bg}"); background-size: cover; background-position: center;`
-      : `background: linear-gradient(135deg, ${KOBALT_LIGHT} 0%, rgba(43, 92, 230, 0.2) 100%);`}
+      : `background: linear-gradient(135deg, ${JUHONG_LIGHT} 0%, rgba(255, 85, 0, 0.2) 100%);`}
   flex-shrink: 0;
 `;
 
@@ -402,7 +403,7 @@ const CollapsedPillBtn = styled(motion.button)`
   background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid ${KOBALT_BORDER};
+  border: 1px solid ${JUHONG_BORDER};
   border-radius: 9999px;
   padding: 7px 13px;
   display: flex;
@@ -416,9 +417,9 @@ const CollapsedPillBtn = styled(motion.button)`
   transition: all 0.2s ease;
 
   &:hover {
-    background: ${KOBALT_LIGHT};
-    border-color: ${KOBALT_PRIMARY};
-    color: ${KOBALT_PRIMARY};
+    background: ${JUHONG_LIGHT};
+    border-color: ${JUHONG_PRIMARY};
+    color: ${JUHONG_PRIMARY};
   }
 
   [data-theme='dark'] & {
@@ -560,9 +561,9 @@ export default function HanokInteractiveMapFrame({
                 width: '46px',
                 height: '46px',
                 background: 'rgba(255, 255, 255, 0.94)',
-                border: '1.5px solid #2B5CE6',
+                border: '1.5px solid #FF5500',
                 borderRadius: '50%',
-                color: '#1A3898',
+                color: '#D94000',
                 textAlign: 'center',
                 lineHeight: '43px',
                 fontWeight: '500',
@@ -573,7 +574,7 @@ export default function HanokInteractiveMapFrame({
               {
                 width: '54px',
                 height: '54px',
-                background: 'linear-gradient(135deg, #2B5CE6 0%, #1A3898 100%)',
+                background: 'linear-gradient(135deg, #FF5500 0%, #D94000 100%)',
                 border: '2px solid #ffffff',
                 borderRadius: '50%',
                 color: '#ffffff',
@@ -883,7 +884,7 @@ export default function HanokInteractiveMapFrame({
             exit={{ opacity: 0, x: -10 }}
             onClick={() => setIsStoryExpanded(true)}
           >
-            <BookOpen size={15} strokeWidth={2} style={{ color: KOBALT_PRIMARY }} />
+            <BookOpen size={15} strokeWidth={2} style={{ color: JUHONG_PRIMARY }} />
             <span>한옥 이야기 ({regionVillages.length}곳)</span>
             <ChevronRight size={15} strokeWidth={2} />
           </CollapsedPillBtn>

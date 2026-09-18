@@ -1,278 +1,177 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   MapPin,
-  Compass,
-  CheckCircle2,
-  ChevronRight,
-  Award,
   Clapperboard,
+  Tv,
+  Music2,
+  Sparkles,
 } from 'lucide-react';
-import { meok, palette, lightPalette, surface, fontSize } from '@/design-system/tokens';
+import { meok, lightPalette, fontSize } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
-import type { KCultureThemeItem } from '@/features/hanok-archive/data/kcultureThemes';
+import { KCULTURE_THEME_ITEMS, type KCultureThemeItem } from '@/features/hanok-archive/data/kcultureThemes';
+
+// 이 섹션은 "스크린 속 한옥"(영화·드라마·K-POP)만 다룬다 — 달빛기행·다도 같은
+// 다른 큐레이션 테마는 여기 섞지 않는다.
+const CURATED_SCREEN_ITEMS = KCULTURE_THEME_ITEMS.filter((item) => item.category === 'kdrama');
 
 const Section = styled.section`
   position: relative;
 `;
 
-/* 에디토리얼 그리드 (2열 반응형) */
-const CardsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(16px, 2vw, 24px);
-
-  @media (max-width: 840px) {
-    grid-template-columns: 1fr;
-  }
+/* 영화 · 드라마 · K-POP 선택 칩 */
+const FilterRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 4px 0 20px;
 `;
 
-const ThemeCard = styled(motion.div)`
-  display: flex;
-  flex-direction: column;
-  background: #ffffff;
-  border-radius: 24px;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-  transition: transform 0.22s ease, box-shadow 0.22s ease;
+const FilterChip = styled.button<{ $active: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  border: 1px solid ${({ $active }) => ($active ? lightPalette.juhong[500] : 'rgba(78, 89, 104, 0.16)')};
+  background: ${({ $active }) => ($active ? lightPalette.juhong[500] : 'transparent')};
+  color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
+  font-size: ${fontSize.sm};
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
 
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+    border-color: ${lightPalette.juhong[500]};
   }
 
   [data-theme='dark'] & {
-    background: ${surface.dark.card};
-    border-color: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    color: ${({ $active }) => ($active ? '#ffffff' : meok[300])};
   }
 `;
 
-const CardImageContainer = styled.div`
+const EmptyFilterNote = styled.p`
+  padding: 32px 0;
+  text-align: center;
+  font-size: ${fontSize.sm};
+  color: ${meok[500]};
+`;
+
+/* 가로 스크롤 필름스트립 — 포스터 카드를 옆으로 넘겨 본다 */
+const FilmStrip = styled.div<{ $dragging: boolean }>`
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding: 4px 4px 12px;
+  scroll-snap-type: ${({ $dragging }) => ($dragging ? 'none' : 'x mandatory')};
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  cursor: ${({ $dragging }) => ($dragging ? 'grabbing' : 'grab')};
+  user-select: none;
+  mask-image: linear-gradient(to right, transparent 0, black 24px, black calc(100% - 24px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0, black 24px, black calc(100% - 24px), transparent 100%);
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  img {
+    -webkit-user-drag: none;
+    pointer-events: none;
+  }
+`;
+
+/* 정보는 항상 보이게 두고, 호버 때 살짝 들리는 스프링 모션만 얹는다 (토스류 탄력) */
+const PosterCard = styled(motion.div)`
   position: relative;
-  width: 100%;
-  height: 220px;
-  background: ${meok[200]};
+  flex: 0 0 auto;
+  width: clamp(148px, 19vw, 192px);
+  aspect-ratio: 2 / 3;
+  scroll-snap-align: start;
+  border-radius: 16px;
   overflow: hidden;
+  background: ${meok[200]};
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.4s ease;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  ${ThemeCard}:hover & img {
-    transform: scale(1.04);
+  &:hover img {
+    transform: scale(1.05);
   }
 `;
 
-const ImageScrim = styled.div`
+const PosterScrim = styled.div`
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 50%);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.05) 45%, rgba(0, 0, 0, 0) 65%);
 `;
 
-const BadgeRow = styled.div`
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  right: 14px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  z-index: 2;
-`;
-
-const CategoryBadge = styled.span`
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 13px;
-  border-radius: 9999px;
-  font-size: ${fontSize.xs};
-  font-weight: 600;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(8px);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-`;
-
-const SpecialBadge = styled.span`
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 5px 12px;
-  border-radius: 9999px;
-  font-size: ${fontSize.xs};
-  font-weight: 600;
-  background: ${palette.hwanggeum[400]};
-  color: ${meok[900]};
-  box-shadow: 0 2px 8px rgba(255, 184, 0, 0.4);
-`;
-
-const ImageLocation = styled.div`
-  position: absolute;
-  bottom: 12px;
-  left: 14px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: rgba(255, 255, 255, 0.95);
-  font-size: ${fontSize.xs};
-  font-weight: 500;
-  z-index: 2;
-`;
-
-const CardBody = styled.div`
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-`;
-
-const Eyebrow = styled.div`
-  font-size: ${fontSize.xs};
+const PosterEyebrow = styled.p`
+  margin: 0 0 3px;
+  font-size: ${fontSize.micro};
   font-weight: 700;
-  color: ${lightPalette.kobalt[500]};
-  margin-bottom: 6px;
-  letter-spacing: -0.01em;
-
-  [data-theme='dark'] & {
-    color: ${palette.kobalt[400]};
-  }
-`;
-
-const CardTitle = styled.h3`
-  font-family: var(--font-hanok);
-  font-size: clamp(18px, 1.6vw, 21px);
-  font-weight: 600;
-  color: ${meok[900]};
-  margin: 0 0 8px;
+  color: ${lightPalette.juhong[400]};
   line-height: 1.35;
-  letter-spacing: -0.02em;
-
-  [data-theme='dark'] & {
-    color: ${meok[100]};
-  }
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 `;
 
-const CardSubtitle = styled.p`
-  font-size: ${fontSize.sm};
-  color: ${meok[600]};
-  margin: 0 0 16px;
-  line-height: 1.6;
-  flex: 1;
-
-  [data-theme='dark'] & {
-    color: ${meok[300]};
-  }
+const MediaBadge = styled.span`
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  color: #ffffff;
+  z-index: 2;
 `;
 
-const TagsRow = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 18px;
+const PosterMeta = styled.div`
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 2;
 `;
 
-const TagChip = styled.span`
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: ${fontSize.micro};
-  background: rgba(78, 89, 104, 0.06);
-  color: ${meok[600]};
-  font-weight: 500;
-
-  [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.06);
-    color: ${meok[300]};
-  }
+const PosterTitle = styled.h3`
+  font-family: var(--font-hanok);
+  font-size: 14.5px;
+  font-weight: 600;
+  line-height: 1.32;
+  margin: 0 0 4px;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 `;
 
-/* 1박 2일 코스 미리보기 토글 아코디언 */
-const CourseToggleBtn = styled.button<{ $open: boolean }>`
+const PosterRegion = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 12px 14px;
-  border-radius: 12px;
-  border: 1px solid rgba(78, 89, 104, 0.12);
-  background: ${({ $open }) => ($open ? 'rgba(78, 89, 104, 0.06)' : 'transparent')};
-  color: ${meok[900]};
-  font-size: ${fontSize.xs};
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  span {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  svg.arrow {
-    transform: ${({ $open }) => ($open ? 'rotate(90deg)' : 'rotate(0deg)')};
-    transition: transform 0.2s ease;
-  }
-
-  &:hover {
-    background: rgba(78, 89, 104, 0.06);
-  }
-
-  [data-theme='dark'] & {
-    border-color: rgba(255, 255, 255, 0.12);
-    color: ${meok[100]};
-  }
-`;
-
-const CourseTimeline = styled(motion.div)`
-  margin-top: 12px;
-  padding: 14px;
-  border-radius: 12px;
-  background: rgba(78, 89, 104, 0.03);
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-
-  [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.03);
-  }
-`;
-
-const DaySection = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-`;
-
-const DayTitle = styled.div`
-  font-size: ${fontSize.xs};
-  font-weight: 700;
-  color: ${lightPalette.kobalt[500]};
-
-  [data-theme='dark'] & {
-    color: ${palette.kobalt[400]};
-  }
-`;
-
-const DayItem = styled.div`
+  gap: 3px;
   font-size: ${fontSize.micro};
-  color: ${meok[700]};
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-  line-height: 1.45;
-
-  [data-theme='dark'] & {
-    color: ${meok[300]};
-  }
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
 `;
 
 /* ── 중립 그레이 스켈레톤 로딩 (AGENTS.md 규칙: 최종 카드와 동일한 형태/크기) ── */
@@ -281,24 +180,11 @@ const shimmerAnim = keyframes`
   100% { background-position: 200% 0; }
 `;
 
-const SkeletonCard = styled.div`
-  display: flex;
-  flex-direction: column;
-  background: #ffffff;
-  border-radius: 24px;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-
-  [data-theme='dark'] & {
-    background: ${surface.dark.card};
-    border-color: rgba(255, 255, 255, 0.08);
-  }
-`;
-
-const SkeletonThumb = styled.div`
-  width: 100%;
-  height: 220px;
+const SkeletonPoster = styled.div`
+  flex: 0 0 auto;
+  width: clamp(148px, 19vw, 192px);
+  aspect-ratio: 2 / 3;
+  border-radius: 16px;
   background: linear-gradient(90deg, #f0f0ee 25%, #e4e4e2 50%, #f0f0ee 75%);
   background-size: 200% 100%;
   animation: ${shimmerAnim} 1.6s infinite ease-in-out;
@@ -309,35 +195,46 @@ const SkeletonThumb = styled.div`
   }
 `;
 
-const SkeletonBody = styled.div`
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-`;
+type MediaType = 'drama' | 'movie' | 'mv';
 
-const SkeletonBar = styled.div<{ $w: string; $h: string }>`
-  width: ${({ $w }) => $w};
-  height: ${({ $h }) => $h};
-  border-radius: 6px;
-  background: linear-gradient(90deg, #f0f0ee 25%, #e4e4e2 50%, #f0f0ee 75%);
-  background-size: 200% 100%;
-  animation: ${shimmerAnim} 1.6s infinite ease-in-out;
+const MEDIA_ICONS: Record<MediaType, typeof Tv> = {
+  movie: Clapperboard,
+  drama: Tv,
+  mv: Music2,
+};
 
-  [data-theme='dark'] & {
-    background: linear-gradient(90deg, #252422 25%, #32302d 50%, #252422 75%);
-    background-size: 200% 100%;
-  }
-`;
+const MEDIA_FILTERS: { key: 'all' | MediaType; label: string; icon: typeof Tv }[] = [
+  { key: 'all', label: '전체', icon: Sparkles },
+  { key: 'movie', label: '영화', icon: Clapperboard },
+  { key: 'drama', label: '드라마', icon: Tv },
+  { key: 'mv', label: 'K-POP', icon: Music2 },
+];
 
-interface KCultureThemeFeedProps {
-  onSelectContent?: (contentId: string) => void;
-}
-
-export default function KCultureThemeFeed({ onSelectContent }: KCultureThemeFeedProps) {
-  const [expandedCourseId, setExpandedCourseId] = useState<string | null>(null);
+export default function KCultureThemeFeed() {
   const [liveItems, setLiveItems] = useState<KCultureThemeItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [mediaFilter, setMediaFilter] = useState<'all' | MediaType>('all');
+  const [isDragging, setIsDragging] = useState(false);
+
+  // overflow-x: auto는 트랙패드 제스처에만 반응한다 — 마우스로 잡고 미는 동작은
+  // 직접 scrollLeft를 옮겨줘야 한다.
+  const filmStripRef = useRef<HTMLDivElement | null>(null);
+  const dragRef = useRef({ startX: 0, startScrollLeft: 0 });
+
+  const handleDragStart = (event: React.MouseEvent) => {
+    const el = filmStripRef.current;
+    if (!el) return;
+    dragRef.current = { startX: event.pageX, startScrollLeft: el.scrollLeft };
+    setIsDragging(true);
+  };
+
+  const handleDragMove = (event: React.MouseEvent) => {
+    const el = filmStripRef.current;
+    if (!el || !isDragging) return;
+    el.scrollLeft = dragRef.current.startScrollLeft - (event.pageX - dragRef.current.startX);
+  };
+
+  const handleDragEnd = () => setIsDragging(false);
 
   useEffect(() => {
     let ignore = false;
@@ -351,9 +248,9 @@ export default function KCultureThemeFeed({ onSelectContent }: KCultureThemeFeed
           const mapped: KCultureThemeItem[] = data.items.map((it: any) => ({
             id: `tour-${it.id}`,
             category: 'kdrama',
-            categoryLabel: '스크린 속 한옥',
-            categoryIcon: '🎬',
-            isGyeongbukSpecial: it.region === '경북',
+            categoryLabel: it.categoryLabel || '스크린 속 한옥',
+            categoryIcon: it.categoryIcon || '🎬',
+            mediaType: it.mediaType || 'drama',
             eyebrow: it.drama || 'K-콘텐츠 & 사극 속 전통 한옥 문화유산',
             title: it.title,
             subtitle: it.subtitle || `${it.region}의 역사와 정취가 깃든 전통 한옥 명소입니다.`,
@@ -384,131 +281,84 @@ export default function KCultureThemeFeed({ onSelectContent }: KCultureThemeFeed
     };
   }, []);
 
+  // 손으로 고른 작품(실제 대사·출처가 있는 것)을 앞세우고, 그 뒤를 실시간 공공데이터로 채운다.
+  const allItems = [...CURATED_SCREEN_ITEMS, ...liveItems];
+  const filteredItems =
+    mediaFilter === 'all' ? allItems : allItems.filter((item) => item.mediaType === mediaFilter);
+
   return (
     <Section aria-labelledby="screen-hanok-heading">
       <SectionHeader
         id="screen-hanok-heading"
         title="스크린 속 한옥"
-        subtitle="드라마 · 영화 · K-POP 뮤직비디오의 배경이 된 전국의 아름다운 전통 한옥과 명소 (TourAPI 4.0)"
       />
 
-      <CardsGrid>
-        {/* 로딩 중일 때는 동일한 레이아웃 크기의 스켈레톤 4개 표시 */}
-        {isLoading && (
-          <>
-            {[1, 2, 3, 4].map((i) => (
-              <SkeletonCard key={i} aria-hidden="true">
-                <SkeletonThumb />
-                <SkeletonBody>
-                  <SkeletonBar $w="40%" $h="14px" />
-                  <SkeletonBar $w="70%" $h="22px" />
-                  <SkeletonBar $w="90%" $h="16px" />
-                  <SkeletonBar $w="60%" $h="16px" />
-                  <SkeletonBar $w="100%" $h="40px" />
-                </SkeletonBody>
-              </SkeletonCard>
-            ))}
-          </>
-        )}
+      <FilterRow role="group" aria-label="K-콘텐츠 유형 선택">
+        {MEDIA_FILTERS.map(({ key, label, icon: Icon }) => (
+          <FilterChip
+            key={key}
+            type="button"
+            $active={mediaFilter === key}
+            aria-pressed={mediaFilter === key}
+            onClick={() => setMediaFilter(key)}
+          >
+            <Icon size={14} /> {label}
+          </FilterChip>
+        ))}
+      </FilterRow>
 
-        {/* API 실시간 데이터 렌더링 (목데이터 없음) */}
-        {!isLoading && liveItems.length > 0 && (
+      <FilmStrip
+        ref={filmStripRef}
+        $dragging={isDragging}
+        onMouseDown={handleDragStart}
+        onMouseMove={handleDragMove}
+        onMouseUp={handleDragEnd}
+        onMouseLeave={handleDragEnd}
+      >
+        {isLoading &&
+          [1, 2, 3, 4, 5, 6].map((i) => <SkeletonPoster key={i} aria-hidden="true" />)}
+
+        {!isLoading && (
           <AnimatePresence mode="popLayout">
-            {liveItems.map((item) => {
-              const isCourseOpen = expandedCourseId === item.id;
+            {filteredItems.map((item) => {
+              const MediaIcon = MEDIA_ICONS[item.mediaType ?? 'drama'];
 
               return (
-                <ThemeCard
+                <PosterCard
                   key={item.id}
                   layout
-                  initial={{ opacity: 0, y: 16 }}
+                  initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.28, ease: 'easeOut' }}
+                  exit={{ opacity: 0 }}
+                  whileHover={{ y: -6, scale: 1.02 }}
+                  transition={{ type: 'spring', stiffness: 380, damping: 26 }}
                 >
-                  <CardImageContainer>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={item.image} alt={item.title} loading="lazy" />
-                    <ImageScrim />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={item.image} alt={item.title} loading="lazy" />
+                  <PosterScrim />
 
-                    <BadgeRow>
-                      <CategoryBadge>
-                        <span>{item.categoryIcon}</span> {item.categoryLabel}
-                      </CategoryBadge>
-                      {item.isGyeongbukSpecial && (
-                        <SpecialBadge>
-                          <Award size={13} /> 경북 헤리티지 특화
-                        </SpecialBadge>
-                      )}
-                    </BadgeRow>
+                  <MediaBadge aria-hidden="true">
+                    <MediaIcon size={13} strokeWidth={2} />
+                  </MediaBadge>
 
-                    <ImageLocation>
-                      <MapPin size={13} />
-                      <span>
-                        {item.region} · {item.villageName}
-                      </span>
-                    </ImageLocation>
-                  </CardImageContainer>
-
-                  <CardBody>
-                    <Eyebrow>{item.eyebrow}</Eyebrow>
-                    <CardTitle>{item.title}</CardTitle>
-                    <CardSubtitle>{item.subtitle}</CardSubtitle>
-
-                    <TagsRow>
-                      {item.tags.map((tag, i) => (
-                        <TagChip key={i}>{tag}</TagChip>
-                      ))}
-                    </TagsRow>
-
-                    <CourseToggleBtn
-                      type="button"
-                      $open={isCourseOpen}
-                      onClick={() => setExpandedCourseId(isCourseOpen ? null : item.id)}
-                    >
-                      <span>
-                        <Compass size={14} /> 1박 2일 몰입형 시공간 코스 보기
-                      </span>
-                      <ChevronRight size={14} className="arrow" />
-                    </CourseToggleBtn>
-
-                    <AnimatePresence>
-                      {isCourseOpen && (
-                        <CourseTimeline
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          <DaySection>
-                            <DayTitle>DAY 1. 스크린 속 한옥의 낮과 밤</DayTitle>
-                            {item.coursePreview.day1.map((step, idx) => (
-                              <DayItem key={idx}>
-                                <CheckCircle2 size={12} color={lightPalette.kobalt[500]} style={{ flexShrink: 0, marginTop: 2 }} />
-                                <span>{step}</span>
-                              </DayItem>
-                            ))}
-                          </DaySection>
-
-                          <DaySection>
-                            <DayTitle>DAY 2. 아침의 정취와 여정</DayTitle>
-                            {item.coursePreview.day2.map((step, idx) => (
-                              <DayItem key={idx}>
-                                <CheckCircle2 size={12} color={lightPalette.kobalt[500]} style={{ flexShrink: 0, marginTop: 2 }} />
-                                <span>{step}</span>
-                              </DayItem>
-                            ))}
-                          </DaySection>
-                        </CourseTimeline>
-                      )}
-                    </AnimatePresence>
-                  </CardBody>
-                </ThemeCard>
+                  <PosterMeta>
+                    <PosterEyebrow>{item.eyebrow}</PosterEyebrow>
+                    <PosterTitle>{item.title}</PosterTitle>
+                    <PosterRegion>
+                      <MapPin size={11} strokeWidth={2} />
+                      {item.region}
+                    </PosterRegion>
+                  </PosterMeta>
+                </PosterCard>
               );
             })}
           </AnimatePresence>
         )}
-      </CardsGrid>
+
+        {!isLoading && filteredItems.length === 0 && (
+          <EmptyFilterNote>선택한 유형의 콘텐츠가 아직 없어요. 다른 카테고리를 골라보세요.</EmptyFilterNote>
+        )}
+      </FilmStrip>
     </Section>
   );
 }

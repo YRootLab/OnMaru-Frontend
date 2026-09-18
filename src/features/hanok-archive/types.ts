@@ -17,21 +17,24 @@ export interface Village {
   lat: number | null;
   lng: number | null;
   /*
-    라이브 서비스(hanokArchive.service.ts)가 실제로 만들어내는 유형 7종만 남긴다.
-    '도심형'·'집성촌형'·'체험형' 같은 옛 분류는 여기서 지워졌다 — 정적 스냅샷은 더 이상
-    그 이름을 쓰지 않는다(scripts/build-fallback.mjs가 항상 이 7종으로 재생성한다).
-    `| string` 캐치올도 없앴다 — 오타 하나가 필터를 조용히 무력화하는 대신
-    컴파일 시점에 잡히게 한다. 이 목록은 src/hanok/lib/classify.mjs의
-    LIVE_VILLAGE_TYPES와 정확히 같은 집합이어야 하고, 어긋나면
-    classify.contract.test.ts가 잡는다.
+    라이브 서비스(hanokArchive.service.ts)가 실제로 만들어내는 유형들.
+    '도심형'·'집성촌형'·'체험형' 같은 옛 분류는 여기서 지워졌다.
+    오타 하나가 필터를 조용히 무력화하는 대신 컴파일 시점에 잡히게 한다.
+    이 목록은 src/hanok/lib/classify.mjs의 LIVE_VILLAGE_TYPES와 정확히 같은 
+    집합이어야 하고, 어긋나면 classify.contract.test.ts가 잡는다.
   */
   type:
-    | '고택'
-    | '민속마을'
-    | '고궁'
-    | '생가'
-    | '문'
-    | '서원·향교'
+    // 거주 및 생활
+    | '고택' | '종택' | '생가' | '민속마을' | '전통마을'
+    // 왕실 및 관공서 (경복궁 등 궁궐 포함)
+    | '궁궐' | '고궁' | '관아' | '유적지'
+    // 교육 및 풍류
+    | '서원·향교' | '누정'
+    // 근대 및 종교 (기독교 선교사 한옥, 한옥 성당 등)
+    | '근대건축' | '종교성지' | '성당·교회'
+    // 기타 시설
+    | '성곽' | '문'
+    // 숙박 전용
     | typeof STAY_TYPE;
   badges: string[];
   image: string | null;
@@ -85,4 +88,3 @@ export interface VillageDetailResponse {
 }
 
 export type SectionId = 'hero' | 'grid' | 'map' | 'monthly' | 'cta';
-

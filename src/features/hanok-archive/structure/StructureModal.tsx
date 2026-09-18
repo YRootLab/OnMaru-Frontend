@@ -21,8 +21,6 @@ const Overlay = styled.div`
   align-items: center;
   justify-content: center;
   padding: clamp(12px, 2vw, 28px);
-  background: rgba(25, 31, 40, 0.52);
-  backdrop-filter: blur(3px);
 `;
 
 const Shell = styled.div`
@@ -32,7 +30,7 @@ const Shell = styled.div`
   overflow: hidden;
   border-radius: clamp(18px, 2.4vw, 28px);
   background: ${surface.light.base};
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 
   [data-theme='dark'] & {
     background: ${surface.dark.surface};
