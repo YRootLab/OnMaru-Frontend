@@ -1008,10 +1008,9 @@ export default function WarmthLayer() {
       const cfg = CONGESTION_CONFIG[item.congestionLevel] || CONGESTION_CONFIG.moderate;
       const pal = isDark ? cfg.dark : cfg.light;
 
-      // ─── 뷰 방식 분기: [🏷️ 시·군 행정별 뱃지] vs [♨️ 원형 히트맵 버블] ───
-      const isBubble = warmthViewType === 'heatmap';
+      // ─── 뱃지 렌더링: 시·군 행정구역 기반의 단아한 알약형 뱃지(om-surge-pill) ───
       const pillWrap = document.createElement('div');
-      pillWrap.className = isBubble ? 'om-warmth-bubble-wrap' : 'om-surge-pill-wrap';
+      pillWrap.className = 'om-surge-pill-wrap';
 
       // 화면 상단 여백 계산 (화면 Y좌표가 260px 미만이면 아래로 팝오버 오픈하여 화면 상단 잘림 방지)
       let popoverDir = 'dir-top';
@@ -1078,24 +1077,13 @@ export default function WarmthLayer() {
             ? '눌러서 세부 한옥 명소 둘러보기'
             : '눌러서 상세 위치 보기';
 
-      const bubbleSize = Math.max(54, Math.min(84, Math.round(52 + (item.intensity || 0.5) * 32)));
-      const bubbleIcon = item.congestionLevel === 'surge' ? ICONS.flame : item.congestionLevel === 'busy' ? ICONS.sparkles : ICONS.sun;
-
-      const triggerHtml = isBubble
-        ? `
-          <div class="om-warmth-bubble om-warmth-bubble--${item.congestionLevel}" style="width: ${bubbleSize}px; height: ${bubbleSize}px;">
-            <span class="om-bubble-icon">${bubbleIcon}</span>
-            <span class="om-bubble-count">${visitorText}</span>
-            <span class="om-bubble-name">${escapeHtml(zoneName)}</span>
-          </div>
-        `
-        : `
-          <div class="om-surge-pill" style="background: ${pal.badgeBg}; color: ${pal.badgeColor};">
-            <span class="om-surge-pill-icon" style="color: ${pal.accentColor};">${cfg.iconSvg}</span>
-            <span class="om-surge-pill-name">${escapeHtml(zoneName)}</span>
-            ${deltaText ? `<span class="om-surge-pill-delta ${deltaClass}">${deltaText}</span>` : ''}
-          </div>
-        `;
+      const triggerHtml = `
+        <div class="om-surge-pill" style="background: ${pal.badgeBg}; color: ${pal.badgeColor};">
+          <span class="om-surge-pill-icon" style="color: ${pal.accentColor};">${cfg.iconSvg}</span>
+          <span class="om-surge-pill-name">${escapeHtml(zoneName)}</span>
+          ${deltaText ? `<span class="om-surge-pill-delta ${deltaClass}">${deltaText}</span>` : ''}
+        </div>
+      `;
 
       pillWrap.innerHTML = `
         ${triggerHtml}

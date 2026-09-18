@@ -3,7 +3,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
-import { ChevronRight, Filter, Play, Pause } from 'lucide-react';
 import { useSorimaruImage, getSorimaruFallbackImage } from '@/features/sorimaru-audio/hooks/useSorimaruImage';
 import { motion } from 'framer-motion';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
@@ -26,10 +25,6 @@ const [VB_WIDTH, VB_HEIGHT] = KOREA_MAP_VIEWBOX.split(' ').slice(2).map(Number);
 const LIST_EDGE_INSET = 23;
 
 const normalizeText = (story: SorimaruStoryItem) => `${story.locationName || ''} ${story.title} ${story.audioTitle || ''} ${story.category || ''}`;
-const imageForStory = (story: SorimaruStoryItem) => {
-  if (story.imageUrl) return story.imageUrl;
-  return getSorimaruFallbackImage(story);
-};
 const getRegionStories = (stories: SorimaruStoryItem[], region: KoreaRegionPath) => {
   const matched = stories.filter((story) => region.keywords.some((keyword) => normalizeText(story).includes(keyword)));
   return matched.length ? matched : stories.slice(0, 4);
@@ -64,12 +59,16 @@ const SectionWrapper = styled.section`
 
 const InnerContainer = styled.div`
   margin: 0 auto;
-  width: 100%;
-  max-width: 72rem;
-  padding: 0 1rem;
+  width: min(calc(100% - 40px), 1140px);
+  max-width: 1140px;
+  padding: 0;
 
-  @media (min-width: 640px) {
-    padding: 0 2rem;
+  @media (max-width: 1024px) {
+    width: calc(100% - 28px);
+  }
+
+  @media (max-width: 640px) {
+    width: calc(100% - 24px);
   }
 `;
 
@@ -163,7 +162,7 @@ const PulseDot = styled.span`
   width: 0.375rem;
   height: 0.375rem;
   border-radius: 9999px;
-  background-color: ${palette.jangmi[500]};
+  background-color: ${palette.jangmi[400]};
   animation: ${pulseKeyframe} 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 `;
 
@@ -211,17 +210,17 @@ const RegionPinButton = styled.button<{ isActive: boolean }>`
   color: ${(props) => (props.isActive ? '#ffffff' : meok[700])};
 
   [data-theme='dark'] & {
-    background-color: ${(props) => (props.isActive ? palette.jangmi[500] : 'rgba(45, 41, 36, 0.9)')};
+    background-color: ${(props) => (props.isActive ? palette.jangmi[400] : 'rgba(45, 41, 36, 0.9)')};
     color: ${(props) => (props.isActive ? '#ffffff' : meok[200])};
     border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   &:hover {
     background-color: ${(props) => (props.isActive ? meok[900] : '#ffffff')};
-    color: ${(props) => (props.isActive ? '#ffffff' : palette.jangmi[500])};
+    color: ${(props) => (props.isActive ? '#ffffff' : palette.jangmi[400])};
 
     [data-theme='dark'] & {
-      background-color: ${(props) => (props.isActive ? palette.jangmi[700] : surface.dark.elevated)};
+      background-color: ${(props) => (props.isActive ? palette.jangmi[500] : surface.dark.elevated)};
       color: ${(props) => (props.isActive ? '#ffffff' : palette.jangmi[400])};
     }
   }
@@ -238,13 +237,15 @@ const AsidePanel = styled.aside`
   flex-direction: column;
   border-radius: 1rem;
   background-color: rgba(255, 255, 255, 0.85);
+  border: 0.85px solid rgba(205, 205, 202, 0.72);
+  box-shadow: none;
   padding: 1rem 0.25rem;
   backdrop-filter: blur(12px);
 
   [data-theme='dark'] & {
     background-color: rgba(36, 33, 29, 0.88);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    border: 0.85px solid rgba(255, 255, 255, 0.08);
+    box-shadow: none;
   }
 
   @media (min-width: 640px) {
@@ -280,7 +281,7 @@ const StoriesCount = styled.span`
   font-family: monospace;
   font-size: ${fontSize.xs};
   font-weight: 700;
-  color: ${palette.jangmi[500]};
+  color: ${palette.jangmi[400]};
 `;
 
 const ScrollWrapper = styled.div`
@@ -405,7 +406,7 @@ const StoryTitle = styled.strong<{ isActive: boolean }>`
   font-size: ${fontSize.sm};
   font-weight: 700;
   line-height: 1.35;
-  color: ${(props) => (props.isActive ? palette.jangmi[500] : meok[900])};
+  color: ${(props) => (props.isActive ? palette.jangmi[400] : meok[900])};
 
   [data-theme='dark'] & {
     color: ${(props) => (props.isActive ? palette.jangmi[400] : meok[100])};
@@ -417,7 +418,7 @@ const DurationStatus = styled.span<{ isActive: boolean }>`
   flex-shrink: 0;
   font-size: ${fontSize.micro};
   font-weight: 400;
-  color: ${(props) => (props.isActive ? palette.jangmi[500] : meok[500])};
+  color: ${(props) => (props.isActive ? palette.jangmi[400] : meok[500])};
 
   [data-theme='dark'] & {
     color: ${(props) => (props.isActive ? palette.jangmi[400] : meok[400])};
@@ -447,13 +448,13 @@ const LoadingSpinnerWrapper = styled.div`
   padding: 0.75rem 0;
   font-size: ${fontSize.xs};
   font-weight: 700;
-  color: ${palette.jangmi[500]};
+  color: ${palette.jangmi[400]};
 
   & .spinner {
     width: 0.75rem;
     height: 0.75rem;
     border-radius: 9999px;
-    border: 2px solid ${palette.jangmi[500]};
+    border: 2px solid ${palette.jangmi[400]};
     border-top-color: transparent;
     animation: ${spinKeyframe} 1s linear infinite;
   }
@@ -799,7 +800,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                       initial={pathMotion}
                       animate={pathMotion}
                       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                      stroke={active ? palette.jangmi[500] : '#211e19'}
+                      stroke={active ? palette.jangmi[400] : '#211e19'}
                       strokeOpacity={active ? 0.5 : 0.18}
                       strokeWidth={active ? 2.4 : 1.4}
                       strokeLinejoin="round"

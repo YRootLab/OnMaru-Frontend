@@ -1,66 +1,299 @@
 'use client';
 
-/*
-  홈 화면.
-
-  검색 엔진의 첫 화면처럼, 들어오면 검색창 하나만 있다.
-  지식 그래프와 여정 카드는 실제로 검색한 뒤에 나타난다 — 예전에는 서촌 예시 여정이
-  처음부터 펼쳐져 있어서, 방문자가 자기 여정을 입력하기 전에 남의 결과부터 읽어야 했다.
-*/
-
+import React, { useLayoutEffect, useRef } from 'react';
 import styled from '@emotion/styled';
+import gsap from 'gsap';
 
 import { useJourneyStore } from '../store/useJourneyStore';
 import JourneyHeroSearch from './JourneyHeroSearch';
-import KnowledgeGraphView from './KnowledgeGraphView';
-import BentoJourneyGrid from './BentoJourneyGrid';
-import JourneyRefineBar from './JourneyRefineBar';
+import JourneyDiscoveryFeed from './JourneyDiscoveryFeed';
+import JourneyFlowRailSection from './JourneyFlowRailSection';
+import JourneyEnrichmentSections from './JourneyEnrichmentSections';
 import JourneyAssemblyLoader from './JourneyAssemblyLoader';
-import { HanjiDeckleEdge } from '@/shared/components/HanjiDeckleEdge';
+
+const MainWrapper = styled.main`
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background-color: #ffffff;
+  transition: background-color 0.3s ease;
+
+  [data-theme='dark'] & {
+    background-color: #1C1A17;
+  }
+`;
+
+// height는 JS로 안전선까지만 고정하지만, 거기서 딱 잘라내면 그라데이션이 아직 안 옅어진
+// 채로 네모난 단면이 보인다. mask로 바닥 쪽을 한 번 더 부드럽게 죽여서, 안전선에 닿을
+// 때는 이미 거의 투명해진 뒤라 어떤 각도로 움직여도 각지게 잘리는 게 안 보이게 한다.
+const AmbientGlowLayer = styled.div`
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+  mask-image: linear-gradient(to bottom, black 0%, black 60%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 60%, transparent 100%);
+`;
+
+/** GSAP 살아 숨쉬는 유기적 단청 주홍 & 금빛 앰비언트 오르브들 */
+const GlowOrbBase = styled.div`
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  will-change: transform, opacity;
+`;
+
+const PrimaryGlowOrb = styled(GlowOrbBase)`
+  top: 32vh;
+  left: 48%;
+  width: clamp(200px, 26vw, 340px);
+  height: clamp(190px, 24vw, 320px);
+  border-radius: 46% 54% 50% 50% / 52% 48% 52% 48%;
+
+  /* 진한 주황 — 아래 SecondaryGlowOrb의 옅은 주황과 대비되도록 깊게, 다만 살짝 연하게 */
+  background: radial-gradient(
+    circle at 45% 45%,
+    rgba(224, 68, 0, 0.4) 0%,
+    rgba(240, 100, 20, 0.20) 40%,
+    rgba(255, 160, 90, 0.08) 62%,
+    rgba(255, 255, 255, 0) 78%
+  );
+  filter: blur(28px);
+
+  [data-theme='dark'] & {
+    background: radial-gradient(
+      circle at 45% 45%,
+      rgba(235, 80, 10, 0.44) 0%,
+      rgba(250, 115, 35, 0.24) 40%,
+      rgba(255, 175, 105, 0.10) 62%,
+      rgba(28, 26, 23, 0) 78%
+    );
+    filter: blur(32px);
+  }
+`;
+
+const SecondaryGlowOrb = styled(GlowOrbBase)`
+  top: 33vh;
+  left: 54%;
+  width: clamp(160px, 20vw, 260px);
+  height: clamp(150px, 22vw, 280px);
+  border-radius: 55% 45% 60% 40% / 45% 55% 45% 55%;
+
+  /* 은은하고 옅은 주황 — 위 PrimaryGlowOrb의 진한 주황과 겹쳐 섞인다 */
+  background: radial-gradient(
+    circle at 55% 50%,
+    rgba(255, 175, 90, 0.20) 0%,
+    rgba(255, 195, 130, 0.11) 38%,
+    rgba(255, 215, 160, 0.05) 65%,
+    rgba(255, 255, 255, 0) 80%
+  );
+  filter: blur(24px);
+
+  [data-theme='dark'] & {
+    background: radial-gradient(
+      circle at 55% 50%,
+      rgba(255, 185, 100, 0.24) 0%,
+      rgba(255, 200, 140, 0.14) 38%,
+      rgba(255, 220, 165, 0.06) 65%,
+      rgba(28, 26, 23, 0) 80%
+    );
+    filter: blur(28px);
+  }
+`;
 
 /**
- * 검색 전에는 검색창을 화면 가운데에 세운다.
- * 헤더(66px)를 뺀 높이를 채우고, 그 안에서 세로 가운데로 모은다.
+ * 검색 전에는 검색창을 화면 상단~중앙에 세운다.
+ * 검색 후에는 상단 헤더(GNB) 아래 80px 안전 여백에 컴팩트하게 배치한다.
  */
 const Landing = styled.div<{ $centered: boolean }>`
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   ${({ $centered }) =>
     $centered
       ? `
-    min-height: calc(100vh - 66px);
+    min-height: 74vh;
     justify-content: center;
-    padding-bottom: 10vh;
+    padding-top: 40px;
+    padding-bottom: 24px;
   `
-      : ''}
+      : `
+    padding-top: 80px;
+    padding-bottom: 12px;
+  `}
 
   @media (max-width: 767px) {
     min-height: 0;
     justify-content: flex-start;
+    padding-top: ${({ $centered }) => ($centered ? '32px' : '72px')};
     padding-bottom: 0;
   }
 `;
 
+const ContentLayer = styled.div`
+  position: relative;
+  z-index: 1;
+`;
+
 export default function JourneyHome() {
   const hasSearched = useJourneyStore((s) => s.hasSearched);
-  const isGenerating = useJourneyStore((s) => s.isGenerating);
+  const mainRef = useRef<HTMLElement>(null);
+  const glowLayerRef = useRef<HTMLDivElement>(null);
+  const orb1Ref = useRef<HTMLDivElement>(null);
+  const orb2Ref = useRef<HTMLDivElement>(null);
+  const searchFormRef = useRef<HTMLFormElement>(null);
+  const moodChipsRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    if (hasSearched) return;
+
+    const orb1 = orb1Ref.current;
+    const orb2 = orb2Ref.current;
+    if (!orb1 || !orb2) return;
+
+    // 오르브는 검색창 뒤에서 움직여야 하므로 위치는 검색창 중앙에 고정한다.
+    // "카테고리를 넘으면 안 된다"는 위치 계산이 아니라 glowLayer 자체를 안전선
+    // 높이로 물리적으로 잘라내는 것으로 전담한다 — vh 같은 뷰포트 단위는 flex
+    // 중앙정렬 레이아웃과 어긋나기 쉬워 실제 DOM 위치를 직접 측정해서 쓴다.
+    const CHIP_SAFE_GAP = 10;
+    const positionOrbs = () => {
+      const mainTop = mainRef.current?.getBoundingClientRect().top;
+      const searchRect = searchFormRef.current?.getBoundingClientRect();
+      if (mainTop === undefined || !searchRect) return;
+
+      const chipsTop = moodChipsRef.current
+        ? moodChipsRef.current.getBoundingClientRect().top - mainTop
+        : searchRect.bottom - mainTop + 200;
+
+      const safeBottom = Math.max(0, chipsTop - CHIP_SAFE_GAP);
+
+      // 계산이 또 틀려도 이 밑으로는 물리적으로 그려질 수 없게 레이어 자체를 잘라낸다.
+      if (glowLayerRef.current) {
+        glowLayerRef.current.style.height = `${safeBottom}px`;
+      }
+
+      // "검색창 뒤에서" 움직이도록 오르브 중심을 검색창 세로 중앙에 그대로 맞춘다.
+      // 예전엔 여기서 안전선과 다시 비교해(Math.min) 안전선을 넘을 것 같으면 오르브를
+      // 위로 밀어 올렸는데, 검색창~카테고리 간격이 20px 안팎이라 오르브 절반 크기가
+      // 그보다 훨씬 커서 거의 항상 밀려 올라갔다 — 그래서 계속 제목 뒤에 가 있었다.
+      // 이제 안전선 준수는 위 물리적 클립(overflow: hidden)이 전담하므로, 위치 자체는
+      // 검색창 중앙에 고정해도 된다.
+      const searchCenter = (searchRect.top + searchRect.bottom) / 2 - mainTop;
+      orb1.style.top = `${searchCenter}px`;
+      orb2.style.top = `${searchCenter + 6}px`;
+    };
+
+    positionOrbs();
+    window.addEventListener('resize', positionOrbs);
+
+    const ctx = gsap.context(() => {
+      // 🌟 [Orb 1: 단청 주홍 메인 오르브] - 8자 형태의 유기적 유영 + 볼륨 호흡 모션
+      gsap.set(orb1, { xPercent: -50, yPercent: -50, scale: 0.95, opacity: 0.75 });
+
+      gsap.to(orb1, {
+        scale: 1.08,
+        opacity: 0.98,
+        duration: 3.2,
+        ease: 'sine.inOut',
+        yoyo: true,
+        repeat: -1,
+      });
+
+      gsap.to(orb1, {
+        x: '+=110',
+        duration: 3.4,
+        ease: 'sine.inOut',
+        yoyo: true,
+        repeat: -1,
+      });
+
+      gsap.to(orb1, {
+        y: '-=85',
+        duration: 2.8,
+        ease: 'sine.inOut',
+        yoyo: true,
+        repeat: -1,
+      });
+
+      gsap.to(orb1, {
+        rotation: -35,
+        duration: 8.2,
+        ease: 'sine.inOut',
+        yoyo: true,
+        repeat: -1,
+      });
+
+      // 🌟 [Orb 2: 금빛 주홍 보조 오르브] - Orb 1과 반대 위상으로 교차하며 은은한 오로라 파동 생성
+      gsap.set(orb2, { xPercent: -50, yPercent: -50, scale: 0.95, opacity: 0.70 });
+
+      gsap.to(orb2, {
+        scale: 0.85,
+        opacity: 0.92,
+        duration: 3.8,
+        ease: 'sine.inOut',
+        yoyo: true,
+        repeat: -1,
+      });
+
+      gsap.to(orb2, {
+        x: '-=95',
+        duration: 3.6,
+        ease: 'sine.inOut',
+        yoyo: true,
+        repeat: -1,
+      });
+
+      gsap.to(orb2, {
+        y: '-=25',
+        duration: 3.0,
+        ease: 'sine.inOut',
+        yoyo: true,
+        repeat: -1,
+      });
+
+      gsap.to(orb2, {
+        rotation: 40,
+        duration: 9.4,
+        ease: 'sine.inOut',
+        yoyo: true,
+        repeat: -1,
+      });
+    });
+
+    return () => {
+      window.removeEventListener('resize', positionOrbs);
+      ctx.revert();
+    };
+  }, [hasSearched]);
 
   return (
-    <main>
-      <HanjiDeckleEdge />
+    <MainWrapper ref={mainRef}>
+      {/* 🟠 검색 전에만 작동하는 눈이 편안하며 생동감 넘치는 교차 유영 앰비언트 그라데이션 */}
+      {!hasSearched && (
+        <AmbientGlowLayer ref={glowLayerRef} aria-hidden="true">
+          <PrimaryGlowOrb ref={orb1Ref} />
+          <SecondaryGlowOrb ref={orb2Ref} />
+        </AmbientGlowLayer>
+      )}
+
       <JourneyAssemblyLoader />
 
       <Landing $centered={!hasSearched}>
-        <JourneyHeroSearch />
+        <JourneyHeroSearch searchFormRef={searchFormRef} moodChipsRef={moodChipsRef} />
       </Landing>
 
+      {/* 검색 전: 풍성한 둘러보기 피드 노출 */}
+      {!hasSearched && <JourneyDiscoveryFeed />}
+
+      {/* 검색 후: 여정 플로우 레일 및 실데이터 세부 코스 노출 */}
       {hasSearched && (
-        <>
-          <KnowledgeGraphView />
-          <BentoJourneyGrid />
-          <JourneyRefineBar />
-        </>
+        <ContentLayer>
+          <JourneyFlowRailSection />
+          <JourneyEnrichmentSections />
+        </ContentLayer>
       )}
-    </main>
+    </MainWrapper>
   );
 }

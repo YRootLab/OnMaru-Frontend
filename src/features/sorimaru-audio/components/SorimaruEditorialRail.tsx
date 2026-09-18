@@ -83,6 +83,14 @@ const durationFor = (story: SorimaruStoryItem) =>
   story.formattedDuration ||
   `${Math.floor((Number(story.playTime) || 0) / 60)}:${String((Number(story.playTime) || 0) % 60).padStart(2, '0')}`;
 
+const carouselEdgeFade = (direction: 'left' | 'right', mode: 'light' | 'dark') => {
+  if (mode === 'dark') {
+    return `linear-gradient(to ${direction}, rgba(28, 26, 23, 0.78), rgba(28, 26, 23, 0.52), transparent)`;
+  }
+
+  return `linear-gradient(to ${direction}, rgba(253, 253, 252, 0.76), rgba(253, 253, 252, 0.5), transparent)`;
+};
+
 const CardMotionButton = styled(motion.button)<{ $isActive: boolean }>`
   position: relative;
   height: 250px;
@@ -157,16 +165,51 @@ const CarouselStageWrapper = styled.div`
   position: relative;
   isolation: isolate;
   margin-top: 0;
+  margin-left: calc(50% - 50vw);
+  width: 100vw;
   height: 410px;
-  overflow: hidden;
+  overflow: visible;
   background-color: transparent;
   padding-top: 0.5rem;
-  padding-bottom: 1rem;
+  padding-bottom: 1.75rem;
   border-radius: 1.25rem;
   transition: background-color 0.3s ease;
 
   [data-theme='dark'] & {
     background-color: ${surface.dark.surface};
+  }
+
+`;
+
+const CarouselEdgeFade = styled.div<{ $side: 'left' | 'right' }>`
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 35;
+
+  ${({ $side }) =>
+    $side === 'left'
+      ? `
+        left: 0;
+        width: 3rem;
+        background: ${carouselEdgeFade('right', 'light')};
+      `
+      : `
+        right: 0;
+        width: 1.5rem;
+        background: ${carouselEdgeFade('left', 'light')};
+      `}
+
+  [data-theme='dark'] & {
+    ${({ $side }) =>
+      $side === 'left'
+        ? `background: ${carouselEdgeFade('right', 'dark')};`
+        : `background: ${carouselEdgeFade('left', 'dark')};`}
+  }
+
+  @media (min-width: 640px) {
+    ${({ $side }) => ($side === 'left' ? 'width: 4rem;' : 'width: 2.25rem;')}
   }
 `;
 
@@ -179,7 +222,7 @@ const CategoryTabButton = styled.button<{ $isSelected: boolean }>`
   border: none;
   cursor: pointer;
   font-weight: ${({ $isSelected }) => ($isSelected ? 600 : 400)};
-  color: ${({ $isSelected }) => ($isSelected ? palette.jangmi[500] : meok[700])};
+  color: ${({ $isSelected }) => ($isSelected ? palette.jangmi[400] : meok[700])};
 
   [data-theme='dark'] & {
     color: ${({ $isSelected }) => ($isSelected ? palette.jangmi[400] : meok[400])};
@@ -194,13 +237,12 @@ interface EditorialRailCardProps {
   story: SorimaruStoryItem;
   position: number;
   offset: number;
-  featuredLength: number;
   trackTransitionEnabled: boolean;
   onInteractRef: React.MutableRefObject<(position: number) => void>;
 }
 
 const EditorialRailCard = React.memo<EditorialRailCardProps>(
-  ({ story, position, offset, featuredLength, trackTransitionEnabled, onInteractRef }) => {
+  function EditorialRailCard({ story, position, offset, trackTransitionEnabled, onInteractRef }) {
     const distance = Math.abs(offset);
     const isVisible = distance <= SORIMARU_RAIL_VISIBLE_BUFFER;
     const isActive = offset === 0;
@@ -283,7 +325,7 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(
               fontWeight: 600,
               textTransform: 'uppercase',
               letterSpacing: '0.12em',
-              color: palette.jangmi[500],
+              color: palette.jangmi[400],
             }}
           >
             {story.category && story.category !== '오디 이야기' && story.category !== '소리 이야기' ? story.category : story.badgeText || '소리마루 해설'}
@@ -302,7 +344,7 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(
                 alignItems: 'center',
                 gap: 8,
                 fontSize: fontSize.micro,
-                color: palette.jangmi[500],
+                color: palette.jangmi[400],
               }}
             >
               {durationFor(story)} <span style={{ color: meok[700] }}>↗</span>
@@ -330,9 +372,9 @@ const NavSideButton = styled.button<{ $side: 'left' | 'right' }>`
   position: absolute;
   top: 0;
   bottom: 0;
-  z-index: 30;
+  z-index: 40;
   display: flex;
-  width: 3rem;
+  width: max(8rem, calc((100vw - min(72rem, 100vw)) / 2 + 7rem));
   cursor: pointer;
   align-items: center;
   border: none;
@@ -343,34 +385,30 @@ const NavSideButton = styled.button<{ $side: 'left' | 'right' }>`
       ? `
         left: 0;
         justify-content: flex-start;
-        padding-left: 0.5rem;
-        background: linear-gradient(to right, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.2), transparent);
+        padding-left: max(1rem, calc((100vw - min(72rem, 100vw)) / 2 + 1rem));
+        background: transparent;
         &:hover {
-          background: linear-gradient(to right, #ffffff, rgba(255, 255, 255, 0.85), transparent);
+          background: transparent;
         }
-        @media (min-width: 640px) { width: 4rem; padding-left: 1rem; }
-        @media (min-width: 1024px) { width: 5rem; }
         [data-theme='dark'] & {
-          background: linear-gradient(to right, rgba(28, 26, 23, 0.75), rgba(28, 26, 23, 0.2), transparent);
+          background: transparent;
           &:hover {
-            background: linear-gradient(to right, rgba(28, 26, 23, 0.95), rgba(28, 26, 23, 0.7), transparent);
+            background: transparent;
           }
         }
       `
       : `
         right: 0;
         justify-content: flex-end;
-        padding-right: 0.5rem;
-        background: linear-gradient(to left, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.2), transparent);
+        padding-right: max(1rem, calc((100vw - min(72rem, 100vw)) / 2 + 1rem));
+        background: transparent;
         &:hover {
-          background: linear-gradient(to left, #ffffff, rgba(255, 255, 255, 0.85), transparent);
+          background: transparent;
         }
-        @media (min-width: 640px) { width: 4rem; padding-right: 1rem; }
-        @media (min-width: 1024px) { width: 5rem; }
         [data-theme='dark'] & {
-          background: linear-gradient(to left, rgba(28, 26, 23, 0.75), rgba(28, 26, 23, 0.2), transparent);
+          background: transparent;
           &:hover {
-            background: linear-gradient(to left, rgba(28, 26, 23, 0.95), rgba(28, 26, 23, 0.7), transparent);
+            background: transparent;
           }
         }
       `}
@@ -401,7 +439,7 @@ const NavSideButton = styled.button<{ $side: 'left' | 'right' }>`
   &:hover span.icon-box {
     transform: scale(1.15);
     background-color: #ffffff;
-    color: ${palette.jangmi[500]};
+    color: ${palette.jangmi[400]};
 
     [data-theme='dark'] & {
       background-color: ${surface.dark.elevated};
@@ -465,7 +503,7 @@ const IndicatorDot = styled.button<{ $active: boolean }>`
 `;
 
 export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
-  ({ stories, storySets, apiService, isLoading = false, onApiError }) => {
+  function SorimaruEditorialRail({ stories, storySets, apiService, isLoading = false, onApiError }) {
     const activeApiService = useSorimaruApiService(apiService);
     const setCurrentStory = useSorimaruAudioStore((state) => state.setCurrentStory);
     const [selectedKeyword, setSelectedKeyword] = useState(SORIMARU_THEME_CATEGORIES[0].keyword);
@@ -829,7 +867,7 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
           marginLeft: 'auto',
           marginRight: 'auto',
           width: '100%',
-          maxWidth: '72rem',
+          maxWidth: 'none',
           overflow: 'hidden',
           padding: '0.75rem 0',
         }}
@@ -860,6 +898,9 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
             </div>
 
             <CarouselStageWrapper>
+              <CarouselEdgeFade $side="left" />
+              <CarouselEdgeFade $side="right" />
+
               {/* 좌측 탐색 버튼 */}
               <NavSideButton
                 type="button"
@@ -917,7 +958,6 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
                         story={cardStory}
                         position={pos}
                         offset={pos - activePosition}
-                        featuredLength={featured.length}
                         trackTransitionEnabled={trackTransitionEnabled}
                         onInteractRef={cardInteractionRef}
                       />
@@ -928,7 +968,7 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
             </CarouselStageWrapper>
 
             {/* 하단 인디케이터 바 */}
-            <div style={{ position: 'relative', zIndex: 30, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: '0.375rem' }}>
+            <div style={{ position: 'relative', zIndex: 30, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: '1rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 {featured.map((storyItem, index) => (
                   <IndicatorDot

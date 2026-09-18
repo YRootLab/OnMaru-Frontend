@@ -27,7 +27,8 @@ function getStoryLabel(story: SorimaruStoryItem): string {
 const IntroStage = styled.div`
   position: relative;
   overflow: hidden;
-  max-width: 1200px;
+  width: min(calc(100% - 40px), 1140px);
+  max-width: 1140px;
   margin: 0 auto;
   border-radius: 24px;
   min-height: clamp(280px, 34vh, 360px);
@@ -35,12 +36,14 @@ const IntroStage = styled.div`
   align-items: center;
   justify-content: center;
 
-  @media (max-width: 1120px) {
-    margin: 0 16px;
+  @media (max-width: 1024px) {
+    width: calc(100% - 28px);
+    margin: 0 auto;
   }
 
   @media (max-width: 640px) {
-    margin: 0 8px;
+    width: calc(100% - 24px);
+    margin: 0 auto;
     border-radius: 18px;
     min-height: 250px;
   }

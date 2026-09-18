@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
-import { Sparkles, CornerDownLeft } from 'lucide-react';
-import { lightPalette, meok, surface , fontSize } from '@/design-system/tokens';
+import { Sparkles, CornerDownLeft, AlertCircle } from 'lucide-react';
+import { lightPalette, palette, meok, surface , fontSize } from '@/design-system/tokens';
 import { useJourneyStore } from '../store/useJourneyStore';
 
 const Wrapper = styled.div`
@@ -151,6 +151,7 @@ export default function JourneyRefineBar() {
   const refinePlan = useJourneyStore((s) => s.refinePlan);
   const isGenerating = useJourneyStore((s) => s.isGenerating);
   const currentPlan = useJourneyStore((s) => s.currentPlan);
+  const lastError = useJourneyStore((s) => s.lastError);
 
   const defaultSuggestions = [
     '+ 전통 찻집 위주',
@@ -179,12 +180,23 @@ export default function JourneyRefineBar() {
     <Wrapper>
       <Box>
         <Header>
-          <Sparkles size={16} color={lightPalette.cheongrok[500]} />
-          <span>
-            {isGenerating
-              ? '요청하신 내용을 반영해 코스를 다시 짜고 있어요'
-              : '원하는 조건을 더해 코스를 바꿔보세요'}
-          </span>
+          {!isGenerating && lastError ? (
+            <>
+              <AlertCircle size={16} color={palette.danpung[500]} />
+              <span style={{ color: palette.danpung[700] }}>
+                {lastError} 기존 코스는 그대로 있어요.
+              </span>
+            </>
+          ) : (
+            <>
+              <Sparkles size={16} color={lightPalette.cheongrok[500]} />
+              <span>
+                {isGenerating
+                  ? '요청하신 내용을 반영해 코스를 다시 짜고 있어요'
+                  : '원하는 조건을 더해 코스를 바꿔보세요'}
+              </span>
+            </>
+          )}
         </Header>
 
         <InputRow onSubmit={handleSubmit}>

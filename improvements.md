@@ -112,6 +112,20 @@ Backlog for follow-up improvements that are useful but not required to resume th
 - 출처 없는 생성, 프롬프트 인젝션, 과도한 요청을 차단하고 trace ID·rate limit·검색/답변 평가를 운영한다.
 - 프런트와 백엔드의 성공 계약: `{ answer, sources: [{ stid, title, locationName?, formattedDuration? }] }`.
 
+### 한국관광공사_지역별 관광 자원 수요 데이터 활용 아이디어 — 2026-09-17
+
+실시간 API가 아닌 정기 배포 통계 데이터셋(월/분기 단위 갱신)이므로 즉시 도입보다 중장기 기능으로 검토.
+
+**포함 데이터**: 이동통신 기반 지역별 방문자 수(현지인/외지인/외국인), Tmap 관광지 검색 건수/순위, 신용카드 소비 패턴, 지역별 관광 다양성 지수.
+
+**OnMaru 적용 후보 기능**:
+- 홈 > 지역별 둘러보기: "이번 달 주목받는 한옥 지역 TOP 3" 자동 선정 배너 (정적 목록 → 수요 기반 동적 큐레이션)
+- 여정 큐레이터: Gemini 후보 중 실제 수요가 높은 장소에 우선순위 부여하는 재랭킹 신호로 활용
+- 소리마루: "지금 많이 찾는 지역의 소리" — 수요 데이터 → ASMR 트랙 큐레이션 연결
+- 지도 히트맵: 관광객 밀집도 시각화 레이어 (한산한 숨겨진 명소 역추천도 가능)
+
+**선결 조건**: 전체 관광지 통계이므로 한옥/전통문화 분류 필터링 레이어 별도 구현 필요. TourAPI + Gemini 현행 조합이 충분한 동안은 낮은 우선순위.
+
 ## Done
 
 - Initialized shared harness entry files and continuity documents.

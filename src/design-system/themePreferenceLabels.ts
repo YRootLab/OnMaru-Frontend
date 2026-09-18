@@ -23,7 +23,7 @@ export function getThemePreferenceSummary({
   mode: ColorMode;
 }): string {
   if (preference === 'system') {
-    return `시간에 따라 낮/밤 전환 · 현재 ${modeLabels[mode]}`;
+    return `낮/밤 자동 · 현재 ${modeLabels[mode]}`;
   }
   return preference === 'light' ? '항상 밝게 보기' : '항상 어둡게 보기';
 }

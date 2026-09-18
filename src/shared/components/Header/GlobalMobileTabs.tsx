@@ -6,6 +6,7 @@ import styled from '@emotion/styled';
 import { Home, BookOpen, Map, Headphones } from 'lucide-react';
 import { transientProps } from '@/design-system/styled';
 import { lightPalette , fontSize } from '@/design-system/tokens';
+import { useJourneyStore } from '@/features/journey-curator/store/useJourneyStore';
 
 interface TabProps {
   $isLanding?: boolean;
@@ -58,11 +59,12 @@ const TabLink = styled(Link, transientProps)<TabProps>`
 /** 사이트 공통 하단 탭 (홈 / 한옥 마루 / 지도 / 소리마루) — Header의 데스크톱 GNB를 모바일 폭에서 대체한다. */
 export default function GlobalMobileTabs({ isLanding }: { isLanding: boolean }) {
   const pathname = usePathname();
+  const resetJourney = useJourneyStore((s) => s.resetJourney);
   const isSoriMaruPage = pathname.startsWith('/sorimaru') || pathname.startsWith('/sorimaru');
 
   return (
     <Nav aria-label="주요 탐색">
-      <TabLink href="/" $isLanding={isLanding} $isActive={pathname === '/'}>
+      <TabLink href="/" $isLanding={isLanding} $isActive={pathname === '/'} onClick={resetJourney}>
         <Home size={19} strokeWidth={2} aria-hidden="true" />
         <span>홈</span>
       </TabLink>

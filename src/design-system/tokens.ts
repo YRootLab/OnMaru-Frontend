@@ -12,10 +12,20 @@ export const palette = {
     50: '#FFF1F0', 100: '#FFE4E1', 200: '#FFC1BA', 400: '#FF6B61',
     500: '#FF3B30', 700: '#D62015', 900: '#7A0C05',
   },
-  // 🟠 주황 — 단청 주홍 (메인 액션)
+  // 🟠 주황 — 단청 주홍 (메인 브랜드 & 액션 컬러)
   juhong: {
-    50: '#FFF4EB', 100: '#FFE4D1', 200: '#FFBD99', 400: '#FF7830',
-    500: '#FF5500', 700: '#D94000', 900: '#7A2400',
+    25:  '#FFF8F5', // 초미세 틴트 / 카드 배경 은은한 오버레이
+    50:  '#FFF4EB', // 연한 한지 틴트 / 액티브 배경
+    100: '#FFE4D1', // 서브 태그·뱃지 배경
+    200: '#FFCBA8', // 칩 보더 / 약한 강조 테두리
+    300: '#FFA36B', // 디바이더 / 인터랙티브 보더
+    400: '#FF7830', // 다크모드 메인 악센트 / 밝은 주홍
+    500: '#FF5500', // [MAIN] 온마루 정통 단청 주홍 (Primary)
+    600: '#E64700', // Hover(호버) 인터랙션
+    700: '#D94000', // Active(누름) 상태 / 진한 주홍
+    800: '#A82E00', // 라이트모드 텍스트 가독성용 딥 주홍
+    900: '#7A2400', // 깊은 고택 주홍
+    950: '#471200', // 먹빛 융합 초심도 주홍
   },
   // 🟡 노랑 — 황금 기와 (별점 / 하이라이트)
   hwanggeum: {
@@ -27,10 +37,10 @@ export const palette = {
     50: '#E6FAF2', 100: '#BEF4DC', 200: '#82E8BD', 400: '#26D68D',
     500: '#00C471', 700: '#009454', 900: '#004D2B',
   },
-  // 🔵 파랑 — 청화 코발트 (정보 안내)
+  // 🔵 파랑 — 청화 코발트 (정보 안내) — 주황이 메인 브랜드라 존재감은 톤다운, "선택됨/정보" 구분 기능은 유지
   kobalt: {
-    50: '#EBF2FF', 100: '#C7DAFF', 200: '#8FB5FF', 400: '#4D82FF',
-    500: '#1B5BFF', 700: '#0C44D9', 900: '#052275',
+    50: '#EEF2F8', 100: '#D6E0ED', 200: '#AFC3DD', 400: '#6E8FBC',
+    500: '#4A6FA0', 700: '#35517C', 900: '#1C2F4A',
   },
   // 🟣 보라 — 자하 바이올렛 (야경 / 악센트)
   jaha: {
@@ -358,10 +368,10 @@ export const createTheme = (mode: ColorMode) => {
     typography: {
       fontFamily: {
         sans: '"Spoqa Han Sans Neo", system-ui, sans-serif',
-        serif: '"GyeongbokgungSumunjangTitle", serif',
-        traditionalTitle: '"GyeongbokgungSumunjangTitle", "Spoqa Han Sans Neo", serif',
-        traditionalBody: '"GyeongbokgungSumunjangBodyText", "Spoqa Han Sans Neo", serif',
-        traditional: '"GyeongbokgungSumunjangTitle", "Spoqa Han Sans Neo", serif',
+        serif: '"Spoqa Han Sans Neo", system-ui, sans-serif',
+        traditionalTitle: '"Spoqa Han Sans Neo", sans-serif',
+        traditionalBody: '"Spoqa Han Sans Neo", sans-serif',
+        traditional: '"Spoqa Han Sans Neo", sans-serif',
       },
       fontSize,
       mobile: {
@@ -399,7 +409,7 @@ export const createTheme = (mode: ColorMode) => {
     },
 
     layout: {
-      maxWidth: '1340px',
+      maxWidth: '1140px',
       margin: {
         sm: '16px', // 모바일
         md: '16px', // 태블릿

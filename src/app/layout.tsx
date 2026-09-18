@@ -3,6 +3,7 @@ import Script from 'next/script'
 import './globals.css'
 import { Providers } from './providers'
 import Header from '@/shared/components/Header'
+import Footer from '@/shared/components/Footer'
 import PageContainer from '@/shared/components/Layout/PageContainer'
 
 export const metadata: Metadata = {
@@ -51,6 +52,7 @@ export default function RootLayout({
           <PageContainer>
             {children}
           </PageContainer>
+          <Footer />
         </Providers>
       </body>
     </html>

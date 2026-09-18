@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { transientProps } from '@/design-system/styled';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
+import { useJourneyStore } from '@/features/journey-curator/store/useJourneyStore';
 import { lightPalette, meok , fontSize } from '@/design-system/tokens';
 import { RAIL_ENTER_DELAY_S, RAIL_ENTER_DURATION_S, ENTRANCE_EASE } from '@/shared/navigation/mapEntranceTiming';
 import { useMapEntranceStore } from '@/shared/navigation/mapEntranceState';
@@ -32,6 +33,7 @@ import type { ThemePreference } from '@/design-system/tokens';
 
 export const RAIL_WIDTH = 68;
 export const RAIL_INSET = 14;
+const ONMARU_LOGO_SRC = '/logo.png';
 
 /** Header.tsx의 캡슐형 GNB와 같은 유리질감(블러+반투명+가느다란 보더)을 쓰는
  *  얇고 떠 있는 세로 레일 — 다크 모드에서는 깊이감 있는 먹빛 플로팅 캡슐로 전환된다. */
@@ -72,24 +74,39 @@ const RailContainer = styled(motion.aside, transientProps)`
   }
 `;
 
-/** 상단 온마루 브랜드 로고 영역 (logo.png) */
+/** 상단 온마루 브랜드 로고 영역 */
 const LogoArea = styled.div`
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 3px;
   width: 100%;
-  height: 44px;
+  padding: 4px 0 2px;
   cursor: pointer;
   transition: transform 0.15s ease;
 
   &:hover {
-    transform: scale(1.08);
+    transform: scale(1.05);
   }
 
   &:focus-visible {
     outline: 2px solid ${lightPalette.cheongrok[500]};
     outline-offset: 2px;
     border-radius: 8px;
+  }
+`;
+
+const LogoText = styled.span`
+  font-family: var(--font-hanok);
+  font-weight: 900;
+  font-size: 11px;
+  letter-spacing: -0.03em;
+  color: ${meok[900]};
+  line-height: 1;
+
+  [data-theme='dark'] & {
+    color: #ffffff;
   }
 `;
 
@@ -296,6 +313,13 @@ export default function MapNavRail() {
   const panelOpen = useMapStore((s) => s.panelOpen);
   const setPanelOpen = useMapStore((s) => s.setPanelOpen);
 
+  const resetJourney = useJourneyStore((s) => s.resetJourney);
+
+  const handleGoHome = () => {
+    resetJourney();
+    router.push('/');
+  };
+
   const handleSelectInfoMap = () => {
     setMode('info');
     setCategory(null);
@@ -341,28 +365,29 @@ export default function MapNavRail() {
           : { duration: 0 }
       }
     >
-      {/* 1. 상단 온마루 브랜드 로고 (/logo.png) */}
+      {/* 1. 상단 온마루 브랜드 로고 및 타이틀 */}
       <LogoArea
         role="button"
         tabIndex={0}
-        onClick={() => router.push('/')}
+        onClick={handleGoHome}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            router.push('/');
+            handleGoHome();
           }
         }}
         aria-label="온마루 메인 홈으로 이동"
         title="온마루 메인 홈으로 이동"
       >
         <Image
-          src="/logo.png"
+          src={ONMARU_LOGO_SRC}
           alt="온마루 로고"
-          width={36}
-          height={36}
-          style={{ objectFit: 'contain', borderRadius: '10px' }}
+          width={28}
+          height={28}
+          style={{ objectFit: 'contain', borderRadius: '7px' }}
           priority
         />
+        <LogoText>온마루</LogoText>
       </LogoArea>
 
       <LogoDivider />

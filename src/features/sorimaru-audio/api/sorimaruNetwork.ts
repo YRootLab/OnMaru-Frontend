@@ -60,9 +60,13 @@ export const defaultSorimaruEndpointResolver: SorimaruEndpointResolver = ({ type
   upstream.searchParams.set('serviceKey', getApiKey());
 
   if (type === 'nearby') {
-    if (params.xCoord) upstream.searchParams.set('xCoord', params.xCoord);
-    if (params.yCoord) upstream.searchParams.set('yCoord', params.yCoord);
+    // 실제 Odii storyLocationBasedList는 xCoord/yCoord가 아니라 mapX/mapY를 필수로 요구한다
+    // (xCoord로 보내면 NO_MANDATORY_REQUEST_PARAMETERS_ERROR1(mapX)로 늘 빈 결과였다).
+    if (params.xCoord) upstream.searchParams.set('mapX', params.xCoord);
+    if (params.yCoord) upstream.searchParams.set('mapY', params.yCoord);
     upstream.searchParams.set('radius', params.radius || '3000');
+    upstream.searchParams.set('numOfRows', params.numOfRows || '10');
+    upstream.searchParams.set('pageNo', params.pageNo || '1');
     return upstream.toString();
   }
 

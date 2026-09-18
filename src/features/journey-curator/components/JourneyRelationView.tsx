@@ -1,0 +1,141 @@
+'use client';
+
+/**
+ * 연결 보기 — 그래프 대신 목록으로. seven-day-mvp-fe-handoff.md §16이 "핵심 흐름이
+ * 불안정하면 관계 보기는 목록 fallback을 기본으로 한다"고 이미 허용한 경로다.
+ * 지금 관계는 LOCATED_IN(지역 소속)과 NEARBY(좌표 인접)뿐이다 — 검수 안 된
+ * "의미적으로 비슷함"을 관계로 만들지 않는다.
+ */
+
+import styled from '@emotion/styled';
+import { MapPin, Route } from 'lucide-react';
+import { meok, palette, fontSize } from '@/design-system/tokens';
+import type { JourneyBoard, PlaceResource, RegionResource, ResourceRef } from '../types/exploration.types';
+
+const List = styled.ul`
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+`;
+
+const Row = styled.li<{ $focused: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 4px;
+  border-top: 1px solid ${meok[200]};
+  background: ${({ $focused }) => ($focused ? palette.juhong[50] : 'transparent')};
+`;
+
+const IconBox = styled.span`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  color: ${meok[500]};
+  background: ${meok[100]};
+`;
+
+const RelText = styled.button`
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: ${fontSize.sm};
+  color: ${meok[800]};
+  margin: 0;
+
+  b {
+    font-weight: 500;
+    color: ${meok[900]};
+  }
+
+  [data-theme='dark'] & {
+    color: ${meok[300]};
+
+    b {
+      color: #f8f9fa;
+    }
+  }
+`;
+
+const EvidenceButton = styled.button`
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: ${fontSize.xs};
+  color: ${meok[500]};
+  text-decoration: underline;
+  text-underline-offset: 3px;
+
+  &:hover {
+    color: ${meok[900]};
+  }
+`;
+
+const Empty = styled.p`
+  padding: 24px 0;
+  text-align: center;
+  font-size: ${fontSize.sm};
+  color: ${meok[500]};
+`;
+
+function resolveTitle(board: JourneyBoard, ref: ResourceRef): string {
+  const resource = board.resources.find((r) => r.ref.type === ref.type && r.ref.id === ref.id);
+  if (!resource) return ref.id;
+  return (resource as PlaceResource | RegionResource).title;
+}
+
+interface JourneyRelationViewProps {
+  board: JourneyBoard;
+  focusedRef: ResourceRef | null;
+  onFocus: (ref: ResourceRef) => void;
+  onOpenEvidence?: (ref: ResourceRef) => void;
+}
+
+export default function JourneyRelationView({ board, focusedRef, onFocus, onOpenEvidence }: JourneyRelationViewProps) {
+  const relations = focusedRef
+    ? board.relations.filter((r) => r.sourceRef.id === focusedRef.id || r.targetRef.id === focusedRef.id)
+    : board.relations;
+
+  if (relations.length === 0) {
+    return <Empty>표시할 연결이 없어요.</Empty>;
+  }
+
+  return (
+    <List>
+      {relations.map((rel) => {
+        const sourceTitle = resolveTitle(board, rel.sourceRef);
+        const targetTitle = resolveTitle(board, rel.targetRef);
+        const isFocused =
+          focusedRef !== null && (rel.sourceRef.id === focusedRef.id || rel.targetRef.id === focusedRef.id);
+        const clickTarget = rel.sourceRef.id === focusedRef?.id ? rel.targetRef : rel.sourceRef;
+
+        return (
+          <Row key={rel.id} $focused={isFocused}>
+            <IconBox>{rel.type === 'NEARBY' ? <Route size={14} strokeWidth={2} /> : <MapPin size={14} strokeWidth={2} />}</IconBox>
+            <RelText type="button" onClick={() => onFocus(clickTarget)}>
+              <b>{sourceTitle}</b> · {rel.label} · <b>{targetTitle}</b>
+            </RelText>
+            {onOpenEvidence && (
+              <EvidenceButton type="button" onClick={() => onOpenEvidence(rel.sourceRef)}>
+                근거
+              </EvidenceButton>
+            )}
+          </Row>
+        );
+      })}
+    </List>
+  );
+}
