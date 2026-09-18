@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { SorimaruAudioFeature } from '@/features/sorimaru-audio/components/SorimaruAudioFeature';
 
@@ -7,5 +8,9 @@ export const metadata: Metadata = {
 };
 
 export default function SorimaruBackgroundVersionTwoPage() {
-  return <SorimaruAudioFeature backgroundVariant="changho-breeze" />;
+  return (
+    <Suspense fallback={null}>
+      <SorimaruAudioFeature backgroundVariant="changho-breeze" />
+    </Suspense>
+  );
 }

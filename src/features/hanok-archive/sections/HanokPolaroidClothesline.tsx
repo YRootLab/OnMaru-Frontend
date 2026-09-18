@@ -17,8 +17,8 @@ const LineWrapper = styled.div`
   position: relative;
   overflow: hidden;
   padding: 16px 0 36px;
-  mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0%, black 2.9%, black 97.1%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 2.9%, black 97.1%, transparent 100%);
 `;
 
 const slide = keyframes`

@@ -1,10 +1,10 @@
 # handoff.md
 
 Current work:
-- Odii transcript refinement: long API narration is now split into sentence
-  cues and rendered in three-sentence numbered listening segments. The large
-  white quote card is removed; playback keeps only the active sentence at full
-  opacity while surrounding sentences remain at 60%.
+- Scroll Reveal & Reload Protection: Updated `VesselReveal` and `vesselRevealState.ts` so sections bloom once on downward scroll (`0.96 -> 1.0`), permanently stay bloomed during upward scroll or viewport exit without folding or replaying, render immediately in final state on page reload without layout shift, and disconnect observers upon reveal for zero CPU overhead. Documented in `src/shared/components/animation/README.md`.
+- GNB & Mobile Navigation refinement: Replaced liquid spring morphing (`layoutId`) across desktop header and mobile bottom tabs (`Header.tsx`, `GlobalMobileTabs.tsx`) with refined, stable glassmorphic capsule active styles.
+- Sorimaru UI & Motion polish: Removed inner component slide-up animations inside Sorimaru sections (`SorimaruAudioFeature.tsx`) to prevent double entrance animations with `VesselReveal`, fixed constellation map section (`SoundConstellationSection.tsx`) motion context propagation, and resolved indicator bar clipping.
+- Verified: `npx tsc --noEmit` passed with 0 errors.
 - Odii expanded-player redesign implemented: the player now presents one
   complete neutral transcript panel,
   60%-opacity inactive lines, active-line centering, direct line seeks, and

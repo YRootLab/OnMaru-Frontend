@@ -153,7 +153,15 @@ const GlassPlayerBar = styled(motion.div)`
   }
 `;
 
-const PlayCircleButton = styled(motion.button)`
+const IconWrapper = styled(motion.span)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+`;
+
+const PlayCircleButton = styled.button`
   position: relative;
   overflow: hidden;
   display: flex;
@@ -168,33 +176,10 @@ const PlayCircleButton = styled(motion.button)`
   border: none;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-  transition: transform 0.2s ease, background-color 0.2s ease;
+  transition: background-color 0.2s ease;
 
   &:hover {
     background-color: #f5f5f4;
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 3px;
-    border: 1px solid rgba(139, 122, 73, 0.5);
-    border-radius: inherit;
-    opacity: 0;
-    transform: scale(0.78);
-  }
-
-  &:hover::after {
-    animation: quiet-ripple 1.6s cubic-bezier(0.16, 1, 0.3, 1) infinite;
-  }
-
-  @keyframes quiet-ripple {
-    from { opacity: 0.55; transform: scale(0.78); }
-    to { opacity: 0; transform: scale(1.55); }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    &:hover::after { animation: none; }
   }
 `;
 
@@ -348,38 +333,36 @@ export const SorimaruAutoSliceRail: React.FC<SorimaruAutoSliceRailProps> = ({ st
         </Lead>
 
         <GlassPlayerBar
-          initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
         >
           <PlayCircleButton
             type="button"
             onClick={play}
-            whileHover={{ scale: 1.06 }}
-            whileTap={{ scale: 0.94 }}
             aria-label={isStoryPlaying ? '잠시 멈추기' : '지금 듣기'}
           >
             <AnimatePresence initial={false} mode="wait">
               {isStoryPlaying ? (
-                <motion.span
+                <IconWrapper
                   key="pause"
-                  initial={{ opacity: 0, scale: 0.7 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.7 }}
-                  transition={{ duration: 0.15 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.12 }}
                 >
-                  <Pause size={18} strokeWidth={2.5} />
-                </motion.span>
+                  <Pause size={17} strokeWidth={2.5} style={{ transform: 'translate(-0.5px, 1px)' }} />
+                </IconWrapper>
               ) : (
-                <motion.span
+                <IconWrapper
                   key="play"
-                  initial={{ opacity: 0, scale: 0.7 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.7 }}
-                  transition={{ duration: 0.15 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.12 }}
                 >
-                  <Play size={18} style={{ marginLeft: 2 }} fill="currentColor" />
-                </motion.span>
+                  <Play size={17} style={{ transform: 'translate(0.5px, 1.5px)' }} fill="currentColor" />
+                </IconWrapper>
               )}
             </AnimatePresence>
           </PlayCircleButton>
