@@ -7,6 +7,10 @@
 - Preserve established semantic and interaction colors. Do not replace active, selected, warning, or brand colors merely to make a surface neutral.
 - If a warm tone is genuinely required by existing brand or content imagery, keep it local to that component and do not spread it to surrounding surfaces.
 
+## Typography hierarchy
+
+- In all views and components, the **Main Title must always be placed at the very top**, and **Subtitles, descriptions, and secondary metadata must be placed below the title**. Do not place subtitles above main titles.
+
 ## Loading states
 
 - Skeletons must reserve the exact final dimensions, thumbnail aspect ratios, title/subtitle lines, controls, padding, and overall card/container footprint as the fully-loaded UI. Skeletons must match the real response layout 1:1 so that content never shrinks, grows, shifts, or jumps (zero Layout Shift / CLS) when data arrives.

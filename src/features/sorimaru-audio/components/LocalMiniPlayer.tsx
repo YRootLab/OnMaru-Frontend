@@ -3,14 +3,25 @@
 import React, { useEffect, useState, useRef } from 'react';
 import styled from '@emotion/styled';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Play, Pause, ChevronLeft, X, SkipBack, SkipForward, Heart } from 'lucide-react';
+import {
+  Play,
+  Pause,
+  X,
+  Heart,
+  RotateCcw,
+  RotateCw,
+  Compass,
+  BookOpen,
+} from 'lucide-react';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { useSorimaruAudioPlayer } from '@/features/sorimaru-audio/hooks/useSorimaruAudioPlayer';
 import { useSorimaruImage } from '@/features/sorimaru-audio/hooks/useSorimaruImage';
 import { SorimaruRoadview } from '@/features/sorimaru-audio/components/SorimaruRoadview';
 import { PlayerTranscriptPanel } from '@/features/sorimaru-audio/components/PlayerTranscriptPanel';
 import { normalizeContentTags } from '@/features/sorimaru-audio/components/playerTranscriptModel';
-import { meok, surface, fontSize } from '@/design-system/tokens';
+import { meok, fontSize } from '@/design-system/tokens';
+
+type ViewMode = 'roadview' | 'transcript';
 
 const formatTime = (seconds: number) =>
   `${Math.floor(Math.max(0, seconds || 0) / 60)}:${String(Math.floor(Math.max(0, seconds || 0) % 60)).padStart(2, '0')}`;
@@ -34,19 +45,16 @@ const WaveformBar = styled(motion.span)<{ $delay: number }>`
 
 export const LiveAudioVisualizer: React.FC<{ isPlaying: boolean }> = ({ isPlaying }) => {
   const bars = [0.4, 0.9, 0.6, 1.0, 0.5];
+  if (!isPlaying) return null;
   return (
-    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', height: '16px', marginLeft: '6px' }}>
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', height: '16px' }}>
       {bars.map((height, i) => (
         <WaveformBar
           key={i}
           $delay={i * 0.12}
-          animate={
-            isPlaying
-              ? {
-                  height: ['4px', `${Math.max(8, height * 16)}px`, '4px'],
-                }
-              : { height: '4px' }
-          }
+          animate={{
+            height: ['4px', `${Math.max(8, height * 16)}px`, '4px'],
+          }}
           transition={{
             duration: 0.8,
             repeat: Infinity,
@@ -64,20 +72,18 @@ export const LiveAudioVisualizer: React.FC<{ isPlaying: boolean }> = ({ isPlayin
  * ------------------------------------------------------------ */
 const FloatingBarContainer = styled(motion.div)`
   position: fixed;
-  bottom: calc(5.5rem + env(safe-area-inset-bottom));
-  left: 0.75rem;
-  right: 0.75rem;
+  bottom: calc(6.25rem + env(safe-area-inset-bottom));
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  width: min(calc(100% - 1.5rem), 36rem);
   z-index: 110;
-  margin-left: auto;
-  margin-right: auto;
-  width: auto;
-  max-width: 36rem;
   overflow: hidden;
   border-radius: 1.35rem;
-  background-color: rgba(248, 248, 247, 0.96);
+  background-color: rgba(255, 255, 255, 0.98);
   padding: 0.625rem 0.875rem 0.875rem;
   backdrop-filter: blur(24px);
-  box-shadow: 0 10px 36px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 10px 36px rgba(0, 0, 0, 0.1);
 
   [data-theme='dark'] & {
     background-color: rgba(28, 26, 23, 0.95);
@@ -88,7 +94,7 @@ const FloatingBarContainer = styled(motion.div)`
     padding: 0.75rem 1rem 1rem;
   }
   @media (min-width: 768px) {
-    bottom: calc(1.5rem + env(safe-area-inset-bottom));
+    bottom: calc(2.25rem + env(safe-area-inset-bottom));
     z-index: 50;
   }
 `;
@@ -255,7 +261,7 @@ const ProgressFill = styled.div<{ $width: number }>`
 `;
 
 /* ------------------------------------------------------------
- * 팝업 Drawer / 모달 스타일링
+ * 팝업 Drawer / 모달 스타일링 (Hero / Bottom Sheet 트랜지션)
  * ------------------------------------------------------------ */
 const DrawerBackdrop = styled(motion.div)`
   position: fixed;
@@ -271,16 +277,15 @@ const DrawerBackdrop = styled(motion.div)`
 
   @media (min-width: 1024px) {
     align-items: center;
-    padding: 2rem;
+    padding: 1.5rem;
   }
 `;
 
 const DrawerPanel = styled(motion.aside)`
   position: relative;
   width: 100%;
-  max-width: 32rem;
-  height: min(100dvh, 52rem);
-  max-height: 100dvh;
+  max-width: 36rem;
+  height: min(90dvh, 48rem);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -288,10 +293,10 @@ const DrawerPanel = styled(motion.aside)`
   touch-action: pan-y;
   border-top-left-radius: 1.75rem;
   border-top-right-radius: 1.75rem;
-  background-color: #f8f8f7;
-  padding: 1.5rem;
-  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
-  box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.25);
+  background-color: #ffffff;
+  padding: 1.25rem 1.25rem 1rem;
+  padding-bottom: calc(0.875rem + env(safe-area-inset-bottom));
+  box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.2);
   scrollbar-width: none;
   &::-webkit-scrollbar {
     display: none;
@@ -305,45 +310,129 @@ const DrawerPanel = styled(motion.aside)`
   }
 
   @media (min-width: 768px) {
-    max-width: 68rem;
+    max-width: 40rem;
+    padding: 1.35rem 1.5rem 1.15rem;
   }
 
   @media (min-width: 1024px) {
     border-radius: 1.75rem;
-    height: min(88vh, 52rem);
-    max-height: min(88vh, 52rem);
-    overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    height: min(86vh, 46rem);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   }
 `;
 
+/* ------------------------------------------------------------
+ * 🏛️ 상단 바 & 세그먼트 뷰 스위처 (Segmented Control Menu Bar)
+ * ------------------------------------------------------------ */
 const DrawerHeader = styled.header`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 1rem;
-`;
-
-const BackToPlayerBtn = styled(motion.button)`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: #a88420;
-  background: none;
-  border: none;
-  cursor: pointer;
-
-  &:hover {
-    color: #8c6c15;
-  }
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  flex-shrink: 0;
 
   [data-theme='dark'] & {
-    color: #d4af37;
-    &:hover {
-      color: #e5c04e;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+`;
+
+const HeaderLeftArea = styled.div`
+  display: flex;
+  align-items: center;
+  min-width: 4rem;
+`;
+
+const SegmentedControl = styled.div`
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.28rem;
+  border-radius: 9999px;
+  background: #f4f4f3;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+`;
+
+const SegmentTab = styled.button<{ $active: boolean }>`
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.45rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: ${({ $active }) => ($active ? '#171513' : meok[600])};
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 1;
+  transition: color 0.2s ease;
+  white-space: nowrap;
+
+  [data-theme='dark'] & {
+    color: ${({ $active }) => ($active ? '#ffffff' : meok[400])};
+  }
+
+  &:hover {
+    color: ${({ $active }) => ($active ? '#171513' : meok[900])};
+    [data-theme='dark'] & {
+      color: ${({ $active }) => ($active ? '#ffffff' : meok[200])};
     }
+  }
+
+  .tab-icon {
+    color: ${({ $active }) => ($active ? '#a88420' : 'currentColor')};
+    [data-theme='dark'] & {
+      color: ${({ $active }) => ($active ? '#d4af37' : 'currentColor')};
+    }
+  }
+`;
+
+const ActiveTabPill = styled(motion.div)`
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  z-index: -1;
+
+  [data-theme='dark'] & {
+    background: #282521;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  }
+`;
+
+const PlayerHeaderActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 4rem;
+  justify-content: flex-end;
+`;
+
+const HeartSaveButton = styled(motion.button)<{ $saved: boolean }>`
+  display: inline-flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  cursor: pointer;
+  color: ${({ $saved }) => ($saved ? '#8b7a49' : meok[600])};
+  background: ${({ $saved }) => ($saved ? 'rgba(139, 122, 73, 0.12)' : '#efefed')};
+  border: 1px solid ${({ $saved }) => ($saved ? 'rgba(139, 122, 73, 0.3)' : 'rgba(0, 0, 0, 0.05)')};
+
+  [data-theme='dark'] & {
+    color: ${({ $saved }) => ($saved ? '#c8b77a' : meok[300])};
+    background: ${({ $saved }) => ($saved ? 'rgba(200, 183, 122, 0.14)' : 'rgba(255, 255, 255, 0.08)')};
+    border-color: ${({ $saved }) => ($saved ? 'rgba(200, 183, 122, 0.28)' : 'rgba(255, 255, 255, 0.08)')};
   }
 `;
 
@@ -376,31 +465,6 @@ const CloseBtn = styled(motion.button)`
   }
 `;
 
-const PlayerHeaderActions = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-`;
-
-const HeartSaveButton = styled(motion.button)<{ $saved: boolean }>`
-  display: inline-flex;
-  width: 2.25rem;
-  height: 2.25rem;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9999px;
-  cursor: pointer;
-  color: ${({ $saved }) => ($saved ? '#8b7a49' : meok[600])};
-  background: ${({ $saved }) => ($saved ? 'rgba(139, 122, 73, 0.12)' : '#efefed')};
-  border: 1px solid ${({ $saved }) => ($saved ? 'rgba(139, 122, 73, 0.3)' : 'rgba(0, 0, 0, 0.05)')};
-
-  [data-theme='dark'] & {
-    color: ${({ $saved }) => ($saved ? '#c8b77a' : meok[300])};
-    background: ${({ $saved }) => ($saved ? 'rgba(200, 183, 122, 0.14)' : 'rgba(255, 255, 255, 0.08)')};
-    border-color: ${({ $saved }) => ($saved ? 'rgba(200, 183, 122, 0.28)' : 'rgba(255, 255, 255, 0.08)')};
-  }
-`;
-
 /* 미니 플레이어 바 전용 슬림 하트 버튼 */
 const MiniHeartBtn = styled(motion.button)<{ $saved: boolean }>`
   display: inline-flex;
@@ -430,32 +494,218 @@ const MiniHeartBtn = styled(motion.button)<{ $saved: boolean }>`
   }
 `;
 
-const PlayingStatusBadge = styled.div`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.3rem 0.75rem;
-  border-radius: 9999px;
-  background-color: #f3f3f1;
-  font-size: ${fontSize.micro};
-  font-weight: 600;
-  color: #a88420;
-  border: 1px solid rgba(168, 132, 32, 0.2);
+/* ------------------------------------------------------------
+ * 뷰 전환 메인 영역 (Main View Area)
+ * ------------------------------------------------------------ */
+const MainViewArea = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+  padding: 0.5rem 0.2rem 0;
+`;
+
+/* 🏛️ 모드 1: 현장 사진 뷰어 모드 (위-아래 2단 구조: 1단 사진 + 2단 2줄 타이틀 & 슬림 2문단 대본) */
+const RoadviewSplitModeContainer = styled(motion.div)`
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+  gap: 0.6rem;
+  overflow: hidden;
+  padding: 0.2rem 0.25rem 0.4rem;
+`;
+
+/* 1단: 적절한 높이로 정돈된 현장 사진 뷰어 (섀도우 클리핑 방지 마진/테두리 최적화) */
+const TopMediaWrap = styled.div`
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 180px;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 
   [data-theme='dark'] & {
-    background-color: rgba(212, 175, 55, 0.1);
-    color: #d4af37;
-    border: 1px solid rgba(212, 175, 55, 0.25);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 `;
 
+
+
+/* 심리스 실시간 대본 래퍼 (상하단 linear-gradient 페이드 마스크 & 확장된 높이) */
+const CompactTranscriptWrap = styled.div`
+  width: 100%;
+  height: 6.5rem;
+  overflow: hidden;
+  position: relative;
+  padding: 0 0.2rem;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 12%,
+    black 88%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 12%,
+    black 88%,
+    transparent 100%
+  );
+`;
+
+const fullStoryMetaVariants = {
+  initial: { opacity: 0 },
+  animate: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.04,
+      delayChildren: 0.02,
+    },
+  },
+};
+
+const metaItemFadeUp = {
+  initial: { opacity: 0, y: 14 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.35,
+      ease: [0.16, 1, 0.3, 1] as const,
+    },
+  },
+};
+
+/* 📖 모드 2: 전체 대본 모드 (전체보기 - 대본 풀스크린 확장) */
+const FullTranscriptModeContainer = styled(motion.div)`
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+  gap: 0.5rem;
+  overflow: hidden;
+  padding: 0.2rem 0.25rem;
+`;
+
+const FullStoryMeta = styled(motion.div)`
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex-shrink: 0;
+  padding: 0 0.35rem;
+
+  .main-title {
+    margin: 0;
+    font-family: var(--font-hanok);
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: ${meok[900]};
+
+    [data-theme='dark'] & {
+      color: #ffffff;
+    }
+  }
+
+  .sub-info {
+    margin: 0;
+    font-size: 0.8125rem;
+    color: #a88420;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+
+    [data-theme='dark'] & {
+      color: #d4af37;
+    }
+  }
+`;
+
+const HashtagsScrollWrap = styled(motion.div)`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding: 0.1rem 0 0.15rem;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+const HashtagChip = styled.span`
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: ${meok[500]};
+  background: transparent;
+  border: none;
+  padding: 0;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+    background: transparent;
+    border: none;
+  }
+`;
+
+const contentFadeUpVariants = {
+  initial: { opacity: 0, y: 18 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.38,
+      delay: 0.1,
+      ease: [0.16, 1, 0.3, 1] as const,
+    },
+  },
+};
+
+const FullTranscriptPanelWrap = styled(motion.div)`
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+`;
+
 /* ------------------------------------------------------------
- * 럭셔리 커스텀 Range Slider (촌스러운 핑크 완전 제거)
+ * 🎛️ 하단 공통 오디오 컨트롤 독 (Fixed Bottom Audio Deck)
  * ------------------------------------------------------------ */
-const CustomSliderContainer = styled.div`
+const AudioControlSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  padding-top: 0.25rem;
+  border-top: none;
+
+  [data-theme='dark'] & {
+    border-top: none;
+  }
+`;
+
+const SliderWrap = styled.div`
+  width: 65%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+`;
+
+const CustomSliderContainer = styled.div<{ $progress?: number }>`
   position: relative;
   width: 100%;
-  padding: 0.5rem 0;
+  padding: 0.2rem 0;
 
   input[type='range'] {
     -webkit-appearance: none;
@@ -463,13 +713,25 @@ const CustomSliderContainer = styled.div`
     width: 100%;
     height: 5px;
     border-radius: 9999px;
-    background: #e5e5e3;
+    background: linear-gradient(
+      to right,
+      #d4af37 0%,
+      #b89225 ${({ $progress = 0 }) => $progress}%,
+      #e5e5e3 ${({ $progress = 0 }) => $progress}%,
+      #e5e5e3 100%
+    );
     outline: none;
     cursor: pointer;
     transition: height 0.15s ease;
 
     [data-theme='dark'] & {
-      background: rgba(255, 255, 255, 0.12);
+      background: linear-gradient(
+        to right,
+        #d4af37 0%,
+        #e5c04e ${({ $progress = 0 }) => $progress}%,
+        rgba(255, 255, 255, 0.14) ${({ $progress = 0 }) => $progress}%,
+        rgba(255, 255, 255, 0.14) 100%
+      );
     }
 
     &:hover {
@@ -482,15 +744,16 @@ const CustomSliderContainer = styled.div`
       width: 15px;
       height: 15px;
       border-radius: 50%;
-      background: #1c1a17;
+      background: #ffffff;
       border: 2.5px solid #d4af37;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 10px rgba(212, 175, 55, 0.5);
       cursor: grab;
       transition: transform 0.15s ease;
 
       [data-theme='dark'] & {
-        background: #ffffff;
+        background: #1c1a17;
         border: 2.5px solid #d4af37;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5), 0 0 12px rgba(212, 175, 55, 0.6);
       }
 
       &:active {
@@ -503,242 +766,139 @@ const CustomSliderContainer = styled.div`
       width: 15px;
       height: 15px;
       border-radius: 50%;
-      background: #1c1a17;
+      background: #ffffff;
       border: 2.5px solid #d4af37;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
       cursor: grab;
 
       [data-theme='dark'] & {
-        background: #ffffff;
+        background: #1c1a17;
       }
     }
   }
 `;
 
-const ScriptProgressTrack = styled.div`
-  pointer-events: none;
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background-color: #e5e5e3;
+const TimeRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: ${meok[500]};
+  margin-top: -0.15rem;
 
   [data-theme='dark'] & {
-    background-color: rgba(255, 255, 255, 0.08);
+    color: ${meok[400]};
   }
 `;
 
-const ScriptProgressActive = styled(motion.div)`
-  pointer-events: none;
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 2px;
-  background: linear-gradient(to bottom, #b89225, #d4af37);
+const DeckControlsRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.25rem;
 `;
 
-const ScriptLineBtn = styled(motion.button)<{ $active: boolean }>`
-  display: block;
-  width: 100%;
-  border-radius: 0.85rem;
-  padding: 0.875rem 1rem;
-  text-align: left;
-  font-size: 0.875rem;
-  line-height: 1.6;
-  transition: all 0.2s ease;
-  border: none;
-  cursor: pointer;
-
-  ${({ $active }) =>
-    $active
-      ? `
-        background-color: #ffffff;
-        font-weight: 700;
-        color: #1c1a17;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-        border-left: 3px solid #d4af37;
-      `
-      : `
-        background: none;
-        color: ${meok[600]};
-        &:hover {
-          background-color: #f0f0ee;
-          color: ${meok[900]};
-        }
-      `}
-
-  [data-theme='dark'] & {
-    ${({ $active }) =>
-      $active
-        ? `
-          background-color: #24211d;
-          font-weight: 700;
-          color: #ffffff;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
-          border-left: 3px solid #d4af37;
-        `
-        : `
-          background: none;
-          color: ${meok[400]};
-          &:hover {
-            background-color: rgba(255, 255, 255, 0.05);
-            color: ${meok[100]};
-          }
-        `}
-  }
+const DeckCenterCluster = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
 `;
 
 const BigPlayBtn = styled(motion.button)`
   display: flex;
-  height: 3.5rem;
-  width: 3.5rem;
+  height: 3.25rem;
+  width: 3.25rem;
   align-items: center;
   justify-content: center;
   border-radius: 9999px;
-  background: linear-gradient(135deg, #1c1a17 0%, #2b2824 100%);
+  background: linear-gradient(135deg, #2b2824 0%, #171513 100%);
   color: #f5f5f4;
-  border: 1.5px solid rgba(212, 175, 55, 0.4);
+  border: 1.5px solid rgba(212, 175, 55, 0.45);
   cursor: pointer;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), 0 0 14px rgba(212, 175, 55, 0.25);
 
   [data-theme='dark'] & {
     background: linear-gradient(135deg, #d4af37 0%, #b89225 100%);
     color: #171513;
     border: none;
-    box-shadow: 0 8px 28px rgba(212, 175, 55, 0.35);
+    box-shadow: 0 6px 22px rgba(212, 175, 55, 0.45);
   }
 `;
 
-const SkipTimeBtn = styled(motion.button)`
-  padding: 0.45rem 0.85rem;
-  border-radius: 9999px;
-  background-color: #efefed;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: ${meok[800]};
-  display: inline-flex;
+const JumpControlButton = styled(motion.button)`
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.3rem;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  background: #f0f0ee;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  color: ${meok[700]};
   cursor: pointer;
   transition: all 0.15s ease;
 
   &:hover {
-    background-color: #e5e5e3;
+    background: #e5e5e3;
+    color: #171513;
     transform: translateY(-1px);
   }
 
   [data-theme='dark'] & {
-    background-color: rgba(255, 255, 255, 0.08);
-    color: ${meok[200]};
+    background: rgba(255, 255, 255, 0.07);
     border: 1px solid rgba(255, 255, 255, 0.08);
+    color: ${meok[300]};
 
     &:hover {
-      background-color: rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.14);
+      color: #ffffff;
     }
   }
-`;
 
-const PreviewLineBtn = styled.button<{ $active: boolean }>`
-  display: block;
-  width: 100%;
-  border-radius: 0.5rem;
-  padding: 0.45rem 0.625rem;
-  text-align: left;
-  font-size: 0.8125rem;
-  line-height: 1.5;
-  transition: all 0.2s ease;
-  border: none;
-  cursor: pointer;
-
-  ${({ $active }) =>
-    $active
-      ? `
-        background-color: #ffffff;
-        font-weight: 700;
-        color: #1c1a17;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        border-left: 2.5px solid #d4af37;
-      `
-      : `
-        background: none;
-        color: ${meok[600]};
-        &:hover {
-          color: ${meok[900]};
-        }
-      `}
-
-  [data-theme='dark'] & {
-    ${({ $active }) =>
-      $active
-        ? `
-          background-color: rgba(255, 255, 255, 0.08);
-          font-weight: 700;
-          color: #ffffff;
-          border-left: 2.5px solid #d4af37;
-        `
-        : `
-          background: none;
-          color: ${meok[400]};
-          &:hover {
-            color: ${meok[100]};
-          }
-        `}
+  span {
+    font-size: 0.5625rem;
+    font-weight: 700;
+    margin-top: -2px;
+    letter-spacing: -0.02em;
   }
 `;
 
-const SpeedButton = styled(motion.button)`
-  display: flex;
+const SpeedChip = styled(motion.button)`
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.75rem;
-  height: 2.125rem;
+  min-width: 2.5rem;
+  padding: 0.4rem 0.65rem;
   border-radius: 9999px;
-  background-color: #efefed;
-  color: ${meok[900]};
+  background: #f0f0ee;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  color: ${meok[800]};
   font-size: 0.75rem;
   font-weight: 700;
-  border: 1px solid rgba(0, 0, 0, 0.05);
   cursor: pointer;
   transition: all 0.15s ease;
 
   &:hover {
-    background-color: #e5e5e3;
+    background: #e5e5e3;
+    color: #171513;
   }
 
   [data-theme='dark'] & {
-    background-color: rgba(255, 255, 255, 0.08);
-    color: ${meok[100]};
+    background: rgba(255, 255, 255, 0.07);
     border: 1px solid rgba(255, 255, 255, 0.08);
+    color: ${meok[200]};
 
     &:hover {
-      background-color: rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.14);
+      color: #ffffff;
     }
   }
 `;
 
-const PlayerExperienceGrid = styled.div`
-  display: grid;
-  min-height: 0;
-  flex: 1;
-  grid-template-rows: minmax(0, 0.9fr) minmax(0, 1.1fr);
-  gap: 1.5rem;
-
-  @media (min-width: 768px) {
-    grid-template-rows: none;
-    grid-template-columns: minmax(0, 1.2fr) minmax(15rem, 0.8fr);
-    align-items: stretch;
-  }
-`;
-
-const PlaybackColumn = styled.div`
-  min-width: 0;
-  min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-`;
-
+/* ------------------------------------------------------------
+ * 🏛️ LocalMiniPlayer 메인 컴포넌트
+ * ------------------------------------------------------------ */
 export const LocalMiniPlayer: React.FC = () => {
   const story = useSorimaruAudioStore((s) => s.currentStory);
   const isPlaying = useSorimaruAudioStore((s) => s.isPlaying);
@@ -755,9 +915,9 @@ export const LocalMiniPlayer: React.FC = () => {
   const toggleSavedStory = useSorimaruAudioStore((s) => s.toggleSavedStory);
   const { seekTo, analyserRef } = useSorimaruAudioPlayer();
   const imgSrc = useSorimaruImage(story);
-  const activeLineRef = useRef<HTMLButtonElement>(null);
+
   const [isVisible, setIsVisible] = useState(false);
-  const [isTranscriptOpen, setIsTranscriptOpen] = useState(false);
+  const [activeViewMode, setActiveViewMode] = useState<ViewMode>('roadview');
 
   useEffect(() => {
     const updateVisibility = () => {
@@ -773,58 +933,47 @@ export const LocalMiniPlayer: React.FC = () => {
     };
   }, [story.audioUrl]);
 
-  // 🔒 모달 열렸을 때 백그라운드 스크롤 완벽 차단
+  // 🔒 모달 열렸을 때 백그라운드 스크롤 완벽 차단 & 상단 헤더 숨김 유지
+  // 🔒 모달 열렸을 때 백그라운드 스크롤 안전 잠금 (좌우 레이아웃 시프트 원천 방지)
   useEffect(() => {
     if (!isExpanded) return;
-    const scrollY = window.scrollY;
-    const bodyStyle = document.body.style;
-    const rootStyle = document.documentElement.style;
-    const previousModalState = document.body.dataset.sorimaruPlayerOpen;
-    const previous = {
-      bodyOverflow: bodyStyle.overflow,
-      bodyPosition: bodyStyle.position,
-      bodyTop: bodyStyle.top,
-      bodyWidth: bodyStyle.width,
-      bodyPaddingRight: bodyStyle.paddingRight,
-      rootOverflow: rootStyle.overflow,
-      rootOverscrollBehavior: rootStyle.overscrollBehavior,
-    };
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-
-    bodyStyle.overflow = 'hidden';
-    bodyStyle.position = 'fixed';
-    bodyStyle.top = `-${scrollY}px`;
-    bodyStyle.width = '100%';
-    bodyStyle.paddingRight = scrollbarWidth > 0 ? `${scrollbarWidth}px` : '';
-    rootStyle.overflow = 'hidden';
-    rootStyle.overscrollBehavior = 'none';
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
     document.body.dataset.sorimaruPlayerOpen = 'true';
 
     return () => {
-      bodyStyle.overflow = previous.bodyOverflow;
-      bodyStyle.position = previous.bodyPosition;
-      bodyStyle.top = previous.bodyTop;
-      bodyStyle.width = previous.bodyWidth;
-      bodyStyle.paddingRight = previous.bodyPaddingRight;
-      rootStyle.overflow = previous.rootOverflow;
-      rootStyle.overscrollBehavior = previous.rootOverscrollBehavior;
-      if (previousModalState === undefined) delete document.body.dataset.sorimaruPlayerOpen;
-      else document.body.dataset.sorimaruPlayerOpen = previousModalState;
-      window.scrollTo(0, scrollY);
+      document.body.style.overflow = prevOverflow;
     };
   }, [isExpanded]);
 
+  // 🎬 상세 모달 진입 시 1회만 전체 대본 시네마틱 애니메이션 재생 (모달 닫혔다 다시 열릴 때 리셋)
+  const [hasAnimatedTranscript, setHasAnimatedTranscript] = useState(false);
+
+  useEffect(() => {
+    if (!isExpanded) {
+      setHasAnimatedTranscript(false);
+    }
+  }, [isExpanded]);
+
+  // 전체 대본 모드가 처음 노출될 때 1회 애니메이션 적용
+  const shouldAnimateTranscript = isExpanded && activeViewMode === 'transcript' && !hasAnimatedTranscript;
+
+  useEffect(() => {
+    if (isExpanded && activeViewMode === 'transcript' && !hasAnimatedTranscript) {
+      setHasAnimatedTranscript(true);
+    }
+  }, [isExpanded, activeViewMode, hasAnimatedTranscript]);
+
+  // 🚀 모달 exit 트랜지션 완료 시 상태 복원
+  const handleExitComplete = () => {
+    document.body.style.overflow = '';
+    delete document.body.dataset.sorimaruPlayerOpen;
+  };
+
   const audioProgress = duration > 0 ? Math.min(100, (currentTime / duration) * 100) : 0;
-  const transcriptProgress = lines.length ? ((activeIndex + 1) / lines.length) * 100 : 0;
-  const contentTags = normalizeContentTags([
-    ...(story.tags || []),
-    story.category,
-    story.locationName,
-    story.badgeText,
-  ]);
   const isSaved = savedStories.some((saved) => (saved.stid || saved.title) === (story.stid || story.title));
+
   const closePlayer = () => {
-    setIsTranscriptOpen(false);
     setIsExpanded(false);
   };
 
@@ -838,7 +987,7 @@ export const LocalMiniPlayer: React.FC = () => {
     <>
       {/* 🎵 하단 플로팅 미니 플레이어 */}
       <AnimatePresence>
-        {isVisible && (
+        {isVisible && !isExpanded && (
           <FloatingBarContainer
             key="mini-player-floating-bar"
             initial={{ opacity: 0, y: 18 }}
@@ -863,6 +1012,7 @@ export const LocalMiniPlayer: React.FC = () => {
                 whileTap={{ scale: 0.92 }}
                 whileHover={{ scale: 1.06 }}
                 onClick={() => setIsPlaying(!isPlaying)}
+                aria-label={isPlaying ? '일시정지' : '재생'}
               >
                 <PlayIcon />
               </PlayCircleBtn>
@@ -876,7 +1026,13 @@ export const LocalMiniPlayer: React.FC = () => {
               >
                 <Heart size={16} strokeWidth={2.2} fill={isSaved ? 'currentColor' : 'none'} />
               </MiniHeartBtn>
-              <ScriptOpenBtn type="button" onClick={() => setIsExpanded(true)}>
+              <ScriptOpenBtn
+                type="button"
+                onClick={() => {
+                  setActiveViewMode('transcript');
+                  setIsExpanded(true);
+                }}
+              >
                 대본 보기
               </ScriptOpenBtn>
             </MiniPlayerContent>
@@ -891,273 +1047,275 @@ export const LocalMiniPlayer: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* 🏛️ 확장 플레이어 & 360° 로드뷰 & 전체 대본 Drawer */}
-      <AnimatePresence>
+      {/* 🏛️ 확장 플레이어 모달 (직관적이고 깔끔한 슬라이드 업 & 다운 트랜지션) */}
+      <AnimatePresence onExitComplete={handleExitComplete}>
         {isExpanded && (
           <DrawerBackdrop
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.22, ease: 'easeOut' }}
             onClick={closePlayer}
           >
             <DrawerPanel
-              layout
-              initial={{ opacity: 0, y: 24, scale: 0.97 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 24, scale: 0.97 }}
-              transition={{ type: 'spring', damping: 28, stiffness: 320 }}
+              initial={{ opacity: 0, y: '80%' }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: '80%' }}
+              transition={{
+                type: 'tween',
+                ease: [0.16, 1, 0.3, 1],
+                duration: 0.3,
+              }}
               onClick={(event) => event.stopPropagation()}
             >
-              {isTranscriptOpen ? (
-                <>
-                  <DrawerHeader>
-                    <BackToPlayerBtn
-                      type="button"
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => setIsTranscriptOpen(false)}
-                    >
-                      <ChevronLeft size={16} strokeWidth={2.5} />
-                      <span>오디오 플레이어로</span>
-                    </BackToPlayerBtn>
-                    <CloseBtn
-                      type="button"
-                      whileTap={{ scale: 0.92 }}
-                      onClick={closePlayer}
-                      aria-label="패널 닫기"
-                    >
-                      <X size={18} strokeWidth={2.5} />
-                    </CloseBtn>
-                  </DrawerHeader>
+              {/* 🎛️ 상단 네비게이션 헤더: [ 현장 사진 뷰어 ] | [ 전체 대본 모드 ] 세그먼트 메뉴바 */}
+              <DrawerHeader>
+                <HeaderLeftArea />
 
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 0 1.25rem' }}>
-                    <div>
-                      <h2
-                        style={{
-                          marginTop: 0,
-                          maxWidth: 280,
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                          fontFamily: 'var(--font-hanok)',
-                          fontSize: '1.25rem',
-                          fontWeight: 700,
-                          color: meok[900],
-                        }}
-                      >
-                        {story.title}
-                      </h2>
-                      <p style={{ fontSize: '0.8125rem', color: meok[500], marginTop: '0.25rem' }}>
-                        {story.locationName || '대한민국 문화유산'}
-                      </p>
-                    </div>
-                    <PlayCircleBtn
-                      type="button"
-                      whileTap={{ scale: 0.92 }}
-                      whileHover={{ scale: 1.06 }}
-                      onClick={() => setIsPlaying(!isPlaying)}
-                      style={{ height: '3rem', width: '3rem' }}
-                    >
-                      <PlayIcon size={18} />
-                    </PlayCircleBtn>
-                  </div>
-
-                  <div style={{ position: 'relative', paddingLeft: '1.25rem', paddingRight: '0.5rem', paddingTop: '0.5rem' }}>
-                    <ScriptProgressTrack />
-                    <ScriptProgressActive
-                      animate={{ height: `${transcriptProgress}%` }}
-                      transition={{ duration: 0.45 }}
-                    />
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
-                      <AnimatePresence>
-                        {lines.map((line, idx) => {
-                          const isActive = line.id === lines[activeIndex]?.id;
-                          return (
-                            <ScriptLineBtn
-                              key={line.id}
-                              ref={isActive ? activeLineRef : null}
-                              type="button"
-                              onClick={() => seekTo(line.timeSec)}
-                              $active={isActive}
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ duration: 0.3, delay: idx * 0.02 }}
-                              layout
-                            >
-                              {line.text}
-                            </ScriptLineBtn>
-                          );
-                        })}
-                      </AnimatePresence>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
-                    <PlayerHeaderActions>
-                      <HeartSaveButton
-                        type="button"
-                        $saved={isSaved}
-                        whileTap={{ scale: 0.9 }}
-                        whileHover={{ scale: 1.06 }}
-                        onClick={() => toggleSavedStory(story)}
-                        aria-label={isSaved ? '마음에 담은 소리에서 제거' : '마음에 담은 소리에 추가'}
-                        title={isSaved ? '마음에 담음' : '마음에 담기'}
-                      >
-                        <Heart size={17} strokeWidth={2.2} fill={isSaved ? 'currentColor' : 'none'} />
-                      </HeartSaveButton>
-                      <CloseBtn
-                        type="button"
-                        whileTap={{ scale: 0.92 }}
-                        onClick={closePlayer}
-                        aria-label="패널 닫기"
-                      >
-                        <X size={18} strokeWidth={2.5} />
-                      </CloseBtn>
-                    </PlayerHeaderActions>
-                  </div>
-
-                  {/* 360° 로드뷰 & 현장 몰입형 캔버스 */}
-                  <PlayerExperienceGrid>
-                    <PlaybackColumn>
-                  <motion.div
-                    layoutId="sorimaru-player-art"
-                    style={{ width: '100%', borderRadius: '1.25rem', overflow: 'hidden' }}
+                <SegmentedControl role="tablist" aria-label="플레이어 뷰 모드 선택">
+                  <SegmentTab
+                    role="tab"
+                    aria-selected={activeViewMode === 'roadview'}
+                    $active={activeViewMode === 'roadview'}
+                    onClick={() => setActiveViewMode('roadview')}
                   >
-                    <SorimaruRoadview
-                      mapX={story.mapX}
-                      mapY={story.mapY}
-                      fallbackImage={imgSrc}
-                      title={story.title}
-                      analyserRef={analyserRef}
-                      isPlaying={isPlaying}
-                    />
-                  </motion.div>
-
-                  {/* 메인 타이틀 & 서브타이틀 UX */}
-                  <div style={{ marginTop: '1.25rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      <span style={{ fontSize: '0.8125rem', fontWeight: 500, color: meok[500] }}>
-                        {story.locationName || '대한민국 문화유산'}
-                      </span>
-                    </div>
-
-                    <h2
-                      style={{
-                        marginTop: '0.5rem',
-                        fontFamily: 'var(--font-hanok)',
-                        fontSize: '1.35rem',
-                        fontWeight: 700,
-                        color: meok[900],
-                        lineHeight: 1.3,
-                      }}
-                    >
-                      {story.title}
-                    </h2>
-                    <p style={{ marginTop: '0.25rem', fontSize: '0.8125rem', lineHeight: '1.3', color: meok[600] }}>
-                      <span style={{ display: 'block' }}>{story.audioTitle}</span>
-                      <span style={{ marginTop: '0.2rem', display: 'block', color: meok[500], fontWeight: 500 }}>
-                        {story.speaker || '온마루 문화해설사'}
-                      </span>
-                    </p>
-                    {contentTags.length > 0 && (
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem', marginTop: '0.875rem' }}>
-                        {contentTags.map((tag) => (
-                          <span key={tag} style={{ border: '1px solid #d9d9d7', borderRadius: '999px', padding: '0.28rem 0.55rem', fontSize: '0.6875rem', fontWeight: 650, color: meok[600], background: '#f5f5f4' }}>
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* 럭셔리 슬라이더 컨트롤 */}
-                  <div style={{ marginTop: '1.25rem' }}>
-                    <CustomSliderContainer>
-                      <input
-                        type="range"
-                        min={0}
-                        max={duration || 100}
-                        value={currentTime}
-                        onChange={(event) => seekTo(Number(event.target.value))}
+                    {activeViewMode === 'roadview' && (
+                      <ActiveTabPill
+                        layoutId="activeTabPill"
+                        transition={{ type: 'spring', stiffness: 450, damping: 35 }}
                       />
-                    </CustomSliderContainer>
-                    <div
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        fontSize: '0.75rem',
-                        fontFamily: 'monospace',
-                        color: meok[500],
-                        marginTop: '0.125rem',
-                      }}
-                    >
-                      <span>{formatTime(currentTime)}</span>
-                      <span>{formatTime(duration)}</span>
-                    </div>
-                  </div>
+                    )}
+                    <Compass size={15} className="tab-icon" strokeWidth={2.2} />
+                    <span>현장 사진 뷰어</span>
+                  </SegmentTab>
 
-                  {/* 재생 & 탐색 인터랙션 버튼 그룹 */}
-                  <div
-                    style={{
-                      marginTop: '1.25rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '1.25rem',
-                      position: 'relative',
-                    }}
+                  <SegmentTab
+                    role="tab"
+                    aria-selected={activeViewMode === 'transcript'}
+                    $active={activeViewMode === 'transcript'}
+                    onClick={() => setActiveViewMode('transcript')}
                   >
-                    <SpeedButton
+                    {activeViewMode === 'transcript' && (
+                      <ActiveTabPill
+                        layoutId="activeTabPill"
+                        transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+                      />
+                    )}
+                    <BookOpen size={15} className="tab-icon" strokeWidth={2.2} />
+                    <span>전체 대본 모드</span>
+                  </SegmentTab>
+                </SegmentedControl>
+
+                <PlayerHeaderActions>
+                  <HeartSaveButton
+                    type="button"
+                    $saved={isSaved}
+                    whileTap={{ scale: 0.9 }}
+                    whileHover={{ scale: 1.06 }}
+                    onClick={() => toggleSavedStory(story)}
+                    aria-label={isSaved ? '마음에 담은 소리에서 제거' : '마음에 담은 소리에 추가'}
+                    title={isSaved ? '마음에 담음' : '마음에 담기'}
+                  >
+                    <Heart size={17} strokeWidth={2.2} fill={isSaved ? 'currentColor' : 'none'} />
+                  </HeartSaveButton>
+                  <CloseBtn
+                    type="button"
+                    whileTap={{ scale: 0.92 }}
+                    onClick={closePlayer}
+                    aria-label="패널 닫기"
+                  >
+                    <X size={18} strokeWidth={2.5} />
+                  </CloseBtn>
+                </PlayerHeaderActions>
+              </DrawerHeader>
+
+              {/* 🔄 메인 뷰 영역 (모드 1: 뷰어+2줄메타+2문단대본 vs 모드 2: 전체 대본 풀스크린) */}
+              <MainViewArea>
+                <AnimatePresence mode="wait">
+                  {activeViewMode === 'roadview' ? (
+                    <RoadviewSplitModeContainer
+                      key="roadview-split-view"
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -6 }}
+                      transition={{ duration: 0.2, ease: 'easeOut' }}
+                    >
+                      {/* 1단 (상단): 메뉴바 바로 아래 최상단에 배치된 현장 사진 뷰어 */}
+                      <TopMediaWrap>
+                        <SorimaruRoadview
+                          mapX={story.mapX}
+                          mapY={story.mapY}
+                          fallbackImage={imgSrc}
+                          title={story.title}
+                          analyserRef={analyserRef}
+                          isPlaying={isPlaying}
+                        />
+                      </TopMediaWrap>
+
+                      {/* 2단 (하단): 확장된 높이의 심리스 실시간 대본 스크롤 */}
+                      <CompactTranscriptWrap>
+                        <PlayerTranscriptPanel
+                          lines={lines}
+                          activeLineId={lines[activeIndex]?.id}
+                          onSeek={seekTo}
+                          imageUrl={imgSrc || story.imageUrl}
+                          isLoading={!lines.length}
+                          isPlaying={isPlaying}
+                          seamless
+                        />
+                      </CompactTranscriptWrap>
+                    </RoadviewSplitModeContainer>
+                  ) : (
+                    <FullTranscriptModeContainer
+                      key="full-transcript-view"
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -6 }}
+                      transition={{ duration: 0.2, ease: 'easeOut' }}
+                    >
+                      {/* 타이틀, 서브제목 & 4개 핵심 해시태그 (첫 진입 시에만 순차적 슬라이드 업 모션) */}
+                      <FullStoryMeta
+                        variants={shouldAnimateTranscript ? fullStoryMetaVariants : undefined}
+                        initial={shouldAnimateTranscript ? "initial" : false}
+                        animate={shouldAnimateTranscript ? "animate" : undefined}
+                      >
+                        <motion.h3
+                          className="main-title"
+                          variants={shouldAnimateTranscript ? metaItemFadeUp : undefined}
+                        >
+                          {story.title || '한옥 소리 이야기'}
+                        </motion.h3>
+                        <motion.p
+                          className="sub-info"
+                          variants={shouldAnimateTranscript ? metaItemFadeUp : undefined}
+                        >
+                          <span>{story.audioTitle || '조선시대의 생활상을 엿볼 수 있는 한옥마을'}</span>
+                        </motion.p>
+                        <HashtagsScrollWrap
+                          variants={shouldAnimateTranscript ? metaItemFadeUp : undefined}
+                          aria-label="이야기 관련 해시태그"
+                        >
+                          {(() => {
+                            const customTags = (story.tags || []).filter(
+                              (t) => !t.includes('대한민국') && !t.includes('소리')
+                            );
+                            const titleKeyword = story.title?.split(/[-—\s]/)[0];
+                            const baseTags = [
+                              titleKeyword,
+                              '한옥도슨트',
+                              '오디오가이드',
+                              '조선생활상',
+                              '전통공간',
+                              '청학동',
+                            ].filter((t): t is string => Boolean(t && t.trim() && !t.includes('대한민국')));
+
+                            const merged = [...new Set([...customTags, ...baseTags])]
+                              .map((t) => (t.startsWith('#') ? t : `#${t.trim()}`))
+                              .filter((t) => t.length > 1);
+
+                            return merged.slice(0, 4).map((tag, idx) => (
+                              <HashtagChip key={idx}>{tag}</HashtagChip>
+                            ));
+                          })()}
+                        </HashtagsScrollWrap>
+                      </FullStoryMeta>
+
+                      {/* 풀스크린 전체 대본 뷰어 (내용 컴포넌트 전체가 한 번에 아래에서 위로 부드럽게 slide-up & fade-in) */}
+                      <FullTranscriptPanelWrap
+                        variants={shouldAnimateTranscript ? contentFadeUpVariants : undefined}
+                        initial={shouldAnimateTranscript ? "initial" : false}
+                        animate={shouldAnimateTranscript ? "animate" : undefined}
+                      >
+                        <PlayerTranscriptPanel
+                          lines={lines}
+                          activeLineId={lines[activeIndex]?.id}
+                          onSeek={seekTo}
+                          imageUrl={imgSrc || story.imageUrl}
+                          isLoading={!lines.length}
+                          isPlaying={isPlaying}
+                          seamless
+                        />
+                      </FullTranscriptPanelWrap>
+                    </FullTranscriptModeContainer>
+                  )}
+                </AnimatePresence>
+              </MainViewArea>
+
+              {/* 🎛️ 하단 공통 컨트롤 독 */}
+              <AudioControlSection>
+                <SliderWrap>
+                  {/* 다이내믹 골드 슬라이더 트랙 (65% width) */}
+                  <CustomSliderContainer $progress={audioProgress}>
+                    <input
+                      type="range"
+                      min={0}
+                      max={duration || 100}
+                      value={currentTime}
+                      onChange={(event) => seekTo(Number(event.target.value))}
+                      aria-label="오디오 재생 위치 조절"
+                    />
+                  </CustomSliderContainer>
+
+                  {/* 타임스탬프 */}
+                  <TimeRow>
+                    <span>{formatTime(currentTime)}</span>
+                    <span>{formatTime(duration)}</span>
+                  </TimeRow>
+                </SliderWrap>
+
+                {/* 인터랙션 버튼 컨트롤러 */}
+                <DeckControlsRow>
+                  <SpeedChip
+                    type="button"
+                    whileTap={{ scale: 0.92 }}
+                    onClick={cyclePlaybackRate}
+                    title="재생 속도 변경"
+                    aria-label={`재생 속도 ${playbackRate}배`}
+                  >
+                    {playbackRate}×
+                  </SpeedChip>
+
+                  <DeckCenterCluster>
+                    <JumpControlButton
                       type="button"
                       whileTap={{ scale: 0.92 }}
-                      onClick={cyclePlaybackRate}
-                      style={{ position: 'absolute', left: 0 }}
-                      title="재생 속도 변경"
-                    >
-                      {playbackRate}x
-                    </SpeedButton>
-
-                    <SkipTimeBtn
-                      type="button"
-                      whileTap={{ scale: 0.94 }}
+                      whileHover={{ scale: 1.05 }}
                       onClick={() => seekTo(Math.max(0, currentTime - 10))}
+                      title="10초 전으로"
+                      aria-label="10초 전으로"
                     >
-                      <SkipBack size={13} strokeWidth={2.5} />
-                      <span>10초 전</span>
-                    </SkipTimeBtn>
+                      <RotateCcw size={15} strokeWidth={2.4} />
+                      <span>10</span>
+                    </JumpControlButton>
 
                     <BigPlayBtn
                       type="button"
                       whileTap={{ scale: 0.9 }}
-                      whileHover={{ scale: 1.05 }}
+                      whileHover={{ scale: 1.06 }}
                       onClick={() => setIsPlaying(!isPlaying)}
+                      aria-label={isPlaying ? '일시정지' : '재생'}
                     >
-                      <PlayIcon size={22} />
+                      <PlayIcon size={20} />
                     </BigPlayBtn>
 
-                    <SkipTimeBtn
+                    <JumpControlButton
                       type="button"
-                      whileTap={{ scale: 0.94 }}
+                      whileTap={{ scale: 0.92 }}
+                      whileHover={{ scale: 1.05 }}
                       onClick={() => seekTo(Math.min(duration || currentTime + 10, currentTime + 10))}
+                      title="10초 후로"
+                      aria-label="10초 후로"
                     >
-                      <span>10초 후</span>
-                      <SkipForward size={13} strokeWidth={2.5} />
-                    </SkipTimeBtn>
-                  </div>
+                      <RotateCw size={15} strokeWidth={2.4} />
+                      <span>10</span>
+                    </JumpControlButton>
+                  </DeckCenterCluster>
 
-                  {/* 대본 미리보기 & 전체 대본 보기 전환 */}
-                    </PlaybackColumn>
-                    <PlayerTranscriptPanel
-                      lines={lines}
-                      activeLineId={lines[activeIndex]?.id}
-                      onSeek={seekTo}
-                      isLoading={!lines.length}
-                      isPlaying={isPlaying}
-                    />
-                  </PlayerExperienceGrid>
-                </>
-              )}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', minWidth: '2.5rem' }}>
+                    <LiveAudioVisualizer isPlaying={isPlaying} />
+                  </div>
+                </DeckControlsRow>
+              </AudioControlSection>
             </DrawerPanel>
           </DrawerBackdrop>
         )}
