@@ -12,81 +12,66 @@ interface PlayerTranscriptPanelProps {
   imageUrl?: string;
   isLoading?: boolean;
   isPlaying?: boolean;
+  seamless?: boolean;
 }
 
 const DEFAULT_FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80';
 
-const Panel = styled.section`
+const Panel = styled.section<{ $seamless?: boolean }>`
   position: relative;
   display: flex;
   min-height: 0;
   height: 100%;
   flex-direction: column;
   overflow: hidden;
-  background: #f8f8f7;
+  background: transparent;
   color: #292927;
-  border-top: 1px solid #d9d9d7;
-  border-radius: 1.25rem;
+  border: none;
   isolation: isolate;
 
   [data-theme='dark'] & {
-    background: #171513;
+    background: transparent;
     color: #e5e5e3;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: none;
   }
 
   @media (min-width: 768px) {
     min-height: 0;
-    border-top: none;
   }
 `;
 
-const AmbientBackdrop = styled.div<{ $hasImage: boolean }>`
+const TopGradientFade = styled.div`
   position: absolute;
-  inset: -30px;
-  z-index: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2.25rem;
+  background: linear-gradient(to bottom, #ffffff 0%, rgba(255, 255, 255, 0) 100%);
   pointer-events: none;
-  overflow: hidden;
-  opacity: 0.11;
-  filter: blur(55px) saturate(1.3);
-  transform: scale(1.15);
-  transition: opacity 0.8s ease;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
+  z-index: 5;
 
   [data-theme='dark'] & {
-    opacity: 0.15;
-    filter: blur(65px) saturate(1.4);
+    background: linear-gradient(to bottom, #1c1a17 0%, rgba(28, 26, 23, 0) 100%);
   }
 `;
 
-const AmbientGradientWash = styled.div`
+const BottomGradientFade = styled.div`
   position: absolute;
-  inset: 0;
-  z-index: 1;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2.5rem;
+  background: linear-gradient(to top, #ffffff 0%, rgba(255, 255, 255, 0) 100%);
   pointer-events: none;
-  background: radial-gradient(
-    circle at 50% 30%,
-    rgba(212, 175, 55, 0.06) 0%,
-    transparent 70%
-  );
+  z-index: 5;
 
   [data-theme='dark'] & {
-    background: radial-gradient(
-      circle at 50% 30%,
-      rgba(212, 175, 55, 0.08) 0%,
-      transparent 70%
-    );
+    background: linear-gradient(to top, #1c1a17 0%, rgba(28, 26, 23, 0) 100%);
   }
 `;
 
-const Scroller = styled.div`
+const Scroller = styled.div<{ $seamless?: boolean }>`
   position: relative;
   z-index: 2;
   min-height: 0;
@@ -94,23 +79,23 @@ const Scroller = styled.div`
   overflow-y: auto;
   overscroll-behavior: contain;
   scroll-behavior: smooth;
-  padding: 3rem 1.25rem 3.5rem;
+  padding: ${({ $seamless }) => ($seamless ? '0.35rem 0.4rem 0.6rem' : '1.25rem 1rem 1.5rem')};
   scrollbar-width: thin;
   scrollbar-color: rgba(205, 205, 202, 0.4) transparent;
 
-  /* 상하단 시네마틱 페이드 마스크 */
+  /* 상하단 시네마틱 페이드 마스크 (Top & Bottom Linear Gradient) */
   mask-image: linear-gradient(
     to bottom,
     transparent 0%,
-    black 12%,
-    black 88%,
+    black 14%,
+    black 86%,
     transparent 100%
   );
   -webkit-mask-image: linear-gradient(
     to bottom,
     transparent 0%,
-    black 12%,
-    black 88%,
+    black 14%,
+    black 86%,
     transparent 100%
   );
 
@@ -133,7 +118,7 @@ const Scroller = styled.div`
 const LineList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.35rem;
 `;
 
 const Line = styled.button<{
@@ -146,39 +131,42 @@ const Line = styled.button<{
   margin: 0;
   border: 0;
   background: transparent;
-  border-radius: 0.375rem;
-  padding: 0.35rem 0.375rem;
+  border-radius: 0.5rem;
+  padding: 0.35rem 0.5rem;
   text-align: left;
   font-family: var(--font-hanok), -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
   cursor: pointer;
   outline: none;
 
   /* Consistent Typography to eliminate abrupt size jumps / layout shifts */
-  font-size: clamp(0.95rem, 1.1vw, 1.025rem);
-  font-weight: ${({ $active }) => ($active ? 600 : 400)};
-  line-height: 1.7;
+  font-size: clamp(0.925rem, 1.05vw, 1rem);
+  font-weight: ${({ $active }) => ($active ? 700 : 400)};
+  line-height: 1.6;
   letter-spacing: -0.02em;
 
-  /* Opacity-driven focus with subtle, gentle blur (no heavy muddy blur) */
+  /* Opacity-driven focus (자연스럽고 편안한 가독성) */
   ${({ $active, $distance }) => {
     if ($active) {
       return `
         color: #171513;
         opacity: 1;
+        font-weight: 700;
         filter: none;
       `;
     }
     if ($distance === 1) {
       return `
-        color: #52504b;
-        opacity: 0.62;
+        color: #3b3834;
+        opacity: 0.82;
+        font-weight: 500;
         filter: none;
       `;
     }
     return `
-      color: #78756f;
-      opacity: 0.35;
-      filter: blur(0.4px);
+      color: #5e5b56;
+      opacity: 0.62;
+      font-weight: 400;
+      filter: none;
     `;
   }}
 
@@ -189,20 +177,23 @@ const Line = styled.button<{
         return `
           color: #ffffff;
           opacity: 1;
+          font-weight: 700;
           filter: none;
         `;
       }
       if ($distance === 1) {
         return `
-          color: #a8a59e;
-          opacity: 0.62;
+          color: #e0deda;
+          opacity: 0.85;
+          font-weight: 500;
           filter: none;
         `;
       }
       return `
-        color: #737069;
-        opacity: 0.35;
-        filter: blur(0.4px);
+        color: #a8a49c;
+        opacity: 0.65;
+        font-weight: 400;
+        filter: none;
       `;
     }}
   }
@@ -262,12 +253,10 @@ const SkeletonLine = styled.div<{ $wide?: boolean }>`
   }
 `;
 
-export function TranscriptSkeleton() {
+export function TranscriptSkeleton({ seamless = false }: { seamless?: boolean }) {
   return (
-    <Panel data-testid="transcript-skeleton" aria-label="대본 불러오는 중">
-      <Scroller aria-hidden="true">
-        <SkeletonLine $wide />
-        <SkeletonLine />
+    <Panel data-testid="transcript-skeleton" aria-label="대본 불러오는 중" $seamless={seamless}>
+      <Scroller aria-hidden="true" $seamless={seamless}>
         <SkeletonLine $wide />
         <SkeletonLine />
         <SkeletonLine $wide />
@@ -283,6 +272,7 @@ export function PlayerTranscriptPanel({
   imageUrl,
   isLoading = false,
   isPlaying = false,
+  seamless = false,
 }: PlayerTranscriptPanelProps) {
   const { activeLineRef, onTranscriptScroll, requestSeek } = useTranscriptFollow({ activeLineId, onSeek });
   const [imgError, setImgError] = useState(false);
@@ -294,24 +284,13 @@ export function PlayerTranscriptPanel({
 
   const effectiveBgImage = imgError || !imageUrl ? DEFAULT_FALLBACK_IMAGE : imageUrl;
 
-  if (isLoading) return <TranscriptSkeleton />;
+  if (isLoading) return <TranscriptSkeleton seamless={seamless} />;
 
   return (
-    <Panel aria-label="실시간 해설 대본">
-      {/* 썸네일 기반 은은한 앰비언트 블러 백드롭 */}
-      <AmbientBackdrop $hasImage={Boolean(effectiveBgImage)}>
-        <img
-          src={effectiveBgImage}
-          alt=""
-          aria-hidden="true"
-          loading="lazy"
-          referrerPolicy="no-referrer"
-          onError={() => setImgError(true)}
-        />
-      </AmbientBackdrop>
-      <AmbientGradientWash />
+    <Panel aria-label="실시간 해설 대본" $seamless={seamless}>
+      <TopGradientFade />
 
-      <Scroller onScroll={onTranscriptScroll} data-playing={isPlaying}>
+      <Scroller onScroll={onTranscriptScroll} data-playing={isPlaying} $seamless={seamless}>
         <LineList>
           {lines.map((line, index) => {
             const isActive = line.id === activeLineId;
@@ -332,6 +311,8 @@ export function PlayerTranscriptPanel({
           })}
         </LineList>
       </Scroller>
+
+      <BottomGradientFade />
     </Panel>
   );
 }

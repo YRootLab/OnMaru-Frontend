@@ -1,6 +1,11 @@
 # handoff.md
 
 Current work:
+- Sorimaru expanded-player UI/UX & motion refinement:
+  - Implemented one-shot cinematic staggered entrance animation for expanded transcript view (title -> subtitle -> hashtags -> entire transcript block).
+  - Consolidated line-by-line staggered motion into an atomic whole-container slide-up & fade-in for smooth visual balance.
+  - Managed modal session animation flags so internal tab switching (`roadview` <-> `transcript`) stays instant and seamless without re-triggering sub-element staggers, while re-opening the modal resets and runs the 1-time entrance animation.
+  - Re-positioned roadview to top, expanded bottom transcript scroll area, removed background/borders for transparent elegance, and polished audio slider width.
 - Odii transcript refinement: long API narration is now split into sentence
   cues and rendered in three-sentence numbered listening segments. The large
   white quote card is removed; playback keeps only the active sentence at full

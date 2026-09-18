@@ -767,6 +767,9 @@ export default function Header() {
 
     const updateHeader = () => {
       frameId = null;
+      if (document.body.dataset.sorimaruPlayerOpen === 'true') {
+        return;
+      }
       const currentY = window.scrollY;
       const delta = currentY - previousY;
 

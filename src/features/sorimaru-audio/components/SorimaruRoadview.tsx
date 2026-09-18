@@ -434,7 +434,7 @@ export const SorimaruRoadview: React.FC<SorimaruRoadviewProps> = ({
           <span className="dot" />
           <span>
             {statusType === 'live'
-              ? '360° 현장 로드뷰'
+              ? '현장 사진 뷰어'
               : statusType === 'photo'
               ? '현장 사진 뷰어'
               : '현장 뷰 로딩 중'}
