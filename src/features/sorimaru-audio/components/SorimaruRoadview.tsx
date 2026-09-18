@@ -91,7 +91,7 @@ const TopBadgeBar = styled.div`
   pointer-events: none;
 `;
 
-const StatusChip = styled.div<{ $isLive?: boolean }>`
+const StatusChip = styled.div<{ $status?: 'live' | 'photo' | 'loading' }>`
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
@@ -109,8 +109,83 @@ const StatusChip = styled.div<{ $isLive?: boolean }>`
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background-color: ${({ $isLive }) => ($isLive ? '#22c55e' : '#f59e0b')};
-    box-shadow: 0 0 8px ${({ $isLive }) => ($isLive ? 'rgba(34, 197, 94, 0.8)' : 'rgba(245, 158, 11, 0.8)')};
+    background-color: ${({ $status }) =>
+      $status === 'live' ? '#22c55e' : $status === 'photo' ? '#f59e0b' : '#9ca3af'};
+    box-shadow: 0 0 8px
+      ${({ $status }) =>
+        $status === 'live'
+          ? 'rgba(34, 197, 94, 0.8)'
+          : $status === 'photo'
+          ? 'rgba(245, 158, 11, 0.8)'
+          : 'rgba(156, 163, 175, 0.5)'};
+    animation: ${({ $status }) => ($status === 'loading' ? 'pulseDot 1.5s infinite ease-in-out' : 'none')};
+  }
+
+  @keyframes pulseDot {
+    0%, 100% { opacity: 0.3; transform: scale(0.85); }
+    50% { opacity: 1; transform: scale(1.15); }
+  }
+`;
+
+const SkeletonOverlay = styled(motion.div)`
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(90deg, #d9d9d7 25%, #e5e5e3 50%, #d9d9d7 75%);
+  background-size: 200% 100%;
+  animation: roadviewSkeletonShimmer 1.8s ease-in-out infinite;
+
+  [data-theme='dark'] & {
+    background: linear-gradient(90deg, #1f1d1a 25%, #2a2723 50%, #1f1d1a 75%);
+    background-size: 200% 100%;
+  }
+
+  @keyframes roadviewSkeletonShimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+`;
+
+const SkeletonBadge = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  color: #57534e;
+  font-size: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+
+  [data-theme='dark'] & {
+    background: rgba(20, 18, 16, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #a8a29e;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  }
+
+  .spin-icon {
+    animation: roadviewSpin 2s linear infinite;
+    color: #b89225;
+
+    [data-theme='dark'] & {
+      color: #d4af37;
+    }
+  }
+
+  @keyframes roadviewSpin {
+    to { transform: rotate(360deg); }
   }
 `;
 
@@ -180,6 +255,7 @@ export const SorimaruRoadview: React.FC<SorimaruRoadviewProps> = ({
   const roadviewInstanceRef = useRef<any>(null);
   const [error, setError] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [isImgLoaded, setIsImgLoaded] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showGuide, setShowGuide] = useState(true);
 
@@ -198,7 +274,6 @@ export const SorimaruRoadview: React.FC<SorimaruRoadviewProps> = ({
       return;
     }
 
-    // kakao maps load 호출 보장
     kakao.maps.load(() => {
       try {
         if (!containerRef.current) return;
@@ -206,7 +281,6 @@ export const SorimaruRoadview: React.FC<SorimaruRoadviewProps> = ({
         const roadviewClient = new kakao.maps.RoadviewClient();
         const position = new kakao.maps.LatLng(lat, lng);
 
-        // 주변 500m 이내의 파노라마 ID 검색
         roadviewClient.getNearestPanoId(position, 500, (panoId: number | null) => {
           if (panoId === null) {
             setError(true);
@@ -216,7 +290,6 @@ export const SorimaruRoadview: React.FC<SorimaruRoadviewProps> = ({
             setLoaded(true);
             setError(false);
 
-            // 5초 후 드래그 안내 배지 자동 페이드아웃
             setTimeout(() => setShowGuide(false), 5000);
           }
         });
@@ -230,6 +303,7 @@ export const SorimaruRoadview: React.FC<SorimaruRoadviewProps> = ({
   useEffect(() => {
     setError(false);
     setLoaded(false);
+    setIsImgLoaded(false);
     setShowGuide(true);
 
     let intervalId: ReturnType<typeof setInterval> | undefined;
@@ -242,7 +316,6 @@ export const SorimaruRoadview: React.FC<SorimaruRoadviewProps> = ({
       if ((window as any).kakao?.maps) {
         initRoadview();
       } else {
-        // SDK가 아직 로드되지 않은 경우 주기적 폴링 대기
         intervalId = setInterval(() => {
           if ((window as any).kakao?.maps) {
             clearInterval(intervalId);
@@ -257,7 +330,7 @@ export const SorimaruRoadview: React.FC<SorimaruRoadviewProps> = ({
       if (intervalId) clearInterval(intervalId);
       clearTimeout(timeoutId);
     };
-  }, [initRoadview]);
+  }, [initRoadview, fallbackImage]);
 
   useEffect(() => {
     const canvas = containerRef.current;
@@ -267,7 +340,6 @@ export const SorimaruRoadview: React.FC<SorimaruRoadviewProps> = ({
     return () => observer.disconnect();
   }, []);
 
-  // 전체화면 토글 시 로드뷰 relayout 호출
   const toggleFullscreen = () => {
     setIsFullscreen((prev) => {
       const next = !prev;
@@ -294,13 +366,28 @@ export const SorimaruRoadview: React.FC<SorimaruRoadviewProps> = ({
     initRoadview();
   };
 
+  const hasCoordinates = Boolean(
+    mapX && mapY && !isNaN(parseFloat(mapX)) && !isNaN(parseFloat(mapY))
+  );
+
+  const isTargetingRoadview = hasCoordinates && !error;
+  const isVisualReady = isTargetingRoadview ? loaded : isImgLoaded;
+
+  const statusType: 'live' | 'photo' | 'loading' = loaded
+    ? 'live'
+    : error || !hasCoordinates
+    ? isImgLoaded
+      ? 'photo'
+      : 'loading'
+    : 'loading';
+
   return (
     <Container $isFullscreen={isFullscreen}>
       {/* 360 파노라마 로드뷰 캔버스 */}
       <RoadviewCanvas
         ref={containerRef}
         style={{
-          display: error ? 'none' : 'block',
+          display: error || !hasCoordinates ? 'none' : 'block',
           opacity: loaded ? 1 : 0,
           transition: 'opacity 0.6s ease',
         }}
@@ -308,26 +395,50 @@ export const SorimaruRoadview: React.FC<SorimaruRoadviewProps> = ({
 
       {analyserRef && <AudioReactiveAura analyserRef={analyserRef} isPlaying={isPlaying} />}
 
-      {/* 로드뷰 미지원 또는 로딩 중일 때 시네마틱 켄번스 폴백 이미지 */}
-      {(!loaded || error) && fallbackImage && (
+      {/* 로드뷰 미지원 또는 로드뷰 로드 실패 시에만 시네마틱 폴백 이미지 노출 */}
+      {(!isTargetingRoadview || error) && fallbackImage && (
         <FallbackContainer>
           <FallbackImg
             src={fallbackImage}
             alt={title || '한옥 현장 뷰'}
-            loading="lazy"
+            loading="eager"
             referrerPolicy="no-referrer"
+            onLoad={() => setIsImgLoaded(true)}
+            onError={() => setIsImgLoaded(true)}
           />
         </FallbackContainer>
       )}
+
+      {/* 스켈레톤 로딩 오버레이 (360 로드뷰 또는 사진이 완전히 준비될 때까지 유지) */}
+      <AnimatePresence>
+        {!isVisualReady && (
+          <SkeletonOverlay
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.45, ease: 'easeOut' }}
+          >
+            <SkeletonBadge>
+              <Compass size={14} className="spin-icon" />
+              <span>{isTargetingRoadview ? '360° 현장 뷰 로딩 중...' : '현장 사진 불러오는 중...'}</span>
+            </SkeletonBadge>
+          </SkeletonOverlay>
+        )}
+      </AnimatePresence>
 
       {/* 고급스러운 흑단 비네팅 그라데이션 */}
       <VignetteOverlay />
 
       {/* 상단 컨트롤 & 상태 바 */}
       <TopBadgeBar>
-        <StatusChip $isLive={loaded}>
+        <StatusChip $status={statusType}>
           <span className="dot" />
-          <span>{loaded ? '360° 현장 로드뷰' : '현장 사진 뷰어'}</span>
+          <span>
+            {statusType === 'live'
+              ? '360° 현장 로드뷰'
+              : statusType === 'photo'
+              ? '현장 사진 뷰어'
+              : '현장 뷰 로딩 중'}
+          </span>
         </StatusChip>
 
         <ButtonGroup>
