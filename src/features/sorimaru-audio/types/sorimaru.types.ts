@@ -30,6 +30,7 @@ export interface SorimaruStoryItem {
   audioUrl: string;
   imageUrl: string;
   badgeText?: string;
+  tags?: string[];
   locationName?: string;
   likesCount?: number;
   waypoints?: TourWaypoint[];

@@ -1,13 +1,15 @@
 'use client';
 
-import React, { useEffect, useState, useRef, useMemo } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import styled from '@emotion/styled';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Play, Pause, ChevronLeft, ChevronRight, X, SkipBack, SkipForward, Volume2, Heart } from 'lucide-react';
+import { Play, Pause, ChevronLeft, X, SkipBack, SkipForward, Heart } from 'lucide-react';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { useSorimaruAudioPlayer } from '@/features/sorimaru-audio/hooks/useSorimaruAudioPlayer';
 import { useSorimaruImage } from '@/features/sorimaru-audio/hooks/useSorimaruImage';
 import { SorimaruRoadview } from '@/features/sorimaru-audio/components/SorimaruRoadview';
+import { PlayerTranscriptPanel } from '@/features/sorimaru-audio/components/PlayerTranscriptPanel';
+import { normalizeContentTags } from '@/features/sorimaru-audio/components/playerTranscriptModel';
 import { meok, surface, fontSize } from '@/design-system/tokens';
 
 const formatTime = (seconds: number) =>
@@ -273,21 +275,22 @@ const DrawerBackdrop = styled(motion.div)`
   }
 `;
 
-const DrawerPanel = styled(motion.aside)<{ $isTranscriptOpen: boolean }>`
+const DrawerPanel = styled(motion.aside)`
   position: relative;
   width: 100%;
   max-width: 32rem;
-  max-height: 90vh;
+  height: min(100dvh, 52rem);
+  max-height: 100dvh;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
+  overflow: hidden;
   overscroll-behavior: contain;
   touch-action: pan-y;
   border-top-left-radius: 1.75rem;
   border-top-right-radius: 1.75rem;
   background-color: #f8f8f7;
   padding: 1.5rem;
-  padding-bottom: calc(1.75rem + env(safe-area-inset-bottom));
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
   box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.25);
   scrollbar-width: none;
   &::-webkit-scrollbar {
@@ -307,7 +310,9 @@ const DrawerPanel = styled(motion.aside)<{ $isTranscriptOpen: boolean }>`
 
   @media (min-width: 1024px) {
     border-radius: 1.75rem;
-    max-height: 88vh;
+    height: min(88vh, 52rem);
+    max-height: min(88vh, 52rem);
+    overflow: hidden;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
   }
 `;
@@ -715,9 +720,13 @@ const SpeedButton = styled(motion.button)`
 
 const PlayerExperienceGrid = styled.div`
   display: grid;
+  min-height: 0;
+  flex: 1;
+  grid-template-rows: minmax(0, 0.9fr) minmax(0, 1.1fr);
   gap: 1.5rem;
 
   @media (min-width: 768px) {
+    grid-template-rows: none;
     grid-template-columns: minmax(0, 1.2fr) minmax(15rem, 0.8fr);
     align-items: stretch;
   }
@@ -725,42 +734,9 @@ const PlayerExperienceGrid = styled.div`
 
 const PlaybackColumn = styled.div`
   min-width: 0;
-`;
-
-const TranscriptSidebar = styled.section`
-  display: flex;
-  min-height: 15rem;
-  flex-direction: column;
-  border-radius: 1.25rem;
-  background: #f1f1ef;
-  padding: 1rem;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
-
-  @media (min-width: 768px) {
-    min-height: 0;
-  }
-
-  [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.06);
-  }
-
-  & > section {
-    display: flex;
-    min-height: 0;
-    flex: 1;
-    flex-direction: column;
-    margin-top: 0 !important;
-    padding-top: 0 !important;
-    border-top: 0 !important;
-  }
-
-  & > section > div:last-child {
-    min-height: 0;
-    flex: 1;
-    height: auto !important;
-    overflow-y: auto !important;
-    overscroll-behavior: contain;
-  }
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 `;
 
 export const LocalMiniPlayer: React.FC = () => {
@@ -780,7 +756,6 @@ export const LocalMiniPlayer: React.FC = () => {
   const { seekTo, analyserRef } = useSorimaruAudioPlayer();
   const imgSrc = useSorimaruImage(story);
   const activeLineRef = useRef<HTMLButtonElement>(null);
-  const activeSidebarLineRef = useRef<HTMLButtonElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [isTranscriptOpen, setIsTranscriptOpen] = useState(false);
 
@@ -839,22 +814,14 @@ export const LocalMiniPlayer: React.FC = () => {
     };
   }, [isExpanded]);
 
-  useEffect(() => {
-    if (isTranscriptOpen && activeLineRef.current) {
-      activeLineRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  }, [activeIndex, isTranscriptOpen]);
-
-  useEffect(() => {
-    if (isExpanded && !isTranscriptOpen && activeSidebarLineRef.current) {
-      activeSidebarLineRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  }, [activeIndex, isExpanded, isTranscriptOpen]);
-
-  const previewStart = Math.max(0, Math.min(activeIndex, Math.max(0, lines.length - 6)));
-  const previewLines = lines.slice(previewStart, previewStart + 6);
   const audioProgress = duration > 0 ? Math.min(100, (currentTime / duration) * 100) : 0;
   const transcriptProgress = lines.length ? ((activeIndex + 1) / lines.length) * 100 : 0;
+  const contentTags = normalizeContentTags([
+    ...(story.tags || []),
+    story.category,
+    story.locationName,
+    story.badgeText,
+  ]);
   const isSaved = savedStories.some((saved) => (saved.stid || saved.title) === (story.stid || story.title));
   const closePlayer = () => {
     setIsTranscriptOpen(false);
@@ -940,7 +907,6 @@ export const LocalMiniPlayer: React.FC = () => {
               exit={{ opacity: 0, y: 24, scale: 0.97 }}
               transition={{ type: 'spring', damping: 28, stiffness: 320 }}
               onClick={(event) => event.stopPropagation()}
-              $isTranscriptOpen={isTranscriptOpen}
             >
               {isTranscriptOpen ? (
                 <>
@@ -1027,11 +993,7 @@ export const LocalMiniPlayer: React.FC = () => {
                 </>
               ) : (
                 <>
-                  <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <PlayingStatusBadge>
-                      <span>지금 재생 중</span>
-                      <LiveAudioVisualizer isPlaying={isPlaying} />
-                    </PlayingStatusBadge>
+                  <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
                     <PlayerHeaderActions>
                       <HeartSaveButton
                         type="button"
@@ -1098,6 +1060,15 @@ export const LocalMiniPlayer: React.FC = () => {
                         {story.speaker || '온마루 문화해설사'}
                       </span>
                     </p>
+                    {contentTags.length > 0 && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem', marginTop: '0.875rem' }}>
+                        {contentTags.map((tag) => (
+                          <span key={tag} style={{ border: '1px solid #d9d9d7', borderRadius: '999px', padding: '0.28rem 0.55rem', fontSize: '0.6875rem', fontWeight: 650, color: meok[600], background: '#f5f5f4' }}>
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {/* 럭셔리 슬라이더 컨트롤 */}
@@ -1177,68 +1148,13 @@ export const LocalMiniPlayer: React.FC = () => {
 
                   {/* 대본 미리보기 & 전체 대본 보기 전환 */}
                     </PlaybackColumn>
-                    <TranscriptSidebar aria-label="실시간 해설 대본">
-                  {previewLines.length > 0 && (
-                    <section style={{ marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: '1px solid #eaeae8' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <div>
-                          <p style={{ fontSize: fontSize.micro, fontWeight: 700, letterSpacing: '0.12em', color: '#a88420' }}>
-                            실시간 해설 대본
-                          </p>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setIsTranscriptOpen(true)}
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '0.25rem',
-                            padding: '0.35rem 0.75rem',
-                            borderRadius: '9999px',
-                            backgroundColor: '#efefed',
-                            fontSize: '0.75rem',
-                            fontWeight: 700,
-                            color: meok[800],
-                            border: 'none',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s ease',
-                          }}
-                        >
-                          <span>전체 대본 보기</span>
-                          <ChevronRight size={13} strokeWidth={2.5} />
-                        </button>
-                      </div>
-
-                      <div
-                        style={{
-                          position: 'relative',
-                          marginTop: '0.75rem',
-                          height: '100%',
-                          minHeight: '12rem',
-                          overflowY: 'auto',
-                          borderRadius: '1rem',
-                          backgroundColor: '#f1f1ef',
-                          padding: '0.75rem',
-                          boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.05)',
-                        }}
-                      >
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
-                          {lines.map((line) => (
-                            <PreviewLineBtn
-                              key={line.id}
-                              ref={line.id === lines[activeIndex]?.id ? activeSidebarLineRef : null}
-                              type="button"
-                              onClick={() => seekTo(line.timeSec)}
-                              $active={line.id === lines[activeIndex]?.id}
-                            >
-                              {line.text}
-                            </PreviewLineBtn>
-                          ))}
-                        </div>
-                      </div>
-                    </section>
-                  )}
-                    </TranscriptSidebar>
+                    <PlayerTranscriptPanel
+                      lines={lines}
+                      activeLineId={lines[activeIndex]?.id}
+                      onSeek={seekTo}
+                      isLoading={!lines.length}
+                      isPlaying={isPlaying}
+                    />
                   </PlayerExperienceGrid>
                 </>
               )}

@@ -133,6 +133,12 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## [Unreleased] 
 ### Changed 
+- Split long Odii narration text into timed sentence cues and present it as
+  numbered listening segments, with only the active sentence at full opacity.
+- Redesigned the expanded Odii player around one readable, scrollable
+  transcript panel with a restrained dark lamp header, centered active
+  sentence tracking, 60% inactive sentence opacity, direct sentence seeks,
+  content tags, and dimension-stable transcript loading skeletons.
 - Removed empty and duplicate Hanok detail tags, normalized both galleries, and assigned distinct AnimatePresence keys to the detail and lightbox overlays so opening a photo no longer triggers duplicate React key warnings.
 - Fixed horizontal clipping in the Hanok AI story panel by wrapping the complete result in a forced single-column grid, constraining every content boundary, and rendering sources as multiline full-width rows.
 - Prevented address-only Hanok summaries from appearing as AI history, merged verified snapshot descriptions into address-only live list records, delayed Gemini context until TourAPI detail resolution, and updated the grounded-search model candidates to the current Gemini 3.x Flash models.
