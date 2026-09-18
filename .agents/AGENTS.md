@@ -42,6 +42,8 @@ GLB Model: `/public/anchae.glb`
   - `STEP 01`, `STAGE 01/07`, `Feature`, `How it works` 등의 장식용 뱃지나 번호 라벨을 절대 사용하지 않습니다.
   - 섹션과 조립 단계는 오직 **오브젝트의 3D 연속성**, **광활한 여백(Negative Space)**, **스크롤 연동 페이드인/아웃** 및 **조명의 분위기 전환**만으로 사용자가 자연스럽게 스토리를 몰입하여 인지하도록 설계합니다.
 - **Left Vignette Overlay**: Integrated editorial gradient overlay (`linear-gradient(to right, rgba(14, 16, 22, 0.92) 0%, rgba(14, 16, 22, 0) 100%)`).
+- **Typography Hierarchy (타이포그래피 계층 규칙)**:
+  - 모든 뷰와 컴포넌트에서 **메인 타이틀(Title)은 반드시 최상단에 위치**하며, **서브타이틀(Subtitle), 해설 설명 및 부가 메타 정보는 항상 타이틀 아래에 배치**합니다. (제목 위에 부제목/라벨을 배치하는 역전 구조 금지)
 - **Typography & Aesthetics**: High-end luxury dark mode (`#1C1A17`), gold accents (`#d4af37`), glassmorphism, 60fps smooth spring/lerp transitions.
 
 ---
