@@ -6,7 +6,7 @@ Current work:
   white quote card is removed; playback keeps only the active sentence at full
   opacity while surrounding sentences remain at 60%.
 - Odii expanded-player redesign implemented: the player now presents one
-  complete dark transcript panel with a restrained lamp-inspired header,
+  complete neutral transcript panel,
   60%-opacity inactive lines, active-line centering, direct line seeks, and
   an image/Roadview media frame. The redundant current-status badge and full
   transcript action are removed from the active player flow. Up to seven
@@ -18,10 +18,10 @@ Current work:
   center the currently playing line with a reduced-motion-safe transition;
   dim inactive lines to 60%; remove the redundant status badge and full-view
   action; add up to seven normalized content tags; retain Roadview with an
-  equal-size image fallback; use a restrained, dark lamp-inspired transcript
-  header with readable contrast; and give media, metadata, controls, and
-  transcript rows dimension-matched neutral skeletons. Awaiting
-  implementation-plan review.
+  equal-size image fallback; use a light neutral transcript surface with
+  readable contrast; and give media, metadata, controls, and
+  transcript rows dimension-matched neutral skeletons. This work is ready for
+  PR review against `develop`.
 - Hanok reading-flow motion: the regional distribution now uses one-shot GSAP `scaleX` bars with synchronized count-up values; the detail modal uses its own scroll container to focus the centered history paragraph while dimming surrounding paragraphs. Reduced-motion users receive the final readable state immediately.
 - Hanok monthly layout stability: the monthly feature now reserves its final responsive height before hydration, preventing the distribution chart from flashing in its space and then being pushed below the viewport.
 - Hanok distribution stability: live `/api/tourapi` payloads without regional data no longer replace the complete local snapshot, preventing the chart below “이달의 픽” from appearing briefly and then disappearing.
