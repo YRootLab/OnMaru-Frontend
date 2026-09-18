@@ -9,6 +9,12 @@ Lightweight human-readable summary of meaningful repository changes. This does n
   - 대본 문단별 개별 분할 stagger 모션을 내용 컴포넌트 전체 덩어리 단위 모션으로 통합하여 시각적 안정성 및 자연스러운 전환감 제공.
   - 모달 내부에서 상단 탭(`현장 사진 뷰어` ↔ `전체 대본 모드`) 전환 시 매번 재실행되지 않고 즉시 온전한 상태를 유지하도록 세션 상태 관리 및 모달 재오픈 시 1회 애니메이션 자동 리셋 적용.
   - 현장 사진 뷰어 최상단 배치, 하단 실시간 대본 높이 확장, 대본 패널 배경/테두리 투명화 및 상하단 페이드 마스크 적용, 오디오 재생 인디케이터 바 65% 정돈.
+- Enforced one-shot scroll reveal rules and reload protection across page sections via `VesselReveal`: sections entering from below bloom once (`0.96 -> 1.0`), stay bloomed when scrolling back upward without folding or replaying, render immediately in final state on page reload without layout shift, and disconnect observers upon reveal for zero CPU overhead.
+- Documented scroll reveal rules and state machine in `src/shared/components/animation/README.md` and added unit test coverage in `vesselRevealState.test.ts`.
+- Removed redundant inner component slide-up animations inside Sorimaru sections (`SorimaruAudioFeature.tsx`) to prevent double entrance animations with `VesselReveal`, while preserving self-contained staggered reveal on the interactive map constellation (`SoundConstellationSection.tsx`).
+- Replaced liquid spring morphing (`layoutId`) across GNB and mobile bottom tabs (`Header.tsx`, `GlobalMobileTabs.tsx`) with a refined, solid glassmorphic capsule active indicator.
+- Polished Sorimaru editorial rail and indicator bar padding to eliminate clipping and background box mismatches using pure alpha gradient masks.
+- Restored the leading and trailing `linear-gradient` overlays on the Sorimaru Section 2 editorial rail (`SorimaruEditorialRail.tsx`) navigation buttons for both light and dark modes.
 - Added new OnMaru app logo assets, switched the global header and map rail logo by light/dark theme, aligned the header theme picker under the right action group, restored the neutral gray VesselReveal border with proper Hanok section breathing room during scroll reveal, refreshed Sorimaru section 2 edge fades and shadow clearance to match the neutral page canvas, restored the section 3 map story list boundary with a thin no-shadow frame, and stabilized the map story section reveal animation.
 - Added restrained reading-flow motion to Hanok data and history: one-shot growing distribution bars, synchronized count-up values, and centered paragraph focus inside the detail modal.
 - Reserved the responsive “이달의 픽” footprint during hydration so the following Hanok distribution chart no longer appears briefly and shifts out of view.

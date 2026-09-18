@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { useSorimaruImage, getSorimaruFallbackImage } from '@/features/sorimaru-audio/hooks/useSorimaruImage';
-import { motion } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { SorimaruStoryItem } from '@/features/sorimaru-audio/types/sorimaru.types';
 import { KOREA_MAP_VIEWBOX, KOREA_REGION_PATHS, KoreaRegionPath } from '@/features/sorimaru-audio/data/koreaMapPaths';
@@ -48,7 +48,7 @@ const shimmerKeyframe = keyframes`
   100% { background-position: 200% 0; }
 `;
 
-const SectionWrapper = styled.section`
+const SectionWrapper = styled(motion.section)`
   width: 100%;
   padding: 2.5rem 0;
 
@@ -57,7 +57,7 @@ const SectionWrapper = styled.section`
   }
 `;
 
-const InnerContainer = styled.div`
+const InnerContainer = styled(motion.div)`
   margin: 0 auto;
   width: min(calc(100% - 40px), 1140px);
   max-width: 1140px;
@@ -72,7 +72,41 @@ const InnerContainer = styled.div`
   }
 `;
 
-const SectionHeader = styled.div`
+const sectionVariants: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.18,
+      delayChildren: 0.05,
+    },
+  },
+};
+
+const titleVariants: Variants = {
+  hidden: { opacity: 0, y: 26 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 1.0,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+};
+
+const contentVariants: Variants = {
+  hidden: { opacity: 0, y: 32 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 1.15,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+};
+
+const SectionHeader = styled(motion.div)`
   padding-bottom: 0.25rem;
 `;
 
@@ -109,7 +143,7 @@ const SubDesc = styled.p`
   }
 `;
 
-const LayoutGrid = styled.div`
+const LayoutGrid = styled(motion.div)`
   margin-top: 1.25rem;
   display: grid;
   gap: 1.25rem;
@@ -763,9 +797,16 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
   };
 
   return (
-    <SectionWrapper ref={viewportRef} aria-labelledby="sound-map-heading">
-      <InnerContainer>
-        <SectionHeader>
+    <SectionWrapper
+      ref={viewportRef}
+      variants={sectionVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.12 }}
+      aria-labelledby="sound-map-heading"
+    >
+      <InnerContainer variants={sectionVariants}>
+        <SectionHeader variants={titleVariants}>
           <MainHeading id="sound-map-heading">
             지도로 듣는 이야기
           </MainHeading>
@@ -774,7 +815,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
           </SubDesc>
         </SectionHeader>
 
-        <LayoutGrid>
+        <LayoutGrid variants={contentVariants}>
           <MapStage>
             <MapHintPill>
               <PulseDot /> 지역을 눌러 탐색해보세요

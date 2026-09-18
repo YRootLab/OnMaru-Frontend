@@ -24,35 +24,47 @@ const Nav = styled.nav`
 `;
 
 const TabLink = styled(Link, transientProps)<TabProps>`
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 4px;
   min-width: 0;
-  color: ${({ $isLanding, $isSoriMaru, $isSorimaru, $isActive }) => {
-    if ($isActive && ($isSoriMaru || $isSorimaru)) return lightPalette.jangmi[500];
+  margin: 4px 6px;
+  border-radius: 12px;
+  color: ${({ $isLanding, $isActive }) => {
     if ($isActive) return $isLanding ? '#f8e6bd' : lightPalette.juhong[700];
     return $isLanding ? 'rgba(250, 250, 250, 0.68)' : 'rgba(33, 30, 25, 0.68)';
   }};
+  background-color: ${({ $isActive, $isLanding }) => {
+    if (!$isActive) return 'transparent';
+    return $isLanding ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.05)';
+  }};
+  border: 1px solid ${({ $isActive, $isLanding }) => {
+    if (!$isActive) return 'transparent';
+    return $isLanding ? 'rgba(255, 255, 255, 0.18)' : 'rgba(0, 0, 0, 0.06)';
+  }};
   font-family: 'Spoqa Han Sans Neo', sans-serif;
   font-size: ${fontSize.micro};
-  /* 10px에선 500과 400이 구분되지 않는다. 활성 탭만 bold로 갈라 준다 */
   font-weight: ${({ $isActive }) => ($isActive ? 700 : 400)};
   letter-spacing: -0.02em;
   text-decoration: none;
-  transition: color 180ms ease, transform 180ms ease;
+  transition: color 180ms ease, background-color 180ms ease, border-color 180ms ease, transform 180ms ease;
 
   &:active {
     transform: scale(0.94);
   }
 
   [data-theme='dark'] & {
-    color: ${({ $isLanding, $isSoriMaru, $isSorimaru, $isActive }) => {
-      if ($isActive && ($isSoriMaru || $isSorimaru)) return lightPalette.jangmi[400];
+    color: ${({ $isLanding, $isActive }) => {
       if ($isActive) return '#f8e6bd';
       return 'rgba(250, 250, 250, 0.68)';
     }};
+    background-color: ${({ $isActive }) =>
+      $isActive ? 'rgba(255, 255, 255, 0.1)' : 'transparent'};
+    border-color: ${({ $isActive }) =>
+      $isActive ? 'rgba(255, 255, 255, 0.12)' : 'transparent'};
   }
 `;
 
@@ -62,24 +74,34 @@ export default function GlobalMobileTabs({ isLanding }: { isLanding: boolean }) 
   const resetJourney = useJourneyStore((s) => s.resetJourney);
   const isSoriMaruPage = pathname.startsWith('/sorimaru') || pathname.startsWith('/sorimaru');
 
+  const tabs = [
+    { href: '/', label: '홈', icon: Home, active: pathname === '/' },
+    { href: '/hanok', label: '한옥 이야기', icon: BookOpen, active: pathname.startsWith('/hanok') },
+    { href: '/sorimaru', label: '소리마루', icon: Headphones, active: isSoriMaruPage },
+    { href: '/map', label: '지도', icon: Map, active: pathname.startsWith('/map') },
+  ];
+
   return (
     <Nav aria-label="주요 탐색">
-      <TabLink href="/" $isLanding={isLanding} $isActive={pathname === '/'} onClick={resetJourney}>
-        <Home size={19} strokeWidth={2} aria-hidden="true" />
-        <span>홈</span>
-      </TabLink>
-      <TabLink href="/hanok" $isLanding={isLanding} $isActive={pathname.startsWith('/hanok')}>
-        <BookOpen size={19} strokeWidth={2} aria-hidden="true" />
-        <span>한옥 이야기</span>
-      </TabLink>
-      <TabLink href="/sorimaru" $isLanding={isLanding} $isSoriMaru $isActive={isSoriMaruPage}>
-        <Headphones size={19} strokeWidth={2} aria-hidden="true" />
-        <span>소리마루</span>
-      </TabLink>
-      <TabLink href="/map" $isLanding={isLanding} $isActive={pathname.startsWith('/map')}>
-        <Map size={19} strokeWidth={2} aria-hidden="true" />
-        <span>지도</span>
-      </TabLink>
+      {tabs.map((tab) => {
+        const Icon = tab.icon;
+        const isSelected = tab.active;
+        return (
+          <TabLink
+            key={tab.href}
+            href={tab.href}
+            $isLanding={isLanding}
+            $isSoriMaru={isSoriMaruPage}
+            $isActive={isSelected}
+            onClick={tab.href === '/' ? resetJourney : undefined}
+          >
+            <span style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+              <Icon size={19} strokeWidth={2} aria-hidden="true" />
+              <span>{tab.label}</span>
+            </span>
+          </TabLink>
+        );
+      })}
     </Nav>
   );
 }

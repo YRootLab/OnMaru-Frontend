@@ -210,7 +210,7 @@ const NavUnderlineButton = styled.button<{ $selected: boolean }>`
     $selected
       ? `
         font-weight: 700;
-        color: ${palette.jangmi[500]};
+        color: #8B7A49;
       `
       : `
         font-weight: 500;
@@ -224,7 +224,7 @@ const NavUnderlineButton = styled.button<{ $selected: boolean }>`
     ${({ $selected }) =>
       $selected
         ? `
-          color: ${palette.jangmi[400]};
+          color: ${palette.hwanggeum[200]};
         `
         : `
           color: ${meok[400]};
@@ -247,7 +247,7 @@ const RegionTextButton = styled.button<{ $selected: boolean }>`
     $selected
       ? `
         font-weight: 700;
-        color: ${palette.jangmi[500]};
+        color: #8B7A49;
       `
       : `
         font-weight: 500;
@@ -261,7 +261,7 @@ const RegionTextButton = styled.button<{ $selected: boolean }>`
     ${({ $selected }) =>
       $selected
         ? `
-          color: ${palette.jangmi[400]};
+          color: ${palette.hwanggeum[200]};
         `
         : `
           color: ${meok[400]};
@@ -412,7 +412,7 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 
 
   // Default Variant: 메인 오디오 아카이브 필터바 (섹션 5 전용)
   return (
-    <div style={{ width: '100%', padding: '0.875rem 0' }}>
+    <div style={{ width: '100%', padding: '0.5rem 0' }}>
       <ScrollRail as="nav" aria-label="오디오 이야기 주제" style={{ gap: '1.25rem' }}>
         <NavUnderlineButton
           type="button"
@@ -425,13 +425,12 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 
               layoutId="sorimaru-archive-filter"
               style={{
                 position: 'absolute',
-                left: -6,
-                right: -6,
-                bottom: 1,
+                left: -4,
+                right: -4,
+                bottom: 0,
                 height: 2,
                 borderRadius: 9999,
-                backgroundColor: 'rgba(255, 42, 133, 0.7)',
-                transform: 'rotate(-1deg)',
+                backgroundColor: '#d4af37',
               }}
               transition={{ type: 'spring', stiffness: 360, damping: 28 }}
             />
@@ -453,13 +452,12 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 
                   layoutId="sorimaru-archive-filter"
                   style={{
                     position: 'absolute',
-                    left: -6,
-                    right: -6,
-                    bottom: 1,
+                    left: -4,
+                    right: -4,
+                    bottom: 0,
                     height: 2,
                     borderRadius: 9999,
-                    backgroundColor: 'rgba(255, 42, 133, 0.7)',
-                    transform: 'rotate(-1deg)',
+                    backgroundColor: '#d4af37',
                   }}
                   transition={{ type: 'spring', stiffness: 360, damping: 28 }}
                 />
@@ -469,7 +467,7 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = ({ variant = 
         })}
       </ScrollRail>
 
-      <ScrollRail style={{ marginTop: '0.75rem', gap: '0.75rem', fontSize: '0.75rem' }}>
+      <ScrollRail style={{ marginTop: '0.6rem', gap: '0.75rem', fontSize: '0.75rem' }}>
         <span style={{ flexShrink: 0, fontWeight: 500, color: meok[500] }}>지역</span>
         <span style={{ height: '0.75rem', width: 1, flexShrink: 0, backgroundColor: 'rgba(33, 30, 25, 0.1)' }} />
         <RegionTextButton

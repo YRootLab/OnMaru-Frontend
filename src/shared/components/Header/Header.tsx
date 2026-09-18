@@ -260,9 +260,13 @@ const NavLink = styled(Link, transientProps)<LandingProps>`
   position: relative;
   font-family: 'Spoqa Han Sans Neo', sans-serif;
   font-size: ${fontSize.xs};
-  /* 네비게이션은 읽히기만 하면 된다. 강조는 hover 색이 맡는다 */
-  font-weight: 400;
-  color: ${({ $isLanding }) => ($isLanding ? 'rgba(255, 255, 255, 0.82)' : meok[700])};
+  font-weight: ${({ $isActive }) => ($isActive ? 600 : 400)};
+  color: ${({ $isLanding, $isActive }) => {
+    if ($isActive) {
+      return $isLanding ? '#ffffff' : meok[900];
+    }
+    return $isLanding ? 'rgba(255, 255, 255, 0.82)' : meok[700];
+  }};
   text-decoration: none;
   letter-spacing: -0.02em;
   display: inline-flex;
@@ -270,20 +274,34 @@ const NavLink = styled(Link, transientProps)<LandingProps>`
   justify-content: center;
   padding: 5px 12px;
   border-radius: 9999px;
-  background-color: transparent;
+  background-color: ${({ $isActive, $isLanding }) => {
+    if (!$isActive) return 'transparent';
+    return $isLanding ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.055)';
+  }};
+  border: 1px solid ${({ $isActive, $isLanding }) => {
+    if (!$isActive) return 'transparent';
+    return $isLanding ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.06)';
+  }};
+  box-shadow: ${({ $isActive, $isLanding }) => {
+    if (!$isActive) return 'none';
+    return $isLanding
+      ? '0 2px 8px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.25)'
+      : '0 2px 8px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.8)';
+  }};
+  backdrop-filter: ${({ $isActive }) => ($isActive ? 'blur(12px)' : 'none')};
+  -webkit-backdrop-filter: ${({ $isActive }) => ($isActive ? 'blur(12px)' : 'none')};
   transition:
     color 180ms cubic-bezier(0.16, 1, 0.3, 1),
-    background-color 180ms cubic-bezier(0.16, 1, 0.3, 1);
+    background-color 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 180ms cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    color: ${({ $isLanding, $isSoriMaru, $isSorimaru }) =>
-      ($isSoriMaru || $isSorimaru)
-        ? lightPalette.jangmi[500]
-        : $isLanding
-          ? '#ffffff'
-          : meok[900]};
-    background-color: ${({ $isLanding }) =>
-      $isLanding ? 'rgba(255, 255, 255, 0.07)' : 'rgba(0, 0, 0, 0.03)'};
+    color: ${({ $isLanding }) => ($isLanding ? '#ffffff' : meok[900])};
+    background-color: ${({ $isLanding, $isActive }) =>
+      $isActive
+        ? $isLanding ? 'rgba(255, 255, 255, 0.19)' : 'rgba(0, 0, 0, 0.075)'
+        : $isLanding ? 'rgba(255, 255, 255, 0.07)' : 'rgba(0, 0, 0, 0.03)'};
   }
 
   &:active {
@@ -292,14 +310,23 @@ const NavLink = styled(Link, transientProps)<LandingProps>`
   }
 
   [data-theme='dark'] & {
-    color: ${({ $isLanding }) => ($isLanding ? 'rgba(255, 255, 255, 0.82)' : meok[200])};
+    color: ${({ $isLanding, $isActive }) => {
+      if ($isActive) {
+        return '#ffffff';
+      }
+      return $isLanding ? 'rgba(255, 255, 255, 0.82)' : meok[200];
+    }};
+    background-color: ${({ $isActive }) =>
+      $isActive ? 'rgba(255, 255, 255, 0.12)' : 'transparent'};
+    border-color: ${({ $isActive }) =>
+      $isActive ? 'rgba(255, 255, 255, 0.16)' : 'transparent'};
+    box-shadow: ${({ $isActive }) =>
+      $isActive ? '0 2px 10px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15)' : 'none'};
 
     &:hover {
-      color: ${({ $isSoriMaru, $isSorimaru }) =>
-        ($isSoriMaru || $isSorimaru)
-          ? lightPalette.jangmi[400]
-          : '#ffffff'};
-      background-color: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+      background-color: ${({ $isActive }) =>
+        $isActive ? 'rgba(255, 255, 255, 0.16)' : 'rgba(255, 255, 255, 0.08)'};
     }
 
     &:active {
@@ -867,25 +894,30 @@ export default function Header() {
 
         {/* 가운데: 홈, 한옥 이야기, 소리마루, 지도 */}
         <CenterNav $isMapPage={isMapPage}>
-          <NavLink href="/" $isLanding={usesDarkSurface} $isSoriMaru={isSoriMaruPage} onClick={resetJourney}>
-            <Sparkles size={13} style={{ marginRight: 4, verticalAlign: '-1px' }} />
-            <span>홈</span>
-          </NavLink>
-
-          <NavLink href="/hanok" $isLanding={usesDarkSurface} $isSoriMaru={isSoriMaruPage}>
-            <BookOpen size={13} style={{ marginRight: 4, verticalAlign: '-1px' }} />
-            <span>한옥 이야기</span>
-          </NavLink>
-
-          <NavLink href="/sorimaru" $isLanding={usesDarkSurface} $isSoriMaru={isSoriMaruPage}>
-            <Headphones size={13} style={{ marginRight: 4, verticalAlign: '-1px' }} />
-            <span>소리마루</span>
-          </NavLink>
-
-          <NavLink href="/map" $isLanding={usesDarkSurface} $isSoriMaru={isSoriMaruPage}>
-            <Map size={13} style={{ marginRight: 4, verticalAlign: '-1px' }} />
-            <span>지도</span>
-          </NavLink>
+          {[
+            { href: '/', label: '홈', icon: Sparkles, active: pathname === '/' },
+            { href: '/hanok', label: '한옥 이야기', icon: BookOpen, active: pathname.startsWith('/hanok') },
+            { href: '/sorimaru', label: '소리마루', icon: Headphones, active: isSoriMaruPage },
+            { href: '/map', label: '지도', icon: Map, active: pathname.startsWith('/map') },
+          ].map((item) => {
+            const Icon = item.icon;
+            const isSelected = item.active;
+            return (
+              <NavLink
+                key={item.href}
+                href={item.href}
+                $isLanding={usesDarkSurface}
+                $isSoriMaru={isSoriMaruPage}
+                $isActive={isSelected}
+                onClick={item.href === '/' ? resetJourney : undefined}
+              >
+                <span style={{ position: 'relative', zIndex: 1, display: 'inline-flex', alignItems: 'center' }}>
+                  <Icon size={13} style={{ marginRight: 5, verticalAlign: '-1px' }} />
+                  <span>{item.label}</span>
+                </span>
+              </NavLink>
+            );
+          })}
         </CenterNav>
 
       {/* 오른쪽 끝: 테마 변경 + 로그인 / 마이페이지 */}

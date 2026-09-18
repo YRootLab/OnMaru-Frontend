@@ -3,17 +3,15 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
-import { motion, Variants } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
 import { StoryCarousel } from './StoryCarousel';
 import { CategoryTagFilter } from './CategoryTagFilter';
 import { SorimaruArchiveBrowse } from './SorimaruArchiveBrowse';
 import { SorimaruArchiveMetaBar } from './SorimaruArchiveMetaBar';
-import { SorimaruQuestionAssistant } from './SorimaruQuestionAssistant';
+import { SorimaruPagination } from './SorimaruPagination';
 import { SavedSoundDrawer } from './SavedSoundDrawer';
 import { SorimaruAutoSliceRail } from './SorimaruAutoSliceRail';
 import { SorimaruEditorialRail } from './SorimaruEditorialRail';
-import { SorimaruFooterCTA } from './SorimaruFooterCTA';
 import { SoundConstellationSection } from './SoundConstellationSection';
 import { LocalMiniPlayer } from './LocalMiniPlayer';
 import { SorimaruAtmosphereBackground } from './SorimaruAtmosphereBackground';
@@ -31,29 +29,7 @@ const AllStoriesModal = dynamic(
   { ssr: false },
 );
 
-const titleVariants: Variants = {
-  hidden: { opacity: 0, y: 26 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 1.0,
-      ease: [0.16, 1, 0.3, 1],
-    },
-  },
-};
 
-const contentVariants: Variants = {
-  hidden: { opacity: 0, y: 32 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 1.15,
-      ease: [0.16, 1, 0.3, 1],
-    },
-  },
-};
 
 const FeatureContainer = styled.div`
   position: relative;
@@ -134,7 +110,7 @@ const MainSections = styled.main`
   }
 `;
 
-const HeroStageDiv = styled(motion.div)`
+const HeroStageDiv = styled.div`
   padding-top: 3.25rem;
   padding-bottom: clamp(40px, 5vh, 64px);
 
@@ -178,7 +154,7 @@ const CenteredContainer = styled.div`
   }
 `;
 
-const NearbyHeader = styled(motion.div)`
+const NearbyHeader = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -193,7 +169,7 @@ const NearbyHeader = styled(motion.div)`
 `;
 
 const SectionDescription = styled.p`
-  margin-top: 4px;
+  margin-top: 6px;
   max-width: 36rem;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -219,18 +195,6 @@ const SectionStrongText = styled.strong`
   display: block;
   font-weight: 600;
   color: ${meok[700]};
-
-  [data-theme='dark'] & {
-    color: ${meok[200]};
-  }
-`;
-
-const PageIndicator = styled.span`
-  min-width: 4rem;
-  text-align: center;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: ${meok[900]};
 
   [data-theme='dark'] & {
     color: ${meok[200]};
@@ -276,36 +240,6 @@ const LocationButton = styled.button`
   }
 `;
 
-const PaginationPill = styled.button`
-  height: 2.25rem;
-  border-radius: 9999px;
-  padding: 0 0.875rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: ${palette.jangmi[400]};
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
-
-  &:hover {
-    background-color: #FFF0F6;
-  }
-
-  [data-theme='dark'] & {
-    color: ${palette.jangmi[400]};
-
-    &:hover {
-      background-color: rgba(255, 92, 159, 0.15);
-    }
-  }
-
-  &:disabled {
-    cursor: not-allowed;
-    opacity: 0.3;
-  }
-`;
-
 export interface SorimaruAudioFeatureProps {
   apiService?: ISorimaruApiService;
   initialStories?: SorimaruStoryItem[];
@@ -345,7 +279,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   const [archiveMeta, setArchiveMeta] = useState<SorimaruStoryPage>({
     items: initialStories || [],
     pageNo: 1,
-    numOfRows: 7,
+    numOfRows: 8,
     totalCount: initialStories?.length || 0,
     source: 'mock',
   });
@@ -371,7 +305,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
       ? {
           items: initialStories,
           pageNo: 1,
-          numOfRows: 12,
+          numOfRows: 8,
           totalCount: initialStories.length,
           source: 'mock',
         }
@@ -505,7 +439,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
     async function fetchArchiveData() {
       setIsArchiveLoading(true);
       try {
-        const page = await activeApiService.getStoryPage(selectedCategory, searchQuery, archivePage, 12);
+        const page = await activeApiService.getStoryPage(selectedCategory, searchQuery, archivePage, 8);
 
         if (isMounted) {
           if (page.items.length === 0 && archivePage > 1) {
@@ -588,18 +522,13 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
 
           <MainSections>
             {/* 섹션 1: 히어로 큐레이션 레일 */}
-            <HeroStageDiv
-              data-sorimaru-stage="featured"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
-            >
+            <HeroStageDiv data-sorimaru-stage="featured">
               <SorimaruAutoSliceRail stories={storyList} storySets={heroStorySets} />
             </HeroStageDiv>
 
             {/* 섹션 2: 한 단어로, 한 장면 */}
-            <VesselReveal style={{ minHeight: '650px' }}>
-              <div style={{ marginTop: '1rem' }} data-sorimaru-stage="themes">
+            <VesselReveal style={{ minHeight: '660px', paddingBottom: '2.5rem' }}>
+              <div style={{ marginTop: '1rem', width: '100%' }} data-sorimaru-stage="themes">
                 <CenteredContainer>
                   <div style={{ paddingTop: '1rem' }}>
                     <SectionGradientTitle as="h3">
@@ -620,14 +549,20 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
             </VesselReveal>
 
             <VesselReveal style={{ minHeight: '760px', width: '100%', padding: '1.5rem 0' }}>
-              <SoundConstellationSection stories={storyList} />
+              <div style={{ width: '100%' }}>
+                <SoundConstellationSection stories={storyList} />
+              </div>
             </VesselReveal>
 
             {/* 섹션 3: 오늘, 여기에서 */}
             <VesselReveal style={{ minHeight: '440px', width: '100%', padding: '1.5rem 0' }}>
-              <section aria-labelledby="nearby-stories-heading" style={{ width: '100%' }} data-sorimaru-stage="nearby">
+              <section
+                aria-labelledby="nearby-stories-heading"
+                style={{ width: '100%' }}
+                data-sorimaru-stage="nearby"
+              >
                 <CenteredContainer>
-                  <NearbyHeader variants={titleVariants}>
+                  <NearbyHeader>
                     <div style={{ minWidth: 0 }}>
                       <SectionGradientTitle id="nearby-stories-heading">
                         오늘, 여기에서
@@ -654,83 +589,54 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                     </div>
                   </NearbyHeader>
 
-                  <motion.div variants={contentVariants} style={{ marginTop: '1.25rem' }}>
+                  <div style={{ marginTop: '1.25rem' }}>
                     <StoryCarousel stories={nearbyStories} isLoading={isNearbyLoading || isLocating} />
-                  </motion.div>
+                  </div>
                 </CenteredContainer>
               </section>
             </VesselReveal>
 
             {/* 오디오 아카이브 섹션 (통합 메인 뷰) */}
-            <VesselReveal id="sorimaru-archive" style={{ minHeight: '900px', width: '100%', padding: '2rem 0' }}>
-              <section style={{ width: '100%' }} data-sorimaru-stage="archive">
+            <VesselReveal id="sorimaru-archive" style={{ width: '100%', padding: '0.875rem 0' }}>
+              <section
+                style={{ width: '100%' }}
+                data-sorimaru-stage="archive"
+              >
                 <CenteredContainer>
-                  <motion.div variants={titleVariants} style={{ marginBottom: '1rem' }}>
+                  <div style={{ marginBottom: '0.75rem' }}>
                     <SectionGradientTitle id="archive-heading">
                       소리로 만나는 한국
                     </SectionGradientTitle>
                     <SectionDescription>
                       처마 끝 바람 소리부터 천년 고도의 숨결까지, 마음에 머무는 이야기 트랙.
                     </SectionDescription>
-                  </motion.div>
+                  </div>
 
-                  <motion.div variants={contentVariants}>
+                  <div>
                     <CategoryTagFilter />
-                  </motion.div>
-                  <SorimaruArchiveMetaBar resultCount={storyList.length} totalCount={archiveMeta.totalCount} />
+                  </div>
+                  <div>
+                    <SorimaruArchiveMetaBar resultCount={storyList.length} totalCount={archiveMeta.totalCount} />
+                  </div>
 
-                  <div style={{ position: 'relative', minHeight: 600, overflow: 'visible' }}>
+                  <div style={{ position: 'relative', overflow: 'visible' }}>
                     <SorimaruArchiveBrowse stories={storyList} isLoading={isArchiveLoading} />
                   </div>
 
-                  <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', paddingTop: '1rem' }}>
-                    <SectionSubText style={{ fontSize: fontSize.micro }}>
-                      {archiveMeta.totalCount > 0 ? `${archiveMeta.totalCount.toLocaleString()}개 중 ${archiveMeta.pageNo}페이지` : '검색 결과 없음'}
-                    </SectionSubText>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'flex-end', gap: '0.5rem' }}>
-                      <PaginationPill
-                        type="button"
-                        onClick={() => {
-                          setIsArchiveLoading(true);
-                          setArchivePage((page) => Math.max(1, page - 1));
-                        }}
-                        disabled={archivePage <= 1 || isArchiveLoading}
-                      >
-                        이전
-                      </PaginationPill>
-                      <PageIndicator>
-                        {archivePage} / {totalArchivePages}
-                      </PageIndicator>
-                      <PaginationPill
-                        type="button"
-                        onClick={() => {
-                          setIsArchiveLoading(true);
-                          setArchivePage((page) => Math.min(totalArchivePages, page + 1));
-                        }}
-                        disabled={archivePage >= totalArchivePages || isArchiveLoading}
-                      >
-                        다음
-                      </PaginationPill>
-                    </div>
+                  <div>
+                    <SorimaruPagination
+                      currentPage={archivePage}
+                      totalPages={totalArchivePages}
+                      totalCount={archiveMeta.totalCount}
+                      onPageChange={(page) => {
+                        setIsArchiveLoading(true);
+                        setArchivePage(page);
+                      }}
+                      isLoading={isArchiveLoading}
+                    />
                   </div>
-
-                  <SorimaruQuestionAssistant
-                    filters={{ category: selectedCategory, query: searchQuery }}
-                    onOpenSource={(source) => {
-                      setSelectedCategory('전체');
-                      setSearchQuery(source.title);
-                      setArchivePage(1);
-                    }}
-                  />
                 </CenteredContainer>
               </section>
-            </VesselReveal>
-
-            {/* 하단 이탈 방지 & 재방문 CTA */}
-            <VesselReveal style={{ minHeight: '220px' }}>
-              <div data-sorimaru-stage="closing">
-                <SorimaruFooterCTA />
-              </div>
             </VesselReveal>
           </MainSections>
         </ContentLayer>

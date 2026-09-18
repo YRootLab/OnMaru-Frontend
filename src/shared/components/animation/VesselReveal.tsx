@@ -74,6 +74,11 @@ export const VesselReveal: React.FC<VesselRevealProps> = ({
         : { stage: initial.stage, shouldAnimate: false }
     ));
 
+    // 새로고침 시 이미 화면에 노출되어 보호된 섹션은 옵저버를 등록할 필요 없이 bloomed 상태 고정
+    if (initial.isReloadProtected) {
+      return undefined;
+    }
+
     const observer = new IntersectionObserver((entries) => {
       const entry = entries[0];
       if (!entry) return;
@@ -92,6 +97,11 @@ export const VesselReveal: React.FC<VesselRevealProps> = ({
 
       currentStage = next.stage;
       setState({ stage: next.stage, shouldAnimate: !prefersReducedMotion });
+
+      // 한 번 bloomed(리빌)된 섹션은 다시 접히지 않으므로 관찰 종료
+      if (next.stage === 'bloomed') {
+        observer.disconnect();
+      }
     }, {
       rootMargin: `0px 0px -${(1 - exitThresholdRatio) * 100}% 0px`,
     });

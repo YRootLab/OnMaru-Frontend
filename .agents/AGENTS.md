@@ -44,6 +44,9 @@ GLB Model: `/public/anchae.glb`
 - **Left Vignette Overlay**: Integrated editorial gradient overlay (`linear-gradient(to right, rgba(14, 16, 22, 0.92) 0%, rgba(14, 16, 22, 0) 100%)`).
 - **Typography Hierarchy (타이포그래피 계층 규칙)**:
   - 모든 뷰와 컴포넌트에서 **메인 타이틀(Title)은 반드시 최상단에 위치**하며, **서브타이틀(Subtitle), 해설 설명 및 부가 메타 정보는 항상 타이틀 아래에 배치**합니다. (제목 위에 부제목/라벨을 배치하는 역전 구조 금지)
+- **Skeleton Layout Synchronization (스켈레톤 1:1 규격 동기화)**:
+  - 비동기 데이터 패치 전 표시되는 스켈레톤 UI는 실제 응답 데이터를 받아 화면에 렌더링될 때의 카드 규격(높이, 너비, 여백, 썸네일 비율, 텍스트 줄 수, 아코디언 높이 등)과 100% 동일한 기본 크기를 선점해야 합니다.
+  - 데이터 로딩 완료 시점에 컴포넌트가 축소/확장되거나 상하 레이아웃이 널뛰는 현상(Layout Shift / CLS)이 발생하지 않도록 스켈레톤과 실데이터 컴포넌트의 레이아웃 규격을 철저히 동기화합니다.
 - **Typography & Aesthetics**: High-end luxury dark mode (`#1C1A17`), gold accents (`#d4af37`), glassmorphism, 60fps smooth spring/lerp transitions.
 
 ---
