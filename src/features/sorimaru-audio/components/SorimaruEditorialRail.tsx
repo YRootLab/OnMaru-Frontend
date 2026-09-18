@@ -386,14 +386,14 @@ const NavSideButton = styled.button<{ $side: 'left' | 'right' }>`
         left: 0;
         justify-content: flex-start;
         padding-left: max(1rem, calc((100vw - min(72rem, 100vw)) / 2 + 1rem));
-        background: transparent;
+        background: linear-gradient(to right, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.4), transparent);
         &:hover {
-          background: transparent;
+          background: linear-gradient(to right, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.7), transparent);
         }
         [data-theme='dark'] & {
-          background: transparent;
+          background: linear-gradient(to right, rgba(28, 26, 23, 0.8), rgba(28, 26, 23, 0.45), transparent);
           &:hover {
-            background: transparent;
+            background: linear-gradient(to right, rgba(28, 26, 23, 0.95), rgba(28, 26, 23, 0.75), transparent);
           }
         }
       `
@@ -401,14 +401,14 @@ const NavSideButton = styled.button<{ $side: 'left' | 'right' }>`
         right: 0;
         justify-content: flex-end;
         padding-right: max(1rem, calc((100vw - min(72rem, 100vw)) / 2 + 1rem));
-        background: transparent;
+        background: linear-gradient(to left, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.4), transparent);
         &:hover {
-          background: transparent;
+          background: linear-gradient(to left, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.7), transparent);
         }
         [data-theme='dark'] & {
-          background: transparent;
+          background: linear-gradient(to left, rgba(28, 26, 23, 0.8), rgba(28, 26, 23, 0.45), transparent);
           &:hover {
-            background: transparent;
+            background: linear-gradient(to left, rgba(28, 26, 23, 0.95), rgba(28, 26, 23, 0.75), transparent);
           }
         }
       `}
