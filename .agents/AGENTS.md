@@ -42,6 +42,9 @@ GLB Model: `/public/anchae.glb`
   - `STEP 01`, `STAGE 01/07`, `Feature`, `How it works` 등의 장식용 뱃지나 번호 라벨을 절대 사용하지 않습니다.
   - 섹션과 조립 단계는 오직 **오브젝트의 3D 연속성**, **광활한 여백(Negative Space)**, **스크롤 연동 페이드인/아웃** 및 **조명의 분위기 전환**만으로 사용자가 자연스럽게 스토리를 몰입하여 인지하도록 설계합니다.
 - **Left Vignette Overlay**: Integrated editorial gradient overlay (`linear-gradient(to right, rgba(14, 16, 22, 0.92) 0%, rgba(14, 16, 22, 0) 100%)`).
+- **Skeleton Layout Synchronization (스켈레톤 1:1 규격 동기화)**:
+  - 비동기 데이터 패치 전 표시되는 스켈레톤 UI는 실제 응답 데이터를 받아 화면에 렌더링될 때의 카드 규격(높이, 너비, 여백, 썸네일 비율, 텍스트 줄 수, 아코디언 높이 등)과 100% 동일한 기본 크기를 선점해야 합니다.
+  - 데이터 로딩 완료 시점에 컴포넌트가 축소/확장되거나 상하 레이아웃이 널뛰는 현상(Layout Shift / CLS)이 발생하지 않도록 스켈레톤과 실데이터 컴포넌트의 레이아웃 규격을 철저히 동기화합니다.
 - **Typography & Aesthetics**: High-end luxury dark mode (`#1C1A17`), gold accents (`#d4af37`), glassmorphism, 60fps smooth spring/lerp transitions.
 
 ---

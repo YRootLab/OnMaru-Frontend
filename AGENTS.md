@@ -9,7 +9,8 @@
 
 ## Loading states
 
-- Skeletons must reserve the same thumbnail dimensions, title/subtitle positions, controls, and overall row/card height as the loaded UI. Loading must not cause content to shrink, grow, or jump.
+- Skeletons must reserve the exact final dimensions, thumbnail aspect ratios, title/subtitle lines, controls, padding, and overall card/container footprint as the fully-loaded UI. Skeletons must match the real response layout 1:1 so that content never shrinks, grows, shifts, or jumps (zero Layout Shift / CLS) when data arrives.
+- Skeletons and live data components must share synchronized dimension tokens and container heights to prevent downstream layout shifts and scroll reveal triggers from misfiring.
 - Use neutral gray skeleton colors and a restrained shimmer. Avoid warm/yellow skeleton fills.
 
 ## Scroll reveal transitions

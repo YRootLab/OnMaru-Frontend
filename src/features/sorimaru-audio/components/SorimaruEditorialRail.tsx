@@ -83,13 +83,7 @@ const durationFor = (story: SorimaruStoryItem) =>
   story.formattedDuration ||
   `${Math.floor((Number(story.playTime) || 0) / 60)}:${String((Number(story.playTime) || 0) % 60).padStart(2, '0')}`;
 
-const carouselEdgeFade = (direction: 'left' | 'right', mode: 'light' | 'dark') => {
-  if (mode === 'dark') {
-    return `linear-gradient(to ${direction}, rgba(28, 26, 23, 0.78), rgba(28, 26, 23, 0.52), transparent)`;
-  }
 
-  return `linear-gradient(to ${direction}, rgba(253, 253, 252, 0.76), rgba(253, 253, 252, 0.5), transparent)`;
-};
 
 const CardMotionButton = styled(motion.button)<{ $isActive: boolean }>`
   position: relative;
@@ -165,51 +159,24 @@ const CarouselStageWrapper = styled.div`
   position: relative;
   isolation: isolate;
   margin-top: 0;
-  margin-left: calc(50% - 50vw);
-  width: 100vw;
-  height: 410px;
-  overflow: visible;
+  width: 100%;
+  height: 380px;
+  overflow: hidden;
   background-color: transparent;
   padding-top: 0.5rem;
-  padding-bottom: 1.75rem;
+  padding-bottom: 0.5rem;
   border-radius: 1.25rem;
   transition: background-color 0.3s ease;
 
+  @media (min-width: 640px) {
+    height: 430px;
+  }
+  @media (min-width: 1024px) {
+    height: 460px;
+  }
+
   [data-theme='dark'] & {
     background-color: ${surface.dark.surface};
-  }
-
-`;
-
-const CarouselEdgeFade = styled.div<{ $side: 'left' | 'right' }>`
-  pointer-events: none;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  z-index: 35;
-
-  ${({ $side }) =>
-    $side === 'left'
-      ? `
-        left: 0;
-        width: 3rem;
-        background: ${carouselEdgeFade('right', 'light')};
-      `
-      : `
-        right: 0;
-        width: 1.5rem;
-        background: ${carouselEdgeFade('left', 'light')};
-      `}
-
-  [data-theme='dark'] & {
-    ${({ $side }) =>
-      $side === 'left'
-        ? `background: ${carouselEdgeFade('right', 'dark')};`
-        : `background: ${carouselEdgeFade('left', 'dark')};`}
-  }
-
-  @media (min-width: 640px) {
-    ${({ $side }) => ($side === 'left' ? 'width: 4rem;' : 'width: 2.25rem;')}
   }
 `;
 
@@ -374,42 +341,36 @@ const NavSideButton = styled.button<{ $side: 'left' | 'right' }>`
   bottom: 0;
   z-index: 40;
   display: flex;
-  width: max(8rem, calc((100vw - min(72rem, 100vw)) / 2 + 7rem));
+  width: 3.5rem;
   cursor: pointer;
   align-items: center;
   border: none;
+  background: transparent;
   transition: all 0.2s ease;
+
+  @media (min-width: 640px) {
+    width: 4.5rem;
+  }
+  @media (min-width: 1024px) {
+    width: 5.5rem;
+  }
 
   ${({ $side }) =>
     $side === 'left'
       ? `
         left: 0;
         justify-content: flex-start;
-        padding-left: max(1rem, calc((100vw - min(72rem, 100vw)) / 2 + 1rem));
-        background: linear-gradient(to right, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.4), transparent);
-        &:hover {
-          background: linear-gradient(to right, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.7), transparent);
-        }
-        [data-theme='dark'] & {
-          background: linear-gradient(to right, rgba(28, 26, 23, 0.8), rgba(28, 26, 23, 0.45), transparent);
-          &:hover {
-            background: linear-gradient(to right, rgba(28, 26, 23, 0.95), rgba(28, 26, 23, 0.75), transparent);
-          }
+        padding-left: 0.5rem;
+        @media (min-width: 640px) {
+          padding-left: 0.75rem;
         }
       `
       : `
         right: 0;
         justify-content: flex-end;
-        padding-right: max(1rem, calc((100vw - min(72rem, 100vw)) / 2 + 1rem));
-        background: linear-gradient(to left, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.4), transparent);
-        &:hover {
-          background: linear-gradient(to left, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.7), transparent);
-        }
-        [data-theme='dark'] & {
-          background: linear-gradient(to left, rgba(28, 26, 23, 0.8), rgba(28, 26, 23, 0.45), transparent);
-          &:hover {
-            background: linear-gradient(to left, rgba(28, 26, 23, 0.95), rgba(28, 26, 23, 0.75), transparent);
-          }
+        padding-right: 0.5rem;
+        @media (min-width: 640px) {
+          padding-right: 0.75rem;
         }
       `}
 
@@ -424,20 +385,24 @@ const NavSideButton = styled.button<{ $side: 'left' | 'right' }>`
     align-items: center;
     justify-content: center;
     border-radius: 0.75rem;
-    background-color: rgba(255, 255, 255, 0.4);
+    background-color: rgba(255, 255, 255, 0.75);
     color: ${meok[900]};
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.6);
     transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
 
     [data-theme='dark'] & {
       background-color: rgba(45, 41, 36, 0.85);
       color: ${meok[200]};
       border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
     }
   }
 
   &:hover span.icon-box {
-    transform: scale(1.15);
+    transform: scale(1.1);
     background-color: #ffffff;
     color: ${palette.jangmi[400]};
 
@@ -868,8 +833,7 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
           marginRight: 'auto',
           width: '100%',
           maxWidth: 'none',
-          overflow: 'hidden',
-          padding: '0.75rem 0',
+          padding: '0.75rem 0 1.5rem',
         }}
       >
         <div style={{ width: '100%', padding: 0 }}>
@@ -898,9 +862,6 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
             </div>
 
             <CarouselStageWrapper>
-              <CarouselEdgeFade $side="left" />
-              <CarouselEdgeFade $side="right" />
-
               {/* 좌측 탐색 버튼 */}
               <NavSideButton
                 type="button"
@@ -933,42 +894,54 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
                 <div
                   style={{
                     position: 'absolute',
-                    left: '50%',
-                    top: '1.75rem',
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    transform: `translate3d(${-trackMetrics.cardStep * activePosition}px, 0, 0)`,
-                    transition: trackTransitionEnabled
-                      ? 'transform 480ms cubic-bezier(0.16, 1, 0.3, 1)'
-                      : 'none',
-                    willChange: 'transform',
+                    inset: 0,
+                    overflow: 'hidden',
+                    maskImage: 'linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)',
+                    WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)',
+                    pointerEvents: 'none',
                   }}
-                  onTransitionEnd={handleTrackTransitionEnd}
                 >
-                  {visibleVirtualPositions.map(({ pos, story: cardStory }) => (
-                    <div
-                      key={pos}
-                      style={{
-                        position: 'absolute',
-                        left: `${pos * trackMetrics.cardStep - trackMetrics.cardWidth / 2}px`,
-                        top: 0,
-                      }}
-                    >
-                      <EditorialRailCard
-                        story={cardStory}
-                        position={pos}
-                        offset={pos - activePosition}
-                        trackTransitionEnabled={trackTransitionEnabled}
-                        onInteractRef={cardInteractionRef}
-                      />
-                    </div>
-                  ))}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      left: '50%',
+                      top: '1.75rem',
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      transform: `translate3d(${-trackMetrics.cardStep * activePosition}px, 0, 0)`,
+                      transition: trackTransitionEnabled
+                        ? 'transform 480ms cubic-bezier(0.16, 1, 0.3, 1)'
+                        : 'none',
+                      willChange: 'transform',
+                      pointerEvents: 'auto',
+                    }}
+                    onTransitionEnd={handleTrackTransitionEnd}
+                  >
+                    {visibleVirtualPositions.map(({ pos, story: cardStory }) => (
+                      <div
+                        key={pos}
+                        style={{
+                          position: 'absolute',
+                          left: `${pos * trackMetrics.cardStep - trackMetrics.cardWidth / 2}px`,
+                          top: 0,
+                        }}
+                      >
+                        <EditorialRailCard
+                          story={cardStory}
+                          position={pos}
+                          offset={pos - activePosition}
+                          trackTransitionEnabled={trackTransitionEnabled}
+                          onInteractRef={cardInteractionRef}
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </CarouselStageWrapper>
 
             {/* 하단 인디케이터 바 */}
-            <div style={{ position: 'relative', zIndex: 30, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: '1rem' }}>
+            <div style={{ position: 'relative', zIndex: 30, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: '1.25rem', paddingBottom: '0.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 {featured.map((storyItem, index) => (
                   <IndicatorDot

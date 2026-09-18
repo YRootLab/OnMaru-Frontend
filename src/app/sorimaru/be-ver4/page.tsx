@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { SorimaruAudioFeature } from '@/features/sorimaru-audio/components/SorimaruAudioFeature';
 
@@ -7,5 +8,9 @@ export const metadata: Metadata = {
 };
 
 export default function SorimaruBackgroundVersionFourPage() {
-  return <SorimaruAudioFeature backgroundVariant="onmaru-signature" />;
+  return (
+    <Suspense fallback={null}>
+      <SorimaruAudioFeature backgroundVariant="onmaru-signature" />
+    </Suspense>
+  );
 }

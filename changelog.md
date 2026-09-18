@@ -4,7 +4,11 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
-- Adjusted the leading and trailing linear gradient mask width on the Hanok Archive Polaroid carousel (`HanokPolaroidClothesline.tsx`) to 2.9% for a slimmer edge fade that maximizes photo visibility.
+- Enforced one-shot scroll reveal rules and reload protection across page sections via `VesselReveal`: sections entering from below bloom once (`0.96 -> 1.0`), stay bloomed when scrolling back upward without folding or replaying, render immediately in final state on page reload without layout shift, and disconnect observers upon reveal for zero CPU overhead.
+- Documented scroll reveal rules and state machine in `src/shared/components/animation/README.md` and added unit test coverage in `vesselRevealState.test.ts`.
+- Removed redundant inner component slide-up animations inside Sorimaru sections (`SorimaruAudioFeature.tsx`) to prevent double entrance animations with `VesselReveal`, while preserving self-contained staggered reveal on the interactive map constellation (`SoundConstellationSection.tsx`).
+- Replaced liquid spring morphing (`layoutId`) across GNB and mobile bottom tabs (`Header.tsx`, `GlobalMobileTabs.tsx`) with a refined, solid glassmorphic capsule active indicator.
+- Polished Sorimaru editorial rail and indicator bar padding to eliminate clipping and background box mismatches using pure alpha gradient masks.
 - Restored the leading and trailing `linear-gradient` overlays on the Sorimaru Section 2 editorial rail (`SorimaruEditorialRail.tsx`) navigation buttons for both light and dark modes.
 - Added restrained reading-flow motion to Hanok data and history: one-shot growing distribution bars, synchronized count-up values, and centered paragraph focus inside the detail modal.
 - Reserved the responsive “이달의 픽” footprint during hydration so the following Hanok distribution chart no longer appears briefly and shifts out of view.

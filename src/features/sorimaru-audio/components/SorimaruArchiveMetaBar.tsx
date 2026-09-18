@@ -23,10 +23,10 @@ const labelFor = (keyword: string) => {
 };
 
 const BarWrapper = styled.div`
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.55rem;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.6rem;
   padding: 0.25rem 0;
 
   @media (min-width: 640px) {
@@ -40,7 +40,7 @@ const MetaInfoGroup = styled.div`
   display: flex;
   min-width: 0;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
   font-size: 0.75rem;
 `;
 
@@ -49,7 +49,8 @@ const FilterChip = styled.span`
   align-items: center;
   border-radius: 9999px;
   background-color: rgba(33, 30, 25, 0.05);
-  padding: 0.25rem 0.625rem;
+  padding: 0.18rem 0.5rem;
+  font-size: 11px;
   font-weight: 700;
   color: ${meok[900]};
 
@@ -63,28 +64,31 @@ const SearchForm = styled.form`
   display: flex;
   min-width: 0;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
 
   @media (min-width: 640px) {
-    width: 18rem;
+    width: 17rem;
   }
 `;
 
 const InputWrapper = styled.div`
   position: relative;
   display: flex;
-  height: 2.5rem;
+  height: 2.125rem;
   min-width: 0;
   flex: 1;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.375rem;
   border-radius: 9999px;
   background-color: #f5f5f4;
-  padding: 0 1rem;
-  transition: background-color 0.2s ease;
+  border: 1px solid transparent;
+  padding: 0 0.75rem;
+  transition: all 0.2s ease;
 
   &:focus-within {
-    background-color: #FFF0F6;
+    background-color: #ffffff;
+    border-color: rgba(212, 175, 55, 0.6);
+    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.12);
   }
 
   [data-theme='dark'] & {
@@ -93,7 +97,8 @@ const InputWrapper = styled.div`
 
     &:focus-within {
       background-color: ${surface.dark.elevated};
-      border-color: ${palette.jangmi[500]};
+      border-color: #d4af37;
+      box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
     }
   }
 `;
@@ -126,7 +131,7 @@ const ClearBtn = styled.button`
   flex-shrink: 0;
   place-items: center;
   border-radius: 9999px;
-  padding: 0.25rem;
+  padding: 0.2rem;
   color: ${meok[500]};
   background: none;
   border: none;
@@ -149,11 +154,11 @@ const ClearBtn = styled.button`
 `;
 
 const SubmitBtn = styled.button`
-  height: 2.5rem;
+  height: 2.125rem;
   flex-shrink: 0;
   border-radius: 9999px;
   background-color: #211e19;
-  padding: 0 1rem;
+  padding: 0 0.875rem;
   font-size: 0.75rem;
   font-weight: 700;
   color: #ffffff;
