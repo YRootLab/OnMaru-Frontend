@@ -300,9 +300,14 @@ function FramedCamera({ position, target, fov, near, far, orbit }) {
 const SHOW_HANOK = true;
 
 /**
- * 고정 캔버스가 차오르는 구간 — Beat1이 끝나갈 즈음(0.06~0.12)부터 부드럽게 밝아진다.
+ * 고정 캔버스가 차오르는 구간.
+ *
+ * Hero 퇴장(EXIT_START~RANGE_END, 0.06~0.10)과 끝점을 맞춰야 한다 — 예전엔 0.12까지
+ * 서서히 밝아지다가 0.10에서 강제로 1.0을 못박아 그 사이에서 밝기가 한 프레임에
+ * 튀었다(옅게 보이던 한옥이 갑자기 또렷해지는 "띄용"). 끝점을 0.10으로 맞추면
+ * 자연히 0.10 이후는 1.0으로 꺾여 별도 분기가 필요 없다.
  */
-const CANVAS_FADE_IN = [0.06, 0.12];
+const CANVAS_FADE_IN = [0.06, 0.10];
 
 /**
  * 그림자 맵 해상도. 처마선과 문살 격자가 선으로 읽혀야 하므로 높게 잡는다.
@@ -522,8 +527,8 @@ const ASSEMBLY_LIGHT = { key: 3.4, rim: 1.6, ambient: 1.6 };
  * 이 함수가 무슨 값을 내든 결과가 같았다. Beat5 퇴장에서 조명이 안 꺼진 것도 그 탓이다.
  */
 function getStage(progress, assembling, orbit) {
-  // 한옥 등장 — Beat1(0.00~0.12) 진입 이후 3D 한옥 캔버스 opacity를 1.0으로 완전히 명확하고 또렷하게 보장
-  const enter = progress >= 0.10 ? 1.0 : progressIn(progress, CANVAS_FADE_IN[0], CANVAS_FADE_IN[1]);
+  // 한옥 등장 — progressIn이 이미 [0,1]로 잘라주므로 0.10 이후는 저절로 1.0에 붙는다
+  const enter = progressIn(progress, CANVAS_FADE_IN[0], CANVAS_FADE_IN[1]);
 
   const exit = easeInOutCubic(progressIn(progress, BEAT5_START, BEAT5_EXIT_END));
 

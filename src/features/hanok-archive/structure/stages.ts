@@ -118,7 +118,7 @@ export const STAGES: HanokStageData[] = [
     nameKo: '창호',
     nameEn: 'Windows and Doors',
     shortTag: '06. 창호',
-    color: darkPalette.kobalt[400],
+    color: darkPalette.juhong[400],
     desc: '**채광과 환기를 담당하는 창(窓)**과 사람의 출입을 위한 지게문(戶)을 아우르는 건축 요소입니다. 띠살창, 정자살창 등 섬세한 살짜임새를 통해 한옥 특유의 조형미를 보여주며, 여닫이와 미닫이, 들어열개 등 공간에 맞춘 다채로운 개폐 방식을 지원합니다. 계절의 변화에 맞춰 공간을 개방하거나 닫아 자연과의 경계를 조율합니다.',
     detail: '',
     meshKeywords: ['Door', 'Win', 'Joo'],

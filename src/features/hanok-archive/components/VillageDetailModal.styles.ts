@@ -466,40 +466,6 @@ export const SkeletonLine = styled.div`
   }
 `;
 
-export const BadgeTitle = styled.div`
-  font-size: ${fontSize.xs};
-  font-weight: 500;
-  color: ${meok[500]};
-  margin-bottom: 8px;
-
-  [data-theme='dark'] & {
-    color: ${meok[400]};
-  }
-`;
-
-export const BadgeList = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 24px;
-`;
-
-export const TagBadge = styled.span`
-  font-size: ${fontSize.xs};
-  font-weight: 500;
-  color: ${palette.cheongrok[700]};
-  background: ${palette.cheongrok[50]};
-  padding: 4px 11px;
-  border-radius: 9999px;
-  border: none;
-  box-shadow: none;
-
-  [data-theme='dark'] & {
-    color: ${palette.cheongrok[400]};
-    background: rgba(0, 196, 113, 0.15);
-  }
-`;
-
 export const ActionRow = styled.div`
   display: flex;
   gap: 12px;

@@ -156,12 +156,13 @@ function Particles({ opacity, reduced }) {
 // - 봄 (Spring): surface.light.base ↔ jangmi[50] / juhong[50]
 // - 여름 (Summer): surface.light.base ↔ hwanggeum[50]
 // - 가을 (Autumn): surface.light.base ↔ hwanggeum[100]
-// - 겨울 (Winter): surface.light.base ↔ kobalt[50]
+// - 겨울 (Winter): surface.light.base ↔ juhong[200]/juhong[300] — 파랑(kobalt) 대신
+//   같은 주황 계열을 더 짙게 써서 브랜드 컬러를 흐트러뜨리지 않는다 (LandingSolarShadow와 동일한 이유)
 const SEASON_BG_COLORS = {
   spring: { top: '#FAFAFA', mid: '#FFF0F4', bot: '#FFF0E6' },
   summer: { top: '#FAFAFA', mid: '#FFF8E0', bot: '#FFF3D0' },
   autumn: { top: '#FAFAFA', mid: '#FFE898', bot: '#FFDF80' },
-  winter: { top: '#FAFAFA', mid: '#EEF3FF', bot: '#DCE8FF' },
+  winter: { top: '#FAFAFA', mid: '#FFCBA8', bot: '#FFA36B' },
 };
 
 export default function GlobalBackground({ progress }) {
@@ -245,13 +246,13 @@ export default function GlobalBackground({ progress }) {
 
 
 
-      {/* z1.5 — 온마루 표면 컬러(surface.light.base)와 계절 액센트 subtle 톤(juhong[50], hwanggeum[50], kobalt[50], jangmi[50])이 은은하게 섞이는 Mesh/Radial Gradient */}
+      {/* z1.5 — 온마루 표면 컬러(surface.light.base)와 계절 액센트 subtle 톤(juhong[50], hwanggeum[50], juhong[200], jangmi[50])이 은은하게 섞이는 Mesh/Radial Gradient */}
       <div
         style={{
           ...fill,
           zIndex: 1.5,
           background: `
-            radial-gradient(ellipse 85% 70% at 50% 22%, ${lightPalette.juhong[50]}90 0%, ${lightPalette.hwanggeum[50]}66 35%, ${lightPalette.kobalt[50]}40 70%, transparent 95%),
+            radial-gradient(ellipse 85% 70% at 50% 22%, ${lightPalette.juhong[50]}90 0%, ${lightPalette.hwanggeum[50]}66 35%, ${lightPalette.juhong[200]}40 70%, transparent 95%),
             radial-gradient(circle at 80% 18%, ${lightPalette.jangmi[50]}70 0%, transparent 45%),
             linear-gradient(180deg, ${surface.light.base}66 0%, transparent 65%)
           `,

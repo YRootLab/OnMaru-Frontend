@@ -56,21 +56,21 @@ const ActionLink = styled.a`
   gap: 4px;
   font-size: ${fontSize.xs};
   font-weight: 500;
-  color: ${lightPalette.kobalt[500]};
+  color: ${lightPalette.juhong[500]};
   text-decoration: none;
   white-space: nowrap;
   flex-shrink: 0;
   transition: color 0.18s ease;
 
   &:hover {
-    color: ${lightPalette.kobalt[700]};
+    color: ${lightPalette.juhong[700]};
   }
 
   [data-theme='dark'] & {
-    color: ${lightPalette.kobalt[400]};
+    color: ${lightPalette.juhong[400]};
 
     &:hover {
-      color: ${lightPalette.kobalt[200]};
+      color: ${lightPalette.juhong[200]};
     }
   }
 `;

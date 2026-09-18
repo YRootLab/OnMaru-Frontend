@@ -19,6 +19,8 @@ export interface VesselRevealProps {
   scaleFrom?: number;
   /** 진입 초기 라운드 캡슐 곡률 (기본값: '2.2rem') */
   roundedFrom?: string;
+  /** 진입 초기 블러 강도 (기본값: '8px' — bloom과 함께 0으로 풀린다) */
+  blurFrom?: string;
   /** 하단 캡슐 모핑 트리거 뷰포트 비율 (기본값: 0.67 = 화면 하단 33% 영역 진입 시 선제적 언폴딩/폴딩) */
   exitThresholdRatio?: number;
   /** 애니메이션 지속 시간 (기본값: 0.75s) */
@@ -39,6 +41,7 @@ export const VesselReveal: React.FC<VesselRevealProps> = ({
   id,
   scaleFrom = 0.92,
   roundedFrom = '2.2rem',
+  blurFrom = '8px',
   exitThresholdRatio = 0.67,
   duration = 0.75,
   style,
@@ -123,6 +126,7 @@ export const VesselReveal: React.FC<VesselRevealProps> = ({
         scale: isBloomed ? 1 : scaleFrom,
         y: isBloomed ? 0 : 6,
         opacity: isBloomed ? 1 : 0.88,
+        filter: isBloomed ? 'blur(0px)' : `blur(${blurFrom})`,
       }}
       style={{
         borderStyle: 'solid',

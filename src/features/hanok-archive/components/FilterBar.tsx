@@ -69,7 +69,7 @@ const SearchBox = styled.div`
   color: ${meok[500]};
 
   &:focus-within {
-    border-color: ${palette.kobalt[500]};
+    border-color: ${palette.juhong[500]};
   }
 
   [data-theme='dark'] & {
@@ -141,7 +141,7 @@ const RegionSelect = styled.select`
   cursor: pointer;
 
   &:focus-visible {
-    outline: 2px solid ${palette.kobalt[500]};
+    outline: 2px solid ${palette.juhong[500]};
     outline-offset: 1px;
   }
 
@@ -196,7 +196,7 @@ const Segment = styled.button<{ $active: boolean }>`
   user-select: none;
 
   &:hover {
-    color: ${({ $active }) => ($active ? '#ffffff' : palette.kobalt[700])};
+    color: ${({ $active }) => ($active ? '#ffffff' : palette.juhong[700])};
   }
 
   [data-theme='dark'] & {
@@ -207,7 +207,7 @@ const Segment = styled.button<{ $active: boolean }>`
 const SegmentPill = styled(motion.div)`
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, ${palette.kobalt[500]} 0%, ${palette.kobalt[700]} 100%);
+  background: linear-gradient(135deg, ${palette.juhong[500]} 0%, ${palette.juhong[700]} 100%);
   border-radius: 9999px;
   z-index: 0;
 `;
@@ -263,7 +263,7 @@ const BadgeCount = styled.span`
   opacity: 0.6;
 `;
 
-function getBadgeVariant(badge: string): 'cheongrok' | 'hwanggeum' | 'jaha' | 'kobalt' {
+function getBadgeVariant(badge: string): 'cheongrok' | 'hwanggeum' | 'jaha' | 'juhong' {
   if (badge.includes('스테이') || badge.includes('체험') || badge.includes('정원') || badge.includes('쉼')) {
     return 'cheongrok';
   }
@@ -273,16 +273,16 @@ function getBadgeVariant(badge: string): 'cheongrok' | 'hwanggeum' | 'jaha' | 'k
   if (badge.includes('선비') || badge.includes('서원') || badge.includes('종택') || badge.includes('고택')) {
     return 'jaha';
   }
-  return 'kobalt';
+  return 'juhong';
 }
 
-const BadgeChip = styled.button<{ $active: boolean; $variant?: 'cheongrok' | 'hwanggeum' | 'jaha' | 'kobalt' }>`
+const BadgeChip = styled.button<{ $active: boolean; $variant?: 'cheongrok' | 'hwanggeum' | 'jaha' | 'juhong' }>`
   background: ${({ $active, $variant }) => {
     if (!$active) return '#ffffff';
     if ($variant === 'cheongrok') return `linear-gradient(135deg, ${palette.cheongrok[500]} 0%, ${palette.cheongrok[700]} 100%)`;
     if ($variant === 'hwanggeum') return `linear-gradient(135deg, ${palette.hwanggeum[500]} 0%, ${palette.hwanggeum[700]} 100%)`;
     if ($variant === 'jaha') return `linear-gradient(135deg, ${palette.jaha[500]} 0%, ${palette.jaha[700]} 100%)`;
-    return `linear-gradient(135deg, ${palette.kobalt[500]} 0%, ${palette.kobalt[700]} 100%)`;
+    return `linear-gradient(135deg, ${palette.juhong[500]} 0%, ${palette.juhong[700]} 100%)`;
   }};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
   font-size: ${fontSize.xs};
@@ -305,7 +305,7 @@ const BadgeChip = styled.button<{ $active: boolean; $variant?: 'cheongrok' | 'hw
       if ($variant === 'cheongrok') return palette.cheongrok[700];
       if ($variant === 'hwanggeum') return palette.hwanggeum[700];
       if ($variant === 'jaha') return palette.jaha[700];
-      return palette.kobalt[700];
+      return palette.juhong[700];
     }};
     color: ${({ $active }) => ($active ? '#ffffff' : meok[200])};
   }

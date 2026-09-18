@@ -62,7 +62,7 @@ function generateTags(title: string, region: string, mediaType: 'drama' | 'movie
   } else {
     tags.push('#드라마촬영지', '#사극로케이션', '#K드라마');
   }
-  tags.push('#전통한옥', '#TourAPI실시간');
+  tags.push('#전통한옥');
   return tags;
 }
 
@@ -147,6 +147,10 @@ export async function GET(request: Request) {
 
     // 4. 고화질 사진이 있는 명소를 우선 정렬 (에디토리얼 비주얼 극대화)
     filteredItems.sort((a, b) => (b.image ? 1 : 0) - (a.image ? 1 : 0));
+
+    // 5. 큐레이션 카드 섹션이라 전수 나열하지 않고 상위 일부만 내려준다 (미디어 타입당 4개 안팎)
+    const CURATED_LIMIT = 12;
+    filteredItems = filteredItems.slice(0, CURATED_LIMIT);
 
     return NextResponse.json({
       items: filteredItems,

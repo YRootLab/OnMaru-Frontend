@@ -11,6 +11,75 @@ const GAP = 32;
 const BASE_Y = 16; // U자 곡선 양 끝의 기본 Y 높이
 const MAX_SAG = 26; // U자 곡선의 중앙 최대 처짐 깊이
 
+// 널리 알려진 곳(뱃지 보유)과 처음 듣는 곳(뱃지 없음)을 섞어 보여준다 — 전부 유명한 곳만
+// 나오면 "새로 알게 됐다"는 감흥이 없다. 9장 중 3장만 유명한 곳으로 남긴다.
+const TOTAL_PICKS = 9;
+const FAMOUS_SHARE = 3;
+
+// 카드가 늘어난 만큼 줄도 길어지므로, 한 바퀴 도는 시간을 늘려 체감 속도(px/s)를 그대로 둔다.
+// 기존 5장 · 36초 기준값이 곧 그 속도다.
+const REFERENCE_PICKS = 5;
+const REFERENCE_DURATION_S = 36;
+const PX_PER_SEC =
+  (REFERENCE_PICKS * CARD_WIDTH + (REFERENCE_PICKS - 1) * GAP) / REFERENCE_DURATION_S;
+
+/** 같은 지역이 연달아 나오지 않도록 지역별로 한 장씩 돌아가며 뽑는다. */
+function pickRoundRobinByRegion(pool: Village[], count: number): Village[] {
+  const byRegion = new Map<string, Village[]>();
+  for (const village of pool) {
+    const list = byRegion.get(village.region);
+    if (list) list.push(village);
+    else byRegion.set(village.region, [village]);
+  }
+
+  const queues = Array.from(byRegion.values());
+  const picked: Village[] = [];
+
+  for (let round = 0; picked.length < count && queues.some((q) => q[round]); round += 1) {
+    for (const queue of queues) {
+      if (picked.length >= count) break;
+      if (queue[round]) picked.push(queue[round]);
+    }
+  }
+
+  return picked;
+}
+
+/** 유명한 곳(뱃지 보유)과 처음 듣는 곳을 정해진 비율로 섞어, 한 덩어리로 뭉치지 않게 배치한다. */
+function pickCuratedVillages(villages: Village[]): Village[] {
+  const withImage = villages.filter((v) => v.hasImage);
+  const total = Math.min(TOTAL_PICKS, withImage.length);
+  const famousCount = Math.min(FAMOUS_SHARE, Math.round((total * FAMOUS_SHARE) / TOTAL_PICKS));
+
+  const famousPool = withImage.filter((v) => v.badges.length > 0);
+  const hiddenPool = withImage.filter((v) => v.badges.length === 0);
+
+  const famousPicks = pickRoundRobinByRegion(famousPool, famousCount);
+  const hiddenPicks = pickRoundRobinByRegion(hiddenPool, total - famousPicks.length);
+
+  const picks: Village[] = [];
+  let famousIdx = 0;
+  let hiddenIdx = 0;
+
+  for (let i = 0; i < total; i += 1) {
+    // 매 세 번째 자리마다 유명한 곳을 하나씩 끼워 넣는다.
+    const takeFamous = i % 3 === 2 && famousIdx < famousPicks.length;
+
+    if (takeFamous) {
+      picks.push(famousPicks[famousIdx]);
+      famousIdx += 1;
+    } else if (hiddenIdx < hiddenPicks.length) {
+      picks.push(hiddenPicks[hiddenIdx]);
+      hiddenIdx += 1;
+    } else if (famousIdx < famousPicks.length) {
+      picks.push(famousPicks[famousIdx]);
+      famousIdx += 1;
+    }
+  }
+
+  return picks;
+}
+
 // 빨랫줄 전체가 옆으로 천천히, 끊김 없이 흘러가듯 넘어간다.
 // 양쪽 끝은 마스크로 흐릿하게 사라지도록 처리해 갑자기 잘리는 느낌을 없앤다.
 const LineWrapper = styled.div`
@@ -28,10 +97,10 @@ const slide = keyframes`
 
 // 사진 세트를 두 벌 이어 붙여 자연스럽게 루프한다. 마우스를 올리면
 // 클릭하기 쉽도록 멈춘다.
-const Track = styled.div`
+const Track = styled.div<{ $durationSec: number }>`
   display: flex;
   width: max-content;
-  animation: ${slide} 36s linear infinite;
+  animation: ${slide} ${({ $durationSec }) => $durationSec}s linear infinite;
 
   &:hover {
     animation-play-state: paused;
@@ -177,11 +246,11 @@ interface HanokPolaroidClotheslineProps {
 }
 
 export default function HanokPolaroidClothesline({ villages, onSelectVillage }: HanokPolaroidClotheslineProps) {
-  const picks = useMemo(() => villages.filter((v) => v.hasImage).slice(0, 5), [villages]);
+  const picks = useMemo(() => pickCuratedVillages(villages), [villages]);
 
-  const { unitWidth, cardLayouts, svgPath } = useMemo(() => {
+  const { unitWidth, cardLayouts, svgPath, durationSec } = useMemo(() => {
     const count = picks.length;
-    if (count === 0) return { unitWidth: 0, cardLayouts: [], svgPath: '' };
+    if (count === 0) return { unitWidth: 0, cardLayouts: [], svgPath: '', durationSec: REFERENCE_DURATION_S };
 
     const totalW = count * CARD_WIDTH + (count - 1) * GAP;
 
@@ -209,7 +278,7 @@ export default function HanokPolaroidClothesline({ villages, onSelectVillage }: 
       };
     });
 
-    return { unitWidth: totalW, cardLayouts: layouts, svgPath: path };
+    return { unitWidth: totalW, cardLayouts: layouts, svgPath: path, durationSec: totalW / PX_PER_SEC };
   }, [picks]);
 
   if (picks.length === 0) return null;
@@ -217,7 +286,7 @@ export default function HanokPolaroidClothesline({ villages, onSelectVillage }: 
   return (
     <section aria-label="사진으로 먼저 만나는 이달의 한옥들">
       <LineWrapper>
-        <Track>
+        <Track $durationSec={durationSec}>
           {[0, 1].map((copy) => (
             <Unit key={copy} $width={unitWidth} aria-hidden={copy === 1 || undefined}>
               <SvgRope viewBox={`0 0 ${unitWidth} 90`} preserveAspectRatio="none" aria-hidden="true">

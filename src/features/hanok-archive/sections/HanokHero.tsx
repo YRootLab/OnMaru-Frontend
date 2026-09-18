@@ -67,7 +67,7 @@ const EyebrowBadge = styled.div`
   width: fit-content;
 
   span.stamp {
-    color: ${lightPalette.kobalt[200]};
+    color: ${lightPalette.juhong[200]};
   }
 `;
 
@@ -113,7 +113,7 @@ const Dot = styled.button<{ $active: boolean }>`
   height: 8px;
   border-radius: 9999px;
   background: ${({ $active }) =>
-    $active ? lightPalette.kobalt[400] : 'rgba(255, 255, 255, 0.35)'};
+    $active ? lightPalette.juhong[400] : 'rgba(255, 255, 255, 0.35)'};
 
   cursor: pointer;
   transition: all 0.3s ease;
@@ -134,8 +134,8 @@ const DetailBtn = styled.button`
   transition: transform 0.18s ease, background 0.18s ease;
 
   &:hover {
-    background: ${lightPalette.kobalt[50]};
-    color: ${lightPalette.kobalt[700]};
+    background: ${lightPalette.juhong[50]};
+    color: ${lightPalette.juhong[700]};
     transform: translateY(-2px);
   }
 `;

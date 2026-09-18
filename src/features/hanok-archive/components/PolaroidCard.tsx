@@ -45,7 +45,7 @@ const PhotoArea = styled.div`
   width: 100%;
   padding-top: 100%;
   overflow: hidden;
-  background: ${lightPalette.kobalt[50]};
+  background: ${lightPalette.juhong[50]};
 `;
 
 const Photo = styled(motion.div, transientProps)<{ $bg: string | null }>`
@@ -65,7 +65,7 @@ const shimmer = keyframes`
 const PhotoSkeleton = styled.div`
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, ${lightPalette.kobalt[50]} 25%, #eef1f6 50%, ${lightPalette.kobalt[50]} 75%);
+  background: linear-gradient(90deg, ${lightPalette.juhong[50]} 25%, #fff8f0 50%, ${lightPalette.juhong[50]} 75%);
   background-size: 800px 100%;
   animation: ${shimmer} 1.4s ease-in-out infinite;
 
@@ -171,13 +171,13 @@ const OutsideBadges = styled.div`
     font-family: var(--font-hanok);
     font-size: ${fontSize.xs};
     font-weight: 500;
-    color: ${lightPalette.kobalt[500]};
+    color: ${lightPalette.juhong[500]};
     background: rgba(78, 89, 104, 0.06);
     padding: 3px 10px;
     border-radius: 9999px;
 
     [data-theme='dark'] & {
-      color: ${lightPalette.kobalt[400]};
+      color: ${lightPalette.juhong[400]};
       background: rgba(255, 255, 255, 0.08);
     }
   }
@@ -195,7 +195,7 @@ const DetailButton = styled.div`
   transition: color 0.2s ease, transform 0.2s ease;
 
   .polaroid-card:hover & {
-    color: ${lightPalette.kobalt[500]};
+    color: ${lightPalette.juhong[500]};
     transform: translateX(3px);
   }
 

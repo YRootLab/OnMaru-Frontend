@@ -45,7 +45,7 @@ const InlineIcon = styled.span`
   height: clamp(34px, 4.2vw, 48px);
   border-radius: 50%;
   background: rgba(78, 89, 104, 0.06);
-  color: ${lightPalette.kobalt[500]};
+  color: ${lightPalette.juhong[500]};
   margin: 0 6px;
   vertical-align: middle;
   transition: transform 0.2s ease, background-color 0.2s ease;
@@ -53,7 +53,7 @@ const InlineIcon = styled.span`
   &:hover {
     transform: scale(1.15) rotate(6deg);
     background: #ffffff;
-    border-color: ${lightPalette.kobalt[400]};
+    border-color: ${lightPalette.juhong[400]};
   }
 
   svg {
@@ -71,11 +71,11 @@ const InlineIcon = styled.span`
 `;
 
 const HighlightText = styled.span`
-  color: ${lightPalette.kobalt[500]};
+  color: ${lightPalette.juhong[500]};
   font-weight: 700;
 
   [data-theme='dark'] & {
-    color: ${palette.kobalt[400]};
+    color: ${palette.juhong[400]};
   }
 `;
 
@@ -93,7 +93,7 @@ const CtaButton = styled(Link, {
   align-items: center;
   gap: 8px;
   background: ${({ $primary }) =>
-    $primary ? lightPalette.kobalt[500] : 'rgba(255, 255, 255, 0.9)'};
+    $primary ? lightPalette.juhong[500] : 'rgba(255, 255, 255, 0.9)'};
   color: ${({ $primary }) => ($primary ? '#ffffff' : meok[900])};
   font-size: ${fontSize.sm};
   font-weight: ${({ $primary }) => ($primary ? 700 : 500)};
@@ -106,21 +106,21 @@ const CtaButton = styled(Link, {
 
   &:hover {
     background: ${({ $primary }) =>
-      $primary ? lightPalette.kobalt[700] : '#f8fafc'};
-    border-color: ${lightPalette.kobalt[500]};
+      $primary ? lightPalette.juhong[700] : '#f8fafc'};
+    border-color: ${lightPalette.juhong[500]};
     transform: translateY(-2px);
   }
 
   [data-theme='dark'] & {
     background: ${({ $primary }) =>
-      $primary ? lightPalette.kobalt[500] : surface.dark.card};
+      $primary ? lightPalette.juhong[500] : surface.dark.card};
     color: ${({ $primary }) => ($primary ? '#ffffff' : meok[100])};
     border-color: rgba(255, 255, 255, 0.12);
   }
 
   [data-theme='dark'] &:hover {
     background: ${({ $primary }) =>
-      $primary ? lightPalette.kobalt[700] : 'rgba(255, 255, 255, 0.12)'};
+      $primary ? lightPalette.juhong[700] : 'rgba(255, 255, 255, 0.12)'};
     border-color: rgba(255, 255, 255, 0.25);
   }
 `;

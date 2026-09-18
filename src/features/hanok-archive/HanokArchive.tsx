@@ -9,6 +9,7 @@ import HanokGrid from '@/features/hanok-archive/sections/HanokGrid';
 import HanokStayAccordion from '@/features/hanok-archive/sections/HanokStayAccordion';
 import HanokMap from '@/features/hanok-archive/sections/HanokMap';
 import HanokPolaroidClothesline from '@/features/hanok-archive/sections/HanokPolaroidClothesline';
+import HanokSideIndex from '@/features/hanok-archive/components/HanokSideIndex';
 import KCultureThemeFeed from '@/features/hanok-archive/components/KCultureThemeFeed';
 import HanokManifestoCta from '@/features/hanok-archive/sections/HanokManifestoCta';
 import HanokStructureCards from '@/features/hanok-archive/structure/HanokStructureCards';
@@ -98,31 +99,20 @@ const paperGround = css`
 `;
 
 // 1. 중간 호흡: 통계(분포도) → 큐레이션(이달의 한옥), 구조 카드 → 부재 목록 등
-// 이제 얇은 구분선이 섹션 경계를 표시해 주니, 그 역할까지 여백이 떠맡을 필요가 없어 줄였다.
+// 예전엔 얇은 구분선이 섹션 경계를 표시해 줘서 여백을 줄여 뒀는데, 선을 지운 뒤로는
+// 여백이 그 구분 역할을 다시 떠맡아야 해서 되돌렸다.
 const EditorialSection = styled.div`
-  padding-top: clamp(40px, 5vh, 64px);
-`;
-
-// 큰 타이틀 바로 위에 놓는 얇은 회색 구분선 — 섹션이 여기서 나뉜다는 걸 여백 대신 선으로 보여준다
-const SectionDivider = styled.hr`
-  border: none;
-  height: 1px;
-  background: rgba(0, 0, 0, 0.08);
-  margin: 0 0 28px;
-
-  [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.1);
-  }
+  padding-top: clamp(64px, 7vh, 92px);
 `;
 
 // 3. 챕터 대전환: 이달의 한옥 → 도감, 스테이 → 3D 구조, 부재 목록 → 지도
 const ChapterBreak = styled.div`
-  padding-top: clamp(56px, 7vh, 96px);
+  padding-top: clamp(80px, 9vh, 124px);
 `;
 
 // 4. 동일 아카이브 내 서브 챕터 연결: 도감 그리드 → 스테이 아코디언
 const ArchiveSection = styled.div`
-  padding-top: clamp(40px, 5vh, 64px);
+  padding-top: clamp(64px, 7vh, 92px);
 `;
 
 const IntroStage = styled.div`
@@ -174,6 +164,18 @@ const HeroClothesline = styled.div`
   margin: 22px 0;
 `;
 
+const Kicker = styled.p`
+  font-size: ${fontSize.xs};
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: ${lightPalette.juhong[500]};
+  margin: 0 0 10px;
+
+  [data-theme='dark'] & {
+    color: ${lightPalette.juhong[400]};
+  }
+`;
+
 const PageTitle = styled.h1`
   font-family: var(--font-hanok);
   font-size: clamp(1.6rem, 3.2vw, 2.75rem);
@@ -221,7 +223,7 @@ const SourceNote = styled.p`
 
   strong {
     font-weight: 700;
-    color: ${lightPalette.kobalt[500]};
+    color: ${lightPalette.juhong[500]};
   }
 `;
 
@@ -304,12 +306,14 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
       <HanokAtmosphereBackground />
       {/* <HanjiDeckleEdge /> */}
       <Global styles={paperGround} />
+      <HanokSideIndex />
       <PageInner>
         {/* 진입부: 한국의 정취를 담은 히어로 */}
         <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.intro}>
           <IntroStage>
             <IntroContent>
               <Intro>
+                <Kicker>사라지기 전에 기록한다 · 전국 {archiveData.meta.total}곳</Kicker>
                 <PageTitle>지금 한옥은 어디에 남아 있을까?</PageTitle>
                 <HeroClothesline>
                   <HanokPolaroidClothesline
@@ -330,25 +334,28 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
         <EditorialSection>
           <StyledVesselReveal id="hanok-kculture-themes">
             <SectionContainer>
-              <SectionDivider />
-              <KCultureThemeFeed
-                onSelectContent={(contentId) => {
-                  const target = archiveData.villages.find((v) => v.id === contentId);
-                  if (target) {
-                    if (target.type === '한옥스테이') setSelectedStay(target);
-                    else setSelectedDogamVillage(target);
-                  }
-                }}
-              />
+              <KCultureThemeFeed />
             </SectionContainer>
           </StyledVesselReveal>
         </EditorialSection>
 
-        {/* 4. 아카이브 덩어리: 전국 한옥 도감 ➔ 지역별 한옥 스테이 */}
+        {/*
+          구조 챕터 — 절기에 따른 처마 그림자, 7단계 부재 조립.
+          "왜 이렇게 지어졌는가"를 먼저 답해야 뒤이은 도감·스테이가 설득력을 갖는다.
+          카드를 눌러야 3D 모달이 열리므로 도감 본문 스크롤은 그대로 둔다.
+        */}
+        <ChapterBreak>
+          <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.structure}>
+            <SectionContainer>
+              <HanokStructureCards />
+            </SectionContainer>
+          </StyledVesselReveal>
+        </ChapterBreak>
+
+        {/* 구조를 이해했으니 실물로 — 전국 한옥 도감 ➔ 지역별 한옥 스테이 */}
         <ChapterBreak>
           <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.grid}>
             <SectionContainer>
-              <SectionDivider />
               <HanokGrid
                 villages={archiveData.villages}
                 onSelectVillage={setSelectedDogamVillage}
@@ -360,7 +367,6 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
           <ArchiveSection>
             <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.stay}>
               <SectionContainer>
-                <SectionDivider />
                 <HanokStayAccordion
                   villages={archiveData.villages}
                   onSelectStay={setSelectedStay}
@@ -370,24 +376,10 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
           </ArchiveSection>
         </ChapterBreak>
 
-        {/*
-          구조 챕터 — 절기에 따른 처마 그림자, 7단계 부재 조립.
-          카드를 눌러야 3D 모달이 열리므로 도감 본문 스크롤은 그대로 둔다.
-        */}
-        <ChapterBreak>
-          <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.structure}>
-            <SectionContainer>
-              <SectionDivider />
-              <HanokStructureCards />
-            </SectionContainer>
-          </StyledVesselReveal>
-        </ChapterBreak>
-
-        {/* 부재를 읽고 난 뒤 지도로 — 어느 채가 어디 있는지 짚어 준다 (구조에서 지도로의 대전환) */}
+        {/* 도감과 스테이를 둘러봤으니 지도로 — 어느 채가 어디 있는지 짚어 준다 */}
         <ChapterBreak>
           <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.map}>
             <SectionContainer>
-              <SectionDivider />
               <HanokMap
                 villages={archiveData.villages}
                 onSelectVillage={(v) => {

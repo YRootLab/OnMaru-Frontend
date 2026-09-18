@@ -31,13 +31,13 @@ const RegionFilterChip = styled.button<{ $active: boolean; $empty?: boolean }>`
   align-items: baseline;
   gap: 5px;
   background: ${({ $active }) =>
-    $active ? palette.kobalt[500] : '#ffffff'};
+    $active ? palette.juhong[500] : '#ffffff'};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[900])};
   font-size: ${fontSize.xs};
   font-weight: ${({ $active }) => ($active ? 500 : 400)};
   padding: 8px 18px;
   border-radius: 9999px;
-  border: none;
+  border: 1px solid ${({ $active }) => ($active ? 'transparent' : meok[300])};
   cursor: pointer;
   white-space: nowrap;
   opacity: ${({ $active, $empty }) => (!$active && $empty ? 0.45 : 1)};
@@ -45,28 +45,21 @@ const RegionFilterChip = styled.button<{ $active: boolean; $empty?: boolean }>`
 
   &:hover {
     background: ${({ $active }) =>
-      $active ? palette.kobalt[500] : '#f8fafc'};
+      $active ? palette.juhong[500] : '#f8fafc'};
     opacity: 1;
   }
 
   [data-theme='dark'] & {
     background: ${({ $active }) =>
-      $active ? palette.kobalt[500] : surface.dark.card};
+      $active ? palette.juhong[500] : surface.dark.card};
     color: ${({ $active }) => ($active ? '#ffffff' : meok[100])};
+    border-color: ${({ $active }) => ($active ? 'transparent' : meok[700])};
   }
 
   [data-theme='dark'] &:hover {
     background: ${({ $active }) =>
-      $active ? palette.kobalt[500] : 'rgba(255, 255, 255, 0.1)'};
+      $active ? palette.juhong[500] : 'rgba(255, 255, 255, 0.1)'};
   }
-`;
-
-/* 개수는 지역명보다 한 단계 물러나 있어야 이름이 먼저 읽힌다 */
-const RegionChipCount = styled.span<{ $active: boolean }>`
-  font-size: ${fontSize.micro};
-  font-weight: 400;
-  font-variant-numeric: tabular-nums;
-  color: ${({ $active }) => ($active ? 'rgba(255, 255, 255, 0.75)' : meok[400])};
 `;
 
 const AccordionContainer = styled.div`
@@ -275,8 +268,8 @@ const ActionGroup = styled.div`
 `;
 
 const DirectBookingBtn = styled.a`
-  background: ${palette.cheongrok[700]};
-  color: #ffffff;
+  background: ${palette.hwanggeum[500]};
+  color: ${meok[900]};
   font-size: ${fontSize.xs};
   font-weight: 500;
   padding: 9px 15px;
@@ -290,14 +283,14 @@ const DirectBookingBtn = styled.a`
   transition: transform 0.18s ease, background 0.18s ease;
 
   &:hover {
-    background: ${palette.cheongrok[900]};
+    background: ${palette.hwanggeum[400]};
     transform: translateY(-1px);
   }
 
   [data-theme='dark'] & {
-    background: ${palette.cheongrok[500]};
+    background: ${palette.hwanggeum[500]};
     &:hover {
-      background: ${palette.cheongrok[400]};
+      background: ${palette.hwanggeum[400]};
     }
   }
 `;
@@ -680,7 +673,7 @@ export default function HanokStayAccordion({
       />
 
       <RegionFilterBar>
-        {regionTabs.map((reg) => {
+        {regionTabs.filter((reg) => reg !== '전체').map((reg) => {
           const count = countByRegion[reg] ?? 0;
           const isActive = selectedRegion === reg;
           return (
@@ -692,7 +685,6 @@ export default function HanokStayAccordion({
               aria-label={`${reg} ${count}곳`}
             >
               {reg}
-              <RegionChipCount $active={isActive}>{count}</RegionChipCount>
             </RegionFilterChip>
           );
         })}
@@ -710,13 +702,20 @@ export default function HanokStayAccordion({
                   key={item.id}
                   $active={isActive}
                   onClick={() => setActiveIndex(idx)}
+                  initial={false}
                   animate={{
                     flex: isActive ? 3.5 : 0.6,
                   }}
                   transition={{ type: 'spring', stiffness: 350, damping: 32 }}
                   whileHover={{ scale: isActive ? 1 : 1.03 }}
                 >
-                  <PillImageLayer $bg={item.hasImage ? item.image : null} />
+                  <PillImageLayer
+                    key={item.id}
+                    $bg={item.hasImage ? item.image : null}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.35, ease: 'easeOut' }}
+                  />
 
                   {!isActive && (
                     <CollapsedIconButton>
@@ -785,16 +784,16 @@ export default function HanokStayAccordion({
             })}
           </AccordionContainer>
 
-          {maxPages > 1 && (
-            <ControlsRow>
-              <BatchInfo>
-                {page + 1} / {maxPages} · {selectedRegion} {regionFilteredStays.length}곳
-              </BatchInfo>
+          <ControlsRow>
+            <BatchInfo>
+              {page + 1} / {maxPages} · {selectedRegion} {regionFilteredStays.length}곳
+            </BatchInfo>
+            {maxPages > 1 && (
               <RefreshBtn onClick={handleNextBatch}>
                 <RotateCcw size={14} strokeWidth={2} /> 다른 스테이 보기
               </RefreshBtn>
-            </ControlsRow>
-          )}
+            )}
+          </ControlsRow>
         </>
       ) : (
         <EmptyState role="status" aria-live="polite">
