@@ -20,7 +20,7 @@ import {
 import { transientProps } from '@/design-system/styled';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useJourneyStore } from '@/features/journey-curator/store/useJourneyStore';
-import { lightPalette, meok , fontSize } from '@/design-system/tokens';
+import { lightPalette, meok, fontSize, ringShadow } from '@/design-system/tokens';
 import { RAIL_ENTER_DELAY_S, RAIL_ENTER_DURATION_S, ENTRANCE_EASE } from '@/shared/navigation/mapEntranceTiming';
 import { useMapEntranceStore } from '@/shared/navigation/mapEntranceState';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
@@ -56,17 +56,13 @@ const RailContainer = styled(motion.aside, transientProps)`
   backdrop-filter: blur(16px) saturate(160%);
   -webkit-backdrop-filter: blur(16px) saturate(160%);
   border: 1px solid rgba(0, 0, 0, 0.06);
-  box-shadow:
-    0 12px 32px -8px rgba(0, 0, 0, 0.1),
-    0 4px 12px -4px rgba(0, 0, 0, 0.04);
+  box-shadow: ${ringShadow.light.card};
   transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 
   [data-theme='dark'] & {
     background: rgba(28, 26, 23, 0.88);
     border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow:
-      0 12px 32px -8px rgba(0, 0, 0, 0.5),
-      0 4px 12px -4px rgba(0, 0, 0, 0.3);
+    box-shadow: ${ringShadow.dark.card};
   }
 
   @media (max-width: 1023px) {
@@ -387,7 +383,7 @@ export default function MapNavRail() {
           style={{ objectFit: 'contain', borderRadius: '7px' }}
           priority
         />
-        <LogoText>온마루</LogoText>
+     
       </LogoArea>
 
       <LogoDivider />
