@@ -491,14 +491,14 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
 
   const handleLocate = () => {
     if (!navigator.geolocation) {
-      setLocationMessage('이 브라우저에서는 위치 기반 이야기를 사용할 수 없습니다.');
+      setLocationMessage('이 브라우저에서는 위치 기반 이야기를 사용할 수 없어요.');
       setLocationNotice(true);
       return;
     }
 
     setIsLocating(true);
     setLocationNotice(false);
-    setLocationMessage('현재 위치를 확인하고 주변 이야기를 찾는 중입니다.');
+    setLocationMessage('현재 위치를 확인하고 주변 이야기를 찾는 중이에요.');
     navigator.geolocation.getCurrentPosition(
       async ({ coords }) => {
         const stories = await activeApiService.getNearbyStories(coords.latitude, coords.longitude);
@@ -506,16 +506,16 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
         if (stories.length > 0) {
           setNearbyStories(stories);
           setLocationLabel('현재 위치 기준, 반경 3km');
-          setLocationMessage(`${stories.length}개의 이야기를 찾았습니다. 가까운 장소부터 들려드릴게요.`);
+          setLocationMessage(`${stories.length}개의 이야기를 찾았어요. 가까운 장소부터 들려드릴게요.`);
           setLocationNotice(false);
         } else {
-          setLocationMessage('반경 3km 안에는 아직 등록된 이야기가 없어요. 전국 큐레이션을 보여드립니다.');
+          setLocationMessage('반경 3km 안에는 아직 등록된 이야기가 없어요. 전국 큐레이션을 보여드릴게요.');
           setLocationNotice(true);
         }
         setIsLocating(false);
       },
       () => {
-        setLocationMessage('위치 권한을 확인하지 못했습니다. 권한 없이도 전국 큐레이션을 둘러볼 수 있어요.');
+        setLocationMessage('위치 권한을 확인하지 못했어요. 권한 없이도 전국 큐레이션을 둘러볼 수 있어요.');
         setLocationNotice(true);
         setIsLocating(false);
       },

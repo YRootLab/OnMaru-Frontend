@@ -88,17 +88,29 @@ const ThumbGrid = styled.div`
 `;
 
 // ─── HERO 카드 ────────────────────────────────────────────────────────
-const HeroCard = styled(motion.div)`
+/*
+  필터를 바꾸면 AnimatePresence가 나가는 카드와 들어오는 카드를 동시에 그리는데,
+  HeroCard가 그리드의 보통 자식이면 그 순간 그리드 칸이 하나 늘어 ThumbGrid가
+  밀렸다 돌아왔다 — 칩을 누를 때마다 "번쩍"이던 게 이 레이아웃 흔들림이었다.
+  HeroSlot이 자리(칸 크기)를 고정해 쥐고, 카드들은 그 안에서 absolute로 겹친다.
+*/
+const HeroSlot = styled.div`
   position: relative;
   border-radius: 22px;
-  overflow: hidden;
   aspect-ratio: 4 / 5;
-  background: ${meok[200]};
-  cursor: default;
 
   @media (min-width: 640px) {
     aspect-ratio: 3 / 4;
   }
+`;
+
+const HeroCard = styled(motion.div)`
+  position: absolute;
+  inset: 0;
+  border-radius: 22px;
+  overflow: hidden;
+  background: ${meok[200]};
+  cursor: default;
 
   [data-theme='dark'] & { background: ${meok[800]}; }
 `;
@@ -522,72 +534,74 @@ export default function KCultureThemeFeed({ onSelectPlace }: KCultureThemeFeedPr
       {/* Bento Hero + 2×2 썸네일 */}
       {!isFirstLoad && hero && (
         <LayoutGroup>
-          <BentoGrid style={{ opacity: isLoading ? 0.55 : 1, transition: 'opacity 0.22s ease' }}>
+          <BentoGrid>
             {/* ── HERO ── */}
-            <AnimatePresence mode="sync">
-              <HeroCard
-                key={hero.placeId}
-                layoutId={`kculture-card-${hero.placeId}`}
-                initial={{ opacity: 0, scale: 0.97 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.97 }}
-                transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] as [number,number,number,number] }}
-                onClick={() => onSelectPlace?.(hero)}
-                style={{ cursor: onSelectPlace ? 'pointer' : 'default' }}
-              >
-                <HeroImage
-                  src={hero.imageUrl ?? 'https://tong.visitkorea.or.kr/cms/resource/80/3095780_image2_1.jpg'}
-                  alt={hero.name}
-                  loading="lazy"
-                />
-                <HeroScrim />
+            <HeroSlot>
+              <AnimatePresence mode="sync">
+                <HeroCard
+                  key={hero.placeId}
+                  layoutId={`kculture-card-${hero.placeId}`}
+                  initial={{ opacity: 0, scale: 0.97 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.97 }}
+                  transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] as [number,number,number,number] }}
+                  onClick={() => onSelectPlace?.(hero)}
+                  style={{ cursor: onSelectPlace ? 'pointer' : 'default' }}
+                >
+                  <HeroImage
+                    src={hero.imageUrl ?? 'https://tong.visitkorea.or.kr/cms/resource/80/3095780_image2_1.jpg'}
+                    alt={hero.name}
+                    loading="lazy"
+                  />
+                  <HeroScrim />
 
-                <HeroTopRow>
-                  <MediaBadge>
-                    {getMediaIcon(hero.mediaType, 13)}
-                    <span>{hero.categoryLabel}</span>
-                  </MediaBadge>
-                  <SaveBtn
-                    type="button"
-                    $saved={hero.savedByMe}
-                    aria-label={hero.savedByMe ? '찜 해제' : '찜하기'}
-                    onClick={(e) => { e.stopPropagation(); toggleSave(hero.placeId); }}
-                  >
-                    <Heart size={16} fill={hero.savedByMe ? '#ef4444' : 'none'} strokeWidth={hero.savedByMe ? 0 : 2} />
-                  </SaveBtn>
-                </HeroTopRow>
-
-                <HeroBody>
-                  <HeroWorkTitle>{hero.workTitle}</HeroWorkTitle>
-                  <HeroNameRow>
-                    <MapPin size={12} strokeWidth={2} />
-                    {hero.name} · {hero.region}
-                  </HeroNameRow>
-                  <HeroSubtitle>{hero.subtitle}</HeroSubtitle>
-                  {hero.tags && hero.tags.length > 0 && (
-                    <HeroTagRow>
-                      {hero.tags.slice(0, 3).map((tag, i) => (
-                        <HeroTag key={i}>
-                          <Hash size={10} />
-                          {tag.replace(/^#/, '')}
-                        </HeroTag>
-                      ))}
-                    </HeroTagRow>
-                  )}
-                  {hero.sourceUrl && (
-                    <HeroSourceLink
-                      href={hero.sourceUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
+                  <HeroTopRow>
+                    <MediaBadge>
+                      {getMediaIcon(hero.mediaType, 13)}
+                      <span>{hero.categoryLabel}</span>
+                    </MediaBadge>
+                    <SaveBtn
+                      type="button"
+                      $saved={hero.savedByMe}
+                      aria-label={hero.savedByMe ? '찜 해제' : '찜하기'}
+                      onClick={(e) => { e.stopPropagation(); toggleSave(hero.placeId); }}
                     >
-                      <ExternalLink size={11} />
-                      <span>{hero.sourceTitle || '출처 보기'}</span>
-                    </HeroSourceLink>
-                  )}
-                </HeroBody>
-              </HeroCard>
-            </AnimatePresence>
+                      <Heart size={16} fill={hero.savedByMe ? '#ef4444' : 'none'} strokeWidth={hero.savedByMe ? 0 : 2} />
+                    </SaveBtn>
+                  </HeroTopRow>
+
+                  <HeroBody>
+                    <HeroWorkTitle>{hero.workTitle}</HeroWorkTitle>
+                    <HeroNameRow>
+                      <MapPin size={12} strokeWidth={2} />
+                      {hero.name} · {hero.region}
+                    </HeroNameRow>
+                    <HeroSubtitle>{hero.subtitle}</HeroSubtitle>
+                    {hero.tags && hero.tags.length > 0 && (
+                      <HeroTagRow>
+                        {hero.tags.slice(0, 3).map((tag, i) => (
+                          <HeroTag key={i}>
+                            <Hash size={10} />
+                            {tag.replace(/^#/, '')}
+                          </HeroTag>
+                        ))}
+                      </HeroTagRow>
+                    )}
+                    {hero.sourceUrl && (
+                      <HeroSourceLink
+                        href={hero.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <ExternalLink size={11} />
+                        <span>{hero.sourceTitle || '출처 보기'}</span>
+                      </HeroSourceLink>
+                    )}
+                  </HeroBody>
+                </HeroCard>
+              </AnimatePresence>
+            </HeroSlot>
 
             {/* ── 2×2 썸네일 그리드 ── */}
             <ThumbGrid>

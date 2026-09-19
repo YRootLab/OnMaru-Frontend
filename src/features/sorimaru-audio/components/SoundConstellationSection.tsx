@@ -549,7 +549,7 @@ function getStoryExcerpt(story: SorimaruStoryItem): string {
   if (story.audioTitle && story.audioTitle !== story.title) {
     return story.audioTitle;
   }
-  return story.locationName ? `${story.locationName}에 남은 오디오 소리 이야기` : '장소에 머무는 아름다운 오디오 이야기';
+  return story.locationName ? `${story.locationName}에 남은 오디오 소리 이야기` : '이 장소에 머무는 오디오 이야기';
 }
 
 function RegionStoryItem({
@@ -1004,7 +1004,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
 
                   {!hasMore && regionStories.length > 5 && (
                     <p style={{ padding: '0.75rem 0', textAlign: 'center', fontSize: fontSize.micro, color: meok[500] }}>
-                      {selectedRegion.label}의 모든 오디오 이야기를 확인했습니다.
+                      {selectedRegion.label}의 모든 오디오 이야기를 확인했어요.
                     </p>
                   )}
                 </ScrollContent>

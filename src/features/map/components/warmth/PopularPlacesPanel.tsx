@@ -312,7 +312,7 @@ export default function PopularPlacesPanel() {
 
       {/* 2. 설명 문구 및 가로 스크롤 지역 칩 */}
       <SubHeader>
-        <SubText>한국관광공사 TourAPI 조회순 상위 한옥·전통 명소입니다.</SubText>
+        <SubText>한국관광공사 TourAPI 조회순 상위 한옥·전통 명소예요.</SubText>
         <RegionScroller role="tablist" aria-label="지역별 인기 장소">
           {REGIONS.map((reg) => (
             <RegionChip

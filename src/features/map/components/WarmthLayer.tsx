@@ -1114,8 +1114,8 @@ export default function WarmthLayer() {
                    <div class="om-week-chart">${weekBars}</div>
                    ${
                      quietest
-                       ? `<p class="om-week-say">이 동네는 <b>${quietest.full}</b>이 가장 조용합니다</p>`
-                       : `<p class="om-week-say">요일별 차이가 뚜렷하지 않습니다</p>`
+                       ? `<p class="om-week-say">이 동네는 <b>${quietest.full}</b>이 가장 조용해요</p>`
+                       : `<p class="om-week-say">요일별 차이가 뚜렷하지 않아요</p>`
                    }
                  </div>`
               : `<div class="om-popover-gauge">

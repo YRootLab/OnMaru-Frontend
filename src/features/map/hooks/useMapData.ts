@@ -224,14 +224,14 @@ export function useMapData() {
           .fetchRegionalSorimaruStories(searchCenter.lng, searchCenter.lat);
 
         if (!res.ok || json.error) {
-          setError(typeof json.error === 'string' ? json.error : '장소를 불러오지 못했습니다');
+          setError(typeof json.error === 'string' ? json.error : '장소를 불러오지 못했어요');
         }
       })
       .catch((err: unknown) => {
         if (err instanceof DOMException && err.name === 'AbortError') return;
         log.error('fetch 실패', err);
         // 네트워크가 끊겨도 보던 장소는 남긴다. 위와 같은 이유다.
-        setError(err instanceof Error ? err.message : '장소를 불러오지 못했습니다');
+        setError(err instanceof Error ? err.message : '장소를 불러오지 못했어요');
       })
       .finally(() => {
         if (!controller.signal.aborted) setLoading(false);

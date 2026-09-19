@@ -295,7 +295,7 @@ export const SorimaruFooterCTA: React.FC = () => {
             </MainHeading>
 
             <Description>
-              계절과 날짜가 바뀌면 오늘의 대표 이야기도 새롭게 열립니다.
+              계절과 날짜가 바뀌면 오늘의 대표 이야기도 새롭게 열려요.
               다음에 돌아왔을 때 다른 장소의 온기를 이어서 들어보세요.
             </Description>
 
@@ -306,11 +306,11 @@ export const SorimaruFooterCTA: React.FC = () => {
                 <span className="arrow">→</span>
               </PrimaryCtaLink>
               <SecondaryCtaLink href="/">
-                온마루 3D 한옥 스토리가기 🇰🇷
+                온마루 3D 한옥 이야기 보러 가기
               </SecondaryCtaLink>
             </ButtonRow>
 
-            <SubText>오늘의 소리는 내일 또 다른 장면으로 이어집니다.</SubText>
+            <SubText>오늘의 소리는 내일 또 다른 장면으로 이어져요.</SubText>
           </InnerBody>
         </GlassCard>
       </ContentWrapper>

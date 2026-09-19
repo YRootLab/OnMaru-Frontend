@@ -99,7 +99,7 @@ export default function LiveNoticeBanner() {
   }, []);
 
   return (
-    <Container role="status" aria-label="실시간 문화재 소식 안내">
+    <Container role="status" aria-label="문화재 소식 안내">
       <IconWrap>
         <Megaphone size={15} strokeWidth={2} />
       </IconWrap>

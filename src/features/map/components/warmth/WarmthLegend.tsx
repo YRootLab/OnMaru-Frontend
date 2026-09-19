@@ -339,7 +339,7 @@ export default function WarmthLegend() {
 
       <Summary $isDark={isDark} aria-live="polite">
         {stat.total === 0 ? (
-          '이 일대에 남은 한줄평이 아직 없습니다'
+          '이 일대에 남은 한줄평이 아직 없어요'
         ) : (
           <>
             이 일대 한줄평 <b>{stat.total}</b>편 · 고즈넉함 <b>{100 - (percent ?? 0)}%</b> · 북적이는 정{' '}
@@ -354,7 +354,7 @@ export default function WarmthLegend() {
           <span>한적</span>
           <span>붐빔</span>
         </RampEnds>
-        <RampNote $isDark={isDark}>아무 색도 없는 곳은 아직 집계가 닿지 않은 곳입니다.</RampNote>
+        <RampNote $isDark={isDark}>아무 색도 없는 곳은 아직 집계가 닿지 않은 곳이에요.</RampNote>
       </Ramp>
 
       <Divider $isDark={isDark} />

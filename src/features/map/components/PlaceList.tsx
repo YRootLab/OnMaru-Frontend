@@ -567,7 +567,7 @@ export default function PlaceList() {
 
       {/* 4. 장소 목록 컨텐츠 */}
       {loading && items.length === 0 ? (
-        <SkeletonWrapper aria-busy="true" aria-label="장소 목록을 불러오는 중입니다">
+        <SkeletonWrapper aria-busy="true" aria-label="장소 목록을 불러오는 중이에요">
           {[1, 2, 3, 4, 5, 6].map((key) => (
             <SkeletonItem key={key}>
               <SkeletonThumb />
