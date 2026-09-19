@@ -142,6 +142,28 @@ const Canvas = styled.div<{ $isNight: boolean }>`
       : 'none'};
 `;
 
+/*
+  라이트모드용 은은한 한지 색보정.
+
+  Canvas 자체에 filter를 걸면(다크모드 달빛 필터처럼) 그 안에서 카카오맵이
+  그리는 타일뿐 아니라 우리가 올리는 마커/뱃지 DOM까지 전부 같이 걸린다 —
+  PlaceMarkers.tsx의 정통 한옥 핀이 다크모드에서 역필터를 따로 걸어야 했던
+  이유가 그것이다. 그래서 여기서는 filter 대신 Canvas 위에 아주 옅은
+  mix-blend-mode 레이어를 얹는다. 마커 색도 같이 스치긴 하지만 opacity를
+  낮게 잡아 채도 있는 뱃지는 거의 안 흔들리고, 면적이 넓은 지도 바탕만
+  한지 톤으로 은은하게 눈에 띈다.
+*/
+const WarmTint = styled.div<{ $active: boolean }>`
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  mix-blend-mode: multiply;
+  background: #f6ecd9;
+  opacity: ${({ $active }) => ($active ? 0.06 : 0)};
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+`;
+
 const FlightBanner = styled.div`
   position: absolute;
   top: 18px;
@@ -582,6 +604,7 @@ export default function KakaoMap() {
         aria-label="한옥 위치 지도"
         $isNight={isEffectiveNight}
       />
+      <WarmTint $active={!isEffectiveNight} aria-hidden="true" />
 
       {/* 시네마틱 드론 비행 플로팅 알림 바 */}
       {flightState.active && currentFlightStop && (

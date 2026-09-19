@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo } from 'react';
 import { Global, css } from '@emotion/react';
+import gsap from 'gsap';
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { mapIconSvg } from '@/features/map/utils/mapIconSvg';
 import {
   lightPalette,
@@ -779,6 +781,7 @@ export default function WarmthLayer() {
   const warmthViewType = useMapStore((s) => s.warmthViewType);
   const { mode: colorMode } = useOnmaruTheme();
   const isDark = colorMode === 'dark';
+  const reducedMotion = usePrefersReducedMotion();
 
   /*
     히트맵과 뱃지가 같은 스팟 목록을 본다.
@@ -1004,7 +1007,7 @@ export default function WarmthLayer() {
     };
 
     // 3. 발광 히트 블룸 및 지능형 팝오버 뱃지 / 온기 버블 렌더링
-    visibleClusters.forEach((item) => {
+    visibleClusters.forEach((item, clusterIndex) => {
       const cfg = CONGESTION_CONFIG[item.congestionLevel] || CONGESTION_CONFIG.moderate;
       const pal = isDark ? cfg.dark : cfg.light;
 
@@ -1129,6 +1132,48 @@ export default function WarmthLayer() {
         </div>
       `;
 
+      /*
+        뱃지가 한 번에 훅 나타나면 지도가 '이미 계산된 결과'를 보여주는 것처럼
+        보인다. 하나씩 톡톡 튀어오르게 하고 편차 숫자는 0에서 세어 올라가게 하면
+        "지금 막 집계했다"는 인상을 준다 — position:translate(-50%,-50%)로
+        좌표에 고정하는 wrap 자신은 그대로 두고, 그 안의 알약(.om-surge-pill)만
+        움직여야 위치가 안 어긋난다.
+      */
+      const pillEl = pillWrap.querySelector<HTMLElement>('.om-surge-pill');
+      if (pillEl && !reducedMotion) {
+        gsap.set(pillEl, { opacity: 0, scale: 0.4, y: 8, transformOrigin: '50% 50%' });
+        gsap.to(pillEl, {
+          opacity: 1,
+          scale: 1,
+          y: 0,
+          duration: 0.45,
+          delay: Math.min(clusterIndex, 12) * 0.045,
+          ease: 'back.out(1.7)',
+          clearProps: 'opacity,transform,transformOrigin',
+        });
+      }
+
+      if (compare && compare.tone !== 'flat') {
+        const deltaEl = pillWrap.querySelector<HTMLElement>('.om-surge-pill-delta');
+        if (deltaEl) {
+          if (reducedMotion) {
+            deltaEl.textContent = deltaText;
+          } else {
+            const counter = { value: 0 };
+            gsap.to(counter, {
+              value: compare.delta,
+              duration: 0.6,
+              delay: Math.min(clusterIndex, 12) * 0.045 + 0.15,
+              ease: 'power2.out',
+              onUpdate: () => {
+                const rounded = Math.round(counter.value);
+                deltaEl.textContent = `${rounded > 0 ? '+' : ''}${rounded}%`;
+              },
+            });
+          }
+        }
+      }
+
       const setZIndex = (z: number) => {
         const overlay = (pillWrap as any).__kakaoOverlay;
         if (overlay && typeof overlay.setZIndex === 'function') {
@@ -1206,7 +1251,7 @@ export default function WarmthLayer() {
       closeAllPopovers();
       if (cleanup) cleanup();
     };
-  }, [map, mode, baseList, level, isDark, heatDays, heatDayIndex, warmthViewType]);
+  }, [map, mode, baseList, level, isDark, heatDays, heatDayIndex, warmthViewType, reducedMotion]);
 
   return (
     <>

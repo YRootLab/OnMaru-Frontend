@@ -1,8 +1,31 @@
 import { TourApiClient } from '@/lib/tour-api/tourApiClient';
+import { apiGet } from '@/lib/api/client';
 import { getCuratedPlace, toPlaceDetailData } from '@/features/map/data/curatedPlaces';
 import type { Item, PlaceCategory, PlaceDetailData } from '@/features/map/types';
 import { sanitizeHtml, toHttps } from '@/features/map/utils/formatters';
 import { distanceInMeters, isTraditionalPlace } from '@/features/map/utils/geo';
+
+/** 백엔드 GET /api/v1/map/places 응답 한 건. 실서버 호출로 검증한 실제 shape (2026-09-19). */
+interface BackendMapPlaceItem {
+  placeId: string;
+  name: string;
+  category: string;
+  region: { regionCode: string; name: string };
+  coordinates: { lat: number; lng: number };
+  thumbnailUrl: string | null;
+  summary: string;
+  savedByMe: boolean;
+}
+
+interface BackendMapPlacesResponse {
+  items: BackendMapPlaceItem[];
+}
+
+function mapBackendCategoryToPlaceCategory(category: string): PlaceCategory {
+  if (category === '카페' || category.toUpperCase().includes('CAFE')) return 'cafe';
+  if (category === '숙소' || category.toUpperCase().includes('STAY')) return 'stay';
+  return 'spot';
+}
 
 const MAX_RADIUS = 20000;
 const CACHE_TTL = 2 * 60 * 60 * 1000; // 2시간 캐시 (관광지 위치 데이터 보존)
@@ -70,6 +93,53 @@ export class PlaceService {
     return `${roundedLat}_${roundedLng}_${roundedRadius}_${category || 'all'}`;
   }
 
+  /*
+    FE #90: /api/v1/map/places를 우선 시도한다.
+
+    이 백엔드 엔드포인트는 위경도 bounding box만 받고(반경이 아님), 카테고리
+    필터도 없이 한옥/카페류만 돌려준다 — 아래 8개 카테고리(spot/experience/
+    culture/festival/stay/food/cafe/market)를 전부 감당하는 TourAPI 경로와는
+    범위가 다르다. 그래서 카테고리를 명시하지 않은 "전체" 조회일 때만 시도하고,
+    실패하거나 빈 배열이면(지금 seed 데이터뿐이라 흔함) 기존 TourAPI 경로로
+    그대로 넘어간다 — 지도가 텅 비어 보이는 것보다 항상 낫다.
+  */
+  private static async fetchFromBackend(opts: {
+    lat: number;
+    lng: number;
+    radius: number;
+  }): Promise<Item[] | null> {
+    try {
+      const latDelta = opts.radius / 111_000;
+      const lngDelta = opts.radius / (111_000 * Math.cos((opts.lat * Math.PI) / 180));
+
+      const res = await apiGet<BackendMapPlacesResponse>('/map/places', {
+        swLat: opts.lat - latDelta,
+        swLng: opts.lng - lngDelta,
+        neLat: opts.lat + latDelta,
+        neLng: opts.lng + lngDelta,
+      });
+
+      if (!res.items || res.items.length === 0) return null;
+
+      return res.items.map((it) => ({
+        id: it.placeId,
+        name: it.name,
+        category: mapBackendCategoryToPlaceCategory(it.category),
+        lat: it.coordinates.lat,
+        lng: it.coordinates.lng,
+        addr: it.region?.name || '',
+        image: it.thumbnailUrl,
+        tel: null,
+        dist: Math.round(distanceInMeters({ lat: opts.lat, lng: opts.lng }, it.coordinates)),
+        isTraditional: it.category === '한옥' || it.category.toUpperCase().includes('HANOK'),
+        savedByMe: it.savedByMe,
+      }));
+    } catch (err) {
+      console.warn('[PlaceService] backend /map/places failed, falling back to TourAPI:', err);
+      return null;
+    }
+  }
+
   /** 주변 및 전국 장소 목록 실시간 조회 */
   public static async getNearbyPlaces(opts: {
     lat: number;
@@ -85,6 +155,14 @@ export class PlaceService {
     const cached = this.placeCache.get(cacheKey);
     if (cached && cached.expiresAt > Date.now()) {
       return cached.items;
+    }
+
+    if (!opts.category && process.env.NEXT_PUBLIC_API_URL) {
+      const backendItems = await this.fetchFromBackend({ lat: opts.lat, lng: opts.lng, radius });
+      if (backendItems) {
+        this.placeCache.set(cacheKey, { expiresAt: Date.now() + CACHE_TTL, items: backendItems });
+        return backendItems;
+      }
     }
 
     /* 요청마다 새 타임아웃을 준다. 하나를 공유하면 뒤 배치가 시작도 못 하고 죽는다. */

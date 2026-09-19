@@ -433,23 +433,59 @@ export default function HeatCanvas({ spots }: Props) {
       let painted = 0;
 
       if (warmthViewTypeRef.current === 'heatmap') {
-        // ── [원형 히트맵 모드] 부드러운 방사형 가우시안 원형 훈기 채색 ──
-        const radius = Math.min(220, Math.max(52, Math.round(baseRadius * 1.55)));
+        /*
+          ── [원형 히트맵 모드] 부드러운 방사형 가우시안 원형 훈기 채색 ──
+
+          예전엔 반경이 세기와 무관하게 고정값 하나라, 붐비는 곳과 한적한 곳이
+          색만 다르고 크기는 똑같은 "같은 도장을 찍은" 모양이 됐다. 세기에 비례해
+          반경도 늘려 붐빌수록 얼룩도 커지게 한다.
+
+          composite를 'lighter'(가산)로 바꾸는 것도 같이 간다 — 기본값(source-over)은
+          겹치는 스팟끼리 알파가 진짜로 쌓이지 않고 위에 덧칠하는 식이라, 이웃한
+          얼룩이 안개처럼 이어붙지 않고 각자 도장처럼 따로 논다. 가산으로 바꾸면
+          파일 위 주석이 원래 말하던 "겹치는 만큼 알파가 쌓인다"가 실제로 맞아떨어진다.
+        */
+        const maxRadius = Math.min(220, Math.max(52, Math.round(baseRadius * 1.55)));
+        ctx.globalCompositeOperation = 'lighter';
         for (const spot of spotsRef.current) {
           if (painted >= MAX_KERNELS) break;
           const { x, y } = project(spot.lng, spot.lat);
           if (
-            x < -radius ||
-            y < -radius ||
-            x > W + radius ||
-            y > H + radius
+            x < -maxRadius ||
+            y < -maxRadius ||
+            x > W + maxRadius ||
+            y > H + maxRadius
           ) {
             continue;
           }
 
           const weight = Math.min(1, Math.max(0.18, spot.intensity));
+          const radius = Math.round(maxRadius * (0.55 + weight * 0.45));
           stampKernel(ctx, x, y, radius, weight, seedFromCoords(spot.lng, spot.lat));
           painted += 1;
+        }
+        ctx.globalCompositeOperation = 'source-over';
+
+        /*
+          커널 하나는 부드러워도, 그 가장자리가 아래 램프의 문턱(밀도 5% 미만은
+          완전 투명)과 만나는 자리에는 "여기서부터 색이 시작된다"는 선이 그대로
+          남는다 — 이게 '원형 경계가 보인다'는 느낌의 정체다. 다 찍은 뒤 캔버스를
+          자기 자신 위에 blur로 한 번 더 그려서 그 문턱 자체를 공간적으로 흐린다.
+          커널마다 걸면 스탬프 수만큼 비용이 붙지만, 다 그리고 한 번만 걸면
+          비용은 그대로 한 번이다.
+        */
+        if (painted > 0) {
+          /*
+            source-over로 그리면 방금 그린 커널들 위에 "흐린 사본"을 덧그리는
+            꼴이라, 선명한 원본과 흐린 사본이 겹쳐 보인다 — 옅은 핑크빛 잔상처럼
+            남던 게 이 이중 노출이었다. 'copy'로 그리면 흐린 사본이 원본을
+            완전히 대체해서 한 장만 남는다.
+          */
+          ctx.filter = 'blur(14px)';
+          ctx.globalCompositeOperation = 'copy';
+          ctx.drawImage(canvas, 0, 0);
+          ctx.filter = 'none';
+          ctx.globalCompositeOperation = 'source-over';
         }
       } else {
         // ── [시·군 행정별 모드] 시·군·구 행정 경계(districts.json) 폴리곤 채색 ──
