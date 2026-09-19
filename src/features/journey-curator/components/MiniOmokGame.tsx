@@ -1,10 +1,23 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
-import { RotateCcw, Award, Sparkles, CheckCircle2, Bot, User, Flame } from 'lucide-react';
-import { fontSize } from '@/design-system/tokens';
+import {
+  RotateCcw,
+  Award,
+  Sparkles,
+  CheckCircle2,
+  Bot,
+  User,
+  Flame,
+  Trophy,
+  Crown,
+  Swords,
+  Search,
+  PartyPopper,
+} from 'lucide-react';
+import { fontSize, palette, ringShadow } from '@/design-system/tokens';
 
 const BOARD_SIZE = 11; // 11x11 traditional compact grid
 
@@ -14,6 +27,73 @@ interface MiniOmokGameProps {
   isGenerationComplete?: boolean;
   onViewJourney?: () => void;
   onGoToWordSearch?: () => void;
+}
+
+const CONFETTI_COLORS = [
+  '#FF5500', // 단청 주홍
+  '#FFB800', // 황금 골드
+  '#00C471', // 대청 청록
+  '#FF2A85', // 연지 핑크
+  '#4A6FA0', // 청화 코발트
+  '#8B1BFF', // 자하 바이올렛
+  '#FFFFFF', // 순백
+];
+
+const ConfettiParticle = styled(motion.div)<{ $color: string; $size: number; $isCircle?: boolean }>`
+  position: absolute;
+  width: ${({ $size }) => $size}px;
+  height: ${({ $size, $isCircle }) => ($isCircle ? $size : $size * 1.8)}px;
+  background: ${({ $color }) => $color};
+  border-radius: ${({ $isCircle }) => ($isCircle ? '50%' : '2px')};
+  pointer-events: none;
+  z-index: 20;
+`;
+
+function FanfareConfetti() {
+  const particles = useMemo(() => {
+    return Array.from({ length: 48 }).map((_, i) => {
+      const angle = (i / 48) * 360 + (Math.random() * 20 - 10);
+      const rad = (angle * Math.PI) / 180;
+      const distance = 85 + Math.random() * 115;
+      const x = Math.cos(rad) * distance;
+      const y = Math.sin(rad) * distance - 25;
+      const color = CONFETTI_COLORS[i % CONFETTI_COLORS.length];
+      const size = 6 + Math.random() * 6;
+      const isCircle = i % 3 === 0;
+      const rotation = Math.random() * 720 - 360;
+      const duration = 0.9 + Math.random() * 0.6;
+      const delay = Math.random() * 0.15;
+
+      return { id: i, x, y, color, size, isCircle, rotation, duration, delay };
+    });
+  }, []);
+
+  return (
+    <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 30, overflow: 'hidden' }}>
+      {particles.map((p) => (
+        <ConfettiParticle
+          key={p.id}
+          $color={p.color}
+          $size={p.size}
+          $isCircle={p.isCircle}
+          style={{ top: '50%', left: '50%' }}
+          initial={{ x: 0, y: 0, scale: 0, opacity: 1, rotate: 0 }}
+          animate={{
+            x: p.x,
+            y: [0, p.y - 20, p.y + 60],
+            scale: [0, 1.2, 0.8],
+            opacity: [1, 1, 0],
+            rotate: p.rotation,
+          }}
+          transition={{
+            duration: p.duration,
+            delay: p.delay,
+            ease: 'easeOut',
+          }}
+        />
+      ))}
+    </div>
+  );
 }
 
 const Container = styled.div`
@@ -28,66 +108,80 @@ const StatusHeader = styled.div`
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  max-width: 350px;
-  margin-bottom: 12px;
+  max-width: 330px;
+  margin-bottom: 8px;
   font-size: ${fontSize.xs};
 `;
 
 const TurnBadge = styled.div<{ $isUserTurn: boolean }>`
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
+  gap: 5px;
+  padding: 4px 10px;
   border-radius: 9999px;
   background: ${({ $isUserTurn }) =>
-    $isUserTurn ? 'rgba(0, 184, 130, 0.12)' : 'rgba(212, 175, 55, 0.12)'};
+    $isUserTurn ? 'rgba(0, 184, 130, 0.10)' : 'rgba(212, 175, 55, 0.12)'};
   border: none;
-  box-shadow: none;
-  color: ${({ $isUserTurn }) => ($isUserTurn ? '#00b882' : '#d4af37')};
+  box-shadow: ${ringShadow.light.button};
+  color: ${({ $isUserTurn }) => ($isUserTurn ? '#008a60' : '#b8941f')};
   font-weight: 600;
-  font-size: ${fontSize.xs};
+  font-size: 11.5px;
+
+  [data-theme='dark'] & {
+    box-shadow: ${ringShadow.dark.button};
+    background: ${({ $isUserTurn }) =>
+      $isUserTurn ? 'rgba(0, 184, 130, 0.16)' : 'rgba(212, 175, 55, 0.16)'};
+    color: ${({ $isUserTurn }) => ($isUserTurn ? '#4ade80' : '#e5c058')};
+  }
 `;
 
 const DifficultyBadge = styled.div`
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: ${fontSize.xs};
-  color: #ff5414;
-  background: rgba(255, 84, 20, 0.1);
+  font-size: 11px;
+  color: #6b7280;
+  background: rgba(0, 0, 0, 0.045);
   border: none;
-  box-shadow: none;
-  padding: 4px 9px;
+  box-shadow: ${ringShadow.light.button};
+  padding: 3px 8px;
   border-radius: 6px;
   font-weight: 600;
+
+  [data-theme='dark'] & {
+    color: #9ca3af;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: ${ringShadow.dark.button};
+  }
 `;
 
-/* 모던한 플랫 원목 바둑판 (노 보더, 노 섀도우) */
+/* 모던한 플랫 원목 바둑판 - 반응형 최적화 */
 const BoardContainer = styled.div`
   position: relative;
-  width: 340px;
-  height: 340px;
+  width: min(330px, calc(100vw - 64px));
+  height: min(330px, calc(100vw - 64px));
+  max-width: 330px;
+  max-height: 330px;
+  aspect-ratio: 1;
   background: #deb887;
   border: none;
   border-radius: 12px;
-  box-shadow: none;
+  box-shadow: ${ringShadow.light.card};
   display: grid;
   grid-template-columns: repeat(${BOARD_SIZE}, 1fr);
   grid-template-rows: repeat(${BOARD_SIZE}, 1fr);
-  padding: 12px;
+  padding: 8px;
   user-select: none;
   touch-action: manipulation;
 
   [data-theme='dark'] & {
     background: #2b241d;
-    border: none;
-    box-shadow: none;
+    box-shadow: ${ringShadow.dark.card};
   }
 
-  @media (max-width: 400px) {
-    width: 295px;
-    height: 295px;
-    padding: 8px;
+  @media (max-width: 380px) {
+    padding: 6px;
+    border-radius: 10px;
   }
 `;
 
@@ -137,8 +231,8 @@ const Cell = styled.button<{ $stone: Stone }>`
 
 const StarPointDot = styled.div`
   position: absolute;
-  width: 5.5px;
-  height: 5.5px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   background: #3e2712;
   z-index: 1;
@@ -153,27 +247,30 @@ const StarPointDot = styled.div`
 
 const StonePiece = styled(motion.div)<{ $color: 'B' | 'W'; $isLast?: boolean }>`
   position: absolute;
-  width: 84%;
-  height: 84%;
+  width: 86%;
+  height: 86%;
   border-radius: 50%;
   z-index: 2;
   border: none;
-  box-shadow: none;
 
   ${({ $color }) =>
     $color === 'B'
       ? `
-    background: #191f28;
+    background: radial-gradient(circle at 35% 35%, #2b323c 0%, #111317 100%);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.45), inset 0 -1.5px 3px rgba(255, 255, 255, 0.12);
 
     [data-theme='dark'] & {
-      background: #111317;
+      background: radial-gradient(circle at 35% 35%, #333842 0%, #0c0e11 100%);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.65), inset 0 -1.5px 3px rgba(255, 255, 255, 0.16);
     }
   `
       : `
-    background: #ffffff;
+    background: radial-gradient(circle at 35% 35%, #ffffff 0%, #e2e8f0 100%);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.22), inset 0 -1.5px 3px rgba(0, 0, 0, 0.08);
 
     [data-theme='dark'] & {
-      background: #f0f0f0;
+      background: radial-gradient(circle at 35% 35%, #ffffff 0%, #d1d5db 100%);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.40), inset 0 -1.5px 3px rgba(0, 0, 0, 0.12);
     }
   `}
 
@@ -183,15 +280,15 @@ const StonePiece = styled(motion.div)<{ $color: 'B' | 'W'; $isLast?: boolean }>`
     &::after {
       content: '';
       position: absolute;
-      width: 7px;
-      height: 7px;
+      width: 6px;
+      height: 6px;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       border-radius: 50%;
-      background: #ff5414;
+      background: #e11d48;
       border: none;
-      box-shadow: none;
+      box-shadow: 0 0 4px rgba(225, 29, 72, 0.6);
     }
   `}
 `;
@@ -201,67 +298,81 @@ const ControlsBar = styled.div`
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  max-width: 340px;
-  margin-top: 14px;
+  max-width: 330px;
+  margin-top: 8px;
 `;
 
 const ActionButton = styled.button`
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  border-radius: 8px;
-  background: rgba(0, 0, 0, 0.05);
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 7px;
+  background: rgba(0, 0, 0, 0.045);
   border: none;
-  box-shadow: none;
+  box-shadow: ${ringShadow.light.button};
   color: #374151;
-  font-size: ${fontSize.xs};
+  font-size: 11.5px;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   [data-theme='dark'] & {
     background: rgba(255, 255, 255, 0.08);
+    box-shadow: ${ringShadow.dark.button};
     color: #e5e7eb;
   }
 
   &:hover {
-    background: rgba(0, 0, 0, 0.09);
+    background: rgba(0, 0, 0, 0.075);
+    color: #111827;
+    box-shadow: ${ringShadow.light.buttonHoverGlow};
+    transform: translateY(-1px);
 
     [data-theme='dark'] & {
       background: rgba(255, 255, 255, 0.14);
+      color: #ffffff;
+      box-shadow: ${ringShadow.dark.buttonHoverGlow};
     }
+  }
+
+  &:active {
+    transform: scale(0.96);
   }
 
   &:disabled {
     opacity: 0.35;
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
   }
 `;
 
 const FinishedBanner = styled(motion.div)`
   width: 100%;
-  max-width: 340px;
-  background: rgba(0, 184, 130, 0.12);
+  max-width: 330px;
+  background: rgba(0, 184, 130, 0.08);
   border: none;
-  box-shadow: none;
-  border-radius: 12px;
-  padding: 10px 14px;
-  margin-top: 14px;
+  box-shadow: ${ringShadow.light.card};
+  border-radius: 10px;
+  padding: 8px 12px;
+  margin-top: 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
 
   [data-theme='dark'] & {
-    background: rgba(0, 184, 130, 0.16);
+    background: rgba(0, 184, 130, 0.12);
+    box-shadow: ${ringShadow.dark.card};
   }
 `;
 
 const CompleteText = styled.div`
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: ${fontSize.xs};
+  gap: 5px;
+  font-size: 12px;
   font-weight: 600;
   color: #191f28;
 
@@ -271,46 +382,57 @@ const CompleteText = styled.div`
 `;
 
 const ViewJourneyBtn = styled.button`
-  background: #00b882;
+  background: ${palette.juhong[500]};
   color: #ffffff;
   border: none;
-  box-shadow: none;
+  box-shadow: 0 3px 10px rgba(255, 85, 0, 0.32);
   padding: 6px 12px;
-  border-radius: 8px;
-  font-size: ${fontSize.xs};
+  border-radius: 7px;
+  font-size: 11.5px;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    background: #00996c;
+    background: ${palette.juhong[600]};
+    transform: scale(1.03);
+    box-shadow: 0 4px 14px rgba(255, 85, 0, 0.42);
+  }
+
+  &:active {
+    transform: scale(0.96);
   }
 `;
 
 const WinnerOverlay = styled(motion.div)`
   position: absolute;
   inset: 0;
-  background: rgba(248, 248, 247, 0.96);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(8px);
   border-radius: 12px;
   z-index: 10;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding: 20px;
+  gap: 8px;
+  padding: 14px 12px;
   text-align: center;
   border: none;
-  box-shadow: none;
+  box-shadow: ${ringShadow.light.cardHoverGlow};
 
   [data-theme='dark'] & {
     background: rgba(28, 26, 23, 0.96);
+    box-shadow: ${ringShadow.dark.cardHoverGlow};
   }
 `;
 
 const WinnerTitle = styled.div`
-  font-size: 18px;
+  font-size: 16.5px;
   font-weight: 700;
   color: #191f28;
 
@@ -320,12 +442,56 @@ const WinnerTitle = styled.div`
 `;
 
 const WinnerDesc = styled.div`
-  font-size: 12.5px;
+  font-size: 12px;
   color: #6b7280;
-  max-width: 260px;
+  max-width: 240px;
 
   [data-theme='dark'] & {
     color: #a1a1aa;
+  }
+`;
+
+const WinnerIconWrap = styled.div<{ $winner: Stone | 'DRAW' }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  box-shadow: ${ringShadow.light.button};
+  background: ${({ $winner }) =>
+    $winner === 'B'
+      ? 'rgba(0, 184, 130, 0.12)'
+      : $winner === 'W'
+      ? 'rgba(212, 175, 55, 0.14)'
+      : 'rgba(107, 114, 128, 0.12)'};
+  color: ${({ $winner }) =>
+    $winner === 'B' ? '#008a60' : $winner === 'W' ? '#b8941f' : '#6b7280'};
+
+  [data-theme='dark'] & {
+    box-shadow: ${ringShadow.dark.button};
+    background: ${({ $winner }) =>
+      $winner === 'B'
+        ? 'rgba(0, 184, 130, 0.20)'
+        : $winner === 'W'
+        ? 'rgba(212, 175, 55, 0.20)'
+        : 'rgba(255, 255, 255, 0.10)'};
+    color: ${({ $winner }) =>
+      $winner === 'B' ? '#4ade80' : $winner === 'W' ? '#e5c058' : '#9ca3af'};
+  }
+`;
+
+const NoticeText = styled.div<{ $variant?: 'gold' | 'green' }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  margin: 2px 0;
+  color: ${({ $variant }) => ($variant === 'green' ? '#008a60' : '#b8941f')};
+
+  [data-theme='dark'] & {
+    color: ${({ $variant }) => ($variant === 'green' ? '#4ade80' : '#e5c058')};
   }
 `;
 
@@ -636,13 +802,10 @@ export default function MiniOmokGame({
       <StatusHeader>
         <TurnBadge $isUserTurn={isPlayerTurn}>
           {isPlayerTurn ? <User size={13} /> : <Bot size={13} />}
-          <span>{isPlayerTurn ? '당신의 차례 (흑돌)' : '온마루 AI 수읽기 중...'}</span>
+          <span>{isPlayerTurn ? '내 차례 (흑돌)' : 'AI가 생각하고 있어요'}</span>
         </TurnBadge>
 
-        <DifficultyBadge>
-          <Flame size={12} />
-          <span>난이도: 고수</span>
-        </DifficultyBadge>
+        
       </StatusHeader>
 
       <BoardContainer>
@@ -675,84 +838,83 @@ export default function MiniOmokGame({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
             >
-              <Award size={36} color={winner === 'B' ? '#00b882' : '#d4af37'} />
+              {/* 팡파레 축하 파티클 효과 */}
+              <FanfareConfetti />
+
+              <WinnerIconWrap $winner={winner}>
+                {winner === 'B' ? (
+                  <Crown size={24} />
+                ) : winner === 'W' ? (
+                  <Bot size={24} />
+                ) : (
+                  <Swords size={24} />
+                )}
+              </WinnerIconWrap>
+
               <WinnerTitle>
                 {winner === 'B'
-                   ? '🎉 흑돌(사용자) 승리!'
-                   : winner === 'W'
-                   ? '백돌(온마루 AI) 승리!'
-                   : '무승부입니다!'}
+                  ? '승리하셨어요!'
+                  : winner === 'W'
+                  ? 'AI가 이겼어요'
+                  : '무승부예요'}
               </WinnerTitle>
               <WinnerDesc>
                 {winner === 'B'
-                   ? '축하합니다! 고수 AI를 제압하셨습니다.'
-                   : '날카로운 공방이었습니다! 다음 판에 설욕해보세요.'}
+                  ? '축하해요! AI를 상대로 멋진 승리를 거두셨어요.'
+                  : winner === 'W'
+                  ? '아쉽게 졌어요. 한 번 더 도전해 볼까요?'
+                  : '치열한 접전 끝에 비겼어요.'}
               </WinnerDesc>
 
               {!isGenerationComplete ? (
                 <>
-                  <div
-                    style={{
-                      color: '#d4af37',
-                      fontSize: '13px',
-                      fontWeight: 600,
-                      margin: '6px 0 2px',
-                    }}
-                  >
-                    ⏳ 아직 온마루 AI가 맞춤 경로를 추천 중이에요!
-                  </div>
+                  <NoticeText $variant="gold">
+                    <Sparkles size={13} />
+                    <span>맞춤 여정을 추천하는 중이에요</span>
+                  </NoticeText>
                   <div
                     style={{
                       display: 'flex',
-                      flexDirection: 'column',
                       gap: '8px',
                       width: '100%',
-                      maxWidth: '250px',
+                      maxWidth: '260px',
                       marginTop: '4px',
+                      justifyContent: 'center',
                     }}
                   >
-                    {onGoToWordSearch && (
-                      <ViewJourneyBtn
-                        style={{
-                          width: '100%',
-                          background: '#00b882',
-                          padding: '8px 12px',
-                        }}
-                        onClick={onGoToWordSearch}
-                      >
-                        🔍 전통 단어 찾기 퍼즐 하기 →
-                      </ViewJourneyBtn>
-                    )}
                     <ActionButton
-                      style={{ justifyContent: 'center', width: '100%' }}
+                      style={{ justifyContent: 'center' }}
                       onClick={handleReset}
                     >
-                      <RotateCcw size={13} />
-                      <span>오목 다시 대국</span>
+                      <RotateCcw size={12} />
+                      <span>한 판 더 하기</span>
                     </ActionButton>
+                    {onGoToWordSearch && (
+                      <ActionButton
+                        style={{ justifyContent: 'center' }}
+                        onClick={onGoToWordSearch}
+                      >
+                        <Search size={12} />
+                        <span>낱말 찾기 이동</span>
+                      </ActionButton>
+                    )}
                   </div>
                 </>
               ) : (
                 <>
-                  <div
-                    style={{
-                      color: '#00b882',
-                      fontSize: '13px',
-                      fontWeight: 600,
-                      margin: '6px 0 2px',
-                    }}
-                  >
-                    ✨ 온마루 AI 추천 경로가 완성되었습니다!
-                  </div>
-                  <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                  <NoticeText $variant="green">
+                    <CheckCircle2 size={14} />
+                    <span>맞춤 여정이 준비되었어요</span>
+                  </NoticeText>
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '4px', width: '100%', maxWidth: '270px', justifyContent: 'center' }}>
                     <ActionButton onClick={handleReset}>
-                      <RotateCcw size={13} />
-                      <span>다시 대국</span>
+                      <RotateCcw size={12} />
+                      <span>한 판 더 하기</span>
                     </ActionButton>
                     {onViewJourney && (
                       <ViewJourneyBtn onClick={onViewJourney}>
-                        <Sparkles size={12} style={{ display: 'inline', marginRight: '4px' }} />
-                        완성된 여정 보러가기 →
+                        <Sparkles size={12} />
+                        <span>완성된 여정 보기</span>
                       </ViewJourneyBtn>
                     )}
                   </div>
@@ -767,36 +929,38 @@ export default function MiniOmokGame({
         <div style={{ display: 'flex', gap: '8px' }}>
           <ActionButton onClick={handleReset}>
             <RotateCcw size={12} />
-            <span>판 초기화</span>
+            <span>다시 하기</span>
           </ActionButton>
           <ActionButton onClick={handleUndo} disabled={moveHistory.length < 2 || !isPlayerTurn}>
-            <span>한 수 무르기</span>
+            <span>한 수 취소</span>
           </ActionButton>
         </div>
 
         {onGoToWordSearch && (
           <ActionButton onClick={onGoToWordSearch}>
-            <span>🔍 단어 찾기</span>
+            <Search size={12} />
+            <span>낱말 찾기</span>
           </ActionButton>
         )}
       </ControlsBar>
 
-      {/* Assembly Finished Banner */}
+      {/* Assembly Finished Banner (대국 진행 중에만 하단에 표시하여 승리 모달과 중복 방지) */}
       <AnimatePresence>
-        {isGenerationComplete && (
+        {isGenerationComplete && !winner && (
           <FinishedBanner
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, scale: 0.95, y: 6 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -6 }}
+            transition={{ type: 'spring', damping: 20, stiffness: 350 }}
           >
             <CompleteText>
-              <CheckCircle2 size={16} color="#00b882" />
-              <span>여정이 모두 지어졌습니다!</span>
+              <CheckCircle2 size={14} color="#008a60" />
+              <span>맞춤 여정이 준비되었어요</span>
             </CompleteText>
             {onViewJourney && (
               <ViewJourneyBtn onClick={onViewJourney}>
-                <Sparkles size={12} style={{ display: 'inline', marginRight: '4px' }} />
-                완성된 여정 보기
+                <Sparkles size={12} />
+                <span>완성된 여정 보기</span>
               </ViewJourneyBtn>
             )}
           </FinishedBanner>
