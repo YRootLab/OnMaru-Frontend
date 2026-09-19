@@ -6,7 +6,7 @@ import { ApiError } from '@/features/admin/types';
 import { createCsrfTokenProvider } from './csrf';
 import { isOnmaruApiError, normalizeApiError } from './errors';
 
-const DEFAULT_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
+const DEFAULT_BASE = process.env.NEXT_PUBLIC_API_URL ?? '';
 export const USE_MOCK = !DEFAULT_BASE;
 
 const TIMEOUT_MS = 10000;
@@ -34,7 +34,10 @@ let apiClientConfig: ApiClientConfig = {
   fetcher: (...args) => fetch(...args),
 };
 
-let csrfProvider = createCsrfTokenProvider(apiClientConfig.fetcher, resolveApiBase(apiClientConfig.baseUrl));
+// FE #89: /auth/csrf는 /api/v1 아래가 아니라 백엔드 루트에 있다. resolveApiBase()로
+// /api/v1을 붙인 값을 넘기면 실제로는 .../api/v1/auth/csrf를 호출하게 되어 이중
+// prefix 버그가 생긴다 — CSRF 프로바이더에는 반드시 순수 baseUrl만 넘긴다.
+let csrfProvider = createCsrfTokenProvider(apiClientConfig.fetcher, apiClientConfig.baseUrl.replace(/\/+$/, ''));
 
 function trimSlashes(value: string): string {
   return value.replace(/^\/+|\/+$/g, '');
@@ -43,6 +46,11 @@ function trimSlashes(value: string): string {
 function resolveApiBase(baseUrl: string): string {
   const cleanBase = baseUrl.replace(/\/+$/, '');
   return `${cleanBase}/api/v1`;
+}
+
+/** FE #93: SSE(EventSource)는 apiRequest를 거치지 않으므로 URL을 직접 조립해야 하는 호출부가 쓴다. */
+export function getApiV1BaseUrl(): string {
+  return resolveApiBase(apiClientConfig.baseUrl);
 }
 
 function isInternalNextApiPath(path: string): boolean {
@@ -78,7 +86,7 @@ export function resetApiClientForTests(config?: Partial<ApiClientConfig>): void 
     baseUrl: config?.baseUrl ?? DEFAULT_BASE,
     fetcher: config?.fetcher ?? ((...args) => fetch(...args)),
   };
-  csrfProvider = createCsrfTokenProvider(apiClientConfig.fetcher, resolveApiBase(apiClientConfig.baseUrl));
+  csrfProvider = createCsrfTokenProvider(apiClientConfig.fetcher, apiClientConfig.baseUrl.replace(/\/+$/, ''));
 }
 
 // 모의 응답 딜레이 (200ms ~ 500ms 지연 시뮬레이션)

@@ -3,10 +3,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { getAccessToken, setAccessToken, removeAccessToken, apiPost, apiDelete, USE_MOCK } from '@/lib/api/client';
+import { getAccessToken, setAccessToken, removeAccessToken, apiPost, USE_MOCK } from '@/lib/api/client';
 import { OnmaruUser } from '../types';
 import { buildKakaoAuthorizeUrl } from '../api/kakaoAuth';
 import { clearPrivateClientState } from '../privateState';
+import { defaultMemberRepository } from '../api/memberApi';
 
 const USER_STORAGE_KEY = 'onmaru_user';
 
@@ -57,7 +58,16 @@ export function useAuth() {
     }
   }, []);
 
-  const logout = useCallback(() => {
+  // FE #97: POST /auth/logout으로 서버 세션도 함께 끊는다. 실패해도(세션 만료 등)
+  // 로컬 정리는 그대로 진행한다 — 로그아웃은 사용자 입장에서 항상 성공해야 한다.
+  const logout = useCallback(async () => {
+    if (!USE_MOCK) {
+      try {
+        await defaultMemberRepository.logout();
+      } catch {
+        // ignore — 로컬 세션 정리는 아래에서 계속한다.
+      }
+    }
     removeAccessToken();
     clearPrivateClientState();
     setUser(null);
@@ -65,11 +75,12 @@ export function useAuth() {
     router.push('/');
   }, [router]);
 
-  // 회원 탈퇴 — 카카오 연결 해제는 백엔드 담당, 프론트는 로컬 세션 정리만 책임진다.
+  // 회원 탈퇴 — FE #97: DELETE /members/me. 카카오 연결 해제는 백엔드 담당,
+  // 프론트는 실패해도 로컬 세션 정리만 책임진다.
   const deleteAccount = useCallback(async (): Promise<void> => {
     if (!USE_MOCK) {
       try {
-        await apiDelete('/api/auth/me');
+        await defaultMemberRepository.deleteMyAccount();
       } catch {
         // 세션이 이미 만료된 경우 등 — 로컬 정리는 그대로 진행한다.
       }
