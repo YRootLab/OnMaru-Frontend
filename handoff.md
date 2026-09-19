@@ -1,5 +1,149 @@
 # handoff.md
 
+## 2026-09-19 — 백엔드 1차 배포 연동 (FE #88~#97)
+
+`myFrontendSkill/frontend-senior-engineer/skill.md`(DI/repository 경계)를 따라 실제
+배포된 `onmaru-backend.onrender.com`(`/v3/api-docs` 기준 REST 42종) 연동을 시작했다.
+
+### 완료
+
+- **[FE #89] CSRF 이중 prefix 버그 수정**: `src/lib/api/client.ts`의 `csrfProvider`가
+  `resolveApiBase(baseUrl)`("/api/v1" 붙은 값)를 넘겨받아 실제로는
+  `.../api/v1/auth/csrf`를 호출하고 있었다(정답은 `/auth/csrf`, `/api/v1` 아래가
+  아님). 순수 `baseUrl`을 넘기도록 고쳤다. 기존 테스트는 `endsWith('/auth/csrf')`라
+  이중 prefix를 못 잡았어서, 호출 URL 전체를 비교하는 회귀 테스트를
+  `client.contract.test.ts`에 추가했다.
+- **env 변수 정합**: `client.ts`와 `journeyCuratorApi.ts`가 실제로는 한 번도 설정된
+  적 없는 `NEXT_PUBLIC_API_BASE_URL`을 읽고 있어서 `USE_MOCK`이 항상 `true`였다.
+  실제 가이드 스펙대로 `NEXT_PUBLIC_API_URL`(`.env.local`/`.env.example`에 이미
+  등록됨)을 읽도록 고쳤다. **주의**: 이 결과로 이미 mock 상태로 라이브 연결돼
+  있던 `journey-curator`(`/`), `visit-review`(`/map` 온기), `saved-resources`,
+  member timeline(`/mypage`) repository들이 이제 실제 백엔드로 요청을 보낸다 —
+  백엔드가 아직 seed 데이터뿐이라(아래 참고) 화면에 보이는 내용이 바뀔 수 있다.
+  되돌리려면 `.env.local`의 `NEXT_PUBLIC_API_URL` 값을 비우면 된다.
+- **[FE #88] OpenAPI 타입 코드젠**: `npm run generate:api-types`
+  (`openapi-typescript` devDependency 추가) → `src/types/api.generated.d.ts`.
+  단, `GET /api/v1/hanoks` 등 목록 엔드포인트는 success response 스키마가 아직
+  `Record<string, never>`로만 문서화돼 있어(백엔드 미기재) 실사용 타입은 별도로
+  손으로 검증했다(아래).
+- **[FE #90] 한옥/장소 backend repository** (`src/features/hanok-archive/api/hanokApi.ts`,
+  테스트 포함): `GET /hanoks`, `GET /places/{placeId}`, `GET /map/places`. 응답
+  타입은 실서버를 직접 호출해 받은 실제 JSON으로 검증(OpenAPI 스펙이 비어 있어
+  코드젠으로는 못 뽑음). **의도적으로 `HanokArchive`/`HanokMap` 라이브 화면에는
+  아직 연결하지 않았다** — 지금 백엔드가 진짜 데이터가 아니라 seed 2건
+  (`전주 한옥마을`, `북촌 한옥 찻집`, 썸네일도 `cdn.onmaru.example`이라는
+  존재하지 않는 placeholder 도메인)뿐이라, 지금 연결하면 현재 잘 동작하는
+  전국 수집분(약 259곳) 화면이 2건짜리로 퇴보한다. 백엔드가 전수 데이터를
+  채운 뒤 `defaultHanokRepository`를 실제 화면 데이터 소스로 스왑하면 된다
+  (컴포넌트/훅 코드는 안 건드려도 됨 — repository만 교체).
+- 검증: `npx tsc --noEmit` 0 errors, `npm test` — 새로 추가/수정한 테스트 전부
+  통과(`src/lib/api`, `src/features/hanok-archive/api`, `src/features/journey-curator`,
+  `src/features/visit-review`, `src/features/saved-resources`). 전체 스위트 기준
+  실패 6건은 전부 `src/app/sorimaru/backgroundRoutes.test.tsx`와
+  `pageContainerPresentation.test.ts`에서 나왔고, 둘 다 이 세션에서 손대지
+  않은 파일이며 git 기준으로도 미변경 상태라 이번 작업과 무관한 기존 실패다.
+
+### 실서버로 직접 검증한 실제 응답 shape (2026-09-19 기준, 참고용)
+
+- `GET /api/v1/hanoks?limit=2` → `{schemaVersion, items:[{placeId,name,category,
+  regionName,thumbnailUrl,summary,tags,savedByMe}], nextCursor, hasMore}` (2건, seed)
+- `GET /api/v1/places/{placeId}` → `{schemaVersion,placeId,name,category,region:
+  {regionCode,name},address,coordinates:{lat,lng},images:[{url,alt}],description,
+  contentTags,savedByMe}`
+- `GET /api/v1/map/places?...` → `{schemaVersion,coverageStatus,language,items:[{
+  placeId,name,category,region:{regionCode,name,level,parentRegionCode},
+  coordinates:{lat,lng},thumbnailUrl,summary,savedByMe,linkedOdiiStoryIds,
+  dataAvailability:{place,observation,odii}}],nextCursor,hasMore}` (2건, seed)
+- `GET /api/v1/visit-reviews?scope=ALL` → 3건, 전부 같은 placeholder 문구
+  ("비 오는 날 처마 밑에서 쉬기 좋았습니다") — seed 데이터임이 명확함.
+- `GET /api/v1/odii/stories` → **503 `SERVICE_UNAVAILABLE`** ("Odii data is
+  temporarily unavailable", `retryAfterMs:30000`) — 이 세션 시점에 백엔드 자체가
+  이 도메인을 아직 못 띄운 상태. 실제 응답 shape을 확인할 수 없어 FE #91
+  repository는 이번 패스에서 만들지 않았다(추측으로 shape을 만들면 나중에
+  조용히 틀릴 위험이 커서 보류).
+
+### 2026-09-19 (2차 패스) — Wave 0 잔여 + Wave 1 전체
+
+GitHub Issues #90~#97 본문을 각각 직접 읽고(파싱한 요약이 아니라 실제 이슈
+본문의 Scope/Acceptance Criteria/Touch Points를 따랐다) 진행했다.
+
+**[FE #90] 완료 — 이번엔 실제로 화면 데이터 소스까지 바꿨다.**
+`hanokArchive.service.ts`/`hanokDetail.service.ts`에 `NEXT_PUBLIC_API_URL`이
+있으면 백엔드(`/hanoks`, `/places/{id}`)를 먼저 시도하고 실패 시 기존 TourAPI
+경로로 폴백하는 로직을 넣었다(이슈가 원한 정확한 패턴). `/api/tourapi`,
+`/api/tourapi/detail` Next.js 라우트는 그대로라 클라이언트 쪽은 안 건드렸다.
+**중요**: 지금 `.env.local`에 `NEXT_PUBLIC_API_URL`이 설정돼 있으므로 로컬에서
+`/hanok`을 열면 실제로 백엔드 seed 2건(placeholder 이미지 포함)이 뜬다 —
+1차 패스에서 만들어 둔 `hanokApi.ts`(별도 client repository, 화면에 미연결)는
+이제 이 목적을 이미 서비스 레이어가 대신하므로 남겨는 뒀지만 실질적으로 중복이다.
+`npm run generate:api-types`도 이미 실행해 `src/types/api.generated.d.ts` 존재.
+
+**[FE #91] 여전히 보류 — 재시도했지만 503 그대로.** 백엔드 Odii 서비스가
+이 세션 마지막까지 `SERVICE_UNAVAILABLE`이었다. 응답 shape을 검증할 방법이
+없어 추측으로 구현하지 않았다(추측이 틀리면 오디오 재생이 조용히 깨질 수 있는
+도메인이라 위험도가 다른 곳보다 높다). 503이 풀리면 한 번의 curl로 shape을
+확인하고 `hanokApi.ts`와 같은 패턴으로 만들 것.
+
+**[FE #92] 완료.** `visitReviewApi.ts`에 `listReviewsByPlace(placeId)` 추가.
+신규 `regionResolve.service.ts`(GPS→행정구역, 실서버로 shape 검증됨), 신규
+`mapInsights.service.ts`(heatmap/observations, 실서버로 shape 검증됨) 추가.
+단, `mapInsights`는 **기존 `visitor.service.ts`의 혼잡도 파이프라인에 연결하지
+않았다** — 오늘 날짜로 heatmap을 직접 호출해보니 `coverageStatus: "MISSING",
+spots: []`라 지금 연결하면 잘 동작하던 혼잡도 지도가 완전히 빈 화면이 된다.
+
+**[FE #93] API 레이어 완료, UI 훅 연결은 안 함.** `journeyApi.ts`의
+`JourneyRepository`에 `applyAction`(PIN/EXCLUDE/PROPOSAL)과
+`subscribeToRunEvents`(EventSource 기반, 기존 `journeySseParser.ts` 순수
+파서 재사용, 테스트 더블로 검증됨)를 추가했다. **발견**: `useJourneyStore.ts`
+(홈 `/`의 실제 여정 탐색 UI)는 `journeyApi.ts`의 `JourneyRepository`를 전혀
+쓰지 않는다 — `explorationApi.ts`의 `fetchExplorationBoard`(Gemini+TourAPI
+기반, board/candidates 모델)라는 완전히 다른 시스템을 쓴다. 두 시스템이
+평행하게 존재하는 상태라, "UI 훅에서 최소한으로 연결"은 하지 않았다 — 지금
+잘 동작하는 홈 검색 흐름을 건드리는 게 되기 때문이다. `JourneyRepository`
+쪽 SSE/액션을 실제로 쓰려면 먼저 두 시스템을 어떻게 합칠지 결정이 필요하다.
+
+**[FE #94] API 모듈만 완료.** 신규 `journeyThreadsApi.ts`
+(list/get/delete, 테스트 포함). 응답 shape은 로그인 세션이 있어야 확인 가능해
+검증 못 했다(주석에 명시). mypage 목록/상세 UI는 아직 없음(이슈도 "신규 UI
+훅이 필요하다"고 명시 — API 연동 범위를 넘어서는 화면 작업).
+
+**[FE #95] 완료.** 신규 `savedJourneysApi.ts`(list/create/remove/resume).
+`useSavedExplorationStore.ts`를 async로 바꿔 백엔드 우선 + 실패 시
+localStorage 폴백으로 전환(`saveJourney`/`removeSaved`/`loadSaved`).
+`renameSaved`는 대응 백엔드 엔드포인트가 없어 여전히 로컬 전용. 응답 shape은
+검증 못 했지만(로그인 필요) 실패 시 항상 localStorage로 떨어지므로 저장 기능
+자체는 절대 깨지지 않는다. 소비하는 두 컴포넌트(`JourneySaveButton.tsx`,
+`mypage/page.tsx`)는 반환값을 안 쓰고 있어 sync→async 전환이 안전했다.
+
+**[FE #96] API 레이어 완료.** 신규 `moderationApi.ts`. 이 도메인만 유일하게
+OpenAPI에 요청 스키마가 문서화돼 있었는데, 회원 세션(cookie/CSRF)이 아니라
+기존 운영자 Bearer 토큰 + `X-OnMaru-Operator` 헤더 패턴이었다(이슈의 "csrf:true"
+제안과 다름 — 스펙을 더 신뢰했다). 붙일 실제 검수 큐 UI가 아직 없어(이슈도
+"신규 호출부는 없다"고 명시) 연결은 안 함.
+
+**[FE #97] 완료.** 신규 `memberApi.ts`(getMyProfile/deleteMyAccount/logout).
+`useAuth.ts`의 `logout`/`deleteAccount`가 기존에 잘못된 경로(`/api/auth/me`
+등, 실제 백엔드에 없는 경로)를 부르고 있던 걸 실제 계약(`DELETE /members/me`,
+`POST /auth/logout`)으로 고쳤다. `logout`이 이제 async가 됐지만 호출부
+(`mypage/page.tsx`의 `onClick={logout}`)는 반환값을 안 써서 안전했다.
+`getMyProfile()`은 만들었지만 mypage 프로필 표시를 이걸로 바꾸진 않았다
+(지금은 로그인 시 저장해 둔 로컬 `user` 상태를 그대로 씀).
+
+**검증**: `npx tsc --noEmit` 0 errors. `npm test` 157 passed / 6 failed —
+실패 6개는 전부 `backgroundRoutes.test.tsx`/`pageContainerPresentation.test.ts`
+(이번 세션에 손대지 않았고 git 기준 미변경 — 완전히 무관한 기존 실패, 세션
+시작 전부터 있었음). 새로 만든 파일들은 대상 지정 eslint로 개별 확인,
+내가 도입한 `any`/미사용변수는 전부 고쳤고, 기존에 있던 `any`(예:
+`client.ts`, `hanokDetail.service.ts`의 원래 TourAPI 매핑 코드)는 건드리지
+않았다(리팩터링 범위 밖).
+
+**남은 것 요약**: FE #91(백엔드 503으로 진짜 블록), 그리고 이번에 만든
+API 모듈들의 "실제 화면 UI 연결"(journey-threads 히스토리 화면, moderation
+큐 화면, mypage 프로필 백엔드 전환, journeyApi.ts 액션/SSE를 실제 홈 검색
+흐름과 합치는 결정) — 전부 "API 관련 작업"의 핵심(레포지토리+테스트+실서버
+계약 검증)은 끝났고, 남은 건 그 위에 새 화면을 얹거나 기존 화면의 데이터
+소스를 스위치하는 UI 작업이다.
+
 Current work:
 - Sorimaru expanded-player UI/UX & motion refinement:
   - Implemented one-shot cinematic staggered entrance animation for expanded transcript view (title -> subtitle -> hashtags -> entire transcript block).

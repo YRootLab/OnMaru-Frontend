@@ -1,3 +1,13 @@
+# Architecture
+
+## Data flows in, not out
+
+- A component that renders UI must not own `fetch()`/API calls inside its body. Data comes in from outside — as props from a parent (ideally a Server Component that fetched it), or as the return value of a dedicated hook.
+- Prefer fetching in the page-level Server Component (`app/**/page.tsx`) and passing the result down as props. Reach for client-side fetching only when the data depends on client-only state a server render can't know in advance (a filter, a user action, a live poll).
+- When client-side fetching is unavoidable, isolate it in a `features/<feature>/hooks/use<Thing>.ts` hook that owns the `fetch`/loading/error state and returns plain data (see `src/features/hanok-archive/hooks/*` for the existing shape: `{ data, loading }` or similar). The rendering component calls the hook and stays a pure function of its inputs — reusable and testable without a live network.
+- Non-fetch business logic (mapping, decoding, classification) that more than one place needs belongs in `features/<feature>/services/*.ts`, not copy-pasted into a component.
+- Refactors that only relocate data-fetching/logic into a hook or service must not change the rendered output, animation, or styling of the component they're extracted from — verify with a type-check and a visual diff before considering the extraction done.
+
 # UI design guidance
 
 ## Color direction

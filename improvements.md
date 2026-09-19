@@ -112,6 +112,29 @@ Backlog for follow-up improvements that are useful but not required to resume th
 - 출처 없는 생성, 프롬프트 인젝션, 과도한 요청을 차단하고 trace ID·rate limit·검색/답변 평가를 운영한다.
 - 프런트와 백엔드의 성공 계약: `{ answer, sources: [{ stid, title, locationName?, formattedDuration? }] }`.
 
+### 프론트엔드 아키텍처 방향 선정 — 2026-09-19
+
+**질문:** 컴포넌트마다 제각각이던 `fetch` 로직은 훅(`useArchiveData`, `useKCultureThemes`, `useHanokDetail`, `useStayDetail`)으로 방금 정리했다. 그 다음 단계로 어떤 아키텍처를 정식 방향으로 잡을지는 아직 안 정했다. 실제 백엔드(`onmaru-backend.onrender.com`, `/v3/api-docs` 기준 REST 42종, `NEXT_PUBLIC_API_URL`에 등록 완료)가 이제 붙을 수 있게 됐고, 지금까지는 TourAPI 프록시 라우트 + 정적 폴백 JSON(`hanokVillages.fallback.json`)을 섞어 써 왔다.
+
+#### 발산: 후보
+
+1. 지금처럼 feature 폴더마다 `services/` + `hooks/` 컨벤션만 계속 지킨다(이미 시작함).
+2. Next.js 서버 컴포넌트(`app/**/page.tsx`)에서 먼저 페칭하고, 클라이언트 컴포넌트는 props로만 받는다 — 클라이언트 `fetch`는 정말 필요한 곳(필터·사용자 액션에 반응)에만 남긴다.
+3. React Query/SWR 같은 캐싱·재검증 레이어를 도입한다.
+4. `/v3/api-docs` OpenAPI 스펙을 `openapi-typescript` 등으로 코드젠해서 백엔드 타입을 수동 동기화하지 않는다.
+5. Redux/Zustand 같은 전역 상태 레이어를 새로 추가한다.
+6. TourAPI 프록시 라우트를 걷어내고 실제 백엔드로 한 번에 전면 교체한다.
+
+#### 수렴: 추천 (우리 규모·일정 기준)
+
+- **1 + 2번을 기본으로 삼는다.** 이미 있는 서비스/훅 분리를 계속 지키고, 새로 페칭하는 화면은 되도록 서버 컴포넌트에서 먼저 가져와 props로 내려준다. 새 프레임워크나 레이어 없이 지금 컨벤션만 일관되게 적용해도 "느슨한 결합 + 데이터 외부 주입"은 이미 달성된다.
+- **3번(React Query/SWR)은 아직 이르다.** 캐싱·재검증이 실제로 아픈 지점(같은 데이터를 여러 화면에서 중복 요청, 포커스 시 재검증 필요 등)이 아직 뚜렷하지 않다. 필요해지는 신호가 보이면 그때 도입한다(YAGNI).
+- **4번(OpenAPI 코드젠)은 실속이 있다.** 백엔드가 42개 엔드포인트짜리 정식 스펙을 이미 내려주므로, 타입을 손으로 베껴 쓰기 시작하기 전에 `openapi-typescript`로 타입만 자동 생성해 두는 게 이후 유지비를 크게 줄인다. tRPC 같은 런타임 계층까지는 필요 없다.
+- **5번(전역 상태 관리)은 지금 규모에서 불필요.** 컴포넌트 트리가 깊지 않고 prop drilling이 실제 문제로 드러난 지점이 아직 없다.
+- **6번(전면 교체)은 위험하다.** TourAPI 폴백이 여전히 유효한 데이터 소스이므로, 한 번에 갈아엎지 말고 섹션 단위로 점진적으로 바꾼다(예: "이달의 한옥"처럼 백엔드가 먼저 안정화된 도메인부터).
+
+**결론(1순위):** 새 의존성 추가 없이 기존 서비스/훅 컨벤션을 전 feature에 일관 적용하고, 새 백엔드는 `services/onmaruApi.service.ts` 하나로 얇게 감싸 섹션 단위로 점진 연결한다. 백엔드 스펙이 이미 있으니 타입만 `openapi-typescript`로 자동 생성하는 것부터 다음 단계로 검토한다. React Query·전역 상태관리·tRPC는 필요 신호(중복 요청·캐시 불일치·prop drilling 고통)가 실제로 보일 때 추가한다.
+
 ### 한국관광공사_지역별 관광 자원 수요 데이터 활용 아이디어 — 2026-09-17
 
 실시간 API가 아닌 정기 배포 통계 데이터셋(월/분기 단위 갱신)이므로 즉시 도입보다 중장기 기능으로 검토.
