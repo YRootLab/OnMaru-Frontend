@@ -40,7 +40,7 @@ const FloatingOpenButton = styled.button`
   }
 
   &:hover {
-    color: ${palette.jangmi[500]};
+    color: ${palette.juhong[500]};
   }
 
   @media (min-width: 640px) {
@@ -105,14 +105,14 @@ const CloseButton = styled.button`
   transition: color 0.15s ease;
 
   &:hover {
-    color: ${palette.jangmi[500]};
+    color: ${palette.juhong[500]};
   }
 
   [data-theme='dark'] & {
     color: ${meok[400]};
 
     &:hover {
-      color: ${palette.jangmi[400]};
+      color: ${palette.juhong[400]};
     }
   }
 `;
@@ -201,9 +201,9 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
         onClick={() => setIsOpen(true)}
         aria-label={`마음 담아둔 소리 ${savedStories.length}개 열기`}
       >
-        <Heart size={14} strokeWidth={2} fill="currentColor" style={{ color: palette.jangmi[500] }} />
+        <Heart size={14} strokeWidth={2} fill="currentColor" style={{ color: palette.juhong[500] }} />
         마음 담아둔 소리
-        <span style={{ fontFamily: 'monospace', fontSize: fontSize.micro, color: meok[700] }}>
+        <span style={{ fontFamily: 'var(--font-hanok)', fontVariantNumeric: 'tabular-nums', fontSize: fontSize.micro, color: meok[700] }}>
           {savedStories.length}
         </span>
       </FloatingOpenButton>
@@ -233,7 +233,7 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
             >
               <DrawerHeader>
                 <div>
-                  <p style={{ fontSize: '0.75rem', fontWeight: 600, color: palette.jangmi[500] }}>다시 듣고 싶은 장면</p>
+                  <p style={{ fontSize: '0.75rem', fontWeight: 600, color: palette.juhong[500] }}>다시 듣고 싶은 장면</p>
                   <h2 style={{ marginTop: '0.25rem', fontFamily: 'var(--font-hanok)', fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.045em' }}>
                     마음 담아둔 소리
                   </h2>
@@ -270,7 +270,7 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
                           />
                         </ThumbBox>
                         <div style={{ minWidth: 0, flex: 1 }}>
-                          <p style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: fontSize.micro, color: palette.jangmi[500] }}>
+                          <p style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: fontSize.micro, color: palette.juhong[500] }}>
                             {story.locationName || '소리의 장소'}
                           </p>
                           <button
@@ -289,7 +289,7 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
                             <button
                               type="button"
                               onClick={() => handlePlay(story)}
-                              style={{ fontSize: fontSize.micro, fontWeight: 600, color: palette.jangmi[500], background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                              style={{ fontSize: fontSize.micro, fontWeight: 600, color: palette.juhong[500], background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                             >
                               {isCurrentPlaying ? '잠시 멈추기' : '이야기 듣기'}
                             </button>

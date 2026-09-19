@@ -3,6 +3,7 @@
 import { memo, useEffect, useRef, useMemo } from 'react';
 import Image from 'next/image';
 import styled from '@emotion/styled';
+import { motion } from 'framer-motion';
 import {
   Landmark,
   Home,
@@ -27,13 +28,15 @@ import SavePlaceButton from '@/features/saved-resources/components/SavePlaceButt
 interface PlaceListItemProps {
   item: Item;
   index: number;
+  /** 페이지 안에서의 위치(0부터) — 등장 stagger 딜레이 계산용. 페이지가 바뀌면 처음부터 다시 순서대로 나타난다. */
+  pageIndex: number;
   isSelected: boolean;
   isHovered: boolean;
   onSelect: (item: Item) => void;
   onHover: (id: string | null) => void;
 }
 
-const ItemContainer = styled.li`
+const ItemContainer = styled(motion.li)`
   position: relative;
   padding: 8px 14px;
   box-sizing: border-box;
@@ -333,6 +336,7 @@ function getDistrictFromAddr(addr?: string): string {
 function PlaceListItemComponent({
   item,
   index,
+  pageIndex,
   isSelected,
   onSelect,
   onHover,
@@ -387,7 +391,12 @@ function PlaceListItemComponent({
   const district = getDistrictFromAddr(item.addr);
 
   return (
-    <ItemContainer ref={itemRef}>
+    <ItemContainer
+      ref={itemRef}
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: pageIndex * 0.035, ease: [0.16, 1, 0.3, 1] }}
+    >
       <ItemButton
         type="button"
         $isSelected={isSelected}

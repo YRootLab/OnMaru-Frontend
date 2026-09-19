@@ -1,27 +1,21 @@
 'use client';
 
-import React, { useMemo, useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { useReducedMotion } from 'framer-motion';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Pause, Play, ChevronRight } from 'lucide-react';
-import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { SorimaruStoryItem } from '@/features/sorimaru-audio/types/sorimaru.types';
-import { palette, meok } from '@/design-system/tokens';
+import { meok } from '@/design-system/tokens';
 
 const INTRO_VIDEO_SRC = '/videos/hanok-neungsohwa-loop.mp4';
 
 gsap.registerPlugin(ScrollTrigger);
 
 interface SorimaruAutoSliceRailProps {
-  stories: SorimaruStoryItem[];
+  stories?: SorimaruStoryItem[];
   storySets?: Record<string, SorimaruStoryItem[]>;
-}
-
-function getStoryLabel(story: SorimaruStoryItem): string {
-  return story.locationName || (story.category !== '전체' ? story.category : '') || '대한민국 문화유산';
 }
 
 const IntroStage = styled.div`
@@ -104,7 +98,7 @@ const PageTitle = styled.h1`
   line-height: 1.3;
   letter-spacing: -0.02em;
   color: #ffffff;
-  margin: 0 0 10px;
+  margin: 0 0 12px;
   text-align: center;
   text-shadow: 0 2px 16px rgba(0, 0, 0, 0.6);
   white-space: nowrap;
@@ -121,7 +115,7 @@ const Lead = styled.p`
   font-weight: 400;
   line-height: 1.7;
   color: rgba(255, 255, 255, 0.9);
-  margin: 0 0 22px;
+  margin: 0;
   text-align: center;
   max-width: 680px;
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
@@ -133,142 +127,12 @@ const Lead = styled.p`
   }
 `;
 
-const GlassPlayerBar = styled(motion.div)`
-  display: inline-flex;
-  align-items: center;
-  gap: 14px;
-  padding: 8px 16px 8px 10px;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.16);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
-  max-width: 90vw;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.22);
-    border-color: rgba(255, 255, 255, 0.35);
-  }
-`;
-
-const IconWrapper = styled(motion.span)`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-`;
-
-const PlayCircleButton = styled.button`
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  height: 42px;
-  width: 42px;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9999px;
-  background-color: #ffffff;
-  color: ${meok[900]};
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: #f5f5f4;
-  }
-`;
-
-const StoryInfoBox = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  cursor: pointer;
-  min-width: 0;
-`;
-
-const PlayerBadge = styled.span`
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  color: ${palette.hwanggeum[200]};
-  line-height: 1.2;
-`;
-
-const StoryTitleText = styled.span`
-  font-family: var(--font-traditional-title);
-  font-size: 13.5px;
-  font-weight: 600;
-  color: #ffffff;
-  line-height: 1.35;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 260px;
-
-  @media (max-width: 520px) {
-    max-width: 160px;
-  }
-`;
-
-const StoryMetaText = styled.span`
-  font-family: var(--font-traditional-body);
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.78);
-  line-height: 1.2;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 260px;
-
-  @media (max-width: 520px) {
-    max-width: 160px;
-  }
-`;
-
-const NextTrackButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11.5px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 9999px;
-  padding: 6px 12px;
-  cursor: pointer;
-  flex-shrink: 0;
-  white-space: nowrap;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.24);
-    color: #ffffff;
-  }
-
-  @media (max-width: 520px) {
-    display: none;
-  }
-`;
-
-export const SorimaruAutoSliceRail: React.FC<SorimaruAutoSliceRailProps> = ({ stories, storySets }) => {
+export const SorimaruAutoSliceRail: React.FC<SorimaruAutoSliceRailProps> = () => {
   const shouldReduceMotion = useReducedMotion();
   const stageRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const [featuredIndex, setFeaturedIndex] = useState(0);
   const [showIntroVideo, setShowIntroVideo] = useState(false);
   const [introVideoReady, setIntroVideoReady] = useState(false);
-
-  const currentStory = useSorimaruAudioStore((state) => state.currentStory);
-  const isPlaying = useSorimaruAudioStore((state) => state.isPlaying);
-  const setCurrentStory = useSorimaruAudioStore((state) => state.setCurrentStory);
-  const setIsPlaying = useSorimaruAudioStore((state) => state.setIsPlaying);
 
   useEffect(() => {
     if (shouldReduceMotion) return undefined;
@@ -292,21 +156,6 @@ export const SorimaruAutoSliceRail: React.FC<SorimaruAutoSliceRailProps> = ({ st
     });
   }, { scope: stageRef, dependencies: [shouldReduceMotion, showIntroVideo] });
 
-  const featured = useMemo(() => {
-    const recommended = storySets?.['추천'];
-    return (recommended?.length ? recommended : stories).slice(0, 7);
-  }, [stories, storySets]);
-
-  if (featured.length === 0) return null;
-
-  const story = featured[featuredIndex % featured.length];
-  const isStoryPlaying = currentStory.stid === story.stid && isPlaying;
-
-  const play = () => {
-    if (currentStory.stid === story.stid) setIsPlaying(!isPlaying);
-    else setCurrentStory(story);
-  };
-
   return (
     <IntroStage ref={stageRef} aria-label="소리마루 오디오 히어로">
       <IntroPoster className="sorimaru-hero-media" aria-hidden="true" $visible={!introVideoReady} />
@@ -327,66 +176,10 @@ export const SorimaruAutoSliceRail: React.FC<SorimaruAutoSliceRailProps> = ({ st
       )}
       <IntroScrim aria-hidden="true" />
       <IntroContent ref={contentRef}>
-        <PageTitle>한국의 장면을, 귀로 걷다</PageTitle>
+        <PageTitle>한옥의 숨결을, 귀로 걷다</PageTitle>
         <Lead>
-          사진보다 먼저 도착하는 소리로, 오래된 장소의 온기와 사람의 발자국을 들어보세요.
+          처마 끝 풍경 소리부터 고즈넉한 대청마루까지, 전통 한옥과 오래된 공간의 온기를 들어보세요.
         </Lead>
-
-        <GlassPlayerBar
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <PlayCircleButton
-            type="button"
-            onClick={play}
-            aria-label={isStoryPlaying ? '잠시 멈추기' : '지금 듣기'}
-          >
-            <AnimatePresence initial={false} mode="wait">
-              {isStoryPlaying ? (
-                <IconWrapper
-                  key="pause"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.12 }}
-                >
-                  <Pause size={17} strokeWidth={2.5} style={{ transform: 'translate(-0.5px, 1px)' }} />
-                </IconWrapper>
-              ) : (
-                <IconWrapper
-                  key="play"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.12 }}
-                >
-                  <Play size={17} style={{ transform: 'translate(0.5px, 1.5px)' }} fill="currentColor" />
-                </IconWrapper>
-              )}
-            </AnimatePresence>
-          </PlayCircleButton>
-
-          <StoryInfoBox onClick={play}>
-            <PlayerBadge>{isStoryPlaying ? '지금 재생 중' : '지금 듣는 이야기'}</PlayerBadge>
-            <StoryTitleText>{story.title}</StoryTitleText>
-            <StoryMetaText>
-              {getStoryLabel(story)}
-              {story.formattedDuration ? ` · ${story.formattedDuration}` : ''}
-            </StoryMetaText>
-          </StoryInfoBox>
-
-          {featured.length > 1 && (
-            <NextTrackButton
-              type="button"
-              onClick={() => setFeaturedIndex((index) => index + 1)}
-              aria-label="다음 이야기로 넘기기"
-            >
-              <span>다음 이야기</span>
-              <ChevronRight size={14} strokeWidth={2.2} />
-            </NextTrackButton>
-          )}
-        </GlassPlayerBar>
       </IntroContent>
     </IntroStage>
   );

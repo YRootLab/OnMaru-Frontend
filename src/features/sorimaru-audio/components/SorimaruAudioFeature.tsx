@@ -47,8 +47,8 @@ const FeatureContainer = styled.div`
   }
 
   &::selection {
-    background-color: #FFD4E5;
-    color: #D40D63;
+    background-color: ${palette.juhong[100]};
+    color: ${palette.juhong[800]};
   }
 `;
 
@@ -86,7 +86,7 @@ const ErrorAlert = styled.div`
 const RetryButton = styled.button`
   flex-shrink: 0;
   border-radius: 9999px;
-  background-color: ${palette.jangmi[500]};
+  background-color: ${palette.juhong[500]};
   padding: 0.375rem 0.75rem;
   font-size: 0.75rem;
   font-weight: 600;
@@ -96,7 +96,7 @@ const RetryButton = styled.button`
   transition: background-color 0.15s ease;
 
   &:hover {
-    background-color: ${palette.jangmi[700]};
+    background-color: ${palette.juhong[600]};
   }
 `;
 
@@ -168,18 +168,33 @@ const NearbyHeader = styled.div`
   }
 `;
 
-const SectionDescription = styled.p`
+/*
+  "반경 3km에 이야기가 없어요" 같은 안내도 이 컴포넌트를 그대로 썼더니, 평소
+  한 줄짜리 안내문과 같은 회색·nowrap이라 눈에 안 띄고 긴 문장은 말줄임까지
+  걸려 잘렸다. $notice일 때만 줄바꿈을 허용하고 색을 주황 계열로 올린다.
+*/
+const SectionDescription = styled.p<{ $notice?: boolean }>`
   margin-top: 6px;
   max-width: 36rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  color: ${meok[700]};
+
+  ${({ $notice }) =>
+    $notice
+      ? `
+        white-space: normal;
+        font-weight: 600;
+        color: ${palette.juhong[700]};
+      `
+      : `
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: ${meok[700]};
+      `}
 
   [data-theme='dark'] & {
-    color: ${meok[400]};
+    color: ${({ $notice }) => ($notice ? palette.juhong[300] : meok[400])};
   }
 `;
 
@@ -287,6 +302,8 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   const [isLocating, setIsLocating] = useState(false);
   const [locationLabel, setLocationLabel] = useState('기본 위치');
   const [locationMessage, setLocationMessage] = useState('내 위치를 허용하면 반경 3km의 실제 오디오를 찾아드려요.');
+  // 반경 안에 이야기가 없거나 위치를 못 얻어 전국 큐레이션으로 물러났을 때만 켠다 — 그 결과를 놓치기 쉬워서.
+  const [locationNotice, setLocationNotice] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -475,10 +492,12 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   const handleLocate = () => {
     if (!navigator.geolocation) {
       setLocationMessage('이 브라우저에서는 위치 기반 이야기를 사용할 수 없습니다.');
+      setLocationNotice(true);
       return;
     }
 
     setIsLocating(true);
+    setLocationNotice(false);
     setLocationMessage('현재 위치를 확인하고 주변 이야기를 찾는 중입니다.');
     navigator.geolocation.getCurrentPosition(
       async ({ coords }) => {
@@ -488,13 +507,16 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
           setNearbyStories(stories);
           setLocationLabel('현재 위치 기준, 반경 3km');
           setLocationMessage(`${stories.length}개의 이야기를 찾았습니다. 가까운 장소부터 들려드릴게요.`);
+          setLocationNotice(false);
         } else {
           setLocationMessage('반경 3km 안에는 아직 등록된 이야기가 없어요. 전국 큐레이션을 보여드립니다.');
+          setLocationNotice(true);
         }
         setIsLocating(false);
       },
       () => {
         setLocationMessage('위치 권한을 확인하지 못했습니다. 권한 없이도 전국 큐레이션을 둘러볼 수 있어요.');
+        setLocationNotice(true);
         setIsLocating(false);
       },
       { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
@@ -567,7 +589,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                       <SectionGradientTitle id="nearby-stories-heading">
                         오늘, 여기에서
                       </SectionGradientTitle>
-                      <SectionDescription>
+                      <SectionDescription $notice={locationNotice}>
                         {locationMessage}
                       </SectionDescription>
                     </div>

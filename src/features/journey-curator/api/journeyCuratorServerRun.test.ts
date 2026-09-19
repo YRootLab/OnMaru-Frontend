@@ -41,6 +41,8 @@ describe('runJourneyCurator', () => {
         execution: null,
       }),
       cancelRun: vi.fn(),
+      applyAction: vi.fn(),
+      subscribeToRunEvents: vi.fn(),
     };
 
     await expect(runJourneyCurator({ query: '안동 서원 이야기' }, { repository })).resolves.toMatchObject({

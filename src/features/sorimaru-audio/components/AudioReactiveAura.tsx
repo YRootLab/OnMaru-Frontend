@@ -17,8 +17,8 @@ const Aura = styled.div`
   opacity: 0;
   will-change: transform, opacity;
   background:
-    radial-gradient(circle at 28% 30%, rgba(200, 183, 122, 0.26), transparent 34%),
-    radial-gradient(circle at 72% 68%, rgba(124, 144, 157, 0.22), transparent 38%);
+    radial-gradient(circle at 28% 30%, rgba(255, 120, 48, 0.22), transparent 34%),
+    radial-gradient(circle at 72% 68%, rgba(255, 163, 107, 0.16), transparent 38%);
   mix-blend-mode: screen;
 
   @media (prefers-reduced-motion: reduce) {

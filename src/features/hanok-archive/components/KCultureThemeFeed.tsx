@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,7 +13,8 @@ import {
 } from 'lucide-react';
 import { meok, lightPalette, fontSize } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
-import { KCULTURE_THEME_ITEMS, type KCultureThemeItem } from '@/features/hanok-archive/data/kcultureThemes';
+import { KCULTURE_THEME_ITEMS } from '@/features/hanok-archive/data/kcultureThemes';
+import { useKCultureThemes } from '@/features/hanok-archive/hooks/useKCultureThemes';
 
 // 이 섹션은 "스크린 속 한옥"(영화·드라마·K-POP)만 다룬다 — 달빛기행·다도 같은
 // 다른 큐레이션 테마는 여기 섞지 않는다.
@@ -211,8 +212,7 @@ const MEDIA_FILTERS: { key: 'all' | MediaType; label: string; icon: typeof Tv }[
 ];
 
 export default function KCultureThemeFeed() {
-  const [liveItems, setLiveItems] = useState<KCultureThemeItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { items: liveItems, isLoading } = useKCultureThemes();
   const [mediaFilter, setMediaFilter] = useState<'all' | MediaType>('all');
   const [isDragging, setIsDragging] = useState(false);
 
@@ -235,51 +235,6 @@ export default function KCultureThemeFeed() {
   };
 
   const handleDragEnd = () => setIsDragging(false);
-
-  useEffect(() => {
-    let ignore = false;
-    async function fetchScreenHanok() {
-      setIsLoading(true);
-      try {
-        const res = await fetch('/api/tourapi/kculture?category=kdrama');
-        if (!res.ok) throw new Error('API failed');
-        const data = await res.json();
-        if (!ignore && data?.items && Array.isArray(data.items) && data.items.length > 0) {
-          const mapped: KCultureThemeItem[] = data.items.map((it: any) => ({
-            id: `tour-${it.id}`,
-            category: 'kdrama',
-            categoryLabel: it.categoryLabel || '스크린 속 한옥',
-            categoryIcon: it.categoryIcon || '🎬',
-            mediaType: it.mediaType || 'drama',
-            eyebrow: it.drama || 'K-콘텐츠 & 사극 속 전통 한옥 문화유산',
-            title: it.title,
-            subtitle: it.subtitle || `${it.region}의 역사와 정취가 깃든 전통 한옥 명소입니다.`,
-            contentId: it.id,
-            villageName: it.title,
-            region: it.region,
-            addr: it.addr,
-            image: it.image || 'https://tong.visitkorea.or.kr/cms/resource/80/3095780_image2_1.jpg',
-            tags: it.tags || ['#드라마촬영지', '#전통한옥', '#문화유산', '#TourAPI'],
-            coursePreview: it.coursePreview || {
-              day1: ['14:00 촬영 명소 산책', '16:30 인근 고택 체크인', '18:30 향토 미식', '20:30 야경 산책'],
-              day2: ['08:30 아침 산책 & 다도', '11:00 로컬 명소 탐방'],
-            },
-          }));
-          setLiveItems(mapped);
-        }
-      } catch {
-        // 목데이터를 쓰지 않고 빈 배열 유지 (사용자 명시적 요청)
-        if (!ignore) setLiveItems([]);
-      } finally {
-        if (!ignore) setIsLoading(false);
-      }
-    }
-
-    fetchScreenHanok();
-    return () => {
-      ignore = true;
-    };
-  }, []);
 
   // 손으로 고른 작품(실제 대사·출처가 있는 것)을 앞세우고, 그 뒤를 실시간 공공데이터로 채운다.
   const allItems = [...CURATED_SCREEN_ITEMS, ...liveItems];

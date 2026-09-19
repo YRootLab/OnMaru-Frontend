@@ -100,20 +100,20 @@ const CardButton = styled.button<{ $isCurrent: boolean; $isHovered: boolean; $ac
 
   background-color: ${({ $isCurrent, $isHovered, $accentColor }) =>
     $isCurrent
-      ? '#FFF0F6'
+      ? '#FFF4EB'
       : $isHovered
       ? `color-mix(in srgb, ${$accentColor} 12%, white)`
       : '#f8f8f7'};
 
   &:hover {
     background-color: ${({ $isCurrent, $accentColor }) =>
-      $isCurrent ? '#FFF0F6' : `color-mix(in srgb, ${$accentColor} 12%, white)`};
+      $isCurrent ? '#FFF4EB' : `color-mix(in srgb, ${$accentColor} 12%, white)`};
   }
 
   [data-theme='dark'] & {
     background-color: ${({ $isCurrent, $isHovered, $accentColor }) =>
       $isCurrent
-        ? 'rgba(255, 92, 159, 0.22)'
+        ? 'rgba(255, 85, 0, 0.22)'
         : $isHovered
         ? `color-mix(in srgb, ${$accentColor} 18%, ${surface.dark.card})`
         : surface.dark.surface};
@@ -122,7 +122,7 @@ const CardButton = styled.button<{ $isCurrent: boolean; $isHovered: boolean; $ac
     &:hover {
       background-color: ${({ $isCurrent, $accentColor }) =>
         $isCurrent
-          ? 'rgba(255, 92, 159, 0.25)'
+          ? 'rgba(255, 85, 0, 0.25)'
           : `color-mix(in srgb, ${$accentColor} 18%, ${surface.dark.card})`};
     }
   }
@@ -175,7 +175,7 @@ const PlayBubble = styled.span<{ $isPlaying: boolean }>`
   ${({ $isPlaying }) =>
     $isPlaying
       ? `
-        background-color: ${palette.jangmi[500]};
+        background-color: ${palette.juhong[500]};
         color: #ffffff;
       `
       : `
@@ -187,7 +187,7 @@ const PlayBubble = styled.span<{ $isPlaying: boolean }>`
     ${({ $isPlaying }) =>
       $isPlaying
         ? `
-          background-color: ${palette.jangmi[500]};
+          background-color: ${palette.juhong[500]};
           color: #ffffff;
         `
         : `
@@ -219,10 +219,10 @@ const CardMainTitle = styled.h3<{ $isCurrent: boolean }>`
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  color: ${({ $isCurrent }) => ($isCurrent ? palette.jangmi[400] : meok[900])};
+  color: ${({ $isCurrent }) => ($isCurrent ? palette.juhong[500] : meok[900])};
 
   [data-theme='dark'] & {
-    color: ${({ $isCurrent }) => ($isCurrent ? palette.jangmi[400] : meok[100])};
+    color: ${({ $isCurrent }) => ($isCurrent ? palette.juhong[400] : meok[100])};
   }
 
   @media (min-width: 640px) {
@@ -256,16 +256,16 @@ const CategoryLocationRow = styled.div`
 const MiniCategoryTag = styled.span`
   display: inline-flex;
   border-radius: 4px;
-  background-color: rgba(255, 42, 133, 0.1);
+  background-color: ${palette.juhong[50]};
   padding: 1px 0.375rem;
   font-size: ${fontSize.micro};
   font-weight: 600;
   line-height: 1rem;
-  color: ${palette.jangmi[400]};
+  color: ${palette.juhong[600]};
 
   [data-theme='dark'] & {
-    color: ${palette.jangmi[400]};
-    background-color: rgba(255, 92, 159, 0.15);
+    color: ${palette.juhong[400]};
+    background-color: rgba(255, 85, 0, 0.15);
   }
 `;
 
@@ -395,7 +395,7 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
         </div>
 
         <CardBottomMeta>
-          <span style={{ fontFamily: 'monospace', fontWeight: 600, color: meok[700] }}>
+          <span style={{ fontFamily: 'var(--font-hanok)', fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: meok[700] }}>
             {formatDuration(story)}
           </span>
           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 500, color: meok[500] }}>
@@ -551,7 +551,7 @@ const FloatingNavBtn = styled.button<{ $side: 'left' | 'right' }>`
 
     &:hover {
       background-color: ${surface.dark.elevated};
-      color: ${palette.jangmi[400]};
+      color: ${palette.juhong[400]};
     }
   }
 
@@ -846,8 +846,8 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
 
       {railIndicator.width < 100 && (
         <CounterContainer aria-live="polite">
-          <span style={{ fontFamily: 'monospace' }}>
-            <strong style={{ fontWeight: 700, color: palette.jangmi[400] }}>
+          <span style={{ fontFamily: 'var(--font-hanok)', fontVariantNumeric: 'tabular-nums' }}>
+            <strong style={{ fontWeight: 700, color: palette.juhong[400] }}>
               {String(railIndicator.index).padStart(2, '0')}
             </strong>{' '}
             / {String(stories.length).padStart(2, '0')}

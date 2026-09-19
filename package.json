@@ -17,7 +17,8 @@
     "test:odii:live": "node scripts/test-odii-api.mjs",
     "probe": "node --env-file=.env.local scripts/probe-tourapi.mjs",
     "probe:village": "node --env-file=.env.local scripts/probe-village.mjs",
-    "probe:map": "node --env-file=.env.local scripts/probe-map-categories.mjs"
+    "probe:map": "node --env-file=.env.local scripts/probe-map-categories.mjs",
+    "generate:api-types": "openapi-typescript https://onmaru-backend.onrender.com/v3/api-docs -o ./src/types/api.generated.d.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -48,6 +49,7 @@
     "autoprefixer": "^10.5.4",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
+    "openapi-typescript": "^7.13.0",
     "postcss": "^8.5.25",
     "typescript": "^5",
     "vitest": "^4.1.10"

@@ -35,24 +35,53 @@ import type { HeatSpot } from '@/features/map/types';
   색상은 여전히 하나다 — 무지개로 갈라지지 않고 진하기 하나로만 말한다.
 */
 const RAMP_LIGHT: Record<number, string> = {
-  0.0: 'rgba(232, 90, 24, 0)', // 집계 없음
-  0.05: 'rgba(255, 203, 168, 0.2)', // juhong 100 — 한적해도 있으면 보인다
-  0.25: 'rgba(255, 204, 64, 0.34)', // hwanggeum 200
-  0.45: 'rgba(245, 166, 35, 0.52)', // hwanggeum 400
-  0.65: 'rgba(240, 112, 48, 0.68)', // juhong 400
-  0.85: 'rgba(232, 90, 24, 0.84)', // juhong 500
-  1.0: 'rgba(160, 58, 10, 0.92)', // juhong 700 — 가장 붐비는 core
+  0.0: 'rgba(255, 184, 0, 0)', // 집계 없음
+  0.05: 'rgba(255, 235, 150, 0.22)', // 연한 황금 옐로우
+  0.25: 'rgba(255, 208, 38, 0.38)', // hwanggeum 400
+  0.45: 'rgba(255, 175, 45, 0.55)', // 앰버 웜 옐로우
+  0.65: 'rgba(255, 130, 30, 0.70)', // juhong 400
+  0.85: 'rgba(255, 85, 0, 0.84)', // juhong 500
+  1.0: 'rgba(230, 71, 0, 0.92)', // juhong 600 — 따스한 주홍 core
 };
 
 /** 다크는 먹빛 바닥(#1C1A17) 위라 밀도가 오를수록 밝아져야 한다. */
 const RAMP_DARK: Record<number, string> = {
-  0.0: 'rgba(151, 49, 0, 0)',
-  0.05: 'rgba(151, 49, 0, 0.3)', // juhong 700
-  0.25: 'rgba(151, 49, 0, 0.5)',
-  0.45: 'rgba(248, 87, 0, 0.62)', // juhong 500
-  0.65: 'rgba(250, 170, 73, 0.74)', // hwanggeum 500
-  0.85: 'rgba(255, 220, 184, 0.86)', // hwanggeum 200
-  1.0: 'rgba(255, 220, 184, 0.94)', // 가장 붐비는 core
+  0.0: 'rgba(217, 64, 0, 0)',
+  0.05: 'rgba(217, 64, 0, 0.3)', // juhong 700
+  0.25: 'rgba(230, 71, 0, 0.5)',
+  0.45: 'rgba(255, 85, 0, 0.65)', // juhong 500
+  0.65: 'rgba(255, 163, 107, 0.76)', // juhong 300
+  0.85: 'rgba(255, 208, 38, 0.88)', // hwanggeum 400
+  1.0: 'rgba(255, 235, 150, 0.95)', // 황금 옐로우 core
+};
+
+/*
+  원형 히트맵 전용 램프 — 주황과 옐로우의 조화로운 스펙트럼
+  낮은 밀도는 부드러운 옐로우/황금빛으로 시작해, 붐비는 core는 선명한 단청 주홍으로 이어집니다.
+*/
+const HEATMAP_RAMP_LIGHT: Record<number, string> = {
+  0.0: 'rgba(255, 210, 60, 0)', // 집계 없음
+  0.06: 'rgba(255, 235, 140, 0.32)', // 소프트 옐로우
+  0.16: 'rgba(255, 215, 50, 0.50)', // 황금 옐로우
+  0.3: 'rgba(255, 190, 40, 0.64)', // 앰버 옐로우
+  0.45: 'rgba(255, 160, 30, 0.76)', // 따스한 옐로우 주황
+  0.6: 'rgba(255, 125, 15, 0.85)', // 밝은 주황
+  0.75: 'rgba(255, 95, 0, 0.91)', // 단청 주황
+  0.88: 'rgba(240, 80, 0, 0.95)', // 단청 주홍
+  1.0: 'rgba(217, 64, 0, 0.98)', // 풍성한 주홍 core (레드 배제)
+};
+
+/** 다크 배경 위의 원형 히트맵 — 밀도가 오를수록 황금빛 옐로우와 백금빛 core로 부드럽게 빛난다. */
+const HEATMAP_RAMP_DARK: Record<number, string> = {
+  0.0: 'rgba(217, 64, 0, 0)',
+  0.06: 'rgba(230, 71, 0, 0.35)',
+  0.16: 'rgba(255, 85, 0, 0.54)',
+  0.3: 'rgba(255, 120, 48, 0.68)',
+  0.45: 'rgba(255, 163, 60, 0.78)',
+  0.6: 'rgba(255, 195, 50, 0.87)',
+  0.75: 'rgba(255, 220, 80, 0.93)',
+  0.88: 'rgba(255, 240, 140, 0.96)',
+  1.0: 'rgba(255, 250, 200, 0.98)', // 황금 옐로우-백금빛 core
 };
 
 /** 램프를 256칸 룩업 테이블로 굽는다. 보간과 알파 처리는 캔버스에 맡긴다. */
@@ -80,6 +109,17 @@ function seedFromCoords(lng: number, lat: number): number {
   return s - Math.floor(s);
 }
 
+/*
+  4개 stop짜리 그라데이션은 0.7~1.0 구간에서 알파가 뚝 떨어져, 커널 가장자리가
+  눈에 보이는 선처럼 남았다 — "원형 경계가 보인다"던 게 이거다. 진짜 가우시안
+  곡선(exp(-4.5t²))을 9칸으로 샘플링해서 끝까지 매끈하게 줄어들게 한다.
+*/
+const KERNEL_STOPS = Array.from({ length: 9 }, (_, i) => {
+  const t = i / 8;
+  const alpha = i === 8 ? 0 : Math.exp(-4.5 * t * t);
+  return `rgba(0, 0, 0, ${alpha.toFixed(3)})`;
+});
+
 /**
  * 커널 하나. 가운데가 진하고 가장자리로 갈수록 흐려지는 가우시안 근사다.
  * 이 모양이 곧 히트맵의 해상도라, blur 필터를 따로 쓸 필요가 없다.
@@ -104,10 +144,7 @@ function stampKernel(
   ctx.scale(1, aspect);
 
   const g = ctx.createRadialGradient(0, 0, 0, 0, 0, r);
-  g.addColorStop(0, 'rgba(0, 0, 0, 1)');
-  g.addColorStop(0.35, 'rgba(0, 0, 0, 0.55)');
-  g.addColorStop(0.7, 'rgba(0, 0, 0, 0.16)');
-  g.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  KERNEL_STOPS.forEach((color, i) => g.addColorStop(i / (KERNEL_STOPS.length - 1), color));
 
   ctx.globalAlpha = weight;
   ctx.fillStyle = g;
@@ -266,7 +303,9 @@ export default function HeatCanvas({ spots }: Props) {
   const isDark = colorMode === 'dark';
 
   const lutRef = useRef<Uint8ClampedArray | null>(null);
+  const heatmapLutRef = useRef<Uint8ClampedArray | null>(null);
   const warmthViewTypeRef = useRef(warmthViewType);
+  const levelRef = useRef(level);
 
   /*
     스팟 목록은 ref로 넘긴다. 날짜 스크러버를 드래그하면 목록이 프레임마다 새로
@@ -306,6 +345,7 @@ export default function HeatCanvas({ spots }: Props) {
 
   useEffect(() => {
     lutRef.current = bakeRamp(isDark ? RAMP_DARK : RAMP_LIGHT);
+    heatmapLutRef.current = bakeRamp(isDark ? HEATMAP_RAMP_DARK : HEATMAP_RAMP_LIGHT);
   }, [isDark]);
 
   // 스팟(=선택한 날)이 바뀌면 다시 칠한다. rAF가 연속된 스크럽을 한 프레임으로 묶는다.
@@ -313,6 +353,16 @@ export default function HeatCanvas({ spots }: Props) {
     spotsRef.current = spots;
     scheduleRef.current?.();
   }, [spots]);
+
+  /*
+    줌 레벨도 spots와 같은 이유로 ref에 둔다. 이 값이 아래 이펙트의 의존성에
+    있으면 줌 한 칸마다 오버레이를 통째로 지웠다 새로 만들고 그 자리에서 곧장
+    paint()를 돌린다 — 레이아웃이 자리잡기 전에 그린 캔버스가 한 프레임
+    번쩍이는 게 "네모지도"였다. ref로 빼면 줌은 idle에서 schedule()만 탄다.
+  */
+  useEffect(() => {
+    levelRef.current = level;
+  }, [level]);
 
   useEffect(() => {
     if (!map || mode !== 'warmth') return;
@@ -334,6 +384,15 @@ export default function HeatCanvas({ spots }: Props) {
     canvas.style.pointerEvents = 'none';
     holder.appendChild(canvas);
 
+    /*
+      자기 자신을 blur로 다시 그리려면(source === destination) 브라우저가
+      먼저 대상을 비우고 그리는 경우가 있어 원본이 통째로 지워질 수 있다
+      ('copy' 합성모드에서 실제로 겪었다 — 밀도가 몇 만 픽셀에서 만 단위로
+      주저앉았다). 별도의 스크래치 캔버스에 blur로 옮겨 그린 뒤 그걸 원본
+      위에 얹으면 원본과 대상이 서로 달라 이 문제가 생기지 않는다.
+    */
+    const blurScratch = document.createElement('canvas');
+
     const overlay = new window.kakao.maps.CustomOverlay({
       position: map.getCenter(),
       content: holder,
@@ -349,7 +408,8 @@ export default function HeatCanvas({ spots }: Props) {
       const ctx = canvas.getContext('2d', { willReadFrequently: true });
       const projection = map.getProjection?.();
       const node = map.getNode?.();
-      const lut = lutRef.current;
+      const lut =
+        warmthViewTypeRef.current === 'heatmap' ? heatmapLutRef.current : lutRef.current;
       if (!ctx || !projection || !node || !lut) return;
 
       const viewW = node.clientWidth;
@@ -408,7 +468,7 @@ export default function HeatCanvas({ spots }: Props) {
         경계를 못 찾은 스팟(섬·해안·데이터 밖)은 원형 커널로 남긴다.
       */
       // 지도가 움직였으면 투영해둔 경로는 못 쓴다.
-      const viewKey = `${level}_${Math.round(originX)}_${Math.round(originY)}_${W}x${H}`;
+      const viewKey = `${levelRef.current}_${Math.round(originX)}_${Math.round(originY)}_${W}x${H}`;
       if (pathCacheRef.current.key !== viewKey) {
         pathCacheRef.current = { key: viewKey, paths: new Map() };
       }
@@ -433,23 +493,62 @@ export default function HeatCanvas({ spots }: Props) {
       let painted = 0;
 
       if (warmthViewTypeRef.current === 'heatmap') {
-        // ── [원형 히트맵 모드] 부드러운 방사형 가우시안 원형 훈기 채색 ──
-        const radius = Math.min(220, Math.max(52, Math.round(baseRadius * 1.55)));
+        /*
+          ── [원형 히트맵 모드] 부드러운 방사형 가우시안 원형 훈기 채색 ──
+
+          예전엔 반경이 세기와 무관하게 고정값 하나라, 붐비는 곳과 한적한 곳이
+          색만 다르고 크기는 똑같은 "같은 도장을 찍은" 모양이 됐다. 세기에 비례해
+          반경도 늘려 붐빌수록 얼룩도 커지게 한다.
+
+          composite를 'lighter'(가산)로 바꾸는 것도 같이 간다 — 기본값(source-over)은
+          겹치는 스팟끼리 알파가 진짜로 쌓이지 않고 위에 덧칠하는 식이라, 이웃한
+          얼룩이 안개처럼 이어붙지 않고 각자 도장처럼 따로 논다. 가산으로 바꾸면
+          파일 위 주석이 원래 말하던 "겹치는 만큼 알파가 쌓인다"가 실제로 맞아떨어진다.
+        */
+        const maxRadius = Math.min(220, Math.max(52, Math.round(baseRadius * 1.55)));
+        ctx.globalCompositeOperation = 'lighter';
         for (const spot of spotsRef.current) {
           if (painted >= MAX_KERNELS) break;
           const { x, y } = project(spot.lng, spot.lat);
           if (
-            x < -radius ||
-            y < -radius ||
-            x > W + radius ||
-            y > H + radius
+            x < -maxRadius ||
+            y < -maxRadius ||
+            x > W + maxRadius ||
+            y > H + maxRadius
           ) {
             continue;
           }
 
           const weight = Math.min(1, Math.max(0.18, spot.intensity));
+          const radius = Math.round(maxRadius * (0.55 + weight * 0.45));
           stampKernel(ctx, x, y, radius, weight, seedFromCoords(spot.lng, spot.lat));
           painted += 1;
+        }
+        ctx.globalCompositeOperation = 'source-over';
+
+        /*
+          커널 자체는 이제 exp(-4.5t²) 가우시안이라 끝까지 매끈하게 줄어들지만,
+          쌓인 밀도가 아주 미세한 계단(alpha가 정수 0~255라 생기는)으로 남을 수
+          있어 마무리로 살짝만 더 흐린다. 다 그리고 한 번만 걸어 비용은 한 번뿐이다.
+
+          자기 자신 위에 바로 blur+drawImage 하면(source===destination) 브라우저가
+          먼저 대상을 비우고 그리는 경우가 있어 원본이 통째로 사라질 수 있다 —
+          실제로 'copy' 합성으로 겪었다. 그래서 별도 스크래치 캔버스에 옮겨 그린
+          뒤 그 결과를 원본에 얹는다. 스크래치는 처음부터 비어 있으니 안전하다.
+        */
+        if (painted > 0) {
+          blurScratch.width = W;
+          blurScratch.height = H;
+          const scratchCtx = blurScratch.getContext('2d');
+          if (scratchCtx) {
+            scratchCtx.clearRect(0, 0, W, H);
+            scratchCtx.filter = 'blur(6px)';
+            scratchCtx.drawImage(canvas, 0, 0);
+            scratchCtx.filter = 'none';
+
+            ctx.clearRect(0, 0, W, H);
+            ctx.drawImage(blurScratch, 0, 0);
+          }
         }
       } else {
         // ── [시·군 행정별 모드] 시·군·구 행정 경계(districts.json) 폴리곤 채색 ──
@@ -547,6 +646,19 @@ export default function HeatCanvas({ spots }: Props) {
       ctx.putImageData(img, 0, 0);
     };
 
+    /*
+      전에는 zoom_changed에도 걸어서, 줌이 애니메이션 도중일 때도 이 무거운
+      paint()(커널 찍기 → blur → getImageData/putImageData)가 여러 번 겹쳐
+      돌았다. 그걸 setTimeout 디바운스로 늦춰봤더니, 이번엔 캔버스 크기·위치
+      갱신까지 같이 늦춰져서 줌이 끝나기 전까지 예전 크기의 사각형이 지도
+      위에 그대로 떠 있는 꼴이 됐다 — "네모"가 그새 다른 모양으로 남은 것.
+
+      드래그는 이미 이렇게 하고 있었다: 움직이는 동안은 손대지 않고 idle
+      (다 멈췄을 때) 한 번만 다시 그린다. zoom_changed를 떼고 나면 줌도
+      같은 규칙을 타서, 줌 애니메이션 중에는 카카오 타일 렌더링만 메인
+      스레드를 쓰고, 다 멎은 뒤 idle에서 캔버스 크기·위치·내용을 한 번에
+      맞춘다 — 디바운스 타이밍을 손으로 맞출 필요가 없어진다.
+    */
     const schedule = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(paint);
@@ -559,7 +671,6 @@ export default function HeatCanvas({ spots }: Props) {
     */
     paint();
     window.kakao.maps.event.addListener(map, 'idle', schedule);
-    window.kakao.maps.event.addListener(map, 'zoom_changed', schedule);
 
     /*
       지도 노드가 자리를 잡는 순간(첫 레이아웃)과 창 크기가 바뀔 때 다시 그린다.
@@ -579,10 +690,9 @@ export default function HeatCanvas({ spots }: Props) {
       ro?.disconnect();
       document.removeEventListener('visibilitychange', schedule);
       window.kakao.maps.event.removeListener(map, 'idle', schedule);
-      window.kakao.maps.event.removeListener(map, 'zoom_changed', schedule);
       overlay.setMap(null);
     };
-  }, [map, mode, level, isDark]);
+  }, [map, mode, isDark]);
 
   return null;
 }

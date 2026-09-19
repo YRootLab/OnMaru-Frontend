@@ -70,4 +70,22 @@ describe('api contract foundation', () => {
       }),
     );
   });
+
+  // FE #89: /auth/csrf는 백엔드 루트에 있고 /api/v1 아래가 아니다. 이전에는
+  // csrf 프로바이더가 apiClientConfig 초기화 시 resolveApiBase(baseUrl)("/api/v1"이
+  // 붙은 값)를 넘겨받아 실제로 .../api/v1/auth/csrf를 호출했다 — endsWith('/auth/csrf')
+  // 검사는 이 접두사 오류를 잡지 못했으므로 여기서는 호출 URL 전체를 정확히 비교한다.
+  it('fetches the csrf token from the backend root, not under /api/v1 (FE #89)', async () => {
+    const fetcher = vi.fn(async (_input: RequestInfo | URL) => new Response(JSON.stringify({ token: 'csrf-1', headerName: 'X-CSRF-TOKEN' })));
+    resetApiClientForTests({ baseUrl: 'https://api.onmaru.test', fetcher: fetcher as unknown as typeof fetch });
+
+    await apiRequest('/explorations', {
+      method: 'POST',
+      body: { query: '전주 한옥 여행' },
+      csrf: true,
+    });
+
+    const csrfCall = fetcher.mock.calls.find(([input]) => String(input).includes('/auth/csrf'));
+    expect(csrfCall?.[0]).toBe('https://api.onmaru.test/auth/csrf');
+  });
 });

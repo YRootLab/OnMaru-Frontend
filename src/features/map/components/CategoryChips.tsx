@@ -166,18 +166,20 @@ const Chip = styled.button<{ $active: boolean; $index: number }>`
   }
 
   [data-theme='dark'] & {
-    background: ${({ $active }) => ($active ? '#ffffff' : 'rgba(30, 32, 38, 0.92)')};
-    border: none;
-    color: ${({ $active }) => ($active ? meok[900] : meok[200])};
-    box-shadow: none;
+    background: ${({ $active }) => ($active ? '#ffffff' : 'rgba(42, 45, 54, 0.95)')};
+    border: ${({ $active }) => ($active ? 'none' : '1px solid rgba(255, 255, 255, 0.16)')};
+    color: ${({ $active }) => ($active ? '#171513' : '#ffffff')};
+    font-weight: ${({ $active }) => ($active ? '700' : '500')};
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
   }
 
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme='light']) & {
-      background: ${({ $active }) => ($active ? '#ffffff' : 'rgba(30, 32, 38, 0.92)')};
-      border: none;
-      color: ${({ $active }) => ($active ? meok[900] : meok[200])};
-      box-shadow: none;
+      background: ${({ $active }) => ($active ? '#ffffff' : 'rgba(42, 45, 54, 0.95)')};
+      border: ${({ $active }) => ($active ? 'none' : '1px solid rgba(255, 255, 255, 0.16)')};
+      color: ${({ $active }) => ($active ? '#171513' : '#ffffff')};
+      font-weight: ${({ $active }) => ($active ? '700' : '500')};
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
     }
   }
 
