@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import styled from '@emotion/styled';
 import { ArrowRight, Check, Menu, X, Sparkles, BookOpen, Map, Headphones, Sun, Moon } from 'lucide-react';
 import { transientProps } from '@/design-system/styled';
-import { lightPalette, meok, fontSize } from '@/design-system/tokens';
+import { lightPalette, meok, fontSize, ringShadow } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import {
   getThemePreferenceLabel,
@@ -141,13 +141,10 @@ const HeaderBackdrop = styled('div', transientProps)<LandingProps>`
 
   background: ${({ $isLanding, $isScrolled }) => {
     if ($isLanding) {
-      return $isScrolled ? 'rgba(23, 21, 18, 0.45)' : 'rgba(23, 21, 18, 0.22)';
+      return $isScrolled ? 'rgba(23, 21, 18, 0.98)' : 'rgba(23, 21, 18, 0.92)';
     }
-    return $isScrolled ? 'rgba(255, 255, 255, 0.48)' : 'rgba(255, 255, 255, 0.28)';
+    return $isScrolled ? '#ffffff' : 'rgba(255, 255, 255, 0.96)';
   }};
-
-  backdrop-filter: blur(8px) saturate(125%);
-  -webkit-backdrop-filter: blur(8px) saturate(125%);
 
   border: 1px solid ${({ $isLanding, $isScrolled }) => {
     if ($isLanding) {
@@ -156,16 +153,7 @@ const HeaderBackdrop = styled('div', transientProps)<LandingProps>`
     return $isScrolled ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.35)';
   }};
 
-  box-shadow: ${({ $isLanding, $isScrolled }) => {
-    if ($isLanding) {
-      return $isScrolled
-        ? '0 14px 34px -6px rgba(0, 0, 0, 0.45), 0 3px 10px rgba(0, 0, 0, 0.2)'
-        : '0 8px 24px -4px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.14)';
-    }
-    return $isScrolled
-      ? '0 12px 30px -4px rgba(0, 0, 0, 0.09), 0 3px 8px -1px rgba(0, 0, 0, 0.035)'
-      : '0 8px 24px -4px rgba(0, 0, 0, 0.065), 0 2px 8px -2px rgba(0, 0, 0, 0.025)';
-  }};
+  box-shadow: ${ringShadow.light.card};
 
   transition:
     background-color 380ms cubic-bezier(0.16, 1, 0.3, 1),
@@ -175,25 +163,12 @@ const HeaderBackdrop = styled('div', transientProps)<LandingProps>`
   [data-theme='dark'] & {
     background: ${({ $isLanding, $isScrolled }) => {
       if ($isLanding) {
-        return $isScrolled ? 'rgba(23, 21, 18, 0.45)' : 'rgba(23, 21, 18, 0.22)';
+        return $isScrolled ? 'rgba(23, 21, 18, 0.98)' : 'rgba(23, 21, 18, 0.92)';
       }
-      return $isScrolled ? 'rgba(28, 26, 23, 0.52)' : 'rgba(28, 26, 23, 0.30)';
+      return $isScrolled ? 'rgba(28, 26, 23, 0.98)' : 'rgba(28, 26, 23, 0.95)';
     }};
     border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: ${({ $isLanding, $isScrolled }) => {
-      if ($isLanding) {
-        return $isScrolled
-          ? '0 14px 34px -6px rgba(0, 0, 0, 0.45), 0 3px 10px rgba(0, 0, 0, 0.2)'
-          : '0 8px 24px -4px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.14)';
-      }
-      return $isScrolled
-        ? '0 12px 30px -4px rgba(0, 0, 0, 0.38), 0 3px 10px -1px rgba(0, 0, 0, 0.22)'
-        : '0 8px 24px -4px rgba(0, 0, 0, 0.28), 0 2px 8px -2px rgba(0, 0, 0, 0.15)';
-    }};
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    transition: none;
+    box-shadow: ${ringShadow.dark.card};
   }
 `;
 
@@ -260,7 +235,7 @@ const NavLink = styled(Link, transientProps)<LandingProps>`
   position: relative;
   font-family: 'Spoqa Han Sans Neo', sans-serif;
   font-size: ${fontSize.xs};
-  font-weight: ${({ $isActive }) => ($isActive ? 600 : 400)};
+  font-weight: ${({ $isActive }) => ($isActive ? 700 : 400)};
   color: ${({ $isLanding, $isActive }) => {
     if ($isActive) {
       return $isLanding ? '#ffffff' : meok[900];
@@ -274,39 +249,15 @@ const NavLink = styled(Link, transientProps)<LandingProps>`
   justify-content: center;
   padding: 5px 12px;
   border-radius: 9999px;
-  background-color: ${({ $isActive, $isLanding }) => {
-    if (!$isActive) return 'transparent';
-    return $isLanding ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.055)';
-  }};
-  border: 1px solid ${({ $isActive, $isLanding }) => {
-    if (!$isActive) return 'transparent';
-    return $isLanding ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.06)';
-  }};
-  box-shadow: ${({ $isActive, $isLanding }) => {
-    if (!$isActive) return 'none';
-    return $isLanding
-      ? '0 2px 8px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.25)'
-      : '0 2px 8px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.8)';
-  }};
-  backdrop-filter: ${({ $isActive }) => ($isActive ? 'blur(12px)' : 'none')};
-  -webkit-backdrop-filter: ${({ $isActive }) => ($isActive ? 'blur(12px)' : 'none')};
-  transition:
-    color 180ms cubic-bezier(0.16, 1, 0.3, 1),
-    background-color 180ms cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 180ms cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  background-color: transparent;
+  border: 1px solid transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transition: color 180ms cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
     color: ${({ $isLanding }) => ($isLanding ? '#ffffff' : meok[900])};
-    background-color: ${({ $isLanding, $isActive }) =>
-      $isActive
-        ? $isLanding ? 'rgba(255, 255, 255, 0.19)' : 'rgba(0, 0, 0, 0.075)'
-        : $isLanding ? 'rgba(255, 255, 255, 0.07)' : 'rgba(0, 0, 0, 0.03)'};
-  }
-
-  &:active {
-    background-color: ${({ $isLanding }) =>
-      $isLanding ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.055)'};
   }
 
   [data-theme='dark'] & {
@@ -316,21 +267,12 @@ const NavLink = styled(Link, transientProps)<LandingProps>`
       }
       return $isLanding ? 'rgba(255, 255, 255, 0.82)' : meok[200];
     }};
-    background-color: ${({ $isActive }) =>
-      $isActive ? 'rgba(255, 255, 255, 0.12)' : 'transparent'};
-    border-color: ${({ $isActive }) =>
-      $isActive ? 'rgba(255, 255, 255, 0.16)' : 'transparent'};
-    box-shadow: ${({ $isActive }) =>
-      $isActive ? '0 2px 10px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15)' : 'none'};
+    background-color: transparent;
+    border-color: transparent;
+    box-shadow: none;
 
     &:hover {
       color: #ffffff;
-      background-color: ${({ $isActive }) =>
-        $isActive ? 'rgba(255, 255, 255, 0.16)' : 'rgba(255, 255, 255, 0.08)'};
-    }
-
-    &:active {
-      background-color: rgba(255, 255, 255, 0.14);
     }
   }
 
@@ -877,7 +819,8 @@ export default function Header() {
           aria-hidden="true"
         />
 
-        {/* 맨 왼쪽: 온마루 로고 + 볼드 브랜드 텍스트 */}
+
+        {/* 맨 왼쪽: 온마루 로고 */}
         <LeftSection $isMapPage={isMapPage}>
           <LogoLink href="/" aria-label="온마루 홈으로 이동" onClick={resetJourney}>
             <Image
@@ -888,7 +831,6 @@ export default function Header() {
               style={{ objectFit: 'contain', height: '26px', width: '26px', borderRadius: '6px' }}
               priority
             />
-            <LogoTitle $isLanding={usesDarkSurface}>온마루</LogoTitle>
           </LogoLink>
         </LeftSection>
 

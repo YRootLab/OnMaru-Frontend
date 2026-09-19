@@ -34,7 +34,7 @@ import { stampAudio } from '@/features/stamp/utils/sound';
 import { calculateTravelEstimate, isTraditionalPlace } from '@/features/map/utils/geo';
 import { createKakaoNavigationLinks } from '@/features/map/utils/navigation';
 import PlaceDetailCarousel from './detail/PlaceDetailCarousel';
-import PlaceWarmthSection from './warmth/PlaceWarmthSection';
+import PlaceWarmthSection from '@/private/core-ui/map-warmth/PlaceWarmthSection';
 import RoadviewModal from './detail/RoadviewModal';
 import {
   DetailWrapper,

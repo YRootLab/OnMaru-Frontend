@@ -8,7 +8,7 @@ import { useMapStore } from '@/features/map/hooks/useMapStore';
 import ModeToggle from './ModeToggle';
 import PlaceList from './PlaceList';
 import SearchBar from './SearchBar';
-import WarmthFeed from './warmth/WarmthFeed';
+import WarmthFeed from '@/private/core-ui/map-warmth/WarmthFeed';
 
 const PANEL_WIDTH = 400;
 const PANEL_WIDTH_COMPACT = 358;

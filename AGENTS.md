@@ -65,3 +65,10 @@
 - Required CI checks must pass and the branch must be current before every merge. Shared changes require at least one approval.
 - Create semantic version tags such as `v0.3.2` only from `main`.
 - Delete short-lived branches after merge. Release automation must use least-privilege permissions and avoid workflow loops.
+
+# Submodule Management (src/private/core-ui)
+
+- `src/private/core-ui` is a private Git submodule hosting proprietary core UI components (`map-warmth`, `sorimaru`, etc.).
+- When starting work in a fresh workspace or after branch switches, verify that `src/private/core-ui` is populated. If empty or outdated, immediately run `git submodule update --init --recursive` (or `npm run submodule:init`).
+- Core UI components are imported via `@/private/core-ui/*` alias.
+- When committing changes touching the submodule, commit and push within `src/private/core-ui` first, then record the updated submodule commit pointer in the parent repository.

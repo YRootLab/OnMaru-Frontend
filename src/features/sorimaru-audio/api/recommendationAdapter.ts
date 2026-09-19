@@ -1,6 +1,6 @@
 import { sorimaruApiAdapter } from './sorimaruApi';
 import { SorimaruStoryItem } from '@/features/sorimaru-audio/types/sorimaru.types';
-import { CONSTELLATION_NODES, ConstellationNode } from '@/features/sorimaru-audio/data/constellationData';
+import { CONSTELLATION_NODES, ConstellationNode } from '@/private/core-ui/sorimaru/constellationData';
 
 export interface RecommendationResult {
   node: ConstellationNode;
