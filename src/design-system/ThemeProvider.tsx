@@ -1,3 +1,5 @@
+'use client';
+
 // ============================================================
 // 온마루 (On-Maru) — Emotion CSS Theme Provider
 // React + Emotion · ThemeProvider · useTheme hook
@@ -9,16 +11,20 @@ import React, {
   useState,
   useCallback,
   useEffect,
+  useRef,
   type ReactNode,
 } from 'react'
 import { ThemeProvider as EmotionThemeProvider, Global, css } from '@emotion/react'
 import {
   lightTheme,
   darkTheme,
-  createTheme,
   type ColorMode,
+  type ThemePreference,
   type OnmaruTheme,
-} from './tokens'
+ fontSize, } from './tokens';
+import { resolveTimeAwareSystemMode } from './timeTheme';
+
+const STORAGE_KEY = 'onmaru-color-mode'
 
 
 // ─────────────────────────────────────────
@@ -27,9 +33,12 @@ import {
 
 interface OnmaruThemeContextValue {
   theme:      OnmaruTheme
+  /** 실제로 적용된 라이트/다크 — 'system' 선택 시 사용자 로컬 시간 기준으로 이미 풀려 있다. */
   mode:       ColorMode
+  /** 사용자가 고른 값. 'system'이면 사용자 로컬 시간대에 맞춰 라이트/다크를 고른다. */
+  preference: ThemePreference
   toggleMode: () => void
-  setMode:    (mode: ColorMode) => void
+  setMode:    (preference: ThemePreference) => void
 }
 
 const OnmaruThemeContext = createContext<OnmaruThemeContextValue | null>(null)
@@ -40,12 +49,7 @@ const OnmaruThemeContext = createContext<OnmaruThemeContextValue | null>(null)
 // ─────────────────────────────────────────
 
 const createGlobalStyles = (theme: OnmaruTheme) => css`
-  /* ── SpoqaHanSansNeo 폰트 */
-  @font-face { font-family: 'SpoqaHanSansNeo'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/SpoqaHanSansNeo-Thin.woff') format('woff'); font-weight: 100; font-display: swap; }
-  @font-face { font-family: 'SpoqaHanSansNeo'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/SpoqaHanSansNeo-Light.woff') format('woff'); font-weight: 300; font-display: swap; }
-  @font-face { font-family: 'SpoqaHanSansNeo'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/SpoqaHanSansNeo-Regular.woff') format('woff'); font-weight: 400; font-display: swap; }
-  @font-face { font-family: 'SpoqaHanSansNeo'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/SpoqaHanSansNeo-Medium.woff') format('woff'); font-weight: 500; font-display: swap; }
-  @font-face { font-family: 'SpoqaHanSansNeo'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2108@1.1/SpoqaHanSansNeo-Bold.woff') format('woff'); font-weight: 700; font-display: swap; }
+  /* 폰트 로드는 globals.css의 Spoqa @import 한 줄이 전부다. 여기엔 두지 않는다. */
 
   /* ── CSS Reset + Base */
   *, *::before, *::after {
@@ -55,7 +59,7 @@ const createGlobalStyles = (theme: OnmaruTheme) => css`
   }
 
   html {
-    font-size: 16px;
+    font-size: ${fontSize.base};
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -71,6 +75,10 @@ const createGlobalStyles = (theme: OnmaruTheme) => css`
     transition:
       background-color 0.30s ease,
       color            0.30s ease;
+  }
+
+  button, input, textarea, select, optgroup {
+    font-family: inherit;
   }
 
   /* ── CSS Custom Properties (CSS Variables로도 접근 가능하도록) */
@@ -124,14 +132,50 @@ const createGlobalStyles = (theme: OnmaruTheme) => css`
     --color-metaball-spread2: ${theme.colors.metaball.spread2};
     --color-metaball-accent1: ${theme.colors.metaball.accent1};
     --color-metaball-accent2: ${theme.colors.metaball.accent2};
+
+    /* Layout (Responsive Variables) */
+    --layout-max-width: ${theme.layout.maxWidth};
+    --layout-margin: ${theme.layout.margin.sm};
+    --layout-padding: ${theme.layout.padding.sm};
+    --layout-gutter: ${theme.layout.gutter.sm};
+    --layout-columns: ${theme.layout.columns.sm};
+
+    @media (min-width: ${theme.breakpoints.sm}) {
+      --layout-margin: ${theme.layout.margin.md};
+      --layout-padding: ${theme.layout.padding.md};
+      --layout-gutter: ${theme.layout.gutter.md};
+      --layout-columns: ${theme.layout.columns.md};
+    }
+
+    @media (min-width: ${theme.breakpoints.lg}) {
+      --layout-margin: ${theme.layout.margin.lg};
+      --layout-padding: ${theme.layout.padding.lg};
+      --layout-gutter: ${theme.layout.gutter.lg};
+      --layout-columns: ${theme.layout.columns.lg};
+    }
   }
 
-  /* ── Typography base */
+  /* ── Typography base
+     클수록 가볍게. 큰 글자는 크기만으로 이미 눈에 띄므로 굵기까지 얹으면 뭉친다.
+     반대로 작은 제목은 굵기가 없으면 본문에 묻힌다. */
   h1, h2, h3, h4, h5, h6 {
     font-family:  ${theme.typography.fontFamily.sans};
-    font-weight:  ${theme.typography.fontWeight.semibold};
     line-height:  ${theme.typography.lineHeight.tight};
     color:        ${theme.colors.text.primary};
+  }
+
+  h1, h2 {
+    font-weight:    ${theme.typography.fontWeight.light};
+    letter-spacing: -0.02em;
+  }
+
+  h3, h4 {
+    font-weight:    ${theme.typography.fontWeight.regular};
+    letter-spacing: -0.015em;
+  }
+
+  h5, h6 {
+    font-weight: ${theme.typography.fontWeight.medium};
   }
 
   a {
@@ -181,64 +225,92 @@ const createGlobalStyles = (theme: OnmaruTheme) => css`
 
 interface OnmaruThemeProviderProps {
   children:     ReactNode
-  defaultMode?: ColorMode
-  /** true면 시스템 다크모드 자동 감지 */
-  followSystem?: boolean
+  defaultMode?: ThemePreference
+}
+
+function readStoredPreference(fallback: ThemePreference): ThemePreference {
+  if (typeof window === 'undefined') return fallback
+  const saved = localStorage.getItem(STORAGE_KEY)
+  if (saved === 'light' || saved === 'dark' || saved === 'system') return saved
+  return fallback
+}
+
+function systemPrefersDark(): boolean {
+  if (typeof window === 'undefined') return false
+  return window.matchMedia('(prefers-color-scheme: dark)').matches
+}
+
+function localHour(): number {
+  if (typeof window === 'undefined') return 12
+  return new Date().getHours()
 }
 
 export function OnmaruThemeProvider({
   children,
-  defaultMode  = 'light',
-  followSystem = true,
+  defaultMode = 'system',
 }: OnmaruThemeProviderProps) {
 
-  const [mode, setModeState] = useState<ColorMode>(() => {
-    // 1순위: localStorage
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('onmaru-color-mode') as ColorMode | null
-      if (saved === 'light' || saved === 'dark') return saved
-    }
-    // 2순위: 시스템 설정
-    if (followSystem && typeof window !== 'undefined') {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches
-        ? 'dark'
-        : 'light'
-    }
-    return defaultMode
-  })
+  // 사용자가 고른 값('system' 포함) — 실제 렌더에 쓰는 mode는 아래에서 이 값을 풀어낸다.
+  // 서버와 첫 클라이언트 렌더는 같은 값으로 시작해야 한다. 저장값과 브라우저
+  // 환경은 hydration이 끝난 다음 프레임에 반영한다.
+  const [preference, setPreferenceState] = useState<ThemePreference>(defaultMode)
+  const [isSystemDark, setIsSystemDark] = useState(false)
+  const [hour, setHour] = useState(12)
+  const hasResolvedClientTheme = useRef(false)
 
-  const theme = mode === 'dark' ? darkTheme : lightTheme
-
-  // 시스템 다크모드 변경 감지
+  // beforeInteractive 스크립트가 실제 data-theme를 먼저 적용하므로 화면 깜빡임은
+  // 막고, React 상태만 hydration 뒤에 안전하게 동기화한다.
   useEffect(() => {
-    if (!followSystem) return
+    const frameId = window.requestAnimationFrame(() => {
+      hasResolvedClientTheme.current = true
+      setPreferenceState(readStoredPreference(defaultMode))
+      setIsSystemDark(systemPrefersDark())
+      setHour(localHour())
+    })
+    return () => window.cancelAnimationFrame(frameId)
+  }, [defaultMode])
+
+  // 시스템 다크모드 변경 감지 — preference가 'system'일 때만 화면에 반영된다.
+  useEffect(() => {
     const mq = window.matchMedia('(prefers-color-scheme: dark)')
-    const handler = (e: MediaQueryListEvent) => {
-      const saved = localStorage.getItem('onmaru-color-mode')
-      if (!saved) setModeState(e.matches ? 'dark' : 'light')
-    }
+    const handler = (e: MediaQueryListEvent) => setIsSystemDark(e.matches)
     mq.addEventListener('change', handler)
     return () => mq.removeEventListener('change', handler)
-  }, [followSystem])
-
-  const setMode = useCallback((next: ColorMode) => {
-    setModeState(next)
-    localStorage.setItem('onmaru-color-mode', next)
-    // HTML attribute로도 노출 (CSS 셀렉터 활용 가능)
-    document.documentElement.setAttribute('data-theme', next)
   }, [])
 
-  const toggleMode = useCallback(() => {
-    setMode(mode === 'light' ? 'dark' : 'light')
-  }, [mode, setMode])
-
-  // data-theme 초기화
   useEffect(() => {
+    const timer = window.setInterval(() => setHour(localHour()), 60_000)
+    return () => window.clearInterval(timer)
+  }, [])
+
+  const mode: ColorMode =
+    preference === 'system'
+      ? resolveTimeAwareSystemMode({ hour, prefersDark: isSystemDark })
+      : preference
+  const theme = mode === 'dark' ? darkTheme : lightTheme
+
+  const setMode = useCallback((next: ThemePreference) => {
+    setPreferenceState(next)
+    localStorage.setItem(STORAGE_KEY, next)
+  }, [])
+
+  // 라이트 → 다크 → 시스템 순으로 순환한다.
+  const toggleMode = useCallback(() => {
+    const order: ThemePreference[] = ['light', 'dark', 'system']
+    const next = order[(order.indexOf(preference) + 1) % order.length]
+    setMode(next)
+  }, [preference, setMode])
+
+  // data-theme는 항상 "실제 적용된" mode를 반영한다 — [data-theme='dark'] CSS가 이 값을 본다.
+  useEffect(() => {
+    // 첫 effect에서 beforeInteractive가 적용한 실제 테마를 SSR 기본값으로
+    // 덮어쓰지 않는다. 클라이언트 환경을 읽은 뒤부터 React가 관리한다.
+    if (!hasResolvedClientTheme.current) return
     document.documentElement.setAttribute('data-theme', mode)
   }, [mode])
 
   return (
-    <OnmaruThemeContext.Provider value={{ theme, mode, toggleMode, setMode }}>
+    <OnmaruThemeContext.Provider value={{ theme, mode, preference, toggleMode, setMode }}>
       <EmotionThemeProvider theme={theme}>
         <Global styles={createGlobalStyles(theme)} />
         {children}

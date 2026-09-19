@@ -1,16 +1,38 @@
+/* ── Spoqa Han Sans Neo — 본문/UI 기본 서체. 제공 굵기는 100/300/400/500/700.
+   600은 없으므로 쓰지 말 것 (CSS 폰트 매칭이 700으로 올려 잡아 볼드가 된다). */
+@import url('https://spoqa.github.io/spoqa-han-sans/css/SpoqaHanSansNeo.css');
+@import url('https://cdn.jsdelivr.net/gh/spoqa/spoqa-han-sans@latest/css/SpoqaHanSansNeo.css');
+
+/* ── 손글씨 서체 — 이달의 한옥 폴라로이드 캡션·에디터 노트 두 곳 전용.
+   기본 서체(--font-hanok)에는 안 섞는다 — 위 주석대로 장식 서체는 걷어낸 상태다. */
+@font-face {
+  font-family: 'GeuriunXGukhanbakSingoyangI';
+  src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2607161334@x-6/x/GriunXHangeul_Gowoon-Rg.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+
+
 :root {
+  --font-hanok: 'Spoqa Han Sans Neo', 'Spoqa Han Sans', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', system-ui, sans-serif;
+  --font-traditional: 'Spoqa Han Sans Neo', 'Spoqa Han Sans', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', system-ui, sans-serif;
+  --font-traditional-title: 'Spoqa Han Sans Neo', 'Spoqa Han Sans', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', system-ui, sans-serif;
+  --font-traditional-body: 'Spoqa Han Sans Neo', 'Spoqa Han Sans', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', system-ui, sans-serif;
   --background: var(--color-bg-app);
   --foreground: var(--color-text-primary);
 }
 
 html {
-  height: 100%;
+  min-height: 100%;
 }
 
 html,
 body {
   max-width: 100vw;
-  overflow-x: hidden;
+  /* overflow-x: hidden 은 html/body를 스크롤 컨테이너로 만들어
+     AssemblySection의 position: sticky 를 무력화한다.
+     clip 은 스크롤 컨테이너를 만들지 않으므로 가로 넘침만 잘라낸다. */
+  overflow-x: clip;
 }
 
 body {
@@ -19,9 +41,111 @@ body {
   flex-direction: column;
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-hanok);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+button, input, textarea, select, optgroup {
+  border: 0;
+  background: transparent;
+  font-family: var(--font-hanok);
+}
+
+html {
+  min-height: 100%;
+  background-color: #ffffff;
+  color: #191f28;
+}
+
+html[data-theme='dark'],
+html[data-theme='dark'] body,
+[data-theme='dark'] body {
+  background-color: #1C1A17;
+  color: #f8f9fa;
+  color-scheme: dark;
+}
+
+html[data-theme='light'],
+html[data-theme='light'] body,
+[data-theme='light'] body {
+  background-color: #ffffff;
+  color: #191f28;
+  color-scheme: light;
+}
+
+html, body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.sorimaru-feature,
+.sorimaru-feature * {
+  font-family: var(--font-hanok);
+}
+
+.sorimaru-feature {
+  /* design-system/tokens.ts의 juhong 500/400/700/50/200 */
+  --sorimaru-primary: #FF5500;
+  --sorimaru-primary-hover: #FF7830;
+  --sorimaru-primary-pressed: #D94000;
+  --sorimaru-primary-bg: #FFF4EB;
+  --sorimaru-primary-subtle: #FFCBA8;
+}
+
+.sorimaru-atmosphere-layer {
+  transition: opacity 0.8s cubic-bezier(.16, 1, .3, 1);
+}
+
+.sorimaru-atmosphere-stage {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/* 오디 데이터 로딩용: 단순 점멸보다 콘텐츠의 결을 따라 흐르는 한지 질감 */
+.sorimaru-skeleton {
+  background-color: #dededc !important;
+  background-image: linear-gradient(
+    105deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 34%,
+    rgba(255, 255, 255, 0.58) 50%,
+    rgba(255, 255, 255, 0.08) 66%,
+    transparent 100%
+  );
+  background-size: 220% 100%;
+  animation: sorimaru-skeleton-shimmer 1.8s ease-in-out infinite;
+}
+
+@keyframes sorimaru-skeleton-shimmer {
+  0% { background-position: 120% 0; }
+  100% { background-position: -20% 0; }
+}
+
+/* 오디오 아카이브 목록에서 재생 중인 항목 썸네일 위에 표시되는 미니 이퀄라이저 */
+.eq-bar {
+  height: 100%;
+  animation: sorimaru-eq-bounce 0.9s ease-in-out infinite;
+}
+
+@keyframes sorimaru-eq-bounce {
+  0%, 100% { height: 30%; }
+  50% { height: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sorimaru-atmosphere-layer {
+    transition-duration: 0.12s;
+  }
+
+  .sorimaru-skeleton {
+    animation: none;
+  }
+
+  .eq-bar {
+    animation: none;
+    height: 60% !important;
+  }
 }
 
 * {
@@ -39,4 +163,39 @@ a {
   html {
     color-scheme: dark;
   }
+}
+
+/* ---------------------------------------------------------------------------
+ * lenis 1.3.25 필수 스타일 (node_modules/lenis/dist/lenis.css 를 그대로 옮김).
+ *
+ * `import 'lenis/dist/lenis.css'` 는 Node는 해석하지만 Turbopack SSR 번들이
+ * MODULE_NOT_FOUND 로 죽어서 랜딩 전체가 500이 됐다. 513바이트짜리 정적 CSS 하나
+ * 때문에 번들러와 싸울 이유가 없어 그냥 들고 왔다.
+ * lenis 올릴 때 원본이 바뀌었는지만 확인하면 된다.
+ * --------------------------------------------------------------------------- */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+
+.lenis [data-lenis-prevent],
+.lenis [data-lenis-prevent-wheel],
+.lenis [data-lenis-prevent-touch],
+.lenis [data-lenis-prevent-vertical],
+.lenis [data-lenis-prevent-horizontal] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+.lenis.lenis-autoToggle {
+  transition-property: overflow;
+  transition-duration: 1ms;
+  transition-behavior: allow-discrete;
 }

@@ -1,0 +1,74 @@
+# AGENTS.md — OnMaru Project AI Cooperation Guidelines
+
+This document defines shared conventions, architecture, and coding rules for AI coding assistants (Antigravity IDE Agent & Claude CLI Agent) working on the **OnMaru Frontend** project.
+
+## 🏛️ Project Overview
+**OnMaru (온마루)**: Next.js 14, Three.js (React Three Fiber), GSAP ScrollTrigger, Framer Motion based traditional Korean Hanok interactive scrollytelling web application.
+
+---
+
+## 🛠️ Technology Stack & Libraries
+1. **Framework**: Next.js 14 (App Router, TypeScript)
+2. **3D Engine**: React Three Fiber (`@react-three/fiber`), Three.js (`three`), `@react-three/drei`
+3. **Scrollytelling & Animations**: GSAP (`gsap`, `@gsap/react`, `ScrollTrigger`), Framer Motion (`framer-motion`)
+4. **Styling**: Emotion CSS (`@emotion/styled`, `@emotion/react`), Modern Vanilla CSS / Tailwind CSS
+
+---
+
+## 🇰🇷 Hanok 3D Assembly Rules (7-Stage Assembly Model)
+GLB Model: `/public/anchae.glb`
+
+| Step | Stage Name (Ko) | Member Keywords (`meshKeywords`) | Initial Displacement (`from`) |
+| :---: | :--- | :--- | :---: |
+| **STEP 1** | 석조 기단 | `['Kidan']` | `[0, -15, 0]` |
+| **STEP 2** | 디딤돌 및 계단 | `['Step']` | `[0, -10, 0]` |
+| **STEP 3** | 목조 기둥 | `['Pillar']` | `[0, -25, 0]` |
+| **STEP 4** | 마루 및 바닥 | `['Maru', 'Floor']` | `[0, -12, 0]` |
+| **STEP 5** | 황토 벽체 | `['Wall']` | `[0, 20, 0]` |
+| **STEP 6** | 창호 및 문종이 | `['Door', 'Win', 'Joo']` | `[0, 15, 0]` |
+| **STEP 7** | 기와 지붕 및 완공 | `['Roof']` | `[0, 40, 0]` |
+
+### Critical 3D Mesh Rules:
+- Case-insensitive keyword matching on lowercased mesh/parent names.
+- Stage 0 (`Kidan`): Opaque (`opacity: 1.0`), solid on ground from initial page load.
+- Past stages (`meshStage < activeStageIndex`): Fully assembled at origin, `opacity: 1.0`.
+- Active stage (`meshStage === activeStageIndex`): Lerp from `origin + from` to `origin`, `opacity: t`.
+- Future stages (`meshStage > activeStageIndex`): Hidden at `origin + from`, `opacity: 0.0`, `visible: false`.
+
+---
+
+## 🎨 UI/UX Design System Guidelines
+- **No Explicit Steps & Artificial Labeling (인위적인 라벨링 및 넘버링 금지)**:
+  - `STEP 01`, `STAGE 01/07`, `Feature`, `How it works` 등의 장식용 뱃지나 번호 라벨을 절대 사용하지 않습니다.
+  - 섹션과 조립 단계는 오직 **오브젝트의 3D 연속성**, **광활한 여백(Negative Space)**, **스크롤 연동 페이드인/아웃** 및 **조명의 분위기 전환**만으로 사용자가 자연스럽게 스토리를 몰입하여 인지하도록 설계합니다.
+- **Left Vignette Overlay**: Integrated editorial gradient overlay (`linear-gradient(to right, rgba(14, 16, 22, 0.92) 0%, rgba(14, 16, 22, 0) 100%)`).
+- **Typography Hierarchy (타이포그래피 계층 규칙)**:
+  - 모든 뷰와 컴포넌트에서 **메인 타이틀(Title)은 반드시 최상단에 위치**하며, **서브타이틀(Subtitle), 해설 설명 및 부가 메타 정보는 항상 타이틀 아래에 배치**합니다. (제목 위에 부제목/라벨을 배치하는 역전 구조 금지)
+- **Skeleton Layout Synchronization (스켈레톤 1:1 규격 동기화)**:
+  - 비동기 데이터 패치 전 표시되는 스켈레톤 UI는 실제 응답 데이터를 받아 화면에 렌더링될 때의 카드 규격(높이, 너비, 여백, 썸네일 비율, 텍스트 줄 수, 아코디언 높이 등)과 100% 동일한 기본 크기를 선점해야 합니다.
+  - 데이터 로딩 완료 시점에 컴포넌트가 축소/확장되거나 상하 레이아웃이 널뛰는 현상(Layout Shift / CLS)이 발생하지 않도록 스켈레톤과 실데이터 컴포넌트의 레이아웃 규격을 철저히 동기화합니다.
+- **Typography & Aesthetics**: High-end luxury dark mode (`#1C1A17`), gold accents (`#d4af37`), glassmorphism, 60fps smooth spring/lerp transitions.
+
+---
+
+## 📜 Code Style & TypeScript Conventions
+- Zero TypeScript errors (`npx tsc --noEmit` must pass cleanly).
+- Keep component code clean and modular (`src/features/hanok-viewer/` 이하: `HanokCanvas.tsx` 3D 배경, `HanokModel.tsx` 모델 조립, `HanokCameraRig.tsx` 카메라 보간, `useHanokViewerStore.ts` Zustand 전역 상태, `hanok.data.ts` 데이터 스키마).
+- **Emoji Rule (이모지 규칙)**: Japanese Castle emoji (`🏯`) 사용을 엄격히 금지하며, 전통 한옥 관련 표현 및 응답 시 태극기 이모지(`🇰🇷`)를 사용합니다.
+
+---
+
+## 🏗️ Frontend Architecture Guidelines (Feature-Based / FSD)
+All AI agents (Antigravity, Claude Code, Cursor, Codex, etc.) MUST adhere to the following Feature-Based Architecture for all code generation and refactoring:
+
+1. **Strict Separation of Concerns (FSD Inspired)**:
+   - **`src/app/`**: Used ONLY for Next.js App Router routing. Pages here must be thin wrappers that assemble features. No complex business logic here.
+   - **`src/features/` (or `src/domains/`)**: The core of the application. Organized by business domain (e.g., `hanok-viewer`, `auth`, `payment`).
+     - Each feature folder must encapsulate its own UI, logic, and state.
+     - Internal structure: `components/`, `hooks/`, `api/`, `utils/`, `store/`.
+     - **Cross-Feature Imports are FORBIDDEN**: A feature should not tightly couple with another feature's internal files.
+   - **`src/shared/`**: Contains globally shared, generic UI components (buttons, inputs, modals), utilities, and types.
+   - **`src/design-system/`**: Global Emotion CSS setup, themes, typography, and design tokens.
+
+2. **Component Assembly**:
+   - Features provide top-level components (e.g., `<HanokViewerFeature />`) which are then imported and composed in `src/app/` pages.

@@ -1,0 +1,56 @@
+name: "🐛 버그 리포트"
+description: "온마루 프론트엔드에서 발생한 버그나 비정상 동작을 제보합니다."
+title: "[버그]: "
+labels: ["type: fix 🐛"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        발생한 문제 상황을 명확하게 파악할 수 있도록 아래 항목을 작성해 주세요.
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: "버그 설명"
+      description: "어떤 문제가 발생했는지 명확하고 간결하게 설명해 주세요."
+      placeholder: "예: 한옥 3D 조립 3단계 스크롤 시 화면 렌더링이 멈추는 현상이 발생합니다."
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: "재현 단계"
+      description: "버그를 재현할 수 있는 단계를 순서대로 적어주세요."
+      placeholder: |
+        1. 메인 페이지(/) 접속
+        2. 스크롤을 3단계 영역까지 아래로 이동
+        3. 콘솔 창에서 렌더링 에러 발생 확인
+    validations:
+      required: true
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: "기대했던 정상 동작"
+      description: "정상적이라면 어떤 동작이 일어나야 하는지 적어주세요."
+      placeholder: "예: 3단계 목조 기둥 메시가 부드럽게 조립 애니메이션으로 안착해야 합니다."
+    validations:
+      required: true
+  - type: dropdown
+    id: browser-os
+    attributes:
+      label: "환경 (OS / 브라우저)"
+      description: "버그가 발생한 환경을 선택해 주세요."
+      options:
+        - "macOS / Chrome"
+        - "macOS / Safari"
+        - "Windows / Chrome"
+        - "Windows / Edge"
+        - "iOS / Safari (Mobile)"
+        - "Android / Chrome (Mobile)"
+        - "기타"
+    validations:
+      required: true
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: "스크린샷 / 에러 로그 (선택)"
+      description: "콘솔 에러 로그나 화면 캡처가 있다면 첨부해 주세요."

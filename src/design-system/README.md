@@ -151,7 +151,40 @@ export const ResponsiveHeadline = styled.h1`
 
 ---
 
+## 📐 5. 반응형 전역 레이아웃 (Layout Variables)
+
+피그마 그리드 기반의 전역 여백(Margin)과 간격(Gutter) 설정이 CSS 변수로 제공됩니다. 화면 폭이 변함에 따라 자동으로 재설정됩니다. 
+- **`--layout-margin`**: 화면 좌우 기본 여백 (모바일/태블릿 `16px`, 데스크탑 `72px`)
+- **`--layout-gutter`**: 아이템 간의 간격 (모바일 `16px`, 태블릿 `24px`, 데스크탑 `32px`)
+
+### ✅ 전역 컨테이너로 좌우 여백 잡기
+보통 네비게이션을 제외한 페이지의 메인 콘텐츠 영역을 감쌀 때 다음과 같은 공통 컴포넌트를 정의해서 사용합니다.
+
+```tsx
+'use client';
+import styled from '@emotion/styled';
+
+export const PageContainer = styled.main`
+  width: 100%;
+  
+  /* 전역 CSS 변수를 사용하면 화면 크기에 따라 16px이나 72px로 자동 변환됩니다! */
+  padding-left: var(--layout-margin);
+  padding-right: var(--layout-margin);
+`;
+
+function App() {
+  return (
+    <PageContainer>
+      <h1>여기에 내용이 들어갑니다</h1>
+    </PageContainer>
+  );
+}
+```
+
+---
+
 ## ✨ 꿀팁 요약 (Best Practices)
 1. **하드코딩 금지:** 직접 색상 번호(`#ff0000`)나 픽셀 수치(`16px`)를 적기보다는 가급적 `theme.colors`와 `theme.spacing`을 활용해 주세요!
 2. **다크모드를 잊으세요:** `theme.colors.bg.card` 같은 의미론적(Semantic) 이름만 쓰면 다크모드는 `ThemeProvider`가 알아서 처리합니다. 
 3. **새로운 공용 스타일이 필요할 때:** `components.tsx`에 새로운 재사용 가능 Styled Container를 추가하여 팀원과 공유해 보세요.
+

@@ -1,0 +1,715 @@
+.stage {
+  --sorimaru-bg-stage-strength: 1;
+  --sorimaru-bg-light-left: 50%;
+  --sorimaru-bg-light-top: 8%;
+  --sorimaru-bg-shadow-left: 68%;
+  --sorimaru-bg-shadow-top: -8%;
+  --sorimaru-bg-garden-left: 68%;
+  --sorimaru-bg-garden-top: 8%;
+  --sorimaru-bg-warmth-opacity: .52;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  isolation: isolate;
+  background: var(--sorimaru-bg-canvas, #fff);
+  transition: background-color 1.15s cubic-bezier(.22, 1, .36, 1);
+}
+
+.hanjiAir,
+.hospitalityLight,
+.thresholdShadow,
+.gardenShadow,
+.warmthField,
+.paperDepth,
+.edgeVignette,
+.hanjiFiber {
+  position: absolute;
+  pointer-events: none;
+}
+
+.hanjiFiber {
+  inset: 0;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='hanjiNoise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.1 0 0 0 0 0.1 0 0 0 0 0.1 0 0 0 0.038 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23hanjiNoise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+:global([data-theme='dark']) .hanjiFiber {
+  opacity: 0.3;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='hanjiNoiseDark'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='1 0 0 0 0.9 0 1 0 0 0.9 0 0 1 0 0.9 0 0 0 0.032 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23hanjiNoiseDark)'/%3E%3C/svg%3E");
+}
+
+.hanjiAir {
+  inset: -12%;
+  opacity: calc(.24 * var(--sorimaru-bg-hanji) * var(--sorimaru-bg-stage-strength));
+  background-image:
+    radial-gradient(ellipse at 12% 24%, rgba(var(--sorimaru-bg-fiber-rgb), .028), transparent 31%),
+    radial-gradient(ellipse at 78% 74%, rgba(var(--sorimaru-bg-fiber-rgb), .02), transparent 28%);
+  filter: blur(.25px);
+  transform: rotate(-1.2deg) scale(1.08);
+  transition: opacity 1.1s ease;
+}
+
+.hospitalityLight {
+  left: var(--sorimaru-bg-light-left);
+  top: var(--sorimaru-bg-light-top);
+  width: min(92vw, 1120px);
+  height: min(76vh, 780px);
+  translate: -50% -28%;
+  opacity: calc(.9 * var(--sorimaru-bg-light) * var(--sorimaru-bg-stage-strength));
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse at 50% 48%, rgba(var(--sorimaru-bg-light-rgb), 1) 0 22%, rgba(var(--sorimaru-bg-light-rgb), .74) 48%, transparent 75%),
+    radial-gradient(circle at 62% 56%, rgba(var(--sorimaru-bg-light-rgb), .32), transparent 36%);
+  filter: blur(13px);
+  transition:
+    left 1.2s cubic-bezier(.22, 1, .36, 1),
+    top 1.2s cubic-bezier(.22, 1, .36, 1),
+    width 1.2s cubic-bezier(.22, 1, .36, 1),
+    opacity 1.1s ease;
+}
+
+.thresholdShadow {
+  display: none !important;
+}
+
+.thresholdBar {
+  position: absolute;
+  inset: -8% auto -8% -13px;
+  width: 14px;
+  border-radius: 999px;
+  background: rgba(var(--sorimaru-bg-shadow-rgb), .7);
+}
+
+.gardenShadow {
+  left: var(--sorimaru-bg-garden-left);
+  top: var(--sorimaru-bg-garden-top);
+  width: min(43vw, 600px);
+  height: min(58vh, 620px);
+  overflow: visible;
+  opacity: calc(.09 * var(--sorimaru-bg-garden) * var(--sorimaru-bg-stage-strength));
+  color: rgb(var(--sorimaru-bg-shadow-rgb));
+  filter: blur(4px);
+  transition:
+    left 1.25s cubic-bezier(.22, 1, .36, 1),
+    top 1.25s cubic-bezier(.22, 1, .36, 1),
+    opacity 1.1s ease,
+    rotate 1.2s cubic-bezier(.22, 1, .36, 1);
+}
+
+.gardenShadow path {
+  stroke: currentColor;
+  stroke-width: 9;
+  stroke-linecap: round;
+}
+
+.gardenShadow ellipse {
+  fill: currentColor;
+}
+
+.warmthField {
+  inset: 0;
+  opacity: calc(var(--sorimaru-bg-warmth-opacity) * var(--sorimaru-bg-warmth) * var(--sorimaru-bg-stage-strength));
+  transition: opacity 1.1s ease;
+}
+
+.warmthPoint {
+  position: absolute;
+  width: clamp(48px, 6vw, 92px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(var(--sorimaru-bg-accent-rgb), .055), rgba(var(--sorimaru-bg-accent-rgb), .025) 38%, transparent 72%);
+  filter: blur(5px);
+  transition:
+    left 1.25s cubic-bezier(.22, 1, .36, 1),
+    top 1.25s cubic-bezier(.22, 1, .36, 1),
+    scale 1.2s cubic-bezier(.22, 1, .36, 1),
+    opacity 1s ease;
+}
+
+.warmthPoint[data-point='1'] { left: 12%; top: 20%; }
+.warmthPoint[data-point='2'] { left: 74%; top: 24%; scale: .62; }
+.warmthPoint[data-point='3'] { left: 82%; top: 63%; scale: .78; }
+.warmthPoint[data-point='4'] { left: 24%; top: 70%; scale: .54; }
+.warmthPoint[data-point='5'] { left: 58%; top: 82%; scale: .64; }
+.warmthPoint[data-point='6'] { left: 44%; top: 43%; scale: .4; }
+
+.paperDepth {
+  inset: 0;
+  opacity: calc(.78 * var(--sorimaru-bg-paper) * var(--sorimaru-bg-stage-strength));
+  transition: opacity 1.1s ease;
+}
+
+.paperSheet {
+  position: absolute;
+  right: -5%;
+  top: 8%;
+  width: 31vw;
+  height: 72vh;
+  border: 1px solid rgba(var(--sorimaru-bg-shadow-rgb), .05);
+  border-radius: 10px 0 0 10px;
+  background: linear-gradient(135deg, rgba(var(--sorimaru-bg-light-rgb), .98), rgba(var(--sorimaru-bg-light-rgb), .82));
+  box-shadow: -14px 18px 42px rgba(var(--sorimaru-bg-shadow-rgb), .035);
+  rotate: 1.4deg;
+  transition:
+    right 1.2s cubic-bezier(.22, 1, .36, 1),
+    top 1.2s cubic-bezier(.22, 1, .36, 1),
+    rotate 1.2s cubic-bezier(.22, 1, .36, 1);
+}
+
+.paperIndex {
+  position: absolute;
+  right: 2.4%;
+  top: 22%;
+  width: 5px;
+  height: 78px;
+  border-radius: 4px;
+  background: rgba(var(--sorimaru-bg-accent-rgb), .065);
+  box-shadow: 0 92px 0 rgba(var(--sorimaru-bg-accent-rgb), .05), 0 184px 0 rgba(var(--sorimaru-bg-accent-rgb), .04);
+  transition: top 1.2s cubic-bezier(.22, 1, .36, 1);
+}
+
+.paperRule {
+  position: absolute;
+  right: 5%;
+  top: 17%;
+  width: 18vw;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(var(--sorimaru-bg-shadow-rgb), .065));
+  box-shadow: 0 14px 0 rgba(var(--sorimaru-bg-shadow-rgb), .022), 0 28px 0 rgba(var(--sorimaru-bg-shadow-rgb), .018);
+}
+
+.paperSeal {
+  position: absolute;
+  right: 7%;
+  bottom: 9%;
+  width: 18px;
+  height: 18px;
+  border: 1px solid rgba(var(--sorimaru-bg-accent-rgb), .08);
+  border-radius: 3px;
+  rotate: 4deg;
+  opacity: 0;
+  transition: opacity 1s ease, right 1.2s ease, bottom 1.2s ease;
+}
+
+.edgeVignette {
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(var(--sorimaru-bg-shadow-rgb), .014), transparent 13% 87%, rgba(var(--sorimaru-bg-shadow-rgb), .014)),
+    linear-gradient(0deg, rgba(var(--sorimaru-bg-shadow-rgb), .012), transparent 18%);
+}
+
+.deckleEdge {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  opacity: calc(.85 * var(--sorimaru-bg-hanji) * var(--sorimaru-bg-stage-strength));
+  transition: opacity 1.1s ease;
+}
+
+.deckleEdgeLeft,
+.deckleEdgeRight {
+  position: absolute;
+  top: 0;
+  width: 22px;
+  height: 100%;
+}
+
+.deckleEdgeLeft { left: 0; }
+.deckleEdgeRight { right: 0; transform: scaleX(-1); }
+
+.deckleBody {
+  fill: var(--sorimaru-bg-canvas);
+}
+
+.deckleShadow {
+  fill: none;
+  stroke: rgba(var(--sorimaru-bg-shadow-rgb), .1);
+  stroke-width: 3;
+  filter: blur(2px);
+  translate: 2px 0;
+}
+
+.deckleFringe {
+  fill: none;
+  stroke: rgba(var(--sorimaru-bg-fiber-rgb), .16);
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 2 1 4 1 3 2;
+}
+
+@media (max-width: 700px) {
+  .deckleEdgeLeft,
+  .deckleEdgeRight {
+    width: 12px;
+  }
+}
+
+/* One spatial sequence: each Sorimaru section moves the same materials. */
+.stage[data-stage='featured'] {
+  --sorimaru-bg-light-left: 50%;
+  --sorimaru-bg-light-top: 4%;
+  --sorimaru-bg-shadow-left: 78%;
+  --sorimaru-bg-shadow-top: -18%;
+  --sorimaru-bg-garden-left: 76%;
+  --sorimaru-bg-garden-top: 8%;
+  --sorimaru-bg-warmth-opacity: .5;
+}
+
+.stage[data-stage='themes'] {
+  --sorimaru-bg-light-left: 34%;
+  --sorimaru-bg-light-top: 18%;
+  --sorimaru-bg-shadow-left: 61%;
+  --sorimaru-bg-shadow-top: -6%;
+  --sorimaru-bg-garden-left: 84%;
+  --sorimaru-bg-garden-top: 24%;
+  --sorimaru-bg-warmth-opacity: .34;
+}
+
+.stage[data-stage='nearby'] {
+  --sorimaru-bg-light-left: 60%;
+  --sorimaru-bg-light-top: 25%;
+  --sorimaru-bg-shadow-left: 88%;
+  --sorimaru-bg-shadow-top: 2%;
+  --sorimaru-bg-garden-left: 55%;
+  --sorimaru-bg-garden-top: 2%;
+  --sorimaru-bg-warmth-opacity: .62;
+}
+
+.stage[data-stage='nearby'] .warmthPoint[data-point='1'] { left: 8%; top: 31%; }
+.stage[data-stage='nearby'] .warmthPoint[data-point='2'] { left: 88%; top: 18%; }
+.stage[data-stage='nearby'] .warmthPoint[data-point='3'] { left: 76%; top: 75%; }
+.stage[data-stage='nearby'] .warmthPoint[data-point='4'] { left: 18%; top: 81%; }
+
+.stage[data-stage='related'] {
+  --sorimaru-bg-light-left: 48%;
+  --sorimaru-bg-light-top: 58%;
+  --sorimaru-bg-shadow-left: 70%;
+  --sorimaru-bg-shadow-top: 48%;
+  --sorimaru-bg-garden-left: 76%;
+  --sorimaru-bg-garden-top: 52%;
+  --sorimaru-bg-warmth-opacity: .78;
+}
+
+.stage[data-stage='related'] .warmthPoint[data-point='1'] { left: 19%; top: 72%; scale: .58; }
+.stage[data-stage='related'] .warmthPoint[data-point='2'] { left: 24%; top: 76%; scale: .42; }
+.stage[data-stage='related'] .warmthPoint[data-point='3'] { left: 72%; top: 68%; scale: .55; }
+.stage[data-stage='related'] .warmthPoint[data-point='4'] { left: 77%; top: 73%; scale: .38; }
+.stage[data-stage='related'] .warmthPoint[data-point='5'] { left: 81%; top: 66%; scale: .28; }
+
+.stage[data-stage='archive'] {
+  --sorimaru-bg-stage-strength: .38;
+  --sorimaru-bg-light-left: 50%;
+  --sorimaru-bg-light-top: 8%;
+  --sorimaru-bg-shadow-left: 82%;
+  --sorimaru-bg-shadow-top: -12%;
+  --sorimaru-bg-garden-left: 89%;
+  --sorimaru-bg-garden-top: 8%;
+  --sorimaru-bg-warmth-opacity: .08;
+  background: var(--sorimaru-bg-canvas, #fff);
+}
+
+.stage[data-stage='collection'] {
+  --sorimaru-bg-light-left: 68%;
+  --sorimaru-bg-light-top: 30%;
+  --sorimaru-bg-shadow-left: 4%;
+  --sorimaru-bg-shadow-top: 8%;
+  --sorimaru-bg-garden-left: 67%;
+  --sorimaru-bg-garden-top: 24%;
+  --sorimaru-bg-warmth-opacity: .38;
+}
+
+.stage[data-stage='closing'] {
+  --sorimaru-bg-light-left: 49%;
+  --sorimaru-bg-light-top: 70%;
+  --sorimaru-bg-shadow-left: 64%;
+  --sorimaru-bg-shadow-top: 30%;
+  --sorimaru-bg-garden-left: 72%;
+  --sorimaru-bg-garden-top: 48%;
+  --sorimaru-bg-warmth-opacity: .58;
+  background: var(--sorimaru-bg-canvas, #fff);
+}
+
+.stage[data-stage='closing'] .hospitalityLight {
+  width: min(108vw, 1320px);
+}
+
+.stage[data-stage='closing'] .paperSeal {
+  right: 12%;
+  bottom: 14%;
+  opacity: 1;
+}
+
+/* Variant 1 — light, grain and unconnected warmth. */
+.stage[data-variant='warmth-grain'] .thresholdShadow,
+.stage[data-variant='warmth-grain'] .gardenShadow {
+  filter: blur(8px);
+}
+
+.stage[data-variant='warmth-grain'][data-stage='themes'] .hanjiAir {
+  opacity: calc(.31 * var(--sorimaru-bg-hanji));
+}
+
+.stage[data-variant='warmth-grain'][data-stage='archive'] .warmthField {
+  opacity: .025;
+}
+
+/* Variant 2 — changho and garden shadows, still below 12% opacity. */
+.stage[data-variant='changho-breeze'] .thresholdShadow {
+  background-size: auto;
+}
+
+.stage[data-variant='changho-breeze'][data-stage='featured'] .thresholdShadow {
+  opacity: .018;
+}
+
+.stage[data-variant='changho-breeze'][data-stage='nearby'] .thresholdShadow {
+  opacity: .026;
+}
+
+.stage[data-variant='changho-breeze'][data-stage='nearby'] .gardenShadow {
+  rotate: -7deg;
+  opacity: .081;
+}
+
+.stage[data-variant='changho-breeze'][data-stage='related'] .thresholdShadow {
+  height: 28vh;
+  width: 86vw;
+  rotate: 0deg;
+  mask-image: linear-gradient(90deg, transparent, #000 22% 78%, transparent);
+}
+
+/* Variant 3 — a restrained Korean record surface, not a scrapbook. */
+.stage[data-variant='hanji-journey'] {
+  background: var(--sorimaru-bg-canvas, #fff);
+}
+
+.stage[data-variant='hanji-journey'] .paperSheet {
+  right: -1.5%;
+  width: 38vw;
+  box-shadow: -18px 22px 52px rgba(var(--sorimaru-bg-shadow-rgb), .04);
+}
+
+.stage[data-variant='hanji-journey'][data-stage='themes'] .paperSheet { right: 3%; top: 13%; rotate: -1deg; }
+.stage[data-variant='hanji-journey'][data-stage='nearby'] .paperSheet { right: 55%; top: 5%; rotate: .7deg; }
+.stage[data-variant='hanji-journey'][data-stage='related'] .paperSheet { right: -8%; top: 33%; rotate: 1.8deg; }
+.stage[data-variant='hanji-journey'][data-stage='archive'] .paperSheet { right: 2%; top: 2%; width: 96%; rotate: 0deg; }
+.stage[data-variant='hanji-journey'][data-stage='closing'] .paperSheet { right: 28%; top: 21%; rotate: -.4deg; }
+
+/* Variant 4 — balanced On-Maru signature. */
+.stage[data-variant='onmaru-signature'][data-stage='archive'] {
+  --sorimaru-bg-stage-strength: .31;
+}
+
+.stage[data-variant='onmaru-signature'][data-stage='collection'][data-category='hanok'] .thresholdShadow,
+.stage[data-variant='onmaru-signature'][data-stage='collection'][data-category='palace'] .thresholdShadow {
+  opacity: .072;
+}
+
+.stage[data-category='market'] .warmthField {
+  opacity: calc(.78 * var(--sorimaru-bg-warmth) * var(--sorimaru-bg-stage-strength));
+}
+
+.stage[data-category='market'] .warmthPoint[data-point='5'],
+.stage[data-category='market'] .warmthPoint[data-point='6'] {
+  opacity: 1;
+  scale: .5;
+}
+
+.stage[data-category='hanok'] .thresholdShadow { rotate: -1deg; }
+.stage[data-category='village'] .edgeVignette { opacity: .78; }
+.stage[data-category='palace'] .thresholdShadow { border-radius: 48% 48% 12px 12px; rotate: 2deg; }
+.stage[data-category='nature'] .gardenShadow { opacity: calc(.105 * var(--sorimaru-bg-garden)); }
+
+.stage[data-breathing='true'] .hospitalityLight {
+  animation: hospitality-breathe 5.8s ease-in-out infinite;
+}
+
+.stage[data-breathing='true'] .warmthPoint[data-point='1'] {
+  animation: warmth-breathe 5.8s ease-in-out infinite;
+}
+
+.tear {
+  position: relative;
+  z-index: 1;
+  height: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.tear svg {
+  position: absolute;
+  left: 0;
+  top: -18px;
+  width: 100%;
+  height: 32px;
+  overflow: visible;
+}
+
+.tearBody {
+  fill: rgba(255, 255, 255, .98);
+}
+.tearFringe {
+  fill: none;
+  stroke: rgba(255, 255, 255, .98);
+  stroke-width: 4px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 4 1 8 2;
+}
+.tearShadow {
+  fill: none;
+  stroke: rgba(70, 70, 70, .065);
+  stroke-width: 7px;
+  translate: 0 2.5px;
+  filter: blur(2.5px);
+}
+
+@keyframes hospitality-breathe {
+  0%, 100% { opacity: calc(.84 * var(--sorimaru-bg-light)); }
+  50% { opacity: calc(.9 * var(--sorimaru-bg-light)); }
+}
+
+@keyframes warmth-breathe {
+  0%, 100% { opacity: .82; }
+  50% { opacity: 1; }
+}
+
+@media (max-width: 700px) {
+  .hospitalityLight {
+    width: 150vw;
+    height: 62vh;
+  }
+
+  .thresholdShadow {
+    display: none !important;
+  }
+
+  .gardenShadow {
+    width: 76vw;
+    opacity: calc(.065 * var(--sorimaru-bg-garden) * var(--sorimaru-bg-stage-strength));
+  }
+
+  .paperSheet { width: 58vw; }
+  .paperRule { width: 31vw; }
+  .stage[data-variant='hanji-journey'][data-stage='archive'] .paperSheet { width: 108%; right: -4%; }
+  .warmthPoint { width: 58px; }
+  .tear svg {
+    left: 0;
+    width: 100%;
+    top: -14px;
+    height: 26px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage *,
+  .stage *::before,
+  .stage *::after {
+    animation: none !important;
+    transition-duration: .12s !important;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────
+   Dark Mode Support (먹빛 고택 야경 테마)
+   ──────────────────────────────────────────────────────────── */
+:global([data-theme='dark']) .stage {
+  --sorimaru-bg-canvas: #1c1a17 !important;
+  background: #1c1a17 !important;
+  background-color: #1c1a17 !important;
+}
+
+:global([data-theme='dark']) .stage[data-variant='hanji-journey'],
+:global([data-theme='dark']) .stage[data-stage='archive'],
+:global([data-theme='dark']) .stage[data-stage='closing'] {
+  background: #1c1a17 !important;
+  background-color: #1c1a17 !important;
+}
+
+:global([data-theme='dark']) .hospitalityLight {
+  opacity: calc(.18 * var(--sorimaru-bg-light) * var(--sorimaru-bg-stage-strength)) !important;
+}
+
+:global([data-theme='dark']) .paperSheet {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: linear-gradient(135deg, rgba(38, 35, 31, 0.96), rgba(28, 26, 23, 0.9));
+  box-shadow: -14px 18px 42px rgba(0, 0, 0, 0.6);
+}
+
+:global([data-theme='dark']) .deckleBody {
+  fill: #1c1a17 !important;
+}
+
+:global([data-theme='dark']) .deckleEdge {
+  opacity: calc(.85 * var(--sorimaru-bg-hanji) * var(--sorimaru-bg-stage-strength)) !important;
+}
+
+:global([data-theme='dark']) .deckleFringe {
+  stroke: rgba(240, 235, 225, 0.28) !important;
+  stroke-width: 1px !important;
+}
+
+:global([data-theme='dark']) .deckleShadow {
+  stroke: rgba(0, 0, 0, 0.5) !important;
+  stroke-width: 2.5px !important;
+  filter: blur(2px) !important;
+}
+
+:global([data-theme='dark']) .tearBody {
+  fill: rgba(255, 255, 255, 0.02) !important;
+}
+
+:global([data-theme='dark']) .tearFringe {
+  stroke: rgba(240, 235, 225, 0.2) !important;
+  stroke-width: 1.2px !important;
+  stroke-dasharray: 4 1 8 2 !important;
+}
+
+:global([data-theme='dark']) .tearShadow {
+  stroke: rgba(0, 0, 0, 0.3) !important;
+  stroke-width: 2.5px !important;
+  filter: blur(1.5px) !important;
+  translate: 0 1px !important;
+}
+
+/* ============================================================
+   🇰🇷 [한지 발묵 스며듦] 양옆 세로 닥종이 먹물 번짐 레이어
+   ============================================================ */
+.inkWashBleed {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+  overflow: hidden;
+}
+
+.inkWashLeft,
+.inkWashRight {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 90px;
+  background: linear-gradient(
+    to right,
+    rgba(225, 222, 216, 0.45) 0%,
+    rgba(240, 238, 234, 0.18) 50%,
+    transparent 100%
+  );
+  filter: blur(6px);
+  transition: background 0.6s ease;
+}
+
+.inkWashLeft {
+  left: 0;
+}
+
+.inkWashRight {
+  right: 0;
+  transform: scaleX(-1);
+}
+
+:global([data-theme='dark']) .inkWashLeft,
+:global([data-theme='dark']) .inkWashRight {
+  background: linear-gradient(
+    to right,
+    rgba(14, 12, 10, 0.72) 0%,
+    rgba(28, 26, 23, 0.28) 50%,
+    transparent 100%
+  );
+}
+
+@media (max-width: 768px) {
+  .inkWashLeft,
+  .inkWashRight {
+    width: 42px;
+  }
+}
+
+/* ============================================================
+   🇰🇷 [처마 낙수 파동] 빗방울/이슬이 툇마루 앞 바닥에 떨어지는 수묵 파동
+   ============================================================ */
+.dropletRippleContainer {
+  position: fixed;
+  bottom: 14%;
+  left: 28%;
+  width: 220px;
+  height: 90px;
+  pointer-events: none;
+  z-index: 2;
+  transform: rotateX(55deg);
+}
+
+.dropletRippleContainerRight {
+  position: fixed;
+  bottom: 22%;
+  right: 24%;
+  width: 180px;
+  height: 75px;
+  pointer-events: none;
+  z-index: 2;
+  transform: rotateX(55deg);
+}
+
+.rippleRing {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(25, 31, 40, 0.08);
+  opacity: 0;
+  transform: scale(0.15);
+  animation: dropletRipple 6s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+.rippleRing:nth-of-type(2) {
+  animation-delay: 1.8s;
+}
+
+.rippleRing:nth-of-type(3) {
+  animation-delay: 3.6s;
+}
+
+:global([data-theme='dark']) .rippleRing {
+  border-color: rgba(240, 235, 225, 0.14);
+}
+
+@keyframes dropletRipple {
+  0% {
+    opacity: 0.45;
+    transform: scale(0.15);
+  }
+  50% {
+    opacity: 0.22;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rippleRing {
+    animation: none;
+    opacity: 0.12;
+    transform: scale(0.9);
+  }
+}
+
+@media (max-width: 768px) {
+  .dropletRippleContainer {
+    bottom: 10%;
+    left: 15%;
+    width: 150px;
+    height: 60px;
+  }
+  .dropletRippleContainerRight {
+    display: none;
+  }
+}
+
+
+

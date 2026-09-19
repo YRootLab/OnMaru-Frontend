@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# Client-side compensating control for branch protection.
+#
+# This is a PRIVATE repository on a GitHub plan without enforced branch protection / rulesets.
+# GitHub itself cannot reject this push before it lands; this hook is the
+# only layer that runs *before* the push leaves this machine.
+set -euo pipefail
+
+protected_pattern='^refs/heads/(main|develop|release/.+)$'
+
+echo "pre-push: checking environment contract..." >&2
+npm run check:env
+
+if [[ "${ALLOW_DIRECT_PUSH:-}" == "1" ]]; then
+  echo "pre-push: ALLOW_DIRECT_PUSH=1 set, skipping protected-branch check." >&2
+  exit 0
+fi
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+  [[ -z "$local_ref" ]] && continue
+  if [[ "$remote_ref" =~ $protected_pattern ]]; then
+    branch="${remote_ref#refs/heads/}"
+    cat >&2 <<ERR
+pre-push: refusing direct push to protected branch '$branch'.
+
+This repo follows feature/* / feat/* / fix/* -> develop -> release/* -> main (Git Flow).
+Direct push to protected branches is blocked. Open a pull request instead:
+
+  git push origin HEAD:refs/heads/<your-branch>
+  gh pr create --base develop --head <your-branch>
+
+If this push is intentional repo automation or an approved exception, rerun with override:
+
+  ALLOW_DIRECT_PUSH=1 git push ...
+ERR
+    exit 1
+  fi
+done
+
+exit 0
