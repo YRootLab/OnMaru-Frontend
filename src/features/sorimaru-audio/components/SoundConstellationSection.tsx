@@ -233,45 +233,45 @@ const RegionPin = styled.div`
 const RegionPinButton = styled.button<{ isActive: boolean }>`
   border: none;
   border-radius: 9999px;
-  padding: 0.375rem 0.625rem;
+  padding: 0.375rem 0.65rem;
   font-size: ${fontSize.micro};
   font-weight: ${(props) => (props.isActive ? 700 : 600)};
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(12px);
   outline: none;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  background: #ffffff;
-  color: ${(props) => (props.isActive ? palette.juhong[500] : meok[900])};
+  background: ${(props) => (props.isActive ? palette.juhong[500] : '#ffffff')};
+  color: ${(props) => (props.isActive ? '#ffffff' : meok[900])};
   box-shadow: ${(props) =>
     props.isActive
-      ? '0 4px 14px rgba(255, 85, 0, 0.25), 0 2px 6px rgba(0, 0, 0, 0.08)'
-      : '0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04)'};
-  transform: ${(props) => (props.isActive ? 'scale(1.06)' : 'scale(1)')};
+      ? '0 4px 16px rgba(255, 85, 0, 0.4), 0 2px 6px rgba(0, 0, 0, 0.12)'
+      : '0 2px 10px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.06)'};
+  transform: ${(props) => (props.isActive ? 'scale(1.08)' : 'scale(1)')};
 
   [data-theme='dark'] & {
-    background: #ffffff;
-    color: ${(props) => (props.isActive ? palette.juhong[600] : '#1c1a17')};
+    background: ${(props) => (props.isActive ? palette.juhong[500] : '#ffffff')};
+    color: ${(props) => (props.isActive ? '#ffffff' : '#171513')};
     box-shadow: ${(props) =>
       props.isActive
-        ? '0 4px 16px rgba(255, 85, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.3)'
-        : '0 2px 10px rgba(0, 0, 0, 0.3), 0 1px 4px rgba(0, 0, 0, 0.2)'};
+        ? '0 4px 20px rgba(255, 85, 0, 0.55), 0 0 12px rgba(255, 85, 0, 0.35)'
+        : '0 3px 14px rgba(0, 0, 0, 0.5), 0 1px 5px rgba(0, 0, 0, 0.3)'};
   }
 
   &:hover {
-    transform: scale(1.08);
-    background: #ffffff;
-    color: ${palette.juhong[500]};
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.06);
+    transform: scale(1.1);
+    background: ${(props) => (props.isActive ? palette.juhong[600] : '#ffffff')};
+    color: ${(props) => (props.isActive ? '#ffffff' : palette.juhong[500])};
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
 
     [data-theme='dark'] & {
-      background: #ffffff;
-      color: ${palette.juhong[600]};
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+      background: ${(props) => (props.isActive ? palette.juhong[600] : '#ffffff')};
+      color: ${(props) => (props.isActive ? '#ffffff' : palette.juhong[500])};
+      box-shadow: 0 6px 22px rgba(0, 0, 0, 0.5);
     }
   }
 
   @media (min-width: 640px) {
-    padding: 0.375rem 0.75rem;
+    padding: 0.4rem 0.8rem;
     font-size: ${fontSize.xs};
   }
 `;
