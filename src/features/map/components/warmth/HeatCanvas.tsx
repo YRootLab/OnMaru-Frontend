@@ -55,6 +55,37 @@ const RAMP_DARK: Record<number, string> = {
   1.0: 'rgba(255, 220, 184, 0.94)', // 가장 붐비는 core
 };
 
+/*
+  원형 히트맵 전용 램프. 시·군 행정별 모드는 위 RAMP_LIGHT/DARK를 그대로 쓰지만,
+  원형 모드는 "진짜 히트맵"(우버류)처럼 또렷하고 진하게 보여 달라는 요청이 있어
+  둘을 갈랐다 — 이 램프만 바꾸면 행정구역 채색은 그대로 남는다.
+  낮은 밀도부터 빠르게 색이 붙고, 가장 붐비는 core는 거의 새까만 적색까지 간다.
+*/
+const HEATMAP_RAMP_LIGHT: Record<number, string> = {
+  0.0: 'rgba(255, 140, 60, 0)', // 집계 없음
+  0.06: 'rgba(255, 170, 110, 0.3)',
+  0.16: 'rgba(255, 140, 70, 0.48)',
+  0.3: 'rgba(255, 100, 40, 0.62)',
+  0.45: 'rgba(255, 70, 20, 0.74)',
+  0.6: 'rgba(232, 50, 10, 0.84)',
+  0.75: 'rgba(200, 30, 5, 0.91)',
+  0.88: 'rgba(150, 20, 5, 0.96)',
+  1.0: 'rgba(90, 10, 5, 0.98)', // 가장 붐비는 core — 거의 새까만 적색
+};
+
+/** 다크 배경 위의 원형 히트맵 — 밀도가 오를수록 밝은 금빛-흰빛 core로 간다. */
+const HEATMAP_RAMP_DARK: Record<number, string> = {
+  0.0: 'rgba(255, 110, 40, 0)',
+  0.06: 'rgba(255, 140, 80, 0.34)',
+  0.16: 'rgba(255, 120, 60, 0.52)',
+  0.3: 'rgba(255, 150, 60, 0.65)',
+  0.45: 'rgba(255, 180, 70, 0.76)',
+  0.6: 'rgba(255, 210, 100, 0.86)',
+  0.75: 'rgba(255, 230, 150, 0.92)',
+  0.88: 'rgba(255, 245, 200, 0.96)',
+  1.0: 'rgba(255, 250, 230, 0.98)', // 가장 붐비는 core — 밝은 금빛-흰빛
+};
+
 /** 램프를 256칸 룩업 테이블로 굽는다. 보간과 알파 처리는 캔버스에 맡긴다. */
 function bakeRamp(stops: Record<number, string>): Uint8ClampedArray {
   const c = document.createElement('canvas');
@@ -80,6 +111,17 @@ function seedFromCoords(lng: number, lat: number): number {
   return s - Math.floor(s);
 }
 
+/*
+  4개 stop짜리 그라데이션은 0.7~1.0 구간에서 알파가 뚝 떨어져, 커널 가장자리가
+  눈에 보이는 선처럼 남았다 — "원형 경계가 보인다"던 게 이거다. 진짜 가우시안
+  곡선(exp(-4.5t²))을 9칸으로 샘플링해서 끝까지 매끈하게 줄어들게 한다.
+*/
+const KERNEL_STOPS = Array.from({ length: 9 }, (_, i) => {
+  const t = i / 8;
+  const alpha = i === 8 ? 0 : Math.exp(-4.5 * t * t);
+  return `rgba(0, 0, 0, ${alpha.toFixed(3)})`;
+});
+
 /**
  * 커널 하나. 가운데가 진하고 가장자리로 갈수록 흐려지는 가우시안 근사다.
  * 이 모양이 곧 히트맵의 해상도라, blur 필터를 따로 쓸 필요가 없다.
@@ -104,10 +146,7 @@ function stampKernel(
   ctx.scale(1, aspect);
 
   const g = ctx.createRadialGradient(0, 0, 0, 0, 0, r);
-  g.addColorStop(0, 'rgba(0, 0, 0, 1)');
-  g.addColorStop(0.35, 'rgba(0, 0, 0, 0.55)');
-  g.addColorStop(0.7, 'rgba(0, 0, 0, 0.16)');
-  g.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  KERNEL_STOPS.forEach((color, i) => g.addColorStop(i / (KERNEL_STOPS.length - 1), color));
 
   ctx.globalAlpha = weight;
   ctx.fillStyle = g;
@@ -266,6 +305,7 @@ export default function HeatCanvas({ spots }: Props) {
   const isDark = colorMode === 'dark';
 
   const lutRef = useRef<Uint8ClampedArray | null>(null);
+  const heatmapLutRef = useRef<Uint8ClampedArray | null>(null);
   const warmthViewTypeRef = useRef(warmthViewType);
 
   /*
@@ -306,6 +346,7 @@ export default function HeatCanvas({ spots }: Props) {
 
   useEffect(() => {
     lutRef.current = bakeRamp(isDark ? RAMP_DARK : RAMP_LIGHT);
+    heatmapLutRef.current = bakeRamp(isDark ? HEATMAP_RAMP_DARK : HEATMAP_RAMP_LIGHT);
   }, [isDark]);
 
   // 스팟(=선택한 날)이 바뀌면 다시 칠한다. rAF가 연속된 스크럽을 한 프레임으로 묶는다.
@@ -334,6 +375,15 @@ export default function HeatCanvas({ spots }: Props) {
     canvas.style.pointerEvents = 'none';
     holder.appendChild(canvas);
 
+    /*
+      자기 자신을 blur로 다시 그리려면(source === destination) 브라우저가
+      먼저 대상을 비우고 그리는 경우가 있어 원본이 통째로 지워질 수 있다
+      ('copy' 합성모드에서 실제로 겪었다 — 밀도가 몇 만 픽셀에서 만 단위로
+      주저앉았다). 별도의 스크래치 캔버스에 blur로 옮겨 그린 뒤 그걸 원본
+      위에 얹으면 원본과 대상이 서로 달라 이 문제가 생기지 않는다.
+    */
+    const blurScratch = document.createElement('canvas');
+
     const overlay = new window.kakao.maps.CustomOverlay({
       position: map.getCenter(),
       content: holder,
@@ -349,7 +399,8 @@ export default function HeatCanvas({ spots }: Props) {
       const ctx = canvas.getContext('2d', { willReadFrequently: true });
       const projection = map.getProjection?.();
       const node = map.getNode?.();
-      const lut = lutRef.current;
+      const lut =
+        warmthViewTypeRef.current === 'heatmap' ? heatmapLutRef.current : lutRef.current;
       if (!ctx || !projection || !node || !lut) return;
 
       const viewW = node.clientWidth;
@@ -467,25 +518,28 @@ export default function HeatCanvas({ spots }: Props) {
         ctx.globalCompositeOperation = 'source-over';
 
         /*
-          커널 하나는 부드러워도, 그 가장자리가 아래 램프의 문턱(밀도 5% 미만은
-          완전 투명)과 만나는 자리에는 "여기서부터 색이 시작된다"는 선이 그대로
-          남는다 — 이게 '원형 경계가 보인다'는 느낌의 정체다. 다 찍은 뒤 캔버스를
-          자기 자신 위에 blur로 한 번 더 그려서 그 문턱 자체를 공간적으로 흐린다.
-          커널마다 걸면 스탬프 수만큼 비용이 붙지만, 다 그리고 한 번만 걸면
-          비용은 그대로 한 번이다.
+          커널 자체는 이제 exp(-4.5t²) 가우시안이라 끝까지 매끈하게 줄어들지만,
+          쌓인 밀도가 아주 미세한 계단(alpha가 정수 0~255라 생기는)으로 남을 수
+          있어 마무리로 살짝만 더 흐린다. 다 그리고 한 번만 걸어 비용은 한 번뿐이다.
+
+          자기 자신 위에 바로 blur+drawImage 하면(source===destination) 브라우저가
+          먼저 대상을 비우고 그리는 경우가 있어 원본이 통째로 사라질 수 있다 —
+          실제로 'copy' 합성으로 겪었다. 그래서 별도 스크래치 캔버스에 옮겨 그린
+          뒤 그 결과를 원본에 얹는다. 스크래치는 처음부터 비어 있으니 안전하다.
         */
         if (painted > 0) {
-          /*
-            source-over로 그리면 방금 그린 커널들 위에 "흐린 사본"을 덧그리는
-            꼴이라, 선명한 원본과 흐린 사본이 겹쳐 보인다 — 옅은 핑크빛 잔상처럼
-            남던 게 이 이중 노출이었다. 'copy'로 그리면 흐린 사본이 원본을
-            완전히 대체해서 한 장만 남는다.
-          */
-          ctx.filter = 'blur(14px)';
-          ctx.globalCompositeOperation = 'copy';
-          ctx.drawImage(canvas, 0, 0);
-          ctx.filter = 'none';
-          ctx.globalCompositeOperation = 'source-over';
+          blurScratch.width = W;
+          blurScratch.height = H;
+          const scratchCtx = blurScratch.getContext('2d');
+          if (scratchCtx) {
+            scratchCtx.clearRect(0, 0, W, H);
+            scratchCtx.filter = 'blur(6px)';
+            scratchCtx.drawImage(canvas, 0, 0);
+            scratchCtx.filter = 'none';
+
+            ctx.clearRect(0, 0, W, H);
+            ctx.drawImage(blurScratch, 0, 0);
+          }
         }
       } else {
         // ── [시·군 행정별 모드] 시·군·구 행정 경계(districts.json) 폴리곤 채색 ──
@@ -583,9 +637,24 @@ export default function HeatCanvas({ spots }: Props) {
       ctx.putImageData(img, 0, 0);
     };
 
+    /*
+      예전엔 zoom_changed가 올 때마다 rAF 하나를 취소하고 다시 잡기만 했다 —
+      이건 "한 프레임보다 촘촘히 오면" 묶이는 것이지, 실제 휠 줌아웃처럼
+      이벤트 사이 간격이 30~100ms대로 뜨문뜨문 오면 매번 그대로 실행돼 버린다.
+      2400x2400 캔버스를 커널 찍기 → blur → getImageData/putImageData까지
+      돌리는 이 paint()는 가볍지 않아서, 줌아웃 한 번에 여러 번 겹쳐 돌면 그
+      순간 메인 스레드가 막혀 카카오 자체의 타일 로딩·페인트가 밀린다 —
+      "줄일 때마다 네모(회색 타일) 지도가 보인다"던 게 이 정체다.
+      진짜 트레일링 디바운스로 바꿔서, 줌이 실제로 멎은 뒤 한 번만 그린다.
+    */
+    let debounceTimer: number | null = null;
     const schedule = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(paint);
+      if (debounceTimer !== null) window.clearTimeout(debounceTimer);
+      debounceTimer = window.setTimeout(() => {
+        debounceTimer = null;
+        cancelAnimationFrame(frame);
+        frame = requestAnimationFrame(paint);
+      }, 140);
     };
     scheduleRef.current = schedule;
 
@@ -611,6 +680,7 @@ export default function HeatCanvas({ spots }: Props) {
 
     return () => {
       cancelAnimationFrame(frame);
+      if (debounceTimer !== null) window.clearTimeout(debounceTimer);
       scheduleRef.current = null;
       ro?.disconnect();
       document.removeEventListener('visibilitychange', schedule);
