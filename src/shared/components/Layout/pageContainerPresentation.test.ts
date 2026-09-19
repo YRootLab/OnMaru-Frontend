@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { getPageContainerPresentation } from './pageContainerPresentation';
 
 describe('getPageContainerPresentation', () => {
-  it('lets the Hanok route render its ambient background without changing its constrained layout', () => {
+  it('lets the Hanok route render its ambient background with full bleed layout', () => {
     expect(getPageContainerPresentation('/hanok')).toEqual({
-      isFullBleed: false,
+      isFullBleed: true,
       background: 'transparent',
       surface: 'hanok',
     });

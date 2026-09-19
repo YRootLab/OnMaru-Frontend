@@ -83,7 +83,9 @@ export interface VillageDetailResponse {
   lat?: number | null;
   lng?: number | null;
   addr?: string | null;
-  source: 'TourAPI' | 'none';
+  /** 이슈 #82 — BE가 설명/대본에서 자동 추출한 태그(#없이, 중요도순, 최대 7개). TourAPI 경로는 제공하지 않는다. */
+  contentTags?: string[];
+  source: 'TourAPI' | 'none' | 'backend';
   item?: any;
 }
 

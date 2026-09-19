@@ -1,6 +1,7 @@
 import { STAY_TYPE } from '@/features/hanok-archive/types';
 import type { Village, VillageMeta } from '@/features/hanok-archive/types';
 import { TourApiClient } from '@/lib/tour-api/tourApiClient';
+import { apiGet } from '@/lib/api/client';
 import {
   CATEGORY_MAPPINGS,
   classifyHeritageHouse,
@@ -9,6 +10,57 @@ import {
   inKorea,
   toHttps,
 } from '@/features/hanok-archive/lib/classify.mjs';
+
+/** 백엔드 GET /api/v1/hanoks 응답 한 건. 실서버 호출로 검증한 실제 shape (2026-09-19). */
+interface BackendHanokItem {
+  placeId: string;
+  name: string;
+  category: string;
+  regionName: string;
+  thumbnailUrl: string | null;
+  summary: string;
+  tags: string[];
+}
+
+interface BackendHanokListResponse {
+  items: BackendHanokItem[];
+}
+
+/*
+  백엔드 category는 아직 도감의 Village['type'] 유형 체계(고택/민속마을/고궁 등)와
+  다른 자체 값(HANOK, HANOK_CAFE 등)을 쓴다. 백엔드가 아직 이 분류를 상세히
+  제공하지 않으므로, 카페류만 도감 대상에서 걸러내고 나머지는 가장 넓은 잔류
+  버킷인 '고택'으로 묶는다 — classify.mjs의 세부 분류(서원·향교 분리 등)는
+  TourAPI 경로에만 있고 백엔드 경로에는 아직 없다.
+*/
+function mapBackendCategoryToVillageType(category: string): Village['type'] | null {
+  const normalized = category.toUpperCase();
+  if (normalized.includes('CAFE') || category === '카페') return null;
+  if (normalized.includes('STAY')) return STAY_TYPE;
+  return '고택';
+}
+
+function mapBackendHanokToVillage(item: BackendHanokItem): Village | null {
+  const type = mapBackendCategoryToVillageType(item.category);
+  if (!type) return null;
+
+  return {
+    id: item.placeId,
+    name: item.name,
+    rawTitle: item.name,
+    type,
+    region: item.regionName,
+    // /api/v1/hanoks 목록 응답엔 좌표가 없다 — 상세(/places/{placeId})에서만 내려온다.
+    lat: null,
+    lng: null,
+    addr: item.regionName,
+    image: item.thumbnailUrl,
+    hasImage: Boolean(item.thumbnailUrl),
+    summary: item.summary,
+    overview: '',
+    badges: item.tags,
+  };
+}
 
 /** areaBasedList2가 돌려주는 항목 중 이 도감이 읽는 필드만. */
 interface TourApiItem {
@@ -105,9 +157,69 @@ export class HanokArchiveService {
   }
 
   /**
-   * TourAPI에서 한옥 아카이브 실시간 데이터를 수집/변환합니다.
+   * FE #90: 백엔드(/api/v1/hanoks)를 먼저 시도하고, 실패하거나 백엔드 base URL이
+   * 설정되지 않았으면 기존 TourAPI 수집 경로로 폴백한다.
+   * journey-curator/api/journeyCuratorApi.ts의 fetchCuratedJourney와 같은 패턴.
    */
   public static async fetchRealtimeHanoks(signal?: AbortSignal): Promise<{
+    villages: Village[];
+    curatedVillages: Village[];
+    meta: VillageMeta;
+  }> {
+    if (process.env.NEXT_PUBLIC_API_URL) {
+      try {
+        return await this.fetchFromBackend();
+      } catch (err) {
+        console.warn('[HanokArchiveService] backend /hanoks failed, falling back to TourAPI:', err);
+      }
+    }
+    return this.fetchFromTourApi(signal);
+  }
+
+  private static async fetchFromBackend(): Promise<{
+    villages: Village[];
+    curatedVillages: Village[];
+    meta: VillageMeta;
+  }> {
+    const res = await apiGet<BackendHanokListResponse>('/hanoks', { limit: 50 });
+    const villages = res.items
+      .map(mapBackendHanokToVillage)
+      .filter((v): v is Village => v !== null);
+
+    const curatedVillages = villages.filter((v) =>
+      CURATION_KEYWORDS.some((kw) => v.name.includes(kw)),
+    );
+
+    const byType: Record<string, number> = {};
+    const badgeStats: Record<string, number> = {};
+    let imageCount = 0;
+    villages.forEach((v) => {
+      byType[v.type] = (byType[v.type] || 0) + 1;
+      if (v.hasImage) imageCount += 1;
+      v.badges.forEach((b) => {
+        badgeStats[b] = (badgeStats[b] || 0) + 1;
+      });
+    });
+
+    return {
+      villages,
+      curatedVillages,
+      meta: {
+        total: villages.length,
+        generatedAt: new Date().toISOString(),
+        byType,
+        imageRate: villages.length > 0 ? imageCount / villages.length : 0,
+        badgeStats,
+        badgeFallbackCount: 0,
+        sourceTotals: { backend: villages.length },
+      },
+    };
+  }
+
+  /**
+   * TourAPI에서 한옥 아카이브 실시간 데이터를 수집/변환합니다.
+   */
+  private static async fetchFromTourApi(signal?: AbortSignal): Promise<{
     villages: Village[];
     curatedVillages: Village[];
     meta: VillageMeta;

@@ -23,6 +23,24 @@ describe('visit review repository', () => {
     ]);
   });
 
+  // FE #92: 장소 상세 화면이 그 장소의 후기만 따로 조회할 수 있어야 한다.
+  it('loads reviews scoped to a single place (FE #92)', async () => {
+    const calls: Array<{ path: string; options: unknown }> = [];
+    const repository = createVisitReviewRepository((async (path: string, options: unknown) => {
+      calls.push({ path, options });
+      return { items: [], nextCursor: null, hasMore: false };
+    }) as never);
+
+    await repository.listReviewsByPlace('p-jeonju-hanok-village');
+
+    expect(calls).toEqual([
+      {
+        path: '/places/p-jeonju-hanok-village/visit-reviews',
+        options: { method: 'GET', params: { limit: 20, cursor: undefined } },
+      },
+    ]);
+  });
+
   it('uses intended like state endpoints instead of toggle', async () => {
     const calls: Array<{ path: string; options: unknown }> = [];
     const repository = createVisitReviewRepository((async (path: string, options: unknown) => {

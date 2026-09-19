@@ -77,6 +77,10 @@ const createGlobalStyles = (theme: OnmaruTheme) => css`
       color            0.30s ease;
   }
 
+  button, input, textarea, select, optgroup {
+    font-family: inherit;
+  }
+
   /* ── CSS Custom Properties (CSS Variables로도 접근 가능하도록) */
   :root {
     /* Background */

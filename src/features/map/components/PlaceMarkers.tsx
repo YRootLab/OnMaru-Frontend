@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { Global, css } from '@emotion/react';
+import { gsap } from 'gsap';
 import { logger } from '@/lib/log';
 import { meok, lightPalette , fontSize } from '@/design-system/tokens';
 import { escapeHtml, safeImageUrl } from '@/features/map/utils/formatters';
@@ -153,7 +154,11 @@ const styles = css`
     100% { transform: translateY(-6px) scale(1.15); }
   }
 
-  /* 2. 상세 확대 시: 이름표 포함 핀 마커 (고대비 플로팅 뱃지) */
+  /*
+    2. 상세 확대 시: 이름표 포함 핀 마커 (고대비 플로팅 뱃지)
+    완전한 알약 모양 대신 인장 블록에 가깝게 모서리를 살짝 줄였다 —
+    수결첩 도장(StampSealAnimation)의 각진 인장 실루엣과 같은 어휘.
+  */
   .om-pin {
     position: relative;
     display: flex;
@@ -161,7 +166,7 @@ const styles = css`
     gap: 6px;
     height: 32px;
     padding: 3px 12px 3px 4.5px;
-    border-radius: 9999px;
+    border-radius: 14px;
     background: #ffffff;
     border: 1.5px solid rgba(25, 31, 40, 0.12);
     box-shadow: 0 4px 16px -2px rgba(25, 31, 40, 0.22), 0 1px 4px rgba(25, 31, 40, 0.1);
@@ -587,8 +592,13 @@ const styles = css`
     filter: grayscale(30%);
   }
 
-  /* 3. 중간 확대 시: 선명한 원형 아이콘 뱃지 마커 (34px) */
-  /* 3. 중간 확대 시: 선명한 원형 아이콘 뱃지 마커 (32px) */
+  /*
+    3. 중간 확대 시: 선명한 인장(印章) 뱃지 마커 (32px)
+
+    수결첩의 도장 모티브를 지도 핀에도 가져온다 — 원형 배지 대신 살짝 둥근
+    각진 인장 블록 모양에, 안쪽으로 한 겹 점선 테두리를 둬 "찍힌 도장" 느낌을
+    낸다. 카테고리 색은 그대로 아이콘이 들고 있어 구별력은 잃지 않는다.
+  */
   .om-badge-pin {
     position: relative;
     display: flex;
@@ -596,21 +606,32 @@ const styles = css`
     justify-content: center;
     width: 32px;
     height: 32px;
-    border-radius: 50%;
+    border-radius: 9px;
     background: #ffffff;
+    border: 1.5px solid rgba(25, 31, 40, 0.1);
     box-shadow: 0 2px 8px rgba(25, 31, 40, 0.16);
     cursor: pointer;
     transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
     user-select: none;
   }
 
+  .om-badge-pin::before {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border: 1px dashed rgba(25, 31, 40, 0.18);
+    border-radius: 6px;
+    pointer-events: none;
+  }
+
   .om-badge-icon-inner {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
     height: 100%;
-    border-radius: 50%;
+    border-radius: 6px;
     flex-shrink: 0;
   }
 
@@ -627,6 +648,10 @@ const styles = css`
     box-shadow: 0 2px 10px rgba(234, 179, 8, 0.35) !important;
   }
 
+  [data-theme='dark'] .om-badge-pin--traditional::before {
+    border-color: rgba(250, 204, 21, 0.4);
+  }
+
   [data-theme='dark'] .om-badge-pin--traditional {
     background: #191F28 !important;
     border: 2px solid #FACC15 !important;
@@ -641,6 +666,11 @@ const styles = css`
     z-index: 40 !important;
     opacity: 1 !important;
     animation: om-click-bounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+  }
+
+  .om-badge-pin[data-selected='true']::before,
+  .om-badge-pin[data-detail='true']::before {
+    border-color: rgba(255, 255, 255, 0.3);
   }
 
   .om-badge-pin[data-selected='true'] .om-badge-icon-inner,
@@ -822,6 +852,44 @@ function clusterNearbyItems(items: Item[], level: number): ClusterGroup[] {
   return clusters;
 }
 
+/*
+  클러스터 ↔ 개별 핀 전환이 지금까지는 통째로 지우고 다시 그리는 방식이라
+  뚝 끊겨 보였다(레벨이 바뀌면 오버레이 전체를 setMap(null) 하고 새로 만든다).
+  raw DOM 오버레이라 Framer Motion이 손댈 수 없어 GSAP으로 등장만 매만진다 —
+  핀 자체(.om-pin 등)의 hover/click transform은 CSS가 계속 갖고 있어야 하므로,
+  GSAP은 그걸 감싸는 별도 wrapper의 scale/opacity만 건드린다(같은 엘리먼트를
+  같이 건드리면 GSAP이 쓰는 transform이 CSS의 translateY(-2px) 같은 정적 오프셋을
+  덮어써 버린다).
+*/
+function wrapForEntrance(el: HTMLElement, transformOrigin: string): HTMLDivElement {
+  const wrapper = document.createElement('div');
+  wrapper.style.display = 'inline-block';
+  wrapper.style.transformOrigin = transformOrigin;
+  wrapper.appendChild(el);
+  return wrapper;
+}
+
+/** 새로 생긴 마커들을 한 번에 묶어 순차적으로 팝인시킨다 — 클러스터가 터지듯 개별 핀으로 퍼지는 느낌. */
+function burstIn(wrappers: HTMLDivElement[]): void {
+  if (wrappers.length === 0) return;
+  if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+    gsap.set(wrappers, { scale: 1, opacity: 1 });
+    return;
+  }
+  gsap.fromTo(
+    wrappers,
+    { scale: 0.4, opacity: 0 },
+    {
+      scale: 1,
+      opacity: 1,
+      duration: 0.5,
+      ease: 'back.out(1.6)',
+      stagger: { amount: Math.min(0.35, wrappers.length * 0.012), from: 'center' },
+      overwrite: true,
+    },
+  );
+}
+
 type OverlayRecord = { overlay: any; el: HTMLElement };
 
 export default function PlaceMarkers() {
@@ -863,6 +931,7 @@ export default function PlaceMarkers() {
 
     if (isCluster) {
       const clusters = clusterNearbyItems(activeItems, level);
+      const entranceWrappers: HTMLDivElement[] = [];
 
       clusters.forEach((cluster, idx) => {
         const count = cluster.items.length;
@@ -909,15 +978,20 @@ export default function PlaceMarkers() {
           }
         });
 
+        const wrapper = wrapForEntrance(el, 'center center');
+        entranceWrappers.push(wrapper);
+
         const overlay = new window.kakao.maps.CustomOverlay({
           position: new window.kakao.maps.LatLng(cluster.lat, cluster.lng),
-          content: el,
+          content: wrapper,
           yAnchor: 0.5,
           zIndex: 10,
         });
         overlay.setMap(map);
         overlayMapRef.current.set(`cluster_${idx}`, { overlay, el });
       });
+
+      burstIn(entranceWrappers);
 
       return () => {
         overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));
@@ -954,6 +1028,7 @@ export default function PlaceMarkers() {
         : activeItems;
 
     const targetItems = (visibleItems.length > 0 ? visibleItems : activeItems).slice(0, maxPins);
+    const entranceWrappers: HTMLDivElement[] = [];
 
     targetItems.forEach((item) => {
       const el = document.createElement('div');
@@ -1118,15 +1193,20 @@ export default function PlaceMarkers() {
       el.addEventListener('focus', handleMouseEnter);
       el.addEventListener('blur', handleMouseLeave);
 
+      const wrapper = wrapForEntrance(el, 'center bottom');
+      entranceWrappers.push(wrapper);
+
       const overlay = new window.kakao.maps.CustomOverlay({
         position: new window.kakao.maps.LatLng(item.lat, item.lng),
-        content: el,
+        content: wrapper,
         yAnchor: 1.0,
         zIndex: 1,
       });
       overlay.setMap(map);
       overlayMapRef.current.set(item.id, { overlay, el });
     });
+
+    burstIn(entranceWrappers);
 
     return () => {
       overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));

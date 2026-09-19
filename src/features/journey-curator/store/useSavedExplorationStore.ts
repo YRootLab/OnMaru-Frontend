@@ -1,14 +1,16 @@
 import { create } from 'zustand';
+import { USE_MOCK } from '@/lib/api/client';
 import type { JourneyBoard, ResourceRef, SavedJourneyDetail, SavedJourneySummary } from '../types/exploration.types';
+import { defaultSavedJourneysRepository } from '../api/savedJourneysApi';
 
 /**
- * 새 계약(JourneyBoard)용 저장 여정. seven-day-mvp-fe-handoff.md §11의
- * POST/GET /saved-journeys를 아직 Spring이 제공하지 않아 localStorage로 서 있는 자리다.
+ * FE #95: 새 계약(JourneyBoard)용 저장 여정. 백엔드가 준비된 지금은
+ * /saved-journeys를 먼저 시도하고, 실패하면(백엔드 미설정/네트워크 오류/응답
+ * shape 불일치) 이전과 동일하게 localStorage로 폴백한다 — savedJourneysApi.ts의
+ * 응답 shape 가정이 실제와 다르더라도 저장 기능 자체는 항상 동작한다.
  *
- * ponytail: 카카오 로그인이 이제 실제 Kakao 인가 화면까지는 왕복하지만(2026-09-16 기준),
- * 세션 교환은 아직 USE_MOCK 경로다(src/lib/api/client.ts). 그래서 여기도 실제 계정별
- * 서버 저장이 아니라 이 브라우저에 저장한다 — Spring 저장 API가 나오면 이 파일의
- * read/write 두 함수만 실제 fetch로 바꿔 끼우면 된다(기존 useSavedJourneyStore와 동일 패턴).
+ * rename은 백엔드에 대응 엔드포인트가 없어(GET/POST/GET détail/DELETE/resume
+ * 5개뿐) 지금도 로컬 전용이다.
  */
 
 const STORAGE_KEY = 'onmaru_saved_explorations_v1';
@@ -33,9 +35,9 @@ function toSummary(detail: SavedJourneyDetail): SavedJourneySummary {
 interface SavedExplorationState {
   details: SavedJourneyDetail[];
   isLoaded: boolean;
-  loadSaved: () => void;
-  saveJourney: (board: JourneyBoard, pinnedRefs: ResourceRef[], title: string) => SavedJourneyDetail;
-  removeSaved: (id: string) => void;
+  loadSaved: () => Promise<void>;
+  saveJourney: (board: JourneyBoard, pinnedRefs: ResourceRef[], title: string) => Promise<SavedJourneyDetail>;
+  removeSaved: (id: string) => Promise<void>;
   renameSaved: (id: string, title: string) => void;
   isSaved: (title: string) => boolean;
 }
@@ -63,11 +65,29 @@ export const useSavedExplorationStore = create<SavedExplorationState>((set, get)
   details: [],
   isLoaded: false,
 
-  loadSaved: () => {
+  loadSaved: async () => {
+    if (!USE_MOCK) {
+      try {
+        const items = await defaultSavedJourneysRepository.list();
+        set({ details: items, isLoaded: true });
+        return;
+      } catch {
+        // 백엔드 실패 — 로컬 저장분으로 폴백한다.
+      }
+    }
     set({ details: readLocal(), isLoaded: true });
   },
 
-  saveJourney: (board, pinnedRefs, title) => {
+  saveJourney: async (board, pinnedRefs, title) => {
+    if (!USE_MOCK) {
+      try {
+        const detail = await defaultSavedJourneysRepository.create(board, pinnedRefs, title);
+        set({ details: [detail, ...get().details] });
+        return detail;
+      } catch {
+        // 백엔드 실패 — 로컬 저장으로 폴백한다.
+      }
+    }
     const detail: SavedJourneyDetail = {
       id: `saved_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`,
       title,
@@ -82,7 +102,16 @@ export const useSavedExplorationStore = create<SavedExplorationState>((set, get)
     return detail;
   },
 
-  removeSaved: (id) => {
+  removeSaved: async (id) => {
+    if (!USE_MOCK) {
+      try {
+        await defaultSavedJourneysRepository.remove(id);
+        set({ details: get().details.filter((d) => d.id !== id) });
+        return;
+      } catch {
+        // 백엔드 실패 — 로컬에서라도 지운다(이전과 동일한 보장).
+      }
+    }
     const next = get().details.filter((d) => d.id !== id);
     set({ details: next });
     writeLocal(next);

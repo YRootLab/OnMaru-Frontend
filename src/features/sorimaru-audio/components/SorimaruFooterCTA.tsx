@@ -43,7 +43,7 @@ const GlassCard = styled(motion.div)`
   position: relative;
   overflow: hidden;
   border-radius: 1.5rem;
-  background: linear-gradient(to bottom right, #ffffff, ${palette.jangmi[50]});
+  background: linear-gradient(to bottom right, #ffffff, ${palette.juhong[50]});
   padding: 2rem;
   color: ${meok[900]};
   backdrop-filter: blur(12px);
@@ -63,7 +63,7 @@ const RadialOverlay = styled.div`
   pointer-events: none;
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.6) 0%, transparent 60%, rgba(255, 240, 246, 0.8) 100%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.6) 0%, transparent 60%, rgba(255, 244, 235, 0.8) 100%);
 
   [data-theme='dark'] & {
     background: radial-gradient(circle, rgba(45, 41, 36, 0.4) 0%, transparent 60%, rgba(36, 33, 29, 0.8) 100%);
@@ -78,7 +78,7 @@ const GlowOrbRight = styled.div`
   width: 14rem;
   height: 14rem;
   border-radius: 9999px;
-  background: rgba(255, 42, 133, 0.1);
+  background: rgba(255, 85, 0, 0.1);
   filter: blur(48px);
 `;
 
@@ -90,7 +90,7 @@ const GlowOrbLeft = styled.div`
   width: 14rem;
   height: 14rem;
   border-radius: 9999px;
-  background: rgba(255, 163, 199, 0.15);
+  background: rgba(255, 120, 48, 0.12);
   filter: blur(48px);
 `;
 
@@ -107,17 +107,17 @@ const SolarBadge = styled.div`
   align-items: center;
   gap: 0.375rem;
   border-radius: 9999px;
-  background: ${palette.jangmi[50]};
+  background: ${palette.juhong[50]};
   padding: 0.25rem 0.875rem;
   font-size: ${fontSize.xs};
   font-weight: 700;
-  color: ${palette.jangmi[400]};
+  color: ${palette.juhong[500]};
   backdrop-filter: blur(4px);
 
   [data-theme='dark'] & {
-    background: rgba(255, 92, 159, 0.15);
-    color: ${palette.jangmi[400]};
-    border: 1px solid rgba(255, 92, 159, 0.25);
+    background: rgba(255, 85, 0, 0.15);
+    color: ${palette.juhong[400]};
+    border: 1px solid rgba(255, 85, 0, 0.25);
   }
 `;
 
@@ -125,7 +125,7 @@ const PulseDot = styled.span`
   width: 0.375rem;
   height: 0.375rem;
   border-radius: 9999px;
-  background: ${palette.jangmi[400]};
+  background: ${palette.juhong[500]};
   animation: ${pulseAnimation} 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 `;
 
@@ -185,7 +185,7 @@ const PrimaryCtaLink = styled(Link)`
   gap: 0.5rem;
   overflow: hidden;
   border-radius: 9999px;
-  background: linear-gradient(to right, ${palette.jangmi[500]}, ${palette.jangmi[700]});
+  background: linear-gradient(to right, ${palette.juhong[500]}, ${palette.juhong[700]});
   padding: 0.875rem 1.75rem;
   font-size: ${fontSize.xs};
   font-weight: 700;
@@ -195,7 +195,7 @@ const PrimaryCtaLink = styled(Link)`
 
   &:hover {
     transform: translateY(-2px);
-    background: linear-gradient(to right, ${palette.jangmi[700]}, #c8244c);
+    background: linear-gradient(to right, ${palette.juhong[600]}, ${palette.juhong[800]});
   }
 
   @media (min-width: 640px) {
@@ -222,14 +222,14 @@ const SecondaryCtaLink = styled(Link)`
   padding: 0.875rem 1.75rem;
   font-size: ${fontSize.xs};
   font-weight: 700;
-  color: ${palette.jangmi[400]};
+  color: ${palette.juhong[500]};
   text-decoration: none;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
 
   &:hover {
     transform: translateY(-2px);
-    background: ${palette.jangmi[50]};
+    background: ${palette.juhong[50]};
   }
 
   [data-theme='dark'] & {

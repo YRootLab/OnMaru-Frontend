@@ -62,7 +62,7 @@ const ModalHeader = styled.div`
 const HeaderBadge = styled.span`
   font-size: ${fontSize.micro};
   font-weight: 700;
-  color: ${palette.jangmi[200]};
+  color: ${palette.juhong[400]};
   text-transform: uppercase;
   letter-spacing: 0.05em;
   display: block;
@@ -126,14 +126,14 @@ const ChipButton = styled.button<{ isSelected: boolean }>`
   font-size: ${fontSize.xs};
   font-weight: 700;
   white-space: nowrap;
-  border: 1px solid ${(props) => (props.isSelected ? palette.jangmi[700] : 'rgba(255, 255, 255, 0.1)')};
+  border: 1px solid ${(props) => (props.isSelected ? palette.juhong[500] : 'rgba(255, 255, 255, 0.1)')};
   cursor: pointer;
   transition: all 0.2s ease;
-  background-color: ${(props) => (props.isSelected ? palette.jangmi[700] : 'rgba(255, 255, 255, 0.05)')};
+  background-color: ${(props) => (props.isSelected ? palette.juhong[500] : 'rgba(255, 255, 255, 0.05)')};
   color: ${(props) => (props.isSelected ? '#ffffff' : meok[500])};
 
   &:hover {
-    background-color: ${(props) => (props.isSelected ? palette.jangmi[700] : 'rgba(255, 255, 255, 0.1)')};
+    background-color: ${(props) => (props.isSelected ? palette.juhong[600] : 'rgba(255, 255, 255, 0.1)')};
     color: #ffffff;
   }
 `;
@@ -148,6 +148,7 @@ const SearchInput = styled.input`
   background-color: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.75rem;
+  font-family: inherit;
   font-size: ${fontSize.sm};
   color: #ffffff;
   outline: none;
@@ -157,7 +158,7 @@ const SearchInput = styled.input`
   }
 
   &:focus {
-    border-color: ${palette.jangmi[500]};
+    border-color: ${palette.juhong[500]};
   }
 `;
 
@@ -194,12 +195,12 @@ const StoryCard = styled.div<{ isCurrent: boolean }>`
   border-radius: 1rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  border: 1px solid ${(props) => (props.isCurrent ? palette.jangmi[700] : 'rgba(255, 255, 255, 0.08)')};
-  background-color: ${(props) => (props.isCurrent ? 'rgba(212, 32, 88, 0.2)' : 'rgba(255, 255, 255, 0.05)')};
+  border: 1px solid ${(props) => (props.isCurrent ? palette.juhong[500] : 'rgba(255, 255, 255, 0.08)')};
+  background-color: ${(props) => (props.isCurrent ? 'rgba(255, 85, 0, 0.2)' : 'rgba(255, 255, 255, 0.05)')};
   color: ${(props) => (props.isCurrent ? '#ffffff' : meok[500])};
 
   &:hover {
-    background-color: ${(props) => (props.isCurrent ? 'rgba(212, 32, 88, 0.25)' : 'rgba(255, 255, 255, 0.1)')};
+    background-color: ${(props) => (props.isCurrent ? 'rgba(255, 85, 0, 0.25)' : 'rgba(255, 255, 255, 0.1)')};
   }
 `;
 
@@ -233,7 +234,7 @@ const CategoryTag = styled.span`
   padding: 0.125rem 0.5rem;
   font-size: ${fontSize.micro};
   font-weight: 700;
-  background-color: ${palette.jangmi[700]};
+  background-color: ${palette.juhong[500]};
   color: #ffffff;
   border-radius: 0.25rem;
 `;
@@ -295,12 +296,12 @@ const PlayActionBtn = styled.button<{ isPlaying: boolean }>`
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
-  background-color: ${(props) => (props.isPlaying ? palette.jangmi[700] : 'rgba(255, 255, 255, 0.1)')};
+  background-color: ${(props) => (props.isPlaying ? palette.juhong[500] : 'rgba(255, 255, 255, 0.1)')};
   color: #ffffff;
   animation: ${(props) => (props.isPlaying ? `${pulseAnim} 2s infinite` : 'none')};
 
   &:hover {
-    background-color: ${palette.jangmi[700]};
+    background-color: ${palette.juhong[600]};
   }
 `;
 

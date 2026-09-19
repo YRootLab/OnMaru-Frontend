@@ -1,6 +1,7 @@
 /* ── Spoqa Han Sans Neo — 본문/UI 기본 서체. 제공 굵기는 100/300/400/500/700.
    600은 없으므로 쓰지 말 것 (CSS 폰트 매칭이 700으로 올려 잡아 볼드가 된다). */
-@import url(//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSansNeo.css);
+@import url('https://spoqa.github.io/spoqa-han-sans/css/SpoqaHanSansNeo.css');
+@import url('https://cdn.jsdelivr.net/gh/spoqa/spoqa-han-sans@latest/css/SpoqaHanSansNeo.css');
 
 /* ── 손글씨 서체 — 이달의 한옥 폴라로이드 캡션·에디터 노트 두 곳 전용.
    기본 서체(--font-hanok)에는 안 섞는다 — 위 주석대로 장식 서체는 걷어낸 상태다. */
@@ -13,10 +14,10 @@
 
 
 :root {
-  --font-hanok: 'Spoqa Han Sans Neo', sans-serif;
-  --font-traditional: 'Spoqa Han Sans Neo', sans-serif;
-  --font-traditional-title: 'Spoqa Han Sans Neo', sans-serif;
-  --font-traditional-body: 'Spoqa Han Sans Neo', sans-serif;
+  --font-hanok: 'Spoqa Han Sans Neo', 'Spoqa Han Sans', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', system-ui, sans-serif;
+  --font-traditional: 'Spoqa Han Sans Neo', 'Spoqa Han Sans', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', system-ui, sans-serif;
+  --font-traditional-title: 'Spoqa Han Sans Neo', 'Spoqa Han Sans', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', system-ui, sans-serif;
+  --font-traditional-body: 'Spoqa Han Sans Neo', 'Spoqa Han Sans', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', system-ui, sans-serif;
   --background: var(--color-bg-app);
   --foreground: var(--color-text-primary);
 }
@@ -45,10 +46,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-button {
+button, input, textarea, select, optgroup {
   border: 0;
   background: transparent;
-  font-family: inherit;
+  font-family: var(--font-hanok);
 }
 
 html {
@@ -77,14 +78,18 @@ html, body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.sorimaru-feature {
+.sorimaru-feature,
+.sorimaru-feature * {
   font-family: var(--font-hanok);
-  /* design-system/tokens.ts의 jangmi 500/400/700/50 */
-  --sorimaru-primary: #F84E76;
-  --sorimaru-primary-hover: #FF5F81;
-  --sorimaru-primary-pressed: #961F3F;
-  --sorimaru-primary-bg: #FFF1F3;
-  --sorimaru-primary-subtle: #FFBBC3;
+}
+
+.sorimaru-feature {
+  /* design-system/tokens.ts의 juhong 500/400/700/50/200 */
+  --sorimaru-primary: #FF5500;
+  --sorimaru-primary-hover: #FF7830;
+  --sorimaru-primary-pressed: #D94000;
+  --sorimaru-primary-bg: #FFF4EB;
+  --sorimaru-primary-subtle: #FFCBA8;
 }
 
 .sorimaru-atmosphere-layer {

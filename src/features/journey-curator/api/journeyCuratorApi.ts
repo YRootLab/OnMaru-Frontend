@@ -58,7 +58,7 @@ export async function runJourneyCurator(
  * API Key 부재 또는 에러 발생 시 로컬 큐레이션 데이터로 안전하게 폴백
  */
 export async function fetchCuratedJourney(params: CurateJourneyParams): Promise<BentoJourneyPlan> {
-  if (process.env.NEXT_PUBLIC_API_BASE_URL) {
+  if (process.env.NEXT_PUBLIC_API_URL) {
     try {
       return (await runJourneyCurator(params)).plan;
     } catch (err) {

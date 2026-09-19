@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import styled from '@emotion/styled';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import gsap from 'gsap';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { ISorimaruApiService, SorimaruStoryItem } from '@/features/sorimaru-audio/types/sorimaru.types';
 import { SORIMARU_THEME_CATEGORIES } from '@/features/sorimaru-audio/data/sorimaruCategoryData';
@@ -87,8 +87,8 @@ const durationFor = (story: SorimaruStoryItem) =>
 
 const CardMotionButton = styled(motion.button)<{ $isActive: boolean }>`
   position: relative;
-  height: 250px;
-  width: 135px;
+  height: 280px;
+  width: 175px;
   flex-shrink: 0;
   user-select: none;
   overflow: hidden;
@@ -117,12 +117,12 @@ const CardMotionButton = styled(motion.button)<{ $isActive: boolean }>`
   }
 
   @media (min-width: 640px) {
-    height: 330px;
-    width: 200px;
+    height: 340px;
+    width: 220px;
   }
   @media (min-width: 1024px) {
-    height: 370px;
-    width: 225px;
+    height: 380px;
+    width: 250px;
   }
 `;
 
@@ -133,7 +133,7 @@ const CardBottomPanel = styled.div<{ $isActive: boolean }>`
   right: 0;
   box-sizing: border-box;
   width: 100%;
-  padding: 1rem;
+  padding: 0.875rem 1rem;
   color: ${meok[900]};
   backdrop-filter: blur(24px);
   border-bottom-left-radius: 1.25rem;
@@ -141,17 +141,17 @@ const CardBottomPanel = styled.div<{ $isActive: boolean }>`
   overflow: hidden;
 
   background-color: ${({ $isActive }) =>
-    $isActive ? 'rgba(255, 240, 246, 0.68)' : 'rgba(255, 255, 255, 0.46)'};
+    $isActive ? 'rgba(255, 248, 245, 0.88)' : 'rgba(255, 255, 255, 0.72)'};
 
   [data-theme='dark'] & {
     color: ${meok[100]};
     background-color: ${({ $isActive }) =>
-      $isActive ? 'rgba(45, 41, 36, 0.92)' : 'rgba(36, 33, 29, 0.85)'};
+      $isActive ? 'rgba(45, 41, 36, 0.92)' : 'rgba(32, 29, 25, 0.82)'};
     border-top: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   @media (min-width: 640px) {
-    padding: 1.25rem;
+    padding: 1rem 1.15rem 1.15rem;
   }
 `;
 
@@ -189,13 +189,13 @@ const CategoryTabButton = styled.button<{ $isSelected: boolean }>`
   border: none;
   cursor: pointer;
   font-weight: ${({ $isSelected }) => ($isSelected ? 600 : 400)};
-  color: ${({ $isSelected }) => ($isSelected ? palette.jangmi[400] : meok[700])};
+  color: ${({ $isSelected }) => ($isSelected ? palette.juhong[500] : meok[700])};
 
   [data-theme='dark'] & {
-    color: ${({ $isSelected }) => ($isSelected ? palette.jangmi[400] : meok[400])};
+    color: ${({ $isSelected }) => ($isSelected ? palette.juhong[400] : meok[400])};
 
     &:hover {
-      color: ${({ $isSelected }) => ($isSelected ? palette.jangmi[400] : meok[200])};
+      color: ${({ $isSelected }) => ($isSelected ? palette.juhong[400] : meok[200])};
     }
   }
 `;
@@ -242,7 +242,7 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(
           rotate: tilt,
           scale: isActive ? 1 : distance === 1 ? 0.92 : 0.84,
         }}
-        transition={{ duration: trackTransitionEnabled && isVisible ? 0.48 : 0, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: trackTransitionEnabled && isVisible ? 0.42 : 0, ease: [0.16, 1, 0.3, 1] }}
         onClick={() => onInteractRef.current(position)}
         $isActive={isActive}
         draggable={false}
@@ -252,7 +252,7 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(
         <motion.div
           style={{ position: 'absolute', inset: 0, borderRadius: '1.25rem', overflow: 'hidden' }}
           animate={{ opacity: isActive ? 1 : 0.54 }}
-          transition={{ duration: trackTransitionEnabled && isVisible ? 0.48 : 0, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: trackTransitionEnabled && isVisible ? 0.42 : 0, ease: [0.16, 1, 0.3, 1] }}
         >
           <img
             src={initialImageSrc}
@@ -292,7 +292,7 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(
               fontWeight: 600,
               textTransform: 'uppercase',
               letterSpacing: '0.12em',
-              color: palette.jangmi[400],
+              color: palette.juhong[500],
             }}
           >
             {story.category && story.category !== '오디 이야기' && story.category !== '소리 이야기' ? story.category : story.badgeText || '소리마루 해설'}
@@ -311,7 +311,7 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(
                 alignItems: 'center',
                 gap: 8,
                 fontSize: fontSize.micro,
-                color: palette.jangmi[400],
+                color: palette.juhong[500],
               }}
             >
               {durationFor(story)} <span style={{ color: meok[700] }}>↗</span>
@@ -335,99 +335,26 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(
 
 const TRANSITION_SAFETY_TIMEOUT_MS = 900;
 
-const NavSideButton = styled.button<{ $side: 'left' | 'right' }>`
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  z-index: 40;
-  display: flex;
-  width: 3.5rem;
-  cursor: pointer;
-  align-items: center;
-  border: none;
-  background: transparent;
-  transition: all 0.2s ease;
-
-  @media (min-width: 640px) {
-    width: 4.5rem;
-  }
-  @media (min-width: 1024px) {
-    width: 5.5rem;
-  }
-
-  ${({ $side }) =>
-    $side === 'left'
-      ? `
-        left: 0;
-        justify-content: flex-start;
-        padding-left: 0.5rem;
-        @media (min-width: 640px) {
-          padding-left: 0.75rem;
-        }
-      `
-      : `
-        right: 0;
-        justify-content: flex-end;
-        padding-right: 0.5rem;
-        @media (min-width: 640px) {
-          padding-right: 0.75rem;
-        }
-      `}
-
-  &:active {
-    opacity: 0.8;
-  }
-
-  span.icon-box {
-    display: flex;
-    height: 2.75rem;
-    width: 2.25rem;
-    align-items: center;
-    justify-content: center;
-    border-radius: 0.75rem;
-    background-color: rgba(255, 255, 255, 0.75);
-    color: ${meok[900]};
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
-
-    [data-theme='dark'] & {
-      background-color: rgba(45, 41, 36, 0.85);
-      color: ${meok[200]};
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
-    }
-  }
-
-  &:hover span.icon-box {
-    transform: scale(1.1);
-    background-color: #ffffff;
-    color: ${palette.jangmi[400]};
-
-    [data-theme='dark'] & {
-      background-color: ${surface.dark.elevated};
-      color: ${palette.jangmi[400]};
-    }
-  }
-`;
-
 const CardTitle = styled.h3`
   margin-top: 4px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  word-break: keep-all;
   font-family: var(--font-hanok);
-  font-size: 0.875rem;
-  font-weight: 600;
-  line-height: 1.25;
-  letter-spacing: -0.03em;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
   color: ${meok[900]};
 
   [data-theme='dark'] & {
     color: ${meok[100]};
+  }
+
+  @media (min-width: 640px) {
+    font-size: 1rem;
   }
 `;
 
@@ -456,7 +383,7 @@ const IndicatorDot = styled.button<{ $active: boolean }>`
     $active
       ? `
         width: 2rem;
-        background-color: ${palette.jangmi[500]};
+        background-color: ${palette.juhong[500]};
       `
       : `
         width: 6px;
@@ -497,7 +424,8 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
     const unlockTimerRef = useRef<number | null>(null);
     const cardInteractionRef = useRef<(position: number) => void>(() => undefined);
     const railRef = useRef<HTMLElement>(null);
-    const [trackMetrics, setTrackMetrics] = useState({ cardWidth: 225, cardStep: 245 });
+    const trackRef = useRef<HTMLDivElement>(null);
+    const [trackMetrics, setTrackMetrics] = useState({ cardWidth: 250, cardStep: 280 });
 
     useEffect(() => {
       const rail = railRef.current;
@@ -593,11 +521,11 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
     useEffect(() => {
       const updateTrackMetrics = () => {
         if (window.innerWidth < 640) {
-          setTrackMetrics({ cardWidth: 135, cardStep: 150 });
+          setTrackMetrics({ cardWidth: 175, cardStep: 195 });
         } else if (window.innerWidth < 1024) {
-          setTrackMetrics({ cardWidth: 200, cardStep: 220 });
+          setTrackMetrics({ cardWidth: 220, cardStep: 245 });
         } else {
-          setTrackMetrics({ cardWidth: 225, cardStep: 245 });
+          setTrackMetrics({ cardWidth: 250, cardStep: 280 });
         }
       };
       updateTrackMetrics();
@@ -717,14 +645,42 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
       []
     );
 
-    const handleTrackTransitionEnd = useCallback((event: React.TransitionEvent<HTMLDivElement>) => {
-      if (event.target !== event.currentTarget || event.propertyName !== 'transform') return;
-      if (unlockTimerRef.current !== null) {
-        window.clearTimeout(unlockTimerRef.current);
-        unlockTimerRef.current = null;
+    /*
+      전에는 인라인 style에 CSS transition을 걸고 DOM 'transitionend' 이벤트로 잠금을
+      풀었다 — 트랙(CSS transition)과 카드(framer-motion)가 서로 다른 엔진이라 같은
+      duration/이징을 줘도 프레임이 미세하게 어긋났고, propertyName 필터가 브라우저마다
+      안 맞아 이벤트가 안 뜨면 900ms 안전장치까지 그대로 기다려야 해서 다음 클릭이
+      먹통처럼 느껴졌다. GSAP tween 하나로 트랙을 밀면 카드도 같은 rAF 루프를 타서
+      더 맞물려 보이고, onComplete이 항상 확실히 불려서 그 900ms를 기다릴 일이 없다.
+    */
+    useLayoutEffect(() => {
+      const el = trackRef.current;
+      if (!el) return undefined;
+
+      const targetX = -trackMetrics.cardStep * activePosition;
+
+      if (!trackTransitionEnabled) {
+        gsap.set(el, { x: targetX });
+        return undefined;
       }
-      inputLockedRef.current = false;
-    }, []);
+
+      const tween = gsap.to(el, {
+        x: targetX,
+        duration: 0.42,
+        ease: 'power3.out',
+        onComplete: () => {
+          if (unlockTimerRef.current !== null) {
+            window.clearTimeout(unlockTimerRef.current);
+            unlockTimerRef.current = null;
+          }
+          inputLockedRef.current = false;
+        },
+      });
+
+      return () => {
+        tween.kill();
+      };
+    }, [activePosition, trackMetrics.cardStep, trackTransitionEnabled]);
 
     const handleCategoryChange = (keyword: string) => {
       if (keyword === selectedKeyword || inputLockedRef.current) return;
@@ -862,34 +818,6 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
             </div>
 
             <CarouselStageWrapper>
-              {/* 좌측 탐색 버튼 */}
-              <NavSideButton
-                type="button"
-                onClick={() => moveBy(-1)}
-                onDragStart={(event) => event.preventDefault()}
-                draggable={false}
-                aria-label="이전 이야기"
-                $side="left"
-              >
-                <span className="icon-box">
-                  <ChevronLeft size={22} strokeWidth={2} />
-                </span>
-              </NavSideButton>
-
-              {/* 우측 탐색 버튼 */}
-              <NavSideButton
-                type="button"
-                onClick={() => moveBy(1)}
-                onDragStart={(event) => event.preventDefault()}
-                draggable={false}
-                aria-label="다음 이야기"
-                $side="right"
-              >
-                <span className="icon-box">
-                  <ChevronRight size={22} strokeWidth={2} />
-                </span>
-              </NavSideButton>
-
               {!showSkeleton && (
                 <div
                   style={{
@@ -902,20 +830,16 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
                   }}
                 >
                   <div
+                    ref={trackRef}
                     style={{
                       position: 'absolute',
                       left: '50%',
                       top: '1.75rem',
                       display: 'flex',
                       alignItems: 'flex-start',
-                      transform: `translate3d(${-trackMetrics.cardStep * activePosition}px, 0, 0)`,
-                      transition: trackTransitionEnabled
-                        ? 'transform 480ms cubic-bezier(0.16, 1, 0.3, 1)'
-                        : 'none',
                       willChange: 'transform',
                       pointerEvents: 'auto',
                     }}
-                    onTransitionEnd={handleTrackTransitionEnd}
                   >
                     {visibleVirtualPositions.map(({ pos, story: cardStory }) => (
                       <div

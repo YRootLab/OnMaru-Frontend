@@ -31,7 +31,7 @@ const Canvas = styled.canvas`
 const LiveBadge = styled.span`
   font-size: 10px;
   font-weight: 700;
-  color: #d4af37;
+  color: ${palette.juhong[500]};
   text-transform: uppercase;
   letter-spacing: 0.05em;
   animation: ${pulseAnim} 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
@@ -39,7 +39,7 @@ const LiveBadge = styled.span`
 
 export const SoundWaveVisualizer: React.FC<SoundWaveVisualizerProps> = ({
   isPlaying,
-  color = '#d4af37',
+  color = palette.juhong[400],
   barCount = 18,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -73,7 +73,7 @@ export const SoundWaveVisualizer: React.FC<SoundWaveVisualizerProps> = ({
 
         const gradient = ctx.createLinearGradient(0, y, 0, y + barHeight);
         gradient.addColorStop(0, color);
-        gradient.addColorStop(1, '#a94d35');
+        gradient.addColorStop(1, palette.juhong[600]);
 
         ctx.fillStyle = gradient;
         ctx.beginPath();

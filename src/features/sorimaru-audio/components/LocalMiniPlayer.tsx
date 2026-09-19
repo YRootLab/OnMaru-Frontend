@@ -19,7 +19,7 @@ import { useSorimaruImage } from '@/features/sorimaru-audio/hooks/useSorimaruIma
 import { SorimaruRoadview } from '@/features/sorimaru-audio/components/SorimaruRoadview';
 import { PlayerTranscriptPanel } from '@/features/sorimaru-audio/components/PlayerTranscriptPanel';
 import { normalizeContentTags } from '@/features/sorimaru-audio/components/playerTranscriptModel';
-import { meok, fontSize } from '@/design-system/tokens';
+import { palette, meok, fontSize } from '@/design-system/tokens';
 
 type ViewMode = 'roadview' | 'transcript';
 
@@ -40,7 +40,7 @@ const WaveformBar = styled(motion.span)<{ $delay: number }>`
   display: inline-block;
   width: 3px;
   border-radius: 9999px;
-  background-color: #d4af37;
+  background-color: ${palette.juhong[400]};
 `;
 
 export const LiveAudioVisualizer: React.FC<{ isPlaying: boolean }> = ({ isPlaying }) => {
@@ -160,11 +160,11 @@ const StorySubMeta = styled.span`
   }
 
   .category {
-    color: #a88420;
+    color: ${palette.juhong[600]};
     font-weight: 600;
 
     [data-theme='dark'] & {
-      color: #d4af37;
+      color: ${palette.juhong[400]};
     }
   }
   .time {
@@ -180,17 +180,17 @@ const PlayCircleBtn = styled(motion.button)`
   align-items: center;
   justify-content: center;
   border-radius: 9999px;
-  background: linear-gradient(135deg, #2b2824 0%, #171513 100%);
-  color: #f5f5f4;
-  border: 1px solid rgba(212, 175, 55, 0.3);
+  background: linear-gradient(135deg, ${palette.juhong[500]} 0%, ${palette.juhong[600]} 100%);
+  color: #ffffff;
+  border: none;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 4px 14px rgba(255, 85, 0, 0.28);
 
   [data-theme='dark'] & {
-    background: linear-gradient(135deg, #d4af37 0%, #b89225 100%);
-    color: #171513;
+    background: linear-gradient(135deg, ${palette.juhong[500]} 0%, ${palette.juhong[600]} 100%);
+    color: #ffffff;
     border: none;
-    box-shadow: 0 4px 16px rgba(212, 175, 55, 0.35);
+    box-shadow: 0 4px 16px rgba(255, 85, 0, 0.35);
   }
 `;
 
@@ -255,7 +255,7 @@ const ProgressTrack = styled.div`
 const ProgressFill = styled.div<{ $width: number }>`
   height: 100%;
   border-radius: 9999px;
-  background: linear-gradient(90deg, #b89225 0%, #d4af37 100%);
+  background: linear-gradient(90deg, ${palette.juhong[300]} 0%, ${palette.juhong[500]} 100%);
   transition: width 0.25s linear;
   width: ${({ $width }) => $width}%;
 `;
@@ -388,9 +388,9 @@ const SegmentTab = styled.button<{ $active: boolean }>`
   }
 
   .tab-icon {
-    color: ${({ $active }) => ($active ? '#a88420' : 'currentColor')};
+    color: ${({ $active }) => ($active ? palette.juhong[500] : 'currentColor')};
     [data-theme='dark'] & {
-      color: ${({ $active }) => ($active ? '#d4af37' : 'currentColor')};
+      color: ${({ $active }) => ($active ? palette.juhong[400] : 'currentColor')};
     }
   }
 `;
@@ -425,14 +425,14 @@ const HeartSaveButton = styled(motion.button)<{ $saved: boolean }>`
   justify-content: center;
   border-radius: 9999px;
   cursor: pointer;
-  color: ${({ $saved }) => ($saved ? '#8b7a49' : meok[600])};
-  background: ${({ $saved }) => ($saved ? 'rgba(139, 122, 73, 0.12)' : '#efefed')};
-  border: 1px solid ${({ $saved }) => ($saved ? 'rgba(139, 122, 73, 0.3)' : 'rgba(0, 0, 0, 0.05)')};
+  color: ${({ $saved }) => ($saved ? palette.juhong[500] : meok[600])};
+  background: ${({ $saved }) => ($saved ? palette.juhong[50] : '#efefed')};
+  border: 1px solid ${({ $saved }) => ($saved ? palette.juhong[200] : 'rgba(0, 0, 0, 0.05)')};
 
   [data-theme='dark'] & {
-    color: ${({ $saved }) => ($saved ? '#c8b77a' : meok[300])};
-    background: ${({ $saved }) => ($saved ? 'rgba(200, 183, 122, 0.14)' : 'rgba(255, 255, 255, 0.08)')};
-    border-color: ${({ $saved }) => ($saved ? 'rgba(200, 183, 122, 0.28)' : 'rgba(255, 255, 255, 0.08)')};
+    color: ${({ $saved }) => ($saved ? palette.juhong[400] : meok[300])};
+    background: ${({ $saved }) => ($saved ? 'rgba(255, 85, 0, 0.15)' : 'rgba(255, 255, 255, 0.08)')};
+    border-color: ${({ $saved }) => ($saved ? 'rgba(255, 85, 0, 0.3)' : 'rgba(255, 255, 255, 0.08)')};
   }
 `;
 
@@ -475,21 +475,21 @@ const MiniHeartBtn = styled(motion.button)<{ $saved: boolean }>`
   justify-content: center;
   border-radius: 9999px;
   cursor: pointer;
-  color: ${({ $saved }) => ($saved ? '#8b7a49' : meok[600])};
-  background: ${({ $saved }) => ($saved ? 'rgba(139, 122, 73, 0.1)' : 'transparent')};
+  color: ${({ $saved }) => ($saved ? palette.juhong[500] : meok[600])};
+  background: ${({ $saved }) => ($saved ? palette.juhong[50] : 'transparent')};
   border: none;
   transition: background 0.15s ease, color 0.15s ease;
 
   &:hover {
-    background: ${({ $saved }) => ($saved ? 'rgba(139, 122, 73, 0.18)' : 'rgba(0, 0, 0, 0.05)')};
+    background: ${({ $saved }) => ($saved ? palette.juhong[100] : 'rgba(0, 0, 0, 0.05)')};
   }
 
   [data-theme='dark'] & {
-    color: ${({ $saved }) => ($saved ? '#c8b77a' : meok[400])};
-    background: ${({ $saved }) => ($saved ? 'rgba(200, 183, 122, 0.12)' : 'transparent')};
+    color: ${({ $saved }) => ($saved ? palette.juhong[400] : meok[400])};
+    background: ${({ $saved }) => ($saved ? 'rgba(255, 85, 0, 0.15)' : 'transparent')};
 
     &:hover {
-      background: ${({ $saved }) => ($saved ? 'rgba(200, 183, 122, 0.2)' : 'rgba(255, 255, 255, 0.08)')};
+      background: ${({ $saved }) => ($saved ? 'rgba(255, 85, 0, 0.25)' : 'rgba(255, 255, 255, 0.08)')};
     }
   }
 `;
@@ -614,14 +614,14 @@ const FullStoryMeta = styled(motion.div)`
   .sub-info {
     margin: 0;
     font-size: 0.8125rem;
-    color: #a88420;
+    color: ${palette.juhong[600]};
     font-weight: 600;
     display: flex;
     align-items: center;
     gap: 0.35rem;
 
     [data-theme='dark'] & {
-      color: #d4af37;
+      color: ${palette.juhong[400]};
     }
   }
 `;
@@ -715,8 +715,8 @@ const CustomSliderContainer = styled.div<{ $progress?: number }>`
     border-radius: 9999px;
     background: linear-gradient(
       to right,
-      #d4af37 0%,
-      #b89225 ${({ $progress = 0 }) => $progress}%,
+      ${palette.juhong[400]} 0%,
+      ${palette.juhong[500]} ${({ $progress = 0 }) => $progress}%,
       #e5e5e3 ${({ $progress = 0 }) => $progress}%,
       #e5e5e3 100%
     );
@@ -727,8 +727,8 @@ const CustomSliderContainer = styled.div<{ $progress?: number }>`
     [data-theme='dark'] & {
       background: linear-gradient(
         to right,
-        #d4af37 0%,
-        #e5c04e ${({ $progress = 0 }) => $progress}%,
+        ${palette.juhong[400]} 0%,
+        ${palette.juhong[500]} ${({ $progress = 0 }) => $progress}%,
         rgba(255, 255, 255, 0.14) ${({ $progress = 0 }) => $progress}%,
         rgba(255, 255, 255, 0.14) 100%
       );
@@ -745,15 +745,15 @@ const CustomSliderContainer = styled.div<{ $progress?: number }>`
       height: 15px;
       border-radius: 50%;
       background: #ffffff;
-      border: 2.5px solid #d4af37;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 10px rgba(212, 175, 55, 0.5);
+      border: 2.5px solid ${palette.juhong[500]};
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 10px rgba(255, 85, 0, 0.4);
       cursor: grab;
       transition: transform 0.15s ease;
 
       [data-theme='dark'] & {
         background: #1c1a17;
-        border: 2.5px solid #d4af37;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5), 0 0 12px rgba(212, 175, 55, 0.6);
+        border: 2.5px solid ${palette.juhong[400]};
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5), 0 0 12px rgba(255, 85, 0, 0.5);
       }
 
       &:active {
@@ -767,12 +767,13 @@ const CustomSliderContainer = styled.div<{ $progress?: number }>`
       height: 15px;
       border-radius: 50%;
       background: #ffffff;
-      border: 2.5px solid #d4af37;
+      border: 2.5px solid ${palette.juhong[500]};
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
       cursor: grab;
 
       [data-theme='dark'] & {
         background: #1c1a17;
+        border: 2.5px solid ${palette.juhong[400]};
       }
     }
   }
@@ -811,17 +812,17 @@ const BigPlayBtn = styled(motion.button)`
   align-items: center;
   justify-content: center;
   border-radius: 9999px;
-  background: linear-gradient(135deg, #2b2824 0%, #171513 100%);
-  color: #f5f5f4;
-  border: 1.5px solid rgba(212, 175, 55, 0.45);
+  background: linear-gradient(135deg, ${palette.juhong[500]} 0%, ${palette.juhong[600]} 100%);
+  color: #ffffff;
+  border: none;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), 0 0 14px rgba(212, 175, 55, 0.25);
+  box-shadow: 0 4px 16px rgba(255, 85, 0, 0.35);
 
   [data-theme='dark'] & {
-    background: linear-gradient(135deg, #d4af37 0%, #b89225 100%);
-    color: #171513;
+    background: linear-gradient(135deg, ${palette.juhong[500]} 0%, ${palette.juhong[600]} 100%);
+    color: #ffffff;
     border: none;
-    box-shadow: 0 6px 22px rgba(212, 175, 55, 0.45);
+    box-shadow: 0 6px 22px rgba(255, 85, 0, 0.45);
   }
 `;
 

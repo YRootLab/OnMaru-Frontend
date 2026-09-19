@@ -88,8 +88,8 @@ const SuggestionButton = styled.button`
   transition: background-color 0.2s ease, color 0.2s ease;
 
   &:hover {
-    background-color: ${palette.jangmi[50]};
-    color: ${palette.jangmi[500]};
+    background-color: ${palette.juhong[50]};
+    color: ${palette.juhong[500]};
   }
 
   [data-theme='dark'] & {
@@ -98,8 +98,8 @@ const SuggestionButton = styled.button`
     border: 1px solid rgba(255, 255, 255, 0.06);
 
     &:hover {
-      background-color: rgba(255, 92, 159, 0.2);
-      color: ${palette.jangmi[400]};
+      background-color: rgba(255, 85, 0, 0.2);
+      color: ${palette.juhong[400]};
     }
   }
 `;
@@ -119,7 +119,7 @@ const InputWrapper = styled.div`
   transition: background-color 0.2s ease;
 
   &:focus-within {
-    background-color: ${palette.jangmi[50]};
+    background-color: ${palette.juhong[50]};
   }
 
   [data-theme='dark'] & {
@@ -128,7 +128,7 @@ const InputWrapper = styled.div`
 
     &:focus-within {
       background-color: ${surface.dark.elevated};
-      border-color: ${palette.jangmi[400]};
+      border-color: ${palette.juhong[400]};
     }
   }
 `;
@@ -138,6 +138,7 @@ const StyledInput = styled.input`
   flex: 1;
   background: transparent;
   border: none;
+  font-family: inherit;
   font-size: ${fontSize.xs};
   color: ${meok[900]};
   outline: none;
@@ -163,7 +164,7 @@ const SubmitButton = styled.button`
   place-items: center;
   border: none;
   border-radius: 9999px;
-  background-color: ${palette.jangmi[500]};
+  background-color: ${palette.juhong[500]};
   color: #ffffff;
   cursor: pointer;
   transition: opacity 0.2s ease;
@@ -239,7 +240,7 @@ const SourceButton = styled.button`
   transition: background-color 0.2s ease;
 
   &:hover {
-    background-color: ${palette.jangmi[50]};
+    background-color: ${palette.juhong[50]};
   }
 
   [data-theme='dark'] & {
@@ -247,7 +248,7 @@ const SourceButton = styled.button`
     border: 1px solid rgba(255, 255, 255, 0.06);
 
     &:hover {
-      background-color: rgba(255, 92, 159, 0.15);
+      background-color: rgba(255, 85, 0, 0.15);
     }
   }
 

@@ -652,6 +652,7 @@ export default function PlaceList() {
                 key={item.id}
                 item={item}
                 index={(validPage - 1) * ITEMS_PER_PAGE + idx}
+                pageIndex={idx}
                 isSelected={item.id === selectedId}
                 isHovered={item.id === hoveredId}
                 onSelect={handleSelect}

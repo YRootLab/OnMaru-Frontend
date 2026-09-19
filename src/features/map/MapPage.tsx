@@ -32,7 +32,6 @@ import WarmthLegend from './components/warmth/WarmthLegend';
 import MapNavRail, { RAIL_INSET, RAIL_WIDTH } from './components/MapNavRail';
 import CinematicTourMapLayer from '@/features/cinematic-tour/components/CinematicTourMapLayer';
 import CinematicTourFloatingBar from '@/features/cinematic-tour/components/CinematicTourFloatingBar';
-import MapCursorTrail from './components/MapCursorTrail';
 import { StampSealAnimation, useStampStore } from '@/features/stamp';
 
 const FONT = "'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, sans-serif";
@@ -395,7 +394,6 @@ export default function MapPage() {
         <WarmthLayer />
         <WarmthNotesLayer />
         <CinematicTourMapLayer />
-        <MapCursorTrail />
         <MapChips
           $interactive={!isDetailOpen}
           style={{ left: chipsMinLeft }}

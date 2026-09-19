@@ -23,11 +23,11 @@ const labelFor = (keyword: string) => {
 };
 
 const BarWrapper = styled.div`
-  margin-bottom: 0.55rem;
+  margin-bottom: 0.75rem;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
-  padding: 0.25rem 0;
+  padding: 0.15rem 0;
 
   @media (min-width: 640px) {
     flex-direction: row;
@@ -40,18 +40,18 @@ const MetaInfoGroup = styled.div`
   display: flex;
   min-width: 0;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.75rem;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
 `;
 
 const FilterChip = styled.span`
   display: inline-flex;
   align-items: center;
   border-radius: 9999px;
-  background-color: rgba(33, 30, 25, 0.05);
-  padding: 0.18rem 0.5rem;
-  font-size: 11px;
-  font-weight: 700;
+  background-color: #f3f3f2;
+  padding: 0.22rem 0.65rem;
+  font-size: 12px;
+  font-weight: 600;
   color: ${meok[900]};
 
   [data-theme='dark'] & {
@@ -81,24 +81,26 @@ const InputWrapper = styled.div`
   gap: 0.375rem;
   border-radius: 9999px;
   background-color: #f5f5f4;
-  border: 1px solid transparent;
+  border: none;
+  box-shadow: none;
   padding: 0 0.75rem;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease;
 
   &:focus-within {
-    background-color: #ffffff;
-    border-color: rgba(212, 175, 55, 0.6);
-    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.12);
+    background-color: ${palette.juhong[50]};
+    border: none;
+    box-shadow: none;
   }
 
   [data-theme='dark'] & {
     background-color: ${surface.dark.card};
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: none;
+    box-shadow: none;
 
     &:focus-within {
       background-color: ${surface.dark.elevated};
-      border-color: #d4af37;
-      box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+      border: none;
+      box-shadow: none;
     }
   }
 `;
@@ -108,6 +110,7 @@ const StyledSearchInput = styled.input`
   width: 100%;
   min-width: 0;
   background: transparent;
+  font-family: inherit;
   font-size: 0.75rem;
   color: ${meok[900]};
   outline: none;
@@ -167,14 +170,14 @@ const SubmitBtn = styled.button`
   transition: background-color 0.2s ease;
 
   &:hover {
-    background-color: ${palette.jangmi[500]};
+    background-color: ${palette.juhong[500]};
   }
 
   [data-theme='dark'] & {
-    background-color: ${palette.jangmi[500]};
+    background-color: ${palette.juhong[500]};
 
     &:hover {
-      background-color: ${palette.jangmi[700]};
+      background-color: ${palette.juhong[600]};
     }
   }
 `;

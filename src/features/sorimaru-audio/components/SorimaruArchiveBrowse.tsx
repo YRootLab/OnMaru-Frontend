@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
-import { Play, MapPin } from 'lucide-react';
+import { Play, MapPin, Layers, LayoutGrid } from 'lucide-react';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import type { SorimaruStoryItem } from '@/features/sorimaru-audio/types/sorimaru.types';
 import { groupSorimaruStoriesByPlace, type SorimaruPlaceGroup } from '@/features/sorimaru-audio/utils/sorimaruArchiveGrouping';
@@ -40,7 +40,7 @@ const STOPWORDS = new Set([
   '스토리',
 ]);
 
-function getStoryTags(story: SorimaruStoryItem, max = 5): string[] {
+function getStoryTags(story: SorimaruStoryItem, max = 4): string[] {
   const tags: string[] = [];
   const seenRoots = new Set<string>();
 
@@ -69,27 +69,18 @@ function getStoryTags(story: SorimaruStoryItem, max = 5): string[] {
     }
   };
 
-  // 1. Explicit tags array
   if (story.tags && story.tags.length > 0) {
     story.tags.forEach(addTag);
   }
-
-  // 2. Category
   if (story.category) {
     addTag(story.category);
   }
-
-  // 3. Location name
   if (story.locationName) {
     addTag(story.locationName);
   }
-
-  // 4. Audio title
   if (story.audioTitle && story.audioTitle !== story.title) {
     addTag(story.audioTitle);
   }
-
-  // 5. Title keywords
   if (tags.length < max && story.title) {
     addTag(story.title);
   }
@@ -111,13 +102,13 @@ const SkeletonBox = styled.div`
   background: linear-gradient(90deg, #f0f0f0 25%, #e5e5e3 50%, #f0f0f0 75%);
   background-size: 200% 100%;
   animation: ${shimmerKeyframe} 1.6s ease-in-out infinite;
-  border-radius: 4px;
+  border-radius: 8px;
 `;
 
 const SkeletonGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr;
-  gap: 0.75rem;
+  gap: 0.875rem;
 
   @media (min-width: 640px) {
     grid-template-columns: repeat(2, 1fr);
@@ -131,30 +122,29 @@ const SkeletonGrid = styled.div`
 function ArchiveSkeleton() {
   return (
     <SkeletonGrid aria-busy="true" aria-label="이야기를 불러오는 중이에요">
-      {Array.from({ length: 8 }, (_, index) => (
+      {Array.from({ length: 6 }, (_, index) => (
         <div
           key={index}
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '0.75rem',
-            borderRadius: '8px',
+            gap: '0.875rem',
+            borderRadius: '16px',
             backgroundColor: '#ffffff',
-            padding: '0.75rem',
-            border: '1px solid #e5e5e3',
+            padding: '0.875rem',
+            border: '1px solid rgba(0, 0, 0, 0.05)',
           }}
         >
-          <SkeletonBox style={{ height: 68, width: 68, minWidth: 68, flexShrink: 0, borderRadius: '6px' }} />
-          <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <SkeletonBox style={{ height: 68, width: 68, minWidth: 68, flexShrink: 0, borderRadius: '12px' }} />
+          <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', gap: 7 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 6 }}>
-              <SkeletonBox style={{ height: 15, width: '60%' }} />
-              <SkeletonBox style={{ height: 14, width: 36, borderRadius: 4 }} />
+              <SkeletonBox style={{ height: 16, width: '65%' }} />
+              <SkeletonBox style={{ height: 14, width: 38, borderRadius: 4 }} />
             </div>
-            <SkeletonBox style={{ height: 11, width: '45%' }} />
+            <SkeletonBox style={{ height: 12, width: '45%' }} />
             <div style={{ display: 'flex', gap: 6, marginTop: 2 }}>
               <SkeletonBox style={{ height: 10, width: 36 }} />
               <SkeletonBox style={{ height: 10, width: 44 }} />
-              <SkeletonBox style={{ height: 10, width: 32 }} />
             </div>
           </div>
         </div>
@@ -163,34 +153,40 @@ function ArchiveSkeleton() {
   );
 }
 
+/* 🎧 현대적인 개별 스토리 아티클 카드 */
 const StoryArticle = styled.article<{ $isCurrent: boolean }>`
   position: relative;
   display: flex;
   cursor: pointer;
   align-items: center;
-  gap: 0.75rem;
-  border-radius: 8px;
-  padding: 0.75rem;
-  background-color: #ffffff;
-  border: 1px solid ${({ $isCurrent }) => ($isCurrent ? '#d4af37' : '#e5e5e3')};
-  box-shadow: ${({ $isCurrent }) => ($isCurrent ? '0 4px 14px rgba(212, 175, 55, 0.15)' : '0 1px 3px rgba(0, 0, 0, 0.02)')};
-  transition: all 0.2s ease;
+  gap: 0.875rem;
+  border-radius: 14px;
+  padding: 0.75rem 0.875rem;
+  background-color: ${({ $isCurrent }) =>
+    $isCurrent ? 'rgba(255, 85, 0, 0.06)' : '#ffffff'};
+  border: none;
+  box-shadow: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
-    border-color: ${({ $isCurrent }) => ($isCurrent ? '#d4af37' : '#cdcdca')};
+    background-color: ${({ $isCurrent }) =>
+      $isCurrent ? 'rgba(255, 85, 0, 0.1)' : '#f9f9f8'};
+    border: none;
+    box-shadow: none;
+    transform: translateY(-1px);
   }
 
   [data-theme='dark'] & {
-    background-color: ${surface.dark.card};
-    border: 1px solid ${({ $isCurrent }) => ($isCurrent ? '#d4af37' : 'rgba(255, 255, 255, 0.08)')};
-    box-shadow: ${({ $isCurrent }) => ($isCurrent ? '0 4px 14px rgba(0, 0, 0, 0.4)' : 'none')};
+    background-color: ${({ $isCurrent }) =>
+      $isCurrent ? 'rgba(255, 85, 0, 0.14)' : surface.dark.card};
+    border: none;
+    box-shadow: none;
 
     &:hover {
-      background-color: ${surface.dark.elevated};
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-      border-color: ${({ $isCurrent }) => ($isCurrent ? '#d4af37' : 'rgba(255, 255, 255, 0.16)')};
+      background-color: ${({ $isCurrent }) =>
+        $isCurrent ? 'rgba(255, 85, 0, 0.2)' : surface.dark.elevated};
+      border: none;
+      box-shadow: none;
     }
   }
 `;
@@ -200,15 +196,13 @@ const ThumbnailSlot = styled.div<{ $isCurrent: boolean }>`
   width: 4.25rem;
   min-width: 4.25rem;
   height: 4.25rem;
-  border-radius: 6px;
+  border-radius: 10px;
   overflow: hidden;
   background-color: #f0f0ee;
   flex-shrink: 0;
-  border: 1px solid rgba(0, 0, 0, 0.04);
 
   [data-theme='dark'] & {
     background-color: #2d2925;
-    border-color: rgba(255, 255, 255, 0.06);
   }
 
   img {
@@ -219,7 +213,7 @@ const ThumbnailSlot = styled.div<{ $isCurrent: boolean }>`
   }
 
   article:hover & img {
-    transform: scale(1.05);
+    transform: scale(1.06);
   }
 `;
 
@@ -230,7 +224,7 @@ const PlayOverlay = styled.div<{ $isCurrent: boolean; $isPlaying: boolean }>`
   align-items: center;
   justify-content: center;
   background: ${({ $isPlaying }) =>
-    $isPlaying ? 'rgba(0, 0, 0, 0.45)' : 'rgba(0, 0, 0, 0.2)'};
+    $isPlaying ? 'rgba(0, 0, 0, 0.45)' : 'rgba(0, 0, 0, 0.22)'};
   opacity: ${({ $isPlaying }) => ($isPlaying ? 1 : 0)};
   transition: opacity 0.2s ease, background-color 0.2s ease;
 
@@ -242,20 +236,20 @@ const PlayOverlay = styled.div<{ $isCurrent: boolean; $isPlaying: boolean }>`
 const PlayIconBtn = styled.button`
   display: grid;
   place-items: center;
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 1.85rem;
+  height: 1.85rem;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.92);
-  color: #211e19;
+  background: rgba(255, 255, 255, 0.95);
+  color: #171513;
   border: none;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   transition: transform 0.15s ease, background 0.15s ease;
 
   &:hover {
     transform: scale(1.1);
     background: #ffffff;
-    color: #8B7A49;
+    color: ${palette.juhong[500]};
   }
 
   [data-theme='dark'] & {
@@ -264,7 +258,7 @@ const PlayIconBtn = styled.button`
 
     &:hover {
       background: #1c1a17;
-      color: #d4af37;
+      color: ${palette.juhong[400]};
     }
   }
 `;
@@ -281,7 +275,7 @@ const CardBody = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 0.3rem;
+  gap: 0.25rem;
   min-width: 0;
   flex: 1;
 `;
@@ -293,20 +287,30 @@ const TitleRow = styled.div`
   gap: 0.5rem;
 `;
 
+/* 🎯 메인 타이틀: 딥 차콜/화이트로 명확한 가독성 (과도한 주황색 제거) */
 const StoryRowTitle = styled.h3<{ $isCurrent: boolean }>`
   font-family: var(--font-hanok);
   font-size: 0.9375rem;
   font-weight: 700;
   line-height: 1.3;
-  letter-spacing: -0.025em;
-  color: ${({ $isCurrent }) => ($isCurrent ? '#8B7A49' : meok[900])};
+  letter-spacing: -0.02em;
+  color: ${({ $isCurrent }) => ($isCurrent ? palette.juhong[500] : meok[900])};
   display: -webkit-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  transition: color 0.15s ease;
+
+  article:hover & {
+    color: ${palette.juhong[500]};
+  }
 
   [data-theme='dark'] & {
-    color: ${({ $isCurrent }) => ($isCurrent ? '#f3cf7a' : meok[100])};
+    color: ${({ $isCurrent }) => ($isCurrent ? palette.juhong[400] : meok[100])};
+
+    article:hover & {
+      color: ${palette.juhong[400]};
+    }
   }
 `;
 
@@ -314,15 +318,15 @@ const DurationPill = styled.span`
   flex-shrink: 0;
   font-size: 10.5px;
   font-weight: 600;
-  color: ${meok[600]};
+  color: ${meok[500]};
   background-color: rgba(0, 0, 0, 0.04);
-  padding: 0.1rem 0.4rem;
-  border-radius: 4px;
+  padding: 0.12rem 0.45rem;
+  border-radius: 9999px;
   white-space: nowrap;
 
   [data-theme='dark'] & {
     background-color: rgba(255, 255, 255, 0.08);
-    color: ${meok[300]};
+    color: ${meok[400]};
   }
 `;
 
@@ -345,19 +349,21 @@ const HashtagsRow = styled.div`
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.25rem 0.45rem;
+  gap: 0.2rem 0.45rem;
   font-size: 11px;
   line-height: 1.3;
+  margin-top: 0.05rem;
 `;
 
+/* 🏷️ 해시태그: 쨍한 주황색 대신 차분한 뉴트럴 쿨그레이로 피로도 대폭 완화 */
 const HashtagText = styled.span`
-  color: #8B7A49;
+  color: ${meok[500]};
   font-weight: 500;
   letter-spacing: -0.01em;
   white-space: nowrap;
 
   [data-theme='dark'] & {
-    color: ${palette.hwanggeum[200]};
+    color: ${meok[400]};
   }
 `;
 
@@ -386,7 +392,7 @@ function StoryRow({ story, index }: StoryRowProps) {
     else setCurrentStory(story);
   };
 
-  const tags = getStoryTags(story, 5);
+  const tags = getStoryTags(story, 4);
 
   return (
     <StoryArticle onClick={playStory} $isCurrent={isCurrent}>
@@ -410,7 +416,7 @@ function StoryRow({ story, index }: StoryRowProps) {
                 <EqBar $delay="90ms" />
               </span>
             ) : (
-              <Play size={10} style={{ marginLeft: 1 }} fill="currentColor" />
+              <Play size={11} style={{ marginLeft: 1.5 }} fill="currentColor" />
             )}
           </PlayIconBtn>
         </PlayOverlay>
@@ -428,7 +434,7 @@ function StoryRow({ story, index }: StoryRowProps) {
 
         {story.locationName && (
           <LocationMeta>
-            <MapPin size={14} strokeWidth={2} color="#8B7A49" style={{ flexShrink: 0 }} />
+            <MapPin size={12} strokeWidth={2} color={palette.juhong[500]} style={{ flexShrink: 0 }} />
             <span>{story.locationName}</span>
           </LocationMeta>
         )}
@@ -447,37 +453,58 @@ function StoryRow({ story, index }: StoryRowProps) {
   );
 }
 
-const PlaceGroupSection = styled.section`
-  border-radius: 8px;
-  background-color: #ffffff;
-  padding: 0.75rem;
-  border: 1px solid #e5e5e3;
+/* 🏛️ '장소별 묶어 보기' 프리미엄 아일랜드 컨테이너 카드 */
+const PlaceGroupContainer = styled.section`
+  border-radius: 20px;
+  background-color: #f8f8f7;
+  padding: 1.125rem;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  box-shadow: none;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #f5f5f4;
+  }
 
   [data-theme='dark'] & {
-    background-color: ${surface.dark.card};
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background-color: rgba(255, 255, 255, 0.04);
+    border: none;
+    box-shadow: none;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.06);
+    }
   }
 `;
 
 const PlaceGroupHeader = styled.header`
-  margin-bottom: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  padding-bottom: 0.4rem;
+  padding-bottom: 0.625rem;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 
   [data-theme='dark'] & {
-    border-color: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.07);
   }
+`;
+
+const PlaceHeaderLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
 `;
 
 const PlaceGroupTitle = styled.h3`
   font-family: var(--font-hanok);
-  font-size: 0.9375rem;
+  font-size: 0.95rem;
   font-weight: 700;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.02em;
   color: ${meok[900]};
   overflow: hidden;
   text-overflow: ellipsis;
@@ -488,75 +515,85 @@ const PlaceGroupTitle = styled.h3`
   }
 `;
 
-const PlaceGroupCount = styled.span`
-  font-size: 11.5px;
-  font-weight: 500;
-  color: ${meok[500]};
-  letter-spacing: -0.01em;
+const PlaceCountBadge = styled.span`
+  font-size: 11px;
+  font-weight: 600;
+  color: ${meok[700]};
+  background-color: #ffffff;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  white-space: nowrap;
 
   [data-theme='dark'] & {
-    color: ${meok[400]};
+    background-color: rgba(255, 255, 255, 0.08);
+    color: ${meok[300]};
+    box-shadow: none;
   }
 `;
 
 function PlaceGroupCard({ group, startIndex }: { group: SorimaruPlaceGroup; startIndex: number }) {
   return (
-    <PlaceGroupSection>
+    <PlaceGroupContainer>
       <PlaceGroupHeader>
-        <PlaceGroupTitle>
-          {group.label}
-        </PlaceGroupTitle>
-        <PlaceGroupCount>
-          이야기 {group.stories.length}개
-        </PlaceGroupCount>
+        <PlaceHeaderLeft>
+          <MapPin size={15} strokeWidth={2.2} color={palette.juhong[500]} style={{ flexShrink: 0 }} />
+          <PlaceGroupTitle>{group.label}</PlaceGroupTitle>
+        </PlaceHeaderLeft>
+        <PlaceCountBadge>{group.stories.length}개의 소리</PlaceCountBadge>
       </PlaceGroupHeader>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         {group.stories.map((story, index) => (
           <StoryRow key={`${story.stid}-${index}`} story={story} index={startIndex + index} />
         ))}
       </div>
-    </PlaceGroupSection>
+    </PlaceGroupContainer>
   );
 }
 
-const ViewTabBtn = styled.button<{ $active: boolean }>`
-  position: relative;
-  padding: 0.25rem 0.25rem 0.5rem;
-  font-size: 0.75rem;
-  transition: color 0.2s ease;
-  background: none;
-  border: none;
-  cursor: pointer;
-
-  ${({ $active }) =>
-    $active
-      ? `
-        font-weight: 600;
-        color: #8B7A49;
-        &::after {
-          content: '';
-          position: absolute;
-          bottom: 0;
-          left: 50%;
-          transform: translateX(-50%);
-          height: 2px;
-          width: calc(100% + 8px);
-          background-color: #d4af37;
-        }
-      `
-      : `
-        color: ${meok[700]};
-        &:hover {
-          color: ${meok[900]};
-        }
-      `}
+/* 🧭 아카이브 표시 모드 세그먼티드 컨트롤러 (토스 스타일 캡슐 스위처) */
+const ViewSegmentControl = styled.div`
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem;
+  border-radius: 9999px;
+  background-color: #f0f0ee;
+  gap: 0.15rem;
 
   [data-theme='dark'] & {
-    ${({ $active }) =>
-      $active &&
-      `
-        color: ${palette.hwanggeum[200]};
-      `}
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+`;
+
+const ViewSegmentBtn = styled.button<{ $active: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: ${({ $active }) => ($active ? '700' : '500')};
+  color: ${({ $active }) => ($active ? '#171513' : meok[600])};
+  background-color: ${({ $active }) => ($active ? '#ffffff' : 'transparent')};
+  border: none;
+  cursor: pointer;
+  box-shadow: ${({ $active }) => ($active ? '0 1px 4px rgba(0, 0, 0, 0.08)' : 'none')};
+  transition: all 0.18s ease;
+
+  &:hover {
+    color: ${({ $active }) => ($active ? '#171513' : meok[900])};
+  }
+
+  [data-theme='dark'] & {
+    color: ${({ $active }) => ($active ? '#ffffff' : meok[400])};
+    background-color: ${({ $active }) =>
+      $active ? '#2b2824' : 'transparent'};
+    box-shadow: ${({ $active }) =>
+      $active ? '0 2px 8px rgba(0, 0, 0, 0.3)' : 'none'};
+
+    &:hover {
+      color: ${({ $active }) => ($active ? '#ffffff' : meok[200])};
+    }
   }
 `;
 
@@ -566,28 +603,40 @@ export function SorimaruArchiveBrowse({ stories, isLoading }: SorimaruArchiveBro
 
   return (
     <div>
-      <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 4, paddingBottom: 4 }} role="tablist" aria-label="아카이브 표시 방식">
-        <ViewTabBtn
-          type="button"
-          role="tab"
-          aria-selected={view === 'stories'}
-          onClick={() => setView('stories')}
-          $active={view === 'stories'}
-        >
-          이야기
-        </ViewTabBtn>
-        <ViewTabBtn
-          type="button"
-          role="tab"
-          aria-selected={view === 'places'}
-          onClick={() => setView('places')}
-          $active={view === 'places'}
-          style={{ marginLeft: '1rem' }}
-        >
-          장소별 묶어 보기
-        </ViewTabBtn>
+      {/* 보기 방식 세그먼트 스위처 */}
+      <div
+        style={{
+          marginBottom: '1rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <ViewSegmentControl role="tablist" aria-label="아카이브 표시 방식">
+          <ViewSegmentBtn
+            type="button"
+            role="tab"
+            aria-selected={view === 'stories'}
+            onClick={() => setView('stories')}
+            $active={view === 'stories'}
+          >
+            <LayoutGrid size={13} />
+            이야기별
+          </ViewSegmentBtn>
+          <ViewSegmentBtn
+            type="button"
+            role="tab"
+            aria-selected={view === 'places'}
+            onClick={() => setView('places')}
+            $active={view === 'places'}
+          >
+            <Layers size={13} />
+            장소별 묶어 보기
+          </ViewSegmentBtn>
+        </ViewSegmentControl>
+
         {view === 'places' && (
-          <span style={{ marginLeft: 'auto', paddingBottom: 8, fontSize: fontSize.micro, color: meok[500] }}>
+          <span style={{ fontSize: fontSize.micro, fontWeight: 500, color: meok[500] }}>
             현재 결과 기준
           </span>
         )}
@@ -596,7 +645,14 @@ export function SorimaruArchiveBrowse({ stories, isLoading }: SorimaruArchiveBro
       {isLoading ? (
         <ArchiveSkeleton />
       ) : stories.length === 0 ? (
-        <div style={{ padding: '3rem 0', textAlign: 'center', fontSize: '0.75rem', color: meok[700] }}>
+        <div
+          style={{
+            padding: '4rem 0',
+            textAlign: 'center',
+            fontSize: '0.8125rem',
+            color: meok[600],
+          }}
+        >
           조건에 맞는 이야기가 아직 없어요.
         </div>
       ) : view === 'stories' ? (
@@ -615,8 +671,8 @@ export function SorimaruArchiveBrowse({ stories, isLoading }: SorimaruArchiveBro
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-            gap: '1rem',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(330px, 1fr))',
+            gap: '1.15rem',
           }}
         >
           {groups.map((group, index) => (

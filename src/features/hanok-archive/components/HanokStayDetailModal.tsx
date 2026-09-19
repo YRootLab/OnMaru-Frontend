@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import {
   X,
@@ -23,8 +23,10 @@ import {
 } from 'lucide-react';
 import { meok, palette, surface , fontSize } from '@/design-system/tokens';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
-import type { Village, VillageDetailResponse } from '@/features/hanok-archive/types';
+import type { Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
+import { useStayDetail } from '@/features/hanok-archive/hooks/useStayDetail';
+import ContentTagChips from '@/shared/components/ContentTagChips';
 import {
   Overlay,
   ModalCard,
@@ -105,7 +107,7 @@ function getBookingUrl(item: Village): string {
 }
 
 export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailModalProps) {
-  const [detailData, setDetailData] = useState<VillageDetailResponse | null>(null);
+  const detailData = useStayDetail(stay.id);
   const [activeImageIdx, setActiveImageIdx] = useState<number | null>(null);
   const [zoomedImageIdx, setZoomedImageIdx] = useState<number | null>(null);
 
@@ -123,20 +125,6 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
       lng: stay.lng ?? undefined,
     });
   };
-
-  useEffect(() => {
-    let isMounted = true;
-    fetch(`/api/tourapi/detail?id=${encodeURIComponent(stay.id)}`)
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data: VillageDetailResponse | null) => {
-        if (isMounted && data) setDetailData(data);
-      })
-      .catch(() => {});
-
-    return () => {
-      isMounted = false;
-    };
-  }, [stay.id]);
 
   const stayIntroText = useMemo(() => {
     const fetched = detailData?.overview ? cleanTourApiHtml(detailData.overview) : null;
@@ -216,6 +204,9 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                 {stay.addr}
               </AddrText>
             </MetaRow>
+
+            {/* 이슈 #82: BE가 설명에서 자동 추출한 콘텐츠 태그 */}
+            <ContentTagChips tags={detailData?.contentTags} />
 
             {/* 숙소 소개 섹션 */}
             <StayStorySection>
