@@ -45,60 +45,60 @@ const GlowOrbBase = styled.div`
 `;
 
 const PrimaryGlowOrb = styled(GlowOrbBase)`
-  top: 32vh;
-  left: 48%;
-  width: clamp(200px, 26vw, 340px);
-  height: clamp(190px, 24vw, 320px);
+  top: 30vh;
+  left: 50%;
+  width: clamp(380px, 45vw, 680px);
+  height: clamp(320px, 38vw, 560px);
   border-radius: 46% 54% 50% 50% / 52% 48% 52% 48%;
 
-  /* 진한 주황 — 아래 SecondaryGlowOrb의 옅은 주황과 대비되도록 깊게, 다만 살짝 연하게 */
+  /* 은은한 앰버-주홍 온기가 배경 전체로 포근하게 번지는 블렌딩 */
   background: radial-gradient(
-    circle at 45% 45%,
-    rgba(224, 68, 0, 0.4) 0%,
-    rgba(240, 100, 20, 0.20) 40%,
-    rgba(255, 160, 90, 0.08) 62%,
-    rgba(255, 255, 255, 0) 78%
+    circle at 48% 45%,
+    rgba(255, 120, 40, 0.18) 0%,
+    rgba(255, 160, 60, 0.10) 35%,
+    rgba(255, 200, 100, 0.04) 60%,
+    rgba(255, 255, 255, 0) 80%
   );
-  filter: blur(28px);
+  filter: blur(64px);
 
   [data-theme='dark'] & {
     background: radial-gradient(
-      circle at 45% 45%,
-      rgba(235, 80, 10, 0.44) 0%,
-      rgba(250, 115, 35, 0.24) 40%,
-      rgba(255, 175, 105, 0.10) 62%,
-      rgba(28, 26, 23, 0) 78%
+      circle at 48% 45%,
+      rgba(255, 130, 45, 0.22) 0%,
+      rgba(250, 150, 65, 0.12) 35%,
+      rgba(255, 185, 110, 0.05) 60%,
+      rgba(28, 26, 23, 0) 80%
     );
-    filter: blur(32px);
+    filter: blur(72px);
   }
 `;
 
 const SecondaryGlowOrb = styled(GlowOrbBase)`
-  top: 33vh;
-  left: 54%;
-  width: clamp(160px, 20vw, 260px);
-  height: clamp(150px, 22vw, 280px);
+  top: 32vh;
+  left: 52%;
+  width: clamp(320px, 38vw, 540px);
+  height: clamp(300px, 35vw, 500px);
   border-radius: 55% 45% 60% 40% / 45% 55% 45% 55%;
 
-  /* 은은하고 옅은 주황 — 위 PrimaryGlowOrb의 진한 주황과 겹쳐 섞인다 */
+  /* 황금 옐로우 빛이 주홍과 어우러져 아침 햇살처럼 은은하게 확장 */
   background: radial-gradient(
-    circle at 55% 50%,
-    rgba(255, 175, 90, 0.20) 0%,
-    rgba(255, 195, 130, 0.11) 38%,
-    rgba(255, 215, 160, 0.05) 65%,
-    rgba(255, 255, 255, 0) 80%
+    circle at 52% 50%,
+    rgba(255, 200, 70, 0.16) 0%,
+    rgba(255, 215, 120, 0.08) 38%,
+    rgba(255, 235, 170, 0.03) 65%,
+    rgba(255, 255, 255, 0) 85%
   );
-  filter: blur(24px);
+  filter: blur(56px);
 
   [data-theme='dark'] & {
     background: radial-gradient(
-      circle at 55% 50%,
-      rgba(255, 185, 100, 0.24) 0%,
-      rgba(255, 200, 140, 0.14) 38%,
-      rgba(255, 220, 165, 0.06) 65%,
-      rgba(28, 26, 23, 0) 80%
+      circle at 52% 50%,
+      rgba(255, 210, 85, 0.18) 0%,
+      rgba(255, 220, 135, 0.09) 38%,
+      rgba(255, 235, 175, 0.04) 65%,
+      rgba(28, 26, 23, 0) 85%
     );
-    filter: blur(28px);
+    filter: blur(64px);
   }
 `;
 
