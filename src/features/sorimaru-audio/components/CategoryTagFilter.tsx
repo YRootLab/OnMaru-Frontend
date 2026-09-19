@@ -5,7 +5,7 @@ import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { SORIMARU_REGION_CHIPS, SORIMARU_THEME_CATEGORIES } from '@/features/sorimaru-audio/data/sorimaruCategoryData';
-import { palette, meok, surface, fontSize } from '@/design-system/tokens';
+import { palette, meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
 
 export interface CategoryTagFilterProps {
   variant?: 'default' | 'store' | 'compact';
@@ -51,16 +51,18 @@ const ThemePillButton = styled.button<{ $selected: boolean }>`
   ${({ $selected }) =>
     $selected
       ? `
-        background-color: #171513;
-        color: #ffffff;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        background-color: ${palette.juhong[50]};
+        color: ${palette.juhong[700]};
+        box-shadow: 0 2px 8px rgba(255, 85, 0, 0.12);
       `
       : `
-        background-color: #f3f3f2;
+        background-color: transparent;
         color: ${meok[700]};
+        box-shadow: ${ringShadow.light.card};
         &:hover {
-          background-color: #e8e8e6;
+          background-color: ${meok[200]};
           color: ${meok[900]};
+          box-shadow: ${ringShadow.light.cardHoverGlow};
         }
       `}
 
@@ -68,16 +70,18 @@ const ThemePillButton = styled.button<{ $selected: boolean }>`
     ${({ $selected }) =>
       $selected
         ? `
-          background-color: #ffffff;
-          color: #171513;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+          background-color: rgba(255, 85, 0, 0.16);
+          color: ${palette.juhong[300]};
+          box-shadow: 0 2px 10px rgba(255, 85, 0, 0.18);
         `
         : `
-          background-color: rgba(255, 255, 255, 0.08);
+          background-color: transparent;
           color: ${meok[300]};
+          box-shadow: ${ringShadow.dark.card};
           &:hover {
-            background-color: rgba(255, 255, 255, 0.14);
+            background-color: rgba(255, 255, 255, 0.08);
             color: #ffffff;
+            box-shadow: ${ringShadow.dark.cardHoverGlow};
           }
         `}
   }
@@ -108,6 +112,7 @@ const RegionPillButton = styled.button<{ $selected: boolean }>`
       : `
         background-color: transparent;
         color: ${meok[600]};
+        border: 1px solid ${meok[200]};
         &:hover {
           background-color: rgba(0, 0, 0, 0.04);
           color: ${meok[900]};
@@ -124,6 +129,7 @@ const RegionPillButton = styled.button<{ $selected: boolean }>`
         : `
           background-color: transparent;
           color: ${meok[400]};
+          border: 1px solid ${meok[700]};
           &:hover {
             background-color: rgba(255, 255, 255, 0.08);
             color: #ffffff;

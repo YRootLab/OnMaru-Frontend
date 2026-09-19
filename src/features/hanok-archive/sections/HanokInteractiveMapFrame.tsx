@@ -601,7 +601,7 @@ export default function HanokInteractiveMapFrame({
       });
     } catch (err: unknown) {
       console.error('[KakaoMap] Map initialization error:', err);
-      setErrorMessage('카카오 지도를 초기화하는 중 오류가 발생했습니다.');
+      setErrorMessage('지도를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
     }
   }, [fitKoreaBounds, validVillages]);
 

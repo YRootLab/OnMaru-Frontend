@@ -188,7 +188,7 @@ export default function RoadviewModal({
       if (panoId) {
         roadview.setPanoId(panoId, position);
       } else {
-        setError('해당 장소 인근 100m 내에 등록된 카카오 현장 360도 거리 풍경이 없습니다.');
+        setError('이 장소 주변 100m 안에는 로드뷰가 없어요.');
       }
     });
   }, [isOpen, lat, lng]);
@@ -217,7 +217,7 @@ export default function RoadviewModal({
           {error && (
             <FallbackOverlay>
               <AlertCircle size={32} color={lightPalette.juhong[500]} strokeWidth={1.8} />
-              <h4 style={{ fontSize: '15px', fontWeight: 700, margin: 0 }}>거리 풍경을 불러올 수 없습니다</h4>
+              <h4 style={{ fontSize: '15px', fontWeight: 700, margin: 0 }}>로드뷰를 불러올 수 없어요</h4>
               <p>{error}</p>
             </FallbackOverlay>
           )}

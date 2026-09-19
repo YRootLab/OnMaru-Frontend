@@ -298,7 +298,7 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
                               onClick={() => onRemoveBookmark(story.stid)}
                               style={{ fontSize: fontSize.micro, color: meok[700], background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                             >
-                              담기 취소
+                              담기 해제
                             </button>
                           </div>
                         </div>
