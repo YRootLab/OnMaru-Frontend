@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from 'react';
 import styled from '@emotion/styled';
 import type { ScriptLine } from '@/features/sorimaru-audio/types/sorimaru.types';
+import { palette } from '@/design-system/tokens';
 import { useTranscriptFollow } from './useTranscriptFollow';
 
 interface PlayerTranscriptPanelProps {
@@ -134,7 +135,7 @@ const Line = styled.button<{
   border-radius: 0.5rem;
   padding: 0.35rem 0.5rem;
   text-align: left;
-  font-family: var(--font-hanok), -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+  font-family: var(--font-hanok);
   cursor: pointer;
   outline: none;
 
@@ -213,7 +214,7 @@ const Line = styled.button<{
   }
 
   &:focus-visible {
-    outline: 2px solid #d4af37;
+    outline: 2px solid ${palette.juhong[400]};
     outline-offset: 2px;
     opacity: 1 !important;
     filter: blur(0px) !important;

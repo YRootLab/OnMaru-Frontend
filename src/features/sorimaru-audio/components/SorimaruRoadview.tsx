@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import styled from '@emotion/styled';
-import { meok, fontSize } from '@/design-system/tokens';
+import { palette, meok, fontSize } from '@/design-system/tokens';
 import { Compass, Maximize2, Minimize2, RotateCw, MapPin, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AudioReactiveAura } from './AudioReactiveAura';
@@ -177,10 +177,10 @@ const SkeletonBadge = styled.div`
 
   .spin-icon {
     animation: roadviewSpin 2s linear infinite;
-    color: #b89225;
+    color: ${palette.juhong[500]};
 
     [data-theme='dark'] & {
-      color: #d4af37;
+      color: ${palette.juhong[400]};
     }
   }
 
@@ -230,7 +230,7 @@ const DragGuidanceBadge = styled(motion.div)`
   border-radius: 9999px;
   background: rgba(14, 16, 22, 0.82);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(212, 175, 55, 0.4);
+  border: 1px solid rgba(255, 85, 0, 0.35);
   color: #f5f5f4;
   font-size: 0.7rem;
   font-weight: 500;
@@ -239,7 +239,7 @@ const DragGuidanceBadge = styled(motion.div)`
   white-space: nowrap;
 
   svg {
-    color: #d4af37;
+    color: ${palette.juhong[400]};
   }
 `;
 

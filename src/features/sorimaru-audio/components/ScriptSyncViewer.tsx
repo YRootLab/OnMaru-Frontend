@@ -232,7 +232,8 @@ const TranscriptLine = styled.p<{ $active: boolean }>`
   span.time {
     margin-right: 0.75rem;
     font-size: 0.75rem;
-    font-family: monospace;
+    font-family: var(--font-hanok);
+    font-variant-numeric: tabular-nums;
     color: ${palette.juhong[700]};
   }
 `;

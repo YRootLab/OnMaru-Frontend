@@ -196,7 +196,7 @@ const PulseDot = styled.span`
   width: 0.375rem;
   height: 0.375rem;
   border-radius: 9999px;
-  background-color: ${palette.jangmi[400]};
+  background: linear-gradient(135deg, #FF7830 0%, #FFA36B 100%);
   animation: ${pulseKeyframe} 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 `;
 
@@ -235,27 +235,38 @@ const RegionPinButton = styled.button<{ isActive: boolean }>`
   border-radius: 9999px;
   padding: 0.375rem 0.625rem;
   font-size: ${fontSize.micro};
-  font-weight: 600;
-  backdrop-filter: blur(4px);
+  font-weight: ${(props) => (props.isActive ? 700 : 600)};
+  backdrop-filter: blur(8px);
   outline: none;
   cursor: pointer;
-  transition: all 0.3s ease;
-  background-color: ${(props) => (props.isActive ? meok[900] : 'rgba(255, 255, 255, 0.9)')};
-  color: ${(props) => (props.isActive ? '#ffffff' : meok[700])};
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  background: #ffffff;
+  color: ${(props) => (props.isActive ? palette.juhong[500] : meok[900])};
+  box-shadow: ${(props) =>
+    props.isActive
+      ? '0 4px 14px rgba(255, 85, 0, 0.25), 0 2px 6px rgba(0, 0, 0, 0.08)'
+      : '0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04)'};
+  transform: ${(props) => (props.isActive ? 'scale(1.06)' : 'scale(1)')};
 
   [data-theme='dark'] & {
-    background-color: ${(props) => (props.isActive ? palette.jangmi[400] : 'rgba(45, 41, 36, 0.9)')};
-    color: ${(props) => (props.isActive ? '#ffffff' : meok[200])};
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: #ffffff;
+    color: ${(props) => (props.isActive ? palette.juhong[600] : '#1c1a17')};
+    box-shadow: ${(props) =>
+      props.isActive
+        ? '0 4px 16px rgba(255, 85, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.3)'
+        : '0 2px 10px rgba(0, 0, 0, 0.3), 0 1px 4px rgba(0, 0, 0, 0.2)'};
   }
 
   &:hover {
-    background-color: ${(props) => (props.isActive ? meok[900] : '#ffffff')};
-    color: ${(props) => (props.isActive ? '#ffffff' : palette.jangmi[400])};
+    transform: scale(1.08);
+    background: #ffffff;
+    color: ${palette.juhong[500]};
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.06);
 
     [data-theme='dark'] & {
-      background-color: ${(props) => (props.isActive ? palette.jangmi[500] : surface.dark.elevated)};
-      color: ${(props) => (props.isActive ? '#ffffff' : palette.jangmi[400])};
+      background: #ffffff;
+      color: ${palette.juhong[600]};
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
     }
   }
 
@@ -271,14 +282,14 @@ const AsidePanel = styled.aside`
   flex-direction: column;
   border-radius: 1rem;
   background-color: rgba(255, 255, 255, 0.85);
-  border: 0.85px solid rgba(205, 205, 202, 0.72);
+  border: none;
   box-shadow: none;
   padding: 1rem 0.25rem;
   backdrop-filter: blur(12px);
 
   [data-theme='dark'] & {
     background-color: rgba(36, 33, 29, 0.88);
-    border: 0.85px solid rgba(255, 255, 255, 0.08);
+    border: none;
     box-shadow: none;
   }
 
@@ -312,10 +323,11 @@ const RegionLabel = styled.h3`
 `;
 
 const StoriesCount = styled.span`
-  font-family: monospace;
+  font-family: var(--font-hanok);
+  font-variant-numeric: tabular-nums;
   font-size: ${fontSize.xs};
   font-weight: 700;
-  color: ${palette.jangmi[400]};
+  color: ${palette.juhong[500]};
 `;
 
 const ScrollWrapper = styled.div`
@@ -380,17 +392,24 @@ const StoryItemButton = styled.button<{ isActive: boolean }>`
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
-  background-color: ${(props) => (props.isActive ? palette.jangmi[50] : 'transparent')};
+  background: ${(props) =>
+    props.isActive ? `linear-gradient(135deg, ${palette.juhong[50]} 0%, #FFF8F5 100%)` : 'transparent'};
 
   &:hover {
-    background-color: ${(props) => (props.isActive ? palette.jangmi[50] : meok[200])};
+    background: ${(props) =>
+      props.isActive ? `linear-gradient(135deg, ${palette.juhong[100]} 0%, ${palette.juhong[50]} 100%)` : meok[200]};
   }
 
   [data-theme='dark'] & {
-    background-color: ${(props) => (props.isActive ? 'rgba(255, 92, 159, 0.2)' : 'transparent')};
+    border: none;
+    background: ${(props) =>
+      props.isActive ? 'linear-gradient(135deg, rgba(255, 120, 48, 0.18) 0%, rgba(255, 85, 0, 0.08) 100%)' : 'transparent'};
 
     &:hover {
-      background-color: ${(props) => (props.isActive ? 'rgba(255, 92, 159, 0.25)' : 'rgba(255, 255, 255, 0.06)')};
+      background: ${(props) =>
+        props.isActive
+          ? 'linear-gradient(135deg, rgba(255, 120, 48, 0.25) 0%, rgba(255, 85, 0, 0.14) 100%)'
+          : 'rgba(255, 255, 255, 0.06)'};
     }
   }
 `;
@@ -440,10 +459,10 @@ const StoryTitle = styled.strong<{ isActive: boolean }>`
   font-size: ${fontSize.sm};
   font-weight: 700;
   line-height: 1.35;
-  color: ${(props) => (props.isActive ? palette.jangmi[400] : meok[900])};
+  color: ${(props) => (props.isActive ? palette.juhong[500] : meok[900])};
 
   [data-theme='dark'] & {
-    color: ${(props) => (props.isActive ? palette.jangmi[400] : meok[100])};
+    color: ${(props) => (props.isActive ? palette.juhong[400] : meok[100])};
   }
 `;
 
@@ -452,10 +471,10 @@ const DurationStatus = styled.span<{ isActive: boolean }>`
   flex-shrink: 0;
   font-size: ${fontSize.micro};
   font-weight: 400;
-  color: ${(props) => (props.isActive ? palette.jangmi[400] : meok[500])};
+  color: ${(props) => (props.isActive ? palette.juhong[500] : meok[500])};
 
   [data-theme='dark'] & {
-    color: ${(props) => (props.isActive ? palette.jangmi[400] : meok[400])};
+    color: ${(props) => (props.isActive ? palette.juhong[400] : meok[400])};
   }
 `;
 
@@ -482,13 +501,13 @@ const LoadingSpinnerWrapper = styled.div`
   padding: 0.75rem 0;
   font-size: ${fontSize.xs};
   font-weight: 700;
-  color: ${palette.jangmi[400]};
+  color: ${palette.juhong[500]};
 
   & .spinner {
     width: 0.75rem;
     height: 0.75rem;
     border-radius: 9999px;
-    border: 2px solid ${palette.jangmi[400]};
+    border: 2px solid ${palette.juhong[500]};
     border-top-color: transparent;
     animation: ${spinKeyframe} 1s linear infinite;
   }
@@ -827,6 +846,52 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                 preserveAspectRatio="xMidYMid meet"
                 aria-hidden="true"
               >
+                <defs>
+                  {/* 모바일 및 데스크톱에서 마우스 없이도 100% 자동 순환하는 은은하고 부드러운 연주황 그라데이션 모션 */}
+                  <motion.linearGradient
+                    id="sorimaruRegionGradient"
+                    x1="0%"
+                    y1="0%"
+                    x2="100%"
+                    y2="100%"
+                    animate={{
+                      x1: ['0%', '100%', '20%', '0%'],
+                      y1: ['0%', '30%', '100%', '0%'],
+                      x2: ['100%', '0%', '80%', '100%'],
+                      y2: ['100%', '70%', '0%', '100%'],
+                    }}
+                    transition={{
+                      duration: 7,
+                      repeat: Infinity,
+                      ease: 'easeInOut',
+                    }}
+                  >
+                    <motion.stop
+                      offset="0%"
+                      animate={{
+                        stopColor: ['#FFA36B', '#FFCBA8', '#FFE4D1', '#FFA36B'],
+                        stopOpacity: [0.82, 0.72, 0.82, 0.82],
+                      }}
+                      transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+                    />
+                    <motion.stop
+                      offset="50%"
+                      animate={{
+                        stopColor: ['#FFE4D1', '#FFA36B', '#FFCBA8', '#FFE4D1'],
+                        stopOpacity: [0.65, 0.82, 0.65, 0.65],
+                      }}
+                      transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+                    />
+                    <motion.stop
+                      offset="100%"
+                      animate={{
+                        stopColor: ['#FFCBA8', '#FFE4D1', '#FFA36B', '#FFCBA8'],
+                        stopOpacity: [0.82, 0.72, 0.82, 0.82],
+                      }}
+                      transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+                    />
+                  </motion.linearGradient>
+                </defs>
                 {KOREA_REGION_PATHS.map((region) => {
                   const active = region.id === selectedRegionId;
                   const hovered = region.id === hoveredRegionId;
@@ -841,9 +906,9 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                       initial={pathMotion}
                       animate={pathMotion}
                       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                      stroke={active ? palette.jangmi[400] : '#211e19'}
-                      strokeOpacity={active ? 0.5 : 0.18}
-                      strokeWidth={active ? 2.4 : 1.4}
+                      stroke={active ? palette.juhong[300] : '#211e19'}
+                      strokeOpacity={active ? 0.35 : 0.15}
+                      strokeWidth={active ? 1.8 : 1.2}
                       strokeLinejoin="round"
                       vectorEffect="non-scaling-stroke"
                       style={{ cursor: 'pointer' }}

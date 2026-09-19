@@ -7,9 +7,9 @@ import {
 describe('sound constellation motion', () => {
   it('provides a complete initial state for active and inactive paths', () => {
     expect(getRegionPathMotion({ active: true, hovered: false, listHovered: false })).toEqual({
-      fill: '#f84e76',
-      fillOpacity: 0.92,
-      filter: 'drop-shadow(0 3px 8px rgba(248,78,118,0.22))',
+      fill: 'url(#sorimaruRegionGradient)',
+      fillOpacity: 0.95,
+      filter: 'drop-shadow(0 2px 8px rgba(255,120,48,0.22))',
     });
     expect(getRegionPathMotion({ active: false, hovered: false, listHovered: false }).fillOpacity).toBe(1);
   });

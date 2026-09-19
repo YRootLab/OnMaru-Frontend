@@ -14,12 +14,12 @@ export function getRegionPathMotion({
   listHovered,
 }: RegionPathMotionInput): TargetAndTransition {
   return {
-    fill: active ? '#f84e76' : hovered ? '#e4e4e2' : '#f8f8f7',
-    fillOpacity: active ? 0.92 : 1,
+    fill: active ? 'url(#sorimaruRegionGradient)' : hovered ? '#e4e4e2' : '#f8f8f7',
+    fillOpacity: active ? 0.95 : 1,
     filter: active
       ? (listHovered
-          ? 'drop-shadow(0 5px 16px rgba(248,78,118,0.45))'
-          : 'drop-shadow(0 3px 8px rgba(248,78,118,0.22))')
+          ? 'drop-shadow(0 4px 14px rgba(255,120,48,0.38))'
+          : 'drop-shadow(0 2px 8px rgba(255,120,48,0.22))')
       : 'drop-shadow(0 0px 0px rgba(0,0,0,0))',
   };
 }

@@ -3,7 +3,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { meok, surface } from '@/design-system/tokens';
+import { palette, meok, surface } from '@/design-system/tokens';
 
 interface SorimaruPaginationProps {
   currentPage: number;
@@ -31,13 +31,13 @@ const NavPillGroup = styled.div`
   background: rgba(248, 248, 247, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(33, 30, 25, 0.08);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  border: none;
+  box-shadow: none;
 
   [data-theme='dark'] & {
     background: rgba(28, 26, 23, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+    border: none;
+    box-shadow: none;
   }
 `;
 
@@ -94,9 +94,9 @@ const PageNumberButton = styled.button<{ $isActive: boolean }>`
   cursor: pointer;
   transition: all 0.2s ease;
 
-  color: ${({ $isActive }) => ($isActive ? '#1c1a17' : meok[700])};
-  background: ${({ $isActive }) => ($isActive ? '#d4af37' : 'transparent')};
-  box-shadow: ${({ $isActive }) => ($isActive ? '0 2px 10px rgba(212, 175, 55, 0.35)' : 'none')};
+  color: ${({ $isActive }) => ($isActive ? '#ffffff' : meok[700])};
+  background: ${({ $isActive }) => ($isActive ? palette.juhong[500] : 'transparent')};
+  box-shadow: none;
 
   &:hover:not(:disabled) {
     ${({ $isActive }) =>
@@ -108,8 +108,9 @@ const PageNumberButton = styled.button<{ $isActive: boolean }>`
   }
 
   [data-theme='dark'] & {
-    color: ${({ $isActive }) => ($isActive ? '#1c1a17' : meok[400])};
-    background: ${({ $isActive }) => ($isActive ? '#d4af37' : 'transparent')};
+    color: ${({ $isActive }) => ($isActive ? '#ffffff' : meok[400])};
+    background: ${({ $isActive }) => ($isActive ? palette.juhong[500] : 'transparent')};
+    box-shadow: none;
 
     &:hover:not(:disabled) {
       ${({ $isActive }) =>
