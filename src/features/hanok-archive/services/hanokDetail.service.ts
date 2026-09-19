@@ -59,8 +59,9 @@ export class HanokDetailService {
       lat: detail.coordinates?.lat ?? null,
       lng: detail.coordinates?.lng ?? null,
       addr: detail.address || null,
+      contentTags: detail.contentTags ?? [],
       item: null,
-      source: 'backend',
+      source: 'backend' as const,
     };
   }
 

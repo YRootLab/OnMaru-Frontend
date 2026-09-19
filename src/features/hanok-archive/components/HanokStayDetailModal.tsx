@@ -26,6 +26,7 @@ import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import type { Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
 import { useStayDetail } from '@/features/hanok-archive/hooks/useStayDetail';
+import ContentTagChips from '@/shared/components/ContentTagChips';
 import {
   Overlay,
   ModalCard,
@@ -203,6 +204,9 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                 {stay.addr}
               </AddrText>
             </MetaRow>
+
+            {/* 이슈 #82: BE가 설명에서 자동 추출한 콘텐츠 태그 */}
+            <ContentTagChips tags={detailData?.contentTags} />
 
             {/* 숙소 소개 섹션 */}
             <StayStorySection>

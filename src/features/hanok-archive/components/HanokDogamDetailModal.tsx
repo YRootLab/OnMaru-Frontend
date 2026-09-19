@@ -32,6 +32,7 @@ import { filterLabel } from '@/features/hanok-archive/filterLabels';
 import { useHanokAudioGuide } from '@/features/hanok-archive/hooks/useHanokAudioGuide';
 import { useHanokTranquility } from '@/features/hanok-archive/hooks/useHanokTranquility';
 import { useHanokDetail } from '@/features/hanok-archive/hooks/useHanokDetail';
+import ContentTagChips from '@/shared/components/ContentTagChips';
 import SoriMaruBridgeCard from './SoriMaruBridgeCard';
 import TranquilityGauge from './TranquilityGauge';
 import {
@@ -284,6 +285,9 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
                 {village.addr}
               </AddrText>
             </MetaRow>
+
+            {/* 이슈 #82: BE가 설명에서 자동 추출한 콘텐츠 태그 — 손으로 붙인 기존 badges와는 별개 */}
+            <ContentTagChips tags={detailData?.contentTags} />
 
             {/* 🏛️ 전통 건축 및 역사 해설 (사용자 요청: 설명이 있는 건축물이면 풍성하게 노출) */}
             {isLoadingOverview && !village.summary ? (

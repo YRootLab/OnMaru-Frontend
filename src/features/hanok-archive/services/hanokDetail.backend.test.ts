@@ -43,6 +43,7 @@ describe('HanokDetailService.getHanokDetail (FE #90)', () => {
       addr: '전북 전주시 완산구 기린대로 99',
       lat: 35.8151,
       lng: 127.153,
+      contentTags: ['한옥'],
       source: 'backend',
     });
   });
