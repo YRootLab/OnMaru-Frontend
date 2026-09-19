@@ -4,6 +4,9 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+- **스크린 속 한옥 (Issue #103) 백엔드 API 연동 및 Fallback 큐레이션 보강**:
+  - `GET /api/v1/hanoks/screen-hanok` 엔드포인트 연동 서비스(`screenHanok.service.ts`), `useKCultureThemes` 훅, `KCultureThemeFeed` 카드 UI를 Issue #103 명세 계약에 맞게 정비.
+  - 백엔드 실서버 미배포(404) 시에도 드라마/영화/K-POP 탭별로 풍부한 큐레이션이 노출되도록 명세 기반 표준 Fallback 데이터셋(7종)을 적용. 백엔드 배포 후에는 코드 수정 없이 실데이터가 우선 노출됨.
 - **GitHub Labels 및 Issue Template 확장 및 정비**:
   - 온마루 프론트엔드 도메인 및 대중적인 FE 태그를 포함한 38종 GitHub Label 체계(Type, Domain, Scope, Priority, Status) 구축 및 동기화.
   - 사용자 경험 및 질문/제안 프로세스를 위한 GitHub Issue Template 4종(`ux_improvement.yml`, `inquiry_question.yml`, `bug_report.yml`, `feature_request.yml`) 및 `config.yml` 추가.
