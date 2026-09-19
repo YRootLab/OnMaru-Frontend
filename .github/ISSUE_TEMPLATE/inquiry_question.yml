@@ -1,0 +1,33 @@
+name: "💬 질문 및 문의안"
+description: "온마루 프론트엔드 코드, 아키텍처, 환경설정 등에 대해 문의하거나 질문합니다."
+title: "[문의]: "
+labels: ["type: question 💬"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        온마루 프론트엔드 프로젝트에 대한 질문, 기술적 궁금증, 라이브러리 사용법 관련 문의를 작성해 주세요.
+  - type: textarea
+    id: context
+    attributes:
+      label: "문의 / 질문 내용"
+      description: "어떤 부분에 대해 궁금하신지 구체적으로 적어주세요."
+      placeholder: "예: Three.js 한옥 모델 로딩 시 텍스처 캐싱 방식에 대해 문의드립니다."
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: "관련 코드 위치 또는 시도해본 내용"
+      description: "관련된 파일 경로, 함수명, 또는 이미 확인해본 내용이 있다면 적어주세요."
+      placeholder: "예: src/features/hanok-viewer/components/HanokCanvas.tsx 확인 중 의문 발생"
+  - type: dropdown
+    id: priority
+    attributes:
+      label: "답변 긴급도"
+      options:
+        - "일반 (여유 있을 때 확인)"
+        - "중요 (작업 진행에 참고 필요)"
+        - "긴급 (블로커 발생)"
+    validations:
+      required: false

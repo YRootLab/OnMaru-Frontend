@@ -1,0 +1,30 @@
+name: "✨ 기능 요청 / 개발 제안"
+description: "온마루 프론트엔드에 새로운 기능이나 기술적 제안을 요청합니다."
+title: "[기능]: "
+labels: ["type: feat ✨"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        새로운 기능 추가나 확장을 위한 아이디어를 작성해 주세요.
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: "기능 개요 및 목적"
+      description: "어떤 기능이 왜 필요한지 설명해 주세요."
+      placeholder: "예: 한옥 부재별 상세 정보 팝업에 오디오 도슨트 바로듣기 버튼을 추가합니다."
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: "세부 구현 내용 및 요구사항"
+      description: "구체적인 UI 인터랙션, 로직, API 연동 등 요구사항을 적어주세요."
+      placeholder: "예: 팝업 하단에 미니 오디오 바 배치 및 재생 제어"
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "대안 또는 고려한 다른 방안 (선택)"
+      description: "고려해본 다른 접근 방식이 있다면 설명해 주세요."

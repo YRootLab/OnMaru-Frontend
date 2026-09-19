@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 import path from "path";
-import { resolveKakaoMapKey } from "./src/config/kakaoMapEnv";
+function resolveKakaoMapKey(env: Record<string, string | undefined>): string | undefined {
+  const key = env.NEXT_PUBLIC_KAKAO_MAP_KEY?.trim() || env.KAKAO_MAP_KEY?.trim();
+  return key || undefined;
+}
 
 const kakaoMapKey = resolveKakaoMapKey(process.env);
 
@@ -9,7 +12,7 @@ const nextConfig: NextConfig = {
     emotion: true,
   },
   turbopack: {
-    root: path.resolve(__dirname),
+    root: path.resolve(process.cwd()),
   },
   env: kakaoMapKey
     ? {
