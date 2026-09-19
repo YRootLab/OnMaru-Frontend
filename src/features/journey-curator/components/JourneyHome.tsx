@@ -32,11 +32,11 @@ const AmbientGlowLayer = styled.div`
   pointer-events: none;
   overflow: hidden;
   z-index: 0;
-  mask-image: linear-gradient(to bottom, black 0%, black 60%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 60%, transparent 100%);
+  mask-image: radial-gradient(circle at 50% 35%, black 20%, rgba(0, 0, 0, 0.6) 60%, transparent 85%);
+  -webkit-mask-image: radial-gradient(circle at 50% 35%, black 20%, rgba(0, 0, 0, 0.6) 60%, transparent 85%);
 `;
 
-/** GSAP 살아 숨쉬는 유기적 단청 주홍 & 금빛 앰비언트 오르브들 */
+/** GSAP 살아 숨쉬는 유기적 단청 주홍 & 황금빛 앰비언트 오르브들 */
 const GlowOrbBase = styled.div`
   position: absolute;
   border-radius: 50%;
@@ -45,60 +45,87 @@ const GlowOrbBase = styled.div`
 `;
 
 const PrimaryGlowOrb = styled(GlowOrbBase)`
-  top: 30vh;
-  left: 50%;
-  width: clamp(380px, 45vw, 680px);
-  height: clamp(320px, 38vw, 560px);
+  top: 36vh;
+  left: 48%;
+  width: clamp(340px, 42vw, 620px);
+  height: clamp(300px, 36vw, 540px);
   border-radius: 46% 54% 50% 50% / 52% 48% 52% 48%;
 
-  /* 은은한 앰버-주홍 온기가 배경 전체로 포근하게 번지는 블렌딩 */
+  /* 은은하고 생동감 있는 단청 주홍 코어 */
   background: radial-gradient(
-    circle at 48% 45%,
-    rgba(255, 120, 40, 0.18) 0%,
-    rgba(255, 160, 60, 0.10) 35%,
-    rgba(255, 200, 100, 0.04) 60%,
-    rgba(255, 255, 255, 0) 80%
+    circle at 45% 45%,
+    rgba(255, 100, 25, 0.28) 0%,
+    rgba(255, 145, 55, 0.16) 38%,
+    rgba(255, 195, 95, 0.06) 65%,
+    rgba(255, 255, 255, 0) 82%
   );
-  filter: blur(64px);
+  filter: blur(52px);
 
   [data-theme='dark'] & {
     background: radial-gradient(
-      circle at 48% 45%,
-      rgba(255, 130, 45, 0.22) 0%,
-      rgba(250, 150, 65, 0.12) 35%,
-      rgba(255, 185, 110, 0.05) 60%,
-      rgba(28, 26, 23, 0) 80%
+      circle at 45% 45%,
+      rgba(255, 115, 35, 0.32) 0%,
+      rgba(250, 155, 65, 0.18) 38%,
+      rgba(255, 185, 110, 0.07) 65%,
+      rgba(28, 26, 23, 0) 82%
     );
-    filter: blur(72px);
+    filter: blur(60px);
   }
 `;
 
 const SecondaryGlowOrb = styled(GlowOrbBase)`
-  top: 32vh;
-  left: 52%;
-  width: clamp(320px, 38vw, 540px);
-  height: clamp(300px, 35vw, 500px);
+  top: 38vh;
+  left: 53%;
+  width: clamp(300px, 36vw, 520px);
+  height: clamp(280px, 34vw, 480px);
   border-radius: 55% 45% 60% 40% / 45% 55% 45% 55%;
 
-  /* 황금 옐로우 빛이 주홍과 어우러져 아침 햇살처럼 은은하게 확장 */
+  /* 부드러운 황금 옐로우 확산 오라 */
   background: radial-gradient(
-    circle at 52% 50%,
-    rgba(255, 200, 70, 0.16) 0%,
-    rgba(255, 215, 120, 0.08) 38%,
-    rgba(255, 235, 170, 0.03) 65%,
+    circle at 55% 50%,
+    rgba(255, 205, 60, 0.24) 0%,
+    rgba(255, 220, 115, 0.12) 40%,
+    rgba(255, 240, 165, 0.04) 68%,
     rgba(255, 255, 255, 0) 85%
   );
-  filter: blur(56px);
+  filter: blur(48px);
 
   [data-theme='dark'] & {
     background: radial-gradient(
-      circle at 52% 50%,
-      rgba(255, 210, 85, 0.18) 0%,
-      rgba(255, 220, 135, 0.09) 38%,
-      rgba(255, 235, 175, 0.04) 65%,
+      circle at 55% 50%,
+      rgba(255, 215, 80, 0.26) 0%,
+      rgba(255, 225, 130, 0.14) 40%,
+      rgba(255, 240, 170, 0.05) 68%,
       rgba(28, 26, 23, 0) 85%
     );
-    filter: blur(64px);
+    filter: blur(56px);
+  }
+`;
+
+const TertiaryGlowOrb = styled(GlowOrbBase)`
+  top: 34vh;
+  left: 50%;
+  width: clamp(260px, 30vw, 440px);
+  height: clamp(240px, 28vw, 400px);
+  border-radius: 50% 50% 45% 55% / 55% 45% 55% 45%;
+
+  /* 앰버 코랄 웜 하이라이트 */
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 155, 50, 0.20) 0%,
+    rgba(255, 185, 90, 0.09) 45%,
+    rgba(255, 255, 255, 0) 78%
+  );
+  filter: blur(44px);
+
+  [data-theme='dark'] & {
+    background: radial-gradient(
+      circle at 50% 50%,
+      rgba(255, 165, 60, 0.24) 0%,
+      rgba(255, 195, 105, 0.11) 45%,
+      rgba(28, 26, 23, 0) 78%
+    );
+    filter: blur(50px);
   }
 `;
 
@@ -143,6 +170,7 @@ export default function JourneyHome() {
   const glowLayerRef = useRef<HTMLDivElement>(null);
   const orb1Ref = useRef<HTMLDivElement>(null);
   const orb2Ref = useRef<HTMLDivElement>(null);
+  const orb3Ref = useRef<HTMLDivElement>(null);
   const searchFormRef = useRef<HTMLFormElement>(null);
   const moodChipsRef = useRef<HTMLDivElement>(null);
 
@@ -151,58 +179,21 @@ export default function JourneyHome() {
 
     const orb1 = orb1Ref.current;
     const orb2 = orb2Ref.current;
-    if (!orb1 || !orb2) return;
-
-    // 오르브는 검색창 뒤에서 움직여야 하므로 위치는 검색창 중앙에 고정한다.
-    // "카테고리를 넘으면 안 된다"는 위치 계산이 아니라 glowLayer 자체를 안전선
-    // 높이로 물리적으로 잘라내는 것으로 전담한다 — vh 같은 뷰포트 단위는 flex
-    // 중앙정렬 레이아웃과 어긋나기 쉬워 실제 DOM 위치를 직접 측정해서 쓴다.
-    const CHIP_SAFE_GAP = 10;
-    const positionOrbs = () => {
-      const mainTop = mainRef.current?.getBoundingClientRect().top;
-      const searchRect = searchFormRef.current?.getBoundingClientRect();
-      if (mainTop === undefined || !searchRect) return;
-
-      const chipsTop = moodChipsRef.current
-        ? moodChipsRef.current.getBoundingClientRect().top - mainTop
-        : searchRect.bottom - mainTop + 200;
-
-      const safeBottom = Math.max(0, chipsTop - CHIP_SAFE_GAP);
-
-      // 계산이 또 틀려도 이 밑으로는 물리적으로 그려질 수 없게 레이어 자체를 잘라낸다.
-      if (glowLayerRef.current) {
-        glowLayerRef.current.style.height = `${safeBottom}px`;
-      }
-
-      // "검색창 뒤에서" 움직이도록 오르브 중심을 검색창 세로 중앙에 그대로 맞춘다.
-      // 예전엔 여기서 안전선과 다시 비교해(Math.min) 안전선을 넘을 것 같으면 오르브를
-      // 위로 밀어 올렸는데, 검색창~카테고리 간격이 20px 안팎이라 오르브 절반 크기가
-      // 그보다 훨씬 커서 거의 항상 밀려 올라갔다 — 그래서 계속 제목 뒤에 가 있었다.
-      // 이제 안전선 준수는 위 물리적 클립(overflow: hidden)이 전담하므로, 위치 자체는
-      // 검색창 중앙에 고정해도 된다.
-      const searchCenter = (searchRect.top + searchRect.bottom) / 2 - mainTop;
-      orb1.style.top = `${searchCenter}px`;
-      orb2.style.top = `${searchCenter + 6}px`;
-    };
-
-    positionOrbs();
-    window.addEventListener('resize', positionOrbs);
+    const orb3 = orb3Ref.current;
+    if (!orb1 || !orb2 || !orb3) return;
 
     const ctx = gsap.context(() => {
-      // 🌟 [Orb 1: 단청 주홍 메인 오르브] - 8자 형태의 유기적 유영 + 볼륨 호흡 모션
-      gsap.set(orb1, { xPercent: -50, yPercent: -50, scale: 0.95, opacity: 0.75 });
-
-      gsap.to(orb1, {
-        scale: 1.08,
-        opacity: 0.98,
-        duration: 3.2,
-        ease: 'sine.inOut',
-        yoyo: true,
-        repeat: -1,
+      // 초기 세팅 (중심 기준점 정렬)
+      gsap.set([orb1, orb2, orb3], {
+        xPercent: -50,
+        yPercent: -50,
+        transformOrigin: '50% 50%',
       });
 
+      // 🌟 [Orb 1: 단청 주홍 메인 오르브] - 8자 형태의 유기적 유영 + 볼륨 호흡 모션
       gsap.to(orb1, {
-        x: '+=110',
+        scale: 1.14,
+        opacity: 0.95,
         duration: 3.4,
         ease: 'sine.inOut',
         yoyo: true,
@@ -210,26 +201,32 @@ export default function JourneyHome() {
       });
 
       gsap.to(orb1, {
-        y: '-=85',
-        duration: 2.8,
+        x: '+=120',
+        duration: 4.2,
         ease: 'sine.inOut',
         yoyo: true,
         repeat: -1,
       });
 
       gsap.to(orb1, {
-        rotation: -35,
-        duration: 8.2,
+        y: '-=70',
+        duration: 3.6,
         ease: 'sine.inOut',
         yoyo: true,
         repeat: -1,
       });
 
-      // 🌟 [Orb 2: 금빛 주홍 보조 오르브] - Orb 1과 반대 위상으로 교차하며 은은한 오로라 파동 생성
-      gsap.set(orb2, { xPercent: -50, yPercent: -50, scale: 0.95, opacity: 0.70 });
+      gsap.to(orb1, {
+        rotation: -45,
+        duration: 9.0,
+        ease: 'sine.inOut',
+        yoyo: true,
+        repeat: -1,
+      });
 
+      // 🌟 [Orb 2: 황금빛 옐로우 보조 오르브] - 반대 궤적으로 교차 유영
       gsap.to(orb2, {
-        scale: 0.85,
+        scale: 0.88,
         opacity: 0.92,
         duration: 3.8,
         ease: 'sine.inOut',
@@ -238,43 +235,92 @@ export default function JourneyHome() {
       });
 
       gsap.to(orb2, {
-        x: '-=95',
-        duration: 3.6,
+        x: '-=110',
+        duration: 4.6,
         ease: 'sine.inOut',
         yoyo: true,
         repeat: -1,
       });
 
       gsap.to(orb2, {
-        y: '-=25',
-        duration: 3.0,
+        y: '+=60',
+        duration: 3.2,
         ease: 'sine.inOut',
         yoyo: true,
         repeat: -1,
       });
 
       gsap.to(orb2, {
-        rotation: 40,
-        duration: 9.4,
+        rotation: 50,
+        duration: 10.5,
         ease: 'sine.inOut',
         yoyo: true,
         repeat: -1,
       });
+
+      // 🌟 [Orb 3: 앰버 코랄 웜 하이라이트 오르브] - 중앙에서 미세하게 파동
+      gsap.to(orb3, {
+        scale: 1.2,
+        opacity: 0.85,
+        duration: 2.8,
+        ease: 'sine.inOut',
+        yoyo: true,
+        repeat: -1,
+      });
+
+      gsap.to(orb3, {
+        x: '+=60',
+        y: '+=40',
+        duration: 3.9,
+        ease: 'sine.inOut',
+        yoyo: true,
+        repeat: -1,
+      });
+
+      // 🎯 마우스 인터랙티브 패럴랙스 (데스크톱 마우스 이동에 반응)
+      const xSet1 = gsap.quickTo(orb1, 'x', { duration: 1.2, ease: 'power2.out' });
+      const ySet1 = gsap.quickTo(orb1, 'y', { duration: 1.2, ease: 'power2.out' });
+      const xSet2 = gsap.quickTo(orb2, 'x', { duration: 1.6, ease: 'power2.out' });
+      const ySet2 = gsap.quickTo(orb2, 'y', { duration: 1.6, ease: 'power2.out' });
+      const xSet3 = gsap.quickTo(orb3, 'x', { duration: 2.0, ease: 'power2.out' });
+      const ySet3 = gsap.quickTo(orb3, 'y', { duration: 2.0, ease: 'power2.out' });
+
+      const handleMouseMove = (e: MouseEvent) => {
+        const { clientX, clientY } = e;
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+        const deltaX = (clientX - centerX) / centerX;
+        const deltaY = (clientY - centerY) / centerY;
+
+        // 마우스 움직임에 따라 오르브들이 부드러운 3차원 깊이감으로 반응
+        xSet1(deltaX * 45);
+        ySet1(deltaY * 30);
+        xSet2(deltaX * -35);
+        ySet2(deltaY * -25);
+        xSet3(deltaX * 20);
+        ySet3(deltaY * 15);
+      };
+
+      window.addEventListener('mousemove', handleMouseMove);
+
+      return () => {
+        window.removeEventListener('mousemove', handleMouseMove);
+      };
     });
 
     return () => {
-      window.removeEventListener('resize', positionOrbs);
       ctx.revert();
     };
   }, [hasSearched]);
 
   return (
     <MainWrapper ref={mainRef}>
-      {/* 🟠 검색 전에만 작동하는 눈이 편안하며 생동감 넘치는 교차 유영 앰비언트 그라데이션 */}
+      {/* 🟠 검색 전에만 작동하는 인터랙티브 생동감 앰비언트 그라데이션 */}
       {!hasSearched && (
         <AmbientGlowLayer ref={glowLayerRef} aria-hidden="true">
           <PrimaryGlowOrb ref={orb1Ref} />
           <SecondaryGlowOrb ref={orb2Ref} />
+          <TertiaryGlowOrb ref={orb3Ref} />
         </AmbientGlowLayer>
       )}
 
