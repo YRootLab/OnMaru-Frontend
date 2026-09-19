@@ -14,7 +14,7 @@ import {
   Leaf,
   Loader2,
 } from 'lucide-react';
-import { palette, lightPalette, meok, surface, fontSize } from '@/design-system/tokens';
+import { palette, lightPalette, meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
 import { MOOD_OPTIONS } from '../data/curatedJourneys';
 import { useJourneyStore } from '../store/useJourneyStore';
 
@@ -28,6 +28,10 @@ const Container = styled.div<{ $compact?: boolean }>`
   margin: 0 auto;
   padding: ${({ $compact }) => ($compact ? '0 20px 16px' : '36px 20px 24px')};
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+  @media (max-width: 640px) {
+    padding: ${({ $compact }) => ($compact ? '0 12px 12px' : '20px 12px 16px')};
+  }
 `;
 
 const EyebrowBadge = styled.div`
@@ -37,7 +41,8 @@ const EyebrowBadge = styled.div`
   padding: 6px 14px;
   border-radius: 9999px;
   background: rgba(255, 85, 0, 0.07);
-  border: 1px solid rgba(255, 85, 0, 0.15);
+  border: none;
+  box-shadow: ${ringShadow.light.button};
   color: ${palette.juhong[600]};
   font-size: 13px;
   font-weight: 600;
@@ -47,37 +52,59 @@ const EyebrowBadge = styled.div`
 
   [data-theme='dark'] & {
     background: rgba(255, 110, 30, 0.12);
-    border-color: rgba(255, 110, 30, 0.25);
+    box-shadow: ${ringShadow.dark.button};
     color: ${palette.juhong[400]};
+  }
+
+  @media (max-width: 640px) {
+    font-size: 12px;
+    padding: 5px 12px;
+    margin-bottom: 14px;
   }
 `;
 
 const Title = styled.h1`
+  position: relative;
+  z-index: 2;
   font-family: var(--font-hanok);
-  font-size: clamp(28px, 4.2vw, 42px);
+  font-size: clamp(24px, 4.5vw, 42px);
   font-weight: 700;
-  color: #111827;
+  color: #0f172a;
   letter-spacing: -0.035em;
-  line-height: 1.25;
-  margin: 0 0 16px;
+  line-height: 1.28;
+  margin: 0 0 14px;
 
   [data-theme='dark'] & {
-    color: #fcfcfc;
+    color: #f8fafc;
     text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  @media (max-width: 640px) {
+    font-size: clamp(22px, 6vw, 28px);
+    margin-bottom: 10px;
   }
 `;
 
 const Subtitle = styled.p`
-  font-size: clamp(14px, 1.6vw, 16.5px);
+  position: relative;
+  z-index: 2;
+  font-size: clamp(13.5px, 1.6vw, 16px);
+  font-weight: 450;
   line-height: 1.65;
-  color: #4b5563;
-  margin: 0 0 34px;
+  color: #334155;
+  margin: 0 0 32px;
   max-width: 640px;
   word-break: keep-all;
 
   [data-theme='dark'] & {
-    color: #d1d5db;
+    color: #cbd5e1;
     text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  @media (max-width: 640px) {
+    font-size: 13.5px;
+    margin-bottom: 22px;
+    line-height: 1.55;
   }
 `;
 
@@ -93,34 +120,23 @@ const SearchForm = styled.form<{ $compact?: boolean }>`
   -webkit-backdrop-filter: blur(20px);
   border-radius: 9999px;
   padding: ${({ $compact }) => ($compact ? '6px 8px 6px 20px' : '8px 10px 8px 24px')};
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: ${({ $compact }) =>
-    $compact
-      ? '0 6px 24px -4px rgba(0, 0, 0, 0.07), 0 2px 8px -2px rgba(0, 0, 0, 0.03)'
-      : '0 16px 36px -6px rgba(0, 0, 0, 0.09), 0 4px 14px -2px rgba(0, 0, 0, 0.04)'};
+  border: none;
+  box-shadow: ${ringShadow.light.input};
   transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 
   [data-theme='dark'] & {
     background: rgba(36, 33, 29, 0.90);
-    border: 1px solid rgba(255, 255, 255, 0.10);
-    box-shadow: ${({ $compact }) =>
-      $compact
-        ? '0 8px 28px rgba(0, 0, 0, 0.45)'
-        : '0 16px 40px rgba(0, 0, 0, 0.55)'};
+    border: none;
+    box-shadow: ${ringShadow.dark.input};
   }
 
   &:focus-within {
-    border-color: rgba(255, 85, 0, 0.45);
-    box-shadow: ${({ $compact }) =>
-      $compact
-        ? '0 10px 30px -4px rgba(255, 85, 0, 0.14), 0 0 0 3px rgba(255, 85, 0, 0.08)'
-        : '0 20px 48px -6px rgba(255, 85, 0, 0.18), 0 0 0 4px rgba(255, 85, 0, 0.09)'};
     transform: translateY(-2px);
+  }
 
-    [data-theme='dark'] & {
-      border-color: rgba(255, 110, 30, 0.55);
-      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.65), 0 0 0 4px rgba(255, 110, 30, 0.16);
-    }
+  @media (max-width: 640px) {
+    padding: ${({ $compact }) => ($compact ? '4px 6px 4px 14px' : '6px 6px 6px 16px')};
+    gap: 8px;
   }
 `;
 
@@ -141,6 +157,7 @@ const Input = styled.input`
   border: none;
   background: transparent;
   outline: none;
+  caret-color: ${palette.juhong[500]};
   font-family: inherit;
   font-size: ${fontSize.base};
   font-weight: 500;
@@ -149,6 +166,7 @@ const Input = styled.input`
 
   [data-theme='dark'] & {
     color: #ffffff;
+    caret-color: ${palette.juhong[400]};
   }
 
   &::placeholder {
@@ -158,6 +176,11 @@ const Input = styled.input`
     [data-theme='dark'] & {
       color: #6b7280;
     }
+  }
+
+  @media (max-width: 640px) {
+    font-size: 15px;
+    padding: 6px 0;
   }
 `;
 
@@ -169,28 +192,52 @@ const SubmitButton = styled.button<{ $disabled?: boolean; $compact?: boolean }>`
   height: ${({ $compact }) => ($compact ? '36px' : '44px')};
   border-radius: 50%;
   border: none;
-  background: linear-gradient(135deg, #FF6B35 0%, #E84E0F 100%);
-  color: #ffffff;
+  background: #f3f4f6;
+  color: #4b5563;
   cursor: pointer;
   flex-shrink: 0;
-  box-shadow: 0 4px 14px rgba(232, 78, 15, 0.35);
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.10);
+    color: #e4e4e7;
+    box-shadow: none;
+  }
 
   &:hover {
-    background: linear-gradient(135deg, #FF7B4A 0%, #D84409 100%);
-    box-shadow: 0 6px 18px rgba(232, 78, 15, 0.45);
-    transform: scale(1.06);
+    background: #e5e7eb;
+    color: #111827;
+    box-shadow: none;
+    transform: scale(1.05);
+
+    [data-theme='dark'] & {
+      background: rgba(255, 255, 255, 0.18);
+      color: #ffffff;
+      box-shadow: none;
+    }
   }
 
   &:active {
+    background: #d1d5db;
     transform: scale(0.95);
-    box-shadow: 0 2px 8px rgba(232, 78, 15, 0.3);
+    box-shadow: none;
+
+    [data-theme='dark'] & {
+      background: rgba(255, 255, 255, 0.24);
+    }
   }
 
   &:disabled {
-    opacity: 0.7;
+    opacity: 0.6;
     cursor: not-allowed;
     transform: none;
+    box-shadow: none;
+  }
+
+  @media (max-width: 640px) {
+    width: 36px;
+    height: 36px;
   }
 `;
 
@@ -201,6 +248,11 @@ const MoodChipsContainer = styled.div`
   justify-content: center;
   gap: 10px;
   margin-top: 26px;
+
+  @media (max-width: 640px) {
+    gap: 8px;
+    margin-top: 18px;
+  }
 `;
 
 const MoodChip = styled.button<{ $active: boolean }>`
@@ -209,8 +261,9 @@ const MoodChip = styled.button<{ $active: boolean }>`
   gap: 7px;
   padding: 9px 18px;
   border-radius: 9999px;
-  border: 1px solid ${({ $active }) => ($active ? 'rgba(255, 85, 0, 0.35)' : 'rgba(0, 0, 0, 0.06)')};
-  background: ${({ $active }) => ($active ? '#18181b' : 'rgba(255, 255, 255, 0.92)')};
+  border: none;
+  box-shadow: ${({ $active }) => ($active ? ringShadow.light.focusJuhong : ringShadow.light.button)};
+  background: ${({ $active }) => ($active ? '#18181b' : 'rgba(0, 0, 0, 0.045)')};
   color: ${({ $active }) => ($active ? '#ffffff' : '#374151')};
   font-family: inherit;
   font-size: 13.5px;
@@ -219,18 +272,13 @@ const MoodChip = styled.button<{ $active: boolean }>`
   white-space: nowrap;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  box-shadow: ${({ $active }) =>
-    $active
-      ? '0 6px 18px rgba(0, 0, 0, 0.18)'
-      : '0 2px 8px rgba(0, 0, 0, 0.04)'};
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 
   [data-theme='dark'] & {
-    border: 1px solid ${({ $active }) => ($active ? 'rgba(255, 110, 30, 0.45)' : 'rgba(255, 255, 255, 0.08)')};
-    background: ${({ $active }) => ($active ? '#ffffff' : 'rgba(38, 35, 30, 0.85)')};
+    border: none;
+    box-shadow: ${({ $active }) => ($active ? ringShadow.dark.focusJuhong : ringShadow.dark.button)};
+    background: ${({ $active }) => ($active ? '#ffffff' : 'rgba(255, 255, 255, 0.08)')};
     color: ${({ $active }) => ($active ? '#18181b' : '#e4e4e7')};
-    box-shadow: ${({ $active }) =>
-      $active ? '0 6px 20px rgba(0, 0, 0, 0.5)' : '0 2px 8px rgba(0, 0, 0, 0.25)'};
   }
 
   svg {
@@ -239,10 +287,9 @@ const MoodChip = styled.button<{ $active: boolean }>`
   }
 
   &:hover {
-    background: ${({ $active }) => ($active ? '#27272a' : '#ffffff')};
-    color: ${({ $active }) => ($active ? '#ffffff' : `${palette.juhong[600]}`)};
-    border-color: ${({ $active }) => ($active ? 'rgba(255, 85, 0, 0.5)' : 'rgba(255, 85, 0, 0.25)')};
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.07);
+    background: ${({ $active }) => ($active ? '#27272a' : 'rgba(0, 0, 0, 0.075)')};
+    color: ${({ $active }) => ($active ? '#ffffff' : '#111827')};
+    box-shadow: ${({ $active }) => ($active ? ringShadow.light.focusJuhong : ringShadow.light.buttonHoverGlow)};
     transform: translateY(-2px);
 
     svg {
@@ -251,10 +298,9 @@ const MoodChip = styled.button<{ $active: boolean }>`
     }
 
     [data-theme='dark'] & {
-      background: ${({ $active }) => ($active ? '#f4f4f5' : '#332e29')};
+      background: ${({ $active }) => ($active ? '#f4f4f5' : 'rgba(255, 255, 255, 0.14)')};
       color: ${({ $active }) => ($active ? '#18181b' : '#ffffff')};
-      border-color: rgba(255, 110, 30, 0.35);
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+      box-shadow: ${({ $active }) => ($active ? ringShadow.dark.focusJuhong : ringShadow.dark.buttonHoverGlow)};
 
       svg {
         color: ${palette.juhong[400]};
@@ -264,6 +310,12 @@ const MoodChip = styled.button<{ $active: boolean }>`
 
   &:active {
     transform: scale(0.96);
+  }
+
+  @media (max-width: 640px) {
+    padding: 8px 14px;
+    font-size: 12.5px;
+    gap: 5px;
   }
 `;
 
@@ -282,7 +334,8 @@ const RefineChip = styled.button`
   gap: 4px;
   padding: 6px 14px;
   border-radius: 9999px;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  border: none;
+  box-shadow: ${ringShadow.light.button};
   background: rgba(0, 0, 0, 0.04);
   color: #4b5563;
   font-family: inherit;
@@ -294,20 +347,20 @@ const RefineChip = styled.button`
 
   [data-theme='dark'] & {
     background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.10);
+    box-shadow: ${ringShadow.dark.button};
     color: #d1d5db;
   }
 
   &:hover {
-    background: rgba(255, 85, 0, 0.08);
-    color: ${palette.juhong[600]};
-    border-color: rgba(255, 85, 0, 0.2);
+    background: rgba(0, 0, 0, 0.07);
+    color: #111827;
+    box-shadow: ${ringShadow.light.buttonHoverGlow};
     transform: translateY(-1px);
 
     [data-theme='dark'] & {
-      background: rgba(255, 110, 30, 0.16);
-      color: ${palette.juhong[400]};
-      border-color: rgba(255, 110, 30, 0.3);
+      background: rgba(255, 255, 255, 0.14);
+      color: #ffffff;
+      box-shadow: ${ringShadow.dark.buttonHoverGlow};
     }
   }
 
@@ -360,10 +413,10 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
   const hasSearched = useJourneyStore((s) => s.hasSearched);
 
   const defaultSuggestions = [
-    '+ 전통 찻집 위주',
-    '+ 비 오는 날 운치',
+    '+ 전통 찻집 더보기',
+    '+ 비 오는 날 코스',
     '+ 걷는 시간 줄이기',
-    '+ 역사 해설 중심',
+    '+ 역사 해설 포함',
   ];
 
   const suggestions = currentPlan?.refineSuggestions?.length
@@ -384,12 +437,12 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
     <Container $compact={hasSearched}>
       {!hasSearched && (
         <>
-          <Title>어떤 한옥 여행을 떠나고 싶으세요?</Title>
+          <Title>어떤 한옥으로 떠나고 싶으세요?</Title>
 
           <Subtitle>
-            원하는 분위기나 가고 싶은 지역을 편하게 적어보세요.
+            원하는 분위기나 지역을 적어주시면,
             <br />
-            한옥과 주변 이야기, 현장 소리를 모아 꼭 맞는 코스를 추천해 드릴게요.
+            한옥과 주변 볼거리, 생생한 소리를 엮어 꼭 맞는 일정을 만들어 드려요.
           </Subtitle>
         </>
       )}
@@ -402,10 +455,10 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
           type="text"
           value={currentQuery}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="예: 비 오는 날 걷기 좋은 고즈넉한 서울 한옥길"
-          aria-label="여정 검색어 입력"
+          placeholder="어디로 떠나고 싶으세요?"
+          aria-label="여행하고 싶은 한옥이나 지역 입력"
         />
-        <SubmitButton type="submit" $disabled={isGenerating} $compact={hasSearched} aria-label="여정 검색">
+        <SubmitButton type="submit" $disabled={isGenerating} $compact={hasSearched} aria-label="맞춤 코스 찾기">
           {isGenerating ? (
             <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
           ) : (

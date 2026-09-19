@@ -598,16 +598,6 @@ export default function BentoJourneyGrid() {
             <SectionTitle>{plan.title}</SectionTitle>
             <SectionTagline>{plan.tagline}</SectionTagline>
           </div>
-
-          <BookmarkBtn
-            type="button"
-            $saved={isCurrentSaved}
-            onClick={handleBookmarkToggle}
-            title={isCurrentSaved ? '저장 취소' : '여정 저장하기'}
-          >
-            {isCurrentSaved ? <BookmarkCheck size={15} /> : <Bookmark size={15} />}
-            <span>{isCurrentSaved ? '저장됨' : '여정 저장하기'}</span>
-          </BookmarkBtn>
         </HeaderRow>
       </SectionHeader>
 

@@ -14,7 +14,7 @@ import {
   List,
   Bookmark,
 } from 'lucide-react';
-import { lightPalette, meok, surface, fontSize } from '@/design-system/tokens';
+import { lightPalette, meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import { distanceInMeters } from '@/features/map/utils/geo';
@@ -82,21 +82,23 @@ const SortDropdownWrapper = styled.div`
   align-items: center;
   border-radius: 9999px;
   background: rgba(0, 0, 0, 0.04);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: none;
+  box-shadow: ${ringShadow.light.button};
   transition: all 0.15s ease;
 
   &:hover {
     background: rgba(0, 0, 0, 0.07);
-    border-color: rgba(0, 0, 0, 0.14);
+    box-shadow: ${ringShadow.light.buttonHover};
   }
 
   [data-theme='dark'] & {
     background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.12);
+    border: none;
+    box-shadow: ${ringShadow.dark.button};
 
     &:hover {
       background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.18);
+      box-shadow: ${ringShadow.dark.buttonHover};
     }
   }
 `;

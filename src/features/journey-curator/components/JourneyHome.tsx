@@ -42,86 +42,110 @@ const GlowOrb = styled.div`
 
 /** 🌟 Orb 1: 온마루 시그니처 단청 주홍 코어 오르브 */
 const PrimaryGlowOrb = styled(GlowOrb)`
-  top: 36vh;
+  top: 48%;
   left: 48%;
-  width: clamp(280px, 34vw, 480px);
-  height: clamp(250px, 30vw, 430px);
+  width: clamp(240px, 28vw, 380px);
+  height: clamp(200px, 24vw, 320px);
   border-radius: 46% 54% 50% 50% / 52% 48% 52% 48%;
 
   background: radial-gradient(
     circle at 45% 45%,
-    rgba(255, 95, 20, 0.44) 0%,
-    rgba(255, 140, 45, 0.28) 36%,
-    rgba(255, 195, 90, 0.10) 65%,
+    rgba(255, 95, 20, 0.28) 0%,
+    rgba(255, 140, 45, 0.16) 36%,
+    rgba(255, 195, 90, 0.05) 65%,
     rgba(255, 255, 255, 0) 80%
-  );
-  filter: blur(36px);
-
-  [data-theme='dark'] & {
-    background: radial-gradient(
-      circle at 45% 45%,
-      rgba(255, 115, 35, 0.50) 0%,
-      rgba(250, 155, 65, 0.30) 36%,
-      rgba(255, 185, 110, 0.12) 65%,
-      rgba(28, 26, 23, 0) 80%
-    );
-    filter: blur(42px);
-  }
-`;
-
-/** 🌟 Orb 2: 화사한 황금 옐로우 확산 오라 오르브 */
-const SecondaryGlowOrb = styled(GlowOrb)`
-  top: 38vh;
-  left: 54%;
-  width: clamp(250px, 30vw, 420px);
-  height: clamp(230px, 27vw, 390px);
-  border-radius: 55% 45% 60% 40% / 45% 55% 45% 55%;
-
-  background: radial-gradient(
-    circle at 55% 50%,
-    rgba(255, 205, 45, 0.40) 0%,
-    rgba(255, 220, 100, 0.24) 38%,
-    rgba(255, 240, 160, 0.08) 68%,
-    rgba(255, 255, 255, 0) 85%
   );
   filter: blur(32px);
 
   [data-theme='dark'] & {
     background: radial-gradient(
-      circle at 55% 50%,
-      rgba(255, 215, 75, 0.44) 0%,
-      rgba(255, 225, 125, 0.26) 38%,
-      rgba(255, 240, 170, 0.09) 68%,
-      rgba(28, 26, 23, 0) 85%
+      circle at 45% 45%,
+      rgba(255, 115, 35, 0.32) 0%,
+      rgba(250, 155, 65, 0.18) 36%,
+      rgba(255, 185, 110, 0.06) 65%,
+      rgba(28, 26, 23, 0) 80%
     );
-    filter: blur(38px);
+    filter: blur(36px);
+  }
+
+  @media (max-width: 767px) {
+    top: 36%;
+    left: 50%;
+    width: clamp(140px, 42vw, 200px);
+    height: clamp(110px, 32vw, 150px);
+    filter: blur(20px);
   }
 `;
 
-/** 🌟 Orb 3: 포근한 앰버 코랄 웜 하이라이트 오르브 */
-const TertiaryGlowOrb = styled(GlowOrb)`
-  top: 33vh;
-  left: 50%;
-  width: clamp(210px, 25vw, 360px);
-  height: clamp(190px, 23vw, 330px);
-  border-radius: 50% 50% 45% 55% / 55% 45% 55% 45%;
+/** 🌟 Orb 2: 화사한 황금 옐로우 확산 오라 오르브 */
+const SecondaryGlowOrb = styled(GlowOrb)`
+  top: 50%;
+  left: 53%;
+  width: clamp(220px, 25vw, 340px);
+  height: clamp(180px, 21vw, 280px);
+  border-radius: 55% 45% 60% 40% / 45% 55% 45% 55%;
 
   background: radial-gradient(
-    circle at 50% 50%,
-    rgba(255, 155, 45, 0.35) 0%,
-    rgba(255, 185, 85, 0.18) 42%,
-    rgba(255, 255, 255, 0) 78%
+    circle at 55% 50%,
+    rgba(255, 205, 45, 0.24) 0%,
+    rgba(255, 220, 100, 0.14) 38%,
+    rgba(255, 240, 160, 0.04) 68%,
+    rgba(255, 255, 255, 0) 85%
   );
   filter: blur(28px);
 
   [data-theme='dark'] & {
     background: radial-gradient(
+      circle at 55% 50%,
+      rgba(255, 215, 75, 0.26) 0%,
+      rgba(255, 225, 125, 0.15) 38%,
+      rgba(255, 240, 170, 0.05) 68%,
+      rgba(28, 26, 23, 0) 85%
+    );
+    filter: blur(32px);
+  }
+
+  @media (max-width: 767px) {
+    top: 38%;
+    left: 52%;
+    width: clamp(130px, 38vw, 180px);
+    height: clamp(100px, 28vw, 140px);
+    filter: blur(18px);
+  }
+`;
+
+/** 🌟 Orb 3: 포근한 앰버 코랄 웜 하이라이트 오르브 */
+const TertiaryGlowOrb = styled(GlowOrb)`
+  top: 46%;
+  left: 49%;
+  width: clamp(180px, 20vw, 280px);
+  height: clamp(150px, 18vw, 240px);
+  border-radius: 50% 50% 45% 55% / 55% 45% 55% 45%;
+
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 155, 45, 0.22) 0%,
+    rgba(255, 185, 85, 0.10) 42%,
+    rgba(255, 255, 255, 0) 78%
+  );
+  filter: blur(24px);
+
+  [data-theme='dark'] & {
+    background: radial-gradient(
       circle at 50% 50%,
-      rgba(255, 165, 55, 0.38) 0%,
-      rgba(255, 195, 100, 0.20) 42%,
+      rgba(255, 165, 55, 0.24) 0%,
+      rgba(255, 195, 100, 0.12) 42%,
       rgba(28, 26, 23, 0) 78%
     );
-    filter: blur(34px);
+    filter: blur(28px);
+  }
+
+  @media (max-width: 767px) {
+    top: 34%;
+    left: 48%;
+    width: clamp(110px, 34vw, 160px);
+    height: clamp(90px, 25vw, 120px);
+    filter: blur(16px);
   }
 `;
 
@@ -175,6 +199,9 @@ export default function JourneyHome() {
     if (!orb1 || !orb2 || !orb3) return;
 
     const ctx = gsap.context(() => {
+      const isMobile = window.innerWidth <= 768;
+      const amp = isMobile ? 0.22 : 1.0;
+
       // 초기 세팅 (중심 정렬)
       gsap.set([orb1, orb2, orb3], {
         xPercent: -50,
@@ -185,8 +212,8 @@ export default function JourneyHome() {
       // 🌟 [Orb 1: 단청 주홍] - 정갈한 8자 궤적 자동 유영
       const tl1 = gsap.timeline({ repeat: -1, yoyo: true });
       tl1.to(orb1, {
-        x: 130,
-        y: -65,
+        x: 130 * amp,
+        y: -55 * amp,
         scale: 1.22,
         rotation: -35,
         opacity: 0.98,
@@ -194,8 +221,8 @@ export default function JourneyHome() {
         ease: 'sine.inOut',
       })
       .to(orb1, {
-        x: -120,
-        y: 60,
+        x: -120 * amp,
+        y: 50 * amp,
         scale: 0.90,
         rotation: 25,
         opacity: 0.75,
@@ -203,8 +230,8 @@ export default function JourneyHome() {
         ease: 'sine.inOut',
       })
       .to(orb1, {
-        x: 70,
-        y: 80,
+        x: 70 * amp,
+        y: 65 * amp,
         scale: 1.15,
         rotation: -15,
         opacity: 0.92,
@@ -224,8 +251,8 @@ export default function JourneyHome() {
       // 🌟 [Orb 2: 황금 옐로우] - 반대 방향에서 교차하며 물결치듯 회전
       const tl2 = gsap.timeline({ repeat: -1, yoyo: true });
       tl2.to(orb2, {
-        x: -140,
-        y: 70,
+        x: -140 * amp,
+        y: 60 * amp,
         scale: 1.25,
         rotation: 45,
         opacity: 0.95,
@@ -233,8 +260,8 @@ export default function JourneyHome() {
         ease: 'sine.inOut',
       })
       .to(orb2, {
-        x: 110,
-        y: -60,
+        x: 110 * amp,
+        y: -50 * amp,
         scale: 0.85,
         rotation: -30,
         opacity: 0.68,
@@ -242,8 +269,8 @@ export default function JourneyHome() {
         ease: 'sine.inOut',
       })
       .to(orb2, {
-        x: -60,
-        y: -75,
+        x: -60 * amp,
+        y: -60 * amp,
         scale: 1.12,
         rotation: 20,
         opacity: 0.88,
@@ -263,8 +290,8 @@ export default function JourneyHome() {
       // 🌟 [Orb 3: 앰버 코랄 웜] - 중심에서 정갈하게 확장/수축하며 파동
       const tl3 = gsap.timeline({ repeat: -1, yoyo: true });
       tl3.to(orb3, {
-        x: 90,
-        y: 80,
+        x: 90 * amp,
+        y: 65 * amp,
         scale: 1.28,
         rotation: 50,
         opacity: 0.98,
@@ -272,8 +299,8 @@ export default function JourneyHome() {
         ease: 'sine.inOut',
       })
       .to(orb3, {
-        x: -95,
-        y: -65,
+        x: -95 * amp,
+        y: -55 * amp,
         scale: 0.82,
         rotation: -40,
         opacity: 0.62,
@@ -298,18 +325,17 @@ export default function JourneyHome() {
 
   return (
     <MainWrapper ref={mainRef}>
-      {/* 🟠 GSAP 상시 100% 자동 유기적 유영 앰비언트 글로우 */}
-      {!hasSearched && (
-        <AmbientGlowLayer aria-hidden="true">
-          <PrimaryGlowOrb ref={orb1Ref} />
-          <SecondaryGlowOrb ref={orb2Ref} />
-          <TertiaryGlowOrb ref={orb3Ref} />
-        </AmbientGlowLayer>
-      )}
-
       <JourneyAssemblyLoader />
 
       <Landing $centered={!hasSearched}>
+        {/* 🟠 GSAP 100% 자동 유기적 유영 앰비언트 글로우 — 검색창 중심에 항상 앵커링 */}
+        {!hasSearched && (
+          <AmbientGlowLayer aria-hidden="true">
+            <PrimaryGlowOrb ref={orb1Ref} />
+            <SecondaryGlowOrb ref={orb2Ref} />
+            <TertiaryGlowOrb ref={orb3Ref} />
+          </AmbientGlowLayer>
+        )}
         <JourneyHeroSearch searchFormRef={searchFormRef} moodChipsRef={moodChipsRef} />
       </Landing>
 

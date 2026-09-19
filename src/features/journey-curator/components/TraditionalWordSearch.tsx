@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, RotateCcw, Sparkles, Trophy, Gamepad2, Timer, Flame } from 'lucide-react';
-import { fontSize } from '@/design-system/tokens';
+import { fontSize, palette, ringShadow } from '@/design-system/tokens';
 
 interface WordPuzzle {
   id: number;
@@ -194,8 +194,8 @@ const HeaderStatus = styled.div`
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  max-width: 360px;
-  margin-bottom: 10px;
+  max-width: 330px;
+  margin-bottom: 8px;
 `;
 
 const StatusLeft = styled.div`
@@ -208,35 +208,46 @@ const ThemeTag = styled.div`
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 4px 10px;
+  padding: 3px 9px;
   border-radius: 9999px;
   background: rgba(212, 175, 55, 0.12);
   border: none;
-  box-shadow: none;
-  color: #d4af37;
-  font-size: 11.5px;
+  box-shadow: ${ringShadow.light.button};
+  color: #b8941f;
+  font-size: 11px;
   font-weight: 600;
+
+  [data-theme='dark'] & {
+    box-shadow: ${ringShadow.dark.button};
+    color: #e5c058;
+  }
 `;
 
 const DifficultyBadge = styled.div`
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 8px;
+  padding: 3px 8px;
   border-radius: 6px;
-  background: rgba(255, 84, 20, 0.1);
+  background: rgba(0, 0, 0, 0.045);
   border: none;
-  box-shadow: none;
-  color: #ff5414;
+  box-shadow: ${ringShadow.light.button};
+  color: #6b7280;
   font-size: 11px;
   font-weight: 600;
+
+  [data-theme='dark'] & {
+    color: #9ca3af;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: ${ringShadow.dark.button};
+  }
 `;
 
 const StatusRight = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: ${fontSize.xs};
+  font-size: 11.5px;
   color: #9ca3af;
 `;
 
@@ -245,7 +256,7 @@ const TimerDisplay = styled.div`
   align-items: center;
   gap: 4px;
   color: #6b7280;
-  font-size: 11.5px;
+  font-size: 11px;
 
   [data-theme='dark'] & {
     color: #a1a1aa;
@@ -256,34 +267,34 @@ const WordTagsRow = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 5px;
+  gap: 4px;
   width: 100%;
-  max-width: 370px;
-  margin-bottom: 12px;
+  max-width: 330px;
+  margin-bottom: 8px;
 `;
 
 const WordTag = styled.div<{ $isFound: boolean }>`
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-size: 11.5px;
+  padding: 2px 7px;
+  border-radius: 5px;
+  font-size: 11px;
   font-weight: 500;
   border: none;
-  box-shadow: none;
+  box-shadow: ${ringShadow.light.button};
   transition: all 0.25s;
 
   ${({ $isFound }) =>
     $isFound
       ? `
     background: rgba(0, 184, 130, 0.15);
-    color: #00b882;
+    color: #008a60;
     text-decoration: line-through;
     opacity: 0.85;
   `
       : `
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(0, 0, 0, 0.045);
     color: #4b5563;
 
     [data-theme='dark'] & {
@@ -291,32 +302,37 @@ const WordTag = styled.div<{ $isFound: boolean }>`
       color: #d1d5db;
     }
   `}
+
+  [data-theme='dark'] & {
+    box-shadow: ${ringShadow.dark.button};
+  }
 `;
 
 const GridBoard = styled.div`
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   grid-template-rows: repeat(8, 1fr);
-  gap: 4px;
-  width: 350px;
-  height: 350px;
+  gap: 3.5px;
+  width: min(330px, calc(100vw - 64px));
+  height: min(330px, calc(100vw - 64px));
+  max-width: 330px;
+  max-height: 330px;
+  aspect-ratio: 1;
   background: #ebe5d8;
   border: none;
-  border-radius: 14px;
-  padding: 8px;
-  box-shadow: none;
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow: ${ringShadow.light.card};
 
   [data-theme='dark'] & {
     background: #28231d;
-    border: none;
-    box-shadow: none;
+    box-shadow: ${ringShadow.dark.card};
   }
 
-  @media (max-width: 400px) {
-    width: 300px;
-    height: 300px;
-    gap: 3px;
-    padding: 6px;
+  @media (max-width: 380px) {
+    gap: 2.5px;
+    padding: 5px;
+    border-radius: 10px;
   }
 `;
 
@@ -326,15 +342,15 @@ const CellButton = styled.button<{ $isSelected: boolean; $isFound: boolean }>`
     $isFound
       ? 'rgba(0, 184, 130, 0.22)'
       : $isSelected
-      ? 'rgba(255, 120, 20, 0.22)'
+      ? 'rgba(0, 184, 130, 0.15)'
       : '#ffffff'};
   border: none;
-  box-shadow: none;
-  border-radius: 7px;
+  box-shadow: ${ringShadow.light.button};
+  border-radius: 6px;
   color: ${({ $isFound, $isSelected }) =>
-    $isFound ? '#008a60' : $isSelected ? '#d94b00' : '#191f28'};
+    $isFound ? '#008a60' : $isSelected ? '#008a60' : '#191f28'};
   font-family: var(--font-hanok);
-  font-size: ${fontSize.base};
+  font-size: 14.5px;
   font-weight: ${({ $isFound, $isSelected }) => ($isFound || $isSelected ? 700 : 500)};
   cursor: pointer;
   outline: none;
@@ -350,22 +366,23 @@ const CellButton = styled.button<{ $isSelected: boolean; $isFound: boolean }>`
       $isFound
         ? 'rgba(0, 184, 130, 0.28)'
         : $isSelected
-        ? 'rgba(255, 120, 20, 0.35)'
+        ? 'rgba(0, 184, 130, 0.22)'
         : 'rgba(255, 255, 255, 0.07)'};
     color: ${({ $isFound, $isSelected }) =>
-      $isFound ? '#4ade80' : $isSelected ? '#ff9d5c' : '#f3f4f6'};
-    border: none;
-    box-shadow: none;
+      $isFound ? '#4ade80' : $isSelected ? '#4ade80' : '#f3f4f6'};
+    box-shadow: ${ringShadow.dark.button};
   }
 
   &:hover {
     background: ${({ $isFound }) =>
       $isFound ? 'rgba(0, 184, 130, 0.3)' : 'rgba(0, 0, 0, 0.08)'};
+    box-shadow: ${ringShadow.light.buttonHoverGlow};
     transform: translateY(-1px);
 
     [data-theme='dark'] & {
       background: ${({ $isFound }) =>
         $isFound ? 'rgba(0, 184, 130, 0.35)' : 'rgba(255, 255, 255, 0.12)'};
+      box-shadow: ${ringShadow.dark.buttonHoverGlow};
     }
   }
 
@@ -379,62 +396,66 @@ const ControlsRow = styled.div`
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  max-width: 350px;
-  margin-top: 12px;
+  max-width: 330px;
+  margin-top: 8px;
 `;
 
 const ActionButton = styled.button`
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 6px 12px;
-  border-radius: 8px;
-  background: rgba(0, 0, 0, 0.05);
+  padding: 5px 12px;
+  border-radius: 7px;
+  background: rgba(0, 0, 0, 0.045);
   border: none;
-  box-shadow: none;
+  box-shadow: ${ringShadow.light.button};
   color: #374151;
-  font-size: 11.5px;
+  font-size: 11px;
   cursor: pointer;
   transition: all 0.2s;
 
   [data-theme='dark'] & {
     background: rgba(255, 255, 255, 0.08);
+    box-shadow: ${ringShadow.dark.button};
     color: #e5e7eb;
   }
 
   &:hover {
-    background: rgba(0, 0, 0, 0.09);
+    background: rgba(0, 0, 0, 0.08);
+    box-shadow: ${ringShadow.light.buttonHoverGlow};
 
     [data-theme='dark'] & {
       background: rgba(255, 255, 255, 0.14);
+      box-shadow: ${ringShadow.dark.buttonHoverGlow};
     }
   }
 `;
 
 const FinishedBanner = styled(motion.div)`
   width: 100%;
-  max-width: 350px;
-  background: rgba(0, 184, 130, 0.12);
+  max-width: 330px;
+  background: rgba(0, 184, 130, 0.08);
   border: none;
-  box-shadow: none;
-  border-radius: 12px;
-  padding: 10px 14px;
-  margin-top: 12px;
+  box-shadow: ${ringShadow.light.card};
+  border-radius: 10px;
+  padding: 8px 12px;
+  margin-top: 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
 
   [data-theme='dark'] & {
-    background: rgba(0, 184, 130, 0.16);
+    background: rgba(0, 184, 130, 0.12);
+    box-shadow: ${ringShadow.dark.card};
   }
 `;
 
 const CompleteText = styled.div`
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12.5px;
+  gap: 5px;
+  font-size: 12px;
   font-weight: 600;
   color: #191f28;
 
@@ -444,21 +465,43 @@ const CompleteText = styled.div`
 `;
 
 const ViewJourneyBtn = styled.button`
-  background: #00b882;
+  background: ${palette.juhong[500]};
   color: #ffffff;
   border: none;
-  box-shadow: none;
+  box-shadow: 0 3px 10px rgba(255, 85, 0, 0.32);
   padding: 6px 12px;
-  border-radius: 8px;
-  font-size: ${fontSize.xs};
+  border-radius: 7px;
+  font-size: 11.5px;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.2s, transform 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    background: #00996c;
-    transform: scale(1.02);
+    background: ${palette.juhong[600]};
+    transform: scale(1.03);
+    box-shadow: 0 4px 14px rgba(255, 85, 0, 0.42);
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+`;
+
+const FoundAllMessage = styled(motion.div)`
+  margin-top: 8px;
+  color: #008a60;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  [data-theme='dark'] & {
+    color: #4ade80;
   }
 `;
 
@@ -559,10 +602,7 @@ export default function TraditionalWordSearch({
             <Sparkles size={11} />
             <span>{currentPuzzle.theme}</span>
           </ThemeTag>
-          <DifficultyBadge>
-            <Flame size={11} />
-            <span>심화 8x8</span>
-          </DifficultyBadge>
+         
         </StatusLeft>
 
         <StatusRight>
@@ -609,58 +649,49 @@ export default function TraditionalWordSearch({
         <div style={{ display: 'flex', gap: '6px' }}>
           <ActionButton onClick={handleReset}>
             <RotateCcw size={11} />
-            <span>초기화</span>
+            <span>처음부터</span>
           </ActionButton>
           <ActionButton onClick={handleNextPuzzle}>
-            <span>다음 판</span>
+            <span>다음 문제</span>
           </ActionButton>
         </div>
 
         {onBackToOmok && (
           <ActionButton onClick={onBackToOmok}>
             <Gamepad2 size={11} />
-            <span>오목으로 복귀</span>
+            <span>오목 게임 이동</span>
           </ActionButton>
         )}
       </ControlsRow>
 
       {/* When all words are found */}
       {isAllFound && (
-        <motion.div
+        <FoundAllMessage
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          style={{
-            marginTop: '10px',
-            color: '#00b882',
-            fontSize: '12.5px',
-            fontWeight: 600,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-          }}
         >
-          <Trophy size={15} />
-          <span>모든 낱말을 찾아내셨습니다! ({formatTime(seconds)})</span>
-        </motion.div>
+          <Trophy size={14} />
+          <span>모든 낱말을 다 찾았어요! ({formatTime(seconds)})</span>
+        </FoundAllMessage>
       )}
 
       {/* Assembly Finished Notification Banner */}
       <AnimatePresence>
         {isGenerationComplete && (
           <FinishedBanner
-            initial={{ opacity: 0, scale: 0.95, y: 8 }}
+            initial={{ opacity: 0, scale: 0.95, y: 6 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -8 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            exit={{ opacity: 0, scale: 0.95, y: -6 }}
+            transition={{ type: 'spring', damping: 20, stiffness: 350 }}
           >
             <CompleteText>
-              <CheckCircle2 size={16} color="#00b882" />
-              <span>온마루 AI 추천 경로가 완성되었습니다!</span>
+              <CheckCircle2 size={14} color="#008a60" />
+              <span>맞춤 여정이 준비되었어요</span>
             </CompleteText>
             {onViewJourney && (
               <ViewJourneyBtn onClick={onViewJourney}>
-                <Sparkles size={12} style={{ display: 'inline', marginRight: '4px' }} />
-                완성된 여정 바로보기 →
+                <Sparkles size={12} />
+                <span>완성된 여정 보기</span>
               </ViewJourneyBtn>
             )}
           </FinishedBanner>
