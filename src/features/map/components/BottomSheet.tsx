@@ -9,8 +9,8 @@ import type { SheetSnap } from '@/features/map/types';
 import ModeToggle from './ModeToggle';
 import PlaceDetail from './PlaceDetail';
 import PlaceList from './PlaceList';
-import WarmthFeed from './warmth/WarmthFeed';
-import PopularPlacesPanel from './warmth/PopularPlacesPanel';
+import WarmthFeed from '@/private/core-ui/map-warmth/WarmthFeed';
+import PopularPlacesPanel from '@/private/core-ui/map-warmth/PopularPlacesPanel';
 
 const SNAPS: SheetSnap[] = ['peek', 'half', 'full'];
 
