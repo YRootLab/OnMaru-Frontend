@@ -3,11 +3,22 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { getAccessToken, setAccessToken, removeAccessToken, apiPost, USE_MOCK } from '@/lib/api/client';
+import { getAccessToken, setAccessToken, removeAccessToken, USE_MOCK } from '@/lib/api/client';
 import { OnmaruUser } from '../types';
-import { buildKakaoAuthorizeUrl } from '../api/kakaoAuth';
+import { buildMockKakaoAuthorizeUrl, buildBackendKakaoLoginUrl } from '../api/kakaoAuth';
 import { clearPrivateClientState } from '../privateState';
-import { defaultMemberRepository } from '../api/memberApi';
+import { defaultMemberRepository, type MemberProfile } from '../api/memberApi';
+
+const RETURN_TO_PATH = '/auth/kakao/callback';
+
+function toOnmaruUser(profile: MemberProfile): OnmaruUser {
+  return {
+    id: profile.id,
+    nickname: profile.nickname,
+    email: profile.email ?? undefined,
+    profileImage: profile.profileImageUrl ?? undefined,
+  };
+}
 
 const USER_STORAGE_KEY = 'onmaru_user';
 
@@ -16,41 +27,85 @@ export function useAuth() {
   const [user, setUser] = useState<OnmaruUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 초기화: 로컬스토리지 토큰 및 사용자 정보 복원
+  // 초기화: 목 모드는 로컬스토리지 토큰+유저로 복원, 실서버 모드는 세션이 쿠키에 있으니
+  // 캐시된 유저로 먼저 그려준 뒤 GET /members/me로 검증한다(쿠키 만료 시 로그아웃 처리).
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const token = getAccessToken();
     const storedUserStr = localStorage.getItem(USER_STORAGE_KEY);
-    if (token && storedUserStr) {
+
+    if (USE_MOCK) {
+      const token = getAccessToken();
+      if (token && storedUserStr) {
+        try {
+          setUser(JSON.parse(storedUserStr) as OnmaruUser);
+        } catch {
+          setUser(null);
+        }
+      }
+      setIsLoading(false);
+      return;
+    }
+
+    if (storedUserStr) {
       try {
         setUser(JSON.parse(storedUserStr) as OnmaruUser);
       } catch {
         setUser(null);
       }
     }
-    setIsLoading(false);
+    defaultMemberRepository
+      .getMyProfile()
+      .then((profile) => {
+        const nextUser = toOnmaruUser(profile);
+        localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(nextUser));
+        setUser(nextUser);
+      })
+      .catch(() => {
+        localStorage.removeItem(USER_STORAGE_KEY);
+        setUser(null);
+      })
+      .finally(() => setIsLoading(false));
   }, []);
 
   // 카카오 인가 화면으로 이동 (로그인 = 회원가입, 카카오 로그인 단일 창구)
+  // 실서버 모드: 백엔드 GET /auth/kakao/login으로 브라우저를 통째로 보낸다 — code 교환은
+  // 백엔드와 카카오 사이에서 끝나고, 세션 쿠키가 이미 심긴 채로 returnTo로 돌아온다.
+  // 목 모드: 백엔드가 없으니 FE가 카카오 인가 URL을 직접 만들어 흉내낸다.
   const loginWithKakao = useCallback(() => {
-    window.location.href = buildKakaoAuthorizeUrl();
+    window.location.href = USE_MOCK
+      ? buildMockKakaoAuthorizeUrl()
+      : buildBackendKakaoLoginUrl(RETURN_TO_PATH);
   }, []);
 
-  // 콜백에서 받은 인가 code를 우리 서버 세션으로 교환
+  // 목 모드 전용: 콜백에서 받은 인가 code를 가짜 세션으로 교환
   const completeKakaoLogin = useCallback(async (code: string): Promise<boolean> => {
     try {
-      const data = USE_MOCK
-        ? {
-            accessToken: `mock_kakao_jwt_${Date.now()}`,
-            user: { id: `kakao_${code.slice(0, 8)}`, nickname: '온마루 여행자' } as OnmaruUser,
-          }
-        : await apiPost<{ accessToken: string; user: OnmaruUser }>('/api/auth/kakao/login', { code });
+      const data = {
+        accessToken: `mock_kakao_jwt_${Date.now()}`,
+        user: { id: `kakao_${code.slice(0, 8)}`, nickname: '온마루 여행자' } as OnmaruUser,
+      };
 
       setAccessToken(data.accessToken);
       localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data.user));
       setUser(data.user);
       toast.success(`${data.user.nickname}님, 환영해요!`);
+      return true;
+    } catch {
+      toast.error('카카오 로그인에 실패했어요. 다시 시도해 주세요.');
+      return false;
+    }
+  }, []);
+
+  // 실서버 전용: 백엔드가 이미 세션 쿠키를 심어놓고 returnTo로 돌려보낸 뒤 호출된다.
+  // 교환할 code가 없다 — GET /members/me가 성공하면 로그인된 것이다.
+  const restoreSessionAfterKakaoLogin = useCallback(async (): Promise<boolean> => {
+    try {
+      const profile = await defaultMemberRepository.getMyProfile();
+      const nextUser = toOnmaruUser(profile);
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(nextUser));
+      setUser(nextUser);
+      toast.success(`${nextUser.nickname}님, 환영해요!`);
       return true;
     } catch {
       toast.error('카카오 로그인에 실패했어요. 다시 시도해 주세요.');
@@ -98,6 +153,7 @@ export function useAuth() {
     isLoggedIn: !!user,
     loginWithKakao,
     completeKakaoLogin,
+    restoreSessionAfterKakaoLogin,
     logout,
     deleteAccount,
   };

@@ -26,11 +26,11 @@ const Container = styled.div<{ $compact?: boolean }>`
   width: 100%;
   max-width: ${({ $compact }) => ($compact ? '760px' : '900px')};
   margin: 0 auto;
-  padding: ${({ $compact }) => ($compact ? '0 20px 16px' : '36px 20px 24px')};
+  padding: ${({ $compact }) => ($compact ? '0 20px 16px' : '64px 20px 24px')};
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 
   @media (max-width: 640px) {
-    padding: ${({ $compact }) => ($compact ? '0 12px 12px' : '20px 12px 16px')};
+    padding: ${({ $compact }) => ($compact ? '0 12px 12px' : '40px 12px 16px')};
   }
 `;
 
