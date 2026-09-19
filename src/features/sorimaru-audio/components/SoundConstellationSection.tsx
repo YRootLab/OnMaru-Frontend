@@ -15,7 +15,7 @@ import {
   SOUND_CONSTELLATION_API_ROOT_MARGIN,
   getRegionPathMotion,
 } from './soundConstellationMotion';
-import { palette, meok, surface, fontSize } from '@/design-system/tokens';
+import { palette, meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
 
 interface SoundConstellationSectionProps {
   stories: SorimaruStoryItem[];
@@ -394,22 +394,26 @@ const StoryItemButton = styled.button<{ isActive: boolean }>`
   transition: all 0.2s ease;
   background: ${(props) =>
     props.isActive ? `linear-gradient(135deg, ${palette.juhong[50]} 0%, #FFF8F5 100%)` : 'transparent'};
+  box-shadow: ${(props) => (props.isActive ? 'none' : ringShadow.light.card)};
 
   &:hover {
     background: ${(props) =>
       props.isActive ? `linear-gradient(135deg, ${palette.juhong[100]} 0%, ${palette.juhong[50]} 100%)` : meok[200]};
+    box-shadow: ${(props) => (props.isActive ? 'none' : ringShadow.light.cardHoverGlow)};
   }
 
   [data-theme='dark'] & {
     border: none;
     background: ${(props) =>
       props.isActive ? 'linear-gradient(135deg, rgba(255, 120, 48, 0.18) 0%, rgba(255, 85, 0, 0.08) 100%)' : 'transparent'};
+    box-shadow: ${(props) => (props.isActive ? 'none' : ringShadow.dark.card)};
 
     &:hover {
       background: ${(props) =>
         props.isActive
           ? 'linear-gradient(135deg, rgba(255, 120, 48, 0.25) 0%, rgba(255, 85, 0, 0.14) 100%)'
           : 'rgba(255, 255, 255, 0.06)'};
+      box-shadow: ${(props) => (props.isActive ? 'none' : ringShadow.dark.cardHoverGlow)};
     }
   }
 `;

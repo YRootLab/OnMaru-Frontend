@@ -6,7 +6,6 @@ import styled from '@emotion/styled';
 import { MapPin, ArrowRight, Volume2 } from 'lucide-react';
 import { palette, meok, fontSize, ringShadow } from '@/design-system/tokens';
 import { useJourneyStore } from '../store/useJourneyStore';
-import { defaultHanokRepository } from '@/features/hanok-archive/api/hanokApi';
 
 const FeedContainer = styled.div`
   width: min(calc(100% - 40px), 1140px);
@@ -483,35 +482,7 @@ const RegionSub = styled.span`
   }
 `;
 
-const RECOMMENDED_COURSES = [
-  {
-    id: 'course-seochon',
-    badge: '서울 종로',
-    title: '비 내리는 서촌 골목길과 한옥 찻집',
-    description: '인왕산 자락 아래 빗소리와 툇마루 차 한 잔',
-    image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=800&q=80',
-    query: '비 오는 날 걷기 좋은 고즈넉한 서울 서촌 한옥길',
-    tags: ['#서촌', '#상촌재', '#골목산책'],
-  },
-  {
-    id: 'course-bukchon',
-    badge: '서울 북촌',
-    title: '북촌 100년 고택에서 즐기는 고즈넉한 쉼',
-    description: '백인제가옥부터 삼청동 돌담길까지 이어지는 산책',
-    image: 'https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?auto=format&fit=crop&w=800&q=80',
-    query: '북촌 백인제가옥과 삼청동 돌담길 고즈넉한 쉼',
-    tags: ['#북촌', '#백인제가옥', '#전통마루'],
-  },
-  {
-    id: 'course-jeonju',
-    badge: '전북 전주',
-    title: '달빛 아래 전주 한옥마을과 남부시장',
-    description: '은은한 한지 등불 골목과 정겨운 야시장',
-    image: 'https://images.unsplash.com/photo-1596401057633-54a8fe8ef647?auto=format&fit=crop&w=800&q=80',
-    query: '전주 한옥마을과 남부시장 정겨운 야경 여정',
-    tags: ['#전주한옥마을', '#경기전', '#남부시장'],
-  },
-];
+
 
 interface RecommendedCourse {
   id: string;
@@ -524,31 +495,27 @@ interface RecommendedCourse {
 }
 
 /** 백엔드 /hanoks 실데이터를 코스 카드로 매핑. 썸네일 없는 항목은 제외. */
-function useRecommendedCourses(): { courses: RecommendedCourse[]; loading: boolean } {
-  const [courses, setCourses] = useState<RecommendedCourse[]>(RECOMMENDED_COURSES);
-  const [loading, setLoading] = useState(!!process.env.NEXT_PUBLIC_API_URL);
+interface SectionMetadata<T> {
+  title: string;
+  description: string;
+  items: T[];
+}
+
+function useRecommendedCourses(): { data: SectionMetadata<RecommendedCourse> | null; loading: boolean } {
+  const [data, setData] = useState<SectionMetadata<RecommendedCourse> | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!process.env.NEXT_PUBLIC_API_URL) return;
     let cancelled = false;
-    defaultHanokRepository
-      .listHanoks({ limit: 3 })
-      .then((res) => {
+    fetch('/api/home/recommended-courses')
+      .then((r) => r.json())
+      .then((res: { title: string; description: string; courses: RecommendedCourse[] }) => {
         if (cancelled) return;
-        const mapped: RecommendedCourse[] = res.items
-          .filter((item) => !!item.thumbnailUrl)
-          .map((item) => ({
-            id: item.placeId,
-            badge: item.regionName,
-            title: item.name,
-            description: item.summary,
-            image: item.thumbnailUrl as string,
-            query: `${item.regionName} ${item.name}`,
-            tags: item.tags.map((t) => `#${t}`),
-          }));
-        if (mapped.length > 0) setCourses(mapped);
+        setData({ title: res.title, description: res.description, items: res.courses ?? [] });
       })
-      .catch(() => {})
+      .catch(() => {
+        if (!cancelled) setData(null);
+      })
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
@@ -557,7 +524,7 @@ function useRecommendedCourses(): { courses: RecommendedCourse[]; loading: boole
     };
   }, []);
 
-  return { courses, loading };
+  return { data, loading };
 }
 
 /** /api/home/trending-sounds 반환 스키마 */
@@ -571,52 +538,23 @@ interface TrendingSound {
   rank: number;
 }
 
-/** VisitorService 오류 또는 소리마루 API 미매핑 시 표시할 폴백 */
-const FALLBACK_SOUNDS: TrendingSound[] = [
-  {
-    id: 'sound-gangneung',
-    title: '처마 밑 낙숫물 빗소리',
-    location: '강릉 선교장 활래정',
-    duration: '3분 45초',
-    href: '/sorimaru?keyword=%EC%84%A0%EA%B5%90%EC%9E%A5&autoPlay=true',
-    regionName: '강릉',
-    rank: 1,
-  },
-  {
-    id: 'sound-andong',
-    title: '안채 대청마루 풍경소리',
-    location: '안동 하회마을 양진당',
-    duration: '2분 30초',
-    href: '/sorimaru?keyword=%ED%95%98%ED%9A%8C%EB%A7%88%EC%9D%84&autoPlay=true',
-    regionName: '안동',
-    rank: 2,
-  },
-  {
-    id: 'sound-gyeongju',
-    title: '새벽 숲속 산사 종소리',
-    location: '경주 교촌마을 & 월정교',
-    duration: '4분 12초',
-    href: '/sorimaru?keyword=%EA%B5%90%EC%B4%8C%EB%A7%88%EC%9D%84&autoPlay=true',
-    regionName: '경주',
-    rank: 3,
-  },
-];
+
 
 /** 실시간 인기 지역 소리마루 트랙을 가져온다. 오류 시 폴백 배열 반환. */
-function useTrendingSounds(): { sounds: TrendingSound[]; loading: boolean } {
-  const [sounds, setSounds] = useState<TrendingSound[]>([]);
+function useTrendingSounds(): { data: SectionMetadata<TrendingSound> | null; loading: boolean } {
+  const [data, setData] = useState<SectionMetadata<TrendingSound> | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
     fetch('/api/home/trending-sounds')
       .then((r) => r.json())
-      .then((data: { sounds: TrendingSound[] }) => {
+      .then((res: { title: string; description: string; sounds: TrendingSound[] }) => {
         if (cancelled) return;
-        setSounds(data.sounds?.length ? data.sounds : FALLBACK_SOUNDS);
+        setData({ title: res.title, description: res.description, items: res.sounds ?? [] });
       })
       .catch(() => {
-        if (!cancelled) setSounds(FALLBACK_SOUNDS);
+        if (!cancelled) setData(null);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -624,23 +562,45 @@ function useTrendingSounds(): { sounds: TrendingSound[]; loading: boolean } {
     return () => { cancelled = true; };
   }, []);
 
-  return { sounds, loading };
+  return { data, loading };
 }
 
-const POPULAR_REGIONS = [
-  { name: '서울', sub: '북촌 · 서촌 · 익선동', query: '서울 고즈넉한 한옥길' },
-  { name: '안동', sub: '하회마을 · 도산서원', query: '안동 하회마을 고택 쉼' },
-  { name: '전주', sub: '한옥마을 · 경기전', query: '전주 한옥마을 맛과 멋' },
-  { name: '경주', sub: '교촌마을 · 양동마을', query: '경주 교촌마을과 고분 산책' },
-  { name: '강릉', sub: '선교장 · 오죽헌', query: '강릉 선교장 정원 힐링' },
-  { name: '제주', sub: '성읍민속마을 · 돌담집', query: '제주 돌담 한옥과 쉼' },
-];
+interface PopularRegion {
+  name: string;
+  sub: string;
+  query: string;
+}
+
+function usePopularRegions(): { data: SectionMetadata<PopularRegion> | null; loading: boolean } {
+  const [data, setData] = useState<SectionMetadata<PopularRegion> | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/home/popular-regions')
+      .then((r) => r.json())
+      .then((res: { title: string; description: string; regions: PopularRegion[] }) => {
+        if (cancelled) return;
+        setData({ title: res.title, description: res.description, items: res.regions ?? [] });
+      })
+      .catch(() => {
+        if (!cancelled) setData(null);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, []);
+
+  return { data, loading };
+}
 
 export default function JourneyDiscoveryFeed() {
   const setQuery = useJourneyStore((s) => s.setQuery);
   const submitSearch = useJourneyStore((s) => s.submitSearch);
-  const { sounds: trendingSounds, loading: soundsLoading } = useTrendingSounds();
-  const { courses } = useRecommendedCourses();
+  const { data: trendingSounds, loading: soundsLoading } = useTrendingSounds();
+  const { data: recommendedCourses } = useRecommendedCourses();
+  const { data: popularRegions } = usePopularRegions();
 
   const handleSelectCourse = (query: string) => {
     setQuery(query);
@@ -650,16 +610,17 @@ export default function JourneyDiscoveryFeed() {
   return (
     <FeedContainer>
       {/* 1. 에디터 추천 코스 */}
-      <section>
-        <SectionHeader>
-          <SectionTitleGroup>
-            <SectionTitle>이번 주 추천 한옥 코스</SectionTitle>
-            <SectionDescription>정취와 소리가 머무는 특별한 여행지예요.</SectionDescription>
-          </SectionTitleGroup>
-        </SectionHeader>
+      {recommendedCourses && (
+        <section>
+          <SectionHeader>
+            <SectionTitleGroup>
+              <SectionTitle>{recommendedCourses.title}</SectionTitle>
+              <SectionDescription>{recommendedCourses.description}</SectionDescription>
+            </SectionTitleGroup>
+          </SectionHeader>
 
-        <CourseGrid>
-          {courses.map((course) => (
+          <CourseGrid>
+            {recommendedCourses.items.map((course) => (
             <CourseCard key={course.id} onClick={() => handleSelectCourse(course.query)}>
               <CourseImageWrap>
                 <CourseImage src={course.image} alt={course.title} loading="lazy" />
@@ -687,19 +648,21 @@ export default function JourneyDiscoveryFeed() {
           ))}
         </CourseGrid>
       </section>
+      )}
 
       {/* 2. 소리마루 인기 프리뷰 */}
-      <section>
-        <SectionHeader>
-          <SectionTitleGroup>
-            <SectionTitle>지금 인기 있는 한옥 소리</SectionTitle>
-            <SectionDescription>처마 밑 빗소리와 대청마루 풍경소리를 들어보세요.</SectionDescription>
-          </SectionTitleGroup>
-        </SectionHeader>
+      {(trendingSounds || soundsLoading) && (
+        <section>
+          <SectionHeader>
+            <SectionTitleGroup>
+              <SectionTitle>{trendingSounds?.title || '지금 인기 있는 한옥 소리'}</SectionTitle>
+              <SectionDescription>{trendingSounds?.description || '처마 밑 빗소리와 대청마루 풍경소리를 들어보세요.'}</SectionDescription>
+            </SectionTitleGroup>
+          </SectionHeader>
 
-        <SoundGrid>
-          {soundsLoading
-            ? Array.from({ length: 3 }).map((_, i) => (
+          <SoundGrid>
+            {soundsLoading
+              ? Array.from({ length: 3 }).map((_, i) => (
                 <SkeletonCard key={i} aria-hidden="true">
                   <SkeletonCircle />
                   <SoundInfo>
@@ -708,7 +671,7 @@ export default function JourneyDiscoveryFeed() {
                   </SoundInfo>
                 </SkeletonCard>
               ))
-            : trendingSounds.map((sound) => (
+            : trendingSounds?.items.map((sound) => (
                 <SoundCard key={sound.id} href={sound.href}>
                   <PlayIconWrap>
                     <Volume2 size={20} />
@@ -721,20 +684,22 @@ export default function JourneyDiscoveryFeed() {
                   </SoundInfo>
                 </SoundCard>
               ))}
-        </SoundGrid>
-      </section>
+          </SoundGrid>
+        </section>
+      )}
 
       {/* 3. 지역별 한옥 퀵 탐색 */}
-      <section>
-        <SectionHeader>
-          <SectionTitleGroup>
-            <SectionTitle>지역별 한옥 둘러보기</SectionTitle>
-            <SectionDescription>가보고 싶은 지역의 추천 일정을 확인해 보세요.</SectionDescription>
-          </SectionTitleGroup>
-        </SectionHeader>
+      {popularRegions && (
+        <section>
+          <SectionHeader>
+            <SectionTitleGroup>
+              <SectionTitle>{popularRegions.title}</SectionTitle>
+              <SectionDescription>{popularRegions.description}</SectionDescription>
+            </SectionTitleGroup>
+          </SectionHeader>
 
-        <RegionGrid>
-          {POPULAR_REGIONS.map((region) => (
+          <RegionGrid>
+            {popularRegions.items.map((region) => (
             <RegionCard key={region.name} onClick={() => handleSelectCourse(region.query)}>
               <RegionName>{region.name}</RegionName>
               <RegionSub>{region.sub}</RegionSub>
@@ -742,6 +707,7 @@ export default function JourneyDiscoveryFeed() {
           ))}
         </RegionGrid>
       </section>
+      )}
     </FeedContainer>
   );
 }

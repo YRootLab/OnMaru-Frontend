@@ -66,7 +66,11 @@ export async function GET() {
       // 데이터랩 응답이 없거나 매핑 지역이 없으면 폴백으로 빈 배열 반환
       // 클라이언트가 하드코딩 폴백을 사용하게 됨
       return NextResponse.json(
-        { sounds: [] },
+        { 
+          title: '지금 인기 있는 한옥 소리',
+          description: '처마 밑 빗소리와 대청마루 풍경소리를 들어보세요.',
+          sounds: [] 
+        },
         {
           headers: {
             'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=600',
@@ -121,7 +125,11 @@ export async function GET() {
     console.error('[trending-sounds] 실시간 큐레이션 실패:', err);
     // 오류 시 빈 배열 → 클라이언트 폴백
     return NextResponse.json(
-      { sounds: [] },
+      { 
+        title: '지금 인기 있는 한옥 소리',
+        description: '처마 밑 빗소리와 대청마루 풍경소리를 들어보세요.',
+        sounds: [] 
+      },
       {
         status: 200,
         headers: {

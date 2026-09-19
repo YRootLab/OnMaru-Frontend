@@ -73,8 +73,8 @@ export default function SoriMaruBridgeCard({ stories, hanokName }: SoriMaruBridg
           {primaryStory.playTime > 0 && (
             <DurationText>약 {formatSeconds(primaryStory.playTime)} 소요 · </DurationText>
           )}
-          이 건축물의 깊이 있는 역사와 공간 해설은 온마루의 오디오 전문 공간인{' '}
-          <strong>‘소리마루’</strong>에서 고음질 음원과 동기화 대본으로 감상하실 수 있습니다.
+          이 건축물의 역사와 공간 이야기는 <strong>‘소리마루’</strong>에서 들을 수 있어요.{' '}
+          고음질 음원에 대본까지 함께 볼 수 있습니다.
         </GuideDesc>
       </ContentBody>
 

@@ -19,6 +19,8 @@ export function useKCultureThemes(options?: UseScreenHanokOptions) {
   const [items, setItems] = useState<ScreenHanokItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
+  // 최초 마운트 여부 — 첫 로드는 skeleton, 이후 필터 변경은 기존 데이터 유지
+  const isFirstLoad = items.length === 0;
 
   const mediaType = options?.mediaType;
   const region = options?.region;
@@ -27,6 +29,7 @@ export function useKCultureThemes(options?: UseScreenHanokOptions) {
     let ignore = false;
     setIsLoading(true);
     setIsError(false);
+    // items는 여기서 리셋하지 않는다 → 필터 전환 시 기존 카드가 그대로 보임
 
     screenHanokService
       .getScreenHanoks({ mediaType, region })
@@ -74,5 +77,5 @@ export function useKCultureThemes(options?: UseScreenHanokOptions) {
     }
   };
 
-  return { items, isLoading, isError, toggleSave };
+  return { items, isLoading, isFirstLoad, isError, toggleSave };
 }
