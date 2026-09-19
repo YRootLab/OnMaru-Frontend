@@ -4,7 +4,11 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
-- **소리마루 오디오 상세 플레이어 UI/UX 고도화 및 시네마틱 진입 모션 최적화 (`LocalMiniPlayer.tsx`, `PlayerTranscriptPanel.tsx`)**:
+- **GitHub Labels 및 Issue Template 확장 및 정비**:
+  - 온마루 프론트엔드 도메인 및 대중적인 FE 태그를 포함한 38종 GitHub Label 체계(Type, Domain, Scope, Priority, Status) 구축 및 동기화.
+  - 사용자 경험 및 질문/제안 프로세스를 위한 GitHub Issue Template 4종(`ux_improvement.yml`, `inquiry_question.yml`, `bug_report.yml`, `feature_request.yml`) 및 `config.yml` 추가.
+  - `next.config.ts`의 ESM 모듈 참조 및 `process.cwd()` 호환성 개선.
+
   - 상세 모달 최초 진입 시 상단 메타(제목 · 서브제목 · 핵심 해시태그)와 대본 내용 컴포넌트 전체가 순차적으로 부드럽게 slide-up & fade-in 되는 시네마틱 애니메이션 구현.
   - 대본 문단별 개별 분할 stagger 모션을 내용 컴포넌트 전체 덩어리 단위 모션으로 통합하여 시각적 안정성 및 자연스러운 전환감 제공.
   - 모달 내부에서 상단 탭(`현장 사진 뷰어` ↔ `전체 대본 모드`) 전환 시 매번 재실행되지 않고 즉시 온전한 상태를 유지하도록 세션 상태 관리 및 모달 재오픈 시 1회 애니메이션 자동 리셋 적용.
