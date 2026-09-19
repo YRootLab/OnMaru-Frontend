@@ -3,7 +3,7 @@ name: Vercel Direct Deployment
 on:
   push:
     branches:
-      - master
+      - main
       - develop
       - 'release/**'
     tags:
@@ -17,12 +17,15 @@ env:
 
 jobs:
   Deploy-Production:
-    name: Deploy to Production (master / v* tags)
-    if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v')
+    name: Deploy to Production (main / v* tags)
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+          ssh-key: ${{ secrets.SUBMODULE_SSH_KEY }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -49,6 +52,9 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+          ssh-key: ${{ secrets.SUBMODULE_SSH_KEY }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

@@ -6,7 +6,7 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { surface } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import PlaceDetail from './PlaceDetail';
-import PopularPlacesPanel from './warmth/PopularPlacesPanel';
+import PopularPlacesPanel from '@/private/core-ui/map-warmth/PopularPlacesPanel';
 
 const PANEL_WIDTH = 380;
 const PANEL_WIDTH_COMPACT = 360;

@@ -4,6 +4,12 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+- **Private Core UI 서브모듈 분리 및 AI / CI 자동화 체계 구축**:
+  - 핵심 UI 컴포넌트(지도 온기/히트맵 및 소리마루 오디오/플레이어 등 34개 파일)를 비공개 서브모듈(`src/private/core-ui`, `onmaru-core-ui.git`)로 분리 및 이전.
+  - Next.js `@/private/core-ui/*` alias 경로 연동 및 TypeScript 검증 완료.
+  - `package.json`에 `submodule:init`, `submodule:update` 스크립트 추가.
+  - `AGENTS.md` 및 `.agents/AGENTS.md`에 AI 어시스턴트용 Submodule 자동 초기화/동기화 규칙 추가.
+  - GitHub Actions 배포 워크플로우(`deploy.yml`)에 Submodule recursive checkout 및 SSH Key 연동 구성.
 - **스크린 속 한옥 (Issue #103) 백엔드 API 연동 및 Fallback 큐레이션 보강**:
   - `GET /api/v1/hanoks/screen-hanok` 엔드포인트 연동 서비스(`screenHanok.service.ts`), `useKCultureThemes` 훅, `KCultureThemeFeed` 카드 UI를 Issue #103 명세 계약에 맞게 정비.
   - 백엔드 실서버 미배포(404) 시에도 드라마/영화/K-POP 탭별로 풍부한 큐레이션이 노출되도록 명세 기반 표준 Fallback 데이터셋(7종)을 적용. 백엔드 배포 후에는 코드 수정 없이 실데이터가 우선 노출됨.
