@@ -4,6 +4,8 @@ Backlog for follow-up improvements that are useful but not required to resume th
 
 ## Open
 
+- 백엔드 실서버(`onmaru-backend.onrender.com`)에 `GET /api/v1/hanoks/screen-hanok`가 배포되면 실데이터 스모크 테스트 후 `screenHanok.service.ts`의 Fallback 큐레이션 데이터셋(7종) 유지/축소 여부를 검토한다. (Refs #103 — 이슈는 FE 연동 완료로 종료됨, 백엔드 배포는 별도 진행)
+
 - Expose canonical backend `placeId` in Hanok and Odii view models so the shared saved-place button can be attached to those cards without falling back to legacy TourAPI `contentId` or Odii `stid`.
 
 - Re-design the `OdiiEditorialRail` card index badge UI (currently restored to a compact top-left rounded white badge); explore more native editorial numbering styles.
