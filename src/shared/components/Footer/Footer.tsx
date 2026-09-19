@@ -370,7 +370,7 @@ export default function Footer() {
 
             {/* 4. 최하단 초대형 OnMaru 워터마크 타이포그래피 */}
             <MassiveWatermark aria-hidden="true">
-              OnMaru
+              한옥의 숨결과 소리를 잇다
             </MassiveWatermark>
           </ContentArea>
         </FooterInner>

@@ -6,6 +6,7 @@ import styled from '@emotion/styled';
 import { MapPin, ArrowRight, Volume2 } from 'lucide-react';
 import { palette, meok, fontSize, ringShadow } from '@/design-system/tokens';
 import { useJourneyStore } from '../store/useJourneyStore';
+import { defaultHanokRepository } from '@/features/hanok-archive/api/hanokApi';
 
 const FeedContainer = styled.div`
   width: min(calc(100% - 40px), 1140px);
@@ -14,31 +15,20 @@ const FeedContainer = styled.div`
   padding: 24px 0 80px;
   display: flex;
   flex-direction: column;
-  gap: 48px;
+  gap: 120px;
 
   @media (max-width: 1024px) {
     width: calc(100% - 28px);
     padding-bottom: 60px;
-    gap: 40px;
+    gap: 74px;
   }
 
   @media (max-width: 640px) {
     width: calc(100% - 24px);
-    gap: 32px;
+    gap: 52px;
   }
 `;
 
-const SectionDivider = styled.hr`
-  border: none;
-  height: 1px;
-  width: 100%;
-  margin: 0;
-  background: rgba(0, 0, 0, 0.07);
-
-  [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.08);
-  }
-`;
 
 const SectionHeader = styled.div`
   display: flex;
@@ -523,6 +513,53 @@ const RECOMMENDED_COURSES = [
   },
 ];
 
+interface RecommendedCourse {
+  id: string;
+  badge: string;
+  title: string;
+  description: string;
+  image: string;
+  query: string;
+  tags: string[];
+}
+
+/** 백엔드 /hanoks 실데이터를 코스 카드로 매핑. 썸네일 없는 항목은 제외. */
+function useRecommendedCourses(): { courses: RecommendedCourse[]; loading: boolean } {
+  const [courses, setCourses] = useState<RecommendedCourse[]>(RECOMMENDED_COURSES);
+  const [loading, setLoading] = useState(!!process.env.NEXT_PUBLIC_API_URL);
+
+  useEffect(() => {
+    if (!process.env.NEXT_PUBLIC_API_URL) return;
+    let cancelled = false;
+    defaultHanokRepository
+      .listHanoks({ limit: 3 })
+      .then((res) => {
+        if (cancelled) return;
+        const mapped: RecommendedCourse[] = res.items
+          .filter((item) => !!item.thumbnailUrl)
+          .map((item) => ({
+            id: item.placeId,
+            badge: item.regionName,
+            title: item.name,
+            description: item.summary,
+            image: item.thumbnailUrl as string,
+            query: `${item.regionName} ${item.name}`,
+            tags: item.tags.map((t) => `#${t}`),
+          }));
+        if (mapped.length > 0) setCourses(mapped);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return { courses, loading };
+}
+
 /** /api/home/trending-sounds 반환 스키마 */
 interface TrendingSound {
   id: string;
@@ -603,6 +640,7 @@ export default function JourneyDiscoveryFeed() {
   const setQuery = useJourneyStore((s) => s.setQuery);
   const submitSearch = useJourneyStore((s) => s.submitSearch);
   const { sounds: trendingSounds, loading: soundsLoading } = useTrendingSounds();
+  const { courses } = useRecommendedCourses();
 
   const handleSelectCourse = (query: string) => {
     setQuery(query);
@@ -621,7 +659,7 @@ export default function JourneyDiscoveryFeed() {
         </SectionHeader>
 
         <CourseGrid>
-          {RECOMMENDED_COURSES.map((course) => (
+          {courses.map((course) => (
             <CourseCard key={course.id} onClick={() => handleSelectCourse(course.query)}>
               <CourseImageWrap>
                 <CourseImage src={course.image} alt={course.title} loading="lazy" />
@@ -649,9 +687,6 @@ export default function JourneyDiscoveryFeed() {
           ))}
         </CourseGrid>
       </section>
-
-      {/* 구분선 1 */}
-      <SectionDivider />
 
       {/* 2. 소리마루 인기 프리뷰 */}
       <section>
@@ -688,9 +723,6 @@ export default function JourneyDiscoveryFeed() {
               ))}
         </SoundGrid>
       </section>
-
-      {/* 구분선 2 */}
-      <SectionDivider />
 
       {/* 3. 지역별 한옥 퀵 탐색 */}
       <section>

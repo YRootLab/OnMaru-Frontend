@@ -53,6 +53,14 @@ export function getApiV1BaseUrl(): string {
   return resolveApiBase(apiClientConfig.baseUrl);
 }
 
+/**
+ * 카카오 로그인처럼 fetch가 아니라 브라우저 자체를 리다이렉트시켜야 하는 호출부가 쓴다.
+ * /auth/kakao/login, /auth/kakao/callback은 /api/v1이 아니라 백엔드 루트에 있다.
+ */
+export function getApiRootBaseUrl(): string {
+  return apiClientConfig.baseUrl.replace(/\/+$/, '');
+}
+
 function isInternalNextApiPath(path: string): boolean {
   return path.startsWith('/api/');
 }
