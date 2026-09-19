@@ -1087,7 +1087,7 @@ export const LocalMiniPlayer: React.FC = () => {
                       />
                     )}
                     <Compass size={15} className="tab-icon" strokeWidth={2.2} />
-                    <span>현장 사진 뷰어</span>
+                    <span>현장 사진</span>
                   </SegmentTab>
 
                   <SegmentTab
@@ -1103,7 +1103,7 @@ export const LocalMiniPlayer: React.FC = () => {
                       />
                     )}
                     <BookOpen size={15} className="tab-icon" strokeWidth={2.2} />
-                    <span>전체 대본 모드</span>
+                    <span>전체 대본</span>
                   </SegmentTab>
                 </SegmentedControl>
 
