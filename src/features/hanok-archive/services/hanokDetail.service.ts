@@ -1,11 +1,70 @@
 import { TourApiClient } from '@/lib/tour-api/tourApiClient';
 import { toHttps } from '@/features/map/utils/formatters';
+import { apiGet } from '@/lib/api/client';
+
+/** 백엔드 GET /api/v1/hanoks/{placeId} 응답. 실서버 호출로 검증한 실제 shape (2026-09-19). */
+interface BackendPlaceDetail {
+  placeId: string;
+  name: string;
+  address: string;
+  coordinates: { lat: number; lng: number };
+  images: { url: string; alt: string }[];
+  description: string;
+  highlights?: string[];
+  contentTags: string[];
+}
 
 export class HanokDetailService {
   /**
-   * 한옥 아카이브 항목의 상세 정보 (기본 정보, 소개 정보, 반복 정보, 이미지 목록)를 조회합니다.
+   * FE #90: 백엔드(/api/v1/hanoks/{placeId})를 먼저 시도하고, 실패하거나 백엔드가
+   * 설정되지 않았으면 기존 TourAPI 상세 경로로 폴백한다.
    */
   public static async getHanokDetail(
+    contentId: string,
+    contentTypeIdParam?: string | null,
+  ) {
+    if (process.env.NEXT_PUBLIC_API_URL) {
+      try {
+        return await this.getPlaceDetailFromBackend(contentId);
+      } catch (err) {
+        console.warn('[HanokDetailService] backend /hanoks failed, falling back to TourAPI:', err);
+      }
+    }
+    return this.getHanokDetailFromTourApi(contentId, contentTypeIdParam);
+  }
+
+  private static async getPlaceDetailFromBackend(placeId: string) {
+    // FE #90: 한옥 도감 상세는 범용 /places가 아니라 한옥 전용 /hanoks/{placeId}를 쓴다
+    // (highlights, mapCard/odiiLinkedCard 등 한옥 특화 필드가 여기에만 있다).
+    const detail = await apiGet<BackendPlaceDetail>(`/hanoks/${encodeURIComponent(placeId)}`);
+
+    return {
+      overview: detail.description || null,
+      homepage: null,
+      tel: null,
+      usetime: null,
+      restdate: null,
+      parking: null,
+      expguide: null,
+      checkin: null,
+      checkout: null,
+      roomtype: null,
+      roomcount: null,
+      subfacility: null,
+      barbecue: null,
+      chkcooking: null,
+      refundregulation: null,
+      repeatInfo: [],
+      images: detail.images.map((img) => toHttps(img.url)).filter(Boolean) as string[],
+      lat: detail.coordinates?.lat ?? null,
+      lng: detail.coordinates?.lng ?? null,
+      addr: detail.address || null,
+      item: null,
+      source: 'backend',
+    };
+  }
+
+  private static async getHanokDetailFromTourApi(
     contentId: string,
     contentTypeIdParam?: string | null,
   ) {

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 import { Global, css } from '@emotion/react';
@@ -14,7 +14,7 @@ import KCultureThemeFeed from '@/features/hanok-archive/components/KCultureTheme
 import HanokManifestoCta from '@/features/hanok-archive/sections/HanokManifestoCta';
 import HanokStructureCards from '@/features/hanok-archive/structure/HanokStructureCards';
 import type { Village, VillageMeta } from '@/features/hanok-archive/types';
-import { decodeHanokArchivePayload } from '@/features/hanok-archive/data/hanokArchiveFallback';
+import { useArchiveData } from '@/features/hanok-archive/hooks/useArchiveData';
 import { HANOK_REVEAL_SECTIONS } from '@/features/hanok-archive/hanokSectionReveal';
 import type { HanokFilterState } from '@/features/hanok-archive/sections/hanokFilterQuery';
 import { VesselReveal } from '@/shared/components/animation/VesselReveal';
@@ -237,47 +237,7 @@ interface HanokArchiveProps {
 export default function HanokArchive({ villages, meta, initialFilters }: HanokArchiveProps) {
   const [selectedDogamVillage, setSelectedDogamVillage] = useState<Village | null>(null);
   const [selectedStay, setSelectedStay] = useState<Village | null>(null);
-  const [archiveData, setArchiveData] = useState(() => ({ villages, meta }));
-  // 스냅샷 → 실데이터 교체는 방문당 딱 한 번이어야 한다. 개발 모드의 StrictMode
-  // 이중 실행처럼 이 effect가 두 번 걸리면 archiveData가 다시 한번 바뀌어 regions
-  // 참조도 또 바뀌고, 이미 끝난 분포 차트 입장 연출이 또 리셋된다 — "표가 나타났다가
-  // 안 나타나"가 재발했던 원인. isActive 가드는 취소만 막을 뿐 두 번째로 실제 도착한
-  // 응답까지는 못 막으므로, 교체 자체를 컴포넌트 생애주기당 한 번으로 못박는다.
-  const hasSwappedRef = useRef(false);
-
-  useEffect(() => {
-    if (hasSwappedRef.current) return undefined;
-
-    let isActive = true;
-    const controller = new AbortController();
-    const timeoutId = window.setTimeout(() => controller.abort(), 5000);
-
-    async function refreshArchive() {
-      try {
-        const response = await fetch('/api/tourapi', {
-          cache: 'no-store',
-          signal: controller.signal,
-        });
-        if (!response.ok) return;
-        const nextData = decodeHanokArchivePayload(await response.json());
-        if (isActive && nextData && !hasSwappedRef.current) {
-          hasSwappedRef.current = true;
-          setArchiveData(nextData);
-        }
-      } catch {
-        // Snapshot remains visible when the future backend is unavailable or changes shape.
-      } finally {
-        window.clearTimeout(timeoutId);
-      }
-    }
-
-    void refreshArchive();
-    return () => {
-      isActive = false;
-      window.clearTimeout(timeoutId);
-      controller.abort();
-    };
-  }, []);
+  const archiveData = useArchiveData(villages, meta);
 
   useEffect(
     () =>
@@ -308,8 +268,14 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
       <Global styles={paperGround} />
       <HanokSideIndex />
       <PageInner>
+        {/*
+          블러 세기를 섹션마다 2px씩 늘려간다 — 위쪽(막 들어왔을 때)은 옅게, 스크롤을
+          내려 페이지 깊이 들어갈수록 살짝 진하게. 전부 같은 세기로 블러졌다 걷히면
+          "그냥 켜졌다 꺼지는" 느낌이라, 깊이에 따라 갈리게 해서 스크롤 자체가
+          한 걸음씩 더 깊어진다는 인상을 준다. Footer(16px)까지 이 흐름의 연장선이다.
+        */}
         {/* 진입부: 한국의 정취를 담은 히어로 */}
-        <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.intro}>
+        <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.intro} blurFrom="2px">
           <IntroStage>
             <IntroContent>
               <Intro>
@@ -332,7 +298,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
 
         {/* K-컬처 & 웰니스 테마 큐레이션: K-드라마, 촌캉스, 야간기행, 종가 미식 (토스/당근 스타일) */}
         <EditorialSection>
-          <StyledVesselReveal id="hanok-kculture-themes">
+          <StyledVesselReveal id="hanok-kculture-themes" blurFrom="4px">
             <SectionContainer>
               <KCultureThemeFeed />
             </SectionContainer>
@@ -345,7 +311,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
           카드를 눌러야 3D 모달이 열리므로 도감 본문 스크롤은 그대로 둔다.
         */}
         <ChapterBreak>
-          <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.structure}>
+          <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.structure} blurFrom="6px">
             <SectionContainer>
               <HanokStructureCards />
             </SectionContainer>
@@ -354,7 +320,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
 
         {/* 구조를 이해했으니 실물로 — 전국 한옥 도감 ➔ 지역별 한옥 스테이 */}
         <ChapterBreak>
-          <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.grid}>
+          <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.grid} blurFrom="8px">
             <SectionContainer>
               <HanokGrid
                 villages={archiveData.villages}
@@ -365,7 +331,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
           </StyledVesselReveal>
 
           <ArchiveSection>
-            <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.stay}>
+            <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.stay} blurFrom="10px">
               <SectionContainer>
                 <HanokStayAccordion
                   villages={archiveData.villages}
@@ -378,7 +344,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
 
         {/* 도감과 스테이를 둘러봤으니 지도로 — 어느 채가 어디 있는지 짚어 준다 */}
         <ChapterBreak>
-          <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.map}>
+          <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.map} blurFrom="12px">
             <SectionContainer>
               <HanokMap
                 villages={archiveData.villages}
@@ -395,7 +361,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
         </ChapterBreak>
 
         {/* 온마루 한옥 매니페스토 (자체 상하 여백을 가지고 있다) */}
-        <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.manifesto}>
+        <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.manifesto} blurFrom="14px">
           <SectionContainer>
             <HanokManifestoCta />
           </SectionContainer>

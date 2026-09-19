@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState, useEffect, useRef } from 'react';
+import React, { useMemo, useState, useRef } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
@@ -27,10 +27,11 @@ import {
 } from 'lucide-react';
 import { meok, palette, surface , fontSize } from '@/design-system/tokens';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
-import type { Village, VillageDetailResponse } from '@/features/hanok-archive/types';
+import type { Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
 import { useHanokAudioGuide } from '@/features/hanok-archive/hooks/useHanokAudioGuide';
 import { useHanokTranquility } from '@/features/hanok-archive/hooks/useHanokTranquility';
+import { useHanokDetail } from '@/features/hanok-archive/hooks/useHanokDetail';
 import SoriMaruBridgeCard from './SoriMaruBridgeCard';
 import TranquilityGauge from './TranquilityGauge';
 import {
@@ -123,8 +124,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
   const modalRef = useRef<HTMLDivElement>(null);
   const storyRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
-  const [detailData, setDetailData] = useState<VillageDetailResponse | null>(null);
-  const [isLoadingOverview, setIsLoadingOverview] = useState(true);
+  const { detailData, isLoadingOverview } = useHanokDetail(village);
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeImageIdx, setActiveImageIdx] = useState<number | null>(null);
   const [zoomedImageIdx, setZoomedImageIdx] = useState<number | null>(null);
@@ -153,32 +153,6 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
       lng: village.lng ?? undefined,
     });
   };
-
-  useEffect(() => {
-    let isMounted = true;
-
-    fetch(`/api/tourapi/detail?id=${encodeURIComponent(village.id)}`)
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json();
-      })
-      .then((data: VillageDetailResponse) => {
-        if (isMounted) {
-          setDetailData(data);
-          setIsLoadingOverview(false);
-        }
-      })
-      .catch(() => {
-        if (isMounted) {
-          setDetailData(null);
-          setIsLoadingOverview(false);
-        }
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [village]);
 
   const fetchedOverview = detailData?.overview ? cleanTourApiHtml(detailData.overview) : null;
   // 설명이 있는 건축물이면 TourAPI 원문이나 도감 summary를 풍성하게 노출
