@@ -319,11 +319,11 @@ export function SorimaruQuestionAssistant({ filters, onOpenSource }: SorimaruQue
         body: JSON.stringify({ question: trimmed, filters }),
       });
       const payload = await response.json() as SorimaruAssistantResponse & { error?: string };
-      if (!response.ok) throw new Error(payload.error || '안내를 불러오지 못했습니다');
+      if (!response.ok) throw new Error(payload.error || '안내를 불러오지 못했어요');
       setResult(payload);
     } catch (requestError) {
       setResult(null);
-      setError(requestError instanceof Error ? requestError.message : '안내를 불러오지 못했습니다');
+      setError(requestError instanceof Error ? requestError.message : '안내를 불러오지 못했어요');
     } finally {
       setIsLoading(false);
     }
@@ -364,7 +364,7 @@ export function SorimaruQuestionAssistant({ filters, onOpenSource }: SorimaruQue
             </SubmitButton>
           </InputWrapper>
           {isLoading && <HelperText>소리마루 이야기에서 추천 장소를 찾고 있어요.</HelperText>}
-          {error && <HelperText>{error.includes('아직 구성되지') ? '자연어 안내는 준비 중입니다. 지금은 카테고리와 검색으로 이야기를 찾아보세요.' : error}</HelperText>}
+          {error && <HelperText>{error.includes('아직 구성되지') ? '자연어 안내는 아직 준비 중이에요. 지금은 카테고리와 검색으로 이야기를 찾아보세요.' : error}</HelperText>}
         </FormContainer>
       </CardBox>
 

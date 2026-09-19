@@ -302,7 +302,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                       </a>
                     ) : (
                       <a href={getBookingUrl(stay)} target="_blank" rel="noopener noreferrer">
-                        실시간 예약 현황 보기 <ExternalLink size={12} style={{ display: 'inline' }} />
+                        예약 정보 찾아보기 <ExternalLink size={12} style={{ display: 'inline' }} />
                       </a>
                     )}
                   </InfoVal>
@@ -406,7 +406,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                실시간 예약 & 공실 확인 <ExternalLink size={15} strokeWidth={2} />
+                예약 정보 확인하기 <ExternalLink size={15} strokeWidth={2} />
               </DirectBookingButton>
 
               <MapGuideBtn

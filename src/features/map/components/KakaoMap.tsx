@@ -506,7 +506,7 @@ export default function KakaoMap() {
 
   const locate = () => {
     if (typeof window === 'undefined' || !navigator.geolocation) {
-      toast.error('현재 환경에서 위치 정보를 지원하지 않습니다.');
+      toast.error('현재 환경에서는 위치 정보를 지원하지 않아요.');
       return;
     }
 
@@ -527,7 +527,7 @@ export default function KakaoMap() {
           if (fallbackErr.code === fallbackErr.PERMISSION_DENIED) {
             toast.error('브라우저 상단 주소창 왼쪽의 위치 권한을 [허용]으로 변경해 주세요.');
           } else {
-            toast.error('현재 위치 정보를 가져올 수 없습니다. 기본 위치로 유지됩니다.');
+            toast.error('현재 위치를 가져올 수 없어요. 기본 위치로 보여드릴게요.');
           }
         },
         { enableHighAccuracy: false, timeout: 10000, maximumAge: 0 },

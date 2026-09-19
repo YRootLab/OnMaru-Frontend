@@ -15,8 +15,39 @@ import {
   Loader2,
 } from 'lucide-react';
 import { palette, lightPalette, meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
-import { MOOD_OPTIONS } from '../data/curatedJourneys';
 import { useJourneyStore } from '../store/useJourneyStore';
+import type { MoodId } from '../types/journey.types';
+
+interface MoodOption {
+  id: MoodId;
+  label: string;
+  iconName: string;
+  query: string;
+}
+
+function useMoodOptions(): { moods: MoodOption[]; loading: boolean } {
+  const [moods, setMoods] = React.useState<MoodOption[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    fetch('/api/home/mood-options')
+      .then((r) => r.json())
+      .then((data: { moods: MoodOption[] }) => {
+        if (cancelled) return;
+        setMoods(data.moods ?? []);
+      })
+      .catch(() => {
+        if (!cancelled) setMoods([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, []);
+
+  return { moods, loading };
+}
 
 const Container = styled.div<{ $compact?: boolean }>`
   display: flex;
@@ -411,6 +442,7 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
   const lastError = useJourneyStore((s) => s.lastError);
   const isGenerating = useJourneyStore((s) => s.isGenerating);
   const hasSearched = useJourneyStore((s) => s.hasSearched);
+  const { moods } = useMoodOptions();
 
   const defaultSuggestions = [
     '+ 전통 찻집 더보기',
@@ -487,7 +519,7 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
 
       {!hasSearched && (
         <MoodChipsContainer ref={moodChipsRef}>
-          {MOOD_OPTIONS.map((mood) => {
+          {moods.map((mood) => {
             const isActive = activeMood === mood.id;
             return (
               <MoodChip

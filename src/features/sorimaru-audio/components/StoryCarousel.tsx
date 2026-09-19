@@ -525,32 +525,32 @@ const EdgeFadeRight = styled.div`
   }
 `;
 
-const FloatingNavBtn = styled.button<{ $side: 'left' | 'right' }>`
+const FloatingNavBtn = styled.button<{ $side: 'left' | 'right'; $visible?: boolean }>`
   position: absolute;
   top: 50%;
   z-index: 30;
   display: flex;
-  height: 2rem;
-  width: 2rem;
-  transform: translateY(-50%);
+  height: 2.25rem;
+  width: 2.25rem;
+  transform: translateY(-58%);
   align-items: center;
   justify-content: center;
   border-radius: 9999px;
-  background-color: #ffffff;
-  color: ${meok[900]};
+  background-color: rgba(255, 255, 255, 0.96);
+  color: #1c1a17;
   transition: all 0.2s ease;
   border: none;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.14);
 
   [data-theme='dark'] & {
-    background-color: ${surface.dark.card};
-    color: ${meok[100]};
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background-color: rgba(38, 35, 30, 0.96);
+    color: #f0ede8;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 
     &:hover {
-      background-color: ${surface.dark.elevated};
+      background-color: rgba(52, 48, 42, 1);
       color: ${palette.juhong[400]};
     }
   }
@@ -562,18 +562,19 @@ const FloatingNavBtn = styled.button<{ $side: 'left' | 'right' }>`
         @media (min-width: 640px) { left: 0.75rem; }
       `
       : `
-        right: 0.25rem;
-        @media (min-width: 640px) { right: 0.5rem; }
+        right: 0.5rem;
+        @media (min-width: 640px) { right: 0.75rem; }
       `}
 
   &:hover {
-    background-color: #f8f8f7;
-    transform: translateY(-50%) scale(1.1);
+    background-color: #ffffff;
+    transform: translateY(-58%) scale(1.1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
   }
 
   @media (min-width: 640px) {
-    height: 2.25rem;
-    width: 2.25rem;
+    height: 2.5rem;
+    width: 2.5rem;
   }
 `;
 

@@ -761,7 +761,7 @@ export default function HanokStayAccordion({
                               rel="noopener noreferrer"
                               onClick={(e) => e.stopPropagation()}
                             >
-                              지금 예약하기 <ExternalLink size={13} strokeWidth={2} />
+                              예약 정보 확인하기 <ExternalLink size={13} strokeWidth={2} />
                             </DirectBookingBtn>
                             {(onSelectStay || onSelectVillage) && (
                               <DetailActionBtn
@@ -800,15 +800,15 @@ export default function HanokStayAccordion({
           {selectedRegion === '전체' ? (
             <>
               <EmptyHeadline>아직 기록된 한옥 스테이가 없습니다</EmptyHeadline>
-              <EmptyHint>잠시 뒤에 다시 열어 보시겠어요?</EmptyHint>
+              <EmptyHint>잠시 후 다시 확인해 주세요.</EmptyHint>
             </>
           ) : (
             <>
               <EmptyHeadline>{selectedRegion}에는 아직 묵어갈 한옥이 없습니다</EmptyHeadline>
               <EmptyHint>
-                이 지역에서 하룻밤 묵어본 한옥이 있으신가요?
+                이 지역은 아직 모으는 중이에요.
                 <br />
-                알려주시면 도감에 더하겠습니다.
+                다른 지역의 한옥 스테이부터 둘러보시겠어요?
               </EmptyHint>
               <EmptyAction type="button" onClick={() => handleRegionSelect('전체')}>
                 전국 한옥 스테이 {allStays.length}곳 보기
