@@ -10,6 +10,7 @@
 
 import { useRef } from 'react';
 import styled from '@emotion/styled';
+import { motion } from 'framer-motion';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { meok, fontSize } from '@/design-system/tokens';
@@ -29,7 +30,8 @@ const Rail = styled.div`
   gap: 0;
   overflow-x: auto;
   scroll-snap-type: x proximity;
-  padding: 4px 4px 12px;
+  padding: 6px 4px 14px;
+  margin: -4px -4px -14px;
 
   @media (max-width: 767px) {
     scroll-snap-type: x mandatory;
@@ -38,6 +40,12 @@ const Rail = styled.div`
       scroll-snap-align: start;
     }
   }
+`;
+
+const CardItemWrap = styled(motion.div)`
+  display: flex;
+  align-items: flex-start;
+  flex-shrink: 0;
 `;
 
 const ConnectorWrap = styled.div<{ $width: number }>`
@@ -110,7 +118,13 @@ export default function JourneyFlowRail({ board }: JourneyFlowRailProps) {
         const leg = board.legs.find((l) => l.order === idx + 1 && l.fromRef.id === place.ref.id);
 
         return (
-          <div key={place.ref.id} role="listitem" style={{ display: 'contents' }}>
+          <CardItemWrap
+            key={place.ref.id}
+            role="listitem"
+            initial={reduceMotion ? false : { opacity: 0, y: 20, filter: 'blur(10px)' }}
+            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            transition={{ duration: 0.55, delay: idx * 0.08, ease: [0.16, 1, 0.3, 1] }}
+          >
             <JourneyPlaceCard
               order={idx + 1}
               candidate={candidate}
@@ -128,7 +142,7 @@ export default function JourneyFlowRail({ board }: JourneyFlowRailProps) {
                 <ConnectorLabel>{distanceLabel(leg.distanceMeters, leg.distanceBand)}</ConnectorLabel>
               </ConnectorWrap>
             )}
-          </div>
+          </CardItemWrap>
         );
       })}
     </Rail>

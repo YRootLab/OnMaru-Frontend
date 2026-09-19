@@ -11,37 +11,14 @@
 
 import { useState } from 'react';
 import styled from '@emotion/styled';
-import { Global, css } from '@emotion/react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { Printer } from 'lucide-react';
 import { meok, palette, fontSize } from '@/design-system/tokens';
 import { useJourneyStore } from '../store/useJourneyStore';
 import JourneyFlowRail from './JourneyFlowRail';
 import JourneyMapView from './JourneyMapView';
 import JourneyRelationView from './JourneyRelationView';
 import JourneyPlaceCard, { type PlaceCardState } from './JourneyPlaceCard';
-import JourneySaveButton from './JourneySaveButton';
-import JourneyPrintView from './JourneyPrintView';
 import type { JourneyBoard, PlaceResource, ResourceRef } from '../types/exploration.types';
-
-/** 인쇄 시 나머지 화면은 숨기고 .journey-print-view만 보여준다(표준 인쇄 격리 패턴). */
-const printStyles = css`
-  @media print {
-    body * {
-      visibility: hidden;
-    }
-    .journey-print-view,
-    .journey-print-view * {
-      visibility: visible;
-    }
-    .journey-print-view {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-    }
-  }
-`;
 
 type ViewMode = 'JOURNEY' | 'MAP' | 'RELATION';
 const VIEW_LABEL: Record<ViewMode, string> = { JOURNEY: '여정', MAP: '지도', RELATION: '연결' };
@@ -78,30 +55,6 @@ const HeaderRow = styled.div`
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
-`;
-
-const HeaderActions = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-shrink: 0;
-`;
-
-const PrintButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: none;
-  border: none;
-  padding: 6px 2px;
-  cursor: pointer;
-  font-size: ${fontSize.xs};
-  font-weight: 500;
-  color: ${meok[500]};
-
-  &:hover {
-    color: ${meok[900]};
-  }
 `;
 
 const QuerySummary = styled.p`
@@ -191,7 +144,6 @@ function findRegionTitle(board: JourneyBoard): string {
 
 export default function JourneyFlowRailSection() {
   const board = useJourneyStore((s) => s.explorationBoard);
-  const boardCreatedAt = useJourneyStore((s) => s.boardCreatedAt);
   const isExploring = useJourneyStore((s) => s.isExploring);
   const pendingProposal = useJourneyStore((s) => s.pendingProposal);
   const applyProposal = useJourneyStore((s) => s.applyProposal);
@@ -287,10 +239,10 @@ export default function JourneyFlowRailSection() {
 
             <ProposalActions>
               <ApplyButton type="button" onClick={applyProposal}>
-                적용
+                수정된 코스 적용하기
               </ApplyButton>
               <CancelButton type="button" onClick={dismissProposal}>
-                취소
+                원래 코스 유지하기
               </CancelButton>
             </ProposalActions>
           </Wrap>
@@ -304,27 +256,17 @@ export default function JourneyFlowRailSection() {
     <AnimatePresence mode="wait">
       <motion.div
         key={`board-${board.title}`}
-        initial={reduceMotion ? false : { opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={reduceMotion ? undefined : { opacity: 0 }}
-        transition={{ duration: 0.2 }}
+        initial={reduceMotion ? false : { opacity: 0, y: 24, filter: 'blur(10px)' }}
+        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+        exit={reduceMotion ? undefined : { opacity: 0, filter: 'blur(8px)' }}
+        transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
       >
         <Wrap style={{ opacity: isExploring ? 0.6 : 1, transition: 'opacity 0.2s ease' }}>
-          <Global styles={printStyles} />
-          <JourneyPrintView board={board} createdAt={boardCreatedAt} />
-
           <HeaderRow>
             <div>
               <SectionTitle>{board.title}</SectionTitle>
               <QuerySummary>{board.querySummary}</QuerySummary>
             </div>
-            <HeaderActions>
-              <PrintButton type="button" onClick={() => window.print()}>
-                <Printer size={15} strokeWidth={2} />
-                <span>PDF로 저장</span>
-              </PrintButton>
-              <JourneySaveButton />
-            </HeaderActions>
           </HeaderRow>
 
           <ViewTabs role="tablist" aria-label="여정 보기 전환">

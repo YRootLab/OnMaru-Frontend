@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import styled from '@emotion/styled';
-import { Sparkles, Headphones, Compass, MapPin, ArrowRight, Volume2 } from 'lucide-react';
-import { palette, meok, fontSize } from '@/design-system/tokens';
+import { MapPin, ArrowRight, Volume2 } from 'lucide-react';
+import { palette, meok, fontSize, ringShadow } from '@/design-system/tokens';
 import { useJourneyStore } from '../store/useJourneyStore';
 
 const FeedContainer = styled.div`
@@ -44,23 +44,13 @@ const SectionHeader = styled.div`
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 `;
 
 const SectionTitleGroup = styled.div`
   display: flex;
   flex-direction: column;
   gap: 6px;
-`;
-
-const SectionBadge = styled.span`
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: ${fontSize.xs};
-  font-weight: 700;
-  color: ${palette.juhong[500]};
-  letter-spacing: 0.02em;
 `;
 
 const SectionTitle = styled.h2`
@@ -95,10 +85,17 @@ const CourseGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
+  padding: 6px 4px 14px;
+  margin: -6px -4px -14px;
 
-  @media (max-width: 960px) {
-    grid-template-columns: 1fr;
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
     gap: 16px;
+  }
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+    gap: 14px;
   }
 `;
 
@@ -111,21 +108,21 @@ const CourseCard = styled.button`
   overflow: hidden;
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-shadow: ${ringShadow.light.card};
   transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
 
   [data-theme='dark'] & {
     background: #24211d;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+    box-shadow: ${ringShadow.dark.card};
   }
 
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.10);
+    transform: translateY(-2px);
+    box-shadow: ${ringShadow.light.cardHoverGlow};
 
     [data-theme='dark'] & {
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.50);
+      box-shadow: ${ringShadow.dark.cardHoverGlow};
     }
   }
 
@@ -143,6 +140,10 @@ const CourseImageWrap = styled.div`
 
   [data-theme='dark'] & {
     background: #1c1a17;
+  }
+
+  @media (max-width: 640px) {
+    height: 170px;
   }
 `;
 
@@ -179,6 +180,10 @@ const CourseBody = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
+
+  @media (max-width: 640px) {
+    padding: 16px;
+  }
 `;
 
 const CourseTitle = styled.h3`
@@ -192,6 +197,10 @@ const CourseTitle = styled.h3`
   [data-theme='dark'] & {
     color: #f8f9fa;
   }
+
+  @media (max-width: 640px) {
+    font-size: 16.5px;
+  }
 `;
 
 const CourseDesc = styled.p`
@@ -203,6 +212,11 @@ const CourseDesc = styled.p`
 
   [data-theme='dark'] & {
     color: #a1a1aa;
+  }
+
+  @media (max-width: 640px) {
+    font-size: 13.5px;
+    margin-bottom: 12px;
   }
 `;
 
@@ -242,14 +256,22 @@ const ExploreText = styled.span`
   color: ${palette.juhong[500]};
 `;
 
-/* ── 2. 소리마루 인기 ASMR 프리뷰 ── */
+/* ── 2. 소리마루 인기 프리뷰 ── */
 const SoundGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
+  padding: 6px 4px 12px;
+  margin: -6px -4px -12px;
 
-  @media (max-width: 840px) {
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
+  @media (max-width: 640px) {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
 `;
 
@@ -260,21 +282,22 @@ const SoundCard = styled(Link)`
   background: #ffffff;
   border-radius: 18px;
   padding: 16px 18px;
-  box-shadow: 0 3px 16px rgba(0, 0, 0, 0.04);
+  border: none;
+  box-shadow: ${ringShadow.light.card};
   text-decoration: none;
   transition: all 0.22s ease;
 
   [data-theme='dark'] & {
     background: #24211d;
-    box-shadow: 0 3px 16px rgba(0, 0, 0, 0.3);
+    box-shadow: ${ringShadow.dark.card};
   }
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    box-shadow: ${ringShadow.light.cardHoverGlow};
 
     [data-theme='dark'] & {
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+      box-shadow: ${ringShadow.dark.cardHoverGlow};
     }
   }
 `;
@@ -343,10 +366,12 @@ const SkeletonCard = styled.div`
   background: #ffffff;
   border-radius: 18px;
   padding: 16px 18px;
-  box-shadow: 0 3px 16px rgba(0, 0, 0, 0.04);
+  border: none;
+  box-shadow: ${ringShadow.light.card};
 
   [data-theme='dark'] & {
     background: #24211d;
+    box-shadow: ${ringShadow.dark.card};
   }
 `;
 
@@ -392,6 +417,8 @@ const RegionGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 12px;
+  padding: 6px 4px 10px;
+  margin: -6px -4px -10px;
 
   @media (max-width: 960px) {
     grid-template-columns: repeat(3, 1fr);
@@ -412,22 +439,24 @@ const RegionCard = styled.button`
   border-radius: 16px;
   border: none;
   cursor: pointer;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  box-shadow: ${ringShadow.light.button};
   transition: all 0.2s ease;
   text-align: center;
   gap: 6px;
 
   [data-theme='dark'] & {
     background: #24211d;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+    box-shadow: ${ringShadow.dark.button};
   }
 
   &:hover {
     transform: translateY(-2px);
     background: ${palette.juhong[50]};
+    box-shadow: ${ringShadow.light.buttonHoverGlow};
 
     [data-theme='dark'] & {
       background: rgba(255, 85, 0, 0.12);
+      box-shadow: ${ringShadow.dark.buttonHoverGlow};
     }
   }
 
@@ -469,7 +498,7 @@ const RECOMMENDED_COURSES = [
     id: 'course-seochon',
     badge: '서울 종로',
     title: '비 내리는 서촌 골목길과 한옥 찻집',
-    description: '인왕산 자락 아래 빗소리와 툇마루에서 즐기는 따뜻한 차 한 잔',
+    description: '인왕산 자락 아래 빗소리와 툇마루 차 한 잔',
     image: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=800&q=80',
     query: '비 오는 날 걷기 좋은 고즈넉한 서울 서촌 한옥길',
     tags: ['#서촌', '#상촌재', '#골목산책'],
@@ -478,7 +507,7 @@ const RECOMMENDED_COURSES = [
     id: 'course-bukchon',
     badge: '서울 북촌',
     title: '북촌 100년 고택에서 즐기는 고즈넉한 쉼',
-    description: '백인제가옥부터 삼청동 돌담길까지 이어지는 감성 시간 여행',
+    description: '백인제가옥부터 삼청동 돌담길까지 이어지는 산책',
     image: 'https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?auto=format&fit=crop&w=800&q=80',
     query: '북촌 백인제가옥과 삼청동 돌담길 고즈넉한 쉼',
     tags: ['#북촌', '#백인제가옥', '#전통마루'],
@@ -487,7 +516,7 @@ const RECOMMENDED_COURSES = [
     id: 'course-jeonju',
     badge: '전북 전주',
     title: '달빛 아래 전주 한옥마을과 남부시장',
-    description: '은은한 한지 등불 골목과 정겨운 야시장 먹거리의 정취',
+    description: '은은한 한지 등불 골목과 정겨운 야시장',
     image: 'https://images.unsplash.com/photo-1596401057633-54a8fe8ef647?auto=format&fit=crop&w=800&q=80',
     query: '전주 한옥마을과 남부시장 정겨운 야경 여정',
     tags: ['#전주한옥마을', '#경기전', '#남부시장'],
@@ -586,12 +615,8 @@ export default function JourneyDiscoveryFeed() {
       <section>
         <SectionHeader>
           <SectionTitleGroup>
-            <SectionBadge>
-              <Sparkles size={14} />
-              <span>에디터 큐레이션</span>
-            </SectionBadge>
             <SectionTitle>이번 주 추천 한옥 코스</SectionTitle>
-            <SectionDescription>이야기와 소리가 머무는 특별한 한옥 여행지 3곳을 만나보세요.</SectionDescription>
+            <SectionDescription>정취와 소리가 머무는 특별한 여행지예요.</SectionDescription>
           </SectionTitleGroup>
         </SectionHeader>
 
@@ -615,7 +640,7 @@ export default function JourneyDiscoveryFeed() {
                     ))}
                   </TagList>
                   <ExploreText>
-                    <span>코스 보기</span>
+                    <span>일정 보기</span>
                     <ArrowRight size={12} />
                   </ExploreText>
                 </CourseFooter>
@@ -628,16 +653,12 @@ export default function JourneyDiscoveryFeed() {
       {/* 구분선 1 */}
       <SectionDivider />
 
-      {/* 2. 소리마루 인기 ASMR 프리뷰 */}
+      {/* 2. 소리마루 인기 프리뷰 */}
       <section>
         <SectionHeader>
           <SectionTitleGroup>
-            <SectionBadge>
-              <Headphones size={14} />
-              <span>소리로 떠나는 여행</span>
-            </SectionBadge>
-            <SectionTitle>지금 많이 듣는 소리마루</SectionTitle>
-            <SectionDescription>실제 한옥 현장에서 채집한 힐링 자연음과 해설을 감상해보세요.</SectionDescription>
+            <SectionTitle>지금 인기 있는 한옥 소리</SectionTitle>
+            <SectionDescription>처마 밑 빗소리와 대청마루 풍경소리를 들어보세요.</SectionDescription>
           </SectionTitleGroup>
         </SectionHeader>
 
@@ -675,12 +696,8 @@ export default function JourneyDiscoveryFeed() {
       <section>
         <SectionHeader>
           <SectionTitleGroup>
-            <SectionBadge>
-              <Compass size={14} />
-              <span>지역별 둘러보기</span>
-            </SectionBadge>
-            <SectionTitle>전국 한옥 명소 퀵 브라우징</SectionTitle>
-            <SectionDescription>가고 싶은 지역을 선택하면 맞춤형 여정 코스를 바로 추천해 드립니다.</SectionDescription>
+            <SectionTitle>지역별 한옥 둘러보기</SectionTitle>
+            <SectionDescription>가보고 싶은 지역의 추천 일정을 확인해 보세요.</SectionDescription>
           </SectionTitleGroup>
         </SectionHeader>
 

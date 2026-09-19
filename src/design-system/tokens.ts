@@ -109,6 +109,56 @@ export const glass = {
   },
 } as const;
 
+// ------------------------------------------------------------
+// 가상 보더 링 & 섀도우 토큰 (Border-free Ring Shadow)
+// ------------------------------------------------------------
+// 실제 border: 1px 대신 box-shadow의 1px 스프레드를 활용하여
+// 레이아웃 밀림(Layout Shift) 없이 초정밀 안티앨리어싱 외곽선을 렌더링합니다.
+// 호버 시 사방으로 인위적인 선 없이 은은한 4방향 다층 그라데이션(주홍→황금 온기 후광)이
+// 과하게 퍼지지 않고 정갈하게 피어납니다.
+export const ringShadow = {
+  light: {
+    /** 🏷️ 기본 카드 / 패널: 인위적인 선 없이 공기처럼 가볍고 은은한 디퓨즈 그림자 */
+    card: '0 0 0 1px rgba(0, 0, 0, 0.035), 0 2px 8px -2px rgba(0, 0, 0, 0.03), 0 8px 24px -4px rgba(0, 0, 0, 0.035)',
+    /** 🏷️ 카드 호버: 은은하게 피어오르는 부드러운 깊이감 */
+    cardHover: '0 0 0 1px rgba(0, 0, 0, 0.05), 0 6px 16px -2px rgba(0, 0, 0, 0.05), 0 14px 28px -6px rgba(0, 0, 0, 0.05)',
+    /** 🌟 [HOVER] 카드 전용 4방향 은은한 그라데이션 글로우 (상단 잘림 없이 안정적으로 맺히는 단청 온기 후광) */
+    cardHoverGlow: '0 0 0 1px rgba(0, 0, 0, 0.045), 0 2px 8px 0 rgba(255, 120, 50, 0.07), 0 4px 16px -2px rgba(212, 175, 55, 0.05), 0 6px 20px -4px rgba(0, 0, 0, 0.05)',
+    /** 🌟 [HOVER] 사방으로 은은하게 퍼지는 단청 그라데이션 아우라 */
+    gradientHoverGlow: '0 0 0 1px rgba(0, 0, 0, 0.045), 0 2px 8px 0 rgba(255, 120, 50, 0.07), 0 4px 14px -2px rgba(212, 175, 55, 0.05), 0 6px 18px -4px rgba(0, 0, 0, 0.04)',
+    /** 🔘 버튼 / 칩셋: 테두리 느낌을 최소화한 초미세 소프트 섀도우 */
+    button: '0 0 0 1px rgba(0, 0, 0, 0.04), 0 1px 4px rgba(0, 0, 0, 0.025)',
+    /** 🔘 버튼 호버: 살포시 떠오르는 에어리 섀도우 */
+    buttonHover: '0 0 0 1px rgba(0, 0, 0, 0.07), 0 3px 10px -1px rgba(0, 0, 0, 0.04)',
+    /** 🌟 [HOVER] 버튼/칩셋 전용 4방향 콤팩트 그라데이션 글로우 (상단 잘림 방지 콤팩트 앰비언스) */
+    buttonHoverGlow: '0 0 0 1px rgba(0, 0, 0, 0.055), 0 1px 6px 0 rgba(255, 120, 50, 0.07), 0 2px 10px -1px rgba(212, 175, 55, 0.05), 0 2px 6px rgba(0, 0, 0, 0.03)',
+    /** 🟠 단청 주홍 활성 / 포커스 링 */
+    focusJuhong: '0 0 0 1px rgba(255, 85, 0, 0.35), 0 0 0 4px rgba(255, 85, 0, 0.08), 0 4px 12px rgba(255, 85, 0, 0.08)',
+    /** 🔍 검색창 / 인풋 필드 */
+    input: '0 0 0 1px rgba(0, 0, 0, 0.045), 0 10px 30px -4px rgba(0, 0, 0, 0.05), 0 2px 8px rgba(0, 0, 0, 0.02)',
+    inputFocus: '0 0 0 1px rgba(0, 0, 0, 0.12), 0 0 0 4px rgba(0, 0, 0, 0.03), 0 16px 40px -6px rgba(0, 0, 0, 0.08)',
+  },
+  dark: {
+    /** 🏷️ 다크모드 카드: 선 없이 배경에 녹아드는 깊은 앰비언트 섀도우 */
+    card: '0 0 0 1px rgba(255, 255, 255, 0.05), 0 4px 20px rgba(0, 0, 0, 0.38)',
+    cardHover: '0 0 0 1px rgba(255, 255, 255, 0.09), 0 10px 28px rgba(0, 0, 0, 0.50)',
+    /** 🌟 [HOVER 다크모드] 카드 전용 4방향 영롱한 단청 그라데이션 글로우 (상단 잘림 없는 깊은 빛) */
+    cardHoverGlow: '0 0 0 1px rgba(255, 255, 255, 0.08), 0 2px 10px 0 rgba(255, 130, 50, 0.12), 0 6px 18px -2px rgba(212, 175, 55, 0.08), 0 8px 24px rgba(0, 0, 0, 0.50)',
+    /** 🌟 [HOVER 다크모드] 사방으로 은은하게 퍼지는 단청 그라데이션 아우라 */
+    gradientHoverGlow: '0 0 0 1px rgba(255, 255, 255, 0.08), 0 2px 10px 0 rgba(255, 130, 50, 0.13), 0 6px 18px -2px rgba(212, 175, 55, 0.09), 0 8px 22px rgba(0, 0, 0, 0.50)',
+    /** 🔘 다크모드 버튼 / 칩셋 */
+    button: '0 0 0 1px rgba(255, 255, 255, 0.06), 0 2px 6px rgba(0, 0, 0, 0.3)',
+    buttonHover: '0 0 0 1px rgba(255, 255, 255, 0.12), 0 4px 12px rgba(0, 0, 0, 0.42)',
+    /** 🌟 [HOVER 다크모드] 버튼/칩셋 전용 4방향 콤팩트 그라데이션 글로우 */
+    buttonHoverGlow: '0 0 0 1px rgba(255, 255, 255, 0.10), 0 1px 8px 0 rgba(255, 130, 50, 0.13), 0 3px 12px -1px rgba(212, 175, 55, 0.08), 0 3px 10px rgba(0, 0, 0, 0.40)',
+    /** 🟠 다크모드 단청 주홍 포커스 링 */
+    focusJuhong: '0 0 0 1px rgba(255, 110, 30, 0.45), 0 0 0 4px rgba(255, 110, 30, 0.15), 0 4px 16px rgba(255, 110, 30, 0.15)',
+    /** 🔍 다크모드 검색창 / 인풋 필드 */
+    input: '0 0 0 1px rgba(255, 255, 255, 0.07), 0 12px 36px rgba(0, 0, 0, 0.55)',
+    inputFocus: '0 0 0 1px rgba(255, 255, 255, 0.20), 0 0 0 4px rgba(255, 255, 255, 0.06), 0 16px 40px rgba(0, 0, 0, 0.70)',
+  },
+} as const;
+
 // 그라데이션
 export const gradients = {
   dancheong:      `linear-gradient(135deg, ${palette.juhong[500]} 0%, ${palette.hwanggeum[500]} 100%)`, // 주황 → 노랑
@@ -439,6 +489,7 @@ export const createTheme = (mode: ColorMode) => {
       lg:   '0 8px 24px rgba(25, 31, 40, 0.09)',
       xl:   '0 16px 48px rgba(25, 31, 40, 0.11)',
       glow: '0 0 20px rgba(232, 90, 24, 0.18)',
+      ring: ringShadow.light,
     // 다크 그림자
     } : {
       sm:   '0 1px 4px rgba(25, 31, 40, 0.18)',
@@ -446,6 +497,7 @@ export const createTheme = (mode: ColorMode) => {
       lg:   '0 8px 24px rgba(25, 31, 40, 0.30)',
       xl:   '0 16px 48px rgba(25, 31, 40, 0.36)',
       glow: '0 0 20px rgba(248, 87, 0, 0.24)',
+      ring: ringShadow.dark,
     },
 
     transition: {
