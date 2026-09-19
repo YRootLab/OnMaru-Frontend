@@ -61,8 +61,8 @@ export const MOOD_BANDS: { id: MoodBand; label: string; hint: string }[] = [
  */
 const MOOD_HUE: Record<MoodBand, { light: [number, number, number]; dark: [number, number, number] }> = {
   quiet: { light: [61, 184, 152], dark: [0, 167, 106] },
-  mixed: { light: [245, 166, 35], dark: [250, 170, 73] },
-  busy: { light: [232, 90, 24], dark: [248, 87, 0] },
+  mixed: { light: [245, 175, 40], dark: [250, 185, 50] },
+  busy: { light: [240, 95, 15], dark: [255, 110, 30] },
 };
 
 export interface HeatPaint {
