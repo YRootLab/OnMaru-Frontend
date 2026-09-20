@@ -4,9 +4,11 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+- develop 최신 내역을 병합하며 `changelog.md`·`handoff.md`·Core UI submodule 충돌을 해소하고, Vercel Analytics·Speed Insights 의존성이 포함된 lockfile을 동기화했다.
 - `HanokAtmosphereBackground` 고정 배경 레이어를 `z-index: -1`로 콘텐츠 뒤로 보냈다. 기존 `z-index: 0`에서는 불투명 배경이 정적 콘텐츠 위에 그려져, `VesselReveal`이 bloom되어 `transform`이 제거된 섹션(한옥 CTA 매니페스토 등)이 스크롤 리빌 직후 화면에서 사라지는 버그가 있었다.
 - 매니페스토 CTA 섹션의 `exitThresholdRatio`를 0.9에서 기본값(0.67)으로 되돌렸다. 0.9에서는 접힘 경계가 뷰포트 하단 10% 지점이라 위로 스크롤해 CTA가 사라질 때 접히는 애니메이션이 화면에 보이지 않았고, 이제 다른 섹션과 동일하게 화면에 약 1/3이 남은 시점에 접히는(reversible reveal) 애니메이션이 보인다.
 - 한옥도감과 지역별 한옥 스테이 카드 부모와 이미지 레이어의 배경을 일치시켜, 둥근 모서리에 부모 배경이 테두리처럼 비치던 합성 경계를 제거했다.
+- 
 - 소리마루와 한옥 지도에서 사진이 둥근 썸네일을 채우는 컨테이너에도 같은 배경 동기화 처리를 적용했다.
 - 소리마루 “장면을 따라 걷는 소리” 편집형 레일 카드의 인라인 이미지가 남기던 하단 베이스라인 여백을 제거해 경계선을 없앴다.
 - 소리마루 편집형 레일의 하단 정보 패널이 중복으로 둥근 모서리를 자르지 않도록 부모 카드만 최종 클리핑을 담당하게 해, 하단 좌우 모서리의 이중 경계를 제거했다.
