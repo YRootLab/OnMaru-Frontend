@@ -55,6 +55,7 @@ const FeatureContainer = styled.div`
 const ContentLayer = styled.div`
   position: relative;
   z-index: 10;
+  min-width: 0;
 `;
 
 const SorimaruSectionReveal = styled(VesselReveal)`
@@ -112,6 +113,7 @@ const RetryButton = styled.button`
 const MainSections = styled.main`
   display: flex;
   flex-direction: column;
+  min-width: 0;
   gap: 2rem;
 
   @media (min-width: 640px) {

@@ -48,6 +48,8 @@ export const VesselReveal: React.FC<VesselRevealProps> = ({
         boxSizing: 'border-box',
         display: 'block',
         width: '100%',
+        minWidth: 0,
+        maxWidth: '100%',
         marginInline: 'auto',
         borderStyle: 'solid',
         borderWidth: '1px',
