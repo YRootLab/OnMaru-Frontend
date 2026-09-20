@@ -11,83 +11,40 @@ on:
       - 'v*'
   workflow_dispatch:
 
-# Vercel 프로젝트 식별 정보
-# 모든 step에서 자동으로 사용할 수 있음
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
 jobs:
-
-  # ============================================================
-  # Production
-  # master 또는 v* 태그
-  # ============================================================
   Deploy-Production:
-    name: Deploy to Production
+    name: Deploy to Production (master / v* tags)
     if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
-
     steps:
-      # ----------------------------------------------------------
-      # 1. Repository Checkout
-      # ----------------------------------------------------------
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      # ----------------------------------------------------------
-      # 2. Private Core UI Submodule
-      # ----------------------------------------------------------
       - name: Initialize private Core UI submodule
         env:
           CORE_UI_READ_TOKEN: ${{ secrets.CORE_UI_READ_TOKEN }}
-        shell: bash
         run: |
-          test -n "$CORE_UI_READ_TOKEN" || {
-            echo "CORE_UI_READ_TOKEN is required to read src/private/core-ui."
-            exit 1
-          }
-
-          git config --global \
-            url."https://x-access-token:${CORE_UI_READ_TOKEN}@github.com/".insteadOf \
-            "git@github.com:"
-
+          test -n "$CORE_UI_READ_TOKEN" || { echo "CORE_UI_READ_TOKEN is required to read src/private/core-ui."; exit 1; }
+          git config --global url."https://x-access-token:${CORE_UI_READ_TOKEN}@github.com/".insteadOf "git@github.com:"
           git submodule sync --recursive
           git submodule update --init --recursive
 
-      # ----------------------------------------------------------
-      # 3. Node
-      # ----------------------------------------------------------
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
+          cache: 'npm'
 
-      # ----------------------------------------------------------
-      # 4. Vercel CLI
-      # ----------------------------------------------------------
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      # ----------------------------------------------------------
-      # 5. Validate Secrets
-      # ----------------------------------------------------------
-      - name: Validate Vercel secrets
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        shell: bash
-        run: |
-          for secret_name in VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID; do
-            if [ -z "${!secret_name}" ]; then
-              echo "Missing required Vercel secret: ${secret_name}"
-              exit 1
-            fi
-          done
-
-          echo "Vercel secrets are configured."
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
       # ----------------------------------------------------------
       # 6. Clean old Vercel metadata
@@ -106,109 +63,40 @@ jobs:
       # 8. Build
       # ----------------------------------------------------------
       - name: Build Project Artifacts
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: |
-          vercel build \
-            --prod \
-            --token="$VERCEL_TOKEN"
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
 
-      # ----------------------------------------------------------
-      # 9. Production Deploy
-      # ----------------------------------------------------------
-      - name: Deploy Project Artifacts to Vercel
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: |
-          vercel deploy \
-            --prebuilt \
-            --prod \
-            --token="$VERCEL_TOKEN"
+      - name: Deploy Project Artifacts to Vercel (Production)
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
 
-
-  # ============================================================
-  # Preview / Staging
-  #
-  # develop
-  # release/*
-  # release/* tags
-  # ============================================================
   Deploy-Preview-or-Release:
-    name: Deploy to Preview / Staging
-
-    if: >
-      github.ref == 'refs/heads/develop' ||
-      startsWith(github.ref, 'refs/heads/release/') ||
-      startsWith(github.ref, 'refs/tags/release/')
-
+    name: Deploy to Preview / Staging (develop / release/*)
+    if: github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/release/') || startsWith(github.ref, 'refs/tags/release/')
     runs-on: ubuntu-latest
-
     steps:
-      # ----------------------------------------------------------
-      # 1. Repository Checkout
-      # ----------------------------------------------------------
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      # ----------------------------------------------------------
-      # 2. Private Core UI Submodule
-      # ----------------------------------------------------------
       - name: Initialize private Core UI submodule
         env:
           CORE_UI_READ_TOKEN: ${{ secrets.CORE_UI_READ_TOKEN }}
-        shell: bash
         run: |
-          test -n "$CORE_UI_READ_TOKEN" || {
-            echo "CORE_UI_READ_TOKEN is required to read src/private/core-ui."
-            exit 1
-          }
-
-          git config --global \
-            url."https://x-access-token:${CORE_UI_READ_TOKEN}@github.com/".insteadOf \
-            "git@github.com:"
-
+          test -n "$CORE_UI_READ_TOKEN" || { echo "CORE_UI_READ_TOKEN is required to read src/private/core-ui."; exit 1; }
+          git config --global url."https://x-access-token:${CORE_UI_READ_TOKEN}@github.com/".insteadOf "git@github.com:"
           git submodule sync --recursive
           git submodule update --init --recursive
 
-      # ----------------------------------------------------------
-      # 3. Node
-      # ----------------------------------------------------------
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
+          cache: 'npm'
 
-      # ----------------------------------------------------------
-      # 4. Vercel CLI
-      # ----------------------------------------------------------
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      # ----------------------------------------------------------
-      # 5. Validate Secrets
-      # ----------------------------------------------------------
-      - name: Validate Vercel secrets
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        shell: bash
-        run: |
-          for secret_name in VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID; do
-            if [ -z "${!secret_name}" ]; then
-              echo "Missing required Vercel secret: ${secret_name}"
-              exit 1
-            fi
-          done
-
-          echo "Vercel secrets are configured."
-
-      # ----------------------------------------------------------
-      # 6. Clean old Vercel metadata
-      # ----------------------------------------------------------
-      - name: Clean Vercel metadata
-        run: rm -rf .vercel
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Prepare Vercel preview metadata
         env:
@@ -222,19 +110,7 @@ jobs:
       # 8. Preview Build
       # ----------------------------------------------------------
       - name: Build Project Artifacts
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: |
-          vercel build \
-            --token="$VERCEL_TOKEN"
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
 
-      # ----------------------------------------------------------
-      # 9. Preview Deploy
-      # ----------------------------------------------------------
-      - name: Deploy Project Artifacts to Vercel
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: |
-          vercel deploy \
-            --prebuilt \
-            --token="$VERCEL_TOKEN"
+      - name: Deploy Project Artifacts to Vercel (Preview / Release)
+        run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
