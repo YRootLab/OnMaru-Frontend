@@ -14,11 +14,14 @@ import {
 import { meok , fontSize } from '@/design-system/tokens';
 import type { PlaceCategory } from '@/features/map/types';
 
-const ImageContainer = styled.div<{ $hasImages: boolean }>`
+const ImageContainer = styled.div<{ $hasImages: boolean; $src: string | null }>`
   position: relative;
   width: 100%;
   aspect-ratio: ${({ $hasImages }) => ($hasImages ? '4 / 3' : '16 / 9')};
-  background: #f0eae0;
+  ${({ $src }) =>
+    $src
+      ? `background-image: url("${$src}"); background-size: cover; background-position: center;`
+      : 'background: #f0eae0;'}
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -163,7 +166,10 @@ export default function PlaceDetailCarousel({
   const validImages = images.filter((img) => img && typeof img === 'string');
 
   return (
-    <ImageContainer $hasImages={validImages.length > 0}>
+    <ImageContainer
+      $hasImages={validImages.length > 0}
+      $src={validImages[currentSlide] ?? null}
+    >
       {validImages.length > 0 ? (
         <>
           <CarouselTrack $index={currentSlide}>
