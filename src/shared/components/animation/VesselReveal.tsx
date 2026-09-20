@@ -45,6 +45,10 @@ export const VesselReveal: React.FC<VesselRevealProps> = ({
         opacity: isBloomed ? 1 : 0.88,
       }}
       style={{
+        boxSizing: 'border-box',
+        display: 'block',
+        width: '100%',
+        marginInline: 'auto',
         borderStyle: 'solid',
         borderWidth: '1px',
         borderRadius: isBloomed ? '0.5rem' : roundedFrom,
