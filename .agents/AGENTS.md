@@ -75,7 +75,7 @@ All AI agents (Antigravity, Claude Code, Cursor, Codex, etc.) MUST adhere to the
 
 ---
 
-## 🔒 Private Git Submodule (`src/private/core-ui`)
-- Proprietary/private core UI components are maintained in `src/private/core-ui` submodule.
-- **Auto-Sync Rule**: Whenever starting or resuming work, ensure submodules are initialized by running `git submodule update --init --recursive` (or `npm run submodule:init`).
-- Core UI components are imported via `@/private/core-ui/*` alias.
+## 🔒 Private Core UI (`src/private/core-ui`)
+- Proprietary/private core UI components are maintained in `src/private/core-ui` as regular in-repo files (the former Git submodule reference to `YRootLab/onmaru-core-ui` was removed; the original repository is archived).
+- No submodule initialization is required. Core UI components are imported via `@/private/core-ui/*` alias.
+- Changes to `src/private/core-ui` are committed directly in this repository.
