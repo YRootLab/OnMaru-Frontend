@@ -5,6 +5,10 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 ## Unreleased
 
 - Vercel Git integration의 무인증 private submodule clone을 비활성화하고, `CORE_UI_READ_TOKEN`을 사용하는 GitHub Actions Vercel CLI 배포를 단일 배포 경로로 유지했다.
+- 한옥 이야기의 처마 일조·7단계 조립 3D 모달을 문서 최상위 포털로 분리하고, 모바일 안전 영역과 동적 뷰포트 높이에 맞춰 표시했다.
+- Vercel Analytics를 루트 레이아웃에 연결해 페이지 조회와 웹 분석 이벤트를 수집한다.
+- Next.js·Vitest 및 전이 의존성을 보안 patch 버전으로 올려 의존성 감사 취약점을 모두 해결했다.
+- Vitest/Vite의 YAML 2.x 의존성을 lockfile에 고정해 CI의 `npm ci` 설치가 일관되게 동작하도록 했다.
 
 - 홈 추천 코스, 인기 한옥 소리, 인기 지역을 백엔드 홈 API로 연동하고 기존 홈 목데이터 프록시를 제거했다.
 - 인기 한옥 소리 원천이 `503 SERVICE_UNAVAILABLE`일 때 빈 재시도 UI를 표시한다.
