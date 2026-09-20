@@ -239,11 +239,12 @@ const LeftPanel = styled(motion.div)`
 
   @media (max-width: 900px) {
     top: auto;
-    bottom: 14px;
-    left: 14px;
-    right: 14px;
+    bottom: 60px;
+    left: 10px;
+    right: 10px;
     width: auto;
-    max-height: 220px;
+    max-height: 160px;
+    padding: 12px;
   }
 `;
 
@@ -351,6 +352,11 @@ const MiniCard = styled(motion.div)`
   [data-theme='dark'] &:hover {
     background: rgba(255, 255, 255, 0.12);
   }
+
+  @media (max-width: 900px) {
+    gap: 7px;
+    padding: 5px;
+  }
 `;
 
 const MiniThumb = styled.div<{ $bg: string | null }>`
@@ -363,6 +369,12 @@ const MiniThumb = styled.div<{ $bg: string | null }>`
       ? `background-image: url("${$bg}"); background-size: cover; background-position: center;`
       : `background: linear-gradient(135deg, ${JUHONG_LIGHT} 0%, rgba(255, 85, 0, 0.2) 100%);`}
   flex-shrink: 0;
+
+  @media (max-width: 900px) {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+  }
 `;
 
 const MiniInfo = styled.div`
@@ -381,6 +393,10 @@ const MiniTitle = styled.h4`
 
   [data-theme='dark'] & {
     color: ${meok[100]};
+  }
+
+  @media (max-width: 900px) {
+    font-size: ${fontSize.micro};
   }
 `;
 

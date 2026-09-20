@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import styled from '@emotion/styled';
 import { Award, MapPin, Trophy, Sparkles, User, ShieldCheck } from 'lucide-react';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
 import { meok } from '@/design-system/tokens';
 import { useStampStore } from '../hooks/useStampStore';
 import { STAMP_DEFINITIONS, REGIONS } from '../data/stampDefs';
@@ -13,11 +15,21 @@ import StampLeaderboard from './StampLeaderboard';
 import StampSealAnimation from './StampSealAnimation';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 
+// GSAP 플러그인 등록
+gsap.registerPlugin(useGSAP);
+
+// --- Styled Components ---
+
 const Root = styled.div`
   width: 100%;
-  padding: 16px 0 80px;
+  padding: 16px clamp(16px, 4vw, 48px) 80px;
   background: transparent;
   color: inherit;
+  visibility: hidden; /* GSAP 로드 전 깜빡임 방지 */
+
+  @media (max-width: 640px) {
+    padding: 12px 16px 80px;
+  }
 `;
 
 const Header = styled.header`
@@ -30,8 +42,9 @@ const Badge = styled.div`
   gap: 5px;
   padding: 4px 12px;
   border-radius: 9999px;
-  background: rgba(212, 175, 55, 0.14);
-  color: #b45309;
+  /* 지도와 맞춘 생동감 있는 오렌지 톤 */
+  background: rgba(249, 115, 22, 0.12);
+  color: #ea580c;
   font-family: var(--font-traditional);
   font-size: 12.5px;
   font-weight: 700;
@@ -39,8 +52,8 @@ const Badge = styled.div`
   margin-bottom: 8px;
 
   [data-theme='dark'] & {
-    color: #fbbf24;
-    background: rgba(245, 158, 11, 0.18);
+    color: #fdba74;
+    background: rgba(249, 115, 22, 0.2);
   }
 `;
 
@@ -118,6 +131,13 @@ const HeroGrid = styled.div`
     padding: 20px;
     gap: 24px;
   }
+
+  @media (max-width: 640px) {
+    padding: 16px;
+    gap: 16px;
+    border-radius: 18px;
+    margin-bottom: 24px;
+  }
 `;
 
 const StatsContainer = styled.div`
@@ -182,12 +202,13 @@ const ProgressBarTrack = styled.div`
   }
 `;
 
-const ProgressBarFill = styled.div<{ $percent: number }>`
+const ProgressBarFill = styled.div`
   height: 100%;
-  width: ${({ $percent }) => Math.min(100, Math.max(0, $percent))}%;
+  width: 0%; /* GSAP이 제어하도록 0으로 초기화 */
   border-radius: 9999px;
-  background: linear-gradient(90deg, #d4af37, #f59e0b);
-  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  /* 지도 호버 색상과 맞춘 화사한 앰버-오렌지 그라데이션 */
+  background: linear-gradient(90deg, #f59e0b, #ea580c);
+  /* CSS transition 제거 (GSAP 활용) */
 `;
 
 const GuideNote = styled.div`
@@ -196,15 +217,16 @@ const GuideNote = styled.div`
   gap: 8px;
   padding: 12px 16px;
   border-radius: 12px;
-  background: rgba(212, 175, 55, 0.08);
-  color: #92400e;
+  /* 지도 힌트 톤과 통일 */
+  background: rgba(245, 158, 11, 0.08);
+  color: #b45309;
   font-family: var(--font-traditional-body);
   font-size: 13px;
   line-height: 1.5;
 
   [data-theme='dark'] & {
-    background: rgba(245, 158, 11, 0.1);
-    color: #fde68a;
+    background: rgba(251, 191, 36, 0.1);
+    color: #fcd34d;
   }
 `;
 
@@ -253,9 +275,18 @@ const StampsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
   gap: 16px;
+
+  @media (max-width: 480px) {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+  }
 `;
 
+// --- Main Component ---
+
 export default function StampBook() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  
   const { user } = useAuth();
   const collectedStamps = useStampStore((s) => s.collectedStamps);
   const activeModalStamp = useStampStore((s) => s.activeStampModal);
@@ -269,7 +300,6 @@ export default function StampBook() {
   const unlockedCount = Object.keys(collectedStamps).length;
   const progressPercent = Math.round((unlockedCount / totalStampsCount) * 100);
 
-  // Unlocked region set
   const unlockedRegions = new Set<string>();
   Object.keys(collectedStamps).forEach((sid) => {
     const def = STAMP_DEFINITIONS.find((d) => d.id === sid);
@@ -286,19 +316,64 @@ export default function StampBook() {
     return stamp.region === selectedRegion || stamp.region === 'all';
   });
 
+  // --- GSAP Animations ---
+  useGSAP(() => {
+    if (!containerRef.current) return;
+
+    // 초기 숨김 해제
+    gsap.set(containerRef.current, { visibility: 'visible' });
+
+    const tl = gsap.timeline();
+
+    // 1. 헤더 영역 페이드업
+    tl.from('.header-elem', {
+      y: 20,
+      opacity: 0,
+      duration: 0.6,
+      stagger: 0.1,
+      ease: 'power2.out',
+    })
+    // 2. 통계 박스들 스태거(순차적) 애니메이션
+    .from('.stat-box', {
+      scale: 0.9,
+      opacity: 0,
+      y: 10,
+      duration: 0.4,
+      stagger: 0.1,
+      ease: 'back.out(1.5)',
+    }, '-=0.2') // 헤더 애니메이션이 끝나기 전 자연스럽게 이어짐
+    // 3. 진행바 차오르는 애니메이션
+    .to('.progress-fill', {
+      width: `${progressPercent}%`,
+      duration: 1.2,
+      ease: 'power3.out',
+    }, '-=0.2');
+
+  }, { scope: containerRef, dependencies: [progressPercent] }); // 달성률 변경 시 프로그레스바 갱신
+
+  // 탭이나 지역 필터 변경 시 카드들 갱신 애니메이션
+  useGSAP(() => {
+    if (!containerRef.current) return;
+    
+    gsap.fromTo('.stamp-card-elem', 
+      { opacity: 0, y: 15 }, 
+      { opacity: 1, y: 0, duration: 0.4, stagger: 0.03, ease: 'power2.out', clearProps: 'all' }
+    );
+  }, { scope: containerRef, dependencies: [activeTab, selectedRegion] });
+
   return (
-    <Root>
+    <Root ref={containerRef}>
       <Header>
-        <Badge>
+        <Badge className="header-elem">
           <Award size={13} />
           <span>한옥 수결첩</span>
         </Badge>
-        <Title>나의 한옥 방문 도장첩</Title>
-        <Subtitle>
+        <Title className="header-elem">나의 한옥 방문 도장첩</Title>
+        <Subtitle className="header-elem">
           전국 한옥을 여행하며 모은 방문 도장이에요.
         </Subtitle>
 
-        <UserSyncBanner>
+        <UserSyncBanner className="header-elem">
           <UserSyncLeft>
             <User size={14} />
             <span>{user ? `${user.nickname || user.email} 님과 안전하게 동기화됨` : '로그인하면 도장을 안전하게 보관할 수 있어요'}</span>
@@ -318,7 +393,7 @@ export default function StampBook() {
 
         <StatsContainer>
           <StatRow>
-            <StatBox>
+            <StatBox className="stat-box">
               <StatLabel>
                 <Award size={12} />
                 <span>모은 도장</span>
@@ -328,7 +403,7 @@ export default function StampBook() {
               </StatValue>
             </StatBox>
 
-            <StatBox>
+            <StatBox className="stat-box">
               <StatLabel>
                 <MapPin size={12} />
                 <span>방문한 지역</span>
@@ -339,26 +414,26 @@ export default function StampBook() {
             </StatBox>
           </StatRow>
 
-          <StatBox>
+          <StatBox className="stat-box">
             <StatLabel>
               <Sparkles size={12} />
               <span>전국 달성률</span>
             </StatLabel>
             <StatValue>{progressPercent}%</StatValue>
             <ProgressBarTrack>
-              <ProgressBarFill $percent={progressPercent} />
+              <ProgressBarFill className="progress-fill" />
             </ProgressBarTrack>
           </StatBox>
 
-          <GuideNote>
+          <GuideNote className="stat-box">
             <MapPin size={15} style={{ flexShrink: 0 }} />
-            <span>지도를 누르면 그 지역의 도장만 모아볼 수 있어요.</span>
+            <span>지도의 권역을 누르면 해당 지역의 도장만 모아볼 수 있어요.</span>
           </GuideNote>
         </StatsContainer>
       </HeroGrid>
 
       {/* Tabs */}
-      <TabRow>
+      <TabRow className="header-elem">
         <TabButton
           $active={activeTab === 'stamps'}
           onClick={() => setActiveTab('stamps')}
@@ -392,16 +467,19 @@ export default function StampBook() {
       {activeTab === 'stamps' ? (
         <StampsGrid>
           {filteredStamps.map((stamp) => (
-            <StampCard
-              key={stamp.id}
-              stamp={stamp}
-              collected={collectedStamps[stamp.id]}
-              onClick={() => openStampModal(stamp)}
-            />
+            <div key={stamp.id} className="stamp-card-elem">
+              <StampCard
+                stamp={stamp}
+                collected={collectedStamps[stamp.id]}
+                onClick={() => openStampModal(stamp)}
+              />
+            </div>
           ))}
         </StampsGrid>
       ) : (
-        <StampLeaderboard />
+        <div className="stamp-card-elem">
+          <StampLeaderboard />
+        </div>
       )}
 
       {/* Seal Animation / Detail Modal */}

@@ -19,14 +19,14 @@ const Grid = styled(motion.div)`
   grid-template-columns: repeat(1, 1fr);
   gap: 20px;
 
-  @media (min-width: 540px) {
+  @media (min-width: 400px) {
     grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+    gap: 14px;
   }
 
   @media (min-width: 800px) {
     grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
+    gap: 20px;
   }
 
   @media (min-width: 1080px) {

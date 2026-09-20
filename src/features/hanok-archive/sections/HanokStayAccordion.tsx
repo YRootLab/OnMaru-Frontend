@@ -77,6 +77,7 @@ const AccordionContainer = styled.div`
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
     padding: 12px 4px 20px;
+    min-height: 320px;
     scrollbar-width: none;
     &::-webkit-scrollbar {
       display: none;
@@ -96,11 +97,11 @@ const AccordionPill = styled(motion.div, transientProps)<{ $active: boolean }>`
   flex-shrink: 0;
 
   @media (max-width: 768px) {
-    height: 380px;
+    height: 300px;
     scroll-snap-align: center;
-    border-radius: ${({ $active }) => ($active ? '28px' : '9999px')};
-    width: ${({ $active }) => ($active ? 'calc(100vw - 80px)' : '72px')};
-    max-width: 480px;
+    border-radius: ${({ $active }) => ($active ? '24px' : '9999px')};
+    width: ${({ $active }) => ($active ? 'calc(100vw - 80px)' : '60px')};
+    max-width: 420px;
   }
 `;
 
