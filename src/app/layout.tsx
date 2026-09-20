@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Script from 'next/script'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import './globals.css'
 import { Providers } from './providers'
 import Header from '@/shared/components/Header'
@@ -60,6 +61,7 @@ export default function RootLayout({
             {children}
           </PageContainer>
           <Footer />
+          <SpeedInsights />
         </Providers>
       </body>
     </html>
