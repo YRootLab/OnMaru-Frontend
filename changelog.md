@@ -4,6 +4,7 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+- Vercel Git integration의 무인증 private submodule clone을 비활성화하고, `CORE_UI_READ_TOKEN`을 사용하는 GitHub Actions Vercel CLI 배포를 단일 배포 경로로 유지했다.
 
 - 홈 추천 코스, 인기 한옥 소리, 인기 지역을 백엔드 홈 API로 연동하고 기존 홈 목데이터 프록시를 제거했다.
 - 인기 한옥 소리 원천이 `503 SERVICE_UNAVAILABLE`일 때 빈 재시도 UI를 표시한다.
