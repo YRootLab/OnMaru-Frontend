@@ -18,7 +18,6 @@ import {
 import type { ThemePreference } from '@/design-system/tokens';
 import { useAuth } from '@/features/auth';
 import GlobalMobileTabs from './GlobalMobileTabs';
-import MapMobileTabs from '@/features/map/components/MapMobileTabs';
 import { HEADER_EXIT_S, ENTRANCE_EASE } from '@/shared/navigation/mapEntranceTiming';
 import { useMapEntranceStore } from '@/shared/navigation/mapEntranceState';
 import { shouldUseLandingDarkSurface } from './headerSurface';
@@ -308,6 +307,41 @@ const MobileTabNavWrap = styled('div', transientProps)<LandingProps>`
     display: block;
     width: 100%;
     height: 100%;
+  }
+`;
+
+/** 모바일 상단 바 — 좌측 온마루 로고 / 우측 로그인. 하단 탭바(HeaderContainer)와
+ *  별도로, 화면 최상단에 떠서 브랜드 진입점과 로그인 동선을 확보한다. */
+const MobileTopBar = styled('div', transientProps)<LandingProps>`
+  display: none;
+
+  @media (max-width: ${({ $isMapPage }) => ($isMapPage ? 1023 : 767)}px) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: fixed;
+    top: max(12px, env(safe-area-inset-top));
+    left: 12px;
+    right: 12px;
+    z-index: 100;
+    height: 46px;
+    padding: 0 8px 0 10px;
+    border-radius: 9999px;
+    background: ${({ $isLanding }) => ($isLanding ? 'rgba(23, 21, 18, 0.92)' : 'rgba(255, 255, 255, 0.96)')};
+    border: 1px solid ${({ $isLanding }) => ($isLanding ? 'rgba(255, 255, 255, 0.07)' : 'rgba(0, 0, 0, 0.06)')};
+    box-shadow: ${ringShadow.light.card};
+
+    [data-theme='dark'] & {
+      background: rgba(28, 26, 23, 0.95);
+      border-color: rgba(255, 255, 255, 0.08);
+      box-shadow: ${ringShadow.dark.card};
+    }
+  }
+
+  body[data-sorimaru-player-open='true'] & {
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
   }
 `;
 
@@ -807,6 +841,22 @@ export default function Header() {
         )}
       </AnimatePresence>
 
+      <MobileTopBar $isLanding={usesDarkSurface} $isMapPage={isMapPage}>
+        <LogoLink href="/" aria-label="온마루 홈으로 이동" onClick={resetJourney}>
+          <Image
+            src={ONMARU_LOGO_SRC}
+            alt="온마루 로고"
+            width={26}
+            height={26}
+            style={{ objectFit: 'contain', height: '26px', width: '26px', borderRadius: '6px' }}
+          />
+        </LogoLink>
+        <LoginButton href={isLoggedIn ? '/mypage' : '/auth/login'} $isLanding={usesDarkSurface}>
+          <span>{isLoggedIn ? (user?.nickname ?? '마이페이지') : '로그인'}</span>
+          <ArrowRight size={12} />
+        </LoginButton>
+      </MobileTopBar>
+
       <HeaderContainer
         $isLanding={usesDarkSurface}
         $isScrolled={isScrolled}
@@ -946,7 +996,7 @@ export default function Header() {
                 y: { type: 'spring', stiffness: 420, damping: 30 },
               }}
             >
-              <MapMobileTabs />
+              <GlobalMobileTabs isLanding={usesDarkSurface} />
             </motion.div>
           ) : (
             <motion.div
