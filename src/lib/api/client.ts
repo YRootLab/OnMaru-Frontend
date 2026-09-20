@@ -22,6 +22,8 @@ export type ApiRequestOptions = {
   signal?: AbortSignal;
   cache?: RequestCache;
   headers?: Record<string, string>;
+  /** `/api/v1` 밖에 있는 백엔드 호환 경로를 호출한다. */
+  rootPath?: boolean;
 };
 
 type ApiClientConfig = {
@@ -65,10 +67,12 @@ function isInternalNextApiPath(path: string): boolean {
   return path.startsWith('/api/');
 }
 
-function buildUrl(path: string, params?: Record<string, any>): string {
+function buildUrl(path: string, params?: Record<string, any>, rootPath = false): string {
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
   const base = apiClientConfig.baseUrl.replace(/\/+$/, '');
-  const urlPath = isInternalNextApiPath(normalizedPath)
+  const urlPath = rootPath
+    ? normalizedPath
+    : isInternalNextApiPath(normalizedPath)
     ? normalizedPath
     : `/api/v1/${trimSlashes(normalizedPath)}`;
   let url = base ? `${base}${urlPath}` : normalizedPath;
@@ -292,7 +296,7 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
   }
 
   try {
-    const response = await apiClientConfig.fetcher(buildUrl(path, options.params), {
+    const response = await apiClientConfig.fetcher(buildUrl(path, options.params, options.rootPath), {
       method,
       credentials: 'include',
       headers,

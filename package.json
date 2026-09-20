@@ -10,6 +10,7 @@
     "lint": "eslint",
     "pretest": "npm run check:submodule",
     "test": "vitest run",
+    "test:e2e": "playwright test",
     "check:env": "node scripts/validate-env-contract.mjs",
     "build:data": "node --env-file=.env.local scripts/build-data.mjs",
     "build:data:check": "node scripts/build-data.mjs --self-check",
