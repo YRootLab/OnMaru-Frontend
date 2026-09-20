@@ -8,7 +8,11 @@ const BackgroundContainer = styled.div`
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 0;
+  /*
+    콘텐츠 뒤로 보낸다. z-index: 0이면 정적(normal-flow) 콘텐츠 위에 그려져,
+    VesselReveal이 bloom되어 transform이 제거된 섹션(CTA 등)을 통째로 가린다.
+  */
+  z-index: -1;
   overflow: hidden;
   background-color: #ffffff;
   transition: background-color 0.4s ease;

@@ -370,10 +370,12 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
         </ChapterBreak>
 
         {/* 온마루 한옥 매니페스토 (자체 상하 여백을 가지고 있다) */}
-        <StyledVesselReveal
-          id={HANOK_REVEAL_SECTIONS.manifesto}
-          exitThresholdRatio={0.9}
-        >
+        {/*
+          exitThresholdRatio 기본값(0.67)을 쓴다. 0.9로 두면 접힘 경계가
+          뷰포트 하단 10% 지점이 되어, 위로 스크롤해 섹션이 사라질 때
+          접히는 애니메이션이 화면에 거의 보이지 않은 채 끝나버린다.
+        */}
+        <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.manifesto}>
           <HanokManifestoCta />
         </StyledVesselReveal>
       </PageInner>
