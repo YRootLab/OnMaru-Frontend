@@ -63,25 +63,27 @@ jobs:
           cat > .vercel/project.json <<EOF
           {
             "orgId": "$VERCEL_ORG_ID",
-            "projectId": "$VERCEL_PROJECT_ID"
+            "projectId": "$VERCEL_PROJECT_ID",
+            "settings": {}
           }
           EOF
-
-      - name: Install project dependencies
-        run: npm ci
 
       - name: Verify private Core UI submodule
         run: npm run check:submodule
 
-      - name: Build project
-        run: npm run build
-
-      - name: Deploy Project to Vercel (Production)
+      - name: Build Project Artifacts
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: vercel deploy --prod --token="$VERCEL_TOKEN"
+        run: vercel build --prod --token="$VERCEL_TOKEN"
+
+      - name: Deploy Project Artifacts to Vercel (Production)
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
 
   Deploy-Preview-or-Release:
     name: Deploy to Preview / Staging (develop / release/*)
@@ -130,22 +132,24 @@ jobs:
           cat > .vercel/project.json <<EOF
           {
             "orgId": "$VERCEL_ORG_ID",
-            "projectId": "$VERCEL_PROJECT_ID"
+            "projectId": "$VERCEL_PROJECT_ID",
+            "settings": {}
           }
           EOF
-
-      - name: Install project dependencies
-        run: npm ci
 
       - name: Verify private Core UI submodule
         run: npm run check:submodule
 
-      - name: Build project
-        run: npm run build
-
-      - name: Deploy Project to Vercel (Preview / Release)
+      - name: Build Project Artifacts
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: vercel deploy --target=preview --token="$VERCEL_TOKEN"
+        run: vercel build --target=preview --token="$VERCEL_TOKEN"
+
+      - name: Deploy Project Artifacts to Vercel (Preview / Release)
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: vercel deploy --prebuilt --target=preview --token="$VERCEL_TOKEN"
