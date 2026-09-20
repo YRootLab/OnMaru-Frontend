@@ -119,7 +119,7 @@ jobs:
             search.set('teamId', VERCEL_ORG_ID);
           }
 
-          async function fetchJson(path) {
+          async function fetchText(path) {
             const response = await fetch(`${apiBase}${path}?${search.toString()}`, { headers });
             const text = await response.text();
 
@@ -127,7 +127,11 @@ jobs:
               throw new Error(`${response.status} ${response.statusText}: ${text}`);
             }
 
-            return JSON.parse(text);
+            return text;
+          }
+
+          async function fetchJson(path) {
+            return JSON.parse(await fetchText(path));
           }
 
           function escapeValue(value) {
@@ -138,10 +142,24 @@ jobs:
               .replace(/\r/g, '\\r');
           }
 
+          function toDotenvContents(rawText) {
+            const trimmed = rawText.trimStart();
+
+            if (trimmed.startsWith('{')) {
+              const parsed = JSON.parse(rawText);
+              return `# Created by Vercel CLI\n${Object.keys(parsed.env ?? {})
+                .sort()
+                .map((key) => `${key}="${escapeValue(parsed.env[key])}"`)
+                .join('\n')}\n`;
+            }
+
+            return rawText.endsWith('\n') ? rawText : `${rawText}\n`;
+          }
+
           async function main() {
             const [project, envPull] = await Promise.all([
               fetchJson(`/v9/projects/${encodeURIComponent(VERCEL_PROJECT_ID)}`),
-              fetchJson(`/v3/env/pull/${encodeURIComponent(VERCEL_PROJECT_ID)}/production`),
+              fetchText(`/v3/env/pull/${encodeURIComponent(VERCEL_PROJECT_ID)}/production`),
             ]);
 
             const analyticsId =
@@ -179,10 +197,7 @@ jobs:
             );
             await fs.writeFile(
               '.vercel/.env.production.local',
-              `# Created by Vercel CLI\n${Object.keys(envPull.env ?? {})
-                .sort()
-                .map((key) => `${key}="${escapeValue(envPull.env[key])}"`)
-                .join('\n')}\n`,
+              toDotenvContents(envPull),
             );
           }
 
@@ -324,7 +339,7 @@ jobs:
             search.set('teamId', VERCEL_ORG_ID);
           }
 
-          async function fetchJson(path) {
+          async function fetchText(path) {
             const response = await fetch(`${apiBase}${path}?${search.toString()}`, { headers });
             const text = await response.text();
 
@@ -332,7 +347,11 @@ jobs:
               throw new Error(`${response.status} ${response.statusText}: ${text}`);
             }
 
-            return JSON.parse(text);
+            return text;
+          }
+
+          async function fetchJson(path) {
+            return JSON.parse(await fetchText(path));
           }
 
           function escapeValue(value) {
@@ -343,10 +362,24 @@ jobs:
               .replace(/\r/g, '\\r');
           }
 
+          function toDotenvContents(rawText) {
+            const trimmed = rawText.trimStart();
+
+            if (trimmed.startsWith('{')) {
+              const parsed = JSON.parse(rawText);
+              return `# Created by Vercel CLI\n${Object.keys(parsed.env ?? {})
+                .sort()
+                .map((key) => `${key}="${escapeValue(parsed.env[key])}"`)
+                .join('\n')}\n`;
+            }
+
+            return rawText.endsWith('\n') ? rawText : `${rawText}\n`;
+          }
+
           async function main() {
             const [project, envPull] = await Promise.all([
               fetchJson(`/v9/projects/${encodeURIComponent(VERCEL_PROJECT_ID)}`),
-              fetchJson(`/v3/env/pull/${encodeURIComponent(VERCEL_PROJECT_ID)}/preview`),
+              fetchText(`/v3/env/pull/${encodeURIComponent(VERCEL_PROJECT_ID)}/preview`),
             ]);
 
             const analyticsId =
@@ -384,10 +417,7 @@ jobs:
             );
             await fs.writeFile(
               '.vercel/.env.preview.local',
-              `# Created by Vercel CLI\n${Object.keys(envPull.env ?? {})
-                .sort()
-                .map((key) => `${key}="${escapeValue(envPull.env[key])}"`)
-                .join('\n')}\n`,
+              toDotenvContents(envPull),
             );
           }
 
