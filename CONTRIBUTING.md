@@ -28,6 +28,18 @@
 
 ---
 
+## 🔒 Core UI 프라이빗 서브모듈
+
+- `src/private/core-ui`는 **private git submodule**(`YRootLab/onmaru-core-ui`)입니다.
+  소리마루 핵심 UI·플레이어와 지도 온기모드 UI가 이 안에 있습니다.
+- 클론은 `--recurse-submodules`로, pull 후에는 `npm run submodule:init`를 실행하세요.
+  `npm test`/`npm run build` 전에는 `check:submodule`이 자동 실행됩니다.
+- core UI 수정은 **반드시 서브모듈 안에서** 하고, 서브모듈을 먼저 push한 뒤 부모 저장소에
+  포인터를 커밋합니다. `src/features/`에 복제본을 만들지 마세요.
+- 자세한 규칙과 AI 에이전트용 프롬프트는 [`docs/core-ui-submodule-guide.md`](docs/core-ui-submodule-guide.md)를 참고하세요.
+
+---
+
 ## 📋 PR & 이슈 라이프사이클
 
 1. 구현 작업은 GitHub Issue를 기반으로 진행합니다.

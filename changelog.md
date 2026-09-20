@@ -4,6 +4,11 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+- **Core UI 서브모듈 팀 온보딩 문서 추가**:
+  - `docs/core-ui-submodule-guide.md` 신설 — 서브모듈 구조, 접근 권한·초기화 명령, 수정 커밋 순서(서브모듈 먼저 push), 복제본 금지(과거 `a940204` 사고 재발 방지), CI 인증 동작 방식 정리.
+  - 동료에게 그대로 전달할 수 있는 안내문(5번)과 AI 에이전트(Claude Code/Codex/Cursor/Cline)용 규칙 프롬프트(6번) 포함.
+  - `CONTRIBUTING.md`에 서브모듈 요약 섹션 추가 및 가이드 문서로 링크.
+
 - **소리마루 백엔드 우선 데이터 연동**:
   - `GET /api/v1/odii/stories` 목록과 각 상세 응답을 결합해 재생 URL·대본·좌표·콘텐츠 태그를 화면 모델로 전달.
   - 백엔드 요청 또는 상세 응답이 실패하면 기존 공공 Sorimaru API로 자동 폴백해 서비스 목록을 계속 제공.
