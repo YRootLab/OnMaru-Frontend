@@ -50,6 +50,19 @@ describe('Sorimaru API adapter', () => {
     expect(result[0].imageUrl).toBe('');
   });
 
+  it('백엔드 content tags 배열을 화면 태그로 보존한다', async () => {
+    const network = makeNetwork({
+      items: [{ ...storyItem, contentTags: ['궁궐', '왕실 문화'] }],
+      totalCount: 1,
+      source: 'backend',
+    });
+    const api = createSorimaruApiAdapter(network);
+
+    const result = await api.getStoryList();
+
+    expect(result[0].tags).toEqual(['궁궐', '왕실 문화']);
+  });
+
   it('음원 URL이 없는 항목은 재생 목록에서 제외한다', async () => {
     const network = makeNetwork({
       items: [{ ...storyItem, stid: 'silent-story', audioUrl: '' }, storyItem],

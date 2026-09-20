@@ -4,12 +4,18 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+- **소리마루 백엔드 우선 데이터 연동**:
+  - `GET /api/v1/odii/stories` 목록과 각 상세 응답을 결합해 재생 URL·대본·좌표·콘텐츠 태그를 화면 모델로 전달.
+  - 백엔드 요청 또는 상세 응답이 실패하면 기존 공공 Sorimaru API로 자동 폴백해 서비스 목록을 계속 제공.
+  - 데이터 요청 중에는 기존 카드 크기의 스켈레톤을 유지하고, 요청 실패 시 경고 아이콘과 재시도 동작을 표시.
 - **Microsoft Clarity 사용자 행동 분석 연동**:
   - `NEXT_PUBLIC_CLARITY_PROJECT_ID`가 설정된 환경에서 Clarity 세션 분석을 초기화.
   - 프로젝트 ID가 없으면 분석 스크립트를 로드하지 않아 로컬 개발 환경의 불필요한 수집을 방지.
 - **Private core UI 서브모듈 운영 규칙 정비**:
   - `.gitmodules`가 SSH 기반 private `YRootLab/onmaru-core-ui`를 가리키도록 정정.
   - clone·배포 전 서브모듈 초기화와 Vercel CLI 배포 기준을 `AGENTS.md`에 명시.
+  - Playwright CI도 recursive submodule checkout을 사용해 Core UI 의존 단위 테스트를 실행하도록 정정.
+  - `CORE_UI_READ_TOKEN`으로 CI·배포에서 private submodule을 인증하고, 테스트·빌드 전 `check:submodule` 스크립트로 초기화 누락을 명확히 차단.
 - **소리마루 진입 시 간헐적 자동재생 방지**:
   - 초기 URL 대상 이야기는 명시적으로 `autoPlay=true`가 전달된 경우에만 자동재생하도록 변경.
   - 페이지를 떠날 때 오디오를 일시정지하고 소스를 정리해 다음 진입 시 이전 재생 상태가 되살아나지 않도록 수정.

@@ -11,17 +11,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Configure private submodule HTTPS access
+    - name: Initialize private Core UI submodule
+      env:
+        CORE_UI_READ_TOKEN: ${{ secrets.CORE_UI_READ_TOKEN }}
       run: |
-        git config --global url."https://x-access-token:${{ secrets.CORE_UI_READ_TOKEN }}@github.com/".insteadOf "git@github.com:"
-    - name: Initialize private submodules
-      run: git submodule update --init --recursive
+        test -n "$CORE_UI_READ_TOKEN" || { echo "CORE_UI_READ_TOKEN is required to read src/private/core-ui."; exit 1; }
+        git config --global url."https://x-access-token:${CORE_UI_READ_TOKEN}@github.com/".insteadOf "git@github.com:"
+        git submodule sync --recursive
+        git submodule update --init --recursive
     - uses: actions/setup-node@v4
       with:
         node-version: lts/*
         cache: 'npm'
     - name: Install dependencies
       run: npm ci
+    - name: Verify private Core UI submodule
+      run: npm run check:submodule
     - name: Run unit tests
       run: npm run test
     - name: Install Playwright Browsers
