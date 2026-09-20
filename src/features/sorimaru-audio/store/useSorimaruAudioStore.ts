@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import { SorimaruStoryItem, ScriptLine } from '@/features/sorimaru-audio/types/sorimaru.types';
 import { parseScriptToLines } from '@/features/sorimaru-audio/utils/scriptParser';
 import { sorimaruApiAdapter } from '@/features/sorimaru-audio/api/sorimaruApi';
+import { toast } from 'sonner';
+import { hasAuthenticatedUser } from '@/features/auth/privateState';
 
 interface SorimaruAudioState {
   currentStory: SorimaruStoryItem;
@@ -171,6 +173,10 @@ export const useSorimaruAudioStore = create<SorimaruAudioState>((set, get) => ({
   },
   toggleSavedStory: (story: SorimaruStoryItem) =>
     set((state) => {
+      if (!hasAuthenticatedUser()) {
+        toast.info('로그인해주세요.');
+        return state;
+      }
       const storyKey = story.stid || story.title;
       const alreadySaved = state.savedStories.some((saved) => (saved.stid || saved.title) === storyKey);
       const savedStories = alreadySaved

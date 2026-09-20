@@ -17,7 +17,6 @@ import {
   Bookmark,
   BookmarkCheck,
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useAuth } from '@/features/auth';
 import { useSavedJourneyStore } from '../store/useSavedJourneyStore';
@@ -567,7 +566,6 @@ const ActionLink = styled(Link, transientProps)<{ $color?: string }>`
 `;
 
 export default function BentoJourneyGrid() {
-  const router = useRouter();
   const plan = useJourneyStore((s) => s.currentPlan);
   const isGenerating = useJourneyStore((s) => s.isGenerating);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -591,12 +589,7 @@ export default function BentoJourneyGrid() {
 
   const handleBookmarkToggle = () => {
     if (!isLoggedIn) {
-      toast.info('로그인하면 마음에 드는 여정을 저장할 수 있어요.', {
-        action: {
-          label: '로그인하기',
-          onClick: () => router.push('/auth/login'),
-        },
-      });
+      toast.info('로그인해주세요.');
       return;
     }
 

@@ -3,15 +3,15 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import styled from '@emotion/styled';
-import { Home, BookOpen, Map, Headphones } from 'lucide-react';
+import { Home, BookOpen, Map, Headphones, User } from 'lucide-react';
 import { transientProps } from '@/design-system/styled';
-import { lightPalette , fontSize } from '@/design-system/tokens';
+import { lightPalette, fontSize } from '@/design-system/tokens';
 import { useJourneyStore } from '@/features/journey-curator/store/useJourneyStore';
+import { useAuth } from '@/features/auth';
 
 interface TabProps {
   $isLanding?: boolean;
   $isSoriMaru?: boolean;
-  $isSorimaru?: boolean;
   $isActive?: boolean;
 }
 
@@ -19,7 +19,8 @@ const Nav = styled.nav`
   width: 100%;
   height: 100%;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  /* 탭이 5개가 되므로 5등분 */
+  grid-template-columns: repeat(5, 1fr);
   align-items: stretch;
 `;
 
@@ -68,17 +69,24 @@ const TabLink = styled(Link, transientProps)<TabProps>`
   }
 `;
 
-/** 사이트 공통 하단 탭 (홈 / 한옥 마루 / 지도 / 소리마루) — Header의 데스크톱 GNB를 모바일 폭에서 대체한다. */
+/** 사이트 공통 하단 탭 (홈 / 한옥 마루 / 소리마루 / 지도 / 로그인(나의 마루)) */
 export default function GlobalMobileTabs({ isLanding }: { isLanding: boolean }) {
   const pathname = usePathname();
   const resetJourney = useJourneyStore((s) => s.resetJourney);
-  const isSoriMaruPage = pathname.startsWith('/sorimaru') || pathname.startsWith('/sorimaru');
+  const { isLoggedIn } = useAuth();
+  const isSoriMaruPage = pathname.startsWith('/sorimaru');
 
   const tabs = [
     { href: '/', label: '홈', icon: Home, active: pathname === '/' },
     { href: '/hanok', label: '한옥 이야기', icon: BookOpen, active: pathname.startsWith('/hanok') },
     { href: '/sorimaru', label: '소리마루', icon: Headphones, active: isSoriMaruPage },
     { href: '/map', label: '지도', icon: Map, active: pathname.startsWith('/map') },
+    { 
+      href: isLoggedIn ? '/mypage' : '/auth/login', 
+      label: isLoggedIn ? '나의 마루' : '로그인', 
+      icon: User, 
+      active: pathname.startsWith('/mypage') || pathname.startsWith('/auth/login') 
+    },
   ];
 
   return (
@@ -91,8 +99,7 @@ export default function GlobalMobileTabs({ isLanding }: { isLanding: boolean }) 
             key={tab.href}
             href={tab.href}
             $isLanding={isLanding}
-            $isSoriMaru={isSoriMaruPage}
-            $isActive={isSelected}
+            $isSoriMaru={isSoriMaruPage}$isActive={isSelected}
             onClick={tab.href === '/' ? resetJourney : undefined}
           >
             <span style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>

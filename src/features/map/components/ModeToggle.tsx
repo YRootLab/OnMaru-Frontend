@@ -13,7 +13,7 @@ interface ModeOption {
 }
 
 const MODES: ModeOption[] = [
-  { id: 'info', label: '한옥 정보', icon: Landmark },
+  { id: 'info', label: '관광지 정보', icon: Landmark },
   { id: 'warmth', label: '여행자 온기', icon: Flame },
 ];
 

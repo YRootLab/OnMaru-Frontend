@@ -4,6 +4,9 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+- **로그인 필수 저장 기능 가드**:
+  - 비로그인 사용자가 장소/여정/소리/스크린 한옥의 좋아요·북마크를 누르면 저장되지 않고 `로그인해주세요.` 토스트가 표시되도록 통일.
+  - 저장 기능의 UI 핸들러와 Zustand 저장소 양쪽에서 인증을 확인해 모든 클릭 경로를 차단.
 - **Private Core UI 서브모듈 분리 및 AI / CI 자동화 체계 구축**:
   - 핵심 UI 컴포넌트(지도 온기/히트맵 및 소리마루 오디오/플레이어 등 34개 파일)를 비공개 서브모듈(`src/private/core-ui`, `onmaru-core-ui.git`)로 분리 및 이전.
   - Next.js `@/private/core-ui/*` alias 경로 연동 및 TypeScript 검증 완료.
