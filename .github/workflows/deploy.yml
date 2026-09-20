@@ -131,7 +131,11 @@ jobs:
           }
 
           function escapeValue(value) {
-            return String(value ?? '').replace(/\n/g, '\\n').replace(/\r/g, '\\r');
+            return String(value ?? '')
+              .replace(/\\/g, '\\\\')
+              .replace(/"/g, '\\"')
+              .replace(/\n/g, '\\n')
+              .replace(/\r/g, '\\r');
           }
 
           async function main() {
@@ -332,7 +336,11 @@ jobs:
           }
 
           function escapeValue(value) {
-            return String(value ?? '').replace(/\n/g, '\\n').replace(/\r/g, '\\r');
+            return String(value ?? '')
+              .replace(/\\/g, '\\\\')
+              .replace(/"/g, '\\"')
+              .replace(/\n/g, '\\n')
+              .replace(/\r/g, '\\r');
           }
 
           async function main() {
