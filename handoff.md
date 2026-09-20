@@ -13,6 +13,7 @@
 - Vercel direct deployment에서 `--scope="$VERCEL_ORG_ID"`를 제거했다. 이전 성공 실행처럼 token/project 환경으로 pull하고, private Core UI submodule checkout은 기존 `CORE_UI_READ_TOKEN` 경로를 유지한다.
 
 ## Next Steps
+- Netlify가 발급한 deploy key의 공개키를 `YRootLab/onmaru-core-ui`에 읽기 전용 deploy key로 등록한 뒤 Netlify 배포를 재시도한다. 현재 해당 저장소에는 deploy key가 등록되어 있지 않다.
 - GitHub Repository Secret `CORE_UI_READ_TOKEN`의 private `onmaru-core-ui` read access 유지 여부 확인
 - 팀원에게 `onmaru-core-ui` 서브모듈 접근 권한 및 `npm run submodule:init` 안내
 - #91 백엔드 503 정상화 후 `GET /api/v1/odii/stories` 실응답으로 소리마루 백엔드 우선 경로를 수동 재검증
