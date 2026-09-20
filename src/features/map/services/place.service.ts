@@ -121,19 +121,29 @@ export class PlaceService {
 
       if (!res.items || res.items.length === 0) return null;
 
-      return res.items.map((it) => ({
-        id: it.placeId,
-        name: it.name,
-        category: mapBackendCategoryToPlaceCategory(it.category),
-        lat: it.coordinates.lat,
-        lng: it.coordinates.lng,
-        addr: it.region?.name || '',
-        image: it.thumbnailUrl,
-        tel: null,
-        dist: Math.round(distanceInMeters({ lat: opts.lat, lng: opts.lng }, it.coordinates)),
-        isTraditional: it.category === '한옥' || it.category.toUpperCase().includes('HANOK'),
-        savedByMe: it.savedByMe,
-      }));
+      const center = { lat: opts.lat, lng: opts.lng };
+      const items = res.items
+        .map((it) => {
+          const dist = Math.round(distanceInMeters(center, it.coordinates));
+          return {
+            id: it.placeId,
+            name: it.name,
+            category: mapBackendCategoryToPlaceCategory(it.category),
+            lat: it.coordinates.lat,
+            lng: it.coordinates.lng,
+            addr: it.region?.name || '',
+            image: it.thumbnailUrl,
+            tel: null,
+            dist,
+            isTraditional: it.category === '한옥' || it.category.toUpperCase().includes('HANOK'),
+            savedByMe: it.savedByMe,
+          };
+        })
+        .filter((item) => item.dist <= opts.radius);
+
+      // 일부 백엔드 seed 응답은 요청한 bounding box 밖의 장소도 반환한다.
+      // 이를 그대로 사용하면 전국 지도가 1~2건으로 고정되고 TourAPI 경로도 막힌다.
+      return items.length > 0 ? items : null;
     } catch (err) {
       console.warn('[PlaceService] backend /map/places failed, falling back to TourAPI:', err);
       return null;
