@@ -2,6 +2,8 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { toast } from 'sonner';
+import { hasAuthenticatedUser } from '@/features/auth/privateState';
 
 export interface BookmarkedPlace {
   id: string;
@@ -28,6 +30,10 @@ export const useBookmarkStore = create<BookmarkState>()(
       bookmarks: [],
 
       toggleBookmark: (place) => {
+        if (!hasAuthenticatedUser()) {
+          toast.info('로그인해주세요.');
+          return false;
+        }
         const { bookmarks } = get();
         const exists = bookmarks.some((b) => b.id === place.id);
         if (exists) {
