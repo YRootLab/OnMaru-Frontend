@@ -21,7 +21,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 
-import { meok, palette, lightPalette, surface, fluidHeading, fontSize, ringShadow } from '@/design-system/tokens';
+import { meok, palette, lightPalette, surface, fontSize, ringShadow } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
 
 const SolarShadowModal = dynamic(() => import('./SolarShadowModal'), { ssr: false });
@@ -311,42 +311,15 @@ export default function HanokStructureCards() {
   const [open, setOpen] = useState<OpenModal>(null);
   const close = () => setOpen(null);
 
-  const revealVariants = {
-    hidden: { opacity: 0, y: 28 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] } },
-  };
-
   return (
     <SectionWrapper aria-labelledby="structure-heading">
-      <motion.div
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: '-80px' }}
-        variants={revealVariants}
-      >
+      <div>
         <SectionHeader
           id="structure-heading"
           title="한옥은 왜 이렇게 생겼을까"
         />
-      </motion.div>
-      <motion.div
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: '-60px' }}
-        variants={{
-          hidden: { opacity: 0, y: 24 },
-          visible: {
-            opacity: 1,
-            y: 0,
-            transition: {
-              duration: 0.75,
-              ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
-              delay: 0.12,
-              staggerChildren: 0.14,
-            },
-          },
-        }}
-      >
+      </div>
+      <div>
         <Grid>
         {/* 1. 빛: 절기 일조량 & 남중고도 처마 시뮬레이션 */}
           <motion.div
@@ -437,7 +410,7 @@ export default function HanokStructureCards() {
         </CardContainer>
           </motion.div>
         </Grid>
-      </motion.div>
+      </div>
 
       {open === 'shadow' && <SolarShadowModal onClose={close} />}
       {open === 'assembly' && <HanokAssemblyModal onClose={close} />}

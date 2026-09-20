@@ -81,6 +81,21 @@ const SectionContainer = styled.div`
   }
 `;
 
+const KCultureSectionContainer = styled(SectionContainer)`
+  padding-top: clamp(14px, 2vw, 24px);
+  padding-bottom: clamp(14px, 2vw, 24px);
+
+  @media (max-width: 1024px) {
+    padding-top: clamp(12px, 2vw, 20px);
+    padding-bottom: clamp(12px, 2vw, 20px);
+  }
+
+  @media (max-width: 640px) {
+    padding-top: clamp(10px, 2vw, 16px);
+    padding-bottom: clamp(10px, 2vw, 16px);
+  }
+`;
+
 const StyledVesselReveal = styled(VesselReveal)`
   width: 100%;
 `;
@@ -102,7 +117,7 @@ const paperGround = css`
 // 예전엔 얇은 구분선이 섹션 경계를 표시해 줘서 여백을 줄여 뒀는데, 선을 지운 뒤로는
 // 여백이 그 구분 역할을 다시 떠맡아야 해서 되돌렸다.
 const EditorialSection = styled.div`
-  padding-top: clamp(64px, 7vh, 92px);
+  padding-top: clamp(32px, 3.5vh, 46px);
 `;
 
 // 3. 챕터 대전환: 이달의 한옥 → 도감, 스테이 → 3D 구조, 부재 목록 → 지도
@@ -292,10 +307,10 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
 
         {/* K-컬처 & 웰니스 테마 큐레이션: K-드라마, 촌캉스, 야간기행, 종가 미식 (토스/당근 스타일) */}
         <EditorialSection>
-          <StyledVesselReveal id="hanok-kculture-themes">
-            <SectionContainer>
+          <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.kculture}>
+            <KCultureSectionContainer>
               <KCultureThemeFeed />
-            </SectionContainer>
+            </KCultureSectionContainer>
           </StyledVesselReveal>
         </EditorialSection>
 
@@ -355,10 +370,11 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
         </ChapterBreak>
 
         {/* 온마루 한옥 매니페스토 (자체 상하 여백을 가지고 있다) */}
-        <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.manifesto}>
-          <SectionContainer>
-            <HanokManifestoCta />
-          </SectionContainer>
+        <StyledVesselReveal
+          id={HANOK_REVEAL_SECTIONS.manifesto}
+          exitThresholdRatio={0.9}
+        >
+          <HanokManifestoCta />
         </StyledVesselReveal>
       </PageInner>
 
