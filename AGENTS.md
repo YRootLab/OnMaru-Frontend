@@ -66,9 +66,15 @@
 - Create semantic version tags such as `v0.3.2` only from `main`.
 - Delete short-lived branches after merge. Release automation must use least-privilege permissions and avoid workflow loops.
 
-# Submodule Management (src/private/core-ui)
+## Private core UI submodule
 
-- `src/private/core-ui` is a private Git submodule hosting proprietary core UI components (`map-warmth`, `sorimaru`, etc.).
+- `src/private/core-ui` is a Git submodule pointing to the private `YRootLab/onmaru-core-ui` repository.
+- After cloning the repository, always run `git submodule update --init --recursive`.
+- Do not record private submodule access permissions or authentication tokens in source code, `.env.example`, logs, or documentation.
+- When modifying files inside the private submodule, commit and push those changes in the submodule repository first, then commit the updated submodule pointer in the parent repository.
+- Do not arbitrarily delete the parent repository's `.gitmodules` or `src/private/core-ui` gitlink, or convert the gitlink into a regular directory.
+- Verify that the submodule is initialized before deploying to Vercel.
+- Deploy applications using the private submodule through the Vercel CLI or CI configured with private submodule access.
+- If Vercel Git integration cannot read the private submodule, use Vercel CLI deployment instead of automatic deployment.
+- Core UI components are imported via `@/private/core-ui/*`.
 - When starting work in a fresh workspace or after branch switches, verify that `src/private/core-ui` is populated. If empty or outdated, immediately run `git submodule update --init --recursive` (or `npm run submodule:init`).
-- Core UI components are imported via `@/private/core-ui/*` alias.
-- When committing changes touching the submodule, commit and push within `src/private/core-ui` first, then record the updated submodule commit pointer in the parent repository.
