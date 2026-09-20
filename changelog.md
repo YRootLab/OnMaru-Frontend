@@ -32,6 +32,7 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 - Next.js·Vitest 및 전이 의존성을 보안 patch 버전으로 올려 의존성 감사 취약점을 모두 해결했다.
 - Vitest/Vite의 YAML 2.x 의존성을 lockfile에 고정해 CI의 `npm ci` 설치가 일관되게 동작하도록 했다.
 - Vercel CLI pull을 이전 성공 방식으로 되돌려 잘못 해석된 `VERCEL_ORG_ID` scope 때문에 발생하던 `User not found` 배포 실패를 제거했다.
+- Netlify repository preparation이 private Core UI submodule을 가져올 수 있도록 submodule URL을 SSH에서 HTTPS로 전환하고, Netlify 읽기 전용 deploy key 등록 절차를 문서화했다.
 
 - 홈 추천 코스, 인기 한옥 소리, 인기 지역을 백엔드 홈 API로 연동하고 기존 홈 목데이터 프록시를 제거했다.
 - 인기 한옥 소리 원천이 `503 SERVICE_UNAVAILABLE`일 때 빈 재시도 UI를 표시한다.
