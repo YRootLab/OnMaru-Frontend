@@ -62,34 +62,35 @@ export const VesselReveal: React.FC<VesselRevealProps> = ({
       isInitialObservation: true,
       isReloadProtected: false,
       isIntersecting: false,
+      isViewportIntersecting: false,
       top: el.getBoundingClientRect().top,
+      bottom: el.getBoundingClientRect().bottom,
       revealBoundary: initialBoundary,
       viewportBottom: window.innerHeight,
     });
 
     let currentStage = initial.stage;
     isReloadProtectedRef.current = initial.isReloadProtected;
+    const isViewportIntersectingRef = { current: initial.isReloadProtected };
     setState((previous) => (
       previous.stage === initial.stage
         ? previous
         : { stage: initial.stage, shouldAnimate: false }
     ));
 
-    // 새로고침 시 이미 화면에 노출되어 보호된 섹션은 옵저버를 등록할 필요 없이 bloomed 상태 고정
-    if (initial.isReloadProtected) {
-      return undefined;
-    }
-
-    const observer = new IntersectionObserver((entries) => {
-      const entry = entries[0];
-      if (!entry) return;
+    const applyEntry = (entry: IntersectionObserverEntry, isViewportObserver: boolean) => {
+      if (isViewportObserver) {
+        isViewportIntersectingRef.current = entry.isIntersecting;
+      }
       const revealBoundary = entry.rootBounds?.bottom ?? window.innerHeight * exitThresholdRatio;
       const next = resolveVesselRevealState({
         currentStage,
         isInitialObservation: false,
         isReloadProtected: isReloadProtectedRef.current,
-        isIntersecting: entry.isIntersecting,
+        isIntersecting: isViewportObserver ? false : entry.isIntersecting,
+        isViewportIntersecting: isViewportIntersectingRef.current,
         top: entry.boundingClientRect.top,
+        bottom: entry.boundingClientRect.bottom,
         revealBoundary,
         viewportBottom: window.innerHeight,
       });
@@ -99,18 +100,24 @@ export const VesselReveal: React.FC<VesselRevealProps> = ({
 
       currentStage = next.stage;
       setState({ stage: next.stage, shouldAnimate: !prefersReducedMotion });
+    };
 
-      // 한 번 bloomed(리빌)된 섹션은 다시 접히지 않으므로 관찰 종료
-      if (next.stage === 'bloomed') {
-        observer.disconnect();
-      }
+    const revealObserver = new IntersectionObserver((entries) => {
+      const entry = entries[0];
+      if (entry) applyEntry(entry, false);
     }, {
       rootMargin: `0px 0px -${(1 - exitThresholdRatio) * 100}% 0px`,
     });
-    observer.observe(el);
+    const viewportObserver = new IntersectionObserver((entries) => {
+      const entry = entries[0];
+      if (entry) applyEntry(entry, true);
+    });
+    revealObserver.observe(el);
+    viewportObserver.observe(el);
 
     return () => {
-      observer.disconnect();
+      revealObserver.disconnect();
+      viewportObserver.disconnect();
     };
   }, [exitThresholdRatio, prefersReducedMotion]);
 
