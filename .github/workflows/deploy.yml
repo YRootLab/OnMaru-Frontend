@@ -70,6 +70,9 @@ jobs:
       - name: Install project dependencies
         run: npm ci
 
+      - name: Verify private Core UI submodule
+        run: npm run check:submodule
+
       - name: Build project
         run: npm run build
 
@@ -78,7 +81,7 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: vercel deploy --prod --target=production --token="$VERCEL_TOKEN"
+        run: vercel deploy --prod --token="$VERCEL_TOKEN"
 
   Deploy-Preview-or-Release:
     name: Deploy to Preview / Staging (develop / release/*)
@@ -133,6 +136,9 @@ jobs:
 
       - name: Install project dependencies
         run: npm ci
+
+      - name: Verify private Core UI submodule
+        run: npm run check:submodule
 
       - name: Build project
         run: npm run build
