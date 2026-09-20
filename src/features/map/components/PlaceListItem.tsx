@@ -99,7 +99,7 @@ const SaveButtonSlot = styled.div`
   z-index: 3;
 `;
 
-const ThumbnailBox = styled.div<{ $isSelected?: boolean }>`
+const ThumbnailBox = styled.div<{ $isSelected?: boolean; $src?: string | null }>`
   position: relative;
   width: 88px;
   height: 88px;
@@ -107,7 +107,10 @@ const ThumbnailBox = styled.div<{ $isSelected?: boolean }>`
   flex-shrink: 0;
   border-radius: 11.2px;
   overflow: hidden;
-  background: ${meok[200]};
+  ${({ $src }) =>
+    $src
+      ? `background-image: url("${$src}"); background-size: cover; background-position: center;`
+      : `background: ${meok[200]};`}
   display: flex;
   align-items: center;
   justify-content: center;
@@ -406,7 +409,7 @@ function PlaceListItemComponent({
         aria-current={isSelected ? 'true' : undefined}
         aria-expanded={isSelected}
       >
-        <ThumbnailBox $isSelected={isSelected}>
+        <ThumbnailBox $isSelected={isSelected} $src={item.image}>
           {item.image ? (
             <Image
               src={item.image}
