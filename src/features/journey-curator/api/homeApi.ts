@@ -17,11 +17,11 @@ export type CuratedCourse = {
   thumbnailUrl: string | null;
   summary: string;
   tags: string[];
-  saved: boolean;
+  savedByMe: boolean;
 };
 
 export type TrendingSound = {
-  stid: string;
+  storyId: string;
   title: string;
   audioTitle?: string;
   locationName?: string;

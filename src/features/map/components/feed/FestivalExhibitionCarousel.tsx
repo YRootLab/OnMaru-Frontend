@@ -239,11 +239,14 @@ const FestivalCard = styled.button`
   }
 `;
 
-const ThumbBox = styled.div`
+const ThumbBox = styled.div<{ $src: string | null }>`
   position: relative;
   width: 100%;
   height: 136px;
-  background: ${meok[200]};
+  ${({ $src }) =>
+    $src
+      ? `background-image: url("${$src}"); background-size: cover; background-position: center;`
+      : `background: ${meok[200]};`}
   overflow: hidden;
 
   img {
@@ -464,7 +467,7 @@ export default function FestivalExhibitionCarousel({ festivals }: FestivalExhibi
         <Scroller ref={scrollerRef} onWheel={handleWheel} role="region" aria-label="진행 중인 축제 및 기획전 목록">
           {displayList.map((item) => (
             <FestivalCard key={item.id} type="button" onClick={() => handleClick(item)}>
-              <ThumbBox>
+              <ThumbBox $src={item.image ?? null}>
                 {item.image ? (
                   <Image
                     src={item.image}

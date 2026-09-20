@@ -1,7 +1,8 @@
 # handoff.md
 
 ## Current Work
-- 홈 화면 API 연동: 큐레이션 코스·인기 소리·인기 지역을 `api/v1/home` API로 교체했고, 탐색 시작 요청을 `POST /api/journey-curator/explore` 호환 경로로 전환했다.
+- develop 최신 내역을 `feat/issue-111-ui-refactor`에 병합하며 changelog·handoff·Core UI submodule 충돌을 해소했다. 병합으로 들어온 `@vercel/analytics`·`@vercel/speed-insights` 의존성을 `npm install`로 설치해 `Module not found` 빌드 오류를 해결하고 lockfile을 커밋했다.
+- 소리마루 "장면을 따라 걷는 소리" 레일은 Core UI `fix/sorimaru-editorial-image-seams` 브랜치의 `e4d49c4`를 가리키며, 인라인 이미지의 하단 베이스라인 여백·다크 모드 테두리·하단 패널의 이중 클리핑과 반투명 모서리 프린지를 제거하고 카드 그림자를 복원했다.
 - Vercel Git 배포는 private Core UI submodule을 인증할 수 없어 비활성화했다. `deploy.yml`의 GitHub Actions Vercel CLI 배포가 `CORE_UI_READ_TOKEN`으로 submodule을 초기화한 뒤 production/preview를 배포한다.
 - 한옥 이야기의 처마 일조·7단계 조립 3D 모달은 section reveal의 transform 컨텍스트 밖인 `document.body` 포털로 렌더링한다. 작은 화면에서도 안전 영역을 제외한 뷰포트 안에서 유지된다.
 - Vercel Speed Insights를 루트 레이아웃에 연결해 실사용 Core Web Vitals를 수집한다.

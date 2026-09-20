@@ -128,12 +128,14 @@ const CardButton = styled.button<{ $isCurrent: boolean; $isHovered: boolean; $ac
   }
 `;
 
-const ThumbnailContainer = styled.div`
+const ThumbnailContainer = styled.div<{ $src: string }>`
   position: relative;
   min-height: 136px;
   overflow: hidden;
   border-radius: 10px;
-  background-color: #e5e5e3;
+  background-image: url("${({ $src }) => $src}");
+  background-size: cover;
+  background-position: center;
 
   @media (min-width: 640px) {
     min-height: 144px;
@@ -349,7 +351,7 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
       $isHovered={isHovered}
       $accentColor={accentColor}
     >
-      <ThumbnailContainer>
+      <ThumbnailContainer $src={imageSrc}>
         <ThumbnailPhoto
           src={imageSrc}
           alt=""
