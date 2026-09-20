@@ -145,11 +145,11 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: vercel build --target=preview --token="$VERCEL_TOKEN"
+        run: vercel build --token="$VERCEL_TOKEN"
 
       - name: Deploy Project Artifacts to Vercel (Preview / Release)
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: vercel deploy --prebuilt --target=preview --token="$VERCEL_TOKEN"
+        run: vercel deploy --prebuilt --token="$VERCEL_TOKEN"
