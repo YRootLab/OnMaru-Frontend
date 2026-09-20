@@ -10,23 +10,26 @@
 import { useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 import { X } from 'lucide-react';
+import { createPortal } from 'react-dom';
 
 import { meok, surface , fontSize } from '@/design-system/tokens';
 
 const Overlay = styled.div`
   position: fixed;
   inset: 0;
-  z-index: 900;
+  z-index: 1000000;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(12px, 2vw, 28px);
+  padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right))
+    max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  background: rgba(24, 24, 23, 0.42);
 `;
 
 const Shell = styled.div`
   position: relative;
-  width: min(1180px, 100%);
-  height: min(760px, 100%);
+  width: min(1180px, calc(100vw - 24px));
+  height: min(760px, calc(100dvh - 24px));
   overflow: hidden;
   border-radius: clamp(18px, 2.4vw, 28px);
   background: ${surface.light.base};
@@ -102,10 +105,10 @@ export default function StructureModal({ title, onClose, children }: StructureMo
     };
   }, [onClose]);
 
-  return (
+  return createPortal(
     <Overlay
       role="presentation"
-      onMouseDown={(event) => {
+      onPointerDown={(event) => {
         // 덮개를 직접 눌렀을 때만 닫는다. 안쪽에서 시작한 드래그(절기 슬라이더)가
         // 덮개 위에서 끝나도 닫히면 안 된다.
         if (event.target === event.currentTarget) onClose();
@@ -118,6 +121,7 @@ export default function StructureModal({ title, onClose, children }: StructureMo
 
         {children}
       </Shell>
-    </Overlay>
+    </Overlay>,
+    document.body,
   );
 }
