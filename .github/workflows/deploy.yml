@@ -26,7 +26,7 @@ jobs:
         with:
           fetch-depth: 0
           submodules: recursive
-          ssh-key: ${{ secrets.SUBMODULE_SSH_KEY }}
+          ssh-key: ${{ secrets.CORE_UI_DEPLOY_KEY }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -56,7 +56,7 @@ jobs:
         with:
           fetch-depth: 0
           submodules: recursive
-          ssh-key: ${{ secrets.SUBMODULE_SSH_KEY }}
+          ssh-key: ${{ secrets.CORE_UI_DEPLOY_KEY }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
