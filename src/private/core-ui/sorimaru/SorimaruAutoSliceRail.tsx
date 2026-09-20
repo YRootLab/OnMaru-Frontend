@@ -154,7 +154,7 @@ export const SorimaruAutoSliceRail: React.FC<SorimaruAutoSliceRailProps> = () =>
     gsap.fromTo(contentRef.current, { opacity: 0, filter: 'blur(10px)', y: 8 }, {
       opacity: 1, filter: 'blur(0px)', y: 0, duration: 1.05, ease: 'power2.out',
     });
-  }, { dependencies: [shouldReduceMotion, showIntroVideo] });
+  }, { scope: stageRef, dependencies: [shouldReduceMotion, showIntroVideo] });
 
   return (
     <IntroStage ref={stageRef} aria-label="소리마루 오디오 히어로">

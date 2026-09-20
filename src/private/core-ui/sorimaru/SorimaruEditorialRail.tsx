@@ -10,7 +10,6 @@ import { SORIMARU_THEME_CATEGORIES } from '@/features/sorimaru-audio/data/sorima
 import { useSorimaruApiService } from '@/features/sorimaru-audio/context/SorimaruDependencyContext';
 import { SORIMARU_RAIL_VISIBLE_BUFFER, getVisibleRailPositions, shouldFetchRailCategory } from './sorimaruEditorialRailModel';
 import { palette, meok, surface, fontSize } from '@/design-system/tokens';
-import { transientProps } from '@/design-system/styled';
 
 interface SorimaruEditorialRailProps {
   stories: SorimaruStoryItem[];
@@ -86,7 +85,7 @@ const durationFor = (story: SorimaruStoryItem) =>
 
 
 
-const CardMotionButton = styled(motion.button, transientProps)<{ $isActive: boolean }>`
+const CardMotionButton = styled(motion.button)<{ $isActive: boolean }>`
   position: relative;
   height: 280px;
   width: 175px;
@@ -95,7 +94,7 @@ const CardMotionButton = styled(motion.button, transientProps)<{ $isActive: bool
   overflow: hidden;
   border-radius: 1.25rem;
   isolation: isolate;
-  background-color: ${({ $isActive }) => ($isActive ? '#fff8f5' : '#ffffff')};
+  background-color: transparent;
   text-align: left;
   outline: none;
   border: none;
@@ -107,11 +106,10 @@ const CardMotionButton = styled(motion.button, transientProps)<{ $isActive: bool
   transition: box-shadow 0.3s ease, filter 0.3s ease;
 
   [data-theme='dark'] & {
-    background-color: ${({ $isActive }) =>
-      $isActive ? surface.dark.card : surface.dark.surface};
+    background-color: ${surface.dark.card};
     box-shadow: ${({ $isActive }) =>
       $isActive ? '0 14px 32px rgba(0, 0, 0, 0.45)' : '0 4px 14px rgba(0, 0, 0, 0.25)'};
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   &:hover {
@@ -130,20 +128,25 @@ const CardMotionButton = styled(motion.button, transientProps)<{ $isActive: bool
 
 const CardBottomPanel = styled.div<{ $isActive: boolean }>`
   position: absolute;
-  bottom: -1px;
-  left: -1px;
-  right: -1px;
+  bottom: 0;
+  left: 0;
+  right: 0;
   box-sizing: border-box;
+  width: 100%;
   padding: 0.875rem 1rem;
   color: ${meok[900]};
+  backdrop-filter: blur(24px);
+  border-bottom-left-radius: 1.25rem;
+  border-bottom-right-radius: 1.25rem;
+  overflow: hidden;
 
   background-color: ${({ $isActive }) =>
-    $isActive ? '#fff8f5' : '#ffffff'};
+    $isActive ? 'rgba(255, 248, 245, 0.88)' : 'rgba(255, 255, 255, 0.72)'};
 
   [data-theme='dark'] & {
     color: ${meok[100]};
     background-color: ${({ $isActive }) =>
-      $isActive ? surface.dark.card : surface.dark.surface};
+      $isActive ? 'rgba(45, 41, 36, 0.92)' : 'rgba(32, 29, 25, 0.82)'};
     border-top: 1px solid rgba(255, 255, 255, 0.08);
   }
 
@@ -211,13 +214,6 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(
     const isVisible = distance <= SORIMARU_RAIL_VISIBLE_BUFFER;
     const isActive = offset === 0;
     const initialImageSrc = story.imageUrl || fallbackImageFor(story);
-    const [imageSrc, setImageSrc] = useState(initialImageSrc);
-    const fallbackImageSrc = fallbackImageFor(story);
-    const defaultImageSrc = FALLBACK_IMAGE_SETS.default[0];
-
-    useEffect(() => {
-      setImageSrc(initialImageSrc);
-    }, [initialImageSrc]);
     const tilt = isActive
       ? 0
       : offset < 0
@@ -259,20 +255,21 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(
           transition={{ duration: trackTransitionEnabled && isVisible ? 0.42 : 0, ease: [0.16, 1, 0.3, 1] }}
         >
           <img
-            src={imageSrc}
+            src={initialImageSrc}
             alt=""
             draggable={false}
             loading={distance <= 3 ? 'eager' : 'lazy'}
             decoding="async"
-            style={{ display: 'block', height: '100%', width: '100%', objectFit: 'cover' }}
-            onError={() => {
-              setImageSrc((current) =>
-                current === defaultImageSrc
-                  ? current
-                  : current === fallbackImageSrc
-                    ? defaultImageSrc
-                    : fallbackImageSrc,
-              );
+            style={{ height: '100%', width: '100%', objectFit: 'cover' }}
+            onError={(event) => {
+              const image = event.currentTarget;
+              if (image.dataset.fallbackApplied === 'true') {
+                image.onerror = null;
+                image.src = FALLBACK_IMAGE_SETS.default[0];
+                return;
+              }
+              image.dataset.fallbackApplied = 'true';
+              image.src = fallbackImageFor(story);
             }}
           />
           <div

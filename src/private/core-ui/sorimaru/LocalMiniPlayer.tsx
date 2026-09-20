@@ -20,7 +20,6 @@ import { SorimaruRoadview } from './SorimaruRoadview';
 import { PlayerTranscriptPanel } from './PlayerTranscriptPanel';
 import { normalizeContentTags } from './playerTranscriptModel';
 import { palette, meok, fontSize } from '@/design-system/tokens';
-import { transientProps } from '@/design-system/styled';
 
 type ViewMode = 'roadview' | 'transcript';
 
@@ -418,7 +417,7 @@ const PlayerHeaderActions = styled.div`
   justify-content: flex-end;
 `;
 
-const HeartSaveButton = styled(motion.button, transientProps)<{ $saved: boolean }>`
+const HeartSaveButton = styled(motion.button)<{ $saved: boolean }>`
   display: inline-flex;
   width: 2.25rem;
   height: 2.25rem;
@@ -467,7 +466,7 @@ const CloseBtn = styled(motion.button)`
 `;
 
 /* 미니 플레이어 바 전용 슬림 하트 버튼 */
-const MiniHeartBtn = styled(motion.button, transientProps)<{ $saved: boolean }>`
+const MiniHeartBtn = styled(motion.button)<{ $saved: boolean }>`
   display: inline-flex;
   width: 2.25rem;
   height: 2.25rem;
