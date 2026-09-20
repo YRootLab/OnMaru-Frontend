@@ -88,7 +88,7 @@ export type JourneyRepository = {
 export function createJourneyRepository(request: RequestFn = apiRequest): JourneyRepository {
   return {
     start(input) {
-      return request<RunAccepted>('/explorations', {
+      return request<RunAccepted>('/api/journey-curator/explore', {
         method: 'POST',
         body: {
           query: input.query,
@@ -97,6 +97,7 @@ export function createJourneyRepository(request: RequestFn = apiRequest): Journe
         },
         csrf: true,
         idempotencyKey: input.idempotencyKey,
+        rootPath: true,
       });
     },
     submitTurn(input) {

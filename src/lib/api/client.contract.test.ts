@@ -48,6 +48,7 @@ describe('api contract foundation', () => {
       }
       return new Response(JSON.stringify({ ok: true }));
     });
+
     resetApiClientForTests({ baseUrl: 'https://api.onmaru.test', fetcher: fetcher as unknown as typeof fetch });
 
     await apiRequest('/explorations', {
@@ -68,6 +69,22 @@ describe('api contract foundation', () => {
           'X-CSRF-TOKEN': 'csrf-1',
         }),
       }),
+    );
+  });
+
+  it('keeps compatibility paths at the backend root', async () => {
+    const fetcher = vi.fn(async () => new Response(JSON.stringify({ ok: true })));
+    resetApiClientForTests({ baseUrl: 'https://api.onmaru.test', fetcher: fetcher as unknown as typeof fetch });
+
+    await apiRequest('/api/journey-curator/explore', {
+      method: 'POST',
+      body: { query: '경주 한옥' },
+      rootPath: true,
+    });
+
+    expect(fetcher).toHaveBeenCalledWith(
+      'https://api.onmaru.test/api/journey-curator/explore',
+      expect.objectContaining({ credentials: 'include' }),
     );
   });
 

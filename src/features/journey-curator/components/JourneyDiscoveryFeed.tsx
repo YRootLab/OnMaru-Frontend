@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import styled from '@emotion/styled';
-import { MapPin, ArrowRight, Volume2 } from 'lucide-react';
-import { palette, meok, fontSize, ringShadow } from '@/design-system/tokens';
+import { MapPin, ArrowRight, RotateCcw, Volume2 } from 'lucide-react';
+import { palette, fontSize, ringShadow } from '@/design-system/tokens';
 import { useJourneyStore } from '../store/useJourneyStore';
+import { useCuratedCourses, usePopularRegions, useTrendingSounds } from '../hooks/useHomeData';
 
 const FeedContainer = styled.div`
   width: min(calc(100% - 40px), 1140px);
@@ -144,6 +145,16 @@ const CourseImage = styled.img`
 
   ${CourseCard}:hover & {
     transform: scale(1.05);
+  }
+`;
+
+const CourseImagePlaceholder = styled.div`
+  width: 100%;
+  height: 100%;
+  background: #e5e5e3;
+
+  [data-theme='dark'] & {
+    background: #2d2924;
   }
 `;
 
@@ -401,6 +412,139 @@ const SkeletonLine = styled(SkeletonPulse)<{ $w?: string; $h?: string }>`
   border-radius: 6px;
 `;
 
+const FeedState = styled.div<{ $compact?: boolean }>`
+  grid-column: 1 / -1;
+  min-height: ${({ $compact }) => ($compact ? '132px' : '242px')};
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  border: 1px dashed #d9d9d7;
+  border-radius: 20px;
+  background: #f8f8f7;
+  text-align: center;
+
+  [data-theme='dark'] & {
+    border-color: #4a453f;
+    background: #24211d;
+  }
+`;
+
+const Mate = styled.div`
+  position: relative;
+  width: 48px;
+  height: 38px;
+  margin: 0 auto 10px;
+  border: 2px solid #433d37;
+  border-top: none;
+  border-radius: 0 0 14px 14px;
+  background: #ffffff;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -13px;
+    left: -6px;
+    width: 56px;
+    height: 20px;
+    border: 2px solid #433d37;
+    border-bottom-width: 4px;
+    border-radius: 50% 50% 5px 5px;
+    background: ${palette.juhong[400]};
+  }
+
+  &::after {
+    content: '· ᴗ ·';
+    position: absolute;
+    inset: 9px 0 0;
+    color: #433d37;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: -2px;
+  }
+
+  [data-theme='dark'] & {
+    border-color: #d9d9d7;
+    background: #312d28;
+
+    &::before {
+      border-color: #d9d9d7;
+    }
+
+    &::after {
+      color: #f8f8f7;
+    }
+  }
+`;
+
+const FeedStateTitle = styled.p`
+  margin: 0;
+  color: #191f28;
+  font-family: var(--font-hanok);
+  font-size: ${fontSize.base};
+  font-weight: 700;
+
+  [data-theme='dark'] & {
+    color: #f8f9fa;
+  }
+`;
+
+const FeedStateDescription = styled.p`
+  margin: 5px 0 12px;
+  color: #6b7684;
+  font-size: ${fontSize.sm};
+
+  [data-theme='dark'] & {
+    color: #a1a1aa;
+  }
+`;
+
+const RetryButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 0;
+  border-radius: 999px;
+  padding: 7px 12px;
+  background: #ffffff;
+  box-shadow: ${ringShadow.light.button};
+  color: ${palette.juhong[600]};
+  cursor: pointer;
+  font-size: ${fontSize.xs};
+  font-weight: 700;
+
+  [data-theme='dark'] & {
+    background: #312d28;
+    box-shadow: ${ringShadow.dark.button};
+    color: ${palette.juhong[400]};
+  }
+`;
+
+function HomeFeedFailure({
+  compact = false,
+  unavailable = false,
+  onRetry,
+}: {
+  compact?: boolean;
+  unavailable?: boolean;
+  onRetry: () => void;
+}) {
+  return (
+    <FeedState $compact={compact} role="status" aria-live="polite">
+      <div>
+        <Mate aria-hidden="true" />
+        <FeedStateTitle>{unavailable ? '온마루가 소식을 모으고 있어요' : '잠시 길을 잃었어요'}</FeedStateTitle>
+        <FeedStateDescription>
+          {unavailable ? '새로운 이야기를 준비 중이에요. 잠시 후 다시 찾아올게요.' : '연결을 다시 확인해 볼까요?'}
+        </FeedStateDescription>
+        <RetryButton type="button" onClick={onRetry}>
+          <RotateCcw size={13} />
+          다시 불러오기
+        </RetryButton>
+      </div>
+    </FeedState>
+  );
+}
+
 /* ── 3. 지역별 한옥 퀵 탐색 ── */
 const RegionGrid = styled.div`
   display: grid;
@@ -482,125 +626,12 @@ const RegionSub = styled.span`
   }
 `;
 
-
-
-interface RecommendedCourse {
-  id: string;
-  badge: string;
-  title: string;
-  description: string;
-  image: string;
-  query: string;
-  tags: string[];
-}
-
-/** 백엔드 /hanoks 실데이터를 코스 카드로 매핑. 썸네일 없는 항목은 제외. */
-interface SectionMetadata<T> {
-  title: string;
-  description: string;
-  items: T[];
-}
-
-function useRecommendedCourses(): { data: SectionMetadata<RecommendedCourse> | null; loading: boolean } {
-  const [data, setData] = useState<SectionMetadata<RecommendedCourse> | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch('/api/home/recommended-courses')
-      .then((r) => r.json())
-      .then((res: { title: string; description: string; courses: RecommendedCourse[] }) => {
-        if (cancelled) return;
-        setData({ title: res.title, description: res.description, items: res.courses ?? [] });
-      })
-      .catch(() => {
-        if (!cancelled) setData(null);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  return { data, loading };
-}
-
-/** /api/home/trending-sounds 반환 스키마 */
-interface TrendingSound {
-  id: string;
-  title: string;
-  location: string;
-  duration: string;
-  href: string;
-  regionName: string;
-  rank: number;
-}
-
-
-
-/** 실시간 인기 지역 소리마루 트랙을 가져온다. 오류 시 폴백 배열 반환. */
-function useTrendingSounds(): { data: SectionMetadata<TrendingSound> | null; loading: boolean } {
-  const [data, setData] = useState<SectionMetadata<TrendingSound> | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch('/api/home/trending-sounds')
-      .then((r) => r.json())
-      .then((res: { title: string; description: string; sounds: TrendingSound[] }) => {
-        if (cancelled) return;
-        setData({ title: res.title, description: res.description, items: res.sounds ?? [] });
-      })
-      .catch(() => {
-        if (!cancelled) setData(null);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => { cancelled = true; };
-  }, []);
-
-  return { data, loading };
-}
-
-interface PopularRegion {
-  name: string;
-  sub: string;
-  query: string;
-}
-
-function usePopularRegions(): { data: SectionMetadata<PopularRegion> | null; loading: boolean } {
-  const [data, setData] = useState<SectionMetadata<PopularRegion> | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch('/api/home/popular-regions')
-      .then((r) => r.json())
-      .then((res: { title: string; description: string; regions: PopularRegion[] }) => {
-        if (cancelled) return;
-        setData({ title: res.title, description: res.description, items: res.regions ?? [] });
-      })
-      .catch(() => {
-        if (!cancelled) setData(null);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => { cancelled = true; };
-  }, []);
-
-  return { data, loading };
-}
-
 export default function JourneyDiscoveryFeed() {
   const setQuery = useJourneyStore((s) => s.setQuery);
   const submitSearch = useJourneyStore((s) => s.submitSearch);
-  const { data: trendingSounds, loading: soundsLoading } = useTrendingSounds();
-  const { data: recommendedCourses } = useRecommendedCourses();
-  const { data: popularRegions } = usePopularRegions();
+  const { data: courses, loading: coursesLoading, failed: coursesFailed, unavailable: coursesUnavailable, retry: retryCourses } = useCuratedCourses();
+  const { data: trendingSounds, loading: soundsLoading, failed: soundsFailed, unavailable: soundsUnavailable, retry: retrySounds } = useTrendingSounds();
+  const { data: popularRegions, loading: regionsLoading, failed: regionsFailed, unavailable: regionsUnavailable, retry: retryRegions } = usePopularRegions();
 
   const handleSelectCourse = (query: string) => {
     setQuery(query);
@@ -610,33 +641,51 @@ export default function JourneyDiscoveryFeed() {
   return (
     <FeedContainer>
       {/* 1. 에디터 추천 코스 */}
-      {recommendedCourses && (
-        <section>
-          <SectionHeader>
-            <SectionTitleGroup>
-              <SectionTitle>{recommendedCourses.title}</SectionTitle>
-              <SectionDescription>{recommendedCourses.description}</SectionDescription>
-            </SectionTitleGroup>
-          </SectionHeader>
+      <section>
+        <SectionHeader>
+          <SectionTitleGroup>
+            <SectionTitle>이번 주 추천 코스</SectionTitle>
+            <SectionDescription>정취와 소리가 머무는 장소를 둘러보세요.</SectionDescription>
+          </SectionTitleGroup>
+        </SectionHeader>
 
-          <CourseGrid>
-            {recommendedCourses.items.map((course) => (
-            <CourseCard key={course.id} onClick={() => handleSelectCourse(course.query)}>
+        <CourseGrid>
+          {coursesLoading
+            ? Array.from({ length: 3 }).map((_, index) => (
+                <SkeletonCard key={index} aria-hidden="true">
+                  <SkeletonLine $h="190px" />
+                  <SoundInfo>
+                    <SkeletonLine $w="70%" $h="16px" />
+                    <SkeletonLine $w="100%" $h="40px" />
+                  </SoundInfo>
+                </SkeletonCard>
+              ))
+            : coursesFailed ? (
+              <HomeFeedFailure unavailable={coursesUnavailable} onRetry={retryCourses} />
+            )
+            : courses.map((course) => (
+            <CourseCard key={course.placeId} onClick={() => handleSelectCourse(`${course.regionName} ${course.name}`)}>
               <CourseImageWrap>
-                <CourseImage src={course.image} alt={course.title} loading="lazy" />
+                {course.thumbnailUrl ? (
+                  <CourseImage src={course.thumbnailUrl} alt={course.name} loading="lazy" />
+                ) : (
+                  <CourseImagePlaceholder aria-label={`${course.name} 이미지 없음`} role="img" />
+                )}
                 <LocationBadge>
                   <MapPin size={11} />
-                  <span>{course.badge}</span>
+                  <span>{course.regionName}</span>
                 </LocationBadge>
               </CourseImageWrap>
               <CourseBody>
-                <CourseTitle>{course.title}</CourseTitle>
-                <CourseDesc>{course.description}</CourseDesc>
+                <CourseTitle>{course.name}</CourseTitle>
+                <CourseDesc>{course.summary}</CourseDesc>
                 <CourseFooter>
                   <TagList>
-                    {course.tags.map((t) => (
-                      <Tag key={t}>{t}</Tag>
+                    <Tag>{course.category}</Tag>
+                    {course.tags.map((tag) => (
+                      <Tag key={tag}>#{tag}</Tag>
                     ))}
+                    {course.saved && <Tag>저장됨</Tag>}
                   </TagList>
                   <ExploreText>
                     <span>일정 보기</span>
@@ -648,15 +697,13 @@ export default function JourneyDiscoveryFeed() {
           ))}
         </CourseGrid>
       </section>
-      )}
 
       {/* 2. 소리마루 인기 프리뷰 */}
-      {(trendingSounds || soundsLoading) && (
-        <section>
+      <section>
           <SectionHeader>
             <SectionTitleGroup>
-              <SectionTitle>{trendingSounds?.title || '지금 인기 있는 한옥 소리'}</SectionTitle>
-              <SectionDescription>{trendingSounds?.description || '처마 밑 빗소리와 대청마루 풍경소리를 들어보세요.'}</SectionDescription>
+              <SectionTitle>지금 인기 있는 한옥 소리</SectionTitle>
+              <SectionDescription>처마 밑 빗소리와 대청마루 풍경소리를 들어보세요.</SectionDescription>
             </SectionTitleGroup>
           </SectionHeader>
 
@@ -671,43 +718,52 @@ export default function JourneyDiscoveryFeed() {
                   </SoundInfo>
                 </SkeletonCard>
               ))
-            : trendingSounds?.items.map((sound) => (
-                <SoundCard key={sound.id} href={sound.href}>
+            : soundsFailed ? (
+                <HomeFeedFailure compact unavailable={soundsUnavailable} onRetry={retrySounds} />
+              ) : trendingSounds.map((sound) => (
+                <SoundCard key={sound.stid} href={`/sorimaru?stid=${encodeURIComponent(sound.stid)}`}>
                   <PlayIconWrap>
                     <Volume2 size={20} />
                   </PlayIconWrap>
                   <SoundInfo>
-                    <SoundTitle>{sound.title}</SoundTitle>
+                    <SoundTitle>{sound.audioTitle || sound.title}</SoundTitle>
                     <SoundMeta>
-                      {sound.location} · {sound.duration}
+                      {[sound.locationName, sound.formattedDuration || sound.playTime].filter(Boolean).join(' · ')}
                     </SoundMeta>
                   </SoundInfo>
                 </SoundCard>
               ))}
           </SoundGrid>
-        </section>
-      )}
+      </section>
 
       {/* 3. 지역별 한옥 퀵 탐색 */}
-      {popularRegions && (
-        <section>
+      <section>
           <SectionHeader>
             <SectionTitleGroup>
-              <SectionTitle>{popularRegions.title}</SectionTitle>
-              <SectionDescription>{popularRegions.description}</SectionDescription>
+              <SectionTitle>인기 지역</SectionTitle>
+              <SectionDescription>방문 후기가 많이 쌓인 지역을 둘러보세요.</SectionDescription>
             </SectionTitleGroup>
           </SectionHeader>
 
           <RegionGrid>
-            {popularRegions.items.map((region) => (
-            <RegionCard key={region.name} onClick={() => handleSelectCourse(region.query)}>
-              <RegionName>{region.name}</RegionName>
-              <RegionSub>{region.sub}</RegionSub>
+            {regionsLoading
+              ? Array.from({ length: 6 }).map((_, index) => (
+                  <SkeletonCard key={index} aria-hidden="true">
+                    <SkeletonLine $w="54%" $h="16px" />
+                    <SkeletonLine $w="70%" $h="12px" />
+                  </SkeletonCard>
+                ))
+              : regionsFailed ? (
+                <HomeFeedFailure compact unavailable={regionsUnavailable} onRetry={retryRegions} />
+              )
+              : popularRegions.map((region) => (
+            <RegionCard key={region.region.regionCode} onClick={() => handleSelectCourse(region.region.name)}>
+              <RegionName>{region.region.name}</RegionName>
+              <RegionSub>후기 {region.reviewCount}개</RegionSub>
             </RegionCard>
           ))}
         </RegionGrid>
       </section>
-      )}
     </FeedContainer>
   );
 }

@@ -4,10 +4,17 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+
+- 홈 추천 코스, 인기 한옥 소리, 인기 지역을 백엔드 홈 API로 연동하고 기존 홈 목데이터 프록시를 제거했다.
+- 인기 한옥 소리 원천이 `503 SERVICE_UNAVAILABLE`일 때 빈 재시도 UI를 표시한다.
+- 여정 탐색 시작 요청이 백엔드 호환 경로와 CSRF·멱등성 요청 정책을 사용한다.
+- 홈 데이터가 없거나 요청에 실패하면, 한옥 지붕 캐릭터와 섹션별 재시도 동작을 갖춘 안내 카드로 빈 화면을 대체한다.
 - **소리마루 백엔드 우선 데이터 연동**:
   - `GET /api/v1/odii/stories` 목록과 각 상세 응답을 결합해 재생 URL·대본·좌표·콘텐츠 태그를 화면 모델로 전달.
   - 백엔드 요청 또는 상세 응답이 실패하면 기존 공공 Sorimaru API로 자동 폴백해 서비스 목록을 계속 제공.
   - 데이터 요청 중에는 기존 카드 크기의 스켈레톤을 유지하고, 요청 실패 시 경고 아이콘과 재시도 동작을 표시.
+- Playwright E2E 테스트가 `E2E_PORT`로 3000~3007 등 실행 중인 개발 서버 포트를 선택하도록 하고 `test:e2e` 스크립트를 추가했다.
+
 - **Microsoft Clarity 사용자 행동 분석 연동**:
   - `NEXT_PUBLIC_CLARITY_PROJECT_ID`가 설정된 환경에서 Clarity 세션 분석을 초기화.
   - 프로젝트 ID가 없으면 분석 스크립트를 로드하지 않아 로컬 개발 환경의 불필요한 수집을 방지.

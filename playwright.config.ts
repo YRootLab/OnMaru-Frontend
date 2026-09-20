@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const e2ePort = process.env.E2E_PORT ?? '3000';
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -20,7 +22,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/test-configuration#global-config */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:3000',
+    baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL ?? `http://localhost:${e2ePort}`,
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
   },
