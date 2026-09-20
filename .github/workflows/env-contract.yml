@@ -2,7 +2,7 @@ name: Env Contract
 
 on:
   pull_request:
-    branches: [develop, main]
+    branches: [develop, master]
     paths:
       - '.env.example'
       - '.gitignore'
@@ -12,7 +12,7 @@ on:
       - 'scripts/validate-env-contract.test.mjs'
       - '.github/workflows/env-contract.yml'
   push:
-    branches: [develop, main]
+    branches: [develop, master]
     paths:
       - '.env.example'
       - '.gitignore'

@@ -55,6 +55,16 @@ const FeatureContainer = styled.div`
 const ContentLayer = styled.div`
   position: relative;
   z-index: 10;
+  min-width: 0;
+`;
+
+const SorimaruSectionReveal = styled(VesselReveal)`
+  width: 100%;
+  padding: 2.5rem 0;
+
+  @media (min-width: 640px) {
+    padding: 3.5rem 0;
+  }
 `;
 
 const ErrorAlert = styled.div`
@@ -103,6 +113,7 @@ const RetryButton = styled.button`
 const MainSections = styled.main`
   display: flex;
   flex-direction: column;
+  min-width: 0;
   gap: 2rem;
 
   @media (min-width: 640px) {
@@ -580,14 +591,14 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
               </div>
             </VesselReveal>
 
-            <VesselReveal style={{ minHeight: '760px', width: '100%', padding: '1.5rem 0' }}>
+            <SorimaruSectionReveal style={{ minHeight: '760px' }}>
               <div style={{ width: '100%' }}>
                 <SoundConstellationSection stories={storyList} />
               </div>
-            </VesselReveal>
+            </SorimaruSectionReveal>
 
             {/* 섹션 3: 오늘, 여기에서 */}
-            <VesselReveal style={{ minHeight: '440px', width: '100%', padding: '1.5rem 0' }}>
+            <SorimaruSectionReveal style={{ minHeight: '440px' }}>
               <section
                 aria-labelledby="nearby-stories-heading"
                 style={{ width: '100%' }}
@@ -626,10 +637,10 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                   </div>
                 </CenteredContainer>
               </section>
-            </VesselReveal>
+            </SorimaruSectionReveal>
 
             {/* 오디오 아카이브 섹션 (통합 메인 뷰) */}
-            <VesselReveal id="sorimaru-archive" style={{ width: '100%', padding: '0.875rem 0' }}>
+            <SorimaruSectionReveal id="sorimaru-archive">
               <section
                 style={{ width: '100%' }}
                 data-sorimaru-stage="archive"
@@ -669,7 +680,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                   </div>
                 </CenteredContainer>
               </section>
-            </VesselReveal>
+            </SorimaruSectionReveal>
           </MainSections>
         </ContentLayer>
 

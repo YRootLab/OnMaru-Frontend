@@ -268,14 +268,8 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
       <Global styles={paperGround} />
       <HanokSideIndex />
       <PageInner>
-        {/*
-          블러 세기를 섹션마다 2px씩 늘려간다 — 위쪽(막 들어왔을 때)은 옅게, 스크롤을
-          내려 페이지 깊이 들어갈수록 살짝 진하게. 전부 같은 세기로 블러졌다 걷히면
-          "그냥 켜졌다 꺼지는" 느낌이라, 깊이에 따라 갈리게 해서 스크롤 자체가
-          한 걸음씩 더 깊어진다는 인상을 준다. Footer(16px)까지 이 흐름의 연장선이다.
-        */}
         {/* 진입부: 한국의 정취를 담은 히어로 */}
-        <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.intro} blurFrom="2px">
+        <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.intro}>
           <IntroStage>
             <IntroContent>
               <Intro>
@@ -298,7 +292,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
 
         {/* K-컬처 & 웰니스 테마 큐레이션: K-드라마, 촌캉스, 야간기행, 종가 미식 (토스/당근 스타일) */}
         <EditorialSection>
-          <StyledVesselReveal id="hanok-kculture-themes" blurFrom="4px">
+          <StyledVesselReveal id="hanok-kculture-themes">
             <SectionContainer>
               <KCultureThemeFeed />
             </SectionContainer>
@@ -311,7 +305,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
           카드를 눌러야 3D 모달이 열리므로 도감 본문 스크롤은 그대로 둔다.
         */}
         <ChapterBreak>
-          <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.structure} blurFrom="6px">
+          <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.structure}>
             <SectionContainer>
               <HanokStructureCards />
             </SectionContainer>
@@ -320,7 +314,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
 
         {/* 구조를 이해했으니 실물로 — 전국 한옥 도감 ➔ 지역별 한옥 스테이 */}
         <ChapterBreak>
-          <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.grid} blurFrom="8px">
+          <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.grid}>
             <SectionContainer>
               <HanokGrid
                 villages={archiveData.villages}
@@ -331,7 +325,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
           </StyledVesselReveal>
 
           <ArchiveSection>
-            <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.stay} blurFrom="10px">
+            <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.stay}>
               <SectionContainer>
                 <HanokStayAccordion
                   villages={archiveData.villages}
@@ -344,7 +338,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
 
         {/* 도감과 스테이를 둘러봤으니 지도로 — 어느 채가 어디 있는지 짚어 준다 */}
         <ChapterBreak>
-          <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.map} blurFrom="12px">
+          <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.map}>
             <SectionContainer>
               <HanokMap
                 villages={archiveData.villages}
@@ -361,7 +355,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
         </ChapterBreak>
 
         {/* 온마루 한옥 매니페스토 (자체 상하 여백을 가지고 있다) */}
-        <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.manifesto} blurFrom="14px">
+        <StyledVesselReveal id={HANOK_REVEAL_SECTIONS.manifesto}>
           <SectionContainer>
             <HanokManifestoCta />
           </SectionContainer>
