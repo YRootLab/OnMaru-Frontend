@@ -402,9 +402,10 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
 
           // 재생 대상이 결정되었거나 전역 플레이어가 비어있을 때 적절한 스토리 할당
           if (targetStory && targetStory.audioUrl) {
-            useSorimaruAudioStore.getState().setCurrentStory(targetStory);
-            if (autoPlayParam !== 'false') {
-              useSorimaruAudioStore.getState().setIsPlaying(true);
+            const audioStore = useSorimaruAudioStore.getState();
+            audioStore.selectStory(targetStory);
+            if (autoPlayParam === 'true') {
+              audioStore.setIsPlaying(true);
             }
           } else if ((!useSorimaruAudioStore.getState().currentStory || !useSorimaruAudioStore.getState().currentStory.audioUrl) && allLoaded.length > 0) {
             const firstPlayable = allLoaded.find((s) => Boolean(s.audioUrl));

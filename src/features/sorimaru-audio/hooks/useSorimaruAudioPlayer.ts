@@ -58,6 +58,10 @@ export function useSorimaruAudioPlayer() {
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
       audio.removeEventListener('ended', handleEnded);
+      audio.pause();
+      audio.removeAttribute('src');
+      audio.load();
+      setIsPlaying(false);
       audioContextRef.current?.close().catch(() => undefined);
       audioContextRef.current = null;
       analyserRef.current = null;
