@@ -4,6 +4,10 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+- 한옥 아카이브의 실제 7개 주요 섹션을 `VesselReveal` 경계로 통일하고, K-컬처 테마 섹션에도 소리마루와 동일한 스크롤 리빌 애니메이션을 적용했다.
+- 구조 섹션과 매니페스토 내부의 중복 `whileInView` opacity 애니메이션을 제거해 섹션 제목·본문이 숨거나 다시 사라지는 현상을 막았다.
+- 한옥 섹션 헤더를 콘텐츠 레이어 위에 고정해 K-컬처 섹션 제목이 배경·카드 합성 레이어에 가려지지 않도록 했고, 소리마루와 동일한 reversible reveal 동작을 사용한다.
+- `스크린 속 한옥` 섹션의 진입 여백, 제목·필터·리스트 간격, Bento 카드 간격을 약 절반으로 압축했다.
 
 - 홈 추천 코스, 인기 한옥 소리, 인기 지역을 백엔드 홈 API로 연동하고 기존 홈 목데이터 프록시를 제거했다.
 - 인기 한옥 소리 원천이 `503 SERVICE_UNAVAILABLE`일 때 빈 재시도 UI를 표시한다.
@@ -196,3 +200,6 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 - Migrated all icons in the project to lucide-react. Removed react-icons dependency. (Resolves #60, #61, #62, #63, #64)
 - Replaced emoji usages in data files (e.g. curatedJourneys.ts) with lucide-react components.
 - 지도 카테고리 칩의 mask 기반 edge fade를 제거해 그림자 잘림을 막고, PR #66 이전의 둥근 pill 크기와 stagger pop-in 동작을 복원했다.
+- 전국 한옥 도감 페이지네이션 버튼이 다크 테마 배경에 묻히지 않도록 버튼 배경과 테두리 대비를 강화함.
+- 마지막 매니페스토 섹션이 화면 하단에 남아 있을 때 reveal 경계 밖으로 조기 접히지 않도록 종료 경계를 조정함.
+- 매니페스토가 자체 여백을 가진 섹션인데 바깥 컨테이너 여백이 중복 적용되던 구조를 제거해 콘텐츠 위치를 안정화함.

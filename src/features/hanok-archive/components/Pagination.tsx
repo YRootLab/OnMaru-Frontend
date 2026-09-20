@@ -2,9 +2,11 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
-import { meok, surface , fontSize } from '@/design-system/tokens';
+import { meok, fontSize } from '@/design-system/tokens';
 
 const Wrapper = styled.div`
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -14,6 +16,8 @@ const Wrapper = styled.div`
 `;
 
 const PageBtn = styled.button<{ $active?: boolean; $disabled?: boolean }>`
+  position: relative;
+  z-index: 1;
   background: ${({ $active }) => ($active ? meok[900] : '#ffffff')};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
   font-size: ${fontSize.sm};
@@ -38,9 +42,10 @@ const PageBtn = styled.button<{ $active?: boolean; $disabled?: boolean }>`
   }
 
   [data-theme='dark'] & {
-    background: ${({ $active }) => ($active ? meok[100] : surface.dark.card)};
+    background: ${({ $active }) =>
+      $active ? meok[100] : 'rgba(255, 255, 255, 0.08)'};
     color: ${({ $active }) => ($active ? meok[900] : meok[200])};
-    border-color: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.28);
 
     &:hover:not(:disabled) {
       background: ${({ $active }) => ($active ? '#ffffff' : 'rgba(255, 255, 255, 0.12)')};

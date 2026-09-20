@@ -16,7 +16,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
-import { meok, lightPalette, palette, surface, fontSize } from '@/design-system/tokens';
+import { meok, lightPalette, surface, fontSize } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
 import { useKCultureThemes } from '@/features/hanok-archive/hooks/useKCultureThemes';
 import type { ScreenHanokItem, ScreenHanokMediaType } from '@/features/hanok-archive/services/screenHanok.service';
@@ -36,7 +36,7 @@ const FilterRow = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin: 4px 0 24px;
+  margin: 4px 0 12px;
 `;
 
 const FilterChip = styled.button<{ $active: boolean }>`
@@ -66,7 +66,7 @@ const BentoGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: auto;
-  gap: 14px;
+  gap: 7px;
   align-items: stretch;
 
   @media (min-width: 900px) {
@@ -82,7 +82,7 @@ const ThumbGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
-  gap: 10px;
+  gap: 5px;
   height: 100%;
   min-height: 0;
 `;
@@ -94,6 +94,12 @@ const ThumbGrid = styled.div`
   밀렸다 돌아왔다 — 칩을 누를 때마다 "번쩍"이던 게 이 레이아웃 흔들림이었다.
   HeroSlot이 자리(칸 크기)를 고정해 쥐고, 카드들은 그 안에서 absolute로 겹친다.
 */
+const KCultureSection = styled.section`
+  & > div:first-child {
+    margin-bottom: 14px;
+  }
+`;
+
 const HeroSlot = styled.div`
   position: relative;
   border-radius: 22px;
@@ -498,7 +504,7 @@ export default function KCultureThemeFeed({ onSelectPlace }: KCultureThemeFeedPr
   ].slice(0, 4);
 
   return (
-    <section aria-labelledby="screen-hanok-heading">
+    <KCultureSection aria-labelledby="screen-hanok-heading">
       <SectionHeader id="screen-hanok-heading" title="스크린 속 한옥" />
 
       <FilterRow role="group" aria-label="K-콘텐츠 유형 선택">
@@ -670,6 +676,6 @@ export default function KCultureThemeFeed({ onSelectPlace }: KCultureThemeFeedPr
           )}
         </LayoutGroup>
       )}
-    </section>
+    </KCultureSection>
   );
 }

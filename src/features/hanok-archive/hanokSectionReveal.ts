@@ -4,12 +4,10 @@
 */
 export const HANOK_REVEAL_SECTIONS = {
   intro: 'hanok-intro',
-  distribution: 'hanok-distribution',
-  monthly: 'hanok-monthly',
+  kculture: 'hanok-kculture-themes',
+  structure: 'hanok-structure',
   grid: 'hanok-grid',
   stay: 'hanok-stay',
-  structure: 'hanok-structure',
-  parts: 'hanok-parts',
   map: 'hanok-map',
   manifesto: 'hanok-manifesto',
 } as const;
