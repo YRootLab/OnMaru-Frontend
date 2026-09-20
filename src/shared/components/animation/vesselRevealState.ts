@@ -7,6 +7,7 @@ interface VesselRevealStateInput {
   isIntersecting: boolean;
   top: number;
   revealBoundary: number;
+  viewportBottom: number;
 }
 
 interface VesselRevealStateResult {
@@ -21,11 +22,12 @@ export function resolveVesselRevealState({
   isIntersecting,
   top,
   revealBoundary,
+  viewportBottom,
 }: VesselRevealStateInput): VesselRevealStateResult {
   if (isInitialObservation) {
-    // 최초 마운트 시 뷰포트 내(또는 상단)에 이미 위치한 섹션은 즉시 bloomed로 고정하여
-    // 새로고침 시 축소 후 확대되는 불필요한 재실행 애니메이션을 원천 방지한다.
-    const shouldProtect = top < revealBoundary;
+    // 새로고침 당시 viewport에 이미 보이는 섹션은 reveal boundary 아래에 있더라도
+    // 최종 상태로 고정해, 새로고침 직후 scale-in이 다시 재생되지 않게 한다.
+    const shouldProtect = top < viewportBottom;
     return {
       stage: shouldProtect ? 'bloomed' : 'vessel',
       isReloadProtected: shouldProtect,

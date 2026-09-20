@@ -10,6 +10,7 @@ describe('resolveVesselRevealState', () => {
       isIntersecting: false,
       top: 200,
       revealBoundary: 720,
+      viewportBottom: 900,
     })).toEqual({ stage: 'bloomed', isReloadProtected: true });
   });
 
@@ -21,6 +22,7 @@ describe('resolveVesselRevealState', () => {
       isIntersecting: false,
       top: 900,
       revealBoundary: 720,
+      viewportBottom: 900,
     })).toEqual({ stage: 'vessel', isReloadProtected: false });
   });
 
@@ -32,6 +34,7 @@ describe('resolveVesselRevealState', () => {
       isIntersecting: true,
       top: 700,
       revealBoundary: 720,
+      viewportBottom: 900,
     })).toEqual({ stage: 'bloomed', isReloadProtected: true });
   });
 
@@ -43,6 +46,7 @@ describe('resolveVesselRevealState', () => {
       isIntersecting: false,
       top: 760,
       revealBoundary: 720,
+      viewportBottom: 900,
     })).toEqual({ stage: 'bloomed', isReloadProtected: true });
   });
 
@@ -54,6 +58,7 @@ describe('resolveVesselRevealState', () => {
       isIntersecting: false,
       top: -500,
       revealBoundary: 720,
+      viewportBottom: 900,
     })).toEqual({ stage: 'bloomed', isReloadProtected: true });
   });
 
@@ -65,6 +70,19 @@ describe('resolveVesselRevealState', () => {
       isIntersecting: false,
       top: 800,
       revealBoundary: 720,
+      viewportBottom: 900,
+    })).toEqual({ stage: 'bloomed', isReloadProtected: true });
+  });
+
+  it('protects a section already visible below the reveal boundary during reload', () => {
+    expect(resolveVesselRevealState({
+      currentStage: 'bloomed',
+      isInitialObservation: true,
+      isReloadProtected: false,
+      isIntersecting: false,
+      top: 800,
+      revealBoundary: 720,
+      viewportBottom: 900,
     })).toEqual({ stage: 'bloomed', isReloadProtected: true });
   });
 });
