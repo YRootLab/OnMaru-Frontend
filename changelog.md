@@ -13,6 +13,7 @@ Lightweight human-readable summary of meaningful repository changes. This does n
   - `GET /api/v1/odii/stories` 목록과 각 상세 응답을 결합해 재생 URL·대본·좌표·콘텐츠 태그를 화면 모델로 전달.
   - 백엔드 요청 또는 상세 응답이 실패하면 기존 공공 Sorimaru API로 자동 폴백해 서비스 목록을 계속 제공.
   - 데이터 요청 중에는 기존 카드 크기의 스켈레톤을 유지하고, 요청 실패 시 경고 아이콘과 재시도 동작을 표시.
+- Playwright E2E 테스트가 `E2E_PORT`로 3000~3007 등 실행 중인 개발 서버 포트를 선택하도록 하고 `test:e2e` 스크립트를 추가했다.
 
 - **Microsoft Clarity 사용자 행동 분석 연동**:
   - `NEXT_PUBLIC_CLARITY_PROJECT_ID`가 설정된 환경에서 Clarity 세션 분석을 초기화.
