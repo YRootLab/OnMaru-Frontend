@@ -3,6 +3,9 @@
 Lightweight human-readable summary of meaningful repository changes. This does not replace Git history.
 
 ## Unreleased
+- 홈 화면 API 재연동: 추천 코스·인기 소리·인기 지역을 `api/v1/home` 엔드포인트로 교체하고, 탐색 시작 요청을 `POST /api/journey-curator/explore` 호환 경로로 전환했다. (Closes #126)
+- AGENTS.md에 워크트리·브랜치 전환 시 `src/private/core-ui` 서브모듈 초기화 필수 규칙을 명시했다. 미초기화 서브모듈은 `Can't resolve '@/private/core-ui/...'` 빌드 에러의 주원인이다.
+
 
 - develop 최신 내역을 병합하며 `changelog.md`·`handoff.md`·Core UI submodule 충돌을 해소하고, Vercel Analytics·Speed Insights 의존성이 포함된 lockfile을 동기화했다.
 - `HanokAtmosphereBackground` 고정 배경 레이어를 `z-index: -1`로 콘텐츠 뒤로 보냈다. 기존 `z-index: 0`에서는 불투명 배경이 정적 콘텐츠 위에 그려져, `VesselReveal`이 bloom되어 `transform`이 제거된 섹션(한옥 CTA 매니페스토 등)이 스크롤 리빌 직후 화면에서 사라지는 버그가 있었다.
