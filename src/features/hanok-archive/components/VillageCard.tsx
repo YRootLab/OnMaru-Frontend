@@ -19,6 +19,9 @@ const Card = styled(motion.article, transientProps)`
   user-select: none;
   background: #191f28;
 
+  @media (max-width: 480px) {
+    border-radius: 16px;
+  }
 `;
 
 const ImageLayer = styled(motion.div, transientProps)<{ $bg: string | null }>`
@@ -50,6 +53,10 @@ const GradientOverlay = styled.div`
   justify-content: flex-end;
   padding: 16px 14px 14px;
   z-index: 2;
+
+  @media (max-width: 480px) {
+    padding: 12px 10px 10px;
+  }
 `;
 
 const HeaderRow = styled.div`
@@ -107,6 +114,11 @@ const ActionButton = styled(motion.div, transientProps)`
   .village-card:hover & {
     background: #f8fafc;
     transform: translateY(-1px);
+  }
+
+  @media (max-width: 480px) {
+    height: 32px;
+    font-size: ${fontSize.micro};
   }
 `;
 
