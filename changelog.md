@@ -4,6 +4,8 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+- `HanokAtmosphereBackground` 고정 배경 레이어를 `z-index: -1`로 콘텐츠 뒤로 보냈다. 기존 `z-index: 0`에서는 불투명 배경이 정적 콘텐츠 위에 그려져, `VesselReveal`이 bloom되어 `transform`이 제거된 섹션(한옥 CTA 매니페스토 등)이 스크롤 리빌 직후 화면에서 사라지는 버그가 있었다.
+- 매니페스토 CTA 섹션의 `exitThresholdRatio`를 0.9에서 기본값(0.67)으로 되돌렸다. 0.9에서는 접힘 경계가 뷰포트 하단 10% 지점이라 위로 스크롤해 CTA가 사라질 때 접히는 애니메이션이 화면에 보이지 않았고, 이제 다른 섹션과 동일하게 화면에 약 1/3이 남은 시점에 접히는(reversible reveal) 애니메이션이 보인다.
 - 한옥 아카이브의 실제 7개 주요 섹션을 `VesselReveal` 경계로 통일하고, K-컬처 테마 섹션에도 소리마루와 동일한 스크롤 리빌 애니메이션을 적용했다.
 - 구조 섹션과 매니페스토 내부의 중복 `whileInView` opacity 애니메이션을 제거해 섹션 제목·본문이 숨거나 다시 사라지는 현상을 막았다.
 - 한옥 섹션 헤더를 콘텐츠 레이어 위에 고정해 K-컬처 섹션 제목이 배경·카드 합성 레이어에 가려지지 않도록 했고, 소리마루와 동일한 reversible reveal 동작을 사용한다.
