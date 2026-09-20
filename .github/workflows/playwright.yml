@@ -11,9 +11,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+    - name: Configure private submodule SSH access
+      uses: webfactory/ssh-agent@v0.9.0
       with:
-        submodules: recursive
-        ssh-key: ${{ secrets.CORE_UI_DEPLOY_KEY }}
+        ssh-private-key: ${{ secrets.CORE_UI_DEPLOY_KEY }}
+    - name: Initialize private submodules
+      run: git submodule update --init --recursive
     - uses: actions/setup-node@v4
       with:
         node-version: lts/*
