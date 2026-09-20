@@ -4,6 +4,8 @@ import {
   type ScreenHanokItem,
   type ScreenHanokMediaType,
 } from '@/features/hanok-archive/services/screenHanok.service';
+import { toast } from 'sonner';
+import { hasAuthenticatedUser } from '@/features/auth/privateState';
 
 export interface UseScreenHanokOptions {
   mediaType?: ScreenHanokMediaType;
@@ -55,6 +57,11 @@ export function useKCultureThemes(options?: UseScreenHanokOptions) {
   }, [mediaType, region]);
 
   const toggleSave = async (placeId: string) => {
+    if (!hasAuthenticatedUser()) {
+      toast.info('로그인해주세요.');
+      return;
+    }
+
     const target = items.find((it) => it.placeId === placeId);
     if (!target) return;
 

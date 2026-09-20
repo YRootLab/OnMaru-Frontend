@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 import { useSearchParams } from 'next/navigation';
+import { AlertCircle, RotateCcw } from 'lucide-react';
 import { StoryCarousel } from './StoryCarousel';
 import { CategoryTagFilter } from './CategoryTagFilter';
 import { SorimaruArchiveBrowse } from './SorimaruArchiveBrowse';
@@ -55,6 +56,16 @@ const FeatureContainer = styled.div`
 const ContentLayer = styled.div`
   position: relative;
   z-index: 10;
+  min-width: 0;
+`;
+
+const SorimaruSectionReveal = styled(VesselReveal)`
+  width: 100%;
+  padding: 2.5rem 0;
+
+  @media (min-width: 640px) {
+    padding: 3.5rem 0;
+  }
 `;
 
 const ErrorAlert = styled.div`
@@ -83,8 +94,27 @@ const ErrorAlert = styled.div`
   }
 `;
 
-const RetryButton = styled.button`
+const ErrorAlertMessage = styled.div`
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+const ErrorAlertIcon = styled(AlertCircle)`
   flex-shrink: 0;
+  color: ${palette.juhong[600]};
+
+  [data-theme='dark'] & {
+    color: ${palette.juhong[400]};
+  }
+`;
+
+const RetryButton = styled.button`
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.375rem;
   border-radius: 9999px;
   background-color: ${palette.juhong[500]};
   padding: 0.375rem 0.75rem;
@@ -103,6 +133,7 @@ const RetryButton = styled.button`
 const MainSections = styled.main`
   display: flex;
   flex-direction: column;
+  min-width: 0;
   gap: 2rem;
 
   @media (min-width: 640px) {
@@ -402,9 +433,10 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
 
           // 재생 대상이 결정되었거나 전역 플레이어가 비어있을 때 적절한 스토리 할당
           if (targetStory && targetStory.audioUrl) {
-            useSorimaruAudioStore.getState().setCurrentStory(targetStory);
-            if (autoPlayParam !== 'false') {
-              useSorimaruAudioStore.getState().setIsPlaying(true);
+            const audioStore = useSorimaruAudioStore.getState();
+            audioStore.selectStory(targetStory);
+            if (autoPlayParam === 'true') {
+              audioStore.setIsPlaying(true);
             }
           } else if ((!useSorimaruAudioStore.getState().currentStory || !useSorimaruAudioStore.getState().currentStory.audioUrl) && allLoaded.length > 0) {
             const firstPlayable = allLoaded.find((s) => Boolean(s.audioUrl));
@@ -544,8 +576,12 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
         <ContentLayer>
           {apiError && (
             <ErrorAlert role="alert">
-              <span>{apiError}</span>
+              <ErrorAlertMessage>
+                <ErrorAlertIcon size={18} aria-hidden="true" />
+                <span>{apiError}</span>
+              </ErrorAlertMessage>
               <RetryButton type="button" onClick={retryApiRequests}>
+                <RotateCcw size={14} aria-hidden="true" />
                 다시 시도
               </RetryButton>
             </ErrorAlert>
@@ -579,14 +615,14 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
               </div>
             </VesselReveal>
 
-            <VesselReveal style={{ minHeight: '760px', width: '100%', padding: '1.5rem 0' }}>
+            <SorimaruSectionReveal style={{ minHeight: '760px' }}>
               <div style={{ width: '100%' }}>
                 <SoundConstellationSection stories={storyList} />
               </div>
-            </VesselReveal>
+            </SorimaruSectionReveal>
 
             {/* 섹션 3: 오늘, 여기에서 */}
-            <VesselReveal style={{ minHeight: '440px', width: '100%', padding: '1.5rem 0' }}>
+            <SorimaruSectionReveal style={{ minHeight: '440px' }}>
               <section
                 aria-labelledby="nearby-stories-heading"
                 style={{ width: '100%' }}
@@ -625,10 +661,10 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                   </div>
                 </CenteredContainer>
               </section>
-            </VesselReveal>
+            </SorimaruSectionReveal>
 
             {/* 오디오 아카이브 섹션 (통합 메인 뷰) */}
-            <VesselReveal id="sorimaru-archive" style={{ width: '100%', padding: '0.875rem 0' }}>
+            <SorimaruSectionReveal id="sorimaru-archive">
               <section
                 style={{ width: '100%' }}
                 data-sorimaru-stage="archive"
@@ -668,7 +704,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                   </div>
                 </CenteredContainer>
               </section>
-            </VesselReveal>
+            </SorimaruSectionReveal>
           </MainSections>
         </ContentLayer>
 

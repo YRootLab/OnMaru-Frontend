@@ -6,7 +6,7 @@ describe('journey repository', () => {
     const calls: Array<{ path: string; options: unknown }> = [];
     const repository = createJourneyRepository((async (path: string, options: unknown) => {
       calls.push({ path, options });
-      if (path === '/explorations') {
+      if (path === '/api/journey-curator/explore') {
         return {
           schemaVersion: '1.2',
           explorationId: 'exp-1',
@@ -26,12 +26,13 @@ describe('journey repository', () => {
 
     expect(calls).toEqual([
       {
-        path: '/explorations',
+        path: '/api/journey-curator/explore',
         options: {
           method: 'POST',
           body: { query: '전주 한옥', locale: 'ko-KR' },
           csrf: true,
           idempotencyKey: 'key-1',
+          rootPath: true,
         },
       },
       { path: '/explorations/exp-1', options: { method: 'GET', cache: 'no-store' } },

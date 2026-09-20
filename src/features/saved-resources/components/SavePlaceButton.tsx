@@ -6,8 +6,7 @@ import styled from '@emotion/styled';
 import { Bookmark } from 'lucide-react';
 import { toast } from 'sonner';
 import { lightPalette, meok } from '@/design-system/tokens';
-import { useAuth } from '@/features/auth';
-import { createBrowserSaveIntentStore } from '../store/saveIntentStore';
+import { hasAuthenticatedUser } from '@/features/auth/privateState';
 import { defaultSavedResourcesRepository, type SavedResourcesRepository } from '../api/savedResourcesApi';
 
 type SavePlaceButtonProps = {
@@ -66,7 +65,6 @@ export default function SavePlaceButton({
   className,
   compact = false,
 }: SavePlaceButtonProps) {
-  const { isLoggedIn, loginWithKakao } = useAuth();
   const [saved, setSaved] = useState(initialSaved);
   const [pending, setPending] = useState(false);
 
@@ -74,10 +72,8 @@ export default function SavePlaceButton({
     event.preventDefault();
     event.stopPropagation();
 
-    if (!isLoggedIn) {
-      createBrowserSaveIntentStore()?.savePlaceIntent(placeId);
-      toast.info('로그인 후 이 장소를 담아둘게요.');
-      loginWithKakao();
+    if (!hasAuthenticatedUser()) {
+      toast.info('로그인해주세요.');
       return;
     }
 
