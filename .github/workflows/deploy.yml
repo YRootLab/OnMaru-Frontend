@@ -43,60 +43,14 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      - name: Validate Vercel secrets
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        shell: bash
-        run: |
-          for secret_name in VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID; do
-            if [ -z "${!secret_name}" ]; then
-              echo "Missing required Vercel secret: ${secret_name}. Configure it in Settings > Secrets and variables > Actions."
-              exit 1
-            fi
-          done
-
-      - name: Clean Vercel metadata
-        run: rm -rf .vercel
-
-      - name: Diagnose Vercel project access
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        shell: bash
-        run: |
-          status="$(curl -sS -o /tmp/vercel-project.json -w "%{http_code}" \
-            -H "Authorization: Bearer $VERCEL_TOKEN" \
-            "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID?teamId=$VERCEL_ORG_ID")"
-          echo "Vercel project API status: $status"
-          if [ "$status" != "200" ]; then
-            cat /tmp/vercel-project.json
-            exit 1
-          fi
-
       - name: Pull Vercel Environment Information
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: |
-
-          vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
-
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Build Project Artifacts
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: vercel build --prod --token="$VERCEL_TOKEN"
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Deploy Project Artifacts to Vercel (Production)
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
 
   Deploy-Preview-or-Release:
     name: Deploy to Preview / Staging (develop / release/*)
@@ -125,50 +79,11 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      - name: Validate Vercel secrets
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        shell: bash
-        run: |
-          for secret_name in VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID; do
-            if [ -z "${!secret_name}" ]; then
-              echo "Missing required Vercel secret: ${secret_name}. Configure it in Settings > Secrets and variables > Actions."
-              exit 1
-            fi
-          done
-
       - name: Pull Vercel Environment Information
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: |
-
-          rm -rf .vercel
-          status="$(curl -sS -o /tmp/vercel-project.json -w "%{http_code}" \
-            -H "Authorization: Bearer $VERCEL_TOKEN" \
-            "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID?teamId=$VERCEL_ORG_ID")"
-          echo "Vercel project API status: $status"
-          if [ "$status" != "200" ]; then
-            cat /tmp/vercel-project.json
-            exit 1
-          fi
-
-          vercel pull --yes --environment=preview --token="$VERCEL_TOKEN"
-
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Build Project Artifacts
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: vercel build --token="$VERCEL_TOKEN"
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Deploy Project Artifacts to Vercel (Preview / Release)
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: vercel deploy --prebuilt --token="$VERCEL_TOKEN"
+        run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
