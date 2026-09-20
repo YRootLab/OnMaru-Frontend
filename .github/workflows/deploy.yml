@@ -142,13 +142,21 @@ jobs:
               .replace(/\r/g, '\\r');
           }
 
+          function getEnvEntryValue(entry) {
+            if (entry && typeof entry === 'object' && 'value' in entry) {
+              return entry.value;
+            }
+
+            return entry;
+          }
+
           function toDotenvContents(rawText) {
             try {
               const parsed = JSON.parse(rawText);
               if (parsed && typeof parsed === 'object' && parsed.env && typeof parsed.env === 'object' && !Array.isArray(parsed.env)) {
                 return `# Created by Vercel CLI\n${Object.keys(parsed.env)
                   .sort()
-                  .map((key) => `${key}="${escapeValue(parsed.env[key])}"`)
+                  .map((key) => `${key}="${escapeValue(getEnvEntryValue(parsed.env[key]))}"`)
                   .join('\n')}\n`;
               }
             } catch {}
@@ -362,13 +370,21 @@ jobs:
               .replace(/\r/g, '\\r');
           }
 
+          function getEnvEntryValue(entry) {
+            if (entry && typeof entry === 'object' && 'value' in entry) {
+              return entry.value;
+            }
+
+            return entry;
+          }
+
           function toDotenvContents(rawText) {
             try {
               const parsed = JSON.parse(rawText);
               if (parsed && typeof parsed === 'object' && parsed.env && typeof parsed.env === 'object' && !Array.isArray(parsed.env)) {
                 return `# Created by Vercel CLI\n${Object.keys(parsed.env)
                   .sort()
-                  .map((key) => `${key}="${escapeValue(parsed.env[key])}"`)
+                  .map((key) => `${key}="${escapeValue(getEnvEntryValue(parsed.env[key]))}"`)
                   .join('\n')}\n`;
               }
             } catch {}
