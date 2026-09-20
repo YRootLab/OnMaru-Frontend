@@ -78,7 +78,7 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
 
-          vercel pull --yes --environment=production --scope="$VERCEL_ORG_ID" --token="$VERCEL_TOKEN"
+          vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
 
 
       - name: Build Project Artifacts
@@ -86,14 +86,14 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: vercel build --prod --scope="$VERCEL_ORG_ID" --token="$VERCEL_TOKEN"
+        run: vercel build --prod --token="$VERCEL_TOKEN"
 
       - name: Deploy Project Artifacts to Vercel (Production)
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: vercel deploy --prebuilt --prod --scope="$VERCEL_ORG_ID" --token="$VERCEL_TOKEN"
+        run: vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
 
   Deploy-Preview-or-Release:
     name: Deploy to Preview / Staging (develop / release/*)
@@ -152,7 +152,7 @@ jobs:
             exit 1
           fi
 
-          vercel pull --yes --environment=preview --scope="$VERCEL_ORG_ID" --token="$VERCEL_TOKEN"
+          vercel pull --yes --environment=preview --token="$VERCEL_TOKEN"
 
 
       - name: Build Project Artifacts
@@ -160,11 +160,11 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: vercel build --scope="$VERCEL_ORG_ID" --token="$VERCEL_TOKEN"
+        run: vercel build --token="$VERCEL_TOKEN"
 
       - name: Deploy Project Artifacts to Vercel (Preview / Release)
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: vercel deploy --prebuilt --scope="$VERCEL_ORG_ID" --token="$VERCEL_TOKEN"
+        run: vercel deploy --prebuilt --token="$VERCEL_TOKEN"
