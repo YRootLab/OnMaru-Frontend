@@ -3,8 +3,8 @@
 Lightweight human-readable summary of meaningful repository changes. This does not replace Git history.
 
 ## Unreleased
+- private submodule(`YRootLab/onmaru-core-ui`) 참조를 제거하고 `src/private/core-ui` 전체 코드를 이 저장소에 일반 파일로 직접 포함시켰다. `.gitmodules`·gitlink·`scripts/check-submodule.mjs`·`check:submodule`/`submodule:*` 스크립트와 CI(deploy.yml, playwright.yml)의 서브모듈 초기화 단계를 제거해 배포 시 private 저장소 접근이 더 이상 필요 없다. 원본 `onmaru-core-ui` 저장소는 아카이브로 유지한다.
 - 홈 화면 API 재연동: 추천 코스·인기 소리·인기 지역을 `api/v1/home` 엔드포인트로 교체하고, 탐색 시작 요청을 `POST /api/journey-curator/explore` 호환 경로로 전환했다. (Closes #126)
-- AGENTS.md에 워크트리·브랜치 전환 시 `src/private/core-ui` 서브모듈 초기화 필수 규칙을 명시했다. 미초기화 서브모듈은 `Can't resolve '@/private/core-ui/...'` 빌드 에러의 주원인이다.
 
 
 - develop 최신 내역을 병합하며 `changelog.md`·`handoff.md`·Core UI submodule 충돌을 해소하고, Vercel Analytics·Speed Insights 의존성이 포함된 lockfile을 동기화했다.
