@@ -95,17 +95,6 @@ jobs:
       - name: Clean Vercel metadata
         run: rm -rf .vercel
 
-      - name: Configure Vercel project
-        shell: bash
-        run: |
-          mkdir -p .vercel
-          cat > .vercel/project.json <<EOF
-          {
-            "orgId": "$VERCEL_ORG_ID",
-            "projectId": "$VERCEL_PROJECT_ID"
-          }
-          EOF
-
       # ----------------------------------------------------------
       # 7. Pull Production Environment
       #
@@ -231,17 +220,6 @@ jobs:
       # ----------------------------------------------------------
       - name: Clean Vercel metadata
         run: rm -rf .vercel
-
-      - name: Configure Vercel project
-        shell: bash
-        run: |
-          mkdir -p .vercel
-          cat > .vercel/project.json <<EOF
-          {
-            "orgId": "$VERCEL_ORG_ID",
-            "projectId": "$VERCEL_PROJECT_ID"
-          }
-          EOF
 
       # ----------------------------------------------------------
       # 7. Pull Preview Environment
