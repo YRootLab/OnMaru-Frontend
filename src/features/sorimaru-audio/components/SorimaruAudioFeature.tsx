@@ -57,6 +57,15 @@ const ContentLayer = styled.div`
   z-index: 10;
 `;
 
+const ArchiveReveal = styled(VesselReveal)`
+  width: 100%;
+  padding: 2.5rem 0;
+
+  @media (min-width: 640px) {
+    padding: 3.5rem 0;
+  }
+`;
+
 const ErrorAlert = styled.div`
   position: fixed;
   left: 50%;
@@ -629,7 +638,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
             </VesselReveal>
 
             {/* 오디오 아카이브 섹션 (통합 메인 뷰) */}
-            <VesselReveal id="sorimaru-archive" style={{ width: '100%', padding: '0.875rem 0' }}>
+            <ArchiveReveal id="sorimaru-archive">
               <section
                 style={{ width: '100%' }}
                 data-sorimaru-stage="archive"
@@ -669,7 +678,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                   </div>
                 </CenteredContainer>
               </section>
-            </VesselReveal>
+            </ArchiveReveal>
           </MainSections>
         </ContentLayer>
 
