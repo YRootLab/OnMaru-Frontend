@@ -1,7 +1,7 @@
 # handoff.md
 
 ## Current Work
-- Core UI 컴포넌트 Private 서브모듈(`src/private/core-ui`) 분리·이전 및 submodule 자동화 가이드/워크플로우 구성 (PR #110 예정)
+- 홈 화면 API 연동: 큐레이션 코스·인기 소리·인기 지역을 `api/v1/home` API로 교체했고, 탐색 시작 요청을 `POST /api/journey-curator/explore` 호환 경로로 전환했다.
 
 ## Next Steps
 - GitHub Repository Secrets에 `SUBMODULE_SSH_KEY` 등록 여부 확인
