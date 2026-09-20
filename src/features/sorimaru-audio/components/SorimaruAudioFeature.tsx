@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 import { useSearchParams } from 'next/navigation';
+import { AlertCircle, RotateCcw } from 'lucide-react';
 import { StoryCarousel } from './StoryCarousel';
 import { CategoryTagFilter } from './CategoryTagFilter';
 import { SorimaruArchiveBrowse } from './SorimaruArchiveBrowse';
@@ -83,8 +84,27 @@ const ErrorAlert = styled.div`
   }
 `;
 
-const RetryButton = styled.button`
+const ErrorAlertMessage = styled.div`
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+const ErrorAlertIcon = styled(AlertCircle)`
   flex-shrink: 0;
+  color: ${palette.juhong[600]};
+
+  [data-theme='dark'] & {
+    color: ${palette.juhong[400]};
+  }
+`;
+
+const RetryButton = styled.button`
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.375rem;
   border-radius: 9999px;
   background-color: ${palette.juhong[500]};
   padding: 0.375rem 0.75rem;
@@ -545,8 +565,12 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
         <ContentLayer>
           {apiError && (
             <ErrorAlert role="alert">
-              <span>{apiError}</span>
+              <ErrorAlertMessage>
+                <ErrorAlertIcon size={18} aria-hidden="true" />
+                <span>{apiError}</span>
+              </ErrorAlertMessage>
               <RetryButton type="button" onClick={retryApiRequests}>
+                <RotateCcw size={14} aria-hidden="true" />
                 다시 시도
               </RetryButton>
             </ErrorAlert>
