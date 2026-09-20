@@ -14,6 +14,7 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 - **Private core UI 서브모듈 운영 규칙 정비**:
   - `.gitmodules`가 SSH 기반 private `YRootLab/onmaru-core-ui`를 가리키도록 정정.
   - clone·배포 전 서브모듈 초기화와 Vercel CLI 배포 기준을 `AGENTS.md`에 명시.
+  - Playwright CI도 recursive submodule checkout과 `SUBMODULE_SSH_KEY`를 사용해 Core UI 의존 단위 테스트를 실행하도록 정정.
 - **소리마루 진입 시 간헐적 자동재생 방지**:
   - 초기 URL 대상 이야기는 명시적으로 `autoPlay=true`가 전달된 경우에만 자동재생하도록 변경.
   - 페이지를 떠날 때 오디오를 일시정지하고 소스를 정리해 다음 진입 시 이전 재생 상태가 되살아나지 않도록 수정.
