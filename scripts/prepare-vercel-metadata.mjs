@@ -7,11 +7,16 @@ const {
   VERCEL_PROJECT_ID,
   VERCEL_ENVIRONMENT,
 } = process.env;
+const SUPPORTED_ENVIRONMENTS = new Set(['production', 'preview', 'development']);
 
 for (const key of ['VERCEL_TOKEN', 'VERCEL_ORG_ID', 'VERCEL_PROJECT_ID', 'VERCEL_ENVIRONMENT']) {
   if (!process.env[key]) {
     throw new Error(`Missing required environment variable: ${key}`);
   }
+}
+
+if (!SUPPORTED_ENVIRONMENTS.has(VERCEL_ENVIRONMENT)) {
+  throw new Error(`Unsupported Vercel environment: ${VERCEL_ENVIRONMENT}`);
 }
 
 const apiBase = 'https://api.vercel.com';
