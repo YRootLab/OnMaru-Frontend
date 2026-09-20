@@ -1,70 +1,87 @@
 import { describe, expect, it } from 'vitest';
 import { resolveVesselRevealState } from './vesselRevealState';
 
+const baseInput = {
+  currentStage: 'vessel' as const,
+  isInitialObservation: false,
+  isReloadProtected: false,
+  isIntersecting: false,
+  top: 900,
+  revealBoundary: 720,
+  viewportBottom: 900,
+};
+
 describe('resolveVesselRevealState', () => {
-  it('protects a section already at or above the reveal boundary during initial measurement (reload/initial load)', () => {
+  it('keeps a section already visible on reload in its final state', () => {
     expect(resolveVesselRevealState({
-      currentStage: 'bloomed',
+      ...baseInput,
       isInitialObservation: true,
-      isReloadProtected: false,
-      isIntersecting: false,
-      top: 200,
-      revealBoundary: 720,
-    })).toEqual({ stage: 'bloomed', isReloadProtected: true });
+      top: 800,
+    })).toEqual({
+      stage: 'bloomed',
+      isReloadProtected: true,
+      shouldAnimate: false,
+    });
   });
 
-  it('keeps an unseen section below the reveal boundary in vessel stage during initial measurement', () => {
+  it('keeps an unseen section below the viewport folded on reload', () => {
     expect(resolveVesselRevealState({
-      currentStage: 'bloomed',
+      ...baseInput,
       isInitialObservation: true,
+      top: 1000,
+    })).toEqual({
+      stage: 'vessel',
       isReloadProtected: false,
-      isIntersecting: false,
-      top: 900,
-      revealBoundary: 720,
-    })).toEqual({ stage: 'vessel', isReloadProtected: false });
+      shouldAnimate: false,
+    });
   });
 
-  it('blooms a section with one-shot protection when it enters the reveal boundary during downward scroll', () => {
+  it('reveals a new section entering the reveal boundary', () => {
     expect(resolveVesselRevealState({
-      currentStage: 'vessel',
-      isInitialObservation: false,
-      isReloadProtected: false,
+      ...baseInput,
       isIntersecting: true,
       top: 700,
-      revealBoundary: 720,
-    })).toEqual({ stage: 'bloomed', isReloadProtected: true });
-  });
-
-  it('keeps a revealed section bloomed when scrolling back upward, without folding or replaying', () => {
-    expect(resolveVesselRevealState({
-      currentStage: 'bloomed',
-      isInitialObservation: false,
-      isReloadProtected: true,
-      isIntersecting: false,
-      top: 760,
-      revealBoundary: 720,
-    })).toEqual({ stage: 'bloomed', isReloadProtected: true });
-  });
-
-  it('keeps a section bloomed when it passes above the top of the viewport', () => {
-    expect(resolveVesselRevealState({
-      currentStage: 'bloomed',
-      isInitialObservation: false,
-      isReloadProtected: true,
-      isIntersecting: false,
-      top: -500,
-      revealBoundary: 720,
-    })).toEqual({ stage: 'bloomed', isReloadProtected: true });
-  });
-
-  it('does not fold back to vessel once bloomed even if isReloadProtected was initially false', () => {
-    expect(resolveVesselRevealState({
-      currentStage: 'bloomed',
-      isInitialObservation: false,
+    })).toEqual({
+      stage: 'bloomed',
       isReloadProtected: false,
-      isIntersecting: false,
-      top: 800,
-      revealBoundary: 720,
-    })).toEqual({ stage: 'bloomed', isReloadProtected: true });
+      shouldAnimate: true,
+    });
+  });
+
+  it('folds a revealed section leaving through the lower reveal boundary', () => {
+    expect(resolveVesselRevealState({
+      ...baseInput,
+      currentStage: 'bloomed',
+      top: 760,
+    })).toEqual({
+      stage: 'vessel',
+      isReloadProtected: false,
+      shouldAnimate: true,
+    });
+  });
+
+  it('keeps an already revealed section final when it passes above the boundary', () => {
+    expect(resolveVesselRevealState({
+      ...baseInput,
+      currentStage: 'bloomed',
+      top: -200,
+    })).toEqual({
+      stage: 'bloomed',
+      isReloadProtected: false,
+      shouldAnimate: false,
+    });
+  });
+
+  it('does not animate a reload-protected section during observer callbacks', () => {
+    expect(resolveVesselRevealState({
+      ...baseInput,
+      currentStage: 'bloomed',
+      isReloadProtected: true,
+      top: 760,
+    })).toEqual({
+      stage: 'bloomed',
+      isReloadProtected: true,
+      shouldAnimate: false,
+    });
   });
 });

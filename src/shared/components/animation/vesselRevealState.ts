@@ -7,11 +7,13 @@ interface VesselRevealStateInput {
   isIntersecting: boolean;
   top: number;
   revealBoundary: number;
+  viewportBottom: number;
 }
 
 interface VesselRevealStateResult {
   stage: VesselRevealStage;
   isReloadProtected: boolean;
+  shouldAnimate: boolean;
 }
 
 export function resolveVesselRevealState({
@@ -21,28 +23,34 @@ export function resolveVesselRevealState({
   isIntersecting,
   top,
   revealBoundary,
+  viewportBottom,
 }: VesselRevealStateInput): VesselRevealStateResult {
   if (isInitialObservation) {
-    // 최초 마운트 시 뷰포트 내(또는 상단)에 이미 위치한 섹션은 즉시 bloomed로 고정하여
-    // 새로고침 시 축소 후 확대되는 불필요한 재실행 애니메이션을 원천 방지한다.
-    const shouldProtect = top < revealBoundary;
+    // 새로고침 당시 viewport에 이미 보이는 섹션은 reveal boundary 아래에 있더라도
+    // 최종 상태로 시작해 새로고침 직후 scale-in이 다시 재생되지 않게 한다.
+    const shouldProtect = top < viewportBottom;
     return {
       stage: shouldProtect ? 'bloomed' : 'vessel',
       isReloadProtected: shouldProtect,
+      shouldAnimate: false,
     };
   }
 
-  // 1. 이미 새로고침으로 보호되었거나, 이번 세션에서 한 번이라도 리빌(bloomed)된 섹션은
-  //    위로 스크롤하거나 화면 밖으로 벗어나도 영구적으로 bloomed(최종 상태)를 유지하며 접히지 않는다.
-  if (isReloadProtected || currentStage === 'bloomed') {
-    return { stage: 'bloomed', isReloadProtected: true };
+  // 새로고침 당시 보였던 섹션은 이후 위로 스크롤해도 최종 상태를 유지한다.
+  if (isReloadProtected) {
+    return { stage: 'bloomed', isReloadProtected: true, shouldAnimate: false };
   }
 
-  // 2. 아직 보지 않은 하단 섹션이 사용자의 하향 스크롤을 통해 뷰포트 하단 33% 경계로 진입할 때 1회성으로 bloomed 전환
-  if (isIntersecting || top < revealBoundary) {
-    return { stage: 'bloomed', isReloadProtected: true };
+  // 아래로 내려가며 reveal boundary에 새로 들어온 섹션은 scale-up한다.
+  if (isIntersecting) {
+    return { stage: 'bloomed', isReloadProtected: false, shouldAnimate: true };
   }
 
-  // 3. 아직 화면에 도달하지 않은 하단 섹션은 vessel(진입 대기) 유지
-  return { stage: 'vessel', isReloadProtected: false };
+  // 위로 올라가며 섹션이 boundary 아래로 밀려나면 scale-down한다.
+  if (top >= revealBoundary) {
+    return { stage: 'vessel', isReloadProtected: false, shouldAnimate: true };
+  }
+
+  // 이미 bloomed된 상단 섹션은 위로 스크롤할 때 접히지 않고 그대로 유지한다.
+  return { stage: currentStage, isReloadProtected: false, shouldAnimate: false };
 }

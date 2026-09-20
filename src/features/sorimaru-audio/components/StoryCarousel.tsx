@@ -616,7 +616,10 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
 
   useGSAP(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    gsap.from('[data-story-card]', {
+    const cards = railRef.current?.querySelectorAll('[data-story-card]');
+    if (!cards?.length || !railRef.current) return;
+
+    gsap.from(cards, {
       opacity: 0,
       y: 16,
       filter: 'blur(7px)',
@@ -625,7 +628,7 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
       ease: 'power2.out',
       scrollTrigger: { trigger: railRef.current, start: 'top 84%', once: true },
     });
-  }, { scope: railRef, dependencies: [stories.length] });
+  }, { dependencies: [stories.length] });
 
   const handleCardClick = (story: SorimaruStoryItem) => {
     if (isMovedRef.current) {
