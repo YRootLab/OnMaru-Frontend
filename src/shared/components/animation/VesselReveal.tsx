@@ -2,7 +2,11 @@
 
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { resolveVesselRevealState, type VesselRevealStage } from './vesselRevealState';
+import {
+  resolveVesselRevealState,
+  type VesselRevealScrollDirection,
+  type VesselRevealStage,
+} from './vesselRevealState';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 
 // SSR에서 useLayoutEffect 사용 시 뜨는 경고를 피하기 위해, 서버에서는 useEffect로 대체한다.
@@ -45,6 +49,7 @@ export const VesselReveal: React.FC<VesselRevealProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const isReloadProtectedRef = useRef(false);
+  const scrollDirectionRef = useRef<VesselRevealScrollDirection>('down');
   const prefersReducedMotion = usePrefersReducedMotion();
   const [{ stage, shouldAnimate }, setState] = useState<{ stage: VesselRevealStage; shouldAnimate: boolean }>({
     // SSR과 hydration 중에는 완성 상태를 그려 현재 viewport가 축소되어 보이는 flash를 막는다.
@@ -63,6 +68,7 @@ export const VesselReveal: React.FC<VesselRevealProps> = ({
       isReloadProtected: false,
       isIntersecting: false,
       isViewportIntersecting: false,
+      scrollDirection: 'down',
       top: el.getBoundingClientRect().top,
       bottom: el.getBoundingClientRect().bottom,
       revealBoundary: initialBoundary,
@@ -72,6 +78,18 @@ export const VesselReveal: React.FC<VesselRevealProps> = ({
     let currentStage = initial.stage;
     isReloadProtectedRef.current = initial.isReloadProtected;
     const isViewportIntersectingRef = { current: initial.isReloadProtected };
+    const isRevealIntersectingRef = {
+      current: initial.stage === 'bloomed' && initial.isReloadProtected,
+    };
+    const previousScrollYRef = { current: window.scrollY };
+    const updateScrollDirection = () => {
+      const nextScrollY = window.scrollY;
+      if (nextScrollY !== previousScrollYRef.current) {
+        scrollDirectionRef.current = nextScrollY > previousScrollYRef.current ? 'down' : 'up';
+        previousScrollYRef.current = nextScrollY;
+      }
+    };
+    window.addEventListener('scroll', updateScrollDirection, { passive: true });
     setState((previous) => (
       previous.stage === initial.stage
         ? previous
@@ -87,24 +105,31 @@ export const VesselReveal: React.FC<VesselRevealProps> = ({
         currentStage,
         isInitialObservation: false,
         isReloadProtected: isReloadProtectedRef.current,
-        isIntersecting: isViewportObserver ? false : entry.isIntersecting,
+        isIntersecting: isRevealIntersectingRef.current,
         isViewportIntersecting: isViewportIntersectingRef.current,
+        scrollDirection: scrollDirectionRef.current,
         top: entry.boundingClientRect.top,
         bottom: entry.boundingClientRect.bottom,
         revealBoundary,
         viewportBottom: window.innerHeight,
       });
-
+      isReloadProtectedRef.current = next.isReloadProtected;
       isReloadProtectedRef.current = next.isReloadProtected;
       if (currentStage === next.stage) return;
 
       currentStage = next.stage;
-      setState({ stage: next.stage, shouldAnimate: !prefersReducedMotion });
+      setState({
+        stage: next.stage,
+        shouldAnimate: next.shouldAnimate && !prefersReducedMotion,
+      });
     };
 
     const revealObserver = new IntersectionObserver((entries) => {
       const entry = entries[0];
-      if (entry) applyEntry(entry, false);
+      if (entry) {
+        isRevealIntersectingRef.current = entry.isIntersecting;
+        applyEntry(entry, false);
+      }
     }, {
       rootMargin: `0px 0px -${(1 - exitThresholdRatio) * 100}% 0px`,
     });
@@ -116,6 +141,7 @@ export const VesselReveal: React.FC<VesselRevealProps> = ({
     viewportObserver.observe(el);
 
     return () => {
+      window.removeEventListener('scroll', updateScrollDirection);
       revealObserver.disconnect();
       viewportObserver.disconnect();
     };

@@ -1,4 +1,5 @@
 export type VesselRevealStage = 'vessel' | 'bloomed';
+export type VesselRevealScrollDirection = 'up' | 'down';
 
 interface VesselRevealStateInput {
   currentStage: VesselRevealStage;
@@ -6,6 +7,7 @@ interface VesselRevealStateInput {
   isReloadProtected: boolean;
   isIntersecting: boolean;
   isViewportIntersecting: boolean;
+  scrollDirection: VesselRevealScrollDirection;
   top: number;
   bottom: number;
   revealBoundary: number;
@@ -15,6 +17,7 @@ interface VesselRevealStateInput {
 interface VesselRevealStateResult {
   stage: VesselRevealStage;
   isReloadProtected: boolean;
+  shouldAnimate: boolean;
 }
 
 export function resolveVesselRevealState({
@@ -23,6 +26,7 @@ export function resolveVesselRevealState({
   isReloadProtected,
   isIntersecting,
   isViewportIntersecting,
+  scrollDirection,
   top,
   bottom,
   revealBoundary,
@@ -35,6 +39,7 @@ export function resolveVesselRevealState({
     return {
       stage: shouldProtect ? 'bloomed' : 'vessel',
       isReloadProtected: shouldProtect,
+      shouldAnimate: false,
     };
   }
 
@@ -42,19 +47,37 @@ export function resolveVesselRevealState({
   // 다시 vessel로 돌아가 다음 진입에서 자연스럽게 scale-up되도록 보호를 해제한다.
   if (isReloadProtected) {
     return isViewportIntersecting
-      ? { stage: 'bloomed', isReloadProtected: false }
-      : { stage: 'vessel', isReloadProtected: false };
+      ? { stage: 'bloomed', isReloadProtected: false, shouldAnimate: false }
+      : { stage: 'vessel', isReloadProtected: false, shouldAnimate: false };
   }
 
-  // viewport 밖으로 나가면 위/아래 방향과 관계없이 접힌 상태로 돌아간다.
-  if (!isViewportIntersecting) {
-    return { stage: 'vessel', isReloadProtected: false };
+  if (currentStage === 'vessel') {
+    if (!isViewportIntersecting) {
+      return { stage: 'vessel', isReloadProtected: false, shouldAnimate: false };
+    }
+
+    // 상향 스크롤로 위에서 새롭게 들어오는 섹션은 최종 상태로 즉시 표시한다.
+    if (scrollDirection === 'up') {
+      return { stage: 'bloomed', isReloadProtected: false, shouldAnimate: false };
+    }
+
+    // 하향 스크롤로 하단 reveal 경계에 들어오는 섹션만 scale-up한다.
+    if (isIntersecting && top < revealBoundary) {
+      return { stage: 'bloomed', isReloadProtected: false, shouldAnimate: true };
+    }
+
+    return { stage: 'vessel', isReloadProtected: false, shouldAnimate: false };
   }
 
-  // reveal observer는 하단 경계 진입을 선제적으로 감지한다.
-  if (isIntersecting && top < revealBoundary) {
-    return { stage: 'bloomed', isReloadProtected: false };
+  if (isViewportIntersecting) {
+    return { stage: 'bloomed', isReloadProtected: false, shouldAnimate: false };
   }
 
-  return { stage: currentStage, isReloadProtected: false };
+  // 상향 스크롤로 섹션이 viewport 아래로 밀려나면 scale-down하며 사라진다.
+  const leavesThroughBottom = scrollDirection === 'up' && top >= viewportBottom;
+  return {
+    stage: 'vessel',
+    isReloadProtected: false,
+    shouldAnimate: leavesThroughBottom,
+  };
 }
