@@ -57,7 +57,7 @@ const ContentLayer = styled.div`
   z-index: 10;
 `;
 
-const ArchiveReveal = styled(VesselReveal)`
+const SorimaruSectionReveal = styled(VesselReveal)`
   width: 100%;
   padding: 2.5rem 0;
 
@@ -589,14 +589,14 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
               </div>
             </VesselReveal>
 
-            <VesselReveal style={{ minHeight: '760px', width: '100%', padding: '1.5rem 0' }}>
+            <SorimaruSectionReveal style={{ minHeight: '760px' }}>
               <div style={{ width: '100%' }}>
                 <SoundConstellationSection stories={storyList} />
               </div>
-            </VesselReveal>
+            </SorimaruSectionReveal>
 
             {/* 섹션 3: 오늘, 여기에서 */}
-            <VesselReveal style={{ minHeight: '440px', width: '100%', padding: '1.5rem 0' }}>
+            <SorimaruSectionReveal style={{ minHeight: '440px' }}>
               <section
                 aria-labelledby="nearby-stories-heading"
                 style={{ width: '100%' }}
@@ -635,10 +635,10 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                   </div>
                 </CenteredContainer>
               </section>
-            </VesselReveal>
+            </SorimaruSectionReveal>
 
             {/* 오디오 아카이브 섹션 (통합 메인 뷰) */}
-            <ArchiveReveal id="sorimaru-archive">
+            <SorimaruSectionReveal id="sorimaru-archive">
               <section
                 style={{ width: '100%' }}
                 data-sorimaru-stage="archive"
@@ -678,7 +678,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                   </div>
                 </CenteredContainer>
               </section>
-            </ArchiveReveal>
+            </SorimaruSectionReveal>
           </MainSections>
         </ContentLayer>
 
