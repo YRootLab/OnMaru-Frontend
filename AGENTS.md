@@ -36,7 +36,7 @@
 
 ## Shared agent workflow
 
-- `AGENTS.md` is the shared source of truth for Codex, Claude, Gemini, Cline, and other agents. Read it before making changes; keep harness-specific entry files thin.
+- `AGENTS.md` is the shared source of truth for Copilot, Codex, Claude, Gemini, Cline, and other agents. Every agent must read and follow it before making changes; keep harness-specific entry files thin.
 - Treat source files as canonical. Do not edit generated output unless the task explicitly requires it.
 - Before claiming completion, committing, or releasing, run fresh verification appropriate to the touched code.
 - Record resumable work in `handoff.md`, deferred follow-ups in `improvements.md`, and human-readable meaningful changes in `changelog.md`.
@@ -56,23 +56,27 @@
 ## Git Flow branch policy
 
 - Integration branch: `develop`.
-- Production branch: `main`.
+- Production branch: `master`.
 - Work branches: `feature/*`, `feat/*`, `fix/*`, and `docs/*` merge into `develop` through a pull request.
-- Release branches: `release/*` merge into `main` and back into `develop`.
-- Emergency fixes: `hotfix/*` merge into `main` and back into `develop`.
-- Direct pushes, force pushes, and unreviewed merges to `develop` or `main` are prohibited.
+- Release branches: `release/*` merge into `master` through a pull request, then merge back into `develop`.
+- Emergency fixes: `hotfix/*` merge into `master` through a pull request, then merge back into `develop`.
+- Direct pushes, force pushes, and unreviewed merges to `develop` or `master` are prohibited.
 - After finishing development work, agents must not create a PR or merge on their own — always get the user's final approval first.
 - Required CI checks must pass and the branch must be current before every merge. Shared changes require at least one approval.
-- Create semantic version tags such as `v0.3.2` only from `main`.
+- Create semantic version tags such as `v0.3.2` only from `master` after the release merge.
+- Pushes to `develop` deploy preview/staging builds. Pushes to `master` and semantic `v*` tags deploy Production through `.github/workflows/deploy.yml`.
+- Private submodules must be checked out recursively in CI and deployments; configure the required read-only deploy key as a repository secret rather than exposing credentials in source.
 - Delete short-lived branches after merge. Release automation must use least-privilege permissions and avoid workflow loops.
 
 ## Private core UI submodule
 
 - `src/private/core-ui` is a Git submodule pointing to the private `YRootLab/onmaru-core-ui` repository.
-- After cloning the repository, always run `git submodule update --init --recursive`.
+- After cloning the repository, always run `npm run submodule:init`, then `npm run check:submodule`.
+- `npm test` and `npm run build` run `check:submodule` first; restore the submodule before diagnosing unrelated module-resolution failures.
 - Do not record private submodule access permissions or authentication tokens in source code, `.env.example`, logs, or documentation.
 - When modifying files inside the private submodule, commit and push those changes in the submodule repository first, then commit the updated submodule pointer in the parent repository.
 - Do not arbitrarily delete the parent repository's `.gitmodules` or `src/private/core-ui` gitlink, or convert the gitlink into a regular directory.
+- CI and Vercel workflows must initialize the submodule with the repository secret `CORE_UI_READ_TOKEN`, then run `npm run check:submodule`.
 - Verify that the submodule is initialized before deploying to Vercel.
 - Deploy applications using the private submodule through the Vercel CLI or CI configured with private submodule access.
 - If Vercel Git integration cannot read the private submodule, use Vercel CLI deployment instead of automatic deployment.
