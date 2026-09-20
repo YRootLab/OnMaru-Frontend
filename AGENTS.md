@@ -74,7 +74,7 @@
 - Do not record private submodule access permissions or authentication tokens in source code, `.env.example`, logs, or documentation.
 - When modifying files inside the private submodule, commit and push those changes in the submodule repository first, then commit the updated submodule pointer in the parent repository.
 - Do not arbitrarily delete the parent repository's `.gitmodules` or `src/private/core-ui` gitlink, or convert the gitlink into a regular directory.
-- CI and Vercel workflows must use recursive checkout with the repository secret `CORE_UI_DEPLOY_KEY`, then run `npm run check:submodule`.
+- CI and Vercel workflows must initialize the submodule with the repository secret `CORE_UI_READ_TOKEN`, then run `npm run check:submodule`.
 - Verify that the submodule is initialized before deploying to Vercel.
 - Deploy applications using the private submodule through the Vercel CLI or CI configured with private submodule access.
 - If Vercel Git integration cannot read the private submodule, use Vercel CLI deployment instead of automatic deployment.
