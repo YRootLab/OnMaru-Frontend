@@ -11,10 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Configure private submodule SSH access
-      uses: webfactory/ssh-agent@v0.9.0
-      with:
-        ssh-private-key: ${{ secrets.CORE_UI_DEPLOY_KEY }}
+    - name: Configure private submodule HTTPS access
+      run: |
+        git config --global url."https://x-access-token:${{ secrets.CORE_UI_READ_TOKEN }}@github.com/".insteadOf "git@github.com:"
     - name: Initialize private submodules
       run: git submodule update --init --recursive
     - uses: actions/setup-node@v4
