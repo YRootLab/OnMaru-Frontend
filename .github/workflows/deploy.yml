@@ -62,14 +62,25 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
-          mkdir -p .vercel
-          cat > .vercel/project.json <<EOF
-          {
-            "orgId": "$VERCEL_ORG_ID",
-            "projectId": "$VERCEL_PROJECT_ID",
-            "settings": {}
-          }
-          EOF
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          Path(".vercel").mkdir(parents=True, exist_ok=True)
+          Path(".vercel/project.json").write_text(
+              json.dumps(
+                  {
+                      "orgId": os.environ["VERCEL_ORG_ID"],
+                      "projectId": os.environ["VERCEL_PROJECT_ID"],
+                      "settings": {},
+                  },
+                  indent=2,
+              )
+              + "\n",
+              encoding="utf-8",
+          )
+          PY
 
       - name: Verify private Core UI submodule
         run: npm run check:submodule
@@ -134,14 +145,25 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
-          mkdir -p .vercel
-          cat > .vercel/project.json <<EOF
-          {
-            "orgId": "$VERCEL_ORG_ID",
-            "projectId": "$VERCEL_PROJECT_ID",
-            "settings": {}
-          }
-          EOF
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          Path(".vercel").mkdir(parents=True, exist_ok=True)
+          Path(".vercel/project.json").write_text(
+              json.dumps(
+                  {
+                      "orgId": os.environ["VERCEL_ORG_ID"],
+                      "projectId": os.environ["VERCEL_PROJECT_ID"],
+                      "settings": {},
+                  },
+                  indent=2,
+              )
+              + "\n",
+              encoding="utf-8",
+          )
+          PY
 
       - name: Verify private Core UI submodule
         run: npm run check:submodule
