@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "npm run check:submodule",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "pretest": "npm run check:submodule",
     "test": "vitest run",
     "check:env": "node scripts/validate-env-contract.mjs",
     "build:data": "node --env-file=.env.local scripts/build-data.mjs",
@@ -19,6 +21,7 @@
     "probe:village": "node --env-file=.env.local scripts/probe-village.mjs",
     "probe:map": "node --env-file=.env.local scripts/probe-map-categories.mjs",
     "generate:api-types": "openapi-typescript https://onmaru-backend.onrender.com/v3/api-docs -o ./src/types/api.generated.d.ts",
+    "check:submodule": "node scripts/check-submodule.mjs",
     "submodule:init": "git submodule update --init --recursive",
     "submodule:update": "git submodule update --remote --merge"
   },
