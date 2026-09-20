@@ -143,15 +143,15 @@ jobs:
           }
 
           function toDotenvContents(rawText) {
-            const trimmed = rawText.trimStart();
-
-            if (trimmed.startsWith('{')) {
+            try {
               const parsed = JSON.parse(rawText);
-              return `# Created by Vercel CLI\n${Object.keys(parsed.env ?? {})
-                .sort()
-                .map((key) => `${key}="${escapeValue(parsed.env[key])}"`)
-                .join('\n')}\n`;
-            }
+              if (parsed && typeof parsed === 'object' && parsed.env && typeof parsed.env === 'object' && !Array.isArray(parsed.env)) {
+                return `# Created by Vercel CLI\n${Object.keys(parsed.env)
+                  .sort()
+                  .map((key) => `${key}="${escapeValue(parsed.env[key])}"`)
+                  .join('\n')}\n`;
+              }
+            } catch {}
 
             return rawText.endsWith('\n') ? rawText : `${rawText}\n`;
           }
@@ -363,15 +363,15 @@ jobs:
           }
 
           function toDotenvContents(rawText) {
-            const trimmed = rawText.trimStart();
-
-            if (trimmed.startsWith('{')) {
+            try {
               const parsed = JSON.parse(rawText);
-              return `# Created by Vercel CLI\n${Object.keys(parsed.env ?? {})
-                .sort()
-                .map((key) => `${key}="${escapeValue(parsed.env[key])}"`)
-                .join('\n')}\n`;
-            }
+              if (parsed && typeof parsed === 'object' && parsed.env && typeof parsed.env === 'object' && !Array.isArray(parsed.env)) {
+                return `# Created by Vercel CLI\n${Object.keys(parsed.env)
+                  .sort()
+                  .map((key) => `${key}="${escapeValue(parsed.env[key])}"`)
+                  .join('\n')}\n`;
+              }
+            } catch {}
 
             return rawText.endsWith('\n') ? rawText : `${rawText}\n`;
           }
