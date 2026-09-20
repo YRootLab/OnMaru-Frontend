@@ -3,6 +3,11 @@
 `VesselReveal`은 긴 페이지의 섹션이 viewport 하단 경계를 통과할 때 부드러운 스케일 및 페이드인 모핑(`scaleFrom` -> origin `1.0`)을 적용하는 스크롤 리빌 애니메이션 컴포넌트입니다.
 UI 렌더링 및 모션 적용은 `VesselReveal.tsx`, 위치 및 스크롤 방향에 따른 상태 전이는 `vesselRevealState.ts`가 담당합니다.
 
+페이지가 자체 컨테이너나 시각 스타일을 사용해야 하는 경우에는 `useVesselReveal`을 사용해
+동일한 reveal 상태 전이만 연결할 수 있습니다. 이 훅은 `containerRef`, `stage`, `shouldAnimate`,
+`prefersReducedMotion`을 제공하며 페이지의 padding, border, shadow, 마크업에는 의존하지 않습니다.
+기본 카드형 외형이 필요한 경우에는 기존 `VesselReveal`을 사용합니다.
+
 ---
 
 ## 📐 핵심 애니메이션 규칙 (Scroll Reveal Transition Rules)
@@ -22,7 +27,29 @@ UI 렌더링 및 모션 적용은 `VesselReveal.tsx`, 위치 및 스크롤 방�
 - 새로고침 이후 아직 뷰포트에 들어오지 않은 섹션은 `vessel`로 대기하고, 뷰포트에 진입할 때마다 스케일 리빌(`scaleFrom` -> `1.0`)이 동작합니다.
 
 ### 4. 성능 최적화 (Observer-based Viewport Tracking)
-- reveal 경계 observer는 진입 시점을 감지하고, viewport observer는 위/아래 이탈 시점을 감지합니다. 두 observer 모두 `VesselReveal` 인스턴스 단위로 정리되어 전역 스크롤 리스너와 불필요한 페이지 리렌더링을 만들지 않습니다.
+- reveal 경계 observer가 진입과 경계 이탈을 감지합니다. observer는 각 reveal 인스턴스 단위로 정리되어 전역 스크롤 리스너와 불필요한 페이지 리렌더링을 만들지 않습니다.
+
+### 5. 다른 페이지에서의 재사용
+
+```tsx
+const { containerRef, stage, shouldAnimate } = useVesselReveal<HTMLElement>();
+const isBloomed = stage === 'bloomed';
+
+return (
+  <section
+    ref={containerRef}
+    data-reveal-stage={stage}
+    style={{
+      transform: `scale(${isBloomed ? 1 : 0.92})`,
+      transition: shouldAnimate ? 'transform 750ms cubic-bezier(0.22, 1, 0.36, 1)' : 'none',
+    }}
+  >
+    {children}
+  </section>
+);
+```
+
+페이지별 spacing과 외형은 사용하는 페이지가 소유하고, reveal 상태와 viewport 관찰만 공통 훅에서 공유합니다.
 
 ---
 
