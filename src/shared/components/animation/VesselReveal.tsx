@@ -97,6 +97,7 @@ export const VesselReveal: React.FC<VesselRevealProps> = ({
     ));
 
     const applyEntry = (entry: IntersectionObserverEntry, isViewportObserver: boolean) => {
+      updateScrollDirection();
       if (isViewportObserver) {
         isViewportIntersectingRef.current = entry.isIntersecting;
       }
