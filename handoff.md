@@ -1,7 +1,7 @@
 # handoff.md
 
 ## Current Work
-- Netlify가 private Core UI submodule을 clone할 수 있도록 `.gitmodules`의 URL을 HTTPS로 변경했다. Netlify deploy key를 `YRootLab/onmaru-core-ui`에 읽기 전용으로 등록해야 한다.
+- Netlify가 private Core UI submodule을 clone할 수 있도록 `.gitmodules`의 URL을 HTTPS로 변경했다. Netlify GitHub App에 `YRootLab/onmaru-core-ui` 저장소 접근 권한을 부여해야 한다.
 - develop 최신 내역을 `feat/issue-111-ui-refactor`에 병합하며 changelog·handoff·Core UI submodule 충돌을 해소했다. 병합으로 들어온 `@vercel/analytics`·`@vercel/speed-insights` 의존성을 `npm install`로 설치해 `Module not found` 빌드 오류를 해결하고 lockfile을 커밋했다.
 - 소리마루 "장면을 따라 걷는 소리" 레일은 Core UI `fix/sorimaru-editorial-image-seams` 브랜치의 `e4d49c4`를 가리키며, 인라인 이미지의 하단 베이스라인 여백·다크 모드 테두리·하단 패널의 이중 클리핑과 반투명 모서리 프린지를 제거하고 카드 그림자를 복원했다.
 - Vercel Git 배포는 private Core UI submodule을 인증할 수 없어 비활성화했다. `deploy.yml`의 GitHub Actions Vercel CLI 배포가 `CORE_UI_READ_TOKEN`으로 submodule을 초기화한 뒤 production/preview를 배포한다.
@@ -13,7 +13,7 @@
 - Vercel direct deployment에서 `--scope="$VERCEL_ORG_ID"`를 제거했다. 이전 성공 실행처럼 token/project 환경으로 pull하고, private Core UI submodule checkout은 기존 `CORE_UI_READ_TOKEN` 경로를 유지한다.
 
 ## Next Steps
-- Netlify가 발급한 deploy key의 공개키를 `YRootLab/onmaru-core-ui`에 읽기 전용 deploy key로 등록한 뒤 Netlify 배포를 재시도한다. 현재 해당 저장소에는 deploy key가 등록되어 있지 않다.
+- GitHub의 Installed GitHub Apps에서 Netlify App에 `YRootLab/onmaru-core-ui` 접근 권한을 추가한 뒤 Netlify 배포를 재시도한다.
 - GitHub Repository Secret `CORE_UI_READ_TOKEN`의 private `onmaru-core-ui` read access 유지 여부 확인
 - 팀원에게 `onmaru-core-ui` 서브모듈 접근 권한 및 `npm run submodule:init` 안내
 - #91 백엔드 503 정상화 후 `GET /api/v1/odii/stories` 실응답으로 소리마루 백엔드 우선 경로를 수동 재검증
