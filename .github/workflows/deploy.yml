@@ -57,6 +57,16 @@ jobs:
             fi
           done
 
+      - name: Link Vercel project metadata
+        run: |
+          mkdir -p .vercel
+          cat > .vercel/project.json <<EOF
+          {
+            "orgId": "$VERCEL_ORG_ID",
+            "projectId": "$VERCEL_PROJECT_ID"
+          }
+          EOF
+
       - name: Install project dependencies
         run: npm ci
 
@@ -110,6 +120,16 @@ jobs:
               exit 1
             fi
           done
+
+      - name: Link Vercel project metadata
+        run: |
+          mkdir -p .vercel
+          cat > .vercel/project.json <<EOF
+          {
+            "orgId": "$VERCEL_ORG_ID",
+            "projectId": "$VERCEL_PROJECT_ID"
+          }
+          EOF
 
       - name: Install project dependencies
         run: npm ci
