@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import styled from '@emotion/styled';
-import { MapPin, ArrowRight, RotateCcw, Volume2 } from 'lucide-react';
+import { MapPin, ArrowLeft, ArrowRight, RotateCcw, Volume2 } from 'lucide-react';
 import { palette, fontSize, ringShadow } from '@/design-system/tokens';
 import { useJourneyStore } from '../store/useJourneyStore';
 import { useCuratedCourses, usePopularRegions, useTrendingSounds } from '../hooks/useHomeData';
@@ -70,13 +70,27 @@ const SectionDescription = styled.p`
   }
 `;
 
-/* ── 1. 에디터 추천 코스 (3선 카드 덱) ── */
+/* ── 1. 에디터 추천 코스 (상위 7개 무한 캐러셀) ── */
 const CourseGrid = styled.div`
+  position: relative;
+`;
+
+const CourseViewport = styled.div`
+  position: relative;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 6px 4px 14px;
+  margin: -6px -4px -14px;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+const CourseSkeletonGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
-  padding: 6px 4px 14px;
-  margin: -6px -4px -14px;
 
   @media (max-width: 1024px) {
     grid-template-columns: repeat(2, 1fr);
@@ -89,9 +103,95 @@ const CourseGrid = styled.div`
   }
 `;
 
+const CourseRail = styled.div`
+  display: flex;
+  gap: 20px;
+  width: 100%;
+
+  @media (max-width: 1024px) {
+    gap: 16px;
+  }
+
+  @media (max-width: 640px) {
+    gap: 14px;
+  }
+`;
+
+const CourseArrow = styled.button`
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(25, 31, 40, 0.1);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.94);
+  color: #191f28;
+  box-shadow: 0 8px 20px rgba(25, 31, 40, 0.12);
+  cursor: pointer;
+  top: calc(50% - 4px);
+  transform: translate(-50%, -50%);
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+
+  &[data-direction='prev'] {
+    left: 0;
+  }
+
+  &[data-direction='next'] {
+    right: 0;
+    transform: translate(50%, -50%);
+  }
+
+  [data-theme='dark'] & {
+    border-color: rgba(255, 255, 255, 0.12);
+    background: rgba(36, 33, 29, 0.94);
+    color: #f8f9fa;
+  }
+
+  @media (max-width: 640px) {
+    width: 34px;
+    height: 34px;
+
+    &[data-direction='prev'] {
+      left: 0;
+    }
+
+    &[data-direction='next'] {
+      right: 0;
+    }
+  }
+`;
+
+const CourseIndicators = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 18px;
+`;
+
+const CourseIndicator = styled.button<{ $active: boolean }>`
+  width: ${({ $active }) => ($active ? '22px' : '7px')};
+  height: 7px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: ${({ $active }) => ($active ? palette.juhong[500] : '#d9d9d7')};
+  cursor: pointer;
+  transition: width 0.2s ease, background-color 0.2s ease;
+
+  [data-theme='dark'] & {
+    background: ${({ $active }) => ($active ? palette.juhong[400] : '#4b4741')};
+  }
+`;
+
 const CourseCard = styled.button`
   text-align: left;
   display: flex;
+  flex: 0 0 29.75%;
   flex-direction: column;
   background: #ffffff;
   border-radius: 20px;
@@ -119,12 +219,20 @@ const CourseCard = styled.button`
   &:active {
     transform: translateY(-1px);
   }
+
+  @media (max-width: 1024px) {
+    flex-basis: 46%;
+  }
+
+  @media (max-width: 640px) {
+    flex-basis: 80%;
+  }
 `;
 
 const CourseImageWrap = styled.div`
   position: relative;
   width: 100%;
-  height: 190px;
+  height: 165px;
   overflow: hidden;
   background: #f2f4f6;
 
@@ -133,11 +241,13 @@ const CourseImageWrap = styled.div`
   }
 
   @media (max-width: 640px) {
-    height: 170px;
+    height: 150px;
   }
 `;
 
 const CourseImage = styled.img`
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -149,6 +259,8 @@ const CourseImage = styled.img`
 `;
 
 const CourseImagePlaceholder = styled.div`
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   background: #e5e5e3;
@@ -176,13 +288,13 @@ const LocationBadge = styled.span`
 `;
 
 const CourseBody = styled.div`
-  padding: 18px 20px 20px;
+  padding: 14px 20px 16px;
   display: flex;
   flex-direction: column;
   flex: 1;
 
   @media (max-width: 640px) {
-    padding: 16px;
+    padding: 12px 16px 14px;
   }
 `;
 
@@ -191,7 +303,7 @@ const CourseTitle = styled.h3`
   font-size: ${fontSize.lg};
   font-weight: 700;
   color: #191f28;
-  margin: 0 0 8px;
+  margin: 0 0 4px;
   line-height: 1.4;
 
   [data-theme='dark'] & {
@@ -207,7 +319,7 @@ const CourseDesc = styled.p`
   font-size: ${fontSize.sm};
   color: #4e5968;
   line-height: 1.55;
-  margin: 0 0 16px;
+  margin: 0 0 8px;
   flex: 1;
 
   [data-theme='dark'] & {
@@ -216,7 +328,7 @@ const CourseDesc = styled.p`
 
   @media (max-width: 640px) {
     font-size: 13.5px;
-    margin-bottom: 12px;
+    margin-bottom: 6px;
   }
 `;
 
@@ -224,7 +336,7 @@ const CourseFooter = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 12px;
+  padding-top: 6px;
   border-top: 1px solid #f2f4f6;
 
   [data-theme='dark'] & {
@@ -234,7 +346,7 @@ const CourseFooter = styled.div`
 
 const TagList = styled.div`
   display: flex;
-  gap: 6px;
+  gap: 4px;
   flex-wrap: wrap;
 `;
 
@@ -632,11 +744,102 @@ export default function JourneyDiscoveryFeed() {
   const { data: courses, loading: coursesLoading, failed: coursesFailed, unavailable: coursesUnavailable, retry: retryCourses } = useCuratedCourses();
   const { data: trendingSounds, loading: soundsLoading, failed: soundsFailed, unavailable: soundsUnavailable, retry: retrySounds } = useTrendingSounds();
   const { data: popularRegions, loading: regionsLoading, failed: regionsFailed, unavailable: regionsUnavailable, retry: retryRegions } = usePopularRegions();
+  const featuredCourses = courses.slice(0, 7);
+  const courseViewportRef = useRef<HTMLDivElement>(null);
+  const [visibleCourseCount, setVisibleCourseCount] = useState(3);
+  const [activeCourseIndex, setActiveCourseIndex] = useState(0);
 
   const handleSelectCourse = (query: string) => {
     setQuery(query);
     submitSearch(query);
   };
+
+  useEffect(() => {
+    const updateVisibleCourseCount = () => {
+      setVisibleCourseCount(window.innerWidth <= 640 ? 1 : window.innerWidth <= 1024 ? 2 : 3);
+    };
+    updateVisibleCourseCount();
+    window.addEventListener('resize', updateVisibleCourseCount);
+    return () => window.removeEventListener('resize', updateVisibleCourseCount);
+  }, []);
+
+  const maxCourseIndex = Math.max(0, featuredCourses.length - visibleCourseCount);
+  const currentCourseIndex = Math.min(activeCourseIndex, maxCourseIndex);
+
+  useEffect(() => {
+    const viewport = courseViewportRef.current;
+    if (!viewport) return;
+
+    const updateActiveCourseIndex = () => {
+      const firstCard = viewport.querySelector<HTMLElement>('[data-course-card]');
+      const secondCard = viewport.querySelector<HTMLElement>('[data-course-card]:nth-child(2)');
+      const step = firstCard && secondCard ? secondCard.offsetLeft - firstCard.offsetLeft : firstCard?.offsetWidth ?? 0;
+      if (step > 0) {
+        setActiveCourseIndex(Math.min(maxCourseIndex, Math.round(viewport.scrollLeft / step)));
+      }
+    };
+
+    viewport.addEventListener('scroll', updateActiveCourseIndex, { passive: true });
+    return () => viewport.removeEventListener('scroll', updateActiveCourseIndex);
+  }, [maxCourseIndex]);
+
+  const moveCourseCarousel = (index: number) => {
+    const nextIndex = Math.max(0, Math.min(index, maxCourseIndex));
+    const viewport = courseViewportRef.current;
+    const firstCard = viewport?.querySelector<HTMLElement>('[data-course-card]');
+    const secondCard = viewport?.querySelector<HTMLElement>('[data-course-card]:nth-child(2)');
+    const step = firstCard && secondCard ? secondCard.offsetLeft - firstCard.offsetLeft : firstCard?.offsetWidth ?? 0;
+
+    setActiveCourseIndex(nextIndex);
+    viewport?.scrollTo({ left: step * nextIndex, behavior: 'smooth' });
+  };
+
+  const renderCourseCard = (course: (typeof featuredCourses)[number], key: string) => (
+    <CourseCard
+      key={key}
+      data-course-card
+      onClick={() => handleSelectCourse(`${course.regionName} ${course.name}`)}
+    >
+      <CourseImageWrap>
+        {course.thumbnailUrl ? (
+          <>
+            <CourseImage
+              src={course.thumbnailUrl}
+              alt={course.name}
+              loading="lazy"
+              onError={(event) => {
+                event.currentTarget.style.display = 'none';
+              }}
+            />
+            <CourseImagePlaceholder aria-label={`${course.name} 이미지 없음`} role="img" />
+          </>
+        ) : (
+          <CourseImagePlaceholder aria-label={`${course.name} 이미지 없음`} role="img" />
+        )}
+        <LocationBadge>
+          <MapPin size={14} strokeWidth={2.2} />
+          <span>{course.regionName}</span>
+        </LocationBadge>
+      </CourseImageWrap>
+      <CourseBody>
+        <CourseTitle>{course.name}</CourseTitle>
+        <CourseDesc>{course.summary}</CourseDesc>
+        <CourseFooter>
+          <TagList>
+            <Tag>{course.category}</Tag>
+            {course.tags.map((tag) => (
+              <Tag key={tag}>#{tag}</Tag>
+            ))}
+            {course.savedByMe && <Tag>저장됨</Tag>}
+          </TagList>
+          <ExploreText>
+            <span>일정 보기</span>
+            <ArrowRight size={12} />
+          </ExploreText>
+        </CourseFooter>
+      </CourseBody>
+    </CourseCard>
+  );
 
   return (
     <FeedContainer>
@@ -651,50 +854,60 @@ export default function JourneyDiscoveryFeed() {
 
         <CourseGrid>
           {coursesLoading
-            ? Array.from({ length: 3 }).map((_, index) => (
-                <SkeletonCard key={index} aria-hidden="true">
-                  <SkeletonLine $h="190px" />
-                  <SoundInfo>
-                    <SkeletonLine $w="70%" $h="16px" />
-                    <SkeletonLine $w="100%" $h="40px" />
-                  </SoundInfo>
-                </SkeletonCard>
-              ))
+            ? <CourseSkeletonGrid>
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <SkeletonCard key={index} aria-hidden="true">
+                    <SkeletonLine $h="165px" />
+                    <SoundInfo>
+                      <SkeletonLine $w="70%" $h="16px" />
+                      <SkeletonLine $w="100%" $h="40px" />
+                    </SoundInfo>
+                  </SkeletonCard>
+                ))}
+              </CourseSkeletonGrid>
             : coursesFailed ? (
               <HomeFeedFailure unavailable={coursesUnavailable} onRetry={retryCourses} />
-            )
-            : courses.map((course) => (
-            <CourseCard key={course.placeId} onClick={() => handleSelectCourse(`${course.regionName} ${course.name}`)}>
-              <CourseImageWrap>
-                {course.thumbnailUrl ? (
-                  <CourseImage src={course.thumbnailUrl} alt={course.name} loading="lazy" />
-                ) : (
-                  <CourseImagePlaceholder aria-label={`${course.name} 이미지 없음`} role="img" />
-                )}
-                <LocationBadge>
-                  <MapPin size={11} />
-                  <span>{course.regionName}</span>
-                </LocationBadge>
-              </CourseImageWrap>
-              <CourseBody>
-                <CourseTitle>{course.name}</CourseTitle>
-                <CourseDesc>{course.summary}</CourseDesc>
-                <CourseFooter>
-                  <TagList>
-                    <Tag>{course.category}</Tag>
-                    {course.tags.map((tag) => (
-                      <Tag key={tag}>#{tag}</Tag>
+            ) : (
+              <>
+                <CourseViewport ref={courseViewportRef}>
+                                <CourseArrow
+                                  type="button"
+                                  data-direction="prev"
+                                  aria-label="이전 추천 코스"
+                                  disabled={currentCourseIndex === 0}
+                                  onClick={() => moveCourseCarousel(currentCourseIndex - 1)}
+                                >
+                                  <ArrowLeft size={17} aria-hidden="true" />
+                                </CourseArrow>
+                  <CourseRail>
+                    {featuredCourses.map((course) => renderCourseCard(course, course.placeId))}
+                  </CourseRail>
+                                <CourseArrow
+                                  type="button"
+                                  data-direction="next"
+                                  aria-label="다음 추천 코스"
+                                  disabled={currentCourseIndex >= maxCourseIndex}
+                                  onClick={() => moveCourseCarousel(currentCourseIndex + 1)}
+                                >
+                                  <ArrowRight size={17} aria-hidden="true" />
+                                </CourseArrow>
+                </CourseViewport>
+                {featuredCourses.length > visibleCourseCount && (
+                  <CourseIndicators aria-label="추천 코스 위치">
+                    {Array.from({ length: maxCourseIndex + 1 }, (_, index) => (
+                      <CourseIndicator
+                        key={index}
+                        type="button"
+                        $active={currentCourseIndex === index}
+                        aria-label={`${index + 1}번째 추천 코스 보기`}
+                        aria-current={currentCourseIndex === index ? 'true' : undefined}
+                        onClick={() => moveCourseCarousel(index)}
+                      />
                     ))}
-                    {course.saved && <Tag>저장됨</Tag>}
-                  </TagList>
-                  <ExploreText>
-                    <span>일정 보기</span>
-                    <ArrowRight size={12} />
-                  </ExploreText>
-                </CourseFooter>
-              </CourseBody>
-            </CourseCard>
-          ))}
+                  </CourseIndicators>
+                )}
+              </>
+            )}
         </CourseGrid>
       </section>
 
@@ -721,7 +934,7 @@ export default function JourneyDiscoveryFeed() {
             : soundsFailed ? (
                 <HomeFeedFailure compact unavailable={soundsUnavailable} onRetry={retrySounds} />
               ) : trendingSounds.map((sound) => (
-                <SoundCard key={sound.stid} href={`/sorimaru?stid=${encodeURIComponent(sound.stid)}`}>
+                <SoundCard key={sound.storyId} href={`/sorimaru?stid=${encodeURIComponent(sound.storyId)}`}>
                   <PlayIconWrap>
                     <Volume2 size={20} />
                   </PlayIconWrap>
