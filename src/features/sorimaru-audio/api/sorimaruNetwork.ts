@@ -1,13 +1,17 @@
+import { apiGet, USE_MOCK } from '@/lib/api/client';
+
 export type SorimaruNetworkRequestType = 'stories' | 'nearby' | 'themes';
 
 export interface SorimaruNetworkRequest {
   type: SorimaruNetworkRequestType;
   params: Record<string, string>;
+  preferBackend?: boolean;
 }
 
 export interface SorimaruTransportResponse {
   items: Record<string, unknown>[];
   totalCount: number;
+  source?: 'backend' | 'public';
 }
 
 export type SorimaruEndpointResolver = (request: SorimaruNetworkRequest) => string;
@@ -15,6 +19,10 @@ export type SorimaruResponseDecoder = (
   payload: unknown,
   request: SorimaruNetworkRequest,
 ) => SorimaruTransportResponse;
+export type SorimaruBackendRequester = (
+  path: string,
+  params?: Record<string, string>,
+) => Promise<unknown>;
 
 export interface SorimaruNetworkClient {
   request(request: SorimaruNetworkRequest): Promise<SorimaruTransportResponse>;
@@ -23,6 +31,7 @@ export interface SorimaruNetworkClient {
 export interface CreateSorimaruNetworkClientOptions {
   resolveEndpoint?: SorimaruEndpointResolver;
   decodeResponse?: SorimaruResponseDecoder;
+  backendRequester?: SorimaruBackendRequester;
   fetcher?: typeof fetch;
   timeoutMs?: number;
 }
@@ -30,6 +39,30 @@ export interface CreateSorimaruNetworkClientOptions {
 const CLIENT_API_ENDPOINT = process.env.NEXT_PUBLIC_SORIMARU_API_URL || process.env.NEXT_PUBLIC_ODII_API_URL || 'https://apis.data.go.kr/B551011/Odii';
 const CLIENT_API_KEY = process.env.NEXT_PUBLIC_SORIMARU_API_KEY || process.env.NEXT_PUBLIC_ODII_API_KEY || '';
 const REQUEST_TIMEOUT_MS = 45_000;
+
+interface BackendStorySummary {
+  storyId?: string;
+  title?: string;
+  audioTitle?: string;
+  category?: string;
+  region?: { name?: string };
+  coordinates?: { lat?: number; lng?: number };
+  durationSeconds?: number;
+  imageUrl?: string;
+  contentTags?: string[];
+}
+
+interface BackendStoryDetail {
+  story?: BackendStorySummary;
+  audioUrl?: string;
+  transcript?: Array<{ text?: string }>;
+}
+
+interface BackendStoryPage {
+  items?: BackendStorySummary[];
+}
+
+const defaultBackendRequester: SorimaruBackendRequester = (path, params) => apiGet<unknown>(path, params);
 
 function getApiKey(): string {
   try {
@@ -94,6 +127,7 @@ export const defaultSorimaruResponseDecoder: SorimaruResponseDecoder = (payload)
   return {
     items,
     totalCount: Number(body?.totalCount) || items.length,
+    source: 'public',
   };
 };
 
@@ -101,20 +135,99 @@ function summarizeResponse(response: SorimaruTransportResponse): string {
   return `${response.items.length} item(s)`;
 }
 
+function isBackendStoryPage(payload: unknown): payload is BackendStoryPage {
+  return typeof payload === 'object' && payload !== null && Array.isArray((payload as BackendStoryPage).items);
+}
+
+function toBackendTransportItem(summary: BackendStorySummary, detail: BackendStoryDetail): Record<string, unknown> {
+  const story = detail.story ?? summary;
+
+  return {
+    tid: story.storyId ?? '',
+    stid: story.storyId ?? '',
+    title: story.title ?? '',
+    audioTitle: story.audioTitle ?? story.title ?? '',
+    audioUrl: detail.audioUrl ?? '',
+    playTime: String(story.durationSeconds ?? 0),
+    imageUrl: story.imageUrl ?? '',
+    mapX: String(story.coordinates?.lng ?? ''),
+    mapY: String(story.coordinates?.lat ?? ''),
+    script: detail.transcript
+      ?.map((line) => line.text?.trim())
+      .filter((line): line is string => Boolean(line))
+      .join('\n') ?? '',
+    themaCategory: story.category ?? '',
+    tags: story.contentTags ?? [],
+    addr1: story.region?.name ?? '',
+  };
+}
+
+async function requestBackendStories(
+  request: SorimaruNetworkRequest,
+  backendRequester: SorimaruBackendRequester,
+): Promise<SorimaruTransportResponse> {
+  const page = await backendRequester('odii/stories', {
+    language: 'ko-KR',
+    limit: request.params.numOfRows ?? '7',
+  });
+
+  if (!isBackendStoryPage(page)) {
+    throw new Error('Invalid OnMaru Sorimaru story page');
+  }
+
+  const summaries = page.items ?? [];
+  const items = await Promise.all(
+    summaries.map(async (summary) => {
+      const storyId = summary.storyId;
+      if (!storyId) throw new Error('OnMaru Sorimaru story is missing storyId');
+
+      const detail = await backendRequester(`odii/stories/${encodeURIComponent(storyId)}`, {
+        language: 'ko-KR',
+      }) as BackendStoryDetail;
+
+      return toBackendTransportItem(summary, detail);
+    }),
+  );
+
+  return {
+    items,
+    totalCount: items.length,
+    source: 'backend',
+  };
+}
+
 /** URL and raw payload details remain replaceable behind one normalized result. */
 export function createSorimaruNetworkClient({
   resolveEndpoint = defaultSorimaruEndpointResolver,
   decodeResponse = defaultSorimaruResponseDecoder,
+  backendRequester = USE_MOCK ? undefined : defaultBackendRequester,
   fetcher = fetch,
   timeoutMs = REQUEST_TIMEOUT_MS,
 }: CreateSorimaruNetworkClientOptions = {}): SorimaruNetworkClient {
   return {
     async request(request): Promise<SorimaruTransportResponse> {
-      const url = resolveEndpoint(request);
       const startedAt = performance.now();
 
       console.info('[Sorimaru Network] request', { type: request.type, params: request.params });
 
+      if (request.type === 'stories' && request.preferBackend !== false && backendRequester) {
+        try {
+          const decoded = await requestBackendStories(request, backendRequester);
+          console.info('[Sorimaru Network] backend response', {
+            type: request.type,
+            durationMs: Math.round(performance.now() - startedAt),
+            summary: summarizeResponse(decoded),
+          });
+          return decoded;
+        } catch (error) {
+          console.warn('[Sorimaru Network] backend fallback', {
+            type: request.type,
+            error: error instanceof Error ? error.message : error,
+          });
+        }
+      }
+
+      const url = resolveEndpoint(request);
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 

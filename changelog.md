@@ -4,6 +4,9 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+- **소리마루 백엔드 우선 데이터 연동**:
+  - `GET /api/v1/odii/stories` 목록과 각 상세 응답을 결합해 재생 URL·대본·좌표·콘텐츠 태그를 화면 모델로 전달.
+  - 백엔드 요청 또는 상세 응답이 실패하면 기존 공공 Sorimaru API로 자동 폴백해 서비스 목록을 계속 제공.
 - **Microsoft Clarity 사용자 행동 분석 연동**:
   - `NEXT_PUBLIC_CLARITY_PROJECT_ID`가 설정된 환경에서 Clarity 세션 분석을 초기화.
   - 프로젝트 ID가 없으면 분석 스크립트를 로드하지 않아 로컬 개발 환경의 불필요한 수집을 방지.

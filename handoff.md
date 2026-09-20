@@ -6,3 +6,4 @@
 ## Next Steps
 - GitHub Repository Secrets에 `SUBMODULE_SSH_KEY` 등록 여부 확인
 - 팀원에게 `onmaru-core-ui` 서브모듈 접근 권한 및 `npm run submodule:init` 안내
+- #91 백엔드 503 정상화 후 `GET /api/v1/odii/stories` 실응답으로 소리마루 백엔드 우선 경로를 수동 재검증

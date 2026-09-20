@@ -210,17 +210,30 @@ export const createSorimaruApiAdapter = (network: SorimaruNetworkClient = sorima
     return getCachedRequest(requestKey, async () => {
       try {
 
-      const response = await network.request({
+      const request = {
         type: 'stories',
         params: {
           numOfRows: String(safeNumOfRows),
           pageNo: String(safePageNo),
           ...(keyword ? { keyword } : {}),
         },
-      });
-      const mappedStories = response.items
+      } as const;
+      let response = await network.request(request);
+      let mappedStories = response.items
         .map((item, index) => mapStoryItem(item, index, category || keyword))
         .filter(isPlayableStory);
+
+      if (keyword && response.source === 'backend') {
+        const matchingStories = mappedStories.filter((story) => matchesKeyword(story, keyword));
+        if (matchingStories.length > 0) {
+          mappedStories = matchingStories;
+        } else {
+          response = await network.request({ ...request, preferBackend: false });
+          mappedStories = response.items
+            .map((item, index) => mapStoryItem(item, index, category || keyword))
+            .filter(isPlayableStory);
+        }
+      }
       return {
         items: mappedStories,
         pageNo: safePageNo,
