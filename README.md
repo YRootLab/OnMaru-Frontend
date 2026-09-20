@@ -34,3 +34,7 @@ GitHub Actions가 private submodule을 읽을 수 있도록 Frontend 저장소 �
 - 범위: `YRootLab/onmaru-core-ui`의 `Contents: Read-only`
 
 토큰이나 private key는 동료에게 공유하거나 `.env.local`, `.env.example`, 소스 코드에 저장하지 않습니다. 동료의 로컬 개발에는 각자의 GitHub 저장소 접근 권한만 필요하며, CI secret을 로컬에 복사할 필요가 없습니다.
+
+### Netlify 배포 인증
+
+Netlify가 private Core UI submodule을 clone할 수 있도록 `YRootLab/onmaru-core-ui` 저장소에 Netlify의 읽기 전용 deploy key를 등록합니다. 서브모듈은 HTTPS URL을 사용하며, access token을 URL이나 Netlify 환경 변수에 저장하지 않습니다.
