@@ -57,6 +57,12 @@ jobs:
             fi
           done
 
+      - name: Install project dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
       - name: Deploy Project to Vercel (Production)
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
@@ -104,6 +110,12 @@ jobs:
               exit 1
             fi
           done
+
+      - name: Install project dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
 
       - name: Deploy Project to Vercel (Preview / Release)
         env:
