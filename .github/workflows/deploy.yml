@@ -62,7 +62,7 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: vercel deploy --prod --token="$VERCEL_TOKEN"
+        run: vercel deploy --prod --target=production --token="$VERCEL_TOKEN"
 
   Deploy-Preview-or-Release:
     name: Deploy to Preview / Staging (develop / release/*)
@@ -110,4 +110,4 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: vercel deploy --token="$VERCEL_TOKEN"
+        run: vercel deploy --target=preview --token="$VERCEL_TOKEN"
