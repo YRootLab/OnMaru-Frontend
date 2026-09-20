@@ -11,11 +11,18 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 - 소리마루 편집형 레일의 카드 바탕과 하단 패널을 같은 불투명 색으로 통일해, 페이지 배경이 하단 모서리에 섞이며 생기던 잔여 프린지를 제거했다.
 - 소리마루 편집형 레일 카드의 그림자를 외곽선 제거 시 실수로 함께 지워진 원상태로 복원했다.
 - 한옥 카드의 둥근 모서리 합성 경계 원인·해결·재발 방지 원칙을 `docs/reports/hanok-card-image-compositing-boundary.md`에 기록했다.
+- 한옥 아카이브의 실제 7개 주요 섹션을 `VesselReveal` 경계로 통일하고, K-컬처 테마 섹션에도 소리마루와 동일한 스크롤 리빌 애니메이션을 적용했다.
+- 구조 섹션과 매니페스토 내부의 중복 `whileInView` opacity 애니메이션을 제거해 섹션 제목·본문이 숨거나 다시 사라지는 현상을 막았다.
+- 한옥 섹션 헤더를 콘텐츠 레이어 위에 고정해 K-컬처 섹션 제목이 배경·카드 합성 레이어에 가려지지 않도록 했고, 소리마루와 동일한 reversible reveal 동작을 사용한다.
+
+
+- `스크린 속 한옥` 섹션의 진입 여백, 제목·필터·리스트 간격, Bento 카드 간격을 약 절반으로 압축했다.
 - Vercel Git integration의 무인증 private submodule clone을 비활성화하고, `CORE_UI_READ_TOKEN`을 사용하는 GitHub Actions Vercel CLI 배포를 단일 배포 경로로 유지했다.
 - 한옥 이야기의 처마 일조·7단계 조립 3D 모달을 문서 최상위 포털로 분리하고, 모바일 안전 영역과 동적 뷰포트 높이에 맞춰 표시했다.
 - Vercel Analytics를 루트 레이아웃에 연결해 페이지 조회와 웹 분석 이벤트를 수집한다.
 - Next.js·Vitest 및 전이 의존성을 보안 patch 버전으로 올려 의존성 감사 취약점을 모두 해결했다.
 - Vitest/Vite의 YAML 2.x 의존성을 lockfile에 고정해 CI의 `npm ci` 설치가 일관되게 동작하도록 했다.
+- Vercel CLI pull을 이전 성공 방식으로 되돌려 잘못 해석된 `VERCEL_ORG_ID` scope 때문에 발생하던 `User not found` 배포 실패를 제거했다.
 
 - 홈 추천 코스, 인기 한옥 소리, 인기 지역을 백엔드 홈 API로 연동하고 기존 홈 목데이터 프록시를 제거했다.
 - 인기 한옥 소리 원천이 `503 SERVICE_UNAVAILABLE`일 때 빈 재시도 UI를 표시한다.
@@ -208,3 +215,6 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 - Migrated all icons in the project to lucide-react. Removed react-icons dependency. (Resolves #60, #61, #62, #63, #64)
 - Replaced emoji usages in data files (e.g. curatedJourneys.ts) with lucide-react components.
 - 지도 카테고리 칩의 mask 기반 edge fade를 제거해 그림자 잘림을 막고, PR #66 이전의 둥근 pill 크기와 stagger pop-in 동작을 복원했다.
+- 전국 한옥 도감 페이지네이션 버튼이 다크 테마 배경에 묻히지 않도록 버튼 배경과 테두리 대비를 강화함.
+- 마지막 매니페스토 섹션이 화면 하단에 남아 있을 때 reveal 경계 밖으로 조기 접히지 않도록 종료 경계를 조정함.
+- 매니페스토가 자체 여백을 가진 섹션인데 바깥 컨테이너 여백이 중복 적용되던 구조를 제거해 콘텐츠 위치를 안정화함.

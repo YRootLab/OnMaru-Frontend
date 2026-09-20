@@ -5,6 +5,8 @@ import styled from '@emotion/styled';
 import { meok, lightPalette, fluidHeading, fontSize } from '@/design-system/tokens';
 
 const Wrapper = styled.div`
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: baseline;
   justify-content: space-between;
