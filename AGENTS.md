@@ -67,3 +67,16 @@
 - Pushes to `develop` deploy preview/staging builds. Pushes to `master` and semantic `v*` tags deploy Production through `.github/workflows/deploy.yml`.
 - Private submodules must be checked out recursively in CI and deployments; configure the required read-only deploy key as a repository secret rather than exposing credentials in source.
 - Delete short-lived branches after merge. Release automation must use least-privilege permissions and avoid workflow loops.
+
+## Private core UI submodule
+
+- `src/private/core-ui` is a Git submodule pointing to the private `YRootLab/onmaru-core-ui` repository.
+- After cloning the repository, always run `git submodule update --init --recursive`.
+- Do not record private submodule access permissions or authentication tokens in source code, `.env.example`, logs, or documentation.
+- When modifying files inside the private submodule, commit and push those changes in the submodule repository first, then commit the updated submodule pointer in the parent repository.
+- Do not arbitrarily delete the parent repository's `.gitmodules` or `src/private/core-ui` gitlink, or convert the gitlink into a regular directory.
+- Verify that the submodule is initialized before deploying to Vercel.
+- Deploy applications using the private submodule through the Vercel CLI or CI configured with private submodule access.
+- If Vercel Git integration cannot read the private submodule, use Vercel CLI deployment instead of automatic deployment.
+- Core UI components are imported via `@/private/core-ui/*`.
+- When starting work in a fresh workspace or after branch switches, verify that `src/private/core-ui` is populated. If empty or outdated, immediately run `git submodule update --init --recursive` (or `npm run submodule:init`).

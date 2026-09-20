@@ -17,7 +17,6 @@ import {
   Bookmark,
   BookmarkCheck,
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useAuth } from '@/features/auth';
 import { useSavedJourneyStore } from '../store/useSavedJourneyStore';
@@ -36,7 +35,8 @@ const Container = styled.div`
   }
 
   @media (max-width: 640px) {
-    width: calc(100% - 24px);
+    width: calc(100% - 20px);
+    padding: 0 0 32px;
   }
 `;
 
@@ -45,6 +45,10 @@ const SectionHeader = styled.div`
   flex-direction: column;
   gap: 6px;
   margin-bottom: 20px;
+
+  @media (max-width: 640px) {
+    margin-bottom: 14px;
+  }
 `;
 
 const HeaderRow = styled.div`
@@ -53,6 +57,11 @@ const HeaderRow = styled.div`
   justify-content: space-between;
   gap: 16px;
   width: 100%;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    gap: 10px;
+  }
 `;
 
 const BookmarkBtn = styled.button<{ $saved: boolean }>`
@@ -147,11 +156,14 @@ const SectionTitle = styled.h2`
   font-weight: 300;
   letter-spacing: -0.02em;
   color: #191f28;
-  letter-spacing: -0.02em;
   margin: 0;
 
   [data-theme='dark'] & {
     color: #f8f9fa;
+  }
+
+  @media (max-width: 640px) {
+    font-size: ${fontSize.xl};
   }
 `;
 
@@ -173,6 +185,10 @@ const BentoGrid = styled.div`
 
   @media (max-width: 900px) {
     grid-template-columns: 1fr;
+  }
+
+  @media (max-width: 640px) {
+    gap: 12px;
   }
 `;
 
@@ -201,6 +217,11 @@ const BaseCard = styled(motion.div)`
     [data-theme='dark'] & {
       border-color: rgba(255, 255, 255, 0.16);
     }
+  }
+
+  @media (max-width: 640px) {
+    padding: 16px;
+    border-radius: 16px;
   }
 `;
 
@@ -364,6 +385,12 @@ const HanokImageWrap = styled.div`
   &:hover img {
     transform: scale(1.04);
   }
+
+  @media (max-width: 640px) {
+    height: 120px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+  }
 `;
 
 const HanokDesc = styled.p`
@@ -399,6 +426,13 @@ const AudioPlayBox = styled.div`
 
   [data-theme='dark'] & {
     background: rgba(139, 92, 246, 0.12);
+  }
+
+  @media (max-width: 640px) {
+    padding: 10px 12px;
+    gap: 10px;
+    border-radius: 10px;
+    margin-bottom: 12px;
   }
 `;
 
@@ -532,7 +566,6 @@ const ActionLink = styled(Link, transientProps)<{ $color?: string }>`
 `;
 
 export default function BentoJourneyGrid() {
-  const router = useRouter();
   const plan = useJourneyStore((s) => s.currentPlan);
   const isGenerating = useJourneyStore((s) => s.isGenerating);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -556,12 +589,7 @@ export default function BentoJourneyGrid() {
 
   const handleBookmarkToggle = () => {
     if (!isLoggedIn) {
-      toast.info('로그인하면 마음에 드는 여정을 저장할 수 있어요.', {
-        action: {
-          label: '로그인하기',
-          onClick: () => router.push('/auth/login'),
-        },
-      });
+      toast.info('로그인해주세요.');
       return;
     }
 

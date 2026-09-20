@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import styled from '@emotion/styled';
 import { ArrowRight, Check, Menu, X, Sparkles, BookOpen, Map, Headphones, Sun, Moon } from 'lucide-react';
 import { transientProps } from '@/design-system/styled';
-import { lightPalette, meok, fontSize } from '@/design-system/tokens';
+import { lightPalette, meok, fontSize, ringShadow } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import {
   getThemePreferenceLabel,
@@ -18,7 +18,6 @@ import {
 import type { ThemePreference } from '@/design-system/tokens';
 import { useAuth } from '@/features/auth';
 import GlobalMobileTabs from './GlobalMobileTabs';
-import MapMobileTabs from '@/features/map/components/MapMobileTabs';
 import { HEADER_EXIT_S, ENTRANCE_EASE } from '@/shared/navigation/mapEntranceTiming';
 import { useMapEntranceStore } from '@/shared/navigation/mapEntranceState';
 import { shouldUseLandingDarkSurface } from './headerSurface';
@@ -74,10 +73,6 @@ const HeaderContainer = styled('header', transientProps)<LandingProps>`
   padding: 0 10px 0 16px;
   border-radius: 9999px;
 
-  /* 지도 페이지(데스크톱)는 자체 좌측 네비게이션 레일을 쓰므로 상단바가 필요 없다 —
-     회전(flip) 없이, 스크롤 숨김(isHidden)과 같은 방식으로 위로 자연스럽게
-     슬라이드되며 사라진다. 지속시간은 mapEntranceTiming의 HEADER_EXIT_S와
-     반드시 맞춰야 한다. */
   transform: translateY(${({ $isHidden, $isMapPage }) => ($isHidden || $isMapPage ? 'calc(-100% - 24px)' : '0')});
   pointer-events: ${({ $isHidden, $isMapPage }) => ($isHidden || $isMapPage ? 'none' : 'auto')};
   transition:
@@ -92,11 +87,6 @@ const HeaderContainer = styled('header', transientProps)<LandingProps>`
     padding: 0 8px 0 14px;
   }
 
-  /* 지도 페이지는 1024px 미만에서 좌측 네비게이션 레일(MapNavRail)이 사라지고
-     BottomSheet/모바일 카테고리 칩으로 전환된다 — 그 전환 지점과 이 하단
-     탭바로의 전환 지점이 어긋나면(예전엔 767px), 768~1023px 구간에서 레일도
-     탭바도 없는 빈 화면이 생긴다. 그래서 지도 페이지에서는 이 임계값을
-     MapNavRail과 동일한 1023px로 맞춘다. 지도 외 페이지는 기존 767px 그대로. */
   @media (max-width: ${({ $isMapPage }) => ($isMapPage ? 1023 : 767)}px) {
     top: auto;
     right: 12px;
@@ -110,14 +100,7 @@ const HeaderContainer = styled('header', transientProps)<LandingProps>`
     transform: none;
     pointer-events: auto;
     visibility: visible;
-    /* 데스크톱 숨김용 transform(translateY -100%-24px)·visibility 지연
-       트랜지션을 그대로 물려받으면, top:14px→bottom:12px처럼 보간 불가능한
-       값 전환과 맞물려 "0.38초간 안 보이다가 엉뚱한 방향으로 훅 나타나는"
-       것처럼 보인다. 이 구간에서는 즉시 전환하고, 실제 "아래서 위로 스프링"
-       연출은 안쪽 탭 아이콘(motion.div)이 담당한다. */
     transition: none;
-    /* 아이콘이 아래서 위로 스프링을 그리며 올라올 때, 캡슐 테두리 밖으로
-       삐져나가지 않고 알약 모양 안에서 자연스럽게 "차오르듯" 드러나야 한다. */
     overflow: hidden;
   }
 
@@ -141,13 +124,10 @@ const HeaderBackdrop = styled('div', transientProps)<LandingProps>`
 
   background: ${({ $isLanding, $isScrolled }) => {
     if ($isLanding) {
-      return $isScrolled ? 'rgba(23, 21, 18, 0.45)' : 'rgba(23, 21, 18, 0.22)';
+      return $isScrolled ? 'rgba(23, 21, 18, 0.98)' : 'rgba(23, 21, 18, 0.92)';
     }
-    return $isScrolled ? 'rgba(255, 255, 255, 0.48)' : 'rgba(255, 255, 255, 0.28)';
+    return $isScrolled ? '#ffffff' : 'rgba(255, 255, 255, 0.96)';
   }};
-
-  backdrop-filter: blur(8px) saturate(125%);
-  -webkit-backdrop-filter: blur(8px) saturate(125%);
 
   border: 1px solid ${({ $isLanding, $isScrolled }) => {
     if ($isLanding) {
@@ -156,16 +136,7 @@ const HeaderBackdrop = styled('div', transientProps)<LandingProps>`
     return $isScrolled ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.35)';
   }};
 
-  box-shadow: ${({ $isLanding, $isScrolled }) => {
-    if ($isLanding) {
-      return $isScrolled
-        ? '0 14px 34px -6px rgba(0, 0, 0, 0.45), 0 3px 10px rgba(0, 0, 0, 0.2)'
-        : '0 8px 24px -4px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.14)';
-    }
-    return $isScrolled
-      ? '0 12px 30px -4px rgba(0, 0, 0, 0.09), 0 3px 8px -1px rgba(0, 0, 0, 0.035)'
-      : '0 8px 24px -4px rgba(0, 0, 0, 0.065), 0 2px 8px -2px rgba(0, 0, 0, 0.025)';
-  }};
+  box-shadow: ${ringShadow.light.card};
 
   transition:
     background-color 380ms cubic-bezier(0.16, 1, 0.3, 1),
@@ -175,25 +146,12 @@ const HeaderBackdrop = styled('div', transientProps)<LandingProps>`
   [data-theme='dark'] & {
     background: ${({ $isLanding, $isScrolled }) => {
       if ($isLanding) {
-        return $isScrolled ? 'rgba(23, 21, 18, 0.45)' : 'rgba(23, 21, 18, 0.22)';
+        return $isScrolled ? 'rgba(23, 21, 18, 0.98)' : 'rgba(23, 21, 18, 0.92)';
       }
-      return $isScrolled ? 'rgba(28, 26, 23, 0.52)' : 'rgba(28, 26, 23, 0.30)';
+      return $isScrolled ? 'rgba(28, 26, 23, 0.98)' : 'rgba(28, 26, 23, 0.95)';
     }};
     border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: ${({ $isLanding, $isScrolled }) => {
-      if ($isLanding) {
-        return $isScrolled
-          ? '0 14px 34px -6px rgba(0, 0, 0, 0.45), 0 3px 10px rgba(0, 0, 0, 0.2)'
-          : '0 8px 24px -4px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.14)';
-      }
-      return $isScrolled
-        ? '0 12px 30px -4px rgba(0, 0, 0, 0.38), 0 3px 10px -1px rgba(0, 0, 0, 0.22)'
-        : '0 8px 24px -4px rgba(0, 0, 0, 0.28), 0 2px 8px -2px rgba(0, 0, 0, 0.15)';
-    }};
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    transition: none;
+    box-shadow: ${ringShadow.dark.card};
   }
 `;
 
@@ -204,8 +162,6 @@ const LeftSection = styled('div', transientProps)<LandingProps>`
   position: relative;
   z-index: 1;
 
-  /* 지도 페이지는 MapNavRail과 같은 1023px에서 하단 탭바로 전환된다 —
-     HeaderContainer와 동일한 이유로 이 임계값도 맞춰야 한다. */
   @media (max-width: ${({ $isMapPage }) => ($isMapPage ? 1023 : 767)}px) {
     display: none;
   }
@@ -260,7 +216,7 @@ const NavLink = styled(Link, transientProps)<LandingProps>`
   position: relative;
   font-family: 'Spoqa Han Sans Neo', sans-serif;
   font-size: ${fontSize.xs};
-  font-weight: ${({ $isActive }) => ($isActive ? 600 : 400)};
+  font-weight: ${({ $isActive }) => ($isActive ? 700 : 400)};
   color: ${({ $isLanding, $isActive }) => {
     if ($isActive) {
       return $isLanding ? '#ffffff' : meok[900];
@@ -274,39 +230,15 @@ const NavLink = styled(Link, transientProps)<LandingProps>`
   justify-content: center;
   padding: 5px 12px;
   border-radius: 9999px;
-  background-color: ${({ $isActive, $isLanding }) => {
-    if (!$isActive) return 'transparent';
-    return $isLanding ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.055)';
-  }};
-  border: 1px solid ${({ $isActive, $isLanding }) => {
-    if (!$isActive) return 'transparent';
-    return $isLanding ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.06)';
-  }};
-  box-shadow: ${({ $isActive, $isLanding }) => {
-    if (!$isActive) return 'none';
-    return $isLanding
-      ? '0 2px 8px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.25)'
-      : '0 2px 8px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.8)';
-  }};
-  backdrop-filter: ${({ $isActive }) => ($isActive ? 'blur(12px)' : 'none')};
-  -webkit-backdrop-filter: ${({ $isActive }) => ($isActive ? 'blur(12px)' : 'none')};
-  transition:
-    color 180ms cubic-bezier(0.16, 1, 0.3, 1),
-    background-color 180ms cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 180ms cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  background-color: transparent;
+  border: 1px solid transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transition: color 180ms cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
     color: ${({ $isLanding }) => ($isLanding ? '#ffffff' : meok[900])};
-    background-color: ${({ $isLanding, $isActive }) =>
-      $isActive
-        ? $isLanding ? 'rgba(255, 255, 255, 0.19)' : 'rgba(0, 0, 0, 0.075)'
-        : $isLanding ? 'rgba(255, 255, 255, 0.07)' : 'rgba(0, 0, 0, 0.03)'};
-  }
-
-  &:active {
-    background-color: ${({ $isLanding }) =>
-      $isLanding ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.055)'};
   }
 
   [data-theme='dark'] & {
@@ -316,21 +248,12 @@ const NavLink = styled(Link, transientProps)<LandingProps>`
       }
       return $isLanding ? 'rgba(255, 255, 255, 0.82)' : meok[200];
     }};
-    background-color: ${({ $isActive }) =>
-      $isActive ? 'rgba(255, 255, 255, 0.12)' : 'transparent'};
-    border-color: ${({ $isActive }) =>
-      $isActive ? 'rgba(255, 255, 255, 0.16)' : 'transparent'};
-    box-shadow: ${({ $isActive }) =>
-      $isActive ? '0 2px 10px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15)' : 'none'};
+    background-color: transparent;
+    border-color: transparent;
+    box-shadow: none;
 
     &:hover {
       color: #ffffff;
-      background-color: ${({ $isActive }) =>
-        $isActive ? 'rgba(255, 255, 255, 0.16)' : 'rgba(255, 255, 255, 0.08)'};
-    }
-
-    &:active {
-      background-color: rgba(255, 255, 255, 0.14);
     }
   }
 
@@ -366,6 +289,37 @@ const MobileTabNavWrap = styled('div', transientProps)<LandingProps>`
     display: block;
     width: 100%;
     height: 100%;
+  }
+`;
+
+/** 모바일 상단 바 — 좌측 온마루 로고 (지도에서는 숨김) */
+const MobileTopBar = styled('div', transientProps)<LandingProps>`
+  /* 1. 기본적으로 모든 화면에서 숨김 */
+  display: none;
+
+  /* 2. 지도 페이지가 아닐 때만 모바일(767px 이하)에서 상단 바 노출 */
+  ${({ $isMapPage }) =>
+    !$isMapPage &&
+    `
+    @media (max-width: 767px) {
+      display: flex;
+      align-items: center;
+      position: relative;
+      z-index: 100;
+      padding: max(16px, env(safe-area-inset-top)) 16px 0;
+      margin-bottom: 32px; 
+      
+      /* 알약 배경 날림 */
+      background: transparent;
+      border: none;
+      box-shadow: none;
+    }
+  `}
+
+  body[data-sorimaru-player-open='true'] & {
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
   }
 `;
 
@@ -452,7 +406,6 @@ const MobileMenuDivider = styled('div', transientProps)<LandingProps>`
 const LoginButton = styled(Link, transientProps)<LandingProps>`
   font-family: 'Spoqa Han Sans Neo', sans-serif;
   font-size: ${fontSize.xs};
-  /* 헤더에서 유일하게 굵은 지점 — 네비가 400이라 이 하나가 확실히 선다 */
   font-weight: 700;
 
   color: #ffffff;
@@ -705,10 +658,6 @@ export default function Header() {
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   const themePickerRef = useRef<HTMLDivElement>(null);
 
-  // 지도 페이지가 1023px 미만(MapNavRail이 사라지는 지점)으로 좁아졌는지 —
-  // 이 값이 바뀌는 순간에 맞춰 하단 탭바 아이콘이 "아래서 위로" 스프링으로
-  // 튀어 오르게 한다. CSS 미디어쿼리만으로는 top:14px→bottom:12px 같은
-  // 보간 불가능한 값 전환 때문에 애니메이션을 줄 수 없어 JS로 별도 추적한다.
   const [isNarrowMapChrome, setIsNarrowMapChrome] = useState(false);
 
   useEffect(() => {
@@ -724,8 +673,6 @@ export default function Header() {
     recordNavigation(pathname);
   }, [pathname, recordNavigation]);
 
-  // 랜딩은 스크롤에 따라 먹빛 ↔ 한지색 배경이 전환된다.
-  // 밝은 구간에서는 다른 페이지와 동일한 라이트 글래스를 사용한다.
   const usesDarkSurface = shouldUseLandingDarkSurface({
     isLandingPage,
     isLandingLight,
@@ -783,7 +730,6 @@ export default function Header() {
 
       const scrollable = document.documentElement.scrollHeight - window.innerHeight;
       const progress = scrollable > 0 ? currentY / scrollable : 0;
-      // GlobalBackground의 밝은 한지/계절 구간(0.13~0.38)과 마지막 밝은 구간(0.90~1.0)에 맞춘다.
       const nextIsLight = (progress >= 0.15 && progress <= 0.39) || progress >= 0.88;
 
       if (nextIsLight !== landingSurfaceIsLight) {
@@ -814,7 +760,6 @@ export default function Header() {
           : Math.abs(delta);
         direction = nextDirection;
 
-        // 작은 트랙패드 흔들림에는 반응하지 않고, 의도적인 스크롤에서만 전환한다.
         if (nextDirection === 'down' && accumulatedDistance >= 28) {
           updateHidden(true);
           accumulatedDistance = 0;
@@ -865,19 +810,29 @@ export default function Header() {
         )}
       </AnimatePresence>
 
+      <MobileTopBar $isLanding={usesDarkSurface}$isMapPage={isMapPage}>
+        <LogoLink href="/" aria-label="온마루 홈으로 이동" onClick={resetJourney}>
+          <Image
+            src={ONMARU_LOGO_SRC}
+            alt="온마루 로고"
+            width={26}
+            height={26}
+            style={{ objectFit: 'contain', height: '26px', width: '26px', borderRadius: '6px' }}
+          />
+        </LogoLink>
+      </MobileTopBar>
+
       <HeaderContainer
-        $isLanding={usesDarkSurface}
-        $isScrolled={isScrolled}
-        $isHidden={isHidden}
-        $isMapPage={isMapPage}
+        $isLanding={usesDarkSurface}$isScrolled={isScrolled}
+        $isHidden={isHidden}$isMapPage={isMapPage}
       >
         <HeaderBackdrop
-          $isLanding={usesDarkSurface}
-          $isScrolled={isScrolled}
+          $isLanding={usesDarkSurface}$isScrolled={isScrolled}
           aria-hidden="true"
         />
 
-        {/* 맨 왼쪽: 온마루 로고 + 볼드 브랜드 텍스트 */}
+
+        {/* 맨 왼쪽: 온마루 로고 */}
         <LeftSection $isMapPage={isMapPage}>
           <LogoLink href="/" aria-label="온마루 홈으로 이동" onClick={resetJourney}>
             <Image
@@ -888,7 +843,6 @@ export default function Header() {
               style={{ objectFit: 'contain', height: '26px', width: '26px', borderRadius: '6px' }}
               priority
             />
-            <LogoTitle $isLanding={usesDarkSurface}>온마루</LogoTitle>
           </LogoLink>
         </LeftSection>
 
@@ -907,8 +861,7 @@ export default function Header() {
                 key={item.href}
                 href={item.href}
                 $isLanding={usesDarkSurface}
-                $isSoriMaru={isSoriMaruPage}
-                $isActive={isSelected}
+                $isSoriMaru={isSoriMaruPage}$isActive={isSelected}
                 onClick={item.href === '/' ? resetJourney : undefined}
               >
                 <span style={{ position: 'relative', zIndex: 1, display: 'inline-flex', alignItems: 'center' }}>
@@ -925,8 +878,7 @@ export default function Header() {
         <ThemePickerWrap>
           <ThemeToggleBtn
             type="button"
-            $isLanding={usesDarkSurface}
-            $isAuto={renderedPreference === 'system'}
+            $isLanding={usesDarkSurface}$isAuto={renderedPreference === 'system'}
             onClick={() => setIsThemePickerOpen((open) => !open)}
             title={themeTriggerLabel}
             aria-label={themeTriggerLabel}
@@ -963,8 +915,7 @@ export default function Header() {
                     type="button"
                     role="menuitemradio"
                     aria-checked={active}
-                    $active={active}
-                    $isLanding={usesDarkSurface}
+                    $active={active}$isLanding={usesDarkSurface}
                     onClick={() => {
                       setMode(option);
                       setIsThemePickerOpen(false);
@@ -1004,7 +955,7 @@ export default function Header() {
                 y: { type: 'spring', stiffness: 420, damping: 30 },
               }}
             >
-              <MapMobileTabs />
+              <GlobalMobileTabs isLanding={usesDarkSurface} />
             </motion.div>
           ) : (
             <motion.div
@@ -1041,8 +992,7 @@ export default function Header() {
           {isMobileMenuOpen && (
             <MobileMenuPanel
               id="mobile-navigation"
-              $isLanding={usesDarkSurface}
-              $isScrolled={isScrolled}
+              $isLanding={usesDarkSurface}$isScrolled={isScrolled}
               initial={{ opacity: 0, y: -8, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -6, scale: 0.98 }}

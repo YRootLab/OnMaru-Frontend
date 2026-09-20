@@ -5,6 +5,11 @@ const PRIVATE_STORAGE_KEYS = [
   'onmaru.pendingSaveIntent.v1',
 ];
 
+export function hasAuthenticatedUser(): boolean {
+  if (typeof window === 'undefined') return false;
+  return Boolean(window.localStorage.getItem('onmaru_user'));
+}
+
 export function clearPrivateClientState(storage?: Storage): void {
   if (typeof window === 'undefined' && !storage) return;
 

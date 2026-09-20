@@ -8,7 +8,7 @@ import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorima
 import type { SorimaruStoryItem } from '@/features/sorimaru-audio/types/sorimaru.types';
 import { groupSorimaruStoriesByPlace, type SorimaruPlaceGroup } from '@/features/sorimaru-audio/utils/sorimaruArchiveGrouping';
 import { useSorimaruImage } from '@/features/sorimaru-audio/hooks/useSorimaruImage';
-import { palette, meok, surface, fontSize } from '@/design-system/tokens';
+import { palette, meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
 
 interface SorimaruArchiveBrowseProps {
   stories: SorimaruStoryItem[];
@@ -165,14 +165,14 @@ const StoryArticle = styled.article<{ $isCurrent: boolean }>`
   background-color: ${({ $isCurrent }) =>
     $isCurrent ? 'rgba(255, 85, 0, 0.06)' : '#ffffff'};
   border: none;
-  box-shadow: none;
+  box-shadow: ${({ $isCurrent }) => ($isCurrent ? 'none' : ringShadow.light.card)};
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
     background-color: ${({ $isCurrent }) =>
       $isCurrent ? 'rgba(255, 85, 0, 0.1)' : '#f9f9f8'};
     border: none;
-    box-shadow: none;
+    box-shadow: ${({ $isCurrent }) => ($isCurrent ? 'none' : ringShadow.light.cardHoverGlow)};
     transform: translateY(-1px);
   }
 
@@ -180,13 +180,13 @@ const StoryArticle = styled.article<{ $isCurrent: boolean }>`
     background-color: ${({ $isCurrent }) =>
       $isCurrent ? 'rgba(255, 85, 0, 0.14)' : surface.dark.card};
     border: none;
-    box-shadow: none;
+    box-shadow: ${({ $isCurrent }) => ($isCurrent ? 'none' : ringShadow.dark.card)};
 
     &:hover {
       background-color: ${({ $isCurrent }) =>
         $isCurrent ? 'rgba(255, 85, 0, 0.2)' : surface.dark.elevated};
       border: none;
-      box-shadow: none;
+      box-shadow: ${({ $isCurrent }) => ($isCurrent ? 'none' : ringShadow.dark.cardHoverGlow)};
     }
   }
 `;
@@ -631,7 +631,7 @@ export function SorimaruArchiveBrowse({ stories, isLoading }: SorimaruArchiveBro
             $active={view === 'places'}
           >
             <Layers size={13} />
-            장소별 묶어 보기
+            장소별
           </ViewSegmentBtn>
         </ViewSegmentControl>
 

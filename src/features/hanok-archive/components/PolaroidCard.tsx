@@ -5,7 +5,7 @@ import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { motion } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
-import { meok, lightPalette , fontSize } from '@/design-system/tokens';
+import { meok, lightPalette, fontSize, ringShadow } from '@/design-system/tokens';
 import { Home, ArrowRight } from 'lucide-react';
 import type { Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
@@ -26,9 +26,7 @@ const Wrapper = styled(motion.article, transientProps)<{ $rotate: number }>`
 const Frame = styled.div`
   background: #ffffff;
   padding: 12px 12px 60px;
-  box-shadow:
-    0 1px 3px rgba(25, 31, 40, 0.06),
-    0 4px 10px rgba(25, 31, 40, 0.06);
+  box-shadow: ${ringShadow.light.card};
   border-radius: 2px;
   position: relative;
   overflow: visible;
@@ -36,7 +34,7 @@ const Frame = styled.div`
   [data-theme='dark'] & {
     background: #24211D;
     border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: ${ringShadow.dark.card};
   }
 `;
 

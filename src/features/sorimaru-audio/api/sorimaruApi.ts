@@ -164,7 +164,7 @@ function mapStoryItem(item: Record<string, unknown>, index: number, category?: s
     distance: distance === null ? undefined : formatDistance(distance),
     mapX,
     mapY,
-    script: readText(item, 'script') || '해설 대본 정보가 준비 중입니다.',
+    script: readText(item, 'script') || '아직 대본이 준비되지 않았어요.',
     playTime,
     formattedDuration: Number.isFinite(playTimeSeconds)
       ? `${Math.floor(playTimeSeconds / 60)}분 ${String(playTimeSeconds % 60).padStart(2, '0')}초`

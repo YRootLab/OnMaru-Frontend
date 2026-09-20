@@ -91,7 +91,8 @@ const FooterInner = styled.div`
   }
 
   @media (max-width: 640px) {
-    width: calc(100% - 24px);
+    width: calc(100% - 20px);
+    flex-direction: column;
   }
 `;
 
@@ -192,8 +193,12 @@ const PolicyLinksRow = styled.div`
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: clamp(10px, 1.8vw, 16px);
+  gap: clamp(8px, 1.8vw, 16px);
   margin-bottom: 12px;
+
+  @media (max-width: 640px) {
+    gap: 8px 14px;
+  }
 `;
 
 const PolicyButton = styled.button<{ $bold?: boolean }>`
@@ -240,15 +245,16 @@ const Copyright = styled.div`
 const MassiveWatermark = styled.div`
   width: 100%;
   font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', 'Spoqa Han Sans Neo', sans-serif;
-  font-size: clamp(4.5rem, 15vw, 13.5rem);
+  font-size: clamp(2rem, 8.5vw, 8rem);
   font-weight: 900;
-  line-height: 0.82;
+  line-height: 1.1;
   letter-spacing: -0.045em;
   user-select: none;
   pointer-events: none;
-  margin: 8px 0 -8px;
-  word-break: break-all;
-  white-space: nowrap;
+  margin: 16px 0 0;
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: break-word;
   transition: color 0.4s ease, transform 0.4s ease;
 
   /* 라이트 모드 워터마크 */
@@ -267,6 +273,12 @@ const MassiveWatermark = styled.div`
   [data-theme='dark'] ${FooterWrapper}:hover & {
     color: rgba(255, 255, 255, 0.15);
     transform: translateY(-4px);
+  }
+
+  @media (max-width: 640px) {
+    font-size: clamp(2rem, 11vw, 4rem);
+    letter-spacing: -0.03em;
+    margin: 12px 0 0;
   }
 `;
 
@@ -307,39 +319,7 @@ export default function Footer() {
 
         <FooterInner>
           <ContentArea>
-            {/* 상단 네비게이션 컬럼들 (핵심 3대 컬럼) */}
-            <TopNavGrid>
-              <NavCol>
-                <NavColTitle>서비스</NavColTitle>
-                <FooterLink href="/hanok">전국 한옥 도감</FooterLink>
-                <FooterLink href="/hanok">지역별 한옥 스테이</FooterLink>
-                <FooterLink href="/sorimaru">소리마루 오디오</FooterLink>
-              </NavCol>
 
-              <NavCol>
-                <NavColTitle>공공데이터</NavColTitle>
-                <ExternalFooterLink href="https://api.visitkorea.or.kr" target="_blank" rel="noopener noreferrer">
-                  한국관광공사 TourAPI 4.0
-                </ExternalFooterLink>
-                <ExternalFooterLink href="https://odii.visitkorea.or.kr" target="_blank" rel="noopener noreferrer">
-                  관광오디오 Odii API
-                </ExternalFooterLink>
-                <ExternalFooterLink href="https://apis.map.kakao.com" target="_blank" rel="noopener noreferrer">
-                  Kakao 지도 SDK
-                </ExternalFooterLink>
-              </NavCol>
-
-              <NavCol>
-                <NavColTitle>온마루</NavColTitle>
-                <FooterLink href="/hanok">온마루 매니페스토</FooterLink>
-                <ExternalFooterLink href="https://github.com/YRootLab/OnMaru-Frontend" target="_blank" rel="noopener noreferrer">
-                  GitHub Repository
-                </ExternalFooterLink>
-                <ExternalFooterLink href="mailto:contact@onmaru.kr">
-                  제휴 및 문의
-                </ExternalFooterLink>
-              </NavCol>
-            </TopNavGrid>
 
             {/* 1. 비즈니스 및 공공데이터 정보 */}
             <BusinessInfo>

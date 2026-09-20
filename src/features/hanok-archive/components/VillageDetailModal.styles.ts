@@ -6,12 +6,17 @@ export const Overlay = styled(motion.div)`
   position: fixed;
   inset: 0;
   background: rgba(25, 31, 40, 0.65);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   z-index: 99999;
   display: grid;
   place-items: center;
   padding: 24px;
+
+  @media (max-width: 640px) {
+    padding: 0;
+    place-items: end center;
+  }
 `;
 
 export const ModalCard = styled(motion.div)`
@@ -34,6 +39,13 @@ export const ModalCard = styled(motion.div)`
   [data-theme='dark'] & {
     background: ${surface.dark.card};
   }
+
+  @media (max-width: 640px) {
+    border-radius: 24px 24px 0 0;
+    max-height: 92dvh;
+    width: 100%;
+    max-width: 100%;
+  }
 `;
 
 export const ImageHero = styled.div<{ $bg: string | null }>`
@@ -52,6 +64,10 @@ export const ImageHero = styled.div<{ $bg: string | null }>`
     position: absolute;
     inset: 0;
     background: linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0) 40%, rgba(14, 20, 36, 0.8) 100%);
+  }
+
+  @media (max-width: 640px) {
+    height: 220px;
   }
 `;
 
@@ -274,9 +290,14 @@ export const SectionTitle = styled.h3`
 
 export const InfoGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 12px;
   margin-bottom: 24px;
+
+  @media (max-width: 560px) {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
 `;
 
 export const InfoCard = styled.div`

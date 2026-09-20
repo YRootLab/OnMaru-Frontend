@@ -72,3 +72,10 @@ All AI agents (Antigravity, Claude Code, Cursor, Codex, etc.) MUST adhere to the
 
 2. **Component Assembly**:
    - Features provide top-level components (e.g., `<HanokViewerFeature />`) which are then imported and composed in `src/app/` pages.
+
+---
+
+## 🔒 Private Git Submodule (`src/private/core-ui`)
+- Proprietary/private core UI components are maintained in `src/private/core-ui` submodule.
+- **Auto-Sync Rule**: Whenever starting or resuming work, ensure submodules are initialized by running `git submodule update --init --recursive` (or `npm run submodule:init`).
+- Core UI components are imported via `@/private/core-ui/*` alias.

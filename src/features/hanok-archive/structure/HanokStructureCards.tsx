@@ -13,6 +13,7 @@ import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
+import { motion } from 'framer-motion';
 import {
   SunMedium,
   Layers,
@@ -20,7 +21,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 
-import { meok, palette, lightPalette, surface, fluidHeading, fontSize } from '@/design-system/tokens';
+import { meok, palette, lightPalette, surface, fluidHeading, fontSize, ringShadow } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
 
 const SolarShadowModal = dynamic(() => import('./SolarShadowModal'), { ssr: false });
@@ -50,22 +51,20 @@ const CardContainer = styled.button<{ $accentColor: string }>`
   align-items: stretch;
   padding: 0;
   border-radius: 28px;
-  border: 1px solid rgba(0, 0, 0, 0.07);
+  border: none;
   background: #ffffff;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  box-shadow: ${ringShadow.light.card};
   text-align: left;
   font-family: inherit;
   cursor: pointer;
   overflow: hidden;
   transition:
     transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 0.28s ease;
+    box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
     transform: translateY(-5px);
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.08);
-    border-color: ${({ $accentColor }) => $accentColor};
+    box-shadow: ${ringShadow.light.cardHoverGlow};
   }
 
   &:focus-visible {
@@ -75,13 +74,11 @@ const CardContainer = styled.button<{ $accentColor: string }>`
 
   [data-theme='dark'] & {
     background: ${surface.dark.card};
-    border-color: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.24);
+    box-shadow: ${ringShadow.dark.card};
   }
 
   [data-theme='dark'] &:hover {
-    border-color: ${({ $accentColor }) => $accentColor};
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.38);
+    box-shadow: ${ringShadow.dark.cardHoverGlow};
   }
 `;
 
@@ -314,16 +311,50 @@ export default function HanokStructureCards() {
   const [open, setOpen] = useState<OpenModal>(null);
   const close = () => setOpen(null);
 
+  const revealVariants = {
+    hidden: { opacity: 0, y: 28 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] } },
+  };
+
   return (
     <SectionWrapper aria-labelledby="structure-heading">
-      <SectionHeader
-        id="structure-heading"
-        title="한옥은 왜 이렇게 생겼을까"
-       
-      />
-
-      <Grid>
+      <motion.div
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: '-80px' }}
+        variants={revealVariants}
+      >
+        <SectionHeader
+          id="structure-heading"
+          title="한옥은 왜 이렇게 생겼을까"
+        />
+      </motion.div>
+      <motion.div
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: '-60px' }}
+        variants={{
+          hidden: { opacity: 0, y: 24 },
+          visible: {
+            opacity: 1,
+            y: 0,
+            transition: {
+              duration: 0.75,
+              ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
+              delay: 0.12,
+              staggerChildren: 0.14,
+            },
+          },
+        }}
+      >
+        <Grid>
         {/* 1. 빛: 절기 일조량 & 남중고도 처마 시뮬레이션 */}
+          <motion.div
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] } },
+            }}
+          >
         <CardContainer
           type="button"
           onClick={() => setOpen('shadow')}
@@ -358,8 +389,15 @@ export default function HanokStructureCards() {
             </MoreLink>
           </CardBody>
         </CardContainer>
+          </motion.div>
 
         {/* 2. 뼈대: 못 없는 결구 & 7단계 부재 조립 */}
+          <motion.div
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] as [number, number, number, number], delay: 0.1 } },
+            }}
+          >
         <CardContainer
           type="button"
           onClick={() => setOpen('assembly')}
@@ -397,7 +435,9 @@ export default function HanokStructureCards() {
             </MoreLink>
           </CardBody>
         </CardContainer>
-      </Grid>
+          </motion.div>
+        </Grid>
+      </motion.div>
 
       {open === 'shadow' && <SolarShadowModal onClose={close} />}
       {open === 'assembly' && <HanokAssemblyModal onClose={close} />}

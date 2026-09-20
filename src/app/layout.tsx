@@ -45,6 +45,13 @@ export default function RootLayout({
           strategy="afterInteractive"
           src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_KEY}&libraries=services,clusterer&autoload=false`}
         />
+        {process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID && (
+          <Script
+            id="microsoft-clarity"
+            strategy="afterInteractive"
+            src={`https://www.clarity.ms/tag/${process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID}`}
+          />
+        )}
       </head>
       <body>
         <Providers>

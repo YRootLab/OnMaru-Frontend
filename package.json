@@ -18,12 +18,15 @@
     "probe": "node --env-file=.env.local scripts/probe-tourapi.mjs",
     "probe:village": "node --env-file=.env.local scripts/probe-village.mjs",
     "probe:map": "node --env-file=.env.local scripts/probe-map-categories.mjs",
-    "generate:api-types": "openapi-typescript https://onmaru-backend.onrender.com/v3/api-docs -o ./src/types/api.generated.d.ts"
+    "generate:api-types": "openapi-typescript https://onmaru-backend.onrender.com/v3/api-docs -o ./src/types/api.generated.d.ts",
+    "submodule:init": "git submodule update --init --recursive",
+    "submodule:update": "git submodule update --remote --merge"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@gsap/react": "^2.1.2",
+    "@microsoft/clarity": "^1.0.2",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.1",
     "@supabase/ssr": "^0.12.0",

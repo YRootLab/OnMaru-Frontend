@@ -4,6 +4,24 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
+- **Microsoft Clarity 사용자 행동 분석 연동**:
+  - `NEXT_PUBLIC_CLARITY_PROJECT_ID`가 설정된 환경에서 Clarity 세션 분석을 초기화.
+  - 프로젝트 ID가 없으면 분석 스크립트를 로드하지 않아 로컬 개발 환경의 불필요한 수집을 방지.
+- **Private core UI 서브모듈 운영 규칙 정비**:
+  - `.gitmodules`가 SSH 기반 private `YRootLab/onmaru-core-ui`를 가리키도록 정정.
+  - clone·배포 전 서브모듈 초기화와 Vercel CLI 배포 기준을 `AGENTS.md`에 명시.
+- **소리마루 진입 시 간헐적 자동재생 방지**:
+  - 초기 URL 대상 이야기는 명시적으로 `autoPlay=true`가 전달된 경우에만 자동재생하도록 변경.
+  - 페이지를 떠날 때 오디오를 일시정지하고 소스를 정리해 다음 진입 시 이전 재생 상태가 되살아나지 않도록 수정.
+- **로그인 필수 저장 기능 가드**:
+  - 비로그인 사용자가 장소/여정/소리/스크린 한옥의 좋아요·북마크를 누르면 저장되지 않고 `로그인해주세요.` 토스트가 표시되도록 통일.
+  - 저장 기능의 UI 핸들러와 Zustand 저장소 양쪽에서 인증을 확인해 모든 클릭 경로를 차단.
+- **Private Core UI 서브모듈 분리 및 AI / CI 자동화 체계 구축**:
+  - 핵심 UI 컴포넌트(지도 온기/히트맵 및 소리마루 오디오/플레이어 등 34개 파일)를 비공개 서브모듈(`src/private/core-ui`, `onmaru-core-ui.git`)로 분리 및 이전.
+  - Next.js `@/private/core-ui/*` alias 경로 연동 및 TypeScript 검증 완료.
+  - `package.json`에 `submodule:init`, `submodule:update` 스크립트 추가.
+  - `AGENTS.md` 및 `.agents/AGENTS.md`에 AI 어시스턴트용 Submodule 자동 초기화/동기화 규칙 추가.
+  - GitHub Actions 배포 워크플로우(`deploy.yml`)에 Submodule recursive checkout 및 SSH Key 연동 구성.
 - **스크린 속 한옥 (Issue #103) 백엔드 API 연동 및 Fallback 큐레이션 보강**:
   - `GET /api/v1/hanoks/screen-hanok` 엔드포인트 연동 서비스(`screenHanok.service.ts`), `useKCultureThemes` 훅, `KCultureThemeFeed` 카드 UI를 Issue #103 명세 계약에 맞게 정비.
   - 백엔드 실서버 미배포(404) 시에도 드라마/영화/K-POP 탭별로 풍부한 큐레이션이 노출되도록 명세 기반 표준 Fallback 데이터셋(7종)을 적용. 백엔드 배포 후에는 코드 수정 없이 실데이터가 우선 노출됨.

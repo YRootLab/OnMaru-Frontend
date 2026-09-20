@@ -46,12 +46,12 @@ export function usePlaceDetail(contentId: string | null, contentTypeId?: string)
         });
         setData(json);
       } else {
-        setError('장소 상세 정보를 불러오지 못했습니다.');
+        setError('장소 상세 정보를 불러오지 못했어요.');
         setData(null);
       }
     } catch (err: any) {
       if (err?.name === 'AbortError') return;
-      setError('네트워크 연결이 원활하지 않습니다.');
+      setError('네트워크 연결이 원활하지 않아요.');
       setData(null);
     } finally {
       clearTimeout(timeoutId);

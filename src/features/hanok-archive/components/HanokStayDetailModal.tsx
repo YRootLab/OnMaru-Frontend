@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import {
   X,
@@ -110,6 +110,11 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
   const detailData = useStayDetail(stay.id);
   const [activeImageIdx, setActiveImageIdx] = useState<number | null>(null);
   const [zoomedImageIdx, setZoomedImageIdx] = useState<number | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth <= 640);
+  }, []);
 
   const { isBookmarked, toggleBookmark } = useBookmarkStore();
   const bookmarked = isBookmarked(stay.id);
@@ -164,10 +169,12 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
         onClick={onClose}
       >
         <ModalCard
-          initial={{ scale: 0.94, opacity: 0, y: 16 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          exit={{ scale: 0.96, opacity: 0, y: 12 }}
-          transition={{ type: 'spring', damping: 28, stiffness: 350 }}
+          initial={isMobile ? { y: '100%', opacity: 1 } : { scale: 0.94, opacity: 0, y: 16 }}
+          animate={isMobile ? { y: 0, opacity: 1 } : { scale: 1, opacity: 1, y: 0 }}
+          exit={isMobile ? { y: '100%', opacity: 1 } : { scale: 0.96, opacity: 0, y: 12 }}
+          transition={isMobile
+            ? { type: 'spring', damping: 32, stiffness: 300 }
+            : { type: 'spring', damping: 28, stiffness: 350 }}
           onClick={(e) => e.stopPropagation()}
         >
           {/* 상단 숙소 히어로 이미지 */}
@@ -302,7 +309,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                       </a>
                     ) : (
                       <a href={getBookingUrl(stay)} target="_blank" rel="noopener noreferrer">
-                        실시간 예약 현황 보기 <ExternalLink size={12} style={{ display: 'inline' }} />
+                        예약 정보 찾아보기 <ExternalLink size={12} style={{ display: 'inline' }} />
                       </a>
                     )}
                   </InfoVal>
@@ -406,7 +413,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                실시간 예약 & 공실 확인 <ExternalLink size={15} strokeWidth={2} />
+                예약 정보 확인하기 <ExternalLink size={15} strokeWidth={2} />
               </DirectBookingButton>
 
               <MapGuideBtn
