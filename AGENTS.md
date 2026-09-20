@@ -65,21 +65,12 @@
 - Required CI checks must pass and the branch must be current before every merge. Shared changes require at least one approval.
 - Create semantic version tags such as `v0.3.2` only from `master` after the release merge.
 - Pushes to `develop` deploy preview/staging builds. Pushes to `master` and semantic `v*` tags deploy Production through `.github/workflows/deploy.yml`.
-- Private submodules must be checked out recursively in CI and deployments; configure the required read-only deploy key as a repository secret rather than exposing credentials in source.
 - Delete short-lived branches after merge. Release automation must use least-privilege permissions and avoid workflow loops.
 
-## Private core UI submodule
+## Core UI package (in-repo)
 
-- `src/private/core-ui` is a Git submodule pointing to the private `YRootLab/onmaru-core-ui` repository.
-- After cloning the repository, always run `npm run submodule:init`, then `npm run check:submodule`.
-- `npm test` and `npm run build` run `check:submodule` first; restore the submodule before diagnosing unrelated module-resolution failures.
+- `src/private/core-ui` is a regular directory in this repository. It was previously a Git submodule referencing the private `YRootLab/onmaru-core-ui` repository, but that reference was removed so the code is committed directly here (the original repository remains archived).
+- No submodule initialization, deploy keys, or extra authentication are required for local development, CI, or Vercel deployments.
 - Do not record private submodule access permissions or authentication tokens in source code, `.env.example`, logs, or documentation.
-- When modifying files inside the private submodule, commit and push those changes in the submodule repository first, then commit the updated submodule pointer in the parent repository.
-- Do not arbitrarily delete the parent repository's `.gitmodules` or `src/private/core-ui` gitlink, or convert the gitlink into a regular directory.
-- CI and Vercel workflows must initialize the submodule with the repository secret `CORE_UI_READ_TOKEN`, then run `npm run check:submodule`.
-- Verify that the submodule is initialized before deploying to Vercel.
-- Deploy applications using the private submodule through the Vercel CLI or CI configured with private submodule access.
-- If Vercel Git integration cannot read the private submodule, use Vercel CLI deployment instead of automatic deployment.
-- Core UI components are imported via `@/private/core-ui/*`.
-- When starting work in a fresh workspace, a newly created Git worktree, or after any branch switch, verify that `src/private/core-ui` is populated. If empty or outdated, immediately run `git submodule update --init --recursive` (or `npm run submodule:init`), then `npm run check:submodule`.
-- Creating or entering a new worktree (`git worktree add ...`) always yields an uninitialized submodule — treat submodule initialization as a mandatory first step there, before any build or dev server. A `Module not found: Can't resolve '@/private/core-ui/...'` error is almost always an uninitialized submodule, not a code bug.
+- When modifying files inside `src/private/core-ui`, commit and push them in this repository like any other source file. Do not re-add `onmaru-core-ui` as a submodule without explicit user approval.
+- Core UI components are imported via `@/private/core-ui/*`. A `Module not found: Can't resolve '@/private/core-ui/...'` error is now a real code bug — check that the file exists in `src/private/core-ui`.

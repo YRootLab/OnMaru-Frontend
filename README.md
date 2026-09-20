@@ -21,16 +21,6 @@
 git clone git@github.com:YRootLab/OnMaru-Frontend.git
 cd OnMaru-Frontend
 npm install
-git submodule update --init --recursive
 ```
 
-`src/private/core-ui`는 별도의 private 저장소(`YRootLab/onmaru-core-ui`)를 사용하는 Git submodule입니다. 동료가 로컬에서 submodule을 초기화하려면 해당 저장소에 접근 가능한 GitHub 계정으로 인증되어 있어야 합니다. 권한 오류가 발생하면 저장소 관리자에게 `onmaru-core-ui` collaborator 권한을 요청하세요.
-
-### CI / 배포 인증
-
-GitHub Actions가 private submodule을 읽을 수 있도록 Frontend 저장소 관리자만 `Settings → Secrets and variables → Actions`에 다음 repository secret을 등록합니다.
-
-- Secret name: `CORE_UI_READ_TOKEN`
-- 범위: `YRootLab/onmaru-core-ui`의 `Contents: Read-only`
-
-토큰이나 private key는 동료에게 공유하거나 `.env.local`, `.env.example`, 소스 코드에 저장하지 않습니다. 동료의 로컬 개발에는 각자의 GitHub 저장소 접근 권한만 필요하며, CI secret을 로컬에 복사할 필요가 없습니다.
+`src/private/core-ui`의 컴포넌트들은 예전에 private 저장소(`YRootLab/onmaru-core-ui`)를 Git submodule로 참조했으나, 현재는 이 저장소에 일반 파일로 직접 포함되어 있습니다. 별도의 submodule 초기화나 추가 인증 없이 바로 개발할 수 있습니다. (원본 `onmaru-core-ui` 저장소는 아카이브 목적으로 유지됩니다.)
