@@ -2,7 +2,6 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
-import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { meok, palette, lightPalette, surface, fluidHeading , fontSize } from '@/design-system/tokens';
 
@@ -15,7 +14,7 @@ const Section = styled.section`
   justify-content: center;
 `;
 
-const Container = styled(motion.div)`
+const Container = styled.div`
   max-width: 860px;
   width: 100%;
   text-align: center;
@@ -129,10 +128,6 @@ export default function HanokManifestoCta() {
   return (
     <Section id="cta" aria-label="온마루 한옥 매니페스토">
       <Container
-        initial={{ opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-60px' }}
-        transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
       >
         <ManifestoParagraph>
           한옥 <InlineIcon><Home strokeWidth={2} /></InlineIcon>은 지나간 유산이 아니라 지금 우리에게 필요한 쉼터{' '}
