@@ -214,6 +214,7 @@ jobs:
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ENVIRONMENT: preview
+          VERCEL_GIT_BRANCH: ${{ github.ref_type == 'branch' && github.ref_name || '' }}
         run: |
           node scripts/prepare-vercel-metadata.mjs
 

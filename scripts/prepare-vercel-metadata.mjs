@@ -6,6 +6,7 @@ const {
   VERCEL_ORG_ID,
   VERCEL_PROJECT_ID,
   VERCEL_ENVIRONMENT,
+  VERCEL_GIT_BRANCH,
 } = process.env;
 const SUPPORTED_ENVIRONMENTS = new Set(['production', 'preview', 'development']);
 
@@ -28,6 +29,10 @@ const search = new URLSearchParams({
   teamId: VERCEL_ORG_ID,
 });
 
+if (VERCEL_ENVIRONMENT === 'preview' && VERCEL_GIT_BRANCH) {
+  search.set('gitBranch', VERCEL_GIT_BRANCH);
+}
+
 async function fetchText(path) {
   const response = await fetch(`${apiBase}${path}?${search.toString()}`, { headers });
   const text = await response.text();
@@ -45,8 +50,6 @@ async function fetchJson(path) {
 
 function escapeValue(value) {
   return String(value ?? '')
-    .replace(/\\/g, '\\\\')
-    .replace(/"/g, '\\"')
     .replace(/\n/g, '\\n')
     .replace(/\r/g, '\\r');
 }
