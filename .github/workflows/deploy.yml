@@ -95,34 +95,98 @@ jobs:
       - name: Clean Vercel metadata
         run: rm -rf .vercel
 
-      - name: Configure Vercel project
-        shell: bash
-        run: |
-          mkdir -p .vercel
-          cat > .vercel/project.json <<EOF
-          {
-            "orgId": "$VERCEL_ORG_ID",
-            "projectId": "$VERCEL_PROJECT_ID"
-          }
-          EOF
-
-      # ----------------------------------------------------------
-      # 7. Pull Production Environment
-      #
-      # IMPORTANT:
-      # vercel link는 사용하지 않음.
-      #
-      # VERCEL_ORG_ID + VERCEL_PROJECT_ID를 이용해서
-      # Vercel 프로젝트를 직접 식별함.
-      # ----------------------------------------------------------
-      - name: Pull Vercel Production Environment
+      - name: Prepare Vercel production metadata
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
-          vercel pull \
-            --yes \
-            --environment=production \
-            --token="$VERCEL_TOKEN"
+          node <<'EOF'
+          const fs = require('node:fs/promises');
+          const { URLSearchParams } = require('node:url');
+
+          const {
+            VERCEL_TOKEN,
+            VERCEL_ORG_ID,
+            VERCEL_PROJECT_ID,
+          } = process.env;
+
+          const apiBase = 'https://api.vercel.com';
+          const headers = {
+            Authorization: 'Bearer ' + VERCEL_TOKEN,
+          };
+          const search = new URLSearchParams({ source: 'github-actions-deploy' });
+
+          if (VERCEL_ORG_ID.startsWith('team_')) {
+            search.set('teamId', VERCEL_ORG_ID);
+          }
+
+          async function fetchJson(path) {
+            const response = await fetch(`${apiBase}${path}?${search.toString()}`, { headers });
+            const text = await response.text();
+
+            if (!response.ok) {
+              throw new Error(`${response.status} ${response.statusText}: ${text}`);
+            }
+
+            return JSON.parse(text);
+          }
+
+          function escapeValue(value) {
+            return String(value ?? '').replace(/\n/g, '\\n').replace(/\r/g, '\\r');
+          }
+
+          async function main() {
+            const [project, envPull] = await Promise.all([
+              fetchJson(`/v9/projects/${encodeURIComponent(VERCEL_PROJECT_ID)}`),
+              fetchJson(`/v3/env/pull/${encodeURIComponent(VERCEL_PROJECT_ID)}/production`),
+            ]);
+
+            const analyticsId =
+              project.analytics?.id &&
+              (!project.analytics.disabledAt ||
+                (project.analytics.enabledAt &&
+                  project.analytics.enabledAt > project.analytics.disabledAt))
+                ? project.analytics.id
+                : undefined;
+
+            await fs.mkdir('.vercel', { recursive: true });
+            await fs.writeFile(
+              '.vercel/project.json',
+              `${JSON.stringify(
+                {
+                  projectId: VERCEL_PROJECT_ID,
+                  orgId: VERCEL_ORG_ID,
+                  projectName: project.name,
+                  settings: {
+                    createdAt: project.createdAt,
+                    framework: project.framework,
+                    devCommand: project.devCommand,
+                    installCommand: project.installCommand,
+                    buildCommand: project.buildCommand,
+                    outputDirectory: project.outputDirectory,
+                    rootDirectory: project.rootDirectory,
+                    directoryListing: project.directoryListing,
+                    nodeVersion: project.nodeVersion,
+                    analyticsId,
+                  },
+                },
+                null,
+                2,
+              )}\n`,
+            );
+            await fs.writeFile(
+              '.vercel/.env.production.local',
+              `# Created by Vercel CLI\n${Object.keys(envPull.env ?? {})
+                .sort()
+                .map((key) => `${key}="${escapeValue(envPull.env[key])}"`)
+                .join('\n')}\n`,
+            );
+          }
+
+          main().catch((error) => {
+            console.error(error);
+            process.exit(1);
+          });
+          EOF
 
       # ----------------------------------------------------------
       # 8. Build
@@ -232,28 +296,98 @@ jobs:
       - name: Clean Vercel metadata
         run: rm -rf .vercel
 
-      - name: Configure Vercel project
-        shell: bash
-        run: |
-          mkdir -p .vercel
-          cat > .vercel/project.json <<EOF
-          {
-            "orgId": "$VERCEL_ORG_ID",
-            "projectId": "$VERCEL_PROJECT_ID"
-          }
-          EOF
-
-      # ----------------------------------------------------------
-      # 7. Pull Preview Environment
-      # ----------------------------------------------------------
-      - name: Pull Vercel Preview Environment
+      - name: Prepare Vercel preview metadata
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
-          vercel pull \
-            --yes \
-            --environment=preview \
-            --token="$VERCEL_TOKEN"
+          node <<'EOF'
+          const fs = require('node:fs/promises');
+          const { URLSearchParams } = require('node:url');
+
+          const {
+            VERCEL_TOKEN,
+            VERCEL_ORG_ID,
+            VERCEL_PROJECT_ID,
+          } = process.env;
+
+          const apiBase = 'https://api.vercel.com';
+          const headers = {
+            Authorization: 'Bearer ' + VERCEL_TOKEN,
+          };
+          const search = new URLSearchParams({ source: 'github-actions-deploy' });
+
+          if (VERCEL_ORG_ID.startsWith('team_')) {
+            search.set('teamId', VERCEL_ORG_ID);
+          }
+
+          async function fetchJson(path) {
+            const response = await fetch(`${apiBase}${path}?${search.toString()}`, { headers });
+            const text = await response.text();
+
+            if (!response.ok) {
+              throw new Error(`${response.status} ${response.statusText}: ${text}`);
+            }
+
+            return JSON.parse(text);
+          }
+
+          function escapeValue(value) {
+            return String(value ?? '').replace(/\n/g, '\\n').replace(/\r/g, '\\r');
+          }
+
+          async function main() {
+            const [project, envPull] = await Promise.all([
+              fetchJson(`/v9/projects/${encodeURIComponent(VERCEL_PROJECT_ID)}`),
+              fetchJson(`/v3/env/pull/${encodeURIComponent(VERCEL_PROJECT_ID)}/preview`),
+            ]);
+
+            const analyticsId =
+              project.analytics?.id &&
+              (!project.analytics.disabledAt ||
+                (project.analytics.enabledAt &&
+                  project.analytics.enabledAt > project.analytics.disabledAt))
+                ? project.analytics.id
+                : undefined;
+
+            await fs.mkdir('.vercel', { recursive: true });
+            await fs.writeFile(
+              '.vercel/project.json',
+              `${JSON.stringify(
+                {
+                  projectId: VERCEL_PROJECT_ID,
+                  orgId: VERCEL_ORG_ID,
+                  projectName: project.name,
+                  settings: {
+                    createdAt: project.createdAt,
+                    framework: project.framework,
+                    devCommand: project.devCommand,
+                    installCommand: project.installCommand,
+                    buildCommand: project.buildCommand,
+                    outputDirectory: project.outputDirectory,
+                    rootDirectory: project.rootDirectory,
+                    directoryListing: project.directoryListing,
+                    nodeVersion: project.nodeVersion,
+                    analyticsId,
+                  },
+                },
+                null,
+                2,
+              )}\n`,
+            );
+            await fs.writeFile(
+              '.vercel/.env.preview.local',
+              `# Created by Vercel CLI\n${Object.keys(envPull.env ?? {})
+                .sort()
+                .map((key) => `${key}="${escapeValue(envPull.env[key])}"`)
+                .join('\n')}\n`,
+            );
+          }
+
+          main().catch((error) => {
+            console.error(error);
+            process.exit(1);
+          });
+          EOF
 
       # ----------------------------------------------------------
       # 8. Preview Build
