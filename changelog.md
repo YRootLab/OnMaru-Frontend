@@ -4,7 +4,7 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 
-- 한옥도감과 지역별 한옥 스테이 카드 부모와 이미지 레이어의 배경을 일치시켜, 둥근 모서리에 부모 배경이 테두리처럼 비치던 합성 경계를 제거했다.
+- develop 최신 내역을 병합하며 `changelog.md`·`handoff.md`·Core UI submodule 충돌을 해소하고, Vercel Analytics·Speed Insights 의존성이 포함된 lockfile을 동기화했다.
 - 소리마루와 한옥 지도에서 사진이 둥근 썸네일을 채우는 컨테이너에도 같은 배경 동기화 처리를 적용했다.
 - 소리마루 “장면을 따라 걷는 소리” 편집형 레일 카드의 인라인 이미지가 남기던 하단 베이스라인 여백을 제거해 경계선을 없앴다.
 - 소리마루 편집형 레일의 하단 정보 패널이 중복으로 둥근 모서리를 자르지 않도록 부모 카드만 최종 클리핑을 담당하게 해, 하단 좌우 모서리의 이중 경계를 제거했다.
