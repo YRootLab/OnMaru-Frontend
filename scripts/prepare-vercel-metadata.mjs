@@ -100,7 +100,7 @@ function getAnalyticsId(project) {
 
   return project.analytics?.id &&
     (!project.analytics.disabledAt ||
-      (!Number.isNaN(enabledAt) && !Number.isNaN(disabledAt) && enabledAt > disabledAt))
+      (!Number.isNaN(enabledAt) && !Number.isNaN(disabledAt) && enabledAt >= disabledAt))
     ? project.analytics.id
     : undefined;
 }
