@@ -3,6 +3,9 @@
 Lightweight human-readable summary of meaningful repository changes. This does not replace Git history.
 
 ## Unreleased
+- 홈 화면 API 재연동: 추천 코스·인기 소리·인기 지역을 `api/v1/home` 엔드포인트로 교체하고, 탐색 시작 요청을 `POST /api/journey-curator/explore` 호환 경로로 전환했다. (Closes #126)
+- AGENTS.md에 워크트리·브랜치 전환 시 `src/private/core-ui` 서브모듈 초기화 필수 규칙을 명시했다. 미초기화 서브모듈은 `Can't resolve '@/private/core-ui/...'` 빌드 에러의 주원인이다.
+
 
 
 - 홈 추천 코스, 인기 한옥 소리, 인기 지역을 백엔드 홈 API로 연동하고 기존 홈 목데이터 프록시를 제거했다.
