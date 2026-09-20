@@ -91,7 +91,8 @@ const FooterInner = styled.div`
   }
 
   @media (max-width: 640px) {
-    width: calc(100% - 24px);
+    width: calc(100% - 20px);
+    flex-direction: column;
   }
 `;
 
@@ -192,8 +193,12 @@ const PolicyLinksRow = styled.div`
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: clamp(10px, 1.8vw, 16px);
+  gap: clamp(8px, 1.8vw, 16px);
   margin-bottom: 12px;
+
+  @media (max-width: 640px) {
+    gap: 8px 14px;
+  }
 `;
 
 const PolicyButton = styled.button<{ $bold?: boolean }>`
@@ -240,14 +245,16 @@ const Copyright = styled.div`
 const MassiveWatermark = styled.div`
   width: 100%;
   font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', 'Spoqa Han Sans Neo', sans-serif;
-  font-size: clamp(2.5rem, 8.5vw, 8rem);
+  font-size: clamp(2rem, 8.5vw, 8rem);
   font-weight: 900;
-  line-height: 1.05;
+  line-height: 1.1;
   letter-spacing: -0.045em;
   user-select: none;
   pointer-events: none;
   margin: 16px 0 0;
-  white-space: nowrap;
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: break-word;
   transition: color 0.4s ease, transform 0.4s ease;
 
   /* 라이트 모드 워터마크 */
@@ -266,6 +273,12 @@ const MassiveWatermark = styled.div`
   [data-theme='dark'] ${FooterWrapper}:hover & {
     color: rgba(255, 255, 255, 0.15);
     transform: translateY(-4px);
+  }
+
+  @media (max-width: 640px) {
+    font-size: clamp(2rem, 11vw, 4rem);
+    letter-spacing: -0.03em;
+    margin: 12px 0 0;
   }
 `;
 

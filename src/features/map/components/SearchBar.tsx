@@ -142,11 +142,24 @@ const Dropdown = styled.div`
   box-shadow: 0 8px 24px rgba(25, 31, 40, 0.12);
   user-select: none;
   backdrop-filter: blur(20px);
+  max-height: 60dvh;
+  overflow-y: auto;
 
   [data-theme='dark'] & {
     background: ${surface.dark.card};
     border: none;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  }
+
+  @media (max-width: 1023px) {
+    position: fixed;
+    top: auto;
+    left: 12px;
+    right: 12px;
+    bottom: auto;
+    top: 68px;
+    max-height: 50dvh;
+    border-radius: 16px;
   }
 `;
 

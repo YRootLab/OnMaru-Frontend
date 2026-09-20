@@ -1,14 +1,20 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
-import { motion, AnimatePresence } from 'framer-motion';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
 import { X, Check, Award } from 'lucide-react';
 import type { StampDef } from '../types';
 import { meok } from '@/design-system/tokens';
 import { stampAudio } from '../utils/sound';
 
-const Overlay = styled(motion.div)`
+// GSAP 플러그인 등록
+gsap.registerPlugin(useGSAP);
+
+// --- Styled Components ---
+
+const Overlay = styled.div`
   position: fixed;
   inset: 0;
   z-index: 9999;
@@ -18,9 +24,10 @@ const Overlay = styled(motion.div)`
   background: rgba(14, 16, 22, 0.76);
   backdrop-filter: blur(10px);
   padding: 20px;
+  visibility: hidden; /* GSAP 진입 전 숨김 */
 `;
 
-const SealCard = styled(motion.div)`
+const SealCard = styled.div`
   position: relative;
   width: 100%;
   max-width: 420px;
@@ -42,7 +49,8 @@ const HanjiBackdrop = styled.div`
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(circle at 50% 35%, rgba(212, 175, 55, 0.12) 0%, transparent 70%);
+  /* 칙칙한 금색에서 밝고 화사한 앰버 그라데이션으로 변경 */
+  background: radial-gradient(circle at 50% 35%, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
 `;
 
 const CloseButton = styled.button`
@@ -82,15 +90,16 @@ const SealStage = styled.div`
   justify-content: center;
 `;
 
-const SealPulseWave = styled(motion.div)<{ $color: string }>`
+const SealPulseWave = styled.div<{ $color: string }>`
   position: absolute;
   inset: -16px;
   border-radius: 36px;
   border: 3px solid ${({ $color }) => $color};
   pointer-events: none;
+  opacity: 0;
 `;
 
-const SealStampRing = styled(motion.div)<{ $color: string }>`
+const SealStampRing = styled.div<{ $color: string }>`
   position: relative;
   width: 120px;
   height: 120px;
@@ -101,12 +110,13 @@ const SealStampRing = styled(motion.div)<{ $color: string }>`
   align-items: center;
   justify-content: center;
   color: ${({ $color }) => $color};
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 32px rgba(234, 88, 12, 0.25); /* 도장 그림자도 오렌지 톤으로 */
   background: rgba(255, 255, 255, 0.95);
+  opacity: 0; /* GSAP 초기값 */
 
   [data-theme='dark'] & {
     background: rgba(28, 26, 23, 0.85);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 8px 32px rgba(234, 88, 12, 0.4);
   }
 
   &::before {
@@ -127,7 +137,7 @@ const HanziSealText = styled.span`
   line-height: 1;
 `;
 
-const SparkParticle = styled(motion.div)<{ $color: string }>`
+const SparkParticle = styled.div<{ $color: string }>`
   position: absolute;
   top: 50%;
   left: 50%;
@@ -136,6 +146,7 @@ const SparkParticle = styled(motion.div)<{ $color: string }>`
   border-radius: 50%;
   background-color: ${({ $color }) => $color};
   pointer-events: none;
+  opacity: 0;
 `;
 
 const RarityTag = styled.div<{ $rarity: string }>`
@@ -147,26 +158,29 @@ const RarityTag = styled.div<{ $rarity: string }>`
   padding: 4px 12px;
   border-radius: 9999px;
   margin-bottom: 10px;
+  
+  /* 희귀도 태그 색상을 전체 테마에 맞게 화사하게 조정 */
   background: ${({ $rarity }) =>
     $rarity === 'legendary'
-      ? 'rgba(212, 175, 55, 0.18)'
+      ? 'rgba(249, 115, 22, 0.12)' // Vibrant Orange
       : $rarity === 'rare'
-      ? 'rgba(109, 40, 217, 0.12)'
-      : 'rgba(185, 28, 28, 0.1)'};
+      ? 'rgba(139, 92, 246, 0.12)' // Bright Purple
+      : 'rgba(225, 29, 72, 0.1)'}; // Crimson Red
+      
   color: ${({ $rarity }) =>
     $rarity === 'legendary'
-      ? '#b45309'
+      ? '#ea580c'
       : $rarity === 'rare'
-      ? '#6d28d9'
-      : '#b91c1c'};
+      ? '#7c3aed'
+      : '#e11d48'};
 
   [data-theme='dark'] & {
     color: ${({ $rarity }) =>
       $rarity === 'legendary'
-        ? '#fbbf24'
+        ? '#fdba74'
         : $rarity === 'rare'
         ? '#a78bfa'
-        : '#f87171'};
+        : '#fb7185'};
   }
 `;
 
@@ -230,118 +244,139 @@ interface StampSealAnimationProps {
 }
 
 export default function StampSealAnimation({ stamp, onClose }: StampSealAnimationProps) {
-  const [stamped, setStamped] = useState(false);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const ringRef = useRef<HTMLDivElement>(null);
+  const pulseRef = useRef<HTMLDivElement>(null);
+  const [isClosing, setIsClosing] = useState(false);
 
-  useEffect(() => {
-    if (stamp) {
-      setStamped(false);
-      const timer = setTimeout(() => {
-        setStamped(true);
+  // --- GSAP Timeline ---
+  useGSAP(() => {
+    if (!stamp || isClosing || !overlayRef.current || !cardRef.current) return;
+
+    // 1. 모달 및 카드 진입 애니메이션
+    const tl = gsap.timeline();
+    
+    tl.set(overlayRef.current, { visibility: 'visible', opacity: 0 })
+      .set(cardRef.current, { scale: 0.9, opacity: 0, y: 20 })
+      .set(ringRef.current, { scale: 2.3, rotation: -20, opacity: 0 })
+      .set(pulseRef.current, { scale: 0.8, opacity: 0 })
+      .set('.spark-particle', { scale: 0, opacity: 1, x: 0, y: 0 });
+
+    tl.to(overlayRef.current, { opacity: 1, duration: 0.3 })
+      .to(cardRef.current, { scale: 1, opacity: 1, y: 0, duration: 0.4, ease: 'back.out(1.2)' }, '<0.1')
+      
+      // 2. 도장이 쾅! 찍히는 애니메이션 (타격감 강조)
+      .add(() => {
         stampAudio.playStampSound();
-      }, 160);
-      return () => clearTimeout(timer);
-    }
-  }, [stamp]);
+        // 타격감을 위한 카드 전체 바운스
+        gsap.to(cardRef.current, { y: 6, duration: 0.05, yoyo: true, repeat: 1, ease: 'power2.inOut' });
+      }, '+=0.15') // 카드 등장 후 약간의 딜레이
+      
+      .to(ringRef.current, {
+        scale: 1,
+        rotation: 0,
+        opacity: 1,
+        duration: 0.35,
+        ease: 'back.out(2.5)', // 강하게 내리찍는 느낌
+      }, '<')
+      
+      // 3. 파동 (Pulse) 및 불꽃 (Sparks) 확산
+      .to(pulseRef.current, {
+        scale: 1.6,
+        opacity: 0,
+        duration: 0.5,
+        ease: 'power2.out',
+      }, '<')
+      .to('.spark-particle', {
+        x: (i, el) => el.dataset.tx,
+        y: (i, el) => el.dataset.ty,
+        scale: 1.4,
+        opacity: 0,
+        duration: 0.5,
+        ease: 'power3.out',
+      }, '<');
+
+  }, { scope: overlayRef, dependencies: [stamp] });
+
+  // --- GSAP Exit Animation (Framer Motion AnimatePresence 대체) ---
+  const handleClose = () => {
+    if (isClosing || !overlayRef.current || !cardRef.current) return;
+    setIsClosing(true);
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        setIsClosing(false);
+        onClose(); // 애니메이션 완료 후 부모 상태 초기화
+      }
+    });
+
+    tl.to(cardRef.current, { scale: 0.9, opacity: 0, y: 15, duration: 0.25, ease: 'power2.in' })
+      .to(overlayRef.current, { opacity: 0, duration: 0.2 }, '<0.1');
+  };
 
   if (!stamp) return null;
 
   return (
-    <AnimatePresence>
-      <Overlay
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={onClose}
+    <Overlay ref={overlayRef} onClick={handleClose}>
+      <SealCard
+        ref={cardRef}
+        onClick={(e) => e.stopPropagation()} // 내부 클릭 시 닫힘 방지
       >
-        <SealCard
-          initial={{ scale: 0.9, opacity: 0, y: 20 }}
-          animate={{
-            scale: 1,
-            opacity: 1,
-            y: stamped ? [0, -6, 2, 0] : 0,
-          }}
-          transition={{ duration: 0.35, ease: 'easeOut' }}
-          exit={{ scale: 0.9, opacity: 0, y: 20 }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <HanjiBackdrop />
-          <CloseButton onClick={onClose} aria-label="닫기">
-            <X size={18} />
-          </CloseButton>
+        <HanjiBackdrop />
+        <CloseButton onClick={handleClose} aria-label="닫기">
+          <X size={18} />
+        </CloseButton>
 
-          <RarityTag $rarity={stamp.rarity}>
-            <Award size={13} />
-            <span>
-              {stamp.rarity === 'legendary'
-                ? '전설 어보'
-                : stamp.rarity === 'rare'
-                ? '희귀 인장'
-                : stamp.rarity === 'regional'
-                ? '권역 인장'
-                : '한옥 수결'}
-            </span>
-          </RarityTag>
+        <RarityTag $rarity={stamp.rarity}>
+          <Award size={13} />
+          <span>
+            {stamp.rarity === 'legendary'
+              ? '전설 어보'
+              : stamp.rarity === 'rare'
+              ? '희귀 인장'
+              : stamp.rarity === 'regional'
+              ? '권역 인장'
+              : '한옥 수결'}
+          </span>
+        </RarityTag>
 
-          <SealStage>
-            <AnimatePresence>
-              {stamped && (
-                <>
-                  <SealPulseWave
-                    $color={stamp.color}
-                    initial={{ scale: 0.8, opacity: 0.9 }}
-                    animate={{ scale: 1.55, opacity: 0 }}
-                    transition={{ duration: 0.55, ease: 'easeOut' }}
-                  />
+        <SealStage>
+          {/* 퍼지는 파동 */}
+          <SealPulseWave ref={pulseRef} $color={stamp.color} />
 
-                  {Array.from({ length: SPARKS_COUNT }).map((_, i) => {
-                    const angle = (i * (360 / SPARKS_COUNT) * Math.PI) / 180;
-                    const dist = 55 + (i % 3) * 16;
-                    return (
-                      <SparkParticle
-                        key={i}
-                        $color={i % 2 === 0 ? stamp.color : '#d4af37'}
-                        initial={{ x: 0, y: 0, scale: 0, opacity: 1 }}
-                        animate={{
-                          x: Math.cos(angle) * dist,
-                          y: Math.sin(angle) * dist,
-                          scale: [0, 1.4, 0],
-                          opacity: [1, 1, 0],
-                        }}
-                        transition={{ duration: 0.55, ease: 'easeOut' }}
-                      />
-                    );
-                  })}
+          {/* 흩뿌려지는 입자들 (data-tx, data-ty로 목표 좌표 설정) */}
+          {Array.from({ length: SPARKS_COUNT }).map((_, i) => {
+            const angle = (i * (360 / SPARKS_COUNT) * Math.PI) / 180;
+            const dist = 55 + (i % 3) * 16;
+            const targetX = Math.cos(angle) * dist;
+            const targetY = Math.sin(angle) * dist;
 
-                  <SealStampRing
-                    $color={stamp.color}
-                    initial={{ scale: 2.3, rotate: -20, opacity: 0 }}
-                    animate={{
-                      scale: [2.3, 0.92, 1],
-                      rotate: [-20, 3, 0],
-                      opacity: 1,
-                    }}
-                    transition={{
-                      duration: 0.42,
-                      times: [0, 0.72, 1],
-                      ease: 'easeOut',
-                    }}
-                  >
-                    <HanziSealText>{stamp.sealText}</HanziSealText>
-                  </SealStampRing>
-                </>
-              )}
-            </AnimatePresence>
-          </SealStage>
+            return (
+              <SparkParticle
+                key={i}
+                className="spark-particle"
+                $color={i % 2 === 0 ? stamp.color : '#f59e0b'}
+                data-tx={targetX}
+                data-ty={targetY}
+              />
+            );
+          })}
 
-          <StampTitle>{stamp.name}</StampTitle>
-          <StampDesc>{stamp.description}</StampDesc>
+          {/* 실제 도장 요소 */}
+          <SealStampRing ref={ringRef} $color={stamp.color}>
+            <HanziSealText>{stamp.sealText}</HanziSealText>
+          </SealStampRing>
+        </SealStage>
 
-          <ConfirmBtn $color={stamp.color} onClick={onClose}>
-            <Check size={16} strokeWidth={2.5} />
-            <span>인장첩에 담았어요</span>
-          </ConfirmBtn>
-        </SealCard>
-      </Overlay>
-    </AnimatePresence>
+        <StampTitle>{stamp.name}</StampTitle>
+        <StampDesc>{stamp.description}</StampDesc>
+
+        <ConfirmBtn $color={stamp.color} onClick={handleClose}>
+          <Check size={16} strokeWidth={2.5} />
+          <span>인장첩에 담았어요</span>
+        </ConfirmBtn>
+      </SealCard>
+    </Overlay>
   );
 }

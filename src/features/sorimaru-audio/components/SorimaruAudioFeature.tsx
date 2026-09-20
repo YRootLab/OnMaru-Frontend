@@ -108,6 +108,10 @@ const MainSections = styled.main`
   @media (min-width: 640px) {
     gap: 3rem;
   }
+
+  @media (max-width: 480px) {
+    gap: 1.5rem;
+  }
 `;
 
 const HeroStageDiv = styled.div`
@@ -116,6 +120,11 @@ const HeroStageDiv = styled.div`
 
   @media (min-width: 768px) {
     padding-top: clamp(6rem, 10vh, 8rem);
+  }
+
+  @media (max-width: 480px) {
+    padding-top: 2.5rem;
+    padding-bottom: clamp(28px, 4vh, 48px);
   }
 `;
 
