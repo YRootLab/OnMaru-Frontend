@@ -23,9 +23,16 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-        with:
-          submodules: 'recursive'
-          ssh-key: ${{ secrets.CORE_UI_DEPLOY_KEY }}
+      - name: Initialize private Core UI submodule
+        env:
+          CORE_UI_DEPLOY_KEY: ${{ secrets.CORE_UI_DEPLOY_KEY }}
+        run: |
+          test -n "$CORE_UI_DEPLOY_KEY" || { echo "CORE_UI_DEPLOY_KEY is required to read src/private/core-ui."; exit 1; }
+          key_path="$RUNNER_TEMP/core-ui-deploy-key"
+          printf '%s\n' "$CORE_UI_DEPLOY_KEY" > "$key_path"
+          chmod 600 "$key_path"
+          GIT_SSH_COMMAND="ssh -i $key_path -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new" \
+            git submodule update --init --recursive
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -52,9 +59,16 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-        with:
-          submodules: 'recursive'
-          ssh-key: ${{ secrets.CORE_UI_DEPLOY_KEY }}
+      - name: Initialize private Core UI submodule
+        env:
+          CORE_UI_DEPLOY_KEY: ${{ secrets.CORE_UI_DEPLOY_KEY }}
+        run: |
+          test -n "$CORE_UI_DEPLOY_KEY" || { echo "CORE_UI_DEPLOY_KEY is required to read src/private/core-ui."; exit 1; }
+          key_path="$RUNNER_TEMP/core-ui-deploy-key"
+          printf '%s\n' "$CORE_UI_DEPLOY_KEY" > "$key_path"
+          chmod 600 "$key_path"
+          GIT_SSH_COMMAND="ssh -i $key_path -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new" \
+            git submodule update --init --recursive
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

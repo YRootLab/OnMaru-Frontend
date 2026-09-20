@@ -107,12 +107,27 @@ const toText = (value: unknown): string => {
 
 const readText = (item: Record<string, unknown>, key: string): string => toText(item[key]);
 
+const readTextList = (item: Record<string, unknown>, key: string): string[] => {
+  const value = item[key];
+  if (Array.isArray(value)) return value.map(toText).filter(Boolean);
+
+  const text = toText(value);
+  return text ? [text] : [];
+};
+
 const isPlayableStory = (story: SorimaruStoryItem): boolean => toText(story.audioUrl).length > 0;
 
 const matchesKeyword = (story: SorimaruStoryItem, keyword: string): boolean => {
   const normalizedKeyword = keyword.trim().toLowerCase();
   const terms = [normalizedKeyword, ...(KEYWORD_SYNONYMS[normalizedKeyword] || [])];
-  const searchableText = [story.category, story.title, story.audioTitle, story.locationName, story.script]
+  const searchableText = [
+    story.category,
+    story.title,
+    story.audioTitle,
+    story.locationName,
+    story.script,
+    ...(story.tags ?? []),
+  ]
     .map((value) => toText(value).toLowerCase())
     .join(' ');
 
@@ -171,7 +186,12 @@ function mapStoryItem(item: Record<string, unknown>, index: number, category?: s
       : '3분 00초',
     audioUrl,
     imageUrl,
-    tags: [readText(item, 'themaCategory'), readText(item, 'tag'), readText(item, 'tags')].filter(Boolean),
+    tags: [
+      ...readTextList(item, 'contentTags'),
+      ...readTextList(item, 'tags'),
+      ...readTextList(item, 'tag'),
+      ...readTextList(item, 'themaCategory'),
+    ],
     locationName: [readText(item, 'addr1'), readText(item, 'addr2')].filter(Boolean).join(' ') || '대한민국 문화유산',
     badgeText: (category && category !== '전체' && category !== '오디 이야기' && category !== '소리 이야기')
       ? category
@@ -238,7 +258,9 @@ export const createSorimaruApiAdapter = (network: SorimaruNetworkClient = sorima
         items: mappedStories,
         pageNo: safePageNo,
         numOfRows: safeNumOfRows,
-        totalCount: mappedStories.length < response.totalCount ? mappedStories.length : response.totalCount || mappedStories.length,
+        totalCount: response.source === 'backend'
+          ? (response.hasMore ? Math.max(safeNumOfRows + 1, mappedStories.length) : mappedStories.length)
+          : (mappedStories.length < response.totalCount ? mappedStories.length : response.totalCount || mappedStories.length),
         source: 'api',
       };
       } catch (error) {

@@ -11,6 +11,7 @@ export interface SorimaruNetworkRequest {
 export interface SorimaruTransportResponse {
   items: Record<string, unknown>[];
   totalCount: number;
+  hasMore?: boolean;
   source?: 'backend' | 'public';
 }
 
@@ -60,6 +61,7 @@ interface BackendStoryDetail {
 
 interface BackendStoryPage {
   items?: BackendStorySummary[];
+  hasMore?: boolean;
 }
 
 const defaultBackendRequester: SorimaruBackendRequester = (path, params) => apiGet<unknown>(path, params);
@@ -157,6 +159,7 @@ function toBackendTransportItem(summary: BackendStorySummary, detail: BackendSto
       .filter((line): line is string => Boolean(line))
       .join('\n') ?? '',
     themaCategory: story.category ?? '',
+    contentTags: story.contentTags ?? [],
     tags: story.contentTags ?? [],
     addr1: story.region?.name ?? '',
   };
@@ -192,6 +195,7 @@ async function requestBackendStories(
   return {
     items,
     totalCount: items.length,
+    hasMore: page.hasMore === true,
     source: 'backend',
   };
 }
@@ -210,7 +214,8 @@ export function createSorimaruNetworkClient({
 
       console.info('[Sorimaru Network] request', { type: request.type, params: request.params });
 
-      if (request.type === 'stories' && request.preferBackend !== false && backendRequester) {
+      const isFirstPage = !request.params.pageNo || request.params.pageNo === '1';
+      if (request.type === 'stories' && isFirstPage && request.preferBackend !== false && backendRequester) {
         try {
           const decoded = await requestBackendStories(request, backendRequester);
           console.info('[Sorimaru Network] backend response', {
