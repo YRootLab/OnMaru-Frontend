@@ -3,6 +3,7 @@
 Lightweight human-readable summary of meaningful repository changes. This does not replace Git history.
 
 ## Unreleased
+- README를 설치 안내 중심 문서에서 한옥 탐험 플랫폼의 서비스 목적, 핵심 사용자 경험, 화면별 역할, 데이터·협업 범위를 설명하는 외부 협업팀용 소개 문서로 개편했다.
 - private submodule(`YRootLab/onmaru-core-ui`) 참조를 제거하고 `src/private/core-ui` 전체 코드를 이 저장소에 일반 파일로 직접 포함시켰다. `.gitmodules`·gitlink·`scripts/check-submodule.mjs`·`check:submodule`/`submodule:*` 스크립트와 CI(deploy.yml, playwright.yml)의 서브모듈 초기화 단계를 제거해 배포 시 private 저장소 접근이 더 이상 필요 없다. 원본 `onmaru-core-ui` 저장소는 아카이브로 유지한다.
 - 홈 화면 API 재연동: 추천 코스·인기 소리·인기 지역을 `api/v1/home` 엔드포인트로 교체하고, 탐색 시작 요청을 `POST /api/journey-curator/explore` 호환 경로로 전환했다. (Closes #126)
 
