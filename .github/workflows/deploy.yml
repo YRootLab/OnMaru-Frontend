@@ -143,6 +143,15 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
 
+          status="$(curl -sS -o /tmp/vercel-project.json -w "%{http_code}" \
+            -H "Authorization: Bearer $VERCEL_TOKEN" \
+            "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID?teamId=$VERCEL_ORG_ID")"
+          echo "Vercel project API status: $status"
+          if [ "$status" != "200" ]; then
+            cat /tmp/vercel-project.json
+            exit 1
+          fi
+
           vercel pull --yes --environment=preview --token="$VERCEL_TOKEN"
 
 
