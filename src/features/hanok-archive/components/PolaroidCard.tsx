@@ -38,6 +38,25 @@ const Frame = styled.div`
   }
 `;
 
+// const Frame = styled.div`
+//   background: #ffffff;
+//   padding: 12px 12px 60px;
+
+//   box-shadow:
+//     0 4px 12px rgba(0, 0, 0, 0.08),
+//     0 12px 32px rgba(0, 0, 0, 0.10);
+
+//   border-radius: 2px;
+//   position: relative;
+//   overflow: visible;
+
+//   [data-theme='dark'] & {
+//     background: #24211D;
+//     border: 1px solid rgba(255, 255, 255, 0.08);
+//     box-shadow: ${ringShadow.dark.card};
+//   }
+// `;
+
 const PhotoArea = styled.div`
   position: relative;
   width: 100%;

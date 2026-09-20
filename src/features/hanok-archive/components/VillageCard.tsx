@@ -9,7 +9,7 @@ import { Headphones } from 'lucide-react';
 import type { Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
 
-const Card = styled(motion.article, transientProps)`
+const Card = styled(motion.article, transientProps)<{ $bg: string | null }>`
   position: relative;
   width: 100%;
   aspect-ratio: 3 / 4.2;
@@ -17,7 +17,10 @@ const Card = styled(motion.article, transientProps)`
   overflow: hidden;
   cursor: pointer;
   user-select: none;
-  background: #191f28;
+  ${({ $bg }) =>
+    $bg
+      ? `background-image: url("${$bg}"); background-size: cover; background-position: center;`
+      : `background: linear-gradient(135deg, ${palette.cheongrok[900]} 0%, ${meok[900]} 100%);`}
 
   @media (max-width: 480px) {
     border-radius: 16px;
@@ -26,7 +29,8 @@ const Card = styled(motion.article, transientProps)`
 
 const ImageLayer = styled(motion.div, transientProps)<{ $bg: string | null }>`
   position: absolute;
-  inset: 0;
+  inset: -1px;
+  border-radius: inherit;
   ${({ $bg }) =>
     $bg
       ? `background-image: url("${$bg}"); background-size: cover; background-position: center;`
@@ -168,6 +172,7 @@ export default function VillageCard({ village, onClick }: VillageCardProps) {
   return (
     <Card
       className="village-card"
+      $bg={village.hasImage ? village.image : null}
       onClick={() => onClick?.(village)}
       role="button"
       tabIndex={0}
@@ -201,4 +206,3 @@ export default function VillageCard({ village, onClick }: VillageCardProps) {
     </Card>
   );
 }
-

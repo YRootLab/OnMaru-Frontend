@@ -191,14 +191,16 @@ const StoryArticle = styled.article<{ $isCurrent: boolean }>`
   }
 `;
 
-const ThumbnailSlot = styled.div<{ $isCurrent: boolean }>`
+const ThumbnailSlot = styled.div<{ $isCurrent: boolean; $src: string }>`
   position: relative;
   width: 4.25rem;
   min-width: 4.25rem;
   height: 4.25rem;
   border-radius: 10px;
   overflow: hidden;
-  background-color: #f0f0ee;
+  background-image: url("${({ $src }) => $src}");
+  background-size: cover;
+  background-position: center;
   flex-shrink: 0;
 
   [data-theme='dark'] & {
@@ -396,7 +398,7 @@ function StoryRow({ story, index }: StoryRowProps) {
 
   return (
     <StoryArticle onClick={playStory} $isCurrent={isCurrent}>
-      <ThumbnailSlot $isCurrent={isCurrent}>
+      <ThumbnailSlot $isCurrent={isCurrent} $src={imageSrc}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={imageSrc}

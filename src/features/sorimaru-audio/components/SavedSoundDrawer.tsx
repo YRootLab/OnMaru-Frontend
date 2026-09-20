@@ -138,13 +138,15 @@ const ItemRow = styled.div`
   }
 `;
 
-const ThumbBox = styled.div`
+const ThumbBox = styled.div<{ $src: string }>`
   height: 4rem;
   width: 5rem;
   flex-shrink: 0;
   overflow: hidden;
   border-radius: 8px;
-  background-color: #e5e5e3;
+  background-image: url("${({ $src }) => $src}");
+  background-size: cover;
+  background-position: center;
 
   [data-theme='dark'] & {
     background-color: rgba(255, 255, 255, 0.08);
@@ -261,11 +263,14 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
                 ) : (
                   savedStories.map((story, index) => {
                     const isCurrentPlaying = currentStory.stid === story.stid && isPlaying;
+                    const imageSrc =
+                      story.imageUrl ||
+                      'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80';
                     return (
                       <ItemRow key={`${story.stid}-${index}`}>
-                        <ThumbBox>
+                        <ThumbBox $src={imageSrc}>
                           <img
-                            src={story.imageUrl || 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80'}
+                            src={imageSrc}
                             alt=""
                           />
                         </ThumbBox>

@@ -81,4 +81,5 @@
 - Deploy applications using the private submodule through the Vercel CLI or CI configured with private submodule access.
 - If Vercel Git integration cannot read the private submodule, use Vercel CLI deployment instead of automatic deployment.
 - Core UI components are imported via `@/private/core-ui/*`.
-- When starting work in a fresh workspace or after branch switches, verify that `src/private/core-ui` is populated. If empty or outdated, immediately run `git submodule update --init --recursive` (or `npm run submodule:init`).
+- When starting work in a fresh workspace, a newly created Git worktree, or after any branch switch, verify that `src/private/core-ui` is populated. If empty or outdated, immediately run `git submodule update --init --recursive` (or `npm run submodule:init`), then `npm run check:submodule`.
+- Creating or entering a new worktree (`git worktree add ...`) always yields an uninitialized submodule — treat submodule initialization as a mandatory first step there, before any build or dev server. A `Module not found: Can't resolve '@/private/core-ui/...'` error is almost always an uninitialized submodule, not a code bug.

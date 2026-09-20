@@ -85,14 +85,17 @@ const AccordionContainer = styled.div`
   }
 `;
 
-const AccordionPill = styled(motion.div, transientProps)<{ $active: boolean }>`
+const AccordionPill = styled(motion.div, transientProps)<{ $active: boolean; $bg: string | null }>`
   position: relative;
   height: 440px;
   border-radius: ${({ $active }) => ($active ? '32px' : '9999px')};
   overflow: hidden;
   cursor: pointer;
 
-  background-color: ${meok[900]};
+  ${({ $bg }) =>
+    $bg
+      ? `background-image: url("${$bg}"); background-size: cover; background-position: center 25%;`
+      : 'background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);'}
   user-select: none;
   flex-shrink: 0;
 
@@ -107,7 +110,8 @@ const AccordionPill = styled(motion.div, transientProps)<{ $active: boolean }>`
 
 const PillImageLayer = styled(motion.div, transientProps)<{ $bg: string | null }>`
   position: absolute;
-  inset: 0;
+  inset: -1px;
+  border-radius: inherit;
   ${({ $bg }) =>
     $bg
       ? `background-image: url("${$bg}"); background-size: cover; background-position: center 25%;`
@@ -702,6 +706,7 @@ export default function HanokStayAccordion({
                 <AccordionPill
                   key={item.id}
                   $active={isActive}
+                  $bg={item.hasImage ? item.image : null}
                   onClick={() => setActiveIndex(idx)}
                   initial={false}
                   animate={{
