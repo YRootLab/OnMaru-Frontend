@@ -87,9 +87,12 @@ function toDotenvContents(rawText) {
 }
 
 function getAnalyticsId(project) {
+  const enabledAt = project.analytics?.enabledAt ? new Date(project.analytics.enabledAt).getTime() : Number.NaN;
+  const disabledAt = project.analytics?.disabledAt ? new Date(project.analytics.disabledAt).getTime() : Number.NaN;
+
   return project.analytics?.id &&
     (!project.analytics.disabledAt ||
-      (project.analytics.enabledAt && project.analytics.enabledAt > project.analytics.disabledAt))
+      (!Number.isNaN(enabledAt) && !Number.isNaN(disabledAt) && enabledAt > disabledAt))
     ? project.analytics.id
     : undefined;
 }
