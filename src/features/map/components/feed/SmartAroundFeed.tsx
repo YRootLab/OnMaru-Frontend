@@ -221,11 +221,13 @@ const CuratedCard = styled.button`
   }
 `;
 
-const PhotoBox = styled.div`
+const PhotoBox = styled.div<{ $src: string }>`
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 11;
-  background: #f0eae0;
+  background-image: url("${({ $src }) => $src}");
+  background-size: cover;
+  background-position: center;
   overflow: hidden;
 
   img {
@@ -451,7 +453,7 @@ export default function SmartAroundFeed({ items }: SmartAroundFeedProps) {
         <Scroller ref={scrollerRef} onWheel={handleWheel} role="region" aria-label="추천 한옥 명소 목록">
         {curatedSpots.map((item) => (
           <CuratedCard key={item.id} type="button" onClick={() => handleClick(item)}>
-            <PhotoBox>
+            <PhotoBox $src={item.image!}>
               <Image
                 src={item.image!}
                 alt={item.name}
