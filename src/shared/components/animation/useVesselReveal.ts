@@ -23,6 +23,7 @@ export function useVesselReveal<T extends HTMLElement = HTMLDivElement>({
 }: UseVesselRevealOptions = {}): UseVesselRevealResult<T> {
   const containerRef = useRef<T>(null);
   const isReloadProtectedRef = useRef(false);
+  const hasInitializedRef = useRef(false);
   const prefersReducedMotion = usePrefersReducedMotion();
   const [{ stage, shouldAnimate }, setState] = useState<{
     stage: VesselRevealStage;
@@ -36,23 +37,9 @@ export function useVesselReveal<T extends HTMLElement = HTMLDivElement>({
     const el = containerRef.current;
     if (!el) return;
 
-    const initial = resolveVesselRevealState({
-      currentStage: 'bloomed',
-      isInitialObservation: true,
-      isReloadProtected: false,
-      isIntersecting: false,
-      top: el.getBoundingClientRect().top,
-      revealBoundary: window.innerHeight * exitThresholdRatio,
-      viewportBottom: window.innerHeight,
-    });
-
-    let currentStage = initial.stage;
-    isReloadProtectedRef.current = initial.isReloadProtected;
-    setState((previous) => (
-      previous.stage === initial.stage
-        ? previous
-        : { stage: initial.stage, shouldAnimate: false }
-    ));
+    hasInitializedRef.current = false;
+    isReloadProtectedRef.current = false;
+    let currentStage: VesselRevealStage = 'bloomed';
 
     const observer = new IntersectionObserver((entries) => {
       const entry = entries[0];
@@ -60,7 +47,7 @@ export function useVesselReveal<T extends HTMLElement = HTMLDivElement>({
 
       const next = resolveVesselRevealState({
         currentStage,
-        isInitialObservation: false,
+        isInitialObservation: !hasInitializedRef.current,
         isReloadProtected: isReloadProtectedRef.current,
         isIntersecting: entry.isIntersecting,
         top: entry.boundingClientRect.top,
@@ -68,8 +55,9 @@ export function useVesselReveal<T extends HTMLElement = HTMLDivElement>({
         viewportBottom: window.innerHeight,
       });
 
+      hasInitializedRef.current = true;
       isReloadProtectedRef.current = next.isReloadProtected;
-      if (currentStage === next.stage) return;
+      if (currentStage === next.stage && next.shouldAnimate === false) return;
 
       currentStage = next.stage;
       setState({
