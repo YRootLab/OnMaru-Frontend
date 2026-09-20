@@ -1,6 +1,7 @@
 # handoff.md
 
 ## Current Work
+- Netlify가 private Core UI submodule을 clone할 수 있도록 `.gitmodules`의 URL을 HTTPS로 변경했다. Netlify deploy key를 `YRootLab/onmaru-core-ui`에 읽기 전용으로 등록해야 한다.
 - 홈 화면 API 연동: 큐레이션 코스·인기 소리·인기 지역을 `api/v1/home` API로 교체했고, 탐색 시작 요청을 `POST /api/journey-curator/explore` 호환 경로로 전환했다.
 - Vercel Git 배포는 private Core UI submodule을 인증할 수 없어 비활성화했다. `deploy.yml`의 GitHub Actions Vercel CLI 배포가 `CORE_UI_READ_TOKEN`으로 submodule을 초기화한 뒤 production/preview를 배포한다.
 - 한옥 이야기의 처마 일조·7단계 조립 3D 모달은 section reveal의 transform 컨텍스트 밖인 `document.body` 포털로 렌더링한다. 작은 화면에서도 안전 영역을 제외한 뷰포트 안에서 유지된다.
