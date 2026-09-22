@@ -35,8 +35,8 @@ export const RAIL_WIDTH = 68;
 export const RAIL_INSET = 14;
 const ONMARU_LOGO_SRC = '/logo.png';
 
-/** Header.tsx의 캡슐형 GNB와 같은 유리질감(블러+반투명+가느다란 보더)을 쓰는
- *  얇고 떠 있는 세로 레일 — 다크 모드에서는 깊이감 있는 먹빛 플로팅 캡슐로 전환된다. */
+
+
 const RailContainer = styled(motion.aside, transientProps)`
   position: absolute;
   top: ${RAIL_INSET}px;
@@ -70,7 +70,7 @@ const RailContainer = styled(motion.aside, transientProps)`
   }
 `;
 
-/** 상단 온마루 브랜드 로고 영역 */
+
 const LogoArea = styled.div`
   display: flex;
   flex-direction: column;
@@ -126,7 +126,7 @@ const NavList = styled.div`
   flex: 1;
 `;
 
-/** 아이콘 + 한글 라벨 네비게이션 버튼 */
+
 const NavItemBtn = styled.button<{ $active: boolean }>`
   position: relative;
   display: flex;
@@ -322,8 +322,8 @@ export default function MapNavRail() {
     if (!panelOpen) setPanelOpen(true);
   };
 
-  // 온마루 자체 카테고리 활성 판별
-  const isMapActive = true; // 현재 /map 페이지
+
+  const isMapActive = true;
   const isRouteEntrance = useMapEntranceStore((s) => s.isRouteEntrance);
   const themeOptions: ThemePreference[] = ['system', 'light', 'dark'];
   const ThemeTriggerIcon = themeMode === 'dark' ? Moon : Sun;
@@ -361,7 +361,7 @@ export default function MapNavRail() {
           : { duration: 0 }
       }
     >
-      {/* 1. 상단 온마루 브랜드 로고 및 타이틀 */}
+      {}
       <LogoArea
         role="button"
         tabIndex={0}
@@ -383,14 +383,14 @@ export default function MapNavRail() {
           style={{ objectFit: 'contain', borderRadius: '7px' }}
           priority
         />
-     
+
       </LogoArea>
 
       <LogoDivider />
 
-      {/* 2. 온마루 자체 카테고리 목록 (한옥 이야기, 지도, 소리마루, 수결첩, 저장) */}
+      {}
       <NavList>
-        {/* 온마루 카테고리 1: 한옥 이야기 */}
+        {}
         <NavItemBtn
           type="button"
           $active={false}
@@ -404,7 +404,7 @@ export default function MapNavRail() {
           <NavItemLabel>한옥 이야기</NavItemLabel>
         </NavItemBtn>
 
-        {/* 온마루 카테고리 2: 지도 (정보지도) */}
+        {}
         <NavItemBtn
           type="button"
           $active={isMapActive}
@@ -418,7 +418,7 @@ export default function MapNavRail() {
           <NavItemLabel>지도</NavItemLabel>
         </NavItemBtn>
 
-        {/* 온마루 카테고리 3: 소리마루 (오디오 해설) */}
+        {}
         <NavItemBtn
           type="button"
           $active={false}
@@ -432,7 +432,7 @@ export default function MapNavRail() {
           <NavItemLabel>소리마루</NavItemLabel>
         </NavItemBtn>
 
-        {/* 온마루 카테고리 4: 수결첩 (한옥 스탬프북) */}
+        {}
         <NavItemBtn
           type="button"
           $active={false}
@@ -447,7 +447,7 @@ export default function MapNavRail() {
         </NavItemBtn>
 
 
-        {/* 온마루 카테고리 5: 저장한 장소 */}
+        {}
         <NavItemBtn
           type="button"
           $active={mode === 'info' && useMapStore.getState().category === 'bookmark'}
@@ -466,7 +466,7 @@ export default function MapNavRail() {
         </NavItemBtn>
       </NavList>
 
-      {/* 3. 하단 유틸리티 메뉴 (다크모드 전환 / 마이) */}
+      {}
       <BottomArea>
         <Divider />
         <ThemeRailItemWrap ref={themePickerRef}>

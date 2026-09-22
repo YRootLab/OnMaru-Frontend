@@ -1,8 +1,8 @@
 'use client';
 
-// ============================================================
-// 관리자 사용자 관리 화면 (src/app/admin/users/page.tsx)
-// ============================================================
+
+
+
 
 import React, { useState, useMemo } from 'react';
 import { meok, palette } from '@/design-system/tokens';
@@ -37,24 +37,24 @@ export default function AdminUsersPage() {
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // 역할 변경 확인 다이얼로그 상태
+
   const [roleChangeTarget, setRoleChangeTarget] = useState<{
     user: AdminUser;
     newRole: AdminRole;
   } | null>(null);
 
-  // 사용자 정지 모달 상태
+
   const [suspendTarget, setSuspendTarget] = useState<AdminUser | null>(null);
   const [suspendPeriod, setSuspendPeriod] = useState<'3일' | '7일' | '30일' | '영구'>('7일');
   const [suspendReason, setSuspendReason] = useState('');
 
-  // 활동 내역 보기 모달 상태
+
   const [activityTarget, setActivityTarget] = useState<AdminUser | null>(null);
 
-  // 정지 해제 확인 다이얼로그 상태
+
   const [unsuspendTarget, setUnsuspendTarget] = useState<AdminUser | null>(null);
 
-  // 필터 초기화
+
   const handleResetFilters = () => {
     setSearchQuery('');
     setRoleFilter('ALL');
@@ -63,7 +63,7 @@ export default function AdminUsersPage() {
     setCurrentPage(1);
   };
 
-  // 필터링 및 정렬
+
   const filteredUsers = useMemo(() => {
     return users
       .filter((u) => {
@@ -86,14 +86,14 @@ export default function AdminUsersPage() {
       });
   }, [users, searchQuery, roleFilter, statusFilter, sortBy]);
 
-  // 페이지네이션
+
   const totalPages = Math.ceil(filteredUsers.length / pageSize) || 1;
   const paginatedUsers = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
     return filteredUsers.slice(start, start + pageSize);
   }, [filteredUsers, currentPage, pageSize]);
 
-  // 역할 변경 확인 실행
+
   const handleConfirmRoleChange = () => {
     if (!roleChangeTarget) return;
     const { user, newRole } = roleChangeTarget;
@@ -105,7 +105,7 @@ export default function AdminUsersPage() {
     setRoleChangeTarget(null);
   };
 
-  // 정지 실행
+
   const handleConfirmSuspend = () => {
     if (!suspendTarget || !suspendReason.trim()) return;
 
@@ -126,7 +126,7 @@ export default function AdminUsersPage() {
     setSuspendReason('');
   };
 
-  // 정지 해제 실행
+
   const handleConfirmUnsuspend = () => {
     if (!unsuspendTarget) return;
 
@@ -146,7 +146,7 @@ export default function AdminUsersPage() {
     setUnsuspendTarget(null);
   };
 
-  // 비관리자(EDITOR / USER) 접근 차단 뷰
+
   if (!isAdmin) {
     return (
       <div
@@ -168,7 +168,7 @@ export default function AdminUsersPage() {
     );
   }
 
-  // 테이블 컬럼 정의
+
   const columns: ColumnDef<AdminUser>[] = [
     {
       key: 'nickname',
@@ -372,7 +372,7 @@ export default function AdminUsersPage() {
         <Toast message={toastMessage} type="success" onClose={() => setToastMessage(null)} />
       )}
 
-      {/* 필터 바 */}
+      {}
       <div
         style={{
           backgroundColor: '#FFFFFF',
@@ -421,7 +421,7 @@ export default function AdminUsersPage() {
           />
         </div>
 
-        {/* 역할 필터 */}
+        {}
         <select
           value={roleFilter}
           onChange={(e) => {
@@ -445,7 +445,7 @@ export default function AdminUsersPage() {
           <option value="USER">USER</option>
         </select>
 
-        {/* 상태 필터 */}
+        {}
         <select
           value={statusFilter}
           onChange={(e) => {
@@ -468,7 +468,7 @@ export default function AdminUsersPage() {
           <option value="SUSPENDED">정지</option>
         </select>
 
-        {/* 정렬 필터 */}
+        {}
         <select
           value={sortBy}
           onChange={(e) => {
@@ -513,7 +513,7 @@ export default function AdminUsersPage() {
         </button>
       </div>
 
-      {/* 테이블 */}
+      {}
       <DataTable
         columns={columns}
         rows={paginatedUsers}
@@ -525,7 +525,7 @@ export default function AdminUsersPage() {
         }}
       />
 
-      {/* 역할 변경 확인 모달 */}
+      {}
       <ConfirmDialog
         isOpen={Boolean(roleChangeTarget)}
         title="사용자 역할 변경"
@@ -536,7 +536,7 @@ export default function AdminUsersPage() {
         onCancel={() => setRoleChangeTarget(null)}
       />
 
-      {/* 정지 해제 확인 모달 */}
+      {}
       <ConfirmDialog
         isOpen={Boolean(unsuspendTarget)}
         title="사용자 정지 해제"
@@ -547,7 +547,7 @@ export default function AdminUsersPage() {
         onCancel={() => setUnsuspendTarget(null)}
       />
 
-      {/* 사용자 정지 모달 */}
+      {}
       {suspendTarget && (
         <div
           role="dialog"
@@ -599,7 +599,7 @@ export default function AdminUsersPage() {
               대상: <strong>{suspendTarget.nickname}</strong> ({suspendTarget.email})
             </div>
 
-            {/* 정지 기간 라디오/버튼 그룹 */}
+            {}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <label style={{ fontSize: '12px', fontWeight: 600, color: meok[700] }}>
                 정지 기간
@@ -632,7 +632,7 @@ export default function AdminUsersPage() {
               </div>
             </div>
 
-            {/* 정지 사유 입력 (필수) */}
+            {}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
               <label style={{ fontSize: '12px', fontWeight: 600, color: meok[700] }}>
                 정지 사유 (필수)
@@ -655,7 +655,7 @@ export default function AdminUsersPage() {
               />
             </div>
 
-            {/* 액션 버튼 */}
+            {}
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '8px' }}>
               <button
                 type="button"
@@ -697,7 +697,7 @@ export default function AdminUsersPage() {
         </div>
       )}
 
-      {/* 사용자 활동 내역 모달 */}
+      {}
       {activityTarget && (
         <div
           role="dialog"

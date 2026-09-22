@@ -65,7 +65,7 @@ const IntroVideo = styled.video<{ $visible: boolean }>`
   will-change: transform;
 `;
 
-/* 흰 텍스트 대비 및 중앙 텍스트 가독성을 위한 시네마틱 스크림 */
+
 const IntroScrim = styled.div`
   position: absolute;
   inset: 0;

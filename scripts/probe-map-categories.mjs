@@ -1,5 +1,5 @@
-// TourAPI 정보맵 카테고리별 데이터 규모 및 분류체계 탐침 스크립트
-// 실행: node --env-file=.env.local scripts/probe-map-categories.mjs
+
+
 import { mkdir, writeFile } from 'node:fs/promises';
 import { URLSearchParams } from 'node:url';
 
@@ -66,9 +66,9 @@ function getTotal(json) {
   return Number(json?.response?.body?.totalCount ?? 0) || 0;
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// [TEST 1] 분류체계 코드 전체 조회
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+
 async function runTest1CategoryCodes() {
   console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log(' [TEST 1] 분류체계 코드 전체 조회 (categoryCode2)');
@@ -81,7 +81,7 @@ async function runTest1CategoryCodes() {
     cat3: [],
   };
 
-  // 1. 대분류 (cat1) 조회
+
   const cat1Res = await fetchTourApi('categoryCode2');
   const cat1Items = getItems(cat1Res);
   console.log(`  ✓ 대분류(cat1) ${cat1Items.length}개 조회 완료`);
@@ -90,7 +90,7 @@ async function runTest1CategoryCodes() {
     const cat1Node = { code: c1.code, name: c1.name, children: [] };
     flatCodes.cat1.push({ code: c1.code, name: c1.name });
 
-    // 2. 중분류 (cat2) 조회
+
     const cat2Res = await fetchTourApi('categoryCode2', { cat1: c1.code });
     const cat2Items = getItems(cat2Res);
 
@@ -98,7 +98,7 @@ async function runTest1CategoryCodes() {
       const cat2Node = { code: c2.code, name: c2.name, parent: c1.code, children: [] };
       flatCodes.cat2.push({ code: c2.code, name: c2.name, cat1: c1.code });
 
-      // 3. 소분류 (cat3) 조회
+
       const cat3Res = await fetchTourApi('categoryCode2', { cat1: c1.code, cat2: c2.code });
       const cat3Items = getItems(cat3Res);
 
@@ -114,7 +114,7 @@ async function runTest1CategoryCodes() {
 
   console.log(`  ✓ 중분류(cat2) ${flatCodes.cat2.length}개, 소분류(cat3) ${flatCodes.cat3.length}개 수집 완료`);
 
-  // 주요 확인 항목 필터링
+
   const foodCat3 = flatCodes.cat3.filter((c) => c.cat1 === 'A05' || c.name.includes('카페') || c.name.includes('찻집') || c.name.includes('커피'));
   const shopCat3 = flatCodes.cat3.filter((c) => c.cat1 === 'A04' || c.name.includes('시장'));
   const stayCat3 = flatCodes.cat3.filter((c) => c.cat1 === 'B02' || c.name.includes('한옥') || c.name.includes('숙박'));
@@ -131,9 +131,9 @@ async function runTest1CategoryCodes() {
   return { tree, flatCodes, highlights: { foodCat3, shopCat3, stayCat3 } };
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// [TEST 2] 카테고리별 반경 검색 결과
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+
 const VILLAGES = [
   { name: '전주 한옥마을', mapX: 127.1530, mapY: 35.8150 },
   { name: '안동 하회마을', mapX: 128.5180, mapY: 36.5390 },
@@ -183,9 +183,9 @@ async function runTest2RadiusSearch() {
   return { results, tableData };
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// [TEST 3] 전통시장 실태
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+
 async function runTest3MarketStatus(test2Results) {
   console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log(' [TEST 3] 전통시장 실태 조사');
@@ -194,7 +194,7 @@ async function runTest3MarketStatus(test2Results) {
   const villageMarketStats = [];
 
   for (const v of VILLAGES) {
-    // 38(쇼핑)에 대해 최대 50건을 가져와 title 검사
+
     const res = await fetchTourApi('locationBasedList2', {
       mapX: String(v.mapX),
       mapY: String(v.mapY),
@@ -216,7 +216,7 @@ async function runTest3MarketStatus(test2Results) {
 
   console.table(villageMarketStats);
 
-  // 전국 단위 전통시장 키워드 검색
+
   console.log('  🔍 전국 키워드 검색(searchKeyword2): "전통시장" 조회 중...');
   const kwMarketRes = await fetchTourApi('searchKeyword2', { keyword: '전통시장', numOfRows: '10' });
   const totalNationalMarket = getTotal(kwMarketRes);
@@ -236,15 +236,15 @@ async function runTest3MarketStatus(test2Results) {
   };
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// [TEST 4] 카페 구분 가능성
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+
 async function runTest4CafeStatus() {
   console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log(' [TEST 4] 카페 구분 가능성 조사 (contentTypeId=39 음식점)');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-  // 3개 마을에서 음식점(39) 총 60건 수집
+
   let allFoodItems = [];
   for (const v of VILLAGES) {
     const res = await fetchTourApi('locationBasedList2', {
@@ -257,7 +257,7 @@ async function runTest4CafeStatus() {
     allFoodItems.push(...getItems(res));
   }
 
-  // 중복 contentid 제거
+
   const uniqueFoodMap = new Map();
   for (const item of allFoodItems) {
     if (!uniqueFoodMap.has(item.contentid)) {
@@ -266,7 +266,7 @@ async function runTest4CafeStatus() {
   }
   const sample30 = Array.from(uniqueFoodMap.values()).slice(0, 30);
 
-  // cat1/cat2/cat3 분포 집계
+
   const catDistribution = {};
   for (const item of sample30) {
     const code = `${item.cat1 || '-'}/${item.cat2 || '-'}/${item.cat3 || '-'}`;
@@ -276,7 +276,7 @@ async function runTest4CafeStatus() {
   console.log('  📊 음식점(39) 30건 cat1/cat2/cat3 분류 코드 분포:');
   console.table(Object.entries(catDistribution).map(([code, count]) => ({ '분류 체계 (cat1/cat2/cat3)': code, 건수: count })));
 
-  // title에 카페, 찻집, 커피 포함된 건 필터
+
   const cafeRegex = /(카페|찻집|커피|다원|디저트|베이커리|Tea|Coffee|Cafe)/i;
   const cafeTitleItems = sample30.filter((it) => cafeRegex.test(it.title));
 
@@ -299,9 +299,9 @@ async function runTest4CafeStatus() {
   };
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// [TEST 5] 축제 데이터
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+
 async function runTest5FestivalData() {
   console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log(' [TEST 5] 축제 데이터 조회 (searchFestival2)');
@@ -344,9 +344,9 @@ async function runTest5FestivalData() {
   };
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 메인 실행 및 종합 요약 보고서
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+
 async function main() {
   console.log('🚀 [OnMaru] 정보맵 카테고리별 데이터 규모 탐침(probe) 시작...');
   const startTime = Date.now();
@@ -357,8 +357,8 @@ async function main() {
   const test4 = await runTest4CafeStatus();
   const test5 = await runTest5FestivalData();
 
-  // 요약 산출
-  // 카테고리별 평균 계산
+
+
   const avgByType = {};
   for (const ct of CONTENT_TYPES) {
     const sum = VILLAGES.reduce((acc, v) => acc + (test2.results[v.name][ct.id]?.totalCount || 0), 0);
@@ -376,8 +376,8 @@ async function main() {
       명소: [12, 14],
       한옥숙소: [32],
       식당: [39],
-      카페: [39], // cat3: A05020900 (카페/전통찻집) 필터링 권장
-      전통시장: [38], // title: '시장' 또는 cat3: A04010100 필터링 권장
+      카페: [39],
+      전통시장: [38],
       축제: ['searchFestival2'],
     },
   };

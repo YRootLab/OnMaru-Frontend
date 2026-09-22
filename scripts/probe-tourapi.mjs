@@ -1,5 +1,5 @@
-// TourAPI 데이터 규모 탐침. UI 없음, 조사 전용.
-// 실행: npm run probe  (하루 1~2회만!)
+
+
 import { mkdir, writeFile } from 'node:fs/promises';
 
 const BASE = 'https://apis.data.go.kr/B551011/KorService2';
@@ -14,19 +14,19 @@ const AREA = {
   31: '경기', 32: '강원', 33: '충북', 34: '충남', 35: '경북', 36: '경남', 37: '전북', 38: '전남', 39: '제주',
 };
 const SAMPLE_AREAS = [37, 35, 38];
-const SAMPLE_SIZE = Number(process.env.PROBE_SAMPLE ?? 50); // 지역당 detailIntro2 호출 수
+const SAMPLE_SIZE = Number(process.env.PROBE_SAMPLE ?? 50);
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 let calls = 0;
 async function get(path, params) {
   const rest = new URLSearchParams({ MobileOS: 'ETC', MobileApp: 'OnMaru', _type: 'json', ...params });
-  // 재시도는 인코딩 방식 폴백을 겸함: 1) 디코딩 키를 인코딩  2) 키를 그대로(이미 인코딩된 경우)
+
   const urls = [
     `${BASE}/${path}?${new URLSearchParams({ serviceKey: KEY })}&${rest}`,
     `${BASE}/${path}?serviceKey=${KEY}&${rest}`,
   ];
-  const label = `${path}?${new URLSearchParams(params)}`; // 키 제외 로그용
+  const label = `${path}?${new URLSearchParams(params)}`;
 
   for (let attempt = 0; attempt < urls.length; attempt++) {
     await sleep(200);
@@ -48,7 +48,7 @@ async function get(path, params) {
   }
 }
 
-// items가 ''(빈 문자열)/누락으로 오는 경우 대비
+
 const itemsOf = (json) => {
   const item = json?.response?.body?.items?.item;
   if (!item) return [];
@@ -57,7 +57,7 @@ const itemsOf = (json) => {
 const totalOf = (json) => Number(json?.response?.body?.totalCount ?? 0) || 0;
 const pct = (n, d) => (d ? +((n / d) * 100).toFixed(1) : 0);
 
-// ── TEST 1: 지역별 숙박 총 개수
+
 async function test1() {
   console.log('\n[TEST 1] 지역별 숙박 총 개수');
   const rows = [];
@@ -71,7 +71,7 @@ async function test1() {
   return { rows, total: rows.reduce((s, r) => s + r.숙박총계, 0) };
 }
 
-// ── TEST 2: hanok 필드 존재 여부 및 비율
+
 async function test2() {
   console.log(`\n[TEST 2] hanok 필드 조사 (지역 ${SAMPLE_AREAS.length}곳 × ${SAMPLE_SIZE}건, 수 분 소요)`);
   const rows = [];
@@ -117,7 +117,7 @@ async function test2() {
   return { rows, valueCounts, hanokItems, firstHanokRaw, firstIntroRaw };
 }
 
-// ── TEST 3: 키워드 검색 백업 경로
+
 async function test3() {
   console.log('\n[TEST 3] 키워드 검색 totalCount');
   const rows = [];
@@ -131,14 +131,14 @@ async function test3() {
   return rows;
 }
 
-// ── TEST 4: 이미지 / 개요 품질
+
 async function test4(hanokItems) {
   const targets = hanokItems.slice(0, 20);
   console.log(`\n[TEST 4] 이미지/개요 품질 (${targets.length}건)`);
   if (!targets.length) return { sampled: 0, withCoord: [] };
 
   const LEGACY = { defaultYN: 'Y', firstImageYN: 'Y', overviewYN: 'Y', mapinfoYN: 'Y', addrinfoYN: 'Y' };
-  let legacy = false; // KorService2는 옵션 불필요할 수 있어 무옵션 우선, 안 되면 폴백
+  let legacy = false;
   const lens = [], samples = [], withCoord = [];
   let noImage = 0, noOverview = 0, counted = 0;
 
@@ -177,7 +177,7 @@ async function test4(hanokItems) {
   return { ...stat, sampled: counted, imageRate: 100 - stat['이미지없음%'], samples, withCoord };
 }
 
-// ── TEST 5: 주변 관광지
+
 async function test5(withCoord = []) {
   console.log('\n[TEST 5] 주변 관광지');
   const base = withCoord[0];
@@ -194,14 +194,14 @@ async function test5(withCoord = []) {
   return { base: base.title, totalCount: totalOf(json), items: rows };
 }
 
-// ── main (에러가 나도 여기까지 모은 결과는 저장)
+
 const t0 = Date.now();
 const out = { probedAt: new Date().toISOString() };
 try {
   out.test1 = await test1();
   out.test2 = await test2();
   out.test3 = await test3();
-  // hanok 필드로 못 찾으면 키워드 검색 결과로 품질 표본 대체
+
   let sample = out.test2.hanokItems;
   out.qualitySource = 'hanok 필드';
   if (!sample.length) {

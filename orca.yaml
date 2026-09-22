@@ -1,5 +1,5 @@
-# orca.yaml
-# Orca workspace & worktree configuration for OnMaru Frontend
+
+
 
 scripts:
   setup: |

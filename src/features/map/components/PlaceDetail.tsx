@@ -152,7 +152,7 @@ export default function PlaceDetail() {
         });
         return;
       } catch {
-        // 클립보드 폴백
+
       }
     }
     navigator.clipboard.writeText(window.location.href);
@@ -424,7 +424,7 @@ export default function PlaceDetail() {
               )}
             </TitleSection>
 
-            {/* 실시간 현장 체감 온기 바 */}
+            {}
             <LiveWarmthMeter>
               <LiveWarmthStatus>
                 <LiveWarmthPulse $busy={isBusy} />
@@ -433,7 +433,7 @@ export default function PlaceDetail() {
               <LiveWarmthCount>{warmthMetrics.countLabel}</LiveWarmthCount>
             </LiveWarmthMeter>
 
-            {/* 원클릭 퀵 액션 타일 바 (소리마루 오디오 해설이 지원되는 장소에만 '오디오 해설' 타일 노출) */}
+            {}
             <HeroActionGrid>
               {matchedSorimaruStory && (
                 <HeroActionTile
@@ -488,7 +488,7 @@ export default function PlaceDetail() {
               </HeroActionTile>
             </HeroActionGrid>
 
-            {/* 정통 한옥·문화재 명소에만 수결첩 방문 스탬프 체크인 활성화 */}
+            {}
             {isRealTraditional && (
               <StampCheckInBanner $isVisited={isPlaceVisited}>
                 <StampBannerLeft>

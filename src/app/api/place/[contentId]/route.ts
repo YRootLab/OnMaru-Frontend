@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 import { PlaceService } from '@/features/map/services/place.service';
 
-/**
- * 장소 상세 정보 조회 API (Thin Controller)
- * 비즈니스 로직은 PlaceService에 위임합니다.
- */
+
+
+
+
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ contentId: string }> },

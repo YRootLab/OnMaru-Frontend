@@ -1,5 +1,5 @@
-// TourAPI 전체 데이터 파이프라인 빌드 스크립트
-// 실행: npm run build:data [-- --with-nearby] [-- --villages-only] [-- --stays-only] [-- --limit=20] [-- --dry-run]
+
+
 
 import { mkdir, writeFile, readFile } from 'node:fs/promises';
 import {
@@ -68,19 +68,19 @@ const BADGE_PRIORITY = {
 };
 
 const BADGE_RULES = [
-  // ─── 지정·인증 (신뢰도) ───────────────
+
   { badge: '세계유산',   keywords: ['세계유산', '유네스코', 'UNESCO'] },
   { badge: '국가지정',   keywords: ['국보', '보물', '사적', '명승'] },
   { badge: '민속마을',   keywords: ['중요민속문화재', '국가민속문화재', '민속마을'] },
   { badge: '시도지정',   keywords: ['시도지정', '유형문화재', '기념물'] },
 
-  // ─── 시대 ───────────────────────────
+
   { badge: '조선시대',   keywords: ['조선', '이조'] },
   { badge: '고려시대',   keywords: ['고려'] },
   { badge: '근대건축',   keywords: ['일제강점기', '근대', '개항'] },
   { badge: '600년',     keywords: ['600년', '육백년'] },
 
-  // ─── 건축 유형 ───────────────────────
+
   { badge: '고택',      keywords: ['고택', '종택', '종가'] },
   { badge: '초가',      keywords: ['초가', '초가집', '초가지붕'] },
   { badge: '기와집',    keywords: ['기와집', '와가'] },
@@ -88,7 +88,7 @@ const BADGE_RULES = [
   { badge: '정자·누각',  keywords: ['정자', '누각', '누정'] },
   { badge: '사당',      keywords: ['사당', '재실'] },
 
-  // ─── 경관 ───────────────────────────
+
   { badge: '돌담길',    keywords: ['돌담', '담장', '토담'] },
   { badge: '한옥골목',  keywords: ['골목', '골목길'] },
   { badge: '강변',      keywords: ['강변', '낙동강', '섬진강', '금강', '하천'] },
@@ -96,7 +96,7 @@ const BADGE_RULES = [
   { badge: '바다',      keywords: ['바다', '해변', '해안'] },
   { badge: '전통정원',  keywords: ['정원', '원림', '연못', '정원'] },
 
-  // ─── 체험·활동 ───────────────────────
+
   { badge: '숙박가능',  keywords: ['숙박', '민박', '한옥스테이', '체험숙박'] },
   { badge: '전통체험',  keywords: ['체험', '체험관', '체험프로그램'] },
   { badge: '공예',      keywords: ['공예', '도자기', '한지', '옻칠', '장인'] },
@@ -106,16 +106,16 @@ const BADGE_RULES = [
   { badge: '공연',      keywords: ['공연', '판소리', '국악', '풍물'] },
   { badge: '축제',      keywords: ['축제', '행사'] },
 
-  // ─── 촬영·미디어 ─────────────────────
+
   { badge: '드라마촬영', keywords: ['드라마', '영화', '촬영지', '로케이션'] },
   { badge: '포토스팟',  keywords: ['사진', '전망', '경치', '야경'] },
 
-  // ─── 접근성·편의 ─────────────────────
+
   { badge: '도심접근',  keywords: ['도심', '시내', '역에서', '도보'] },
   { badge: '무장애',    keywords: ['휠체어', '무장애', '경사로'] },
   { badge: '주차가능',  keywords: ['주차장', '주차'] },
 
-  // ─── 규모 ───────────────────────────
+
   { badge: '대규모',    keywords: ['최대', '가장 큰', '수백 채', '군락'] },
   { badge: '보존마을',  keywords: ['원형 보존', '집성촌', '동성마을'] },
 ];
@@ -129,9 +129,9 @@ const BRACKET_BADGE = {
 };
 const MAX_BADGES = 6;
 
-// ─────────────────────────────────────────────
-// 헬퍼 함수
-// ─────────────────────────────────────────────
+
+
+
 
 export function regionOf(areaCode, addr) {
   const byCode = AREA[Number(areaCode)];
@@ -187,7 +187,7 @@ export function toSummary(overview) {
   return first.length > 60 ? `${first.slice(0, 59)}…` : first;
 }
 
-/** 하버사인 공식을 이용한 두 좌표 간 거리 계산 (km) */
+
 export function getDistanceKm(lat1, lng1, lat2, lng2) {
   if (!lat1 || !lng1 || !lat2 || !lng2) return Infinity;
   const R = 6371;
@@ -201,9 +201,9 @@ export function getDistanceKm(lat1, lng1, lat2, lng2) {
   return R * c;
 }
 
-// ─────────────────────────────────────────────
-// 메인 스크립트
-// ─────────────────────────────────────────────
+
+
+
 
 async function loadCuration() {
   try {
@@ -239,9 +239,9 @@ async function main() {
   const excludedSet = new Set(curation.excludeIds.map(String));
   const errors = [];
 
-  // ─────────────────────────────────────────────
-  // STEP 1 — 마을 수집
-  // ─────────────────────────────────────────────
+
+
+
   let villageItems = [];
   if (!staysOnly) {
     console.log('[STEP 1] 마을 키워드 수집 중...');
@@ -267,7 +267,7 @@ async function main() {
       }
     }
 
-    // TourAPI 4.0 카테고리 기반 수집 (궁궐 A02010300, 고택 A02010100, 한옥마을 A02010800)
+
     const categoryConfigs = [CATEGORY_MAPPINGS.PALACE, CATEGORY_MAPPINGS.HERITAGE_HOUSE, CATEGORY_MAPPINGS.VILLAGE];
     for (const cfg of categoryConfigs) {
       try {
@@ -283,7 +283,7 @@ async function main() {
       }
     }
 
-    // includeIds 강제 편입
+
     for (const incId of curation.includeIds.map(String)) {
       if (!excludedSet.has(incId) && !byId.has(incId)) {
         byId.set(incId, { contentid: incId, __forced: true });
@@ -295,15 +295,15 @@ async function main() {
     console.log(`  → 총 ${villageItems.length}개 마을 후보 확정\n`);
   }
 
-  // ─────────────────────────────────────────────
-  // STEP 2 — 한옥 숙소 수집
-  // ─────────────────────────────────────────────
+
+
+
   let stayItems = [];
   if (!villagesOnly) {
     console.log('[STEP 2] 한옥 숙소 수집 중...');
     const byId = new Map();
 
-    // searchStay 우선 시도
+
     try {
       const stayJson = await searchStay({ hanok: '1' });
       const items = itemsOf(stayJson);
@@ -317,7 +317,7 @@ async function main() {
       errors.push({ step: 'STEP 2', target: 'searchStay', error: err.message });
     }
 
-    // searchKeyword(contentTypeId=32) 병합
+
     for (const keyword of STAY_KEYWORDS) {
       try {
         const json = await searchKeyword(keyword, { contentTypeId: 32 });
@@ -340,9 +340,9 @@ async function main() {
     console.log(`  → 총 ${stayItems.length}개 숙소 후보 확정\n`);
   }
 
-  // ─────────────────────────────────────────────
-  // STEP 3 & 4 & 5 — 상세 보강 (마을 & 숙소)
-  // ─────────────────────────────────────────────
+
+
+
   console.log('[STEP 3~5] 상세 보강 및 시설/반려동물 정보 처리 중...');
   let enrichFailedCount = 0;
 
@@ -370,7 +370,7 @@ async function main() {
         let image = toHttps(detail.firstimage ?? item.firstimage);
         let copyright = null;
 
-        // 대표 이미지 없으면 detailImage 폴백 + 공공누리 저작권 정보
+
         if (!image) {
           try {
             const imgJson = await detailImage(id);
@@ -383,11 +383,11 @@ async function main() {
               };
             }
           } catch {
-            // 이미지 폴백 실패는 허용
+
           }
         }
 
-        // STEP 4 — 시설 정보 (숙소 전용)
+
         let introInfo = {};
         if (isStay) {
           try {
@@ -407,11 +407,11 @@ async function main() {
               scalelodging: stripTags(intro.scalelodging),
             };
           } catch {
-            // Intro 실패 허용
+
           }
         }
 
-        // STEP 5 — 반려동물 정보
+
         let petInfo = { petFriendly: false };
         try {
           const petJson = await detailPetTour(id);
@@ -424,7 +424,7 @@ async function main() {
             };
           }
         } catch {
-          // 반려동물 정보 실패 무시
+
         }
 
         const type = isStay ? '숙소' : classifyType(region, addr, name, curation.villageTypes?.[id]);
@@ -469,9 +469,9 @@ async function main() {
     process.exit(1);
   }
 
-  // ─────────────────────────────────────────────
-  // STEP 6 — 주변 정보 (--with-nearby)
-  // ─────────────────────────────────────────────
+
+
+
   const enrichNearby = async (item) => {
     if (!withNearby || !item.lat || !item.lng) return { stays: [], attractions: [], restaurants: [] };
     const fetchCategory = async (contentTypeId) => {
@@ -496,9 +496,9 @@ async function main() {
     };
   };
 
-  // ─────────────────────────────────────────────
-  // STEP 7 — 이 달의 축제
-  // ─────────────────────────────────────────────
+
+
+
   console.log('[STEP 7] 이 달의 축제 수집 중...');
   let filteredFestivals = [];
   try {
@@ -514,7 +514,7 @@ async function main() {
       const fLng = Number(fest.mapx);
       if (!Number.isFinite(fLat) || !Number.isFinite(fLng)) continue;
 
-      // 한옥마을 좌표 반경 10km 이내 확인
+
       const isNearbyVillage = processedVillages.some(
         (v) => getDistanceKm(v.lat, v.lng, fLat, fLng) <= 10
       );
@@ -537,9 +537,9 @@ async function main() {
     errors.push({ step: 'STEP 7', error: err.message });
   }
 
-  // ─────────────────────────────────────────────
-  // STEP 9 — 이 달의 큐레이션 (12개월치)
-  // ─────────────────────────────────────────────
+
+
+
   console.log('[STEP 9] 12개월 큐레이션 생성 중...');
   const pool = [...processedVillages, ...processedStays].filter(
     (item) => item.overview.length >= 150 && item.hasImage
@@ -547,7 +547,7 @@ async function main() {
 
   const monthlyCurations = Array.from({ length: 12 }, (_, monthIdx) => {
     const month = monthIdx + 1;
-    // 결정적 오프셋 선택
+
     const selected = [];
     const usedRegions = new Set();
     let offset = (monthIdx * 3) % pool.length;
@@ -565,9 +565,9 @@ async function main() {
     };
   });
 
-  // ─────────────────────────────────────────────
-  // 통계 및 메타 생성
-  // ─────────────────────────────────────────────
+
+
+
   const stats = {
     villagesByType: processedVillages.reduce((acc, v) => ({ ...acc, [v.type]: (acc[v.type] ?? 0) + 1 }), {}),
     villagesByRegion: processedVillages.reduce((acc, v) => ({ ...acc, [v.region]: (acc[v.region] ?? 0) + 1 }), {}),
@@ -582,9 +582,9 @@ async function main() {
     errorCount: errors.length,
   };
 
-  // ─────────────────────────────────────────────
-  // 출력 파일 저장
-  // ─────────────────────────────────────────────
+
+
+
   if (dryRun) {
     console.log('\n--dry-run 실행: 저장 과정 생략');
     console.log('메타:', JSON.stringify(meta, null, 2));
@@ -605,7 +605,7 @@ async function main() {
   await writeFile(`${OUT_DIR}/festivals.json`, `${JSON.stringify(filteredFestivals, null, 2)}\n`);
   await writeFile(ERRORS_PATH, `${JSON.stringify(errors, null, 2)}\n`);
 
-  // 개별 파일 저장 (주변 정보 포함)
+
   console.log('개별 상세 파일(village/{id}.json, stay/{id}.json) 저장 중...');
   for (const v of processedVillages) {
     const nearby = await enrichNearby(v);
@@ -621,27 +621,27 @@ async function main() {
   console.log(`  · API 총 호출수: ${meta.apiCalls.totalCalls}회`);
 }
 
-// ─────────────────────────────────────────────
-// 자체 검증 (API 호출 없음)
-// 실행: node scripts/build-data.mjs --self-check
-// ─────────────────────────────────────────────
+
+
+
+
 async function selfCheck() {
   const { strict: assert } = await import('node:assert');
 
-  // 지역
+
   assert.equal(regionOf(37, ''), '전북');
   assert.equal(regionOf('', '충청남도 논산시 연산면'), '충남', 'areacode 없으면 주소 폴백');
   assert.equal(regionOf('', '강원특별자치도 철원군'), '강원', '긴 접두사 우선');
   assert.equal(regionOf('', '전북 순창군 백산리'), '전북', '축약형 주소');
   assert.equal(regionOf('', '알수없는곳 어딘가'), '');
 
-  // 유형
+
   assert.equal(classifyType('서울', '서울특별시 종로구', '북촌한옥마을'), '도심형');
   assert.equal(classifyType('전북', '전북 전주시 완산구', '전주한옥마을'), '도심형', '전주는 예외적으로 도심형');
   assert.equal(classifyType('경남', '경상남도 함양군', '개평한옥마을'), '체험형');
   assert.equal(classifyType('경남', '경상남도 함양군', '개평한옥마을', '집성촌형'), '집성촌형', 'curation 우선');
 
-  // 제목 대괄호 파싱
+
   assert.deepEqual(parseTitle('안동 하회마을 [유네스코 세계유산]'), { name: '안동 하회마을', bracketBadges: ['세계유산'] });
   assert.deepEqual(parseTitle('전북 전주 한옥마을 [슬로시티]').bracketBadges, ['슬로시티']);
   assert.deepEqual(parseTitle('마을 [국가민속문화재]').bracketBadges, ['민속마을']);
@@ -650,32 +650,32 @@ async function selfCheck() {
   assert.equal(parseTitle('북촌한옥마을').name, '북촌한옥마을', '대괄호 없으면 그대로');
   assert.equal(parseTitle('가 [X] 나').name, '가 나', '제거 후 공백 정리');
 
-  // 뱃지 — 우선순위 내림차순, 중복 제거
+
   assert.deepEqual(parseBadges('조선시대 사적으로 지정된 고택, 돌담길'), ['국가지정', '고택', '조선시대', '돌담길']);
   assert.deepEqual(parseBadges('마을', ['세계유산']), ['세계유산'], '대괄호 유래 뱃지 병합');
   assert.deepEqual(parseBadges('유네스코 세계유산', ['세계유산']), ['세계유산'], '중복 제거');
   assert.deepEqual(parseBadges('마을', [], {}, ['신조성마을']), ['신조성마을'], 'curation.badges 수동 부여');
-  // '조성'을 키워드로 쓰면 북촌("조선시대에 조성된")·외암("저잣거리가 조성되어")이 전부 오분류된다
+
   assert.ok(!parseBadges('북촌은 조선시대에 조성된 양반층 주거지').includes('신조성마을'), "'조성'만으로는 신조성마을이 붙지 않는다");
   assert.equal(parseBadges('국가지정 사적 고택 조선 돌담 체험 유네스코 신축').length, MAX_BADGES, `최대 ${MAX_BADGES}개`);
 
-  // 숙소 시설 정보 → 뱃지
+
   assert.ok(parseBadges('한옥', [], { chkcooking: '가능' }).includes('취사가능'));
   assert.ok(parseBadges('한옥', [], { barbecue: '가능' }).includes('바베큐'));
   assert.ok(parseBadges('한옥', [], { petFriendly: true }).includes('반려동물'));
   assert.deepEqual(parseBadges('한옥', [], { chkcooking: '불가' }), [], '불가면 안 붙음');
 
-  // 요약
+
   assert.equal(toSummary('<b>북촌</b>은 아름답다. 두 번째 문장.'), '북촌은 아름답다.');
   assert.equal(toSummary(''), '');
   assert.equal(toSummary(`${'가'.repeat(80)}.`).length, 60, '60자 제한');
 
-  // 거리 — 서울시청↔부산시청 약 325km
+
   assert.equal(Math.round(getDistanceKm(37.5665, 126.978, 35.1796, 129.0756)), 325);
   assert.equal(getDistanceKm(37.5, 127.0, 37.5, 127.0), 0, '같은 좌표는 0');
   assert.equal(getDistanceKm(null, 127.0, 37.5, 127.0), Infinity, '좌표 없으면 Infinity');
 
-  // 안전 파싱
+
   assert.deepEqual(itemsOf({ response: { body: { items: '' } } }), [], "items가 ''로 오는 경우");
   assert.deepEqual(itemsOf({ response: { body: { items: { item: { a: 1 } } } } }), [{ a: 1 }], '단건은 배열 아님');
 

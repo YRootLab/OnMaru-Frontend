@@ -1,5 +1,5 @@
-// Synthesized Web Audio API sound effects for traditional seal stamping and map interaction.
-// Zero external assets required — instantaneous, responsive, and lightweight.
+
+
 
 class StampAudioManager {
   private ctx: AudioContext | null = null;
@@ -18,9 +18,9 @@ class StampAudioManager {
     return this.ctx;
   }
 
-  /**
-   * 전통 목조 인장 압인음 (묵직하고 울림 있는 낙인 타격 사운드)
-   */
+
+
+
   playStampSound(): void {
     const ctx = this.getContext();
     if (!ctx) return;
@@ -28,7 +28,7 @@ class StampAudioManager {
     try {
       const now = ctx.currentTime;
 
-      // 1. 목재 타격 저음 공명 (Thump body)
+
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sine';
@@ -44,7 +44,7 @@ class StampAudioManager {
       osc.start(now);
       osc.stop(now + 0.25);
 
-      // 2. 인주 밀착 딱음 (Transient click)
+
       const clickOsc = ctx.createOscillator();
       const clickGain = ctx.createGain();
       clickOsc.type = 'triangle';
@@ -60,18 +60,18 @@ class StampAudioManager {
       clickOsc.start(now);
       clickOsc.stop(now + 0.08);
 
-      // 3. 모바일 진동 햅틱
+
       if (typeof navigator !== 'undefined' && navigator.vibrate) {
         navigator.vibrate([35, 20, 60]);
       }
     } catch {
-      // AudioContext failure gracefully ignored
+
     }
   }
 
-  /**
-   * 지도 권역 선택 및 칩 탭 시 은은한 대나무/풍경 소리 틱
-   */
+
+
+
   playMapClickSound(): void {
     const ctx = this.getContext();
     if (!ctx) return;
@@ -82,7 +82,7 @@ class StampAudioManager {
       const gain = ctx.createGain();
 
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(587.33, now); // D5
+      osc.frequency.setValueAtTime(587.33, now);
       osc.frequency.exponentialRampToValueAtTime(440, now + 0.1);
 
       gain.gain.setValueAtTime(0.18, now);
@@ -98,7 +98,7 @@ class StampAudioManager {
         navigator.vibrate(15);
       }
     } catch {
-      // AudioContext failure gracefully ignored
+
     }
   }
 }

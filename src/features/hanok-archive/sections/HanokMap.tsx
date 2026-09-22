@@ -8,7 +8,7 @@ import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
 import type { Village } from '@/features/hanok-archive/types';
 import { useViewportActivation } from '@/shared/hooks/useViewportActivation';
 
-// Dynamic import for Kakao map component (client side only)
+
 const HanokInteractiveMapFrame = dynamic(() => import('./HanokInteractiveMapFrame'), {
   ssr: false,
   loading: () => (
@@ -20,7 +20,7 @@ const HanokInteractiveMapFrame = dynamic(() => import('./HanokInteractiveMapFram
 
 const Section = styled.section``;
 
-/* 프레임과 같은 높이여야 지도가 뜨는 순간 아래 내용이 튀지 않는다. */
+
 const MapLoadingState = styled.div`
   min-height: clamp(360px, 60vh, 580px);
   background: #ffffff;
@@ -36,10 +36,10 @@ const MapLoadingState = styled.div`
   }
 `;
 
-/*
-  580px 고정이었다. 375×667 기기에서 지도 하나가 뷰포트의 87%를 먹어, 스크롤을 해도
-  지도만 보이는 구간이 길었다. 큰 화면에서는 그대로 두고 작은 화면에서만 줄인다.
-*/
+
+
+
+
 const MapWrapper = styled.div`
   position: relative;
   height: clamp(360px, 60vh, 580px);

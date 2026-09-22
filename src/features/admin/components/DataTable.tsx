@@ -1,8 +1,8 @@
 'use client';
 
-// ============================================================
-// 재사용 범용 테이블 (src/admin/components/DataTable.tsx)
-// ============================================================
+
+
+
 
 import React from 'react';
 import { meok, palette } from '@/design-system/tokens';

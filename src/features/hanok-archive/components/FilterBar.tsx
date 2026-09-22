@@ -8,24 +8,24 @@ import { meok, palette, surface , fontSize } from '@/design-system/tokens';
 import { STAY_TYPE, type Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
 
-/*
-  유형 값은 문자열 그대로다.
 
-  예전에는 유니온으로 후보를 못박아 뒀지만 뒤에 `| string`이 붙어 있어 실제로는
-  아무 문자열이나 통과했다 — 타입이 거짓말을 하고 있었다.
-*/
+
+
+
+
+
 export type VillageTypeFilter = string;
 
-/** 유형 바는 후보가 둘 이상 있을 때만 의미가 있다. */
+
 const MIN_TYPES_TO_SHOW = 2;
 
-/*
-  이보다 적게 걸리는 태그는 세우지 않는다.
 
-  뱃지는 제목과 주소만 보고 붙는다(TourAPI 목록 응답에 설명이 없다). 그래서 한두 곳에만
-  걸리는 태그가 생기는데, 1곳짜리 칩은 거르는 장치가 아니라 그냥 라벨이다. 누르면
-  화면이 거의 비므로 고장으로 읽힌다.
-*/
+
+
+
+
+
+
 const MIN_BADGE_COUNT = 3;
 
 const Wrapper = styled.div`
@@ -35,16 +35,16 @@ const Wrapper = styled.div`
   gap: 16px;
 `;
 
-/*
-  1단: 찾는 줄.
 
-  707곳에서 한 곳을 찾는 길이 23쪽을 눈으로 넘기는 것뿐이었다. 지역은 지도와 스테이만
-  갖고 있어서, 바로 위 분포 섹션이 '경북 165곳'이라 말해 놓고 목록에서는 경북만
-  볼 수 없었다.
 
-  지역은 17개라 칩으로 늘어놓으면 한 줄을 다 먹는다. select는 네이티브라 모바일에서
-  기기 고유의 고르는 화면이 뜨고 키보드 조작도 그냥 된다 — 직접 만들 이유가 없다.
-*/
+
+
+
+
+
+
+
+
 const FindRow = styled.div`
   display: flex;
   align-items: center;
@@ -152,7 +152,7 @@ const RegionSelect = styled.select`
   }
 `;
 
-/* 2단: 건축/마을 유형 세그먼트 컨트롤 탭 */
+
 const SegmentScrollWrapper = styled.div`
   position: relative;
   width: 100%;
@@ -217,7 +217,7 @@ const SegmentLabel = styled.span`
   z-index: 1;
 `;
 
-/* 2단: 특징 태그 뱃지 바 */
+
 const BadgeContainer = styled.div`
   display: flex;
   align-items: center;
@@ -256,7 +256,7 @@ const BadgeList = styled.div`
   flex: 1;
 `;
 
-/* 칩 안의 개수. 색을 따로 주지 않고 흐리기만 해서 태그 이름을 가리지 않는다. */
+
 const BadgeCount = styled.span`
   margin-left: 5px;
   font-variant-numeric: tabular-nums;
@@ -381,38 +381,38 @@ export default function FilterBar({
     []
   );
 
-  /*
-    유형 목록은 데이터에서 뽑는다.
 
-    예전에는 '궁궐 한옥' '사대부 고택' 같은 후보를 손으로 적어 뒀는데, TourAPI가 주는
-    village.type 이 전부 '전통마을'로 바뀐 뒤로도 그 목록이 그대로 남아 있었다.
-    결과는 눌러도 0곳만 나오는 죽은 칩 일곱 개였다. 아래 태그 바와 같은 방식으로
-    실제 있는 값만 세운다.
-  */
+
+
+
+
+
+
+
   const availableTypes = useMemo(() => {
     const present = new Set<string>();
     for (const v of villages) {
-      // 그리드(getHanokGridPage)가 스테이를 걸러내므로 여기서도 빼야 한다.
-      // 넣어두면 눌러도 0곳만 나오는 칩이 다시 생긴다.
+
+
       if (!v.type || v.type === STAY_TYPE) continue;
       present.add(v.type);
     }
     return ['전체', ...[...present].sort((a, b) => a.localeCompare(b, 'ko'))];
   }, [villages]);
 
-  /*
-    태그마다 몇 곳인지 세어 둔다.
 
-    세계유산 1곳, 돌담길 2곳처럼 희박한 태그가 섞여 있어서, 개수를 안 적으면 눌러 본
-    뒤에야 한 곳뿐인 걸 알게 된다. 세는 모집단은 그리드와 같아야 한다 —
-    getHanokGridPage가 스테이를 빼므로 여기서도 뺀다. 안 그러면 적힌 수보다 적게 나온다.
-  */
-  /*
-    지역 목록도 수집분이 정한다.
 
-    17개 시도를 못 박아 두면 한 곳도 없는 지역이 목록에 남고, 고르면 빈 화면이 나온다.
-    스테이 섹션의 지역 탭이 그렇게 하드코딩이라 경북이 아예 빠져 있었다.
-  */
+
+
+
+
+
+
+
+
+
+
+
   const regions = useMemo(() => {
     const present = new Set<string>();
     for (const v of villages) {
@@ -469,7 +469,7 @@ export default function FilterBar({
         </RegionSelect>
       </FindRow>
 
-      {/* 2단: 건축/마을 유형 메인 세그먼트 탭 */}
+      {}
       {availableTypes.length >= MIN_TYPES_TO_SHOW + 1 && (
       <SegmentScrollWrapper>
         <SegmentScrollContainer>
@@ -498,7 +498,7 @@ export default function FilterBar({
       </SegmentScrollWrapper>
       )}
 
-      {/* 3단: 특징 태그 뱃지 필터 바 */}
+      {}
       {allBadges.length > 0 && (
         <BadgeContainer>
           <BadgeHeader>

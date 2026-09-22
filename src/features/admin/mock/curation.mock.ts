@@ -1,6 +1,6 @@
-// ============================================================
-// 관리자 큐레이션 Mock 데이터 (src/admin/mock/curation.mock.ts)
-// ============================================================
+
+
+
 
 import { CurationItem } from '@/features/admin/types';
 
@@ -19,7 +19,7 @@ export const CURATION_PRESET_BADGES = [
   '야경 명소',
 ];
 
-// 한옥마을 17개 전수
+
 export const mockVillages: CurationItem[] = [
   {
     id: 'vil-01',
@@ -244,7 +244,7 @@ export const mockVillages: CurationItem[] = [
   },
 ];
 
-// 한옥숙소 (총 172개 중 대표 30선)
+
 export const mockStays: CurationItem[] = Array.from({ length: 30 }).map((_, i) => {
   const types: ('URBAN' | 'CLAN' | 'EXPERIENCE')[] = ['URBAN', 'CLAN', 'EXPERIENCE'];
   const regions = ['서울 종로구', '전북 전주시', '경북 경주시', '경북 안동시', '강원 강릉시', '충남 공주시', '전남 순천시'];
@@ -273,7 +273,7 @@ export const mockStays: CurationItem[] = Array.from({ length: 30 }).map((_, i) =
   };
 });
 
-// 루트 (총 41개 중 대표 20선)
+
 export const mockRoutes: CurationItem[] = Array.from({ length: 20 }).map((_, i) => {
   const routeNames = [
     '종로 달빛 한옥 골목길 산책',

@@ -16,15 +16,15 @@ import {
 import { rampCss } from './HeatCanvas';
 import type { WarmthFilter } from '@/features/map/types';
 
-/**
- * 히트맵 범례 · 화면 요약 · 기간 창.
- *
- * 히트맵에 색을 칠해놓고 그 색이 무슨 뜻인지는 어디에도 적지 않았다.
- * 범례 없는 히트맵은 장식이지 데이터가 아니다.
- *
- * 겸사겸사 "지금 보고 있는 영역이 어떤가"를 한 줄로 요약한다.
- * 지도를 옮길 때마다 숫자가 따라 움직여서, 색이 실제로 데이터라는 것이 드러난다.
- */
+
+
+
+
+
+
+
+
+
 
 const Root = styled.div<{ $isDark: boolean }>`
   position: relative;
@@ -85,11 +85,11 @@ const Ramp = styled.div`
   gap: 5px;
 `;
 
-/*
-  바탕색을 깔고 그 위에 램프를 얹는다.
-  램프는 0에서만 완전히 투명하므로, 바탕이 그대로 비치는 자리는
-  "한적한 곳"이 아니라 "집계가 없는 곳"을 뜻한다.
-*/
+
+
+
+
+
 const RampBar = styled.div<{ $gradient: string }>`
   height: 8px;
   border-radius: 2px;
@@ -281,11 +281,11 @@ export default function WarmthLegend() {
   const { mode: colorMode } = useOnmaruTheme();
   const isDark = colorMode === 'dark';
 
-  /*
-    화면 안 온기만 센다.
-    center·level을 의존성에 두어 지도를 움직일 때마다 다시 센다 —
-    숫자가 따라 움직이는 것이 이 요약의 전부다.
-  */
+
+
+
+
+
   const stat = useMemo(() => {
     const scoped = filterWarmth(
       filterByPeriod(warmths, period),
@@ -298,7 +298,7 @@ export default function WarmthLegend() {
     return moodStatOf(
       scoped.filter((w) => bounds.contain(new window.kakao.maps.LatLng(w.lat, w.lng))),
     );
-    // center/level은 값 자체를 쓰진 않지만, 지도가 움직였다는 신호로 필요하다.
+
   }, [warmths, period, category, map, center, level]);
 
   const rampGradient = useMemo(() => rampCss(isDark), [isDark]);
@@ -309,7 +309,7 @@ export default function WarmthLegend() {
 
   return (
     <Root $isDark={isDark} aria-label="온기 히트맵 범례">
-      {/* 보기 모드 세그먼트 스위처: [시·군 행정별 | 원형 히트맵] */}
+      {}
       <ViewTypeSegment $isDark={isDark} role="tablist" aria-label="온기 표시 방식">
         <ViewTypeBtn
           type="button"

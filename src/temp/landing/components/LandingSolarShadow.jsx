@@ -18,12 +18,12 @@ const [START, END] = RANGE;
 
 const FONT = "'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, sans-serif";
 
-// ─────────────────────────────────────────
-// 색
-//
-// 배경이 크림(#F7EEDC)이라 글자는 전부 어두운 쪽에서 고른다.
-// 액센트는 주홍 하나로 통일했다 — 전에는 주홍과 금색이 한 화면에서 갈라져 있었다.
-// ─────────────────────────────────────────
+
+
+
+
+
+
 
 import { lightPalette, meok, surface } from '@/design-system/tokens';
 
@@ -34,18 +34,18 @@ const LINE = 'rgba(78, 89, 104, 0.14)';
 const ACCENT = lightPalette.juhong[500];
 const ACCENT_VIVID = lightPalette.juhong[500];
 
-/**
- * 계절별 온마루 세맨틱 토큰 매핑
- *
- * 토스가 파랑 하나만 브랜드 컬러로 남기고 나머지는 흰/회/차콜로 비우듯, 온마루는
- * 주황(juhong) 하나만 브랜드 컬러로 쓴다 — 겨울도 파랑(kobalt) 대신 같은 주황 계열의
- * 더 짙은 톤(juhong[800])으로 표현해 파랑이 화면에 섞이지 않게 한다. 여름의 밝은
- * juhong[500]과는 명도 차이만으로 계절을 구분한다.
- * - 봄 (spring): jangmi[500] (#D42058) / jangmi[50] (#FFF0F4)
- * - 여름 (summer): juhong[500] (#E85A18) / juhong[50] (#FFF0E6)
- * - 가을 (autumn): hwanggeum[500] (#C07808) / hwanggeum[50] (#FFF8E0)
- * - 겨울 (winter): juhong[800] (#A82E00) / juhong[200] (#FFCBA8)
- */
+
+
+
+
+
+
+
+
+
+
+
+
 const SEASON_ACCENTS = {
   spring: { primary: lightPalette.jangmi[500], bg: lightPalette.jangmi[50] },
   summer: { primary: lightPalette.juhong[500], bg: lightPalette.juhong[50] },
@@ -53,9 +53,9 @@ const SEASON_ACCENTS = {
   winter: { primary: lightPalette.juhong[800], bg: lightPalette.juhong[200] },
 };
 
-/**
- * 섹션 배경화면 (Section Background) 계절별 그라데이션 토큰 연동
- */
+
+
+
 const SEASON_STAGE_BG = {
   spring: `radial-gradient(ellipse 85% 70% at 50% 25%, ${lightPalette.jangmi[50]}FA 0%, ${lightPalette.juhong[50]}C8 45%, ${surface.light.base} 100%)`,
   summer: `radial-gradient(ellipse 85% 70% at 50% 25%, ${lightPalette.hwanggeum[50]}FA 0%, ${lightPalette.juhong[50]}B8 45%, ${surface.light.base} 100%)`,
@@ -63,9 +63,9 @@ const SEASON_STAGE_BG = {
   winter: `radial-gradient(ellipse 85% 70% at 50% 25%, ${lightPalette.juhong[200]}FA 0%, ${lightPalette.cheongrok[50]}B8 45%, ${surface.light.base} 100%)`,
 };
 
-/**
- * 절기 여덟. 값은 서울 계동(37.58°N) 정오 기준이고 solarShadow.json이 갖는다.
- */
+
+
+
 const STOPS = SHADOW.stops.map((stop) => ({
   ...stop,
   dayOfYear: getDayOfYear(new Date(2026, stop.month - 1, stop.day)),
@@ -75,7 +75,7 @@ const STOPS = SHADOW.stops.map((stop) => ({
 const LAST = STOPS.length - 1;
 const RETURN_MS = 600;
 
-/** 오늘에 가장 가까운 절기. 연중 며칠째인지로 고른다. */
+
 function stopIndexForDay(day) {
   let best = 0;
 
@@ -86,9 +86,9 @@ function stopIndexForDay(day) {
   return best;
 }
 
-// ─────────────────────────────────────────
-// 스타일
-// ─────────────────────────────────────────
+
+
+
 
 const riseIn = keyframes`
   from { opacity: 0; transform: translate(-50%, 6px); }
@@ -104,10 +104,10 @@ const Stage = styled.section`
   background: transparent;
 `;
 
-/**
- * 상단 7vh부터. 지붕은 세로 35% 언저리에서 시작하므로 이 띠가 그 위에서 끝나야 한다.
- * 모바일은 3D가 상단 55%를 다 쓰는 터라 글이 아래 45%로 내려간다.
- */
+
+
+
+
 const Copy = styled.div`
   position: absolute;
   top: 5vh;
@@ -146,7 +146,7 @@ const TermTag = styled.p`
   }
 `;
 
-/** 문장이 길어져 어색하게 꺾이지 않도록 정갈하게 한 줄 단열 배치한다. */
+
 const Headline = styled.h2`
   margin: 0 auto;
   font-size: clamp(22px, 3.2vw, 44px);
@@ -190,7 +190,7 @@ const Stat = styled.div`
   word-break: keep-all !important;
 `;
 
-/** '1m당 그림자', '남중고도' 등의 수치 타이틀 무조건 한 줄 고정 */
+
 const StatLabel = styled.dt`
   font-size: clamp(11px, 1.1vw, 13px);
   font-weight: 500;
@@ -229,7 +229,7 @@ const Note = styled.p`
   pointer-events: none !important;
 `;
 
-/** 카드 바닥의 잔글씨. 상단 카피에 두면 지붕과 겹쳐 읽히지 않는다. */
+
 const Basis = styled.p`
   display: flex;
   align-items: center;
@@ -286,10 +286,10 @@ const Controller = styled.div`
   }
 `;
 
-/**
- * 흰 카드 하나.
- * 3D 모델 및 그림자 하단부를 절대 침범하지 않도록 슬림하고 밀도 높은 반응형 카드 구성.
- */
+
+
+
+
 const Card = styled.div`
   position: relative;
   padding: 10px 18px 6px;
@@ -302,7 +302,7 @@ const Card = styled.div`
   }
 `;
 
-/** 숫자를 풀어 쓴 한 줄. 값과 문장이 늘 같은 절기를 말하도록 카드 안에 함께 둔다. */
+
 const StatNote = styled.dd`
   align-self: center;
   margin: 0 0 0 4px;
@@ -328,7 +328,7 @@ const ReachText = styled.p`
   text-wrap: balance;
 `;
 
-/** 통계 오른쪽 끝에 붙어, 손을 대면 조용히 사라진다. */
+
 const Hint = styled.p`
   margin: 0 0 0 auto;
   font-size: 12px;
@@ -337,7 +337,7 @@ const Hint = styled.p`
   transition: opacity 0.4s ease-out;
 `;
 
-/** 손잡이를 잡는 판. 실제 눈금은 안쪽 레일이 갖는다. */
+
 const Track = styled.div`
   position: relative;
   height: 28px;
@@ -466,23 +466,23 @@ const BackToToday = styled.button`
   }
 `;
 
-// ─────────────────────────────────────────
-// LandingSolarShadow
-// ─────────────────────────────────────────
+
+
+
 
 export default function LandingSolarShadow({ progress }) {
   const reduced = usePrefersReducedMotion();
   const { latitude, cityName, locationState, isSecure, requestLocation } = useUserLocation();
   const setSun = useSceneStore((s) => s.setSun);
 
-  // 오늘에 가장 가까운 절기. 손대지 않았으면 여기가 기준점이다.
+
   const baseIndex = useMemo(() => stopIndexForDay(getDayOfYear(new Date())), []);
 
-  /**
-   * null이면 아직 손대지 않은 상태다.
-   * 기준값을 state에 복사해두면 그것을 다시 밀어넣을 effect가 필요해진다.
-   * 손댄 값만 들고 있으면 그 동기화가 통째로 사라진다.
-   */
+
+
+
+
+
   const [userIndex, setUserIndex] = useState(null);
 
   const index = userIndex ?? baseIndex;
@@ -495,11 +495,11 @@ export default function LandingSolarShadow({ progress }) {
   const pair = view.pairId ? STOPS.find((stop) => stop.id === view.pairId) : null;
   const inRange = progress >= START && progress < END;
 
-  /*
-    고정 캔버스의 주광에 이 절기의 남중고도를 넘긴다.
-    3D 그림자 길이는 저쪽에서 높이 / tan(고도)로 떨어지므로, 화면의 그림자와
-    위에 적힌 숫자가 같은 값에서 나온다. 구간 밖에서는 놓아준다.
-  */
+
+
+
+
+
   useEffect(() => {
     setSun(inRange ? { altitude: view.altitude, value: view.seasonValue } : null);
   }, [inRange, view.altitude, view.seasonValue, setSun]);
@@ -522,7 +522,7 @@ export default function LandingSolarShadow({ progress }) {
     setUserIndex(Math.min(LAST, Math.max(0, Math.round(next))));
   };
 
-  /** 끄는 자리에서 가장 가까운 칸으로 붙는다. */
+
   const indexFromX = (clientX, element) => {
     const rect = element.getBoundingClientRect();
     return clamp01((clientX - rect.left) / Math.max(1, rect.width)) * LAST;
@@ -558,14 +558,14 @@ export default function LandingSolarShadow({ progress }) {
     }
   };
 
-  /**
-   * 기준 절기로 한 칸씩 걸어 돌아간다.
-   * 한 번에 뛰면 그림자가 순간이동하므로 중간 절기를 밟고 지나간다.
-   */
+
+
+
+
   const returnToBase = () => {
     cancelAnimationFrame(tween.current);
 
-    // 모션을 줄인 사용자에게는 애니메이션 자체가 방해다. 바로 놓는다.
+
     if (reduced) {
       setUserIndex(null);
       return;

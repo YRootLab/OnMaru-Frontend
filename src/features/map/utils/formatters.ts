@@ -1,15 +1,15 @@
-/**
- * 문자열을 안전한 HTTPS URL로 변환합니다.
- */
+
+
+
 export function toHttps(url?: string | null): string | null {
   const s = String(url ?? '').trim();
   if (!s) return null;
   return s.startsWith('http://') ? `https://${s.slice(7)}` : s;
 }
 
-/**
- * HTML 태그 제거 및 특수문자 디코딩 정제 유틸리티
- */
+
+
+
 export function sanitizeHtml(raw?: string | null): string {
   if (!raw) return '';
   return raw
@@ -24,10 +24,10 @@ export function sanitizeHtml(raw?: string | null): string {
     .trim();
 }
 
-/**
- * 광역 시/도 명칭을 친근하고 읽기 쉽게 축약합니다.
- * 예: 전북특별자치도 완산구 -> 전북 완산구, 대전광역시 중구 -> 대전 중구
- */
+
+
+
+
 export function formatRegionAddress(r1?: string, r2?: string): string {
   if (!r1 && !r2) return '대한민국';
   let shortR1 = r1 ?? '';
@@ -52,22 +52,22 @@ export function formatRegionAddress(r1?: string, r2?: string): string {
   return [shortR1, r2].filter(Boolean).join(' ');
 }
 
-/**
- * 미터(m) 거리를 사용자 친화적인 포맷(m / km)으로 변환합니다.
- */
+
+
+
 export function formatDistance(meters?: number | null): string {
   if (meters === null || meters === undefined || isNaN(meters)) return '';
   if (meters < 1000) return `${Math.round(meters)}m`;
   return `${(meters / 1000).toFixed(1)}km`;
 }
 
-/**
- * HTML 텍스트 노드에 넣기 전 이스케이프.
- *
- * 지도 오버레이는 카카오 CustomOverlay 특성상 innerHTML로 조립한다.
- * TourAPI 응답(장소명·주소)과 사용자가 쓴 온기 글이 그대로 들어가므로
- * 여기를 거치지 않으면 따옴표 하나로 마크업이 깨지고 스크립트도 실행된다.
- */
+
+
+
+
+
+
+
 export function escapeHtml(raw?: string | null): string {
   return String(raw ?? '')
     .replace(/&/g, '&amp;')
@@ -77,17 +77,17 @@ export function escapeHtml(raw?: string | null): string {
     .replace(/'/g, '&#39;');
 }
 
-/** 속성값 자리에 넣을 URL. javascript: 등 스킴을 막고 따옴표를 이스케이프한다. */
+
 export function safeImageUrl(url?: string | null): string {
   const s = String(url ?? '').trim();
   if (!/^https?:\/\//i.test(s)) return '';
   return escapeHtml(s);
 }
 
-/**
- * ISO 8601 날짜를 친근한 상대 시간 또는 날짜 문자열로 변환합니다.
- * 예: 방금 전, 3분 전, 2시간 전, 3일 전, 2주 전, 2026.09.03
- */
+
+
+
+
 export function formatRelativeTime(isoString?: string | null): string {
   if (!isoString) return '';
   const date = new Date(isoString);
@@ -113,4 +113,3 @@ export function formatRelativeTime(isoString?: string | null): string {
   const d = String(date.getDate()).padStart(2, '0');
   return `${y}.${m}.${d}`;
 }
-

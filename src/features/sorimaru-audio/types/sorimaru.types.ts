@@ -1,4 +1,4 @@
-/** 시네마틱 공간 오디오 투어 경유지 정보 */
+
 export interface TourWaypoint {
   id: string;
   timeSec: number;
@@ -10,7 +10,7 @@ export interface TourWaypoint {
   description?: string;
 }
 
-/** 오디 오디오 이야기 항목 정보 */
+
 export interface SorimaruStoryItem {
   tid: string;
   tlid: string;
@@ -36,7 +36,7 @@ export interface SorimaruStoryItem {
   waypoints?: TourWaypoint[];
 }
 
-/** 오디 이야기 페이지네이션 결과 정보 */
+
 export interface SorimaruStoryPage {
   items: SorimaruStoryItem[];
   pageNo: number;
@@ -45,14 +45,14 @@ export interface SorimaruStoryPage {
   source: 'api' | 'mock';
 }
 
-/** 자막 대본 라인 정보 */
+
 export interface ScriptLine {
   id: number;
   timeSec: number;
   text: string;
 }
 
-/** 오디 카테고리 분류 */
+
 export type SorimaruCategory =
   | '전체'
   | '한옥/고택'
@@ -66,7 +66,7 @@ export type SorimaruCategory =
   | '자연/둘레길'
   | string;
 
-/** 주요 권역 분류 */
+
 export type SorimaruRegion =
   | '경주'
   | '전주'
@@ -76,7 +76,7 @@ export type SorimaruRegion =
   | '부산'
   | '대구';
 
-/** 오디 API 서비스 인터페이스 */
+
 export interface ISorimaruApiService {
   getStoryList(category?: SorimaruCategory | string, query?: string): Promise<SorimaruStoryItem[]>;
   getNearbyStories(mapX?: string | number, mapY?: string | number, radius?: number): Promise<SorimaruStoryItem[]>;

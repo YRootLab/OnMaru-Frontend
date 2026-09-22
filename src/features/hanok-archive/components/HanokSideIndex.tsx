@@ -5,12 +5,12 @@ import styled from '@emotion/styled';
 import { meok, lightPalette } from '@/design-system/tokens';
 import { HANOK_REVEAL_SECTIONS } from '@/features/hanok-archive/hanokSectionReveal';
 
-/*
-  본문(SectionContainer/IntroStage)은 항상 1140px로 가운데 정렬된다. 1366~1512px대
-  노트북에서도 보이게 하려면 왼쪽 여백이 80~190px밖에 없다고 보고 짜야 한다 — 본문
-  가운데 기준으로 위치를 계산하지 않고 뷰포트 왼쪽 끝에서 고정 거리(20px)만 떼어
-  두고, 라벨도 108px 폭 안에서 줄바꿈되게 해 절대 본문을 침범하지 않는다.
-*/
+
+
+
+
+
+
 const SIDE_INDEX_SECTIONS = [
   { id: 'hanok-kculture-themes', label: '스크린 속 한옥' },
   { id: HANOK_REVEAL_SECTIONS.structure, label: '3D 구조 & 일조' },
@@ -81,10 +81,10 @@ const IndexDash = styled.span<{ $active: boolean }>`
   transition: width 0.3s ease, opacity 0.3s ease;
 `;
 
-/**
- * 뷰포트 중앙의 얇은 띠(위아래 45%씩 접어 10%만 남긴다)를 지나는 섹션을 "지금 보는 중"으로
- * 삼는다. 여러 섹션이 동시에 걸치는 일은 드물지만, 그런 경우 선언 순서상 앞선 쪽을 우선한다.
- */
+
+
+
+
 export default function HanokSideIndex() {
   const [activeId, setActiveId] = useState<string>(SIDE_INDEX_SECTIONS[0].id);
   const [visible, setVisible] = useState(false);
@@ -114,8 +114,8 @@ export default function HanokSideIndex() {
     return () => observer.disconnect();
   }, []);
 
-  // 목차는 히어로(인트로)를 다 지나 "스크린 속 한옥"에 들어설 때부터 보여준다 — 히어로
-  // 위에 얹히면 제목/리드 문구와 겹쳐 산만해진다.
+
+
   useEffect(() => {
     const introEl = document.getElementById(HANOK_REVEAL_SECTIONS.intro);
     if (!introEl) return undefined;

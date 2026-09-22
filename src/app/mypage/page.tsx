@@ -1,8 +1,8 @@
 'use client';
 
-// ============================================================
-// 마이페이지 — 로그인 완료 확인 + 내 활동 (src/app/mypage/page.tsx)
-// ============================================================
+
+
+
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -75,7 +75,7 @@ export default function MyPage() {
   return (
     <div style={{ display: 'flex', justifyContent: 'center', padding: '64px 20px' }}>
       <div style={{ width: '100%', maxWidth: '480px', display: 'flex', flexDirection: 'column', gap: '40px' }}>
-        {/* 프로필 */}
+        {}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', textAlign: 'center' }}>
           <div
             style={{
@@ -122,14 +122,14 @@ export default function MyPage() {
           </button>
         </div>
 
-        {/* 화면 모드 */}
+        {}
         <SectionRow title="화면 모드" theme={theme}>
           <ThemeModeSwitch />
         </SectionRow>
 
         <MonthlyTimeline />
 
-        {/* 저장한 여정 (이야기길 — 실데이터 board) */}
+        {}
         <Section title={`저장한 여정 ${savedExplorations.length > 0 ? `(${savedExplorations.length})` : ''}`} theme={theme}>
           {savedExplorations.length === 0 ? (
             <EmptyState text="아직 저장한 여정이 없어요." linkHref="/" linkText="홈에서 여정 찾기" theme={theme} />
@@ -162,7 +162,7 @@ export default function MyPage() {
           )}
         </Section>
 
-        {/* 보관한 AI 여정 코스 (옛 계약) */}
+        {}
         <Section title={`보관한 AI 여정 코스 ${savedJourneys.length > 0 ? `(${savedJourneys.length})` : ''}`} theme={theme}>
           {savedJourneys.length === 0 ? (
             <EmptyState text="아직 보관한 맞춤 여정이 없어요." linkHref="/" linkText="홈에서 여정 짓기" theme={theme} />
@@ -232,7 +232,7 @@ export default function MyPage() {
           )}
         </Section>
 
-        {/* 마음에 담은 소리 */}
+        {}
         <Section title={`마음에 담은 소리 ${savedSounds.length > 0 ? `(${savedSounds.length})` : ''}`} theme={theme}>
           {savedSounds.length === 0 ? (
             <EmptyState text="소리마루에서 마음에 드는 소리를 담아보세요." linkHref="/sorimaru" linkText="소리마루 둘러보기" theme={theme} />
@@ -312,7 +312,7 @@ export default function MyPage() {
           )}
         </Section>
 
-        {/* 북마크한 장소 */}
+        {}
         <Section title={`북마크한 장소 ${bookmarks.length > 0 ? `(${bookmarks.length})` : ''}`} theme={theme}>
           {bookmarks.length === 0 ? (
             <EmptyState text="아직 북마크한 장소가 없어요." linkHref="/map" linkText="지도에서 장소 둘러보기" theme={theme} />
@@ -376,7 +376,7 @@ export default function MyPage() {
           )}
         </Section>
 
-        {/* 내가 남긴 온기 */}
+        {}
         <Section title={`내가 남긴 온기 ${myWarmths.length > 0 ? `(${myWarmths.length})` : ''}`} theme={theme}>
           {myWarmths.length === 0 ? (
             <EmptyState text="아직 남긴 온기 한줄평이 없어요." linkHref="/map" linkText="온기 남기러 가기" theme={theme} />
@@ -413,7 +413,7 @@ export default function MyPage() {
           )}
         </Section>
 
-        {/* 회원 탈퇴 */}
+        {}
         <div style={{ textAlign: 'center', borderTop: `1px solid ${c.border.subtle}`, paddingTop: '20px' }}>
           {confirmingDelete ? (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>

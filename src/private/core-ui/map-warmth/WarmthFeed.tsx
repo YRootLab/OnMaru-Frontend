@@ -43,7 +43,7 @@ import {
 } from './WarmthFeed.styles';
 
 
-/** 사용자가 요청한 14대 광역 권역 필터 옵션 */
+
 export const REGION_OPTIONS = [
   { id: 'all', label: '전국' },
   { id: '서울', label: '서울' },
@@ -104,16 +104,16 @@ export default function WarmthFeed() {
   const setSheetSnap = useMapStore((s) => s.setSheetSnap);
   const category = useMapStore((s) => s.category);
 
-  /*
-    피드는 지도와 같은 온기를 본다.
-    예전에는 지도가 seed(44건), 피드가 mock JSON(12건)을 따로 읽어서 같은 화면의
-    좌우가 서로 다른 장소를 말했다 — 지도엔 북촌 말풍선이 떠 있는데 피드에서
-    '서울'을 누르면 "기록이 없습니다"가 나왔다. 소스를 하나로 합친다.
-  */
+
+
+
+
+
+
   const allWarmths = useMapStore((s) => s.warmths);
   const period = useMapStore((s) => s.warmthPeriod);
 
-  /* 지도 범례에서 고른 기간 창을 피드도 그대로 따른다. */
+
   const warmths = useMemo(() => filterByPeriod(allWarmths, period), [allWarmths, period]);
 
   const [selectedRegion, setSelectedRegion] = useState('all');
@@ -161,7 +161,7 @@ export default function WarmthFeed() {
 
   const reviews = useMemo(() => warmths.map(toReview), [warmths]);
 
-  /** 온기가 가장 많이 쌓인 장소. 실제 집계라 근거를 그대로 화면에 적을 수 있다. */
+
   const topPlace = useMemo(() => {
     const scoped =
       selectedRegion === 'all'
@@ -184,7 +184,7 @@ export default function WarmthFeed() {
       };
     }
 
-    // 해당 지역에 온기가 아직 없는 경우 해당 권역의 대표 한옥/장소를 1위로 추천
+
     if (selectedRegion !== 'all') {
       const localItem = items.find((it) => regionOf(it.lat, it.lng) === selectedRegion);
       if (localItem) {
@@ -208,7 +208,7 @@ export default function WarmthFeed() {
         ? reviews
         : reviews.filter((r) => r.placeRegion === selectedRegion);
 
-    // 상단 분위기 카테고리 칩 필터 연동 (정취 분위기 또는 평점 기준)
+
     if (category === 'busy') {
       list = list.filter((r) => r.crowdMood === '북적' || r.mood >= 4);
     } else if (category === 'quiet') {
@@ -236,7 +236,7 @@ export default function WarmthFeed() {
 
   const REVIEWS_PER_PAGE = 6;
 
-  // 지역, 정렬, 카테고리 변경 시 1페이지로 리셋
+
   useEffect(() => {
     setCurrentPage(1);
   }, [selectedRegion, sortOrder, category]);
@@ -301,7 +301,7 @@ export default function WarmthFeed() {
           </SectionTitleGroup>
         </SectionHeader>
 
-        {/* 14대 광역 지역 선택 캐러셀 (좌우 화살표 포함) */}
+        {}
         <RegionCarouselWrapper>
           {canScrollLeft && (
             <RegionArrowBtn
@@ -390,7 +390,7 @@ export default function WarmthFeed() {
         </FeaturedPlaceArea>
       )}
 
-      {/* 날씨/날짜별 혼잡도 스크러버 (차트) */}
+      {}
       <ScrubberSection>
         <DateScrubber embedded />
       </ScrubberSection>

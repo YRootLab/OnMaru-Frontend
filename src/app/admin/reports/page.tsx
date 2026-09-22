@@ -1,8 +1,8 @@
 'use client';
 
-// ============================================================
-// 관리자 신고 처리 화면 (src/app/admin/reports/page.tsx)
-// ============================================================
+
+
+
 
 import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
@@ -41,7 +41,7 @@ export default function AdminReportsPage() {
     onConfirm: () => {},
   });
 
-  // 탭별 건수 계산
+
   const pendingCount = useMemo(
     () => reports.filter((r) => r.status === 'PENDING').length,
     [reports]
@@ -55,12 +55,12 @@ export default function AdminReportsPage() {
     [reports]
   );
 
-  // 현재 활성 탭 목록
+
   const currentReports = useMemo(() => {
     return reports.filter((r) => r.status === activeTab);
   }, [reports, activeTab]);
 
-  // 액션 핸들러들
+
   const handleHideReview = (report: ReportItem) => {
     setConfirmState({
       isOpen: true,
@@ -164,7 +164,7 @@ export default function AdminReportsPage() {
     });
   };
 
-  // 사유별 뱃지 스타일
+
   const getReasonColor = (reason: string) => {
     switch (reason) {
       case 'ABUSE':
@@ -184,7 +184,7 @@ export default function AdminReportsPage() {
         <Toast message={toastMessage} type="success" onClose={() => setToastMessage(null)} />
       )}
 
-      {/* 상단 탭 바 */}
+      {}
       <div
         style={{
           display: 'flex',
@@ -300,7 +300,7 @@ export default function AdminReportsPage() {
         </button>
       </div>
 
-      {/* 목록 리스트 */}
+      {}
       {currentReports.length === 0 ? (
         <div style={{ backgroundColor: '#FFFFFF', borderRadius: '14px', padding: '40px 20px', border: '1px solid rgba(78, 89, 104, 0.08)' }}>
           <EmptyState
@@ -332,7 +332,7 @@ export default function AdminReportsPage() {
                   gap: '14px',
                 }}
               >
-                {/* 카드 상단: 사유 뱃지 + 시각 + 신고자 */}
+                {}
                 <div
                   style={{
                     display: 'flex',
@@ -374,7 +374,7 @@ export default function AdminReportsPage() {
                   </div>
                 </div>
 
-                {/* 카드 중단: 신고된 후기 전문 (인용 블록) */}
+                {}
                 <div
                   style={{
                     borderLeft: `3px solid ${meok[200]}`,
@@ -412,7 +412,7 @@ export default function AdminReportsPage() {
                     &ldquo;{report.review.content}&rdquo;
                   </p>
 
-                  {/* 첨부 이미지 있으면 렌더 */}
+                  {}
                   {report.review.images && report.review.images.length > 0 && (
                     <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
                       {report.review.images.map((img, i) => (
@@ -456,7 +456,7 @@ export default function AdminReportsPage() {
                   )}
                 </div>
 
-                {/* 카드 하단: 피신고자 정보 및 조치 액션 버튼 */}
+                {}
                 <div
                   style={{
                     display: 'flex',
@@ -593,7 +593,7 @@ export default function AdminReportsPage() {
         </div>
       )}
 
-      {/* 작업 확인 모달 */}
+      {}
       <ConfirmDialog
         isOpen={confirmState.isOpen}
         title={confirmState.title}

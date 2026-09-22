@@ -11,13 +11,13 @@ import { mapIconSvg } from '@/features/map/utils/mapIconSvg';
 import { getCuratedPlace } from '@/features/map/data/curatedPlaces';
 import type { Item, Warmth } from '@/features/map/types';
 
-/**
- * 온기 모드 전용: 지도 위 실시간 한 줄 방명록 레이어 (슬라이드 페이징 지원)
- *
- * 같은 장소나 인접한 공간에 여러 한 줄 평이 있을 경우,
- * 겹치지 않고 하나의 단아한 화이트 카드 안에서 [이전/다음] 버튼을 눌러
- * 차례대로 넘겨볼 수 있도록 스마트 클러스터링과 페이징을 제공합니다.
- */
+
+
+
+
+
+
+
 
 const GOTHIC_FONT = "'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif";
 
@@ -45,9 +45,9 @@ function formatTimeAgo(isoString: string): string {
 }
 
 const styles = css`
-  /* ------------------------------------------------------------
-   * 페이징 지원 순백색 온기 쪽지 카드
-   * ------------------------------------------------------------ */
+
+
+
   @keyframes om-note-appear {
     0% {
       opacity: 0;
@@ -75,12 +75,12 @@ const styles = css`
     z-index: 85 !important;
   }
 
-  /* ------------------------------------------------------------
-   * 전국 뷰의 쪽지 핀
-   *
-   * 지도에서 채도 있는 색은 히트맵 하나뿐이다 — 색은 경고라는 규칙을 지켜야 하고,
-   * 한줄평은 데이터가 아니라 사람의 말이라 조용한 편이 맞다. 그래서 먹빛과 흰 종이만 쓴다.
-   * ------------------------------------------------------------ */
+
+
+
+
+
+
   .om-warmth-note-wrap.is-compact {
     transform: translate(-50%, -50%);
     animation: none;
@@ -151,20 +151,20 @@ const styles = css`
     transition: all 0.2s ease;
   }
 
-  /* 라이트 모드 (무조건 깨끗한 흰색 배경, 노보더) */
+
   [data-theme='light'] .om-warmth-note-card,
   :root:not([data-theme='dark']) .om-warmth-note-card {
     background: ${surface.light.card};
     box-shadow: 0 10px 26px -4px rgba(0, 0, 0, 0.16), 0 2px 6px rgba(0, 0, 0, 0.04);
   }
 
-  /* 다크 모드 */
+
   [data-theme='dark'] .om-warmth-note-card {
     background: ${surface.dark.surface};
     box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.75), 0 2px 6px rgba(0, 0, 0, 0.4);
   }
 
-  /* 하단 말풍선 꼬리 화살표 */
+
   .om-warmth-note-card::after {
     content: '';
     position: absolute;
@@ -179,7 +179,7 @@ const styles = css`
     border-top-color: ${surface.dark.surface};
   }
 
-  /* 헤더: 장소명 + 페이징 네비게이터 */
+
   .om-note-head {
     display: flex;
     align-items: center;
@@ -212,7 +212,7 @@ const styles = css`
     flex: none;
   }
 
-  /* 네모난 말풍선 카드 내부 좌우 화살표 레이아웃: <, > 버튼을 카드 양끝단으로 배치 */
+
   .om-note-content-row {
     position: relative;
     display: flex;
@@ -298,7 +298,7 @@ const styles = css`
     color: ${darkPalette.cheongrok[100]};
   }
 
-  /* 본문: 한 줄 평 */
+
   .om-note-body {
     flex: 1;
     padding: 0 8px;
@@ -375,28 +375,28 @@ export default function WarmthNotesLayer() {
   const isDark = colorMode === 'dark';
 
   useEffect(() => {
-    // 1. 온기 모드가 아니거나 지도가 없으면 표시하지 않음
+
     if (!map || mode !== 'warmth') return;
 
-    /*
-      2. 줌에 따라 '형태'를 바꾼다 (Semantic Zooming)
 
-      예전에는 광역 뷰(level >= 8)에서 한줄평을 통째로 숨겼다. 그런데 지도 기본값이
-      level 11(전국)이라, 처음 지도를 연 사람은 한줄평이 있다는 사실조차 알 수 없었다.
 
-      숨기는 대신 작게 만든다 — 전국에서는 어디에 이야기가 쌓였는지 알려주는 쪽지 핀,
-      동네로 들어오면 문장이 보이는 카드. 여백은 카드를 접어서 지키고, 존재는 남긴다.
-    */
+
+
+
+
+
+
+
     const compact = level >= 8;
 
     const bounds = map.getBounds?.();
     const projection = map.getProjection?.();
 
-    // 3. 한줄평이 있는 유효한 온기 데이터 필터링
+
     const validWarmths = warmths.filter((w) => w.text && w.text.trim().length > 0);
     if (validWarmths.length === 0) return;
 
-    // 현재 뷰포트 내 장소 필터링
+
     let inBoundsList = validWarmths;
     if (bounds && window.kakao?.maps) {
       inBoundsList = validWarmths.filter((w) =>
@@ -406,7 +406,7 @@ export default function WarmthNotesLayer() {
 
     if (inBoundsList.length === 0) return;
 
-    // 4. 같은 공간 / 인접 거리(화면상 카드 크기 기준)의 후기들을 하나의 클러스터로 병합
+
     const getScreenDistance = (lat1: number, lng1: number, lat2: number, lng2: number) => {
       if (!projection) return 9999;
       const p1 = projection.pointFromCoords(new window.kakao.maps.LatLng(lat1, lng1));
@@ -436,7 +436,7 @@ export default function WarmthNotesLayer() {
         const isSamePlace = other.placeId === w.placeId;
         const delta = getScreenDelta(w.lat, w.lng, other.lat, other.lng);
 
-        // 카드가 겹치지 않도록 카드 폭(264px) 및 높이(100px) 범위 내 근접 스팟은 1개 카드로 합쳐 슬라이드 제공
+
         const cardCollision = compact
           ? Math.hypot(delta.dx, delta.dy) < 60
           : delta.dx < 230 && delta.dy < 95;
@@ -455,13 +455,13 @@ export default function WarmthNotesLayer() {
       });
     });
 
-    /*
-      5. 화면당 개수 및 충돌 박스 디클러터링 (앞뒤 카드 겹침 원천 차단)
-    */
+
+
+
     const placedBoxes: { x: number; y: number }[] = [];
     const nonCollidingClusters: NoteCluster[] = [];
 
-    // 이야기 개수가 많은 대표 권역을 우선 배치
+
     const sortedClusters = [...clusters].sort((a, b) => b.notes.length - a.notes.length);
 
     sortedClusters.forEach((cluster) => {
@@ -483,7 +483,7 @@ export default function WarmthNotesLayer() {
         placedBoxes.push(pt);
         nonCollidingClusters.push(cluster);
       } else {
-        // 충돌하는 경우 가장 가까운 배치된 카드에 후기들을 병합하여 이야기 누락 없이 슬라이드로 감상
+
         const nearest = nonCollidingClusters[0];
         if (nearest) {
           cluster.notes.forEach((n) => {
@@ -498,7 +498,7 @@ export default function WarmthNotesLayer() {
     const maxClusters = compact ? 12 : 5;
     const finalClusters = nonCollidingClusters.slice(0, maxClusters);
 
-    // 6. 오버레이 스펙 생성
+
     const specs: OverlaySpec[] = finalClusters.map((cluster) => {
       let currentIndex = 0;
       const notes = cluster.notes;
@@ -506,11 +506,11 @@ export default function WarmthNotesLayer() {
       const el = document.createElement('div');
       el.className = 'om-warmth-note-wrap';
 
-      /*
-        전국 뷰에서는 쪽지 핀 하나로 줄인다.
-        문장은 읽을 수 없는 크기이므로 아예 싣지 않고, 장소와 쌓인 이야기 수만 말한다.
-        누르면 그 마을로 들어가면서 카드로 펴진다.
-      */
+
+
+
+
+
       if (compact) {
         el.classList.add('is-compact');
         el.innerHTML = `
@@ -535,12 +535,12 @@ export default function WarmthNotesLayer() {
         const currentNote = notes[currentIndex];
         const store = useMapStore.getState();
 
-        // 1. 지도 이동
+
         if (store.map && window.kakao?.maps) {
           store.map.panTo(new window.kakao.maps.LatLng(currentNote.lat, currentNote.lng));
         }
 
-        // 2. 일치하는 장소가 items에 있는지 확인 (ID 또는 장소명 기준)
+
         const matched = store.items.find(
           (it) =>
             it.id === currentNote.placeId ||
@@ -550,7 +550,7 @@ export default function WarmthNotesLayer() {
 
         const targetId = matched?.id || currentNote.placeId;
 
-        // 3. 만약 items에 해당 장소가 없다면 큐레이션된 정보로 Item을 생성하여 등록
+
         if (!matched) {
           const curated = getCuratedPlace(currentNote.placeId, currentNote.placeName);
           const newItem: Item = {
@@ -568,12 +568,12 @@ export default function WarmthNotesLayer() {
           store.setItems([...store.items, newItem]);
         }
 
-        // 4. selectedId 및 detailId 설정 (데스크톱 DetailAside 및 모바일 BottomSheet 즉시 오픈)
+
         store.setSelectedId(targetId);
         store.setDetailId(targetId);
         store.setSheetSnap('full');
 
-        // 5. 데스크톱 패널 닫혀있으면 오픈
+
         if (!store.panelOpen) {
           store.setPanelOpen(true);
         }
@@ -586,7 +586,7 @@ export default function WarmthNotesLayer() {
         const badgeText = isBusy ? '따스한 정' : '고즈넉함';
         const badgeIcon = isBusy ? ICONS.flame : ICONS.wind;
         const timeAgo = formatTimeAgo(note.createdAt);
-        // 불필요한 따옴표 제거 (" " 굳이 필요 없음)
+
         const cleanText = note.text.replace(/^["'“”‘’\s]+|["'“”‘’\s]+$/g, '').trim();
 
         const prevBtnHtml =
@@ -632,7 +632,7 @@ export default function WarmthNotesLayer() {
           </div>
         `;
 
-        // 이전/다음 버튼 이벤트 바인딩
+
         if (notes.length > 1) {
           const prevBtn = el.querySelector('.om-btn-prev');
           const nextBtn = el.querySelector('.om-btn-next');
@@ -650,7 +650,7 @@ export default function WarmthNotesLayer() {
           });
         }
 
-        // 상세보기 버튼 클릭 시 상세 정보 열기
+
         const hintBtn = el.querySelector('.om-note-hint-btn');
         hintBtn?.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -660,7 +660,7 @@ export default function WarmthNotesLayer() {
 
       renderCardContent();
 
-      // 카드 클릭 시 해당 후기의 장소 선택 및 상세 패널 오픈
+
       el.addEventListener('click', (e) => {
         const target = e.target as HTMLElement;
         if (target.closest('.om-inner-nav-btn')) return;

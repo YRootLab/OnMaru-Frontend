@@ -19,9 +19,9 @@ import {
 } from 'lucide-react';
 import { fontSize, palette, ringShadow } from '@/design-system/tokens';
 
-const BOARD_SIZE = 11; // 11x11 traditional compact grid
+const BOARD_SIZE = 11;
 
-type Stone = 'B' | 'W' | null; // B: Black (User), W: White (AI)
+type Stone = 'B' | 'W' | null;
 
 interface MiniOmokGameProps {
   isGenerationComplete?: boolean;
@@ -30,13 +30,13 @@ interface MiniOmokGameProps {
 }
 
 const CONFETTI_COLORS = [
-  '#FF5500', // 단청 주홍
-  '#FFB800', // 황금 골드
-  '#00C471', // 대청 청록
-  '#FF2A85', // 연지 핑크
-  '#4A6FA0', // 청화 코발트
-  '#8B1BFF', // 자하 바이올렛
-  '#FFFFFF', // 순백
+  '#FF5500',
+  '#FFB800',
+  '#00C471',
+  '#FF2A85',
+  '#4A6FA0',
+  '#8B1BFF',
+  '#FFFFFF',
 ];
 
 const ConfettiParticle = styled(motion.div)<{ $color: string; $size: number; $isCircle?: boolean }>`
@@ -155,7 +155,7 @@ const DifficultyBadge = styled.div`
   }
 `;
 
-/* 모던한 플랫 원목 바둑판 - 반응형 최적화 */
+
 const BoardContainer = styled.div`
   position: relative;
   width: min(330px, calc(100vw - 64px));
@@ -198,7 +198,7 @@ const Cell = styled.button<{ $stone: Stone }>`
   align-items: center;
   justify-content: center;
 
-  /* Traditional Board Grid Lines */
+
   &::before {
     content: '';
     position: absolute;
@@ -495,15 +495,15 @@ const NoticeText = styled.div<{ $variant?: 'gold' | 'green' }>`
   }
 `;
 
-// ==========================================
-// 🧠 고도화된 고급 오목 AI 평가 엔진
-// ==========================================
+
+
+
 
 const DIRECTIONS = [
-  [0, 1], // horizontal
-  [1, 0], // vertical
-  [1, 1], // diagonal \
-  [1, -1], // diagonal /
+  [0, 1],
+  [1, 0],
+  [1, 1],
+  [1, -1],
 ];
 
 function checkWinner(board: Stone[][], r: number, c: number, stone: Stone): boolean {
@@ -531,15 +531,15 @@ function checkWinner(board: Stone[][], r: number, c: number, stone: Stone): bool
   return false;
 }
 
-/**
- * 한 방향에 대한 패턴 점수 계산기
- * - 5목: 1,000,000점 (승리)
- * - 열린 4 (양쪽 열림): 120,000점 (필승 수)
- * - 닫힌 4 (한쪽 막힘): 25,000점 (즉각 위협)
- * - 열린 3 (양쪽 열림): 15,000점
- * - 닫힌 3 / 깬 3: 3,000점
- * - 열린 2: 1,000점
- */
+
+
+
+
+
+
+
+
+
 function evaluateDirection(
   board: Stone[][],
   r: number,
@@ -552,7 +552,7 @@ function evaluateDirection(
   let consecutive = 1;
   let openEnds = 0;
 
-  // 정방향 탐색
+
   let rF = r + dr;
   let cF = c + dc;
   while (rF >= 0 && rF < BOARD_SIZE && cF >= 0 && cF < BOARD_SIZE && board[rF][cF] === stone) {
@@ -564,7 +564,7 @@ function evaluateDirection(
     openEnds++;
   }
 
-  // 역방향 탐색
+
   let rB = r - dr;
   let cB = c - dc;
   while (rB >= 0 && rB < BOARD_SIZE && cB >= 0 && cB < BOARD_SIZE && board[rB][cB] === stone) {
@@ -576,22 +576,22 @@ function evaluateDirection(
     openEnds++;
   }
 
-  // 5목 완성
+
   if (consecutive >= 5) return 1000000;
 
-  // 4목
+
   if (consecutive === 4) {
     if (openEnds === 2) return 120000;
     if (openEnds === 1) return 25000;
   }
 
-  // 3목
+
   if (consecutive === 3) {
     if (openEnds === 2) return 15000;
     if (openEnds === 1) return 3000;
   }
 
-  // 2목
+
   if (consecutive === 2) {
     if (openEnds === 2) return 1000;
     if (openEnds === 1) return 200;
@@ -600,9 +600,9 @@ function evaluateDirection(
   return 0;
 }
 
-/**
- * 특정 위치에 착수했을 때의 전체 가치 평가
- */
+
+
+
 function evaluatePosition(board: Stone[][], r: number, c: number, stone: Stone): number {
   let totalScore = 0;
   let openThrees = 0;
@@ -616,7 +616,7 @@ function evaluatePosition(board: Stone[][], r: number, c: number, stone: Stone):
     if (dirScore === 15000) openThrees++;
   }
 
-  // 4-3, 3-3(쌍삼) 복합 공격 가중치 부여
+
   if (openThrees >= 2) totalScore += 60000;
   if (fours >= 1 && openThrees >= 1) totalScore += 80000;
   if (fours >= 2) totalScore += 150000;
@@ -624,14 +624,14 @@ function evaluatePosition(board: Stone[][], r: number, c: number, stone: Stone):
   return totalScore;
 }
 
-/**
- * AI의 최고 수 찾기 (공격 + 수비 정밀 계산)
- */
+
+
+
 function findBestMoveHighDifficulty(board: Stone[][]): [number, number] {
   const candidates: [number, number][] = [];
   const center = Math.floor(BOARD_SIZE / 2);
 
-  // 빈 칸 중 주위에 돌이 2칸 이내에 있는 후보지 우선 선정
+
   for (let r = 0; r < BOARD_SIZE; r++) {
     for (let c = 0; c < BOARD_SIZE; c++) {
       if (board[r][c] === null) {
@@ -652,7 +652,7 @@ function findBestMoveHighDifficulty(board: Stone[][]): [number, number] {
     }
   }
 
-  // 돌이 하나도 없으면 정중앙 착수
+
   if (candidates.length === 0) {
     return [center, center];
   }
@@ -661,23 +661,23 @@ function findBestMoveHighDifficulty(board: Stone[][]): [number, number] {
   let highestWeight = -1;
 
   for (const [r, c] of candidates) {
-    // 1. 공격 가치 (AI: White)
+
     const attackScore = evaluatePosition(board, r, c, 'W');
 
-    // 2. 수비 가치 (User: Black이 이 자리에 둘 경우의 위협도)
+
     const defenseScore = evaluatePosition(board, r, c, 'B');
 
-    // 5목 승리수가 있다면 무조건 즉시 승리 착수
+
     if (attackScore >= 1000000) {
       return [r, c];
     }
 
-    // 상대방의 5목 완성을 막아야 한다면 최우선 수비
+
     if (defenseScore >= 1000000) {
       return [r, c];
     }
 
-    // 상대의 열린 4(120,000)나 닫힌 4(25,000)를 막는 방어 가중치 강화 (수비 배수 1.25x)
+
     const combinedWeight = attackScore + defenseScore * 1.28 + (BOARD_SIZE - Math.abs(r - center) - Math.abs(c - center));
 
     if (combinedWeight > highestWeight) {
@@ -704,7 +704,7 @@ export default function MiniOmokGame({
   const [winner, setWinner] = useState<Stone | 'DRAW' | null>(null);
   const [moveHistory, setMoveHistory] = useState<{ r: number; c: number; stone: Stone }[]>([]);
 
-  // AI Response turn (300ms delay)
+
   const makeAIMove = useCallback((currentBoard: Stone[][]) => {
     const [r, c] = findBestMoveHighDifficulty(currentBoard);
     const nextBoard = currentBoard.map((row) => [...row]);
@@ -723,7 +723,7 @@ export default function MiniOmokGame({
   const handleCellClick = (r: number, c: number) => {
     if (board[r][c] || !isPlayerTurn || winner) return;
 
-    // Player (Black) Move
+
     const nextBoard = board.map((row) => [...row]);
     nextBoard[r][c] = 'B';
     setBoard(nextBoard);
@@ -735,14 +735,14 @@ export default function MiniOmokGame({
       return;
     }
 
-    // Check draw
+
     const isFull = nextBoard.every((row) => row.every((cell) => cell !== null));
     if (isFull) {
       setWinner('DRAW');
       return;
     }
 
-    // Switch to AI turn
+
     setIsPlayerTurn(false);
     setTimeout(() => {
       makeAIMove(nextBoard);
@@ -764,8 +764,8 @@ export default function MiniOmokGame({
   const handleUndo = () => {
     if (moveHistory.length < 2 || !isPlayerTurn || winner) return;
     const historyCopy = [...moveHistory];
-    historyCopy.pop(); // Pop AI move
-    historyCopy.pop(); // Pop Player move
+    historyCopy.pop();
+    historyCopy.pop();
 
     const nextBoard = Array(BOARD_SIZE)
       .fill(null)
@@ -786,7 +786,7 @@ export default function MiniOmokGame({
     setIsPlayerTurn(true);
   };
 
-  // Star points on 11x11 board
+
   const isStarPoint = (r: number, c: number) => {
     return (
       (r === 2 && c === 2) ||
@@ -805,7 +805,7 @@ export default function MiniOmokGame({
           <span>{isPlayerTurn ? '내 차례 (흑돌)' : 'AI가 생각하고 있어요'}</span>
         </TurnBadge>
 
-        
+
       </StatusHeader>
 
       <BoardContainer>
@@ -838,7 +838,7 @@ export default function MiniOmokGame({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
             >
-              {/* 팡파레 축하 파티클 효과 */}
+              {}
               <FanfareConfetti />
 
               <WinnerIconWrap $winner={winner}>
@@ -944,7 +944,7 @@ export default function MiniOmokGame({
         )}
       </ControlsBar>
 
-      {/* Assembly Finished Banner (대국 진행 중에만 하단에 표시하여 승리 모달과 중복 방지) */}
+      {}
       <AnimatePresence>
         {isGenerationComplete && !winner && (
           <FinishedBanner

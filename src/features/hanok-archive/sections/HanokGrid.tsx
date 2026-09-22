@@ -74,12 +74,12 @@ const EmptyState = styled.div`
   }
 `;
 
-/*
-  빈 화면에서 나가는 문.
 
-  '필터를 지우고 다시 찾아보세요'라고만 적혀 있었다. 어느 필터가 걸려 있는지 알려면
-  위로 올라가 네 줄을 훑어야 하는데, 지우는 건 여기서 한 번이면 된다.
-*/
+
+
+
+
+
 const ResetAll = styled.button`
   padding: 8px 16px;
   border: 1px solid ${meok[200]};
@@ -121,18 +121,18 @@ export default function HanokGrid({
   initialFilters,
   externalRegion,
 }: HanokGridProps) {
-  /*
-    필터 넷과 쪽수를 한 덩어리로 든다.
-  */
+
+
+
   const [state, setState] = useState<HanokFilterState>(initialFilters);
 
-  // 고른 것을 주소창에 되싣는다. replaceState라 방문 기록이 필터 조작마다 쌓이지 않는다.
+
   useEffect(() => {
     const search = toSearchParams(state);
     window.history.replaceState(null, '', search ? `?${search}` : window.location.pathname);
   }, [state]);
 
-  // 상단 분포도 등 외부에서 지역이 선택되면 즉시 필터에 반영하고 도감으로 스크롤
+
   useEffect(() => {
     if (externalRegion) {
       setState((prev) => ({ ...prev, region: externalRegion, page: 1 }));
@@ -145,7 +145,7 @@ export default function HanokGrid({
     [state, villages],
   );
 
-  /** 거르는 조건이 바뀌면 늘 첫 쪽으로 돌아간다. */
+
   const narrow = (patch: Partial<HanokFilterState>) =>
     setState((prev) => ({ ...prev, ...patch, page: 1 }));
 

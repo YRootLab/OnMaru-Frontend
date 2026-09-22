@@ -1,8 +1,8 @@
 'use client';
 
-// ============================================================
-// 관리자 데이터 통신 훅 (src/admin/hooks/useAdminApi.ts)
-// ============================================================
+
+
+
 
 import { useState, useCallback, useEffect } from 'react';
 import { apiGet, apiPost, apiPatch, apiDelete } from '@/lib/api/client';

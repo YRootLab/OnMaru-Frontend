@@ -87,7 +87,7 @@ export const defaultSorimaruEndpointResolver: SorimaruEndpointResolver = ({ type
           : 'storyBasedList';
 
   const upstream = new URL(`${CLIENT_API_ENDPOINT}/${operation}`);
-  
+
   upstream.searchParams.set('MobileOS', 'ETC');
   upstream.searchParams.set('MobileApp', 'OnMaruFE');
   upstream.searchParams.set('_type', 'json');
@@ -95,8 +95,8 @@ export const defaultSorimaruEndpointResolver: SorimaruEndpointResolver = ({ type
   upstream.searchParams.set('serviceKey', getApiKey());
 
   if (type === 'nearby') {
-    // 실제 Odii storyLocationBasedList는 xCoord/yCoord가 아니라 mapX/mapY를 필수로 요구한다
-    // (xCoord로 보내면 NO_MANDATORY_REQUEST_PARAMETERS_ERROR1(mapX)로 늘 빈 결과였다).
+
+
     if (params.xCoord) upstream.searchParams.set('mapX', params.xCoord);
     if (params.yCoord) upstream.searchParams.set('mapY', params.yCoord);
     upstream.searchParams.set('radius', params.radius || '3000');
@@ -107,7 +107,7 @@ export const defaultSorimaruEndpointResolver: SorimaruEndpointResolver = ({ type
 
   upstream.searchParams.set('numOfRows', params.numOfRows || '7');
   upstream.searchParams.set('pageNo', params.pageNo || '1');
-  
+
   const keyword = params.keyword?.trim();
   if (keyword) upstream.searchParams.set('keyword', keyword);
 
@@ -200,7 +200,7 @@ async function requestBackendStories(
   };
 }
 
-/** URL and raw payload details remain replaceable behind one normalized result. */
+
 export function createSorimaruNetworkClient({
   resolveEndpoint = defaultSorimaruEndpointResolver,
   decodeResponse = defaultSorimaruResponseDecoder,

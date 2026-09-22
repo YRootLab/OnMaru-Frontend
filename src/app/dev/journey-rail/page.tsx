@@ -1,16 +1,16 @@
 'use client';
 
-/**
- * 새 이야기길 계약 미리보기 (개발용, /dev/journey-rail)
- *
- * seven-day-mvp-fe-handoff.md의 새 JourneyBoard/JourneyCandidate/JourneyLeg 계약을
- * 실제 화면에서 눈으로 확인하기 위한 페이지. 서촌 파일럿 fixture(이상의 집 →
- * 수성동계곡 → 통인시장)로 최초 보드를, "시장 빼고 역사 넣어줘" 수정 요청으로
- * 만들어진 변경안(유지/제외/추가)을 함께 보여준다.
- *
- * 아직 실제 /discover에는 연결하지 않았다 — BentoJourneyGrid는 그대로 두고
- * 새 컴포넌트만 여기서 먼저 검증한다.
- */
+
+
+
+
+
+
+
+
+
+
+
 
 import { useState } from 'react';
 import styled from '@emotion/styled';

@@ -4,8 +4,8 @@ import { seedWarmth } from './seed';
 const STORAGE_KEY = 'onmaru.warmth.v1';
 const HELPFUL_KEY = 'onmaru.warmth.helpful.v1';
 
-// ponytail: 저장소는 localStorage 하나. 계정/공유가 필요해지면 이 파일의
-// read/append 두 함수만 Supabase(warmth 테이블)로 갈아끼우면 된다.
+
+
 function readLocal(): Warmth[] {
   if (typeof window === 'undefined') return [];
   try {
@@ -21,11 +21,11 @@ function writeLocal(list: Warmth[]) {
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
   } catch {
-    // 사파리 프라이빗 모드 등. 저장만 실패하고 화면은 계속 돈다.
+
   }
 }
 
-/** 씨앗 + API 온기 + 내가 남긴 온기. 최신순. */
+
 export function loadWarmth(apiWarmths?: Warmth[]): Warmth[] {
   const local = readLocal();
   const base = apiWarmths && apiWarmths.length > 0 ? apiWarmths : seedWarmth();
@@ -52,12 +52,12 @@ export function addWarmth(input: Omit<Warmth, 'id' | 'createdAt' | 'mine'>): War
   return created;
 }
 
-// ─────────────────────────────────────────
-// 도움돼요
-//
-// 서버가 없으므로 이 브라우저에서 누른 것만 센다.
-// 예전에는 순위 인덱스로 숫자를 지어냈다(95, 89, 83…). 지금은 실제로 누른 수만 센다.
-// ─────────────────────────────────────────
+
+
+
+
+
+
 
 function readHelpful(): Record<string, boolean> {
   if (typeof window === 'undefined') return {};
@@ -83,7 +83,7 @@ export function toggleHelpful(warmthId: string): boolean {
   try {
     window.localStorage.setItem(HELPFUL_KEY, JSON.stringify(map));
   } catch {
-    /* 저장 실패는 화면 동작을 막지 않는다 */
+
   }
 
   return next;
@@ -91,12 +91,12 @@ export function toggleHelpful(warmthId: string): boolean {
 
 const DAY = 86_400_000;
 
-/**
- * 온기 필터.
- *
- * 여기 없는 id는 전부 '전체'로 떨어진다. 예전에는 칩에만 있고 여기 없는 'review'가
- * 아무 일도 하지 않는 칩으로 남아 있었다 — 지금은 칩 목록과 이 switch가 1:1이다.
- */
+
+
+
+
+
+
 export function filterWarmth(list: Warmth[], filter: WarmthFilter): Warmth[] {
   switch (filter) {
     case 'busy':
@@ -112,15 +112,15 @@ export function filterWarmth(list: Warmth[], filter: WarmthFilter): Warmth[] {
   }
 }
 
-/**
- * 줌 레벨에 맞춘 격자 크기(도). 레벨이 한 단계 오를 때마다 화면 축척이 대략 두 배가
- * 되므로 셀도 두 배로 키운다 — 그래야 blob 개수가 화면에서 일정하게 유지된다.
- */
+
+
+
+
 function cellSize(level: number): number {
   return 0.0015 * 2 ** Math.max(0, level - 3);
 }
 
-/** 온기를 격자로 묶어 blob 하나당 한 셀을 만든다. */
+
 export function clusterWarmth(list: Warmth[], level: number): WarmthCell[] {
   const size = cellSize(level);
   const cells = new Map<string, { sumLat: number; sumLng: number; items: Warmth[] }>();
@@ -139,42 +139,42 @@ export function clusterWarmth(list: Warmth[], level: number): WarmthCell[] {
     lat: sumLat / items.length,
     lng: sumLng / items.length,
     count: items.length,
-    // items는 loadWarmth가 최신순으로 넘겨준 순서를 유지한다.
+
     latest: items[0],
     items,
   }));
 }
 
-// ─────────────────────────────────────────
-// 피드용 변환
-//
-// 지도(말풍선·히트맵)와 왼쪽 피드가 서로 다른 데이터를 보던 것을 여기서 합친다.
-// 피드 카드가 필요로 하는 모양은 Warmth에서 전부 유도할 수 있다 — 지어내지 않는다.
-// ─────────────────────────────────────────
 
-/** 14대 광역 행정권역 앵커 좌표 */
+
+
+
+
+
+
+
 const REGION_ANCHORS: { name: string; lat: number; lng: number }[] = [
-  { name: '서울', lat: 37.5826, lng: 126.9832 }, // 서울 북촌/종로
-  { name: '경기', lat: 37.2636, lng: 127.0286 }, // 경기 수원/용인
-  { name: '인천', lat: 37.4563, lng: 126.7052 }, // 인천/강화
-  { name: '강원', lat: 37.783, lng: 128.882 }, // 강원 강릉/원주
-  { name: '대전', lat: 36.3504, lng: 127.3845 }, // 대전
-  { name: '세종', lat: 36.4800, lng: 127.2890 }, // 세종
-  { name: '충북', lat: 36.6424, lng: 127.4890 }, // 충북 청주/충주
-  { name: '충남', lat: 36.736, lng: 126.935 }, // 충남 아산
-  { name: '충남', lat: 36.205, lng: 127.09 }, // 충남 논산
-  { name: '전북', lat: 35.8156, lng: 127.15 }, // 전북 전주
-  { name: '전남광주통합특별시', lat: 35.1595, lng: 126.8526 }, // 광주
-  { name: '전남광주통합특별시', lat: 35.28, lng: 126.995 }, // 전남 담양
-  { name: '전남광주통합특별시', lat: 34.907, lng: 127.34 }, // 전남 순천
-  { name: '대구', lat: 35.8714, lng: 128.6014 }, // 대구
-  { name: '대구', lat: 36.5391, lng: 128.5175 }, // 안동 (영남 내륙)
-  { name: '부산', lat: 35.1796, lng: 129.0756 }, // 부산
-  { name: '부산', lat: 35.832, lng: 129.216 }, // 경주 (동남권)
-  { name: '제주', lat: 33.386, lng: 126.802 }, // 제주
+  { name: '서울', lat: 37.5826, lng: 126.9832 },
+  { name: '경기', lat: 37.2636, lng: 127.0286 },
+  { name: '인천', lat: 37.4563, lng: 126.7052 },
+  { name: '강원', lat: 37.783, lng: 128.882 },
+  { name: '대전', lat: 36.3504, lng: 127.3845 },
+  { name: '세종', lat: 36.4800, lng: 127.2890 },
+  { name: '충북', lat: 36.6424, lng: 127.4890 },
+  { name: '충남', lat: 36.736, lng: 126.935 },
+  { name: '충남', lat: 36.205, lng: 127.09 },
+  { name: '전북', lat: 35.8156, lng: 127.15 },
+  { name: '전남광주통합특별시', lat: 35.1595, lng: 126.8526 },
+  { name: '전남광주통합특별시', lat: 35.28, lng: 126.995 },
+  { name: '전남광주통합특별시', lat: 34.907, lng: 127.34 },
+  { name: '대구', lat: 35.8714, lng: 128.6014 },
+  { name: '대구', lat: 36.5391, lng: 128.5175 },
+  { name: '부산', lat: 35.1796, lng: 129.0756 },
+  { name: '부산', lat: 35.832, lng: 129.216 },
+  { name: '제주', lat: 33.386, lng: 126.802 },
 ];
 
-/** 좌표 기준 가장 가까운 14대 광역 권역 명칭을 반환합니다. */
+
 export function regionOf(lat: number, lng: number): string {
   let best = { name: '전북', d: Infinity };
 
@@ -186,7 +186,7 @@ export function regionOf(lat: number, lng: number): string {
   return best.d <= 2.5 ? best.name : '전국';
 }
 
-/** 정취 분위기별 기본 만족도 점수 (1: 또 가고 싶어요, 2: 좋았어요) */
+
 const DEFAULT_MOOD_BY_CROWD: Record<Warmth['mood'], 1 | 2> = { 한적: 2, 북적: 1 };
 
 const SEASON_BY_MONTH: WarmthReview['season'][] = [
@@ -194,11 +194,11 @@ const SEASON_BY_MONTH: WarmthReview['season'][] = [
   '여름', '여름', '가을', '가을', '가을', '겨울',
 ];
 
-/**
- * Warmth 한 건을 피드 카드가 읽는 모양으로 옮긴다.
- *
- * 정취 분위기(북적/한적)와 방문자 감정 만족도(또 가고 싶어요/좋았어요)를 분리하여 왜곡을 방지한다.
- */
+
+
+
+
+
 export function toReview(w: Warmth): WarmthReview {
   const month = new Date(w.createdAt).getMonth();
 
@@ -221,7 +221,7 @@ export function toReview(w: Warmth): WarmthReview {
   };
 }
 
-/** 장소별 온기 개수. 피드의 '온기가 많이 쌓인 곳'이 이 집계를 쓴다. */
+
 export function countByPlace(list: Warmth[]): Map<string, { name: string; count: number; lat: number; lng: number }> {
   const out = new Map<string, { name: string; count: number; lat: number; lng: number }>();
 

@@ -33,9 +33,9 @@ const PlayIcon: React.FC<{ size?: number }> = ({ size = 16 }) => {
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80';
 
-/* ------------------------------------------------------------
- * 🎵 라이브 오디오 웨이브폼 비주얼라이저 (재생 인터랙션 효과)
- * ------------------------------------------------------------ */
+
+
+
 const WaveformBar = styled(motion.span)<{ $delay: number }>`
   display: inline-block;
   width: 3px;
@@ -67,9 +67,9 @@ export const LiveAudioVisualizer: React.FC<{ isPlaying: boolean }> = ({ isPlayin
   );
 };
 
-/* ------------------------------------------------------------
- * 미니 플로팅 플레이어 바
- * ------------------------------------------------------------ */
+
+
+
 const FloatingBarContainer = styled(motion.div)`
   position: fixed;
   bottom: calc(6.25rem + env(safe-area-inset-bottom));
@@ -260,9 +260,9 @@ const ProgressFill = styled.div<{ $width: number }>`
   width: ${({ $width }) => $width}%;
 `;
 
-/* ------------------------------------------------------------
- * 팝업 Drawer / 모달 스타일링 (Hero / Bottom Sheet 트랜지션)
- * ------------------------------------------------------------ */
+
+
+
 const DrawerBackdrop = styled(motion.div)`
   position: fixed;
   inset: 0;
@@ -321,9 +321,9 @@ const DrawerPanel = styled(motion.aside)`
   }
 `;
 
-/* ------------------------------------------------------------
- * 🏛️ 상단 바 & 세그먼트 뷰 스위처 (Segmented Control Menu Bar)
- * ------------------------------------------------------------ */
+
+
+
 const DrawerHeader = styled.header`
   display: flex;
   align-items: center;
@@ -465,7 +465,7 @@ const CloseBtn = styled(motion.button)`
   }
 `;
 
-/* 미니 플레이어 바 전용 슬림 하트 버튼 */
+
 const MiniHeartBtn = styled(motion.button)<{ $saved: boolean }>`
   display: inline-flex;
   width: 2.25rem;
@@ -494,9 +494,9 @@ const MiniHeartBtn = styled(motion.button)<{ $saved: boolean }>`
   }
 `;
 
-/* ------------------------------------------------------------
- * 뷰 전환 메인 영역 (Main View Area)
- * ------------------------------------------------------------ */
+
+
+
 const MainViewArea = styled.div`
   display: flex;
   flex-direction: column;
@@ -506,7 +506,7 @@ const MainViewArea = styled.div`
   padding: 0.5rem 0.2rem 0;
 `;
 
-/* 🏛️ 모드 1: 현장 사진 뷰어 모드 (위-아래 2단 구조: 1단 사진 + 2단 2줄 타이틀 & 슬림 2문단 대본) */
+
 const RoadviewSplitModeContainer = styled(motion.div)`
   display: flex;
   flex-direction: column;
@@ -517,7 +517,7 @@ const RoadviewSplitModeContainer = styled(motion.div)`
   padding: 0.2rem 0.25rem 0.4rem;
 `;
 
-/* 1단: 적절한 높이로 정돈된 현장 사진 뷰어 (섀도우 클리핑 방지 마진/테두리 최적화) */
+
 const TopMediaWrap = styled.div`
   width: 100%;
   flex: 1 1 auto;
@@ -535,7 +535,7 @@ const TopMediaWrap = styled.div`
 
 
 
-/* 심리스 실시간 대본 래퍼 (상하단 linear-gradient 페이드 마스크 & 확장된 높이) */
+
 const CompactTranscriptWrap = styled.div`
   width: 100%;
   height: 6.5rem;
@@ -581,7 +581,7 @@ const metaItemFadeUp = {
   },
 };
 
-/* 📖 모드 2: 전체 대본 모드 (전체보기 - 대본 풀스크린 확장) */
+
 const FullTranscriptModeContainer = styled(motion.div)`
   display: flex;
   flex-direction: column;
@@ -678,9 +678,9 @@ const FullTranscriptPanelWrap = styled(motion.div)`
   position: relative;
 `;
 
-/* ------------------------------------------------------------
- * 🎛️ 하단 공통 오디오 컨트롤 독 (Fixed Bottom Audio Deck)
- * ------------------------------------------------------------ */
+
+
+
 const AudioControlSection = styled.div`
   display: flex;
   flex-direction: column;
@@ -897,9 +897,9 @@ const SpeedChip = styled(motion.button)`
   }
 `;
 
-/* ------------------------------------------------------------
- * 🏛️ LocalMiniPlayer 메인 컴포넌트
- * ------------------------------------------------------------ */
+
+
+
 export const LocalMiniPlayer: React.FC = () => {
   const story = useSorimaruAudioStore((s) => s.currentStory);
   const isPlaying = useSorimaruAudioStore((s) => s.isPlaying);
@@ -934,8 +934,8 @@ export const LocalMiniPlayer: React.FC = () => {
     };
   }, [story.audioUrl]);
 
-  // 🔒 모달 열렸을 때 백그라운드 스크롤 완벽 차단 & 상단 헤더 숨김 유지
-  // 🔒 모달 열렸을 때 백그라운드 스크롤 안전 잠금 (좌우 레이아웃 시프트 원천 방지)
+
+
   useEffect(() => {
     if (!isExpanded) return;
     const prevOverflow = document.body.style.overflow;
@@ -947,7 +947,7 @@ export const LocalMiniPlayer: React.FC = () => {
     };
   }, [isExpanded]);
 
-  // 🎬 상세 모달 진입 시 1회만 전체 대본 시네마틱 애니메이션 재생 (모달 닫혔다 다시 열릴 때 리셋)
+
   const [hasAnimatedTranscript, setHasAnimatedTranscript] = useState(false);
 
   useEffect(() => {
@@ -956,7 +956,7 @@ export const LocalMiniPlayer: React.FC = () => {
     }
   }, [isExpanded]);
 
-  // 전체 대본 모드가 처음 노출될 때 1회 애니메이션 적용
+
   const shouldAnimateTranscript = isExpanded && activeViewMode === 'transcript' && !hasAnimatedTranscript;
 
   useEffect(() => {
@@ -965,7 +965,7 @@ export const LocalMiniPlayer: React.FC = () => {
     }
   }, [isExpanded, activeViewMode, hasAnimatedTranscript]);
 
-  // 🚀 모달 exit 트랜지션 완료 시 상태 복원
+
   const handleExitComplete = () => {
     document.body.style.overflow = '';
     delete document.body.dataset.sorimaruPlayerOpen;
@@ -986,7 +986,7 @@ export const LocalMiniPlayer: React.FC = () => {
 
   return (
     <>
-      {/* 🎵 하단 플로팅 미니 플레이어 */}
+      {}
       <AnimatePresence>
         {isVisible && !isExpanded && (
           <FloatingBarContainer
@@ -1038,7 +1038,7 @@ export const LocalMiniPlayer: React.FC = () => {
               </ScriptOpenBtn>
             </MiniPlayerContent>
 
-            {/* 미니 플레이어 바닥면 슬릭 골드 프로그레스 바 */}
+            {}
             <ProgressSlot>
               <ProgressTrack>
                 <ProgressFill $width={audioProgress} />
@@ -1048,7 +1048,7 @@ export const LocalMiniPlayer: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* 🏛️ 확장 플레이어 모달 (직관적이고 깔끔한 슬라이드 업 & 다운 트랜지션) */}
+      {}
       <AnimatePresence onExitComplete={handleExitComplete}>
         {isExpanded && (
           <DrawerBackdrop
@@ -1069,7 +1069,7 @@ export const LocalMiniPlayer: React.FC = () => {
               }}
               onClick={(event) => event.stopPropagation()}
             >
-              {/* 🎛️ 상단 네비게이션 헤더: [ 현장 사진 뷰어 ] | [ 전체 대본 모드 ] 세그먼트 메뉴바 */}
+              {}
               <DrawerHeader>
                 <HeaderLeftArea />
 
@@ -1130,7 +1130,7 @@ export const LocalMiniPlayer: React.FC = () => {
                 </PlayerHeaderActions>
               </DrawerHeader>
 
-              {/* 🔄 메인 뷰 영역 (모드 1: 뷰어+2줄메타+2문단대본 vs 모드 2: 전체 대본 풀스크린) */}
+              {}
               <MainViewArea>
                 <AnimatePresence mode="wait">
                   {activeViewMode === 'roadview' ? (
@@ -1141,7 +1141,7 @@ export const LocalMiniPlayer: React.FC = () => {
                       exit={{ opacity: 0, y: -6 }}
                       transition={{ duration: 0.2, ease: 'easeOut' }}
                     >
-                      {/* 1단 (상단): 메뉴바 바로 아래 최상단에 배치된 현장 사진 뷰어 */}
+                      {}
                       <TopMediaWrap>
                         <SorimaruRoadview
                           mapX={story.mapX}
@@ -1153,7 +1153,7 @@ export const LocalMiniPlayer: React.FC = () => {
                         />
                       </TopMediaWrap>
 
-                      {/* 2단 (하단): 확장된 높이의 심리스 실시간 대본 스크롤 */}
+                      {}
                       <CompactTranscriptWrap>
                         <PlayerTranscriptPanel
                           lines={lines}
@@ -1174,7 +1174,7 @@ export const LocalMiniPlayer: React.FC = () => {
                       exit={{ opacity: 0, y: -6 }}
                       transition={{ duration: 0.2, ease: 'easeOut' }}
                     >
-                      {/* 타이틀, 서브제목 & 4개 핵심 해시태그 (첫 진입 시에만 순차적 슬라이드 업 모션) */}
+                      {}
                       <FullStoryMeta
                         variants={shouldAnimateTranscript ? fullStoryMetaVariants : undefined}
                         initial={shouldAnimateTranscript ? "initial" : false}
@@ -1221,7 +1221,7 @@ export const LocalMiniPlayer: React.FC = () => {
                         </HashtagsScrollWrap>
                       </FullStoryMeta>
 
-                      {/* 풀스크린 전체 대본 뷰어 (내용 컴포넌트 전체가 한 번에 아래에서 위로 부드럽게 slide-up & fade-in) */}
+                      {}
                       <FullTranscriptPanelWrap
                         variants={shouldAnimateTranscript ? contentFadeUpVariants : undefined}
                         initial={shouldAnimateTranscript ? "initial" : false}
@@ -1242,10 +1242,10 @@ export const LocalMiniPlayer: React.FC = () => {
                 </AnimatePresence>
               </MainViewArea>
 
-              {/* 🎛️ 하단 공통 컨트롤 독 */}
+              {}
               <AudioControlSection>
                 <SliderWrap>
-                  {/* 다이내믹 골드 슬라이더 트랙 (65% width) */}
+                  {}
                   <CustomSliderContainer $progress={audioProgress}>
                     <input
                       type="range"
@@ -1257,14 +1257,14 @@ export const LocalMiniPlayer: React.FC = () => {
                     />
                   </CustomSliderContainer>
 
-                  {/* 타임스탬프 */}
+                  {}
                   <TimeRow>
                     <span>{formatTime(currentTime)}</span>
                     <span>{formatTime(duration)}</span>
                   </TimeRow>
                 </SliderWrap>
 
-                {/* 인터랙션 버튼 컨트롤러 */}
+                {}
                 <DeckControlsRow>
                   <SpeedChip
                     type="button"

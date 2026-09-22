@@ -1,5 +1,5 @@
-// Auto-generated from statgarten/maps (MIT License) — 통계청 SGIS 기반 단순화 시도 경계.
-// 생성: scratchpad/extract_map.py. 좌표계를 다시 뽑으려면 원본 스크립트를 참고하세요.
+
+
 export interface KoreaRegionPath {
   id: string;
   label: string;

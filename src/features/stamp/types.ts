@@ -29,7 +29,7 @@ export interface CollectedStamp {
   stampId: string;
   placeId: string;
   placeName: string;
-  collectedAt: string; // ISO 8601
+  collectedAt: string;
   rarity: StampRarity;
   memo?: string;
 }

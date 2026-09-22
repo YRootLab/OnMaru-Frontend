@@ -35,7 +35,7 @@ export const useSavedJourneyStore = create<SavedJourneyState>((set, get) => ({
 
   saveJourney: (plan: BentoJourneyPlan) => {
     const { savedJourneys } = get();
-    // 이미 같은 ID나 제목의 여정이 있으면 중복 추가 방지
+
     const exists = savedJourneys.some(
       (item) => item.plan.id === plan.id || item.plan.title === plan.title,
     );

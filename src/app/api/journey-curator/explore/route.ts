@@ -19,18 +19,18 @@ import type {
   NearbyFoodPlace,
 } from '@/features/journey-curator/types/enrichment.types';
 
-/**
- * 이야기길 새 계약(JourneyBoard) 탐색 — 실데이터 버전.
- *
- * 기존 `/api/journey-curator`(옛 BentoJourneyPlan, 온기 카드 포함)는 건드리지 않는다.
- * 여기는 같은 재료(TourAPI 실제 장소, Gemini)를 새 계약(evidence·거리band·근거 참조)으로
- * 다시 조립한 별도 route다.
- *
- * ponytail: 진짜 Spring+FastAPI의 run/poll/cancel 상태 머신 대신, 이 route가 검색부터
- * 후보 확정까지 한 요청 안에서 동기로 끝낸다. run 취소·재접속·20초 타임아웃 UX가
- * 필요해지면 그때 폴링 상태를 얹는다 — 지금은 화면 쪽에 그 state machine이 아직
- * 안 붙어 있어서 미리 만들 이유가 없다.
- */
+
+
+
+
+
+
+
+
+
+
+
+
 
 function cleanKoreanTerm(term: string): string {
   return term
@@ -82,14 +82,14 @@ async function callGemini(apiKey: string, modelName: string, prompt: string): Pr
   return text;
 }
 
-/**
- * Gemini AI를 통해 사용자의 자연어 검색어를 분석:
- * 1. 핵심 지역명 (남해, 대전, 종로 등)
- * 2. 요청 테마 (한옥마을, 빵 투어, 고즈넉한 쉼 등)
- * 3. 해당 지역에 사용자가 찾는 장소 유형이 실제로 존재하는지 여부 (예: 남해에는 공식 한옥마을이 없음)
- * 4. 일치하지 않는 경우 '관련 답이 없어 비슷한 대체 명소를 추천했습니다'라는 솔직한 안내 문구 생성
- * 5. TourAPI 최적 검색 키워드 2~4개 생성
- */
+
+
+
+
+
+
+
+
 async function analyzeQueryWithGemini(query: string, regionCode?: string | null): Promise<QueryAnalysis> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
@@ -154,7 +154,7 @@ async function analyzeQueryWithGemini(query: string, regionCode?: string | null)
 }
 
 async function searchRealSpots(keyword: string, isFoodQuery: boolean = false): Promise<RawSpot[]> {
-  // 우선 관광지/문화재(contentTypeId 12) 중심으로 검색하고 없으면 전체 검색
+
   let res = await TourApiClient.get('searchKeyword2', {
     keyword,
     arrange: 'Q',
@@ -180,7 +180,7 @@ async function searchRealSpots(keyword: string, isFoodQuery: boolean = false): P
       const lat = Number(row.mapy);
       const lng = Number(row.mapx);
       const contentTypeId = Number(row.contenttypeid);
-      // 음식/빵 요청이 아닌데 단순 식당(39)인 경우 관광 명소에서 제외
+
       if (!isFoodQuery && contentTypeId === 39) return null;
       if (!title || !Number.isFinite(lat) || !Number.isFinite(lng)) return null;
       const addr = String(row.addr1 ?? '').trim();
@@ -217,7 +217,7 @@ async function searchRealSpotsMultiKeywords(keywords: string[], isFoodQuery: boo
     if (combined.length >= 8) break;
   }
 
-  // 여전히 비어있다면 한옥 기본 키워드 검색
+
   if (combined.length === 0) {
     const fallbackSpots = await searchRealSpots('한옥', isFoodQuery);
     for (const spot of fallbackSpots) {
@@ -294,9 +294,9 @@ ${allowlist}
   return null;
 }
 
-/**
- * TourAPI 결과가 없거나 특별한 주제 요청 시 Gemini가 직접 추천 코스를 생성
- */
+
+
+
 async function generateGeminiDirectSpots(
   query: string,
   analysis: QueryAnalysis,
@@ -376,7 +376,7 @@ function placeResourceToRawSpot(place: PlaceResource): RawSpot | null {
   };
 }
 
-/** 선택 후보 중 첫 곳의 개요·운영정보·이미지 (한옥 도감 자리). 실패해도 빈 값으로 넘어간다. */
+
 async function fetchHanokDogan(spots: RawSpot[]): Promise<HanokDoganEntry[]> {
   const results = await Promise.allSettled(
     spots.map(async (spot): Promise<HanokDoganEntry | null> => {
@@ -398,7 +398,7 @@ async function fetchHanokDogan(spots: RawSpot[]): Promise<HanokDoganEntry[]> {
     .filter((v): v is HanokDoganEntry => v !== null);
 }
 
-/** 첫 후보 좌표 주변 실제 오디 해설(LBS). 반경 안에 없으면 빈 배열 — 지어내지 않는다. */
+
 async function fetchNearbyAudio(centerLat: number, centerLng: number): Promise<NearbyAudioStory[]> {
   try {
     const stories = await sorimaruApiAdapter.getNearbyStories(String(centerLng), String(centerLat), 1500);
@@ -420,7 +420,7 @@ async function fetchNearbyAudio(centerLat: number, centerLng: number): Promise<N
   }
 }
 
-/** 첫 후보 좌표 주변 실제 음식점(TourAPI contentTypeId 39). */
+
 async function fetchNearbyFood(centerLat: number, centerLng: number): Promise<NearbyFoodPlace[]> {
   const res = await TourApiClient.get('locationBasedList2', {
     mapX: centerLng,
@@ -467,10 +467,10 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // 1. Gemini AI를 통해 사용자의 질의 의도, 지역명, 테마, 일치 여부, 최적 검색 키워드 분석
+
   const analysis = await analyzeQueryWithGemini(query, regionCode);
 
-  // REFINE에서는 새 문장에 지역명이 안 나올 수 있으므로(예: "시장 대신 역사 넣어줘") 이전 지역을 이어받는다.
+
   const keywords =
     mode === 'REFINE' && previousRegionId
       ? [previousRegionId.replace(/^region_/, ''), ...analysis.searchKeywords]
@@ -494,7 +494,7 @@ export async function POST(req: NextRequest) {
   let isAiGenerated = false;
 
   if (candidatePool.length === 0 && pinnedPlaces.length === 0) {
-    // TourAPI 결과가 없는 경우 Gemini가 실제 장소를 직접 큐레이션
+
     const directRes = await generateGeminiDirectSpots(query, analysis);
     if (directRes && directRes.spots.length >= 3) {
       selected = directRes.spots;
@@ -502,7 +502,7 @@ export async function POST(req: NextRequest) {
       journeySummary = directRes.querySummary;
       isAiGenerated = true;
     } else {
-      // 최후의 폴백: 기본 한옥 명소
+
       const fallbackSpots = await searchRealSpots('한옥');
       if (fallbackSpots.length > 0) {
         selected = fallbackSpots.slice(0, 3).map((s) => ({
@@ -518,7 +518,7 @@ export async function POST(req: NextRequest) {
       }
     }
   } else {
-    // candidatePool이 있는 경우 Gemini로 엄선 (대체 추천인 경우 솔직한 안내 반영)
+
     const gemini = await pickCandidates(query, analysis, candidatePool, pinnedSpots, slotsNeeded);
     const validPicks = (gemini?.picks ?? [])
       .map((p) => ({ ...p, id: String(p.id) }))
@@ -651,7 +651,7 @@ export async function POST(req: NextRequest) {
     addRelationRef(to.id, nearbyRelId);
   }
 
-  // legs 계산 뒤에 relationRefs가 채워졌으니 candidates에 한 번 더 반영한다.
+
   for (const c of candidates) {
     c.relationRefs = relationRefsByPlace.get(c.placeRef.id) ?? [];
   }

@@ -1,16 +1,16 @@
 'use client';
 
-/**
- * 아이콘 카탈로그 (개발용, /dev/icons)
- *
- * 프로젝트가 실제로 쓰는 lucide-react 아이콘만 모아 색 / 크기 / 선 두께를 눈으로 고른다.
- *
- * 색 규칙: 아이콘에는 color prop을 주지 않는다.
- * lucide는 stroke가 currentColor라 부모의 color를 그대로 물려받는다.
- * 이 페이지도 그리드 컨테이너의 color 한 줄만 바꾼다.
- *
- * 새 아이콘을 쓰기 시작하면 아래 NAMES 배열에 이름만 추가한다.
- */
+
+
+
+
+
+
+
+
+
+
+
 
 import { useState } from 'react';
 import styled from '@emotion/styled';
@@ -18,7 +18,7 @@ import * as Lucide from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { semanticTokens, palette, meok, surface , fontSize } from '@/design-system/tokens';
 
-/* ── 1. 이 프로젝트가 쓰는 아이콘 ── */
+
 const NAMES = [
   'AlertCircle', 'ArrowLeftRight', 'ArrowRight', 'ArrowUp', 'Award', 'BookOpen', 'Bookmark',
   'BookmarkCheck', 'Calendar', 'Camera', 'Car', 'Check', 'CheckCircle2', 'ChevronDown',
@@ -36,7 +36,7 @@ const NAMES = [
 
 const ICONS = Lucide as unknown as Record<string, LucideIcon>;
 
-/* ── 2. 아이콘이 쓸 수 있는 색 = 시맨틱 토큰의 역할 ── */
+
 const t = semanticTokens.light;
 const ROLES = [
   { key: 'text.primary', label: '기본', value: t.text.primary },

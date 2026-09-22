@@ -225,7 +225,7 @@ const BaseCard = styled(motion.div)`
   }
 `;
 
-/* ── 1. Map Route Card ── */
+
 const RouteCard = styled(BaseCard)`
   grid-column: 1 / 2;
   grid-row: 1 / 2;
@@ -356,7 +356,7 @@ const StopDesc = styled.span`
   }
 `;
 
-/* ── 2. Hanok Card ── */
+
 const HanokCard = styled(BaseCard)`
   grid-column: 2 / 3;
   grid-row: 1 / 2;
@@ -404,7 +404,7 @@ const HanokDesc = styled.p`
   }
 `;
 
-/* ── 3. SORIMARU Card ── */
+
 const SorimaruCard = styled(BaseCard)`
   grid-column: 1 / 2;
   grid-row: 2 / 3;
@@ -495,7 +495,7 @@ const ExcerptBox = styled.blockquote`
   }
 `;
 
-/* ── 4. Warmth Card ── */
+
 const WarmthCard = styled(BaseCard)`
   grid-column: 2 / 3;
   grid-row: 2 / 3;
@@ -630,7 +630,7 @@ export default function BentoJourneyGrid() {
       </SectionHeader>
 
       <BentoGrid>
-        {/* 1. Map Route Card */}
+        {}
         <RouteCard>
           <CardBadge $color="#3b82f6">
             <Compass size={14} strokeWidth={2} />
@@ -695,7 +695,7 @@ export default function BentoJourneyGrid() {
           </ActionLink>
         </RouteCard>
 
-        {/* 2. Hanok Heritage Card */}
+        {}
         <HanokCard>
           <CardBadge $color={lightPalette.cheongrok[500]}>
             <Landmark size={14} strokeWidth={2} />
@@ -715,7 +715,7 @@ export default function BentoJourneyGrid() {
           </ActionLink>
         </HanokCard>
 
-        {/* 3. SORIMARU Audio Card */}
+        {}
         <SorimaruCard>
           <CardBadge $color="#8b5cf6">
             <Headphones size={14} strokeWidth={2} />
@@ -747,7 +747,7 @@ export default function BentoJourneyGrid() {
           </ActionLink>
         </SorimaruCard>
 
-        {/* 4. Warmth & Crowd Card */}
+        {}
         <WarmthCard>
           <CardBadge $color={lightPalette.juhong[500]}>
             <Flame size={14} strokeWidth={2} />

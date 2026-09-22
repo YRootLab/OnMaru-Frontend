@@ -1,12 +1,12 @@
 'use client';
 
-/**
- * 확정 보드 하나를 가로 여정 흐름으로 그린다.
- * seven-day-mvp-fe-handoff.md §7: connector는 실제 도보 경로가 아니라
- * 인접 장소 좌표의 직선거리를 제한된 시각 단계(distanceBand)로 표현한 것.
- *
- * BentoJourneyGrid.tsx의 고정 지도 카드를 대체할 후보 — 기존 컴포넌트는 지우지 않는다.
- */
+
+
+
+
+
+
+
 
 import { useRef } from 'react';
 import styled from '@emotion/styled';
@@ -94,8 +94,8 @@ export default function JourneyFlowRail({ board }: JourneyFlowRailProps) {
   const railRef = useRef<HTMLDivElement>(null);
   const reduceMotion = usePrefersReducedMotion();
 
-  // 여정 순서가 실제로 "이어지는 길"이라는 걸 보여주는 유일한 연출 — connector가 왼쪽에서
-  // 자라나며 그려진다. 카드 등장에는 따로 효과를 주지 않는다: 움직임을 한 곳에만 쓴다.
+
+
   useGSAP(
     () => {
       if (reduceMotion || !railRef.current) return;

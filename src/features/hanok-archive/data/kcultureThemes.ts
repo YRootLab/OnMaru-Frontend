@@ -1,10 +1,10 @@
-/**
- * K-컬처 3대 핵심 테마 큐레이션 데이터
- *
- * 1. 🎬 K-드라마 명장면 (contentTypeId: 12 - 문화유산/관광지 로케이션)
- * 2. 🌙 달빛 야간기행 (contentTypeId: 15 - 야행/달빛기행/야간축제)
- * 3. 🍵 종가 다도 & 미식 (contentTypeId: 12/39 - 전통체험 A02020500 + 한식/반가음식 A05010100)
- */
+
+
+
+
+
+
+
 
 export interface KCultureThemeItem {
   id: string;

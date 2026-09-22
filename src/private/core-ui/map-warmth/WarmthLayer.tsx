@@ -25,12 +25,12 @@ import {
   weekdayPattern,
 } from '@/features/map/warmth/weekPattern';
 
-/**
- * 실시간 온기/발길 훈기(薰氣) 레이어
- * 
- * 한옥 마을과 고택 일대에 머무는 사람들의 따스한 정(情)과 발길의 기척을
- * 은은한 호롱불/등불 훈기 블룸과 단아한 한지(창호지) 뱃지로 시각화합니다.
- */
+
+
+
+
+
+
 
 const GOTHIC_FONT = "'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif";
 
@@ -126,16 +126,16 @@ const CONGESTION_CONFIG = {
   },
 } as const;
 
-/** 외지인 방문객 수. 사람 수라서 '걸음'이 아니라 '명'으로 센다. */
+
 function formatVisitorCompact(num: number): string {
   if (num >= 10000) return `${(num / 10000).toFixed(1)}만 명`;
   return `${Math.round(num).toLocaleString()}명`;
 }
 
 const styles = css`
-  /* ------------------------------------------------------------
-   * 한지(창호지) 감성의 단아한 발길 훈기 뱃지
-   * ------------------------------------------------------------ */
+
+
+
   .om-surge-pill-wrap {
     position: relative;
     display: inline-flex;
@@ -186,10 +186,10 @@ const styles = css`
     white-space: nowrap;
   }
 
-  /*
-    권역마다 다른 값. 등급 문구는 같은 구면 늘 같아서 뱃지끼리 구별이 안 됐다.
-    색은 히트맵 램프와 같은 말을 한다 — 붉은 쪽이 피할 곳, 청록이 갈 만한 곳.
-  */
+
+
+
+
   .om-surge-pill-delta {
     font-size: ${fontSize.xs};
     font-weight: 700;
@@ -217,9 +217,9 @@ const styles = css`
     color: ${darkPalette.cheongrok[400]};
   }
 
-  /* ------------------------------------------------------------
-   * 3. 한옥 서화첩 스타일의 지능형 정취 카드 (Directed Popover)
-   * ------------------------------------------------------------ */
+
+
+
   .om-surge-popover {
     position: absolute;
     left: 50%;
@@ -240,13 +240,13 @@ const styles = css`
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   }
 
-  /* 상단 배치 (기본) */
+
   .om-surge-popover.dir-top {
     bottom: calc(100% + 10px);
     transform: translate(-50%, 6px) scale(0.94);
   }
 
-  /* 하단 배치 (화면 상단 침범 방지) */
+
   .om-surge-popover.dir-bottom {
     top: calc(100% + 10px);
     transform: translate(-50%, -6px) scale(0.94);
@@ -265,9 +265,9 @@ const styles = css`
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
   }
 
-  /*
-    터치 및 마우스 인터랙션: 호버나 열림 상태일 때 최상단 표시
-  */
+
+
+
   .om-surge-pill-wrap:hover .om-surge-popover,
   .om-surge-pill-wrap.is-hovered .om-surge-popover,
   .om-surge-pill-wrap.is-open .om-surge-popover {
@@ -281,7 +281,7 @@ const styles = css`
     z-index: 99999 !important;
   }
 
-  /* 꼬리 화살표 */
+
   .om-surge-popover.dir-top::after {
     content: '';
     position: absolute;
@@ -355,7 +355,7 @@ const styles = css`
     transition: width 0.3s ease;
   }
 
-  /* 선택한 날 한 줄 — 스크러버가 가리키는 날이 여기 그대로 온다. */
+
   .om-popover-now {
     display: flex;
     align-items: baseline;
@@ -401,10 +401,10 @@ const styles = css`
     color: ${darkPalette.cheongrok[400]};
   }
 
-  /*
-    요일 패턴. 이 팝오버가 답하는 질문은 '언제 가면 조용한가' 하나뿐이라
-    막대 일곱 개와 문장 한 줄 외에는 아무것도 두지 않는다.
-  */
+
+
+
+
   .om-week {
     display: flex;
     flex-direction: column;
@@ -514,7 +514,7 @@ const styles = css`
     text-align: center;
   }
 
-  /* ─── 호롱불 동그라미 온기 버블 (신규 뷰) ─── */
+
   @keyframes om-bubble-pulse {
     0% {
       box-shadow: 0 0 0 0 rgba(232, 90, 24, 0.6), 0 4px 16px rgba(232, 90, 24, 0.35);
@@ -765,7 +765,7 @@ interface ClusteredHeatSpot {
   congestionLevel: CongestionLevel;
   surgeMultiplier: number;
   intensity: number;
-  /** 권역의 30일 혼잡도. 요일 패턴과 '평소 대비'가 여기서 나온다. */
+
   series?: number[];
   primarySpot: HeatSpot;
 }
@@ -783,10 +783,10 @@ export default function WarmthLayer() {
   const isDark = colorMode === 'dark';
   const reducedMotion = usePrefersReducedMotion();
 
-  /*
-    히트맵과 뱃지가 같은 스팟 목록을 본다.
-    heatSpots가 비면 화면에 잡힌 장소·온기 데이터로 폴백한다.
-  */
+
+
+
+
   const baseList = useMemo<HeatSpot[]>(() => {
     let list: HeatSpot[] = heatSpots;
     if (list.length === 0) {
@@ -818,11 +818,11 @@ export default function WarmthLayer() {
       }
     }
 
-    /*
-      스크러버가 고른 날의 값으로 혼잡도를 갈아끼운다.
-      히트맵 캔버스도 뱃지도 이 목록 하나만 보기 때문에, 날짜를 아는 곳은 여기뿐이다.
-      시계열이 없는 권역(매칭 실패·폴백)은 원래 값을 그대로 쓴다.
-    */
+
+
+
+
+
     return list.map((spot) => {
       const score = spot.series?.[heatDayIndex];
       if (score === undefined) return spot;
@@ -839,16 +839,16 @@ export default function WarmthLayer() {
   useEffect(() => {
     if (!map || mode !== 'warmth' || baseList.length === 0) return;
 
-    /*
-      시맨틱 줌(Semantic Zooming) 계층 구조:
-      1. 축소 뷰 (level >= 9, 큰 거): 전국 광역 시·도 단위 (서울, 경기·인천, 강원, 전북 등 ~10개)
-      2. 중간 뷰 (level 6~8, 작은 거): 시·군·구 단위 (수원시, 청주시, 안동시, 경주시, 종로구 등)
-      3. 상세 뷰 (level <= 5, 더 작은 거): 세부 한옥 명소/동 단위 (북촌 한옥마을 일대, 경기전 일대 등)
-    */
+
+
+
+
+
+
     const zoneMap = new Map<string, ClusteredHeatSpot>();
 
     if (level >= 9) {
-      // ─── [Tier 1: 축소 뷰 (level >= 9) - 광역 시·도 단위 (큰 거)] ───
+
       baseList.forEach((spot) => {
         const macro = getMacroRegion(spot.district, spot.name, spot.lat, spot.lng);
         const key = `macro-${macro.key}`;
@@ -892,15 +892,15 @@ export default function WarmthLayer() {
         }
       });
     } else {
-      /*
-        ─── [Tier 2: 그 외 모든 줌 - 시·군·구 단위] ───
 
-        확대해도 시군구보다 잘게 쪼개지 않는다.
-        혼잡도는 시군구 하나에 하나뿐인 값이라, 명소마다 뱃지를 세우면
-        같은 숫자를 수십 번 반복하게 된다 — 실제로 확대하면 '중구 ○○동 일대'가
-        열 개씩 떠서 전부 같은 값을 말하고 있었다.
-        더 잘게 보고 싶은 정보(개별 명소)는 마커와 한줄평 쪽지가 맡는다.
-      */
+
+
+
+
+
+
+
+
       baseList.forEach((spot) => {
         const cityDist = getCityDistrict(spot.district, spot.name);
         const key = `city-${cityDist}`;
@@ -937,7 +937,7 @@ export default function WarmthLayer() {
         if (!zone.series && spot.series) zone.series = spot.series;
       });
 
-      // 주소 표기 흔들림 병합
+
       for (const [key, zone] of [...zoneMap]) {
         if (zone.series) continue;
         const host = [...zoneMap.values()].find(
@@ -954,7 +954,7 @@ export default function WarmthLayer() {
     const displayClusters = [...zoneMap.values()];
     const projection = map.getProjection?.();
 
-    // 겹침 방지 (화면 픽셀 거리 기반 디클러터링): 뱃지가 겹치지 않도록 필터링
+
     let visibleClusters = displayClusters;
     if (projection && level <= 8) {
       const minDistancePx = level <= 5 ? 65 : 75;
@@ -1006,16 +1006,16 @@ export default function WarmthLayer() {
         });
     };
 
-    // 3. 발광 히트 블룸 및 지능형 팝오버 뱃지 / 온기 버블 렌더링
+
     visibleClusters.forEach((item, clusterIndex) => {
       const cfg = CONGESTION_CONFIG[item.congestionLevel] || CONGESTION_CONFIG.moderate;
       const pal = isDark ? cfg.dark : cfg.light;
 
-      // ─── 뱃지 렌더링: 시·군 행정구역 기반의 단아한 알약형 뱃지(om-surge-pill) ───
+
       const pillWrap = document.createElement('div');
       pillWrap.className = 'om-surge-pill-wrap';
 
-      // 화면 상단 여백 계산 (화면 Y좌표가 260px 미만이면 아래로 팝오버 오픈하여 화면 상단 잘림 방지)
+
       let popoverDir = 'dir-top';
       if (projection) {
         const screenPt = projection.pointFromCoords(new window.kakao.maps.LatLng(item.lat, item.lng));
@@ -1027,13 +1027,13 @@ export default function WarmthLayer() {
       const visitorText = formatVisitorCompact(item.visitorCount);
       const zoneName = (item.name || item.district || '한옥 일대').replace(/\s*일대$/, '');
 
-      /*
-        뱃지에는 권역마다 '다른' 값을 싣는다.
-        예전 뱃지는 '온기 가득'이라는 등급 문구를 달았는데, 등급은 같은 구면 늘 같아서
-        뱃지 여러 개가 서로를 구별하는 정보를 하나도 담지 못했다.
-        그 권역 자신의 30일 중앙값과 견준 편차는 권역마다 다르므로,
-        뱃지가 늘어서 있어도 한눈에 읽힌다.
-      */
+
+
+
+
+
+
+
       const series = item.series ?? [];
       const baseline = medianOf(series);
       const compare = series.length > 0 ? compareText(item.congestionScore, baseline) : null;
@@ -1044,18 +1044,18 @@ export default function WarmthLayer() {
           : `${compare.delta > 0 ? '+' : ''}${compare.delta}%`
         : '';
 
-      // 요일 패턴 — 이 팝오버가 답하려는 질문은 '언제 가면 조용한가' 하나다.
+
       const week = weekdayPattern(series, heatDays);
       const quietest = quietestWeekday(week);
       const weekMax = week.length > 0 ? Math.max(...week.map((w) => w.avg)) : 1;
       const weekMin = week.length > 0 ? Math.min(...week.map((w) => w.avg)) : 0;
       const weekSpan = Math.max(weekMax - weekMin, 1);
 
-      /*
-        막대 높이는 px로 직접 계산한다. 트랙이 flex로 늘어난 높이라
-        퍼센트 높이가 해석되지 않아 전부 납작해진다.
-        바닥은 이 권역의 최저 요일 — 0부터 그리면 요일 간 차이가 뭉개진다.
-      */
+
+
+
+
+
       const weekBars = week
         .map((w) => {
           const height = Math.round(8 + ((w.avg - weekMin) / weekSpan) * 26);
@@ -1132,13 +1132,13 @@ export default function WarmthLayer() {
         </div>
       `;
 
-      /*
-        뱃지가 한 번에 훅 나타나면 지도가 '이미 계산된 결과'를 보여주는 것처럼
-        보인다. 하나씩 톡톡 튀어오르게 하고 편차 숫자는 0에서 세어 올라가게 하면
-        "지금 막 집계했다"는 인상을 준다 — position:translate(-50%,-50%)로
-        좌표에 고정하는 wrap 자신은 그대로 두고, 그 안의 알약(.om-surge-pill)만
-        움직여야 위치가 안 어긋난다.
-      */
+
+
+
+
+
+
+
       const pillEl = pillWrap.querySelector<HTMLElement>('.om-surge-pill');
       if (pillEl && !reducedMotion) {
         gsap.set(pillEl, { opacity: 0, scale: 0.4, y: 8, transformOrigin: '50% 50%' });
@@ -1204,11 +1204,11 @@ export default function WarmthLayer() {
       pillWrap.addEventListener('click', (e) => {
         e.stopPropagation();
 
-        /*
-          터치에서는 첫 탭이 카드를 펴는 데 쓰인다.
-          이동은 카드 안의 '눌러서 이 권역 둘러보기'가 맡는다 —
-          그 버튼도 이 핸들러를 타는데, 그때는 이미 열려 있으므로 아래로 내려간다.
-        */
+
+
+
+
+
         if (!canHover && !pillWrap.classList.contains('is-open')) {
           closeAllPopovers();
           pillWrap.classList.add('is-open');
@@ -1216,7 +1216,7 @@ export default function WarmthLayer() {
           return;
         }
 
-        // 클릭 시 단계별 줌인 이동 (큰거 -> 작은거 -> 더 작은거)
+
         const m = useMapStore.getState().map;
         const nextLevel = level >= 9 ? 7 : level >= 6 ? 4 : Math.max(2, level - 1);
         if (m) {
@@ -1237,7 +1237,7 @@ export default function WarmthLayer() {
       });
     });
 
-    // 지도 아무 데나 누르면 펴둔 카드를 접는다 (데스크톱에서는 열린 카드가 없어 무해하다)
+
     const onDocumentClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement | null;
       if (target?.closest('.om-surge-pill-wrap, .om-warmth-bubble-wrap')) return;

@@ -8,22 +8,22 @@ import type { Village } from '@/features/hanok-archive/types';
 
 const CARD_WIDTH = 220;
 const GAP = 32;
-const BASE_Y = 16; // U자 곡선 양 끝의 기본 Y 높이
-const MAX_SAG = 26; // U자 곡선의 중앙 최대 처짐 깊이
+const BASE_Y = 16;
+const MAX_SAG = 26;
 
-// 널리 알려진 곳(뱃지 보유)과 처음 듣는 곳(뱃지 없음)을 섞어 보여준다 — 전부 유명한 곳만
-// 나오면 "새로 알게 됐다"는 감흥이 없다. 9장 중 3장만 유명한 곳으로 남긴다.
+
+
 const TOTAL_PICKS = 9;
 const FAMOUS_SHARE = 3;
 
-// 카드가 늘어난 만큼 줄도 길어지므로, 한 바퀴 도는 시간을 늘려 체감 속도(px/s)를 그대로 둔다.
-// 기존 5장 · 36초 기준값이 곧 그 속도다.
+
+
 const REFERENCE_PICKS = 5;
 const REFERENCE_DURATION_S = 36;
 const PX_PER_SEC =
   (REFERENCE_PICKS * CARD_WIDTH + (REFERENCE_PICKS - 1) * GAP) / REFERENCE_DURATION_S;
 
-/** 같은 지역이 연달아 나오지 않도록 지역별로 한 장씩 돌아가며 뽑는다. */
+
 function pickRoundRobinByRegion(pool: Village[], count: number): Village[] {
   const byRegion = new Map<string, Village[]>();
   for (const village of pool) {
@@ -45,7 +45,7 @@ function pickRoundRobinByRegion(pool: Village[], count: number): Village[] {
   return picked;
 }
 
-/** 유명한 곳(뱃지 보유)과 처음 듣는 곳을 정해진 비율로 섞어, 한 덩어리로 뭉치지 않게 배치한다. */
+
 function pickCuratedVillages(villages: Village[]): Village[] {
   const withImage = villages.filter((v) => v.hasImage);
   const total = Math.min(TOTAL_PICKS, withImage.length);
@@ -62,7 +62,7 @@ function pickCuratedVillages(villages: Village[]): Village[] {
   let hiddenIdx = 0;
 
   for (let i = 0; i < total; i += 1) {
-    // 매 세 번째 자리마다 유명한 곳을 하나씩 끼워 넣는다.
+
     const takeFamous = i % 3 === 2 && famousIdx < famousPicks.length;
 
     if (takeFamous) {
@@ -80,8 +80,8 @@ function pickCuratedVillages(villages: Village[]): Village[] {
   return picks;
 }
 
-// 빨랫줄 전체가 옆으로 천천히, 끊김 없이 흘러가듯 넘어간다.
-// 양쪽 끝은 마스크로 흐릿하게 사라지도록 처리해 갑자기 잘리는 느낌을 없앤다.
+
+
 const LineWrapper = styled.div`
   position: relative;
   overflow: hidden;
@@ -95,8 +95,8 @@ const slide = keyframes`
   to { transform: translateX(-50%); }
 `;
 
-// 사진 세트를 두 벌 이어 붙여 자연스럽게 루프한다. 마우스를 올리면
-// 클릭하기 쉽도록 멈춘다.
+
+
 const Track = styled.div<{ $durationSec: number }>`
   display: flex;
   width: max-content;
@@ -119,7 +119,7 @@ const Unit = styled.div<{ $width: number }>`
   flex-shrink: 0;
 `;
 
-// 자연스러운 U자형 린넨 마끈 (SVG 곡선으로 구현 — 사진 뒤로 지나감)
+
 const SvgRope = styled.svg`
   position: absolute;
   top: 0;
@@ -127,7 +127,7 @@ const SvgRope = styled.svg`
   width: 100%;
   height: 90px;
   pointer-events: none;
-  z-index: 1; /* 사진 뒤로 배치 */
+  z-index: 1;
   overflow: visible;
 
   .rope-shadow {
@@ -165,16 +165,16 @@ const SvgRope = styled.svg`
   }
 `;
 
-// 개별 폴라로이드 걸림 영역 (줄보다 앞에 오도록 z-index 부여)
+
 const PhotoHang = styled.div<{ $yOffset: number }>`
   position: relative;
   width: ${CARD_WIDTH}px;
   flex-shrink: 0;
   margin-top: ${({ $yOffset }) => $yOffset}px;
-  z-index: 2; /* 줄(z-index: 1)보다 확실하게 앞으로 오도록 설정 */
+  z-index: 2;
 `;
 
-// 정교한 미니 원목 빨래집게 (앞에서 카드를 단단히 물고 있음)
+
 const Peg = styled.div<{ $tilt?: number }>`
   position: absolute;
   top: -14px;
@@ -193,7 +193,7 @@ const Peg = styled.div<{ $tilt?: number }>`
   box-shadow:
     0 2px 5px rgba(0, 0, 0, 0.35),
     inset 0 1px 0 rgba(255, 255, 255, 0.4);
-  z-index: 5; /* 사진(z-index: 2)보다 앞에서 물고 있는 형태 */
+  z-index: 5;
   pointer-events: none;
 
   [data-theme='dark'] & {
@@ -209,7 +209,7 @@ const Peg = styled.div<{ $tilt?: number }>`
       inset 0 1px 0 rgba(255, 255, 255, 0.15);
   }
 
-  /* 집게 두 다리 사이의 세로 홈 */
+
   &::before {
     content: '';
     position: absolute;
@@ -220,7 +220,7 @@ const Peg = styled.div<{ $tilt?: number }>`
     background: rgba(80, 48, 18, 0.45);
   }
 
-  /* 중앙 금속 스프링 힌지 링 (줄이 관통하는 중심) */
+
   &::after {
     content: '';
     position: absolute;
@@ -254,25 +254,25 @@ export default function HanokPolaroidClothesline({ villages, onSelectVillage }: 
 
     const totalW = count * CARD_WIDTH + (count - 1) * GAP;
 
-    // 2차 베지에 곡선으로 가운데가 부드럽게 처지는 U자 포물선 패스 생성
-    // (시작 높이: BASE_Y, 중간 최대 처짐: BASE_Y + MAX_SAG, 끝 높이: BASE_Y)
+
+
     const controlY = BASE_Y + 2 * MAX_SAG;
     const path = `M 0,${BASE_Y} Q ${totalW / 2},${controlY} ${totalW},${BASE_Y}`;
 
     const layouts = picks.map((village, idx) => {
       const centerX = idx * (CARD_WIDTH + GAP) + CARD_WIDTH / 2;
       const t = centerX / totalW;
-      // 곡선의 Y 위치 (포물선 높이)
+
       const sag = 4 * MAX_SAG * t * (1 - t);
       const ropeY = BASE_Y + sag;
 
-      // 곡선의 접선 기울기 계산 (자연스러운 매달림 각도)
+
       const tangentSlope = (4 * MAX_SAG * (1 - 2 * t)) / totalW;
       const tiltDeg = Math.atan(tangentSlope) * (180 / Math.PI) * 0.7;
 
       return {
         village,
-        // 집게의 스프링 홈(상단 기준 10px 지점)이 곡선의 ropeY와 정확히 맞물리도록 오프셋 계산
+
         yOffset: Math.round(ropeY + 4),
         tilt: Number(tiltDeg.toFixed(1)),
       };

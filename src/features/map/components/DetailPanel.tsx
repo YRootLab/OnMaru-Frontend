@@ -11,12 +11,12 @@ import PopularPlacesPanel from '@/private/core-ui/map-warmth/PopularPlacesPanel'
 const PANEL_WIDTH = 380;
 const PANEL_WIDTH_COMPACT = 360;
 
-/*
-  너비는 그대로 CSS 미디어쿼리로 연다/닫는다 — 반응형 분기점이 뷰포트 폭에
-  달려 있어서, JS(useState/useEffect)로 옮기면 SSR에는 없는 window.innerWidth를
-  읽어야 해 hydration 시점에 서버/클라이언트 값이 어긋날 수 있다. Framer Motion은
-  그 값과 무관한 opacity/x(transform)만 맡아서 진입 곡선만 스프링으로 매만진다.
-*/
+
+
+
+
+
+
 const DetailAside = styled(motion.aside)<{ $open: boolean }>`
   position: relative;
   flex: none;
@@ -68,7 +68,7 @@ export default function DetailPanel() {
 
   const isOpen = Boolean(detailId) || popularPanelOpen;
 
-  // 패널이 열리거나 닫힌 후 카카오맵 뷰포트 relayout 재계산
+
   useEffect(() => {
     const timer = setTimeout(() => {
       if (map && window.kakao?.maps) {

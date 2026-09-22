@@ -14,7 +14,7 @@ interface StampCardProps {
   onClick: () => void;
 }
 
-// --- Styled Components ---
+
 
 const Card = styled.div<{ $unlocked: boolean; $color: string }>`
   position: relative;
@@ -24,7 +24,7 @@ const Card = styled.div<{ $unlocked: boolean; $color: string }>`
   text-align: center;
   padding: 20px 14px 16px;
   border-radius: 18px;
-  /* 방문 시 밝고 화사한 화이트, 미방문 시 따뜻한 베이지/그레이 톤 */
+
   background: ${({ $unlocked }) =>
     $unlocked ? 'rgba(255, 255, 255, 0.96)' : 'rgba(25, 31, 40, 0.02)'};
   border: 1px solid
@@ -32,12 +32,12 @@ const Card = styled.div<{ $unlocked: boolean; $color: string }>`
       $unlocked ? 'rgba(245, 158, 11, 0.3)' : 'rgba(25, 31, 40, 0.05)'};
   cursor: pointer;
   user-select: none;
-  
-  /* 3D 효과를 위한 설정 */
+
+
   perspective: 1000px;
   transform-style: preserve-3d;
-  
-  /* GSAP이 transform과 box-shadow를 제어하므로 transition에서 제외 */
+
+
   transition: background 0.3s ease, border-color 0.3s ease;
   overflow: hidden;
 
@@ -48,7 +48,7 @@ const Card = styled.div<{ $unlocked: boolean; $color: string }>`
       $unlocked ? 'rgba(245, 158, 11, 0.3)' : 'rgba(255, 255, 255, 0.05)'};
   }
 
-  /* 클릭(터치) 시 살짝 눈리는 느낌 */
+
   &:active {
     transform: scale(0.97) !important;
   }
@@ -59,7 +59,7 @@ const Card = styled.div<{ $unlocked: boolean; $color: string }>`
   }
 `;
 
-// 홀로그램 반사광 (GSAP으로 위치와 투명도 제어)
+
 const GlowLayer = styled.div`
   position: absolute;
   inset: 0;
@@ -81,13 +81,13 @@ const SealFrame = styled.div<{ $unlocked: boolean; $color: string }>`
   margin-bottom: 12px;
   background: ${({ $unlocked }) =>
     $unlocked ? 'rgba(255, 255, 255, 0.95)' : 'rgba(25, 31, 40, 0.04)'};
-  /* 인장 테두리: 기존 탁한 색에서 밝고 강력한 색상으로 조정 */
+
   border: 2.5px solid
     ${({ $unlocked, $color }) => ($unlocked ? $color : 'rgba(25, 31, 40, 0.1)')};
   color: ${({ $unlocked, $color }) => ($unlocked ? $color : meok[400])};
   box-shadow: ${({ $unlocked }) =>
     $unlocked ? '0 4px 12px rgba(234, 88, 12, 0.15)' : 'none'};
-  z-index: 2; /* GlowLayer 위로 올라오도록 설정 */
+  z-index: 2;
 
   [data-theme='dark'] & {
     background: ${({ $unlocked }) =>
@@ -98,7 +98,7 @@ const SealFrame = styled.div<{ $unlocked: boolean; $color: string }>`
       $unlocked ? '0 4px 12px rgba(245, 158, 11, 0.2)' : 'none'};
   }
 
-  /* 내부 대시(점선) 테두리 디테일 */
+
   &::after {
     content: '';
     position: absolute;
@@ -124,7 +124,7 @@ const SealFrame = styled.div<{ $unlocked: boolean; $color: string }>`
 
 const SealText = styled.span`
   font-family: var(--font-traditional);
-  font-size: 26px; /* 살짝 더 크게 키워 인장의 가독성 확보 */
+  font-size: 26px;
   font-weight: 700;
   letter-spacing: 0.05em;
   line-height: 1;
@@ -139,7 +139,7 @@ const Title = styled.h4<{ $unlocked: boolean }>`
   font-size: 14.5px;
   font-weight: 700;
   margin: 0 0 4px 0;
-  color: ${({ $unlocked }) => ($unlocked ? '#78350f' : meok[500])}; /* 진한 갈색/오렌지 톤 */
+  color: ${({ $unlocked }) => ($unlocked ? '#78350f' : meok[500])};
   letter-spacing: -0.01em;
   z-index: 2;
 
@@ -173,7 +173,7 @@ const DateBadge = styled.div`
   margin-top: 6px;
   font-size: 10.5px;
   font-weight: 700;
-  color: #ea580c; /* 성공/완료를 상징하는 경쾌한 오렌지로 변경 */
+  color: #ea580c;
   background: rgba(234, 88, 12, 0.1);
   padding: 2px 8px;
   border-radius: 12px;
@@ -185,7 +185,7 @@ const DateBadge = styled.div`
   }
 `;
 
-// --- Main Component ---
+
 
 export default function StampCard({ stamp, collected, onClick }: StampCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -200,37 +200,37 @@ export default function StampCard({ stamp, collected, onClick }: StampCardProps)
       })
     : null;
 
-  // --- GSAP 3D Hover Interactions ---
+
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current || !glowRef.current) return;
-    
+
     const rect = cardRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    
-    // 기울기 계산 (가운데 기준)
-    const rx = -((y - rect.height / 2) / (rect.height / 2)) * 12; // 기울기 강도 살짝 상향
+
+
+    const rx = -((y - rect.height / 2) / (rect.height / 2)) * 12;
     const ry = ((x - rect.width / 2) / (rect.width / 2)) * 12;
     const gx = Math.round((x / rect.width) * 100);
     const gy = Math.round((y / rect.height) * 100);
 
-    // 카드 기울기 및 약간의 스케일 업 애니메이션
+
     gsap.to(cardRef.current, {
       rotationX: rx,
       rotationY: ry,
       y: -6,
       scale: 1.02,
-      boxShadow: isUnlocked 
-        ? '0 16px 32px rgba(234, 88, 12, 0.15)' // 오렌지 빛 그림자
+      boxShadow: isUnlocked
+        ? '0 16px 32px rgba(234, 88, 12, 0.15)'
         : '0 12px 24px rgba(0, 0, 0, 0.08)',
       duration: 0.4,
       ease: 'power2.out',
       overwrite: 'auto',
     });
 
-    // 마우스 위치에 따른 반사광(Glow) 효과 이동
+
     gsap.to(glowRef.current, {
-      opacity: isUnlocked ? 0.8 : 0.3, // 미방문 카드도 살짝 은은한 빛이 돌도록
+      opacity: isUnlocked ? 0.8 : 0.3,
       background: `radial-gradient(circle at ${gx}% ${gy}%, ${
         isUnlocked ? 'rgba(251, 191, 36, 0.5)' : 'rgba(255, 255, 255, 0.3)'
       } 0%, transparent 70%)`,
@@ -241,16 +241,16 @@ export default function StampCard({ stamp, collected, onClick }: StampCardProps)
 
   const handleMouseLeave = () => {
     if (!cardRef.current || !glowRef.current) return;
-    
-    // 마우스가 떠나면 원래 상태로 부드럽게 복구
+
+
     gsap.to(cardRef.current, {
       rotationX: 0,
       rotationY: 0,
       y: 0,
       scale: 1,
       boxShadow: 'none',
-      duration: 0.5, // 돌아갈 땐 조금 더 천천히 쫀득하게
-      ease: 'back.out(1.2)', 
+      duration: 0.5,
+      ease: 'back.out(1.2)',
       overwrite: 'auto',
     });
 
@@ -283,7 +283,7 @@ export default function StampCard({ stamp, collected, onClick }: StampCardProps)
       aria-label={`${stamp.name} - ${isUnlocked ? '도장 획득' : '미방문'}`}
     >
       <GlowLayer ref={glowRef} />
-      
+
       <SealFrame $unlocked={isUnlocked}$color={stamp.color}>
         {isUnlocked ? (
           <SealText>{stamp.sealText}</SealText>

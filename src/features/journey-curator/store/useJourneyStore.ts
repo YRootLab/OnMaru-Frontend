@@ -20,29 +20,29 @@ interface PendingProposal extends EnrichmentBundle {
 
 interface JourneyState {
   currentQuery: string;
-  /** 아직 아무것도 검색하지 않았으면 null. 무드 칩도 눌리지 않은 상태다. */
+
   activeMood: MoodId | null;
-  /** 한 번이라도 검색했는가. 홈은 검색 전에는 검색창만 보여준다. */
+
   hasSearched: boolean;
   selectedNodeId: string | null;
   currentPlan: BentoJourneyPlan;
   isGenerating: boolean;
 
-  /** 새 계약(TourAPI + Gemini 실데이터) 보드. KnowledgeGraphView를 대체한 JourneyFlowRail이 그린다. */
+
   explorationBoard: JourneyBoard | null;
-  /** explorationBoard가 확정된 시각. PDF 인쇄에 "생성일"로 쓴다 — 지어내지 않는다. */
+
   boardCreatedAt: string | null;
   isExploring: boolean;
-  /** 고른 장소들에 곁들이는 실데이터 3종 — 공간 기록 / 근처 오디 해설 / 근처 맛집. */
+
   hanokDogan: HanokDoganEntry[];
   nearbyAudio: NearbyAudioStory[];
   nearbyFood: NearbyFoodPlace[];
 
-  /** 고정한 장소. refine 요청에서도 이 장소들은 그대로 유지된다. */
+
   pinnedRefs: ResourceRef[];
-  /** refine 결과 — 적용 전까지는 committed board를 바꾸지 않는다. */
+
   pendingProposal: PendingProposal | null;
-  /** 최근 검색/수정 요청이 실패했을 때 보여줄 메시지. 성공하면 비운다 — 기존 board는 그대로 둔다. */
+
   lastError: string | null;
 
   setQuery: (query: string) => void;
@@ -54,7 +54,7 @@ interface JourneyState {
   applyProposal: () => void;
   dismissProposal: () => void;
   resetJourney: () => void;
-  /** 로그인 왕복(카카오) 뒤 sessionStorage에 맡겨뒀던 board나 저장된 여정을 되돌려놓는다. */
+
   hydrateBoard: (
     board: JourneyBoard,
     pinnedRefs: ResourceRef[],
@@ -65,7 +65,7 @@ interface JourneyState {
 
 type SetFn = (partial: Partial<JourneyState>) => void;
 
-/** 최초 검색: explorationBoard를 바로 확정한다 — 비교할 이전 board가 없다. */
+
 async function runInitialExploration(query: string, set: SetFn) {
   set({ isExploring: true });
   const result = await fetchExplorationBoard(query);
@@ -145,10 +145,10 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
     set({ isGenerating: false });
   },
 
-  /**
-   * 수정 요청. 고정한 장소(pinnedRefs)는 서버에 그대로 전달돼 반드시 유지되고,
-   * 결과는 바로 committed board를 덮지 않고 pendingProposal로 들어간다 — 적용해야 반영된다.
-   */
+
+
+
+
   refinePlan: async (prompt) => {
     if (!prompt.trim()) return;
     const { explorationBoard, pinnedRefs } = get();
@@ -178,7 +178,7 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
         },
       });
     } else {
-      // 실패 — 기존 committed board·pin을 그대로 둔다. 지어내지 않고 이유를 보여준다.
+
       set({ isGenerating: false, lastError: result.ok ? '변경안을 만들지 못했어요.' : result.message });
     }
   },

@@ -1,8 +1,8 @@
 'use client';
 
-// ============================================================
-// 관리자 공통 레이아웃 & 인증/인가 가드 (src/app/admin/layout.tsx)
-// ============================================================
+
+
+
 
 import React, { useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
@@ -23,14 +23,14 @@ export default function AdminLayout({
 
   const isLoginPage = pathname === '/admin/login';
 
-  // 미로그인 사용자 리다이렉트
+
   useEffect(() => {
     if (!isLoading && !user && !isLoginPage) {
       router.push('/admin/login');
     }
   }, [isLoading, user, isLoginPage, router]);
 
-  // 로그인 페이지는 사이드바/헤더 없이 독립 렌더링
+
   if (isLoginPage) {
     return (
       <div
@@ -47,7 +47,7 @@ export default function AdminLayout({
     );
   }
 
-  // 초기 인증 로딩 화면
+
   if (isLoading) {
     return (
       <div
@@ -67,7 +67,7 @@ export default function AdminLayout({
     );
   }
 
-  // 일반 USER 권한 차단 화면
+
   if (user && role === 'USER') {
     return (
       <div
@@ -144,7 +144,7 @@ export default function AdminLayout({
     );
   }
 
-  // EDITOR 권한이 ADMIN 전용 메뉴(users, data)에 접근할 경우 차단
+
   const isAdminOnlyRoute = pathname.startsWith('/admin/users') || pathname.startsWith('/admin/data');
   if (isEditor && !isAdmin && isAdminOnlyRoute) {
     return (

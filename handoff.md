@@ -1,6 +1,7 @@
 # handoff.md
 
 ## Current Work
+- `chore/remove-comments` 브랜치에서 추적 파일의 불필요한 주석을 제거 중이다. 컴파일러·린터·에디터 지시문과 실행용 shebang만 보존하고, 보존 주석은 문장부호 없이 단어로 끝나게 정리한다.
 - README를 다른 개발팀이 서비스 범위와 협업 지점을 이해할 수 있는 온마루 서비스 소개 문서로 개편했다. 구현 코드·명령·인증 정보는 포함하지 않았다.
 - `hotfix/delection-submodule`에서 private Core UI submodule 참조를 제거하고 `src/private/core-ui` 전체 코드를 이 저장소에 일반 파일로 직접 포함했다. `.gitmodules`·gitlink·`scripts/check-submodule.mjs`·`check:submodule`/`submodule:*` npm 스크립트·CI(deploy.yml, playwright.yml)의 서브모듈 초기화 단계를 모두 제거했다. 원본 `YRootLab/onmaru-core-ui` 저장소는 아카이브로 유지한다.
 - 소리마루 "장면을 따라 걷는 소리" 레일의 Core UI `adee88c` 개선 내용이 이제 in-repo 파일에 그대로 반영되어 있다.

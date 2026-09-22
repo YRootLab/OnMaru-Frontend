@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { seedWarmth } from '@/features/map/warmth/seed';
 
-/**
- * 여행자 온기 이야기(리뷰 및 한줄평) API
- * 
- * 실시간 혼잡도 히트맵과 분리되어, 여행자들이 남긴 순수 한옥 여행 소감 및 온기 이야기 제공.
- */
+
+
+
+
+
 export async function GET() {
   const now = Date.now();
 

@@ -160,14 +160,14 @@ export const SorimaruPagination: React.FC<SorimaruPaginationProps> = ({
   onPageChange,
   isLoading = false,
 }) => {
-  // 1페이지 이하(데이터가 1페이지만 존재할 때)에는 불필요하므로 미노출
+
   if (totalPages <= 1) return null;
 
   const handlePageClick = (page: number) => {
     if (page === currentPage || isLoading) return;
     onPageChange(page);
 
-    // 섹션 상단으로 부드럽게 스크롤
+
     const target = document.getElementById('sorimaru-archive');
     if (target) {
       const top = target.getBoundingClientRect().top + window.scrollY - 100;
