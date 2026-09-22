@@ -177,7 +177,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
             : { type: 'spring', damping: 28, stiffness: 350 }}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* 상단 숙소 히어로 이미지 */}
+          {}
           <ImageHero $bg={currentHeroImage}>
             <CloseBtn onClick={onClose} aria-label="닫기">
               <X size={18} strokeWidth={2.5} />
@@ -200,7 +200,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
           </ImageHero>
 
           <Body>
-            {/* 메타 정보 행 */}
+            {}
             <MetaRow>
               <StayBadge>
                 <Home size={12} strokeWidth={2.5} />
@@ -212,10 +212,10 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
               </AddrText>
             </MetaRow>
 
-            {/* 이슈 #82: BE가 설명에서 자동 추출한 콘텐츠 태그 */}
+            {}
             <ContentTagChips tags={detailData?.contentTags} />
 
-            {/* 숙소 소개 섹션 */}
+            {}
             <StayStorySection>
               <StoryHeader>
                 <Sparkles size={16} color={palette.cheongrok[500]} />
@@ -226,7 +226,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
               </StoryText>
             </StayStorySection>
 
-            {/* 숙박 이용 안내 (체크인/아웃, 주차, 편의시설) */}
+            {}
             <SectionTitle>
               <Sparkles size={16} strokeWidth={2} /> 이용 안내
             </SectionTitle>
@@ -317,7 +317,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
               </InfoCard>
             </InfoGrid>
 
-            {/* 당근/토스 스타일: 숙소 반경 2km 1박 2일 몰입형 시공간 코스 */}
+            {}
             <ItinerarySection>
               <ItineraryHeader>
                 <Compass size={16} color={palette.cheongrok[500]} />
@@ -326,7 +326,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
               <ItinerarySubtitle>
                 숙소 반경 2km 이내의 문화재 산책, 종가 미식, 온마루 사운드스케이프를 엮은 동선입니다.
               </ItinerarySubtitle>
-              
+
               <TimelineBox>
                 <TimelineDay>
                   <TimelineDayTitle>DAY 1 · 고택의 낮과 밤</TimelineDayTitle>
@@ -380,7 +380,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
               </TimelineBox>
             </ItinerarySection>
 
-            {/* 숙소 사진 갤러리 */}
+            {}
             {galleryImages.length > 1 && (
               <GallerySection>
                 <SectionTitle>
@@ -406,7 +406,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
               </GallerySection>
             )}
 
-            {/* 하단 액션 버튼 바 */}
+            {}
             <ActionRow>
               <DirectBookingButton
                 href={getBookingUrl(stay)}
@@ -438,7 +438,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
         </ModalCard>
       </Overlay>
 
-      {/* 라이트박스 전체화면 뷰어 */}
+      {}
       {zoomedImageIdx !== null && galleryImages[zoomedImageIdx] && (
         <LightboxOverlay
           key="hanok-stay-lightbox"

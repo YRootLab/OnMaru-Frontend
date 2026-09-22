@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { Village, VillageDetailResponse } from '@/features/hanok-archive/types';
 
-/** 도감 상세 모달이 여는 순간 TourAPI 상세 설명을 읽어온다. */
+
 export function useHanokDetail(village: Village) {
   const [detailData, setDetailData] = useState<VillageDetailResponse | null>(null);
   const [isLoadingOverview, setIsLoadingOverview] = useState(true);

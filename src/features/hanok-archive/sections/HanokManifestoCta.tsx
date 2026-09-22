@@ -7,7 +7,7 @@ import { meok, palette, lightPalette, surface, fluidHeading , fontSize } from '@
 
 import { Home, Leaf, ArrowRight } from 'lucide-react';
 
-// 아카이브 덩어리를 빠져나와 다시 매거진 목소리로 돌아오는 자리라 위쪽을 크게 비운다.
+
 const Section = styled.section`
   padding: clamp(96px, 13vh, 180px) 0 clamp(48px, 7vh, 96px);
   display: flex;

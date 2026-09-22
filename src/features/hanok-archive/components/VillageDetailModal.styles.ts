@@ -315,8 +315,8 @@ export const InfoCard = styled.div`
   }
 `;
 
-// 토스 스타일: 단순 정보(운영시간·주차 등)는 상태값이 아니라서 굳이 컬러를 안 쓴다.
-// 색은 "무료 입장료"처럼 실제로 눈에 띄어야 할 정보에만 남겨 둔다.
+
+
 export const InfoIconBox = styled.div`
   width: 32px;
   height: 32px;

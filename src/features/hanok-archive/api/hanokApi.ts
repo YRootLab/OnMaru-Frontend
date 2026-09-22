@@ -2,15 +2,15 @@ import { apiRequest, type ApiRequestOptions } from '@/lib/api/client';
 
 type RequestFn = <T>(path: string, options?: ApiRequestOptions) => Promise<T>;
 
-/*
-  백엔드 원본 응답 shape.
 
-  /v3/api-docs가 이 엔드포인트들의 success response를 아직 문서화하지 않아서
-  (200 응답이 `Record<string, never>`로만 내려온다) openapi-typescript 코드젠으로는
-  타입을 뽑을 수 없었다. 대신 2026-09-19에 실서버(onmaru-backend.onrender.com)를
-  직접 호출해 받은 실제 응답으로 아래 타입을 만들었다. 백엔드가 스키마를 채우면
-  `npm run generate:api-types`로 다시 검증할 것.
-*/
+
+
+
+
+
+
+
+
 export interface BackendHanokListItem {
   placeId: string;
   name: string;
@@ -112,16 +112,16 @@ export function createHanokRepository(request: RequestFn = apiRequest): HanokRep
   };
 }
 
-/*
-  fixture는 실서버 스키마 검증(테스트)용이다.
 
-  백엔드가 지금은 seed 데이터 2건(전주 한옥마을, 북촌 한옥 찻집)뿐이고 썸네일도
-  cdn.onmaru.example이라는 실재하지 않는 도메인이다. 이 repository를 도감/지도
-  화면의 기본 데이터 소스로 바로 연결하면 지금 실제로 쓰고 있는 전국 수집분
-  데이터가 2건짜리 placeholder로 보이게 된다 — 그래서 이 repository는 완성되어
-  있지만 아직 HanokArchive/HanokMap의 기본 소스로 연결하지 않았다. 백엔드가 전수
-  데이터를 채운 뒤 defaultHanokRepository를 실제 화면에 연결한다.
-*/
+
+
+
+
+
+
+
+
+
 export const fixtureHanokRepository: HanokRepository = {
   async listHanoks() {
     return {
