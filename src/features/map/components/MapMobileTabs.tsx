@@ -63,7 +63,7 @@ const CountBadge = styled.span`
   line-height: 1;
 `;
 
-/** /map 전용 하단 탭 — 사이트 공통 탭(GlobalMobileTabs)과 같은 자리에서 교체되므로 타이포·간격을 맞춘다. */
+
 export default function MapMobileTabs() {
   const router = useRouter();
   const mode = useMapStore((s) => s.mode);

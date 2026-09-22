@@ -266,7 +266,7 @@ export default function SearchBar({ className }: SearchBarProps) {
     }
   }, [searchTrigger, searchQuery]);
 
-  // 전국 전체보기로 지도 및 검색 초기화
+
   const handleResetToNationwide = () => {
     setValue('');
     setSearchQuery('');
@@ -296,7 +296,7 @@ export default function SearchBar({ className }: SearchBarProps) {
 
       const store = useMapStore.getState();
 
-      // 1. 카카오 키워드 장소 검색 서비스 실행
+
       if (typeof window !== 'undefined' && window.kakao?.maps?.services) {
         const ps = new window.kakao.maps.services.Places();
         ps.keywordSearch(keyword, (data: any, status: any) => {
@@ -305,21 +305,21 @@ export default function SearchBar({ className }: SearchBarProps) {
             const targetLat = Number(first.y);
             const targetLng = Number(first.x);
 
-            // 지도 뷰포트 이동
+
             if (map) {
               const latLng = new window.kakao.maps.LatLng(targetLat, targetLng);
               map.setCenter(latLng);
               map.setLevel(4, { animate: true });
             }
 
-            // 스토어 상태 갱신 및 재조회 트리거
+
             store.setCurrentAddress(first.address_name || keyword);
             store.setCenter({ lat: targetLat, lng: targetLng }, 4);
             store.clearSearchDirty();
             return;
           }
 
-          // 검색 결과가 카카오 맵에 없을 경우 기존 리스트 내 필터링 시도
+
           fallbackLocalSearch(keyword);
         });
       } else {

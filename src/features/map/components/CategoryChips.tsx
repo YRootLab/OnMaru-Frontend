@@ -64,12 +64,12 @@ const chipPopIn = keyframes`
   }
 `;
 
-/** 카테고리 칩이 가용 폭보다 많아지면 "···"로 접는 대신, 가로로 자연스럽게
- *  스크롤되도록 한다 — 네이버맵/카카오맵의 카테고리 필터 행과 같은 익숙한
- *  패턴. 터치는 브라우저 네이티브 스크롤에 맡기고, 마우스 사용자를 위해
- *  누르고 끄는(press-drag) 스크롤과 휠→가로 스크롤 변환을 함께 지원한다.
- *  PR #66의 가로 스크롤 수축 동작은 유지하되, mask-image는 쓰지 않는다.
- *  mask가 칩의 box-shadow까지 같이 잘라서 지도 위에서 그림자가 끊겨 보였기 때문이다. */
+
+
+
+
+
+
 const Scroller = styled.div`
   position: relative;
   display: flex;
@@ -93,9 +93,9 @@ const Scroller = styled.div`
   }
 `;
 
-/** 정보⇄온기 모드가 바뀔 때 그룹 전체를 짧게 페이드한다.
- *  absolute 겹침을 쓰면 스크롤러의 실제 폭/높이 계산이 흐려져 칩이 눌려
- *  보일 수 있으므로, 실제 콘텐츠 크기를 가진 flex row로 둔다. */
+
+
+
 const ModeGroup = styled(motion.div, transientProps)<{ $align: 'start' | 'end' }>`
   position: relative;
   display: flex;
@@ -195,15 +195,15 @@ const ChipWrap = styled.div`
 `;
 
 interface CategoryChipsProps {
-  /** 좁은 폭에서 칩이 어느 쪽 끝에서부터 자라나야 하는지. 패널/검색바 바로
-   *  옆에서 시작해 오른쪽(지도 쪽)으로 흘러야 화면이 넓어져도 패널과의
-   *  간격이 벌어지지 않으므로 기본값은 'start'. */
+
+
+
   align?: 'start' | 'end';
 }
 
-/** 지도 위 카테고리 필터 칩 목록.
- *  칩 개수가 가용 폭을 넘으면 숨기는 대신 가로 스크롤로 접근한다 —
- *  터치는 네이티브 스크롤, 마우스는 press-drag와 휠을 지원한다. */
+
+
+
 export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
   const mode = useMapStore((s) => s.mode);
   const category = useMapStore((s) => s.category);
@@ -222,7 +222,7 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
   );
 
   const handleChipClick = (item: CategoryItem) => {
-    // 1. 온기 모드에서는 카테고리 필터 변경 (이미 선택된 것을 다시 누르면 'all'로 초기화)
+
     if (mode === 'warmth') {
       if (item.id === 'all' || category === item.id) {
         setCategory(null);
@@ -232,7 +232,7 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
       return;
     }
 
-    // 2. 정보 모드에서는 카테고리 필터 토글 & 패널 열기
+
     if (category === item.id) {
       setCategory(null);
     } else {
@@ -243,16 +243,16 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
     }
   };
 
-  // 스크롤 위치가 바뀔 때 레이아웃을 재측정해 브라우저의 네이티브 가로
-  // 스크롤 수축 상태를 안정화한다. 시각적 fade mask는 그림자를 자르므로 제거했다.
+
+
   const updateEdgeFade = useCallback(() => {
     const el = containerRef.current;
     if (!el) return;
     el.style.setProperty('--scroll-left', `${el.scrollLeft}px`);
   }, []);
 
-  // 마우스로 누른 채 좌우로 끌면 스크롤되는 press-drag. 터치는 브라우저
-  // 네이티브 스크롤에 맡기므로 pointerType이 'mouse'일 때만 개입한다.
+
+
   const dragRef = useRef<{ startX: number; startScrollLeft: number; moved: boolean } | null>(null);
   const suppressClickRef = useRef(false);
 
@@ -261,8 +261,8 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
     const container = containerRef.current;
     if (!container) return;
     dragRef.current = { startX: e.clientX, startScrollLeft: container.scrollLeft, moved: false };
-    // pointerdown 시점에 즉시 setPointerCapture를 호출하면 자식 버튼의 click 이벤트가 막히므로
-    // 실제 드래그 이동이 발생했을 때만 캡처를 활성화한다.
+
+
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -275,7 +275,7 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
       try {
         container.setPointerCapture(e.pointerId);
       } catch {
-        // 무시
+
       }
     }
     if (drag.moved) {
@@ -290,11 +290,11 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
       try {
         container.releasePointerCapture(e.pointerId);
       } catch {
-        // 이미 해제된 포인터 캡처는 무시
+
       }
     }
-    // 드래그로 스크롤한 직후의 클릭이 칩 선택으로 이어지지 않도록, 다음
-    // click 이벤트 1회만 캡처 단계에서 막는다.
+
+
     suppressClickRef.current = Boolean(dragRef.current?.moved);
     dragRef.current = null;
   };
@@ -324,8 +324,8 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
     el.addEventListener('scroll', updateEdgeFade, { passive: true });
     const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateEdgeFade) : null;
     observer?.observe(el);
-    // 모드 전환 크로스페이드(180ms)가 끝나고 옛 칩 세트가 실제로 걷힌
-    // 뒤의 최종 scrollWidth도 한 번 더 반영한다.
+
+
     const settleTimer = window.setTimeout(updateEdgeFade, 220);
     return () => {
       el.removeEventListener('scroll', updateEdgeFade);

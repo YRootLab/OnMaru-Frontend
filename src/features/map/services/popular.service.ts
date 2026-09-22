@@ -2,7 +2,7 @@ import { TourApiClient } from '@/lib/tour-api/tourApiClient';
 import type { RankedPlace } from '@/features/map/types';
 import { toHttps } from '@/features/map/utils/formatters';
 
-const CACHE_TTL = 10 * 60 * 1000; // 10분
+const CACHE_TTL = 10 * 60 * 1000;
 
 interface PopularCacheEntry {
   expiresAt: number;
@@ -16,13 +16,13 @@ interface PopularCacheEntry {
 export class PopularPlaceService {
   private static cache = new Map<string, PopularCacheEntry>();
 
-  /**
-   * 한국관광공사 TourAPI 조회순(arrange P/Q) 정렬 결과를 그대로 순위로 쓴다.
-   *
-   * 여기서 만들어내는 값은 없다. 예전에는 helpfulCount를 `95 - idx * 6`으로,
-   * 혼잡도를 순위 인덱스로 지어내 화면에 "도움돼요 95개 · 혼잡"으로 띄웠다.
-   * 근거가 없는 숫자라 전부 걷어냈고, 화면에는 순위와 출처만 남는다.
-   */
+
+
+
+
+
+
+
   public static async getPopularPlaces(region = 'all'): Promise<{
     region: string;
     items: RankedPlace[];
@@ -38,7 +38,7 @@ export class PopularPlaceService {
     const keyword = region === 'all' || region === '전국' ? '한옥' : region;
 
     try {
-      // 1. TourAPI 키워드 조회순(arrange: 'P' / 'Q') 실시간 병렬 요청
+
       const [keywordRes, areaRes] = await Promise.allSettled([
         TourApiClient.get(
           'searchKeyword2',

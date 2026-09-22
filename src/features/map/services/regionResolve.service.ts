@@ -14,7 +14,7 @@ export interface RegionCandidate {
   confidence: number;
 }
 
-/** GET /api/v1/regions/resolve 응답. 실서버 호출로 검증한 실제 shape (2026-09-19). */
+
 export interface RegionResolveResult {
   schemaVersion: string;
   coordinates: { lat: number; lng: number };
