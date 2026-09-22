@@ -3,6 +3,7 @@
 Lightweight human-readable summary of meaningful repository changes. This does not replace Git history.
 
 ## Unreleased
+- 더 이상 사용하지 않는 이전 호스팅 서비스 관련 문서 안내를 제거했다.
 - README를 설치 안내 중심 문서에서 한옥 탐험 플랫폼의 서비스 목적, 핵심 사용자 경험, 화면별 역할, 데이터·협업 범위를 설명하는 외부 협업팀용 소개 문서로 개편했다.
 - private submodule(`YRootLab/onmaru-core-ui`) 참조를 제거하고 `src/private/core-ui` 전체 코드를 이 저장소에 일반 파일로 직접 포함시켰다. `.gitmodules`·gitlink·`scripts/check-submodule.mjs`·`check:submodule`/`submodule:*` 스크립트와 CI(deploy.yml, playwright.yml)의 서브모듈 초기화 단계를 제거해 배포 시 private 저장소 접근이 더 이상 필요 없다. 원본 `onmaru-core-ui` 저장소는 아카이브로 유지한다.
 - 홈 화면 API 재연동: 추천 코스·인기 소리·인기 지역을 `api/v1/home` 엔드포인트로 교체하고, 탐색 시작 요청을 `POST /api/journey-curator/explore` 호환 경로로 전환했다. (Closes #126)
@@ -33,7 +34,6 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 - Next.js·Vitest 및 전이 의존성을 보안 patch 버전으로 올려 의존성 감사 취약점을 모두 해결했다.
 - Vitest/Vite의 YAML 2.x 의존성을 lockfile에 고정해 CI의 `npm ci` 설치가 일관되게 동작하도록 했다.
 - Vercel CLI pull을 이전 성공 방식으로 되돌려 잘못 해석된 `VERCEL_ORG_ID` scope 때문에 발생하던 `User not found` 배포 실패를 제거했다.
-- Netlify repository preparation이 private Core UI submodule을 가져올 수 있도록 submodule URL을 SSH에서 HTTPS로 전환하고, Netlify GitHub App의 private repository 접근 권한 설정 절차를 문서화했다.
 
 - 홈 추천 코스, 인기 한옥 소리, 인기 지역을 백엔드 홈 API로 연동하고 기존 홈 목데이터 프록시를 제거했다.
 - 인기 한옥 소리 원천이 `503 SERVICE_UNAVAILABLE`일 때 빈 재시도 UI를 표시한다.
