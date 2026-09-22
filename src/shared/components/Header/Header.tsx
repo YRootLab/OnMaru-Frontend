@@ -23,8 +23,8 @@ import { useMapEntranceStore } from '@/shared/navigation/mapEntranceState';
 import { shouldUseLandingDarkSurface } from './headerSurface';
 import { useJourneyStore } from '@/features/journey-curator/store/useJourneyStore';
 
-/** 캡슐형 GNB의 높이 — /map의 MapChips가 "같은 자리를 이어받는" 느낌을 내려면
- *  이 값을 그대로 써야 한다. */
+
+
 export const HEADER_HEIGHT = 46;
 const ONMARU_LOGO_SRC = '/logo.png';
 
@@ -292,12 +292,12 @@ const MobileTabNavWrap = styled('div', transientProps)<LandingProps>`
   }
 `;
 
-/** 모바일 상단 바 — 좌측 온마루 로고 (지도에서는 숨김) */
+
 const MobileTopBar = styled('div', transientProps)<LandingProps>`
-  /* 1. 기본적으로 모든 화면에서 숨김 */
+
   display: none;
 
-  /* 2. 지도 페이지가 아닐 때만 모바일(767px 이하)에서 상단 바 노출 */
+
   ${({ $isMapPage }) =>
     !$isMapPage &&
     `
@@ -307,9 +307,9 @@ const MobileTopBar = styled('div', transientProps)<LandingProps>`
       position: relative;
       z-index: 100;
       padding: max(16px, env(safe-area-inset-top)) 16px 0;
-      margin-bottom: 32px; 
-      
-      /* 알약 배경 날림 */
+      margin-bottom: 32px;
+
+
       background: transparent;
       border: none;
       box-shadow: none;
@@ -832,7 +832,7 @@ export default function Header() {
         />
 
 
-        {/* 맨 왼쪽: 온마루 로고 */}
+        {}
         <LeftSection $isMapPage={isMapPage}>
           <LogoLink href="/" aria-label="온마루 홈으로 이동" onClick={resetJourney}>
             <Image
@@ -846,7 +846,7 @@ export default function Header() {
           </LogoLink>
         </LeftSection>
 
-        {/* 가운데: 홈, 한옥 이야기, 소리마루, 지도 */}
+        {}
         <CenterNav $isMapPage={isMapPage}>
           {[
             { href: '/', label: '홈', icon: Sparkles, active: pathname === '/' },
@@ -873,7 +873,7 @@ export default function Header() {
           })}
         </CenterNav>
 
-      {/* 오른쪽 끝: 테마 변경 + 로그인 / 마이페이지 */}
+      {}
       <RightSection $isMapPage={isMapPage} ref={themePickerRef}>
         <ThemePickerWrap>
           <ThemeToggleBtn

@@ -42,7 +42,7 @@ const PRESET_TAGS = [
   '#차한잔',
 ];
 
-/* ── STRICT RULE: border & shadow 절대 사용 금지 ── */
+
 const Overlay = styled.div<{ $open: boolean }>`
   position: fixed;
   inset: 0;
@@ -148,7 +148,7 @@ const SectionLabel = styled.label`
   }
 `;
 
-/* ── 1. 지역 선택기 (Region Scroller) ── */
+
 const RegionScroller = styled.div`
   display: flex;
   gap: 6px;
@@ -188,7 +188,7 @@ const RegionChip = styled.button<{ $active: boolean }>`
   }
 `;
 
-/* ── 2. 장소 검색/선택 인풋 (Place Search & Select) ── */
+
 const PlaceInputWrap = styled.div`
   position: relative;
   margin-top: 8px;
@@ -300,7 +300,7 @@ const PlaceOptionAddr = styled.span`
   }
 `;
 
-/* ── 3. 장소 혼잡도 분위기 ── */
+
 const MoodButtonGroup = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -336,7 +336,7 @@ const MoodButton = styled.button<{ $active: boolean }>`
   }
 `;
 
-/* ── 4. 추천 키워드 태그 ── */
+
 const TagWrap = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -368,7 +368,7 @@ const TagChip = styled.button<{ $selected: boolean }>`
   }
 `;
 
-/* ── 5. 한줄평 본문 ── */
+
 const TextArea = styled.textarea`
   width: 100%;
   height: 84px;
@@ -484,7 +484,7 @@ export default function WriteWarmthModal({
   const [isSuccess, setIsSuccess] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // 지역 및 검색어 필터링된 장소 목록
+
   const filteredPlaces = useMemo(() => {
     let list = items;
     if (selectedRegion !== '전국') {
@@ -558,7 +558,7 @@ export default function WriteWarmthModal({
         </ModalHeader>
 
         <form onSubmit={handleSubmit}>
-          {/* 1. 지역 및 장소 선택기 */}
+          {}
           <FormSection>
             <SectionLabel>어디를 다녀오셨나요?</SectionLabel>
             <RegionScroller>
@@ -607,13 +607,13 @@ export default function WriteWarmthModal({
             )}
           </FormSection>
 
-          {/* 2. 표정 감정 선택기 */}
+          {}
           <FormSection>
             <SectionLabel>이곳에서 어떤 기분이 드셨나요?</SectionLabel>
             <MoodSelector value={score} onChange={(val) => setScore(val)} />
           </FormSection>
 
-          {/* 3. 장소 혼잡도 분위기 */}
+          {}
           <FormSection>
             <SectionLabel>지금 분위기는 어때요?</SectionLabel>
             <MoodButtonGroup>
@@ -636,7 +636,7 @@ export default function WriteWarmthModal({
             </MoodButtonGroup>
           </FormSection>
 
-          {/* 4. 추천 키워드 태그 */}
+          {}
           <FormSection>
             <SectionLabel>어울리는 분위기를 골라보세요 (선택)</SectionLabel>
             <TagWrap>
@@ -653,7 +653,7 @@ export default function WriteWarmthModal({
             </TagWrap>
           </FormSection>
 
-          {/* 5. 한줄평 본문 */}
+          {}
           <FormSection>
             <SectionLabel>남기고 싶은 이야기나 꿀팁</SectionLabel>
             <TextArea

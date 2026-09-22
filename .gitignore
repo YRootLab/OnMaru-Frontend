@@ -1,6 +1,6 @@
 See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
+
 /node_modules
 /.pnp
 .pnp.*
@@ -10,64 +10,63 @@ See https://help.github.com/articles/ignoring-files/ for more about ignoring fil
 !.yarn/releases
 !.yarn/versions
 
-# testing
+
 /coverage
 
-# next.js
+
 /.next/
 /out/
 
-# production
+
 /build
 
-# misc
+
 .DS_Store
 *.pem
 .mcp.json
 
-# debug
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
-!.env.example
 
-# tourapi 조사/빌드 부산물 (큐레이션 파일 data/village-overrides.json과
-# 산출물 src/data/hanokVillages*.json은 커밋 대상)
+.env*
+
+
+
 data/probe-*.json
 data/build-errors.json
 
-# vercel
+
 .vercel
 
-# 개인 트러블슈팅 노트 (비공개)
+
 /트러블슈팅
 /기록
 /아카이브
 /myFrontendSkill
 /myDesignSkill
-/new 
+/new
 /docs/specs
 
 /claude_workspace
 
-# typescript
+
 *.tsbuildinfo
 tsconfig.tsbuildinfo
 next-env.d.ts
 node_modules
 
-#Orca
+
 .mcp.json
 
-# local visual brainstorming artifacts
+
 .superpowers/
 
-# ADR toolkit runtime lock
+
 docs/decisions/.adr-toolkit.lock
 
-# 로컬 전용 트러블슈팅 기록 — 팀 참고용, git에는 안 올림
+
 new/troubleshooting-notes.md

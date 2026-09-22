@@ -280,7 +280,7 @@ function formatRelativeTime(isoString: string): string {
   }
 }
 
-/** 위도/경도 간 거리(m). 계산기는 utils/geo 하나만 쓴다. */
+
 function getDistanceMeters(lat1: number, lng1: number, lat2: number, lng2: number): number {
   return distanceInMeters({ lat: lat1, lng: lng1 }, { lat: lat2, lng: lng2 });
 }
@@ -294,16 +294,16 @@ export default function PlaceWarmthSection({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const warmths = useMapStore((s) => s.warmths);
 
-  // 해당 장소와 매칭되는 온기 목록 필터링
+
   const matchedWarmths = useMemo(() => {
     const cleanTargetName = placeName.replace(/\s+/g, '').toLowerCase();
 
     return warmths
       .filter((w) => {
-        // 1. placeId 직접 일치
+
         if (w.placeId && w.placeId === placeId) return true;
 
-        // 2. 장소명 상호 포함 검사
+
         const cleanName = w.placeName.replace(/\s+/g, '').toLowerCase();
         if (
           cleanTargetName.includes(cleanName) ||
@@ -312,7 +312,7 @@ export default function PlaceWarmthSection({
           return true;
         }
 
-        // 3. 좌표 근접성 (반경 350m 이내)
+
         if (
           Number.isFinite(lat) &&
           Number.isFinite(lng) &&
@@ -362,14 +362,14 @@ export default function PlaceWarmthSection({
                   </TimeAndMine>
                 </CardTop>
 
-                {/* 5단계 표정 감정 표시기 */}
+                {}
                 {item.score && (
                   <MoodSelectorWrap>
                     <MoodSelector value={item.score} readonly />
                   </MoodSelectorWrap>
                 )}
 
-                {/* 추천 키워드 태그 */}
+                {}
                 {item.tags && item.tags.length > 0 && (
                   <TagList>
                     {item.tags.map((t, idx) => (

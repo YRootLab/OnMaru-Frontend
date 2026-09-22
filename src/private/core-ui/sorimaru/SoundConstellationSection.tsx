@@ -30,9 +30,9 @@ const getRegionStories = (stories: SorimaruStoryItem[], region: KoreaRegionPath)
   return matched.length ? matched : stories.slice(0, 4);
 };
 
-// ==========================================
-// Styled Components
-// ==========================================
+
+
+
 const pulseKeyframe = keyframes`
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.4; transform: scale(1.15); }
@@ -621,7 +621,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
   const [isRegionLoading, setIsRegionLoading] = useState(false);
   const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
 
-  // 무한 스크롤 및 가상 스크롤 상태
+
   const [renderScrollTop, setRenderScrollTop] = useState(0);
   const [containerHeight, setContainerHeight] = useState(500);
 
@@ -851,7 +851,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                 aria-hidden="true"
               >
                 <defs>
-                  {/* 모바일 및 데스크톱에서 마우스 없이도 100% 자동 순환하는 은은하고 부드러운 연주황 그라데이션 모션 */}
+                  {}
                   <motion.linearGradient
                     id="sorimaruRegionGradient"
                     x1="0%"

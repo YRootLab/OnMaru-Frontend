@@ -1,8 +1,8 @@
 'use client';
 
-// ============================================================
-// 로그인 / 회원가입 페이지 — 카카오 로그인 단일 창구 (src/app/auth/login/page.tsx)
-// ============================================================
+
+
+
 
 import { useAuth } from '@/features/auth';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';

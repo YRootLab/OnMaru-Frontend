@@ -1,5 +1,5 @@
-// KorService2 TourAPI 공통 API 호출 모듈
-// 환경변수 TOUR_API_KEY 또는 NEXT_PUBLIC_TOUR_API_KEY 사용
+
+
 import { URLSearchParams } from 'node:url';
 
 const BASE = 'https://apis.data.go.kr/B551011/KorService2';
@@ -12,7 +12,7 @@ const countsByEndpoint = {};
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-/** TourAPI 호출 통계 및 한도 모니터링 정보 반환 */
+
 export function getCallStats() {
   return {
     totalCalls,
@@ -20,7 +20,7 @@ export function getCallStats() {
   };
 }
 
-/** TourAPI HTML/BR 태그 및 엔티티 정제 레퍼 */
+
 export function stripTags(s) {
   return String(s ?? '')
     .replace(/<\s*(br|\/p|\/div|\/li)[^>]*>/gi, ' ')
@@ -31,46 +31,46 @@ export function stripTags(s) {
     .trim();
 }
 
-/**
- * TourAPI 이미지 URL을 https로 승격.
- * tong.visitkorea.or.kr은 http로 내려주는 경우가 섞여 있어, https 사이트에서
- * 그대로 쓰면 mixed content로 차단된다. 호스트는 https를 지원한다.
- */
+
+
+
+
+
 export function toHttps(url) {
   const s = String(url ?? '').trim();
   return s.startsWith('http://') ? `https://${s.slice(7)}` : s;
 }
 
-/** API 응답 JSON에서 items 배열을 안전하게 추출 */
+
 export function itemsOf(json) {
   const item = json?.response?.body?.items?.item;
   if (!item) return [];
   return Array.isArray(item) ? item : [item];
 }
 
-/** API 응답 totalCount 추출 */
+
 export function totalOf(json) {
   return Number(json?.response?.body?.totalCount ?? 0) || 0;
 }
 
-/**
- * KorService2 엔드포인트 공통 fetch 함수
- * @param {string} endpoint - API 엔드포인트명 (예: 'searchKeyword2')
- * @param {Record<string, string>} params - 쿼리 파라미터
- */
+
+
+
+
+
 export async function callApi(endpoint, params = {}) {
   const key = process.env.TOUR_API_KEY ?? process.env.NEXT_PUBLIC_TOUR_API_KEY;
   if (!key) {
     throw new Error('TOUR_API_KEY 또는 NEXT_PUBLIC_TOUR_API_KEY가 설정되어 있지 않습니다.');
   }
 
-  // 950회 도달 시 해당 엔드포인트 차단
+
   if (totalCalls >= HALT_THRESHOLD) {
     console.warn(`[TourAPI] 🚨 일일 호출 임계치(${HALT_THRESHOLD}회) 도달! '${endpoint}' 호출을 중단합니다.`);
     return null;
   }
 
-  // 엔드포인트별 카운터
+
   countsByEndpoint[endpoint] = (countsByEndpoint[endpoint] ?? 0) + 1;
   totalCalls++;
 
@@ -78,7 +78,7 @@ export async function callApi(endpoint, params = {}) {
     console.warn(`[TourAPI] ⚠️ 호출 경고: 현재 총 ${totalCalls}회 호출되었습니다. (한도 1,000회 직전)`);
   }
 
-  // 호출 간 200ms 딜레이
+
   await sleep(200);
 
   const queryParams = {
@@ -121,11 +121,11 @@ export async function callApi(endpoint, params = {}) {
   return null;
 }
 
-/**
- * 1. 키워드 검색 — 마을/한옥 수집
- * @param {string} keyword
- * @param {Record<string, any>} [opts]
- */
+
+
+
+
+
 export async function searchKeyword(keyword, opts = {}) {
   return callApi('searchKeyword2', {
     keyword,
@@ -136,10 +136,10 @@ export async function searchKeyword(keyword, opts = {}) {
   });
 }
 
-/**
- * 2. 숙박 전용 검색 — 한옥 숙소 수집
- * @param {Record<string, any>} [opts]
- */
+
+
+
+
 export async function searchStay(opts = {}) {
   return callApi('searchStay2', {
     numOfRows: String(opts.numOfRows ?? 100),
@@ -149,11 +149,11 @@ export async function searchStay(opts = {}) {
   });
 }
 
-/**
- * 3. 공통정보 — 개요·좌표·주소·대표이미지
- * @param {string} contentId
- * @param {Record<string, any>} [opts]
- */
+
+
+
+
+
 export async function detailCommon(contentId, opts = {}) {
   let json = await callApi('detailCommon2', {
     contentId: String(contentId),
@@ -174,11 +174,11 @@ export async function detailCommon(contentId, opts = {}) {
   return json;
 }
 
-/**
- * 4. 이미지 목록 — firstimage 없을 때 폴백, 공공누리 저작권 유형 포함
- * @param {string} contentId
- * @param {Record<string, any>} [opts]
- */
+
+
+
+
+
 export async function detailImage(contentId, opts = {}) {
   return callApi('detailImage2', {
     contentId: String(contentId),
@@ -190,11 +190,11 @@ export async function detailImage(contentId, opts = {}) {
   });
 }
 
-/**
- * 5. 소개정보 — 숙박 시설정보(체크인/주차/취사 등)
- * @param {string} contentId
- * @param {string|number} contentTypeId
- */
+
+
+
+
+
 export async function detailIntro(contentId, contentTypeId) {
   return callApi('detailIntro2', {
     contentId: String(contentId),
@@ -202,11 +202,11 @@ export async function detailIntro(contentId, contentTypeId) {
   });
 }
 
-/**
- * 6. 반복정보 — 이용안내, 추가 상세
- * @param {string} contentId
- * @param {string|number} contentTypeId
- */
+
+
+
+
+
 export async function detailInfo(contentId, contentTypeId) {
   return callApi('detailInfo2', {
     contentId: String(contentId),
@@ -214,14 +214,14 @@ export async function detailInfo(contentId, contentTypeId) {
   });
 }
 
-/**
- * 7. 위치기반 — 주변 관광지/음식점/숙박
- * @param {number|string} mapx
- * @param {number|string} mapy
- * @param {number|string} [radius=3000]
- * @param {number|string} [contentTypeId='']
- * @param {Record<string, any>} [opts]
- */
+
+
+
+
+
+
+
+
 export async function locationBased(mapx, mapy, radius = 3000, contentTypeId = '', opts = {}) {
   return callApi('locationBasedList2', {
     mapX: String(mapx),
@@ -234,11 +234,11 @@ export async function locationBased(mapx, mapy, radius = 3000, contentTypeId = '
   });
 }
 
-/**
- * 8. 행사 — 이 달의 축제
- * @param {string} eventStartDate - YYYYMM01 형식
- * @param {Record<string, any>} [opts]
- */
+
+
+
+
+
 export async function searchFestival(eventStartDate, opts = {}) {
   return callApi('searchFestival2', {
     eventStartDate: String(eventStartDate),
@@ -249,20 +249,20 @@ export async function searchFestival(eventStartDate, opts = {}) {
   });
 }
 
-/**
- * 9. 반려동물 동반 정보
- * @param {string} contentId
- */
+
+
+
+
 export async function detailPetTour(contentId) {
   return callApi('detailPetTour2', {
     contentId: String(contentId),
   });
 }
 
-/**
- * 11. 법정동 코드 — 지역 필터용
- * @param {Record<string, any>} [opts]
- */
+
+
+
+
 export async function ldongCode(opts = {}) {
   return callApi('ldongCode2', {
     numOfRows: String(opts.numOfRows ?? 100),
@@ -272,10 +272,10 @@ export async function ldongCode(opts = {}) {
   });
 }
 
-/**
- * 12. 지역기반 관광정보 조회 — 카테고리(cat1/cat2/cat3) 및 지역(areaCode) 기반 조회
- * @param {Record<string, any>} [opts]
- */
+
+
+
+
 export async function areaBasedList(opts = {}) {
   return callApi('areaBasedList2', {
     numOfRows: String(opts.numOfRows ?? 100),
@@ -290,9 +290,9 @@ export async function areaBasedList(opts = {}) {
   });
 }
 
-// ─────────────────────────────────────────────
-// TourAPI 4.0 카테고리 매핑 및 Query Parser 모듈
-// ─────────────────────────────────────────────
+
+
+
 
 export const CATEGORY_MAPPINGS = {
   STAY_HANOK: { contentTypeId: '32', cat1: 'B02', cat2: 'B0201', cat3: 'B02011600' },
@@ -306,10 +306,10 @@ export const AREA_CODES = {
   경기: '31', 강원: '32', 충북: '33', 충남: '34', 전북: '35', 전남: '36', 경북: '37', 경남: '38', 제주: '39',
 };
 
-/**
- * 자연어 요청을 TourAPI 4.0 JSON 쿼리 파라미터로 변환하는 Query Parser
- * @param {string} naturalLanguagePrompt
- */
+
+
+
+
 export function parseHanokQuery(naturalLanguagePrompt) {
   const prompt = String(naturalLanguagePrompt ?? '');
   let areaCode;
@@ -345,4 +345,3 @@ export function parseHanokQuery(naturalLanguagePrompt) {
     },
   };
 }
-

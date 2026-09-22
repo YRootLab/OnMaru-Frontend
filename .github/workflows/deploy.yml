@@ -37,9 +37,9 @@ jobs:
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
-      # ----------------------------------------------------------
-      # 6. Clean old Vercel metadata
-      # ----------------------------------------------------------
+
+
+
       - name: Clean Vercel metadata
         run: rm -rf .vercel
 
@@ -50,9 +50,9 @@ jobs:
         run: |
           node scripts/prepare-vercel-metadata.mjs
 
-      # ----------------------------------------------------------
-      # 8. Build
-      # ----------------------------------------------------------
+
+
+
       - name: Build Project Artifacts
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
 
@@ -88,9 +88,9 @@ jobs:
         run: |
           node scripts/prepare-vercel-metadata.mjs
 
-      # ----------------------------------------------------------
-      # 8. Preview Build
-      # ----------------------------------------------------------
+
+
+
       - name: Build Project Artifacts
         run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
 

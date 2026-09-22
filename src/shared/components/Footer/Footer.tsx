@@ -15,7 +15,7 @@ const FooterWrapper = styled.footer`
   font-family: 'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   padding: clamp(36px, 4vw, 52px) clamp(20px, 3.5vw, 48px) clamp(16px, 2vw, 24px);
 
-  /* 라이트 모드 은은한 온마루 단청 주홍-금빛 앰비언트 */
+
   background:
     radial-gradient(circle at 85% 15%, rgba(255, 110, 25, 0.08) 0%, transparent 55%),
     radial-gradient(circle at 15% 85%, rgba(255, 175, 50, 0.07) 0%, transparent 60%),
@@ -34,7 +34,7 @@ const FooterWrapper = styled.footer`
     border-top-color: rgba(255, 110, 25, 0.16);
   }
 
-  /* 다크 모드 딥 앰버 & 단청 주홍 앰비언트 */
+
   [data-theme='dark'] & {
     background:
       radial-gradient(circle at 80% 20%, rgba(255, 95, 10, 0.13) 0%, transparent 55%),
@@ -53,7 +53,7 @@ const FooterWrapper = styled.footer`
   }
 `;
 
-/* 마우스 커서 반응형 스포트라이트 조명 */
+
 const CursorSpotlight = styled.div<{ $x: number; $y: number; $visible: boolean }>`
   position: absolute;
   inset: 0;
@@ -101,7 +101,7 @@ const ContentArea = styled.div`
   flex-direction: column;
 `;
 
-/* 상단 멀티 컬럼 링크 네비게이션 */
+
 const TopNavGrid = styled.div`
   display: flex;
   justify-content: flex-end;
@@ -171,7 +171,7 @@ const ExternalFooterLink = styled.a`
   }
 `;
 
-/* 중단 비즈니스 & 데이터 정보 */
+
 const BusinessInfo = styled.div`
   font-size: 11.5px;
   line-height: 1.6;
@@ -187,7 +187,7 @@ const BusinessInfo = styled.div`
   }
 `;
 
-/* 정책 링크 바 (모달 트리거 버튼) */
+
 const PolicyLinksRow = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -225,7 +225,7 @@ const PolicyButton = styled.button<{ $bold?: boolean }>`
   }
 `;
 
-/* 최하단 카피라이트 */
+
 const Copyright = styled.div`
   font-size: 11.5px;
   font-weight: 600;
@@ -238,9 +238,9 @@ const Copyright = styled.div`
   }
 `;
 
-/* 
-  초대형 토스풍 OnMaru 워터마크 타이포그래피 (모든 텍스트 아래에 큼직하게 배치)
-*/
+
+
+
 const MassiveWatermark = styled.div`
   width: 100%;
   font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', 'Spoqa Han Sans Neo', sans-serif;
@@ -256,7 +256,7 @@ const MassiveWatermark = styled.div`
   overflow-wrap: break-word;
   transition: color 0.4s ease, transform 0.4s ease;
 
-  /* 라이트 모드 워터마크 */
+
   color: rgba(25, 31, 40, 0.05);
 
   ${FooterWrapper}:hover & {
@@ -264,7 +264,7 @@ const MassiveWatermark = styled.div`
     transform: translateY(-4px);
   }
 
-  /* 다크 모드 워터마크 */
+
   [data-theme='dark'] & {
     color: rgba(255, 255, 255, 0.08);
   }
@@ -295,7 +295,7 @@ export default function Footer() {
     });
   }, []);
 
-  // 인터랙티브 전체화면 지도 페이지에서는 맵 컨트롤 침범 방지를 위해 푸터를 표시하지 않습니다
+
   if (pathname.startsWith('/map')) {
     return null;
   }
@@ -308,19 +308,19 @@ export default function Footer() {
         onMouseLeave={() => setIsHovered(false)}
         onMouseMove={handleMouseMove}
       >
-        {/* 마우스 커서 스포트라이트 조명 */}
+        {}
         <CursorSpotlight $x={mousePos.x} $y={mousePos.y} $visible={isHovered} aria-hidden="true" />
 
         <FooterInner>
           <ContentArea>
 
 
-            {/* 1. 비즈니스 및 공공데이터 정보 */}
+            {}
             <BusinessInfo>
               <p>온마루 (OnMaru) · 한국관광공사 공공데이터(TourAPI 4.0 · Odii API) 기반 한옥 몰입형 관광 큐레이션</p>
             </BusinessInfo>
 
-            {/* 2. 필수 정책 링크 (클릭 시 전용 팝업 모달 오픈) */}
+            {}
             <PolicyLinksRow>
               <PolicyButton type="button" $bold onClick={() => setActivePolicyTab('privacy')}>
                 개인정보 처리방침
@@ -336,12 +336,12 @@ export default function Footer() {
               </PolicyButton>
             </PolicyLinksRow>
 
-            {/* 3. 카피라이트 */}
+            {}
             <Copyright>
               © OnMaru. All rights reserved.
             </Copyright>
 
-            {/* 4. 최하단 초대형 OnMaru 워터마크 타이포그래피 */}
+            {}
             <MassiveWatermark aria-hidden="true">
               한옥의 숨결과 소리를 잇다
             </MassiveWatermark>
@@ -349,7 +349,7 @@ export default function Footer() {
         </FooterInner>
       </FooterWrapper>
 
-      {/* 정책 & 이용약관 & 오픈소스 라이선스 모달 */}
+      {}
       {activePolicyTab && (
         <PolicyModal
           initialTab={activePolicyTab}

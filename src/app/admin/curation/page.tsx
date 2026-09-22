@@ -1,8 +1,8 @@
 'use client';
 
-// ============================================================
-// 관리자 큐레이션 관리 화면 (src/app/admin/curation/page.tsx)
-// ============================================================
+
+
+
 
 import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
@@ -33,15 +33,15 @@ import {
 export default function AdminCurationPage() {
   const [activeCategory, setActiveCategory] = useState<CurationCategory>('VILLAGE');
 
-  // 데이터셋 상태
+
   const [villages, setVillages] = useState<CurationItem[]>(mockVillages);
   const [stays, setStays] = useState<CurationItem[]>(mockStays);
   const [routes, setRoutes] = useState<CurationItem[]>(mockRoutes);
 
-  // 변경된 아이템 ID 세트 (미반영 상태)
+
   const [modifiedIds, setModifiedIds] = useState<Set<string>>(new Set());
 
-  // 필터 상태
+
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<'ALL' | HanokCurationType>('ALL');
   const [includedFilter, setIncludedFilter] = useState<'ALL' | 'INCLUDED' | 'EXCLUDED'>('ALL');
@@ -49,21 +49,21 @@ export default function AdminCurationPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 15;
 
-  // 인라인 이름 편집 상태
+
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
 
-  // 뱃지 추가 팝오버 상태
+
   const [badgePopoverId, setBadgePopoverId] = useState<string | null>(null);
   const [customBadgeInput, setCustomBadgeInput] = useState('');
 
-  // 알림 및 모달
+
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isApplyConfirmOpen, setIsApplyConfirmOpen] = useState(false);
   const [isApplying, setIsApplying] = useState(false);
   const [lastAppliedTime, setLastAppliedTime] = useState('2026.08.04 04:00');
 
-  // 현재 활성 카테고리의 원본 리스트
+
   const currentCategoryList = useMemo(() => {
     switch (activeCategory) {
       case 'VILLAGE':
@@ -75,7 +75,7 @@ export default function AdminCurationPage() {
     }
   }, [activeCategory, villages, stays, routes]);
 
-  // 업데이트 헬퍼
+
   const updateItem = (id: string, updates: Partial<CurationItem>) => {
     const updater = (prev: CurationItem[]) =>
       prev.map((item) => {
@@ -98,7 +98,7 @@ export default function AdminCurationPage() {
     setModifiedIds((prev) => new Set(prev).add(id));
   };
 
-  // 필터 초기화
+
   const handleResetFilters = () => {
     setSearchQuery('');
     setTypeFilter('ALL');
@@ -107,10 +107,10 @@ export default function AdminCurationPage() {
     setCurrentPage(1);
   };
 
-  // 필터링 적용 목록
+
   const filteredList = useMemo(() => {
     return currentCategoryList.filter((item) => {
-      // 검색 필터
+
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const matchName = item.name.toLowerCase().includes(q);
@@ -118,14 +118,14 @@ export default function AdminCurationPage() {
         if (!matchName && !matchRegion) return false;
       }
 
-      // 유형 필터
+
       if (typeFilter !== 'ALL' && item.type !== typeFilter) return false;
 
-      // 포함 필터
+
       if (includedFilter === 'INCLUDED' && !item.isIncluded) return false;
       if (includedFilter === 'EXCLUDED' && item.isIncluded) return false;
 
-      // 이미지 필터
+
       if (imageFilter === 'HAS_IMAGE' && !item.thumbnail) return false;
       if (imageFilter === 'NO_IMAGE' && Boolean(item.thumbnail)) return false;
 
@@ -133,14 +133,14 @@ export default function AdminCurationPage() {
     });
   }, [currentCategoryList, searchQuery, typeFilter, includedFilter, imageFilter]);
 
-  // 페이지네이션 슬라이스
+
   const totalPages = Math.ceil(filteredList.length / pageSize) || 1;
   const paginatedList = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
     return filteredList.slice(start, start + pageSize);
   }, [filteredList, currentPage, pageSize]);
 
-  // 변경사항 반영 실행
+
   const handleApplyChanges = () => {
     setIsApplying(true);
     setTimeout(() => {
@@ -153,19 +153,19 @@ export default function AdminCurationPage() {
     }, 1200);
   };
 
-  // 뱃지 추가
+
   const handleAddBadge = (item: CurationItem, badge: string) => {
     if (!badge.trim() || item.badges.includes(badge.trim())) return;
     updateItem(item.id, { badges: [...item.badges, badge.trim()] });
     setCustomBadgeInput('');
   };
 
-  // 뱃지 제거
+
   const handleRemoveBadge = (item: CurationItem, badgeToRemove: string) => {
     updateItem(item.id, { badges: item.badges.filter((b) => b !== badgeToRemove) });
   };
 
-  // 이름 인라인 수정 저장
+
   const handleSaveName = (item: CurationItem) => {
     if (editingName.trim() && editingName !== item.name) {
       updateItem(item.id, { name: editingName.trim() });
@@ -173,7 +173,7 @@ export default function AdminCurationPage() {
     setEditingId(null);
   };
 
-  // 테이블 컬럼 정의
+
   const columns: ColumnDef<CurationItem>[] = [
     {
       key: 'modifiedIndicator',
@@ -369,7 +369,7 @@ export default function AdminCurationPage() {
               </span>
             ))}
 
-            {/* 뱃지 추가 버튼 */}
+            {}
             <div style={{ position: 'relative' }}>
               <button
                 type="button"
@@ -391,7 +391,7 @@ export default function AdminCurationPage() {
                 <Plus size={14} strokeWidth={2} />
               </button>
 
-              {/* 뱃지 추가 팝오버 */}
+              {}
               {isPopoverOpen && (
                 <div
                   style={{
@@ -554,7 +554,7 @@ export default function AdminCurationPage() {
         <Toast message={toastMessage} type="success" onClose={() => setToastMessage(null)} />
       )}
 
-      {/* 상단 탭 및 우측 변경사항 반영 버튼 바 */}
+      {}
       <div
         style={{
           display: 'flex',
@@ -637,7 +637,7 @@ export default function AdminCurationPage() {
           </button>
         </div>
 
-        {/* 우측 변경사항 반영 버튼 및 마지막 시각 */}
+        {}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <span style={{ fontSize: '12px', color: meok[500] }}>
             마지막 반영: {lastAppliedTime}
@@ -684,7 +684,7 @@ export default function AdminCurationPage() {
         </div>
       </div>
 
-      {/* 필터 바 */}
+      {}
       <div
         style={{
           backgroundColor: '#FFFFFF',
@@ -733,7 +733,7 @@ export default function AdminCurationPage() {
           />
         </div>
 
-        {/* 유형 필터 */}
+        {}
         <select
           value={typeFilter}
           onChange={(e) => {
@@ -757,7 +757,7 @@ export default function AdminCurationPage() {
           <option value="EXPERIENCE">체험형</option>
         </select>
 
-        {/* 포함 여부 필터 */}
+        {}
         <select
           value={includedFilter}
           onChange={(e) => {
@@ -780,7 +780,7 @@ export default function AdminCurationPage() {
           <option value="EXCLUDED">제외만</option>
         </select>
 
-        {/* 이미지 보유 여부 필터 */}
+        {}
         <select
           value={imageFilter}
           onChange={(e) => {
@@ -825,7 +825,7 @@ export default function AdminCurationPage() {
         </button>
       </div>
 
-      {/* 테이블 */}
+      {}
       <DataTable
         columns={columns}
         rows={paginatedList}
@@ -837,7 +837,7 @@ export default function AdminCurationPage() {
         }}
       />
 
-      {/* 변경사항 반영 확인 모달 */}
+      {}
       <ConfirmDialog
         isOpen={isApplyConfirmOpen}
         title="큐레이션 변경사항 반영"

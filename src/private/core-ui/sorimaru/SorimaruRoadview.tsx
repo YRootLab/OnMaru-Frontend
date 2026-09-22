@@ -383,7 +383,7 @@ export const SorimaruRoadview: React.FC<SorimaruRoadviewProps> = ({
 
   return (
     <Container $isFullscreen={isFullscreen}>
-      {/* 360 파노라마 로드뷰 캔버스 */}
+      {}
       <RoadviewCanvas
         ref={containerRef}
         style={{
@@ -395,7 +395,7 @@ export const SorimaruRoadview: React.FC<SorimaruRoadviewProps> = ({
 
       {analyserRef && <AudioReactiveAura analyserRef={analyserRef} isPlaying={isPlaying} />}
 
-      {/* 로드뷰 미지원 또는 로드뷰 로드 실패 시에만 시네마틱 폴백 이미지 노출 */}
+      {}
       {(!isTargetingRoadview || error) && fallbackImage && (
         <FallbackContainer>
           <FallbackImg
@@ -409,7 +409,7 @@ export const SorimaruRoadview: React.FC<SorimaruRoadviewProps> = ({
         </FallbackContainer>
       )}
 
-      {/* 스켈레톤 로딩 오버레이 (360 로드뷰 또는 사진이 완전히 준비될 때까지 유지) */}
+      {}
       <AnimatePresence>
         {!isVisualReady && (
           <SkeletonOverlay
@@ -425,10 +425,10 @@ export const SorimaruRoadview: React.FC<SorimaruRoadviewProps> = ({
         )}
       </AnimatePresence>
 
-      {/* 고급스러운 흑단 비네팅 그라데이션 */}
+      {}
       <VignetteOverlay />
 
-      {/* 상단 컨트롤 & 상태 바 */}
+      {}
       <TopBadgeBar>
         <StatusChip $status={statusType}>
           <span className="dot" />
@@ -463,7 +463,7 @@ export const SorimaruRoadview: React.FC<SorimaruRoadviewProps> = ({
         </ButtonGroup>
       </TopBadgeBar>
 
-      {/* 360° 둘러보기 조작 유도 뱃지 (로드뷰 구동 시 노출) */}
+      {}
       <AnimatePresence>
         {loaded && showGuide && (
           <DragGuidanceBadge

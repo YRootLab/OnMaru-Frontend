@@ -9,13 +9,13 @@ import { filterLabel } from '@/features/hanok-archive/filterLabels';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import type { Village } from '@/features/hanok-archive/types';
 
-/*
-  진입부는 "지금 한옥은 어디에 남아 있을까"라고 묻는다. 도감과 지도는 개별 한 채씩을
-  보여줄 뿐 그 질문에 답하지 않는다. 이 섹션이 수집분 전체를 한 화면으로 눌러 답한다.
 
-  막대는 순위가 아니라 지역을 가리키므로 전부 같은 색을 쓴다. 값에 따라 색을 바꾸면
-  같은 것을 크기와 색으로 두 번 말하게 되고, 색이 곧 등급이라는 오해를 부른다.
-*/
+
+
+
+
+
+
 
 const Section = styled.section``;
 
@@ -114,7 +114,7 @@ const Rows = styled.ol`
   list-style: none;
 `;
 
-/* 막대는 값을 글자로도 옆에 적어 두므로 스크린리더에는 감춘다 */
+
 const Track = styled.span`
   display: block;
   width: 100%;
@@ -134,7 +134,7 @@ const Bar = styled.span<{ $ratio: number }>`
   width: ${({ $ratio }) => Math.max($ratio * 100, 1.5)}%;
   height: 100%;
   transform-origin: left center;
-  /* 데이터 끝만 둥글게 — 기준선 쪽은 각지게 두어야 0에서 시작한다는 게 보인다 */
+
   border-radius: 0 4px 4px 0;
   background: ${palette.kobalt[500]};
   transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.16s ease;
@@ -238,7 +238,7 @@ export default function HanokDistribution({ villages, onSelectRegion }: HanokDis
   }, [villages]);
 
   const max = regions[0]?.[1] ?? 1;
-  // 상위 세 곳이 전체의 몇 할인지가 이 섹션이 말하려는 한 문장이다.
+
   const topThree = regions.slice(0, 3);
   const topThreeShare = Math.round(
     total > 0 ? (topThree.reduce((sum, [, n]) => sum + n, 0) / total) * 100 : 0,

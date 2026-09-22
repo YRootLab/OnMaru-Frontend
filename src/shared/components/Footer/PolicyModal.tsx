@@ -175,7 +175,7 @@ const ContentBody = styled.div`
     color: ${meok[200]};
   }
 
-  /* 커스텀 스크롤바 */
+
   &::-webkit-scrollbar {
     width: 6px;
   }
@@ -336,7 +336,7 @@ export default function PolicyModal({ initialTab = 'privacy', onClose }: PolicyM
           </TabBar>
 
           <ContentBody>
-            {/* 1. 개인정보 처리방침 */}
+            {}
             {activeTab === 'privacy' && (
               <>
                 <Section>
@@ -374,7 +374,7 @@ export default function PolicyModal({ initialTab = 'privacy', onClose }: PolicyM
               </>
             )}
 
-            {/* 2. 서비스 이용약관 */}
+            {}
             {activeTab === 'terms' && (
               <>
                 <Section>
@@ -410,7 +410,7 @@ export default function PolicyModal({ initialTab = 'privacy', onClose }: PolicyM
               </>
             )}
 
-            {/* 3. 공공데이터 이용지침 */}
+            {}
             {activeTab === 'publicData' && (
               <>
                 <Section>
@@ -439,7 +439,7 @@ export default function PolicyModal({ initialTab = 'privacy', onClose }: PolicyM
               </>
             )}
 
-            {/* 4. 오픈소스 라이선스 */}
+            {}
             {activeTab === 'openSource' && (
               <>
                 <Section>

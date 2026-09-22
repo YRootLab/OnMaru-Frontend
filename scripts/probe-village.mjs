@@ -1,5 +1,5 @@
-// TourAPI 한옥마을 데이터 규모 탐침 스크립트. UI 없음, 조사 전용.
-// 실행: npm run probe:village  또는  node --env-file=.env.local scripts/probe-village.mjs
+
+
 import { mkdir, writeFile } from 'node:fs/promises';
 
 const BASE = 'https://apis.data.go.kr/B551011/KorService2';
@@ -83,9 +83,9 @@ async function main() {
   const rawKeywordResults = {};
   const allKeywordItems = [];
 
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━
-  // [TEST A] 한옥마을 관련 키워드 전수 조회
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+
   console.log('\n[TEST A] 한옥마을 관련 키워드 전수 조회');
   const keywords = ['한옥마을', '민속마을', '전통마을', '한옥촌'];
   const testAOverview = [];
@@ -121,9 +121,9 @@ async function main() {
 
   console.table(testAOverview);
 
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━
-  // [TEST B] contentTypeId 분포
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+
   console.log('\n[TEST B] contentTypeId 분포 (전체 키워드 조회 결과 중복 포함)');
   const typeDistribution = {};
   for (const item of allKeywordItems) {
@@ -138,9 +138,9 @@ async function main() {
   }));
   console.table(testBTable);
 
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━
-  // [TEST C] 중복 제거 후 실제 마을 후보
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+
   console.log('\n[TEST C] 중복 제거 후 실제 마을 후보 추출');
   const excludeKeywords = [
     '게스트하우스', '펜션', '민박', '카페', '식당',
@@ -150,24 +150,24 @@ async function main() {
   const candidateMap = new Map();
 
   for (const item of allKeywordItems) {
-    // 1. contentTypeId가 12(관광지) 또는 14(문화시설)
+
     if (item.contentTypeId !== '12' && item.contentTypeId !== '14') {
       continue;
     }
 
-    // 2. title에 '마을' 또는 '촌' 포함
+
     const title = item.title;
     if (!title.includes('마을') && !title.includes('촌')) {
       continue;
     }
 
-    // 3. title에 제외 키워드 없음
+
     const hasExcludedWord = excludeKeywords.some((exKw) => title.includes(exKw));
     if (hasExcludedWord) {
       continue;
     }
 
-    // 4. contentId 중복 제거
+
     if (!candidateMap.has(item.contentId)) {
       candidateMap.set(item.contentId, item);
     }
@@ -186,20 +186,20 @@ async function main() {
   console.table(candidateTable);
   console.log(`실제 마을 후보 수 (중복 제거 후): ${candidates.length}개`);
 
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━
-  // [TEST D] 마을별 주변 밀도 검증 (상위 5곳)
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+
   console.log('\n[TEST D] 마을별 주변 밀도 검증 (상위 5곳, 반경 3km)');
   const top5Candidates = candidates.slice(0, 5);
   const testDResults = [];
 
   for (const village of top5Candidates) {
-    let accommodationCount = 0; // 32 숙박
-    let attractionCount = 0;    // 12 관광지
-    let restaurantCount = 0;    // 39 음식점
+    let accommodationCount = 0;
+    let attractionCount = 0;
+    let restaurantCount = 0;
 
     if (village.mapx && village.mapy) {
-      // 32 숙박
+
       const json32 = await get('locationBasedList2', {
         mapX: village.mapx,
         mapY: village.mapy,
@@ -210,7 +210,7 @@ async function main() {
       });
       accommodationCount = totalOf(json32);
 
-      // 12 관광지
+
       const json12 = await get('locationBasedList2', {
         mapX: village.mapx,
         mapY: village.mapy,
@@ -221,7 +221,7 @@ async function main() {
       });
       attractionCount = totalOf(json12);
 
-      // 39 음식점
+
       const json39 = await get('locationBasedList2', {
         mapX: village.mapx,
         mapY: village.mapy,
@@ -247,13 +247,13 @@ async function main() {
 
   console.table(testDResults);
 
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━
-  // 최종 요약 및 저장
-  // ━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+
   const totalCandidates = candidates.length;
   const imageCount = candidates.filter((c) => c.hasImage).length;
-  
-  // 주변 숙박 5곳 이상인 마을 수 (TEST D 대상 중)
+
+
   const accom5Count = testDResults.filter((r) => r.숙박 >= 5).length;
 
   const isRecommended = totalCandidates >= 3 && imageCount >= 3;

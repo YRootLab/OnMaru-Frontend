@@ -216,7 +216,7 @@ async function callGemini(apiKey: string, modelName: string, userPrompt: string)
         responseMimeType: 'application/json',
       },
     }),
-    signal: AbortSignal.timeout(35000), // 35s timeout
+    signal: AbortSignal.timeout(35000),
   });
 
   if (!response.ok) {
@@ -246,7 +246,7 @@ export async function POST(req: NextRequest) {
     const apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY;
 
     if (!apiKey) {
-      // API Key가 설정되지 않은 경우 안전하게 로컬 매칭 플랜으로 폴백
+
       console.warn('[JourneyCurator API] GEMINI_API_KEY not found. Falling back to curated data.');
       const fallbackPlan = matchJourneyPlan(query);
       return NextResponse.json({
@@ -261,11 +261,11 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 한국관광공사 TourAPI 실시간 연관 관광지 및 연계 정보 조회 (TOUR_API_RELATED_KEY 활용)
+
     const searchTargetKeyword = extractSearchKeyword(query, mood);
     const tourData = await fetchTourApiRelatedSpots(searchTargetKeyword);
 
-    // Gemini 프롬프트 구성
+
     let userPrompt = `사용자가 찾고자 하는 여정 조건: "${query}"`;
     if (mood) {
       userPrompt += `\n선택된 감성 분위기: "${mood}"`;
@@ -286,14 +286,14 @@ ${tourData.nearby.map((spot, i) => `  ${i + 1}. ${spot.title} (주소: ${spot.ad
 - hanokCard.location에는 실제 주소("${tourData.center.addr}")를 적용하십시오.`;
     }
 
-    // 다일정 여정 감지 (예: 1박 2일, 2박 3일, 며칠 코스 등)
+
     const isMultiDay = /([1-9]\s*박\s*[1-9]\s*일|[1-9]\s*일\s*코스|[1-9]\s*일간|며칠|주말\s*여행)/i.test(query);
     if (isMultiDay) {
       userPrompt += `\n\n[다일정(N박 N일) 편성 특별 지침]
 - 사용자가 여러 날에 걸친 여정을 요청했습니다. 반드시 routeCard 객체 안에 totalDays(일정 일수)와 days 배열을 생성하여 각 일자별(1일차, 2일차...)로 테마, 소요시간, stops(3~4개 장소), mapLink를 균형 있게 분할 편성해 주세요.`;
     }
 
-    // 모델 시도: gemini-3.6-flash 우선, 순차 폴백
+
     const modelsToTry = ['gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-flash-latest'];
     let rawJson: string | null = null;
     for (const model of modelsToTry) {
@@ -319,14 +319,14 @@ ${tourData.nearby.map((spot, i) => `  ${i + 1}. ${spot.title} (주소: ${spot.ad
       });
     }
 
-    // JSON 마크다운 블록 제거 및 파싱
+
     let cleanedJson = rawJson.trim();
     if (cleanedJson.startsWith('```')) {
       cleanedJson = cleanedJson.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '').trim();
     }
     const parsed = JSON.parse(cleanedJson) as BentoJourneyPlan;
 
-    // 다일정 routeCard 보정: days가 있으면 stops는 1일차 stops로 보장
+
     const rawRoute = parsed.routeCard || matchJourneyPlan(query).routeCard;
     const hasDays = Array.isArray(rawRoute.days) && rawRoute.days.length > 0;
     const normalizedRoute: typeof rawRoute = {
@@ -338,7 +338,7 @@ ${tourData.nearby.map((spot, i) => `  ${i + 1}. ${spot.title} (주소: ${spot.ad
         : (rawRoute.stops || matchJourneyPlan(query).routeCard.stops),
     };
 
-    // 필수 컴포넌트 데이터 기본값 보정
+
     const plan: BentoJourneyPlan = {
       id: parsed.id || `ai-journey-${Date.now()}`,
       querySummary: parsed.querySummary || query,

@@ -1,8 +1,8 @@
 'use client';
 
-// ============================================================
-// 관리자 로그인 화면 (src/app/admin/login/page.tsx)
-// ============================================================
+
+
+
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -19,7 +19,7 @@ export default function AdminLoginPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // 로그인 처리 로직
+
   const handleLogin = (e?: React.FormEvent, customUser?: { email: string; role: AdminRole; nickname: string }) => {
     if (e) e.preventDefault();
     setErrorMessage(null);
@@ -41,7 +41,7 @@ export default function AdminLoginPage() {
     setIsLoading(true);
 
     setTimeout(() => {
-      // Mock 로그인 성공 처리
+
       const dummyToken = `onmaru_mock_token_${Date.now()}`;
       setAccessToken(dummyToken);
 
@@ -91,7 +91,7 @@ export default function AdminLoginPage() {
           gap: '24px',
         }}
       >
-        {/* 상단 헤더 및 로고 */}
+        {}
         <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
           <div style={{ fontSize: '24px', fontWeight: 800, color: meok[900], letterSpacing: '-0.02em' }}>
             온마루
@@ -112,7 +112,7 @@ export default function AdminLoginPage() {
           </p>
         </div>
 
-        {/* 에러 메시지 */}
+        {}
         {errorMessage && (
           <div
             style={{
@@ -132,7 +132,7 @@ export default function AdminLoginPage() {
           </div>
         )}
 
-        {/* 로그인 폼 */}
+        {}
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
             <label style={{ fontSize: '12px', fontWeight: 600, color: meok[700] }}>
@@ -209,7 +209,7 @@ export default function AdminLoginPage() {
           </button>
         </form>
 
-        {/* 개발용 빠른 계정 선택 안내 */}
+        {}
         <div
           style={{
             borderTop: '1px solid rgba(78, 89, 104, 0.08)',

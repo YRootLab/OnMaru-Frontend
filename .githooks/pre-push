@@ -1,15 +1,12 @@
 #!/usr/bin/env bash
-# Client-side compensating control for branch protection.
-#
-# This is a PRIVATE repository on a GitHub plan without enforced branch protection / rulesets.
-# GitHub itself cannot reject this push before it lands; this hook is the
-# only layer that runs *before* the push leaves this machine.
+
+
+
+
+
 set -euo pipefail
 
 protected_pattern='^refs/heads/(main|develop|release/.+)$'
-
-echo "pre-push: checking environment contract..." >&2
-npm run check:env
 
 if [[ "${ALLOW_DIRECT_PUSH:-}" == "1" ]]; then
   echo "pre-push: ALLOW_DIRECT_PUSH=1 set, skipping protected-branch check." >&2

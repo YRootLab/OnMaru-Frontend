@@ -1,68 +1,68 @@
-// ============================================================
-// 온마루 컬러 토큰 (공용 7대 패밀리 & 시맨틱 시스템)
-// ============================================================
+
+
+
 
 import { px } from 'framer-motion';
 
-// ------------------------------------------------------------
-// 1. 공용 7대 계열 팔레트
-// ------------------------------------------------------------
+
+
+
 
 export const palette = {
-  // 🔴 빨강 — 단풍 레드 (에러 / 경고)
+
   danpung: {
     50: '#FFF1F0', 100: '#FFE4E1', 200: '#FFC1BA', 400: '#FF6B61',
     500: '#FF3B30', 700: '#D62015', 900: '#7A0C05',
   },
-  // 🟠 주황 — 단청 주홍 (메인 브랜드 & 액션 컬러)
+
   juhong: {
-    25:  '#FFF8F5', // 초미세 틴트 / 카드 배경 은은한 오버레이
-    50:  '#FFF4EB', // 연한 한지 틴트 / 액티브 배경
-    100: '#FFE4D1', // 서브 태그·뱃지 배경
-    200: '#FFCBA8', // 칩 보더 / 약한 강조 테두리
-    300: '#FFA36B', // 디바이더 / 인터랙티브 보더
-    400: '#FF7830', // 다크모드 메인 악센트 / 밝은 주홍
-    500: '#FF5500', // [MAIN] 온마루 정통 단청 주홍 (Primary)
-    600: '#E64700', // Hover(호버) 인터랙션
-    700: '#D94000', // Active(누름) 상태 / 진한 주홍
-    800: '#A82E00', // 라이트모드 텍스트 가독성용 딥 주홍
-    900: '#7A2400', // 깊은 고택 주홍
-    950: '#471200', // 먹빛 융합 초심도 주홍
+    25:  '#FFF8F5',
+    50:  '#FFF4EB',
+    100: '#FFE4D1',
+    200: '#FFCBA8',
+    300: '#FFA36B',
+    400: '#FF7830',
+    500: '#FF5500',
+    600: '#E64700',
+    700: '#D94000',
+    800: '#A82E00',
+    900: '#7A2400',
+    950: '#471200',
   },
-  // 🟡 노랑 — 황금 기와 (별점 / 하이라이트)
+
   hwanggeum: {
     50: '#FFFBE5', 100: '#FFF3BD', 200: '#FFE57A', 400: '#FFD026',
     500: '#FFB800', 700: '#D99400', 900: '#704800',
   },
-  // 🟢 초록 — 대청 청록 (내비게이션 / 성공)
+
   cheongrok: {
     50: '#E6FAF2', 100: '#BEF4DC', 200: '#82E8BD', 400: '#26D68D',
     500: '#00C471', 700: '#009454', 900: '#004D2B',
   },
-  // 🔵 파랑 — 청화 코발트 (정보 안내) — 주황이 메인 브랜드라 존재감은 톤다운, "선택됨/정보" 구분 기능은 유지
+
   kobalt: {
     50: '#EEF2F8', 100: '#D6E0ED', 200: '#AFC3DD', 400: '#6E8FBC',
     500: '#4A6FA0', 700: '#35517C', 900: '#1C2F4A',
   },
-  // 🟣 보라 — 자하 바이올렛 (야경 / 악센트)
+
   jaha: {
     50: '#F6EBFF', 100: '#E5C7FF', 200: '#CA8FFF', 400: '#A647FF',
     500: '#8B1BFF', 700: '#670CD9', 900: '#360575',
   },
-  // 🌸 분홍 — 연지 로즈 (문화재 / 도슨트)
+
   jangmi: {
     50: '#FFF0F6', 100: '#FFD4E5', 200: '#FFA3C7', 400: '#FF5C9F',
     500: '#FF2A85', 700: '#D40D63', 900: '#6E0030',
   },
 } as const;
 
-// 하위 호환 별칭
+
 export const lightPalette = palette;
 export const darkPalette  = palette;
 
-// ------------------------------------------------------------
-// 2. 먹빛 중성색 (6단계)
-// ------------------------------------------------------------
+
+
+
 export const meok = {
   100: '#fafafa',
   200: '#f0f0f0',
@@ -75,25 +75,25 @@ export const meok = {
   900: '#191f28',
 } as const;
 
-// ------------------------------------------------------------
-// 3. 표면 배경
-// ------------------------------------------------------------
+
+
+
 export const surface = {
   light: {
-    base:     '#fafafa',  // 화선지 바탕
-    surface:  '#f0f0f0',  // 한지 표면
-    card:     '#FFFFFF',  // 카드 바탕
-    elevated: '#FFFFFF',  // 팝업 / 모달
+    base:     '#fafafa',
+    surface:  '#f0f0f0',
+    card:     '#FFFFFF',
+    elevated: '#FFFFFF',
   },
   dark: {
-    app:      '#1C1A17',  // 먹빛 마루
-    surface:  '#24211D',  // 먹빛 표면
-    card:     '#2D2924',  // 먹빛 카드
-    elevated: '#3A352E',  // 먹빛 팝업
+    app:      '#1C1A17',
+    surface:  '#24211D',
+    card:     '#2D2924',
+    elevated: '#3A352E',
   },
 } as const;
 
-// 글래스 효과
+
 export const glass = {
   light: {
     thin:    'rgba(255, 255, 255, 0.65)',
@@ -111,9 +111,9 @@ export const glass = {
   },
 } as const;
 
-// ------------------------------------------------------------
-// 가상 보더 링 & 섀도우 토큰 (Border-free Ring Shadow)
-// ------------------------------------------------------------
+
+
+
 
 const REST_LIGHT = '0px 0px 3px rgba(0, 0, 0, 0.12)';
 const HOVER_LIGHT = '0px 0px 3px rgba(0, 0, 0, 0.14)';
@@ -122,15 +122,15 @@ const HOVER_DARK = '0px 0px 3px rgba(255, 255, 255, 0.14)';
 
 export const ringShadow = {
   light: {
-    /** 🏷️ 기본 카드/패널/버튼/인풋 공통 평상시 그림자 */
+
     card: REST_LIGHT,
     button: REST_LIGHT,
     input: REST_LIGHT,
-    /** 🏷️ 호버(카드/버튼 공통) — 블러·불투명도만 한 단 올린다 */
+
     cardHoverGlow: HOVER_LIGHT,
     buttonHover: HOVER_LIGHT,
     buttonHoverGlow: HOVER_LIGHT,
-    /** 🟠 키보드 포커스 전용 — 유일한 예외(접근성상 브랜드 컬러 링 유지) */
+
     focusJuhong: '0 0 0 1px rgba(255, 85, 0, 0.35), 0 0 0 4px rgba(255, 85, 0, 0.08), 0 4px 12px rgba(255, 85, 0, 0.08)',
   },
   dark: {
@@ -144,12 +144,12 @@ export const ringShadow = {
   },
 } as const;
 
-// 그라데이션
+
 export const gradients = {
-  dancheong:      `linear-gradient(135deg, ${palette.juhong[500]} 0%, ${palette.hwanggeum[500]} 100%)`, // 주황 → 노랑
-  cheongrokBlue:  `linear-gradient(135deg, ${palette.cheongrok[500]} 0%, ${palette.kobalt[500]} 100%)`,  // 초록 → 파랑
-  jahaRose:       `linear-gradient(135deg, ${palette.jaha[500]} 0%, ${palette.jangmi[500]} 100%)`,       // 보라 → 분홍
-  danpungJuhong:  `linear-gradient(135deg, ${palette.danpung[500]} 0%, ${palette.juhong[500]} 100%)`,   // 빨강 → 주황
+  dancheong:      `linear-gradient(135deg, ${palette.juhong[500]} 0%, ${palette.hwanggeum[500]} 100%)`,
+  cheongrokBlue:  `linear-gradient(135deg, ${palette.cheongrok[500]} 0%, ${palette.kobalt[500]} 100%)`,
+  jahaRose:       `linear-gradient(135deg, ${palette.jaha[500]} 0%, ${palette.jangmi[500]} 100%)`,
+  danpungJuhong:  `linear-gradient(135deg, ${palette.danpung[500]} 0%, ${palette.juhong[500]} 100%)`,
   light: {
     dancheong:      `linear-gradient(135deg, ${palette.juhong[500]} 0%, ${palette.hwanggeum[500]} 100%)`,
     cheongrokBlue:  `linear-gradient(135deg, ${palette.cheongrok[500]} 0%, ${palette.kobalt[500]} 100%)`,
@@ -164,12 +164,12 @@ export const gradients = {
   },
 } as const;
 
-// ------------------------------------------------------------
-// 4. 시맨틱 역할 토큰
-// ------------------------------------------------------------
+
+
+
 
 export type ColorMode = 'light' | 'dark';
-/** 사용자가 고르는 값 — 'system'은 OS 설정을 그대로 따라간다. */
+
 export type ThemePreference = ColorMode | 'system';
 
 export const semanticTokens = {
@@ -340,41 +340,41 @@ export const semanticTokens = {
 
 export type SemanticToken = keyof typeof semanticTokens.light;
 
-// ------------------------------------------------------------
-// 5. 타이포그래피 스케일 (라이트/다크 공통 — 글자 크기는 모드를 안 탄다)
-// ------------------------------------------------------------
 
-// 역할별 글자 크기 — 페이지가 달라도 "제목은 제목끼리, 본문은 본문끼리" 같은 값을 쓰기 위한
-// 유일한 기준 스케일이다. 여기 없는 임의의 px 값을 새로 만들지 말고 이 중에서 고른다.
-// styled-component에서는 theme prop 없이도 `import { fontSize } from './tokens'`로 바로 쓸 수 있다.
+
+
+
+
+
+
 export const fontSize = {
-  micro: '0.625rem',  // 10px — 배지 · 타임스탬프 · 초소형 라벨
-  xs:    '0.75rem',   // 12px — 캡션 · 보조/메타 텍스트
-  sm:    '0.875rem',  // 14px — 본문(작게) · 카드/리스트 제목
-  base:  '1rem',      // 16px — 본문
-  lg:    '1.125rem',  // 18px — 강조 본문 · 소제목
-  xl:    '1.25rem',   // 20px — 카드 섹션 제목
-  '2xl': '1.5rem',    // 24px — 섹션 제목
-  '3xl': '1.875rem',  // 30px — 페이지 제목
-  '4xl': '2.25rem',   // 36px — 히어로 제목(모바일)
-  '5xl': '3rem',      // 48px — 히어로 제목(PC)
-  '6xl': '3.75rem',   // 60px — 랜딩 초대형 타이틀
+  micro: '0.625rem',
+  xs:    '0.75rem',
+  sm:    '0.875rem',
+  base:  '1rem',
+  lg:    '1.125rem',
+  xl:    '1.25rem',
+  '2xl': '1.5rem',
+  '3xl': '1.875rem',
+  '4xl': '2.25rem',
+  '5xl': '3rem',
+  '6xl': '3.75rem',
 } as const;
 
-// 뷰포트에 따라 흐르는 제목용 프리셋 — 페이지마다 clamp() 범위를 따로 만들지 않고 여기서 고른다.
-// (예: HanokHero의 히어로 제목과 HanokMonthly의 히어로 제목이 예전엔 각자 다른 clamp 값을 썼다.)
+
+
 export const fluidHeading = {
-  display: 'clamp(2rem, 5vw, 3.5rem)',         // 32px → 56px — 최상위 페이지 타이틀
-  hero:    'clamp(1.75rem, 4vw, 2.625rem)',    // 28px → 42px — 섹션 히어로 대제목
-  feature: 'clamp(1.5rem, 3.2vw, 2.25rem)',    // 24px → 36px — 강조 카드 · 모달 제목
-  section: 'clamp(1.3125rem, 2.4vw, 1.75rem)', // 21px → 28px — 리스트형 섹션 헤더
-  card:    'clamp(1.1875rem, 2.2vw, 1.5rem)',  // 19px → 24px — 카드 · 패널 제목
-  label:   'clamp(1rem, 1.7vw, 1.3125rem)',    // 16px → 21px — 소형 카드 이름표 · 라벨형 제목
+  display: 'clamp(2rem, 5vw, 3.5rem)',
+  hero:    'clamp(1.75rem, 4vw, 2.625rem)',
+  feature: 'clamp(1.5rem, 3.2vw, 2.25rem)',
+  section: 'clamp(1.3125rem, 2.4vw, 1.75rem)',
+  card:    'clamp(1.1875rem, 2.2vw, 1.5rem)',
+  label:   'clamp(1rem, 1.7vw, 1.3125rem)',
 } as const;
 
-// ------------------------------------------------------------
-// 6. 테마 생성 함수
-// ------------------------------------------------------------
+
+
+
 
 export const createTheme = (mode: ColorMode) => {
   const s = semanticTokens[mode];
@@ -392,11 +392,11 @@ export const createTheme = (mode: ColorMode) => {
         spread2:     palette.hwanggeum[400],
         accent1:     palette.jangmi[500],
         accent2:     palette.cheongrok[500],
-        darkCore:    palette.juhong[500],     // 코어
-        darkSpread1: palette.juhong[400],     // 퍼짐 1
-        darkSpread2: palette.hwanggeum[400],  // 퍼짐 2
-        darkAccent1: palette.jangmi[400],     // 악센트 1
-        darkAccent2: palette.cheongrok[400],  // 악센트 2
+        darkCore:    palette.juhong[500],
+        darkSpread1: palette.juhong[400],
+        darkSpread2: palette.hwanggeum[400],
+        darkAccent1: palette.jangmi[400],
+        darkAccent2: palette.cheongrok[400],
       },
     },
 
@@ -421,8 +421,8 @@ export const createTheme = (mode: ColorMode) => {
         p1: '18px', p2: '16px', p3: '14px', p4: '12px',
         headline: '18px', headlineCaps: '14px', inputField: '16px',
       },
-      // Spoqa Han Sans Neo가 실제로 가진 굵기는 100/300/400/500/700뿐이다.
-      // 600(semibold)은 없어서 CSS 폰트 매칭이 700으로 올려 잡으므로 넣지 않는다.
+
+
       fontWeight: { thin: 100, light: 300, regular: 400, medium: 500, bold: 700 },
       lineHeight:  { tight: 1.25, normal: 1.6, loose: 1.8 },
     },
@@ -446,9 +446,9 @@ export const createTheme = (mode: ColorMode) => {
     layout: {
       maxWidth: '1140px',
       margin: {
-        sm: '16px', // 모바일
-        md: '16px', // 태블릿
-        lg: 'auto', // 데스크톱
+        sm: '16px',
+        md: '16px',
+        lg: 'auto',
       },
       padding: {
         sm: '16px',
@@ -467,7 +467,7 @@ export const createTheme = (mode: ColorMode) => {
       },
     },
 
-    // 라이트 그림자
+
     shadow: mode === 'light' ? {
       sm:   '0 1px 3px rgba(25, 31, 40, 0.05)',
       md:   '0 4px 12px rgba(25, 31, 40, 0.07)',
@@ -475,7 +475,7 @@ export const createTheme = (mode: ColorMode) => {
       xl:   '0 16px 48px rgba(25, 31, 40, 0.11)',
       glow: '0 0 20px rgba(232, 90, 24, 0.18)',
       ring: ringShadow.light,
-    // 다크 그림자
+
     } : {
       sm:   '0 1px 4px rgba(25, 31, 40, 0.18)',
       md:   '0 4px 12px rgba(25, 31, 40, 0.24)',
