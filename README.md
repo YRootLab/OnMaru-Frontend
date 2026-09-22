@@ -37,4 +37,8 @@ GitHub Actions가 private submodule을 읽을 수 있도록 Frontend 저장소 �
 
 ### Netlify 배포 인증
 
+<<<<<<< HEAD
 Netlify가 private Core UI submodule을 clone할 수 있도록 `YRootLab/onmaru-core-ui` 저장소에 Netlify의 읽기 전용 deploy key를 등록합니다. private 서브모듈은 deploy key가 인증할 수 있는 SSH URL을 사용하며, access token을 URL이나 Netlify 환경 변수에 저장하지 않습니다.
+=======
+Netlify GitHub App에 `YRootLab/OnMaru-Frontend`와 `YRootLab/onmaru-core-ui` 두 저장소의 접근 권한을 부여합니다. GitHub에서 **Settings → Applications → Installed GitHub Apps → Netlify → Configure**로 이동해 `YRootLab/onmaru-core-ui`를 허용 저장소에 추가합니다. 서브모듈은 HTTPS URL을 사용하며, access token을 URL이나 Netlify 환경 변수에 저장하지 않습니다.
+>>>>>>> caf9a2277fcb2f89542cf73dd919b949dd5a3ff3
