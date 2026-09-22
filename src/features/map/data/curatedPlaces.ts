@@ -524,11 +524,11 @@ export const CURATED_PLACES: Record<string, CuratedPlaceInfo> = {
   },
 };
 
-/** placeId 또는 placeName으로 큐레이션된 명소 데이터 검색 */
+
 export function getCuratedPlace(placeId: string, placeName?: string): CuratedPlaceInfo | null {
   if (CURATED_PLACES[placeId]) return CURATED_PLACES[placeId];
 
-  // 이름 기반 매칭 검색
+
   const targetName = (placeName || placeId).trim();
   for (const place of Object.values(CURATED_PLACES)) {
     if (
@@ -544,7 +544,7 @@ export function getCuratedPlace(placeId: string, placeName?: string): CuratedPla
   return null;
 }
 
-/** 큐레이션 데이터를 PlaceDetailData 형태로 변환 */
+
 export function toPlaceDetailData(info: CuratedPlaceInfo): PlaceDetailData {
   return {
     contentId: info.id,

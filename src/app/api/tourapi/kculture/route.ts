@@ -21,10 +21,10 @@ export interface KCultureTourItem {
   };
 }
 
-/**
- * 한국관광공사 TourAPI 4.0 공식 한옥/전통 문화유산 분류코드
- * (키워드 문자열 하드코딩 없이, 공공데이터 표준 카테고리 코드로 전국의 모든 한옥/명소를 전수 실시간 호출)
- */
+
+
+
+
 const HANOK_TOUR_CATEGORIES = [
   { contentTypeId: '12', cat1: 'A02', cat2: 'A0201', cat3: 'A02010400', label: '고택·종택' },
   { contentTypeId: '12', cat1: 'A02', cat2: 'A0201', cat3: 'A02010600', label: '민속마을' },
@@ -71,7 +71,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const region = searchParams.get('region') || 'all';
 
-    // 1. 키워드 하드코딩 일체 없이, TourAPI 공식 한옥 카테고리로 전국의 실제 한옥들을 실시간 병렬 호출
+
     const fetchPromises = HANOK_TOUR_CATEGORIES.map(async (cat) => {
       try {
         const params: Record<string, string | number> = {
@@ -79,9 +79,9 @@ export async function GET(request: Request) {
           cat1: cat.cat1,
           cat2: cat.cat2,
           cat3: cat.cat3,
-          numOfRows: 30, // 카테고리당 30건씩 넉넉히 수집
+          numOfRows: 30,
           pageNo: 1,
-          arrange: 'P', // 인기/인지도 순 정렬
+          arrange: 'P',
         };
 
         const res = await TourApiClient.get('areaBasedList2', params, request.signal);
@@ -108,7 +108,7 @@ export async function GET(request: Request) {
       }
     }
 
-    // 2. 수집된 실제 한옥들을 K-콘텐츠(드라마·영화·뮤비) 스크린 속 한옥 카드로 자동 구성
+
     const items: KCultureTourItem[] = rawList.map((item, idx) => {
       const id = String(item.contentid);
       const title = String(item.title || '').trim();
@@ -117,7 +117,7 @@ export async function GET(request: Request) {
       const image = toHttps(item.firstimage || item.firstimage2);
       const isGyeongbuk = detectedRegion === '경북';
 
-      // 인덱스를 기준으로 K-콘텐츠 미디어 타입(드라마, 영화, 뮤비/화보) 균형 자동 배분
+
       const mediaConfig = MEDIA_TYPES[idx % MEDIA_TYPES.length];
 
       return {
@@ -137,7 +137,7 @@ export async function GET(request: Request) {
       };
     });
 
-    // 3. 지역 필터링 (있을 경우)
+
     let filteredItems = items;
     if (region !== 'all') {
       filteredItems = filteredItems.filter(
@@ -145,10 +145,10 @@ export async function GET(request: Request) {
       );
     }
 
-    // 4. 고화질 사진이 있는 명소를 우선 정렬 (에디토리얼 비주얼 극대화)
+
     filteredItems.sort((a, b) => (b.image ? 1 : 0) - (a.image ? 1 : 0));
 
-    // 5. 큐레이션 카드 섹션이라 전수 나열하지 않고 상위 일부만 내려준다 (미디어 타입당 4개 안팎)
+
     const CURATED_LIMIT = 12;
     filteredItems = filteredItems.slice(0, CURATED_LIMIT);
 

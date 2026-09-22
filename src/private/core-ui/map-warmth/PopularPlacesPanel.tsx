@@ -29,7 +29,7 @@ const PanelRoot = styled.div`
   }
 `;
 
-/* ── 1. 상단 타이틀 바 & 닫기 ── */
+
 const TopBar = styled.div`
   display: flex;
   align-items: center;
@@ -78,7 +78,7 @@ const CloseBtn = styled.button`
   }
 `;
 
-/* ── 2. 서브 설명 & 가로 스크롤 지역 칩 ── */
+
 const SubHeader = styled.div`
   padding: 0 20px 12px;
 `;
@@ -139,7 +139,7 @@ const RegionChip = styled.button<{ $active: boolean }>`
   }
 `;
 
-/* ── 3. 랭킹 장소 목록 (1위~10위) ── */
+
 const ListContainer = styled.div`
   flex: 1;
   overflow-y: auto;
@@ -266,7 +266,7 @@ export default function PopularPlacesPanel() {
   const [rankedList, setRankedList] = useState<RankedPlace[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // 인기 장소 목록 API 호출
+
   useEffect(() => {
     setLoading(true);
     fetch(`/api/popular-places?region=${encodeURIComponent(region)}`)
@@ -298,7 +298,7 @@ export default function PopularPlacesPanel() {
 
   return (
     <PanelRoot>
-      {/* 1. 상단 타이틀 바 */}
+      {}
       <TopBar>
         <Title>실시간 인기 장소</Title>
         <CloseBtn
@@ -310,7 +310,7 @@ export default function PopularPlacesPanel() {
         </CloseBtn>
       </TopBar>
 
-      {/* 2. 설명 문구 및 가로 스크롤 지역 칩 */}
+      {}
       <SubHeader>
         <SubText>한국관광공사 TourAPI 조회순 상위 한옥·전통 명소예요.</SubText>
         <RegionScroller role="tablist" aria-label="지역별 인기 장소">
@@ -329,7 +329,7 @@ export default function PopularPlacesPanel() {
         </RegionScroller>
       </SubHeader>
 
-      {/* 3. 랭킹 장소 리스트 */}
+      {}
       <ListContainer>
         {rankedList.map((place, idx) => (
           <PlaceRow
@@ -342,10 +342,10 @@ export default function PopularPlacesPanel() {
               <RankNum $rank={idx + 1}>{idx + 1}</RankNum>
               <PlaceInfo>
                 <Name>{place.placeName}</Name>
-                {/*
-                  예전에는 여기에 "온기 95 · 혼잡"이 떴는데 둘 다 순위 인덱스로
-                  지어낸 값이었다. 실제로 아는 것은 지역과 정렬 근거뿐이라 그것만 적는다.
-                */}
+                {
+
+
+}
                 <Meta>
                   <span>{place.placeRegion}</span>
                   <span>·</span>

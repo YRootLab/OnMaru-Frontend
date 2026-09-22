@@ -1,8 +1,8 @@
 'use client';
 
-// ============================================================
-// 관리자 데이터 파이프라인 화면 (src/app/admin/data/page.tsx)
-// ============================================================
+
+
+
 
 import React, { useState, useRef, useEffect } from 'react';
 import { meok, palette } from '@/design-system/tokens';
@@ -26,21 +26,21 @@ export default function AdminDataPipelinePage() {
   const [pipelineData, setPipelineData] = useState(mockPipelineStatus);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // 수동 빌드 시뮬레이션 상태
+
   const [isBuilding, setIsBuilding] = useState(false);
   const [buildType, setBuildType] = useState<string>('');
   const [progress, setProgress] = useState(0);
   const [currentStepText, setCurrentStepText] = useState('');
   const buildTimerRef = useRef<NodeJS.Timeout[]>([]);
 
-  // 타이머 정리
+
   useEffect(() => {
     return () => {
       buildTimerRef.current.forEach(clearTimeout);
     };
   }, []);
 
-  // 수동 빌드 시작
+
   const handleStartBuild = (type: string) => {
     setIsBuilding(true);
     setBuildType(type);
@@ -79,7 +79,7 @@ export default function AdminDataPipelinePage() {
     buildTimerRef.current = [t1, t2, t3, t4];
   };
 
-  // 수동 빌드 중단
+
   const handleStopBuild = () => {
     buildTimerRef.current.forEach(clearTimeout);
     setIsBuilding(false);
@@ -88,7 +88,7 @@ export default function AdminDataPipelinePage() {
     setToastMessage('파이프라인 빌드 작업이 사용자에 의해 중단되었습니다.');
   };
 
-  // 실패 로그 JSON 다운로드
+
   const handleDownloadLogs = () => {
     const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(pipelineData.failureLogs, null, 2));
     const downloadAnchor = document.createElement('a');
@@ -100,7 +100,7 @@ export default function AdminDataPipelinePage() {
     setToastMessage('실패 로그 20건이 JSON 파일로 다운로드되었습니다.');
   };
 
-  // 권한 체크: ADMIN 전용
+
   if (!isAdmin) {
     return (
       <div
@@ -127,7 +127,7 @@ export default function AdminDataPipelinePage() {
         <Toast message={toastMessage} type="success" onClose={() => setToastMessage(null)} />
       )}
 
-      {/* 1. 상단 현황 카드 3구 그리드 */}
+      {}
       <div
         style={{
           display: 'grid',
@@ -208,7 +208,7 @@ export default function AdminDataPipelinePage() {
         </div>
       </div>
 
-      {/* 2. 수동 실행 트리거 바 */}
+      {}
       <div
         style={{
           backgroundColor: '#FFFFFF',
@@ -331,7 +331,7 @@ export default function AdminDataPipelinePage() {
           )}
         </div>
 
-        {/* 진행률 바 및 텍스트 (실행 중일 때) */}
+        {}
         {isBuilding && (
           <div
             style={{
@@ -372,7 +372,7 @@ export default function AdminDataPipelinePage() {
         )}
       </div>
 
-      {/* 3. 2열 그리드: 수집 현황 테이블 vs API 쿼터 게이지 */}
+      {}
       <div
         style={{
           display: 'grid',
@@ -380,7 +380,7 @@ export default function AdminDataPipelinePage() {
           gap: '20px',
         }}
       >
-        {/* 수집 현황 테이블 */}
+        {}
         <div
           style={{
             backgroundColor: '#FFFFFF',
@@ -434,7 +434,7 @@ export default function AdminDataPipelinePage() {
           </table>
         </div>
 
-        {/* API 호출 쿼터 게이지 */}
+        {}
         <div
           style={{
             backgroundColor: '#FFFFFF',
@@ -501,7 +501,7 @@ export default function AdminDataPipelinePage() {
         </div>
       </div>
 
-      {/* 4. 실패 로그 테이블 */}
+      {}
       <div
         style={{
           backgroundColor: '#FFFFFF',

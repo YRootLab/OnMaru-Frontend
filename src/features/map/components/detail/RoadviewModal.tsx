@@ -182,7 +182,7 @@ export default function RoadviewModal({
     const roadviewClient = new window.kakao.maps.RoadviewClient();
     const position = new window.kakao.maps.LatLng(lat, lng);
 
-    // 반경 100m 이내의 가장 가까운 로드뷰 파노라마 ID 조회
+
     roadviewClient.getNearestPanoId(position, 100, (panoId: number | null) => {
       setLoading(false);
       if (panoId) {

@@ -278,13 +278,13 @@ export const SorimaruFooterCTA: React.FC = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: [0.12, 1, 0.2, 1] }}
         >
-          {/* 분위기 비네트 래디얼 오버레이 */}
+          {}
           <RadialOverlay />
           <GlowOrbRight />
           <GlowOrbLeft />
 
           <InnerBody>
-            {/* 절기 알림 뱃지 */}
+            {}
             <SolarBadge>
               <PulseDot />
               <span>{termText}</span>
@@ -299,7 +299,7 @@ export const SorimaruFooterCTA: React.FC = () => {
               다음에 돌아왔을 때 다른 장소의 온기를 이어서 들어보세요.
             </Description>
 
-            {/* CTA 버튼 모음 */}
+            {}
             <ButtonRow>
               <PrimaryCtaLink href="/map">
                 <span>전국 한옥 지도에서 둘러보기</span>

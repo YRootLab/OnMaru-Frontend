@@ -1,8 +1,8 @@
 'use client';
 
-// ============================================================
-// 관리자 온기(후기) 관리 (src/app/admin/reviews/page.tsx)
-// ============================================================
+
+
+
 
 import React, { useState, useMemo } from 'react';
 import { meok, palette } from '@/design-system/tokens';
@@ -47,7 +47,7 @@ export default function AdminReviewsPage() {
     description: '',
   });
 
-  // 필터 초기화
+
   const handleResetFilters = () => {
     setSearchQuery('');
     setStatusFilter('ALL');
@@ -57,11 +57,11 @@ export default function AdminReviewsPage() {
     setCurrentPage(1);
   };
 
-  // 필터링 및 정렬 연산
+
   const filteredReviews = useMemo(() => {
     return reviews
       .filter((rev) => {
-        // 검색어 필터
+
         if (searchQuery.trim()) {
           const q = searchQuery.toLowerCase();
           const matchAuthor = rev.author.nickname.toLowerCase().includes(q);
@@ -70,13 +70,13 @@ export default function AdminReviewsPage() {
           if (!matchAuthor && !matchPlace && !matchContent) return false;
         }
 
-        // 상태 필터
+
         if (statusFilter !== 'ALL' && rev.status !== statusFilter) return false;
 
-        // 무드 필터
+
         if (moodFilter !== 'ALL' && rev.mood !== Number(moodFilter)) return false;
 
-        // 기간 필터 (모의)
+
         if (periodFilter === 'TODAY') {
           const isToday = new Date(rev.createdAt).toDateString() === new Date('2026-08-04').toDateString();
           if (!isToday) return false;
@@ -99,14 +99,14 @@ export default function AdminReviewsPage() {
       });
   }, [reviews, searchQuery, statusFilter, moodFilter, periodFilter, sortBy]);
 
-  // 페이지네이션 슬라이스
+
   const totalPages = Math.ceil(filteredReviews.length / pageSize) || 1;
   const paginatedReviews = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
     return filteredReviews.slice(start, start + pageSize);
   }, [filteredReviews, currentPage, pageSize]);
 
-  // 일괄 조치 핸들러
+
   const handleBulkHide = () => {
     setConfirmState({
       isOpen: true,
@@ -139,7 +139,7 @@ export default function AdminReviewsPage() {
     });
   };
 
-  // 단일 후기 상태 변경
+
   const updateSingleStatus = (id: string, status: ReviewStatus) => {
     setReviews((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
     if (selectedReview && selectedReview.id === id) {
@@ -148,7 +148,7 @@ export default function AdminReviewsPage() {
     setToastMessage(`온기 상태가 '${status}'(으)로 변경되었습니다.`);
   };
 
-  // 상대 시간 포맷팅
+
   const formatRelativeTime = (dateStr: string) => {
     const ref = new Date('2026-08-04T05:00:00Z').getTime();
     const diffHours = Math.floor((ref - new Date(dateStr).getTime()) / (1000 * 3600));
@@ -158,7 +158,7 @@ export default function AdminReviewsPage() {
     return `${diffDays}일 전`;
   };
 
-  // DataTable 컬럼 정의
+
   const columns: ColumnDef<WarmthReview>[] = [
     {
       key: 'author',
@@ -329,7 +329,7 @@ export default function AdminReviewsPage() {
         <Toast message={toastMessage} type="success" onClose={() => setToastMessage(null)} />
       )}
 
-      {/* 상단 복합 필터 바 */}
+      {}
       <div
         style={{
           backgroundColor: '#FFFFFF',
@@ -342,7 +342,7 @@ export default function AdminReviewsPage() {
           flexWrap: 'wrap',
         }}
       >
-        {/* 검색 입력 */}
+        {}
         <div
           style={{
             width: '280px',
@@ -375,7 +375,7 @@ export default function AdminReviewsPage() {
           />
         </div>
 
-        {/* 상태 셀렉트 */}
+        {}
         <select
           value={statusFilter}
           onChange={(e) => {
@@ -399,7 +399,7 @@ export default function AdminReviewsPage() {
           <option value="DELETED">삭제됨</option>
         </select>
 
-        {/* 무드 셀렉트 */}
+        {}
         <select
           value={moodFilter}
           onChange={(e) => {
@@ -425,7 +425,7 @@ export default function AdminReviewsPage() {
           <option value="1">★ 1점만</option>
         </select>
 
-        {/* 기간 셀렉트 */}
+        {}
         <select
           value={periodFilter}
           onChange={(e) => {
@@ -449,7 +449,7 @@ export default function AdminReviewsPage() {
           <option value="30D">최근 30일</option>
         </select>
 
-        {/* 정렬 셀렉트 */}
+        {}
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value as any)}
@@ -469,7 +469,7 @@ export default function AdminReviewsPage() {
           <option value="report">신고 많은순</option>
         </select>
 
-        {/* 초기화 버튼 */}
+        {}
         <button
           type="button"
           onClick={handleResetFilters}
@@ -491,13 +491,13 @@ export default function AdminReviewsPage() {
           <span>초기화</span>
         </button>
 
-        {/* 검색 결과 건수 */}
+        {}
         <div style={{ marginLeft: 'auto', fontSize: '12px', color: meok[500] }}>
           총 <strong style={{ color: meok[900] }}>{filteredReviews.length}</strong>건
         </div>
       </div>
 
-      {/* 메인 DataTable */}
+      {}
       <DataTable
         columns={columns}
         rows={paginatedReviews}
@@ -520,7 +520,7 @@ export default function AdminReviewsPage() {
         }}
       />
 
-      {/* 하단 일괄 작업 바 (Sticky Bottom) */}
+      {}
       {selectedRowKeys.length > 0 && (
         <div
           style={{
@@ -603,7 +603,7 @@ export default function AdminReviewsPage() {
         </div>
       )}
 
-      {/* 우측 슬라이드 인 상세 패널 (400px) */}
+      {}
       {selectedReview && (
         <div
           style={{
@@ -640,7 +640,7 @@ export default function AdminReviewsPage() {
             `}</style>
 
             <div>
-              {/* 패널 상단 헤더 */}
+              {}
               <div
                 style={{
                   display: 'flex',
@@ -672,7 +672,7 @@ export default function AdminReviewsPage() {
                 </button>
               </div>
 
-              {/* 장소 및 작성자 메타 정보 */}
+              {}
               <div
                 style={{
                   padding: '14px',
@@ -722,7 +722,7 @@ export default function AdminReviewsPage() {
                 </div>
               </div>
 
-              {/* 후기 전문 */}
+              {}
               <div style={{ marginBottom: '20px' }}>
                 <div style={{ fontSize: '13px', fontWeight: 600, color: meok[500], marginBottom: '8px' }}>
                   후기 전문
@@ -742,7 +742,7 @@ export default function AdminReviewsPage() {
                 </div>
               </div>
 
-              {/* 첨부 이미지 */}
+              {}
               {selectedReview.images.length > 0 && (
                 <div style={{ marginBottom: '20px' }}>
                   <div style={{ fontSize: '13px', fontWeight: 600, color: meok[500], marginBottom: '8px' }}>
@@ -767,7 +767,7 @@ export default function AdminReviewsPage() {
                 </div>
               )}
 
-              {/* 태그 */}
+              {}
               {selectedReview.tags.length > 0 && (
                 <div style={{ marginBottom: '20px' }}>
                   <div style={{ fontSize: '13px', fontWeight: 600, color: meok[500], marginBottom: '8px' }}>
@@ -793,7 +793,7 @@ export default function AdminReviewsPage() {
               )}
             </div>
 
-            {/* 하단 개별 조치 버튼 */}
+            {}
             <div
               style={{
                 paddingTop: '20px',
@@ -884,7 +884,7 @@ export default function AdminReviewsPage() {
         </div>
       )}
 
-      {/* 확인/위험 모달 */}
+      {}
       <ConfirmDialog
         isOpen={confirmState.isOpen}
         title={confirmState.title}

@@ -592,7 +592,7 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
           try {
             window.localStorage.setItem('onmaru_sorimaru_story_images', JSON.stringify(next));
           } catch {
-            // ignore
+
           }
           return next;
         });
@@ -645,14 +645,14 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
       []
     );
 
-    /*
-      전에는 인라인 style에 CSS transition을 걸고 DOM 'transitionend' 이벤트로 잠금을
-      풀었다 — 트랙(CSS transition)과 카드(framer-motion)가 서로 다른 엔진이라 같은
-      duration/이징을 줘도 프레임이 미세하게 어긋났고, propertyName 필터가 브라우저마다
-      안 맞아 이벤트가 안 뜨면 900ms 안전장치까지 그대로 기다려야 해서 다음 클릭이
-      먹통처럼 느껴졌다. GSAP tween 하나로 트랙을 밀면 카드도 같은 rAF 루프를 타서
-      더 맞물려 보이고, onComplete이 항상 확실히 불려서 그 900ms를 기다릴 일이 없다.
-    */
+
+
+
+
+
+
+
+
     useLayoutEffect(() => {
       const el = trackRef.current;
       if (!el) return undefined;
@@ -864,7 +864,7 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
               )}
             </CarouselStageWrapper>
 
-            {/* 하단 인디케이터 바 */}
+            {}
             <div style={{ position: 'relative', zIndex: 30, display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: '1.25rem', paddingBottom: '0.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 {featured.map((storyItem, index) => (

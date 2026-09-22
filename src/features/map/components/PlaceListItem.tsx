@@ -28,7 +28,7 @@ import SavePlaceButton from '@/features/saved-resources/components/SavePlaceButt
 interface PlaceListItemProps {
   item: Item;
   index: number;
-  /** 페이지 안에서의 위치(0부터) — 등장 stagger 딜레이 계산용. 페이지가 바뀌면 처음부터 다시 순서대로 나타난다. */
+
   pageIndex: number;
   isSelected: boolean;
   isHovered: boolean;
@@ -290,7 +290,7 @@ const DistrictText = styled.span`
   }
 `;
 
-/** 카테고리별 한글 명칭 */
+
 const CATEGORY_LABELS: Record<PlaceCategory, string> = {
   spot: '고택',
   experience: '전통 체험',
@@ -302,7 +302,7 @@ const CATEGORY_LABELS: Record<PlaceCategory, string> = {
   market: '전통 시장',
 };
 
-/** 카테고리별 SVG 폴백 아이콘 렌더링 */
+
 function renderCategoryIcon(category: PlaceCategory) {
   switch (category) {
     case 'spot':
@@ -326,7 +326,7 @@ function renderCategoryIcon(category: PlaceCategory) {
   }
 }
 
-/** 주소에서 시/구 추출 */
+
 function getDistrictFromAddr(addr?: string): string {
   if (!addr) return '';
   const parts = addr.split(' ');
@@ -346,7 +346,7 @@ function PlaceListItemComponent({
 }: PlaceListItemProps) {
   const itemRef = useRef<HTMLLIElement>(null);
 
-  // 지도 마커 클릭 등으로 선택되었을 때 리스트 항목 자동 스크롤
+
   useEffect(() => {
     if (isSelected && itemRef.current) {
       itemRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -384,8 +384,8 @@ function PlaceListItemComponent({
     return CATEGORY_LABELS[item.category] || '한옥 명소';
   }, [item.category, isRealTraditional]);
 
-  // '정통 한옥' 뱃지는 고택이나 문화재/서원 중 실제 전통 가옥일 때만 부가 배지로 단정하게 병기
-  // (전통시장이나 한옥숙소처럼 카테고리 자체에 전통/한옥이 이미 명시된 경우 중복 표시 배제)
+
+
   const showTraditionalBadge = useMemo(() => {
     if (!isRealTraditional) return false;
     return item.category === 'spot' || item.category === 'culture';

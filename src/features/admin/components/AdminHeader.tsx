@@ -1,8 +1,8 @@
 'use client';
 
-// ============================================================
-// 관리자 헤더 (src/admin/components/AdminHeader.tsx)
-// ============================================================
+
+
+
 
 import React from 'react';
 import Link from 'next/link';
@@ -22,7 +22,7 @@ const PAGE_TITLES: Record<string, string> = {
 export const AdminHeader: React.FC = () => {
   const pathname = usePathname();
 
-  // 현재 경로에 맞는 제목 추출
+
   const title =
     PAGE_TITLES[pathname] ||
     (pathname.startsWith('/admin/reviews')

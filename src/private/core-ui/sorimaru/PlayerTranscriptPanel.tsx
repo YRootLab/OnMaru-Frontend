@@ -84,7 +84,7 @@ const Scroller = styled.div<{ $seamless?: boolean }>`
   scrollbar-width: thin;
   scrollbar-color: rgba(205, 205, 202, 0.4) transparent;
 
-  /* 상하단 시네마틱 페이드 마스크 (Top & Bottom Linear Gradient) */
+
   mask-image: linear-gradient(
     to bottom,
     transparent 0%,
@@ -139,13 +139,13 @@ const Line = styled.button<{
   cursor: pointer;
   outline: none;
 
-  /* Consistent Typography to eliminate abrupt size jumps / layout shifts */
+
   font-size: clamp(0.925rem, 1.05vw, 1rem);
   font-weight: ${({ $active }) => ($active ? 700 : 400)};
   line-height: 1.6;
   letter-spacing: -0.02em;
 
-  /* Opacity-driven focus (자연스럽고 편안한 가독성) */
+
   ${({ $active, $distance }) => {
     if ($active) {
       return `
@@ -171,7 +171,7 @@ const Line = styled.button<{
     `;
   }}
 
-  /* Dark mode */
+
   [data-theme='dark'] & {
     ${({ $active, $distance }) => {
       if ($active) {
@@ -201,7 +201,7 @@ const Line = styled.button<{
 
   transition: opacity 220ms ease, color 220ms ease, filter 220ms ease, font-weight 220ms ease;
 
-  /* 마우스 호버 시 부드럽게 unblur되어 텍스트 탐색 */
+
   &:hover {
     opacity: 0.95 !important;
     filter: blur(0px) !important;

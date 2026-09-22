@@ -371,7 +371,7 @@ export default function KnowledgeGraphView() {
   const animFrameRef = useRef<number | null>(null);
   const particleOffsetRef = useRef<number>(0);
 
-  // 물리 시뮬레이션 초기화 (방사형 황금비율 배치)
+
   const initSimulation = useCallback(() => {
     if (!containerRef.current) return;
     const width = containerRef.current.clientWidth || 800;
@@ -381,13 +381,13 @@ export default function KnowledgeGraphView() {
     const centerX = width / 2;
     const centerY = height / 2;
 
-    // 각 카테고리별 유기적 방사형 각도
+
     const layoutAngles: Record<NodeCategory, { angle: number; dist: number }> = {
-      region: { angle: Math.PI, dist: width * 0.32 }, // 왼쪽 중심
-      hanok: { angle: -Math.PI * 0.65, dist: width * 0.22 }, // 북서쪽
-      market: { angle: Math.PI * 0.65, dist: width * 0.24 }, // 남서쪽
-      sorimaru: { angle: -Math.PI * 0.2, dist: width * 0.3 }, // 북동쪽
-      warmth: { angle: Math.PI * 0.25, dist: width * 0.32 }, // 남동쪽
+      region: { angle: Math.PI, dist: width * 0.32 },
+      hanok: { angle: -Math.PI * 0.65, dist: width * 0.22 },
+      market: { angle: Math.PI * 0.65, dist: width * 0.24 },
+      sorimaru: { angle: -Math.PI * 0.2, dist: width * 0.3 },
+      warmth: { angle: Math.PI * 0.25, dist: width * 0.32 },
     };
 
     const initialNodes: PhysicsNode[] = rawNodes.map((n, i) => {
@@ -415,7 +415,7 @@ export default function KnowledgeGraphView() {
     initSimulation();
   }, [initSimulation]);
 
-  // 물리 시뮬레이션 루프 & 캔버스 렌더링
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || !containerRef.current) return;
@@ -430,7 +430,7 @@ export default function KnowledgeGraphView() {
       const width = containerRef.current?.clientWidth || 800;
       const height = containerRef.current?.clientHeight || 400;
 
-      // Retina 디스플레이 대응
+
       const dpr = window.devicePixelRatio || 1;
       if (canvas.width !== width * dpr || canvas.height !== height * dpr) {
         canvas.width = width * dpr;
@@ -443,7 +443,7 @@ export default function KnowledgeGraphView() {
       particleOffsetRef.current = (particleOffsetRef.current + 0.008) % 1;
       const pOffset = particleOffsetRef.current;
 
-      // 은은한 중심 원형 물결 (온기 레이더 링)
+
       const centerX = width / 2;
       const centerY = height / 2;
       ctx.strokeStyle = 'rgba(0, 184, 130, 0.04)';
@@ -453,7 +453,7 @@ export default function KnowledgeGraphView() {
       ctx.arc(centerX, centerY, 190, 0, Math.PI * 2);
       ctx.stroke();
 
-      // 에지(곡선 링크) 렌더링
+
       const edges = plan.edges || [];
       physicsNodes.forEach((src) => {
         edges
@@ -468,7 +468,7 @@ export default function KnowledgeGraphView() {
               selectedNode?.id === src.id ||
               selectedNode?.id === tgt.id;
 
-            // 부드러운 베지어 곡선 중간 제어점
+
             const midX = (src.x + tgt.x) / 2;
             const midY = (src.y + tgt.y) / 2 - 12;
 
@@ -488,7 +488,7 @@ export default function KnowledgeGraphView() {
             }
             ctx.stroke();
 
-            // 곡선을 따라 흐르는 빛의 파티클 (Pulse)
+
             const t = (pOffset + (edge.id.charCodeAt(0) % 5) * 0.2) % 1;
             const px = (1 - t) * (1 - t) * src.x + 2 * (1 - t) * t * midX + t * t * tgt.x;
             const py = (1 - t) * (1 - t) * src.y + 2 * (1 - t) * t * midY + t * t * tgt.y;
@@ -500,7 +500,7 @@ export default function KnowledgeGraphView() {
           });
       });
 
-      // 물리 엔진 연산: 노드 간 반발력 + 탄성 스프링
+
       setPhysicsNodes((prevNodes) => {
         if (prevNodes.length === 0) return prevNodes;
 
@@ -510,7 +510,7 @@ export default function KnowledgeGraphView() {
           let fx = 0;
           let fy = 0;
 
-          // 1. 노드 간 반발력 (Coulomb repulsion)
+
           prevNodes.forEach((other) => {
             if (other.id === node.id) return;
             const dx = node.x - other.x;
@@ -523,17 +523,17 @@ export default function KnowledgeGraphView() {
             }
           });
 
-          // 2. 화면 중심 인력 (Center gravity)
+
           const cdx = centerX - node.x;
           const cdy = centerY - node.y;
           fx += cdx * 0.003;
           fy += cdy * 0.003;
 
-          // 3. 감쇠 및 속도 적용
+
           const vx = (node.vx + fx) * 0.85;
           const vy = (node.vy + fy) * 0.85;
 
-          // 화면 경계 안전 여백
+
           const margin = 50;
           const nx = Math.max(margin, Math.min(width - margin, node.x + vx));
           const ny = Math.max(margin, Math.min(height - margin, node.y + vy));
@@ -553,7 +553,7 @@ export default function KnowledgeGraphView() {
     };
   }, [plan.edges, hoveredNodeId, selectedNode]);
 
-  // 마우스 드래그 핸들러
+
   const handleMouseDown = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
     const node = physicsNodes.find((n) => n.id === id);
@@ -622,10 +622,10 @@ export default function KnowledgeGraphView() {
           </Legend>
         </GraphHeader>
 
-        {/* 2D 캔버스 (유기적 베지어 곡선 & 펄스 파티클) */}
+        {}
         <CanvasLayer ref={canvasRef} />
 
-        {/* 인터랙티브 드래그 가능 노드 요소들 */}
+        {}
         {physicsNodes.map((node) => {
           const isSelected = selectedNode?.id === node.id;
           const color = CATEGORY_COLORS[node.category] || '#00b882';
@@ -649,7 +649,7 @@ export default function KnowledgeGraphView() {
           );
         })}
 
-        {/* 우측 하단 컨트롤 */}
+        {}
         <Controls>
           <ResetBtn type="button" onClick={initSimulation} title="노드 배치 원래대로">
             <RotateCcw size={12} />
@@ -657,7 +657,7 @@ export default function KnowledgeGraphView() {
           </ResetBtn>
         </Controls>
 
-        {/* 노드 클릭 시 나타나는 플로팅 인스펙터 */}
+        {}
         <AnimatePresence>
           {selectedNode && (
             <InspectorCard

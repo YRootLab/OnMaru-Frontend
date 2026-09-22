@@ -13,7 +13,7 @@ import WarmthFeed from '@/private/core-ui/map-warmth/WarmthFeed';
 const PANEL_WIDTH = 400;
 const PANEL_WIDTH_COMPACT = 358;
 
-/* ── 호갱노노 스타일: 지도 위에 떠 있는 둥근 플로팅 카드 ── */
+
 const Panel = styled.aside<{ $open: boolean; $mounted: boolean }>`
   position: relative;
   flex: none;
@@ -166,7 +166,7 @@ export default function ListPanel() {
   return (
     <Panel $open={panelOpen} $mounted={mounted}>
       <Inner>
-        {/* 1. 상단 2단 헤더: (1) 검색바 + (2) 모드 토글 [정보 | 온기] */}
+        {}
         <HeaderArea>
           <SearchBar />
           <ModeToggleContainer>
@@ -174,7 +174,7 @@ export default function ListPanel() {
           </ModeToggleContainer>
         </HeaderArea>
 
-        {/* 2. 메인 리스트 영역 (정보모드: PlaceList / 온기모드: WarmthFeed) */}
+        {}
         <ListArea>
           {mode === 'warmth' ? (
             <WarmthFeed />
@@ -183,7 +183,7 @@ export default function ListPanel() {
           )}
         </ListArea>
 
-        {/* 3. 하단 세로 페이드 그라데이션 */}
+        {}
         <BottomFadeGradient aria-hidden="true" />
       </Inner>
 

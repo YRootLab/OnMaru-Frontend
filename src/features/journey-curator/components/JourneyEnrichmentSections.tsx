@@ -1,11 +1,11 @@
 'use client';
 
-/**
- * 고른 장소에 곁들이는 실데이터 3종 — 한옥 도감 / 현장 오디오 해설 / 주변 맛집.
- *
- * useJourneyStore.explorationBoard와 같은 요청에서 나온 실데이터(TourAPI, 한국관광공사 오디).
- * 온마루 시그니처 주홍 테마와 8대 UX 라이팅 원칙(명확한 힌트, 군더더기 없는 문장, 따뜻한 공감 톤)을 적용한다.
- */
+
+
+
+
+
+
 
 import { useRef, useState } from 'react';
 import styled from '@emotion/styled';
@@ -90,7 +90,7 @@ const BlockSubtitle = styled.p`
   }
 `;
 
-/* ── 1. 공간 이야기 (도감) ── */
+
 
 const DoganList = styled.div`
   display: flex;
@@ -272,7 +272,7 @@ function splitLede(overview: string): [string, string] {
   return [lede, rest];
 }
 
-/* ── 2. 오디오 해설: 온마루 주홍 재생 버튼 + 진행 바 ── */
+
 
 const AudioList = styled.div`
   display: flex;
@@ -491,7 +491,7 @@ function AudioItem({
   );
 }
 
-/* ── 3. 주변 맛집 ── */
+
 
 const FoodRow = styled.div`
   display: flex;

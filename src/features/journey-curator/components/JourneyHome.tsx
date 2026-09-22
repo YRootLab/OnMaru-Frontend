@@ -23,7 +23,7 @@ const MainWrapper = styled.main`
   }
 `;
 
-/** 🟠 화면 전체를 감싸며 자연스럽게 숨쉬는 앰비언트 글로우 컨테이너 */
+
 const AmbientGlowLayer = styled.div`
   position: absolute;
   inset: 0;
@@ -32,7 +32,7 @@ const AmbientGlowLayer = styled.div`
   z-index: 0;
 `;
 
-/** GSAP 전용 살아 숨쉬는 유기적 유영 오르브 베이스 */
+
 const GlowOrb = styled.div`
   position: absolute;
   border-radius: 50%;
@@ -40,7 +40,7 @@ const GlowOrb = styled.div`
   will-change: transform, opacity;
 `;
 
-/** 🌟 Orb 1: 온마루 시그니처 단청 주홍 코어 오르브 */
+
 const PrimaryGlowOrb = styled(GlowOrb)`
   top: 48%;
   left: 48%;
@@ -77,7 +77,7 @@ const PrimaryGlowOrb = styled(GlowOrb)`
   }
 `;
 
-/** 🌟 Orb 2: 화사한 황금 옐로우 확산 오라 오르브 */
+
 const SecondaryGlowOrb = styled(GlowOrb)`
   top: 50%;
   left: 53%;
@@ -114,7 +114,7 @@ const SecondaryGlowOrb = styled(GlowOrb)`
   }
 `;
 
-/** 🌟 Orb 3: 포근한 앰버 코랄 웜 하이라이트 오르브 */
+
 const TertiaryGlowOrb = styled(GlowOrb)`
   top: 46%;
   left: 49%;
@@ -202,14 +202,14 @@ export default function JourneyHome() {
       const isMobile = window.innerWidth <= 768;
       const amp = isMobile ? 0.22 : 1.0;
 
-      // 초기 세팅 (중심 정렬)
+
       gsap.set([orb1, orb2, orb3], {
         xPercent: -50,
         yPercent: -50,
         transformOrigin: '50% 50%',
       });
 
-      // 🌟 [Orb 1: 단청 주홍] - 정갈한 8자 궤적 자동 유영
+
       const tl1 = gsap.timeline({ repeat: -1, yoyo: true });
       tl1.to(orb1, {
         x: 130 * amp,
@@ -248,7 +248,7 @@ export default function JourneyHome() {
         ease: 'sine.inOut',
       });
 
-      // 🌟 [Orb 2: 황금 옐로우] - 반대 방향에서 교차하며 물결치듯 회전
+
       const tl2 = gsap.timeline({ repeat: -1, yoyo: true });
       tl2.to(orb2, {
         x: -140 * amp,
@@ -287,7 +287,7 @@ export default function JourneyHome() {
         ease: 'sine.inOut',
       });
 
-      // 🌟 [Orb 3: 앰버 코랄 웜] - 중심에서 정갈하게 확장/수축하며 파동
+
       const tl3 = gsap.timeline({ repeat: -1, yoyo: true });
       tl3.to(orb3, {
         x: 90 * amp,
@@ -328,7 +328,7 @@ export default function JourneyHome() {
       <JourneyAssemblyLoader />
 
       <Landing $centered={!hasSearched}>
-        {/* 🟠 GSAP 100% 자동 유기적 유영 앰비언트 글로우 — 검색창 중심에 항상 앵커링 */}
+        {}
         {!hasSearched && (
           <AmbientGlowLayer aria-hidden="true">
             <PrimaryGlowOrb ref={orb1Ref} />
@@ -339,10 +339,10 @@ export default function JourneyHome() {
         <JourneyHeroSearch searchFormRef={searchFormRef} moodChipsRef={moodChipsRef} />
       </Landing>
 
-      {/* 검색 전: 풍성한 둘러보기 피드 노출 */}
+      {}
       {!hasSearched && <JourneyDiscoveryFeed />}
 
-      {/* 검색 후: 여정 플로우 레일 및 실데이터 세부 코스 노출 */}
+      {}
       {hasSearched && (
         <ContentLayer>
           <JourneyFlowRailSection />

@@ -306,7 +306,7 @@ const HashTag = styled.span`
 function getPlaceTags(item: Item): string[] {
   const tags: string[] = [];
 
-  // 1. 지역 추출 (예: '서울 종로구 ...' -> '#종로', '전북 전주시 ...' -> '#전주')
+
   if (item.addr) {
     const parts = item.addr.split(' ');
     if (parts.length >= 2) {
@@ -317,7 +317,7 @@ function getPlaceTags(item: Item): string[] {
     }
   }
 
-  // 2. 카테고리 태그 (예: #고택명소, #한옥카페, #한옥숙소, #문화재, #전통체험)
+
   const categoryTagMap: Record<string, string> = {
     spot: '#고택명소',
     cafe: '#한옥카페',
@@ -333,7 +333,7 @@ function getPlaceTags(item: Item): string[] {
   return tags;
 }
 
-// 분위기 한줄평 자동 큐레이션 생성기
+
 function getMoodReview(name: string, category: string): string {
   if (category === 'cafe') return '처마 밑 고즈넉한 전통차와 감성 디저트';
   if (category === 'stay') return '달빛 비추는 한옥 마당에서의 힐링 하룻밤';
@@ -350,12 +350,12 @@ export default function SmartAroundFeed({ items }: SmartAroundFeedProps) {
   const setDetailId = useMapStore((s) => s.setDetailId);
   const loading = useMapStore((s) => s.loading);
 
-  // 이미지가 있고 매력적인 상위 12개 장소 선별
+
   const curatedSpots = items
     .filter((item) => Boolean(item.image))
     .slice(0, 12);
 
-  // 초기 로딩 시 섹션이 사라지지 않고 정위치에서 스켈레톤 유지 (CLS 방지)
+
   if (loading && items.length === 0) {
     return (
       <Wrapper aria-busy="true" aria-label="추천 한옥 명소 불러오는 중">

@@ -103,7 +103,7 @@ export default function HanokAudioPlayer({ stories, hanokName }: HanokAudioPlaye
         )}
       </StoryTitleBox>
 
-      {/* 오디오 컨트롤 바 */}
+      {}
       <PlayerControls>
         <PlayBtn onClick={togglePlay} aria-label={isPlaying ? '일시정지' : '재생'}>
           {isPlaying ? <Pause size={17} fill="currentColor" /> : <Play size={17} fill="currentColor" />}
@@ -128,7 +128,7 @@ export default function HanokAudioPlayer({ stories, hanokName }: HanokAudioPlaye
         </SecondaryBtn>
       </PlayerControls>
 
-      {/* 스크립트 토글 & 내용 */}
+      {}
       {currentStory.script && (
         <ScriptSection>
           <ScriptToggleBtn onClick={() => setShowScript(!showScript)}>

@@ -18,6 +18,6 @@ test('DEBUG 문자열 파싱', () => {
   expect(on('map', 'map')).toBe(true);
   expect(on(' map , landing ', 'landing')).toBe(true);
   expect(on('map', 'landing')).toBe(false);
-  // 부분일치로 새면 안 된다
+
   expect(on('mapping', 'map')).toBe(false);
 });

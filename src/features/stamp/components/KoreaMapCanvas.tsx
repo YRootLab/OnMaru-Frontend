@@ -9,7 +9,7 @@ import { KOREA_MAP_VIEWBOX, KOREA_REGION_PATHS } from '@/shared/data/koreaMapPat
 import type { RegionCode } from '../types';
 import { stampAudio } from '../utils/sound';
 
-// GSAP 플러그인 등록
+
 gsap.registerPlugin(useGSAP);
 
 interface KoreaMapCanvasProps {
@@ -18,7 +18,7 @@ interface KoreaMapCanvasProps {
   unlockedRegions: Set<string>;
 }
 
-// --- Styled Components ---
+
 
 const MapWrap = styled.div`
   position: relative;
@@ -29,7 +29,7 @@ const MapWrap = styled.div`
   flex-direction: column;
   align-items: center;
   user-select: none;
-  visibility: hidden; /* GSAP 애니메이션 전 숨김 처리 */
+  visibility: hidden;
 `;
 
 const SvgContainer = styled.svg`
@@ -44,7 +44,7 @@ const SvgContainer = styled.svg`
   }
 `;
 
-// 활성화 시 부드러운 글로우(발광) 효과
+
 const SvgDefs = () => (
   <defs>
     <filter id="glow-active" x="-50%" y="-50%" width="200%" height="200%">
@@ -61,7 +61,7 @@ const RegionGroup = styled.g`
   cursor: pointer;
   outline: none;
   transform-origin: center;
-  
+
   &:focus-visible path {
     stroke: #fbbf24;
     stroke-width: 3.5px;
@@ -72,20 +72,20 @@ const RegionGroup = styled.g`
 const RegionPath = styled.path<{ $active: boolean; $unlocked: boolean }>`
   stroke: ${({ $active, $unlocked }) =>
     $active
-      ? '#ea580c' // 생동감 있는 단청 오렌지 (Active)
+      ? '#ea580c'
       : $unlocked
-      ? '#f59e0b' // 맑고 밝은 앰버 골드 (Unlocked)
+      ? '#f59e0b'
       : 'rgba(214, 211, 209, 0.6)'}; // 따뜻한 웜그레이
-  
+
   stroke-width: ${({ $active }) => ($active ? '3px' : '1.5px')};
   stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
-  
+
   fill: ${({ $active, $unlocked }) =>
     $active
-      ? 'rgba(249, 115, 22, 0.45)' // 밝고 경쾌한 오렌지 필터
+      ? 'rgba(249, 115, 22, 0.45)'
       : $unlocked
-      ? 'rgba(251, 191, 36, 0.35)' // 화사한 노란빛 필터
+      ? 'rgba(251, 191, 36, 0.35)'
       : '#fafaf9'}; // 따뜻한 한지 느낌의 베이지 (Unvisited)
 
   [data-theme='dark'] & {
@@ -102,7 +102,7 @@ const RegionPath = styled.path<{ $active: boolean; $unlocked: boolean }>`
         ? 'rgba(251, 191, 36, 0.3)'
         : 'rgba(255, 255, 255, 0.04)'};
   }
-  
+
   ${({ $active }) => $active && `filter: url(#glow-active);`}
 `;
 
@@ -111,16 +111,16 @@ const RegionText = styled.text<{ $active: boolean; $unlocked: boolean }>`
   font-size: 26px;
   font-weight: 700;
   fill: ${({ $active, $unlocked }) =>
-    $active 
-      ? '#9a3412' // 진하고 명확한 붉은 갈색 
-      : $unlocked 
-      ? '#b45309' // 따뜻하고 진한 황금 갈색
+    $active
+      ? '#9a3412'
+      : $unlocked
+      ? '#b45309'
       : '#a8a29e'}; // 부드러운 웜톤 텍스트
   pointer-events: none;
   text-anchor: middle;
   dominant-baseline: central;
   paint-order: stroke fill;
-  
+
   stroke: #ffffff;
   stroke-width: 6px;
   stroke-linejoin: round;
@@ -141,7 +141,7 @@ const MapHint = styled.div`
   text-align: center;
   font-size: 13px;
   font-weight: 500;
-  color: #b45309; 
+  color: #b45309;
   letter-spacing: -0.02em;
 
   [data-theme='dark'] & {
@@ -150,7 +150,7 @@ const MapHint = styled.div`
   }
 `;
 
-// --- Helpers ---
+
 
 function getRegionCodeForPath(pathId: string): RegionCode {
   switch (pathId) {
@@ -183,7 +183,7 @@ function isPathActive(pathId: string, selectedRegion: RegionCode): boolean {
   return getRegionCodeForPath(pathId) === selectedRegion;
 }
 
-// --- Main Component ---
+
 
 export default function KoreaMapCanvas({
   selectedRegion,
@@ -193,14 +193,14 @@ export default function KoreaMapCanvas({
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
-  // --- GSAP Animations ---
-  
+
+
   useGSAP(() => {
     if (!containerRef.current || !svgRef.current) return;
 
-    // 1. 입장 애니메이션 (Stagger)
+
     gsap.set(containerRef.current, { visibility: 'visible' });
-    
+
     const regions = svgRef.current.querySelectorAll('.region-group');
     gsap.from(regions, {
       opacity: 0,
@@ -212,7 +212,7 @@ export default function KoreaMapCanvas({
       clearProps: 'transform',
     });
 
-    // 2. 선택된 권역의 Pulse Ring 애니메이션
+
     const activeRings = svgRef.current.querySelectorAll('.active-pulse-ring');
     if (activeRings.length > 0) {
       gsap.to(activeRings, {
@@ -225,19 +225,19 @@ export default function KoreaMapCanvas({
     }
   }, { scope: containerRef, dependencies: [selectedRegion] });
 
-  // 3. Hover 인터랙션
+
   const onMouseEnterRegion = (event: React.MouseEvent<SVGGElement>) => {
     const group = event.currentTarget;
     const path = group.querySelector('path');
-    
+
     gsap.to(group, { scale: 1.03, duration: 0.3, ease: 'power2.out' });
-    
+
     if (path && group.getAttribute('data-active') !== 'true') {
       const isUnlocked = group.getAttribute('data-unlocked') === 'true';
-      gsap.to(path, { 
+      gsap.to(path, {
         fill: isUnlocked ? 'rgba(251, 191, 36, 0.5)' : 'rgba(214, 211, 209, 0.3)',
         stroke: isUnlocked ? '#f59e0b' : '#a8a29e',
-        duration: 0.3 
+        duration: 0.3
       });
     }
   };
@@ -247,7 +247,7 @@ export default function KoreaMapCanvas({
     const path = group.querySelector('path');
 
     gsap.to(group, { scale: 1, duration: 0.3, ease: 'power2.inOut' });
-    
+
     if (path && group.getAttribute('data-active') !== 'true') {
       gsap.to(path, { clearProps: 'fill,stroke', duration: 0.3 });
     }
@@ -256,7 +256,7 @@ export default function KoreaMapCanvas({
   const handleRegionClick = (pathId: string) => {
     stampAudio.playMapClickSound();
     const targetCode = getRegionCodeForPath(pathId);
-    
+
     if (pathId === 'seoul') {
       if (selectedRegion === 'seoul' || selectedRegion === 'gyeonggi') {
         onSelectRegion('all');
@@ -265,7 +265,7 @@ export default function KoreaMapCanvas({
       }
       return;
     }
-    
+
     if (selectedRegion === targetCode) {
       onSelectRegion('all');
     } else {
@@ -282,11 +282,11 @@ export default function KoreaMapCanvas({
         aria-label="한옥 스테이 권역별 지도. 클릭하여 해당 지역의 숙소를 필터링하세요."
       >
         <SvgDefs />
-        
+
         {KOREA_REGION_PATHS.map((region) => {
           const active = isPathActive(region.id, selectedRegion);
           const unlocked = isPathUnlocked(region.id, unlockedRegions);
-          
+
           const textYOffset = unlocked ? 18 : 0;
 
           return (
@@ -307,7 +307,7 @@ export default function KoreaMapCanvas({
               }}
             >
               <title>{`${region.label} 권역: ${unlocked ? '방문 완료 (인장 보유)' : '미방문'} - 클릭하여 필터링`}</title>
-              
+
               <RegionPath
                 d={region.d}
                 $active={active}$unlocked={unlocked}
@@ -362,7 +362,7 @@ export default function KoreaMapCanvas({
           );
         })}
       </SvgContainer>
-      
+
       <MapHint>지도의 인장을 눌러 당신의 한옥 여정을 탐색해보세요</MapHint>
     </MapWrap>
   );

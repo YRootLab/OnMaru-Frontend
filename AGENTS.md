@@ -71,6 +71,6 @@
 
 - `src/private/core-ui` is a regular directory in this repository. It was previously a Git submodule referencing the private `YRootLab/onmaru-core-ui` repository, but that reference was removed so the code is committed directly here (the original repository remains archived).
 - No submodule initialization, deploy keys, or extra authentication are required for local development, CI, or Vercel deployments.
-- Do not record private submodule access permissions or authentication tokens in source code, `.env.example`, logs, or documentation.
+- Do not record private submodule access permissions or authentication tokens in source code, logs, or documentation.
 - When modifying files inside `src/private/core-ui`, commit and push them in this repository like any other source file. Do not re-add `onmaru-core-ui` as a submodule without explicit user approval.
 - Core UI components are imported via `@/private/core-ui/*`. A `Module not found: Can't resolve '@/private/core-ui/...'` error is now a real code bug — check that the file exists in `src/private/core-ui`.

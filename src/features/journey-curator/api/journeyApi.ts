@@ -55,7 +55,7 @@ export type ApplyActionInput = {
   idempotencyKey: string;
 };
 
-/** EventSource는 DOM 타입이라 서버(vitest node 환경)에서 그대로 new할 수 없다 — 주입 가능하게 둔다. */
+
 export type JourneyEventSourceFactory = (url: string) => EventSource;
 
 export type JourneyRepository = {
@@ -71,12 +71,12 @@ export type JourneyRepository = {
   getExploration(explorationId: string): Promise<ExplorationSnapshot>;
   getRun(explorationId: string, runId: string): Promise<JourneyRunSnapshot>;
   cancelRun(explorationId: string, runId: string): Promise<JourneyRunSnapshot>;
-  /** FE #93: PIN/EXCLUDE/PROPOSAL 액션 적용, 갱신된 스냅샷을 돌려받는다. */
+
   applyAction(input: ApplyActionInput): Promise<ExplorationSnapshot>;
-  /**
-   * FE #93: 런 진행 상태 SSE 구독. onEvent는 run.stage/run.terminal/heartbeat/reset
-   * 프레임마다 호출된다. 반환값은 구독 해제 함수.
-   */
+
+
+
+
   subscribeToRunEvents(
     explorationId: string,
     runId: string,
@@ -232,7 +232,7 @@ export const fixtureJourneyRepository: JourneyRepository = {
     return this.getExploration('fixture-exploration');
   },
   subscribeToRunEvents() {
-    // fixture 모드는 실서버 SSE가 없다 — 구독할 것도 해제할 것도 없다.
+
     return () => {};
   },
 };

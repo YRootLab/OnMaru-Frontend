@@ -8,18 +8,18 @@ import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { SNAP_CSS } from '@/features/map/components/BottomSheet';
 import type { SheetSnap } from '@/features/map/types';
 
-/**
- * 날짜 스크러버.
- *
- * 히트맵이 답하던 질문은 "지금 어디가 붐비나"였다. 한옥에 가려는 사람의 질문은
- * "언제 가면 조용한가"에 가깝다. 그래서 날짜를 축으로 꺼내 직접 문지르게 한다.
- *
- * 막대 서른 개는 컨트롤이면서 동시에 그래프다 — 높이가 그날 이 화면 권역의
- * 평균 혼잡도라, 끄는 물건과 읽는 물건이 하나다. 설명용 차트를 옆에 따로 두지 않는다.
- *
- * 날짜는 지어내지 않는다. 관광공사 데이터랩이 실제로 채워둔 날만 들어오고,
- * 이 피드는 한 달가량 지연되므로 축의 오른쪽 끝이 곧 '가장 최근'이다.
- */
+
+
+
+
+
+
+
+
+
+
+
+
 
 const FONT =
   "'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif";
@@ -99,13 +99,13 @@ const HeadLeft = styled.div`
   min-width: 0;
 `;
 
-/*
-  30일을 훑는 재생 버튼.
 
-  자동으로 도는 연출이 아니라 눌러야 시작한다 — 대신 한 번 누르면 주말마다
-  지도가 붉어졌다 가라앉는 리듬이 몸으로 읽힌다. 막대 하나씩 끌어서는
-  30일이 걸리는 이야기다.
-*/
+
+
+
+
+
+
 const PlayButton = styled.button<{ $playing: boolean }>`
   display: inline-flex;
   align-items: center;
@@ -214,7 +214,7 @@ const Ends = styled.div`
   font-variant-numeric: tabular-nums;
 `;
 
-/* 출처 표기. 좁은 화면에서는 양 끝 날짜에 자리를 내준다. */
+
 const Source = styled.span`
   @media (max-width: 560px) {
     display: none;
@@ -245,11 +245,11 @@ export default function DateScrubber({ embedded = false }: DateScrubberProps) {
   const [dragging, setDragging] = useState(false);
   const [playing, setPlaying] = useState(false);
 
-  /*
-    재생 중에는 날짜를 한 칸씩 밀고, 끝에 닿으면 처음으로 돌아간다.
-    최신 값은 store에서 그때그때 읽는다 — 의존성에 인덱스를 넣으면
-    한 칸 옮길 때마다 타이머가 다시 서서 간격이 흔들린다.
-  */
+
+
+
+
+
   useEffect(() => {
     if (!playing || mode !== 'warmth' || days.length < 2) return;
 
@@ -262,10 +262,10 @@ export default function DateScrubber({ embedded = false }: DateScrubberProps) {
     return () => clearInterval(id);
   }, [playing, mode, days.length]);
 
-  /*
-    막대 높이는 전국 평균이 아니라 지금 화면에 잡힌 권역들의 평균이다.
-    지도를 옮기면 리듬이 따라 바뀌어야 이 축이 내 여행과 상관있는 값이 된다.
-  */
+
+
+
+
   const daily = useMemo(() => {
     const withSeries = heatSpots.filter((s) => s.series && s.series.length === days.length);
     if (withSeries.length === 0) return [];
@@ -278,11 +278,11 @@ export default function DateScrubber({ embedded = false }: DateScrubberProps) {
 
   if (mode !== 'warmth' || days.length < 2 || daily.length === 0) return null;
 
-  /*
-    막대는 0이 아니라 이 기간의 최솟값을 바닥으로 잡는다.
-    혼잡도가 44~73 사이에서만 움직이는데 0부터 그리면 전부 비슷한 키가 되어
-    주말마다 솟는 리듬 — 이 리본이 존재하는 이유 — 이 뭉개진다.
-  */
+
+
+
+
+
   const lo = Math.min(...daily);
   const hi = Math.max(...daily);
   const span = Math.max(hi - lo, 1);
@@ -346,7 +346,7 @@ export default function DateScrubber({ embedded = false }: DateScrubberProps) {
         aria-valuenow={index + 1}
         aria-valuetext={`${formatDay(today.ymd)} ${today.weekday} · ${verdict}`}
         onPointerDown={(e) => {
-          // 직접 잡으면 재생은 물러난다. 손이 우선이다.
+
           setPlaying(false);
           setDragging(true);
           e.currentTarget.setPointerCapture(e.pointerId);

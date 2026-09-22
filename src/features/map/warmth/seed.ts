@@ -1,12 +1,12 @@
 import type { Warmth } from '@/features/map/types';
 
-/** [장소id, 장소명, lat, lng, 한줄평, 분위기, 며칠 전] */
+
 type Row = [string, string, number, number, string, Warmth['mood'], number];
 
-/**
- * 시연용 씨앗 온기. 좌표는 실제 한옥/고택 위치다.
- * 사용자가 남긴 온기는 여기 섞이지 않고 warmthRepo가 따로 얹는다.
- */
+
+
+
+
 const ROWS: Row[] = [
   ['jj-gyeonggijeon', '경기전', 35.8156, 127.15, '처마 밑에 앉아 있었는데 빗소리가 그렇게 좋더라고요', '한적', 2],
   ['jj-gyeonggijeon', '경기전', 35.8156, 127.15, '주말 오후엔 줄 서요. 대신 사진은 잘 나옴', '북적', 5],
@@ -56,7 +56,7 @@ const ROWS: Row[] = [
 
 const DAY = 86_400_000;
 
-/** 하루 단위로만 시간을 흔든다 — 렌더마다 값이 바뀌면 안 된다. */
+
 export function seedWarmth(now = Date.now()): Warmth[] {
   return ROWS.map(([placeId, placeName, lat, lng, text, mood, daysAgo], i) => ({
     id: `seed-${i}`,

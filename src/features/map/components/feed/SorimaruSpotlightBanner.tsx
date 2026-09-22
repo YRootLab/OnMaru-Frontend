@@ -165,16 +165,16 @@ export default function SorimaruSpotlightBanner() {
   const currentAddress = useMapStore((s) => s.currentAddress);
   const startTour = useCinematicTourStore((s) => s.startTour);
 
-  // 현재 지도 중심(center) 및 검색 지역(currentAddress)에 가장 부합하는 권역별 Sorimaru 스토리 동적 선별
+
   const spotlightStory = React.useMemo(() => {
     const validStories = availableStories.filter((s) => Boolean(s.audioUrl));
     if (validStories.length === 0) return null;
 
-    // 1. 주소/지역명이 있을 경우 해당 지역 텍스트 매칭 스토리 우선
+
     if (currentAddress && !currentAddress.includes('전국')) {
       const cleanAddr = currentAddress.replace(/특별자치도|특별자치시|광역시|도|시|군|구/g, '').trim();
       const addrTokens = cleanAddr.split(/\s+/).filter((t) => t.length >= 2);
-      
+
       const addrMatch = validStories.find((s) => {
         const fullText = `${s.title} ${s.audioTitle || ''} ${s.locationName || ''} ${s.badgeText || ''}`;
         return addrTokens.some((token) => fullText.includes(token));
@@ -182,7 +182,7 @@ export default function SorimaruSpotlightBanner() {
       if (addrMatch) return addrMatch;
     }
 
-    // 2. 전국 조망 시 대표 국보/문화유산(북촌/경복궁) 우선, 그 외 좌표 거리 기준 초근접 스토리 계산
+
     let closest = validStories[0];
     let minDistance = Infinity;
 

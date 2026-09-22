@@ -9,21 +9,21 @@ import { BEAT_RANGES } from '../scroll-core/constants';
 import { meok } from '@/design-system/tokens';
 import { clamp01, easeIn, usePrefersReducedMotion } from './LandingSectionFrame';
 
-// ─────────────────────────────────────────
-// 구간 (Beat1: 0.0 ~ 0.09)
-// ─────────────────────────────────────────
+
+
+
 
 export const RANGE = BEAT_RANGES.BEAT1;
 
 const [RANGE_START, RANGE_END] = RANGE;
 
-/**
- * 퇴장 시작 지점(전역 0.060)을 로컬 0~1로 환산한 값.
- * Beat2와 교차 페이드(Cross-fade)로 자연스럽게 연결됩니다.
- */
-const EXIT_START = 0.06 / RANGE_END; // 0.667
 
-/** 퇴장 시 위로 빠지는 거리 */
+
+
+
+const EXIT_START = 0.06 / RANGE_END;
+
+
 const SHIFT_PX = 12;
 
 const LINES = [
@@ -50,9 +50,9 @@ const LINE_COLOR = 'rgba(250, 250, 250, 0.4)';
 
 const VIDEO_SRC = '/videos/hanok-neungsohwa-loop.mp4';
 
-// ─────────────────────────────────────────
-// 퇴장 (progress 구동)
-// ─────────────────────────────────────────
+
+
+
 
 function getExitState(local, reduced) {
   if (local < EXIT_START) {
@@ -69,9 +69,9 @@ function getExitState(local, reduced) {
   };
 }
 
-// ─────────────────────────────────────────
-// 타이핑 (시간 구동)
-// ─────────────────────────────────────────
+
+
+
 
 const randomDelay = () => TYPE_MIN_MS + Math.random() * (TYPE_MAX_MS - TYPE_MIN_MS);
 const delayBefore = (index) =>
@@ -100,9 +100,9 @@ function useTypewriter(length, { skip }) {
   return skip ? length : typedCount;
 }
 
-// ─────────────────────────────────────────
-// 스타일
-// ─────────────────────────────────────────
+
+
+
 
 const Stage = styled.section`
   position: fixed;
@@ -293,7 +293,7 @@ export default function LandingHero({ progress }) {
         ))}
       </Copy>
 
-      {/* Framer Motion 이중 하향 화살표 (\/ \/) 스크롤 인디케이터 */}
+      {}
       <motion.div
         aria-hidden="true"
         style={{

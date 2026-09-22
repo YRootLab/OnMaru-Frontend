@@ -1,8 +1,8 @@
 'use client';
 
-// ============================================================
-// 관리자 대시보드 (src/app/admin/page.tsx)
-// ============================================================
+
+
+
 
 import React, { useState } from 'react';
 import Link from 'next/link';
@@ -36,7 +36,7 @@ export default function AdminDashboardPage() {
   const [progressText, setProgressText] = useState('');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // 파이프라인 수동 갱신 시뮬레이션
+
   const handleStartRebuild = () => {
     setIsConfirmOpen(false);
     setIsRebuilding(true);
@@ -69,7 +69,7 @@ export default function AdminDashboardPage() {
         <Toast message={toastMessage} type="success" onClose={() => setToastMessage(null)} />
       )}
 
-      {/* 상단 4구 지표 카드 */}
+      {}
       <section
         style={{
           display: 'grid',
@@ -97,7 +97,7 @@ export default function AdminDashboardPage() {
         ))}
       </section>
 
-      {/* 중단 그리드: 최근 온기 5건 vs 처리 대기 신고 */}
+      {}
       <section
         style={{
           display: 'grid',
@@ -105,7 +105,7 @@ export default function AdminDashboardPage() {
           gap: '20px',
         }}
       >
-        {/* 최근 온기 5건 */}
+        {}
         <div
           style={{
             backgroundColor: '#FFFFFF',
@@ -184,7 +184,7 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* 처리 대기 신고 */}
+        {}
         <div
           style={{
             backgroundColor: '#FFFFFF',
@@ -271,7 +271,7 @@ export default function AdminDashboardPage() {
         </div>
       </section>
 
-      {/* 하단 — 데이터 파이프라인 요약 */}
+      {}
       <section
         style={{
           backgroundColor: '#FFFFFF',
@@ -320,7 +320,7 @@ export default function AdminDashboardPage() {
           )}
         </div>
 
-        {/* 진행률 바 (갱신 중일 때 노출) */}
+        {}
         {isRebuilding && (
           <div
             style={{
@@ -425,7 +425,7 @@ export default function AdminDashboardPage() {
         </div>
       </section>
 
-      {/* 파이프라인 갱신 확인 다이얼로그 */}
+      {}
       <ConfirmDialog
         isOpen={isConfirmOpen}
         title="데이터 파이프라인 수동 갱신"

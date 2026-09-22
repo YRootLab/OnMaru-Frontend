@@ -74,7 +74,7 @@ const MoodLabel = styled.span`
 `;
 
 
-/** 5단계 감정 라벨 사전 */
+
 const MOOD_LABELS: Record<MoodValue, string> = {
   1: '또 가고 싶어요',
   2: '좋았어요',

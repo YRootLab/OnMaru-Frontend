@@ -505,7 +505,7 @@ export const OverviewSection = styled.div`
   margin-top: 6px;
 `;
 
-export const SectionTitle = styled.h3` /* 14px — 작은 제목이라 500으로 본문과 갈라 준다 */
+export const SectionTitle = styled.h3`
   font-family: var(--font-traditional-title);
   margin: 0 0 8px;
   font-size: 15px;
@@ -659,7 +659,7 @@ export const NavButton = styled.a`
   color: #ffffff;
   font-family: inherit;
   font-size: ${fontSize.sm};
-  /* 길찾기 — 상세 패널의 주 행동 */
+
   font-weight: 700;
   text-decoration: none;
   cursor: pointer;

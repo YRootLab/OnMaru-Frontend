@@ -13,11 +13,11 @@ interface SoriMaruBridgeCardProps {
   hanokName: string;
 }
 
-/**
- * 소리마루 연계 브릿지 카드:
- * 한옥 마루 페이지에서 오디오를 직접 재생하여 소리마루와 기능이 겹치는 문제를 해결하고,
- * 소리 관련 모든 경험을 전문 공간인 '소리마루(/sorimaru)'로 유기적으로 연결합니다.
- */
+
+
+
+
+
 export default function SoriMaruBridgeCard({ stories, hanokName }: SoriMaruBridgeCardProps) {
   const router = useRouter();
   const setCurrentStory = useSorimaruAudioStore((s) => s.setCurrentStory);
@@ -27,8 +27,8 @@ export default function SoriMaruBridgeCard({ stories, hanokName }: SoriMaruBridg
   const primaryStory = stories[0];
 
   const handleNavigateToSoriMaru = () => {
-    // 소리마루 오디오 스토어에 해당 한옥 음원 정보를 세팅하여
-    // 소리마루 페이지 도착 즉시 해당 도슨트가 바로 준비되도록 연동
+
+
     setCurrentStory({
       tid: String(primaryStory.stid),
       tlid: String(primaryStory.stlid),

@@ -26,14 +26,14 @@ export interface ExploreRefineOptions {
   previousRegionId: string;
 }
 
-/**
- * 새 계약(JourneyBoard) 탐색 호출. `/api/journey-curator/explore`는 TourAPI 실제 장소 +
- * Gemini로 후보를 고른다 — 실패하면 ok:false와 사람이 읽을 메시지를 돌려주고,
- * 호출부가 이전 board를 유지한 채 그 메시지를 보여줄 수 있게 한다(지어낸 성공으로 위장하지 않는다).
- *
- * refine을 주면 고정된 장소(pinnedPlaces)는 그대로 유지되고, 나머지 자리만 새로 채워진
- * 결과와 kept/added/removed diff가 함께 온다.
- */
+
+
+
+
+
+
+
+
 export async function fetchExplorationBoard(
   query: string,
   refine?: ExploreRefineOptions,

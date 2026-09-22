@@ -379,11 +379,11 @@ const RefreshBtn = styled.button`
   }
 `;
 
-/*
-  빈 지역은 막다른 길이 아니다. 실제 한옥 스테이는 경북·전북에 몰려 있어
-  부산·제주 같은 곳은 한두 곳뿐이거나 아예 없다. 그 사실을 숨기지 않되,
-  "없다"로 끝내지 말고 다음 행동을 쥐여 준다.
-*/
+
+
+
+
+
 const EmptyState = styled.div`
   min-height: 240px;
   background: rgba(78, 89, 104, 0.03);
@@ -551,16 +551,16 @@ const FALLBACK_STAYS: Village[] = [
   },
 ];
 
-/*
-  시도를 행정구역 순으로 적어 둔 기준표. 탭 자체는 여기서 바로 그리지 않는다.
 
-  전에는 이 배열이 곧 탭이었다. 그래서 두 가지가 동시에 틀렸다 —
-  경북·경남·전남·광주·울산이 아예 빠져 있어 고택이 가장 많은 지역을 고를 수 없었고,
-  마지막의 '전남광주통합특별시'는 region 값('전남'·'광주')과 겹치는 글자가 없어
-  영원히 0곳인 칩으로 남아 있었다. 0곳 칩 다섯 개가 나란히 선 화면이 그 결과다.
 
-  순서만 여기서 정하고, 실제로 설 탭은 수집분에 있는 지역으로 고른다.
-*/
+
+
+
+
+
+
+
+
 const REGION_ORDER = [
   '서울',
   '부산',
@@ -608,26 +608,26 @@ export default function HanokStayAccordion({
   const [page, setPage] = useState(0);
 
   const allStays = useMemo(() => {
-    /*
-      예전엔 '고택' 뱃지만 붙어도 스테이로 셌다. 그러면 묵을 수 없는 고택까지 '숙소 N곳'에
-      들어가고, 도감(스테이 제외)과 합이 전체 수집분을 넘어선다. 실제 숙박만 센다.
 
-      여기에 hasImage 조건이 하나 더 붙어 있었다. 사진 없는 알약이 볼품없다는 이유였는데,
-      도감 그리드는 스테이를 통째로 빼므로 그렇게 걸러진 곳은 페이지 어디에도 남지 않았다.
-      인트로가 259곳이라 적고 도감이 159곳, 여기가 88곳이던 산술이 그 12곳이다.
-      PillImageLayer가 사진 없을 때 쓸 바탕을 이미 갖고 있으니 조건을 걷는다.
-    */
+
+
+
+
+
+
+
+
     const fetched = villages.filter((v) => v.type === STAY_TYPE);
     if (fetched.length >= 3) return fetched;
     return FALLBACK_STAYS;
   }, [villages]);
 
-  /*
-    설 탭은 수집분이 정한다.
 
-    한 곳도 없는 지역을 세워 두면 '눌러도 아무 일이 없는 칩'이 되고, 그런 칩이 여럿이면
-    데이터가 비어 보인다. 없는 지역은 아예 세우지 않는다.
-  */
+
+
+
+
+
   const regionTabs = useMemo(() => {
     const present = REGION_ORDER.filter((region) =>
       allStays.some((stay) => stay.region.includes(region)),
@@ -640,7 +640,7 @@ export default function HanokStayAccordion({
     return allStays.filter((s) => s.region.includes(selectedRegion));
   }, [allStays, selectedRegion]);
 
-  // 칩마다 filter를 돌리면 지역 수만큼 전체 순회가 반복된다. 한 번에 세어 둔다.
+
   const countByRegion = useMemo(() => {
     const counts: Record<string, number> = { 전체: allStays.length };
     for (const tab of regionTabs) {
@@ -672,8 +672,8 @@ export default function HanokStayAccordion({
       <SectionHeader
         id="stay-heading"
         title="지역별 한옥 스테이"
-        // 부제는 도감 전체 규모를 말한다. 지역을 골라도 흔들리지 않아야
-        // '전국'이라는 말과 어긋나지 않는다. 지금 몇 곳을 보고 있는지는 하단 페이저가 맡는다.
+
+
         subtitle={`${allStays.length}곳`}
       />
 

@@ -14,22 +14,22 @@ import type { Item, PlaceCategory } from '../types';
 
 const log = logger('map');
 
-/** 확대/축소 단계 정의 */
-const LABEL_MAX_LEVEL = 5; // 레벨 1~5: 선명한 이름표 포함 핀 마커 상시 노출
-const PIN_MAX_LEVEL = 6; // 레벨 6: 깔끔한 원형 아이콘 뱃지 핀 (단일 근거리)
-// 레벨 7+: 광역 스마트 클러스터 뱃지 (축소 시 뭉침/겹침 완전 방지)
 
-/**
- * 한 화면에 올리는 핀 개수 상한.
- *
- * 이름표 핀은 장소명 전체를 한 줄로 달아 폭이 넓다. 레벨 6은 축척 500m라
- * 화면에 몇 km가 들어오는데, 여기에 120개를 그리면 이름표가 서로 포개져 뭉갠다.
- * 배지 핀(34px 원)은 겹쳐도 읽히므로 상한을 더 준다.
- */
+const LABEL_MAX_LEVEL = 5;
+const PIN_MAX_LEVEL = 6;
+
+
+
+
+
+
+
+
+
 const LABEL_PIN_LIMIT = 60;
 const BADGE_PIN_LIMIT = 40;
 
-/** 카테고리별 지도 마커 아이콘. 상단 카테고리 칩셋과 같은 lucide 아이콘을 쓴다. */
+
 const CATEGORY_ICONS: Record<PlaceCategory, MapIconName> = {
   spot: 'landmark',
   culture: 'bookOpen',
@@ -45,7 +45,7 @@ export function renderCategoryIconSvg(category: PlaceCategory, size = 15): strin
   return mapIconSvg(CATEGORY_ICONS[category] ?? 'landmark', size);
 }
 
-/** 각 카테고리별 고대비 선명 컬러 및 둥근 React SVG 아이콘 */
+
 export const CATEGORY_STYLES: Record<
   PlaceCategory,
   {
@@ -56,7 +56,7 @@ export const CATEGORY_STYLES: Record<
     iconSvg: string;
   }
 > = {
-  // 1. spot (고택·명소): 청화 코발트
+
   spot: {
     main: '#2F68FF',
     lightBg: 'rgba(47, 104, 255, 0.12)',
@@ -64,7 +64,7 @@ export const CATEGORY_STYLES: Record<
     border: '#2F68FF',
     iconSvg: renderCategoryIconSvg('spot', 14),
   },
-  // 2. culture (문화재·서원): 짙은 코발트 블루
+
   culture: {
     main: '#1748CF',
     lightBg: 'rgba(23, 72, 207, 0.12)',
@@ -72,7 +72,7 @@ export const CATEGORY_STYLES: Record<
     border: '#1748CF',
     iconSvg: renderCategoryIconSvg('culture', 14),
   },
-  // 3. stay (한옥숙소): 단청 주홍
+
   stay: {
     main: '#FF5414',
     lightBg: 'rgba(255, 84, 20, 0.12)',
@@ -80,7 +80,7 @@ export const CATEGORY_STYLES: Record<
     border: '#FF5414',
     iconSvg: renderCategoryIconSvg('stay', 14),
   },
-  // 4. food (향토음식): 먹빛 주홍
+
   food: {
     main: '#D93600',
     lightBg: 'rgba(217, 54, 0, 0.12)',
@@ -88,7 +88,7 @@ export const CATEGORY_STYLES: Record<
     border: '#D93600',
     iconSvg: renderCategoryIconSvg('food', 14),
   },
-  // 5. cafe (한옥카페·디저트): 대청 청록
+
   cafe: {
     main: '#00B882',
     lightBg: 'rgba(0, 184, 130, 0.12)',
@@ -96,7 +96,7 @@ export const CATEGORY_STYLES: Record<
     border: '#00B882',
     iconSvg: renderCategoryIconSvg('cafe', 14),
   },
-  // 6. experience (한복·전통체험): 연지 장미
+
   experience: {
     main: '#FF2A6D',
     lightBg: 'rgba(255, 42, 109, 0.12)',
@@ -104,7 +104,7 @@ export const CATEGORY_STYLES: Record<
     border: '#FF2A6D',
     iconSvg: renderCategoryIconSvg('experience', 14),
   },
-  // 7. festival (야행·축제): 야행 보라
+
   festival: {
     main: '#673AB7',
     lightBg: 'rgba(103, 58, 183, 0.12)',
@@ -112,7 +112,7 @@ export const CATEGORY_STYLES: Record<
     border: '#673AB7',
     iconSvg: renderCategoryIconSvg('festival', 14),
   },
-  // 8. market (전통시장): 청록 그린
+
   market: {
     main: '#00825B',
     lightBg: 'rgba(0, 130, 91, 0.12)',
@@ -123,9 +123,9 @@ export const CATEGORY_STYLES: Record<
 };
 
 const styles = css`
-  /* ------------------------------------------------------------
-   * 1. 핀 공통 키프레임 & 마이크로 인터랙션
-   * ------------------------------------------------------------ */
+
+
+
   @keyframes om-pin-spring {
     0% { transform: translateY(-2px) scale(1); }
     35% { transform: translateY(-16px) scale(1.22); }
@@ -143,9 +143,9 @@ const styles = css`
     50% { height: 10px; }
   }
 
-  /* 정통 한옥 마커 전용: 그림자 연동 둥실 float
-     ↑ 위로 올라갈수록 그림자가 흐릿해지고 작아짐 → 물리감 UP */
-  /* 클릭 bounce: 스프링감 있게 한번 점프 후 안착 */
+
+
+
   @keyframes om-click-bounce {
     0%   { transform: translateY(-2px) scale(1); }
     25%  { transform: translateY(-14px) scale(1.18); }
@@ -154,11 +154,11 @@ const styles = css`
     100% { transform: translateY(-6px) scale(1.15); }
   }
 
-  /*
-    2. 상세 확대 시: 이름표 포함 핀 마커 (고대비 플로팅 뱃지)
-    완전한 알약 모양 대신 인장 블록에 가깝게 모서리를 살짝 줄였다 —
-    수결첩 도장(StampSealAnimation)의 각진 인장 실루엣과 같은 어휘.
-  */
+
+
+
+
+
   .om-pin {
     position: relative;
     display: flex;
@@ -186,7 +186,7 @@ const styles = css`
     transform: translateY(-10px) scale(1.12);
     box-shadow: 0 12px 28px -2px rgba(25, 31, 40, 0.32);
     z-index: 100 !important;
-    animation: none !important; /* float 중단 후 hover 상태 고정 */
+    animation: none !important;
   }
 
   .om-pin::after {
@@ -213,7 +213,7 @@ const styles = css`
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
   }
 
-  /* 라이브 사운드 이퀄라이저 바 */
+
   .om-pin-eq {
     display: inline-flex;
     align-items: flex-end;
@@ -231,7 +231,7 @@ const styles = css`
   .om-pin-eq span:nth-of-type(2) { animation-delay: 0.25s; }
   .om-pin-eq span:nth-of-type(3) { animation-delay: 0.5s; }
 
-  /* 핀 호버 시 팝업되는 라이브 미니 프리뷰 카드 */
+
   .om-pin-hover-card {
     position: absolute;
     bottom: calc(100% + 12px);
@@ -331,7 +331,7 @@ const styles = css`
     color: ${meok[400]};
   }
 
-  /* 마커 클릭 시 방사형 파동 효과 (Ripple Wave) */
+
   @keyframes om-ripple-expand {
     0% {
       transform: translate(-50%, -50%) scale(0.3);
@@ -357,7 +357,7 @@ const styles = css`
     z-index: 10;
   }
 
-  /* 선택된 핀 주변 은은한 동심원 Glow Ring */
+
   @keyframes om-glow-ring {
     0%, 100% {
       box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7), 0 8px 24px -2px rgba(25, 31, 40, 0.45);
@@ -367,7 +367,7 @@ const styles = css`
     }
   }
 
-  /* 수결첩에 기록된 방문 한옥 인장 표식 */
+
   .om-pin-stamp-badge {
     position: absolute;
     top: -5px;
@@ -385,7 +385,7 @@ const styles = css`
     z-index: 5;
   }
 
-  /* 선택된 핀의 스프링 점프 & 펄스 오라 */
+
   .om-pin[data-selected='true'],
   .om-pin[data-detail='true'] {
     color: #ffffff !important;
@@ -397,19 +397,19 @@ const styles = css`
     opacity: 1 !important;
   }
 
-  /*
-    정통 한옥 label 핀.
 
-    예전에는 핀 하나가 무한 애니메이션을 여섯 개 돌렸다 — float 하나, 별 다섯.
-    그중 셋에는 filter: drop-shadow까지 붙어 있었다. 라벨 핀이 60개면 360개가
-    매 프레임 합성되니, 마커가 몰린 화면에서 눈에 띄게 느려졌다.
 
-    그렇다고 표식이 작으면 정통 한옥인지 알아볼 수가 없다. 그래서 나눈다 —
-    쉴 때는 '또렷하지만 가만히', 가리키면 '반짝인다'. 움직임은 사용자가 보고 있는
-    핀 하나에서만 일어나므로, 마커가 아무리 몰려도 상시 비용은 0이다.
-  */
 
-  /* 쉴 때: 또렷한 금빛 테두리와 황금빛 후광으로 정통 한옥임을 선명하게 알린다. */
+
+
+
+
+
+
+
+
+
+
   .om-pin--traditional {
     border: 2px solid #EAB308 !important;
     box-shadow:
@@ -424,7 +424,7 @@ const styles = css`
     background: #ffffff !important;
   }
 
-  /* 전통/한옥 식별 칩 (노란색 뱃지) */
+
   .om-pin-trad-chip {
     display: inline-flex;
     align-items: center;
@@ -451,12 +451,12 @@ const styles = css`
     pointer-events: none;
   }
 
-  /*
-    다크 모드: 지도 캔버스의 invert(92%) hue-rotate(180deg) 필터로 인해
-    단순 노란색을 주면 명도가 역전되어 탁한 검갈색(dark brown)으로 변해 보이지 않게 된다.
-    따라서 핀 자체에 역필터(invert(100%) hue-rotate(180deg))를 적용하고 어두운 배경과
-    선명한 황금색 테두리를 지정하여 캔버스 필터를 통과한 후에도 화면상에 찬란한 순수 노란색이 온전히 발색되도록 한다.
-  */
+
+
+
+
+
+
   [data-theme='dark'] .om-pin--traditional {
     filter: invert(100%) hue-rotate(180deg) brightness(105%) contrast(95%);
     background: #191F28 !important;
@@ -486,7 +486,7 @@ const styles = css`
     text-shadow: 0 0 8px rgba(250, 204, 21, 0.95) !important;
   }
 
-  /* 가리켰을 때만 도는 반짝임. 한 번에 한 핀뿐이라 비용이 없다. */
+
   @keyframes om-star-twinkle {
     0% { transform: scale(1) rotate(0deg); }
     45% { transform: scale(1.65) rotate(90deg); }
@@ -500,11 +500,11 @@ const styles = css`
     100% { opacity: 0.95; transform: scale(1.1) rotate(110deg); }
   }
 
-  /*
-    별무리.
-    쉴 때는 움직이지 않는다. 개수가 늘어도 상시 비용이 0인 이유다.
-    가리키면 시차를 두고 차례로 튀어올라, 핀 하나가 살아나는 것처럼 읽힌다.
-  */
+
+
+
+
+
   .om-pin-stars {
     position: absolute;
     inset: 0;
@@ -569,10 +569,10 @@ const styles = css`
     animation: om-star-twinkle 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   }
 
-  /*
-    ::after는 핀 꼬리 화살표가 쓰고 있다(.om-pin::after).
-    여기에 별을 얹으면 hover할 때 꼬리가 사라지므로 건드리지 않는다.
-  */
+
+
+
+
 
   .om-pin[data-selected='true']::after,
   .om-pin[data-detail='true']::after {
@@ -592,13 +592,13 @@ const styles = css`
     filter: grayscale(30%);
   }
 
-  /*
-    3. 중간 확대 시: 선명한 인장(印章) 뱃지 마커 (32px)
 
-    수결첩의 도장 모티브를 지도 핀에도 가져온다 — 원형 배지 대신 살짝 둥근
-    각진 인장 블록 모양에, 안쪽으로 한 겹 점선 테두리를 둬 "찍힌 도장" 느낌을
-    낸다. 카테고리 색은 그대로 아이콘이 들고 있어 구별력은 잃지 않는다.
-  */
+
+
+
+
+
+
   .om-badge-pin {
     position: relative;
     display: flex;
@@ -642,7 +642,7 @@ const styles = css`
     z-index: 100 !important;
   }
 
-  /* 정통 한옥 뱃지 핀: 깔끔한 황금빛 테두리 단일 링 */
+
   .om-badge-pin--traditional {
     border: 2px solid #EAB308 !important;
     box-shadow: 0 2px 10px rgba(234, 179, 8, 0.35) !important;
@@ -679,7 +679,7 @@ const styles = css`
     border-color: #ffffff !important;
   }
 
-  /* 4. 전국/광역 축소 조망 시: 스마트 클러스터 뱃지 */
+
   .om-cluster-pill {
     display: flex;
     align-items: center;
@@ -737,12 +737,12 @@ const styles = css`
     font-variant-numeric: tabular-nums;
   }
 
-  /* ------------------------------------------------------------
-   * 5. 키보드 포커스
-   *
-   * 마커는 role="button" tabindex="0"으로 Tab 순회에 들어온다.
-   * 지도 위라 배경색이 제각각이라서 흰 테두리를 한 겹 덧대 어디서든 보이게 한다.
-   * ------------------------------------------------------------ */
+
+
+
+
+
+
   .om-pin:focus-visible,
   .om-badge-pin:focus-visible,
   .om-cluster-pill:focus-visible {
@@ -752,12 +752,12 @@ const styles = css`
     z-index: 45 !important;
   }
 
-  /* ------------------------------------------------------------
-   * 6. 모션 최소화
-   *
-   * 이퀄라이저 바와 핀 스프링은 계속 도는 애니메이션이라 가장 먼저 꺼야 한다.
-   * 상태 표시는 색과 크기가 대신하므로 정보는 잃지 않는다.
-   * ------------------------------------------------------------ */
+
+
+
+
+
+
   @media (prefers-reduced-motion: reduce) {
     .om-pin,
     .om-badge-pin,
@@ -786,14 +786,14 @@ const styles = css`
   }
 `;
 
-/** 아이템 목록에서 대표 지역/시·군 명칭 추출 */
+
 function extractClusterRegionName(clusterItems: Item[]): string {
   const counts: Record<string, number> = {};
 
   for (const item of clusterItems) {
     if (!item.addr) continue;
 
-    // 행정 접미사는 끝에서 한 번만 뗀다 (utils/geo). 전역 치환은 "구리시"를 "리"로 만든다.
+
     const name = shortRegionName(item.addr);
     if (name.length >= 2) counts[name] = (counts[name] || 0) + 1;
   }
@@ -808,12 +808,12 @@ interface ClusterGroup {
   items: Item[];
 }
 
-/**
- * 줌 레벨에 맞춘 공간 격자 클러스터링.
- *
- * 축소 시(level >= 7) 너무 뭉개지지 않고 시·군·구 단위로 자연스럽게 묶이도록
- * 레벨별로 정교하게 조절된 공간 셀 크기를 적용한다.
- */
+
+
+
+
+
+
 function clusterNearbyItems(items: Item[], level: number): ClusterGroup[] {
   const cellSize =
     level >= 11 ? 0.85 :
@@ -852,15 +852,15 @@ function clusterNearbyItems(items: Item[], level: number): ClusterGroup[] {
   return clusters;
 }
 
-/*
-  클러스터 ↔ 개별 핀 전환이 지금까지는 통째로 지우고 다시 그리는 방식이라
-  뚝 끊겨 보였다(레벨이 바뀌면 오버레이 전체를 setMap(null) 하고 새로 만든다).
-  raw DOM 오버레이라 Framer Motion이 손댈 수 없어 GSAP으로 등장만 매만진다 —
-  핀 자체(.om-pin 등)의 hover/click transform은 CSS가 계속 갖고 있어야 하므로,
-  GSAP은 그걸 감싸는 별도 wrapper의 scale/opacity만 건드린다(같은 엘리먼트를
-  같이 건드리면 GSAP이 쓰는 transform이 CSS의 translateY(-2px) 같은 정적 오프셋을
-  덮어써 버린다).
-*/
+
+
+
+
+
+
+
+
+
 function wrapForEntrance(el: HTMLElement, transformOrigin: string): HTMLDivElement {
   const wrapper = document.createElement('div');
   wrapper.style.display = 'inline-block';
@@ -869,7 +869,7 @@ function wrapForEntrance(el: HTMLElement, transformOrigin: string): HTMLDivEleme
   return wrapper;
 }
 
-/** 새로 생긴 마커들을 한 번에 묶어 순차적으로 팝인시킨다 — 클러스터가 터지듯 개별 핀으로 퍼지는 느낌. */
+
 function burstIn(wrappers: HTMLDivElement[]): void {
   if (wrappers.length === 0) return;
   if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
@@ -904,19 +904,19 @@ export default function PlaceMarkers() {
   const userLocation = useMapStore((s) => s.userLocation);
   const searchCenter = useMapStore((s) => s.searchCenter);
 
-  // 현재 지도에 올라가 있는 오버레이 인스턴스 및 엘리먼트 맵 (리렌더링 시 DOM 재생성 방지)
+
   const overlayMapRef = useRef<Map<string, OverlayRecord>>(new Map());
 
-  // [1] 오버레이 생성 및 지도 배치 (아이템 목록, 카테고리, 모드, 줌 티어가 변경될 때만 실행)
+
   useEffect(() => {
     if (!map || mode !== 'info' || items.length === 0 || !window.kakao?.maps) {
-      // 기존 오버레이 정리
+
       overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));
       overlayMapRef.current.clear();
       return;
     }
 
-    // 기존 오버레이 해제
+
     overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));
     overlayMapRef.current.clear();
 
@@ -942,7 +942,7 @@ export default function PlaceMarkers() {
 
         const el = document.createElement('div');
         el.className = 'om-cluster-pill';
-        // regionName은 TourAPI 주소에서 온다 — 이스케이프하고 넣는다.
+
         el.innerHTML = `
           <span class="om-cluster-icon-box" style="background: ${catStyle.lightBg}; color: ${catStyle.main}; border: 1px solid ${catStyle.lightBorder};">
             ${catStyle.iconSvg}
@@ -999,26 +999,26 @@ export default function PlaceMarkers() {
       };
     }
 
-    /*
-      개별 핀.
 
-      이름표 핀은 폭이 넓어 서로 겹친다. 레벨이 올라갈수록 같은 화면에 더 넓은 지역이
-      들어오므로, 라벨을 다는 구간에서는 개수를 줄여 겹침을 막는다.
-      (충돌 회피를 정교하게 하려면 화면 좌표가 필요한데, 그건 pan/zoom마다 다시 재야 한다.
-       ponytail: 개수 상한으로 갈음한다. 라벨이 여전히 겹치면 그때 좌표 기반 회피로 올린다.)
-    */
+
+
+
+
+
+
+
     const withLabel = level <= LABEL_MAX_LEVEL;
     const maxPins = withLabel ? LABEL_PIN_LIMIT : BADGE_PIN_LIMIT;
 
-    /*
-      자르기 전에 화면 안 것만 남긴다.
 
-      예전에는 items를 배열 순서대로 잘랐다. items는 검색 중심 기준 거리순이라,
-      확대해서 검색 중심에서 떨어진 곳을 보면 그 화면의 장소들이 상한 밖으로 밀려
-      마커가 통째로 사라졌다 — '확대하면 마커가 없어진다'가 이것이다.
 
-      화면 기준으로 고르면 확대할수록 후보가 줄어 상한에 걸릴 일도 함께 사라진다.
-    */
+
+
+
+
+
+
+
     const bounds = map.getBounds?.();
     const visibleItems =
       bounds && window.kakao?.maps
@@ -1033,11 +1033,11 @@ export default function PlaceMarkers() {
     targetItems.forEach((item) => {
       const el = document.createElement('div');
       const catStyle = CATEGORY_STYLES[item.category] || CATEGORY_STYLES.spot;
-      /*
-        거리·이동시간은 기준점을 밝혀서 적는다.
-        예전에는 검색 중심에서 잰 값을 "도보 3분"이라고만 써서, 지도를 옮기면
-        사용자에게서 30km 떨어진 곳이 도보 3분으로 보였다.
-      */
+
+
+
+
+
       const estimate = calculateTravelEstimate(
         { lat: item.lat, lng: item.lng },
         userLocation,
@@ -1068,11 +1068,11 @@ export default function PlaceMarkers() {
               ? '주변 일반음식점'
               : '관광명소';
 
-      /*
-        호버 카드는 마우스가 닿을 때 만든다.
-        전에는 핀마다 미리 넣어뒀는데, 그러면 화면에 뜨자마자 썸네일 100장이 한꺼번에
-        내려온다 (오버레이는 대체로 뷰포트 안이라 loading="lazy"가 걸러주지 못한다).
-      */
+
+
+
+
+
       const buildHoverCard = () => {
         if (el.querySelector('.om-pin-hover-card')) return;
 
@@ -1101,11 +1101,11 @@ export default function PlaceMarkers() {
           <span>${escapeHtml(item.name)}</span>
         `;
         if (isTraditional) {
-          /*
-            별무리.
-            가리키면 시차를 두고 차례로 튀어올라, 핀 하나가 살아나는 것처럼 읽힌다.
-            상시 황금빛으로 또렷하게 반짝인다.
-          */
+
+
+
+
+
           const stars = document.createElement('span');
           stars.className = 'om-pin-stars';
           const starSvg = mapIconSvg('star', 11);
@@ -1128,10 +1128,10 @@ export default function PlaceMarkers() {
 
       el.dataset.category = item.category;
 
-      /*
-        마커는 div라 기본적으로 키보드에 잡히지 않고 스크린리더에도 안 읽힌다.
-        버튼 의미를 직접 붙여서 Tab으로 순회하고 Enter/Space로 열 수 있게 한다.
-      */
+
+
+
+
       el.setAttribute('role', 'button');
       el.setAttribute('tabindex', '0');
       el.setAttribute(
@@ -1139,7 +1139,7 @@ export default function PlaceMarkers() {
         `${item.name}, ${catLabel}${metaText ? `, ${metaText}` : ''}. 상세 정보 열기`,
       );
 
-      // 수결첩에 기록된 장소인 경우 붉은 인장 표식 부착
+
       const isVisited = useStampStore.getState().isPlaceVisited(item.id);
       if (isVisited) {
         const badge = document.createElement('span');
@@ -1150,7 +1150,7 @@ export default function PlaceMarkers() {
       }
 
       const open = () => {
-        // 1. 방사형 Ripple 파동 연출 생성
+
         const ripple = document.createElement('span');
         ripple.className = 'om-pin-ripple';
         el.appendChild(ripple);
@@ -1212,14 +1212,14 @@ export default function PlaceMarkers() {
       overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));
       overlayMapRef.current.clear();
     };
-    /*
-      level을 그대로 의존성에 넣는다.
-      예전에는 `level > 8`, `level <= 6` 두 불리언만 넣어서 9→10→11 사이 변화가
-      이펙트를 깨우지 못했다 — 클러스터 격자 크기가 처음 값에 얼어붙었다.
-    */
+
+
+
+
+
   }, [map, mode, items, category, level, userLocation, searchCenter]);
 
-  // [2] 선택/호버/상세보기 상태만 DOM 실시간 업데이트 (오버레이 재생성 0회, 0.1ms 초고속 반영)
+
   useEffect(() => {
     if (overlayMapRef.current.size === 0) return;
 

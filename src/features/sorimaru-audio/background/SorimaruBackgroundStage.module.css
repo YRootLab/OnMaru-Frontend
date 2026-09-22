@@ -249,7 +249,7 @@
   }
 }
 
-/* One spatial sequence: each Sorimaru section moves the same materials. */
+
 .stage[data-stage='featured'] {
   --sorimaru-bg-light-left: 50%;
   --sorimaru-bg-light-top: 4%;
@@ -344,7 +344,7 @@
   opacity: 1;
 }
 
-/* Variant 1 — light, grain and unconnected warmth. */
+
 .stage[data-variant='warmth-grain'] .thresholdShadow,
 .stage[data-variant='warmth-grain'] .gardenShadow {
   filter: blur(8px);
@@ -358,7 +358,7 @@
   opacity: .025;
 }
 
-/* Variant 2 — changho and garden shadows, still below 12% opacity. */
+
 .stage[data-variant='changho-breeze'] .thresholdShadow {
   background-size: auto;
 }
@@ -383,7 +383,7 @@
   mask-image: linear-gradient(90deg, transparent, #000 22% 78%, transparent);
 }
 
-/* Variant 3 — a restrained Korean record surface, not a scrapbook. */
+
 .stage[data-variant='hanji-journey'] {
   background: var(--sorimaru-bg-canvas, #fff);
 }
@@ -400,7 +400,7 @@
 .stage[data-variant='hanji-journey'][data-stage='archive'] .paperSheet { right: 2%; top: 2%; width: 96%; rotate: 0deg; }
 .stage[data-variant='hanji-journey'][data-stage='closing'] .paperSheet { right: 28%; top: 21%; rotate: -.4deg; }
 
-/* Variant 4 — balanced On-Maru signature. */
+
 .stage[data-variant='onmaru-signature'][data-stage='archive'] {
   --sorimaru-bg-stage-strength: .31;
 }
@@ -515,9 +515,9 @@
   }
 }
 
-/* ────────────────────────────────────────────────────────────
-   Dark Mode Support (먹빛 고택 야경 테마)
-   ──────────────────────────────────────────────────────────── */
+
+
+
 :global([data-theme='dark']) .stage {
   --sorimaru-bg-canvas: #1c1a17 !important;
   background: #1c1a17 !important;
@@ -577,9 +577,9 @@
   translate: 0 1px !important;
 }
 
-/* ============================================================
-   🇰🇷 [한지 발묵 스며듦] 양옆 세로 닥종이 먹물 번짐 레이어
-   ============================================================ */
+
+
+
 .inkWashBleed {
   position: fixed;
   inset: 0;
@@ -630,9 +630,9 @@
   }
 }
 
-/* ============================================================
-   🇰🇷 [처마 낙수 파동] 빗방울/이슬이 툇마루 앞 바닥에 떨어지는 수묵 파동
-   ============================================================ */
+
+
+
 .dropletRippleContainer {
   position: fixed;
   bottom: 14%;
@@ -710,6 +710,3 @@
     display: none;
   }
 }
-
-
-

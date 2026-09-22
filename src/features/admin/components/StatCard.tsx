@@ -1,8 +1,8 @@
 'use client';
 
-// ============================================================
-// 관리자 지표 카드 (src/admin/components/StatCard.tsx)
-// ============================================================
+
+
+
 
 import React from 'react';
 import { palette, meok } from '@/design-system/tokens';

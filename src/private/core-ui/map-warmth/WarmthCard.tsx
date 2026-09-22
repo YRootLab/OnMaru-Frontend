@@ -38,7 +38,7 @@ const CardWrapper = styled.article`
   }
 `;
 
-/* ── 1. 장소 헤더 ── */
+
 const PlaceHeader = styled.div`
   display: flex;
   align-items: center;
@@ -118,12 +118,12 @@ const PlaceMeta = styled.p`
   color: ${meok[500]};
 `;
 
-/* ── 2. 감정 표시 ── */
+
 const MoodSection = styled.div`
   margin: 12px 0 12px;
 `;
 
-/* ── 3. 단일 통합 후기 본문 및 태그 ── */
+
 const ReviewBody = styled.div`
   margin-bottom: 12px;
 `;
@@ -169,7 +169,7 @@ const TextToggleBtn = styled.button`
   }
 `;
 
-/* ── 4. 하단 메타 & 도움돼요 ── */
+
 const FooterMeta = styled.div`
   display: flex;
   align-items: center;
@@ -218,7 +218,7 @@ const HelpfulButton = styled.button<{ $active: boolean }>`
   }
 `;
 
-/* ── 5. 관련 장소 미니 카드 ── */
+
 const RelatedPlaceBox = styled.div`
   margin-top: 12px;
   padding: 10px 12px;
@@ -315,15 +315,15 @@ export default function WarmthCard({ review, onHover }: WarmthCardProps) {
   const [helpful, setHelpful] = useState(review.isHelpful || false);
   const [helpfulCount, setHelpfulCount] = useState(review.helpfulCount);
 
-  // 태그 통합
+
   const allTags = Array.from(
     new Set([...(review.goodTags || []), ...(review.badTags || [])]),
   );
 
-  // 본문 텍스트 통합
+
   const fullText = [review.goodText, review.badText].filter(Boolean).join('\n\n');
 
-  // 일치하는 장소 검색
+
   const matchedItem = items.find(
     (i) => i.id === review.placeId || i.name.includes(review.placeName.split(' ')[0]),
   );
@@ -372,7 +372,7 @@ export default function WarmthCard({ review, onHover }: WarmthCardProps) {
       onMouseEnter={() => onHover?.(matchedItem?.id || review.placeId)}
       onMouseLeave={() => onHover?.(null)}
     >
-      {/* 1. 장소 헤더 */}
+      {}
       <PlaceHeader>
         <CategoryIconBox>{renderCategoryIcon(review.placeType)}</CategoryIconBox>
         <PlaceHeaderInfo>
@@ -398,12 +398,12 @@ export default function WarmthCard({ review, onHover }: WarmthCardProps) {
         </PlaceHeaderInfo>
       </PlaceHeader>
 
-      {/* 2. 감정 표시 */}
+      {}
       <MoodSection>
         <MoodSelector value={review.mood} readonly />
       </MoodSection>
 
-      {/* 3. 통합된 키워드 태그 및 후기 본문 */}
+      {}
       <ReviewBody>
         {allTags.length > 0 && (
           <TagSection>
@@ -439,7 +439,7 @@ export default function WarmthCard({ review, onHover }: WarmthCardProps) {
         )}
       </ReviewBody>
 
-      {/* 4. 하단 메타 & 따뜻해요 */}
+      {}
       <FooterMeta>
         <MetaDate>
           {formatRelativeTime(review.createdAt)}
@@ -456,7 +456,7 @@ export default function WarmthCard({ review, onHover }: WarmthCardProps) {
         </HelpfulButton>
       </FooterMeta>
 
-      {/* 5. 관련 장소 미니 카드 */}
+      {}
       <RelatedPlaceBox onClick={handleGoToDetail} role="button" aria-label="장소 상세 정보 보기">
         <RelatedLeft>
           <RelatedThumb>{renderCategoryIcon(review.placeType)}</RelatedThumb>

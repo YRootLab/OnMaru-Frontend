@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { palette } from '@/design-system/tokens';
 
 export interface TranquilityData {
-  score: number; // 0 ~ 100 (높을수록 한적하고 고즈넉함)
+  score: number;
   level: '매우 고즈넉' | '여유로움' | '보통' | '북적임';
   badgeColor: string;
   goldenHour: string;
@@ -11,8 +11,8 @@ export interface TranquilityData {
   district: string;
 }
 
-// 고즈넉 지수는 색상을 단계별로 바꾸지 않고, 한 색(대청 청록)의 짙기만
-// 점수에 비례해 바꾼다 — 100에 가까울수록 짙어지는 단일 컬러 그라데이션.
+
+
 function mixHex(from: string, to: string, t: number): string {
   const f = parseInt(from.slice(1), 16);
   const dest = parseInt(to.slice(1), 16);
@@ -38,7 +38,7 @@ export function useHanokTranquility(lat?: number | null, lng?: number | null, ad
       setLoading(true);
 
       try {
-        let congestionScore = 35; // 기본값
+        let congestionScore = 35;
         let district = '해당 권역';
 
         if (Number.isFinite(lat) && Number.isFinite(lng)) {
@@ -50,7 +50,7 @@ export function useHanokTranquility(lat?: number | null, lng?: number | null, ad
             const json = await res.json();
             const spots = json?.spots || [];
             if (spots.length > 0) {
-              // 가장 가까운 스팟 매칭
+
               const closest = spots[0];
               congestionScore = Number(closest.congestionScore || 35);
               district = closest.district || district;
@@ -58,17 +58,17 @@ export function useHanokTranquility(lat?: number | null, lng?: number | null, ad
           }
         }
 
-        // 주소에서 지자체 추출 보완
+
         if (district === '해당 권역' && addr) {
           const parts = addr.split(' ');
           district = parts[1] || parts[0] || '해당 지역';
         }
 
-        // 고즈넉 지수 = 100 - 혼잡도 점수 (혼잡도가 낮을수록 고즈넉함)
+
         const score = Math.max(10, Math.min(98, 100 - congestionScore));
 
         let level: TranquilityData['level'] = '여유로움';
-        const badgeColor = tranquilityColor(score); // 대청 청록 한 컬러, 점수가 높을수록 짙어짐
+        const badgeColor = tranquilityColor(score);
         let goldenHour = '오전 09:00 ~ 11:30';
         let advice = '산책과 사색을 즐기기에 아주 쾌적한 상태입니다.';
         let visitorSurgeText = '평균 대비 외지인 방문객이 안정적입니다.';
@@ -108,7 +108,7 @@ export function useHanokTranquility(lat?: number | null, lng?: number | null, ad
         }
       } catch (err: any) {
         if (err.name !== 'AbortError' && isMounted) {
-          // 조용한 폴백
+
           setData({
             score: 72,
             level: '여유로움',

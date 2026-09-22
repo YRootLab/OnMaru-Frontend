@@ -1,13 +1,13 @@
 'use client';
 
-/*
-  한옥 건축의 비밀과 공간 과학 챕터 진입 카드 (2종)
-  1. ☀️ 빛 (절기 일조량 & 남중고도 처마 시뮬레이션)
-  2. 🪵 뼈대 (못 없는 짜맞춤 결구 & 7단계 부재 조립)
 
-  3D 무거운 렌더러는 모달을 클릭할 때 비로소 로드하여 메인 스크롤 성능을 60fps로 보존하고,
-  카드 자체에서 인터랙티브 프리뷰와 감성적인 에디토리얼 연출로 클릭할 명확한 동기를 부여합니다.
-*/
+
+
+
+
+
+
+
 
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
@@ -125,9 +125,9 @@ const CardDesc = styled.p`
   }
 `;
 
-/* =========================================================================
-   인터랙티브 프리뷰 비주얼 영역 (빛: 태양 궤적 & 처마, 뼈대: 7켜 결구 상승)
-   ========================================================================= */
+
+
+
 
 const PreviewCanvas = styled.div<{ $bg: string }>`
   position: relative;
@@ -145,7 +145,7 @@ const PreviewCanvas = styled.div<{ $bg: string }>`
   }
 `;
 
-/* ☀️ 태양 궤적 & 처마 그림자 애니메이션 */
+
 const sunOrbit = keyframes`
   0% { transform: translate(-40px, 30px); opacity: 0.8; }
   50% { transform: translate(0px, 0px); opacity: 1; }
@@ -163,7 +163,7 @@ const SolarPreviewGraphic = styled.div`
   width: 100%;
   height: 100%;
 
-  /* 태양 궤적선 (Arc) */
+
   .sun-arc {
     position: absolute;
     top: 20%;
@@ -174,7 +174,7 @@ const SolarPreviewGraphic = styled.div`
     border-radius: 50% 50% 0 0;
   }
 
-  /* 움직이는 태양 오브젝트 */
+
   .sun-orb {
     position: absolute;
     top: 18%;
@@ -187,7 +187,7 @@ const SolarPreviewGraphic = styled.div`
     animation: ${sunOrbit} 4s ease-in-out infinite alternate;
   }
 
-  /* 전통 처마선 (Eaves Roofline) */
+
   .roof-curve {
     position: absolute;
     top: 48%;
@@ -203,7 +203,7 @@ const SolarPreviewGraphic = styled.div`
     }
   }
 
-  /* 처마 밑으로 뻗는 계절 그림자 */
+
   .eaves-shadow {
     position: absolute;
     bottom: 24%;
@@ -220,7 +220,7 @@ const SolarPreviewGraphic = styled.div`
     }
   }
 
-  /* 절기 고도 텍스트 라벨 */
+
   .season-indicator {
     position: absolute;
     bottom: 10px;
@@ -238,7 +238,7 @@ const SolarPreviewGraphic = styled.div`
   }
 `;
 
-/* 🪵 7단계 결구 조립 부재 애니메이션 */
+
 const layerRise = keyframes`
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-4px); }
@@ -263,13 +263,13 @@ const AssemblyPreviewGraphic = styled.div`
     animation: ${layerRise} 2.6s ease-in-out infinite;
   }
 
-  .layer-1 { width: 92%; opacity: 1; animation-delay: 0s; background: #65707c; } /* 석조 기단 */
-  .layer-2 { width: 78%; opacity: 0.9; animation-delay: 0.1s; background: #8b95a1; } /* 디딤돌 */
-  .layer-3 { width: 84%; opacity: 0.82; animation-delay: 0.2s; background: #d94000; } /* 목조 기둥 */
-  .layer-4 { width: 88%; opacity: 0.72; animation-delay: 0.3s; background: #ff5500; } /* 대청 마루 */
-  .layer-5 { width: 80%; opacity: 0.60; animation-delay: 0.4s; background: #ff7830; } /* 황토 벽체 */
-  .layer-6 { width: 74%; opacity: 0.48; animation-delay: 0.5s; background: #ffbd99; } /* 창호 */
-  .layer-7 { width: 100%; opacity: 0.35; animation-delay: 0.6s; background: #ff3b30; } /* 기와 지붕 */
+  .layer-1 { width: 92%; opacity: 1; animation-delay: 0s; background: #65707c; }
+  .layer-2 { width: 78%; opacity: 0.9; animation-delay: 0.1s; background: #8b95a1; }
+  .layer-3 { width: 84%; opacity: 0.82; animation-delay: 0.2s; background: #d94000; }
+  .layer-4 { width: 88%; opacity: 0.72; animation-delay: 0.3s; background: #ff5500; }
+  .layer-5 { width: 80%; opacity: 0.60; animation-delay: 0.4s; background: #ff7830; }
+  .layer-6 { width: 74%; opacity: 0.48; animation-delay: 0.5s; background: #ffbd99; }
+  .layer-7 { width: 100%; opacity: 0.35; animation-delay: 0.6s; background: #ff3b30; }
 
   .joinery-indicator {
     position: absolute;
@@ -288,7 +288,7 @@ const AssemblyPreviewGraphic = styled.div`
   }
 `;
 
-/* 카드 하단 — 이미 카드 전체가 버튼이니, 여기는 텍스트 링크 정도로만 존재를 알린다 */
+
 const MoreLink = styled.div<{ $color: string }>`
   margin-top: 18px;
   display: inline-flex;
@@ -321,7 +321,7 @@ export default function HanokStructureCards() {
       </div>
       <div>
         <Grid>
-        {/* 1. 빛: 절기 일조량 & 남중고도 처마 시뮬레이션 */}
+        {}
           <motion.div
             variants={{
               hidden: { opacity: 0, y: 20 },
@@ -364,7 +364,7 @@ export default function HanokStructureCards() {
         </CardContainer>
           </motion.div>
 
-        {/* 2. 뼈대: 못 없는 결구 & 7단계 부재 조립 */}
+        {}
           <motion.div
             variants={{
               hidden: { opacity: 0, y: 20 },

@@ -17,7 +17,7 @@ interface StampStoreState {
   visitedPlaceIds: string[];
   activeStampModal: StampDef | null;
 
-  // Actions
+
   checkIn: (place: { id: string; name: string; address?: string; isTraditional?: boolean }) => CheckInResult;
   isPlaceVisited: (placeId: string) => boolean;
   isStampUnlocked: (stampId: string) => boolean;
@@ -27,9 +27,9 @@ interface StampStoreState {
   syncWithServer: (userId?: string) => Promise<void>;
 }
 
-// Helper to determine the best matching stamp for a given place with strict Hanok verification
+
 function findMatchingStamps(place: { id: string; name: string; address?: string; isTraditional?: boolean }): StampDef[] {
-  // 1. 한옥·고택·전통문화재 검증 (비한옥 상업/일반 시설은 수결 발급 대상 제외)
+
   const isEligible = place.isTraditional ?? isTraditionalPlace(place.name);
   if (!isEligible) {
     return [];
@@ -38,7 +38,7 @@ function findMatchingStamps(place: { id: string; name: string; address?: string;
   const matches: StampDef[] = [];
   const text = `${place.name} ${place.address || ''}`.toLowerCase();
 
-  // 2. 지역별 정밀 매칭 (지명 및 문화재 키워드)
+
   if (text.includes('은평') || text.includes('진관')) {
     const s = STAMP_DEFINITIONS.find((d) => d.id === 'stamp_eunpyeong');
     if (s) matches.push(s);
@@ -95,12 +95,12 @@ function findMatchingStamps(place: { id: string; name: string; address?: string;
     const s = STAMP_DEFINITIONS.find((d) => d.id === 'stamp_jeju_seongup');
     if (s) matches.push(s);
   } else {
-    // 한옥으로 검증되었으나 세부 권역이 특정되지 않은 경우 기본 전통 수결
+
     const fallback = STAMP_DEFINITIONS[0];
     matches.push(fallback);
   }
 
-  // 3. 야간 달빛 고택 야행 특별 인장 (18시 이후 또는 야경/야행 명소)
+
   const currentHour = new Date().getHours();
   if (currentHour >= 18 || currentHour < 6 || text.includes('야경') || text.includes('야행')) {
     const nightStamp = STAMP_DEFINITIONS.find((d) => d.id === 'stamp_night_hanok');
@@ -116,7 +116,7 @@ export const useStampStore = create<StampStoreState>()(
   persist(
     (set, get) => ({
       collectedStamps: {
-        // Pre-collected starter stamp for awesome onboarding demonstration
+
         stamp_bukchon: {
           stampId: 'stamp_bukchon',
           placeId: 'demo-init',
@@ -164,7 +164,7 @@ export const useStampStore = create<StampStoreState>()(
           }
         });
 
-        // Check if national master stamp condition is met (5 or more unique regions)
+
         const regionSet = new Set<string>();
         Object.keys(updatedStamps).forEach((sid) => {
           const def = STAMP_DEFINITIONS.find((d) => d.id === sid);
@@ -220,10 +220,10 @@ export const useStampStore = create<StampStoreState>()(
       },
 
       syncWithServer: async (userId?: string) => {
-        // Optimistic Mock sync simulation
+
         if (!userId) return;
         try {
-          // Future real endpoint: await apiClient.post('/api/stamps/sync', ...)
+
           console.info(`[StampStore] Synced stamps for user ${userId}`);
         } catch (e) {
           console.error('[StampStore] Sync error:', e);

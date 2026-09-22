@@ -8,10 +8,10 @@ const BackgroundContainer = styled.div`
   position: fixed;
   inset: 0;
   pointer-events: none;
-  /*
-    콘텐츠 뒤로 보낸다. z-index: 0이면 정적(normal-flow) 콘텐츠 위에 그려져,
-    VesselReveal이 bloom되어 transform이 제거된 섹션(CTA 등)을 통째로 가린다.
-  */
+
+
+
+
   z-index: -1;
   overflow: hidden;
   background-color: #ffffff;
@@ -22,7 +22,7 @@ const BackgroundContainer = styled.div`
   }
 `;
 
-/* 1. 순백한지(白韓紙) 닥나무 미세 섬유 결 텍스처 */
+
 const HanjiFiberLayer = styled.div`
   position: absolute;
   inset: 0;
@@ -36,7 +36,7 @@ const HanjiFiberLayer = styled.div`
   }
 `;
 
-/* 2. 한지 표면의 은은한 자연광 */
+
 const HanjiAmbientGlow = styled.div`
   position: absolute;
   inset: 0;

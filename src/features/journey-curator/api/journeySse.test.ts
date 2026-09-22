@@ -4,7 +4,7 @@ import type { JourneySseFrame } from './journeyContract';
 
 type FakeListener = (event: { lastEventId?: string; data: string }) => void;
 
-/** 브라우저 EventSource를 흉내 낸 테스트 더블. addEventListener로 등록된 핸들러를 emit()으로 직접 호출한다. */
+
 class FakeEventSource {
   listeners = new Map<string, Set<FakeListener>>();
   closed = false;

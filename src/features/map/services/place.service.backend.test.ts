@@ -58,8 +58,8 @@ describe('PlaceService.getNearbyPlaces backend-first (FE #90)', () => {
     apiGetMock.mockResolvedValue({ items: [] });
 
     const { PlaceService } = await import('./place.service');
-    // TourAPI 키가 없는 테스트 환경에서는 폴백 경로 자체가 던진다 — 여기서
-    // 검증하려는 건 "폴백이 실제로 호출됐는가"뿐이라 그 예외는 삼킨다.
+
+
     await PlaceService.getNearbyPlaces({ lat: 35.8151, lng: 127.153, radius: 3000 }).catch(() => {});
 
     expect(apiGetMock).toHaveBeenCalled();

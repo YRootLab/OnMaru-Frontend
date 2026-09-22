@@ -208,11 +208,11 @@ const NearbyHeader = styled.div`
   }
 `;
 
-/*
-  "반경 3km에 이야기가 없어요" 같은 안내도 이 컴포넌트를 그대로 썼더니, 평소
-  한 줄짜리 안내문과 같은 회색·nowrap이라 눈에 안 띄고 긴 문장은 말줄임까지
-  걸려 잘렸다. $notice일 때만 줄바꿈을 허용하고 색을 주황 계열로 올린다.
-*/
+
+
+
+
+
 const SectionDescription = styled.p<{ $notice?: boolean }>`
   margin-top: 6px;
   max-width: 36rem;
@@ -342,7 +342,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   const [isLocating, setIsLocating] = useState(false);
   const [locationLabel, setLocationLabel] = useState('기본 위치');
   const [locationMessage, setLocationMessage] = useState('내 위치를 허용하면 반경 3km의 실제 오디오를 찾아드려요.');
-  // 반경 안에 이야기가 없거나 위치를 못 얻어 전국 큐레이션으로 물러났을 때만 켠다 — 그 결과를 놓치기 쉬워서.
+
   const [locationNotice, setLocationNotice] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -395,7 +395,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
             ...(result.archive?.items || []),
           ];
 
-          // URL 파라미터(?track=1, ?keyword=선교장, ?title=... 등) 매칭 및 재생
+
           let targetStory: SorimaruStoryItem | null = null;
 
           if (stidParam) {
@@ -405,8 +405,8 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
             targetStory = allLoaded.find((s) => s.title?.includes(titleParam) || (s.audioTitle && s.audioTitle.includes(titleParam))) || null;
           }
           if (!targetStory && keywordParam) {
-            targetStory = allLoaded.find((s) => 
-              s.title?.includes(keywordParam) || 
+            targetStory = allLoaded.find((s) =>
+              s.title?.includes(keywordParam) ||
               (s.locationName && s.locationName.includes(keywordParam)) ||
               (s.audioTitle && s.audioTitle.includes(keywordParam))
             ) || null;
@@ -418,7 +418,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
             }
           }
 
-          // 초기 목록에서 못 찾았으나 검색 키워드가 있는 경우 API로 추가 탐색
+
           if (!targetStory && keywordParam) {
             try {
               const extraStories = await activeApiService.getStoryList(undefined, keywordParam);
@@ -427,11 +427,11 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                 targetStory = extraMatch;
               }
             } catch {
-              // fallback
+
             }
           }
 
-          // 재생 대상이 결정되었거나 전역 플레이어가 비어있을 때 적절한 스토리 할당
+
           if (targetStory && targetStory.audioUrl) {
             const audioStore = useSorimaruAudioStore.getState();
             audioStore.selectStory(targetStory);
@@ -567,7 +567,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   return (
     <SorimaruDependencyProvider apiService={activeApiService}>
       <FeatureContainer>
-        {/* <HanjiDeckleEdge /> */}
+        {}
         <SorimaruAtmosphereBackground
           variant={backgroundVariant}
           selectedCategory={selectedCategory}
@@ -588,12 +588,12 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
           )}
 
           <MainSections>
-            {/* 섹션 1: 히어로 큐레이션 레일 */}
+            {}
             <HeroStageDiv data-sorimaru-stage="featured">
               <SorimaruAutoSliceRail stories={storyList} storySets={heroStorySets} />
             </HeroStageDiv>
 
-            {/* 섹션 2: 한 단어로, 한 장면 */}
+            {}
             <VesselReveal style={{ minHeight: '660px', paddingBottom: '2.5rem' }}>
               <div style={{ marginTop: '1rem', width: '100%' }} data-sorimaru-stage="themes">
                 <CenteredContainer>
@@ -621,7 +621,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
               </div>
             </SorimaruSectionReveal>
 
-            {/* 섹션 3: 오늘, 여기에서 */}
+            {}
             <SorimaruSectionReveal style={{ minHeight: '440px' }}>
               <section
                 aria-labelledby="nearby-stories-heading"
@@ -663,7 +663,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
               </section>
             </SorimaruSectionReveal>
 
-            {/* 오디오 아카이브 섹션 (통합 메인 뷰) */}
+            {}
             <SorimaruSectionReveal id="sorimaru-archive">
               <section
                 style={{ width: '100%' }}

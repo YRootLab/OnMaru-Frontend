@@ -425,9 +425,9 @@ function getMoodIcon(id: string) {
 }
 
 type JourneyHeroSearchProps = {
-  /** 배경 그라데이션 오브를 검색창에 정확히 앵커링하기 위한 ref */
+
   searchFormRef?: React.RefObject<HTMLFormElement | null>;
-  /** 그라데이션이 카테고리 칩 위로 번지지 않도록 하한선을 재는 ref */
+
   moodChipsRef?: React.RefObject<HTMLDivElement | null>;
 };
 

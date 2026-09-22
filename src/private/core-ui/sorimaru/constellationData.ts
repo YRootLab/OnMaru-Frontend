@@ -3,13 +3,13 @@ export interface ConstellationNode {
   keyword: string;
   label: string;
   category: string;
-  weight: number; // Node size scale (1-10)
-  sorimaruCount: number; // Sorimaru API real story count
+  weight: number;
+  sorimaruCount: number;
   description: string;
   tags: string[];
-  xRatio: number; // Position percentage (0.1 - 0.9)
-  yRatio: number; // Position percentage (0.1 - 0.9)
-  connections: string[]; // Node IDs connected with glowing threads
+  xRatio: number;
+  yRatio: number;
+  connections: string[];
   color: string;
 }
 

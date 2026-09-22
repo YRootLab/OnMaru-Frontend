@@ -10,7 +10,7 @@ import { Home, ArrowRight } from 'lucide-react';
 import type { Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
 
-// 각 인덱스에 고정된 회전각 (자연스러운 폴라로이드 느낌)
+
 const ROTATIONS = [-4.2, 2.8, -2.1, 3.5];
 
 const Wrapper = styled(motion.article, transientProps)<{ $rotate: number }>`
@@ -38,24 +38,24 @@ const Frame = styled.div`
   }
 `;
 
-// const Frame = styled.div`
-//   background: #ffffff;
-//   padding: 12px 12px 60px;
 
-//   box-shadow:
-//     0 4px 12px rgba(0, 0, 0, 0.08),
-//     0 12px 32px rgba(0, 0, 0, 0.10);
 
-//   border-radius: 2px;
-//   position: relative;
-//   overflow: visible;
 
-//   [data-theme='dark'] & {
-//     background: #24211D;
-//     border: 1px solid rgba(255, 255, 255, 0.08);
-//     box-shadow: ${ringShadow.dark.card};
-//   }
-// `;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const PhotoArea = styled.div`
   position: relative;
@@ -155,7 +155,7 @@ const TapeStrip = styled.div<{ $left?: boolean }>`
   }
 `;
 
-// 폴라로이드 카드 프레임 바깥 하단 메타 정보
+
 const OutsideMeta = styled.div`
   margin-top: 16px;
   display: flex;
@@ -228,7 +228,7 @@ interface PolaroidCardProps {
   showOutsideMeta?: boolean;
   onClick?: (village: Village) => void;
   isImageLoading?: boolean;
-  /** 빨래집게처럼 다른 방식으로 이미 고정돼 있을 때는 테이프를 겹치지 않는다 */
+
   enableTape?: boolean;
 }
 
@@ -319,4 +319,3 @@ export default function PolaroidCard({
     </Wrapper>
   );
 }
-

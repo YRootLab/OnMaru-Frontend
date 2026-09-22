@@ -9,10 +9,10 @@ import type { StampDef } from '../types';
 import { meok } from '@/design-system/tokens';
 import { stampAudio } from '../utils/sound';
 
-// GSAP 플러그인 등록
+
 gsap.registerPlugin(useGSAP);
 
-// --- Styled Components ---
+
 
 const Overlay = styled.div`
   position: fixed;
@@ -24,7 +24,7 @@ const Overlay = styled.div`
   background: rgba(14, 16, 22, 0.76);
   backdrop-filter: blur(10px);
   padding: 20px;
-  visibility: hidden; /* GSAP 진입 전 숨김 */
+  visibility: hidden;
 `;
 
 const SealCard = styled.div`
@@ -49,7 +49,7 @@ const HanjiBackdrop = styled.div`
   position: absolute;
   inset: 0;
   pointer-events: none;
-  /* 칙칙한 금색에서 밝고 화사한 앰버 그라데이션으로 변경 */
+
   background: radial-gradient(circle at 50% 35%, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
 `;
 
@@ -110,9 +110,9 @@ const SealStampRing = styled.div<{ $color: string }>`
   align-items: center;
   justify-content: center;
   color: ${({ $color }) => $color};
-  box-shadow: 0 8px 32px rgba(234, 88, 12, 0.25); /* 도장 그림자도 오렌지 톤으로 */
+  box-shadow: 0 8px 32px rgba(234, 88, 12, 0.25);
   background: rgba(255, 255, 255, 0.95);
-  opacity: 0; /* GSAP 초기값 */
+  opacity: 0;
 
   [data-theme='dark'] & {
     background: rgba(28, 26, 23, 0.85);
@@ -158,15 +158,15 @@ const RarityTag = styled.div<{ $rarity: string }>`
   padding: 4px 12px;
   border-radius: 9999px;
   margin-bottom: 10px;
-  
-  /* 희귀도 태그 색상을 전체 테마에 맞게 화사하게 조정 */
+
+
   background: ${({ $rarity }) =>
     $rarity === 'legendary'
-      ? 'rgba(249, 115, 22, 0.12)' // Vibrant Orange
+      ? 'rgba(249, 115, 22, 0.12)'
       : $rarity === 'rare'
-      ? 'rgba(139, 92, 246, 0.12)' // Bright Purple
+      ? 'rgba(139, 92, 246, 0.12)'
       : 'rgba(225, 29, 72, 0.1)'}; // Crimson Red
-      
+
   color: ${({ $rarity }) =>
     $rarity === 'legendary'
       ? '#ea580c'
@@ -250,13 +250,13 @@ export default function StampSealAnimation({ stamp, onClose }: StampSealAnimatio
   const pulseRef = useRef<HTMLDivElement>(null);
   const [isClosing, setIsClosing] = useState(false);
 
-  // --- GSAP Timeline ---
+
   useGSAP(() => {
     if (!stamp || isClosing || !overlayRef.current || !cardRef.current) return;
 
-    // 1. 모달 및 카드 진입 애니메이션
+
     const tl = gsap.timeline();
-    
+
     tl.set(overlayRef.current, { visibility: 'visible', opacity: 0 })
       .set(cardRef.current, { scale: 0.9, opacity: 0, y: 20 })
       .set(ringRef.current, { scale: 2.3, rotation: -20, opacity: 0 })
@@ -265,23 +265,23 @@ export default function StampSealAnimation({ stamp, onClose }: StampSealAnimatio
 
     tl.to(overlayRef.current, { opacity: 1, duration: 0.3 })
       .to(cardRef.current, { scale: 1, opacity: 1, y: 0, duration: 0.4, ease: 'back.out(1.2)' }, '<0.1')
-      
-      // 2. 도장이 쾅! 찍히는 애니메이션 (타격감 강조)
+
+
       .add(() => {
         stampAudio.playStampSound();
-        // 타격감을 위한 카드 전체 바운스
+
         gsap.to(cardRef.current, { y: 6, duration: 0.05, yoyo: true, repeat: 1, ease: 'power2.inOut' });
-      }, '+=0.15') // 카드 등장 후 약간의 딜레이
-      
+      }, '+=0.15')
+
       .to(ringRef.current, {
         scale: 1,
         rotation: 0,
         opacity: 1,
         duration: 0.35,
-        ease: 'back.out(2.5)', // 강하게 내리찍는 느낌
+        ease: 'back.out(2.5)',
       }, '<')
-      
-      // 3. 파동 (Pulse) 및 불꽃 (Sparks) 확산
+
+
       .to(pulseRef.current, {
         scale: 1.6,
         opacity: 0,
@@ -299,7 +299,7 @@ export default function StampSealAnimation({ stamp, onClose }: StampSealAnimatio
 
   }, { scope: overlayRef, dependencies: [stamp] });
 
-  // --- GSAP Exit Animation (Framer Motion AnimatePresence 대체) ---
+
   const handleClose = () => {
     if (isClosing || !overlayRef.current || !cardRef.current) return;
     setIsClosing(true);
@@ -307,7 +307,7 @@ export default function StampSealAnimation({ stamp, onClose }: StampSealAnimatio
     const tl = gsap.timeline({
       onComplete: () => {
         setIsClosing(false);
-        onClose(); // 애니메이션 완료 후 부모 상태 초기화
+        onClose();
       }
     });
 
@@ -321,7 +321,7 @@ export default function StampSealAnimation({ stamp, onClose }: StampSealAnimatio
     <Overlay ref={overlayRef} onClick={handleClose}>
       <SealCard
         ref={cardRef}
-        onClick={(e) => e.stopPropagation()} // 내부 클릭 시 닫힘 방지
+        onClick={(e) => e.stopPropagation()}
       >
         <HanjiBackdrop />
         <CloseButton onClick={handleClose} aria-label="닫기">
@@ -342,10 +342,10 @@ export default function StampSealAnimation({ stamp, onClose }: StampSealAnimatio
         </RarityTag>
 
         <SealStage>
-          {/* 퍼지는 파동 */}
+          {}
           <SealPulseWave ref={pulseRef} $color={stamp.color} />
 
-          {/* 흩뿌려지는 입자들 (data-tx, data-ty로 목표 좌표 설정) */}
+          {}
           {Array.from({ length: SPARKS_COUNT }).map((_, i) => {
             const angle = (i * (360 / SPARKS_COUNT) * Math.PI) / 180;
             const dist = 55 + (i % 3) * 16;
@@ -363,7 +363,7 @@ export default function StampSealAnimation({ stamp, onClose }: StampSealAnimatio
             );
           })}
 
-          {/* 실제 도장 요소 */}
+          {}
           <SealStampRing ref={ringRef} $color={stamp.color}>
             <HanziSealText>{stamp.sealText}</HanziSealText>
           </SealStampRing>

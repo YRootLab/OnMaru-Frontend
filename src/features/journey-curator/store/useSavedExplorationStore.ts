@@ -3,15 +3,15 @@ import { USE_MOCK } from '@/lib/api/client';
 import type { JourneyBoard, ResourceRef, SavedJourneyDetail, SavedJourneySummary } from '../types/exploration.types';
 import { defaultSavedJourneysRepository } from '../api/savedJourneysApi';
 
-/**
- * FE #95: 새 계약(JourneyBoard)용 저장 여정. 백엔드가 준비된 지금은
- * /saved-journeys를 먼저 시도하고, 실패하면(백엔드 미설정/네트워크 오류/응답
- * shape 불일치) 이전과 동일하게 localStorage로 폴백한다 — savedJourneysApi.ts의
- * 응답 shape 가정이 실제와 다르더라도 저장 기능 자체는 항상 동작한다.
- *
- * rename은 백엔드에 대응 엔드포인트가 없어(GET/POST/GET détail/DELETE/resume
- * 5개뿐) 지금도 로컬 전용이다.
- */
+
+
+
+
+
+
+
+
+
 
 const STORAGE_KEY = 'onmaru_saved_explorations_v1';
 
@@ -57,7 +57,7 @@ function writeLocal(list: SavedJourneyDetail[]) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
   } catch {
-    // 저장 실패는 화면 동작을 막지 않는다(예: 프라이빗 모드 용량 제한).
+
   }
 }
 
@@ -72,7 +72,7 @@ export const useSavedExplorationStore = create<SavedExplorationState>((set, get)
         set({ details: items, isLoaded: true });
         return;
       } catch {
-        // 백엔드 실패 — 로컬 저장분으로 폴백한다.
+
       }
     }
     set({ details: readLocal(), isLoaded: true });
@@ -85,7 +85,7 @@ export const useSavedExplorationStore = create<SavedExplorationState>((set, get)
         set({ details: [detail, ...get().details] });
         return detail;
       } catch {
-        // 백엔드 실패 — 로컬 저장으로 폴백한다.
+
       }
     }
     const detail: SavedJourneyDetail = {
@@ -109,7 +109,7 @@ export const useSavedExplorationStore = create<SavedExplorationState>((set, get)
         set({ details: get().details.filter((d) => d.id !== id) });
         return;
       } catch {
-        // 백엔드 실패 — 로컬에서라도 지운다(이전과 동일한 보장).
+
       }
     }
     const next = get().details.filter((d) => d.id !== id);

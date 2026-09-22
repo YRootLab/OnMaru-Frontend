@@ -1,15 +1,15 @@
 'use client';
 
-/**
- * 새 계약(exploration.types.ts)의 JourneyCandidate 한 장을 그리는 반복 카드.
- *
- * BentoJourneyGrid.tsx의 고정 4종 카드를 대체할 후보 — 지우지 않고 나란히 추가한다.
- * (seven-day-mvp-fe-handoff.md §6 "고정 4종 Bento 대신 반복 가능한 place card")
- *
- * 의도적으로 border와 box-shadow를 쓰지 않는다. 카드 사이 구분은 여백과 순번 숫자,
- * 상태별 accent rule(유지/제외/추가)로만 만든다 — 전형적인 "AI가 만든 카드"의 신호인
- * 옅은 회색 테두리 + 은은한 그림자 조합을 쓰지 않기로 한 결정이다.
- */
+
+
+
+
+
+
+
+
+
+
 
 import styled from '@emotion/styled';
 import { Check, HelpCircle } from 'lucide-react';

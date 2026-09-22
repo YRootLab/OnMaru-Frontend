@@ -73,19 +73,19 @@ const Percent = styled.span`
   letter-spacing: 0.05em;
 `;
 
-/**
- * 3D 자원 로딩 전용 커스텀 프로그레스 스크린 (LandingLoader)
- * - useProgress 훅으로 active, progress(0~100) 추적
- * - 캐시되었거나 즉시 로드 완료 시 안전 타임아웃(Safety Fallback)으로 자동 해제
- * - 완료 시 0.5초 Fade-out 이행
- */
+
+
+
+
+
+
 export default function LandingLoader() {
   const { active, progress, loaded, total } = useProgress();
   const [isDone, setIsDone] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
   const [visualProgress, setVisualProgress] = useState(0);
 
-  // 시각적 게이지 부드러운 증가
+
   useEffect(() => {
     if (progress > visualProgress) {
       setVisualProgress(progress);
@@ -93,7 +93,7 @@ export default function LandingLoader() {
   }, [progress, visualProgress]);
 
   useEffect(() => {
-    // 1. 정상적으로 100% 로드 완료된 경우
+
     const isCompleted = (!active && progress >= 100) || (!active && loaded > 0 && loaded >= total);
 
     log.log('progress', { active, progress: Math.round(progress), loaded, total, isCompleted });
@@ -109,7 +109,7 @@ export default function LandingLoader() {
       };
     }
 
-    // 2. 초기 로드 시 점진적 게이지 증가 및 안전 타임아웃 (최대 1.8초)
+
     const interval = setInterval(() => {
       setVisualProgress((prev) => {
         if (prev < 90) return prev + Math.floor(Math.random() * 15) + 8;
