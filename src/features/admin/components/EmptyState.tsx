@@ -1,8 +1,8 @@
 'use client';
 
-// ============================================================
-// 빈 상태 안내 컴포넌트 (src/admin/components/EmptyState.tsx)
-// ============================================================
+
+
+
 
 import React from 'react';
 import { meok, palette } from '@/design-system/tokens';

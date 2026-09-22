@@ -1,8 +1,8 @@
 'use client';
 
-// ============================================================
-// 확인 및 경고 모달 (src/admin/components/ConfirmDialog.tsx)
-// ============================================================
+
+
+
 
 import React, { useEffect } from 'react';
 import { meok, palette } from '@/design-system/tokens';
