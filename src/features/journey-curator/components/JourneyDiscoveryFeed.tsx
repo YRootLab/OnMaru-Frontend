@@ -70,7 +70,7 @@ const SectionDescription = styled.p`
   }
 `;
 
-/* ── 1. 에디터 추천 코스 (상위 7개 무한 캐러셀) ── */
+
 const CourseGrid = styled.div`
   position: relative;
 `;
@@ -368,7 +368,7 @@ const ExploreText = styled.span`
   color: ${palette.juhong[500]};
 `;
 
-/* ── 2. 소리마루 인기 프리뷰 ── */
+
 const SoundGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -470,7 +470,7 @@ const SoundMeta = styled.span`
   }
 `;
 
-/* ── 소리마루 스켈레톤 (AGENTS.md: 로딩은 최종 UI와 동일한 크기를 예약한다) ── */
+
 const SkeletonCard = styled.div`
   display: flex;
   align-items: center;
@@ -657,7 +657,7 @@ function HomeFeedFailure({
   );
 }
 
-/* ── 3. 지역별 한옥 퀵 탐색 ── */
+
 const RegionGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(6, 1fr);
@@ -843,7 +843,7 @@ export default function JourneyDiscoveryFeed() {
 
   return (
     <FeedContainer>
-      {/* 1. 에디터 추천 코스 */}
+      {}
       <section>
         <SectionHeader>
           <SectionTitleGroup>
@@ -911,7 +911,7 @@ export default function JourneyDiscoveryFeed() {
         </CourseGrid>
       </section>
 
-      {/* 2. 소리마루 인기 프리뷰 */}
+      {}
       <section>
           <SectionHeader>
             <SectionTitleGroup>
@@ -949,7 +949,7 @@ export default function JourneyDiscoveryFeed() {
           </SoundGrid>
       </section>
 
-      {/* 3. 지역별 한옥 퀵 탐색 */}
+      {}
       <section>
           <SectionHeader>
             <SectionTitleGroup>

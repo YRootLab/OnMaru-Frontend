@@ -1,10 +1,10 @@
 'use client';
 
-/**
- * 여정 저장 — seven-day-mvp-fe-handoff.md §11.
- * 실제 Spring `/saved-journeys`가 아직 없어 로컬에 저장한다(useSavedExplorationStore) —
- * 로그인하지 않은 사용자는 저장할 수 없다.
- */
+
+
+
+
+
 
 import { useEffect } from 'react';
 import styled from '@emotion/styled';

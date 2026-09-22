@@ -1,13 +1,13 @@
 'use client';
 
-/**
- * /discover의 KnowledgeGraphView 자리를 대체한다 (사용자 지시로 지식 그래프 섹션 삭제).
- *
- * useJourneyStore.explorationBoard(TourAPI 실제 장소 + Gemini)를 JourneyFlowRail로 그린다.
- * pendingProposal이 있으면(수정 요청 결과) 확정 board 대신 유지/제외/추가 비교 화면을 보여주고,
- * 적용·취소 전까지는 committed board를 바꾸지 않는다 — seven-day-mvp-fe-handoff.md §5
- * "재탐색은 덮어쓰기가 아니라 제안이다"를 따른다.
- */
+
+
+
+
+
+
+
+
 
 import { useState } from 'react';
 import styled from '@emotion/styled';
@@ -170,7 +170,7 @@ export default function JourneyFlowRailSection() {
 
   const regionTitle = findRegionTitle(board);
 
-  // ── 변경안 미리보기: committed board는 그대로 두고 유지/제외/추가만 겹쳐 보여준다 ──
+
   if (pendingProposal) {
     const removedIds = new Set(pendingProposal.removedRefs.map((r) => r.id));
     const addedIds = new Set(pendingProposal.addedRefs.map((r) => r.id));

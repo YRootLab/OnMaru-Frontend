@@ -1,15 +1,15 @@
 'use client';
 
-/**
- * PDF 저장 — fe-experience-api-implementation-report.md §11.
- * 서버 PDF 생성기 없이 인쇄 전용 레이아웃 + window.print()만 쓴다.
- *
- * 포함: 여정 제목, 생성일, 장소 순서, 상대 거리, 연결 이유, 출처, "직선거리 기준" 표시.
- * 제외: 사용자 질문 원문, 회원 정보, pending proposal(에초에 explorationBoard만 읽는다).
- *
- * 화면에서는 항상 display:none이고 @media print에서만 나타난다. 나머지 페이지는
- * JourneyPrintStyles(Global)가 인쇄 시 가려준다.
- */
+
+
+
+
+
+
+
+
+
+
 
 import styled from '@emotion/styled';
 import { DISTANCE_BAND_CONNECTOR_PX } from '../types/exploration.types';

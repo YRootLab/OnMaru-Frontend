@@ -1,13 +1,13 @@
-/**
- * 7일 MVP 새 계약 타입.
- *
- * 출처: new/seven-day-mvp-fe-handoff.md §12, new/fe-experience-api-implementation-report.md §7.
- * 기존 `journey.types.ts`(BentoJourneyPlan 등 고정 4종 카드 구조)는 건드리지 않는다 —
- * 새 화면이 완성된 뒤 무엇을 남길지는 최종적으로 사람이 결정한다.
- *
- * 필드명은 두 문서와 정확히 동일하게 맞춘다. OpenAPI가 나오기 전까지 이 파일이
- * FE 쪽 source of truth다.
- */
+
+
+
+
+
+
+
+
+
+
 
 export type ResourceType = 'PLACE' | 'REGION' | 'TOPIC';
 
@@ -138,10 +138,10 @@ export interface JourneyBoard {
   title: string;
   querySummary: string;
   regionRef: ResourceRef & { type: 'REGION' };
-  candidates: JourneyCandidate[]; // 1..3
-  legs: JourneyLeg[]; // candidates가 2개 이상이면 순서상 인접 장소 사이 N-1개
+  candidates: JourneyCandidate[];
+  legs: JourneyLeg[];
   resources: Array<PlaceResource | RegionResource | TopicResource>;
-  relations: Relation[]; // max 10
+  relations: Relation[];
   evidence: Evidence[];
 }
 
@@ -169,7 +169,7 @@ export interface JourneyHistoryItem {
   id: string;
   type: JourneyHistoryType;
   createdAt: string;
-  query: string | null; // QUERY_SUBMITTED에서만 사용자 원문
+  query: string | null;
   runId: string | null;
   stateVersion: number;
   proposalId: string | null;
@@ -187,7 +187,7 @@ export interface ExplorationSnapshot {
     status: RunStatus;
   } | null;
   pendingProposal: JourneyProposal | null;
-  recentHistory: JourneyHistoryItem[]; // 시간 오름차순, 최대 20개
+  recentHistory: JourneyHistoryItem[];
   updatedAt: string;
 }
 
@@ -249,7 +249,7 @@ export interface ErrorEnvelope {
   };
 }
 
-/** distanceBand → 권장 connector 길이(px). seven-day-mvp-fe-handoff.md §7 */
+
 export const DISTANCE_BAND_CONNECTOR_PX: Record<DistanceBand, number> = {
   NEAR: 48,
   MEDIUM: 88,

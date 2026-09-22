@@ -12,7 +12,7 @@ interface WordPuzzle {
   grid: string[][];
   words: {
     word: string;
-    coords: [number, number][]; // [[r, c], ...]
+    coords: [number, number][];
     direction: string;
   }[];
 }
@@ -517,7 +517,7 @@ export default function TraditionalWordSearch({
   const [selectedCoords, setSelectedCoords] = useState<[number, number][]>([]);
   const [seconds, setSeconds] = useState(0);
 
-  // Timer
+
   useEffect(() => {
     const timer = setInterval(() => {
       setSeconds((s) => s + 1);
@@ -531,12 +531,12 @@ export default function TraditionalWordSearch({
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Check if a coordinate is currently selected
+
   const isSelected = (r: number, c: number) => {
     return selectedCoords.some(([sr, sc]) => sr === r && sc === c);
   };
 
-  // Check if a coordinate belongs to any already-found words
+
   const isFoundCoord = (r: number, c: number) => {
     return currentPuzzle.words.some(
       (w) =>
@@ -554,12 +554,12 @@ export default function TraditionalWordSearch({
     const nextCoords: [number, number][] = [...selectedCoords, [r, c]];
     setSelectedCoords(nextCoords);
 
-    // Form spelling
+
     const currentSpelling = nextCoords
       .map(([cr, cc]) => currentPuzzle.grid[cr][cc])
       .join('');
 
-    // Check match
+
     const match = currentPuzzle.words.find(
       (w) => !foundWords.includes(w.word) && w.word === currentSpelling
     );
@@ -602,7 +602,7 @@ export default function TraditionalWordSearch({
             <Sparkles size={11} />
             <span>{currentPuzzle.theme}</span>
           </ThemeTag>
-         
+
         </StatusLeft>
 
         <StatusRight>
@@ -664,7 +664,7 @@ export default function TraditionalWordSearch({
         )}
       </ControlsRow>
 
-      {/* When all words are found */}
+      {}
       {isAllFound && (
         <FoundAllMessage
           initial={{ opacity: 0, y: 6 }}
@@ -675,7 +675,7 @@ export default function TraditionalWordSearch({
         </FoundAllMessage>
       )}
 
-      {/* Assembly Finished Notification Banner */}
+      {}
       <AnimatePresence>
         {isGenerationComplete && (
           <FinishedBanner

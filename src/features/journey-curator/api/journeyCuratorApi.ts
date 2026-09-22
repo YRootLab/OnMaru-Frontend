@@ -53,10 +53,10 @@ export async function runJourneyCurator(
   return readAcceptedSnapshot(accepted, repository);
 }
 
-/**
- * 온마루 Gemini AI 여정 큐레이션 API 호출
- * API Key 부재 또는 에러 발생 시 로컬 큐레이션 데이터로 안전하게 폴백
- */
+
+
+
+
 export async function fetchCuratedJourney(params: CurateJourneyParams): Promise<BentoJourneyPlan> {
   if (process.env.NEXT_PUBLIC_API_URL) {
     try {
