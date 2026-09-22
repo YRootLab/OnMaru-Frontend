@@ -20,7 +20,7 @@ interface SorimaruAudioState {
   isPlayerExpanded: boolean;
   playbackRate: number;
 
-  // Actions
+
   setAvailableStories: (stories: SorimaruStoryItem[]) => void;
   fetchRegionalSorimaruStories: (lng?: number, lat?: number) => Promise<void>;
   setCurrentStory: (story: SorimaruStoryItem) => void;
@@ -37,8 +37,8 @@ interface SorimaruAudioState {
   removeSavedStory: (storyId: string) => void;
   setIsPlayerExpanded: (isExpanded: boolean) => void;
   setPlaybackRate: (rate: number) => void;
-  
-  // Audio Seek & Controls
+
+
   skipForward: (seconds?: number) => void;
   skipBackward: (seconds?: number) => void;
 }
@@ -108,7 +108,7 @@ export const useSorimaruAudioStore = create<SorimaruAudioState>((set, get) => ({
         get().setCurrentStory(unique[0]);
       }
     } catch {
-      // API 오류 시 빈 목록 유지
+
     }
   },
 
@@ -126,7 +126,7 @@ export const useSorimaruAudioStore = create<SorimaruAudioState>((set, get) => ({
     });
   },
 
-  // 목록 탐색에서 쓰는 선택 액션: 재생은 명시적인 재생 버튼에서만 시작한다.
+
   selectStory: (story: SorimaruStoryItem) => {
     const playTimeSec = parseInt(story.playTime, 10) || 300;
     const parsed = parseScriptToLines(story.script, playTimeSec);
@@ -141,7 +141,7 @@ export const useSorimaruAudioStore = create<SorimaruAudioState>((set, get) => ({
   },
 
   setIsPlaying: (isPlaying: boolean) => set({ isPlaying }),
-  
+
   setCurrentTime: (time: number) => {
     const state = get();
     const currentLines = state.parsedScriptLines;
@@ -187,7 +187,7 @@ export const useSorimaruAudioStore = create<SorimaruAudioState>((set, get) => ({
         try {
           localStorage.setItem('onmaru_saved_sorimaru_stories', JSON.stringify(savedStories));
         } catch {
-          // Local storage can be unavailable in private browsing contexts.
+
         }
       }
       return { savedStories };
@@ -199,7 +199,7 @@ export const useSorimaruAudioStore = create<SorimaruAudioState>((set, get) => ({
         try {
           localStorage.setItem('onmaru_saved_sorimaru_stories', JSON.stringify(savedStories));
         } catch {
-          // Local storage can be unavailable in private browsing contexts.
+
         }
       }
       return { savedStories };

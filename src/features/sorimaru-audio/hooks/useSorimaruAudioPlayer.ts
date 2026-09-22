@@ -14,7 +14,7 @@ export function useSorimaruAudioPlayer() {
   const setCurrentTime = useSorimaruAudioStore((s) => s.setCurrentTime);
   const setDuration = useSorimaruAudioStore((s) => s.setDuration);
 
-  // Audio 객체 싱글톤 초기화
+
   useEffect(() => {
     if (!audioRef.current && typeof window !== 'undefined') {
       const audio = new Audio();
@@ -34,7 +34,7 @@ export function useSorimaruAudioPlayer() {
             position: audio.currentTime,
           });
         } catch {
-          // Safari 등 setPositionState 미지원 브라우저는 조용히 무시한다.
+
         }
       }
     };
@@ -68,7 +68,7 @@ export function useSorimaruAudioPlayer() {
     };
   }, [setCurrentTime, setDuration, setIsPlaying]);
 
-  // 이야기 변경 시 오디오 URL 로드
+
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio || !currentStory.audioUrl) return;
@@ -82,7 +82,7 @@ export function useSorimaruAudioPlayer() {
     }
   }, [currentStory, isPlaying, setIsPlaying]);
 
-  // 재생/일시정지 동기화
+
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -95,7 +95,7 @@ export function useSorimaruAudioPlayer() {
     }
   }, [isPlaying, setIsPlaying]);
 
-  // 배속 설정 동기화
+
   const playbackRate = useSorimaruAudioStore((s) => s.playbackRate);
   useEffect(() => {
     const audio = audioRef.current;
@@ -104,7 +104,7 @@ export function useSorimaruAudioPlayer() {
     }
   }, [playbackRate]);
 
-  // Seek 시 오디오 위치 동기화
+
   const seekTo = (seconds: number) => {
     const audio = audioRef.current;
     if (audio) {
@@ -113,7 +113,7 @@ export function useSorimaruAudioPlayer() {
     }
   };
 
-  // 잠금화면 · 미디어 허브(안드로이드 알림, macOS/iOS 미디어 위젯) 재생 정보 표시
+
   useEffect(() => {
     if (!hasMediaSession()) return;
 
@@ -125,13 +125,13 @@ export function useSorimaruAudioPlayer() {
     });
   }, [currentStory]);
 
-  // 잠금화면 재생/일시정지 아이콘 상태 동기화
+
   useEffect(() => {
     if (!hasMediaSession()) return;
     navigator.mediaSession.playbackState = isPlaying ? 'playing' : 'paused';
   }, [isPlaying]);
 
-  // 잠금화면 · 이어폰 컨트롤 액션 연결 (탭이 백그라운드로 가도 계속 동작)
+
   useEffect(() => {
     if (!hasMediaSession()) return;
 

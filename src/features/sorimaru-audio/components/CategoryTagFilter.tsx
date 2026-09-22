@@ -31,7 +31,7 @@ const ScrollRail = styled.div`
   padding: 0.15rem 0.1rem;
 `;
 
-/* 🏷️ 메인 대분류 테마 알약(Pill) 버튼 - TDS 스타일의 명확한 상태 시인성 */
+
 const ThemePillButton = styled.button<{ $selected: boolean }>`
   position: relative;
   flex-shrink: 0;
@@ -87,7 +87,7 @@ const ThemePillButton = styled.button<{ $selected: boolean }>`
   }
 `;
 
-/* 📍 슬림 서브 지역 칩 (지역 라벨 삭제, 깔끔한 미니 알약) */
+
 const RegionPillButton = styled.button<{ $selected: boolean }>`
   flex-shrink: 0;
   display: inline-flex;
@@ -158,7 +158,7 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = () => {
 
   return (
     <FilterContainer>
-      {/* 1단: 테마 대분류 캡슐 레일 */}
+      {}
       <ScrollRail as="nav" aria-label="오디오 이야기 주제">
         <ThemePillButton
           type="button"
@@ -189,7 +189,7 @@ export const CategoryTagFilter: React.FC<CategoryTagFilterProps> = () => {
         })}
       </ScrollRail>
 
-      {/* 2단: 서브 지역 칩 레일 ('지역 |' 텍스트 삭제 및 깔끔한 칩 나열) */}
+      {}
       <ScrollRail as="nav" aria-label="지역별 필터" style={{ gap: '0.35rem' }}>
         <RegionPillButton
           type="button"

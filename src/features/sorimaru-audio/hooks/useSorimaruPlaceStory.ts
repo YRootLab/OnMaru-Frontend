@@ -3,17 +3,17 @@ import { SorimaruStoryItem, TourWaypoint } from '@/features/sorimaru-audio/types
 import { sorimaruApiAdapter } from '@/features/sorimaru-audio/api/sorimaruApi';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 
-/**
- * 장소 객체와 Sorimaru 스토리 목록 간의 100% 정밀 1:1 매칭 함수 (단일 진실 공급원 SSOT)
- * 리스트의 뱃지 표시와 상세창의 시네마틱 투어 배너가 완벽하게 1:1 일치하도록 보장합니다.
- */
+
+
+
+
 export function matchSorimaruStory(
   place: { name?: string; addr?: string; lat?: number; lng?: number },
   stories: SorimaruStoryItem[],
 ): SorimaruStoryItem | null {
   if (!place.name || !stories || stories.length === 0) return null;
 
-  // 장소명에서 괄호, 특수기호, 무의미한 업종 접미사 정제
+
   const cleanPlace = place.name
     .replace(/\(.*?\)/g, '')
     .replace(/\[.*?\]/g, '')
@@ -23,13 +23,13 @@ export function matchSorimaruStory(
 
   if (cleanPlace.length < 2) return null;
 
-  // 1. 이름 기준 1:1 엄격 매칭 (음원이 실제로 존재하는 스토리만)
+
   for (const story of stories) {
     if (!story.audioUrl) continue;
     const cleanStoryTitle = story.title.replace(/[\s\-_]/g, '').toLowerCase();
     const cleanAudioTitle = (story.audioTitle || '').replace(/[\s\-_]/g, '').toLowerCase();
 
-    // 두 텍스트 간의 상호 온전한 포함 관계
+
     if (
       cleanStoryTitle.includes(cleanPlace) ||
       cleanPlace.includes(cleanStoryTitle) ||
@@ -39,7 +39,7 @@ export function matchSorimaruStory(
     }
   }
 
-  // 2. 거리 기준 초근접 정밀 매칭 (반경 250m 이내이면서 핵심 2글자 이상 일치)
+
   if (place.lat !== undefined && place.lng !== undefined) {
     for (const story of stories) {
       if (!story.audioUrl) continue;
@@ -62,10 +62,10 @@ export function matchSorimaruStory(
   return null;
 }
 
-/**
- * 실시간 공공 Sorimaru API 응답의 대본 및 좌표를 바탕으로 
- * 시네마틱 공간 투어 경유지(Waypoints)를 동적으로 생성합니다.
- */
+
+
+
+
 export function generateDynamicWaypoints(story: SorimaruStoryItem): TourWaypoint[] {
   if (story.waypoints && story.waypoints.length > 0) {
     return story.waypoints;
@@ -83,7 +83,7 @@ export function generateDynamicWaypoints(story: SorimaruStoryItem): TourWaypoint
   const spotCount = Math.max(3, Math.min(5, Math.ceil(rawLines.length / 2)));
   const waypoints: TourWaypoint[] = [];
 
-  // 경유지 오프셋 (실제 건축물 주변으로 반경 50~150m 완만한 동선 생성)
+
   const offsets = [
     { lat: 0, lng: 0, titleSuffix: '진입로 및 솟을대문', tip: '전통 한옥의 첫인상을 담는 입구 전경' },
     { lat: 0.00045, lng: 0.00035, titleSuffix: '안마당 & 대청마루', tip: '마당에서 올려다보는 처마와 하늘의 조화' },
@@ -114,10 +114,10 @@ export function generateDynamicWaypoints(story: SorimaruStoryItem): TourWaypoint
 
 const sorimaruPlaceCache = new Map<string, SorimaruStoryItem | null>();
 
-/**
- * 장소명 및 좌표를 통해 한국관광공사 실제 Sorimaru API를 직접 호출하여 
- * 정확히 일치/매칭되는 이야기만 반환하는 React 훅
- */
+
+
+
+
 export function useSorimaruPlaceStory(placeName?: string, lat?: number, lng?: number) {
   const availableStories = useSorimaruAudioStore((s) => s.availableStories);
   const [story, setStory] = useState<SorimaruStoryItem | null>(() => {
@@ -131,7 +131,7 @@ export function useSorimaruPlaceStory(placeName?: string, lat?: number, lng?: nu
       return;
     }
 
-    // 1. 이미 로드된 전역 Sorimaru 스토어에서 즉시 동기 매칭 검사
+
     const fastMatch = matchSorimaruStory({ name: placeName, lat, lng }, availableStories);
     if (fastMatch) {
       if (!fastMatch.waypoints) {
@@ -141,7 +141,7 @@ export function useSorimaruPlaceStory(placeName?: string, lat?: number, lng?: nu
       return;
     }
 
-    // 2. 메모리 캐시 검사
+
     const cacheKey = `${placeName || ''}:${lat?.toFixed(3)}:${lng?.toFixed(3)}`;
     if (sorimaruPlaceCache.has(cacheKey)) {
       setStory(sorimaruPlaceCache.get(cacheKey) || null);
@@ -199,4 +199,3 @@ export function useSorimaruPlaceStory(placeName?: string, lat?: number, lng?: nu
 
   return { story, loading };
 }
-

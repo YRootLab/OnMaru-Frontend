@@ -153,7 +153,7 @@ function ArchiveSkeleton() {
   );
 }
 
-/* 🎧 현대적인 개별 스토리 아티클 카드 */
+
 const StoryArticle = styled.article<{ $isCurrent: boolean }>`
   position: relative;
   display: flex;
@@ -289,7 +289,7 @@ const TitleRow = styled.div`
   gap: 0.5rem;
 `;
 
-/* 🎯 메인 타이틀: 딥 차콜/화이트로 명확한 가독성 (과도한 주황색 제거) */
+
 const StoryRowTitle = styled.h3<{ $isCurrent: boolean }>`
   font-family: var(--font-hanok);
   font-size: 0.9375rem;
@@ -357,7 +357,7 @@ const HashtagsRow = styled.div`
   margin-top: 0.05rem;
 `;
 
-/* 🏷️ 해시태그: 쨍한 주황색 대신 차분한 뉴트럴 쿨그레이로 피로도 대폭 완화 */
+
 const HashtagText = styled.span`
   color: ${meok[500]};
   font-weight: 500;
@@ -455,7 +455,7 @@ function StoryRow({ story, index }: StoryRowProps) {
   );
 }
 
-/* 🏛️ '장소별 묶어 보기' 프리미엄 아일랜드 컨테이너 카드 */
+
 const PlaceGroupContainer = styled.section`
   border-radius: 20px;
   background-color: #f8f8f7;
@@ -553,7 +553,7 @@ function PlaceGroupCard({ group, startIndex }: { group: SorimaruPlaceGroup; star
   );
 }
 
-/* 🧭 아카이브 표시 모드 세그먼티드 컨트롤러 (토스 스타일 캡슐 스위처) */
+
 const ViewSegmentControl = styled.div`
   display: inline-flex;
   align-items: center;
@@ -605,7 +605,7 @@ export function SorimaruArchiveBrowse({ stories, isLoading }: SorimaruArchiveBro
 
   return (
     <div>
-      {/* 보기 방식 세그먼트 스위처 */}
+      {}
       <div
         style={{
           marginBottom: '1rem',
