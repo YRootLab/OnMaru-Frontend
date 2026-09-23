@@ -41,22 +41,32 @@ jobs:
               .map(({ id, message }) => `- ${id.slice(0, 7)} ${message.split('\n')[0]}`)
               .join('\n');
             const latestCommitSubject = context.payload.head_commit.message.split('\n')[0];
-            const { data: pullRequest } = await github.rest.pulls.create({
-              owner,
-              repo,
-              base: 'develop',
-              head: branch,
-              title: latestCommitSubject,
-              body: [
-                '## 자동 생성 PR',
-                `- \`${branch}\` 브랜치의 최신 커밋을 \`develop\`에 반영합니다.`,
-                '',
-                '## 포함된 커밋',
-                commits,
-                '',
-                '## 관련 이슈',
-                '- 관련 이슈 번호와 검증 결과를 PR 설명에 추가해 주세요.',
-              ].join('\n'),
-            });
+            try {
+              const { data: pullRequest } = await github.rest.pulls.create({
+                owner,
+                repo,
+                base: 'develop',
+                head: branch,
+                title: latestCommitSubject,
+                body: [
+                  '## 자동 생성 PR',
+                  `- \`${branch}\` 브랜치의 최신 커밋을 \`develop\`에 반영합니다.`,
+                  '',
+                  '## 포함된 커밋',
+                  commits,
+                  '',
+                  '## 관련 이슈',
+                  '- 관련 이슈 번호와 검증 결과를 PR 설명에 추가해 주세요.',
+                ].join('\n'),
+              });
 
-            core.notice(`Created PR #${pullRequest.number}.`);
+              core.notice(`Created PR #${pullRequest.number}.`);
+            } catch (error) {
+              if (error.status === 403) {
+                core.warning(
+                  'GitHub Actions is not allowed to create pull requests in repository settings. Create the PR manually or enable the repository setting.'
+                );
+                return;
+              }
+              throw error;
+            }
