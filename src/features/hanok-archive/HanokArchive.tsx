@@ -42,7 +42,7 @@ function scheduleIdle(callback: () => void, timeout = 2000): () => void {
 }
 
 const Root = styled.div`
-  min-height: 100vh;
+  min-height: 100dvh;
   font-family: var(--font-hanok);
   color: ${meok[900]};
   background: transparent;

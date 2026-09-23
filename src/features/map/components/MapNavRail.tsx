@@ -87,7 +87,7 @@ const LogoArea = styled.div`
   }
 
   &:focus-visible {
-    outline: 2px solid ${lightPalette.cheongrok[500]};
+    outline: 2px solid ${lightPalette.kobalt[500]};
     outline-offset: 2px;
     border-radius: 8px;
   }
@@ -140,16 +140,16 @@ const NavItemBtn = styled.button<{ $active: boolean }>`
   border-radius: 12px;
   cursor: pointer;
   gap: 3px;
-  background: ${({ $active }) => ($active ? lightPalette.cheongrok[50] : 'transparent')};
-  color: ${({ $active }) => ($active ? lightPalette.cheongrok[700] : meok[500])};
+  background: ${({ $active }) => ($active ? lightPalette.kobalt[50] : 'transparent')};
+  color: ${({ $active }) => ($active ? lightPalette.kobalt[700] : meok[500])};
   transition:
     background-color 180ms cubic-bezier(0.16, 1, 0.3, 1),
     color 180ms cubic-bezier(0.16, 1, 0.3, 1),
     transform 150ms cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    background: ${({ $active }) => ($active ? lightPalette.cheongrok[50] : 'rgba(0, 0, 0, 0.045)')};
-    color: ${({ $active }) => ($active ? lightPalette.cheongrok[700] : meok[900])};
+    background: ${({ $active }) => ($active ? lightPalette.kobalt[50] : 'rgba(0, 0, 0, 0.045)')};
+    color: ${({ $active }) => ($active ? lightPalette.kobalt[700] : meok[900])};
   }
 
   &:active {

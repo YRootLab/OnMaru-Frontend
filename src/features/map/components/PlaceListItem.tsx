@@ -72,7 +72,7 @@ const ItemButton = styled.button<{ $isSelected: boolean }>`
       transform: scale(1.3);
     }
     h4 {
-      color: ${lightPalette.cheongrok[700]};
+      color: ${lightPalette.kobalt[700]};
     }
   }
 
@@ -115,7 +115,7 @@ const ThumbnailBox = styled.div<{ $isSelected?: boolean; $src?: string | null }>
   align-items: center;
   justify-content: center;
   box-shadow: ${({ $isSelected }) =>
-    $isSelected ? `0 0 0 2px ${lightPalette.cheongrok[500]}` : 'none'};
+    $isSelected ? `0 0 0 2px ${lightPalette.kobalt[500]}` : 'none'};
   transition: box-shadow 0.2s ease;
 
   img {
