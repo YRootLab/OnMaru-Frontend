@@ -86,7 +86,7 @@ export const createSorimaruApiAdapter = (network: SorimaruNetworkClient = sorima
         console.warn('[Sorimaru API Warning] API 호출 실패:', error);
         throw error instanceof Error ? error : new Error('Sorimaru API request failed');
       }
-    }, (value) => value.items.length > 0);
+    });
   },
 
 
@@ -159,7 +159,7 @@ export const createSorimaruApiAdapter = (network: SorimaruNetworkClient = sorima
         console.warn('[Sorimaru Nearby Warning] 위치 기반 조회 실패:', error);
         throw error instanceof Error ? error : new Error('Sorimaru nearby request failed');
       }
-    }, (value) => value.length > 0);
+    });
   }
   };
 
