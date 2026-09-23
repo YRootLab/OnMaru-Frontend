@@ -8,6 +8,16 @@
 - Non-fetch business logic (mapping, decoding, classification) that more than one place needs belongs in `features/<feature>/services/*.ts`, not copy-pasted into a component.
 - Refactors that only relocate data-fetching/logic into a hook or service must not change the rendered output, animation, or styling of the component they're extracted from — verify with a type-check and a visual diff before considering the extraction done.
 
+## Clean architecture boundaries
+
+- Organize new or migrated feature code as `features/<feature>/{domain,application,infrastructure,presentation}`. Migrate incrementally; do not require an all-at-once directory move.
+- `domain` contains framework-independent entities, value types, and deterministic business rules. It must not import React, Next.js, browser APIs, network clients, or infrastructure modules.
+- `application` contains use cases and the interfaces (ports) they need. It may import `domain`, but not concrete HTTP, storage, browser, or React implementations.
+- `infrastructure` implements application ports for HTTP clients, external SDKs, browser storage, and fixtures. It may import `application` contracts and `domain` types, but never `presentation`.
+- `presentation` contains React components, hooks, and route-facing view models. It invokes application use cases and receives concrete infrastructure implementations through a composition boundary; it must not contain business rules or direct external API calls.
+- Next.js pages and route handlers are composition boundaries: they may select infrastructure implementations, create use cases, and pass data or callbacks into presentation code.
+- Dependencies must point inward only: `presentation -> application -> domain` and `infrastructure -> application/domain`. Tests may substitute port implementations with deterministic fakes.
+
 # UI design guidance
 
 ## Color direction
@@ -74,3 +84,13 @@
 - Do not record private submodule access permissions or authentication tokens in source code, logs, or documentation.
 - When modifying files inside `src/private/core-ui`, commit and push them in this repository like any other source file. Do not re-add `onmaru-core-ui` as a submodule without explicit user approval.
 - Core UI components are imported via `@/private/core-ui/*`. A `Module not found: Can't resolve '@/private/core-ui/...'` error is now a real code bug — check that the file exists in `src/private/core-ui`.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
