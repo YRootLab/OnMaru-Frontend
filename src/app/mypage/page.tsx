@@ -12,7 +12,7 @@ import { Bookmark, Flame, ChevronRight, MapPin, X, Compass, Sparkles, Heart, Mus
 import type { SavedJourneyDetail } from '@/features/journey-curator/types/exploration.types';
 import { useAuth } from '@/features/auth';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
-import { loadWarmth, filterWarmth } from '@/features/map/warmth/warmthRepo';
+import { loadWarmth } from '@/features/map/warmth/warmthRepo';
 import { formatRelativeTime } from '@/features/map/utils/formatters';
 import type { Warmth } from '@/features/map/types';
 import { ThemeModeSwitch } from '@/design-system/components';
@@ -65,7 +65,8 @@ export default function MyPage() {
   }, [isLoading, isLoggedIn, router]);
 
   useEffect(() => {
-    setMyWarmths(filterWarmth(loadWarmth(), 'mine'));
+    // TODO: fetch /api/warmth?filter=mine or call dedicated endpoint
+    setMyWarmths(loadWarmth());
   }, []);
 
   if (isLoading || !user) return null;

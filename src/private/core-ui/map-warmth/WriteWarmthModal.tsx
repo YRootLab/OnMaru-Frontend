@@ -4,7 +4,7 @@ import React, { useState, useMemo } from 'react';
 import styled from '@emotion/styled';
 import { X, Flame, Users, Leaf, Check, MapPin } from 'lucide-react';
 import { lightPalette, meok , fontSize } from '@/design-system/tokens';
-import { addWarmth, loadWarmth } from '@/features/map/warmth/warmthRepo';
+import { loadWarmth } from '@/features/map/warmth/warmthRepo';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import MoodSelector, { type MoodValue } from './MoodSelector';
 
@@ -511,7 +511,7 @@ export default function WriteWarmthModal({
     );
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!text.trim()) return;
 
@@ -520,26 +520,31 @@ export default function WriteWarmthModal({
     const lat = selectedPlace?.lat || searchCenter.lat;
     const lng = selectedPlace?.lng || searchCenter.lng;
 
-    addWarmth({
-      placeId,
-      placeName,
-      lat,
-      lng,
-      text: text.trim(),
-      mood,
-      score,
-      tags: selectedTags,
-    });
+    try {
+      // TODO: POST /api/warmth with warmth data
+      const payload = {
+        placeId,
+        placeName,
+        lat,
+        lng,
+        text: text.trim(),
+        mood,
+        score,
+        tags: selectedTags,
+      };
+      // const response = await fetch('/api/warmth', { method: 'POST', body: JSON.stringify(payload) });
 
-    setWarmths(loadWarmth());
-
-    setIsSuccess(true);
-    setTimeout(() => {
-      setIsSuccess(false);
-      setText('');
-      setSelectedTags([]);
-      onClose();
-    }, 900);
+      setWarmths(loadWarmth());
+      setIsSuccess(true);
+      setTimeout(() => {
+        setIsSuccess(false);
+        setText('');
+        setSelectedTags([]);
+        onClose();
+      }, 900);
+    } catch (error) {
+      console.error('Failed to add warmth:', error);
+    }
   };
 
   if (!isOpen) return null;
