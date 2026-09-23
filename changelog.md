@@ -3,6 +3,8 @@
 Lightweight human-readable summary of meaningful repository changes. This does not replace Git history.
 
 ## Unreleased
+- 카카오 로그인을 백엔드 신규 플로우(2026-09-21 가이드)에 맞춰 전면 갱신했다. FE는 카카오와 직접 통신하지 않는다 — 로그인 버튼은 브라우저를 `GET /auth/kakao/login?returnTo={현재 경로}`로 보내고, 백엔드가 code 교환·세션 쿠키(`__Host-onmaru-session`) 발급을 끝낸 뒤 `{returnTo}?auth=success|failed`로 돌려보내면 전역 `useAuthReturn` 핸들러가 복귀를 파싱한다. `NEXT_PUBLIC_KAKAO_CLIENT_ID`·`NEXT_PUBLIC_KAKAO_REDIRECT_URI`를 폐기했고, 개인 프로필을 localStorage에 캐시하던 로직을 제거해 로그인 판정을 오직 `GET /members/me`(200/401)로만 한다. 탈퇴 응답을 202 `{status:"DELETING"}`로, 프로필 필드를 `displayName`으로 갱신하고 로그인 시작 URL에 `explorationId`(게스트 탐색 승계) 파라미터를 지원한다.
+- 로그인 흐름의 BE/FE 원인 판별 테스트를 구축했다. (1) 복귀 파싱·returnTo 결정·쿼리 정리 로직을 순수 함수(`features/auth/services/authReturn.ts`)로 추출해 13개 계약 테스트로 커버하고, (2) 세션 스토어(200=로그인·401=비로그인·자동 재시도 금지), kakaoAuth URL 빌더, memberApi 경로, privateState(localStorage 금지) 유닛 테스트를 추가해 auth 도메인 21개 테스트가 전부 통과한다. (3) `npm run probe:auth`로 실제 백엔드를 직접 검증하는 `scripts/probe-auth-flow.mjs`를 추가했다(CSRF 발급, 카카오 302, 비로그인 401 AUTH_REQUIRED, CSRF 로그아웃 4항목) — 프로브 통과+앱 실패면 FE 문제, 프로브 실패면 백엔드/환경 문제다. 배포 백엔드(onmaru-backend.onrender.com) 실측 4항목 전부 통과를 확인했다.
 - README를 설치 안내 중심 문서에서 한옥 탐험 플랫폼의 서비스 목적, 핵심 사용자 경험, 화면별 역할, 데이터·협업 범위를 설명하는 외부 협업팀용 소개 문서로 개편했다.
 - private submodule(`YRootLab/onmaru-core-ui`) 참조를 제거하고 `src/private/core-ui` 전체 코드를 이 저장소에 일반 파일로 직접 포함시켰다. `.gitmodules`·gitlink·`scripts/check-submodule.mjs`·`check:submodule`/`submodule:*` 스크립트와 CI(deploy.yml, playwright.yml)의 서브모듈 초기화 단계를 제거해 배포 시 private 저장소 접근이 더 이상 필요 없다. 원본 `onmaru-core-ui` 저장소는 아카이브로 유지한다.
 - 홈 화면 API 재연동: 추천 코스·인기 소리·인기 지역을 `api/v1/home` 엔드포인트로 교체하고, 탐색 시작 요청을 `POST /api/journey-curator/explore` 호환 경로로 전환했다. (Closes #126)

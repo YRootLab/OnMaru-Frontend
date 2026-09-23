@@ -376,7 +376,7 @@ export default function StampBook() {
         <UserSyncBanner className="header-elem">
           <UserSyncLeft>
             <User size={14} />
-            <span>{user ? `${user.nickname || user.email} 님과 안전하게 동기화됨` : '로그인하면 도장을 안전하게 보관할 수 있어요'}</span>
+            <span>{user ? `${user.displayName} 님과 안전하게 동기화됨` : '로그인하면 도장을 안전하게 보관할 수 있어요'}</span>
           </UserSyncLeft>
           {user && (
             <ShieldCheck size={16} color="#059669" />

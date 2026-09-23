@@ -91,7 +91,7 @@ export default function MyPage() {
               fontWeight: 800,
             }}
           >
-            {user.nickname.slice(0, 1)}
+            {user.displayName.slice(0, 1)}
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -99,7 +99,7 @@ export default function MyPage() {
               카카오 로그인 완료
             </div>
             <div style={{ fontSize: '20px', fontWeight: 800, color: c.text.primary }}>
-              {user.nickname}님, 환영합니다
+              {user.displayName}님, 환영합니다
             </div>
           </div>
 

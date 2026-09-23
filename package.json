@@ -19,6 +19,7 @@
     "probe": "node --env-file=.env.local scripts/probe-tourapi.mjs",
     "probe:village": "node --env-file=.env.local scripts/probe-village.mjs",
     "probe:map": "node --env-file=.env.local scripts/probe-map-categories.mjs",
+    "probe:auth": "node --env-file=.env.local scripts/probe-auth-flow.mjs",
     "generate:api-types": "openapi-typescript https://onmaru-backend.onrender.com/v3/api-docs -o ./src/types/api.generated.d.ts"
   },
   "dependencies": {

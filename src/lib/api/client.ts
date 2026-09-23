@@ -6,7 +6,7 @@ import { ApiError } from '@/features/admin/types';
 import { createCsrfTokenProvider } from './csrf';
 import { isOnmaruApiError, normalizeApiError } from './errors';
 
-const DEFAULT_BASE = process.env.NEXT_PUBLIC_API_URL ?? '';
+const DEFAULT_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? process.env.NEXT_PUBLIC_API_URL ?? '';
 export const USE_MOCK = !DEFAULT_BASE;
 
 const TIMEOUT_MS = 10000;

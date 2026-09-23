@@ -3,25 +3,26 @@ import { apiRequest, type ApiRequestOptions } from '@/lib/api/client';
 type RequestFn = <T>(path: string, options?: ApiRequestOptions) => Promise<T>;
 
 /*
-  백엔드 GET /api/v1/members/me 응답 shape.
+  백엔드 GET /api/v1/members/me 응답 shape (FE 카카오 로그인 연동 가이드 2026-09-21 기준).
 
-  /v3/api-docs가 이 엔드포인트의 success response를 아직 문서화하지 않아
-  (다른 미기재 엔드포인트들과 동일하게 Record<string, never>) 실제 필드명을
-  라이브 호출로 확인하지 못했다 — 로그인 세션 쿠키가 있어야 하는 엔드포인트라
-  이 세션에서는 재현할 수 없었다. 기존 프런트 `OnmaruUser` 계약과 호환되는
-  필드로 최선 추정했으니, 실제 응답과 다르면 이 타입만 고치면 된다(호출부는
-  그대로).
+  { schemaVersion, id, displayName } — 카카오 ID·이메일·provider subject를 식별자로
+  쓰지 않는다. 개인화 응답은 Cache-Control: no-store이며 HttpOnly 세션 쿠키로만
+  인증되므로, 이 객체를 localStorage에 캐싱하지 않는다(항상 서버에서 다시 조회).
 */
 export interface MemberProfile {
+  schemaVersion?: string;
   id: string;
-  nickname: string;
-  email?: string | null;
-  profileImageUrl?: string | null;
+  displayName: string;
+}
+
+/** DELETE /api/v1/members/me → 202 { status: "DELETING" } (탈퇴 접수, 비동기 처리). */
+export interface DeleteAccountResponse {
+  status?: string;
 }
 
 export interface MemberRepository {
   getMyProfile(): Promise<MemberProfile>;
-  deleteMyAccount(): Promise<void>;
+  deleteMyAccount(): Promise<DeleteAccountResponse>;
   logout(): Promise<void>;
 }
 
@@ -31,7 +32,7 @@ export function createMemberRepository(request: RequestFn = apiRequest): MemberR
       return request<MemberProfile>('/members/me', { method: 'GET', cache: 'no-store' });
     },
     deleteMyAccount() {
-      return request<void>('/members/me', { method: 'DELETE', csrf: true });
+      return request<DeleteAccountResponse>('/members/me', { method: 'DELETE', csrf: true });
     },
     logout() {
       return request<void>('/auth/logout', { method: 'POST', csrf: true });

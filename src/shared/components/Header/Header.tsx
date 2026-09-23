@@ -891,7 +891,7 @@ export default function Header() {
         </ThemePickerWrap>
 
         <LoginButton href={isLoggedIn ? '/mypage' : '/auth/login'} $isLanding={usesDarkSurface}>
-          <span>{isLoggedIn ? (user?.nickname ?? '마이페이지') : '로그인'}</span>
+          <span>{isLoggedIn ? (user?.displayName ?? '마이페이지') : '로그인'}</span>
           <ArrowRight size={12} />
         </LoginButton>
 
@@ -1071,7 +1071,7 @@ export default function Header() {
                 </div>
               </div>
               <MobileMenuLink href={isLoggedIn ? '/mypage' : '/auth/login'} $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
-                {isLoggedIn ? (user?.nickname ?? '마이페이지') : '로그인'}
+                {isLoggedIn ? (user?.displayName ?? '마이페이지') : '로그인'}
               </MobileMenuLink>
             </MobileMenuPanel>
           )}

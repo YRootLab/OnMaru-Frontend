@@ -1,56 +1,32 @@
 'use client';
 
 // ============================================================
-// 카카오 로그인 콜백 처리 (src/app/auth/kakao/callback/page.tsx)
+// 카카오 로그인 콜백 (src/app/auth/kakao/callback/page.tsx)
+//
+// 백엔드가 카카오 code를 직접 받으므로(가이드 §0) 이 페이지는 FE가 returnTo로
+// 넘겨주지 않는다. 예전 북마크·링크 등으로 진입한 경우만 방어한다: ?auth= 쿼리가
+// 있으면 전역 useAuthReturn 핸들러가 처리하고, 없으면 로그인 페이지로 보낸다.
 // ============================================================
 
 import { Suspense, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/features/auth';
-import { USE_MOCK } from '@/lib/api/client';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
-import { hasPendingSave } from '@/features/journey-curator/store/pendingSaveBridge';
 
 function KakaoCallbackInner() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const { completeKakaoLogin, restoreSessionAfterKakaoLogin } = useAuth();
+  const { isLoading, isLoggedIn } = useAuth();
   const { theme } = useOnmaruTheme();
 
   useEffect(() => {
-    // 실서버 모드: 백엔드가 카카오와 code를 직접 주고받고 세션 쿠키까지 심은 뒤
-    // 이 페이지로 돌려보낸다 — code는 여기 도착하지 않는다. GET /members/me만 확인하면 된다.
-    if (!USE_MOCK) {
-      restoreSessionAfterKakaoLogin().then((success) => {
-        router.replace(success ? (hasPendingSave() ? '/' : '/mypage') : '/auth/login');
-      });
-      return;
-    }
-
-    const code = searchParams.get('code');
-    const kakaoError = searchParams.get('error');
-
-    if (kakaoError) {
-      toast.error('카카오 로그인이 취소되었습니다.');
+    const hasAuthQuery = new URLSearchParams(window.location.search).has('auth');
+    // ?auth=가 있으면 전역 useAuthReturn이 처리한다(성공 시 세션 확정 + 저장 intent 마무리).
+    if (hasAuthQuery) return;
+    // 세션 확인이 끝났는데도 로그인 상태가 아니면 로그인 페이지로 보낸다.
+    if (!isLoading && !isLoggedIn) {
       router.replace('/auth/login');
-      return;
     }
-    if (!code) {
-      toast.error('잘못된 접근입니다.');
-      router.replace('/auth/login');
-      return;
-    }
-
-    completeKakaoLogin(code).then((success) => {
-      if (!success) {
-        router.replace('/auth/login');
-        return;
-      }
-      // 여정 저장 중 로그인으로 빠졌던 경우 저장을 마저 끝내도록 원래 화면으로 돌려보낸다.
-      router.replace(hasPendingSave() ? '/' : '/mypage');
-    });
-  }, [searchParams, completeKakaoLogin, restoreSessionAfterKakaoLogin, router]);
+  }, [isLoading, isLoggedIn, router]);
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', padding: '80px 20px' }}>
