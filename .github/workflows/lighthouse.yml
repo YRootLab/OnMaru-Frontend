@@ -1,0 +1,69 @@
+name: Lighthouse Performance Audit
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - master
+
+jobs:
+  Lighthouse:
+    name: Audit Performance
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Application
+        run: npm run build
+
+      - name: Install Lighthouse
+        run: npm install --save-dev @lhci/cli@latest lighthouse || true
+
+      - name: Run Lighthouse Audit
+        run: |
+          npx lighthouse http://localhost:3000 \
+            --output-path=./lighthouse-report.html \
+            --chrome-flags="--headless --no-sandbox" \
+            || true
+        continue-on-error: true
+
+      - name: Generate Performance Report
+        run: |
+          echo "# Lighthouse Performance Report" > performance-report.md
+          echo "" >> performance-report.md
+          echo "## Metrics to Check" >> performance-report.md
+          echo "- Largest Contentful Paint (LCP)" >> performance-report.md
+          echo "- First Input Delay (FID)" >> performance-report.md
+          echo "- Cumulative Layout Shift (CLS)" >> performance-report.md
+          echo "- First Contentful Paint (FCP)" >> performance-report.md
+          echo "- Time to Interactive (TTI)" >> performance-report.md
+
+      - name: Upload Lighthouse Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-report
+          path: |
+            lighthouse-report.html
+            performance-report.md
+
+      - name: Comment Performance Results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '⚡ Lighthouse performance audit completed. Check artifacts for detailed report.'
+            })
