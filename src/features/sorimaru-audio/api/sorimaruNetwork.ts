@@ -79,30 +79,14 @@ interface BackendStoryPage {
 
 const defaultBackendRequester: SorimaruBackendRequester = (path, params) => apiGet<unknown>(path, params);
 
-export const defaultSorimaruEndpointResolver: SorimaruEndpointResolver = ({ type, params }) => {
-  const operation = type === 'nearby'
-    ? 'storyLocationBasedList'
-    : type === 'themes'
-      ? params.keyword ? 'themeSearchList' : 'themeBasedList'
-      : params.keyword ? 'storySearchList' : 'storyBasedList';
-  const upstream = new URL(`${CLIENT_API_ENDPOINT}/${operation}`);
-  upstream.searchParams.set('MobileOS', 'ETC');
-  upstream.searchParams.set('MobileApp', 'OnMaruFE');
-  upstream.searchParams.set('_type', 'json');
-  upstream.searchParams.set('langCode', 'ko');
-  upstream.searchParams.set('serviceKey', CLIENT_API_KEY);
+// 모든 Odii API 호출은 백엔드 경유
+// 백엔드 엔드포인트: /api/stories, /api/stories/nearby, /api/stories/themes
 
-  if (type === 'nearby') {
-    if (params.yCoord) upstream.searchParams.set('mapY', params.yCoord);
-    upstream.searchParams.set('radius', params.radius || '3000');
-    upstream.searchParams.set('numOfRows', params.numOfRows || '10');
-    upstream.searchParams.set('pageNo', params.pageNo || '1');
-  } else {
-    upstream.searchParams.set('numOfRows', params.numOfRows || '7');
-    upstream.searchParams.set('pageNo', params.pageNo || '1');
-    if (params.keyword?.trim()) upstream.searchParams.set('keyword', params.keyword.trim());
-  }
-  return upstream.toString();
+export const defaultSorimaruEndpointResolver: SorimaruEndpointResolver = ({ type }) => {
+  // 백엔드 API 경로만 반환
+  return type === 'nearby' ? '/api/stories/nearby'
+    : type === 'themes' ? '/api/stories/themes'
+    : '/api/stories';
 };
 
 export const defaultSorimaruResponseDecoder: SorimaruResponseDecoder = (payload) => {
