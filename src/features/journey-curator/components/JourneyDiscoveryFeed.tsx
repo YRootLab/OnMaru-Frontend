@@ -6,7 +6,7 @@ import styled from '@emotion/styled';
 import { MapPin, ArrowLeft, ArrowRight, RotateCcw, Volume2 } from 'lucide-react';
 import { palette, fontSize, ringShadow } from '@/design-system/tokens';
 import { useJourneyStore } from '../store/useJourneyStore';
-import { useCuratedCourses, usePopularRegions, useTrendingSounds } from '../hooks/useHomeData';
+import { useCuratedCourses, usePopularRegions, usePopularSounds } from '../hooks/useHomeData';
 
 const FeedContainer = styled.div`
   width: min(calc(100% - 40px), 1140px);
@@ -75,9 +75,49 @@ const CourseGrid = styled.div`
   position: relative;
 `;
 
+const CourseStage = styled.div<{ $showLeading: boolean; $showTrailing: boolean }>`
+  position: relative;
+
+  &::before,
+  &::after {
+    position: absolute;
+    top: 0;
+    bottom: 14px;
+    z-index: 10;
+    width: 50%;
+    pointer-events: none;
+    content: '';
+  }
+
+  &::before {
+    left: -4px;
+    width: calc(3.5% + 4px);
+    opacity: ${({ $showLeading }) => ($showLeading ? 1 : 0)};
+    transition: opacity 0.2s ease;
+    background: linear-gradient(90deg, #ffffff 0%, rgba(255, 255, 255, 0.72) 22%, rgba(255, 255, 255, 0) 100%);
+  }
+
+  &::after {
+    right: -4px;
+    width: calc(3.5% + 4px);
+    opacity: ${({ $showTrailing }) => ($showTrailing ? 1 : 0)};
+    transition: opacity 0.2s ease;
+    background: linear-gradient(270deg, #ffffff 0%, rgba(255, 255, 255, 0.72) 22%, rgba(255, 255, 255, 0) 100%);
+  }
+
+  [data-theme='dark'] &::before {
+    background: linear-gradient(90deg, #24211d 0%, rgba(36, 33, 29, 0.72) 22%, rgba(36, 33, 29, 0) 100%);
+  }
+
+  [data-theme='dark'] &::after {
+    background: linear-gradient(270deg, #24211d 0%, rgba(36, 33, 29, 0.72) 22%, rgba(36, 33, 29, 0) 100%);
+  }
+`;
+
 const CourseViewport = styled.div`
   position: relative;
   overflow-x: auto;
+  overflow-y: hidden;
   scrollbar-width: none;
   padding: 6px 4px 14px;
   margin: -6px -4px -14px;
@@ -85,20 +125,19 @@ const CourseViewport = styled.div`
   &::-webkit-scrollbar {
     display: none;
   }
+
 `;
 
 const CourseSkeletonGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
   gap: 20px;
+  overflow: hidden;
 
   @media (max-width: 1024px) {
-    grid-template-columns: repeat(2, 1fr);
     gap: 16px;
   }
 
   @media (max-width: 640px) {
-    grid-template-columns: 1fr;
     gap: 14px;
   }
 `;
@@ -107,6 +146,8 @@ const CourseRail = styled.div`
   display: flex;
   gap: 20px;
   width: 100%;
+  padding-right: 38px;
+  box-sizing: content-box;
 
   @media (max-width: 1024px) {
     gap: 16px;
@@ -119,7 +160,7 @@ const CourseRail = styled.div`
 
 const CourseArrow = styled.button`
   position: absolute;
-  z-index: 2;
+  z-index: 30;
   top: 50%;
   width: 38px;
   height: 38px;
@@ -127,7 +168,7 @@ const CourseArrow = styled.button`
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.94);
   color: #191f28;
-  box-shadow: 0 8px 20px rgba(25, 31, 40, 0.12);
+  box-shadow: 0 4px 10px rgba(25, 31, 40, 0.08);
   cursor: pointer;
   top: calc(50% - 4px);
   transform: translate(-50%, -50%);
@@ -191,7 +232,8 @@ const CourseIndicator = styled.button<{ $active: boolean }>`
 const CourseCard = styled.button`
   text-align: left;
   display: flex;
-  flex: 0 0 29.75%;
+  height: auto;
+  flex: 0 0 25.3%;
   flex-direction: column;
   background: #ffffff;
   border-radius: 20px;
@@ -208,11 +250,11 @@ const CourseCard = styled.button`
   }
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: ${ringShadow.light.cardHoverGlow};
+    transform: none;
+    box-shadow: ${ringShadow.light.card};
 
     [data-theme='dark'] & {
-      box-shadow: ${ringShadow.dark.cardHoverGlow};
+      box-shadow: ${ringShadow.dark.card};
     }
   }
 
@@ -221,18 +263,19 @@ const CourseCard = styled.button`
   }
 
   @media (max-width: 1024px) {
-    flex-basis: 46%;
+    flex-basis: 39.1%;
   }
 
   @media (max-width: 640px) {
-    flex-basis: 80%;
+    flex-basis: 68%;
+    height: auto;
   }
 `;
 
 const CourseImageWrap = styled.div`
   position: relative;
   width: 100%;
-  height: 165px;
+  height: 140px;
   overflow: hidden;
   background: #f2f4f6;
 
@@ -241,7 +284,7 @@ const CourseImageWrap = styled.div`
   }
 
   @media (max-width: 640px) {
-    height: 150px;
+    height: 128px;
   }
 `;
 
@@ -288,20 +331,20 @@ const LocationBadge = styled.span`
 `;
 
 const CourseBody = styled.div`
-  padding: 14px 20px 16px;
+  padding: 10px 17px 12px;
   display: flex;
   flex-direction: column;
-  flex: 1;
+  flex: 0 0 auto;
 
   @media (max-width: 640px) {
-    padding: 12px 16px 14px;
+    padding: 9px 14px 10px;
   }
 `;
 
 const CourseTitle = styled.h3`
   font-family: var(--font-hanok);
-  font-size: ${fontSize.lg};
-  font-weight: 700;
+  font-size: ${fontSize.base};
+  font-weight: 600;
   color: #191f28;
   margin: 0 0 4px;
   line-height: 1.4;
@@ -316,11 +359,15 @@ const CourseTitle = styled.h3`
 `;
 
 const CourseDesc = styled.p`
-  font-size: ${fontSize.sm};
+  font-size: 13px;
   color: #4e5968;
   line-height: 1.55;
+  min-height: calc(2 * 1.55em);
   margin: 0 0 8px;
-  flex: 1;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 
   [data-theme='dark'] & {
     color: #a1a1aa;
@@ -328,6 +375,7 @@ const CourseDesc = styled.p`
 
   @media (max-width: 640px) {
     font-size: 13.5px;
+    min-height: calc(2 * 1.55em);
     margin-bottom: 6px;
   }
 `;
@@ -336,23 +384,26 @@ const CourseFooter = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 6px;
-  border-top: 1px solid #f2f4f6;
-
-  [data-theme='dark'] & {
-    border-top-color: rgba(255, 255, 255, 0.08);
-  }
+  gap: 8px;
+  margin-top: 5px;
 `;
 
 const TagList = styled.div`
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
+  min-width: 0;
+  flex: 1;
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 `;
 
 const Tag = styled.span`
-  font-size: 11px;
+  font-size: 13px;
   color: #8b95a1;
+
+  & + & {
+    margin-left: 4px;
+  }
 
   [data-theme='dark'] & {
     color: #71717a;
@@ -361,10 +412,13 @@ const Tag = styled.span`
 
 const ExploreText = styled.span`
   display: inline-flex;
+  width: 76px;
+  flex: 0 0 76px;
   align-items: center;
   gap: 4px;
   font-size: ${fontSize.xs};
   font-weight: 700;
+  white-space: nowrap;
   color: ${palette.juhong[500]};
 `;
 
@@ -522,6 +576,71 @@ const SkeletonLine = styled(SkeletonPulse)<{ $w?: string; $h?: string }>`
   height: ${({ $h }) => $h ?? '14px'};
   width: ${({ $w }) => $w ?? '100%'};
   border-radius: 6px;
+`;
+
+const CourseSkeletonCard = styled.div`
+  display: flex;
+  height: auto;
+  box-sizing: border-box;
+  min-width: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 20px;
+  border: 1px solid #e5e5e3;
+  background: #ffffff;
+  box-shadow: ${ringShadow.light.card};
+  flex: 0 0 25.3%;
+
+  [data-theme='dark'] & {
+    border-color: rgba(255, 255, 255, 0.08);
+    background: #24211d;
+    box-shadow: ${ringShadow.dark.card};
+  }
+
+  @media (max-width: 1024px) { flex-basis: 39.1%; }
+  @media (max-width: 640px) { flex-basis: 68%; }
+`;
+
+const CourseSkeletonImage = styled(SkeletonPulse)`
+  position: relative;
+  height: 140px;
+  width: 100%;
+
+  @media (max-width: 640px) { height: 128px; }
+`;
+
+const CourseSkeletonBadge = styled(SkeletonPulse)`
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  height: 25px;
+  width: 105px;
+  border-radius: 9999px;
+`;
+
+const CourseSkeletonBody = styled.div`
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 0;
+  padding: 10px 17px 12px;
+
+  & > div:first-child {
+    margin-bottom: 4px;
+  }
+
+  @media (max-width: 640px) {
+    padding: 9px 14px 10px;
+  }
+`;
+
+const CourseSkeletonFooter = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 5px;
+  padding-top: 10px;
 `;
 
 const FeedState = styled.div<{ $compact?: boolean }>`
@@ -742,12 +861,45 @@ export default function JourneyDiscoveryFeed() {
   const setQuery = useJourneyStore((s) => s.setQuery);
   const submitSearch = useJourneyStore((s) => s.submitSearch);
   const { data: courses, loading: coursesLoading, failed: coursesFailed, unavailable: coursesUnavailable, retry: retryCourses } = useCuratedCourses();
-  const { data: trendingSounds, loading: soundsLoading, failed: soundsFailed, unavailable: soundsUnavailable, retry: retrySounds } = useTrendingSounds();
+  const { data: popularSounds, loading: soundsLoading, failed: soundsFailed, unavailable: soundsUnavailable, retry: retrySounds } = usePopularSounds();
   const { data: popularRegions, loading: regionsLoading, failed: regionsFailed, unavailable: regionsUnavailable, retry: retryRegions } = usePopularRegions();
   const featuredCourses = courses.slice(0, 7);
   const courseViewportRef = useRef<HTMLDivElement>(null);
   const [visibleCourseCount, setVisibleCourseCount] = useState(3);
   const [activeCourseIndex, setActiveCourseIndex] = useState(0);
+  const [courseEdges, setCourseEdges] = useState({ atStart: true, atEnd: false });
+
+  useEffect(() => {
+    const storageKey = 'onmaru:home-scroll-position';
+    const previousScrollRestoration = window.history.scrollRestoration;
+    window.history.scrollRestoration = 'manual';
+
+    const savedPosition = Number(window.sessionStorage.getItem(storageKey));
+    let frame = 0;
+    let attempts = 0;
+    const restoreScrollPosition = () => {
+      if (!Number.isFinite(savedPosition) || savedPosition <= 0) return;
+      attempts += 1;
+      const pageCanReachPosition = document.documentElement.scrollHeight >= savedPosition + window.innerHeight;
+      if (pageCanReachPosition || attempts >= 120) {
+        window.scrollTo({ top: savedPosition, behavior: 'auto' });
+        return;
+      }
+      frame = window.requestAnimationFrame(restoreScrollPosition);
+    };
+
+    const saveScrollPosition = () => {
+      window.sessionStorage.setItem(storageKey, String(window.scrollY));
+    };
+
+    frame = window.requestAnimationFrame(restoreScrollPosition);
+    window.addEventListener('pagehide', saveScrollPosition);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener('pagehide', saveScrollPosition);
+      window.history.scrollRestoration = previousScrollRestoration;
+    };
+  }, []);
 
   const handleSelectCourse = (query: string) => {
     setQuery(query);
@@ -777,8 +929,14 @@ export default function JourneyDiscoveryFeed() {
       if (step > 0) {
         setActiveCourseIndex(Math.min(maxCourseIndex, Math.round(viewport.scrollLeft / step)));
       }
+      const maxScrollLeft = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
+      setCourseEdges({
+        atStart: viewport.scrollLeft <= 2,
+        atEnd: maxScrollLeft - viewport.scrollLeft <= 2,
+      });
     };
 
+    updateActiveCourseIndex();
     viewport.addEventListener('scroll', updateActiveCourseIndex, { passive: true });
     return () => viewport.removeEventListener('scroll', updateActiveCourseIndex);
   }, [maxCourseIndex]);
@@ -791,7 +949,10 @@ export default function JourneyDiscoveryFeed() {
     const step = firstCard && secondCard ? secondCard.offsetLeft - firstCard.offsetLeft : firstCard?.offsetWidth ?? 0;
 
     setActiveCourseIndex(nextIndex);
-    viewport?.scrollTo({ left: step * nextIndex, behavior: 'smooth' });
+    const targetLeft = nextIndex >= maxCourseIndex
+      ? Math.max(0, (viewport?.scrollWidth ?? 0) - (viewport?.clientWidth ?? 0))
+      : step * nextIndex;
+    viewport?.scrollTo({ left: targetLeft, behavior: 'smooth' });
   };
 
   const renderCourseCard = (course: (typeof featuredCourses)[number], key: string) => (
@@ -855,43 +1016,55 @@ export default function JourneyDiscoveryFeed() {
         <CourseGrid>
           {coursesLoading
             ? <CourseSkeletonGrid>
-                {Array.from({ length: 3 }).map((_, index) => (
-                  <SkeletonCard key={index} aria-hidden="true">
-                    <SkeletonLine $h="165px" />
-                    <SoundInfo>
-                      <SkeletonLine $w="70%" $h="16px" />
-                      <SkeletonLine $w="100%" $h="40px" />
-                    </SoundInfo>
-                  </SkeletonCard>
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <CourseSkeletonCard key={index} aria-hidden="true">
+                    <CourseSkeletonImage>
+                      <CourseSkeletonBadge />
+                    </CourseSkeletonImage>
+                    <CourseSkeletonBody>
+                      <SkeletonLine $w="68%" $h="20px" />
+                      <SkeletonLine $w="100%" $h="20px" />
+                      <SkeletonLine $w="88%" $h="20px" />
+                      <CourseSkeletonFooter>
+                        <SkeletonLine $w="42%" $h="14px" />
+                        <SkeletonLine $w="27%" $h="18px" />
+                      </CourseSkeletonFooter>
+                    </CourseSkeletonBody>
+                  </CourseSkeletonCard>
                 ))}
               </CourseSkeletonGrid>
             : coursesFailed ? (
               <HomeFeedFailure unavailable={coursesUnavailable} onRetry={retryCourses} />
             ) : (
               <>
-                <CourseViewport ref={courseViewportRef}>
-                                <CourseArrow
-                                  type="button"
-                                  data-direction="prev"
-                                  aria-label="이전 추천 코스"
-                                  disabled={currentCourseIndex === 0}
-                                  onClick={() => moveCourseCarousel(currentCourseIndex - 1)}
-                                >
-                                  <ArrowLeft size={17} aria-hidden="true" />
-                                </CourseArrow>
+                <CourseStage
+                  $showLeading={!courseEdges.atStart}
+                  $showTrailing={!courseEdges.atEnd}
+                >
+                  <CourseArrow
+                    type="button"
+                    data-direction="prev"
+                    aria-label="이전 추천 코스"
+                    disabled={currentCourseIndex === 0}
+                    onClick={() => moveCourseCarousel(currentCourseIndex - 1)}
+                  >
+                    <ArrowLeft size={17} aria-hidden="true" />
+                  </CourseArrow>
+                  <CourseViewport ref={courseViewportRef}>
                   <CourseRail>
                     {featuredCourses.map((course) => renderCourseCard(course, course.placeId))}
                   </CourseRail>
-                                <CourseArrow
-                                  type="button"
-                                  data-direction="next"
-                                  aria-label="다음 추천 코스"
-                                  disabled={currentCourseIndex >= maxCourseIndex}
-                                  onClick={() => moveCourseCarousel(currentCourseIndex + 1)}
-                                >
-                                  <ArrowRight size={17} aria-hidden="true" />
-                                </CourseArrow>
-                </CourseViewport>
+                  </CourseViewport>
+                  <CourseArrow
+                    type="button"
+                    data-direction="next"
+                    aria-label="다음 추천 코스"
+                    disabled={currentCourseIndex >= maxCourseIndex}
+                    onClick={() => moveCourseCarousel(currentCourseIndex + 1)}
+                  >
+                    <ArrowRight size={17} aria-hidden="true" />
+                  </CourseArrow>
+                </CourseStage>
                 {featuredCourses.length > visibleCourseCount && (
                   <CourseIndicators aria-label="추천 코스 위치">
                     {Array.from({ length: maxCourseIndex + 1 }, (_, index) => (
@@ -922,7 +1095,7 @@ export default function JourneyDiscoveryFeed() {
 
           <SoundGrid>
             {soundsLoading
-              ? Array.from({ length: 3 }).map((_, i) => (
+              ? Array.from({ length: 7 }).map((_, i) => (
                 <SkeletonCard key={i} aria-hidden="true">
                   <SkeletonCircle />
                   <SoundInfo>
@@ -933,19 +1106,25 @@ export default function JourneyDiscoveryFeed() {
               ))
             : soundsFailed ? (
                 <HomeFeedFailure compact unavailable={soundsUnavailable} onRetry={retrySounds} />
-              ) : trendingSounds.map((sound) => (
-                <SoundCard key={sound.storyId} href={`/sorimaru?stid=${encodeURIComponent(sound.storyId)}`}>
+              ) : popularSounds.map((sound) => {
+                const story = sound.story;
+                const storyId = story?.storyId ?? sound.storyId;
+                const title = story?.title ?? sound.audioTitle ?? sound.title;
+                const location = story?.region?.name ?? sound.locationName;
+                const duration = story?.durationSeconds ? `${Math.floor(story.durationSeconds / 60)}분` : sound.formattedDuration || sound.playTime;
+                return (
+                <SoundCard key={storyId} href={`/sorimaru?stid=${encodeURIComponent(storyId)}`}>
                   <PlayIconWrap>
                     <Volume2 size={20} />
                   </PlayIconWrap>
                   <SoundInfo>
-                    <SoundTitle>{sound.audioTitle || sound.title}</SoundTitle>
+                    <SoundTitle>{title}</SoundTitle>
                     <SoundMeta>
-                      {[sound.locationName, sound.formattedDuration || sound.playTime].filter(Boolean).join(' · ')}
+                      {[location, duration].filter(Boolean).join(' · ')}
                     </SoundMeta>
                   </SoundInfo>
                 </SoundCard>
-              ))}
+              )})}
           </SoundGrid>
       </section>
 

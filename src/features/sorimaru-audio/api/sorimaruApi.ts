@@ -12,12 +12,26 @@ import {
 // Single Source of Truth: 캐싱은 백엔드에서 처리
 // 프론트는 직접 API 호출만 함 (캐싱 제거)
 
+const inFlightRequests = new Map<string, Promise<unknown>>();
+
 async function getCachedRequest<T>(
   requestKey: string,
   request: () => Promise<T>,
+  _shouldCache?: (value: T) => boolean,
 ): Promise<T> {
-  // 백엔드가 캐싱을 처리하므로 프론트는 직접 호출만 함
-  return request();
+  void _shouldCache;
+  const inFlight = inFlightRequests.get(requestKey) as Promise<T> | undefined;
+  if (inFlight) return inFlight;
+
+  const pending = request();
+  inFlightRequests.set(requestKey, pending);
+  try {
+    return await pending;
+  } finally {
+    if (inFlightRequests.get(requestKey) === pending) {
+      inFlightRequests.delete(requestKey);
+    }
+  }
 }
 
 

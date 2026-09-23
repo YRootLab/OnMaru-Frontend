@@ -1,10 +1,12 @@
 import { useEffect, useRef } from 'react';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
+import { recordOdiiPlay } from '@/features/sorimaru-audio/api/odiiEngagementApi';
 
 const hasMediaSession = () => typeof navigator !== 'undefined' && 'mediaSession' in navigator;
 
 export function useSorimaruAudioPlayer() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const recordedStoryRef = useRef<string | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
 
@@ -81,6 +83,12 @@ export function useSorimaruAudioPlayer() {
       }
     }
   }, [currentStory, isPlaying, setIsPlaying]);
+
+  useEffect(() => {
+    if (!isPlaying || !currentStory.stid || recordedStoryRef.current === currentStory.stid) return;
+    recordedStoryRef.current = currentStory.stid;
+    void recordOdiiPlay(currentStory.stid).catch(() => undefined);
+  }, [currentStory.stid, isPlaying]);
 
 
   useEffect(() => {

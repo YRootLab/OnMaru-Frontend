@@ -2,6 +2,19 @@ import { apiGet, USE_MOCK } from '@/lib/api/client';
 
 export type SorimaruNetworkRequestType = 'stories' | 'nearby' | 'themes';
 
+export interface SorimaruRegionGroup {
+  label: string;
+  regionCodes: string[];
+  storyCount: number;
+}
+
+export interface SorimaruRegionGroupsResponse {
+  schemaVersion?: string;
+  language?: string;
+  languageStatus?: 'EXACT' | 'FALLBACK' | string;
+  groups: SorimaruRegionGroup[];
+}
+
 export interface SorimaruNetworkRequest {
   type: SorimaruNetworkRequestType;
   params: Record<string, string>;
@@ -37,8 +50,8 @@ export interface CreateSorimaruNetworkClientOptions {
   timeoutMs?: number;
 }
 
-// Single Source of Truth: 백엔드 API만 호출
-// Odii API는 백엔드에서만 처리 (프론트 직접 호출 제거)
+const CLIENT_API_ENDPOINT = process.env.NEXT_PUBLIC_SORIMARU_API_URL || process.env.NEXT_PUBLIC_ODII_API_URL || 'https://apis.data.go.kr/B551011/Odii';
+const CLIENT_API_KEY = process.env.NEXT_PUBLIC_SORIMARU_API_KEY || process.env.NEXT_PUBLIC_ODII_API_KEY || '';
 const REQUEST_TIMEOUT_MS = 45_000;
 
 interface BackendStorySummary {
@@ -226,3 +239,14 @@ export function createSorimaruNetworkClient({
 }
 
 export const sorimaruNetworkClient = createSorimaruNetworkClient();
+
+export async function fetchSorimaruRegionGroups(
+  language = 'ko-KR',
+  requester: SorimaruBackendRequester = defaultBackendRequester,
+): Promise<SorimaruRegionGroupsResponse> {
+  const payload = await requester('odii/regions', { language });
+  if (typeof payload !== 'object' || payload === null || !Array.isArray((payload as SorimaruRegionGroupsResponse).groups)) {
+    throw new Error('Invalid OnMaru Sorimaru region groups response');
+  }
+  return payload as SorimaruRegionGroupsResponse;
+}
