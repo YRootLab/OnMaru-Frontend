@@ -13,6 +13,7 @@ import {
   CloudRain,
   Leaf,
   Loader2,
+  X,
 } from 'lucide-react';
 import { palette, lightPalette, meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
 import { useJourneyStore } from '../store/useJourneyStore';
@@ -438,11 +439,13 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
   const selectMood = useJourneyStore((s) => s.selectMood);
   const submitSearch = useJourneyStore((s) => s.submitSearch);
   const refinePlan = useJourneyStore((s) => s.refinePlan);
+  const cancelRun = useJourneyStore((s) => s.cancelRun);
   const currentPlan = useJourneyStore((s) => s.currentPlan);
   const lastError = useJourneyStore((s) => s.lastError);
   const isGenerating = useJourneyStore((s) => s.isGenerating);
   const hasSearched = useJourneyStore((s) => s.hasSearched);
   const { moods } = useMoodOptions();
+  const [isCancelling, setIsCancelling] = useState(false);
 
   const defaultSuggestions = [
     '+ 전통 찻집 더보기',
@@ -463,6 +466,15 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
   const handleRefineClick = (text: string) => {
     if (isGenerating) return;
     refinePlan(text);
+  };
+
+  const handleCancel = async () => {
+    setIsCancelling(true);
+    try {
+      await cancelRun();
+    } finally {
+      setIsCancelling(false);
+    }
   };
 
   return (
@@ -490,13 +502,19 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
           placeholder="어디로 떠나고 싶으세요?"
           aria-label="여행하고 싶은 한옥이나 지역 입력"
         />
-        <SubmitButton type="submit" $disabled={isGenerating} $compact={hasSearched} aria-label="맞춤 코스 찾기">
-          {isGenerating ? (
-            <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
-          ) : (
+        {isGenerating ? (
+          <SubmitButton type="button" $disabled={isCancelling} $compact={hasSearched} onClick={handleCancel} aria-label="생성 취소">
+            {isCancelling ? (
+              <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
+            ) : (
+              <X size={16} />
+            )}
+          </SubmitButton>
+        ) : (
+          <SubmitButton type="submit" $compact={hasSearched} aria-label="맞춤 코스 찾기">
             <Search size={16} />
-          )}
-        </SubmitButton>
+          </SubmitButton>
+        )}
       </SearchForm>
 
       {hasSearched && (
