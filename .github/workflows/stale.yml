@@ -18,17 +18,17 @@ jobs:
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           stale-issue-message: |
-            👋 This issue has been automatically marked as stale because it has not had recent activity.
-            It will be closed in 7 days if no further activity occurs.
+            👋 이 이슈는 최근 활동이 없어서 자동으로 보류 중으로 표시되었습니다.
+            7일 후에 활동이 없으면 종료됩니다.
 
-            Please add a comment if this issue is still relevant!
+            이 이슈가 여전히 유효하다면 댓글을 달아주세요!
           stale-pr-message: |
-            👋 This PR has been automatically marked as stale because it has not had recent activity.
-            It will be closed in 7 days if no further activity occurs.
+            👋 이 PR은 최근 활동이 없어서 자동으로 보류 중으로 표시되었습니다.
+            7일 후에 활동이 없으면 종료됩니다.
 
-            Please add a comment or push new commits if this PR is still being worked on!
-          close-issue-message: 'Closed due to inactivity. Feel free to reopen if needed!'
-          close-pr-message: 'Closed due to inactivity. Feel free to reopen if needed!'
+            여전히 작업 중이라면 댓글을 달거나 커밋을 푸시해주세요!
+          close-issue-message: '비활동으로 인해 종료되었습니다. 필요하면 다시 열어주세요!'
+          close-pr-message: '비활동으로 인해 종료되었습니다. 필요하면 다시 열어주세요!'
 
           # Configuration
           days-before-issue-stale: 30

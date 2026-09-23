@@ -35,11 +35,11 @@ jobs:
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body: `❌ **Invalid PR Title**\n\nYour PR title must start with one of these prefixes:\n- \`feat:\` New feature\n- \`fix:\` Bug fix\n- \`refactor:\` Code refactor\n- \`chore:\` Maintenance\n- \`docs:\` Documentation\n- \`test:\` Tests\n- \`perf:\` Performance\n- \`style:\` Styling\n- \`ci:\` CI/CD\n- \`build:\` Build\n\n**Current title:** \`${title}\`\n\nExample: \`feat: add new feature\``
+                body: `❌ **유효하지 않은 PR 제목**\n\nPR 제목은 다음 중 하나로 시작해야 합니다:\n- \`feat:\` 새 기능\n- \`fix:\` 버그 수정\n- \`refactor:\` 코드 리팩토링\n- \`chore:\` 유지보수\n- \`docs:\` 문서\n- \`test:\` 테스트\n- \`perf:\` 성능\n- \`style:\` 스타일\n- \`ci:\` CI/CD\n- \`build:\` 빌드\n\n**현재 제목:** \`${title}\`\n\n예시: \`feat: 새로운 기능 추가\``
               });
               core.setFailed('Invalid PR title format');
             } else {
-              console.log('✅ PR title is valid');
+              console.log('✅ PR 제목이 유효합니다');
             }
 
       - name: Validate PR Description
@@ -54,11 +54,11 @@ jobs:
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body: `⚠️ **Please add a detailed description**\n\nYour PR description is too short. Please include:\n- What changes you made\n- Why you made these changes\n- How to test the changes\n- Any related issues (closes #123)`
+                body: `⚠️ **자세한 설명을 추가해주세요**\n\nPR 설명이 너무 짧습니다. 다음을 포함해주세요:\n- 어떤 변경을 했는지\n- 왜 이 변경을 했는지\n- 변경 사항을 테스트하는 방법\n- 관련된 이슈 (closes #123)`
               });
               core.setFailed('PR description is too short');
             } else {
-              console.log('✅ PR description looks good');
+              console.log('✅ PR 설명이 양호합니다');
             }
 
       - name: Check for Breaking Changes
