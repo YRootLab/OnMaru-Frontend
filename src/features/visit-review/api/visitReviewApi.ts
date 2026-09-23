@@ -13,7 +13,7 @@ export type VisitReviewRepository = {
     cursor?: string;
   }): Promise<VisitReviewPage>;
   listReviewsByPlace(placeId: string, input?: { limit?: number; cursor?: string }): Promise<VisitReviewPage>;
-  createReview(placeId: string, text: string): Promise<VisitReview>;
+  createReview(placeId: string, text: string, opts?: { mood?: '북적' | '한적'; score?: 1 | 2 | 3 | 4 | 5; tags?: string[] }): Promise<VisitReview>;
   deleteReview(reviewId: string): Promise<void>;
   setLiked(reviewId: string, liked: boolean): Promise<{ likedByMe: boolean; likeCount: number }>;
   reportReview(reviewId: string, reason: VisitReviewReportReason, detail?: string): Promise<{ reportId: string; status: string }>;
@@ -44,10 +44,10 @@ export function createVisitReviewRepository(request: RequestFn = apiRequest): Vi
         params: { limit: input?.limit ?? 20, cursor: input?.cursor },
       });
     },
-    createReview(placeId, text) {
+    createReview(placeId, text, opts) {
       return request<VisitReview>(`/places/${placeId}/visit-reviews`, {
         method: 'POST',
-        body: { text },
+        body: { text, ...opts },
         csrf: true,
       });
     },
@@ -147,8 +147,8 @@ export const fixtureVisitReviewRepository: VisitReviewRepository = {
   async listReviewsByPlace(placeId): Promise<CursorPage<VisitReview>> {
     return { items: fixtureReviews.filter((r) => r.placeId === placeId), nextCursor: null, hasMore: false };
   },
-  async createReview(_placeId, text) {
-    return { ...fixtureReviews[0], id: `fixture-review-${Date.now()}`, text, mine: true, likeCount: 0, likedByMe: false };
+  async createReview(_placeId, text, opts) {
+    return { ...fixtureReviews[0], id: `fixture-review-${Date.now()}`, text, ...opts, mine: true, likeCount: 0, likedByMe: false };
   },
   async deleteReview() {},
   async setLiked(_reviewId, liked) {

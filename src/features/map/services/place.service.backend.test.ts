@@ -43,10 +43,7 @@ describe('PlaceService.getNearbyPlaces backend-first (FE #90)', () => {
     const items = await PlaceService.getNearbyPlaces({ lat: 35.8151, lng: 127.153, radius: 3000 });
 
     expect(apiGetMock).toHaveBeenCalledWith('/map/places', expect.objectContaining({
-      swLat: expect.any(Number),
-      swLng: expect.any(Number),
-      neLat: expect.any(Number),
-      neLng: expect.any(Number),
+      bbox: expect.stringMatching(/^-?\d+\.?\d*,-?\d+\.?\d*,-?\d+\.?\d*,-?\d+\.?\d*$/),
     }));
     expect(items).toHaveLength(1);
     expect(items[0]).toMatchObject({ id: 'p-1', name: '전주 한옥마을', category: 'spot', isTraditional: true });

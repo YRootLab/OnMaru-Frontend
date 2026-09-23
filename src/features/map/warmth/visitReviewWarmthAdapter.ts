@@ -9,9 +9,9 @@ export function visitReviewToWarmth(review: VisitReview): Warmth {
     lat: review.lat,
     lng: review.lng,
     text: review.text,
-    mood: '한적',
-    score: review.likedByMe ? 3 : 2,
-    tags: [],
+    mood: review.mood ?? '한적',
+    score: review.score ?? (review.likedByMe ? 3 : 2),
+    tags: review.tags ?? [],
     createdAt: review.createdAt,
     mine: review.mine,
   };
