@@ -398,7 +398,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                       }}
                       title="사진 크게 보기"
                     >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      { }
                       <img src={img} alt={`${stay.name} 사진 ${idx + 1}`} loading="lazy" />
                     </GalleryThumb>
                   ))}
@@ -472,7 +472,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
           )}
 
           <LightboxImageWrapper onClick={(e) => e.stopPropagation()}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+            { }
             <LightboxImg
               src={galleryImages[zoomedImageIdx]}
               alt={`${stay.name} 확대 사진`}

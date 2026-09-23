@@ -179,12 +179,12 @@ const createGlobalStyles = (theme: OnmaruTheme) => css`
   }
 
   a {
-    color:           ${theme.colors.nav.primary};
+    color:           ${theme.colors.action.primary};
     text-decoration: none;
     transition:      ${theme.transition.fast};
 
     &:hover {
-      color: ${theme.colors.nav.primaryHover};
+      color: ${theme.colors.action.primaryHover};
     }
   }
 

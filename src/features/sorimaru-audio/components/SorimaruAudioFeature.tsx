@@ -35,7 +35,7 @@ const AllStoriesModal = dynamic(
 const FeatureContainer = styled.div`
   position: relative;
   isolation: isolate;
-  min-height: 100vh;
+  min-height: 100dvh;
   padding-bottom: 6rem;
   color: ${meok[900]};
   font-family: var(--font-hanok);

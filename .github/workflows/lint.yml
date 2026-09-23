@@ -1,4 +1,4 @@
-name: Lint & Format
+name: 코드 품질 검사
 
 on:
   push:
@@ -12,51 +12,51 @@ on:
 
 jobs:
   ESLint:
-    name: ESLint
+    name: ESLint 검사
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: 소스코드 체크아웃
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Node.js 설정
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
 
-      - name: Install Dependencies
+      - name: 의존성 설치
         run: npm ci
 
-      - name: Run ESLint
+      - name: ESLint 실행
         run: npm run lint || true
 
   Prettier:
-    name: Prettier Format Check
+    name: Prettier 포맷 검사
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: 소스코드 체크아웃
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Node.js 설정
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
 
-      - name: Install Dependencies
+      - name: 의존성 설치
         run: npm ci
 
-      - name: Check Prettier Format
+      - name: Prettier 포맷 검사
         run: npx prettier --check "src/**/*.{ts,tsx,css}" || true
         continue-on-error: true
 
   Comments:
-    name: Post Quality Comments
+    name: 품질 결과 댓글 등록
     if: github.event_name == 'pull_request'
     needs: [ESLint, Prettier]
     runs-on: ubuntu-latest
     steps:
-      - name: Comment Quality Checks
+      - name: 품질 검사 결과 댓글
         uses: actions/github-script@v7
         with:
           script: |
@@ -64,5 +64,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '✅ Lint checks completed. Review output above for any issues.'
+              body: '✅ 코드 품질 검사가 완료되었습니다. 위 출력 결과에서 이슈를 확인하세요.'
             })

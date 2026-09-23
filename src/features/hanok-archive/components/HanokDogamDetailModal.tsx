@@ -459,7 +459,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
                       }}
                       title="사진 크게 보기"
                     >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      { }
                       <img src={img} alt={`${village.name} 사진 ${idx + 1}`} loading="lazy" />
                     </GalleryThumb>
                   ))}
@@ -525,7 +525,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
           )}
 
           <LightboxImageWrapper onClick={(e) => e.stopPropagation()}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+            { }
             <LightboxImg
               src={galleryImages[zoomedImageIdx]}
               alt={`${village.name} 확대 사진`}

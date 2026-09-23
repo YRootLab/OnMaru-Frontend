@@ -33,7 +33,7 @@ interface SeriesCache {
 let cachedSeries: SeriesCache | null = null;
 
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 type DataLabAny = any;
 
 function ymdOf(d: Date): string {

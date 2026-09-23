@@ -1,4 +1,4 @@
-name: Slack Notifications
+name: Slack 알림
 
 on:
   push:
@@ -16,8 +16,8 @@ on:
       - published
 
 jobs:
-  Notify-Slack:
-    name: Send Slack Notifications
+  Slack-알림:
+    name: Slack 알림 전송
     runs-on: ubuntu-latest
     if: |
       github.event_name == 'push' ||
@@ -25,7 +25,7 @@ jobs:
       github.event.action == 'opened'
 
     steps:
-      - name: Notify on Push
+      - name: 푸시 알림
         if: github.event_name == 'push'
         uses: actions/github-script@v7
         with:
@@ -34,13 +34,13 @@ jobs:
             if (commits.length === 0) return;
 
             const message = {
-              text: '🚀 New commits pushed to master',
+              text: '🚀 master에 새 커밋이 푸시되었습니다',
               blocks: [
                 {
                   type: 'header',
                   text: {
                     type: 'plain_text',
-                    text: '📤 Push to Master'
+                    text: '📤 Master 푸시'
                   }
                 },
                 {
@@ -48,11 +48,11 @@ jobs:
                   fields: [
                     {
                       type: 'mrkdwn',
-                      text: `*Author:*\n${context.payload.pusher.name}`
+                      text: `*작성자:*\n${context.payload.pusher.name}`
                     },
                     {
                       type: 'mrkdwn',
-                      text: `*Branch:*\n${context.ref.split('/').pop()}`
+                      text: `*브랜치:*\n${context.ref.split('/').pop()}`
                     }
                   ]
                 },
@@ -60,7 +60,7 @@ jobs:
                   type: 'section',
                   text: {
                     type: 'mrkdwn',
-                    text: `*Commits:*\n${commits.map(c => `• ${c.message.split('\n')[0]}`).join('\n')}`
+                    text: `*커밋:*\n${commits.map(c => `• ${c.message.split('\n')[0]}`).join('\n')}`
                   }
                 },
                 {
@@ -70,7 +70,7 @@ jobs:
                       type: 'button',
                       text: {
                         type: 'plain_text',
-                        text: 'View on GitHub'
+                        text: 'GitHub에서 보기'
                       },
                       url: context.payload.repository.html_url
                     }
@@ -79,9 +79,9 @@ jobs:
               ]
             };
 
-            console.log('Would send:', JSON.stringify(message, null, 2));
+            console.log('전송 예정:', JSON.stringify(message, null, 2));
 
-      - name: Notify on PR Open
+      - name: PR 열림 알림
         if: github.event_name == 'pull_request' && github.event.action == 'opened'
         uses: actions/github-script@v7
         with:
@@ -89,13 +89,13 @@ jobs:
             const pr = context.payload.pull_request;
 
             const message = {
-              text: `🔍 New PR: ${pr.title}`,
+              text: `🔍 새 PR: ${pr.title}`,
               blocks: [
                 {
                   type: 'header',
                   text: {
                     type: 'plain_text',
-                    text: '📋 New Pull Request'
+                    text: '📋 새 Pull Request'
                   }
                 },
                 {
@@ -107,7 +107,7 @@ jobs:
                     },
                     {
                       type: 'mrkdwn',
-                      text: `*Author:*\n${pr.user.login}`
+                      text: `*작성자:*\n${pr.user.login}`
                     }
                   ]
                 },
@@ -115,7 +115,7 @@ jobs:
                   type: 'section',
                   text: {
                     type: 'mrkdwn',
-                    text: `*Title:*\n${pr.title}`
+                    text: `*제목:*\n${pr.title}`
                   }
                 },
                 {
@@ -125,7 +125,7 @@ jobs:
                       type: 'button',
                       text: {
                         type: 'plain_text',
-                        text: 'Review PR'
+                        text: 'PR 리뷰하기'
                       },
                       url: pr.html_url
                     }
@@ -134,9 +134,9 @@ jobs:
               ]
             };
 
-            console.log('Would send:', JSON.stringify(message, null, 2));
+            console.log('전송 예정:', JSON.stringify(message, null, 2));
 
-      - name: Notify on Issue Open
+      - name: 이슈 열림 알림
         if: github.event_name == 'issues' && github.event.action == 'opened'
         uses: actions/github-script@v7
         with:
@@ -144,13 +144,13 @@ jobs:
             const issue = context.payload.issue;
 
             const message = {
-              text: `📌 New Issue: ${issue.title}`,
+              text: `📌 새 이슈: ${issue.title}`,
               blocks: [
                 {
                   type: 'header',
                   text: {
                     type: 'plain_text',
-                    text: '🚨 New Issue'
+                    text: '🚨 새 이슈'
                   }
                 },
                 {
@@ -158,11 +158,11 @@ jobs:
                   fields: [
                     {
                       type: 'mrkdwn',
-                      text: `*Issue:*\n#${issue.number}`
+                      text: `*이슈:*\n#${issue.number}`
                     },
                     {
                       type: 'mrkdwn',
-                      text: `*Reporter:*\n${issue.user.login}`
+                      text: `*작성자:*\n${issue.user.login}`
                     }
                   ]
                 },
@@ -170,7 +170,7 @@ jobs:
                   type: 'section',
                   text: {
                     type: 'mrkdwn',
-                    text: `*Title:*\n${issue.title}`
+                    text: `*제목:*\n${issue.title}`
                   }
                 },
                 {
@@ -180,7 +180,7 @@ jobs:
                       type: 'button',
                       text: {
                         type: 'plain_text',
-                        text: 'View Issue'
+                        text: '이슈 보기'
                       },
                       url: issue.html_url
                     }
@@ -189,9 +189,9 @@ jobs:
               ]
             };
 
-            console.log('Would send:', JSON.stringify(message, null, 2));
+            console.log('전송 예정:', JSON.stringify(message, null, 2));
 
-      - name: Notify on Release
+      - name: 릴리즈 게시 알림
         if: github.event_name == 'release' && github.event.action == 'published'
         uses: actions/github-script@v7
         with:
@@ -199,13 +199,13 @@ jobs:
             const release = context.payload.release;
 
             const message = {
-              text: `🎉 New Release: ${release.tag_name}`,
+              text: `🎉 새 릴리즈: ${release.tag_name}`,
               blocks: [
                 {
                   type: 'header',
                   text: {
                     type: 'plain_text',
-                    text: '🚀 New Release Published'
+                    text: '🚀 새 릴리즈 게시됨'
                   }
                 },
                 {
@@ -213,11 +213,11 @@ jobs:
                   fields: [
                     {
                       type: 'mrkdwn',
-                      text: `*Version:*\n${release.tag_name}`
+                      text: `*버전:*\n${release.tag_name}`
                     },
                     {
                       type: 'mrkdwn',
-                      text: `*Author:*\n${release.author.login}`
+                      text: `*작성자:*\n${release.author.login}`
                     }
                   ]
                 },
@@ -225,7 +225,7 @@ jobs:
                   type: 'section',
                   text: {
                     type: 'mrkdwn',
-                    text: `*Release Notes:*\n${release.body.substring(0, 200)}...`
+                    text: `*릴리즈 노트:*\n${release.body.substring(0, 200)}...`
                   }
                 },
                 {
@@ -235,7 +235,7 @@ jobs:
                       type: 'button',
                       text: {
                         type: 'plain_text',
-                        text: 'Download'
+                        text: '다운로드'
                       },
                       url: release.html_url
                     }
@@ -244,19 +244,19 @@ jobs:
               ]
             };
 
-            console.log('Would send:', JSON.stringify(message, null, 2));
+            console.log('전송 예정:', JSON.stringify(message, null, 2));
 
-  Log-Activity:
-    name: Log Activity (Alternative to Slack)
+  활동-로그:
+    name: 활동 기록 (Slack 대안)
     runs-on: ubuntu-latest
     steps:
-      - name: Log Event
+      - name: 이벤트 로그
         run: |
-          echo "Event: ${{ github.event_name }}"
-          echo "Action: ${{ github.event.action }}"
-          echo "Repository: ${{ github.repository }}"
+          echo "이벤트: ${{ github.event_name }}"
+          echo "액션: ${{ github.event.action }}"
+          echo "저장소: ${{ github.repository }}"
           echo "---"
-          echo "💡 Tip: To enable Slack notifications:"
-          echo "1. Create a Slack Webhook URL"
-          echo "2. Add it as GitHub Secret: SLACK_WEBHOOK_URL"
-          echo "3. Use: slackapi/slack-github-action action"
+          echo "💡 Slack 알림 활성화 방법:"
+          echo "1. Slack Webhook URL 생성"
+          echo "2. GitHub Secret에 추가: SLACK_WEBHOOK_URL"
+          echo "3. slackapi/slack-github-action 액션 사용"

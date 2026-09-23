@@ -1,4 +1,4 @@
-name: Security Checks
+name: 보안 검사
 
 on:
   push:
@@ -16,59 +16,59 @@ on:
       - 'package.json'
       - 'package-lock.json'
   schedule:
-    - cron: '0 0 * * 0' # Weekly on Sunday
+    - cron: '0 0 * * 0' # 매주 일요일 자정
 
 jobs:
-  Dependency-Check:
-    name: Check Dependencies
+  의존성-검사:
+    name: 의존성 검사
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: 소스코드 체크아웃
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Node.js 설정
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
 
-      - name: Install Dependencies
+      - name: 의존성 설치
         run: npm ci
 
-      - name: Run npm audit
+      - name: npm audit 실행
         run: npm audit || true
         continue-on-error: true
 
-      - name: List Vulnerabilities
+      - name: 취약점 목록 추출
         run: npm audit --json > audit-report.json || true
         continue-on-error: true
 
-      - name: Upload Audit Report
+      - name: 감사 리포트 업로드
         uses: actions/upload-artifact@v4
         with:
           name: npm-audit-report
           path: audit-report.json
 
-  Security-Check:
-    name: Dependency Security
+  보안-스캔:
+    name: 의존성 보안 스캔
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: 소스코드 체크아웃
         uses: actions/checkout@v4
 
-      - name: Snyk Security Scan
+      - name: Snyk 보안 스캔
         uses: snyk/actions/node@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         continue-on-error: true
 
-  Report:
-    name: Post Security Report
+  보고서:
+    name: 보안 결과 댓글 등록
     if: github.event_name == 'pull_request'
-    needs: [Dependency-Check]
+    needs: [의존성-검사]
     runs-on: ubuntu-latest
     steps:
-      - name: Comment Security Status
+      - name: 보안 상태 댓글
         uses: actions/github-script@v7
         with:
           script: |
@@ -76,5 +76,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '🔒 Security checks completed. View audit report in artifacts.'
+              body: '🔒 보안 검사가 완료되었습니다. 아티팩트에서 감사 리포트를 확인하세요.'
             })

@@ -50,12 +50,14 @@ button, input, textarea, select, optgroup {
   border: 0;
   background: transparent;
   font-family: var(--font-hanok);
+  font-size: max(16px, 1em);
 }
 
 html {
   min-height: 100%;
   background-color: #ffffff;
   color: #191f28;
+  -webkit-text-size-adjust: 100%;
 }
 
 html[data-theme='dark'],

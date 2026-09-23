@@ -1,4 +1,4 @@
-name: Lighthouse Performance Audit
+name: Lighthouse 성능 감사
 
 on:
   pull_request:
@@ -8,28 +8,28 @@ on:
 
 jobs:
   Lighthouse:
-    name: Audit Performance
+    name: 성능 감사 실행
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: 소스코드 체크아웃
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Node.js 설정
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
 
-      - name: Install Dependencies
+      - name: 의존성 설치
         run: npm ci
 
-      - name: Build Application
+      - name: 앱 빌드
         run: npm run build
 
-      - name: Install Lighthouse
+      - name: Lighthouse 설치
         run: npm install --save-dev @lhci/cli@latest lighthouse || true
 
-      - name: Run Lighthouse Audit
+      - name: Lighthouse 감사 실행
         run: |
           npx lighthouse http://localhost:3000 \
             --output-path=./lighthouse-report.html \
@@ -37,18 +37,18 @@ jobs:
             || true
         continue-on-error: true
 
-      - name: Generate Performance Report
+      - name: 성능 리포트 생성
         run: |
-          echo "# Lighthouse Performance Report" > performance-report.md
+          echo "# Lighthouse 성능 리포트" > performance-report.md
           echo "" >> performance-report.md
-          echo "## Metrics to Check" >> performance-report.md
-          echo "- Largest Contentful Paint (LCP)" >> performance-report.md
-          echo "- First Input Delay (FID)" >> performance-report.md
-          echo "- Cumulative Layout Shift (CLS)" >> performance-report.md
-          echo "- First Contentful Paint (FCP)" >> performance-report.md
-          echo "- Time to Interactive (TTI)" >> performance-report.md
+          echo "## 확인 지표" >> performance-report.md
+          echo "- LCP (최대 콘텐츠풀 페인트)" >> performance-report.md
+          echo "- FID (최초 입력 지연)" >> performance-report.md
+          echo "- CLS (누적 레이아웃 이동)" >> performance-report.md
+          echo "- FCP (최초 콘텐츠풀 페인트)" >> performance-report.md
+          echo "- TTI (인터랙티브 시간)" >> performance-report.md
 
-      - name: Upload Lighthouse Report
+      - name: Lighthouse 리포트 업로드
         uses: actions/upload-artifact@v4
         with:
           name: lighthouse-report
@@ -56,7 +56,7 @@ jobs:
             lighthouse-report.html
             performance-report.md
 
-      - name: Comment Performance Results
+      - name: 성능 결과 댓글 등록
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
@@ -65,5 +65,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '⚡ Lighthouse performance audit completed. Check artifacts for detailed report.'
+              body: '⚡ Lighthouse 성능 감사가 완료되었습니다. 아티팩트에서 상세 리포트를 확인하세요.'
             })

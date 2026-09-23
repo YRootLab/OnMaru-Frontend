@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
@@ -8,7 +8,7 @@ import { meok, palette, surface, fluidHeading , fontSize } from '@/design-system
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
 import { STAY_TYPE } from '@/features/hanok-archive/types';
 import type { Village } from '@/features/hanok-archive/types';
-import { Home, Flame, Coffee, Sparkles, Leaf, MapPin, RotateCcw, ArrowRight, ExternalLink } from 'lucide-react';
+import { Home, Flame, Coffee, Sparkles, Leaf, MapPin, RotateCcw, ArrowRight, ExternalLink, ChevronDown } from 'lucide-react';
 
 const Section = styled.section`
   position: relative;
@@ -72,16 +72,15 @@ const AccordionContainer = styled.div`
   padding: 8px 0;
 
   @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
     justify-content: flex-start;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    padding: 12px 4px 20px;
-    min-height: 320px;
-    scrollbar-width: none;
-    &::-webkit-scrollbar {
-      display: none;
-    }
+    overflow-x: hidden;
+    overflow-y: visible;
+    scroll-snap-type: none;
+    min-height: unset;
+    padding: 4px 0 8px;
+    gap: 10px;
   }
 `;
 
@@ -100,11 +99,11 @@ const AccordionPill = styled(motion.div, transientProps)<{ $active: boolean; $bg
   flex-shrink: 0;
 
   @media (max-width: 768px) {
-    height: 300px;
-    scroll-snap-align: center;
-    border-radius: ${({ $active }) => ($active ? '24px' : '9999px')};
-    width: ${({ $active }) => ($active ? 'calc(100vw - 80px)' : '60px')};
-    max-width: 420px;
+    width: 100%;
+    height: 64px;
+    scroll-snap-align: none;
+    border-radius: ${({ $active }) => ($active ? '20px' : '14px')};
+    max-width: none;
   }
 `;
 
@@ -148,6 +147,47 @@ const CollapsedIconButton = styled(motion.div, transientProps)`
   color: ${meok[900]};
   z-index: 5;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
+
+const MobileCollapsedRow = styled.div`
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  padding: 0 16px;
+  gap: 10px;
+  z-index: 5;
+  color: #ffffff;
+
+  @media (max-width: 768px) {
+    display: flex;
+  }
+`;
+
+const MobileRegionBadge = styled.span`
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 9999px;
+  padding: 3px 9px;
+  flex-shrink: 0;
+  letter-spacing: 0.01em;
+`;
+
+const MobileName = styled.span`
+  font-size: 14px;
+  font-weight: 500;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  letter-spacing: -0.02em;
 `;
 
 const ActiveContentOverlay = styled(motion.div, transientProps)`
@@ -235,8 +275,12 @@ const BottomActionRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
   margin-top: 4px;
+
+  @media (max-width: 640px) {
+    justify-content: stretch;
+  }
 `;
 
 const ActiveIconButton = styled.div`
@@ -263,13 +307,22 @@ const ActiveIconButton = styled.div`
     color: ${meok[100]};
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
   }
+
+  @media (max-width: 640px) {
+    display: none;
+  }
 `;
 
 const ActionGroup = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-shrink: 0;
+
+  @media (max-width: 640px) {
+    flex: 1;
+    gap: 8px;
+  }
 `;
 
 const DirectBookingBtn = styled.a`
@@ -298,6 +351,13 @@ const DirectBookingBtn = styled.a`
       background: ${palette.hwanggeum[400]};
     }
   }
+
+  @media (max-width: 640px) {
+    flex: 1;
+    justify-content: center;
+    padding: 9px 10px;
+    font-size: 12px;
+  }
 `;
 
 const DetailActionBtn = styled.button`
@@ -321,6 +381,13 @@ const DetailActionBtn = styled.button`
     background: rgba(45, 52, 43, 0.95);
     border-color: rgba(255, 255, 255, 0.3);
     transform: translateY(-1px);
+  }
+
+  @media (max-width: 640px) {
+    flex: 1;
+    justify-content: center;
+    padding: 9px 10px;
+    font-size: 12px;
   }
 `;
 
@@ -606,6 +673,15 @@ export default function HanokStayAccordion({
   const [selectedRegion, setSelectedRegion] = useState('전체');
   const [activeIndex, setActiveIndex] = useState(0);
   const [page, setPage] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   const allStays = useMemo(() => {
 
@@ -709,9 +785,9 @@ export default function HanokStayAccordion({
                   $bg={item.hasImage ? item.image : null}
                   onClick={() => setActiveIndex(idx)}
                   initial={false}
-                  animate={{
-                    flex: isActive ? 3.5 : 0.6,
-                  }}
+                  animate={isMobile
+                    ? { height: isActive ? 280 : 64 }
+                    : { flex: isActive ? 3.5 : 0.6 }}
                   transition={{ type: 'spring', stiffness: 350, damping: 32 }}
                   whileHover={{ scale: isActive ? 1 : 1.03 }}
                 >
@@ -729,13 +805,21 @@ export default function HanokStayAccordion({
                     </CollapsedIconButton>
                   )}
 
+                  {!isActive && (
+                    <MobileCollapsedRow>
+                      <MobileRegionBadge>{item.region}</MobileRegionBadge>
+                      <MobileName>{item.name}</MobileName>
+                      <ChevronDown size={15} strokeWidth={2} style={{ flexShrink: 0, opacity: 0.7 }} />
+                    </MobileCollapsedRow>
+                  )}
+
                   <AnimatePresence>
                     {isActive && (
                       <ActiveContentOverlay
-                        initial={{ opacity: 0, y: 12 }}
+                        initial={isMobile ? { opacity: 0 } : { opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 8 }}
-                        transition={{ duration: 0.22 }}
+                        exit={isMobile ? { opacity: 0 } : { opacity: 0, y: 8 }}
+                        transition={isMobile ? { duration: 0.08 } : { duration: 0.22 }}
                       >
                         <ContentHeader>
                           <TagRow>

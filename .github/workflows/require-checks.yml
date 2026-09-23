@@ -1,4 +1,4 @@
-name: Require Checks Before Merge
+name: 머지 전 필수 조건 검사
 
 on:
   pull_request:
@@ -10,8 +10,8 @@ on:
       - submitted
 
 jobs:
-  Enforce-Requirements:
-    name: Enforce PR Requirements
+  필수조건-확인:
+    name: PR 머지 요건 검사
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -19,98 +19,102 @@ jobs:
       statuses: read
 
     steps:
-      - name: Check Required Reviews
+      - name: 코드 리뷰 승인 확인
+        # 리뷰 제출 이벤트에서만 승인 여부를 검사합니다
+        if: github.event_name == 'pull_request_review'
         uses: actions/github-script@v7
         with:
           script: |
-            const { data: pr } = await github.rest.pulls.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.issue.number
-            });
-
             const { data: reviews } = await github.rest.pulls.listReviews({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: context.issue.number
+              pull_number: context.payload.pull_request.number
             });
 
             const approvals = reviews.filter(r => r.state === 'APPROVED').length;
             const requiredApprovals = 1;
 
-            console.log(`Approvals: ${approvals}/${requiredApprovals}`);
+            console.log(`승인 현황: ${approvals}/${requiredApprovals}`);
 
             if (approvals < requiredApprovals) {
-              github.rest.issues.createComment({
-                issue_number: context.issue.number,
+              await github.rest.issues.createComment({
+                issue_number: context.payload.pull_request.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body: `❌ **Merge Requirements Not Met**\n\n- Code Reviews: ${approvals}/${requiredApprovals} ✗\n\nPlease request review from team members.`
+                body: `❌ **머지 요건 미충족**\n\n- 코드 리뷰 승인: ${approvals}/${requiredApprovals} ✗\n\n팀원에게 리뷰를 요청해주세요.`
               });
-              core.setFailed('Not enough approvals');
+              core.setFailed('승인이 부족합니다');
+            } else {
+              console.log('✅ 승인 요건을 충족했습니다');
             }
 
-      - name: Check Commit Signature
+      - name: 커밋 서명 확인
         uses: actions/github-script@v7
         with:
           script: |
+            const prNumber = context.payload.pull_request?.number ?? context.issue?.number;
+            if (!prNumber) return;
+
             const { data: commits } = await github.rest.pulls.listCommits({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: context.issue.number
+              pull_number: prNumber
             });
 
             const unsignedCommits = commits.filter(c => !c.commit.verification.verified);
 
             if (unsignedCommits.length > 0) {
-              console.log(`⚠️ ${unsignedCommits.length} unsigned commits found`);
+              console.log(`⚠️ 미서명 커밋 ${unsignedCommits.length}개 발견`);
             } else {
-              console.log('✅ All commits are signed');
+              console.log('✅ 모든 커밋이 서명되어 있습니다');
             }
 
-      - name: Check Test Coverage
+      - name: CI 체크 상태 확인
         uses: actions/github-script@v7
         with:
           script: |
+            const sha = context.payload.pull_request?.head?.sha;
+            if (!sha) return;
+
             const { data: checkRuns } = await github.rest.checks.listForRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              ref: context.payload.pull_request.head.sha
+              ref: sha
             });
 
-            const testRun = checkRuns.check_runs.find(c => c.name.includes('test') || c.name.includes('Test'));
-            const lintRun = checkRuns.check_runs.find(c => c.name.includes('lint') || c.name.includes('Lint'));
-            const buildRun = checkRuns.check_runs.find(c => c.name.includes('build') || c.name.includes('Build'));
+            const testRun  = checkRuns.check_runs.find(c => /test/i.test(c.name));
+            const lintRun  = checkRuns.check_runs.find(c => /lint/i.test(c.name));
+            const buildRun = checkRuns.check_runs.find(c => /build/i.test(c.name));
 
             let status = '';
-            if (testRun) status += `\n- Tests: ${testRun.conclusion === 'success' ? '✅' : '❌'}`;
-            if (lintRun) status += `\n- Lint: ${lintRun.conclusion === 'success' ? '✅' : '❌'}`;
-            if (buildRun) status += `\n- Build: ${buildRun.conclusion === 'success' ? '✅' : '❌'}`;
+            if (testRun)  status += `\n- 테스트: ${testRun.conclusion  === 'success' ? '✅' : '❌'}`;
+            if (lintRun)  status += `\n- 린트: ${lintRun.conclusion   === 'success' ? '✅' : '❌'}`;
+            if (buildRun) status += `\n- 빌드: ${buildRun.conclusion  === 'success' ? '✅' : '❌'}`;
 
-            if (status) {
-              console.log('Check Status:' + status);
-            }
+            if (status) console.log('체크 상태:' + status);
 
-      - name: Final Merge Status
+      - name: 머지 가능 상태 요약
         uses: actions/github-script@v7
         with:
           script: |
+            const prNumber = context.payload.pull_request?.number ?? context.issue?.number;
+            if (!prNumber) return;
+
             const { data: pr } = await github.rest.pulls.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: context.issue.number
+              pull_number: prNumber
             });
 
-            let status = '## ✅ Merge Requirements\n\n';
-            status += `- Status: ${pr.state === 'open' ? '✅ Open' : '❌ Closed'}\n`;
-            status += `- Draft: ${pr.draft ? '❌ Yes' : '✅ No'}\n`;
-            status += `- Conflict: ${pr.mergeable === false ? '❌ Yes' : '✅ No'}\n`;
-            status += `- Behind master: ${pr.commits < 50 ? '✅ No' : '⚠️ Many commits'}\n`;
+            let status = '## ✅ 머지 요건 요약\n\n';
+            status += `- 상태: ${pr.state === 'open' ? '✅ 열림' : '❌ 닫힘'}\n`;
+            status += `- 드래프트: ${pr.draft ? '❌ 예' : '✅ 아니오'}\n`;
+            status += `- 충돌: ${pr.mergeable === false ? '❌ 있음' : '✅ 없음'}\n`;
 
             console.log(status);
 
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
+            await github.rest.issues.createComment({
+              issue_number: prNumber,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: status

@@ -2,7 +2,7 @@ name: Close Stale Issues and PRs
 
 on:
   schedule:
-    - cron: '0 0 * * *' # Daily at midnight UTC
+    - cron: '0 0 * * *' # 매일 자정 UTC
   workflow_dispatch:
 
 jobs:
@@ -30,16 +30,16 @@ jobs:
           close-issue-message: '비활동으로 인해 종료되었습니다. 필요하면 다시 열어주세요!'
           close-pr-message: '비활동으로 인해 종료되었습니다. 필요하면 다시 열어주세요!'
 
-          # Configuration
+          # 설정
           days-before-issue-stale: 30
           days-before-pr-stale: 14
           days-before-issue-close: 7
           days-before-pr-close: 7
 
-          # Don't mark as stale if has these labels
+          # 아래 라벨이 있으면 보류 처리 안 함
           exempt-issue-labels: 'pinned,help-wanted,good-first-issue'
           exempt-pr-labels: 'pinned,in-progress,do-not-merge'
 
-          # Only stale if no activity
+          # 활동 없을 때만 보류 처리
           ignore-issue-updates: false
           ignore-pr-updates: false

@@ -356,8 +356,8 @@ const ActionButton = styled.button`
   transition: all 0.15s ease;
 
   &:hover {
-    background: rgba(40, 110, 95, 0.12);
-    color: ${lightPalette.cheongrok[700]};
+    background: rgba(74, 111, 160, 0.1);
+    color: ${lightPalette.kobalt[700]};
   }
 
   &:active {

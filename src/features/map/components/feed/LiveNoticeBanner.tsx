@@ -43,7 +43,7 @@ const IconWrap = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${lightPalette.cheongrok[500]};
+  color: ${lightPalette.kobalt[500]};
   flex-shrink: 0;
 
   [data-theme='dark'] & {
