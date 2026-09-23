@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { lightPalette, palette } from '@/design-system/tokens';
+import { palette } from '@/design-system/tokens';
 import type { HeatDay, HeatSpot, Item, KakaoMap, LatLng, MapMode, SheetSnap, Warmth } from '@/features/map/types';
 import type { WarmthPeriod } from '@/features/map/warmth/heatScale';
 
