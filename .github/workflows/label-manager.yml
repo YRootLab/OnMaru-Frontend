@@ -13,11 +13,52 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
+      issues: write
       contents: read
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - name: Ensure Label Colors Exist
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labelConfig = [
+              { name: 'type:test', color: '0366d6', description: '✅ Test' },
+              { name: 'type:docs', color: 'f0883e', description: '📝 Documentation' },
+              { name: 'type:ci', color: 'ffd900', description: '⚙️ CI/CD' },
+              { name: 'scope:code', color: '1f883d', description: 'Code changes' },
+              { name: 'scope:styles', color: 'ff69b4', description: 'Style/CSS changes' },
+              { name: 'size:xs', color: 'c2e0c6', description: 'Extra small' },
+              { name: 'size:s', color: '90ee90', description: 'Small' },
+              { name: 'size:m', color: 'ffd900', description: 'Medium' },
+              { name: 'size:l', color: 'ff7f50', description: 'Large' },
+              { name: 'size:xl', color: 'dc3545', description: 'Extra large' },
+            ];
+
+            for (const label of labelConfig) {
+              try {
+                await github.rest.issues.updateLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label.name,
+                  color: label.color,
+                  description: label.description
+                });
+              } catch (error) {
+                if (error.status === 404) {
+                  try {
+                    await github.rest.issues.createLabel({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      name: label.name,
+                      color: label.color,
+                      description: label.description
+                    });
+                  } catch (e) {
+                    console.log(`Label setup skipped: ${label.name}`);
+                  }
+                }
+              }
+            }
 
       - name: Label by File Changes
         uses: actions/github-script@v7
@@ -55,12 +96,12 @@ jobs:
               if (file.filename.includes('src/')) {
                 labels.push('scope:code');
               }
-              if (file.filename.includes('styles') || file.filename.includes('css')) {
+              if (file.filename.includes('styles') || file.filename.includes('css') || file.filename.includes('.scss')) {
                 labels.push('scope:styles');
               }
             });
 
-            // Label by size
+            // Label by size with color-coded priority
             const changes = totalAdditions + totalDeletions;
             if (changes < 50) {
               labels.push('size:xs');
@@ -82,6 +123,42 @@ jobs:
                 issue_number: context.issue.number,
                 labels: uniqueLabels
               });
+            }
+
+      - name: Ensure Title-Based Label Colors
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const titleLabelConfig = [
+              { name: 'type:bug-fix', color: 'd73a49', description: '🐛 Bug fix' },
+              { name: 'type:feature', color: '28a745', description: '✨ New feature' },
+              { name: 'type:refactor', color: '9366cc', description: '♻️ Refactor' },
+              { name: 'type:chore', color: '6f42c1', description: '🔧 Chore' },
+              { name: 'breaking-change', color: '000000', description: '💥 Breaking change' },
+            ];
+
+            for (const label of titleLabelConfig) {
+              try {
+                await github.rest.issues.updateLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label.name,
+                  color: label.color,
+                  description: label.description
+                });
+              } catch (error) {
+                if (error.status === 404) {
+                  try {
+                    await github.rest.issues.createLabel({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      name: label.name,
+                      color: label.color,
+                      description: label.description
+                    });
+                  } catch (e) {}
+                }
+              }
             }
 
       - name: Label by Title Keywords
@@ -127,11 +204,37 @@ jobs:
             });
 
             if (issueData.labels && issueData.labels.length > 0) {
-              const labelNames = issueData.labels.map(l => `\`${l.name}\``).join(' ');
+              const typeLabels = [];
+              const sizeLabels = [];
+              const scopeLabels = [];
+              const otherLabels = [];
+
+              issueData.labels.forEach(l => {
+                if (l.name.startsWith('type:')) typeLabels.push(l.name);
+                else if (l.name.startsWith('size:')) sizeLabels.push(l.name);
+                else if (l.name.startsWith('scope:')) scopeLabels.push(l.name);
+                else otherLabels.push(l.name);
+              });
+
+              let body = '🏷️ **Automatically Labeled**\n\n';
+
+              if (typeLabels.length > 0) {
+                body += `**Type:** ${typeLabels.map(l => `\`${l}\``).join(' ')}\n`;
+              }
+              if (sizeLabels.length > 0) {
+                body += `**Size:** ${sizeLabels.map(l => `\`${l}\``).join(' ')}\n`;
+              }
+              if (scopeLabels.length > 0) {
+                body += `**Scope:** ${scopeLabels.map(l => `\`${l}\``).join(' ')}\n`;
+              }
+              if (otherLabels.length > 0) {
+                body += `**Other:** ${otherLabels.map(l => `\`${l}\``).join(' ')}\n`;
+              }
+
               github.rest.issues.createComment({
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body: `🏷️ Automatically labeled: ${labelNames}`
+                body: body
               });
             }
