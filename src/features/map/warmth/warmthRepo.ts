@@ -187,7 +187,7 @@ export function regionOf(lat: number, lng: number): string {
 }
 
 
-const DEFAULT_MOOD_BY_CROWD: Record<Warmth['mood'], 1 | 2> = { 한적: 2, 북적: 1 };
+const DEFAULT_MOOD_BY_CROWD: Record<Warmth['mood'], 2 | 4> = { 한적: 2, 북적: 4 };
 
 const SEASON_BY_MONTH: WarmthReview['season'][] = [
   '겨울', '겨울', '봄', '봄', '봄', '여름',
