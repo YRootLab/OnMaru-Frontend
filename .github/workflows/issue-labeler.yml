@@ -1,0 +1,141 @@
+name: Issue Auto Labeler
+
+on:
+  issues:
+    types:
+      - opened
+      - edited
+
+jobs:
+  Label-Issues:
+    name: Automatically Label Issues
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+
+    steps:
+      - name: Label by Title Keywords
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = context.payload.issue.title.toLowerCase();
+            const body = context.payload.issue.body || '';
+            let labels = [];
+
+            // Bug detection
+            if (title.includes('bug') || title.includes('broken') || title.includes('crash') ||
+                title.includes('error') || title.includes('fail')) {
+              labels.push('type:bug');
+            }
+
+            // Feature request
+            if (title.includes('feature') || title.includes('add') || title.includes('support') ||
+                title.includes('enhance')) {
+              labels.push('type:feature');
+            }
+
+            // Documentation
+            if (title.includes('doc') || title.includes('readme') || title.includes('guide')) {
+              labels.push('type:docs');
+            }
+
+            // Performance
+            if (title.includes('slow') || title.includes('performance') || title.includes('optimize')) {
+              labels.push('type:performance');
+            }
+
+            // Refactor
+            if (title.includes('refactor') || title.includes('cleanup')) {
+              labels.push('type:refactor');
+            }
+
+            // Question
+            if (title.includes('?') || title.includes('how') || title.includes('why')) {
+              labels.push('type:question');
+            }
+
+            if (labels.length > 0) {
+              github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: labels
+              });
+            }
+
+      - name: Ensure Issue Label Colors
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labelConfig = [
+              { name: 'type:bug', color: 'd73a49', description: '🐛 Bug report' },
+              { name: 'type:feature', color: '28a745', description: '✨ Feature request' },
+              { name: 'type:docs', color: 'f0883e', description: '📝 Documentation' },
+              { name: 'type:performance', color: 'ffd900', description: '⚡ Performance' },
+              { name: 'type:refactor', color: '9366cc', description: '♻️ Refactor' },
+              { name: 'type:question', color: '0366d6', description: '❓ Question' },
+              { name: 'priority:critical', color: 'b60205', description: '🔴 Critical' },
+              { name: 'priority:high', color: 'd73a49', description: '🟠 High' },
+              { name: 'priority:medium', color: 'ffd900', description: '🟡 Medium' },
+              { name: 'priority:low', color: 'cccccc', description: '⚪ Low' },
+            ];
+
+            for (const label of labelConfig) {
+              try {
+                await github.rest.issues.updateLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label.name,
+                  color: label.color,
+                  description: label.description
+                });
+              } catch (error) {
+                if (error.status === 404) {
+                  try {
+                    await github.rest.issues.createLabel({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      name: label.name,
+                      color: label.color,
+                      description: label.description
+                    });
+                  } catch (e) {}
+                }
+              }
+            }
+
+      - name: Add Priority Label if Not Present
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: issue } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+
+            const hasPriority = issue.labels.some(l => l.name.startsWith('priority:'));
+
+            if (!hasPriority) {
+              // Default to medium priority
+              github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: ['priority:medium']
+              });
+            }
+
+      - name: Comment on New Issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            if (context.payload.action === 'opened') {
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: `👋 이슈를 열어주셔서 감사합니다!\n\n다음을 확인해주세요:\n- [ ] 먼저 기존 이슈 검색\n- [ ] 명확한 재현 단계 제공\n- [ ] 해당하면 스크린샷/로그 첨부\n- [ ] 환경 정보 (OS, 브라우저, 버전) 기입\n\n팀에서 곧 검토하고 분류하겠습니다.`
+              });
+            }

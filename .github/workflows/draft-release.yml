@@ -1,0 +1,124 @@
+name: Draft Release Notes
+
+on:
+  pull_request:
+    branches:
+      - master
+    types:
+      - closed
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version for release'
+        required: false
+
+jobs:
+  Draft-Release:
+    name: Generate Draft Release
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get Previous Tag
+        id: prev-tag
+        run: |
+          PREV_TAG=$(git tag --sort=-version:refname | head -1)
+          echo "tag=${PREV_TAG}" >> $GITHUB_OUTPUT
+          echo "Previous tag: ${PREV_TAG}"
+
+      - name: Generate Release Notes
+        id: release-notes
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: commits } = await github.rest.repos.compareCommits({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              base: '${{ steps.prev-tag.outputs.tag }}' || 'HEAD~10',
+              head: 'master'
+            });
+
+            let bugs = [];
+            let features = [];
+            let refactors = [];
+            let chores = [];
+
+            commits.commits.forEach(commit => {
+              const msg = commit.commit.message;
+              if (msg.includes('fix:') || msg.includes('🐛')) {
+                bugs.push(`- ${msg.split('\n')[0]}`);
+              } else if (msg.includes('feat:') || msg.includes('✨')) {
+                features.push(`- ${msg.split('\n')[0]}`);
+              } else if (msg.includes('refactor:') || msg.includes('♻️')) {
+                refactors.push(`- ${msg.split('\n')[0]}`);
+              } else {
+                chores.push(`- ${msg.split('\n')[0]}`);
+              }
+            });
+
+            let releaseNotes = '## 🚀 Release Notes\n\n';
+
+            if (features.length > 0) {
+              releaseNotes += '### ✨ Features\n' + features.join('\n') + '\n\n';
+            }
+
+            if (bugs.length > 0) {
+              releaseNotes += '### 🐛 Bug Fixes\n' + bugs.join('\n') + '\n\n';
+            }
+
+            if (refactors.length > 0) {
+              releaseNotes += '### ♻️ Refactors\n' + refactors.join('\n') + '\n\n';
+            }
+
+            if (chores.length > 0) {
+              releaseNotes += '### 🔧 Chores\n' + chores.slice(0, 5).join('\n') + '\n\n';
+            }
+
+            core.setOutput('notes', releaseNotes);
+            console.log(releaseNotes);
+
+      - name: Create Draft Release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const version = new Date().toISOString().split('T')[0];
+            const releaseNotes = `${{ steps.release-notes.outputs.notes }}`;
+
+            const { data: release } = await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: `v${version}`,
+              name: `Release ${version}`,
+              body: releaseNotes,
+              draft: true,
+              prerelease: false
+            });
+
+            console.log(`✅ Draft release created: ${release.html_url}`);
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🎉 **Draft Release Created**\n\n[View Draft](${release.html_url})\n\nPlease review and publish when ready!`
+            });
+
+      - name: Comment Release Status
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `⚠️ Draft release generation failed. Please create manually.`
+            })

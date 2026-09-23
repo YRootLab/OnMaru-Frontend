@@ -1,4 +1,4 @@
-name: Auto Merge
+name: 자동 머지
 
 on:
   pull_request:
@@ -13,7 +13,7 @@ on:
 
 jobs:
   Auto-Merge-Dependencies:
-    name: Auto Merge Dependabot PRs
+    name: Dependabot PR 자동 머지
     if: |
       github.event.pull_request.user.login == 'dependabot[bot]' ||
       contains(github.event.pull_request.labels.*.name, 'auto-merge')
@@ -23,10 +23,10 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout Code
+      - name: 소스코드 체크아웃
         uses: actions/checkout@v4
 
-      - name: Enable Auto Merge
+      - name: 자동 머지 활성화
         if: github.event.pull_request.draft == false
         run: |
           gh pr merge "$PR_NUMBER" --auto --squash
@@ -36,7 +36,7 @@ jobs:
         continue-on-error: true
 
   Auto-Label-Release:
-    name: Label Release-Ready PRs
+    name: 릴리즈 준비 완료 PR 라벨 추가
     if: |
       github.base_ref == 'master' &&
       contains(github.event.pull_request.labels.*.name, 'ready-for-release')
@@ -45,7 +45,7 @@ jobs:
       pull-requests: write
 
     steps:
-      - name: Add Release Label
+      - name: release 라벨 부착
         uses: actions/github-script@v7
         with:
           script: |
@@ -56,7 +56,7 @@ jobs:
               labels: ['release']
             })
 
-      - name: Comment Release Status
+      - name: 릴리즈 상태 안내 댓글 등록
         uses: actions/github-script@v7
         with:
           script: |
@@ -64,5 +64,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '🚀 Ready for release. This PR will be included in the next version.'
+              body: '🚀 릴리즈 준비가 완료되었습니다. 이 PR은 다음 버전에 포함됩니다.'
             })

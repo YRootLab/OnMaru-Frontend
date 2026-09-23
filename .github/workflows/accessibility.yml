@@ -1,4 +1,4 @@
-name: Accessibility Check
+name: 접근성 검사
 
 on:
   push:
@@ -12,53 +12,53 @@ on:
 
 jobs:
   Accessibility:
-    name: Scan Accessibility Issues
+    name: 접근성 이슈 검사
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: 소스코드 체크아웃
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Node.js 설정
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
 
-      - name: Install Dependencies
+      - name: 의존성 패키지 설치
         run: npm ci
 
-      - name: Build Application
+      - name: 애플리케이션 빌드
         run: npm run build
 
-      - name: Install Axe DevTools
+      - name: Axe DevTools 설치
         run: npm install --save-dev @axe-core/playwright || true
 
-      - name: Run Accessibility Tests
+      - name: 접근성 테스트 실행
         run: |
-          echo "Running accessibility checks..."
+          echo "접근성 검사를 실행 중입니다..."
           npx pa11y-ci .next || true
         continue-on-error: true
 
-      - name: Generate a11y Report
+      - name: 접근성 보고서 생성
         run: |
-          echo "# Accessibility Audit Report" > a11y-report.md
+          echo "# 접근성 감사 보고서" > a11y-report.md
           echo "" >> a11y-report.md
-          echo "## Checklist" >> a11y-report.md
-          echo "- [ ] Semantic HTML structure" >> a11y-report.md
-          echo "- [ ] ARIA labels and roles" >> a11y-report.md
-          echo "- [ ] Keyboard navigation" >> a11y-report.md
-          echo "- [ ] Color contrast ratio" >> a11y-report.md
-          echo "- [ ] Image alt text" >> a11y-report.md
-          echo "- [ ] Form labels" >> a11y-report.md
-          echo "- [ ] Focus indicators" >> a11y-report.md
+          echo "## 체크리스트" >> a11y-report.md
+          echo "- [ ] 시맨틱 HTML 구조" >> a11y-report.md
+          echo "- [ ] ARIA 레이블 및 역할(Role)" >> a11y-report.md
+          echo "- [ ] 키보드 탐색 지원" >> a11y-report.md
+          echo "- [ ] 색상 대비 비율" >> a11y-report.md
+          echo "- [ ] 이미지 대체 텍스트(alt)" >> a11y-report.md
+          echo "- [ ] 폼(Form) 레이블 제공 여부" >> a11y-report.md
+          echo "- [ ] 포커스 인디케이터 표시" >> a11y-report.md
 
-      - name: Upload Accessibility Report
+      - name: 접근성 보고서 업로드
         uses: actions/upload-artifact@v4
         with:
           name: a11y-report
           path: a11y-report.md
 
-      - name: Comment Accessibility Status
+      - name: 접근성 검사 결과 댓글 등록
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
@@ -67,5 +67,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '♿ Accessibility audit completed. Review a11y-report in artifacts.'
+              body: '♿ 접근성 감사가 완료되었습니다. 아티팩트의 a11y-report를 확인하세요.'
             })

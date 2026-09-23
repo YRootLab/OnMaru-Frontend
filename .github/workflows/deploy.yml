@@ -1,4 +1,4 @@
-name: Deploy
+name: 배포
 
 on:
   push:
@@ -12,48 +12,48 @@ on:
 
 jobs:
   Build:
-    name: Build Project
+    name: 프로젝트 빌드
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: 소스코드 체크아웃
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Node.js
+      - name: Node.js 설정
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
 
-      - name: Install Dependencies
+      - name: 의존성 패키지 설치
         run: npm ci
 
-      - name: Build
+      - name: 빌드 실행
         run: npm run build
 
-      - name: Upload Build Artifact
+      - name: 빌드 아티팩트 업로드
         uses: actions/upload-artifact@v4
         with:
           name: build
           path: .next/
 
   Deploy-Preview:
-    name: Deploy to Preview (Pull Request)
+    name: 프리뷰 배포 (Pull Request)
     if: github.event_name == 'pull_request'
     needs: Build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: 소스코드 체크아웃
         uses: actions/checkout@v4
 
-      - name: Download Build Artifact
+      - name: 빌드 아티팩트 다운로드
         uses: actions/download-artifact@v4
         with:
           name: build
           path: .next/
 
-      - name: Comment PR
+      - name: PR 댓글 등록
         uses: actions/github-script@v7
         with:
           script: |
@@ -61,41 +61,41 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '📦 Build successful!\n\nTo deploy, add VERCEL_TOKEN to GitHub Secrets.'
+              body: '📦 빌드가 성공적으로 완료되었습니다!\n\n배포를 진행하려면 GitHub Secrets에 VERCEL_TOKEN을 등록하세요.'
             })
 
   Deploy-Production:
-    name: Deploy to Production
+    name: 프로덕션 배포
     if: github.ref == 'refs/heads/master'
     needs: Build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: 소스코드 체크아웃
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Node.js
+      - name: Node.js 설정
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
 
-      - name: Check Vercel Token
+      - name: Vercel 토큰 설정 확인
         id: check-token
         run: |
           if [ -z "${{ secrets.VERCEL_TOKEN }}" ]; then
             echo "available=false" >> $GITHUB_OUTPUT
-            echo "⚠️  VERCEL_TOKEN not configured - skipping Vercel deployment"
+            echo "⚠️ VERCEL_TOKEN이 설정되지 않아 Vercel 배포를 건너뜁니다."
           else
             echo "available=true" >> $GITHUB_OUTPUT
           fi
 
-      - name: Install Vercel CLI
+      - name: Vercel CLI 설치
         if: steps.check-token.outputs.available == 'true'
         run: npm install --global vercel@latest
 
-      - name: Deploy to Vercel
+      - name: Vercel 프로덕션 배포
         if: steps.check-token.outputs.available == 'true'
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -106,7 +106,7 @@ jobs:
           vercel build --prod --token=$VERCEL_TOKEN
           vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
 
-      - name: Comment on Skipped Deployment
+      - name: 배포 생략 안내 댓글 등록
         if: steps.check-token.outputs.available == 'false'
         uses: actions/github-script@v7
         with:
@@ -115,5 +115,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '⚠️ Vercel deployment skipped: VERCEL_TOKEN not configured in GitHub Secrets'
+              body: '⚠️ Vercel 배포 건너뜀: GitHub Secrets에 VERCEL_TOKEN이 설정되지 않았습니다.'
             })

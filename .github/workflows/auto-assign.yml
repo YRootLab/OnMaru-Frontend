@@ -1,0 +1,109 @@
+name: PR 자동 담당자/리뷰어 지정
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+
+jobs:
+  Auto-Assign:
+    name: 리뷰어 자동 지정
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - name: 변경된 파일 기반 자동 지정
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+
+            // 파일 패턴과 팀 매핑
+            const fileAssignments = {
+              'frontend': ['@frontend-team'],
+              'backend': ['@backend-team'],
+              'api': ['@api-team'],
+              'database': ['@database-team'],
+              'ci': ['@devops-team'],
+              'docker': ['@devops-team'],
+              'test': ['@qa-team'],
+            };
+
+            let assignees = new Set();
+            let assignedAreas = new Set();
+
+            files.forEach(file => {
+              for (const [pattern, teams] of Object.entries(fileAssignments)) {
+                if (file.filename.includes(pattern)) {
+                  assignedAreas.add(pattern);
+                  teams.forEach(team => assignees.add(team.replace('@', '')));
+                }
+              }
+            });
+
+            if (assignees.size > 0) {
+              console.log(`자동 지정 대상: ${Array.from(assignees).join(', ')}`);
+              console.log(`변경된 영역: ${Array.from(assignedAreas).join(', ')}`);
+
+              // 담당자 목록 생성
+              const assigneeList = Array.from(assignees).slice(0, 5); // 최대 5명으로 제한
+
+              // 참고: 자동 지정을 적용하려면 실제 사용자가 존재해야 합니다.
+              // 이 코드는 템플릿이므로 실제 팀 멤버 계정으로 설정하세요.
+              console.log(`지정 예정 리뷰어: ${assigneeList.join(', ')}`);
+            }
+
+      - name: PR 작성자 기반 자동 지정
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const author = context.payload.pull_request.user.login;
+
+            // 작성자별 매핑될 리뷰어 목록
+            const authorReviewers = {
+              // 'username': ['reviewer1', 'reviewer2'],
+            };
+
+            if (authorReviewers[author]) {
+              console.log(`${author} 작성자에 대한 리뷰어 지정: ${authorReviewers[author].join(', ')}`);
+            }
+
+      - name: 코드 리뷰 요청 및 체크리스트 댓글 작성
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+
+            // 변경된 파일 요약 조회
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+
+            let summary = `## 📋 코드 리뷰 체크리스트\n\n`;
+            summary += `- [ ] 테스트 추가/업데이트\n`;
+            summary += `- [ ] 문서 업데이트\n`;
+            summary += `- [ ] 콘솔 로그/디버거 없음\n`;
+            summary += `- [ ] 하드코딩된 값 없음\n`;
+            summary += `- [ ] 성능 고려됨\n`;
+            summary += `- [ ] 보안 검토됨\n`;
+            summary += `- [ ] 에러 처리 추가됨\n`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            });

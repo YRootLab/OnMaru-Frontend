@@ -1,4 +1,4 @@
-name: Bundle Size Check
+name: 번들 크기 검사
 
 on:
   pull_request:
@@ -8,46 +8,46 @@ on:
 
 jobs:
   Bundle-Analysis:
-    name: Analyze Bundle Size
+    name: 번들 크기 분석
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: 소스코드 체크아웃
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Node.js 설정
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
 
-      - name: Install Dependencies
+      - name: 의존성 패키지 설치
         run: npm ci
 
-      - name: Build Production
+      - name: 프로덕션 빌드
         run: npm run build
 
-      - name: Analyze Bundle Size
+      - name: 번들 크기 분석
         run: |
-          echo "## Bundle Size Analysis" > bundle-report.md
+          echo "## 번들 크기 분석 결과" > bundle-report.md
           echo "" >> bundle-report.md
-          echo "### Next.js Output" >> bundle-report.md
+          echo "### Next.js 빌드 출력 크기" >> bundle-report.md
           echo "" >> bundle-report.md
 
           if [ -d ".next" ]; then
             du -sh .next >> bundle-report.md
             echo "" >> bundle-report.md
-            echo "### Largest Files" >> bundle-report.md
+            echo "### 가장 큰 파일 상위 20개" >> bundle-report.md
             echo "" >> bundle-report.md
             find .next -type f -size +100k -exec du -h {} \; | sort -rh | head -20 >> bundle-report.md
           fi
 
-      - name: Upload Bundle Report
+      - name: 번들 리포트 업로드
         uses: actions/upload-artifact@v4
         with:
           name: bundle-size-report
           path: bundle-report.md
 
-      - name: Comment Bundle Size
+      - name: 번들 크기 결과 댓글 등록
         uses: actions/github-script@v7
         with:
           script: |
@@ -57,5 +57,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '📦 Bundle Size Analysis:\n\n' + report
+              body: '📦 번들 크기 분석 요약:\n\n' + report
             })

@@ -1,0 +1,108 @@
+name: Setup Label Colors
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/label-colors.yml'
+
+jobs:
+  Setup-Labels:
+    name: Configure Label Colors
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - name: Create or Update Labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = [
+              // Type Labels
+              { name: 'type:bug-fix', color: 'd73a49', description: '🐛 Bug fix' },
+              { name: 'type:feature', color: '28a745', description: '✨ New feature' },
+              { name: 'type:refactor', color: '9366cc', description: '♻️ Refactor' },
+              { name: 'type:chore', color: '6f42c1', description: '🔧 Chore' },
+              { name: 'type:test', color: '0366d6', description: '✅ Test' },
+              { name: 'type:docs', color: 'f0883e', description: '📝 Documentation' },
+              { name: 'type:ci', color: 'ffd900', description: '⚙️ CI/CD' },
+
+              // Size Labels
+              { name: 'size:xs', color: 'c2e0c6', description: 'Extra small changes' },
+              { name: 'size:s', color: '90ee90', description: 'Small changes' },
+              { name: 'size:m', color: 'ffd900', description: 'Medium changes' },
+              { name: 'size:l', color: 'ff7f50', description: 'Large changes' },
+              { name: 'size:xl', color: 'dc3545', description: 'Extra large changes' },
+
+              // Scope Labels
+              { name: 'scope:code', color: '1f883d', description: 'Code changes' },
+              { name: 'scope:styles', color: 'ff69b4', description: 'Style/CSS changes' },
+
+              // Status Labels
+              { name: 'breaking-change', color: '000000', description: '💥 Breaking change' },
+              { name: 'ready-for-release', color: '2ecc71', description: '🚀 Ready for release' },
+              { name: 'auto-merge', color: '3498db', description: '🤖 Auto merge enabled' },
+              { name: 'draft', color: 'bfd4f2', description: '📋 Draft PR' },
+
+              // Priority Labels
+              { name: 'priority:critical', color: 'b60205', description: '🔴 Critical' },
+              { name: 'priority:high', color: 'd73a49', description: '🟠 High' },
+              { name: 'priority:medium', color: 'ffd900', description: '🟡 Medium' },
+              { name: 'priority:low', color: 'cccccc', description: '⚪ Low' },
+
+              // Custom Labels
+              { name: 'good-first-issue', color: '7057ff', description: '👋 Good first issue' },
+              { name: 'help-wanted', color: '128a0c', description: '🙋 Help wanted' },
+              { name: 'needs-review', color: 'fbca04', description: '👀 Needs review' },
+              { name: 'awaiting-feedback', color: 'cccccc', description: '⏳ Awaiting feedback' },
+            ];
+
+            for (const label of labels) {
+              try {
+                // Try to update existing label
+                await github.rest.issues.updateLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label.name,
+                  color: label.color,
+                  description: label.description
+                });
+                console.log(`✅ Updated label: ${label.name}`);
+              } catch (error) {
+                if (error.status === 404) {
+                  // Label doesn't exist, create it
+                  try {
+                    await github.rest.issues.createLabel({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      name: label.name,
+                      color: label.color,
+                      description: label.description
+                    });
+                    console.log(`✨ Created label: ${label.name}`);
+                  } catch (createError) {
+                    console.log(`⚠️ Failed to create label ${label.name}: ${createError.message}`);
+                  }
+                } else {
+                  console.log(`⚠️ Error updating label ${label.name}: ${error.message}`);
+                }
+              }
+            }
+
+      - name: Report Summary
+        run: |
+          echo "## 🏷️ Label Configuration Complete"
+          echo ""
+          echo "✅ All labels have been configured with custom colors"
+          echo ""
+          echo "### Label Categories:"
+          echo "- **Type**: bug-fix, feature, refactor, chore, test, docs, ci"
+          echo "- **Size**: xs, s, m, l, xl"
+          echo "- **Scope**: code, styles"
+          echo "- **Priority**: critical, high, medium, low"
+          echo "- **Status**: breaking-change, ready-for-release, auto-merge, draft"
+          echo "- **Custom**: good-first-issue, help-wanted, needs-review, awaiting-feedback"
