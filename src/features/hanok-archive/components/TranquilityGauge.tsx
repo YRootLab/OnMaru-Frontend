@@ -49,7 +49,7 @@ export default function TranquilityGauge({ data, loading }: TranquilityGaugeProp
         </LevelBadge>
       </MainRow>
 
-      {/* 게이지 바 */}
+      {}
       <GaugeTrack>
         <GaugeFill
           style={{

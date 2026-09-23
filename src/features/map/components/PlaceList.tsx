@@ -154,7 +154,7 @@ const ListContainer = styled.ul`
   box-sizing: border-box;
 `;
 
-/* ── 페이지네이션 스타일 ── */
+
 const PaginationWrapper = styled.nav`
   display: flex;
   align-items: center;
@@ -251,7 +251,7 @@ const shimmer = keyframes`
   }
 `;
 
-/* ── 스켈레톤 로딩 (AGENTS.md 규칙: 정확한 크기 예약 & 중립 그레이 쉬머) ── */
+
 const SkeletonWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -302,7 +302,7 @@ const SkeletonBar = styled.div<{ $w: string; $h: string; $radius?: string }>`
   animation: ${shimmer} 1.6s ease-in-out infinite;
 `;
 
-/* ── 빈 상태 / 에러 상태 ── */
+
 const EmptyStateBox = styled.div`
   display: flex;
   flex-direction: column;
@@ -387,7 +387,7 @@ export default function PlaceList() {
   const listTopRef = useRef<HTMLDivElement>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // 정렬 및 카테고리/북마크 필터링 처리 (GPS 내 위치 또는 지도 중심 기준 정밀 정렬)
+
   const sortedItems = useMemo(() => {
     let list = [...items];
     if (category && category !== 'all') {
@@ -432,8 +432,8 @@ export default function PlaceList() {
     });
   }, [items, sortOrder, category, bookmarks, userLocation, center]);
 
-  // 필터, 정렬, 지역 변경 시 1페이지로 리셋 — effect가 아니라 렌더 중 비교로
-  // 처리해(React 공식 권장 패턴) 불필요한 커밋 사이클을 만들지 않는다.
+
+
   const resetKey = `${category ?? ''}|${currentAddress ?? ''}|${sortOrder}|${items.length}`;
   const [prevResetKey, setPrevResetKey] = useState(resetKey);
   if (resetKey !== prevResetKey) {
@@ -441,8 +441,8 @@ export default function PlaceList() {
     setCurrentPage(1);
   }
 
-  // 사용자가 명시적으로 카테고리를 변경할 때만 최상단으로 이동
-  // (새로고침 시나 주소 지오코딩 완료 시 아래에서 위로 올라오는 스크롤 현상 방지)
+
+
   const isMountedRef = useRef(false);
   useEffect(() => {
     if (!isMountedRef.current) {
@@ -483,12 +483,12 @@ export default function PlaceList() {
     }
   };
 
-  // 축제/행사 아이템 필터링
+
   const festivalItems = useMemo(() => {
     return items.filter((item) => item.category === 'festival');
   }, [items]);
 
-  // 정확한 헤더 타이틀 라벨 계산 (로딩 중 '0곳' 깜빡임 방지)
+
   const headerTitle = useMemo(() => {
     const regionName = currentAddress ? currentAddress.replace(/대한민국\s*/, '') || '전국' : '전체';
     if (loading && items.length === 0) {
@@ -505,7 +505,7 @@ export default function PlaceList() {
     return `${regionName} ${sortedItems.length}곳`;
   }, [category, currentAddress, sortedItems.length, loading, items.length]);
 
-  // 장소 선택 핸들러: 스토어에 selectedId, detailId 지정 및 지도 이동
+
   const handleSelect = (item: Item) => {
     setSelectedId(item.id);
     setDetailId(item.id);
@@ -515,7 +515,7 @@ export default function PlaceList() {
     useMapStore.getState().setSheetSnap('full');
   };
 
-  // 지도 넓게 보기 (줌아웃 2단계)
+
   const handleZoomOut = () => {
     if (!map) return;
     const currentLevel = map.getLevel();
@@ -528,24 +528,24 @@ export default function PlaceList() {
     <div>
       <div ref={listTopRef} />
 
-      {/* 1. 실시간 공지/소식 롤링 띠배너 */}
+      {}
       <LiveNoticeBanner />
 
-      {/* 2. 전체 탭일 때 네이버 지도 스타일의 풍성한 스마트 큐레이션 피드 렌더링 */}
+      {}
       {isAllCategory && (
         <FeedWrapper>
-          {/* 진행 중인 지역 축제 & 기획전 캐러셀 */}
+          {}
           <FestivalExhibitionCarousel festivals={festivalItems} />
 
-          {/* 오디(Sorimaru) 시네마틱 오디오 투어 스포트라이트 배너 */}
+          {}
           <SorimaruSpotlightBanner />
 
-          {/* 네이버 스마트어라운드형 추천 포토 카드 피드 */}
+          {}
           <SmartAroundFeed items={sortedItems} />
         </FeedWrapper>
       )}
 
-      {/* 3. 장소 목록 헤더 */}
+      {}
       <StickyHeader>
         <CountLabel aria-live="polite">
           <List size={15} color={meok[700]} strokeWidth={2} />
@@ -565,7 +565,7 @@ export default function PlaceList() {
         </SortDropdownWrapper>
       </StickyHeader>
 
-      {/* 4. 장소 목록 컨텐츠 */}
+      {}
       {loading && items.length === 0 ? (
         <SkeletonWrapper aria-busy="true" aria-label="장소 목록을 불러오는 중이에요">
           {[1, 2, 3, 4, 5, 6].map((key) => (
@@ -706,4 +706,3 @@ export default function PlaceList() {
     </div>
   );
 }
-

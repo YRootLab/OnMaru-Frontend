@@ -15,8 +15,8 @@ export interface GraphNode {
   id: string;
   label: string;
   category: NodeCategory;
-  x: number; // percentage (0-100)
-  y: number; // percentage (0-100)
+  x: number;
+  y: number;
   badge?: string;
   description?: string;
   color?: string;
@@ -38,8 +38,8 @@ export interface RouteStop {
 }
 
 export interface JourneyDay {
-  dayNumber: number; // 1, 2, 3
-  dayTitle: string; // 예: "1일차: 빗소리 흐르는 소쇄원과 대숲 산책"
+  dayNumber: number;
+  dayTitle: string;
   theme?: string;
   duration: string;
   walkingTime: string;
@@ -103,6 +103,6 @@ export interface BentoJourneyPlan {
 
 export interface SavedJourney {
   id: string;
-  savedAt: string; // ISO string
+  savedAt: string;
   plan: BentoJourneyPlan;
 }

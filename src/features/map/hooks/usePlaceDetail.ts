@@ -9,7 +9,7 @@ interface CacheEntry {
 }
 
 const detailCache = new Map<string, CacheEntry>();
-const CACHE_TTL = 10 * 60 * 1000; // 10분
+const CACHE_TTL = 10 * 60 * 1000;
 
 export function usePlaceDetail(contentId: string | null, contentTypeId?: string) {
   const [data, setData] = useState<PlaceDetailData | null>(null);
@@ -17,7 +17,7 @@ export function usePlaceDetail(contentId: string | null, contentTypeId?: string)
   const [error, setError] = useState<string | null>(null);
 
   const fetchDetail = useCallback(async (id: string, typeId?: string) => {
-    // 1. 캐시 검사
+
     const cached = detailCache.get(id);
     if (cached && cached.expiresAt > Date.now()) {
       setData(cached.data);

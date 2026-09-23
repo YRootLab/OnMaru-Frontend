@@ -183,17 +183,17 @@ export const FloatingVinylDisc: React.FC<{ imageUrl: string; isPlaying: boolean 
 }) => {
   return (
     <VinylWrapper>
-      {/* 바깥쪽 회전 바이닐 LP 판 */}
+      {}
       <VinylDisc
         animate={{ rotate: isPlaying ? 360 : 0 }}
         transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
       >
-        {/* LP 텍스처 링 */}
+        {}
         <TextureRing1 />
         <TextureRing2 />
         <TextureRing3 />
 
-        {/* 앨범 아트 섬네일 중심 */}
+        {}
         <AlbumArtCenter>
           <img
             src={imageUrl || 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80'}
@@ -202,7 +202,7 @@ export const FloatingVinylDisc: React.FC<{ imageUrl: string; isPlaying: boolean 
         </AlbumArtCenter>
       </VinylDisc>
 
-      {/* 중앙 핀 홀 */}
+      {}
       <CenterPinHole />
     </VinylWrapper>
   );

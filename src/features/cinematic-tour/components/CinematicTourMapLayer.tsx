@@ -8,9 +8,9 @@ import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useCinematicTourStore } from '@/features/cinematic-tour/store/useCinematicTourStore';
 
 const styles = css`
-  /* ------------------------------------------------------------
-   * 시네마틱 투어 경유지 핀 스타일
-   * ------------------------------------------------------------ */
+
+
+
   .om-tour-pin {
     display: flex;
     flex-direction: column;
@@ -78,7 +78,7 @@ const styles = css`
     transform: rotate(45deg);
   }
 
-  /* 현재 활성화된(재생 중인) 스팟 펄스 링 */
+
   .om-tour-pin[data-active='true'] .om-tour-pin-icon {
     transform: rotate(-45deg) scale(1.18);
     background: ${lightPalette.jangmi[700]};
@@ -128,7 +128,7 @@ export default function CinematicTourMapLayer() {
   const auraPolylineRef = useRef<any>(null);
   const overlaysRef = useRef<any[]>([]);
 
-  // 1. 오디오 스트리밍 엘리먼트 관리
+
   useEffect(() => {
     if (!isActive || !story?.audioUrl) {
       if (audioRef.current) {
@@ -180,17 +180,17 @@ export default function CinematicTourMapLayer() {
     };
   }, [isActive, story?.audioUrl, isPlaying]);
 
-  // 재생 위치 동기화 (외부 점프 시)
+
   useEffect(() => {
     if (audioRef.current && Math.abs(audioRef.current.currentTime - currentTime) > 2) {
       audioRef.current.currentTime = currentTime;
     }
   }, [currentTime]);
 
-  // 2. 지도 위 보행 동선(Polyline) 및 경유지 핀 렌더링
+
   useEffect(() => {
     if (!map || !isActive || !story?.waypoints || story.waypoints.length === 0) {
-      // 투어 종료 시 걷어내기
+
       if (polylineRef.current) {
         polylineRef.current.setMap(null);
         polylineRef.current = null;
@@ -206,12 +206,12 @@ export default function CinematicTourMapLayer() {
 
     const waypoints = story.waypoints;
 
-    // A. 동선 폴리라인 그리기 (부드러운 2단 실선: 외곽 화이트 베이스 + 메인 장미 핑크 라인)
+
     const path = waypoints.map((wp) => new window.kakao.maps.LatLng(wp.lat, wp.lng));
     if (polylineRef.current) polylineRef.current.setMap(null);
     if (auraPolylineRef.current) auraPolylineRef.current.setMap(null);
 
-    // A-1. 외곽 베이스 라인 (Aura Casing)
+
     auraPolylineRef.current = new window.kakao.maps.Polyline({
       path,
       strokeWeight: 7,
@@ -222,7 +222,7 @@ export default function CinematicTourMapLayer() {
     });
     auraPolylineRef.current.setMap(map);
 
-    // A-2. 메인 장미 핑크 보행 동선 라인 (Solid Track)
+
     polylineRef.current = new window.kakao.maps.Polyline({
       path,
       strokeWeight: 3.5,
@@ -233,7 +233,7 @@ export default function CinematicTourMapLayer() {
     });
     polylineRef.current.setMap(map);
 
-    // B. 경유지 핀 오버레이 렌더링
+
     overlaysRef.current.forEach((o) => o.setMap(null));
     overlaysRef.current = [];
 

@@ -1,22 +1,22 @@
-/*
-  카카오 지도 오버레이용 lucide 아이콘 마크업.
 
-  오버레이는 React가 아니라 HTML 문자열을 받는다. 예전에는 모듈 최상단에서
-  renderToStaticMarkup(<Icon />)으로 문자열을 만들었는데, 그 코드가 서버에서도
-  평가되면서 /map 이 500으로 죽었다 — lucide 아이콘이 내부에서 useContext를 쓰고,
-  Next 서버 번들의 React와 react-dom/server의 React가 서로 다른 인스턴스라
-  "Invalid hook call"이 난다.
 
-  이 문자열들은 어차피 정적이다. 한 번 뽑아 굳혀두면 서버에서 React를 부를 일이 없고
-  클라이언트 번들에서 react-dom/server도 통째로 빠진다.
 
-  다시 뽑으려면 (아이콘을 바꾸거나 lucide를 올릴 때):
-    node -e "const R=require('react'),{renderToStaticMarkup:r}=require('react-dom/server'),L=require('lucide-react');
-              console.log(r(R.createElement(L.Home,{size:24,strokeWidth:2})))"
-  출력에서 <svg> 껍데기를 벗기고 안쪽만 옮겨 적는다.
-*/
 
-/** lucide 기본 껍데기. viewBox가 24 고정이라 size만 바꿔 끼우면 된다. */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const SVG_ATTRS =
   'xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"' +
   ' stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
@@ -43,7 +43,7 @@ const ICON_INNER = {
 
 export type MapIconName = keyof typeof ICON_INNER;
 
-/** 지도 오버레이에 그대로 꽂을 수 있는 SVG 문자열을 만든다. */
+
 export function mapIconSvg(name: MapIconName, size = 16): string {
   return `<svg ${SVG_ATTRS} width="${size}" height="${size}" aria-hidden="true">${ICON_INNER[name]}</svg>`;
 }

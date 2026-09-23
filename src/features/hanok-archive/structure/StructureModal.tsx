@@ -1,11 +1,11 @@
 'use client';
 
-/*
-  구조 챕터 모달 껍데기.
 
-  절기 그림자와 7단계 조립이 같은 껍데기를 나눠 쓴다. 안에 들어가는 3D 캔버스와
-  패널만 다르고, 덮개·닫기·Esc·바깥 클릭·배경 스크롤 잠금은 여기가 전담한다.
-*/
+
+
+
+
+
 
 import { useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
@@ -87,7 +87,7 @@ interface StructureModalProps {
 export default function StructureModal({ title, onClose, children }: StructureModalProps) {
   const shellRef = useRef<HTMLDivElement | null>(null);
 
-  // Esc로 닫고, 열려 있는 동안 뒤쪽 도감이 따라 스크롤되지 않게 잠근다.
+
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onClose();
@@ -109,8 +109,8 @@ export default function StructureModal({ title, onClose, children }: StructureMo
     <Overlay
       role="presentation"
       onPointerDown={(event) => {
-        // 덮개를 직접 눌렀을 때만 닫는다. 안쪽에서 시작한 드래그(절기 슬라이더)가
-        // 덮개 위에서 끝나도 닫히면 안 된다.
+
+
         if (event.target === event.currentTarget) onClose();
       }}
     >

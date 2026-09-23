@@ -1,8 +1,8 @@
 'use client';
 
-// ============================================================
-// 관리자 페이지네이션 (src/admin/components/Pagination.tsx)
-// ============================================================
+
+
+
 import React from 'react';
 import { meok, palette } from '@/design-system/tokens';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -22,7 +22,7 @@ export const Pagination: React.FC<PaginationProps> = ({
 }) => {
   if (totalPages <= 1) return null;
 
-  // 최대 5개 페이지 번호 노출
+
   const getPageNumbers = () => {
     const pages: number[] = [];
     const maxVisible = 5;

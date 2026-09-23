@@ -8,47 +8,47 @@ import { clamp01, easeOutQuad, progressIn, usePrefersReducedMotion } from './Lan
 
 const FONT = "'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, sans-serif";
 
-const INK = '244, 239, 228'; // #F4EFE4 — alpha를 calc로 섞어야 해서 채널로 둔다
+const INK = '244, 239, 228';
 
-// ─────────────────────────────────────────
-// 구간 — 전역 progress 0.70 ~ 0.82
-// ─────────────────────────────────────────
+
+
+
 
 export const RANGE = BEAT_RANGES.BEAT5;
 
 const [RANGE_START, RANGE_END] = RANGE;
 
-// ─────────────────────────────────────────
-// 글자
-// ─────────────────────────────────────────
 
-/**
- * 한 글자가 자기 등장 구간 중 몇 할을 페이드에 쓰는가.
- *
- * 나머지가 글자 사이 시차다. 스크롤 속도는 사용자가 쥐고 있어 초 단위를 그대로
- * 옮길 수 없으므로, "글자 지연 0.045초 대 페이드 0.5초"라는 비율만 가져온다.
- * 값이 작을수록 시차가 길어져 문장이 더 천천히 훑고 지나간다.
- */
+
+
+
+
+
+
+
+
+
+
 const CHAR_FADE = 0.4;
-const CHAR_FADE_SLOW = 0.3; // 마지막 문장 — 지연 0.07초에 해당하는 더 느린 훑기
-const CHAR_FADE_OUT = 0.7; // 퇴장은 시차를 거의 두지 않는다 (0.02초)
+const CHAR_FADE_SLOW = 0.3;
+const CHAR_FADE_OUT = 0.7;
 
-const CHAR_RISE = 6; // px
-const CHAR_BLUR = 3; // px
+const CHAR_RISE = 6;
+const CHAR_BLUR = 3;
 
-/** 마우스 근접 발광이 닿는 반경 */
+
 const GLOW_RADIUS = 180;
 const GLOW_RADIUS_STRONG = 220;
 
-/** 목표값을 향해 매 프레임 다가가는 비율. 급하게 붙으면 조명이 튄다. */
+
 const GLOW_LERP = 0.12;
 
-// ─────────────────────────────────────────
-// 텍스트 시퀀스
-//
-// 등장 [시작, 끝] · 퇴장 [시작, 끝]. 퇴장이 없으면 Beat6까지 남는다.
-// 사이의 빈 구간이 이 Beat의 내용이다 — 0.38~0.44 와 0.70~0.78 은 화면이 비어야 한다.
-// ─────────────────────────────────────────
+
+
+
+
+
+
 
 const BLOCKS = [
   {
@@ -66,12 +66,12 @@ const BLOCKS = [
   },
 ];
 
-/**
- * 글자 하나의 상태.
- *
- * 등장은 왼쪽부터 차례로, 퇴장은 거의 한꺼번에. 시차는 구간 안에서 자리를 나눠 만든다.
- * reduced 면 시차와 블러를 빼고 문장 전체가 함께 뜬다.
- */
+
+
+
+
+
+
 function charCue(local, line, index, count, reduced) {
   const fadeIn = line.strong ? CHAR_FADE_SLOW : CHAR_FADE;
   const at = count > 1 ? index / (count - 1) : 0;
@@ -96,15 +96,15 @@ function charCue(local, line, index, count, reduced) {
   };
 }
 
-// ─────────────────────────────────────────
-// 마우스 근접 발광
-//
-// 글자마다 리스너를 달지 않는다. 좌표는 한 번 재서 캐시하고(고정 레이어라 스크롤에
-// 흔들리지 않는다) 프레임당 한 번 전부 갱신한다. 값은 CSS 변수로 넘겨 React가 쥔
-// opacity·translateY 와 서로 덮어쓰지 않게 한다.
-//
-// 최적화: visibility가 hidden이거나 opacity가 0에 가까운 글자는 건너뛴다.
-// ─────────────────────────────────────────
+
+
+
+
+
+
+
+
+
 
 function useProximityGlow(rootRef, visibleKey, reduced) {
   useEffect(() => {
@@ -130,7 +130,7 @@ function useProximityGlow(rootRef, visibleKey, reduced) {
 
     measure();
 
-    // 화면 밖에서 시작해야 마우스를 올리기 전에는 아무것도 빛나지 않는다
+
     const pointer = { x: -9999, y: -9999 };
     const track = (event) => {
       pointer.x = event.clientX;
@@ -140,10 +140,10 @@ function useProximityGlow(rootRef, visibleKey, reduced) {
     let frame = 0;
     const step = () => {
       for (const target of targets) {
-        // 최적화: 보이지 않는 글자는 건너뛴다
+
         const currentOpacity = parseFloat(target.el.style.opacity);
         if (currentOpacity < 0.01) {
-          // 글로우를 0으로 리셋해 다시 나타날 때 깨끗하게 시작한다
+
           if (target.glow > 0.001) {
             target.glow = 0;
             target.el.style.setProperty('--glow', '0');
@@ -175,9 +175,9 @@ function useProximityGlow(rootRef, visibleKey, reduced) {
   }, [rootRef, visibleKey, reduced]);
 }
 
-// ─────────────────────────────────────────
-// 스타일
-// ─────────────────────────────────────────
+
+
+
 
 const Stage = styled.section`
   position: fixed;
@@ -187,12 +187,12 @@ const Stage = styled.section`
   font-family: ${FONT};
 `;
 
-/**
- * 문장 블록 하나. 세 블록이 같은 자리에 겹쳐 있고 서로 만나는 시점이 없다.
- *
- * 블록 안의 줄은 흐름대로 쌓는다. 아직 뜨지 않은 줄도 자리를 차지해야
- * 뒷줄이 붙을 때 앞줄이 밀려 올라가지 않는다 ("그대로 두고 아래에 추가").
- */
+
+
+
+
+
+
 const Block = styled.div`
   position: absolute;
   inset: 0;
@@ -212,12 +212,12 @@ const Line = styled.p`
   word-break: keep-all;
 `;
 
-/**
- * 글자 한 장.
- *
- * React는 스크롤이 미는 값(opacity·--rise·blur)만, rAF는 마우스가 미는 값(--glow·--scale)만
- * 쓴다. 둘을 같은 CSS 속성에 담으면 프레임마다 서로를 지운다.
- */
+
+
+
+
+
+
 const Char = styled.span`
   --rise: 0px;
   --glow: 0;
@@ -238,7 +238,7 @@ const Char = styled.span`
   }
 `;
 
-/** 글자로 쪼갠 문장은 보조기기가 읽기 어렵다. 원문을 따로 한 벌 남긴다. */
+
 const SrOnly = styled.span`
   position: absolute;
   width: 1px;
@@ -250,13 +250,13 @@ const SrOnly = styled.span`
   white-space: nowrap;
 `;
 
-// ─────────────────────────────────────────
-// Beat5_Silence — 텍스트 전용 레이어
-//
-// 3D 한옥의 퇴장 연출은 LandingExperience의 FixedStage Canvas가
-// getStage에서 opacity를 줄여 전담한다.
-// 이 컴포넌트는 고요한 문장 시퀀스와 마우스 근접 발광만 담는다.
-// ─────────────────────────────────────────
+
+
+
+
+
+
+
 
 export default function LandingPhilosophy({ progress }) {
   const reduced = usePrefersReducedMotion();
@@ -265,7 +265,7 @@ export default function LandingPhilosophy({ progress }) {
   const active = progress >= RANGE_START && progress < RANGE_END;
   const local = active ? (progress - RANGE_START) / (RANGE_END - RANGE_START) : 0;
 
-  // 지금 화면에 글자가 떠 있는 블록. 이게 바뀔 때만 좌표를 다시 잰다.
+
   const visible = BLOCKS.filter((block) =>
     block.lines.some((line) => charCue(local, line, 0, 1, true).opacity > 0.001),
   );
@@ -277,10 +277,10 @@ export default function LandingPhilosophy({ progress }) {
 
   return (
     <Stage ref={rootRef}>
-      {/* 배경(어둠·중앙 글로우)은 GlobalBackground가 전담한다. */}
-      {/* 3D 한옥 퇴장은 FixedStage Canvas가 전담한다. */}
+      {}
+      {}
 
-      {/* z 2 — 문장. 침묵 구간에서는 블록 자체가 그려지지 않아 화면에 아무것도 남지 않는다. */}
+      {}
       {visible.map((block) => (
         <Block key={block.id} style={{ gap: block.gap }}>
           {block.lines.map((line) => {
@@ -300,7 +300,7 @@ export default function LandingPhilosophy({ progress }) {
 
                     return (
                       <Char
-                        // 글자는 문장 안의 자리로만 구분된다 (같은 글자가 여러 번 온다)
+
                         key={index}
                         data-char
                         data-radius={radius}

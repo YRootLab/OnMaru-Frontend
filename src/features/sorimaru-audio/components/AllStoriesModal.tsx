@@ -370,7 +370,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
   return (
     <ModalOverlay onClick={onClose}>
       <ModalContainer onClick={(e) => e.stopPropagation()}>
-        {/* 모달 헤더 */}
+        {}
         <ModalHeader>
           <div>
             <HeaderBadge>
@@ -385,9 +385,9 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
           </CloseButton>
         </ModalHeader>
 
-        {/* 카테고리 필터 & 검색 */}
+        {}
         <ControlBar>
-          {/* 카테고리 태그 칩 */}
+          {}
           <CategoryChipsRail>
             {MODAL_CATEGORIES.map((cat) => {
               const isSel = activeCat === cat;
@@ -403,7 +403,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
             })}
           </CategoryChipsRail>
 
-          {/* 검색창 */}
+          {}
           <SearchInputWrapper>
             <SearchInput
               type="text"
@@ -417,7 +417,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
           </SearchInputWrapper>
         </ControlBar>
 
-        {/* 오디오 이야기 리스트 스크롤 영역 */}
+        {}
         <StoryListArea>
           {filtered.length === 0 ? (
             <EmptyState>

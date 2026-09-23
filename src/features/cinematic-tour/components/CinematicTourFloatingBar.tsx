@@ -230,7 +230,7 @@ const SubtitleIndexBadge = styled.span`
 const SubtitleLine = styled.p`
   margin: 0;
   font-size: ${fontSize.sm};
-  /* 자막 본문 — 읽는 글이지 강조하는 글이 아니다 */
+
   font-weight: 400;
   line-height: 1.5;
   color: ${meok[900]};
@@ -369,7 +369,7 @@ export default function CinematicTourFloatingBar() {
         </ActionGroup>
       </TopRow>
 
-      {/* 경유지 칩 목록 */}
+      {}
       {waypoints.length > 0 && (
         <WaypointChipsScroller>
           {waypoints.map((wp, idx) => (
@@ -386,7 +386,7 @@ export default function CinematicTourFloatingBar() {
         </WaypointChipsScroller>
       )}
 
-      {/* 실시간 한줄 대사 텔레프롬프터 및 포토존 팁 */}
+      {}
       <SubtitleBox>
         {totalSentences > 1 && (
           <SubtitleMetaRow>
@@ -407,7 +407,7 @@ export default function CinematicTourFloatingBar() {
         )}
       </SubtitleBox>
 
-      {/* 재생 컨트롤 및 시간 */}
+      {}
       <ControlsRow>
         <TimeText>
           {formatSec(currentTime)} / {formatSec(duration)}

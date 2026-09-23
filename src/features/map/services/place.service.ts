@@ -5,7 +5,7 @@ import type { Item, PlaceCategory, PlaceDetailData } from '@/features/map/types'
 import { sanitizeHtml, toHttps } from '@/features/map/utils/formatters';
 import { distanceInMeters, isTraditionalPlace } from '@/features/map/utils/geo';
 
-/** 백엔드 GET /api/v1/map/places 응답 한 건. 실서버 호출로 검증한 실제 shape (2026-09-19). */
+
 interface BackendMapPlaceItem {
   placeId: string;
   name: string;
@@ -28,27 +28,27 @@ function mapBackendCategoryToPlaceCategory(category: string): PlaceCategory {
 }
 
 const MAX_RADIUS = 20000;
-const CACHE_TTL = 2 * 60 * 60 * 1000; // 2시간 캐시 (관광지 위치 데이터 보존)
+const CACHE_TTL = 2 * 60 * 60 * 1000;
 
-/**
- * 캐시 상한. 지도를 오래 돌아다니면 키가 계속 늘어나 서버 인스턴스 메모리를 먹는다.
- * 가장 오래된 것부터 버린다(Map은 삽입 순서를 지킨다).
- */
+
+
+
+
 const CACHE_MAX_ENTRIES = 500;
 
-/**
- * TourAPI 동시 호출 상한.
- *
- * 전국 조망은 17개 시·도 + 키워드 3개 = 20개를 한 번에 던졌다. 공공데이터포털은
- * 동시 요청을 조이기 때문에 그중 일부가 통째로 비어 돌아왔다. 4개씩 끊어 보내면
- * 전체 소요는 비슷하면서 빈 응답이 사라진다.
- */
+
+
+
+
+
+
+
 const MAX_CONCURRENCY = 4;
 
-/** 요청 하나가 기다리는 시간. 예전에는 signal 하나를 20개가 공유해 함께 죽었다. */
+
 const REQUEST_TIMEOUT_MS = 8000;
 
-/** task를 limit개씩 끊어 실행한다. */
+
 async function runPooled<T>(tasks: (() => Promise<T>)[], limit = MAX_CONCURRENCY): Promise<T[]> {
   const out: T[] = [];
   for (let i = 0; i < tasks.length; i += limit) {
@@ -76,11 +76,11 @@ const CATEGORY_MAP: Record<PlaceCategory, { contentTypeId: string }> = {
 
 export const PLACE_CATEGORIES = Object.keys(CATEGORY_MAP) as PlaceCategory[];
 
-/** 한옥 및 전통 문화재 장소 데이터 서비스 */
+
 export class PlaceService {
   private static placeCache = new Map<string, CacheEntry>();
 
-  /** 캐시 키 생성 */
+
   private static getCacheKey(
     lat: number,
     lng: number,
@@ -93,16 +93,16 @@ export class PlaceService {
     return `${roundedLat}_${roundedLng}_${roundedRadius}_${category || 'all'}`;
   }
 
-  /*
-    FE #90: /api/v1/map/places를 우선 시도한다.
 
-    이 백엔드 엔드포인트는 위경도 bounding box만 받고(반경이 아님), 카테고리
-    필터도 없이 한옥/카페류만 돌려준다 — 아래 8개 카테고리(spot/experience/
-    culture/festival/stay/food/cafe/market)를 전부 감당하는 TourAPI 경로와는
-    범위가 다르다. 그래서 카테고리를 명시하지 않은 "전체" 조회일 때만 시도하고,
-    실패하거나 빈 배열이면(지금 seed 데이터뿐이라 흔함) 기존 TourAPI 경로로
-    그대로 넘어간다 — 지도가 텅 비어 보이는 것보다 항상 낫다.
-  */
+
+
+
+
+
+
+
+
+
   private static async fetchFromBackend(opts: {
     lat: number;
     lng: number;
@@ -141,8 +141,8 @@ export class PlaceService {
         })
         .filter((item) => item.dist <= opts.radius);
 
-      // 일부 백엔드 seed 응답은 요청한 bounding box 밖의 장소도 반환한다.
-      // 이를 그대로 사용하면 전국 지도가 1~2건으로 고정되고 TourAPI 경로도 막힌다.
+
+
       return items.length > 0 ? items : null;
     } catch (err) {
       console.warn('[PlaceService] backend /map/places failed, falling back to TourAPI:', err);
@@ -150,7 +150,7 @@ export class PlaceService {
     }
   }
 
-  /** 주변 및 전국 장소 목록 실시간 조회 */
+
   public static async getNearbyPlaces(opts: {
     lat: number;
     lng: number;
@@ -161,7 +161,7 @@ export class PlaceService {
     const radius = isNationwide ? 22000 : Math.min(MAX_RADIUS, Math.max(1000, Math.round(opts.radius)));
     const cacheKey = this.getCacheKey(opts.lat, opts.lng, opts.radius, opts.category);
 
-    // 캐시 히트 검사
+
     const cached = this.placeCache.get(cacheKey);
     if (cached && cached.expiresAt > Date.now()) {
       return cached.items;
@@ -175,12 +175,12 @@ export class PlaceService {
       }
     }
 
-    /* 요청마다 새 타임아웃을 준다. 하나를 공유하면 뒤 배치가 시작도 못 하고 죽는다. */
+
     const signal = () => AbortSignal.timeout(REQUEST_TIMEOUT_MS);
     const out: Item[] = [];
     const seen = new Set<string>();
 
-    // 축제/야행 카테고리 실시간 수집
+
     if (opts.category === 'festival') {
       const yearStart = `${new Date().getFullYear() - 1}0101`;
 
@@ -232,7 +232,7 @@ export class PlaceService {
 
           const dist = Math.round(distanceInMeters({ lat: opts.lat, lng: opts.lng }, { lat: y, lng: x }));
 
-          // 지역을 좁혀 보고 있으면 화면 밖 축제까지 끌어오지 않는다.
+
           if (!isNationwide && dist > radius) continue;
 
           out.push({
@@ -249,11 +249,11 @@ export class PlaceService {
         }
       });
     } else {
-      // 일반 및 전체 카테고리 실시간 병렬 호출
+
       const fetchTasks: (() => Promise<{ cType: string; rows: Record<string, unknown>[] }>)[] = [];
 
       if (isNationwide) {
-        // 전국 조망 쿼리: 핵심 전통 한옥 키워드 3건으로 통합 요청 (기존 20건 -> 3건으로 대폭 절감)
+
         const coreKeywords = ['한옥', '고택', '문화재'];
         for (const kw of coreKeywords) {
           fetchTasks.push(() =>
@@ -267,7 +267,7 @@ export class PlaceService {
               signal(),
             )
               .then((res) => {
-                // TourApiClient는 실패해도 예외 대신 null을 준다. null은 '없음'이 아니라 '못 가져옴'이다.
+
                 if (res === null) return { cType: '12', rows: [], failed: true };
                 const raw = res?.response?.body?.items?.item;
                 const rows = (Array.isArray(raw) ? raw : raw ? [raw] : []) as Record<string, unknown>[];
@@ -277,8 +277,8 @@ export class PlaceService {
           );
         }
       } else {
-        // 현재 지도 중심 기준 위치 쿼리:
-        // 카테고리 지정 시 해당 카테고리 단 1회, 전체 조회 시에도 contentTypeId를 생략하여 1회 통합 요청 (기존 7건 -> 1건으로 85% 절감!)
+
+
         const targetParams: Record<string, string | number> = {
           mapX: opts.lng,
           mapY: opts.lat,
@@ -297,7 +297,7 @@ export class PlaceService {
             signal(),
           )
             .then((res) => {
-              // 위와 같다 — null은 '결과 없음'이 아니라 '호출 실패'다.
+
               if (res === null) return { cType: '', rows: [], failed: true };
               const raw = res?.response?.body?.items?.item;
               const rows = (Array.isArray(raw) ? raw : raw ? [raw] : []) as Record<string, unknown>[];
@@ -309,16 +309,16 @@ export class PlaceService {
 
       const results = await runPooled(fetchTasks);
 
-      /*
-        TourAPI 호출이 전부 실패했으면 '결과 없음'이 아니라 '못 가져옴'이다.
 
-        예전에는 실패를 조용히 빈 배열로 삼켜서, 8초 타임아웃이 나도 200 OK에
-        items: []로 내려갔다. 그러면 클라이언트는 그 지역에 장소가 없다고 믿고
-        핀을 지운 뒤 그 빈 결과를 30분간 캐시했다 — 확대할 때마다 재요청이 나가는데
-        한 번만 실패해도 그 동네가 30분 내내 비어 보였다.
 
-        구분해서 던지면 라우트가 error로 내려주고, 클라이언트가 기존 핀을 지키게 된다.
-      */
+
+
+
+
+
+
+
+
       if (results.length > 0 && results.every((r) => 'failed' in r && r.failed)) {
         throw new Error('관광공사 API 응답을 받지 못했습니다');
       }
@@ -353,7 +353,7 @@ export class PlaceService {
 
           if (opts.category && category !== opts.category) continue;
 
-          // 검색 중심(opts.lat, opts.lng) 기준 거리 — utils/geo가 유일한 계산기다.
+
           const dist = Math.round(
             distanceInMeters({ lat: opts.lat, lng: opts.lng }, { lat: y, lng: x }),
           );
@@ -376,7 +376,7 @@ export class PlaceService {
       });
     }
 
-    // 4. 캐시 저장 (상한을 넘으면 가장 오래된 항목부터 버린다)
+
     this.placeCache.set(cacheKey, {
       expiresAt: Date.now() + CACHE_TTL,
       items: out,
@@ -390,12 +390,12 @@ export class PlaceService {
     return out;
   }
 
-  /** 장소 상세 정보 조회 */
+
   public static async getPlaceDetail(
     contentId: string,
     contentTypeId: string = '12',
   ): Promise<PlaceDetailData> {
-    // 1. 큐레이션된 전통 명소/씨앗 데이터 우선 검사 (죽녹원, 소쇄원, 하회마을 등)
+
     const curated = getCuratedPlace(contentId);
     if (curated && !/^\d+$/.test(contentId)) {
       return toPlaceDetailData(curated);

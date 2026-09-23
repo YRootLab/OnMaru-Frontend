@@ -45,7 +45,7 @@ reviews:
     - path: "docs/**"
       instructions: "기술 문서를 리뷰합니다:\n- 가독성 및 문맥 흐름의 매끄러움\n- 맞춤법, 띄어쓰기, 문장 표현의 정확성 및 오탈자 검출\n- API 스펙 및 데이터 구조 정의의 완성도와 누락 여부\n- 마크다운 문법 및 구조적 포맷팅 가독성\n- API 명세서의 엔드포인트, 요청 파라미터, 응답 예시가 실제 구현과 일치하는지"
     - path: "**/.env*"
-      instructions: "환경변수 파일을 리뷰합니다:\n- .env 파일이 .gitignore에 포함되어 있는지 확인\n- 실제 시크릿 값이 커밋되지 않았는지 반드시 확인\n- 민감 정보(예: API Key, Supabase Key 등)가 절대 노출되지 않도록 확인\n- .env.example인 경우 필수 환경변수 목록과 설명이 정리되어 있는지 확인"
+      instructions: "환경변수 파일을 리뷰합니다:\n- .env 파일이 .gitignore에 포함되어 있는지 확인\n- 실제 시크릿 값이 커밋되지 않았는지 반드시 확인\n- 민감 정보(예: API Key, Supabase Key 등)가 절대 노출되지 않도록 확인"
     - path: ".github/**"
       instructions: "GitHub Actions 워크플로우 및 설정 파일을 리뷰합니다:\n- 시크릿이 올바르게 GitHub Secrets로 관리되는지 확인\n- 워크플로우 권한이 최소 권한 원칙을 따르는지 검토"
   tools:

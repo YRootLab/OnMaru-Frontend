@@ -14,55 +14,55 @@ const FONT = "'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, sans-seri
 
 const START = 0.84;
 
-const COUNT_AT = 0.28; // 숫자 블록이 자리를 잡는 지점. 여기서 카운트업이 출발한다.
+const COUNT_AT = 0.28;
 const COUNT_MS = 1200;
 
 const CACHE_KEY = 'onmaru_hanok_total';
 
-/**
- * 이번 세션에서 이미 받아둔 숙소 수. 없으면 undefined.
- *
- * 렌더 전에 답이 나오는 값이라 초기값으로 읽는다 —
- * effect에서 setState로 밀어넣으면 스켈레톤을 한 번 그린 뒤 다시 그린다.
- */
+
+
+
+
+
+
 function readCachedTotal() {
   try {
     const cached = Number(sessionStorage.getItem(CACHE_KEY));
     if (Number.isFinite(cached) && cached > 0) return cached;
   } catch {
-    /* 프라이빗 모드 등 — 캐시가 없는 셈 친다 */
+
   }
 
   return undefined;
 }
 
-// ─────────────────────────────────────────
-// 유틸
-// ─────────────────────────────────────────
 
-/**
- * 블록 하나의 등장.
- *
- * 스크롤이 매 프레임 값을 바꾸므로 CSS transition을 걸면 뒤늦게 쫓아가며 밀린다.
- * 이징을 여기서 직접 먹이고 결과값만 style로 넣는다.
- */
+
+
+
+
+
+
+
+
+
 function reveal(localProgress, start, end, reduced) {
   const t = Math.min(1, Math.max(0, (localProgress - start) / (end - start)));
-  const eased = 1 - (1 - t) ** 3; // easeOutCubic
+  const eased = 1 - (1 - t) ** 3;
 
   return {
     opacity: eased,
-    // 모션을 줄인 사용자에게는 투명도만 남긴다
+
     transform: reduced ? 'none' : `translateY(${(1 - eased) * 16}px)`,
   };
 }
 
-/**
- * 다음 절기.
- *
- * 올해치와 내년치를 함께 늘어놓고 오늘 이후 가장 가까운 것을 고른다.
- * 12월에 서면 올해 남은 절기가 없으므로 내년 소한이 잡힌다.
- */
+
+
+
+
+
+
 function getNextSolarTerm(now = new Date()) {
   const year = now.getFullYear();
 
@@ -81,19 +81,19 @@ function getNextSolarTerm(now = new Date()) {
 
 const nextMonthOf = (now = new Date()) => ((now.getMonth() + 1) % 12) + 1;
 
-// ─────────────────────────────────────────
-// 스타일
-// ─────────────────────────────────────────
+
+
+
 
 const pulse = keyframes`
   0%, 100% { opacity: 0.45; }
   50%      { opacity: 0.9; }
 `;
 
-/**
- * justify-content에 safe를 붙인다.
- * 내용이 화면보다 길어지면 그냥 center인 경우 위쪽이 잘려 스크롤로도 못 올라간다.
- */
+
+
+
+
 const Stage = styled.section`
   position: fixed;
   inset: 0;
@@ -112,11 +112,11 @@ const Stage = styled.section`
     gap: clamp(20px, 3vh, 32px);
   }
 
-  /*
-    노트북 뷰포트(대략 700~860px)에서는 네 블록이 한 화면에 들어오지 않는다.
-    스크롤이 이미 문서 끝이라 잘린 부분은 어떤 방법으로도 볼 수 없으므로,
-    여기서부터는 여백과 숫자를 줄여 전부 담는다.
-  */
+
+
+
+
+
   @media (max-height: 860px) {
     padding: 2vh 6vw;
     gap: clamp(8px, 1.4vh, 16px);
@@ -132,7 +132,7 @@ const Block = styled.div`
   text-align: center;
 `;
 
-// ── 1단 — 실재 선언
+
 
 const Headline = styled.h2`
   margin: 0;
@@ -148,10 +148,10 @@ const Headline = styled.h2`
   }
 `;
 
-/**
- * 출처 두 줄. 화면이 낮으면 한 줄로 합쳐 세로를 아낀다.
- * 가운데 구분점은 한 줄일 때만 나온다.
- */
+
+
+
+
 const Source = styled.p`
   margin: 14px 0 0;
   font-size: clamp(12px, 1.1vw, 14px);
@@ -175,7 +175,7 @@ const Source = styled.p`
   }
 `;
 
-// ── 2단 — 규모
+
 
 const Lead = styled.p`
   margin: 0 0 16px;
@@ -205,7 +205,7 @@ const CountValue = styled.div`
   font-weight: 700;
   letter-spacing: -0.04em;
   color: ${lightPalette.juhong[500]};
-  /* 자릿수가 바뀔 때 숫자가 좌우로 흔들리지 않는다 */
+
   font-variant-numeric: tabular-nums;
 
   @media (max-width: 768px) {
@@ -244,7 +244,7 @@ const CountSource = styled.span`
   color: ${meok[400]};
 `;
 
-/** 카운트업을 한 자리씩 읽어주지 않도록, 다 센 결과만 스크린리더에 한 번 전한다. */
+
 const SrOnly = styled.span`
   position: absolute;
   width: 1px;
@@ -256,7 +256,7 @@ const SrOnly = styled.span`
   clip-path: inset(50%);
 `;
 
-// ── 3단 — 두 개의 문
+
 
 const Doors = styled.div`
   display: grid;
@@ -270,12 +270,12 @@ const Doors = styled.div`
   }
 `;
 
-/**
- * 카드 두 장.
- *
- * 성격 차이는 data-primary 하나로 가른다 — 커스텀 prop을 styled(Link)에 넘기면
- * next/link가 그대로 <a>에 뿌려 React가 알 수 없는 속성이라고 경고한다.
- */
+
+
+
+
+
+
 const Card = styled(Link)`
   display: flex;
   flex-direction: column;
@@ -307,7 +307,7 @@ const Card = styled(Link)`
   @media (max-width: 768px) {
     min-height: 180px;
 
-    /* 주 행동을 위로 올린다 */
+
     &[data-primary='true'] {
       order: -1;
     }
@@ -365,7 +365,7 @@ const CardAction = styled.span`
   }
 `;
 
-// ── 4단 — 다음 방문
+
 
 const NextVisit = styled.div`
   width: 100%;
@@ -442,14 +442,14 @@ const AutoNote = styled.p`
   }
 `;
 
-// ─────────────────────────────────────────
-// Beat6_Invite
-// ─────────────────────────────────────────
+
+
+
 
 export default function LandingCallToAction({ progress }) {
   const reduced = usePrefersReducedMotion();
 
-  // undefined = 아직 모름, null = 못 가져옴, number = 확인된 값
+
   const [total, setTotal] = useState(readCachedTotal);
   const [counted, setCounted] = useState(0);
   const started = useRef(false);
@@ -457,22 +457,22 @@ export default function LandingCallToAction({ progress }) {
   const term = useMemo(() => getNextSolarTerm(), []);
   const nextMonth = useMemo(() => nextMonthOf(), []);
 
-  /*
-    훅은 전부 이 위에 둔다.
-    아래 early return보다 뒤에 훅이 하나라도 있으면 progress가 0.84를 넘는 순간
-    렌더마다 훅 개수가 달라져 React가 통째로 던진다.
-  */
+
+
+
+
+
   const localProgress = Math.min(1, Math.max(0, (progress - START) / (1 - START)));
 
   useEffect(() => {
-    if (total !== undefined) return; // 캐시가 이미 답을 줬다
+    if (total !== undefined) return;
 
     fetch('/api/tour/summary')
       .then((response) => response.json())
       .then((data) => {
         const value = Number(data?.total);
 
-        // 값이 없으면 지어내지 않는다. 아래 대체 문구로 간다.
+
         if (!Number.isFinite(value) || value <= 0) throw new Error('total 없음');
 
         setTotal(value);
@@ -481,7 +481,7 @@ export default function LandingCallToAction({ progress }) {
       .catch(() => setTotal(null));
   }, [total]);
 
-  // 숫자가 자리를 잡는 지점에서 한 번만 센다.
+
   useEffect(() => {
     if (started.current || reduced) return undefined;
     if (localProgress < COUNT_AT || typeof total !== 'number') return undefined;
@@ -493,7 +493,7 @@ export default function LandingCallToAction({ progress }) {
 
     const tick = (now) => {
       const t = Math.min(1, (now - startedAt) / COUNT_MS);
-      const eased = 1 - 2 ** (-10 * t); // easeOutExpo
+      const eased = 1 - 2 ** (-10 * t);
 
       setCounted(Math.round(total * eased));
       if (t < 1) frame = requestAnimationFrame(tick);
@@ -505,7 +505,7 @@ export default function LandingCallToAction({ progress }) {
 
   if (progress < START) return null;
 
-  // 모션을 줄인 사용자에게는 세는 과정 없이 결과만 보여준다.
+
   const shown = reduced ? total ?? 0 : counted;
   const settled = typeof total === 'number' && shown >= total;
 
@@ -518,7 +518,7 @@ export default function LandingCallToAction({ progress }) {
 
   return (
     <Stage aria-label="온마루 둘러보기">
-      {/* 1단 — 실재 선언 */}
+      {}
       <Block>
         <Headline style={reveal(localProgress, 0.02, 0.12, reduced)}>이 집은, 실재합니다.</Headline>
 
@@ -528,7 +528,7 @@ export default function LandingCallToAction({ progress }) {
         </Source>
       </Block>
 
-      {/* 2단 — 규모 */}
+      {}
       <Block>
         <Lead style={reveal(localProgress, 0.2, 0.28, reduced)}>그리고 이런 집들이,</Lead>
 
@@ -554,7 +554,7 @@ export default function LandingCallToAction({ progress }) {
         </Block>
       </Block>
 
-      {/* 3단 — 두 개의 문 */}
+      {}
       <Doors>
         <Card
           href="/hanok"
@@ -590,7 +590,7 @@ export default function LandingCallToAction({ progress }) {
         </Card>
       </Doors>
 
-      {/* 4단 — 다음 방문 */}
+      {}
       <NextVisit style={reveal(localProgress, 0.82, 0.94, reduced)}>
         <NextVisitTitle>다음에 오시면, 달라져 있습니다</NextVisitTitle>
 

@@ -10,15 +10,15 @@ import type { Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
 import { createKakaoResourceScope, type KakaoResourceScope } from './kakaoMapResources';
 
-// 브랜드 메인 컬러(주황) 통일 — 지도 패널만 파랑(kobalt)을 따로 쓰면 화면에 파랑이 섞여
-// "핵심 몇 곳만 포인트 컬러, 나머지는 무채색" 원칙이 깨진다. 톤은 그대로 두고 계열만 바꾼다.
-const JUHONG_PRIMARY = lightPalette.juhong[500]; // #FF5500
-const JUHONG_DEEP = lightPalette.juhong[700]; // #D94000
-const JUHONG_LIGHT = lightPalette.juhong[50]; // #FFF4EB
+
+
+const JUHONG_PRIMARY = lightPalette.juhong[500];
+const JUHONG_DEEP = lightPalette.juhong[700];
+const JUHONG_LIGHT = lightPalette.juhong[50];
 const JUHONG_SUBTLE = 'rgba(255, 85, 0, 0.08)';
 const JUHONG_BORDER = 'rgba(255, 85, 0, 0.18)';
 
-// Default Fallback Hanok Photos
+
 const FALLBACK_HANOK_IMAGES = [
   '/images/hanok/hanok-exterior.png',
   '/images/hanok/hanok-main.png',
@@ -28,7 +28,7 @@ const FALLBACK_HANOK_IMAGES = [
   '/images/hanok/maru-detail.png',
 ];
 
-/* HanokMap의 MapWrapper와 같은 식이어야 한다. 다르면 프레임이 감싸는 상자를 비집는다. */
+
 const Frame = styled.div`
   position: relative;
   width: 100%;
@@ -48,7 +48,7 @@ const MapCanvas = styled.div`
   width: 100%;
   height: 100%;
 
-  /* ── Photo Circle Avatar Marker Pins ── */
+
   .custom-overlay-pin {
     position: relative;
     display: flex;
@@ -153,7 +153,7 @@ const ErrorSubtext = styled.p`
   }
 `;
 
-/* ── Bottom Floating Region Bar (Flat White Glass Dock) ── */
+
 const BottomRegionBar = styled.div`
   position: absolute;
   bottom: 14px;
@@ -210,7 +210,7 @@ const RegionChip = styled.button<{ $active: boolean }>`
   }
 `;
 
-/* ── Left Collapsible Story Side Panel (Flat Light Glass Drawer) ── */
+
 const LeftPanel = styled(motion.div)`
   position: absolute;
   top: 14px;
@@ -410,7 +410,7 @@ const MiniMeta = styled.div`
   }
 `;
 
-/* ── Collapsed Floating Trigger Pill (Flat Glass) ── */
+
 const CollapsedPillBtn = styled(motion.button)`
   position: absolute;
   top: 14px;
@@ -518,7 +518,7 @@ export default function HanokInteractiveMapFrame({
     return validVillages.filter((v) => v.region.includes(selectedRegion));
   }, [validVillages, selectedRegion]);
 
-  // 대한민국 전체 지점이 화면 100%에 맞춰 가득 차도록 바운즈 자동 계산
+
   const fitKoreaBounds = useCallback((mapInstance: KakaoMapInstance, targets: Village[]) => {
     if (!mapInstance || !window.kakao || !window.kakao.maps || targets.length === 0) return;
 
@@ -529,11 +529,11 @@ export default function HanokInteractiveMapFrame({
       }
     });
 
-    // 상하좌우 여백(32px)으로 대한민국 전역이 시원하게 중앙 렌더링되도록 함
+
     mapInstance.setBounds(bounds, 32, 32, 32, 32);
   }, []);
 
-  // Kakao Map & MarkerClusterer 초기화
+
   const initMap = useCallback(() => {
     if (!containerRef.current) return;
     if (!window.kakao || !window.kakao.maps) {
@@ -558,14 +558,14 @@ export default function HanokInteractiveMapFrame({
         });
         mapResourcesRef.current = mapResources;
 
-        // 바탕 지도 클릭 시 스토리 패널 접기
+
         const handleMapClick = () => {
           setIsStoryExpanded(false);
         };
         window.kakao.maps.event.addListener(map, 'click', handleMapClick);
         mapResources.trackListener(map, 'click', handleMapClick);
 
-        // 클러스터러 스타일 (그림자 제거, 미디엄 폰트)
+
         if (window.kakao.maps.MarkerClusterer) {
           const clusterer = new window.kakao.maps.MarkerClusterer({
             map,
@@ -621,7 +621,7 @@ export default function HanokInteractiveMapFrame({
     }
   }, [fitKoreaBounds, validVillages]);
 
-  // 마커 / 클러스터러 / 사진 아바타 오버레이 업데이트
+
   useEffect(() => {
     if (!isLoaded || !mapRef.current || !window.kakao || !window.kakao.maps) return;
 
@@ -631,7 +631,7 @@ export default function HanokInteractiveMapFrame({
     });
     markerResourcesRef.current = markerResources;
 
-    // 기존 오버레이 및 마커 클리어
+
     overlaysRef.current.forEach((overlay) => overlay.setMap(null));
     overlaysRef.current = [];
 
@@ -651,7 +651,7 @@ export default function HanokInteractiveMapFrame({
         ? village.image
         : FALLBACK_HANOK_IMAGES[idx % FALLBACK_HANOK_IMAGES.length];
 
-      // 1. 커스텀 사진 오버레이 핀
+
       const content = document.createElement('div');
       content.className = 'custom-overlay-pin';
       content.innerHTML = `
@@ -663,7 +663,7 @@ export default function HanokInteractiveMapFrame({
 
       const handleOverlayClick = (e: MouseEvent) => {
         e.stopPropagation();
-        setIsStoryExpanded(false); // 핀 클릭 시 스토리 패널 자동 접기
+        setIsStoryExpanded(false);
         onSelectVillage?.(village);
         mapRef.current?.panTo(position);
       };
@@ -678,7 +678,7 @@ export default function HanokInteractiveMapFrame({
       overlaysRef.current.push(customOverlay);
       markerResources.trackOverlay(customOverlay);
 
-      // 2. 마커 클러스터러용 마커 객체
+
       const transparentImage = new window.kakao.maps.MarkerImage(
         'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
         new window.kakao.maps.Size(1, 1)
@@ -689,7 +689,7 @@ export default function HanokInteractiveMapFrame({
         image: transparentImage,
       }) as KakaoMarkerInstance;
       const handleMarkerClick = () => {
-        setIsStoryExpanded(false); // 마커 클릭 시 스토리 패널 자동 접기
+        setIsStoryExpanded(false);
         onSelectVillage?.(village);
         mapRef.current?.panTo(position);
       };
@@ -701,7 +701,7 @@ export default function HanokInteractiveMapFrame({
 
     markersRef.current = newMarkers;
 
-    // 줌 레벨 및 지역 선택에 따른 오버레이 표시 상태 갱신 함수
+
     const syncOverlayVisibility = () => {
       if (!mapRef.current) return;
       const currentLevel = mapRef.current.getLevel();
@@ -712,22 +712,22 @@ export default function HanokInteractiveMapFrame({
       });
     };
 
-    // 초기 상태 갱신
+
     syncOverlayVisibility();
 
-    // 줌 레벨 변경 시 동적 노출 갱신
+
     window.kakao.maps.event.addListener(mapRef.current, 'zoom_changed', syncOverlayVisibility);
     markerResources.trackListener(mapRef.current, 'zoom_changed', syncOverlayVisibility);
 
-    // 전국 전체 보기일 때 마커 클러스터러 적용
+
     if (selectedRegion === '전체' && clustererRef.current) {
       clustererRef.current.addMarkers(newMarkers);
 
-      // 클러스터 클릭 시 스토리 패널 접기 및 해당 위치로 확대
+
       const handleClusterClick = (cluster: KakaoCluster) => {
         const map = mapRef.current;
         if (!map) return;
-        setIsStoryExpanded(false); // 클러스터 클릭 시 스토리 패널 자동 접기
+        setIsStoryExpanded(false);
         const level = map.getLevel() - 2;
         const targetLevel = level < 1 ? 1 : level;
         map.setLevel(targetLevel, { animate: true });
@@ -756,9 +756,9 @@ export default function HanokInteractiveMapFrame({
     mapRef.current = null;
   }, []);
 
-  // 컨테이너 최종 크기가 초기화 이후에 확정되면(웹폰트 로드, 레이아웃 시프트, 창 리사이즈)
-  // 지도는 옛 크기 그대로 남아 오른쪽에 빈 띠가 생기고 바운즈도 어긋난 채 굳는다.
-  // 크기가 바뀔 때마다 relayout하고, 전체 보기 상태면 바운즈를 다시 맞춘다.
+
+
+
   useEffect(() => {
     const el = containerRef.current;
     if (!isLoaded || !el) return;
@@ -774,7 +774,7 @@ export default function HanokInteractiveMapFrame({
     return () => observer.disconnect();
   }, [isLoaded, selectedRegion, validVillages, fitKoreaBounds]);
 
-  // 지역 클릭 시 지도 이동 및 바운즈 피팅
+
   const handleRegionClick = (region: string) => {
     setSelectedRegion(region);
 
@@ -831,7 +831,7 @@ export default function HanokInteractiveMapFrame({
 
       <MapCanvas ref={containerRef} />
 
-      {/* ── Bottom Floating Region Bar (Flat Slim White Dock) ── */}
+      {}
       <BottomRegionBar>
         {REGIONS.map((r) => {
           const isActive = selectedRegion === r;
@@ -847,7 +847,7 @@ export default function HanokInteractiveMapFrame({
         })}
       </BottomRegionBar>
 
-      {/* ── Left Story Side Panel (Flat Light Glass Drawer) ── */}
+      {}
       <AnimatePresence mode="wait">
         {isStoryExpanded ? (
           <LeftPanel

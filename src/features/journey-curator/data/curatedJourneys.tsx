@@ -327,7 +327,7 @@ export const JOURNEY_PLANS: Record<string, BentoJourneyPlan> = {
   },
 };
 
-/** 자연어 쿼리 분석 및 가장 적합한 여정 플랜 매칭 */
+
 export function matchJourneyPlan(query: string): BentoJourneyPlan {
   const lower = query.toLowerCase();
 
@@ -344,6 +344,6 @@ export function matchJourneyPlan(query: string): BentoJourneyPlan {
     return JOURNEY_PLANS.rest;
   }
 
-  // 기본은 고즈넉하고 조용한 산책 (quiet)
+
   return JOURNEY_PLANS.quiet;
 }

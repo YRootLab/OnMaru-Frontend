@@ -15,17 +15,17 @@ import StampLeaderboard from './StampLeaderboard';
 import StampSealAnimation from './StampSealAnimation';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 
-// GSAP 플러그인 등록
+
 gsap.registerPlugin(useGSAP);
 
-// --- Styled Components ---
+
 
 const Root = styled.div`
   width: 100%;
   padding: 16px clamp(16px, 4vw, 48px) 80px;
   background: transparent;
   color: inherit;
-  visibility: hidden; /* GSAP 로드 전 깜빡임 방지 */
+  visibility: hidden;
 
   @media (max-width: 640px) {
     padding: 12px 16px 80px;
@@ -42,7 +42,7 @@ const Badge = styled.div`
   gap: 5px;
   padding: 4px 12px;
   border-radius: 9999px;
-  /* 지도와 맞춘 생동감 있는 오렌지 톤 */
+
   background: rgba(249, 115, 22, 0.12);
   color: #ea580c;
   font-family: var(--font-traditional);
@@ -204,11 +204,11 @@ const ProgressBarTrack = styled.div`
 
 const ProgressBarFill = styled.div`
   height: 100%;
-  width: 0%; /* GSAP이 제어하도록 0으로 초기화 */
+  width: 0%;
   border-radius: 9999px;
-  /* 지도 호버 색상과 맞춘 화사한 앰버-오렌지 그라데이션 */
+
   background: linear-gradient(90deg, #f59e0b, #ea580c);
-  /* CSS transition 제거 (GSAP 활용) */
+
 `;
 
 const GuideNote = styled.div`
@@ -217,7 +217,7 @@ const GuideNote = styled.div`
   gap: 8px;
   padding: 12px 16px;
   border-radius: 12px;
-  /* 지도 힌트 톤과 통일 */
+
   background: rgba(245, 158, 11, 0.08);
   color: #b45309;
   font-family: var(--font-traditional-body);
@@ -282,11 +282,11 @@ const StampsGrid = styled.div`
   }
 `;
 
-// --- Main Component ---
+
 
 export default function StampBook() {
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   const { user } = useAuth();
   const collectedStamps = useStampStore((s) => s.collectedStamps);
   const activeModalStamp = useStampStore((s) => s.activeStampModal);
@@ -316,16 +316,16 @@ export default function StampBook() {
     return stamp.region === selectedRegion || stamp.region === 'all';
   });
 
-  // --- GSAP Animations ---
+
   useGSAP(() => {
     if (!containerRef.current) return;
 
-    // 초기 숨김 해제
+
     gsap.set(containerRef.current, { visibility: 'visible' });
 
     const tl = gsap.timeline();
 
-    // 1. 헤더 영역 페이드업
+
     tl.from('.header-elem', {
       y: 20,
       opacity: 0,
@@ -333,7 +333,7 @@ export default function StampBook() {
       stagger: 0.1,
       ease: 'power2.out',
     })
-    // 2. 통계 박스들 스태거(순차적) 애니메이션
+
     .from('.stat-box', {
       scale: 0.9,
       opacity: 0,
@@ -341,22 +341,22 @@ export default function StampBook() {
       duration: 0.4,
       stagger: 0.1,
       ease: 'back.out(1.5)',
-    }, '-=0.2') // 헤더 애니메이션이 끝나기 전 자연스럽게 이어짐
-    // 3. 진행바 차오르는 애니메이션
+    }, '-=0.2')
+
     .to('.progress-fill', {
       width: `${progressPercent}%`,
       duration: 1.2,
       ease: 'power3.out',
     }, '-=0.2');
 
-  }, { scope: containerRef, dependencies: [progressPercent] }); // 달성률 변경 시 프로그레스바 갱신
+  }, { scope: containerRef, dependencies: [progressPercent] });
 
-  // 탭이나 지역 필터 변경 시 카드들 갱신 애니메이션
+
   useGSAP(() => {
     if (!containerRef.current) return;
-    
-    gsap.fromTo('.stamp-card-elem', 
-      { opacity: 0, y: 15 }, 
+
+    gsap.fromTo('.stamp-card-elem',
+      { opacity: 0, y: 15 },
       { opacity: 1, y: 0, duration: 0.4, stagger: 0.03, ease: 'power2.out', clearProps: 'all' }
     );
   }, { scope: containerRef, dependencies: [activeTab, selectedRegion] });
@@ -432,7 +432,7 @@ export default function StampBook() {
         </StatsContainer>
       </HeroGrid>
 
-      {/* Tabs */}
+      {}
       <TabRow className="header-elem">
         <TabButton
           $active={activeTab === 'stamps'}
@@ -463,7 +463,7 @@ export default function StampBook() {
         )}
       </TabRow>
 
-      {/* Tab Content */}
+      {}
       {activeTab === 'stamps' ? (
         <StampsGrid>
           {filteredStamps.map((stamp) => (
@@ -482,7 +482,7 @@ export default function StampBook() {
         </div>
       )}
 
-      {/* Seal Animation / Detail Modal */}
+      {}
       <StampSealAnimation
         stamp={activeModalStamp}
         onClose={closeStampModal}

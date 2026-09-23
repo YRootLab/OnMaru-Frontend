@@ -1,6 +1,6 @@
-// ============================================================
-// 관리자 신고 처리 Mock 데이터 (src/admin/mock/reports.mock.ts)
-// ============================================================
+
+
+
 
 import { ReportItem, ReportReason } from '@/features/admin/types';
 

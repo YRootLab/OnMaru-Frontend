@@ -42,8 +42,8 @@ describe('getHanokGridPage', () => {
     expect(first.totalPages).toBe(2);
   });
 
-  // 태그는 좁히는 장치가 아니라 넓히는 장치다. every였을 때는 희박한 태그 둘만 골라도
-  // 교집합이 비어 빈 화면이 나왔다.
+
+
   it('keeps places matching any selected badge', () => {
     const villages = [
       village('both', '고택', ['고택', '국가지정']),
@@ -62,7 +62,7 @@ describe('getHanokGridPage', () => {
     expect(result.filteredCount).toBe(3);
   });
 
-  // 유형 필터가 '전체'면 스테이 제외 가드만이 스테이를 걸러낼 수 있다.
+
   it('excludes stays even when no type filter is applied', () => {
     const villages = [village('house', '고택'), village('stay', STAY_TYPE)];
 
@@ -72,8 +72,8 @@ describe('getHanokGridPage', () => {
     expect(result.filteredCount).toBe(1);
   });
 
-  // 유형 칩은 실제 데이터의 type과 완전일치해야 한다. 관광공사 분류표의 공식 명칭을
-  // 그대로 쓰므로, 이름을 임의로 손보면 칩 전체가 0건이 된다.
+
+
   it('matches the type values the archive service actually emits', () => {
     const villages = [
       village('palace', '고궁'),
@@ -104,21 +104,21 @@ describe('getHanokGridPage', () => {
       village('unjoru', '고택', [], { name: '구례 운조루', addr: '전남 구례군' }),
     ];
 
-    // 사람이 띄어쓰기를 정확히 맞출 이유가 없다.
+
     expect(
       getHanokGridPage(villages, filters({ query: '남산골 한옥마을' }), 1).items.map((i) => i.id),
     ).toEqual(['namsan']);
 
-    // 이름으로 못 찾으면 주소로도 걸려야 한다.
+
     expect(
       getHanokGridPage(villages, filters({ query: '구례' }), 1).items.map((i) => i.id),
     ).toEqual(['unjoru']);
   });
 
-  /*
-    5쪽을 보다가 검색어를 넣어 결과가 1쪽으로 줄면, 5쪽은 빈 배열을 돌려준다 —
-    조건에 맞는 곳이 있는데도 '없습니다'가 뜬다.
-  */
+
+
+
+
   it('pulls an out-of-range page back to the last page that has items', () => {
     const villages = Array.from({ length: 14 }, (_, index) => village(`v-${index}`));
 

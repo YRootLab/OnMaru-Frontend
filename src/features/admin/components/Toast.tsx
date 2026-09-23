@@ -1,8 +1,8 @@
 'use client';
 
-// ============================================================
-// 알림 토스트 (src/admin/components/Toast.tsx)
-// ============================================================
+
+
+
 
 import React, { useEffect } from 'react';
 import { palette } from '@/design-system/tokens';

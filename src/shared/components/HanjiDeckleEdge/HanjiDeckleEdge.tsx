@@ -59,23 +59,22 @@ const DeckleFringe = styled.path<{ $isDark: boolean }>`
 `;
 
 export function HanjiDeckleEdge() {
-  // const { mode } = useOnmaruTheme();
-  // const isDark = mode === 'dark';
+
+
 
   return null;
-  /*
-  return (
-    <Container aria-hidden="true">
-      <DeckleLeft viewBox="0 0 32 1200" preserveAspectRatio="none">
-        <DeckleShadow d={DECKLE_EDGE_PATH} $isDark={isDark} />
-        <DeckleFringe d={DECKLE_EDGE_PATH} $isDark={isDark} />
-      </DeckleLeft>
-      <DeckleRight viewBox="0 0 32 1200" preserveAspectRatio="none">
-        <DeckleShadow d={DECKLE_EDGE_PATH} $isDark={isDark} />
-        <DeckleFringe d={DECKLE_EDGE_PATH} $isDark={isDark} />
-      </DeckleRight>
-    </Container>
-  );
-  */
-}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+}

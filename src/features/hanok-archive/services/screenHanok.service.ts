@@ -1,9 +1,9 @@
 import { apiGet, apiPut, apiDelete } from '@/lib/api/client';
 
-/** 스크린 속 한옥 미디어 매체 분류 코드 */
+
 export type ScreenHanokMediaType = 'K_DRAMA' | 'CINEMA' | 'KPOP';
 
-/** Issue #103: 백엔드 GET /api/v1/hanoks/screen-hanok 응답 한 건 스키마 */
+
 export interface ScreenHanokItem {
   placeId: string;
   name: string;
@@ -30,10 +30,10 @@ export interface ScreenHanokFilterParams {
   mediaType?: ScreenHanokMediaType;
 }
 
-/** 
- * Issue #103 명세 기반 표준 Fallback 데이터셋
- * 백엔드 실서버 배포 전 또는 오프라인 환경에서도 드라마/영화/K-POP 탭별로 풍부한 큐레이션을 제공합니다.
- */
+
+
+
+
 const FALLBACK_SCREEN_HANOKS: ScreenHanokItem[] = [
   {
     placeId: 'sh-001',
@@ -142,7 +142,7 @@ const FALLBACK_SCREEN_HANOKS: ScreenHanokItem[] = [
   },
 ];
 
-/** 정적 Fallback 데이터 필터링 */
+
 function getFallbackScreenHanoks(filter?: ScreenHanokFilterParams): ScreenHanokItem[] {
   let items = [...FALLBACK_SCREEN_HANOKS];
 
@@ -156,12 +156,12 @@ function getFallbackScreenHanoks(filter?: ScreenHanokFilterParams): ScreenHanokI
   return items;
 }
 
-/**
- * ## screenHanokService
- * Issue #103: "스크린 속 한옥 (K-콘텐츠 연계)" 백엔드 API 통신 및 Fallback 전용 서비스 객체
- */
+
+
+
+
 export const screenHanokService = {
-  /** 스크린 속 한옥 목록 조회 */
+
   async getScreenHanoks(params?: ScreenHanokFilterParams): Promise<ScreenHanokItem[]> {
     try {
       const queryParams: Record<string, string> = {};
@@ -175,12 +175,12 @@ export const screenHanokService = {
       }
       return getFallbackScreenHanoks(params);
     } catch {
-      // 백엔드 미구동 또는 404/5xx 오류 시 정적 Fallback 데이터로 안전하게 우회
+
       return getFallbackScreenHanoks(params);
     }
   },
 
-  /** 장소 찜(Saved) 토글 */
+
   async toggleSavePlace(placeId: string, currentSaved: boolean): Promise<boolean> {
     if (currentSaved) {
       await apiDelete(`/api/v1/saved-resources/places/${encodeURIComponent(placeId)}`);

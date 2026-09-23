@@ -1,13 +1,13 @@
 'use client';
 
-/**
- * "지도는 위치, 관계 뷰는 이유" (fe-experience-api-implementation-report.md §2).
- * 여기는 실제 지리 위치만 표현한다 — 추천 동선이나 도보 경로가 아니다.
- *
- * 기존 /map의 KakaoMap.tsx는 전국 지도 페이지 전용 useMapStore(전역 싱글턴)에 강하게
- * 묶여 있어 재사용하면 실제 지도 페이지와 상태가 충돌한다. 여기는 좌표 1~3개만 찍으면
- * 되므로 같은 Kakao SDK만 재사용하고 지도 인스턴스는 이 컴포넌트가 로컬로 갖는다.
- */
+
+
+
+
+
+
+
+
 
 import { useEffect, useRef } from 'react';
 import Script from 'next/script';
@@ -61,11 +61,11 @@ export default function JourneyMapView({ board, focusedRef, onFocus }: JourneyMa
     .map((c) => findPlace(board, c.placeRef))
     .filter((p): p is PlaceResource => !!p && !!p.location);
 
-  /**
-   * onLoad(Script)와 mount effect가 거의 동시에 build()를 부를 수 있다 — Next.js는
-   * 같은 src의 <Script>가 이미 로드돼 있으면 새로 마운트된 컴포넌트의 onLoad도
-   * 바로 불러준다. map은 한 번만 만들고, 마커는 매번 지운 뒤 다시 그려 중복을 막는다.
-   */
+
+
+
+
+
   function build() {
     const container = containerRef.current;
     if (!container || !window.kakao?.maps || places.length === 0) return;

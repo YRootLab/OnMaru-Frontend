@@ -1,26 +1,26 @@
 import type { HeatDay } from '@/features/map/types';
 
-/**
- * 요일별 혼잡도 패턴.
- *
- * 데이터랩 피드는 한 달가량 지연되므로 "다음 주 화요일이 한산할 것"이라고
- * 예보할 수는 없다. 대신 30일이면 요일마다 네다섯 번의 표본이 쌓이고,
- * 요일 리듬은 날씨보다 훨씬 완만하게 변한다. 그래서 예보 대신
- * "이 동네는 화요일이 가장 조용한 동네다"라는 성질을 말한다.
- *
- * 한옥에 가려는 사람이 실제로 쥐고 싶은 값이 이것이다.
- */
+
+
+
+
+
+
+
+
+
+
 
 export interface WeekdayStat {
-  /** 막대에 붙는 한 글자 — '월' */
+
   short: string;
-  /** 읽어주는 이름 — '월요일' */
+
   full: string;
-  /** 그 요일의 평균 혼잡도 */
+
   avg: number;
-  /** 이 권역 30일 평균 대비 몇 % */
+
   delta: number;
-  /** 표본 수. 적으면 말을 아껴야 한다. */
+
   samples: number;
 }
 
@@ -57,7 +57,7 @@ export function weekdayPattern(series: number[], days: HeatDay[]): WeekdayStat[]
   });
 }
 
-/** 가장 한적한 요일. 표본이 둘 미만인 요일은 우연일 수 있어 제외한다. */
+
 export function quietestWeekday(stats: WeekdayStat[]): WeekdayStat | null {
   const solid = stats.filter((s) => s.samples >= 2);
   if (solid.length < 3) return null;
@@ -65,7 +65,7 @@ export function quietestWeekday(stats: WeekdayStat[]): WeekdayStat | null {
   return solid.reduce((best, s) => (s.avg < best.avg ? s : best), solid[0]);
 }
 
-/** 값 하나를 기준값과 견준 한 마디. 스크러버·뱃지·팝오버가 같은 말투를 쓴다. */
+
 export function compareText(value: number, baseline: number): {
   tone: 'quiet' | 'busy' | 'flat';
   delta: number;
@@ -78,7 +78,7 @@ export function compareText(value: number, baseline: number): {
   return { tone: 'flat', delta, text: '평소와 비슷함' };
 }
 
-/** 배열의 중앙값. '평소'의 기준으로 평균보다 이상치에 덜 흔들린다. */
+
 export function medianOf(values: number[]): number {
   if (values.length === 0) return 0;
   const sorted = [...values].sort((a, b) => a - b);

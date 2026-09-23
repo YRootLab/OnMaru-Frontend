@@ -2,7 +2,7 @@ import { TourApiClient } from '@/lib/tour-api/tourApiClient';
 import { toHttps } from '@/features/map/utils/formatters';
 import { apiGet } from '@/lib/api/client';
 
-/** 백엔드 GET /api/v1/hanoks/{placeId} 응답. 실서버 호출로 검증한 실제 shape (2026-09-19). */
+
 interface BackendPlaceDetail {
   placeId: string;
   name: string;
@@ -15,10 +15,10 @@ interface BackendPlaceDetail {
 }
 
 export class HanokDetailService {
-  /**
-   * FE #90: 백엔드(/api/v1/hanoks/{placeId})를 먼저 시도하고, 실패하거나 백엔드가
-   * 설정되지 않았으면 기존 TourAPI 상세 경로로 폴백한다.
-   */
+
+
+
+
   public static async getHanokDetail(
     contentId: string,
     contentTypeIdParam?: string | null,
@@ -34,8 +34,8 @@ export class HanokDetailService {
   }
 
   private static async getPlaceDetailFromBackend(placeId: string) {
-    // FE #90: 한옥 도감 상세는 범용 /places가 아니라 한옥 전용 /hanoks/{placeId}를 쓴다
-    // (highlights, mapCard/odiiLinkedCard 등 한옥 특화 필드가 여기에만 있다).
+
+
     const detail = await apiGet<BackendPlaceDetail>(`/hanoks/${encodeURIComponent(placeId)}`);
 
     return {
@@ -73,9 +73,9 @@ export class HanokDetailService {
     const signal = AbortSignal.timeout(10000);
 
     try {
-      // 1. detailCommon2 호출
-      // overviewYN/addrinfoYN/mapinfoYN을 붙이면 이 키의 TourAPI 등급에서 INVALID_REQUEST_PARAMETER_ERROR가
-      // 난다 — 반면 아무 YN 없이 불러도 overview/addr1/mapx/mapy는 기본 응답에 이미 포함된다.
+
+
+
       const commonJson = await TourApiClient.get(
         'detailCommon2',
         { contentId: cleanId },
@@ -91,7 +91,7 @@ export class HanokDetailService {
 
       const contentTypeId = contentTypeIdParam || commonItem.contenttypeid || '';
 
-      // 2. detailIntro2, detailInfo2, detailImage2 병렬 호출
+
       const [introRes, infoRes, imgRes] = await Promise.allSettled([
         contentTypeId
           ? TourApiClient.get(

@@ -4,18 +4,18 @@ export const toRad = (deg) => (deg * Math.PI) / 180;
 
 export const clamp01 = (v) => Math.min(1, Math.max(0, v));
 
-/**
- * mesh 하나가 재질을 여러 장 가질 수 있으므로 늘 배열 형태로 정규화합니다.
- */
+
+
+
 export const materialsOf = (material) => (Array.isArray(material) ? material : [material]);
 
-/**
- * 모델 크기에서 카메라 구도를 역산합니다.
- *
- * @param {Object} extent - { height, radius } 또는 Vector3
- * @param {number} aspect - 화면 종횡비 (width / height)
- * @param {Object} options - { fov, azimuthDeg, elevationDeg, baseScreenY, roofScreenY, widthFill, dolly, offsetX, offsetY }
- */
+
+
+
+
+
+
+
 export function frameCamera(
   { height, radius },
   aspect,

@@ -1,20 +1,20 @@
-/**
- * Day 1 파일럿 fixture: 서울 종로구 서촌.
- *
- * seven-day-mvp-fe-handoff.md §13, §19와 fe-experience-api-implementation-report.md §14가
- * 요구하는 "파일럿 장소3개 이상 + REGION1개 + TOPIC2~4개 + relation + evidence"를
- * exploration.types.ts 계약대로 채운 동결 fixture다.
- *
- * 장소 네 곳(이상의 집·수성동계곡·통인시장·딜쿠샤)은 실제 종로구 서촌에 있는 곳이다.
- * 단, 좌표는 공개 정보 기반 근사치(accuracy: APPROXIMATE)이고 이미지·운영시간·접근성은
- * 실제 검수 전이라 이미지는 null, unavailableFields로 명시한다. sourceUrl도 실제 발행
- * 문서를 개별 확인하지 않은 채로는 추측해 채우지 않는다 — 백엔드 계약이 확정되면
- * Spring이 canonical 데이터로 교체한다.
- *
- * 데모 시나리오(seven-day-mvp-fe-handoff.md §4)를 그대로 따른다:
- *   최초 검색 → [이상의 집, 수성동계곡, 통인시장]
- *   "시장은 빼고 역사 이야기를 더 넣어줘" → 통인시장 제외, 딜쿠샤 추가, 이상의 집은 pin으로 유지
- */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 import type {
   AcceptedRun,
@@ -31,14 +31,14 @@ import type {
 
 const ASOF = '2026-09-10';
 
-// ── Region ───────────────────────────────────────────────────────────────
+
 
 export const REGION_SEOCHON: RegionResource = {
   ref: { type: 'REGION', id: 'region_seoul_jongno_seochon' },
   title: '서울 종로구 서촌',
 };
 
-// ── Topics (2~4) ─────────────────────────────────────────────────────────
+
 
 export const TOPIC_LITERATURE: TopicResource = {
   ref: { type: 'TOPIC', id: 'topic_modern_literature' },
@@ -64,7 +64,7 @@ export const TOPIC_MARKET_LIFE: TopicResource = {
   description: '서촌 주민의 생활과 먹거리가 모이는 전통시장',
 };
 
-// ── Places ───────────────────────────────────────────────────────────────
+
 
 export const PLACE_YISANG: PlaceResource = {
   ref: { type: 'PLACE', id: 'place_yisang_house' },
@@ -114,7 +114,7 @@ export const PLACE_DILKUSHA: PlaceResource = {
   unavailableFields: ['OPERATING_HOURS', 'ACCESSIBILITY'],
 };
 
-// ── Evidence ─────────────────────────────────────────────────────────────
+
 
 export const EVIDENCE: Evidence[] = [
   {
@@ -173,7 +173,7 @@ export const EVIDENCE: Evidence[] = [
   },
 ];
 
-// ── Relations: 최초 보드 (이상의 집 / 수성동계곡 / 통인시장) ─────────────
+
 
 export const RELATIONS_INITIAL: Relation[] = [
   {
@@ -226,7 +226,7 @@ export const RELATIONS_INITIAL: Relation[] = [
   },
 ];
 
-// ── Relations: 변경안 (이상의 집[pin] / 수성동계곡 / 딜쿠샤) ─────────────
+
 
 export const RELATIONS_PROPOSAL: Relation[] = [
   {
@@ -287,7 +287,7 @@ export const RELATIONS_PROPOSAL: Relation[] = [
   },
 ];
 
-// ── Boards ───────────────────────────────────────────────────────────────
+
 
 export const JOURNEY_BOARD_INITIAL: JourneyBoard = {
   title: '서촌, 문인의 골목에서 계곡까지',
@@ -413,7 +413,7 @@ export const JOURNEY_BOARD_PROPOSAL: JourneyBoard = {
   evidence: EVIDENCE,
 };
 
-// ── Proposal envelope ────────────────────────────────────────────────────
+
 
 export const JOURNEY_PROPOSAL: JourneyProposal = {
   id: 'proposal_01',
@@ -426,7 +426,7 @@ export const JOURNEY_PROPOSAL: JourneyProposal = {
   unknowns: [],
 };
 
-// ── AcceptedRun / RunSnapshot polling fixtures ──────────────────────────
+
 
 export const ACCEPTED_RUN_INITIAL: AcceptedRun = {
   schemaVersion: '1.0',
@@ -492,7 +492,7 @@ export const RUN_SNAPSHOT_FAILED: RunSnapshot = {
   },
 };
 
-// ── ExplorationSnapshot fixtures (Day 1 공동 산출물: INITIAL_BOARD / PROPOSAL / FAILED) ──
+
 
 export const EXPLORATION_SNAPSHOT_INITIAL: ExplorationSnapshot = {
   schemaVersion: '1.0',

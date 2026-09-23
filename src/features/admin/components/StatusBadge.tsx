@@ -1,8 +1,8 @@
 'use client';
 
-// ============================================================
-// 관리자 상태 뱃지 (src/admin/components/StatusBadge.tsx)
-// ============================================================
+
+
+
 
 import React from 'react';
 import { palette, meok } from '@/design-system/tokens';
@@ -23,25 +23,25 @@ interface BadgeConfig {
 }
 
 const BADGE_CONFIG_MAP: Record<string, BadgeConfig> = {
-  // 게시중 / 정상
+
   PUBLISHED: { label: '게시중', bg: palette.cheongrok[50], color: palette.cheongrok[700] },
   ACTIVE: { label: '정상', bg: palette.cheongrok[50], color: palette.cheongrok[700] },
   게시중: { label: '게시중', bg: palette.cheongrok[50], color: palette.cheongrok[700] },
   정상: { label: '정상', bg: palette.cheongrok[50], color: palette.cheongrok[700] },
 
-  // 숨김 / 중립
+
   HIDDEN: { label: '숨김', bg: meok[200], color: meok[700] },
   숨김: { label: '숨김', bg: meok[200], color: meok[700] },
 
-  // 대기
+
   PENDING: { label: '대기', bg: palette.hwanggeum[50], color: palette.hwanggeum[700] },
   대기: { label: '대기', bg: palette.hwanggeum[50], color: palette.hwanggeum[700] },
 
-  // 처리완료
+
   RESOLVED: { label: '처리완료', bg: palette.cheongrok[50], color: palette.cheongrok[700] },
   처리완료: { label: '처리완료', bg: palette.cheongrok[50], color: palette.cheongrok[700] },
 
-  // 삭제됨 / 정지 / 반려
+
   DELETED: { label: '삭제됨', bg: palette.danpung[50], color: palette.danpung[700] },
   삭제됨: { label: '삭제됨', bg: palette.danpung[50], color: palette.danpung[700] },
   SUSPENDED: { label: '정지', bg: palette.danpung[50], color: palette.danpung[700] },

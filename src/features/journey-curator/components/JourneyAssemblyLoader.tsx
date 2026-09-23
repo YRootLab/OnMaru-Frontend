@@ -129,7 +129,7 @@ export default function JourneyAssemblyLoader() {
   const [hasCompleted, setHasCompleted] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
 
-  // Sync completion state: 사용자가 여정 탐색(생성)을 실제로 시작했을 때만 동작
+
   useEffect(() => {
     if (isGenerating) {
       setHasStarted(true);

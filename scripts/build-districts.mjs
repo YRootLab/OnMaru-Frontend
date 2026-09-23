@@ -1,19 +1,19 @@
-/**
- * 시군구 행정경계 데이터 빌드
- *
- * 출처: southkorea/southkorea-maps (통계청 2018 기준, kostat)
- *   https://github.com/southkorea/southkorea-maps  · Public Domain
- *
- * 원본 GeoJSON은 18MB라 배포에 실을 수 없다. 같은 저장소의 간소화 TopoJSON(553KB)을
- * 받아 GeoJSON으로 풀고, 온기 히트맵에 필요한 것만 남겨 public/data/districts.json에 쓴다.
- *
- * 남기는 것: 이름 · 코드 · 바깥 링 좌표 · 바운딩 박스
- * 버리는 것: 구멍(내부 링) · 소수점 3자리 미만 · 반올림 후 겹치는 점
- *   3자리는 약 110m다. 시군구 한 덩어리를 칠하는 용도라 이보다 정밀할 이유가 없고,
- *   좌표 수가 줄어 파일과 렌더링 비용이 함께 내려간다.
- *
- * 실행: node scripts/build-districts.mjs
- */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 import { writeFile, mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
@@ -23,7 +23,7 @@ const SOURCE =
 const OUT = 'public/data/districts.json';
 const PRECISION = 3;
 
-/** TopoJSON 델타 인코딩을 실제 좌표로 되돌린다. */
+
 function decodeArc(topo, index) {
   const [sx, sy] = topo.transform.scale;
   const [tx, ty] = topo.transform.translate;
@@ -38,7 +38,7 @@ function decodeArc(topo, index) {
   });
 }
 
-/** 링 하나는 arc 여러 개를 이어 붙인 것이다. 음수 인덱스는 뒤집어 쓴다. */
+
 function buildRing(topo, arcIndexes) {
   const points = [];
 
@@ -47,7 +47,7 @@ function buildRing(topo, arcIndexes) {
     const arc = decodeArc(topo, reversed ? ~index : index);
     const piece = reversed ? [...arc].reverse() : arc;
 
-    // 이어 붙이는 지점은 앞 arc의 끝과 같은 점이라 한 번만 넣는다.
+
     points.push(...(points.length > 0 ? piece.slice(1) : piece));
   }
 
@@ -58,7 +58,7 @@ function round(value) {
   return Number(value.toFixed(PRECISION));
 }
 
-/** 반올림 뒤 같은 자리에 겹친 점을 걷어낸다. */
+
 function compact(ring) {
   const out = [];
 
@@ -81,7 +81,7 @@ const collection = topo.objects[Object.keys(topo.objects)[0]];
 const features = [];
 
 for (const geometry of collection.geometries) {
-  // MultiPolygon은 [[바깥링, 구멍...], ...], Polygon은 [바깥링, 구멍...]
+
   const polygons =
     geometry.type === 'MultiPolygon' ? geometry.arcs : geometry.arcs ? [geometry.arcs] : [];
 
@@ -93,7 +93,7 @@ for (const geometry of collection.geometries) {
 
   for (const polygon of polygons) {
     const ring = compact(buildRing(topo, polygon[0]));
-    // 점 셋으로는 면이 되지 않는다. 반올림에 뭉개진 섬들이 여기서 걸러진다.
+
     if (ring.length < 4) continue;
 
     rings.push(ring);

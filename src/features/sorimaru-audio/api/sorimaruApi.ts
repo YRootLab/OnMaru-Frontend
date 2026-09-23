@@ -1,7 +1,7 @@
 import { SorimaruStoryItem, SorimaruCategory, SorimaruStoryPage } from '@/features/sorimaru-audio/types/sorimaru.types';
 import { SorimaruNetworkClient, sorimaruNetworkClient } from './sorimaruNetwork';
 
-// v3는 이전 구현에서 저장한 빈/불완전 응답 캐시를 사용하지 않도록 의도적으로 무효화한다.
+
 const DAILY_CACHE_PREFIX = 'onmaru_sorimaru_api_cache_v4';
 const dailyMemoryCache = new Map<string, unknown>();
 const inFlightRequests = new Map<string, Promise<unknown>>();
@@ -36,7 +36,7 @@ function writeDailyCache<T>(requestKey: string, value: T): void {
   try {
     window.localStorage.setItem(key, JSON.stringify(value));
   } catch {
-    // localStorage 용량/권한 문제는 API 응답 자체를 막지 않는다.
+
   }
 }
 
@@ -66,7 +66,7 @@ async function getCachedRequest<T>(
   return pending;
 }
 
-// 테마 카테고리에 대응하는 Sorimaru API 키워드 매핑
+
 const CATEGORY_KEYWORD_MAP: Record<string, string> = {
   '한옥/고택': '한옥',
   '서원/향교': '서원',
@@ -199,14 +199,14 @@ function mapStoryItem(item: Record<string, unknown>, index: number, category?: s
   };
 }
 
-/**
- * 한국관광공사 오디(Sorimaru) API 어댑터
- */
+
+
+
 export const createSorimaruApiAdapter = (network: SorimaruNetworkClient = sorimaruNetworkClient) => {
   const adapter = {
-  /**
-   * 오디오 이야기 목록 조회 (카테고리 & 검색어 필터링)
-   */
+
+
+
   async getStoryList(category?: SorimaruCategory | string, query?: string): Promise<SorimaruStoryItem[]> {
     const page = await this.getStoryPage(category, query, 1, 30);
     return page.items;
@@ -270,11 +270,11 @@ export const createSorimaruApiAdapter = (network: SorimaruNetworkClient = sorima
     }, (value) => value.items.length > 0);
   },
 
-  /**
-   * 챕터가 사용할 첫 번째 재생 가능 오디오를 찾는다.
-   * API 응답에 음원이 없거나 검색 결과가 비어 있으면 상위 컨테이너가 전달한
-   * 후보 목록과 기존 Mock 목록에서 같은 키워드를 안전하게 찾는다.
-   */
+
+
+
+
+
   async getFirstStoryByKeyword(keyword: string, fallbackStories: SorimaruStoryItem[] = []): Promise<SorimaruStoryItem | null> {
     const apiStories = await this.getStoryList(undefined, keyword);
     const pool = [...apiStories, ...fallbackStories];
@@ -307,18 +307,18 @@ export const createSorimaruApiAdapter = (network: SorimaruNetworkClient = sorima
     return Object.fromEntries(keywords.map((keyword) => [keyword, storySets[keyword]?.[0] || null]));
   },
 
-  /**
-   * 특정 이야기 상세 정보 조회
-   */
+
+
+
   async getStoryDetail(stid: string): Promise<SorimaruStoryItem | null> {
     const list = await this.getStoryList();
     const found = list.find((s) => s.stid === stid);
     return found || null;
   },
 
-  /**
-   * 위치 기반(LBS) 내 주변 이야기 목록 조회
-   */
+
+
+
   async getNearbyStories(mapX?: string, mapY?: string, radius = 3000): Promise<SorimaruStoryItem[]> {
     if (!mapX || !mapY) return this.getStoryList('한옥');
 

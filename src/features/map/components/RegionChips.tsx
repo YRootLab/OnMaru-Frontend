@@ -8,7 +8,7 @@ import type { LatLng } from '@/features/map/types';
 
 const NEARBY = 'nearby';
 
-/** 데이터가 붙기 전까지의 하드코딩 좌표. */
+
 const REGIONS: { id: string; label: string; center?: LatLng }[] = [
   { id: NEARBY, label: '내 주변' },
   { id: 'jeonju', label: '전주', center: { lat: 35.815, lng: 127.153 } },
@@ -67,7 +67,7 @@ export default function RegionChips() {
       panTo(center);
       return;
     }
-    // 내 주변 — 거부되거나 실패하면 전주로 폴백한다.
+
     if (!navigator.geolocation) {
       panTo(DEFAULT_CENTER);
       return;

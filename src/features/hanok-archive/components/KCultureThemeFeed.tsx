@@ -21,7 +21,7 @@ import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
 import { useKCultureThemes } from '@/features/hanok-archive/hooks/useKCultureThemes';
 import type { ScreenHanokItem, ScreenHanokMediaType } from '@/features/hanok-archive/services/screenHanok.service';
 
-// ─── 미디어 타입별 Lucide 아이콘 매핑 ────────────────────────────────
+
 function getMediaIcon(mediaType: string, size = 14) {
   switch (mediaType) {
     case 'K_DRAMA': return <Clapperboard size={size} strokeWidth={2} />;
@@ -31,7 +31,7 @@ function getMediaIcon(mediaType: string, size = 14) {
   }
 }
 
-// ─── 필터 칩 ────────────────────────────────────────────────────────
+
 const FilterRow = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -61,7 +61,7 @@ const FilterChip = styled.button<{ $active: boolean }>`
   }
 `;
 
-// ─── Bento 그리드 ────────────────────────────────────────────────────
+
 const BentoGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -87,13 +87,13 @@ const ThumbGrid = styled.div`
   min-height: 0;
 `;
 
-// ─── HERO 카드 ────────────────────────────────────────────────────────
-/*
-  필터를 바꾸면 AnimatePresence가 나가는 카드와 들어오는 카드를 동시에 그리는데,
-  HeroCard가 그리드의 보통 자식이면 그 순간 그리드 칸이 하나 늘어 ThumbGrid가
-  밀렸다 돌아왔다 — 칩을 누를 때마다 "번쩍"이던 게 이 레이아웃 흔들림이었다.
-  HeroSlot이 자리(칸 크기)를 고정해 쥐고, 카드들은 그 안에서 absolute로 겹친다.
-*/
+
+
+
+
+
+
+
 const KCultureSection = styled.section`
   & > div:first-child {
     margin-bottom: 14px;
@@ -265,7 +265,7 @@ const HeroSourceLink = styled.a`
   &:hover { color: #ffffff; }
 `;
 
-// ─── 썸네일 카드 (2×2 서브) ────────────────────────────────────────────
+
 const ThumbCard = styled(motion.button)`
   position: relative;
   border-radius: 14px;
@@ -354,7 +354,7 @@ const ThumbIconBadge = styled.div`
   color: #ffffff;
 `;
 
-// ─── 스켈레톤 ──────────────────────────────────────────────────────────
+
 const shimmerAnim = keyframes`
   0%   { background-position: -200% 0; }
   100% { background-position:  200% 0; }
@@ -391,7 +391,7 @@ const EmptyNote = styled.p`
   color: ${meok[500]};
 `;
 
-// ─── 내비게이션 바 ─────────────────────────────────────────────────────
+
 const NavRow = styled.div`
   display: flex;
   align-items: center;
@@ -459,7 +459,7 @@ const ViewAllLink = styled.button`
   &:hover { color: ${lightPalette.juhong[700]}; }
 `;
 
-// ─── 필터 상수 ─────────────────────────────────────────────────────────
+
 const MEDIA_FILTERS: { key: 'all' | ScreenHanokMediaType; label: string }[] = [
   { key: 'all',     label: '전체' },
   { key: 'K_DRAMA', label: '드라마' },
@@ -471,7 +471,7 @@ export interface KCultureThemeFeedProps {
   onSelectPlace?: (item: ScreenHanokItem) => void;
 }
 
-// ─── 메인 컴포넌트 ──────────────────────────────────────────────────────
+
 export default function KCultureThemeFeed({ onSelectPlace }: KCultureThemeFeedProps) {
   const [activeFilter, setActiveFilter] = useState<'all' | ScreenHanokMediaType>('all');
   const { items, isLoading, isFirstLoad, toggleSave } = useKCultureThemes({
@@ -480,13 +480,13 @@ export default function KCultureThemeFeed({ onSelectPlace }: KCultureThemeFeedPr
 
   const [heroIdx, setHeroIdx] = useState(0);
 
-  // 필터 변경 시 hero를 0번으로 초기화
+
   const handleFilter = (key: 'all' | ScreenHanokMediaType) => {
     setActiveFilter(key);
     setHeroIdx(0);
   };
 
-  // 이전/다음 내비게이션
+
   const navigate = (delta: -1 | 1) => {
     setHeroIdx((prev) => {
       const next = prev + delta;
@@ -497,7 +497,7 @@ export default function KCultureThemeFeed({ onSelectPlace }: KCultureThemeFeedPr
   };
 
   const hero = items[heroIdx] ?? null;
-  // 현재 hero 제외, hero 이후 항목 우선으로 4개 표시
+
   const thumbs = [
     ...items.slice(heroIdx + 1),
     ...items.slice(0, heroIdx),
@@ -522,7 +522,7 @@ export default function KCultureThemeFeed({ onSelectPlace }: KCultureThemeFeedPr
         ))}
       </FilterRow>
 
-      {/* 스켈레턴: 실제 데이터가 없을 때만(쳄 로드) 표시 */}
+      {}
       {isFirstLoad && isLoading && (
         <BentoGrid>
           <SkeletonHero />
@@ -532,16 +532,16 @@ export default function KCultureThemeFeed({ onSelectPlace }: KCultureThemeFeedPr
         </BentoGrid>
       )}
 
-      {/* 데이터 없음 */}
+      {}
       {!isLoading && items.length === 0 && (
         <EmptyNote>이 카테고리엔 아직 콘텐츠가 없어요. 다른 카테고리를 골라보세요.</EmptyNote>
       )}
 
-      {/* Bento Hero + 2×2 썸네일 */}
+      {}
       {!isFirstLoad && hero && (
         <LayoutGroup>
           <BentoGrid>
-            {/* ── HERO ── */}
+            {}
             <HeroSlot>
               <AnimatePresence mode="sync">
                 <HeroCard
@@ -609,7 +609,7 @@ export default function KCultureThemeFeed({ onSelectPlace }: KCultureThemeFeedPr
               </AnimatePresence>
             </HeroSlot>
 
-            {/* ── 2×2 썸네일 그리드 ── */}
+            {}
             <ThumbGrid>
               {thumbs.map((item, idx) => (
                 <ThumbCard
@@ -639,11 +639,11 @@ export default function KCultureThemeFeed({ onSelectPlace }: KCultureThemeFeedPr
                 </ThumbCard>
               ))}
 
-              {/* 썸네일이 4개 미만일 때 빈 자리는 표시 안 함 */}
+              {}
             </ThumbGrid>
           </BentoGrid>
 
-          {/* ── 내비게이션 바 ── */}
+          {}
           {items.length > 1 && (
             <NavRow>
               <NavBtnGroup>

@@ -23,9 +23,9 @@ import { DEFAULT_CENTER, useMapStore } from '@/features/map/hooks/useMapStore';
 import type { LatLng } from '@/features/map/types';
 
 const mapGlobalStyles = css`
-  /* ------------------------------------------------------------
-   * 내 위치 (My Location) 모던 펄스 레이더 마커
-   * ------------------------------------------------------------ */
+
+
+
   .om-my-location-pin {
     display: flex;
     flex-direction: column;
@@ -142,17 +142,17 @@ const Canvas = styled.div<{ $isNight: boolean }>`
       : 'none'};
 `;
 
-/*
-  라이트모드용 은은한 한지 색보정.
 
-  Canvas 자체에 filter를 걸면(다크모드 달빛 필터처럼) 그 안에서 카카오맵이
-  그리는 타일뿐 아니라 우리가 올리는 마커/뱃지 DOM까지 전부 같이 걸린다 —
-  PlaceMarkers.tsx의 정통 한옥 핀이 다크모드에서 역필터를 따로 걸어야 했던
-  이유가 그것이다. 그래서 여기서는 filter 대신 Canvas 위에 아주 옅은
-  mix-blend-mode 레이어를 얹는다. 마커 색도 같이 스치긴 하지만 opacity를
-  낮게 잡아 채도 있는 뱃지는 거의 안 흔들리고, 면적이 넓은 지도 바탕만
-  한지 톤으로 은은하게 눈에 띈다.
-*/
+
+
+
+
+
+
+
+
+
+
 const WarmTint = styled.div<{ $active: boolean }>`
   position: absolute;
   inset: 0;
@@ -340,7 +340,7 @@ const ControlButton = styled.button<{ $active?: boolean }>`
   }
 `;
 
-/** 4대 전국 한옥 시네마틱 드론 비행 코스 */
+
 const FLIGHT_STOPS = [
   { name: '서울 북촌 한옥마을', lat: 37.5826, lng: 126.9848, level: 4 },
   { name: '전주 한옥마을', lat: 35.8150, lng: 127.1530, level: 4 },
@@ -364,7 +364,7 @@ export default function KakaoMap() {
 
   const flightTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // 패널이 접히면 지도 컨테이너 크기가 바뀐다. 카카오는 relayout을 직접 불러줘야 한다.
+
   useEffect(() => {
     if (!map) return;
     const id = setTimeout(() => map.relayout(), 320);
@@ -388,7 +388,7 @@ export default function KakaoMap() {
     parsedQueryLng >= 124 &&
     parsedQueryLng <= 132;
 
-  // URL 파라미터 좌표가 넘어온 경우 지도 로드 즉시 해당 위치로 정밀 이동
+
   useEffect(() => {
     if (!map || !hasQueryCoords || !window.kakao?.maps) return;
     hasAutoLocatedRef.current = true;
@@ -396,7 +396,7 @@ export default function KakaoMap() {
     map.setCenter(new window.kakao.maps.LatLng(parsedQueryLat, parsedQueryLng));
   }, [map, hasQueryCoords, parsedQueryLat, parsedQueryLng]);
 
-  // 지도 페이지 진입 시 사용자 현재 위치로 자동 이동 및 주변 장소 탐색 (단, 타겟 URL 좌표가 없을 때만 실행)
+
   useEffect(() => {
     if (!map || hasAutoLocatedRef.current || hasQueryCoords) return;
     hasAutoLocatedRef.current = true;
@@ -408,14 +408,14 @@ export default function KakaoMap() {
           moveTo(currentPos, 5, pos.coords.accuracy);
         },
         () => {
-          // 저정밀도(네트워크/IP) 2차 시도
+
           navigator.geolocation.getCurrentPosition(
             (fallbackPos) => {
               const fallbackCoord = { lat: fallbackPos.coords.latitude, lng: fallbackPos.coords.longitude };
               moveTo(fallbackCoord, 5, fallbackPos.coords.accuracy);
             },
             () => {
-              // 위치 권한 미허용 시 기본 전국 시점 유지
+
             },
             { enableHighAccuracy: false, timeout: 6000, maximumAge: 300000 },
           );
@@ -430,11 +430,11 @@ export default function KakaoMap() {
     if (!currentMap || !window.kakao?.maps) return;
     const latLng = new window.kakao.maps.LatLng(target.lat, target.lng);
 
-    // 1. 내 위치로 확대 및 이동
+
     currentMap.setLevel(targetLevel, { animate: true });
     currentMap.setCenter(latLng);
 
-    // 2. 내 위치 핀 & 라벨 표시
+
     if (!myLocationOverlayRef.current) {
       const el = document.createElement('div');
       el.className = 'om-my-location-pin';
@@ -471,7 +471,7 @@ export default function KakaoMap() {
       myLocationOverlayRef.current.setMap(currentMap);
     }
 
-    // 3. GPS 정확도 오차 반경 서클 (Accuracy Circle)
+
     if (accuracy && accuracy > 0 && accuracy <= 3000) {
       if (!myLocationCircleRef.current) {
         myLocationCircleRef.current = new window.kakao.maps.Circle({
@@ -541,7 +541,7 @@ export default function KakaoMap() {
     });
   };
 
-  /** 시네마틱 드론 비행 투어 시작/중지 핸들러 */
+
   const stopFlight = useCallback(() => {
     if (flightTimerRef.current) clearInterval(flightTimerRef.current);
     flightTimerRef.current = null;
@@ -606,7 +606,7 @@ export default function KakaoMap() {
       />
       <WarmTint $active={!isEffectiveNight} aria-hidden="true" />
 
-      {/* 시네마틱 드론 비행 플로팅 알림 바 */}
+      {}
       {flightState.active && currentFlightStop && (
         <FlightBanner>
           <span className="step-badge">{flightState.step + 1} / {FLIGHT_STOPS.length}</span>
@@ -629,7 +629,7 @@ export default function KakaoMap() {
       )}
 
       <Controls>
-        {/* 1. 스마트 인터랙션 컨트롤 (내 위치 GPS, 전국 스카이뷰 비행, 달빛 야행 모드) */}
+        {}
         <Stack>
           <ControlButton
             type="button"
@@ -655,7 +655,7 @@ export default function KakaoMap() {
           </ControlButton>
         </Stack>
 
-        {/* 2. 줌 인/아웃 컨트롤 */}
+        {}
         <Stack>
           <ControlButton type="button" aria-label="확대" onClick={() => zoom(-1)}>
             <Plus size={18} strokeWidth={2} />
@@ -668,4 +668,3 @@ export default function KakaoMap() {
     </Frame>
   );
 }
-

@@ -162,7 +162,7 @@ export default function PlaceDetailCarousel({
 }: PlaceDetailCarouselProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // 유효한 이미지 URL만 필터링
+
   const validImages = images.filter((img) => img && typeof img === 'string');
 
   return (

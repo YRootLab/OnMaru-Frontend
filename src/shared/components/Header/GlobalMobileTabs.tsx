@@ -19,7 +19,7 @@ const Nav = styled.nav`
   width: 100%;
   height: 100%;
   display: grid;
-  /* 탭이 5개가 되므로 5등분 */
+
   grid-template-columns: repeat(5, 1fr);
   align-items: stretch;
 `;
@@ -69,7 +69,7 @@ const TabLink = styled(Link, transientProps)<TabProps>`
   }
 `;
 
-/** 사이트 공통 하단 탭 (홈 / 한옥 마루 / 소리마루 / 지도 / 로그인(나의 마루)) */
+
 export default function GlobalMobileTabs({ isLanding }: { isLanding: boolean }) {
   const pathname = usePathname();
   const resetJourney = useJourneyStore((s) => s.resetJourney);
@@ -81,11 +81,11 @@ export default function GlobalMobileTabs({ isLanding }: { isLanding: boolean }) 
     { href: '/hanok', label: '한옥 이야기', icon: BookOpen, active: pathname.startsWith('/hanok') },
     { href: '/sorimaru', label: '소리마루', icon: Headphones, active: isSoriMaruPage },
     { href: '/map', label: '지도', icon: Map, active: pathname.startsWith('/map') },
-    { 
-      href: isLoggedIn ? '/mypage' : '/auth/login', 
-      label: isLoggedIn ? '나의 마루' : '로그인', 
-      icon: User, 
-      active: pathname.startsWith('/mypage') || pathname.startsWith('/auth/login') 
+    {
+      href: isLoggedIn ? '/mypage' : '/auth/login',
+      label: isLoggedIn ? '나의 마루' : '로그인',
+      icon: User,
+      active: pathname.startsWith('/mypage') || pathname.startsWith('/auth/login')
     },
   ];
 

@@ -138,10 +138,10 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
   const { isBookmarked, toggleBookmark } = useBookmarkStore();
   const bookmarked = isBookmarked(village.id);
 
-  // 소리마루 오디오 도슨트 (문화재/도감 전용 정밀 매칭)
+
   const { stories: audioGuideStories } = useHanokAudioGuide(village.name, village.lat, village.lng, false);
 
-  // 한국관광공사 데이터랩 실시간 고즈넉 지수
+
   const { data: tranquilityData, loading: isLoadingTranquility } = useHanokTranquility(
     village.lat,
     village.lng,
@@ -161,7 +161,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
   };
 
   const fetchedOverview = detailData?.overview ? cleanTourApiHtml(detailData.overview) : null;
-  // 설명이 있는 건축물이면 TourAPI 원문이나 도감 summary를 풍성하게 노출
+
   const currentStoryText = fetchedOverview || village.overview || village.summary || '';
 
   const paragraphs = useMemo(() => {
@@ -261,7 +261,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
             : { type: 'spring', damping: 28, stiffness: 350 }}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* 상단 히어로 이미지 */}
+          {}
           <ImageHero $bg={currentHeroImage}>
             <CloseBtn onClick={onClose} aria-label="닫기">
               <X size={18} strokeWidth={2.5} />
@@ -284,7 +284,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
           </ImageHero>
 
           <Body>
-            {/* 메타 분류 및 주소 */}
+            {}
             <MetaRow>
               <TypeBadge>{filterLabel(village.type)}</TypeBadge>
               <AddrText>
@@ -293,10 +293,10 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
               </AddrText>
             </MetaRow>
 
-            {/* 이슈 #82: BE가 설명에서 자동 추출한 콘텐츠 태그 — 손으로 붙인 기존 badges와는 별개 */}
+            {}
             <ContentTagChips tags={detailData?.contentTags} />
 
-            {/* 🏛️ 전통 건축 및 역사 해설 (사용자 요청: 설명이 있는 건축물이면 풍성하게 노출) */}
+            {}
             {isLoadingOverview && !village.summary ? (
               <OverviewSkeleton>
                 <SkeletonLine style={{ width: '100%' }} />
@@ -343,13 +343,13 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
               </CuratorsNoteSection>
             )}
 
-            {/* 소리마루 오디오 도슨트 연계 (소리 관련은 모두 소리마루에서 일원화 청취) */}
+            {}
             <SoriMaruBridgeCard stories={audioGuideStories} hanokName={village.name} />
 
-            {/* 한국관광공사 DataLab 실시간 고즈넉 지수 & 골든타임 */}
+            {}
             <TranquilityGauge data={tranquilityData} loading={isLoadingTranquility} />
 
-            {/* 관람 및 개방 안내 */}
+            {}
             {!isLoadingOverview && hasOperationalInfo && (
               <>
                 <SectionTitle>
@@ -424,7 +424,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
               </>
             )}
 
-            {/* 부속 건축물 및 주요 공간 안내 (반복 정보) */}
+            {}
             {!isLoadingOverview && detailData?.repeatInfo && detailData.repeatInfo.length > 0 && (
               <>
                 <SectionTitle>
@@ -441,7 +441,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
               </>
             )}
 
-            {/* 건축 갤러리 */}
+            {}
             {galleryImages.length > 1 && (
               <GallerySection>
                 <SectionTitle>
@@ -467,7 +467,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
               </GallerySection>
             )}
 
-            {/* 하단 액션 버튼 바 */}
+            {}
             <ActionRow>
               <NaverDirectionsBtn
                 href={`https://map.naver.com/v5/search/${encodeURIComponent(village.name)}`}
@@ -491,7 +491,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
         </ModalCard>
       </Overlay>
 
-      {/* 라이트박스 전체화면 뷰어 */}
+      {}
       {zoomedImageIdx !== null && galleryImages[zoomedImageIdx] && (
         <LightboxOverlay
           key="hanok-dogam-lightbox"

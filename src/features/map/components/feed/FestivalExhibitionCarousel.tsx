@@ -308,7 +308,7 @@ const CardAddr = styled.div`
   text-overflow: ellipsis;
 `;
 
-// 지역 대표 가을·봄 야행 및 축제 데이터 (실제 TourAPI 연동 및 고화질 사진)
+
 const FALLBACK_FESTIVALS: Item[] = [
   {
     id: '2941014',
@@ -378,7 +378,7 @@ export default function FestivalExhibitionCarousel({ festivals }: FestivalExhibi
     }
   };
 
-  // 초기 로딩 시 섹션이 사라지거나 갑자기 튀어나오지 않도록 스켈레톤 유지
+
   if (loading && items.length === 0) {
     return (
       <SectionWrapper aria-busy="true" aria-label="진행 중인 축제 및 기획전 불러오는 중">

@@ -1,11 +1,11 @@
 'use client';
 
-/**
- * 연결 보기 — 그래프 대신 목록으로. seven-day-mvp-fe-handoff.md §16이 "핵심 흐름이
- * 불안정하면 관계 보기는 목록 fallback을 기본으로 한다"고 이미 허용한 경로다.
- * 지금 관계는 LOCATED_IN(지역 소속)과 NEARBY(좌표 인접)뿐이다 — 검수 안 된
- * "의미적으로 비슷함"을 관계로 만들지 않는다.
- */
+
+
+
+
+
+
 
 import styled from '@emotion/styled';
 import { MapPin, Route } from 'lucide-react';

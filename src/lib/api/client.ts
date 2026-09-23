@@ -1,6 +1,6 @@
-// ============================================================
-// 온마루 공용 API 클라이언트 (src/lib/api/client.ts)
-// ============================================================
+
+
+
 
 import { ApiError } from '@/features/admin/types';
 import { createCsrfTokenProvider } from './csrf';
@@ -22,7 +22,7 @@ export type ApiRequestOptions = {
   signal?: AbortSignal;
   cache?: RequestCache;
   headers?: Record<string, string>;
-  /** `/api/v1` 밖에 있는 백엔드 호환 경로를 호출한다. */
+
   rootPath?: boolean;
 };
 
@@ -36,9 +36,9 @@ let apiClientConfig: ApiClientConfig = {
   fetcher: (...args) => fetch(...args),
 };
 
-// FE #89: /auth/csrf는 /api/v1 아래가 아니라 백엔드 루트에 있다. resolveApiBase()로
-// /api/v1을 붙인 값을 넘기면 실제로는 .../api/v1/auth/csrf를 호출하게 되어 이중
-// prefix 버그가 생긴다 — CSRF 프로바이더에는 반드시 순수 baseUrl만 넘긴다.
+
+
+
 let csrfProvider = createCsrfTokenProvider(apiClientConfig.fetcher, apiClientConfig.baseUrl.replace(/\/+$/, ''));
 
 function trimSlashes(value: string): string {
@@ -50,15 +50,15 @@ function resolveApiBase(baseUrl: string): string {
   return `${cleanBase}/api/v1`;
 }
 
-/** FE #93: SSE(EventSource)는 apiRequest를 거치지 않으므로 URL을 직접 조립해야 하는 호출부가 쓴다. */
+
 export function getApiV1BaseUrl(): string {
   return resolveApiBase(apiClientConfig.baseUrl);
 }
 
-/**
- * 카카오 로그인처럼 fetch가 아니라 브라우저 자체를 리다이렉트시켜야 하는 호출부가 쓴다.
- * /auth/kakao/login, /auth/kakao/callback은 /api/v1이 아니라 백엔드 루트에 있다.
- */
+
+
+
+
 export function getApiRootBaseUrl(): string {
   return apiClientConfig.baseUrl.replace(/\/+$/, '');
 }
@@ -101,13 +101,13 @@ export function resetApiClientForTests(config?: Partial<ApiClientConfig>): void 
   csrfProvider = createCsrfTokenProvider(apiClientConfig.fetcher, apiClientConfig.baseUrl.replace(/\/+$/, ''));
 }
 
-// 모의 응답 딜레이 (200ms ~ 500ms 지연 시뮬레이션)
+
 export const mockDelay = (min = 200, max = 500): Promise<void> => {
   const ms = Math.floor(Math.random() * (max - min + 1)) + min;
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
-// 토큰 가져오기 (클라이언트 환경)
+
 export const getAccessToken = (): string | null => {
   if (typeof window === 'undefined') return null;
   return localStorage.getItem('onmaru_access_token');
@@ -126,7 +126,7 @@ export const removeAccessToken = (): void => {
   }
 };
 
-// 401 Unauthorized 시 Refresh 시도 및 로그인 화면 리다이렉트
+
 let isRefreshing = false;
 async function handleUnauthorized(): Promise<void> {
   if (typeof window === 'undefined') return;
@@ -138,7 +138,7 @@ async function handleUnauthorized(): Promise<void> {
     if (!refreshToken || !apiClientConfig.baseUrl) {
       throw new Error('Refresh token not found');
     }
-    // 실제 백엔드 연동 시 토큰 갱신 엔드포인트 호출
+
     const res = await apiClientConfig.fetcher(`${apiClientConfig.baseUrl}/api/auth/refresh`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -164,7 +164,7 @@ async function handleUnauthorized(): Promise<void> {
   }
 }
 
-// Mock 핸들러 레지스트리 (URL 패턴별 핸들러 등록)
+
 type MockHandler = (params?: any, body?: any) => Promise<any> | any;
 const mockHandlers: Map<string, MockHandler> = new Map();
 
@@ -172,7 +172,7 @@ export function registerMockHandler(key: string, handler: MockHandler): void {
   mockHandlers.set(key, handler);
 }
 
-// 공통 요청 빌더
+
 async function request<T>(
   method: HttpMethod,
   path: string,
@@ -181,22 +181,22 @@ async function request<T>(
 ): Promise<T> {
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
 
-  // Mock 모드 처리
+
   if (!apiClientConfig.baseUrl) {
     await mockDelay();
 
-    // 등록된 모의 핸들러 검사
+
     const handlerKey = `${method} ${normalizedPath.split('?')[0]}`;
     const handler = mockHandlers.get(handlerKey) || mockHandlers.get(normalizedPath.split('?')[0]);
     if (handler) {
       return handler(params, body);
     }
 
-    // 기본 모의 성공 응답 (구체적 mock 데이터는 각 도메인 mock 파일에서 핸들러 등록)
+
     return { success: true, message: 'Mock response', path: normalizedPath } as unknown as T;
   }
 
-  // 실제 HTTP 요청 처리
+
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
@@ -235,7 +235,7 @@ async function request<T>(
         const errorJson = await response.json();
         errorMessage = errorJson.message || errorMessage;
       } catch {
-        // ignore json parse error
+
       }
       throw {
         message: errorMessage,

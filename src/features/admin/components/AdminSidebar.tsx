@@ -1,8 +1,8 @@
 'use client';
 
-// ============================================================
-// 관리자 사이드바 (src/admin/components/AdminSidebar.tsx)
-// ============================================================
+
+
+
 
 import React from 'react';
 import Link from 'next/link';
@@ -91,7 +91,7 @@ export const AdminSidebar: React.FC = () => {
         boxSizing: 'border-box',
       }}
     >
-      {/* 상단 로고 및 서비스명 */}
+      {}
       <div
         style={{
           padding: '24px 20px 20px',
@@ -126,7 +126,7 @@ export const AdminSidebar: React.FC = () => {
         </Link>
       </div>
 
-      {/* 메뉴 리스트 */}
+      {}
       <nav
         style={{
           flex: 1,
@@ -163,7 +163,7 @@ export const AdminSidebar: React.FC = () => {
                 transition: 'background-color 0.12s ease, color 0.12s ease',
               }}
             >
-              {/* Active 표시 세로 바 */}
+              {}
               {isActive && (
                 <div
                   style={{
@@ -177,7 +177,7 @@ export const AdminSidebar: React.FC = () => {
                 />
               )}
 
-              {/* 아이콘 */}
+              {}
               <span
                 style={{
                   display: 'flex',
@@ -188,10 +188,10 @@ export const AdminSidebar: React.FC = () => {
                 {item.icon}
               </span>
 
-              {/* 라벨 */}
+              {}
               <span style={{ flex: 1 }}>{item.label}</span>
 
-              {/* 뱃지 */}
+              {}
               {item.badge && item.badge.count > 0 && (
                 <span
                   style={{
@@ -218,7 +218,7 @@ export const AdminSidebar: React.FC = () => {
         })}
       </nav>
 
-      {/* 하단 로그인 계정 정보 및 제어 */}
+      {}
       <div
         style={{
           padding: '16px 20px',
@@ -274,7 +274,7 @@ export const AdminSidebar: React.FC = () => {
           </button>
         </div>
 
-        {/* 개발 환경 전용 권한 전환 스위처 */}
+        {}
         <div
           style={{
             padding: '8px 10px',

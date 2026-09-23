@@ -1,8 +1,8 @@
 /** @jsxImportSource @emotion/react */
-// ============================================================
-// 온마루 (On-Maru) — Emotion CSS 컴포넌트 사용 예시
-// styled / css / useOnmaruTheme 세 가지 방식 모두 포함
-// ============================================================
+
+
+
+
 
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
@@ -13,14 +13,14 @@ import { getThemePreferenceLabel } from './themePreferenceLabels'
 import { fontSize } from './tokens'
 
 
-// ─────────────────────────────────────────
-// A. styled 방식 — theme prop 자동 주입
-// ─────────────────────────────────────────
 
-/**
- * 🔴 CTA 버튼 — 단청 주홍
- * 온기 남기기, 체크인 등 주요 액션
- */
+
+
+
+
+
+
+
 export const CTAButton = styled.button<{ size?: 'sm' | 'md' | 'lg' }>`
   display:         inline-flex;
   align-items:     center;
@@ -37,7 +37,7 @@ export const CTAButton = styled.button<{ size?: 'sm' | 'md' | 'lg' }>`
     const t = theme as OnmaruTheme
     return size === 'sm' ? t.typography.fontSize.sm : t.typography.fontSize.base
   }};
-  /* 페이지의 주 행동 버튼 — 여기만 bold를 쓴다 */
+
   font-weight:     ${({ theme }) => (theme as OnmaruTheme).typography.fontWeight.bold};
   border-radius:   ${({ theme }) => (theme as OnmaruTheme).borderRadius.lg};
   background:      ${({ theme }) => (theme as OnmaruTheme).colors.action.primary};
@@ -61,9 +61,9 @@ export const CTAButton = styled.button<{ size?: 'sm' | 'md' | 'lg' }>`
   }
 `
 
-/**
- * 🟢 Ghost 버튼 — 대청 청록 (지도 탐색, 링크 등)
- */
+
+
+
 export const NavButton = styled.button`
   display:         inline-flex;
   align-items:     center;
@@ -92,9 +92,9 @@ export const NavButton = styled.button`
   }
 `
 
-/**
- * 🌸 도슨트 버튼 — 연지 장미
- */
+
+
+
 export const DocentButton = styled.button`
   display:         inline-flex;
   align-items:     center;
@@ -119,9 +119,9 @@ export const DocentButton = styled.button`
   }
 `
 
-/**
- * 🟡 뱃지 — 황금 기와 (별점, 추천, 장터)
- */
+
+
+
 export const StarBadge = styled.span`
   display:       inline-flex;
   align-items:   center;
@@ -137,9 +137,9 @@ export const StarBadge = styled.span`
   color:         ${({ theme }) => (theme as OnmaruTheme).colors.badge.starText};
 `
 
-/**
- * 🔵 정보 태그 — 청화 코발트 (건축 데이터, 외부 링크)
- */
+
+
+
 export const InfoTag = styled.span`
   display:       inline-flex;
   align-items:   center;
@@ -149,16 +149,16 @@ export const InfoTag = styled.span`
     return `${t.spacing[1]} ${t.spacing[3]}`
   }};
   font-size:     ${({ theme }) => (theme as OnmaruTheme).typography.fontSize.xs};
-  /* 보조 정보 태그 — 배경색이 이미 구분해 주므로 굵기까지 올리지 않는다 */
+
   font-weight:   ${({ theme }) => (theme as OnmaruTheme).typography.fontWeight.regular};
   border-radius: ${({ theme }) => (theme as OnmaruTheme).borderRadius.full};
   background:    ${({ theme }) => (theme as OnmaruTheme).colors.info.primaryBg};
   color:         ${({ theme }) => (theme as OnmaruTheme).colors.info.primary};
 `
 
-/**
- * 한옥 카드 컴포넌트
- */
+
+
+
 export const HanokCard = styled.article`
   background:    ${({ theme }) => (theme as OnmaruTheme).colors.bg.card};
   border-radius: ${({ theme }) => (theme as OnmaruTheme).borderRadius.xl};
@@ -172,9 +172,9 @@ export const HanokCard = styled.article`
   }
 `
 
-/**
- * 검색 인풋
- */
+
+
+
 export const SearchInput = styled.input`
   width:         100%;
   padding:       ${({ theme }) => {
@@ -198,9 +198,9 @@ export const SearchInput = styled.input`
   }
 `
 
-/**
- * 바텀 시트 — 한옥 상세 정보
- */
+
+
+
 export const BottomSheet = styled.div<{ expanded?: boolean }>`
   position:      fixed;
   bottom:        0;
@@ -219,9 +219,9 @@ export const BottomSheet = styled.div<{ expanded?: boolean }>`
   overflow-y:    auto;
 `
 
-/**
- * 하단 탭 바
- */
+
+
+
 export const TabBar = styled.nav`
   position:        fixed;
   bottom:          0;
@@ -247,7 +247,7 @@ export const TabItem = styled.button<{ active?: boolean }>`
   cursor:          pointer;
   font-family:     ${({ theme }) => (theme as OnmaruTheme).typography.fontFamily.sans};
   font-size:       ${fontSize.micro};
-  /* 10px에서 500 대 400은 차이가 안 보인다. 활성 탭은 bold로 확실히 갈라 준다 */
+
   font-weight:     ${({ active, theme }) =>
     active
       ? (theme as OnmaruTheme).typography.fontWeight.bold
@@ -266,21 +266,21 @@ export const TabItem = styled.button<{ active?: boolean }>`
 `
 
 
-// ─────────────────────────────────────────
-// B. css 함수 방식 — 조건부/동적 스타일
-// ─────────────────────────────────────────
 
-/**
- * 온기 맵 메타볼 컨테이너
- * 유기적 확산 메타볼(Metaballs) 효과 래퍼
- */
+
+
+
+
+
+
+
 export const metaballContainerCss = (theme: OnmaruTheme) => css`
   position: relative;
   width:    100%;
   height:   100%;
   overflow: hidden;
 
-  /* 메타볼 블롭 기본 스타일 */
+
   .metaball-blob {
     border-radius: 50%;
     position:      absolute;
@@ -290,44 +290,44 @@ export const metaballContainerCss = (theme: OnmaruTheme) => css`
     will-change:   transform, opacity;
   }
 
-  /* 온기 핵심 블롭 — 단청 주홍 */
+
   .metaball-core {
     background: ${theme.colors.metaball.core};
     opacity:    ${theme.mode === 'dark' ? '0.58' : '0.28'};
   }
 
-  /* 1차 확산 — 주홍 200 */
+
   .metaball-spread-1 {
     background: ${theme.colors.metaball.spread1};
     opacity:    ${theme.mode === 'dark' ? '0.42' : '0.32'};
   }
 
-  /* 2차 확산 — 황금 기와 */
+
   .metaball-spread-2 {
     background: ${theme.colors.metaball.spread2};
     opacity:    ${theme.mode === 'dark' ? '0.38' : '0.30'};
   }
 
-  /* 포인트 블롭 — 연지 장미 */
+
   .metaball-accent-1 {
     background: ${theme.colors.metaball.accent1};
     opacity:    ${theme.mode === 'dark' ? '0.44' : '0.25'};
   }
 
-  /* 외곽 블롭 — 대청 청록 */
+
   .metaball-accent-2 {
     background: ${theme.colors.metaball.accent2};
     opacity:    ${theme.mode === 'dark' ? '0.38' : '0.28'};
   }
 `
 
-/**
- * 섹션 헤더 — 서체 강조
- */
+
+
+
 export const sectionHeaderCss = (theme: OnmaruTheme) => css`
   font-family: ${theme.typography.fontFamily.sans};
   font-size:   ${theme.typography.fontSize['2xl']};
-  /* 24px — 이 크기부터는 굵기를 덜어야 읽기 편하다 */
+
   font-weight: ${theme.typography.fontWeight.light};
   letter-spacing: -0.02em;
   color:       ${theme.colors.text.primary};
@@ -336,13 +336,13 @@ export const sectionHeaderCss = (theme: OnmaruTheme) => css`
 `
 
 
-// ─────────────────────────────────────────
-// C. useOnmaruTheme 훅 방식 — 인라인 스타일 / 동적 처리
-// ─────────────────────────────────────────
 
-/**
- * 다크모드 토글 버튼 예시 컴포넌트
- */
+
+
+
+
+
+
 export function ThemeToggleButton() {
   const { mode, toggleMode, theme } = useOnmaruTheme()
 
@@ -382,10 +382,10 @@ export function ThemeToggleButton() {
   )
 }
 
-/**
- * 라이트 / 다크 / 자동 3단 화면 모드 스위치.
- * 'system' 선택 시 사용자 로컬 시간에 맞춰 라이트/다크를 고른다.
- */
+
+
+
+
 export function ThemeModeSwitch() {
   const { preference, setMode, theme } = useOnmaruTheme()
 
@@ -442,12 +442,12 @@ export function ThemeModeSwitch() {
   )
 }
 
-// ─────────────────────────────────────────
-// C-1. 공통 반응형 레이아웃 마진 믹스인 & 컨테이너 (당근 레이아웃 규격)
-// - Max Width: 1340px
-// - Margin: 0 auto
-// - Padding: 0 16px
-// ─────────────────────────────────────────
+
+
+
+
+
+
 
 export const responsiveSidePaddingCss = (theme: OnmaruTheme) => css`
   max-width: ${theme.layout.maxWidth};
@@ -468,7 +468,7 @@ export const PageContainer = styled.div`
   max-width: ${({ theme }) => (theme as OnmaruTheme).layout.maxWidth};
   margin: 0 auto;
   box-sizing: border-box;
-  padding-top: 49px; /* 고정 헤더(49px) 상단 여백 확보 */
+  padding-top: 49px;
   padding-left: ${({ theme }) => (theme as OnmaruTheme).layout.padding.lg};
   padding-right: ${({ theme }) => (theme as OnmaruTheme).layout.padding.lg};
 
@@ -477,55 +477,3 @@ export const PageContainer = styled.div`
     padding-right: ${({ theme }) => (theme as OnmaruTheme).layout.padding.md};
   }
 `;
-
-
-// ─────────────────────────────────────────
-// D. 실제 사용 예시 (App.tsx 참고용)
-// ─────────────────────────────────────────
-
-/*
-
-// App.tsx
-import { OnmaruThemeProvider } from './OnmaruThemeProvider'
-import {
-  CTAButton,
-  NavButton,
-  DocentButton,
-  StarBadge,
-  InfoTag,
-  HanokCard,
-  SearchInput,
-  TabBar,
-  TabItem,
-  ThemeToggleButton,
-} from './onmaru-components'
-
-export default function App() {
-  return (
-    <OnmaruThemeProvider defaultMode="light" followSystem>
-
-      <SearchInput placeholder="한옥 이름 또는 장소 검색..." />
-
-      <HanokCard>
-        <h3>북촌 가회동 한옥</h3>
-        <p>서울 종로구 · 조선 후기</p>
-        <StarBadge>★ 4.9</StarBadge>
-        <InfoTag>건축 데이터</InfoTag>
-        <CTAButton>온기 남기기</CTAButton>
-        <NavButton>지도 보기</NavButton>
-        <DocentButton>▶ 도슨트 듣기</DocentButton>
-      </HanokCard>
-
-      <ThemeToggleButton />
-
-      <TabBar>
-        <TabItem active>지도</TabItem>
-        <TabItem>발자취</TabItem>
-        <TabItem>내 온기</TabItem>
-      </TabBar>
-
-    </OnmaruThemeProvider>
-  )
-}
-
-*/

@@ -1,9 +1,9 @@
-/**
- * 한국관광공사 TourAPI 공통 통신 클라이언트
- * - 환경 변수 키 자동 탐색 및 인코딩 폴백 시도
- * - 타임아웃(10초) 및 AbortSignal 지원
- * - JSON 파싱 방어 및 에러 캡슐화
- */
+
+
+
+
+
+
 export class TourApiClient {
   private static readonly BASE_URL = 'https://apis.data.go.kr/B551011/KorService2';
   private static readonly DEFAULT_TIMEOUT_MS = 10000;
@@ -17,9 +17,9 @@ export class TourApiClient {
     );
   }
 
-  /**
-   * TourAPI 엔드포인트에 GET 요청을 보내고 원시 JSON 응답을 안전하게 파싱합니다.
-   */
+
+
+
   public static async get<T = any>(
     endpoint: string,
     params: Record<string, string | number>,

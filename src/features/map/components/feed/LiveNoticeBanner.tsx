@@ -12,8 +12,8 @@ const NOTICES = [
   '전국 한옥스테이 품질인증 숙소 안내',
 ];
 
-/* 카드형 박스 대신 "실시간 티커" 느낌의 얇은 필 — 아래 축제 카드 섹션과
-   시각적으로 다른 무게감을 줘서 단조롭게 쌓인 느낌을 덜어낸다. */
+
+
 const Container = styled.div`
   display: flex;
   align-items: center;
@@ -106,7 +106,7 @@ export default function LiveNoticeBanner() {
       <TextScroller>
         <NoticeText key={index}>{NOTICES[index]}</NoticeText>
       </TextScroller>
- 
+
     </Container>
   );
 }
