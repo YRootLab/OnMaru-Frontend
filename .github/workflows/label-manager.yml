@@ -1,4 +1,4 @@
-name: Smart Label Management
+name: 스마트 라벨 자동 관리
 
 on:
   pull_request:
@@ -8,8 +8,8 @@ on:
       - edited
 
 jobs:
-  Smart-Labels:
-    name: Apply Smart Labels
+  스마트-라벨:
+    name: PR 라벨 자동 지정
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -17,21 +17,21 @@ jobs:
       contents: read
 
     steps:
-      - name: Ensure Label Colors Exist
+      - name: 라벨 색상 초기화
         uses: actions/github-script@v7
         with:
           script: |
             const labelConfig = [
-              { name: 'type:test', color: '0366d6', description: '✅ Test' },
-              { name: 'type:docs', color: 'f0883e', description: '📝 Documentation' },
-              { name: 'type:ci', color: 'ffd900', description: '⚙️ CI/CD' },
-              { name: 'scope:code', color: '1f883d', description: 'Code changes' },
-              { name: 'scope:styles', color: 'ff69b4', description: 'Style/CSS changes' },
-              { name: 'size:xs', color: 'c2e0c6', description: 'Extra small' },
-              { name: 'size:s', color: '90ee90', description: 'Small' },
-              { name: 'size:m', color: 'ffd900', description: 'Medium' },
-              { name: 'size:l', color: 'ff7f50', description: 'Large' },
-              { name: 'size:xl', color: 'dc3545', description: 'Extra large' },
+              { name: 'type:test',    color: '0366d6', description: '✅ 테스트' },
+              { name: 'type:docs',    color: 'f0883e', description: '📝 문서' },
+              { name: 'type:ci',      color: 'ffd900', description: '⚙️ CI/CD' },
+              { name: 'scope:code',   color: '1f883d', description: '코드 변경' },
+              { name: 'scope:styles', color: 'ff69b4', description: '스타일/CSS 변경' },
+              { name: 'size:xs', color: 'c2e0c6', description: '아주 작은 변경' },
+              { name: 'size:s',  color: '90ee90', description: '작은 변경' },
+              { name: 'size:m',  color: 'ffd900', description: '중간 변경' },
+              { name: 'size:l',  color: 'ff7f50', description: '큰 변경' },
+              { name: 'size:xl', color: 'dc3545', description: '아주 큰 변경' },
             ];
 
             for (const label of labelConfig) {
@@ -54,87 +54,63 @@ jobs:
                       description: label.description
                     });
                   } catch (e) {
-                    console.log(`Label setup skipped: ${label.name}`);
+                    console.log(`라벨 설정 생략: ${label.name}`);
                   }
                 }
               }
             }
 
-      - name: Label by File Changes
+      - name: 변경 파일 기반 라벨 지정
         uses: actions/github-script@v7
         with:
           script: |
-            const { data: pr } = await github.rest.pulls.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.issue.number
-            });
-
             const files = await github.rest.pulls.listFiles({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: context.issue.number
             });
 
-            let labels = [];
-            let totalAdditions = 0;
-            let totalDeletions = 0;
+            const labels = [];
+            let totalAdditions = 0, totalDeletions = 0;
 
             files.data.forEach(file => {
               totalAdditions += file.additions;
               totalDeletions += file.deletions;
 
-              if (file.filename.includes('test') || file.filename.includes('spec')) {
-                labels.push('type:test');
-              }
-              if (file.filename.includes('docs') || file.filename.includes('README')) {
-                labels.push('type:docs');
-              }
-              if (file.filename.includes('.github') || file.filename.includes('workflow')) {
-                labels.push('type:ci');
-              }
-              if (file.filename.includes('src/')) {
-                labels.push('scope:code');
-              }
-              if (file.filename.includes('styles') || file.filename.includes('css') || file.filename.includes('.scss')) {
-                labels.push('scope:styles');
-              }
+              if (/test|spec/.test(file.filename))             labels.push('type:test');
+              if (/docs|README/.test(file.filename))           labels.push('type:docs');
+              if (/\.github|workflow/.test(file.filename))     labels.push('type:ci');
+              if (/^src\//.test(file.filename))                labels.push('scope:code');
+              if (/styles|\.css|\.scss/.test(file.filename))   labels.push('scope:styles');
             });
 
-            // Label by size with color-coded priority
+            // 변경 크기 라벨
             const changes = totalAdditions + totalDeletions;
-            if (changes < 50) {
-              labels.push('size:xs');
-            } else if (changes < 100) {
-              labels.push('size:s');
-            } else if (changes < 300) {
-              labels.push('size:m');
-            } else if (changes < 600) {
-              labels.push('size:l');
-            } else {
-              labels.push('size:xl');
-            }
+            if      (changes < 50)  labels.push('size:xs');
+            else if (changes < 100) labels.push('size:s');
+            else if (changes < 300) labels.push('size:m');
+            else if (changes < 600) labels.push('size:l');
+            else                    labels.push('size:xl');
 
             if (labels.length > 0) {
-              const uniqueLabels = [...new Set(labels)];
-              github.rest.issues.addLabels({
+              await github.rest.issues.addLabels({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: context.issue.number,
-                labels: uniqueLabels
+                labels: [...new Set(labels)]
               });
             }
 
-      - name: Ensure Title-Based Label Colors
+      - name: 제목 기반 타입 라벨 초기화
         uses: actions/github-script@v7
         with:
           script: |
             const titleLabelConfig = [
-              { name: 'type:bug-fix', color: 'd73a49', description: '🐛 Bug fix' },
-              { name: 'type:feature', color: '28a745', description: '✨ New feature' },
-              { name: 'type:refactor', color: '9366cc', description: '♻️ Refactor' },
-              { name: 'type:chore', color: '6f42c1', description: '🔧 Chore' },
-              { name: 'breaking-change', color: '000000', description: '💥 Breaking change' },
+              { name: 'type:bug-fix',  color: 'd73a49', description: '🐛 버그 수정' },
+              { name: 'type:feature',  color: '28a745', description: '✨ 새 기능' },
+              { name: 'type:refactor', color: '9366cc', description: '♻️ 리팩토링' },
+              { name: 'type:chore',    color: '6f42c1', description: '🔧 유지보수' },
+              { name: 'breaking-change', color: '000000', description: '💥 하위 호환성 깨짐' },
             ];
 
             for (const label of titleLabelConfig) {
@@ -161,39 +137,29 @@ jobs:
               }
             }
 
-      - name: Label by Title Keywords
+      - name: PR 제목 키워드로 타입 라벨 지정
         uses: actions/github-script@v7
         with:
           script: |
             const title = context.payload.pull_request.title.toLowerCase();
-            let labels = [];
+            const labels = [];
 
-            if (title.includes('fix') || title.includes('🐛')) {
-              labels.push('type:bug-fix');
-            }
-            if (title.includes('feat') || title.includes('✨')) {
-              labels.push('type:feature');
-            }
-            if (title.includes('refactor') || title.includes('♻️')) {
-              labels.push('type:refactor');
-            }
-            if (title.includes('chore') || title.includes('🔧')) {
-              labels.push('type:chore');
-            }
-            if (title.includes('breaking') || title.includes('💥')) {
-              labels.push('breaking-change');
-            }
+            if (/fix|🐛/.test(title))         labels.push('type:bug-fix');
+            if (/feat|✨/.test(title))         labels.push('type:feature');
+            if (/refactor|♻️/.test(title))    labels.push('type:refactor');
+            if (/chore|🔧/.test(title))        labels.push('type:chore');
+            if (/breaking|💥/.test(title))     labels.push('breaking-change');
 
             if (labels.length > 0) {
-              github.rest.issues.addLabels({
+              await github.rest.issues.addLabels({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: context.issue.number,
-                labels: labels
+                labels
               });
             }
 
-      - name: Comment with Labels
+      - name: 지정된 라벨 안내 댓글 등록
         uses: actions/github-script@v7
         with:
           script: |
@@ -203,38 +169,24 @@ jobs:
               issue_number: context.issue.number
             });
 
-            if (issueData.labels && issueData.labels.length > 0) {
-              const typeLabels = [];
-              const sizeLabels = [];
-              const scopeLabels = [];
-              const otherLabels = [];
+            if (!issueData.labels?.length) return;
 
-              issueData.labels.forEach(l => {
-                if (l.name.startsWith('type:')) typeLabels.push(l.name);
-                else if (l.name.startsWith('size:')) sizeLabels.push(l.name);
-                else if (l.name.startsWith('scope:')) scopeLabels.push(l.name);
-                else otherLabels.push(l.name);
-              });
+            const typeLabels  = issueData.labels.filter(l => l.name.startsWith('type:'));
+            const sizeLabels  = issueData.labels.filter(l => l.name.startsWith('size:'));
+            const scopeLabels = issueData.labels.filter(l => l.name.startsWith('scope:'));
+            const otherLabels = issueData.labels.filter(l =>
+              !l.name.startsWith('type:') && !l.name.startsWith('size:') && !l.name.startsWith('scope:')
+            );
 
-              let body = '🏷️ **Automatically Labeled**\n\n';
+            let body = '🏷️ **자동 라벨 지정 완료**\n\n';
+            if (typeLabels.length)  body += `**타입:** ${typeLabels.map(l  => `\`${l.name}\``).join(' ')}\n`;
+            if (sizeLabels.length)  body += `**크기:** ${sizeLabels.map(l  => `\`${l.name}\``).join(' ')}\n`;
+            if (scopeLabels.length) body += `**범위:** ${scopeLabels.map(l => `\`${l.name}\``).join(' ')}\n`;
+            if (otherLabels.length) body += `**기타:** ${otherLabels.map(l => `\`${l.name}\``).join(' ')}\n`;
 
-              if (typeLabels.length > 0) {
-                body += `**Type:** ${typeLabels.map(l => `\`${l}\``).join(' ')}\n`;
-              }
-              if (sizeLabels.length > 0) {
-                body += `**Size:** ${sizeLabels.map(l => `\`${l}\``).join(' ')}\n`;
-              }
-              if (scopeLabels.length > 0) {
-                body += `**Scope:** ${scopeLabels.map(l => `\`${l}\``).join(' ')}\n`;
-              }
-              if (otherLabels.length > 0) {
-                body += `**Other:** ${otherLabels.map(l => `\`${l}\``).join(' ')}\n`;
-              }
-
-              github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: body
-              });
-            }
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body
+            });

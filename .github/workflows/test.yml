@@ -1,4 +1,4 @@
-name: Test
+name: 테스트
 
 on:
   push:
@@ -11,70 +11,70 @@ on:
       - master
 
 jobs:
-  TypeScript:
-    name: TypeScript Type Check
+  타입스크립트:
+    name: TypeScript 타입 검사
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: 소스코드 체크아웃
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Node.js 설정
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
 
-      - name: Install Dependencies
+      - name: 의존성 설치
         run: npm ci
 
-      - name: Type Check
+      - name: 타입 검사
         run: npx tsc --noEmit
 
-  Unit-Tests:
-    name: Jest Unit Tests
+  단위-테스트:
+    name: 단위 테스트
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: 소스코드 체크아웃
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Node.js 설정
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
 
-      - name: Install Dependencies
+      - name: 의존성 설치
         run: npm ci
 
-      - name: Run Tests
+      - name: 테스트 실행
         run: npm test -- --passWithNoTests --coverage
 
-  E2E-Tests:
-    name: Playwright E2E Tests
+  E2E-테스트:
+    name: Playwright E2E 테스트
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: 소스코드 체크아웃
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Node.js 설정
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
 
-      - name: Install Dependencies
+      - name: 의존성 설치
         run: npm ci
 
-      - name: Install Playwright Browsers
+      - name: Playwright 브라우저 설치
         run: npx playwright install --with-deps
 
-      - name: Build Project
+      - name: 프로젝트 빌드
         run: npm run build
 
-      - name: Run E2E Tests
+      - name: E2E 테스트 실행
         run: npm run test:e2e
 
-      - name: Upload Playwright Report
+      - name: Playwright 리포트 업로드
         if: always()
         uses: actions/upload-artifact@v4
         with:

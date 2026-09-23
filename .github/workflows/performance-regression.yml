@@ -1,4 +1,4 @@
-name: Performance Regression Detection
+name: 성능 회귀 감지
 
 on:
   push:
@@ -11,28 +11,28 @@ on:
       - develop
 
 jobs:
-  Performance-Check:
-    name: Check Build Size Regression
+  빌드-크기-검사:
+    name: 빌드 크기 회귀 검사
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: 소스코드 체크아웃
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Node.js
+      - name: Node.js 설정
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
 
-      - name: Install Dependencies
+      - name: 의존성 설치
         run: npm ci
 
-      - name: Build Application
+      - name: 앱 빌드
         run: npm run build
 
-      - name: Calculate Build Size
+      - name: 빌드 크기 계산
         id: build-size
         run: |
           TOTAL_SIZE=$(du -sh .next | cut -f1)
@@ -41,16 +41,15 @@ jobs:
           echo "total=$TOTAL_SIZE" >> $GITHUB_OUTPUT
           echo "javascript=$JS_SIZE" >> $GITHUB_OUTPUT
 
-          echo "Build Size Analysis:"
-          echo "Total: $TOTAL_SIZE"
+          echo "빌드 크기 분석:"
+          echo "총 크기: $TOTAL_SIZE"
           echo "JavaScript: $JS_SIZE"
 
-      - name: Comment Performance Results
+      - name: 성능 결과 댓글 등록
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
           script: |
-            const fs = require('fs');
             const buildSize = '${{ steps.build-size.outputs.total }}';
             const jsSize = '${{ steps.build-size.outputs.javascript }}';
 
@@ -58,33 +57,33 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `📈 Build Size Analysis:\n\n- Total Build: **${buildSize}**\n- JavaScript: **${jsSize}**\n\n⚠️ Check for unexpected size increases.`
+              body: `📈 빌드 크기 분석:\n\n- 총 빌드: **${buildSize}**\n- JavaScript: **${jsSize}**\n\n⚠️ 예상치 못한 크기 증가 여부를 확인하세요.`
             })
 
-  Memory-Check:
-    name: Check Memory Usage
+  메모리-검사:
+    name: 메모리 사용량 검사
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: 소스코드 체크아웃
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Node.js 설정
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
 
-      - name: Install Dependencies
+      - name: 의존성 설치
         run: npm ci --prefer-offline
 
-      - name: Monitor Memory During Build
+      - name: 빌드 중 메모리 모니터링
         run: |
-          echo "Memory Usage During Build:"
+          echo "빌드 중 메모리 사용량:"
           (time npm run build) 2>&1 | tee build-metrics.log
 
           free -h >> build-metrics.log
 
-      - name: Upload Build Metrics
+      - name: 빌드 지표 업로드
         uses: actions/upload-artifact@v4
         with:
           name: build-metrics
