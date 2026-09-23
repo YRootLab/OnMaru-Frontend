@@ -8,6 +8,14 @@ export function loadWarmth(apiWarmths?: Warmth[]): Warmth[] {
   return apiWarmths && apiWarmths.length > 0 ? apiWarmths : [];
 }
 
+export function addWarmth(input: Omit<Warmth, 'id' | 'createdAt'>): Warmth {
+  return {
+    ...input,
+    id: `local-${Date.now()}`,
+    createdAt: new Date().toISOString(),
+  };
+}
+
 // addWarmth 는 백엔드 API 호출로 대체
 // 예: await apiPost('/api/warmth', { mood, placeId, ... })
 // helpful 토글은 백엔드 API로 대체
