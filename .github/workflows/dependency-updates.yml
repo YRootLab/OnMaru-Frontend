@@ -1,0 +1,104 @@
+name: Dependency Updates
+
+on:
+  schedule:
+    - cron: '0 9 * * 1' # Monday 9 AM UTC
+  workflow_dispatch:
+
+jobs:
+  Dependency-Check:
+    name: Check for Updates
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Check Outdated Packages
+        id: outdated
+        run: |
+          npm outdated --json > outdated.json || true
+          cat outdated.json
+
+      - name: Generate Dependency Report
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            try {
+              const outdated = JSON.parse(fs.readFileSync('outdated.json', 'utf8'));
+
+              if (Object.keys(outdated).length === 0) {
+                console.log('✅ All dependencies are up to date!');
+                return;
+              }
+
+              let report = '# 📦 Dependency Updates Available\n\n';
+              report += '| Package | Current | Latest | Type |\n';
+              report += '|---------|---------|--------|------|\n';
+
+              Object.entries(outdated).forEach(([pkg, info]) => {
+                const type = info.type || 'dependency';
+                report += `| \`${pkg}\` | ${info.current} | ${info.latest} | ${type} |\n`;
+              });
+
+              report += '\n## 🔍 Statistics\n\n';
+              report += `- Total Outdated: ${Object.keys(outdated).length}\n`;
+
+              let majors = 0, minors = 0, patches = 0;
+              Object.entries(outdated).forEach(([pkg, info]) => {
+                const curr = info.current.split('.');
+                const latest = info.latest.split('.');
+
+                if (curr[0] !== latest[0]) majors++;
+                else if (curr[1] !== latest[1]) minors++;
+                else patches++;
+              });
+
+              report += `- Major Updates: ${majors}\n`;
+              report += `- Minor Updates: ${minors}\n`;
+              report += `- Patch Updates: ${patches}\n`;
+
+              console.log(report);
+              core.setOutput('report', report);
+            } catch (e) {
+              console.log('No outdated packages');
+            }
+
+      - name: Create Issue for Updates
+        if: steps.outdated.outputs.report != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const report = `${{ steps.outdated.outputs.report }}`;
+
+            if (report.trim().length > 0) {
+              const { data: issue } = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '📦 Dependency Updates Available',
+                body: report + '\n\n---\n\n**Action Items:**\n- [ ] Review updates\n- [ ] Run \`npm update\`\n- [ ] Test thoroughly\n- [ ] Create PR if needed',
+                labels: ['type:chore', 'dependencies']
+              });
+
+              console.log(`Created issue: ${issue.html_url}`);
+            }
+
+      - name: Security Audit
+        run: |
+          npm audit --audit-level=moderate || true
+
+      - name: Generate Security Report
+        run: |
+          npm audit --json > audit.json || true
+          cat audit.json | jq '.metadata.vulnerabilities'

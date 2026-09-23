@@ -1,0 +1,45 @@
+name: Close Stale Issues and PRs
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Daily at midnight UTC
+  workflow_dispatch:
+
+jobs:
+  Stale:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Close Stale Issues
+        uses: actions/stale@v8
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          stale-issue-message: |
+            👋 This issue has been automatically marked as stale because it has not had recent activity.
+            It will be closed in 7 days if no further activity occurs.
+
+            Please add a comment if this issue is still relevant!
+          stale-pr-message: |
+            👋 This PR has been automatically marked as stale because it has not had recent activity.
+            It will be closed in 7 days if no further activity occurs.
+
+            Please add a comment or push new commits if this PR is still being worked on!
+          close-issue-message: 'Closed due to inactivity. Feel free to reopen if needed!'
+          close-pr-message: 'Closed due to inactivity. Feel free to reopen if needed!'
+
+          # Configuration
+          days-before-issue-stale: 30
+          days-before-pr-stale: 14
+          days-before-issue-close: 7
+          days-before-pr-close: 7
+
+          # Don't mark as stale if has these labels
+          exempt-issue-labels: 'pinned,help-wanted,good-first-issue'
+          exempt-pr-labels: 'pinned,in-progress,do-not-merge'
+
+          # Only stale if no activity
+          ignore-issue-updates: false
+          ignore-pr-updates: false

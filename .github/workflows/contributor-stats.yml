@@ -1,0 +1,100 @@
+name: Contributor Statistics
+
+on:
+  push:
+    branches:
+      - master
+  schedule:
+    - cron: '0 0 * * 0' # Weekly on Sunday
+
+jobs:
+  Contributors:
+    name: Generate Contributor Stats
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Calculate Contributors
+        id: stats
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: commits } = await github.rest.repos.listCommits({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100
+            });
+
+            const contributors = {};
+            const prs = {};
+
+            // Count commits by author
+            commits.forEach(commit => {
+              const author = commit.commit.author.name;
+              contributors[author] = (contributors[author] || 0) + 1;
+            });
+
+            // Get PR stats
+            const { data: pulls } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'all',
+              per_page: 50
+            });
+
+            pulls.forEach(pr => {
+              const author = pr.user.login;
+              prs[author] = (prs[author] || 0) + 1;
+            });
+
+            // Sort by contribution count
+            const topContributors = Object.entries(contributors)
+              .sort((a, b) => b[1] - a[1])
+              .slice(0, 10);
+
+            let report = '# 📊 Contributor Statistics\n\n';
+            report += `## Top Contributors\n\n`;
+            report += `| Rank | Contributor | Commits | PRs |\n`;
+            report += `|------|-------------|---------|-----|\n`;
+
+            topContributors.forEach((entry, idx) => {
+              const [name, count] = entry;
+              const prCount = prs[name] || 0;
+              report += `| ${idx + 1} | ${name} | ${count} | ${prCount} |\n`;
+            });
+
+            report += `\n## 📈 Summary\n\n`;
+            report += `- Total Contributors: ${Object.keys(contributors).length}\n`;
+            report += `- Total Commits: ${commits.length}\n`;
+            report += `- Total PRs: ${Object.values(prs).reduce((a, b) => a + b, 0)}\n`;
+
+            core.setOutput('report', report);
+            console.log(report);
+
+      - name: Create Contributors Report
+        run: |
+          mkdir -p .github/reports
+          cat > .github/reports/CONTRIBUTORS.md << 'EOF'
+          ${{ steps.stats.outputs.report }}
+          EOF
+
+      - name: Commit Report
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add .github/reports/CONTRIBUTORS.md
+          git commit -m "docs: update contributor statistics" || true
+          git push origin master || true
+
+      - name: Create Stats Badge
+        run: |
+          mkdir -p .github/badges
+          BADGE_URL="https://img.shields.io/badge/contributors-$(git log --pretty='%an' | sort -u | wc -l)-blue"
+          echo "Badge URL: $BADGE_URL"

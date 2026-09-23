@@ -1,0 +1,109 @@
+name: Auto Assign PR
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+
+jobs:
+  Auto-Assign:
+    name: Automatically Assign Reviewers
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - name: Auto Assign by Files Changed
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+
+            // File pattern to team mapping
+            const fileAssignments = {
+              'frontend': ['@frontend-team'],
+              'backend': ['@backend-team'],
+              'api': ['@api-team'],
+              'database': ['@database-team'],
+              'ci': ['@devops-team'],
+              'docker': ['@devops-team'],
+              'test': ['@qa-team'],
+            };
+
+            let assignees = new Set();
+            let assignedAreas = new Set();
+
+            files.forEach(file => {
+              for (const [pattern, teams] of Object.entries(fileAssignments)) {
+                if (file.filename.includes(pattern)) {
+                  assignedAreas.add(pattern);
+                  teams.forEach(team => assignees.add(team.replace('@', '')));
+                }
+              }
+            });
+
+            if (assignees.size > 0) {
+              console.log(`Auto-assigned to: ${Array.from(assignees).join(', ')}`);
+              console.log(`Changed areas: ${Array.from(assignedAreas).join(', ')}`);
+
+              // Create assignee list
+              const assigneeList = Array.from(assignees).slice(0, 5); // Limit to 5 reviewers
+
+              // Note: Auto-assign requires users to exist
+              // This is a template - configure with actual team members
+              console.log(`Would assign: ${assigneeList.join(', ')}`);
+            }
+
+      - name: Auto Assign by PR Author
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const author = context.payload.pull_request.user.login;
+
+            // Map author to reviewers
+            const authorReviewers = {
+              // 'username': ['reviewer1', 'reviewer2'],
+            };
+
+            if (authorReviewers[author]) {
+              console.log(`Assigning reviewers for ${author}: ${authorReviewers[author].join(', ')}`);
+            }
+
+      - name: Request Code Review
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+
+            // Get file changes summary
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+
+            let summary = `## 📋 Code Review Checklist\n\n`;
+            summary += `- [ ] Tests added/updated\n`;
+            summary += `- [ ] Documentation updated\n`;
+            summary += `- [ ] No console logs/debuggers\n`;
+            summary += `- [ ] No hardcoded values\n`;
+            summary += `- [ ] Performance considered\n`;
+            summary += `- [ ] Security reviewed\n`;
+            summary += `- [ ] Error handling added\n`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            });

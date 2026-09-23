@@ -1,0 +1,113 @@
+name: PR Validation
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - reopened
+      - synchronize
+
+jobs:
+  Validate-PR:
+    name: Validate PR Requirements
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Validate PR Title
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = context.payload.pull_request.title;
+            const body = context.payload.pull_request.body || '';
+
+            const validPrefixes = ['feat', 'fix', 'refactor', 'chore', 'docs', 'test', 'perf', 'style', 'ci', 'build'];
+            const hasValidPrefix = validPrefixes.some(prefix => title.toLowerCase().startsWith(prefix + ':') || title.toLowerCase().startsWith(prefix + '('));
+
+            if (!hasValidPrefix) {
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: `❌ **Invalid PR Title**\n\nYour PR title must start with one of these prefixes:\n- \`feat:\` New feature\n- \`fix:\` Bug fix\n- \`refactor:\` Code refactor\n- \`chore:\` Maintenance\n- \`docs:\` Documentation\n- \`test:\` Tests\n- \`perf:\` Performance\n- \`style:\` Styling\n- \`ci:\` CI/CD\n- \`build:\` Build\n\n**Current title:** \`${title}\`\n\nExample: \`feat: add new feature\``
+              });
+              core.setFailed('Invalid PR title format');
+            } else {
+              console.log('✅ PR title is valid');
+            }
+
+      - name: Validate PR Description
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.pull_request.body || '';
+            const isDraft = context.payload.pull_request.draft;
+
+            if (!isDraft && body.trim().length < 20) {
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: `⚠️ **Please add a detailed description**\n\nYour PR description is too short. Please include:\n- What changes you made\n- Why you made these changes\n- How to test the changes\n- Any related issues (closes #123)`
+              });
+              core.setFailed('PR description is too short');
+            } else {
+              console.log('✅ PR description looks good');
+            }
+
+      - name: Check for Breaking Changes
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = context.payload.pull_request.title.toLowerCase();
+            const body = context.payload.pull_request.body || '';
+
+            if (title.includes('breaking') || title.includes('💥') || body.includes('BREAKING')) {
+              github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: ['breaking-change']
+              });
+
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: `🚨 **Breaking Change Detected**\n\nThis PR appears to contain breaking changes. Please ensure:\n- ✅ Migration guide is provided\n- ✅ Deprecation warnings added\n- ✅ Version bump is major (X.0.0)\n- ✅ Changelog updated`
+              });
+            }
+
+      - name: Require Minimum Files Changed
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+
+            if (files.length === 0) {
+              core.setFailed('PR must modify at least one file');
+            } else {
+              console.log(`✅ PR modifies ${files.length} files`);
+            }
+
+      - name: Comment Validation Status
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `✅ **PR Validation Passed**\n\n- Title format: ✓\n- Description: ✓\n- Files modified: ✓`
+            })
