@@ -1,0 +1,91 @@
+name: Performance Regression Detection
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+  pull_request:
+    branches:
+      - master
+      - develop
+
+jobs:
+  Performance-Check:
+    name: Check Build Size Regression
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Application
+        run: npm run build
+
+      - name: Calculate Build Size
+        id: build-size
+        run: |
+          TOTAL_SIZE=$(du -sh .next | cut -f1)
+          JS_SIZE=$(find .next -name "*.js" -type f | xargs du -c | tail -1 | cut -f1)
+
+          echo "total=$TOTAL_SIZE" >> $GITHUB_OUTPUT
+          echo "javascript=$JS_SIZE" >> $GITHUB_OUTPUT
+
+          echo "Build Size Analysis:"
+          echo "Total: $TOTAL_SIZE"
+          echo "JavaScript: $JS_SIZE"
+
+      - name: Comment Performance Results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const buildSize = '${{ steps.build-size.outputs.total }}';
+            const jsSize = '${{ steps.build-size.outputs.javascript }}';
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `📈 Build Size Analysis:\n\n- Total Build: **${buildSize}**\n- JavaScript: **${jsSize}**\n\n⚠️ Check for unexpected size increases.`
+            })
+
+  Memory-Check:
+    name: Check Memory Usage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci --prefer-offline
+
+      - name: Monitor Memory During Build
+        run: |
+          echo "Memory Usage During Build:"
+          (time npm run build) 2>&1 | tee build-metrics.log
+
+          free -h >> build-metrics.log
+
+      - name: Upload Build Metrics
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-metrics
+          path: build-metrics.log

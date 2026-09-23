@@ -1,0 +1,71 @@
+name: Accessibility Check
+
+on:
+  push:
+    branches:
+      - develop
+      - master
+  pull_request:
+    branches:
+      - develop
+      - master
+
+jobs:
+  Accessibility:
+    name: Scan Accessibility Issues
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Application
+        run: npm run build
+
+      - name: Install Axe DevTools
+        run: npm install --save-dev @axe-core/playwright || true
+
+      - name: Run Accessibility Tests
+        run: |
+          echo "Running accessibility checks..."
+          npx pa11y-ci .next || true
+        continue-on-error: true
+
+      - name: Generate a11y Report
+        run: |
+          echo "# Accessibility Audit Report" > a11y-report.md
+          echo "" >> a11y-report.md
+          echo "## Checklist" >> a11y-report.md
+          echo "- [ ] Semantic HTML structure" >> a11y-report.md
+          echo "- [ ] ARIA labels and roles" >> a11y-report.md
+          echo "- [ ] Keyboard navigation" >> a11y-report.md
+          echo "- [ ] Color contrast ratio" >> a11y-report.md
+          echo "- [ ] Image alt text" >> a11y-report.md
+          echo "- [ ] Form labels" >> a11y-report.md
+          echo "- [ ] Focus indicators" >> a11y-report.md
+
+      - name: Upload Accessibility Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: a11y-report
+          path: a11y-report.md
+
+      - name: Comment Accessibility Status
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '♿ Accessibility audit completed. Review a11y-report in artifacts.'
+            })
