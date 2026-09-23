@@ -19,4 +19,12 @@ describe('member repository (FE #97)', () => {
       { path: '/auth/logout', options: { method: 'POST', csrf: true } },
     ]);
   });
+
+  it('returns the 202 deletion receipt from DELETE /members/me', async () => {
+    const repository = createMemberRepository((async () => ({
+      status: 'DELETING',
+    })) as never);
+
+    await expect(repository.deleteMyAccount()).resolves.toEqual({ status: 'DELETING' });
+  });
 });

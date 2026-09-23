@@ -1,22 +1,44 @@
 import snapshot from '@/data/hanokVillages.fallback.json';
 import type { Village, VillageMeta } from '@/features/hanok-archive/types';
 
+function toSecureImageUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  return url.startsWith('http://') ? url.replace('http://', 'https://') : url;
+}
+
+function createVillageMeta(
+  villages: Village[],
+  generatedAt: string,
+  sourceTotals?: Record<string, number>,
+): VillageMeta {
+  const byType: Record<string, number> = {};
+  const badgeStats: Record<string, number> = {};
+  let imageCount = 0;
+  let badgeFallbackCount = 0;
+
+  villages.forEach((v) => {
+    byType[v.type] = (byType[v.type] || 0) + 1;
+    if (v.hasImage) imageCount += 1;
+    v.badges.forEach((badge) => {
+      badgeStats[badge] = (badgeStats[badge] || 0) + 1;
+    });
+  });
+
+  return {
+    generatedAt,
+    total: villages.length,
+    byType,
+    imageRate: villages.length > 0 ? Math.round((imageCount / villages.length) * 100) : 0,
+    badgeStats,
+    badgeFallbackCount,
+    sourceTotals,
+  };
+}
+
 export interface HanokArchiveData {
   villages: Village[];
   meta: VillageMeta;
 }
-
-function toHttps(url: string | null): string | null {
-  if (!url) return null;
-  return url.startsWith('http://') ? `https://${url.slice(7)}` : url;
-}
-
-
-
-
-
-
-
 
 const villages: Village[] = snapshot.villages.map((item) => ({
   id: String(item.id),
@@ -28,39 +50,15 @@ const villages: Village[] = snapshot.villages.map((item) => ({
   lng: Number.isFinite(item.lng) ? item.lng : null,
   type: item.type as Village['type'],
   badges: item.badges,
-  image: toHttps(item.image),
+  image: toSecureImageUrl(item.image),
   hasImage: Boolean(item.image),
   summary: item.summary,
   overview: item.overview,
 }));
 
-function createMeta(items: Village[]): VillageMeta {
-  const byType: Record<string, number> = {};
-  const badgeStats: Record<string, number> = {};
-  let imageCount = 0;
-
-  for (const item of items) {
-    byType[item.type] = (byType[item.type] ?? 0) + 1;
-    if (item.hasImage) imageCount += 1;
-    for (const badge of item.badges) {
-      badgeStats[badge] = (badgeStats[badge] ?? 0) + 1;
-    }
-  }
-
-  return {
-    generatedAt: snapshot.generatedAt,
-    total: items.length,
-    byType,
-    imageRate: items.length > 0 ? imageCount / items.length : 0,
-    badgeStats,
-    badgeFallbackCount: 0,
-    sourceTotals: snapshot.sourceTotals,
-  };
-}
-
 export const HANOK_ARCHIVE_FALLBACK: HanokArchiveData = {
   villages,
-  meta: createMeta(villages),
+  meta: createVillageMeta(villages, snapshot.generatedAt, snapshot.sourceTotals),
 };
 
 const fallbackVillageById = new Map(villages.map((village) => [village.id, village]));

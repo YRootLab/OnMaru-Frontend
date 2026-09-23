@@ -8,6 +8,16 @@
 - Non-fetch business logic (mapping, decoding, classification) that more than one place needs belongs in `features/<feature>/services/*.ts`, not copy-pasted into a component.
 - Refactors that only relocate data-fetching/logic into a hook or service must not change the rendered output, animation, or styling of the component they're extracted from — verify with a type-check and a visual diff before considering the extraction done.
 
+## Clean architecture boundaries
+
+- Organize new or migrated feature code as `features/<feature>/{domain,application,infrastructure,presentation}`. Migrate incrementally; do not require an all-at-once directory move.
+- `domain` contains framework-independent entities, value types, and deterministic business rules. It must not import React, Next.js, browser APIs, network clients, or infrastructure modules.
+- `application` contains use cases and the interfaces (ports) they need. It may import `domain`, but not concrete HTTP, storage, browser, or React implementations.
+- `infrastructure` implements application ports for HTTP clients, external SDKs, browser storage, and fixtures. It may import `application` contracts and `domain` types, but never `presentation`.
+- `presentation` contains React components, hooks, and route-facing view models. It invokes application use cases and receives concrete infrastructure implementations through a composition boundary; it must not contain business rules or direct external API calls.
+- Next.js pages and route handlers are composition boundaries: they may select infrastructure implementations, create use cases, and pass data or callbacks into presentation code.
+- Dependencies must point inward only: `presentation -> application -> domain` and `infrastructure -> application/domain`. Tests may substitute port implementations with deterministic fakes.
+
 # UI design guidance
 
 ## Color direction
