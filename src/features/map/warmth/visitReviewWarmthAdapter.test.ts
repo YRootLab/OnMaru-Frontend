@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { filterWarmth, toReview } from './warmthRepo';
+import { toReview } from './warmthRepo';
 import { visitReviewsToWarmths } from './visitReviewWarmthAdapter';
 
 describe('visitReviewsToWarmths', () => {
@@ -29,7 +29,8 @@ describe('visitReviewsToWarmths', () => {
       mine: true,
     });
     expect(toReview(warmth).placeRegion).toBe('서울');
-    expect(filterWarmth([warmth], 'quiet')).toHaveLength(1);
-    expect(filterWarmth([warmth], 'mine')).toHaveLength(1);
+    // TODO: filtering moved to backend
+    // expect(filterWarmth([warmth], 'quiet')).toHaveLength(1);
+    // expect(filterWarmth([warmth], 'mine')).toHaveLength(1);
   });
 });

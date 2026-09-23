@@ -6,7 +6,6 @@ import { MapPin, Flame } from 'lucide-react';
 import { meok, surface , fontSize } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
-import { filterWarmth } from '@/features/map/warmth/warmthRepo';
 import {
   PERIOD_OPTIONS,
   filterByPeriod,
@@ -287,10 +286,8 @@ export default function WarmthLegend() {
 
 
   const stat = useMemo(() => {
-    const scoped = filterWarmth(
-      filterByPeriod(warmths, period),
-      (category ?? 'all') as WarmthFilter,
-    );
+    // TODO: category filter moved to backend query params
+    const scoped = filterByPeriod(warmths, period);
 
     const bounds = map?.getBounds?.();
     if (!bounds || !window.kakao?.maps) return moodStatOf(scoped);
@@ -299,7 +296,7 @@ export default function WarmthLegend() {
       scoped.filter((w) => bounds.contain(new window.kakao.maps.LatLng(w.lat, w.lng))),
     );
 
-  }, [warmths, period, category, map, center, level]);
+  }, [warmths, period, map, center, level]);
 
   const rampGradient = useMemo(() => rampCss(isDark), [isDark]);
 

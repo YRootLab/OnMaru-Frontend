@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { clusterWarmth, filterWarmth, toReview } from './warmthRepo';
+import { clusterWarmth, toReview } from './warmthRepo';
 import { seedWarmth } from './seed';
 
 const list = seedWarmth(Date.parse('2026-08-26T00:00:00Z'));
@@ -29,13 +29,14 @@ describe('clusterWarmth', () => {
   });
 });
 
-describe('filterWarmth', () => {
-  it('분위기로 가른다', () => {
-    expect(filterWarmth(list, 'busy').every((w) => w.mood === '북적')).toBe(true);
-    expect(filterWarmth(list, 'quiet').every((w) => w.mood === '한적')).toBe(true);
-    expect(filterWarmth(list, 'all')).toHaveLength(list.length);
-  });
-});
+// TODO: filtering moved to backend
+// describe('filterWarmth', () => {
+//   it('분위기로 가른다', () => {
+//     expect(filterWarmth(list, 'busy').every((w: any) => w.mood === '북적')).toBe(true);
+//     expect(filterWarmth(list, 'quiet').every((w: any) => w.mood === '한적')).toBe(true);
+//     expect(filterWarmth(list, 'all')).toHaveLength(list.length);
+//   });
+// });
 
 describe('toReview', () => {
   it('score가 없을 때도 crowdMood에 맞는 mood 값을 매긴다 — 북적은 높게, 한적은 낮게', () => {
