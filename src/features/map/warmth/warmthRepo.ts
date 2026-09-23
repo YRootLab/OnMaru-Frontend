@@ -23,6 +23,19 @@ export function toggleHelpful(warmthId: string): boolean {
   return false;
 }
 
+export function filterWarmth(list: Warmth[], filter: WarmthFilter): Warmth[] {
+  if (filter === 'all') return list;
+  if (filter === 'mine') return list.filter((warmth) => warmth.mine);
+  if (filter === 'busy') return list.filter((warmth) => warmth.mood === '북적');
+  if (filter === 'quiet') return list.filter((warmth) => warmth.mood === '한적');
+  if (filter === 'today') {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    return list.filter((warmth) => Date.parse(warmth.createdAt) >= start.getTime());
+  }
+  return list;
+}
+
 const DAY = 86_400_000;
 
 

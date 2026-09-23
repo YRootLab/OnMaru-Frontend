@@ -50,8 +50,8 @@ export interface CreateSorimaruNetworkClientOptions {
   timeoutMs?: number;
 }
 
-// Single Source of Truth: 백엔드 API만 호출
-// Odii API는 백엔드에서만 처리 (프론트 직접 호출 제거)
+const CLIENT_API_ENDPOINT = process.env.NEXT_PUBLIC_SORIMARU_API_URL || process.env.NEXT_PUBLIC_ODII_API_URL || 'https://apis.data.go.kr/B551011/Odii';
+const CLIENT_API_KEY = process.env.NEXT_PUBLIC_SORIMARU_API_KEY || process.env.NEXT_PUBLIC_ODII_API_KEY || '';
 const REQUEST_TIMEOUT_MS = 45_000;
 
 interface BackendStorySummary {
@@ -79,30 +79,29 @@ interface BackendStoryPage {
 
 const defaultBackendRequester: SorimaruBackendRequester = (path, params) => apiGet<unknown>(path, params);
 
-// 모든 Odii API 호출은 백엔드 경유
-// 백엔드 엔드포인트: /api/stories, /api/stories/nearby, /api/stories/themes
-
 export const defaultSorimaruEndpointResolver: SorimaruEndpointResolver = ({ type, params }) => {
-  // 백엔드 API 경로만 반환
-  const path =
-    type === 'nearby' ? '/api/stories/nearby'
-    : type === 'themes' ? '/api/stories/themes'
-    : '/api/stories';
+  const operation = type === 'nearby'
+    ? 'storyLocationBasedList'
+    : type === 'themes'
+      ? params.keyword ? 'themeSearchList' : 'themeBasedList'
+      : params.keyword ? 'storySearchList' : 'storyBasedList';
+  const upstream = new URL(`${CLIENT_API_ENDPOINT}/${operation}`);
+  upstream.searchParams.set('MobileOS', 'ETC');
+  upstream.searchParams.set('MobileApp', 'OnMaruFE');
+  upstream.searchParams.set('_type', 'json');
+  upstream.searchParams.set('langCode', 'ko');
+  upstream.searchParams.set('serviceKey', CLIENT_API_KEY);
 
-  return path;
+  if (type === 'nearby') {
     if (params.yCoord) upstream.searchParams.set('mapY', params.yCoord);
     upstream.searchParams.set('radius', params.radius || '3000');
     upstream.searchParams.set('numOfRows', params.numOfRows || '10');
     upstream.searchParams.set('pageNo', params.pageNo || '1');
-    return upstream.toString();
+  } else {
+    upstream.searchParams.set('numOfRows', params.numOfRows || '7');
+    upstream.searchParams.set('pageNo', params.pageNo || '1');
+    if (params.keyword?.trim()) upstream.searchParams.set('keyword', params.keyword.trim());
   }
-
-  upstream.searchParams.set('numOfRows', params.numOfRows || '7');
-  upstream.searchParams.set('pageNo', params.pageNo || '1');
-
-  const keyword = params.keyword?.trim();
-  if (keyword) upstream.searchParams.set('keyword', keyword);
-
   return upstream.toString();
 };
 
