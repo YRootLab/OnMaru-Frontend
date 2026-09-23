@@ -277,7 +277,10 @@ const BottomActionRow = styled.div`
   justify-content: space-between;
   gap: 8px;
   margin-top: 4px;
-  flex-wrap: wrap;
+
+  @media (max-width: 640px) {
+    justify-content: stretch;
+  }
 `;
 
 const ActiveIconButton = styled.div`
@@ -304,6 +307,10 @@ const ActiveIconButton = styled.div`
     color: ${meok[100]};
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
   }
+
+  @media (max-width: 640px) {
+    display: none;
+  }
 `;
 
 const ActionGroup = styled.div`
@@ -311,7 +318,11 @@ const ActionGroup = styled.div`
   align-items: center;
   gap: 6px;
   flex-shrink: 0;
-  flex-wrap: wrap;
+
+  @media (max-width: 640px) {
+    flex: 1;
+    gap: 8px;
+  }
 `;
 
 const DirectBookingBtn = styled.a`
@@ -341,9 +352,11 @@ const DirectBookingBtn = styled.a`
     }
   }
 
-  @media (max-width: 480px) {
-    padding: 7px 11px;
-    font-size: 11px;
+  @media (max-width: 640px) {
+    flex: 1;
+    justify-content: center;
+    padding: 9px 10px;
+    font-size: 12px;
   }
 `;
 
@@ -370,9 +383,11 @@ const DetailActionBtn = styled.button`
     transform: translateY(-1px);
   }
 
-  @media (max-width: 480px) {
-    padding: 7px 11px;
-    font-size: 11px;
+  @media (max-width: 640px) {
+    flex: 1;
+    justify-content: center;
+    padding: 9px 10px;
+    font-size: 12px;
   }
 `;
 
@@ -801,10 +816,10 @@ export default function HanokStayAccordion({
                   <AnimatePresence>
                     {isActive && (
                       <ActiveContentOverlay
-                        initial={{ opacity: 0, y: 12 }}
+                        initial={isMobile ? { opacity: 0 } : { opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 8 }}
-                        transition={{ duration: 0.22 }}
+                        exit={isMobile ? { opacity: 0 } : { opacity: 0, y: 8 }}
+                        transition={isMobile ? { duration: 0.08 } : { duration: 0.22 }}
                       >
                         <ContentHeader>
                           <TagRow>
