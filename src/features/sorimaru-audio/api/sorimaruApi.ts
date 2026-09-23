@@ -9,68 +9,15 @@ import {
 } from '@/features/sorimaru-audio/domain/sorimaruStoryRules';
 
 
-const DAILY_CACHE_PREFIX = 'onmaru_sorimaru_api_cache_v4';
-const dailyMemoryCache = new Map<string, unknown>();
-const inFlightRequests = new Map<string, Promise<unknown>>();
-
-function dailyCacheKey(requestKey: string): string {
-  const today = new Date();
-  const localDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-  return `${DAILY_CACHE_PREFIX}:${localDate}:${requestKey}`;
-}
-
-function readDailyCache<T>(requestKey: string): T | undefined {
-  const key = dailyCacheKey(requestKey);
-  if (dailyMemoryCache.has(key)) return dailyMemoryCache.get(key) as T;
-  if (typeof window === 'undefined') return undefined;
-
-  try {
-    const stored = window.localStorage.getItem(key);
-    if (!stored) return undefined;
-    const parsed = JSON.parse(stored) as T;
-    dailyMemoryCache.set(key, parsed);
-    return parsed;
-  } catch {
-    return undefined;
-  }
-}
-
-function writeDailyCache<T>(requestKey: string, value: T): void {
-  const key = dailyCacheKey(requestKey);
-  dailyMemoryCache.set(key, value);
-  if (typeof window === 'undefined') return;
-
-  try {
-    window.localStorage.setItem(key, JSON.stringify(value));
-  } catch {
-
-  }
-}
+// Single Source of Truth: 캐싱은 백엔드에서 처리
+// 프론트는 직접 API 호출만 함 (캐싱 제거)
 
 async function getCachedRequest<T>(
   requestKey: string,
   request: () => Promise<T>,
-  shouldCache: (value: T) => boolean = () => true,
 ): Promise<T> {
-  const cached = readDailyCache<T>(requestKey);
-  if (cached !== undefined) {
-    console.info('[Sorimaru Cache] hit', { requestKey });
-    return cached;
-  }
-
-  const existing = inFlightRequests.get(dailyCacheKey(requestKey));
-  if (existing) return existing as Promise<T>;
-
-  const pending = request().then((value) => {
-    if (shouldCache(value)) writeDailyCache(requestKey, value);
-    else console.info('[Sorimaru Cache] skip empty response', { requestKey });
-    return value;
-  }).finally(() => {
-    inFlightRequests.delete(dailyCacheKey(requestKey));
-  });
-
-  inFlightRequests.set(dailyCacheKey(requestKey), pending);
-  return pending;
+  // 백엔드가 캐싱을 처리하므로 프론트는 직접 호출만 함
+  return request();
 }
 
 

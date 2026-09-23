@@ -48,9 +48,12 @@ data/build-errors.json
 /아카이브
 /myFrontendSkill
 /myDesignSkill
+
+# 백엔드 API 명세 (로컬 개발용, git 제외)
+/docs/backend-api-spec/
 /new
 /docs/specs
-
+/docs/reports
 /claude_workspace
 
 

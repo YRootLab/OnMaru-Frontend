@@ -15,30 +15,12 @@ export interface RecommendationResult {
 
 
 class RecommendationAdapter {
-  private whaleBeEndpoint: string | null = process.env.NEXT_PUBLIC_WHALEBE_API_URL || null;
-
-
-
+  // Single Source of Truth: 백엔드 API 경유
+  // 프론트는 직접 Whale.Be를 호출하지 않음
 
   public async getRecommendationForNode(node: ConstellationNode): Promise<RecommendationResult> {
-
-    if (this.whaleBeEndpoint) {
-      try {
-        const response = await fetch(`${this.whaleBeEndpoint}/api/v1/recommend?keyword=${encodeURIComponent(node.keyword)}`);
-        if (response.ok) {
-          const data = await response.json();
-          return {
-            node,
-            recommendedStory: data.story,
-            candidateStories: data.candidates || [],
-            source: 'whalebe-ai',
-          };
-        }
-      } catch (err) {
-        console.warn('[WhaleBE Recommendation] 백엔드 호출 실패, Sorimaru 실시간으로 폴백합니다.', err);
-      }
-    }
-
+    // 모든 추천은 백엔드 `/api/recommendation?keyword=...`으로 위임
+    // 백엔드가 Whale.Be 또는 Sorimaru를 선택해서 반환
 
     const stories = await sorimaruApiAdapter.getStoryList(undefined, node.keyword);
 
