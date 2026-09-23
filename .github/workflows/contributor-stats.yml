@@ -1,27 +1,27 @@
-name: Contributor Statistics
+name: 기여자 통계 생성
 
 on:
   push:
     branches:
       - master
   schedule:
-    - cron: '0 0 * * 0' # Weekly on Sunday
+    - cron: '0 0 * * 0' # 매주 일요일
 
 jobs:
   Contributors:
-    name: Generate Contributor Stats
+    name: 기여자 통계 집계
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: read
 
     steps:
-      - name: Checkout Code
+      - name: 소스코드 체크아웃
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Calculate Contributors
+      - name: 기여자 통계 계산
         id: stats
         uses: actions/github-script@v7
         with:
@@ -35,13 +35,13 @@ jobs:
             const contributors = {};
             const prs = {};
 
-            // Count commits by author
+            // 작성자별 커밋 수 집계
             commits.forEach(commit => {
               const author = commit.commit.author.name;
               contributors[author] = (contributors[author] || 0) + 1;
             });
 
-            // Get PR stats
+            // PR 통계 수집
             const { data: pulls } = await github.rest.pulls.list({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -54,15 +54,15 @@ jobs:
               prs[author] = (prs[author] || 0) + 1;
             });
 
-            // Sort by contribution count
+            // 기여도(커밋 수) 기준 정렬
             const topContributors = Object.entries(contributors)
               .sort((a, b) => b[1] - a[1])
               .slice(0, 10);
 
-            let report = '# 📊 Contributor Statistics\n\n';
-            report += `## Top Contributors\n\n`;
-            report += `| Rank | Contributor | Commits | PRs |\n`;
-            report += `|------|-------------|---------|-----|\n`;
+            let report = '# 📊 기여자 통계 리포트\n\n';
+            report += `## 상위 기여자 순위\n\n`;
+            report += `| 순위 | 기여자 | 커밋 수 | PR 수 |\n`;
+            report += `|------|--------|---------|-------|\n`;
 
             topContributors.forEach((entry, idx) => {
               const [name, count] = entry;
@@ -70,30 +70,30 @@ jobs:
               report += `| ${idx + 1} | ${name} | ${count} | ${prCount} |\n`;
             });
 
-            report += `\n## 📈 Summary\n\n`;
-            report += `- Total Contributors: ${Object.keys(contributors).length}\n`;
-            report += `- Total Commits: ${commits.length}\n`;
-            report += `- Total PRs: ${Object.values(prs).reduce((a, b) => a + b, 0)}\n`;
+            report += `\n## 📈 요약\n\n`;
+            report += `- 총 기여자 수: ${Object.keys(contributors).length}명\n`;
+            report += `- 총 커밋 수: ${commits.length}개\n`;
+            report += `- 총 PR 수: ${Object.values(prs).reduce((a, b) => a + b, 0)}개\n`;
 
             core.setOutput('report', report);
             console.log(report);
 
-      - name: Create Contributors Report
+      - name: 기여자 리포트 파일 생성
         run: |
           mkdir -p .github/reports
           cat > .github/reports/CONTRIBUTORS.md << 'EOF'
           ${{ steps.stats.outputs.report }}
           EOF
 
-      - name: Commit Report
+      - name: 리포트 커밋 및 푸시
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add .github/reports/CONTRIBUTORS.md
-          git commit -m "docs: update contributor statistics" || true
+          git commit -m "docs: 기여자 통계 정보 업데이트" || true
           git push origin master || true
 
-      - name: Create Stats Badge
+      - name: 통계 배지 생성
         run: |
           mkdir -p .github/badges
           BADGE_URL="https://img.shields.io/badge/contributors-$(git log --pretty='%an' | sort -u | wc -l)-blue"
