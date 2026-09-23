@@ -136,6 +136,6 @@ jobs:
                 issue_number: context.issue.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body: `👋 Thanks for opening this issue!\n\nPlease make sure to:\n- [ ] Search for existing issues first\n- [ ] Provide clear reproduction steps\n- [ ] Include screenshots/logs if applicable\n- [ ] Mention your environment (OS, browser, version)\n\nOur team will review and triage this shortly.`
+                body: `👋 이슈를 열어주셔서 감사합니다!\n\n다음을 확인해주세요:\n- [ ] 먼저 기존 이슈 검색\n- [ ] 명확한 재현 단계 제공\n- [ ] 해당하면 스크린샷/로그 첨부\n- [ ] 환경 정보 (OS, 브라우저, 버전) 기입\n\n팀에서 곧 검토하고 분류하겠습니다.`
               });
             }

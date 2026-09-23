@@ -92,14 +92,14 @@ jobs:
               pull_number: context.issue.number
             });
 
-            let summary = `## 📋 Code Review Checklist\n\n`;
-            summary += `- [ ] Tests added/updated\n`;
-            summary += `- [ ] Documentation updated\n`;
-            summary += `- [ ] No console logs/debuggers\n`;
-            summary += `- [ ] No hardcoded values\n`;
-            summary += `- [ ] Performance considered\n`;
-            summary += `- [ ] Security reviewed\n`;
-            summary += `- [ ] Error handling added\n`;
+            let summary = `## 📋 코드 리뷰 체크리스트\n\n`;
+            summary += `- [ ] 테스트 추가/업데이트\n`;
+            summary += `- [ ] 문서 업데이트\n`;
+            summary += `- [ ] 콘솔 로그/디버거 없음\n`;
+            summary += `- [ ] 하드코딩된 값 없음\n`;
+            summary += `- [ ] 성능 고려됨\n`;
+            summary += `- [ ] 보안 검토됨\n`;
+            summary += `- [ ] 에러 처리 추가됨\n`;
 
             github.rest.issues.createComment({
               issue_number: context.issue.number,
