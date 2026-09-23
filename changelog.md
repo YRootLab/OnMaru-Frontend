@@ -3,6 +3,23 @@
 Lightweight human-readable summary of meaningful repository changes. This does not replace Git history.
 
 ## Unreleased
+- 프론트엔드 Single Source of Truth 아키텍처 전환을 완료했다. 모든 데이터 처리 로직을 백엔드에 집중하고, 프론트엔드는 백엔드 API만 호출해 데이터를 표시하는 순수 UI 레이어로 변경했다.
+  - 필터링 로직 완전 제거: 지역·카테고리·온기 등 모든 필터링을 백엔드로 이관
+  - 클라이언트 캐싱 제거: localStorage, 메모리 캐시 모두 제거
+  - 직접 API 호출 제거: TourAPI, Odii 모든 호출 백엔드 경유로 변경
+  - API 키 노출 제거: 프론트엔드에서 API 키 완전 제거
+  - 영향 모듈: Hanok Archive, Map, Sorimaru, TourAPI 클라이언트
+- 단계적 클린 아키텍처 전환을 위한 공통 계층 경계와 import 방향 규칙을 정의했다.
+- 한옥 아카이브의 지역·유형·배지·좌표·이미지 판별 규칙을 `domain/villageRules.ts` 하나로 통합하고, TourAPI 서비스·K-컬처 라우트·fallback 데이터가 이를 공유하도록 정리해 두 곳에 흩어져 있던 중복 로직을 제거했다.
+- 한옥 아카이브 목록 조회의 TourAPI/백엔드 fetch를 `infrastructure/`로, 백엔드 우선·TourAPI 폴백 흐름 조합과 도메인 규칙 변환을 `application/fetchRealtimeHanoks.ts` 유스케이스로 분리했다. `HanokArchiveService`는 공개 인터페이스를 유지한 채 이 유스케이스를 내보내는 얇은 진입점이 됐다.
+- 한옥 상세 조회도 같은 방식으로 `infrastructure/tourApiHanokDetailSource.ts`·`infrastructure/backendHanokDetailSource.ts`·`application/getHanokDetail.ts`로 분리하고, `HanokDetailService`를 얇은 진입점으로 축소했다.
+- 혼잡도 점수를 여유 등급·안내 문구로 바꾸는 판정 로직을 `useHanokTranquility` 훅에서 `domain/tranquilityRules.ts` 순수 함수로 분리했다.
+- K-컬처 스크린 한옥(`screenHanokService`)도 domain/data/infrastructure/application 계층으로 분리했다.
+- TourAPI 카테고리 코드·"실시간 갱신 유형" 상수를 각각 인프라·도메인 계층으로 옮기고, 중복됐던 `lib/classify.mjs`와 그 계약 테스트를 제거했다.
+- `domain/villageRules.ts`·`domain/tranquilityRules.ts`에 대한 전용 유닛 테스트를 추가했다.
+- 소리마루의 스토리 매핑·키워드 매칭·거리 계산 순수 함수를 `sorimaruApi.ts`에서 `domain/sorimaruStoryRules.ts`로 분리하고 전용 유닛 테스트를 추가했다.
+- 추적 소스·설정 파일의 불필요한 설명 주석을 제거하고, 컴파일러·린터·에디터 지시문과 실행용 shebang만 유지했다.
+- 더 이상 사용하지 않는 이전 호스팅 서비스 관련 문서 안내를 제거했다.
 - 카카오 로그인을 백엔드 신규 플로우(2026-09-21 가이드)에 맞춰 전면 갱신했다. FE는 카카오와 직접 통신하지 않는다 — 로그인 버튼은 브라우저를 `GET /auth/kakao/login?returnTo={현재 경로}`로 보내고, 백엔드가 code 교환·세션 쿠키(`__Host-onmaru-session`) 발급을 끝낸 뒤 `{returnTo}?auth=success|failed`로 돌려보내면 전역 `useAuthReturn` 핸들러가 복귀를 파싱한다. `NEXT_PUBLIC_KAKAO_CLIENT_ID`·`NEXT_PUBLIC_KAKAO_REDIRECT_URI`를 폐기했고, 개인 프로필을 localStorage에 캐시하던 로직을 제거해 로그인 판정을 오직 `GET /members/me`(200/401)로만 한다. 탈퇴 응답을 202 `{status:"DELETING"}`로, 프로필 필드를 `displayName`으로 갱신하고 로그인 시작 URL에 `explorationId`(게스트 탐색 승계) 파라미터를 지원한다.
 - 로그인 흐름의 BE/FE 원인 판별 테스트를 구축했다. (1) 복귀 파싱·returnTo 결정·쿼리 정리 로직을 순수 함수(`features/auth/services/authReturn.ts`)로 추출해 13개 계약 테스트로 커버하고, (2) 세션 스토어(200=로그인·401=비로그인·자동 재시도 금지), kakaoAuth URL 빌더, memberApi 경로, privateState(localStorage 금지) 유닛 테스트를 추가해 auth 도메인 21개 테스트가 전부 통과한다. (3) `npm run probe:auth`로 실제 백엔드를 직접 검증하는 `scripts/probe-auth-flow.mjs`를 추가했다(CSRF 발급, 카카오 302, 비로그인 401 AUTH_REQUIRED, CSRF 로그아웃 4항목) — 프로브 통과+앱 실패면 FE 문제, 프로브 실패면 백엔드/환경 문제다. 배포 백엔드(onmaru-backend.onrender.com) 실측 4항목 전부 통과를 확인했다.
 - README를 설치 안내 중심 문서에서 한옥 탐험 플랫폼의 서비스 목적, 핵심 사용자 경험, 화면별 역할, 데이터·협업 범위를 설명하는 외부 협업팀용 소개 문서로 개편했다.
