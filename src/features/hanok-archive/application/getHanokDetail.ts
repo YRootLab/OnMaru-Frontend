@@ -2,7 +2,16 @@ import type { VillageDetailResponse } from '@/features/hanok-archive/types';
 import { fetchBackendHanokDetail } from '@/features/hanok-archive/infrastructure/backendHanokDetailSource';
 
 export async function getHanokDetail(placeId: string): Promise<VillageDetailResponse> {
-  const detail = await fetchBackendHanokDetail(placeId);
+  if (!process.env.NEXT_PUBLIC_API_URL) {
+    return { overview: null, images: [], contentTags: [], source: 'none' };
+  }
+
+  let detail;
+  try {
+    detail = await fetchBackendHanokDetail(placeId);
+  } catch {
+    return { overview: null, images: [], contentTags: [], source: 'none' };
+  }
 
   return {
     overview: detail.description || null,

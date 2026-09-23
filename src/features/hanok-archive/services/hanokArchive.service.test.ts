@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 // 프론트 필터링 제거 후 백엔드에서 타입 분류 처리
 // classifyVillageType 로직은 백엔드 API 응답에 포함됨
 describe('HanokArchiveService', () => {

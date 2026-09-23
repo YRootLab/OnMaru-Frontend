@@ -2,6 +2,7 @@ import { getScreenHanoks, toggleScreenHanokSave } from '@/features/hanok-archive
 import type { ScreenHanokItem, ScreenHanokFilterParams } from '@/features/hanok-archive/data/screenHanokFallback';
 
 export type { ScreenHanokItem, ScreenHanokFilterParams };
+export type ScreenHanokMediaType = ScreenHanokItem['mediaType'];
 
 export const screenHanokService = {
   getScreenHanoks,

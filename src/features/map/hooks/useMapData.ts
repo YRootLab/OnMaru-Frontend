@@ -8,9 +8,12 @@ import { useMapStore } from './useMapStore';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { visitReviewsToWarmths } from '@/features/map/warmth/visitReviewWarmthAdapter';
 import { defaultVisitReviewRepository } from '@/features/visit-review/api/visitReviewApi';
-import type { HeatDay, Item, KakaoMap } from '@/features/map/types';
+import type { HeatDay, HeatSpot, Item, KakaoMap } from '@/features/map/types';
 
 const log = logger('map');
+const CLIENT_CACHE_TTL = 60_000;
+const clientHeatCache = new Map<string, { expiresAt: number; spots: HeatSpot[]; days: HeatDay[] }>();
+const clientPlaceCache = new Map<string, { expiresAt: number; items: Item[] }>();
 
 
 function radiusFromMap(map: KakaoMap): number {
