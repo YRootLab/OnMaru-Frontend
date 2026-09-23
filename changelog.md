@@ -3,6 +3,15 @@
 Lightweight human-readable summary of meaningful repository changes. This does not replace Git history.
 
 ## Unreleased
+- 단계적 클린 아키텍처 전환을 위한 공통 계층 경계와 import 방향 규칙을 정의했다.
+- 한옥 아카이브의 지역·유형·배지·좌표·이미지 판별 규칙을 `domain/villageRules.ts` 하나로 통합하고, TourAPI 서비스·K-컬처 라우트·fallback 데이터가 이를 공유하도록 정리해 두 곳에 흩어져 있던 중복 로직을 제거했다.
+- 한옥 아카이브 목록 조회의 TourAPI/백엔드 fetch를 `infrastructure/`로, 백엔드 우선·TourAPI 폴백 흐름 조합과 도메인 규칙 변환을 `application/fetchRealtimeHanoks.ts` 유스케이스로 분리했다. `HanokArchiveService`는 공개 인터페이스를 유지한 채 이 유스케이스를 내보내는 얇은 진입점이 됐다.
+- 한옥 상세 조회도 같은 방식으로 `infrastructure/tourApiHanokDetailSource.ts`·`infrastructure/backendHanokDetailSource.ts`·`application/getHanokDetail.ts`로 분리하고, `HanokDetailService`를 얇은 진입점으로 축소했다.
+- 혼잡도 점수를 여유 등급·안내 문구로 바꾸는 판정 로직을 `useHanokTranquility` 훅에서 `domain/tranquilityRules.ts` 순수 함수로 분리했다.
+- K-컬처 스크린 한옥(`screenHanokService`)도 domain/data/infrastructure/application 계층으로 분리했다.
+- TourAPI 카테고리 코드·"실시간 갱신 유형" 상수를 각각 인프라·도메인 계층으로 옮기고, 중복됐던 `lib/classify.mjs`와 그 계약 테스트를 제거했다.
+- `domain/villageRules.ts`·`domain/tranquilityRules.ts`에 대한 전용 유닛 테스트를 추가했다.
+- 소리마루의 스토리 매핑·키워드 매칭·거리 계산 순수 함수를 `sorimaruApi.ts`에서 `domain/sorimaruStoryRules.ts`로 분리하고 전용 유닛 테스트를 추가했다.
 - 추적 소스·설정 파일의 불필요한 설명 주석을 제거하고, 컴파일러·린터·에디터 지시문과 실행용 shebang만 유지했다.
 - 더 이상 사용하지 않는 이전 호스팅 서비스 관련 문서 안내를 제거했다.
 - README를 설치 안내 중심 문서에서 한옥 탐험 플랫폼의 서비스 목적, 핵심 사용자 경험, 화면별 역할, 데이터·협업 범위를 설명하는 외부 협업팀용 소개 문서로 개편했다.
