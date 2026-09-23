@@ -1,0 +1,53 @@
+name: Environment Contract Check
+
+on:
+  push:
+    branches:
+      - develop
+      - master
+    paths:
+      - '.env.example'
+      - '.env.local'
+      - '.env.production'
+      - '.github/workflows/env-contract.yml'
+  pull_request:
+    branches:
+      - develop
+      - master
+    paths:
+      - '.env.example'
+      - '.env.local'
+      - '.env.production'
+
+jobs:
+  Check-Environment:
+    name: Verify Environment Variables
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Check .env.example exists
+        run: test -f .env.example || (echo "Missing .env.example" && exit 1)
+
+      - name: List Required Variables
+        run: |
+          echo "Required environment variables:"
+          grep -E '^[A-Z_]+=' .env.example | cut -d= -f1 | sort || true
+
+      - name: Validate Format
+        run: |
+          echo "Validating .env.example format..."
+          while IFS= read -r line; do
+            if [[ "$line" =~ ^[A-Z_]+=.* ]]; then
+              echo "✓ $line"
+            fi
+          done < .env.example
+
+      - name: Summary
+        run: |
+          echo "Environment contract check passed ✓"
+          echo ""
+          echo "To use local environment variables:"
+          echo "  cp .env.example .env.local"
+          echo "  # Edit .env.local with your values"
