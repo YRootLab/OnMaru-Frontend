@@ -25,7 +25,7 @@ const TabButton = styled.button<{ $active?: boolean }>`
   padding: 0;
   border: none;
   background: none;
-  color: ${({ $active }) => ($active ? lightPalette.juhong[700] : 'rgba(33, 30, 25, 0.68)')};
+  color: ${({ $active }) => ($active ? lightPalette.hwanggeum[700] : 'rgba(33, 30, 25, 0.68)')};
   font-family: 'Spoqa Han Sans Neo', sans-serif;
   font-size: ${fontSize.micro};
   font-weight: ${({ $active }) => ($active ? 600 : 400)};
@@ -56,7 +56,7 @@ const CountBadge = styled.span`
   height: 15px;
   padding: 0 3px;
   border-radius: 9999px;
-  background: ${lightPalette.juhong[500]};
+  background: ${lightPalette.hwanggeum[500]};
   color: #ffffff;
   font-size: ${fontSize.micro};
   font-weight: 700;

@@ -162,7 +162,7 @@ export function useSorimaruAudioPlayer() {
       navigator.mediaSession.setActionHandler('seekbackward', null);
       navigator.mediaSession.setActionHandler('seekforward', null);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [setIsPlaying]);
 
   return {

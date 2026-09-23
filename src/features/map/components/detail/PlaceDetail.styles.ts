@@ -265,8 +265,8 @@ export const LiveWarmthPulse = styled.span<{ $busy: boolean }>`
   height: 7px;
   border-radius: 50%;
   flex-shrink: 0;
-  background: ${({ $busy }) => ($busy ? lightPalette.juhong[500] : lightPalette.hwanggeum[500])};
-  box-shadow: 0 0 0 3px ${({ $busy }) => ($busy ? 'rgba(232, 90, 24, 0.2)' : 'rgba(245, 166, 35, 0.2)')};
+  background: ${({ $busy }) => ($busy ? lightPalette.hwanggeum[400] : lightPalette.hwanggeum[500])};
+  box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.2);
 `;
 
 export const StampCheckInBanner = styled.div<{ $isVisited: boolean }>`
@@ -351,7 +351,7 @@ export const StampActionBtn = styled.button<{ $isVisited: boolean }>`
 
 export const LiveWarmthCount = styled.span`
   font-size: ${fontSize.micro};
-  color: ${lightPalette.juhong[500]};
+  color: ${lightPalette.hwanggeum[700]};
   font-weight: 700;
   flex-shrink: 0;
   white-space: nowrap;
@@ -370,13 +370,13 @@ export const HeroActionTile = styled.button<{ $highlight?: boolean; $isWarmth?: 
     $highlight
       ? 'rgba(212, 32, 88, 0.08)'
       : $isWarmth
-        ? 'rgba(232, 90, 24, 0.08)'
+        ? 'rgba(255, 184, 0, 0.08)'
         : 'rgba(78, 89, 104, 0.06)'};
   color: ${({ $highlight, $isWarmth }) =>
     $highlight
       ? lightPalette.jangmi[700]
       : $isWarmth
-        ? lightPalette.juhong[500]
+        ? lightPalette.hwanggeum[700]
         : meok[700]};
   cursor: pointer;
   transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
@@ -387,13 +387,13 @@ export const HeroActionTile = styled.button<{ $highlight?: boolean; $isWarmth?: 
       $highlight
         ? 'rgba(212, 32, 88, 0.15)'
         : $isWarmth
-          ? 'rgba(232, 90, 24, 0.15)'
+          ? 'rgba(255, 184, 0, 0.15)'
           : 'rgba(78, 89, 104, 0.12)'};
     color: ${({ $highlight, $isWarmth }) =>
       $highlight
         ? lightPalette.jangmi[900]
         : $isWarmth
-          ? lightPalette.juhong[700]
+          ? lightPalette.hwanggeum[900]
           : meok[900]};
     transform: translateY(-1.5px);
   }
@@ -585,9 +585,9 @@ export const BookmarkButton = styled.button<{ $active: boolean }>`
   border-radius: 16px;
   border: none;
   background: ${({ $active }) =>
-    $active ? 'rgba(232, 90, 24, 0.1)' : 'rgba(78, 89, 104, 0.08)'};
+    $active ? 'rgba(255, 184, 0, 0.12)' : 'rgba(78, 89, 104, 0.08)'};
   color: ${({ $active }) =>
-    $active ? lightPalette.juhong[700] : meok[900]};
+    $active ? lightPalette.hwanggeum[700] : meok[900]};
   font-family: inherit;
   font-size: ${fontSize.xs};
   font-weight: 500;
@@ -596,7 +596,7 @@ export const BookmarkButton = styled.button<{ $active: boolean }>`
 
   &:hover {
     background: ${({ $active }) =>
-      $active ? 'rgba(232, 90, 24, 0.16)' : 'rgba(78, 89, 104, 0.14)'};
+      $active ? 'rgba(255, 184, 0, 0.2)' : 'rgba(78, 89, 104, 0.14)'};
   }
 
   &:active {
@@ -605,9 +605,9 @@ export const BookmarkButton = styled.button<{ $active: boolean }>`
 
   [data-theme='dark'] & {
     background: ${({ $active }) =>
-      $active ? 'rgba(248, 87, 0, 0.2)' : 'rgba(255, 255, 255, 0.08)'};
+      $active ? 'rgba(255, 184, 0, 0.18)' : 'rgba(255, 255, 255, 0.08)'};
     color: ${({ $active }) =>
-      $active ? darkPalette.juhong[200] : meok[200]};
+      $active ? darkPalette.hwanggeum[200] : meok[200]};
   }
 `;
 

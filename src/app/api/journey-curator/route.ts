@@ -180,10 +180,10 @@ async function fetchTourApiRelatedSpots(keyword: string): Promise<TourNearbyResu
     const nearbyList = Array.isArray(nearbyRaw) ? nearbyRaw : nearbyRaw ? [nearbyRaw] : [];
 
     const nearby: TourSpot[] = nearbyList
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       .filter((n: any) => n.title && n.title !== center.title)
       .slice(0, 6)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       .map((n: any) => ({
         title: String(n.title),
         addr: String(n.addr1 || ''),
