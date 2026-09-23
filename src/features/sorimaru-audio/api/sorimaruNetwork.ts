@@ -2,6 +2,19 @@ import { apiGet, USE_MOCK } from '@/lib/api/client';
 
 export type SorimaruNetworkRequestType = 'stories' | 'nearby' | 'themes';
 
+export interface SorimaruRegionGroup {
+  label: string;
+  regionCodes: string[];
+  storyCount: number;
+}
+
+export interface SorimaruRegionGroupsResponse {
+  schemaVersion?: string;
+  language?: string;
+  languageStatus?: 'EXACT' | 'FALLBACK' | string;
+  groups: SorimaruRegionGroup[];
+}
+
 export interface SorimaruNetworkRequest {
   type: SorimaruNetworkRequestType;
   params: Record<string, string>;
@@ -264,3 +277,14 @@ export function createSorimaruNetworkClient({
 }
 
 export const sorimaruNetworkClient = createSorimaruNetworkClient();
+
+export async function fetchSorimaruRegionGroups(
+  language = 'ko-KR',
+  requester: SorimaruBackendRequester = defaultBackendRequester,
+): Promise<SorimaruRegionGroupsResponse> {
+  const payload = await requester('odii/regions', { language });
+  if (typeof payload !== 'object' || payload === null || !Array.isArray((payload as SorimaruRegionGroupsResponse).groups)) {
+    throw new Error('Invalid OnMaru Sorimaru region groups response');
+  }
+  return payload as SorimaruRegionGroupsResponse;
+}

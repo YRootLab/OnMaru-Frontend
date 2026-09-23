@@ -4,6 +4,8 @@ import { parseScriptToLines } from '@/features/sorimaru-audio/utils/scriptParser
 import { sorimaruApiAdapter } from '@/features/sorimaru-audio/api/sorimaruApi';
 import { toast } from 'sonner';
 import { hasAuthenticatedUser } from '@/features/auth/privateState';
+import { saveOdiiStory, unsaveOdiiStory } from '@/features/sorimaru-audio/api/odiiEngagementApi';
+import { defaultSavedResourcesRepository } from '@/features/saved-resources/api/savedResourcesApi';
 
 interface SorimaruAudioState {
   currentStory: SorimaruStoryItem;
@@ -32,7 +34,7 @@ interface SorimaruAudioState {
   setSelectedCategory: (category: string) => void;
   setSearchQuery: (query: string) => void;
   toggleBookmark: () => void;
-  hydrateSavedStories: () => void;
+  hydrateSavedStories: () => Promise<void>;
   toggleSavedStory: (story: SorimaruStoryItem) => void;
   removeSavedStory: (storyId: string) => void;
   setIsPlayerExpanded: (isExpanded: boolean) => void;
@@ -161,49 +163,54 @@ export const useSorimaruAudioStore = create<SorimaruAudioState>((set, get) => ({
   setSelectedCategory: (selectedCategory: string) => set({ selectedCategory }),
   setSearchQuery: (searchQuery: string) => set({ searchQuery }),
   toggleBookmark: () => set((state) => ({ isBookmarked: !state.isBookmarked })),
-  hydrateSavedStories: () => {
-    if (typeof window === 'undefined') return;
+  hydrateSavedStories: async () => {
     try {
-      const stored = localStorage.getItem('onmaru_saved_sorimaru_stories');
-      const parsed = stored ? JSON.parse(stored) : [];
-      if (Array.isArray(parsed)) set({ savedStories: parsed });
+      const response = await defaultSavedResourcesRepository.listOdiiStories({ limit: 50 });
+      set({ savedStories: response.items.map((item) => ({
+        tid: item.storyId,
+        tlid: item.spotId,
+        stid: item.storyId,
+        stlid: item.spotId,
+        title: item.title,
+        audioTitle: item.title,
+        category: '소리 이야기',
+        mapX: '',
+        mapY: '',
+        script: '',
+        playTime: String(item.durationSeconds ?? 0),
+        audioUrl: '',
+        imageUrl: '',
+      })) });
     } catch {
       set({ savedStories: [] });
     }
   },
-  toggleSavedStory: (story: SorimaruStoryItem) =>
-    set((state) => {
+  toggleSavedStory: (story: SorimaruStoryItem) => {
+    const state = get();
       if (!hasAuthenticatedUser()) {
         toast.info('로그인해주세요.');
-        return state;
+        return;
       }
       const storyKey = story.stid || story.title;
       const alreadySaved = state.savedStories.some((saved) => (saved.stid || saved.title) === storyKey);
       const savedStories = alreadySaved
         ? state.savedStories.filter((saved) => (saved.stid || saved.title) !== storyKey)
         : [...state.savedStories, story];
-
-      if (typeof window !== 'undefined') {
-        try {
-          localStorage.setItem('onmaru_saved_sorimaru_stories', JSON.stringify(savedStories));
-        } catch {
-
-        }
-      }
-      return { savedStories };
-    }),
-  removeSavedStory: (storyId: string) =>
-    set((state) => {
-      const savedStories = state.savedStories.filter((saved) => saved.stid !== storyId);
-      if (typeof window !== 'undefined') {
-        try {
-          localStorage.setItem('onmaru_saved_sorimaru_stories', JSON.stringify(savedStories));
-        } catch {
-
-        }
-      }
-      return { savedStories };
-    }),
+      set({ savedStories });
+      const request = alreadySaved ? unsaveOdiiStory(storyKey) : saveOdiiStory(storyKey);
+      void request.catch(() => {
+        set({ savedStories: state.savedStories });
+        toast.error('찜 상태를 저장하지 못했습니다.');
+      });
+  },
+  removeSavedStory: (storyId: string) => {
+    const previous = get().savedStories;
+    set({ savedStories: previous.filter((saved) => saved.stid !== storyId) });
+    void unsaveOdiiStory(storyId).catch(() => {
+      set({ savedStories: previous });
+      toast.error('찜 상태를 저장하지 못했습니다.');
+    });
+  },
   setIsPlayerExpanded: (isExpanded: boolean) => set({ isPlayerExpanded: isExpanded }),
   setPlaybackRate: (playbackRate: number) => set({ playbackRate }),
 

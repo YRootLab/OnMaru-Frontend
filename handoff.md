@@ -16,3 +16,6 @@
 ## Next Steps
 - GitHub Repository Secret `CORE_UI_READ_TOKEN`은 이제 어떤 워크플로우도 사용하지 않으므로 관리자가 Settings에서 삭제한다.
 - #91 백엔드 503 정상화 후 `GET /api/v1/odii/stories` 실응답으로 소리마루 백엔드 우선 경로를 수동 재검증
+- 2026-09-23: #184·#185 FE 연동 작업 — 지역 그룹 응답 어댑터(`odii/regions`), 홈 인기 소리(`home/popular-sounds`), 재생 기록(`odii/stories/{storyId}/plays`), 오디오 찜 영속 API를 연결했다. 인기 소리 스켈레톤을 실제 기본 응답 수(7개)에 맞추고 목데이터 기반 찜 저장을 제거했다. `tsc`, 관련 Vitest 14건 통과.
+- 2026-09-23 추가: 홈 인기 소리 UI는 `usePopularSounds`로 `/home/popular-sounds`를 직접 사용하고, 소리마루 `SoundConstellationSection`은 `odii/regions` 그룹 응답의 `storyCount`를 지도 핀/선택 지역 헤더에 반영한다. 지도 지역 API 실패 시 목 카드로 대체하지 않는다.
+- 2026-09-23 추가: 홈 `이번 주 추천 코스` 캐러셀 좌우 버튼을 카드보다 앞선 z-index와 안전한 좌우 inset으로 조정하고, 로딩 상태를 이미지·지역 배지·제목·설명 2줄·태그·CTA까지 실제 카드 구조와 동일하게 구성했다.

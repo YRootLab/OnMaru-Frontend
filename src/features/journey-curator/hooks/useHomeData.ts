@@ -7,6 +7,7 @@ import {
   type CuratedCourse,
   type PopularRegion,
   type TrendingSound,
+  type PopularSound,
 } from '../api/homeApi';
 
 type LoadState<T> = {
@@ -64,6 +65,7 @@ function useHomeList<T>(
 
 const loadCuratedCourses = () => homeRepository.listCuratedCourses();
 const loadTrendingSounds = () => homeRepository.listTrendingSounds();
+const loadPopularSounds = () => homeRepository.listPopularSounds({ limit: 7 });
 const loadPopularRegions = () => homeRepository.listPopularRegions();
 
 export function useCuratedCourses() {
@@ -72,6 +74,10 @@ export function useCuratedCourses() {
 
 export function useTrendingSounds() {
   return useHomeList<TrendingSound>(loadTrendingSounds);
+}
+
+export function usePopularSounds() {
+  return useHomeList<PopularSound>(loadPopularSounds);
 }
 
 export function usePopularRegions() {
