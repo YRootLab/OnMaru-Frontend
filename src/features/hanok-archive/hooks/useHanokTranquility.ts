@@ -4,8 +4,13 @@ export interface TranquilityData {
   tempCelsius: number;
   feelIndex: string;
   district: string;
+  score?: number;
+  badgeColor?: string;
+  level?: string;
+  goldenHour?: string;
+  advice?: string;
 }
 
-export function useHanokTranquility() {
+export function useHanokTranquility(_lat?: number | null, _lng?: number | null, _addr?: string | null) {
   return { data: null, loading: false };
 }
