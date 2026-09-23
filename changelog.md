@@ -3,8 +3,8 @@
 Lightweight human-readable summary of meaningful repository changes. This does not replace Git history.
 
 ## Unreleased
-- 추적 소스·설정 파일의 불필요한 설명 주석을 제거하고, 컴파일러·린터·에디터 지시문과 실행용 shebang만 유지했다.
-- 더 이상 사용하지 않는 이전 호스팅 서비스 관련 문서 안내를 제거했다.
+- 카카오 로그인을 백엔드 신규 플로우(2026-09-21 가이드)에 맞춰 전면 갱신했다. FE는 카카오와 직접 통신하지 않는다 — 로그인 버튼은 브라우저를 `GET /auth/kakao/login?returnTo={현재 경로}`로 보내고, 백엔드가 code 교환·세션 쿠키(`__Host-onmaru-session`) 발급을 끝낸 뒤 `{returnTo}?auth=success|failed`로 돌려보내면 전역 `useAuthReturn` 핸들러가 복귀를 파싱한다. `NEXT_PUBLIC_KAKAO_CLIENT_ID`·`NEXT_PUBLIC_KAKAO_REDIRECT_URI`를 폐기했고, 개인 프로필을 localStorage에 캐시하던 로직을 제거해 로그인 판정을 오직 `GET /members/me`(200/401)로만 한다. 탈퇴 응답을 202 `{status:"DELETING"}`로, 프로필 필드를 `displayName`으로 갱신하고 로그인 시작 URL에 `explorationId`(게스트 탐색 승계) 파라미터를 지원한다.
+- 로그인 흐름의 BE/FE 원인 판별 테스트를 구축했다. (1) 복귀 파싱·returnTo 결정·쿼리 정리 로직을 순수 함수(`features/auth/services/authReturn.ts`)로 추출해 13개 계약 테스트로 커버하고, (2) 세션 스토어(200=로그인·401=비로그인·자동 재시도 금지), kakaoAuth URL 빌더, memberApi 경로, privateState(localStorage 금지) 유닛 테스트를 추가해 auth 도메인 21개 테스트가 전부 통과한다. (3) `npm run probe:auth`로 실제 백엔드를 직접 검증하는 `scripts/probe-auth-flow.mjs`를 추가했다(CSRF 발급, 카카오 302, 비로그인 401 AUTH_REQUIRED, CSRF 로그아웃 4항목) — 프로브 통과+앱 실패면 FE 문제, 프로브 실패면 백엔드/환경 문제다. 배포 백엔드(onmaru-backend.onrender.com) 실측 4항목 전부 통과를 확인했다.
 - README를 설치 안내 중심 문서에서 한옥 탐험 플랫폼의 서비스 목적, 핵심 사용자 경험, 화면별 역할, 데이터·협업 범위를 설명하는 외부 협업팀용 소개 문서로 개편했다.
 - private submodule(`YRootLab/onmaru-core-ui`) 참조를 제거하고 `src/private/core-ui` 전체 코드를 이 저장소에 일반 파일로 직접 포함시켰다. `.gitmodules`·gitlink·`scripts/check-submodule.mjs`·`check:submodule`/`submodule:*` 스크립트와 CI(deploy.yml, playwright.yml)의 서브모듈 초기화 단계를 제거해 배포 시 private 저장소 접근이 더 이상 필요 없다. 원본 `onmaru-core-ui` 저장소는 아카이브로 유지한다.
 - 홈 화면 API 재연동: 추천 코스·인기 소리·인기 지역을 `api/v1/home` 엔드포인트로 교체하고, 탐색 시작 요청을 `POST /api/journey-curator/explore` 호환 경로로 전환했다. (Closes #126)
@@ -14,7 +14,7 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 - `HanokAtmosphereBackground` 고정 배경 레이어를 `z-index: -1`로 콘텐츠 뒤로 보냈다. 기존 `z-index: 0`에서는 불투명 배경이 정적 콘텐츠 위에 그려져, `VesselReveal`이 bloom되어 `transform`이 제거된 섹션(한옥 CTA 매니페스토 등)이 스크롤 리빌 직후 화면에서 사라지는 버그가 있었다.
 - 매니페스토 CTA 섹션의 `exitThresholdRatio`를 0.9에서 기본값(0.67)으로 되돌렸다. 0.9에서는 접힘 경계가 뷰포트 하단 10% 지점이라 위로 스크롤해 CTA가 사라질 때 접히는 애니메이션이 화면에 보이지 않았고, 이제 다른 섹션과 동일하게 화면에 약 1/3이 남은 시점에 접히는(reversible reveal) 애니메이션이 보인다.
 - 한옥도감과 지역별 한옥 스테이 카드 부모와 이미지 레이어의 배경을 일치시켜, 둥근 모서리에 부모 배경이 테두리처럼 비치던 합성 경계를 제거했다.
--
+- 
 - 소리마루와 한옥 지도에서 사진이 둥근 썸네일을 채우는 컨테이너에도 같은 배경 동기화 처리를 적용했다.
 - 소리마루 “장면을 따라 걷는 소리” 편집형 레일 카드의 인라인 이미지가 남기던 하단 베이스라인 여백을 제거해 경계선을 없앴다.
 - 소리마루 편집형 레일의 하단 정보 패널이 중복으로 둥근 모서리를 자르지 않도록 부모 카드만 최종 클리핑을 담당하게 해, 하단 좌우 모서리의 이중 경계를 제거했다.
@@ -35,6 +35,7 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 - Next.js·Vitest 및 전이 의존성을 보안 patch 버전으로 올려 의존성 감사 취약점을 모두 해결했다.
 - Vitest/Vite의 YAML 2.x 의존성을 lockfile에 고정해 CI의 `npm ci` 설치가 일관되게 동작하도록 했다.
 - Vercel CLI pull을 이전 성공 방식으로 되돌려 잘못 해석된 `VERCEL_ORG_ID` scope 때문에 발생하던 `User not found` 배포 실패를 제거했다.
+- Netlify repository preparation이 private Core UI submodule을 가져올 수 있도록 submodule URL을 SSH에서 HTTPS로 전환하고, Netlify GitHub App의 private repository 접근 권한 설정 절차를 문서화했다.
 
 - 홈 추천 코스, 인기 한옥 소리, 인기 지역을 백엔드 홈 API로 연동하고 기존 홈 목데이터 프록시를 제거했다.
 - 인기 한옥 소리 원천이 `503 SERVICE_UNAVAILABLE`일 때 빈 재시도 UI를 표시한다.
@@ -99,6 +100,7 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 - Fixed the Onmaru landing header so light mode keeps the same white navigation surface as the other top-level pages.
 - Replaced the header and map rail theme cycle button with an explicit `자동` / `라이트` / `다크` picker while preserving existing light navigation styling.
 - Made `system` theme mode time-aware: it now resolves to light during local daytime and dark at night, while still preserving explicit user choices for light or dark.
+- Added an environment contract guard for Odii/Sorimaru API keys: `.env.example` is now the tracked template, `.env.local` stays ignored, `npm run check:env` validates supported aliases, pre-push runs the same check locally, and GitHub Actions verifies the contract on PR/push.
 - Re-mapped backend feature delta wiring to the existing product surfaces without changing established UI: home `/` journey search now uses the backend journey run path when a backend base URL is configured, `/discover` redirects to `/`, `/map` warmth mode keeps the existing "여행자들이 남긴 온기 이야기" UI while ingesting server VisitReview data through a Warmth adapter, map place cards use canonical saved-place actions with guest login intent, `/mypage` shows the monthly timeline, and logout/account deletion clears private client state.
 - Added typed repositories for journey curator, VisitReview, saved resources, and member timeline backend APIs with focused contract tests.
 - Added backend feature foundation modules for API error/cursor/CSRF handling, cookie/idempotency `apiRequest`, journey SSE run reduction, VisitReview validation and stale-response protection, saved place login intent, member timeline contracts, and the shared place-slip motion primitive.
@@ -210,8 +212,8 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 - Added a source-grounded natural-language Odii assistant UI and server proxy contract for a future RAG/LangGraph backend.
 - Added ADR-0002 for story-first archive behavior and ADR-0003 for the cited RAG/LangGraph architecture.
 
-## [Unreleased]
-### Changed
+## [Unreleased] 
+### Changed 
 - Split long Odii narration text into timed sentence cues and present it as
   numbered listening segments, with only the active sentence at full opacity.
 - Redesigned the expanded Odii player around one readable, scrollable

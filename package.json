@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "check:env": "node scripts/validate-env-contract.mjs",
     "build:data": "node --env-file=.env.local scripts/build-data.mjs",
     "build:data:check": "node scripts/build-data.mjs --self-check",
     "build:fallback": "node --env-file=.env.local scripts/build-fallback.mjs",
@@ -18,6 +19,7 @@
     "probe": "node --env-file=.env.local scripts/probe-tourapi.mjs",
     "probe:village": "node --env-file=.env.local scripts/probe-village.mjs",
     "probe:map": "node --env-file=.env.local scripts/probe-map-categories.mjs",
+    "probe:auth": "node --env-file=.env.local scripts/probe-auth-flow.mjs",
     "generate:api-types": "openapi-typescript https://onmaru-backend.onrender.com/v3/api-docs -o ./src/types/api.generated.d.ts"
   },
   "dependencies": {
