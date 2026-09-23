@@ -231,6 +231,8 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## [Unreleased] 
 ### Changed 
+- 지도 인기 장소 카드에서 이미지 요청이 실패해도 빈 썸네일을 남기지 않고, 58px placeholder로 전환하도록 보완했다.
+- 홈 `이번 주 추천 코스` 카드에서 placeholder보다 실제 이미지를 뒤에 렌더링해 TourAPI 썸네일이 가려지지 않도록 수정하고, 공백 URL 및 이미지 요청 실패 시에는 placeholder를 유지하도록 했다.
 - Split long Odii narration text into timed sentence cues and present it as
   numbered listening segments, with only the active sentence at full opacity.
 - Redesigned the expanded Odii player around one readable, scrollable

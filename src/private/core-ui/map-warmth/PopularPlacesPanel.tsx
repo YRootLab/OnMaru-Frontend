@@ -255,6 +255,33 @@ const PlaceholderThumb = styled.div`
   color: ${lightPalette.juhong[500]};
 `;
 
+export function resolvePopularPlaceThumbnailUrl(imageUrl: string | null | undefined, failedImageUrl: string | null) {
+  const normalizedImageUrl = imageUrl?.trim();
+  return normalizedImageUrl && normalizedImageUrl !== failedImageUrl ? normalizedImageUrl : null;
+}
+
+function PopularPlaceThumbnail({ imageUrl, placeName }: { imageUrl: string | null | undefined; placeName: string }) {
+  const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null);
+  const thumbnailUrl = resolvePopularPlaceThumbnailUrl(imageUrl, failedImageUrl);
+
+  if (!thumbnailUrl) {
+    return (
+      <PlaceholderThumb aria-label={`${placeName} 이미지 없음`} role="img">
+        <Landmark size={22} strokeWidth={2} />
+      </PlaceholderThumb>
+    );
+  }
+
+  return (
+    <ThumbImg
+      src={thumbnailUrl}
+      alt={placeName}
+      loading="lazy"
+      onError={() => setFailedImageUrl(thumbnailUrl)}
+    />
+  );
+}
+
 export default function PopularPlacesPanel() {
   const map = useMapStore((s) => s.map);
   const items = useMapStore((s) => s.items);
@@ -355,20 +382,7 @@ export default function PopularPlacesPanel() {
             </LeftCol>
 
             <RightCol>
-              {place.image ? (
-                <ThumbImg
-                  src={place.image}
-                  alt={place.placeName}
-                  loading="lazy"
-                  onError={(e) => {
-                    (e.currentTarget as HTMLElement).style.display = 'none';
-                  }}
-                />
-              ) : (
-                <PlaceholderThumb>
-                  <Landmark size={22} strokeWidth={2} />
-                </PlaceholderThumb>
-              )}
+              <PopularPlaceThumbnail imageUrl={place.image} placeName={place.placeName} />
             </RightCol>
           </PlaceRow>
         ))}

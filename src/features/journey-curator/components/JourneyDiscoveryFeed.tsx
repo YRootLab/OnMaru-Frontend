@@ -313,6 +313,31 @@ const CourseImagePlaceholder = styled.div`
   }
 `;
 
+type CourseImageLayerProps = {
+  name: string;
+  thumbnailUrl?: string | null;
+};
+
+export function CourseImageLayer({ name, thumbnailUrl }: CourseImageLayerProps) {
+  const imageUrl = thumbnailUrl?.trim();
+
+  return (
+    <>
+      <CourseImagePlaceholder aria-label={`${name} 이미지 없음`} role="img" />
+      {imageUrl && (
+        <CourseImage
+          src={imageUrl}
+          alt={name}
+          loading="lazy"
+          onError={(event) => {
+            event.currentTarget.style.display = 'none';
+          }}
+        />
+      )}
+    </>
+  );
+}
+
 const LocationBadge = styled.span`
   position: absolute;
   top: 14px;
@@ -962,21 +987,7 @@ export default function JourneyDiscoveryFeed() {
       onClick={() => handleSelectCourse(`${course.regionName} ${course.name}`)}
     >
       <CourseImageWrap>
-        {course.thumbnailUrl ? (
-          <>
-            <CourseImage
-              src={course.thumbnailUrl}
-              alt={course.name}
-              loading="lazy"
-              onError={(event) => {
-                event.currentTarget.style.display = 'none';
-              }}
-            />
-            <CourseImagePlaceholder aria-label={`${course.name} 이미지 없음`} role="img" />
-          </>
-        ) : (
-          <CourseImagePlaceholder aria-label={`${course.name} 이미지 없음`} role="img" />
-        )}
+        <CourseImageLayer name={course.name} thumbnailUrl={course.thumbnailUrl} />
         <LocationBadge>
           <MapPin size={14} strokeWidth={2.2} />
           <span>{course.regionName}</span>
