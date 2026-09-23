@@ -58,6 +58,8 @@ export interface Warmth {
   mine?: boolean;
 
   visitorCount?: number;
+  helpfulCount?: number;
+  isHelpful?: boolean;
 }
 
 

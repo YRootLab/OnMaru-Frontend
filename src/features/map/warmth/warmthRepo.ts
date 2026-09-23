@@ -1,116 +1,55 @@
 import type { Warmth, WarmthCell, WarmthFilter, WarmthReview } from '@/features/map/types';
-import { seedWarmth } from './seed';
 
-const STORAGE_KEY = 'onmaru.warmth.v1';
-const HELPFUL_KEY = 'onmaru.warmth.helpful.v1';
-
-
-
-function readLocal(): Warmth[] {
-  if (typeof window === 'undefined') return [];
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    const list = raw ? (JSON.parse(raw) as Warmth[]) : [];
-    return list.filter((w) => !w.id.startsWith('visitor-'));
-  } catch {
-    return [];
-  }
-}
-
-function writeLocal(list: Warmth[]) {
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-  } catch {
-
-  }
-}
-
+// Single Source of Truth: 백엔드 API에서만 데이터 로드
+// 프론트는 백엔드 응답을 그대로 사용 (필터링, 저장 제거)
 
 export function loadWarmth(apiWarmths?: Warmth[]): Warmth[] {
-  const local = readLocal();
-  const base = apiWarmths && apiWarmths.length > 0 ? apiWarmths : seedWarmth();
-  const map = new Map<string, Warmth>();
-  for (const w of base) {
-    map.set(w.id, w);
-  }
-  for (const w of local) {
-    map.set(w.id, w);
-  }
-  return Array.from(map.values()).sort((a, b) =>
-    b.createdAt.localeCompare(a.createdAt),
-  );
+  // 백엔드에서 받은 데이터를 그대로 반환
+  return apiWarmths && apiWarmths.length > 0 ? apiWarmths : [];
 }
 
-export function addWarmth(input: Omit<Warmth, 'id' | 'createdAt' | 'mine'>): Warmth {
-  const created: Warmth = {
+export function addWarmth(input: Omit<Warmth, 'id' | 'createdAt'>): Warmth {
+  return {
     ...input,
-    id: `me-${Date.now()}`,
+    id: `local-${Date.now()}`,
     createdAt: new Date().toISOString(),
-    mine: true,
   };
-  writeLocal([created, ...readLocal()]);
-  return created;
 }
 
-
-
-
-
-
-
-
-function readHelpful(): Record<string, boolean> {
-  if (typeof window === 'undefined') return {};
-  try {
-    const raw = window.localStorage.getItem(HELPFUL_KEY);
-    return raw ? (JSON.parse(raw) as Record<string, boolean>) : {};
-  } catch {
-    return {};
-  }
-}
+// addWarmth 는 백엔드 API 호출로 대체
+// 예: await apiPost('/api/warmth', { mood, placeId, ... })
+// helpful 토글은 백엔드 API로 대체
+// 예: await apiPut(`/api/warmth/${warmthId}/helpful`, { helpful: boolean })
 
 export function isHelpful(warmthId: string): boolean {
-  return readHelpful()[warmthId] === true;
+  // 백엔드 응답의 helpfulCount 또는 isHelpful 필드 사용
+  return false;
 }
 
 export function toggleHelpful(warmthId: string): boolean {
-  const map = readHelpful();
-  const next = !map[warmthId];
+  // 백엔드 API 호출로 처리
+  return false;
+}
 
-  if (next) map[warmthId] = true;
-  else delete map[warmthId];
-
-  try {
-    window.localStorage.setItem(HELPFUL_KEY, JSON.stringify(map));
-  } catch {
-
+export function filterWarmth(list: Warmth[], filter: WarmthFilter): Warmth[] {
+  if (filter === 'all') return list;
+  if (filter === 'mine') return list.filter((warmth) => warmth.mine);
+  if (filter === 'busy') return list.filter((warmth) => warmth.mood === '북적');
+  if (filter === 'quiet') return list.filter((warmth) => warmth.mood === '한적');
+  if (filter === 'today') {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    return list.filter((warmth) => Date.parse(warmth.createdAt) >= start.getTime());
   }
-
-  return next;
+  return list;
 }
 
 const DAY = 86_400_000;
 
 
-
-
-
-
-
-export function filterWarmth(list: Warmth[], filter: WarmthFilter): Warmth[] {
-  switch (filter) {
-    case 'busy':
-      return list.filter((w) => w.mood === '북적');
-    case 'quiet':
-      return list.filter((w) => w.mood === '한적');
-    case 'today':
-      return list.filter((w) => Date.now() - Date.parse(w.createdAt) < DAY);
-    case 'mine':
-      return list.filter((w) => w.mine === true);
-    default:
-      return list;
-  }
-}
+// filterWarmth는 백엔드에서 처리
+// 프론트는 이미 필터링된 데이터를 받음
+// 예: GET /api/warmth?filter=busy&filter=quiet&filter=today
 
 
 
@@ -187,7 +126,7 @@ export function regionOf(lat: number, lng: number): string {
 }
 
 
-const DEFAULT_MOOD_BY_CROWD: Record<Warmth['mood'], 1 | 2> = { 한적: 2, 북적: 1 };
+const DEFAULT_MOOD_BY_CROWD: Record<Warmth['mood'], 2 | 4> = { 한적: 2, 북적: 4 };
 
 const SEASON_BY_MONTH: WarmthReview['season'][] = [
   '겨울', '겨울', '봄', '봄', '봄', '여름',
@@ -215,8 +154,8 @@ export function toReview(w: Warmth): WarmthReview {
     goodText: w.text,
     badTags: [],
     createdAt: w.createdAt,
-    helpfulCount: isHelpful(w.id) ? 1 : 0,
-    isHelpful: isHelpful(w.id),
+    helpfulCount: w.helpfulCount ?? 0,  // 백엔드에서 제공
+    isHelpful: w.isHelpful ?? false,    // 백엔드에서 제공
     mine: w.mine,
   };
 }

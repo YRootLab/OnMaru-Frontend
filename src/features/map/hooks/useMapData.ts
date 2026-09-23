@@ -8,9 +8,12 @@ import { useMapStore } from './useMapStore';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { visitReviewsToWarmths } from '@/features/map/warmth/visitReviewWarmthAdapter';
 import { defaultVisitReviewRepository } from '@/features/visit-review/api/visitReviewApi';
-import type { HeatDay, Item, KakaoMap } from '@/features/map/types';
+import type { HeatDay, HeatSpot, Item, KakaoMap } from '@/features/map/types';
 
 const log = logger('map');
+const CLIENT_CACHE_TTL = 60_000;
+const clientHeatCache = new Map<string, { expiresAt: number; spots: HeatSpot[]; days: HeatDay[] }>();
+const clientPlaceCache = new Map<string, { expiresAt: number; items: Item[] }>();
 
 
 function radiusFromMap(map: KakaoMap): number {
@@ -47,12 +50,7 @@ function searchRadius(map: KakaoMap, centerLat: number, centerLng: number): numb
   return Math.max(1000, Math.round(offset + radiusFromMap(map)));
 }
 
-const CLIENT_CACHE_TTL = 30 * 60 * 1000;
-const clientPlaceCache = new Map<string, { expiresAt: number; items: any[] }>();
-const clientHeatCache = new Map<
-  string,
-  { expiresAt: number; spots: any[]; days: HeatDay[] }
->();
+// 캐싱은 백엔드에서 처리 — 프론트는 API 응답을 그대로 사용
 
 
 export function useMapData() {

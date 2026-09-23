@@ -27,6 +27,23 @@ export type TrendingSound = {
   locationName?: string;
   formattedDuration?: string;
   playTime?: string;
+  rank?: number;
+  score?: number;
+  playCount?: number;
+  saveCount?: number;
+  savedByMe?: boolean;
+};
+
+export type PopularSound = TrendingSound & {
+  story?: {
+    storyId: string;
+    title: string;
+    category?: string;
+    region?: { name?: string };
+    durationSeconds?: number;
+    imageUrl?: string | null;
+    savedByMe?: boolean;
+  };
 };
 
 export type PopularRegion = {
@@ -42,6 +59,7 @@ export type PopularRegion = {
 export type HomeRepository = {
   listCuratedCourses(): Promise<HomeCursorPage<CuratedCourse>>;
   listTrendingSounds(): Promise<HomeCursorPage<TrendingSound>>;
+  listPopularSounds(input?: { limit?: number; window?: 'week' | 'all'; language?: string }): Promise<{ items: PopularSound[]; basis?: string }>;
   listPopularRegions(): Promise<{ items: PopularRegion[] }>;
 };
 
@@ -58,6 +76,13 @@ export function createHomeRepository(request: RequestFn = apiRequest): HomeRepos
       return request<HomeCursorPage<TrendingSound>>('/home/trending-sounds', {
         method: 'GET',
         params: { language: 'ko-KR', limit: 20 },
+        cache: 'no-store',
+      });
+    },
+    listPopularSounds(input = {}) {
+      return request<{ items: PopularSound[]; basis?: string }>('/home/popular-sounds', {
+        method: 'GET',
+        params: { limit: input.limit ?? 7, window: input.window ?? 'week', language: input.language ?? 'ko-KR' },
         cache: 'no-store',
       });
     },

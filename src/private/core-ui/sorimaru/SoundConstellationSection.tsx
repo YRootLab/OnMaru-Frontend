@@ -16,6 +16,7 @@ import {
   getRegionPathMotion,
 } from './soundConstellationMotion';
 import { palette, meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
+import { fetchSorimaruRegionGroups, type SorimaruRegionGroupsResponse } from '@/features/sorimaru-audio/api/sorimaruNetwork';
 
 interface SoundConstellationSectionProps {
   stories: SorimaruStoryItem[];
@@ -26,8 +27,7 @@ const LIST_EDGE_INSET = 23;
 
 const normalizeText = (story: SorimaruStoryItem) => `${story.locationName || ''} ${story.title} ${story.audioTitle || ''} ${story.category || ''}`;
 const getRegionStories = (stories: SorimaruStoryItem[], region: KoreaRegionPath) => {
-  const matched = stories.filter((story) => region.keywords.some((keyword) => normalizeText(story).includes(keyword)));
-  return matched.length ? matched : stories.slice(0, 4);
+  return stories.filter((story) => region.keywords.some((keyword) => normalizeText(story).includes(keyword)));
 };
 
 
@@ -627,6 +627,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
 
   const regionStoriesCacheRef = useRef<Record<string, { stories: SorimaruStoryItem[]; page: number; hasMore: boolean }>>({});
   const [regionStoryCounts, setRegionStoryCounts] = useState<Record<string, number>>({});
+  const [regionGroups, setRegionGroups] = useState<SorimaruRegionGroupsResponse | null>(null);
   const [loadedRegionStories, setLoadedRegionStories] = useState<SorimaruStoryItem[] | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -637,6 +638,18 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
   const setIsPlaying = useSorimaruAudioStore((state) => state.setIsPlaying);
 
   const selectedRegion = KOREA_REGION_PATHS.find((region) => region.id === selectedRegionId) || KOREA_REGION_PATHS[0];
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetchSorimaruRegionGroups()
+      .then((response) => {
+        if (!cancelled) setRegionGroups(response);
+      })
+      .catch(() => {
+        if (!cancelled) setRegionGroups(null);
+      });
+    return () => { cancelled = true; };
+  }, []);
 
   useEffect(() => {
     if (!isApiActive) return;
@@ -665,9 +678,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
         const newStories = await activeApiService.getStoryList(undefined, selectedRegion.keywords[0]);
         if (!isMounted) return;
         let finalStories = newStories.filter((s) => Boolean(s && s.stid));
-        if (finalStories.length === 0) {
-          finalStories = localMatch.length ? localMatch : stories;
-        }
+        if (finalStories.length === 0) finalStories = localMatch;
 
         const hasNext = newStories.length >= 10;
         regionStoriesCacheRef.current[selectedRegionId] = {
@@ -682,9 +693,8 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
         setHasMore(hasNext);
       } catch {
         if (!isMounted) return;
-        const fallback = localMatch.length ? localMatch : stories;
-        setLoadedRegionStories(fallback);
-        setRegionStoryCounts((previous) => ({ ...previous, [selectedRegionId]: fallback.length }));
+        setLoadedRegionStories(localMatch);
+        setRegionStoryCounts((previous) => ({ ...previous, [selectedRegionId]: localMatch.length }));
         setHasMore(false);
       } finally {
         if (isMounted) setIsRegionLoading(false);
@@ -794,6 +804,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
   };
 
   const regionStories = loadedRegionStories || getRegionStories(stories, selectedRegion);
+  const apiRegionGroup = regionGroups?.groups.find((group) => group.label === selectedRegion.label);
 
   const totalCount = regionStories.length;
   const totalHeight = totalCount * VIRTUAL_ITEM_HEIGHT;
@@ -923,7 +934,8 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
 
               {KOREA_REGION_PATHS.map((region) => {
                 const active = region.id === selectedRegionId;
-                const count = regionStoryCounts[region.id] ?? getRegionStories(stories, region).length;
+                const apiGroup = regionGroups?.groups.find((group) => group.label === region.label);
+                const count = apiGroup?.storyCount ?? regionStoryCounts[region.id] ?? getRegionStories(stories, region).length;
                 return (
                   <RegionPin
                     key={region.id}
@@ -950,7 +962,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
             <AsideHeader>
               <RegionLabel>{selectedRegion.label}</RegionLabel>
               <StoriesCount>
-                {isRegionLoading ? '조회 중…' : `${regionStories.length}개 이야기`}
+                {isRegionLoading ? '조회 중…' : `${apiRegionGroup?.storyCount ?? regionStories.length}개 이야기`}
               </StoriesCount>
             </AsideHeader>
 

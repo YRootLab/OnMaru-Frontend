@@ -347,8 +347,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    const timeoutId = window.setTimeout(hydrateSavedStories, 0);
-    return () => window.clearTimeout(timeoutId);
+    void hydrateSavedStories();
   }, [hydrateSavedStories]);
 
   const [isNearbyLoading, setIsNearbyLoading] = useState(true);
