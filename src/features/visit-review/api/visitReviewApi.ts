@@ -7,7 +7,7 @@ type RequestFn = <T>(path: string, options?: ApiRequestOptions) => Promise<T>;
 export type VisitReviewRepository = {
   listRegions(parentRegionCode?: string): Promise<{ items: VisitReviewRegionItem[] }>;
   listReviews(input: {
-    scope: 'ALL' | 'REGION';
+    scope: 'ALL' | 'REGION' | 'MY';
     regionCode?: string;
     limit?: number;
     cursor?: string;
