@@ -32,7 +32,7 @@ describe('createSorimaruNetworkClient', () => {
     );
   });
 
-  it('decodes the current TourAPI envelope by default', async () => {
+  it('uses the default backend endpoint when no backendRequester is available', async () => {
     const fetcher = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
@@ -40,15 +40,18 @@ describe('createSorimaruNetworkClient', () => {
         response: { body: { items: { item: { stid: 'one' } }, totalCount: '4' } },
       }),
     });
-    const client = createSorimaruNetworkClient({ fetcher: fetcher as unknown as typeof fetch });
+    const client = createSorimaruNetworkClient({
+      backendRequester: undefined,
+      fetcher: fetcher as unknown as typeof fetch
+    });
 
-    await expect(client.request({ type: 'stories', params: { pageNo: '1' } })).resolves.toEqual({
+    await expect(client.request({ type: 'stories', params: { pageNo: '2' } })).resolves.toEqual({
       items: [{ stid: 'one' }],
       totalCount: 4,
       source: 'public',
     });
     expect(fetcher).toHaveBeenCalledWith(
-      expect.stringContaining('/B551011/Odii/storyBasedList?'),
+      '/api/stories',
       expect.any(Object),
     );
   });
