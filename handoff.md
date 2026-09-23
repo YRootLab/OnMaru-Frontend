@@ -1,6 +1,8 @@
 # handoff.md
 
 ## Current Work
+- 지도 `PopularPlacesPanel`에서 이미지 요청 실패 시 비어 있던 58px 썸네일을 placeholder로 전환했다. 이미지 URL 판정과 실패 상태는 표현 컴포넌트에 국한했고, 인기 장소 데이터 조회 흐름은 변경하지 않았다.
+- 홈 `이번 주 추천 코스` 카드의 TourAPI 이미지를 placeholder가 가리는 현상을 수정했다. `JourneyDiscoveryFeed`에서 placeholder를 먼저, 유효한 이미지 요소를 나중에 렌더링하고 이미지 요청 실패 시 이미지 요소만 숨겨 placeholder가 남도록 처리한다. `thumbnailUrl`의 `null`·빈 문자열·공백은 placeholder만 표시한다.
 - **Single Source of Truth 아키텍처 전환 완료** (2026-09-23): 프론트엔드에서 모든 데이터 처리 로직을 백엔드로 이관 완료. PR #189로 develop 병합 대기 중.
 - `feat/clean-architecture-foundation`에서 전체 클린 아키텍처 전환을 단계적으로 진행 중. 첫 단계로 `domain`·`application`·`infrastructure`·`presentation` 경계와 안쪽을 향하는 import 규칙을 `AGENTS.md`에 정의했으며, 첫 번째 이전 대상은 한옥 아카이브다.
 - 한옥 아카이브의 순수 도메인 모델·규칙을 `src/features/hanok-archive/domain/`(`village.ts`, `villageRules.ts`)로 분리했다. `types.ts`는 도메인 타입을 재수출만 하고, TourAPI 파싱 서비스(`hanokArchive.service.ts`)·K-컬처 라우트(`app/api/tourapi/kculture/route.ts`)·fallback 데이터(`data/hanokArchiveFallback.ts`)가 모두 이 도메인 규칙 하나를 공유한다. 과거 `lib/classify.mjs`에 중복돼 있던 지역·유형·배지·좌표·이미지 규칙 함수는 삭제하고 TourAPI 카테고리 매핑(`CATEGORY_MAPPINGS`)만 남겼다.
