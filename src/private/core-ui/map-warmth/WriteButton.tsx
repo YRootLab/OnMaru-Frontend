@@ -17,21 +17,21 @@ const FloatingBtn = styled.button`
 
   border-radius: 9999px;
   border: none;
-  background: ${lightPalette.juhong[500]};
+  background: ${lightPalette.hwanggeum[500]};
   color: #ffffff;
   font-family: inherit;
   font-size: ${fontSize.sm};
   font-weight: 700;
-  box-shadow: 0 2px 8px rgba(232, 90, 24, 0.25);
+  box-shadow: 0 2px 8px rgba(255, 184, 0, 0.25);
 
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    background: ${lightPalette.juhong[700]};
+    background: ${lightPalette.hwanggeum[700]};
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(232, 90, 24, 0.35);
+    box-shadow: 0 4px 12px rgba(255, 184, 0, 0.35);
   }
 
   &:active {
