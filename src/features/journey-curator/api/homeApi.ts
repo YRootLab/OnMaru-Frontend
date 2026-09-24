@@ -46,6 +46,8 @@ export type PopularSound = TrendingSound & {
   };
 };
 
+export type LanguageStatus = 'OK' | 'FALLBACK' | 'FALLBACK_RECENT';
+
 export type PopularRegion = {
   region: {
     regionCode: string;
@@ -56,10 +58,12 @@ export type PopularRegion = {
   reviewCount: number;
 };
 
+export type PopularSoundsResponse = { items: PopularSound[]; basis?: string; languageStatus?: LanguageStatus };
+
 export type HomeRepository = {
   listCuratedCourses(category?: string): Promise<HomeCursorPage<CuratedCourse>>;
   listTrendingSounds(): Promise<HomeCursorPage<TrendingSound>>;
-  listPopularSounds(input?: { limit?: number; window?: 'week' | 'all'; language?: string }): Promise<{ items: PopularSound[]; basis?: string }>;
+  listPopularSounds(input?: { limit?: number; window?: 'week' | 'all'; language?: string }): Promise<PopularSoundsResponse>;
   listPopularRegions(): Promise<{ items: PopularRegion[] }>;
 };
 
@@ -80,7 +84,7 @@ export function createHomeRepository(request: RequestFn = apiRequest): HomeRepos
       });
     },
     listPopularSounds(input = {}) {
-      return request<{ items: PopularSound[]; basis?: string }>('/home/popular-sounds', {
+      return request<PopularSoundsResponse>('/home/popular-sounds', {
         method: 'GET',
         params: { limit: input.limit ?? 7, window: input.window ?? 'week', language: input.language ?? 'ko-KR' },
         cache: 'no-store',
