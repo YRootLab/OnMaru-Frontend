@@ -170,12 +170,12 @@ const RegionChip = styled.button<{ $active: boolean }>`
   font-size: ${fontSize.xs};
   font-weight: 500;
   cursor: pointer;
-  background: ${({ $active }) => ($active ? lightPalette.juhong[500] : '#f2f4f6')};
+  background: ${({ $active }) => ($active ? lightPalette.hwanggeum[500] : '#f2f4f6')};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
   transition: all 0.15s ease;
 
   &:hover {
-    background: ${({ $active }) => ($active ? lightPalette.juhong[500] : '#e5e8eb')};
+    background: ${({ $active }) => ($active ? lightPalette.hwanggeum[500] : '#e5e8eb')};
   }
 
   [data-theme='dark'] & {
@@ -201,7 +201,7 @@ const PlaceInputIcon = styled.div`
   transform: translateY(-50%);
   display: flex;
   align-items: center;
-  color: ${lightPalette.juhong[500]};
+  color: ${lightPalette.hwanggeum[500]};
   pointer-events: none;
 `;
 
@@ -224,8 +224,8 @@ const PlaceInput = styled.input`
   }
 
   &:focus {
-    background: ${lightPalette.juhong[50]};
-    color: ${lightPalette.juhong[900]};
+    background: ${lightPalette.hwanggeum[50]};
+    color: ${lightPalette.hwanggeum[900]};
   }
 
   [data-theme='dark'] & {
@@ -276,8 +276,8 @@ const PlaceOption = styled.button`
   transition: background 0.12s ease;
 
   &:hover {
-    background: ${lightPalette.juhong[50]};
-    color: ${lightPalette.juhong[700]};
+    background: ${lightPalette.hwanggeum[50]};
+    color: ${lightPalette.hwanggeum[700]};
   }
 
   [data-theme='dark'] & {
@@ -315,7 +315,7 @@ const MoodButton = styled.button<{ $active: boolean }>`
   height: 42px;
   border-radius: 14px;
 
-  background: ${({ $active }) => ($active ? lightPalette.juhong[500] : '#f2f4f6')};
+  background: ${({ $active }) => ($active ? lightPalette.hwanggeum[500] : '#f2f4f6')};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
   font-size: ${fontSize.sm};
   font-weight: 500;
@@ -323,7 +323,7 @@ const MoodButton = styled.button<{ $active: boolean }>`
   transition: all 0.15s ease;
 
   &:hover {
-    background: ${({ $active }) => ($active ? lightPalette.juhong[500] : '#e5e8eb')};
+    background: ${({ $active }) => ($active ? lightPalette.hwanggeum[500] : '#e5e8eb')};
   }
 
   [data-theme='dark'] & {
@@ -347,7 +347,7 @@ const TagChip = styled.button<{ $selected: boolean }>`
   padding: 6px 12px;
   border-radius: 9999px;
 
-  background: ${({ $selected }) => ($selected ? lightPalette.juhong[500] : '#f2f4f6')};
+  background: ${({ $selected }) => ($selected ? lightPalette.hwanggeum[500] : '#f2f4f6')};
   color: ${({ $selected }) => ($selected ? '#ffffff' : meok[700])};
   font-size: ${fontSize.xs};
   font-weight: 500;
@@ -355,7 +355,7 @@ const TagChip = styled.button<{ $selected: boolean }>`
   transition: all 0.15s ease;
 
   &:hover {
-    background: ${({ $selected }) => ($selected ? lightPalette.juhong[500] : '#e5e8eb')};
+    background: ${({ $selected }) => ($selected ? lightPalette.hwanggeum[500] : '#e5e8eb')};
   }
 
   [data-theme='dark'] & {
@@ -427,7 +427,7 @@ const SubmitBtn = styled.button`
   margin-top: 8px;
 
   border-radius: 14px;
-  background: ${lightPalette.juhong[500]};
+  background: ${lightPalette.hwanggeum[500]};
   color: #ffffff;
   font-family: inherit;
   font-size: ${fontSize.sm};
@@ -436,7 +436,7 @@ const SubmitBtn = styled.button`
   transition: all 0.18s ease;
 
   &:hover:not(:disabled) {
-    background: ${lightPalette.juhong[700]};
+    background: ${lightPalette.hwanggeum[700]};
   }
 
   &:disabled {
@@ -554,7 +554,7 @@ export default function WriteWarmthModal({
       <ModalCard $open={isOpen} onClick={(e) => e.stopPropagation()}>
         <ModalHeader>
           <ModalTitle>
-            <Flame size={20} strokeWidth={2} color={lightPalette.juhong[500]} />
+            <Flame size={20} strokeWidth={2} color={lightPalette.hwanggeum[500]} />
             <span>온기 한 줄 남기기</span>
           </ModalTitle>
           <CloseBtn type="button" onClick={onClose} aria-label="닫기">

@@ -226,7 +226,7 @@ export const FeaturedInfo = styled.div`
 export const FeaturedRank = styled.span`
   font-size: ${fontSize.micro};
   font-weight: 700;
-  color: ${lightPalette.juhong[500]};
+  color: ${lightPalette.hwanggeum[700]};
   display: block;
   margin-bottom: 2px;
 `;
@@ -439,7 +439,7 @@ export const PageNumberBtn = styled.button<{ $active: boolean }>`
   border-radius: 10px;
   border: none;
   background: ${({ $active }) =>
-    $active ? lightPalette.juhong[500] : 'transparent'};
+    $active ? lightPalette.hwanggeum[500] : 'transparent'};
   color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
   font-family: inherit;
   font-size: ${fontSize.xs};
@@ -449,7 +449,7 @@ export const PageNumberBtn = styled.button<{ $active: boolean }>`
 
   &:hover:not(:disabled) {
     background: ${({ $active }) =>
-      $active ? lightPalette.juhong[700] : 'rgba(78, 89, 104, 0.08)'};
+      $active ? lightPalette.hwanggeum[700] : 'rgba(78, 89, 104, 0.08)'};
     color: ${({ $active }) => ($active ? '#ffffff' : meok[900])};
   }
 `;

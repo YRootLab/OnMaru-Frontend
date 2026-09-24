@@ -188,7 +188,7 @@ const RankNum = styled.span<{ $rank: number }>`
   font-weight: 700;
   color: ${({ $rank }) =>
     $rank === 1
-      ? lightPalette.juhong[500]
+      ? lightPalette.hwanggeum[500]
       : $rank === 2
         ? '#d97706'
         : $rank === 3
@@ -252,7 +252,7 @@ const PlaceholderThumb = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${lightPalette.juhong[500]};
+  color: ${lightPalette.hwanggeum[700]};
 `;
 
 export function resolvePopularPlaceThumbnailUrl(imageUrl: string | null | undefined, failedImageUrl: string | null) {

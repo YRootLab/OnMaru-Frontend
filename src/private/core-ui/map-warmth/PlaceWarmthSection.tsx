@@ -54,8 +54,8 @@ const CountBadge = styled.span`
   height: 20px;
   padding: 0 6px;
   border-radius: 9999px;
-  background: ${lightPalette.juhong[50]};
-  color: ${lightPalette.juhong[700]};
+  background: ${lightPalette.hwanggeum[50]};
+  color: ${lightPalette.hwanggeum[700]};
   font-size: ${fontSize.micro};
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -70,8 +70,8 @@ const WriteButton = styled.button`
   padding: 0 12px;
   border: none;
   border-radius: 9999px;
-  background: ${lightPalette.juhong[50]};
-  color: ${lightPalette.juhong[700]};
+  background: ${lightPalette.hwanggeum[50]};
+  color: ${lightPalette.hwanggeum[700]};
   font-family: inherit;
   font-size: ${fontSize.xs};
   font-weight: 500;
@@ -79,7 +79,7 @@ const WriteButton = styled.button`
   transition: all 0.15s ease;
 
   &:hover {
-    background: ${lightPalette.juhong[500]};
+    background: ${lightPalette.hwanggeum[500]};
     color: #ffffff;
   }
 
@@ -131,8 +131,8 @@ const MoodBadge = styled.span<{ $mood?: '한적' | '북적' }>`
   border-radius: 6px;
   font-size: ${fontSize.micro};
   font-weight: 700;
-  color: ${lightPalette.juhong[700]};
-  background: ${lightPalette.juhong[50]};
+  color: ${lightPalette.hwanggeum[700]};
+  background: ${lightPalette.hwanggeum[50]};
 `;
 
 const TimeAndMine = styled.div`
@@ -169,8 +169,8 @@ const TagList = styled.div`
 const TagItem = styled.span`
   padding: 2px 8px;
   border-radius: 6px;
-  background: ${lightPalette.juhong[50]};
-  color: ${lightPalette.juhong[700]};
+  background: ${lightPalette.hwanggeum[50]};
+  color: ${lightPalette.hwanggeum[700]};
   font-size: ${fontSize.micro};
   font-weight: 500;
 `;
@@ -210,8 +210,8 @@ const EmptyIconBox = styled.div`
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: ${lightPalette.juhong[50]};
-  color: ${lightPalette.juhong[500]};
+  background: ${lightPalette.hwanggeum[50]};
+  color: ${lightPalette.hwanggeum[700]};
   margin-bottom: 10px;
 
   [data-theme='dark'] & {
@@ -249,7 +249,7 @@ const EmptyActionBtn = styled.button`
   padding: 0 14px;
 
   border-radius: 9999px;
-  background: ${lightPalette.juhong[500]};
+  background: ${lightPalette.hwanggeum[500]};
   color: #ffffff;
   font-family: inherit;
   font-size: ${fontSize.xs};
@@ -259,7 +259,7 @@ const EmptyActionBtn = styled.button`
   transition: background 0.15s ease;
 
   &:hover {
-    background: ${lightPalette.juhong[700]};
+    background: ${lightPalette.hwanggeum[700]};
   }
 `;
 
@@ -335,7 +335,7 @@ export default function PlaceWarmthSection({
       <SectionContainer id="place-warmth-section">
         <SectionHeader>
           <TitleBox>
-            <Flame size={16} strokeWidth={2} color={lightPalette.juhong[500]} />
+            <Flame size={16} strokeWidth={2} color={lightPalette.hwanggeum[500]} />
             <SectionTitle>머문 이들의 온기</SectionTitle>
             <CountBadge>{matchedWarmths.length}</CountBadge>
           </TitleBox>
