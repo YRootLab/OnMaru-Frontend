@@ -3,10 +3,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import styled from '@emotion/styled';
-import { MapPin, ArrowLeft, ArrowRight, RotateCcw, Volume2 } from 'lucide-react';
+import { MapPin, ArrowLeft, ArrowRight, RotateCcw, Volume2, Heart } from 'lucide-react';
 import { palette, fontSize, ringShadow } from '@/design-system/tokens';
 import { useJourneyStore } from '../store/useJourneyStore';
 import { useCuratedCourses, usePopularRegions, usePopularSounds } from '../hooks/useHomeData';
+import { hasAuthenticatedUser, showLoginRequiredToast } from '@/features/auth/privateState';
+import { saveOdiiStory, unsaveOdiiStory } from '@/features/sorimaru-audio/api/odiiEngagementApi';
 
 const FeedContainer = styled.div`
   width: min(calc(100% - 40px), 1140px);
@@ -467,6 +469,7 @@ const SoundGrid = styled.div`
 `;
 
 const SoundCard = styled(Link)`
+  position: relative;
   display: flex;
   align-items: center;
   gap: 16px;
@@ -546,6 +549,50 @@ const SoundMeta = styled.span`
 
   [data-theme='dark'] & {
     color: #a1a1aa;
+  }
+`;
+
+const SoundRank = styled.span`
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  font-size: 10px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: ${palette.juhong[500]};
+  line-height: 1;
+
+  [data-theme='dark'] & {
+    color: ${palette.juhong[400]};
+  }
+`;
+
+const SoundSaveBtn = styled.button`
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 4px;
+  margin: -4px;
+  cursor: pointer;
+  color: #d1d5db;
+  transition: color 0.15s ease;
+  display: flex;
+  align-items: center;
+
+  &[data-saved='true'] {
+    color: #ef4444;
+  }
+
+  &:hover {
+    color: #ef4444;
+  }
+
+  [data-theme='dark'] & {
+    color: #4b5563;
+
+    &[data-saved='true'] {
+      color: #ef4444;
+    }
   }
 `;
 
@@ -882,17 +929,74 @@ const RegionSub = styled.span`
   }
 `;
 
+const COURSE_CATEGORY_LIST = ['HANOK_STAY', 'CULTURE_ART', 'TRADITIONAL_FOOD', 'GARDEN_ECOLOGY', 'LOCAL_SCENE'] as const;
+const COURSE_CATEGORY_LABELS: Record<string, string> = {
+  HANOK_STAY: '한옥 숙박',
+  CULTURE_ART: '문화·예술',
+  TRADITIONAL_FOOD: '전통 음식',
+  GARDEN_ECOLOGY: '정원·생태',
+  LOCAL_SCENE: '지역 생활',
+};
+
+const CategoryFilterRow = styled.div`
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-bottom: 20px;
+  padding: 2px 1px;
+
+  &::-webkit-scrollbar { display: none; }
+`;
+
+const CategoryChip = styled.button<{ $active: boolean }>`
+  flex-shrink: 0;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1.5px solid ${({ $active }) => ($active ? palette.juhong[500] : 'rgba(25, 31, 40, 0.12)')};
+  background: ${({ $active }) => ($active ? palette.juhong[500] : '#ffffff')};
+  color: ${({ $active }) => ($active ? '#ffffff' : '#4e5968')};
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: ${({ $active }) => ($active ? 700 : 500)};
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  [data-theme='dark'] & {
+    border-color: ${({ $active }) => ($active ? palette.juhong[400] : 'rgba(255, 255, 255, 0.14)')};
+    background: ${({ $active }) => ($active ? palette.juhong[500] : '#24211d')};
+    color: ${({ $active }) => ($active ? '#ffffff' : '#a1a1aa')};
+  }
+`;
+
 export default function JourneyDiscoveryFeed() {
   const setQuery = useJourneyStore((s) => s.setQuery);
   const submitSearch = useJourneyStore((s) => s.submitSearch);
-  const { data: courses, loading: coursesLoading, failed: coursesFailed, unavailable: coursesUnavailable, retry: retryCourses } = useCuratedCourses();
+  const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
+  const { data: courses, loading: coursesLoading, failed: coursesFailed, unavailable: coursesUnavailable, retry: retryCourses } = useCuratedCourses(selectedCategory);
   const { data: popularSounds, loading: soundsLoading, failed: soundsFailed, unavailable: soundsUnavailable, retry: retrySounds } = usePopularSounds();
   const { data: popularRegions, loading: regionsLoading, failed: regionsFailed, unavailable: regionsUnavailable, retry: retryRegions } = usePopularRegions();
+  const [savedOverrides, setSavedOverrides] = useState<Record<string, boolean>>({});
+
+  const handleToggleSave = (e: React.MouseEvent, storyId: string, currentlySaved: boolean) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!hasAuthenticatedUser()) { showLoginRequiredToast(); return; }
+    setSavedOverrides((prev) => ({ ...prev, [storyId]: !currentlySaved }));
+    const api = currentlySaved ? unsaveOdiiStory : saveOdiiStory;
+    api(storyId).catch(() => setSavedOverrides((prev) => ({ ...prev, [storyId]: currentlySaved })));
+  };
   const featuredCourses = courses.slice(0, 7);
   const courseViewportRef = useRef<HTMLDivElement>(null);
   const [visibleCourseCount, setVisibleCourseCount] = useState(3);
   const [activeCourseIndex, setActiveCourseIndex] = useState(0);
   const [courseEdges, setCourseEdges] = useState({ atStart: true, atEnd: false });
+
+  useEffect(() => {
+    courseViewportRef.current?.scrollTo({ left: 0, behavior: 'auto' });
+    setActiveCourseIndex(0);
+  }, [selectedCategory]);
 
   useEffect(() => {
     const storageKey = 'onmaru:home-scroll-position';
@@ -998,7 +1102,7 @@ export default function JourneyDiscoveryFeed() {
         <CourseDesc>{course.summary}</CourseDesc>
         <CourseFooter>
           <TagList>
-            <Tag>{course.category}</Tag>
+            <Tag>{COURSE_CATEGORY_LABELS[course.category] ?? course.category}</Tag>
             {course.tags.map((tag) => (
               <Tag key={tag}>#{tag}</Tag>
             ))}
@@ -1023,6 +1127,27 @@ export default function JourneyDiscoveryFeed() {
             <SectionDescription>정취와 소리가 머무는 장소를 둘러보세요.</SectionDescription>
           </SectionTitleGroup>
         </SectionHeader>
+
+        <CategoryFilterRow role="group" aria-label="카테고리 필터">
+          <CategoryChip
+            type="button"
+            $active={selectedCategory === undefined}
+            onClick={() => { setSelectedCategory(undefined); setActiveCourseIndex(0); }}
+          >
+            전체
+          </CategoryChip>
+          {COURSE_CATEGORY_LIST.map((cat) => (
+            <CategoryChip
+              key={cat}
+              type="button"
+              $active={selectedCategory === cat}
+              aria-pressed={selectedCategory === cat}
+              onClick={() => { setSelectedCategory(selectedCategory === cat ? undefined : cat); setActiveCourseIndex(0); }}
+            >
+              {COURSE_CATEGORY_LABELS[cat]}
+            </CategoryChip>
+          ))}
+        </CategoryFilterRow>
 
         <CourseGrid>
           {coursesLoading
@@ -1117,23 +1242,35 @@ export default function JourneyDiscoveryFeed() {
               ))
             : soundsFailed ? (
                 <HomeFeedFailure compact unavailable={soundsUnavailable} onRetry={retrySounds} />
-              ) : popularSounds.map((sound) => {
+              ) : popularSounds.map((sound, index) => {
                 const story = sound.story;
                 const storyId = story?.storyId ?? sound.storyId;
                 const title = story?.title ?? sound.audioTitle ?? sound.title;
                 const location = story?.region?.name ?? sound.locationName;
                 const duration = story?.durationSeconds ? `${Math.floor(story.durationSeconds / 60)}분` : sound.formattedDuration || sound.playTime;
+                const rank = sound.rank ?? (index + 1);
+                const rawSaved = story?.savedByMe ?? sound.savedByMe ?? false;
+                const isSaved = storyId in savedOverrides ? savedOverrides[storyId] : rawSaved;
+                const playCount = sound.playCount;
+                const meta = [location, duration, playCount != null ? `재생 ${playCount.toLocaleString()}` : undefined].filter(Boolean).join(' · ');
                 return (
                 <SoundCard key={storyId} href={`/sorimaru?stid=${encodeURIComponent(storyId)}`}>
+                  <SoundRank aria-label={`${rank}위`}>#{rank}</SoundRank>
                   <PlayIconWrap>
                     <Volume2 size={20} />
                   </PlayIconWrap>
                   <SoundInfo>
                     <SoundTitle>{title}</SoundTitle>
-                    <SoundMeta>
-                      {[location, duration].filter(Boolean).join(' · ')}
-                    </SoundMeta>
+                    <SoundMeta>{meta}</SoundMeta>
                   </SoundInfo>
+                  <SoundSaveBtn
+                    type="button"
+                    data-saved={isSaved}
+                    aria-label={isSaved ? '찜 해제' : '찜하기'}
+                    onClick={(e) => handleToggleSave(e, storyId, isSaved)}
+                  >
+                    <Heart size={16} fill={isSaved ? '#ef4444' : 'none'} strokeWidth={isSaved ? 0 : 2} />
+                  </SoundSaveBtn>
                 </SoundCard>
               )})}
           </SoundGrid>

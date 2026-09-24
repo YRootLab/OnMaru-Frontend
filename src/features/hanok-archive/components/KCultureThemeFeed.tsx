@@ -409,26 +409,30 @@ const NavBtn = styled.button<{ $disabled: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  background: ${({ $disabled }) => ($disabled ? '#f5f5f4' : '#ffffff')};
-  color: ${({ $disabled }) => ($disabled ? meok[400] : meok[800])};
+  border: none;
+  background: ${({ $disabled }) => ($disabled ? 'transparent' : 'rgba(0,0,0,0.06)')};
+  color: ${({ $disabled }) => ($disabled ? meok[400] : meok[700])};
   cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
-  opacity: ${({ $disabled }) => ($disabled ? 0.45 : 1)};
-  transition: all 0.18s ease;
+  opacity: ${({ $disabled }) => ($disabled ? 0.35 : 1)};
+  transition: all 0.15s ease;
   font-family: inherit;
 
   &:hover:not(:disabled) {
-    background: #f0f0ee;
-    border-color: rgba(0,0,0,0.18);
+    background: rgba(0,0,0,0.1);
+    color: ${meok[900]};
   }
 
   [data-theme='dark'] & {
-    border-color: rgba(255,255,255,0.1);
-    background: ${({ $disabled }) => ($disabled ? surface.dark.surface : surface.dark.card)};
-    color: ${({ $disabled }) => ($disabled ? meok[600] : meok[200])};
+    background: ${({ $disabled }) => ($disabled ? 'transparent' : 'rgba(255,255,255,0.08)')};
+    color: ${({ $disabled }) => ($disabled ? meok[600] : meok[300])};
+
+    &:hover:not(:disabled) {
+      background: rgba(255,255,255,0.14);
+      color: #ffffff;
+    }
   }
 `;
 

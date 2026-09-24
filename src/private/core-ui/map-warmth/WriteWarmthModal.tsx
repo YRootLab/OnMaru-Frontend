@@ -171,7 +171,7 @@ const RegionChip = styled.button<{ $active: boolean }>`
   font-weight: 500;
   cursor: pointer;
   background: ${({ $active }) => ($active ? lightPalette.hwanggeum[500] : '#f2f4f6')};
-  color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
+  color: ${({ $active }) => ($active ? '#191f28' : meok[700])};
   transition: all 0.15s ease;
 
   &:hover {
@@ -316,7 +316,7 @@ const MoodButton = styled.button<{ $active: boolean }>`
   border-radius: 14px;
 
   background: ${({ $active }) => ($active ? lightPalette.hwanggeum[500] : '#f2f4f6')};
-  color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
+  color: ${({ $active }) => ($active ? '#191f28' : meok[700])};
   font-size: ${fontSize.sm};
   font-weight: 500;
   cursor: pointer;
@@ -348,7 +348,7 @@ const TagChip = styled.button<{ $selected: boolean }>`
   border-radius: 9999px;
 
   background: ${({ $selected }) => ($selected ? lightPalette.hwanggeum[500] : '#f2f4f6')};
-  color: ${({ $selected }) => ($selected ? '#ffffff' : meok[700])};
+  color: ${({ $selected }) => ($selected ? '#191f28' : meok[700])};
   font-size: ${fontSize.xs};
   font-weight: 500;
   cursor: pointer;
@@ -428,7 +428,7 @@ const SubmitBtn = styled.button`
 
   border-radius: 14px;
   background: ${lightPalette.hwanggeum[500]};
-  color: #ffffff;
+  color: #191f28;
   font-family: inherit;
   font-size: ${fontSize.sm};
   font-weight: 700;

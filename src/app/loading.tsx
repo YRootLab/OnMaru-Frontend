@@ -8,7 +8,7 @@ export default function Loading() {
         alignItems: 'center',
         justifyContent: 'center',
         background: 'var(--color-bg-app, #FAF7F4)',
-        zIndex: 9999,
+        zIndex: 99,
       }}
     >
       <style>{`
@@ -24,7 +24,9 @@ export default function Loading() {
           animation: onmaru-spin 0.7s linear infinite;
         }
       `}</style>
-      <div className="onmaru-spinner" aria-label="페이지 로딩 중" role="status" />
+      <div className="onmaru-spinner" role="status">
+        <span style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap' }}>페이지 로딩 중</span>
+      </div>
     </div>
   );
 }

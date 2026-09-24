@@ -57,7 +57,7 @@ export type PopularRegion = {
 };
 
 export type HomeRepository = {
-  listCuratedCourses(): Promise<HomeCursorPage<CuratedCourse>>;
+  listCuratedCourses(category?: string): Promise<HomeCursorPage<CuratedCourse>>;
   listTrendingSounds(): Promise<HomeCursorPage<TrendingSound>>;
   listPopularSounds(input?: { limit?: number; window?: 'week' | 'all'; language?: string }): Promise<{ items: PopularSound[]; basis?: string }>;
   listPopularRegions(): Promise<{ items: PopularRegion[] }>;
@@ -65,10 +65,10 @@ export type HomeRepository = {
 
 export function createHomeRepository(request: RequestFn = apiRequest): HomeRepository {
   return {
-    listCuratedCourses() {
+    listCuratedCourses(category?: string) {
       return request<HomeCursorPage<CuratedCourse>>('/home/curated-courses', {
         method: 'GET',
-        params: { limit: 20 },
+        params: { limit: 20, ...(category ? { category } : {}) },
         cache: 'no-store',
       });
     },

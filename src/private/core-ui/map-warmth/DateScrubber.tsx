@@ -126,7 +126,7 @@ const PlayButton = styled.button<{ $playing: boolean }>`
   }
 
   &:focus-visible {
-    outline: 2px solid ${lightPalette.hwanggeum[500]};
+    outline: 2px solid ${lightPalette.hwanggeum[900]};
     outline-offset: 2px;
   }
 
@@ -183,7 +183,7 @@ const Track = styled.div`
   touch-action: none;
 
   &:focus-visible {
-    outline: 2px solid ${lightPalette.hwanggeum[500]};
+    outline: 2px solid ${lightPalette.hwanggeum[900]};
     outline-offset: 4px;
     border-radius: 4px;
   }

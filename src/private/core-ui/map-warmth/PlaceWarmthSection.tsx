@@ -9,6 +9,7 @@ import { distanceInMeters } from '@/features/map/utils/geo';
 import WriteWarmthModal from './WriteWarmthModal';
 import MoodSelector from './MoodSelector';
 import type { Warmth } from '@/features/map/types';
+import { hasAuthenticatedUser, showLoginRequiredToast } from '@/features/auth/privateState';
 
 interface PlaceWarmthSectionProps {
   placeId: string;
@@ -55,7 +56,7 @@ const CountBadge = styled.span`
   padding: 0 6px;
   border-radius: 9999px;
   background: ${lightPalette.hwanggeum[50]};
-  color: ${lightPalette.hwanggeum[700]};
+  color: ${lightPalette.hwanggeum[900]};
   font-size: ${fontSize.micro};
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -71,7 +72,7 @@ const WriteButton = styled.button`
   border: none;
   border-radius: 9999px;
   background: ${lightPalette.hwanggeum[50]};
-  color: ${lightPalette.hwanggeum[700]};
+  color: ${lightPalette.hwanggeum[900]};
   font-family: inherit;
   font-size: ${fontSize.xs};
   font-weight: 500;
@@ -131,7 +132,7 @@ const MoodBadge = styled.span<{ $mood?: '한적' | '북적' }>`
   border-radius: 6px;
   font-size: ${fontSize.micro};
   font-weight: 700;
-  color: ${lightPalette.hwanggeum[700]};
+  color: ${lightPalette.hwanggeum[900]};
   background: ${lightPalette.hwanggeum[50]};
 `;
 
@@ -170,7 +171,7 @@ const TagItem = styled.span`
   padding: 2px 8px;
   border-radius: 6px;
   background: ${lightPalette.hwanggeum[50]};
-  color: ${lightPalette.hwanggeum[700]};
+  color: ${lightPalette.hwanggeum[900]};
   font-size: ${fontSize.micro};
   font-weight: 500;
 `;
@@ -211,7 +212,7 @@ const EmptyIconBox = styled.div`
   height: 40px;
   border-radius: 50%;
   background: ${lightPalette.hwanggeum[50]};
-  color: ${lightPalette.hwanggeum[700]};
+  color: ${lightPalette.hwanggeum[900]};
   margin-bottom: 10px;
 
   [data-theme='dark'] & {
@@ -294,6 +295,11 @@ export default function PlaceWarmthSection({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const warmths = useMapStore((s) => s.warmths);
 
+  const handleOpenModal = () => {
+    if (!hasAuthenticatedUser()) { showLoginRequiredToast(); return; }
+    setIsModalOpen(true);
+  };
+
 
   const matchedWarmths = useMemo(() => {
     const cleanTargetName = placeName.replace(/\s+/g, '').toLowerCase();
@@ -339,7 +345,7 @@ export default function PlaceWarmthSection({
             <SectionTitle>머문 이들의 온기</SectionTitle>
             <CountBadge>{matchedWarmths.length}</CountBadge>
           </TitleBox>
-          <WriteButton type="button" onClick={() => setIsModalOpen(true)}>
+          <WriteButton type="button" onClick={handleOpenModal}>
             <Plus size={14} strokeWidth={2} />
             <span>온기 남기기</span>
           </WriteButton>
@@ -389,7 +395,7 @@ export default function PlaceWarmthSection({
             </EmptyIconBox>
             <EmptyTitle>아직 남긴 온기가 없어요</EmptyTitle>
             <EmptySub>첫 번째 이야기를 남겨보세요.</EmptySub>
-            <EmptyActionBtn type="button" onClick={() => setIsModalOpen(true)}>
+            <EmptyActionBtn type="button" onClick={handleOpenModal}>
               <Plus size={14} strokeWidth={2} />
               <span>이야기 남기기</span>
             </EmptyActionBtn>

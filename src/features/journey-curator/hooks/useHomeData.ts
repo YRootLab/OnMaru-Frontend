@@ -63,13 +63,13 @@ function useHomeList<T>(
   };
 }
 
-const loadCuratedCourses = () => homeRepository.listCuratedCourses();
 const loadTrendingSounds = () => homeRepository.listTrendingSounds();
 const loadPopularSounds = () => homeRepository.listPopularSounds({ limit: 7 });
 const loadPopularRegions = () => homeRepository.listPopularRegions();
 
-export function useCuratedCourses() {
-  return useHomeList<CuratedCourse>(loadCuratedCourses);
+export function useCuratedCourses(category?: string) {
+  const load = useCallback(() => homeRepository.listCuratedCourses(category), [category]);
+  return useHomeList<CuratedCourse>(load);
 }
 
 export function useTrendingSounds() {
