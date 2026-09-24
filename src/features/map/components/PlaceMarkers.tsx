@@ -437,7 +437,6 @@ const styles = css`
     line-height: 1.2;
     background: #FEF08A;
     color: #854D0E;
-    border: 1px solid #FACC15;
     flex-shrink: 0;
   }
 
@@ -477,7 +476,6 @@ const styles = css`
   [data-theme='dark'] .om-pin--traditional .om-pin-trad-chip {
     background: #FEF08A !important;
     color: #854D0E !important;
-    border: 1px solid #FACC15 !important;
     font-weight: 800 !important;
   }
 
