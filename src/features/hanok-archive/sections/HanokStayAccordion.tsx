@@ -72,12 +72,12 @@ const AccordionContainer = styled.div`
   padding: 8px 0;
 
   @media (max-width: 768px) {
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr;
     align-items: stretch;
     justify-content: flex-start;
     overflow-x: hidden;
     overflow-y: visible;
-    scroll-snap-type: none;
     min-height: unset;
     padding: 4px 0 8px;
     gap: 10px;
