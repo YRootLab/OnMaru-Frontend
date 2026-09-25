@@ -10,6 +10,8 @@ jobs:
   Bundle-Analysis:
     name: 번들 크기 분석
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
       - name: 소스코드 체크아웃
         uses: actions/checkout@v4
