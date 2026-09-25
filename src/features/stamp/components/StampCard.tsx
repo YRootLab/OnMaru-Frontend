@@ -2,7 +2,6 @@
 
 import { useRef } from 'react';
 import styled from '@emotion/styled';
-import { Lock } from 'lucide-react';
 import gsap from 'gsap';
 import type { StampDef, CollectedStamp } from '../types';
 import { meok, ringShadow } from '@/design-system/tokens';
@@ -19,15 +18,15 @@ const Slot = styled.div`
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 10px 4px 14px;
+  padding: 4px 4px 16px;
   cursor: pointer;
   user-select: none;
-  perspective: 800px;
+  perspective: 1000px;
 
   &:focus-visible {
     outline: 2px solid ${meok[700]};
-    outline-offset: 4px;
-    border-radius: 8px;
+    outline-offset: 6px;
+    border-radius: 50%;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -35,77 +34,84 @@ const Slot = styled.div`
   }
 `;
 
-/* The stamp circle — this IS the design */
 const Seal = styled.div<{ $unlocked: boolean; $color: string }>`
   position: relative;
-  width: 76px;
-  height: 76px;
+  width: clamp(96px, 14vw, 140px);
+  height: clamp(96px, 14vw, 140px);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
   flex-shrink: 0;
   transform-style: preserve-3d;
 
   background: ${({ $unlocked, $color }) =>
     $unlocked
       ? `radial-gradient(circle at 38% 32%, color-mix(in srgb, ${$color} 82%, white), ${$color} 52%, color-mix(in srgb, ${$color} 86%, black) 100%)`
-      : 'transparent'};
+      : 'rgba(25, 31, 40, 0.035)'};
 
-  /* Locked: dotted circle placeholder */
-  border: ${({ $unlocked }) =>
-    $unlocked ? 'none' : '2px dashed rgba(25, 31, 40, 0.18)'};
-
-  /* Unlocked: ink impression (inset) + ambient lift */
   box-shadow: ${({ $unlocked }) =>
     $unlocked
-      ? `inset 0 3px 8px rgba(0, 0, 0, 0.22), inset 0 -1px 3px rgba(255, 255, 255, 0.08), ${ringShadow.light.card}`
+      ? `inset 0 4px 12px rgba(0, 0, 0, 0.28), inset 0 -1px 4px rgba(255, 255, 255, 0.07), ${ringShadow.light.card}`
       : 'none'};
 
-  transition: border-color 0.2s ease;
+  transition: background 0.2s ease;
 
   [data-theme='dark'] & {
-    border-color: ${({ $unlocked }) =>
-      $unlocked ? 'none' : 'rgba(255, 255, 255, 0.15)'};
+    background: ${({ $unlocked, $color }) =>
+      $unlocked
+        ? `radial-gradient(circle at 38% 32%, color-mix(in srgb, ${$color} 82%, white), ${$color} 52%, color-mix(in srgb, ${$color} 86%, black) 100%)`
+        : 'rgba(255, 255, 255, 0.04)'};
     box-shadow: ${({ $unlocked }) =>
       $unlocked
-        ? `inset 0 3px 8px rgba(0, 0, 0, 0.35), ${ringShadow.dark.card}`
+        ? `inset 0 4px 12px rgba(0, 0, 0, 0.4), ${ringShadow.dark.card}`
         : 'none'};
   }
 
   @media (max-width: 480px) {
-    width: 58px;
-    height: 58px;
-    margin-bottom: 8px;
+    width: clamp(72px, 20vw, 96px);
+    height: clamp(72px, 20vw, 96px);
+    margin-bottom: 10px;
   }
 `;
 
 const SealText = styled.span`
   font-family: var(--font-traditional);
-  font-size: 22px;
+  font-size: clamp(26px, 4vw, 50px);
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   line-height: 1;
-  color: rgba(255, 255, 255, 0.92);
+  color: rgba(255, 255, 255, 0.93);
   position: relative;
   z-index: 1;
-  /* Two-character hanja stacked for longer seals */
   white-space: pre;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 
   @media (max-width: 480px) {
-    font-size: 16px;
+    font-size: clamp(18px, 5.5vw, 28px);
   }
 `;
 
-/* Rarity ring — subtle outer ring for rare/legendary, no border on common */
+/* 잠긴 자리 — 아무 아이콘도 없이 빈 원만 */
+const LockedDot = styled.div`
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(25, 31, 40, 0.12);
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.12);
+  }
+`;
+
 const RarityRing = styled.div<{ $rarity: string; $color: string }>`
   position: absolute;
-  inset: -5px;
+  inset: -6px;
   border-radius: 50%;
   border: ${({ $rarity, $color }) => {
     if ($rarity === 'legendary') return `2px solid ${$color}`;
-    if ($rarity === 'rare') return `1.5px solid ${$color}66`;
+    if ($rarity === 'rare') return `1.5px solid ${$color}55`;
     return 'none';
   }};
   pointer-events: none;
@@ -113,25 +119,21 @@ const RarityRing = styled.div<{ $rarity: string; $color: string }>`
 
 const StampName = styled.h4<{ $unlocked: boolean }>`
   font-family: var(--font-traditional);
-  font-size: 12.5px;
+  font-size: clamp(12px, 1.4vw, 14px);
   font-weight: ${({ $unlocked }) => ($unlocked ? 700 : 400)};
   margin: 0 0 4px 0;
-  color: ${({ $unlocked }) => ($unlocked ? meok[900] : meok[400])};
+  color: ${({ $unlocked }) => ($unlocked ? meok[900] : meok[300])};
   letter-spacing: -0.01em;
   word-break: keep-all;
   line-height: 1.35;
 
   [data-theme='dark'] & {
-    color: ${({ $unlocked }) => ($unlocked ? '#ffffff' : meok[500])};
-  }
-
-  @media (max-width: 480px) {
-    font-size: 10px;
+    color: ${({ $unlocked }) => ($unlocked ? '#ffffff' : meok[600])};
   }
 `;
 
 const DateLine = styled.div`
-  font-size: 10.5px;
+  font-size: 11px;
   color: ${meok[400]};
   letter-spacing: 0;
 
@@ -141,17 +143,13 @@ const DateLine = styled.div`
 `;
 
 const ConditionLine = styled.div`
-  font-size: 10px;
-  color: ${meok[400]};
+  font-size: 10.5px;
+  color: ${meok[300]};
   line-height: 1.4;
   word-break: keep-all;
 
   [data-theme='dark'] & {
-    color: ${meok[500]};
-  }
-
-  @media (max-width: 480px) {
-    font-size: 9px;
+    color: ${meok[600]};
   }
 `;
 
@@ -174,14 +172,14 @@ export default function StampCard({ stamp, collected, onClick }: StampCardProps)
     const rect = seal.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    const rx = -((y - rect.height / 2) / (rect.height / 2)) * 14;
-    const ry = ((x - rect.width / 2) / (rect.width / 2)) * 14;
+    const rx = -((y - rect.height / 2) / (rect.height / 2)) * 16;
+    const ry = ((x - rect.width / 2) / (rect.width / 2)) * 16;
 
     gsap.to(seal, {
       rotationX: rx,
       rotationY: ry,
-      y: -6,
-      boxShadow: `inset 0 3px 8px rgba(0,0,0,0.22), ${ringShadow.light.cardHoverGlow}`,
+      y: -8,
+      boxShadow: `inset 0 4px 12px rgba(0,0,0,0.28), ${ringShadow.light.cardHoverGlow}`,
       duration: 0.3,
       ease: 'power2.out',
       overwrite: 'auto',
@@ -196,8 +194,8 @@ export default function StampCard({ stamp, collected, onClick }: StampCardProps)
       rotationX: 0,
       rotationY: 0,
       y: 0,
-      boxShadow: `inset 0 3px 8px rgba(0,0,0,0.22), ${ringShadow.light.card}`,
-      duration: 0.45,
+      boxShadow: `inset 0 4px 12px rgba(0,0,0,0.28), ${ringShadow.light.card}`,
+      duration: 0.5,
       ease: 'back.out(1.2)',
       overwrite: 'auto',
     });
@@ -223,11 +221,11 @@ export default function StampCard({ stamp, collected, onClick }: StampCardProps)
       aria-label={`${stamp.name} — ${isUnlocked ? '도장 획득' : '미방문'}`}
     >
       <Seal ref={sealRef} $unlocked={isUnlocked} $color={stamp.color}>
-        <RarityRing $rarity={stamp.rarity} $color={stamp.color} />
+        {isUnlocked && <RarityRing $rarity={stamp.rarity} $color={stamp.color} />}
         {isUnlocked ? (
           <SealText>{stamp.sealText}</SealText>
         ) : (
-          <Lock size={18} strokeWidth={1.5} color={meok[300]} />
+          <LockedDot />
         )}
       </Seal>
 
