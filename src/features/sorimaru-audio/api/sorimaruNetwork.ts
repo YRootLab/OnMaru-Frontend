@@ -50,8 +50,8 @@ export interface CreateSorimaruNetworkClientOptions {
   timeoutMs?: number;
 }
 
-const CLIENT_API_ENDPOINT = process.env.NEXT_PUBLIC_SORIMARU_API_URL || process.env.NEXT_PUBLIC_ODII_API_URL || 'https://apis.data.go.kr/B551011/Odii';
-const CLIENT_API_KEY = process.env.NEXT_PUBLIC_SORIMARU_API_KEY || process.env.NEXT_PUBLIC_ODII_API_KEY || '';
+const CLIENT_API_ENDPOINT = process.env.NEXT_PUBLIC_SORIMARU_API_URL || 'https://apis.data.go.kr/B551011/Odii';
+const CLIENT_API_KEY = process.env.NEXT_PUBLIC_SORIMARU_API_KEY || '';
 const REQUEST_TIMEOUT_MS = 45_000;
 
 interface BackendStorySummary {
