@@ -30,6 +30,7 @@ const MapWrap = styled.div`
   align-items: center;
   user-select: none;
   visibility: hidden;
+  overflow: visible;
 `;
 
 const SvgContainer = styled.svg`
@@ -63,7 +64,7 @@ const RegionGroup = styled.g`
   transform-origin: center;
 
   &:focus-visible path {
-    stroke: #fbbf24;
+    stroke: #3d6e60;
     stroke-width: 3.5px;
     filter: url(#glow-active);
   }
@@ -72,10 +73,10 @@ const RegionGroup = styled.g`
 const RegionPath = styled.path<{ $active: boolean; $unlocked: boolean }>`
   stroke: ${({ $active, $unlocked }) =>
     $active
-      ? '#ea580c'
+      ? '#3d6e60'
       : $unlocked
-      ? '#f59e0b'
-      : 'rgba(214, 211, 209, 0.6)'}; // 따뜻한 웜그레이
+      ? '#6b9587'
+      : 'rgba(200, 196, 192, 0.7)'};
 
   stroke-width: ${({ $active }) => ($active ? '3px' : '1.5px')};
   stroke-linejoin: round;
@@ -83,23 +84,23 @@ const RegionPath = styled.path<{ $active: boolean; $unlocked: boolean }>`
 
   fill: ${({ $active, $unlocked }) =>
     $active
-      ? 'rgba(249, 115, 22, 0.45)'
+      ? 'rgba(60, 110, 94, 0.38)'
       : $unlocked
-      ? 'rgba(251, 191, 36, 0.35)'
-      : '#fafaf9'}; // 따뜻한 한지 느낌의 베이지 (Unvisited)
+      ? 'rgba(107, 149, 135, 0.28)'
+      : '#fafaf9'};
 
   [data-theme='dark'] & {
     stroke: ${({ $active, $unlocked }) =>
       $active
-        ? '#fdba74'
+        ? '#6abfa8'
         : $unlocked
-        ? '#fcd34d'
+        ? '#8cbcae'
         : 'rgba(255, 255, 255, 0.15)'};
     fill: ${({ $active, $unlocked }) =>
       $active
-        ? 'rgba(249, 115, 22, 0.6)'
+        ? 'rgba(60, 110, 94, 0.55)'
         : $unlocked
-        ? 'rgba(251, 191, 36, 0.3)'
+        ? 'rgba(107, 149, 135, 0.35)'
         : 'rgba(255, 255, 255, 0.04)'};
   }
 
@@ -112,10 +113,10 @@ const RegionText = styled.text<{ $active: boolean; $unlocked: boolean }>`
   font-weight: 700;
   fill: ${({ $active, $unlocked }) =>
     $active
-      ? '#9a3412'
+      ? '#1c3d35'
       : $unlocked
-      ? '#b45309'
-      : '#a8a29e'}; // 부드러운 웜톤 텍스트
+      ? '#3a6257'
+      : '#a8a29e'};
   pointer-events: none;
   text-anchor: middle;
   dominant-baseline: central;
@@ -127,7 +128,7 @@ const RegionText = styled.text<{ $active: boolean; $unlocked: boolean }>`
 
   [data-theme='dark'] & {
     fill: ${({ $active, $unlocked }) =>
-      $active ? '#ffedd5' : $unlocked ? '#fef3c7' : '#d6d3d1'};
+      $active ? '#a8e0d0' : $unlocked ? '#8cbcae' : '#d6d3d1'};
     stroke: #1c1917;
     stroke-width: 6px;
   }
@@ -136,17 +137,17 @@ const RegionText = styled.text<{ $active: boolean; $unlocked: boolean }>`
 const MapHint = styled.div`
   margin-top: 20px;
   padding: 10px 20px;
-  background-color: rgba(245, 158, 11, 0.08);
+  background-color: rgba(60, 110, 94, 0.07);
   border-radius: 20px;
   text-align: center;
   font-size: 13px;
   font-weight: 500;
-  color: #b45309;
+  color: #3a6257;
   letter-spacing: -0.02em;
 
   [data-theme='dark'] & {
-    background-color: rgba(251, 191, 36, 0.08);
-    color: #fcd34d;
+    background-color: rgba(107, 149, 135, 0.1);
+    color: #8cbcae;
   }
 `;
 
@@ -235,8 +236,8 @@ export default function KoreaMapCanvas({
     if (path && group.getAttribute('data-active') !== 'true') {
       const isUnlocked = group.getAttribute('data-unlocked') === 'true';
       gsap.to(path, {
-        fill: isUnlocked ? 'rgba(251, 191, 36, 0.5)' : 'rgba(214, 211, 209, 0.3)',
-        stroke: isUnlocked ? '#f59e0b' : '#a8a29e',
+        fill: isUnlocked ? 'rgba(107, 149, 135, 0.48)' : 'rgba(200, 196, 192, 0.3)',
+        stroke: isUnlocked ? '#6b9587' : '#a8a29e',
         duration: 0.3
       });
     }
@@ -323,7 +324,7 @@ export default function KoreaMapCanvas({
                   cy={region.centroid.y + textYOffset}
                   r="38"
                   fill="none"
-                  stroke="#f59e0b"
+                  stroke="#3d6e60"
                   strokeWidth="2.5"
                   style={{ transformOrigin: 'center', vectorEffect: 'non-scaling-stroke' }}
                 />
@@ -333,8 +334,8 @@ export default function KoreaMapCanvas({
                 <g transform={`translate(${region.centroid.x}, ${region.centroid.y - 16})`}>
                   <circle
                     r="15"
-                    fill="#e11d48"
-                    stroke="#fcd34d"
+                    fill="#7b2424"
+                    stroke="rgba(255,255,255,0.55)"
                     strokeWidth="2"
                   />
                   <text

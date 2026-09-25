@@ -48,7 +48,10 @@ const Seal = styled.div<{ $unlocked: boolean; $color: string }>`
   flex-shrink: 0;
   transform-style: preserve-3d;
 
-  background: ${({ $unlocked, $color }) => ($unlocked ? $color : 'transparent')};
+  background: ${({ $unlocked, $color }) =>
+    $unlocked
+      ? `radial-gradient(circle at 38% 32%, color-mix(in srgb, ${$color} 82%, white), ${$color} 52%, color-mix(in srgb, ${$color} 86%, black) 100%)`
+      : 'transparent'};
 
   /* Locked: dotted circle placeholder */
   border: ${({ $unlocked }) =>

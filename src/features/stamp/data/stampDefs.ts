@@ -11,7 +11,7 @@ export const STAMP_DEFINITIONS: StampDef[] = [
     description: '조선 왕실과 고관대작들의 숨결이 깃든 600년 역사의 북촌 한옥 지구를 유람하다.',
     sealText: '北村',
     iconName: 'Landmark',
-    color: '#b91c1c',
+    color: '#7b2424',
     placeIds: ['bukchon', 'insadong', '1', '2'],
   },
   {
@@ -24,7 +24,7 @@ export const STAMP_DEFINITIONS: StampDef[] = [
     description: '북한산 자락 아래 가지런한 처마선과 맑은 공기가 감도는 현대 한옥 마을을 유람하다.',
     sealText: '恩平',
     iconName: 'Mountain',
-    color: '#0f766e',
+    color: '#1c5952',
     placeIds: ['eunpyeong', '3', '4'],
   },
   {
@@ -37,7 +37,7 @@ export const STAMP_DEFINITIONS: StampDef[] = [
     description: '정조대왕의 효심과 개혁 정신이 어린 수원 행궁동의 유려한 전통 누각을 거닐다.',
     sealText: '華城',
     iconName: 'Castle',
-    color: '#b45309',
+    color: '#8b4e1c',
     placeIds: ['hwaseong', '5', '6'],
   },
   {
@@ -50,7 +50,7 @@ export const STAMP_DEFINITIONS: StampDef[] = [
     description: '신사임당과 율곡의 학문, 그리고 300년 조선 99칸 사대부 대저택 선교장의 품격을 맛보다.',
     sealText: '船橋',
     iconName: 'Building',
-    color: '#1e40af',
+    color: '#1a367a',
     placeIds: ['seongyojang', 'gangneung', '7', '8'],
   },
   {
@@ -63,7 +63,7 @@ export const STAMP_DEFINITIONS: StampDef[] = [
     description: '돌담길 너머 초가와 기와가 빚어낸 고즈넉한 선비 마을의 정취를 누리다.',
     sealText: '巍岩',
     iconName: 'Compass',
-    color: '#4338ca',
+    color: '#372d7a',
     placeIds: ['oeam', 'asan', '9', '10'],
   },
   {
@@ -76,7 +76,7 @@ export const STAMP_DEFINITIONS: StampDef[] = [
     description: '태조 이성계의 어진을 모신 경기전과 700여 채 기와지붕이 파도치는 전주를 탐방하다.',
     sealText: '全州',
     iconName: 'Crown',
-    color: '#991b1b',
+    color: '#6e1e1e',
     placeIds: ['jeonju', 'gyeonggijeon', '11', '12'],
   },
   {
@@ -89,7 +89,7 @@ export const STAMP_DEFINITIONS: StampDef[] = [
     description: '타인능해(他人能解)의 쌀독 나눔 철학을 간직한 지리산 명당 삼이당의 숨결.',
     sealText: '雲鳥',
     iconName: 'HeartHandshake',
-    color: '#065f46',
+    color: '#184a38',
     placeIds: ['unjoru', 'gurye', '13', '14'],
   },
   {
@@ -102,7 +102,7 @@ export const STAMP_DEFINITIONS: StampDef[] = [
     description: '낙동강이 S자로 감싸 흐르는 유교 문화의 본향, 서애 류성룡의 충절을 기리다.',
     sealText: '河回',
     iconName: 'Scroll',
-    color: '#831843',
+    color: '#521432',
     placeIds: ['hahoe', 'andong', '15', '16'],
   },
   {
@@ -115,7 +115,7 @@ export const STAMP_DEFINITIONS: StampDef[] = [
     description: '월성 손씨와 여강 이씨 두 가문이 500년 넘게 일군 세계유산 양동마을의 기품.',
     sealText: '良洞',
     iconName: 'Sparkles',
-    color: '#7c2d12',
+    color: '#5c2510',
     placeIds: ['yangdong', 'gyeongju', '17', '18'],
   },
   {
@@ -128,7 +128,7 @@ export const STAMP_DEFINITIONS: StampDef[] = [
     description: '거센 바람을 견디는 제주 현무암 돌담과 새(띠)지붕 전통 가옥을 체험하다.',
     sealText: '城邑',
     iconName: 'Palmtree',
-    color: '#15803d',
+    color: '#175e30',
     placeIds: ['seongup', 'jeju', '19', '20'],
   },
   {
@@ -141,7 +141,7 @@ export const STAMP_DEFINITIONS: StampDef[] = [
     description: '은은한 호롱불과 밤하늘 달빛이 처마 끝에 내려앉는 고요한 밤의 정취를 담다.',
     sealText: '夜景',
     iconName: 'Moon',
-    color: '#6d28d9',
+    color: '#381a6a',
   },
   {
     id: 'stamp_national_master',
@@ -153,7 +153,7 @@ export const STAMP_DEFINITIONS: StampDef[] = [
     description: '삼천리 강산 방방곡곡의 한옥을 두루 유람하여 온마루 수결첩을 완성한 진정한 풍류객.',
     sealText: '八道',
     iconName: 'Trophy',
-    color: '#d4af37',
+    color: '#b89020',
     requiredCount: 5,
   },
 ];
