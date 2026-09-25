@@ -96,31 +96,33 @@ const StatsSection = styled.div`
 
 const BigNumber = styled.div`
   font-family: var(--font-traditional);
-  font-size: clamp(52px, 7vw, 80px);
+  font-size: clamp(80px, 11vw, 116px);
   font-weight: 900;
   line-height: 1;
-  letter-spacing: -0.04em;
-  color: ${meok[900]};
+  letter-spacing: -0.05em;
+  color: #D9281C;
 
   span {
     font-family: var(--font-traditional-body);
-    font-size: clamp(14px, 1.8vw, 18px);
+    font-size: clamp(16px, 2vw, 22px);
     font-weight: 400;
     letter-spacing: 0;
     color: ${meok[400]};
-    margin-left: 6px;
+    margin-left: 8px;
   }
 
   [data-theme='dark'] & {
-    color: #ffffff;
+    color: #ff5a4d;
     span { color: ${meok[400]}; }
   }
 `;
 
 const StatCaption = styled.div`
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 500;
   color: ${meok[500]};
-  margin-top: 2px;
+  margin-top: 4px;
+  letter-spacing: -0.01em;
 `;
 
 const ProgressWrap = styled.div``;
