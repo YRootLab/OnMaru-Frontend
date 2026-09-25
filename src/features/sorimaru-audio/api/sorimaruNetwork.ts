@@ -190,7 +190,10 @@ export function createSorimaruNetworkClient({
       console.info('[Sorimaru Network] request', { type: request.type, params: request.params });
 
       const isFirstPage = !request.params.pageNo || request.params.pageNo === '1';
-      if (request.type === 'stories' && isFirstPage && request.preferBackend !== false && backendRequester) {
+      if (request.type === 'stories' && isFirstPage && request.preferBackend !== false) {
+        if (!backendRequester) {
+          return { items: [], totalCount: 0, source: 'public' };
+        }
         try {
           const decoded = await requestBackendStories(request, backendRequester);
           console.info('[Sorimaru Network] backend response', {
@@ -200,11 +203,16 @@ export function createSorimaruNetworkClient({
           });
           return decoded;
         } catch (error) {
-          console.warn('[Sorimaru Network] backend fallback', {
+          console.warn('[Sorimaru Network] backend error', {
             type: request.type,
             error: error instanceof Error ? error.message : error,
           });
+          return { items: [], totalCount: 0, source: 'public' };
         }
+      }
+
+      if (!backendRequester) {
+        return { items: [], totalCount: 0, source: 'public' };
       }
 
       const url = resolveEndpoint(request);
