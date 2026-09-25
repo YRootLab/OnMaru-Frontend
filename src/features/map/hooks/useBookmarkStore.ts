@@ -2,8 +2,7 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { toast } from 'sonner';
-import { hasAuthenticatedUser } from '@/features/auth/privateState';
+import { hasAuthenticatedUser, showLoginRequiredToast } from '@/features/auth/privateState';
 
 export interface BookmarkedPlace {
   id: string;
@@ -31,7 +30,7 @@ export const useBookmarkStore = create<BookmarkState>()(
 
       toggleBookmark: (place) => {
         if (!hasAuthenticatedUser()) {
-          toast.info('로그인해주세요.');
+          showLoginRequiredToast();
           return false;
         }
         const { bookmarks } = get();

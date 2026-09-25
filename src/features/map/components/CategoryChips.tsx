@@ -19,7 +19,7 @@ import {
   Utensils,
 } from 'lucide-react';
 import { transientProps } from '@/design-system/styled';
-import { meok , fontSize } from '@/design-system/tokens';
+import { meok, fontSize, ringShadow } from '@/design-system/tokens';
 
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import type { MapMode } from '@/features/map/types';
@@ -169,7 +169,7 @@ const Chip = styled.button<{ $active: boolean; $index: number }>`
     border: none;
     color: ${({ $active }) => ($active ? '#171513' : '#ffffff')};
     font-weight: ${({ $active }) => ($active ? '700' : '500')};
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+    box-shadow: ${ringShadow.dark.mapChip};
   }
 
   @media (prefers-color-scheme: dark) {
@@ -178,7 +178,7 @@ const Chip = styled.button<{ $active: boolean; $index: number }>`
       border: none;
       color: ${({ $active }) => ($active ? '#171513' : '#ffffff')};
       font-weight: ${({ $active }) => ($active ? '700' : '500')};
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+      box-shadow: ${ringShadow.dark.mapChip};
     }
   }
 

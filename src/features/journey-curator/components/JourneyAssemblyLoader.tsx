@@ -148,6 +148,13 @@ export default function JourneyAssemblyLoader() {
 
   const isVisible = hasStarted && !userDismissed;
 
+  useEffect(() => {
+    if (!isVisible) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, [isVisible]);
+
   return (
     <AnimatePresence>
       {isVisible && (

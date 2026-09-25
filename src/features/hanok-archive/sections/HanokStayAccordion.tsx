@@ -72,12 +72,12 @@ const AccordionContainer = styled.div`
   padding: 8px 0;
 
   @media (max-width: 768px) {
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr;
     align-items: stretch;
     justify-content: flex-start;
     overflow-x: hidden;
     overflow-y: visible;
-    scroll-snap-type: none;
     min-height: unset;
     padding: 4px 0 8px;
     gap: 10px;
@@ -326,8 +326,8 @@ const ActionGroup = styled.div`
 `;
 
 const DirectBookingBtn = styled.a`
-  background: ${palette.hwanggeum[500]};
-  color: ${meok[900]};
+  background: ${palette.juhong[500]};
+  color: #ffffff;
   font-size: ${fontSize.xs};
   font-weight: 500;
   padding: 9px 15px;
@@ -341,14 +341,14 @@ const DirectBookingBtn = styled.a`
   transition: transform 0.18s ease, background 0.18s ease;
 
   &:hover {
-    background: ${palette.hwanggeum[400]};
+    background: ${palette.juhong[600]};
     transform: translateY(-1px);
   }
 
   [data-theme='dark'] & {
-    background: ${palette.hwanggeum[500]};
+    background: ${palette.juhong[500]};
     &:hover {
-      background: ${palette.hwanggeum[400]};
+      background: ${palette.juhong[400]};
     }
   }
 

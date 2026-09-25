@@ -93,7 +93,29 @@ export default function MyPage() {
     loadServerData();
   }, []);
 
-  if (isLoading || !user) return null;
+  if (isLoading) return (
+    <div style={{ display: 'flex', justifyContent: 'center', padding: '64px 20px' }}>
+      <style>{`@keyframes mp-shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}.mp-skel{background:linear-gradient(90deg,#f0f0ee 25%,#e5e5e3 50%,#f0f0ee 75%);background-size:200% 100%;animation:mp-shimmer 1.6s ease-in-out infinite;border-radius:8px}[data-theme=dark] .mp-skel{background:linear-gradient(90deg,#2d2a26 25%,#3a3730 50%,#2d2a26 75%);background-size:200% 100%}`}</style>
+      <div style={{ width: '100%', maxWidth: '480px', display: 'flex', flexDirection: 'column', gap: '40px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
+          <div className="mp-skel" style={{ width: 64, height: 64, borderRadius: '50%' }} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', alignItems: 'center' }}>
+            <div className="mp-skel" style={{ width: 120, height: 14 }} />
+            <div className="mp-skel" style={{ width: 200, height: 22 }} />
+          </div>
+          <div className="mp-skel" style={{ width: 80, height: 36, borderRadius: 8 }} />
+        </div>
+        {[180, 120, 200].map((h, i) => (
+          <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div className="mp-skel" style={{ width: 100, height: 18 }} />
+            <div className="mp-skel" style={{ width: '100%', height: h, borderRadius: 12 }} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  if (!user) return null;
 
   const c = theme.colors;
 
