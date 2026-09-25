@@ -10,6 +10,8 @@ jobs:
   Lighthouse:
     name: 성능 감사 실행
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
       - name: 소스코드 체크아웃
         uses: actions/checkout@v4

@@ -15,6 +15,8 @@ jobs:
     name: E2E 테스트 실행
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
       - name: 소스코드 체크아웃
         uses: actions/checkout@v4

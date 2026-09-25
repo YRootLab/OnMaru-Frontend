@@ -55,6 +55,8 @@ jobs:
     if: github.event_name == 'pull_request'
     needs: [ESLint, Prettier]
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
       - name: 품질 검사 결과 댓글
         uses: actions/github-script@v7
