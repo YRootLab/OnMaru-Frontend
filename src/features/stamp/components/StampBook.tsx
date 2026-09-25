@@ -19,13 +19,13 @@ gsap.registerPlugin(useGSAP);
 
 const Root = styled.div`
   width: 100%;
-  padding: clamp(44px, 6vw, 72px) clamp(16px, 4vw, 48px) 80px;
+  padding: clamp(80px, 10vw, 120px) clamp(16px, 4vw, 48px) 80px;
   background: transparent;
   color: inherit;
   visibility: hidden;
 
   @media (max-width: 640px) {
-    padding: 44px 16px 80px;
+    padding: 80px 16px 80px;
   }
 `;
 
