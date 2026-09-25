@@ -18,49 +18,23 @@ import { useAuth } from '@/features/auth/hooks/useAuth';
 gsap.registerPlugin(useGSAP);
 
 const Root = styled.div`
-  position: relative;
   width: 100%;
-  overflow-x: hidden;
-  padding: clamp(80px, 10vw, 120px) clamp(16px, 5vw, 64px) 120px;
+  padding: clamp(80px, 10vw, 120px) clamp(16px, 4vw, 48px) 100px;
   color: inherit;
   visibility: hidden;
 `;
 
-/* 지도는 배경 — 위젯이 아님 */
-const MapBackdrop = styled.div`
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 85%;
-  max-width: 700px;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.055;
-  mask-image: linear-gradient(to bottom, black 25%, transparent 80%);
-  -webkit-mask-image: linear-gradient(to bottom, black 25%, transparent 80%);
-
-  [data-theme='dark'] & {
-    opacity: 0.04;
-  }
-`;
-
-const Content = styled.div`
-  position: relative;
-  z-index: 1;
-`;
-
 const Header = styled.header`
-  margin-bottom: clamp(48px, 7vw, 80px);
+  margin-bottom: clamp(32px, 4vw, 48px);
 `;
 
 const Title = styled.h1`
   font-family: var(--font-traditional);
-  font-size: clamp(60px, 10vw, 140px);
-  font-weight: 900;
-  letter-spacing: -0.045em;
-  line-height: 0.92;
-  margin: 0 0 clamp(20px, 3vw, 36px) 0;
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin: 0 0 8px 0;
   color: ${meok[900]};
 
   [data-theme='dark'] & {
@@ -69,15 +43,15 @@ const Title = styled.h1`
 `;
 
 const SingleStat = styled.div`
-  font-family: var(--font-traditional);
-  font-size: clamp(15px, 2vw, 20px);
+  font-size: 14px;
   color: ${meok[400]};
-  letter-spacing: -0.01em;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 
   strong {
-    color: ${meok[800]};
+    font-family: var(--font-traditional);
+    font-size: 16px;
     font-weight: 700;
+    color: ${meok[800]};
   }
 
   [data-theme='dark'] & {
@@ -98,6 +72,100 @@ const UserLine = styled.div`
   }
 `;
 
+/* ── hero: 지도 + 스탯 ── */
+
+const HeroLayout = styled.div`
+  display: grid;
+  grid-template-columns: minmax(320px, 1.2fr) minmax(220px, 0.8fr);
+  gap: 40px;
+  align-items: center;
+  margin-bottom: 48px;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+`;
+
+const StatsSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+`;
+
+const BigNumber = styled.div`
+  font-family: var(--font-traditional);
+  font-size: clamp(52px, 7vw, 80px);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: ${meok[900]};
+
+  span {
+    font-family: var(--font-traditional-body);
+    font-size: clamp(14px, 1.8vw, 18px);
+    font-weight: 400;
+    letter-spacing: 0;
+    color: ${meok[400]};
+    margin-left: 6px;
+  }
+
+  [data-theme='dark'] & {
+    color: #ffffff;
+    span { color: ${meok[400]}; }
+  }
+`;
+
+const StatCaption = styled.div`
+  font-size: 12px;
+  color: ${meok[500]};
+  margin-top: 2px;
+`;
+
+const ProgressWrap = styled.div``;
+
+const ProgressHead = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+`;
+
+const ProgressLabel = styled.span`
+  font-size: 12px;
+  color: ${meok[500]};
+`;
+
+const ProgressPct = styled.span`
+  font-family: var(--font-traditional);
+  font-size: 13px;
+  font-weight: 700;
+  color: ${meok[700]};
+
+  [data-theme='dark'] & { color: ${meok[300]}; }
+`;
+
+const ProgressTrack = styled.div`
+  width: 100%;
+  height: 2px;
+  background: rgba(25, 31, 40, 0.1);
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.1);
+  }
+`;
+
+const ProgressInk = styled.div`
+  height: 100%;
+  width: 0%;
+  background: ${meok[700]};
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.7);
+  }
+`;
+
 /* ── tabs ── */
 
 const TabRow = styled.div`
@@ -106,7 +174,7 @@ const TabRow = styled.div`
   gap: 2px;
   overflow-x: auto;
   padding-bottom: 14px;
-  margin-bottom: 40px;
+  margin-bottom: 28px;
   border-bottom: 1px solid rgba(25, 31, 40, 0.08);
   scrollbar-width: none;
 
@@ -157,11 +225,11 @@ const TabButton = styled.button<{ $active: boolean }>`
 const StampsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 48px 20px;
+  gap: 40px 16px;
 
   @media (max-width: 640px) {
     grid-template-columns: repeat(2, 1fr);
-    gap: 32px 12px;
+    gap: 28px 12px;
   }
 `;
 
@@ -189,6 +257,7 @@ export default function StampBook() {
 
   const totalStampsCount = STAMP_DEFINITIONS.length;
   const unlockedCount = Object.keys(collectedStamps).length;
+  const progressPercent = Math.round((unlockedCount / totalStampsCount) * 100);
 
   const unlockedRegions = new Set<string>();
   Object.keys(collectedStamps).forEach((sid) => {
@@ -208,98 +277,125 @@ export default function StampBook() {
     if (!containerRef.current) return;
     gsap.set(containerRef.current, { visibility: 'visible' });
 
-    gsap.from('.header-elem', {
-      y: 28,
+    const tl = gsap.timeline();
+    tl.from('.header-elem', {
+      y: 18,
       opacity: 0,
-      duration: 0.7,
-      stagger: 0.1,
+      duration: 0.55,
+      stagger: 0.09,
+      ease: 'power2.out',
+    })
+    .from('.stat-item', {
+      y: 10,
+      opacity: 0,
+      duration: 0.4,
+      stagger: 0.08,
+      ease: 'power2.out',
+    }, '-=0.3')
+    .to('.progress-ink', {
+      width: `${progressPercent}%`,
+      duration: 1.0,
       ease: 'power3.out',
-    });
-  }, { scope: containerRef });
+    }, '-=0.2');
+  }, { scope: containerRef, dependencies: [progressPercent] });
 
   useGSAP(() => {
     if (!containerRef.current) return;
     gsap.fromTo(
       '.stamp-card-elem',
-      { opacity: 0, y: 18 },
-      { opacity: 1, y: 0, duration: 0.4, stagger: 0.03, ease: 'power2.out', clearProps: 'all' },
+      { opacity: 0, y: 12 },
+      { opacity: 1, y: 0, duration: 0.35, stagger: 0.025, ease: 'power2.out', clearProps: 'all' },
     );
   }, { scope: containerRef, dependencies: [activeTab, selectedRegion] });
 
   return (
     <Root ref={containerRef}>
-      <MapBackdrop>
+      <Header>
+        <Title className="header-elem">나의 한옥 수결첩</Title>
+        <SingleStat className="header-elem">
+          <strong>{unlockedCount}</strong> / {totalStampsCount}개
+        </SingleStat>
+        <UserLine className="header-elem">
+          <User size={12} />
+          {user ? (
+            <>
+              <span>{user.displayName} 님</span>
+              <ShieldCheck size={12} color="#059669" />
+            </>
+          ) : (
+            <span>로그인하면 도장을 안전하게 보관할 수 있어요</span>
+          )}
+        </UserLine>
+      </Header>
+
+      <HeroLayout>
         <KoreaMapCanvas
           selectedRegion={selectedRegion}
           onSelectRegion={setSelectedRegion}
           unlockedRegions={unlockedRegions}
         />
-      </MapBackdrop>
 
-      <Content>
-        <Header>
-          <Title className="header-elem">
-            나의<br />한옥 수결첩
-          </Title>
-          <SingleStat className="header-elem">
-            <strong>{unlockedCount}</strong> / {totalStampsCount}개
-          </SingleStat>
-          <UserLine className="header-elem">
-            <User size={12} />
-            {user ? (
-              <>
-                <span>{user.displayName} 님</span>
-                <ShieldCheck size={12} color="#059669" />
-              </>
-            ) : (
-              <span>로그인하면 도장을 안전하게 보관할 수 있어요</span>
-            )}
-          </UserLine>
-        </Header>
+        <StatsSection>
+          <BigNumber className="stat-item">
+            {unlockedCount}
+            <span>/ {totalStampsCount}개</span>
+          </BigNumber>
+          <StatCaption>모은 도장</StatCaption>
 
-        <TabRow className="header-elem">
-          <TabButton $active={activeTab === 'stamps'} onClick={() => setActiveTab('stamps')}>
-            도장 모음
-          </TabButton>
-          <TabButton $active={activeTab === 'leaderboard'} onClick={() => setActiveTab('leaderboard')}>
-            탐방 랭킹
-          </TabButton>
+          <ProgressWrap className="stat-item">
+            <ProgressHead>
+              <ProgressLabel>전국 달성률</ProgressLabel>
+              <ProgressPct>{progressPercent}%</ProgressPct>
+            </ProgressHead>
+            <ProgressTrack>
+              <ProgressInk className="progress-ink" />
+            </ProgressTrack>
+          </ProgressWrap>
+        </StatsSection>
+      </HeroLayout>
 
-          {activeTab === 'stamps' && (
-            <>
-              <Divider />
-              {REGIONS.map((reg) => (
-                <TabButton
-                  key={reg.id}
-                  $active={selectedRegion === reg.id}
-                  onClick={() => setSelectedRegion(reg.id)}
-                >
-                  {reg.label}
-                </TabButton>
-              ))}
-            </>
-          )}
-        </TabRow>
+      <TabRow className="header-elem">
+        <TabButton $active={activeTab === 'stamps'} onClick={() => setActiveTab('stamps')}>
+          도장 모음
+        </TabButton>
+        <TabButton $active={activeTab === 'leaderboard'} onClick={() => setActiveTab('leaderboard')}>
+          탐방 랭킹
+        </TabButton>
 
-        {activeTab === 'stamps' ? (
-          <StampsGrid>
-            {filteredStamps.map((stamp) => (
-              <div key={stamp.id} className="stamp-card-elem">
-                <StampCard
-                  stamp={stamp}
-                  collected={collectedStamps[stamp.id]}
-                  onClick={() => openStampModal(stamp)}
-                />
-              </div>
+        {activeTab === 'stamps' && (
+          <>
+            <Divider />
+            {REGIONS.map((reg) => (
+              <TabButton
+                key={reg.id}
+                $active={selectedRegion === reg.id}
+                onClick={() => setSelectedRegion(reg.id)}
+              >
+                {reg.label}
+              </TabButton>
             ))}
-          </StampsGrid>
-        ) : (
-          <div className="stamp-card-elem">
-            <LeaderboardHeader>탐방 랭킹</LeaderboardHeader>
-            <StampLeaderboard />
-          </div>
+          </>
         )}
-      </Content>
+      </TabRow>
+
+      {activeTab === 'stamps' ? (
+        <StampsGrid>
+          {filteredStamps.map((stamp) => (
+            <div key={stamp.id} className="stamp-card-elem">
+              <StampCard
+                stamp={stamp}
+                collected={collectedStamps[stamp.id]}
+                onClick={() => openStampModal(stamp)}
+              />
+            </div>
+          ))}
+        </StampsGrid>
+      ) : (
+        <div className="stamp-card-elem">
+          <LeaderboardHeader>탐방 랭킹</LeaderboardHeader>
+          <StampLeaderboard />
+        </div>
+      )}
 
       <StampSealAnimation stamp={activeModalStamp} onClose={closeStampModal} />
     </Root>
