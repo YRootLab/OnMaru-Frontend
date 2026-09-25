@@ -52,15 +52,15 @@ const CONGESTION_CONFIG = {
     light: {
       badgeBg: surface.light.card,
       badgeColor: meok[900],
-      accentColor: lightPalette.juhong[500],
-      tagBg: lightPalette.juhong[500],
+      accentColor: lightPalette.hwanggeum[500],
+      tagBg: lightPalette.hwanggeum[500],
       tagColor: surface.light.card,
     },
     dark: {
       badgeBg: surface.dark.surface,
       badgeColor: meok[100],
-      accentColor: darkPalette.juhong[400],
-      tagBg: darkPalette.juhong[500],
+      accentColor: darkPalette.hwanggeum[400],
+      tagBg: darkPalette.hwanggeum[500],
       tagColor: meok[100],
     },
   },
@@ -198,7 +198,7 @@ const styles = css`
   }
 
   .om-surge-pill-delta.is-busy {
-    color: ${lightPalette.juhong[500]};
+    color: ${lightPalette.hwanggeum[500]};
   }
 
   .om-surge-pill-delta.is-quiet {
@@ -210,7 +210,7 @@ const styles = css`
   }
 
   [data-theme='dark'] .om-surge-pill-delta.is-busy {
-    color: ${darkPalette.juhong[400]};
+    color: ${darkPalette.hwanggeum[400]};
   }
 
   [data-theme='dark'] .om-surge-pill-delta.is-quiet {
@@ -382,7 +382,7 @@ const styles = css`
   }
 
   .om-now-delta.is-busy {
-    color: ${lightPalette.juhong[500]};
+    color: ${lightPalette.hwanggeum[500]};
   }
 
   .om-now-delta.is-quiet {
@@ -394,7 +394,7 @@ const styles = css`
   }
 
   [data-theme='dark'] .om-now-delta.is-busy {
-    color: ${darkPalette.juhong[400]};
+    color: ${darkPalette.hwanggeum[400]};
   }
 
   [data-theme='dark'] .om-now-delta.is-quiet {
@@ -509,7 +509,7 @@ const styles = css`
     border-radius: 8px;
     background: rgba(120, 120, 120, 0.08);
     font-size: ${fontSize.micro};
-    color: ${lightPalette.juhong[500]};
+    color: ${lightPalette.hwanggeum[500]};
     font-weight: 500;
     text-align: center;
   }

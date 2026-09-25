@@ -72,7 +72,7 @@ const ItemButton = styled.button<{ $isSelected: boolean }>`
       transform: scale(1.3);
     }
     h4 {
-      color: ${lightPalette.cheongrok[700]};
+      color: ${lightPalette.kobalt[700]};
     }
   }
 
@@ -115,7 +115,7 @@ const ThumbnailBox = styled.div<{ $isSelected?: boolean; $src?: string | null }>
   align-items: center;
   justify-content: center;
   box-shadow: ${({ $isSelected }) =>
-    $isSelected ? `0 0 0 2px ${lightPalette.cheongrok[500]}` : 'none'};
+    $isSelected ? `0 0 0 2px ${lightPalette.kobalt[500]}` : 'none'};
   transition: box-shadow 0.2s ease;
 
   img {
@@ -210,7 +210,6 @@ const TraditionalBadge = styled.span`
   letter-spacing: -0.01em;
   color: #854d0e;
   background: #fef08a;
-  border: 1px solid #facc15;
   box-shadow: 0 1px 4px rgba(245, 158, 11, 0.2);
   white-space: nowrap;
   flex-shrink: 0;
@@ -218,7 +217,6 @@ const TraditionalBadge = styled.span`
   [data-theme='dark'] & {
     color: #fef08a;
     background: rgba(234, 179, 8, 0.28);
-    border: 1px solid #facc15;
     box-shadow: 0 0 10px rgba(250, 204, 21, 0.45);
   }
 `;

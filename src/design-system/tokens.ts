@@ -41,8 +41,8 @@ export const palette = {
   },
 
   kobalt: {
-    50: '#EEF2F8', 100: '#D6E0ED', 200: '#AFC3DD', 400: '#6E8FBC',
-    500: '#4A6FA0', 700: '#35517C', 900: '#1C2F4A',
+    50: '#EBF1FF', 100: '#CCE0FF', 200: '#99C0FF', 400: '#5C9AFF',
+    500: '#2B7FFF', 700: '#1058CC', 900: '#003A80',
   },
 
   jaha: {

@@ -1,0 +1,68 @@
+name: 자동 머지
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - master
+    types:
+      - labeled
+      - opened
+      - synchronize
+      - ready_for_review
+
+jobs:
+  Auto-Merge-Dependencies:
+    name: Dependabot PR 자동 머지
+    if: |
+      github.event.pull_request.user.login == 'dependabot[bot]' ||
+      contains(github.event.pull_request.labels.*.name, 'auto-merge')
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: write
+
+    steps:
+      - name: 소스코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: 자동 머지 활성화
+        if: github.event.pull_request.draft == false
+        run: |
+          gh pr merge "$PR_NUMBER" --auto --squash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        continue-on-error: true
+
+  Auto-Label-Release:
+    name: 릴리즈 준비 완료 PR 라벨 추가
+    if: |
+      github.base_ref == 'master' &&
+      contains(github.event.pull_request.labels.*.name, 'ready-for-release')
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: release 라벨 부착
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['release']
+            })
+
+      - name: 릴리즈 상태 안내 댓글 등록
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🚀 릴리즈 준비가 완료되었습니다. 이 PR은 다음 버전에 포함됩니다.'
+            })

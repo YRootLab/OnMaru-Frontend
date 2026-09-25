@@ -437,7 +437,6 @@ const styles = css`
     line-height: 1.2;
     background: #FEF08A;
     color: #854D0E;
-    border: 1px solid #FACC15;
     flex-shrink: 0;
   }
 
@@ -477,7 +476,6 @@ const styles = css`
   [data-theme='dark'] .om-pin--traditional .om-pin-trad-chip {
     background: #FEF08A !important;
     color: #854D0E !important;
-    border: 1px solid #FACC15 !important;
     font-weight: 800 !important;
   }
 
@@ -710,8 +708,8 @@ const styles = css`
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    background: ${lightPalette.cheongrok[50]};
-    color: ${lightPalette.cheongrok[700]};
+    background: ${lightPalette.kobalt[50]};
+    color: ${lightPalette.kobalt[700]};
     flex-shrink: 0;
   }
 
@@ -730,7 +728,7 @@ const styles = css`
     height: 20px;
     padding: 0 6px;
     border-radius: 9999px;
-    background: ${lightPalette.cheongrok[500]};
+    background: ${lightPalette.kobalt[500]};
     color: #ffffff;
     font-size: ${fontSize.xs};
     font-weight: 700;

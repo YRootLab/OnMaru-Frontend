@@ -112,11 +112,12 @@ export class PlaceService {
       const latDelta = opts.radius / 111_000;
       const lngDelta = opts.radius / (111_000 * Math.cos((opts.lat * Math.PI) / 180));
 
+      const swLat = opts.lat - latDelta;
+      const swLng = opts.lng - lngDelta;
+      const neLat = opts.lat + latDelta;
+      const neLng = opts.lng + lngDelta;
       const res = await apiGet<BackendMapPlacesResponse>('/map/places', {
-        swLat: opts.lat - latDelta,
-        swLng: opts.lng - lngDelta,
-        neLat: opts.lat + latDelta,
-        neLng: opts.lng + lngDelta,
+        bbox: `${swLng},${swLat},${neLng},${neLat}`,
       });
 
       if (!res.items || res.items.length === 0) return null;

@@ -1,0 +1,262 @@
+name: Slack 알림
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types:
+      - opened
+      - closed
+  issues:
+    types:
+      - opened
+  release:
+    types:
+      - published
+
+jobs:
+  Slack-알림:
+    name: Slack 알림 전송
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'push' ||
+      github.event.pull_request.action == 'opened' ||
+      github.event.action == 'opened'
+
+    steps:
+      - name: 푸시 알림
+        if: github.event_name == 'push'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const commits = context.payload.commits || [];
+            if (commits.length === 0) return;
+
+            const message = {
+              text: '🚀 master에 새 커밋이 푸시되었습니다',
+              blocks: [
+                {
+                  type: 'header',
+                  text: {
+                    type: 'plain_text',
+                    text: '📤 Master 푸시'
+                  }
+                },
+                {
+                  type: 'section',
+                  fields: [
+                    {
+                      type: 'mrkdwn',
+                      text: `*작성자:*\n${context.payload.pusher.name}`
+                    },
+                    {
+                      type: 'mrkdwn',
+                      text: `*브랜치:*\n${context.ref.split('/').pop()}`
+                    }
+                  ]
+                },
+                {
+                  type: 'section',
+                  text: {
+                    type: 'mrkdwn',
+                    text: `*커밋:*\n${commits.map(c => `• ${c.message.split('\n')[0]}`).join('\n')}`
+                  }
+                },
+                {
+                  type: 'actions',
+                  elements: [
+                    {
+                      type: 'button',
+                      text: {
+                        type: 'plain_text',
+                        text: 'GitHub에서 보기'
+                      },
+                      url: context.payload.repository.html_url
+                    }
+                  ]
+                }
+              ]
+            };
+
+            console.log('전송 예정:', JSON.stringify(message, null, 2));
+
+      - name: PR 열림 알림
+        if: github.event_name == 'pull_request' && github.event.action == 'opened'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+
+            const message = {
+              text: `🔍 새 PR: ${pr.title}`,
+              blocks: [
+                {
+                  type: 'header',
+                  text: {
+                    type: 'plain_text',
+                    text: '📋 새 Pull Request'
+                  }
+                },
+                {
+                  type: 'section',
+                  fields: [
+                    {
+                      type: 'mrkdwn',
+                      text: `*PR:*\n#${pr.number}`
+                    },
+                    {
+                      type: 'mrkdwn',
+                      text: `*작성자:*\n${pr.user.login}`
+                    }
+                  ]
+                },
+                {
+                  type: 'section',
+                  text: {
+                    type: 'mrkdwn',
+                    text: `*제목:*\n${pr.title}`
+                  }
+                },
+                {
+                  type: 'actions',
+                  elements: [
+                    {
+                      type: 'button',
+                      text: {
+                        type: 'plain_text',
+                        text: 'PR 리뷰하기'
+                      },
+                      url: pr.html_url
+                    }
+                  ]
+                }
+              ]
+            };
+
+            console.log('전송 예정:', JSON.stringify(message, null, 2));
+
+      - name: 이슈 열림 알림
+        if: github.event_name == 'issues' && github.event.action == 'opened'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+
+            const message = {
+              text: `📌 새 이슈: ${issue.title}`,
+              blocks: [
+                {
+                  type: 'header',
+                  text: {
+                    type: 'plain_text',
+                    text: '🚨 새 이슈'
+                  }
+                },
+                {
+                  type: 'section',
+                  fields: [
+                    {
+                      type: 'mrkdwn',
+                      text: `*이슈:*\n#${issue.number}`
+                    },
+                    {
+                      type: 'mrkdwn',
+                      text: `*작성자:*\n${issue.user.login}`
+                    }
+                  ]
+                },
+                {
+                  type: 'section',
+                  text: {
+                    type: 'mrkdwn',
+                    text: `*제목:*\n${issue.title}`
+                  }
+                },
+                {
+                  type: 'actions',
+                  elements: [
+                    {
+                      type: 'button',
+                      text: {
+                        type: 'plain_text',
+                        text: '이슈 보기'
+                      },
+                      url: issue.html_url
+                    }
+                  ]
+                }
+              ]
+            };
+
+            console.log('전송 예정:', JSON.stringify(message, null, 2));
+
+      - name: 릴리즈 게시 알림
+        if: github.event_name == 'release' && github.event.action == 'published'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const release = context.payload.release;
+
+            const message = {
+              text: `🎉 새 릴리즈: ${release.tag_name}`,
+              blocks: [
+                {
+                  type: 'header',
+                  text: {
+                    type: 'plain_text',
+                    text: '🚀 새 릴리즈 게시됨'
+                  }
+                },
+                {
+                  type: 'section',
+                  fields: [
+                    {
+                      type: 'mrkdwn',
+                      text: `*버전:*\n${release.tag_name}`
+                    },
+                    {
+                      type: 'mrkdwn',
+                      text: `*작성자:*\n${release.author.login}`
+                    }
+                  ]
+                },
+                {
+                  type: 'section',
+                  text: {
+                    type: 'mrkdwn',
+                    text: `*릴리즈 노트:*\n${release.body.substring(0, 200)}...`
+                  }
+                },
+                {
+                  type: 'actions',
+                  elements: [
+                    {
+                      type: 'button',
+                      text: {
+                        type: 'plain_text',
+                        text: '다운로드'
+                      },
+                      url: release.html_url
+                    }
+                  ]
+                }
+              ]
+            };
+
+            console.log('전송 예정:', JSON.stringify(message, null, 2));
+
+  활동-로그:
+    name: 활동 기록 (Slack 대안)
+    runs-on: ubuntu-latest
+    steps:
+      - name: 이벤트 로그
+        run: |
+          echo "이벤트: ${{ github.event_name }}"
+          echo "액션: ${{ github.event.action }}"
+          echo "저장소: ${{ github.repository }}"
+          echo "---"
+          echo "💡 Slack 알림 활성화 방법:"
+          echo "1. Slack Webhook URL 생성"
+          echo "2. GitHub Secret에 추가: SLACK_WEBHOOK_URL"
+          echo "3. slackapi/slack-github-action 액션 사용"

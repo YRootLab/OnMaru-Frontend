@@ -1,4 +1,4 @@
-name: Vercel Direct Deployment
+name: 배포
 
 on:
   push:
@@ -6,113 +6,110 @@ on:
       - master
       - develop
       - 'release/**'
-    tags:
-      - 'release/**'
-      - 'v*'
-  workflow_dispatch:
-
-env:
-  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  pull_request:
+    branches:
+      - develop
 
 jobs:
+  Build:
+    name: 프로젝트 빌드
+    runs-on: ubuntu-latest
+    steps:
+      - name: 소스코드 체크아웃
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 의존성 패키지 설치
+        run: npm ci
+
+      - name: 빌드 실행
+        run: npm run build
+
+      - name: 빌드 아티팩트 업로드
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: .next/
+
+  Deploy-Preview:
+    name: 프리뷰 배포 (Pull Request)
+    if: github.event_name == 'pull_request'
+    needs: Build
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: PR 댓글 등록
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '📦 빌드가 성공적으로 완료되었습니다!\n\n배포를 진행하려면 GitHub Secrets에 VERCEL_TOKEN을 등록하세요.'
+            })
+
   Deploy-Production:
-    name: Deploy to Production (master / v* tags)
-    if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v')
+    name: 프로덕션 배포
+    if: github.ref == 'refs/heads/master'
+    needs: Build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
-      - name: Checkout Code
+      - name: 소스코드 체크아웃
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Setup Node.js
+
+      - name: Node.js 설정
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
 
-      - name: Install Vercel CLI
+      - name: Vercel 토큰 설정 확인
+        id: check-token
+        run: |
+          if [ -z "${{ secrets.VERCEL_TOKEN }}" ]; then
+            echo "available=false" >> $GITHUB_OUTPUT
+            echo "⚠️ VERCEL_TOKEN이 설정되지 않아 Vercel 배포를 건너뜁니다."
+          else
+            echo "available=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Vercel CLI 설치
+        if: steps.check-token.outputs.available == 'true'
         run: npm install --global vercel@latest
 
-      - name: Validate Vercel deployment configuration
+      - name: Vercel 프로덕션 배포
+        if: steps.check-token.outputs.available == 'true'
         env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
-          test -n "$VERCEL_TOKEN" || { echo 'VERCEL_TOKEN is empty'; exit 1; }
-          test -n "$VERCEL_ORG_ID" || { echo 'VERCEL_ORG_ID is empty'; exit 1; }
-          test -n "$VERCEL_PROJECT_ID" || { echo 'VERCEL_PROJECT_ID is empty'; exit 1; }
-          echo "Vercel org: ${VERCEL_ORG_ID:0:5}***"
-          echo "Vercel project: ${VERCEL_PROJECT_ID:0:5}***"
+          npm ci
+          vercel build --prod --token=$VERCEL_TOKEN
+          vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
 
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=production --scope="$VERCEL_ORG_ID" --project="$VERCEL_PROJECT_ID" --token=${{ secrets.VERCEL_TOKEN }}
-
-
-
-
-      - name: Clean Vercel metadata
-        run: rm -rf .vercel
-
-      - name: Prepare Vercel production metadata
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ENVIRONMENT: production
-        run: |
-          node scripts/prepare-vercel-metadata.mjs
-
-
-
-
-      - name: Build Project Artifacts
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Deploy Project Artifacts to Vercel (Production)
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
-
-  Deploy-Preview-or-Release:
-    name: Deploy to Preview / Staging (develop / release/*)
-    if: github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/release/') || startsWith(github.ref, 'refs/tags/release/')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - name: 배포 생략 안내 댓글 등록
+        if: steps.check-token.outputs.available == 'false'
+        uses: actions/github-script@v7
         with:
-          fetch-depth: 0
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
-
-      - name: Validate Vercel deployment configuration
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: |
-          test -n "$VERCEL_TOKEN" || { echo 'VERCEL_TOKEN is empty'; exit 1; }
-          test -n "$VERCEL_ORG_ID" || { echo 'VERCEL_ORG_ID is empty'; exit 1; }
-          test -n "$VERCEL_PROJECT_ID" || { echo 'VERCEL_PROJECT_ID is empty'; exit 1; }
-          echo "Vercel org: ${VERCEL_ORG_ID:0:5}***"
-          echo "Vercel project: ${VERCEL_PROJECT_ID:0:5}***"
-
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=preview --scope="$VERCEL_ORG_ID" --project="$VERCEL_PROJECT_ID" --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Prepare Vercel preview metadata
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ENVIRONMENT: preview
-          VERCEL_GIT_BRANCH: ${{ github.ref_type == 'branch' && github.ref_name || '' }}
-        run: |
-          node scripts/prepare-vercel-metadata.mjs
-
-
-
-
-      - name: Build Project Artifacts
-        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Deploy Project Artifacts to Vercel (Preview / Release)
-        run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '⚠️ Vercel 배포 건너뜀: GitHub Secrets에 VERCEL_TOKEN이 설정되지 않았습니다.'
+            })

@@ -1,0 +1,113 @@
+name: PR Validation
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - reopened
+      - synchronize
+
+jobs:
+  Validate-PR:
+    name: Validate PR Requirements
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Validate PR Title
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = context.payload.pull_request.title;
+            const body = context.payload.pull_request.body || '';
+
+            const validPrefixes = ['feat', 'fix', 'refactor', 'chore', 'docs', 'test', 'perf', 'style', 'ci', 'build'];
+            const hasValidPrefix = validPrefixes.some(prefix => title.toLowerCase().startsWith(prefix + ':') || title.toLowerCase().startsWith(prefix + '('));
+
+            if (!hasValidPrefix) {
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: `❌ **유효하지 않은 PR 제목**\n\nPR 제목은 다음 중 하나로 시작해야 합니다:\n- \`feat:\` 새 기능\n- \`fix:\` 버그 수정\n- \`refactor:\` 코드 리팩토링\n- \`chore:\` 유지보수\n- \`docs:\` 문서\n- \`test:\` 테스트\n- \`perf:\` 성능\n- \`style:\` 스타일\n- \`ci:\` CI/CD\n- \`build:\` 빌드\n\n**현재 제목:** \`${title}\`\n\n예시: \`feat: 새로운 기능 추가\``
+              });
+              core.setFailed('PR 제목 형식이 올바르지 않습니다');
+            } else {
+              console.log('✅ PR 제목이 유효합니다');
+            }
+
+      - name: Validate PR Description
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.pull_request.body || '';
+            const isDraft = context.payload.pull_request.draft;
+
+            if (!isDraft && body.trim().length < 20) {
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: `⚠️ **자세한 설명을 추가해주세요**\n\nPR 설명이 너무 짧습니다. 다음을 포함해주세요:\n- 어떤 변경을 했는지\n- 왜 이 변경을 했는지\n- 변경 사항을 테스트하는 방법\n- 관련된 이슈 (closes #123)`
+              });
+              core.setFailed('PR 설명이 너무 짧습니다');
+            } else {
+              console.log('✅ PR 설명이 양호합니다');
+            }
+
+      - name: Check for Breaking Changes
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = context.payload.pull_request.title.toLowerCase();
+            const body = context.payload.pull_request.body || '';
+
+            if (title.includes('breaking') || title.includes('💥') || body.includes('BREAKING')) {
+              github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: ['breaking-change']
+              });
+
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: `🚨 **하위 호환성 깨짐 감지**\n\n이 PR에 Breaking Change가 포함된 것으로 보입니다. 다음을 확인해주세요:\n- ✅ 마이그레이션 가이드 제공\n- ✅ Deprecation 경고 추가\n- ✅ 버전 메이저 업그레이드 (X.0.0)\n- ✅ 변경 이력 업데이트`
+              });
+            }
+
+      - name: Require Minimum Files Changed
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+
+            if (files.length === 0) {
+              core.setFailed('PR은 최소 1개 이상의 파일을 수정해야 합니다');
+            } else {
+              console.log(`✅ PR이 ${files.length}개 파일을 수정합니다`);
+            }
+
+      - name: Comment Validation Status
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `✅ **PR 검증 통과**\n\n- 제목 형식: ✓\n- 설명: ✓\n- 파일 수정: ✓`
+            })

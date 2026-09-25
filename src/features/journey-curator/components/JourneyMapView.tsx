@@ -119,7 +119,7 @@ export default function JourneyMapView({ board, focusedRef, onFocus }: JourneyMa
 
   useEffect(() => {
     if (window.kakao?.maps) build();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [board]);
 
   useEffect(() => {

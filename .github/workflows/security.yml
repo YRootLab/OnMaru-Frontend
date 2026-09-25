@@ -1,0 +1,80 @@
+name: 보안 검사
+
+on:
+  push:
+    branches:
+      - develop
+      - master
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+  pull_request:
+    branches:
+      - develop
+      - master
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+  schedule:
+    - cron: '0 0 * * 0' # 매주 일요일 자정
+
+jobs:
+  의존성-검사:
+    name: 의존성 검사
+    runs-on: ubuntu-latest
+    steps:
+      - name: 소스코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 의존성 설치
+        run: npm ci
+
+      - name: npm audit 실행
+        run: npm audit || true
+        continue-on-error: true
+
+      - name: 취약점 목록 추출
+        run: npm audit --json > audit-report.json || true
+        continue-on-error: true
+
+      - name: 감사 리포트 업로드
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-audit-report
+          path: audit-report.json
+
+  보안-스캔:
+    name: 의존성 보안 스캔
+    runs-on: ubuntu-latest
+    steps:
+      - name: 소스코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Snyk 보안 스캔
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        continue-on-error: true
+
+  보고서:
+    name: 보안 결과 댓글 등록
+    if: github.event_name == 'pull_request'
+    needs: [의존성-검사]
+    runs-on: ubuntu-latest
+    steps:
+      - name: 보안 상태 댓글
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🔒 보안 검사가 완료되었습니다. 아티팩트에서 감사 리포트를 확인하세요.'
+            })

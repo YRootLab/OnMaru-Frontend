@@ -1,0 +1,90 @@
+name: 성능 회귀 감지
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+  pull_request:
+    branches:
+      - master
+      - develop
+
+jobs:
+  빌드-크기-검사:
+    name: 빌드 크기 회귀 검사
+    runs-on: ubuntu-latest
+    steps:
+      - name: 소스코드 체크아웃
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 의존성 설치
+        run: npm ci
+
+      - name: 앱 빌드
+        run: npm run build
+
+      - name: 빌드 크기 계산
+        id: build-size
+        run: |
+          TOTAL_SIZE=$(du -sh .next | cut -f1)
+          JS_SIZE=$(find .next -name "*.js" -type f | xargs du -c | tail -1 | cut -f1)
+
+          echo "total=$TOTAL_SIZE" >> $GITHUB_OUTPUT
+          echo "javascript=$JS_SIZE" >> $GITHUB_OUTPUT
+
+          echo "빌드 크기 분석:"
+          echo "총 크기: $TOTAL_SIZE"
+          echo "JavaScript: $JS_SIZE"
+
+      - name: 성능 결과 댓글 등록
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const buildSize = '${{ steps.build-size.outputs.total }}';
+            const jsSize = '${{ steps.build-size.outputs.javascript }}';
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `📈 빌드 크기 분석:\n\n- 총 빌드: **${buildSize}**\n- JavaScript: **${jsSize}**\n\n⚠️ 예상치 못한 크기 증가 여부를 확인하세요.`
+            })
+
+  메모리-검사:
+    name: 메모리 사용량 검사
+    runs-on: ubuntu-latest
+    steps:
+      - name: 소스코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 의존성 설치
+        run: npm ci --prefer-offline
+
+      - name: 빌드 중 메모리 모니터링
+        run: |
+          echo "빌드 중 메모리 사용량:"
+          (time npm run build) 2>&1 | tee build-metrics.log
+
+          free -h >> build-metrics.log
+
+      - name: 빌드 지표 업로드
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-metrics
+          path: build-metrics.log

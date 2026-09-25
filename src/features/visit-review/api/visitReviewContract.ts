@@ -10,6 +10,9 @@ export type VisitReview = {
   lat: number;
   lng: number;
   text: string;
+  mood?: '북적' | '한적';
+  score?: 1 | 2 | 3 | 4 | 5;
+  tags?: string[];
   likeCount: number;
   likedByMe: boolean;
   mine: boolean;

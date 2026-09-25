@@ -399,7 +399,7 @@ function StoryRow({ story, index }: StoryRowProps) {
   return (
     <StoryArticle onClick={playStory} $isCurrent={isCurrent}>
       <ThumbnailSlot $isCurrent={isCurrent} $src={imageSrc}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
+        { }
         <img
           src={imageSrc}
           alt={story.title}

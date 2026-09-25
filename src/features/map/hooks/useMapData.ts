@@ -133,20 +133,6 @@ export function useMapData() {
         });
     }
 
-    if (mode !== 'warmth') {
-      fetch(`/api/map/warmth?${warmthParams}`, { signal: controller.signal })
-        .then(async (res) => {
-          const json = await res.json().catch(() => ({}));
-          if (Array.isArray(json.warmths) && json.warmths.length > 0) {
-            const merged = loadWarmth(json.warmths);
-            setWarmths(merged);
-          }
-        })
-        .catch((err) => {
-          if (err instanceof DOMException && err.name === 'AbortError') return;
-          log.warn('온기 API 동기화 폴백 유지', err);
-        });
-    }
 
 
     const cached = clientPlaceCache.get(cacheKey);

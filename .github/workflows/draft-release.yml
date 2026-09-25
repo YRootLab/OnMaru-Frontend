@@ -1,0 +1,111 @@
+name: 드래프트 릴리즈 노트 생성
+
+on:
+  pull_request:
+    branches:
+      - master
+    types:
+      - closed
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '릴리즈 버전 (선택)'
+        required: false
+
+jobs:
+  드래프트-릴리즈:
+    name: 릴리즈 노트 자동 생성
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+
+    steps:
+      - name: 소스코드 체크아웃
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 이전 태그 조회
+        id: prev-tag
+        run: |
+          PREV_TAG=$(git tag --sort=-version:refname | head -1)
+          echo "tag=${PREV_TAG}" >> $GITHUB_OUTPUT
+          echo "이전 태그: ${PREV_TAG}"
+
+      - name: 릴리즈 노트 생성
+        id: release-notes
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const base = '${{ steps.prev-tag.outputs.tag }}' || 'HEAD~10';
+            const { data: compareData } = await github.rest.repos.compareCommits({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              base,
+              head: 'master'
+            });
+
+            const bugs = [], features = [], refactors = [], chores = [];
+
+            compareData.commits.forEach(commit => {
+              const msg = commit.commit.message;
+              const line = `- ${msg.split('\n')[0]}`;
+              if (/fix:|🐛/.test(msg))      bugs.push(line);
+              else if (/feat:|✨/.test(msg)) features.push(line);
+              else if (/refactor:|♻️/.test(msg)) refactors.push(line);
+              else                           chores.push(line);
+            });
+
+            let notes = '## 🚀 릴리즈 노트\n\n';
+            if (features.length)  notes += '### ✨ 새 기능\n'    + features.join('\n')       + '\n\n';
+            if (bugs.length)      notes += '### 🐛 버그 수정\n'  + bugs.join('\n')           + '\n\n';
+            if (refactors.length) notes += '### ♻️ 리팩토링\n'   + refactors.join('\n')      + '\n\n';
+            if (chores.length)    notes += '### 🔧 기타 변경\n'  + chores.slice(0, 5).join('\n') + '\n\n';
+
+            core.setOutput('notes', notes);
+            console.log(notes);
+
+      - name: 드래프트 릴리즈 생성
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const version = new Date().toISOString().split('T')[0];
+            const releaseNotes = `${{ steps.release-notes.outputs.notes }}`;
+
+            const { data: release } = await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: `v${version}`,
+              name: `릴리즈 ${version}`,
+              body: releaseNotes,
+              draft: true,
+              prerelease: false
+            });
+
+            console.log(`✅ 드래프트 릴리즈 생성 완료: ${release.html_url}`);
+
+            const prNumber = context.payload.pull_request?.number;
+            if (prNumber) {
+              await github.rest.issues.createComment({
+                issue_number: prNumber,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: `🎉 **드래프트 릴리즈가 생성되었습니다**\n\n[드래프트 확인하기](${release.html_url})\n\n검토 후 게시(Publish)해주세요!`
+              });
+            }
+
+      - name: 릴리즈 생성 실패 알림
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request?.number;
+            if (!prNumber) return;
+            await github.rest.issues.createComment({
+              issue_number: prNumber,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `⚠️ 드래프트 릴리즈 생성에 실패했습니다. 수동으로 생성해주세요.`
+            });

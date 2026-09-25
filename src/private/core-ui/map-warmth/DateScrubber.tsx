@@ -126,7 +126,7 @@ const PlayButton = styled.button<{ $playing: boolean }>`
   }
 
   &:focus-visible {
-    outline: 2px solid ${lightPalette.juhong[500]};
+    outline: 2px solid ${lightPalette.hwanggeum[500]};
     outline-offset: 2px;
   }
 
@@ -168,9 +168,9 @@ const Verdict = styled.p<{ $tone: 'quiet' | 'busy' | 'flat' }>`
   white-space: nowrap;
   color: ${({ $tone }) =>
     $tone === 'quiet'
-      ? lightPalette.cheongrok[500]
+      ? lightPalette.hwanggeum[400]
       : $tone === 'busy'
-        ? lightPalette.juhong[500]
+        ? lightPalette.hwanggeum[500]
         : meok[500]};
 `;
 
@@ -183,7 +183,7 @@ const Track = styled.div`
   touch-action: none;
 
   &:focus-visible {
-    outline: 2px solid ${lightPalette.juhong[500]};
+    outline: 2px solid ${lightPalette.hwanggeum[500]};
     outline-offset: 4px;
     border-radius: 4px;
   }
