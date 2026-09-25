@@ -132,6 +132,9 @@ export const ringShadow = {
     buttonHoverGlow: HOVER_LIGHT,
 
     focusJuhong: '0 0 0 1px rgba(255, 85, 0, 0.35), 0 0 0 4px rgba(255, 85, 0, 0.08), 0 4px 12px rgba(255, 85, 0, 0.08)',
+
+    mapPanel: '0 12px 32px -8px rgba(0, 0, 0, 0.6), 0 4px 12px -4px rgba(0, 0, 0, 0.4)',
+    mapChip:  '0 4px 14px rgba(0, 0, 0, 0.4)',
   },
   dark: {
     card: REST_DARK,
@@ -141,6 +144,9 @@ export const ringShadow = {
     buttonHover: HOVER_DARK,
     buttonHoverGlow: HOVER_DARK,
     focusJuhong: '0 0 0 1px rgba(255, 110, 30, 0.45), 0 0 0 4px rgba(255, 110, 30, 0.15), 0 4px 16px rgba(255, 110, 30, 0.15)',
+
+    mapPanel: '0 12px 32px -8px rgba(0, 0, 0, 0.72), 0 4px 12px -4px rgba(0, 0, 0, 0.55)',
+    mapChip:  '0 4px 14px rgba(0, 0, 0, 0.55)',
   },
 } as const;
 
