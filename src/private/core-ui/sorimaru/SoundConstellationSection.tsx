@@ -281,6 +281,7 @@ const AsidePanel = styled.aside`
   height: 480px;
   flex-direction: column;
   border-radius: 1rem;
+  overflow: hidden;
   background-color: rgba(255, 255, 255, 0.85);
   border: none;
   box-shadow: none;
@@ -346,11 +347,11 @@ const TopGradientFade = styled.div`
   right: 0;
   top: 0;
   z-index: 20;
-  height: 17px;
-  background: linear-gradient(to bottom, #ffffff, rgba(255, 255, 255, 0.8), transparent);
+  height: 28px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 1) 40%, rgba(255, 255, 255, 0));
 
   [data-theme='dark'] & {
-    background: linear-gradient(to bottom, rgba(36, 33, 29, 0.95), rgba(36, 33, 29, 0.8), transparent);
+    background: linear-gradient(to bottom, rgba(36, 33, 29, 1) 40%, rgba(36, 33, 29, 0));
   }
 `;
 
@@ -361,11 +362,11 @@ const BottomGradientFade = styled.div`
   right: 0;
   bottom: 0;
   z-index: 20;
-  height: 17px;
-  background: linear-gradient(to top, #ffffff, rgba(255, 255, 255, 0.8), transparent);
+  height: 28px;
+  background: linear-gradient(to top, rgba(255, 255, 255, 1) 40%, rgba(255, 255, 255, 0));
 
   [data-theme='dark'] & {
-    background: linear-gradient(to top, rgba(36, 33, 29, 0.95), rgba(36, 33, 29, 0.8), transparent);
+    background: linear-gradient(to top, rgba(36, 33, 29, 1) 40%, rgba(36, 33, 29, 0));
   }
 `;
 
@@ -373,7 +374,7 @@ const ScrollContent = styled.div`
   margin-right: -0.25rem;
   height: 100%;
   overflow-y: auto;
-  padding: 17px 10px 17px 2px;
+  padding: 28px 10px 28px 2px;
   scrollbar-width: none;
 
   &::-webkit-scrollbar {

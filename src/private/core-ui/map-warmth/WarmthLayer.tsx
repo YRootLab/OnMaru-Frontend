@@ -198,7 +198,7 @@ const styles = css`
   }
 
   .om-surge-pill-delta.is-busy {
-    color: ${lightPalette.hwanggeum[500]};
+    color: ${lightPalette.hwanggeum[900]};
   }
 
   .om-surge-pill-delta.is-quiet {
@@ -382,7 +382,7 @@ const styles = css`
   }
 
   .om-now-delta.is-busy {
-    color: ${lightPalette.hwanggeum[500]};
+    color: ${lightPalette.hwanggeum[900]};
   }
 
   .om-now-delta.is-quiet {
@@ -509,7 +509,7 @@ const styles = css`
     border-radius: 8px;
     background: rgba(120, 120, 120, 0.08);
     font-size: ${fontSize.micro};
-    color: ${lightPalette.hwanggeum[500]};
+    color: ${lightPalette.hwanggeum[900]};
     font-weight: 500;
     text-align: center;
   }

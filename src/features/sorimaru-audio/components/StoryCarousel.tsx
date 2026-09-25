@@ -496,15 +496,15 @@ const EdgeFadeLeft = styled.div`
   bottom: 0;
   left: 0;
   z-index: 10;
-  width: 3rem;
-  background: linear-gradient(to right, #ffffff, rgba(255, 255, 255, 0.95), transparent);
+  width: 2.5rem;
+  background: linear-gradient(to right, rgba(255, 255, 255, 1) 40%, rgba(255, 255, 255, 0));
 
   [data-theme='dark'] & {
-    background: linear-gradient(to right, ${surface.dark.app}, rgba(28, 26, 23, 0.95), transparent);
+    background: linear-gradient(to right, ${surface.dark.app} 40%, rgba(28, 26, 23, 0));
   }
 
   @media (min-width: 640px) {
-    width: 4rem;
+    width: 3rem;
   }
 `;
 
@@ -515,15 +515,15 @@ const EdgeFadeRight = styled.div`
   bottom: 0;
   right: 0;
   z-index: 10;
-  width: 1.5rem;
-  background: linear-gradient(to left, #ffffff, rgba(255, 255, 255, 0.6), transparent);
+  width: 2.5rem;
+  background: linear-gradient(to left, rgba(255, 255, 255, 1) 40%, rgba(255, 255, 255, 0));
 
   [data-theme='dark'] & {
-    background: linear-gradient(to left, ${surface.dark.app}, rgba(28, 26, 23, 0.6), transparent);
+    background: linear-gradient(to left, ${surface.dark.app} 40%, rgba(28, 26, 23, 0));
   }
 
   @media (min-width: 640px) {
-    width: 2.25rem;
+    width: 3rem;
   }
 `;
 

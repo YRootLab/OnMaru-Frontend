@@ -43,7 +43,7 @@ const FaceButton = styled.button<{ $selected: boolean; $readonly: boolean }>`
 
   background: transparent;
   cursor: ${({ $readonly }) => ($readonly ? 'default' : 'pointer')};
-  color: ${({ $selected }) => ($selected ? lightPalette.hwanggeum[700] : meok[500])};
+  color: ${({ $selected }) => ($selected ? lightPalette.hwanggeum[900] : meok[500])};
   opacity: ${({ $selected }) => ($selected ? 1 : 0.25)};
   transform: ${({ $selected }) => ($selected ? 'scale(1.1)' : 'scale(1)')};
   transition: all 0.18s ease;
