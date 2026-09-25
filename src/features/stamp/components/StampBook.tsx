@@ -2,67 +2,48 @@
 
 import { useState, useRef } from 'react';
 import styled from '@emotion/styled';
-import { Award, MapPin, Trophy, Sparkles, User, ShieldCheck } from 'lucide-react';
+import { Trophy, MapPin, ShieldCheck, User } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
-import { meok } from '@/design-system/tokens';
+import { meok, ringShadow } from '@/design-system/tokens';
 import { useStampStore } from '../hooks/useStampStore';
 import { STAMP_DEFINITIONS, REGIONS } from '../data/stampDefs';
-import type { RegionCode, StampDef } from '../types';
+import type { RegionCode } from '../types';
 import KoreaMapCanvas from './KoreaMapCanvas';
 import StampCard from './StampCard';
 import StampLeaderboard from './StampLeaderboard';
 import StampSealAnimation from './StampSealAnimation';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 
-
 gsap.registerPlugin(useGSAP);
-
-
 
 const Root = styled.div`
   width: 100%;
-  padding: 16px clamp(16px, 4vw, 48px) 80px;
+  padding: clamp(44px, 6vw, 72px) clamp(16px, 4vw, 48px) 80px;
   background: transparent;
   color: inherit;
   visibility: hidden;
 
   @media (max-width: 640px) {
-    padding: 12px 16px 80px;
+    padding: 44px 16px 80px;
   }
 `;
 
 const Header = styled.header`
-  margin-bottom: 28px;
-`;
+  margin-bottom: 40px;
 
-const Badge = styled.div`
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 12px;
-  border-radius: 9999px;
-
-  background: rgba(249, 115, 22, 0.12);
-  color: #ea580c;
-  font-family: var(--font-traditional);
-  font-size: 12.5px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  margin-bottom: 8px;
-
-  [data-theme='dark'] & {
-    color: #fdba74;
-    background: rgba(249, 115, 22, 0.2);
+  @media (max-width: 640px) {
+    margin-bottom: 28px;
   }
 `;
 
 const Title = styled.h1`
   font-family: var(--font-traditional);
-  font-size: 30px;
+  font-size: clamp(28px, 4vw, 42px);
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.025em;
   margin: 0 0 8px 0;
+  line-height: 1.1;
   color: ${meok[900]};
 
   [data-theme='dark'] & {
@@ -71,10 +52,10 @@ const Title = styled.h1`
 `;
 
 const Subtitle = styled.p`
-  font-family: var(--font-traditional-body);
+  font-family: var(--font-traditional-body]);
   font-size: 15px;
   color: ${meok[500]};
-  margin: 0;
+  margin: 0 0 14px 0;
   line-height: 1.6;
   letter-spacing: -0.01em;
 
@@ -83,206 +64,202 @@ const Subtitle = styled.p`
   }
 `;
 
-const UserSyncBanner = styled.div`
+const UserLine = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-top: 14px;
-  padding: 10px 14px;
-  border-radius: 12px;
-  background: rgba(25, 31, 40, 0.04);
-  font-size: 12px;
+  gap: 5px;
+  font-size: 12.5px;
+  color: ${meok[400]};
 
   [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.05);
+    color: ${meok[500]};
   }
 `;
 
-const UserSyncLeft = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: ${meok[700]};
+/* ── hero ── */
 
-  [data-theme='dark'] & {
-    color: ${meok[400]};
-  }
-`;
-
-const HeroGrid = styled.div`
+const HeroLayout = styled.div`
   display: grid;
-  grid-template-columns: minmax(420px, 1.25fr) minmax(300px, 0.95fr);
-  gap: 36px;
+  grid-template-columns: minmax(380px, 1.2fr) minmax(240px, 0.8fr);
+  gap: 48px;
   align-items: center;
-  padding: 32px;
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(25, 31, 40, 0.06);
-  margin-bottom: 36px;
-
-  [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-  }
+  margin-bottom: 48px;
 
   @media (max-width: 960px) {
     grid-template-columns: 1fr;
-    padding: 20px;
-    gap: 24px;
-  }
-
-  @media (max-width: 640px) {
-    padding: 16px;
-    gap: 16px;
-    border-radius: 18px;
-    margin-bottom: 24px;
+    gap: 28px;
+    margin-bottom: 32px;
   }
 `;
 
-const StatsContainer = styled.div`
+const StatsSection = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  justify-content: center;
+  gap: 28px;
 `;
 
-const StatRow = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-`;
+const StatItem = styled.div``;
 
-const StatBox = styled.div`
-  padding: 14px;
-  border-radius: 14px;
-  background: rgba(25, 31, 40, 0.03);
-
-  [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.04);
-  }
-`;
-
-const StatLabel = styled.div`
-  font-size: 11.5px;
-  color: ${meok[500]};
-  margin-bottom: 4px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-`;
-
-const StatValue = styled.div`
-  font-size: 22px;
+const StatNumber = styled.div`
+  font-family: var(--font-traditional);
+  font-size: 52px;
   font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.04em;
   color: ${meok[900]};
+
+  span {
+    font-family: var(--font-traditional-body);
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: 0;
+    color: ${meok[400]};
+    margin-left: 6px;
+  }
 
   [data-theme='dark'] & {
     color: #ffffff;
+    span { color: ${meok[400]}; }
   }
 
-  span {
-    font-size: 13px;
-    font-weight: 500;
-    color: ${meok[500]};
-    margin-left: 2px;
+  @media (max-width: 640px) {
+    font-size: 40px;
   }
 `;
 
-const ProgressBarTrack = styled.div`
+const StatCaption = styled.div`
+  font-size: 12px;
+  color: ${meok[500]};
+  margin-top: 3px;
+  letter-spacing: -0.01em;
+`;
+
+const ProgressWrap = styled.div``;
+
+const ProgressHead = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+`;
+
+const ProgressLabel = styled.span`
+  font-size: 12px;
+  color: ${meok[500]};
+`;
+
+const ProgressPct = styled.span`
+  font-family: var(--font-traditional);
+  font-size: 14px;
+  font-weight: 700;
+  color: ${meok[700]};
+
+  [data-theme='dark'] & {
+    color: ${meok[300]};
+  }
+`;
+
+const ProgressTrack = styled.div`
   width: 100%;
-  height: 6px;
-  border-radius: 9999px;
-  background: rgba(25, 31, 40, 0.08);
-  margin-top: 10px;
-  overflow: hidden;
+  height: 2px;
+  background: rgba(25, 31, 40, 0.1);
 
   [data-theme='dark'] & {
     background: rgba(255, 255, 255, 0.1);
   }
 `;
 
-const ProgressBarFill = styled.div`
+const ProgressInk = styled.div`
   height: 100%;
   width: 0%;
-  border-radius: 9999px;
-
-  background: linear-gradient(90deg, #f59e0b, #ea580c);
-
-`;
-
-const GuideNote = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  border-radius: 12px;
-
-  background: rgba(245, 158, 11, 0.08);
-  color: #b45309;
-  font-family: var(--font-traditional-body);
-  font-size: 13px;
-  line-height: 1.5;
+  background: ${meok[700]};
 
   [data-theme='dark'] & {
-    background: rgba(251, 191, 36, 0.1);
-    color: #fcd34d;
+    background: rgba(255, 255, 255, 0.7);
   }
 `;
+
+/* ── tabs ── */
 
 const TabRow = styled.div`
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 2px;
   overflow-x: auto;
-  padding-bottom: 12px;
-  margin-bottom: 20px;
+  padding-bottom: 14px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid rgba(25, 31, 40, 0.08);
   scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
+
+  &::-webkit-scrollbar { display: none; }
+
+  [data-theme='dark'] & {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+  }
+`;
+
+const Divider = styled.span`
+  width: 1px;
+  height: 16px;
+  background: rgba(25, 31, 40, 0.1);
+  margin: 0 6px;
+  flex-shrink: 0;
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.1);
   }
 `;
 
 const TabButton = styled.button<{ $active: boolean }>`
-  height: 34px;
-  padding: 0 14px;
+  height: 30px;
+  padding: 0 10px;
   border: none;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: ${({ $active }) => ($active ? 700 : 500)};
+  background: transparent;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: ${({ $active }) => ($active ? 700 : 400)};
   cursor: pointer;
   white-space: nowrap;
-  background: ${({ $active }) =>
-    $active ? 'rgba(25, 31, 40, 0.08)' : 'transparent'};
-  color: ${({ $active }) => ($active ? meok[900] : meok[500])};
-  transition: background 0.15s ease, color 0.15s ease;
+  color: ${({ $active }) => ($active ? meok[900] : meok[400])};
+  transition: color 0.12s ease;
 
   [data-theme='dark'] & {
-    background: ${({ $active }) =>
-      $active ? 'rgba(255, 255, 255, 0.15)' : 'transparent'};
     color: ${({ $active }) => ($active ? '#ffffff' : meok[400])};
   }
 
   &:hover {
-    color: ${meok[900]};
-    [data-theme='dark'] & {
-      color: #ffffff;
-    }
+    color: ${meok[700]};
+    [data-theme='dark'] & { color: ${meok[200]}; }
   }
 `;
+
+/* ── stamp grid ── */
 
 const StampsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px 12px;
 
   @media (max-width: 480px) {
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+    gap: 6px 8px;
   }
 `;
 
+/* ── leaderboard trophy header ── */
 
+const LeaderboardHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-family: var(--font-traditional);
+  font-size: 18px;
+  font-weight: 700;
+  color: ${meok[900]};
+
+  [data-theme='dark'] & { color: #ffffff; }
+`;
 
 export default function StampBook() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -303,9 +280,7 @@ export default function StampBook() {
   const unlockedRegions = new Set<string>();
   Object.keys(collectedStamps).forEach((sid) => {
     const def = STAMP_DEFINITIONS.find((d) => d.id === sid);
-    if (def && def.region !== 'all') {
-      unlockedRegions.add(def.region);
-    }
+    if (def && def.region !== 'all') unlockedRegions.add(def.region);
   });
 
   const filteredStamps = STAMP_DEFINITIONS.filter((stamp) => {
@@ -316,140 +291,109 @@ export default function StampBook() {
     return stamp.region === selectedRegion || stamp.region === 'all';
   });
 
-
   useGSAP(() => {
     if (!containerRef.current) return;
-
-
     gsap.set(containerRef.current, { visibility: 'visible' });
 
     const tl = gsap.timeline();
 
-
     tl.from('.header-elem', {
-      y: 20,
+      y: 18,
       opacity: 0,
-      duration: 0.6,
-      stagger: 0.1,
+      duration: 0.55,
+      stagger: 0.09,
       ease: 'power2.out',
     })
-
-    .from('.stat-box', {
-      scale: 0.9,
-      opacity: 0,
+    .from('.stat-item', {
       y: 10,
+      opacity: 0,
       duration: 0.4,
-      stagger: 0.1,
-      ease: 'back.out(1.5)',
-    }, '-=0.2')
-
-    .to('.progress-fill', {
+      stagger: 0.08,
+      ease: 'power2.out',
+    }, '-=0.3')
+    .to('.progress-ink', {
       width: `${progressPercent}%`,
-      duration: 1.2,
+      duration: 1.0,
       ease: 'power3.out',
     }, '-=0.2');
-
   }, { scope: containerRef, dependencies: [progressPercent] });
-
 
   useGSAP(() => {
     if (!containerRef.current) return;
-
-    gsap.fromTo('.stamp-card-elem',
-      { opacity: 0, y: 15 },
-      { opacity: 1, y: 0, duration: 0.4, stagger: 0.03, ease: 'power2.out', clearProps: 'all' }
+    gsap.fromTo(
+      '.stamp-card-elem',
+      { opacity: 0, y: 12 },
+      { opacity: 1, y: 0, duration: 0.35, stagger: 0.025, ease: 'power2.out', clearProps: 'all' },
     );
   }, { scope: containerRef, dependencies: [activeTab, selectedRegion] });
 
   return (
     <Root ref={containerRef}>
       <Header>
-        <Badge className="header-elem">
-          <Award size={13} />
-          <span>한옥 수결첩</span>
-        </Badge>
-        <Title className="header-elem">나의 한옥 방문 도장첩</Title>
+        <Title className="header-elem">나의 한옥 수결첩</Title>
         <Subtitle className="header-elem">
           전국 한옥을 여행하며 모은 방문 도장이에요.
         </Subtitle>
-
-        <UserSyncBanner className="header-elem">
-          <UserSyncLeft>
-            <User size={14} />
-            <span>{user ? `${user.displayName} 님과 안전하게 동기화됨` : '로그인하면 도장을 안전하게 보관할 수 있어요'}</span>
-          </UserSyncLeft>
-          {user && (
-            <ShieldCheck size={16} color="#059669" />
+        <UserLine className="header-elem">
+          <User size={13} />
+          {user ? (
+            <>
+              <span>{user.displayName} 님과 동기화됨</span>
+              <ShieldCheck size={13} color="#059669" />
+            </>
+          ) : (
+            <span>로그인하면 도장을 안전하게 보관할 수 있어요</span>
           )}
-        </UserSyncBanner>
+        </UserLine>
       </Header>
 
-      <HeroGrid>
+      <HeroLayout>
         <KoreaMapCanvas
           selectedRegion={selectedRegion}
           onSelectRegion={setSelectedRegion}
           unlockedRegions={unlockedRegions}
         />
 
-        <StatsContainer>
-          <StatRow>
-            <StatBox className="stat-box">
-              <StatLabel>
-                <Award size={12} />
-                <span>모은 도장</span>
-              </StatLabel>
-              <StatValue>
-                {unlockedCount} <span>/ {totalStampsCount}</span>
-              </StatValue>
-            </StatBox>
+        <StatsSection>
+          <StatItem className="stat-item">
+            <StatNumber>
+              {unlockedCount}
+              <span>/ {totalStampsCount}개</span>
+            </StatNumber>
+            <StatCaption>모은 도장</StatCaption>
+          </StatItem>
 
-            <StatBox className="stat-box">
-              <StatLabel>
-                <MapPin size={12} />
-                <span>방문한 지역</span>
-              </StatLabel>
-              <StatValue>
-                {unlockedRegions.size} <span>/ 7도</span>
-              </StatValue>
-            </StatBox>
-          </StatRow>
+          <StatItem className="stat-item">
+            <StatNumber>
+              {unlockedRegions.size}
+              <span>/ 7도</span>
+            </StatNumber>
+            <StatCaption>방문한 지역</StatCaption>
+          </StatItem>
 
-          <StatBox className="stat-box">
-            <StatLabel>
-              <Sparkles size={12} />
-              <span>전국 달성률</span>
-            </StatLabel>
-            <StatValue>{progressPercent}%</StatValue>
-            <ProgressBarTrack>
-              <ProgressBarFill className="progress-fill" />
-            </ProgressBarTrack>
-          </StatBox>
+          <ProgressWrap className="stat-item">
+            <ProgressHead>
+              <ProgressLabel>전국 달성률</ProgressLabel>
+              <ProgressPct>{progressPercent}%</ProgressPct>
+            </ProgressHead>
+            <ProgressTrack>
+              <ProgressInk className="progress-ink" />
+            </ProgressTrack>
+          </ProgressWrap>
+        </StatsSection>
+      </HeroLayout>
 
-          <GuideNote className="stat-box">
-            <MapPin size={15} style={{ flexShrink: 0 }} />
-            <span>지도의 권역을 누르면 해당 지역의 도장만 모아볼 수 있어요.</span>
-          </GuideNote>
-        </StatsContainer>
-      </HeroGrid>
-
-      {}
       <TabRow className="header-elem">
-        <TabButton
-          $active={activeTab === 'stamps'}
-          onClick={() => setActiveTab('stamps')}
-        >
+        <TabButton $active={activeTab === 'stamps'} onClick={() => setActiveTab('stamps')}>
           도장 모음
         </TabButton>
-        <TabButton
-          $active={activeTab === 'leaderboard'}
-          onClick={() => setActiveTab('leaderboard')}
-        >
+        <TabButton $active={activeTab === 'leaderboard'} onClick={() => setActiveTab('leaderboard')}>
           탐방 랭킹
         </TabButton>
 
         {activeTab === 'stamps' && (
           <>
-            <span style={{ width: '1px', height: '18px', background: 'rgba(25, 31, 40, 0.1)', margin: '0 4px' }} />
+            <Divider />
             {REGIONS.map((reg) => (
               <TabButton
                 key={reg.id}
@@ -463,7 +407,6 @@ export default function StampBook() {
         )}
       </TabRow>
 
-      {}
       {activeTab === 'stamps' ? (
         <StampsGrid>
           {filteredStamps.map((stamp) => (
@@ -478,15 +421,15 @@ export default function StampBook() {
         </StampsGrid>
       ) : (
         <div className="stamp-card-elem">
+          <LeaderboardHeader>
+            <Trophy size={18} />
+            탐방 랭킹
+          </LeaderboardHeader>
           <StampLeaderboard />
         </div>
       )}
 
-      {}
-      <StampSealAnimation
-        stamp={activeModalStamp}
-        onClose={closeStampModal}
-      />
+      <StampSealAnimation stamp={activeModalStamp} onClose={closeStampModal} />
     </Root>
   );
 }
