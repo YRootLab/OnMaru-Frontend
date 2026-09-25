@@ -211,37 +211,30 @@ export function createSorimaruNetworkClient({
         }
       }
 
-      if (!backendRequester) {
-        return { items: [], totalCount: 0, source: 'public' };
+      // nearby / themes: 백엔드 경유
+      if (backendRequester) {
+        const backendPath = request.type === 'nearby' ? 'odii/stories/nearby' : 'odii/stories/themes';
+        try {
+          const page = await backendRequester(backendPath, request.params);
+          if (!isBackendStoryPage(page)) return { items: [], totalCount: 0, source: 'public' };
+          const items = (page.items ?? []).map((summary) =>
+            toBackendTransportItem(summary, { story: summary }),
+          );
+          console.info('[Sorimaru Network] backend response', {
+            type: request.type,
+            durationMs: Math.round(performance.now() - startedAt),
+            summary: summarizeResponse({ items, totalCount: items.length }),
+          });
+          return { items, totalCount: items.length, hasMore: page.hasMore, source: 'backend' };
+        } catch (error) {
+          console.warn('[Sorimaru Network] backend error', {
+            type: request.type,
+            error: error instanceof Error ? error.message : error,
+          });
+        }
       }
 
-      const url = resolveEndpoint(request);
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-
-      try {
-        const response = await fetcher(url, { cache: 'no-store', signal: controller.signal });
-        if (!response.ok) throw new Error(`HTTP error ${response.status}`);
-
-        const payload: unknown = await response.json();
-        const decoded = decodeResponse(payload, request);
-        console.info('[Sorimaru Network] response', {
-          type: request.type,
-          status: response.status,
-          durationMs: Math.round(performance.now() - startedAt),
-          summary: summarizeResponse(decoded),
-        });
-        return decoded;
-      } catch (error) {
-        console.warn('[Sorimaru Network] error', {
-          type: request.type,
-          durationMs: Math.round(performance.now() - startedAt),
-          error: error instanceof Error ? error.message : error,
-        });
-        throw error instanceof Error ? error : new Error('Sorimaru network request failed');
-      } finally {
-        clearTimeout(timeoutId);
-      }
+      return { items: [], totalCount: 0, source: 'public' };
     },
   };
 }
