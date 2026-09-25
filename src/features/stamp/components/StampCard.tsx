@@ -168,6 +168,7 @@ export default function StampCard({ stamp, collected, onClick }: StampCardProps)
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const seal = sealRef.current;
     if (!seal || !isUnlocked) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const rect = seal.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -194,10 +195,10 @@ export default function StampCard({ stamp, collected, onClick }: StampCardProps)
       rotationX: 0,
       rotationY: 0,
       y: 0,
-      boxShadow: `inset 0 4px 12px rgba(0,0,0,0.28), ${ringShadow.light.card}`,
       duration: 0.5,
       ease: 'back.out(1.2)',
       overwrite: 'auto',
+      onComplete: () => gsap.set(seal, { clearProps: 'boxShadow' }),
     });
   };
 
