@@ -3,7 +3,7 @@ import { toReview } from './warmthRepo';
 import { visitReviewsToWarmths } from './visitReviewWarmthAdapter';
 
 describe('visitReviewsToWarmths', () => {
-  it('keeps the WarmthFeed model so existing region and category filters continue to work', () => {
+  it('maps a public review that does not expose moderation status', () => {
     const [warmth] = visitReviewsToWarmths([
       {
         id: 'review-1',
@@ -16,7 +16,6 @@ describe('visitReviewsToWarmths', () => {
         likedByMe: false,
         mine: true,
         createdAt: new Date().toISOString(),
-        status: 'PUBLISHED',
       },
     ]);
 

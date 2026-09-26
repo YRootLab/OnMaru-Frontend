@@ -4,6 +4,7 @@ import {
   isPlayableStory,
   matchesKeyword,
   calculateDistanceKm,
+  formatDistance,
   mapStoryItem,
   CATEGORY_KEYWORD_MAP,
 } from '@/features/sorimaru-audio/domain/sorimaruStoryRules';
@@ -158,21 +159,20 @@ export const createSorimaruApiAdapter = (network: SorimaruNetworkClient = sorima
     const requestKey = `nearby:${mapX}:${mapY}:${radius}`;
 
     return getCachedRequest(requestKey, async () => {
-      try {
-        const response = await network.request({
-          type: 'nearby',
-          params: { xCoord: mapX, yCoord: mapY, radius: String(radius) },
-        });
-        return response.items
-          .map((item, index) => mapStoryItem(item, index, '내 주변', { mapX, mapY }))
-          .sort((left, right) => (
-            (calculateDistanceKm(mapX, mapY, left.mapX, left.mapY) ?? Number.POSITIVE_INFINITY)
-            - (calculateDistanceKm(mapX, mapY, right.mapX, right.mapY) ?? Number.POSITIVE_INFINITY)
-          ));
-      } catch (error) {
-        console.warn('[Sorimaru Nearby Warning] 위치 기반 조회 실패:', error);
-        throw error instanceof Error ? error : new Error('Sorimaru nearby request failed');
-      }
+      const stories = await this.getStoryList();
+      return stories
+        .map((story) => ({
+          story,
+          distanceKm: calculateDistanceKm(mapX, mapY, story.mapX, story.mapY),
+        }))
+        .filter((entry): entry is { story: SorimaruStoryItem; distanceKm: number } => (
+          entry.distanceKm !== null && entry.distanceKm * 1000 <= radius
+        ))
+        .sort((left, right) => left.distanceKm - right.distanceKm)
+        .map(({ story, distanceKm }) => ({
+          ...story,
+          distance: formatDistance(distanceKm),
+        }));
     });
   }
   };

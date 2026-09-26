@@ -77,15 +77,18 @@ describe('Sorimaru API adapter', () => {
     expect(result.totalCount).toBe(1);
   });
 
-  it('위치 기반 API를 별도 타입으로 호출하고 거리순 결과를 반환한다', async () => {
-    const network = makeNetwork({ items: [storyItem], totalCount: 1 });
+  it('목록 계약에서 반경 안의 이야기만 골라 거리순으로 반환한다', async () => {
+    const network = makeNetwork({
+      items: [storyItem, { ...storyItem, stid: 'far-story', mapX: '129.0756', mapY: '35.1796' }],
+      totalCount: 2,
+    });
     const api = createSorimaruApiAdapter(network);
 
     const result = await api.getNearbyStories('126.9780', '37.5665', 3000);
 
     expect(network.request).toHaveBeenCalledWith({
-      type: 'nearby',
-      params: { xCoord: '126.9780', yCoord: '37.5665', radius: '3000' },
+      type: 'stories',
+      params: { numOfRows: '30', pageNo: '1' },
     });
     expect(result).toHaveLength(1);
     expect(result[0].distance).toBe('100m');
