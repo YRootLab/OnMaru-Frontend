@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import type { StampBookResponse, StampCatalogResponse } from './models';
-import { mergeStampCatalog, resolveStampBookViewState, stampErrorMessage } from './stampRules';
+import {
+  mergeStampCatalog,
+  resolveAwardStamps,
+  resolveStampBookViewState,
+  stampErrorMessage,
+} from './stampRules';
 
 const catalog: StampCatalogResponse = {
   schemaVersion: '1.3',
@@ -108,6 +113,30 @@ describe('stamp domain rules', () => {
       requiredRegionCount: 5,
       completionRate: 0,
     });
+  });
+
+  it('resolves every awarded code in response order from the server catalog', () => {
+    const awards = resolveAwardStamps(catalog, [
+      {
+        code: 'stamp_national_master',
+        name: '팔도 유람 팔도어보',
+        sealText: '八道',
+        rarity: 'LEGENDARY',
+        collectedAt: '2026-09-27T02:00:00Z',
+      },
+      {
+        code: 'stamp_bukchon',
+        name: '북촌 한옥마을 인장',
+        sealText: '北村',
+        rarity: 'COMMON',
+        collectedAt: '2026-09-27T02:00:00Z',
+      },
+    ]);
+
+    expect(awards.map((stamp) => stamp.id)).toEqual([
+      'stamp_national_master',
+      'stamp_bukchon',
+    ]);
   });
 
   it('selects Korean guidance by stable error code and appends a request id', () => {

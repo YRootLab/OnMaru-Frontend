@@ -1,5 +1,6 @@
 import type {
   ApiStampRarity,
+  CheckInResponse,
   CollectedStamp,
   RegionCode,
   StampBookItem,
@@ -7,6 +8,7 @@ import type {
   StampCatalogResponse,
   StampCollectionView,
   StampDefinition,
+  StampDef,
   StampErrorLike,
   StampRarity,
   StampSummary,
@@ -116,6 +118,17 @@ export function mergeStampCatalog(
       .sort((a, b) => a.sortOrder - b.sortOrder)
       .map((stamp) => toStampView(stamp, personal.get(stamp.code))),
   };
+}
+
+export function resolveAwardStamps(
+  catalog: StampCatalogResponse,
+  awards: CheckInResponse['newAwards'],
+): StampDef[] {
+  const definitions = new Map(catalog.stamps.map((stamp) => [stamp.code, stamp]));
+  return awards.flatMap((award) => {
+    const definition = definitions.get(award.code);
+    return definition ? [toStampView(definition)] : [];
+  });
 }
 
 export function stampErrorMessage(error: StampErrorLike): string {

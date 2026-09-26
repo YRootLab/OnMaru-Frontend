@@ -330,6 +330,11 @@ export const StampActionBtn = styled.button<{ $isVisited: boolean }>`
   font-size: ${fontSize.micro};
   font-weight: 700;
   cursor: pointer;
+
+  &:disabled {
+    cursor: wait;
+    opacity: 0.6;
+  }
   white-space: nowrap;
   background: ${({ $isVisited }) => ($isVisited ? 'rgba(5, 150, 105, 0.15)' : '#b91c1c')};
   color: ${({ $isVisited }) => ($isVisited ? '#047857' : '#ffffff')};
@@ -813,4 +818,3 @@ export const CinematicStartButton = styled.button`
     background: ${darkPalette.jangmi[500]};
   }
 `;
-

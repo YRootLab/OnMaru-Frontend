@@ -209,14 +209,14 @@ expect(storage.removeLegacyStampData).toHaveBeenCalledOnce();
 - Consumes: `runHanokCheckIn`, auth state, session refresh, award queue.
 - Produces: `checkIn(placeId)`, `checkingIn`, code-based feedback, and successful visit memory.
 
-- [ ] **Step 1: Write failing orchestration tests for guest login intent, duplicate success, ordered multi-award queue, geolocation failures, and server error copy**
-- [ ] **Step 2: Run the test and verify missing hook/controller behavior**
-- [ ] **Step 3: Implement the hook around an exported testable controller, with no coordinate values passed to logs or toast strings**
-- [ ] **Step 4: Replace `PlaceDetail` local classification award logic with authenticated server check-in, disable the button while pending, and show login/retry/success feedback through Sonner**
-- [ ] **Step 5: Keep the button hidden after `NOT_FOUND` for the selected place during the current session and reset that state when the place changes**
-- [ ] **Step 6: Use the shared award queue in `MapPage` so all `newAwards` display sequentially**
-- [ ] **Step 7: Run focused tests, `npx tsc --noEmit`, and `npm run lint`; verify pass**
-- [ ] **Step 8: Commit with `git commit -m "feat: connect location verified stamp check-in"`**
+- [x] **Step 1: Write failing orchestration tests for guest login intent, duplicate success, ordered multi-award queue, geolocation failures, and server error copy**
+- [x] **Step 2: Run the test and verify missing hook/controller behavior**
+- [x] **Step 3: Implement the hook around an exported testable controller, with no coordinate values passed to logs or toast strings**
+- [x] **Step 4: Replace `PlaceDetail` local classification award logic with authenticated server check-in, disable the button while pending, and show login/retry/success feedback through Sonner**
+- [x] **Step 5: Keep the button hidden after `NOT_FOUND` for the selected place during the current session and reset that state when the place changes**
+- [x] **Step 6: Use the shared award queue in `MapPage` so all `newAwards` display sequentially**
+- [x] **Step 7: Run focused tests, `npx tsc --noEmit`, and `npm run lint`; verify pass**
+- [x] **Step 8: Commit with `git commit -m "feat: connect location verified stamp check-in"`**
 
 ### Task 6: Anonymous Leaderboard and Participation
 
