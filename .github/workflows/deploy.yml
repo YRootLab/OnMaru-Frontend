@@ -10,6 +10,9 @@ on:
     branches:
       - develop
 
+env:
+  NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
+
 jobs:
   Build:
     name: 프로젝트 빌드

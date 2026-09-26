@@ -6,6 +6,9 @@ on:
       - develop
       - master
 
+env:
+  NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
+
 jobs:
   Lighthouse:
     name: 성능 감사 실행
