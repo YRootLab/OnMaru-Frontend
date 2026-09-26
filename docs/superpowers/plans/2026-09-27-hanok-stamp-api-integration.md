@@ -109,7 +109,7 @@ export function mergeStampCatalog(
 - Consumes: Task 1 response and error types.
 - Produces: `StampRepository`, `PositionProvider`, `runHanokCheckIn`, `setStampRankingParticipation`, `createStampHttpRepository`, `browserPositionProvider`.
 
-- [ ] **Step 1: Write failing repository contract tests for all six paths and options**
+- [x] **Step 1: Write failing repository contract tests for all six paths and options**
 
 ```ts
 expect(calls).toContainEqual({ path: '/stamps', options: { method: 'GET', cache: 'no-store' } });
@@ -120,10 +120,10 @@ expect(calls).toContainEqual({
 });
 ```
 
-- [ ] **Step 2: Run the repository test and verify missing implementation failure**
-- [ ] **Step 3: Implement `createStampHttpRepository(request = apiRequest)` with catalog, book, check-in, leaderboard, personal ranking, and participation methods**
-- [ ] **Step 4: Run the repository test and verify it passes**
-- [ ] **Step 5: Write failing check-in tests proving one UUID/body across one 503 retry, one CSRF retry, and no retry for conflict**
+- [x] **Step 2: Run the repository test and verify missing implementation failure**
+- [x] **Step 3: Implement `createStampHttpRepository(request = apiRequest)` with catalog, book, check-in, leaderboard, personal ranking, and participation methods**
+- [x] **Step 4: Run the repository test and verify it passes**
+- [x] **Step 5: Write failing check-in tests proving one UUID/body across one 503 retry, one CSRF retry, and no retry for conflict**
 
 ```ts
 await runHanokCheckIn('place-1', ports);
@@ -131,10 +131,10 @@ expect(repository.checkIn).toHaveBeenCalledTimes(2);
 expect(repository.checkIn.mock.calls[0]).toEqual(repository.checkIn.mock.calls[1]);
 ```
 
-- [ ] **Step 6: Implement the bounded retry loop and browser geolocation adapter with `enableHighAccuracy: true`, `timeout: 10_000`, and `maximumAge: 0`**
-- [ ] **Step 7: Write and pass ranking tests for CSRF refresh once, `RATE_LIMITED` metadata preservation, and unrestricted withdrawal calls**
-- [ ] **Step 8: Run all Task 2 tests and `npx tsc --noEmit`; verify they pass**
-- [ ] **Step 9: Commit with `git commit -m "feat: add stamp api infrastructure"`**
+- [x] **Step 6: Implement the bounded retry loop and browser geolocation adapter with `enableHighAccuracy: true`, `timeout: 10_000`, and `maximumAge: 0`**
+- [x] **Step 7: Write and pass ranking tests for CSRF refresh once, `RATE_LIMITED` metadata preservation, and unrestricted withdrawal calls**
+- [x] **Step 8: Run all Task 2 tests and `npx tsc --noEmit`; verify they pass**
+- [x] **Step 9: Commit with `git commit -m "feat: add stamp api infrastructure"`**
 
 ### Task 3: Non-Persisted Stamp Session
 
