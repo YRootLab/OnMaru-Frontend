@@ -53,7 +53,7 @@
 **Interfaces:**
 - Produces: `StampCatalogResponse`, `StampBookResponse`, `CheckInResponse`, `StampLeaderboardResponse`, `StampRankingStatusResponse`, `StampSummary`, `StampView`, `CollectedStamp`, `mergeStampCatalog`, `stampErrorMessage`.
 
-- [ ] **Step 1: Write failing mapping and error-copy tests**
+- [x] **Step 1: Write failing mapping and error-copy tests**
 
 ```ts
 it('uses personal collected state while preserving server summary', () => {
@@ -70,8 +70,8 @@ it('maps stable server and browser codes to Korean copy', () => {
 });
 ```
 
-- [ ] **Step 2: Run `npm test -- src/features/stamp/domain/stampRules.test.ts` and verify missing-module failure**
-- [ ] **Step 3: Implement exact API 1.3 types, uppercase-to-lowercase rarity conversion, region-group mapping, catalog/book merge, and code-based Korean messages**
+- [x] **Step 2: Run `npm test -- src/features/stamp/domain/stampRules.test.ts` and verify missing-module failure**
+- [x] **Step 3: Implement exact API 1.3 types, uppercase-to-lowercase rarity conversion, region-group mapping, catalog/book merge, and code-based Korean messages**
 
 ```ts
 export function toStampRarity(value: ApiStampRarity): StampRarity {
@@ -90,8 +90,8 @@ export function mergeStampCatalog(
 }
 ```
 
-- [ ] **Step 4: Run the focused test and `npx tsc --noEmit`; verify both pass**
-- [ ] **Step 5: Commit with `git commit -m "feat: add stamp api domain contracts"`**
+- [x] **Step 4: Run the focused test and `npx tsc --noEmit`; verify both pass**
+- [x] **Step 5: Commit with `git commit -m "feat: add stamp api domain contracts"`**
 
 ### Task 2: HTTP, Location, and Retry Adapters
 
