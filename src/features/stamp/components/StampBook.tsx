@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { meok } from '@/design-system/tokens';
 import { useStampStore } from '../presentation/useStampStore';
 import { useStampSession } from '../presentation/useStampSession';
+import { useStampRanking } from '../presentation/useStampRanking';
 import { mergeStampCatalog, resolveStampBookViewState } from '../domain/stampRules';
 import { REGIONS } from '../data/stampDefs';
 import type { RegionCode, StampCatalogResponse } from '../domain/models';
@@ -303,6 +304,10 @@ export default function StampBook({ initialCatalog }: StampBookProps) {
 
   const [selectedRegion, setSelectedRegion] = useState<RegionCode>('all');
   const [activeTab, setActiveTab] = useState<'stamps' | 'leaderboard'>('stamps');
+  const ranking = useStampRanking({
+    enabled: activeTab === 'leaderboard',
+    loggedIn: isLoggedIn,
+  });
 
   const effectiveCatalog = catalog ?? initialCatalog;
   const viewState = resolveStampBookViewState({
@@ -499,7 +504,19 @@ export default function StampBook({ initialCatalog }: StampBookProps) {
       ) : (
         <div className="stamp-card-elem">
           <LeaderboardHeader>탐방 랭킹</LeaderboardHeader>
-          <StampLeaderboard />
+          <StampLeaderboard
+            entries={ranking.leaderboard?.entries ?? []}
+            myRanking={ranking.myRanking}
+            isLoggedIn={isLoggedIn}
+            loading={ranking.loading}
+            hasError={Boolean(ranking.error)}
+            mutationPending={ranking.mutationPending}
+            retryAfterSeconds={ranking.retryAfterSeconds}
+            onLogin={loginWithKakao}
+            onJoin={() => void ranking.join().catch(() => undefined)}
+            onWithdraw={() => void ranking.withdraw().catch(() => undefined)}
+            onRetry={() => void ranking.reload()}
+          />
         </div>
       )}
 

@@ -157,13 +157,3 @@ export interface ProvinceVisitStat {
   totalCount: number;
   isUnlocked: boolean;
 }
-
-export interface LeaderboardUser {
-  id: string;
-  rank: number;
-  nickname: string;
-  title: string;
-  stampCount: number;
-  provincesCount: number;
-  isCurrentUser?: boolean;
-}

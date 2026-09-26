@@ -1,6 +1,5 @@
 export type {
   CollectedStamp,
-  LeaderboardUser,
   ProvinceVisitStat,
   RegionCode,
   StampDef,

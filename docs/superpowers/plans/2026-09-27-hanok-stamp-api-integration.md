@@ -231,15 +231,15 @@ expect(storage.removeLegacyStampData).toHaveBeenCalledOnce();
 - Consumes: public and personal ranking repository methods, auth login callback, CSRF-aware participation use case.
 - Produces: `entries`, `myRanking`, `loading`, `mutationPending`, `retryAfterSeconds`, `join`, `withdraw`, `reload`.
 
-- [ ] **Step 1: Write failing controller tests for public guest loading, logged-in nonparticipant, participant outside top 20, join refresh, withdrawal refresh, 429 countdown data, and stale-request suppression**
-- [ ] **Step 2: Run the test and verify missing implementation failure**
-- [ ] **Step 3: Implement ranking state orchestration with request generation checks and no persistence**
-- [ ] **Step 4: Replace `LEADERBOARD_MOCK` with pure props and render server fields only: rank, generated nickname, stamp count, region count, and completion rate**
-- [ ] **Step 5: Add guest login CTA, nonparticipant generated-name policy copy and join action, participant summary and withdrawal action, empty state, exact-size loading rows, error and retry states**
-- [ ] **Step 6: Keep withdrawal enabled independently of join rate limiting; after successful withdrawal refresh both public and personal endpoints**
-- [ ] **Step 7: Remove obsolete `LeaderboardUser` and any title/current-user hardcoding**
-- [ ] **Step 8: Run focused tests, `npx tsc --noEmit`, and `npm run lint`; verify pass**
-- [ ] **Step 9: Commit with `git commit -m "feat: connect anonymous stamp leaderboard"`**
+- [x] **Step 1: Write failing controller tests for public guest loading, logged-in nonparticipant, participant outside top 20, join refresh, withdrawal refresh, 429 countdown data, and stale-request suppression**
+- [x] **Step 2: Run the test and verify missing implementation failure**
+- [x] **Step 3: Implement ranking state orchestration with request generation checks and no persistence**
+- [x] **Step 4: Replace `LEADERBOARD_MOCK` with pure props and render server fields only: rank, generated nickname, stamp count, region count, and completion rate**
+- [x] **Step 5: Add guest login CTA, nonparticipant generated-name policy copy and join action, participant summary and withdrawal action, empty state, exact-size loading rows, error and retry states**
+- [x] **Step 6: Keep withdrawal enabled independently of join rate limiting; after successful withdrawal refresh both public and personal endpoints**
+- [x] **Step 7: Remove obsolete `LeaderboardUser` and any title/current-user hardcoding**
+- [x] **Step 8: Run focused tests, `npx tsc --noEmit`, and `npm run lint`; verify pass**
+- [x] **Step 9: Commit with `git commit -m "feat: connect anonymous stamp leaderboard"`**
 
 ### Task 7: Work Logs and Full Verification
 

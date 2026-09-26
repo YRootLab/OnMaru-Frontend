@@ -5,5 +5,6 @@ export { default as KoreaMapCanvas } from './components/KoreaMapCanvas';
 export { default as StampLeaderboard } from './components/StampLeaderboard';
 export { useStampStore } from './presentation/useStampStore';
 export { useStampSession } from './presentation/useStampSession';
+export { useStampRanking } from './presentation/useStampRanking';
 export * from './types';
 export * from './data/stampDefs';
