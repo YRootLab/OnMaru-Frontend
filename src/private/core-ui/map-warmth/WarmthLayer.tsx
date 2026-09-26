@@ -17,7 +17,8 @@ import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { escapeHtml } from '@/features/map/utils/formatters';
 import type { HeatSpot, CongestionLevel } from '@/features/map/types';
 import HeatCanvas from './HeatCanvas';
-import { intensityOf, levelOf } from '@/features/map/warmth/congestion';
+import { levelOf } from '@/features/map/warmth/congestion';
+import { selectHeatSpotsForDay } from '@/features/map/warmth/heatPresentation';
 import {
   compareText,
   medianOf,
@@ -774,7 +775,6 @@ export default function WarmthLayer() {
   const map = useMapStore((s) => s.map);
   const mode = useMapStore((s) => s.mode);
   const heatSpots = useMapStore((s) => s.heatSpots);
-  const items = useMapStore((s) => s.items);
   const level = useMapStore((s) => s.level);
   const heatDayIndex = useMapStore((s) => s.heatDayIndex);
   const heatDays = useMapStore((s) => s.heatDays);
@@ -787,54 +787,10 @@ export default function WarmthLayer() {
 
 
 
-  const baseList = useMemo<HeatSpot[]>(() => {
-    let list: HeatSpot[] = heatSpots;
-    if (list.length === 0) {
-      const warmths = useMapStore.getState().warmths;
-      const candidates = items.length > 0 ? items : warmths;
-      if (candidates.length > 0) {
-        list = (candidates as any[]).slice(0, 40).map((it) => {
-          const placeName = it.name || it.placeName || '';
-          const addr = (it.addr || '').replace(/일대/g, '').trim();
-          const parts = addr.split(/\s+/);
-          const district = parts[1] || parts[0] || '전국';
-          const dong = parts[2] || '';
-          const zoneName = dong ? `${district} ${dong} 일대` : `${district} 일대`;
-
-          return {
-            id: `auto-${it.id}`,
-            placeId: it.placeId || it.id,
-            name: placeName || (zoneName !== '전국 일대' ? zoneName : '한옥마을 일대'),
-            lat: it.lat,
-            lng: it.lng,
-            district: placeName || district,
-            visitorCount: 110000,
-            congestionScore: 45,
-            congestionLevel: 'moderate' as CongestionLevel,
-            surgeMultiplier: 1.5,
-            intensity: 0.5,
-          };
-        });
-      }
-    }
-
-
-
-
-
-
-    return list.map((spot) => {
-      const score = spot.series?.[heatDayIndex];
-      if (score === undefined) return spot;
-
-      return {
-        ...spot,
-        congestionScore: score,
-        congestionLevel: levelOf(score),
-        intensity: intensityOf(score),
-      };
-    });
-  }, [heatSpots, items, heatDayIndex]);
+  const baseList = useMemo<HeatSpot[]>(
+    () => selectHeatSpotsForDay(heatSpots, heatDayIndex),
+    [heatSpots, heatDayIndex],
+  );
 
   useEffect(() => {
     if (!map || mode !== 'warmth' || baseList.length === 0) return;

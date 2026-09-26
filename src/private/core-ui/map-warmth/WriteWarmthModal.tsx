@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import styled from '@emotion/styled';
 import { X, Flame, Users, Leaf, Check, MapPin } from 'lucide-react';
 import { lightPalette, meok , fontSize } from '@/design-system/tokens';
-import { loadWarmth } from '@/features/map/warmth/warmthRepo';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
+import { useCreateVisitReview } from '@/features/visit-review/presentation/useCreateVisitReview';
+import type { Warmth } from '@/features/map/types';
 import MoodSelector, { type MoodValue } from './MoodSelector';
 
 interface WriteWarmthModalProps {
@@ -17,6 +18,7 @@ interface WriteWarmthModalProps {
     lat: number;
     lng: number;
   };
+  onCreated?: (review: Warmth) => void;
 }
 
 const REGIONS = [
@@ -417,6 +419,12 @@ const CharCount = styled.div`
   }
 `;
 
+const ErrorText = styled.p`
+  margin: 8px 0 0;
+  color: #b42318;
+  font-size: ${fontSize.xs};
+`;
+
 const SubmitBtn = styled.button`
   display: flex;
   align-items: center;
@@ -463,10 +471,11 @@ export default function WriteWarmthModal({
   isOpen,
   onClose,
   defaultPlace,
+  onCreated,
 }: WriteWarmthModalProps) {
   const items = useMapStore((s) => s.items);
-  const searchCenter = useMapStore((s) => s.searchCenter);
   const setWarmths = useMapStore((s) => s.setWarmths);
+  const { create, loading: isSubmitting, error: createError } = useCreateVisitReview();
 
   const [selectedRegion, setSelectedRegion] = useState('전국');
   const [placeQuery, setPlaceQuery] = useState(defaultPlace?.name || '');
@@ -483,6 +492,12 @@ export default function WriteWarmthModal({
   const [text, setText] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setSelectedPlace(defaultPlace ?? null);
+    setPlaceQuery(defaultPlace?.name ?? '');
+  }, [defaultPlace, isOpen]);
 
 
   const filteredPlaces = useMemo(() => {
@@ -513,28 +528,22 @@ export default function WriteWarmthModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!text.trim()) return;
-
-    const placeId = selectedPlace?.id || `custom-${Date.now()}`;
-    const placeName = selectedPlace?.name || placeQuery.trim() || '우리 동네 한옥';
-    const lat = selectedPlace?.lat || searchCenter.lat;
-    const lng = selectedPlace?.lng || searchCenter.lng;
+    if (!text.trim() || !selectedPlace) return;
 
     try {
-      // TODO: POST /api/warmth with warmth data
-      const payload = {
-        placeId,
-        placeName,
-        lat,
-        lng,
+      const created = await create({
+        placeId: selectedPlace.id,
         text: text.trim(),
         mood,
         score,
         tags: selectedTags,
-      };
-      // const response = await fetch('/api/warmth', { method: 'POST', body: JSON.stringify(payload) });
+      });
 
-      setWarmths(loadWarmth());
+      setWarmths([
+        created,
+        ...useMapStore.getState().warmths.filter((item) => item.id !== created.id),
+      ]);
+      onCreated?.(created);
       setIsSuccess(true);
       setTimeout(() => {
         setIsSuccess(false);
@@ -542,9 +551,7 @@ export default function WriteWarmthModal({
         setSelectedTags([]);
         onClose();
       }, 900);
-    } catch (error) {
-      console.error('Failed to add warmth:', error);
-    }
+    } catch {}
   };
 
   if (!isOpen) return null;
@@ -589,6 +596,7 @@ export default function WriteWarmthModal({
                 onFocus={() => setIsDropdownOpen(true)}
                 onChange={(e) => {
                   setPlaceQuery(e.target.value);
+                  if (e.target.value !== selectedPlace?.name) setSelectedPlace(null);
                   setIsDropdownOpen(true);
                 }}
                 placeholder="장소 이름을 검색해보세요 (예: 경기전)"
@@ -670,14 +678,22 @@ export default function WriteWarmthModal({
             <CharCount>{text.length} / 80자</CharCount>
           </FormSection>
 
-          <SubmitBtn type="submit" disabled={!text.trim() || isSuccess}>
+          {(!selectedPlace || Boolean(createError)) && (
+            <ErrorText role="alert">
+              {createError
+                ? '후기를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.'
+                : '목록에서 장소를 선택해 주세요.'}
+            </ErrorText>
+          )}
+
+          <SubmitBtn type="submit" disabled={!text.trim() || !selectedPlace || isSuccess || isSubmitting}>
             {isSuccess ? (
               <>
                 <Check size={18} strokeWidth={2} />
                 <span>이야기를 남겼어요!</span>
               </>
             ) : (
-              <span>온기 등록하기</span>
+              <span>{isSubmitting ? '저장 중…' : '온기 등록하기'}</span>
             )}
           </SubmitBtn>
         </form>

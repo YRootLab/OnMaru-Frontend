@@ -5,6 +5,7 @@ Backlog for follow-up improvements that are useful but not required to resume th
 ## Open
 
 - 수결첩 API 1.3은 수결을 처음 지급한 `triggerPlaceId`만 제공한다. 새 수결을 만들지 않은 성공 체크인 장소도 새로고침 후 지도에 정확히 복원하려면 로그인 전용 `GET /api/v1/me/visited-places` 같은 중복 없는 공개 place ID 조회 계약이 필요하다. 그 전까지 FE는 서버 trigger 장소와 현재 브라우저 세션에서 성공한 체크인만 방문 상태로 표시하고 localStorage fallback을 사용하지 않는다. (Refs #262)
+- VisitReview 배포 OpenAPI를 실제 계약과 맞춘다. 현재 `CreateReviewRequest` schema는 `text`만/최대 1,000자로 문서화하지만 FE 계약은 `mood`·`score`·`tags`와 300자 제한을 사용한다. 목록·지역 응답도 구체 schema 대신 `object`로만 노출되고, `scope=REGION&regionCode=kr-45`는 0건이지만 leaf `kr-45-jeonju`는 2건을 반환하므로 부모 지역의 재귀 포함 여부를 백엔드 #256 후속으로 명시해야 한다. (2026-09-26 배포 `/v3/api-docs`·실응답 확인)
 - GitHub Actions Secrets에 `VERCEL_TOKEN`/`VERCEL_ORG_ID`/`VERCEL_PROJECT_ID` 미등록 시 develop push/배포가 실패할 수 있음. Secrets 등록은 관리자가 브라우저에서 수동 진행해야 함. (서브모듈 인증용 `CORE_UI_READ_TOKEN`·`SUBMODULE_SSH_KEY`는 서브모듈 제거로 더 이상 불필요 — 삭제 대기)
 - 백엔드 실서버(`onmaru-backend.onrender.com`)에 `GET /api/v1/hanoks/screen-hanok`가 배포되면 실데이터 스모크 테스트 후 `screenHanok.service.ts`의 Fallback 큐레이션 데이터셋(7종) 유지/축소 여부를 검토한다. (Refs #103 — 이슈는 FE 연동 완료로 종료됨, 백엔드 배포는 별도 진행)
 
