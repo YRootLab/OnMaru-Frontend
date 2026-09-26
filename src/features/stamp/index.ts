@@ -3,6 +3,7 @@ export { default as StampCard } from './components/StampCard';
 export { default as StampSealAnimation } from './components/StampSealAnimation';
 export { default as KoreaMapCanvas } from './components/KoreaMapCanvas';
 export { default as StampLeaderboard } from './components/StampLeaderboard';
-export { useStampStore } from './hooks/useStampStore';
+export { useStampStore } from './presentation/useStampStore';
+export { useStampSession } from './presentation/useStampSession';
 export * from './types';
 export * from './data/stampDefs';

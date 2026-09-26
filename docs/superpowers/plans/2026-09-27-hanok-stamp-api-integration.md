@@ -153,7 +153,7 @@ expect(repository.checkIn.mock.calls[0]).toEqual(repository.checkIn.mock.calls[1
 - Consumes: `StampRepository`, domain responses.
 - Produces: `loadPersonalStampBook`, `useStampStore`, `useStampSession`, `isPlaceVisited`, `enqueueAwards`, `showNextAward`.
 
-- [ ] **Step 1: Write a failing test proving legacy data is removed after success and retained after failure**
+- [x] **Step 1: Write a failing test proving legacy data is removed after success and retained after failure**
 
 ```ts
 await expect(loadPersonalStampBook(successRepository, storage)).resolves.toEqual(book);
@@ -162,14 +162,14 @@ await expect(loadPersonalStampBook(failingRepository, storage)).rejects.toBeDefi
 expect(storage.removeLegacyStampData).toHaveBeenCalledOnce();
 ```
 
-- [ ] **Step 2: Run the test and verify missing implementation failure**
-- [ ] **Step 3: Implement the use case and `onmaru_hanok_stamps_v1` storage adapter**
-- [ ] **Step 4: Write failing store tests proving no persisted middleware, book trigger-place restoration, current-session check-in recording, and ordered award queue behavior**
-- [ ] **Step 5: Replace the old persisted demo store with the in-memory presentation store and keep `hooks/useStampStore.ts` as a compatibility re-export until all consumers migrate**
-- [ ] **Step 6: Implement `useStampSession` to load only after auth resolution, clear private state on logout, and expose retry/refresh**
-- [ ] **Step 7: Update marker reads to the new store without changing marker visuals**
-- [ ] **Step 8: Run focused tests and `npx tsc --noEmit`; verify they pass**
-- [ ] **Step 9: Commit with `git commit -m "refactor: replace demo stamp persistence"`**
+- [x] **Step 2: Run the test and verify missing implementation failure**
+- [x] **Step 3: Implement the use case and `onmaru_hanok_stamps_v1` storage adapter**
+- [x] **Step 4: Write failing store tests proving no persisted middleware, book trigger-place restoration, current-session check-in recording, and ordered award queue behavior**
+- [x] **Step 5: Replace the old persisted demo store with the in-memory presentation store and keep `hooks/useStampStore.ts` as a compatibility re-export until all consumers migrate**
+- [x] **Step 6: Implement `useStampSession` to load only after auth resolution, clear private state on logout, and expose retry/refresh**
+- [x] **Step 7: Update marker reads to the new store without changing marker visuals**
+- [x] **Step 8: Run focused tests and `npx tsc --noEmit`; verify they pass**
+- [x] **Step 9: Commit with `git commit -m "refactor: replace demo stamp persistence"`**
 
 ### Task 4: Server-Sourced Stamp Book Presentation
 
