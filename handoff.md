@@ -1,6 +1,8 @@
 # handoff.md
 
 ## Current Work
+- 2026-09-27: Issue #262 한옥 수결첩 FE를 API 계약 `1.3`에 연결했다. 공개 카탈로그·개인 수결첩·위치 기반 체크인·익명 공개 랭킹·내 참여 상태·참여/철회 여섯 API를 `domain/application/infrastructure/presentation` 경계로 분리했다. `onmaru_hanok_stamps_v1`의 demo 판정과 Zustand persist를 제거했고, 개인 수결첩 조회 성공 뒤에만 legacy key를 삭제한다. 랭킹은 서버 생성 `GENERATED` 별명만 표시하며 사용자 닉네임 입력과 하드코딩 칭호를 제공하지 않는다. 위치 payload와 익명 랭킹 식별자는 저장·로그·analytics에 전달하지 않는다.
+- 2026-09-27 검증: `npm test -- src/features/stamp src/lib/api/client.contract.test.ts` 10 files/36 tests 통과, `npx tsc --noEmit` 통과, `npm run lint` 통과, `npm run build` 통과. Playwright 로컬 스모크에서 API fixture 기준 `/stamps` 카탈로그 12개와 서버 생성 익명 별명의 공개 랭킹을 desktop·mobile(390×844)로 확인했고, `/map`의 전통 한옥 상세에서 수결첩 방문 기록과 체크인 버튼 렌더링을 확인했다. 현재 `.env.local`이 가리키는 배포 백엔드는 새 stamp endpoint에 404를 반환하므로 실제 API 스모크는 백엔드 배포 후 재확인이 필요하다. 콘솔의 Clarity 외부 script 오류와 비로그인 `/members/me` 401은 이번 변경과 무관하다.
 - 지도 `PopularPlacesPanel`에서 이미지 요청 실패 시 비어 있던 58px 썸네일을 placeholder로 전환했다. 이미지 URL 판정과 실패 상태는 표현 컴포넌트에 국한했고, 인기 장소 데이터 조회 흐름은 변경하지 않았다.
 - 홈 `이번 주 추천 코스` 카드의 TourAPI 이미지를 placeholder가 가리는 현상을 수정했다. `JourneyDiscoveryFeed`에서 placeholder를 먼저, 유효한 이미지 요소를 나중에 렌더링하고 이미지 요청 실패 시 이미지 요소만 숨겨 placeholder가 남도록 처리한다. `thumbnailUrl`의 `null`·빈 문자열·공백은 placeholder만 표시한다.
 - **Single Source of Truth 아키텍처 전환 완료** (2026-09-23): 프론트엔드에서 모든 데이터 처리 로직을 백엔드로 이관 완료. PR #189로 develop 병합 대기 중.

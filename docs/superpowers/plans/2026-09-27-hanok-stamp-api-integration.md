@@ -252,13 +252,13 @@ expect(storage.removeLegacyStampData).toHaveBeenCalledOnce();
 - Consumes: completed Tasks 1 through 6.
 - Produces: resumable status, user-facing change record, and explicit visited-place API follow-up.
 
-- [ ] **Step 1: Record Issue #262 integration, changed boundaries, API 1.3 behavior, and exact verification results in `handoff.md`**
-- [ ] **Step 2: Add a concise Unreleased entry to `changelog.md`**
-- [ ] **Step 3: Record the missing all-visited-place restoration contract in `improvements.md` without claiming it is implemented**
-- [ ] **Step 4: Run `npm test -- src/features/stamp src/lib/api/client.contract.test.ts`**
-- [ ] **Step 5: Run `npx tsc --noEmit`**
-- [ ] **Step 6: Run `npm run lint`**
-- [ ] **Step 7: Run `npm run build`**
-- [ ] **Step 8: If browser execution is available, run the app against API 1.3 and inspect `/stamps` plus a traditional-place detail at desktop and mobile widths; capture only non-sensitive screenshots**
-- [ ] **Step 9: Run `git diff --check` and inspect `git status --short` to ensure only intended changes remain**
-- [ ] **Step 10: Commit documentation with `git commit -m "docs: record stamp api integration"`**
+- [x] **Step 1: Record Issue #262 integration, changed boundaries, API 1.3 behavior, and exact verification results in `handoff.md`**
+- [x] **Step 2: Add a concise Unreleased entry to `changelog.md`**
+- [x] **Step 3: Record the missing all-visited-place restoration contract in `improvements.md` without claiming it is implemented**
+- [x] **Step 4: Run `npm test -- src/features/stamp src/lib/api/client.contract.test.ts`**
+- [x] **Step 5: Run `npx tsc --noEmit`**
+- [x] **Step 6: Run `npm run lint`**
+- [x] **Step 7: Run `npm run build`**
+- [x] **Step 8: If browser execution is available, run the app against API 1.3 and inspect `/stamps` plus a traditional-place detail at desktop and mobile widths; capture only non-sensitive screenshots**
+- [x] **Step 9: Run `git diff --check` and inspect `git status --short` to ensure only intended changes remain**
+- [x] **Step 10: Commit documentation with `git commit -m "docs: record stamp api integration"`**
