@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { StampBookResponse, StampCatalogResponse } from './models';
-import { mergeStampCatalog, stampErrorMessage } from './stampRules';
+import { mergeStampCatalog, resolveStampBookViewState, stampErrorMessage } from './stampRules';
 
 const catalog: StampCatalogResponse = {
   schemaVersion: '1.3',
@@ -120,5 +120,45 @@ describe('stamp domain rules', () => {
       code: 'GEOLOCATION_TIMEOUT',
       requestId: null,
     })).toBe('위치 확인 시간이 초과됐어요. 다시 시도해 주세요.');
+  });
+
+  it('does not expose a guest-looking book while authentication or personal data is loading', () => {
+    expect(resolveStampBookViewState({
+      authLoading: true,
+      loggedIn: false,
+      hasCatalog: true,
+      hasBook: false,
+      catalogError: false,
+      bookError: false,
+    })).toBe('loading');
+
+    expect(resolveStampBookViewState({
+      authLoading: false,
+      loggedIn: true,
+      hasCatalog: true,
+      hasBook: false,
+      catalogError: false,
+      bookError: false,
+    })).toBe('loading');
+  });
+
+  it('keeps public catalog failures separate from personal book failures', () => {
+    expect(resolveStampBookViewState({
+      authLoading: false,
+      loggedIn: false,
+      hasCatalog: false,
+      hasBook: false,
+      catalogError: true,
+      bookError: false,
+    })).toBe('catalog-error');
+
+    expect(resolveStampBookViewState({
+      authLoading: false,
+      loggedIn: true,
+      hasCatalog: true,
+      hasBook: false,
+      catalogError: false,
+      bookError: true,
+    })).toBe('book-error');
   });
 });

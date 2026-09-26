@@ -122,3 +122,21 @@ export function stampErrorMessage(error: StampErrorLike): string {
   const message = ERROR_MESSAGES[error.code] ?? '요청을 처리하지 못했어요. 다시 시도해 주세요.';
   return error.requestId ? `${message} (문의 코드: ${error.requestId})` : message;
 }
+
+interface StampBookViewStateInput {
+  authLoading: boolean;
+  loggedIn: boolean;
+  hasCatalog: boolean;
+  hasBook: boolean;
+  catalogError: boolean;
+  bookError: boolean;
+}
+
+export type StampBookViewState = 'loading' | 'catalog-error' | 'book-error' | 'ready';
+
+export function resolveStampBookViewState(input: StampBookViewStateInput): StampBookViewState {
+  if (!input.hasCatalog) return input.catalogError ? 'catalog-error' : 'loading';
+  if (input.authLoading) return 'loading';
+  if (input.loggedIn && !input.hasBook) return input.bookError ? 'book-error' : 'loading';
+  return 'ready';
+}

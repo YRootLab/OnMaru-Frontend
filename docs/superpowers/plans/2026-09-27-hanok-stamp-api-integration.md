@@ -185,15 +185,15 @@ expect(storage.removeLegacyStampData).toHaveBeenCalledOnce();
 - Consumes: `useStampSession`, `mergeStampCatalog`, server summary and award queue.
 - Produces: catalog/book loading, guest locked state, retry state, and sequential award display.
 
-- [ ] **Step 1: Add a failing pure presentation-model test for guest, loading, success, and retry states in `stampRules.test.ts`**
-- [ ] **Step 2: Run the focused test and verify the new state selector is absent**
-- [ ] **Step 3: Make `StampsPage` fetch the public catalog through the repository with a caught error result and pass it into `StampBook`**
-- [ ] **Step 4: Refactor `StampBook` to use server catalog/book data and server `completionRate`, retaining title-first hierarchy, filters, map, cards, and current dimensions**
-- [ ] **Step 5: Add a neutral skeleton that uses the same hero and card-grid dimension tokens as the live content**
-- [ ] **Step 6: Make locked cards non-award actions for guests, wire retry, and advance every queued award when the seal modal closes**
-- [ ] **Step 7: Guard reveal animation so data refresh does not replay already-seen content and reduced-motion users receive final state immediately**
-- [ ] **Step 8: Run focused tests, `npx tsc --noEmit`, and `npm run lint`; fix only touched-code failures**
-- [ ] **Step 9: Commit with `git commit -m "feat: connect server stamp book"`**
+- [x] **Step 1: Add a failing pure presentation-model test for guest, loading, success, and retry states in `stampRules.test.ts`**
+- [x] **Step 2: Run the focused test and verify the new state selector is absent**
+- [x] **Step 3: Make `StampsPage` fetch the public catalog through the repository with a caught error result and pass it into `StampBook`**
+- [x] **Step 4: Refactor `StampBook` to use server catalog/book data and server `completionRate`, retaining title-first hierarchy, filters, map, cards, and current dimensions**
+- [x] **Step 5: Add a neutral skeleton that uses the same hero and card-grid dimension tokens as the live content**
+- [x] **Step 6: Make locked cards non-award actions for guests, wire retry, and advance every queued award when the seal modal closes**
+- [x] **Step 7: Guard reveal animation so data refresh does not replay already-seen content and reduced-motion users receive final state immediately**
+- [x] **Step 8: Run focused tests, `npx tsc --noEmit`, and `npm run lint`; fix only touched-code failures**
+- [x] **Step 9: Commit with `git commit -m "feat: connect server stamp book"`**
 
 ### Task 5: Authenticated Map Check-In
 
