@@ -9,7 +9,7 @@ import { escapeHtml, safeImageUrl } from '@/features/map/utils/formatters';
 import { mapIconSvg, type MapIconName } from '@/features/map/utils/mapIconSvg';
 import { calculateTravelEstimate, isTraditionalPlace, shortRegionName } from '@/features/map/utils/geo';
 import { useMapStore } from '../hooks/useMapStore';
-import { useStampStore } from '@/features/stamp/hooks/useStampStore';
+import { useStampStore } from '@/features/stamp/presentation/useStampStore';
 import type { Item, PlaceCategory } from '../types';
 
 const log = logger('map');

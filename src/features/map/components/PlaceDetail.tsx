@@ -29,8 +29,8 @@ import { useCinematicTourStore } from '@/features/cinematic-tour/store/useCinema
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import { usePlaceDetail } from '@/features/map/hooks/usePlaceDetail';
-import { useStampStore } from '@/features/stamp/hooks/useStampStore';
-import { stampAudio } from '@/features/stamp/utils/sound';
+import { useStampStore } from '@/features/stamp/presentation/useStampStore';
+import { useStampCheckIn } from '@/features/stamp/presentation/useStampCheckIn';
 import { calculateTravelEstimate, isTraditionalPlace } from '@/features/map/utils/geo';
 import { createKakaoNavigationLinks } from '@/features/map/utils/navigation';
 import PlaceDetailCarousel from './detail/PlaceDetailCarousel';
@@ -314,8 +314,7 @@ export default function PlaceDetail() {
   const toggleBookmark = useBookmarkStore((s) => s.toggleBookmark);
 
   const isPlaceVisited = useStampStore((s) => s.isPlaceVisited(detailId || ''));
-  const checkIn = useStampStore((s) => s.checkIn);
-  const openStampModal = useStampStore((s) => s.openStampModal);
+  const { checkIn, checkingIn, isUnavailable } = useStampCheckIn();
 
   const handleToggleBookmark = () => {
     if (!detailId) return;
@@ -489,7 +488,7 @@ export default function PlaceDetail() {
             </HeroActionGrid>
 
             {}
-            {isRealTraditional && (
+            {isRealTraditional && detailId && !isUnavailable(detailId) && (
               <StampCheckInBanner $isVisited={isPlaceVisited}>
                 <StampBannerLeft>
                   <Award size={18} color={isPlaceVisited ? '#059669' : '#b45309'} />
@@ -507,24 +506,15 @@ export default function PlaceDetail() {
                 <StampActionBtn
                   type="button"
                   $isVisited={isPlaceVisited}
-                  onClick={() => {
-                    if (!detailId) return;
-                    const res = checkIn({
-                      id: detailId,
-                      name: title,
-                      address: addr,
-                      isTraditional: true,
-                    });
-                    stampAudio.playStampSound();
-                    if (res.primaryStamp) {
-                      openStampModal(res.primaryStamp);
-                    }
-                  }}
+                  disabled={checkingIn}
+                  onClick={() => void checkIn(detailId)}
                 >
-                  {isPlaceVisited ? (
+                  {checkingIn ? (
+                    <span>위치 확인 중</span>
+                  ) : isPlaceVisited ? (
                     <>
                       <CheckCircle2 size={13} strokeWidth={2.5} />
-                      <span>도장 보기</span>
+                      <span>방문 확인</span>
                     </>
                   ) : (
                     <>

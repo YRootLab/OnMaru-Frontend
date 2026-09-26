@@ -2,17 +2,22 @@
 
 import { useState, useRef } from 'react';
 import styled from '@emotion/styled';
-import { ShieldCheck, User } from 'lucide-react';
+import { AlertCircle, RefreshCw, ShieldCheck, User } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
+import { toast } from 'sonner';
 import { meok } from '@/design-system/tokens';
-import { useStampStore } from '../hooks/useStampStore';
-import { STAMP_DEFINITIONS, REGIONS } from '../data/stampDefs';
-import type { RegionCode } from '../types';
+import { useStampStore } from '../presentation/useStampStore';
+import { useStampSession } from '../presentation/useStampSession';
+import { useStampRanking } from '../presentation/useStampRanking';
+import { mergeStampCatalog, resolveStampBookViewState } from '../domain/stampRules';
+import { REGIONS } from '../data/stampDefs';
+import type { RegionCode, StampCatalogResponse } from '../domain/models';
 import KoreaMapCanvas from './KoreaMapCanvas';
 import StampCard from './StampCard';
 import StampLeaderboard from './StampLeaderboard';
 import StampSealAnimation from './StampSealAnimation';
+import StampBookSkeleton from './StampBookSkeleton';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 
 gsap.registerPlugin(useGSAP);
@@ -158,14 +163,17 @@ const ProgressTrack = styled.div`
   }
 `;
 
-const ProgressInk = styled.div`
+const ProgressInk = styled.div<{ $percent: number }>`
   height: 100%;
-  width: 0%;
+  width: ${({ $percent }) => `${$percent}%`};
   background: ${meok[700]};
+  transition: width 1s cubic-bezier(0.22, 1, 0.36, 1);
 
   [data-theme='dark'] & {
     background: rgba(255, 255, 255, 0.7);
   }
+
+  @media (prefers-reduced-motion: reduce) { transition: none; }
 `;
 
 /* ── tabs ── */
@@ -245,29 +253,94 @@ const LeaderboardHeader = styled.div`
   [data-theme='dark'] & { color: #ffffff; }
 `;
 
-export default function StampBook() {
+const ErrorState = styled.div`
+  min-height: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 32px;
+  text-align: center;
+  color: ${meok[600]};
+  background: #f8f8f7;
+  border-radius: 20px;
+
+  [data-theme='dark'] & { background: rgba(255, 255, 255, 0.04); }
+`;
+
+const RetryButton = styled.button`
+  height: 40px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid #cdcdca;
+  border-radius: 10px;
+  background: #ffffff;
+  color: ${meok[800]};
+  cursor: pointer;
+`;
+
+interface StampBookProps {
+  initialCatalog: StampCatalogResponse | null;
+}
+
+export default function StampBook({ initialCatalog }: StampBookProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const { user } = useAuth();
-  const collectedStamps = useStampStore((s) => s.collectedStamps);
+  const { user, isLoading: authLoading, isLoggedIn, loginWithKakao } = useAuth();
   const activeModalStamp = useStampStore((s) => s.activeStampModal);
   const openStampModal = useStampStore((s) => s.openStampModal);
   const closeStampModal = useStampStore((s) => s.closeStampModal);
+  const {
+    catalog,
+    book,
+    catalogError,
+    bookError,
+    refreshCatalog,
+    refreshBook,
+  } = useStampSession({ authLoading, loggedIn: isLoggedIn, initialCatalog });
 
   const [selectedRegion, setSelectedRegion] = useState<RegionCode>('all');
   const [activeTab, setActiveTab] = useState<'stamps' | 'leaderboard'>('stamps');
-
-  const totalStampsCount = STAMP_DEFINITIONS.length;
-  const unlockedCount = Object.keys(collectedStamps).length;
-  const progressPercent = Math.round((unlockedCount / totalStampsCount) * 100);
-
-  const unlockedRegions = new Set<string>();
-  Object.keys(collectedStamps).forEach((sid) => {
-    const def = STAMP_DEFINITIONS.find((d) => d.id === sid);
-    if (def && def.region !== 'all') unlockedRegions.add(def.region);
+  const ranking = useStampRanking({
+    enabled: activeTab === 'leaderboard',
+    loggedIn: isLoggedIn,
   });
 
-  const filteredStamps = STAMP_DEFINITIONS.filter((stamp) => {
+  const effectiveCatalog = catalog ?? initialCatalog;
+  const viewState = resolveStampBookViewState({
+    authLoading,
+    loggedIn: isLoggedIn,
+    hasCatalog: Boolean(effectiveCatalog),
+    hasBook: Boolean(book),
+    catalogError: Boolean(catalogError),
+    bookError: Boolean(bookError),
+  });
+
+  const collection = effectiveCatalog
+    ? mergeStampCatalog(effectiveCatalog, isLoggedIn ? book : null)
+    : {
+        summary: {
+          collectedCount: 0,
+          totalCount: 0,
+          visitedRegionCount: 0,
+          requiredRegionCount: 0,
+          completionRate: 0,
+        },
+        stamps: [],
+      };
+  const totalStampsCount = collection.summary.totalCount;
+  const unlockedCount = collection.summary.collectedCount;
+  const progressPercent = collection.summary.completionRate;
+
+  const unlockedRegions = new Set<string>();
+  collection.stamps.forEach((stamp) => {
+    if (stamp.collected && stamp.region !== 'all') unlockedRegions.add(stamp.region);
+  });
+
+  const filteredStamps = collection.stamps.filter((stamp) => {
     if (selectedRegion === 'all') return true;
     if (selectedRegion === 'seoul' || selectedRegion === 'gyeonggi') {
       return stamp.region === 'seoul' || stamp.region === 'gyeonggi' || stamp.region === 'all';
@@ -294,12 +367,7 @@ export default function StampBook() {
       stagger: 0.08,
       ease: 'power2.out',
     }, '-=0.3')
-    .to('.progress-ink', {
-      width: `${progressPercent}%`,
-      duration: 1.0,
-      ease: 'power3.out',
-    }, '-=0.2');
-  }, { scope: containerRef, dependencies: [progressPercent] });
+  }, { scope: containerRef, dependencies: [viewState] });
 
   useGSAP(() => {
     if (!containerRef.current) return;
@@ -308,7 +376,39 @@ export default function StampBook() {
       { opacity: 0, y: 12 },
       { opacity: 1, y: 0, duration: 0.35, stagger: 0.025, ease: 'power2.out', clearProps: 'all' },
     );
-  }, { scope: containerRef, dependencies: [activeTab, selectedRegion] });
+  }, { scope: containerRef, dependencies: [viewState] });
+
+  if (viewState === 'loading') return <StampBookSkeleton />;
+
+  if (!effectiveCatalog || viewState === 'catalog-error') {
+    return (
+      <Root style={{ visibility: 'visible' }}>
+        <Header><Title>나의 한옥 수결첩</Title></Header>
+        <ErrorState>
+          <AlertCircle size={28} />
+          <span>수결 목록을 불러오지 못했어요.</span>
+          <RetryButton type="button" onClick={() => void refreshCatalog().catch(() => undefined)}>
+            <RefreshCw size={15} /> 다시 시도
+          </RetryButton>
+        </ErrorState>
+      </Root>
+    );
+  }
+
+  if (viewState === 'book-error') {
+    return (
+      <Root style={{ visibility: 'visible' }}>
+        <Header><Title>나의 한옥 수결첩</Title></Header>
+        <ErrorState>
+          <AlertCircle size={28} />
+          <span>내 수결첩을 불러오지 못했어요. 이전 데모 도장은 표시하지 않습니다.</span>
+          <RetryButton type="button" onClick={() => void refreshBook().catch(() => undefined)}>
+            <RefreshCw size={15} /> 다시 시도
+          </RetryButton>
+        </ErrorState>
+      </Root>
+    );
+  }
 
   return (
     <Root ref={containerRef}>
@@ -350,7 +450,7 @@ export default function StampBook() {
               <ProgressPct>{progressPercent}%</ProgressPct>
             </ProgressHead>
             <ProgressTrack>
-              <ProgressInk className="progress-ink" />
+              <ProgressInk className="progress-ink" $percent={progressPercent} />
             </ProgressTrack>
           </ProgressWrap>
         </StatsSection>
@@ -386,8 +486,17 @@ export default function StampBook() {
             <div key={stamp.id} className="stamp-card-elem">
               <StampCard
                 stamp={stamp}
-                collected={collectedStamps[stamp.id]}
-                onClick={() => openStampModal(stamp)}
+                collected={stamp.collected ?? undefined}
+                onClick={() => {
+                  if (stamp.collected) {
+                    openStampModal(stamp);
+                  } else if (!isLoggedIn) {
+                    toast.info('로그인하면 현장에서 수결을 모을 수 있어요.');
+                    loginWithKakao();
+                  } else {
+                    toast.info('한옥 장소 가까이에서 지도 탭의 도장 찍기를 이용해 주세요.');
+                  }
+                }}
               />
             </div>
           ))}
@@ -395,7 +504,19 @@ export default function StampBook() {
       ) : (
         <div className="stamp-card-elem">
           <LeaderboardHeader>탐방 랭킹</LeaderboardHeader>
-          <StampLeaderboard />
+          <StampLeaderboard
+            entries={ranking.leaderboard?.entries ?? []}
+            myRanking={ranking.myRanking}
+            isLoggedIn={isLoggedIn}
+            loading={ranking.loading}
+            hasError={Boolean(ranking.error)}
+            mutationPending={ranking.mutationPending}
+            retryAfterSeconds={ranking.retryAfterSeconds}
+            onLogin={loginWithKakao}
+            onJoin={() => void ranking.join().catch(() => undefined)}
+            onWithdraw={() => void ranking.withdraw().catch(() => undefined)}
+            onRetry={() => void ranking.reload()}
+          />
         </div>
       )}
 

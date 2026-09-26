@@ -3,6 +3,8 @@
 Lightweight human-readable summary of meaningful repository changes. This does not replace Git history.
 
 ## Unreleased
+- 한옥 수결첩을 서버 API 계약 1.3으로 전환했다. 비회원 공개 수결 카탈로그, 로그인 회원의 개인 획득 상태, GPS·CSRF·멱등성 기반 현장 체크인과 다중 수결 애니메이션을 연결하고 검증되지 않은 localStorage 데모 도장을 제거했다.
+- 탐방 랭킹의 하드코딩 데이터를 제거하고, 명시적으로 참여한 회원만 서버 생성 익명 별명으로 표시하는 공개 랭킹과 참여·철회 UI를 연결했다. 사용자 입력 닉네임과 OAuth 이름·회원 식별자는 표시하거나 로컬에 저장하지 않는다.
 - 지도 온기 모드의 Map Heat와 방문 후기(VisitReview)를 독립 파이프라인으로 분리했다. 공개 후기의 중복 moderation 상태 필터를 제거하고 전국·지역·장소별 조회와 실제 작성 API를 연결했으며, 후기 실패가 Heat를 지우거나 Heat 실패가 후기를 지우지 않도록 했다. 후기 요청 공유 캐시로 중복 마운트의 네트워크 호출을 합치고, 전국 장소 조회의 canonical `placeId` 보존, Heat 응답만 사용하는 대표 명소, 현재 소리마루 목록 계약 기반 주변 이야기 조회를 함께 반영했다.
 - 프론트엔드 Single Source of Truth 아키텍처 전환을 완료했다. 모든 데이터 처리 로직을 백엔드에 집중하고, 프론트엔드는 백엔드 API만 호출해 데이터를 표시하는 순수 UI 레이어로 변경했다.
   - 필터링 로직 완전 제거: 지역·카테고리·온기 등 모든 필터링을 백엔드로 이관
