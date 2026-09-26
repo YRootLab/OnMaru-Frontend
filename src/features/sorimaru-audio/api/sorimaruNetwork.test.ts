@@ -15,10 +15,11 @@ describe('createSorimaruNetworkClient', () => {
     const client = createSorimaruNetworkClient({
       resolveEndpoint: () => '/future/sorimaru',
       decodeResponse,
+      backendRequester: vi.fn(),
       fetcher: fetcher as unknown as typeof fetch,
     });
 
-    await expect(client.request({ type: 'stories', params: {} })).resolves.toEqual({
+    await expect(client.request({ type: 'nearby', params: {} })).resolves.toEqual({
       items: [{ stid: 'future-shape' }],
       totalCount: 1,
     });
@@ -28,11 +29,11 @@ describe('createSorimaruNetworkClient', () => {
     });
     expect(decodeResponse).toHaveBeenCalledWith(
       { records: [{ id: 'future-shape' }] },
-      { type: 'stories', params: {} },
+      { type: 'nearby', params: {} },
     );
   });
 
-  it('uses the default backend endpoint when no backendRequester is available', async () => {
+  it('returns an empty result when no backend requester is available', async () => {
     const fetcher = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
@@ -46,14 +47,11 @@ describe('createSorimaruNetworkClient', () => {
     });
 
     await expect(client.request({ type: 'stories', params: { pageNo: '2' } })).resolves.toEqual({
-      items: [{ stid: 'one' }],
-      totalCount: 4,
+      items: [],
+      totalCount: 0,
       source: 'public',
     });
-    expect(fetcher).toHaveBeenCalledWith(
-      '/api/stories',
-      expect.any(Object),
-    );
+    expect(fetcher).not.toHaveBeenCalled();
   });
 
   it('uses the OnMaru backend and merges each story detail before rendering', async () => {
@@ -109,7 +107,7 @@ describe('createSorimaruNetworkClient', () => {
     expect(fetcher).not.toHaveBeenCalled();
   });
 
-  it('falls back to the public API when the OnMaru backend request fails', async () => {
+  it('does not revive removed public fallback data when the OnMaru backend request fails', async () => {
     const fetcher = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
@@ -123,14 +121,14 @@ describe('createSorimaruNetworkClient', () => {
     });
 
     await expect(client.request({ type: 'stories', params: {} })).resolves.toMatchObject({
-      items: [{ stid: 'public-story' }],
-      totalCount: 1,
+      items: [],
+      totalCount: 0,
       source: 'public',
     });
-    expect(fetcher).toHaveBeenCalled();
+    expect(fetcher).not.toHaveBeenCalled();
   });
 
-  it('falls back to the public API when a backend story detail request fails', async () => {
+  it('returns an empty result when a backend story detail request fails', async () => {
     const fetcher = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
@@ -147,11 +145,11 @@ describe('createSorimaruNetworkClient', () => {
     });
 
     await expect(client.request({ type: 'stories', params: {} })).resolves.toMatchObject({
-      items: [{ stid: 'public-story' }],
+      items: [],
       source: 'public',
     });
     expect(backendRequester).toHaveBeenNthCalledWith(2, 'odii/stories/backend-story', { language: 'ko-KR' });
-    expect(fetcher).toHaveBeenCalled();
+    expect(fetcher).not.toHaveBeenCalled();
   });
 
   it('uses the public API for numbered pages after the backend first page', async () => {

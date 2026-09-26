@@ -18,7 +18,5 @@ export function visitReviewToWarmth(review: VisitReview): Warmth {
 }
 
 export function visitReviewsToWarmths(reviews: VisitReview[]): Warmth[] {
-  return reviews
-    .filter((review) => review.status === 'PUBLISHED')
-    .map(visitReviewToWarmth);
+  return reviews.map(visitReviewToWarmth);
 }

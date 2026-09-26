@@ -2,12 +2,10 @@
 
 import { useEffect } from 'react';
 import { logger } from '@/lib/log';
-import { loadWarmth } from '@/features/map/warmth/warmthRepo';
 import { distanceInMeters } from './useKakaoMap';
+import { decodeHeatPayload } from '@/features/map/warmth/heatPresentation';
 import { useMapStore } from './useMapStore';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
-import { visitReviewsToWarmths } from '@/features/map/warmth/visitReviewWarmthAdapter';
-import { defaultVisitReviewRepository } from '@/features/visit-review/api/visitReviewApi';
 import type { HeatDay, HeatSpot, Item, KakaoMap } from '@/features/map/types';
 
 const log = logger('map');
@@ -62,33 +60,7 @@ export function useMapData() {
   const level = useMapStore((s) => s.level);
 
   useEffect(() => {
-    useMapStore.getState().setWarmths(loadWarmth());
-  }, []);
-
-  useEffect(() => {
-    if (mode !== 'warmth') return;
-
-    let cancelled = false;
-    defaultVisitReviewRepository
-      .listReviews({ scope: 'ALL', limit: 50 })
-      .then((page) => {
-        if (cancelled) return;
-        const serverWarmths = visitReviewsToWarmths(page.items);
-        if (serverWarmths.length > 0) {
-          useMapStore.getState().setWarmths(loadWarmth(serverWarmths));
-        }
-      })
-      .catch((err) => {
-        log.warn('서버 온기 이야기 동기화 폴백 유지', err);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [mode, reloadNonce]);
-
-  useEffect(() => {
-    const { setItems, setLoading, setError, setWarmths } = useMapStore.getState();
+    const { setItems, setLoading, setError } = useMapStore.getState();
     if (!map) {
       return;
     }
@@ -116,15 +88,15 @@ export function useMapData() {
       fetch(`/api/map/heat?${warmthParams}`, { signal: controller.signal })
         .then(async (res) => {
           const json = await res.json().catch(() => ({}));
-          if (Array.isArray(json.spots) && json.spots.length > 0) {
-            const days: HeatDay[] = Array.isArray(json.days) ? json.days : [];
+          const heat = res.ok ? decodeHeatPayload(json) : null;
+          if (heat) {
             clientHeatCache.set(heatCacheKey, {
               expiresAt: Date.now() + CLIENT_CACHE_TTL,
-              spots: json.spots,
-              days,
+              spots: heat.spots,
+              days: heat.days,
             });
-            useMapStore.getState().setHeatSpots(json.spots);
-            useMapStore.getState().setHeatDays(days);
+            useMapStore.getState().setHeatSpots(heat.spots);
+            useMapStore.getState().setHeatDays(heat.days);
           }
         })
         .catch((err) => {

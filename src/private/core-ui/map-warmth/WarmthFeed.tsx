@@ -4,8 +4,11 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Flame, ChevronLeft, ChevronRight, MessageCircle, Landmark, Home, Utensils, Coffee, ShoppingBag } from 'lucide-react';
 import { meok } from '@/design-system/tokens';
 import { useMapStore, DEFAULT_CENTER } from '@/features/map/hooks/useMapStore';
-import { countByPlace, regionOf, toReview } from '@/features/map/warmth/warmthRepo';
+import { countByPlace, toReview } from '@/features/map/warmth/warmthRepo';
 import { filterByPeriod } from '@/features/map/warmth/heatScale';
+import { selectTopHeatSpot } from '@/features/map/warmth/heatPresentation';
+import { useVisitReviewFeed } from '@/features/visit-review/presentation/useVisitReviewFeed';
+import { useVisitReviewRegions } from '@/features/visit-review/presentation/useVisitReviewRegions';
 import DateScrubber from './DateScrubber';
 import WarmthCard from './WarmthCard';
 import {
@@ -44,40 +47,6 @@ import {
 
 
 
-export const REGION_OPTIONS = [
-  { id: 'all', label: '전국' },
-  { id: '서울', label: '서울' },
-  { id: '부산', label: '부산' },
-  { id: '대구', label: '대구' },
-  { id: '인천', label: '인천' },
-  { id: '대전', label: '대전' },
-  { id: '세종', label: '세종' },
-  { id: '경기', label: '경기' },
-  { id: '강원', label: '강원' },
-  { id: '충북', label: '충북' },
-  { id: '충남', label: '충남' },
-  { id: '전북', label: '전북' },
-  { id: '제주', label: '제주' },
-  { id: '전남광주통합특별시', label: '전남광주통합특별시' },
-] as const;
-
-export const REGION_CENTERS: Record<string, { lat: number; lng: number; level?: number }> = {
-  all: { lat: 36.3, lng: 127.8, level: 11 },
-  서울: { lat: 37.5826, lng: 126.9832, level: 6 },
-  부산: { lat: 35.1796, lng: 129.0756, level: 6 },
-  대구: { lat: 35.8714, lng: 128.6014, level: 6 },
-  인천: { lat: 37.4563, lng: 126.7052, level: 6 },
-  대전: { lat: 36.3504, lng: 127.3845, level: 6 },
-  세종: { lat: 36.4800, lng: 127.2890, level: 6 },
-  경기: { lat: 37.2636, lng: 127.0286, level: 7 },
-  강원: { lat: 37.7830, lng: 128.8820, level: 7 },
-  충북: { lat: 36.6424, lng: 127.4890, level: 7 },
-  충남: { lat: 36.7360, lng: 126.9350, level: 7 },
-  전북: { lat: 35.8156, lng: 127.1500, level: 6 },
-  제주: { lat: 33.3860, lng: 126.8020, level: 7 },
-  전남광주통합특별시: { lat: 35.1595, lng: 126.8526, level: 7 },
-};
-
 function renderPlaceIcon(type: string) {
   if (type.includes('스테이') || type.includes('숙소') || type.includes('고택')) {
     return <Home size={20} strokeWidth={2} />;
@@ -102,6 +71,8 @@ export default function WarmthFeed() {
   const setPopularPanelOpen = useMapStore((s) => s.setPopularPanelOpen);
   const setHoveredId = useMapStore((s) => s.setHoveredId);
   const setSheetSnap = useMapStore((s) => s.setSheetSnap);
+  const setWarmths = useMapStore((s) => s.setWarmths);
+  const heatSpots = useMapStore((s) => s.heatSpots);
   const category = useMapStore((s) => s.category);
 
 
@@ -110,19 +81,36 @@ export default function WarmthFeed() {
 
 
 
-  const allWarmths = useMapStore((s) => s.warmths);
+  const storedWarmths = useMapStore((s) => s.warmths);
   const period = useMapStore((s) => s.warmthPeriod);
-
-
-  const warmths = useMemo(() => filterByPeriod(allWarmths, period), [allWarmths, period]);
-
   const [selectedRegion, setSelectedRegion] = useState('all');
+  const serverRegions = useVisitReviewRegions();
+  const { data: serverWarmths } = useVisitReviewFeed(
+    selectedRegion === 'all' ? undefined : selectedRegion,
+  );
+  const regionOptions = useMemo(
+    () => [
+      { id: 'all', label: '전국' },
+      ...serverRegions.map((item) => ({
+        id: item.region.regionCode,
+        label: item.region.name,
+      })),
+    ],
+    [serverRegions],
+  );
+  const selectedRegionLabel = regionOptions.find((item) => item.id === selectedRegion)?.label ?? '선택 지역';
+  const allWarmths = serverWarmths ?? storedWarmths;
+  const warmths = useMemo(() => filterByPeriod(allWarmths, period), [allWarmths, period]);
   const [sortOrder, setSortOrder] = useState<'recent' | 'place'>('recent');
   const [currentPage, setCurrentPage] = useState(1);
   const feedTopRef = useRef<HTMLDivElement>(null);
   const regionScrollerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+
+  useEffect(() => {
+    if (serverWarmths !== null) setWarmths(serverWarmths);
+  }, [serverWarmths, setWarmths]);
 
   const checkScrollArrows = () => {
     const el = regionScrollerRef.current;
@@ -150,12 +138,9 @@ export default function WarmthFeed() {
 
   const handleRegionClick = (regionId: string) => {
     setSelectedRegion(regionId);
-    const center = REGION_CENTERS[regionId];
-    if (center && map && window.kakao?.maps?.LatLng) {
-      map.panTo(new window.kakao.maps.LatLng(center.lat, center.lng));
-      if (center.level && map.setLevel) {
-        map.setLevel(center.level);
-      }
+    if (regionId === 'all' && map && window.kakao?.maps?.LatLng) {
+      map.panTo(new window.kakao.maps.LatLng(DEFAULT_CENTER.lat, DEFAULT_CENTER.lng));
+      map.setLevel?.(11);
     }
   };
 
@@ -163,50 +148,20 @@ export default function WarmthFeed() {
 
 
   const topPlace = useMemo(() => {
-    const scoped =
-      selectedRegion === 'all'
-        ? warmths
-        : warmths.filter((w) => regionOf(w.lat, w.lng) === selectedRegion);
-
-    const ranked = Array.from(countByPlace(scoped).entries()).sort(
-      (a, b) => b[1].count - a[1].count,
-    )[0];
-
-    if (ranked) {
-      const [placeId, info] = ranked;
-      return {
-        placeId,
-        placeName: info.name,
-        count: info.count,
-        region: regionOf(info.lat, info.lng),
-        lat: info.lat,
-        lng: info.lng,
-      };
-    }
-
-
-    if (selectedRegion !== 'all') {
-      const localItem = items.find((it) => regionOf(it.lat, it.lng) === selectedRegion);
-      if (localItem) {
-        return {
-          placeId: localItem.id,
-          placeName: localItem.name,
-          count: 1,
-          region: selectedRegion,
-          lat: localItem.lat,
-          lng: localItem.lng,
-        };
-      }
-    }
-
-    return null;
-  }, [warmths, selectedRegion, items]);
+    const spot = selectTopHeatSpot(heatSpots);
+    if (!spot) return null;
+    return {
+      placeId: spot.placeId,
+      placeName: spot.name,
+      visitorCount: spot.visitorCount,
+      region: spot.district,
+      lat: spot.lat,
+      lng: spot.lng,
+    };
+  }, [heatSpots]);
 
   const filteredReviews = useMemo(() => {
-    let list =
-      selectedRegion === 'all'
-        ? reviews
-        : reviews.filter((r) => r.placeRegion === selectedRegion);
+    let list = reviews;
 
 
     if (category === 'busy') {
@@ -321,7 +276,7 @@ export default function WarmthFeed() {
             role="tablist"
             aria-label="지역별 필터"
           >
-            {REGION_OPTIONS.map((reg) => {
+            {regionOptions.map((reg) => {
               const active = selectedRegion === reg.id;
               return (
                 <RegionChip
@@ -370,7 +325,7 @@ export default function WarmthFeed() {
                 </FeaturedRank>
                 <FeaturedName>{topPlace.placeName}</FeaturedName>
                 <FeaturedMeta>
-                  {[topPlace.region, `온기 ${topPlace.count}개`].filter(Boolean).join(' · ')}
+                  {[topPlace.region, `방문 ${topPlace.visitorCount.toLocaleString()}명`].filter(Boolean).join(' · ')}
                 </FeaturedMeta>
               </FeaturedInfo>
             </FeaturedLeft>
@@ -423,7 +378,7 @@ export default function WarmthFeed() {
               ? '아직 남긴 온기가 없어요.'
               : selectedRegion === 'all'
                 ? '조건에 맞는 이야기가 아직 없어요.'
-                : `${selectedRegion}에 남겨진 온기가 아직 없어요.`}
+                : `${selectedRegionLabel}에 남겨진 온기가 아직 없어요.`}
             <br />
             첫 번째 이야기를 남겨보세요.
           </EmptyState>
