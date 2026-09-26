@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { StampBook } from '@/features/stamp';
+import { stampHttpRepository } from '@/features/stamp/infrastructure/stampHttpRepository';
 
 export const metadata: Metadata = {
   title: '수결첩 — 나의 전국 한옥 탐방 인장첩 | 온마루',
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function StampsPage() {
-  return <StampBook />;
+export default async function StampsPage() {
+  const initialCatalog = await stampHttpRepository.getCatalog().catch(() => null);
+  return <StampBook initialCatalog={initialCatalog} />;
 }
-
