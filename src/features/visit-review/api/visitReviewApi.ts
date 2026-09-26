@@ -1,6 +1,7 @@
 import { apiRequest, type ApiRequestOptions, USE_MOCK } from '@/lib/api/client';
 import type { CursorPage } from '@/lib/api/cursor';
 import type { VisitReview, VisitReviewPage, VisitReviewRegionItem, VisitReviewReportReason } from './visitReviewContract';
+import { createVisitReviewQueryCache, type VisitReviewQueryCache } from './visitReviewQueryCache';
 
 type RequestFn = <T>(path: string, options?: ApiRequestOptions) => Promise<T>;
 
@@ -19,40 +20,58 @@ export type VisitReviewRepository = {
   reportReview(reviewId: string, reason: VisitReviewReportReason, detail?: string): Promise<{ reportId: string; status: string }>;
 };
 
-export function createVisitReviewRepository(request: RequestFn = apiRequest): VisitReviewRepository {
+export function createVisitReviewRepository(
+  request: RequestFn = apiRequest,
+  queryCache: VisitReviewQueryCache = createVisitReviewQueryCache(),
+): VisitReviewRepository {
   return {
     listRegions(parentRegionCode) {
-      return request<{ items: VisitReviewRegionItem[] }>('/visit-review-regions', {
-        method: 'GET',
-        params: parentRegionCode ? { parentRegionCode } : {},
-      });
+      const key = `regions:${parentRegionCode ?? 'root'}`;
+      return queryCache.get(key, () =>
+        request<{ items: VisitReviewRegionItem[] }>('/visit-review-regions', {
+          method: 'GET',
+          params: parentRegionCode ? { parentRegionCode } : {},
+        }),
+      );
     },
     listReviews(input) {
-      return request<VisitReviewPage>('/visit-reviews', {
-        method: 'GET',
-        params: {
-          scope: input.scope,
-          regionCode: input.regionCode,
-          limit: input.limit ?? 20,
-          cursor: input.cursor,
-        },
-      });
+      const key = `feed:${input.scope}:${input.regionCode ?? ''}:${input.limit ?? 20}:${input.cursor ?? ''}`;
+      return queryCache.get(key, () =>
+        request<VisitReviewPage>('/visit-reviews', {
+          method: 'GET',
+          params: {
+            scope: input.scope,
+            regionCode: input.regionCode,
+            limit: input.limit ?? 20,
+            cursor: input.cursor,
+          },
+        }),
+      );
     },
     listReviewsByPlace(placeId, input) {
-      return request<VisitReviewPage>(`/places/${placeId}/visit-reviews`, {
-        method: 'GET',
-        params: { limit: input?.limit ?? 20, cursor: input?.cursor },
-      });
+      const key = `place:${placeId}:${input?.limit ?? 20}:${input?.cursor ?? ''}`;
+      return queryCache.get(key, () =>
+        request<VisitReviewPage>(`/places/${placeId}/visit-reviews`, {
+          method: 'GET',
+          params: { limit: input?.limit ?? 20, cursor: input?.cursor },
+        }),
+      );
     },
-    createReview(placeId, text, opts) {
-      return request<VisitReview>(`/places/${placeId}/visit-reviews`, {
+    async createReview(placeId, text, opts) {
+      const review = await request<VisitReview>(`/places/${placeId}/visit-reviews`, {
         method: 'POST',
         body: { text, ...opts },
         csrf: true,
+        idempotencyKey: globalThis.crypto.randomUUID(),
       });
+      queryCache.invalidate('feed:');
+      queryCache.invalidate(`place:${placeId}:`);
+      return review;
     },
-    deleteReview(reviewId) {
-      return request<void>(`/visit-reviews/${reviewId}`, { method: 'DELETE', csrf: true });
+    async deleteReview(reviewId) {
+      await request<void>(`/visit-reviews/${reviewId}`, { method: 'DELETE', csrf: true });
+      queryCache.invalidate('feed:');
+      queryCache.invalidate('place:');
     },
     setLiked(reviewId, liked) {
       return request<{ likedByMe: boolean; likeCount: number }>(`/visit-reviews/${reviewId}/likes/me`, {
@@ -82,7 +101,6 @@ const fixtureReviews: VisitReview[] = [
     likedByMe: false,
     mine: false,
     createdAt: '2026-09-13T10:30:00.000Z',
-    status: 'PUBLISHED',
   },
   {
     id: 'review-jeonju-2',
@@ -95,7 +113,6 @@ const fixtureReviews: VisitReview[] = [
     likedByMe: true,
     mine: false,
     createdAt: '2026-09-12T07:00:00.000Z',
-    status: 'PUBLISHED',
   },
 ];
 
@@ -104,39 +121,20 @@ export const fixtureVisitReviewRepository: VisitReviewRepository = {
     const items: VisitReviewRegionItem[] = parentRegionCode
       ? [
           {
-            regionCode: '45113',
-            parentRegionCode,
-            name: '전주시 완산구',
-            level: 'SIGUNGU',
-            center: { lat: 35.812, lng: 127.146 },
-            bounds: { west: 127.05, south: 35.75, east: 127.2, north: 35.88 },
+            region: parentRegionCode === 'kr-11'
+              ? { regionCode: 'kr-11-jongno', parentRegionCode, name: '종로구', level: 'CITY' }
+              : { regionCode: 'kr-45-jeonju', parentRegionCode, name: '전주시', level: 'CITY' },
             reviewCount: 17,
-            coverageStatus: 'SUPPORTED',
-            hasChildren: false,
           },
         ]
       : [
           {
-            regionCode: '45',
-            parentRegionCode: null,
-            name: '전북',
-            level: 'SIDO',
-            center: { lat: 35.7175, lng: 127.153 },
-            bounds: { west: 126.4, south: 35.3, east: 127.8, north: 36.2 },
+            region: { regionCode: 'kr-45', parentRegionCode: null, name: '전북특별자치도', level: 'PROVINCE' },
             reviewCount: 28,
-            coverageStatus: 'SUPPORTED',
-            hasChildren: true,
           },
           {
-            regionCode: '11',
-            parentRegionCode: null,
-            name: '서울',
-            level: 'SIDO',
-            center: { lat: 37.5665, lng: 126.978 },
-            bounds: { west: 126.76, south: 37.42, east: 127.18, north: 37.7 },
+            region: { regionCode: 'kr-11', parentRegionCode: null, name: '서울특별시', level: 'PROVINCE' },
             reviewCount: 14,
-            coverageStatus: 'SUPPORTED',
-            hasChildren: true,
           },
         ];
     return { items };

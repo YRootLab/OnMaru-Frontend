@@ -1,6 +1,7 @@
 # handoff.md
 
 ## Current Work
+- 2026-09-26 완료 (#256 연계): 지도 온기 모드의 Map Heat와 VisitReview 경계를 배포 OpenAPI/실응답 기준으로 분리했다. 공개 후기의 `status` 재필터와 Heat의 후기/장소 fallback을 제거하고, 지역 피드는 서버 leaf `regionCode`, 장소 상세는 canonical `placeId` 전용 조회를 사용한다. 작성은 CSRF·멱등성 키를 포함한 실제 POST 성공 뒤에만 목록을 갱신한다. 중복 마운트의 동일 조회는 공유 query cache로 합치고, 전국 장소 조회도 반경 축소 없이 canonical ID를 받도록 수정했다. 대표 Heat 카드는 후기 수가 아닌 Heat 응답만 사용하며, 삭제된 `/stories/nearby` 호출은 현재 이야기 목록 계약 기반 거리 필터로 교체했다. 검증: `tsc`, ESLint, production build, 전체 Vitest 71파일·220건 통과. 실제 배포 API를 사용하는 데스크톱·모바일 Playwright 시나리오와 Heat/후기 각각의 503 장애 격리도 통과했다. 인증이 필요한 작성 성공 경로는 실제 운영 데이터를 변경하지 않도록 브라우저 네트워크 경계에서 CSRF·201 응답만 대체해 메서드·헤더·payload·성공 후 갱신을 확인했다.
 - 지도 `PopularPlacesPanel`에서 이미지 요청 실패 시 비어 있던 58px 썸네일을 placeholder로 전환했다. 이미지 URL 판정과 실패 상태는 표현 컴포넌트에 국한했고, 인기 장소 데이터 조회 흐름은 변경하지 않았다.
 - 홈 `이번 주 추천 코스` 카드의 TourAPI 이미지를 placeholder가 가리는 현상을 수정했다. `JourneyDiscoveryFeed`에서 placeholder를 먼저, 유효한 이미지 요소를 나중에 렌더링하고 이미지 요청 실패 시 이미지 요소만 숨겨 placeholder가 남도록 처리한다. `thumbnailUrl`의 `null`·빈 문자열·공백은 placeholder만 표시한다.
 - **Single Source of Truth 아키텍처 전환 완료** (2026-09-23): 프론트엔드에서 모든 데이터 처리 로직을 백엔드로 이관 완료. PR #189로 develop 병합 대기 중.

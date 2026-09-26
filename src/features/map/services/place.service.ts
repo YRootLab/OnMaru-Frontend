@@ -169,7 +169,11 @@ export class PlaceService {
     }
 
     if (!opts.category && process.env.NEXT_PUBLIC_API_URL) {
-      const backendItems = await this.fetchFromBackend({ lat: opts.lat, lng: opts.lng, radius });
+      const backendItems = await this.fetchFromBackend({
+        lat: opts.lat,
+        lng: opts.lng,
+        radius: opts.radius,
+      });
       if (backendItems) {
         this.placeCache.set(cacheKey, { expiresAt: Date.now() + CACHE_TTL, items: backendItems });
         return backendItems;

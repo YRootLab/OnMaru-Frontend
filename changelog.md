@@ -3,6 +3,7 @@
 Lightweight human-readable summary of meaningful repository changes. This does not replace Git history.
 
 ## Unreleased
+- 지도 온기 모드의 Map Heat와 방문 후기(VisitReview)를 독립 파이프라인으로 분리했다. 공개 후기의 중복 moderation 상태 필터를 제거하고 전국·지역·장소별 조회와 실제 작성 API를 연결했으며, 후기 실패가 Heat를 지우거나 Heat 실패가 후기를 지우지 않도록 했다. 후기 요청 공유 캐시로 중복 마운트의 네트워크 호출을 합치고, 전국 장소 조회의 canonical `placeId` 보존, Heat 응답만 사용하는 대표 명소, 현재 소리마루 목록 계약 기반 주변 이야기 조회를 함께 반영했다.
 - 프론트엔드 Single Source of Truth 아키텍처 전환을 완료했다. 모든 데이터 처리 로직을 백엔드에 집중하고, 프론트엔드는 백엔드 API만 호출해 데이터를 표시하는 순수 UI 레이어로 변경했다.
   - 필터링 로직 완전 제거: 지역·카테고리·온기 등 모든 필터링을 백엔드로 이관
   - 클라이언트 캐싱 제거: localStorage, 메모리 캐시 모두 제거
@@ -229,6 +230,7 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## [Unreleased] 
 ### Changed 
+- 지도 온기 모드에서 방문량 기반 Map Heat와 사용자 VisitReview를 완전히 분리했다. 공개 후기 응답의 비공개 moderation `status` 필터와 후기/장소 기반 Heat fallback을 제거하고, 서버 지역 코드·장소별 전용 조회·실제 후기 작성 POST(CSRF/멱등성)를 연결했다.
 - 지도 인기 장소 카드에서 이미지 요청이 실패해도 빈 썸네일을 남기지 않고, 58px placeholder로 전환하도록 보완했다.
 - 홈 `이번 주 추천 코스` 카드에서 placeholder보다 실제 이미지를 뒤에 렌더링해 TourAPI 썸네일이 가려지지 않도록 수정하고, 공백 URL 및 이미지 요청 실패 시에는 placeholder를 유지하도록 했다.
 - Split long Odii narration text into timed sentence cues and present it as

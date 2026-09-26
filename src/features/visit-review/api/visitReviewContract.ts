@@ -1,6 +1,5 @@
 import type { CursorPage } from '@/lib/api/cursor';
 
-export type VisitReviewStatus = 'PUBLISHED' | 'HIDDEN' | 'REMOVED';
 export type VisitReviewReportReason = 'SPAM' | 'ABUSE' | 'PERSONAL_DATA' | 'COPYRIGHT' | 'OTHER';
 
 export type VisitReview = {
@@ -17,21 +16,18 @@ export type VisitReview = {
   likedByMe: boolean;
   mine: boolean;
   createdAt: string;
-  status: VisitReviewStatus;
 };
 
 export type VisitReviewPage = CursorPage<VisitReview>;
 
 export type VisitReviewRegionItem = {
-  regionCode: string;
-  parentRegionCode: string | null;
-  name: string;
-  level: 'SIDO' | 'SIGUNGU';
-  center: { lat: number; lng: number };
-  bounds: { west: number; south: number; east: number; north: number };
+  region: {
+    regionCode: string;
+    parentRegionCode: string | null;
+    name: string;
+    level: 'PROVINCE' | 'CITY';
+  };
   reviewCount: number;
-  coverageStatus: 'SUPPORTED' | 'PARTIAL' | 'UNSUPPORTED';
-  hasChildren: boolean;
 };
 
 export type VisitReviewTextValidation =

@@ -50,6 +50,33 @@ describe('PlaceService.getNearbyPlaces backend-first (FE #90)', () => {
     expect(tourApiGetMock).not.toHaveBeenCalled();
   });
 
+  it('keeps canonical backend places for a nationwide viewport instead of replacing them with fallback ids', async () => {
+    process.env.NEXT_PUBLIC_API_URL = 'https://api.onmaru.test';
+    apiGetMock.mockResolvedValue({
+      items: [
+        {
+          placeId: 'p-jeonju-hanok-village',
+          name: '전주 한옥마을',
+          category: '한옥',
+          region: { regionCode: 'kr-45-jeonju', name: '전북 전주시' },
+          coordinates: { lat: 35.8151, lng: 127.153 },
+          thumbnailUrl: null,
+          summary: '설명',
+          savedByMe: false,
+        },
+      ],
+    });
+
+    const { PlaceService } = await import('./place.service');
+    const items = await PlaceService.getNearbyPlaces({
+      lat: 36.35,
+      lng: 127.75,
+      radius: 224_297,
+    });
+
+    expect(items.map((item) => item.id)).toEqual(['p-jeonju-hanok-village']);
+  });
+
   it('falls back to TourAPI when the backend returns no items', async () => {
     process.env.NEXT_PUBLIC_API_URL = 'https://api.onmaru.test';
     apiGetMock.mockResolvedValue({ items: [] });

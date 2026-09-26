@@ -4,6 +4,8 @@ Backlog for follow-up improvements that are useful but not required to resume th
 
 ## Open
 
+- VisitReview 배포 OpenAPI를 실제 계약과 맞춘다. 현재 `CreateReviewRequest` schema는 `text`만/최대 1,000자로 문서화하지만 FE 계약은 `mood`·`score`·`tags`와 300자 제한을 사용한다. 목록·지역 응답도 구체 schema 대신 `object`로만 노출되고, `scope=REGION&regionCode=kr-45`는 0건이지만 leaf `kr-45-jeonju`는 2건을 반환하므로 부모 지역의 재귀 포함 여부를 백엔드 #256 후속으로 명시해야 한다. (2026-09-26 배포 `/v3/api-docs`·실응답 확인)
+
 - GitHub Actions Secrets에 `VERCEL_TOKEN`/`VERCEL_ORG_ID`/`VERCEL_PROJECT_ID` 미등록 시 develop push/배포가 실패할 수 있음. Secrets 등록은 관리자가 브라우저에서 수동 진행해야 함. (서브모듈 인증용 `CORE_UI_READ_TOKEN`·`SUBMODULE_SSH_KEY`는 서브모듈 제거로 더 이상 불필요 — 삭제 대기)
 - 백엔드 실서버(`onmaru-backend.onrender.com`)에 `GET /api/v1/hanoks/screen-hanok`가 배포되면 실데이터 스모크 테스트 후 `screenHanok.service.ts`의 Fallback 큐레이션 데이터셋(7종) 유지/축소 여부를 검토한다. (Refs #103 — 이슈는 FE 연동 완료로 종료됨, 백엔드 배포는 별도 진행)
 
