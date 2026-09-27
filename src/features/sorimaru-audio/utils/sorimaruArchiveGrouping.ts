@@ -1,15 +1,15 @@
-import type { SorimaruStoryItem } from '@/features/sorimaru-audio/types/sorimaru.types';
+import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 
 export interface SorimaruPlaceGroup {
   key: string;
   label: string;
-  representative: SorimaruStoryItem;
-  stories: SorimaruStoryItem[];
+  representative: SorimaruStorySummary;
+  stories: SorimaruStorySummary[];
 }
 
 const PLACE_SEPARATOR = /\s*[-–—:]\s*/;
 
-function placeLabelFor(story: SorimaruStoryItem): string | null {
+function placeLabelFor(story: SorimaruStorySummary): string | null {
   const [candidate, remainder] = story.title.split(PLACE_SEPARATOR, 2);
   if (!candidate || !remainder || candidate.trim().length < 2) return null;
   return candidate.trim();
@@ -19,12 +19,12 @@ function normalizePlaceKey(label: string): string {
   return label.toLocaleLowerCase('ko-KR').replace(/\s+/g, '');
 }
 
-export function groupSorimaruStoriesByPlace(stories: SorimaruStoryItem[]): SorimaruPlaceGroup[] {
+export function groupSorimaruStoriesByPlace(stories: SorimaruStorySummary[]): SorimaruPlaceGroup[] {
   const groups = new Map<string, SorimaruPlaceGroup>();
 
   stories.forEach((story) => {
     const label = placeLabelFor(story);
-    const key = label ? `place:${normalizePlaceKey(label)}` : `stid:${story.stid}`;
+    const key = label ? `place:${normalizePlaceKey(label)}` : `stid:${story.storyId}`;
     const existing = groups.get(key);
 
     if (existing) {

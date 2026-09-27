@@ -560,7 +560,7 @@ function RegionStoryItem({
   onMouseEnter: () => void;
   onMouseLeave: () => void;
 }) {
-  const fallbackImage = getSorimaruFallbackImage({ stid: story.storyId, title: story.title });
+  const fallbackImage = getSorimaruFallbackImage(story);
   const imgSrc = story.imageUrl || fallbackImage;
   const seconds = Math.max(0, Math.floor(story.durationSeconds));
   const formattedDuration = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;

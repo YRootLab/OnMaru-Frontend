@@ -41,7 +41,7 @@ describe('Sorimaru catalog controller', () => {
 
     expect(listRegionGroups).toHaveBeenCalledExactlyOnceWith('ko-KR');
     expect(listStories).toHaveBeenCalledTimes(2);
-    expect(listStories).toHaveBeenNthCalledWith(1, { language: 'ko-KR', limit: 12, regionCode: 'kr-47-130' });
+    expect(listStories).toHaveBeenNthCalledWith(1, { language: 'ko-KR', limit: 20, regionCode: 'kr-47-130' });
     expect(catalog.getSnapshot().catalog.pages[0].items[0].storyId).toBe('gyeongju');
   });
 
@@ -152,8 +152,8 @@ describe('Sorimaru catalog controller', () => {
     oldScope.resolve(page('hanok'));
     await first;
 
-    expect(listStories).toHaveBeenNthCalledWith(1, { language: 'ko-KR', limit: 12, category: '한옥' });
-    expect(listStories).toHaveBeenNthCalledWith(2, { language: 'ko-KR', limit: 12, category: '시장' });
+    expect(listStories).toHaveBeenNthCalledWith(1, { language: 'ko-KR', limit: 20, category: '한옥' });
+    expect(listStories).toHaveBeenNthCalledWith(2, { language: 'ko-KR', limit: 20, category: '시장' });
     expect(catalog.getSnapshot().catalog.pages[0].items[0].storyId).toBe('market');
     expect(catalog.getSnapshot().catalog.error).toBeNull();
   });
@@ -206,7 +206,7 @@ describe('Sorimaru catalog controller', () => {
     expect(catalog.getSnapshot().currentPage).toBe(1);
 
     await catalog.goToPage(2);
-    expect(listStories).toHaveBeenNthCalledWith(2, { language: 'ko-KR', limit: 12, cursor: 'cursor-2' });
+    expect(listStories).toHaveBeenNthCalledWith(2, { language: 'ko-KR', limit: 20, cursor: 'cursor-2' });
     expect(catalog.getSnapshot().currentPage).toBe(2);
     expect(catalog.getSnapshot().catalog.error).toBeNull();
   });

@@ -7,12 +7,14 @@
 
 
 
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import styled from '@emotion/styled';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Pause, Play, MapPin, Clock, CalendarDays, Headphones } from 'lucide-react';
 import { meok, palette, fontSize, ringShadow } from '@/design-system/tokens';
 import { useJourneyStore } from '../store/useJourneyStore';
+import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
+import type { NearbyAudioStory } from '../types/enrichment.types';
 
 const Wrap = styled.section`
   width: min(calc(100% - 40px), 1140px);
@@ -425,28 +427,22 @@ const ProgressFill = styled(motion.div)`
 
 function AudioItem({
   story,
-  isActive,
-  onPlay,
 }: {
-  story: { stid: string; title: string; audioTitle: string; audioUrl: string; distance?: string; formattedDuration: string };
+  story: NearbyAudioStory;
   isActive: boolean;
-  onPlay: (el: HTMLAudioElement) => void;
 }) {
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [progress, setProgress] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const selectAndLoadStory = useSorimaruAudioStore((state) => state.selectAndLoadStory);
+  const currentStory = useSorimaruAudioStore((state) => state.currentStory);
+  const isPlaying = useSorimaruAudioStore((state) => state.isPlaying);
+  const setIsPlaying = useSorimaruAudioStore((state) => state.setIsPlaying);
+  const currentTime = useSorimaruAudioStore((state) => state.currentTime);
+  const duration = useSorimaruAudioStore((state) => state.duration);
+  const isCurrent = currentStory?.storyId === story.storyId;
+  const progress = isCurrent && duration > 0 ? currentTime / duration : 0;
 
   function toggle() {
-    const el = audioRef.current;
-    if (!el) return;
-    if (isPlaying) {
-      el.pause();
-      setIsPlaying(false);
-    } else {
-      onPlay(el);
-      el.play();
-      setIsPlaying(true);
-    }
+    if (isCurrent) setIsPlaying(!isPlaying);
+    else void selectAndLoadStory({ storyId: story.storyId }, 'play').catch(() => undefined);
   }
 
   return (
@@ -458,7 +454,7 @@ function AudioItem({
         aria-label={isPlaying ? '오디오 일시정지' : '오디오 해설 듣기'}
         title={isPlaying ? '일시정지' : '오디오 해설 듣기'}
       >
-        {isPlaying ? <Pause size={17} fill="currentColor" /> : <Play size={17} fill="currentColor" style={{ marginLeft: 2 }} />}
+        {isCurrent && isPlaying ? <Pause size={17} fill="currentColor" /> : <Play size={17} fill="currentColor" style={{ marginLeft: 2 }} />}
       </PlayButton>
       <AudioBody>
         <AudioTitleRow>
@@ -472,20 +468,6 @@ function AudioItem({
         <ProgressTrack>
           <ProgressFill style={{ scaleX: progress }} />
         </ProgressTrack>
-        <audio
-          ref={audioRef}
-          src={story.audioUrl}
-          preload="none"
-          hidden
-          onTimeUpdate={(e) => {
-            const el = e.currentTarget;
-            if (el.duration) setProgress(el.currentTime / el.duration);
-          }}
-          onEnded={() => {
-            setIsPlaying(false);
-            setProgress(0);
-          }}
-        />
       </AudioBody>
     </AudioRow>
   );
@@ -609,12 +591,6 @@ export default function JourneyEnrichmentSections() {
   const nearbyFood = useJourneyStore((s) => s.nearbyFood);
   const reduceMotion = useReducedMotion();
 
-  const playingRef = useRef<HTMLAudioElement | null>(null);
-  function handlePlay(el: HTMLAudioElement) {
-    if (playingRef.current && playingRef.current !== el) playingRef.current.pause();
-    playingRef.current = el;
-  }
-
   if (hanokDogan.length === 0 && nearbyAudio.length === 0 && nearbyFood.length === 0) return null;
 
   return (
@@ -706,7 +682,7 @@ export default function JourneyEnrichmentSections() {
                 viewport={{ once: true, margin: '-30px' }}
                 transition={{ duration: 0.5, delay: reduceMotion ? 0 : idx * 0.06, ease: [0.16, 1, 0.3, 1] }}
               >
-                <AudioItem story={story} isActive={false} onPlay={handlePlay} />
+                <AudioItem story={story} isActive={false} />
               </motion.div>
             ))}
           </AudioList>

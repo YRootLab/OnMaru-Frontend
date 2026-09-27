@@ -6,7 +6,7 @@ import { useReducedMotion } from 'framer-motion';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { SorimaruStoryItem } from '@/features/sorimaru-audio/types/sorimaru.types';
+import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import { meok } from '@/design-system/tokens';
 
 const INTRO_VIDEO_SRC = '/videos/hanok-neungsohwa-loop.mp4';
@@ -14,8 +14,8 @@ const INTRO_VIDEO_SRC = '/videos/hanok-neungsohwa-loop.mp4';
 gsap.registerPlugin(ScrollTrigger);
 
 interface SorimaruAutoSliceRailProps {
-  stories?: SorimaruStoryItem[];
-  storySets?: Record<string, SorimaruStoryItem[]>;
+  stories?: SorimaruStorySummary[];
+  storySets?: Record<string, SorimaruStorySummary[]>;
 }
 
 const IntroStage = styled.div`

@@ -36,7 +36,7 @@ export function createSorimaruDetailSelectionController(repository: SorimaruRepo
     const owner = Symbol('Sorimaru URL selection');
     const request: Promise<void> = useSorimaruAudioStore.getState().selectAndLoadStory(
       target ?? { storyId }, intent.autoPlay ? 'play' : 'select', repository, owner,
-    ).finally(() => {
+    ).then(() => undefined).finally(() => {
       if (pendingRequest?.promise === request) pendingRequest = null;
     });
     pendingRequest = { key, owner, promise: request };

@@ -121,8 +121,8 @@ describe('SoundConstellationSection props data flow', () => {
     fireEvent.scroll(scroll);
     expect(listStories).toHaveBeenCalledTimes(2);
     expect(listStories).toHaveBeenLastCalledWith(kind === 'short'
-      ? { language: 'ko-KR', regionCode: 'returned-code', limit: 12, cursor: 'actual-next-cursor' }
-      : { language: 'ko-KR', regionCode: 'second-returned-code', limit: 12 });
+      ? { language: 'ko-KR', regionCode: 'returned-code', limit: 20, cursor: 'actual-next-cursor' }
+      : { language: 'ko-KR', regionCode: 'second-returned-code', limit: 20 });
     await act(async () => resolveNext({ items: [], nextCursor: null, hasMore: false }));
     gesture();
     expect(listStories).toHaveBeenCalledTimes(2);

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { SorimaruStoryItem } from '@/features/sorimaru-audio/types/sorimaru.types';
+import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 
 const FALLBACK_IMAGES = [
   '/images/hanok/hanok-main.png',
@@ -9,17 +9,21 @@ const FALLBACK_IMAGES = [
   '/images/hanok/giwa-detail.png',
 ];
 
-export function getSorimaruFallbackImage(story: Pick<SorimaruStoryItem, 'stid' | 'title'>, index: number = 0): string {
-  const seed = Array.from(`${story.stid}${story.title}`).reduce((sum, char) => sum + char.charCodeAt(0), index);
+export function getSorimaruFallbackImage(story: Pick<SorimaruStorySummary, 'storyId' | 'title'> | null, index: number = 0): string {
+  const seed = Array.from(`${story?.storyId ?? ''}${story?.title ?? ''}`).reduce((sum, char) => sum + char.charCodeAt(0), index);
   return FALLBACK_IMAGES[seed % FALLBACK_IMAGES.length];
 }
 
-export function useSorimaruImage(story: SorimaruStoryItem, index: number = 0): string {
+export function useSorimaruImage(story: SorimaruStorySummary | null, index: number = 0): string {
   const fallback = getSorimaruFallbackImage(story, index);
-  const [imgSrc, setImgSrc] = useState<string>(story.imageUrl || fallback);
+  const [imgSrc, setImgSrc] = useState<string>(story?.imageUrl || fallback);
 
   useEffect(() => {
 
+    if (!story) {
+      setImgSrc(fallback);
+      return;
+    }
     if (story.imageUrl) {
       setImgSrc(story.imageUrl);
       return;
@@ -42,7 +46,7 @@ export function useSorimaruImage(story: SorimaruStoryItem, index: number = 0): s
     return () => {
       isMounted = false;
     };
-  }, [story.title, story.imageUrl]);
+  }, [fallback, story]);
 
   return imgSrc;
 }

@@ -68,7 +68,7 @@ export function createSorimaruCatalogController(repository: SorimaruRepository, 
     listeners.forEach((listener) => listener());
   };
   const query = () => ({
-    language: 'ko-KR', limit: 12,
+    language: 'ko-KR', limit: 20,
     ...(scope.category === '전체' ? {} : { category: scope.category }),
     ...(scope.regionCode ? { regionCode: scope.regionCode } : {}),
   });

@@ -50,7 +50,7 @@ export function createSorimaruRegionStories(
     } });
     try {
       const page = await repository.listStories({
-        language: 'ko-KR', regionCode: codes[codeIndex], limit: 12, ...(cursor ? { cursor } : {}),
+        language: 'ko-KR', regionCode: codes[codeIndex], limit: 20, ...(cursor ? { cursor } : {}),
       });
       if (generation !== regionGeneration) return;
       const items = append ? [...snapshot.regionStoriesState.items] : [];

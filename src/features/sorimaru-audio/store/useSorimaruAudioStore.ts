@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { SorimaruStoryItem, ScriptLine } from '@/features/sorimaru-audio/types/sorimaru.types';
+import { ScriptLine } from '@/features/sorimaru-audio/types/sorimaru.types';
 import { sorimaruApiAdapter } from '@/features/sorimaru-audio/api/sorimaruApi';
 import type { SorimaruRepository } from '@/features/sorimaru-audio/application/SorimaruRepository';
 import type { SorimaruStoryDetail, SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
@@ -23,7 +23,7 @@ interface SorimaruAudioState {
   selectedCategory: string;
   searchQuery: string;
   isBookmarked: boolean;
-  savedStories: SorimaruStoryItem[];
+  savedStories: SorimaruStorySummary[];
   isPlayerExpanded: boolean;
   playbackRate: number;
 
@@ -34,7 +34,7 @@ interface SorimaruAudioState {
     intent?: 'select' | 'play',
     repository?: SorimaruRepository,
     owner?: symbol,
-  ) => Promise<void>;
+  ) => Promise<SorimaruStoryDetail | void>;
   cancelPendingDetailSelection: (owner: symbol) => void;
   setIsPlaying: (isPlaying: boolean) => void;
   setCurrentTime: (time: number) => void;
@@ -44,7 +44,7 @@ interface SorimaruAudioState {
   setSearchQuery: (query: string) => void;
   toggleBookmark: () => void;
   hydrateSavedStories: () => Promise<void>;
-  toggleSavedStory: (story: SorimaruStoryItem) => void;
+  toggleSavedStory: (story: SorimaruStorySummary) => void;
   removeSavedStory: (storyId: string) => void;
   setIsPlayerExpanded: (isExpanded: boolean) => void;
   setPlaybackRate: (rate: number) => void;
@@ -115,11 +115,14 @@ export const useSorimaruAudioStore = create<SorimaruAudioState>((set, get) => {
     }
 
     if (generation !== selectionGeneration) return;
-    const transcriptLines = detail.transcript.flatMap((line) =>
-      line.startTimeSeconds === undefined
-        ? parseScriptToLines(line.text, detail.durationSeconds).map(({ text }) => ({ text, timeSec: undefined }))
-        : [{ text: line.text, timeSec: line.startTimeSeconds }],
-    );
+    const transcriptLines: Array<{ text: string; timeSec?: number }> = [];
+    for (const line of detail.transcript) {
+      if (line.startTimeSeconds === undefined) {
+        transcriptLines.push(...parseScriptToLines(line.text, detail.durationSeconds).map(({ text }) => ({ text })));
+      } else {
+        transcriptLines.push({ text: line.text, timeSec: line.startTimeSeconds });
+      }
+    }
     const timeStep = Math.max(1, detail.durationSeconds / transcriptLines.length);
     set({
       currentStory: detail,
@@ -133,6 +136,7 @@ export const useSorimaruAudioStore = create<SorimaruAudioState>((set, get) => {
       })),
       isPlaying: intent === 'play',
     });
+    return detail;
   },
   cancelPendingDetailSelection: (owner) => {
     if (activeSelectionOwner !== owner) return;
@@ -165,34 +169,32 @@ export const useSorimaruAudioStore = create<SorimaruAudioState>((set, get) => {
     try {
       const response = await defaultSavedResourcesRepository.listOdiiStories({ limit: 50 });
       set({ savedStories: response.items.map((item) => ({
-        tid: item.storyId,
-        tlid: item.spotId,
-        stid: item.storyId,
-        stlid: item.spotId,
+        storyId: item.storyId,
         title: item.title,
         audioTitle: item.title,
         category: '소리 이야기',
-        mapX: '',
-        mapY: '',
-        script: '',
-        playTime: String(item.durationSeconds ?? 0),
-        audioUrl: '',
-        imageUrl: '',
+        region: { regionCode: '', name: '', level: '', parentRegionCode: null },
+        coordinates: null,
+        durationSeconds: item.durationSeconds ?? 0,
+        imageUrl: null,
+        linkedPlaceId: item.placeId,
+        contentTags: [],
+        savedByMe: true,
       })) });
     } catch {
       set({ savedStories: [] });
     }
   },
-  toggleSavedStory: (story: SorimaruStoryItem) => {
+  toggleSavedStory: (story: SorimaruStorySummary) => {
     const state = get();
       if (!hasAuthenticatedUser()) {
         toast.info('로그인해주세요.');
         return;
       }
-      const storyKey = story.stid || story.title;
-      const alreadySaved = state.savedStories.some((saved) => (saved.stid || saved.title) === storyKey);
+      const storyKey = story.storyId;
+      const alreadySaved = state.savedStories.some((saved) => saved.storyId === storyKey);
       const savedStories = alreadySaved
-        ? state.savedStories.filter((saved) => (saved.stid || saved.title) !== storyKey)
+        ? state.savedStories.filter((saved) => saved.storyId !== storyKey)
         : [...state.savedStories, story];
       set({ savedStories });
       const request = alreadySaved ? unsaveOdiiStory(storyKey) : saveOdiiStory(storyKey);
@@ -203,7 +205,7 @@ export const useSorimaruAudioStore = create<SorimaruAudioState>((set, get) => {
   },
   removeSavedStory: (storyId: string) => {
     const previous = get().savedStories;
-    set({ savedStories: previous.filter((saved) => saved.stid !== storyId) });
+    set({ savedStories: previous.filter((saved) => saved.storyId !== storyId) });
     void unsaveOdiiStory(storyId).catch(() => {
       set({ savedStories: previous });
       toast.error('찜 상태를 저장하지 못했습니다.');

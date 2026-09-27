@@ -54,7 +54,7 @@ describe('loadSorimaruInitialData', () => {
     const result = await loadSorimaruInitialData(repository);
 
     expect(repository.listStories).toHaveBeenCalledOnce();
-    expect(repository.listStories).toHaveBeenCalledWith({ language: 'ko-KR', limit: 12 });
+    expect(repository.listStories).toHaveBeenCalledWith({ language: 'ko-KR', limit: 20 });
     expect(repository.getStoryDetail).not.toHaveBeenCalled();
     expect(result.archive).toBe(firstPage);
     expect(result.heroStories).toEqual(stories.slice(0, 7));

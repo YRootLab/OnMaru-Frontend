@@ -10,7 +10,7 @@ export interface SorimaruInitialData {
 
 export async function loadSorimaruInitialData(repository: SorimaruRepository): Promise<SorimaruInitialData> {
   try {
-    const archive = await repository.listStories({ language: 'ko-KR', limit: 12 });
+    const archive = await repository.listStories({ language: 'ko-KR', limit: 20 });
     return {
       archive,
       heroStories: archive.items.slice(0, 7),

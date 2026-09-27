@@ -50,7 +50,7 @@ describe('useSorimaruRegionStories', () => {
     expect(result.current.regionStoriesState.items.map((item) => item.storyId)).toEqual(['first']);
     expect(repo.listRegionGroups).toHaveBeenCalledTimes(1);
     expect(repo.listStories).toHaveBeenCalledTimes(1);
-    expect(repo.listStories).toHaveBeenCalledWith({ language: 'ko-KR', regionCode: 'returned-seoul', limit: 12 });
+    expect(repo.listStories).toHaveBeenCalledWith({ language: 'ko-KR', regionCode: 'returned-seoul', limit: 20 });
     expect(repo.getStoryDetail).not.toHaveBeenCalled();
     rerender({ active: false });
     rerender({ active: true });
@@ -101,7 +101,7 @@ describe('useSorimaruRegionStories', () => {
     await act(async () => first.resolve(page('stale')));
     expect(result.current.selectedRegionId).toBe('gangwon');
     expect(result.current.regionStoriesState.items.map((item) => item.storyId)).toEqual(['second']);
-    expect(repo.listStories).toHaveBeenLastCalledWith({ language: 'ko-KR', regionCode: 'returned-gangwon', limit: 12 });
+    expect(repo.listStories).toHaveBeenLastCalledWith({ language: 'ko-KR', regionCode: 'returned-gangwon', limit: 20 });
   });
 
   it('loads the real next cursor once and retains the loaded list when that page fails', async () => {
@@ -113,7 +113,7 @@ describe('useSorimaruRegionStories', () => {
     await waitFor(() => expect(result.current.regionStoriesState.status).toBe('success'));
     act(() => { void result.current.loadNextRegionPage(); void result.current.loadNextRegionPage(); });
     expect(repo.listStories).toHaveBeenCalledTimes(2);
-    expect(repo.listStories).toHaveBeenLastCalledWith({ language: 'ko-KR', regionCode: 'returned-seoul', limit: 12, cursor: 'opaque-cursor' });
+    expect(repo.listStories).toHaveBeenLastCalledWith({ language: 'ko-KR', regionCode: 'returned-seoul', limit: 20, cursor: 'opaque-cursor' });
     await act(async () => next.reject(new Error('page failed')));
     expect(result.current.regionStoriesState.items.map((item) => item.storyId)).toEqual(['first']);
     expect(result.current.regionStoriesState.error?.message).toBe('page failed');
@@ -130,10 +130,10 @@ describe('useSorimaruRegionStories', () => {
     await waitFor(() => expect(result.current.regionStoriesState.status).toBe('success'));
     expect(repo.listStories).toHaveBeenCalledTimes(1);
     await act(async () => result.current.loadNextRegionPage());
-    expect(repo.listStories).toHaveBeenLastCalledWith({ language: 'ko-KR', regionCode: '11', limit: 12, cursor: 'cursor-11' });
+    expect(repo.listStories).toHaveBeenLastCalledWith({ language: 'ko-KR', regionCode: '11', limit: 20, cursor: 'cursor-11' });
     expect(result.current.regionStoriesState.hasMore).toBe(true);
     await act(async () => result.current.loadNextRegionPage());
-    expect(repo.listStories).toHaveBeenLastCalledWith({ language: 'ko-KR', regionCode: '41', limit: 12 });
+    expect(repo.listStories).toHaveBeenLastCalledWith({ language: 'ko-KR', regionCode: '41', limit: 20 });
     expect(result.current.regionStoriesState.items.map((item) => item.storyId)).toEqual(['seoul-1', 'seoul-2', 'gyeonggi']);
     expect(result.current.regionStoriesState.hasMore).toBe(false);
   });
@@ -158,7 +158,7 @@ describe('useSorimaruRegionStories', () => {
     await waitFor(() => expect(result.current.regionStoriesState.status).toBe('empty'));
     await act(async () => result.current.loadNextRegionPage());
     await act(async () => result.current.retryRegion());
-    expect(repo.listStories).toHaveBeenLastCalledWith({ language: 'ko-KR', regionCode: 'returned-seoul', limit: 12, cursor: 'empty-page-cursor' });
+    expect(repo.listStories).toHaveBeenLastCalledWith({ language: 'ko-KR', regionCode: 'returned-seoul', limit: 20, cursor: 'empty-page-cursor' });
     expect(result.current.regionStoriesState.items.map((item) => item.storyId)).toEqual(['found']);
   });
 });
