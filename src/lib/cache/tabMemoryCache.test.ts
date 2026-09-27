@@ -82,8 +82,6 @@ describe('TabMemoryCache', () => {
 // ─── swrFetch 동작 ──────────────────────────────────────────────────────────
 
 describe('swrFetch', () => {
-  const TTL = 60_000;
-
   function makeCache(): TabMemoryCache {
     return cache; // swrFetch는 외부 cache를 받지 않으므로 모듈 singleton 대신
     // 이 테스트에서는 import한 tabCache를 직접 사용하는 대신
