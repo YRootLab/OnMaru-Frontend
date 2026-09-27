@@ -26,6 +26,9 @@ import { SorimaruDependencyProvider, useSorimaruApiService } from '@/features/so
 import { findNearbySorimaruStories, loadedEditorialRailStories, type SorimaruSelectionIntent } from './sorimaruInitialLoad';
 import { catalogCategoryForSelection, useSorimaruCatalog } from '@/features/sorimaru-audio/hooks/useSorimaruCatalog';
 import { useSorimaruDetailSelection } from '@/features/sorimaru-audio/hooks/useSorimaruDetailSelection';
+import { useSorimaruRegionStories } from '@/features/sorimaru-audio/presentation/hooks/useSorimaruRegionStories';
+import { useViewportActivation } from '@/shared/hooks/useViewportActivation';
+import { SOUND_CONSTELLATION_API_ROOT_MARGIN } from '@/private/core-ui/sorimaru/soundConstellationMotion';
 import { palette, meok, surface, fontSize } from '@/design-system/tokens';
 import { HanjiDeckleEdge } from '@/shared/components/HanjiDeckleEdge';
 
@@ -325,6 +328,10 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   const stidParam = searchParams.get('stid');
   const autoPlayParam = searchParams.get('autoPlay');
   const activeApiService = useSorimaruApiService(apiService);
+  const { ref: regionSectionRef, isActive: regionSectionActive } = useViewportActivation<HTMLDivElement>({
+    rootMargin: SOUND_CONSTELLATION_API_ROOT_MARGIN,
+  });
+  const regionStories = useSorimaruRegionStories(activeApiService, regionSectionActive);
   const selectedCategory = useSorimaruAudioStore((s) => s.selectedCategory);
   const searchQuery = useSorimaruAudioStore((s) => s.searchQuery);
   const isPlaying = useSorimaruAudioStore((s) => s.isPlaying);
@@ -360,7 +367,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
       .some((value) => value.toLowerCase().includes(keyword));
   });
   const editorialRailStories = React.useMemo(() => loadedEditorialRailStories(catalog.pages), [catalog.pages]);
-  const apiError = initialError || catalog.error || selectionError
+  const apiError = initialError || catalog.error || selectionError || regionStories.groupsState.error || regionStories.regionStoriesState.error
     ? '소리마루 이야기를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'
     : null;
   const lastPage = catalog.pages.at(-1);
@@ -379,6 +386,17 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
       });
   }, [activeApiService, selectAndLoadStory]);
 
+  const handleRegionStorySelection = useCallback((summary: SorimaruStorySummary) => {
+    const player = useSorimaruAudioStore.getState();
+    if (player.currentStory?.storyId === summary.storyId) player.setIsPlaying(!player.isPlaying);
+    else handleRailStorySelection(summary, 'play');
+  }, [handleRailStorySelection]);
+
+  const retryRegionRequests = () => {
+    if (regionStories.groupsState.error) void regionStories.retryGroups();
+    else if (regionStories.regionStoriesState.error) void regionStories.retryRegion();
+  };
+
   useEffect(() => {
     let active = true;
     const intent = { stid: stidParam, title: titleParam, keyword: keywordParam, track: trackParam, autoPlay: autoPlayParam === 'true' };
@@ -395,6 +413,8 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   const retryApiRequests = () => {
     if (initialError || catalog.error) {
       void retry();
+    } else if (regionStories.groupsState.error || regionStories.regionStoriesState.error) {
+      retryRegionRequests();
     } else if (selectionError && pendingRailSelectionRef.current) {
       handleRailStorySelection(pendingRailSelectionRef.current, 'play');
     } else if (selectionError && pendingSelectionRef.current) {
@@ -489,8 +509,16 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
             </VesselReveal>
 
             <SorimaruSectionReveal style={{ minHeight: '760px' }}>
-              <div style={{ width: '100%' }}>
-                <SoundConstellationSection stories={storyList} />
+              <div ref={regionSectionRef} style={{ width: '100%' }}>
+                <SoundConstellationSection
+                  groupsState={regionStories.groupsState}
+                  regionStoriesState={regionStories.regionStoriesState}
+                  selectedRegionId={regionStories.selectedRegionId}
+                  onSelectRegion={regionStories.selectRegion}
+                  onLoadMore={regionStories.loadNextRegionPage}
+                  onSelectStory={handleRegionStorySelection}
+                  onRetry={retryRegionRequests}
+                />
               </div>
             </SorimaruSectionReveal>
 

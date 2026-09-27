@@ -1,34 +1,32 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
-import { useSorimaruImage, getSorimaruFallbackImage } from '@/features/sorimaru-audio/hooks/useSorimaruImage';
+import { getSorimaruFallbackImage } from '@/features/sorimaru-audio/hooks/useSorimaruImage';
 import { motion, type Variants } from 'framer-motion';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
-import { SorimaruStoryItem } from '@/features/sorimaru-audio/types/sorimaru.types';
-import { KOREA_MAP_VIEWBOX, KOREA_REGION_PATHS, KoreaRegionPath } from './koreaMapPaths';
-import { useSorimaruApiService } from '@/features/sorimaru-audio/context/SorimaruDependencyContext';
+import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
+import type { RegionGroupsState, RegionStoriesState } from '@/features/sorimaru-audio/presentation/hooks/useSorimaruRegionStories';
+import { KOREA_MAP_VIEWBOX, KOREA_REGION_PATHS } from './koreaMapPaths';
 import { getVirtualRange, VIRTUAL_ITEM_HEIGHT } from './soundConstellationScroll';
-import { useViewportActivation } from '@/shared/hooks/useViewportActivation';
 import {
-  SOUND_CONSTELLATION_API_ROOT_MARGIN,
   getRegionPathMotion,
 } from './soundConstellationMotion';
 import { palette, meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
-import { fetchSorimaruRegionGroups, type SorimaruRegionGroupsResponse } from '@/features/sorimaru-audio/api/sorimaruNetwork';
 
-interface SoundConstellationSectionProps {
-  stories: SorimaruStoryItem[];
+export interface SoundConstellationSectionProps {
+  groupsState: RegionGroupsState;
+  regionStoriesState: RegionStoriesState;
+  selectedRegionId: string;
+  onSelectRegion(regionId: string): void;
+  onLoadMore(): void;
+  onSelectStory(story: SorimaruStorySummary): void;
+  onRetry(): void;
 }
 
 const [VB_WIDTH, VB_HEIGHT] = KOREA_MAP_VIEWBOX.split(' ').slice(2).map(Number);
 const LIST_EDGE_INSET = 23;
-
-const normalizeText = (story: SorimaruStoryItem) => `${story.locationName || ''} ${story.title} ${story.audioTitle || ''} ${story.category || ''}`;
-const getRegionStories = (stories: SorimaruStoryItem[], region: KoreaRegionPath) => {
-  return stories.filter((story) => region.keywords.some((keyword) => normalizeText(story).includes(keyword)));
-};
 
 
 
@@ -540,17 +538,11 @@ const RegionStoryListSkeleton: React.FC = () => (
   </div>
 );
 
-function getStoryExcerpt(story: SorimaruStoryItem): string {
-  if (story.script && story.script.trim()) {
-    const firstSentence = story.script.split(/\r?\n/)[0]?.trim();
-    if (firstSentence && firstSentence.length > 3) {
-      return firstSentence.length > 70 ? `${firstSentence.slice(0, 70)}…` : firstSentence;
-    }
-  }
+function getStoryExcerpt(story: SorimaruStorySummary): string {
   if (story.audioTitle && story.audioTitle !== story.title) {
     return story.audioTitle;
   }
-  return story.locationName ? `${story.locationName}에 남은 오디오 소리 이야기` : '이 장소에 머무는 오디오 이야기';
+  return story.region.name ? `${story.region.name}에 남은 오디오 소리 이야기` : '이 장소에 머무는 오디오 이야기';
 }
 
 function RegionStoryItem({
@@ -561,14 +553,17 @@ function RegionStoryItem({
   onMouseEnter,
   onMouseLeave
 }: {
-  story: SorimaruStoryItem;
+  story: SorimaruStorySummary;
   active: boolean;
   isPlaying: boolean;
   onClick: () => void;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
 }) {
-  const imgSrc = useSorimaruImage(story);
+  const fallbackImage = getSorimaruFallbackImage({ stid: story.storyId, title: story.title });
+  const imgSrc = story.imageUrl || fallbackImage;
+  const seconds = Math.max(0, Math.floor(story.durationSeconds));
+  const formattedDuration = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
   return (
     <StoryItemButton
       type="button"
@@ -585,7 +580,10 @@ function RegionStoryItem({
           loading="lazy"
           referrerPolicy="no-referrer"
           onError={(e) => {
-            (e.target as HTMLImageElement).src = getSorimaruFallbackImage(story);
+            const image = e.currentTarget;
+            if (image.dataset.fallbackApplied) return;
+            image.dataset.fallbackApplied = 'true';
+            image.src = fallbackImage;
           }}
         />
       </StoryThumb>
@@ -595,7 +593,7 @@ function RegionStoryItem({
             {story.title}
           </StoryTitle>
           <DurationStatus isActive={active}>
-            {active && isPlaying ? '재생 중' : story.formattedDuration || '3:00'}
+            {active && isPlaying ? '재생 중' : formattedDuration}
           </DurationStatus>
         </StoryHeadRow>
         <ExcerptText>
@@ -606,153 +604,52 @@ function RegionStoryItem({
   );
 }
 
-export const SoundConstellationSection: React.FC<SoundConstellationSectionProps> = ({ stories }) => {
-  const activeApiService = useSorimaruApiService();
-  const { ref: viewportRef, isActive: isApiActive } = useViewportActivation<HTMLElement>({
-    rootMargin: SOUND_CONSTELLATION_API_ROOT_MARGIN,
-  });
+export const SoundConstellationSection: React.FC<SoundConstellationSectionProps> = ({
+  groupsState, regionStoriesState, selectedRegionId, onSelectRegion, onLoadMore, onSelectStory, onRetry,
+}) => {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const indicatorThumbRef = useRef<HTMLSpanElement | null>(null);
   const scrollFrameRef = useRef<number | null>(null);
   const scrollMetricsRef = useRef<{ scrollTop: number; scrollHeight: number; clientHeight: number } | null>(null);
 
-  const [selectedRegionId, setSelectedRegionId] = useState('seoul');
   const [hoveredRegionId, setHoveredRegionId] = useState<string | null>(null);
   const [isListHovered, setIsListHovered] = useState(false);
-  const [isRegionLoading, setIsRegionLoading] = useState(false);
-  const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
+  const isRegionLoading = groupsState.status !== 'success' || regionStoriesState.status === 'idle' || regionStoriesState.status === 'loading';
+  const isFetchingNextPage = regionStoriesState.loadingNext;
 
 
   const [renderScrollTop, setRenderScrollTop] = useState(0);
   const [containerHeight, setContainerHeight] = useState(500);
 
-  const regionStoriesCacheRef = useRef<Record<string, { stories: SorimaruStoryItem[]; page: number; hasMore: boolean }>>({});
-  const [regionStoryCounts, setRegionStoryCounts] = useState<Record<string, number>>({});
-  const [regionGroups, setRegionGroups] = useState<SorimaruRegionGroupsResponse | null>(null);
-  const [loadedRegionStories, setLoadedRegionStories] = useState<SorimaruStoryItem[] | null>(null);
-  const [hasMore, setHasMore] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
+  const regionGroups = groupsState.data;
+  const hasMore = regionStoriesState.hasMore;
 
-  const setCurrentStory = useSorimaruAudioStore((state) => state.setCurrentStory);
   const currentStory = useSorimaruAudioStore((state) => state.currentStory);
   const isPlaying = useSorimaruAudioStore((state) => state.isPlaying);
-  const setIsPlaying = useSorimaruAudioStore((state) => state.setIsPlaying);
 
   const selectedRegion = KOREA_REGION_PATHS.find((region) => region.id === selectedRegionId) || KOREA_REGION_PATHS[0];
 
-  useEffect(() => {
-    let cancelled = false;
-    void fetchSorimaruRegionGroups()
-      .then((response) => {
-        if (!cancelled) setRegionGroups(response);
-      })
-      .catch(() => {
-        if (!cancelled) setRegionGroups(null);
-      });
-    return () => { cancelled = true; };
-  }, []);
-
-  useEffect(() => {
-    if (!isApiActive) return;
-    let isMounted = true;
-
-    async function loadRegionStories() {
-      if (scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0;
-      setRenderScrollTop(0);
-
-      const cached = regionStoriesCacheRef.current[selectedRegionId];
-      if (cached && cached.stories.length > 0) {
-        setLoadedRegionStories(cached.stories);
-        setCurrentPage(cached.page);
-        setHasMore(cached.hasMore);
-        setIsRegionLoading(false);
-        return;
-      }
-
-      const localMatch = stories.filter((story) =>
-        selectedRegion.keywords.some((keyword) => normalizeText(story).includes(keyword))
-      );
-
-      setIsRegionLoading(true);
-
-      try {
-        const newStories = await activeApiService.getStoryList(undefined, selectedRegion.keywords[0]);
-        if (!isMounted) return;
-        let finalStories = newStories.filter((s) => Boolean(s && s.stid));
-        if (finalStories.length === 0) finalStories = localMatch;
-
-        const hasNext = newStories.length >= 10;
-        regionStoriesCacheRef.current[selectedRegionId] = {
-          stories: finalStories,
-          page: 1,
-          hasMore: hasNext,
-        };
-
-        setLoadedRegionStories(finalStories);
-        setRegionStoryCounts((previous) => ({ ...previous, [selectedRegionId]: finalStories.length }));
-        setCurrentPage(1);
-        setHasMore(hasNext);
-      } catch {
-        if (!isMounted) return;
-        setLoadedRegionStories(localMatch);
-        setRegionStoryCounts((previous) => ({ ...previous, [selectedRegionId]: localMatch.length }));
-        setHasMore(false);
-      } finally {
-        if (isMounted) setIsRegionLoading(false);
-      }
+  const selectRegion = (regionId: string) => {
+    if (regionId === selectedRegionId && (groupsState.error || regionStoriesState.error)) {
+      onRetry();
+      return;
     }
-
-    void loadRegionStories();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [selectedRegionId, activeApiService, isApiActive, selectedRegion, stories]);
+    if (scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0;
+    setRenderScrollTop(0);
+    onSelectRegion(regionId);
+  };
 
   useEffect(() => () => {
     if (scrollFrameRef.current !== null) cancelAnimationFrame(scrollFrameRef.current);
   }, []);
 
-  const loadNextPage = useCallback(() => {
-    if (isFetchingNextPage || !hasMore || isRegionLoading) return;
-
-    const nextPage = currentPage + 1;
-    setIsFetchingNextPage(true);
-
-    activeApiService
-      .getStoryList(undefined, selectedRegion.keywords[nextPage % selectedRegion.keywords.length] || selectedRegion.keywords[0])
-      .then((moreStories) => {
-        if (!moreStories || moreStories.length === 0) {
-          setHasMore(false);
-          if (regionStoriesCacheRef.current[selectedRegionId]) {
-            regionStoriesCacheRef.current[selectedRegionId].hasMore = false;
-          }
-          return;
-        }
-
-        const currentList = regionStoriesCacheRef.current[selectedRegionId]?.stories ?? [];
-        const existingIds = new Set(currentList.map((story) => story.stid));
-        const uniqueNew = moreStories.filter((story) => story && story.stid && !existingIds.has(story.stid));
-        const updatedList = [...currentList, ...uniqueNew];
-        const hasNext = moreStories.length >= 10;
-
-        regionStoriesCacheRef.current[selectedRegionId] = {
-          stories: updatedList,
-          page: nextPage,
-          hasMore: hasNext,
-        };
-        setLoadedRegionStories(updatedList);
-        setRegionStoryCounts((previous) => ({ ...previous, [selectedRegionId]: updatedList.length }));
-        setHasMore(hasNext);
-        setCurrentPage(nextPage);
-      })
-      .catch(() => {
-        setHasMore(false);
-      })
-      .finally(() => {
-        setIsFetchingNextPage(false);
-      });
-  }, [isFetchingNextPage, hasMore, isRegionLoading, currentPage, activeApiService, selectedRegionId, selectedRegion.keywords]);
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (container && container.clientHeight > 0 && container.scrollHeight <= container.clientHeight &&
+      hasMore && !isFetchingNextPage && !isRegionLoading && !regionStoriesState.error) {
+      onLoadMore();
+    }
+  }, [hasMore, isFetchingNextPage, isRegionLoading, regionStoriesState.items, regionStoriesState.error, onLoadMore]);
 
   const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
     const target = event.currentTarget;
@@ -798,13 +695,13 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
       currentScrollHeight - (currentScrollTop + currentClientHeight) < 120 &&
       hasMore &&
       !isFetchingNextPage &&
-      !isRegionLoading
+      !isRegionLoading && !regionStoriesState.error
     ) {
-      loadNextPage();
+      onLoadMore();
     }
   };
 
-  const regionStories = loadedRegionStories || getRegionStories(stories, selectedRegion);
+  const regionStories = regionStoriesState.items;
   const apiRegionGroup = regionGroups?.groups.find((group) => group.label === selectedRegion.label);
 
   const totalCount = regionStories.length;
@@ -826,14 +723,8 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
     [regionStories, startIndex, endIndex]
   );
 
-  const playStory = (story: SorimaruStoryItem) => {
-    if (currentStory.stid === story.stid) setIsPlaying(!isPlaying);
-    else setCurrentStory(story);
-  };
-
   return (
     <SectionWrapper
-      ref={viewportRef}
       variants={sectionVariants}
       initial="hidden"
       whileInView="visible"
@@ -916,7 +807,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                     <motion.path
                       key={region.id}
                       d={region.d}
-                      onClick={() => setSelectedRegionId(region.id)}
+                      onClick={() => selectRegion(region.id)}
                       onHoverStart={() => setHoveredRegionId(region.id)}
                       onHoverEnd={() => setHoveredRegionId((current) => (current === region.id ? null : current))}
                       initial={pathMotion}
@@ -936,7 +827,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
               {KOREA_REGION_PATHS.map((region) => {
                 const active = region.id === selectedRegionId;
                 const apiGroup = regionGroups?.groups.find((group) => group.label === region.label);
-                const count = apiGroup?.storyCount ?? regionStoryCounts[region.id] ?? getRegionStories(stories, region).length;
+                const count = apiGroup?.storyCount ?? (groupsState.status === 'success' ? 0 : '…');
                 return (
                   <RegionPin
                     key={region.id}
@@ -945,7 +836,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                     <RegionPinButton
                       type="button"
                       isActive={active}
-                      onClick={() => setSelectedRegionId(region.id)}
+                      onClick={() => selectRegion(region.id)}
                       aria-pressed={active}
                     >
                       <span style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
@@ -992,14 +883,14 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                       }}
                     >
                       {visibleStories.map((story) => {
-                        const active = currentStory.stid === story.stid;
+                        const active = currentStory?.storyId === story.storyId;
                         return (
                           <RegionStoryItem
-                            key={story.stid}
+                            key={story.storyId}
                             story={story}
                             active={active}
                             isPlaying={isPlaying}
-                            onClick={() => playStory(story)}
+                            onClick={() => onSelectStory(story)}
                             onMouseEnter={() => setIsListHovered(true)}
                             onMouseLeave={() => setIsListHovered(false)}
                           />

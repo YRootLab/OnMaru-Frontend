@@ -9,7 +9,7 @@ const FALLBACK_IMAGES = [
   '/images/hanok/giwa-detail.png',
 ];
 
-export function getSorimaruFallbackImage(story: SorimaruStoryItem, index: number = 0): string {
+export function getSorimaruFallbackImage(story: Pick<SorimaruStoryItem, 'stid' | 'title'>, index: number = 0): string {
   const seed = Array.from(`${story.stid}${story.title}`).reduce((sum, char) => sum + char.charCodeAt(0), index);
   return FALLBACK_IMAGES[seed % FALLBACK_IMAGES.length];
 }

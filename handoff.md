@@ -1,6 +1,7 @@
 # handoff.md
 
 ## Current Work
+- 2026-09-28 Issue #224 Task 6: 지도 지역 조회를 application controller + presentation hook으로 이전했다. 반환된 정확한 group label·regionCode·cursor만 사용하고 오류와 빈 결과를 구분하며 기존 페이지 alert에서 재시도한다. 지역 전환/페이지 응답 경합과 요청 횟수 등 16개 테스트, scoped lint, desktop/mobile 정적 컴포넌트 pixel 비교가 통과했다. 전체 tsc는 미이전 플레이어·다른 summary 소비자의 기존 오류가 남아 있어 후속 작업에서 재검증해야 한다.
 - 2026-09-27 Issue #224 Task 2: 소리마루 `SorimaruRepository`·HTTP 구현·query dedupe를 추가하고 기존 공개 API/fan-out 경로를 제거했다. 브라우저 탭에서만 성공 응답을 공유하며 서버 호출은 요청마다 새 저장소를 사용해 `savedByMe`가 다른 사용자에게 재사용되지 않게 했다. 저장소/API 경계 테스트 15개와 scoped ESLint는 통과했다. 전체 타입 검사는 기존 화면·여정·한옥 훅의 `getStoryList`/`getNearbyStories` 및 `pageNo`/`totalCount` 계약이 새 cursor/summary 계약으로 아직 이전되지 않아 실패한다. 다음 작업에서 해당 호출부를 새 계약으로 이전해야 한다.
 - 2026-09-27 Issue #224: `fix/224-remove-data-request-fanout`에서 소리마루 목록·상세 분리와 backend cursor 페이징을 진행한다. 최초 목록 1회로 summary 카드를 렌더링하고, 상세는 사용자 선택 시 storyId별 1회만 조회하며 탭 메모리에서 dedupe한다. 후속으로 한옥 cursor 계약, 지도 heat backend proxy, 홈·기타 목록 fan-out을 점검한다.
 - 2026-09-27 hotfix 추가: `OnMaru-Frontend` Repository Secret의 `NEXT_PUBLIC_API_BASE_URL`을 확인했고, `npm run build` 또는 `vercel build`를 수행하는 GitHub Actions workflow에 공통 환경변수로 연결했다. 값은 Spring backend base URL이며 API 클라이언트가 `/api/v1`을 덧붙인다.
