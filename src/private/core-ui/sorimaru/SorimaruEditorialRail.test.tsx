@@ -66,7 +66,7 @@ describe('Sorimaru editorial rail', () => {
     renderRail();
     const activeCard = screen.getByRole('button', { name: '한옥 이야기 1 현재 선택됨' });
 
-    expect(activeCard.querySelector('p')?.textContent).toBe('한옥');
+    expect(activeCard.querySelector('p')?.textContent).toBe('소리 이야기');
     expect(activeCard.querySelectorAll('p')[1]?.textContent).toBe('서울특별시');
     expect(activeCard.querySelector('span')?.textContent).toContain('3분 00초');
   });
@@ -78,11 +78,11 @@ describe('Sorimaru editorial rail', () => {
     expect(activeCard.querySelector('p')?.textContent).toBe('궁궐/역사');
   });
 
-  it('turns a category code tag into a Korean badge', () => {
+  it('does not let a category code tag replace the backend category badge', () => {
     renderRail(vi.fn(), [{ ...stories[0], contentTags: ['palace'] }]);
 
     const activeCard = screen.getByRole('button', { name: '한옥 이야기 1 현재 선택됨' });
-    expect(activeCard.querySelector('p')?.textContent).toBe('궁궐과 역사');
+    expect(activeCard.querySelector('p')?.textContent).toBe('소리 이야기');
   });
 
   it('keeps all 17 supplied summaries in the loop without requesting stories during autoplay or wrap', async () => {
