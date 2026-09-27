@@ -45,6 +45,15 @@ export async function loadNextSorimaruPage(
   return [...pages, { ...nextPage, items }];
 }
 
+export function loadedEditorialRailStories(pages: SorimaruStoryPage[]): SorimaruStorySummary[] {
+  const seen = new Set<string>();
+  return pages.flatMap((page) => page.items.filter((story) => {
+    if (seen.has(story.storyId)) return false;
+    seen.add(story.storyId);
+    return true;
+  }));
+}
+
 export function findNearbySorimaruStories(
   stories: SorimaruStorySummary[],
   latitude: number,

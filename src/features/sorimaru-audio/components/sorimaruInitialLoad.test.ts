@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { SorimaruRepository } from '../application/SorimaruRepository';
 import type { SorimaruStoryPage, SorimaruStorySummary } from '../domain/sorimaruStory';
-import { findNearbySorimaruStories, loadSorimaruInitialData, loadNextSorimaruPage, resolveSorimaruSelectionIntent } from './sorimaruInitialLoad';
+import { createSorimaruCatalogController } from '../hooks/useSorimaruCatalog';
+import { findNearbySorimaruStories, loadSorimaruInitialData, loadedEditorialRailStories, loadNextSorimaruPage, resolveSorimaruSelectionIntent } from './sorimaruInitialLoad';
 
 const stories: SorimaruStorySummary[] = Array.from({ length: 9 }, (_, index) => ({
   storyId: `story-${index}`,
@@ -18,6 +19,29 @@ const stories: SorimaruStorySummary[] = Array.from({ length: 9 }, (_, index) => 
 }));
 
 const firstPage: SorimaruStoryPage = { items: stories, nextCursor: 'cursor-2', hasMore: true };
+
+describe('Section 2 loaded summaries', () => {
+  it('keeps 17 unique stories across two loaded pages when the archive changes page', async () => {
+    const pageOneItems = Array.from({ length: 12 }, (_, index) => ({ ...stories[0], storyId: `rail-${index + 1}` }));
+    const pageTwoItems = Array.from({ length: 5 }, (_, index) => ({ ...stories[0], storyId: `rail-${index + 13}` }));
+    const pages: SorimaruStoryPage[] = [
+      { items: pageOneItems, nextCursor: 'cursor-2', hasMore: true },
+      { items: [pageOneItems[11], ...pageTwoItems], nextCursor: null, hasMore: false },
+    ];
+    const catalog = createSorimaruCatalogController(repositoryWith(vi.fn().mockResolvedValue(pages[1])), pages[0]);
+    await catalog.loadInitial();
+    await catalog.goToPage(2);
+    expect(catalog.getSnapshot().currentPage).toBe(2);
+    const secondPageRailIds = loadedEditorialRailStories(catalog.getSnapshot().catalog.pages).map((story) => story.storyId);
+
+    await catalog.goToPage(1);
+    expect(catalog.getSnapshot().currentPage).toBe(1);
+    const firstPageRailIds = loadedEditorialRailStories(catalog.getSnapshot().catalog.pages).map((story) => story.storyId);
+
+    expect(firstPageRailIds).toEqual(Array.from({ length: 17 }, (_, index) => `rail-${index + 1}`));
+    expect(secondPageRailIds).toEqual(firstPageRailIds);
+  });
+});
 
 function repositoryWith(listStories: SorimaruRepository['listStories']): SorimaruRepository {
   return { listStories, getStoryDetail: vi.fn(), listRegionGroups: vi.fn() };

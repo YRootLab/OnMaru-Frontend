@@ -5,6 +5,7 @@ import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import gsap from 'gsap';
 import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
+import { editorialRailCardViewModel } from '@/features/sorimaru-audio/presentation/sorimaruEditorialRailViewModel';
 import { SORIMARU_THEME_CATEGORIES } from '@/features/sorimaru-audio/data/sorimaruCategoryData';
 import { SORIMARU_RAIL_VISIBLE_BUFFER, getVisibleRailPositions } from './sorimaruEditorialRailModel';
 import { palette, meok, surface, fontSize } from '@/design-system/tokens';
@@ -75,11 +76,6 @@ const isTrustedSorimaruImage = (imageUrl: string) =>
   /^https?:\/\//i.test(imageUrl) &&
   !imageUrl.includes('unsplash.com') &&
   !imageUrl.includes('pixabay.com');
-
-const durationFor = (story: SorimaruStorySummary) =>
-  `${Math.floor(story.durationSeconds / 60)}:${String(story.durationSeconds % 60).padStart(2, '0')}`;
-
-
 
 const CardMotionButton = styled(motion.button)<{ $isActive: boolean }>`
   position: relative;
@@ -206,6 +202,7 @@ interface EditorialRailCardProps {
 
 const EditorialRailCard = React.memo<EditorialRailCardProps>(
   function EditorialRailCard({ story, position, offset, trackTransitionEnabled, onInteractRef }) {
+    const copy = editorialRailCardViewModel(story);
     const distance = Math.abs(offset);
     const isVisible = distance <= SORIMARU_RAIL_VISIBLE_BUFFER;
     const isActive = offset === 0;
@@ -293,13 +290,13 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(
               color: palette.juhong[500],
             }}
           >
-            {story.category && story.category !== '오디 이야기' && story.category !== '소리 이야기' ? story.category : '소리마루 해설'}
+            {copy.badgeText}
           </p>
           <CardTitle>
             {story.title}
           </CardTitle>
           <CardSub>
-            {story.region.name || '대한민국 문화유산'}
+            {copy.subtitle}
           </CardSub>
           {isActive && (
             <span
@@ -312,7 +309,7 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(
                 color: palette.juhong[500],
               }}
             >
-              {durationFor(story)} <span style={{ color: meok[700] }}>↗</span>
+              {copy.durationText} <span style={{ color: meok[700] }}>↗</span>
             </span>
           )}
         </CardBottomPanel>

@@ -45,10 +45,10 @@ class NearbyObserver {
   disconnect() {}
 }
 
-function renderRail(onSelectStory = vi.fn()) {
+function renderRail(onSelectStory = vi.fn(), railStories = stories) {
   render(
     <SorimaruDependencyProvider apiService={repository}>
-      <SorimaruEditorialRail stories={stories} onSelectStory={onSelectStory} />
+      <SorimaruEditorialRail stories={railStories} onSelectStory={onSelectStory} />
     </SorimaruDependencyProvider>,
   );
   return onSelectStory;
@@ -62,6 +62,29 @@ afterEach(() => {
 });
 
 describe('Sorimaru editorial rail', () => {
+  it('preserves the story badge, specific region subtitle, and Korean duration copy', () => {
+    renderRail();
+    const activeCard = screen.getByRole('button', { name: '한옥 이야기 1 현재 선택됨' });
+
+    expect(activeCard.querySelector('p')?.textContent).toBe('한옥');
+    expect(activeCard.querySelectorAll('p')[1]?.textContent).toBe('서울특별시');
+    expect(activeCard.querySelector('span')?.textContent).toContain('3분 00초');
+  });
+
+  it('prefers a specific category as the badge over a content tag', () => {
+    renderRail(vi.fn(), [{ ...stories[0], category: '궁궐/역사', contentTags: ['한옥'] }]);
+
+    const activeCard = screen.getByRole('button', { name: '한옥 이야기 1 현재 선택됨' });
+    expect(activeCard.querySelector('p')?.textContent).toBe('궁궐/역사');
+  });
+
+  it('turns a category code tag into a Korean badge', () => {
+    renderRail(vi.fn(), [{ ...stories[0], contentTags: ['palace'] }]);
+
+    const activeCard = screen.getByRole('button', { name: '한옥 이야기 1 현재 선택됨' });
+    expect(activeCard.querySelector('p')?.textContent).toBe('궁궐과 역사');
+  });
+
   it('keeps all 17 supplied summaries in the loop without requesting stories during autoplay or wrap', async () => {
     vi.useFakeTimers();
     vi.stubGlobal('IntersectionObserver', NearbyObserver);

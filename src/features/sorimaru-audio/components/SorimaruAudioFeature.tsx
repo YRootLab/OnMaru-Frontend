@@ -23,7 +23,7 @@ import { SORIMARU_REGION_CHIPS } from '@/features/sorimaru-audio/data/sorimaruCa
 import type { SorimaruRepository } from '@/features/sorimaru-audio/application/SorimaruRepository';
 import type { SorimaruStoryPage, SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import { SorimaruDependencyProvider, useSorimaruApiService } from '@/features/sorimaru-audio/context/SorimaruDependencyContext';
-import { findNearbySorimaruStories, type SorimaruSelectionIntent } from './sorimaruInitialLoad';
+import { findNearbySorimaruStories, loadedEditorialRailStories, type SorimaruSelectionIntent } from './sorimaruInitialLoad';
 import { catalogCategoryForSelection, useSorimaruCatalog } from '@/features/sorimaru-audio/hooks/useSorimaruCatalog';
 import { useSorimaruDetailSelection } from '@/features/sorimaru-audio/hooks/useSorimaruDetailSelection';
 import { palette, meok, surface, fontSize } from '@/design-system/tokens';
@@ -359,6 +359,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
     return [story.title, story.audioTitle, story.region.name, ...story.contentTags]
       .some((value) => value.toLowerCase().includes(keyword));
   });
+  const editorialRailStories = React.useMemo(() => loadedEditorialRailStories(catalog.pages), [catalog.pages]);
   const apiError = initialError || catalog.error || selectionError
     ? '소리마루 이야기를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'
     : null;
@@ -478,7 +479,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                   </div>
                   <div style={{ marginTop: '0.5rem' }}>
                     <SorimaruEditorialRail
-                      stories={storyList}
+                      stories={editorialRailStories}
                       storySets={heroStorySets}
                       onSelectStory={handleRailStorySelection}
                     />
