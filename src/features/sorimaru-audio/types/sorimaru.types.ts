@@ -37,13 +37,16 @@ export interface SorimaruStoryItem {
 }
 
 
-export interface SorimaruStoryPage {
-  items: SorimaruStoryItem[];
-  pageNo: number;
-  numOfRows: number;
-  totalCount: number;
-  source: 'api' | 'mock';
-}
+export type {
+  SorimaruStorySummary,
+  SorimaruStoryDetail,
+  SorimaruStoryPage,
+  SorimaruRegionGroup,
+  SorimaruRegionGroups,
+  SorimaruListQuery,
+} from '../domain/sorimaruStory';
+
+import type { SorimaruStoryPage } from '../domain/sorimaruStory';
 
 
 export interface ScriptLine {
