@@ -2,8 +2,20 @@ import { describe, expect, it, vi } from 'vitest';
 import { createStampHttpRepository } from './stampHttpRepository';
 
 describe('stamp HTTP repository', () => {
+  it('rejects an invalid catalog payload at the infrastructure boundary', async () => {
+    const repository = createStampHttpRepository(async () => ({
+      success: true,
+      message: 'Mock response',
+      path: '/stamps',
+    }));
+
+    await expect(repository.getCatalog()).rejects.toThrow('Invalid stamp catalog response');
+  });
+
   it('uses the API 1.3 paths and no-store policy', async () => {
-    const request = vi.fn(async () => ({}));
+    const request = vi.fn(async (path: string) => (
+      path === '/stamps' ? { schemaVersion: '1.3', stamps: [] } : {}
+    ));
     const repository = createStampHttpRepository(request);
 
     await repository.getCatalog();

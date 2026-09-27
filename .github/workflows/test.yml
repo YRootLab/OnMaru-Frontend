@@ -10,6 +10,9 @@ on:
       - develop
       - master
 
+env:
+  NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
+
 jobs:
   타입스크립트:
     name: TypeScript 타입 검사

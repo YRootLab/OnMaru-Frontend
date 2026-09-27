@@ -3,6 +3,8 @@
 Lightweight human-readable summary of meaningful repository changes. This does not replace Git history.
 
 ## Unreleased
+- GitHub Actions에서 빌드를 수행하는 모든 workflow가 저장소 설정의 `NEXT_PUBLIC_API_BASE_URL`을 주입하도록 통일해 Spring API base URL이 CI와 production Vercel build에 전달되도록 했다.
+- 수결첩 HTTP 어댑터가 API 1.3 카탈로그 구조를 검증하도록 보강했다. API 환경변수가 없는 CI에서 generic mock 응답을 카탈로그로 오인해 `/stamps` 사전 렌더링이 실패하던 문제를 막고, 잘못된 응답은 기존 오류 상태로 처리한다.
 - 한옥 수결첩을 서버 API 계약 1.3으로 전환했다. 비회원 공개 수결 카탈로그, 로그인 회원의 개인 획득 상태, GPS·CSRF·멱등성 기반 현장 체크인과 다중 수결 애니메이션을 연결하고 검증되지 않은 localStorage 데모 도장을 제거했다.
 - 탐방 랭킹의 하드코딩 데이터를 제거하고, 명시적으로 참여한 회원만 서버 생성 익명 별명으로 표시하는 공개 랭킹과 참여·철회 UI를 연결했다. 사용자 입력 닉네임과 OAuth 이름·회원 식별자는 표시하거나 로컬에 저장하지 않는다.
 - 지도 온기 모드의 Map Heat와 방문 후기(VisitReview)를 독립 파이프라인으로 분리했다. 공개 후기의 중복 moderation 상태 필터를 제거하고 전국·지역·장소별 조회와 실제 작성 API를 연결했으며, 후기 실패가 Heat를 지우거나 Heat 실패가 후기를 지우지 않도록 했다. 후기 요청 공유 캐시로 중복 마운트의 네트워크 호출을 합치고, 전국 장소 조회의 canonical `placeId` 보존, Heat 응답만 사용하는 대표 명소, 현재 소리마루 목록 계약 기반 주변 이야기 조회를 함께 반영했다.

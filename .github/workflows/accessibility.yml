@@ -10,6 +10,9 @@ on:
       - develop
       - master
 
+env:
+  NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
+
 jobs:
   Accessibility:
     name: 접근성 이슈 검사
