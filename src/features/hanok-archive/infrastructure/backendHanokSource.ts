@@ -1,5 +1,6 @@
 import { apiGet } from '@/lib/api/client';
 import type { Village, VillageMeta } from '@/features/hanok-archive/types';
+import { HANOK_ARCHIVE_FALLBACK } from '@/features/hanok-archive/data/hanokArchiveFallback';
 
 export interface BackendHanokItem {
   placeId: string;
@@ -9,32 +10,51 @@ export interface BackendHanokItem {
   thumbnailUrl: string | null;
   summary: string;
   tags: string[];
+  lat?: number | null;
+  lng?: number | null;
 }
 
 interface BackendHanokListResponse {
   items: BackendHanokItem[];
+  nextCursor?: string | null;
+  hasMore?: boolean;
 }
 
 export async function fetchBackendHanoks(): Promise<BackendHanokItem[]> {
-  const res = await apiGet<BackendHanokListResponse>('/hanoks', { limit: 50 });
-  return res.items;
+  const all: BackendHanokItem[] = [];
+  let cursor: string | undefined;
+  do {
+    const res = await apiGet<BackendHanokListResponse>('/hanoks', {
+      limit: 50,
+      ...(cursor ? { cursor } : {}),
+    });
+    all.push(...res.items);
+    if (!res.hasMore || !res.nextCursor) break;
+    cursor = res.nextCursor;
+  } while (true);
+  return all;
 }
 
+const fallbackById = new Map(
+  HANOK_ARCHIVE_FALLBACK.villages.map((v) => [v.id, v]),
+);
+
 function toVillage(item: BackendHanokItem): Village {
+  const snap = fallbackById.get(item.placeId);
   return {
     id: item.placeId,
     name: item.name,
     rawTitle: item.name,
     region: item.regionName,
-    addr: '',
-    lat: null,
-    lng: null,
+    addr: snap?.addr || '',
+    lat: item.lat ?? snap?.lat ?? null,
+    lng: item.lng ?? snap?.lng ?? null,
     type: item.category,
     badges: item.tags,
     image: item.thumbnailUrl,
     hasImage: item.thumbnailUrl !== null,
-    summary: item.summary,
-    overview: '',
+    summary: item.summary || snap?.summary || '',
+    overview: snap?.overview || '',
   };
 }
 
