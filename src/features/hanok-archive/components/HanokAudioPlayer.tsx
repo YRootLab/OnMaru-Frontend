@@ -24,7 +24,7 @@ export default function HanokAudioPlayer({ stories, hanokName }: HanokAudioPlaye
   useEffect(() => {
     setIsPlaying(false);
     setCurrentTime(0);
-    setDuration(currentStory?.playTime || 0);
+    setDuration(currentStory?.durationSeconds || 0);
   }, [currentIndex, currentStory]);
 
   if (!stories || stories.length === 0) return null;
@@ -95,7 +95,7 @@ export default function HanokAudioPlayer({ stories, hanokName }: HanokAudioPlaye
             onChange={(e) => setCurrentIndex(Number(e.target.value))}
           >
             {stories.map((s, idx) => (
-              <option key={s.stid || idx} value={idx}>
+              <option key={s.storyId || idx} value={idx}>
                 {idx + 1}. {s.audioTitle.slice(0, 24)}...
               </option>
             ))}

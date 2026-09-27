@@ -3,6 +3,8 @@
 Lightweight human-readable summary of meaningful repository changes. This does not replace Git history.
 
 ## Unreleased
+- 소리마루 지도는 화면 진입 시 지역 그룹과 첫 요약 목록을 각각 한 번 읽고, 이후 스크롤·휠·터치 동작에서 선택한 그룹의 실제 지역 코드와 cursor로 추가 목록을 조회한다. 짧거나 빈 목록도 자동 추가 요청 없이 휠·터치로 이어 볼 수 있다. 늦은 응답이 다른 지역 목록을 덮어쓰지 않으며 조회 실패를 0건으로 표시하지 않는다. 지도 카드 클릭에서만 상세 조회·재생을 시작하고 기존 지도·카드 배치를 유지했다.
+- 소리마루 목록·상세·지역 조회를 백엔드 전용 저장소로 분리했다. 목록은 페이지당 20건을 단일 요청으로 받아 cursor를 전달하고, 상세는 선택한 이야기만 조회한다. 같은 목록·상세 요청은 브라우저 탭 메모리에서 공유하며 실패와 잘못된 응답은 호출자에게 전달한다. 두 번째 무한 레일은 이미 받은 summary만 로컬에서 반복해 애니메이션이나 순환으로 추가 요청하지 않는다.
 - GitHub Actions에서 빌드를 수행하는 모든 workflow가 저장소 설정의 `NEXT_PUBLIC_API_BASE_URL`을 주입하도록 통일해 Spring API base URL이 CI와 production Vercel build에 전달되도록 했다.
 - 수결첩 HTTP 어댑터가 API 1.3 카탈로그 구조를 검증하도록 보강했다. API 환경변수가 없는 CI에서 generic mock 응답을 카탈로그로 오인해 `/stamps` 사전 렌더링이 실패하던 문제를 막고, 잘못된 응답은 기존 오류 상태로 처리한다.
 - 한옥 수결첩을 서버 API 계약 1.3으로 전환했다. 비회원 공개 수결 카탈로그, 로그인 회원의 개인 획득 상태, GPS·CSRF·멱등성 기반 현장 체크인과 다중 수결 애니메이션을 연결하고 검증되지 않은 localStorage 데모 도장을 제거했다.

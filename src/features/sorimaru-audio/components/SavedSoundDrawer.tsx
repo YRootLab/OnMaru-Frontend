@@ -4,12 +4,12 @@ import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Heart, X } from 'lucide-react';
-import { SorimaruStoryItem } from '@/features/sorimaru-audio/types/sorimaru.types';
+import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { palette, meok, surface, fontSize } from '@/design-system/tokens';
 
 interface SavedSoundDrawerProps {
-  savedStories: SorimaruStoryItem[];
+  savedStories: SorimaruStorySummary[];
   onRemoveBookmark: (storyId: string) => void;
 }
 
@@ -176,7 +176,7 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const currentStory = useSorimaruAudioStore((state) => state.currentStory);
   const isPlaying = useSorimaruAudioStore((state) => state.isPlaying);
-  const setCurrentStory = useSorimaruAudioStore((state) => state.setCurrentStory);
+  const selectAndLoadStory = useSorimaruAudioStore((state) => state.selectAndLoadStory);
   const setIsPlaying = useSorimaruAudioStore((state) => state.setIsPlaying);
 
   useEffect(() => {
@@ -188,11 +188,11 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen]);
 
-  const handlePlay = (story: SorimaruStoryItem) => {
-    if (currentStory.stid === story.stid) {
+  const handlePlay = (story: SorimaruStorySummary) => {
+    if (currentStory?.storyId === story.storyId) {
       setIsPlaying(!isPlaying);
     } else {
-      setCurrentStory(story);
+      void selectAndLoadStory(story, 'play').catch(() => undefined);
     }
   };
 
@@ -262,12 +262,12 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
                   </div>
                 ) : (
                   savedStories.map((story, index) => {
-                    const isCurrentPlaying = currentStory.stid === story.stid && isPlaying;
+                    const isCurrentPlaying = currentStory?.storyId === story.storyId && isPlaying;
                     const imageSrc =
                       story.imageUrl ||
                       'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80';
                     return (
-                      <ItemRow key={`${story.stid}-${index}`}>
+                      <ItemRow key={`${story.storyId}-${index}`}>
                         <ThumbBox $src={imageSrc}>
                           <img
                             src={imageSrc}
@@ -276,7 +276,7 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
                         </ThumbBox>
                         <div style={{ minWidth: 0, flex: 1 }}>
                           <p style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: fontSize.micro, color: palette.juhong[500] }}>
-                            {story.locationName || '소리의 장소'}
+                            {story.region.name || '소리의 장소'}
                           </p>
                           <button
                             type="button"
@@ -300,7 +300,7 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
                             </button>
                             <button
                               type="button"
-                              onClick={() => onRemoveBookmark(story.stid)}
+                              onClick={() => onRemoveBookmark(story.storyId)}
                               style={{ fontSize: fontSize.micro, color: meok[700], background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                             >
                               담기 해제

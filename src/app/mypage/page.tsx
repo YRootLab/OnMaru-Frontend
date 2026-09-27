@@ -287,7 +287,7 @@ export default function MyPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {savedSounds.map((sound) => (
                 <div
-                  key={sound.stid || sound.title}
+                  key={sound.storyId}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -323,10 +323,10 @@ export default function MyPage() {
                     <div style={{ fontSize: '13.5px', fontWeight: 700, color: c.text.primary, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {sound.title}
                     </div>
-                    {sound.locationName && (
+                    {sound.region.name && (
                       <div style={{ fontSize: '11.5px', color: c.text.muted, display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px' }}>
                         <MapPin size={10} />
-                        {sound.locationName}
+                        {sound.region.name}
                       </div>
                     )}
                   </div>
@@ -334,7 +334,7 @@ export default function MyPage() {
                     type="button"
                     aria-label={`${sound.title} 마음 담기 취소`}
                     onClick={() => {
-                      removeSavedSound(sound.stid);
+                      removeSavedSound(sound.storyId);
                       toast.success(`'${sound.title}' 소리를 목록에서 제거했어요.`);
                     }}
                     style={{
