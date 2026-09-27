@@ -1,8 +1,10 @@
 // @vitest-environment jsdom
 
 import React from 'react';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import type { SorimaruRepository } from '@/features/sorimaru-audio/application/SorimaruRepository';
+import { useSorimaruRegionStories } from '@/features/sorimaru-audio/presentation/hooks/useSorimaruRegionStories';
 import type { SoundConstellationSectionProps } from './SoundConstellationSection';
 import { SoundConstellationSection } from './SoundConstellationSection';
 
@@ -19,7 +21,18 @@ const props = (): SoundConstellationSectionProps => ({
   },
   selectedRegionId: 'seoul', onSelectRegion: vi.fn(), onLoadMore: vi.fn(), onSelectStory: vi.fn(), onRetry: vi.fn(),
 });
-afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
+
+function scrollContainer(container: HTMLElement) {
+  const element = [...container.querySelectorAll('aside div')].find((item) => getComputedStyle(item).overflowY === 'auto');
+  if (!element) throw new Error('Region scroll container missing');
+  return element;
+}
+
+function RegionSection({ repository }: { repository: SorimaruRepository }) {
+  const region = useSorimaruRegionStories(repository, true);
+  return <SoundConstellationSection {...props()} {...region} onSelectRegion={region.selectRegion} onLoadMore={region.loadNextRegionPage} />;
+}
 
 describe('SoundConstellationSection props data flow', () => {
   it('renders supplied summaries and backend counts, delegates selection, and makes no network calls', () => {
@@ -49,18 +62,36 @@ describe('SoundConstellationSection props data flow', () => {
     expect(input.onRetry).toHaveBeenCalledOnce();
   });
 
-  it('requests more summaries when the supplied page cannot fill the scroll container', () => {
+  it('waits for explicit scroll near the bottom before requesting more of a short page', () => {
     vi.stubGlobal('IntersectionObserver', Observer);
     const input = props();
     input.regionStoriesState.hasMore = true;
-    const height = vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(500);
-    const scrollHeight = vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(100);
-    try {
-      render(<SoundConstellationSection {...input} />);
-      expect(input.onLoadMore).toHaveBeenCalledOnce();
-    } finally {
-      height.mockRestore();
-      scrollHeight.mockRestore();
-    }
+    vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(500);
+    vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(100);
+    const { container } = render(<SoundConstellationSection {...input} />);
+    expect(input.onLoadMore).not.toHaveBeenCalled();
+    fireEvent.scroll(scrollContainer(container));
+    expect(input.onLoadMore).toHaveBeenCalledOnce();
+  });
+
+  it.each(['short', 'empty'] as const)('makes one first-list request for a %s response until the visitor scrolls', async (kind) => {
+    vi.stubGlobal('IntersectionObserver', Observer);
+    vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(500);
+    vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(100);
+    const input = props();
+    const listStories = vi.fn<SorimaruRepository['listStories']>()
+      .mockResolvedValueOnce({ items: kind === 'short' ? input.regionStoriesState.items : [], nextCursor: 'actual-next-cursor', hasMore: true })
+      .mockResolvedValueOnce({ items: [], nextCursor: null, hasMore: false });
+    const repository: SorimaruRepository = {
+      listStories, getStoryDetail: vi.fn(), listRegionGroups: vi.fn().mockResolvedValue(input.groupsState.data),
+    };
+    const { container } = render(<RegionSection repository={repository} />);
+    await waitFor(() => expect(screen.getByText('25개 이야기')).toBeTruthy());
+    expect(repository.listRegionGroups).toHaveBeenCalledOnce();
+    expect(listStories).toHaveBeenCalledOnce();
+    expect(repository.getStoryDetail).not.toHaveBeenCalled();
+    fireEvent.scroll(scrollContainer(container));
+    await waitFor(() => expect(listStories).toHaveBeenCalledTimes(2));
+    expect(listStories).toHaveBeenLastCalledWith({ language: 'ko-KR', regionCode: 'returned-code', limit: 12, cursor: 'actual-next-cursor' });
   });
 });

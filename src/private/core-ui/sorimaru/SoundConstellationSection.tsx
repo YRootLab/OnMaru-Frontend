@@ -643,14 +643,6 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
     if (scrollFrameRef.current !== null) cancelAnimationFrame(scrollFrameRef.current);
   }, []);
 
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (container && container.clientHeight > 0 && container.scrollHeight <= container.clientHeight &&
-      hasMore && !isFetchingNextPage && !isRegionLoading && !regionStoriesState.error) {
-      onLoadMore();
-    }
-  }, [hasMore, isFetchingNextPage, isRegionLoading, regionStoriesState.items, regionStoriesState.error, onLoadMore]);
-
   const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
     const target = event.currentTarget;
     const currentScrollTop = target.scrollTop;
