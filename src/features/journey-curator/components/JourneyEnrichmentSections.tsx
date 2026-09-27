@@ -7,7 +7,6 @@
 
 
 
-import { useState } from 'react';
 import styled from '@emotion/styled';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Pause, Play, MapPin, Clock, CalendarDays, Headphones } from 'lucide-react';
