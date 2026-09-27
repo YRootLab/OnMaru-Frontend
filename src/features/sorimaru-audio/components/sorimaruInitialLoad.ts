@@ -65,3 +65,37 @@ export function findNearbySorimaruStories(
     .sort((left, right) => left.distance - right.distance)
     .map(({ story }) => story);
 }
+
+export interface SorimaruSelectionIntent {
+  stid?: string | null;
+  title?: string | null;
+  keyword?: string | null;
+  track?: string | null;
+}
+
+export function resolveSorimaruSelectionIntent(
+  stories: SorimaruStorySummary[],
+  intent: SorimaruSelectionIntent,
+): SorimaruStorySummary | null {
+  if (intent.stid) {
+    const match = stories.find((story) => story.storyId === intent.stid);
+    if (match) return match;
+  }
+  if (intent.title) {
+    const title = intent.title;
+    const match = stories.find((story) => story.title.includes(title) || story.audioTitle.includes(title));
+    if (match) return match;
+  }
+  if (intent.keyword) {
+    const keyword = intent.keyword;
+    const match = stories.find((story) =>
+      story.title.includes(keyword) || story.audioTitle.includes(keyword) || story.region.name.includes(keyword),
+    );
+    if (match) return match;
+  }
+  if (intent.track) {
+    const index = Number.parseInt(intent.track, 10) - 1;
+    if (index >= 0 && index < stories.length) return stories[index];
+  }
+  return null;
+}

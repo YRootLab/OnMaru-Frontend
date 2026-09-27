@@ -3,11 +3,13 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
+import { useSearchParams } from 'next/navigation';
 import { AlertCircle, RotateCcw } from 'lucide-react';
 import { StoryCarousel } from './StoryCarousel';
 import { CategoryTagFilter } from './CategoryTagFilter';
 import { SorimaruArchiveBrowse } from './SorimaruArchiveBrowse';
 import { SorimaruArchiveMetaBar } from './SorimaruArchiveMetaBar';
+import { SorimaruPagination } from './SorimaruPagination';
 import { SavedSoundDrawer } from './SavedSoundDrawer';
 import { SorimaruAutoSliceRail } from '@/private/core-ui/sorimaru/SorimaruAutoSliceRail';
 import { SorimaruEditorialRail } from '@/private/core-ui/sorimaru/SorimaruEditorialRail';
@@ -17,10 +19,12 @@ import { SorimaruAtmosphereBackground } from './SorimaruAtmosphereBackground';
 import type { SorimaruBackgroundVariant } from '@/features/sorimaru-audio/background/sorimaruBackground.types';
 import { VesselReveal } from '@/shared/components/animation/VesselReveal';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
+import { SORIMARU_REGION_CHIPS } from '@/features/sorimaru-audio/data/sorimaruCategoryData';
 import type { SorimaruRepository } from '@/features/sorimaru-audio/application/SorimaruRepository';
 import type { SorimaruStoryPage, SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import { SorimaruDependencyProvider, useSorimaruApiService } from '@/features/sorimaru-audio/context/SorimaruDependencyContext';
-import { findNearbySorimaruStories, loadNextSorimaruPage, loadSorimaruInitialData } from './sorimaruInitialLoad';
+import { findNearbySorimaruStories, resolveSorimaruSelectionIntent, type SorimaruSelectionIntent } from './sorimaruInitialLoad';
+import { catalogCategoryForSelection, useSorimaruCatalog } from '@/features/sorimaru-audio/hooks/useSorimaruCatalog';
 import { palette, meok, surface, fontSize } from '@/design-system/tokens';
 import { HanjiDeckleEdge } from '@/shared/components/HanjiDeckleEdge';
 
@@ -294,19 +298,13 @@ const LocationButton = styled.button`
   }
 `;
 
-type CatalogState = {
-  pages: SorimaruStoryPage[];
-  status: 'loading' | 'error' | 'empty' | 'success';
-  error: Error | null;
-  loadingNext: boolean;
-};
-
 export interface SorimaruAudioFeatureProps {
   apiService?: SorimaruRepository;
   initialPage?: SorimaruStoryPage;
   initialNearbyStories?: SorimaruStorySummary[];
   initialHeroStorySets?: Record<string, SorimaruStorySummary[]>;
   regionCode?: string;
+  onSummarySelectionIntent?: (story: SorimaruStorySummary, autoPlay: boolean) => void;
   onLocationChange?: (latitude: number, longitude: number) => void;
   backgroundVariant?: SorimaruBackgroundVariant;
 }
@@ -317,22 +315,29 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   initialNearbyStories,
   initialHeroStorySets,
   regionCode,
+  onSummarySelectionIntent,
   onLocationChange,
   backgroundVariant,
 }) => {
+  const searchParams = useSearchParams();
+  const trackParam = searchParams.get('track');
+  const keywordParam = searchParams.get('keyword') || searchParams.get('query');
+  const titleParam = searchParams.get('title');
+  const stidParam = searchParams.get('stid');
+  const autoPlayParam = searchParams.get('autoPlay');
   const activeApiService = useSorimaruApiService(apiService);
   const selectedCategory = useSorimaruAudioStore((s) => s.selectedCategory);
   const searchQuery = useSorimaruAudioStore((s) => s.searchQuery);
   const isPlaying = useSorimaruAudioStore((s) => s.isPlaying);
   const hydrateSavedStories = useSorimaruAudioStore((s) => s.hydrateSavedStories);
-  const [nearbyStories, setNearbyStories] = useState<SorimaruStorySummary[]>(() => initialNearbyStories || initialPage?.items || []);
-  const [heroStorySets, setHeroStorySets] = useState<Record<string, SorimaruStorySummary[]>>(() => initialHeroStorySets || {});
-  const [catalog, setCatalog] = useState<CatalogState>(() => ({
-    pages: initialPage ? [initialPage] : [],
-    status: initialPage ? (initialPage.items.length ? 'success' : 'empty') : 'loading',
-    error: null,
-    loadingNext: false,
-  }));
+  const regionName = SORIMARU_REGION_CHIPS.find((name) => name === selectedCategory);
+  const categoryScope = catalogCategoryForSelection(selectedCategory);
+  const { catalog, initialData, initialLoading, currentPage, goToPage, retry } = useSorimaruCatalog(
+    activeApiService, categoryScope, regionCode, initialPage,
+  );
+  const [nearbyOverride, setNearbyOverride] = useState<SorimaruStorySummary[] | null>(null);
+  const nearbyStories = nearbyOverride ?? initialData?.nearbyStories ?? initialNearbyStories ?? initialPage?.items ?? [];
+  const heroStorySets = initialData ? { '추천': initialData.heroStories } : initialHeroStorySets ?? {};
   const [isLocating, setIsLocating] = useState(false);
   const [locationLabel, setLocationLabel] = useState('기본 위치');
   const [locationMessage, setLocationMessage] = useState('내 위치를 허용하면 반경 3km의 실제 오디오를 찾아드려요.');
@@ -344,156 +349,46 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
     void hydrateSavedStories();
   }, [hydrateSavedStories]);
 
-  const [isNearbyLoading, setIsNearbyLoading] = useState(true);
-  const [apiError, setApiError] = useState<string | null>(null);
+  const [secondaryApiError, setSecondaryApiError] = useState<string | null>(null);
   const [retryToken, setRetryToken] = useState(0);
-  const [initialLoadVersion, setInitialLoadVersion] = useState(0);
-  const initialLoadCompleteRef = useRef(false);
-  const initialArchiveRef = useRef<SorimaruStoryPage | null>(initialPage ?? null);
-  const pagesRef = useRef<SorimaruStoryPage[]>(initialPage ? [initialPage] : []);
-  const requestGenerationRef = useRef(0);
-  const loadingNextRef = useRef(false);
-  const scopeKey = `${selectedCategory}\u0000${regionCode ?? ''}`;
-  const scopeKeyRef = useRef(scopeKey);
-  scopeKeyRef.current = scopeKey;
-  const storyList = catalog.pages.flatMap((page) => page.items).filter((story) => {
+  const pendingSelectionRef = useRef<(SorimaruSelectionIntent & { autoPlay: boolean }) | null>(null);
+  const dispatchedSelectionRef = useRef<string | null>(null);
+  const storyList = (catalog.pages[currentPage - 1]?.items ?? []).filter((story) => {
+    if (regionName && !story.region.name.includes(regionName)) return false;
     if (!searchQuery) return true;
     const keyword = searchQuery.toLowerCase();
     return [story.title, story.audioTitle, story.region.name, ...story.contentTags]
       .some((value) => value.toLowerCase().includes(keyword));
   });
+  const apiError = catalog.error
+    ? '소리마루 이야기를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'
+    : secondaryApiError;
+  const lastPage = catalog.pages.at(-1);
+  const totalArchivePages = catalog.pages.length + (lastPage?.hasMore && lastPage.nextCursor ? 1 : 0);
   const handleApiError = useCallback(() => {
-    setApiError('소리마루 이야기를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
+    setSecondaryApiError('소리마루 이야기를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
   }, []);
 
   useEffect(() => {
-    let isMounted = true;
-    initialLoadCompleteRef.current = false;
-    requestGenerationRef.current += 1;
-    loadingNextRef.current = false;
-    if (retryToken > 0) initialArchiveRef.current = null;
-
-    async function loadInitialContent() {
-      try {
-        const result = initialPage && retryToken === 0
-          ? { archive: initialPage, heroStories: initialPage.items.slice(0, 7), nearbyStories: initialPage.items, archiveError: null }
-          : await loadSorimaruInitialData(activeApiService);
-
-        if (isMounted) {
-          setNearbyStories(result.nearbyStories);
-          setHeroStorySets({ '추천': result.heroStories });
-          if (result.archive) {
-            initialArchiveRef.current = result.archive;
-            if (scopeKeyRef.current === '전체\u0000') {
-              pagesRef.current = [result.archive];
-              setCatalog({ pages: [result.archive], status: result.archive.items.length ? 'success' : 'empty', error: null, loadingNext: false });
-              setApiError(null);
-            }
-          } else if (scopeKeyRef.current === '전체\u0000') {
-            pagesRef.current = [];
-            setCatalog({ pages: [], status: 'error', error: result.archiveError, loadingNext: false });
-          }
-          if (result.archiveError) {
-            setApiError('소리마루 이야기를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
-          }
-          initialLoadCompleteRef.current = true;
-          setInitialLoadVersion((version) => version + 1);
-        }
-      } catch {
-        if (isMounted) {
-          setApiError('소리마루 이야기를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
-          setCatalog({ pages: [], status: 'error', error: new Error('Sorimaru archive request failed'), loadingNext: false });
-        }
-      } finally {
-        if (isMounted) setIsNearbyLoading(false);
-      }
-    }
-
-    loadInitialContent();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [activeApiService, initialPage, retryToken]);
+    setSecondaryApiError(null);
+  }, [selectedCategory, regionCode, currentPage]);
 
   useEffect(() => {
-    let isMounted = true;
-    if (!initialLoadCompleteRef.current) return;
-    const generation = ++requestGenerationRef.current;
-    const requestedScope = scopeKey;
-    loadingNextRef.current = false;
-
-    const isInitialScope = selectedCategory === '전체' && !regionCode;
-    if (isInitialScope && initialArchiveRef.current) {
-      const initialArchive = initialArchiveRef.current;
-      pagesRef.current = [initialArchive];
-      setCatalog({ pages: [initialArchive], status: initialArchive.items.length ? 'success' : 'empty', error: null, loadingNext: false });
-      return;
-    }
-    if (isInitialScope) return;
-
-    async function fetchArchiveData() {
-      pagesRef.current = [];
-      setCatalog({ pages: [], status: 'loading', error: null, loadingNext: false });
-      try {
-        const page = await activeApiService.listStories({
-          language: 'ko-KR', limit: 12,
-          ...(selectedCategory === '전체' ? {} : { category: selectedCategory }),
-          ...(regionCode ? { regionCode } : {}),
-        });
-
-        if (isMounted && generation === requestGenerationRef.current && requestedScope === scopeKeyRef.current) {
-          pagesRef.current = [page];
-          setCatalog({ pages: [page], status: page.items.length ? 'success' : 'empty', error: null, loadingNext: false });
-          setApiError(null);
-        }
-      } catch (reason) {
-        if (isMounted && generation === requestGenerationRef.current && requestedScope === scopeKeyRef.current) {
-          const error = reason instanceof Error ? reason : new Error('Sorimaru archive request failed');
-          setCatalog({ pages: [], status: 'error', error, loadingNext: false });
-          setApiError('소리마루 이야기를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
-        }
-      }
-    }
-
-    fetchArchiveData();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [activeApiService, initialLoadVersion, selectedCategory, regionCode, retryToken, scopeKey]);
-
-  const loadNextPage = useCallback(async () => {
-    const lastPage = pagesRef.current.at(-1);
-    if (loadingNextRef.current || !lastPage?.hasMore || !lastPage.nextCursor) return;
-    const generation = requestGenerationRef.current;
-    const requestedScope = scopeKeyRef.current;
-    loadingNextRef.current = true;
-    setCatalog((current) => ({ ...current, loadingNext: true, error: null }));
-    try {
-      const pages = await loadNextSorimaruPage(activeApiService, pagesRef.current, {
-        language: 'ko-KR', limit: 12,
-        ...(selectedCategory === '전체' ? {} : { category: selectedCategory }),
-        ...(regionCode ? { regionCode } : {}),
-      });
-      if (generation !== requestGenerationRef.current || requestedScope !== scopeKeyRef.current) return;
-      pagesRef.current = pages;
-      setCatalog({ pages, status: pages.flatMap((page) => page.items).length ? 'success' : 'empty', error: null, loadingNext: false });
-    } catch (reason) {
-      if (generation !== requestGenerationRef.current || requestedScope !== scopeKeyRef.current) return;
-      const error = reason instanceof Error ? reason : new Error('Sorimaru archive request failed');
-      setCatalog((current) => ({ ...current, error, loadingNext: false }));
-      setApiError('소리마루 이야기를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
-    } finally {
-      if (generation === requestGenerationRef.current) loadingNextRef.current = false;
-    }
-  }, [activeApiService, selectedCategory, regionCode]);
+    const intent = { stid: stidParam, title: titleParam, keyword: keywordParam, track: trackParam, autoPlay: autoPlayParam === 'true' };
+    pendingSelectionRef.current = intent;
+    const loadedStories = initialData?.archive?.items ?? initialPage?.items ?? [];
+    const target = resolveSorimaruSelectionIntent(loadedStories, intent);
+    if (!target || !onSummarySelectionIntent) return;
+    const key = `${target.storyId}\u0000${intent.autoPlay}`;
+    if (dispatchedSelectionRef.current === key) return;
+    dispatchedSelectionRef.current = key;
+    onSummarySelectionIntent(target, intent.autoPlay);
+  }, [stidParam, titleParam, keywordParam, trackParam, autoPlayParam, initialData, initialPage, onSummarySelectionIntent]);
 
   const retryApiRequests = () => {
-    setApiError(null);
-    setIsNearbyLoading(true);
-    setCatalog((current) => ({ ...current, status: 'loading', error: null }));
+    setSecondaryApiError(null);
     setRetryToken((token) => token + 1);
+    void retry();
   };
 
   const handleLocate = () => {
@@ -508,15 +403,15 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
     setLocationMessage('현재 위치를 확인하고 주변 이야기를 찾는 중이에요.');
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
-        const stories = findNearbySorimaruStories(initialArchiveRef.current?.items ?? [], coords.latitude, coords.longitude);
+        const stories = findNearbySorimaruStories(initialData?.archive?.items ?? initialPage?.items ?? [], coords.latitude, coords.longitude);
         if (onLocationChange) onLocationChange(coords.latitude, coords.longitude);
         if (stories.length > 0) {
-          setNearbyStories(stories);
+          setNearbyOverride(stories);
           setLocationLabel('현재 위치 기준, 반경 3km');
-          setLocationMessage(`불러온 이야기 중 ${stories.length}개가 가까이에 있어요.`);
+          setLocationMessage(`${stories.length}개의 이야기를 찾았어요. 가까운 장소부터 들려드릴게요.`);
           setLocationNotice(false);
         } else {
-          setLocationMessage('불러온 이야기 중 가까운 장소가 없어요. 전국 큐레이션을 보여드릴게요.');
+          setLocationMessage('반경 3km 안에는 아직 등록된 이야기가 없어요. 전국 큐레이션을 보여드릴게요.');
           setLocationNotice(true);
         }
         setIsLocating(false);
@@ -623,7 +518,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                   </NearbyHeader>
 
                   <div style={{ marginTop: '1.25rem' }}>
-                    <StoryCarousel stories={nearbyStories} isLoading={isNearbyLoading || isLocating} />
+                    <StoryCarousel stories={nearbyStories} isLoading={initialLoading || isLocating} />
                   </div>
                 </CenteredContainer>
               </section>
@@ -656,13 +551,14 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                     <SorimaruArchiveBrowse stories={storyList} isLoading={catalog.status === 'loading'} />
                   </div>
 
-                  {catalog.pages.at(-1)?.hasMore && catalog.pages.at(-1)?.nextCursor && (
-                    <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
-                      <RetryButton type="button" onClick={() => void loadNextPage()} disabled={catalog.loadingNext}>
-                        {catalog.loadingNext ? '불러오는 중…' : '이야기 더 보기'}
-                      </RetryButton>
-                    </div>
-                  )}
+                  <div>
+                    <SorimaruPagination
+                      currentPage={currentPage}
+                      totalPages={totalArchivePages}
+                      onPageChange={(page) => { void goToPage(page); }}
+                      isLoading={catalog.status === 'loading' || catalog.loadingNext}
+                    />
+                  </div>
                 </CenteredContainer>
               </section>
             </SorimaruSectionReveal>

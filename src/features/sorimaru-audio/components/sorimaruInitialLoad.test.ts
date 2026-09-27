@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { SorimaruRepository } from '../application/SorimaruRepository';
 import type { SorimaruStoryPage, SorimaruStorySummary } from '../domain/sorimaruStory';
-import { findNearbySorimaruStories, loadSorimaruInitialData, loadNextSorimaruPage } from './sorimaruInitialLoad';
+import { findNearbySorimaruStories, loadSorimaruInitialData, loadNextSorimaruPage, resolveSorimaruSelectionIntent } from './sorimaruInitialLoad';
 
 const stories: SorimaruStorySummary[] = Array.from({ length: 9 }, (_, index) => ({
   storyId: `story-${index}`,
@@ -91,5 +91,20 @@ describe('findNearbySorimaruStories', () => {
     ], 37.5, 127);
 
     expect(result.map((story) => story.storyId)).toEqual(['story-1', 'story-0']);
+  });
+});
+
+describe('resolveSorimaruSelectionIntent', () => {
+  it.each([
+    [{ stid: 'story-2', title: 'Story 1' }, 'story-2'],
+    [{ title: 'Story 3' }, 'story-3'],
+    [{ keyword: 'Audio 4' }, 'story-4'],
+    [{ track: '6' }, 'story-5'],
+  ])('resolves URL selection against loaded summaries', (intent, storyId) => {
+    expect(resolveSorimaruSelectionIntent(stories, intent)?.storyId).toBe(storyId);
+  });
+
+  it('does not synthesize a selection when the URL has no loaded match', () => {
+    expect(resolveSorimaruSelectionIntent(stories, { keyword: 'missing' })).toBeNull();
   });
 });
