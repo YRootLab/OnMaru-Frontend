@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { TabMemoryCache, swrFetch } from './tabMemoryCache';
+import { TabMemoryCache } from './tabMemoryCache';
 import { CK } from './cacheKeys';
 
 let cache: TabMemoryCache;
