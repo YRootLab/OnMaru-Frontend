@@ -9,7 +9,8 @@ vi.mock('@/lib/tour-api/tourApiClient', () => ({
 }));
 
 describe('PlaceService.getNearbyPlaces backend-first (FE #90)', () => {
-  const originalEnv = process.env.NEXT_PUBLIC_API_URL;
+  const originalApiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const originalApiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   beforeEach(() => {
     apiGetMock.mockReset();
@@ -18,7 +19,8 @@ describe('PlaceService.getNearbyPlaces backend-first (FE #90)', () => {
   });
 
   afterEach(() => {
-    process.env.NEXT_PUBLIC_API_URL = originalEnv;
+    if (originalApiUrl === undefined) { delete process.env.NEXT_PUBLIC_API_URL; } else { process.env.NEXT_PUBLIC_API_URL = originalApiUrl; }
+    if (originalApiBaseUrl === undefined) { delete process.env.NEXT_PUBLIC_API_BASE_URL; } else { process.env.NEXT_PUBLIC_API_BASE_URL = originalApiBaseUrl; }
     vi.resetModules();
   });
 
@@ -97,5 +99,32 @@ describe('PlaceService.getNearbyPlaces backend-first (FE #90)', () => {
     await PlaceService.getNearbyPlaces({ lat: 35.8151, lng: 127.153, radius: 3000, category: 'food' }).catch(() => {});
 
     expect(apiGetMock).not.toHaveBeenCalled();
+  });
+
+  it('uses backend when only NEXT_PUBLIC_API_BASE_URL is set (prod regression #222)', async () => {
+    delete process.env.NEXT_PUBLIC_API_URL;
+    process.env.NEXT_PUBLIC_API_BASE_URL = 'https://api.onmaru.test';
+    apiGetMock.mockResolvedValue({
+      items: [
+        {
+          placeId: 'p-2',
+          name: '경복궁',
+          category: '문화유산',
+          region: { regionCode: 'kr-11', name: '서울' },
+          coordinates: { lat: 37.5796, lng: 126.977 },
+          thumbnailUrl: null,
+          summary: '조선 왕궁',
+          savedByMe: false,
+        },
+      ],
+    });
+
+    const { PlaceService } = await import('./place.service');
+    const items = await PlaceService.getNearbyPlaces({ lat: 37.5796, lng: 126.977, radius: 3000 });
+
+    expect(apiGetMock).toHaveBeenCalled();
+    expect(items).toHaveLength(1);
+    expect(items[0].id).toBe('p-2');
+    expect(tourApiGetMock).not.toHaveBeenCalled();
   });
 });
