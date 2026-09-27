@@ -109,8 +109,10 @@ export class PlaceService {
     radius: number;
   }): Promise<Item[] | null> {
     try {
-      const latDelta = opts.radius / 111_000;
-      const lngDelta = opts.radius / (111_000 * Math.cos((opts.lat * Math.PI) / 180));
+      // ponytail: bbox capped at 600km — covers all of Korea, prevents oversized backend queries from uncapped HTTP inputs
+      const bboxRadius = Math.min(opts.radius, 600_000);
+      const latDelta = bboxRadius / 111_000;
+      const lngDelta = bboxRadius / (111_000 * Math.cos((opts.lat * Math.PI) / 180));
 
       const swLat = opts.lat - latDelta;
       const swLng = opts.lng - lngDelta;
