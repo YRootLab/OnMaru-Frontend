@@ -3,6 +3,7 @@ import { SorimaruStoryItem, ScriptLine } from '@/features/sorimaru-audio/types/s
 import { sorimaruApiAdapter } from '@/features/sorimaru-audio/api/sorimaruApi';
 import type { SorimaruRepository } from '@/features/sorimaru-audio/application/SorimaruRepository';
 import type { SorimaruStoryDetail, SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
+import { parseScriptToLines } from '@/features/sorimaru-audio/utils/scriptParser';
 import { toast } from 'sonner';
 import { hasAuthenticatedUser } from '@/features/auth/privateState';
 import { saveOdiiStory, unsaveOdiiStory } from '@/features/sorimaru-audio/api/odiiEngagementApi';
@@ -32,8 +33,9 @@ interface SorimaruAudioState {
     summary: Pick<SorimaruStorySummary, 'storyId'>,
     intent?: 'select' | 'play',
     repository?: SorimaruRepository,
+    owner?: symbol,
   ) => Promise<void>;
-  cancelPendingDetailSelection: () => void;
+  cancelPendingDetailSelection: (owner: symbol) => void;
   setIsPlaying: (isPlaying: boolean) => void;
   setCurrentTime: (time: number) => void;
   setDuration: (duration: number) => void;
@@ -55,6 +57,7 @@ interface SorimaruAudioState {
 export const useSorimaruAudioStore = create<SorimaruAudioState>((set, get) => {
   const pendingDetails = new Map<string, Promise<SorimaruStoryDetail>>();
   let selectionGeneration = 0;
+  let activeSelectionOwner: symbol | null = null;
 
   return ({
   currentStory: null,
@@ -76,9 +79,10 @@ export const useSorimaruAudioStore = create<SorimaruAudioState>((set, get) => {
 
   setAvailableStories: (availableStories) => set({ availableStories }),
 
-  selectAndLoadStory: async (summary, intent = 'select', repository = sorimaruApiAdapter) => {
+  selectAndLoadStory: async (summary, intent = 'select', repository = sorimaruApiAdapter, owner) => {
     const storyId = summary.storyId;
     const generation = ++selectionGeneration;
+    activeSelectionOwner = owner ?? null;
     let detail = get().detailById[storyId];
 
     if (!detail) {
@@ -111,20 +115,30 @@ export const useSorimaruAudioStore = create<SorimaruAudioState>((set, get) => {
     }
 
     if (generation !== selectionGeneration) return;
+    const transcriptLines = detail.transcript.flatMap((line) =>
+      line.startTimeSeconds === undefined
+        ? parseScriptToLines(line.text, detail.durationSeconds).map(({ text }) => ({ text, timeSec: undefined }))
+        : [{ text: line.text, timeSec: line.startTimeSeconds }],
+    );
+    const timeStep = Math.max(1, detail.durationSeconds / transcriptLines.length);
     set({
       currentStory: detail,
       currentTime: 0,
       duration: detail.durationSeconds,
       activeScriptIndex: 0,
-      parsedScriptLines: detail.transcript.map((line, index) => ({
+      parsedScriptLines: transcriptLines.map((line, index) => ({
         id: index + 1,
-        timeSec: line.startTimeSeconds ?? 0,
+        timeSec: line.timeSec ?? Math.floor(index * timeStep),
         text: line.text,
       })),
       isPlaying: intent === 'play',
     });
   },
-  cancelPendingDetailSelection: () => { selectionGeneration += 1; },
+  cancelPendingDetailSelection: (owner) => {
+    if (activeSelectionOwner !== owner) return;
+    selectionGeneration += 1;
+    activeSelectionOwner = null;
+  },
 
   setIsPlaying: (isPlaying: boolean) => set({ isPlaying }),
 

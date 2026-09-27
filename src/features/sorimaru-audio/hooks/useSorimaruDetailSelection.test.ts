@@ -110,6 +110,33 @@ describe('Sorimaru deep-link detail selection', () => {
     expect(useSorimaruAudioStore.getState().currentStory).toEqual(secondDetail);
   });
 
+  it('lets a newer user selection finish when a pending URL selection is cleared', async () => {
+    const secondSummary = { ...summary, storyId: 'story-2' };
+    const secondDetail = { ...detail, storyId: 'story-2' };
+    let resolveFirst!: (value: SorimaruStoryDetail) => void;
+    let resolveSecond!: (value: SorimaruStoryDetail) => void;
+    const firstPending = new Promise<SorimaruStoryDetail>((resolve) => { resolveFirst = resolve; });
+    const secondPending = new Promise<SorimaruStoryDetail>((resolve) => { resolveSecond = resolve; });
+    const getStoryDetail = vi.fn()
+      .mockReturnValueOnce(firstPending)
+      .mockReturnValueOnce(secondPending);
+    const repository = { listStories: vi.fn(), getStoryDetail, listRegionGroups: vi.fn() } satisfies SorimaruRepository;
+    const selection = createSorimaruDetailSelectionController(repository);
+
+    const urlSelection = selection.selectFromIntent([summary], { stid: 'story-1', autoPlay: false });
+    const userSelection = useSorimaruAudioStore.getState().selectAndLoadStory(secondSummary, 'play', repository);
+    await selection.selectFromIntent([summary], { autoPlay: false });
+    resolveSecond(secondDetail);
+    await userSelection;
+    expect(useSorimaruAudioStore.getState().currentStory).toEqual(secondDetail);
+    resolveFirst(detail);
+    await urlSelection;
+
+    expect(getStoryDetail).toHaveBeenCalledTimes(2);
+    expect(useSorimaruAudioStore.getState().currentStory).toEqual(secondDetail);
+    expect(useSorimaruAudioStore.getState().isPlaying).toBe(true);
+  });
+
   it('loads an explicit story id even when it is absent from the first page', async () => {
     const getStoryDetail = vi.fn().mockResolvedValue(detail);
     const repository = { listStories: vi.fn(), getStoryDetail, listRegionGroups: vi.fn() } satisfies SorimaruRepository;

@@ -8,7 +8,7 @@ import { useSorimaruAudioStore } from '../store/useSorimaruAudioStore';
 
 export function createSorimaruDetailSelectionController(repository: SorimaruRepository) {
   let lastSelectionKey: string | null = null;
-  let pendingRequest: { key: string; promise: Promise<void> } | null = null;
+  let pendingRequest: { key: string; owner: symbol; promise: Promise<void> } | null = null;
 
   function selectFromIntent(
     stories: SorimaruStorySummary[],
@@ -19,7 +19,7 @@ export function createSorimaruDetailSelectionController(repository: SorimaruRepo
     const storyId = intent.stid || target?.storyId;
     if (!storyId) {
       if (pendingRequest !== null) {
-        useSorimaruAudioStore.getState().cancelPendingDetailSelection();
+        useSorimaruAudioStore.getState().cancelPendingDetailSelection(pendingRequest.owner);
       }
       lastSelectionKey = null;
       pendingRequest = null;
@@ -33,14 +33,13 @@ export function createSorimaruDetailSelectionController(repository: SorimaruRepo
       return Promise.resolve();
     }
     lastSelectionKey = key;
-    const request: Promise<void> = Promise.resolve()
-      .then(() => useSorimaruAudioStore.getState().selectAndLoadStory(
-        target ?? { storyId }, intent.autoPlay ? 'play' : 'select', repository,
-      ))
-      .finally(() => {
-        if (pendingRequest?.promise === request) pendingRequest = null;
-      });
-    pendingRequest = { key, promise: request };
+    const owner = Symbol('Sorimaru URL selection');
+    const request: Promise<void> = useSorimaruAudioStore.getState().selectAndLoadStory(
+      target ?? { storyId }, intent.autoPlay ? 'play' : 'select', repository, owner,
+    ).finally(() => {
+      if (pendingRequest?.promise === request) pendingRequest = null;
+    });
+    pendingRequest = { key, owner, promise: request };
     return request;
   }
 

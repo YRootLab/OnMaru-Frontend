@@ -40,8 +40,33 @@ describe('Sorimaru detail selection', () => {
       currentStory: detail,
       isPlaying: true,
       duration: 180,
+      parsedScriptLines: [
+        { id: 1, timeSec: 0, text: '첫 문장' },
+        { id: 2, timeSec: 10, text: '둘째 문장' },
+      ],
       detailStatusById: { 'story-1': 'success' },
     });
+  });
+
+  it('spreads untimed transcript sentences across the detail duration', async () => {
+    const untimedDetail: SorimaruStoryDetail = {
+      ...detail,
+      durationSeconds: 120,
+      transcript: [{ text: '첫 문장. 둘째 문장.' }, { text: '셋째 문장.' }],
+    };
+    vi.spyOn(sorimaruApiAdapter, 'getStoryDetail').mockResolvedValue(untimedDetail);
+
+    await useSorimaruAudioStore.getState().selectAndLoadStory(summary);
+
+    expect(useSorimaruAudioStore.getState().parsedScriptLines).toEqual([
+      { id: 1, timeSec: 0, text: '첫 문장.' },
+      { id: 2, timeSec: 40, text: '둘째 문장.' },
+      { id: 3, timeSec: 80, text: '셋째 문장.' },
+    ]);
+    useSorimaruAudioStore.getState().setCurrentTime(39);
+    expect(useSorimaruAudioStore.getState().activeScriptIndex).toBe(0);
+    useSorimaruAudioStore.getState().setCurrentTime(80);
+    expect(useSorimaruAudioStore.getState().activeScriptIndex).toBe(2);
   });
 
   it('keeps summaries and the previous detail when a new detail fails', async () => {
