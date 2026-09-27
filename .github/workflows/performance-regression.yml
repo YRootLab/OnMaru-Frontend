@@ -10,6 +10,9 @@ on:
       - master
       - develop
 
+env:
+  NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
+
 jobs:
   빌드-크기-검사:
     name: 빌드 크기 회귀 검사

@@ -6,6 +6,9 @@ on:
       - develop
       - master
 
+env:
+  NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
+
 jobs:
   Bundle-Analysis:
     name: 번들 크기 분석

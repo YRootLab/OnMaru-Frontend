@@ -10,6 +10,9 @@ on:
       - develop
       - master
 
+env:
+  NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
+
 jobs:
   Playwright:
     name: E2E 테스트 실행

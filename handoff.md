@@ -1,6 +1,8 @@
 # handoff.md
 
 ## Current Work
+- 2026-09-27 hotfix 추가: `OnMaru-Frontend` Repository Secret의 `NEXT_PUBLIC_API_BASE_URL`을 확인했고, `npm run build` 또는 `vercel build`를 수행하는 GitHub Actions workflow에 공통 환경변수로 연결했다. 값은 Spring backend base URL이며 API 클라이언트가 `/api/v1`을 덧붙인다.
+- 2026-09-27 release/0.1.2: PR #219의 CI에서 API 환경변수 없이 빌드할 때 공용 클라이언트의 generic mock 응답이 수결첩 카탈로그로 전달돼 `/stamps` prerender가 실패하는 문제를 수정했다. `stampHttpRepository`에서 API 1.3 카탈로그를 검증하고 잘못된 응답을 거부한다. 회귀 테스트와 `.env.local` 없는 production build가 통과했다. 관련 릴리즈 추적 Issue는 #218이며, 백엔드 stamp endpoint 배포 후 실제 API smoke test는 여전히 필요하다.
 - 2026-09-27: Issue #262 한옥 수결첩 FE를 API 계약 `1.3`에 연결했다. 공개 카탈로그·개인 수결첩·위치 기반 체크인·익명 공개 랭킹·내 참여 상태·참여/철회 여섯 API를 `domain/application/infrastructure/presentation` 경계로 분리했다. `onmaru_hanok_stamps_v1`의 demo 판정과 Zustand persist를 제거했고, 개인 수결첩 조회 성공 뒤에만 legacy key를 삭제한다. 랭킹은 서버 생성 `GENERATED` 별명만 표시하며 사용자 닉네임 입력과 하드코딩 칭호를 제공하지 않는다. 위치 payload와 익명 랭킹 식별자는 저장·로그·analytics에 전달하지 않는다.
 - 2026-09-27 검증: `npm test -- src/features/stamp src/lib/api/client.contract.test.ts` 10 files/36 tests 통과, `npx tsc --noEmit` 통과, `npm run lint` 통과, `npm run build` 통과. Playwright 로컬 스모크에서 API fixture 기준 `/stamps` 카탈로그 12개와 서버 생성 익명 별명의 공개 랭킹을 desktop·mobile(390×844)로 확인했고, `/map`의 전통 한옥 상세에서 수결첩 방문 기록과 체크인 버튼 렌더링을 확인했다. 현재 `.env.local`이 가리키는 배포 백엔드는 새 stamp endpoint에 404를 반환하므로 실제 API 스모크는 백엔드 배포 후 재확인이 필요하다. 콘솔의 Clarity 외부 script 오류와 비로그인 `/members/me` 401은 이번 변경과 무관하다.
 - PR 생성 직전 최신 `origin/develop`을 병합한 최종 트리에서 전체 `npm test` 80 files/250 tests가 통과했다. 앞서 확인된 소리마루·여정 계약 테스트 5개 실패는 최신 develop 변경으로 해소됐다.
