@@ -8,31 +8,16 @@ import {
   mapStoryItem,
   CATEGORY_KEYWORD_MAP,
 } from '@/features/sorimaru-audio/domain/sorimaruStoryRules';
-
-
-// Single Source of Truth: 캐싱은 백엔드에서 처리
-// 프론트는 직접 API 호출만 함 (캐싱 제거)
-
-const inFlightRequests = new Map<string, Promise<unknown>>();
+import { swrFetch } from '@/lib/cache/tabMemoryCache';
+import { CK, TTL_MS } from '@/lib/cache/cacheKeys';
 
 async function getCachedRequest<T>(
   requestKey: string,
   request: () => Promise<T>,
-  _shouldCache?: (value: T) => boolean,
+  ttlMs: number,
 ): Promise<T> {
-  void _shouldCache;
-  const inFlight = inFlightRequests.get(requestKey) as Promise<T> | undefined;
-  if (inFlight) return inFlight;
-
-  const pending = request();
-  inFlightRequests.set(requestKey, pending);
-  try {
-    return await pending;
-  } finally {
-    if (inFlightRequests.get(requestKey) === pending) {
-      inFlightRequests.delete(requestKey);
-    }
-  }
+  const result = await swrFetch(requestKey, request, ttlMs);
+  return result.value;
 }
 
 
@@ -59,7 +44,7 @@ export const createSorimaruApiAdapter = (network: SorimaruNetworkClient = sorima
       keyword = CATEGORY_KEYWORD_MAP[category] || category;
     }
 
-    const requestKey = `stories:${category || ''}:${keyword}:${safePageNo}:${safeNumOfRows}`;
+    const requestKey = CK.sorimaruStories(category || '', keyword, safePageNo, safeNumOfRows);
 
     return getCachedRequest(requestKey, async () => {
       try {
@@ -101,7 +86,7 @@ export const createSorimaruApiAdapter = (network: SorimaruNetworkClient = sorima
         console.warn('[Sorimaru API Warning] API 호출 실패:', error);
         throw error instanceof Error ? error : new Error('Sorimaru API request failed');
       }
-    });
+    }, keyword ? TTL_MS.SORIMARU_SEARCH : TTL_MS.SORIMARU_BASE);
   },
 
 
@@ -156,7 +141,9 @@ export const createSorimaruApiAdapter = (network: SorimaruNetworkClient = sorima
   async getNearbyStories(mapX?: string, mapY?: string, radius = 3000): Promise<SorimaruStoryItem[]> {
     if (!mapX || !mapY) return this.getStoryList('한옥');
 
-    const requestKey = `nearby:${mapX}:${mapY}:${radius}`;
+    const lat = parseFloat(mapY);
+    const lng = parseFloat(mapX);
+    const requestKey = CK.sorimaruNearby(lat, lng);
 
     return getCachedRequest(requestKey, async () => {
       const stories = await this.getStoryList();
@@ -173,7 +160,7 @@ export const createSorimaruApiAdapter = (network: SorimaruNetworkClient = sorima
           ...story,
           distance: formatDistance(distanceKm),
         }));
-    });
+    }, TTL_MS.SORIMARU_NEARBY);
   }
   };
 

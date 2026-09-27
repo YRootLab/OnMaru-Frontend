@@ -1,51 +1,43 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Village, VillageMeta } from '@/features/hanok-archive/types';
 import { decodeHanokArchivePayload } from '@/features/hanok-archive/data/hanokArchiveFallback';
+import { swrFetch } from '@/lib/cache/tabMemoryCache';
+import { CK, TTL_MS } from '@/lib/cache/cacheKeys';
 
+type ArchiveData = { villages: Village[]; meta: VillageMeta };
 
-
-
+async function fetchArchive(): Promise<ArchiveData> {
+  const response = await fetch('/api/tourapi', { cache: 'no-store' });
+  if (!response.ok) throw new Error(`한옥 아카이브 API 오류: ${response.status}`);
+  const payload = decodeHanokArchivePayload(await response.json());
+  if (!payload) throw new Error('한옥 아카이브 payload 파싱 실패');
+  return payload;
+}
 
 export function useArchiveData(villages: Village[], meta: VillageMeta) {
-  const [archiveData, setArchiveData] = useState(() => ({ villages, meta }));
-
-
-
-
-
-  const hasSwappedRef = useRef(false);
+  const [archiveData, setArchiveData] = useState<ArchiveData>({ villages, meta });
+  const mountedRef = useRef(false);
 
   useEffect(() => {
-    if (hasSwappedRef.current) return undefined;
+    if (mountedRef.current) return;
+    mountedRef.current = true;
+    let active = true;
 
-    let isActive = true;
-    const controller = new AbortController();
-    const timeoutId = window.setTimeout(() => controller.abort(), 5000);
+    swrFetch(CK.hanokArchive(), fetchArchive, TTL_MS.HANOK_ARCHIVE, {
+      validate: (v) => Array.isArray(v.villages) && v.villages.length > 0,
+      onRevalidate: (fresh) => {
+        if (active) setArchiveData(fresh);
+      },
+    })
+      .then((result) => {
+        if (active) setArchiveData(result.value);
+      })
+      .catch(() => {
+        // fallback(초기값)으로 유지
+      });
 
-    async function refreshArchive() {
-      try {
-        const response = await fetch('/api/tourapi', {
-          cache: 'no-store',
-          signal: controller.signal,
-        });
-        if (!response.ok) return;
-        const nextData = decodeHanokArchivePayload(await response.json());
-        if (isActive && nextData && !hasSwappedRef.current) {
-          hasSwappedRef.current = true;
-          setArchiveData(nextData);
-        }
-      } catch {
-
-      } finally {
-        window.clearTimeout(timeoutId);
-      }
-    }
-
-    void refreshArchive();
     return () => {
-      isActive = false;
-      window.clearTimeout(timeoutId);
-      controller.abort();
+      active = false;
     };
   }, []);
 
