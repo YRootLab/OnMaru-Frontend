@@ -328,6 +328,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   const selectedCategory = useSorimaruAudioStore((s) => s.selectedCategory);
   const searchQuery = useSorimaruAudioStore((s) => s.searchQuery);
   const isPlaying = useSorimaruAudioStore((s) => s.isPlaying);
+  const selectAndLoadStory = useSorimaruAudioStore((s) => s.selectAndLoadStory);
   const hydrateSavedStories = useSorimaruAudioStore((s) => s.hydrateSavedStories);
   const regionName = SORIMARU_REGION_CHIPS.find((name) => name === selectedCategory);
   const categoryScope = catalogCategoryForSelection(selectedCategory);
@@ -349,10 +350,9 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
     void hydrateSavedStories();
   }, [hydrateSavedStories]);
 
-  const [secondaryApiError, setSecondaryApiError] = useState<string | null>(null);
   const [selectionError, setSelectionError] = useState<Error | null>(null);
-  const [retryToken, setRetryToken] = useState(0);
   const pendingSelectionRef = useRef<(SorimaruSelectionIntent & { autoPlay: boolean }) | null>(null);
+  const pendingRailSelectionRef = useRef<SorimaruStorySummary | null>(null);
   const storyList = (catalog.pages[currentPage - 1]?.items ?? []).filter((story) => {
     if (!searchQuery) return true;
     const keyword = searchQuery.toLowerCase();
@@ -361,16 +361,22 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   });
   const apiError = initialError || catalog.error || selectionError
     ? '소리마루 이야기를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'
-    : secondaryApiError;
+    : null;
   const lastPage = catalog.pages.at(-1);
   const totalArchivePages = catalog.pages.length + (lastPage?.hasMore && lastPage.nextCursor ? 1 : 0);
-  const handleApiError = useCallback(() => {
-    setSecondaryApiError('소리마루 이야기를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
-  }, []);
-
-  useEffect(() => {
-    setSecondaryApiError(null);
-  }, [selectedCategory, regionCode, currentPage]);
+  const handleRailStorySelection = useCallback((summary: SorimaruStorySummary, intent: 'play') => {
+    pendingRailSelectionRef.current = summary;
+    void selectAndLoadStory(summary, intent, activeApiService)
+      .then(() => {
+        if (pendingRailSelectionRef.current !== summary) return;
+        pendingRailSelectionRef.current = null;
+        setSelectionError(null);
+      })
+      .catch((reason: unknown) => {
+        if (pendingRailSelectionRef.current !== summary) return;
+        setSelectionError(reason instanceof Error ? reason : new Error('Sorimaru detail request failed'));
+      });
+  }, [activeApiService, selectAndLoadStory]);
 
   useEffect(() => {
     let active = true;
@@ -386,10 +392,10 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   }, [stidParam, titleParam, keywordParam, trackParam, autoPlayParam, initialData, initialPage, catalog.pages, selectFromIntent]);
 
   const retryApiRequests = () => {
-    setSecondaryApiError(null);
-    setRetryToken((token) => token + 1);
     if (initialError || catalog.error) {
       void retry();
+    } else if (selectionError && pendingRailSelectionRef.current) {
+      handleRailStorySelection(pendingRailSelectionRef.current, 'play');
     } else if (selectionError && pendingSelectionRef.current) {
       const loadedStories = [...(initialData?.archive?.items ?? initialPage?.items ?? []), ...catalog.pages.flatMap((page) => page.items)];
       void selectFromIntent(loadedStories, pendingSelectionRef.current, true)
@@ -472,11 +478,9 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                   </div>
                   <div style={{ marginTop: '0.5rem' }}>
                     <SorimaruEditorialRail
-                      key={retryToken}
                       stories={storyList}
                       storySets={heroStorySets}
-                      apiService={activeApiService}
-                      onApiError={handleApiError}
+                      onSelectStory={handleRailStorySelection}
                     />
                   </div>
                 </CenteredContainer>

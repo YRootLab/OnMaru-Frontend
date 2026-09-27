@@ -4,19 +4,16 @@ import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useSta
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import gsap from 'gsap';
-import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
-import { ISorimaruApiService, SorimaruStoryItem } from '@/features/sorimaru-audio/types/sorimaru.types';
+import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import { SORIMARU_THEME_CATEGORIES } from '@/features/sorimaru-audio/data/sorimaruCategoryData';
-import { useSorimaruApiService } from '@/features/sorimaru-audio/context/SorimaruDependencyContext';
-import { SORIMARU_RAIL_VISIBLE_BUFFER, getVisibleRailPositions, shouldFetchRailCategory } from './sorimaruEditorialRailModel';
+import { SORIMARU_RAIL_VISIBLE_BUFFER, getVisibleRailPositions } from './sorimaruEditorialRailModel';
 import { palette, meok, surface, fontSize } from '@/design-system/tokens';
 
 interface SorimaruEditorialRailProps {
-  stories: SorimaruStoryItem[];
-  storySets?: Record<string, SorimaruStoryItem[]>;
-  apiService?: ISorimaruApiService;
+  stories: SorimaruStorySummary[];
+  storySets?: Record<string, SorimaruStorySummary[]>;
   isLoading?: boolean;
-  onApiError?: () => void;
+  onSelectStory: (story: SorimaruStorySummary, intent: 'play') => void;
 }
 
 const FALLBACK_IMAGE_SETS = {
@@ -57,8 +54,8 @@ const FALLBACK_IMAGE_SETS = {
   ],
 };
 
-const getFallbackImageSet = (story: SorimaruStoryItem) => {
-  const category = `${story.category} ${story.title} ${story.locationName || ''}`;
+const getFallbackImageSet = (story: SorimaruStorySummary) => {
+  const category = `${story.category} ${story.title} ${story.region.name}`;
   if (category.includes('한옥') || category.includes('고택')) return FALLBACK_IMAGE_SETS.hanok;
   if (category.includes('시장') || category.includes('장터')) return FALLBACK_IMAGE_SETS.market;
   if (category.includes('마을') || category.includes('골목')) return FALLBACK_IMAGE_SETS.village;
@@ -68,9 +65,9 @@ const getFallbackImageSet = (story: SorimaruStoryItem) => {
   return FALLBACK_IMAGE_SETS.default;
 };
 
-const fallbackImageFor = (story: SorimaruStoryItem) => {
+const fallbackImageFor = (story: SorimaruStorySummary) => {
   const imageSet = getFallbackImageSet(story);
-  const seed = Array.from(story.stid || story.title).reduce((total, char) => total + char.charCodeAt(0), 0);
+  const seed = Array.from(story.storyId || story.title).reduce((total, char) => total + char.charCodeAt(0), 0);
   return imageSet[seed % imageSet.length];
 };
 
@@ -79,9 +76,8 @@ const isTrustedSorimaruImage = (imageUrl: string) =>
   !imageUrl.includes('unsplash.com') &&
   !imageUrl.includes('pixabay.com');
 
-const durationFor = (story: SorimaruStoryItem) =>
-  story.formattedDuration ||
-  `${Math.floor((Number(story.playTime) || 0) / 60)}:${String((Number(story.playTime) || 0) % 60).padStart(2, '0')}`;
+const durationFor = (story: SorimaruStorySummary) =>
+  `${Math.floor(story.durationSeconds / 60)}:${String(story.durationSeconds % 60).padStart(2, '0')}`;
 
 
 
@@ -201,7 +197,7 @@ const CategoryTabButton = styled.button<{ $isSelected: boolean }>`
 `;
 
 interface EditorialRailCardProps {
-  story: SorimaruStoryItem;
+  story: SorimaruStorySummary;
   position: number;
   offset: number;
   trackTransitionEnabled: boolean;
@@ -236,6 +232,8 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(
     return (
       <CardMotionButton
         type="button"
+        data-testid="sorimaru-editorial-card"
+        data-story-id={story.storyId}
         animate={{
           opacity: isVisible ? 1 : 0,
           y: lift,
@@ -295,13 +293,13 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(
               color: palette.juhong[500],
             }}
           >
-            {story.category && story.category !== '오디 이야기' && story.category !== '소리 이야기' ? story.category : story.badgeText || '소리마루 해설'}
+            {story.category && story.category !== '오디 이야기' && story.category !== '소리 이야기' ? story.category : '소리마루 해설'}
           </p>
           <CardTitle>
             {story.title}
           </CardTitle>
           <CardSub>
-            {story.locationName || '대한민국 문화유산'}
+            {story.region.name || '대한민국 문화유산'}
           </CardSub>
           {isActive && (
             <span
@@ -395,15 +393,8 @@ const IndicatorDot = styled.button<{ $active: boolean }>`
 `;
 
 export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
-  function SorimaruEditorialRail({ stories, storySets, apiService, isLoading = false, onApiError }) {
-    const activeApiService = useSorimaruApiService(apiService);
-    const setCurrentStory = useSorimaruAudioStore((state) => state.setCurrentStory);
+  function SorimaruEditorialRail({ stories, storySets, isLoading = false, onSelectStory }) {
     const [selectedKeyword, setSelectedKeyword] = useState(SORIMARU_THEME_CATEGORIES[0].keyword);
-    const [isCategoryLoading, setIsCategoryLoading] = useState(false);
-    const [categoryStories, setCategoryStories] = useState<SorimaruStoryItem[] | null>(null);
-    const [isRailNearby, setIsRailNearby] = useState(false);
-    const categoryCacheMapRef = useRef<Record<string, SorimaruStoryItem[]>>({});
-    const categoryLoadPromisesRef = useRef<Record<string, Promise<SorimaruStoryItem[]>>>({});
     const [cachedImageUrls, setCachedImageUrls] = useState<Record<string, string>>(() => {
       if (typeof window === 'undefined') return {};
       try {
@@ -414,8 +405,6 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
         return {};
       }
     });
-    const categoryRequestRef = useRef(0);
-    const categoryRequestPendingRef = useRef(false);
     const [activePosition, setActivePosition] = useState(0);
     const [trackTransitionEnabled, setTrackTransitionEnabled] = useState(true);
     const [autoResetToken, setAutoResetToken] = useState(0);
@@ -423,85 +412,37 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
     const inputLockedRef = useRef(false);
     const unlockTimerRef = useRef<number | null>(null);
     const cardInteractionRef = useRef<(position: number) => void>(() => undefined);
-    const railRef = useRef<HTMLElement>(null);
     const trackRef = useRef<HTMLDivElement>(null);
     const [trackMetrics, setTrackMetrics] = useState({ cardWidth: 250, cardStep: 280 });
-
-    useEffect(() => {
-      const rail = railRef.current;
-      if (!rail) return;
-
-      const observer = new IntersectionObserver(([entry]) => setIsRailNearby(entry.isIntersecting), {
-        rootMargin: '320px 0px',
-      });
-      observer.observe(rail);
-      return () => observer.disconnect();
-    }, []);
-
-    const loadCategoryStories = useCallback(
-      (keyword: string) => {
-        const cached = categoryCacheMapRef.current[keyword];
-        if (cached) return Promise.resolve(cached);
-
-        const pending = categoryLoadPromisesRef.current[keyword];
-        if (pending) return pending;
-
-        const request = activeApiService.getStoryList(undefined, keyword).then((nextStories) => {
-          const validStories = nextStories.filter((story) => story.audioUrl);
-          categoryCacheMapRef.current[keyword] = validStories;
-          return validStories;
-        });
-        categoryLoadPromisesRef.current[keyword] = request;
-        void request.then(
-          () => {
-            if (categoryLoadPromisesRef.current[keyword] === request) {
-              delete categoryLoadPromisesRef.current[keyword];
-            }
-          },
-          () => {
-            if (categoryLoadPromisesRef.current[keyword] === request) {
-              delete categoryLoadPromisesRef.current[keyword];
-            }
-          }
-        );
-        return request;
-      },
-      [activeApiService]
-    );
 
     const featured = useMemo(() => {
       const category =
         SORIMARU_THEME_CATEGORIES.find((item) => item.keyword === selectedKeyword) ??
         SORIMARU_THEME_CATEGORIES[0];
       const localCategoryStories =
-        storySets?.[category.label] ??
         stories.filter((story) => {
-          const searchable = `${story.category} ${story.title} ${story.locationName}`.toLowerCase();
+          const searchable = [...story.contentTags, story.category, story.title, story.region.name].join(' ').toLowerCase();
           return searchable.includes(category.keyword.toLowerCase());
         });
+      const groupedCategoryStories = storySets?.[category.label];
       const recommendationStories = storySets?.['추천'];
-      const cachedCategory = categoryCacheMapRef.current[selectedKeyword];
 
       const source =
-        categoryStories !== null
-          ? categoryStories
-          : cachedCategory && cachedCategory.length
-          ? cachedCategory
-          : localCategoryStories.length
+        localCategoryStories.length
           ? localCategoryStories
+          : groupedCategoryStories?.length
+          ? groupedCategoryStories
           : recommendationStories?.length
           ? recommendationStories
           : stories;
 
       return source
-        .filter((story) => Boolean(story.audioUrl))
-        .slice(0, 10)
         .map((story) =>
-          !story.imageUrl && cachedImageUrls[story.stid]
-            ? { ...story, imageUrl: cachedImageUrls[story.stid] }
+          !story.imageUrl && cachedImageUrls[story.storyId]
+            ? { ...story, imageUrl: cachedImageUrls[story.storyId] }
             : story
         );
-    }, [cachedImageUrls, categoryStories, selectedKeyword, stories, storySets]);
+    }, [cachedImageUrls, selectedKeyword, stories, storySets]);
 
     const activeIndex = featured.length
       ? ((activePosition % featured.length) + featured.length) % featured.length
@@ -509,7 +450,7 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
     const activeStory = featured[activeIndex] ?? featured[0];
 
     const visibleVirtualPositions = useMemo(() => {
-      const list: { pos: number; story: SorimaruStoryItem }[] = [];
+      const list: { pos: number; story: SorimaruStorySummary }[] = [];
       if (!featured.length) return list;
       for (const pos of getVisibleRailPositions(activePosition)) {
         const index = ((pos % featured.length) + featured.length) % featured.length;
@@ -542,44 +483,9 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
     }, [selectedKeyword]);
 
     useEffect(() => {
-      if (
-        !shouldFetchRailCategory({ isRailNearby, isSelected: true, isInteracted: false }) ||
-        categoryStories !== null ||
-        categoryRequestPendingRef.current
-      )
-        return;
-      let isMounted = true;
-      const requestId = categoryRequestRef.current + 1;
-      categoryRequestRef.current = requestId;
-      categoryRequestPendingRef.current = true;
-
-      setIsCategoryLoading(true);
-      loadCategoryStories(selectedKeyword)
-        .then((nextStories) => {
-          if (!isMounted || requestId !== categoryRequestRef.current) return;
-          setCategoryStories(nextStories);
-        })
-        .catch(() => {
-          if (!isMounted || requestId !== categoryRequestRef.current) return;
-          onApiError?.();
-          setCategoryStories([]);
-        })
-        .finally(() => {
-          if (!isMounted || requestId !== categoryRequestRef.current) return;
-          categoryRequestPendingRef.current = false;
-          setIsCategoryLoading(false);
-          setTrackTransitionEnabled(true);
-        });
-
-      return () => {
-        isMounted = false;
-      };
-    }, [categoryStories, isRailNearby, loadCategoryStories, onApiError, selectedKeyword]);
-
-    useEffect(() => {
-      const newlyCached = [...stories, ...(categoryStories || [])].reduce<Record<string, string>>(
+      const newlyCached = stories.reduce<Record<string, string>>(
         (result, story) => {
-          if (story.stid && isTrustedSorimaruImage(story.imageUrl)) result[story.stid] = story.imageUrl;
+          if (story.storyId && story.imageUrl && isTrustedSorimaruImage(story.imageUrl)) result[story.storyId] = story.imageUrl;
           return result;
         },
         {}
@@ -598,7 +504,7 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
         });
       }, 0);
       return () => window.clearTimeout(cacheId);
-    }, [categoryStories, stories]);
+    }, [stories]);
 
     const lockInputForTransition = useCallback(() => {
       inputLockedRef.current = true;
@@ -687,77 +593,25 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
       if (resetTimerRef.current !== null) window.clearTimeout(resetTimerRef.current);
 
       setSelectedKeyword(keyword);
-
-      const cached = categoryCacheMapRef.current[keyword];
-      if (cached && cached.length) {
-        setCategoryStories(cached);
-        setTrackTransitionEnabled(false);
-        setActivePosition(0);
-        window.requestAnimationFrame(() => {
-          setTrackTransitionEnabled(true);
-        });
-        return;
-      }
-
-      setCategoryStories(null);
-      setIsCategoryLoading(true);
-
-      const requestId = categoryRequestRef.current + 1;
-      categoryRequestRef.current = requestId;
-      categoryRequestPendingRef.current = true;
-      loadCategoryStories(keyword)
-        .then((nextStories) => {
-          if (requestId !== categoryRequestRef.current) return;
-          setCategoryStories(nextStories);
-          setTrackTransitionEnabled(false);
-          setActivePosition(0);
-          window.requestAnimationFrame(() => {
-            setTrackTransitionEnabled(true);
-          });
-        })
-        .catch(() => {
-          if (requestId !== categoryRequestRef.current) return;
-          onApiError?.();
-        })
-        .finally(() => {
-          if (requestId !== categoryRequestRef.current) return;
-          categoryRequestPendingRef.current = false;
-          setIsCategoryLoading(false);
-        });
+      setTrackTransitionEnabled(false);
+      setActivePosition(0);
+      window.requestAnimationFrame(() => {
+        setTrackTransitionEnabled(true);
+      });
     };
-
-    const preloadCategory = useCallback(
-      (keyword: string) => {
-        if (
-          !shouldFetchRailCategory({
-            isRailNearby,
-            isSelected: keyword === selectedKeyword,
-            isInteracted: true,
-          })
-        )
-          return;
-        if (categoryCacheMapRef.current[keyword]) return;
-
-        loadCategoryStories(keyword).then((nextStories) => {
-          categoryCacheMapRef.current[keyword] = nextStories;
-        });
-      },
-      [isRailNearby, loadCategoryStories, selectedKeyword]
-    );
 
     cardInteractionRef.current = (position) => {
       const offset = position - activePosition;
       const story = visibleVirtualPositions.find((item) => item.pos === position)?.story;
       moveBy(offset);
-      if (offset === 0 && story) setCurrentStory(story);
+      if (offset === 0 && story) onSelectStory(story, 'play');
     };
 
-    const showSkeleton = !activeStory && (isLoading || isCategoryLoading);
+    const showSkeleton = !activeStory && isLoading;
 
     if (!activeStory && !showSkeleton) {
       return (
         <section
-          ref={railRef}
           aria-label="소리마루 추천"
           style={{
             position: 'relative',
@@ -780,7 +634,6 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
 
     return (
       <section
-        ref={railRef}
         aria-label="소리마루 추천"
         aria-busy={showSkeleton}
         style={{
@@ -804,8 +657,6 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
                         key={category.id}
                         type="button"
                         onClick={() => handleCategoryChange(category.keyword)}
-                        onPointerEnter={() => preloadCategory(category.keyword)}
-                        onFocus={() => preloadCategory(category.keyword)}
                         aria-pressed={isSelected}
                         $isSelected={isSelected}
                       >
@@ -869,7 +720,7 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 {featured.map((storyItem, index) => (
                   <IndicatorDot
-                    key={`${storyItem.stid}-${index}`}
+                    key={`${storyItem.storyId}-${index}`}
                     type="button"
                     onClick={() => moveTo(index)}
                     $active={index === activeIndex}
