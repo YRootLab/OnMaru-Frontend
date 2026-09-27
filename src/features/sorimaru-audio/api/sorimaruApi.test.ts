@@ -1,6 +1,9 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { createSorimaruApiAdapter } from './sorimaruApi';
+import { tabCache } from '@/lib/cache/tabMemoryCache';
 import type { SorimaruNetworkClient, SorimaruTransportResponse } from './sorimaruNetwork';
+
+beforeEach(() => tabCache.reset());
 
 const storyItem = {
   tid: 'story-1',
