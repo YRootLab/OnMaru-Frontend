@@ -2,42 +2,12 @@
 
 import { useMemo } from 'react';
 import type { SorimaruRepository } from '../application/SorimaruRepository';
-import type { SorimaruStoryDetail, SorimaruStorySummary } from '../domain/sorimaruStory';
-import type { SorimaruStoryItem } from '../types/sorimaru.types';
+import type { SorimaruStorySummary } from '../domain/sorimaruStory';
 import { resolveSorimaruSelectionIntent, type SorimaruSelectionIntent } from '../components/sorimaruInitialLoad';
 import { useSorimaruAudioStore } from '../store/useSorimaruAudioStore';
 
-interface SorimaruLegacyPlayer {
-  selectStory(story: SorimaruStoryItem): void;
-  setIsPlaying(isPlaying: boolean): void;
-}
-
-function toPlayableStory(detail: SorimaruStoryDetail): SorimaruStoryItem {
-  const placeId = detail.linkedPlaceId ?? '';
-  return {
-    tid: detail.storyId,
-    tlid: placeId,
-    stid: detail.storyId,
-    stlid: placeId,
-    title: detail.title,
-    audioTitle: detail.audioTitle,
-    category: detail.category,
-    mapX: detail.coordinates ? String(detail.coordinates.lng) : '',
-    mapY: detail.coordinates ? String(detail.coordinates.lat) : '',
-    script: detail.transcript.map((line) => line.text).join('\n'),
-    playTime: String(detail.durationSeconds),
-    audioUrl: detail.audioUrl,
-    imageUrl: detail.imageUrl ?? '',
-    tags: detail.contentTags,
-    locationName: detail.region.name,
-  };
-}
-
-export function createSorimaruDetailSelectionController(repository: SorimaruRepository, player: SorimaruLegacyPlayer) {
-  let generation = 0;
+export function createSorimaruDetailSelectionController(repository: SorimaruRepository) {
   let lastSelectionKey: string | null = null;
-  let lastFailure: unknown = null;
-  let hasFailure = false;
   let pendingRequest: { key: string; promise: Promise<void> } | null = null;
 
   function selectFromIntent(
@@ -48,37 +18,25 @@ export function createSorimaruDetailSelectionController(repository: SorimaruRepo
     const target = resolveSorimaruSelectionIntent(stories, intent);
     const storyId = intent.stid || target?.storyId;
     if (!storyId) {
-      generation += 1;
+      if (pendingRequest !== null) {
+        useSorimaruAudioStore.getState().cancelPendingDetailSelection();
+      }
       lastSelectionKey = null;
-      lastFailure = null;
-      hasFailure = false;
       pendingRequest = null;
       return Promise.resolve();
     }
     const key = `${storyId}\u0000${intent.autoPlay}`;
     if (!force && lastSelectionKey === key) {
       if (pendingRequest?.key === key) return pendingRequest.promise;
-      if (hasFailure) return Promise.reject(lastFailure);
+      const state = useSorimaruAudioStore.getState();
+      if (state.detailStatusById[storyId] === 'error') return Promise.reject(state.detailErrorById[storyId]);
       return Promise.resolve();
     }
     lastSelectionKey = key;
-    lastFailure = null;
-    hasFailure = false;
-    const requestGeneration = ++generation;
     const request: Promise<void> = Promise.resolve()
-      .then(() => repository.getStoryDetail(storyId, 'ko-KR'))
-      .then((detail) => {
-        if (requestGeneration !== generation) return;
-        player.selectStory(toPlayableStory(detail));
-        if (intent.autoPlay) player.setIsPlaying(true);
-      })
-      .catch((reason: unknown) => {
-        if (requestGeneration === generation) {
-          lastFailure = reason;
-          hasFailure = true;
-        }
-        throw reason;
-      })
+      .then(() => useSorimaruAudioStore.getState().selectAndLoadStory(
+        target ?? { storyId }, intent.autoPlay ? 'play' : 'select', repository,
+      ))
       .finally(() => {
         if (pendingRequest?.promise === request) pendingRequest = null;
       });
@@ -90,9 +48,6 @@ export function createSorimaruDetailSelectionController(repository: SorimaruRepo
 }
 
 export function useSorimaruDetailSelection(repository: SorimaruRepository) {
-  const controller = useMemo(() => createSorimaruDetailSelectionController(repository, {
-    selectStory: (story) => useSorimaruAudioStore.getState().selectStory(story),
-    setIsPlaying: (isPlaying) => useSorimaruAudioStore.getState().setIsPlaying(isPlaying),
-  }), [repository]);
+  const controller = useMemo(() => createSorimaruDetailSelectionController(repository), [repository]);
   return controller.selectFromIntent;
 }
