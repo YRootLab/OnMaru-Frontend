@@ -1,51 +1,95 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { ISorimaruApiService, SorimaruStoryItem, SorimaruStoryPage } from '../types/sorimaru.types';
-import { loadSorimaruInitialData } from './sorimaruInitialLoad';
+import type { SorimaruRepository } from '../application/SorimaruRepository';
+import type { SorimaruStoryPage, SorimaruStorySummary } from '../domain/sorimaruStory';
+import { findNearbySorimaruStories, loadSorimaruInitialData, loadNextSorimaruPage } from './sorimaruInitialLoad';
 
-const stories = Array.from({ length: 9 }, (_, index) => ({
-  stid: `story-${index}`,
+const stories: SorimaruStorySummary[] = Array.from({ length: 9 }, (_, index) => ({
+  storyId: `story-${index}`,
   title: `Story ${index}`,
-} as SorimaruStoryItem));
+  audioTitle: `Audio ${index}`,
+  category: '한옥',
+  region: { regionCode: 'kr-11', name: '서울특별시', level: 'PROVINCE', parentRegionCode: null },
+  coordinates: null,
+  durationSeconds: 180,
+  imageUrl: null,
+  linkedPlaceId: null,
+  contentTags: [],
+  savedByMe: false,
+}));
 
-const archive: SorimaruStoryPage = {
-  items: stories,
-  pageNo: 1,
-  numOfRows: 12,
-  totalCount: stories.length,
-  source: 'api',
-};
+const firstPage: SorimaruStoryPage = { items: stories, nextCursor: 'cursor-2', hasMore: true };
+
+function repositoryWith(listStories: SorimaruRepository['listStories']): SorimaruRepository {
+  return { listStories, getStoryDetail: vi.fn(), listRegionGroups: vi.fn() };
+}
 
 describe('loadSorimaruInitialData', () => {
-  it('derives hero stories from the first archive request', async () => {
-    const service = {
-      getStoryPage: vi.fn().mockResolvedValue(archive),
-      getStoryList: vi.fn(),
-      getNearbyStories: vi.fn().mockResolvedValue([stories[8]]),
-    } satisfies ISorimaruApiService;
+  it('uses one first page for archive, hero, and coordinate-free nearby content', async () => {
+    const repository = repositoryWith(vi.fn().mockResolvedValue(firstPage));
 
-    const result = await loadSorimaruInitialData(service);
+    const result = await loadSorimaruInitialData(repository);
 
-    expect(service.getStoryPage).toHaveBeenCalledWith('전체', '한옥', 1, 12);
-    expect(service.getStoryPage).toHaveBeenCalledTimes(1);
-    expect(service.getStoryList).not.toHaveBeenCalled();
+    expect(repository.listStories).toHaveBeenCalledOnce();
+    expect(repository.listStories).toHaveBeenCalledWith({ language: 'ko-KR', limit: 12 });
+    expect(repository.getStoryDetail).not.toHaveBeenCalled();
+    expect(result.archive).toBe(firstPage);
     expect(result.heroStories).toEqual(stories.slice(0, 7));
-    expect(result.nearbyStories).toEqual([stories[8]]);
+    expect(result.nearbyStories).toBe(stories);
     expect(result.archiveError).toBeNull();
-    expect(result.nearbyError).toBeNull();
   });
 
-  it('keeps archive data when only the nearby request fails', async () => {
-    const service = {
-      getStoryPage: vi.fn().mockResolvedValue(archive),
-      getStoryList: vi.fn(),
-      getNearbyStories: vi.fn().mockRejectedValue(new Error('nearby unavailable')),
-    } satisfies ISorimaruApiService;
+  it('keeps the archive failure without inventing nearby content', async () => {
+    const failure = new Error('archive unavailable');
+    const repository = repositoryWith(vi.fn().mockRejectedValue(failure));
 
-    const result = await loadSorimaruInitialData(service);
+    const result = await loadSorimaruInitialData(repository);
 
-    expect(result.archive).toEqual(archive);
-    expect(result.heroStories).toEqual(stories.slice(0, 7));
+    expect(result.archive).toBeNull();
+    expect(result.archiveError).toBe(failure);
+    expect(result.heroStories).toEqual([]);
     expect(result.nearbyStories).toEqual([]);
-    expect(result.nearbyError?.message).toBe('nearby unavailable');
+  });
+});
+
+describe('loadNextSorimaruPage', () => {
+  it('uses only the final cursor and deduplicates overlapping story ids', async () => {
+    const secondPage: SorimaruStoryPage = {
+      items: [stories[8], { ...stories[0], storyId: 'story-10' }],
+      nextCursor: null,
+      hasMore: false,
+    };
+    const repository = repositoryWith(vi.fn().mockResolvedValue(secondPage));
+    const pages = [{ items: [stories[0]], nextCursor: 'old-cursor', hasMore: true }, firstPage];
+
+    const result = await loadNextSorimaruPage(repository, pages, { language: 'ko-KR', limit: 12, category: '한옥' });
+
+    expect(repository.listStories).toHaveBeenCalledOnce();
+    expect(repository.listStories).toHaveBeenCalledWith({ language: 'ko-KR', limit: 12, category: '한옥', cursor: 'cursor-2' });
+    expect(result.at(-1)).toEqual({ items: [{ ...stories[0], storyId: 'story-10' }], nextCursor: null, hasMore: false });
+  });
+
+  it.each([
+    { pages: [{ items: stories, nextCursor: 'cursor-2', hasMore: false }] },
+    { pages: [{ items: stories, nextCursor: null, hasMore: true }] },
+  ] satisfies Array<{ pages: SorimaruStoryPage[] }>)('does not request another page without a usable cursor', async ({ pages }) => {
+    const repository = repositoryWith(vi.fn());
+
+    const result = await loadNextSorimaruPage(repository, pages, { language: 'ko-KR', limit: 12 });
+
+    expect(result).toBe(pages);
+    expect(repository.listStories).not.toHaveBeenCalled();
+  });
+});
+
+describe('findNearbySorimaruStories', () => {
+  it('returns loaded stories within three kilometers, nearest first', () => {
+    const result = findNearbySorimaruStories([
+      { ...stories[0], coordinates: { lat: 37.51, lng: 127 } },
+      { ...stories[1], coordinates: { lat: 37.5, lng: 127 } },
+      { ...stories[2], coordinates: { lat: 37.6, lng: 127 } },
+      stories[3],
+    ], 37.5, 127);
+
+    expect(result.map((story) => story.storyId)).toEqual(['story-1', 'story-0']);
   });
 });

@@ -2,10 +2,10 @@
 
 import React, { createContext, useContext, useMemo } from 'react';
 import { sorimaruApiAdapter } from '@/features/sorimaru-audio/api/sorimaruApi';
-import { ISorimaruApiService } from '@/features/sorimaru-audio/types/sorimaru.types';
+import type { SorimaruRepository } from '@/features/sorimaru-audio/application/SorimaruRepository';
 
 interface SorimaruDependencyContextValue {
-  apiService: ISorimaruApiService;
+  apiService: SorimaruRepository;
 }
 
 const SorimaruDependencyContext = createContext<SorimaruDependencyContextValue>({
@@ -13,7 +13,7 @@ const SorimaruDependencyContext = createContext<SorimaruDependencyContextValue>(
 });
 
 export interface SorimaruDependencyProviderProps {
-  apiService?: ISorimaruApiService;
+  apiService?: SorimaruRepository;
   children: React.ReactNode;
 }
 
@@ -37,7 +37,7 @@ export const SorimaruDependencyProvider: React.FC<SorimaruDependencyProviderProp
 
 
 
-export function useSorimaruApiService(overrideService?: ISorimaruApiService): ISorimaruApiService {
+export function useSorimaruApiService(overrideService?: SorimaruRepository): SorimaruRepository {
   const context = useContext(SorimaruDependencyContext);
   return overrideService || context.apiService || sorimaruApiAdapter;
 }
