@@ -19,8 +19,8 @@ describe('PlaceService.getNearbyPlaces backend-first (FE #90)', () => {
   });
 
   afterEach(() => {
-    process.env.NEXT_PUBLIC_API_URL = originalApiUrl;
-    process.env.NEXT_PUBLIC_API_BASE_URL = originalApiBaseUrl;
+    if (originalApiUrl === undefined) { delete process.env.NEXT_PUBLIC_API_URL; } else { process.env.NEXT_PUBLIC_API_URL = originalApiUrl; }
+    if (originalApiBaseUrl === undefined) { delete process.env.NEXT_PUBLIC_API_BASE_URL; } else { process.env.NEXT_PUBLIC_API_BASE_URL = originalApiBaseUrl; }
     vi.resetModules();
   });
 
