@@ -27,6 +27,90 @@ describe('Sorimaru catalog controller', () => {
     expect(catalogCategoryForSelection('한옥')).toBe('한옥');
   });
 
+  it('resolves an exact backend region label and requests its canonical code', async () => {
+    const listStories = vi.fn().mockResolvedValue(page('gyeongju'));
+    const listRegionGroups = vi.fn().mockResolvedValue({ groups: [
+      { label: '경주', regionCodes: ['kr-47-130'], storyCount: 3 },
+    ] });
+    const catalog = createSorimaruCatalogController({ ...repository(listStories), listRegionGroups }, page('initial'));
+    await catalog.loadInitial();
+
+    await catalog.setRegionSelection('경주');
+    await catalog.setScope('전체');
+    await catalog.setRegionSelection('경주');
+
+    expect(listRegionGroups).toHaveBeenCalledExactlyOnceWith('ko-KR');
+    expect(listStories).toHaveBeenCalledTimes(2);
+    expect(listStories).toHaveBeenNthCalledWith(1, { language: 'ko-KR', limit: 12, regionCode: 'kr-47-130' });
+    expect(catalog.getSnapshot().catalog.pages[0].items[0].storyId).toBe('gyeongju');
+  });
+
+  it('shows a successful empty region when no exact backend label exists', async () => {
+    const listStories = vi.fn();
+    const listRegionGroups = vi.fn().mockResolvedValue({ groups: [
+      { label: '경상북도', regionCodes: ['kr-47'], storyCount: 4 },
+    ] });
+    const catalog = createSorimaruCatalogController({ ...repository(listStories), listRegionGroups }, page('initial'));
+    await catalog.loadInitial();
+
+    await catalog.setRegionSelection('경주');
+
+    expect(listStories).not.toHaveBeenCalled();
+    expect(catalog.getSnapshot().catalog).toMatchObject({ pages: [], status: 'empty', error: null });
+  });
+
+  it('uses a code returned by an exact group when it contains more than one code', async () => {
+    const listStories = vi.fn().mockResolvedValue(page('region'));
+    const listRegionGroups = vi.fn().mockResolvedValue({ groups: [
+      { label: '경주', regionCodes: ['kr-47-130', 'kr-47-131'], storyCount: 7 },
+    ] });
+    const catalog = createSorimaruCatalogController({ ...repository(listStories), listRegionGroups }, page('initial'));
+    await catalog.loadInitial();
+
+    await catalog.setRegionSelection('경주');
+
+    expect(listStories).toHaveBeenCalledExactlyOnceWith({ language: 'ko-KR', limit: 12, regionCode: 'kr-47-130' });
+  });
+
+  it('keeps a failed initial request visible after a filtered page succeeds and retries it', async () => {
+    const initialError = new Error('initial offline');
+    const listStories = vi.fn()
+      .mockRejectedValueOnce(initialError)
+      .mockResolvedValueOnce(page('filtered'))
+      .mockResolvedValueOnce(page('initial recovered'))
+      .mockResolvedValueOnce(page('filtered'));
+    const catalog = createSorimaruCatalogController(repository(listStories));
+
+    await catalog.loadInitial();
+    await catalog.setScope('한옥');
+    expect(catalog.getSnapshot().catalog.status).toBe('success');
+    expect(catalog.getSnapshot().initialError).toBe(initialError);
+
+    await catalog.retry();
+    expect(catalog.getSnapshot().initialError).toBeNull();
+    expect(catalog.getSnapshot().initialData?.heroStories[0].storyId).toBe('initial recovered');
+  });
+
+  it('finishes region lookup when the failed initial page is retried concurrently', async () => {
+    const groups = deferred<{ groups: Array<{ label: string; regionCodes: string[]; storyCount: number }> }>();
+    const listStories = vi.fn()
+      .mockRejectedValueOnce(new Error('initial offline'))
+      .mockResolvedValueOnce(page('initial recovered'))
+      .mockResolvedValueOnce(page('region'));
+    const catalog = createSorimaruCatalogController({
+      ...repository(listStories), listRegionGroups: vi.fn().mockReturnValue(groups.promise),
+    });
+    await catalog.loadInitial();
+
+    const regionLoading = catalog.setRegionSelection('경주');
+    await catalog.retry();
+    groups.resolve({ groups: [{ label: '경주', regionCodes: ['kr-47-130'], storyCount: 1 }] });
+    await regionLoading;
+
+    expect(catalog.getSnapshot().initialError).toBeNull();
+    expect(catalog.getSnapshot().catalog.pages[0].items[0].storyId).toBe('region');
+  });
+
   it('loads the selected category when it changes before the initial page resolves', async () => {
     const initial = deferred<SorimaruStoryPage>();
     const listStories = vi.fn().mockReturnValueOnce(initial.promise).mockResolvedValueOnce(page('filtered'));

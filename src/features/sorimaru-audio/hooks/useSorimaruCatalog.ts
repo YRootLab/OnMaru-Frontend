@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useSyncExternalStore } from 'react';
 import type { SorimaruRepository } from '../application/SorimaruRepository';
-import type { SorimaruStoryPage } from '../domain/sorimaruStory';
+import type { SorimaruRegionGroups, SorimaruStoryPage } from '../domain/sorimaruStory';
 import { SORIMARU_REGION_CHIPS } from '../data/sorimaruCategoryData';
 import { loadNextSorimaruPage, loadSorimaruInitialData, type SorimaruInitialData } from '../components/sorimaruInitialLoad';
 
@@ -16,6 +16,7 @@ export type CatalogState = {
 export type SorimaruCatalogSnapshot = {
   catalog: CatalogState;
   initialData: SorimaruInitialData | null;
+  initialError: Error | null;
   initialLoading: boolean;
   currentPage: number;
 };
@@ -35,8 +36,12 @@ export function createSorimaruCatalogController(repository: SorimaruRepository, 
   let scopeKey = baseScope;
   let generation = 0;
   let initialGeneration = 0;
+  let regionLookupGeneration = 0;
   let initialReady = false;
   let loadingNext = false;
+  let regionSelectionLabel: string | null = null;
+  let regionSelectionStatus: 'pending' | 'matched' | 'unmatched' | 'error' | null = null;
+  let regionGroupsPromise: Promise<SorimaruRegionGroups> | null = null;
   let initialArchive: SorimaruStoryPage | null = initialPage ?? null;
   let snapshot: SorimaruCatalogSnapshot = {
     catalog: {
@@ -46,6 +51,7 @@ export function createSorimaruCatalogController(repository: SorimaruRepository, 
       loadingNext: false,
     },
     initialData: null,
+    initialError: null,
     initialLoading: !initialPage,
     currentPage: 1,
   };
@@ -59,6 +65,15 @@ export function createSorimaruCatalogController(repository: SorimaruRepository, 
     ...(scope.category === '전체' ? {} : { category: scope.category }),
     ...(scope.regionCode ? { regionCode: scope.regionCode } : {}),
   });
+  const regionGroups = () => {
+    if (!regionGroupsPromise) {
+      regionGroupsPromise = repository.listRegionGroups('ko-KR').catch((reason: unknown) => {
+        regionGroupsPromise = null;
+        throw reason;
+      });
+    }
+    return regionGroupsPromise;
+  };
 
   async function requestScope(): Promise<void> {
     const requestGeneration = ++generation;
@@ -85,7 +100,8 @@ export function createSorimaruCatalogController(repository: SorimaruRepository, 
     if (requestInitialGeneration !== initialGeneration) return;
     initialReady = true;
     initialArchive = result.archive;
-    publish({ initialData: result, initialLoading: false });
+    publish({ initialData: result, initialError: result.archiveError, initialLoading: false });
+    if (regionSelectionStatus === 'pending' || regionSelectionStatus === 'unmatched' || regionSelectionStatus === 'error') return;
     if (scopeKey !== baseScope) {
       await requestScope();
       return;
@@ -100,7 +116,10 @@ export function createSorimaruCatalogController(repository: SorimaruRepository, 
 
   async function setScope(category: string, regionCode?: string): Promise<void> {
     const nextKey = `${category}\u0000${regionCode ?? ''}`;
-    if (nextKey === scopeKey) return;
+    if (nextKey === scopeKey && !regionSelectionLabel) return;
+    regionSelectionLabel = null;
+    regionSelectionStatus = null;
+    regionLookupGeneration += 1;
     scope = { category, regionCode };
     scopeKey = nextKey;
     generation += 1;
@@ -116,6 +135,34 @@ export function createSorimaruCatalogController(repository: SorimaruRepository, 
       return;
     }
     await requestScope();
+  }
+
+  async function setRegionSelection(label: string): Promise<void> {
+    regionSelectionLabel = label;
+    regionSelectionStatus = 'pending';
+    scopeKey = `region:${label}`;
+    const lookupGeneration = ++regionLookupGeneration;
+    generation += 1;
+    loadingNext = false;
+    publish({ catalog: { pages: [], status: 'loading', error: null, loadingNext: false }, currentPage: 1 });
+    try {
+      const groups = await regionGroups();
+      if (lookupGeneration !== regionLookupGeneration || regionSelectionLabel !== label) return;
+      const exact = groups.groups.find((group) => group.label === label && group.regionCodes.length > 0);
+      if (!exact) {
+        regionSelectionStatus = 'unmatched';
+        publish({ catalog: { pages: [], status: 'empty', error: null, loadingNext: false } });
+        return;
+      }
+      regionSelectionStatus = 'matched';
+      scope = { category: '전체', regionCode: exact.regionCodes[0] };
+      scopeKey = `전체\u0000${exact.regionCodes[0]}`;
+      if (initialReady) await requestScope();
+    } catch (reason) {
+      if (lookupGeneration !== regionLookupGeneration || regionSelectionLabel !== label) return;
+      regionSelectionStatus = 'error';
+      publish({ catalog: { pages: [], status: 'error', error: asError(reason), loadingNext: false } });
+    }
   }
 
   async function loadNextPage(): Promise<void> {
@@ -150,7 +197,11 @@ export function createSorimaruCatalogController(repository: SorimaruRepository, 
   }
 
   async function retry(): Promise<void> {
-    if (snapshot.catalog.pages.length && snapshot.catalog.error) {
+    if (snapshot.initialError) {
+      await loadInitial(true);
+    } else if (regionSelectionLabel && regionSelectionStatus === 'error') {
+      await setRegionSelection(regionSelectionLabel);
+    } else if (snapshot.catalog.pages.length && snapshot.catalog.error) {
       await loadNextPage();
     } else if (scopeKey === baseScope) {
       await loadInitial(true);
@@ -167,6 +218,7 @@ export function createSorimaruCatalogController(repository: SorimaruRepository, 
     },
     loadInitial,
     setScope,
+    setRegionSelection,
     loadNextPage,
     goToPage,
     retry,
@@ -178,10 +230,14 @@ export function useSorimaruCatalog(
   category: string,
   regionCode?: string,
   initialPage?: SorimaruStoryPage,
+  regionLabel?: string,
 ) {
   const controller = useMemo(() => createSorimaruCatalogController(repository, initialPage), [repository, initialPage]);
   const state = useSyncExternalStore(controller.subscribe, controller.getSnapshot, controller.getSnapshot);
   useEffect(() => { void controller.loadInitial(); }, [controller]);
-  useEffect(() => { void controller.setScope(category, regionCode); }, [controller, category, regionCode]);
+  useEffect(() => {
+    if (regionLabel) void controller.setRegionSelection(regionLabel);
+    else void controller.setScope(category, regionCode);
+  }, [controller, category, regionCode, regionLabel]);
   return { ...state, goToPage: controller.goToPage, retry: controller.retry };
 }

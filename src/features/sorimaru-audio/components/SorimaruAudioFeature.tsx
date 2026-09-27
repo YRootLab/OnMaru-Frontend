@@ -23,8 +23,9 @@ import { SORIMARU_REGION_CHIPS } from '@/features/sorimaru-audio/data/sorimaruCa
 import type { SorimaruRepository } from '@/features/sorimaru-audio/application/SorimaruRepository';
 import type { SorimaruStoryPage, SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import { SorimaruDependencyProvider, useSorimaruApiService } from '@/features/sorimaru-audio/context/SorimaruDependencyContext';
-import { findNearbySorimaruStories, resolveSorimaruSelectionIntent, type SorimaruSelectionIntent } from './sorimaruInitialLoad';
+import { findNearbySorimaruStories, type SorimaruSelectionIntent } from './sorimaruInitialLoad';
 import { catalogCategoryForSelection, useSorimaruCatalog } from '@/features/sorimaru-audio/hooks/useSorimaruCatalog';
+import { useSorimaruDetailSelection } from '@/features/sorimaru-audio/hooks/useSorimaruDetailSelection';
 import { palette, meok, surface, fontSize } from '@/design-system/tokens';
 import { HanjiDeckleEdge } from '@/shared/components/HanjiDeckleEdge';
 
@@ -304,7 +305,6 @@ export interface SorimaruAudioFeatureProps {
   initialNearbyStories?: SorimaruStorySummary[];
   initialHeroStorySets?: Record<string, SorimaruStorySummary[]>;
   regionCode?: string;
-  onSummarySelectionIntent?: (story: SorimaruStorySummary, autoPlay: boolean) => void;
   onLocationChange?: (latitude: number, longitude: number) => void;
   backgroundVariant?: SorimaruBackgroundVariant;
 }
@@ -315,7 +315,6 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   initialNearbyStories,
   initialHeroStorySets,
   regionCode,
-  onSummarySelectionIntent,
   onLocationChange,
   backgroundVariant,
 }) => {
@@ -332,9 +331,10 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   const hydrateSavedStories = useSorimaruAudioStore((s) => s.hydrateSavedStories);
   const regionName = SORIMARU_REGION_CHIPS.find((name) => name === selectedCategory);
   const categoryScope = catalogCategoryForSelection(selectedCategory);
-  const { catalog, initialData, initialLoading, currentPage, goToPage, retry } = useSorimaruCatalog(
-    activeApiService, categoryScope, regionCode, initialPage,
+  const { catalog, initialData, initialError, initialLoading, currentPage, goToPage, retry } = useSorimaruCatalog(
+    activeApiService, categoryScope, regionCode, initialPage, regionName,
   );
+  const selectFromIntent = useSorimaruDetailSelection(activeApiService);
   const [nearbyOverride, setNearbyOverride] = useState<SorimaruStorySummary[] | null>(null);
   const nearbyStories = nearbyOverride ?? initialData?.nearbyStories ?? initialNearbyStories ?? initialPage?.items ?? [];
   const heroStorySets = initialData ? { '추천': initialData.heroStories } : initialHeroStorySets ?? {};
@@ -350,17 +350,16 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   }, [hydrateSavedStories]);
 
   const [secondaryApiError, setSecondaryApiError] = useState<string | null>(null);
+  const [selectionError, setSelectionError] = useState<Error | null>(null);
   const [retryToken, setRetryToken] = useState(0);
   const pendingSelectionRef = useRef<(SorimaruSelectionIntent & { autoPlay: boolean }) | null>(null);
-  const dispatchedSelectionRef = useRef<string | null>(null);
   const storyList = (catalog.pages[currentPage - 1]?.items ?? []).filter((story) => {
-    if (regionName && !story.region.name.includes(regionName)) return false;
     if (!searchQuery) return true;
     const keyword = searchQuery.toLowerCase();
     return [story.title, story.audioTitle, story.region.name, ...story.contentTags]
       .some((value) => value.toLowerCase().includes(keyword));
   });
-  const apiError = catalog.error
+  const apiError = initialError || catalog.error || selectionError
     ? '소리마루 이야기를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'
     : secondaryApiError;
   const lastPage = catalog.pages.at(-1);
@@ -374,21 +373,29 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   }, [selectedCategory, regionCode, currentPage]);
 
   useEffect(() => {
+    let active = true;
     const intent = { stid: stidParam, title: titleParam, keyword: keywordParam, track: trackParam, autoPlay: autoPlayParam === 'true' };
     pendingSelectionRef.current = intent;
-    const loadedStories = initialData?.archive?.items ?? initialPage?.items ?? [];
-    const target = resolveSorimaruSelectionIntent(loadedStories, intent);
-    if (!target || !onSummarySelectionIntent) return;
-    const key = `${target.storyId}\u0000${intent.autoPlay}`;
-    if (dispatchedSelectionRef.current === key) return;
-    dispatchedSelectionRef.current = key;
-    onSummarySelectionIntent(target, intent.autoPlay);
-  }, [stidParam, titleParam, keywordParam, trackParam, autoPlayParam, initialData, initialPage, onSummarySelectionIntent]);
+    const loadedStories = [...(initialData?.archive?.items ?? initialPage?.items ?? []), ...catalog.pages.flatMap((page) => page.items)];
+    void selectFromIntent(loadedStories, intent).then(() => {
+      if (active) setSelectionError(null);
+    }).catch((reason: unknown) => {
+      if (active) setSelectionError(reason instanceof Error ? reason : new Error('Sorimaru detail request failed'));
+    });
+    return () => { active = false; };
+  }, [stidParam, titleParam, keywordParam, trackParam, autoPlayParam, initialData, initialPage, catalog.pages, selectFromIntent]);
 
   const retryApiRequests = () => {
     setSecondaryApiError(null);
     setRetryToken((token) => token + 1);
-    void retry();
+    if (initialError || catalog.error) {
+      void retry();
+    } else if (selectionError && pendingSelectionRef.current) {
+      const loadedStories = [...(initialData?.archive?.items ?? initialPage?.items ?? []), ...catalog.pages.flatMap((page) => page.items)];
+      void selectFromIntent(loadedStories, pendingSelectionRef.current, true)
+        .then(() => setSelectionError(null))
+        .catch((reason: unknown) => setSelectionError(reason instanceof Error ? reason : new Error('Sorimaru detail request failed')));
+    }
   };
 
   const handleLocate = () => {
