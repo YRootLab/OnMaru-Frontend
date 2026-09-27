@@ -5,13 +5,14 @@ import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { X, Search, Clock, Pause, Play } from 'lucide-react';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
-import { SorimaruStoryItem, SorimaruCategory } from '@/features/sorimaru-audio/types/sorimaru.types';
+import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
+import type { SorimaruCategory } from '@/features/sorimaru-audio/types/sorimaru.types';
 import { palette, meok, surface, fontSize } from '@/design-system/tokens';
 
 interface AllStoriesModalProps {
   isOpen: boolean;
   onClose: () => void;
-  allStories: SorimaruStoryItem[];
+  allStories: SorimaruStorySummary[];
 }
 
 const fadeIn = keyframes`
@@ -331,7 +332,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
 }) => {
   const currentStory = useSorimaruAudioStore((s) => s.currentStory);
   const isPlaying = useSorimaruAudioStore((s) => s.isPlaying);
-  const setCurrentStory = useSorimaruAudioStore((s) => s.setCurrentStory);
+  const selectAndLoadStory = useSorimaruAudioStore((s) => s.selectAndLoadStory);
   const setIsPlaying = useSorimaruAudioStore((s) => s.setIsPlaying);
 
   const [activeCat, setActiveCat] = useState<SorimaruCategory>('전체');
@@ -343,7 +344,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
   if (activeCat !== '전체') {
     const keywords = MODAL_CATEGORY_KEYWORDS[activeCat] || [];
     filtered = filtered.filter((story) => {
-      const searchableText = [story.category, story.title, story.audioTitle, story.locationName]
+      const searchableText = [story.category, story.title, story.audioTitle, story.region.name, ...story.contentTags]
         .filter(Boolean)
         .join(' ');
       return keywords.some((keyword) => searchableText.includes(keyword));
@@ -355,15 +356,15 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
       (s) =>
         s.title.toLowerCase().includes(q) ||
         s.audioTitle.toLowerCase().includes(q) ||
-        s.script.toLowerCase().includes(q)
+        s.contentTags.some((tag) => tag.toLowerCase().includes(q))
     );
   }
 
-  const handlePlayStory = (story: SorimaruStoryItem) => {
-    if (currentStory.stid === story.stid) {
+  const handlePlayStory = (story: SorimaruStorySummary) => {
+    if (currentStory?.storyId === story.storyId) {
       setIsPlaying(!isPlaying);
     } else {
-      setCurrentStory(story);
+      void selectAndLoadStory(story, 'play').catch(() => undefined);
     }
   };
 
@@ -425,12 +426,12 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
             </EmptyState>
           ) : (
             filtered.map((story, index) => {
-              const isCurrent = currentStory.stid === story.stid;
+              const isCurrent = currentStory?.storyId === story.storyId;
               const isThisPlaying = isCurrent && isPlaying;
 
               return (
                 <StoryCard
-                  key={`${story.stid}-${index}`}
+                  key={`${story.storyId}-${index}`}
                   isCurrent={isCurrent}
                   onClick={() => handlePlayStory(story)}
                 >
@@ -446,15 +447,15 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
                         </CategoryTag>
                         <DurationText>
                           <Clock size={13} strokeWidth={2} />
-                          {story.formattedDuration}
+                          {`${Math.floor(story.durationSeconds / 60)}:${String(story.durationSeconds % 60).padStart(2, '0')}`}
                         </DurationText>
                       </MetaRow>
                       <StoryTitle>
                         {story.title}
                       </StoryTitle>
                       <StoryDesc>
-                        <span className="loc">{story.locationName || story.title}</span>
-                        <span className="spk">{story.speaker}</span>
+                        <span className="loc">{story.region.name || story.title}</span>
+                        <span className="spk">온마루 도슨트</span>
                       </StoryDesc>
                     </CardInfo>
                   </CardLeft>

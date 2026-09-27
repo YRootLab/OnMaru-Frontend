@@ -1,22 +1,19 @@
 import { describe, expect, it } from 'vitest';
-import type { SorimaruStoryItem } from '@/features/sorimaru-audio/types/sorimaru.types';
+import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import { groupSorimaruStoriesByPlace } from './sorimaruArchiveGrouping';
 
-const story = (stid: string, title: string): SorimaruStoryItem => ({
-  tid: stid,
-  tlid: '',
-  stid,
-  stlid: '',
+const story = (storyId: string, title: string): SorimaruStorySummary => ({
+  storyId,
   title,
   audioTitle: title,
   category: '궁궐/역사',
-  mapX: '126.978',
-  mapY: '37.566',
-  script: '',
-  playTime: '120',
-  audioUrl: 'https://example.com/audio.mp3',
-  imageUrl: '',
-  locationName: '충남 부여군',
+  region: { regionCode: '44', name: '충남 부여군', level: 'SIGUNGU', parentRegionCode: null },
+  coordinates: { lat: 37.566, lng: 126.978 },
+  durationSeconds: 120,
+  imageUrl: null,
+  linkedPlaceId: null,
+  contentTags: [],
+  savedByMe: false,
 });
 
 describe('groupSorimaruStoriesByPlace', () => {
@@ -30,11 +27,11 @@ describe('groupSorimaruStoriesByPlace', () => {
     expect(groups).toHaveLength(2);
     expect(groups[0]).toMatchObject({
       label: '백제문화단지',
-      stories: [{ stid: '1' }, { stid: '2' }],
+      stories: [{ storyId: '1' }, { storyId: '2' }],
     });
     expect(groups[1]).toMatchObject({
       label: '경복궁',
-      stories: [{ stid: '3' }],
+      stories: [{ storyId: '3' }],
     });
   });
 

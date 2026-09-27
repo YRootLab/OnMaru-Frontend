@@ -5,13 +5,13 @@ import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { Play, MapPin, Layers, LayoutGrid } from 'lucide-react';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
-import type { SorimaruStoryItem } from '@/features/sorimaru-audio/types/sorimaru.types';
+import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import { groupSorimaruStoriesByPlace, type SorimaruPlaceGroup } from '@/features/sorimaru-audio/utils/sorimaruArchiveGrouping';
 import { useSorimaruImage } from '@/features/sorimaru-audio/hooks/useSorimaruImage';
 import { palette, meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
 
 interface SorimaruArchiveBrowseProps {
-  stories: SorimaruStoryItem[];
+  stories: SorimaruStorySummary[];
   isLoading: boolean;
 }
 
@@ -40,7 +40,7 @@ const STOPWORDS = new Set([
   '스토리',
 ]);
 
-function getStoryTags(story: SorimaruStoryItem, max = 4): string[] {
+function getStoryTags(story: SorimaruStorySummary, max = 4): string[] {
   const tags: string[] = [];
   const seenRoots = new Set<string>();
 
@@ -69,14 +69,14 @@ function getStoryTags(story: SorimaruStoryItem, max = 4): string[] {
     }
   };
 
-  if (story.tags && story.tags.length > 0) {
-    story.tags.forEach(addTag);
+  if (story.contentTags.length > 0) {
+    story.contentTags.forEach(addTag);
   }
   if (story.category) {
     addTag(story.category);
   }
-  if (story.locationName) {
-    addTag(story.locationName);
+  if (story.region.name) {
+    addTag(story.region.name);
   }
   if (story.audioTitle && story.audioTitle !== story.title) {
     addTag(story.audioTitle);
@@ -370,28 +370,28 @@ const HashtagText = styled.span`
 `;
 
 interface StoryRowProps {
-  story: SorimaruStoryItem;
+  story: SorimaruStorySummary;
   index: number;
 }
 
 function StoryRow({ story, index }: StoryRowProps) {
   const currentStory = useSorimaruAudioStore((state) => state.currentStory);
   const isPlaying = useSorimaruAudioStore((state) => state.isPlaying);
-  const setCurrentStory = useSorimaruAudioStore((state) => state.setCurrentStory);
+  const selectAndLoadStory = useSorimaruAudioStore((state) => state.selectAndLoadStory);
   const setIsPlaying = useSorimaruAudioStore((state) => state.setIsPlaying);
-  const isCurrent = currentStory.stid === story.stid;
+  const isCurrent = currentStory?.storyId === story.storyId;
   const isThisPlaying = isCurrent && isPlaying;
   const imageSrc = useSorimaruImage(story, index);
 
   const togglePlayback = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     if (isCurrent) setIsPlaying(!isPlaying);
-    else setCurrentStory(story);
+    else void selectAndLoadStory(story, 'play').catch(() => undefined);
   };
 
   const playStory = () => {
     if (isCurrent) setIsPlaying(!isPlaying);
-    else setCurrentStory(story);
+    else void selectAndLoadStory(story, 'play').catch(() => undefined);
   };
 
   const tags = getStoryTags(story, 4);
@@ -430,14 +430,14 @@ function StoryRow({ story, index }: StoryRowProps) {
             {story.title}
           </StoryRowTitle>
           <DurationPill>
-            {story.formattedDuration || '3:00'}
+            {`${Math.floor(story.durationSeconds / 60)}:${String(story.durationSeconds % 60).padStart(2, '0')}`}
           </DurationPill>
         </TitleRow>
 
-        {story.locationName && (
+        {story.region.name && (
           <LocationMeta>
             <MapPin size={12} strokeWidth={2} color={palette.juhong[500]} style={{ flexShrink: 0 }} />
-            <span>{story.locationName}</span>
+            <span>{story.region.name}</span>
           </LocationMeta>
         )}
 
@@ -546,7 +546,7 @@ function PlaceGroupCard({ group, startIndex }: { group: SorimaruPlaceGroup; star
       </PlaceGroupHeader>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         {group.stories.map((story, index) => (
-          <StoryRow key={`${story.stid}-${index}`} story={story} index={startIndex + index} />
+          <StoryRow key={`${story.storyId}-${index}`} story={story} index={startIndex + index} />
         ))}
       </div>
     </PlaceGroupContainer>
@@ -666,7 +666,7 @@ export function SorimaruArchiveBrowse({ stories, isLoading }: SorimaruArchiveBro
           }}
         >
           {stories.map((story, index) => (
-            <StoryRow key={`${story.stid}-${index}`} story={story} index={index} />
+            <StoryRow key={`${story.storyId}-${index}`} story={story} index={index} />
           ))}
         </div>
       ) : (

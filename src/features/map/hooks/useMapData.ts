@@ -175,10 +175,6 @@ export function useMapData() {
         }
 
 
-        useSorimaruAudioStore
-          .getState()
-          .fetchRegionalSorimaruStories(searchCenter.lng, searchCenter.lat);
-
         if (!res.ok || json.error) {
           setError(typeof json.error === 'string' ? json.error : '장소를 불러오지 못했어요');
         }

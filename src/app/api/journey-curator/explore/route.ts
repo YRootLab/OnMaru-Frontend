@@ -401,19 +401,19 @@ async function fetchHanokDogan(spots: RawSpot[]): Promise<HanokDoganEntry[]> {
 
 async function fetchNearbyAudio(centerLat: number, centerLng: number): Promise<NearbyAudioStory[]> {
   try {
-    const stories = await sorimaruApiAdapter.getNearbyStories(String(centerLng), String(centerLat), 1500);
-    return stories
-      .filter((s) => s.audioUrl.length > 0)
+    const page = await sorimaruApiAdapter.listStories({ language: 'ko-KR', limit: 20 });
+    return page.items
+      .filter((story) => story.coordinates && distanceInMeters({ lat: centerLat, lng: centerLng }, story.coordinates) <= 1500)
       .slice(0, 4)
       .map((s) => ({
-      stid: s.stid,
+      storyId: s.storyId,
+      stid: s.storyId,
       title: s.title,
       audioTitle: s.audioTitle,
-      audioUrl: s.audioUrl,
-      distance: s.distance,
-      formattedDuration: s.formattedDuration || '',
+      distance: s.coordinates ? `${Math.round(distanceInMeters({ lat: centerLat, lng: centerLng }, s.coordinates))}m` : undefined,
+      formattedDuration: `${Math.floor(s.durationSeconds / 60)}:${String(s.durationSeconds % 60).padStart(2, '0')}`,
       imageUrl: s.imageUrl,
-      locationName: s.locationName || '',
+      locationName: s.region.name,
     }));
   } catch {
     return [];

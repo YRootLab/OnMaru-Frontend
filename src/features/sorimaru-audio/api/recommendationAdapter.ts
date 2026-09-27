@@ -1,11 +1,11 @@
 import { sorimaruApiAdapter } from './sorimaruApi';
-import { SorimaruStoryItem } from '@/features/sorimaru-audio/types/sorimaru.types';
+import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import { CONSTELLATION_NODES, ConstellationNode } from '@/private/core-ui/sorimaru/constellationData';
 
 export interface RecommendationResult {
   node: ConstellationNode;
-  recommendedStory: SorimaruStoryItem | null;
-  candidateStories: SorimaruStoryItem[];
+  recommendedStory: SorimaruStorySummary | null;
+  candidateStories: SorimaruStorySummary[];
   source: 'sorimaru-realtime' | 'whalebe-ai';
 }
 
@@ -22,7 +22,12 @@ class RecommendationAdapter {
     // 모든 추천은 백엔드 `/api/recommendation?keyword=...`으로 위임
     // 백엔드가 Whale.Be 또는 Sorimaru를 선택해서 반환
 
-    const stories = await sorimaruApiAdapter.getStoryList(undefined, node.keyword);
+    const page = await sorimaruApiAdapter.listStories({ language: 'ko-KR', limit: 20 });
+    const keyword = node.keyword.trim().toLocaleLowerCase('ko-KR');
+    const stories = page.items.filter((story) =>
+      [story.title, story.audioTitle, story.category, story.region.name, ...story.contentTags]
+        .some((value) => value.toLocaleLowerCase('ko-KR').includes(keyword)),
+    );
 
     if (stories.length === 0) {
       return {

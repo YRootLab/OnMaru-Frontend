@@ -73,7 +73,7 @@ export function useSorimaruAudioPlayer() {
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio || !currentStory.audioUrl) return;
+    if (!audio || !currentStory?.audioUrl) return;
 
     if (audio.src !== currentStory.audioUrl) {
       audio.src = currentStory.audioUrl;
@@ -85,10 +85,11 @@ export function useSorimaruAudioPlayer() {
   }, [currentStory, isPlaying, setIsPlaying]);
 
   useEffect(() => {
-    if (!isPlaying || !currentStory.stid || recordedStoryRef.current === currentStory.stid) return;
-    recordedStoryRef.current = currentStory.stid;
-    void recordOdiiPlay(currentStory.stid).catch(() => undefined);
-  }, [currentStory.stid, isPlaying]);
+    const storyId = currentStory?.storyId;
+    if (!isPlaying || !storyId || recordedStoryRef.current === storyId) return;
+    recordedStoryRef.current = storyId;
+    void recordOdiiPlay(storyId).catch(() => undefined);
+  }, [currentStory?.storyId, isPlaying]);
 
 
   useEffect(() => {
@@ -123,12 +124,12 @@ export function useSorimaruAudioPlayer() {
 
 
   useEffect(() => {
-    if (!hasMediaSession()) return;
+    if (!hasMediaSession() || !currentStory) return;
 
     navigator.mediaSession.metadata = new MediaMetadata({
       title: currentStory.title,
-      artist: currentStory.speaker || '온마루 문화해설사',
-      album: currentStory.locationName || '온마루 소리마루',
+      artist: '온마루 문화해설사',
+      album: currentStory.region.name || '온마루 소리마루',
       artwork: currentStory.imageUrl ? [{ src: currentStory.imageUrl, sizes: '512x512', type: 'image/jpeg' }] : [],
     });
   }, [currentStory]);
