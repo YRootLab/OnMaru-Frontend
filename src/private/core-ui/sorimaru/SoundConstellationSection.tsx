@@ -611,6 +611,8 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
   const indicatorThumbRef = useRef<HTMLSpanElement | null>(null);
   const scrollFrameRef = useRef<number | null>(null);
   const scrollMetricsRef = useRef<{ scrollTop: number; scrollHeight: number; clientHeight: number } | null>(null);
+  const paginationPendingRef = useRef(false);
+  const touchStartYRef = useRef<number | null>(null);
 
   const [hoveredRegionId, setHoveredRegionId] = useState<string | null>(null);
   const [isListHovered, setIsListHovered] = useState(false);
@@ -642,6 +644,31 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
   useEffect(() => () => {
     if (scrollFrameRef.current !== null) cancelAnimationFrame(scrollFrameRef.current);
   }, []);
+
+  useEffect(() => {
+    if (!isFetchingNextPage) paginationPendingRef.current = false;
+  }, [isFetchingNextPage, regionStoriesState.items, regionStoriesState.error, selectedRegionId]);
+
+  const requestNextPage = () => {
+    if (!hasMore || isFetchingNextPage || isRegionLoading || regionStoriesState.error || paginationPendingRef.current) return;
+    paginationPendingRef.current = true;
+    onLoadMore();
+  };
+
+  const requestForShortList = (container: HTMLDivElement) => {
+    if (container.clientHeight > 0 && container.scrollHeight <= container.clientHeight) requestNextPage();
+  };
+
+  const handleWheel = (event: React.WheelEvent<HTMLDivElement>) => {
+    if (event.deltaY > 0) requestForShortList(event.currentTarget);
+  };
+
+  const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    const startY = touchStartYRef.current;
+    touchStartYRef.current = null;
+    const endY = event.changedTouches[0]?.clientY;
+    if (startY !== null && endY !== undefined && startY - endY > 24) requestForShortList(event.currentTarget);
+  };
 
   const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
     const target = event.currentTarget;
@@ -684,12 +711,10 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
     }
 
     if (
-      currentScrollHeight - (currentScrollTop + currentClientHeight) < 120 &&
-      hasMore &&
-      !isFetchingNextPage &&
-      !isRegionLoading && !regionStoriesState.error
+      currentScrollHeight > currentClientHeight &&
+      currentScrollHeight - (currentScrollTop + currentClientHeight) < 120
     ) {
-      onLoadMore();
+      requestNextPage();
     }
   };
 
@@ -860,6 +885,10 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                 <ScrollContent
                   ref={scrollContainerRef}
                   onScroll={handleScroll}
+                  onWheel={handleWheel}
+                  onTouchStart={(event) => { touchStartYRef.current = event.touches.length === 1 ? event.touches[0].clientY : null; }}
+                  onTouchEnd={handleTouchEnd}
+                  onTouchCancel={() => { touchStartYRef.current = null; }}
                 >
                   <div style={{ height: `${totalHeight}px`, position: 'relative' }}>
                     <div

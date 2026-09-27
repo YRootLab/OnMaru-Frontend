@@ -1,9 +1,10 @@
 // @vitest-environment jsdom
 
 import React from 'react';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { SorimaruRepository } from '@/features/sorimaru-audio/application/SorimaruRepository';
+import type { SorimaruStoryPage } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import { useSorimaruRegionStories } from '@/features/sorimaru-audio/presentation/hooks/useSorimaruRegionStories';
 import type { SoundConstellationSectionProps } from './SoundConstellationSection';
 import { SoundConstellationSection } from './SoundConstellationSection';
@@ -62,26 +63,42 @@ describe('SoundConstellationSection props data flow', () => {
     expect(input.onRetry).toHaveBeenCalledOnce();
   });
 
-  it('waits for explicit scroll near the bottom before requesting more of a short page', () => {
+  it('waits for a downward wheel gesture on a short page and coalesces duplicate events until loading finishes', () => {
     vi.stubGlobal('IntersectionObserver', Observer);
     const input = props();
     input.regionStoriesState.hasMore = true;
     vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(500);
     vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(100);
-    const { container } = render(<SoundConstellationSection {...input} />);
+    const { container, rerender } = render(<SoundConstellationSection {...input} />);
+    const scroll = scrollContainer(container);
     expect(input.onLoadMore).not.toHaveBeenCalled();
-    fireEvent.scroll(scrollContainer(container));
+    fireEvent.wheel(scroll, { deltaY: -100 });
+    expect(input.onLoadMore).not.toHaveBeenCalled();
+    fireEvent.wheel(scroll, { deltaY: 100 });
     expect(input.onLoadMore).toHaveBeenCalledOnce();
+    fireEvent.wheel(scroll, { deltaY: 100 });
+    fireEvent.scroll(scroll);
+    expect(input.onLoadMore).toHaveBeenCalledOnce();
+    rerender(<SoundConstellationSection {...input} regionStoriesState={{ ...input.regionStoriesState, loadingNext: true }} />);
+    fireEvent.wheel(scroll, { deltaY: 100 });
+    expect(input.onLoadMore).toHaveBeenCalledOnce();
+    rerender(<SoundConstellationSection {...input} regionStoriesState={{ ...input.regionStoriesState, items: [...input.regionStoriesState.items] }} />);
+    expect(input.onLoadMore).toHaveBeenCalledOnce();
+    fireEvent.wheel(scroll, { deltaY: 100 });
+    expect(input.onLoadMore).toHaveBeenCalledTimes(2);
   });
 
-  it.each(['short', 'empty'] as const)('makes one first-list request for a %s response until the visitor scrolls', async (kind) => {
+  it.each(['short', 'empty'] as const)('makes one first-list request for a %s response and one additional request after a wheel or swipe gesture', async (kind) => {
     vi.stubGlobal('IntersectionObserver', Observer);
     vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(500);
     vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(100);
     const input = props();
+    let resolveNext!: (page: SorimaruStoryPage) => void;
+    const nextPage = new Promise<SorimaruStoryPage>((resolve) => { resolveNext = resolve; });
+    if (kind === 'empty') input.groupsState.data!.groups[0].regionCodes.push('second-returned-code');
     const listStories = vi.fn<SorimaruRepository['listStories']>()
-      .mockResolvedValueOnce({ items: kind === 'short' ? input.regionStoriesState.items : [], nextCursor: 'actual-next-cursor', hasMore: true })
-      .mockResolvedValueOnce({ items: [], nextCursor: null, hasMore: false });
+      .mockResolvedValueOnce({ items: kind === 'short' ? input.regionStoriesState.items : [], nextCursor: kind === 'short' ? 'actual-next-cursor' : null, hasMore: kind === 'short' })
+      .mockReturnValueOnce(nextPage);
     const repository: SorimaruRepository = {
       listStories, getStoryDetail: vi.fn(), listRegionGroups: vi.fn().mockResolvedValue(input.groupsState.data),
     };
@@ -90,8 +107,64 @@ describe('SoundConstellationSection props data flow', () => {
     expect(repository.listRegionGroups).toHaveBeenCalledOnce();
     expect(listStories).toHaveBeenCalledOnce();
     expect(repository.getStoryDetail).not.toHaveBeenCalled();
-    fireEvent.scroll(scrollContainer(container));
+    const scroll = scrollContainer(container);
+    const gesture = () => {
+      if (kind === 'short') fireEvent.wheel(scroll, { deltaY: 100 });
+      else {
+        fireEvent.touchStart(scroll, { touches: [{ clientY: 250 }] });
+        fireEvent.touchEnd(scroll, { changedTouches: [{ clientY: 100 }] });
+      }
+    };
+    gesture();
     await waitFor(() => expect(listStories).toHaveBeenCalledTimes(2));
-    expect(listStories).toHaveBeenLastCalledWith({ language: 'ko-KR', regionCode: 'returned-code', limit: 12, cursor: 'actual-next-cursor' });
+    gesture();
+    fireEvent.scroll(scroll);
+    expect(listStories).toHaveBeenCalledTimes(2);
+    expect(listStories).toHaveBeenLastCalledWith(kind === 'short'
+      ? { language: 'ko-KR', regionCode: 'returned-code', limit: 12, cursor: 'actual-next-cursor' }
+      : { language: 'ko-KR', regionCode: 'second-returned-code', limit: 12 });
+    await act(async () => resolveNext({ items: [], nextCursor: null, hasMore: false }));
+    gesture();
+    expect(listStories).toHaveBeenCalledTimes(2);
+  });
+
+  it('keeps overflow pagination on scroll near the bottom instead of wheel or touch events', () => {
+    vi.stubGlobal('IntersectionObserver', Observer);
+    vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(500);
+    vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(1000);
+    const input = props();
+    input.regionStoriesState.hasMore = true;
+    const { container } = render(<SoundConstellationSection {...input} />);
+    const scroll = scrollContainer(container);
+    fireEvent.wheel(scroll, { deltaY: 100 });
+    fireEvent.touchStart(scroll, { touches: [{ clientY: 250 }] });
+    fireEvent.touchEnd(scroll, { changedTouches: [{ clientY: 100 }] });
+    fireEvent.scroll(scroll, { target: { scrollTop: 100 } });
+    expect(input.onLoadMore).not.toHaveBeenCalled();
+    fireEvent.scroll(scroll, { target: { scrollTop: 450 } });
+    expect(input.onLoadMore).toHaveBeenCalledOnce();
+  });
+
+  it('ignores taps, downward swipes, cancelled gestures and exhausted pages', () => {
+    vi.stubGlobal('IntersectionObserver', Observer);
+    vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(500);
+    vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(100);
+    const input = props();
+    input.regionStoriesState.hasMore = true;
+    const { container, rerender } = render(<SoundConstellationSection {...input} />);
+    const scroll = scrollContainer(container);
+    fireEvent.touchStart(scroll, { touches: [{ clientY: 100 }] });
+    fireEvent.touchEnd(scroll, { changedTouches: [{ clientY: 105 }] });
+    fireEvent.touchStart(scroll, { touches: [{ clientY: 100 }] });
+    fireEvent.touchEnd(scroll, { changedTouches: [{ clientY: 250 }] });
+    fireEvent.touchStart(scroll, { touches: [{ clientY: 250 }] });
+    fireEvent.touchCancel(scroll);
+    fireEvent.touchEnd(scroll, { changedTouches: [{ clientY: 100 }] });
+    expect(input.onLoadMore).not.toHaveBeenCalled();
+    rerender(<SoundConstellationSection {...input} regionStoriesState={{ ...input.regionStoriesState, hasMore: false }} />);
+    fireEvent.wheel(scroll, { deltaY: 100 });
+    fireEvent.touchStart(scroll, { touches: [{ clientY: 250 }] });
+    fireEvent.touchEnd(scroll, { changedTouches: [{ clientY: 100 }] });
+    expect(input.onLoadMore).not.toHaveBeenCalled();
   });
 });
