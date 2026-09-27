@@ -16,6 +16,37 @@ const detail: SorimaruStoryDetail = {
 };
 
 describe('Sorimaru deep-link detail selection', () => {
+  it('shares a pending deep-link request across a list update so rejection stays visible and retry works', async () => {
+    let rejectDetail!: (reason: Error) => void;
+    const pendingDetail = new Promise<SorimaruStoryDetail>((_resolve, reject) => { rejectDetail = reject; });
+    const failure = new Error('detail unavailable');
+    const getStoryDetail = vi.fn().mockReturnValueOnce(pendingDetail).mockResolvedValueOnce(detail);
+    const repository = { listStories: vi.fn(), getStoryDetail, listRegionGroups: vi.fn() } satisfies SorimaruRepository;
+    const player = { selectStory: vi.fn(), setIsPlaying: vi.fn() };
+    const selection = createSorimaruDetailSelectionController(repository, player);
+    const intent = { stid: 'story-1', autoPlay: false };
+    let visibleSelectionError: Error | null = null;
+
+    const first = selection.selectFromIntent([], intent);
+    let firstEffectActive = true;
+    void first.catch((reason: Error) => { if (firstEffectActive) visibleSelectionError = reason; });
+
+    firstEffectActive = false;
+    const afterListUpdate = selection.selectFromIntent([summary], intent);
+    expect(afterListUpdate).toBe(first);
+    void afterListUpdate.catch((reason: Error) => { visibleSelectionError = reason; });
+
+    rejectDetail(failure);
+    await expect(first).rejects.toBe(failure);
+    await expect(afterListUpdate).rejects.toBe(failure);
+    expect(visibleSelectionError).toBe(failure);
+    expect(getStoryDetail).toHaveBeenCalledTimes(1);
+
+    await selection.selectFromIntent([summary], intent, true);
+    expect(getStoryDetail).toHaveBeenCalledTimes(2);
+    expect(player.selectStory).toHaveBeenCalledOnce();
+  });
+
   it('loads one matched detail and selects it with autoplay', async () => {
     const getStoryDetail = vi.fn().mockResolvedValue(detail);
     const repository = { listStories: vi.fn(), getStoryDetail, listRegionGroups: vi.fn() } satisfies SorimaruRepository;

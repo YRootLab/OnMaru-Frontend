@@ -37,8 +37,10 @@ export function createSorimaruDetailSelectionController(repository: SorimaruRepo
   let generation = 0;
   let lastSelectionKey: string | null = null;
   let lastFailure: unknown = null;
+  let hasFailure = false;
+  let pendingRequest: { key: string; promise: Promise<void> } | null = null;
 
-  async function selectFromIntent(
+  function selectFromIntent(
     stories: SorimaruStorySummary[],
     intent: SorimaruSelectionIntent & { autoPlay: boolean },
     force = false,
@@ -49,25 +51,39 @@ export function createSorimaruDetailSelectionController(repository: SorimaruRepo
       generation += 1;
       lastSelectionKey = null;
       lastFailure = null;
-      return;
+      hasFailure = false;
+      pendingRequest = null;
+      return Promise.resolve();
     }
     const key = `${storyId}\u0000${intent.autoPlay}`;
     if (!force && lastSelectionKey === key) {
-      if (lastFailure) throw lastFailure;
-      return;
+      if (pendingRequest?.key === key) return pendingRequest.promise;
+      if (hasFailure) return Promise.reject(lastFailure);
+      return Promise.resolve();
     }
     lastSelectionKey = key;
     lastFailure = null;
+    hasFailure = false;
     const requestGeneration = ++generation;
-    try {
-      const detail = await repository.getStoryDetail(storyId, 'ko-KR');
-      if (requestGeneration !== generation) return;
-      player.selectStory(toPlayableStory(detail));
-      if (intent.autoPlay) player.setIsPlaying(true);
-    } catch (reason) {
-      if (requestGeneration === generation) lastFailure = reason;
-      throw reason;
-    }
+    const request: Promise<void> = Promise.resolve()
+      .then(() => repository.getStoryDetail(storyId, 'ko-KR'))
+      .then((detail) => {
+        if (requestGeneration !== generation) return;
+        player.selectStory(toPlayableStory(detail));
+        if (intent.autoPlay) player.setIsPlaying(true);
+      })
+      .catch((reason: unknown) => {
+        if (requestGeneration === generation) {
+          lastFailure = reason;
+          hasFailure = true;
+        }
+        throw reason;
+      })
+      .finally(() => {
+        if (pendingRequest?.promise === request) pendingRequest = null;
+      });
+    pendingRequest = { key, promise: request };
+    return request;
   }
 
   return { selectFromIntent };

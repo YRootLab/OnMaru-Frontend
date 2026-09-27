@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { SorimaruRepository } from '../application/SorimaruRepository';
 import type { SorimaruStoryPage, SorimaruStorySummary } from '../domain/sorimaruStory';
-import { catalogCategoryForSelection, createSorimaruCatalogController } from './useSorimaruCatalog';
+import { SorimaruRegionMappingError, catalogCategoryForSelection, createSorimaruCatalogController } from './useSorimaruCatalog';
 
 const story = (storyId: string): SorimaruStorySummary => ({
   storyId, title: storyId, audioTitle: storyId, category: '한옥',
@@ -45,7 +45,7 @@ describe('Sorimaru catalog controller', () => {
     expect(catalog.getSnapshot().catalog.pages[0].items[0].storyId).toBe('gyeongju');
   });
 
-  it('shows a successful empty region when no exact backend label exists', async () => {
+  it('shows a mapping error and makes no story request when no exact backend label exists', async () => {
     const listStories = vi.fn();
     const listRegionGroups = vi.fn().mockResolvedValue({ groups: [
       { label: '경상북도', regionCodes: ['kr-47'], storyCount: 4 },
@@ -56,11 +56,16 @@ describe('Sorimaru catalog controller', () => {
     await catalog.setRegionSelection('경주');
 
     expect(listStories).not.toHaveBeenCalled();
-    expect(catalog.getSnapshot().catalog).toMatchObject({ pages: [], status: 'empty', error: null });
+    expect(catalog.getSnapshot().catalog).toMatchObject({
+      pages: [], status: 'error', error: expect.any(SorimaruRegionMappingError),
+    });
+    expect(catalog.getSnapshot().catalog.error).toMatchObject({ reason: 'missing' });
+    await catalog.retry();
+    expect(listStories).not.toHaveBeenCalled();
   });
 
-  it('uses a code returned by an exact group when it contains more than one code', async () => {
-    const listStories = vi.fn().mockResolvedValue(page('region'));
+  it('shows a mapping error and makes no story request for a multi-code group', async () => {
+    const listStories = vi.fn();
     const listRegionGroups = vi.fn().mockResolvedValue({ groups: [
       { label: '경주', regionCodes: ['kr-47-130', 'kr-47-131'], storyCount: 7 },
     ] });
@@ -69,7 +74,13 @@ describe('Sorimaru catalog controller', () => {
 
     await catalog.setRegionSelection('경주');
 
-    expect(listStories).toHaveBeenCalledExactlyOnceWith({ language: 'ko-KR', limit: 12, regionCode: 'kr-47-130' });
+    expect(listStories).not.toHaveBeenCalled();
+    expect(catalog.getSnapshot().catalog).toMatchObject({
+      pages: [], status: 'error', error: expect.any(SorimaruRegionMappingError),
+    });
+    expect(catalog.getSnapshot().catalog.error).toMatchObject({ reason: 'multiple-codes' });
+    await catalog.retry();
+    expect(listStories).not.toHaveBeenCalled();
   });
 
   it('keeps a failed initial request visible after a filtered page succeeds and retries it', async () => {

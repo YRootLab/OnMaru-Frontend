@@ -25,6 +25,13 @@ const baseScope = '전체\u0000';
 const statusFor = (page: SorimaruStoryPage): CatalogState['status'] => page.items.length ? 'success' : 'empty';
 const asError = (reason: unknown): Error => reason instanceof Error ? reason : new Error('Sorimaru archive request failed');
 
+export class SorimaruRegionMappingError extends Error {
+  constructor(public readonly reason: 'missing' | 'multiple-codes' | 'ambiguous-group') {
+    super('Sorimaru region label has no single canonical region code');
+    this.name = 'SorimaruRegionMappingError';
+  }
+}
+
 export function catalogCategoryForSelection(selectedCategory: string): string {
   return SORIMARU_REGION_CHIPS.includes(selectedCategory as (typeof SORIMARU_REGION_CHIPS)[number])
     ? '전체'
@@ -40,7 +47,7 @@ export function createSorimaruCatalogController(repository: SorimaruRepository, 
   let initialReady = false;
   let loadingNext = false;
   let regionSelectionLabel: string | null = null;
-  let regionSelectionStatus: 'pending' | 'matched' | 'unmatched' | 'error' | null = null;
+  let regionSelectionStatus: 'pending' | 'matched' | 'mapping-error' | 'error' | null = null;
   let regionGroupsPromise: Promise<SorimaruRegionGroups> | null = null;
   let initialArchive: SorimaruStoryPage | null = initialPage ?? null;
   let snapshot: SorimaruCatalogSnapshot = {
@@ -101,7 +108,7 @@ export function createSorimaruCatalogController(repository: SorimaruRepository, 
     initialReady = true;
     initialArchive = result.archive;
     publish({ initialData: result, initialError: result.archiveError, initialLoading: false });
-    if (regionSelectionStatus === 'pending' || regionSelectionStatus === 'unmatched' || regionSelectionStatus === 'error') return;
+    if (regionSelectionStatus === 'pending' || regionSelectionStatus === 'mapping-error' || regionSelectionStatus === 'error') return;
     if (scopeKey !== baseScope) {
       await requestScope();
       return;
@@ -148,10 +155,15 @@ export function createSorimaruCatalogController(repository: SorimaruRepository, 
     try {
       const groups = await regionGroups();
       if (lookupGeneration !== regionLookupGeneration || regionSelectionLabel !== label) return;
-      const exact = groups.groups.find((group) => group.label === label && group.regionCodes.length > 0);
-      if (!exact) {
-        regionSelectionStatus = 'unmatched';
-        publish({ catalog: { pages: [], status: 'empty', error: null, loadingNext: false } });
+      const exactGroups = groups.groups.filter((group) => group.label === label);
+      const exact = exactGroups.length === 1 ? exactGroups[0] : null;
+      if (!exact || exact.regionCodes.length !== 1) {
+        regionSelectionStatus = 'mapping-error';
+        const reason = exactGroups.length === 0 ? 'missing'
+          : exactGroups.length > 1 ? 'ambiguous-group' : 'multiple-codes';
+        publish({ catalog: {
+          pages: [], status: 'error', error: new SorimaruRegionMappingError(reason), loadingNext: false,
+        } });
         return;
       }
       regionSelectionStatus = 'matched';
@@ -199,7 +211,7 @@ export function createSorimaruCatalogController(repository: SorimaruRepository, 
   async function retry(): Promise<void> {
     if (snapshot.initialError) {
       await loadInitial(true);
-    } else if (regionSelectionLabel && regionSelectionStatus === 'error') {
+    } else if (regionSelectionLabel && (regionSelectionStatus === 'error' || regionSelectionStatus === 'mapping-error')) {
       await setRegionSelection(regionSelectionLabel);
     } else if (snapshot.catalog.pages.length && snapshot.catalog.error) {
       await loadNextPage();
