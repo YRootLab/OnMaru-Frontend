@@ -3,6 +3,7 @@
 Lightweight human-readable summary of meaningful repository changes. This does not replace Git history.
 
 ## Unreleased
+- 소리마루 목록·상세·지역 조회를 백엔드 전용 저장소로 분리했다. 목록 12건은 단일 요청으로 받아 cursor를 전달하고, 상세는 선택한 이야기만 조회한다. 검증된 응답만 브라우저 탭 메모리에 캐시하며 동시 요청을 합치고, 실패와 잘못된 응답은 호출자에게 전달한다.
 - GitHub Actions에서 빌드를 수행하는 모든 workflow가 저장소 설정의 `NEXT_PUBLIC_API_BASE_URL`을 주입하도록 통일해 Spring API base URL이 CI와 production Vercel build에 전달되도록 했다.
 - 수결첩 HTTP 어댑터가 API 1.3 카탈로그 구조를 검증하도록 보강했다. API 환경변수가 없는 CI에서 generic mock 응답을 카탈로그로 오인해 `/stamps` 사전 렌더링이 실패하던 문제를 막고, 잘못된 응답은 기존 오류 상태로 처리한다.
 - 한옥 수결첩을 서버 API 계약 1.3으로 전환했다. 비회원 공개 수결 카탈로그, 로그인 회원의 개인 획득 상태, GPS·CSRF·멱등성 기반 현장 체크인과 다중 수결 애니메이션을 연결하고 검증되지 않은 localStorage 데모 도장을 제거했다.
