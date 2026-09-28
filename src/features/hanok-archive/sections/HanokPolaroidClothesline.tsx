@@ -13,72 +13,11 @@ const MAX_SAG = 26;
 
 
 
-const TOTAL_PICKS = 9;
-const FAMOUS_SHARE = 3;
-
-
-
 const REFERENCE_PICKS = 5;
 const REFERENCE_DURATION_S = 36;
 const PX_PER_SEC =
   (REFERENCE_PICKS * CARD_WIDTH + (REFERENCE_PICKS - 1) * GAP) / REFERENCE_DURATION_S;
 
-
-function pickRoundRobinByRegion(pool: Village[], count: number): Village[] {
-  const byRegion = new Map<string, Village[]>();
-  for (const village of pool) {
-    const list = byRegion.get(village.region);
-    if (list) list.push(village);
-    else byRegion.set(village.region, [village]);
-  }
-
-  const queues = Array.from(byRegion.values());
-  const picked: Village[] = [];
-
-  for (let round = 0; picked.length < count && queues.some((q) => q[round]); round += 1) {
-    for (const queue of queues) {
-      if (picked.length >= count) break;
-      if (queue[round]) picked.push(queue[round]);
-    }
-  }
-
-  return picked;
-}
-
-
-function pickCuratedVillages(villages: Village[]): Village[] {
-  const withImage = villages.filter((v) => v.hasImage);
-  const total = Math.min(TOTAL_PICKS, withImage.length);
-  const famousCount = Math.min(FAMOUS_SHARE, Math.round((total * FAMOUS_SHARE) / TOTAL_PICKS));
-
-  const famousPool = withImage.filter((v) => v.badges.length > 0);
-  const hiddenPool = withImage.filter((v) => v.badges.length === 0);
-
-  const famousPicks = pickRoundRobinByRegion(famousPool, famousCount);
-  const hiddenPicks = pickRoundRobinByRegion(hiddenPool, total - famousPicks.length);
-
-  const picks: Village[] = [];
-  let famousIdx = 0;
-  let hiddenIdx = 0;
-
-  for (let i = 0; i < total; i += 1) {
-
-    const takeFamous = i % 3 === 2 && famousIdx < famousPicks.length;
-
-    if (takeFamous) {
-      picks.push(famousPicks[famousIdx]);
-      famousIdx += 1;
-    } else if (hiddenIdx < hiddenPicks.length) {
-      picks.push(hiddenPicks[hiddenIdx]);
-      hiddenIdx += 1;
-    } else if (famousIdx < famousPicks.length) {
-      picks.push(famousPicks[famousIdx]);
-      famousIdx += 1;
-    }
-  }
-
-  return picks;
-}
 
 
 
@@ -246,7 +185,7 @@ interface HanokPolaroidClotheslineProps {
 }
 
 export default function HanokPolaroidClothesline({ villages, onSelectVillage }: HanokPolaroidClotheslineProps) {
-  const picks = useMemo(() => pickCuratedVillages(villages), [villages]);
+  const picks = villages;
 
   const { unitWidth, cardLayouts, svgPath, durationSec } = useMemo(() => {
     const count = picks.length;
