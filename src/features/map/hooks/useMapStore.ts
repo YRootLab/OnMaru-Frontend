@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { lightPalette } from '@/design-system/tokens';
+import { palette } from '@/design-system/tokens';
 import type { HeatDay, HeatSpot, Item, KakaoMap, LatLng, MapMode, SheetSnap, Warmth } from '@/features/map/types';
 import type { WarmthPeriod } from '@/features/map/warmth/heatScale';
 
@@ -9,8 +9,8 @@ export const DEFAULT_LEVEL = 11;
 
 
 export const MODE_COLOR: Record<MapMode, string> = {
-  info: lightPalette.cheongrok[500],
-  warmth: lightPalette.juhong[500],
+  info: palette.kobalt[500],
+  warmth: palette.hwanggeum[500],
 };
 
 interface MapState {

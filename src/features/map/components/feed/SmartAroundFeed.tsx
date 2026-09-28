@@ -109,7 +109,7 @@ const Title = styled.h3`
 const SubText = styled.span`
   font-size: ${fontSize.micro};
   font-weight: 400;
-  color: ${lightPalette.cheongrok[500]};
+  color: ${lightPalette.kobalt[500]};
 `;
 
 const FeedContainer = styled.div`
@@ -296,7 +296,7 @@ const HashTag = styled.span`
   align-items: center;
   font-size: ${fontSize.micro};
   font-weight: 500;
-  color: ${lightPalette.cheongrok[700]};
+  color: ${lightPalette.kobalt[700]};
   background: rgba(30, 122, 104, 0.08);
   padding: 2px 7px;
   border-radius: 6px;

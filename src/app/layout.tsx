@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import Script from 'next/script'
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
@@ -7,6 +7,10 @@ import { Providers } from './providers'
 import Header from '@/shared/components/Header'
 import Footer from '@/shared/components/Footer'
 import PageContainer from '@/shared/components/Layout/PageContainer'
+
+export const viewport: Viewport = {
+  viewportFit: 'cover',
+}
 
 export const metadata: Metadata = {
   title: '온마루 — 한옥의 온기를 잇다',

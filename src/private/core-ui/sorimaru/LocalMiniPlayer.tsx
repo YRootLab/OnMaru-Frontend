@@ -922,7 +922,7 @@ export const LocalMiniPlayer: React.FC = () => {
 
   useEffect(() => {
     const updateVisibility = () => {
-      const hasValidAudio = Boolean(story.audioUrl);
+      const hasValidAudio = Boolean(story?.audioUrl);
       setIsVisible(hasValidAudio);
     };
     updateVisibility();
@@ -932,7 +932,7 @@ export const LocalMiniPlayer: React.FC = () => {
       window.removeEventListener('scroll', updateVisibility);
       window.removeEventListener('resize', updateVisibility);
     };
-  }, [story.audioUrl]);
+  }, [story?.audioUrl]);
 
 
 
@@ -971,8 +971,10 @@ export const LocalMiniPlayer: React.FC = () => {
     delete document.body.dataset.sorimaruPlayerOpen;
   };
 
+  if (!story) return null;
+
   const audioProgress = duration > 0 ? Math.min(100, (currentTime / duration) * 100) : 0;
-  const isSaved = savedStories.some((saved) => (saved.stid || saved.title) === (story.stid || story.title));
+  const isSaved = savedStories.some((saved) => saved.storyId === story.storyId);
 
   const closePlayer = () => {
     setIsExpanded(false);
@@ -1144,8 +1146,8 @@ export const LocalMiniPlayer: React.FC = () => {
                       {}
                       <TopMediaWrap>
                         <SorimaruRoadview
-                          mapX={story.mapX}
-                          mapY={story.mapY}
+                          mapX={story.coordinates ? String(story.coordinates.lng) : ''}
+                          mapY={story.coordinates ? String(story.coordinates.lat) : ''}
                           fallbackImage={imgSrc}
                           title={story.title}
                           analyserRef={analyserRef}
@@ -1159,7 +1161,7 @@ export const LocalMiniPlayer: React.FC = () => {
                           lines={lines}
                           activeLineId={lines[activeIndex]?.id}
                           onSeek={seekTo}
-                          imageUrl={imgSrc || story.imageUrl}
+                          imageUrl={imgSrc || story.imageUrl || undefined}
                           isLoading={!lines.length}
                           isPlaying={isPlaying}
                           seamless
@@ -1197,7 +1199,7 @@ export const LocalMiniPlayer: React.FC = () => {
                           aria-label="이야기 관련 해시태그"
                         >
                           {(() => {
-                            const customTags = (story.tags || []).filter(
+                            const customTags = story.contentTags.filter(
                               (t) => !t.includes('대한민국') && !t.includes('소리')
                             );
                             const titleKeyword = story.title?.split(/[-—\s]/)[0];
@@ -1231,7 +1233,7 @@ export const LocalMiniPlayer: React.FC = () => {
                           lines={lines}
                           activeLineId={lines[activeIndex]?.id}
                           onSeek={seekTo}
-                          imageUrl={imgSrc || story.imageUrl}
+                          imageUrl={imgSrc || story.imageUrl || undefined}
                           isLoading={!lines.length}
                           isPlaying={isPlaying}
                           seamless

@@ -27,6 +27,19 @@ export function markSessionHint(): void {
   }
 }
 
+export function showLoginRequiredToast(): void {
+  // lazy import to avoid circular dependency
+  import('sonner').then(({ toast }) => {
+    toast.info('로그인이 필요해요', {
+      description: '이 기능은 로그인 후 이용할 수 있어요.',
+      action: {
+        label: '로그인',
+        onClick: () => { window.location.href = '/auth/login'; },
+      },
+    });
+  });
+}
+
 export function clearPrivateClientState(storage?: Storage): void {
   if (typeof window === 'undefined' && !storage) return;
 

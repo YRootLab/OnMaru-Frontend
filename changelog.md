@@ -3,6 +3,16 @@
 Lightweight human-readable summary of meaningful repository changes. This does not replace Git history.
 
 ## Unreleased
+- 지도 온기모드 데이터를 Spring Backend API(`GET /api/v1/insights/heatmap`) 우선 호출 구조로 전환하고, 503 hibernate-wake/네트워크 타임아웃(`SERVER_WAKING`) 및 서비스 불가(`SERVICE_UNAVAILABLE`) 상태에 대한 2회 자동 재시도(3초/7초 간격) 및 관광공사 DataLab fallback(`fetchLegacyWarmthFallback`) 자동 전환 정책을 구현했다. 클라이언트 캐시 TTL 60초 및 in-flight 중복 호출 방지를 적용하여 지도 UI, 마커, 카드의 기존 렌더링 형식을 그대로 유지한 채 전국 모든 지역의 데이터를 고르게 지원하도록 개선했다.
+- API 장애 상태 정책(API Outage / Failure State Policy)을 구현했다. Render 절전 복귀 중(`SERVER_WAKING`, HTTP 503 + 빈 본문 또는 `x-render-routing: hibernate-wake-error`), 백엔드 503 장애(`SERVICE_UNAVAILABLE`), 일반 서버 오류(`SERVER_ERROR`, HTTP 500), 429(`RATE_LIMITED`)를 분류하고 표준 사용자 메시지 및 지연/재시도 정책(`API_RETRY_POLICIES`)을 적용했다.
+- 소리마루 지도는 화면 진입 시 지역 그룹과 첫 요약 목록을 각각 한 번 읽고, 이후 스크롤·휠·터치 동작에서 선택한 그룹의 실제 지역 코드와 cursor로 추가 목록을 조회한다. 짧거나 빈 목록도 자동 추가 요청 없이 휠·터치로 이어 볼 수 있다. 늦은 응답이 다른 지역 목록을 덮어쓰지 않으며 조회 실패를 0건으로 표시하지 않는다. 지도 카드 클릭에서만 상세 조회·재생을 시작하고 기존 지도·카드 배치를 유지했다.
+- 소리마루 목록·상세·지역 조회를 백엔드 전용 저장소로 분리했다. 목록은 페이지당 20건을 단일 요청으로 받아 cursor를 전달하고, 상세는 선택한 이야기만 조회한다. 같은 목록·상세 요청은 브라우저 탭 메모리에서 공유하며 실패와 잘못된 응답은 호출자에게 전달한다. 두 번째 무한 레일은 이미 받은 summary만 로컬에서 반복해 애니메이션이나 순환으로 추가 요청하지 않는다.
+
+- GitHub Actions에서 빌드를 수행하는 모든 workflow가 저장소 설정의 `NEXT_PUBLIC_API_BASE_URL`을 주입하도록 통일해 Spring API base URL이 CI와 production Vercel build에 전달되도록 했다.
+- 수결첩 HTTP 어댑터가 API 1.3 카탈로그 구조를 검증하도록 보강했다. API 환경변수가 없는 CI에서 generic mock 응답을 카탈로그로 오인해 `/stamps` 사전 렌더링이 실패하던 문제를 막고, 잘못된 응답은 기존 오류 상태로 처리한다.
+- 한옥 수결첩을 서버 API 계약 1.3으로 전환했다. 비회원 공개 수결 카탈로그, 로그인 회원의 개인 획득 상태, GPS·CSRF·멱등성 기반 현장 체크인과 다중 수결 애니메이션을 연결하고 검증되지 않은 localStorage 데모 도장을 제거했다.
+- 탐방 랭킹의 하드코딩 데이터를 제거하고, 명시적으로 참여한 회원만 서버 생성 익명 별명으로 표시하는 공개 랭킹과 참여·철회 UI를 연결했다. 사용자 입력 닉네임과 OAuth 이름·회원 식별자는 표시하거나 로컬에 저장하지 않는다.
+- 지도 온기 모드의 Map Heat와 방문 후기(VisitReview)를 독립 파이프라인으로 분리했다. 공개 후기의 중복 moderation 상태 필터를 제거하고 전국·지역·장소별 조회와 실제 작성 API를 연결했으며, 후기 실패가 Heat를 지우거나 Heat 실패가 후기를 지우지 않도록 했다. 후기 요청 공유 캐시로 중복 마운트의 네트워크 호출을 합치고, 전국 장소 조회의 canonical `placeId` 보존, Heat 응답만 사용하는 대표 명소, 현재 소리마루 목록 계약 기반 주변 이야기 조회를 함께 반영했다.
 - 프론트엔드 Single Source of Truth 아키텍처 전환을 완료했다. 모든 데이터 처리 로직을 백엔드에 집중하고, 프론트엔드는 백엔드 API만 호출해 데이터를 표시하는 순수 UI 레이어로 변경했다.
   - 필터링 로직 완전 제거: 지역·카테고리·온기 등 모든 필터링을 백엔드로 이관
   - 클라이언트 캐싱 제거: localStorage, 메모리 캐시 모두 제거
@@ -52,8 +62,6 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 - Next.js·Vitest 및 전이 의존성을 보안 patch 버전으로 올려 의존성 감사 취약점을 모두 해결했다.
 - Vitest/Vite의 YAML 2.x 의존성을 lockfile에 고정해 CI의 `npm ci` 설치가 일관되게 동작하도록 했다.
 - Vercel CLI pull을 이전 성공 방식으로 되돌려 잘못 해석된 `VERCEL_ORG_ID` scope 때문에 발생하던 `User not found` 배포 실패를 제거했다.
-- Netlify repository preparation이 private Core UI submodule을 가져올 수 있도록 submodule URL을 SSH에서 HTTPS로 전환하고, Netlify GitHub App의 private repository 접근 권한 설정 절차를 문서화했다.
-
 - 홈 추천 코스, 인기 한옥 소리, 인기 지역을 백엔드 홈 API로 연동하고 기존 홈 목데이터 프록시를 제거했다.
 - 인기 한옥 소리 원천이 `503 SERVICE_UNAVAILABLE`일 때 빈 재시도 UI를 표시한다.
 - 여정 탐색 시작 요청이 백엔드 호환 경로와 CSRF·멱등성 요청 정책을 사용한다.
@@ -231,6 +239,9 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## [Unreleased] 
 ### Changed 
+- 지도 온기 모드에서 방문량 기반 Map Heat와 사용자 VisitReview를 완전히 분리했다. 공개 후기 응답의 비공개 moderation `status` 필터와 후기/장소 기반 Heat fallback을 제거하고, 서버 지역 코드·장소별 전용 조회·실제 후기 작성 POST(CSRF/멱등성)를 연결했다.
+- 지도 인기 장소 카드에서 이미지 요청이 실패해도 빈 썸네일을 남기지 않고, 58px placeholder로 전환하도록 보완했다.
+- 홈 `이번 주 추천 코스` 카드에서 placeholder보다 실제 이미지를 뒤에 렌더링해 TourAPI 썸네일이 가려지지 않도록 수정하고, 공백 URL 및 이미지 요청 실패 시에는 placeholder를 유지하도록 했다.
 - Split long Odii narration text into timed sentence cues and present it as
   numbered listening segments, with only the active sentence at full opacity.
 - Redesigned the expanded Odii player around one readable, scrollable

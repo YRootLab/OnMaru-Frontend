@@ -19,7 +19,7 @@ import {
   Utensils,
 } from 'lucide-react';
 import { transientProps } from '@/design-system/styled';
-import { meok , fontSize } from '@/design-system/tokens';
+import { meok, fontSize, ringShadow } from '@/design-system/tokens';
 
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import type { MapMode } from '@/features/map/types';
@@ -135,8 +135,7 @@ const Chip = styled.button<{ $active: boolean; $index: number }>`
   transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
     box-shadow 0.18s ease,
     background 0.18s ease,
-    color 0.18s ease,
-    border-color 0.18s ease;
+    color 0.18s ease;
 
   &:hover {
     color: ${({ $active }) => ($active ? '#ffffff' : meok[900])};
@@ -167,19 +166,19 @@ const Chip = styled.button<{ $active: boolean; $index: number }>`
 
   [data-theme='dark'] & {
     background: ${({ $active }) => ($active ? '#ffffff' : 'rgba(42, 45, 54, 0.95)')};
-    border: ${({ $active }) => ($active ? 'none' : '1px solid rgba(255, 255, 255, 0.16)')};
+    border: none;
     color: ${({ $active }) => ($active ? '#171513' : '#ffffff')};
     font-weight: ${({ $active }) => ($active ? '700' : '500')};
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+    box-shadow: ${ringShadow.dark.mapChip};
   }
 
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme='light']) & {
       background: ${({ $active }) => ($active ? '#ffffff' : 'rgba(42, 45, 54, 0.95)')};
-      border: ${({ $active }) => ($active ? 'none' : '1px solid rgba(255, 255, 255, 0.16)')};
+      border: none;
       color: ${({ $active }) => ($active ? '#171513' : '#ffffff')};
       font-weight: ${({ $active }) => ($active ? '700' : '500')};
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+      box-shadow: ${ringShadow.dark.mapChip};
     }
   }
 

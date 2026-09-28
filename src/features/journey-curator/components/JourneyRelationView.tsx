@@ -1,7 +1,6 @@
 'use client';
 
-
-
+import { motion } from 'framer-motion';
 
 
 
@@ -84,6 +83,37 @@ const EvidenceButton = styled.button`
   }
 `;
 
+const BusLineWrap = styled.div`
+  position: relative;
+  padding-left: 18px;
+`;
+
+const BusLine = styled.div`
+  position: absolute;
+  left: 6px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: ${meok[200]};
+  border-radius: 1px;
+  overflow: hidden;
+
+  [data-theme='dark'] & {
+    background: rgba(255,255,255,0.08);
+  }
+`;
+
+const BusGlow = styled(motion.div)`
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 48px;
+  background: linear-gradient(180deg, transparent, ${palette.juhong[400]}, transparent);
+  border-radius: 1px;
+`;
+
+const MotionRow = motion(Row);
+
 const Empty = styled.p`
   padding: 24px 0;
   text-align: center;
@@ -114,28 +144,43 @@ export default function JourneyRelationView({ board, focusedRef, onFocus, onOpen
   }
 
   return (
-    <List>
-      {relations.map((rel) => {
-        const sourceTitle = resolveTitle(board, rel.sourceRef);
-        const targetTitle = resolveTitle(board, rel.targetRef);
-        const isFocused =
-          focusedRef !== null && (rel.sourceRef.id === focusedRef.id || rel.targetRef.id === focusedRef.id);
-        const clickTarget = rel.sourceRef.id === focusedRef?.id ? rel.targetRef : rel.sourceRef;
+    <BusLineWrap>
+      <BusLine aria-hidden="true">
+        <BusGlow
+          initial={{ top: '-48px' }}
+          animate={{ top: '100%' }}
+          transition={{ duration: relations.length * 0.18 + 0.6, ease: 'easeInOut' }}
+        />
+      </BusLine>
+      <List>
+        {relations.map((rel, i) => {
+          const sourceTitle = resolveTitle(board, rel.sourceRef);
+          const targetTitle = resolveTitle(board, rel.targetRef);
+          const isFocused =
+            focusedRef !== null && (rel.sourceRef.id === focusedRef.id || rel.targetRef.id === focusedRef.id);
+          const clickTarget = rel.sourceRef.id === focusedRef?.id ? rel.targetRef : rel.sourceRef;
 
-        return (
-          <Row key={rel.id} $focused={isFocused}>
-            <IconBox>{rel.type === 'NEARBY' ? <Route size={14} strokeWidth={2} /> : <MapPin size={14} strokeWidth={2} />}</IconBox>
-            <RelText type="button" onClick={() => onFocus(clickTarget)}>
-              <b>{sourceTitle}</b> · {rel.label} · <b>{targetTitle}</b>
-            </RelText>
-            {onOpenEvidence && (
-              <EvidenceButton type="button" onClick={() => onOpenEvidence(rel.sourceRef)}>
-                근거
-              </EvidenceButton>
-            )}
-          </Row>
-        );
-      })}
-    </List>
+          return (
+            <MotionRow
+              key={rel.id}
+              $focused={isFocused}
+              initial={{ opacity: 0, x: -8 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, delay: i * 0.06, ease: 'easeOut' }}
+            >
+              <IconBox>{rel.type === 'NEARBY' ? <Route size={14} strokeWidth={2} /> : <MapPin size={14} strokeWidth={2} />}</IconBox>
+              <RelText type="button" onClick={() => onFocus(clickTarget)}>
+                <b>{sourceTitle}</b> · {rel.label} · <b>{targetTitle}</b>
+              </RelText>
+              {onOpenEvidence && (
+                <EvidenceButton type="button" onClick={() => onOpenEvidence(rel.sourceRef)}>
+                  근거
+                </EvidenceButton>
+              )}
+            </MotionRow>
+          );
+        })}
+      </List>
+    </BusLineWrap>
   );
 }

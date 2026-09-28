@@ -1,0 +1,106 @@
+name: 라벨 색상 초기 설정
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/label-colors.yml'
+
+jobs:
+  라벨-설정:
+    name: 라벨 색상 일괄 구성
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - name: 라벨 생성/업데이트
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = [
+              // 타입 라벨
+              { name: 'type:bug-fix',  color: 'd73a49', description: '🐛 버그 수정' },
+              { name: 'type:feature',  color: '28a745', description: '✨ 새 기능' },
+              { name: 'type:refactor', color: '9366cc', description: '♻️ 리팩토링' },
+              { name: 'type:chore',    color: '6f42c1', description: '🔧 유지보수' },
+              { name: 'type:test',     color: '0366d6', description: '✅ 테스트' },
+              { name: 'type:docs',     color: 'f0883e', description: '📝 문서' },
+              { name: 'type:ci',       color: 'ffd900', description: '⚙️ CI/CD' },
+
+              // 크기 라벨
+              { name: 'size:xs', color: 'c2e0c6', description: '아주 작은 변경' },
+              { name: 'size:s',  color: '90ee90', description: '작은 변경' },
+              { name: 'size:m',  color: 'ffd900', description: '중간 변경' },
+              { name: 'size:l',  color: 'ff7f50', description: '큰 변경' },
+              { name: 'size:xl', color: 'dc3545', description: '아주 큰 변경' },
+
+              // 범위 라벨
+              { name: 'scope:code',   color: '1f883d', description: '코드 변경' },
+              { name: 'scope:styles', color: 'ff69b4', description: '스타일/CSS 변경' },
+
+              // 상태 라벨
+              { name: 'breaking-change',    color: '000000', description: '💥 하위 호환성 깨짐' },
+              { name: 'ready-for-release',  color: '2ecc71', description: '🚀 릴리즈 준비 완료' },
+              { name: 'auto-merge',         color: '3498db', description: '🤖 자동 머지 활성화' },
+              { name: 'draft',              color: 'bfd4f2', description: '📋 초안 PR' },
+
+              // 우선순위 라벨
+              { name: 'priority:critical', color: 'b60205', description: '🔴 긴급' },
+              { name: 'priority:high',     color: 'd73a49', description: '🟠 높음' },
+              { name: 'priority:medium',   color: 'ffd900', description: '🟡 보통' },
+              { name: 'priority:low',      color: 'cccccc', description: '⚪ 낮음' },
+
+              // 커뮤니티 라벨
+              { name: 'good-first-issue',    color: '7057ff', description: '👋 입문자 추천 이슈' },
+              { name: 'help-wanted',         color: '128a0c', description: '🙋 도움 요청' },
+              { name: 'needs-review',        color: 'fbca04', description: '👀 리뷰 필요' },
+              { name: 'awaiting-feedback',   color: 'cccccc', description: '⏳ 피드백 대기 중' },
+            ];
+
+            for (const label of labels) {
+              try {
+                await github.rest.issues.updateLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label.name,
+                  color: label.color,
+                  description: label.description
+                });
+                console.log(`✅ 업데이트: ${label.name}`);
+              } catch (error) {
+                if (error.status === 404) {
+                  try {
+                    await github.rest.issues.createLabel({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      name: label.name,
+                      color: label.color,
+                      description: label.description
+                    });
+                    console.log(`✨ 생성: ${label.name}`);
+                  } catch (createError) {
+                    console.log(`⚠️ 라벨 생성 실패 ${label.name}: ${createError.message}`);
+                  }
+                } else {
+                  console.log(`⚠️ 라벨 업데이트 실패 ${label.name}: ${error.message}`);
+                }
+              }
+            }
+
+      - name: 설정 완료 요약
+        run: |
+          echo "## 🏷️ 라벨 색상 설정 완료"
+          echo ""
+          echo "✅ 모든 라벨이 설정되었습니다"
+          echo ""
+          echo "### 라벨 분류:"
+          echo "- 타입: bug-fix, feature, refactor, chore, test, docs, ci"
+          echo "- 크기: xs, s, m, l, xl"
+          echo "- 범위: code, styles"
+          echo "- 우선순위: critical, high, medium, low"
+          echo "- 상태: breaking-change, ready-for-release, auto-merge, draft"
+          echo "- 커뮤니티: good-first-issue, help-wanted, needs-review, awaiting-feedback"

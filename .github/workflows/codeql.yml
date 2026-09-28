@@ -1,0 +1,59 @@
+name: CodeQL 코드 분석
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+  pull_request:
+    branches:
+      - master
+      - develop
+  schedule:
+    - cron: '0 0 * * 0' # 매주 일요일
+
+jobs:
+  Analyze:
+    name: CodeQL 정적 분석 실행
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+      pull-requests: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language:
+          - 'javascript'
+
+    steps:
+      - name: 소스코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: CodeQL 초기화
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-and-quality
+
+      - name: 자동 빌드 (Autobuild)
+        uses: github/codeql-action/autobuild@v2
+
+      - name: CodeQL 분석 수행
+        uses: github/codeql-action/analyze@v2
+        with:
+          category: "/language:${{ matrix.language }}"
+
+      - name: 분석 완료 댓글 등록
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🔍 CodeQL 보안 분석이 완료되었습니다. 세부 검출 결과는 리포지토리의 Security 탭을 확인하세요.'
+            })

@@ -102,13 +102,13 @@ const CrowdMoodBadge = styled.span<{ $crowd?: '북적' | '한적' }>`
   background: ${({ $crowd }) =>
     $crowd === '북적' ? 'rgba(232, 90, 24, 0.1)' : 'rgba(36, 152, 120, 0.1)'};
   color: ${({ $crowd }) =>
-    $crowd === '북적' ? lightPalette.juhong[700] : lightPalette.cheongrok[700]};
+    $crowd === '북적' ? lightPalette.hwanggeum[700] : lightPalette.kobalt[700]};
 
   [data-theme='dark'] & {
     background: ${({ $crowd }) =>
       $crowd === '북적' ? 'rgba(232, 90, 24, 0.2)' : 'rgba(36, 152, 120, 0.2)'};
     color: ${({ $crowd }) =>
-      $crowd === '북적' ? darkPalette.juhong[200] : darkPalette.cheongrok[200]};
+      $crowd === '북적' ? darkPalette.hwanggeum[200] : darkPalette.kobalt[200]};
   }
 `;
 
@@ -192,9 +192,9 @@ const HelpfulButton = styled.button<{ $active: boolean }>`
   border-radius: 9999px;
   border: none;
   background: ${({ $active }) =>
-    $active ? lightPalette.juhong[50] : 'rgba(78, 89, 104, 0.07)'};
+    $active ? lightPalette.hwanggeum[50] : 'rgba(78, 89, 104, 0.07)'};
   color: ${({ $active }) =>
-    $active ? lightPalette.juhong[700] : meok[700]};
+    $active ? lightPalette.hwanggeum[700] : meok[700]};
   font-family: inherit;
   font-size: ${fontSize.xs};
   font-weight: 500;
@@ -203,7 +203,7 @@ const HelpfulButton = styled.button<{ $active: boolean }>`
 
   &:hover {
     background: ${({ $active }) =>
-      $active ? lightPalette.juhong[100] : 'rgba(78, 89, 104, 0.12)'};
+      $active ? lightPalette.hwanggeum[100] : 'rgba(78, 89, 104, 0.12)'};
   }
 
   &:active {
@@ -214,7 +214,7 @@ const HelpfulButton = styled.button<{ $active: boolean }>`
     background: ${({ $active }) =>
       $active ? 'rgba(232, 90, 24, 0.2)' : 'rgba(255, 255, 255, 0.06)'};
     color: ${({ $active }) =>
-      $active ? darkPalette.juhong[200] : meok[400]};
+      $active ? darkPalette.hwanggeum[200] : meok[400]};
   }
 `;
 
@@ -451,7 +451,7 @@ export default function WarmthCard({ review, onHover }: WarmthCardProps) {
           aria-label="이 온기에 공감하시나요? (따뜻해요)"
           title="따뜻해요 공감 남기기"
         >
-          <Flame size={14} strokeWidth={2} color={helpful ? lightPalette.juhong[500] : undefined} />
+          <Flame size={14} strokeWidth={2} color={helpful ? lightPalette.hwanggeum[500] : undefined} />
           <span>따뜻해요 {helpfulCount > 0 ? helpfulCount : ''}</span>
         </HelpfulButton>
       </FooterMeta>
@@ -465,7 +465,7 @@ export default function WarmthCard({ review, onHover }: WarmthCardProps) {
             <RelatedMeta>{review.placeType}</RelatedMeta>
           </RelatedInfo>
         </RelatedLeft>
-        <ChevronRight size={16} strokeWidth={2} color={lightPalette.juhong[400]} />
+        <ChevronRight size={16} strokeWidth={2} color={lightPalette.hwanggeum[400]} />
       </RelatedPlaceBox>
     </CardWrapper>
   );

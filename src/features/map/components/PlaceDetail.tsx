@@ -25,12 +25,14 @@ import {
 import { logger } from '@/lib/log';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useSorimaruPlaceStory } from '@/features/sorimaru-audio/hooks/useSorimaruPlaceStory';
+import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
+import { generateDynamicWaypoints } from '@/features/sorimaru-audio/hooks/useSorimaruPlaceStory';
 import { useCinematicTourStore } from '@/features/cinematic-tour/store/useCinematicTourStore';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import { usePlaceDetail } from '@/features/map/hooks/usePlaceDetail';
-import { useStampStore } from '@/features/stamp/hooks/useStampStore';
-import { stampAudio } from '@/features/stamp/utils/sound';
+import { useStampStore } from '@/features/stamp/presentation/useStampStore';
+import { useStampCheckIn } from '@/features/stamp/presentation/useStampCheckIn';
 import { calculateTravelEstimate, isTraditionalPlace } from '@/features/map/utils/geo';
 import { createKakaoNavigationLinks } from '@/features/map/utils/navigation';
 import PlaceDetailCarousel from './detail/PlaceDetailCarousel';
@@ -258,10 +260,21 @@ export default function PlaceDetail() {
   }, [matchedSorimaruStory, data?.intro, selectedItem?.category, tel]);
 
   const startTour = useCinematicTourStore((s) => s.startTour);
+  const selectAndLoadStory = useSorimaruAudioStore((s) => s.selectAndLoadStory);
 
-  const handleStartCinematicTour = () => {
+  const handleStartCinematicTour = async () => {
     if (!matchedSorimaruStory) return;
-    startTour(matchedSorimaruStory);
+    const detail = await selectAndLoadStory(matchedSorimaruStory, 'play');
+    if (!detail) return;
+    startTour({
+      tid: detail.storyId, tlid: detail.storyId, stid: detail.storyId, stlid: detail.storyId,
+      title: detail.title, audioTitle: detail.audioTitle, category: detail.category,
+      mapX: detail.coordinates ? String(detail.coordinates.lng) : '',
+      mapY: detail.coordinates ? String(detail.coordinates.lat) : '',
+      script: detail.transcript.map((line) => line.text).join('\n'), playTime: String(detail.durationSeconds),
+      audioUrl: detail.audioUrl, imageUrl: detail.imageUrl ?? '', locationName: detail.region.name,
+      tags: detail.contentTags, waypoints: generateDynamicWaypoints(detail),
+    });
     const store = useMapStore.getState();
     if (store.sheetSnap === 'full') {
       store.setSheetSnap('peek');
@@ -314,8 +327,7 @@ export default function PlaceDetail() {
   const toggleBookmark = useBookmarkStore((s) => s.toggleBookmark);
 
   const isPlaceVisited = useStampStore((s) => s.isPlaceVisited(detailId || ''));
-  const checkIn = useStampStore((s) => s.checkIn);
-  const openStampModal = useStampStore((s) => s.openStampModal);
+  const { checkIn, checkingIn, isUnavailable } = useStampCheckIn();
 
   const handleToggleBookmark = () => {
     if (!detailId) return;
@@ -383,7 +395,7 @@ export default function PlaceDetail() {
           </SkeletonBox>
         ) : error && !data && !selectedItem ? (
           <ErrorBox role="alert">
-            <AlertCircle size={32} color={lightPalette.cheongrok[700]} strokeWidth={1.8} style={{ marginBottom: 12 }} />
+            <AlertCircle size={32} color={lightPalette.kobalt[700]} strokeWidth={1.8} style={{ marginBottom: 12 }} />
             <p style={{ margin: '0 0 16px', fontSize: 14, color: meok[700] }}>{error}</p>
             <ShareButton type="button" onClick={reload}>
               <RotateCcw size={14} strokeWidth={2} />
@@ -489,7 +501,7 @@ export default function PlaceDetail() {
             </HeroActionGrid>
 
             {}
-            {isRealTraditional && (
+            {isRealTraditional && detailId && !isUnavailable(detailId) && (
               <StampCheckInBanner $isVisited={isPlaceVisited}>
                 <StampBannerLeft>
                   <Award size={18} color={isPlaceVisited ? '#059669' : '#b45309'} />
@@ -507,24 +519,15 @@ export default function PlaceDetail() {
                 <StampActionBtn
                   type="button"
                   $isVisited={isPlaceVisited}
-                  onClick={() => {
-                    if (!detailId) return;
-                    const res = checkIn({
-                      id: detailId,
-                      name: title,
-                      address: addr,
-                      isTraditional: true,
-                    });
-                    stampAudio.playStampSound();
-                    if (res.primaryStamp) {
-                      openStampModal(res.primaryStamp);
-                    }
-                  }}
+                  disabled={checkingIn}
+                  onClick={() => void checkIn(detailId)}
                 >
-                  {isPlaceVisited ? (
+                  {checkingIn ? (
+                    <span>위치 확인 중</span>
+                  ) : isPlaceVisited ? (
                     <>
                       <CheckCircle2 size={13} strokeWidth={2.5} />
-                      <span>도장 보기</span>
+                      <span>방문 확인</span>
                     </>
                   ) : (
                     <>
@@ -544,12 +547,12 @@ export default function PlaceDetail() {
                     <span>오디오 해설</span>
                   </CinematicBadge>
                   <CinematicDuration>
-                    {matchedSorimaruStory.formattedDuration || '약 10분'}
+                    {matchedSorimaruStory.durationSeconds ? `약 ${Math.ceil(matchedSorimaruStory.durationSeconds / 60)}분` : '약 10분'}
                   </CinematicDuration>
                 </CinematicHeader>
                 <CinematicTitle>{matchedSorimaruStory.audioTitle}</CinematicTitle>
                 <CinematicDesc>
-                  {matchedSorimaruStory.speaker ?? '해설사'}와 함께 지도를 따라 걷는 코스
+                  해설사와 함께 지도를 따라 걷는 코스
                 </CinematicDesc>
                 <CinematicStartButton type="button" onClick={handleStartCinematicTour}>
                   <Play size={15} strokeWidth={2} className="ml-0.5" />
@@ -670,7 +673,7 @@ export default function PlaceDetail() {
         </BookmarkButton>
 
         <ShareButton type="button" onClick={handleShare} aria-label="장소 링크 공유하기">
-          {copied ? <Check size={16} color={lightPalette.cheongrok[700]} strokeWidth={2} /> : <Share2 size={16} strokeWidth={2} />}
+          {copied ? <Check size={16} color={lightPalette.kobalt[700]} strokeWidth={2} /> : <Share2 size={16} strokeWidth={2} />}
           <span>{copied ? '복사됨' : '공유하기'}</span>
         </ShareButton>
 

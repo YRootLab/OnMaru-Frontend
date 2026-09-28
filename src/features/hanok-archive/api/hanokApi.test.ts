@@ -17,7 +17,7 @@ describe('hanok repository', () => {
 
     await repository.listHanoks({ keyword: '북촌', limit: 20 });
     await repository.getPlaceDetail('p-jeonju-hanok-village');
-    await repository.listMapPlaces({ swLat: 37.4, swLng: 126.8, neLat: 37.7, neLng: 127.1 });
+    await repository.listMapPlaces({ bbox: '126.8,37.4,127.1,37.7' });
 
     expect(calls).toEqual([
       { path: '/hanoks', options: { method: 'GET', params: { keyword: '북촌', limit: 20 }, cache: 'no-store' } },
@@ -26,7 +26,7 @@ describe('hanok repository', () => {
         path: '/map/places',
         options: {
           method: 'GET',
-          params: { swLat: 37.4, swLng: 126.8, neLat: 37.7, neLng: 127.1 },
+          params: { bbox: '126.8,37.4,127.1,37.7' },
           cache: 'no-store',
         },
       },

@@ -112,7 +112,7 @@ const SectionTitle = styled.h3`
 const BadgeTitle = styled.span`
   font-size: ${fontSize.micro};
   font-weight: 500;
-  color: ${lightPalette.cheongrok[500]};
+  color: ${lightPalette.kobalt[500]};
 `;
 
 const MoreBtn = styled.button`
@@ -267,7 +267,7 @@ const CardBadge = styled.div`
   font-size: ${fontSize.micro};
   font-weight: 700;
   color: ${surface.light.card};
-  background: ${lightPalette.cheongrok[500]};
+  background: ${lightPalette.kobalt[500]};
 `;
 
 const CardBody = styled.div`
@@ -294,7 +294,7 @@ const CardDateRow = styled.div`
   align-items: center;
   gap: 4px;
   font-size: ${fontSize.micro};
-  color: ${lightPalette.cheongrok[700]};
+  color: ${lightPalette.kobalt[700]};
   font-weight: 500;
 `;
 

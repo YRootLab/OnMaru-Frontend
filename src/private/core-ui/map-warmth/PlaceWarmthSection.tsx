@@ -1,14 +1,13 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { Flame, Leaf, Users, Plus, MessageCircle } from 'lucide-react';
 import { lightPalette, meok , fontSize } from '@/design-system/tokens';
-import { useMapStore } from '@/features/map/hooks/useMapStore';
-import { distanceInMeters } from '@/features/map/utils/geo';
+import { usePlaceVisitReviews } from '@/features/visit-review/presentation/usePlaceVisitReviews';
 import WriteWarmthModal from './WriteWarmthModal';
 import MoodSelector from './MoodSelector';
-import type { Warmth } from '@/features/map/types';
+import { hasAuthenticatedUser, showLoginRequiredToast } from '@/features/auth/privateState';
 
 interface PlaceWarmthSectionProps {
   placeId: string;
@@ -54,8 +53,8 @@ const CountBadge = styled.span`
   height: 20px;
   padding: 0 6px;
   border-radius: 9999px;
-  background: ${lightPalette.juhong[50]};
-  color: ${lightPalette.juhong[700]};
+  background: ${lightPalette.hwanggeum[50]};
+  color: ${lightPalette.hwanggeum[900]};
   font-size: ${fontSize.micro};
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -70,8 +69,8 @@ const WriteButton = styled.button`
   padding: 0 12px;
   border: none;
   border-radius: 9999px;
-  background: ${lightPalette.juhong[50]};
-  color: ${lightPalette.juhong[700]};
+  background: ${lightPalette.hwanggeum[50]};
+  color: ${lightPalette.hwanggeum[900]};
   font-family: inherit;
   font-size: ${fontSize.xs};
   font-weight: 500;
@@ -79,7 +78,7 @@ const WriteButton = styled.button`
   transition: all 0.15s ease;
 
   &:hover {
-    background: ${lightPalette.juhong[500]};
+    background: ${lightPalette.hwanggeum[500]};
     color: #ffffff;
   }
 
@@ -131,8 +130,8 @@ const MoodBadge = styled.span<{ $mood?: '한적' | '북적' }>`
   border-radius: 6px;
   font-size: ${fontSize.micro};
   font-weight: 700;
-  color: ${lightPalette.juhong[700]};
-  background: ${lightPalette.juhong[50]};
+  color: ${lightPalette.hwanggeum[900]};
+  background: ${lightPalette.hwanggeum[50]};
 `;
 
 const TimeAndMine = styled.div`
@@ -169,8 +168,8 @@ const TagList = styled.div`
 const TagItem = styled.span`
   padding: 2px 8px;
   border-radius: 6px;
-  background: ${lightPalette.juhong[50]};
-  color: ${lightPalette.juhong[700]};
+  background: ${lightPalette.hwanggeum[50]};
+  color: ${lightPalette.hwanggeum[900]};
   font-size: ${fontSize.micro};
   font-weight: 500;
 `;
@@ -210,8 +209,8 @@ const EmptyIconBox = styled.div`
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: ${lightPalette.juhong[50]};
-  color: ${lightPalette.juhong[500]};
+  background: ${lightPalette.hwanggeum[50]};
+  color: ${lightPalette.hwanggeum[900]};
   margin-bottom: 10px;
 
   [data-theme='dark'] & {
@@ -249,7 +248,7 @@ const EmptyActionBtn = styled.button`
   padding: 0 14px;
 
   border-radius: 9999px;
-  background: ${lightPalette.juhong[500]};
+  background: ${lightPalette.hwanggeum[500]};
   color: #ffffff;
   font-family: inherit;
   font-size: ${fontSize.xs};
@@ -259,7 +258,7 @@ const EmptyActionBtn = styled.button`
   transition: background 0.15s ease;
 
   &:hover {
-    background: ${lightPalette.juhong[700]};
+    background: ${lightPalette.hwanggeum[700]};
   }
 `;
 
@@ -281,10 +280,6 @@ function formatRelativeTime(isoString: string): string {
 }
 
 
-function getDistanceMeters(lat1: number, lng1: number, lat2: number, lng2: number): number {
-  return distanceInMeters({ lat: lat1, lng: lng1 }, { lat: lat2, lng: lng2 });
-}
-
 export default function PlaceWarmthSection({
   placeId,
   placeName,
@@ -292,54 +287,23 @@ export default function PlaceWarmthSection({
   lng,
 }: PlaceWarmthSectionProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const warmths = useMapStore((s) => s.warmths);
+  const { data: matchedWarmths, loading, error, prepend } = usePlaceVisitReviews(placeId);
 
-
-  const matchedWarmths = useMemo(() => {
-    const cleanTargetName = placeName.replace(/\s+/g, '').toLowerCase();
-
-    return warmths
-      .filter((w) => {
-
-        if (w.placeId && w.placeId === placeId) return true;
-
-
-        const cleanName = w.placeName.replace(/\s+/g, '').toLowerCase();
-        if (
-          cleanTargetName.includes(cleanName) ||
-          cleanName.includes(cleanTargetName)
-        ) {
-          return true;
-        }
-
-
-        if (
-          Number.isFinite(lat) &&
-          Number.isFinite(lng) &&
-          Number.isFinite(w.lat) &&
-          Number.isFinite(w.lng) &&
-          lat > 0 &&
-          lng > 0
-        ) {
-          const dist = getDistanceMeters(lat, lng, w.lat, w.lng);
-          if (dist <= 350) return true;
-        }
-
-        return false;
-      })
-      .slice(0, 10);
-  }, [warmths, placeId, placeName, lat, lng]);
+  const handleOpenModal = () => {
+    if (!hasAuthenticatedUser()) { showLoginRequiredToast(); return; }
+    setIsModalOpen(true);
+  };
 
   return (
     <>
       <SectionContainer id="place-warmth-section">
         <SectionHeader>
           <TitleBox>
-            <Flame size={16} strokeWidth={2} color={lightPalette.juhong[500]} />
+            <Flame size={16} strokeWidth={2} color={lightPalette.hwanggeum[500]} />
             <SectionTitle>머문 이들의 온기</SectionTitle>
             <CountBadge>{matchedWarmths.length}</CountBadge>
           </TitleBox>
-          <WriteButton type="button" onClick={() => setIsModalOpen(true)}>
+          <WriteButton type="button" onClick={handleOpenModal}>
             <Plus size={14} strokeWidth={2} />
             <span>온기 남기기</span>
           </WriteButton>
@@ -382,19 +346,19 @@ export default function PlaceWarmthSection({
               </WarmthCard>
             ))}
           </WarmthList>
-        ) : (
+        ) : !loading ? (
           <EmptyBox>
             <EmptyIconBox>
               <MessageCircle size={20} strokeWidth={2} />
             </EmptyIconBox>
             <EmptyTitle>아직 남긴 온기가 없어요</EmptyTitle>
-            <EmptySub>첫 번째 이야기를 남겨보세요.</EmptySub>
-            <EmptyActionBtn type="button" onClick={() => setIsModalOpen(true)}>
+            <EmptySub>{error ? '후기를 불러오지 못했습니다.' : '첫 번째 이야기를 남겨보세요.'}</EmptySub>
+            <EmptyActionBtn type="button" onClick={handleOpenModal}>
               <Plus size={14} strokeWidth={2} />
               <span>이야기 남기기</span>
             </EmptyActionBtn>
           </EmptyBox>
-        )}
+        ) : null}
       </SectionContainer>
 
       <WriteWarmthModal
@@ -406,6 +370,7 @@ export default function PlaceWarmthSection({
           lat,
           lng,
         }}
+        onCreated={prepend}
       />
     </>
   );

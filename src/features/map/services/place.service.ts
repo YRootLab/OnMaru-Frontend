@@ -109,14 +109,17 @@ export class PlaceService {
     radius: number;
   }): Promise<Item[] | null> {
     try {
-      const latDelta = opts.radius / 111_000;
-      const lngDelta = opts.radius / (111_000 * Math.cos((opts.lat * Math.PI) / 180));
+      // ponytail: bbox capped at 600km — covers all of Korea, prevents oversized backend queries from uncapped HTTP inputs
+      const bboxRadius = Math.min(opts.radius, 600_000);
+      const latDelta = bboxRadius / 111_000;
+      const lngDelta = bboxRadius / (111_000 * Math.cos((opts.lat * Math.PI) / 180));
 
+      const swLat = opts.lat - latDelta;
+      const swLng = opts.lng - lngDelta;
+      const neLat = opts.lat + latDelta;
+      const neLng = opts.lng + lngDelta;
       const res = await apiGet<BackendMapPlacesResponse>('/map/places', {
-        swLat: opts.lat - latDelta,
-        swLng: opts.lng - lngDelta,
-        neLat: opts.lat + latDelta,
-        neLng: opts.lng + lngDelta,
+        bbox: `${swLng},${swLat},${neLng},${neLat}`,
       });
 
       if (!res.items || res.items.length === 0) return null;
@@ -167,8 +170,12 @@ export class PlaceService {
       return cached.items;
     }
 
-    if (!opts.category && process.env.NEXT_PUBLIC_API_URL) {
-      const backendItems = await this.fetchFromBackend({ lat: opts.lat, lng: opts.lng, radius });
+    if (!opts.category && (process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL)) {
+      const backendItems = await this.fetchFromBackend({
+        lat: opts.lat,
+        lng: opts.lng,
+        radius: opts.radius,
+      });
       if (backendItems) {
         this.placeCache.set(cacheKey, { expiresAt: Date.now() + CACHE_TTL, items: backendItems });
         return backendItems;

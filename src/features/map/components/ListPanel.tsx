@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { meok, surface } from '@/design-system/tokens';
+import { meok, surface, ringShadow } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import ModeToggle from './ModeToggle';
 import PlaceList from './PlaceList';
@@ -29,7 +29,7 @@ const Panel = styled.aside<{ $open: boolean; $mounted: boolean }>`
 
   [data-theme='dark'] & {
     background: ${surface.dark.card};
-    box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.6), 0 4px 12px -4px rgba(0, 0, 0, 0.4);
+    box-shadow: ${ringShadow.dark.mapPanel};
     border: 1px solid rgba(255, 255, 255, 0.08);
   }
 

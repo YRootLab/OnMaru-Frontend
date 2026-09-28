@@ -35,8 +35,8 @@ export interface BackendPlaceDetail {
   name: string;
   category: string;
   region: { regionCode: string; name: string };
-  address: string;
-  coordinates: { lat: number; lng: number };
+  address: string | null;
+  coordinates: { lat: number; lng: number } | null;
   images: { url: string; alt: string }[];
   description: string;
   contentTags: string[];
@@ -75,10 +75,13 @@ export interface HanokListParams {
 }
 
 export interface MapPlacesBounds {
-  swLat: number;
-  swLng: number;
-  neLat: number;
-  neLng: number;
+  bbox: string; // minLng,minLat,maxLng,maxLat
+  regionCode?: string;
+  limit?: number;
+}
+
+export function boundsToMapPlacesBounds(swLat: number, swLng: number, neLat: number, neLng: number): MapPlacesBounds {
+  return { bbox: `${swLng},${swLat},${neLng},${neLat}` };
 }
 
 export interface HanokRepository {

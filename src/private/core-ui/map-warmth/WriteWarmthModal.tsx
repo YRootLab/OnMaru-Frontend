@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import styled from '@emotion/styled';
 import { X, Flame, Users, Leaf, Check, MapPin } from 'lucide-react';
 import { lightPalette, meok , fontSize } from '@/design-system/tokens';
-import { loadWarmth } from '@/features/map/warmth/warmthRepo';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
+import { useCreateVisitReview } from '@/features/visit-review/presentation/useCreateVisitReview';
+import type { Warmth } from '@/features/map/types';
 import MoodSelector, { type MoodValue } from './MoodSelector';
 
 interface WriteWarmthModalProps {
@@ -17,6 +18,7 @@ interface WriteWarmthModalProps {
     lat: number;
     lng: number;
   };
+  onCreated?: (review: Warmth) => void;
 }
 
 const REGIONS = [
@@ -170,12 +172,12 @@ const RegionChip = styled.button<{ $active: boolean }>`
   font-size: ${fontSize.xs};
   font-weight: 500;
   cursor: pointer;
-  background: ${({ $active }) => ($active ? lightPalette.juhong[500] : '#f2f4f6')};
-  color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
+  background: ${({ $active }) => ($active ? lightPalette.hwanggeum[500] : '#f2f4f6')};
+  color: ${({ $active }) => ($active ? '#191f28' : meok[700])};
   transition: all 0.15s ease;
 
   &:hover {
-    background: ${({ $active }) => ($active ? lightPalette.juhong[500] : '#e5e8eb')};
+    background: ${({ $active }) => ($active ? lightPalette.hwanggeum[500] : '#e5e8eb')};
   }
 
   [data-theme='dark'] & {
@@ -201,7 +203,7 @@ const PlaceInputIcon = styled.div`
   transform: translateY(-50%);
   display: flex;
   align-items: center;
-  color: ${lightPalette.juhong[500]};
+  color: ${lightPalette.hwanggeum[500]};
   pointer-events: none;
 `;
 
@@ -224,8 +226,8 @@ const PlaceInput = styled.input`
   }
 
   &:focus {
-    background: ${lightPalette.juhong[50]};
-    color: ${lightPalette.juhong[900]};
+    background: ${lightPalette.hwanggeum[50]};
+    color: ${lightPalette.hwanggeum[900]};
   }
 
   [data-theme='dark'] & {
@@ -276,8 +278,8 @@ const PlaceOption = styled.button`
   transition: background 0.12s ease;
 
   &:hover {
-    background: ${lightPalette.juhong[50]};
-    color: ${lightPalette.juhong[700]};
+    background: ${lightPalette.hwanggeum[50]};
+    color: ${lightPalette.hwanggeum[700]};
   }
 
   [data-theme='dark'] & {
@@ -315,15 +317,15 @@ const MoodButton = styled.button<{ $active: boolean }>`
   height: 42px;
   border-radius: 14px;
 
-  background: ${({ $active }) => ($active ? lightPalette.juhong[500] : '#f2f4f6')};
-  color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
+  background: ${({ $active }) => ($active ? lightPalette.hwanggeum[500] : '#f2f4f6')};
+  color: ${({ $active }) => ($active ? '#191f28' : meok[700])};
   font-size: ${fontSize.sm};
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
 
   &:hover {
-    background: ${({ $active }) => ($active ? lightPalette.juhong[500] : '#e5e8eb')};
+    background: ${({ $active }) => ($active ? lightPalette.hwanggeum[500] : '#e5e8eb')};
   }
 
   [data-theme='dark'] & {
@@ -347,15 +349,15 @@ const TagChip = styled.button<{ $selected: boolean }>`
   padding: 6px 12px;
   border-radius: 9999px;
 
-  background: ${({ $selected }) => ($selected ? lightPalette.juhong[500] : '#f2f4f6')};
-  color: ${({ $selected }) => ($selected ? '#ffffff' : meok[700])};
+  background: ${({ $selected }) => ($selected ? lightPalette.hwanggeum[500] : '#f2f4f6')};
+  color: ${({ $selected }) => ($selected ? '#191f28' : meok[700])};
   font-size: ${fontSize.xs};
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
 
   &:hover {
-    background: ${({ $selected }) => ($selected ? lightPalette.juhong[500] : '#e5e8eb')};
+    background: ${({ $selected }) => ($selected ? lightPalette.hwanggeum[500] : '#e5e8eb')};
   }
 
   [data-theme='dark'] & {
@@ -417,6 +419,12 @@ const CharCount = styled.div`
   }
 `;
 
+const ErrorText = styled.p`
+  margin: 8px 0 0;
+  color: #b42318;
+  font-size: ${fontSize.xs};
+`;
+
 const SubmitBtn = styled.button`
   display: flex;
   align-items: center;
@@ -427,8 +435,8 @@ const SubmitBtn = styled.button`
   margin-top: 8px;
 
   border-radius: 14px;
-  background: ${lightPalette.juhong[500]};
-  color: #ffffff;
+  background: ${lightPalette.hwanggeum[500]};
+  color: #191f28;
   font-family: inherit;
   font-size: ${fontSize.sm};
   font-weight: 700;
@@ -436,7 +444,7 @@ const SubmitBtn = styled.button`
   transition: all 0.18s ease;
 
   &:hover:not(:disabled) {
-    background: ${lightPalette.juhong[700]};
+    background: ${lightPalette.hwanggeum[700]};
   }
 
   &:disabled {
@@ -463,10 +471,11 @@ export default function WriteWarmthModal({
   isOpen,
   onClose,
   defaultPlace,
+  onCreated,
 }: WriteWarmthModalProps) {
   const items = useMapStore((s) => s.items);
-  const searchCenter = useMapStore((s) => s.searchCenter);
   const setWarmths = useMapStore((s) => s.setWarmths);
+  const { create, loading: isSubmitting, error: createError } = useCreateVisitReview();
 
   const [selectedRegion, setSelectedRegion] = useState('전국');
   const [placeQuery, setPlaceQuery] = useState(defaultPlace?.name || '');
@@ -483,6 +492,12 @@ export default function WriteWarmthModal({
   const [text, setText] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setSelectedPlace(defaultPlace ?? null);
+    setPlaceQuery(defaultPlace?.name ?? '');
+  }, [defaultPlace, isOpen]);
 
 
   const filteredPlaces = useMemo(() => {
@@ -513,28 +528,22 @@ export default function WriteWarmthModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!text.trim()) return;
-
-    const placeId = selectedPlace?.id || `custom-${Date.now()}`;
-    const placeName = selectedPlace?.name || placeQuery.trim() || '우리 동네 한옥';
-    const lat = selectedPlace?.lat || searchCenter.lat;
-    const lng = selectedPlace?.lng || searchCenter.lng;
+    if (!text.trim() || !selectedPlace) return;
 
     try {
-      // TODO: POST /api/warmth with warmth data
-      const payload = {
-        placeId,
-        placeName,
-        lat,
-        lng,
+      const created = await create({
+        placeId: selectedPlace.id,
         text: text.trim(),
         mood,
         score,
         tags: selectedTags,
-      };
-      // const response = await fetch('/api/warmth', { method: 'POST', body: JSON.stringify(payload) });
+      });
 
-      setWarmths(loadWarmth());
+      setWarmths([
+        created,
+        ...useMapStore.getState().warmths.filter((item) => item.id !== created.id),
+      ]);
+      onCreated?.(created);
       setIsSuccess(true);
       setTimeout(() => {
         setIsSuccess(false);
@@ -542,9 +551,7 @@ export default function WriteWarmthModal({
         setSelectedTags([]);
         onClose();
       }, 900);
-    } catch (error) {
-      console.error('Failed to add warmth:', error);
-    }
+    } catch {}
   };
 
   if (!isOpen) return null;
@@ -554,7 +561,7 @@ export default function WriteWarmthModal({
       <ModalCard $open={isOpen} onClick={(e) => e.stopPropagation()}>
         <ModalHeader>
           <ModalTitle>
-            <Flame size={20} strokeWidth={2} color={lightPalette.juhong[500]} />
+            <Flame size={20} strokeWidth={2} color={lightPalette.hwanggeum[500]} />
             <span>온기 한 줄 남기기</span>
           </ModalTitle>
           <CloseBtn type="button" onClick={onClose} aria-label="닫기">
@@ -589,6 +596,7 @@ export default function WriteWarmthModal({
                 onFocus={() => setIsDropdownOpen(true)}
                 onChange={(e) => {
                   setPlaceQuery(e.target.value);
+                  if (e.target.value !== selectedPlace?.name) setSelectedPlace(null);
                   setIsDropdownOpen(true);
                 }}
                 placeholder="장소 이름을 검색해보세요 (예: 경기전)"
@@ -670,14 +678,22 @@ export default function WriteWarmthModal({
             <CharCount>{text.length} / 80자</CharCount>
           </FormSection>
 
-          <SubmitBtn type="submit" disabled={!text.trim() || isSuccess}>
+          {(!selectedPlace || Boolean(createError)) && (
+            <ErrorText role="alert">
+              {createError
+                ? '후기를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.'
+                : '목록에서 장소를 선택해 주세요.'}
+            </ErrorText>
+          )}
+
+          <SubmitBtn type="submit" disabled={!text.trim() || !selectedPlace || isSuccess || isSubmitting}>
             {isSuccess ? (
               <>
                 <Check size={18} strokeWidth={2} />
                 <span>이야기를 남겼어요!</span>
               </>
             ) : (
-              <span>온기 등록하기</span>
+              <span>{isSubmitting ? '저장 중…' : '온기 등록하기'}</span>
             )}
           </SubmitBtn>
         </form>

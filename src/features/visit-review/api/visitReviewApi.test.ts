@@ -56,4 +56,23 @@ describe('visit review repository', () => {
       { path: '/visit-reviews/review-1/likes/me', options: { method: 'DELETE', csrf: true } },
     ]);
   });
+
+  it('adds an idempotency key when creating a review', async () => {
+    const calls: Array<{ path: string; options: any }> = [];
+    const repository = createVisitReviewRepository((async (path: string, options: unknown) => {
+      calls.push({ path, options });
+      return { id: 'review-1' };
+    }) as never);
+
+    await repository.createReview('p-jeonju-hanok-village', '비 오는 날 좋았어요.');
+
+    expect(calls).toHaveLength(1);
+    expect(calls[0].path).toBe('/places/p-jeonju-hanok-village/visit-reviews');
+    expect(calls[0].options).toMatchObject({
+      method: 'POST',
+      body: { text: '비 오는 날 좋았어요.' },
+      csrf: true,
+      idempotencyKey: expect.stringMatching(/^[0-9a-f-]{36}$/),
+    });
+  });
 });

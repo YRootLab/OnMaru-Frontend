@@ -3,7 +3,7 @@ import type { BentoJourneyPlan, MoodId } from '../types/journey.types';
 import type { JourneyBoard, PlaceResource, ResourceRef } from '../types/exploration.types';
 import type { HanokDoganEntry, NearbyAudioStory, NearbyFoodPlace } from '../types/enrichment.types';
 import { JOURNEY_PLANS, MOOD_OPTIONS } from '../data/curatedJourneys';
-import { fetchExplorationBoard } from '../api/explorationApi';
+import { defaultJourneyRepository } from '../api/journeyApi';
 
 interface EnrichmentBundle {
   hanokDogan: HanokDoganEntry[];
@@ -28,6 +28,8 @@ interface JourneyState {
   currentPlan: BentoJourneyPlan;
   isGenerating: boolean;
 
+  explorationId: string | null;
+  runId: string | null;
 
   explorationBoard: JourneyBoard | null;
 
@@ -45,11 +47,14 @@ interface JourneyState {
 
   lastError: string | null;
 
+  unsubscribeSse: (() => void) | null;
+
   setQuery: (query: string) => void;
   selectMood: (moodId: MoodId) => Promise<void>;
   selectNode: (nodeId: string | null) => void;
   submitSearch: (customQuery?: string) => Promise<void>;
   refinePlan: (prompt: string) => Promise<void>;
+  cancelRun: () => Promise<void>;
   togglePin: (ref: ResourceRef) => void;
   applyProposal: () => void;
   dismissProposal: () => void;
@@ -67,21 +72,45 @@ type SetFn = (partial: Partial<JourneyState>) => void;
 
 
 async function runInitialExploration(query: string, set: SetFn) {
-  set({ isExploring: true });
-  const result = await fetchExplorationBoard(query);
-  set({
-    isExploring: false,
-    ...(result.ok
-      ? {
-          explorationBoard: result.board,
-          boardCreatedAt: new Date().toISOString(),
-          hanokDogan: result.hanokDogan,
-          nearbyAudio: result.nearbyAudio,
-          nearbyFood: result.nearbyFood,
-          lastError: null,
+  set({ isExploring: true, lastError: null });
+  try {
+    const accepted = await defaultJourneyRepository.start({
+      query,
+      idempotencyKey: `journey-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    });
+
+    const snapshot = await defaultJourneyRepository.getExploration(accepted.explorationId);
+
+    const unsubscribe = defaultJourneyRepository.subscribeToRunEvents(
+      accepted.explorationId,
+      accepted.runId,
+      (frame) => {
+        if (frame.event === 'run.terminal') {
+          set({ isExploring: false });
         }
-      : { lastError: result.message }),
-  });
+      },
+      {
+        onError: (err) => {
+          console.warn('[SSE] error:', err);
+        },
+      },
+    );
+
+    set({
+      isExploring: false,
+      explorationId: accepted.explorationId,
+      runId: accepted.runId,
+      explorationBoard: snapshot.board as any,
+      boardCreatedAt: new Date().toISOString(),
+      lastError: null,
+      unsubscribeSse: unsubscribe,
+    });
+  } catch (err) {
+    set({
+      isExploring: false,
+      lastError: err instanceof Error ? err.message : '여정을 생성하지 못했어요.',
+    });
+  }
 }
 
 export const useJourneyStore = create<JourneyState>((set, get) => ({
@@ -91,6 +120,8 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
   selectedNodeId: null,
   currentPlan: JOURNEY_PLANS.quiet,
   isGenerating: false,
+  explorationId: null,
+  runId: null,
   explorationBoard: null,
   boardCreatedAt: null,
   isExploring: false,
@@ -100,6 +131,7 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
   pinnedRefs: [],
   pendingProposal: null,
   lastError: null,
+  unsubscribeSse: null,
 
   setQuery: (query) => set({ currentQuery: query }),
 
@@ -151,35 +183,49 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
 
   refinePlan: async (prompt) => {
     if (!prompt.trim()) return;
-    const { explorationBoard, pinnedRefs } = get();
-    if (!explorationBoard) return;
+    const { explorationBoard, explorationId } = get();
+    if (!explorationBoard || !explorationId) return;
 
     set({ isGenerating: true, hasSearched: true, currentQuery: prompt, lastError: null });
 
-    const pinnedPlaces = explorationBoard.resources.filter(
-      (r): r is PlaceResource => r.ref.type === 'PLACE' && pinnedRefs.some((p) => p.id === r.ref.id),
-    );
-    const previousPlaceIds = explorationBoard.candidates.map((c) => c.placeRef.id);
-    const previousRegionId = explorationBoard.regionRef.id;
+    try {
+      await defaultJourneyRepository.submitTurn({
+        explorationId,
+        query: prompt,
+        baseVersion: 1,
+        clientTurnId: `turn-${Date.now()}`,
+        idempotencyKey: `turn-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      });
 
-    const result = await fetchExplorationBoard(prompt, { pinnedPlaces, previousPlaceIds, previousRegionId });
-
-    if (result.ok && result.diff) {
+      const snapshot = await defaultJourneyRepository.getExploration(explorationId);
       set({
         isGenerating: false,
-        pendingProposal: {
-          board: result.board,
-          hanokDogan: result.hanokDogan,
-          nearbyAudio: result.nearbyAudio,
-          nearbyFood: result.nearbyFood,
-          keptRefs: result.diff.keptRefs,
-          addedRefs: result.diff.addedRefs,
-          removedRefs: result.diff.removedRefs,
-        },
+        pendingProposal: snapshot.pendingProposal
+          ? {
+              board: (snapshot.board as any) || explorationBoard,
+              hanokDogan: [],
+              nearbyAudio: [],
+              nearbyFood: [],
+              keptRefs: snapshot.pendingProposal.kept.map((id) => ({ id, type: 'PLACE' as const })),
+              addedRefs: snapshot.pendingProposal.added.map((id) => ({ id, type: 'PLACE' as const })),
+              removedRefs: snapshot.pendingProposal.excluded.map((id) => ({ id, type: 'PLACE' as const })),
+            }
+          : null,
       });
-    } else {
+    } catch (err) {
+      set({ isGenerating: false, lastError: err instanceof Error ? err.message : '변경안을 만들지 못했어요.' });
+    }
+  },
 
-      set({ isGenerating: false, lastError: result.ok ? '변경안을 만들지 못했어요.' : result.message });
+  cancelRun: async () => {
+    const { explorationId, runId } = get();
+    if (!explorationId || !runId) return;
+
+    try {
+      await defaultJourneyRepository.cancelRun(explorationId, runId);
+      set({ isGenerating: false, explorationBoard: null });
+    } catch (err) {
+      set({ lastError: err instanceof Error ? err.message : '취소하지 못했어요.' });
     }
   },
 
@@ -205,12 +251,16 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
   dismissProposal: () => set({ pendingProposal: null }),
 
   resetJourney: () => {
+    const { unsubscribeSse } = get();
+    unsubscribeSse?.();
     set({
       currentQuery: '',
       activeMood: null,
       hasSearched: false,
       selectedNodeId: null,
       isGenerating: false,
+      explorationId: null,
+      runId: null,
       explorationBoard: null,
       boardCreatedAt: null,
       isExploring: false,
@@ -220,6 +270,7 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
       pinnedRefs: [],
       pendingProposal: null,
       lastError: null,
+      unsubscribeSse: null,
     });
   },
 

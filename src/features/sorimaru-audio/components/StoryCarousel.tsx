@@ -8,27 +8,22 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { keyframes } from '@emotion/react';
 import { Play, Pause, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
-import { SorimaruStoryItem } from '@/features/sorimaru-audio/types/sorimaru.types';
+import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import { getRailIndicator, shouldUpdateRailIndicator } from './storyCarouselMetrics';
 import { palette, meok, surface, fontSize } from '@/design-system/tokens';
 
 interface StoryCarouselProps {
-  stories: SorimaruStoryItem[];
+  stories: SorimaruStorySummary[];
   isLoading?: boolean;
+  onSelectStory?: (story: SorimaruStorySummary) => void;
 }
 
 import { useSorimaruImage, getSorimaruFallbackImage } from '@/features/sorimaru-audio/hooks/useSorimaruImage';
 
 gsap.registerPlugin(ScrollTrigger);
 
-function getScriptExcerpt(script = ''): string {
-  const line = script.split(/\r?\n/).find((item) => item.trim());
-  return line?.trim() || '장소에 머무는 시간을 오디오로 만나보세요.';
-}
-
-function formatDuration(story: SorimaruStoryItem): string {
-  if (story.formattedDuration) return story.formattedDuration;
-  const seconds = Number(story.playTime);
+function formatDuration(story: SorimaruStorySummary): string {
+  const seconds = story.durationSeconds;
   return Number.isFinite(seconds) ? `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}` : '오디오';
 }
 
@@ -315,7 +310,7 @@ const CardBottomMeta = styled.div`
 `;
 
 interface NearbyStoryCardProps {
-  story: SorimaruStoryItem;
+  story: SorimaruStorySummary;
   isCurrent: boolean;
   isPlaying: boolean;
   onSelect: () => void;
@@ -388,12 +383,12 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
             <MiniCategoryTag>
               {story.category}
             </MiniCategoryTag>
-            <LocationSpan title={story.locationName || '대한민국 문화유산'}>
-              {story.locationName || '대한민국 문화유산'}
+            <LocationSpan title={story.region.name || '대한민국 문화유산'}>
+              {story.region.name || '대한민국 문화유산'}
             </LocationSpan>
           </CategoryLocationRow>
 
-          <ExcerptText>{getScriptExcerpt(story.script)}</ExcerptText>
+          <ExcerptText>장소에 머무는 시간을 오디오로 만나보세요.</ExcerptText>
         </div>
 
         <CardBottomMeta>
@@ -401,7 +396,7 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
             {formatDuration(story)}
           </span>
           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 500, color: meok[500] }}>
-            {story.speaker || '온마루 도슨트'}
+            온마루 도슨트
           </span>
         </CardBottomMeta>
       </CardInfoCol>
@@ -496,15 +491,15 @@ const EdgeFadeLeft = styled.div`
   bottom: 0;
   left: 0;
   z-index: 10;
-  width: 3rem;
-  background: linear-gradient(to right, #ffffff, rgba(255, 255, 255, 0.95), transparent);
+  width: 2.5rem;
+  background: linear-gradient(to right, rgba(255, 255, 255, 1) 40%, rgba(255, 255, 255, 0));
 
   [data-theme='dark'] & {
-    background: linear-gradient(to right, ${surface.dark.app}, rgba(28, 26, 23, 0.95), transparent);
+    background: linear-gradient(to right, ${surface.dark.app} 40%, rgba(28, 26, 23, 0));
   }
 
   @media (min-width: 640px) {
-    width: 4rem;
+    width: 3rem;
   }
 `;
 
@@ -515,15 +510,15 @@ const EdgeFadeRight = styled.div`
   bottom: 0;
   right: 0;
   z-index: 10;
-  width: 1.5rem;
-  background: linear-gradient(to left, #ffffff, rgba(255, 255, 255, 0.6), transparent);
+  width: 2.5rem;
+  background: linear-gradient(to left, rgba(255, 255, 255, 1) 40%, rgba(255, 255, 255, 0));
 
   [data-theme='dark'] & {
-    background: linear-gradient(to left, ${surface.dark.app}, rgba(28, 26, 23, 0.6), transparent);
+    background: linear-gradient(to left, ${surface.dark.app} 40%, rgba(28, 26, 23, 0));
   }
 
   @media (min-width: 640px) {
-    width: 2.25rem;
+    width: 3rem;
   }
 `;
 
@@ -597,7 +592,7 @@ const CounterContainer = styled.div`
   }
 `;
 
-export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading }) => {
+export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading, onSelectStory }) => {
   const railRef = useRef<HTMLDivElement | null>(null);
   const [railIndicator, setRailIndicator] = useState({ left: 0, width: 100, index: 1 });
   const [isDragging, setIsDragging] = useState(false);
@@ -613,7 +608,7 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
 
   const currentStory = useSorimaruAudioStore((state) => state.currentStory);
   const isPlaying = useSorimaruAudioStore((state) => state.isPlaying);
-  const setCurrentStory = useSorimaruAudioStore((state) => state.setCurrentStory);
+  const selectAndLoadStory = useSorimaruAudioStore((state) => state.selectAndLoadStory);
   const setIsPlaying = useSorimaruAudioStore((state) => state.setIsPlaying);
 
   useGSAP(() => {
@@ -632,15 +627,16 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
     });
   }, { dependencies: [stories.length] });
 
-  const handleCardClick = (story: SorimaruStoryItem) => {
+  const handleCardClick = (story: SorimaruStorySummary) => {
     if (isMovedRef.current) {
       isMovedRef.current = false;
       return;
     }
-    if (currentStory.stid === story.stid) {
+    if (currentStory?.storyId === story.storyId) {
       setIsPlaying(!isPlaying);
     } else {
-      setCurrentStory(story);
+      if (onSelectStory) onSelectStory(story);
+      else void selectAndLoadStory(story, 'play').catch(() => undefined);
     }
   };
 
@@ -814,10 +810,10 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
         >
           {stories.map((story, index) => (
             <NearbyStoryCard
-              key={`${story.stid}-${index}`}
+              key={`${story.storyId}-${index}`}
               story={story}
-              isCurrent={currentStory.stid === story.stid}
-              isPlaying={currentStory.stid === story.stid && isPlaying}
+              isCurrent={currentStory?.storyId === story.storyId}
+              isPlaying={currentStory?.storyId === story.storyId && isPlaying}
               onSelect={() => handleCardClick(story)}
             />
           ))}

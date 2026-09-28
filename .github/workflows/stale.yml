@@ -1,0 +1,45 @@
+name: Close Stale Issues and PRs
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # 매일 자정 UTC
+  workflow_dispatch:
+
+jobs:
+  Stale:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Close Stale Issues
+        uses: actions/stale@v8
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          stale-issue-message: |
+            👋 이 이슈는 최근 활동이 없어서 자동으로 보류 중으로 표시되었습니다.
+            7일 후에 활동이 없으면 종료됩니다.
+
+            이 이슈가 여전히 유효하다면 댓글을 달아주세요!
+          stale-pr-message: |
+            👋 이 PR은 최근 활동이 없어서 자동으로 보류 중으로 표시되었습니다.
+            7일 후에 활동이 없으면 종료됩니다.
+
+            여전히 작업 중이라면 댓글을 달거나 커밋을 푸시해주세요!
+          close-issue-message: '비활동으로 인해 종료되었습니다. 필요하면 다시 열어주세요!'
+          close-pr-message: '비활동으로 인해 종료되었습니다. 필요하면 다시 열어주세요!'
+
+          # 설정
+          days-before-issue-stale: 30
+          days-before-pr-stale: 14
+          days-before-issue-close: 7
+          days-before-pr-close: 7
+
+          # 아래 라벨이 있으면 보류 처리 안 함
+          exempt-issue-labels: 'pinned,help-wanted,good-first-issue'
+          exempt-pr-labels: 'pinned,in-progress,do-not-merge'
+
+          # 활동 없을 때만 보류 처리
+          ignore-issue-updates: false
+          ignore-pr-updates: false

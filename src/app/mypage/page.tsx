@@ -1,9 +1,6 @@
 'use client';
 
 
-
-
-
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -23,6 +20,12 @@ import { useJourneyStore } from '@/features/journey-curator/store/useJourneyStor
 import { useSavedExplorationStore } from '@/features/journey-curator/store/useSavedExplorationStore';
 import MonthlyTimeline from '@/features/member-timeline/components/MonthlyTimeline';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
+import { defaultJourneyThreadsRepository } from '@/features/journey-curator/api/journeyThreadsApi';
+import type { JourneyThreadSummary } from '@/features/journey-curator/api/journeyThreadsApi';
+import { defaultSavedResourcesRepository } from '@/features/saved-resources/api/savedResourcesApi';
+import type { SavedPlaceSummary } from '@/features/saved-resources/api/savedResourcesContract';
+import { defaultVisitReviewRepository } from '@/features/visit-review/api/visitReviewApi';
+import type { VisitReview } from '@/features/visit-review/api/visitReviewContract';
 
 export default function MyPage() {
   const router = useRouter();
@@ -46,6 +49,10 @@ export default function MyPage() {
   const hydrateSounds = useSorimaruAudioStore((s) => s.hydrateSavedStories);
   const removeSavedSound = useSorimaruAudioStore((s) => s.removeSavedStory);
 
+  const [journeyThreads, setJourneyThreads] = useState<JourneyThreadSummary[]>([]);
+  const [savedPlaces, setSavedPlaces] = useState<SavedPlaceSummary[]>([]);
+  const [myVisitReviews, setMyVisitReviews] = useState<VisitReview[]>([]);
+
   useEffect(() => {
     loadSavedJourneys();
   }, [loadSavedJourneys]);
@@ -65,11 +72,50 @@ export default function MyPage() {
   }, [isLoading, isLoggedIn, router]);
 
   useEffect(() => {
-    // TODO: fetch /api/warmth?filter=mine or call dedicated endpoint
     setMyWarmths(loadWarmth());
   }, []);
 
-  if (isLoading || !user) return null;
+  useEffect(() => {
+    const loadServerData = async () => {
+      try {
+        const [threads, places, reviews] = await Promise.all([
+          defaultJourneyThreadsRepository.listThreads({ limit: 10 }).then((r) => r.items),
+          defaultSavedResourcesRepository.listPlaces({ limit: 10 }).then((r) => r.items),
+          defaultVisitReviewRepository.listReviews({ scope: 'MY', limit: 10 }).then((r) => r.items),
+        ]);
+        setJourneyThreads(threads);
+        setSavedPlaces(places);
+        setMyVisitReviews(reviews);
+      } catch (err) {
+        console.warn('[MyPage] 서버 데이터 로드 실패:', err);
+      }
+    };
+    loadServerData();
+  }, []);
+
+  if (isLoading) return (
+    <div style={{ display: 'flex', justifyContent: 'center', padding: '64px 20px' }}>
+      <style>{`@keyframes mp-shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}.mp-skel{background:linear-gradient(90deg,#f0f0ee 25%,#e5e5e3 50%,#f0f0ee 75%);background-size:200% 100%;animation:mp-shimmer 1.6s ease-in-out infinite;border-radius:8px}[data-theme=dark] .mp-skel{background:linear-gradient(90deg,#2d2a26 25%,#3a3730 50%,#2d2a26 75%);background-size:200% 100%}`}</style>
+      <div style={{ width: '100%', maxWidth: '480px', display: 'flex', flexDirection: 'column', gap: '40px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
+          <div className="mp-skel" style={{ width: 64, height: 64, borderRadius: '50%' }} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', alignItems: 'center' }}>
+            <div className="mp-skel" style={{ width: 120, height: 14 }} />
+            <div className="mp-skel" style={{ width: 200, height: 22 }} />
+          </div>
+          <div className="mp-skel" style={{ width: 80, height: 36, borderRadius: 8 }} />
+        </div>
+        {[180, 120, 200].map((h, i) => (
+          <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div className="mp-skel" style={{ width: 100, height: 18 }} />
+            <div className="mp-skel" style={{ width: '100%', height: h, borderRadius: 12 }} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  if (!user) return null;
 
   const c = theme.colors;
 
@@ -241,7 +287,7 @@ export default function MyPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {savedSounds.map((sound) => (
                 <div
-                  key={sound.stid || sound.title}
+                  key={sound.storyId}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -277,10 +323,10 @@ export default function MyPage() {
                     <div style={{ fontSize: '13.5px', fontWeight: 700, color: c.text.primary, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {sound.title}
                     </div>
-                    {sound.locationName && (
+                    {sound.region.name && (
                       <div style={{ fontSize: '11.5px', color: c.text.muted, display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px' }}>
                         <MapPin size={10} />
-                        {sound.locationName}
+                        {sound.region.name}
                       </div>
                     )}
                   </div>
@@ -288,7 +334,7 @@ export default function MyPage() {
                     type="button"
                     aria-label={`${sound.title} 마음 담기 취소`}
                     onClick={() => {
-                      removeSavedSound(sound.stid);
+                      removeSavedSound(sound.storyId);
                       toast.success(`'${sound.title}' 소리를 목록에서 제거했어요.`);
                     }}
                     style={{
@@ -372,6 +418,135 @@ export default function MyPage() {
                     <X size={14} />
                   </button>
                 </Link>
+              ))}
+            </div>
+          )}
+        </Section>
+
+        {}
+        <Section title={`내 질문 기록 ${journeyThreads.length > 0 ? `(${journeyThreads.length})` : ''}`} theme={theme}>
+          {journeyThreads.length === 0 ? (
+            <EmptyState text="아직 질문 기록이 없어요." linkHref="/" linkText="홈에서 여정 만들기" theme={theme} />
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {journeyThreads.map((thread) => (
+                <div
+                  key={thread.threadId}
+                  style={{
+                    padding: '12px 14px',
+                    borderRadius: '12px',
+                    backgroundColor: c.bg.surface,
+                    cursor: 'pointer',
+                    transition: 'background-color 0.2s',
+                  }}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLDivElement).style.backgroundColor = c.bg.card)}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLDivElement).style.backgroundColor = c.bg.surface)}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                    <div style={{ fontSize: '13px', fontWeight: 600, color: c.text.primary, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {thread.title}
+                    </div>
+                    <span style={{ fontSize: '11px', fontWeight: 600, color: c.text.muted, marginLeft: '8px', flexShrink: 0 }}>
+                      {thread.turnCount}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '12px', color: c.text.muted, marginBottom: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {thread.lastQuery}
+                  </div>
+                  <div style={{ fontSize: '11px', color: c.text.muted }}>
+                    {formatRelativeTime(thread.updatedAt)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </Section>
+
+        {}
+        <Section title={`저장한 장소 ${savedPlaces.length > 0 ? `(${savedPlaces.length})` : ''}`} theme={theme}>
+          {savedPlaces.length === 0 ? (
+            <EmptyState text="아직 저장한 장소가 없어요." linkHref="/map" linkText="지도에서 장소 둘러보기" theme={theme} />
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {savedPlaces.map((place) => (
+                <div
+                  key={place.resourceId}
+                  style={{
+                    display: 'flex',
+                    gap: '10px',
+                    padding: '12px 14px',
+                    borderRadius: '12px',
+                    backgroundColor: c.bg.surface,
+                    cursor: 'pointer',
+                    transition: 'background-color 0.2s',
+                  }}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLDivElement).style.backgroundColor = c.bg.card)}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLDivElement).style.backgroundColor = c.bg.surface)}
+                >
+                  {place.thumbnailUrl ? (
+                    <img
+                      src={place.thumbnailUrl}
+                      alt=""
+                      style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'cover', flexShrink: 0 }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '8px',
+                        backgroundColor: c.bg.card,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <MapPin size={16} color={c.text.muted} />
+                    </div>
+                  )}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: '13px', fontWeight: 700, color: c.text.primary, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {place.name}
+                    </div>
+                    {place.regionName && (
+                      <div style={{ fontSize: '11.5px', color: c.text.muted, display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px' }}>
+                        <MapPin size={10} />
+                        {place.regionName}
+                      </div>
+                    )}
+                    {place.category && (
+                      <div style={{ fontSize: '11px', color: c.text.muted, marginTop: '2px' }}>
+                        {place.category}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </Section>
+
+        {}
+        <Section title={`내 방문후기 ${myVisitReviews.length > 0 ? `(${myVisitReviews.length})` : ''}`} theme={theme}>
+          {myVisitReviews.length === 0 ? (
+            <EmptyState text="아직 남긴 방문후기가 없어요." linkHref="/map" linkText="지도에서 후기 남기기" theme={theme} />
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {myVisitReviews.map((review) => (
+                <div key={review.id} style={{ padding: '14px', borderRadius: '12px', backgroundColor: c.bg.surface }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                    <span style={{ fontSize: '13px', fontWeight: 700, color: c.text.primary }}>{review.placeName}</span>
+                    <span style={{ fontSize: '11px', color: c.text.muted, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Heart size={11} fill={c.action.primary} color={c.action.primary} />
+                      {review.likeCount}
+                    </span>
+                  </div>
+                  <p style={{ margin: 0, fontSize: '13.5px', color: c.text.secondary, lineHeight: 1.5 }}>{review.text}</p>
+                  <div style={{ marginTop: '8px', fontSize: '11.5px', color: c.text.muted }}>
+                    {formatRelativeTime(review.createdAt)}
+                  </div>
+                </div>
               ))}
             </div>
           )}

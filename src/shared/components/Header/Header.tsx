@@ -293,6 +293,29 @@ const MobileTabNavWrap = styled('div', transientProps)<LandingProps>`
 `;
 
 
+const MobileStatusBlur = styled('div', transientProps)<LandingProps>`
+  display: none;
+
+  @media (max-width: 767px) {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: env(safe-area-inset-top);
+    z-index: 200;
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    background: ${({ $isLanding }) =>
+      $isLanding ? 'rgba(23, 21, 18, 0.5)' : 'rgba(250, 249, 246, 0.5)'};
+    pointer-events: none;
+
+    [data-theme='dark'] & {
+      background: rgba(23, 21, 18, 0.5);
+    }
+  }
+`;
+
 const MobileTopBar = styled('div', transientProps)<LandingProps>`
 
   display: none;
@@ -809,6 +832,8 @@ export default function Header() {
           />
         )}
       </AnimatePresence>
+
+      <MobileStatusBlur $isLanding={usesDarkSurface} aria-hidden="true" />
 
       <MobileTopBar $isLanding={usesDarkSurface}$isMapPage={isMapPage}>
         <LogoLink href="/" aria-label="온마루 홈으로 이동" onClick={resetJourney}>

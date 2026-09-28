@@ -24,7 +24,7 @@ const Overlay = styled(motion.div)`
 const LoaderCard = styled(motion.div)<{ $isCompleted?: boolean }>`
   width: 100%;
   max-width: 410px;
-  max-height: calc(100vh - 24px);
+  max-height: calc(100dvh - 24px);
   overflow-y: auto;
   background: #f8f8f7;
   border-radius: 20px;
@@ -147,6 +147,13 @@ export default function JourneyAssemblyLoader() {
   };
 
   const isVisible = hasStarted && !userDismissed;
+
+  useEffect(() => {
+    if (!isVisible) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, [isVisible]);
 
   return (
     <AnimatePresence>

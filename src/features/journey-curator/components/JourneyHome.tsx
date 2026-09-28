@@ -13,7 +13,7 @@ import JourneyAssemblyLoader from './JourneyAssemblyLoader';
 
 const MainWrapper = styled.main`
   position: relative;
-  min-height: 100vh;
+  min-height: 100dvh;
   overflow: hidden;
   background-color: #ffffff;
   transition: background-color 0.3s ease;

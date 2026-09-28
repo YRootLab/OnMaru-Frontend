@@ -2,12 +2,11 @@
 
 import { useEffect } from 'react';
 import { logger } from '@/lib/log';
-import { loadWarmth } from '@/features/map/warmth/warmthRepo';
 import { distanceInMeters } from './useKakaoMap';
+import { decodeHeatPayload } from '@/features/map/warmth/heatPresentation';
 import { useMapStore } from './useMapStore';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
-import { visitReviewsToWarmths } from '@/features/map/warmth/visitReviewWarmthAdapter';
-import { defaultVisitReviewRepository } from '@/features/visit-review/api/visitReviewApi';
+import { fetchWarmthData } from '@/features/map/services/warmth.service';
 import type { HeatDay, HeatSpot, Item, KakaoMap } from '@/features/map/types';
 
 const log = logger('map');
@@ -62,33 +61,7 @@ export function useMapData() {
   const level = useMapStore((s) => s.level);
 
   useEffect(() => {
-    useMapStore.getState().setWarmths(loadWarmth());
-  }, []);
-
-  useEffect(() => {
-    if (mode !== 'warmth') return;
-
-    let cancelled = false;
-    defaultVisitReviewRepository
-      .listReviews({ scope: 'ALL', limit: 50 })
-      .then((page) => {
-        if (cancelled) return;
-        const serverWarmths = visitReviewsToWarmths(page.items);
-        if (serverWarmths.length > 0) {
-          useMapStore.getState().setWarmths(loadWarmth(serverWarmths));
-        }
-      })
-      .catch((err) => {
-        log.warn('서버 온기 이야기 동기화 폴백 유지', err);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [mode, reloadNonce]);
-
-  useEffect(() => {
-    const { setItems, setLoading, setError, setWarmths } = useMapStore.getState();
+    const { setItems, setLoading, setError } = useMapStore.getState();
     if (!map) {
       return;
     }
@@ -98,55 +71,28 @@ export function useMapData() {
     const roundedLng = Math.round(searchCenter.lng * 100) / 100;
     const roundedRadius = Math.round(radius / 1000) * 1000;
     const cacheKey = `${roundedLat}_${roundedLng}_${roundedRadius}_${category || 'all'}`;
-    const heatCacheKey = `${roundedLat}_${roundedLng}_${level}`;
     const controller = new AbortController();
-    const warmthParams = new URLSearchParams({
-      lat: String(searchCenter.lat),
-      lng: String(searchCenter.lng),
-      level: String(level),
-      radius: String(Math.max(radius, level <= 5 ? 5000 : 15000)),
-    });
+    fetchWarmthData({
+      lat: searchCenter.lat,
+      lng: searchCenter.lng,
+      level,
+      radius: Math.max(radius, level <= 5 ? 5000 : 15000),
+      signal: controller.signal,
+    })
+      .then((res) => {
+        if (res.spots && res.spots.length > 0) {
+          useMapStore.getState().setHeatSpots(res.spots);
+          useMapStore.getState().setHeatDays(res.days);
+        }
+        if (res.noticeMessage) {
+          useMapStore.getState().setError(res.noticeMessage);
+        }
+      })
+      .catch((err) => {
+        if (err instanceof DOMException && err.name === 'AbortError') return;
+        log.warn('권역 히트스팟 패치 실패:', err);
+      });
 
-
-    const cachedHeat = clientHeatCache.get(heatCacheKey);
-    if (cachedHeat && cachedHeat.expiresAt > Date.now()) {
-      useMapStore.getState().setHeatSpots(cachedHeat.spots);
-      useMapStore.getState().setHeatDays(cachedHeat.days);
-    } else {
-      fetch(`/api/map/heat?${warmthParams}`, { signal: controller.signal })
-        .then(async (res) => {
-          const json = await res.json().catch(() => ({}));
-          if (Array.isArray(json.spots) && json.spots.length > 0) {
-            const days: HeatDay[] = Array.isArray(json.days) ? json.days : [];
-            clientHeatCache.set(heatCacheKey, {
-              expiresAt: Date.now() + CLIENT_CACHE_TTL,
-              spots: json.spots,
-              days,
-            });
-            useMapStore.getState().setHeatSpots(json.spots);
-            useMapStore.getState().setHeatDays(days);
-          }
-        })
-        .catch((err) => {
-          if (err instanceof DOMException && err.name === 'AbortError') return;
-          log.warn('권역 히트스팟 패치 실패:', err);
-        });
-    }
-
-    if (mode !== 'warmth') {
-      fetch(`/api/map/warmth?${warmthParams}`, { signal: controller.signal })
-        .then(async (res) => {
-          const json = await res.json().catch(() => ({}));
-          if (Array.isArray(json.warmths) && json.warmths.length > 0) {
-            const merged = loadWarmth(json.warmths);
-            setWarmths(merged);
-          }
-        })
-        .catch((err) => {
-          if (err instanceof DOMException && err.name === 'AbortError') return;
-          log.warn('온기 API 동기화 폴백 유지', err);
-        });
-    }
 
 
     const cached = clientPlaceCache.get(cacheKey);
@@ -216,10 +162,6 @@ export function useMapData() {
           setItems(nextItems);
         }
 
-
-        useSorimaruAudioStore
-          .getState()
-          .fetchRegionalSorimaruStories(searchCenter.lng, searchCenter.lat);
 
         if (!res.ok || json.error) {
           setError(typeof json.error === 'string' ? json.error : '장소를 불러오지 못했어요');

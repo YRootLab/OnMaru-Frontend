@@ -56,7 +56,7 @@ const SearchSubmitBtn = styled.button`
   transition: color 0.15s ease;
 
   &:hover {
-    color: ${lightPalette.cheongrok[500]};
+    color: ${lightPalette.kobalt[500]};
   }
 `;
 
@@ -180,8 +180,8 @@ const ResetAllBtn = styled.button`
   transition: all 0.15s ease;
 
   &:hover {
-    background: ${lightPalette.cheongrok[50]};
-    color: ${lightPalette.cheongrok[700]};
+    background: ${lightPalette.kobalt[50]};
+    color: ${lightPalette.kobalt[700]};
   }
 
   [data-theme='dark'] & {
@@ -234,8 +234,8 @@ const Suggestion = styled.button`
   transition: all 0.15s ease;
 
   &:hover {
-    background: rgba(40, 110, 95, 0.1);
-    color: ${lightPalette.cheongrok[700]};
+    background: rgba(74, 111, 160, 0.1);
+    color: ${lightPalette.kobalt[700]};
   }
 
   [data-theme='dark'] & {

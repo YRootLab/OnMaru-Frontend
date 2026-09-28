@@ -28,6 +28,7 @@ import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorima
 import { useCinematicTourStore } from '@/features/cinematic-tour/store/useCinematicTourStore';
 import { generateDynamicWaypoints } from '@/features/sorimaru-audio/hooks/useSorimaruPlaceStory';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
+import type { SorimaruStoryItem } from '@/features/sorimaru-audio/types/sorimaru.types';
 
 const CardContainer = styled.div`
   position: relative;
@@ -161,13 +162,14 @@ const StartBtn = styled.button`
 
 export default function SorimaruSpotlightBanner() {
   const availableStories = useSorimaruAudioStore((s) => s.availableStories);
+  const selectAndLoadStory = useSorimaruAudioStore((s) => s.selectAndLoadStory);
   const center = useMapStore((s) => s.center);
   const currentAddress = useMapStore((s) => s.currentAddress);
   const startTour = useCinematicTourStore((s) => s.startTour);
 
 
   const spotlightStory = React.useMemo(() => {
-    const validStories = availableStories.filter((s) => Boolean(s.audioUrl));
+    const validStories = availableStories;
     if (validStories.length === 0) return null;
 
 
@@ -176,7 +178,7 @@ export default function SorimaruSpotlightBanner() {
       const addrTokens = cleanAddr.split(/\s+/).filter((t) => t.length >= 2);
 
       const addrMatch = validStories.find((s) => {
-        const fullText = `${s.title} ${s.audioTitle || ''} ${s.locationName || ''} ${s.badgeText || ''}`;
+        const fullText = `${s.title} ${s.audioTitle || ''} ${s.region.name} ${s.contentTags.join(' ')}`;
         return addrTokens.some((token) => fullText.includes(token));
       });
       if (addrMatch) return addrMatch;
@@ -187,9 +189,9 @@ export default function SorimaruSpotlightBanner() {
     let minDistance = Infinity;
 
     for (const s of validStories) {
-      const sLat = parseFloat(s.mapY);
-      const sLng = parseFloat(s.mapX);
-      if (sLat && sLng) {
+      const sLat = s.coordinates?.lat;
+      const sLng = s.coordinates?.lng;
+      if (sLat !== undefined && sLng !== undefined) {
         const dLat = (sLat - center.lat) * 111;
         const dLng = (sLng - center.lng) * 88.8;
         const distKm = Math.sqrt(dLat * dLat + dLng * dLng);
@@ -231,11 +233,20 @@ export default function SorimaruSpotlightBanner() {
     );
   }
 
-  const handleStart = () => {
-    if (!spotlightStory.waypoints || spotlightStory.waypoints.length === 0) {
-      spotlightStory.waypoints = generateDynamicWaypoints(spotlightStory);
-    }
-    startTour(spotlightStory);
+  const handleStart = async () => {
+    const detail = await selectAndLoadStory(spotlightStory, 'play');
+    if (!detail) return;
+    const tourStory: SorimaruStoryItem = {
+      tid: detail.storyId, tlid: detail.storyId, stid: detail.storyId, stlid: detail.storyId,
+      title: detail.title, audioTitle: detail.audioTitle, category: detail.category,
+      mapX: detail.coordinates ? String(detail.coordinates.lng) : '',
+      mapY: detail.coordinates ? String(detail.coordinates.lat) : '',
+      script: detail.transcript.map((line) => line.text).join('\n'),
+      playTime: String(detail.durationSeconds), audioUrl: detail.audioUrl,
+      imageUrl: detail.imageUrl ?? '', locationName: detail.region.name,
+      tags: detail.contentTags, waypoints: generateDynamicWaypoints(detail),
+    };
+    startTour(tourStory);
   };
 
   return (
@@ -245,17 +256,17 @@ export default function SorimaruSpotlightBanner() {
         <Badge>
           <span>공간 오디오 투어</span>
         </Badge>
-        <DurationText>{spotlightStory.formattedDuration || '약 10분'}</DurationText>
+        <DurationText>{spotlightStory.durationSeconds ? `약 ${Math.ceil(spotlightStory.durationSeconds / 60)}분` : '약 10분'}</DurationText>
       </TopRow>
 
       <StoryTitle>{spotlightStory.audioTitle || spotlightStory.title}</StoryTitle>
-      <StoryExcerpt title={spotlightStory.script}>
-        {spotlightStory.script || '문화해설사의 음성 해설과 함께 지도를 따라 걷는 고택 산책'}
+      <StoryExcerpt title={spotlightStory.audioTitle}>
+        {spotlightStory.audioTitle || '문화해설사의 음성 해설과 함께 지도를 따라 걷는 고택 산책'}
       </StoryExcerpt>
 
       <ActionRow>
         <DocentTag>
-          <span>{spotlightStory.speaker ?? '문화해설사 도슨트'}</span>
+          <span>문화해설사 도슨트</span>
         </DocentTag>
 
         <StartBtn type="button" onClick={handleStart}>

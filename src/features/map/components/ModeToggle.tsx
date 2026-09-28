@@ -2,7 +2,7 @@
 
 import styled from '@emotion/styled';
 import { Landmark, Flame } from 'lucide-react';
-import { lightPalette, meok } from '@/design-system/tokens';
+import { lightPalette, meok, palette } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import type { MapMode } from '@/features/map/types';
 
@@ -103,7 +103,7 @@ const Tab = styled.button<{ $active: boolean; $compact?: boolean }>`
   }
 
   &:focus-visible {
-    outline: 2px solid ${lightPalette.cheongrok[500]};
+    outline: 2px solid ${lightPalette.juhong[500]};
     outline-offset: 2px;
   }
 `;
@@ -115,8 +115,8 @@ const IconWrap = styled.span<{ $mode: MapMode; $active: boolean; $compact?: bool
   color: ${({ $mode, $active }) =>
     $active
       ? $mode === 'warmth'
-        ? lightPalette.juhong[500]
-        : lightPalette.cheongrok[500]
+        ? palette.hwanggeum[500]
+        : palette.kobalt[500]
       : 'currentColor'};
   transform: ${({ $active }) => ($active ? 'scale(1.05)' : 'scale(0.95)')};
   transition:

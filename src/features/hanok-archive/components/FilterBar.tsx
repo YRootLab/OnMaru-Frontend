@@ -263,16 +263,7 @@ const BadgeCount = styled.span`
   opacity: 0.6;
 `;
 
-function getBadgeVariant(badge: string): 'cheongrok' | 'hwanggeum' | 'jaha' | 'juhong' {
-  if (badge.includes('스테이') || badge.includes('체험') || badge.includes('정원') || badge.includes('쉼')) {
-    return 'cheongrok';
-  }
-  if (badge.includes('국가') || badge.includes('유네스코') || badge.includes('보물') || badge.includes('명승')) {
-    return 'hwanggeum';
-  }
-  if (badge.includes('선비') || badge.includes('서원') || badge.includes('종택') || badge.includes('고택')) {
-    return 'jaha';
-  }
+function getBadgeVariant(_badge: string): 'juhong' {
   return 'juhong';
 }
 
@@ -503,7 +494,7 @@ export default function FilterBar({
         <BadgeContainer>
           <BadgeHeader>
             <Tag size={13} strokeWidth={2} color={palette.hwanggeum[700]} />
-            <span>특징 태그</span>
+            
           </BadgeHeader>
           <BadgeList>
             {allBadges.map((b) => {

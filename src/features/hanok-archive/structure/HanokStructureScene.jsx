@@ -197,7 +197,7 @@ function FramedCamera({ position, target, fov, near, far }) {
     if (camera && position && target) {
       camera.position.set(...position);
       camera.lookAt(target[0], target[1], target[2]);
-      // eslint-disable-next-line react-hooks/immutability
+       
       camera.near = near;
       camera.far = far;
       camera.fov = fov;

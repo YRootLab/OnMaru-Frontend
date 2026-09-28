@@ -14,7 +14,7 @@ function createVillageMeta(
   const byType: Record<string, number> = {};
   const badgeStats: Record<string, number> = {};
   let imageCount = 0;
-  let badgeFallbackCount = 0;
+  const badgeFallbackCount = 0;
 
   villages.forEach((v) => {
     byType[v.type] = (byType[v.type] || 0) + 1;

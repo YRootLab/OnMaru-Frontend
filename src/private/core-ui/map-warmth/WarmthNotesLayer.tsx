@@ -240,7 +240,7 @@ const styles = css`
 
   .om-inner-nav-btn:hover {
     background: rgba(25, 31, 40, 0.06);
-    color: ${lightPalette.juhong[500]};
+    color: ${lightPalette.hwanggeum[500]};
   }
 
   .om-inner-nav-btn.om-btn-prev {
@@ -257,7 +257,7 @@ const styles = css`
 
   [data-theme='dark'] .om-inner-nav-btn:hover {
     background: ${meok[700]};
-    color: ${darkPalette.juhong[400]};
+    color: ${darkPalette.hwanggeum[400]};
   }
 
   .om-note-page-indicator {
@@ -279,13 +279,13 @@ const styles = css`
   }
 
   .om-note-badge.mood-busy {
-    background: ${lightPalette.juhong[50]};
-    color: ${lightPalette.juhong[700]};
+    background: ${lightPalette.hwanggeum[50]};
+    color: ${lightPalette.hwanggeum[700]};
   }
 
   [data-theme='dark'] .om-note-badge.mood-busy {
-    background: ${darkPalette.juhong[900]};
-    color: ${darkPalette.juhong[100]};
+    background: ${darkPalette.hwanggeum[900]};
+    color: ${darkPalette.hwanggeum[100]};
   }
 
   .om-note-badge.mood-quiet {
@@ -335,7 +335,7 @@ const styles = css`
     padding: 2px 6px;
     font-size: ${fontSize.micro};
     font-weight: 700;
-    color: ${lightPalette.juhong[500]};
+    color: ${lightPalette.hwanggeum[500]};
     cursor: pointer;
     border-radius: 6px;
     display: inline-flex;
@@ -345,16 +345,16 @@ const styles = css`
   }
 
   .om-note-hint-btn:hover {
-    background: ${lightPalette.juhong[50]};
-    color: ${lightPalette.juhong[700]};
+    background: ${lightPalette.hwanggeum[50]};
+    color: ${lightPalette.hwanggeum[700]};
   }
 
   [data-theme='dark'] .om-note-hint-btn {
-    color: ${darkPalette.juhong[400]};
+    color: ${darkPalette.hwanggeum[400]};
   }
 
   [data-theme='dark'] .om-note-hint-btn:hover {
-    background: ${darkPalette.juhong[900]};
+    background: ${darkPalette.hwanggeum[900]};
   }
 `;
 

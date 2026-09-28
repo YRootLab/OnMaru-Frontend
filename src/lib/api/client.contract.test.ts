@@ -105,4 +105,93 @@ describe('api contract foundation', () => {
     const csrfCall = fetcher.mock.calls.find(([input]) => String(input).includes('/auth/csrf'));
     expect(csrfCall?.[0]).toBe('https://api.onmaru.test/auth/csrf');
   });
+
+  describe('API Outage Policy (API 장애 상태 정책)', () => {
+    it('classifies 503 with x-render-routing: hibernate-wake-error header as SERVER_WAKING', () => {
+      const error = normalizeApiError(
+        503,
+        undefined,
+        { 'x-render-routing': 'hibernate-wake-error' },
+        ''
+      );
+      expect(error.classification).toBe('SERVER_WAKING');
+      expect(error.code).toBe('SERVER_WAKING');
+      expect(error.message).toBe('서비스를 준비하고 있어요. 첫 요청은 최대 30초 정도 걸릴 수 있습니다.');
+      expect(error.isWaking).toBe(true);
+    });
+
+    it('classifies 503 with empty body fallback as SERVER_WAKING', () => {
+      const error = normalizeApiError(503, undefined, {}, '');
+      expect(error.classification).toBe('SERVER_WAKING');
+      expect(error.code).toBe('SERVER_WAKING');
+      expect(error.message).toBe('서비스를 준비하고 있어요. 첫 요청은 최대 30초 정도 걸릴 수 있습니다.');
+      expect(error.isWaking).toBe(true);
+    });
+
+    it('classifies 503 with valid JSON and no wake header as SERVICE_UNAVAILABLE', () => {
+      const error = normalizeApiError(
+        503,
+        { code: 'SERVICE_UNAVAILABLE', message: '서비스를 일시적으로 사용할 수 없습니다.' },
+        {},
+        '{"code":"SERVICE_UNAVAILABLE"}'
+      );
+      expect(error.classification).toBe('SERVICE_UNAVAILABLE');
+      expect(error.code).toBe('SERVICE_UNAVAILABLE');
+      expect(error.message).toBe('서비스를 일시적으로 사용할 수 없습니다.');
+      expect(error.isWaking).toBe(false);
+    });
+
+    it('classifies 500 as SERVER_ERROR with default user message when body has no message', () => {
+      const error = normalizeApiError(500, { requestId: 'req-err-500' }, {}, '{"requestId":"req-err-500"}');
+      expect(error.classification).toBe('SERVER_ERROR');
+      expect(error.message).toBe('데이터를 불러오는 중 문제가 발생했어요.');
+      expect(error.requestId).toBe('req-err-500');
+    });
+
+    it('classifies 429 as RATE_LIMITED', () => {
+      const error = normalizeApiError(429, { message: 'Too many requests' });
+      expect(error.classification).toBe('RATE_LIMITED');
+      expect(error.code).toBe('RATE_LIMITED');
+    });
+
+    it('retries SERVICE_UNAVAILABLE up to 2 times (3 total attempts) before throwing', async () => {
+      let attempts = 0;
+      const fetcher = vi.fn(async () => {
+        attempts++;
+        return new Response(JSON.stringify({ code: 'SERVICE_UNAVAILABLE', message: '서비스 연결이 원활하지 않아요.' }), {
+          status: 503,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      });
+
+      resetApiClientForTests({ baseUrl: 'https://api.onmaru.test', fetcher: fetcher as unknown as typeof fetch });
+
+      await expect(apiRequest('/stories', { retry: { maxRetries: 2 } })).rejects.toMatchObject({
+        classification: 'SERVICE_UNAVAILABLE',
+        status: 503,
+      });
+
+      expect(fetcher).toHaveBeenCalledTimes(3);
+    });
+
+    it('retries SERVER_ERROR up to 1 time (2 total attempts) before throwing', async () => {
+      const fetcher = vi.fn(async () => {
+        return new Response(JSON.stringify({ requestId: 'req-500' }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      });
+
+      resetApiClientForTests({ baseUrl: 'https://api.onmaru.test', fetcher: fetcher as unknown as typeof fetch });
+
+      await expect(apiRequest('/stories', { retry: { maxRetries: 1 } })).rejects.toMatchObject({
+        classification: 'SERVER_ERROR',
+        status: 500,
+        requestId: 'req-500',
+      });
+
+      expect(fetcher).toHaveBeenCalledTimes(2);
+    });
+  });
 });
+
