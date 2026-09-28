@@ -37,12 +37,12 @@ export function HeadphonesFilledEars({
       <path
         d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5z"
         fill="currentColor"
-        fillOpacity={0.35}
+        fillOpacity={0.6}
       />
       <path
         d="M18 14h3v5a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2z"
         fill="currentColor"
-        fillOpacity={0.35}
+        fillOpacity={0.6}
       />
     </svg>
   );
@@ -148,7 +148,7 @@ export default function GlobalMobileTabs({ isLanding }: { isLanding: boolean }) 
                 <Icon
                   size={19}
                   fill={isSelected ? 'currentColor' : 'none'}
-                  fillOpacity={isSelected ? 0.35 : 1}
+                  fillOpacity={isSelected ? 0.6 : undefined}
                   strokeWidth={isSelected ? 1.5 : 2}
                   aria-hidden="true"
                 />

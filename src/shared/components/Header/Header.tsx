@@ -900,7 +900,7 @@ export default function Header() {
                     <Icon
                       size={13}
                       fill={isSelected ? 'currentColor' : 'none'}
-                      fillOpacity={isSelected ? 0.35 : 1}
+                      fillOpacity={isSelected ? 0.6 : undefined}
                       strokeWidth={isSelected ? 1.5 : 2}
                       style={{ marginRight: 5, verticalAlign: '-1px' }}
                     />
