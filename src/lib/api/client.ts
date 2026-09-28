@@ -5,11 +5,12 @@
 import { ApiError } from '@/features/admin/types';
 import { createCsrfTokenProvider } from './csrf';
 import { isOnmaruApiError, normalizeApiError } from './errors';
+import { API_RETRY_POLICIES, delay } from './retryPolicy';
 
 const DEFAULT_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || '';
 export const USE_MOCK = !DEFAULT_BASE;
 
-const TIMEOUT_MS = 10000;
+const DEFAULT_TIMEOUT_MS = 45000;
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
@@ -22,8 +23,10 @@ export type ApiRequestOptions = {
   signal?: AbortSignal;
   cache?: RequestCache;
   headers?: Record<string, string>;
-
   rootPath?: boolean;
+  retry?: boolean | { maxRetries?: number };
+  onWaking?: (attempt: number, delayMs: number) => void;
+  timeoutMs?: number;
 };
 
 type ApiClientConfig = {
@@ -181,10 +184,8 @@ async function request<T>(
 ): Promise<T> {
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
 
-
   if (!apiClientConfig.baseUrl) {
     await mockDelay();
-
 
     const handlerKey = `${method} ${normalizedPath.split('?')[0]}`;
     const handler = mockHandlers.get(handlerKey) || mockHandlers.get(normalizedPath.split('?')[0]);
@@ -192,81 +193,10 @@ async function request<T>(
       return handler(params, body);
     }
 
-
     return { success: true, message: 'Mock response', path: normalizedPath } as unknown as T;
   }
 
-
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
-
-  const url = buildUrl(normalizedPath, params);
-
-  const token = getAccessToken();
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  };
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-
-  try {
-    const response = await apiClientConfig.fetcher(url, {
-      method,
-      headers,
-      body: body !== undefined ? JSON.stringify(body) : undefined,
-      credentials: 'include',
-      signal: controller.signal,
-    });
-
-    clearTimeout(timeoutId);
-
-    if (response.status === 401) {
-      await handleUnauthorized();
-      throw {
-        message: '인증이 만료되었습니다. 다시 로그인해 주세요.',
-        status: 401,
-      } as ApiError;
-    }
-
-    if (!response.ok) {
-      let errorMessage = `HTTP Error ${response.status}`;
-      try {
-        const errorJson = await response.json();
-        errorMessage = errorJson.message || errorMessage;
-      } catch {
-
-      }
-      throw {
-        message: errorMessage,
-        status: response.status,
-      } as ApiError;
-    }
-
-    if (response.status === 204) {
-      return undefined as unknown as T;
-    }
-
-    return await response.json();
-  } catch (error: any) {
-    clearTimeout(timeoutId);
-
-    if (error.name === 'AbortError') {
-      throw {
-        message: '요청 시간이 초과되었습니다 (10초). 잠시 후 다시 시도해 주세요.',
-        status: 408,
-      } as ApiError;
-    }
-
-    if (error.status && error.message) {
-      throw error;
-    }
-
-    throw {
-      message: error.message || '네트워크 오류가 발생했습니다.',
-      status: 500,
-    } as ApiError;
-  }
+  return apiRequest<T>(normalizedPath, { method, params, body });
 }
 
 export async function apiRequest<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
@@ -276,60 +206,106 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
     return request<T>(method, path, options.params, options.body);
   }
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
-  const signal = options.signal ?? controller.signal;
+  const allowRetry = options.retry !== false;
+  let attempt = 0;
+  const startedAt = Date.now();
 
-  const headers: Record<string, string> = {
-    Accept: 'application/json',
-    ...options.headers,
-  };
-  if (options.body !== undefined) {
-    headers['Content-Type'] = 'application/json';
-  }
-  if (options.idempotencyKey) {
-    headers['Idempotency-Key'] = options.idempotencyKey;
-  }
-  if (options.csrf) {
-    const csrf = await csrfProvider.getToken();
-    headers[csrf.headerName] = csrf.token;
-  }
+  while (true) {
+    attempt++;
+    const controller = new AbortController();
+    const requestTimeout = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+    const timeoutId = setTimeout(() => controller.abort(), requestTimeout);
+    const signal = options.signal ?? controller.signal;
 
-  try {
-    const response = await apiClientConfig.fetcher(buildUrl(path, options.params, options.rootPath), {
-      method,
-      credentials: 'include',
-      headers,
-      body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
-      signal,
-      cache: options.cache,
-    });
-
-    clearTimeout(timeoutId);
-
-    if (response.status === 204) {
-      return undefined as T;
+    const headers: Record<string, string> = {
+      Accept: 'application/json',
+      ...options.headers,
+    };
+    if (options.body !== undefined) {
+      headers['Content-Type'] = 'application/json';
+    }
+    if (options.idempotencyKey) {
+      headers['Idempotency-Key'] = options.idempotencyKey;
+    }
+    if (options.csrf) {
+      const csrf = await csrfProvider.getToken();
+      headers[csrf.headerName] = csrf.token;
     }
 
-    const text = await response.text();
-    const payload = text ? JSON.parse(text) : undefined;
+    try {
+      const response = await apiClientConfig.fetcher(buildUrl(path, options.params, options.rootPath), {
+        method,
+        credentials: 'include',
+        headers,
+        body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+        signal,
+        cache: options.cache,
+      });
 
-    if (!response.ok) {
-      const error = normalizeApiError(response.status, payload);
-      if (error.code === 'CSRF_INVALID' && options.csrf) {
-        csrfProvider.reset();
+      clearTimeout(timeoutId);
+
+      if (response.status === 204) {
+        return undefined as T;
       }
-      throw error;
-    }
 
-    return payload as T;
-  } catch (error: any) {
-    clearTimeout(timeoutId);
-    if (isOnmaruApiError(error)) throw error;
-    if (error.name === 'AbortError') {
-      throw normalizeApiError(408, { code: 'REQUEST_TIMEOUT', message: '요청 시간이 초과되었습니다.', details: {} });
+      const text = await response.text();
+      let payload: unknown;
+      if (text) {
+        try {
+          payload = JSON.parse(text);
+        } catch {
+          payload = undefined;
+        }
+      }
+
+      if (!response.ok) {
+        const error = normalizeApiError(response.status, payload, response.headers, text);
+        if (error.code === 'CSRF_INVALID' && options.csrf) {
+          csrfProvider.reset();
+        }
+
+        const policy = API_RETRY_POLICIES[error.classification];
+        const maxRetries =
+          typeof options.retry === 'object' && typeof options.retry.maxRetries === 'number'
+            ? options.retry.maxRetries
+            : policy.maxRetries;
+
+        const totalElapsed = Date.now() - startedAt;
+        const canRetry = allowRetry && attempt <= maxRetries && totalElapsed < policy.maxTotalDurationMs;
+
+        if (canRetry) {
+          const delayMs = policy.getDelayMs(attempt, error);
+          if (error.classification === 'SERVER_WAKING' && options.onWaking) {
+            options.onWaking(attempt, delayMs);
+          }
+          await delay(delayMs, options.signal);
+          continue;
+        }
+
+        throw error;
+      }
+
+      return payload as T;
+    } catch (error: any) {
+      clearTimeout(timeoutId);
+
+      if (isOnmaruApiError(error)) throw error;
+
+      if (error.name === 'AbortError') {
+        throw normalizeApiError(408, { code: 'REQUEST_TIMEOUT', message: '요청 시간이 초과되었습니다.', details: {} });
+      }
+
+      const netError = normalizeApiError(500, { code: 'NETWORK_ERROR', message: error.message || '네트워크 오류가 발생했습니다.' });
+      const policy = API_RETRY_POLICIES.SERVER_ERROR;
+      const canRetry = allowRetry && attempt <= policy.maxRetries;
+
+      if (canRetry) {
+        await delay(policy.getDelayMs(attempt, netError), options.signal);
+        continue;
+      }
+
+      throw netError;
     }
-    throw normalizeApiError(500, { code: 'NETWORK_ERROR', message: error.message || '네트워크 오류가 발생했습니다.' });
   }
 }
 
