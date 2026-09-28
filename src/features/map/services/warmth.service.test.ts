@@ -266,7 +266,7 @@ describe('Warmth Service & Fallback (FE #92 / Spec)', () => {
     expect(districts).toContain('제주도 서귀포시');
   });
 
-  it('7. coverageStatus가 PARTIAL/MISSING인 경우: 500 오류로 처리하지 않고 안내 상태 표시', async () => {
+  it('7. MISSING coverage는 viewport fallback을 시도하고 fallback도 비면 안내 상태를 표시', async () => {
     const repository: MapInsightsRepository = {
       getHeatmap: vi.fn().mockResolvedValue({
         schemaVersion: '1.2',
@@ -279,12 +279,20 @@ describe('Warmth Service & Fallback (FE #92 / Spec)', () => {
       getObservations: vi.fn(),
     };
 
+    const fallbackFetcher = vi.fn().mockResolvedValue({
+      source: 'TOUR_API_FALLBACK',
+      coverageStatus: 'PARTIAL',
+      spots: [],
+      days: [],
+    });
+
     const result = await fetchWarmthData(
       { date: '2026-09-28', regionCode: 'kr-99-unknown' },
-      { repository, delayFn: mockDelayImmediate },
+      { repository, fallbackFetcher, delayFn: mockDelayImmediate },
     );
 
     expect(result.source).toBe('SPRING');
+    expect(fallbackFetcher).toHaveBeenCalledTimes(1);
     expect(result.coverageStatus).toBe('MISSING');
     expect(result.noticeMessage).toBe('현재 선택한 지역의 온기 데이터가 준비되지 않았어요.');
     expect(result.spots).toEqual([]);

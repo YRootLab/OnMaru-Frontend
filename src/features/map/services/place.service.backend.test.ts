@@ -46,6 +46,7 @@ describe('PlaceService.getNearbyPlaces backend-first (FE #90)', () => {
 
     expect(apiGetMock).toHaveBeenCalledWith('/map/places', expect.objectContaining({
       bbox: expect.stringMatching(/^-?\d+\.?\d*,-?\d+\.?\d*,-?\d+\.?\d*,-?\d+\.?\d*$/),
+      limit: 1000,
     }));
     expect(items).toHaveLength(1);
     expect(items[0]).toMatchObject({ id: 'p-1', name: '전주 한옥마을', category: 'spot', isTraditional: true });

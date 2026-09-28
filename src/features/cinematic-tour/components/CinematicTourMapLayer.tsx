@@ -124,6 +124,7 @@ export default function CinematicTourMapLayer() {
   const isDark = colorMode === 'dark';
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioUrlRef = useRef<string | null>(null);
   const polylineRef = useRef<any>(null);
   const auraPolylineRef = useRef<any>(null);
   const overlaysRef = useRef<any[]>([]);
@@ -135,13 +136,17 @@ export default function CinematicTourMapLayer() {
         audioRef.current.pause();
         audioRef.current = null;
       }
+      audioUrlRef.current = null;
       return;
     }
 
-    if (!audioRef.current || audioRef.current.src !== story.audioUrl) {
+    if (!audioRef.current || audioUrlRef.current !== story.audioUrl) {
+      audioRef.current?.pause();
       const audio = new Audio(story.audioUrl);
+      audio.preload = 'metadata';
       audio.currentTime = currentTime;
       audioRef.current = audio;
+      audioUrlRef.current = story.audioUrl;
 
       const syncAudioDuration = () => {
         if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration) && audio.duration > 0) {
@@ -161,6 +166,10 @@ export default function CinematicTourMapLayer() {
       };
 
       audio.onended = () => {
+        setIsPlaying(false);
+      };
+      audio.onerror = () => {
+        // A bad/expired CDN URL must not leave the tour looking “playing”.
         setIsPlaying(false);
       };
     }

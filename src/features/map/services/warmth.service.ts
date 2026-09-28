@@ -171,7 +171,22 @@ async function executeWarmthFetchFlow(
       const coverageStatus = response.coverageStatus || 'COMPLETE';
 
       if (coverageStatus === 'MISSING') {
-        log.log('[warmthService] Spring returned MISSING coverageStatus');
+        // MISSING is a valid 200 response, not a transport success. The
+        // legacy viewport/DataLab path can still provide useful nationwide
+        // coverage while the Spring revision is being populated.
+        log.log('[warmthService] Spring returned MISSING coverageStatus; trying viewport fallback');
+        try {
+          const fallback = await fallbackFetcher({
+            lat: params.lat,
+            lng: params.lng,
+            level: params.level,
+            radius: params.radius,
+            signal: params.signal,
+          });
+          if (fallback.spots.length > 0) return fallback;
+        } catch (fallbackError) {
+          log.warn('[warmthService] MISSING coverage fallback failed:', fallbackError);
+        }
         return {
           source: 'SPRING',
           coverageStatus: 'MISSING',
