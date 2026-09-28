@@ -6,6 +6,7 @@ import { distanceInMeters } from './useKakaoMap';
 import { decodeHeatPayload } from '@/features/map/warmth/heatPresentation';
 import { useMapStore } from './useMapStore';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
+import { fetchWarmthData } from '@/features/map/services/warmth.service';
 import type { HeatDay, HeatSpot, Item, KakaoMap } from '@/features/map/types';
 
 const log = logger('map');
@@ -70,40 +71,27 @@ export function useMapData() {
     const roundedLng = Math.round(searchCenter.lng * 100) / 100;
     const roundedRadius = Math.round(radius / 1000) * 1000;
     const cacheKey = `${roundedLat}_${roundedLng}_${roundedRadius}_${category || 'all'}`;
-    const heatCacheKey = `${roundedLat}_${roundedLng}_${level}`;
     const controller = new AbortController();
-    const warmthParams = new URLSearchParams({
-      lat: String(searchCenter.lat),
-      lng: String(searchCenter.lng),
-      level: String(level),
-      radius: String(Math.max(radius, level <= 5 ? 5000 : 15000)),
-    });
-
-
-    const cachedHeat = clientHeatCache.get(heatCacheKey);
-    if (cachedHeat && cachedHeat.expiresAt > Date.now()) {
-      useMapStore.getState().setHeatSpots(cachedHeat.spots);
-      useMapStore.getState().setHeatDays(cachedHeat.days);
-    } else {
-      fetch(`/api/map/heat?${warmthParams}`, { signal: controller.signal })
-        .then(async (res) => {
-          const json = await res.json().catch(() => ({}));
-          const heat = res.ok ? decodeHeatPayload(json) : null;
-          if (heat) {
-            clientHeatCache.set(heatCacheKey, {
-              expiresAt: Date.now() + CLIENT_CACHE_TTL,
-              spots: heat.spots,
-              days: heat.days,
-            });
-            useMapStore.getState().setHeatSpots(heat.spots);
-            useMapStore.getState().setHeatDays(heat.days);
-          }
-        })
-        .catch((err) => {
-          if (err instanceof DOMException && err.name === 'AbortError') return;
-          log.warn('권역 히트스팟 패치 실패:', err);
-        });
-    }
+    fetchWarmthData({
+      lat: searchCenter.lat,
+      lng: searchCenter.lng,
+      level,
+      radius: Math.max(radius, level <= 5 ? 5000 : 15000),
+      signal: controller.signal,
+    })
+      .then((res) => {
+        if (res.spots && res.spots.length > 0) {
+          useMapStore.getState().setHeatSpots(res.spots);
+          useMapStore.getState().setHeatDays(res.days);
+        }
+        if (res.noticeMessage) {
+          useMapStore.getState().setError(res.noticeMessage);
+        }
+      })
+      .catch((err) => {
+        if (err instanceof DOMException && err.name === 'AbortError') return;
+        log.warn('권역 히트스팟 패치 실패:', err);
+      });
 
 
 

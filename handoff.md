@@ -1,7 +1,9 @@
 # handoff.md
 
 ## Current Work
-
+- 2026-09-28 지도 온기모드 Spring API 전환 및 관광공사 Fallback 구현 완료: 온기모드 진입 시 Spring API(GET /api/v1/insights/heatmap, observations)를 우선 호출하며, 503 SERVER_WAKING/SERVICE_UNAVAILABLE 및 timeout 시 1차 3초, 2차 7초 간격으로 최대 2회 자동 재시도한다. 2회 재시도 실패 시 기존 관광공사/DataLab Next.js 서버 라우트(/api/map/heat) fallback으로 전환한다. 기존 HeatSpot UI 변환 어댑터, 60초 메모리 캐시 및 in-flight deduplication, 전국 지역 응답 데이터 표시를 보장한다. 검증: 전체 Vitest 91파일/352건 테스트 및 tsc --noEmit pass.
+- 2026-09-28 Issue #224 소리마루 요청 구조 수정 완료: 목록·상세 타입을 분리하고 모든 목록을 cursor 기반 `limit=20` 단일 요청으로 통일했다. 목록 카드 렌더링 중 상세 fan-out은 없으며 상세는 사용자 선택 시 storyId별 1회만 조회하고 동일 요청을 공유한다. 최초 목록은 같은 조건의 hero/archive/위치 없는 nearby에서 재사용하고, 두 번째 무한 레일은 이미 받은 summary만 로컬 순환한다. 지역 지도는 실제 region group/code/cursor만 사용하고 선택 지역별 최초 목록 1회 후 명시적 스크롤·휠·터치에서만 다음 cursor를 읽는다. 오류는 empty로 숨기지 않으며 기존 UI·문구·애니메이션을 유지했다. 최신 `origin/develop` 병합 후 검증: 전체 Vitest 91파일·344건, `tsc --noEmit`, ESLint, production build 통과.
+- 2026-09-28 한옥 첫 섹션의 fallback을 `GET /api/v1/hanoks?hasImage=true&limit=13` summary로 교체하고 13개를 로컬 무한 순환하는 후속 작업은 Issue #230으로 분리했다. backend 목록 `placeId`와 상세 endpoint의 404 계약을 먼저 확인하며 이번 소리마루 PR에는 포함하지 않는다.
 - 2026-09-27 hotfix 추가: `OnMaru-Frontend` Repository Secret의 `NEXT_PUBLIC_API_BASE_URL`을 확인했고, `npm run build` 또는 `vercel build`를 수행하는 GitHub Actions workflow에 공통 환경변수로 연결했다. 값은 Spring backend base URL이며 API 클라이언트가 `/api/v1`을 덧붙인다.
 - 2026-09-27 release/0.1.2: PR #219의 CI에서 API 환경변수 없이 빌드할 때 공용 클라이언트의 generic mock 응답이 수결첩 카탈로그로 전달돼 `/stamps` prerender가 실패하는 문제를 수정했다. `stampHttpRepository`에서 API 1.3 카탈로그를 검증하고 잘못된 응답을 거부한다. 회귀 테스트와 `.env.local` 없는 production build가 통과했다. 관련 릴리즈 추적 Issue는 #218이며, 백엔드 stamp endpoint 배포 후 실제 API smoke test는 여전히 필요하다.
 - 2026-09-27: Issue #262 한옥 수결첩 FE를 API 계약 `1.3`에 연결했다. 공개 카탈로그·개인 수결첩·위치 기반 체크인·익명 공개 랭킹·내 참여 상태·참여/철회 여섯 API를 `domain/application/infrastructure/presentation` 경계로 분리했다. `onmaru_hanok_stamps_v1`의 demo 판정과 Zustand persist를 제거했고, 개인 수결첩 조회 성공 뒤에만 legacy key를 삭제한다. 랭킹은 서버 생성 `GENERATED` 별명만 표시하며 사용자 닉네임 입력과 하드코딩 칭호를 제공하지 않는다. 위치 payload와 익명 랭킹 식별자는 저장·로그·analytics에 전달하지 않는다.

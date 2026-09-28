@@ -227,11 +227,6 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
     if (options.idempotencyKey) {
       headers['Idempotency-Key'] = options.idempotencyKey;
     }
-    if (options.csrf) {
-      const csrf = await csrfProvider.getToken();
-      headers[csrf.headerName] = csrf.token;
-    }
-
     try {
       const response = await apiClientConfig.fetcher(buildUrl(path, options.params, options.rootPath), {
         method,
@@ -254,7 +249,7 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
         try {
           payload = JSON.parse(text);
         } catch {
-          payload = undefined;
+          payload = text;
         }
       }
 
