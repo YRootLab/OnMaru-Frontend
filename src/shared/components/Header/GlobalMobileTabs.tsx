@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import styled from '@emotion/styled';
@@ -8,6 +9,44 @@ import { transientProps } from '@/design-system/styled';
 import { lightPalette, fontSize } from '@/design-system/tokens';
 import { useJourneyStore } from '@/features/journey-curator/store/useJourneyStore';
 import { useAuth } from '@/features/auth';
+
+export function HeadphonesFilledEars({
+  size,
+  strokeWidth: sw = 1.5,
+  style,
+}: {
+  size: number;
+  strokeWidth?: number;
+  style?: React.CSSProperties;
+}) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={sw}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={style}
+      aria-hidden="true"
+    >
+      <path d="M3 14v-2a9 9 0 0 1 18 0v2" />
+      <path
+        d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5z"
+        fill="currentColor"
+        fillOpacity={0.35}
+      />
+      <path
+        d="M18 14h3v5a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2z"
+        fill="currentColor"
+        fillOpacity={0.35}
+      />
+    </svg>
+  );
+}
 
 interface TabProps {
   $isLanding?: boolean;
@@ -103,13 +142,17 @@ export default function GlobalMobileTabs({ isLanding }: { isLanding: boolean }) 
             onClick={tab.href === '/' ? resetJourney : undefined}
           >
             <span style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-              <Icon
-                size={19}
-                fill={isSelected ? 'currentColor' : 'none'}
-                fillOpacity={isSelected ? 0.35 : 1}
-                strokeWidth={isSelected ? 1.5 : 2}
-                aria-hidden="true"
-              />
+              {tab.icon === Headphones && isSelected ? (
+                <HeadphonesFilledEars size={19} strokeWidth={1.5} />
+              ) : (
+                <Icon
+                  size={19}
+                  fill={isSelected ? 'currentColor' : 'none'}
+                  fillOpacity={isSelected ? 0.35 : 1}
+                  strokeWidth={isSelected ? 1.5 : 2}
+                  aria-hidden="true"
+                />
+              )}
               <span>{tab.label}</span>
             </span>
           </TabLink>
