@@ -1,12 +1,9 @@
 import { NextResponse } from 'next/server';
-import { HanokArchiveService } from '@/features/hanok-archive/services/hanokArchive.service';
+import { fetchBackendHanoksAsArchive } from '@/features/hanok-archive/infrastructure/backendHanokSource';
 
-
-
-
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const data = await HanokArchiveService.fetchRealtimeHanoks(request.signal);
+    const data = await fetchBackendHanoksAsArchive();
     return NextResponse.json(data);
   } catch (error: unknown) {
     return NextResponse.json(

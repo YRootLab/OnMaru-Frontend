@@ -7,7 +7,7 @@ import { createCsrfTokenProvider } from './csrf';
 import { isOnmaruApiError, normalizeApiError } from './errors';
 import { API_RETRY_POLICIES, delay } from './retryPolicy';
 
-const DEFAULT_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? process.env.NEXT_PUBLIC_API_URL ?? '';
+const DEFAULT_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || '';
 export const USE_MOCK = !DEFAULT_BASE;
 
 const DEFAULT_TIMEOUT_MS = 45000;

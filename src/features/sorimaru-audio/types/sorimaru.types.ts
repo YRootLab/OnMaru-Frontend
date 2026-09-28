@@ -37,14 +37,14 @@ export interface SorimaruStoryItem {
 }
 
 
-export interface SorimaruStoryPage {
-  items: SorimaruStoryItem[];
-  pageNo: number;
-  numOfRows: number;
-  totalCount: number;
-  source: 'api' | 'mock';
-}
-
+export type {
+  SorimaruStorySummary,
+  SorimaruStoryDetail,
+  SorimaruStoryPage,
+  SorimaruRegionGroup,
+  SorimaruRegionGroups,
+  SorimaruListQuery,
+} from '../domain/sorimaruStory';
 
 export interface ScriptLine {
   id: number;
@@ -75,15 +75,3 @@ export type SorimaruRegion =
   | '제주'
   | '부산'
   | '대구';
-
-
-export interface ISorimaruApiService {
-  getStoryList(category?: SorimaruCategory | string, query?: string): Promise<SorimaruStoryItem[]>;
-  getNearbyStories(mapX?: string | number, mapY?: string | number, radius?: number): Promise<SorimaruStoryItem[]>;
-  getStoryPage(
-    category?: SorimaruCategory | string,
-    query?: string,
-    pageNo?: number,
-    numOfRows?: number
-  ): Promise<SorimaruStoryPage>;
-}

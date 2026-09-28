@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { SorimaruStoryItem, TourWaypoint } from '@/features/sorimaru-audio/types/sorimaru.types';
-import { sorimaruApiAdapter } from '@/features/sorimaru-audio/api/sorimaruApi';
+import { useMemo } from 'react';
+import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
+import type { TourWaypoint } from '@/features/sorimaru-audio/types/sorimaru.types';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 
 
@@ -9,8 +9,8 @@ import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorima
 
 export function matchSorimaruStory(
   place: { name?: string; addr?: string; lat?: number; lng?: number },
-  stories: SorimaruStoryItem[],
-): SorimaruStoryItem | null {
+  stories: SorimaruStorySummary[],
+): SorimaruStorySummary | null {
   if (!place.name || !stories || stories.length === 0) return null;
 
 
@@ -25,7 +25,6 @@ export function matchSorimaruStory(
 
 
   for (const story of stories) {
-    if (!story.audioUrl) continue;
     const cleanStoryTitle = story.title.replace(/[\s\-_]/g, '').toLowerCase();
     const cleanAudioTitle = (story.audioTitle || '').replace(/[\s\-_]/g, '').toLowerCase();
 
@@ -42,10 +41,9 @@ export function matchSorimaruStory(
 
   if (place.lat !== undefined && place.lng !== undefined) {
     for (const story of stories) {
-      if (!story.audioUrl) continue;
-      const sLat = parseFloat(story.mapY);
-      const sLng = parseFloat(story.mapX);
-      if (!sLat || !sLng) continue;
+      const sLat = story.coordinates?.lat;
+      const sLng = story.coordinates?.lng;
+      if (sLat === undefined || sLng === undefined) continue;
 
       const dLat = Math.abs(sLat - place.lat);
       const dLng = Math.abs(sLng - place.lng);
@@ -66,21 +64,12 @@ export function matchSorimaruStory(
 
 
 
-export function generateDynamicWaypoints(story: SorimaruStoryItem): TourWaypoint[] {
-  if (story.waypoints && story.waypoints.length > 0) {
-    return story.waypoints;
-  }
-
-  const baseLat = parseFloat(story.mapY) || 37.5665;
-  const baseLng = parseFloat(story.mapX) || 126.9780;
-  const playTimeSec = parseInt(story.playTime, 10) || 300;
-
-  const rawLines = (story.script || '')
-    .split('\n')
-    .map((l) => l.trim())
-    .filter((l) => l.length > 5);
-
-  const spotCount = Math.max(3, Math.min(5, Math.ceil(rawLines.length / 2)));
+export function generateDynamicWaypoints(story: SorimaruStorySummary): TourWaypoint[] {
+  const baseLat = story.coordinates?.lat ?? 37.5665;
+  const baseLng = story.coordinates?.lng ?? 126.9780;
+  const playTimeSec = story.durationSeconds || 300;
+  const rawLines = story.contentTags;
+  const spotCount = Math.max(3, Math.min(5, Math.ceil(Math.max(1, rawLines.length) / 2)));
   const waypoints: TourWaypoint[] = [];
 
 
@@ -98,7 +87,7 @@ export function generateDynamicWaypoints(story: SorimaruStoryItem): TourWaypoint
     const lineExcerpt = rawLines[i] || `${story.title}의 아름다운 전통 공간`;
 
     waypoints.push({
-      id: `${story.stid}-wp-${i + 1}`,
+      id: `${story.storyId}-wp-${i + 1}`,
       timeSec,
       title: `${i + 1}. ${story.title} ${offset.titleSuffix}`,
       lat: baseLat + offset.lat,
@@ -112,90 +101,11 @@ export function generateDynamicWaypoints(story: SorimaruStoryItem): TourWaypoint
   return waypoints;
 }
 
-const sorimaruPlaceCache = new Map<string, SorimaruStoryItem | null>();
-
-
-
-
-
 export function useSorimaruPlaceStory(placeName?: string, lat?: number, lng?: number) {
   const availableStories = useSorimaruAudioStore((s) => s.availableStories);
-  const [story, setStory] = useState<SorimaruStoryItem | null>(() => {
-    return matchSorimaruStory({ name: placeName, lat, lng }, availableStories);
-  });
-  const [loading, setLoading] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (!placeName && (lat === undefined || lng === undefined)) {
-      setStory(null);
-      return;
-    }
-
-
-    const fastMatch = matchSorimaruStory({ name: placeName, lat, lng }, availableStories);
-    if (fastMatch) {
-      if (!fastMatch.waypoints) {
-        fastMatch.waypoints = generateDynamicWaypoints(fastMatch);
-      }
-      setStory(fastMatch);
-      return;
-    }
-
-
-    const cacheKey = `${placeName || ''}:${lat?.toFixed(3)}:${lng?.toFixed(3)}`;
-    if (sorimaruPlaceCache.has(cacheKey)) {
-      setStory(sorimaruPlaceCache.get(cacheKey) || null);
-      return;
-    }
-
-    let isMounted = true;
-    setLoading(true);
-
-    async function fetchLiveSorimaruStory() {
-      try {
-        let matched: SorimaruStoryItem | null = null;
-
-        const cleanName = (placeName || '')
-          .replace(/\(.*?\)/g, '')
-          .replace(/\[.*?\]/g, '')
-          .replace(/숙박|체험관|체험장|게스트하우스|호텔|카페|식당/g, '')
-          .trim();
-
-        if (cleanName.length >= 2) {
-          const searchWord = cleanName.slice(0, 4);
-          const apiStories = await sorimaruApiAdapter.getStoryList(undefined, searchWord);
-          matched = matchSorimaruStory({ name: placeName, lat, lng }, apiStories);
-        }
-
-        if (!matched && lat !== undefined && lng !== undefined) {
-          const nearbyStories = await sorimaruApiAdapter.getNearbyStories(String(lng), String(lat), 500);
-          matched = matchSorimaruStory({ name: placeName, lat, lng }, nearbyStories);
-        }
-
-        if (matched) {
-          matched.waypoints = generateDynamicWaypoints(matched);
-        }
-
-        sorimaruPlaceCache.set(cacheKey, matched);
-        if (isMounted) {
-          setStory(matched);
-          setLoading(false);
-        }
-      } catch (err) {
-        console.error('[Sorimaru Live API Error]:', err);
-        if (isMounted) {
-          setStory(null);
-          setLoading(false);
-        }
-      }
-    }
-
-    fetchLiveSorimaruStory();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [placeName, lat, lng, availableStories]);
-
-  return { story, loading };
+  const story = useMemo(
+    () => matchSorimaruStory({ name: placeName, lat, lng }, availableStories),
+    [availableStories, lat, lng, placeName],
+  );
+  return { story, loading: false };
 }

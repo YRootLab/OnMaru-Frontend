@@ -25,6 +25,8 @@ import {
 import { logger } from '@/lib/log';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { useSorimaruPlaceStory } from '@/features/sorimaru-audio/hooks/useSorimaruPlaceStory';
+import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
+import { generateDynamicWaypoints } from '@/features/sorimaru-audio/hooks/useSorimaruPlaceStory';
 import { useCinematicTourStore } from '@/features/cinematic-tour/store/useCinematicTourStore';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
@@ -258,10 +260,21 @@ export default function PlaceDetail() {
   }, [matchedSorimaruStory, data?.intro, selectedItem?.category, tel]);
 
   const startTour = useCinematicTourStore((s) => s.startTour);
+  const selectAndLoadStory = useSorimaruAudioStore((s) => s.selectAndLoadStory);
 
-  const handleStartCinematicTour = () => {
+  const handleStartCinematicTour = async () => {
     if (!matchedSorimaruStory) return;
-    startTour(matchedSorimaruStory);
+    const detail = await selectAndLoadStory(matchedSorimaruStory, 'play');
+    if (!detail) return;
+    startTour({
+      tid: detail.storyId, tlid: detail.storyId, stid: detail.storyId, stlid: detail.storyId,
+      title: detail.title, audioTitle: detail.audioTitle, category: detail.category,
+      mapX: detail.coordinates ? String(detail.coordinates.lng) : '',
+      mapY: detail.coordinates ? String(detail.coordinates.lat) : '',
+      script: detail.transcript.map((line) => line.text).join('\n'), playTime: String(detail.durationSeconds),
+      audioUrl: detail.audioUrl, imageUrl: detail.imageUrl ?? '', locationName: detail.region.name,
+      tags: detail.contentTags, waypoints: generateDynamicWaypoints(detail),
+    });
     const store = useMapStore.getState();
     if (store.sheetSnap === 'full') {
       store.setSheetSnap('peek');
@@ -534,12 +547,12 @@ export default function PlaceDetail() {
                     <span>오디오 해설</span>
                   </CinematicBadge>
                   <CinematicDuration>
-                    {matchedSorimaruStory.formattedDuration || '약 10분'}
+                    {matchedSorimaruStory.durationSeconds ? `약 ${Math.ceil(matchedSorimaruStory.durationSeconds / 60)}분` : '약 10분'}
                   </CinematicDuration>
                 </CinematicHeader>
                 <CinematicTitle>{matchedSorimaruStory.audioTitle}</CinematicTitle>
                 <CinematicDesc>
-                  {matchedSorimaruStory.speaker ?? '해설사'}와 함께 지도를 따라 걷는 코스
+                  해설사와 함께 지도를 따라 걷는 코스
                 </CinematicDesc>
                 <CinematicStartButton type="button" onClick={handleStartCinematicTour}>
                   <Play size={15} strokeWidth={2} className="ml-0.5" />

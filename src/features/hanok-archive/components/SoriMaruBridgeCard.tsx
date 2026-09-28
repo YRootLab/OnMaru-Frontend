@@ -6,7 +6,6 @@ import { Headphones, ArrowRight, Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { meok, palette , fontSize } from '@/design-system/tokens';
 import type { AudioGuideStory } from '../hooks/useHanokAudioGuide';
-import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 
 interface SoriMaruBridgeCardProps {
   stories: AudioGuideStory[];
@@ -20,7 +19,6 @@ interface SoriMaruBridgeCardProps {
 
 export default function SoriMaruBridgeCard({ stories, hanokName }: SoriMaruBridgeCardProps) {
   const router = useRouter();
-  const setCurrentStory = useSorimaruAudioStore((s) => s.setCurrentStory);
 
   if (!stories || stories.length === 0) return null;
 
@@ -29,24 +27,7 @@ export default function SoriMaruBridgeCard({ stories, hanokName }: SoriMaruBridg
   const handleNavigateToSoriMaru = () => {
 
 
-    setCurrentStory({
-      tid: String(primaryStory.stid),
-      tlid: String(primaryStory.stlid),
-      stid: String(primaryStory.stid),
-      stlid: String(primaryStory.stlid),
-      title: primaryStory.title || hanokName,
-      audioTitle: primaryStory.audioTitle || `${hanokName} 공간 해설`,
-      speaker: '문화해설사 도슨트',
-      category: '한옥',
-      mapX: '126.9780',
-      mapY: '37.5665',
-      script: primaryStory.script || '',
-      playTime: String(primaryStory.playTime || 300),
-      audioUrl: primaryStory.audioUrl || '',
-      imageUrl: primaryStory.imageUrl || '',
-    });
-
-    router.push('/sorimaru');
+    router.push(`/sorimaru?stid=${encodeURIComponent(primaryStory.storyId)}`);
   };
 
   const formatSeconds = (sec: number) => {
@@ -70,8 +51,8 @@ export default function SoriMaruBridgeCard({ stories, hanokName }: SoriMaruBridg
           {primaryStory.audioTitle || `${hanokName} 건축 공간 해설`}
         </StoryTitle>
         <GuideDesc>
-          {primaryStory.playTime > 0 && (
-            <DurationText>약 {formatSeconds(primaryStory.playTime)} 소요 · </DurationText>
+          {primaryStory.durationSeconds > 0 && (
+            <DurationText>약 {formatSeconds(primaryStory.durationSeconds)} 소요 · </DurationText>
           )}
           이 건축물의 역사와 공간 이야기는 <strong>‘소리마루’</strong>에서 들을 수 있어요.{' '}
           고음질 음원에 대본까지 함께 볼 수 있습니다.

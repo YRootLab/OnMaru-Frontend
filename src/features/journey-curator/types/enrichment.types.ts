@@ -15,13 +15,13 @@ export interface HanokDoganEntry {
 }
 
 export interface NearbyAudioStory {
+  storyId: string;
   stid: string;
   title: string;
   audioTitle: string;
-  audioUrl: string;
   distance?: string;
   formattedDuration: string;
-  imageUrl: string;
+  imageUrl: string | null;
   locationName: string;
 }
 
