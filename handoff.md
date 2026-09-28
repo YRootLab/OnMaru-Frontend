@@ -1,6 +1,11 @@
 # handoff.md
 
 ## Current Work
+- 2026-09-28 API 장애 상태 정책(API Outage / Failure State Policy) 구현 완료: Render 절전 복귀 중(`SERVER_WAKING`, HTTP 503 + 빈 본문 또는 `x-render-routing: hibernate-wake-error`), 백엔드 503 장애(`SERVICE_UNAVAILABLE`), 일반 서버 오류(`SERVER_ERROR`, HTTP 500), 429(`RATE_LIMITED`) 분류 및 지연/재시도 정책(`API_RETRY_POLICIES`)과 표준 사용자 문구를 적용했다. Render 무료 플랜 절전 복귀(Cold Start) 시 최대 30초 대기를 수용할 수 있도록 프론트엔드 네트워크 단 기본 타임아웃(`DEFAULT_TIMEOUT_MS`)을 10초에서 45초로 상향 조정하고 커스텀 `timeoutMs` 옵션을 추가했다.
+  - `SERVER_WAKING`: 3초, 5초, 10초, 15초, 20초 간격으로 최대 90초 재시도하며 오류 확정 없이 다른 섹션 유지.
+  - `SERVICE_UNAVAILABLE`: 자동 재시도 1~2회만 수행 후 실패 시 90초 대기 없이 해당 섹션 장애로 대체.
+  - `SERVER_ERROR`: 자동 재시도 1회 후 다시 시도 버튼 표시, requestId 유지.
+  - `src/lib/api/errors.ts`, `src/lib/api/retryPolicy.ts`, `src/lib/api/client.ts`, `src/lib/api/client.contract.test.ts` 추가/수정 및 `vitest.config.ts` 정리. `npx tsc --noEmit` 및 `npm test`(94/94 tests) 통과.
 - 2026-09-27 hotfix 추가: `OnMaru-Frontend` Repository Secret의 `NEXT_PUBLIC_API_BASE_URL`을 확인했고, `npm run build` 또는 `vercel build`를 수행하는 GitHub Actions workflow에 공통 환경변수로 연결했다. 값은 Spring backend base URL이며 API 클라이언트가 `/api/v1`을 덧붙인다.
 - 2026-09-27 release/0.1.2: PR #219의 CI에서 API 환경변수 없이 빌드할 때 공용 클라이언트의 generic mock 응답이 수결첩 카탈로그로 전달돼 `/stamps` prerender가 실패하는 문제를 수정했다. `stampHttpRepository`에서 API 1.3 카탈로그를 검증하고 잘못된 응답을 거부한다. 회귀 테스트와 `.env.local` 없는 production build가 통과했다. 관련 릴리즈 추적 Issue는 #218이며, 백엔드 stamp endpoint 배포 후 실제 API smoke test는 여전히 필요하다.
 - 2026-09-27: Issue #262 한옥 수결첩 FE를 API 계약 `1.3`에 연결했다. 공개 카탈로그·개인 수결첩·위치 기반 체크인·익명 공개 랭킹·내 참여 상태·참여/철회 여섯 API를 `domain/application/infrastructure/presentation` 경계로 분리했다. `onmaru_hanok_stamps_v1`의 demo 판정과 Zustand persist를 제거했고, 개인 수결첩 조회 성공 뒤에만 legacy key를 삭제한다. 랭킹은 서버 생성 `GENERATED` 별명만 표시하며 사용자 닉네임 입력과 하드코딩 칭호를 제공하지 않는다. 위치 payload와 익명 랭킹 식별자는 저장·로그·analytics에 전달하지 않는다.
