@@ -103,7 +103,13 @@ export default function GlobalMobileTabs({ isLanding }: { isLanding: boolean }) 
             onClick={tab.href === '/' ? resetJourney : undefined}
           >
             <span style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-              <Icon size={19} strokeWidth={2} aria-hidden="true" />
+              <Icon
+                size={19}
+                fill={isSelected ? 'currentColor' : 'none'}
+                fillOpacity={isSelected ? 0.35 : 1}
+                strokeWidth={isSelected ? 1.5 : 2}
+                aria-hidden="true"
+              />
               <span>{tab.label}</span>
             </span>
           </TabLink>

@@ -890,7 +890,13 @@ export default function Header() {
                 onClick={item.href === '/' ? resetJourney : undefined}
               >
                 <span style={{ position: 'relative', zIndex: 1, display: 'inline-flex', alignItems: 'center' }}>
-                  <Icon size={13} style={{ marginRight: 5, verticalAlign: '-1px' }} />
+                  <Icon
+                    size={13}
+                    fill={isSelected ? 'currentColor' : 'none'}
+                    fillOpacity={isSelected ? 0.35 : 1}
+                    strokeWidth={isSelected ? 1.5 : 2}
+                    style={{ marginRight: 5, verticalAlign: '-1px' }}
+                  />
                   <span>{item.label}</span>
                 </span>
               </NavLink>
