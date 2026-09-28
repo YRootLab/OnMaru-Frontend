@@ -312,10 +312,15 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
     }
 
     const text = await response.text();
-    const payload = text ? JSON.parse(text) : undefined;
+    let payload: unknown;
+    try {
+      payload = text && text.trim() ? JSON.parse(text) : undefined;
+    } catch {
+      payload = text;
+    }
 
     if (!response.ok) {
-      const error = normalizeApiError(response.status, payload);
+      const error = normalizeApiError(response.status, payload, response.headers);
       if (error.code === 'CSRF_INVALID' && options.csrf) {
         csrfProvider.reset();
       }
