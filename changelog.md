@@ -3,9 +3,8 @@
 Lightweight human-readable summary of meaningful repository changes. This does not replace Git history.
 
 ## Unreleased
-
+- 지도 온기모드 데이터를 Spring Backend API(`GET /api/v1/insights/heatmap`) 우선 호출 구조로 전환하고, 503 hibernate-wake/네트워크 타임아웃(`SERVER_WAKING`) 및 서비스 불가(`SERVICE_UNAVAILABLE`) 상태에 대한 2회 자동 재시도(3초/7초 간격) 및 관광공사 DataLab fallback(`fetchLegacyWarmthFallback`) 자동 전환 정책을 구현했다. 클라이언트 캐시 TTL 60초 및 in-flight 중복 호출 방지를 적용하여 지도 UI, 마커, 카드의 기존 렌더링 형식을 그대로 유지한 채 전국 모든 지역의 데이터를 고르게 지원하도록 개선했다.
 - API 장애 상태 정책(API Outage / Failure State Policy)을 구현했다. Render 절전 복귀 중(`SERVER_WAKING`, HTTP 503 + 빈 본문 또는 `x-render-routing: hibernate-wake-error`), 백엔드 503 장애(`SERVICE_UNAVAILABLE`), 일반 서버 오류(`SERVER_ERROR`, HTTP 500), 429(`RATE_LIMITED`)를 분류하고 표준 사용자 메시지 및 지연/재시도 정책(`API_RETRY_POLICIES`)을 적용했다.
-
 - 소리마루 지도는 화면 진입 시 지역 그룹과 첫 요약 목록을 각각 한 번 읽고, 이후 스크롤·휠·터치 동작에서 선택한 그룹의 실제 지역 코드와 cursor로 추가 목록을 조회한다. 짧거나 빈 목록도 자동 추가 요청 없이 휠·터치로 이어 볼 수 있다. 늦은 응답이 다른 지역 목록을 덮어쓰지 않으며 조회 실패를 0건으로 표시하지 않는다. 지도 카드 클릭에서만 상세 조회·재생을 시작하고 기존 지도·카드 배치를 유지했다.
 - 소리마루 목록·상세·지역 조회를 백엔드 전용 저장소로 분리했다. 목록은 페이지당 20건을 단일 요청으로 받아 cursor를 전달하고, 상세는 선택한 이야기만 조회한다. 같은 목록·상세 요청은 브라우저 탭 메모리에서 공유하며 실패와 잘못된 응답은 호출자에게 전달한다. 두 번째 무한 레일은 이미 받은 summary만 로컬에서 반복해 애니메이션이나 순환으로 추가 요청하지 않는다.
 
