@@ -202,12 +202,6 @@ export function normalizeApiError(
     isWaking: classification === 'SERVER_WAKING',
   };
 }
-    details,
-    classification,
-    headers: headerMap,
-    isWaking: classification === 'SERVER_WAKING',
-  };
-}
 
 export function isOnmaruApiError(error: unknown): error is OnmaruApiError {
   return isRecord(error) && typeof error.status === 'number' && typeof error.code === 'string';
