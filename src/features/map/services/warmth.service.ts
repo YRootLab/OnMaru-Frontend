@@ -1,10 +1,8 @@
 import { logger } from '@/lib/log';
 import { isOnmaruApiError } from '@/lib/api/errors';
 import {
-  createMapInsightsRepository,
   defaultMapInsightsRepository,
   type MapInsightsRepository,
-  type HeatmapSpot,
 } from '@/features/map/services/mapInsights.service';
 import { adaptSpringSpotsToHeatSpots, adaptObservationsToDaysAndSeries, type SpringHeatmapSpot } from '@/features/map/warmth/warmthAdapter';
 import { fetchLegacyWarmthFallback } from '@/features/map/services/legacyWarmth.service';

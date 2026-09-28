@@ -2,11 +2,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   clearWarmthCache,
   fetchWarmthData,
-  getWarmthCacheKey,
-  isWakingOrUnavailableError,
 } from './warmth.service';
-import type { MapInsightsRepository, HeatmapResult } from './mapInsights.service';
-import { adaptSpringSpotToHeatSpot, type SpringHeatmapSpot } from '@/features/map/warmth/warmthAdapter';
+import type { MapInsightsRepository } from './mapInsights.service';
+import type { SpringHeatmapSpot } from '@/features/map/warmth/warmthAdapter';
 
 describe('Warmth Service & Fallback (FE #92 / Spec)', () => {
   beforeEach(() => {
