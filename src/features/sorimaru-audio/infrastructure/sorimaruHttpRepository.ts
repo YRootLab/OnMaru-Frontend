@@ -1,4 +1,4 @@
-import { apiGet } from '@/lib/api/client';
+import { apiRequest } from '@/lib/api/client';
 import type { SorimaruRepository } from '../application/SorimaruRepository';
 import type { SorimaruListQuery } from '../domain/sorimaruStory';
 import { mapRegionGroups, mapStoryDetail, mapStoryPage } from '../domain/sorimaruStoryMapper';
@@ -9,7 +9,14 @@ export type SorimaruBackendRequester = (
   params?: Record<string, string | number | undefined>,
 ) => Promise<unknown>;
 
-const defaultRequester: SorimaruBackendRequester = (path, params) => apiGet<unknown>(path, params);
+// Sorimaru is backed by a cold-startable service. Keep a slow request from
+// leaving the carousel/detail views in a permanent loading state.
+const defaultRequester: SorimaruBackendRequester = (path, params) => apiRequest<unknown>(path, {
+  method: 'GET',
+  params,
+  timeoutMs: 15000,
+  retry: { maxRetries: 1 },
+});
 
 export function createSorimaruHttpRepository(request: SorimaruBackendRequester = defaultRequester): SorimaruRepository {
   const cache = createSorimaruQueryCache();
