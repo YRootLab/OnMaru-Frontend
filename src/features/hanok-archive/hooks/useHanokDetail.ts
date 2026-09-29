@@ -9,7 +9,15 @@ export function useHanokDetail(village: Village) {
   const [isLoadingOverview, setIsLoadingOverview] = useState(!cached);
 
   useEffect(() => {
-    if (detailCache.has(village.id)) return;
+    const cachedEntry = detailCache.get(village.id);
+    if (cachedEntry) {
+      setDetailData(cachedEntry);
+      setIsLoadingOverview(false);
+      return;
+    }
+
+    setDetailData(null);
+    setIsLoadingOverview(true);
     let isMounted = true;
 
     fetch(`/api/tourapi/detail?id=${encodeURIComponent(village.id)}`)

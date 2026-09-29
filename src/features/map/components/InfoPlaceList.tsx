@@ -8,19 +8,8 @@ import { meok, surface, fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { listInfoPlaces } from '@/features/map/services/infoMap.service';
 import { PlaceListItem } from './PlaceListItem';
-import type { InfoPlaceItem, Item, MapInfoCategory } from '@/features/map/types';
-
-const CATEGORY_LABELS: Record<MapInfoCategory, string> = {
-  spot: '고택',
-  experience: '전통 체험',
-  culture: '문화유산',
-  festival: '축제',
-  stay: '한옥 숙소',
-  food: '전통 맛집',
-  cafe: '한옥 카페',
-  market: '전통 시장',
-  all: '전체',
-};
+import { MAP_INFO_CATEGORY_LABELS as CATEGORY_LABELS } from '@/features/map/types';
+import type { InfoPlaceItem, Item } from '@/features/map/types';
 
 const shimmer = keyframes`
   0% { background-position: -200% 0; }
@@ -251,9 +240,7 @@ export default function InfoPlaceList() {
   const categoryLabel = CATEGORY_LABELS[infoCategory] ?? '장소';
   const headerTitle = isListLoading && listItems.length === 0
     ? `${categoryLabel} 목록`
-    : infoRegionCode
-      ? `${categoryLabel} ${listTotalCount.toLocaleString()}곳`
-      : `${categoryLabel} ${listTotalCount.toLocaleString()}곳`;
+    : `${categoryLabel} ${listTotalCount.toLocaleString()}곳`;
 
   return (
     <div>

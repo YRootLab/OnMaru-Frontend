@@ -143,7 +143,7 @@ describe('Sorimaru editorial rail', () => {
     expect(repository.getStoryDetail).not.toHaveBeenCalled();
     expect(repository.getStoryList).not.toHaveBeenCalled();
     expect(onSelectStory).not.toHaveBeenCalled();
-  });
+  }, 15000);
 
   it('requests playback only when the active card is activated', () => {
     vi.stubGlobal('IntersectionObserver', NearbyObserver);

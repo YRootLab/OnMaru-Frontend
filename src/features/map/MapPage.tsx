@@ -3,7 +3,12 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import styled from '@emotion/styled';
-import type { Item, PlaceCategory } from './types';
+import { MAP_INFO_CATEGORY_LABELS } from './types';
+import type { Item, MapInfoCategory, PlaceCategory } from './types';
+
+function isMapInfoCategory(value: string | null): value is MapInfoCategory {
+  return Boolean(value && value in MAP_INFO_CATEGORY_LABELS);
+}
 
 import { motion, useReducedMotion } from 'framer-motion';
 import { ChevronLeft } from 'lucide-react';
@@ -294,9 +299,8 @@ export default function MapPage() {
   useEffect(() => {
     if (queryMode !== 'info') return;
     const store = useMapStore.getState();
-    const VALID_CATEGORIES = ['spot','experience','culture','festival','stay','food','cafe','market','all'];
-    if (queryCategory && VALID_CATEGORIES.includes(queryCategory) && queryCategory !== store.infoCategory) {
-      store.setInfoCategory(queryCategory as import('./types').MapInfoCategory);
+    if (isMapInfoCategory(queryCategory) && queryCategory !== store.infoCategory) {
+      store.setInfoCategory(queryCategory);
     }
     if (queryRegionCode !== store.infoRegionCode) {
       store.setInfoRegionCode(queryRegionCode);
