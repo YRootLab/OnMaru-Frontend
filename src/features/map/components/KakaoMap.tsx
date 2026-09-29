@@ -405,14 +405,16 @@ export default function KakaoMap() {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const currentPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-          moveTo(currentPos, 5, pos.coords.accuracy);
+          const level = useMapStore.getState().mode === 'info' ? 7 : 5;
+          moveTo(currentPos, level, pos.coords.accuracy);
         },
         () => {
 
           navigator.geolocation.getCurrentPosition(
             (fallbackPos) => {
               const fallbackCoord = { lat: fallbackPos.coords.latitude, lng: fallbackPos.coords.longitude };
-              moveTo(fallbackCoord, 5, fallbackPos.coords.accuracy);
+              const level = useMapStore.getState().mode === 'info' ? 7 : 5;
+              moveTo(fallbackCoord, level, fallbackPos.coords.accuracy);
             },
             () => {
 
