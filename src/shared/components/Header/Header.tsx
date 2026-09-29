@@ -215,7 +215,7 @@ const CenterNav = styled('nav', transientProps)<LandingProps>`
 const NavLink = styled(Link, transientProps)<LandingProps>`
   position: relative;
   font-family: 'Spoqa Han Sans Neo', sans-serif;
-  font-size: ${fontSize.xs};
+  font-size: ${fontSize.sm};
   font-weight: ${({ $isActive }) => ($isActive ? 700 : 400)};
   color: ${({ $isLanding, $isActive }) => {
     if ($isActive) {
@@ -428,7 +428,7 @@ const MobileMenuDivider = styled('div', transientProps)<LandingProps>`
 
 const LoginButton = styled(Link, transientProps)<LandingProps>`
   font-family: 'Spoqa Han Sans Neo', sans-serif;
-  font-size: ${fontSize.xs};
+  font-size: ${fontSize.sm};
   font-weight: 700;
 
   color: #ffffff;

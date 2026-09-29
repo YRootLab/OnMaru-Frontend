@@ -1,6 +1,7 @@
 # handoff.md
 
 ## Current Work
+- 2026-09-29 공통 상단 네비게이션 글자 크기 조정 완료: `Header.tsx`의 데스크톱 메뉴와 로그인 텍스트를 `fontSize.xs`(12px)에서 `fontSize.sm`(14px)로 변경해 모든 라우트에서 동일하게 표시되도록 했다. 모바일 메뉴는 기존 14px을 유지한다. 검증: Header 테스트 2건, `tsc --noEmit`, ESLint 통과.
 - 2026-09-29 소리마루 `장면을 따라 걷는 소리` 레일 로딩 UI 개선 완료: `initialLoading`/catalog `loading` 상태를 Editorial Rail에 전달하고, 초기 로딩 또는 새로고침 중 기존 카드 외곽의 크기·위치·회전·확대·active position을 유지한 채 이미지와 내부 데이터 자리만 중성 회색 shimmer skeleton으로 교체했다. 데이터가 없을 때도 5개 placeholder position을 렌더링하며, 로딩 중 자동 스크롤·카드 선택을 중지한다. `SorimaruEditorialRail.test.tsx` 회귀 테스트 추가. 검증: 관련 Vitest 7건, `tsc --noEmit`, ESLint 통과.
 - 2026-09-29 홈 화면 추천 코스 카드의 섬네일 상단 중복 위치 뱃지 UI(`LocationBadge`) 제거 완료: 섬네일 상단의 캡슐 태그가 썸네일을 가리고 하단 설명(`CourseDesc`)의 위치 정보와 중복되므로 `LocationBadge` 레이어 및 `MapPin` 참조를 제거했다. `fix-ui-ux-improvements-v3` 브랜치에서 작업 진행 및 tsc/vitest 검증 완료.
 - 2026-09-28 지도 온기모드 Spring API 전환 및 관광공사 Fallback 구현 완료: 온기모드 진입 시 Spring API(GET /api/v1/insights/heatmap, observations)를 우선 호출하며, 503 SERVER_WAKING/SERVICE_UNAVAILABLE 및 timeout 시 1차 3초, 2차 7초 간격으로 최대 2회 자동 재시도한다. 2회 재시도 실패 시 기존 관광공사/DataLab Next.js 서버 라우트(/api/map/heat) fallback으로 전환한다. 기존 HeatSpot UI 변환 어댑터, 60초 메모리 캐시 및 in-flight deduplication, 전국 지역 응답 데이터 표시를 보장한다. 검증: 전체 Vitest 91파일/352건 테스트 및 tsc --noEmit pass.
