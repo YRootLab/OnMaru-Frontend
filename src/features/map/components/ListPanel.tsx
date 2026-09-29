@@ -7,6 +7,7 @@ import { meok, surface, ringShadow } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import ModeToggle from './ModeToggle';
 import PlaceList from './PlaceList';
+import InfoPlaceList from './InfoPlaceList';
 import SearchBar from './SearchBar';
 import WarmthFeed from '@/private/core-ui/map-warmth/WarmthFeed';
 
@@ -178,6 +179,8 @@ export default function ListPanel() {
         <ListArea>
           {mode === 'warmth' ? (
             <WarmthFeed />
+          ) : mode === 'info' ? (
+            <InfoPlaceList />
           ) : (
             <PlaceList />
           )}
