@@ -165,7 +165,6 @@ export default function InfoPlaceList() {
   const infoRegionCode = useMapStore((s) => s.infoRegionCode);
   const listItems = useMapStore((s) => s.listItems);
   const listTotalCount = useMapStore((s) => s.listTotalCount);
-  const listNextCursor = useMapStore((s) => s.listNextCursor);
   const isListLoading = useMapStore((s) => s.isListLoading);
   const listError = useMapStore((s) => s.listError);
   const selectedId = useMapStore((s) => s.selectedId);
