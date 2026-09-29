@@ -10,6 +10,10 @@ import { API_RETRY_POLICIES, delay } from './retryPolicy';
 const DEFAULT_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || '';
 export const USE_MOCK = !DEFAULT_BASE;
 
+function sanitizeForLog(value: unknown): string {
+  return String(value).replace(/[\r\n]/g, '');
+}
+
 const DEFAULT_TIMEOUT_MS = 45000;
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
@@ -299,6 +303,9 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
           continue;
         }
 
+        if (error.requestId) {
+          console.error('[api] requestId:', error.requestId, sanitizeForLog(path), response.status);
+        }
         throw error;
       }
 

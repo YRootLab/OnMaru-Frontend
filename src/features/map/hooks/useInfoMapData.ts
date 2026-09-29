@@ -73,6 +73,7 @@ export function useInfoMapData() {
 
   // Track last issued viewport request key to dedupe cluster click + idle
   const lastViewportKeyRef = useRef<string>('');
+  const lastReloadNonceRef = useRef(reloadNonce);
   const viewportControllerRef = useRef<AbortController | null>(null);
   const viewportTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -114,6 +115,12 @@ export function useInfoMapData() {
   // ── Viewport ───────────────────────────────────────────────────────────────
   useEffect(() => {
     if (mode !== 'info' || !map) return;
+
+    // reloadNonce forces a fresh fetch even if bbox/bucket didn't change
+    if (lastReloadNonceRef.current !== reloadNonce) {
+      lastReloadNonceRef.current = reloadNonce;
+      lastViewportKeyRef.current = '';
+    }
 
     const store = useMapStore.getState();
     const bucket = renderBucket(level);
