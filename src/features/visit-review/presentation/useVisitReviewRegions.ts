@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { defaultVisitReviewRepository } from '../api/visitReviewApi';
-import type { VisitReviewRegionItem } from '../api/visitReviewContract';
+import { defaultVisitReviewRepository } from '../infrastructure/visitReviewRepository';
+import type { VisitReviewRegionItem } from '../domain/review';
 import { listSelectableVisitReviewRegions } from '../application/visitReviewUseCases';
 
 export function useVisitReviewRegions() {

@@ -70,6 +70,7 @@ export function useInfoMapData() {
   const level = useMapStore((s) => s.level);
   const reloadNonce = useMapStore((s) => s.reloadNonce);
 
+  // Track last issued viewport request key to dedupe cluster click + idle
   const lastViewportKeyRef = useRef<string>('');
   const viewportControllerRef = useRef<AbortController | null>(null);
   const viewportTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -119,6 +120,7 @@ export function useInfoMapData() {
       return;
     }
 
+    // Clear previous pending request
     if (viewportTimerRef.current) clearTimeout(viewportTimerRef.current);
     viewportControllerRef.current?.abort();
 

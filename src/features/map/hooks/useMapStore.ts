@@ -1,9 +1,19 @@
 import { create } from 'zustand';
 import { palette } from '@/design-system/tokens';
 import type {
-  HeatDay, HeatSpot, InfoPlaceItem, Item, KakaoMap, LatLng,
-  MapInfoCategory, MapMode, MapViewportResponse, SheetSnap,
-  ViewportItem, ViewportRenderMode, Warmth,
+  HeatDay,
+  HeatSpot,
+  InfoPlaceItem,
+  Item,
+  KakaoMap,
+  LatLng,
+  MapInfoCategory,
+  MapMode,
+  MapViewportResponse,
+  SheetSnap,
+  ViewportItem,
+  ViewportRenderMode,
+  Warmth,
 } from '@/features/map/types';
 import type { WarmthPeriod } from '@/features/map/warmth/heatScale';
 

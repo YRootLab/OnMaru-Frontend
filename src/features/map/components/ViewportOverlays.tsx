@@ -103,6 +103,7 @@ export default function ViewportOverlays() {
   const overlaysRef = useRef<OverlayRef[]>([]);
 
   useEffect(() => {
+    // Cleanup previous
     overlaysRef.current.forEach((r) => r.overlay.setMap(null));
     overlaysRef.current = [];
 

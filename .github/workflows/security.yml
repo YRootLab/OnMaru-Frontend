@@ -19,7 +19,7 @@ on:
     - cron: '0 0 * * 0' # 매주 일요일 자정
 
 jobs:
-  의존성-검사:
+  dependency-audit:
     name: 의존성 검사
     runs-on: ubuntu-latest
     steps:
@@ -49,7 +49,7 @@ jobs:
           name: npm-audit-report
           path: audit-report.json
 
-  보안-스캔:
+  security-scan:
     name: 의존성 보안 스캔
     runs-on: ubuntu-latest
     steps:
@@ -62,10 +62,10 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         continue-on-error: true
 
-  보고서:
+  report:
     name: 보안 결과 댓글 등록
     if: github.event_name == 'pull_request'
-    needs: [의존성-검사]
+    needs: [dependency-audit]
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write

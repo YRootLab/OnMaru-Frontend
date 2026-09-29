@@ -111,60 +111,69 @@ export const mockDelay = (min = 200, max = 500): Promise<void> => {
 };
 
 
-export const getAccessToken = (): string | null => {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem('onmaru_access_token');
-};
+// access token은 메모리에만 보관 — localStorage/sessionStorage/cookie에 저장하지 않음
+let _accessToken: string | null = null;
+
+export const getAccessToken = (): string | null => _accessToken;
 
 export const setAccessToken = (token: string): void => {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('onmaru_access_token', token);
-  }
+  _accessToken = token;
 };
 
 export const removeAccessToken = (): void => {
+  _accessToken = null;
+  // 이전 버전 localStorage 잔재 정리
   if (typeof window !== 'undefined') {
     localStorage.removeItem('onmaru_access_token');
     localStorage.removeItem('onmaru_admin_user');
+    localStorage.removeItem('onmaru_refresh_token');
   }
 };
 
 
 let isRefreshing = false;
+let refreshPromise: Promise<void> | null = null;
+
 async function handleUnauthorized(): Promise<void> {
   if (typeof window === 'undefined') return;
+  // Single-flight: 동시에 refresh 요청 하나만
+  if (refreshPromise) return refreshPromise;
   if (isRefreshing) return;
+
   isRefreshing = true;
+  refreshPromise = (async () => {
+    try {
+      if (!apiClientConfig.baseUrl) throw new Error('No base URL');
 
-  try {
-    const refreshToken = localStorage.getItem('onmaru_refresh_token');
-    if (!refreshToken || !apiClientConfig.baseUrl) {
-      throw new Error('Refresh token not found');
-    }
+      // refresh token은 HttpOnly cookie로 자동 전송됨
+      const res = await apiClientConfig.fetcher(
+        `${apiClientConfig.baseUrl}/api/v1/auth/admin/refresh`,
+        {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        },
+      );
 
-    const res = await apiClientConfig.fetcher(`${apiClientConfig.baseUrl}/api/auth/refresh`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken }),
-    });
-
-    if (!res.ok) {
-      throw new Error('Failed to refresh token');
-    }
-    const data = await res.json();
-    if (data.accessToken) {
-      setAccessToken(data.accessToken);
+      if (!res.ok) throw new Error('Refresh failed');
+      const data = await res.json();
+      if (data.accessToken) setAccessToken(data.accessToken);
+    } catch {
+      removeAccessToken();
+      if (
+        typeof window !== 'undefined' &&
+        window.location.pathname.startsWith('/admin') &&
+        window.location.pathname !== '/admin/login'
+      ) {
+        window.location.href = '/admin/login';
+      }
+    } finally {
       isRefreshing = false;
-      return;
+      refreshPromise = null;
     }
-  } catch {
-    removeAccessToken();
-    if (window.location.pathname.startsWith('/admin') && window.location.pathname !== '/admin/login') {
-      window.location.href = '/admin/login';
-    }
-  } finally {
-    isRefreshing = false;
-  }
+  })();
+
+  return refreshPromise;
 }
 
 
@@ -231,6 +240,8 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
       const csrf = await csrfProvider.getToken();
       headers[csrf.headerName] = csrf.token;
     }
+    const token = getAccessToken();
+    if (token) headers['Authorization'] = `Bearer ${token}`;
     try {
       const response = await apiClientConfig.fetcher(buildUrl(path, options.params, options.rootPath), {
         method,
@@ -261,6 +272,13 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
         const error = normalizeApiError(response.status, payload, response.headers, text);
         if (error.code === 'CSRF_INVALID' && options.csrf) {
           csrfProvider.reset();
+        }
+
+        // 401: refresh 후 1회 재시도 (admin 경로)
+        if (response.status === 401 && attempt === 1 && _accessToken) {
+          clearTimeout(timeoutId);
+          await handleUnauthorized();
+          continue;
         }
 
         const policy = API_RETRY_POLICIES[error.classification];

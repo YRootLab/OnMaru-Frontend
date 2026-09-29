@@ -4,7 +4,7 @@
 
 
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { meok, palette } from '@/design-system/tokens';
 import { DataTable, ColumnDef } from '@/features/admin/components/DataTable';
 import { StatusBadge } from '@/features/admin/components/StatusBadge';
@@ -13,7 +13,7 @@ import { Toast } from '@/features/admin/components/Toast';
 import { EmptyState } from '@/features/admin/components/EmptyState';
 import { useAdminAuth } from '@/features/admin/hooks/useAdminAuth';
 import { AdminUser, AdminRole } from '@/features/admin/types';
-import { mockUsers } from '@/features/admin/mock/users.mock';
+import { getUsers, createSanction } from '@/features/admin/api/adminApi';
 import {
   Search,
   RotateCcw,
@@ -26,7 +26,11 @@ import {
 export default function AdminUsersPage() {
   const { user: currentUser, isAdmin } = useAdminAuth();
 
-  const [users, setUsers] = useState<AdminUser[]>(mockUsers);
+  const [users, setUsers] = useState<AdminUser[]>([]);
+
+  useEffect(() => {
+    getUsers({ limit: 200 }).then((r) => setUsers(r.items)).catch(() => {});
+  }, []);
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<'ALL' | AdminRole>('ALL');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'SUSPENDED'>('ALL');
@@ -108,6 +112,13 @@ export default function AdminUsersPage() {
 
   const handleConfirmSuspend = () => {
     if (!suspendTarget || !suspendReason.trim()) return;
+
+    const durationMap: Record<string, number | undefined> = { '3일': 3, '7일': 7, '30일': 30, '영구': undefined };
+    createSanction(suspendTarget.id, {
+      type: suspendPeriod === '영구' ? 'PERMANENT_BAN' : 'SUSPENSION',
+      reason: suspendReason.trim(),
+      durationDays: durationMap[suspendPeriod],
+    }).catch(() => {});
 
     setUsers((prev) =>
       prev.map((u) =>
