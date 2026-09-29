@@ -2,7 +2,7 @@
 
 
 
-import { WarmthReview } from '@/features/admin/types';
+import { WarmthReview } from '../domain/adminTypes';
 
 export const mockReviews: WarmthReview[] = [
   {

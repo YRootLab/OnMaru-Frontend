@@ -22,7 +22,7 @@ import { transientProps } from '@/design-system/styled';
 import { meok, fontSize, ringShadow } from '@/design-system/tokens';
 
 import { useMapStore } from '@/features/map/hooks/useMapStore';
-import type { MapMode } from '@/features/map/types';
+import type { MapInfoCategory, MapMode } from '@/features/map/types';
 
 interface CategoryItem {
   id: string;
@@ -41,6 +41,7 @@ const CATEGORIES: Record<MapMode, CategoryItem[]> = {
     { id: 'food', label: '전통 맛집', keyword: '향토음식', icon: Utensils },
     { id: 'cafe', label: '한옥 카페', keyword: '한옥카페', icon: Coffee },
     { id: 'market', label: '전통 시장', keyword: '전통시장', icon: ShoppingBag },
+    { id: 'all', label: '전체', keyword: '', icon: Sparkles },
   ],
   warmth: [
     { id: 'all', label: '전체 온기', keyword: '', icon: Flame },
@@ -207,20 +208,31 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
   const mode = useMapStore((s) => s.mode);
   const category = useMapStore((s) => s.category);
   const setCategory = useMapStore((s) => s.setCategory);
+  const infoCategory = useMapStore((s) => s.infoCategory);
+  const setInfoCategory = useMapStore((s) => s.setInfoCategory);
   const triggerSearch = useMapStore((s) => s.triggerSearch);
 
   const items = CATEGORIES[mode];
   const containerRef = useRef<HTMLDivElement>(null);
 
   const isItemActive = useCallback(
-    (item: CategoryItem) =>
-      mode === 'warmth'
+    (item: CategoryItem) => {
+      if (mode === 'info') return infoCategory === item.id;
+      return mode === 'warmth'
         ? (item.id === 'all' && (!category || category === 'all')) || category === item.id
-        : category === item.id,
-    [mode, category]
+        : category === item.id;
+    },
+    [mode, category, infoCategory]
   );
 
   const handleChipClick = (item: CategoryItem) => {
+    if (mode === 'info') {
+      setInfoCategory(item.id as MapInfoCategory);
+      if (!useMapStore.getState().panelOpen) {
+        useMapStore.getState().setPanelOpen(true);
+      }
+      return;
+    }
 
     if (mode === 'warmth') {
       if (item.id === 'all' || category === item.id) {
@@ -230,7 +242,6 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
       }
       return;
     }
-
 
     if (category === item.id) {
       setCategory(null);

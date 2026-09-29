@@ -62,6 +62,8 @@ export function useMapData() {
 
   useEffect(() => {
     const { setItems, setLoading, setError } = useMapStore.getState();
+    // Info mode uses useInfoMapData + BE /map/info/* endpoints — skip TourAPI path
+    if (mode === 'info') return;
     if (!map) {
       return;
     }
@@ -107,7 +109,7 @@ export function useMapData() {
       lng: String(searchCenter.lng),
       radius: String(radius),
     });
-    if (category && mode === 'info') params.set('category', category);
+    if (category) params.set('category', category);
 
     setLoading(true);
     setError(null);

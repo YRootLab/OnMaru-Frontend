@@ -3,7 +3,12 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import styled from '@emotion/styled';
-import type { Item, PlaceCategory } from './types';
+import { MAP_INFO_CATEGORY_LABELS } from './types';
+import type { Item, MapInfoCategory, PlaceCategory } from './types';
+
+function isMapInfoCategory(value: string | null): value is MapInfoCategory {
+  return Boolean(value && value in MAP_INFO_CATEGORY_LABELS);
+}
 
 import { motion, useReducedMotion } from 'framer-motion';
 import { ChevronLeft } from 'lucide-react';
@@ -19,12 +24,14 @@ import {
 import { useMapEntranceStore } from '@/shared/navigation/mapEntranceState';
 import { useMapStore } from './hooks/useMapStore';
 import { useMapData } from './hooks/useMapData';
+import { useInfoMapData } from './hooks/useInfoMapData';
 import BottomSheet from './components/BottomSheet';
 import CategoryChips from './components/CategoryChips';
 import DetailPanel from './components/DetailPanel';
 import KakaoMap from './components/KakaoMap';
 import ListPanel from './components/ListPanel';
 import PlaceMarkers from './components/PlaceMarkers';
+import ViewportOverlays from './components/ViewportOverlays';
 import WarmthLayer from '@/private/core-ui/map-warmth/WarmthLayer';
 import WarmthNotesLayer from '@/private/core-ui/map-warmth/WarmthNotesLayer';
 import WriteButton from '@/private/core-ui/map-warmth/WriteButton';
@@ -285,6 +292,21 @@ export default function MapPage() {
   const queryAddr = searchParams?.get('addr') || null;
   const queryImage = searchParams?.get('image') || null;
   const queryCategory = searchParams?.get('category') || null;
+  const queryRegionCode = searchParams?.get('regionCode') || null;
+  const queryMode = searchParams?.get('mode') || null;
+
+  // Sync URL info-mode params to store on mount
+  useEffect(() => {
+    if (queryMode !== 'info') return;
+    const store = useMapStore.getState();
+    if (isMapInfoCategory(queryCategory) && queryCategory !== store.infoCategory) {
+      store.setInfoCategory(queryCategory);
+    }
+    if (queryRegionCode !== store.infoRegionCode) {
+      store.setInfoRegionCode(queryRegionCode);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const parsedLat = parseFloat(queryLat || '');
   const parsedLng = parseFloat(queryLng || '');
@@ -359,6 +381,26 @@ export default function MapPage() {
 
 
   useMapData();
+  useInfoMapData();
+
+  // Push info-mode category/regionCode to URL when they change
+  const infoCategory = useMapStore((s) => s.infoCategory);
+  const infoRegionCode = useMapStore((s) => s.infoRegionCode);
+  useEffect(() => {
+    if (mode !== 'info') return;
+    const params = new URLSearchParams(window.location.search);
+    params.set('mode', 'info');
+    params.set('category', infoCategory);
+    if (infoRegionCode) {
+      params.set('regionCode', infoRegionCode);
+    } else {
+      params.delete('regionCode');
+    }
+    const next = `${window.location.pathname}?${params.toString()}`;
+    if (next !== `${window.location.pathname}${window.location.search}`) {
+      router.push(next, { scroll: false });
+    }
+  }, [mode, infoCategory, infoRegionCode, router]);
 
   const isRouteEntrance = useMapEntranceStore((s) => s.isRouteEntrance);
   const setRouteEntrance = useMapEntranceStore((s) => s.setRouteEntrance);
@@ -391,6 +433,7 @@ export default function MapPage() {
       <MapArea>
         <KakaoMap />
         <PlaceMarkers />
+        <ViewportOverlays />
         <WarmthLayer />
         <WarmthNotesLayer />
         <CinematicTourMapLayer />

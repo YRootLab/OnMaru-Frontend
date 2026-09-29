@@ -2,7 +2,7 @@
 
 
 
-import { AdminUser } from '@/features/admin/types';
+import { AdminUser } from '../domain/adminTypes';
 
 export const mockUsers: AdminUser[] = [
   {

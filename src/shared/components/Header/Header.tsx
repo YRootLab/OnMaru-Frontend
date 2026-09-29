@@ -17,7 +17,7 @@ import {
 } from '@/design-system/themePreferenceLabels';
 import type { ThemePreference } from '@/design-system/tokens';
 import { useAuth } from '@/features/auth';
-import GlobalMobileTabs from './GlobalMobileTabs';
+import GlobalMobileTabs, { HeadphonesFilledEars } from './GlobalMobileTabs';
 import { HEADER_EXIT_S, ENTRANCE_EASE } from '@/shared/navigation/mapEntranceTiming';
 import { useMapEntranceStore } from '@/shared/navigation/mapEntranceState';
 import { shouldUseLandingDarkSurface } from './headerSurface';
@@ -890,7 +890,21 @@ export default function Header() {
                 onClick={item.href === '/' ? resetJourney : undefined}
               >
                 <span style={{ position: 'relative', zIndex: 1, display: 'inline-flex', alignItems: 'center' }}>
-                  <Icon size={13} style={{ marginRight: 5, verticalAlign: '-1px' }} />
+                  {item.icon === Headphones && isSelected ? (
+                    <HeadphonesFilledEars
+                      size={13}
+                      strokeWidth={1.5}
+                      style={{ marginRight: 5, verticalAlign: '-1px' }}
+                    />
+                  ) : (
+                    <Icon
+                      size={13}
+                      fill={isSelected ? 'currentColor' : 'none'}
+                      fillOpacity={isSelected ? 0.6 : undefined}
+                      strokeWidth={isSelected ? 1.5 : 2}
+                      style={{ marginRight: 5, verticalAlign: '-1px' }}
+                    />
+                  )}
                   <span>{item.label}</span>
                 </span>
               </NavLink>

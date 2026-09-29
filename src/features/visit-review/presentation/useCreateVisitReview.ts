@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { defaultVisitReviewRepository } from '../api/visitReviewApi';
+import { defaultVisitReviewRepository } from '../infrastructure/visitReviewRepository';
 import { createVisitReviewWarmth } from '../application/visitReviewUseCases';
 
 type CreateInput = Parameters<typeof createVisitReviewWarmth>[1];

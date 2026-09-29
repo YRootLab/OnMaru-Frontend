@@ -2,7 +2,7 @@
 
 
 
-import { ReportItem, ReportReason } from '@/features/admin/types';
+import { ReportItem, ReportReason } from '../domain/adminTypes';
 
 export const REASON_LABEL_MAP: Record<ReportReason, string> = {
   ABUSE: '욕설/비방',
