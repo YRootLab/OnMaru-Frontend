@@ -299,6 +299,9 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
           continue;
         }
 
+        if (error.requestId) {
+          console.error('[api] requestId:', error.requestId, path, response.status);
+        }
         throw error;
       }
 

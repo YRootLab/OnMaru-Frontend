@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { AlertCircle, ChevronLeft, List, RotateCcw } from 'lucide-react';
@@ -176,15 +176,17 @@ export default function InfoPlaceList() {
   const setInfoRegionCode = useMapStore((s) => s.setInfoRegionCode);
   const reload = useMapStore((s) => s.reload);
 
-  const sentinelRef = useRef<HTMLDivElement>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
   const loadingMoreRef = useRef(false);
 
-  // Cursor pagination via IntersectionObserver
-  useEffect(() => {
-    const el = sentinelRef.current;
+  // Callback ref: sets up the IntersectionObserver when the sentinel element mounts,
+  // so it works even when the sentinel first renders after listItems arrive.
+  const sentinelRef = useCallback((el: HTMLDivElement | null) => {
+    observerRef.current?.disconnect();
+    observerRef.current = null;
     if (!el) return;
 
-    const observer = new IntersectionObserver(
+    observerRef.current = new IntersectionObserver(
       (entries) => {
         if (!entries[0].isIntersecting) return;
         if (loadingMoreRef.current) return;
@@ -222,8 +224,7 @@ export default function InfoPlaceList() {
       { rootMargin: '120px' },
     );
 
-    observer.observe(el);
-    return () => observer.disconnect();
+    observerRef.current.observe(el);
   }, []);
 
   const handleSelect = (item: Item) => {

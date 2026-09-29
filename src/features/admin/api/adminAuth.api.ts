@@ -74,3 +74,7 @@ export async function adminRefresh(): Promise<string | null> {
   }
   return null;
 }
+
+export async function adminGetMe(): Promise<AdminUser> {
+  return apiRequest<AdminUser>('/admin/me', { method: 'GET' });
+}

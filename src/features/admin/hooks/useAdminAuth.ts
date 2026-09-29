@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import type { AdminRole, AdminUser } from '@/features/admin/types';
 import { setAccessToken, removeAccessToken, USE_MOCK, getAccessToken } from '@/lib/api/client';
-import { adminLogin, adminLogout, adminRefresh } from '@/features/admin/api/adminAuth.api';
+import { adminLogin, adminLogout, adminRefresh, adminGetMe } from '@/features/admin/api/adminAuth.api';
 
 // 메모리 내 사용자 상태 (새로고침 시 refresh API로 복구)
 let _memUser: AdminUser | null = null;
@@ -54,15 +54,9 @@ export function useAdminAuth() {
 
     // refresh cookie로 세션 복구 시도
     adminRefresh()
-      .then(() => {
-        // refresh 성공 시 /api/v1/admin/me 등으로 사용자 정보 가져오기 가능
-        // 현재는 login 응답에서 user를 이미 받으므로 _memUser 사용
-        setIsLoading(false);
-      })
-      .catch(() => {
-        setUser(null);
-        setIsLoading(false);
-      });
+      .then((token) => token ? adminGetMe().then(setUser) : undefined)
+      .catch(() => setUser(null))
+      .finally(() => setIsLoading(false));
   }, [setUser]);
 
   const login = useCallback(async (email: string, password: string): Promise<boolean> => {

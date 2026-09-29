@@ -895,6 +895,7 @@ export default function PlaceMarkers() {
   const mode = useMapStore((s) => s.mode);
   const items = useMapStore((s) => s.items);
   const category = useMapStore((s) => s.category);
+  const infoCategory = useMapStore((s) => s.infoCategory);
   const level = useMapStore((s) => s.level);
   const selectedId = useMapStore((s) => s.selectedId);
   const hoveredId = useMapStore((s) => s.hoveredId);
@@ -940,9 +941,10 @@ export default function PlaceMarkers() {
     overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));
     overlayMapRef.current.clear();
 
+    const activeCategory = mode === 'info' ? infoCategory : category;
     const activeItems =
-      category && category !== 'all' && category !== 'bookmark'
-        ? effectiveItems.filter((it) => it.category === category)
+      activeCategory && activeCategory !== 'all' && activeCategory !== 'bookmark'
+        ? effectiveItems.filter((it) => it.category === activeCategory)
         : effectiveItems;
 
     if (activeItems.length === 0) return;
@@ -1237,7 +1239,7 @@ export default function PlaceMarkers() {
 
 
 
-  }, [map, mode, items, category, level, userLocation, searchCenter, viewportRenderMode, viewportItems]);
+  }, [map, mode, items, category, infoCategory, level, userLocation, searchCenter, viewportRenderMode, viewportItems]);
 
 
   useEffect(() => {
