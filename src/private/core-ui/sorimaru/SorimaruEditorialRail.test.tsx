@@ -62,6 +62,34 @@ afterEach(() => {
 });
 
 describe('Sorimaru editorial rail', () => {
+  it('renders a full rail of same-footprint skeleton cards during initial loading', () => {
+    render(
+      <SorimaruEditorialRail
+        stories={[]}
+        isLoading
+        onSelectStory={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByLabelText('소리마루 추천').getAttribute('aria-busy')).toBe('true');
+    expect(screen.getAllByTestId('sorimaru-editorial-skeleton-card')).toHaveLength(5);
+    expect(screen.queryByText('한옥 이야기 1')).toBeNull();
+  });
+
+  it('replaces only card content with skeletons while refreshing existing positions', () => {
+    render(
+      <SorimaruEditorialRail
+        stories={stories}
+        isLoading
+        onSelectStory={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByLabelText('소리마루 추천').getAttribute('aria-busy')).toBe('true');
+    expect(screen.getAllByTestId('sorimaru-editorial-skeleton-card')).toHaveLength(5);
+    expect(screen.queryByText('한옥 이야기 1')).toBeNull();
+  });
+
   it('preserves the story badge, specific region subtitle, and Korean duration copy', () => {
     renderRail();
     const activeCard = screen.getByRole('button', { name: '한옥 이야기 1 현재 선택됨' });
