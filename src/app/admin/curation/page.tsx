@@ -4,7 +4,7 @@
 
 
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Image from 'next/image';
 import { meok, palette } from '@/design-system/tokens';
 import { DataTable, ColumnDef } from '@/features/admin/components/DataTable';
@@ -15,12 +15,8 @@ import {
   CurationCategory,
   HanokCurationType,
 } from '@/features/admin/types';
-import {
-  mockVillages,
-  mockStays,
-  mockRoutes,
-  CURATION_PRESET_BADGES,
-} from '@/features/admin/mock/curation.mock';
+import { CURATION_PRESET_BADGES } from '@/features/admin/mock/curation.mock';
+import { getCurations, updateCuration } from '@/features/admin/api/adminApi';
 import {
   Search,
   RotateCcw,
@@ -34,9 +30,17 @@ export default function AdminCurationPage() {
   const [activeCategory, setActiveCategory] = useState<CurationCategory>('VILLAGE');
 
 
-  const [villages, setVillages] = useState<CurationItem[]>(mockVillages);
-  const [stays, setStays] = useState<CurationItem[]>(mockStays);
-  const [routes, setRoutes] = useState<CurationItem[]>(mockRoutes);
+  const [villages, setVillages] = useState<CurationItem[]>([]);
+  const [stays, setStays] = useState<CurationItem[]>([]);
+  const [routes, setRoutes] = useState<CurationItem[]>([]);
+
+  useEffect(() => {
+    getCurations({ limit: 300 }).then((r) => {
+      setVillages(r.items.filter((i) => i.category === 'VILLAGE'));
+      setStays(r.items.filter((i) => i.category === 'STAY'));
+      setRoutes(r.items.filter((i) => i.category === 'ROUTE'));
+    }).catch(() => {});
+  }, []);
 
 
   const [modifiedIds, setModifiedIds] = useState<Set<string>>(new Set());
@@ -143,14 +147,19 @@ export default function AdminCurationPage() {
 
   const handleApplyChanges = () => {
     setIsApplying(true);
-    setTimeout(() => {
-      setIsApplying(false);
-      setIsApplyConfirmOpen(false);
+    const allItems = [...villages, ...stays, ...routes];
+    const toSave = allItems.filter((i) => modifiedIds.has(i.id));
+    Promise.all(toSave.map((i) => updateCuration(i.id, i))).then(() => {
       const count = modifiedIds.size;
       setModifiedIds(new Set());
+      setIsApplying(false);
+      setIsApplyConfirmOpen(false);
       setLastAppliedTime(new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }));
       setToastMessage(`변경사항 ${count}건이 서비스 데이터에 성공적으로 반영되었습니다.`);
-    }, 1200);
+    }).catch(() => {
+      setIsApplying(false);
+      setToastMessage('저장 중 오류가 발생했습니다.');
+    });
   };
 
 

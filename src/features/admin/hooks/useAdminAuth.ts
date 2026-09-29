@@ -1,112 +1,94 @@
 'use client';
 
-
-
-
-
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { AdminRole, AdminUser } from '@/features/admin/types';
-import { getAccessToken, setAccessToken, removeAccessToken, USE_MOCK } from '@/lib/api/client';
+import type { AdminRole, AdminUser } from '@/features/admin/types';
+import { setAccessToken, removeAccessToken, USE_MOCK, getAccessToken } from '@/lib/api/client';
+import { adminLogin, adminLogout, adminRefresh } from '@/features/admin/api/adminAuth.api';
 
-const DEFAULT_MOCK_USER: AdminUser = {
-  id: 'admin_usr_001',
-  email: 'admin@onmaru.kr',
-  nickname: '온마루지기',
-  role: 'ADMIN',
-  status: 'ACTIVE',
-  reviewCount: 42,
-  reportCount: 0,
-  createdAt: '2026-01-01T09:00:00Z',
-  lastLoginAt: new Date().toISOString(),
-};
+// 메모리 내 사용자 상태 (새로고침 시 refresh API로 복구)
+let _memUser: AdminUser | null = null;
 
 export function useAdminAuth() {
   const router = useRouter();
-  const [user, setUser] = useState<AdminUser | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [user, setUserState] = useState<AdminUser | null>(_memUser);
+  const [isLoading, setIsLoading] = useState(true);
+  const bootstrapped = useRef(false);
 
+  const setUser = useCallback((u: AdminUser | null) => {
+    _memUser = u;
+    setUserState(u);
+  }, []);
 
+  // 새로고침 시 refresh로 세션 복구
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (bootstrapped.current) return;
+    bootstrapped.current = true;
 
-    const token = getAccessToken();
-    const storedUserStr = localStorage.getItem('onmaru_admin_user');
-
-    if (token && storedUserStr) {
-      try {
-        const parsed = JSON.parse(storedUserStr) as AdminUser;
-        setUser(parsed);
-      } catch {
-        setUser(DEFAULT_MOCK_USER);
+    if (USE_MOCK) {
+      // mock 환경: 이전에 설정된 메모리 사용자 또는 기본값
+      if (!_memUser) {
+        const mockUser: AdminUser = {
+          id: 'admin_usr_001',
+          email: 'admin@onmaru.kr',
+          nickname: '온마루지기',
+          role: 'ADMIN',
+          status: 'ACTIVE',
+          reviewCount: 42,
+          reportCount: 0,
+          createdAt: '2026-01-01T09:00:00Z',
+          lastLoginAt: new Date().toISOString(),
+        };
+        setAccessToken('mock_admin_jwt');
+        setUser(mockUser);
       }
-    } else if (USE_MOCK) {
-
-      setAccessToken('mock_admin_jwt_token_development');
-      localStorage.setItem('onmaru_admin_user', JSON.stringify(DEFAULT_MOCK_USER));
-      setUser(DEFAULT_MOCK_USER);
-    } else {
-      setUser(null);
+      setIsLoading(false);
+      return;
     }
 
-    setIsLoading(false);
-  }, []);
+    // 이미 access token이 메모리에 있으면 복구 불필요
+    if (getAccessToken() && _memUser) {
+      setIsLoading(false);
+      return;
+    }
+
+    // refresh cookie로 세션 복구 시도
+    adminRefresh()
+      .then(() => {
+        // refresh 성공 시 /api/v1/admin/me 등으로 사용자 정보 가져오기 가능
+        // 현재는 login 응답에서 user를 이미 받으므로 _memUser 사용
+        setIsLoading(false);
+      })
+      .catch(() => {
+        setUser(null);
+        setIsLoading(false);
+      });
+  }, [setUser]);
+
+  const login = useCallback(async (email: string, password: string): Promise<boolean> => {
+    setIsLoading(true);
+    try {
+      const { accessToken, user: loggedInUser } = await adminLogin(email, password);
+      setAccessToken(accessToken);
+      setUser(loggedInUser);
+      return true;
+    } catch {
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [setUser]);
+
+  const logout = useCallback(async () => {
+    await adminLogout();
+    removeAccessToken();
+    setUser(null);
+    router.push('/admin/login');
+  }, [router, setUser]);
 
   const role: AdminRole = user?.role ?? 'USER';
   const isAdmin = role === 'ADMIN';
   const isEditor = role === 'EDITOR' || role === 'ADMIN';
 
-
-  const login = useCallback(async (email: string, _password: string): Promise<boolean> => {
-    setIsLoading(true);
-    try {
-      if (USE_MOCK) {
-
-        const mockUser: AdminUser = {
-          ...DEFAULT_MOCK_USER,
-          email,
-          nickname: email.split('@')[0] || '관리자',
-        };
-        setAccessToken('mock_admin_jwt_token_development');
-        localStorage.setItem('onmaru_admin_user', JSON.stringify(mockUser));
-        setUser(mockUser);
-        setIsLoading(false);
-        return true;
-      }
-
-
-      return true;
-    } catch {
-      setIsLoading(false);
-      return false;
-    }
-  }, []);
-
-
-  const logout = useCallback(() => {
-    removeAccessToken();
-    setUser(null);
-    router.push('/admin/login');
-  }, [router]);
-
-
-  const setRole = useCallback((newRole: AdminRole) => {
-    if (!user) return;
-    const updated: AdminUser = { ...user, role: newRole };
-    setUser(updated);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('onmaru_admin_user', JSON.stringify(updated));
-    }
-  }, [user]);
-
-  return {
-    user,
-    role,
-    isAdmin,
-    isEditor,
-    isLoading,
-    login,
-    logout,
-    setRole,
-  };
+  return { user, role, isAdmin, isEditor, isLoading, login, logout };
 }

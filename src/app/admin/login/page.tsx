@@ -7,63 +7,37 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { meok, palette } from '@/design-system/tokens';
-import { setAccessToken } from '@/lib/api/client';
-import { AdminRole, AdminUser } from '@/features/admin/types';
+import { useAdminAuth } from '@/features/admin/hooks/useAdminAuth';
 import { Lock, Mail, AlertCircle } from 'lucide-react';
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const { login } = useAdminAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-
-  const handleLogin = (e?: React.FormEvent, customUser?: { email: string; role: AdminRole; nickname: string }) => {
+  const handleLogin = async (e?: React.FormEvent, quickEmail?: string) => {
     if (e) e.preventDefault();
     setErrorMessage(null);
 
-    const loginEmail = customUser ? customUser.email : email;
-    const loginRole = customUser ? customUser.role : (email.includes('editor') ? 'EDITOR' : 'ADMIN');
-    const loginNickname = customUser ? customUser.nickname : (loginRole === 'ADMIN' ? '김온마루' : '이마루');
+    const loginEmail = quickEmail ?? email;
+    const loginPassword = quickEmail ? 'dev-quicklogin' : password;
 
-    if (!loginEmail.trim()) {
-      setErrorMessage('이메일을 입력해 주세요.');
-      return;
-    }
-
-    if (!customUser && !password.trim()) {
-      setErrorMessage('비밀번호를 입력해 주세요.');
-      return;
-    }
+    if (!loginEmail.trim()) { setErrorMessage('이메일을 입력해 주세요.'); return; }
+    if (!quickEmail && !loginPassword.trim()) { setErrorMessage('비밀번호를 입력해 주세요.'); return; }
 
     setIsLoading(true);
+    const ok = await login(loginEmail, loginPassword);
+    setIsLoading(false);
 
-    setTimeout(() => {
-
-      const dummyToken = `onmaru_mock_token_${Date.now()}`;
-      setAccessToken(dummyToken);
-
-      const adminUser: AdminUser = {
-        id: loginRole === 'ADMIN' ? 'usr-admin-01' : 'usr-editor-01',
-        email: loginEmail,
-        nickname: loginNickname,
-        role: loginRole,
-        status: 'ACTIVE',
-        reviewCount: 42,
-        reportCount: 0,
-        createdAt: '2026-01-01T00:00:00Z',
-        lastLoginAt: new Date().toISOString(),
-      };
-
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('onmaru_admin_user', JSON.stringify(adminUser));
-      }
-
-      setIsLoading(false);
+    if (ok) {
       router.push('/admin');
-    }, 400);
+    } else {
+      setErrorMessage('이메일 또는 비밀번호를 확인해 주세요.');
+    }
   };
 
   return (
@@ -225,9 +199,7 @@ export default function AdminLoginPage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
             <button
               type="button"
-              onClick={() =>
-                handleLogin(undefined, { email: 'admin@onmaru.kr', role: 'ADMIN', nickname: '김온마루' })
-              }
+              onClick={() => handleLogin(undefined, 'admin@onmaru.kr')}
               style={{
                 height: '34px',
                 borderRadius: '6px',
@@ -243,9 +215,7 @@ export default function AdminLoginPage() {
             </button>
             <button
               type="button"
-              onClick={() =>
-                handleLogin(undefined, { email: 'editor1@onmaru.kr', role: 'EDITOR', nickname: '이마루' })
-              }
+              onClick={() => handleLogin(undefined, 'editor1@onmaru.kr')}
               style={{
                 height: '34px',
                 borderRadius: '6px',

@@ -34,7 +34,7 @@ interface NavItem {
 
 export const AdminSidebar: React.FC = () => {
   const pathname = usePathname();
-  const { user, role, isAdmin, logout, setRole } = useAdminAuth();
+  const { user, role, isAdmin, logout } = useAdminAuth();
 
   const navItems: NavItem[] = [
     {
@@ -293,7 +293,7 @@ export const AdminSidebar: React.FC = () => {
           </span>
           <select
             value={role}
-            onChange={(e) => setRole(e.target.value as any)}
+            onChange={() => {}}
             style={{
               border: 'none',
               backgroundColor: 'transparent',
