@@ -2,7 +2,7 @@
 
 /**
  * BE viewport API 응답(CLUSTER / DISTRICT / REGION)을 Kakao CustomOverlay로 렌더링.
- * PLACE 타입은 기존 PlaceMarkers가 담당.
+ * PLACE 타입은 PlaceMarkers가 담당.
  */
 
 import { useEffect, useRef } from 'react';
@@ -131,7 +131,7 @@ export default function ViewportOverlays() {
         }
 
         if (item.regionCode) {
-          useMapStore.getState().setInfoRegionCode(item.regionCode);
+          useMapStore.getState().setInfoRegionCode(item.regionCode, item.name ?? null);
         }
       };
 

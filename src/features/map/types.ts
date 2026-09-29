@@ -163,7 +163,7 @@ export interface HeatDay {
 
 
 
- 
+
 export type KakaoMap = any;
 
 // ── Info map ──────────────────────────────────────────────────────────────────

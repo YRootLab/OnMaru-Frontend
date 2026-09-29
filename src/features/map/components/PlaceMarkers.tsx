@@ -901,13 +901,35 @@ export default function PlaceMarkers() {
   const detailId = useMapStore((s) => s.detailId);
   const userLocation = useMapStore((s) => s.userLocation);
   const searchCenter = useMapStore((s) => s.searchCenter);
+  const viewportRenderMode = useMapStore((s) => s.viewportRenderMode);
+  const viewportItems = useMapStore((s) => s.viewportItems);
 
 
   const overlayMapRef = useRef<Map<string, OverlayRecord>>(new Map());
 
 
   useEffect(() => {
-    if (!map || mode !== 'info' || items.length === 0 || !window.kakao?.maps) {
+    // Info mode: only render individual markers when BE says PLACE renderMode
+    const infoPlaceItems: Item[] =
+      mode === 'info' && viewportRenderMode === 'PLACE'
+        ? viewportItems
+            .filter((v) => v.type === 'PLACE' && v.placeId)
+            .map((v) => ({
+              id: v.placeId!,
+              name: v.name,
+              category: (v.category?.toLowerCase() ?? 'spot') as import('@/features/map/types').PlaceCategory,
+              lat: v.center.lat,
+              lng: v.center.lng,
+              addr: '',
+              image: v.thumbnailUrl ?? null,
+              tel: null,
+              dist: null,
+            }))
+        : [];
+
+    const effectiveItems = mode === 'info' ? infoPlaceItems : items;
+
+    if (!map || mode !== 'info' || effectiveItems.length === 0 || !window.kakao?.maps) {
 
       overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));
       overlayMapRef.current.clear();
@@ -920,8 +942,8 @@ export default function PlaceMarkers() {
 
     const activeItems =
       category && category !== 'all' && category !== 'bookmark'
-        ? items.filter((it) => it.category === category)
-        : items;
+        ? effectiveItems.filter((it) => it.category === category)
+        : effectiveItems;
 
     if (activeItems.length === 0) return;
 
@@ -1215,7 +1237,7 @@ export default function PlaceMarkers() {
 
 
 
-  }, [map, mode, items, category, level, userLocation, searchCenter]);
+  }, [map, mode, items, category, level, userLocation, searchCenter, viewportRenderMode, viewportItems]);
 
 
   useEffect(() => {

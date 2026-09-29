@@ -38,7 +38,7 @@ function getBboxFromMap(map: KakaoMap): string {
   return `${expandedMinLng.toFixed(5)},${expandedMinLat.toFixed(5)},${expandedMaxLng.toFixed(5)},${expandedMaxLat.toFixed(5)}`;
 }
 
-// Check current viewport is still inside servedBbox
+// Returns true when the current viewport is still well inside the servedBbox
 function isInsideServedBbox(map: KakaoMap, servedBbox: string): boolean {
   const bounds = map.getBounds?.();
   if (!bounds || !servedBbox) return false;
@@ -51,14 +51,13 @@ function isInsideServedBbox(map: KakaoMap, servedBbox: string): boolean {
 
   const latRange = maxLat - minLat;
   const lngRange = maxLng - minLng;
-  const threshold = BBOX_EDGE_THRESHOLD;
 
   const withinLat =
-    sw.getLat() >= minLat + latRange * threshold &&
-    ne.getLat() <= maxLat - latRange * threshold;
+    sw.getLat() >= minLat + latRange * BBOX_EDGE_THRESHOLD &&
+    ne.getLat() <= maxLat - latRange * BBOX_EDGE_THRESHOLD;
   const withinLng =
-    sw.getLng() >= minLng + lngRange * threshold &&
-    ne.getLng() <= maxLng - lngRange * threshold;
+    sw.getLng() >= minLng + lngRange * BBOX_EDGE_THRESHOLD &&
+    ne.getLng() <= maxLng - lngRange * BBOX_EDGE_THRESHOLD;
 
   return withinLat && withinLng;
 }
@@ -69,6 +68,7 @@ export function useInfoMapData() {
   const infoCategory = useMapStore((s) => s.infoCategory);
   const infoRegionCode = useMapStore((s) => s.infoRegionCode);
   const level = useMapStore((s) => s.level);
+  const center = useMapStore((s) => s.center);
   const reloadNonce = useMapStore((s) => s.reloadNonce);
 
   // Track last issued viewport request key to dedupe cluster click + idle
@@ -91,18 +91,25 @@ export function useInfoMapData() {
       signal: ctrl.signal,
     })
       .then((page) => {
+        if (ctrl.signal.aborted) return;
+        const regionName = page.items[0]?.region?.name;
+        if (infoRegionCode && regionName && !useMapStore.getState().infoRegionName) {
+          store.setInfoRegionCode(infoRegionCode, regionName);
+        }
         store.setListItems(page.items, page.totalCount, page.nextCursor, page.snapshot.id);
       })
       .catch((err: unknown) => {
-        if (err instanceof DOMException && err.name === 'AbortError') return;
+        if (ctrl.signal.aborted || (err instanceof DOMException && err.name === 'AbortError')) return;
         store.setListError('장소 목록을 불러오지 못했어요');
       })
       .finally(() => {
-        store.setIsListLoading(false);
+        if (!ctrl.signal.aborted) {
+          store.setIsListLoading(false);
+        }
       });
 
     return () => ctrl.abort();
-  }, [mode, infoCategory, infoRegionCode]);
+  }, [mode, infoCategory, infoRegionCode, reloadNonce]);
 
   // ── Viewport ───────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -147,14 +154,18 @@ export function useInfoMapData() {
         signal: ctrl.signal,
       })
         .then((res) => {
+          if (ctrl.signal.aborted) return;
           store.setViewportResponse(res);
         })
         .catch((err: unknown) => {
-          if (err instanceof DOMException && err.name === 'AbortError') return;
+          if (ctrl.signal.aborted || (err instanceof DOMException && err.name === 'AbortError')) return;
+          lastViewportKeyRef.current = '';
           store.setViewportError('지도 데이터를 불러오지 못했어요');
         })
         .finally(() => {
-          store.setIsViewportLoading(false);
+          if (!ctrl.signal.aborted) {
+            store.setIsViewportLoading(false);
+          }
         });
     }, VIEWPORT_DEBOUNCE_MS);
 
@@ -162,5 +173,5 @@ export function useInfoMapData() {
       if (viewportTimerRef.current) clearTimeout(viewportTimerRef.current);
       viewportControllerRef.current?.abort();
     };
-  }, [map, mode, infoCategory, infoRegionCode, level, reloadNonce]);
+  }, [map, mode, infoCategory, infoRegionCode, level, center.lat, center.lng, reloadNonce]);
 }
