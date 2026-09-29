@@ -255,7 +255,12 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
   const [selectedStay, setSelectedStay] = useState<Village | null>(null);
   const archiveData = useArchiveData(villages, meta);
   const section1 = useHanokSection1();
-  const section1Villages = section1.villages.length > 0 ? section1.villages : archiveData.villages;
+  // loading: show SSR data; error: show error (not hidden); success: show fresh data
+  const section1Villages = section1.error
+    ? null
+    : section1.villages.length > 0
+      ? section1.villages
+      : archiveData.villages;
 
   useEffect(
     () =>
@@ -294,10 +299,16 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
                 <Kicker>사라지기 전에 기록한다 · 전국 {archiveData.meta.total}곳</Kicker>
                 <PageTitle>지금 한옥은 어디에 남아 있을까?</PageTitle>
                 <HeroClothesline>
-                  <HanokPolaroidClothesline
-                    villages={section1Villages}
-                    onSelectVillage={setSelectedDogamVillage}
-                  />
+                  {section1Villages ? (
+                    <HanokPolaroidClothesline
+                      villages={section1Villages}
+                      onSelectVillage={setSelectedDogamVillage}
+                    />
+                  ) : (
+                    <div role="alert" style={{ padding: '24px 0', textAlign: 'center', fontSize: fontSize.sm, color: meok[500] }}>
+                      한옥 목록을 불러오지 못했어요
+                    </div>
+                  )}
                 </HeroClothesline>
                 <Lead>
                   궁궐과 고택, 서원과 전통마을, 하룻밤 머물 수 있는 집까지.

@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
 import type { Village, VillageDetailResponse } from '@/features/hanok-archive/types';
 
+const detailCache = new Map<string, VillageDetailResponse>();
 
 export function useHanokDetail(village: Village) {
-  const [detailData, setDetailData] = useState<VillageDetailResponse | null>(null);
-  const [isLoadingOverview, setIsLoadingOverview] = useState(true);
+  const cached = detailCache.get(village.id);
+  const [detailData, setDetailData] = useState<VillageDetailResponse | null>(cached ?? null);
+  const [isLoadingOverview, setIsLoadingOverview] = useState(!cached);
 
   useEffect(() => {
+    if (detailCache.has(village.id)) return;
     let isMounted = true;
 
     fetch(`/api/tourapi/detail?id=${encodeURIComponent(village.id)}`)
@@ -15,6 +18,7 @@ export function useHanokDetail(village: Village) {
         return res.json();
       })
       .then((data: VillageDetailResponse) => {
+        detailCache.set(village.id, data);
         if (isMounted) {
           setDetailData(data);
           setIsLoadingOverview(false);
@@ -30,7 +34,7 @@ export function useHanokDetail(village: Village) {
     return () => {
       isMounted = false;
     };
-  }, [village]);
+  }, [village.id]);
 
   return { detailData, isLoadingOverview };
 }
