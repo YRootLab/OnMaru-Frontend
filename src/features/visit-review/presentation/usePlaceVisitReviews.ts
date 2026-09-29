@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import type { Warmth } from '@/features/map/types';
-import { defaultVisitReviewRepository } from '../api/visitReviewApi';
+import { defaultVisitReviewRepository } from '../infrastructure/visitReviewRepository';
 import { listPlaceReviewWarmths } from '../application/visitReviewUseCases';
 
 export function usePlaceVisitReviews(placeId: string) {
