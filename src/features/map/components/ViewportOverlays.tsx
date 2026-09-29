@@ -130,7 +130,7 @@ export default function ViewportOverlays() {
         }
 
         if (item.regionCode) {
-          useMapStore.getState().setInfoRegionCode(item.regionCode);
+          useMapStore.getState().setInfoRegionCode(item.regionCode, item.name ?? null);
         }
       };
 

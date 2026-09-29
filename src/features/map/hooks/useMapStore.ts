@@ -64,6 +64,7 @@ interface MapState {
   // ── Info list state ──────────────────────────────────────────────────────
   infoCategory: MapInfoCategory;
   infoRegionCode: string | null;
+  infoRegionName: string | null;
   listItems: InfoPlaceItem[];
   listTotalCount: number;
   listNextCursor: string | null;
@@ -80,7 +81,7 @@ interface MapState {
   viewportError: string | null;
 
   setInfoCategory: (category: MapInfoCategory) => void;
-  setInfoRegionCode: (regionCode: string | null) => void;
+  setInfoRegionCode: (regionCode: string | null, regionName?: string | null) => void;
   setListItems: (items: InfoPlaceItem[], totalCount: number, nextCursor: string | null, snapshotId: string | null) => void;
   appendListItems: (items: InfoPlaceItem[], nextCursor: string | null) => void;
   setIsListLoading: (loading: boolean) => void;
@@ -126,6 +127,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   // ── Info list ──────────────────────────────────────────────────────────────
   infoCategory: 'spot',
   infoRegionCode: null,
+  infoRegionName: null,
   listItems: [],
   listTotalCount: 0,
   listNextCursor: null,
@@ -142,9 +144,9 @@ export const useMapStore = create<MapState>((set, get) => ({
   viewportError: null,
 
   setInfoCategory: (infoCategory) =>
-    set({ infoCategory, infoRegionCode: null, listItems: [], listNextCursor: null, listSnapshotId: null }),
-  setInfoRegionCode: (infoRegionCode) =>
-    set({ infoRegionCode, listItems: [], listNextCursor: null }),
+    set({ infoCategory, infoRegionCode: null, infoRegionName: null, listNextCursor: null, listSnapshotId: null }),
+  setInfoRegionCode: (infoRegionCode, infoRegionName = null) =>
+    set({ infoRegionCode, infoRegionName, listNextCursor: null }),
   setListItems: (items, totalCount, nextCursor, snapshotId) =>
     set({ listItems: items, listTotalCount: totalCount, listNextCursor: nextCursor, listSnapshotId: snapshotId }),
   appendListItems: (items, nextCursor) =>

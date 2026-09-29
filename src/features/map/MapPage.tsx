@@ -394,7 +394,7 @@ export default function MapPage() {
     }
     const next = `${window.location.pathname}?${params.toString()}`;
     if (next !== `${window.location.pathname}${window.location.search}`) {
-      router.replace(next, { scroll: false });
+      router.push(next, { scroll: false });
     }
   }, [mode, infoCategory, infoRegionCode, router]);
 

@@ -184,6 +184,7 @@ export default function InfoPlaceList() {
   const setDetailId = useMapStore((s) => s.setDetailId);
   const setSelectedId = useMapStore((s) => s.setSelectedId);
   const setHoveredId = useMapStore((s) => s.setHoveredId);
+  const infoRegionName = useMapStore((s) => s.infoRegionName);
   const setInfoRegionCode = useMapStore((s) => s.setInfoRegionCode);
   const reload = useMapStore((s) => s.reload);
 
@@ -262,7 +263,7 @@ export default function InfoPlaceList() {
             전국
           </BreadcrumbBtn>
           <span>·</span>
-          <span style={{ color: meok[700] }}>이 지역</span>
+          <span style={{ color: meok[700] }}>{infoRegionName ?? '이 지역'}</span>
         </Breadcrumb>
       )}
 
