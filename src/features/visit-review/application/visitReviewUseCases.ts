@@ -1,7 +1,7 @@
 import { visitReviewToWarmth, visitReviewsToWarmths } from '@/features/map/warmth/visitReviewWarmthAdapter';
 import type { Warmth } from '@/features/map/types';
-import type { VisitReviewRepository } from '../api/visitReviewApi';
-import type { VisitReviewRegionItem } from '../api/visitReviewContract';
+import type { VisitReviewRepository } from './ports';
+import type { VisitReviewRegionItem } from '../domain/review';
 
 type CreateVisitReviewInput = {
   placeId: string;
