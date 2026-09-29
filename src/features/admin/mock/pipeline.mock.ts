@@ -2,7 +2,7 @@
 
 
 
-import { PipelineStatus } from '@/features/admin/types';
+import { PipelineStatus } from '../domain/adminTypes';
 
 export const mockPipelineStatus: PipelineStatus = {
   lastBuildAt: '2026.08.04 04:00 (2시간 전)',
