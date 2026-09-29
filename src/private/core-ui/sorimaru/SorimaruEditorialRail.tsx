@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import styled from '@emotion/styled';
+import { keyframes } from '@emotion/react';
 import { motion } from 'framer-motion';
 import gsap from 'gsap';
 import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
@@ -117,6 +118,124 @@ const CardMotionButton = styled(motion.button)<{ $isActive: boolean }>`
     width: 250px;
   }
 `;
+
+const skeletonShimmer = keyframes`
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+`;
+
+const SkeletonSurface = styled.div`
+  background: linear-gradient(100deg, #e5e5e3 20%, #f5f5f4 42%, #e5e5e3 64%);
+  background-size: 200% 100%;
+  animation: ${skeletonShimmer} 1.8s ease-in-out infinite;
+
+  [data-theme='dark'] & {
+    background: linear-gradient(100deg, #30302e 20%, #454542 42%, #30302e 64%);
+    background-size: 200% 100%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+`;
+
+const SkeletonImage = styled(SkeletonSurface)`
+  position: absolute;
+  inset: 0;
+`;
+
+const SkeletonBottomPanel = styled.div<{ $isActive: boolean }>`
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border-bottom-left-radius: 1.25rem;
+  border-bottom-right-radius: 1.25rem;
+  overflow: hidden;
+  background: ${({ $isActive }) => ($isActive ? '#f5f5f4' : '#f8f8f7')};
+
+  [data-theme='dark'] & {
+    background: ${({ $isActive }) => ($isActive ? '#30302e' : '#262624')};
+  }
+
+  @media (min-width: 640px) {
+    padding: 1rem 1.15rem 1.15rem;
+  }
+`;
+
+const SkeletonLine = styled(SkeletonSurface)<{ $width: string; $height: string; $marginTop?: string }>`
+  width: ${({ $width }) => $width};
+  height: ${({ $height }) => $height};
+  margin-top: ${({ $marginTop = '0' }) => $marginTop};
+  border-radius: 0.25rem;
+`;
+
+const SkeletonTitleLines = styled.div`
+  display: grid;
+  gap: 0.25rem;
+  margin-top: 4px;
+`;
+
+interface EditorialRailSkeletonCardProps {
+  offset: number;
+}
+
+const EditorialRailSkeletonCard = React.memo<EditorialRailSkeletonCardProps>(
+  function EditorialRailSkeletonCard({ offset }) {
+    const distance = Math.abs(offset);
+    const isActive = offset === 0;
+    const isVisible = distance <= SORIMARU_RAIL_VISIBLE_BUFFER;
+    const tilt = isActive
+      ? 0
+      : offset < 0
+      ? Math.abs(offset) % 2 === 1
+        ? 1.6
+        : -1.6
+      : offset % 2 === 1
+      ? -1.6
+      : 1.6;
+    const lift = isActive
+      ? 0
+      : offset < 0
+      ? Math.abs(offset) % 2 === 1
+        ? -6
+        : 6
+      : offset % 2 === 1
+      ? 6
+      : -6;
+
+    return (
+      <CardMotionButton
+        type="button"
+        disabled
+        data-testid="sorimaru-editorial-skeleton-card"
+        aria-hidden="true"
+        animate={{
+          opacity: isVisible ? 1 : 0,
+          y: lift,
+          rotate: tilt,
+          scale: isActive ? 1 : distance === 1 ? 0.92 : 0.84,
+        }}
+        transition={{ duration: 0 }}
+        $isActive={isActive}
+      >
+        <SkeletonImage />
+        <SkeletonBottomPanel $isActive={isActive}>
+          <SkeletonLine $width="4.75rem" $height="0.7rem" />
+          <SkeletonTitleLines>
+            <SkeletonLine $width="94%" $height="1rem" $marginTop="0" />
+            <SkeletonLine $width="70%" $height="1rem" $marginTop="0" />
+          </SkeletonTitleLines>
+          <SkeletonLine $width="58%" $height="0.8rem" $marginTop="0.25rem" />
+          {isActive && <SkeletonLine $width="4.25rem" $height="0.8rem" $marginTop="0.5rem" />}
+        </SkeletonBottomPanel>
+      </CardMotionButton>
+    );
+  },
+);
 
 const CardBottomPanel = styled.div<{ $isActive: boolean }>`
   position: absolute;
@@ -456,6 +575,11 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
       return list;
     }, [activePosition, featured]);
 
+    const skeletonPositions = useMemo(
+      () => getVisibleRailPositions(activePosition).map((pos) => ({ pos })),
+      [activePosition],
+    );
+
     useEffect(() => {
       const updateTrackMetrics = () => {
         if (window.innerWidth < 640) {
@@ -535,10 +659,10 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
     );
 
     useEffect(() => {
-      if (featured.length < 2) return;
+      if (featured.length < 2 || isLoading) return;
       const timer = window.setInterval(() => moveBy(1, false), 7000);
       return () => window.clearInterval(timer);
-    }, [autoResetToken, featured.length, moveBy]);
+    }, [autoResetToken, featured.length, isLoading, moveBy]);
 
     useEffect(
       () => () => {
@@ -597,14 +721,15 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
       });
     };
 
+    const showSkeleton = isLoading;
+
     cardInteractionRef.current = (position) => {
+      if (showSkeleton) return;
       const offset = position - activePosition;
       const story = visibleVirtualPositions.find((item) => item.pos === position)?.story;
       moveBy(offset);
       if (offset === 0 && story) onSelectStory(story, 'play');
     };
-
-    const showSkeleton = !activeStory && isLoading;
 
     if (!activeStory && !showSkeleton) {
       return (
@@ -666,7 +791,6 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
             </div>
 
             <CarouselStageWrapper>
-              {!showSkeleton && (
                 <div
                   style={{
                     position: 'absolute',
@@ -686,30 +810,42 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
                       display: 'flex',
                       alignItems: 'flex-start',
                       willChange: 'transform',
-                      pointerEvents: 'auto',
+                      pointerEvents: showSkeleton ? 'none' : 'auto',
                     }}
                   >
-                    {visibleVirtualPositions.map(({ pos, story: cardStory }) => (
-                      <div
-                        key={pos}
-                        style={{
-                          position: 'absolute',
-                          left: `${pos * trackMetrics.cardStep - trackMetrics.cardWidth / 2}px`,
-                          top: 0,
-                        }}
-                      >
-                        <EditorialRailCard
-                          story={cardStory}
-                          position={pos}
-                          offset={pos - activePosition}
-                          trackTransitionEnabled={trackTransitionEnabled}
-                          onInteractRef={cardInteractionRef}
-                        />
-                      </div>
-                    ))}
+                    {showSkeleton
+                      ? (visibleVirtualPositions.length ? visibleVirtualPositions : skeletonPositions).map(({ pos }) => (
+                          <div
+                            key={pos}
+                            style={{
+                              position: 'absolute',
+                              left: `${pos * trackMetrics.cardStep - trackMetrics.cardWidth / 2}px`,
+                              top: 0,
+                            }}
+                          >
+                            <EditorialRailSkeletonCard offset={pos - activePosition} />
+                          </div>
+                        ))
+                      : visibleVirtualPositions.map(({ pos, story: cardStory }) => (
+                          <div
+                            key={pos}
+                            style={{
+                              position: 'absolute',
+                              left: `${pos * trackMetrics.cardStep - trackMetrics.cardWidth / 2}px`,
+                              top: 0,
+                            }}
+                          >
+                            <EditorialRailCard
+                              story={cardStory}
+                              position={pos}
+                              offset={pos - activePosition}
+                              trackTransitionEnabled={trackTransitionEnabled}
+                              onInteractRef={cardInteractionRef}
+                            />
+                          </div>
+                        ))}
                   </div>
                 </div>
-              )}
             </CarouselStageWrapper>
 
             {}
