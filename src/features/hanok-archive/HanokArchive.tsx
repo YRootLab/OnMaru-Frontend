@@ -15,6 +15,7 @@ import HanokManifestoCta from '@/features/hanok-archive/sections/HanokManifestoC
 import HanokStructureCards from '@/features/hanok-archive/structure/HanokStructureCards';
 import type { Village, VillageMeta } from '@/features/hanok-archive/types';
 import { useArchiveData } from '@/features/hanok-archive/hooks/useArchiveData';
+import { useHanokSection1 } from '@/features/hanok-archive/hooks/useHanokSection1';
 import { HANOK_REVEAL_SECTIONS } from '@/features/hanok-archive/hanokSectionReveal';
 import type { HanokFilterState } from '@/features/hanok-archive/sections/hanokFilterQuery';
 import { VesselReveal } from '@/shared/components/animation/VesselReveal';
@@ -253,6 +254,8 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
   const [selectedDogamVillage, setSelectedDogamVillage] = useState<Village | null>(null);
   const [selectedStay, setSelectedStay] = useState<Village | null>(null);
   const archiveData = useArchiveData(villages, meta);
+  const section1 = useHanokSection1();
+  const section1Villages = section1.villages.length > 0 ? section1.villages : archiveData.villages;
 
   useEffect(
     () =>
@@ -292,7 +295,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
                 <PageTitle>지금 한옥은 어디에 남아 있을까?</PageTitle>
                 <HeroClothesline>
                   <HanokPolaroidClothesline
-                    villages={archiveData.villages}
+                    villages={section1Villages}
                     onSelectVillage={setSelectedDogamVillage}
                   />
                 </HeroClothesline>

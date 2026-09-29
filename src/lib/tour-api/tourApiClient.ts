@@ -4,7 +4,7 @@
 
 
 
-import { apiGet } from '@/lib/api/client';
+import { apiRequest } from '@/lib/api/client';
 
 // Single Source of Truth: 백엔드 API만 호출
 // TourAPI는 백엔드에서만 처리
@@ -20,7 +20,13 @@ export class TourApiClient {
     // 모든 TourAPI 호출을 백엔드로 위임
     // 백엔드 경로: /api/tour/{endpoint}
     try {
-      const result = await apiGet<T>(`/api/tour/${endpoint}`, params as Record<string, any>);
+      const result = await apiRequest<T>(`/api/tour/${endpoint}`, {
+        method: 'GET',
+        params: params as Record<string, any>,
+        signal: externalSignal,
+        timeoutMs: TourApiClient.DEFAULT_TIMEOUT_MS,
+        retry: false,
+      });
       return result ?? null;
     } catch {
       return null;

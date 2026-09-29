@@ -50,11 +50,9 @@ data/build-errors.json
 /myFrontendSkill
 /myDesignSkill
 
-# 백엔드 API 명세 (로컬 개발용, git 제외)
-/docs/backend-api-spec/
+# 문서 (로컬 전용, git 제외)
+docs/
 /new
-/docs/specs
-/docs/reports
 /claude_workspace
 
 

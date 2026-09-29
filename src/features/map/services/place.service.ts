@@ -120,6 +120,10 @@ export class PlaceService {
       const neLng = opts.lng + lngDelta;
       const res = await apiGet<BackendMapPlacesResponse>('/map/places', {
         bbox: `${swLng},${swLat},${neLng},${neLat}`,
+        // The backend defaults to 20, which made nationwide/info mode look
+        // like it only had a handful of places. Ask for the full contract
+        // page and let the map renderer decide how many markers to display.
+        limit: 1000,
       });
 
       if (!res.items || res.items.length === 0) return null;
