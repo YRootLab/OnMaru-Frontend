@@ -2,7 +2,7 @@
 
 
 
-import { CurationItem } from '@/features/admin/types';
+import { CurationItem } from '../domain/adminTypes';
 
 export const CURATION_PRESET_BADGES = [
   '전통 온돌',

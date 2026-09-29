@@ -2,7 +2,7 @@
 
 
 
-import { DashboardStatCard } from '@/features/admin/types';
+import { DashboardStatCard } from '../domain/adminTypes';
 
 export const mockDashboardStats: DashboardStatCard[] = [
   {
