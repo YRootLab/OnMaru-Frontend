@@ -213,6 +213,7 @@ const EditorialRailSkeletonCard = React.memo<EditorialRailSkeletonCardProps>(
         disabled
         data-testid="sorimaru-editorial-skeleton-card"
         aria-hidden="true"
+        initial={false}
         animate={{
           opacity: isVisible ? 1 : 0,
           y: lift,
