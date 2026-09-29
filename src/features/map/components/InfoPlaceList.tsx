@@ -206,16 +206,21 @@ export default function InfoPlaceList() {
         loadingMoreRef.current = true;
         const ctrl = new AbortController();
         const store = useMapStore.getState();
+        const requestCategory = store.infoCategory;
+        const requestRegionCode = store.infoRegionCode;
         store.setIsListLoading(true);
 
         listInfoPlaces({
-          category: store.infoCategory,
-          regionCode: store.infoRegionCode,
+          category: requestCategory,
+          regionCode: requestRegionCode,
           cursor,
           signal: ctrl.signal,
         })
           .then((page) => {
-            store.appendListItems(page.items, page.nextCursor);
+            const s = useMapStore.getState();
+            if (s.infoCategory !== requestCategory || s.infoRegionCode !== requestRegionCode) return;
+            if (page.nextCursor === cursor) return; // guard: cursor not advancing
+            s.appendListItems(page.items, page.nextCursor);
           })
           .catch((err: unknown) => {
             if (err instanceof DOMException && err.name === 'AbortError') return;
