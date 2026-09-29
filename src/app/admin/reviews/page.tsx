@@ -4,14 +4,14 @@
 
 
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { meok, palette } from '@/design-system/tokens';
 import { DataTable, ColumnDef } from '@/features/admin/components/DataTable';
 import { StatusBadge } from '@/features/admin/components/StatusBadge';
 import { ConfirmDialog } from '@/features/admin/components/ConfirmDialog';
 import { Toast } from '@/features/admin/components/Toast';
 import { WarmthReview, ReviewStatus } from '@/features/admin/types';
-import { mockReviews } from '@/features/admin/mock/reviews.mock';
+import { getReviews, moderateReview } from '@/features/admin/api/adminApi';
 import {
   Search,
   RotateCcw,
@@ -22,7 +22,11 @@ import {
 } from 'lucide-react';
 
 export default function AdminReviewsPage() {
-  const [reviews, setReviews] = useState<WarmthReview[]>(mockReviews);
+  const [reviews, setReviews] = useState<WarmthReview[]>([]);
+
+  useEffect(() => {
+    getReviews({ limit: 200 }).then((r) => setReviews(r.items)).catch(() => {});
+  }, []);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | ReviewStatus>('ALL');
   const [moodFilter, setMoodFilter] = useState<string>('ALL');
@@ -146,6 +150,7 @@ export default function AdminReviewsPage() {
       setSelectedReview((prev) => (prev ? { ...prev, status } : null));
     }
     setToastMessage(`온기 상태가 '${status}'(으)로 변경되었습니다.`);
+    moderateReview(id, status, '').catch(() => {});
   };
 
 

@@ -9,7 +9,8 @@ import { meok, palette } from '@/design-system/tokens';
 import { Toast } from '@/features/admin/components/Toast';
 import { EmptyState } from '@/features/admin/components/EmptyState';
 import { useAdminAuth } from '@/features/admin/hooks/useAdminAuth';
-import { mockPipelineStatus } from '@/features/admin/mock/pipeline.mock';
+import { getPipelineStatus, runPipeline } from '@/features/admin/api/adminApi';
+import type { PipelineStatus } from '@/features/admin/types';
 import {
   RefreshCw,
   AlertCircle,
@@ -23,7 +24,11 @@ import {
 export default function AdminDataPipelinePage() {
   const { isAdmin } = useAdminAuth();
 
-  const [pipelineData, setPipelineData] = useState(mockPipelineStatus);
+  const [pipelineData, setPipelineData] = useState<PipelineStatus | null>(null);
+
+  useEffect(() => {
+    getPipelineStatus('hanok').then((d) => setPipelineData(d as PipelineStatus)).catch(() => {});
+  }, []);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
 
@@ -44,39 +49,21 @@ export default function AdminDataPipelinePage() {
   const handleStartBuild = (type: string) => {
     setIsBuilding(true);
     setBuildType(type);
-    setProgress(5);
-    setCurrentStepText(`[${type}] 공공데이터포털 TourAPI 토큰 및 파라미터 검증 중...`);
+    setProgress(10);
+    setCurrentStepText(`[${type}] 파이프라인 실행 요청 중...`);
 
-    const t1 = setTimeout(() => {
-      setProgress(25);
-      setCurrentStepText(`[${type}] searchKeyword2 엔드포인트 목록 조회 중 (1/17)`);
-    }, 600);
-
-    const t2 = setTimeout(() => {
-      setProgress(55);
-      setCurrentStepText(`[${type}] detailCommon2 상세 정보 수집 중 (87/172)`);
-    }, 1400);
-
-    const t3 = setTimeout(() => {
-      setProgress(85);
-      setCurrentStepText(`[${type}] village-overrides 메타데이터 및 이미지 정합성 병합 중...`);
-    }, 2200);
-
-    const t4 = setTimeout(() => {
+    runPipeline(type).then(() => {
       setProgress(100);
-      setCurrentStepText(`[${type}] 데이터 동기화 완료! 정적 캐시 갱신 중...`);
-
+      setCurrentStepText(`[${type}] 데이터 동기화 완료!`);
       setTimeout(() => {
         setIsBuilding(false);
-        setPipelineData((prev) => ({
-          ...prev,
-          lastBuildAt: '방금 전 (성공)',
-        }));
+        setPipelineData((prev) => prev ? { ...prev, lastBuildAt: '방금 전 (성공)' } : prev);
         setToastMessage(`[${type}] 데이터 파이프라인 수동 빌드가 성공적으로 완료되었습니다.`);
       }, 500);
-    }, 3000);
-
-    buildTimerRef.current = [t1, t2, t3, t4];
+    }).catch(() => {
+      setIsBuilding(false);
+      setToastMessage(`[${type}] 파이프라인 실행 중 오류가 발생했습니다.`);
+    });
   };
 
 
@@ -90,6 +77,7 @@ export default function AdminDataPipelinePage() {
 
 
   const handleDownloadLogs = () => {
+    if (!pipelineData) return;
     const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(pipelineData.failureLogs, null, 2));
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute('href', dataStr);
@@ -119,6 +107,10 @@ export default function AdminDataPipelinePage() {
         />
       </div>
     );
+  }
+
+  if (!pipelineData) {
+    return <div style={{ padding: '40px', textAlign: 'center', color: '#888' }}>불러오는 중...</div>;
   }
 
   return (

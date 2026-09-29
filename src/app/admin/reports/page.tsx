@@ -4,7 +4,7 @@
 
 
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Image from 'next/image';
 import { meok, palette } from '@/design-system/tokens';
 import { StatusBadge } from '@/features/admin/components/StatusBadge';
@@ -12,7 +12,7 @@ import { ConfirmDialog } from '@/features/admin/components/ConfirmDialog';
 import { Toast } from '@/features/admin/components/Toast';
 import { EmptyState } from '@/features/admin/components/EmptyState';
 import { ReportItem, ReportStatus } from '@/features/admin/types';
-import { mockReports } from '@/features/admin/mock/reports.mock';
+import { getReports } from '@/features/admin/api/adminApi';
 import {
   ShieldAlert,
   EyeOff,
@@ -24,7 +24,11 @@ import {
 } from 'lucide-react';
 
 export default function AdminReportsPage() {
-  const [reports, setReports] = useState<ReportItem[]>(mockReports);
+  const [reports, setReports] = useState<ReportItem[]>([]);
+
+  useEffect(() => {
+    getReports({ limit: 200 }).then((r) => setReports(r.items)).catch(() => {});
+  }, []);
   const [activeTab, setActiveTab] = useState<ReportStatus>('PENDING');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 

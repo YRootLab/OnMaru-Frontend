@@ -4,7 +4,7 @@
 
 
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { meok, palette } from '@/design-system/tokens';
@@ -13,12 +13,8 @@ import { ConfirmDialog } from '@/features/admin/components/ConfirmDialog';
 import { Toast } from '@/features/admin/components/Toast';
 import { EmptyState } from '@/features/admin/components/EmptyState';
 import { useAdminAuth } from '@/features/admin/hooks/useAdminAuth';
-import {
-  mockDashboardStats,
-  mockRecentReviews,
-  mockPendingReports,
-  mockPipelineSummary,
-} from '@/features/admin/mock/dashboard.mock';
+import { getDashboardSummary, runPipeline } from '@/features/admin/api/adminApi';
+import type { DashboardSummary } from '@/features/admin/api/adminApi';
 import {
   ArrowRight,
   RefreshCw,
@@ -36,32 +32,38 @@ export default function AdminDashboardPage() {
   const [progressText, setProgressText] = useState('');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  const [dashboardData, setDashboardData] = useState<DashboardSummary | null>(null);
 
-  const handleStartRebuild = () => {
+  useEffect(() => {
+    getDashboardSummary().then(setDashboardData).catch(() => {});
+  }, []);
+
+  const dashboardStats = dashboardData?.stats ?? [];
+  const recentReviews = dashboardData?.recentReviews ?? [];
+  const pendingReports = dashboardData?.pendingReports ?? [];
+  const pipelineSummary = dashboardData?.pipeline ?? null;
+
+
+  const handleStartRebuild = useCallback(() => {
     setIsConfirmOpen(false);
     setIsRebuilding(true);
-    setProgress(15);
-    setProgressText('TourAPI 데이터 수집 요청 준비 중...');
+    setProgress(10);
+    setProgressText('파이프라인 실행 요청 중...');
 
-    setTimeout(() => {
-      setProgress(45);
-      setProgressText('한옥마을 및 숙소 메타데이터 수집 중 (87/172)');
-    }, 800);
-
-    setTimeout(() => {
-      setProgress(85);
-      setProgressText('이미지 및 오버라이드 데이터 병합 중...');
-    }, 1600);
-
-    setTimeout(() => {
-      setProgress(100);
-      setProgressText('파이프라인 갱신 완료!');
-      setTimeout(() => {
+    runPipeline('hanok')
+      .then(() => {
+        setProgress(100);
+        setProgressText('파이프라인 갱신 완료!');
+        setTimeout(() => {
+          setIsRebuilding(false);
+          setToastMessage('데이터 파이프라인이 성공적으로 갱신되었습니다.');
+        }, 500);
+      })
+      .catch(() => {
         setIsRebuilding(false);
-        setToastMessage('데이터 파이프라인이 성공적으로 갱신되었습니다.');
-      }, 500);
-    }, 2400);
-  };
+        setToastMessage('파이프라인 실행 중 오류가 발생했습니다.');
+      });
+  }, []);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -77,7 +79,7 @@ export default function AdminDashboardPage() {
           gap: '16px',
         }}
       >
-        {mockDashboardStats.map((stat) => (
+        {dashboardStats.map((stat) => (
           <StatCard
             key={stat.key}
             label={stat.label}
@@ -148,7 +150,7 @@ export default function AdminDashboardPage() {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            {mockRecentReviews.map((item, idx) => (
+            {recentReviews.map((item, idx) => (
               <div
                 key={item.id}
                 onClick={() => router.push('/admin/reviews')}
@@ -157,7 +159,7 @@ export default function AdminDashboardPage() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  borderBottom: idx < mockRecentReviews.length - 1 ? '1px solid rgba(78, 89, 104, 0.06)' : 'none',
+                  borderBottom: idx < recentReviews.length - 1 ? '1px solid rgba(78, 89, 104, 0.06)' : 'none',
                   cursor: 'pointer',
                   padding: '0 4px',
                   transition: 'background-color 0.12s ease',
@@ -226,11 +228,11 @@ export default function AdminDashboardPage() {
             </Link>
           </div>
 
-          {mockPendingReports.length === 0 ? (
+          {pendingReports.length === 0 ? (
             <EmptyState title="처리할 신고가 없습니다" description="현재 대기 중인 사용자 신고가 모두 처리되었습니다." />
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              {mockPendingReports.map((rep, idx) => (
+              {pendingReports.map((rep, idx) => (
                 <div
                   key={rep.id}
                   onClick={() => router.push('/admin/reports')}
@@ -239,7 +241,7 @@ export default function AdminDashboardPage() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    borderBottom: idx < mockPendingReports.length - 1 ? '1px solid rgba(78, 89, 104, 0.06)' : 'none',
+                    borderBottom: idx < pendingReports.length - 1 ? '1px solid rgba(78, 89, 104, 0.06)' : 'none',
                     cursor: 'pointer',
                     padding: '0 4px',
                   }}
@@ -377,21 +379,21 @@ export default function AdminDashboardPage() {
           <div>
             <div style={{ fontSize: '11px', color: meok[400], marginBottom: '4px' }}>마지막 갱신</div>
             <div style={{ fontSize: '13px', fontWeight: 600, color: meok[700] }}>
-              {mockPipelineSummary.lastBuildAt}
+              {pipelineSummary?.lastBuildAt ?? '-'}
             </div>
           </div>
 
           <div>
             <div style={{ fontSize: '11px', color: meok[400], marginBottom: '4px' }}>수집 현황</div>
             <div style={{ fontSize: '13px', fontWeight: 600, color: meok[700] }}>
-              마을 {mockPipelineSummary.villageCount} · 숙소 {mockPipelineSummary.stayCount} · 루트 {mockPipelineSummary.routeCount}
+              마을 {pipelineSummary?.villageCount ?? 0} · 숙소 {pipelineSummary?.stayCount ?? 0} · 루트 {pipelineSummary?.routeCount ?? 0}
             </div>
           </div>
 
           <div>
             <div style={{ fontSize: '11px', color: meok[400], marginBottom: '4px' }}>API 일일 호출</div>
             <div style={{ fontSize: '13px', fontWeight: 600, color: meok[700], fontVariantNumeric: 'tabular-nums' }}>
-              {mockPipelineSummary.apiCallUsed.toLocaleString()} / {mockPipelineSummary.apiCallLimit.toLocaleString()}
+              {(pipelineSummary?.apiCallUsed ?? 0).toLocaleString()} / {(pipelineSummary?.apiCallLimit ?? 0).toLocaleString()}
             </div>
           </div>
 
@@ -402,12 +404,12 @@ export default function AdminDashboardPage() {
                 style={{
                   fontSize: '13px',
                   fontWeight: 600,
-                  color: mockPipelineSummary.failureCount > 0 ? palette.danpung[500] : meok[700],
+                  color: (pipelineSummary?.failureCount ?? 0) > 0 ? palette.danpung[500] : meok[700],
                 }}
               >
-                {mockPipelineSummary.failureCount}건
+                {pipelineSummary?.failureCount ?? 0}건
               </span>
-              {isAdmin && mockPipelineSummary.failureCount > 0 && (
+              {isAdmin && (pipelineSummary?.failureCount ?? 0) > 0 && (
                 <Link
                   href="/admin/data"
                   style={{

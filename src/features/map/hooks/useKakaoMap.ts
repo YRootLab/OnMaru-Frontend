@@ -14,7 +14,7 @@ export const KAKAO_SDK_SRC =
 const REFETCH_DISTANCE = 1200;
 
 
-const IDLE_DEBOUNCE_MS = 550;
+const IDLE_DEBOUNCE_MS = 700;
 
 
 
