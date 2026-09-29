@@ -165,3 +165,93 @@ export interface HeatDay {
 
  
 export type KakaoMap = any;
+
+// ── Info map ──────────────────────────────────────────────────────────────────
+
+export type MapInfoCategory =
+  | 'spot'
+  | 'experience'
+  | 'culture'
+  | 'festival'
+  | 'stay'
+  | 'food'
+  | 'cafe'
+  | 'market'
+  | 'all';
+
+export const MAP_INFO_CATEGORY_LABELS: Record<MapInfoCategory, string> = {
+  spot: '고택',
+  experience: '전통 체험',
+  culture: '문화유산',
+  festival: '축제',
+  stay: '한옥 숙소',
+  food: '전통 맛집',
+  cafe: '한옥 카페',
+  market: '전통 시장',
+  all: '전체',
+};
+
+export interface InfoPlaceItem {
+  placeId: string;
+  name: string;
+  category: string;
+  displayCategory?: string;
+  matchedCategories?: string[];
+  appliedCategories?: string[];
+  coordinates: { lat: number; lng: number };
+  region: { regionCode: string; name: string };
+  thumbnailUrl: string | null;
+  summary: string;
+  savedByMe?: boolean;
+}
+
+export interface InfoPlacePage {
+  query: { category: string };
+  snapshot: { id: string; publishedAt: string };
+  totalCount: number;
+  items: InfoPlaceItem[];
+  nextCursor: string | null;
+  appliedCategories: string[];
+  coverage: string;
+}
+
+export type ViewportRenderMode = 'REGION' | 'DISTRICT' | 'CLUSTER' | 'PLACE';
+
+export interface ViewportItemBounds {
+  west: number;
+  south: number;
+  east: number;
+  north: number;
+}
+
+export interface ViewportItem {
+  type: ViewportRenderMode;
+  // PLACE fields
+  placeId?: string;
+  thumbnailUrl?: string | null;
+  // CLUSTER / DISTRICT / REGION fields
+  regionCode?: string;
+  count?: number;
+  categoryCounts?: Record<string, number>;
+  // shared
+  name: string;
+  category?: string;
+  center: { lat: number; lng: number };
+  bounds?: ViewportItemBounds;
+  targetZoomLevel?: number;
+}
+
+export interface MapViewportResponse {
+  renderMode: ViewportRenderMode;
+  servedBbox: string;
+  snapshotId: string;
+  items: ViewportItem[];
+  totalCountInViewport?: number;
+}
+
+export interface ViewportRequestParams {
+  bbox: string;
+  zoomLevel: number;
+  category: string;
+  regionCode?: string;
+}

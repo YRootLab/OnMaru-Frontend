@@ -1,11 +1,25 @@
 import { create } from 'zustand';
 import { palette } from '@/design-system/tokens';
-import type { HeatDay, HeatSpot, Item, KakaoMap, LatLng, MapMode, SheetSnap, Warmth } from '@/features/map/types';
+import type {
+  HeatDay,
+  HeatSpot,
+  InfoPlaceItem,
+  Item,
+  KakaoMap,
+  LatLng,
+  MapInfoCategory,
+  MapMode,
+  MapViewportResponse,
+  SheetSnap,
+  ViewportItem,
+  ViewportRenderMode,
+  Warmth,
+} from '@/features/map/types';
 import type { WarmthPeriod } from '@/features/map/warmth/heatScale';
 
 
 export const DEFAULT_CENTER: LatLng = { lat: 36.35, lng: 127.75 };
-export const DEFAULT_LEVEL = 11;
+export const DEFAULT_LEVEL = 9;
 
 
 export const MODE_COLOR: Record<MapMode, string> = {
@@ -57,6 +71,34 @@ interface MapState {
   panelOpen: boolean;
   sheetSnap: SheetSnap;
 
+  // ── Info list state ──────────────────────────────────────────────────────
+  infoCategory: MapInfoCategory;
+  infoRegionCode: string | null;
+  listItems: InfoPlaceItem[];
+  listTotalCount: number;
+  listNextCursor: string | null;
+  listSnapshotId: string | null;
+  isListLoading: boolean;
+  listError: string | null;
+
+  // ── Info viewport state ──────────────────────────────────────────────────
+  viewportItems: ViewportItem[];
+  viewportRenderMode: ViewportRenderMode | null;
+  viewportSnapshotId: string | null;
+  servedBbox: string | null;
+  isViewportLoading: boolean;
+  viewportError: string | null;
+
+  setInfoCategory: (category: MapInfoCategory) => void;
+  setInfoRegionCode: (regionCode: string | null) => void;
+  setListItems: (items: InfoPlaceItem[], totalCount: number, nextCursor: string | null, snapshotId: string | null) => void;
+  appendListItems: (items: InfoPlaceItem[], nextCursor: string | null) => void;
+  setIsListLoading: (loading: boolean) => void;
+  setListError: (error: string | null) => void;
+  setViewportResponse: (res: MapViewportResponse) => void;
+  setIsViewportLoading: (loading: boolean) => void;
+  setViewportError: (error: string | null) => void;
+
   setMap: (map: KakaoMap | null) => void;
   setMode: (mode: MapMode) => void;
   setCategory: (category: string | null) => void;
@@ -91,6 +133,44 @@ interface MapState {
 }
 
 export const useMapStore = create<MapState>((set, get) => ({
+  // ── Info list ──────────────────────────────────────────────────────────────
+  infoCategory: 'spot',
+  infoRegionCode: null,
+  listItems: [],
+  listTotalCount: 0,
+  listNextCursor: null,
+  listSnapshotId: null,
+  isListLoading: false,
+  listError: null,
+
+  // ── Info viewport ──────────────────────────────────────────────────────────
+  viewportItems: [],
+  viewportRenderMode: null,
+  viewportSnapshotId: null,
+  servedBbox: null,
+  isViewportLoading: false,
+  viewportError: null,
+
+  setInfoCategory: (infoCategory) =>
+    set({ infoCategory, infoRegionCode: null, listItems: [], listNextCursor: null, listSnapshotId: null }),
+  setInfoRegionCode: (infoRegionCode) =>
+    set({ infoRegionCode, listItems: [], listNextCursor: null }),
+  setListItems: (items, totalCount, nextCursor, snapshotId) =>
+    set({ listItems: items, listTotalCount: totalCount, listNextCursor: nextCursor, listSnapshotId: snapshotId }),
+  appendListItems: (items, nextCursor) =>
+    set((s) => ({ listItems: [...s.listItems, ...items], listNextCursor: nextCursor })),
+  setIsListLoading: (isListLoading) => set({ isListLoading }),
+  setListError: (listError) => set({ listError }),
+  setViewportResponse: (res) =>
+    set({
+      viewportItems: res.items,
+      viewportRenderMode: res.renderMode,
+      viewportSnapshotId: res.snapshotId,
+      servedBbox: res.servedBbox,
+    }),
+  setIsViewportLoading: (isViewportLoading) => set({ isViewportLoading }),
+  setViewportError: (viewportError) => set({ viewportError }),
+
   map: null,
   mode: 'info',
   category: null,
