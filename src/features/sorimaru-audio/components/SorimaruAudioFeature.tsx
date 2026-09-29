@@ -501,6 +501,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                     <SorimaruEditorialRail
                       stories={editorialRailStories}
                       storySets={heroStorySets}
+                      isLoading={initialLoading || catalog.status === 'loading'}
                       onSelectStory={handleRailStorySelection}
                     />
                   </div>

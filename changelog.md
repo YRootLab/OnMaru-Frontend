@@ -3,6 +3,11 @@
 Lightweight human-readable summary of meaningful repository changes. This does not replace Git history.
 
 ## Unreleased
+
+## [v0.1.5] - 2026-09-29
+- 소리마루 스켈레톤 레일의 좌우 카드가 첫 렌더에서 잠시 원본 크기로 보인 뒤 축소되던 현상을 수정했다. Framer Motion 초기 상태를 최종 scale에 맞춰 로딩 시작부터 중앙 카드와 주변 카드의 크기 관계가 즉시 표시되도록 했다.
+- 공통 상단 네비게이션의 데스크톱 메뉴와 로그인 텍스트를 14px로 통일해 홈·한옥 이야기·소리마루·지도 라우트 이동 후에도 동일한 글자 크기를 유지하도록 조정했다.
+- 소리마루 `장면을 따라 걷는 소리` 레일에 초기 로딩·새로고침용 카드 내부 스켈레톤을 추가했다. 기존 카드의 크기·위치·회전·확대 상태는 유지하고 이미지와 배지·제목·부제·재생시간 자리만 중성 회색 shimmer로 대체하며, 로딩 중 자동 스크롤과 선택은 잠시 멈춘다.
 - 홈 화면 추천 코스 카드의 섬네일 상단 중복 위치 뱃지 UI(`LocationBadge`)를 제거하여 섬네일 시야를 확보하고 하단 설명의 위치 정보와 중복 표기되던 문제를 개선했다.
 - 지도 온기모드 데이터를 Spring Backend API(`GET /api/v1/insights/heatmap`) 우선 호출 구조로 전환하고, 503 hibernate-wake/네트워크 타임아웃(`SERVER_WAKING`) 및 서비스 불가(`SERVICE_UNAVAILABLE`) 상태에 대한 2회 자동 재시도(3초/7초 간격) 및 관광공사 DataLab fallback(`fetchLegacyWarmthFallback`) 자동 전환 정책을 구현했다. 클라이언트 캐시 TTL 60초 및 in-flight 중복 호출 방지를 적용하여 지도 UI, 마커, 카드의 기존 렌더링 형식을 그대로 유지한 채 전국 모든 지역의 데이터를 고르게 지원하도록 개선했다.
 - API 장애 상태 정책(API Outage / Failure State Policy)을 구현했다. Render 절전 복귀 중(`SERVER_WAKING`, HTTP 503 + 빈 본문 또는 `x-render-routing: hibernate-wake-error`), 백엔드 503 장애(`SERVICE_UNAVAILABLE`), 일반 서버 오류(`SERVER_ERROR`, HTTP 500), 429(`RATE_LIMITED`)를 분류하고 표준 사용자 메시지 및 지연/재시도 정책(`API_RETRY_POLICIES`)을 적용했다.
