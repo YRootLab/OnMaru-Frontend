@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import styled from '@emotion/styled';
-import { MapPin, ArrowLeft, ArrowRight, RotateCcw, Volume2, Heart } from 'lucide-react';
+import { ArrowLeft, ArrowRight, RotateCcw, Volume2, Heart } from 'lucide-react';
 import { palette, fontSize, ringShadow } from '@/design-system/tokens';
 import { useJourneyStore } from '../store/useJourneyStore';
 import { useCuratedCourses, usePopularRegions, usePopularSounds } from '../hooks/useHomeData';
@@ -339,23 +339,6 @@ export function CourseImageLayer({ name, thumbnailUrl }: CourseImageLayerProps) 
     </>
   );
 }
-
-const LocationBadge = styled.span`
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  padding: 4px 10px;
-  border-radius: 9999px;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  color: #ffffff;
-  font-size: ${fontSize.xs};
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-`;
 
 const CourseBody = styled.div`
   padding: 10px 17px 12px;
@@ -1092,10 +1075,6 @@ export default function JourneyDiscoveryFeed() {
     >
       <CourseImageWrap>
         <CourseImageLayer name={course.name} thumbnailUrl={course.thumbnailUrl} />
-        <LocationBadge>
-          <MapPin size={14} strokeWidth={2.2} />
-          <span>{course.regionName}</span>
-        </LocationBadge>
       </CourseImageWrap>
       <CourseBody>
         <CourseTitle>{course.name}</CourseTitle>
