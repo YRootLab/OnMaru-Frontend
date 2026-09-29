@@ -24,6 +24,7 @@ export function createModerationRepository(request: RequestFn = apiRequest): Mod
         method: 'POST',
         body: input,
         headers: authHeaders(operatorId),
+        retry: false,
       });
     },
   };
