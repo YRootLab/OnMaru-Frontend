@@ -129,23 +129,12 @@ const SvgRope = styled.svg`
     stroke-linecap: round;
   }
 
-  .rope-texture {
-    stroke: #ebd5bb;
-    stroke-width: 1.2;
-    fill: none;
-    stroke-dasharray: 4, 4;
-    stroke-linecap: round;
-  }
-
   [data-theme='dark'] & {
     .rope-shadow {
       stroke: rgba(0, 0, 0, 0.55);
     }
     .rope-main {
       stroke: #866847;
-    }
-    .rope-texture {
-      stroke: #aa8964;
     }
   }
 `;
@@ -277,7 +266,6 @@ export default function HanokPolaroidClothesline({ villages, onSelectVillage }: 
               <SvgRope viewBox={`0 0 ${unitWidth} 90`} preserveAspectRatio="none" aria-hidden="true">
                 <path d={svgPath} className="rope-shadow" />
                 <path d={svgPath} className="rope-main" />
-                <path d={svgPath} className="rope-texture" />
               </SvgRope>
               {cardLayouts.map(({ village, yOffset, tilt }, idx) => (
                 <PhotoHang key={village.id} $yOffset={yOffset}>

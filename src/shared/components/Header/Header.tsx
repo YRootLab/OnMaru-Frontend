@@ -185,7 +185,7 @@ const LogoLink = styled(Link)`
 const LogoTitle = styled.span<{ $isLanding?: boolean }>`
   font-family: var(--font-hanok);
   font-weight: 900;
-  font-size: 1.05rem;
+  font-size: 0.98rem;
   letter-spacing: -0.03em;
   color: ${({ $isLanding }) => ($isLanding ? '#ffffff' : meok[900])};
   white-space: nowrap;
@@ -215,7 +215,7 @@ const CenterNav = styled('nav', transientProps)<LandingProps>`
 const NavLink = styled(Link, transientProps)<LandingProps>`
   position: relative;
   font-family: 'Spoqa Han Sans Neo', sans-serif;
-  font-size: calc(${fontSize.sm} + 1px);
+  font-size: ${fontSize.sm};
   font-weight: ${({ $isActive }) => ($isActive ? 700 : 400)};
   color: ${({ $isLanding, $isActive }) => {
     if ($isActive) {
@@ -228,7 +228,7 @@ const NavLink = styled(Link, transientProps)<LandingProps>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 5px 12px;
+  padding: 4px 11px;
   border-radius: 9999px;
   background-color: transparent;
   border: 1px solid transparent;
@@ -428,7 +428,7 @@ const MobileMenuDivider = styled('div', transientProps)<LandingProps>`
 
 const LoginButton = styled(Link, transientProps)<LandingProps>`
   font-family: 'Spoqa Han Sans Neo', sans-serif;
-  font-size: calc(${fontSize.sm} + 1px);
+  font-size: ${fontSize.sm};
   font-weight: 700;
 
   color: #ffffff;
@@ -440,8 +440,8 @@ const LoginButton = styled(Link, transientProps)<LandingProps>`
     $isLanding ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.08)'};
 
   border-radius: 9999px;
-  height: 30px;
-  padding: 0 13px 0 14px;
+  height: 28px;
+  padding: 0 12px 0 13px;
   text-decoration: none;
   letter-spacing: -0.01em;
   line-height: 1;

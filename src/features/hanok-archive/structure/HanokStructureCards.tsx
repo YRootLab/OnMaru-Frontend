@@ -132,7 +132,7 @@ const CardDesc = styled.p`
 const PreviewCanvas = styled.div<{ $bg: string }>`
   position: relative;
   width: 100%;
-  height: clamp(160px, 20vw, 200px);
+  height: clamp(180px, 22vw, 220px);
   background: ${({ $bg }) => $bg};
   overflow: hidden;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
@@ -394,10 +394,11 @@ export default function HanokStructureCards() {
                 width: '100%',
                 height: '100%',
                 objectFit: 'cover',
+                objectPosition: 'center 15%',
                 display: 'block',
               }}
             >
-              <source src="/videos/room.mp4" type="video/mp4" />
+              <source src="/videos/Oni_touch.mp4" type="video/mp4" />
             </video>
             <div
               style={{

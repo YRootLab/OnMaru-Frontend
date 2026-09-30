@@ -28,13 +28,14 @@ export default function Loading() {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'var(--color-bg-app, #FAF7F4)',
+        background: 'transparent',
         zIndex: 9999,
+        pointerEvents: 'none',
       }}
     >
       <style>{`
         [data-theme='dark'] .onmaru-loading-screen {
-          background: #1C1A17 !important;
+          background: transparent !important;
         }
       `}</style>
       <div
