@@ -6,8 +6,14 @@ import type { AdminRole, AdminUser } from '@/features/admin/types';
 import { setAccessToken, removeAccessToken, USE_MOCK, getAccessToken } from '@/lib/api/client';
 import { adminLogin, adminLogout, adminRefresh, adminGetMe } from '@/features/admin/api/adminAuth.api';
 
-// 메모리 내 사용자 상태 (새로고침 시 refresh API로 복구)
+// 메모리 내 사용자 상태 — 여러 훅 인스턴스(레이아웃·로그인 페이지)가 공유
 let _memUser: AdminUser | null = null;
+const _userListeners = new Set<(u: AdminUser | null) => void>();
+
+function broadcastUser(u: AdminUser | null) {
+  _memUser = u;
+  _userListeners.forEach((l) => l(u));
+}
 
 export function useAdminAuth() {
   const router = useRouter();
@@ -15,8 +21,15 @@ export function useAdminAuth() {
   const [isLoading, setIsLoading] = useState(true);
   const bootstrapped = useRef(false);
 
+  // 다른 인스턴스의 로그인/로그아웃을 구독해 state 동기화
+  useEffect(() => {
+    const listener = (u: AdminUser | null) => setUserState(u);
+    _userListeners.add(listener);
+    return () => { _userListeners.delete(listener); };
+  }, []);
+
   const setUser = useCallback((u: AdminUser | null) => {
-    _memUser = u;
+    broadcastUser(u);
     setUserState(u);
   }, []);
 
