@@ -74,12 +74,10 @@ export default function Loading() {
       </div>
       <span
         style={{
-          position: 'absolute',
-          width: 1,
-          height: 1,
-          overflow: 'hidden',
-          clip: 'rect(0,0,0,0)',
-          whiteSpace: 'nowrap',
+          marginTop: '12px',
+          fontSize: '13px',
+          color: 'rgba(78, 89, 104, 0.5)',
+          letterSpacing: '0.02em',
         }}
       >
         페이지 로딩 중
