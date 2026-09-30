@@ -122,9 +122,11 @@ function runWithSse(accepted: RunAccepted, set: SetFn): Promise<ExplorationSnaps
         },
         {
           onError: async () => {
+            if (cancelled) return;
             if (!reconnected) {
               reconnected = true;
               unsubscribe?.();
+              unsubscribe = null;
               await sleep(1000);
               if (!cancelled) doSubscribe();
             } else {

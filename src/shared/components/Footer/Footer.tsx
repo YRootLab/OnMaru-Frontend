@@ -288,6 +288,17 @@ const OniHoldingWrap = styled.div`
       height: 90px;
     }
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    video {
+      display: none;
+      transition: none;
+    }
+
+    ${FooterWrapper}:hover & video {
+      transform: none;
+    }
+  }
 `;
 
 const MassiveWatermark = styled.div`
