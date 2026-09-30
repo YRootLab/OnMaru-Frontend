@@ -140,10 +140,342 @@ const Subtitle = styled.p`
   }
 `;
 
-const SearchForm = styled.form<{ $compact?: boolean }>`
+const SearchFormWrapper = styled.div<{ $compact?: boolean }>`
   position: relative;
   width: 100%;
   max-width: ${({ $compact }) => ($compact ? '640px' : '720px')};
+  margin: 0 auto;
+`;
+
+const OniBubble = styled.div`
+  position: absolute;
+  bottom: 108px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  background: rgba(14, 16, 22, 0.9);
+  color: #f8fafc;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 30;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 4px;
+    border-style: solid;
+    border-color: rgba(14, 16, 22, 0.9) transparent transparent transparent;
+  }
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.94);
+    color: #111827;
+
+    &::after {
+      border-color: rgba(255, 255, 255, 0.94) transparent transparent transparent;
+    }
+  }
+
+  @media (max-width: 640px) {
+    bottom: 84px;
+    font-size: 10.5px;
+    padding: 4px 10px;
+  }
+`;
+
+const OniTrack = styled.div<{ $compact?: boolean }>`
+  position: absolute;
+  bottom: calc(100% - 48px);
+  left: 0;
+  right: 0;
+  height: 240px;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 10;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0px,
+    rgba(0, 0, 0, 0.15) 30px,
+    rgba(0, 0, 0, 0.7) 75px,
+    black 110px,
+    black calc(100% - 110px),
+    rgba(0, 0, 0, 0.7) calc(100% - 75px),
+    rgba(0, 0, 0, 0.15) calc(100% - 30px),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0px,
+    rgba(0, 0, 0, 0.15) 30px,
+    rgba(0, 0, 0, 0.7) 75px,
+    black 110px,
+    black calc(100% - 110px),
+    rgba(0, 0, 0, 0.7) calc(100% - 75px),
+    rgba(0, 0, 0, 0.15) calc(100% - 30px),
+    transparent 100%
+  );
+
+  @media (max-width: 640px) {
+    bottom: calc(100% - 36px);
+    height: 195px;
+    mask-image: linear-gradient(
+      to right,
+      transparent 0px,
+      rgba(0, 0, 0, 0.2) 20px,
+      rgba(0, 0, 0, 0.7) 50px,
+      black 80px,
+      black calc(100% - 80px),
+      rgba(0, 0, 0, 0.7) calc(100% - 50px),
+      rgba(0, 0, 0, 0.2) calc(100% - 20px),
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0px,
+      rgba(0, 0, 0, 0.2) 20px,
+      rgba(0, 0, 0, 0.7) 50px,
+      black 80px,
+      black calc(100% - 80px),
+      rgba(0, 0, 0, 0.7) calc(100% - 50px),
+      rgba(0, 0, 0, 0.2) calc(100% - 20px),
+      transparent 100%
+    );
+  }
+`;
+
+const OniVideoBox = styled.div`
+  position: relative;
+  width: 175px;
+  height: 150px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: transparent;
+  animation: oniFlip 26s linear infinite;
+  transform-origin: center bottom;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+
+  @keyframes oniFlip {
+    0% {
+      transform: scaleX(1);
+    }
+    48% {
+      transform: scaleX(1);
+    }
+    48.1% {
+      transform: scaleX(-1);
+    }
+    98% {
+      transform: scaleX(-1);
+    }
+    98.1% {
+      transform: scaleX(1);
+    }
+    100% {
+      transform: scaleX(1);
+    }
+  }
+
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    pointer-events: none;
+  }
+
+  @media (max-width: 640px) {
+    width: 130px;
+    height: 112px;
+    animation: oniFlipMobile 20s linear infinite;
+
+    @keyframes oniFlipMobile {
+      0% {
+        transform: scaleX(1);
+      }
+      48% {
+        transform: scaleX(1);
+      }
+      48.1% {
+        transform: scaleX(-1);
+      }
+      98% {
+        transform: scaleX(-1);
+      }
+      98.1% {
+        transform: scaleX(1);
+      }
+      100% {
+        transform: scaleX(1);
+      }
+    }
+  }
+`;
+
+const OniWalkerContainer = styled.div<{ $compact?: boolean }>`
+  position: absolute;
+  bottom: 0;
+  left: -190px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  pointer-events: auto;
+  animation: oniPatrol 26s linear infinite;
+  transform-origin: center bottom;
+
+  &:hover {
+    animation-play-state: paused;
+    filter: blur(0px) !important;
+    opacity: 1 !important;
+
+    ${OniVideoBox} {
+      animation-play-state: paused;
+      transform: scale(1.06) translateY(-4px);
+    }
+
+    ${OniBubble} {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-2px);
+    }
+  }
+
+  @keyframes oniPatrol {
+    0% {
+      left: -190px;
+      filter: blur(8px);
+      opacity: 0;
+    }
+    5% {
+      left: -90px;
+      filter: blur(0px);
+      opacity: 1;
+    }
+    43% {
+      left: calc(100% - 210px);
+      filter: blur(0px);
+      opacity: 1;
+    }
+    48% {
+      left: calc(100% - 40px);
+      filter: blur(8px);
+      opacity: 0;
+    }
+    48.1% {
+      left: calc(100% - 40px);
+      filter: blur(8px);
+      opacity: 0;
+    }
+    50% {
+      left: calc(100% - 40px);
+      filter: blur(8px);
+      opacity: 0;
+    }
+    55% {
+      left: calc(100% - 210px);
+      filter: blur(0px);
+      opacity: 1;
+    }
+    93% {
+      left: -90px;
+      filter: blur(0px);
+      opacity: 1;
+    }
+    98% {
+      left: -190px;
+      filter: blur(8px);
+      opacity: 0;
+    }
+    98.1% {
+      left: -190px;
+      filter: blur(8px);
+      opacity: 0;
+    }
+    100% {
+      left: -190px;
+      filter: blur(8px);
+      opacity: 0;
+    }
+  }
+
+  @media (max-width: 640px) {
+    display: ${({ $compact }) => ($compact ? 'none' : 'flex')};
+    animation: oniPatrolMobile 20s linear infinite;
+
+    @keyframes oniPatrolMobile {
+      0% {
+        left: -140px;
+        filter: blur(6px);
+        opacity: 0;
+      }
+      5% {
+        left: -70px;
+        filter: blur(0px);
+        opacity: 1;
+      }
+      43% {
+        left: calc(100% - 150px);
+        filter: blur(0px);
+        opacity: 1;
+      }
+      48% {
+        left: calc(100% - 30px);
+        filter: blur(6px);
+        opacity: 0;
+      }
+      48.1% {
+        left: calc(100% - 30px);
+        filter: blur(6px);
+        opacity: 0;
+      }
+      50% {
+        left: calc(100% - 30px);
+        filter: blur(6px);
+        opacity: 0;
+      }
+      55% {
+        left: calc(100% - 150px);
+        filter: blur(0px);
+        opacity: 1;
+      }
+      93% {
+        left: -70px;
+        filter: blur(0px);
+        opacity: 1;
+      }
+      98% {
+        left: -140px;
+        filter: blur(6px);
+        opacity: 0;
+      }
+      98.1% {
+        left: -140px;
+        filter: blur(6px);
+        opacity: 0;
+      }
+      100% {
+        left: -140px;
+        filter: blur(6px);
+        opacity: 0;
+      }
+    }
+  }
+`;
+
+const SearchForm = styled.form<{ $compact?: boolean }>`
+  position: relative;
+  width: 100%;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -491,31 +823,56 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
         </>
       )}
 
-      <SearchForm ref={searchFormRef} onSubmit={handleSubmit} $compact={hasSearched}>
-        <SearchIconWrap>
-          <Compass size={hasSearched ? 18 : 20} />
-        </SearchIconWrap>
-        <Input
-          type="text"
-          value={currentQuery}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="어디로 떠나고 싶으세요?"
-          aria-label="여행하고 싶은 한옥이나 지역 입력"
-        />
-        {isGenerating ? (
-          <SubmitButton type="button" $disabled={isCancelling} $compact={hasSearched} onClick={handleCancel} aria-label="생성 취소">
-            {isCancelling ? (
-              <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
-            ) : (
-              <X size={16} />
-            )}
-          </SubmitButton>
-        ) : (
-          <SubmitButton type="submit" $compact={hasSearched} aria-label="맞춤 코스 찾기">
-            <Search size={16} />
-          </SubmitButton>
+      <SearchFormWrapper $compact={hasSearched}>
+        {!hasSearched && (
+          <OniTrack $compact={hasSearched}>
+            <OniWalkerContainer
+              $compact={hasSearched}
+              onClick={() => searchFormRef?.current?.querySelector('input')?.focus()}
+            >
+              <OniBubble>온이가 길을 밝히고 있어요 🏮</OniBubble>
+              <OniVideoBox>
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="auto"
+                >
+                  <source src="/videos/Oni_walking_no_bg.webm" type="video/webm" />
+                  <source src="/videos/Oni_walking.mp4" type="video/mp4" />
+                </video>
+              </OniVideoBox>
+            </OniWalkerContainer>
+          </OniTrack>
         )}
-      </SearchForm>
+
+        <SearchForm ref={searchFormRef} onSubmit={handleSubmit} $compact={hasSearched}>
+          <SearchIconWrap>
+            <Compass size={hasSearched ? 18 : 20} />
+          </SearchIconWrap>
+          <Input
+            type="text"
+            value={currentQuery}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="어디로 떠나고 싶으세요?"
+            aria-label="여행하고 싶은 한옥이나 지역 입력"
+          />
+          {isGenerating ? (
+            <SubmitButton type="button" $disabled={isCancelling} $compact={hasSearched} onClick={handleCancel} aria-label="생성 취소">
+              {isCancelling ? (
+                <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
+              ) : (
+                <X size={16} />
+              )}
+            </SubmitButton>
+          ) : (
+            <SubmitButton type="submit" $compact={hasSearched} aria-label="맞춤 코스 찾기">
+              <Search size={16} />
+            </SubmitButton>
+          )}
+        </SearchForm>
+      </SearchFormWrapper>
 
       {hasSearched && (
         <>
