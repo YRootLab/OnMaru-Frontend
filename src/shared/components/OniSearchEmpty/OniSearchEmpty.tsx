@@ -92,10 +92,8 @@ const MainTitle = styled.h4`
   color: ${meok[900]};
   letter-spacing: -0.02em;
   word-break: keep-all;
-
-  @media (min-width: 640px) {
-    white-space: nowrap;
-  }
+  max-width: 100%;
+  overflow-wrap: anywhere;
 
   [data-theme='dark'] & {
     color: ${meok[100]};
@@ -111,11 +109,7 @@ const SubDescription = styled.p`
   white-space: pre-line;
   word-break: keep-all;
   max-width: 100%;
-
-  @media (min-width: 640px) {
-    white-space: nowrap;
-    max-width: none;
-  }
+  overflow-wrap: anywhere;
 
   [data-theme='dark'] & {
     color: ${meok[400]};
