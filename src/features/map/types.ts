@@ -112,6 +112,7 @@ export interface PlaceDetailData {
   mapy: number;
   intro: Record<string, string>;
   homepage: string | null;
+  contentTags?: string[];
   error?: string;
 }
 

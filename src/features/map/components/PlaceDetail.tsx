@@ -37,6 +37,7 @@ import { calculateTravelEstimate, isTraditionalPlace } from '@/features/map/util
 import { createKakaoNavigationLinks } from '@/features/map/utils/navigation';
 import PlaceDetailCarousel from './detail/PlaceDetailCarousel';
 import PlaceWarmthSection from '@/private/core-ui/map-warmth/PlaceWarmthSection';
+import ContentTagChips from '@/shared/components/ContentTagChips/ContentTagChips';
 import RoadviewModal from './detail/RoadviewModal';
 import {
   DetailWrapper,
@@ -423,6 +424,7 @@ export default function PlaceDetail() {
                   ))}
                 </BadgeRow>
               )}
+              <ContentTagChips tags={data?.contentTags} max={5} />
               {smartFeatures.length > 0 && (
                 <SmartFeatureRow>
                   {smartFeatures.map((feat, idx) => (
