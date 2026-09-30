@@ -231,31 +231,80 @@ const Copyright = styled.div`
   font-weight: 600;
   letter-spacing: -0.01em;
   color: ${meok[500]};
-  margin-bottom: 16px;
+  margin-bottom: 4px;
 
   [data-theme='dark'] & {
     color: rgba(255, 255, 255, 0.55);
   }
 `;
 
+const FooterTopRow = styled.div`
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
 
+  @media (max-width: 640px) {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: 16px;
+  }
+`;
 
+const FooterInfoCol = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+`;
+
+const OniHoldingWrap = styled.div`
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-bottom: 4px;
+  user-select: none;
+  pointer-events: none;
+
+  video {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    display: block;
+    filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.12));
+    transition: transform 0.3s ease;
+  }
+
+  ${FooterWrapper}:hover & video {
+    transform: scale(1.05) translateY(-2px);
+  }
+
+  @media (max-width: 640px) {
+    align-self: flex-end;
+    margin-bottom: 0;
+
+    video {
+      width: 90px;
+      height: 90px;
+    }
+  }
+`;
 
 const MassiveWatermark = styled.div`
   width: 100%;
   font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', 'Spoqa Han Sans Neo', sans-serif;
-  font-size: clamp(2rem, 8.5vw, 8rem);
+  font-size: clamp(1.8rem, 5.8vw, 5.8rem);
   font-weight: 900;
   line-height: 1.1;
   letter-spacing: -0.045em;
   user-select: none;
   pointer-events: none;
   margin: 16px 0 0;
-  white-space: normal;
+  white-space: nowrap;
   word-break: keep-all;
-  overflow-wrap: break-word;
+  overflow: hidden;
+  text-overflow: clip;
   transition: color 0.4s ease, transform 0.4s ease;
-
 
   color: rgba(25, 31, 40, 0.05);
 
@@ -263,7 +312,6 @@ const MassiveWatermark = styled.div`
     color: rgba(25, 31, 40, 0.085);
     transform: translateY(-4px);
   }
-
 
   [data-theme='dark'] & {
     color: rgba(255, 255, 255, 0.08);
@@ -274,10 +322,12 @@ const MassiveWatermark = styled.div`
     transform: translateY(-4px);
   }
 
-  @media (max-width: 640px) {
-    font-size: clamp(2rem, 11vw, 4rem);
+  @media (max-width: 768px) {
+    font-size: clamp(2rem, 10vw, 3.8rem);
     letter-spacing: -0.03em;
     margin: 12px 0 0;
+    white-space: normal;
+    overflow: visible;
   }
 `;
 
@@ -295,7 +345,6 @@ export default function Footer() {
     });
   }, []);
 
-
   if (pathname.startsWith('/map')) {
     return null;
   }
@@ -308,40 +357,51 @@ export default function Footer() {
         onMouseLeave={() => setIsHovered(false)}
         onMouseMove={handleMouseMove}
       >
-        {}
         <CursorSpotlight $x={mousePos.x} $y={mousePos.y} $visible={isHovered} aria-hidden="true" />
 
         <FooterInner>
           <ContentArea>
+            <FooterTopRow>
+              <FooterInfoCol>
+                <BusinessInfo>
+                  <p>온마루 (OnMaru) · 한국관광공사 공공데이터(TourAPI 4.0 · Odii API) 기반 한옥 몰입형 관광 큐레이션</p>
+                </BusinessInfo>
 
+                <PolicyLinksRow>
+                  <PolicyButton type="button" $bold onClick={() => setActivePolicyTab('privacy')}>
+                    개인정보 처리방침
+                  </PolicyButton>
+                  <PolicyButton type="button" onClick={() => setActivePolicyTab('terms')}>
+                    서비스 이용약관
+                  </PolicyButton>
+                  <PolicyButton type="button" onClick={() => setActivePolicyTab('publicData')}>
+                    공공데이터 이용지침
+                  </PolicyButton>
+                  <PolicyButton type="button" onClick={() => setActivePolicyTab('openSource')}>
+                    오픈소스 라이선스 고지
+                  </PolicyButton>
+                </PolicyLinksRow>
 
-            {}
-            <BusinessInfo>
-              <p>온마루 (OnMaru) · 한국관광공사 공공데이터(TourAPI 4.0 · Odii API) 기반 한옥 몰입형 관광 큐레이션</p>
-            </BusinessInfo>
+                <Copyright>
+                  © OnMaru. All rights reserved.
+                </Copyright>
+              </FooterInfoCol>
 
-            {}
-            <PolicyLinksRow>
-              <PolicyButton type="button" $bold onClick={() => setActivePolicyTab('privacy')}>
-                개인정보 처리방침
-              </PolicyButton>
-              <PolicyButton type="button" onClick={() => setActivePolicyTab('terms')}>
-                서비스 이용약관
-              </PolicyButton>
-              <PolicyButton type="button" onClick={() => setActivePolicyTab('publicData')}>
-                공공데이터 이용지침
-              </PolicyButton>
-              <PolicyButton type="button" onClick={() => setActivePolicyTab('openSource')}>
-                오픈소스 라이선스 고지
-              </PolicyButton>
-            </PolicyLinksRow>
+              <OniHoldingWrap>
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="auto"
+                  aria-label="소중한 것을 품에 안은 마스코트 온이"
+                >
+                  <source src="/videos/Oni_holding.mp4" type="video/mp4" />
+                </video>
+              </OniHoldingWrap>
+            </FooterTopRow>
 
-            {}
-            <Copyright>
-              © OnMaru. All rights reserved.
-            </Copyright>
-
-            {}
+            {/* 거대 워터마크 슬로건 - PC 한줄 */}
             <MassiveWatermark aria-hidden="true">
               한옥의 숨결과 소리를 잇다
             </MassiveWatermark>
