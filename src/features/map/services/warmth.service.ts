@@ -185,6 +185,7 @@ async function executeWarmthFetchFlow(
           });
           if (fallback.spots.length > 0) return fallback;
         } catch (fallbackError) {
+          if (fallbackError instanceof DOMException && fallbackError.name === 'AbortError') throw fallbackError;
           log.warn('[warmthService] MISSING coverage fallback failed:', fallbackError);
         }
         return {
@@ -245,6 +246,7 @@ async function executeWarmthFetchFlow(
     });
     return fallbackResult;
   } catch (fallbackErr) {
+    if (fallbackErr instanceof DOMException && fallbackErr.name === 'AbortError') throw fallbackErr;
     log.error('[warmthService] Tour API fallback also failed:', fallbackErr);
     const errorType = isWakingOrUnavailableError(lastError);
     return {

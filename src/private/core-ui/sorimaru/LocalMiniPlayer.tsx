@@ -32,6 +32,7 @@ const PlayIcon: React.FC<{ size?: number }> = ({ size = 16 }) => {
 };
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80';
+const ONI_LISTEN_SRC = '/videos/Oni_listen_no_bg.webm';
 
 
 
@@ -78,16 +79,18 @@ const FloatingBarContainer = styled(motion.div)`
   margin: 0 auto;
   width: min(calc(100% - 1.5rem), 36rem);
   z-index: 110;
-  overflow: hidden;
+  overflow: visible;
   border-radius: 1.35rem;
   background-color: rgba(255, 255, 255, 0.98);
   padding: 0.625rem 0.875rem 0.875rem;
   backdrop-filter: blur(24px);
   box-shadow: 0 10px 36px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.05);
 
   [data-theme='dark'] & {
     background-color: rgba(28, 26, 23, 0.95);
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   @media (min-width: 640px) {
@@ -96,6 +99,120 @@ const FloatingBarContainer = styled(motion.div)`
   @media (min-width: 768px) {
     bottom: calc(2.25rem + env(safe-area-inset-bottom));
     z-index: 50;
+  }
+`;
+
+const FloatingOniSeat = styled(motion.button)`
+  position: absolute;
+  bottom: calc(100% - 30px);
+  right: 18px;
+  width: 124px;
+  height: 114px;
+  z-index: 20;
+  pointer-events: auto;
+  cursor: pointer;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+
+  &:focus-visible {
+    outline: 2px solid ${palette.juhong[500]};
+    outline-offset: 4px;
+    border-radius: 8px;
+  }
+
+  @media (max-width: 640px) {
+    bottom: calc(100% - 24px);
+    right: 8px;
+    width: 96px;
+    height: 88px;
+  }
+
+  &:hover .floating-oni-bubble {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+`;
+
+const FloatingOniVideo = styled.video`
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.3));
+  user-select: none;
+  transform: scaleX(-1);
+`;
+
+const FloatingOniBubble = styled.div<{ $show?: boolean }>`
+  position: absolute;
+  bottom: 84px;
+  left: 50%;
+  transform: translateX(-50%) ${({ $show }) => ($show ? 'translateY(0)' : 'translateY(4px)')};
+  background: rgba(28, 26, 23, 0.82);
+  color: #f8f8f7;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: ${({ $show }) => ($show ? 1 : 0)};
+  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  z-index: 25;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 4px;
+    border-style: solid;
+    border-color: rgba(28, 26, 23, 0.82) transparent transparent transparent;
+  }
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.82);
+    color: #171513;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+
+    &::after {
+      border-color: rgba(255, 255, 255, 0.82) transparent transparent transparent;
+    }
+  }
+
+  @media (max-width: 640px) {
+    bottom: 66px;
+    font-size: 10.5px;
+    padding: 4px 10px;
+  }
+`;
+
+const ExpandedSliderOni = styled.div<{ $progress: number }>`
+  position: absolute;
+  bottom: calc(100% - 2px);
+  left: ${({ $progress }) => `calc(${Math.min(94, Math.max(6, $progress))}% - 20px)`};
+  width: 40px;
+  height: 40px;
+  pointer-events: none;
+  z-index: 10;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  transition: left 0.15s ease-out;
+
+  @media (max-width: 640px) {
+    width: 32px;
+    height: 32px;
+    left: ${({ $progress }) => `calc(${Math.min(92, Math.max(8, $progress))}% - 16px)`};
   }
 `;
 
@@ -919,6 +1036,13 @@ export const LocalMiniPlayer: React.FC = () => {
 
   const [isVisible, setIsVisible] = useState(false);
   const [activeViewMode, setActiveViewMode] = useState<ViewMode>('roadview');
+  const [showOniBubble, setShowOniBubble] = useState(false);
+
+  useEffect(() => {
+    if (!showOniBubble) return undefined;
+    const timer = setTimeout(() => setShowOniBubble(false), 2800);
+    return () => clearTimeout(timer);
+  }, [showOniBubble]);
 
   useEffect(() => {
     const updateVisibility = () => {
@@ -998,6 +1122,31 @@ export const LocalMiniPlayer: React.FC = () => {
             exit={{ opacity: 0, y: 18 }}
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
           >
+            <FloatingOniSeat
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowOniBubble((prev) => !prev);
+              }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.94 }}
+              title="온이 - 소리 감상 중"
+              aria-label="온이 - 소리 감상 중"
+            >
+              <FloatingOniBubble className="floating-oni-bubble" $show={showOniBubble}>
+                {isPlaying ? '이야기에 귀 기울이는 중 🎧' : '고즈넉한 한옥의 소리 ✨'}
+              </FloatingOniBubble>
+              <FloatingOniVideo
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="auto"
+              >
+                <source src={ONI_LISTEN_SRC} type="video/webm" />
+              </FloatingOniVideo>
+            </FloatingOniSeat>
+
             <MiniPlayerContent>
               <ExpandButton type="button" onClick={() => setIsExpanded(true)}>
                 <ThumbnailImg src={story.imageUrl || FALLBACK_IMAGE} alt="" />
@@ -1249,6 +1398,17 @@ export const LocalMiniPlayer: React.FC = () => {
                 <SliderWrap>
                   {}
                   <CustomSliderContainer $progress={audioProgress}>
+                    <ExpandedSliderOni $progress={audioProgress} aria-hidden="true">
+                      <FloatingOniVideo
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        preload="auto"
+                      >
+                        <source src={ONI_LISTEN_SRC} type="video/webm" />
+                      </FloatingOniVideo>
+                    </ExpandedSliderOni>
                     <input
                       type="range"
                       min={0}

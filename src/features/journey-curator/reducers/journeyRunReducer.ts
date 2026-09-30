@@ -100,12 +100,16 @@ export function reduceJourneyRunState(
       connection: { status: 'terminal', runId: frame.data.runId },
     };
   }
-  return {
-    ...state,
-    renderSource: 'snapshot',
-    needsSnapshotRecovery: true,
-    connection: { status: 'reset', runId: frame.data.runId },
-  };
+  if (frame.event === 'reset') {
+    return {
+      ...state,
+      renderSource: 'snapshot',
+      needsSnapshotRecovery: true,
+      connection: { status: 'reset', runId: frame.data.runId },
+    };
+  }
+  // auth_closed: stream terminated by server — caller handles login recovery
+  return state;
 }
 
 export function shouldRecoverJourneySnapshot(state: JourneyRunUiState): boolean {

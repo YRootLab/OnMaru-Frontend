@@ -11,6 +11,7 @@ import {
   Bookmark,
   Check,
   Headphones,
+  Home,
   MapPin,
   Moon,
   Sparkles,
@@ -140,16 +141,16 @@ const NavItemBtn = styled.button<{ $active: boolean }>`
   border-radius: 12px;
   cursor: pointer;
   gap: 3px;
-  background: ${({ $active }) => ($active ? lightPalette.kobalt[50] : 'transparent')};
-  color: ${({ $active }) => ($active ? lightPalette.kobalt[700] : meok[500])};
+  background: ${({ $active }) => ($active ? lightPalette.juhong[50] : 'transparent')};
+  color: ${({ $active }) => ($active ? lightPalette.juhong[500] : meok[500])};
   transition:
     background-color 180ms cubic-bezier(0.16, 1, 0.3, 1),
     color 180ms cubic-bezier(0.16, 1, 0.3, 1),
     transform 150ms cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    background: ${({ $active }) => ($active ? lightPalette.kobalt[50] : 'rgba(0, 0, 0, 0.045)')};
-    color: ${({ $active }) => ($active ? lightPalette.kobalt[700] : meok[900])};
+    background: ${({ $active }) => ($active ? lightPalette.juhong[50] : 'rgba(0, 0, 0, 0.045)')};
+    color: ${({ $active }) => ($active ? lightPalette.juhong[500] : meok[900])};
   }
 
   &:active {
@@ -157,12 +158,12 @@ const NavItemBtn = styled.button<{ $active: boolean }>`
   }
 
   [data-theme='dark'] & {
-    background: ${({ $active }) => ($active ? 'rgba(0, 168, 150, 0.25)' : 'transparent')};
-    color: ${({ $active }) => ($active ? '#2dd4bf' : meok[400])};
+    background: ${({ $active }) => ($active ? 'rgba(255, 85, 0, 0.18)' : 'transparent')};
+    color: ${({ $active }) => ($active ? '#FF7830' : meok[400])};
 
     &:hover {
-      background: ${({ $active }) => ($active ? 'rgba(0, 168, 150, 0.32)' : 'rgba(255, 255, 255, 0.08)')};
-      color: ${({ $active }) => ($active ? '#2dd4bf' : '#ffffff')};
+      background: ${({ $active }) => ($active ? 'rgba(255, 85, 0, 0.24)' : 'rgba(255, 255, 255, 0.08)')};
+      color: ${({ $active }) => ($active ? '#FF7830' : '#ffffff')};
     }
   }
 `;
@@ -305,6 +306,7 @@ export default function MapNavRail() {
   const themePickerRef = useRef<HTMLDivElement>(null);
   const mode = useMapStore((s) => s.mode);
   const setMode = useMapStore((s) => s.setMode);
+  const category = useMapStore((s) => s.category);
   const setCategory = useMapStore((s) => s.setCategory);
   const panelOpen = useMapStore((s) => s.panelOpen);
   const setPanelOpen = useMapStore((s) => s.setPanelOpen);
@@ -323,7 +325,7 @@ export default function MapNavRail() {
   };
 
 
-  const isMapActive = true;
+  const isMapActive = mode === 'info' && category !== 'bookmark';
   const isRouteEntrance = useMapEntranceStore((s) => s.isRouteEntrance);
   const themeOptions: ThemePreference[] = ['system', 'light', 'dark'];
   const ThemeTriggerIcon = themeMode === 'dark' ? Moon : Sun;
@@ -390,32 +392,31 @@ export default function MapNavRail() {
 
       {}
       <NavList>
-        {}
         <NavItemBtn
           type="button"
           $active={false}
-          onClick={() => router.push('/hanok')}
-          aria-label="한옥 이야기"
-          title="한옥 이야기"
+          onClick={handleGoHome}
+          aria-label="홈으로 이동"
+          title="홈"
         >
           <NavItemIcon>
-            <BookOpen size={19} strokeWidth={2} />
+            <Home size={19} strokeWidth={2} />
           </NavItemIcon>
-          <NavItemLabel>한옥 이야기</NavItemLabel>
+          <NavItemLabel>홈</NavItemLabel>
         </NavItemBtn>
 
         {}
         <NavItemBtn
           type="button"
-          $active={isMapActive}
-          onClick={handleSelectInfoMap}
-          aria-label="지도"
-          title="지도"
+          $active={false}
+          onClick={() => router.push('/hanok')}
+          aria-label="한옥마루"
+          title="한옥마루"
         >
           <NavItemIcon>
-            <MapPin size={19} strokeWidth={2} />
+            <BookOpen size={19} strokeWidth={2} />
           </NavItemIcon>
-          <NavItemLabel>지도</NavItemLabel>
+          <NavItemLabel>한옥마루</NavItemLabel>
         </NavItemBtn>
 
         {}
@@ -430,6 +431,20 @@ export default function MapNavRail() {
             <Headphones size={19} strokeWidth={2} />
           </NavItemIcon>
           <NavItemLabel>소리마루</NavItemLabel>
+        </NavItemBtn>
+
+        {}
+        <NavItemBtn
+          type="button"
+          $active={isMapActive}
+          onClick={handleSelectInfoMap}
+          aria-label="지도마루"
+          title="지도마루"
+        >
+          <NavItemIcon>
+            <MapPin size={19} strokeWidth={2} />
+          </NavItemIcon>
+          <NavItemLabel>지도마루</NavItemLabel>
         </NavItemBtn>
 
         {}
@@ -450,19 +465,19 @@ export default function MapNavRail() {
         {}
         <NavItemBtn
           type="button"
-          $active={mode === 'info' && useMapStore.getState().category === 'bookmark'}
+          $active={mode === 'info' && category === 'bookmark'}
           onClick={() => {
             setMode('info');
             setCategory('bookmark');
             if (!panelOpen) setPanelOpen(true);
           }}
-          aria-label="마음에 담은 장소"
-          title="마음에 담은 장소"
+          aria-label="모음마루"
+          title="모음마루"
         >
           <NavItemIcon>
             <Bookmark size={19} strokeWidth={2} />
           </NavItemIcon>
-          <NavItemLabel>저장</NavItemLabel>
+          <NavItemLabel>모음마루</NavItemLabel>
         </NavItemBtn>
       </NavList>
 

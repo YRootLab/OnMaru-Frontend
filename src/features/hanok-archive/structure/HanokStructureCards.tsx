@@ -9,7 +9,7 @@
 
 
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
@@ -132,7 +132,7 @@ const CardDesc = styled.p`
 const PreviewCanvas = styled.div<{ $bg: string }>`
   position: relative;
   width: 100%;
-  height: clamp(160px, 20vw, 200px);
+  height: clamp(200px, 24vw, 240px);
   background: ${({ $bg }) => $bg};
   overflow: hidden;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
@@ -309,7 +309,21 @@ const MoreLink = styled.div<{ $color: string }>`
 
 export default function HanokStructureCards() {
   const [open, setOpen] = useState<OpenModal>(null);
+  const [assemblyPaused, setAssemblyPaused] = useState(false);
+  const assemblyVideoRef = useRef<HTMLVideoElement>(null);
   const close = () => setOpen(null);
+
+  const toggleAssemblyVideo = () => {
+    const video = assemblyVideoRef.current;
+    if (!video) return;
+    if (video.paused) {
+      video.play();
+      setAssemblyPaused(false);
+    } else {
+      video.pause();
+      setAssemblyPaused(true);
+    }
+  };
 
   return (
     <SectionWrapper aria-labelledby="structure-heading">
@@ -338,15 +352,45 @@ export default function HanokStructureCards() {
           aria-label="처마 그림자 시뮬레이션 열기"
         >
           <PreviewCanvas $bg="rgba(255, 184, 0, 0.07)" aria-hidden="true">
-            <SolarPreviewGraphic>
-              <div className="sun-arc" />
-              <div className="sun-orb" />
-              <div className="roof-curve" />
-              <div className="eaves-shadow" />
-              <div className="season-indicator">
-                <Sparkles size={12} /> 하지 77° ➔ 동지 29°
-              </div>
-            </SolarPreviewGraphic>
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="auto"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                objectPosition: 'center 15%',
+                transform: 'scale(1.15)',
+                transformOrigin: 'center center',
+                display: 'block',
+              }}
+            >
+              <source src="/videos/Oni_standing.mp4" type="video/mp4" />
+            </video>
+            <div
+              style={{
+                position: 'absolute',
+                bottom: 10,
+                right: 14,
+                fontSize: 11,
+                fontWeight: 600,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+                padding: '4px 9px',
+                borderRadius: 9999,
+                background: 'rgba(0, 0, 0, 0.55)',
+                color: '#ffffff',
+                backdropFilter: 'blur(6px)',
+                WebkitBackdropFilter: 'blur(6px)',
+                letterSpacing: '-0.01em',
+              }}
+            >
+              <Sparkles size={12} /> 하지 77° ➔ 동지 29°
+            </div>
           </PreviewCanvas>
 
           <CardBody>
@@ -376,6 +420,7 @@ export default function HanokStructureCards() {
               hidden: { opacity: 0, y: 20 },
               visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] as [number, number, number, number], delay: 0.1 } },
             }}
+            style={{ position: 'relative' }}
           >
         <CardContainer
           type="button"
@@ -384,18 +429,46 @@ export default function HanokStructureCards() {
           aria-label="7단계 부재 조립 열기"
         >
           <PreviewCanvas $bg="rgba(217, 64, 0, 0.06)" aria-hidden="true">
-            <AssemblyPreviewGraphic>
-              <div className="layer-bar layer-1" />
-              <div className="layer-bar layer-2" />
-              <div className="layer-bar layer-3" />
-              <div className="layer-bar layer-4" />
-              <div className="layer-bar layer-5" />
-              <div className="layer-bar layer-6" />
-              <div className="layer-bar layer-7" />
-              <div className="joinery-indicator">
-                <Sparkles size={12} /> 기단에서 기와까지 7단계
-              </div>
-            </AssemblyPreviewGraphic>
+            <video
+              ref={assemblyVideoRef}
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="auto"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                objectPosition: 'center 15%',
+                transform: 'scale(1.15)',
+                transformOrigin: 'center center',
+                display: 'block',
+              }}
+            >
+              <source src="/videos/Oni_touch.mp4" type="video/mp4" />
+            </video>
+            <div
+              style={{
+                position: 'absolute',
+                bottom: 10,
+                right: 14,
+                fontSize: 11,
+                fontWeight: 600,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+                padding: '4px 9px',
+                borderRadius: 9999,
+                background: 'rgba(0, 0, 0, 0.55)',
+                color: '#ffffff',
+                backdropFilter: 'blur(6px)',
+                WebkitBackdropFilter: 'blur(6px)',
+                letterSpacing: '-0.01em',
+              }}
+            >
+              <Sparkles size={12} /> 기단에서 기와까지 7단계
+            </div>
           </PreviewCanvas>
 
           <CardBody>
@@ -414,6 +487,30 @@ export default function HanokStructureCards() {
             </MoreLink>
           </CardBody>
         </CardContainer>
+        <button
+          type="button"
+          aria-label={assemblyPaused ? '조립 영상 재생' : '조립 영상 일시정지'}
+          onClick={toggleAssemblyVideo}
+          style={{
+            position: 'absolute',
+            top: 10,
+            left: 10,
+            zIndex: 10,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: 28,
+            height: 28,
+            borderRadius: '50%',
+            border: 'none',
+            background: 'rgba(0,0,0,0.5)',
+            color: '#ffffff',
+            cursor: 'pointer',
+            fontSize: 12,
+          }}
+        >
+          {assemblyPaused ? '▶' : '⏸'}
+        </button>
           </motion.div>
         </Grid>
       </div>

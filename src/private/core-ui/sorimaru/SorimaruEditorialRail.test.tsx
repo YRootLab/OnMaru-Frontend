@@ -36,6 +36,9 @@ const repository: SorimaruRepository & { getStoryList: ReturnType<typeof vi.fn> 
   listStories: vi.fn(),
   getStoryDetail: vi.fn(),
   listRegionGroups: vi.fn(),
+  searchStoriesByKeyword: vi.fn(),
+  listNearbyStories: vi.fn(),
+  getRecommendations: vi.fn(),
   getStoryList: vi.fn().mockResolvedValue([]),
 };
 

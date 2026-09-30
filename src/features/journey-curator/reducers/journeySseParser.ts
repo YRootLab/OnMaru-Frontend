@@ -33,6 +33,8 @@ export function parseJourneySseFrame(input: RawFrame): JourneySseFrame {
       return { id: requireReplayId(input.event, input.id), event: input.event, data } as JourneySseFrame;
     case 'reset':
       return { event: input.event, data } as JourneySseFrame;
+    case 'auth_closed':
+      return { event: 'auth_closed', data: 0 };
     default:
       throw new Error('Unsupported journey SSE event');
   }

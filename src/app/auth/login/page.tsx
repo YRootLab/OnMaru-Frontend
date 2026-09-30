@@ -1,11 +1,171 @@
 'use client';
 
-
-
-
-
+import React from 'react';
+import dynamic from 'next/dynamic';
+import styled from '@emotion/styled';
 import { useAuth } from '@/features/auth';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
+
+const HanokLogin3DStage = dynamic(() => import('@/features/auth/components/HanokLogin3DStage'), {
+  ssr: false,
+});
+
+const PageWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 120px);
+  padding: 32px 20px;
+`;
+
+const LoginCard = styled.div`
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+`;
+
+const WelcomeStage = styled.div`
+  position: relative;
+  width: 400px;
+  height: 305px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  user-select: none;
+  margin-bottom: 4px;
+`;
+
+const OniContainer = styled.div`
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translateY(-2px);
+`;
+
+const SpeechBubble = styled.div`
+  position: absolute;
+  top: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background: rgba(28, 26, 23, 0.82);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  animation: bubbleFloat 3s ease-in-out infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+
+  @keyframes bubbleFloat {
+    0%, 100% {
+      transform: translate(-50%, 0);
+    }
+    50% {
+      transform: translate(-50%, -3px);
+    }
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 3.5px;
+    border-style: solid;
+    border-color: rgba(28, 26, 23, 0.82) transparent transparent transparent;
+  }
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.82);
+    color: #171513;
+    border-color: rgba(0, 0, 0, 0.12);
+
+    &::after {
+      border-color: rgba(255, 255, 255, 0.82) transparent transparent transparent;
+    }
+  }
+`;
+
+const OniVideoWrap = styled.div`
+  width: 205px;
+  height: 205px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.16));
+
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    video {
+      display: none;
+    }
+  }
+`;
+
+const KakaoButton = styled.button`
+  width: 100%;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 10px;
+  border: none;
+  background-color: #fee500;
+  color: #191919;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+  box-shadow: 0 4px 14px rgba(254, 229, 0, 0.28);
+
+  &:hover {
+    filter: brightness(0.98);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(254, 229, 0, 0.38);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+    &:hover {
+      transform: none;
+    }
+    &:active {
+      transform: none;
+    }
+  }
+`;
 
 export default function LoginPage() {
   const { loginWithKakao } = useAuth();
@@ -13,21 +173,32 @@ export default function LoginPage() {
   const c = theme.colors;
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', padding: '64px 20px' }}>
-      <div
-        style={{
-          width: '100%',
-          maxWidth: '360px',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '32px',
-        }}
-      >
-        <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <div style={{ fontSize: '26px', fontWeight: 800, color: c.text.primary, letterSpacing: '-0.02em' }}>
-            온마루
-          </div>
+    <PageWrapper>
+      <LoginCard>
+        {/* 균형 잡힌 한옥 3D 무대 + 온이 */}
+        <WelcomeStage>
+          {/* 뒤편의 3D 한옥 모델 */}
+          <HanokLogin3DStage />
+
+          {/* 온이 캐릭터 + 온이 정수리 바로 위 말풍선 */}
+          <OniContainer>
+            <SpeechBubble>온마루에 오신 걸 환영해요! </SpeechBubble>
+            <OniVideoWrap>
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="auto"
+              >
+                <source src="/videos/Oni_hi.webm" type="video/webm" />
+                <source src="/videos/Oni_standing.mp4" type="video/mp4" />
+              </video>
+            </OniVideoWrap>
+          </OniContainer>
+        </WelcomeStage>
+
+        <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <p style={{ fontSize: '14px', color: c.text.muted, margin: 0, lineHeight: 1.5 }}>
             카카오 계정으로 로그인하고
             <br />
@@ -35,34 +206,12 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={loginWithKakao}
-          style={{
-            width: '100%',
-            height: '48px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            borderRadius: '10px',
-            border: 'none',
-            backgroundColor: '#FEE500',
-            color: '#191919',
-            fontSize: '15px',
-            fontWeight: 700,
-            cursor: 'pointer',
-          }}
-        >
+        <KakaoButton type="button" onClick={loginWithKakao}>
           <KakaoBubbleIcon />
           카카오로 시작하기
-        </button>
-
-        <p style={{ fontSize: '12px', color: c.text.muted, textAlign: 'center', margin: 0 }}>
-          별도의 회원가입 없이, 카카오 로그인만으로 온마루 이용을 시작할 수 있어요.
-        </p>
-      </div>
-    </div>
+        </KakaoButton>
+      </LoginCard>
+    </PageWrapper>
   );
 }
 

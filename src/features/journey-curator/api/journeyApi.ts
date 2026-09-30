@@ -148,7 +148,7 @@ export function createJourneyRepository(request: RequestFn = apiRequest): Journe
       const createEventSource = options?.createEventSource ?? ((u) => new EventSource(u, { withCredentials: true }));
       const source = createEventSource(url);
 
-      const eventNames = ['run.stage', 'run.terminal', 'heartbeat', 'reset'] as const;
+      const eventNames = ['run.stage', 'run.terminal', 'heartbeat', 'reset', 'auth_closed'] as const;
       const listeners = eventNames.map((eventName) => {
         const listener = (event: Event) => {
           const messageEvent = event as MessageEvent<string>;

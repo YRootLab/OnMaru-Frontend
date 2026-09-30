@@ -338,6 +338,16 @@ const MoodButton = styled.button<{ $active: boolean }>`
   }
 `;
 
+const MoodButtonMascot = styled.img`
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: block;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+`;
+
+
 
 const TagWrap = styled.div`
   display: flex;
@@ -635,7 +645,7 @@ export default function WriteWarmthModal({
                 $active={mood === '한적'}
                 onClick={() => setMood('한적')}
               >
-                <Leaf size={16} strokeWidth={2} />
+                <MoodButtonMascot src="/images/character/Oni_tea.png" alt="" width={22} height={22} aria-hidden="true" />
                 <span>한적해요</span>
               </MoodButton>
               <MoodButton
@@ -643,7 +653,7 @@ export default function WriteWarmthModal({
                 $active={mood === '북적'}
                 onClick={() => setMood('북적')}
               >
-                <Users size={16} strokeWidth={2} />
+                <MoodButtonMascot src="/images/character/Oni_sogo.png" alt="" width={22} height={22} aria-hidden="true" />
                 <span>북적여요</span>
               </MoodButton>
             </MoodButtonGroup>

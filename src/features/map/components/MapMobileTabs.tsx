@@ -113,7 +113,7 @@ export default function MapMobileTabs() {
         <IconSlot>
           <MapPin size={19} />
         </IconSlot>
-        <span>지도</span>
+        <span>지도마루</span>
       </TabButton>
 
       <TabButton type="button" onClick={() => router.push('/sorimaru')} aria-label="소리마루 오디오 도슨트">
@@ -137,7 +137,7 @@ export default function MapMobileTabs() {
           <Bookmark size={19} fill={isBookmarkActive ? 'currentColor' : 'none'} />
           {bookmarkCount > 0 && <CountBadge>{bookmarkCount}</CountBadge>}
         </IconSlot>
-        <span>마음에담기</span>
+        <span>모음마루</span>
       </TabButton>
     </Nav>
   );

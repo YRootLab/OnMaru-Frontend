@@ -9,6 +9,7 @@ import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sori
 import { groupSorimaruStoriesByPlace, type SorimaruPlaceGroup } from '@/features/sorimaru-audio/utils/sorimaruArchiveGrouping';
 import { useSorimaruImage } from '@/features/sorimaru-audio/hooks/useSorimaruImage';
 import { palette, meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
+import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
 
 interface SorimaruArchiveBrowseProps {
   stories: SorimaruStorySummary[];
@@ -647,16 +648,11 @@ export function SorimaruArchiveBrowse({ stories, isLoading }: SorimaruArchiveBro
       {isLoading ? (
         <ArchiveSkeleton />
       ) : stories.length === 0 ? (
-        <div
-          style={{
-            padding: '4rem 0',
-            textAlign: 'center',
-            fontSize: '0.8125rem',
-            color: meok[600],
-          }}
-        >
-          조건에 맞는 이야기가 아직 없어요.
-        </div>
+        <OniSearchEmpty
+          size="md"
+          title="조건에 맞는 이야기가 아직 없어요"
+          description="다른 카테고리를 선택하거나 검색어를 변경해 보세요."
+        />
       ) : view === 'stories' ? (
         <div
           style={{

@@ -3,11 +3,12 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import type { AdminRole, AdminUser } from '@/features/admin/types';
-import { setAccessToken, removeAccessToken, USE_MOCK, getAccessToken } from '@/lib/api/client';
+import { setAccessToken, removeAccessToken, USE_MOCK } from '@/lib/api/client';
 import { adminLogin, adminLogout, adminRefresh, adminGetMe } from '@/features/admin/api/adminAuth.api';
 
 // 메모리 내 사용자 상태 (새로고침 시 refresh API로 복구)
 let _memUser: AdminUser | null = null;
+
 
 export function useAdminAuth() {
   const router = useRouter();
@@ -20,41 +21,36 @@ export function useAdminAuth() {
     setUserState(u);
   }, []);
 
-  // 새로고침 시 refresh로 세션 복구
+  const DEFAULT_ADMIN: AdminUser = {
+    id: 'admin_usr_001',
+    email: 'admin@onmaru.kr',
+    nickname: '온마루지기',
+    role: 'ADMIN',
+    status: 'ACTIVE',
+    reviewCount: 42,
+    reportCount: 0,
+    createdAt: '2026-01-01T09:00:00Z',
+    lastLoginAt: new Date().toISOString(),
+  };
+
   useEffect(() => {
     if (bootstrapped.current) return;
     bootstrapped.current = true;
 
+    if (_memUser) {
+      setIsLoading(false);
+      return;
+    }
+
     if (USE_MOCK) {
-      // mock 환경: 이전에 설정된 메모리 사용자 또는 기본값
-      if (!_memUser) {
-        const mockUser: AdminUser = {
-          id: 'admin_usr_001',
-          email: 'admin@onmaru.kr',
-          nickname: '온마루지기',
-          role: 'ADMIN',
-          status: 'ACTIVE',
-          reviewCount: 42,
-          reportCount: 0,
-          createdAt: '2026-01-01T09:00:00Z',
-          lastLoginAt: new Date().toISOString(),
-        };
-        setAccessToken('mock_admin_jwt');
-        setUser(mockUser);
-      }
+      setUser(DEFAULT_ADMIN);
       setIsLoading(false);
       return;
     }
 
-    // 이미 access token이 메모리에 있으면 복구 불필요
-    if (getAccessToken() && _memUser) {
-      setIsLoading(false);
-      return;
-    }
-
-    // refresh cookie로 세션 복구 시도
     adminRefresh()
-      .then((token) => token ? adminGetMe().then(setUser) : undefined)
+      .then((token) => (token ? adminGetMe() : null))
+      .then((me) => setUser(me))
       .catch(() => setUser(null))
       .finally(() => setIsLoading(false));
   }, [setUser]);

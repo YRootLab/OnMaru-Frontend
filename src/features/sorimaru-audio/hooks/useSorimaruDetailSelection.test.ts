@@ -26,7 +26,7 @@ describe('Sorimaru deep-link detail selection', () => {
     const pendingDetail = new Promise<SorimaruStoryDetail>((_resolve, reject) => { rejectDetail = reject; });
     const failure = new Error('detail unavailable');
     const getStoryDetail = vi.fn().mockReturnValueOnce(pendingDetail).mockResolvedValueOnce(detail);
-    const repository = { listStories: vi.fn(), getStoryDetail, listRegionGroups: vi.fn() } satisfies SorimaruRepository;
+    const repository = { listStories: vi.fn(), getStoryDetail, listRegionGroups: vi.fn(), searchStoriesByKeyword: vi.fn(), listNearbyStories: vi.fn(), getRecommendations: vi.fn() } satisfies SorimaruRepository;
     const selection = createSorimaruDetailSelectionController(repository);
     const intent = { stid: 'story-1', autoPlay: false };
     let visibleSelectionError: Error | null = null;
@@ -54,7 +54,7 @@ describe('Sorimaru deep-link detail selection', () => {
 
   it('loads one matched detail and selects it with autoplay', async () => {
     const getStoryDetail = vi.fn().mockResolvedValue(detail);
-    const repository = { listStories: vi.fn(), getStoryDetail, listRegionGroups: vi.fn() } satisfies SorimaruRepository;
+    const repository = { listStories: vi.fn(), getStoryDetail, listRegionGroups: vi.fn(), searchStoriesByKeyword: vi.fn(), listNearbyStories: vi.fn(), getRecommendations: vi.fn() } satisfies SorimaruRepository;
     const selection = createSorimaruDetailSelectionController(repository);
 
     await selection.selectFromIntent([summary], { stid: 'story-1', autoPlay: true });
@@ -67,7 +67,7 @@ describe('Sorimaru deep-link detail selection', () => {
 
   it('keeps ordinary entry at zero detail requests', async () => {
     const getStoryDetail = vi.fn();
-    const repository = { listStories: vi.fn(), getStoryDetail, listRegionGroups: vi.fn() } satisfies SorimaruRepository;
+    const repository = { listStories: vi.fn(), getStoryDetail, listRegionGroups: vi.fn(), searchStoriesByKeyword: vi.fn(), listNearbyStories: vi.fn(), getRecommendations: vi.fn() } satisfies SorimaruRepository;
     const selection = createSorimaruDetailSelectionController(repository);
 
     await selection.selectFromIntent([summary], { autoPlay: false });
@@ -80,7 +80,7 @@ describe('Sorimaru deep-link detail selection', () => {
     let resolveDetail!: (value: SorimaruStoryDetail) => void;
     const pending = new Promise<SorimaruStoryDetail>((resolve) => { resolveDetail = resolve; });
     const getStoryDetail = vi.fn().mockReturnValue(pending);
-    const repository = { listStories: vi.fn(), getStoryDetail, listRegionGroups: vi.fn() } satisfies SorimaruRepository;
+    const repository = { listStories: vi.fn(), getStoryDetail, listRegionGroups: vi.fn(), searchStoriesByKeyword: vi.fn(), listNearbyStories: vi.fn(), getRecommendations: vi.fn() } satisfies SorimaruRepository;
     const selection = createSorimaruDetailSelectionController(repository);
 
     const userSelection = useSorimaruAudioStore.getState().selectAndLoadStory(summary, 'play', repository);
@@ -98,7 +98,7 @@ describe('Sorimaru deep-link detail selection', () => {
     let resolveSecond!: (value: SorimaruStoryDetail) => void;
     const pendingSecond = new Promise<SorimaruStoryDetail>((resolve) => { resolveSecond = resolve; });
     const getStoryDetail = vi.fn().mockResolvedValueOnce(detail).mockReturnValueOnce(pendingSecond);
-    const repository = { listStories: vi.fn(), getStoryDetail, listRegionGroups: vi.fn() } satisfies SorimaruRepository;
+    const repository = { listStories: vi.fn(), getStoryDetail, listRegionGroups: vi.fn(), searchStoriesByKeyword: vi.fn(), listNearbyStories: vi.fn(), getRecommendations: vi.fn() } satisfies SorimaruRepository;
     const selection = createSorimaruDetailSelectionController(repository);
 
     await selection.selectFromIntent([summary], { stid: 'story-1', autoPlay: false });
@@ -120,7 +120,7 @@ describe('Sorimaru deep-link detail selection', () => {
     const getStoryDetail = vi.fn()
       .mockReturnValueOnce(firstPending)
       .mockReturnValueOnce(secondPending);
-    const repository = { listStories: vi.fn(), getStoryDetail, listRegionGroups: vi.fn() } satisfies SorimaruRepository;
+    const repository = { listStories: vi.fn(), getStoryDetail, listRegionGroups: vi.fn(), searchStoriesByKeyword: vi.fn(), listNearbyStories: vi.fn(), getRecommendations: vi.fn() } satisfies SorimaruRepository;
     const selection = createSorimaruDetailSelectionController(repository);
 
     const urlSelection = selection.selectFromIntent([summary], { stid: 'story-1', autoPlay: false });
@@ -139,7 +139,7 @@ describe('Sorimaru deep-link detail selection', () => {
 
   it('loads an explicit story id even when it is absent from the first page', async () => {
     const getStoryDetail = vi.fn().mockResolvedValue(detail);
-    const repository = { listStories: vi.fn(), getStoryDetail, listRegionGroups: vi.fn() } satisfies SorimaruRepository;
+    const repository = { listStories: vi.fn(), getStoryDetail, listRegionGroups: vi.fn(), searchStoriesByKeyword: vi.fn(), listNearbyStories: vi.fn(), getRecommendations: vi.fn() } satisfies SorimaruRepository;
     const selection = createSorimaruDetailSelectionController(repository);
 
     await selection.selectFromIntent([], { stid: 'story-1', autoPlay: false });
@@ -155,7 +155,7 @@ describe('Sorimaru deep-link detail selection', () => {
     { track: '1' },
   ])('loads one detail for a URL selection resolved from the first page', async (selectionIntent) => {
     const getStoryDetail = vi.fn().mockResolvedValue(detail);
-    const repository = { listStories: vi.fn(), getStoryDetail, listRegionGroups: vi.fn() } satisfies SorimaruRepository;
+    const repository = { listStories: vi.fn(), getStoryDetail, listRegionGroups: vi.fn(), searchStoriesByKeyword: vi.fn(), listNearbyStories: vi.fn(), getRecommendations: vi.fn() } satisfies SorimaruRepository;
     const selection = createSorimaruDetailSelectionController(repository);
 
     await selection.selectFromIntent([summary], { ...selectionIntent, autoPlay: false });
@@ -167,7 +167,7 @@ describe('Sorimaru deep-link detail selection', () => {
   it('does not repeat a failed detail request until explicit retry', async () => {
     const failure = new Error('detail unavailable');
     const getStoryDetail = vi.fn().mockRejectedValueOnce(failure).mockResolvedValueOnce(detail);
-    const repository = { listStories: vi.fn(), getStoryDetail, listRegionGroups: vi.fn() } satisfies SorimaruRepository;
+    const repository = { listStories: vi.fn(), getStoryDetail, listRegionGroups: vi.fn(), searchStoriesByKeyword: vi.fn(), listNearbyStories: vi.fn(), getRecommendations: vi.fn() } satisfies SorimaruRepository;
     const selection = createSorimaruDetailSelectionController(repository);
     const intent = { stid: 'story-1', autoPlay: false };
 
