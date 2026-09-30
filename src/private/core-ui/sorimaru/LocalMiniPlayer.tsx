@@ -102,7 +102,7 @@ const FloatingBarContainer = styled(motion.div)`
   }
 `;
 
-const FloatingOniSeat = styled(motion.div)`
+const FloatingOniSeat = styled(motion.button)`
   position: absolute;
   bottom: calc(100% - 30px);
   right: 18px;
@@ -114,6 +114,15 @@ const FloatingOniSeat = styled(motion.div)`
   display: flex;
   align-items: flex-end;
   justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+
+  &:focus-visible {
+    outline: 2px solid ${palette.juhong[500]};
+    outline-offset: 4px;
+    border-radius: 8px;
+  }
 
   @media (max-width: 640px) {
     bottom: calc(100% - 24px);
@@ -1114,6 +1123,7 @@ export const LocalMiniPlayer: React.FC = () => {
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
           >
             <FloatingOniSeat
+              type="button"
               onClick={(e) => {
                 e.stopPropagation();
                 setShowOniBubble((prev) => !prev);

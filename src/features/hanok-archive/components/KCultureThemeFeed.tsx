@@ -547,11 +547,12 @@ export default function KCultureThemeFeed({ onSelectPlace }: KCultureThemeFeedPr
     });
   };
 
-  const hero = items[heroIdx] ?? null;
+  const clampedIdx = items.length > 0 ? Math.min(heroIdx, items.length - 1) : 0;
+  const hero = items[clampedIdx] ?? null;
 
   const thumbs = [
-    ...items.slice(heroIdx + 1),
-    ...items.slice(0, heroIdx),
+    ...items.slice(clampedIdx + 1),
+    ...items.slice(0, clampedIdx),
   ].slice(0, 4);
 
   return (
@@ -711,20 +712,20 @@ export default function KCultureThemeFeed({ onSelectPlace }: KCultureThemeFeedPr
               <NavBtnGroup>
                 <NavBtn
                   type="button"
-                  $disabled={heroIdx === 0}
-                  disabled={heroIdx === 0}
+                  $disabled={clampedIdx === 0}
+                  disabled={clampedIdx === 0}
                   aria-label="이전 항목"
                   onClick={() => navigate(-1)}
                 >
                   <ChevronLeft size={16} strokeWidth={2.5} />
                 </NavBtn>
                 <NavCounter>
-                  <strong>{heroIdx + 1}</strong> / {items.length}
+                  <strong>{clampedIdx + 1}</strong> / {items.length}
                 </NavCounter>
                 <NavBtn
                   type="button"
-                  $disabled={heroIdx === items.length - 1}
-                  disabled={heroIdx === items.length - 1}
+                  $disabled={clampedIdx === items.length - 1}
+                  disabled={clampedIdx === items.length - 1}
                   aria-label="다음 항목"
                   onClick={() => navigate(1)}
                 >

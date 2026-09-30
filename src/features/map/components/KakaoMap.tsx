@@ -511,6 +511,19 @@ export default function KakaoMap() {
       myLocationCircleRef.current = null;
     }
 
+    if (accuracy && accuracy > 0 && accuracy <= 3000) {
+      myLocationCircleRef.current = new window.kakao.maps.Circle({
+        map: currentMap,
+        center: latLng,
+        radius: accuracy,
+        strokeWeight: 1,
+        strokeColor: '#4A90D9',
+        strokeOpacity: 0.35,
+        fillColor: '#4A90D9',
+        fillOpacity: 0.07,
+      });
+    }
+
     const store = useMapStore.getState();
     store.setUserLocation(target);
     store.setCenter(target, targetLevel);

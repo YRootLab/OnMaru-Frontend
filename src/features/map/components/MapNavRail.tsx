@@ -306,6 +306,7 @@ export default function MapNavRail() {
   const themePickerRef = useRef<HTMLDivElement>(null);
   const mode = useMapStore((s) => s.mode);
   const setMode = useMapStore((s) => s.setMode);
+  const category = useMapStore((s) => s.category);
   const setCategory = useMapStore((s) => s.setCategory);
   const panelOpen = useMapStore((s) => s.panelOpen);
   const setPanelOpen = useMapStore((s) => s.setPanelOpen);

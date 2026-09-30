@@ -865,7 +865,7 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
           <OniTrack $compact={hasSearched}>
             <OniWalkerContainer
               $compact={hasSearched}
-              onClick={() => searchFormRef?.current?.querySelector('input')?.focus()}
+              aria-hidden="true"
             >
               <OniBubble>온이가 길을 밝히고 있어요 🏮</OniBubble>
               <OniVideoBox>

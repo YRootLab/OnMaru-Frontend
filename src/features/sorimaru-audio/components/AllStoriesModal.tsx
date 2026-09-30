@@ -422,6 +422,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
         {}
         <StoryListArea>
           {filtered.length === 0 ? (
+            <div data-theme="dark">
             <OniSearchEmpty
               size="sm"
               title={modalSearch.trim() ? `'${modalSearch}' 검색 결과가 없어요` : '찾으시는 이야기가 없어요'}
@@ -446,6 +447,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
                 ) : undefined
               }
             />
+            </div>
           ) : (
             filtered.map((story, index) => {
               const isCurrent = currentStory?.storyId === story.storyId;
