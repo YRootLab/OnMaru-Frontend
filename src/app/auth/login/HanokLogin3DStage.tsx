@@ -53,11 +53,11 @@ export default function HanokLogin3DStage() {
     <div
       style={{
         position: 'absolute',
-        top: '-30px',
+        top: '-50px',
         left: '50%',
         transform: 'translateX(-50%)',
-        width: '580px',
-        height: '360px',
+        width: '1000px',
+        height: '400px',
         zIndex: 1,
         pointerEvents: 'none',
       }}
