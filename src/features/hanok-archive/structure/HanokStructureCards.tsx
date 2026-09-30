@@ -132,7 +132,7 @@ const CardDesc = styled.p`
 const PreviewCanvas = styled.div<{ $bg: string }>`
   position: relative;
   width: 100%;
-  height: clamp(180px, 22vw, 220px);
+  height: clamp(200px, 24vw, 240px);
   background: ${({ $bg }) => $bg};
   overflow: hidden;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
@@ -349,6 +349,8 @@ export default function HanokStructureCards() {
                 height: '100%',
                 objectFit: 'cover',
                 objectPosition: 'center 15%',
+                transform: 'scale(1.15)',
+                transformOrigin: 'center center',
                 display: 'block',
               }}
             >
@@ -423,6 +425,8 @@ export default function HanokStructureCards() {
                 height: '100%',
                 objectFit: 'cover',
                 objectPosition: 'center 15%',
+                transform: 'scale(1.15)',
+                transformOrigin: 'center center',
                 display: 'block',
               }}
             >
