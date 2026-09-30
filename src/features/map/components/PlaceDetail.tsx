@@ -37,6 +37,7 @@ import { calculateTravelEstimate, isTraditionalPlace } from '@/features/map/util
 import { createKakaoNavigationLinks } from '@/features/map/utils/navigation';
 import PlaceDetailCarousel from './detail/PlaceDetailCarousel';
 import PlaceWarmthSection from '@/private/core-ui/map-warmth/PlaceWarmthSection';
+import ContentTagChips from '@/shared/components/ContentTagChips/ContentTagChips';
 import RoadviewModal from './detail/RoadviewModal';
 import {
   DetailWrapper,
@@ -56,6 +57,7 @@ import {
   LiveWarmthMeter,
   LiveWarmthStatus,
   LiveWarmthPulse,
+  LiveWarmthMascot,
   LiveWarmthCount,
   HeroActionGrid,
   HeroActionTile,
@@ -422,6 +424,7 @@ export default function PlaceDetail() {
                   ))}
                 </BadgeRow>
               )}
+              <ContentTagChips tags={data?.contentTags} max={5} />
               {smartFeatures.length > 0 && (
                 <SmartFeatureRow>
                   {smartFeatures.map((feat, idx) => (
@@ -436,10 +439,15 @@ export default function PlaceDetail() {
               )}
             </TitleSection>
 
-            {}
+            {/* 실시간 체감 온기도 */}
             <LiveWarmthMeter>
               <LiveWarmthStatus>
-                <LiveWarmthPulse $busy={isBusy} />
+                <LiveWarmthMascot
+                  src={isBusy ? '/images/character/Oni_sogo.png' : '/images/character/Oni_tea.png'}
+                  alt={isBusy ? '북적이는 소고 온이' : '고즈넉한 찻잔 온이'}
+                  width={22}
+                  height={22}
+                />
                 <span>{warmthMetrics.label}</span>
               </LiveWarmthStatus>
               <LiveWarmthCount>{warmthMetrics.countLabel}</LiveWarmthCount>

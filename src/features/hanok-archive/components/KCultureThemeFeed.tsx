@@ -360,27 +360,74 @@ const shimmerAnim = keyframes`
   100% { background-position:  200% 0; }
 `;
 
-const SkeletonBase = styled.div`
+const SkeletonHero = styled.div`
+  position: relative;
   border-radius: 22px;
-  background: linear-gradient(90deg, #f0f0ee 25%, #e4e4e2 50%, #f0f0ee 75%);
+  overflow: hidden;
+  background: #f0f0ee;
+  aspect-ratio: 3 / 4;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+
+  [data-theme='dark'] & {
+    background: #252422;
+  }
+
+  @media (max-width: 640px) {
+    aspect-ratio: 4 / 5;
+  }
+`;
+
+const SkeletonTopBadge = styled.div`
+  width: 90px;
+  height: 28px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #e4e4e2 25%, #dcdcd9 50%, #e4e4e2 75%);
   background-size: 200% 100%;
   animation: ${shimmerAnim} 1.6s infinite ease-in-out;
 
   [data-theme='dark'] & {
-    background: linear-gradient(90deg, #252422 25%, #32302d 50%, #252422 75%);
+    background: linear-gradient(90deg, #32302d 25%, #3d3a36 50%, #32302d 75%);
     background-size: 200% 100%;
   }
 `;
 
-const SkeletonHero = styled(SkeletonBase)`
-  aspect-ratio: 3 / 4;
-
-  @media (max-width: 640px) { aspect-ratio: 4 / 5; }
+const SkeletonBottomGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 `;
 
-const SkeletonThumb = styled(SkeletonBase)`
+const SkeletonLine = styled.div<{ $w?: string; $h?: string }>`
+  width: ${({ $w }) => $w || '100%'};
+  height: ${({ $h }) => $h || '14px'};
+  border-radius: 6px;
+  background: linear-gradient(90deg, #e4e4e2 25%, #dcdcd9 50%, #e4e4e2 75%);
+  background-size: 200% 100%;
+  animation: ${shimmerAnim} 1.6s infinite ease-in-out;
+
+  [data-theme='dark'] & {
+    background: linear-gradient(90deg, #32302d 25%, #3d3a36 50%, #32302d 75%);
+    background-size: 200% 100%;
+  }
+`;
+
+const SkeletonThumb = styled.div`
   aspect-ratio: 1 / 1;
   border-radius: 14px;
+  background: #f0f0ee;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  box-sizing: border-box;
+
+  [data-theme='dark'] & {
+    background: #252422;
+  }
 `;
 
 const EmptyNote = styled.p`
@@ -493,18 +540,20 @@ export default function KCultureThemeFeed({ onSelectPlace }: KCultureThemeFeedPr
 
   const navigate = (delta: -1 | 1) => {
     setHeroIdx((prev) => {
-      const next = prev + delta;
+      const clampedPrev = Math.min(prev, Math.max(0, items.length - 1));
+      const next = clampedPrev + delta;
       if (next < 0) return 0;
       if (next >= items.length) return items.length - 1;
       return next;
     });
   };
 
-  const hero = items[heroIdx] ?? null;
+  const clampedIdx = items.length > 0 ? Math.min(heroIdx, items.length - 1) : 0;
+  const hero = items[clampedIdx] ?? null;
 
   const thumbs = [
-    ...items.slice(heroIdx + 1),
-    ...items.slice(0, heroIdx),
+    ...items.slice(clampedIdx + 1),
+    ...items.slice(0, clampedIdx),
   ].slice(0, 4);
 
   return (
@@ -529,9 +578,20 @@ export default function KCultureThemeFeed({ onSelectPlace }: KCultureThemeFeedPr
       {}
       {isFirstLoad && isLoading && (
         <BentoGrid>
-          <SkeletonHero />
+          <SkeletonHero>
+            <SkeletonTopBadge />
+            <SkeletonBottomGroup>
+              <SkeletonLine $w="70%" $h="22px" />
+              <SkeletonLine $w="45%" $h="14px" />
+              <SkeletonLine $w="90%" $h="13px" />
+            </SkeletonBottomGroup>
+          </SkeletonHero>
           <ThumbGrid>
-            {[1, 2, 3, 4].map((i) => <SkeletonThumb key={i} />)}
+            {[1, 2, 3, 4].map((i) => (
+              <SkeletonThumb key={i}>
+                <SkeletonLine $w="60%" $h="11px" />
+              </SkeletonThumb>
+            ))}
           </ThumbGrid>
         </BentoGrid>
       )}
@@ -653,20 +713,20 @@ export default function KCultureThemeFeed({ onSelectPlace }: KCultureThemeFeedPr
               <NavBtnGroup>
                 <NavBtn
                   type="button"
-                  $disabled={heroIdx === 0}
-                  disabled={heroIdx === 0}
+                  $disabled={clampedIdx === 0}
+                  disabled={clampedIdx === 0}
                   aria-label="이전 항목"
                   onClick={() => navigate(-1)}
                 >
                   <ChevronLeft size={16} strokeWidth={2.5} />
                 </NavBtn>
                 <NavCounter>
-                  <strong>{heroIdx + 1}</strong> / {items.length}
+                  <strong>{clampedIdx + 1}</strong> / {items.length}
                 </NavCounter>
                 <NavBtn
                   type="button"
-                  $disabled={heroIdx === items.length - 1}
-                  disabled={heroIdx === items.length - 1}
+                  $disabled={clampedIdx === items.length - 1}
+                  disabled={clampedIdx === items.length - 1}
                   aria-label="다음 항목"
                   onClick={() => navigate(1)}
                 >

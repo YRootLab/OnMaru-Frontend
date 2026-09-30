@@ -6,6 +6,9 @@ export function createSorimaruApiAdapter(repository: SorimaruRepository = sorima
     listStories: (query, options) => repository.listStories(query, options),
     getStoryDetail: (storyId, language, options) => repository.getStoryDetail(storyId, language, options),
     listRegionGroups: (language, options) => repository.listRegionGroups(language, options),
+    searchStoriesByKeyword: (keyword, language, options) => repository.searchStoriesByKeyword(keyword, language, options),
+    listNearbyStories: (lat, lng, radius, language, options) => repository.listNearbyStories(lat, lng, radius, language, options),
+    getRecommendations: (keyword, language, options) => repository.getRecommendations(keyword, language, options),
   };
 }
 

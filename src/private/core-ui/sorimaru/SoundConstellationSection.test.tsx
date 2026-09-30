@@ -101,6 +101,7 @@ describe('SoundConstellationSection props data flow', () => {
       .mockReturnValueOnce(nextPage);
     const repository: SorimaruRepository = {
       listStories, getStoryDetail: vi.fn(), listRegionGroups: vi.fn().mockResolvedValue(input.groupsState.data),
+      searchStoriesByKeyword: vi.fn(), listNearbyStories: vi.fn(), getRecommendations: vi.fn(),
     };
     const { container } = render(<RegionSection repository={repository} />);
     await waitFor(() => expect(screen.getByText('25개 이야기')).toBeTruthy());

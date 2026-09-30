@@ -4,6 +4,7 @@ import {
   type ScreenHanokItem,
   type ScreenHanokMediaType,
 } from '@/features/hanok-archive/services/screenHanok.service';
+import { getFallbackScreenHanoks } from '@/features/hanok-archive/data/screenHanokFallback';
 import { toast } from 'sonner';
 import { hasAuthenticatedUser } from '@/features/auth/privateState';
 
@@ -12,20 +13,17 @@ export interface UseScreenHanokOptions {
   region?: string;
 }
 
-
-
-
-
-
 export function useKCultureThemes(options?: UseScreenHanokOptions) {
-  const [items, setItems] = useState<ScreenHanokItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const mediaType = options?.mediaType;
+  const region = options?.region;
+
+  const [items, setItems] = useState<ScreenHanokItem[]>(() =>
+    getFallbackScreenHanoks({ mediaType, region }),
+  );
+  const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
 
   const isFirstLoad = items.length === 0;
-
-  const mediaType = options?.mediaType;
-  const region = options?.region;
 
   useEffect(() => {
     let ignore = false;

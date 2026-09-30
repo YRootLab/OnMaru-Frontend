@@ -14,6 +14,7 @@ const page = (id: string, nextCursor: string | null = null): SorimaruStoryPage =
 });
 const repository = (listStories: SorimaruRepository['listStories']): SorimaruRepository => ({
   listStories, getStoryDetail: vi.fn(), listRegionGroups: vi.fn(),
+  searchStoriesByKeyword: vi.fn(), listNearbyStories: vi.fn(), getRecommendations: vi.fn(),
 });
 const deferred = <T>() => {
   let resolve!: (value: T) => void;

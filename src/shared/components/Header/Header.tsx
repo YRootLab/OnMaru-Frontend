@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import styled from '@emotion/styled';
-import { ArrowRight, Check, Menu, X, Sparkles, BookOpen, Map, Headphones, Sun, Moon } from 'lucide-react';
+import { ArrowRight, Check, Home, Menu, X, Sparkles, BookOpen, Map, Headphones, Sun, Moon } from 'lucide-react';
 import { transientProps } from '@/design-system/styled';
 import { lightPalette, meok, fontSize, ringShadow } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
@@ -185,7 +185,7 @@ const LogoLink = styled(Link)`
 const LogoTitle = styled.span<{ $isLanding?: boolean }>`
   font-family: var(--font-hanok);
   font-weight: 900;
-  font-size: 1.05rem;
+  font-size: 0.98rem;
   letter-spacing: -0.03em;
   color: ${({ $isLanding }) => ($isLanding ? '#ffffff' : meok[900])};
   white-space: nowrap;
@@ -215,7 +215,7 @@ const CenterNav = styled('nav', transientProps)<LandingProps>`
 const NavLink = styled(Link, transientProps)<LandingProps>`
   position: relative;
   font-family: 'Spoqa Han Sans Neo', sans-serif;
-  font-size: calc(${fontSize.sm} + 1px);
+  font-size: ${fontSize.sm};
   font-weight: ${({ $isActive }) => ($isActive ? 700 : 400)};
   color: ${({ $isLanding, $isActive }) => {
     if ($isActive) {
@@ -228,7 +228,7 @@ const NavLink = styled(Link, transientProps)<LandingProps>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 5px 12px;
+  padding: 4px 11px;
   border-radius: 9999px;
   background-color: transparent;
   border: 1px solid transparent;
@@ -428,7 +428,7 @@ const MobileMenuDivider = styled('div', transientProps)<LandingProps>`
 
 const LoginButton = styled(Link, transientProps)<LandingProps>`
   font-family: 'Spoqa Han Sans Neo', sans-serif;
-  font-size: calc(${fontSize.sm} + 1px);
+  font-size: ${fontSize.sm};
   font-weight: 700;
 
   color: #ffffff;
@@ -440,8 +440,8 @@ const LoginButton = styled(Link, transientProps)<LandingProps>`
     $isLanding ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.08)'};
 
   border-radius: 9999px;
-  height: 30px;
-  padding: 0 13px 0 14px;
+  height: 28px;
+  padding: 0 12px 0 13px;
   text-decoration: none;
   letter-spacing: -0.01em;
   line-height: 1;
@@ -453,39 +453,10 @@ const LoginButton = styled(Link, transientProps)<LandingProps>`
       ? '0 3px 10px rgba(0, 0, 0, 0.35)'
       : '0 2px 8px rgba(0, 0, 0, 0.1)'};
 
-  transition:
-    background-color 180ms ease,
-    border-color 180ms ease,
-    box-shadow 180ms ease;
-
-  &:hover {
-    color: #ffffff;
-    background: ${({ $isLanding }) =>
-      $isLanding
-        ? 'rgba(38, 35, 31, 1)'
-        : meok[700]};
-    border-color: ${({ $isLanding }) =>
-      $isLanding ? 'rgba(255, 255, 255, 0.25)' : 'rgba(0, 0, 0, 0.14)'};
-    box-shadow: ${({ $isLanding }) =>
-      $isLanding
-        ? '0 6px 18px rgba(0, 0, 0, 0.45)'
-        : '0 6px 18px rgba(0, 0, 0, 0.18)'};
-
-    & > svg {
-      transform: translateX(2px);
-      transition: transform 200ms ease;
-    }
-  }
-
   [data-theme='dark'] & {
     color: #ffffff;
     background: rgba(20, 18, 16, 0.95);
     border-color: rgba(255, 255, 255, 0.16);
-
-    &:hover {
-      background: rgba(38, 35, 31, 1);
-      border-color: rgba(255, 255, 255, 0.25);
-    }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -874,10 +845,10 @@ export default function Header() {
         {}
         <CenterNav $isMapPage={isMapPage}>
           {[
-            { href: '/', label: '홈', icon: Sparkles, active: pathname === '/' },
-            { href: '/hanok', label: '한옥 이야기', icon: BookOpen, active: pathname.startsWith('/hanok') },
+            { href: '/', label: '홈', icon: Home, active: pathname === '/' },
+            { href: '/hanok', label: '한옥마루', icon: BookOpen, active: pathname.startsWith('/hanok') },
             { href: '/sorimaru', label: '소리마루', icon: Headphones, active: isSoriMaruPage },
-            { href: '/map', label: '지도', icon: Map, active: pathname.startsWith('/map') },
+            { href: '/map', label: '지도마루', icon: Map, active: pathname.startsWith('/map') },
           ].map((item) => {
             const Icon = item.icon;
             const isSelected = item.active;
@@ -886,7 +857,8 @@ export default function Header() {
                 key={item.href}
                 href={item.href}
                 $isLanding={usesDarkSurface}
-                $isSoriMaru={isSoriMaruPage}$isActive={isSelected}
+                $isSoriMaru={isSoriMaruPage}
+                $isActive={isSelected}
                 onClick={item.href === '/' ? resetJourney : undefined}
               >
                 <span style={{ position: 'relative', zIndex: 1, display: 'inline-flex', alignItems: 'center' }}>
@@ -1046,12 +1018,12 @@ export default function Header() {
                 }}
               >
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <Sparkles size={15} /> 홈
+                  <Home size={15} /> 홈
                 </span>
               </MobileMenuLink>
               <MobileMenuLink href="/hanok" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <BookOpen size={15} /> 한옥 이야기
+                  <BookOpen size={15} /> 한옥마루
                 </span>
               </MobileMenuLink>
               <MobileMenuLink href="/sorimaru" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
@@ -1061,7 +1033,7 @@ export default function Header() {
               </MobileMenuLink>
               <MobileMenuLink href="/map" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <Map size={15} /> 지도
+                  <Map size={15} /> 지도마루
                 </span>
               </MobileMenuLink>
               <MobileMenuDivider $isLanding={usesDarkSurface} />

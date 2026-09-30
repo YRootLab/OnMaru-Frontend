@@ -11,6 +11,7 @@ import type { Village } from '@/features/hanok-archive/types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getHanokGridPage } from './hanokGridModel';
 import { EMPTY_STATE, toSearchParams, type HanokFilterState } from './hanokFilterQuery';
+import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
 
 const Section = styled.section``;
 
@@ -207,14 +208,24 @@ export default function HanokGrid({
         </>
       ) : (
         <EmptyState role="status" aria-live="polite">
-          <p>
-            {state.query
-              ? `'${state.query}' 검색 결과가 없어요.`
-              : '조건에 맞는 한옥을 찾지 못했어요.'}
-          </p>
-          <ResetAll type="button" onClick={() => setState(EMPTY_STATE)}>
-            조건 모두 지우기
-          </ResetAll>
+          <OniSearchEmpty
+            size="lg"
+            title={
+              state.query
+                ? `'${state.query}' 검색 결과가 없어요`
+                : '조건에 맞는 한옥을 찾지 못했어요'
+            }
+            description={
+              state.query
+                ? '단어의 철자가 정확한지 확인하시거나, 다른 검색어로 다시 검색해 보세요.'
+                : '선택하신 필터 조건에 해당하는 한옥 마을이 없어요.'
+            }
+            action={
+              <ResetAll type="button" onClick={() => setState(EMPTY_STATE)}>
+                조건 모두 지우기
+              </ResetAll>
+            }
+          />
         </EmptyState>
       )}
     </Section>

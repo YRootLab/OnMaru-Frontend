@@ -194,6 +194,7 @@ const ChipWrap = styled.div`
   flex: none;
 `;
 
+
 interface CategoryChipsProps {
 
 

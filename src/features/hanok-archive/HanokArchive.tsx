@@ -21,6 +21,7 @@ import type { HanokFilterState } from '@/features/hanok-archive/sections/hanokFi
 import { VesselReveal } from '@/shared/components/animation/VesselReveal';
 import { HanjiDeckleEdge } from '@/shared/components/HanjiDeckleEdge';
 import { HanokAtmosphereBackground } from '@/shared/components/HanokBackground';
+import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
 
 const loadDogamDetailModal = () => import('@/features/hanok-archive/components/HanokDogamDetailModal');
 const HanokDogamDetailModal = dynamic(loadDogamDetailModal, { ssr: false });
@@ -305,9 +306,11 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
                       onSelectVillage={setSelectedDogamVillage}
                     />
                   ) : (
-                    <div role="alert" style={{ padding: '24px 0', textAlign: 'center', fontSize: fontSize.sm, color: meok[500] }}>
-                      한옥 목록을 불러오지 못했어요
-                    </div>
+                    <OniSearchEmpty
+                      size="md"
+                      title="한옥 목록을 불러오지 못했어요"
+                      description="잠시 후 다시 시도해 주세요."
+                    />
                   )}
                 </HeroClothesline>
                 <Lead>

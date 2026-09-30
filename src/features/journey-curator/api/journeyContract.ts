@@ -77,8 +77,14 @@ export type JourneyResetFrame = {
   };
 };
 
+export type JourneyAuthClosedFrame = {
+  event: 'auth_closed';
+  data: 0;
+};
+
 export type JourneySseFrame =
   | JourneyStageFrame
   | JourneyTerminalFrame
   | JourneyHeartbeatFrame
-  | JourneyResetFrame;
+  | JourneyResetFrame
+  | JourneyAuthClosedFrame;

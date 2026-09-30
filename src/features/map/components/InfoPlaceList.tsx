@@ -8,6 +8,7 @@ import { meok, surface, fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { listInfoPlaces } from '@/features/map/services/infoMap.service';
 import { PlaceListItem } from './PlaceListItem';
+import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
 import { MAP_INFO_CATEGORY_LABELS as CATEGORY_LABELS } from '@/features/map/types';
 import type { InfoPlaceItem, Item } from '@/features/map/types';
 
@@ -289,9 +290,22 @@ export default function InfoPlaceList() {
           </RetryBtn>
         </EmptyBox>
       ) : listItems.length === 0 ? (
-        <EmptyBox>
-          <span>이 카테고리에 등록된 장소가 없어요</span>
-        </EmptyBox>
+        <OniSearchEmpty
+          size="md"
+          title="등록된 장소가 없어요"
+          description={
+            infoRegionName
+              ? `${infoRegionName} 지역에는 이 카테고리의 장소가 아직 등록되지 않았어요.`
+              : '선택하신 카테고리에 등록된 장소를 찾지 못했어요.'
+          }
+          action={
+            infoRegionCode ? (
+              <RetryBtn type="button" onClick={() => setInfoRegionCode(null)}>
+                <span>전국 목록 보기</span>
+              </RetryBtn>
+            ) : undefined
+          }
+        />
       ) : (
         <>
           <ListContainer role="list">

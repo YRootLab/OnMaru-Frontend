@@ -112,6 +112,14 @@ const CrowdMoodBadge = styled.span<{ $crowd?: '북적' | '한적' }>`
   }
 `;
 
+const MascotBadgeIcon = styled.img`
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: block;
+`;
+
 const PlaceMeta = styled.p`
   margin: 0;
   font-size: ${fontSize.xs};
@@ -382,12 +390,12 @@ export default function WarmthCard({ review, onHover }: WarmthCardProps) {
               <CrowdMoodBadge $crowd={review.crowdMood}>
                 {review.crowdMood === '북적' ? (
                   <>
-                    <Flame size={12} strokeWidth={2} />
+                    <MascotBadgeIcon src="/images/character/Oni_sogo.png" alt="" width={14} height={14} aria-hidden="true" />
                     <span>북적이는 활기</span>
                   </>
                 ) : (
                   <>
-                    <Leaf size={12} strokeWidth={2} />
+                    <MascotBadgeIcon src="/images/character/Oni_tea.png" alt="" width={14} height={14} aria-hidden="true" />
                     <span>고즈넉한 쉼</span>
                   </>
                 )}

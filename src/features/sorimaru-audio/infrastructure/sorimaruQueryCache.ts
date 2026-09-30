@@ -5,6 +5,10 @@ export const sorimaruQueryKeys = {
     `odii:list:${query.language}:${query.category ?? ''}:${query.regionCode ?? ''}:${query.cursor ?? ''}:${query.limit}`,
   detail: (storyId: string, language: string) => `odii:detail:${language}:${storyId}`,
   regions: (language: string) => `odii:regions:${language}`,
+  keyword: (keyword: string, language: string) => `stories:keyword:${language}:${keyword}`,
+  nearby: (lat: number, lng: number, radius: number, language: string) =>
+    `stories:nearby:${language}:${lat}:${lng}:${radius}`,
+  recommendations: (keyword: string, language: string) => `recommendation:${language}:${keyword}`,
 };
 
 export function createSorimaruQueryCache() {

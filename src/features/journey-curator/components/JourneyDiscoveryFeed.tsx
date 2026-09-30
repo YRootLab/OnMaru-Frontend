@@ -9,6 +9,7 @@ import { useJourneyStore } from '../store/useJourneyStore';
 import { useCuratedCourses, usePopularRegions, usePopularSounds } from '../hooks/useHomeData';
 import { hasAuthenticatedUser, showLoginRequiredToast } from '@/features/auth/privateState';
 import { saveOdiiStory, unsaveOdiiStory } from '@/features/sorimaru-audio/api/odiiEngagementApi';
+import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
 
 const FeedContainer = styled.div`
   width: min(calc(100% - 40px), 1140px);
@@ -700,87 +701,20 @@ const CourseSkeletonFooter = styled.div`
 
 const FeedState = styled.div<{ $compact?: boolean }>`
   grid-column: 1 / -1;
-  min-height: ${({ $compact }) => ($compact ? '132px' : '242px')};
-  display: grid;
-  place-items: center;
-  padding: 20px;
+  min-height: ${({ $compact }) => ($compact ? '220px' : '280px')};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: ${({ $compact }) => ($compact ? '12px 14px' : '24px 20px')};
   border: 1px dashed #d9d9d7;
   border-radius: 20px;
   background: #f8f8f7;
   text-align: center;
+  box-sizing: border-box;
 
   [data-theme='dark'] & {
     border-color: #4a453f;
     background: #24211d;
-  }
-`;
-
-const Mate = styled.div`
-  position: relative;
-  width: 48px;
-  height: 38px;
-  margin: 0 auto 10px;
-  border: 2px solid #433d37;
-  border-top: none;
-  border-radius: 0 0 14px 14px;
-  background: #ffffff;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: -13px;
-    left: -6px;
-    width: 56px;
-    height: 20px;
-    border: 2px solid #433d37;
-    border-bottom-width: 4px;
-    border-radius: 50% 50% 5px 5px;
-    background: ${palette.juhong[400]};
-  }
-
-  &::after {
-    content: '· ᴗ ·';
-    position: absolute;
-    inset: 9px 0 0;
-    color: #433d37;
-    font-size: 13px;
-    font-weight: 800;
-    letter-spacing: -2px;
-  }
-
-  [data-theme='dark'] & {
-    border-color: #d9d9d7;
-    background: #312d28;
-
-    &::before {
-      border-color: #d9d9d7;
-    }
-
-    &::after {
-      color: #f8f8f7;
-    }
-  }
-`;
-
-const FeedStateTitle = styled.p`
-  margin: 0;
-  color: #191f28;
-  font-family: var(--font-hanok);
-  font-size: ${fontSize.base};
-  font-weight: 700;
-
-  [data-theme='dark'] & {
-    color: #f8f9fa;
-  }
-`;
-
-const FeedStateDescription = styled.p`
-  margin: 5px 0 12px;
-  color: #6b7684;
-  font-size: ${fontSize.sm};
-
-  [data-theme='dark'] & {
-    color: #a1a1aa;
   }
 `;
 
@@ -806,7 +740,7 @@ const RetryButton = styled.button`
 `;
 
 function HomeFeedFailure({
-  compact = false,
+  compact = true,
   unavailable = false,
   onRetry,
 }: {
@@ -815,18 +749,21 @@ function HomeFeedFailure({
   onRetry: () => void;
 }) {
   return (
-    <FeedState $compact={compact} role="status" aria-live="polite">
-      <div>
-        <Mate aria-hidden="true" />
-        <FeedStateTitle>{unavailable ? '온마루가 소식을 모으고 있어요' : '잠시 길을 잃었어요'}</FeedStateTitle>
-        <FeedStateDescription>
-          {unavailable ? '새로운 이야기를 준비 중이에요. 잠시 후 다시 찾아올게요.' : '연결을 다시 확인해 볼까요?'}
-        </FeedStateDescription>
-        <RetryButton type="button" onClick={onRetry}>
-          <RotateCcw size={13} />
-          다시 불러오기
-        </RetryButton>
-      </div>
+    <FeedState $compact={compact}>
+      <OniSearchEmpty
+        compact={compact}
+        size="md"
+        title={unavailable ? '온마루가 소식을 모으고 있어요' : '잠시 길을 잃었어요'}
+        description={
+          unavailable ? '새로운 이야기를 준비 중이에요. 잠시 후 다시 찾아올게요.' : '연결을 다시 확인해 볼까요?'
+        }
+        action={
+          <RetryButton type="button" onClick={onRetry}>
+            <RotateCcw size={13} />
+            다시 불러오기
+          </RetryButton>
+        }
+      />
     </FeedState>
   );
 }

@@ -8,6 +8,7 @@ import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorima
 import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import type { SorimaruCategory } from '@/features/sorimaru-audio/types/sorimaru.types';
 import { palette, meok, surface, fontSize } from '@/design-system/tokens';
+import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
 
 interface AllStoriesModalProps {
   isOpen: boolean;
@@ -421,9 +422,32 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
         {}
         <StoryListArea>
           {filtered.length === 0 ? (
-            <EmptyState>
-              찾으시는 이야기가 없어요.
-            </EmptyState>
+            <div data-theme="dark">
+            <OniSearchEmpty
+              size="sm"
+              title={modalSearch.trim() ? `'${modalSearch}' 검색 결과가 없어요` : '찾으시는 이야기가 없어요'}
+              description={modalSearch.trim() ? '다른 제목이나 지역명으로 검색해 보세요.' : '등록된 이야기가 아직 없어요.'}
+              action={
+                modalSearch.trim() ? (
+                  <button
+                    type="button"
+                    onClick={() => setModalSearch('')}
+                    style={{
+                      padding: '6px 14px',
+                      borderRadius: '9999px',
+                      border: '1px solid rgba(255, 255, 255, 0.15)',
+                      background: 'rgba(255, 255, 255, 0.08)',
+                      color: meok[200],
+                      fontSize: fontSize.xs,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    검색어 지우기
+                  </button>
+                ) : undefined
+              }
+            />
+            </div>
           ) : (
             filtered.map((story, index) => {
               const isCurrent = currentStory?.storyId === story.storyId;

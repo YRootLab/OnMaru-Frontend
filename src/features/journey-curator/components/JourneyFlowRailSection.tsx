@@ -18,6 +18,7 @@ import JourneyFlowRail from './JourneyFlowRail';
 import JourneyMapView from './JourneyMapView';
 import JourneyRelationView from './JourneyRelationView';
 import JourneyPlaceCard, { type PlaceCardState } from './JourneyPlaceCard';
+import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
 import type { JourneyBoard, PlaceResource, ResourceRef } from '../types/exploration.types';
 
 type ViewMode = 'JOURNEY' | 'MAP' | 'RELATION';
@@ -163,7 +164,11 @@ export default function JourneyFlowRailSection() {
   if (!board) {
     return (
       <Wrap>
-        <StatusText>실제 장소를 찾지 못했어요. 다른 지역이나 표현으로 다시 요청해 보세요.</StatusText>
+        <OniSearchEmpty
+          size="md"
+          title="실제 장소를 찾지 못했어요"
+          description="다른 지역이나 표현으로 다시 여정을 물어보세요."
+        />
       </Wrap>
     );
   }

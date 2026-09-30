@@ -269,6 +269,30 @@ export const LiveWarmthPulse = styled.span<{ $busy: boolean }>`
   box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.2);
 `;
 
+const mascotBounce = keyframes`
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-2px) rotate(4deg);
+  }
+`;
+
+export const LiveWarmthMascot = styled.img`
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: block;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12));
+  animation: ${mascotBounce} 2.2s ease-in-out infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+`;
+
+
 export const StampCheckInBanner = styled.div<{ $isVisited: boolean }>`
   margin: 0 16px 14px;
   padding: 10px 14px;

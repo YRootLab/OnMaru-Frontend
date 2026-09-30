@@ -10,6 +10,9 @@ describe('Sorimaru network compatibility boundary', () => {
       listStories: vi.fn().mockResolvedValue(page),
       getStoryDetail: vi.fn(),
       listRegionGroups: vi.fn(),
+      searchStoriesByKeyword: vi.fn(),
+      listNearbyStories: vi.fn(),
+      getRecommendations: vi.fn(),
     } satisfies SorimaruRepository;
     const client = createSorimaruNetworkClient(repository);
     const query = { language: 'ko-KR', limit: 12, cursor: 'next-page' };
@@ -24,6 +27,9 @@ describe('Sorimaru network compatibility boundary', () => {
       listStories: vi.fn().mockRejectedValue(new Error('backend unavailable')),
       getStoryDetail: vi.fn(),
       listRegionGroups: vi.fn(),
+      searchStoriesByKeyword: vi.fn(),
+      listNearbyStories: vi.fn(),
+      getRecommendations: vi.fn(),
     } satisfies SorimaruRepository;
     const client = createSorimaruNetworkClient(repository);
 
@@ -36,6 +42,9 @@ describe('Sorimaru network compatibility boundary', () => {
       listStories: vi.fn(),
       getStoryDetail: vi.fn(),
       listRegionGroups: vi.fn().mockResolvedValue(groups),
+      searchStoriesByKeyword: vi.fn(),
+      listNearbyStories: vi.fn(),
+      getRecommendations: vi.fn(),
     } satisfies SorimaruRepository;
 
     await expect(fetchSorimaruRegionGroups('ko-KR', repository)).resolves.toEqual(groups);

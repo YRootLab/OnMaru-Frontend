@@ -4,7 +4,7 @@
 
 
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { meok, palette } from '@/design-system/tokens';
 import { DataTable, ColumnDef } from '@/features/admin/components/DataTable';
 import { StatusBadge } from '@/features/admin/components/StatusBadge';
@@ -12,8 +12,9 @@ import { ConfirmDialog } from '@/features/admin/components/ConfirmDialog';
 import { Toast } from '@/features/admin/components/Toast';
 import { EmptyState } from '@/features/admin/components/EmptyState';
 import { useAdminAuth } from '@/features/admin/hooks/useAdminAuth';
+import { useAdminUsers } from '@/features/admin/hooks/useAdminUsers';
 import { AdminUser, AdminRole } from '@/features/admin/types';
-import { getUsers, createSanction } from '@/features/admin/api/adminApi';
+import { createSanction } from '@/features/admin/api/adminApi';
 import {
   Search,
   RotateCcw,
@@ -26,11 +27,7 @@ import {
 export default function AdminUsersPage() {
   const { user: currentUser, isAdmin } = useAdminAuth();
 
-  const [users, setUsers] = useState<AdminUser[]>([]);
-
-  useEffect(() => {
-    getUsers({ limit: 200 }).then((r) => setUsers(r.items)).catch(() => {});
-  }, []);
+  const { users, setUsers, fetchError } = useAdminUsers();
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<'ALL' | AdminRole>('ALL');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'SUSPENDED'>('ALL');
@@ -381,6 +378,11 @@ export default function AdminUsersPage() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {toastMessage && (
         <Toast message={toastMessage} type="success" onClose={() => setToastMessage(null)} />
+      )}
+      {fetchError && (
+        <div style={{ padding: '12px 16px', borderRadius: '8px', backgroundColor: '#fff0f0', color: '#c0392b', fontSize: '13px', border: '1px solid #f5c6cb' }}>
+          회원 목록 불러오기 실패: {fetchError}
+        </div>
       )}
 
       {}
