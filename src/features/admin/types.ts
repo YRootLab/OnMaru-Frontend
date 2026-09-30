@@ -101,6 +101,7 @@ export interface PipelineFailureLog {
 export interface PipelineStatus {
   lastBuildAt: string;
   duration: string;
+  status: 'IDLE' | 'RUNNING' | 'SUCCEEDED' | 'FAILED' | 'MISSING';
   result: 'SUCCESS' | 'FAILURE';
   failureCount: number;
   villageCount: number;

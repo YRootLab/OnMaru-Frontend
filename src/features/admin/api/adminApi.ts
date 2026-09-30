@@ -162,6 +162,11 @@ export async function revokeSanction(memberId: string, sanctionId: string): Prom
   });
 }
 
+export async function getSanctions(memberId: string): Promise<SanctionInput[]> {
+  if (USE_MOCK) { await delay(150); return []; }
+  return apiRequest<SanctionInput[]>(`/admin/users/${memberId}/sanctions`);
+}
+
 // ── Curations ─────────────────────────────────────────────────────────────────
 
 const allMockCurations = () => [...mockVillages, ...mockStays, ...mockRoutes];

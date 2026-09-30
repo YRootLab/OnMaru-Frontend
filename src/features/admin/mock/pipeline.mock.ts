@@ -7,6 +7,7 @@ import { PipelineStatus } from '../domain/adminTypes';
 export const mockPipelineStatus: PipelineStatus = {
   lastBuildAt: '2026.08.04 04:00 (2시간 전)',
   duration: '4분 32초',
+  status: 'SUCCEEDED',
   result: 'SUCCESS',
   failureCount: 3,
   villageCount: 17,
