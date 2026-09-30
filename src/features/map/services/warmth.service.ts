@@ -245,6 +245,7 @@ async function executeWarmthFetchFlow(
     });
     return fallbackResult;
   } catch (fallbackErr) {
+    if (fallbackErr instanceof DOMException && fallbackErr.name === 'AbortError') throw fallbackErr;
     log.error('[warmthService] Tour API fallback also failed:', fallbackErr);
     const errorType = isWakingOrUnavailableError(lastError);
     return {

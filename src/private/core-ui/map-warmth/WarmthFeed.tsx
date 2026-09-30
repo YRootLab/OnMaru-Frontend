@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Flame, ChevronLeft, ChevronRight, MessageCircle, Landmark, Home, Utensils, Coffee, ShoppingBag } from 'lucide-react';
-import { meok } from '@/design-system/tokens';
+import { meok, fontSize } from '@/design-system/tokens';
 import { useMapStore, DEFAULT_CENTER } from '@/features/map/hooks/useMapStore';
 import { countByPlace, toReview } from '@/features/map/warmth/warmthRepo';
 import { filterByPeriod } from '@/features/map/warmth/heatScale';
@@ -11,6 +11,7 @@ import { useVisitReviewFeed } from '@/features/visit-review/presentation/useVisi
 import { useVisitReviewRegions } from '@/features/visit-review/presentation/useVisitReviewRegions';
 import DateScrubber from './DateScrubber';
 import WarmthCard from './WarmthCard';
+import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
 import {
   FeedContainer,
   StickyTop,
@@ -37,12 +38,21 @@ import {
   SortSelect,
   SortChevron,
   FeedScroll,
-  EmptyState,
   PaginationWrapper,
   PageNavBtn,
   PageNumberGroup,
   PageNumberBtn,
   PageIndicator,
+  OniBannerArea,
+  OniBannerCard,
+  OniBannerTextCol,
+  OniBannerTitle,
+  OniBannerBadgeRow,
+  OniBannerBadge,
+  OniBannerDesc,
+  OniBannerMascotWrapper,
+  OniBannerMascot,
+  OniBannerShadow,
 } from './WarmthFeed.styles';
 
 
@@ -107,6 +117,44 @@ export default function WarmthFeed() {
   const regionScrollerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const curatorInfo = useMemo(() => {
+    switch (category) {
+      case 'busy':
+        return {
+          title: '흥겨운 온기가 모이는 곳',
+    
+          desc: '사람들의 발길과 정겨운 소리가 가득한 활기찬 한옥이에요!',
+          image: '/images/character/Oni_sogo.png',
+        };
+      case 'quiet':
+        return {
+          title: '차분하게 사색하기 좋은 시간',
+       
+          desc: '따뜻한 차 한잔과 함께 호젓하게 툇마루에 머물러 보세요.',
+          image: '/images/character/Oni_tea.png',
+        };
+      case 'today':
+        return {
+          title: '오늘 전해진 생생한 온기',
+          
+          desc: '방문객들이 방금 남겨준 따스한 후기들을 만나보세요.',
+          image: '/images/character/Oni_today.png',
+        };
+      case 'mine':
+        return {
+          title: '내가 남긴 소중한 기억',
+          desc: '장소에 머물며 남겨둔 나의 온기 기록들이에요.',
+          image: '/images/character/Oni_myStory.png',
+        };
+      default:
+        return {
+          title: '온기 따라 걷는 한옥 여행',
+          desc: '실시간 방문객의 체감 분위기와 발자취를 안내해 드릴게요!',
+          image: '/images/character/Oni_total.png',
+        };
+    }
+  }, [category]);
 
   useEffect(() => {
     if (serverWarmths !== null) setWarmths(serverWarmths);
@@ -307,6 +355,26 @@ export default function WarmthFeed() {
         </RegionCarouselWrapper>
       </StickyTop>
 
+      {/* 도슨트 온이 실시간 큐레이션 배너 */}
+      <OniBannerArea>
+        <OniBannerCard>
+          <OniBannerTextCol>
+            <OniBannerTitle>{curatorInfo.title}</OniBannerTitle>
+            <OniBannerDesc>{curatorInfo.desc}</OniBannerDesc>
+          </OniBannerTextCol>
+          <OniBannerMascotWrapper>
+            <OniBannerMascot
+              key={curatorInfo.image}
+              src={curatorInfo.image}
+              alt={curatorInfo.title}
+              width={72}
+              height={72}
+            />
+            <OniBannerShadow />
+          </OniBannerMascotWrapper>
+        </OniBannerCard>
+      </OniBannerArea>
+
       {topPlace && (
         <FeaturedPlaceArea>
           <FeaturedCard>
@@ -373,15 +441,17 @@ export default function WarmthFeed() {
       <FeedScroll>
         <div ref={feedTopRef} />
         {filteredReviews.length === 0 ? (
-          <EmptyState>
-            {category === 'mine'
-              ? '아직 남긴 온기가 없어요.'
-              : selectedRegion === 'all'
-                ? '조건에 맞는 이야기가 아직 없어요.'
-                : `${selectedRegionLabel}에 남겨진 온기가 아직 없어요.`}
-            <br />
-            첫 번째 이야기를 남겨보세요.
-          </EmptyState>
+          <OniSearchEmpty
+            size="md"
+            title={
+              category === 'mine'
+                ? '아직 남긴 온기가 없어요'
+                : selectedRegion === 'all'
+                  ? '조건에 맞는 이야기가 아직 없어요'
+                  : `${selectedRegionLabel}에 남겨진 온기가 아직 없어요`
+            }
+            description="첫 번째 이야기를 남겨보세요."
+          />
         ) : (
           <>
             {paginatedReviews.map((review) => (

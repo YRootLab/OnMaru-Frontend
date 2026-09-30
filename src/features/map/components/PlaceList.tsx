@@ -19,6 +19,7 @@ import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import { distanceInMeters } from '@/features/map/utils/geo';
 import { PlaceListItem } from './PlaceListItem';
+import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
 import LiveNoticeBanner from './feed/LiveNoticeBanner';
 import FestivalExhibitionCarousel from './feed/FestivalExhibitionCarousel';
 import SorimaruSpotlightBanner from './feed/SorimaruSpotlightBanner';
@@ -382,6 +383,8 @@ export default function PlaceList() {
   const setSelectedId = useMapStore((s) => s.setSelectedId);
   const setHoveredId = useMapStore((s) => s.setHoveredId);
   const reload = useMapStore((s) => s.reload);
+  const searchQuery = useMapStore((s) => s.searchQuery);
+  const setSearchQuery = useMapStore((s) => s.setSearchQuery);
 
   const bookmarks = useBookmarkStore((s) => s.bookmarks);
   const listTopRef = useRef<HTMLDivElement>(null);
@@ -595,28 +598,16 @@ export default function PlaceList() {
           </ActionButton>
         </EmptyStateBox>
       ) : sortedItems.length === 0 ? (
-        <EmptyStateBox>
-          <EmptyIconBox>
-            {category === 'bookmark' ? (
+        category === 'bookmark' ? (
+          <EmptyStateBox>
+            <EmptyIconBox>
               <Bookmark size={24} color={lightPalette.juhong[500]} fill="currentColor" strokeWidth={2} />
-            ) : (
-              <Map size={24} strokeWidth={2} />
-            )}
-          </EmptyIconBox>
-          <EmptyTitle>
-            {category === 'bookmark'
-              ? '아직 저장한 장소가 없어요'
-              : '주변에 등록된 한옥이 없어요'}
-          </EmptyTitle>
-          <EmptyDesc>
-            {category === 'bookmark'
-              ? '마음에 드는 장소의 하트를 눌러\n나만의 여행 지도를 만들어보세요.'
-              : category
-                ? `근처에 '${CATEGORY_NAMES[category] || category}' 장소가 없어요.`
-                : '지도를 축소하거나 다른 지역을 둘러보세요.'}
-          </EmptyDesc>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', maxWidth: '240px' }}>
-            {category && (
+            </EmptyIconBox>
+            <EmptyTitle>아직 저장한 장소가 없어요</EmptyTitle>
+            <EmptyDesc>
+              {'마음에 드는 장소의 하트를 눌러\n나만의 여행 지도를 만들어보세요.'}
+            </EmptyDesc>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', maxWidth: '240px' }}>
               <ActionButton
                 type="button"
                 onClick={() => useMapStore.getState().setCategory(null)}
@@ -625,27 +616,67 @@ export default function PlaceList() {
                 <Sparkles size={14} strokeWidth={2} />
                 <span>전체 명소 둘러보기</span>
               </ActionButton>
-            )}
-            {category !== 'bookmark' && (
-              <ActionButton
-                type="button"
-                onClick={handleZoomOut}
-                style={{ width: '100%', justifyContent: 'center' }}
-              >
-                <Map size={14} strokeWidth={2} />
-                <span>검색 반경 넓히기</span>
-              </ActionButton>
-            )}
-            <ActionButton
-              type="button"
-              onClick={() => useMapStore.getState().setPopularPanelOpen(true)}
-              style={{ width: '100%', justifyContent: 'center', background: 'rgba(232, 90, 24, 0.08)', color: lightPalette.juhong[500] }}
-            >
-              <Sparkles size={14} strokeWidth={2} />
-              <span>인기 한옥 둘러보기</span>
-            </ActionButton>
-          </div>
-        </EmptyStateBox>
+            </div>
+          </EmptyStateBox>
+        ) : (
+          <OniSearchEmpty
+            size="md"
+            title={
+              searchQuery
+                ? `'${searchQuery}' 검색 결과가 없어요`
+                : category
+                  ? `근처에 '${CATEGORY_NAMES[category] || category}' 장소가 없어요`
+                  : '주변에 등록된 한옥이 없어요'
+            }
+            description={
+              searchQuery
+                ? '검색어와 일치하는 한옥을 찾지 못했어요.\n다른 검색어로 찾아보거나 지도를 축소해 보세요.'
+                : category
+                  ? '다른 카테고리를 선택하거나 지도를 축소해 보세요.'
+                  : '지도를 축소하거나 다른 지역을 둘러보세요.'
+            }
+            action={
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', maxWidth: '240px' }}>
+                {searchQuery && (
+                  <ActionButton
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    style={{ width: '100%', justifyContent: 'center' }}
+                  >
+                    <RotateCcw size={14} strokeWidth={2} />
+                    <span>검색어 지우기</span>
+                  </ActionButton>
+                )}
+                {category && (
+                  <ActionButton
+                    type="button"
+                    onClick={() => useMapStore.getState().setCategory(null)}
+                    style={{ width: '100%', justifyContent: 'center' }}
+                  >
+                    <Sparkles size={14} strokeWidth={2} />
+                    <span>전체 명소 둘러보기</span>
+                  </ActionButton>
+                )}
+                <ActionButton
+                  type="button"
+                  onClick={handleZoomOut}
+                  style={{ width: '100%', justifyContent: 'center' }}
+                >
+                  <Map size={14} strokeWidth={2} />
+                  <span>검색 반경 넓히기</span>
+                </ActionButton>
+                <ActionButton
+                  type="button"
+                  onClick={() => useMapStore.getState().setPopularPanelOpen(true)}
+                  style={{ width: '100%', justifyContent: 'center', background: 'rgba(232, 90, 24, 0.08)', color: lightPalette.juhong[500] }}
+                >
+                  <Sparkles size={14} strokeWidth={2} />
+                  <span>인기 한옥 둘러보기</span>
+                </ActionButton>
+              </div>
+            }
+          />
+        )
       ) : (
         <>
           <ListContainer role="list">

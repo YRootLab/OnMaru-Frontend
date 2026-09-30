@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { keyframes } from '@emotion/react';
 import { ChevronDown } from 'lucide-react';
 import { lightPalette, meok, surface, fontSize } from '@/design-system/tokens';
 
@@ -460,3 +461,147 @@ export const PageIndicator = styled.span`
   color: ${meok[500]};
   margin-left: 4px;
 `;
+
+const oniFloat = keyframes`
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+`;
+
+const shadowPulse = keyframes`
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.28;
+  }
+  50% {
+    transform: scale(0.88);
+    opacity: 0.16;
+  }
+`;
+
+export const OniBannerArea = styled.div`
+  padding: 12px 16px 6px;
+`;
+
+export const OniBannerCard = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: #f8f8f7;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  transition: background 0.2s ease;
+
+  [data-theme='dark'] & {
+    background: #25221d;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  }
+`;
+
+export const OniBannerTextCol = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  gap: 4px;
+`;
+
+export const OniBannerTitle = styled.h4`
+  margin: 0;
+  font-size: ${fontSize.sm};
+  font-weight: 700;
+  color: ${meok[900]};
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+
+  [data-theme='dark'] & {
+    color: #ffffff;
+  }
+`;
+
+export const OniBannerBadgeRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
+
+export const OniBannerBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: ${fontSize.micro};
+  font-weight: 600;
+  color: ${lightPalette.hwanggeum[700]};
+  background: rgba(245, 166, 35, 0.12);
+  padding: 2px 8px;
+  border-radius: 9999px;
+
+  [data-theme='dark'] & {
+    color: #fbd38d;
+    background: rgba(245, 166, 35, 0.2);
+  }
+`;
+
+export const OniBannerDesc = styled.p`
+  margin: 2px 0 0;
+  font-size: ${fontSize.xs};
+  color: ${meok[600]};
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+
+  [data-theme='dark'] & {
+    color: #cbd5e1;
+  }
+`;
+
+export const OniBannerMascotWrapper = styled.div`
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 78px;
+  height: 78px;
+`;
+
+export const OniBannerMascot = styled.img`
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  display: block;
+  z-index: 1;
+  animation: ${oniFloat} 2.6s ease-in-out infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+`;
+
+export const OniBannerShadow = styled.div`
+  position: absolute;
+  bottom: 3px;
+  width: 44px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  filter: blur(3px);
+  animation: ${shadowPulse} 2.6s ease-in-out infinite;
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.28);
+    filter: blur(4px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+`;
+

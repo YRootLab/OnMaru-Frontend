@@ -38,7 +38,11 @@ const mapGlobalStyles = css`
   }
 
   .om-my-location-pin:hover {
-    transform: scale(1.1);
+    transform: scale(1.08);
+  }
+
+  [data-theme='dark'] .om-my-location-pin {
+    filter: invert(100%) hue-rotate(180deg) brightness(105%) contrast(95%);
   }
 
   @keyframes om-my-location-appear {
@@ -52,76 +56,100 @@ const mapGlobalStyles = css`
     }
   }
 
-  .om-my-location-label {
+  .om-my-location-bubble {
     display: inline-flex;
     align-items: center;
-    gap: 4.5px;
+    gap: 4px;
     padding: 3.5px 10px;
-    margin-bottom: 6px;
+    margin-bottom: -18px;
     border-radius: 9999px;
-    font-size: ${fontSize.xs};
+    font-size: 11px;
     font-weight: 700;
     white-space: nowrap;
     background: #ffffff;
-    color: #2b5ce6;
+    color: #171513;
     letter-spacing: -0.2px;
-  }
-
-  [data-theme='dark'] .om-my-location-label {
-    background: #1c1a17;
-    color: #5a89f6;
-  }
-
-  .om-my-location-beacon-wrap {
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+    border: 1px solid rgba(0, 0, 0, 0.08);
     position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
+    z-index: 5;
+    transition: all 0.2s ease;
   }
 
-  .om-my-location-core {
-    position: relative;
-    z-index: 2;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #2b5ce6;
-  }
-
-  .om-my-location-core-inner {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #ffffff;
-  }
-
-  .om-my-location-pulse-1,
-  .om-my-location-pulse-2 {
+  .om-my-location-bubble::after {
+    content: '';
     position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background: rgba(43, 92, 230, 0.45);
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 4px;
+    border-style: solid;
+    border-color: #ffffff transparent transparent transparent;
+  }
+
+  [data-theme='dark'] .om-my-location-bubble {
+    background: #1c1a17;
+    color: #f8f8f7;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  }
+
+  [data-theme='dark'] .om-my-location-bubble::after {
+    border-color: #1c1a17 transparent transparent transparent;
+  }
+
+  .om-my-location-oni-wrap {
+    position: relative;
+    width: 108px;
+    height: 108px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
     pointer-events: none;
-    animation: om-my-pulse 2.2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+    margin-bottom: -18px;
   }
 
-  .om-my-location-pulse-2 {
-    animation-delay: 1.1s;
+  .om-my-location-oni-video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.32));
+    pointer-events: none;
+    user-select: none;
   }
 
-  @keyframes om-my-pulse {
-    0% {
-      transform: scale(0.6);
-      opacity: 0.8;
+  .om-my-location-ground-shadow {
+    width: 48px;
+    height: 10px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.38) 0%, rgba(0, 0, 0, 0) 75%);
+    margin-top: -12px;
+    pointer-events: none;
+    z-index: 1;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  [data-theme='dark'] .om-my-location-ground-shadow {
+    background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.32) 45%, rgba(255, 255, 255, 0) 75%);
+    box-shadow: 0 0 16px rgba(255, 255, 255, 0.65);
+  }
+
+  @media (max-width: 640px) {
+    .om-my-location-oni-wrap {
+      width: 86px;
+      height: 86px;
+      margin-bottom: -14px;
     }
-    100% {
-      transform: scale(2.6);
-      opacity: 0;
+    .om-my-location-bubble {
+      font-size: 10.5px;
+      padding: 3px 8px;
+      margin-bottom: -14px;
+    }
+    .om-my-location-ground-shadow {
+      width: 38px;
+      height: 8px;
+      margin-top: -10px;
     }
   }
 `;
@@ -437,62 +465,50 @@ export default function KakaoMap() {
     currentMap.setCenter(latLng);
 
 
-    if (!myLocationOverlayRef.current) {
+    const buildOniPinElement = () => {
       const el = document.createElement('div');
       el.className = 'om-my-location-pin';
       el.innerHTML = `
-        <div class="om-my-location-label">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:2px;">
-            <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/>
-          </svg>
-          <span>내 위치</span>
+        <div class="om-my-location-bubble">
+          <span>내 위치 👋</span>
         </div>
-        <div class="om-my-location-beacon-wrap">
-          <div class="om-my-location-pulse-1"></div>
-          <div class="om-my-location-pulse-2"></div>
-          <div class="om-my-location-core">
-            <div class="om-my-location-core-inner"></div>
-          </div>
+        <div class="om-my-location-oni-wrap">
+          <video autoplay loop muted playsinline preload="auto" class="om-my-location-oni-video">
+            <source src="/videos/Oni_hi.webm" type="video/webm" />
+          </video>
         </div>
+        <div class="om-my-location-ground-shadow"></div>
       `;
       el.addEventListener('click', () => {
         currentMap.setLevel(3, { animate: true });
         currentMap.panTo(latLng);
       });
+      const vid = el.querySelector('video');
+      if (vid) {
+        vid.muted = true;
+        vid.play().catch(() => {});
+      }
+      return el;
+    };
 
-      myLocationOverlayRef.current = new window.kakao.maps.CustomOverlay({
-        position: latLng,
-        content: el,
-        yAnchor: 0.75,
-        xAnchor: 0.5,
-        zIndex: 35,
-      });
-      myLocationOverlayRef.current.setMap(currentMap);
-    } else {
-      myLocationOverlayRef.current.setPosition(latLng);
-      myLocationOverlayRef.current.setMap(currentMap);
+    if (myLocationOverlayRef.current) {
+      myLocationOverlayRef.current.setMap(null);
+      myLocationOverlayRef.current = null;
     }
 
+    const pinEl = buildOniPinElement();
+    myLocationOverlayRef.current = new window.kakao.maps.CustomOverlay({
+      position: latLng,
+      content: pinEl,
+      yAnchor: 0.94,
+      xAnchor: 0.5,
+      zIndex: 35,
+    });
+    myLocationOverlayRef.current.setMap(currentMap);
 
-    if (accuracy && accuracy > 0 && accuracy <= 3000) {
-      if (!myLocationCircleRef.current) {
-        myLocationCircleRef.current = new window.kakao.maps.Circle({
-          center: latLng,
-          radius: Math.min(accuracy, 600),
-          strokeWeight: 1.5,
-          strokeColor: '#2B5CE6',
-          strokeOpacity: 0.5,
-          strokeStyle: 'dashed',
-          fillColor: '#2B5CE6',
-          fillOpacity: 0.08,
-          zIndex: 10,
-        });
-        myLocationCircleRef.current.setMap(currentMap);
-      } else {
-        myLocationCircleRef.current.setPosition(latLng);
-        myLocationCircleRef.current.setRadius(Math.min(accuracy, 600));
-        myLocationCircleRef.current.setMap(currentMap);
-      }
+    if (myLocationCircleRef.current) {
+      myLocationCircleRef.current.setMap(null);
+      myLocationCircleRef.current = null;
     }
 
     const store = useMapStore.getState();

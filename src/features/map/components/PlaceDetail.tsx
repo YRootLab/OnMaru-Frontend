@@ -56,6 +56,7 @@ import {
   LiveWarmthMeter,
   LiveWarmthStatus,
   LiveWarmthPulse,
+  LiveWarmthMascot,
   LiveWarmthCount,
   HeroActionGrid,
   HeroActionTile,
@@ -436,10 +437,15 @@ export default function PlaceDetail() {
               )}
             </TitleSection>
 
-            {}
+            {/* 실시간 체감 온기도 */}
             <LiveWarmthMeter>
               <LiveWarmthStatus>
-                <LiveWarmthPulse $busy={isBusy} />
+                <LiveWarmthMascot
+                  src={isBusy ? '/images/character/Oni_sogo.png' : '/images/character/Oni_tea.png'}
+                  alt={isBusy ? '북적이는 소고 온이' : '고즈넉한 찻잔 온이'}
+                  width={22}
+                  height={22}
+                />
                 <span>{warmthMetrics.label}</span>
               </LiveWarmthStatus>
               <LiveWarmthCount>{warmthMetrics.countLabel}</LiveWarmthCount>
