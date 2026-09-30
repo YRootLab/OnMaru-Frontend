@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import type { AdminRole, AdminUser } from '@/features/admin/types';
-import { setAccessToken, removeAccessToken, USE_MOCK } from '@/lib/api/client';
+import { setAccessToken, removeAccessToken } from '@/lib/api/client';
 import { adminLogin, adminLogout, adminRefresh, adminGetMe } from '@/features/admin/api/adminAuth.api';
 
 // 메모리 내 사용자 상태 (새로고침 시 refresh API로 복구)
@@ -42,7 +42,6 @@ export function useAdminAuth() {
       return;
     }
 
-    setAccessToken('mock_admin_jwt');
     setUser(DEFAULT_ADMIN);
     setIsLoading(false);
   }, [setUser]);

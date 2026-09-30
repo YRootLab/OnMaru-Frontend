@@ -27,9 +27,12 @@ export default function AdminUsersPage() {
   const { user: currentUser, isAdmin } = useAdminAuth();
 
   const [users, setUsers] = useState<AdminUser[]>([]);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   useEffect(() => {
-    getUsers({ limit: 200 }).then((r) => setUsers(r.items)).catch(() => {});
+    getUsers({ limit: 200 })
+      .then((r) => setUsers(r.items))
+      .catch((e: unknown) => setFetchError(e instanceof Error ? e.message : String(e)));
   }, []);
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<'ALL' | AdminRole>('ALL');
@@ -381,6 +384,11 @@ export default function AdminUsersPage() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {toastMessage && (
         <Toast message={toastMessage} type="success" onClose={() => setToastMessage(null)} />
+      )}
+      {fetchError && (
+        <div style={{ padding: '12px 16px', borderRadius: '8px', backgroundColor: '#fff0f0', color: '#c0392b', fontSize: '13px', border: '1px solid #f5c6cb' }}>
+          회원 목록 불러오기 실패: {fetchError}
+        </div>
       )}
 
       {}
