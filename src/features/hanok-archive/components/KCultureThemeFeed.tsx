@@ -360,27 +360,74 @@ const shimmerAnim = keyframes`
   100% { background-position:  200% 0; }
 `;
 
-const SkeletonBase = styled.div`
+const SkeletonHero = styled.div`
+  position: relative;
   border-radius: 22px;
-  background: linear-gradient(90deg, #f0f0ee 25%, #e4e4e2 50%, #f0f0ee 75%);
+  overflow: hidden;
+  background: #f0f0ee;
+  aspect-ratio: 3 / 4;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+
+  [data-theme='dark'] & {
+    background: #252422;
+  }
+
+  @media (max-width: 640px) {
+    aspect-ratio: 4 / 5;
+  }
+`;
+
+const SkeletonTopBadge = styled.div`
+  width: 90px;
+  height: 28px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #e4e4e2 25%, #dcdcd9 50%, #e4e4e2 75%);
   background-size: 200% 100%;
   animation: ${shimmerAnim} 1.6s infinite ease-in-out;
 
   [data-theme='dark'] & {
-    background: linear-gradient(90deg, #252422 25%, #32302d 50%, #252422 75%);
+    background: linear-gradient(90deg, #32302d 25%, #3d3a36 50%, #32302d 75%);
     background-size: 200% 100%;
   }
 `;
 
-const SkeletonHero = styled(SkeletonBase)`
-  aspect-ratio: 3 / 4;
-
-  @media (max-width: 640px) { aspect-ratio: 4 / 5; }
+const SkeletonBottomGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 `;
 
-const SkeletonThumb = styled(SkeletonBase)`
+const SkeletonLine = styled.div<{ $w?: string; $h?: string }>`
+  width: ${({ $w }) => $w || '100%'};
+  height: ${({ $h }) => $h || '14px'};
+  border-radius: 6px;
+  background: linear-gradient(90deg, #e4e4e2 25%, #dcdcd9 50%, #e4e4e2 75%);
+  background-size: 200% 100%;
+  animation: ${shimmerAnim} 1.6s infinite ease-in-out;
+
+  [data-theme='dark'] & {
+    background: linear-gradient(90deg, #32302d 25%, #3d3a36 50%, #32302d 75%);
+    background-size: 200% 100%;
+  }
+`;
+
+const SkeletonThumb = styled.div`
   aspect-ratio: 1 / 1;
   border-radius: 14px;
+  background: #f0f0ee;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  box-sizing: border-box;
+
+  [data-theme='dark'] & {
+    background: #252422;
+  }
 `;
 
 const EmptyNote = styled.p`
@@ -529,9 +576,20 @@ export default function KCultureThemeFeed({ onSelectPlace }: KCultureThemeFeedPr
       {}
       {isFirstLoad && isLoading && (
         <BentoGrid>
-          <SkeletonHero />
+          <SkeletonHero>
+            <SkeletonTopBadge />
+            <SkeletonBottomGroup>
+              <SkeletonLine $w="70%" $h="22px" />
+              <SkeletonLine $w="45%" $h="14px" />
+              <SkeletonLine $w="90%" $h="13px" />
+            </SkeletonBottomGroup>
+          </SkeletonHero>
           <ThumbGrid>
-            {[1, 2, 3, 4].map((i) => <SkeletonThumb key={i} />)}
+            {[1, 2, 3, 4].map((i) => (
+              <SkeletonThumb key={i}>
+                <SkeletonLine $w="60%" $h="11px" />
+              </SkeletonThumb>
+            ))}
           </ThumbGrid>
         </BentoGrid>
       )}

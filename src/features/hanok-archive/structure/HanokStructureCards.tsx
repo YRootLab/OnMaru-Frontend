@@ -384,18 +384,42 @@ export default function HanokStructureCards() {
           aria-label="7단계 부재 조립 열기"
         >
           <PreviewCanvas $bg="rgba(217, 64, 0, 0.06)" aria-hidden="true">
-            <AssemblyPreviewGraphic>
-              <div className="layer-bar layer-1" />
-              <div className="layer-bar layer-2" />
-              <div className="layer-bar layer-3" />
-              <div className="layer-bar layer-4" />
-              <div className="layer-bar layer-5" />
-              <div className="layer-bar layer-6" />
-              <div className="layer-bar layer-7" />
-              <div className="joinery-indicator">
-                <Sparkles size={12} /> 기단에서 기와까지 7단계
-              </div>
-            </AssemblyPreviewGraphic>
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="auto"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                display: 'block',
+              }}
+            >
+              <source src="/videos/room.mp4" type="video/mp4" />
+            </video>
+            <div
+              style={{
+                position: 'absolute',
+                bottom: 10,
+                right: 14,
+                fontSize: 11,
+                fontWeight: 600,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+                padding: '4px 9px',
+                borderRadius: 9999,
+                background: 'rgba(0, 0, 0, 0.55)',
+                color: '#ffffff',
+                backdropFilter: 'blur(6px)',
+                WebkitBackdropFilter: 'blur(6px)',
+                letterSpacing: '-0.01em',
+              }}
+            >
+              <Sparkles size={12} /> 기단에서 기와까지 7단계
+            </div>
           </PreviewCanvas>
 
           <CardBody>

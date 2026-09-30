@@ -21,12 +21,58 @@ const PX_PER_SEC =
 
 
 
+const Section = styled.section`
+  position: relative;
+  width: 100%;
+`;
+
 const LineWrapper = styled.div`
   position: relative;
   overflow: hidden;
   padding: 16px 0 36px;
   mask-image: linear-gradient(to right, transparent 0%, black 2.9%, black 97.1%, transparent 100%);
   -webkit-mask-image: linear-gradient(to right, transparent 0%, black 2.9%, black 97.1%, transparent 100%);
+`;
+
+const OniPickerWrapper = styled.div`
+  position: absolute;
+  right: clamp(16px, 7vw, 84px);
+  bottom: -6px;
+  z-index: 10;
+  pointer-events: none;
+  user-select: none;
+
+  @media (max-width: 1024px) {
+    right: clamp(14px, 4vw, 40px);
+    bottom: -6px;
+  }
+
+  @media (max-width: 640px) {
+    right: 8px;
+    bottom: -6px;
+  }
+
+  @media (max-width: 420px) {
+    right: 4px;
+    bottom: -4px;
+  }
+`;
+
+const OniPickerImage = styled.img`
+  display: block;
+  width: clamp(96px, 12vw, 136px);
+  height: clamp(96px, 12vw, 136px);
+  object-fit: contain;
+
+  @media (max-width: 640px) {
+    width: 92px;
+    height: 92px;
+  }
+
+  @media (max-width: 420px) {
+    width: 78px;
+    height: 78px;
+  }
 `;
 
 const slide = keyframes`
@@ -223,7 +269,7 @@ export default function HanokPolaroidClothesline({ villages, onSelectVillage }: 
   if (picks.length === 0) return null;
 
   return (
-    <section aria-label="사진으로 먼저 만나는 이달의 한옥들">
+    <Section aria-label="사진으로 먼저 만나는 이달의 한옥들">
       <LineWrapper>
         <Track $durationSec={durationSec}>
           {[0, 1].map((copy) => (
@@ -249,6 +295,14 @@ export default function HanokPolaroidClothesline({ villages, onSelectVillage }: 
           ))}
         </Track>
       </LineWrapper>
-    </section>
+      <OniPickerWrapper aria-hidden="true">
+        <OniPickerImage
+          src="/images/character/Oni_click.png"
+          alt=""
+          width={136}
+          height={136}
+        />
+      </OniPickerWrapper>
+    </Section>
   );
 }
