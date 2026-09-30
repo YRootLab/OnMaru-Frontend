@@ -166,6 +166,7 @@ export const useSorimaruAudioStore = create<SorimaruAudioState>((set, get) => {
   setSearchQuery: (searchQuery: string) => set({ searchQuery }),
   toggleBookmark: () => set((state) => ({ isBookmarked: !state.isBookmarked })),
   hydrateSavedStories: async () => {
+    if (!hasAuthenticatedUser()) return;
     try {
       const response = await defaultSavedResourcesRepository.listOdiiStories({ limit: 50 });
       set({ savedStories: response.items.map((item) => ({

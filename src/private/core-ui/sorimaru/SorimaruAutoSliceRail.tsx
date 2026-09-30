@@ -9,7 +9,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import { meok } from '@/design-system/tokens';
 
-const INTRO_VIDEO_SRC = '/videos/hanok-neungsohwa-loop.mp4';
+const INTRO_VIDEO_SRC = '/videos/Oni_sit_listen.mp4';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -25,21 +25,22 @@ const IntroStage = styled.div`
   max-width: 1140px;
   margin: 0 auto;
   border-radius: 24px;
-  min-height: clamp(280px, 34vh, 360px);
+  min-height: clamp(440px, 54vh, 580px);
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: flex-start;
 
   @media (max-width: 1024px) {
     width: calc(100% - 28px);
     margin: 0 auto;
+    min-height: clamp(380px, 48vh, 480px);
   }
 
   @media (max-width: 640px) {
     width: calc(100% - 24px);
     margin: 0 auto;
     border-radius: 18px;
-    min-height: 250px;
+    min-height: 340px;
   }
 `;
 
@@ -71,11 +72,12 @@ const IntroScrim = styled.div`
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(10, 9, 8, 0.58) 0%,
-    rgba(10, 9, 8, 0.42) 60%,
-    rgba(10, 9, 8, 0.78) 100%
+  background: linear-gradient(
+    135deg,
+    rgba(10, 9, 8, 0.72) 0%,
+    rgba(10, 9, 8, 0.46) 45%,
+    rgba(10, 9, 8, 0.12) 80%,
+    rgba(10, 9, 8, 0.28) 100%
   );
 `;
 
@@ -85,10 +87,10 @@ const IntroContent = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: clamp(36px, 5vh, 52px) clamp(20px, 4vw, 40px);
+  align-items: flex-start;
+  justify-content: flex-start;
+  text-align: left;
+  padding: clamp(36px, 5.5vh, 52px) clamp(28px, 4.5vw, 56px);
 `;
 
 const PageTitle = styled.h1`
@@ -99,8 +101,8 @@ const PageTitle = styled.h1`
   letter-spacing: -0.02em;
   color: #ffffff;
   margin: 0 0 12px;
-  text-align: center;
-  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.6);
+  text-align: left;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.75);
   white-space: nowrap;
 
   @media (max-width: 640px) {
@@ -111,14 +113,14 @@ const PageTitle = styled.h1`
 
 const Lead = styled.p`
   font-family: var(--font-traditional-body);
-  font-size: clamp(0.875rem, 1.2vw, 1.05rem);
+  font-size: clamp(0.875rem, 1.15vw, 1.05rem);
   font-weight: 400;
   line-height: 1.7;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.92);
   margin: 0;
-  text-align: center;
-  max-width: 680px;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+  text-align: left;
+  max-width: none;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.65);
   white-space: nowrap;
 
   @media (max-width: 768px) {
@@ -136,8 +138,7 @@ export const SorimaruAutoSliceRail: React.FC<SorimaruAutoSliceRailProps> = () =>
 
   useEffect(() => {
     if (shouldReduceMotion) return undefined;
-    const timer = window.setTimeout(() => setShowIntroVideo(true), 1200);
-    return () => window.clearTimeout(timer);
+    setShowIntroVideo(true);
   }, [shouldReduceMotion]);
 
   useGSAP(() => {
@@ -167,8 +168,9 @@ export const SorimaruAutoSliceRail: React.FC<SorimaruAutoSliceRailProps> = () =>
           muted
           loop
           playsInline
-          preload="none"
+          preload="auto"
           $visible={introVideoReady}
+          onLoadedData={() => setIntroVideoReady(true)}
           onCanPlay={() => setIntroVideoReady(true)}
         >
           <source src={INTRO_VIDEO_SRC} type="video/mp4" />
