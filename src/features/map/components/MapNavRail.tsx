@@ -325,7 +325,7 @@ export default function MapNavRail() {
   };
 
 
-  const isMapActive = true;
+  const isMapActive = mode === 'info' && category !== 'bookmark';
   const isRouteEntrance = useMapEntranceStore((s) => s.isRouteEntrance);
   const themeOptions: ThemePreference[] = ['system', 'light', 'dark'];
   const ThemeTriggerIcon = themeMode === 'dark' ? Moon : Sun;
@@ -465,7 +465,7 @@ export default function MapNavRail() {
         {}
         <NavItemBtn
           type="button"
-          $active={mode === 'info' && useMapStore.getState().category === 'bookmark'}
+          $active={mode === 'info' && category === 'bookmark'}
           onClick={() => {
             setMode('info');
             setCategory('bookmark');
