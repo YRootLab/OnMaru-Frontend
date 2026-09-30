@@ -4,6 +4,20 @@ import type { JourneyBoard, PlaceResource, ResourceRef } from '../types/explorat
 import type { HanokDoganEntry, NearbyAudioStory, NearbyFoodPlace } from '../types/enrichment.types';
 import { JOURNEY_PLANS, MOOD_OPTIONS } from '../data/curatedJourneys';
 import { defaultJourneyRepository } from '../api/journeyApi';
+import { isOnmaruApiError } from '@/lib/api/errors';
+
+function mapJourneyError(err: unknown): string {
+  if (isOnmaruApiError(err)) {
+    if (err.classification === 'RATE_LIMITED') {
+      return '이번 달 AI 여정 횟수를 모두 사용하셨어요. (월 최대 2회)';
+    }
+    if (err.status === 401 || err.status === 403) {
+      return '로그인이 필요해요.';
+    }
+    if (err.message) return err.message;
+  }
+  return err instanceof Error ? err.message : '여정을 생성하지 못했어요.';
+}
 
 interface EnrichmentBundle {
   hanokDogan: HanokDoganEntry[];
@@ -108,7 +122,7 @@ async function runInitialExploration(query: string, set: SetFn) {
   } catch (err) {
     set({
       isExploring: false,
-      lastError: err instanceof Error ? err.message : '여정을 생성하지 못했어요.',
+      lastError: mapJourneyError(err),
     });
   }
 }
@@ -213,7 +227,7 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
           : null,
       });
     } catch (err) {
-      set({ isGenerating: false, lastError: err instanceof Error ? err.message : '변경안을 만들지 못했어요.' });
+      set({ isGenerating: false, lastError: mapJourneyError(err) });
     }
   },
 

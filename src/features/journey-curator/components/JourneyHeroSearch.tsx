@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
 import {
   Sparkles,
@@ -17,6 +18,7 @@ import {
 } from 'lucide-react';
 import { palette, lightPalette, meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
 import { useJourneyStore } from '../store/useJourneyStore';
+import { useAuth } from '@/features/auth';
 import type { MoodId } from '../types/journey.types';
 
 interface MoodOption {
@@ -778,6 +780,8 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
   const hasSearched = useJourneyStore((s) => s.hasSearched);
   const { moods } = useMoodOptions();
   const [isCancelling, setIsCancelling] = useState(false);
+  const { isLoggedIn } = useAuth();
+  const router = useRouter();
 
   const defaultSuggestions = [
     '+ 전통 찻집 더보기',
@@ -790,8 +794,17 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
     ? currentPlan.refineSuggestions
     : defaultSuggestions;
 
+  const guardAuth = () => {
+    if (!isLoggedIn) {
+      router.push('/auth/login');
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!guardAuth()) return;
     submitSearch();
   };
 
@@ -901,7 +914,7 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
                 key={mood.id}
                 type="button"
                 $active={isActive}
-                onClick={() => selectMood(mood.id)}
+                onClick={() => { if (guardAuth()) selectMood(mood.id); }}
               >
                 <span style={{ display: 'inline-flex', alignItems: 'center' }}>{getMoodIcon(mood.id)}</span>
                 <span>{mood.label}</span>
