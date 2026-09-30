@@ -30,9 +30,24 @@ export default function AdminUsersPage() {
   const [fetchError, setFetchError] = useState<string | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
     getUsers({ limit: 200 })
-      .then((r) => setUsers(r.items))
-      .catch((e: unknown) => setFetchError(e instanceof Error ? e.message : String(e)));
+      .then((r) => {
+        if (cancelled) return;
+        const raw = r as unknown as Record<string, unknown>;
+        // Spring: { content: [...] } / 자체: { items: [...] }
+        const list = (Array.isArray(raw.items) ? raw.items : Array.isArray(raw.content) ? raw.content : []) as AdminUser[];
+        console.log('[admin/users] 응답:', r, '→ 파싱된 목록:', list.length);
+        setUsers(list);
+      })
+      .catch((e: unknown) => {
+        if (cancelled) return;
+        const err = e as Record<string, unknown>;
+        const msg = `${err?.status ?? '?'} ${err?.code ?? ''} — ${err?.message ?? String(e)}`;
+        console.error('[admin/users] 에러:', e, msg);
+        setFetchError(msg);
+      });
+    return () => { cancelled = true; };
   }, []);
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<'ALL' | AdminRole>('ALL');
