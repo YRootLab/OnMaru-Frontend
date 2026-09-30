@@ -185,6 +185,7 @@ async function executeWarmthFetchFlow(
           });
           if (fallback.spots.length > 0) return fallback;
         } catch (fallbackError) {
+          if (fallbackError instanceof DOMException && fallbackError.name === 'AbortError') throw fallbackError;
           log.warn('[warmthService] MISSING coverage fallback failed:', fallbackError);
         }
         return {
