@@ -9,17 +9,6 @@ import { adminLogin, adminLogout, adminRefresh, adminGetMe } from '@/features/ad
 // 메모리 내 사용자 상태 (새로고침 시 refresh API로 복구)
 let _memUser: AdminUser | null = null;
 
-const DEFAULT_ADMIN: AdminUser = {
-  id: 'admin_usr_001',
-  email: 'admin@onmaru.kr',
-  nickname: '온마루지기',
-  role: 'ADMIN',
-  status: 'ACTIVE',
-  reviewCount: 42,
-  reportCount: 0,
-  createdAt: '2026-01-01T09:00:00Z',
-  lastLoginAt: new Date().toISOString(),
-};
 
 export function useAdminAuth() {
   const router = useRouter();
@@ -32,7 +21,6 @@ export function useAdminAuth() {
     setUserState(u);
   }, []);
 
-  // 세션 복구: 실패해도 기본 관리자로 자동 로그인
   useEffect(() => {
     if (bootstrapped.current) return;
     bootstrapped.current = true;
@@ -42,8 +30,11 @@ export function useAdminAuth() {
       return;
     }
 
-    setUser(DEFAULT_ADMIN);
-    setIsLoading(false);
+    adminRefresh()
+      .then((token) => (token ? adminGetMe() : null))
+      .then((me) => setUser(me))
+      .catch(() => setUser(null))
+      .finally(() => setIsLoading(false));
   }, [setUser]);
 
   const login = useCallback(async (email: string, password: string): Promise<boolean> => {

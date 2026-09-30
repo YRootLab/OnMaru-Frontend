@@ -1,11 +1,17 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, Component, type ReactNode } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { useGLTF, Center } from '@react-three/drei';
 import * as THREE from 'three';
 
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
+
+class CanvasErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  render() { return this.state.failed ? null : this.props.children; }
+}
 
 const MODEL_URL = '/anchae.glb';
 useGLTF.preload(MODEL_URL);
@@ -63,31 +69,31 @@ export default function HanokLogin3DStage() {
       }}
       aria-hidden="true"
     >
-      <Canvas
-        dpr={[1, 2]}
-        gl={{ alpha: true, antialias: true }}
-        camera={{ position: [14, 11, 22], fov: 38 }}
-        style={{
-          width: '100%',
-          height: '100%',
-          background: 'transparent',
-        }}
-      >
-        <ambientLight intensity={isDark ? 2.4 : 1.6} color={isDark ? '#f1f5f9' : '#ffffff'} />
-        <directionalLight position={[15, 25, 20]} intensity={isDark ? 2.2 : 2.0} color="#ffffff" />
-        {isDark && (
-          <>
-            {/* 지붕 상단을 직접 환하게 비추는 탑 라이트 */}
-            <directionalLight position={[0, 35, 10]} intensity={2.8} color="#ffffff" />
-            {/* 어두운 배경과 지붕 능선(용마루/처마선)을 선명하게 분리하는 후방 림라이트 */}
-            <directionalLight position={[5, 28, -25]} intensity={3.8} color="#e0f2fe" />
-          </>
-        )}
-        <directionalLight position={[-15, 12, -10]} intensity={isDark ? 1.4 : 0.8} color="#ffe5c2" />
-        <React.Suspense fallback={null}>
-          <StaticHanok3D isDark={isDark} />
-        </React.Suspense>
-      </Canvas>
+      <CanvasErrorBoundary>
+        <Canvas
+          dpr={[1, 2]}
+          gl={{ alpha: true, antialias: true }}
+          camera={{ position: [14, 11, 22], fov: 38 }}
+          style={{
+            width: '100%',
+            height: '100%',
+            background: 'transparent',
+          }}
+        >
+          <ambientLight intensity={isDark ? 2.4 : 1.6} color={isDark ? '#f1f5f9' : '#ffffff'} />
+          <directionalLight position={[15, 25, 20]} intensity={isDark ? 2.2 : 2.0} color="#ffffff" />
+          {isDark && (
+            <>
+              <directionalLight position={[0, 35, 10]} intensity={2.8} color="#ffffff" />
+              <directionalLight position={[5, 28, -25]} intensity={3.8} color="#e0f2fe" />
+            </>
+          )}
+          <directionalLight position={[-15, 12, -10]} intensity={isDark ? 1.4 : 0.8} color="#ffe5c2" />
+          <React.Suspense fallback={null}>
+            <StaticHanok3D isDark={isDark} />
+          </React.Suspense>
+        </Canvas>
+      </CanvasErrorBoundary>
     </div>
   );
 }

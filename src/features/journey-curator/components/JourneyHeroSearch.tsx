@@ -795,7 +795,7 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
   const hasSearched = useJourneyStore((s) => s.hasSearched);
   const { moods } = useMoodOptions();
   const [isCancelling, setIsCancelling] = useState(false);
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
   const oniVideoRef = useRef<HTMLVideoElement>(null);
 
@@ -819,6 +819,7 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
     : defaultSuggestions;
 
   const guardAuth = () => {
+    if (isAuthLoading) return false;
     if (!isLoggedIn) {
       router.push('/auth/login');
       return false;

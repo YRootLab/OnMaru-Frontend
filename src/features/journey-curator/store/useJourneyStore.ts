@@ -90,9 +90,11 @@ type SetFn = (partial: Partial<JourneyState>) => void;
 function runWithSse(accepted: RunAccepted, set: SetFn): Promise<ExplorationSnapshot> {
   return new Promise((resolve, reject) => {
     let reconnected = false;
+    let cancelled = false;
     let unsubscribe: (() => void) | null = null;
 
     const fetchAndResolve = async () => {
+      cancelled = true;
       unsubscribe?.();
       unsubscribe = null;
       set({ unsubscribeSse: null });
@@ -111,6 +113,7 @@ function runWithSse(accepted: RunAccepted, set: SetFn): Promise<ExplorationSnaps
           if (frame.event === 'run.terminal' || frame.event === 'reset') {
             fetchAndResolve();
           } else if (frame.event === 'auth_closed') {
+            cancelled = true;
             unsubscribe?.();
             unsubscribe = null;
             set({ unsubscribeSse: null });
@@ -123,7 +126,7 @@ function runWithSse(accepted: RunAccepted, set: SetFn): Promise<ExplorationSnaps
               reconnected = true;
               unsubscribe?.();
               await sleep(1000);
-              doSubscribe();
+              if (!cancelled) doSubscribe();
             } else {
               fetchAndResolve();
             }

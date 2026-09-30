@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Flame, ChevronLeft, ChevronRight, MessageCircle, Landmark, Home, Utensils, Coffee, ShoppingBag } from 'lucide-react';
-import { meok, fontSize } from '@/design-system/tokens';
+import { meok } from '@/design-system/tokens';
 import { useMapStore, DEFAULT_CENTER } from '@/features/map/hooks/useMapStore';
 import { countByPlace, toReview } from '@/features/map/warmth/warmthRepo';
 import { filterByPeriod } from '@/features/map/warmth/heatScale';

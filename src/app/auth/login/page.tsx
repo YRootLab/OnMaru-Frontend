@@ -71,6 +71,10 @@ const SpeechBubble = styled.div`
   border: 1px solid rgba(255, 255, 255, 0.18);
   animation: bubbleFloat 3s ease-in-out infinite;
 
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+
   @keyframes bubbleFloat {
     0%, 100% {
       transform: translate(-50%, 0);
