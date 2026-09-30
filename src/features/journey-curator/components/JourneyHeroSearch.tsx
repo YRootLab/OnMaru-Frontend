@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
 import {
@@ -325,6 +325,10 @@ const OniVideoBox = styled.div`
       }
     }
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 `;
 
 const OniWalkerContainer = styled.div<{ $compact?: boolean }>`
@@ -475,6 +479,14 @@ const OniWalkerContainer = styled.div<{ $compact?: boolean }>`
         opacity: 0;
       }
     }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    opacity: 1;
+    left: 50%;
+    transform: translateX(-50%);
+    filter: none;
   }
 `;
 
@@ -785,6 +797,15 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
   const [isCancelling, setIsCancelling] = useState(false);
   const { isLoggedIn } = useAuth();
   const router = useRouter();
+  const oniVideoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = oniVideoRef.current;
+    if (!video) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      video.pause();
+    }
+  }, []);
 
   const defaultSuggestions = [
     '+ 전통 찻집 더보기',
@@ -849,6 +870,7 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
               <OniBubble>온이가 길을 밝히고 있어요 🏮</OniBubble>
               <OniVideoBox>
                 <video
+                  ref={oniVideoRef}
                   autoPlay
                   loop
                   muted
