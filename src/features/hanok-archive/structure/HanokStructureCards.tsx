@@ -338,15 +338,43 @@ export default function HanokStructureCards() {
           aria-label="처마 그림자 시뮬레이션 열기"
         >
           <PreviewCanvas $bg="rgba(255, 184, 0, 0.07)" aria-hidden="true">
-            <SolarPreviewGraphic>
-              <div className="sun-arc" />
-              <div className="sun-orb" />
-              <div className="roof-curve" />
-              <div className="eaves-shadow" />
-              <div className="season-indicator">
-                <Sparkles size={12} /> 하지 77° ➔ 동지 29°
-              </div>
-            </SolarPreviewGraphic>
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="auto"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                objectPosition: 'center 15%',
+                display: 'block',
+              }}
+            >
+              <source src="/videos/Oni_standing.mp4" type="video/mp4" />
+            </video>
+            <div
+              style={{
+                position: 'absolute',
+                bottom: 10,
+                right: 14,
+                fontSize: 11,
+                fontWeight: 600,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+                padding: '4px 9px',
+                borderRadius: 9999,
+                background: 'rgba(0, 0, 0, 0.55)',
+                color: '#ffffff',
+                backdropFilter: 'blur(6px)',
+                WebkitBackdropFilter: 'blur(6px)',
+                letterSpacing: '-0.01em',
+              }}
+            >
+              <Sparkles size={12} /> 하지 77° ➔ 동지 29°
+            </div>
           </PreviewCanvas>
 
           <CardBody>
