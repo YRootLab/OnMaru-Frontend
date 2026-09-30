@@ -74,16 +74,16 @@ const TabLink = styled(Link, transientProps)<TabProps>`
   margin: 4px 6px;
   border-radius: 12px;
   color: ${({ $isLanding, $isActive }) => {
-    if ($isActive) return $isLanding ? '#f8e6bd' : lightPalette.juhong[700];
+    if ($isActive) return $isLanding ? '#f8e6bd' : lightPalette.juhong[500];
     return $isLanding ? 'rgba(250, 250, 250, 0.68)' : 'rgba(33, 30, 25, 0.68)';
   }};
   background-color: ${({ $isActive, $isLanding }) => {
     if (!$isActive) return 'transparent';
-    return $isLanding ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.05)';
+    return $isLanding ? 'rgba(255, 255, 255, 0.10)' : lightPalette.juhong[50];
   }};
   border: 1px solid ${({ $isActive, $isLanding }) => {
     if (!$isActive) return 'transparent';
-    return $isLanding ? 'rgba(255, 255, 255, 0.18)' : 'rgba(0, 0, 0, 0.06)';
+    return $isLanding ? 'rgba(255, 255, 255, 0.12)' : lightPalette.juhong[100];
   }};
   font-family: 'Spoqa Han Sans Neo', sans-serif;
   font-size: ${fontSize.micro};
@@ -102,9 +102,9 @@ const TabLink = styled(Link, transientProps)<TabProps>`
       return 'rgba(250, 250, 250, 0.68)';
     }};
     background-color: ${({ $isActive }) =>
-      $isActive ? 'rgba(255, 255, 255, 0.1)' : 'transparent'};
+      $isActive ? 'rgba(255, 120, 48, 0.18)' : 'transparent'};
     border-color: ${({ $isActive }) =>
-      $isActive ? 'rgba(255, 255, 255, 0.12)' : 'transparent'};
+      $isActive ? 'rgba(255, 120, 48, 0.25)' : 'transparent'};
   }
 `;
 
@@ -117,9 +117,9 @@ export default function GlobalMobileTabs({ isLanding }: { isLanding: boolean }) 
 
   const tabs = [
     { href: '/', label: '홈', icon: Home, active: pathname === '/' },
-    { href: '/hanok', label: '한옥 이야기', icon: BookOpen, active: pathname.startsWith('/hanok') },
+    { href: '/hanok', label: '한옥마루', icon: BookOpen, active: pathname.startsWith('/hanok') },
     { href: '/sorimaru', label: '소리마루', icon: Headphones, active: isSoriMaruPage },
-    { href: '/map', label: '지도', icon: Map, active: pathname.startsWith('/map') },
+    { href: '/map', label: '지도마루', icon: Map, active: pathname.startsWith('/map') },
     {
       href: isLoggedIn ? '/mypage' : '/auth/login',
       label: isLoggedIn ? '나의 마루' : '로그인',
