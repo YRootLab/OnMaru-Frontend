@@ -143,7 +143,7 @@ const FloatingOniBubble = styled.div<{ $show?: boolean }>`
   bottom: 84px;
   left: 50%;
   transform: translateX(-50%) ${({ $show }) => ($show ? 'translateY(0)' : 'translateY(4px)')};
-  background: rgba(28, 26, 23, 0.94);
+  background: rgba(28, 26, 23, 0.82);
   color: #f8f8f7;
   font-size: 11.5px;
   font-weight: 600;
@@ -153,9 +153,10 @@ const FloatingOniBubble = styled.div<{ $show?: boolean }>`
   pointer-events: none;
   opacity: ${({ $show }) => ($show ? 1 : 0)};
   transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
   z-index: 25;
 
   &::after {
@@ -166,16 +167,16 @@ const FloatingOniBubble = styled.div<{ $show?: boolean }>`
     transform: translateX(-50%);
     border-width: 4px;
     border-style: solid;
-    border-color: rgba(28, 26, 23, 0.94) transparent transparent transparent;
+    border-color: rgba(28, 26, 23, 0.82) transparent transparent transparent;
   }
 
   [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.96);
+    background: rgba(255, 255, 255, 0.82);
     color: #171513;
-    border: 1px solid rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.12);
 
     &::after {
-      border-color: rgba(255, 255, 255, 0.96) transparent transparent transparent;
+      border-color: rgba(255, 255, 255, 0.82) transparent transparent transparent;
     }
   }
 

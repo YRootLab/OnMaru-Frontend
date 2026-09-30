@@ -159,10 +159,12 @@ const OniBubble = styled.div`
   font-weight: 600;
   padding: 5px 12px;
   border-radius: 9999px;
-  background: rgba(14, 16, 22, 0.9);
+  background: rgba(14, 16, 22, 0.82);
   color: #f8fafc;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.2s ease, transform 0.2s ease;
@@ -176,15 +178,16 @@ const OniBubble = styled.div`
     transform: translateX(-50%);
     border-width: 4px;
     border-style: solid;
-    border-color: rgba(14, 16, 22, 0.9) transparent transparent transparent;
+    border-color: rgba(14, 16, 22, 0.82) transparent transparent transparent;
   }
 
   [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.94);
+    background: rgba(255, 255, 255, 0.82);
     color: #111827;
+    border-color: rgba(0, 0, 0, 0.12);
 
     &::after {
-      border-color: rgba(255, 255, 255, 0.94) transparent transparent transparent;
+      border-color: rgba(255, 255, 255, 0.82) transparent transparent transparent;
     }
   }
 
