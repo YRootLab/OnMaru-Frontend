@@ -44,7 +44,7 @@ describe('Section 2 loaded summaries', () => {
 });
 
 function repositoryWith(listStories: SorimaruRepository['listStories']): SorimaruRepository {
-  return { listStories, getStoryDetail: vi.fn(), listRegionGroups: vi.fn() };
+  return { listStories, getStoryDetail: vi.fn(), listRegionGroups: vi.fn(), searchStoriesByKeyword: vi.fn(), listNearbyStories: vi.fn(), getRecommendations: vi.fn() };
 }
 
 describe('loadSorimaruInitialData', () => {

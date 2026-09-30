@@ -9,6 +9,9 @@ describe('Sorimaru API compatibility boundary', () => {
       listStories: vi.fn().mockResolvedValue(page),
       getStoryDetail: vi.fn(),
       listRegionGroups: vi.fn(),
+      searchStoriesByKeyword: vi.fn(),
+      listNearbyStories: vi.fn(),
+      getRecommendations: vi.fn(),
     } satisfies SorimaruRepository;
     const adapter = createSorimaruApiAdapter(repository);
     const query = { language: 'ko-KR', category: 'HISTORIC', limit: 12 };
@@ -23,6 +26,9 @@ describe('Sorimaru API compatibility boundary', () => {
       listStories: vi.fn(),
       getStoryDetail: vi.fn().mockRejectedValue(new Error('detail unavailable')),
       listRegionGroups: vi.fn(),
+      searchStoriesByKeyword: vi.fn(),
+      listNearbyStories: vi.fn(),
+      getRecommendations: vi.fn(),
     } satisfies SorimaruRepository;
     const adapter = createSorimaruApiAdapter(repository);
 

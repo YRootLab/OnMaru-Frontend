@@ -41,6 +41,21 @@ export function createSorimaruHttpRepository(request: SorimaruBackendRequester =
       return cache.read(sorimaruQueryKeys.regions(language), async () =>
         mapRegionGroups(await request('odii/regions', { language })), options);
     },
+
+    searchStoriesByKeyword(keyword: string, language = 'ko-KR', options?: { force?: boolean }) {
+      return cache.read(sorimaruQueryKeys.keyword(keyword, language), async () =>
+        mapStoryPage(await request('/api/stories', { keyword, language })), options);
+    },
+
+    listNearbyStories(lat: number, lng: number, radius: number, language = 'ko-KR', options?: { force?: boolean }) {
+      return cache.read(sorimaruQueryKeys.nearby(lat, lng, radius, language), async () =>
+        mapStoryPage(await request('/api/stories/nearby', { lat, lng, radius, language })), options);
+    },
+
+    getRecommendations(keyword: string, language = 'ko-KR', options?: { force?: boolean }) {
+      return cache.read(sorimaruQueryKeys.recommendations(keyword, language), async () =>
+        mapStoryPage(await request('/api/recommendation', { keyword, language })), options);
+    },
   };
 }
 
@@ -55,6 +70,9 @@ export function createSorimaruRuntimeRepository(
     listStories: (query, options) => current().listStories(query, options),
     getStoryDetail: (storyId, language, options) => current().getStoryDetail(storyId, language, options),
     listRegionGroups: (language, options) => current().listRegionGroups(language, options),
+    searchStoriesByKeyword: (keyword, language, options) => current().searchStoriesByKeyword(keyword, language, options),
+    listNearbyStories: (lat, lng, radius, language, options) => current().listNearbyStories(lat, lng, radius, language, options),
+    getRecommendations: (keyword, language, options) => current().getRecommendations(keyword, language, options),
   };
 }
 

@@ -30,6 +30,9 @@ function repository() {
     listRegionGroups: vi.fn<SorimaruRepository['listRegionGroups']>().mockResolvedValue(groups),
     listStories: vi.fn<SorimaruRepository['listStories']>().mockResolvedValue(page('first')),
     getStoryDetail: vi.fn<SorimaruRepository['getStoryDetail']>(),
+    searchStoriesByKeyword: vi.fn<SorimaruRepository['searchStoriesByKeyword']>(),
+    listNearbyStories: vi.fn<SorimaruRepository['listNearbyStories']>(),
+    getRecommendations: vi.fn<SorimaruRepository['getRecommendations']>(),
   };
 }
 afterEach(cleanup);
