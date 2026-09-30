@@ -540,7 +540,8 @@ export default function KCultureThemeFeed({ onSelectPlace }: KCultureThemeFeedPr
 
   const navigate = (delta: -1 | 1) => {
     setHeroIdx((prev) => {
-      const next = prev + delta;
+      const clampedPrev = Math.min(prev, Math.max(0, items.length - 1));
+      const next = clampedPrev + delta;
       if (next < 0) return 0;
       if (next >= items.length) return items.length - 1;
       return next;

@@ -4,7 +4,7 @@
 
 
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { meok, palette } from '@/design-system/tokens';
 import { DataTable, ColumnDef } from '@/features/admin/components/DataTable';
 import { StatusBadge } from '@/features/admin/components/StatusBadge';
@@ -12,8 +12,9 @@ import { ConfirmDialog } from '@/features/admin/components/ConfirmDialog';
 import { Toast } from '@/features/admin/components/Toast';
 import { EmptyState } from '@/features/admin/components/EmptyState';
 import { useAdminAuth } from '@/features/admin/hooks/useAdminAuth';
+import { useAdminUsers } from '@/features/admin/hooks/useAdminUsers';
 import { AdminUser, AdminRole } from '@/features/admin/types';
-import { getUsers, createSanction } from '@/features/admin/api/adminApi';
+import { createSanction } from '@/features/admin/api/adminApi';
 import {
   Search,
   RotateCcw,
@@ -26,29 +27,7 @@ import {
 export default function AdminUsersPage() {
   const { user: currentUser, isAdmin } = useAdminAuth();
 
-  const [users, setUsers] = useState<AdminUser[]>([]);
-  const [fetchError, setFetchError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    getUsers({ limit: 200 })
-      .then((r) => {
-        if (cancelled) return;
-        const raw = r as unknown as Record<string, unknown>;
-        // Spring: { content: [...] } / 자체: { items: [...] }
-        const list = (Array.isArray(raw.items) ? raw.items : Array.isArray(raw.content) ? raw.content : []) as AdminUser[];
-        console.log('[admin/users] 응답:', r, '→ 파싱된 목록:', list.length);
-        setUsers(list);
-      })
-      .catch((e: unknown) => {
-        if (cancelled) return;
-        const err = e as Record<string, unknown>;
-        const msg = `${err?.status ?? '?'} ${err?.code ?? ''} — ${err?.message ?? String(e)}`;
-        console.error('[admin/users] 에러:', e, msg);
-        setFetchError(msg);
-      });
-    return () => { cancelled = true; };
-  }, []);
+  const { users, setUsers, fetchError } = useAdminUsers();
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<'ALL' | AdminRole>('ALL');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'SUSPENDED'>('ALL');

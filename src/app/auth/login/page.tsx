@@ -6,7 +6,7 @@ import styled from '@emotion/styled';
 import { useAuth } from '@/features/auth';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 
-const HanokLogin3DStage = dynamic(() => import('./HanokLogin3DStage'), {
+const HanokLogin3DStage = dynamic(() => import('@/features/auth/components/HanokLogin3DStage'), {
   ssr: false,
 });
 
@@ -121,6 +121,12 @@ const OniVideoWrap = styled.div`
     display: block;
     pointer-events: none;
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    video {
+      display: none;
+    }
+  }
 `;
 
 const KakaoButton = styled.button`
@@ -148,6 +154,16 @@ const KakaoButton = styled.button`
 
   &:active {
     transform: scale(0.98);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+    &:hover {
+      transform: none;
+    }
+    &:active {
+      transform: none;
+    }
   }
 `;
 

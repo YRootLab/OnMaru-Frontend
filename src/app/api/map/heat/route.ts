@@ -1,19 +1,24 @@
 import { NextResponse } from 'next/server';
 
-const BACKEND = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
+const BACKEND = process.env.NEXT_PUBLIC_API_BASE_URL ?? process.env.NEXT_PUBLIC_API_URL ?? '';
 
 export async function GET(request: Request) {
   if (!BACKEND) {
-    return NextResponse.json({ spots: [], error: 'backend not configured' }, { status: 503 });
+    console.error('[heat] NEXT_PUBLIC_API_BASE_URL / NEXT_PUBLIC_API_URL not configured — heatmap upstream unavailable');
+    return NextResponse.json({ spots: [], error: 'upstream not configured' }, { status: 502 });
   }
 
   const { searchParams } = new URL(request.url);
   const upstream = `${BACKEND}/api/map/heat?${searchParams.toString()}`;
 
+  const signal = AbortSignal.any
+    ? AbortSignal.any([request.signal, AbortSignal.timeout(10_000)])
+    : AbortSignal.timeout(10_000);
+
   try {
     const res = await fetch(upstream, {
       next: { revalidate: 0 },
-      signal: AbortSignal.timeout(30000),
+      signal,
     });
     const data = await res.json();
     return NextResponse.json(data, { status: res.status });

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import type { AdminRole, AdminUser } from '@/features/admin/types';
-import { setAccessToken, removeAccessToken } from '@/lib/api/client';
+import { setAccessToken, removeAccessToken, USE_MOCK } from '@/lib/api/client';
 import { adminLogin, adminLogout, adminRefresh, adminGetMe } from '@/features/admin/api/adminAuth.api';
 
 // 메모리 내 사용자 상태 (새로고침 시 refresh API로 복구)
@@ -21,11 +21,29 @@ export function useAdminAuth() {
     setUserState(u);
   }, []);
 
+  const DEFAULT_ADMIN: AdminUser = {
+    id: 'admin_usr_001',
+    email: 'admin@onmaru.kr',
+    nickname: '온마루지기',
+    role: 'ADMIN',
+    status: 'ACTIVE',
+    reviewCount: 42,
+    reportCount: 0,
+    createdAt: '2026-01-01T09:00:00Z',
+    lastLoginAt: new Date().toISOString(),
+  };
+
   useEffect(() => {
     if (bootstrapped.current) return;
     bootstrapped.current = true;
 
     if (_memUser) {
+      setIsLoading(false);
+      return;
+    }
+
+    if (USE_MOCK) {
+      setUser(DEFAULT_ADMIN);
       setIsLoading(false);
       return;
     }
