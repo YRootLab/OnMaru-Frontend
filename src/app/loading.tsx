@@ -42,7 +42,7 @@ export default function Loading() {
           <img
             src="/images/character/Oni_loading.png"
             alt=""
-            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            style={{ width: '100%', height: '100%', objectFit: 'contain', mixBlendMode: 'screen' }}
           />
         ) : (
           <video
@@ -53,7 +53,7 @@ export default function Loading() {
             preload="auto"
             aria-label="온마루 로딩 중"
             onError={() => setVideoError(true)}
-            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            style={{ width: '100%', height: '100%', objectFit: 'contain', mixBlendMode: 'screen' }}
           >
             <source src="/videos/Oni_loading.webm" type="video/webm" onError={() => setVideoError(true)} />
           </video>

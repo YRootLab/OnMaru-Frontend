@@ -121,6 +121,7 @@ const OniVideoWrap = styled.div`
     object-fit: contain;
     display: block;
     pointer-events: none;
+    mix-blend-mode: screen;
   }
 
   @media (prefers-reduced-motion: reduce) {
