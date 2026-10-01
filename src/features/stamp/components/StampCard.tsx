@@ -29,6 +29,14 @@ const Slot = styled.div`
     border-radius: 50%;
   }
 
+  /* hover: ghost 텍스트 살짝 드러나기 */
+  &:hover [data-ghost='true'] {
+    color: rgba(24, 17, 10, 0.22) !important;
+  }
+  [data-theme='dark'] &:hover [data-ghost='true'] {
+    color: rgba(240, 232, 214, 0.2) !important;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     perspective: none;
   }
@@ -49,23 +57,20 @@ const Seal = styled.div<{ $unlocked: boolean; $color: string }>`
   background: ${({ $unlocked, $color }) =>
     $unlocked
       ? `radial-gradient(circle at 38% 32%, color-mix(in srgb, ${$color} 82%, white), ${$color} 52%, color-mix(in srgb, ${$color} 86%, black) 100%)`
-      : 'rgba(25, 31, 40, 0.025)'};
-
-  border: ${({ $unlocked }) => ($unlocked ? 'none' : '1.5px dashed rgba(24,17,10,0.18)')};
+      : 'rgba(24, 17, 10, 0.04)'};
 
   box-shadow: ${({ $unlocked }) =>
     $unlocked
       ? `inset 0 4px 12px rgba(0, 0, 0, 0.28), inset 0 -1px 4px rgba(255, 255, 255, 0.07), ${ringShadow.light.card}`
       : 'none'};
 
-  transition: background 0.2s ease;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
 
   [data-theme='dark'] & {
     background: ${({ $unlocked, $color }) =>
       $unlocked
         ? `radial-gradient(circle at 38% 32%, color-mix(in srgb, ${$color} 82%, white), ${$color} 52%, color-mix(in srgb, ${$color} 86%, black) 100%)`
-        : 'rgba(255, 255, 255, 0.03)'};
-    border: ${({ $unlocked }) => ($unlocked ? 'none' : '1.5px dashed rgba(255,255,255,0.13)')};
+        : 'rgba(255, 255, 255, 0.04)'};
     box-shadow: ${({ $unlocked }) =>
       $unlocked
         ? `inset 0 4px 12px rgba(0, 0, 0, 0.4), ${ringShadow.dark.card}`
@@ -157,47 +162,51 @@ export default function StampCard({ stamp, collected, onClick }: StampCardProps)
       })
     : null;
 
+  const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const seal = sealRef.current;
-    if (!seal || !isUnlocked) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!seal || !isUnlocked || reduced()) return;
 
     const rect = seal.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const rx = -((y - rect.height / 2) / (rect.height / 2)) * 16;
-    const ry = ((x - rect.width / 2) / (rect.width / 2)) * 16;
+    const rx = -((e.clientY - rect.top - rect.height / 2) / (rect.height / 2)) * 10;
+    const ry = ((e.clientX - rect.left - rect.width / 2) / (rect.width / 2)) * 10;
 
     gsap.to(seal, {
-      rotationX: rx,
-      rotationY: ry,
-      y: -8,
+      rotationX: rx, rotationY: ry, y: -6,
       boxShadow: `inset 0 4px 12px rgba(0,0,0,0.28), ${ringShadow.light.cardHoverGlow}`,
-      duration: 0.3,
-      ease: 'power2.out',
-      overwrite: 'auto',
+      duration: 0.3, ease: 'power2.out', overwrite: 'auto',
     });
   };
 
   const handleMouseLeave = () => {
     const seal = sealRef.current;
-    if (!seal || !isUnlocked) return;
-
+    if (!seal) return;
     gsap.to(seal, {
-      rotationX: 0,
-      rotationY: 0,
-      y: 0,
-      duration: 0.5,
-      ease: 'back.out(1.2)',
-      overwrite: 'auto',
+      rotationX: 0, rotationY: 0, y: 0,
+      duration: 0.45, ease: 'back.out(1.4)', overwrite: 'auto',
       onComplete: () => gsap.set(seal, { clearProps: 'boxShadow' }),
     });
+  };
+
+  const handleMouseDown = () => {
+    const seal = sealRef.current;
+    if (!seal || reduced()) return;
+    gsap.to(seal, { scale: 0.91, duration: 0.08, ease: 'power2.in', overwrite: 'auto' });
+  };
+
+  const handleMouseUp = () => {
+    const seal = sealRef.current;
+    if (!seal) return;
+    gsap.to(seal, { scale: 1, duration: 0.5, ease: 'elastic.out(1, 0.4)', overwrite: 'auto' });
   };
 
   return (
     <Slot
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
       onClick={() => {
         stampAudio.playMapClickSound();
         onClick();
@@ -216,10 +225,11 @@ export default function StampCard({ stamp, collected, onClick }: StampCardProps)
       <Seal ref={sealRef} $unlocked={isUnlocked} $color={stamp.color}>
         {isUnlocked && <RarityRing $rarity={stamp.rarity} $color={stamp.color} />}
         <SealText
+          data-ghost={isUnlocked ? undefined : 'true'}
           style={
             isUnlocked
               ? undefined
-              : { color: 'rgba(24,17,10,0.10)', textShadow: 'none' }
+              : { color: 'rgba(24,17,10,0.10)', textShadow: 'none', transition: 'color 0.2s ease' }
           }
         >
           {stamp.sealText}

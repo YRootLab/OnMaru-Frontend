@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { AlertCircle, RefreshCw, ShieldCheck, User } from 'lucide-react';
 import gsap from 'gsap';
@@ -330,6 +330,20 @@ export default function StampBook({ initialCatalog }: StampBookProps) {
   const unlockedCount = collection.summary.collectedCount;
   const progressPercent = collection.summary.completionRate;
 
+  const [displayCount, setDisplayCount] = useState(0);
+  useEffect(() => {
+    if (unlockedCount === 0) { setDisplayCount(0); return; }
+    const obj = { val: 0 };
+    const tween = gsap.to(obj, {
+      val: unlockedCount,
+      duration: 1.4,
+      ease: 'power2.out',
+      delay: 0.6,
+      onUpdate: () => setDisplayCount(Math.round(obj.val)),
+    });
+    return () => { tween.kill(); };
+  }, [unlockedCount]);
+
   const unlockedRegions = new Set<string>();
   collection.stamps.forEach((stamp) => {
     if (stamp.collected && stamp.region !== 'all') unlockedRegions.add(stamp.region);
@@ -465,7 +479,7 @@ export default function StampBook({ initialCatalog }: StampBookProps) {
               />
             </svg>
             <ProgressSealCenter>
-              <ProgressNum>{unlockedCount}</ProgressNum>
+              <ProgressNum>{displayCount}</ProgressNum>
               <ProgressOf>/ {totalStampsCount}개</ProgressOf>
             </ProgressSealCenter>
           </ProgressSealWrap>
