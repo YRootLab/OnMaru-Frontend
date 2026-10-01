@@ -44,12 +44,12 @@ export default function NotFound() {
     <PageWrapper>
       <OniSearchEmpty
         size="lg"
-        title="Àá½Ã ±æÀ» ÀÒ¾ú¾î¿ä"
-        description="¿äÃ»ÇÏ½Å ÆäÀÌÁö¸¦ Ã£À» ¼ö ¾ø¾î¿ä. ÁÖ¼Ò¸¦ È®ÀÎÇÏ½Ã°Å³ª ¿Â¸¶·ç È¨À¸·Î µ¹¾Æ°¡ º¸¼¼¿ä."
+        title="í˜ì´ì§€ë¥¼ ì°¾ì„ ìˆ˜ ì—†ì–´ìš”"
+        description="ìš”ì²­í•˜ì‹  í˜ì´ì§€ë¥¼ ì°¾ì„ ìˆ˜ ì—†ì–´ìš”. ì£¼ì†Œë¥¼ í™•ì¸í•˜ì‹œê±°ë‚˜ ì•„ë˜ í™ˆìœ¼ë¡œ ëŒì•„ê°€ ì£¼ì„¸ìš”."
         action={
           <HomeButton href="/">
             <HugeiconsIcon icon={Home01Icon} size={16} />
-            ¿Â¸¶·ç È¨À¸·Î µ¹¾Æ°¡±â
+            í™ˆìœ¼ë¡œ ëŒì•„ê°€ê¸°
           </HomeButton>
         }
       />
