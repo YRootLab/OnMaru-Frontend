@@ -9,7 +9,7 @@
 
 
 
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
@@ -309,21 +309,7 @@ const MoreLink = styled.div<{ $color: string }>`
 
 export default function HanokStructureCards() {
   const [open, setOpen] = useState<OpenModal>(null);
-  const [assemblyPaused, setAssemblyPaused] = useState(false);
-  const assemblyVideoRef = useRef<HTMLVideoElement>(null);
   const close = () => setOpen(null);
-
-  const toggleAssemblyVideo = () => {
-    const video = assemblyVideoRef.current;
-    if (!video) return;
-    if (video.paused) {
-      video.play();
-      setAssemblyPaused(false);
-    } else {
-      video.pause();
-      setAssemblyPaused(true);
-    }
-  };
 
   return (
     <SectionWrapper aria-labelledby="structure-heading">
@@ -362,9 +348,9 @@ export default function HanokStructureCards() {
                 width: '100%',
                 height: '100%',
                 objectFit: 'cover',
-                objectPosition: 'center 15%',
-                transform: 'scale(1.15)',
-                transformOrigin: 'center center',
+                objectPosition: 'center 12%',
+                transform: 'scale(1.3)',
+                transformOrigin: '38% 28%',
                 display: 'block',
               }}
             >
@@ -430,7 +416,6 @@ export default function HanokStructureCards() {
         >
           <PreviewCanvas $bg="rgba(217, 64, 0, 0.06)" aria-hidden="true">
             <video
-              ref={assemblyVideoRef}
               autoPlay
               loop
               muted
@@ -440,9 +425,9 @@ export default function HanokStructureCards() {
                 width: '100%',
                 height: '100%',
                 objectFit: 'cover',
-                objectPosition: 'center 15%',
-                transform: 'scale(1.15)',
-                transformOrigin: 'center center',
+                objectPosition: 'center 12%',
+                transform: 'scale(1.3)',
+                transformOrigin: '38% 28%',
                 display: 'block',
               }}
             >
@@ -487,30 +472,6 @@ export default function HanokStructureCards() {
             </MoreLink>
           </CardBody>
         </CardContainer>
-        <button
-          type="button"
-          aria-label={assemblyPaused ? '조립 영상 재생' : '조립 영상 일시정지'}
-          onClick={toggleAssemblyVideo}
-          style={{
-            position: 'absolute',
-            top: 10,
-            left: 10,
-            zIndex: 10,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: 28,
-            height: 28,
-            borderRadius: '50%',
-            border: 'none',
-            background: 'rgba(0,0,0,0.5)',
-            color: '#ffffff',
-            cursor: 'pointer',
-            fontSize: 12,
-          }}
-        >
-          {assemblyPaused ? '▶' : '⏸'}
-        </button>
           </motion.div>
         </Grid>
       </div>

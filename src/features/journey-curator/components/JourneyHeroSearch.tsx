@@ -126,7 +126,7 @@ const Subtitle = styled.p`
   font-weight: 450;
   line-height: 1.65;
   color: #334155;
-  margin: 0 0 32px;
+  margin: 0 0 clamp(54px, 6vw, 70px);
   max-width: 640px;
   word-break: keep-all;
 
@@ -137,7 +137,7 @@ const Subtitle = styled.p`
 
   @media (max-width: 640px) {
     font-size: 13.5px;
-    margin-bottom: 22px;
+    margin-bottom: 44px;
     line-height: 1.55;
   }
 `;
@@ -149,24 +149,24 @@ const SearchFormWrapper = styled.div<{ $compact?: boolean }>`
   margin: 0 auto;
 `;
 
-const OniBubble = styled.div`
+const OniBubble = styled.div<{ $visible?: boolean }>`
   position: absolute;
-  bottom: 108px;
+  bottom: calc(100% + 6px);
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 600;
-  padding: 5px 12px;
+  padding: 4px 10px;
   border-radius: 9999px;
-  background: rgba(14, 16, 22, 0.82);
+  background: rgba(14, 16, 22, 0.85);
   color: #f8fafc;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.16);
   pointer-events: none;
-  opacity: 0;
+  opacity: ${({ $visible }) => ($visible ? 1 : 0)};
   transition: opacity 0.2s ease, transform 0.2s ease;
   z-index: 30;
 
@@ -178,95 +178,81 @@ const OniBubble = styled.div`
     transform: translateX(-50%);
     border-width: 4px;
     border-style: solid;
-    border-color: rgba(14, 16, 22, 0.82) transparent transparent transparent;
+    border-color: rgba(14, 16, 22, 0.85) transparent transparent transparent;
   }
 
   [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.82);
+    background: rgba(255, 255, 255, 0.88);
     color: #111827;
     border-color: rgba(0, 0, 0, 0.12);
 
     &::after {
-      border-color: rgba(255, 255, 255, 0.82) transparent transparent transparent;
+      border-color: rgba(255, 255, 255, 0.88) transparent transparent transparent;
     }
   }
 
   @media (max-width: 640px) {
     bottom: 84px;
-    font-size: 10.5px;
-    padding: 4px 10px;
+    font-size: 10px;
+    padding: 3px 8px;
   }
 `;
 
-const OniTrack = styled.div<{ $compact?: boolean }>`
+const OniTrack = styled.div<{ $compact?: boolean; $isTyping?: boolean }>`
   position: absolute;
-  bottom: calc(100% - 48px);
+  bottom: calc(100% - 2px);
   left: 0;
   right: 0;
-  height: 240px;
+  height: 140px;
   pointer-events: none;
-  overflow: hidden;
+  overflow: ${({ $isTyping }) => ($isTyping ? 'visible' : 'hidden')};
   z-index: 10;
-  mask-image: linear-gradient(
-    to right,
-    transparent 0px,
-    rgba(0, 0, 0, 0.15) 30px,
-    rgba(0, 0, 0, 0.7) 75px,
-    black 110px,
-    black calc(100% - 110px),
-    rgba(0, 0, 0, 0.7) calc(100% - 75px),
-    rgba(0, 0, 0, 0.15) calc(100% - 30px),
-    transparent 100%
-  );
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent 0px,
-    rgba(0, 0, 0, 0.15) 30px,
-    rgba(0, 0, 0, 0.7) 75px,
-    black 110px,
-    black calc(100% - 110px),
-    rgba(0, 0, 0, 0.7) calc(100% - 75px),
-    rgba(0, 0, 0, 0.15) calc(100% - 30px),
-    transparent 100%
-  );
-
-  @media (max-width: 640px) {
-    bottom: calc(100% - 36px);
-    height: 195px;
+  ${({ $isTyping }) =>
+    $isTyping
+      ? ''
+      : `
     mask-image: linear-gradient(
       to right,
       transparent 0px,
-      rgba(0, 0, 0, 0.2) 20px,
-      rgba(0, 0, 0, 0.7) 50px,
-      black 80px,
-      black calc(100% - 80px),
-      rgba(0, 0, 0, 0.7) calc(100% - 50px),
-      rgba(0, 0, 0, 0.2) calc(100% - 20px),
+      rgba(0, 0, 0, 0.15) 30px,
+      rgba(0, 0, 0, 0.7) 75px,
+      black 110px,
+      black calc(100% - 110px),
+      rgba(0, 0, 0, 0.7) calc(100% - 75px),
+      rgba(0, 0, 0, 0.15) calc(100% - 30px),
       transparent 100%
     );
     -webkit-mask-image: linear-gradient(
       to right,
       transparent 0px,
-      rgba(0, 0, 0, 0.2) 20px,
-      rgba(0, 0, 0, 0.7) 50px,
-      black 80px,
-      black calc(100% - 80px),
-      rgba(0, 0, 0, 0.7) calc(100% - 50px),
-      rgba(0, 0, 0, 0.2) calc(100% - 20px),
+      rgba(0, 0, 0, 0.15) 30px,
+      rgba(0, 0, 0, 0.7) 75px,
+      black 110px,
+      black calc(100% - 110px),
+      rgba(0, 0, 0, 0.7) calc(100% - 75px),
+      rgba(0, 0, 0, 0.15) calc(100% - 30px),
       transparent 100%
     );
+  `}
+
+  @media (max-width: 640px) {
+    bottom: calc(100% - 2px);
+    height: 120px;
   }
 `;
 
-const OniVideoBox = styled.div`
+const OniVideoBox = styled.div<{ $isTyping?: boolean; $direction?: 'right' | 'left' }>`
   position: relative;
-  width: 175px;
-  height: 150px;
+  width: 96px;
+  height: 82px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
   background: transparent;
-  animation: oniFlip 26s linear infinite;
+  ${({ $isTyping, $direction }) =>
+    $isTyping
+      ? `transform: ${$direction === 'left' ? 'scaleX(-1)' : 'scaleX(1)'};`
+      : 'animation: oniFlip 42s linear infinite;'}
   transform-origin: center bottom;
   transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 
@@ -291,18 +277,34 @@ const OniVideoBox = styled.div`
     }
   }
 
-  video {
-    width: 100%;
-    height: 100%;
+  img, video {
+    position: absolute;
+    bottom: -22px;
+    left: 50%;
+    width: 228px;
+    height: 128px;
+    max-width: none;
+    transform: translateX(calc(-50% + 18px));
     object-fit: contain;
     display: block;
     pointer-events: none;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.12));
   }
 
   @media (max-width: 640px) {
-    width: 130px;
-    height: 112px;
-    animation: oniFlipMobile 20s linear infinite;
+    width: 80px;
+    height: 68px;
+    ${({ $isTyping, $direction }) =>
+      $isTyping
+        ? `transform: ${$direction === 'left' ? 'scaleX(-1)' : 'scaleX(1)'};`
+        : 'animation: oniFlipMobile 42s linear infinite;'}
+
+    img, video {
+      bottom: -18px;
+      width: 190px;
+      height: 107px;
+      transform: translateX(calc(-50% + 15px));
+    }
 
     @keyframes oniFlipMobile {
       0% {
@@ -331,18 +333,34 @@ const OniVideoBox = styled.div`
   }
 `;
 
-const OniWalkerContainer = styled.div<{ $compact?: boolean }>`
+const OniWalkerContainer = styled.div<{
+  $compact?: boolean;
+  $isTyping?: boolean;
+  $typingLeft?: number;
+}>`
   position: absolute;
   bottom: 0;
-  left: -190px;
   z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
   cursor: pointer;
   pointer-events: auto;
-  animation: oniPatrol 26s linear infinite;
   transform-origin: center bottom;
+
+  ${({ $isTyping, $typingLeft }) =>
+    $isTyping && typeof $typingLeft === 'number'
+      ? `
+    left: ${$typingLeft}px;
+    animation: none;
+    opacity: 1 !important;
+    filter: none !important;
+    transition: left 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  `
+      : `
+    left: -190px;
+    animation: oniPatrol 42s linear infinite;
+  `}
 
   &:hover {
     animation-play-state: paused;
@@ -351,7 +369,7 @@ const OniWalkerContainer = styled.div<{ $compact?: boolean }>`
 
     ${OniVideoBox} {
       animation-play-state: paused;
-      transform: scale(1.06) translateY(-4px);
+      transform: scale(1.08) translateY(-2px);
     }
 
     ${OniBubble} {
@@ -368,45 +386,55 @@ const OniWalkerContainer = styled.div<{ $compact?: boolean }>`
     }
     5% {
       left: -90px;
+      filter: blur(4px);
+      opacity: 0.6;
+    }
+    10% {
+      left: 10px;
       filter: blur(0px);
       opacity: 1;
     }
-    43% {
-      left: calc(100% - 210px);
+    45% {
+      left: calc(100% - 80px);
       filter: blur(0px);
       opacity: 1;
     }
     48% {
-      left: calc(100% - 40px);
-      filter: blur(8px);
-      opacity: 0;
-    }
-    48.1% {
-      left: calc(100% - 40px);
-      filter: blur(8px);
-      opacity: 0;
+      left: calc(100% - 10px);
+      filter: blur(3px);
+      opacity: 0.8;
     }
     50% {
-      left: calc(100% - 40px);
-      filter: blur(8px);
+      left: calc(100% + 40px);
+      filter: blur(6px);
+      opacity: 0;
+    }
+    52% {
+      left: calc(100% + 40px);
+      filter: blur(6px);
       opacity: 0;
     }
     55% {
-      left: calc(100% - 210px);
+      left: calc(100% - 10px);
+      filter: blur(3px);
+      opacity: 0.8;
+    }
+    58% {
+      left: calc(100% - 80px);
       filter: blur(0px);
       opacity: 1;
     }
-    93% {
-      left: -90px;
+    92% {
+      left: 10px;
       filter: blur(0px);
       opacity: 1;
+    }
+    95% {
+      left: -90px;
+      filter: blur(4px);
+      opacity: 0.6;
     }
     98% {
-      left: -190px;
-      filter: blur(8px);
-      opacity: 0;
-    }
-    98.1% {
       left: -190px;
       filter: blur(8px);
       opacity: 0;
@@ -419,59 +447,51 @@ const OniWalkerContainer = styled.div<{ $compact?: boolean }>`
   }
 
   @media (max-width: 640px) {
-    display: ${({ $compact }) => ($compact ? 'none' : 'flex')};
-    animation: oniPatrolMobile 20s linear infinite;
-
-    @keyframes oniPatrolMobile {
+    @keyframes oniPatrol {
       0% {
         left: -140px;
         filter: blur(6px);
         opacity: 0;
       }
-      5% {
-        left: -70px;
+      6% {
+        left: -60px;
+        filter: blur(2px);
+        opacity: 0.7;
+      }
+      12% {
+        left: 5px;
         filter: blur(0px);
         opacity: 1;
       }
-      43% {
-        left: calc(100% - 150px);
+      44% {
+        left: calc(100% - 65px);
         filter: blur(0px);
         opacity: 1;
       }
       48% {
-        left: calc(100% - 30px);
-        filter: blur(6px);
+        left: calc(100% + 20px);
+        filter: blur(5px);
         opacity: 0;
       }
-      48.1% {
-        left: calc(100% - 30px);
-        filter: blur(6px);
+      52% {
+        left: calc(100% + 20px);
+        filter: blur(5px);
         opacity: 0;
       }
-      50% {
-        left: calc(100% - 30px);
-        filter: blur(6px);
-        opacity: 0;
-      }
-      55% {
-        left: calc(100% - 150px);
+      56% {
+        left: calc(100% - 65px);
         filter: blur(0px);
         opacity: 1;
       }
-      93% {
-        left: -70px;
+      88% {
+        left: 5px;
         filter: blur(0px);
         opacity: 1;
       }
-      98% {
-        left: -140px;
-        filter: blur(6px);
-        opacity: 0;
-      }
-      98.1% {
-        left: -140px;
-        filter: blur(6px);
-        opacity: 0;
+      94% {
+        left: -60px;
+        filter: blur(2px);
+        opacity: 0.7;
       }
       100% {
         left: -140px;
@@ -628,11 +648,11 @@ const MoodChipsContainer = styled.div`
   align-items: center;
   justify-content: center;
   gap: 10px;
-  margin-top: 26px;
+  margin-top: 18px;
 
   @media (max-width: 640px) {
     gap: 8px;
-    margin-top: 18px;
+    margin-top: 14px;
   }
 `;
 
@@ -795,15 +815,65 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
   const hasSearched = useJourneyStore((s) => s.hasSearched);
   const { moods } = useMoodOptions();
   const [isCancelling, setIsCancelling] = useState(false);
+  const [oniVideoError, setOniVideoError] = useState(false);
   const { isLoggedIn, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
   const oniVideoRef = useRef<HTMLVideoElement>(null);
 
+  // 타이핑 위치 실시간 추적 상태 및 Ref
+  const [typingX, setTypingX] = useState<number | null>(null);
+  const [facingDirection, setFacingDirection] = useState<'right' | 'left'>('right');
+  const prevQueryLenRef = useRef<number>(0);
+  const textMeasurerRef = useRef<HTMLSpanElement>(null);
+  const localFormRef = useRef<HTMLFormElement | null>(null);
+
+  const handleFormRef = (node: HTMLFormElement | null) => {
+    localFormRef.current = node;
+    if (searchFormRef) {
+      (searchFormRef as React.MutableRefObject<HTMLFormElement | null>).current = node;
+    }
+  };
+
+  useEffect(() => {
+    const trimmed = currentQuery || '';
+    if (!trimmed) {
+      setTypingX(null);
+      prevQueryLenRef.current = 0;
+      return;
+    }
+
+    const currentLen = trimmed.length;
+    if (currentLen > prevQueryLenRef.current) {
+      setFacingDirection('right');
+    } else if (currentLen < prevQueryLenRef.current) {
+      setFacingDirection('left');
+    }
+    prevQueryLenRef.current = currentLen;
+
+    if (textMeasurerRef.current && localFormRef.current) {
+      const textWidth = textMeasurerRef.current.offsetWidth;
+      const formWidth = localFormRef.current.offsetWidth;
+      const isMobile = window.innerWidth <= 640;
+      const startPadding = isMobile ? 42 : 56;
+      const oniWidth = isMobile ? 80 : 96;
+      const targetLeft = Math.max(
+        12,
+        Math.min(formWidth - oniWidth - 52, startPadding + textWidth - oniWidth / 2)
+      );
+      setTypingX(targetLeft);
+    }
+  }, [currentQuery]);
+
   useEffect(() => {
     const video = oniVideoRef.current;
     if (!video) return;
+    video.defaultMuted = true;
+    video.muted = true;
+    video.playbackRate = 0.8;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       video.pause();
+    } else {
+      video.play().catch(() => {});
     }
   }, []);
 
@@ -862,31 +932,64 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
       )}
 
       <SearchFormWrapper $compact={hasSearched}>
+        <span
+          ref={textMeasurerRef}
+          style={{
+            position: 'absolute',
+            visibility: 'hidden',
+            height: 0,
+            overflow: 'hidden',
+            whiteSpace: 'pre',
+            fontFamily: 'inherit',
+            fontSize: '16px',
+            fontWeight: 500,
+            letterSpacing: 'normal',
+            pointerEvents: 'none',
+          }}
+          aria-hidden="true"
+        >
+          {currentQuery || ''}
+        </span>
+
         {!hasSearched && (
-          <OniTrack $compact={hasSearched}>
+          <OniTrack $compact={hasSearched} $isTyping={Boolean(currentQuery)}>
             <OniWalkerContainer
               $compact={hasSearched}
+              $isTyping={Boolean(currentQuery)}
+              $typingLeft={typingX ?? undefined}
               aria-hidden="true"
             >
-              <OniBubble>온이가 길을 밝히고 있어요 🏮</OniBubble>
-              <OniVideoBox>
-                <video
-                  ref={oniVideoRef}
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  preload="auto"
-                >
-                  <source src="/videos/Oni_walking_no_bg.webm" type="video/webm" />
-                  <source src="/videos/Oni_walking.mp4" type="video/mp4" />
-                </video>
+              <OniBubble $visible={Boolean(currentQuery)}>
+                {currentQuery ? '온이가 길을 비추고 있어요 🏮' : '온이가 길을 밝히고 있어요'}
+              </OniBubble>
+              <OniVideoBox $isTyping={Boolean(currentQuery)} $direction={facingDirection}>
+                {oniVideoError ? (
+                  <img src="/images/character/Oni_walking.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                ) : (
+                  <video
+                    ref={oniVideoRef}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    preload="auto"
+                    aria-label="온이가 길을 밝히고 있어요"
+                    onError={() => setOniVideoError(true)}
+                    onCanPlay={(e) => {
+                      e.currentTarget.muted = true;
+                      e.currentTarget.playbackRate = 0.8;
+                      e.currentTarget.play().catch(() => {});
+                    }}
+                  >
+                    <source src="/videos/Oni_walking_no_bg.webm" type="video/webm" onError={() => setOniVideoError(true)} />
+                  </video>
+                )}
               </OniVideoBox>
             </OniWalkerContainer>
           </OniTrack>
         )}
 
-        <SearchForm ref={searchFormRef} onSubmit={handleSubmit} $compact={hasSearched}>
+        <SearchForm ref={handleFormRef} onSubmit={handleSubmit} $compact={hasSearched}>
           <SearchIconWrap>
             <Compass size={hasSearched ? 18 : 20} />
           </SearchIconWrap>

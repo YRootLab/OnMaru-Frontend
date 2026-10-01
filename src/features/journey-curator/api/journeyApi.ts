@@ -230,9 +230,21 @@ export const fixtureJourneyRepository: JourneyRepository = {
   async applyAction() {
     return this.getExploration('fixture-exploration');
   },
-  subscribeToRunEvents() {
-
-    return () => {};
+  subscribeToRunEvents(_expId, _runId, onEvent) {
+    const timer = setTimeout(() => {
+      onEvent({
+        id: '1',
+        event: 'run.terminal',
+        data: {
+          schemaVersion: '1.2',
+          runId: '00000000-0000-4000-8000-000000000101',
+          sequence: 1,
+          status: 'COMPLETED',
+          outcome: 'INITIAL_BOARD',
+        },
+      });
+    }, 100);
+    return () => clearTimeout(timer);
   },
 };
 

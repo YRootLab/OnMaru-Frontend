@@ -55,7 +55,7 @@ export function filterHanoks(villages: Village[], filters: HanokFilters): Villag
   return villages.filter((village) => {
 
 
-    if (village.type === STAY_TYPE) return false;
+    if (activeType === ALL && village.type === STAY_TYPE) return false;
     if (activeType !== ALL && village.type !== activeType) return false;
     if (region !== ALL && village.region !== region) return false;
 

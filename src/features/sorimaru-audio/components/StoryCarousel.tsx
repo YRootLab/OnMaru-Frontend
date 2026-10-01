@@ -11,6 +11,7 @@ import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorima
 import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import { getRailIndicator, shouldUpdateRailIndicator } from './storyCarouselMetrics';
 import { palette, meok, surface, fontSize } from '@/design-system/tokens';
+import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty/OniSearchEmpty';
 
 interface StoryCarouselProps {
   stories: SorimaruStorySummary[];
@@ -778,9 +779,13 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
 
   if (stories.length === 0) {
     return (
-      <div style={{ borderRadius: '1rem', backgroundColor: '#f8f8f7', padding: '2rem 1.25rem', textAlign: 'center' }}>
-        <p style={{ fontSize: '0.75rem', fontWeight: 600, color: meok[700] }}>가까운 이야기를 찾는 중이에요.</p>
-        <p style={{ marginTop: '0.25rem', fontSize: fontSize.micro, color: meok[500] }}>위치를 허용하면 가까운 오디오부터 보여드릴게요.</p>
+      <div style={{ borderRadius: '1rem', padding: '1rem 1.25rem', textAlign: 'center' }}>
+        <OniSearchEmpty
+          size="sm"
+          title="가까운 이야기를 찾는 중이에요."
+          description="위치를 허용하면 가까운 오디오부터 보여드릴게요."
+          compact
+        />
       </div>
     );
   }

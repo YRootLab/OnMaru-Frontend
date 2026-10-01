@@ -281,14 +281,17 @@ export default function InfoPlaceList() {
           ))}
         </SkeletonWrapper>
       ) : listError ? (
-        <EmptyBox role="alert">
-          <AlertCircle size={24} strokeWidth={2} />
-          <span>정보를 가져오지 못했어요</span>
-          <RetryBtn type="button" onClick={reload}>
-            <RotateCcw size={14} strokeWidth={2} />
-            다시 시도
-          </RetryBtn>
-        </EmptyBox>
+        <OniSearchEmpty
+          size="md"
+          title="정보를 가져오지 못했어요"
+          description={listError}
+          action={
+            <RetryBtn type="button" onClick={reload}>
+              <RotateCcw size={14} strokeWidth={2} />
+              다시 시도
+            </RetryBtn>
+          }
+        />
       ) : listItems.length === 0 ? (
         <OniSearchEmpty
           size="md"

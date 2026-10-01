@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 import { useAuth } from '@/features/auth';
@@ -29,7 +29,8 @@ const LoginCard = styled.div`
 
 const WelcomeStage = styled.div`
   position: relative;
-  width: 400px;
+  width: 100%;
+  max-width: 400px;
   height: 305px;
   display: flex;
   flex-direction: column;
@@ -50,7 +51,7 @@ const OniContainer = styled.div`
 
 const SpeechBubble = styled.div`
   position: absolute;
-  top: 28px;
+  bottom: calc(100% + 8px);
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
@@ -80,7 +81,7 @@ const SpeechBubble = styled.div`
       transform: translate(-50%, 0);
     }
     50% {
-      transform: translate(-50%, -3px);
+      transform: translate(-50%, -4px);
     }
   }
 
@@ -90,7 +91,7 @@ const SpeechBubble = styled.div`
     top: 100%;
     left: 50%;
     transform: translateX(-50%);
-    border-width: 3.5px;
+    border-width: 4px;
     border-style: solid;
     border-color: rgba(28, 26, 23, 0.82) transparent transparent transparent;
   }
@@ -114,7 +115,7 @@ const OniVideoWrap = styled.div`
   justify-content: center;
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.16));
 
-  video {
+  img, video {
     width: 100%;
     height: 100%;
     object-fit: contain;
@@ -123,7 +124,7 @@ const OniVideoWrap = styled.div`
   }
 
   @media (prefers-reduced-motion: reduce) {
-    video {
+    img, video {
       display: none;
     }
   }
@@ -171,6 +172,7 @@ export default function LoginPage() {
   const { loginWithKakao } = useAuth();
   const { theme } = useOnmaruTheme();
   const c = theme.colors;
+  const [oniVideoError, setOniVideoError] = useState(false);
 
   return (
     <PageWrapper>
@@ -184,16 +186,13 @@ export default function LoginPage() {
           <OniContainer>
             <SpeechBubble>온마루에 오신 걸 환영해요! </SpeechBubble>
             <OniVideoWrap>
-              <video
-                autoPlay
-                loop
-                muted
-                playsInline
-                preload="auto"
-              >
-                <source src="/videos/Oni_hi.webm" type="video/webm" />
-                <source src="/videos/Oni_standing.mp4" type="video/mp4" />
-              </video>
+              {oniVideoError ? (
+                <img src="/images/character/Oni_hi.png" alt="온마루 캐릭터 온이" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+              ) : (
+                <video autoPlay loop muted playsInline preload="auto" aria-label="온마루 캐릭터 온이" onError={() => setOniVideoError(true)}>
+                  <source src="/videos/Oni_hi.webm" type="video/webm" onError={() => setOniVideoError(true)} />
+                </video>
+              )}
             </OniVideoWrap>
           </OniContainer>
         </WelcomeStage>

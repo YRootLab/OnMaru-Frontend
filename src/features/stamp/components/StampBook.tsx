@@ -19,6 +19,7 @@ import StampLeaderboard from './StampLeaderboard';
 import StampSealAnimation from './StampSealAnimation';
 import StampBookSkeleton from './StampBookSkeleton';
 import { useAuth } from '@/features/auth/hooks/useAuth';
+import OniSearchEmpty from '@/shared/components/OniSearchEmpty/OniSearchEmpty';
 
 gsap.registerPlugin(useGSAP);
 
@@ -384,13 +385,16 @@ export default function StampBook({ initialCatalog }: StampBookProps) {
     return (
       <Root style={{ visibility: 'visible' }}>
         <Header><Title>나의 한옥 수결첩</Title></Header>
-        <ErrorState>
-          <AlertCircle size={28} />
-          <span>수결 목록을 불러오지 못했어요.</span>
-          <RetryButton type="button" onClick={() => void refreshCatalog().catch(() => undefined)}>
-            <RefreshCw size={15} /> 다시 시도
-          </RetryButton>
-        </ErrorState>
+        <OniSearchEmpty
+          size="md"
+          title="수결 목록을 불러오지 못했어요"
+          description="잠시 후 다시 시도해 주세요."
+          action={
+            <RetryButton type="button" onClick={() => void refreshCatalog().catch(() => undefined)}>
+              <RefreshCw size={15} /> 다시 시도
+            </RetryButton>
+          }
+        />
       </Root>
     );
   }
@@ -399,13 +403,16 @@ export default function StampBook({ initialCatalog }: StampBookProps) {
     return (
       <Root style={{ visibility: 'visible' }}>
         <Header><Title>나의 한옥 수결첩</Title></Header>
-        <ErrorState>
-          <AlertCircle size={28} />
-          <span>내 수결첩을 불러오지 못했어요. 이전 데모 도장은 표시하지 않습니다.</span>
-          <RetryButton type="button" onClick={() => void refreshBook().catch(() => undefined)}>
-            <RefreshCw size={15} /> 다시 시도
-          </RetryButton>
-        </ErrorState>
+        <OniSearchEmpty
+          size="md"
+          title="내 수결첩을 불러오지 못했어요"
+          description="이전 데모 도장은 표시하지 않습니다. 다시 시도해 주세요."
+          action={
+            <RetryButton type="button" onClick={() => void refreshBook().catch(() => undefined)}>
+              <RefreshCw size={15} /> 다시 시도
+            </RetryButton>
+          }
+        />
       </Root>
     );
   }
