@@ -20,9 +20,20 @@ describe('OniSearchEmpty', () => {
     expect(screen.getByRole('button', { name: '다시 검색' })).toBeTruthy();
   });
 
-  it('renders video with default videoSrc /videos/Oni_search.webm', () => {
+  it('renders transparent video by default with /videos/Oni_search.webm', () => {
     const { container } = render(
       <OniSearchEmpty title="결과 없음" />
+    );
+
+    const video = container.querySelector('video');
+    expect(video).toBeTruthy();
+    const source = video?.querySelector('source');
+    expect(source?.getAttribute('src')).toBe('/videos/Oni_search.webm');
+  });
+
+  it('renders video when videoSrc is explicitly provided', () => {
+    const { container } = render(
+      <OniSearchEmpty title="결과 없음" videoSrc="/videos/Oni_search.webm" />
     );
 
     const video = container.querySelector('video');

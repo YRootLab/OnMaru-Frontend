@@ -1,20 +1,9 @@
 'use client';
 
-import React, { useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 
 export default function Loading() {
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    video.defaultMuted = true;
-    video.muted = true;
-    const playPromise = video.play?.();
-    if (playPromise && typeof playPromise.catch === 'function') {
-      playPromise.catch(() => {});
-    }
-  }, []);
+  const [videoError, setVideoError] = useState(false);
 
   return (
     <div
@@ -49,28 +38,26 @@ export default function Loading() {
           userSelect: 'none',
         }}
       >
-        <video
-          ref={videoRef}
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'contain',
-          }}
-          onCanPlay={(e) => {
-            e.currentTarget.muted = true;
-            const p = e.currentTarget.play?.();
-            if (p && typeof p.catch === 'function') {
-              p.catch(() => {});
-            }
-          }}
-        >
-          <source src="/videos/Oni_loading.webm" type="video/webm" />
-        </video>
+        {videoError ? (
+          <img
+            src="/images/character/Oni_loading.png"
+            alt=""
+            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+          />
+        ) : (
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            aria-label="온마루 로딩 중"
+            onError={() => setVideoError(true)}
+            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+          >
+            <source src="/videos/Oni_loading.webm" type="video/webm" onError={() => setVideoError(true)} />
+          </video>
+        )}
       </div>
       <span
         style={{

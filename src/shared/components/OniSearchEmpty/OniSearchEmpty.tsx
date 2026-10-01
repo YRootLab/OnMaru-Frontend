@@ -20,15 +20,19 @@ export interface OniSearchEmptyProps {
   action?: React.ReactNode;
   /**
    * Mascot video size:
-   * - 'sm': 130px (dialogs, compact sheets)
-   * - 'md': 180px (standard place list / modal / feed)
-   * - 'lg': 240px (full page empty archive grids)
+   * - 'sm': 160px (dialogs, compact sheets, small cards)
+   * - 'md': 230px (standard place list / modal / feed)
+   * - 'lg': 300px (full page empty archive grids, 404/error)
    */
   size?: 'sm' | 'md' | 'lg';
   /**
    * Video source (defaults to '/videos/Oni_search.webm')
    */
   videoSrc?: string;
+  /**
+   * Static fallback image source (defaults to '/images/character/Oni_tea.png')
+   */
+  imageSrc?: string;
   /**
    * Compact vertical padding
    */
@@ -45,16 +49,16 @@ const EmptyContainer = styled.div<{ $compact?: boolean }>`
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: ${({ $compact }) => ($compact ? '20px 14px' : '40px 20px')};
+  padding: ${({ $compact }) => ($compact ? '12px 14px' : '24px 20px')};
   width: 100%;
   box-sizing: border-box;
 `;
 
 const MascotWrapper = styled.div<{ $size: 'sm' | 'md' | 'lg' }>`
   position: relative;
-  width: ${({ $size }) => ($size === 'sm' ? '130px' : $size === 'lg' ? '240px' : '180px')};
-  height: ${({ $size }) => ($size === 'sm' ? '130px' : $size === 'lg' ? '240px' : '180px')};
-  margin-bottom: -4px;
+  width: ${({ $size }) => ($size === 'sm' ? '190px' : $size === 'lg' ? '360px' : '280px')};
+  height: ${({ $size }) => ($size === 'sm' ? '190px' : $size === 'lg' ? '360px' : '280px')};
+  margin-bottom: ${({ $size }) => ($size === 'sm' ? '-34px' : $size === 'lg' ? '-64px' : '-48px')};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -63,15 +67,28 @@ const MascotWrapper = styled.div<{ $size: 'sm' | 'md' | 'lg' }>`
   user-select: none;
 
   @media (max-width: 640px) {
-    width: ${({ $size }) => ($size === 'sm' ? '110px' : $size === 'lg' ? '190px' : '150px')};
-    height: ${({ $size }) => ($size === 'sm' ? '110px' : $size === 'lg' ? '190px' : '150px')};
+    width: ${({ $size }) => ($size === 'sm' ? '160px' : $size === 'lg' ? '300px' : '230px')};
+    height: ${({ $size }) => ($size === 'sm' ? '160px' : $size === 'lg' ? '300px' : '230px')};
+    margin-bottom: ${({ $size }) => ($size === 'sm' ? '-26px' : $size === 'lg' ? '-52px' : '-38px')};
   }
+`;
+
+const MascotImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: scale(1.32);
+  transform-origin: center center;
+  pointer-events: none;
+  user-select: none;
 `;
 
 const MascotVideo = styled.video`
   width: 100%;
   height: 100%;
   object-fit: contain;
+  transform: scale(1.32);
+  transform-origin: center center;
   pointer-events: none;
   user-select: none;
 `;
@@ -80,6 +97,8 @@ const MascotStaticFallback = styled.img`
   width: 100%;
   height: 100%;
   object-fit: contain;
+  transform: scale(1.32);
+  transform-origin: center center;
   pointer-events: none;
   user-select: none;
 `;
@@ -87,7 +106,7 @@ const MascotStaticFallback = styled.img`
 const MainTitle = styled.h4`
   margin: 0 0 4px;
   font-family: var(--font-hanok, inherit);
-  font-size: ${fontSize.base};
+  font-size: ${fontSize.lg};
   font-weight: 700;
   color: ${meok[900]};
   letter-spacing: -0.02em;
@@ -105,7 +124,7 @@ const SubDescription = styled.p`
   font-size: ${fontSize.sm};
   font-weight: 400;
   color: ${meok[600]};
-  line-height: 1.5;
+  line-height: 1.45;
   white-space: pre-line;
   word-break: keep-all;
   max-width: 100%;
@@ -117,7 +136,7 @@ const SubDescription = styled.p`
 `;
 
 const ActionWrapper = styled.div`
-  margin-top: 12px;
+  margin-top: 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -132,6 +151,7 @@ export function OniSearchEmpty({
   action,
   size = 'md',
   videoSrc = '/videos/Oni_search.webm',
+  imageSrc = '/images/character/Oni_search.png',
   compact = false,
   className,
   role = 'status',
@@ -143,6 +163,7 @@ export function OniSearchEmpty({
   const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
+    if (!videoSrc) return;
     const video = videoRef.current;
     if (!video) return;
 
@@ -158,9 +179,9 @@ export function OniSearchEmpty({
         });
       }
     }
-  }, [prefersReducedMotion]);
+  }, [prefersReducedMotion, videoSrc]);
 
-  const sizePixels = size === 'sm' ? 130 : size === 'lg' ? 240 : 180;
+  const sizePixels = size === 'sm' ? 190 : size === 'lg' ? 360 : 280;
 
   return (
     <EmptyContainer
@@ -177,7 +198,7 @@ export function OniSearchEmpty({
             width={sizePixels}
             height={sizePixels}
           />
-        ) : (
+        ) : videoSrc ? (
           <MascotVideo
             ref={videoRef}
             autoPlay
@@ -196,6 +217,14 @@ export function OniSearchEmpty({
           >
             <source src={videoSrc} type="video/webm" onError={() => setHasError(true)} />
           </MascotVideo>
+        ) : (
+          <MascotImage
+            src={imageSrc}
+            alt=""
+            width={sizePixels}
+            height={sizePixels}
+            onError={() => setHasError(true)}
+          />
         )}
       </MascotWrapper>
 
