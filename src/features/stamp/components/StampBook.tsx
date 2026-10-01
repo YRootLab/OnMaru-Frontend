@@ -24,15 +24,22 @@ import OniSearchEmpty from '@/shared/components/OniSearchEmpty/OniSearchEmpty';
 gsap.registerPlugin(useGSAP);
 
 /* ── 수결첩 디자인 토큰 ── */
-const PAPER = '#F0EAD9';
-const INK   = '#18110A';
-const CINNABAR = '#C9221A';
+const NIGHT    = '#0B0D13';
+const INK_LIGHT = '#E8DFC8';
+const INK_DIM   = 'rgba(232, 223, 200, 0.42)';
+const CINNABAR  = '#C9221A';
+const AMBER     = '#E09240';
+
+const getStampRotation = (id: string) =>
+  ((id.charCodeAt(Math.floor(id.length / 2)) % 7) - 3) * 0.75;
 
 const Root = styled.div`
   width: 100%;
-  padding: clamp(32px, 4vw, 48px) 0 100px;
-  color: inherit;
+  padding: clamp(32px, 4vw, 48px) 0 120px;
+  color: ${INK_LIGHT};
+  background: ${NIGHT};
   visibility: hidden;
+  border-radius: 16px;
 `;
 
 const Header = styled.header`
@@ -50,9 +57,7 @@ const Title = styled.h1`
   letter-spacing: -0.03em;
   line-height: 1.05;
   margin: 0 0 14px 0;
-  color: ${INK};
-
-  [data-theme='dark'] & { color: #F0E8D6; }
+  color: ${INK_LIGHT};
 `;
 
 const TitleRule = styled.div`
@@ -63,19 +68,14 @@ const TitleRule = styled.div`
 
 const SingleStat = styled.div`
   font-size: 13px;
-  color: rgba(24, 17, 10, 0.45);
+  color: ${INK_DIM};
   margin-bottom: 8px;
 
   strong {
     font-family: var(--font-traditional);
     font-size: 15px;
     font-weight: 700;
-    color: ${INK};
-  }
-
-  [data-theme='dark'] & {
-    color: rgba(240, 232, 214, 0.45);
-    strong { color: #F0E8D6; }
+    color: ${INK_LIGHT};
   }
 `;
 
@@ -84,9 +84,7 @@ const UserLine = styled.div`
   align-items: center;
   gap: 5px;
   font-size: 11.5px;
-  color: rgba(24, 17, 10, 0.4);
-
-  [data-theme='dark'] & { color: rgba(240, 232, 214, 0.38); }
+  color: rgba(232, 223, 200, 0.3);
 `;
 
 /* ── hero: 지도 + 스탯 ── */
@@ -150,30 +148,24 @@ const ProgressSealCenter = styled.div`
 
 const ProgressNum = styled.span`
   font-family: var(--font-traditional);
-  font-size: 48px;
+  font-size: 52px;
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.04em;
-  color: ${CINNABAR};
-
-  [data-theme='dark'] & { color: #E03A2E; }
+  color: ${AMBER};
 `;
 
 const ProgressOf = styled.span`
   font-size: 12px;
-  color: rgba(24, 17, 10, 0.4);
+  color: ${INK_DIM};
   letter-spacing: -0.01em;
-
-  [data-theme='dark'] & { color: rgba(240, 232, 214, 0.38); }
 `;
 
 const ProgressMeta = styled.div`
   font-size: 12px;
   font-weight: 500;
-  color: rgba(24, 17, 10, 0.45);
+  color: ${INK_DIM};
   letter-spacing: 0.01em;
-
-  [data-theme='dark'] & { color: rgba(240, 232, 214, 0.4); }
 `;
 
 /* ── tabs ── */
@@ -184,23 +176,19 @@ const TabRow = styled.div`
   gap: 2px;
   overflow-x: auto;
   padding-bottom: 0;
-  margin-bottom: 32px;
-  border-bottom: 1px solid rgba(24, 17, 10, 0.12);
+  margin-bottom: 36px;
+  border-bottom: 1px solid rgba(232, 223, 200, 0.1);
   scrollbar-width: none;
 
   &::-webkit-scrollbar { display: none; }
-
-  [data-theme='dark'] & { border-bottom-color: rgba(240, 232, 214, 0.12); }
 `;
 
 const Divider = styled.span`
   width: 1px;
   height: 14px;
-  background: rgba(24, 17, 10, 0.1);
+  background: rgba(232, 223, 200, 0.1);
   margin: 0 6px 10px;
   flex-shrink: 0;
-
-  [data-theme='dark'] & { background: rgba(240, 232, 214, 0.1); }
 `;
 
 const TabButton = styled.button<{ $active: boolean }>`
@@ -215,18 +203,10 @@ const TabButton = styled.button<{ $active: boolean }>`
   font-weight: ${({ $active }) => ($active ? 700 : 400)};
   cursor: pointer;
   white-space: nowrap;
-  color: ${({ $active }) => ($active ? CINNABAR : 'rgba(24,17,10,0.45)')};
+  color: ${({ $active }) => ($active ? CINNABAR : INK_DIM)};
   transition: color 0.12s ease, border-color 0.12s ease;
 
-  [data-theme='dark'] & {
-    color: ${({ $active }) => ($active ? '#E03A2E' : 'rgba(240,232,214,0.4)')};
-    border-bottom-color: ${({ $active }) => ($active ? '#E03A2E' : 'transparent')};
-  }
-
-  &:hover {
-    color: ${INK};
-    [data-theme='dark'] & { color: #F0E8D6; }
-  }
+  &:hover { color: ${INK_LIGHT}; }
 `;
 
 /* ── stamp grid ── */
@@ -246,10 +226,8 @@ const LeaderboardHeader = styled.div`
   font-family: var(--font-traditional);
   font-size: 18px;
   font-weight: 700;
-  color: ${INK};
+  color: ${INK_LIGHT};
   margin-bottom: 16px;
-
-  [data-theme='dark'] & { color: #F0E8D6; }
 `;
 
 const RetryButton = styled.button`
@@ -258,23 +236,16 @@ const RetryButton = styled.button`
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  border: 1px solid rgba(24, 17, 10, 0.18);
+  border: 1px solid rgba(232, 223, 200, 0.15);
   border-radius: 8px;
-  background: ${PAPER};
-  color: ${INK};
+  background: rgba(232, 223, 200, 0.06);
+  color: ${INK_LIGHT};
   font-family: var(--font-traditional);
   font-size: 13px;
   cursor: pointer;
   transition: background 0.12s ease;
 
-  &:hover { background: #E8E1D0; }
-
-  [data-theme='dark'] & {
-    background: rgba(240, 232, 214, 0.06);
-    border-color: rgba(240, 232, 214, 0.15);
-    color: #F0E8D6;
-    &:hover { background: rgba(240, 232, 214, 0.1); }
-  }
+  &:hover { background: rgba(232, 223, 200, 0.1); }
 `;
 
 interface StampBookProps {
@@ -464,13 +435,13 @@ export default function StampBook({ initialCatalog }: StampBookProps) {
               <circle
                 cx="80" cy="80" r="66"
                 fill="none"
-                stroke="rgba(24,17,10,0.07)"
+                stroke="rgba(232,223,200,0.08)"
                 strokeWidth="1"
               />
               <circle
                 cx="80" cy="80" r="66"
                 fill="none"
-                stroke="#C9221A"
+                stroke={AMBER}
                 strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeDasharray={`${(progressPercent / 100) * 414.7} 414.7`}
@@ -514,7 +485,11 @@ export default function StampBook({ initialCatalog }: StampBookProps) {
       {activeTab === 'stamps' ? (
         <StampsGrid>
           {filteredStamps.map((stamp) => (
-            <div key={stamp.id} className="stamp-card-elem">
+            <div
+              key={stamp.id}
+              className="stamp-card-elem"
+              style={{ transform: `rotate(${getStampRotation(stamp.id)}deg)` }}
+            >
               <StampCard
                 stamp={stamp}
                 collected={stamp.collected ?? undefined}

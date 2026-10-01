@@ -70,26 +70,19 @@ const RegionGroup = styled.g`
 
 const RegionPath = styled.path<{ $active: boolean; $unlocked: boolean }>`
   stroke: ${({ $active, $unlocked }) =>
-    $active ? '#D9281C' : $unlocked ? '#C87000' : 'rgba(190, 186, 182, 0.6)'};
+    $active ? '#C9221A' : $unlocked ? '#9A6010' : 'rgba(255,255,255,0.1)'};
 
-  stroke-width: ${({ $active }) => ($active ? '2.5px' : '1px')};
+  stroke-width: ${({ $active }) => ($active ? '2px' : '0.8px')};
   stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
 
   fill: ${({ $active, $unlocked }) =>
-    $active ? 'rgba(201, 34, 26, 0.15)' : $unlocked ? 'rgba(200, 112, 0, 0.14)' : '#f5f3f0'};
+    $active ? 'rgba(201,34,26,0.22)' : $unlocked ? 'rgba(160,96,0,0.2)' : 'rgba(255,255,255,0.05)'};
 
   transition: filter 0.18s ease;
 
   ${RegionGroup}:hover & {
-    filter: ${({ $active }) => ($active ? 'none' : 'brightness(0.93)')};
-  }
-
-  [data-theme='dark'] & {
-    stroke: ${({ $active, $unlocked }) =>
-      $active ? '#ff5a4d' : $unlocked ? '#e09020' : 'rgba(255,255,255,0.12)'};
-    fill: ${({ $active, $unlocked }) =>
-      $active ? 'rgba(201,34,26,0.3)' : $unlocked ? 'rgba(200,112,0,0.22)' : 'rgba(255,255,255,0.04)'};
+    filter: ${({ $active }) => ($active ? 'none' : 'brightness(1.5)')};
   }
 `;
 
@@ -98,36 +91,23 @@ const RegionText = styled.text<{ $active: boolean; $unlocked: boolean }>`
   font-size: 26px;
   font-weight: 700;
   fill: ${({ $active, $unlocked }) =>
-    $active
-      ? '#8B0D04'
-      : $unlocked
-      ? '#7A4000'
-      : '#a8a29e'};
+    $active ? '#ff8a80' : $unlocked ? '#cc9040' : 'rgba(232,223,200,0.35)'};
   pointer-events: none;
   text-anchor: middle;
   dominant-baseline: central;
   paint-order: stroke fill;
 
-  stroke: #ffffff;
-  stroke-width: 6px;
+  stroke: #0B0D13;
+  stroke-width: 5px;
   stroke-linejoin: round;
-
-  [data-theme='dark'] & {
-    fill: ${({ $active, $unlocked }) =>
-      $active ? '#ff8a80' : $unlocked ? '#ffcc80' : '#d6d3d1'};
-    stroke: #1c1917;
-    stroke-width: 6px;
-  }
 `;
 
 const MapHint = styled.div`
   margin-top: 16px;
   text-align: center;
   font-size: 12px;
-  color: rgba(24, 17, 10, 0.35);
+  color: rgba(232, 223, 200, 0.28);
   letter-spacing: -0.01em;
-
-  [data-theme='dark'] & { color: rgba(240, 232, 214, 0.3); }
 `;
 
 

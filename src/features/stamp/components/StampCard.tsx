@@ -2,10 +2,18 @@
 
 import { useRef } from 'react';
 import styled from '@emotion/styled';
+import { keyframes } from '@emotion/react';
 import gsap from 'gsap';
 import type { StampDef, CollectedStamp } from '../types';
 import { meok, ringShadow } from '@/design-system/tokens';
 import { stampAudio } from '../utils/sound';
+
+const CINNABAR = '#C9221A';
+
+const sealBreathe = keyframes`
+  0%, 100% { filter: brightness(1); }
+  50%       { filter: brightness(1.22); }
+`;
 
 interface StampCardProps {
   stamp: StampDef;
@@ -24,17 +32,13 @@ const Slot = styled.div`
   perspective: 1000px;
 
   &:focus-visible {
-    outline: 2px solid ${meok[700]};
-    outline-offset: 6px;
+    outline: 2px solid ${CINNABAR};
+    outline-offset: 8px;
     border-radius: 50%;
   }
 
-  /* hover: ghost 텍스트 살짝 드러나기 */
   &:hover [data-ghost='true'] {
-    color: rgba(24, 17, 10, 0.22) !important;
-  }
-  [data-theme='dark'] &:hover [data-ghost='true'] {
-    color: rgba(240, 232, 214, 0.2) !important;
+    color: rgba(232, 223, 200, 0.28) !important;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -57,25 +61,19 @@ const Seal = styled.div<{ $unlocked: boolean; $color: string }>`
   background: ${({ $unlocked, $color }) =>
     $unlocked
       ? `radial-gradient(circle at 38% 32%, color-mix(in srgb, ${$color} 82%, white), ${$color} 52%, color-mix(in srgb, ${$color} 86%, black) 100%)`
-      : 'rgba(24, 17, 10, 0.04)'};
+      : 'rgba(255, 255, 255, 0.04)'};
 
-  box-shadow: ${({ $unlocked }) =>
+  box-shadow: ${({ $unlocked, $color }) =>
     $unlocked
-      ? `inset 0 4px 12px rgba(0, 0, 0, 0.28), inset 0 -1px 4px rgba(255, 255, 255, 0.07), ${ringShadow.light.card}`
+      ? `inset 0 4px 14px rgba(0,0,0,0.5), inset 0 -2px 6px rgba(255,255,255,0.06), 0 0 0 1px ${$color}28, 0 6px 24px ${$color}22`
       : 'none'};
+
+  animation: ${({ $unlocked }) => ($unlocked ? `${sealBreathe} 5s ease-in-out infinite` : 'none')};
+  animation-delay: ${({ $color }) => `${($color.codePointAt(3) ?? 0) % 3}s`};
 
   transition: background 0.2s ease, box-shadow 0.2s ease;
 
-  [data-theme='dark'] & {
-    background: ${({ $unlocked, $color }) =>
-      $unlocked
-        ? `radial-gradient(circle at 38% 32%, color-mix(in srgb, ${$color} 82%, white), ${$color} 52%, color-mix(in srgb, ${$color} 86%, black) 100%)`
-        : 'rgba(255, 255, 255, 0.04)'};
-    box-shadow: ${({ $unlocked }) =>
-      $unlocked
-        ? `inset 0 4px 12px rgba(0, 0, 0, 0.4), ${ringShadow.dark.card}`
-        : 'none'};
-  }
+  @media (prefers-reduced-motion: reduce) { animation: none; }
 
   @media (max-width: 480px) {
     width: clamp(72px, 20vw, 96px);
@@ -117,37 +115,25 @@ const RarityRing = styled.div<{ $rarity: string; $color: string }>`
 const StampName = styled.h4<{ $unlocked: boolean }>`
   font-family: var(--font-traditional);
   font-size: clamp(12px, 1.4vw, 14px);
-  font-weight: ${({ $unlocked }) => ($unlocked ? 700 : 400)};
+  font-weight: ${({ $unlocked }) => ($unlocked ? 600 : 400)};
   margin: 0 0 4px 0;
-  color: ${({ $unlocked }) => ($unlocked ? meok[900] : meok[300])};
+  color: ${({ $unlocked }) => ($unlocked ? 'rgba(232,223,200,0.85)' : 'rgba(232,223,200,0.28)')};
   letter-spacing: -0.01em;
   word-break: keep-all;
   line-height: 1.35;
-
-  [data-theme='dark'] & {
-    color: ${({ $unlocked }) => ($unlocked ? '#ffffff' : meok[600])};
-  }
 `;
 
 const DateLine = styled.div`
   font-size: 11px;
-  color: ${meok[400]};
+  color: rgba(232, 223, 200, 0.35);
   letter-spacing: 0;
-
-  [data-theme='dark'] & {
-    color: ${meok[500]};
-  }
 `;
 
 const ConditionLine = styled.div`
   font-size: 10.5px;
-  color: ${meok[300]};
+  color: rgba(232, 223, 200, 0.2);
   line-height: 1.4;
   word-break: keep-all;
-
-  [data-theme='dark'] & {
-    color: ${meok[600]};
-  }
 `;
 
 export default function StampCard({ stamp, collected, onClick }: StampCardProps) {
