@@ -23,7 +23,7 @@ export const DEFAULT_LEVEL = 9;
 
 
 export const MODE_COLOR: Record<MapMode, string> = {
-  info: palette.kobalt[500],
+  info: palette.cheongrok[500],
   warmth: palette.hwanggeum[500],
 };
 

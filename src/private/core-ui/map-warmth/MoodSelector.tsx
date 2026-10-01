@@ -2,7 +2,8 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
-import { SmilePlus, Smile, Meh, Frown, Angry } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { SmilePlusIcon, SmileIcon, MehIcon, FrownIcon, AngryIcon } from '@hugeicons/core-free-icons'
 import { lightPalette, meok , fontSize } from '@/design-system/tokens';
 
 export type MoodValue = 1 | 2 | 3 | 4 | 5;
@@ -89,11 +90,11 @@ export default function MoodSelector({
   readonly = false,
 }: MoodSelectorProps) {
   const moods: { val: MoodValue; icon: React.ReactNode }[] = [
-    { val: 1, icon: <SmilePlus size={24} strokeWidth={1.8} /> },
-    { val: 2, icon: <Smile size={24} strokeWidth={1.8} /> },
-    { val: 3, icon: <Meh size={24} strokeWidth={1.8} /> },
-    { val: 4, icon: <Frown size={24} strokeWidth={1.8} /> },
-    { val: 5, icon: <Angry size={24} strokeWidth={1.8} /> },
+    { val: 1, icon: <HugeiconsIcon icon={SmilePlusIcon} size={24} strokeWidth={1.8} /> },
+    { val: 2, icon: <HugeiconsIcon icon={SmileIcon} size={24} strokeWidth={1.8} /> },
+    { val: 3, icon: <HugeiconsIcon icon={MehIcon} size={24} strokeWidth={1.8} /> },
+    { val: 4, icon: <HugeiconsIcon icon={FrownIcon} size={24} strokeWidth={1.8} /> },
+    { val: 5, icon: <HugeiconsIcon icon={AngryIcon} size={24} strokeWidth={1.8} /> },
   ];
 
   return (

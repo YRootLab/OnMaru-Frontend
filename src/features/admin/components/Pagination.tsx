@@ -5,7 +5,8 @@
 
 import React from 'react';
 import { meok, palette } from '@/design-system/tokens';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ChevronLeftIcon, ChevronRightIcon } from '@hugeicons/core-free-icons'
 
 interface PaginationProps {
   currentPage: number;
@@ -42,7 +43,8 @@ export const Pagination: React.FC<PaginationProps> = ({
   const pages = getPageNumbers();
 
   return (
-    <div
+    <nav
+      aria-label="페이지 내비게이션"
       className={className}
       style={{
         display: 'flex',
@@ -71,7 +73,7 @@ export const Pagination: React.FC<PaginationProps> = ({
           transition: 'background-color 0.15s ease',
         }}
       >
-        <ChevronLeft size={16} strokeWidth={2} />
+        <HugeiconsIcon icon={ChevronLeftIcon} size={16} strokeWidth={2} />
       </button>
 
       {pages.map((p) => {
@@ -81,6 +83,7 @@ export const Pagination: React.FC<PaginationProps> = ({
             key={p}
             type="button"
             onClick={() => onPageChange(p)}
+            aria-current={isActive ? 'page' : undefined}
             style={{
               width: '32px',
               height: '32px',
@@ -118,8 +121,109 @@ export const Pagination: React.FC<PaginationProps> = ({
           transition: 'background-color 0.15s ease',
         }}
       >
-        <ChevronRight size={16} strokeWidth={2} />
+        <HugeiconsIcon icon={ChevronRightIcon} size={16} strokeWidth={2} />
       </button>
-    </div>
+    </nav>
+  );
+};
+
+export interface CursorPaginationProps {
+  currentPage: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+  onNext: () => void;
+  onPrev: () => void;
+  isLoading?: boolean;
+  className?: string;
+}
+
+export const CursorPagination: React.FC<CursorPaginationProps> = ({
+  currentPage,
+  hasNext,
+  hasPrev,
+  onNext,
+  onPrev,
+  isLoading = false,
+  className,
+}) => {
+  if (!hasPrev && !hasNext) return null;
+
+  return (
+    <nav
+      aria-label="커서 페이지 내비게이션"
+      className={className}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '12px',
+        padding: '20px 0',
+      }}
+    >
+      <button
+        type="button"
+        onClick={onPrev}
+        disabled={!hasPrev || isLoading}
+        aria-label="이전 페이지"
+        style={{
+          height: '34px',
+          padding: '0 12px',
+          borderRadius: '8px',
+          border: '1px solid rgba(78, 89, 104, 0.15)',
+          backgroundColor: '#FFFFFF',
+          color: !hasPrev || isLoading ? meok[400] : meok[700],
+          display: 'flex',
+          alignItems: 'center',
+          gap: '4px',
+          fontSize: '13px',
+          fontWeight: 500,
+          cursor: !hasPrev || isLoading ? 'not-allowed' : 'pointer',
+          transition: 'all 0.15s ease',
+        }}
+      >
+        <HugeiconsIcon icon={ChevronLeftIcon} size={16} strokeWidth={2} />
+        <span>이전</span>
+      </button>
+
+      <div
+        aria-current="page"
+        style={{
+          padding: '4px 12px',
+          borderRadius: '6px',
+          backgroundColor: 'rgba(78, 89, 104, 0.05)',
+          fontSize: '13px',
+          fontWeight: 600,
+          color: meok[800],
+          fontVariantNumeric: 'tabular-nums',
+        }}
+      >
+        {currentPage} 페이지
+      </div>
+
+      <button
+        type="button"
+        onClick={onNext}
+        disabled={!hasNext || isLoading}
+        aria-label="다음 페이지"
+        style={{
+          height: '34px',
+          padding: '0 12px',
+          borderRadius: '8px',
+          border: '1px solid rgba(78, 89, 104, 0.15)',
+          backgroundColor: '#FFFFFF',
+          color: !hasNext || isLoading ? meok[400] : meok[700],
+          display: 'flex',
+          alignItems: 'center',
+          gap: '4px',
+          fontSize: '13px',
+          fontWeight: 500,
+          cursor: !hasNext || isLoading ? 'not-allowed' : 'pointer',
+          transition: 'all 0.15s ease',
+        }}
+      >
+        <span>다음</span>
+        <HugeiconsIcon icon={ChevronRightIcon} size={16} strokeWidth={2} />
+      </button>
+    </nav>
   );
 };

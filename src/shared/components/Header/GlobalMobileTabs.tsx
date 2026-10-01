@@ -4,7 +4,8 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import styled from '@emotion/styled';
-import { Home, BookOpen, Map, Headphones, User } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { BookOpen01Icon, HeadphonesIcon, Home01Icon, MapIcon, UserIcon } from '@hugeicons/core-free-icons'
 import { transientProps } from '@/design-system/styled';
 import { lightPalette, fontSize } from '@/design-system/tokens';
 import { useJourneyStore } from '@/features/journey-curator/store/useJourneyStore';
@@ -116,14 +117,14 @@ export default function GlobalMobileTabs({ isLanding }: { isLanding: boolean }) 
   const isSoriMaruPage = pathname.startsWith('/sorimaru');
 
   const tabs = [
-    { href: '/', label: '홈', icon: Home, active: pathname === '/' },
-    { href: '/hanok', label: '한옥마루', icon: BookOpen, active: pathname.startsWith('/hanok') },
-    { href: '/sorimaru', label: '소리마루', icon: Headphones, active: isSoriMaruPage },
-    { href: '/map', label: '지도마루', icon: Map, active: pathname.startsWith('/map') },
+    { href: '/', label: '홈', icon: Home01Icon, active: pathname === '/' },
+    { href: '/hanok', label: '한옥마루', icon: BookOpen01Icon, active: pathname.startsWith('/hanok') },
+    { href: '/sorimaru', label: '소리마루', icon: HeadphonesIcon, active: isSoriMaruPage },
+    { href: '/map', label: '지도마루', icon: MapIcon, active: pathname.startsWith('/map') },
     {
       href: isLoggedIn ? '/mypage' : '/auth/login',
       label: isLoggedIn ? '나의 마루' : '로그인',
-      icon: User,
+      icon: UserIcon,
       active: pathname.startsWith('/mypage') || pathname.startsWith('/auth/login')
     },
   ];
@@ -131,7 +132,6 @@ export default function GlobalMobileTabs({ isLanding }: { isLanding: boolean }) 
   return (
     <Nav aria-label="주요 탐색">
       {tabs.map((tab) => {
-        const Icon = tab.icon;
         const isSelected = tab.active;
         return (
           <TabLink
@@ -142,10 +142,11 @@ export default function GlobalMobileTabs({ isLanding }: { isLanding: boolean }) 
             onClick={tab.href === '/' ? resetJourney : undefined}
           >
             <span style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-              {tab.icon === Headphones && isSelected ? (
+              {tab.icon === HeadphonesIcon && isSelected ? (
                 <HeadphonesFilledEars size={19} strokeWidth={1.5} />
               ) : (
-                <Icon
+                <HugeiconsIcon
+                  icon={tab.icon}
                   size={19}
                   fill={isSelected ? 'currentColor' : 'none'}
                   fillOpacity={isSelected ? 0.6 : undefined}

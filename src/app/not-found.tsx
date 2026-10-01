@@ -3,8 +3,10 @@
 import React from 'react';
 import Link from 'next/link';
 import styled from '@emotion/styled';
-import { Home } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Home01Icon } from '@hugeicons/core-free-icons'
 import OniSearchEmpty from '@/shared/components/OniSearchEmpty/OniSearchEmpty';
+import { surface } from '@/design-system/tokens';
 
 const PageWrapper = styled.div`
   display: flex;
@@ -20,7 +22,7 @@ const HomeButton = styled(Link)`
   gap: 8px;
   padding: 10px 20px;
   border-radius: 9999px;
-  background: #1c1a17;
+  background: ${surface.dark.app};
   color: #ffffff;
   font-size: 14px;
   font-weight: 600;
@@ -43,12 +45,12 @@ export default function NotFound() {
     <PageWrapper>
       <OniSearchEmpty
         size="lg"
-        title="잠시 길을 잃었어요"
-        description="요청하신 페이지를 찾을 수 없어요. 주소를 확인하시거나 온마루 홈으로 돌아가 보세요."
+        title="페이지를 찾을 수 없어요"
+        description="입력하신 주소가 잘못되었거나 변경된 페이지예요."
         action={
           <HomeButton href="/">
-            <Home size={16} />
-            온마루 홈으로 돌아가기
+            <HugeiconsIcon icon={Home01Icon} size={16} />
+            홈으로 가기
           </HomeButton>
         }
       />

@@ -1,9 +1,10 @@
-'use client';
+﻿'use client';
 
 import React, { useMemo, useState } from 'react';
 import styled from '@emotion/styled';
+import { palette, surface } from '@/design-system/tokens';
 import type { ScriptLine } from '@/features/sorimaru-audio/types/sorimaru.types';
-import { palette } from '@/design-system/tokens';
+
 import { useTranscriptFollow } from './useTranscriptFollow';
 
 interface PlayerTranscriptPanelProps {
@@ -53,7 +54,7 @@ const TopGradientFade = styled.div`
   z-index: 5;
 
   [data-theme='dark'] & {
-    background: linear-gradient(to bottom, #1c1a17 0%, rgba(28, 26, 23, 0) 100%);
+    background: linear-gradient(to bottom, ${surface.dark.app} 0%, rgba(11, 18, 32, 0) 100%);
   }
 `;
 
@@ -68,7 +69,7 @@ const BottomGradientFade = styled.div`
   z-index: 5;
 
   [data-theme='dark'] & {
-    background: linear-gradient(to top, #1c1a17 0%, rgba(28, 26, 23, 0) 100%);
+    background: linear-gradient(to top, ${surface.dark.app} 0%, rgba(11, 18, 32, 0) 100%);
   }
 `;
 

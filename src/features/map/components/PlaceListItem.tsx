@@ -4,18 +4,8 @@ import { memo, useEffect, useRef, useMemo } from 'react';
 import Image from 'next/image';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
-import {
-  Landmark,
-  Home,
-  Utensils,
-  Coffee,
-  ShoppingBag,
-  Sparkles,
-  BookOpen,
-  Calendar,
-  Headphones,
-  Store,
-} from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { BookOpen01Icon, Calendar01Icon, Coffee01Icon, HeadphonesIcon, Home01Icon, LandmarkIcon, ShoppingBag01Icon, SparklesIcon, Store01Icon, UtensilsIcon } from '@hugeicons/core-free-icons'
 import { lightPalette, meok, fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
@@ -72,7 +62,7 @@ const ItemButton = styled.button<{ $isSelected: boolean }>`
       transform: scale(1.3);
     }
     h4 {
-      color: ${lightPalette.kobalt[700]};
+      color: ${lightPalette.cheongrok[700]};
     }
   }
 
@@ -115,7 +105,7 @@ const ThumbnailBox = styled.div<{ $isSelected?: boolean; $src?: string | null }>
   align-items: center;
   justify-content: center;
   box-shadow: ${({ $isSelected }) =>
-    $isSelected ? `0 0 0 2px ${lightPalette.kobalt[500]}` : 'none'};
+    $isSelected ? `0 0 0 2px ${lightPalette.cheongrok[500]}` : 'none'};
   transition: box-shadow 0.2s ease;
 
   img {
@@ -304,23 +294,23 @@ const CATEGORY_LABELS: Record<PlaceCategory, string> = {
 function renderCategoryIcon(category: PlaceCategory) {
   switch (category) {
     case 'spot':
-      return <Landmark size={24} strokeWidth={2} />;
+      return <HugeiconsIcon icon={LandmarkIcon} size={24} strokeWidth={2} />;
     case 'experience':
-      return <Sparkles size={24} strokeWidth={2} />;
+      return <HugeiconsIcon icon={SparklesIcon} size={24} strokeWidth={2} />;
     case 'culture':
-      return <BookOpen size={24} strokeWidth={2} />;
+      return <HugeiconsIcon icon={BookOpen01Icon} size={24} strokeWidth={2} />;
     case 'festival':
-      return <Calendar size={24} strokeWidth={2} />;
+      return <HugeiconsIcon icon={Calendar01Icon} size={24} strokeWidth={2} />;
     case 'stay':
-      return <Home size={24} strokeWidth={2} />;
+      return <HugeiconsIcon icon={Home01Icon} size={24} strokeWidth={2} />;
     case 'food':
-      return <Utensils size={24} strokeWidth={2} />;
+      return <HugeiconsIcon icon={UtensilsIcon} size={24} strokeWidth={2} />;
     case 'cafe':
-      return <Coffee size={24} strokeWidth={2} />;
+      return <HugeiconsIcon icon={Coffee01Icon} size={24} strokeWidth={2} />;
     case 'market':
-      return <ShoppingBag size={24} strokeWidth={2} />;
+      return <HugeiconsIcon icon={ShoppingBag01Icon} size={24} strokeWidth={2} />;
     default:
-      return <Landmark size={24} strokeWidth={2} />;
+      return <HugeiconsIcon icon={LandmarkIcon} size={24} strokeWidth={2} />;
   }
 }
 
@@ -433,13 +423,13 @@ function PlaceListItemComponent({
             <CategoryTag $category={item.category}>{cleanCatLabel}</CategoryTag>
             {showTraditionalBadge && (
               <TraditionalBadge title="정통 한옥 및 전통 문화재 인증 명소">
-                <Store size={10.5} />
+                <HugeiconsIcon icon={Store01Icon} size={10.5} />
                 <span>정통 한옥</span>
               </TraditionalBadge>
             )}
             {hasSorimaru && (
               <SorimaruBadge title="소리마루 오디오 해설 지원 장소">
-                <Headphones size={10.5} />
+                <HugeiconsIcon icon={HeadphonesIcon} size={10.5} />
                 <span>오디오 해설</span>
               </SorimaruBadge>
             )}

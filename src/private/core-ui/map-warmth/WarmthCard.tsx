@@ -1,8 +1,9 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
-import { Landmark, Home, Utensils, Coffee, ShoppingBag, Flame, Leaf, ChevronRight, ChevronUp, ChevronDown } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { LandmarkIcon, Home01Icon, UtensilsIcon, Coffee01Icon, ShoppingBag01Icon, FlameIcon, Leaf01Icon, ChevronRightIcon, ChevronUpIcon, ChevronDownIcon } from '@hugeicons/core-free-icons'
 import { lightPalette, darkPalette, meok, surface , fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { toggleHelpful } from '@/features/map/warmth/warmthRepo';
@@ -31,6 +32,7 @@ const CardWrapper = styled.article`
 
   [data-theme='dark'] & {
     background: ${surface.dark.surface};
+    box-shadow: var(--shadow-card-inset);
 
     &:hover {
       background: ${surface.dark.card};
@@ -272,7 +274,7 @@ const RelatedThumb = styled.div`
   flex-shrink: 0;
 
   [data-theme='dark'] & {
-    background: #2c2822;
+    background: ${surface.dark.card};
     color: ${meok[400]};
   }
 `;
@@ -298,18 +300,18 @@ const RelatedMeta = styled.span`
 
 function renderCategoryIcon(type: string) {
   if (type.includes('숙소') || type.includes('스테이') || type.includes('고택')) {
-    return <Home size={18} strokeWidth={2} />;
+    return <HugeiconsIcon icon={Home01Icon} size={18} strokeWidth={2} />;
   }
   if (type.includes('음식') || type.includes('국밥') || type.includes('식당')) {
-    return <Utensils size={18} strokeWidth={2} />;
+    return <HugeiconsIcon icon={UtensilsIcon} size={18} strokeWidth={2} />;
   }
   if (type.includes('카페') || type.includes('찻집')) {
-    return <Coffee size={18} strokeWidth={2} />;
+    return <HugeiconsIcon icon={Coffee01Icon} size={18} strokeWidth={2} />;
   }
   if (type.includes('시장') || type.includes('쇼핑')) {
-    return <ShoppingBag size={18} strokeWidth={2} />;
+    return <HugeiconsIcon icon={ShoppingBag01Icon} size={18} strokeWidth={2} />;
   }
-  return <Landmark size={18} strokeWidth={2} />;
+  return <HugeiconsIcon icon={LandmarkIcon} size={18} strokeWidth={2} />;
 }
 
 export default function WarmthCard({ review, onHover }: WarmthCardProps) {
@@ -433,12 +435,12 @@ export default function WarmthCard({ review, onHover }: WarmthCardProps) {
                 {isExpanded ? (
                   <>
                     <span>접기</span>
-                    <ChevronUp size={13} strokeWidth={2} />
+                    <HugeiconsIcon icon={ChevronUpIcon} size={13} strokeWidth={2} />
                   </>
                 ) : (
                   <>
                     <span>더보기</span>
-                    <ChevronDown size={13} strokeWidth={2} />
+                    <HugeiconsIcon icon={ChevronDownIcon} size={13} strokeWidth={2} />
                   </>
                 )}
               </TextToggleBtn>
@@ -459,7 +461,7 @@ export default function WarmthCard({ review, onHover }: WarmthCardProps) {
           aria-label="이 온기에 공감하시나요? (따뜻해요)"
           title="따뜻해요 공감 남기기"
         >
-          <Flame size={14} strokeWidth={2} color={helpful ? lightPalette.hwanggeum[500] : undefined} />
+          <HugeiconsIcon icon={FlameIcon} size={14} strokeWidth={2} color={helpful ? lightPalette.hwanggeum[500] : undefined} />
           <span>따뜻해요 {helpfulCount > 0 ? helpfulCount : ''}</span>
         </HelpfulButton>
       </FooterMeta>
@@ -473,7 +475,7 @@ export default function WarmthCard({ review, onHover }: WarmthCardProps) {
             <RelatedMeta>{review.placeType}</RelatedMeta>
           </RelatedInfo>
         </RelatedLeft>
-        <ChevronRight size={16} strokeWidth={2} color={lightPalette.hwanggeum[400]} />
+        <HugeiconsIcon icon={ChevronRightIcon} size={16} strokeWidth={2} color={lightPalette.hwanggeum[400]} />
       </RelatedPlaceBox>
     </CardWrapper>
   );

@@ -5,7 +5,8 @@ import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
 import { meok, palette, fluidHeading , fontSize } from '@/design-system/tokens';
-import { Headphones } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { HeadphonesIcon } from '@hugeicons/core-free-icons'
 import type { Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
 
@@ -136,7 +137,7 @@ const TopBadgeRow = styled.div`
 `;
 
 const DocentTag = styled.span`
-  background: rgba(28, 26, 23, 0.75);
+  background: rgba(11, 18, 32, 0.75);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border: none;
@@ -187,7 +188,7 @@ export default function VillageCard({ village, onClick }: VillageCardProps) {
       {isDocentAvailable && (
         <TopBadgeRow>
           <DocentTag>
-            <Headphones size={11} color={palette.jangmi[400]} />
+            <HugeiconsIcon icon={HeadphonesIcon} size={11} color={palette.jangmi[400]} />
             <span>소리마루 도슨트</span>
           </DocentTag>
         </TopBadgeRow>
@@ -205,4 +206,4 @@ export default function VillageCard({ village, onClick }: VillageCardProps) {
       </GradientOverlay>
     </Card>
   );
-}
+}

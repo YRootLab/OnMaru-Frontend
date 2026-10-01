@@ -6,7 +6,8 @@
 
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Moon, Sparkles, Sun } from 'lucide-react'
+import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
+import { Moon01Icon, SparklesIcon, Sun01Icon } from '@hugeicons/core-free-icons'
 import { useOnmaruTheme } from './ThemeProvider'
 import type { OnmaruTheme, ThemePreference } from './tokens'
 import { getThemePreferenceLabel } from './themePreferenceLabels'
@@ -371,11 +372,11 @@ export function ThemeToggleButton() {
     >
       {mode === 'light' ? (
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-          <Moon size={14} strokeWidth={2} /> 야간 모드
+          <HugeiconsIcon icon={Moon01Icon} size={14} strokeWidth={2} /> 야간 모드
         </span>
       ) : (
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-          <Sun size={14} strokeWidth={2} /> 주간 모드
+          <HugeiconsIcon icon={Sun01Icon} size={14} strokeWidth={2} /> 주간 모드
         </span>
       )}
     </button>
@@ -389,10 +390,10 @@ export function ThemeToggleButton() {
 export function ThemeModeSwitch() {
   const { preference, setMode, theme } = useOnmaruTheme()
 
-  const options: { value: ThemePreference; label: string; Icon: typeof Sun }[] = [
-    { value: 'system', label: getThemePreferenceLabel('system'), Icon: Sparkles },
-    { value: 'light', label: getThemePreferenceLabel('light'), Icon: Sun },
-    { value: 'dark', label: getThemePreferenceLabel('dark'), Icon: Moon },
+  const options: { value: ThemePreference; label: string; icon: IconSvgElement }[] = [
+    { value: 'system', label: getThemePreferenceLabel('system'), icon: SparklesIcon },
+    { value: 'light', label: getThemePreferenceLabel('light'), icon: Sun01Icon },
+    { value: 'dark', label: getThemePreferenceLabel('dark'), icon: Moon01Icon },
   ]
 
   return (
@@ -407,7 +408,7 @@ export function ThemeModeSwitch() {
         border-radius: ${theme.borderRadius.full};
       `}
     >
-      {options.map(({ value, label, Icon }) => {
+      {options.map(({ value, label, icon }) => {
         const active = preference === value
         return (
           <button
@@ -433,7 +434,7 @@ export function ThemeModeSwitch() {
               transition: ${theme.transition.fast};
             `}
           >
-            <Icon size={13} strokeWidth={2} />
+            <HugeiconsIcon icon={icon} size={13} strokeWidth={2} />
             {label}
           </button>
         )

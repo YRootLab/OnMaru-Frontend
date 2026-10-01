@@ -1,9 +1,10 @@
-'use client';
+﻿'use client';
 
 import React, { useMemo, useState } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
-import { Play, MapPin, Layers, LayoutGrid } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { PlayIcon, MapPinIcon, Layers01Icon, GridViewIcon } from '@hugeicons/core-free-icons'
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import { groupSorimaruStoriesByPlace, type SorimaruPlaceGroup } from '@/features/sorimaru-audio/utils/sorimaruArchiveGrouping';
@@ -205,7 +206,7 @@ const ThumbnailSlot = styled.div<{ $isCurrent: boolean; $src: string }>`
   flex-shrink: 0;
 
   [data-theme='dark'] & {
-    background-color: #2d2925;
+    background-color: ${surface.dark.card};
   }
 
   img {
@@ -256,11 +257,11 @@ const PlayIconBtn = styled.button`
   }
 
   [data-theme='dark'] & {
-    background: rgba(33, 30, 25, 0.92);
+    background: rgba(23, 30, 43, 0.92);
     color: #ffffff;
 
     &:hover {
-      background: #1c1a17;
+      background: ${surface.dark.app};
       color: ${palette.juhong[400]};
     }
   }
@@ -419,7 +420,7 @@ function StoryRow({ story, index }: StoryRowProps) {
                 <EqBar $delay="90ms" />
               </span>
             ) : (
-              <Play size={11} style={{ marginLeft: 1.5 }} fill="currentColor" />
+              <HugeiconsIcon icon={PlayIcon} size={11} style={{ marginLeft: 1.5 }} fill="currentColor" />
             )}
           </PlayIconBtn>
         </PlayOverlay>
@@ -437,7 +438,7 @@ function StoryRow({ story, index }: StoryRowProps) {
 
         {story.region.name && (
           <LocationMeta>
-            <MapPin size={12} strokeWidth={2} color={palette.juhong[500]} style={{ flexShrink: 0 }} />
+            <HugeiconsIcon icon={MapPinIcon} size={12} strokeWidth={2} color={palette.juhong[500]} style={{ flexShrink: 0 }} />
             <span>{story.region.name}</span>
           </LocationMeta>
         )}
@@ -540,7 +541,7 @@ function PlaceGroupCard({ group, startIndex }: { group: SorimaruPlaceGroup; star
     <PlaceGroupContainer>
       <PlaceGroupHeader>
         <PlaceHeaderLeft>
-          <MapPin size={15} strokeWidth={2.2} color={palette.juhong[500]} style={{ flexShrink: 0 }} />
+          <HugeiconsIcon icon={MapPinIcon} size={15} strokeWidth={2.2} color={palette.juhong[500]} style={{ flexShrink: 0 }} />
           <PlaceGroupTitle>{group.label}</PlaceGroupTitle>
         </PlaceHeaderLeft>
         <PlaceCountBadge>{group.stories.length}개의 소리</PlaceCountBadge>
@@ -590,7 +591,7 @@ const ViewSegmentBtn = styled.button<{ $active: boolean }>`
   [data-theme='dark'] & {
     color: ${({ $active }) => ($active ? '#ffffff' : meok[400])};
     background-color: ${({ $active }) =>
-      $active ? '#2b2824' : 'transparent'};
+      $active ? '${surface.dark.surface}' : 'transparent'};
     box-shadow: ${({ $active }) =>
       $active ? '0 2px 8px rgba(0, 0, 0, 0.3)' : 'none'};
 
@@ -623,7 +624,7 @@ export function SorimaruArchiveBrowse({ stories, isLoading }: SorimaruArchiveBro
             onClick={() => setView('stories')}
             $active={view === 'stories'}
           >
-            <LayoutGrid size={13} />
+            <HugeiconsIcon icon={GridViewIcon} size={13} />
             이야기별
           </ViewSegmentBtn>
           <ViewSegmentBtn
@@ -633,7 +634,7 @@ export function SorimaruArchiveBrowse({ stories, isLoading }: SorimaruArchiveBro
             onClick={() => setView('places')}
             $active={view === 'places'}
           >
-            <Layers size={13} />
+            <HugeiconsIcon icon={Layers01Icon} size={13} />
             장소별
           </ViewSegmentBtn>
         </ViewSegmentControl>

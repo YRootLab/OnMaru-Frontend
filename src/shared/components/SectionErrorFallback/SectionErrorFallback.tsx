@@ -1,8 +1,10 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import styled from '@emotion/styled';
-import { RefreshCw, AlertCircle, Loader2 } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { surface } from '@/design-system/tokens';
+import { RefreshCwIcon, AlertCircleIcon, LoaderCircleIcon } from '@hugeicons/core-free-icons'
 import { OnmaruApiError } from '@/lib/api/errors';
 import { resolveSectionErrorState } from './sectionErrorFallbackModel';
 
@@ -19,7 +21,7 @@ const FallbackContainer = styled.div<{ $compact?: boolean }>`
   margin: 12px 0;
 
   [data-theme='dark'] & {
-    background-color: #24211d;
+    background-color: ${surface.dark.surface};
     border-color: #38332c;
   }
 `;
@@ -45,7 +47,7 @@ const MainTitle = styled.h3`
   font-family: var(--font-hanok), sans-serif;
   font-size: 1.125rem;
   font-weight: 700;
-  color: #1c1a17;
+  color: ${surface.dark.app};
   margin: 0 0 6px 0;
 
   [data-theme='dark'] & {
@@ -87,7 +89,7 @@ const RetryButton = styled.button`
   padding: 8px 16px;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #1c1a17;
+  color: ${surface.dark.app};
   background-color: #ffffff;
   border: 1px solid #d9d9d7;
   border-radius: 9999px;
@@ -101,7 +103,7 @@ const RetryButton = styled.button`
 
   [data-theme='dark'] & {
     color: #f8f8f7;
-    background-color: #2d2924;
+    background-color: ${surface.dark.card};
     border-color: #454038;
 
     &:hover {
@@ -139,7 +141,7 @@ export const SectionErrorFallback: React.FC<SectionErrorFallbackProps> = ({
   return (
     <FallbackContainer $compact={compact} className={className} role="alert" aria-live="polite">
       <IconWrapper $isWaking={isWaking}>
-        {isWaking ? <Loader2 size={22} className="animate-spin" /> : <AlertCircle size={22} />}
+        {isWaking ? <HugeiconsIcon icon={LoaderCircleIcon} size={22} className="animate-spin" /> : <HugeiconsIcon icon={AlertCircleIcon} size={22} />}
       </IconWrapper>
 
       {/* Typography Hierarchy: Main Title ALWAYS at the top, Subtitle/description below */}
@@ -150,7 +152,7 @@ export const SectionErrorFallback: React.FC<SectionErrorFallbackProps> = ({
 
       {canRetry && onRetry && (
         <RetryButton type="button" onClick={onRetry}>
-          <RefreshCw size={14} />
+          <HugeiconsIcon icon={RefreshCwIcon} size={14} />
           다시 시도
         </RetryButton>
       )}

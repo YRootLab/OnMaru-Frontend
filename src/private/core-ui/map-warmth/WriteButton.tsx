@@ -2,8 +2,9 @@
 
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
-import { PenLine } from 'lucide-react';
-import { lightPalette , fontSize } from '@/design-system/tokens';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { PenLineIcon } from '@hugeicons/core-free-icons'
+import { meok, fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { hasAuthenticatedUser, showLoginRequiredToast } from '@/features/auth/privateState';
 import WriteWarmthModal from './WriteWarmthModal';
@@ -18,21 +19,19 @@ const FloatingBtn = styled.button`
 
   border-radius: 9999px;
   border: none;
-  background: ${lightPalette.hwanggeum[500]};
+  background: ${meok[900]};
   color: #ffffff;
   font-family: inherit;
   font-size: ${fontSize.sm};
   font-weight: 700;
-  box-shadow: 0 2px 8px rgba(255, 184, 0, 0.25);
 
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    background: ${lightPalette.hwanggeum[700]};
+    background: ${meok[800]};
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 184, 0, 0.35);
   }
 
   &:active {
@@ -40,13 +39,10 @@ const FloatingBtn = styled.button`
   }
 
   [data-theme='dark'] & {
-    background: linear-gradient(135deg, #e85a18 0%, #d4af37 100%);
-    box-shadow: 0 2px 10px rgba(232, 90, 24, 0.35);
-    border: none;
+    background: ${meok[900]};
 
     &:hover {
-      background: linear-gradient(135deg, #f06a2b 0%, #e5bd47 100%);
-      box-shadow: 0 4px 14px rgba(232, 90, 24, 0.45);
+      background: ${meok[800]};
     }
   }
 
@@ -77,7 +73,7 @@ export default function WriteButton() {
         }}
         aria-label="장소에 대한 온기 후기 남기기"
       >
-        <PenLine size={18} strokeWidth={2} />
+        <HugeiconsIcon icon={PenLineIcon} size={18} strokeWidth={2} />
         <span>온기 남기기</span>
       </FloatingBtn>
 

@@ -2,7 +2,8 @@
 
 import React, { FormEvent, useId, useState } from 'react';
 import styled from '@emotion/styled';
-import { Search, X } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Search01Icon, Cancel01Icon } from '@hugeicons/core-free-icons'
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { SORIMARU_THEME_CATEGORIES } from '@/features/sorimaru-audio/data/sorimaruCategoryData';
 import { palette, meok, surface } from '@/design-system/tokens';
@@ -247,7 +248,7 @@ export const SorimaruArchiveMetaBar: React.FC<Props> = ({ resultCount, totalCoun
         </label>
 
         <InputWrapper>
-          <Search size={15} style={{ flexShrink: 0, color: meok[500] }} />
+          <HugeiconsIcon icon={Search01Icon} size={15} style={{ flexShrink: 0, color: meok[500] }} />
 
           <StyledSearchInput
             id={searchId}
@@ -257,7 +258,7 @@ export const SorimaruArchiveMetaBar: React.FC<Props> = ({ resultCount, totalCoun
           />
           {draft && (
             <ClearBtn type="button" onClick={() => setDraft('')} aria-label="검색어 지우기">
-              <X size={14} strokeWidth={2} />
+              <HugeiconsIcon icon={Cancel01Icon} size={14} strokeWidth={2} />
             </ClearBtn>
           )}
         </InputWrapper>

@@ -4,7 +4,8 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import styled from '@emotion/styled';
-import { fontSize, meok } from '@/design-system/tokens';
+import { fontSize, meok, surface } from '@/design-system/tokens';
+import { useIsAppleDevice } from '@/shared/hooks/useIsAppleDevice';
 import PolicyModal, { type PolicyTabKey } from './PolicyModal';
 
 const FooterWrapper = styled.footer`
@@ -25,7 +26,7 @@ const FooterWrapper = styled.footer`
 
 
   [data-theme='dark'] & {
-    background: linear-gradient(180deg, #1C1A17 0%, #131210 100%);
+    background: linear-gradient(180deg, ${surface.dark.app} 0%, #070E18 100%);
     color: rgba(255, 255, 255, 0.7);
     border-top: 1px solid rgba(255, 255, 255, 0.07);
   }
@@ -252,8 +253,12 @@ const OniHoldingWrap = styled.div`
     object-fit: contain;
     display: block;
     background: transparent;
-    mix-blend-mode: screen;
+    filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.18));
     transition: transform 0.3s ease;
+  }
+
+  [data-theme='dark'] & video {
+    mix-blend-mode: screen;
   }
 
   ${FooterWrapper}:hover & video,
@@ -348,6 +353,7 @@ export default function Footer() {
   const [isHovered, setIsHovered] = useState(false);
   const [activePolicyTab, setActivePolicyTab] = useState<PolicyTabKey | null>(null);
 
+  const isApple = useIsAppleDevice();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoError, setVideoError] = useState(false);
 
@@ -368,14 +374,14 @@ export default function Footer() {
     });
   }, []);
 
-  if (pathname.startsWith('/map')) {
+  if (pathname.startsWith('/map') || pathname.startsWith('/admin')) {
     return null;
   }
 
   return (
     <>
       <FooterWrapper
-        aria-label="푸터 네비게이션"
+        aria-label="서비스 안내 및 정책"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onMouseMove={handleMouseMove}
@@ -387,7 +393,7 @@ export default function Footer() {
             <BottomLayout>
               <LeftInfoCol>
                 <BusinessInfo>
-                  <p>온마루 (OnMaru) · 한국관광공사 공공데이터(TourAPI 4.0 · Odii API) 기반 한옥 몰입형 관광 큐레이션</p>
+                  <p>온마루 · 한국관광공사 공공데이터(TourAPI · Odii) 기반 한옥 큐레이션 서비스</p>
                 </BusinessInfo>
 
                 <PolicyLinksRow>
@@ -401,7 +407,7 @@ export default function Footer() {
                     공공데이터 이용지침
                   </PolicyButton>
                   <PolicyButton type="button" onClick={() => setActivePolicyTab('openSource')}>
-                    오픈소스 라이선스 고지
+                    오픈소스 라이선스
                   </PolicyButton>
                 </PolicyLinksRow>
 
@@ -415,7 +421,7 @@ export default function Footer() {
               </LeftInfoCol>
 
               <OniHoldingWrap>
-                {videoError ? (
+                {isApple || videoError ? (
                   <img
                     src="/images/character/Oni_holding.png"
                     alt="소중한 것을 품에 안은 마스코트 온이"

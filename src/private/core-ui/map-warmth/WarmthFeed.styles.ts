@@ -1,6 +1,7 @@
-import styled from '@emotion/styled';
+﻿import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
-import { ChevronDown } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ChevronDownIcon } from '@hugeicons/core-free-icons'
 import { lightPalette, meok, surface, fontSize } from '@/design-system/tokens';
 
 export const FeedContainer = styled.div`
@@ -87,8 +88,8 @@ export const RegionArrowBtn = styled.button<{ $direction: 'left' | 'right' }>`
   [data-theme='dark'] & {
     background: ${({ $direction }) =>
       $direction === 'left'
-        ? 'linear-gradient(to right, rgba(28, 26, 23, 1) 40%, rgba(28, 26, 23, 0.85) 65%, rgba(28, 26, 23, 0) 100%)'
-        : 'linear-gradient(to left, rgba(28, 26, 23, 1) 40%, rgba(28, 26, 23, 0.85) 65%, rgba(28, 26, 23, 0) 100%)'};
+        ? 'linear-gradient(to right, rgba(11, 18, 32, 1) 40%, rgba(11, 18, 32, 0.85) 65%, rgba(11, 18, 32, 0) 100%)'
+        : 'linear-gradient(to left, rgba(11, 18, 32, 1) 40%, rgba(11, 18, 32, 0.85) 65%, rgba(11, 18, 32, 0) 100%)'};
     color: #9ca3af;
   }
 
@@ -179,7 +180,7 @@ export const FeaturedCard = styled.div`
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   [data-theme='dark'] & {
-    background: #25221d;
+    background: ${surface.dark.surface};
   }
 `;
 
@@ -215,7 +216,7 @@ export const FeaturedIconBox = styled.div`
   flex-shrink: 0;
 
   [data-theme='dark'] & {
-    background: #1c1a17;
+    background: ${surface.dark.app};
     color: ${meok[100]};
   }
 `;
@@ -350,7 +351,7 @@ export const SortSelect = styled.select`
     background-color: transparent;
 
     option {
-      background-color: #25221d;
+      background-color: ${surface.dark.surface};
       color: #ffffff;
     }
   }
@@ -361,7 +362,7 @@ export const SortSelect = styled.select`
   }
 `;
 
-export const SortChevron = styled(ChevronDown)`
+export const SortChevron = styled(HugeiconsIcon)`
   position: absolute;
   right: 7px;
   pointer-events: none;
@@ -500,7 +501,7 @@ export const OniBannerCard = styled.div`
   transition: background 0.2s ease;
 
   [data-theme='dark'] & {
-    background: #25221d;
+    background: ${surface.dark.surface};
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
   }
 `;

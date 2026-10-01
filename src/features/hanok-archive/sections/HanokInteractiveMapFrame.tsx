@@ -4,7 +4,8 @@ import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import Script from 'next/script';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, MapPin, ChevronLeft, ChevronRight, BookOpen } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { AlertCircleIcon, BookOpen01Icon, ChevronLeftIcon, ChevronRightIcon, MapIcon, MapPinIcon } from '@hugeicons/core-free-icons'
 import { lightPalette, meok, surface , fontSize } from '@/design-system/tokens';
 import type { Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
@@ -178,7 +179,7 @@ const BottomRegionBar = styled.div`
   }
 
   [data-theme='dark'] & {
-    background: rgba(45, 41, 36, 0.92);
+    background: rgba(33, 39, 52, 0.92);
   }
 `;
 
@@ -234,7 +235,7 @@ const LeftPanel = styled(motion.div)`
   }
 
   [data-theme='dark'] & {
-    background: rgba(45, 41, 36, 0.94);
+    background: rgba(33, 39, 52, 0.94);
   }
 
   @media (max-width: 900px) {
@@ -439,7 +440,7 @@ const CollapsedPillBtn = styled(motion.button)`
   }
 
   [data-theme='dark'] & {
-    background: rgba(45, 41, 36, 0.92);
+    background: rgba(33, 39, 52, 0.92);
     color: ${meok[100]};
   }
 `;
@@ -550,7 +551,7 @@ export default function HanokInteractiveMapFrame({
         };
 
 
-        const map = new window.kakao.maps.Map(containerRef.current, options) as KakaoMapInstance;
+        const map = new window.kakao.maps.MapIcon(containerRef.current, options) as KakaoMapInstance;
         mapRef.current = map;
         mapResourcesRef.current?.dispose();
         const mapResources = createKakaoResourceScope((target, eventName, listener) => {
@@ -616,7 +617,7 @@ export default function HanokInteractiveMapFrame({
         mapResources.trackTimer(relayoutTimer, window.clearTimeout);
       });
     } catch (err: unknown) {
-      console.error('[KakaoMap] Map initialization error:', err);
+      console.error('[KakaoMap] MapIcon initialization error:', err);
       setErrorMessage('지도를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
     }
   }, [fitKoreaBounds, validVillages]);
@@ -816,7 +817,7 @@ export default function HanokInteractiveMapFrame({
 
       {errorMessage ? (
         <MapLoadingState style={{ color: '#ef4444' }}>
-          <AlertCircle size={24} strokeWidth={2} />
+          <HugeiconsIcon icon={AlertCircleIcon} size={24} strokeWidth={2} />
           <div>{errorMessage}</div>
           <ErrorSubtext>
             Kakao Developers 콘솔 → [내 애플리케이션] → [플랫폼] → [Web 사이트 도메인]에 현재 개발 도메인이 등록되어 있어야 합니다.
@@ -824,7 +825,7 @@ export default function HanokInteractiveMapFrame({
         </MapLoadingState>
       ) : !isLoaded ? (
         <MapLoadingState>
-          <MapPin size={22} strokeWidth={2} />
+          <HugeiconsIcon icon={MapPinIcon} size={22} strokeWidth={2} />
           지도를 불러오는 중입니다…
         </MapLoadingState>
       ) : null}
@@ -860,7 +861,7 @@ export default function HanokInteractiveMapFrame({
             <PanelHeaderRow>
               <PanelSubHeader>한옥 이야기</PanelSubHeader>
               <CollapseBtn onClick={() => setIsStoryExpanded(false)}>
-                <ChevronLeft size={16} strokeWidth={2} />
+                <HugeiconsIcon icon={ChevronLeftIcon} size={16} strokeWidth={2} />
               </CollapseBtn>
             </PanelHeaderRow>
 
@@ -900,12 +901,12 @@ export default function HanokInteractiveMapFrame({
             exit={{ opacity: 0, x: -10 }}
             onClick={() => setIsStoryExpanded(true)}
           >
-            <BookOpen size={15} strokeWidth={2} style={{ color: JUHONG_PRIMARY }} />
+            <HugeiconsIcon icon={BookOpen01Icon} size={15} strokeWidth={2} style={{ color: JUHONG_PRIMARY }} />
             <span>한옥 이야기 ({regionVillages.length}곳)</span>
-            <ChevronRight size={15} strokeWidth={2} />
+            <HugeiconsIcon icon={ChevronRightIcon} size={15} strokeWidth={2} />
           </CollapsedPillBtn>
         )}
       </AnimatePresence>
     </Frame>
   );
-}
+}

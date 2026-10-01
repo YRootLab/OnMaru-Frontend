@@ -4,7 +4,7 @@
 
 
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { meok, palette } from '@/design-system/tokens';
 import { DataTable, ColumnDef } from '@/features/admin/components/DataTable';
 import { StatusBadge } from '@/features/admin/components/StatusBadge';
@@ -12,21 +12,11 @@ import { ConfirmDialog } from '@/features/admin/components/ConfirmDialog';
 import { Toast } from '@/features/admin/components/Toast';
 import { WarmthReview, ReviewStatus } from '@/features/admin/types';
 import { getReviews, moderateReview } from '@/features/admin/api/adminApi';
-import {
-  Search,
-  RotateCcw,
-  X,
-  MoreHorizontal,
-  EyeOff,
-  Trash2,
-} from 'lucide-react';
+import { useAdminCursorPagination } from '@/features/admin/hooks/useAdminCursorPagination';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Cancel01Icon, EyeOffIcon, MoreHorizontalIcon, RotateCcwIcon, Search01Icon, TrashIcon } from '@hugeicons/core-free-icons'
 
 export default function AdminReviewsPage() {
-  const [reviews, setReviews] = useState<WarmthReview[]>([]);
-
-  useEffect(() => {
-    getReviews({ limit: 200 }).then((r) => setReviews(r.items)).catch(() => {});
-  }, []);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | ReviewStatus>('ALL');
   const [moodFilter, setMoodFilter] = useState<string>('ALL');
@@ -35,8 +25,28 @@ export default function AdminReviewsPage() {
 
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
   const [selectedReview, setSelectedReview] = useState<WarmthReview | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 20;
+
+  const serverStatus = statusFilter === 'ALL' ? undefined : (statusFilter === 'DELETED' ? 'REMOVED' : statusFilter);
+  const serverQuery = searchQuery.trim() || undefined;
+
+  const {
+    items: reviews,
+    setItems: setReviews,
+    isLoading,
+    pageNumber,
+    hasNext,
+    hasPrev,
+    goToNextPage,
+    goToPrevPage,
+    resetAndRefetch,
+  } = useAdminCursorPagination<WarmthReview, { status?: string; query?: string }>({
+    fetchFn: getReviews,
+    filters: {
+      status: serverStatus,
+      query: serverQuery,
+    },
+    limit: 20,
+  });
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [confirmState, setConfirmState] = useState<{
@@ -51,46 +61,29 @@ export default function AdminReviewsPage() {
     description: '',
   });
 
-
   const handleResetFilters = () => {
     setSearchQuery('');
     setStatusFilter('ALL');
     setMoodFilter('ALL');
     setPeriodFilter('ALL');
     setSortBy('latest');
-    setCurrentPage(1);
   };
-
 
   const filteredReviews = useMemo(() => {
     return reviews
       .filter((rev) => {
-
-        if (searchQuery.trim()) {
-          const q = searchQuery.toLowerCase();
-          const matchAuthor = rev.author.nickname.toLowerCase().includes(q);
-          const matchPlace = rev.place.name.toLowerCase().includes(q);
-          const matchContent = rev.content.toLowerCase().includes(q);
-          if (!matchAuthor && !matchPlace && !matchContent) return false;
-        }
-
-
-        if (statusFilter !== 'ALL' && rev.status !== statusFilter) return false;
-
-
         if (moodFilter !== 'ALL' && rev.mood !== Number(moodFilter)) return false;
 
-
         if (periodFilter === 'TODAY') {
-          const isToday = new Date(rev.createdAt).toDateString() === new Date('2026-08-04').toDateString();
+          const isToday = new Date(rev.createdAt).toDateString() === new Date().toDateString();
           if (!isToday) return false;
         } else if (periodFilter === '7D') {
           const diffDays =
-            (new Date('2026-08-04').getTime() - new Date(rev.createdAt).getTime()) / (1000 * 3600 * 24);
+            (Date.now() - new Date(rev.createdAt).getTime()) / (1000 * 3600 * 24);
           if (diffDays > 7) return false;
         } else if (periodFilter === '30D') {
           const diffDays =
-            (new Date('2026-08-04').getTime() - new Date(rev.createdAt).getTime()) / (1000 * 3600 * 24);
+            (Date.now() - new Date(rev.createdAt).getTime()) / (1000 * 3600 * 24);
           if (diffDays > 30) return false;
         }
 
@@ -101,15 +94,7 @@ export default function AdminReviewsPage() {
         if (sortBy === 'report') return b.reportCount - a.reportCount;
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
-  }, [reviews, searchQuery, statusFilter, moodFilter, periodFilter, sortBy]);
-
-
-  const totalPages = Math.ceil(filteredReviews.length / pageSize) || 1;
-  const paginatedReviews = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return filteredReviews.slice(start, start + pageSize);
-  }, [filteredReviews, currentPage, pageSize]);
-
+  }, [reviews, moodFilter, periodFilter, sortBy]);
 
   const handleBulkHide = () => {
     setConfirmState({
@@ -117,12 +102,13 @@ export default function AdminReviewsPage() {
       title: '선택한 온기 숨김 처리',
       description: `선택하신 ${selectedRowKeys.length}건의 온기를 비공개(숨김) 처리하시겠습니까?\n숨김 처리된 온기는 서비스 페이지에서 노출되지 않습니다.`,
       isDestructive: false,
-      action: () => {
-        setReviews((prev) =>
-          prev.map((r) => (selectedRowKeys.includes(r.id) ? { ...r, status: 'HIDDEN' } : r))
+      action: async () => {
+        await Promise.all(
+          selectedRowKeys.map((id) => moderateReview(id, 'HIDDEN', '관리자 일괄 숨김').catch(() => {}))
         );
         setSelectedRowKeys([]);
         setToastMessage(`${selectedRowKeys.length}건이 숨김 처리되었습니다.`);
+        await resetAndRefetch();
       },
     });
   };
@@ -133,24 +119,27 @@ export default function AdminReviewsPage() {
       title: '선택한 온기 영구 삭제',
       description: `선택하신 ${selectedRowKeys.length}건의 온기를 영구 삭제하시겠습니까?\n삭제된 온기는 복구할 수 없으며 작성자에게 삭제 알림이 발송될 수 있습니다.`,
       isDestructive: true,
-      action: () => {
-        setReviews((prev) =>
-          prev.map((r) => (selectedRowKeys.includes(r.id) ? { ...r, status: 'DELETED' } : r))
+      action: async () => {
+        await Promise.all(
+          selectedRowKeys.map((id) => moderateReview(id, 'REMOVED', '관리자 일괄 삭제').catch(() => {}))
         );
         setSelectedRowKeys([]);
         setToastMessage(`${selectedRowKeys.length}건이 삭제되었습니다.`);
+        await resetAndRefetch();
       },
     });
   };
-
 
   const updateSingleStatus = (id: string, status: ReviewStatus) => {
     setReviews((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
     if (selectedReview && selectedReview.id === id) {
       setSelectedReview((prev) => (prev ? { ...prev, status } : null));
     }
+    const backendStatus = status === 'DELETED' ? 'REMOVED' : status;
     setToastMessage(`온기 상태가 '${status}'(으)로 변경되었습니다.`);
-    moderateReview(id, status, '').catch(() => {});
+    moderateReview(id, backendStatus, '')
+      .then(() => resetAndRefetch())
+      .catch(() => {});
   };
 
 
@@ -321,7 +310,7 @@ export default function AdminReviewsPage() {
               borderRadius: '6px',
             }}
           >
-            <MoreHorizontal size={16} strokeWidth={2} />
+            <HugeiconsIcon icon={MoreHorizontalIcon} size={16} strokeWidth={2} />
           </button>
         </div>
       ),
@@ -361,14 +350,13 @@ export default function AdminReviewsPage() {
             backgroundColor: '#FFFFFF',
           }}
         >
-          <Search size={16} color={meok[400]} strokeWidth={2} />
+          <HugeiconsIcon icon={Search01Icon} size={16} color={meok[400]} strokeWidth={2} />
           <input
             type="text"
             placeholder="닉네임, 장소, 내용 검색"
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
-              setCurrentPage(1);
             }}
             style={{
               border: 'none',
@@ -385,7 +373,6 @@ export default function AdminReviewsPage() {
           value={statusFilter}
           onChange={(e) => {
             setStatusFilter(e.target.value as any);
-            setCurrentPage(1);
           }}
           style={{
             height: '38px',
@@ -409,7 +396,6 @@ export default function AdminReviewsPage() {
           value={moodFilter}
           onChange={(e) => {
             setMoodFilter(e.target.value);
-            setCurrentPage(1);
           }}
           style={{
             height: '38px',
@@ -435,7 +421,6 @@ export default function AdminReviewsPage() {
           value={periodFilter}
           onChange={(e) => {
             setPeriodFilter(e.target.value);
-            setCurrentPage(1);
           }}
           style={{
             height: '38px',
@@ -492,21 +477,21 @@ export default function AdminReviewsPage() {
             cursor: 'pointer',
           }}
         >
-          <RotateCcw size={15} strokeWidth={2} />
+          <HugeiconsIcon icon={RotateCcwIcon} size={15} strokeWidth={2} />
           <span>초기화</span>
         </button>
 
         {}
         <div style={{ marginLeft: 'auto', fontSize: '12px', color: meok[500] }}>
-          총 <strong style={{ color: meok[900] }}>{filteredReviews.length}</strong>건
+          현재 페이지 <strong style={{ color: meok[900] }}>{filteredReviews.length}</strong>건 (온기·기간·정렬은 현재 페이지 20건 기준)
         </div>
       </div>
 
-      {}
       <DataTable
         columns={columns}
-        rows={paginatedReviews}
+        rows={filteredReviews}
         rowKey={(row) => row.id}
+        loading={isLoading}
         selectable
         selectedRowKeys={selectedRowKeys}
         onSelectRow={(id, checked) => {
@@ -515,13 +500,16 @@ export default function AdminReviewsPage() {
           );
         }}
         onSelectAll={(checked) => {
-          setSelectedRowKeys(checked ? paginatedReviews.map((r) => r.id) : []);
+          setSelectedRowKeys(checked ? filteredReviews.map((r) => r.id) : []);
         }}
         onRowClick={(row) => setSelectedReview(row)}
         pagination={{
-          currentPage,
-          totalPages,
-          onPageChange: setCurrentPage,
+          isCursor: true,
+          currentPage: pageNumber,
+          hasNext,
+          hasPrev,
+          onNext: goToNextPage,
+          onPrev: goToPrevPage,
         }}
       />
 
@@ -673,7 +661,7 @@ export default function AdminReviewsPage() {
                     padding: '4px',
                   }}
                 >
-                  <X size={20} strokeWidth={2} />
+                  <HugeiconsIcon icon={Cancel01Icon} size={20} strokeWidth={2} />
                 </button>
               </div>
 
@@ -847,7 +835,7 @@ export default function AdminReviewsPage() {
                     cursor: 'pointer',
                   }}
                 >
-                  <EyeOff size={15} strokeWidth={2} />
+                  <HugeiconsIcon icon={EyeOffIcon} size={15} strokeWidth={2} />
                   <span>숨김</span>
                 </button>
               )}
@@ -880,7 +868,7 @@ export default function AdminReviewsPage() {
                     cursor: 'pointer',
                   }}
                 >
-                  <Trash2 size={15} strokeWidth={2} />
+                  <HugeiconsIcon icon={TrashIcon} size={15} strokeWidth={2} />
                   <span>삭제</span>
                 </button>
               )}

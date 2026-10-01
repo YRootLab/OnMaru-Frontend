@@ -5,7 +5,7 @@ import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { useSorimaruAudioPlayer } from '@/features/sorimaru-audio/hooks/useSorimaruAudioPlayer';
-import { palette, meok } from '@/design-system/tokens';
+import { palette, meok, surface } from '@/design-system/tokens';
 
 function formatTime(seconds: number) {
   const minutes = Math.floor(seconds / 60);
@@ -20,6 +20,10 @@ const SectionCard = styled.section`
 
   @media (min-width: 640px) {
     padding: 2rem;
+  }
+
+  [data-theme='dark'] & {
+    background-color: ${surface.dark.card};
   }
 `;
 
@@ -45,6 +49,10 @@ const HeadingTitle = styled.h3`
   font-weight: 700;
   letter-spacing: -0.01em;
   color: #211e19;
+
+  [data-theme='dark'] & {
+    color: rgba(255, 255, 255, 0.87);
+  }
 `;
 
 const pulseDot = keyframes`
@@ -85,6 +93,11 @@ const BlockquoteArea = styled.blockquote`
   @media (min-width: 640px) {
     font-size: 1.05rem;
   }
+
+  [data-theme='dark'] & {
+    color: rgba(255, 255, 255, 0.75);
+    border-left-color: ${palette.juhong[400]};
+  }
 `;
 
 const ExcerptParagraph = styled.p<{ $active: boolean; $isFirst: boolean }>`
@@ -93,9 +106,11 @@ const ExcerptParagraph = styled.p<{ $active: boolean; $isFirst: boolean }>`
       ? `
         font-weight: 600;
         color: #211e19;
+        [data-theme='dark'] & { color: rgba(255, 255, 255, 0.87); }
       `
       : `
         color: inherit;
+        [data-theme='dark'] & { color: rgba(255, 255, 255, 0.60); }
       `}
   ${({ $isFirst }) => (!$isFirst ? 'margin-top: 0.5rem;' : '')}
 `;
@@ -114,6 +129,10 @@ const MetaTimeSpan = styled.span`
 
   span.count {
     margin-left: 0.5rem;
+  }
+
+  [data-theme='dark'] & {
+    color: rgba(255, 255, 255, 0.45);
   }
 `;
 
@@ -139,7 +158,7 @@ const ModalOverlay = styled.div`
   z-index: 70;
   display: flex;
   align-items: flex-end;
-  background-color: rgba(33, 30, 25, 0.5);
+  background-color: rgba(0, 0, 0, 0.5);
   padding: 0;
   backdrop-filter: blur(4px);
 
@@ -164,6 +183,12 @@ const ModalContent = styled.div`
   @media (min-width: 640px) {
     border-radius: 1.5rem;
   }
+
+  [data-theme='dark'] & {
+    background-color: ${surface.dark.card};
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
 `;
 
 const ModalHeader = styled.div`
@@ -175,6 +200,10 @@ const ModalHeader = styled.div`
 
   @media (min-width: 640px) {
     padding: 1.25rem 2rem;
+  }
+
+  [data-theme='dark'] & {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
   }
 `;
 
@@ -190,6 +219,15 @@ const CloseModalBtn = styled.button`
   &:hover {
     background-color: #eee6da;
     color: #211e19;
+  }
+
+  [data-theme='dark'] & {
+    color: rgba(255, 255, 255, 0.55);
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.87);
+    }
   }
 `;
 
@@ -221,11 +259,17 @@ const TranscriptLine = styled.p<{ $active: boolean }>`
         background-color: #f0ded5;
         font-weight: 600;
         color: #211e19;
+        [data-theme='dark'] & {
+          background-color: rgba(255, 255, 255, 0.08);
+          color: rgba(255, 255, 255, 0.87);
+        }
       `
       : `
         color: #655b4d;
+        [data-theme='dark'] & { color: rgba(255, 255, 255, 0.55); }
         &:hover {
           background-color: #f2ece2;
+          [data-theme='dark'] & { background-color: rgba(255, 255, 255, 0.05); }
         }
       `}
 

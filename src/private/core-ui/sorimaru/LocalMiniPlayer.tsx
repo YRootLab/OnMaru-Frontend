@@ -1,34 +1,29 @@
-'use client';
+﻿'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
 import styled from '@emotion/styled';
 import { AnimatePresence, motion } from 'framer-motion';
-import {
-  Play,
-  Pause,
-  X,
-  Heart,
-  RotateCcw,
-  RotateCw,
-  Compass,
-  BookOpen,
-} from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { PlayIcon, PauseIcon, Cancel01Icon, HeartIcon, RotateCcwIcon, RotateCwIcon, Compass01Icon, BookOpen01Icon } from '@hugeicons/core-free-icons'
+import { meok, palette, surface, fontSize } from '@/design-system/tokens';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { useSorimaruAudioPlayer } from '@/features/sorimaru-audio/hooks/useSorimaruAudioPlayer';
 import { useSorimaruImage } from '@/features/sorimaru-audio/hooks/useSorimaruImage';
 import { SorimaruRoadview } from './SorimaruRoadview';
 import { PlayerTranscriptPanel } from './PlayerTranscriptPanel';
 import { normalizeContentTags } from './playerTranscriptModel';
-import { palette, meok, fontSize } from '@/design-system/tokens';
+
+import { useIsAppleDevice } from '@/shared/hooks/useIsAppleDevice';
+import { livelyBottomSheetSpring } from '@/shared/motion/modalMotion';
 
 type ViewMode = 'roadview' | 'transcript';
 
 const formatTime = (seconds: number) =>
   `${Math.floor(Math.max(0, seconds || 0) / 60)}:${String(Math.floor(Math.max(0, seconds || 0) % 60)).padStart(2, '0')}`;
 
-const PlayIcon: React.FC<{ size?: number }> = ({ size = 16 }) => {
+const PlayPauseIcon: React.FC<{ size?: number }> = ({ size = 16 }) => {
   const isPlaying = useSorimaruAudioStore((s) => s.isPlaying);
-  return isPlaying ? <Pause size={size} strokeWidth={2.5} /> : <Play size={size} fill="currentColor" style={{ marginLeft: 2 }} />;
+  return isPlaying ? <HugeiconsIcon icon={PauseIcon} size={size} strokeWidth={2.5} /> : <HugeiconsIcon icon={PlayIcon} size={size} fill="currentColor" style={{ marginLeft: 2 }} />;
 };
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1596484552834-6a58f850e0a1?auto=format&fit=crop&w=800&q=80';
@@ -88,7 +83,7 @@ const FloatingBarContainer = styled(motion.div)`
   border: 1px solid rgba(0, 0, 0, 0.05);
 
   [data-theme='dark'] & {
-    background-color: rgba(28, 26, 23, 0.95);
+    background-color: rgba(11, 18, 32, 0.95);
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
     border: 1px solid rgba(255, 255, 255, 0.08);
   }
@@ -152,7 +147,7 @@ const FloatingOniBubble = styled.div<{ $show?: boolean }>`
   bottom: 84px;
   left: 50%;
   transform: translateX(-50%) ${({ $show }) => ($show ? 'translateY(0)' : 'translateY(4px)')};
-  background: rgba(28, 26, 23, 0.82);
+  background: rgba(11, 18, 32, 0.82);
   color: #f8f8f7;
   font-size: 11.5px;
   font-weight: 600;
@@ -176,7 +171,7 @@ const FloatingOniBubble = styled.div<{ $show?: boolean }>`
     transform: translateX(-50%);
     border-width: 4px;
     border-style: solid;
-    border-color: rgba(28, 26, 23, 0.82) transparent transparent transparent;
+    border-color: rgba(11, 18, 32, 0.82) transparent transparent transparent;
   }
 
   [data-theme='dark'] & {
@@ -365,7 +360,7 @@ const ProgressTrack = styled.div`
   background-color: rgba(0, 0, 0, 0.08);
 
   [data-theme='dark'] & {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.20);
   }
 `;
 
@@ -420,7 +415,7 @@ const DrawerPanel = styled(motion.aside)`
   }
 
   [data-theme='dark'] & {
-    background-color: #1c1a17;
+    background-color: ${surface.dark.app};
     color: ${meok[100]};
     box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.7);
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -846,8 +841,8 @@ const CustomSliderContainer = styled.div<{ $progress?: number }>`
         to right,
         ${palette.juhong[400]} 0%,
         ${palette.juhong[500]} ${({ $progress = 0 }) => $progress}%,
-        rgba(255, 255, 255, 0.14) ${({ $progress = 0 }) => $progress}%,
-        rgba(255, 255, 255, 0.14) 100%
+        rgba(255, 255, 255, 0.24) ${({ $progress = 0 }) => $progress}%,
+        rgba(255, 255, 255, 0.24) 100%
       );
     }
 
@@ -868,7 +863,7 @@ const CustomSliderContainer = styled.div<{ $progress?: number }>`
       transition: transform 0.15s ease;
 
       [data-theme='dark'] & {
-        background: #1c1a17;
+        background: ${surface.dark.app};
         border: 2.5px solid ${palette.juhong[400]};
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5), 0 0 12px rgba(255, 85, 0, 0.5);
       }
@@ -889,7 +884,7 @@ const CustomSliderContainer = styled.div<{ $progress?: number }>`
       cursor: grab;
 
       [data-theme='dark'] & {
-        background: #1c1a17;
+        background: ${surface.dark.app};
         border: 2.5px solid ${palette.juhong[400]};
       }
     }
@@ -1035,6 +1030,7 @@ export const LocalMiniPlayer: React.FC = () => {
   const imgSrc = useSorimaruImage(story);
 
   const [isVisible, setIsVisible] = useState(false);
+  const isApple = useIsAppleDevice();
   const [oniVideoError, setOniVideoError] = useState(false);
   const [activeViewMode, setActiveViewMode] = useState<ViewMode>('roadview');
   const [showOniBubble, setShowOniBubble] = useState(false);
@@ -1131,14 +1127,14 @@ export const LocalMiniPlayer: React.FC = () => {
               }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.94 }}
-              title="온이 - 소리 감상 중"
-              aria-label="온이 - 소리 감상 중"
+              title="소리를 듣는 온이"
+              aria-label="소리를 듣는 온이"
             >
               <FloatingOniBubble className="floating-oni-bubble" $show={showOniBubble}>
-                {isPlaying ? '이야기에 귀 기울이는 중 🎧' : '고즈넉한 한옥의 소리 ✨'}
+                {isPlaying ? '이야기에 귀 기울이는 중이에요' : '고즈넉한 한옥의 소리를 들려드릴게요'}
               </FloatingOniBubble>
-              {oniVideoError ? (
-                <img src="/images/character/Oni_listen_no_bg.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+              {isApple || oniVideoError ? (
+                <img src="/images/character/Oni_listen_no_bg.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', filter: 'drop-shadow(0 8px 18px rgba(0, 0, 0, 0.3))', transform: 'scaleX(-1)' }} />
               ) : (
                 <FloatingOniVideo autoPlay loop muted playsInline preload="auto" onError={() => setOniVideoError(true)}>
                   <source src={ONI_LISTEN_SRC} type="video/webm" onError={() => setOniVideoError(true)} />
@@ -1165,7 +1161,7 @@ export const LocalMiniPlayer: React.FC = () => {
                 onClick={() => setIsPlaying(!isPlaying)}
                 aria-label={isPlaying ? '일시정지' : '재생'}
               >
-                <PlayIcon />
+                <PlayPauseIcon />
               </PlayCircleBtn>
               <MiniHeartBtn
                 type="button"
@@ -1175,7 +1171,7 @@ export const LocalMiniPlayer: React.FC = () => {
                 aria-label={isSaved ? '마음에 담은 소리에서 제거' : '마음에 담기'}
                 title={isSaved ? '마음에 담음' : '마음에 담기'}
               >
-                <Heart size={16} strokeWidth={2.2} fill={isSaved ? 'currentColor' : 'none'} />
+                <HugeiconsIcon icon={HeartIcon} size={16} strokeWidth={2.2} fill={isSaved ? 'currentColor' : 'none'} />
               </MiniHeartBtn>
               <ScriptOpenBtn
                 type="button"
@@ -1212,11 +1208,7 @@ export const LocalMiniPlayer: React.FC = () => {
               initial={{ opacity: 0, y: '80%' }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: '80%' }}
-              transition={{
-                type: 'tween',
-                ease: [0.16, 1, 0.3, 1],
-                duration: 0.3,
-              }}
+              transition={livelyBottomSheetSpring}
               onClick={(event) => event.stopPropagation()}
             >
               {}
@@ -1236,7 +1228,7 @@ export const LocalMiniPlayer: React.FC = () => {
                         transition={{ type: 'spring', stiffness: 450, damping: 35 }}
                       />
                     )}
-                    <Compass size={15} className="tab-icon" strokeWidth={2.2} />
+                    <HugeiconsIcon icon={Compass01Icon} size={15} className="tab-icon" strokeWidth={2.2} />
                     <span>현장 사진</span>
                   </SegmentTab>
 
@@ -1252,7 +1244,7 @@ export const LocalMiniPlayer: React.FC = () => {
                         transition={{ type: 'spring', stiffness: 450, damping: 35 }}
                       />
                     )}
-                    <BookOpen size={15} className="tab-icon" strokeWidth={2.2} />
+                    <HugeiconsIcon icon={BookOpen01Icon} size={15} className="tab-icon" strokeWidth={2.2} />
                     <span>전체 대본</span>
                   </SegmentTab>
                 </SegmentedControl>
@@ -1267,7 +1259,7 @@ export const LocalMiniPlayer: React.FC = () => {
                     aria-label={isSaved ? '마음에 담은 소리에서 제거' : '마음에 담은 소리에 추가'}
                     title={isSaved ? '마음에 담음' : '마음에 담기'}
                   >
-                    <Heart size={17} strokeWidth={2.2} fill={isSaved ? 'currentColor' : 'none'} />
+                    <HugeiconsIcon icon={HeartIcon} size={17} strokeWidth={2.2} fill={isSaved ? 'currentColor' : 'none'} />
                   </HeartSaveButton>
                   <CloseBtn
                     type="button"
@@ -1275,7 +1267,7 @@ export const LocalMiniPlayer: React.FC = () => {
                     onClick={closePlayer}
                     aria-label="패널 닫기"
                   >
-                    <X size={18} strokeWidth={2.5} />
+                    <HugeiconsIcon icon={Cancel01Icon} size={18} strokeWidth={2.5} />
                   </CloseBtn>
                 </PlayerHeaderActions>
               </DrawerHeader>
@@ -1350,7 +1342,7 @@ export const LocalMiniPlayer: React.FC = () => {
                             const customTags = story.contentTags.filter(
                               (t) => !t.includes('대한민국') && !t.includes('소리')
                             );
-                            const titleKeyword = story.title?.split(/[-—\s]/)[0];
+                            const titleKeyword = story.title?.split(/[-?\s]/)[0];
                             const baseTags = [
                               titleKeyword,
                               '한옥도슨트',
@@ -1398,8 +1390,8 @@ export const LocalMiniPlayer: React.FC = () => {
                   {}
                   <CustomSliderContainer $progress={audioProgress}>
                     <ExpandedSliderOni $progress={audioProgress} aria-hidden="true">
-                      {oniVideoError ? (
-                        <img src="/images/character/Oni_listen_no_bg.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                      {isApple || oniVideoError ? (
+                        <img src="/images/character/Oni_listen_no_bg.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', filter: 'drop-shadow(0 8px 18px rgba(0, 0, 0, 0.3))', transform: 'scaleX(-1)' }} />
                       ) : (
                         <FloatingOniVideo autoPlay loop muted playsInline preload="auto" onError={() => setOniVideoError(true)}>
                           <source src={ONI_LISTEN_SRC} type="video/webm" onError={() => setOniVideoError(true)} />
@@ -1444,7 +1436,7 @@ export const LocalMiniPlayer: React.FC = () => {
                       title="10초 전으로"
                       aria-label="10초 전으로"
                     >
-                      <RotateCcw size={15} strokeWidth={2.4} />
+                      <HugeiconsIcon icon={RotateCcwIcon} size={15} strokeWidth={2.4} />
                       <span>10</span>
                     </JumpControlButton>
 
@@ -1455,7 +1447,7 @@ export const LocalMiniPlayer: React.FC = () => {
                       onClick={() => setIsPlaying(!isPlaying)}
                       aria-label={isPlaying ? '일시정지' : '재생'}
                     >
-                      <PlayIcon size={20} />
+                      <PlayPauseIcon size={20} />
                     </BigPlayBtn>
 
                     <JumpControlButton
@@ -1466,7 +1458,7 @@ export const LocalMiniPlayer: React.FC = () => {
                       title="10초 후로"
                       aria-label="10초 후로"
                     >
-                      <RotateCw size={15} strokeWidth={2.4} />
+                      <HugeiconsIcon icon={RotateCwIcon} size={15} strokeWidth={2.4} />
                       <span>10</span>
                     </JumpControlButton>
                   </DeckCenterCluster>
@@ -1483,3 +1475,4 @@ export const LocalMiniPlayer: React.FC = () => {
     </>
   );
 };
+

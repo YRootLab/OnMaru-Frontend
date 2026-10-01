@@ -8,7 +8,8 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { meok, palette } from '@/design-system/tokens';
-import { ExternalLink } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ExternalLinkIcon } from '@hugeicons/core-free-icons'
 
 const PAGE_TITLES: Record<string, string> = {
   '/admin': '운영 대시보드',
@@ -86,7 +87,7 @@ export const AdminHeader: React.FC = () => {
         }}
       >
         <span>서비스로 이동</span>
-        <ExternalLink size={14} strokeWidth={2} />
+        <HugeiconsIcon icon={ExternalLinkIcon} size={14} strokeWidth={2} />
       </Link>
     </header>
   );

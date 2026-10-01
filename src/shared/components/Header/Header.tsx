@@ -6,7 +6,8 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import styled from '@emotion/styled';
-import { ArrowRight, Check, Home, Menu, X, Sparkles, BookOpen, Map, Headphones, Sun, Moon } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ArrowRight01Icon, BookOpen01Icon, Cancel01Icon, CheckIcon, HeadphonesIcon, Home01Icon, MapIcon, Menu01Icon, Moon01Icon, SparklesIcon, Sun01Icon } from '@hugeicons/core-free-icons'
 import { transientProps } from '@/design-system/styled';
 import { lightPalette, meok, fontSize, ringShadow } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
@@ -48,7 +49,7 @@ const NavigationBackdrop = styled(motion.div, transientProps)<LandingProps>`
   position: fixed;
   inset: 0;
   z-index: 99;
-  background: ${({ $isLanding }) => ($isLanding ? 'rgba(8, 7, 6, 0.34)' : 'rgba(31, 27, 22, 0.22)')};
+  background: ${({ $isLanding }) => ($isLanding ? 'rgba(5, 15, 40, 0.34)' : 'rgba(11, 18, 32, 0.22)')};
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
 
@@ -124,14 +125,14 @@ const HeaderBackdrop = styled('div', transientProps)<LandingProps>`
 
   background: ${({ $isLanding, $isScrolled }) => {
     if ($isLanding) {
-      return $isScrolled ? 'rgba(23, 21, 18, 0.98)' : 'rgba(23, 21, 18, 0.92)';
+      return $isScrolled ? 'rgba(11, 18, 32, 0.98)' : 'rgba(11, 18, 32, 0.92)';
     }
     return $isScrolled ? '#ffffff' : 'rgba(255, 255, 255, 0.96)';
   }};
 
   border: 1px solid ${({ $isLanding, $isScrolled }) => {
     if ($isLanding) {
-      return $isScrolled ? 'rgba(255, 255, 255, 0.12)' : 'rgba(255, 255, 255, 0.07)';
+      return $isScrolled ? 'rgba(100, 150, 255, 0.18)' : 'rgba(100, 150, 255, 0.10)';
     }
     return $isScrolled ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.35)';
   }};
@@ -146,11 +147,11 @@ const HeaderBackdrop = styled('div', transientProps)<LandingProps>`
   [data-theme='dark'] & {
     background: ${({ $isLanding, $isScrolled }) => {
       if ($isLanding) {
-        return $isScrolled ? 'rgba(23, 21, 18, 0.98)' : 'rgba(23, 21, 18, 0.92)';
+        return $isScrolled ? 'rgba(11, 18, 32, 0.98)' : 'rgba(11, 18, 32, 0.92)';
       }
-      return $isScrolled ? 'rgba(28, 26, 23, 0.98)' : 'rgba(28, 26, 23, 0.95)';
+      return $isScrolled ? 'rgba(23, 30, 43, 0.98)' : 'rgba(23, 30, 43, 0.95)';
     }};
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(100, 150, 255, 0.12);
     box-shadow: ${ringShadow.dark.card};
   }
 `;
@@ -311,7 +312,7 @@ const MobileStatusBlur = styled('div', transientProps)<LandingProps>`
     pointer-events: none;
 
     [data-theme='dark'] & {
-      background: rgba(23, 21, 18, 0.5);
+      background: rgba(11, 18, 32, 0.5);
     }
   }
 `;
@@ -387,8 +388,8 @@ const MobileMenuPanel = styled(motion.nav, transientProps)<LandingProps>`
 
   [data-theme='dark'] & {
     background: ${({ $isScrolled }) =>
-      $isScrolled ? 'rgba(27, 25, 22, 0.94)' : 'rgba(27, 25, 22, 0.88)'};
-    border: 1px solid rgba(255, 255, 255, 0.1);
+      $isScrolled ? 'rgba(23, 30, 43, 0.96)' : 'rgba(23, 30, 43, 0.90)'};
+    border: 1px solid rgba(100, 150, 255, 0.14);
   }
 `;
 
@@ -435,7 +436,7 @@ const LoginButton = styled(Link, transientProps)<LandingProps>`
   background: ${({ $isLanding }) =>
     $isLanding
       ? 'rgba(20, 18, 16, 0.95)'
-      : 'rgba(28, 26, 23, 0.94)'};
+      : 'rgba(11, 18, 32, 0.94)'};
   border: 1px solid ${({ $isLanding }) =>
     $isLanding ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.08)'};
 
@@ -455,8 +456,8 @@ const LoginButton = styled(Link, transientProps)<LandingProps>`
 
   [data-theme='dark'] & {
     color: #ffffff;
-    background: rgba(20, 18, 16, 0.95);
-    border-color: rgba(255, 255, 255, 0.16);
+    background: rgba(23, 30, 43, 0.96);
+    border-color: rgba(100, 150, 255, 0.20);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -513,7 +514,7 @@ const ThemeToggleBtn = styled('button', transientProps)<LandingProps>`
 
     &::after {
       background: #ffffff;
-      box-shadow: 0 0 0 2px rgba(28, 26, 23, 0.9);
+      box-shadow: 0 0 0 2px rgba(11, 18, 32, 0.9);
     }
   }
 
@@ -547,9 +548,9 @@ const ThemePickerPopover = styled(motion.div, transientProps)<LandingProps>`
   transform-origin: top right;
 
   [data-theme='dark'] & {
-    background: rgba(27, 25, 22, 0.94);
-    border-color: rgba(255, 255, 255, 0.12);
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.36);
+    background: rgba(23, 30, 43, 0.96);
+    border-color: rgba(100, 150, 255, 0.14);
+    box-shadow: 0 16px 36px rgba(5, 15, 50, 0.45);
   }
 `;
 
@@ -781,11 +782,15 @@ export default function Header() {
 
   const isNavigationOpen = isMobileMenuOpen;
   const themeOptions: ThemePreference[] = ['system', 'light', 'dark'];
-  const ThemeTriggerIcon = renderedThemeMode === 'dark' ? Moon : Sun;
+  const themeTriggerIcon = renderedThemeMode === 'dark' ? Moon01Icon : Sun01Icon;
   const themeTriggerLabel = getThemeTriggerLabel({
     preference: renderedPreference,
     mode: renderedThemeMode,
   });
+
+  if (pathname.startsWith('/admin')) {
+    return null;
+  }
 
   return (
     <>
@@ -845,12 +850,11 @@ export default function Header() {
         {}
         <CenterNav $isMapPage={isMapPage}>
           {[
-            { href: '/', label: '홈', icon: Home, active: pathname === '/' },
-            { href: '/hanok', label: '한옥마루', icon: BookOpen, active: pathname.startsWith('/hanok') },
-            { href: '/sorimaru', label: '소리마루', icon: Headphones, active: isSoriMaruPage },
-            { href: '/map', label: '지도마루', icon: Map, active: pathname.startsWith('/map') },
+            { href: '/', label: '홈', icon: Home01Icon, active: pathname === '/' },
+            { href: '/hanok', label: '한옥마루', icon: BookOpen01Icon, active: pathname.startsWith('/hanok') },
+            { href: '/sorimaru', label: '소리마루', icon: HeadphonesIcon, active: isSoriMaruPage },
+            { href: '/map', label: '지도마루', icon: MapIcon, active: pathname.startsWith('/map') },
           ].map((item) => {
-            const Icon = item.icon;
             const isSelected = item.active;
             return (
               <NavLink
@@ -862,14 +866,15 @@ export default function Header() {
                 onClick={item.href === '/' ? resetJourney : undefined}
               >
                 <span style={{ position: 'relative', zIndex: 1, display: 'inline-flex', alignItems: 'center' }}>
-                  {item.icon === Headphones && isSelected ? (
+                  {item.icon === HeadphonesIcon && isSelected ? (
                     <HeadphonesFilledEars
                       size={13}
                       strokeWidth={1.5}
                       style={{ marginRight: 5, verticalAlign: '-1px' }}
                     />
                   ) : (
-                    <Icon
+                    <HugeiconsIcon
+                      icon={item.icon}
                       size={13}
                       fill={isSelected ? 'currentColor' : 'none'}
                       fillOpacity={isSelected ? 0.6 : undefined}
@@ -896,14 +901,14 @@ export default function Header() {
             aria-haspopup="menu"
             aria-expanded={isThemePickerOpen}
           >
-            <ThemeTriggerIcon size={14} />
+            <HugeiconsIcon icon={themeTriggerIcon} size={14} />
           </ThemeToggleBtn>
 
         </ThemePickerWrap>
 
         <LoginButton href={isLoggedIn ? '/mypage' : '/auth/login'} $isLanding={usesDarkSurface}>
           <span>{isLoggedIn ? (user?.displayName ?? '마이페이지') : '로그인'}</span>
-          <ArrowRight size={12} />
+          <HugeiconsIcon icon={ArrowRight01Icon} size={12} />
         </LoginButton>
 
         <AnimatePresence>
@@ -919,7 +924,7 @@ export default function Header() {
             >
               {themeOptions.map((option) => {
                 const active = renderedPreference === option;
-                const OptionIcon = option === 'dark' ? Moon : option === 'light' ? Sun : Sparkles;
+                const optionIcon = option === 'dark' ? Moon01Icon : option === 'light' ? Sun01Icon : SparklesIcon;
                 return (
                   <ThemeChoiceButton
                     key={option}
@@ -933,7 +938,7 @@ export default function Header() {
                     }}
                   >
                     <ThemeChoiceIcon>
-                      <OptionIcon size={15} strokeWidth={2} />
+                      <HugeiconsIcon icon={optionIcon} size={15} strokeWidth={2} />
                     </ThemeChoiceIcon>
                     <ThemeChoiceCopy>
                       <ThemeChoiceTitle>{getThemePreferenceLabel(option)}</ThemeChoiceTitle>
@@ -942,7 +947,7 @@ export default function Header() {
                       </ThemeChoiceSummary>
                     </ThemeChoiceCopy>
                     <ThemeChoiceCheck aria-hidden="true">
-                      {active ? <Check size={14} strokeWidth={2.4} /> : null}
+                      {active ? <HugeiconsIcon icon={CheckIcon} size={14} strokeWidth={2.4} /> : null}
                     </ThemeChoiceCheck>
                   </ThemeChoiceButton>
                 );
@@ -993,9 +998,9 @@ export default function Header() {
           onClick={() => setIsMobileMenuOpen((prev) => !prev)}
         >
           {isMobileMenuOpen ? (
-            <X size={20} />
+            <HugeiconsIcon icon={Cancel01Icon} size={20} />
           ) : (
-            <Menu size={20} />
+            <HugeiconsIcon icon={Menu01Icon} size={20} />
           )}
         </MobileMenuButton>
 
@@ -1018,22 +1023,22 @@ export default function Header() {
                 }}
               >
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <Home size={15} /> 홈
+                  <HugeiconsIcon icon={Home01Icon} size={15} /> 홈
                 </span>
               </MobileMenuLink>
               <MobileMenuLink href="/hanok" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <BookOpen size={15} /> 한옥마루
+                  <HugeiconsIcon icon={BookOpen01Icon} size={15} /> 한옥마루
                 </span>
               </MobileMenuLink>
               <MobileMenuLink href="/sorimaru" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <Headphones size={15} /> 소리마루
+                  <HugeiconsIcon icon={HeadphonesIcon} size={15} /> 소리마루
                 </span>
               </MobileMenuLink>
               <MobileMenuLink href="/map" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <Map size={15} /> 지도마루
+                  <HugeiconsIcon icon={MapIcon} size={15} /> 지도마루
                 </span>
               </MobileMenuLink>
               <MobileMenuDivider $isLanding={usesDarkSurface} />
@@ -1091,4 +1096,4 @@ export default function Header() {
       </HeaderContainer>
     </>
   );
-}
+}

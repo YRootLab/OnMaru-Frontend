@@ -5,7 +5,8 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { Bookmark, Flame, ChevronRight, MapPin, X, Compass, Sparkles, Heart, Music, PenLine, Check } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Bookmark01Icon, FlameIcon, ChevronRightIcon, MapPinIcon, Cancel01Icon, Compass01Icon, SparklesIcon, HeartIcon, Music01Icon, PenLineIcon, CheckIcon } from '@hugeicons/core-free-icons'
 import type { SavedJourneyDetail } from '@/features/journey-curator/types/exploration.types';
 import { useAuth } from '@/features/auth';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
@@ -15,6 +16,7 @@ import type { Warmth } from '@/features/map/types';
 import { ThemeModeSwitch } from '@/design-system/components';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import type { OnmaruTheme } from '@/design-system/tokens';
+import { useIsAppleDevice } from '@/shared/hooks/useIsAppleDevice';
 import { useSavedJourneyStore } from '@/features/journey-curator/store/useSavedJourneyStore';
 import { useJourneyStore } from '@/features/journey-curator/store/useJourneyStore';
 import { useSavedExplorationStore } from '@/features/journey-curator/store/useSavedExplorationStore';
@@ -35,6 +37,7 @@ export default function MyPage() {
   const removeBookmark = useBookmarkStore((s) => s.removeBookmark);
   const [myWarmths, setMyWarmths] = useState<Warmth[]>([]);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const isApple = useIsAppleDevice();
   const [oniVideoError, setOniVideoError] = useState(false);
 
   const savedJourneys = useSavedJourneyStore((s) => s.savedJourneys);
@@ -291,7 +294,7 @@ export default function MyPage() {
                       flexShrink: 0,
                     }}
                   >
-                    <X size={14} />
+                    <HugeiconsIcon icon={Cancel01Icon} size={14} />
                   </button>
                 </div>
               ))}
@@ -335,7 +338,7 @@ export default function MyPage() {
                         flexShrink: 0,
                       }}
                     >
-                      <Music size={16} color={c.text.muted} />
+                      <HugeiconsIcon icon={Music01Icon} size={16} color={c.text.muted} />
                     </div>
                   )}
                   <div style={{ flex: 1, minWidth: 0 }}>
@@ -344,7 +347,7 @@ export default function MyPage() {
                     </div>
                     {sound.region.name && (
                       <div style={{ fontSize: '11.5px', color: c.text.muted, display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px' }}>
-                        <MapPin size={10} />
+                        <HugeiconsIcon icon={MapPinIcon} size={10} />
                         {sound.region.name}
                       </div>
                     )}
@@ -370,7 +373,7 @@ export default function MyPage() {
                       flexShrink: 0,
                     }}
                   >
-                    <X size={14} />
+                    <HugeiconsIcon icon={Cancel01Icon} size={14} />
                   </button>
                 </div>
               ))}
@@ -397,19 +400,19 @@ export default function MyPage() {
                     textDecoration: 'none',
                   }}
                 >
-                  <Bookmark size={16} color={c.action.primary} fill={c.action.primary} />
+                  <HugeiconsIcon icon={Bookmark01Icon} size={16} color={c.action.primary} fill={c.action.primary} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: '14px', fontWeight: 600, color: c.text.primary, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {place.name}
                     </div>
                     {place.addr && (
                       <div style={{ fontSize: '12px', color: c.text.muted, display: 'flex', alignItems: 'center', gap: '3px' }}>
-                        <MapPin size={11} />
+                        <HugeiconsIcon icon={MapPinIcon} size={11} />
                         {place.addr}
                       </div>
                     )}
                   </div>
-                  <ChevronRight size={16} color={c.text.muted} />
+                  <HugeiconsIcon icon={ChevronRightIcon} size={16} color={c.text.muted} />
                   <button
                     type="button"
                     aria-label={`${place.name} 북마크 삭제`}
@@ -433,7 +436,7 @@ export default function MyPage() {
                       flexShrink: 0,
                     }}
                   >
-                    <X size={14} />
+                    <HugeiconsIcon icon={Cancel01Icon} size={14} />
                   </button>
                 </Link>
               ))}
@@ -518,7 +521,7 @@ export default function MyPage() {
                         flexShrink: 0,
                       }}
                     >
-                      <MapPin size={16} color={c.text.muted} />
+                      <HugeiconsIcon icon={MapPinIcon} size={16} color={c.text.muted} />
                     </div>
                   )}
                   <div style={{ flex: 1, minWidth: 0 }}>
@@ -527,7 +530,7 @@ export default function MyPage() {
                     </div>
                     {place.regionName && (
                       <div style={{ fontSize: '11.5px', color: c.text.muted, display: 'flex', alignItems: 'center', gap: '3px', marginTop: '2px' }}>
-                        <MapPin size={10} />
+                        <HugeiconsIcon icon={MapPinIcon} size={10} />
                         {place.regionName}
                       </div>
                     )}
@@ -554,7 +557,7 @@ export default function MyPage() {
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
                     <span style={{ fontSize: '13px', fontWeight: 700, color: c.text.primary }}>{review.placeName}</span>
                     <span style={{ fontSize: '11px', color: c.text.muted, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <Heart size={11} fill={c.action.primary} color={c.action.primary} />
+                      <HugeiconsIcon icon={HeartIcon} size={11} fill={c.action.primary} color={c.action.primary} />
                       {review.likeCount}
                     </span>
                   </div>
@@ -590,7 +593,7 @@ export default function MyPage() {
                           backgroundColor: moodColor.primaryBg,
                         }}
                       >
-                        <Flame size={10} style={{ verticalAlign: '-1px', marginRight: '2px' }} />
+                        <HugeiconsIcon icon={FlameIcon} size={10} style={{ verticalAlign: '-1px', marginRight: '2px' }} />
                         {w.mood}
                       </span>
                     </div>
@@ -607,8 +610,8 @@ export default function MyPage() {
 
         {/* 온이 캐릭터 소개 */}
         <div style={{ backgroundColor: c.bg.surface, borderRadius: '20px', padding: '40px 28px 36px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', textAlign: 'center' }}>
-          <div style={{ width: '180px', height: '180px', flexShrink: 0 }}>
-            {oniVideoError ? (
+          <div style={{ width: '180px', height: '180px', flexShrink: 0, filter: 'drop-shadow(0 10px 24px rgba(0, 0, 0, 0.16))' }}>
+            {isApple || oniVideoError ? (
               <img src="/images/character/Oni_hi.png" alt="온이" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
             ) : (
               <video
@@ -629,10 +632,8 @@ export default function MyPage() {
             )}
           </div>
           <div style={{ fontSize: '22px', fontWeight: 800, color: c.text.primary, marginBottom: '10px', marginTop: '8px', letterSpacing: '-0.025em' }}>온이</div>
-          <p style={{ margin: 0, fontSize: '14px', color: c.text.secondary, lineHeight: 1.8, maxWidth: '300px' }}>
-            온마루의 마스코트예요. 한옥의 숨결과<br />
-            소리를 함께 잇고 싶어 오늘도<br />
-            이렇게 반갑게 인사한답니다 👋
+          <p style={{ margin: 0, fontSize: '14px', color: c.text.secondary, lineHeight: 1.8, maxWidth: '320px' }}>
+            한옥의 숨결과 소리를 전하는 온마루의 길잡이, 온이예요. 여정 중에 궁금한 점이 생기면 언제든 찾아주세요 👋
           </p>
         </div>
 
@@ -640,7 +641,7 @@ export default function MyPage() {
           {confirmingDelete ? (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
               <p style={{ margin: 0, fontSize: '13px', color: c.error.primary }}>
-                정말 탈퇴하시겠어요? 북마크·온기 기록은 남지만 로그인 정보는 삭제돼요.
+                정말 온마루를 떠나시겠어요? 계정 정보는 즉시 삭제되며, 작성하신 글과 온기 기록은 삭제되지 않아요.
               </p>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button
@@ -767,7 +768,7 @@ function SavedExplorationRow({
             aria-label="이름 저장"
             style={{ display: 'flex', border: 'none', background: 'transparent', color: c.success.primary, cursor: 'pointer', flexShrink: 0 }}
           >
-            <Check size={16} />
+            <HugeiconsIcon icon={CheckIcon} size={16} />
           </button>
         </form>
       ) : (
@@ -803,7 +804,7 @@ function SavedExplorationRow({
             flexShrink: 0,
           }}
         >
-          <PenLine size={13} />
+          <HugeiconsIcon icon={PenLineIcon} size={13} />
         </button>
       )}
 
@@ -825,7 +826,7 @@ function SavedExplorationRow({
           flexShrink: 0,
         }}
       >
-        <X size={14} />
+        <HugeiconsIcon icon={Cancel01Icon} size={14} />
       </button>
     </div>
   );

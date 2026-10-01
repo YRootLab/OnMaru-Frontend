@@ -61,7 +61,8 @@ const SkeletonBar = styled.div<{ $w: string; $h: string; $radius?: string }>`
     background-size: 200% 100%;
   }
 `;
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ChevronLeftIcon, ChevronRightIcon } from '@hugeicons/core-free-icons'
 import { lightPalette, meok, fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import type { Item } from '@/features/map/types';
@@ -109,7 +110,7 @@ const Title = styled.h3`
 const SubText = styled.span`
   font-size: ${fontSize.micro};
   font-weight: 400;
-  color: ${lightPalette.kobalt[500]};
+  color: ${lightPalette.cheongrok[500]};
 `;
 
 const FeedContainer = styled.div`
@@ -296,7 +297,7 @@ const HashTag = styled.span`
   align-items: center;
   font-size: ${fontSize.micro};
   font-weight: 500;
-  color: ${lightPalette.kobalt[700]};
+  color: ${lightPalette.cheongrok[700]};
   background: rgba(30, 122, 104, 0.08);
   padding: 2px 7px;
   border-radius: 6px;
@@ -437,7 +438,7 @@ export default function SmartAroundFeed({ items }: SmartAroundFeedProps) {
           onClick={() => scroll('left')}
           aria-label="이전 추천 명소 보기"
         >
-          <ChevronLeft size={18} strokeWidth={2} />
+          <HugeiconsIcon icon={ChevronLeftIcon} size={18} strokeWidth={2} />
         </FloatingNavBtn>
 
         <FloatingNavBtn
@@ -447,7 +448,7 @@ export default function SmartAroundFeed({ items }: SmartAroundFeedProps) {
           onClick={() => scroll('right')}
           aria-label="다음 추천 명소 보기"
         >
-          <ChevronRight size={18} strokeWidth={2} />
+          <HugeiconsIcon icon={ChevronRightIcon} size={18} strokeWidth={2} />
         </FloatingNavBtn>
 
         <Scroller ref={scrollerRef} onWheel={handleWheel} role="region" aria-label="추천 한옥 명소 목록">

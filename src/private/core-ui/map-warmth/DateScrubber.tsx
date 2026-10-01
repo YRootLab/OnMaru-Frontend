@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import styled from '@emotion/styled';
-import { Pause, Play } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { PauseIcon, PlayIcon } from '@hugeicons/core-free-icons'
 import { lightPalette, meok, surface , fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { SNAP_CSS } from '@/features/map/components/BottomSheet';
@@ -42,7 +43,7 @@ const Root = styled.div<{ $panelOpen: boolean; $snap: SheetSnap; $embedded?: boo
         box-shadow: none;
 
         [data-theme='dark'] & {
-          background: #25221d;
+          background: ${surface.dark.surface};
         }
       `
       : `
@@ -324,7 +325,7 @@ export default function DateScrubber({ embedded = false }: DateScrubberProps) {
             title={playing ? '멈추기' : '30일 흐름 보기'}
             onClick={() => setPlaying((on) => !on)}
           >
-            {playing ? <Pause size={13} strokeWidth={2} /> : <Play size={13} fill="currentColor" className="ml-0.5" />}
+            {playing ? <HugeiconsIcon icon={PauseIcon} size={13} strokeWidth={2} /> : <HugeiconsIcon icon={PlayIcon} size={13} fill="currentColor" className="ml-0.5" />}
           </PlayButton>
           <Stamp>
             {formatDay(today.ymd)}

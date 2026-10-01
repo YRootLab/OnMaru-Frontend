@@ -63,8 +63,8 @@ const Body = styled.div`
   [data-theme='dark'] & {
     background: ${surface.dark.surface};
 
-    --sim-fade: rgba(28, 26, 23, 0.94);
-    --sim-pill: rgba(45, 41, 36, 0.9);
+    --sim-fade: rgba(11, 18, 32, 0.94);
+    --sim-pill: rgba(33, 39, 52, 0.9);
     --sim-pill-border: rgba(255, 255, 255, 0.12);
     --sim-ink-weak: ${meok[400]};
   }
@@ -270,4 +270,4 @@ export default function HanokAssemblyModal({ onClose, initialStage }: HanokAssem
       </Body>
     </StructureModal>
   );
-}
+}

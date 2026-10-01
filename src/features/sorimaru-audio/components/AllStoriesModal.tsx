@@ -3,11 +3,13 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
-import { X, Search, Clock, Pause, Play } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Cancel01Icon, Search01Icon, Clock01Icon, PauseIcon, PlayIcon } from '@hugeicons/core-free-icons'
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import type { SorimaruCategory } from '@/features/sorimaru-audio/types/sorimaru.types';
 import { palette, meok, surface, fontSize } from '@/design-system/tokens';
+import { livelyModalEnter } from '@/shared/motion/modalMotion';
 import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
 
 interface AllStoriesModalProps {
@@ -51,6 +53,7 @@ const ModalContainer = styled.div`
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  animation: ${livelyModalEnter} 0.38s cubic-bezier(0.19, 1.15, 0.22, 1) both;
 `;
 
 const ModalHeader = styled.div`
@@ -383,7 +386,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
             </HeaderTitle>
           </div>
           <CloseButton onClick={onClose} aria-label="닫기">
-            <X size={22} strokeWidth={2} />
+            <HugeiconsIcon icon={Cancel01Icon} size={22} strokeWidth={2} />
           </CloseButton>
         </ModalHeader>
 
@@ -414,7 +417,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
               placeholder="이야기 제목이나 장소로 검색해 보세요"
             />
             <SearchIconWrapper>
-              <Search size={16} strokeWidth={2} />
+              <HugeiconsIcon icon={Search01Icon} size={16} strokeWidth={2} />
             </SearchIconWrapper>
           </SearchInputWrapper>
         </ControlBar>
@@ -470,7 +473,7 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
                           {story.category}
                         </CategoryTag>
                         <DurationText>
-                          <Clock size={13} strokeWidth={2} />
+                          <HugeiconsIcon icon={Clock01Icon} size={13} strokeWidth={2} />
                           {`${Math.floor(story.durationSeconds / 60)}:${String(story.durationSeconds % 60).padStart(2, '0')}`}
                         </DurationText>
                       </MetaRow>
@@ -493,9 +496,9 @@ export const AllStoriesModal: React.FC<AllStoriesModalProps> = ({
                     aria-label={isThisPlaying ? '일시정지' : '재생'}
                   >
                     {isThisPlaying ? (
-                      <Pause size={16} strokeWidth={2} />
+                      <HugeiconsIcon icon={PauseIcon} size={16} strokeWidth={2} />
                     ) : (
-                      <Play size={16} fill="currentColor" style={{ marginLeft: 2 }} />
+                      <HugeiconsIcon icon={PlayIcon} size={16} fill="currentColor" style={{ marginLeft: 2 }} />
                     )}
                   </PlayActionBtn>
                 </StoryCard>

@@ -9,7 +9,7 @@ export interface AdminUser {
   email: string;
   nickname: string;
   role: AdminRole;
-  status: 'ACTIVE' | 'SUSPENDED';
+  status: 'ACTIVE' | 'DELETING' | 'SUSPENDED';
   avatarUrl?: string;
   reviewCount: number;
   reportCount: number;
@@ -131,15 +131,11 @@ export interface ApiError {
   code?: string;
 }
 
-export interface PaginationParams {
-  page: number;
-  limit: number;
-}
-
-export interface PaginatedResponse<T> {
-  items: T[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
+export type {
+  PaginationParams,
+  CursorPaginationParams,
+  CursorPageResponse,
+  PaginatedResponse,
+  ModerationQueueItem,
+  ModerationQueuePageResponse,
+} from './domain/adminTypes';

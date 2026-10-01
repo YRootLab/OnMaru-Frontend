@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Heart, X } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { HeartIcon, Cancel01Icon } from '@hugeicons/core-free-icons'
 import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { palette, meok, surface, fontSize } from '@/design-system/tokens';
@@ -33,7 +34,7 @@ const FloatingOpenButton = styled.button`
   transition: color 0.2s ease, background-color 0.2s ease;
 
   [data-theme='dark'] & {
-    background-color: rgba(36, 33, 29, 0.95);
+    background-color: rgba(23, 30, 43, 0.95);
     color: ${meok[100]};
     border: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
@@ -52,7 +53,7 @@ const DrawerBackdrop = styled(motion.button)`
   position: absolute;
   inset: 0;
   cursor: default;
-  background-color: rgba(33, 30, 25, 0.35);
+  background-color: rgba(0, 0, 0, 0.5);
   border: none;
 `;
 
@@ -203,7 +204,7 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
         onClick={() => setIsOpen(true)}
         aria-label={`마음 담아둔 소리 ${savedStories.length}개 열기`}
       >
-        <Heart size={14} strokeWidth={2} fill="currentColor" style={{ color: palette.juhong[500] }} />
+        <HugeiconsIcon icon={HeartIcon} size={14} strokeWidth={2} fill="currentColor" style={{ color: palette.juhong[500] }} />
         마음 담아둔 소리
         <span style={{ fontFamily: 'var(--font-hanok)', fontVariantNumeric: 'tabular-nums', fontSize: fontSize.micro, color: meok[700] }}>
           {savedStories.length}
@@ -245,7 +246,7 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
                   onClick={() => setIsOpen(false)}
                   aria-label="보관함 닫기"
                 >
-                  <X size={22} strokeWidth={2} />
+                  <HugeiconsIcon icon={Cancel01Icon} size={22} strokeWidth={2} />
                 </CloseButton>
               </DrawerHeader>
 

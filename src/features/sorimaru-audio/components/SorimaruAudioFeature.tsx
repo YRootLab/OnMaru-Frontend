@@ -4,7 +4,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 import { useSearchParams } from 'next/navigation';
-import { AlertCircle, RotateCcw } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { AlertCircleIcon, RotateCcwIcon } from '@hugeicons/core-free-icons'
 import { StoryCarousel } from './StoryCarousel';
 import { CategoryTagFilter } from './CategoryTagFilter';
 import { SorimaruArchiveBrowse } from './SorimaruArchiveBrowse';
@@ -108,7 +109,7 @@ const ErrorAlertMessage = styled.div`
   gap: 0.5rem;
 `;
 
-const ErrorAlertIcon = styled(AlertCircle)`
+const ErrorAlertIcon = styled(HugeiconsIcon)`
   flex-shrink: 0;
   color: ${palette.juhong[600]};
 
@@ -153,15 +154,15 @@ const MainSections = styled.main`
 `;
 
 const HeroStageDiv = styled.div`
-  padding-top: 3.25rem;
+  padding-top: 2.5rem;
   padding-bottom: clamp(40px, 5vh, 64px);
 
   @media (min-width: 768px) {
-    padding-top: clamp(6rem, 10vh, 8rem);
+    padding-top: clamp(3.5rem, 6vh, 4rem);
   }
 
   @media (max-width: 480px) {
-    padding-top: 2.5rem;
+    padding-top: 2rem;
     padding-bottom: clamp(28px, 4vh, 48px);
   }
 `;
@@ -280,7 +281,7 @@ const LocationButton = styled.button`
   transition: all 0.3s ease;
 
   [data-theme='dark'] & {
-    background-color: rgba(45, 41, 36, 0.7);
+    background-color: rgba(33, 39, 52, 0.7);
     color: ${meok[200]};
     border-color: rgba(255, 255, 255, 0.1);
   }
@@ -356,6 +357,19 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   useEffect(() => {
     void hydrateSavedStories();
   }, [hydrateSavedStories]);
+
+  const hasAutoLocatedRef = useRef(false);
+  useEffect(() => {
+    if (initialLoading || hasAutoLocatedRef.current || !navigator.geolocation) return;
+    hasAutoLocatedRef.current = true;
+    const tryLocate = () => handleLocate();
+    if (navigator.permissions?.query) {
+      navigator.permissions.query({ name: 'geolocation' }).then(() => tryLocate()).catch(tryLocate);
+    } else {
+      tryLocate();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialLoading]);
 
   const [selectionError, setSelectionError] = useState<Error | null>(null);
   const pendingSelectionRef = useRef<(SorimaruSelectionIntent & { autoPlay: boolean }) | null>(null);
@@ -451,7 +465,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
         setIsLocating(false);
       },
       () => {
-        setLocationMessage('위치 권한을 확인하지 못했어요. 권한 없이도 전국 큐레이션을 둘러볼 수 있어요.');
+        setLocationMessage('브라우저 설정 → 위치 → 허용으로 바꾸면 주변 이야기를 들을 수 있어요.');
         setLocationNotice(true);
         setIsLocating(false);
       },
@@ -472,11 +486,11 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
           {apiError && (
             <ErrorAlert role="alert">
               <ErrorAlertMessage>
-                <ErrorAlertIcon size={18} aria-hidden="true" />
+                <ErrorAlertIcon icon={AlertCircleIcon} size={18} aria-hidden="true" />
                 <span>{apiError}</span>
               </ErrorAlertMessage>
               <RetryButton type="button" onClick={retryApiRequests}>
-                <RotateCcw size={14} aria-hidden="true" />
+                <HugeiconsIcon icon={RotateCcwIcon} size={14} aria-hidden="true" />
                 다시 시도
               </RetryButton>
             </ErrorAlert>
@@ -553,7 +567,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                         disabled={isLocating}
                       >
                         {isLocating ? '위치 확인 중…' : '내 위치 사용'}
-                        {!isLocating && <span aria-hidden="true" style={{ fontSize: '0.75rem', lineHeight: 1 }}>›</span>}
+                        {!isLocating && <span aria-hidden="true" style={{ fontSize: '0.75rem', lineHeight: 1 }}>?</span>}
                       </LocationButton>
                     </div>
                   </NearbyHeader>

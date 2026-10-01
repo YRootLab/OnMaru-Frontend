@@ -31,11 +31,11 @@ export const SNAP_CSS: Record<SheetSnap, string> = {
   full: '86dvh',
 };
 
-const IDLE_EASE = 'cubic-bezier(0.32, 0.72, 0, 1)';
+const IDLE_EASE = 'cubic-bezier(0.19, 1.15, 0.22, 1)';
 
 
 const FLING_VELOCITY = 700;
-const SPRING = { type: 'spring' as const, stiffness: 300, damping: 32, mass: 1 };
+const SPRING = { type: 'spring' as const, stiffness: 340, damping: 25, mass: 0.88 };
 
 
 const PEEK_PX_APPROX = 58 + 12 + 40;
@@ -68,7 +68,7 @@ const Sheet = styled.div<{ $height: string; $dragging: boolean }>`
 
   [data-theme='dark'] & {
     background: ${surface.dark.card};
-    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08);
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08), inset 0 2px 6px rgba(0, 0, 0, 0.4), inset 0 -1px 2px rgba(255, 255, 255, 0.04);
   }
 
   @media (min-width: 1024px) {

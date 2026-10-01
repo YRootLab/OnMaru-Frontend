@@ -27,25 +27,27 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko" suppressHydrationWarning>
-      <head>
+      <body>
         <Script
-          id="onmaru-theme-init"
+          id="theme-mode-init"
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var saved = localStorage.getItem('onmaru-color-mode');
-                  var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                  var hour = new Date().getHours();
-                  var timeMode = hour >= 7 && hour < 19 ? 'light' : 'dark';
-                  var mode = (saved === 'dark' || saved === 'light') ? saved : timeMode;
-                  document.documentElement.setAttribute('data-theme', mode);
-                } catch (e) {}
-              })();
-            `,
+            __html: `(function(){try{var s=localStorage.getItem('onmaru-color-mode');var h=new Date().getHours();var t=h>=7&&h<19?'light':'dark';var m=(s==='dark'||s==='light')?s:t;document.documentElement.setAttribute('data-theme',m);}catch(e){}})();`,
           }}
         />
+        {/* Google Tag Manager */}
+        <Script
+          id="google-tag-manager"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-NRM4H9L7');`,
+          }}
+        />
+        {/* End Google Tag Manager */}
         <Script
           id="kakao-maps-sdk"
           strategy="afterInteractive"
@@ -66,8 +68,16 @@ export default function RootLayout({
             }}
           />
         )}
-      </head>
-      <body>
+        {/* Google Tag Manager (noscript) */}
+        <noscript>
+          <iframe
+            src="https://www.googletagmanager.com/ns.html?id=GTM-NRM4H9L7"
+            height="0"
+            width="0"
+            style={{ display: 'none', visibility: 'hidden' }}
+          />
+        </noscript>
+        {/* End Google Tag Manager (noscript) */}
         <Providers>
           <Header />
           <PageContainer>

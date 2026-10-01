@@ -62,8 +62,6 @@ export function useMapData() {
 
   useEffect(() => {
     const { setItems, setLoading, setError } = useMapStore.getState();
-    // Info mode uses useInfoMapData + BE /map/info/* endpoints — skip TourAPI path
-    if (mode === 'info') return;
     if (!map) {
       return;
     }

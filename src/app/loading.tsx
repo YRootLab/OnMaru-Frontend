@@ -1,9 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useIsAppleDevice } from '@/shared/hooks/useIsAppleDevice';
 
 export default function Loading() {
+  const isApple = useIsAppleDevice();
   const [videoError, setVideoError] = useState(false);
+  const showApng = isApple || videoError;
 
   return (
     <div
@@ -36,12 +39,13 @@ export default function Loading() {
           justifyContent: 'center',
           pointerEvents: 'none',
           userSelect: 'none',
+          filter: 'drop-shadow(0 10px 24px rgba(0, 0, 0, 0.16))',
         }}
       >
-        {videoError ? (
+        {showApng ? (
           <img
             src="/images/character/Oni_loading.png"
-            alt=""
+            alt="온마루 로딩 중"
             style={{ width: '100%', height: '100%', objectFit: 'contain' }}
           />
         ) : (

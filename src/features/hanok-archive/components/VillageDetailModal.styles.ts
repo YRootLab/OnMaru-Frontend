@@ -1,4 +1,4 @@
-import styled from '@emotion/styled';
+﻿import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import { meok, palette, surface, fluidHeading, fontSize } from '@/design-system/tokens';
 
@@ -65,7 +65,7 @@ export const ImageHero = styled.div<{ $bg: string | null }>`
   ${({ $bg }) =>
     $bg
       ? `background-image: url("${$bg}"); background-size: cover; background-position: center;`
-      : 'background: linear-gradient(135deg, #1C1A17 0%, #2D2924 100%);'}
+      : 'background: linear-gradient(135deg, ${surface.dark.app} 0%, ${surface.dark.card} 100%);'}
 
   &::after {
     content: '';
@@ -189,7 +189,7 @@ export const CuratorsNoteSection = styled.div`
   box-shadow: none;
 
   [data-theme='dark'] & {
-    background: #24211D;
+    background: ${surface.dark.surface};
   }
 `;
 
@@ -313,7 +313,7 @@ export const InfoCard = styled.div`
   box-shadow: none;
 
   [data-theme='dark'] & {
-    background: #24211D;
+    background: ${surface.dark.surface};
   }
 `;
 
@@ -391,7 +391,7 @@ export const RepeatItemCard = styled.div`
   box-shadow: none;
 
   [data-theme='dark'] & {
-    background: #24211D;
+    background: ${surface.dark.surface};
   }
 `;
 
@@ -795,7 +795,7 @@ export const MapPreviewCard = styled.a`
   }
 
   [data-theme='dark'] & {
-    background: #24211D;
+    background: ${surface.dark.surface};
     &:hover {
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
     }
@@ -927,7 +927,7 @@ export const QuickInfoContainer = styled.section`
   border: none;
 
   [data-theme='dark'] & {
-    background: #24211D;
+    background: ${surface.dark.surface};
   }
 
   @media (max-width: 560px) {
@@ -979,7 +979,7 @@ export const QuickInfoCard = styled.div<{ $fullWidth?: boolean }>`
   ${({ $fullWidth }) => ($fullWidth ? 'grid-column: 1 / -1;' : '')}
 
   [data-theme='dark'] & {
-    background: #1c1a17;
+    background: ${surface.dark.app};
   }
 `;
 

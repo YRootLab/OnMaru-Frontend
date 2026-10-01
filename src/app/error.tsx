@@ -2,8 +2,10 @@
 
 import React, { useEffect } from 'react';
 import styled from '@emotion/styled';
-import { RotateCcw } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { RotateCcwIcon } from '@hugeicons/core-free-icons'
 import OniSearchEmpty from '@/shared/components/OniSearchEmpty/OniSearchEmpty';
+import { surface } from '@/design-system/tokens';
 
 const PageWrapper = styled.div`
   display: flex;
@@ -19,7 +21,7 @@ const RetryButton = styled.button`
   gap: 8px;
   padding: 10px 20px;
   border-radius: 9999px;
-  background: #1c1a17;
+  background: ${surface.dark.app};
   color: #ffffff;
   font-size: 14px;
   font-weight: 600;
@@ -53,11 +55,11 @@ export default function GlobalErrorPage({
     <PageWrapper>
       <OniSearchEmpty
         size="lg"
-        title="잠시 길을 잃었어요"
-        description="페이지를 불러오는 중 문제가 발생했어요. 잠시 후 다시 시도해 주세요."
+        title="페이지를 불러올 수 없어요"
+        description="예상치 못한 오류가 발생했어요. 잠시 후 다시 시도해 주세요."
         action={
           <RetryButton type="button" onClick={() => reset()}>
-            <RotateCcw size={16} />
+            <HugeiconsIcon icon={RotateCcwIcon} size={16} />
             다시 시도하기
           </RetryButton>
         }

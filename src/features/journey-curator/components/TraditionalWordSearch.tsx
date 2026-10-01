@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, RotateCcw, Sparkles, Trophy, Gamepad2, Timer, Flame } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { CheckmarkCircle01Icon, RotateCcwIcon, SparklesIcon, TrophyIcon, Gamepad01Icon, Timer01Icon, FlameIcon } from '@hugeicons/core-free-icons'
 import { fontSize, palette, ringShadow } from '@/design-system/tokens';
 
 interface WordPuzzle {
@@ -599,7 +600,7 @@ export default function TraditionalWordSearch({
       <HeaderStatus>
         <StatusLeft>
           <ThemeTag>
-            <Sparkles size={11} />
+            <HugeiconsIcon icon={SparklesIcon} size={11} />
             <span>{currentPuzzle.theme}</span>
           </ThemeTag>
 
@@ -607,7 +608,7 @@ export default function TraditionalWordSearch({
 
         <StatusRight>
           <TimerDisplay>
-            <Timer size={12} />
+            <HugeiconsIcon icon={Timer01Icon} size={12} />
             <span>{formatTime(seconds)}</span>
           </TimerDisplay>
           <span>
@@ -622,7 +623,7 @@ export default function TraditionalWordSearch({
           const found = foundWords.includes(w.word);
           return (
             <WordTag key={w.word} $isFound={found} title={w.direction}>
-              {found && <CheckCircle2 size={11} />}
+              {found && <HugeiconsIcon icon={CheckmarkCircle01Icon} size={11} />}
               <span>{w.word}</span>
             </WordTag>
           );
@@ -648,7 +649,7 @@ export default function TraditionalWordSearch({
       <ControlsRow>
         <div style={{ display: 'flex', gap: '6px' }}>
           <ActionButton onClick={handleReset}>
-            <RotateCcw size={11} />
+            <HugeiconsIcon icon={RotateCcwIcon} size={11} />
             <span>처음부터</span>
           </ActionButton>
           <ActionButton onClick={handleNextPuzzle}>
@@ -658,7 +659,7 @@ export default function TraditionalWordSearch({
 
         {onBackToOmok && (
           <ActionButton onClick={onBackToOmok}>
-            <Gamepad2 size={11} />
+            <HugeiconsIcon icon={Gamepad01Icon} size={11} />
             <span>오목 게임 이동</span>
           </ActionButton>
         )}
@@ -670,7 +671,7 @@ export default function TraditionalWordSearch({
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <Trophy size={14} />
+          <HugeiconsIcon icon={TrophyIcon} size={14} />
           <span>모든 낱말을 다 찾았어요! ({formatTime(seconds)})</span>
         </FoundAllMessage>
       )}
@@ -685,12 +686,12 @@ export default function TraditionalWordSearch({
             transition={{ type: 'spring', damping: 20, stiffness: 350 }}
           >
             <CompleteText>
-              <CheckCircle2 size={14} color="#008a60" />
+              <HugeiconsIcon icon={CheckmarkCircle01Icon} size={14} color="#008a60" />
               <span>맞춤 여정이 준비되었어요</span>
             </CompleteText>
             {onViewJourney && (
               <ViewJourneyBtn onClick={onViewJourney}>
-                <Sparkles size={12} />
+                <HugeiconsIcon icon={SparklesIcon} size={12} />
                 <span>완성된 여정 보기</span>
               </ViewJourneyBtn>
             )}

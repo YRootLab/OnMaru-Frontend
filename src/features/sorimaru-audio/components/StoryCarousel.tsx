@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
@@ -6,7 +6,8 @@ import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { keyframes } from '@emotion/react';
-import { Play, Pause, ChevronLeft, ChevronRight } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ChevronLeftIcon, ChevronRightIcon, MapIcon, PauseIcon, PlayIcon } from '@hugeicons/core-free-icons'
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import { getRailIndicator, shouldUpdateRailIndicator } from './storyCarouselMetrics';
@@ -149,7 +150,7 @@ const ThumbnailPhoto = styled.img<{ $isCurrent: boolean }>`
 const BottomGradient = styled.div`
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(33, 30, 25, 0.65), transparent 60%);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.65), transparent 60%);
 `;
 
 const PlayBubble = styled.span<{ $isPlaying: boolean }>`
@@ -189,7 +190,7 @@ const PlayBubble = styled.span<{ $isPlaying: boolean }>`
           color: #ffffff;
         `
         : `
-          background-color: rgba(45, 41, 36, 0.9);
+          background-color: rgba(33, 39, 52, 0.9);
           color: ${meok[100]};
           border: 1px solid rgba(255, 255, 255, 0.1);
         `}
@@ -363,9 +364,9 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
 
         <PlayBubble $isPlaying={isPlaying}>
           {isPlaying ? (
-            <Pause size={14} strokeWidth={2} />
+            <HugeiconsIcon icon={PauseIcon} size={14} strokeWidth={2} />
           ) : (
-            <Play size={14} fill="currentColor" style={{ marginLeft: 2 }} />
+            <HugeiconsIcon icon={PlayIcon} size={14} fill="currentColor" style={{ marginLeft: 2 }} />
           )}
         </PlayBubble>
       </ThumbnailContainer>
@@ -496,7 +497,7 @@ const EdgeFadeLeft = styled.div`
   background: linear-gradient(to right, rgba(255, 255, 255, 1) 40%, rgba(255, 255, 255, 0));
 
   [data-theme='dark'] & {
-    background: linear-gradient(to right, ${surface.dark.app} 40%, rgba(28, 26, 23, 0));
+    background: linear-gradient(to right, ${surface.dark.app} 40%, rgba(11, 18, 32, 0));
   }
 
   @media (min-width: 640px) {
@@ -515,7 +516,7 @@ const EdgeFadeRight = styled.div`
   background: linear-gradient(to left, rgba(255, 255, 255, 1) 40%, rgba(255, 255, 255, 0));
 
   [data-theme='dark'] & {
-    background: linear-gradient(to left, ${surface.dark.app} 40%, rgba(28, 26, 23, 0));
+    background: linear-gradient(to left, ${surface.dark.app} 40%, rgba(11, 18, 32, 0));
   }
 
   @media (min-width: 640px) {
@@ -535,7 +536,7 @@ const FloatingNavBtn = styled.button<{ $side: 'left' | 'right'; $visible?: boole
   justify-content: center;
   border-radius: 9999px;
   background-color: rgba(255, 255, 255, 0.96);
-  color: #1c1a17;
+  color: ${surface.dark.app};
   transition: all 0.2s ease;
   border: none;
   cursor: pointer;
@@ -782,8 +783,8 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
       <div style={{ borderRadius: '1rem', padding: '1rem 1.25rem', textAlign: 'center' }}>
         <OniSearchEmpty
           size="sm"
-          title="가까운 이야기를 찾는 중이에요."
-          description="위치를 허용하면 가까운 오디오부터 보여드릴게요."
+          title="주변에 들을 수 있는 이야기가 없어요"
+          description="위치를 허용하면 가까운 한옥의 소리부터 들려드릴게요."
           compact
         />
       </div>
@@ -796,7 +797,7 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
         <ScrollTrack
           ref={railRef}
           tabIndex={0}
-          aria-label="주변 오디오를 좌우로 살펴보기"
+          aria-label="주변 오디오 목록을 좌우로 살펴보기"
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUpOrLeave}
@@ -836,7 +837,7 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
             onClick={() => moveRail(-1)}
             $side="left"
           >
-            <ChevronLeft size={18} strokeWidth={2} />
+            <HugeiconsIcon icon={ChevronLeftIcon} size={18} strokeWidth={2} />
           </FloatingNavBtn>
         )}
         {railIndicator.width < 100 && railIndicator.left < 99 - railIndicator.width && (
@@ -846,7 +847,7 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
             onClick={() => moveRail(1)}
             $side="right"
           >
-            <ChevronRight size={18} strokeWidth={2} />
+            <HugeiconsIcon icon={ChevronRightIcon} size={18} strokeWidth={2} />
           </FloatingNavBtn>
         )}
       </div>
@@ -864,3 +865,4 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
     </CarouselOuter>
   );
 };
+

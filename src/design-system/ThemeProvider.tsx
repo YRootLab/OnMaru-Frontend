@@ -89,6 +89,8 @@ const createGlobalStyles = (theme: OnmaruTheme) => css`
     --color-bg-card:     ${theme.colors.bg.card};
     --color-bg-elevated: ${theme.colors.bg.elevated};
 
+    --shadow-card-inset: ${theme.shadow.inset};
+
 
     --color-border-subtle:  ${theme.colors.border.subtle};
     --color-border-default: ${theme.colors.border.default};

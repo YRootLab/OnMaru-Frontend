@@ -13,7 +13,9 @@ export function getPageContainerPresentation(pathname: string): PageContainerPre
     pathname.startsWith('/sorimaru') ||
     pathname.startsWith('/map') ||
     pathname.startsWith('/mypage') ||
-    pathname.startsWith('/discover');
+    pathname.startsWith('/stamps') ||
+    pathname.startsWith('/discover') ||
+    pathname.startsWith('/admin');
 
   return {
     isFullBleed,

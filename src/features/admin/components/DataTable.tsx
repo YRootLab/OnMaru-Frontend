@@ -8,13 +8,16 @@ import React from 'react';
 import { meok, palette } from '@/design-system/tokens';
 import { TableSkeleton } from './TableSkeleton';
 import { EmptyState } from './EmptyState';
-import { Pagination } from './Pagination';
-import { ChevronUp, ChevronDown } from 'lucide-react';
+import { Pagination, CursorPagination } from './Pagination';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ChevronUpIcon, ChevronDownIcon } from '@hugeicons/core-free-icons'
 
 export interface ColumnDef<T> {
   key: string;
   label: string;
   width?: string | number;
+  minWidth?: string | number;
+  noWrap?: boolean;
   align?: 'left' | 'center' | 'right';
   sortable?: boolean;
   render?: (row: T, index: number) => React.ReactNode;
@@ -33,8 +36,13 @@ interface DataTableProps<T> {
   empty?: React.ReactNode;
   pagination?: {
     currentPage: number;
-    totalPages: number;
-    onPageChange: (page: number) => void;
+    totalPages?: number;
+    onPageChange?: (page: number) => void;
+    isCursor?: boolean;
+    hasNext?: boolean;
+    hasPrev?: boolean;
+    onNext?: () => void;
+    onPrev?: () => void;
   };
   sortColumn?: string;
   sortDirection?: 'asc' | 'desc';
@@ -137,6 +145,7 @@ export function DataTable<T>({
                     onClick={() => col.sortable && onSort && onSort(col.key)}
                     style={{
                       width: col.width,
+                      minWidth: col.minWidth || col.width,
                       padding: '0 16px',
                       textAlign: col.align || 'left',
                       cursor: col.sortable ? 'pointer' : 'default',
@@ -155,9 +164,9 @@ export function DataTable<T>({
                       {col.sortable && isSorted && (
                         <span style={{ display: 'inline-flex' }}>
                           {sortDirection === 'asc' ? (
-                            <ChevronUp size={12} strokeWidth={2.2} />
+                            <HugeiconsIcon icon={ChevronUpIcon} size={12} strokeWidth={2.2} />
                           ) : (
-                            <ChevronDown size={12} strokeWidth={2.2} />
+                            <HugeiconsIcon icon={ChevronDownIcon} size={12} strokeWidth={2.2} />
                           )}
                         </span>
                       )}
@@ -248,10 +257,12 @@ export function DataTable<T>({
                         key={col.key}
                         style={{
                           width: col.width,
+                          minWidth: col.minWidth || col.width,
                           padding: '0 16px',
                           textAlign: col.align || 'left',
                           fontSize: '13px',
                           color: meok[700],
+                          whiteSpace: col.noWrap === false ? 'normal' : 'nowrap',
                         }}
                       >
                         {col.render
@@ -268,11 +279,22 @@ export function DataTable<T>({
       </div>
 
       {pagination && !loading && (
-        <Pagination
-          currentPage={pagination.currentPage}
-          totalPages={pagination.totalPages}
-          onPageChange={pagination.onPageChange}
-        />
+        pagination.isCursor ? (
+          <CursorPagination
+            currentPage={pagination.currentPage}
+            hasNext={pagination.hasNext ?? false}
+            hasPrev={pagination.hasPrev ?? false}
+            onNext={pagination.onNext ?? (() => {})}
+            onPrev={pagination.onPrev ?? (() => {})}
+            isLoading={loading}
+          />
+        ) : (
+          <Pagination
+            currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages ?? 1}
+            onPageChange={pagination.onPageChange ?? (() => {})}
+          />
+        )
       )}
     </div>
   );

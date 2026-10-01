@@ -6,7 +6,8 @@
 
 import React from 'react';
 import { meok, palette } from '@/design-system/tokens';
-import { Inbox } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { InboxIcon } from '@hugeicons/core-free-icons'
 
 interface EmptyStateProps {
   title?: string;
@@ -51,7 +52,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           marginBottom: '16px',
         }}
       >
-        {icon || <Inbox size={26} strokeWidth={1.8} />}
+        {icon || <HugeiconsIcon icon={InboxIcon} size={26} strokeWidth={1.8} />}
       </div>
 
       <div

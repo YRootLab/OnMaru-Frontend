@@ -9,11 +9,13 @@
 
 import styled from '@emotion/styled';
 import { motion, useReducedMotion } from 'framer-motion';
-import { Pause, Play, MapPin, Clock, CalendarDays, Headphones } from 'lucide-react';
-import { meok, palette, fontSize, ringShadow } from '@/design-system/tokens';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { PauseIcon, PlayIcon, MapPinIcon, Clock01Icon, CalendarDaysIcon, HeadphonesIcon } from '@hugeicons/core-free-icons'
+
 import { useJourneyStore } from '../store/useJourneyStore';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import type { NearbyAudioStory } from '../types/enrichment.types';
+import { palette, surface, ringShadow, fontSize } from '@/design-system/tokens';
 
 const Wrap = styled.section`
   width: min(calc(100% - 40px), 1140px);
@@ -284,7 +286,7 @@ const AudioList = styled.div`
   box-shadow: ${ringShadow.light.card};
 
   [data-theme='dark'] & {
-    background: #24211d;
+    background: ${surface.dark.surface};
     box-shadow: ${ringShadow.dark.card};
   }
 
@@ -453,13 +455,13 @@ function AudioItem({
         aria-label={isPlaying ? '오디오 일시정지' : '오디오 해설 듣기'}
         title={isPlaying ? '일시정지' : '오디오 해설 듣기'}
       >
-        {isCurrent && isPlaying ? <Pause size={17} fill="currentColor" /> : <Play size={17} fill="currentColor" style={{ marginLeft: 2 }} />}
+        {isCurrent && isPlaying ? <HugeiconsIcon icon={PauseIcon} size={17} fill="currentColor" /> : <HugeiconsIcon icon={PlayIcon} size={17} fill="currentColor" style={{ marginLeft: 2 }} />}
       </PlayButton>
       <AudioBody>
         <AudioTitleRow>
           <AudioTitle>{story.audioTitle || story.title}</AudioTitle>
           <AudioMeta>
-            <Headphones size={12} />
+            <HugeiconsIcon icon={HeadphonesIcon} size={12} />
             <span>{story.formattedDuration}</span>
             {story.distance ? ` · 약 ${story.distance}` : ''}
           </AudioMeta>
@@ -638,13 +640,13 @@ export default function JourneyEnrichmentSections() {
                         <DoganMetaRow>
                           {entry.usetime && (
                             <DoganMetaItem>
-                              <Clock size={13} strokeWidth={2} />
+                              <HugeiconsIcon icon={Clock01Icon} size={13} strokeWidth={2} />
                               <span>이용시간 {entry.usetime}</span>
                             </DoganMetaItem>
                           )}
                           {entry.restdate && (
                             <DoganMetaItem>
-                              <CalendarDays size={13} strokeWidth={2} />
+                              <HugeiconsIcon icon={CalendarDaysIcon} size={13} strokeWidth={2} />
                               <span>휴무일 {entry.restdate}</span>
                             </DoganMetaItem>
                           )}
@@ -715,7 +717,7 @@ export default function JourneyEnrichmentSections() {
                   <FoodTitle>{food.title}</FoodTitle>
                   {food.addr && (
                     <FoodAddr>
-                      <MapPin size={11} strokeWidth={2} />
+                      <HugeiconsIcon icon={MapPinIcon} size={11} strokeWidth={2} />
                       <span>{shortStreetAddr(food.addr)}</span>
                     </FoodAddr>
                   )}
@@ -728,4 +730,4 @@ export default function JourneyEnrichmentSections() {
       )}
     </Wrap>
   );
-}
+}

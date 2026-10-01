@@ -1,24 +1,14 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
-import {
-  Sparkles,
-  Search,
-  ArrowRight,
-  Compass,
-  Cloud,
-  ShoppingBag,
-  Headphones,
-  CloudRain,
-  Leaf,
-  Loader2,
-  X,
-} from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { SparklesIcon, Search01Icon, ArrowRight01Icon, Compass01Icon, CloudIcon, ShoppingBag01Icon, HeadphonesIcon, CloudRainIcon, Leaf01Icon, SproutIcon, LoaderCircleIcon, Cancel01Icon } from '@hugeicons/core-free-icons'
 import { palette, lightPalette, meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
 import { useJourneyStore } from '../store/useJourneyStore';
 import { useAuth } from '@/features/auth';
+import { useIsAppleDevice } from '@/shared/hooks/useIsAppleDevice';
 import type { MoodId } from '../types/journey.types';
 
 interface MoodOption {
@@ -288,7 +278,11 @@ const OniVideoBox = styled.div<{ $isTyping?: boolean; $direction?: 'right' | 'le
     object-fit: contain;
     display: block;
     pointer-events: none;
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.12));
+    filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.16));
+  }
+
+  video {
+    mix-blend-mode: screen;
   }
 
   @media (max-width: 640px) {
@@ -526,7 +520,7 @@ const SearchForm = styled.form<{ $compact?: boolean }>`
   transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 
   [data-theme='dark'] & {
-    background: rgba(36, 33, 29, 0.90);
+    background: rgba(23, 30, 43, 0.90);
     border: none;
     box-shadow: ${ringShadow.dark.input};
   }
@@ -770,27 +764,23 @@ const RefineChip = styled.button`
   }
 `;
 
-const ErrorBanner = styled.div`
-  margin-top: 10px;
-  font-size: ${fontSize.xs};
-  color: ${palette.danpung[500]};
-  font-weight: 500;
-`;
 
 function getMoodIcon(id: string) {
   switch (id) {
     case 'quiet':
-      return <Cloud size={15} />;
+      return <HugeiconsIcon icon={CloudIcon} size={15} />;
     case 'market':
-      return <ShoppingBag size={15} />;
+      return <HugeiconsIcon icon={ShoppingBag01Icon} size={15} />;
     case 'story':
-      return <Headphones size={15} />;
+      return <HugeiconsIcon icon={HeadphonesIcon} size={15} />;
+    case 'rain':
     case 'rainy':
-      return <CloudRain size={15} />;
+      return <HugeiconsIcon icon={CloudRainIcon} size={15} />;
+    case 'nature':
     case 'rest':
-      return <Leaf size={15} />;
+      return <HugeiconsIcon icon={SproutIcon} size={15} />;
     default:
-      return <Sparkles size={15} />;
+      return <HugeiconsIcon icon={SparklesIcon} size={15} />;
   }
 }
 
@@ -810,10 +800,10 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
   const refinePlan = useJourneyStore((s) => s.refinePlan);
   const cancelRun = useJourneyStore((s) => s.cancelRun);
   const currentPlan = useJourneyStore((s) => s.currentPlan);
-  const lastError = useJourneyStore((s) => s.lastError);
   const isGenerating = useJourneyStore((s) => s.isGenerating);
   const hasSearched = useJourneyStore((s) => s.hasSearched);
   const { moods } = useMoodOptions();
+  const isApple = useIsAppleDevice();
   const [isCancelling, setIsCancelling] = useState(false);
   const [oniVideoError, setOniVideoError] = useState(false);
   const { isLoggedIn, isLoading: isAuthLoading } = useAuth();
@@ -933,7 +923,7 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
     <Container $compact={hasSearched}>
       {!hasSearched && (
         <>
-          <Title>어떤 한옥으로 떠나고 싶으세요?</Title>
+          <Title>어떤 장소로 떠나고 싶으세요?</Title>
 
           <Subtitle>
             원하는 분위기나 지역을 적어주시면,
@@ -968,10 +958,10 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
               aria-hidden="true"
             >
               <OniBubble $visible={Boolean(currentQuery)}>
-                {currentQuery ? '온이가 길을 비추고 있어요 🏮' : '온이가 길을 밝히고 있어요'}
+                {currentQuery ? '온이가 길을 비추고 있어요 ??' : '온이가 길을 밝히고 있어요'}
               </OniBubble>
               <OniVideoBox $isTyping={Boolean(currentQuery)} $direction={facingDirection}>
-                {oniVideoError ? (
+                {isApple || oniVideoError ? (
                   <img src="/images/character/Oni_walking.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                 ) : (
                   <video
@@ -998,9 +988,6 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
         )}
 
         <SearchForm ref={handleFormRef} onSubmit={handleSubmit} $compact={hasSearched}>
-          <SearchIconWrap>
-            <Compass size={hasSearched ? 18 : 20} />
-          </SearchIconWrap>
           <Input
             ref={inputRef}
             type="text"
@@ -1012,14 +999,14 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
           {isGenerating ? (
             <SubmitButton type="button" $disabled={isCancelling} $compact={hasSearched} onClick={handleCancel} aria-label="생성 취소">
               {isCancelling ? (
-                <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
+                <HugeiconsIcon icon={LoaderCircleIcon} size={16} style={{ animation: 'spin 1s linear infinite' }} />
               ) : (
-                <X size={16} />
+                <HugeiconsIcon icon={Cancel01Icon} size={16} />
               )}
             </SubmitButton>
           ) : (
             <SubmitButton type="submit" $compact={hasSearched} aria-label="맞춤 코스 찾기">
-              <Search size={16} />
+              <HugeiconsIcon icon={Search01Icon} size={16} />
             </SubmitButton>
           )}
         </SearchForm>
@@ -1027,7 +1014,6 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
 
       {hasSearched && (
         <>
-          {lastError && <ErrorBanner>{lastError} 기존 코스는 그대로 유지했어요.</ErrorBanner>}
           <RefineChipsContainer>
             {suggestions.map((item, idx) => (
               <RefineChip
@@ -1064,3 +1050,4 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
     </Container>
   );
 }
+

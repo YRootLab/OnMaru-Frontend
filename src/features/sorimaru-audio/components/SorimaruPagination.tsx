@@ -2,7 +2,8 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ChevronLeftIcon, ChevronRightIcon } from '@hugeicons/core-free-icons'
 import { palette, meok, surface } from '@/design-system/tokens';
 
 interface SorimaruPaginationProps {
@@ -35,7 +36,7 @@ const NavPillGroup = styled.div`
   box-shadow: none;
 
   [data-theme='dark'] & {
-    background: rgba(28, 26, 23, 0.8);
+    background: rgba(11, 18, 32, 0.8);
     border: none;
     box-shadow: none;
   }
@@ -186,7 +187,7 @@ export const SorimaruPagination: React.FC<SorimaruPaginationProps> = ({
           disabled={currentPage <= 1 || isLoading}
           aria-label="이전 페이지"
         >
-          <ChevronLeft size={15} />
+          <HugeiconsIcon icon={ChevronLeftIcon} size={15} />
           <span>이전</span>
         </ArrowButton>
 
@@ -214,9 +215,9 @@ export const SorimaruPagination: React.FC<SorimaruPaginationProps> = ({
           aria-label="다음 페이지"
         >
           <span>다음</span>
-          <ChevronRight size={15} />
+          <HugeiconsIcon icon={ChevronRightIcon} size={15} />
         </ArrowButton>
       </NavPillGroup>
     </PaginationContainer>
   );
-};
+};

@@ -1,9 +1,11 @@
-'use client';
+﻿'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
-import { Camera, X, AlertCircle } from 'lucide-react';
-import { meok, lightPalette, darkPalette , fontSize } from '@/design-system/tokens';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Camera01Icon, Cancel01Icon, AlertCircleIcon } from '@hugeicons/core-free-icons'
+import { meok, lightPalette, darkPalette, surface, fontSize } from '@/design-system/tokens';
+import { livelyModalEnter } from '@/shared/motion/modalMotion';
 
 const Backdrop = styled.div`
   position: fixed;
@@ -34,9 +36,10 @@ const Container = styled.div`
   box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.45);
   display: flex;
   flex-direction: column;
+  animation: ${livelyModalEnter} 0.38s cubic-bezier(0.19, 1.15, 0.22, 1) both;
 
   [data-theme='dark'] & {
-    background: #1c1a17;
+    background: ${surface.dark.app};
   }
 
   @media (max-width: 768px) {
@@ -55,7 +58,7 @@ const Header = styled.div`
   z-index: 2;
 
   [data-theme='dark'] & {
-    background: #25221d;
+    background: ${surface.dark.surface};
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   }
 `;
@@ -83,14 +86,14 @@ const SubBadge = styled.span`
   gap: 4px;
   padding: 3px 8px;
   border-radius: 9999px;
-  background: ${lightPalette.kobalt[50]};
-  color: ${lightPalette.kobalt[700]};
+  background: ${lightPalette.cheongrok[50]};
+  color: ${lightPalette.cheongrok[700]};
   font-size: ${fontSize.micro};
   font-weight: 700;
 
   [data-theme='dark'] & {
     background: rgba(0, 167, 106, 0.18);
-    color: ${darkPalette.kobalt[200]};
+    color: ${darkPalette.cheongrok[200]};
   }
 `;
 
@@ -127,7 +130,7 @@ const RoadviewBody = styled.div`
   flex: 1;
   width: 100%;
   height: 100%;
-  background: #25221d;
+  background: ${surface.dark.surface};
 `;
 
 const FallbackOverlay = styled.div`
@@ -141,7 +144,7 @@ const FallbackOverlay = styled.div`
   padding: 24px;
   text-align: center;
   color: #ffffff;
-  background: #1c1a17;
+  background: ${surface.dark.app};
 
   p {
     font-size: ${fontSize.sm};
@@ -202,12 +205,12 @@ export default function RoadviewModal({
           <TitleBox>
             <Title>{placeName}</Title>
             <SubBadge>
-              <Camera size={13} strokeWidth={2} />
+              <HugeiconsIcon icon={Camera01Icon} size={13} strokeWidth={2} />
               <span>현장 360° 둘러보기</span>
             </SubBadge>
           </TitleBox>
           <CloseButton type="button" onClick={onClose} aria-label="닫기">
-            <X size={20} strokeWidth={2} />
+            <HugeiconsIcon icon={Cancel01Icon} size={20} strokeWidth={2} />
           </CloseButton>
         </Header>
 
@@ -216,7 +219,7 @@ export default function RoadviewModal({
 
           {error && (
             <FallbackOverlay>
-              <AlertCircle size={32} color={lightPalette.juhong[500]} strokeWidth={1.8} />
+              <HugeiconsIcon icon={AlertCircleIcon} size={32} color={lightPalette.juhong[500]} strokeWidth={1.8} />
               <h4 style={{ fontSize: '15px', fontWeight: 700, margin: 0 }}>로드뷰를 불러올 수 없어요</h4>
               <p>{error}</p>
             </FallbackOverlay>
@@ -226,3 +229,4 @@ export default function RoadviewModal({
     </Backdrop>
   );
 }
+

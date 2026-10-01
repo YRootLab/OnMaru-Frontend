@@ -11,15 +11,8 @@ import { EmptyState } from '@/features/admin/components/EmptyState';
 import { useAdminAuth } from '@/features/admin/hooks/useAdminAuth';
 import { getPipelineStatus, runPipeline } from '@/features/admin/api/adminApi';
 import type { PipelineStatus } from '@/features/admin/types';
-import {
-  RefreshCw,
-  AlertCircle,
-  Download,
-  CheckCircle2,
-  Square,
-  Gauge,
-  Layers,
-} from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { AlertCircleIcon, CheckmarkCircle01Icon, Download01Icon, GaugeIcon, Layers01Icon, RefreshCwIcon, SquareIcon } from '@hugeicons/core-free-icons'
 
 export default function AdminDataPipelinePage() {
   const { isAdmin } = useAdminAuth();
@@ -103,7 +96,7 @@ export default function AdminDataPipelinePage() {
         <EmptyState
           title="접근 권한이 없습니다"
           description="데이터 파이프라인 및 API 호출 모니터링은 최고 관리자(ADMIN) 전용 메뉴입니다."
-          icon={<AlertCircle size={48} color={palette.danpung[500]} strokeWidth={1.8} />}
+          icon={<HugeiconsIcon icon={AlertCircleIcon} size={48} color={palette.danpung[500]} strokeWidth={1.8} />}
         />
       </div>
     );
@@ -186,7 +179,7 @@ export default function AdminDataPipelinePage() {
             결과 상태
           </span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <CheckCircle2 size={24} color={palette.cheongrok[500]} strokeWidth={2} />
+            <HugeiconsIcon icon={CheckmarkCircle01Icon} size={24} color={palette.cheongrok[500]} strokeWidth={2} />
             <span style={{ fontSize: '20px', fontWeight: 700, color: palette.cheongrok[700] }}>
               성공
             </span>
@@ -243,7 +236,7 @@ export default function AdminDataPipelinePage() {
                   boxShadow: '0 2px 6px rgba(235, 94, 40, 0.25)',
                 }}
               >
-                <RefreshCw size={16} strokeWidth={2} />
+                <HugeiconsIcon icon={RefreshCwIcon} size={16} strokeWidth={2} />
                 <span>전체 빌드</span>
               </button>
               <button
@@ -317,7 +310,7 @@ export default function AdminDataPipelinePage() {
                 gap: '6px',
               }}
             >
-              <Square size={16} strokeWidth={2} />
+              <HugeiconsIcon icon={SquareIcon} size={16} strokeWidth={2} />
               <span>중단</span>
             </button>
           )}
@@ -384,7 +377,7 @@ export default function AdminDataPipelinePage() {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-            <Layers size={18} color={palette.juhong[500]} strokeWidth={2} />
+            <HugeiconsIcon icon={Layers01Icon} size={18} color={palette.juhong[500]} strokeWidth={2} />
             <h3 style={{ fontSize: '15px', fontWeight: 700, color: meok[900], margin: 0 }}>
               콘텐츠 수집 현황
             </h3>
@@ -439,7 +432,7 @@ export default function AdminDataPipelinePage() {
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Gauge size={18} color={palette.cheongrok[500]} strokeWidth={2} />
+              <HugeiconsIcon icon={GaugeIcon} size={18} color={palette.cheongrok[500]} strokeWidth={2} />
               <h3 style={{ fontSize: '15px', fontWeight: 700, color: meok[900], margin: 0 }}>
                 TourAPI 쿼터 현황 (금일)
               </h3>
@@ -459,7 +452,7 @@ export default function AdminDataPipelinePage() {
                 <div key={ep.endpoint} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      {isWarning && <AlertCircle size={14} color={palette.danpung[500]} strokeWidth={2} />}
+                      {isWarning && <HugeiconsIcon icon={AlertCircleIcon} size={14} color={palette.danpung[500]} strokeWidth={2} />}
                       <span style={{ fontWeight: 600, color: isWarning ? palette.danpung[700] : meok[700] }}>
                         {ep.endpoint}
                       </span>
@@ -533,7 +526,7 @@ export default function AdminDataPipelinePage() {
               gap: '6px',
             }}
           >
-            <Download size={15} strokeWidth={2} />
+            <HugeiconsIcon icon={Download01Icon} size={15} strokeWidth={2} />
             <span>전체 다운로드 (JSON)</span>
           </button>
         </div>

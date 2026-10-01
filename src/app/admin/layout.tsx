@@ -10,7 +10,8 @@ import { useAdminAuth } from '@/features/admin/hooks/useAdminAuth';
 import { AdminSidebar } from '@/features/admin/components/AdminSidebar';
 import { AdminHeader } from '@/features/admin/components/AdminHeader';
 import { meok, palette } from '@/design-system/tokens';
-import { ShieldAlert, Lock } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ShieldAlertIcon, LockIcon } from '@hugeicons/core-free-icons'
 
 export default function AdminLayout({
   children,
@@ -96,7 +97,7 @@ export default function AdminLayout({
             marginBottom: '20px',
           }}
         >
-          <ShieldAlert size={32} strokeWidth={1.8} />
+          <HugeiconsIcon icon={ShieldAlertIcon} size={32} strokeWidth={1.8} />
         </div>
         <h2 style={{ fontSize: '20px', fontWeight: 700, color: meok[900], marginBottom: '8px' }}>
           접근 권한이 없습니다
@@ -167,7 +168,7 @@ export default function AdminLayout({
                 marginBottom: '16px',
               }}
             >
-              <Lock size={28} strokeWidth={1.8} />
+              <HugeiconsIcon icon={LockIcon} size={28} strokeWidth={1.8} />
             </div>
             <h3 style={{ fontSize: '18px', fontWeight: 700, color: meok[900], marginBottom: '6px' }}>
               최고 관리자(ADMIN) 전용 메뉴입니다
@@ -212,8 +213,8 @@ export default function AdminLayout({
         <AdminHeader />
         <main
           style={{
-            padding: '28px',
-            maxWidth: '1400px',
+            padding: '32px 40px',
+            maxWidth: '1800px',
             width: '100%',
             boxSizing: 'border-box',
           }}

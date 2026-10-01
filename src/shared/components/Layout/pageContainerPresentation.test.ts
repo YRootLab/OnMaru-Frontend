@@ -16,5 +16,10 @@ describe('getPageContainerPresentation', () => {
       background: 'transparent',
       surface: undefined,
     });
+    expect(getPageContainerPresentation('/admin')).toEqual({
+      isFullBleed: true,
+      background: 'transparent',
+      surface: undefined,
+    });
   });
 });

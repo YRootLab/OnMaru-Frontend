@@ -3,7 +3,8 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
-import { Play } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { PlayIcon } from '@hugeicons/core-free-icons'
 import { lightPalette, meok, surface , fontSize } from '@/design-system/tokens';
 
 const bannerShimmer = keyframes`
@@ -25,10 +26,7 @@ const SkeletonBar = styled.div<{ $w: string; $h: string; $radius?: string }>`
   }
 `;
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
-import { useCinematicTourStore } from '@/features/cinematic-tour/store/useCinematicTourStore';
-import { generateDynamicWaypoints } from '@/features/sorimaru-audio/hooks/useSorimaruPlaceStory';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
-import type { SorimaruStoryItem } from '@/features/sorimaru-audio/types/sorimaru.types';
 
 const CardContainer = styled.div`
   position: relative;
@@ -165,7 +163,6 @@ export default function SorimaruSpotlightBanner() {
   const selectAndLoadStory = useSorimaruAudioStore((s) => s.selectAndLoadStory);
   const center = useMapStore((s) => s.center);
   const currentAddress = useMapStore((s) => s.currentAddress);
-  const startTour = useCinematicTourStore((s) => s.startTour);
 
 
   const spotlightStory = React.useMemo(() => {
@@ -225,7 +222,7 @@ export default function SorimaruSpotlightBanner() {
         <ActionRow>
           <SkeletonBar $w="84px" $h="14px" />
           <StartBtn type="button" disabled style={{ opacity: 0.5, cursor: 'default' }}>
-            <Play size={13} className="ml-0.5" />
+            <HugeiconsIcon icon={PlayIcon} size={13} className="ml-0.5" />
             <span>투어 시작</span>
           </StartBtn>
         </ActionRow>
@@ -234,19 +231,7 @@ export default function SorimaruSpotlightBanner() {
   }
 
   const handleStart = async () => {
-    const detail = await selectAndLoadStory(spotlightStory, 'play');
-    if (!detail) return;
-    const tourStory: SorimaruStoryItem = {
-      tid: detail.storyId, tlid: detail.storyId, stid: detail.storyId, stlid: detail.storyId,
-      title: detail.title, audioTitle: detail.audioTitle, category: detail.category,
-      mapX: detail.coordinates ? String(detail.coordinates.lng) : '',
-      mapY: detail.coordinates ? String(detail.coordinates.lat) : '',
-      script: detail.transcript.map((line) => line.text).join('\n'),
-      playTime: String(detail.durationSeconds), audioUrl: detail.audioUrl,
-      imageUrl: detail.imageUrl ?? '', locationName: detail.region.name,
-      tags: detail.contentTags, waypoints: generateDynamicWaypoints(detail),
-    };
-    startTour(tourStory);
+    await selectAndLoadStory(spotlightStory, 'play');
   };
 
   return (
@@ -270,7 +255,7 @@ export default function SorimaruSpotlightBanner() {
         </DocentTag>
 
         <StartBtn type="button" onClick={handleStart}>
-          <Play size={13} fill="currentColor" className="ml-0.5" />
+          <HugeiconsIcon icon={PlayIcon} size={13} fill="currentColor" className="ml-0.5" />
           <span>투어 시작</span>
         </StartBtn>
       </ActionRow>

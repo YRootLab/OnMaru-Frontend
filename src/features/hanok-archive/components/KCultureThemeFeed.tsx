@@ -4,18 +4,8 @@ import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { motion, LayoutGroup, AnimatePresence } from 'framer-motion';
-import {
-  Clapperboard,
-  Film,
-  Music2,
-  Sparkles,
-  Heart,
-  ExternalLink,
-  MapPin,
-  Hash,
-  ChevronLeft,
-  ChevronRight,
-} from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ChevronLeftIcon, ChevronRightIcon, ClapperboardIcon, ExternalLinkIcon, Film01Icon, HashtagIcon, HeartIcon, MapPinIcon, Music02Icon, SparklesIcon } from '@hugeicons/core-free-icons'
 import { meok, lightPalette, surface, fontSize } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
 import { useKCultureThemes } from '@/features/hanok-archive/hooks/useKCultureThemes';
@@ -24,10 +14,10 @@ import type { ScreenHanokItem, ScreenHanokMediaType } from '@/features/hanok-arc
 
 function getMediaIcon(mediaType: string, size = 14) {
   switch (mediaType) {
-    case 'K_DRAMA': return <Clapperboard size={size} strokeWidth={2} />;
-    case 'CINEMA':  return <Film size={size} strokeWidth={2} />;
-    case 'KPOP':    return <Music2 size={size} strokeWidth={2} />;
-    default:        return <Sparkles size={size} strokeWidth={2} />;
+    case 'K_DRAMA': return <HugeiconsIcon icon={ClapperboardIcon} size={size} strokeWidth={2} />;
+    case 'CINEMA':  return <HugeiconsIcon icon={Film01Icon} size={size} strokeWidth={2} />;
+    case 'KPOP':    return <HugeiconsIcon icon={Music02Icon} size={size} strokeWidth={2} />;
+    default:        return <HugeiconsIcon icon={SparklesIcon} size={size} strokeWidth={2} />;
   }
 }
 
@@ -636,14 +626,14 @@ export default function KCultureThemeFeed({ onSelectPlace }: KCultureThemeFeedPr
                       aria-label={hero.savedByMe ? '찜 해제' : '찜하기'}
                       onClick={(e) => { e.stopPropagation(); toggleSave(hero.placeId); }}
                     >
-                      <Heart size={16} fill={hero.savedByMe ? '#ef4444' : 'none'} strokeWidth={hero.savedByMe ? 0 : 2} />
+                      <HugeiconsIcon icon={HeartIcon} size={16} fill={hero.savedByMe ? '#ef4444' : 'none'} strokeWidth={hero.savedByMe ? 0 : 2} />
                     </SaveBtn>
                   </HeroTopRow>
 
                   <HeroBody>
                     <HeroWorkTitle>{hero.workTitle}</HeroWorkTitle>
                     <HeroNameRow>
-                      <MapPin size={12} strokeWidth={2} />
+                      <HugeiconsIcon icon={MapPinIcon} size={12} strokeWidth={2} />
                       {hero.name} · {hero.region}
                     </HeroNameRow>
                     <HeroSubtitle>{hero.subtitle}</HeroSubtitle>
@@ -651,7 +641,7 @@ export default function KCultureThemeFeed({ onSelectPlace }: KCultureThemeFeedPr
                       <HeroTagRow>
                         {hero.tags.slice(0, 3).map((tag, i) => (
                           <HeroTag key={i}>
-                            <Hash size={10} />
+                            <HugeiconsIcon icon={HashtagIcon} size={10} />
                             {tag.replace(/^#/, '')}
                           </HeroTag>
                         ))}
@@ -664,7 +654,7 @@ export default function KCultureThemeFeed({ onSelectPlace }: KCultureThemeFeedPr
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <ExternalLink size={11} />
+                        <HugeiconsIcon icon={ExternalLinkIcon} size={11} />
                         <span>{hero.sourceTitle || '출처 보기'}</span>
                       </HeroSourceLink>
                     )}
@@ -718,7 +708,7 @@ export default function KCultureThemeFeed({ onSelectPlace }: KCultureThemeFeedPr
                   aria-label="이전 항목"
                   onClick={() => navigate(-1)}
                 >
-                  <ChevronLeft size={16} strokeWidth={2.5} />
+                  <HugeiconsIcon icon={ChevronLeftIcon} size={16} strokeWidth={2.5} />
                 </NavBtn>
                 <NavCounter>
                   <strong>{clampedIdx + 1}</strong> / {items.length}
@@ -730,7 +720,7 @@ export default function KCultureThemeFeed({ onSelectPlace }: KCultureThemeFeedPr
                   aria-label="다음 항목"
                   onClick={() => navigate(1)}
                 >
-                  <ChevronRight size={16} strokeWidth={2.5} />
+                  <HugeiconsIcon icon={ChevronRightIcon} size={16} strokeWidth={2.5} />
                 </NavBtn>
               </NavBtnGroup>
               <ViewAllLink type="button" onClick={() => setHeroIdx(0)}>

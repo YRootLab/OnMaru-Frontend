@@ -1,12 +1,13 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
-import { X, Check, Award } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Cancel01Icon, CheckIcon, Award01Icon } from '@hugeicons/core-free-icons'
 import type { StampDef } from '../types';
-import { meok } from '@/design-system/tokens';
+import { meok, surface } from '@/design-system/tokens';
 import { stampAudio } from '../utils/sound';
 
 
@@ -39,7 +40,7 @@ const SealCard = styled.div`
   overflow: hidden;
 
   [data-theme='dark'] & {
-    background: #1c1a17;
+    background: ${surface.dark.app};
     color: #ffffff;
     border: 1px solid rgba(255, 255, 255, 0.08);
   }
@@ -115,7 +116,7 @@ const SealStampRing = styled.div<{ $color: string }>`
   opacity: 0;
 
   [data-theme='dark'] & {
-    background: rgba(28, 26, 23, 0.85);
+    background: rgba(11, 18, 32, 0.85);
     box-shadow: 0 8px 32px rgba(234, 88, 12, 0.4);
   }
 
@@ -325,11 +326,11 @@ export default function StampSealAnimation({ stamp, onClose }: StampSealAnimatio
       >
         <HanjiBackdrop />
         <CloseButton onClick={handleClose} aria-label="닫기">
-          <X size={18} />
+          <HugeiconsIcon icon={Cancel01Icon} size={18} />
         </CloseButton>
 
         <RarityTag $rarity={stamp.rarity}>
-          <Award size={13} />
+          <HugeiconsIcon icon={Award01Icon} size={13} />
           <span>
             {stamp.rarity === 'legendary'
               ? '전설 어보'
@@ -373,7 +374,7 @@ export default function StampSealAnimation({ stamp, onClose }: StampSealAnimatio
         <StampDesc>{stamp.description}</StampDesc>
 
         <ConfirmBtn $color={stamp.color} onClick={handleClose}>
-          <Check size={16} strokeWidth={2.5} />
+          <HugeiconsIcon icon={CheckIcon} size={16} strokeWidth={2.5} />
           <span>인장첩에 담았어요</span>
         </ConfirmBtn>
       </SealCard>

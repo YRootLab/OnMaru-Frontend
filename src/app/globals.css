@@ -63,7 +63,7 @@ html {
 html[data-theme='dark'],
 html[data-theme='dark'] body,
 [data-theme='dark'] body {
-  background-color: #1C1A17;
+  background-color: #0B1220;
   color: #f8f9fa;
   color-scheme: dark;
 }
@@ -74,6 +74,16 @@ html[data-theme='light'] body,
   background-color: #ffffff;
   color: #191f28;
   color-scheme: light;
+}
+
+::selection {
+  background: #C9221A;
+  color: #ffffff;
+}
+
+html[data-theme='dark'] ::selection {
+  background: rgba(201, 34, 26, 0.55);
+  color: #F0E8D6;
 }
 
 html, body {

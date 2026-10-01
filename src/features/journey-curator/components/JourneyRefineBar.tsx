@@ -1,8 +1,9 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
-import { Sparkles, CornerDownLeft, AlertCircle } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { SparklesIcon, CornerDownLeftIcon, AlertCircleIcon } from '@hugeicons/core-free-icons'
 import { lightPalette, palette, meok, surface , fontSize } from '@/design-system/tokens';
 import { useJourneyStore } from '../store/useJourneyStore';
 
@@ -23,7 +24,7 @@ const Box = styled.div`
   gap: 14px;
 
   [data-theme='dark'] & {
-    background: #1c1a17;
+    background: ${surface.dark.app};
     border-color: rgba(255, 255, 255, 0.08);
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
   }
@@ -62,7 +63,7 @@ const InputRow = styled.form`
     box-shadow: 0 4px 16px rgba(0, 184, 130, 0.12);
 
     [data-theme='dark'] & {
-      background: #24211d;
+      background: ${surface.dark.surface};
     }
   }
 `;
@@ -182,14 +183,14 @@ export default function JourneyRefineBar() {
         <Header>
           {!isGenerating && lastError ? (
             <>
-              <AlertCircle size={16} color={palette.danpung[500]} />
+              <HugeiconsIcon icon={AlertCircleIcon} size={16} color={palette.danpung[500]} />
               <span style={{ color: palette.danpung[700] }}>
                 {lastError} 기존 코스는 그대로 있어요.
               </span>
             </>
           ) : (
             <>
-              <Sparkles size={16} color={lightPalette.cheongrok[500]} />
+              <HugeiconsIcon icon={SparklesIcon} size={16} color={lightPalette.cheongrok[500]} />
               <span>
                 {isGenerating
                   ? '요청하신 내용을 반영해 코스를 다시 짜고 있어요'
@@ -209,7 +210,7 @@ export default function JourneyRefineBar() {
             disabled={isGenerating}
           />
           <SendBtn type="submit" $disabled={isGenerating} title="조건 적용하기">
-            <CornerDownLeft size={14} />
+            <HugeiconsIcon icon={CornerDownLeftIcon} size={14} />
           </SendBtn>
         </InputRow>
 
@@ -228,4 +229,4 @@ export default function JourneyRefineBar() {
       </Box>
     </Wrapper>
   );
-}
+}

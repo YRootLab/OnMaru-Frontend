@@ -5,10 +5,12 @@ import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { motion } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
-import { meok, lightPalette, fontSize, ringShadow } from '@/design-system/tokens';
-import { Home, ArrowRight } from 'lucide-react';
+
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Home01Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons'
 import type { Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
+import { lightPalette, meok, surface, ringShadow, fontSize } from '@/design-system/tokens';
 
 
 const ROTATIONS = [-4.2, 2.8, -2.1, 3.5];
@@ -32,7 +34,7 @@ const Frame = styled.div`
   overflow: visible;
 
   [data-theme='dark'] & {
-    background: #24211D;
+    background: ${surface.dark.surface};
     border: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: ${ringShadow.dark.card};
   }
@@ -290,7 +292,7 @@ export default function PolaroidCard({
                 whileHover={{ scale: 1.07 }}
                 transition={{ duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
               />
-              {!village.hasImage && <NoImageLabel><Home size={32} strokeWidth={2} /></NoImageLabel>}
+              {!village.hasImage && <NoImageLabel><HugeiconsIcon icon={Home01Icon} size={32} strokeWidth={2} /></NoImageLabel>}
             </>
           )}
         </PhotoArea>
@@ -312,10 +314,10 @@ export default function PolaroidCard({
           </OutsideBadges>
 
           <DetailButton>
-            자세히 보기 <ArrowRight size={14} strokeWidth={2} />
+            자세히 보기 <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
           </DetailButton>
         </OutsideMeta>
       )}
     </Wrapper>
   );
-}
+}

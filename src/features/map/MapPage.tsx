@@ -11,7 +11,8 @@ function isMapInfoCategory(value: string | null): value is MapInfoCategory {
 }
 
 import { motion, useReducedMotion } from 'framer-motion';
-import { ChevronLeft } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ChevronLeftIcon } from '@hugeicons/core-free-icons'
 
 import { transientProps } from '@/design-system/styled';
 import { meok, surface , fontSize } from '@/design-system/tokens';
@@ -24,21 +25,17 @@ import {
 import { useMapEntranceStore } from '@/shared/navigation/mapEntranceState';
 import { useMapStore } from './hooks/useMapStore';
 import { useMapData } from './hooks/useMapData';
-import { useInfoMapData } from './hooks/useInfoMapData';
 import BottomSheet from './components/BottomSheet';
 import CategoryChips from './components/CategoryChips';
 import DetailPanel from './components/DetailPanel';
 import KakaoMap from './components/KakaoMap';
 import ListPanel from './components/ListPanel';
 import PlaceMarkers from './components/PlaceMarkers';
-import ViewportOverlays from './components/ViewportOverlays';
 import WarmthLayer from '@/private/core-ui/map-warmth/WarmthLayer';
 import WarmthNotesLayer from '@/private/core-ui/map-warmth/WarmthNotesLayer';
 import WriteButton from '@/private/core-ui/map-warmth/WriteButton';
 import WarmthLegend from '@/private/core-ui/map-warmth/WarmthLegend';
 import MapNavRail, { RAIL_INSET, RAIL_WIDTH } from './components/MapNavRail';
-import CinematicTourMapLayer from '@/features/cinematic-tour/components/CinematicTourMapLayer';
-import CinematicTourFloatingBar from '@/features/cinematic-tour/components/CinematicTourFloatingBar';
 import { StampSealAnimation, useStampStore } from '@/features/stamp';
 
 const FONT = "'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, sans-serif";
@@ -383,26 +380,6 @@ export default function MapPage() {
 
 
   useMapData();
-  useInfoMapData();
-
-  // Push info-mode category/regionCode to URL when they change
-  const infoCategory = useMapStore((s) => s.infoCategory);
-  const infoRegionCode = useMapStore((s) => s.infoRegionCode);
-  useEffect(() => {
-    if (mode !== 'info') return;
-    const params = new URLSearchParams(window.location.search);
-    params.set('mode', 'info');
-    params.set('category', infoCategory);
-    if (infoRegionCode) {
-      params.set('regionCode', infoRegionCode);
-    } else {
-      params.delete('regionCode');
-    }
-    const next = `${window.location.pathname}?${params.toString()}`;
-    if (next !== `${window.location.pathname}${window.location.search}`) {
-      router.push(next, { scroll: false });
-    }
-  }, [mode, infoCategory, infoRegionCode, router]);
 
   const isRouteEntrance = useMapEntranceStore((s) => s.isRouteEntrance);
   const setRouteEntrance = useMapEntranceStore((s) => s.setRouteEntrance);
@@ -435,10 +412,8 @@ export default function MapPage() {
       <MapArea>
         <KakaoMap />
         <PlaceMarkers />
-        <ViewportOverlays />
         <WarmthLayer />
         <WarmthNotesLayer />
-        <CinematicTourMapLayer />
         <MapChips
           $interactive={!isChipsHidden}
           style={{ left: chipsMinLeft }}
@@ -457,7 +432,7 @@ export default function MapPage() {
               aria-label="온마루 메인 홈으로 이동"
               title="온마루 메인 홈으로 이동"
             >
-              <ChevronLeft size={16} strokeWidth={2} />
+              <HugeiconsIcon icon={ChevronLeftIcon} size={16} strokeWidth={2} />
               <span>온마루 홈</span>
             </FloatingHomeButton>
           )}
@@ -500,9 +475,6 @@ export default function MapPage() {
           <CategoryChips align="start" />
         </MobileChipsScroller>
       </MobileTopBar>
-
-      {}
-      <CinematicTourFloatingBar />
 
       <BottomSheet />
 

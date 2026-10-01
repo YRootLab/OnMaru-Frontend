@@ -708,8 +708,8 @@ const styles = css`
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    background: ${lightPalette.kobalt[50]};
-    color: ${lightPalette.kobalt[700]};
+    background: ${lightPalette.cheongrok[50]};
+    color: ${lightPalette.cheongrok[700]};
     flex-shrink: 0;
   }
 
@@ -728,7 +728,7 @@ const styles = css`
     height: 20px;
     padding: 0 6px;
     border-radius: 9999px;
-    background: ${lightPalette.kobalt[500]};
+    background: ${lightPalette.cheongrok[500]};
     color: #ffffff;
     font-size: ${fontSize.xs};
     font-weight: 700;
@@ -895,57 +895,30 @@ export default function PlaceMarkers() {
   const mode = useMapStore((s) => s.mode);
   const items = useMapStore((s) => s.items);
   const category = useMapStore((s) => s.category);
-  const infoCategory = useMapStore((s) => s.infoCategory);
   const level = useMapStore((s) => s.level);
   const selectedId = useMapStore((s) => s.selectedId);
   const hoveredId = useMapStore((s) => s.hoveredId);
   const detailId = useMapStore((s) => s.detailId);
   const userLocation = useMapStore((s) => s.userLocation);
   const searchCenter = useMapStore((s) => s.searchCenter);
-  const viewportRenderMode = useMapStore((s) => s.viewportRenderMode);
-  const viewportItems = useMapStore((s) => s.viewportItems);
 
 
   const overlayMapRef = useRef<Map<string, OverlayRecord>>(new Map());
 
-
   useEffect(() => {
-    // Info mode: only render individual markers when BE says PLACE renderMode
-    const infoPlaceItems: Item[] =
-      mode === 'info' && viewportRenderMode === 'PLACE'
-        ? viewportItems
-            .filter((v) => v.type === 'PLACE' && v.placeId)
-            .map((v) => ({
-              id: v.placeId!,
-              name: v.name,
-              category: (v.category?.toLowerCase() ?? 'spot') as import('@/features/map/types').PlaceCategory,
-              lat: v.center.lat,
-              lng: v.center.lng,
-              addr: '',
-              image: v.thumbnailUrl ?? null,
-              tel: null,
-              dist: null,
-            }))
-        : [];
-
-    const effectiveItems = mode === 'info' ? infoPlaceItems : items;
-
-    if (!map || mode !== 'info' || effectiveItems.length === 0 || !window.kakao?.maps) {
-
+    if (!map || mode !== 'info' || items.length === 0 || !window.kakao?.maps) {
       overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));
       overlayMapRef.current.clear();
       return;
     }
 
-
     overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));
     overlayMapRef.current.clear();
 
-    const activeCategory = mode === 'info' ? infoCategory : category;
     const activeItems =
-      activeCategory && activeCategory !== 'all' && activeCategory !== 'bookmark'
-        ? effectiveItems.filter((it) => it.category === activeCategory)
-        : effectiveItems;
+      category && category !== 'all' && category !== 'bookmark'
+        ? items.filter((it) => it.category === category)
+        : items;
 
     if (activeItems.length === 0) return;
 
@@ -1239,7 +1212,7 @@ export default function PlaceMarkers() {
 
 
 
-  }, [map, mode, items, category, infoCategory, level, userLocation, searchCenter, viewportRenderMode, viewportItems]);
+  }, [map, mode, items, category, level, userLocation, searchCenter]);
 
 
   useEffect(() => {
