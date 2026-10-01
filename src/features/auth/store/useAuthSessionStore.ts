@@ -14,6 +14,7 @@ import { defaultMemberRepository, type MemberProfile } from '../api/memberApi';
 export interface AuthUser {
   id: string;
   displayName: string;
+  profileImageUrl?: string;
 }
 
 interface AuthSessionState {
@@ -26,7 +27,7 @@ interface AuthSessionState {
 }
 
 export function toAuthUser(profile: MemberProfile): AuthUser {
-  return { id: profile.id, displayName: profile.displayName };
+  return { id: profile.id, displayName: profile.displayName, profileImageUrl: profile.profileImageUrl };
 }
 
 export const useAuthSessionStore = create<AuthSessionState>((set, get) => ({

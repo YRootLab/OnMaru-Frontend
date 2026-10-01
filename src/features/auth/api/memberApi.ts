@@ -13,6 +13,7 @@ export interface MemberProfile {
   schemaVersion?: string;
   id: string;
   displayName: string;
+  profileImageUrl?: string;
 }
 
 /** DELETE /api/v1/members/me → 202 { status: "DELETING" } (탈퇴 접수, 비동기 처리). */

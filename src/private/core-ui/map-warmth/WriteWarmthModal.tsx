@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useEffect, useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import styled from '@emotion/styled';
 import { X, Flame, Users, Leaf, Check, MapPin } from 'lucide-react';
-import { lightPalette, meok , fontSize } from '@/design-system/tokens';
+import { lightPalette, meok, fontSize, ringShadow } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useCreateVisitReview } from '@/features/visit-review/presentation/useCreateVisitReview';
 import type { Warmth } from '@/features/map/types';
@@ -48,13 +49,14 @@ const PRESET_TAGS = [
 const Overlay = styled.div<{ $open: boolean }>`
   position: fixed;
   inset: 0;
-  z-index: 1000;
+  z-index: 10000;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 16px;
   background: rgba(25, 31, 40, 0.45);
   backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   opacity: ${({ $open }) => ($open ? 1 : 0)};
   pointer-events: ${({ $open }) => ($open ? 'auto' : 'none')};
   transition: opacity 0.22s ease;
@@ -66,29 +68,70 @@ const Overlay = styled.div<{ $open: boolean }>`
 
 const ModalCard = styled.div<{ $open: boolean }>`
   position: relative;
-  width: 100%;
-  max-width: 440px;
-  max-height: 90vh;
-  overflow-y: auto;
+  width: 400px;
+  max-width: calc(100vw - 32px);
+  height: calc(100vh - 32px);
+  max-height: calc(100vh - 32px);
+  display: flex;
+  flex-direction: column;
   padding: 24px;
   border-radius: 24px;
   background: #ffffff;
+  box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
 
   transform: ${({ $open }) => ($open ? 'scale(1) translateY(0)' : 'scale(0.95) translateY(12px)')};
   transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
 
+  @media (min-width: 1024px) and (max-width: 1439px) {
+    width: 358px;
+  }
+
   [data-theme='dark'] & {
     background: #24211D;
     color: #F3F4F6;
+    box-shadow: ${ringShadow.dark.mapPanel};
     border: none;
   }
 `;
 
 const ModalHeader = styled.div`
+  flex: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 18px;
+`;
+
+const ModalForm = styled.form`
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding-right: 4px;
+  margin-right: -4px;
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(25, 31, 40, 0.18) transparent;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(25, 31, 40, 0.18);
+    border-radius: 9999px;
+  }
+
+  [data-theme='dark'] & {
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+    &::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+    }
+  }
 `;
 
 const ModalTitle = styled.h3`
@@ -485,8 +528,10 @@ export default function WriteWarmthModal({
 }: WriteWarmthModalProps) {
   const items = useMapStore((s) => s.items);
   const setWarmths = useMapStore((s) => s.setWarmths);
+  const setIsWarmthWriteOpen = useMapStore((s) => s.setIsWarmthWriteOpen);
   const { create, loading: isSubmitting, error: createError } = useCreateVisitReview();
 
+  const [mounted, setMounted] = useState(false);
   const [selectedRegion, setSelectedRegion] = useState('전국');
   const [placeQuery, setPlaceQuery] = useState(defaultPlace?.name || '');
   const [selectedPlace, setSelectedPlace] = useState<{
@@ -502,6 +547,28 @@ export default function WriteWarmthModal({
   const [text, setText] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    setIsWarmthWriteOpen(isOpen);
+    return () => {
+      setIsWarmthWriteOpen(false);
+    };
+  }, [isOpen, setIsWarmthWriteOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -564,9 +631,9 @@ export default function WriteWarmthModal({
     } catch {}
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
-  return (
+  return createPortal(
     <Overlay $open={isOpen} onClick={onClose} role="dialog" aria-modal="true">
       <ModalCard $open={isOpen} onClick={(e) => e.stopPropagation()}>
         <ModalHeader>
@@ -579,7 +646,7 @@ export default function WriteWarmthModal({
           </CloseBtn>
         </ModalHeader>
 
-        <form onSubmit={handleSubmit}>
+        <ModalForm onSubmit={handleSubmit}>
           {}
           <FormSection>
             <SectionLabel>어디를 다녀오셨나요?</SectionLabel>
@@ -706,8 +773,9 @@ export default function WriteWarmthModal({
               <span>{isSubmitting ? '저장 중…' : '온기 등록하기'}</span>
             )}
           </SubmitBtn>
-        </form>
+        </ModalForm>
       </ModalCard>
-    </Overlay>
+    </Overlay>,
+    document.body
   );
 }

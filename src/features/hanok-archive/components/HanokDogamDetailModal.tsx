@@ -536,7 +536,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
                   )}
                 </NoteHeader>
 
-                <StoryContainer ref={storyRef} $isExpanded={isExpanded}>
+                <StoryContainer ref={storyRef} $isExpanded={!isLongContent || isExpanded}>
                   {paragraphs.length > 0 ? (
                     paragraphs.map((p, idx) => (
                       <StoryParagraph data-reading-paragraph key={idx}>{p}</StoryParagraph>

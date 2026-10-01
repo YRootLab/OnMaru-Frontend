@@ -191,9 +191,16 @@ export function OniSearchEmpty({
       $compact={compact}
     >
       <MascotWrapper $size={size} aria-hidden="true">
-        {prefersReducedMotion || hasError ? (
+        {prefersReducedMotion ? (
           <MascotStaticFallback
             src="/images/character/Oni_tea.png"
+            alt=""
+            width={sizePixels}
+            height={sizePixels}
+          />
+        ) : hasError ? (
+          <MascotStaticFallback
+            src={imageSrc}
             alt=""
             width={sizePixels}
             height={sizePixels}
