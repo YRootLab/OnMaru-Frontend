@@ -27,43 +27,50 @@ import {
 export default function AdminUsersPage() {
   const { user: currentUser, isAdmin } = useAdminAuth();
 
-  const { users, setUsers, fetchError } = useAdminUsers();
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<'ALL' | AdminRole>('ALL');
-  const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'SUSPENDED'>('ALL');
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'DELETING'>('ALL');
   const [sortBy, setSortBy] = useState<'latest' | 'reviews' | 'reports'>('latest');
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 15;
+  const serverStatus = statusFilter === 'ALL' ? undefined : statusFilter;
+
+  const {
+    items: users,
+    setItems: setUsers,
+    isLoading,
+    error: usersError,
+    pageNumber,
+    hasNext,
+    hasPrev,
+    goToNextPage,
+    goToPrevPage,
+    resetAndRefetch,
+  } = useAdminUsers({
+    status: serverStatus,
+    limit: 20,
+  });
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-
 
   const [roleChangeTarget, setRoleChangeTarget] = useState<{
     user: AdminUser;
     newRole: AdminRole;
   } | null>(null);
 
-
   const [suspendTarget, setSuspendTarget] = useState<AdminUser | null>(null);
   const [suspendPeriod, setSuspendPeriod] = useState<'3일' | '7일' | '30일' | '영구'>('7일');
   const [suspendReason, setSuspendReason] = useState('');
 
-
   const [activityTarget, setActivityTarget] = useState<AdminUser | null>(null);
 
-
   const [unsuspendTarget, setUnsuspendTarget] = useState<AdminUser | null>(null);
-
 
   const handleResetFilters = () => {
     setSearchQuery('');
     setRoleFilter('ALL');
     setStatusFilter('ALL');
     setSortBy('latest');
-    setCurrentPage(1);
   };
-
 
   const filteredUsers = useMemo(() => {
     return users
@@ -76,7 +83,6 @@ export default function AdminUsersPage() {
         }
 
         if (roleFilter !== 'ALL' && u.role !== roleFilter) return false;
-        if (statusFilter !== 'ALL' && u.status !== statusFilter) return false;
 
         return true;
       })
@@ -85,15 +91,7 @@ export default function AdminUsersPage() {
         if (sortBy === 'reports') return b.reportCount - a.reportCount;
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
-  }, [users, searchQuery, roleFilter, statusFilter, sortBy]);
-
-
-  const totalPages = Math.ceil(filteredUsers.length / pageSize) || 1;
-  const paginatedUsers = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return filteredUsers.slice(start, start + pageSize);
-  }, [filteredUsers, currentPage, pageSize]);
-
+  }, [users, searchQuery, roleFilter, sortBy]);
 
   const handleConfirmRoleChange = () => {
     if (!roleChangeTarget) return;
@@ -106,7 +104,6 @@ export default function AdminUsersPage() {
     setRoleChangeTarget(null);
   };
 
-
   const handleConfirmSuspend = () => {
     if (!suspendTarget || !suspendReason.trim()) return;
 
@@ -115,7 +112,9 @@ export default function AdminUsersPage() {
       type: suspendPeriod === '영구' ? 'PERMANENT_BAN' : 'SUSPENSION',
       reason: suspendReason.trim(),
       durationDays: durationMap[suspendPeriod],
-    }).catch(() => {});
+    })
+      .then(() => resetAndRefetch())
+      .catch(() => {});
 
     setUsers((prev) =>
       prev.map((u) =>
@@ -379,13 +378,13 @@ export default function AdminUsersPage() {
       {toastMessage && (
         <Toast message={toastMessage} type="success" onClose={() => setToastMessage(null)} />
       )}
-      {fetchError && (
+      {usersError && (
         <div style={{ padding: '12px 16px', borderRadius: '8px', backgroundColor: '#fff0f0', color: '#c0392b', fontSize: '13px', border: '1px solid #f5c6cb' }}>
-          회원 목록 불러오기 실패: {fetchError}
+          회원 목록 불러오기 실패: {usersError.message || `${usersError.status} ${usersError.code ?? ''}`}
         </div>
       )}
 
-      {}
+      {/* Filter Toolbar */}
       <div
         style={{
           backgroundColor: '#FFFFFF',
@@ -401,7 +400,7 @@ export default function AdminUsersPage() {
         <div
           style={{
             position: 'relative',
-            width: '240px',
+            width: '260px',
             display: 'flex',
             alignItems: 'center',
           }}
@@ -414,11 +413,10 @@ export default function AdminUsersPage() {
           />
           <input
             type="text"
-            placeholder="닉네임, 이메일 검색..."
+            placeholder="닉네임, 이메일 검색 (현재 페이지)"
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
-              setCurrentPage(1);
             }}
             style={{
               width: '100%',
@@ -434,12 +432,11 @@ export default function AdminUsersPage() {
           />
         </div>
 
-        {}
+        {/* Role Filter */}
         <select
           value={roleFilter}
           onChange={(e) => {
             setRoleFilter(e.target.value as 'ALL' | AdminRole);
-            setCurrentPage(1);
           }}
           style={{
             height: '38px',
@@ -452,18 +449,17 @@ export default function AdminUsersPage() {
             outline: 'none',
           }}
         >
-          <option value="ALL">역할: 전체</option>
+          <option value="ALL">역할: 전체 (현재 페이지)</option>
           <option value="ADMIN">ADMIN</option>
           <option value="EDITOR">EDITOR</option>
           <option value="USER">USER</option>
         </select>
 
-        {}
+        {/* Status Filter (Server Filter) */}
         <select
           value={statusFilter}
           onChange={(e) => {
-            setStatusFilter(e.target.value as 'ALL' | 'ACTIVE' | 'SUSPENDED');
-            setCurrentPage(1);
+            setStatusFilter(e.target.value as 'ALL' | 'ACTIVE' | 'DELETING');
           }}
           style={{
             height: '38px',
@@ -477,16 +473,15 @@ export default function AdminUsersPage() {
           }}
         >
           <option value="ALL">상태: 전체</option>
-          <option value="ACTIVE">정상</option>
-          <option value="SUSPENDED">정지</option>
+          <option value="ACTIVE">정상 (ACTIVE)</option>
+          <option value="DELETING">탈퇴 진행 (DELETING)</option>
         </select>
 
-        {}
+        {/* Sort Filter */}
         <select
           value={sortBy}
           onChange={(e) => {
             setSortBy(e.target.value as 'latest' | 'reviews' | 'reports');
-            setCurrentPage(1);
           }}
           style={{
             height: '38px',
@@ -524,17 +519,25 @@ export default function AdminUsersPage() {
           <RotateCcw size={15} strokeWidth={2} />
           <span>초기화</span>
         </button>
+
+        <div style={{ marginLeft: 'auto', fontSize: '12px', color: meok[500] }}>
+          현재 페이지 <strong style={{ color: meok[900] }}>{filteredUsers.length}</strong>건 (서버 페이지당 20건)
+        </div>
       </div>
 
-      {}
+      {/* Data Table */}
       <DataTable
         columns={columns}
-        rows={paginatedUsers}
+        rows={filteredUsers}
         rowKey={(u) => u.id}
+        loading={isLoading}
         pagination={{
-          currentPage,
-          totalPages,
-          onPageChange: (p) => setCurrentPage(p),
+          isCursor: true,
+          currentPage: pageNumber,
+          hasNext,
+          hasPrev,
+          onNext: goToNextPage,
+          onPrev: goToPrevPage,
         }}
       />
 

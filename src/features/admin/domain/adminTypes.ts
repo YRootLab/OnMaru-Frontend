@@ -128,14 +128,40 @@ export interface ApiError {
 }
 
 export interface PaginationParams {
-  page: number;
+  page?: number;
   limit: number;
 }
 
-export interface PaginatedResponse<T> {
+export interface CursorPaginationParams {
+  limit?: number;
+  cursor?: string;
+}
+
+export interface CursorPageResponse<T> {
+  schemaVersion?: string;
   items: T[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  nextCursor?: string | null;
+  hasNext: boolean;
+  hasMore?: boolean;
+}
+
+export interface PaginatedResponse<T> extends CursorPageResponse<T> {
+  total?: number;
+  page?: number;
+  limit?: number;
+  totalPages?: number;
+}
+
+export interface ModerationQueueItem {
+  reviewId: string;
+  priority: 'HIGH_RISK' | 'STANDARD';
+  oldestOpenReportAt: string;
+  ageSeconds: number;
+  slaTargetAt: string;
+  overdue: boolean;
+}
+
+export interface ModerationQueuePageResponse extends CursorPageResponse<ModerationQueueItem> {
+  generatedAt: string;
+  oldestOpenReportAgeSeconds: number;
 }

@@ -8,7 +8,7 @@ import React from 'react';
 import { meok, palette } from '@/design-system/tokens';
 import { TableSkeleton } from './TableSkeleton';
 import { EmptyState } from './EmptyState';
-import { Pagination } from './Pagination';
+import { Pagination, CursorPagination } from './Pagination';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 
 export interface ColumnDef<T> {
@@ -33,8 +33,13 @@ interface DataTableProps<T> {
   empty?: React.ReactNode;
   pagination?: {
     currentPage: number;
-    totalPages: number;
-    onPageChange: (page: number) => void;
+    totalPages?: number;
+    onPageChange?: (page: number) => void;
+    isCursor?: boolean;
+    hasNext?: boolean;
+    hasPrev?: boolean;
+    onNext?: () => void;
+    onPrev?: () => void;
   };
   sortColumn?: string;
   sortDirection?: 'asc' | 'desc';
@@ -268,11 +273,22 @@ export function DataTable<T>({
       </div>
 
       {pagination && !loading && (
-        <Pagination
-          currentPage={pagination.currentPage}
-          totalPages={pagination.totalPages}
-          onPageChange={pagination.onPageChange}
-        />
+        pagination.isCursor ? (
+          <CursorPagination
+            currentPage={pagination.currentPage}
+            hasNext={pagination.hasNext ?? false}
+            hasPrev={pagination.hasPrev ?? false}
+            onNext={pagination.onNext ?? (() => {})}
+            onPrev={pagination.onPrev ?? (() => {})}
+            isLoading={loading}
+          />
+        ) : (
+          <Pagination
+            currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages ?? 1}
+            onPageChange={pagination.onPageChange ?? (() => {})}
+          />
+        )
       )}
     </div>
   );
