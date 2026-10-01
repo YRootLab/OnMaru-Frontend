@@ -30,7 +30,7 @@ const CINNABAR = '#C9221A';
 
 const Root = styled.div`
   width: 100%;
-  padding: clamp(80px, 10vw, 120px) clamp(16px, 4vw, 48px) 100px;
+  padding: clamp(32px, 4vw, 48px) 0 100px;
   color: inherit;
   visibility: hidden;
 `;
