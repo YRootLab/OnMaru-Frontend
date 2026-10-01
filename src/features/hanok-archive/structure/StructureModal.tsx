@@ -14,6 +14,7 @@ import { Cancel01Icon } from '@hugeicons/core-free-icons'
 import { createPortal } from 'react-dom';
 
 import { meok, surface , fontSize } from '@/design-system/tokens';
+import { livelyModalEnter } from '@/shared/motion/modalMotion';
 
 const Overlay = styled.div`
   position: fixed;
@@ -35,6 +36,7 @@ const Shell = styled.div`
   border-radius: clamp(18px, 2.4vw, 28px);
   background: ${surface.light.base};
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  animation: ${livelyModalEnter} 0.4s cubic-bezier(0.19, 1.15, 0.22, 1) both;
 
   [data-theme='dark'] & {
     background: ${surface.dark.surface};
@@ -125,4 +127,5 @@ export default function StructureModal({ title, onClose, children }: StructureMo
     </Overlay>,
     document.body,
   );
-}
+}
+

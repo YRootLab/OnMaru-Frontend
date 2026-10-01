@@ -75,8 +75,8 @@ const ModalCard = styled.div<{ $open: boolean }>`
   border-radius: 24px;
   background: #ffffff;
 
-  transform: ${({ $open }) => ($open ? 'scale(1) translateY(0)' : 'scale(0.95) translateY(12px)')};
-  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: ${({ $open }) => ($open ? 'scale(1) translateY(0)' : 'scale(0.93) translateY(18px)')};
+  transition: transform 0.38s cubic-bezier(0.19, 1.15, 0.22, 1), opacity 0.24s ease-out;
 
   [data-theme='dark'] & {
     background: #171E2B;
@@ -711,4 +711,5 @@ export default function WriteWarmthModal({
       </ModalCard>
     </Overlay>
   );
-}
+}
+

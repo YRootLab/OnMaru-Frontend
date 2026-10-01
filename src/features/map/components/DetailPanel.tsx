@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { surface, ringShadow } from '@/design-system/tokens';
+import { livelyModalSpring } from '@/shared/motion/modalMotion';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import PlaceDetail from './PlaceDetail';
 import PopularPlacesPanel from '@/private/core-ui/map-warmth/PopularPlacesPanel';
@@ -28,7 +29,7 @@ const DetailAside = styled(motion.aside)<{ $open: boolean }>`
   z-index: 22;
   pointer-events: auto;
   overflow: hidden;
-  transition: width 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+  transition: width 0.38s cubic-bezier(0.19, 1.15, 0.22, 1);
 
   [data-theme='dark'] & {
     background: ${surface.dark.card};
@@ -88,7 +89,7 @@ export default function DetailPanel() {
       initial={false}
       animate={{ opacity: isOpen ? 1 : 0, x: isOpen ? 0 : -16 }}
       transition={
-        prefersReducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 380, damping: 36 }
+        prefersReducedMotion ? { duration: 0 } : livelyModalSpring
       }
     >
       <Inner>

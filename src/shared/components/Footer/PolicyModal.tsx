@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Cancel01Icon, CodeIcon, Database01Icon, FileTextIcon, ShieldCheckIcon } from '@hugeicons/core-free-icons'
 import { meok, palette, lightPalette, surface, fontSize } from '@/design-system/tokens';
+import { livelyModalSpring, livelyBottomSheetSpring, modalOverlayTransition } from '@/shared/motion/modalMotion';
 
 export type PolicyTabKey = 'privacy' | 'terms' | 'publicData' | 'openSource';
 
@@ -276,6 +277,14 @@ const TABS = [
 
 export default function PolicyModal({ initialTab = 'privacy', onClose }: PolicyModalProps) {
   const [activeTab, setActiveTab] = useState<PolicyTabKey>(initialTab);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 640);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -291,13 +300,14 @@ export default function PolicyModal({ initialTab = 'privacy', onClose }: PolicyM
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
+        transition={modalOverlayTransition}
         onClick={onClose}
       >
         <ModalCard
-          initial={{ opacity: 0, scale: 0.95, y: 16 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 16 }}
-          transition={{ duration: 0.24, ease: 'easeOut' }}
+          initial={isMobile ? { y: '100%', opacity: 1 } : { opacity: 0, scale: 0.93, y: 16 }}
+          animate={isMobile ? { y: 0, opacity: 1 } : { opacity: 1, scale: 1, y: 0 }}
+          exit={isMobile ? { y: '100%', opacity: 1 } : { opacity: 0, scale: 0.95, y: 12 }}
+          transition={isMobile ? livelyBottomSheetSpring : livelyModalSpring}
           onClick={(e) => e.stopPropagation()}
           role="dialog"
           aria-modal="true"

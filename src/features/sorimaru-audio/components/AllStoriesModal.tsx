@@ -9,6 +9,7 @@ import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorima
 import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import type { SorimaruCategory } from '@/features/sorimaru-audio/types/sorimaru.types';
 import { palette, meok, surface, fontSize } from '@/design-system/tokens';
+import { livelyModalEnter } from '@/shared/motion/modalMotion';
 import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
 
 interface AllStoriesModalProps {
@@ -52,6 +53,7 @@ const ModalContainer = styled.div`
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  animation: ${livelyModalEnter} 0.38s cubic-bezier(0.19, 1.15, 0.22, 1) both;
 `;
 
 const ModalHeader = styled.div`

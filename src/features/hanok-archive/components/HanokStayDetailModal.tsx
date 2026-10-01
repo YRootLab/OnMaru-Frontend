@@ -11,6 +11,7 @@ import { filterLabel } from '@/features/hanok-archive/filterLabels';
 import { useStayDetail } from '@/features/hanok-archive/hooks/useStayDetail';
 import { inferSeasonTags } from '@/features/hanok-archive/utils/villageInsights';
 import ContentTagChips from '@/shared/components/ContentTagChips';
+import { livelyModalSpring, livelyBottomSheetSpring, modalOverlayTransition } from '@/shared/motion/modalMotion';
 import {
   Overlay,
   ModalCard,
@@ -177,15 +178,14 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
+        transition={modalOverlayTransition}
         onClick={onClose}
       >
         <ModalCard
-          initial={isMobile ? { y: '100%', opacity: 1 } : { scale: 0.94, opacity: 0, y: 16 }}
+          initial={isMobile ? { y: '100%', opacity: 1 } : { scale: 0.93, opacity: 0, y: 16 }}
           animate={isMobile ? { y: 0, opacity: 1 } : { scale: 1, opacity: 1, y: 0 }}
-          exit={isMobile ? { y: '100%', opacity: 1 } : { scale: 0.96, opacity: 0, y: 12 }}
-          transition={isMobile
-            ? { type: 'spring', damping: 32, stiffness: 300 }
-            : { type: 'spring', damping: 28, stiffness: 350 }}
+          exit={isMobile ? { y: '100%', opacity: 1 } : { scale: 0.95, opacity: 0, y: 12 }}
+          transition={isMobile ? livelyBottomSheetSpring : livelyModalSpring}
           onClick={(e) => e.stopPropagation()}
         >
           {}

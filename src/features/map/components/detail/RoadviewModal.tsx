@@ -5,6 +5,7 @@ import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Camera01Icon, Cancel01Icon, AlertCircleIcon } from '@hugeicons/core-free-icons'
 import { meok, lightPalette, darkPalette , fontSize } from '@/design-system/tokens';
+import { livelyModalEnter } from '@/shared/motion/modalMotion';
 
 const Backdrop = styled.div`
   position: fixed;
@@ -35,6 +36,7 @@ const Container = styled.div`
   box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.45);
   display: flex;
   flex-direction: column;
+  animation: ${livelyModalEnter} 0.38s cubic-bezier(0.19, 1.15, 0.22, 1) both;
 
   [data-theme='dark'] & {
     background: #0B1220;
@@ -226,4 +228,5 @@ export default function RoadviewModal({
       </Container>
     </Backdrop>
   );
-}
+}
+

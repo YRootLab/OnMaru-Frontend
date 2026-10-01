@@ -13,6 +13,7 @@ import { PlayerTranscriptPanel } from './PlayerTranscriptPanel';
 import { normalizeContentTags } from './playerTranscriptModel';
 import { palette, meok, fontSize } from '@/design-system/tokens';
 import { useIsAppleDevice } from '@/shared/hooks/useIsAppleDevice';
+import { livelyBottomSheetSpring } from '@/shared/motion/modalMotion';
 
 type ViewMode = 'roadview' | 'transcript';
 
@@ -1206,11 +1207,7 @@ export const LocalMiniPlayer: React.FC = () => {
               initial={{ opacity: 0, y: '80%' }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: '80%' }}
-              transition={{
-                type: 'tween',
-                ease: [0.16, 1, 0.3, 1],
-                duration: 0.3,
-              }}
+              transition={livelyBottomSheetSpring}
               onClick={(event) => event.stopPropagation()}
             >
               {}

@@ -31,11 +31,11 @@ export const SNAP_CSS: Record<SheetSnap, string> = {
   full: '86dvh',
 };
 
-const IDLE_EASE = 'cubic-bezier(0.32, 0.72, 0, 1)';
+const IDLE_EASE = 'cubic-bezier(0.19, 1.15, 0.22, 1)';
 
 
 const FLING_VELOCITY = 700;
-const SPRING = { type: 'spring' as const, stiffness: 300, damping: 32, mass: 1 };
+const SPRING = { type: 'spring' as const, stiffness: 340, damping: 25, mass: 0.88 };
 
 
 const PEEK_PX_APPROX = 58 + 12 + 40;

@@ -10,7 +10,9 @@ Lightweight human-readable summary of meaningful repository changes. This does n
   - 한옥 아카이브 퀵인덱스 및 섹션 헤더의 외래어/약어('3D 구조 & 처마 일조 랩' -> '3D 구조와 처마 일조', '어디 있는지 한눈에' -> '전국 한옥 지도')를 정리하고 '이달의 픽'을 '이달의 추천'으로 개선했다.
 - 전사 UX Writing 프린시플(Clear, Concise, Casual, Respect, Emotional) 전면 적용:
   - 8가지 라이팅 프린시플(Predictable hint, Weed cutting, Remove empty sentences, Focus on key message, Easy to speak, Suggest over force, Universal words, Find hidden emotion)을 준수하여 에러 상태, 빈 상태(Empty State), 모달 액션, 안내 문구, 검색창 플레이스홀더, 토스트 메시지를 친절한 해요체와 예측 가능한 동작 명칭으로 통일했다.
-  - 소리마루 미니플레이어 및 주요 컴포넌트에 남아 있던 문자 깨짐(`??`, `?`)을 복구하고 깨끗한 UTF-8 인코딩으로 정규화했다.
+- 전사 인터랙티브 모달 및 상세창 이징 시스템(`modalMotion.ts`) 구축:
+  - 사용자가 모달이나 상세 정보 창을 열 때 빠르게 가속하여 반응성을 높이고, 부드럽게 감속한 뒤 끝단에 미세한 반동(Overshoot bounce 약 2~4%)을 주어 생기와 유쾌한 촉각적 피드백을 전달하는 스프링 물리(`stiffness: 360`, `damping: 24`, `mass: 0.85`) 및 큐빅 베지어 곡선(`cubic-bezier(0.19, 1.15, 0.22, 1)`)을 구현했다.
+  - 한옥 도감 상세 모달(`HanokDogamDetailModal`), 한옥 스테이 상세 모달(`HanokStayDetailModal`), 지도 온기 모달(`WriteWarmthModal`), 로드뷰 모달(`RoadviewModal`), 소리마루 전체 목록 모달(`AllStoriesModal`), 3D 구조 뷰어 쉘(`StructureModal`), 소리마루 미니플레이어 드로어(`LocalMiniPlayer`), 지도 상세 패널(`DetailPanel`), 모바일 바텀시트(`BottomSheet`), 정책 모달(`PolicyModal`)에 일관되게 적용했다.
 
 ## [v0.1.5] - 2026-09-29
 - 소리마루 스켈레톤 레일의 좌우 카드가 첫 렌더에서 잠시 원본 크기로 보인 뒤 축소되던 현상을 수정했다. Framer Motion 초기 상태를 최종 scale에 맞춰 로딩 시작부터 중앙 카드와 주변 카드의 크기 관계가 즉시 표시되도록 했다.
