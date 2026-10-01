@@ -3,6 +3,7 @@
 Lightweight human-readable summary of meaningful repository changes. This does not replace Git history.
 
 ## Unreleased
+- Lightsail API 전환 준비로 환경변수 예시와 OpenAPI 타입 생성 주소를 `https://api.onmaru.site`로 변경했다. 운영 환경변수와 실제 배포 전환은 백엔드 최종 DB 동기화 이후 진행한다.
 
 ## [v0.1.5] - 2026-09-29
 - 소리마루 스켈레톤 레일의 좌우 카드가 첫 렌더에서 잠시 원본 크기로 보인 뒤 축소되던 현상을 수정했다. Framer Motion 초기 상태를 최종 scale에 맞춰 로딩 시작부터 중앙 카드와 주변 카드의 크기 관계가 즉시 표시되도록 했다.
