@@ -1035,6 +1035,7 @@ export const LocalMiniPlayer: React.FC = () => {
   const imgSrc = useSorimaruImage(story);
 
   const [isVisible, setIsVisible] = useState(false);
+  const [oniVideoError, setOniVideoError] = useState(false);
   const [activeViewMode, setActiveViewMode] = useState<ViewMode>('roadview');
   const [showOniBubble, setShowOniBubble] = useState(false);
 
@@ -1136,15 +1137,13 @@ export const LocalMiniPlayer: React.FC = () => {
               <FloatingOniBubble className="floating-oni-bubble" $show={showOniBubble}>
                 {isPlaying ? '이야기에 귀 기울이는 중 🎧' : '고즈넉한 한옥의 소리 ✨'}
               </FloatingOniBubble>
-              <FloatingOniVideo
-                autoPlay
-                loop
-                muted
-                playsInline
-                preload="auto"
-              >
-                <source src={ONI_LISTEN_SRC} type="video/webm" />
-              </FloatingOniVideo>
+              {oniVideoError ? (
+                <img src="/images/character/Oni_listen_no_bg.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+              ) : (
+                <FloatingOniVideo autoPlay loop muted playsInline preload="auto" onError={() => setOniVideoError(true)}>
+                  <source src={ONI_LISTEN_SRC} type="video/webm" onError={() => setOniVideoError(true)} />
+                </FloatingOniVideo>
+              )}
             </FloatingOniSeat>
 
             <MiniPlayerContent>
@@ -1399,15 +1398,13 @@ export const LocalMiniPlayer: React.FC = () => {
                   {}
                   <CustomSliderContainer $progress={audioProgress}>
                     <ExpandedSliderOni $progress={audioProgress} aria-hidden="true">
-                      <FloatingOniVideo
-                        autoPlay
-                        loop
-                        muted
-                        playsInline
-                        preload="auto"
-                      >
-                        <source src={ONI_LISTEN_SRC} type="video/webm" />
-                      </FloatingOniVideo>
+                      {oniVideoError ? (
+                        <img src="/images/character/Oni_listen_no_bg.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                      ) : (
+                        <FloatingOniVideo autoPlay loop muted playsInline preload="auto" onError={() => setOniVideoError(true)}>
+                          <source src={ONI_LISTEN_SRC} type="video/webm" onError={() => setOniVideoError(true)} />
+                        </FloatingOniVideo>
+                      )}
                     </ExpandedSliderOni>
                     <input
                       type="range"

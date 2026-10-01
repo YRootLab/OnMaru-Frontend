@@ -61,7 +61,7 @@ const mapGlobalStyles = css`
     align-items: center;
     gap: 4px;
     padding: 3.5px 10px;
-    margin-bottom: -18px;
+    margin-bottom: 2px;
     border-radius: 9999px;
     font-size: 11px;
     font-weight: 700;
@@ -144,7 +144,7 @@ const mapGlobalStyles = css`
     .om-my-location-bubble {
       font-size: 10.5px;
       padding: 3px 8px;
-      margin-bottom: -14px;
+      margin-bottom: 2px;
     }
     .om-my-location-ground-shadow {
       width: 38px;
@@ -487,6 +487,13 @@ export default function KakaoMap() {
       if (vid) {
         vid.muted = true;
         vid.play().catch(() => {});
+        vid.addEventListener('error', () => {
+          const img = document.createElement('img');
+          img.src = '/images/character/Oni_hi.png';
+          img.className = vid.className;
+          img.style.cssText = vid.style.cssText;
+          vid.replaceWith(img);
+        });
       }
       return el;
     };

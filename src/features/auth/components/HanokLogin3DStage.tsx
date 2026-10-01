@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { Canvas } from '@react-three/fiber';
+import { Canvas, useThree } from '@react-three/fiber';
 import { useGLTF, Center } from '@react-three/drei';
 import * as THREE from 'three';
 
@@ -28,6 +28,7 @@ class HanokStageErrorBoundary extends React.Component<
 }
 
 function StaticHanok3D({ isDark }: { isDark: boolean }) {
+  const { size } = useThree();
   const { scene } = useGLTF(MODEL_URL);
 
   const clonedScene = useMemo(() => {
@@ -53,10 +54,29 @@ function StaticHanok3D({ isDark }: { isDark: boolean }) {
     return cloned;
   }, [scene, isDark]);
 
+  // 화면 너비(size.width)에 따라 모바일에서도 한옥의 처마 좌우 날개가 잘리지 않도록 반응형 스케일 및 위치 보정
+  const { scale, position } = useMemo(() => {
+    const width = size.width;
+    if (width < 380) {
+      // 375px 이하 초소형 스마트폰 (iPhone SE 등)
+      return { scale: 0.95, position: [0, 0.32, 0] as [number, number, number] };
+    }
+    if (width < 500) {
+      // 일반 모바일 (iPhone 14/15/16 등 390px~430px)
+      return { scale: 1.12, position: [0, 0.25, 0] as [number, number, number] };
+    }
+    if (width < 768) {
+      // 대형 모바일 / 태블릿
+      return { scale: 1.35, position: [0, 0.15, 0] as [number, number, number] };
+    }
+    // 데스크톱
+    return { scale: 1.68, position: [0, 0.05, 0] as [number, number, number] };
+  }, [size.width]);
+
   return (
-    <group rotation={[0, 0.78, 0]} position={[0, 0.05, 0]}>
+    <group rotation={[0, 0.78, 0]} position={position}>
       <Center>
-        <primitive object={clonedScene} scale={1.68} />
+        <primitive object={clonedScene} scale={scale} />
       </Center>
     </group>
   );
@@ -70,11 +90,12 @@ export default function HanokLogin3DStage() {
     <div
       style={{
         position: 'absolute',
-        top: '-50px',
+        top: '-40px',
         left: '50%',
         transform: 'translateX(-50%)',
-        width: '1000px',
-        height: '400px',
+        width: '100vw',
+        maxWidth: '800px',
+        height: '380px',
         zIndex: 1,
         pointerEvents: 'none',
       }}

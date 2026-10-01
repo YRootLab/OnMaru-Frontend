@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import styled from '@emotion/styled';
@@ -16,40 +16,18 @@ const FooterWrapper = styled.footer`
   padding: clamp(36px, 4vw, 52px) clamp(20px, 3.5vw, 48px) clamp(16px, 2vw, 24px);
 
 
-  background:
-    radial-gradient(circle at 85% 15%, rgba(255, 110, 25, 0.08) 0%, transparent 55%),
-    radial-gradient(circle at 15% 85%, rgba(255, 175, 50, 0.07) 0%, transparent 60%),
-    linear-gradient(180deg, #faf9f8 0%, #f3f1ee 100%);
+  background: linear-gradient(180deg, #faf9f8 0%, #f3f1ee 100%);
   color: ${meok[700]};
   border-top: 1px solid rgba(0, 0, 0, 0.06);
   transition:
     background 0.4s cubic-bezier(0.16, 1, 0.3, 1),
     border-color 0.4s ease;
 
-  &:hover {
-    background:
-      radial-gradient(circle at 85% 15%, rgba(255, 110, 25, 0.13) 0%, transparent 55%),
-      radial-gradient(circle at 15% 85%, rgba(255, 175, 50, 0.11) 0%, transparent 60%),
-      linear-gradient(180deg, #fdfcfb 0%, #f6f4f1 100%);
-    border-top-color: rgba(255, 110, 25, 0.16);
-  }
-
 
   [data-theme='dark'] & {
-    background:
-      radial-gradient(circle at 80% 20%, rgba(255, 95, 10, 0.13) 0%, transparent 55%),
-      radial-gradient(circle at 18% 85%, rgba(255, 165, 40, 0.09) 0%, transparent 60%),
-      linear-gradient(180deg, #1C1A17 0%, #131210 100%);
+    background: linear-gradient(180deg, #1C1A17 0%, #131210 100%);
     color: rgba(255, 255, 255, 0.7);
     border-top: 1px solid rgba(255, 255, 255, 0.07);
-  }
-
-  [data-theme='dark'] &:hover {
-    background:
-      radial-gradient(circle at 80% 20%, rgba(255, 95, 10, 0.20) 0%, transparent 55%),
-      radial-gradient(circle at 18% 85%, rgba(255, 165, 40, 0.15) 0%, transparent 60%),
-      linear-gradient(180deg, #22201c 0%, #161512 100%);
-    border-top-color: rgba(255, 105, 15, 0.22);
   }
 `;
 
@@ -262,30 +240,34 @@ const OniHoldingWrap = styled.div`
   align-items: flex-end;
   justify-content: center;
   flex-shrink: 0;
-  margin-bottom: 4px;
   user-select: none;
   pointer-events: none;
 
-  video {
-    width: 120px;
-    height: 120px;
+  margin-bottom: -72px;
+  margin-left: -80px;
+
+  video, img {
+    width: 400px;
+    height: 400px;
     object-fit: contain;
     display: block;
-    filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.12));
+    background: transparent;
+    mix-blend-mode: screen;
     transition: transform 0.3s ease;
   }
 
-  ${FooterWrapper}:hover & video {
+  ${FooterWrapper}:hover & video,
+  ${FooterWrapper}:hover & img {
     transform: scale(1.05) translateY(-2px);
   }
 
   @media (max-width: 640px) {
     align-self: flex-end;
-    margin-bottom: 0;
+    margin-bottom: -16px;
 
-    video {
-      width: 90px;
-      height: 90px;
+    video, img {
+      width: 150px;
+      height: 150px;
     }
   }
 
@@ -301,8 +283,26 @@ const OniHoldingWrap = styled.div`
   }
 `;
 
+const BottomLayout = styled.div`
+  display: flex;
+  align-items: flex-end;
+  gap: 40px;
+  overflow: hidden;
+
+  @media (max-width: 768px) {
+    overflow: visible;
+  }
+`;
+
+const LeftInfoCol = styled.div`
+  flex-shrink: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+`;
+
 const MassiveWatermark = styled.div`
-  width: 100%;
+  width: auto;
   font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', 'Spoqa Han Sans Neo', sans-serif;
   font-size: clamp(1.8rem, 5.8vw, 5.8rem);
   font-weight: 900;
@@ -316,6 +316,7 @@ const MassiveWatermark = styled.div`
   overflow: hidden;
   text-overflow: clip;
   transition: color 0.4s ease, transform 0.4s ease;
+  margin: 36px 0 0;
 
   color: rgba(25, 31, 40, 0.05);
 
@@ -336,7 +337,6 @@ const MassiveWatermark = styled.div`
   @media (max-width: 768px) {
     font-size: clamp(2rem, 10vw, 3.8rem);
     letter-spacing: -0.03em;
-    margin: 12px 0 0;
     white-space: normal;
     overflow: visible;
   }
@@ -347,6 +347,18 @@ export default function Footer() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
   const [activePolicyTab, setActivePolicyTab] = useState<PolicyTabKey | null>(null);
+
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoError, setVideoError] = useState(false);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.defaultMuted = true;
+    video.muted = true;
+    const p = video.play?.();
+    if (p && typeof p.catch === 'function') p.catch(() => {});
+  }, []);
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -372,8 +384,8 @@ export default function Footer() {
 
         <FooterInner>
           <ContentArea>
-            <FooterTopRow>
-              <FooterInfoCol>
+            <BottomLayout>
+              <LeftInfoCol>
                 <BusinessInfo>
                   <p>온마루 (OnMaru) · 한국관광공사 공공데이터(TourAPI 4.0 · Odii API) 기반 한옥 몰입형 관광 큐레이션</p>
                 </BusinessInfo>
@@ -396,26 +408,39 @@ export default function Footer() {
                 <Copyright>
                   © OnMaru. All rights reserved.
                 </Copyright>
-              </FooterInfoCol>
+
+                <MassiveWatermark aria-hidden="true">
+                  한옥의 숨결과 소리를 잇다
+                </MassiveWatermark>
+              </LeftInfoCol>
 
               <OniHoldingWrap>
-                <video
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  preload="auto"
-                  aria-label="소중한 것을 품에 안은 마스코트 온이"
-                >
-                  <source src="/videos/Oni_holding.mp4" type="video/mp4" />
-                </video>
+                {videoError ? (
+                  <img
+                    src="/images/character/Oni_holding.png"
+                    alt="소중한 것을 품에 안은 마스코트 온이"
+                  />
+                ) : (
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    preload="auto"
+                    aria-label="소중한 것을 품에 안은 마스코트 온이"
+                    onError={() => setVideoError(true)}
+                    onCanPlay={(e) => {
+                      e.currentTarget.muted = true;
+                      const p = e.currentTarget.play?.();
+                      if (p && typeof p.catch === 'function') p.catch(() => {});
+                    }}
+                  >
+                    <source src="/videos/Oni_holding.webm" type="video/webm" onError={() => setVideoError(true)} />
+                  </video>
+                )}
               </OniHoldingWrap>
-            </FooterTopRow>
-
-            {/* 거대 워터마크 슬로건 - PC 한줄 */}
-            <MassiveWatermark aria-hidden="true">
-              한옥의 숨결과 소리를 잇다
-            </MassiveWatermark>
+            </BottomLayout>
           </ContentArea>
         </FooterInner>
       </FooterWrapper>

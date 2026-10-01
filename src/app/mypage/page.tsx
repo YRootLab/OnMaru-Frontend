@@ -35,6 +35,7 @@ export default function MyPage() {
   const removeBookmark = useBookmarkStore((s) => s.removeBookmark);
   const [myWarmths, setMyWarmths] = useState<Warmth[]>([]);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [oniVideoError, setOniVideoError] = useState(false);
 
   const savedJourneys = useSavedJourneyStore((s) => s.savedJourneys);
   const removeJourney = useSavedJourneyStore((s) => s.removeJourney);
@@ -83,9 +84,9 @@ export default function MyPage() {
           defaultSavedResourcesRepository.listPlaces({ limit: 10 }).then((r) => r.items),
           defaultVisitReviewRepository.listReviews({ scope: 'MY', limit: 10 }).then((r) => r.items),
         ]);
-        setJourneyThreads(threads);
-        setSavedPlaces(places);
-        setMyVisitReviews(reviews);
+        setJourneyThreads(threads ?? []);
+        setSavedPlaces(places ?? []);
+        setMyVisitReviews(reviews ?? []);
       } catch (err) {
         console.warn('[MyPage] 서버 데이터 로드 실패:', err);
       }
@@ -96,7 +97,7 @@ export default function MyPage() {
   if (isLoading) return (
     <div style={{ display: 'flex', justifyContent: 'center', padding: '64px 20px' }}>
       <style>{`@keyframes mp-shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}.mp-skel{background:linear-gradient(90deg,#f0f0ee 25%,#e5e5e3 50%,#f0f0ee 75%);background-size:200% 100%;animation:mp-shimmer 1.6s ease-in-out infinite;border-radius:8px}[data-theme=dark] .mp-skel{background:linear-gradient(90deg,#2d2a26 25%,#3a3730 50%,#2d2a26 75%);background-size:200% 100%}`}</style>
-      <div style={{ width: '100%', maxWidth: '480px', display: 'flex', flexDirection: 'column', gap: '40px' }}>
+      <div style={{ width: '100%', maxWidth: '520px', display: 'flex', flexDirection: 'column', gap: '40px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
           <div className="mp-skel" style={{ width: 64, height: 64, borderRadius: '50%' }} />
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', alignItems: 'center' }}>
@@ -120,50 +121,61 @@ export default function MyPage() {
   const c = theme.colors;
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', padding: '64px 20px' }}>
-      <div style={{ width: '100%', maxWidth: '480px', display: 'flex', flexDirection: 'column', gap: '40px' }}>
-        {}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', textAlign: 'center' }}>
+    <div style={{ display: 'flex', justifyContent: 'center', padding: '64px 16px 80px' }}>
+      <div style={{ width: '100%', maxWidth: '520px', display: 'flex', flexDirection: 'column', gap: '40px' }}>
+        <div style={{ backgroundColor: c.bg.surface, borderRadius: '20px', padding: '36px 28px 28px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
           <div
             style={{
-              width: '64px',
-              height: '64px',
+              width: '80px',
+              height: '80px',
               borderRadius: '50%',
               backgroundColor: c.action.primaryBg,
               color: c.action.primary,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '24px',
+              fontSize: '32px',
               fontWeight: 800,
             }}
           >
-            {user.displayName.slice(0, 1)}
+            {(user.displayName || '길')[0]}
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <div style={{ fontSize: '13px', fontWeight: 700, color: c.success.primary }}>
-              카카오 로그인 완료
-            </div>
-            <div style={{ fontSize: '20px', fontWeight: 800, color: c.text.primary }}>
-              {user.displayName}님, 환영합니다
-            </div>
+          <div style={{ marginTop: '16px', fontSize: '26px', fontWeight: 800, color: c.text.primary, letterSpacing: '-0.025em' }}>
+            {user.displayName || '길손'}님
+          </div>
+
+          <div style={{ display: 'flex', width: '100%', marginTop: '24px', borderRadius: '14px', backgroundColor: c.bg.card, overflow: 'hidden' }}>
+            {[
+              { label: '저장 여정', value: savedExplorations.length },
+              { label: '북마크', value: bookmarks.length },
+              { label: '담은 소리', value: savedSounds.length },
+            ].map((stat, i) => (
+              <div key={stat.label} style={{ flex: 1, padding: '16px 0', textAlign: 'center' }}>
+                <div style={{ fontSize: '22px', fontWeight: 800, color: c.text.primary, letterSpacing: '-0.02em' }}>{stat.value}</div>
+                <div style={{ fontSize: '11.5px', color: c.text.muted, marginTop: '3px', fontWeight: 500 }}>{stat.label}</div>
+              </div>
+            ))}
           </div>
 
           <button
             type="button"
             onClick={logout}
             style={{
+              marginTop: '20px',
               height: '36px',
-              padding: '0 18px',
-              borderRadius: '8px',
-              border: `1px solid ${c.border.subtle}`,
+              padding: '0 20px',
+              borderRadius: '10px',
+              border: 'none',
               backgroundColor: c.bg.card,
               color: c.text.secondary,
               fontSize: '13px',
               fontWeight: 600,
               cursor: 'pointer',
+              outline: 'none',
             }}
+            onFocus={(e) => { e.currentTarget.style.boxShadow = `0 0 0 2px ${c.action.primary}`; }}
+            onBlur={(e) => { e.currentTarget.style.boxShadow = 'none'; }}
           >
             로그아웃
           </button>
@@ -181,7 +193,7 @@ export default function MyPage() {
           {savedExplorations.length === 0 ? (
             <EmptyState text="아직 저장한 여정이 없어요." linkHref="/" linkText="홈에서 여정 찾기" theme={theme} />
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div>
               {savedExplorations.map((item) => (
                 <SavedExplorationRow
                   key={item.id}
@@ -214,7 +226,7 @@ export default function MyPage() {
           {savedJourneys.length === 0 ? (
             <EmptyState text="아직 보관한 맞춤 여정이 없어요." linkHref="/" linkText="홈에서 여정 짓기" theme={theme} />
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div>
               {savedJourneys.map((item) => (
                 <div
                   key={item.id}
@@ -222,10 +234,9 @@ export default function MyPage() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    padding: '12px 14px',
-                    borderRadius: '12px',
-                    backgroundColor: c.bg.surface,
-                    gap: '10px',
+                    minHeight: '60px',
+                    padding: '14px 20px',
+                    gap: '12px',
                   }}
                 >
                   <div
@@ -284,17 +295,16 @@ export default function MyPage() {
           {savedSounds.length === 0 ? (
             <EmptyState text="소리마루에서 마음에 드는 소리를 담아보세요." linkHref="/sorimaru" linkText="소리마루 둘러보기" theme={theme} />
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div>
               {savedSounds.map((sound) => (
                 <div
                   key={sound.storyId}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '10px',
-                    padding: '12px 14px',
-                    borderRadius: '12px',
-                    backgroundColor: c.bg.surface,
+                    gap: '14px',
+                    minHeight: '64px',
+                    padding: '12px 20px',
                   }}
                 >
                   {sound.imageUrl ? (
@@ -364,7 +374,7 @@ export default function MyPage() {
           {bookmarks.length === 0 ? (
             <EmptyState text="아직 북마크한 장소가 없어요." linkHref="/map" linkText="지도에서 장소 둘러보기" theme={theme} />
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div>
               {bookmarks.map((place) => (
                 <Link
                   key={place.id}
@@ -372,10 +382,9 @@ export default function MyPage() {
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '10px',
-                    padding: '12px 14px',
-                    borderRadius: '12px',
-                    backgroundColor: c.bg.surface,
+                    gap: '14px',
+                    minHeight: '64px',
+                    padding: '12px 20px',
                     textDecoration: 'none',
                   }}
                 >
@@ -428,19 +437,17 @@ export default function MyPage() {
           {journeyThreads.length === 0 ? (
             <EmptyState text="아직 질문 기록이 없어요." linkHref="/" linkText="홈에서 여정 만들기" theme={theme} />
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div>
               {journeyThreads.map((thread) => (
                 <div
                   key={thread.threadId}
                   style={{
-                    padding: '12px 14px',
-                    borderRadius: '12px',
-                    backgroundColor: c.bg.surface,
+                    padding: '14px 20px',
                     cursor: 'pointer',
-                    transition: 'background-color 0.2s',
+                    transition: 'background-color 0.15s',
                   }}
-                  onMouseEnter={(e) => ((e.currentTarget as HTMLDivElement).style.backgroundColor = c.bg.card)}
-                  onMouseLeave={(e) => ((e.currentTarget as HTMLDivElement).style.backgroundColor = c.bg.surface)}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLDivElement).style.backgroundColor = `${c.action.primaryBg}`)}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLDivElement).style.backgroundColor = 'transparent')}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
                     <div style={{ fontSize: '13px', fontWeight: 600, color: c.text.primary, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -467,21 +474,21 @@ export default function MyPage() {
           {savedPlaces.length === 0 ? (
             <EmptyState text="아직 저장한 장소가 없어요." linkHref="/map" linkText="지도에서 장소 둘러보기" theme={theme} />
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div>
               {savedPlaces.map((place) => (
                 <div
                   key={place.resourceId}
                   style={{
                     display: 'flex',
-                    gap: '10px',
-                    padding: '12px 14px',
-                    borderRadius: '12px',
-                    backgroundColor: c.bg.surface,
+                    gap: '14px',
+                    minHeight: '64px',
+                    padding: '12px 20px',
+                    alignItems: 'center',
                     cursor: 'pointer',
-                    transition: 'background-color 0.2s',
+                    transition: 'background-color 0.15s',
                   }}
-                  onMouseEnter={(e) => ((e.currentTarget as HTMLDivElement).style.backgroundColor = c.bg.card)}
-                  onMouseLeave={(e) => ((e.currentTarget as HTMLDivElement).style.backgroundColor = c.bg.surface)}
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLDivElement).style.backgroundColor = `${c.action.primaryBg}`)}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLDivElement).style.backgroundColor = 'transparent')}
                 >
                   {place.thumbnailUrl ? (
                     <img
@@ -532,9 +539,9 @@ export default function MyPage() {
           {myVisitReviews.length === 0 ? (
             <EmptyState text="아직 남긴 방문후기가 없어요." linkHref="/map" linkText="지도에서 후기 남기기" theme={theme} />
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div>
               {myVisitReviews.map((review) => (
-                <div key={review.id} style={{ padding: '14px', borderRadius: '12px', backgroundColor: c.bg.surface }}>
+                <div key={review.id} style={{ padding: '16px 20px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
                     <span style={{ fontSize: '13px', fontWeight: 700, color: c.text.primary }}>{review.placeName}</span>
                     <span style={{ fontSize: '11px', color: c.text.muted, display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -557,11 +564,11 @@ export default function MyPage() {
           {myWarmths.length === 0 ? (
             <EmptyState text="아직 남긴 온기 한줄평이 없어요." linkHref="/map" linkText="온기 남기러 가기" theme={theme} />
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div>
               {myWarmths.map((w) => {
                 const moodColor = w.mood === '북적' ? c.action : c.success;
                 return (
-                  <div key={w.id} style={{ padding: '14px', borderRadius: '12px', backgroundColor: c.bg.surface }}>
+                  <div key={w.id} style={{ padding: '16px 20px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                       <span style={{ fontSize: '13px', fontWeight: 700, color: c.text.primary }}>{w.placeName}</span>
                       <span
@@ -589,8 +596,38 @@ export default function MyPage() {
           )}
         </Section>
 
-        {}
-        <div style={{ textAlign: 'center', borderTop: `1px solid ${c.border.subtle}`, paddingTop: '20px' }}>
+        {/* 온이 캐릭터 소개 */}
+        <div style={{ backgroundColor: c.bg.surface, borderRadius: '20px', padding: '40px 28px 36px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', textAlign: 'center' }}>
+          <div style={{ width: '180px', height: '180px', flexShrink: 0 }}>
+            {oniVideoError ? (
+              <img src="/images/character/Oni_hi.png" alt="온이" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+            ) : (
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="auto"
+                onError={() => setOniVideoError(true)}
+                onCanPlay={(e) => {
+                  e.currentTarget.muted = true;
+                  e.currentTarget.play().catch(() => {});
+                }}
+                style={{ width: '100%', height: '100%', objectFit: 'contain', background: 'transparent' }}
+              >
+                <source src="/videos/Oni_hi.webm" type="video/webm" onError={() => setOniVideoError(true)} />
+              </video>
+            )}
+          </div>
+          <div style={{ fontSize: '22px', fontWeight: 800, color: c.text.primary, marginBottom: '10px', marginTop: '8px', letterSpacing: '-0.025em' }}>온이</div>
+          <p style={{ margin: 0, fontSize: '14px', color: c.text.secondary, lineHeight: 1.8, maxWidth: '300px' }}>
+            온마루의 마스코트예요. 한옥의 숨결과<br />
+            소리를 함께 잇고 싶어 오늘도<br />
+            이렇게 반갑게 인사한답니다 👋
+          </p>
+        </div>
+
+        <div style={{ textAlign: 'center', paddingBottom: '24px' }}>
           {confirmingDelete ? (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
               <p style={{ margin: 0, fontSize: '13px', color: c.error.primary }}>
@@ -604,8 +641,8 @@ export default function MyPage() {
                     height: '34px',
                     padding: '0 16px',
                     borderRadius: '8px',
-                    border: `1px solid ${c.border.subtle}`,
-                    backgroundColor: c.bg.card,
+                    border: 'none',
+                    backgroundColor: c.bg.surface,
                     color: c.text.secondary,
                     fontSize: '12.5px',
                     fontWeight: 600,
@@ -684,9 +721,8 @@ function SavedExplorationRow({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '12px 14px',
-        borderRadius: '12px',
-        backgroundColor: c.bg.surface,
+        minHeight: '60px',
+        padding: '12px 20px',
         gap: '10px',
       }}
     >
@@ -709,10 +745,12 @@ function SavedExplorationRow({
               fontSize: '13.5px',
               fontWeight: 700,
               color: c.text.primary,
-              border: `1px solid ${c.border.subtle}`,
+              border: 'none',
               borderRadius: '6px',
               padding: '4px 8px',
-              background: c.bg.card,
+              background: c.bg.surface,
+              outline: 'none',
+              boxShadow: `0 0 0 2px ${c.action.primary}40`,
             }}
           />
           <button
@@ -785,39 +823,36 @@ function SavedExplorationRow({
 }
 
 function Section({ title, theme, children }: { title: string; theme: OnmaruTheme; children: React.ReactNode }) {
+  const c = theme.colors;
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-      <h2 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: theme.colors.text.primary }}>{title}</h2>
-      {children}
+    <div>
+      <h2 style={{ margin: '0 0 10px 4px', fontSize: '14px', fontWeight: 700, color: c.text.primary, letterSpacing: '-0.01em' }}>{title}</h2>
+      <div style={{ backgroundColor: c.bg.surface, borderRadius: '16px', overflow: 'hidden' }}>
+        {children}
+      </div>
     </div>
   );
 }
 
 function SectionRow({ title, theme, children }: { title: string; theme: OnmaruTheme; children: React.ReactNode }) {
+  const c = theme.colors;
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-      <h2 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: theme.colors.text.primary }}>{title}</h2>
-      {children}
+    <div style={{ backgroundColor: c.bg.surface, borderRadius: '16px', overflow: 'hidden' }}>
+      <div style={{ display: 'flex', alignItems: 'center', minHeight: '60px', padding: '0 20px' }}>
+        <h2 style={{ margin: 0, flex: 1, fontSize: '15px', fontWeight: 600, color: c.text.primary, letterSpacing: '-0.01em' }}>{title}</h2>
+        {children}
+      </div>
     </div>
   );
 }
 
 function EmptyState({ text, linkHref, linkText, theme }: { text: string; linkHref: string; linkText: string; theme: OnmaruTheme }) {
+  const c = theme.colors;
   return (
-    <div
-      style={{
-        padding: '24px 16px',
-        borderRadius: '12px',
-        backgroundColor: theme.colors.bg.surface,
-        textAlign: 'center',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '8px',
-      }}
-    >
-      <p style={{ margin: 0, fontSize: '13px', color: theme.colors.text.muted }}>{text}</p>
-      <Link href={linkHref} style={{ fontSize: '12.5px', fontWeight: 600, color: theme.colors.action.primary }}>
-        {linkText} →
+    <div style={{ padding: '28px 20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <p style={{ margin: 0, fontSize: '14px', color: c.text.muted }}>{text}</p>
+      <Link href={linkHref} style={{ fontSize: '13px', fontWeight: 600, color: c.action.primary, textDecoration: 'none' }}>
+        {linkText}
       </Link>
     </div>
   );

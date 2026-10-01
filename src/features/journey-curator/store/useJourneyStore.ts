@@ -4,7 +4,9 @@ import type { JourneyBoard, PlaceResource, ResourceRef } from '../types/explorat
 import type { HanokDoganEntry, NearbyAudioStory, NearbyFoodPlace } from '../types/enrichment.types';
 import { JOURNEY_PLANS, MOOD_OPTIONS } from '../data/curatedJourneys';
 import { defaultJourneyRepository, type RunAccepted, type ExplorationSnapshot } from '../api/journeyApi';
+import { fetchExplorationBoard } from '../api/explorationApi';
 import { isOnmaruApiError } from '@/lib/api/errors';
+import { USE_MOCK } from '@/lib/api/client';
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
@@ -87,23 +89,38 @@ interface JourneyState {
 
 type SetFn = (partial: Partial<JourneyState>) => void;
 
-function runWithSse(accepted: RunAccepted, set: SetFn): Promise<ExplorationSnapshot> {
+function runWithSse(accepted: RunAccepted, set: SetFn, timeoutMs = 15000): Promise<ExplorationSnapshot> {
   return new Promise((resolve, reject) => {
     let reconnected = false;
     let cancelled = false;
     let unsubscribe: (() => void) | null = null;
+    let timer: NodeJS.Timeout | null = null;
 
-    const fetchAndResolve = async () => {
+    const cleanup = () => {
       cancelled = true;
+      if (timer) {
+        clearTimeout(timer);
+        timer = null;
+      }
       unsubscribe?.();
       unsubscribe = null;
       set({ unsubscribeSse: null });
+    };
+
+    const fetchAndResolve = async () => {
+      cleanup();
       try {
         resolve(await defaultJourneyRepository.getExploration(accepted.explorationId));
       } catch (err) {
         reject(err);
       }
     };
+
+    timer = setTimeout(() => {
+      if (cancelled) return;
+      console.warn('[SSE] Connection timed out after', timeoutMs, 'ms; attempting direct fetch');
+      fetchAndResolve();
+    }, timeoutMs);
 
     const doSubscribe = () => {
       unsubscribe = defaultJourneyRepository.subscribeToRunEvents(
@@ -113,10 +130,7 @@ function runWithSse(accepted: RunAccepted, set: SetFn): Promise<ExplorationSnaps
           if (frame.event === 'run.terminal' || frame.event === 'reset') {
             fetchAndResolve();
           } else if (frame.event === 'auth_closed') {
-            cancelled = true;
-            unsubscribe?.();
-            unsubscribe = null;
-            set({ unsubscribeSse: null });
+            cleanup();
             reject(new Error('AUTH_CLOSED'));
           }
         },
@@ -144,25 +158,55 @@ function runWithSse(accepted: RunAccepted, set: SetFn): Promise<ExplorationSnaps
 
 async function runInitialExploration(query: string, set: SetFn) {
   set({ isExploring: true, lastError: null });
-  try {
-    const accepted = await defaultJourneyRepository.start({
-      query,
-      idempotencyKey: `journey-${Date.now()}-${Math.random().toString(16).slice(2)}`,
-    });
-    set({ explorationId: accepted.explorationId, runId: accepted.runId });
 
-    const snapshot = await runWithSse(accepted, set);
-    set({
-      isExploring: false,
-      explorationBoard: snapshot.board as any,
-      boardCreatedAt: new Date().toISOString(),
-      stateVersion: snapshot.stateVersion,
-      lastError: null,
-    });
+  if (!USE_MOCK) {
+    try {
+      const accepted = await defaultJourneyRepository.start({
+        query,
+        idempotencyKey: `journey-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      });
+      set({ explorationId: accepted.explorationId, runId: accepted.runId });
+
+      const snapshot = await runWithSse(accepted, set);
+      set({
+        isExploring: false,
+        explorationBoard: snapshot.board as any,
+        boardCreatedAt: new Date().toISOString(),
+        stateVersion: snapshot.stateVersion,
+        lastError: null,
+      });
+      return;
+    } catch (err) {
+      if (err instanceof Error && err.message === 'AUTH_CLOSED') {
+        set({ isExploring: false, lastError: '로그인이 필요해요.' });
+        return;
+      }
+      console.warn('[runInitialExploration] Backend exploration failed, falling back to local explore:', err);
+    }
+  }
+
+  try {
+    const result = await fetchExplorationBoard(query);
+    if (result.ok) {
+      set({
+        isExploring: false,
+        explorationBoard: result.board,
+        boardCreatedAt: new Date().toISOString(),
+        hanokDogan: result.hanokDogan,
+        nearbyAudio: result.nearbyAudio,
+        nearbyFood: result.nearbyFood,
+        lastError: null,
+      });
+    } else {
+      set({
+        isExploring: false,
+        lastError: result.message,
+      });
+    }
   } catch (err) {
     set({
       isExploring: false,
-      lastError: err instanceof Error && err.message === 'AUTH_CLOSED' ? '로그인이 필요해요.' : mapJourneyError(err),
+      lastError: mapJourneyError(err),
     });
   }
 }
@@ -238,40 +282,82 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
 
   refinePlan: async (prompt) => {
     if (!prompt.trim()) return;
-    const { explorationBoard, explorationId, stateVersion } = get();
-    if (!explorationBoard || !explorationId) return;
+    const { explorationBoard, explorationId, stateVersion, pinnedRefs } = get();
+    if (!explorationBoard) return;
 
     set({ isGenerating: true, hasSearched: true, currentQuery: prompt, lastError: null });
 
-    try {
-      const accepted = await defaultJourneyRepository.submitTurn({
-        explorationId,
-        query: prompt,
-        baseVersion: stateVersion,
-        clientTurnId: `turn-${Date.now()}`,
-        idempotencyKey: `turn-${Date.now()}-${Math.random().toString(16).slice(2)}`,
-      });
+    if (!USE_MOCK && explorationId) {
+      try {
+        const accepted = await defaultJourneyRepository.submitTurn({
+          explorationId,
+          query: prompt,
+          baseVersion: stateVersion,
+          clientTurnId: `turn-${Date.now()}`,
+          idempotencyKey: `turn-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        });
 
-      const snapshot = await runWithSse(accepted, set);
-      set({
-        isGenerating: false,
-        stateVersion: snapshot.stateVersion,
-        pendingProposal: snapshot.pendingProposal
-          ? {
-              board: (snapshot.board as any) || explorationBoard,
-              hanokDogan: [],
-              nearbyAudio: [],
-              nearbyFood: [],
-              keptRefs: snapshot.pendingProposal.kept.map((id) => ({ id, type: 'PLACE' as const })),
-              addedRefs: snapshot.pendingProposal.added.map((id) => ({ id, type: 'PLACE' as const })),
-              removedRefs: snapshot.pendingProposal.excluded.map((id) => ({ id, type: 'PLACE' as const })),
-            }
-          : null,
-      });
+        const snapshot = await runWithSse(accepted, set);
+        set({
+          isGenerating: false,
+          stateVersion: snapshot.stateVersion,
+          pendingProposal: snapshot.pendingProposal
+            ? {
+                board: (snapshot.board as any) || explorationBoard,
+                hanokDogan: [],
+                nearbyAudio: [],
+                nearbyFood: [],
+                keptRefs: snapshot.pendingProposal.kept.map((id) => ({ id, type: 'PLACE' as const })),
+                addedRefs: snapshot.pendingProposal.added.map((id) => ({ id, type: 'PLACE' as const })),
+                removedRefs: snapshot.pendingProposal.excluded.map((id) => ({ id, type: 'PLACE' as const })),
+              }
+            : null,
+        });
+        return;
+      } catch (err) {
+        if (err instanceof Error && err.message === 'AUTH_CLOSED') {
+          set({
+            isGenerating: false,
+            lastError: '로그인이 필요해요.',
+          });
+          return;
+        }
+        console.warn('[refinePlan] Backend refine failed, falling back to local explore:', err);
+      }
+    }
+
+    try {
+      const pinnedPlaces = explorationBoard.resources.filter(
+        (r): r is PlaceResource => r.ref.type === 'PLACE' && pinnedRefs.some((p) => p.id === r.ref.id),
+      );
+      const previousPlaceIds = explorationBoard.candidates.map((c) => c.placeRef.id);
+      const previousRegionId = explorationBoard.regionRef.id;
+
+      const result = await fetchExplorationBoard(prompt, { pinnedPlaces, previousPlaceIds, previousRegionId });
+
+      if (result.ok && result.diff) {
+        set({
+          isGenerating: false,
+          pendingProposal: {
+            board: result.board,
+            hanokDogan: result.hanokDogan,
+            nearbyAudio: result.nearbyAudio,
+            nearbyFood: result.nearbyFood,
+            keptRefs: result.diff.keptRefs,
+            addedRefs: result.diff.addedRefs,
+            removedRefs: result.diff.removedRefs,
+          },
+        });
+      } else {
+        set({
+          isGenerating: false,
+          lastError: result.ok ? '변경안을 만들지 못했어요.' : result.message,
+        });
+      }
     } catch (err) {
       set({
         isGenerating: false,
-        lastError: err instanceof Error && err.message === 'AUTH_CLOSED' ? '로그인이 필요해요.' : mapJourneyError(err),
+        lastError: mapJourneyError(err),
       });
     }
   },

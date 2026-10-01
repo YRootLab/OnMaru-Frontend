@@ -10,6 +10,7 @@ import { editorialRailCardViewModel } from '@/features/sorimaru-audio/presentati
 import { SORIMARU_THEME_CATEGORIES } from '@/features/sorimaru-audio/data/sorimaruCategoryData';
 import { SORIMARU_RAIL_VISIBLE_BUFFER, getVisibleRailPositions } from './sorimaruEditorialRailModel';
 import { palette, meok, surface, fontSize } from '@/design-system/tokens';
+import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty/OniSearchEmpty';
 
 interface SorimaruEditorialRailProps {
   stories: SorimaruStorySummary[];
@@ -746,11 +747,14 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
             maxWidth: '72rem',
             alignItems: 'center',
             justifyContent: 'center',
-            overflow: 'hidden',
-            padding: '0.75rem 0',
+            padding: '1.5rem 0',
           }}
         >
-          <p style={{ fontSize: '0.875rem', color: meok[700] }}>이 주제의 이야기를 찾지 못했어요.</p>
+          <OniSearchEmpty
+            size="md"
+            title="이 주제의 이야기를 찾지 못했어요"
+            description="다른 카테고리의 소리를 선택해 보세요."
+          />
         </section>
       );
     }

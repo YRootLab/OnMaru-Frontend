@@ -19,75 +19,133 @@ type MonthlyTimelineProps = {
   repository?: MemberTimelineRepository;
 };
 
-const Section = styled.section`
+const Wrap = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  width: 100%;
 `;
 
 const Header = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding-left: 4px;
+
+  @media (max-width: 380px) {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
 `;
 
 const Title = styled.h2`
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
   margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   color: #1f2328;
-  font-size: 15px;
-  font-weight: 800;
+  flex-shrink: 0;
+
+  [data-theme='dark'] & {
+    color: #f0ede9;
+  }
 `;
 
 const MonthInput = styled.input`
-  height: 32px;
-  border: 1px solid #e5e5e3;
+  height: 30px;
+  border: none;
   border-radius: 8px;
-  padding: 0 8px;
-  background: #f8f8f7;
+  padding: 0 10px;
+  background: rgba(0, 0, 0, 0.06);
   color: #1f2328;
   font: inherit;
   font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  flex-shrink: 0;
+  max-width: 160px;
+
+  &:focus {
+    box-shadow: 0 0 0 2px #2f6f4e;
+  }
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.1);
+    color: #f0ede9;
+    color-scheme: dark;
+
+    &:focus {
+      box-shadow: 0 0 0 2px #4ca97a;
+    }
+  }
 `;
 
 const Panel = styled.div`
-  border: 1px solid #e5e5e3;
-  border-radius: 12px;
-  background: #f8f8f7;
+  border-radius: 16px;
+  background: #ffffff;
   overflow: hidden;
+  width: 100%;
+
+  [data-theme='dark'] & {
+    background: #1e1c19;
+  }
 `;
 
 const DayGroup = styled(motion.div)`
-  padding: 14px;
+  padding: 16px 18px;
 
   & + & {
-    border-top: 1px solid #e5e5e3;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  [data-theme='dark'] & + & {
+    border-top-color: rgba(255, 255, 255, 0.07);
   }
 `;
 
 const DayLabel = styled.div`
-  margin-bottom: 10px;
-  color: #626b75;
-  font-size: 12px;
-  font-weight: 800;
+  margin-bottom: 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #8a929b;
+
+  [data-theme='dark'] & {
+    color: #7a8490;
+  }
 `;
 
 const TimelineLink = styled(Link)`
   display: grid;
-  grid-template-columns: 26px minmax(0, 1fr) 16px;
-  gap: 8px;
+  grid-template-columns: 32px minmax(0, 1fr) 16px;
+  gap: 10px;
   align-items: center;
-  padding: 8px 0;
+  padding: 7px 0;
   color: inherit;
   text-decoration: none;
+  border-radius: 6px;
+  transition: background-color 0.15s;
+
+  &:hover {
+    background-color: rgba(47, 111, 78, 0.06);
+    padding-left: 4px;
+    padding-right: 4px;
+    margin-left: -4px;
+    margin-right: -4px;
+  }
 
   &:focus-visible {
     outline: 2px solid #2f6f4e;
     outline-offset: 2px;
-    border-radius: 6px;
+  }
+
+  [data-theme='dark'] &:hover {
+    background-color: rgba(76, 169, 122, 0.1);
   }
 `;
 
@@ -95,11 +153,17 @@ const ItemIcon = styled.span`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 32px;
+  height: 32px;
   border-radius: 9999px;
-  background: rgba(47, 111, 78, 0.12);
+  background: rgba(47, 111, 78, 0.1);
   color: #2f6f4e;
+  flex-shrink: 0;
+
+  [data-theme='dark'] & {
+    background: rgba(76, 169, 122, 0.15);
+    color: #4ca97a;
+  }
 `;
 
 const ItemText = styled.span`
@@ -109,46 +173,81 @@ const ItemText = styled.span`
 const ItemTitle = styled.span`
   display: block;
   overflow: hidden;
-  color: #1f2328;
-  font-size: 13px;
-  font-weight: 800;
+  font-size: 13.5px;
+  font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: #1f2328;
+
+  [data-theme='dark'] & {
+    color: #f0ede9;
+  }
 `;
 
 const ItemSub = styled.span`
   display: block;
   margin-top: 2px;
   overflow: hidden;
-  color: #626b75;
   font-size: 12px;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: #8a929b;
+
+  [data-theme='dark'] & {
+    color: #7a8490;
+  }
 `;
 
 const Note = styled.p`
   margin: 0;
-  padding: 14px;
-  color: #626b75;
-  font-size: 12px;
+  padding: 20px 18px;
+  font-size: 13px;
   line-height: 1.55;
-  background: #f5f5f4;
+  color: #8a929b;
+
+  [data-theme='dark'] & {
+    color: #7a8490;
+  }
 `;
 
 const RetryButton = styled.button`
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 6px;
-  height: 34px;
-  border: 1px solid #e5e5e3;
+  gap: 5px;
+  height: 30px;
+  padding: 0 12px;
+  margin-left: 8px;
+  border: none;
   border-radius: 8px;
-  background: #fff;
+  background: rgba(0, 0, 0, 0.06);
   color: #1f2328;
   font: inherit;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 700;
   cursor: pointer;
+  vertical-align: middle;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.1);
+    color: #f0ede9;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+  }
+`;
+
+const ChevronIcon = styled(ChevronRight)`
+  flex-shrink: 0;
+  color: #c0c7ce;
+
+  [data-theme='dark'] & {
+    color: #555e66;
+  }
 `;
 
 function currentMonth(): string {
@@ -195,10 +294,10 @@ export default function MonthlyTimeline({ repository = defaultMemberTimelineRepo
   );
 
   return (
-    <Section>
+    <Wrap>
       <Header>
         <Title>
-          <CalendarDays size={16} />
+          <CalendarDays size={15} />
           이번 달에 모은 장소
         </Title>
         <MonthInput
@@ -214,9 +313,9 @@ export default function MonthlyTimeline({ repository = defaultMemberTimelineRepo
           <Note>월간 기록을 불러오는 중입니다.</Note>
         ) : error ? (
           <Note>
-            {error}{' '}
+            {error}
             <RetryButton type="button" onClick={() => void load()}>
-              <RotateCcw size={13} />
+              <RotateCcw size={12} />
               다시 시도
             </RetryButton>
           </Note>
@@ -235,7 +334,7 @@ export default function MonthlyTimeline({ repository = defaultMemberTimelineRepo
                     <ItemTitle>{item.title}</ItemTitle>
                     {item.subtitle && <ItemSub>{item.subtitle}</ItemSub>}
                   </ItemText>
-                  <ChevronRight size={14} color="#8a929b" />
+                  <ChevronIcon size={14} />
                 </TimelineLink>
               ))}
             </DayGroup>
@@ -245,6 +344,6 @@ export default function MonthlyTimeline({ repository = defaultMemberTimelineRepo
           <Note>현재 공개되지 않는 장소 {timeline.unavailableCount}개는 이름과 이미지를 표시하지 않았습니다.</Note>
         )}
       </Panel>
-    </Section>
+    </Wrap>
   );
 }
