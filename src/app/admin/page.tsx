@@ -66,7 +66,7 @@ export default function AdminDashboardPage() {
   }, []);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
       {toastMessage && (
         <Toast message={toastMessage} type="success" onClose={() => setToastMessage(null)} />
       )}
@@ -76,7 +76,7 @@ export default function AdminDashboardPage() {
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: '16px',
+          gap: '20px',
         }}
       >
         {dashboardStats.map((stat) => (
@@ -104,16 +104,17 @@ export default function AdminDashboardPage() {
         style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
-          gap: '20px',
+          gap: '24px',
         }}
       >
         {}
         <div
           style={{
             backgroundColor: '#FFFFFF',
-            borderRadius: '14px',
-            border: '1px solid rgba(78, 89, 104, 0.08)',
-            padding: '20px',
+            borderRadius: '16px',
+            border: '1px solid rgba(78, 89, 104, 0.10)',
+            padding: '28px 30px',
+            boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)',
             display: 'flex',
             flexDirection: 'column',
           }}
@@ -123,19 +124,19 @@ export default function AdminDashboardPage() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              marginBottom: '16px',
+              marginBottom: '20px',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Flame size={18} color={palette.juhong[500]} strokeWidth={2} />
-              <h2 style={{ fontSize: '15px', fontWeight: 700, color: meok[900], margin: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Flame size={20} color={palette.juhong[500]} strokeWidth={2.2} />
+              <h2 style={{ fontSize: '18px', fontWeight: 700, color: meok[900], margin: 0 }}>
                 최근 온기
               </h2>
             </div>
             <Link
               href="/admin/reviews"
               style={{
-                fontSize: '13px',
+                fontSize: '14px',
                 fontWeight: 600,
                 color: palette.juhong[500],
                 textDecoration: 'none',
@@ -145,7 +146,7 @@ export default function AdminDashboardPage() {
               }}
             >
               <span>전체보기</span>
-              <ArrowRight size={14} strokeWidth={2} />
+              <ArrowRight size={15} strokeWidth={2} />
             </Link>
           </div>
 
@@ -155,29 +156,30 @@ export default function AdminDashboardPage() {
                 key={item.id}
                 onClick={() => router.push('/admin/reviews')}
                 style={{
-                  height: '52px',
+                  minHeight: '60px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   borderBottom: idx < recentReviews.length - 1 ? '1px solid rgba(78, 89, 104, 0.06)' : 'none',
                   cursor: 'pointer',
-                  padding: '0 4px',
+                  padding: '12px 10px',
+                  borderRadius: '8px',
                   transition: 'background-color 0.12s ease',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ fontSize: '13px', fontWeight: 600, color: meok[900] }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span style={{ fontSize: '14px', fontWeight: 700, color: meok[900] }}>
                     {item.nickname}
                   </span>
-                  <span style={{ fontSize: '12px', color: meok[500] }}>
+                  <span style={{ fontSize: '13px', color: meok[500] }}>
                     {item.placeName}
                   </span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <span style={{ fontSize: '12px', color: palette.hwanggeum[700], fontWeight: 600 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <span style={{ fontSize: '14px', color: palette.hwanggeum[700], fontWeight: 700 }}>
                     ★ {item.mood}.0
                   </span>
-                  <span style={{ fontSize: '11px', color: meok[400] }}>
+                  <span style={{ fontSize: '12px', color: meok[400] }}>
                     {item.timeAgo}
                   </span>
                 </div>
@@ -190,9 +192,10 @@ export default function AdminDashboardPage() {
         <div
           style={{
             backgroundColor: '#FFFFFF',
-            borderRadius: '14px',
-            border: '1px solid rgba(78, 89, 104, 0.08)',
-            padding: '20px',
+            borderRadius: '16px',
+            border: '1px solid rgba(78, 89, 104, 0.10)',
+            padding: '28px 30px',
+            boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)',
             display: 'flex',
             flexDirection: 'column',
           }}
@@ -202,19 +205,19 @@ export default function AdminDashboardPage() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              marginBottom: '16px',
+              marginBottom: '20px',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <ShieldAlert size={18} color={palette.danpung[500]} strokeWidth={2} />
-              <h2 style={{ fontSize: '15px', fontWeight: 700, color: meok[900], margin: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <ShieldAlert size={20} color={palette.danpung[500]} strokeWidth={2.2} />
+              <h2 style={{ fontSize: '18px', fontWeight: 700, color: meok[900], margin: 0 }}>
                 처리 대기 신고
               </h2>
             </div>
             <Link
               href="/admin/reports"
               style={{
-                fontSize: '13px',
+                fontSize: '14px',
                 fontWeight: 600,
                 color: palette.danpung[500],
                 textDecoration: 'none',
@@ -224,7 +227,7 @@ export default function AdminDashboardPage() {
               }}
             >
               <span>처리하기</span>
-              <ArrowRight size={14} strokeWidth={2} />
+              <ArrowRight size={15} strokeWidth={2} />
             </Link>
           </div>
 
@@ -237,33 +240,35 @@ export default function AdminDashboardPage() {
                   key={rep.id}
                   onClick={() => router.push('/admin/reports')}
                   style={{
-                    height: '52px',
+                    minHeight: '60px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     borderBottom: idx < pendingReports.length - 1 ? '1px solid rgba(78, 89, 104, 0.06)' : 'none',
                     cursor: 'pointer',
-                    padding: '0 4px',
+                    padding: '12px 10px',
+                    borderRadius: '8px',
+                    transition: 'background-color 0.12s ease',
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <span
                       style={{
-                        padding: '2px 6px',
-                        borderRadius: '4px',
+                        padding: '3px 8px',
+                        borderRadius: '6px',
                         backgroundColor: palette.danpung[50],
                         color: palette.danpung[700],
-                        fontSize: '11px',
-                        fontWeight: 600,
+                        fontSize: '12px',
+                        fontWeight: 700,
                       }}
                     >
                       {rep.reason}
                     </span>
-                    <span style={{ fontSize: '13px', color: meok[900], fontWeight: 500 }}>
+                    <span style={{ fontSize: '14px', color: meok[900], fontWeight: 600 }}>
                       {rep.targetAuthor} ({rep.targetPlace})
                     </span>
                   </div>
-                  <span style={{ fontSize: '11px', color: meok[400] }}>
+                  <span style={{ fontSize: '12px', color: meok[400] }}>
                     {rep.timeAgo}
                   </span>
                 </div>
@@ -277,20 +282,21 @@ export default function AdminDashboardPage() {
       <section
         style={{
           backgroundColor: '#FFFFFF',
-          borderRadius: '14px',
-          border: '1px solid rgba(78, 89, 104, 0.08)',
-          padding: '20px 24px',
+          borderRadius: '16px',
+          border: '1px solid rgba(78, 89, 104, 0.10)',
+          padding: '28px 32px',
+          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)',
           display: 'flex',
           flexDirection: 'column',
-          gap: '16px',
+          gap: '20px',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <h2 style={{ fontSize: '15px', fontWeight: 700, color: meok[900], margin: 0, marginBottom: '4px' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: 700, color: meok[900], margin: 0, marginBottom: '6px' }}>
               데이터 파이프라인 현황
             </h2>
-            <p style={{ fontSize: '12px', color: meok[500], margin: 0 }}>
+            <p style={{ fontSize: '13px', color: meok[500], margin: 0 }}>
               한국관광공사 TourAPI 공공데이터 동기화 및 큐레이션 빌드 통계
             </p>
           </div>
@@ -301,22 +307,24 @@ export default function AdminDashboardPage() {
               onClick={() => setIsConfirmOpen(true)}
               disabled={isRebuilding}
               style={{
-                height: '36px',
-                padding: '0 16px',
+                height: '40px',
+                padding: '0 18px',
                 borderRadius: '8px',
                 border: 'none',
                 backgroundColor: palette.juhong[500],
                 color: '#FFFFFF',
-                fontSize: '13px',
+                fontSize: '14px',
                 fontWeight: 600,
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
+                gap: '8px',
                 cursor: isRebuilding ? 'not-allowed' : 'pointer',
                 opacity: isRebuilding ? 0.6 : 1,
+                boxShadow: '0 2px 6px rgba(235, 94, 40, 0.25)',
+                transition: 'all 0.15s ease',
               }}
             >
-              <RefreshCw size={15} strokeWidth={2} className={isRebuilding ? 'animate-spin' : ''} />
+              <RefreshCw size={16} strokeWidth={2} className={isRebuilding ? 'animate-spin' : ''} />
               <span>{isRebuilding ? '갱신 중...' : '지금 갱신하기'}</span>
             </button>
           )}
@@ -326,8 +334,8 @@ export default function AdminDashboardPage() {
         {isRebuilding && (
           <div
             style={{
-              padding: '14px',
-              borderRadius: '10px',
+              padding: '16px 20px',
+              borderRadius: '12px',
               backgroundColor: palette.juhong[50],
               border: `1px solid ${palette.juhong[200]}`,
             }}
@@ -336,10 +344,10 @@ export default function AdminDashboardPage() {
               style={{
                 display: 'flex',
                 justifyContent: 'space-between',
-                fontSize: '12px',
+                fontSize: '13px',
                 fontWeight: 600,
                 color: palette.juhong[700],
-                marginBottom: '8px',
+                marginBottom: '10px',
               }}
             >
               <span>{progressText}</span>
@@ -348,9 +356,9 @@ export default function AdminDashboardPage() {
             <div
               style={{
                 width: '100%',
-                height: '6px',
+                height: '8px',
                 backgroundColor: 'rgba(255, 85, 0, 0.15)',
-                borderRadius: '3px',
+                borderRadius: '4px',
                 overflow: 'hidden',
               }}
             >
@@ -359,7 +367,7 @@ export default function AdminDashboardPage() {
                   width: `${progress}%`,
                   height: '100%',
                   backgroundColor: palette.juhong[500],
-                  borderRadius: '3px',
+                  borderRadius: '4px',
                   transition: 'width 0.4s ease',
                 }}
               />
@@ -373,38 +381,65 @@ export default function AdminDashboardPage() {
             gridTemplateColumns: 'repeat(4, 1fr)',
             gap: '16px',
             paddingTop: '8px',
-            borderTop: '1px solid rgba(78, 89, 104, 0.06)',
           }}
         >
-          <div>
-            <div style={{ fontSize: '11px', color: meok[400], marginBottom: '4px' }}>마지막 갱신</div>
-            <div style={{ fontSize: '13px', fontWeight: 600, color: meok[700] }}>
+          <div
+            style={{
+              backgroundColor: 'rgba(78, 89, 104, 0.03)',
+              borderRadius: '12px',
+              padding: '18px 20px',
+              border: '1px solid rgba(78, 89, 104, 0.06)',
+            }}
+          >
+            <div style={{ fontSize: '13px', color: meok[500], fontWeight: 500, marginBottom: '6px' }}>마지막 갱신</div>
+            <div style={{ fontSize: '16px', fontWeight: 700, color: meok[800] }}>
               {pipelineSummary?.lastBuildAt ?? '-'}
             </div>
           </div>
 
-          <div>
-            <div style={{ fontSize: '11px', color: meok[400], marginBottom: '4px' }}>수집 현황</div>
-            <div style={{ fontSize: '13px', fontWeight: 600, color: meok[700] }}>
+          <div
+            style={{
+              backgroundColor: 'rgba(78, 89, 104, 0.03)',
+              borderRadius: '12px',
+              padding: '18px 20px',
+              border: '1px solid rgba(78, 89, 104, 0.06)',
+            }}
+          >
+            <div style={{ fontSize: '13px', color: meok[500], fontWeight: 500, marginBottom: '6px' }}>수집 현황</div>
+            <div style={{ fontSize: '15px', fontWeight: 700, color: meok[800] }}>
               마을 {pipelineSummary?.villageCount ?? 0} · 숙소 {pipelineSummary?.stayCount ?? 0} · 루트 {pipelineSummary?.routeCount ?? 0}
             </div>
           </div>
 
-          <div>
-            <div style={{ fontSize: '11px', color: meok[400], marginBottom: '4px' }}>API 일일 호출</div>
-            <div style={{ fontSize: '13px', fontWeight: 600, color: meok[700], fontVariantNumeric: 'tabular-nums' }}>
+          <div
+            style={{
+              backgroundColor: 'rgba(78, 89, 104, 0.03)',
+              borderRadius: '12px',
+              padding: '18px 20px',
+              border: '1px solid rgba(78, 89, 104, 0.06)',
+            }}
+          >
+            <div style={{ fontSize: '13px', color: meok[500], fontWeight: 500, marginBottom: '6px' }}>API 일일 호출</div>
+            <div style={{ fontSize: '16px', fontWeight: 700, color: meok[800], fontVariantNumeric: 'tabular-nums' }}>
               {(pipelineSummary?.apiCallUsed ?? 0).toLocaleString()} / {(pipelineSummary?.apiCallLimit ?? 0).toLocaleString()}
             </div>
           </div>
 
-          <div>
-            <div style={{ fontSize: '11px', color: meok[400], marginBottom: '4px' }}>실패 건수</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div
+            style={{
+              backgroundColor: 'rgba(78, 89, 104, 0.03)',
+              borderRadius: '12px',
+              padding: '18px 20px',
+              border: '1px solid rgba(78, 89, 104, 0.06)',
+            }}
+          >
+            <div style={{ fontSize: '13px', color: meok[500], fontWeight: 500, marginBottom: '6px' }}>실패 건수</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span
                 style={{
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  color: (pipelineSummary?.failureCount ?? 0) > 0 ? palette.danpung[500] : meok[700],
+                  fontSize: '16px',
+                  fontWeight: 700,
+                  color: (pipelineSummary?.failureCount ?? 0) > 0 ? palette.danpung[500] : meok[800],
                 }}
               >
                 {pipelineSummary?.failureCount ?? 0}건
@@ -413,10 +448,10 @@ export default function AdminDashboardPage() {
                 <Link
                   href="/admin/data"
                   style={{
-                    fontSize: '11px',
+                    fontSize: '13px',
                     color: palette.danpung[500],
                     textDecoration: 'underline',
-                    fontWeight: 500,
+                    fontWeight: 600,
                   }}
                 >
                   보기

@@ -4,7 +4,7 @@
 
 
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { meok, palette } from '@/design-system/tokens';
 import { DataTable, ColumnDef } from '@/features/admin/components/DataTable';
@@ -17,6 +17,7 @@ import {
 } from '@/features/admin/types';
 import { CURATION_PRESET_BADGES } from '@/features/admin/mock/curation.mock';
 import { getCurations, updateCuration } from '@/features/admin/api/adminApi';
+import { useAdminCursorPagination } from '@/features/admin/hooks/useAdminCursorPagination';
 import {
   Search,
   RotateCcw,
@@ -28,60 +29,45 @@ import {
 
 export default function AdminCurationPage() {
   const [activeCategory, setActiveCategory] = useState<CurationCategory>('VILLAGE');
-
-
-  const [villages, setVillages] = useState<CurationItem[]>([]);
-  const [stays, setStays] = useState<CurationItem[]>([]);
-  const [routes, setRoutes] = useState<CurationItem[]>([]);
-
-  useEffect(() => {
-    getCurations({ limit: 300 }).then((r) => {
-      setVillages(r.items.filter((i) => i.category === 'VILLAGE'));
-      setStays(r.items.filter((i) => i.category === 'STAY'));
-      setRoutes(r.items.filter((i) => i.category === 'ROUTE'));
-    }).catch(() => {});
-  }, []);
-
-
-  const [modifiedIds, setModifiedIds] = useState<Set<string>>(new Set());
-
-
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<'ALL' | HanokCurationType>('ALL');
   const [includedFilter, setIncludedFilter] = useState<'ALL' | 'INCLUDED' | 'EXCLUDED'>('ALL');
   const [imageFilter, setImageFilter] = useState<'ALL' | 'HAS_IMAGE' | 'NO_IMAGE'>('ALL');
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 15;
 
+  const serverIncluded =
+    includedFilter === 'ALL' ? undefined : includedFilter === 'INCLUDED';
 
+  const {
+    items: curations,
+    setItems: setCurations,
+    isLoading,
+    pageNumber,
+    hasNext,
+    hasPrev,
+    goToNextPage,
+    goToPrevPage,
+    resetAndRefetch,
+  } = useAdminCursorPagination<CurationItem, { category: 'VILLAGE' | 'STAY' | 'ROUTE'; included?: boolean }>({
+    fetchFn: getCurations,
+    filters: {
+      category: activeCategory,
+      included: serverIncluded,
+    },
+    limit: 20,
+  });
+
+  const [modifiedIds, setModifiedIds] = useState<Set<string>>(new Set());
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
-
-
   const [badgePopoverId, setBadgePopoverId] = useState<string | null>(null);
   const [customBadgeInput, setCustomBadgeInput] = useState('');
-
-
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isApplyConfirmOpen, setIsApplyConfirmOpen] = useState(false);
   const [isApplying, setIsApplying] = useState(false);
   const [lastAppliedTime, setLastAppliedTime] = useState('2026.08.04 04:00');
 
-
-  const currentCategoryList = useMemo(() => {
-    switch (activeCategory) {
-      case 'VILLAGE':
-        return villages;
-      case 'STAY':
-        return stays;
-      case 'ROUTE':
-        return routes;
-    }
-  }, [activeCategory, villages, stays, routes]);
-
-
   const updateItem = (id: string, updates: Partial<CurationItem>) => {
-    const updater = (prev: CurationItem[]) =>
+    setCurations((prev) =>
       prev.map((item) => {
         if (item.id === id) {
           return {
@@ -93,28 +79,20 @@ export default function AdminCurationPage() {
           };
         }
         return item;
-      });
-
-    if (activeCategory === 'VILLAGE') setVillages(updater);
-    else if (activeCategory === 'STAY') setStays(updater);
-    else setRoutes(updater);
-
+      })
+    );
     setModifiedIds((prev) => new Set(prev).add(id));
   };
-
 
   const handleResetFilters = () => {
     setSearchQuery('');
     setTypeFilter('ALL');
     setIncludedFilter('ALL');
     setImageFilter('ALL');
-    setCurrentPage(1);
   };
 
-
   const filteredList = useMemo(() => {
-    return currentCategoryList.filter((item) => {
-
+    return curations.filter((item) => {
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const matchName = item.name.toLowerCase().includes(q);
@@ -122,44 +100,31 @@ export default function AdminCurationPage() {
         if (!matchName && !matchRegion) return false;
       }
 
-
       if (typeFilter !== 'ALL' && item.type !== typeFilter) return false;
-
-
-      if (includedFilter === 'INCLUDED' && !item.isIncluded) return false;
-      if (includedFilter === 'EXCLUDED' && item.isIncluded) return false;
-
 
       if (imageFilter === 'HAS_IMAGE' && !item.thumbnail) return false;
       if (imageFilter === 'NO_IMAGE' && Boolean(item.thumbnail)) return false;
 
       return true;
     });
-  }, [currentCategoryList, searchQuery, typeFilter, includedFilter, imageFilter]);
+  }, [curations, searchQuery, typeFilter, imageFilter]);
 
-
-  const totalPages = Math.ceil(filteredList.length / pageSize) || 1;
-  const paginatedList = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return filteredList.slice(start, start + pageSize);
-  }, [filteredList, currentPage, pageSize]);
-
-
-  const handleApplyChanges = () => {
+  const handleApplyChanges = async () => {
     setIsApplying(true);
-    const allItems = [...villages, ...stays, ...routes];
-    const toSave = allItems.filter((i) => modifiedIds.has(i.id));
-    Promise.all(toSave.map((i) => updateCuration(i.id, i))).then(() => {
+    const toSave = curations.filter((i) => modifiedIds.has(i.id));
+    try {
+      await Promise.all(toSave.map((i) => updateCuration(i.contentId || i.id, i)));
       const count = modifiedIds.size;
       setModifiedIds(new Set());
-      setIsApplying(false);
       setIsApplyConfirmOpen(false);
       setLastAppliedTime(new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }));
       setToastMessage(`변경사항 ${count}건이 서비스 데이터에 성공적으로 반영되었습니다.`);
-    }).catch(() => {
-      setIsApplying(false);
+      await resetAndRefetch();
+    } catch {
       setToastMessage('저장 중 오류가 발생했습니다.');
-    });
+    } finally {
+      setIsApplying(false);
+    }
   };
 
 
@@ -578,10 +543,7 @@ export default function AdminCurationPage() {
         <div style={{ display: 'flex', gap: '8px' }}>
           <button
             type="button"
-            onClick={() => {
-              setActiveCategory('VILLAGE');
-              setCurrentPage(1);
-            }}
+            onClick={() => setActiveCategory('VILLAGE')}
             style={{
               height: '40px',
               padding: '0 16px',
@@ -596,15 +558,12 @@ export default function AdminCurationPage() {
               transition: 'all 0.12s ease',
             }}
           >
-            한옥마을 {villages.length}
+            한옥마을
           </button>
 
           <button
             type="button"
-            onClick={() => {
-              setActiveCategory('STAY');
-              setCurrentPage(1);
-            }}
+            onClick={() => setActiveCategory('STAY')}
             style={{
               height: '40px',
               padding: '0 16px',
@@ -619,15 +578,12 @@ export default function AdminCurationPage() {
               transition: 'all 0.12s ease',
             }}
           >
-            한옥숙소 172
+            한옥숙소
           </button>
 
           <button
             type="button"
-            onClick={() => {
-              setActiveCategory('ROUTE');
-              setCurrentPage(1);
-            }}
+            onClick={() => setActiveCategory('ROUTE')}
             style={{
               height: '40px',
               padding: '0 16px',
@@ -642,7 +598,7 @@ export default function AdminCurationPage() {
               transition: 'all 0.12s ease',
             }}
           >
-            추천 루트 41
+            추천 루트
           </button>
         </div>
 
@@ -722,11 +678,10 @@ export default function AdminCurationPage() {
           />
           <input
             type="text"
-            placeholder="명칭, 지역 검색..."
+            placeholder="명칭, 지역 검색 (현재 페이지)"
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
-              setCurrentPage(1);
             }}
             style={{
               width: '100%',
@@ -747,7 +702,6 @@ export default function AdminCurationPage() {
           value={typeFilter}
           onChange={(e) => {
             setTypeFilter(e.target.value as 'ALL' | HanokCurationType);
-            setCurrentPage(1);
           }}
           style={{
             height: '38px',
@@ -771,7 +725,6 @@ export default function AdminCurationPage() {
           value={includedFilter}
           onChange={(e) => {
             setIncludedFilter(e.target.value as 'ALL' | 'INCLUDED' | 'EXCLUDED');
-            setCurrentPage(1);
           }}
           style={{
             height: '38px',
@@ -794,7 +747,6 @@ export default function AdminCurationPage() {
           value={imageFilter}
           onChange={(e) => {
             setImageFilter(e.target.value as 'ALL' | 'HAS_IMAGE' | 'NO_IMAGE');
-            setCurrentPage(1);
           }}
           style={{
             height: '38px',
@@ -837,12 +789,16 @@ export default function AdminCurationPage() {
       {}
       <DataTable
         columns={columns}
-        rows={paginatedList}
+        rows={filteredList}
         rowKey={(r) => r.id}
+        loading={isLoading}
         pagination={{
-          currentPage,
-          totalPages,
-          onPageChange: (p) => setCurrentPage(p),
+          isCursor: true,
+          currentPage: pageNumber,
+          hasNext,
+          hasPrev,
+          onNext: goToNextPage,
+          onPrev: goToPrevPage,
         }}
       />
 

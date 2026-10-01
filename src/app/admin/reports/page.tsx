@@ -4,15 +4,17 @@
 
 
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { meok, palette } from '@/design-system/tokens';
 import { StatusBadge } from '@/features/admin/components/StatusBadge';
 import { ConfirmDialog } from '@/features/admin/components/ConfirmDialog';
 import { Toast } from '@/features/admin/components/Toast';
 import { EmptyState } from '@/features/admin/components/EmptyState';
+import { CursorPagination } from '@/features/admin/components/Pagination';
 import { ReportItem, ReportStatus } from '@/features/admin/types';
-import { getReports } from '@/features/admin/api/adminApi';
+import { getReports, moderateReview } from '@/features/admin/api/adminApi';
+import { useAdminCursorPagination } from '@/features/admin/hooks/useAdminCursorPagination';
 import {
   ShieldAlert,
   EyeOff,
@@ -24,13 +26,27 @@ import {
 } from 'lucide-react';
 
 export default function AdminReportsPage() {
-  const [reports, setReports] = useState<ReportItem[]>([]);
-
-  useEffect(() => {
-    getReports({ limit: 200 }).then((r) => setReports(r.items)).catch(() => {});
-  }, []);
+  const [reasonFilter, setReasonFilter] = useState<string>('ALL');
   const [activeTab, setActiveTab] = useState<ReportStatus>('PENDING');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const {
+    items: reports,
+    setItems: setReports,
+    isLoading,
+    pageNumber,
+    hasNext,
+    hasPrev,
+    goToNextPage,
+    goToPrevPage,
+    resetAndRefetch,
+  } = useAdminCursorPagination<ReportItem, { reason?: string }>({
+    fetchFn: getReports,
+    filters: {
+      reason: reasonFilter === 'ALL' ? undefined : reasonFilter,
+    },
+    limit: 20,
+  });
 
   const [confirmState, setConfirmState] = useState<{
     isOpen: boolean;
@@ -45,7 +61,6 @@ export default function AdminReportsPage() {
     onConfirm: () => {},
   });
 
-
   const pendingCount = useMemo(
     () => reports.filter((r) => r.status === 'PENDING').length,
     [reports]
@@ -59,11 +74,9 @@ export default function AdminReportsPage() {
     [reports]
   );
 
-
   const currentReports = useMemo(() => {
     return reports.filter((r) => r.status === activeTab);
   }, [reports, activeTab]);
-
 
   const handleHideReview = (report: ReportItem) => {
     setConfirmState({
@@ -71,7 +84,7 @@ export default function AdminReportsPage() {
       title: '후기 숨김 처리',
       description: `[${report.review.place.name}] 후기를 숨김 상태로 전환하시겠습니까?\n일반 사용자 피드에서 즉시 비노출 처리됩니다.`,
       isDestructive: false,
-      onConfirm: () => {
+      onConfirm: async () => {
         setReports((prev) =>
           prev.map((item) =>
             item.id === report.id
@@ -87,6 +100,8 @@ export default function AdminReportsPage() {
         );
         setConfirmState((prev) => ({ ...prev, isOpen: false }));
         setToastMessage('후기가 숨김 처리되고 신고가 해결 완료되었습니다.');
+        await moderateReview(report.review.id, 'HIDDEN', report.reasonLabel).catch(() => {});
+        await resetAndRefetch();
       },
     });
   };
@@ -97,7 +112,7 @@ export default function AdminReportsPage() {
       title: '후기 영구 삭제',
       description: `이 후기를 완전히 삭제하시겠습니까?\n삭제된 내용은 복구할 수 없으며 작성자(${report.review.author.nickname})에게 경고 및 삭제 알림이 발송됩니다.`,
       isDestructive: true,
-      onConfirm: () => {
+      onConfirm: async () => {
         setReports((prev) =>
           prev.map((item) =>
             item.id === report.id
@@ -113,6 +128,8 @@ export default function AdminReportsPage() {
         );
         setConfirmState((prev) => ({ ...prev, isOpen: false }));
         setToastMessage('후기가 영구 삭제되었으며 사용자에게 알림이 발송되었습니다.');
+        await moderateReview(report.review.id, 'REMOVED', report.reasonLabel).catch(() => {});
+        await resetAndRefetch();
       },
     });
   };
@@ -123,7 +140,7 @@ export default function AdminReportsPage() {
       title: '신고 반려',
       description: `정상적인 이용 후기로 판단하여 이 신고를 반려하시겠습니까?\n해당 후기는 게시 상태를 유지합니다.`,
       isDestructive: false,
-      onConfirm: () => {
+      onConfirm: async () => {
         setReports((prev) =>
           prev.map((item) =>
             item.id === report.id
@@ -138,6 +155,7 @@ export default function AdminReportsPage() {
         );
         setConfirmState((prev) => ({ ...prev, isOpen: false }));
         setToastMessage('신고가 반려 처리되었습니다.');
+        await resetAndRefetch();
       },
     });
   };
@@ -148,7 +166,7 @@ export default function AdminReportsPage() {
       title: '작성자 이용 정지',
       description: `작성자 '${report.review.author.nickname}' 계정을 7일간 서비스 이용 정지하시겠습니까?\n신고 누적 횟수: ${report.reportedUserAccumReports}회`,
       isDestructive: true,
-      onConfirm: () => {
+      onConfirm: async () => {
         setReports((prev) =>
           prev.map((item) =>
             item.id === report.id
@@ -164,6 +182,8 @@ export default function AdminReportsPage() {
         );
         setConfirmState((prev) => ({ ...prev, isOpen: false }));
         setToastMessage(`작성자 '${report.review.author.nickname}'의 계정이 정지 처리되었습니다.`);
+        await moderateReview(report.review.id, 'HIDDEN', '사용자 정지로 인한 숨김').catch(() => {});
+        await resetAndRefetch();
       },
     });
   };
@@ -302,6 +322,30 @@ export default function AdminReportsPage() {
             {rejectedCount}
           </span>
         </button>
+
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <select
+            value={reasonFilter}
+            onChange={(e) => setReasonFilter(e.target.value)}
+            style={{
+              height: '36px',
+              padding: '0 12px',
+              borderRadius: '8px',
+              border: '1px solid rgba(78, 89, 104, 0.15)',
+              fontSize: '13px',
+              color: meok[700],
+              backgroundColor: '#FFFFFF',
+              outline: 'none',
+            }}
+          >
+            <option value="ALL">신고 사유: 전체</option>
+            <option value="SPAM">스팸/홍보 (SPAM)</option>
+            <option value="ABUSE">욕설/비방 (ABUSE)</option>
+            <option value="PERSONAL_DATA">개인정보 노출 (PERSONAL_DATA)</option>
+            <option value="COPYRIGHT">저작권 침해 (COPYRIGHT)</option>
+            <option value="OTHER">기타 (OTHER)</option>
+          </select>
+        </div>
       </div>
 
       {}
@@ -596,6 +640,15 @@ export default function AdminReportsPage() {
           })}
         </div>
       )}
+
+      <CursorPagination
+        currentPage={pageNumber}
+        hasNext={hasNext}
+        hasPrev={hasPrev}
+        onNext={goToNextPage}
+        onPrev={goToPrevPage}
+        isLoading={isLoading}
+      />
 
       {}
       <ConfirmDialog

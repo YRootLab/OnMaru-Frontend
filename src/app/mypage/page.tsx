@@ -600,7 +600,7 @@ export default function MyPage() {
         <div style={{ backgroundColor: c.bg.surface, borderRadius: '20px', padding: '40px 28px 36px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', textAlign: 'center' }}>
           <div style={{ width: '180px', height: '180px', flexShrink: 0 }}>
             {oniVideoError ? (
-              <img src="/images/character/Oni_hi.png" alt="온이" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+              <img src="/images/character/Oni_hi.png" alt="온이" style={{ width: '100%', height: '100%', objectFit: 'contain', mixBlendMode: 'screen' }} />
             ) : (
               <video
                 autoPlay
@@ -613,7 +613,7 @@ export default function MyPage() {
                   e.currentTarget.muted = true;
                   e.currentTarget.play().catch(() => {});
                 }}
-                style={{ width: '100%', height: '100%', objectFit: 'contain', background: 'transparent' }}
+                style={{ width: '100%', height: '100%', objectFit: 'contain', background: 'transparent', mixBlendMode: 'screen' }}
               >
                 <source src="/videos/Oni_hi.webm" type="video/webm" onError={() => setOniVideoError(true)} />
               </video>

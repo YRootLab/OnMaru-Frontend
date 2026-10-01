@@ -123,3 +123,102 @@ export const Pagination: React.FC<PaginationProps> = ({
     </div>
   );
 };
+
+export interface CursorPaginationProps {
+  currentPage: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+  onNext: () => void;
+  onPrev: () => void;
+  isLoading?: boolean;
+  className?: string;
+}
+
+export const CursorPagination: React.FC<CursorPaginationProps> = ({
+  currentPage,
+  hasNext,
+  hasPrev,
+  onNext,
+  onPrev,
+  isLoading = false,
+  className,
+}) => {
+  if (!hasPrev && !hasNext) return null;
+
+  return (
+    <div
+      className={className}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '12px',
+        padding: '20px 0',
+      }}
+    >
+      <button
+        type="button"
+        onClick={onPrev}
+        disabled={!hasPrev || isLoading}
+        aria-label="이전 페이지"
+        style={{
+          height: '34px',
+          padding: '0 12px',
+          borderRadius: '8px',
+          border: '1px solid rgba(78, 89, 104, 0.15)',
+          backgroundColor: '#FFFFFF',
+          color: !hasPrev || isLoading ? meok[400] : meok[700],
+          display: 'flex',
+          alignItems: 'center',
+          gap: '4px',
+          fontSize: '13px',
+          fontWeight: 500,
+          cursor: !hasPrev || isLoading ? 'not-allowed' : 'pointer',
+          transition: 'all 0.15s ease',
+        }}
+      >
+        <ChevronLeft size={16} strokeWidth={2} />
+        <span>이전</span>
+      </button>
+
+      <div
+        style={{
+          padding: '4px 12px',
+          borderRadius: '6px',
+          backgroundColor: 'rgba(78, 89, 104, 0.05)',
+          fontSize: '13px',
+          fontWeight: 600,
+          color: meok[800],
+          fontVariantNumeric: 'tabular-nums',
+        }}
+      >
+        {currentPage} 페이지
+      </div>
+
+      <button
+        type="button"
+        onClick={onNext}
+        disabled={!hasNext || isLoading}
+        aria-label="다음 페이지"
+        style={{
+          height: '34px',
+          padding: '0 12px',
+          borderRadius: '8px',
+          border: '1px solid rgba(78, 89, 104, 0.15)',
+          backgroundColor: '#FFFFFF',
+          color: !hasNext || isLoading ? meok[400] : meok[700],
+          display: 'flex',
+          alignItems: 'center',
+          gap: '4px',
+          fontSize: '13px',
+          fontWeight: 500,
+          cursor: !hasNext || isLoading ? 'not-allowed' : 'pointer',
+          transition: 'all 0.15s ease',
+        }}
+      >
+        <span>다음</span>
+        <ChevronRight size={16} strokeWidth={2} />
+      </button>
+    </div>
+  );
+};

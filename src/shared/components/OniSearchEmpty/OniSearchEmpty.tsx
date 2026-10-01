@@ -81,6 +81,7 @@ const MascotImage = styled.img`
   transform-origin: center center;
   pointer-events: none;
   user-select: none;
+  mix-blend-mode: screen;
 `;
 
 const MascotVideo = styled.video`
@@ -91,6 +92,7 @@ const MascotVideo = styled.video`
   transform-origin: center center;
   pointer-events: none;
   user-select: none;
+  mix-blend-mode: screen;
 `;
 
 const MascotStaticFallback = styled.img`

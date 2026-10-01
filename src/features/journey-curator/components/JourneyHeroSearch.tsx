@@ -289,6 +289,7 @@ const OniVideoBox = styled.div<{ $isTyping?: boolean; $direction?: 'right' | 'le
     display: block;
     pointer-events: none;
     filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.12));
+    mix-blend-mode: screen;
   }
 
   @media (max-width: 640px) {

@@ -212,8 +212,8 @@ export default function AdminLayout({
         <AdminHeader />
         <main
           style={{
-            padding: '28px',
-            maxWidth: '1400px',
+            padding: '32px 40px',
+            maxWidth: '1800px',
             width: '100%',
             boxSizing: 'border-box',
           }}

@@ -368,7 +368,7 @@ export default function Footer() {
     });
   }, []);
 
-  if (pathname.startsWith('/map')) {
+  if (pathname.startsWith('/map') || pathname.startsWith('/admin')) {
     return null;
   }
 

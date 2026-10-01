@@ -27,43 +27,50 @@ import {
 export default function AdminUsersPage() {
   const { user: currentUser, isAdmin } = useAdminAuth();
 
-  const { users, setUsers, fetchError } = useAdminUsers();
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<'ALL' | AdminRole>('ALL');
-  const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'SUSPENDED'>('ALL');
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'DELETING'>('ALL');
   const [sortBy, setSortBy] = useState<'latest' | 'reviews' | 'reports'>('latest');
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 15;
+  const serverStatus = statusFilter === 'ALL' ? undefined : statusFilter;
+
+  const {
+    items: users,
+    setItems: setUsers,
+    isLoading,
+    error: usersError,
+    pageNumber,
+    hasNext,
+    hasPrev,
+    goToNextPage,
+    goToPrevPage,
+    resetAndRefetch,
+  } = useAdminUsers({
+    status: serverStatus,
+    limit: 20,
+  });
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-
 
   const [roleChangeTarget, setRoleChangeTarget] = useState<{
     user: AdminUser;
     newRole: AdminRole;
   } | null>(null);
 
-
   const [suspendTarget, setSuspendTarget] = useState<AdminUser | null>(null);
   const [suspendPeriod, setSuspendPeriod] = useState<'3일' | '7일' | '30일' | '영구'>('7일');
   const [suspendReason, setSuspendReason] = useState('');
 
-
   const [activityTarget, setActivityTarget] = useState<AdminUser | null>(null);
 
-
   const [unsuspendTarget, setUnsuspendTarget] = useState<AdminUser | null>(null);
-
 
   const handleResetFilters = () => {
     setSearchQuery('');
     setRoleFilter('ALL');
     setStatusFilter('ALL');
     setSortBy('latest');
-    setCurrentPage(1);
   };
-
 
   const filteredUsers = useMemo(() => {
     return users
@@ -76,7 +83,6 @@ export default function AdminUsersPage() {
         }
 
         if (roleFilter !== 'ALL' && u.role !== roleFilter) return false;
-        if (statusFilter !== 'ALL' && u.status !== statusFilter) return false;
 
         return true;
       })
@@ -85,15 +91,7 @@ export default function AdminUsersPage() {
         if (sortBy === 'reports') return b.reportCount - a.reportCount;
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
-  }, [users, searchQuery, roleFilter, statusFilter, sortBy]);
-
-
-  const totalPages = Math.ceil(filteredUsers.length / pageSize) || 1;
-  const paginatedUsers = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return filteredUsers.slice(start, start + pageSize);
-  }, [filteredUsers, currentPage, pageSize]);
-
+  }, [users, searchQuery, roleFilter, sortBy]);
 
   const handleConfirmRoleChange = () => {
     if (!roleChangeTarget) return;
@@ -106,7 +104,6 @@ export default function AdminUsersPage() {
     setRoleChangeTarget(null);
   };
 
-
   const handleConfirmSuspend = () => {
     if (!suspendTarget || !suspendReason.trim()) return;
 
@@ -115,7 +112,9 @@ export default function AdminUsersPage() {
       type: suspendPeriod === '영구' ? 'PERMANENT_BAN' : 'SUSPENSION',
       reason: suspendReason.trim(),
       durationDays: durationMap[suspendPeriod],
-    }).catch(() => {});
+    })
+      .then(() => resetAndRefetch())
+      .catch(() => {});
 
     setUsers((prev) =>
       prev.map((u) =>
@@ -181,21 +180,24 @@ export default function AdminUsersPage() {
     {
       key: 'nickname',
       label: '닉네임',
-      width: 140,
+      width: 180,
+      minWidth: 180,
       render: (row) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', whiteSpace: 'nowrap' }}>
           <div
             style={{
-              width: '28px',
-              height: '28px',
+              width: '32px',
+              height: '32px',
               borderRadius: '50%',
-              backgroundColor: row.role === 'ADMIN' ? palette.juhong[100] : meok[100],
-              color: row.role === 'ADMIN' ? palette.juhong[700] : meok[700],
-              fontSize: '12px',
+              backgroundColor: row.role === 'ADMIN' ? 'rgba(255, 85, 0, 0.1)' : '#F3F4F6',
+              color: row.role === 'ADMIN' ? palette.juhong[600] : meok[700],
+              fontSize: '13px',
               fontWeight: 700,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              border: '1px solid rgba(0, 0, 0, 0.05)',
+              flexShrink: 0,
             }}
           >
             {row.nickname.slice(0, 1)}
@@ -209,15 +211,17 @@ export default function AdminUsersPage() {
     {
       key: 'email',
       label: '이메일',
-      width: 180,
+      width: 220,
+      minWidth: 200,
       render: (row) => (
-        <span style={{ fontSize: '12px', color: meok[500] }}>{row.email}</span>
+        <span style={{ fontSize: '12px', color: meok[600], whiteSpace: 'nowrap' }}>{row.email}</span>
       ),
     },
     {
       key: 'role',
       label: '역할 (권한)',
-      width: 130,
+      width: 120,
+      minWidth: 120,
       render: (row) => {
         const isSelf = row.id === currentUser?.id;
 
@@ -230,16 +234,17 @@ export default function AdminUsersPage() {
               setRoleChangeTarget({ user: row, newRole: e.target.value as AdminRole })
             }
             style={{
-              height: '30px',
-              padding: '0 8px',
-              borderRadius: '6px',
-              border: '1px solid rgba(78, 89, 104, 0.2)',
-              backgroundColor: isSelf ? meok[100] : '#FFFFFF',
+              height: '32px',
+              padding: '0 10px',
+              borderRadius: '8px',
+              border: '1px solid rgba(78, 89, 104, 0.18)',
+              backgroundColor: isSelf ? '#F9FAFB' : '#FFFFFF',
               color: isSelf ? meok[400] : meok[900],
               fontSize: '12px',
               fontWeight: 600,
               cursor: isSelf ? 'not-allowed' : 'pointer',
               outline: 'none',
+              boxShadow: '0 1px 2px rgba(0, 0, 0, 0.03)',
             }}
           >
             <option value="ADMIN">ADMIN</option>
@@ -252,16 +257,18 @@ export default function AdminUsersPage() {
     {
       key: 'status',
       label: '상태',
-      width: 90,
+      width: 100,
+      minWidth: 100,
       render: (row) => <StatusBadge status={row.status} />,
     },
     {
       key: 'reviewCount',
       label: '작성 온기',
       width: 90,
+      minWidth: 90,
       align: 'right',
       render: (row) => (
-        <span style={{ fontSize: '13px', fontWeight: 600, color: meok[700] }}>
+        <span style={{ fontSize: '13px', fontWeight: 600, color: meok[700], whiteSpace: 'nowrap' }}>
           {row.reviewCount}건
         </span>
       ),
@@ -270,6 +277,7 @@ export default function AdminUsersPage() {
       key: 'reportCount',
       label: '받은 신고',
       width: 90,
+      minWidth: 90,
       align: 'right',
       render: (row) => (
         <span
@@ -277,6 +285,7 @@ export default function AdminUsersPage() {
             fontSize: '13px',
             fontWeight: row.reportCount > 0 ? 700 : 500,
             color: row.reportCount > 0 ? palette.danpung[500] : meok[400],
+            whiteSpace: 'nowrap',
           }}
         >
           {row.reportCount}건
@@ -286,9 +295,10 @@ export default function AdminUsersPage() {
     {
       key: 'createdAt',
       label: '가입일',
-      width: 110,
+      width: 120,
+      minWidth: 120,
       render: (row) => (
-        <span style={{ fontSize: '12px', color: meok[500] }}>
+        <span style={{ fontSize: '12px', color: meok[500], whiteSpace: 'nowrap' }}>
           {new Date(row.createdAt).toLocaleDateString('ko-KR')}
         </span>
       ),
@@ -296,9 +306,10 @@ export default function AdminUsersPage() {
     {
       key: 'lastLoginAt',
       label: '최근 접속',
-      width: 110,
+      width: 120,
+      minWidth: 120,
       render: (row) => (
-        <span style={{ fontSize: '12px', color: meok[500] }}>
+        <span style={{ fontSize: '12px', color: meok[500], whiteSpace: 'nowrap' }}>
           {new Date(row.lastLoginAt).toLocaleDateString('ko-KR')}
         </span>
       ),
@@ -306,22 +317,26 @@ export default function AdminUsersPage() {
     {
       key: 'actions',
       label: '관리',
-      width: 130,
+      width: 150,
+      minWidth: 150,
       align: 'center',
       render: (row) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', justifyContent: 'center', whiteSpace: 'nowrap' }}>
           <button
             type="button"
             onClick={() => setActivityTarget(row)}
             title="활동 내역 조회"
             style={{
-              padding: '4px 8px',
+              padding: '6px 12px',
               borderRadius: '6px',
-              border: '1px solid rgba(78, 89, 104, 0.15)',
+              border: '1px solid rgba(78, 89, 104, 0.18)',
               backgroundColor: '#FFFFFF',
               color: meok[700],
-              fontSize: '11px',
+              fontSize: '12px',
+              fontWeight: 500,
               cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              boxShadow: '0 1px 2px rgba(0, 0, 0, 0.03)',
             }}
           >
             내역
@@ -338,14 +353,15 @@ export default function AdminUsersPage() {
               }}
               title={row.id === currentUser?.id ? '본인 계정은 정지할 수 없습니다' : '이용 정지'}
               style={{
-                padding: '4px 8px',
+                padding: '6px 12px',
                 borderRadius: '6px',
                 border: 'none',
-                backgroundColor: row.id === currentUser?.id ? meok[100] : palette.danpung[50],
-                color: row.id === currentUser?.id ? meok[400] : palette.danpung[700],
-                fontSize: '11px',
+                backgroundColor: row.id === currentUser?.id ? '#F3F4F6' : 'rgba(239, 68, 68, 0.08)',
+                color: row.id === currentUser?.id ? meok[400] : '#DC2626',
+                fontSize: '12px',
                 fontWeight: 600,
                 cursor: row.id === currentUser?.id ? 'not-allowed' : 'pointer',
+                whiteSpace: 'nowrap',
               }}
             >
               정지
@@ -356,14 +372,15 @@ export default function AdminUsersPage() {
               onClick={() => setUnsuspendTarget(row)}
               title="정지 해제"
               style={{
-                padding: '4px 8px',
+                padding: '6px 12px',
                 borderRadius: '6px',
                 border: 'none',
-                backgroundColor: palette.cheongrok[50],
-                color: palette.cheongrok[700],
-                fontSize: '11px',
+                backgroundColor: 'rgba(16, 185, 129, 0.08)',
+                color: '#059669',
+                fontSize: '12px',
                 fontWeight: 600,
                 cursor: 'pointer',
+                whiteSpace: 'nowrap',
               }}
             >
               해제
@@ -379,13 +396,13 @@ export default function AdminUsersPage() {
       {toastMessage && (
         <Toast message={toastMessage} type="success" onClose={() => setToastMessage(null)} />
       )}
-      {fetchError && (
+      {usersError && (
         <div style={{ padding: '12px 16px', borderRadius: '8px', backgroundColor: '#fff0f0', color: '#c0392b', fontSize: '13px', border: '1px solid #f5c6cb' }}>
-          회원 목록 불러오기 실패: {fetchError}
+          회원 목록 불러오기 실패: {usersError.message || `${usersError.status} ${usersError.code ?? ''}`}
         </div>
       )}
 
-      {}
+      {/* Filter Toolbar */}
       <div
         style={{
           backgroundColor: '#FFFFFF',
@@ -401,7 +418,7 @@ export default function AdminUsersPage() {
         <div
           style={{
             position: 'relative',
-            width: '240px',
+            width: '260px',
             display: 'flex',
             alignItems: 'center',
           }}
@@ -414,11 +431,10 @@ export default function AdminUsersPage() {
           />
           <input
             type="text"
-            placeholder="닉네임, 이메일 검색..."
+            placeholder="닉네임 또는 이메일 검색"
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
-              setCurrentPage(1);
             }}
             style={{
               width: '100%',
@@ -426,7 +442,7 @@ export default function AdminUsersPage() {
               paddingLeft: '36px',
               paddingRight: '12px',
               borderRadius: '8px',
-              border: '1px solid rgba(78, 89, 104, 0.15)',
+              border: '1px solid rgba(78, 89, 104, 0.18)',
               fontSize: '13px',
               outline: 'none',
               color: meok[900],
@@ -434,65 +450,62 @@ export default function AdminUsersPage() {
           />
         </div>
 
-        {}
+        {/* Role Filter */}
         <select
           value={roleFilter}
           onChange={(e) => {
             setRoleFilter(e.target.value as 'ALL' | AdminRole);
-            setCurrentPage(1);
           }}
           style={{
             height: '38px',
             padding: '0 12px',
             borderRadius: '8px',
-            border: '1px solid rgba(78, 89, 104, 0.15)',
+            border: '1px solid rgba(78, 89, 104, 0.18)',
             fontSize: '13px',
             color: meok[700],
             backgroundColor: '#FFFFFF',
             outline: 'none',
           }}
         >
-          <option value="ALL">역할: 전체</option>
-          <option value="ADMIN">ADMIN</option>
-          <option value="EDITOR">EDITOR</option>
-          <option value="USER">USER</option>
+          <option value="ALL">전체 역할</option>
+          <option value="ADMIN">ADMIN (관리자)</option>
+          <option value="EDITOR">EDITOR (에디터)</option>
+          <option value="USER">USER (일반)</option>
         </select>
 
-        {}
+        {/* Status Filter (Server Filter) */}
         <select
           value={statusFilter}
           onChange={(e) => {
-            setStatusFilter(e.target.value as 'ALL' | 'ACTIVE' | 'SUSPENDED');
-            setCurrentPage(1);
+            setStatusFilter(e.target.value as 'ALL' | 'ACTIVE' | 'DELETING');
           }}
           style={{
             height: '38px',
             padding: '0 12px',
             borderRadius: '8px',
-            border: '1px solid rgba(78, 89, 104, 0.15)',
+            border: '1px solid rgba(78, 89, 104, 0.18)',
             fontSize: '13px',
             color: meok[700],
             backgroundColor: '#FFFFFF',
             outline: 'none',
           }}
         >
-          <option value="ALL">상태: 전체</option>
-          <option value="ACTIVE">정상</option>
-          <option value="SUSPENDED">정지</option>
+          <option value="ALL">전체 상태</option>
+          <option value="ACTIVE">정상 (ACTIVE)</option>
+          <option value="DELETING">탈퇴 진행 (DELETING)</option>
         </select>
 
-        {}
+        {/* Sort Filter */}
         <select
           value={sortBy}
           onChange={(e) => {
             setSortBy(e.target.value as 'latest' | 'reviews' | 'reports');
-            setCurrentPage(1);
           }}
           style={{
             height: '38px',
             padding: '0 12px',
             borderRadius: '8px',
-            border: '1px solid rgba(78, 89, 104, 0.15)',
+            border: '1px solid rgba(78, 89, 104, 0.18)',
             fontSize: '13px',
             color: meok[700],
             backgroundColor: '#FFFFFF',
@@ -511,30 +524,39 @@ export default function AdminUsersPage() {
             height: '38px',
             padding: '0 14px',
             borderRadius: '8px',
-            border: '1px solid rgba(78, 89, 104, 0.15)',
-            backgroundColor: 'transparent',
-            color: meok[500],
+            border: '1px solid rgba(78, 89, 104, 0.18)',
+            backgroundColor: '#FFFFFF',
+            color: meok[600],
             fontSize: '13px',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
+            transition: 'background-color 0.15s ease',
           }}
         >
           <RotateCcw size={15} strokeWidth={2} />
           <span>초기화</span>
         </button>
+
+        <div style={{ marginLeft: 'auto', fontSize: '13px', color: meok[500] }}>
+          조회 <strong style={{ color: meok[900] }}>{filteredUsers.length}</strong>명
+        </div>
       </div>
 
-      {}
+      {/* Data Table */}
       <DataTable
         columns={columns}
-        rows={paginatedUsers}
+        rows={filteredUsers}
         rowKey={(u) => u.id}
+        loading={isLoading}
         pagination={{
-          currentPage,
-          totalPages,
-          onPageChange: (p) => setCurrentPage(p),
+          isCursor: true,
+          currentPage: pageNumber,
+          hasNext,
+          hasPrev,
+          onNext: goToNextPage,
+          onPrev: goToPrevPage,
         }}
       />
 
