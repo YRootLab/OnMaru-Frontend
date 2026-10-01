@@ -31,6 +31,10 @@ import {
   Snowflake,
   Sprout,
   Wind,
+  Copy,
+  Check,
+  Sparkles,
+  Building,
 } from 'lucide-react';
 import { inferStructureTags, extractHeritageGrade, inferSeasonTags } from '@/features/hanok-archive/utils/villageInsights';
 import { meok, palette, surface , fontSize } from '@/design-system/tokens';
@@ -63,12 +67,6 @@ import {
   StoryParagraph,
   ExpandBtn,
   SectionTitle,
-  InfoGrid,
-  InfoCard,
-  InfoIconBox,
-  InfoContentBox,
-  InfoLabel,
-  InfoVal,
   RepeatList,
   RepeatItemCard,
   RepeatTitleText,
@@ -98,9 +96,16 @@ import {
   MapPreviewName,
   MapPreviewAddr,
   MapPreviewAction,
-  ExpguideCard,
-  ExpguideLabel,
-  ExpguideText,
+  QuickInfoContainer,
+  QuickInfoHeader,
+  QuickInfoTitle,
+  QuickInfoGrid,
+  QuickInfoCard,
+  QuickInfoIcon,
+  QuickInfoBody,
+  QuickInfoItemLabel,
+  QuickInfoItemValue,
+  CopyBtn,
 } from './VillageDetailModal.styles';
 import styled from '@emotion/styled';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
@@ -158,17 +163,28 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
   const [activeImageIdx, setActiveImageIdx] = useState<number | null>(null);
   const [zoomedImageIdx, setZoomedImageIdx] = useState<number | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [copiedAddress, setCopiedAddress] = useState(false);
 
   useEffect(() => {
     setIsMobile(window.innerWidth <= 640);
   }, []);
 
+  const handleCopyAddress = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedAddress(true);
+      setTimeout(() => setCopiedAddress(false), 2000);
+    } catch {
+      // fallback
+    }
+  };
+
+  const isStayType = village.type === 'stay' || village.type === '한옥스테이';
+
   const { isBookmarked, toggleBookmark } = useBookmarkStore();
   const bookmarked = isBookmarked(village.id);
 
-
   const { stories: audioGuideStories } = useHanokAudioGuide(village.name, village.lat, village.lng, false);
-
 
   const { data: tranquilityData, loading: isLoadingTranquility } = useHanokTranquility(
     village.lat,
@@ -204,38 +220,14 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
 
   useGSAP(() => {
     const story = storyRef.current;
-    const scroller = modalRef.current;
-    if (!story || !scroller) return;
+    if (!story) return;
 
+    // Keep story text crisp, high-contrast, and completely readable without blur
     const paragraphsInView = gsap.utils.toArray<HTMLElement>('[data-reading-paragraph]', story);
-    if (prefersReducedMotion || paragraphsInView.length < 2) {
-      gsap.set(paragraphsInView, { opacity: 1, filter: 'blur(0px)' });
-      return;
-    }
-
-    gsap.set(paragraphsInView, { opacity: 0.34, filter: 'blur(0.65px)' });
-
-    const triggers = paragraphsInView.map((paragraph) => ScrollTrigger.create({
-      trigger: paragraph,
-      scroller,
-      start: 'top 62%',
-      end: 'bottom 38%',
-      onToggle: ({ isActive }) => {
-        gsap.to(paragraph, {
-          opacity: isActive ? 1 : 0.34,
-          filter: isActive ? 'blur(0px)' : 'blur(0.65px)',
-          duration: 0.42,
-          ease: 'power2.out',
-          overwrite: true,
-        });
-      },
-    }));
-
-    ScrollTrigger.refresh();
-    return () => triggers.forEach((trigger) => trigger.kill());
+    gsap.set(paragraphsInView, { opacity: 1, filter: 'none' });
   }, {
     scope: storyRef,
-    dependencies: [paragraphs, isExpanded, prefersReducedMotion],
+    dependencies: [paragraphs, isExpanded],
     revertOnUpdate: true,
   });
 
@@ -265,15 +257,6 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
   const structureTags = useMemo(() => inferStructureTags(village), [village]);
   const heritageGrade = useMemo(() => extractHeritageGrade(village), [village]);
   const seasonTags = useMemo(() => inferSeasonTags(village), [village]);
-
-  const hasOperationalInfo = Boolean(
-    detailData?.usetime ||
-      detailData?.restdate ||
-      detailData?.parking ||
-      detailData?.tel ||
-      homepageInfo.url ||
-      detailData?.expguide
-  );
 
   const kakaoMapUrl = village.lat && village.lng
     ? `https://map.kakao.com/link/map/${encodeURIComponent(village.name)},${village.lat},${village.lng}`
@@ -346,18 +329,182 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
                 {structureTags[0]}
               </InsightBadge>
               {structureTags.slice(1).map((tag) => (
-                <InsightBadge key={tag} $color="#5a6e5a">
+                <InsightBadge key={tag} $color="#595550">
                   <Layers size={12} strokeWidth={2} />
                   {tag}
                 </InsightBadge>
               ))}
               {seasonTags.map((tag) => (
-                <InsightBadge key={tag} $color="#2e7d5e">
+                <InsightBadge key={tag} $color="#8a6538">
                   {SEASON_ICON[tag] ?? <Leaf size={12} strokeWidth={2} />}
                   {tag}
                 </InsightBadge>
               ))}
             </InsightRow>
+
+            {/* 한눈에 보는 기본 정보 (Quick Essential Info) */}
+            <QuickInfoContainer>
+              <QuickInfoHeader>
+                <QuickInfoTitle>
+                  <Info size={16} strokeWidth={2.2} /> 한눈에 보는 기본 정보
+                </QuickInfoTitle>
+              </QuickInfoHeader>
+
+              <QuickInfoGrid>
+                {/* 1. 소재지 / 주소 */}
+                <QuickInfoCard $fullWidth>
+                  <QuickInfoIcon>
+                    <MapPin size={16} strokeWidth={2} />
+                  </QuickInfoIcon>
+                  <QuickInfoBody>
+                    <QuickInfoItemLabel>소재지 (주소)</QuickInfoItemLabel>
+                    <QuickInfoItemValue>
+                      {village.addr || '주소 정보 확인 중'}
+                      {village.addr && (
+                        <CopyBtn
+                          type="button"
+                          onClick={() => handleCopyAddress(village.addr)}
+                          title="주소 복사"
+                          aria-label="주소 복사"
+                        >
+                          {copiedAddress ? (
+                            <>
+                              <Check size={12} strokeWidth={2.5} /> 복사됨
+                            </>
+                          ) : (
+                            <>
+                              <Copy size={12} strokeWidth={2} /> 복사
+                            </>
+                          )}
+                        </CopyBtn>
+                      )}
+                    </QuickInfoItemValue>
+                  </QuickInfoBody>
+                </QuickInfoCard>
+
+                {/* 2. 주차 시설 */}
+                <QuickInfoCard>
+                  <QuickInfoIcon>
+                    <Car size={16} strokeWidth={2} />
+                  </QuickInfoIcon>
+                  <QuickInfoBody>
+                    <QuickInfoItemLabel>주차 안내</QuickInfoItemLabel>
+                    <QuickInfoItemValue>
+                      {detailData?.parking
+                        ? cleanTourApiHtml(detailData.parking)
+                        : (isStayType ? '숙박객 전용 주차 가능' : '인근 공영주차장 이용 권장')}
+                    </QuickInfoItemValue>
+                  </QuickInfoBody>
+                </QuickInfoCard>
+
+                {/* 3. 이용 / 운영 시간 */}
+                <QuickInfoCard>
+                  <QuickInfoIcon>
+                    <Clock size={16} strokeWidth={2} />
+                  </QuickInfoIcon>
+                  <QuickInfoBody>
+                    <QuickInfoItemLabel>
+                      {isStayType ? '입·퇴실 시간' : '관람 / 이용 시간'}
+                    </QuickInfoItemLabel>
+                    <QuickInfoItemValue>
+                      {isStayType
+                        ? (detailData?.checkin
+                            ? `입실 ${detailData.checkin} · 퇴실 ${detailData.checkout || '11:00'}`
+                            : '입실 15:00 · 퇴실 11:00 (사전 확인 권장)')
+                        : (detailData?.usetime
+                            ? cleanTourApiHtml(detailData.usetime)
+                            : '상시 관람 가능 (일출~일몰)')}
+                    </QuickInfoItemValue>
+                  </QuickInfoBody>
+                </QuickInfoCard>
+
+                {/* 4. 쉬는 날 / 휴무 */}
+                <QuickInfoCard>
+                  <QuickInfoIcon>
+                    <Calendar size={16} strokeWidth={2} />
+                  </QuickInfoIcon>
+                  <QuickInfoBody>
+                    <QuickInfoItemLabel>쉬는 날 (휴무)</QuickInfoItemLabel>
+                    <QuickInfoItemValue>
+                      {detailData?.restdate
+                        ? cleanTourApiHtml(detailData.restdate)
+                        : '연중무휴 (명절 및 기상상황별 변동 가능)'}
+                    </QuickInfoItemValue>
+                  </QuickInfoBody>
+                </QuickInfoCard>
+
+                {/* 5. 문의처 */}
+                <QuickInfoCard>
+                  <QuickInfoIcon>
+                    <Phone size={16} strokeWidth={2} />
+                  </QuickInfoIcon>
+                  <QuickInfoBody>
+                    <QuickInfoItemLabel>문의처</QuickInfoItemLabel>
+                    <QuickInfoItemValue>
+                      {detailData?.tel ? (
+                        <a href={`tel:${detailData.tel.replace(/[^0-9-]/g, '')}`}>
+                          {cleanTourApiHtml(detailData.tel)}
+                        </a>
+                      ) : (
+                        '현장 안내소 / 사전 확인 권장'
+                      )}
+                    </QuickInfoItemValue>
+                  </QuickInfoBody>
+                </QuickInfoCard>
+
+                {/* 6. 관람료 / 체험 안내 */}
+                {detailData?.expguide && (
+                  <QuickInfoCard $fullWidth>
+                    <QuickInfoIcon>
+                      <Sparkles size={16} strokeWidth={2} />
+                    </QuickInfoIcon>
+                    <QuickInfoBody>
+                      <QuickInfoItemLabel>체험 및 이용 안내</QuickInfoItemLabel>
+                      <QuickInfoItemValue>
+                        {cleanTourApiHtml(detailData.expguide)}
+                      </QuickInfoItemValue>
+                    </QuickInfoBody>
+                  </QuickInfoCard>
+                )}
+
+                {/* 7. 공식 누리집 */}
+                {homepageInfo.url && (
+                  <QuickInfoCard $fullWidth>
+                    <QuickInfoIcon>
+                      <Globe size={16} strokeWidth={2} />
+                    </QuickInfoIcon>
+                    <QuickInfoBody>
+                      <QuickInfoItemLabel>공식 누리집</QuickInfoItemLabel>
+                      <QuickInfoItemValue>
+                        <a href={homepageInfo.url} target="_blank" rel="noopener noreferrer">
+                          {homepageInfo.label} <ArrowRight size={12} strokeWidth={2} style={{ display: 'inline' }} />
+                        </a>
+                      </QuickInfoItemValue>
+                    </QuickInfoBody>
+                  </QuickInfoCard>
+                )}
+
+                {/* 8. 객실 및 부대시설 (한옥스테이) */}
+                {isStayType && (detailData?.subfacility || detailData?.roomcount || detailData?.chkcooking) && (
+                  <QuickInfoCard $fullWidth>
+                    <QuickInfoIcon>
+                      <Building size={16} strokeWidth={2} />
+                    </QuickInfoIcon>
+                    <QuickInfoBody>
+                      <QuickInfoItemLabel>객실 및 편의시설</QuickInfoItemLabel>
+                      <QuickInfoItemValue>
+                        {[
+                          detailData?.roomcount ? `객실 ${detailData.roomcount}실` : null,
+                          detailData?.subfacility ? cleanTourApiHtml(detailData.subfacility) : null,
+                          detailData?.chkcooking ? `취사 ${cleanTourApiHtml(detailData.chkcooking)}` : null,
+                          detailData?.barbecue ? `바비큐 ${cleanTourApiHtml(detailData.barbecue)}` : null,
+                        ].filter(Boolean).join(' · ')}
+                      </QuickInfoItemValue>
+                    </QuickInfoBody>
+                  </QuickInfoCard>
+                )}
+              </QuickInfoGrid>
+            </QuickInfoContainer>
 
             {}
             {isLoadingOverview && !village.summary ? (
@@ -432,89 +579,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
             {}
             <TranquilityGauge data={tranquilityData} loading={isLoadingTranquility} />
 
-            {}
-            {!isLoadingOverview && hasOperationalInfo && (
-              <>
-                <SectionTitle>
-                  <Info size={16} strokeWidth={2} /> 관람 안내
-                </SectionTitle>
-                <InfoGrid>
-                  {detailData?.usetime && (
-                    <InfoCard>
-                      <InfoIconBox>
-                        <Clock size={16} strokeWidth={2} />
-                      </InfoIconBox>
-                      <InfoContentBox>
-                        <InfoLabel>관람 시간</InfoLabel>
-                        <InfoVal>{cleanTourApiHtml(detailData.usetime)}</InfoVal>
-                      </InfoContentBox>
-                    </InfoCard>
-                  )}
 
-                  {detailData?.restdate && (
-                    <InfoCard>
-                      <InfoIconBox>
-                        <Calendar size={16} strokeWidth={2} />
-                      </InfoIconBox>
-                      <InfoContentBox>
-                        <InfoLabel>쉬는 날</InfoLabel>
-                        <InfoVal>{cleanTourApiHtml(detailData.restdate)}</InfoVal>
-                      </InfoContentBox>
-                    </InfoCard>
-                  )}
-
-                  {detailData?.parking && (
-                    <InfoCard>
-                      <InfoIconBox>
-                        <Car size={16} strokeWidth={2} />
-                      </InfoIconBox>
-                      <InfoContentBox>
-                        <InfoLabel>주차</InfoLabel>
-                        <InfoVal>{cleanTourApiHtml(detailData.parking)}</InfoVal>
-                      </InfoContentBox>
-                    </InfoCard>
-                  )}
-
-                  {detailData?.tel && (
-                    <InfoCard>
-                      <InfoIconBox>
-                        <Phone size={16} strokeWidth={2} />
-                      </InfoIconBox>
-                      <InfoContentBox>
-                        <InfoLabel>문의처</InfoLabel>
-                        <InfoVal>{cleanTourApiHtml(detailData.tel)}</InfoVal>
-                      </InfoContentBox>
-                    </InfoCard>
-                  )}
-
-                  {homepageInfo.url && (
-                    <InfoCard>
-                      <InfoIconBox>
-                        <Globe size={16} strokeWidth={2} />
-                      </InfoIconBox>
-                      <InfoContentBox>
-                        <InfoLabel>홈페이지</InfoLabel>
-                        <InfoVal>
-                          <a href={homepageInfo.url} target="_blank" rel="noopener noreferrer">
-                            {homepageInfo.label}{' '}
-                            <ArrowRight size={12} strokeWidth={2} style={{ display: 'inline' }} />
-                          </a>
-                        </InfoVal>
-                      </InfoContentBox>
-                    </InfoCard>
-                  )}
-                </InfoGrid>
-
-                {detailData?.expguide && (
-                  <ExpguideCard>
-                    <ExpguideLabel>
-                      <Info size={13} strokeWidth={2} /> 체험·이용 안내
-                    </ExpguideLabel>
-                    <ExpguideText>{cleanTourApiHtml(detailData.expguide)}</ExpguideText>
-                  </ExpguideCard>
-                )}
-              </>
-            )}
 
             {}
             {!isLoadingOverview && detailData?.repeatInfo && detailData.repeatInfo.length > 0 && (
