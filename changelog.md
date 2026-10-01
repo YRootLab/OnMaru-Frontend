@@ -3,6 +3,7 @@
 Lightweight human-readable summary of meaningful repository changes. This does not replace Git history.
 
 ## Unreleased
+- 지도 온기모드의 기본 조회는 날짜를 지정하지 않아 백엔드의 최신 관측일 데이터를 사용한다. 관측 시계열 요청의 지표명을 API 계약에 맞추고, 범례에 실제 관측 기준일을 표시한다. 날짜를 직접 선택한 조회는 기존처럼 해당 날짜를 유지한다.
 
 ## [v0.1.5] - 2026-09-29
 - 소리마루 스켈레톤 레일의 좌우 카드가 첫 렌더에서 잠시 원본 크기로 보인 뒤 축소되던 현상을 수정했다. Framer Motion 초기 상태를 최종 scale에 맞춰 로딩 시작부터 중앙 카드와 주변 카드의 크기 관계가 즉시 표시되도록 했다.
