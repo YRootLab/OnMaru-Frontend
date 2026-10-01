@@ -269,6 +269,7 @@ export default function WarmthLegend() {
   const mode = useMapStore((s) => s.mode);
   const warmths = useMapStore((s) => s.warmths);
   const heatDays = useMapStore((s) => s.heatDays);
+  const heatDayIndex = useMapStore((s) => s.heatDayIndex);
   const category = useMapStore((s) => s.category);
   const period = useMapStore((s) => s.warmthPeriod);
   const setPeriod = useMapStore((s) => s.setWarmthPeriod);
@@ -304,7 +305,7 @@ export default function WarmthLegend() {
   if (mode !== 'warmth') return null;
 
   const percent = stat.ratio === null ? null : Math.round(stat.ratio * 100);
-  const observedYmd = heatDays.at(-1)?.ymd;
+  const observedYmd = heatDays[heatDayIndex]?.ymd;
 
   return (
     <Root $isDark={isDark} aria-label="온기 히트맵 범례">
