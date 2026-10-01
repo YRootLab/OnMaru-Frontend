@@ -31,18 +31,12 @@ const CINNABAR = '#C9221A';
 const Root = styled.div`
   width: 100%;
   padding: clamp(80px, 10vw, 120px) clamp(16px, 4vw, 48px) 100px;
-  color: ${INK};
+  color: inherit;
   visibility: hidden;
-  background-color: ${PAPER};
-
-  [data-theme='dark'] & {
-    background-color: #1C1710;
-    color: #F0E8D6;
-  }
 `;
 
 const Header = styled.header`
-  margin-bottom: clamp(32px, 4vw, 52px);
+  margin-bottom: clamp(32px, 4vw, 48px);
 `;
 
 const TitleBlock = styled.div`
@@ -70,7 +64,7 @@ const TitleRule = styled.div`
 const SingleStat = styled.div`
   font-size: 13px;
   color: rgba(24, 17, 10, 0.45);
-  margin-top: 14px;
+  margin-bottom: 8px;
 
   strong {
     font-family: var(--font-traditional);
@@ -91,7 +85,6 @@ const UserLine = styled.div`
   gap: 5px;
   font-size: 11.5px;
   color: rgba(24, 17, 10, 0.4);
-  margin-top: 6px;
 
   [data-theme='dark'] & { color: rgba(240, 232, 214, 0.38); }
 `;
@@ -107,7 +100,7 @@ const HeroLayout = styled.div`
 
   @media (max-width: 900px) {
     grid-template-columns: 1fr;
-    gap: 28px;
+    gap: 24px;
     margin-bottom: 32px;
   }
 `;
