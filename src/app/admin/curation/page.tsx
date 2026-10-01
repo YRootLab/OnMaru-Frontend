@@ -18,14 +18,8 @@ import {
 import { CURATION_PRESET_BADGES } from '@/features/admin/mock/curation.mock';
 import { getCurations, updateCuration } from '@/features/admin/api/adminApi';
 import { useAdminCursorPagination } from '@/features/admin/hooks/useAdminCursorPagination';
-import {
-  Search,
-  RotateCcw,
-  X,
-  Plus,
-  ImageIcon,
-  CloudUpload,
-} from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Cancel01Icon, CloudUploadIcon, Image01Icon, PlusSignIcon, RotateCcwIcon, Search01Icon } from '@hugeicons/core-free-icons'
 
 export default function AdminCurationPage() {
   const [activeCategory, setActiveCategory] = useState<CurationCategory>('VILLAGE');
@@ -205,7 +199,7 @@ export default function AdminCurationPage() {
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           ) : (
-            <ImageIcon size={20} color={meok[400]} strokeWidth={1.8} />
+            <HugeiconsIcon icon={Image01Icon} size={20} color={meok[400]} strokeWidth={1.8} />
           )}
         </div>
       ),
@@ -346,7 +340,7 @@ export default function AdminCurationPage() {
                     color: meok[500],
                   }}
                 >
-                  <X size={12} strokeWidth={2} />
+                  <HugeiconsIcon icon={Cancel01Icon} size={12} strokeWidth={2} />
                 </button>
               </span>
             ))}
@@ -370,7 +364,7 @@ export default function AdminCurationPage() {
                   cursor: 'pointer',
                 }}
               >
-                <Plus size={14} strokeWidth={2} />
+                <HugeiconsIcon icon={PlusSignIcon} size={14} strokeWidth={2} />
               </button>
 
               {}
@@ -637,7 +631,7 @@ export default function AdminCurationPage() {
               transition: 'all 0.12s ease',
             }}
           >
-            <CloudUpload size={16} strokeWidth={2} />
+            <HugeiconsIcon icon={CloudUploadIcon} size={16} strokeWidth={2} />
             <span>변경사항 반영</span>
             {modifiedIds.size > 0 && (
               <span
@@ -678,7 +672,7 @@ export default function AdminCurationPage() {
             alignItems: 'center',
           }}
         >
-          <Search
+          <HugeiconsIcon icon={Search01Icon}
             size={16}
             color={meok[400]}
             strokeWidth={2}
@@ -789,7 +783,7 @@ export default function AdminCurationPage() {
             gap: '6px',
           }}
         >
-          <RotateCcw size={15} strokeWidth={2} />
+          <HugeiconsIcon icon={RotateCcwIcon} size={15} strokeWidth={2} />
           <span>초기화</span>
         </button>
       </div>

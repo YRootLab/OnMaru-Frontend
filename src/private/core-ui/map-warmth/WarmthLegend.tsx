@@ -2,7 +2,8 @@
 
 import { useMemo } from 'react';
 import styled from '@emotion/styled';
-import { MapPin, Flame } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { MapPinIcon, FlameIcon } from '@hugeicons/core-free-icons'
 import { meok, surface , fontSize } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
@@ -35,7 +36,7 @@ const Root = styled.div<{ $isDark: boolean }>`
   max-width: calc(100vw - 32px);
 
   border-radius: 18px;
-  background: ${({ $isDark }) => ($isDark ? 'rgba(28, 26, 23, 0.94)' : 'rgba(255, 255, 255, 0.95)')};
+  background: ${({ $isDark }) => ($isDark ? 'rgba(11, 18, 32, 0.94)' : 'rgba(255, 255, 255, 0.95)')};
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: none;
@@ -45,7 +46,7 @@ const Root = styled.div<{ $isDark: boolean }>`
   transition: all 0.2s ease;
 
   [data-theme='dark'] & {
-    background: rgba(28, 26, 23, 0.94);
+    background: rgba(11, 18, 32, 0.94);
     border: none;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
   }
@@ -166,7 +167,7 @@ const PeriodBtn = styled.button<{ $active: boolean; $isDark: boolean }>`
   color: ${({ $active, $isDark }) =>
     $active
       ? $isDark
-        ? '#1C1A17'
+        ? '#0B1220'
         : '#ffffff'
       : $isDark
         ? '#D1D5DB'
@@ -195,7 +196,7 @@ const PeriodBtn = styled.button<{ $active: boolean; $isDark: boolean }>`
 
   [data-theme='dark'] & {
     background: ${({ $active }) => ($active ? '#F59E0B' : 'rgba(255, 255, 255, 0.08)')};
-    color: ${({ $active }) => ($active ? '#1C1A17' : '#D1D5DB')};
+    color: ${({ $active }) => ($active ? '#0B1220' : '#D1D5DB')};
 
     &:hover {
       background: ${({ $active }) => ($active ? '#F59E0B' : 'rgba(255, 255, 255, 0.14)')};
@@ -305,9 +306,9 @@ export default function WarmthLegend() {
   const percent = stat.ratio === null ? null : Math.round(stat.ratio * 100);
 
   return (
-    <Root $isDark={isDark} aria-label="ì˜¨ê¸° íˆíŠ¸ë§µ ë²”ë¡€">
+    <Root $isDark={isDark} aria-label="¿Â±â È÷Æ®¸Ê ¹ü·Ê">
       {}
-      <ViewTypeSegment $isDark={isDark} role="tablist" aria-label="ì˜¨ê¸° í‘œì‹œ ë°©ì‹">
+      <ViewTypeSegment $isDark={isDark} role="tablist" aria-label="¿Â±â Ç¥½Ã ¹æ½Ä">
         <ViewTypeBtn
           type="button"
           role="tab"
@@ -315,10 +316,10 @@ export default function WarmthLegend() {
           $active={warmthViewType === 'district'}
           $isDark={isDark}
           onClick={() => setWarmthViewType('district')}
-          title="ì‹œÂ·êµ°Â·êµ¬ í–‰ì •êµ¬ì—­ ê²½ê³„ì„ ê³¼ ê¶Œì—­ë³„ í†µê³„ë¡œ ë³´ê¸°"
+          title="½Ã¡¤±º¡¤±¸ ÇàÁ¤±¸¿ª °æ°è¼±°ú ±Ç¿ªº° Åë°è·Î º¸±â"
         >
-          <MapPin size={13} strokeWidth={2.2} />
-          <span>ì‹œÂ·êµ° í–‰ì •ë³„</span>
+          <HugeiconsIcon icon={MapPinIcon} size={13} strokeWidth={2.2} />
+          <span>½Ã¡¤±º ÇàÁ¤º°</span>
         </ViewTypeBtn>
         <ViewTypeBtn
           type="button"
@@ -327,19 +328,19 @@ export default function WarmthLegend() {
           $active={warmthViewType === 'heatmap'}
           $isDark={isDark}
           onClick={() => setWarmthViewType('heatmap')}
-          title="ì´ˆê¸° ë²„ì „ì˜ ë¶€ë“œëŸ¬ìš´ ì›í˜• ë°€ë„ íˆíŠ¸ë§µìœ¼ë¡œ ë³´ê¸°"
+          title="ÃÊ±â ¹öÀüÀÇ ºÎµå·¯¿î ¿øÇü ¹Ğµµ È÷Æ®¸ÊÀ¸·Î º¸±â"
         >
-          <Flame size={13} strokeWidth={2.2} />
-          <span>ì›í˜• íˆíŠ¸ë§µ</span>
+          <HugeiconsIcon icon={FlameIcon} size={13} strokeWidth={2.2} />
+          <span>¿øÇü È÷Æ®¸Ê</span>
         </ViewTypeBtn>
       </ViewTypeSegment>
 
       <Summary $isDark={isDark} aria-live="polite">
         {stat.total === 0 ? (
-          'ì´ ì¼ëŒ€ì— ë‚¨ì€ í•œì¤„í‰ì´ ì•„ì§ ì—†ì–´ìš”'
+          'ÀÌ ÀÏ´ë¿¡ ³²Àº ÇÑÁÙÆòÀÌ ¾ÆÁ÷ ¾ø¾î¿ä'
         ) : (
           <>
-            ì´ ì¼ëŒ€ í•œì¤„í‰ <b>{stat.total}</b>í¸ Â· ê³ ì¦ˆë„‰í•¨ <b>{100 - (percent ?? 0)}%</b> Â· ë¶ì ì´ëŠ” ì •{' '}
+            ÀÌ ÀÏ´ë ÇÑÁÙÆò <b>{stat.total}</b>Æí ¡¤ °íÁî³ËÇÔ <b>{100 - (percent ?? 0)}%</b> ¡¤ ºÏÀûÀÌ´Â Á¤{' '}
             <b>{percent}%</b>
           </>
         )}
@@ -348,16 +349,16 @@ export default function WarmthLegend() {
       <Ramp>
         <RampBar $gradient={rampGradient} aria-hidden="true" />
         <RampEnds $isDark={isDark}>
-          <span>í•œì </span>
-          <span>ë¶ë¹”</span>
+          <span>ÇÑÀû</span>
+          <span>ºÕºö</span>
         </RampEnds>
-        <RampNote $isDark={isDark}>ì•„ë¬´ ìƒ‰ë„ ì—†ëŠ” ê³³ì€ ì•„ì§ ì§‘ê³„ê°€ ë‹¿ì§€ ì•Šì€ ê³³ì´ì—ìš”.</RampNote>
+        <RampNote $isDark={isDark}>¾Æ¹« »öµµ ¾ø´Â °÷Àº ¾ÆÁ÷ Áı°è°¡ ´êÁö ¾ÊÀº °÷ÀÌ¿¡¿ä.</RampNote>
       </Ramp>
 
       <Divider $isDark={isDark} />
 
-      <PeriodRow role="group" aria-label="ì˜¨ê¸° ê¸°ê°„">
-        <PeriodLabel $isDark={isDark}>ê¸°ê°„</PeriodLabel>
+      <PeriodRow role="group" aria-label="¿Â±â ±â°£">
+        <PeriodLabel $isDark={isDark}>±â°£</PeriodLabel>
         {PERIOD_OPTIONS.map((option) => (
           <PeriodBtn
             key={option.id}

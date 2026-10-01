@@ -53,7 +53,7 @@ const TopGradientFade = styled.div`
   z-index: 5;
 
   [data-theme='dark'] & {
-    background: linear-gradient(to bottom, #1c1a17 0%, rgba(28, 26, 23, 0) 100%);
+    background: linear-gradient(to bottom, #0B1220 0%, rgba(11, 18, 32, 0) 100%);
   }
 `;
 
@@ -68,7 +68,7 @@ const BottomGradientFade = styled.div`
   z-index: 5;
 
   [data-theme='dark'] & {
-    background: linear-gradient(to top, #1c1a17 0%, rgba(28, 26, 23, 0) 100%);
+    background: linear-gradient(to top, #0B1220 0%, rgba(11, 18, 32, 0) 100%);
   }
 `;
 
@@ -256,7 +256,7 @@ const SkeletonLine = styled.div<{ $wide?: boolean }>`
 
 export function TranscriptSkeleton({ seamless = false }: { seamless?: boolean }) {
   return (
-    <Panel data-testid="transcript-skeleton" aria-label="ëŒ€ë³¸ ë¶ˆëŸ¬ì˜¤ëŠ” ì¤‘" $seamless={seamless}>
+    <Panel data-testid="transcript-skeleton" aria-label="´ëº» ºÒ·¯¿À´Â Áß" $seamless={seamless}>
       <Scroller aria-hidden="true" $seamless={seamless}>
         <SkeletonLine $wide />
         <SkeletonLine />
@@ -288,7 +288,7 @@ export function PlayerTranscriptPanel({
   if (isLoading) return <TranscriptSkeleton seamless={seamless} />;
 
   return (
-    <Panel aria-label="ì‹¤ì‹œê°„ í•´ì„¤ ëŒ€ë³¸" $seamless={seamless}>
+    <Panel aria-label="½Ç½Ã°£ ÇØ¼³ ´ëº»" $seamless={seamless}>
       <TopGradientFade />
 
       <Scroller onScroll={onTranscriptScroll} data-playing={isPlaying} $seamless={seamless}>

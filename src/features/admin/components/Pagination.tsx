@@ -5,7 +5,8 @@
 
 import React from 'react';
 import { meok, palette } from '@/design-system/tokens';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ChevronLeftIcon, ChevronRightIcon } from '@hugeicons/core-free-icons'
 
 interface PaginationProps {
   currentPage: number;
@@ -72,7 +73,7 @@ export const Pagination: React.FC<PaginationProps> = ({
           transition: 'background-color 0.15s ease',
         }}
       >
-        <ChevronLeft size={16} strokeWidth={2} />
+        <HugeiconsIcon icon={ChevronLeftIcon} size={16} strokeWidth={2} />
       </button>
 
       {pages.map((p) => {
@@ -120,7 +121,7 @@ export const Pagination: React.FC<PaginationProps> = ({
           transition: 'background-color 0.15s ease',
         }}
       >
-        <ChevronRight size={16} strokeWidth={2} />
+        <HugeiconsIcon icon={ChevronRightIcon} size={16} strokeWidth={2} />
       </button>
     </nav>
   );
@@ -180,7 +181,7 @@ export const CursorPagination: React.FC<CursorPaginationProps> = ({
           transition: 'all 0.15s ease',
         }}
       >
-        <ChevronLeft size={16} strokeWidth={2} />
+        <HugeiconsIcon icon={ChevronLeftIcon} size={16} strokeWidth={2} />
         <span>이전</span>
       </button>
 
@@ -221,7 +222,7 @@ export const CursorPagination: React.FC<CursorPaginationProps> = ({
         }}
       >
         <span>다음</span>
-        <ChevronRight size={16} strokeWidth={2} />
+        <HugeiconsIcon icon={ChevronRightIcon} size={16} strokeWidth={2} />
       </button>
     </nav>
   );

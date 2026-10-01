@@ -18,8 +18,8 @@ export const SORIMARU_BACKGROUND_PALETTE: SorimaruBackgroundPalette = {
 };
 
 export const SORIMARU_BACKGROUND_DARK_PALETTE: SorimaruBackgroundPalette = {
-  canvas: '#1C1A17',
-  paper: '#24211D',
+  canvas: '#0B1220',
+  paper: '#171E2B',
   lightRgb: '45, 41, 36',
   fiberRgb: '215, 210, 200',
   shadowRgb: '0, 0, 0',
@@ -37,11 +37,11 @@ export const SORIMARU_BACKGROUND_STAGES = [
 ] as const satisfies readonly SorimaruBackgroundStage[];
 
 const CATEGORY_MODIFIERS: Record<string, SorimaruBackgroundCategory> = {
-  ÌïúÏò•: 'hanok',
-  ÏãúÏû•: 'market',
-  ÎßàÏùÑ: 'village',
-  Í∂Å: 'palace',
-  Í∏∏: 'nature',
+  «—ø¡: 'hanok',
+  Ω√¿Â: 'market',
+  ∏∂¿ª: 'village',
+  ±√: 'palace',
+  ±Ê: 'nature',
 };
 
 const STAGE_MOTIFS: Record<SorimaruBackgroundStage, SorimaruBackgroundMotif> = {

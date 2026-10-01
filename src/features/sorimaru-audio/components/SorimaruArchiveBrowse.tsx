@@ -3,7 +3,8 @@
 import React, { useMemo, useState } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
-import { Play, MapPin, Layers, LayoutGrid } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { PlayIcon, MapPinIcon, Layers01Icon, GridViewIcon } from '@hugeicons/core-free-icons'
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import { groupSorimaruStoriesByPlace, type SorimaruPlaceGroup } from '@/features/sorimaru-audio/utils/sorimaruArchiveGrouping';
@@ -19,26 +20,26 @@ interface SorimaruArchiveBrowseProps {
 type ArchiveView = 'stories' | 'places';
 
 const STOPWORDS = new Set([
-  'ì†Œë¦¬',
-  'ì´ì•¼ê¸°',
-  'ì†Œë¦¬ì´ì•¼ê¸°',
-  'ì˜¤ë””',
-  'ì˜¤ë””ì´ì•¼ê¸°',
-  'ëŒ€í•œë¯¼êµ­',
-  'í•œêµ­',
-  'ë¬¸í™”ìœ ì‚°',
-  'ë¬¸í™”ì¬',
-  'ì „ì²´',
-  'ì•ˆë‚´',
-  'ê°œìš”',
-  'ì„±ì¸ìš©',
-  'ì–´ë¦°ì´ìš©',
-  'í•´ì„¤',
-  'ì •ë³´',
-  'ì†Œë¦¬ë¡œ',
-  'ë§Œë‚˜ëŠ”',
-  'ì†Œë¦¬ë“¤',
-  'ìŠ¤í† ë¦¬',
+  '¼Ò¸®',
+  'ÀÌ¾ß±â',
+  '¼Ò¸®ÀÌ¾ß±â',
+  '¿Àµğ',
+  '¿ÀµğÀÌ¾ß±â',
+  '´ëÇÑ¹Î±¹',
+  'ÇÑ±¹',
+  '¹®È­À¯»ê',
+  '¹®È­Àç',
+  'ÀüÃ¼',
+  '¾È³»',
+  '°³¿ä',
+  '¼ºÀÎ¿ë',
+  '¾î¸°ÀÌ¿ë',
+  'ÇØ¼³',
+  'Á¤º¸',
+  '¼Ò¸®·Î',
+  '¸¸³ª´Â',
+  '¼Ò¸®µé',
+  '½ºÅä¸®',
 ]);
 
 function getStoryTags(story: SorimaruStorySummary, max = 4): string[] {
@@ -122,7 +123,7 @@ const SkeletonGrid = styled.div`
 
 function ArchiveSkeleton() {
   return (
-    <SkeletonGrid aria-busy="true" aria-label="ì´ì•¼ê¸°ë¥¼ ë¶ˆëŸ¬ì˜¤ëŠ” ì¤‘ì´ì—ìš”">
+    <SkeletonGrid aria-busy="true" aria-label="ÀÌ¾ß±â¸¦ ºÒ·¯¿À´Â ÁßÀÌ¿¡¿ä">
       {Array.from({ length: 6 }, (_, index) => (
         <div
           key={index}
@@ -260,7 +261,7 @@ const PlayIconBtn = styled.button`
     color: #ffffff;
 
     &:hover {
-      background: #1c1a17;
+      background: #0B1220;
       color: ${palette.juhong[400]};
     }
   }
@@ -410,7 +411,7 @@ function StoryRow({ story, index }: StoryRowProps) {
           <PlayIconBtn
             type="button"
             onClick={togglePlayback}
-            aria-label={`${story.title} ${isThisPlaying ? 'ì¼ì‹œì •ì§€' : 'ì¬ìƒ'}`}
+            aria-label={`${story.title} ${isThisPlaying ? 'ÀÏ½ÃÁ¤Áö' : 'Àç»ı'}`}
           >
             {isThisPlaying ? (
               <span style={{ display: 'flex', height: 12, alignItems: 'flex-end', gap: 2 }} aria-hidden="true">
@@ -419,7 +420,7 @@ function StoryRow({ story, index }: StoryRowProps) {
                 <EqBar $delay="90ms" />
               </span>
             ) : (
-              <Play size={11} style={{ marginLeft: 1.5 }} fill="currentColor" />
+              <HugeiconsIcon icon={PlayIcon} size={11} style={{ marginLeft: 1.5 }} fill="currentColor" />
             )}
           </PlayIconBtn>
         </PlayOverlay>
@@ -437,7 +438,7 @@ function StoryRow({ story, index }: StoryRowProps) {
 
         {story.region.name && (
           <LocationMeta>
-            <MapPin size={12} strokeWidth={2} color={palette.juhong[500]} style={{ flexShrink: 0 }} />
+            <HugeiconsIcon icon={MapPinIcon} size={12} strokeWidth={2} color={palette.juhong[500]} style={{ flexShrink: 0 }} />
             <span>{story.region.name}</span>
           </LocationMeta>
         )}
@@ -540,10 +541,10 @@ function PlaceGroupCard({ group, startIndex }: { group: SorimaruPlaceGroup; star
     <PlaceGroupContainer>
       <PlaceGroupHeader>
         <PlaceHeaderLeft>
-          <MapPin size={15} strokeWidth={2.2} color={palette.juhong[500]} style={{ flexShrink: 0 }} />
+          <HugeiconsIcon icon={MapPinIcon} size={15} strokeWidth={2.2} color={palette.juhong[500]} style={{ flexShrink: 0 }} />
           <PlaceGroupTitle>{group.label}</PlaceGroupTitle>
         </PlaceHeaderLeft>
-        <PlaceCountBadge>{group.stories.length}ê°œì˜ ì†Œë¦¬</PlaceCountBadge>
+        <PlaceCountBadge>{group.stories.length}°³ÀÇ ¼Ò¸®</PlaceCountBadge>
       </PlaceGroupHeader>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         {group.stories.map((story, index) => (
@@ -615,7 +616,7 @@ export function SorimaruArchiveBrowse({ stories, isLoading }: SorimaruArchiveBro
           justifyContent: 'space-between',
         }}
       >
-        <ViewSegmentControl role="tablist" aria-label="ì•„ì¹´ì´ë¸Œ í‘œì‹œ ë°©ì‹">
+        <ViewSegmentControl role="tablist" aria-label="¾ÆÄ«ÀÌºê Ç¥½Ã ¹æ½Ä">
           <ViewSegmentBtn
             type="button"
             role="tab"
@@ -623,8 +624,8 @@ export function SorimaruArchiveBrowse({ stories, isLoading }: SorimaruArchiveBro
             onClick={() => setView('stories')}
             $active={view === 'stories'}
           >
-            <LayoutGrid size={13} />
-            ì´ì•¼ê¸°ë³„
+            <HugeiconsIcon icon={GridViewIcon} size={13} />
+            ÀÌ¾ß±âº°
           </ViewSegmentBtn>
           <ViewSegmentBtn
             type="button"
@@ -633,14 +634,14 @@ export function SorimaruArchiveBrowse({ stories, isLoading }: SorimaruArchiveBro
             onClick={() => setView('places')}
             $active={view === 'places'}
           >
-            <Layers size={13} />
-            ì¥ì†Œë³„
+            <HugeiconsIcon icon={Layers01Icon} size={13} />
+            Àå¼Òº°
           </ViewSegmentBtn>
         </ViewSegmentControl>
 
         {view === 'places' && (
           <span style={{ fontSize: fontSize.micro, fontWeight: 500, color: meok[500] }}>
-            í˜„ì¬ ê²°ê³¼ ê¸°ì¤€
+            ÇöÀç °á°ú ±âÁØ
           </span>
         )}
       </div>
@@ -650,8 +651,8 @@ export function SorimaruArchiveBrowse({ stories, isLoading }: SorimaruArchiveBro
       ) : stories.length === 0 ? (
         <OniSearchEmpty
           size="md"
-          title="ì¡°ê±´ì— ë§ëŠ” ì´ì•¼ê¸°ê°€ ì•„ì§ ì—†ì–´ìš”"
-          description="ë‹¤ë¥¸ ì¹´í…Œê³ ë¦¬ë¥¼ ì„ íƒí•˜ê±°ë‚˜ ê²€ìƒ‰ì–´ë¥¼ ë³€ê²½í•´ ë³´ì„¸ìš”."
+          title="Á¶°Ç¿¡ ¸Â´Â ÀÌ¾ß±â°¡ ¾ÆÁ÷ ¾ø¾î¿ä"
+          description="´Ù¸¥ Ä«Å×°í¸®¸¦ ¼±ÅÃÇÏ°Å³ª °Ë»ö¾î¸¦ º¯°æÇØ º¸¼¼¿ä."
         />
       ) : view === 'stories' ? (
         <div

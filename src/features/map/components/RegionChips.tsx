@@ -49,6 +49,12 @@ const Chip = styled.button<{ $active: boolean }>`
     outline: 2px solid ${meok[900]};
     outline-offset: 2px;
   }
+
+  [data-theme='dark'] & {
+    background: ${({ $active }) => ($active ? '#85B8FF' : 'rgba(23, 30, 43, 0.90)')};
+    border: 1px solid ${({ $active }) => ($active ? 'transparent' : 'rgba(255, 255, 255, 0.12)')};
+    color: ${({ $active }) => ($active ? '#0B1220' : 'rgba(255, 255, 255, 0.87)')};
+  }
 `;
 
 export default function RegionChips() {

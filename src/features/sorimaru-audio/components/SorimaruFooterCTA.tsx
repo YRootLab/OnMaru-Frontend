@@ -49,7 +49,7 @@ const GlassCard = styled(motion.div)`
   backdrop-filter: blur(12px);
 
   [data-theme='dark'] & {
-    background: linear-gradient(to bottom right, ${surface.dark.card}, #24211D);
+    background: linear-gradient(to bottom right, ${surface.dark.card}, #171E2B);
     color: ${meok[100]};
     border: 1px solid rgba(255, 255, 255, 0.08);
   }
@@ -66,7 +66,7 @@ const RadialOverlay = styled.div`
   background: radial-gradient(circle, rgba(255, 255, 255, 0.6) 0%, transparent 60%, rgba(255, 244, 235, 0.8) 100%);
 
   [data-theme='dark'] & {
-    background: radial-gradient(circle, rgba(45, 41, 36, 0.4) 0%, transparent 60%, rgba(36, 33, 29, 0.8) 100%);
+    background: radial-gradient(circle, rgba(33, 39, 52, 0.4) 0%, transparent 60%, rgba(23, 30, 43, 0.8) 100%);
   }
 `;
 
@@ -263,14 +263,14 @@ export const SorimaruFooterCTA: React.FC = () => {
   const term = useMemo(() => getNextSolarTerm(), []);
 
   const termText = (() => {
-    if (!term) return 'ì ˆê¸° ì•Œë¦¼';
-    if (term.daysLeft === 0) return `${term.name} ì˜¤ëŠ˜`;
-    if (term.daysLeft === 1) return `${term.name} ë‚´ì¼`;
-    return `${term.name}ê¹Œì§€ D-${term.daysLeft}`;
+    if (!term) return 'Àı±â ¾Ë¸²';
+    if (term.daysLeft === 0) return `${term.name} ¿À´Ã`;
+    if (term.daysLeft === 1) return `${term.name} ³»ÀÏ`;
+    return `${term.name}±îÁö D-${term.daysLeft}`;
   })();
 
   return (
-    <SectionContainer aria-label="ë‹¤ìŒì— ë˜ ë°©ë¬¸í•˜ê¸°">
+    <SectionContainer aria-label="´ÙÀ½¿¡ ¶Ç ¹æ¹®ÇÏ±â">
       <ContentWrapper>
         <GlassCard
           initial={{ opacity: 0, y: 20 }}
@@ -291,26 +291,26 @@ export const SorimaruFooterCTA: React.FC = () => {
             </SolarBadge>
 
             <MainHeading>
-              ë‹¤ìŒ ê³„ì ˆì—ë„, ìƒˆë¡œìš´ ì´ì•¼ê¸°ë¥¼ ë§Œë‚˜ìš”
+              ´ÙÀ½ °èÀı¿¡µµ, »õ·Î¿î ÀÌ¾ß±â¸¦ ¸¸³ª¿ä
             </MainHeading>
 
             <Description>
-              ê³„ì ˆê³¼ ë‚ ì§œê°€ ë°”ë€Œë©´ ì˜¤ëŠ˜ì˜ ëŒ€í‘œ ì´ì•¼ê¸°ë„ ìƒˆë¡­ê²Œ ì—´ë ¤ìš”.
-              ë‹¤ìŒì— ëŒì•„ì™”ì„ ë•Œ ë‹¤ë¥¸ ì¥ì†Œì˜ ì˜¨ê¸°ë¥¼ ì´ì–´ì„œ ë“¤ì–´ë³´ì„¸ìš”.
+              °èÀı°ú ³¯Â¥°¡ ¹Ù²î¸é ¿À´ÃÀÇ ´ëÇ¥ ÀÌ¾ß±âµµ »õ·Ó°Ô ¿­·Á¿ä.
+              ´ÙÀ½¿¡ µ¹¾Æ¿ÔÀ» ¶§ ´Ù¸¥ Àå¼ÒÀÇ ¿Â±â¸¦ ÀÌ¾î¼­ µé¾îº¸¼¼¿ä.
             </Description>
 
             {}
             <ButtonRow>
               <PrimaryCtaLink href="/map">
-                <span>ì „êµ­ í•œì˜¥ ì§€ë„ì—ì„œ ë‘˜ëŸ¬ë³´ê¸°</span>
-                <span className="arrow">â†’</span>
+                <span>Àü±¹ ÇÑ¿Á Áöµµ¿¡¼­ µÑ·¯º¸±â</span>
+                <span className="arrow">¡æ</span>
               </PrimaryCtaLink>
               <SecondaryCtaLink href="/">
-                ì˜¨ë§ˆë£¨ 3D í•œì˜¥ ì´ì•¼ê¸° ë³´ëŸ¬ ê°€ê¸°
+                ¿Â¸¶·ç 3D ÇÑ¿Á ÀÌ¾ß±â º¸·¯ °¡±â
               </SecondaryCtaLink>
             </ButtonRow>
 
-            <SubText>ì˜¤ëŠ˜ì˜ ì†Œë¦¬ëŠ” ë‚´ì¼ ë˜ ë‹¤ë¥¸ ì¥ë©´ìœ¼ë¡œ ì´ì–´ì ¸ìš”.</SubText>
+            <SubText>¿À´ÃÀÇ ¼Ò¸®´Â ³»ÀÏ ¶Ç ´Ù¸¥ Àå¸éÀ¸·Î ÀÌ¾îÁ®¿ä.</SubText>
           </InnerBody>
         </GlassCard>
       </ContentWrapper>

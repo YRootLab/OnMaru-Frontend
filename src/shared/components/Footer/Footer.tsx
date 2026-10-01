@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import styled from '@emotion/styled';
 import { fontSize, meok } from '@/design-system/tokens';
+import { useIsAppleDevice } from '@/shared/hooks/useIsAppleDevice';
 import PolicyModal, { type PolicyTabKey } from './PolicyModal';
 
 const FooterWrapper = styled.footer`
@@ -252,8 +253,12 @@ const OniHoldingWrap = styled.div`
     object-fit: contain;
     display: block;
     background: transparent;
-    mix-blend-mode: screen;
+    filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.18));
     transition: transform 0.3s ease;
+  }
+
+  [data-theme='dark'] & video {
+    mix-blend-mode: screen;
   }
 
   ${FooterWrapper}:hover & video,
@@ -348,6 +353,7 @@ export default function Footer() {
   const [isHovered, setIsHovered] = useState(false);
   const [activePolicyTab, setActivePolicyTab] = useState<PolicyTabKey | null>(null);
 
+  const isApple = useIsAppleDevice();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoError, setVideoError] = useState(false);
 
@@ -415,7 +421,7 @@ export default function Footer() {
               </LeftInfoCol>
 
               <OniHoldingWrap>
-                {videoError ? (
+                {isApple || videoError ? (
                   <img
                     src="/images/character/Oni_holding.png"
                     alt="소중한 것을 품에 안은 마스코트 온이"

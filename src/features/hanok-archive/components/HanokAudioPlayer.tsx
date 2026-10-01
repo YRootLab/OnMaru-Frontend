@@ -2,7 +2,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import styled from '@emotion/styled';
-import { Headphones, Play, Pause, RotateCcw, FileText, ChevronDown, ChevronUp } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { HeadphonesIcon, PlayIcon, PauseIcon, RotateCcwIcon, FileTextIcon, ChevronDownIcon, ChevronUpIcon } from '@hugeicons/core-free-icons'
 import { meok, palette , fontSize } from '@/design-system/tokens';
 import type { SorimaruStory } from '../hooks/useHanokSorimaru';
 
@@ -81,14 +82,14 @@ export default function HanokAudioPlayer({ stories, hanokName }: HanokAudioPlaye
 
       <HeaderRow>
         <BadgeBox>
-          <Headphones size={14} />
-          <BadgeText>í•œêµ­ê´€ê´‘ê³µì‚¬ Sorimaru ì˜¤ë””ì˜¤ ë„ìŠ¨íŠ¸</BadgeText>
+          <HugeiconsIcon icon={HeadphonesIcon} size={14} />
+          <BadgeText>ÇÑ±¹°ü±¤°ø»ç Sorimaru ¿Àµğ¿À µµ½¼Æ®</BadgeText>
         </BadgeBox>
-        <QualityTag>ê³µì‹ í•´ì„¤ ìŒì›</QualityTag>
+        <QualityTag>°ø½Ä ÇØ¼³ À½¿ø</QualityTag>
       </HeaderRow>
 
       <StoryTitleBox>
-        <StoryTitle>{currentStory.audioTitle || `${hanokName} ê³µê°„ í•´ì„¤`}</StoryTitle>
+        <StoryTitle>{currentStory.audioTitle || `${hanokName} °ø°£ ÇØ¼³`}</StoryTitle>
         {stories.length > 1 && (
           <SelectorSelect
             value={currentIndex}
@@ -105,8 +106,8 @@ export default function HanokAudioPlayer({ stories, hanokName }: HanokAudioPlaye
 
       {}
       <PlayerControls>
-        <PlayBtn onClick={togglePlay} aria-label={isPlaying ? 'ì¼ì‹œì •ì§€' : 'ì¬ìƒ'}>
-          {isPlaying ? <Pause size={17} fill="currentColor" /> : <Play size={17} fill="currentColor" />}
+        <PlayBtn onClick={togglePlay} aria-label={isPlaying ? 'ÀÏ½ÃÁ¤Áö' : 'Àç»ı'}>
+          {isPlaying ? <HugeiconsIcon icon={PauseIcon} size={17} fill="currentColor" /> : <HugeiconsIcon icon={PlayIcon} size={17} fill="currentColor" />}
         </PlayBtn>
 
         <TimeDisplay>{formatSeconds(currentTime)}</TimeDisplay>
@@ -123,8 +124,8 @@ export default function HanokAudioPlayer({ stories, hanokName }: HanokAudioPlaye
 
         <TimeDisplay>{formatSeconds(duration)}</TimeDisplay>
 
-        <SecondaryBtn onClick={handleRestart} title="ì²˜ìŒë¶€í„° ë‹¤ì‹œ ë“£ê¸°">
-          <RotateCcw size={15} />
+        <SecondaryBtn onClick={handleRestart} title="Ã³À½ºÎÅÍ ´Ù½Ã µè±â">
+          <HugeiconsIcon icon={RotateCcwIcon} size={15} />
         </SecondaryBtn>
       </PlayerControls>
 
@@ -133,10 +134,10 @@ export default function HanokAudioPlayer({ stories, hanokName }: HanokAudioPlaye
         <ScriptSection>
           <ScriptToggleBtn onClick={() => setShowScript(!showScript)}>
             <ScriptToggleLeft>
-              <FileText size={14} />
-              <span>ë„ìŠ¨íŠ¸ ë‚­ë… ëŒ€ë³¸ ë³´ê¸°</span>
+              <HugeiconsIcon icon={FileTextIcon} size={14} />
+              <span>µµ½¼Æ® ³¶µ¶ ´ëº» º¸±â</span>
             </ScriptToggleLeft>
-            {showScript ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            {showScript ? <HugeiconsIcon icon={ChevronUpIcon} size={16} /> : <HugeiconsIcon icon={ChevronDownIcon} size={16} />}
           </ScriptToggleBtn>
 
           {showScript && (
@@ -162,7 +163,7 @@ const Container = styled.div`
   margin-bottom: 24px;
 
   [data-theme='dark'] & {
-    background: #24211D;
+    background: #171E2B;
   }
 `;
 
@@ -249,7 +250,7 @@ const SelectorSelect = styled.select`
   cursor: pointer;
 
   [data-theme='dark'] & {
-    background: #1C1A17;
+    background: #0B1220;
     color: ${meok[200]};
   }
 `;
@@ -430,7 +431,7 @@ const ScriptContent = styled.div`
   }
 
   [data-theme='dark'] & {
-    background: #1C1A17;
+    background: #0B1220;
     color: ${meok[200]};
   }
 `;

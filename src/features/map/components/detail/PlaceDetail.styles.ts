@@ -21,7 +21,7 @@ export const DetailWrapper = styled.div`
   outline: none;
 
   [data-theme='dark'] & {
-    background: #2D2924;
+    background: #212734;
   }
 `;
 
@@ -36,7 +36,7 @@ export const HeaderBar = styled.header`
   z-index: 5;
 
   [data-theme='dark'] & {
-    background: #2D2924;
+    background: #212734;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   }
 `;
@@ -593,7 +593,7 @@ export const BottomActionArea = styled.div`
   gap: 8px;
 
   [data-theme='dark'] & {
-    background: #2D2924;
+    background: #212734;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
   }
 `;

@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import type React from 'react';
 import styled from '@emotion/styled';
-import { Bookmark } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Bookmark01Icon } from '@hugeicons/core-free-icons'
 import { toast } from 'sonner';
 import { lightPalette, meok } from '@/design-system/tokens';
 import { hasAuthenticatedUser } from '@/features/auth/privateState';
@@ -109,7 +110,7 @@ export default function SavePlaceButton({
       aria-pressed={saved}
       aria-label={saved ? `${placeName} 담기 해제` : `${placeName} 담기`}
     >
-      <Bookmark size={14} strokeWidth={2} fill={saved ? 'currentColor' : 'none'} />
+      <HugeiconsIcon icon={Bookmark01Icon} size={14} strokeWidth={2} fill={saved ? 'currentColor' : 'none'} />
       {!compact && <span>{saved ? '담은 장소' : '담기'}</span>}
     </Button>
   );

@@ -5,7 +5,8 @@ import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
 import { meok, lightPalette, fluidHeading , fontSize } from '@/design-system/tokens';
-import { Sparkles, ArrowRight } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { SparklesIcon, ArrowRight01Icon } from '@hugeicons/core-free-icons'
 import type { Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
 
@@ -179,7 +180,7 @@ export default function HanokHero({ villages, onSelectVillage }: HanokHeroProps)
       <ContentOverlay>
         <EyebrowBadge>
           <span className="stamp" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-            <Sparkles size={13} strokeWidth={2} /> 온마루 스페셜 큐레이션
+            <HugeiconsIcon icon={SparklesIcon} size={13} strokeWidth={2} /> 온마루 스페셜 큐레이션
           </span>
           <span>{current.region} · {filterLabel(current.type)}</span>
         </EyebrowBadge>
@@ -200,7 +201,7 @@ export default function HanokHero({ villages, onSelectVillage }: HanokHeroProps)
           </Indicators>
 
           <DetailBtn onClick={() => onSelectVillage(current)}>
-            자세히 보기 <ArrowRight size={14} strokeWidth={2} />
+            자세히 보기 <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
           </DetailBtn>
         </ControlsRow>
       </ContentOverlay>

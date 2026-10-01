@@ -4,19 +4,8 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
-import {
-  Compass,
-  Clock,
-  Landmark,
-  Headphones,
-  Play,
-  Pause,
-  Flame,
-  ArrowRight,
-  Sparkles,
-  Bookmark,
-  BookmarkCheck,
-} from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Compass01Icon, Clock01Icon, LandmarkIcon, HeadphonesIcon, PlayIcon, PauseIcon, FlameIcon, ArrowRight01Icon, SparklesIcon, Bookmark01Icon, BookmarkCheck01Icon } from '@hugeicons/core-free-icons'
 import { toast } from 'sonner';
 import { useAuth } from '@/features/auth';
 import { useSavedJourneyStore } from '../store/useSavedJourneyStore';
@@ -82,7 +71,7 @@ const BookmarkBtn = styled.button<{ $saved: boolean }>`
   flex-shrink: 0;
 
   [data-theme='dark'] & {
-    background: ${({ $saved }) => ($saved ? 'rgba(0, 184, 130, 0.15)' : '#24211d')};
+    background: ${({ $saved }) => ($saved ? 'rgba(0, 184, 130, 0.15)' : '#171E2B')};
     border-color: ${({ $saved }) => ($saved ? '#00b882' : 'rgba(255, 255, 255, 0.12)')};
     color: ${({ $saved }) => ($saved ? '#00b882' : '#a1a1aa')};
   }
@@ -205,7 +194,7 @@ const BaseCard = styled(motion.div)`
   transition: all 0.22s ease;
 
   [data-theme='dark'] & {
-    background: #1c1a17;
+    background: #0B1220;
     border-color: rgba(255, 255, 255, 0.08);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   }
@@ -320,7 +309,7 @@ const TimelineStop = styled.div`
     box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
 
     [data-theme='dark'] & {
-      border-color: #1c1a17;
+      border-color: #0B1220;
     }
   }
 `;
@@ -589,16 +578,16 @@ export default function BentoJourneyGrid() {
 
   const handleBookmarkToggle = () => {
     if (!isLoggedIn) {
-      toast.info('ë¡œê·¸ì¸í•´ì£¼ì„¸ìš”.');
+      toast.info('·Î±×ÀÎÇØÁÖ¼¼¿ä.');
       return;
     }
 
     if (isCurrentSaved) {
       removeJourney(plan.id);
-      toast.success('ì—¬ì • ì €ì¥ì„ ì·¨ì†Œí–ˆì–´ìš”.');
+      toast.success('¿©Á¤ ÀúÀåÀ» Ãë¼ÒÇß¾î¿ä.');
     } else {
       saveJourney(plan);
-      toast.success(`âœ¨ '${plan.title}' ì—¬ì •ì„ ì €ì¥í–ˆì–´ìš”!`);
+      toast.success(`? '${plan.title}' ¿©Á¤À» ÀúÀåÇß¾î¿ä!`);
     }
   };
 
@@ -619,8 +608,8 @@ export default function BentoJourneyGrid() {
           <div>
             {plan.isAiGenerated && (
               <AiBadge>
-                <Sparkles size={12} />
-                <span>ì‹¤ì‹œê°„ ë§ì¶¤ ì—¬ì •</span>
+                <HugeiconsIcon icon={SparklesIcon} size={12} />
+                <span>½Ç½Ã°£ ¸ÂÃã ¿©Á¤</span>
               </AiBadge>
             )}
             <SectionTitle>{plan.title}</SectionTitle>
@@ -633,8 +622,8 @@ export default function BentoJourneyGrid() {
         {}
         <RouteCard>
           <CardBadge $color="#3b82f6">
-            <Compass size={14} strokeWidth={2} />
-            <span>ì¶”ì²œ ì½”ìŠ¤ ë™ì„ </span>
+            <HugeiconsIcon icon={Compass01Icon} size={14} strokeWidth={2} />
+            <span>ÃßÃµ ÄÚ½º µ¿¼±</span>
           </CardBadge>
 
           {hasMultipleDays && (
@@ -646,7 +635,7 @@ export default function BentoJourneyGrid() {
                   $active={selectedDayIdx === idx}
                   onClick={() => setSelectedDayIdx(idx)}
                 >
-                  {day.dayNumber}ì¼ì°¨
+                  {day.dayNumber}ÀÏÂ÷
                 </DayTabBtn>
               ))}
             </DayTabsWrap>
@@ -656,15 +645,15 @@ export default function BentoJourneyGrid() {
 
           <CardTitle>
             {hasMultipleDays
-              ? `${activeDay?.dayNumber}ì¼ì°¨: ${activeDay?.theme || routeCard.title}`
+              ? `${activeDay?.dayNumber}ÀÏÂ÷: ${activeDay?.theme || routeCard.title}`
               : routeCard.title}
           </CardTitle>
 
           <RouteMeta>
             <MetaItem>
-              <Clock size={14} strokeWidth={2} />
+              <HugeiconsIcon icon={Clock01Icon} size={14} strokeWidth={2} />
               <span>
-                {hasMultipleDays ? `${activeDay?.dayNumber}ì¼ì°¨ ì†Œìš”: ` : 'ì´ ì†Œìš”: '}
+                {hasMultipleDays ? `${activeDay?.dayNumber}ÀÏÂ÷ ¼Ò¿ä: ` : 'ÃÑ ¼Ò¿ä: '}
                 {currentDuration}
               </span>
             </MetaItem>
@@ -688,18 +677,18 @@ export default function BentoJourneyGrid() {
           <ActionLink href={currentMapLink} $color="#3b82f6">
             <span>
               {hasMultipleDays
-                ? `${activeDay?.dayNumber}ì¼ì°¨ ë™ì„  ì§€ë„ë¡œ ë³´ê¸°`
-                : 'ì§€ë„ì—ì„œ ì „ì²´ ë™ì„  ë³´ê¸°'}
+                ? `${activeDay?.dayNumber}ÀÏÂ÷ µ¿¼± Áöµµ·Î º¸±â`
+                : 'Áöµµ¿¡¼­ ÀüÃ¼ µ¿¼± º¸±â'}
             </span>
-            <ArrowRight size={14} strokeWidth={2} />
+            <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
           </ActionLink>
         </RouteCard>
 
         {}
         <HanokCard>
           <CardBadge $color={lightPalette.cheongrok[500]}>
-            <Landmark size={14} strokeWidth={2} />
-            <span>ê³µê°„ ê¸°ë¡</span>
+            <HugeiconsIcon icon={LandmarkIcon} size={14} strokeWidth={2} />
+            <span>°ø°£ ±â·Ï</span>
           </CardBadge>
           <CardTitle>{hanokCard.title}</CardTitle>
 
@@ -710,16 +699,16 @@ export default function BentoJourneyGrid() {
           <HanokDesc>{hanokCard.architecturalPoint}</HanokDesc>
 
           <ActionLink href={hanokCard.hanokLink} $color={lightPalette.cheongrok[500]}>
-            <span>í•œì˜¥ êµ¬ì¡° ì‚´í´ë³´ê¸°</span>
-            <ArrowRight size={14} strokeWidth={2} />
+            <span>ÇÑ¿Á ±¸Á¶ »ìÆìº¸±â</span>
+            <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
           </ActionLink>
         </HanokCard>
 
         {}
         <SorimaruCard>
           <CardBadge $color="#8b5cf6">
-            <Headphones size={14} strokeWidth={2} />
-            <span>ê³µê°„ ì˜¤ë””ì˜¤ í•´ì„¤</span>
+            <HugeiconsIcon icon={HeadphonesIcon} size={14} strokeWidth={2} />
+            <span>°ø°£ ¿Àµğ¿À ÇØ¼³</span>
           </CardBadge>
           <CardTitle>{sorimaruCard.title}</CardTitle>
 
@@ -727,14 +716,14 @@ export default function BentoJourneyGrid() {
             <PlayBtn
               type="button"
               onClick={() => setIsPlaying(!isPlaying)}
-              aria-label={isPlaying ? 'ì˜¤ë””ì˜¤ ì¼ì‹œì •ì§€' : 'ì˜¤ë””ì˜¤ ë“£ê¸°'}
+              aria-label={isPlaying ? '¿Àµğ¿À ÀÏ½ÃÁ¤Áö' : '¿Àµğ¿À µè±â'}
             >
-              {isPlaying ? <Pause size={18} strokeWidth={2} /> : <Play size={18} fill="currentColor" style={{ marginLeft: 2 }} />}
+              {isPlaying ? <HugeiconsIcon icon={PauseIcon} size={18} strokeWidth={2} /> : <HugeiconsIcon icon={PlayIcon} size={18} fill="currentColor" style={{ marginLeft: 2 }} />}
             </PlayBtn>
             <AudioInfo>
               <AudioTitle>{sorimaruCard.subtitle}</AudioTitle>
               <AudioNarrator>
-                {sorimaruCard.narrator} Â· {sorimaruCard.duration}
+                {sorimaruCard.narrator} ¡¤ {sorimaruCard.duration}
               </AudioNarrator>
             </AudioInfo>
           </AudioPlayBox>
@@ -742,37 +731,37 @@ export default function BentoJourneyGrid() {
           <ExcerptBox>"{sorimaruCard.excerpt}"</ExcerptBox>
 
           <ActionLink href={sorimaruCard.sorimaruLink} $color="#8b5cf6">
-            <span>ì˜¤ë””ì˜¤ ì „ì²´ ì´ì•¼ê¸° ë“£ê¸°</span>
-            <ArrowRight size={14} strokeWidth={2} />
+            <span>¿Àµğ¿À ÀüÃ¼ ÀÌ¾ß±â µè±â</span>
+            <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
           </ActionLink>
         </SorimaruCard>
 
         {}
         <WarmthCard>
           <CardBadge $color={lightPalette.juhong[500]}>
-            <Flame size={14} strokeWidth={2} />
-            <span>ì‹¤ì‹œê°„ ë¶„ìœ„ê¸°ì™€ í˜¼ì¡ë„</span>
+            <HugeiconsIcon icon={FlameIcon} size={14} strokeWidth={2} />
+            <span>½Ç½Ã°£ ºĞÀ§±â¿Í È¥Àâµµ</span>
           </CardBadge>
-          <CardTitle>í˜„ì¬ ë¶„ìœ„ê¸°: '{warmthCard.status}'</CardTitle>
+          <CardTitle>ÇöÀç ºĞÀ§±â: '{warmthCard.status}'</CardTitle>
 
           <GaugeWrap>
             <GaugeBar>
               <GaugeFill $pct={warmthCard.percentage} />
             </GaugeBar>
             <GaugeMeta>
-              <span>í˜¼ì¡ ì§€ìˆ˜ {warmthCard.percentage}%</span>
-              <span>ìµœê·¼ ì˜¨ê¸° {warmthCard.recentCount}ê°œ</span>
+              <span>È¥Àâ Áö¼ö {warmthCard.percentage}%</span>
+              <span>ÃÖ±Ù ¿Â±â {warmthCard.recentCount}°³</span>
             </GaugeMeta>
           </GaugeWrap>
 
           <HanokDesc style={{ marginBottom: 12 }}>
-            <strong>ì¶”ì²œ ì‹œê°„ëŒ€:</strong> {warmthCard.bestTime}
+            <strong>ÃßÃµ ½Ã°£´ë:</strong> {warmthCard.bestTime}
           </HanokDesc>
           <HanokDesc>{warmthCard.vibeComment}</HanokDesc>
 
           <ActionLink href="/map" $color={lightPalette.juhong[500]}>
-            <span>ì—¬í–‰ì ì˜¨ê¸° ì´ì•¼ê¸° ë³´ê¸°</span>
-            <ArrowRight size={14} strokeWidth={2} />
+            <span>¿©ÇàÀÚ ¿Â±â ÀÌ¾ß±â º¸±â</span>
+            <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
           </ActionLink>
         </WarmthCard>
       </BentoGrid>

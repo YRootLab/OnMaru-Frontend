@@ -2,20 +2,21 @@
 
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
-import { X, Landmark } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Cancel01Icon, LandmarkIcon } from '@hugeicons/core-free-icons'
 import { lightPalette, meok , fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import type { RankedPlace } from '@/features/map/types';
 
 const REGIONS = [
-  { id: 'all', label: 'ì „êµ­' },
-  { id: 'ì „ì£¼', label: 'ì „ì£¼' },
-  { id: 'ì•ˆë™', label: 'ì•ˆë™' },
-  { id: 'ê²½ì£¼', label: 'ê²½ì£¼' },
-  { id: 'ì„œìš¸', label: 'ì„œìš¸' },
-  { id: 'ë‹´ì–‘', label: 'ë‹´ì–‘' },
-  { id: 'ê°•ë¦‰', label: 'ê°•ë¦‰' },
-  { id: 'ì œì£¼', label: 'ì œì£¼' },
+  { id: 'all', label: 'Àü±¹' },
+  { id: 'ÀüÁÖ', label: 'ÀüÁÖ' },
+  { id: '¾Èµ¿', label: '¾Èµ¿' },
+  { id: '°æÁÖ', label: '°æÁÖ' },
+  { id: '¼­¿ï', label: '¼­¿ï' },
+  { id: '´ã¾ç', label: '´ã¾ç' },
+  { id: '°­¸ª', label: '°­¸ª' },
+  { id: 'Á¦ÁÖ', label: 'Á¦ÁÖ' },
 ];
 
 const PanelRoot = styled.div`
@@ -25,7 +26,7 @@ const PanelRoot = styled.div`
   background: #ffffff;
 
   [data-theme='dark'] & {
-    background: #2D2924;
+    background: #212734;
   }
 `;
 
@@ -167,7 +168,7 @@ const PlaceRow = styled.div`
   }
 
   [data-theme='dark'] & {
-    background: #2D2924;
+    background: #212734;
 
     &:hover {
       background: rgba(255, 255, 255, 0.06);
@@ -266,8 +267,8 @@ function PopularPlaceThumbnail({ imageUrl, placeName }: { imageUrl: string | nul
 
   if (!thumbnailUrl) {
     return (
-      <PlaceholderThumb aria-label={`${placeName} ì´ë¯¸ì§€ ì—†ìŒ`} role="img">
-        <Landmark size={22} strokeWidth={2} />
+      <PlaceholderThumb aria-label={`${placeName} ÀÌ¹ÌÁö ¾øÀ½`} role="img">
+        <HugeiconsIcon icon={LandmarkIcon} size={22} strokeWidth={2} />
       </PlaceholderThumb>
     );
   }
@@ -327,20 +328,20 @@ export default function PopularPlacesPanel() {
     <PanelRoot>
       {}
       <TopBar>
-        <Title>ì‹¤ì‹œê°„ ì¸ê¸° ì¥ì†Œ</Title>
+        <Title>½Ç½Ã°£ ÀÎ±â Àå¼Ò</Title>
         <CloseBtn
           type="button"
           onClick={() => setPopularPanelOpen(false)}
-          aria-label="ì¸ê¸° ì¥ì†Œ íŒ¨ë„ ë‹«ê¸°"
+          aria-label="ÀÎ±â Àå¼Ò ÆĞ³Î ´İ±â"
         >
-          <X size={20} strokeWidth={2} />
+          <HugeiconsIcon icon={Cancel01Icon} size={20} strokeWidth={2} />
         </CloseBtn>
       </TopBar>
 
       {}
       <SubHeader>
-        <SubText>í•œêµ­ê´€ê´‘ê³µì‚¬ TourAPI ì¡°íšŒìˆœ ìƒìœ„ í•œì˜¥Â·ì „í†µ ëª…ì†Œì˜ˆìš”.</SubText>
-        <RegionScroller role="tablist" aria-label="ì§€ì—­ë³„ ì¸ê¸° ì¥ì†Œ">
+        <SubText>ÇÑ±¹°ü±¤°ø»ç TourAPI Á¶È¸¼ø »óÀ§ ÇÑ¿Á¡¤ÀüÅë ¸í¼Ò¿¹¿ä.</SubText>
+        <RegionScroller role="tablist" aria-label="Áö¿ªº° ÀÎ±â Àå¼Ò">
           {REGIONS.map((reg) => (
             <RegionChip
               key={reg.id}
@@ -363,7 +364,7 @@ export default function PopularPlacesPanel() {
             key={place.placeId || idx}
             onClick={() => handleSelectPlace(place)}
             role="button"
-            aria-label={`${idx + 1}ìœ„ ${place.placeName}`}
+            aria-label={`${idx + 1}À§ ${place.placeName}`}
           >
             <LeftCol>
               <RankNum $rank={idx + 1}>{idx + 1}</RankNum>
@@ -375,7 +376,7 @@ export default function PopularPlacesPanel() {
 }
                 <Meta>
                   <span>{place.placeRegion}</span>
-                  <span>Â·</span>
+                  <span>¡¤</span>
                   <span>{place.placeType}</span>
                 </Meta>
               </PlaceInfo>

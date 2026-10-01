@@ -3,7 +3,8 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
-import { MapPin } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ArrowLeft01Icon, ArrowRight01Icon, MapPinIcon } from '@hugeicons/core-free-icons'
 
 import { useSceneStore } from './sceneStore';
 import useUserLocation from '@/hooks/useUserLocation';
@@ -817,7 +818,7 @@ export default function SolarShadowPanel() {
   };
 
   const onKeyDown = (event) => {
-    const step = { ArrowLeft: -1, ArrowRight: 1 }[event.key];
+    const step = { ArrowLeft01Icon: -1, ArrowRight01Icon: 1 }[event.key];
 
     if (step !== undefined) {
       event.preventDefault();
@@ -1001,7 +1002,7 @@ export default function SolarShadowPanel() {
 
             {isSecure && locationState === 'idle' && (
               <LocationButton type="button" onClick={requestLocation}>
-                <MapPin size={13} strokeWidth={2} aria-hidden="true" />
+                <HugeiconsIcon icon={MapPinIcon} size={13} strokeWidth={2} aria-hidden="true" />
                 내 위치로 보기
               </LocationButton>
             )}

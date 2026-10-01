@@ -2,7 +2,8 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
-import { RefreshCw, AlertCircle, Loader2 } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { RefreshCwIcon, AlertCircleIcon, LoaderCircleIcon } from '@hugeicons/core-free-icons'
 import { OnmaruApiError } from '@/lib/api/errors';
 import { resolveSectionErrorState } from './sectionErrorFallbackModel';
 
@@ -19,7 +20,7 @@ const FallbackContainer = styled.div<{ $compact?: boolean }>`
   margin: 12px 0;
 
   [data-theme='dark'] & {
-    background-color: #24211d;
+    background-color: #171E2B;
     border-color: #38332c;
   }
 `;
@@ -45,7 +46,7 @@ const MainTitle = styled.h3`
   font-family: var(--font-hanok), sans-serif;
   font-size: 1.125rem;
   font-weight: 700;
-  color: #1c1a17;
+  color: #0B1220;
   margin: 0 0 6px 0;
 
   [data-theme='dark'] & {
@@ -87,7 +88,7 @@ const RetryButton = styled.button`
   padding: 8px 16px;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #1c1a17;
+  color: #0B1220;
   background-color: #ffffff;
   border: 1px solid #d9d9d7;
   border-radius: 9999px;
@@ -101,7 +102,7 @@ const RetryButton = styled.button`
 
   [data-theme='dark'] & {
     color: #f8f8f7;
-    background-color: #2d2924;
+    background-color: #212734;
     border-color: #454038;
 
     &:hover {
@@ -139,19 +140,19 @@ export const SectionErrorFallback: React.FC<SectionErrorFallbackProps> = ({
   return (
     <FallbackContainer $compact={compact} className={className} role="alert" aria-live="polite">
       <IconWrapper $isWaking={isWaking}>
-        {isWaking ? <Loader2 size={22} className="animate-spin" /> : <AlertCircle size={22} />}
+        {isWaking ? <HugeiconsIcon icon={LoaderCircleIcon} size={22} className="animate-spin" /> : <HugeiconsIcon icon={AlertCircleIcon} size={22} />}
       </IconWrapper>
 
       {/* Typography Hierarchy: Main Title ALWAYS at the top, Subtitle/description below */}
       <MainTitle>{title}</MainTitle>
       <SubDescription>{description}</SubDescription>
 
-      {requestId && <RequestIdText>Ïò§Î•ò ID: {requestId}</RequestIdText>}
+      {requestId && <RequestIdText>ø¿∑˘ ID: {requestId}</RequestIdText>}
 
       {canRetry && onRetry && (
         <RetryButton type="button" onClick={onRetry}>
-          <RefreshCw size={14} />
-          Îã§Ïãú ÏãúÎèÑ
+          <HugeiconsIcon icon={RefreshCwIcon} size={14} />
+          ¥ŸΩ√ Ω√µµ
         </RetryButton>
       )}
     </FallbackContainer>

@@ -3,7 +3,8 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { meok, palette, surface , fontSize } from '@/design-system/tokens';
-import { BookOpen, Home, Sun, MapPin } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { BookOpen01Icon, Home01Icon, Sun01Icon, MapPinIcon } from '@hugeicons/core-free-icons'
 
 const IndexContainer = styled.nav`
   display: flex;
@@ -24,7 +25,7 @@ const IndexContainer = styled.nav`
   z-index: 10;
 
   [data-theme='dark'] & {
-    background: rgba(28, 26, 23, 0.85);
+    background: rgba(11, 18, 32, 0.85);
     border-color: rgba(255, 255, 255, 0.12);
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
   }
@@ -91,25 +92,25 @@ export default function QuickIndexBar({ className }: QuickIndexBarProps) {
   };
 
   return (
-    <IndexContainer className={className} aria-label="í•œì˜¥ ë§ˆë£¨ ì£¼ìš” ì±•í„° ë°”ë¡œê°€ê¸°">
+    <IndexContainer className={className} aria-label="ÇÑ¿Á ¸¶·ç ÁÖ¿ä Ã©ÅÍ ¹Ù·Î°¡±â">
       <IndexChip type="button" onClick={() => scrollTo('grid')}>
-        <BookOpen size={15} strokeWidth={2} color={palette.juhong[500]} />
-        <span>ì „êµ­ í•œì˜¥ ë„ê°</span>
+        <HugeiconsIcon icon={BookOpen01Icon} size={15} strokeWidth={2} color={palette.juhong[500]} />
+        <span>Àü±¹ ÇÑ¿Á µµ°¨</span>
       </IndexChip>
 
       <IndexChip type="button" onClick={() => scrollTo('hanok-stays')}>
-        <Home size={15} strokeWidth={2} color={palette.cheongrok[500]} />
-        <span>ì§€ì—­ë³„ í•œì˜¥ ìŠ¤í…Œì´</span>
+        <HugeiconsIcon icon={Home01Icon} size={15} strokeWidth={2} color={palette.cheongrok[500]} />
+        <span>Áö¿ªº° ÇÑ¿Á ½ºÅ×ÀÌ</span>
       </IndexChip>
 
       <IndexChip type="button" onClick={() => scrollTo('structure')}>
-        <Sun size={15} strokeWidth={2} color={palette.hwanggeum[500]} />
-        <span>3D êµ¬ì¡° & ì²˜ë§ˆ ì¼ì¡° ë©</span>
+        <HugeiconsIcon icon={Sun01Icon} size={15} strokeWidth={2} color={palette.hwanggeum[500]} />
+        <span>3D ±¸Á¶ & Ã³¸¶ ÀÏÁ¶ ·¦</span>
       </IndexChip>
 
       <IndexChip type="button" onClick={() => scrollTo('map')}>
-        <MapPin size={15} strokeWidth={2} color={palette.juhong[500]} />
-        <span>ì „êµ­ ê³µê°„ ì§€ë„</span>
+        <HugeiconsIcon icon={MapPinIcon} size={15} strokeWidth={2} color={palette.juhong[500]} />
+        <span>Àü±¹ °ø°£ Áöµµ</span>
       </IndexChip>
     </IndexContainer>
   );

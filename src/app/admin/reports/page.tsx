@@ -15,15 +15,8 @@ import { CursorPagination } from '@/features/admin/components/Pagination';
 import { ReportItem, ReportStatus } from '@/features/admin/types';
 import { getReports, moderateReview, createSanction } from '@/features/admin/api/adminApi';
 import { useAdminCursorPagination } from '@/features/admin/hooks/useAdminCursorPagination';
-import {
-  ShieldAlert,
-  EyeOff,
-  Trash2,
-  XCircle,
-  UserX,
-  CheckCircle2,
-  Clock,
-} from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { CancelCircleIcon, CheckmarkCircle01Icon, Clock01Icon, EyeOffIcon, ShieldAlertIcon, TrashIcon, UserXIcon } from '@hugeicons/core-free-icons'
 
 export default function AdminReportsPage() {
   const [reasonFilter, setReasonFilter] = useState<string>('ALL');
@@ -432,7 +425,7 @@ export default function AdminReportsPage() {
                         gap: '4px',
                       }}
                     >
-                      <ShieldAlert size={14} strokeWidth={2} />
+                      <HugeiconsIcon icon={ShieldAlertIcon} size={14} strokeWidth={2} />
                       {report.reasonLabel}
                     </span>
                     <StatusBadge status={report.status} />
@@ -440,7 +433,7 @@ export default function AdminReportsPage() {
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '12px', color: meok[500] }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <Clock size={14} strokeWidth={2} />
+                      <HugeiconsIcon icon={Clock01Icon} size={14} strokeWidth={2} />
                       <span>신고 접수: {new Date(report.createdAt).toLocaleString('ko-KR')}</span>
                     </div>
                     <span>
@@ -583,7 +576,7 @@ export default function AdminReportsPage() {
                           gap: '4px',
                         }}
                       >
-                        <EyeOff size={14} strokeWidth={2} />
+                        <HugeiconsIcon icon={EyeOffIcon} size={14} strokeWidth={2} />
                         <span>숨김 처리</span>
                       </button>
 
@@ -605,7 +598,7 @@ export default function AdminReportsPage() {
                           gap: '4px',
                         }}
                       >
-                        <Trash2 size={14} strokeWidth={2} />
+                        <HugeiconsIcon icon={TrashIcon} size={14} strokeWidth={2} />
                         <span>삭제</span>
                       </button>
 
@@ -627,7 +620,7 @@ export default function AdminReportsPage() {
                           gap: '4px',
                         }}
                       >
-                        <XCircle size={14} strokeWidth={2} />
+                        <HugeiconsIcon icon={CancelCircleIcon} size={14} strokeWidth={2} />
                         <span>반려</span>
                       </button>
 
@@ -649,13 +642,13 @@ export default function AdminReportsPage() {
                           gap: '4px',
                         }}
                       >
-                        <UserX size={14} strokeWidth={2} />
+                        <HugeiconsIcon icon={UserXIcon} size={14} strokeWidth={2} />
                         <span>작성자 정지</span>
                       </button>
                     </div>
                   ) : (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: meok[500] }}>
-                      <CheckCircle2 size={16} strokeWidth={2} color={palette.cheongrok[500]} />
+                      <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} strokeWidth={2} color={palette.cheongrok[500]} />
                       <span>
                         처리 완료 ({report.resolvedAt ? new Date(report.resolvedAt).toLocaleDateString() : '-'}, {report.resolvedBy ?? '관리자'})
                       </span>

@@ -3,22 +3,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
-import {
-  Sparkles,
-  Search,
-  ArrowRight,
-  Compass,
-  Cloud,
-  ShoppingBag,
-  Headphones,
-  CloudRain,
-  Leaf,
-  Loader2,
-  X,
-} from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { SparklesIcon, Search01Icon, ArrowRight01Icon, Compass01Icon, CloudIcon, ShoppingBag01Icon, HeadphonesIcon, CloudRainIcon, Leaf01Icon, LoaderCircleIcon, Cancel01Icon } from '@hugeicons/core-free-icons'
 import { palette, lightPalette, meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
 import { useJourneyStore } from '../store/useJourneyStore';
 import { useAuth } from '@/features/auth';
+import { useIsAppleDevice } from '@/shared/hooks/useIsAppleDevice';
 import type { MoodId } from '../types/journey.types';
 
 interface MoodOption {
@@ -288,7 +278,10 @@ const OniVideoBox = styled.div<{ $isTyping?: boolean; $direction?: 'right' | 'le
     object-fit: contain;
     display: block;
     pointer-events: none;
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.12));
+    filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.16));
+  }
+
+  video {
     mix-blend-mode: screen;
   }
 
@@ -527,7 +520,7 @@ const SearchForm = styled.form<{ $compact?: boolean }>`
   transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 
   [data-theme='dark'] & {
-    background: rgba(36, 33, 29, 0.90);
+    background: rgba(23, 30, 43, 0.90);
     border: none;
     box-shadow: ${ringShadow.dark.input};
   }
@@ -781,17 +774,17 @@ const ErrorBanner = styled.div`
 function getMoodIcon(id: string) {
   switch (id) {
     case 'quiet':
-      return <Cloud size={15} />;
+      return <HugeiconsIcon icon={CloudIcon} size={15} />;
     case 'market':
-      return <ShoppingBag size={15} />;
+      return <HugeiconsIcon icon={ShoppingBag01Icon} size={15} />;
     case 'story':
-      return <Headphones size={15} />;
+      return <HugeiconsIcon icon={HeadphonesIcon} size={15} />;
     case 'rainy':
-      return <CloudRain size={15} />;
+      return <HugeiconsIcon icon={CloudRainIcon} size={15} />;
     case 'rest':
-      return <Leaf size={15} />;
+      return <HugeiconsIcon icon={Leaf01Icon} size={15} />;
     default:
-      return <Sparkles size={15} />;
+      return <HugeiconsIcon icon={SparklesIcon} size={15} />;
   }
 }
 
@@ -815,13 +808,14 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
   const isGenerating = useJourneyStore((s) => s.isGenerating);
   const hasSearched = useJourneyStore((s) => s.hasSearched);
   const { moods } = useMoodOptions();
+  const isApple = useIsAppleDevice();
   const [isCancelling, setIsCancelling] = useState(false);
   const [oniVideoError, setOniVideoError] = useState(false);
   const { isLoggedIn, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
   const oniVideoRef = useRef<HTMLVideoElement>(null);
 
-  // íƒ€ì´í•‘ ìœ„ì¹˜ ì‹¤ì‹œê°„ ì¶”ì  ìƒíƒœ ë° Ref
+  // Å¸ÀÌÇÎ À§Ä¡ ½Ç½Ã°£ ÃßÀû »óÅÂ ¹× Ref
   const [typingX, setTypingX] = useState<number | null>(null);
   const [facingDirection, setFacingDirection] = useState<'right' | 'left'>('right');
   const prevQueryLenRef = useRef<number>(0);
@@ -879,10 +873,10 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
   }, []);
 
   const defaultSuggestions = [
-    '+ ì „í†µ ì°»ì§‘ ë”ë³´ê¸°',
-    '+ ë¹„ ì˜¤ëŠ” ë‚  ì½”ìŠ¤',
-    '+ ê±·ëŠ” ì‹œê°„ ì¤„ì´ê¸°',
-    '+ ì—­ì‚¬ í•´ì„¤ í¬í•¨',
+    '+ ÀüÅë ÂşÁı ´õº¸±â',
+    '+ ºñ ¿À´Â ³¯ ÄÚ½º',
+    '+ °È´Â ½Ã°£ ÁÙÀÌ±â',
+    '+ ¿ª»ç ÇØ¼³ Æ÷ÇÔ',
   ];
 
   const suggestions = currentPlan?.refineSuggestions?.length
@@ -922,12 +916,12 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
     <Container $compact={hasSearched}>
       {!hasSearched && (
         <>
-          <Title>ì–´ë–¤ í•œì˜¥ìœ¼ë¡œ ë– ë‚˜ê³  ì‹¶ìœ¼ì„¸ìš”?</Title>
+          <Title>¾î¶² ÇÑ¿ÁÀ¸·Î ¶°³ª°í ½ÍÀ¸¼¼¿ä?</Title>
 
           <Subtitle>
-            ì›í•˜ëŠ” ë¶„ìœ„ê¸°ë‚˜ ì§€ì—­ì„ ì ì–´ì£¼ì‹œë©´,
+            ¿øÇÏ´Â ºĞÀ§±â³ª Áö¿ªÀ» Àû¾îÁÖ½Ã¸é,
             <br />
-            í•œì˜¥ê³¼ ì£¼ë³€ ë³¼ê±°ë¦¬, ìƒìƒí•œ ì†Œë¦¬ë¥¼ ì—®ì–´ ê¼­ ë§ëŠ” ì¼ì •ì„ ë§Œë“¤ì–´ ë“œë ¤ìš”.
+            ÇÑ¿Á°ú ÁÖº¯ º¼°Å¸®, »ı»ıÇÑ ¼Ò¸®¸¦ ¿«¾î ²À ¸Â´Â ÀÏÁ¤À» ¸¸µé¾î µå·Á¿ä.
           </Subtitle>
         </>
       )}
@@ -961,10 +955,10 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
               aria-hidden="true"
             >
               <OniBubble $visible={Boolean(currentQuery)}>
-                {currentQuery ? 'ì˜¨ì´ê°€ ê¸¸ì„ ë¹„ì¶”ê³  ìˆì–´ìš” ğŸ®' : 'ì˜¨ì´ê°€ ê¸¸ì„ ë°íˆê³  ìˆì–´ìš”'}
+                {currentQuery ? '¿ÂÀÌ°¡ ±æÀ» ºñÃß°í ÀÖ¾î¿ä ??' : '¿ÂÀÌ°¡ ±æÀ» ¹àÈ÷°í ÀÖ¾î¿ä'}
               </OniBubble>
               <OniVideoBox $isTyping={Boolean(currentQuery)} $direction={facingDirection}>
-                {oniVideoError ? (
+                {isApple || oniVideoError ? (
                   <img src="/images/character/Oni_walking.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                 ) : (
                   <video
@@ -974,7 +968,7 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
                     muted
                     playsInline
                     preload="auto"
-                    aria-label="ì˜¨ì´ê°€ ê¸¸ì„ ë°íˆê³  ìˆì–´ìš”"
+                    aria-label="¿ÂÀÌ°¡ ±æÀ» ¹àÈ÷°í ÀÖ¾î¿ä"
                     onError={() => setOniVideoError(true)}
                     onCanPlay={(e) => {
                       e.currentTarget.muted = true;
@@ -991,27 +985,24 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
         )}
 
         <SearchForm ref={handleFormRef} onSubmit={handleSubmit} $compact={hasSearched}>
-          <SearchIconWrap>
-            <Compass size={hasSearched ? 18 : 20} />
-          </SearchIconWrap>
           <Input
             type="text"
             value={currentQuery}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="ì–´ë””ë¡œ ë– ë‚˜ê³  ì‹¶ìœ¼ì„¸ìš”?"
-            aria-label="ì—¬í–‰í•˜ê³  ì‹¶ì€ í•œì˜¥ì´ë‚˜ ì§€ì—­ ì…ë ¥"
+            placeholder="¾îµğ·Î ¶°³ª°í ½ÍÀ¸¼¼¿ä?"
+            aria-label="¿©ÇàÇÏ°í ½ÍÀº ÇÑ¿ÁÀÌ³ª Áö¿ª ÀÔ·Â"
           />
           {isGenerating ? (
-            <SubmitButton type="button" $disabled={isCancelling} $compact={hasSearched} onClick={handleCancel} aria-label="ìƒì„± ì·¨ì†Œ">
+            <SubmitButton type="button" $disabled={isCancelling} $compact={hasSearched} onClick={handleCancel} aria-label="»ı¼º Ãë¼Ò">
               {isCancelling ? (
-                <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
+                <HugeiconsIcon icon={LoaderCircleIcon} size={16} style={{ animation: 'spin 1s linear infinite' }} />
               ) : (
-                <X size={16} />
+                <HugeiconsIcon icon={Cancel01Icon} size={16} />
               )}
             </SubmitButton>
           ) : (
-            <SubmitButton type="submit" $compact={hasSearched} aria-label="ë§ì¶¤ ì½”ìŠ¤ ì°¾ê¸°">
-              <Search size={16} />
+            <SubmitButton type="submit" $compact={hasSearched} aria-label="¸ÂÃã ÄÚ½º Ã£±â">
+              <HugeiconsIcon icon={Search01Icon} size={16} />
             </SubmitButton>
           )}
         </SearchForm>
@@ -1019,7 +1010,7 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
 
       {hasSearched && (
         <>
-          {lastError && <ErrorBanner>{lastError} ê¸°ì¡´ ì½”ìŠ¤ëŠ” ê·¸ëŒ€ë¡œ ìœ ì§€í–ˆì–´ìš”.</ErrorBanner>}
+          {lastError && <ErrorBanner>{lastError} ±âÁ¸ ÄÚ½º´Â ±×´ë·Î À¯ÁöÇß¾î¿ä.</ErrorBanner>}
           <RefineChipsContainer>
             {suggestions.map((item, idx) => (
               <RefineChip

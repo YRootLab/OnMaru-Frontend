@@ -1,7 +1,8 @@
 'use client';
 
 import styled from '@emotion/styled';
-import { Landmark, Flame } from 'lucide-react';
+import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
+import { FlameIcon, LandmarkIcon } from '@hugeicons/core-free-icons'
 import { lightPalette, meok, palette } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import type { MapMode } from '@/features/map/types';
@@ -9,12 +10,12 @@ import type { MapMode } from '@/features/map/types';
 interface ModeOption {
   id: MapMode;
   label: string;
-  icon: React.ComponentType<{ size?: number; className?: string; strokeWidth?: number }>;
+  icon: IconSvgElement;
 }
 
 const MODES: ModeOption[] = [
-  { id: 'info', label: '정보', icon: Landmark },
-  { id: 'warmth', label: '온기', icon: Flame },
+  { id: 'info', label: '정보', icon: LandmarkIcon },
+  { id: 'warmth', label: '온기', icon: FlameIcon },
 ];
 
 interface ModeToggleProps {
@@ -137,7 +138,7 @@ export default function ModeToggle({ fullWidth, compact }: ModeToggleProps) {
     <Track role="tablist" aria-label="지도 모드" $fullWidth={fullWidth} $compact={compact}>
       <SlidingPill $activeMode={mode} $compact={compact} />
 
-      {MODES.map(({ id, label, icon: IconComponent }) => {
+      {MODES.map(({ id, label, icon }) => {
         const isActive = mode === id;
         return (
           <Tab
@@ -150,7 +151,7 @@ export default function ModeToggle({ fullWidth, compact }: ModeToggleProps) {
             onClick={() => setMode(id)}
           >
             <IconWrap $mode={id} $active={isActive} $compact={compact}>
-              <IconComponent size={compact ? 13 : 15} strokeWidth={2} />
+              <HugeiconsIcon icon={icon} size={compact ? 13 : 15} strokeWidth={2} />
             </IconWrap>
             <span>{label}</span>
           </Tab>

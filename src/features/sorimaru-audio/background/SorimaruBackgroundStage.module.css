@@ -519,16 +519,16 @@
 
 
 :global([data-theme='dark']) .stage {
-  --sorimaru-bg-canvas: #1c1a17 !important;
-  background: #1c1a17 !important;
-  background-color: #1c1a17 !important;
+  --sorimaru-bg-canvas: #0B1220 !important;
+  background: #0B1220 !important;
+  background-color: #0B1220 !important;
 }
 
 :global([data-theme='dark']) .stage[data-variant='hanji-journey'],
 :global([data-theme='dark']) .stage[data-stage='archive'],
 :global([data-theme='dark']) .stage[data-stage='closing'] {
-  background: #1c1a17 !important;
-  background-color: #1c1a17 !important;
+  background: #0B1220 !important;
+  background-color: #0B1220 !important;
 }
 
 :global([data-theme='dark']) .hospitalityLight {
@@ -537,12 +537,12 @@
 
 :global([data-theme='dark']) .paperSheet {
   border-color: rgba(255, 255, 255, 0.08);
-  background: linear-gradient(135deg, rgba(38, 35, 31, 0.96), rgba(28, 26, 23, 0.9));
+  background: linear-gradient(135deg, rgba(38, 35, 31, 0.96), rgba(11, 18, 32, 0.9));
   box-shadow: -14px 18px 42px rgba(0, 0, 0, 0.6);
 }
 
 :global([data-theme='dark']) .deckleBody {
-  fill: #1c1a17 !important;
+  fill: #0B1220 !important;
 }
 
 :global([data-theme='dark']) .deckleEdge {
@@ -618,7 +618,7 @@
   background: linear-gradient(
     to right,
     rgba(14, 12, 10, 0.72) 0%,
-    rgba(28, 26, 23, 0.28) 50%,
+    rgba(11, 18, 32, 0.28) 50%,
     transparent 100%
   );
 }

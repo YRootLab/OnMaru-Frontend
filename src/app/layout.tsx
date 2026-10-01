@@ -41,22 +41,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           }}
         />
         {/* End Google Tag Manager */}
-        <Script
-          id="onmaru-theme-init"
-          strategy="beforeInteractive"
+        <script
           dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var saved = localStorage.getItem('onmaru-color-mode');
-                  var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                  var hour = new Date().getHours();
-                  var timeMode = hour >= 7 && hour < 19 ? 'light' : 'dark';
-                  var mode = (saved === 'dark' || saved === 'light') ? saved : timeMode;
-                  document.documentElement.setAttribute('data-theme', mode);
-                } catch (e) {}
-              })();
-            `,
+            __html: `(function(){try{var s=localStorage.getItem('onmaru-color-mode');var h=new Date().getHours();var t=h>=7&&h<19?'light':'dark';var m=(s==='dark'||s==='light')?s:t;document.documentElement.setAttribute('data-theme',m);}catch(e){}})();`,
           }}
         />
         <Script

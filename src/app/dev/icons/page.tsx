@@ -1,41 +1,42 @@
 'use client';
 
-
-
-
-
-
-
-
-
-
-
-
-
 import { useState } from 'react';
 import styled from '@emotion/styled';
-import * as Lucide from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
-import { semanticTokens, palette, meok, surface , fontSize } from '@/design-system/tokens';
-
+import { HugeiconsIcon } from '@hugeicons/react';
+import * as HugeIcons from '@hugeicons/core-free-icons';
+import { semanticTokens, palette, meok, surface, fontSize } from '@/design-system/tokens';
 
 const NAMES = [
-  'AlertCircle', 'ArrowLeftRight', 'ArrowRight', 'ArrowUp', 'Award', 'BookOpen', 'Bookmark',
-  'BookmarkCheck', 'Calendar', 'Camera', 'Car', 'Check', 'CheckCircle2', 'ChevronDown',
-  'ChevronLeft', 'ChevronRight', 'ChevronUp', 'Clock', 'Cloud', 'CloudRain', 'CloudUpload',
-  'Coffee', 'Compass', 'CornerDownLeft', 'Database', 'Download', 'ExternalLink', 'EyeOff',
-  'Flame', 'Frown', 'FrownOpen', 'Gauge', 'Globe', 'Headphones', 'Heart', 'Home', 'ImageIcon',
-  'Images', 'Inbox', 'Info', 'Landmark', 'Layers', 'LayoutDashboard', 'Leaf', 'List',
-  'LocateFixed', 'Lock', 'LogOut', 'Mail', 'Map', 'MapPin', 'Megaphone', 'Meh', 'Menu',
-  'MessageCircle', 'Minus', 'Moon', 'MoreHorizontal', 'Music2', 'Navigation', 'Network',
-  'Pause', 'PenLine', 'Phone', 'Plane', 'Play', 'Plus', 'Printer', 'RefreshCw', 'RotateCcw', 'Search',
-  'Share2', 'ShieldAlert', 'ShoppingBag', 'SkipBack', 'SkipForward', 'Smile', 'SmilePlus',
-  'Sparkles', 'Square', 'Star', 'Store', 'Sun', 'Tag', 'Ticket', 'Trash2', 'User', 'UserX',
-  'Users', 'Utensils', 'Volume2', 'Wand2', 'X', 'XCircle',
+  'Activity01Icon', 'AlertCircleIcon', 'AngryIcon', 'Airplane01Icon', 'ArrowExpand01Icon',
+  'ArrowLeft01Icon', 'ArrowLeftRightIcon', 'ArrowRight01Icon', 'ArrowShrink01Icon',
+  'ArrowUp01Icon', 'ArrowUpRight01Icon', 'Award01Icon', 'BookmarkCheck01Icon',
+  'Bookmark01Icon', 'BookOpen01Icon', 'BotIcon', 'Building01Icon', 'Calendar01Icon',
+  'CalendarDaysIcon', 'Camera01Icon', 'Car01Icon', 'Cancel01Icon', 'CancelCircleIcon',
+  'CheckIcon', 'CheckmarkCircle01Icon', 'ChevronDownIcon', 'ChevronLeftIcon',
+  'ChevronRightIcon', 'ChevronUpIcon', 'ClapperboardIcon', 'Clock01Icon', 'CloudIcon',
+  'CloudRainIcon', 'CloudUploadIcon', 'CodeIcon', 'Coffee01Icon', 'Compass01Icon',
+  'Copy01Icon', 'CornerDownLeftIcon', 'CrownIcon', 'DashboardCircleIcon',
+  'Database01Icon', 'Download01Icon', 'ExternalLinkIcon', 'EyeOffIcon',
+  'FileTextIcon', 'Film01Icon', 'FlameIcon', 'Flower01Icon', 'FrownIcon',
+  'Gamepad01Icon', 'GaugeIcon', 'GlobeIcon', 'GridViewIcon', 'HashtagIcon',
+  'HeadphonesIcon', 'HeartIcon', 'HelpCircleIcon', 'Home01Icon', 'Image01Icon',
+  'Image02Icon', 'InboxIcon', 'InformationCircleIcon', 'LandmarkIcon', 'Layers01Icon',
+  'Leaf01Icon', 'ListIcon', 'LoaderCircleIcon', 'LocateFixedIcon', 'LockIcon',
+  'Logout01Icon', 'MagicWand01Icon', 'Mail01Icon', 'MapIcon', 'MapPinIcon',
+  'Medal01Icon', 'Megaphone01Icon', 'MehIcon', 'Menu01Icon', 'MessageCircleIcon',
+  'MinusSignIcon', 'Moon01Icon', 'MoreHorizontalIcon', 'Music01Icon', 'Music02Icon',
+  'Navigation01Icon', 'NetworkIcon', 'PauseIcon', 'PenLineIcon', 'PhoneIcon',
+  'PlayIcon', 'PlusSignIcon', 'RefreshCwIcon', 'RotateCcwIcon', 'RotateCwIcon',
+  'Route01Icon', 'Search01Icon', 'Share01Icon', 'ShieldAlertIcon', 'ShieldCheckIcon',
+  'ShoppingBag01Icon', 'SkipBackIcon', 'SkipForwardIcon', 'SmileIcon', 'SmilePlusIcon',
+  'SnowflakeIcon', 'SparklesIcon', 'SproutIcon', 'SquareIcon', 'Store01Icon',
+  'Sun01Icon', 'SunMediumIcon', 'Sword01Icon', 'Tag01Icon', 'Ticket01Icon',
+  'Timer01Icon', 'TrashIcon', 'TrophyIcon', 'UserCheck01Icon', 'UserIcon',
+  'UsersIcon', 'UserXIcon', 'UtensilsIcon', 'VolumeHighIcon', 'WindIcon',
+  'ZoomInIcon',
 ];
 
-const ICONS = Lucide as unknown as Record<string, LucideIcon>;
-
+const ICONS = HugeIcons as unknown as Record<string, unknown>;
 
 const t = semanticTokens.light;
 const ROLES = [
@@ -161,7 +162,7 @@ const Slot = styled.div`
   min-height: 36px;
 `;
 
-const Name = styled.span<{ $dark: boolean }>`
+const IconName = styled.span<{ $dark: boolean }>`
   font-size: ${fontSize.micro};
   font-weight: 500;
   line-height: 1.35;
@@ -187,10 +188,10 @@ export default function IconCatalogPage() {
     <Page style={{ background: dark ? surface.dark.app : 'transparent' }}>
       <Title style={{ color: dark ? '#ffffff' : meok[900] }}>아이콘 카탈로그</Title>
       <Lead style={{ color: dark ? meok[200] : meok[700] }}>
-        아이콘은 전부 <b>lucide-react</b> 한 곳에서만 온다. 이모지는 쓰지 않는다.
+        아이콘은 전부 <b>@hugeicons/core-free-icons</b> 한 곳에서만 온다. 이모지는 쓰지 않는다.
         <br />
-        선 전용(<code>fill: none</code>, <code>stroke: currentColor</code>)이라 채움 버전은 없고, 색은
-        부모의 <code>color</code>로, 두께는 <code>strokeWidth</code>로 조절한다.
+        <code>HugeiconsIcon</code> 컴포넌트로 렌더링하며, 색은 <code>color</code> 혹은 부모의{' '}
+        <code>color</code>로, 두께는 <code>strokeWidth</code>로 조절한다.
       </Lead>
 
       <Controls>
@@ -236,15 +237,20 @@ export default function IconCatalogPage() {
         </Chip>
       </Controls>
 
-      <LibMeta>lucide-react · {NAMES.length}개</LibMeta>
+      <LibMeta>@hugeicons/core-free-icons · {NAMES.length}개</LibMeta>
 
       <Grid $color={color}>
         {NAMES.map((name) => {
-          const Icon = ICONS[name];
+          const iconData = ICONS[name];
           return (
             <Card key={name} $dark={dark}>
-              <Slot>{Icon ? <Icon size={size} strokeWidth={weight} /> : <Empty>없음</Empty>}</Slot>
-              <Name $dark={dark}>{name}</Name>
+              <Slot>
+                {iconData
+                  ? <HugeiconsIcon icon={iconData as Parameters<typeof HugeiconsIcon>[0]['icon']} size={size} strokeWidth={weight} color={color} />
+                  : <Empty>없음</Empty>
+                }
+              </Slot>
+              <IconName $dark={dark}>{name}</IconName>
             </Card>
           );
         })}

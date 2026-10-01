@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
-import { Flame, Leaf, Users, Plus, MessageCircle } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { FlameIcon, Leaf01Icon, UsersIcon, PlusSignIcon, MessageCircleIcon } from '@hugeicons/core-free-icons'
 import { lightPalette, meok , fontSize } from '@/design-system/tokens';
 import { usePlaceVisitReviews } from '@/features/visit-review/presentation/usePlaceVisitReviews';
 import WriteWarmthModal from './WriteWarmthModal';
@@ -299,12 +300,12 @@ export default function PlaceWarmthSection({
       <SectionContainer id="place-warmth-section">
         <SectionHeader>
           <TitleBox>
-            <Flame size={16} strokeWidth={2} color={lightPalette.hwanggeum[500]} />
+            <HugeiconsIcon icon={FlameIcon} size={16} strokeWidth={2} color={lightPalette.hwanggeum[500]} />
             <SectionTitle>머문 이들의 온기</SectionTitle>
             <CountBadge>{matchedWarmths.length}</CountBadge>
           </TitleBox>
           <WriteButton type="button" onClick={handleOpenModal}>
-            <Plus size={14} strokeWidth={2} />
+            <HugeiconsIcon icon={PlusSignIcon} size={14} strokeWidth={2} />
             <span>온기 남기기</span>
           </WriteButton>
         </SectionHeader>
@@ -316,7 +317,7 @@ export default function PlaceWarmthSection({
                 <CardTop>
                   <LeftBadges>
                     <MoodBadge $mood={item.mood}>
-                      {item.mood === '한적' ? <Leaf size={12} strokeWidth={2} /> : <Users size={12} strokeWidth={2} />}
+                      {item.mood === '한적' ? <HugeiconsIcon icon={Leaf01Icon} size={12} strokeWidth={2} /> : <HugeiconsIcon icon={UsersIcon} size={12} strokeWidth={2} />}
                       <span>{item.mood}</span>
                     </MoodBadge>
                   </LeftBadges>
@@ -349,12 +350,12 @@ export default function PlaceWarmthSection({
         ) : !loading ? (
           <EmptyBox>
             <EmptyIconBox>
-              <MessageCircle size={20} strokeWidth={2} />
+              <HugeiconsIcon icon={MessageCircleIcon} size={20} strokeWidth={2} />
             </EmptyIconBox>
             <EmptyTitle>아직 남긴 온기가 없어요</EmptyTitle>
             <EmptySub>{error ? '후기를 불러오지 못했습니다.' : '첫 번째 이야기를 남겨보세요.'}</EmptySub>
             <EmptyActionBtn type="button" onClick={handleOpenModal}>
-              <Plus size={14} strokeWidth={2} />
+              <HugeiconsIcon icon={PlusSignIcon} size={14} strokeWidth={2} />
               <span>이야기 남기기</span>
             </EmptyActionBtn>
           </EmptyBox>

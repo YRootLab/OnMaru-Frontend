@@ -8,7 +8,8 @@ import { meok, palette, surface, fluidHeading , fontSize } from '@/design-system
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
 import { STAY_TYPE } from '@/features/hanok-archive/types';
 import type { Village } from '@/features/hanok-archive/types';
-import { Home, Flame, Coffee, Sparkles, Leaf, MapPin, RotateCcw, ArrowRight, ExternalLink, ChevronDown } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Home01Icon, FlameIcon, Coffee01Icon, SparklesIcon, Leaf01Icon, MapPinIcon, RotateCcwIcon, ArrowRight01Icon, ExternalLinkIcon, ChevronDownIcon } from '@hugeicons/core-free-icons'
 
 const Section = styled.section`
   position: relative;
@@ -649,13 +650,13 @@ const REGION_ORDER = [
 ];
 
 const ICONS = [
-  <Home size={20} strokeWidth={2} key="home" />,
-  <Flame size={20} strokeWidth={2} key="flame" />,
-  <Leaf size={20} strokeWidth={2} key="trees" />,
-  <Coffee size={20} strokeWidth={2} key="coffee" />,
-  <Sparkles size={20} strokeWidth={2} key="sparkles" />,
-  <Leaf size={20} strokeWidth={2} key="leaf" />,
-  <MapPin size={20} strokeWidth={2} key="mountain" />,
+  <HugeiconsIcon icon={Home01Icon} size={20} strokeWidth={2} key="home" />,
+  <HugeiconsIcon icon={FlameIcon} size={20} strokeWidth={2} key="flame" />,
+  <HugeiconsIcon icon={Leaf01Icon} size={20} strokeWidth={2} key="trees" />,
+  <HugeiconsIcon icon={Coffee01Icon} size={20} strokeWidth={2} key="coffee" />,
+  <HugeiconsIcon icon={SparklesIcon} size={20} strokeWidth={2} key="sparkles" />,
+  <HugeiconsIcon icon={Leaf01Icon} size={20} strokeWidth={2} key="leaf" />,
+  <HugeiconsIcon icon={MapPinIcon} size={20} strokeWidth={2} key="mountain" />,
 ];
 const BATCH_SIZE = 7;
 
@@ -801,7 +802,7 @@ export default function HanokStayAccordion({
 
                   {!isActive && (
                     <CollapsedIconButton>
-                      <Home size={20} strokeWidth={2} />
+                      <HugeiconsIcon icon={Home01Icon} size={20} strokeWidth={2} />
                     </CollapsedIconButton>
                   )}
 
@@ -809,7 +810,7 @@ export default function HanokStayAccordion({
                     <MobileCollapsedRow>
                       <MobileRegionBadge>{item.region}</MobileRegionBadge>
                       <MobileName>{item.name}</MobileName>
-                      <ChevronDown size={15} strokeWidth={2} style={{ flexShrink: 0, opacity: 0.7 }} />
+                      <HugeiconsIcon icon={ChevronDownIcon} size={15} strokeWidth={2} style={{ flexShrink: 0, opacity: 0.7 }} />
                     </MobileCollapsedRow>
                   )}
 
@@ -827,7 +828,7 @@ export default function HanokStayAccordion({
                           </TagRow>
                           <StayTitle>{item.name}</StayTitle>
                           <StayAddress>
-                            <MapPin size={13} strokeWidth={2} style={{ flexShrink: 0 }} />
+                            <HugeiconsIcon icon={MapPinIcon} size={13} strokeWidth={2} style={{ flexShrink: 0 }} />
                             <StayAddressText>{item.addr}</StayAddressText>
                           </StayAddress>
                         </ContentHeader>
@@ -841,7 +842,7 @@ export default function HanokStayAccordion({
                               else if (onSelectVillage) onSelectVillage(item);
                             }}
                           >
-                            <Home size={20} strokeWidth={2} />
+                            <HugeiconsIcon icon={Home01Icon} size={20} strokeWidth={2} />
                           </ActiveIconButton>
 
                           <ActionGroup>
@@ -851,7 +852,7 @@ export default function HanokStayAccordion({
                               rel="noopener noreferrer"
                               onClick={(e) => e.stopPropagation()}
                             >
-                              예약 정보 확인하기 <ExternalLink size={13} strokeWidth={2} />
+                              예약 정보 확인하기 <HugeiconsIcon icon={ExternalLinkIcon} size={13} strokeWidth={2} />
                             </DirectBookingBtn>
                             {(onSelectStay || onSelectVillage) && (
                               <DetailActionBtn
@@ -861,7 +862,7 @@ export default function HanokStayAccordion({
                                   else if (onSelectVillage) onSelectVillage(item);
                                 }}
                               >
-                                숙소 상세 <ArrowRight size={13} strokeWidth={2} />
+                                숙소 상세 <HugeiconsIcon icon={ArrowRight01Icon} size={13} strokeWidth={2} />
                               </DetailActionBtn>
                             )}
                           </ActionGroup>
@@ -880,7 +881,7 @@ export default function HanokStayAccordion({
             </BatchInfo>
             {maxPages > 1 && (
               <RefreshBtn onClick={handleNextBatch}>
-                <RotateCcw size={14} strokeWidth={2} /> 다른 스테이 보기
+                <HugeiconsIcon icon={RotateCcwIcon} size={14} strokeWidth={2} /> 다른 스테이 보기
               </RefreshBtn>
             )}
           </ControlsRow>

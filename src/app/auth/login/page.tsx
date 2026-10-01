@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 import { useAuth } from '@/features/auth';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
+import { useIsAppleDevice } from '@/shared/hooks/useIsAppleDevice';
 
 const HanokLogin3DStage = dynamic(() => import('@/features/auth/components/HanokLogin3DStage'), {
   ssr: false,
@@ -60,7 +61,7 @@ const SpeechBubble = styled.div`
   gap: 4px;
   padding: 6px 14px;
   border-radius: 9999px;
-  background: rgba(28, 26, 23, 0.82);
+  background: rgba(11, 18, 32, 0.82);
   color: #ffffff;
   font-size: 12px;
   font-weight: 600;
@@ -93,7 +94,7 @@ const SpeechBubble = styled.div`
     transform: translateX(-50%);
     border-width: 4px;
     border-style: solid;
-    border-color: rgba(28, 26, 23, 0.82) transparent transparent transparent;
+    border-color: rgba(11, 18, 32, 0.82) transparent transparent transparent;
   }
 
   [data-theme='dark'] & {
@@ -113,7 +114,7 @@ const OniVideoWrap = styled.div`
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.16));
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.16));
 
   img, video {
     width: 100%;
@@ -121,6 +122,9 @@ const OniVideoWrap = styled.div`
     object-fit: contain;
     display: block;
     pointer-events: none;
+  }
+
+  video {
     mix-blend-mode: screen;
   }
 
@@ -173,24 +177,25 @@ export default function LoginPage() {
   const { loginWithKakao } = useAuth();
   const { theme } = useOnmaruTheme();
   const c = theme.colors;
+  const isApple = useIsAppleDevice();
   const [oniVideoError, setOniVideoError] = useState(false);
 
   return (
     <PageWrapper>
       <LoginCard>
-        {/* ê· í˜• ì¡íŒ í•œì˜¥ 3D ë¬´ëŒ€ + ì˜¨ì´ */}
+        {/* ±ÕÇü ÀâÈù ÇÑ¿Á 3D ¹«´ë + ¿ÂÀÌ */}
         <WelcomeStage>
-          {/* ë’¤í¸ì˜ 3D í•œì˜¥ ëª¨ë¸ */}
+          {/* µÚÆíÀÇ 3D ÇÑ¿Á ¸ğµ¨ */}
           <HanokLogin3DStage />
 
-          {/* ì˜¨ì´ ìºë¦­í„° + ì˜¨ì´ ì •ìˆ˜ë¦¬ ë°”ë¡œ ìœ„ ë§í’ì„  */}
+          {/* ¿ÂÀÌ Ä³¸¯ÅÍ + ¿ÂÀÌ Á¤¼ö¸® ¹Ù·Î À§ ¸»Ç³¼± */}
           <OniContainer>
-            <SpeechBubble>ì˜¨ë§ˆë£¨ì— ì˜¤ì‹  ê±¸ í™˜ì˜í•´ìš”! </SpeechBubble>
+            <SpeechBubble>¿Â¸¶·ç¿¡ ¿À½Å °É È¯¿µÇØ¿ä! </SpeechBubble>
             <OniVideoWrap>
-              {oniVideoError ? (
-                <img src="/images/character/Oni_hi.png" alt="ì˜¨ë§ˆë£¨ ìºë¦­í„° ì˜¨ì´" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+              {isApple || oniVideoError ? (
+                <img src="/images/character/Oni_hi.png" alt="¿Â¸¶·ç Ä³¸¯ÅÍ ¿ÂÀÌ" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
               ) : (
-                <video autoPlay loop muted playsInline preload="auto" aria-label="ì˜¨ë§ˆë£¨ ìºë¦­í„° ì˜¨ì´" onError={() => setOniVideoError(true)}>
+                <video autoPlay loop muted playsInline preload="auto" aria-label="¿Â¸¶·ç Ä³¸¯ÅÍ ¿ÂÀÌ" onError={() => setOniVideoError(true)}>
                   <source src="/videos/Oni_hi.webm" type="video/webm" onError={() => setOniVideoError(true)} />
                 </video>
               )}
@@ -200,15 +205,15 @@ export default function LoginPage() {
 
         <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <p style={{ fontSize: '14px', color: c.text.muted, margin: 0, lineHeight: 1.5 }}>
-            ì¹´ì¹´ì˜¤ ê³„ì •ìœ¼ë¡œ ë¡œê·¸ì¸í•˜ê³ 
+            Ä«Ä«¿À °èÁ¤À¸·Î ·Î±×ÀÎÇÏ°í
             <br />
-            ì˜¨ë§ˆë£¨ì˜ ëª¨ë“  ì´ì•¼ê¸°ë¥¼ ë§Œë‚˜ë³´ì„¸ìš”.
+            ¿Â¸¶·çÀÇ ¸ğµç ÀÌ¾ß±â¸¦ ¸¸³ªº¸¼¼¿ä.
           </p>
         </div>
 
         <KakaoButton type="button" onClick={loginWithKakao}>
           <KakaoBubbleIcon />
-          ì¹´ì¹´ì˜¤ë¡œ ì‹œì‘í•˜ê¸°
+          Ä«Ä«¿À·Î ½ÃÀÛÇÏ±â
         </KakaoButton>
       </LoginCard>
     </PageWrapper>

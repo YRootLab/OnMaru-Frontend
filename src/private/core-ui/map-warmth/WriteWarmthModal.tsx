@@ -2,8 +2,9 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import styled from '@emotion/styled';
-import { X, Flame, Users, Leaf, Check, MapPin } from 'lucide-react';
-import { lightPalette, meok , fontSize } from '@/design-system/tokens';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Cancel01Icon, FlameIcon, UsersIcon, Leaf01Icon, CheckIcon, MapPinIcon } from '@hugeicons/core-free-icons'
+import { meok, fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useCreateVisitReview } from '@/features/visit-review/presentation/useCreateVisitReview';
 import type { Warmth } from '@/features/map/types';
@@ -22,26 +23,26 @@ interface WriteWarmthModalProps {
 }
 
 const REGIONS = [
-  'ì „êµ­',
-  'ì „ì£¼',
-  'ì•ˆë™',
-  'ê²½ì£¼',
-  'ì„œìš¸',
-  'ê°•ë¦‰',
-  'ë‹´ì–‘',
-  'ê³µì£¼/ë¶€ì—¬',
-  'ì œì£¼',
+  'Àü±¹',
+  'ÀüÁÖ',
+  '¾Èµ¿',
+  '°æÁÖ',
+  '¼­¿ï',
+  '°­¸ª',
+  '´ã¾ç',
+  '°øÁÖ/ºÎ¿©',
+  'Á¦ÁÖ',
 ];
 
 const PRESET_TAGS = [
-  '#ëŒ€ì²­ë§ˆë£¨',
-  '#ì•¼ê²½',
-  '#ì‚¬ì§„ë§›ì§‘',
-  '#ì „í†µì²´í—˜',
-  '#íë§',
-  '#ê³ ì¦ˆë„‰í•¨',
-  '#ì‚°ì±…ì½”ìŠ¤',
-  '#ì°¨í•œì”',
+  '#´ëÃ»¸¶·ç',
+  '#¾ß°æ',
+  '#»çÁø¸ÀÁı',
+  '#ÀüÅëÃ¼Çè',
+  '#Èú¸µ',
+  '#°íÁî³ËÇÔ',
+  '#»êÃ¥ÄÚ½º',
+  '#Â÷ÇÑÀÜ',
 ];
 
 
@@ -78,7 +79,7 @@ const ModalCard = styled.div<{ $open: boolean }>`
   transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
 
   [data-theme='dark'] & {
-    background: #24211D;
+    background: #171E2B;
     color: #F3F4F6;
     border: none;
   }
@@ -172,20 +173,20 @@ const RegionChip = styled.button<{ $active: boolean }>`
   font-size: ${fontSize.xs};
   font-weight: 500;
   cursor: pointer;
-  background: ${({ $active }) => ($active ? lightPalette.hwanggeum[500] : '#f2f4f6')};
-  color: ${({ $active }) => ($active ? '#191f28' : meok[700])};
+  background: ${({ $active }) => ($active ? meok[900] : '#f2f4f6')};
+  color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
   transition: all 0.15s ease;
 
   &:hover {
-    background: ${({ $active }) => ($active ? lightPalette.hwanggeum[500] : '#e5e8eb')};
+    background: ${({ $active }) => ($active ? meok[800] : '#e5e8eb')};
   }
 
   [data-theme='dark'] & {
-    background: ${({ $active }) => ($active ? '#e85a18' : 'rgba(255, 255, 255, 0.08)')};
+    background: ${({ $active }) => ($active ? 'rgba(255, 255, 255, 0.18)' : 'rgba(255, 255, 255, 0.08)')};
     color: ${({ $active }) => ($active ? '#ffffff' : '#9CA3AF')};
 
     &:hover {
-      background: ${({ $active }) => ($active ? '#e85a18' : 'rgba(255, 255, 255, 0.14)')};
+      background: ${({ $active }) => ($active ? 'rgba(255, 255, 255, 0.24)' : 'rgba(255, 255, 255, 0.14)')};
     }
   }
 `;
@@ -203,7 +204,7 @@ const PlaceInputIcon = styled.div`
   transform: translateY(-50%);
   display: flex;
   align-items: center;
-  color: ${lightPalette.hwanggeum[500]};
+  color: ${meok[500]};
   pointer-events: none;
 `;
 
@@ -226,8 +227,8 @@ const PlaceInput = styled.input`
   }
 
   &:focus {
-    background: ${lightPalette.hwanggeum[50]};
-    color: ${lightPalette.hwanggeum[900]};
+    background: #eef1f4;
+    color: ${meok[900]};
   }
 
   [data-theme='dark'] & {
@@ -239,7 +240,7 @@ const PlaceInput = styled.input`
     }
 
     &:focus {
-      background: rgba(232, 90, 24, 0.12);
+      background: rgba(255, 255, 255, 0.1);
       color: #ffffff;
     }
   }
@@ -255,7 +256,7 @@ const PlaceDropdown = styled.div`
   padding: 4px;
 
   [data-theme='dark'] & {
-    background: #1C1A17;
+    background: #0B1220;
     border: none;
   }
 `;
@@ -278,16 +279,16 @@ const PlaceOption = styled.button`
   transition: background 0.12s ease;
 
   &:hover {
-    background: ${lightPalette.hwanggeum[50]};
-    color: ${lightPalette.hwanggeum[700]};
+    background: #eef1f4;
+    color: ${meok[700]};
   }
 
   [data-theme='dark'] & {
     color: #E5E7EB;
 
     &:hover {
-      background: rgba(232, 90, 24, 0.18);
-      color: #FBBF24;
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
     }
   }
 `;
@@ -317,23 +318,23 @@ const MoodButton = styled.button<{ $active: boolean }>`
   height: 42px;
   border-radius: 14px;
 
-  background: ${({ $active }) => ($active ? lightPalette.hwanggeum[500] : '#f2f4f6')};
-  color: ${({ $active }) => ($active ? '#191f28' : meok[700])};
+  background: ${({ $active }) => ($active ? meok[900] : '#f2f4f6')};
+  color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
   font-size: ${fontSize.sm};
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
 
   &:hover {
-    background: ${({ $active }) => ($active ? lightPalette.hwanggeum[500] : '#e5e8eb')};
+    background: ${({ $active }) => ($active ? meok[800] : '#e5e8eb')};
   }
 
   [data-theme='dark'] & {
-    background: ${({ $active }) => ($active ? '#e85a18' : 'rgba(255, 255, 255, 0.08)')};
+    background: ${({ $active }) => ($active ? 'rgba(255, 255, 255, 0.18)' : 'rgba(255, 255, 255, 0.08)')};
     color: ${({ $active }) => ($active ? '#ffffff' : '#D1D5DB')};
 
     &:hover {
-      background: ${({ $active }) => ($active ? '#e85a18' : 'rgba(255, 255, 255, 0.14)')};
+      background: ${({ $active }) => ($active ? 'rgba(255, 255, 255, 0.24)' : 'rgba(255, 255, 255, 0.14)')};
     }
   }
 `;
@@ -359,23 +360,23 @@ const TagChip = styled.button<{ $selected: boolean }>`
   padding: 6px 12px;
   border-radius: 9999px;
 
-  background: ${({ $selected }) => ($selected ? lightPalette.hwanggeum[500] : '#f2f4f6')};
-  color: ${({ $selected }) => ($selected ? '#191f28' : meok[700])};
+  background: ${({ $selected }) => ($selected ? meok[900] : '#f2f4f6')};
+  color: ${({ $selected }) => ($selected ? '#ffffff' : meok[700])};
   font-size: ${fontSize.xs};
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
 
   &:hover {
-    background: ${({ $selected }) => ($selected ? lightPalette.hwanggeum[500] : '#e5e8eb')};
+    background: ${({ $selected }) => ($selected ? meok[800] : '#e5e8eb')};
   }
 
   [data-theme='dark'] & {
-    background: ${({ $selected }) => ($selected ? '#e85a18' : 'rgba(255, 255, 255, 0.08)')};
+    background: ${({ $selected }) => ($selected ? 'rgba(255, 255, 255, 0.18)' : 'rgba(255, 255, 255, 0.08)')};
     color: ${({ $selected }) => ($selected ? '#ffffff' : '#D1D5DB')};
 
     &:hover {
-      background: ${({ $selected }) => ($selected ? '#e85a18' : 'rgba(255, 255, 255, 0.14)')};
+      background: ${({ $selected }) => ($selected ? 'rgba(255, 255, 255, 0.24)' : 'rgba(255, 255, 255, 0.14)')};
     }
   }
 `;
@@ -445,8 +446,8 @@ const SubmitBtn = styled.button`
   margin-top: 8px;
 
   border-radius: 14px;
-  background: ${lightPalette.hwanggeum[500]};
-  color: #191f28;
+  background: ${meok[900]};
+  color: #ffffff;
   font-family: inherit;
   font-size: ${fontSize.sm};
   font-weight: 700;
@@ -454,7 +455,7 @@ const SubmitBtn = styled.button`
   transition: all 0.18s ease;
 
   &:hover:not(:disabled) {
-    background: ${lightPalette.hwanggeum[700]};
+    background: ${meok[800]};
   }
 
   &:disabled {
@@ -464,10 +465,10 @@ const SubmitBtn = styled.button`
   }
 
   [data-theme='dark'] & {
-    background: linear-gradient(135deg, #e85a18 0%, #d4af37 100%);
+    background: ${meok[900]};
 
     &:hover:not(:disabled) {
-      background: linear-gradient(135deg, #f06a2b 0%, #e5bd47 100%);
+      background: ${meok[800]};
     }
 
     &:disabled {
@@ -487,7 +488,7 @@ export default function WriteWarmthModal({
   const setWarmths = useMapStore((s) => s.setWarmths);
   const { create, loading: isSubmitting, error: createError } = useCreateVisitReview();
 
-  const [selectedRegion, setSelectedRegion] = useState('ì „êµ­');
+  const [selectedRegion, setSelectedRegion] = useState('Àü±¹');
   const [placeQuery, setPlaceQuery] = useState(defaultPlace?.name || '');
   const [selectedPlace, setSelectedPlace] = useState<{
     id: string;
@@ -497,7 +498,7 @@ export default function WriteWarmthModal({
   } | null>(defaultPlace || null);
 
   const [score, setScore] = useState<MoodValue>(1);
-  const [mood, setMood] = useState<'í•œì ' | 'ë¶ì '>('í•œì ');
+  const [mood, setMood] = useState<'ÇÑÀû' | 'ºÏÀû'>('ÇÑÀû');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [text, setText] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
@@ -512,7 +513,7 @@ export default function WriteWarmthModal({
 
   const filteredPlaces = useMemo(() => {
     let list = items;
-    if (selectedRegion !== 'ì „êµ­') {
+    if (selectedRegion !== 'Àü±¹') {
       list = list.filter(
         (i) => i.addr?.includes(selectedRegion) || i.name.includes(selectedRegion),
       );
@@ -571,18 +572,18 @@ export default function WriteWarmthModal({
       <ModalCard $open={isOpen} onClick={(e) => e.stopPropagation()}>
         <ModalHeader>
           <ModalTitle>
-            <Flame size={20} strokeWidth={2} color={lightPalette.hwanggeum[500]} />
-            <span>ì˜¨ê¸° í•œ ì¤„ ë‚¨ê¸°ê¸°</span>
+            <HugeiconsIcon icon={FlameIcon} size={20} strokeWidth={2} color={meok[600]} />
+            <span>¿Â±â ÇÑ ÁÙ ³²±â±â</span>
           </ModalTitle>
-          <CloseBtn type="button" onClick={onClose} aria-label="ë‹«ê¸°">
-            <X size={20} strokeWidth={2} />
+          <CloseBtn type="button" onClick={onClose} aria-label="´İ±â">
+            <HugeiconsIcon icon={Cancel01Icon} size={20} strokeWidth={2} />
           </CloseBtn>
         </ModalHeader>
 
         <form onSubmit={handleSubmit}>
           {}
           <FormSection>
-            <SectionLabel>ì–´ë””ë¥¼ ë‹¤ë…€ì˜¤ì…¨ë‚˜ìš”?</SectionLabel>
+            <SectionLabel>¾îµğ¸¦ ´Ù³à¿À¼Ì³ª¿ä?</SectionLabel>
             <RegionScroller>
               {REGIONS.map((region) => (
                 <RegionChip
@@ -598,7 +599,7 @@ export default function WriteWarmthModal({
 
             <PlaceInputWrap>
               <PlaceInputIcon>
-                <MapPin size={16} strokeWidth={2} />
+                <HugeiconsIcon icon={MapPinIcon} size={16} strokeWidth={2} />
               </PlaceInputIcon>
               <PlaceInput
                 type="text"
@@ -609,7 +610,7 @@ export default function WriteWarmthModal({
                   if (e.target.value !== selectedPlace?.name) setSelectedPlace(null);
                   setIsDropdownOpen(true);
                 }}
-                placeholder="ì¥ì†Œ ì´ë¦„ì„ ê²€ìƒ‰í•´ë³´ì„¸ìš” (ì˜ˆ: ê²½ê¸°ì „)"
+                placeholder="Àå¼Ò ÀÌ¸§À» °Ë»öÇØº¸¼¼¿ä (¿¹: °æ±âÀü)"
                 required
               />
             </PlaceInputWrap>
@@ -632,36 +633,36 @@ export default function WriteWarmthModal({
 
           {}
           <FormSection>
-            <SectionLabel>ì´ê³³ì—ì„œ ì–´ë–¤ ê¸°ë¶„ì´ ë“œì…¨ë‚˜ìš”?</SectionLabel>
+            <SectionLabel>ÀÌ°÷¿¡¼­ ¾î¶² ±âºĞÀÌ µå¼Ì³ª¿ä?</SectionLabel>
             <MoodSelector value={score} onChange={(val) => setScore(val)} />
           </FormSection>
 
           {}
           <FormSection>
-            <SectionLabel>ì§€ê¸ˆ ë¶„ìœ„ê¸°ëŠ” ì–´ë•Œìš”?</SectionLabel>
+            <SectionLabel>Áö±İ ºĞÀ§±â´Â ¾î¶§¿ä?</SectionLabel>
             <MoodButtonGroup>
               <MoodButton
                 type="button"
-                $active={mood === 'í•œì '}
-                onClick={() => setMood('í•œì ')}
+                $active={mood === 'ÇÑÀû'}
+                onClick={() => setMood('ÇÑÀû')}
               >
                 <MoodButtonMascot src="/images/character/Oni_tea.png" alt="" width={22} height={22} aria-hidden="true" />
-                <span>í•œì í•´ìš”</span>
+                <span>ÇÑÀûÇØ¿ä</span>
               </MoodButton>
               <MoodButton
                 type="button"
-                $active={mood === 'ë¶ì '}
-                onClick={() => setMood('ë¶ì ')}
+                $active={mood === 'ºÏÀû'}
+                onClick={() => setMood('ºÏÀû')}
               >
                 <MoodButtonMascot src="/images/character/Oni_sogo.png" alt="" width={22} height={22} aria-hidden="true" />
-                <span>ë¶ì ì—¬ìš”</span>
+                <span>ºÏÀû¿©¿ä</span>
               </MoodButton>
             </MoodButtonGroup>
           </FormSection>
 
           {}
           <FormSection>
-            <SectionLabel>ì–´ìš¸ë¦¬ëŠ” ë¶„ìœ„ê¸°ë¥¼ ê³¨ë¼ë³´ì„¸ìš” (ì„ íƒ)</SectionLabel>
+            <SectionLabel>¾î¿ï¸®´Â ºĞÀ§±â¸¦ °ñ¶óº¸¼¼¿ä (¼±ÅÃ)</SectionLabel>
             <TagWrap>
               {PRESET_TAGS.map((tag) => (
                 <TagChip
@@ -678,32 +679,32 @@ export default function WriteWarmthModal({
 
           {}
           <FormSection>
-            <SectionLabel>ë‚¨ê¸°ê³  ì‹¶ì€ ì´ì•¼ê¸°ë‚˜ ê¿€íŒ</SectionLabel>
+            <SectionLabel>³²±â°í ½ÍÀº ÀÌ¾ß±â³ª ²ÜÆÁ</SectionLabel>
             <TextArea
               value={text}
               onChange={(e) => setText(e.target.value.slice(0, 80))}
-              placeholder="ì˜ˆ: ë§ˆë‹¹ì— í•€ ë°°ë¡±ë‚˜ë¬´ ê½ƒì´ ì°¸ ì˜ˆë»ìš”. ì•„ì¹¨ ì¼ì° ë“¤ë¥´ëŠ” ê±¸ ì¶”ì²œí•´ìš”."
+              placeholder="¿¹: ¸¶´ç¿¡ ÇÉ ¹è·Õ³ª¹« ²ÉÀÌ Âü ¿¹»µ¿ä. ¾ÆÄ§ ÀÏÂï µé¸£´Â °É ÃßÃµÇØ¿ä."
               required
             />
-            <CharCount>{text.length} / 80ì</CharCount>
+            <CharCount>{text.length} / 80ÀÚ</CharCount>
           </FormSection>
 
           {(!selectedPlace || Boolean(createError)) && (
             <ErrorText role="alert">
               {createError
-                ? 'í›„ê¸°ë¥¼ ì €ì¥í•˜ì§€ ëª»í–ˆìŠµë‹ˆë‹¤. ì ì‹œ í›„ ë‹¤ì‹œ ì‹œë„í•´ ì£¼ì„¸ìš”.'
-                : 'ëª©ë¡ì—ì„œ ì¥ì†Œë¥¼ ì„ íƒí•´ ì£¼ì„¸ìš”.'}
+                ? 'ÈÄ±â¸¦ ÀúÀåÇÏÁö ¸øÇß½À´Ï´Ù. Àá½Ã ÈÄ ´Ù½Ã ½ÃµµÇØ ÁÖ¼¼¿ä.'
+                : '¸ñ·Ï¿¡¼­ Àå¼Ò¸¦ ¼±ÅÃÇØ ÁÖ¼¼¿ä.'}
             </ErrorText>
           )}
 
           <SubmitBtn type="submit" disabled={!text.trim() || !selectedPlace || isSuccess || isSubmitting}>
             {isSuccess ? (
               <>
-                <Check size={18} strokeWidth={2} />
-                <span>ì´ì•¼ê¸°ë¥¼ ë‚¨ê²¼ì–´ìš”!</span>
+                <HugeiconsIcon icon={CheckIcon} size={18} strokeWidth={2} />
+                <span>ÀÌ¾ß±â¸¦ ³²°å¾î¿ä!</span>
               </>
             ) : (
-              <span>{isSubmitting ? 'ì €ì¥ ì¤‘â€¦' : 'ì˜¨ê¸° ë“±ë¡í•˜ê¸°'}</span>
+              <span>{isSubmitting ? 'ÀúÀå Áß¡¦' : '¿Â±â µî·ÏÇÏ±â'}</span>
             )}
           </SubmitBtn>
         </form>

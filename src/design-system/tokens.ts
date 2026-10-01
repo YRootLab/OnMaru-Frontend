@@ -1,4 +1,4 @@
-
+﻿
 
 
 
@@ -60,6 +60,19 @@ export const palette = {
     400: '#FF3D8F', 500: '#FF0A72', 600: '#E60065', 700: '#CC0058',
     800: '#990042', 900: '#66002C',
   },
+
+  // 남색 (藍色) — dark navy/indigo scale, dark-mode base
+  nam: {
+    100: '#D8E5FF',
+    200: '#ADC8FF',
+    300: '#78A8FF',
+    400: '#4285FF',
+    500: '#1562FF',
+    600: '#0D4ECC',
+    700: '#083BA0',
+    800: '#042874',
+    900: '#021648',
+  },
 } as const;
 
 
@@ -91,11 +104,12 @@ export const surface = {
     card:     '#FFFFFF',
     elevated: '#FFFFFF',
   },
+  // elevation = white overlay on #0B1220 (MD dark theme 원칙)
   dark: {
-    app:      '#1C1A17',
-    surface:  '#24211D',
-    card:     '#2D2924',
-    elevated: '#3A352E',
+    app:      '#0B1220',  // 0dp  baseline
+    surface:  '#171E2B',  // 1dp  +5%  white overlay
+    card:     '#212734',  // 4dp  +9%  white overlay
+    elevated: '#282E3B',  // 8dp  +12% white overlay
   },
 } as const;
 
@@ -109,11 +123,11 @@ export const glass = {
     glow:    '0 8px 32px 0 rgba(25, 31, 40, 0.08)',
   },
   dark: {
-    thin:    'rgba(28, 26, 23, 0.65)',
-    regular: 'rgba(36, 33, 29, 0.82)',
-    thick:   'rgba(45, 41, 36, 0.94)',
-    border:  'rgba(255, 255, 255, 0.10)',
-    glow:    '0 8px 32px 0 rgba(0, 0, 0, 0.45)',
+    thin:    'rgba(11, 18, 32, 0.65)',
+    regular: 'rgba(23, 30, 43, 0.82)',
+    thick:   'rgba(33, 39, 52, 0.94)',
+    border:  'rgba(255, 255, 255, 0.12)',
+    glow:    '0 8px 32px 0 rgba(0, 0, 0, 0.60)',
   },
 } as const;
 
@@ -275,28 +289,28 @@ export const semanticTokens = {
       elevated: surface.dark.elevated,
     },
     border: {
-      subtle:  meok[700],
-      default: meok[900],
+      subtle:  'rgba(255, 255, 255, 0.12)',
+      default: 'rgba(255, 255, 255, 0.22)',
     },
     text: {
-      primary:   meok[100],
-      secondary: meok[400],
-      muted:     meok[500],
+      primary:   'rgba(255, 255, 255, 0.87)',
+      secondary: 'rgba(255, 255, 255, 0.60)',
+      muted:     'rgba(255, 255, 255, 0.38)',
       inverse:   surface.dark.app,
     },
     action: {
-      primary:        palette.juhong[500],
-      primaryHover:   palette.juhong[400],
-      primaryPressed: palette.juhong[700],
-      primaryBg:      palette.juhong[900],
-      primarySubtle:  palette.juhong[700],
+      primary:        palette.kobalt[200],   // 200-tone 탈채도, 링크·아이콘·포커스
+      primaryHover:   palette.kobalt[100],
+      primaryPressed: palette.kobalt[300],
+      primaryBg:      'rgba(133, 184, 255, 0.12)',
+      primarySubtle:  'rgba(133, 184, 255, 0.08)',
     },
     nav: {
-      primary:        palette.cheongrok[500],
-      primaryHover:   palette.cheongrok[400],
-      primaryPressed: palette.cheongrok[700],
-      primaryBg:      palette.cheongrok[900],
-      primarySubtle:  palette.cheongrok[700],
+      primary:        palette.cheongrok[200],
+      primaryHover:   palette.cheongrok[100],
+      primaryPressed: palette.cheongrok[300],
+      primaryBg:      'rgba(112, 237, 187, 0.10)',
+      primarySubtle:  'rgba(112, 237, 187, 0.07)',
     },
     badge: {
       star:        palette.hwanggeum[400],
@@ -489,11 +503,11 @@ export const createTheme = (mode: ColorMode) => {
       ring: ringShadow.light,
 
     } : {
-      sm:   '0 1px 4px rgba(25, 31, 40, 0.18)',
-      md:   '0 4px 12px rgba(25, 31, 40, 0.24)',
-      lg:   '0 8px 24px rgba(25, 31, 40, 0.30)',
-      xl:   '0 16px 48px rgba(25, 31, 40, 0.36)',
-      glow: '0 0 20px rgba(248, 87, 0, 0.24)',
+      sm:   '0 1px 3px rgba(0, 0, 0, 0.36)',
+      md:   '0 4px 12px rgba(0, 0, 0, 0.44)',
+      lg:   '0 8px 24px rgba(0, 0, 0, 0.52)',
+      xl:   '0 16px 48px rgba(0, 0, 0, 0.62)',
+      glow: '0 4px 16px rgba(0, 0, 0, 0.48)',
       ring: ringShadow.dark,
     },
 

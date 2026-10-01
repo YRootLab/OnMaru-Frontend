@@ -1,7 +1,8 @@
 'use client';
 
 import styled from '@emotion/styled';
-import { MapPin, Medal, RefreshCw, ShieldCheck, Trophy, UserCheck, UserX } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { MapPinIcon, Medal01Icon, RefreshCwIcon, ShieldCheckIcon, TrophyIcon, UserCheck01Icon, UserXIcon } from '@hugeicons/core-free-icons'
 import type { StampRankingEntry, StampRankingStatusResponse } from '../domain/models';
 import { meok } from '@/design-system/tokens';
 import OniSearchEmpty from '@/shared/components/OniSearchEmpty/OniSearchEmpty';
@@ -83,7 +84,7 @@ const Action = styled.button<{ $danger?: boolean }>`
   &:disabled { opacity: 0.55; cursor: wait; }
 `;
 
-const List = styled.div`
+const RankList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -174,12 +175,12 @@ export default function StampLeaderboard({
     <Root>
       <Participation>
         <ParticipationTitle>
-          <ShieldCheck size={17} /> 익명 탐방 랭킹
+          <HugeiconsIcon icon={ShieldCheckIcon} size={17} /> 익명 탐방 랭킹
         </ParticipationTitle>
         {!isLoggedIn ? (
           <>
             <Copy>공개 랭킹은 동의한 회원만 참여하며 서버가 만든 익명 별명만 표시해요.</Copy>
-            <Action type="button" onClick={onLogin}><UserCheck size={15} /> 로그인하고 참여하기</Action>
+            <Action type="button" onClick={onLogin}><HugeiconsIcon icon={UserCheck01Icon} size={15} /> 로그인하고 참여하기</Action>
           </>
         ) : myRanking?.participating ? (
           <>
@@ -190,7 +191,7 @@ export default function StampLeaderboard({
               <span>달성률 <strong>{myRanking.completionRate}%</strong></span>
             </MyStats>
             <Action $danger type="button" disabled={mutationPending} onClick={onWithdraw}>
-              <UserX size={15} /> 참여 철회
+              <HugeiconsIcon icon={UserXIcon} size={15} /> 참여 철회
             </Action>
           </>
         ) : (
@@ -210,7 +211,7 @@ export default function StampLeaderboard({
               disabled={mutationPending || retryAfterSeconds > 0}
               onClick={onJoin}
             >
-              <UserCheck size={15} />
+              <HugeiconsIcon icon={UserCheck01Icon} size={15} />
               {retryAfterSeconds > 0 ? `${retryAfterSeconds}초 뒤 참여 가능` : '익명 랭킹 참여'}
             </Action>
           </>
@@ -218,11 +219,11 @@ export default function StampLeaderboard({
       </Participation>
 
       {loading && entries.length === 0 ? (
-        <List aria-label="랭킹을 불러오는 중" aria-busy="true">
+        <RankList aria-label="랭킹을 불러오는 중" aria-busy="true">
           {Array.from({ length: 5 }, (_, index) => (
             <Row key={index}><Rank $rank={index + 1}>{index + 1}</Rank><SkeletonLine /></Row>
           ))}
-        </List>
+        </RankList>
       ) : hasError && entries.length === 0 ? (
         <OniSearchEmpty
           size="sm"
@@ -230,29 +231,29 @@ export default function StampLeaderboard({
           description="잠시 후 다시 시도해 주세요."
           compact
           action={
-            <Action type="button" onClick={onRetry}><RefreshCw size={15} /> 다시 시도</Action>
+            <Action type="button" onClick={onRetry}><HugeiconsIcon icon={RefreshCwIcon} size={15} /> 다시 시도</Action>
           }
         />
       ) : entries.length === 0 ? (
         <Empty>아직 공개 랭킹 참여자가 없어요.</Empty>
       ) : (
-        <List>
+        <RankList>
           {entries.map((entry) => (
             <Row key={entry.publicId}>
               <Rank $rank={entry.rank}>
-                {entry.rank === 1 ? <Trophy size={15} /> : entry.rank <= 3 ? <Medal size={15} /> : entry.rank}
+                {entry.rank === 1 ? <HugeiconsIcon icon={TrophyIcon} size={15} /> : entry.rank <= 3 ? <HugeiconsIcon icon={Medal01Icon} size={15} /> : entry.rank}
               </Rank>
               <UserInfo>
                 <Nickname>{entry.nickname}</Nickname>
                 <Stats>
-                  <span><Trophy size={12} /> 수결 {entry.stampCount}개</span>
-                  <span><MapPin size={12} /> {entry.visitedRegionCount}개 권역</span>
+                  <span><HugeiconsIcon icon={TrophyIcon} size={12} /> 수결 {entry.stampCount}개</span>
+                  <span><HugeiconsIcon icon={MapPinIcon} size={12} /> {entry.visitedRegionCount}개 권역</span>
                   <span>달성률 {entry.completionRate}%</span>
                 </Stats>
               </UserInfo>
             </Row>
           ))}
-        </List>
+        </RankList>
       )}
     </Root>
   );

@@ -5,19 +5,8 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import styled from '@emotion/styled';
 import { AnimatePresence, motion } from 'framer-motion';
-import {
-  Award,
-  BookOpen,
-  Bookmark,
-  Check,
-  Headphones,
-  Home,
-  MapPin,
-  Moon,
-  Sparkles,
-  Sun,
-  User,
-} from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Award01Icon, BookOpen01Icon, Bookmark01Icon, CheckIcon, HeadphonesIcon, Home01Icon, MapPinIcon, Moon01Icon, SparklesIcon, Sun01Icon, UserIcon } from '@hugeicons/core-free-icons'
 import { transientProps } from '@/design-system/styled';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useJourneyStore } from '@/features/journey-curator/store/useJourneyStore';
@@ -61,7 +50,7 @@ const RailContainer = styled(motion.aside, transientProps)`
   transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 
   [data-theme='dark'] & {
-    background: rgba(28, 26, 23, 0.88);
+    background: rgba(11, 18, 32, 0.88);
     border: 1px solid rgba(255, 255, 255, 0.12);
     box-shadow: ${ringShadow.dark.card};
   }
@@ -328,7 +317,7 @@ export default function MapNavRail() {
   const isMapActive = mode === 'info' && category !== 'bookmark';
   const isRouteEntrance = useMapEntranceStore((s) => s.isRouteEntrance);
   const themeOptions: ThemePreference[] = ['system', 'light', 'dark'];
-  const ThemeTriggerIcon = themeMode === 'dark' ? Moon : Sun;
+  const themeTriggerIcon = themeMode === 'dark' ? Moon01Icon : Sun01Icon;
   const themeTriggerLabel = getThemeTriggerLabel({ preference, mode: themeMode });
 
   useEffect(() => {
@@ -354,7 +343,7 @@ export default function MapNavRail() {
   return (
     <RailContainer
       role="navigation"
-      aria-label="Ïò®ÎßàÎ£® Î©îÏù∏ Ïπ¥ÌÖåÍ≥†Î¶¨ ÎÑ§ÎπÑÍ≤åÏù¥ÏÖò"
+      aria-label="ø¬∏∂∑Á ∏ﬁ¿Œ ƒ´≈◊∞Ì∏Æ ≥◊∫Ò∞‘¿Ãº«"
       initial={isRouteEntrance ? { x: '-100%', opacity: 0 } : false}
       animate={{ x: 0, opacity: 1 }}
       transition={
@@ -374,12 +363,12 @@ export default function MapNavRail() {
             handleGoHome();
           }
         }}
-        aria-label="Ïò®ÎßàÎ£® Î©îÏù∏ ÌôàÏúºÎ°ú Ïù¥Îèô"
-        title="Ïò®ÎßàÎ£® Î©îÏù∏ ÌôàÏúºÎ°ú Ïù¥Îèô"
+        aria-label="ø¬∏∂∑Á ∏ﬁ¿Œ »®¿∏∑Œ ¿Ãµø"
+        title="ø¬∏∂∑Á ∏ﬁ¿Œ »®¿∏∑Œ ¿Ãµø"
       >
         <Image
           src={ONMARU_LOGO_SRC}
-          alt="Ïò®ÎßàÎ£® Î°úÍ≥†"
+          alt="ø¬∏∂∑Á ∑Œ∞Ì"
           width={28}
           height={28}
           style={{ objectFit: 'contain', borderRadius: '7px' }}
@@ -396,13 +385,13 @@ export default function MapNavRail() {
           type="button"
           $active={false}
           onClick={handleGoHome}
-          aria-label="ÌôàÏúºÎ°ú Ïù¥Îèô"
-          title="Ìôà"
+          aria-label="»®¿∏∑Œ ¿Ãµø"
+          title="»®"
         >
           <NavItemIcon>
-            <Home size={19} strokeWidth={2} />
+            <HugeiconsIcon icon={Home01Icon} size={19} strokeWidth={2} />
           </NavItemIcon>
-          <NavItemLabel>Ìôà</NavItemLabel>
+          <NavItemLabel>»®</NavItemLabel>
         </NavItemBtn>
 
         {}
@@ -410,13 +399,13 @@ export default function MapNavRail() {
           type="button"
           $active={false}
           onClick={() => router.push('/hanok')}
-          aria-label="ÌïúÏò•ÎßàÎ£®"
-          title="ÌïúÏò•ÎßàÎ£®"
+          aria-label="«—ø¡∏∂∑Á"
+          title="«—ø¡∏∂∑Á"
         >
           <NavItemIcon>
-            <BookOpen size={19} strokeWidth={2} />
+            <HugeiconsIcon icon={BookOpen01Icon} size={19} strokeWidth={2} />
           </NavItemIcon>
-          <NavItemLabel>ÌïúÏò•ÎßàÎ£®</NavItemLabel>
+          <NavItemLabel>«—ø¡∏∂∑Á</NavItemLabel>
         </NavItemBtn>
 
         {}
@@ -424,13 +413,13 @@ export default function MapNavRail() {
           type="button"
           $active={false}
           onClick={() => router.push('/sorimaru')}
-          aria-label="ÏÜåÎ¶¨ÎßàÎ£®"
-          title="ÏÜåÎ¶¨ÎßàÎ£®"
+          aria-label="º“∏Æ∏∂∑Á"
+          title="º“∏Æ∏∂∑Á"
         >
           <NavItemIcon>
-            <Headphones size={19} strokeWidth={2} />
+            <HugeiconsIcon icon={HeadphonesIcon} size={19} strokeWidth={2} />
           </NavItemIcon>
-          <NavItemLabel>ÏÜåÎ¶¨ÎßàÎ£®</NavItemLabel>
+          <NavItemLabel>º“∏Æ∏∂∑Á</NavItemLabel>
         </NavItemBtn>
 
         {}
@@ -438,13 +427,13 @@ export default function MapNavRail() {
           type="button"
           $active={isMapActive}
           onClick={handleSelectInfoMap}
-          aria-label="ÏßÄÎèÑÎßàÎ£®"
-          title="ÏßÄÎèÑÎßàÎ£®"
+          aria-label="¡ˆµµ∏∂∑Á"
+          title="¡ˆµµ∏∂∑Á"
         >
           <NavItemIcon>
-            <MapPin size={19} strokeWidth={2} />
+            <HugeiconsIcon icon={MapPinIcon} size={19} strokeWidth={2} />
           </NavItemIcon>
-          <NavItemLabel>ÏßÄÎèÑÎßàÎ£®</NavItemLabel>
+          <NavItemLabel>¡ˆµµ∏∂∑Á</NavItemLabel>
         </NavItemBtn>
 
         {}
@@ -452,13 +441,13 @@ export default function MapNavRail() {
           type="button"
           $active={false}
           onClick={() => router.push('/stamps')}
-          aria-label="ÌïúÏò• ÏàòÍ≤∞Ï≤©"
-          title="ÌïúÏò• ÏàòÍ≤∞Ï≤©"
+          aria-label="«—ø¡ ºˆ∞·√∏"
+          title="«—ø¡ ºˆ∞·√∏"
         >
           <NavItemIcon>
-            <Award size={19} strokeWidth={2} />
+            <HugeiconsIcon icon={Award01Icon} size={19} strokeWidth={2} />
           </NavItemIcon>
-          <NavItemLabel>ÏàòÍ≤∞Ï≤©</NavItemLabel>
+          <NavItemLabel>ºˆ∞·√∏</NavItemLabel>
         </NavItemBtn>
 
 
@@ -471,13 +460,13 @@ export default function MapNavRail() {
             setCategory('bookmark');
             if (!panelOpen) setPanelOpen(true);
           }}
-          aria-label="Î™®ÏùåÎßàÎ£®"
-          title="Î™®ÏùåÎßàÎ£®"
+          aria-label="∏¿Ω∏∂∑Á"
+          title="∏¿Ω∏∂∑Á"
         >
           <NavItemIcon>
-            <Bookmark size={19} strokeWidth={2} />
+            <HugeiconsIcon icon={Bookmark01Icon} size={19} strokeWidth={2} />
           </NavItemIcon>
-          <NavItemLabel>Î™®ÏùåÎßàÎ£®</NavItemLabel>
+          <NavItemLabel>∏¿Ω∏∂∑Á</NavItemLabel>
         </NavItemBtn>
       </NavList>
 
@@ -495,16 +484,16 @@ export default function MapNavRail() {
             aria-expanded={isThemePickerOpen}
           >
             <NavItemIcon>
-              <ThemeTriggerIcon size={19} strokeWidth={2} />
+              <HugeiconsIcon icon={themeTriggerIcon} size={19} strokeWidth={2} />
             </NavItemIcon>
-            <NavItemLabel>{preference === 'system' ? 'ÏûêÎèô' : getThemePreferenceLabel(preference)}</NavItemLabel>
+            <NavItemLabel>{preference === 'system' ? '¿⁄µø' : getThemePreferenceLabel(preference)}</NavItemLabel>
           </NavItemBtn>
 
           <AnimatePresence>
             {isThemePickerOpen && (
               <ThemeRailPopover
                 role="menu"
-                aria-label="ÌôîÎ©¥ Î™®Îìú ÏÑ†ÌÉù"
+                aria-label="»≠∏È ∏µÂ º±≈√"
                 initial={{ opacity: 0, x: -4, scale: 0.98 }}
                 animate={{ opacity: 1, x: 0, scale: 1 }}
                 exit={{ opacity: 0, x: -4, scale: 0.98 }}
@@ -512,7 +501,7 @@ export default function MapNavRail() {
               >
                 {themeOptions.map((option) => {
                   const active = preference === option;
-                  const OptionIcon = option === 'dark' ? Moon : option === 'light' ? Sun : Sparkles;
+                  const optionIcon = option === 'dark' ? Moon01Icon : option === 'light' ? Sun01Icon : SparklesIcon;
                   return (
                     <ThemeRailChoiceButton
                       key={option}
@@ -526,7 +515,7 @@ export default function MapNavRail() {
                       }}
                     >
                       <ThemeRailChoiceIcon>
-                        <OptionIcon size={15} strokeWidth={2} />
+                        <HugeiconsIcon icon={optionIcon} size={15} strokeWidth={2} />
                       </ThemeRailChoiceIcon>
                       <ThemeRailChoiceCopy>
                         <ThemeRailChoiceTitle>{getThemePreferenceLabel(option)}</ThemeRailChoiceTitle>
@@ -535,7 +524,7 @@ export default function MapNavRail() {
                         </ThemeRailChoiceSummary>
                       </ThemeRailChoiceCopy>
                       <ThemeRailChoiceCheck aria-hidden="true">
-                        {active ? <Check size={14} strokeWidth={2.4} /> : null}
+                        {active ? <HugeiconsIcon icon={CheckIcon} size={14} strokeWidth={2.4} /> : null}
                       </ThemeRailChoiceCheck>
                     </ThemeRailChoiceButton>
                   );
@@ -548,13 +537,13 @@ export default function MapNavRail() {
           type="button"
           $active={false}
           onClick={() => router.push('/auth/login')}
-          aria-label="ÎßàÏù¥ / Î°úÍ∑∏Ïù∏"
-          title="Î°úÍ∑∏Ïù∏"
+          aria-label="∏∂¿Ã / ∑Œ±◊¿Œ"
+          title="∑Œ±◊¿Œ"
         >
           <NavItemIcon>
-            <User size={19} strokeWidth={2} />
+            <HugeiconsIcon icon={UserIcon} size={19} strokeWidth={2} />
           </NavItemIcon>
-          <NavItemLabel>ÎßàÏù¥</NavItemLabel>
+          <NavItemLabel>∏∂¿Ã</NavItemLabel>
         </NavItemBtn>
       </BottomArea>
     </RailContainer>

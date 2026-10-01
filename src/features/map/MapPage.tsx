@@ -11,7 +11,8 @@ function isMapInfoCategory(value: string | null): value is MapInfoCategory {
 }
 
 import { motion, useReducedMotion } from 'framer-motion';
-import { ChevronLeft } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ChevronLeftIcon } from '@hugeicons/core-free-icons'
 
 import { transientProps } from '@/design-system/styled';
 import { meok, surface , fontSize } from '@/design-system/tokens';
@@ -455,7 +456,7 @@ export default function MapPage() {
               aria-label="온마루 메인 홈으로 이동"
               title="온마루 메인 홈으로 이동"
             >
-              <ChevronLeft size={16} strokeWidth={2} />
+              <HugeiconsIcon icon={ChevronLeftIcon} size={16} strokeWidth={2} />
               <span>온마루 홈</span>
             </FloatingHomeButton>
           )}

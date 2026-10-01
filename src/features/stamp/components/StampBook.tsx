@@ -2,7 +2,8 @@
 
 import { useState, useRef } from 'react';
 import styled from '@emotion/styled';
-import { AlertCircle, RefreshCw, ShieldCheck, User } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { AlertCircleIcon, RefreshCwIcon, ShieldCheckIcon, UserIcon } from '@hugeicons/core-free-icons'
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { toast } from 'sonner';
@@ -391,7 +392,7 @@ export default function StampBook({ initialCatalog }: StampBookProps) {
           description="잠시 후 다시 시도해 주세요."
           action={
             <RetryButton type="button" onClick={() => void refreshCatalog().catch(() => undefined)}>
-              <RefreshCw size={15} /> 다시 시도
+              <HugeiconsIcon icon={RefreshCwIcon} size={15} /> 다시 시도
             </RetryButton>
           }
         />
@@ -409,7 +410,7 @@ export default function StampBook({ initialCatalog }: StampBookProps) {
           description="이전 데모 도장은 표시하지 않습니다. 다시 시도해 주세요."
           action={
             <RetryButton type="button" onClick={() => void refreshBook().catch(() => undefined)}>
-              <RefreshCw size={15} /> 다시 시도
+              <HugeiconsIcon icon={RefreshCwIcon} size={15} /> 다시 시도
             </RetryButton>
           }
         />
@@ -425,11 +426,11 @@ export default function StampBook({ initialCatalog }: StampBookProps) {
           <strong>{unlockedCount}</strong> / {totalStampsCount}개
         </SingleStat>
         <UserLine className="header-elem">
-          <User size={12} />
+          <HugeiconsIcon icon={UserIcon} size={12} />
           {user ? (
             <>
               <span>{user.displayName} 님</span>
-              <ShieldCheck size={12} color="#059669" />
+              <HugeiconsIcon icon={ShieldCheckIcon} size={12} color="#059669" />
             </>
           ) : (
             <span>로그인하면 도장을 안전하게 보관할 수 있어요</span>

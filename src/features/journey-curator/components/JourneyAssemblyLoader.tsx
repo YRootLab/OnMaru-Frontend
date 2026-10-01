@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, X, CheckCircle2 } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { SparklesIcon, Cancel01Icon, CheckmarkCircle01Icon } from '@hugeicons/core-free-icons'
 import { palette, ringShadow } from '@/design-system/tokens';
 import { useJourneyStore } from '../store/useJourneyStore';
 import MiniOmokGame from './MiniOmokGame';
@@ -39,7 +40,7 @@ const LoaderCard = styled(motion.div)<{ $isCompleted?: boolean }>`
   transition: box-shadow 0.3s ease;
 
   [data-theme='dark'] & {
-    background: #1c1a17;
+    background: #0B1220;
     box-shadow: ${ringShadow.dark.card};
   }
 
@@ -171,8 +172,8 @@ export default function JourneyAssemblyLoader() {
             exit={{ scale: 0.92, opacity: 0, y: 15 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           >
-            <CloseButton onClick={handleClose} aria-label="ë‹«ê¸°">
-              <X size={16} />
+            <CloseButton onClick={handleClose} aria-label="´İ±â">
+              <HugeiconsIcon icon={Cancel01Icon} size={16} />
             </CloseButton>
 
             <StepBadge
@@ -187,24 +188,24 @@ export default function JourneyAssemblyLoader() {
               }
             >
               {hasCompleted ? (
-                <CheckCircle2 size={13} />
+                <HugeiconsIcon icon={CheckmarkCircle01Icon} size={13} />
               ) : (
-                <Sparkles size={12} />
+                <HugeiconsIcon icon={SparklesIcon} size={12} />
               )}
               <span>
                 {hasCompleted
-                  ? 'ì—¬ì • ìƒì„± ì™„ë£Œ'
-                  : 'ì¼ì •ì„ ë§Œë“œëŠ” ì¤‘'}
+                  ? '¿©Á¤ »ı¼º ¿Ï·á'
+                  : 'ÀÏÁ¤À» ¸¸µå´Â Áß'}
               </span>
             </StepBadge>
 
             <Title>
-              {gameMode === 'omok' ? 'íˆ‡ë§ˆë£¨ ì˜¤ëª© í•œ íŒ' : 'ì „í†µ ë‚±ë§ ì°¾ê¸°'}
+              {gameMode === 'omok' ? 'Åò¸¶·ç ¿À¸ñ ÇÑ ÆÇ' : 'ÀüÅë ³¹¸» Ã£±â'}
             </Title>
             <Subtitle>
               {gameMode === 'omok'
-                ? 'ì¼ì •ì„ ì¤€ë¹„í•˜ëŠ” ë™ì•ˆ ê°€ë³ê²Œ ì˜¤ëª© í•œ íŒ ì¦ê²¨ë³´ì„¸ìš”.'
-                : 'ì¼ì •ì„ ì¤€ë¹„í•˜ëŠ” ë™ì•ˆ ìˆ¨ê²¨ì§„ ë‚±ë§ì„ ì°¾ì•„ë³´ì„¸ìš”.'}
+                ? 'ÀÏÁ¤À» ÁØºñÇÏ´Â µ¿¾È °¡º±°Ô ¿À¸ñ ÇÑ ÆÇ Áñ°Üº¸¼¼¿ä.'
+                : 'ÀÏÁ¤À» ÁØºñÇÏ´Â µ¿¾È ¼û°ÜÁø ³¹¸»À» Ã£¾Æº¸¼¼¿ä.'}
             </Subtitle>
 
             {gameMode === 'omok' ? (

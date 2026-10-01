@@ -5,22 +5,15 @@ import { useSearchParams } from 'next/navigation';
 import Script from 'next/script';
 import styled from '@emotion/styled';
 import { Global, css } from '@emotion/react';
-import {
-  Plane,
-  X,
-  RotateCcw,
-  LocateFixed,
-  Sun,
-  Moon,
-  Plus,
-  Minus,
-} from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Airplane01Icon, Cancel01Icon, LocateFixedIcon, MinusSignIcon, Moon01Icon, PlusSignIcon, RotateCcwIcon, Sun01Icon } from '@hugeicons/core-free-icons'
 import { toast } from 'sonner';
 import { meok, lightPalette, surface, fontSize } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import { KAKAO_SDK_SRC, useKakaoMap } from '@/features/map/hooks/useKakaoMap';
 import { DEFAULT_CENTER, useMapStore } from '@/features/map/hooks/useMapStore';
 import type { LatLng } from '@/features/map/types';
+import { isAppleOrSafari } from '@/shared/hooks/useIsAppleDevice';
 
 const mapGlobalStyles = css`
 
@@ -88,14 +81,14 @@ const mapGlobalStyles = css`
   }
 
   [data-theme='dark'] .om-my-location-bubble {
-    background: #1c1a17;
+    background: #0B1220;
     color: #f8f8f7;
     border: 1px solid rgba(255, 255, 255, 0.14);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
   }
 
   [data-theme='dark'] .om-my-location-bubble::after {
-    border-color: #1c1a17 transparent transparent transparent;
+    border-color: #0B1220 transparent transparent transparent;
   }
 
   .om-my-location-oni-wrap {
@@ -370,10 +363,10 @@ const ControlButton = styled.button<{ $active?: boolean }>`
 
 
 const FLIGHT_STOPS = [
-  { name: 'ì„œìš¸ ë¶ì´Œ í•œì˜¥ë§ˆì„', lat: 37.5826, lng: 126.9848, level: 4 },
-  { name: 'ì „ì£¼ í•œì˜¥ë§ˆì„', lat: 35.8150, lng: 127.1530, level: 4 },
-  { name: 'ì•ˆë™ í•˜íšŒë§ˆì„', lat: 36.5392, lng: 128.5185, level: 4 },
-  { name: 'ê²½ì£¼ ì–‘ë™ë§ˆì„', lat: 35.9985, lng: 129.2520, level: 4 },
+  { name: '¼­¿ï ºÏÃÌ ÇÑ¿Á¸¶À»', lat: 37.5826, lng: 126.9848, level: 4 },
+  { name: 'ÀüÁÖ ÇÑ¿Á¸¶À»', lat: 35.8150, lng: 127.1530, level: 4 },
+  { name: '¾Èµ¿ ÇÏÈ¸¸¶À»', lat: 36.5392, lng: 128.5185, level: 4 },
+  { name: '°æÁÖ ¾çµ¿¸¶À»', lat: 35.9985, lng: 129.2520, level: 4 },
 ];
 
 export default function KakaoMap() {
@@ -466,16 +459,21 @@ export default function KakaoMap() {
 
 
     const buildOniPinElement = () => {
+      const isApple = isAppleOrSafari();
       const el = document.createElement('div');
       el.className = 'om-my-location-pin';
       el.innerHTML = `
         <div class="om-my-location-bubble">
-          <span>ë‚´ ìœ„ì¹˜ ğŸ‘‹</span>
+          <span>³» À§Ä¡ ??</span>
         </div>
         <div class="om-my-location-oni-wrap">
-          <video autoplay loop muted playsinline preload="auto" class="om-my-location-oni-video">
-            <source src="/videos/Oni_hi.webm" type="video/webm" />
-          </video>
+          ${
+            isApple
+              ? '<img src="/images/character/Oni_hi.png" alt="" class="om-my-location-oni-video" />'
+              : `<video autoplay loop muted playsinline preload="auto" class="om-my-location-oni-video">
+                  <source src="/videos/Oni_hi.webm" type="video/webm" />
+                </video>`
+          }
         </div>
         <div class="om-my-location-ground-shadow"></div>
       `;
@@ -544,7 +542,7 @@ export default function KakaoMap() {
 
   const locate = () => {
     if (typeof window === 'undefined' || !navigator.geolocation) {
-      toast.error('í˜„ì¬ í™˜ê²½ì—ì„œëŠ” ìœ„ì¹˜ ì •ë³´ë¥¼ ì§€ì›í•˜ì§€ ì•Šì•„ìš”.');
+      toast.error('ÇöÀç È¯°æ¿¡¼­´Â À§Ä¡ Á¤º¸¸¦ Áö¿øÇÏÁö ¾Ê¾Æ¿ä.');
       return;
     }
 
@@ -557,15 +555,15 @@ export default function KakaoMap() {
     };
 
     const onError = (err: GeolocationPositionError) => {
-      console.warn('GPS ê³ ì •ë°€ë„ ì¡°íšŒ ì‹¤íŒ¨, ì¼ë°˜ ìœ„ì¹˜ë¡œ ì¬ì‹œë„:', err.message);
+      console.warn('GPS °íÁ¤¹Ğµµ Á¶È¸ ½ÇÆĞ, ÀÏ¹İ À§Ä¡·Î Àç½Ãµµ:', err.message);
       navigator.geolocation.getCurrentPosition(
         onSuccess,
         (fallbackErr) => {
           setIsLocating(false);
           if (fallbackErr.code === fallbackErr.PERMISSION_DENIED) {
-            toast.error('ë¸Œë¼ìš°ì € ìƒë‹¨ ì£¼ì†Œì°½ ì™¼ìª½ì˜ ìœ„ì¹˜ ê¶Œí•œì„ [í—ˆìš©]ìœ¼ë¡œ ë³€ê²½í•´ ì£¼ì„¸ìš”.');
+            toast.error('ºê¶ó¿ìÀú »ó´Ü ÁÖ¼ÒÃ¢ ¿ŞÂÊÀÇ À§Ä¡ ±ÇÇÑÀ» [Çã¿ë]À¸·Î º¯°æÇØ ÁÖ¼¼¿ä.');
           } else {
-            toast.error('í˜„ì¬ ìœ„ì¹˜ë¥¼ ê°€ì ¸ì˜¬ ìˆ˜ ì—†ì–´ìš”. ê¸°ë³¸ ìœ„ì¹˜ë¡œ ë³´ì—¬ë“œë¦´ê²Œìš”.');
+            toast.error('ÇöÀç À§Ä¡¸¦ °¡Á®¿Ã ¼ö ¾ø¾î¿ä. ±âº» À§Ä¡·Î º¸¿©µå¸±°Ô¿ä.');
           }
         },
         { enableHighAccuracy: false, timeout: 10000, maximumAge: 0 },
@@ -639,7 +637,7 @@ export default function KakaoMap() {
       <Canvas
         ref={containerRef}
         role="application"
-        aria-label="í•œì˜¥ ìœ„ì¹˜ ì§€ë„"
+        aria-label="ÇÑ¿Á À§Ä¡ Áöµµ"
         $isNight={isEffectiveNight}
       />
       <WarmTint $active={!isEffectiveNight} aria-hidden="true" />
@@ -649,20 +647,20 @@ export default function KakaoMap() {
         <FlightBanner>
           <span className="step-badge">{flightState.step + 1} / {FLIGHT_STOPS.length}</span>
           <span className="hub-name flex items-center gap-1">
-            <Plane size={14} strokeWidth={2} />
-            <span>ì‹œë„¤ë§ˆí‹± íˆ¬ì–´ ì¤‘: {currentFlightStop.name}</span>
+            <HugeiconsIcon icon={Airplane01Icon} size={14} strokeWidth={2} />
+            <span>½Ã³×¸¶Æ½ Åõ¾î Áß: {currentFlightStop.name}</span>
           </span>
           <button type="button" className="stop-btn" onClick={stopFlight}>
-            <X size={14} strokeWidth={2} />
-            <span>ì¢…ë£Œ</span>
+            <HugeiconsIcon icon={Cancel01Icon} size={14} strokeWidth={2} />
+            <span>Á¾·á</span>
           </button>
         </FlightBanner>
       )}
 
       {isSearchDirty && !flightState.active && (
         <Research type="button" onClick={() => useMapStore.getState().clearSearchDirty()}>
-          <RotateCcw size={16} strokeWidth={2} aria-hidden />
-          ì´ ì§€ì—­ ì¬ê²€ìƒ‰
+          <HugeiconsIcon icon={RotateCcwIcon} size={16} strokeWidth={2} aria-hidden />
+          ÀÌ Áö¿ª Àç°Ë»ö
         </Research>
       )}
 
@@ -671,35 +669,35 @@ export default function KakaoMap() {
         <Stack>
           <ControlButton
             type="button"
-            aria-label="í˜„ìœ„ì¹˜ë¡œ ì´ë™"
+            aria-label="ÇöÀ§Ä¡·Î ÀÌµ¿"
             onClick={locate}
             $active={isLocating}
-            title="ë‚´ í˜„ì¬ ìœ„ì¹˜ë¡œ ì´ë™"
+            title="³» ÇöÀç À§Ä¡·Î ÀÌµ¿"
           >
             {isLocating ? (
-              <RotateCcw size={18} strokeWidth={2} className="animate-spin" style={{ animation: 'spin 1s linear infinite' }} />
+              <HugeiconsIcon icon={RotateCcwIcon} size={18} strokeWidth={2} className="animate-spin" style={{ animation: 'spin 1s linear infinite' }} />
             ) : (
-              <LocateFixed size={18} strokeWidth={2} />
+              <HugeiconsIcon icon={LocateFixedIcon} size={18} strokeWidth={2} />
             )}
           </ControlButton>
           <ControlButton
             type="button"
-            aria-label="ì‹œë„¤ë§ˆí‹± í•œì˜¥ ìŠ¤ì¹´ì´ë·° ë¹„í–‰ íˆ¬ì–´"
+            aria-label="½Ã³×¸¶Æ½ ÇÑ¿Á ½ºÄ«ÀÌºä ºñÇà Åõ¾î"
             onClick={startFlight}
             $active={flightState.active}
-            title={flightState.active ? 'ìŠ¤ì¹´ì´ë·° ë¹„í–‰ íˆ¬ì–´ ì¤‘ì§€' : 'ì „êµ­ 4ëŒ€ í•œì˜¥ ìŠ¤ì¹´ì´ë·° ë¹„í–‰ íˆ¬ì–´'}
+            title={flightState.active ? '½ºÄ«ÀÌºä ºñÇà Åõ¾î ÁßÁö' : 'Àü±¹ 4´ë ÇÑ¿Á ½ºÄ«ÀÌºä ºñÇà Åõ¾î'}
           >
-            <Plane size={18} strokeWidth={2} />
+            <HugeiconsIcon icon={Airplane01Icon} size={18} strokeWidth={2} />
           </ControlButton>
         </Stack>
 
         {}
         <Stack>
-          <ControlButton type="button" aria-label="í™•ëŒ€" onClick={() => zoom(-1)}>
-            <Plus size={18} strokeWidth={2} />
+          <ControlButton type="button" aria-label="È®´ë" onClick={() => zoom(-1)}>
+            <HugeiconsIcon icon={PlusSignIcon} size={18} strokeWidth={2} />
           </ControlButton>
-          <ControlButton type="button" aria-label="ì¶•ì†Œ" onClick={() => zoom(1)}>
-            <Minus size={18} strokeWidth={2} />
+          <ControlButton type="button" aria-label="Ãà¼Ò" onClick={() => zoom(1)}>
+            <HugeiconsIcon icon={MinusSignIcon} size={18} strokeWidth={2} />
           </ControlButton>
         </Stack>
       </Controls>

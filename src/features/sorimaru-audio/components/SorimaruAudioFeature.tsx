@@ -4,7 +4,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 import { useSearchParams } from 'next/navigation';
-import { AlertCircle, RotateCcw } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { AlertCircleIcon, RotateCcwIcon } from '@hugeicons/core-free-icons'
 import { StoryCarousel } from './StoryCarousel';
 import { CategoryTagFilter } from './CategoryTagFilter';
 import { SorimaruArchiveBrowse } from './SorimaruArchiveBrowse';
@@ -108,7 +109,7 @@ const ErrorAlertMessage = styled.div`
   gap: 0.5rem;
 `;
 
-const ErrorAlertIcon = styled(AlertCircle)`
+const ErrorAlertIcon = styled(HugeiconsIcon)`
   flex-shrink: 0;
   color: ${palette.juhong[600]};
 
@@ -280,7 +281,7 @@ const LocationButton = styled.button`
   transition: all 0.3s ease;
 
   [data-theme='dark'] & {
-    background-color: rgba(45, 41, 36, 0.7);
+    background-color: rgba(33, 39, 52, 0.7);
     color: ${meok[200]};
     border-color: rgba(255, 255, 255, 0.1);
   }
@@ -345,10 +346,10 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   const selectFromIntent = useSorimaruDetailSelection(activeApiService);
   const [nearbyOverride, setNearbyOverride] = useState<SorimaruStorySummary[] | null>(null);
   const nearbyStories = nearbyOverride ?? initialData?.nearbyStories ?? initialNearbyStories ?? initialPage?.items ?? [];
-  const heroStorySets = initialData ? { 'ì¶”ì²œ': initialData.heroStories } : initialHeroStorySets ?? {};
+  const heroStorySets = initialData ? { 'ÃßÃµ': initialData.heroStories } : initialHeroStorySets ?? {};
   const [isLocating, setIsLocating] = useState(false);
-  const [locationLabel, setLocationLabel] = useState('ê¸°ë³¸ ìœ„ì¹˜');
-  const [locationMessage, setLocationMessage] = useState('ë‚´ ìœ„ì¹˜ë¥¼ í—ˆìš©í•˜ë©´ ë°˜ê²½ 3kmì˜ ì‹¤ì œ ì˜¤ë””ì˜¤ë¥¼ ì°¾ì•„ë“œë ¤ìš”.');
+  const [locationLabel, setLocationLabel] = useState('±âº» À§Ä¡');
+  const [locationMessage, setLocationMessage] = useState('³» À§Ä¡¸¦ Çã¿ëÇÏ¸é ¹İ°æ 3kmÀÇ ½ÇÁ¦ ¿Àµğ¿À¸¦ Ã£¾Æµå·Á¿ä.');
 
   const [locationNotice, setLocationNotice] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -368,7 +369,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   });
   const editorialRailStories = React.useMemo(() => loadedEditorialRailStories(catalog.pages), [catalog.pages]);
   const apiError = initialError || catalog.error || selectionError || regionStories.groupsState.error || regionStories.regionStoriesState.error
-    ? 'ì†Œë¦¬ë§ˆë£¨ ì´ì•¼ê¸°ë¥¼ ë¶ˆëŸ¬ì˜¤ì§€ ëª»í–ˆì–´ìš”. ì ì‹œ í›„ ë‹¤ì‹œ ì‹œë„í•´ ì£¼ì„¸ìš”.'
+    ? '¼Ò¸®¸¶·ç ÀÌ¾ß±â¸¦ ºÒ·¯¿ÀÁö ¸øÇß¾î¿ä. Àá½Ã ÈÄ ´Ù½Ã ½ÃµµÇØ ÁÖ¼¼¿ä.'
     : null;
   const lastPage = catalog.pages.at(-1);
   const totalArchivePages = catalog.pages.length + (lastPage?.hasMore && lastPage.nextCursor ? 1 : 0);
@@ -427,31 +428,31 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
 
   const handleLocate = () => {
     if (!navigator.geolocation) {
-      setLocationMessage('ì´ ë¸Œë¼ìš°ì €ì—ì„œëŠ” ìœ„ì¹˜ ê¸°ë°˜ ì´ì•¼ê¸°ë¥¼ ì‚¬ìš©í•  ìˆ˜ ì—†ì–´ìš”.');
+      setLocationMessage('ÀÌ ºê¶ó¿ìÀú¿¡¼­´Â À§Ä¡ ±â¹İ ÀÌ¾ß±â¸¦ »ç¿ëÇÒ ¼ö ¾ø¾î¿ä.');
       setLocationNotice(true);
       return;
     }
 
     setIsLocating(true);
     setLocationNotice(false);
-    setLocationMessage('í˜„ì¬ ìœ„ì¹˜ë¥¼ í™•ì¸í•˜ê³  ì£¼ë³€ ì´ì•¼ê¸°ë¥¼ ì°¾ëŠ” ì¤‘ì´ì—ìš”.');
+    setLocationMessage('ÇöÀç À§Ä¡¸¦ È®ÀÎÇÏ°í ÁÖº¯ ÀÌ¾ß±â¸¦ Ã£´Â ÁßÀÌ¿¡¿ä.');
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
         const stories = findNearbySorimaruStories(initialData?.archive?.items ?? initialPage?.items ?? [], coords.latitude, coords.longitude);
         if (onLocationChange) onLocationChange(coords.latitude, coords.longitude);
         if (stories.length > 0) {
           setNearbyOverride(stories);
-          setLocationLabel('í˜„ì¬ ìœ„ì¹˜ ê¸°ì¤€, ë°˜ê²½ 3km');
-          setLocationMessage(`${stories.length}ê°œì˜ ì´ì•¼ê¸°ë¥¼ ì°¾ì•˜ì–´ìš”. ê°€ê¹Œìš´ ì¥ì†Œë¶€í„° ë“¤ë ¤ë“œë¦´ê²Œìš”.`);
+          setLocationLabel('ÇöÀç À§Ä¡ ±âÁØ, ¹İ°æ 3km');
+          setLocationMessage(`${stories.length}°³ÀÇ ÀÌ¾ß±â¸¦ Ã£¾Ò¾î¿ä. °¡±î¿î Àå¼ÒºÎÅÍ µé·Áµå¸±°Ô¿ä.`);
           setLocationNotice(false);
         } else {
-          setLocationMessage('ë°˜ê²½ 3km ì•ˆì—ëŠ” ì•„ì§ ë“±ë¡ëœ ì´ì•¼ê¸°ê°€ ì—†ì–´ìš”. ì „êµ­ íë ˆì´ì…˜ì„ ë³´ì—¬ë“œë¦´ê²Œìš”.');
+          setLocationMessage('¹İ°æ 3km ¾È¿¡´Â ¾ÆÁ÷ µî·ÏµÈ ÀÌ¾ß±â°¡ ¾ø¾î¿ä. Àü±¹ Å¥·¹ÀÌ¼ÇÀ» º¸¿©µå¸±°Ô¿ä.');
           setLocationNotice(true);
         }
         setIsLocating(false);
       },
       () => {
-        setLocationMessage('ìœ„ì¹˜ ê¶Œí•œì„ í™•ì¸í•˜ì§€ ëª»í–ˆì–´ìš”. ê¶Œí•œ ì—†ì´ë„ ì „êµ­ íë ˆì´ì…˜ì„ ë‘˜ëŸ¬ë³¼ ìˆ˜ ìˆì–´ìš”.');
+        setLocationMessage('À§Ä¡ ±ÇÇÑÀ» È®ÀÎÇÏÁö ¸øÇß¾î¿ä. ±ÇÇÑ ¾øÀÌµµ Àü±¹ Å¥·¹ÀÌ¼ÇÀ» µÑ·¯º¼ ¼ö ÀÖ¾î¿ä.');
         setLocationNotice(true);
         setIsLocating(false);
       },
@@ -472,12 +473,12 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
           {apiError && (
             <ErrorAlert role="alert">
               <ErrorAlertMessage>
-                <ErrorAlertIcon size={18} aria-hidden="true" />
+                <ErrorAlertIcon icon={AlertCircleIcon} size={18} aria-hidden="true" />
                 <span>{apiError}</span>
               </ErrorAlertMessage>
               <RetryButton type="button" onClick={retryApiRequests}>
-                <RotateCcw size={14} aria-hidden="true" />
-                ë‹¤ì‹œ ì‹œë„
+                <HugeiconsIcon icon={RotateCcwIcon} size={14} aria-hidden="true" />
+                ´Ù½Ã ½Ãµµ
               </RetryButton>
             </ErrorAlert>
           )}
@@ -494,7 +495,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                 <CenteredContainer>
                   <div style={{ paddingTop: '1rem' }}>
                     <SectionGradientTitle as="h3">
-                      ì¥ë©´ì„ ë”°ë¼ ê±·ëŠ” ì†Œë¦¬
+                      Àå¸éÀ» µû¶ó °È´Â ¼Ò¸®
                     </SectionGradientTitle>
                   </div>
                   <div style={{ marginTop: '0.5rem' }}>
@@ -534,7 +535,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                   <NearbyHeader>
                     <div style={{ minWidth: 0 }}>
                       <SectionGradientTitle id="nearby-stories-heading">
-                        ì˜¤ëŠ˜, ì—¬ê¸°ì—ì„œ
+                        ¿À´Ã, ¿©±â¿¡¼­
                       </SectionGradientTitle>
                       <SectionDescription $notice={locationNotice}>
                         {locationMessage}
@@ -544,7 +545,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                       <span style={{ textAlign: 'right', fontSize: fontSize.micro, lineHeight: '1rem' }}>
                         <SectionSubText style={{ display: 'block' }}>{locationLabel}</SectionSubText>
                         <SectionStrongText>
-                          ë‚´ ì£¼ë³€ ì˜¤ë””ì˜¤ {nearbyStories.length}ê°œ
+                          ³» ÁÖº¯ ¿Àµğ¿À {nearbyStories.length}°³
                         </SectionStrongText>
                       </span>
                       <LocationButton
@@ -552,8 +553,8 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                         onClick={handleLocate}
                         disabled={isLocating}
                       >
-                        {isLocating ? 'ìœ„ì¹˜ í™•ì¸ ì¤‘â€¦' : 'ë‚´ ìœ„ì¹˜ ì‚¬ìš©'}
-                        {!isLocating && <span aria-hidden="true" style={{ fontSize: '0.75rem', lineHeight: 1 }}>â€º</span>}
+                        {isLocating ? 'À§Ä¡ È®ÀÎ Áß¡¦' : '³» À§Ä¡ »ç¿ë'}
+                        {!isLocating && <span aria-hidden="true" style={{ fontSize: '0.75rem', lineHeight: 1 }}>?</span>}
                       </LocationButton>
                     </div>
                   </NearbyHeader>
@@ -574,10 +575,10 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                 <CenteredContainer>
                   <div style={{ marginBottom: '0.75rem' }}>
                     <SectionGradientTitle id="archive-heading">
-                      ì†Œë¦¬ë¡œ ë§Œë‚˜ëŠ” í•œêµ­
+                      ¼Ò¸®·Î ¸¸³ª´Â ÇÑ±¹
                     </SectionGradientTitle>
                     <SectionDescription>
-                      ì²˜ë§ˆ ë ë°”ëŒ ì†Œë¦¬ë¶€í„° ì²œë…„ ê³ ë„ì˜ ìˆ¨ê²°ê¹Œì§€, ë§ˆìŒì— ë¨¸ë¬´ëŠ” ì´ì•¼ê¸° íŠ¸ë™.
+                      Ã³¸¶ ³¡ ¹Ù¶÷ ¼Ò¸®ºÎÅÍ Ãµ³â °íµµÀÇ ¼û°á±îÁö, ¸¶À½¿¡ ¸Ó¹«´Â ÀÌ¾ß±â Æ®·¢.
                     </SectionDescription>
                   </div>
 

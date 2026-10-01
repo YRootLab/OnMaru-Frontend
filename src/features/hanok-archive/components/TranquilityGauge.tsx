@@ -2,7 +2,8 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
-import { Activity, Clock, ShieldCheck, Sparkles } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Activity01Icon, Clock01Icon, ShieldCheckIcon, SparklesIcon } from '@hugeicons/core-free-icons'
 import { meok, palette , fontSize } from '@/design-system/tokens';
 import type { TranquilityData } from '../hooks/useHanokTranquility';
 
@@ -17,8 +18,8 @@ export default function TranquilityGauge({ data, loading }: TranquilityGaugeProp
       <Container>
         <HeaderRow>
           <BadgeBox>
-            <Activity size={14} color={palette.juhong[500]} />
-            <BadgeText>ê´€ê´‘ ë¹…ë°ì´í„° ì‹¤ì‹œê°„ ë¶„ì„ ì¤‘...</BadgeText>
+            <HugeiconsIcon icon={Activity01Icon} size={14} color={palette.juhong[500]} />
+            <BadgeText>°ü±¤ ºòµ¥ÀÌÅÍ ½Ç½Ã°£ ºĞ¼® Áß...</BadgeText>
           </BadgeBox>
         </HeaderRow>
       </Container>
@@ -31,10 +32,10 @@ export default function TranquilityGauge({ data, loading }: TranquilityGaugeProp
     <Container>
       <HeaderRow>
         <BadgeBox>
-          <Activity size={14} color={palette.juhong[500]} />
-          <BadgeText>í•œêµ­ê´€ê´‘ê³µì‚¬ DataLab ì‹¤ì‹œê°„ ê³ ì¦ˆë„‰ ì§€ìˆ˜</BadgeText>
+          <HugeiconsIcon icon={Activity01Icon} size={14} color={palette.juhong[500]} />
+          <BadgeText>ÇÑ±¹°ü±¤°ø»ç DataLab ½Ç½Ã°£ °íÁî³Ë Áö¼ö</BadgeText>
         </BadgeBox>
-        <DistrictTag>{data.district} ê¶Œì—­</DistrictTag>
+        <DistrictTag>{data.district} ±Ç¿ª</DistrictTag>
       </HeaderRow>
 
       <MainRow>
@@ -44,7 +45,7 @@ export default function TranquilityGauge({ data, loading }: TranquilityGaugeProp
         </ScoreBox>
 
         <LevelBadge style={{ backgroundColor: `${data.badgeColor}18`, color: data.badgeColor }}>
-          <Sparkles size={13} />
+          <HugeiconsIcon icon={SparklesIcon} size={13} />
           <span>{data.level}</span>
         </LevelBadge>
       </MainRow>
@@ -61,14 +62,14 @@ export default function TranquilityGauge({ data, loading }: TranquilityGaugeProp
 
       <InfoCardsRow>
         <InfoPill>
-          <Clock size={13} color={palette.hwanggeum[700]} />
-          <PillLabel>ì¶”ì²œ ê³¨ë“ íƒ€ì„:</PillLabel>
+          <HugeiconsIcon icon={Clock01Icon} size={13} color={palette.hwanggeum[700]} />
+          <PillLabel>ÃßÃµ °ñµçÅ¸ÀÓ:</PillLabel>
           <PillVal>{data.goldenHour}</PillVal>
         </InfoPill>
       </InfoCardsRow>
 
       <AdviceText>
-        <ShieldCheck size={14} color={palette.juhong[600]} style={{ flexShrink: 0, marginTop: 2 }} />
+        <HugeiconsIcon icon={ShieldCheckIcon} size={14} color={palette.juhong[600]} style={{ flexShrink: 0, marginTop: 2 }} />
         <span>{data.advice}</span>
       </AdviceText>
     </Container>
@@ -85,7 +86,7 @@ const Container = styled.div`
   margin-bottom: 24px;
 
   [data-theme='dark'] & {
-    background: #24211D;
+    background: #171E2B;
   }
 `;
 
@@ -212,7 +213,7 @@ const InfoPill = styled.div`
   box-shadow: none;
 
   [data-theme='dark'] & {
-    background: #1C1A17;
+    background: #0B1220;
     color: ${meok[200]};
   }
 `;

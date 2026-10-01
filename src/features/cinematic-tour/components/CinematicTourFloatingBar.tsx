@@ -2,17 +2,8 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
-import {
-  Play,
-  Pause,
-  SkipBack,
-  SkipForward,
-  X,
-  Camera,
-  Compass,
-  Headphones,
-  ExternalLink,
-} from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Camera01Icon, Cancel01Icon, Compass01Icon, ExternalLinkIcon, HeadphonesIcon, PauseIcon, PlayIcon, SkipBackIcon, SkipForwardIcon } from '@hugeicons/core-free-icons'
 import { useRouter } from 'next/navigation';
 import { lightPalette, darkPalette, meok, surface , fontSize } from '@/design-system/tokens';
 import { useCinematicTourStore } from '@/features/cinematic-tour/store/useCinematicTourStore';
@@ -48,7 +39,7 @@ const Container = styled.div`
   }
 
   [data-theme='dark'] & {
-    background: rgba(36, 33, 29, 0.94);
+    background: rgba(23, 30, 43, 0.94);
 
   }
 
@@ -345,12 +336,12 @@ export default function CinematicTourFloatingBar() {
   const waypoints = story.waypoints ?? [];
 
   return (
-    <Container role="dialog" aria-label="ÏãúÎÑ§ÎßàÌã± Í≥µÍ∞Ñ Ïò§ÎîîÏò§ Ìà¨Ïñ¥ Ïª®Ìä∏Î°§Îü¨">
+    <Container role="dialog" aria-label="Ω√≥◊∏∂∆Ω ∞¯∞£ ø¿µø¿ ≈ıæÓ ƒ¡∆Æ∑—∑Ø">
       <TopRow>
         <BadgeTitleGroup>
           <TourBadge>
-            <Compass size={13} />
-            <span>ÏãúÎÑ§ÎßàÌã± Ìà¨Ïñ¥</span>
+            <HugeiconsIcon icon={Compass01Icon} size={13} />
+            <span>Ω√≥◊∏∂∆Ω ≈ıæÓ</span>
           </TourBadge>
           <TourTitle>{story.title}</TourTitle>
         </BadgeTitleGroup>
@@ -359,12 +350,12 @@ export default function CinematicTourFloatingBar() {
           <IconButton
             type="button"
             onClick={() => router.push(`/sorimaru?storyId=${story.tid}`)}
-            title="ÏÜåÎ¶¨ÎßàÎ£® Ìï¥ÏÑ§Í≥º ÎåÄÎ≥∏ Î≥¥Í∏∞"
+            title="º“∏Æ∏∂∑Á «ÿº≥∞˙ ¥Î∫ª ∫∏±‚"
           >
-            <ExternalLink size={16} />
+            <HugeiconsIcon icon={ExternalLinkIcon} size={16} />
           </IconButton>
-          <IconButton type="button" onClick={stopTour} title="Ìà¨Ïñ¥ Ï¢ÖÎ£å">
-            <X size={18} />
+          <IconButton type="button" onClick={stopTour} title="≈ıæÓ ¡æ∑·">
+            <HugeiconsIcon icon={Cancel01Icon} size={18} />
           </IconButton>
         </ActionGroup>
       </TopRow>
@@ -391,8 +382,8 @@ export default function CinematicTourFloatingBar() {
         {totalSentences > 1 && (
           <SubtitleMetaRow>
             <SubtitleIndexBadge>
-              <Headphones size={11} />
-              <span>Ìï¥ÏÑ§ ÏûêÎßâ ({activeSentenceIndex + 1}/{totalSentences})</span>
+              <HugeiconsIcon icon={HeadphonesIcon} size={11} />
+              <span>«ÿº≥ ¿⁄∏∑ ({activeSentenceIndex + 1}/{totalSentences})</span>
             </SubtitleIndexBadge>
           </SubtitleMetaRow>
         )}
@@ -401,8 +392,8 @@ export default function CinematicTourFloatingBar() {
         </SubtitleLine>
         {currentPhotoTip && (
           <PhotoTipPill>
-            <Camera size={13} />
-            <span>Ìè¨ÌÜ† Ïä§Ìåü: {currentPhotoTip}</span>
+            <HugeiconsIcon icon={Camera01Icon} size={13} />
+            <span>∆˜≈‰ Ω∫∆Ã: {currentPhotoTip}</span>
           </PhotoTipPill>
         )}
       </SubtitleBox>
@@ -418,28 +409,28 @@ export default function CinematicTourFloatingBar() {
             type="button"
             onClick={prevWaypoint}
             disabled={activeWaypointIndex === 0}
-            title="Ïù¥Ï†Ñ Ïä§Ìåü"
+            title="¿Ã¿¸ Ω∫∆Ã"
           >
-            <SkipBack size={18} />
+            <HugeiconsIcon icon={SkipBackIcon} size={18} />
           </IconButton>
 
-          <PlayBtn type="button" onClick={togglePlay} title={isPlaying ? 'ÏùºÏãúÏ†ïÏßÄ' : 'Ïû¨ÏÉù'}>
-            {isPlaying ? <Pause size={20} /> : <Play size={20} style={{ marginLeft: 2 }} />}
+          <PlayBtn type="button" onClick={togglePlay} title={isPlaying ? '¿œΩ√¡§¡ˆ' : '¿Áª˝'}>
+            {isPlaying ? <HugeiconsIcon icon={PauseIcon} size={20} /> : <HugeiconsIcon icon={PlayIcon} size={20} style={{ marginLeft: 2 }} />}
           </PlayBtn>
 
           <IconButton
             type="button"
             onClick={nextWaypoint}
             disabled={activeWaypointIndex >= waypoints.length - 1}
-            title="Îã§Ïùå Ïä§Ìåü"
+            title="¥Ÿ¿Ω Ω∫∆Ã"
           >
-            <SkipForward size={18} />
+            <HugeiconsIcon icon={SkipForwardIcon} size={18} />
           </IconButton>
         </MainButtons>
 
         <TimeText style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <Headphones size={13} />
-          <span>{story.speaker ?? 'ÎèÑÏä®Ìä∏'}</span>
+          <HugeiconsIcon icon={HeadphonesIcon} size={13} />
+          <span>{story.speaker ?? 'µµΩº∆Æ'}</span>
         </TimeText>
       </ControlsRow>
     </Container>

@@ -179,7 +179,7 @@ const MapHintPill = styled.div`
   backdrop-filter: blur(4px);
 
   [data-theme='dark'] & {
-    background-color: rgba(36, 33, 29, 0.9);
+    background-color: rgba(23, 30, 43, 0.9);
     color: ${meok[200]};
     border: 1px solid rgba(255, 255, 255, 0.08);
   }
@@ -287,7 +287,7 @@ const AsidePanel = styled.aside`
   backdrop-filter: blur(12px);
 
   [data-theme='dark'] & {
-    background-color: rgba(36, 33, 29, 0.88);
+    background-color: rgba(23, 30, 43, 0.88);
     border: none;
     box-shadow: none;
   }
@@ -349,7 +349,7 @@ const TopGradientFade = styled.div`
   background: linear-gradient(to bottom, rgba(255, 255, 255, 1) 40%, rgba(255, 255, 255, 0));
 
   [data-theme='dark'] & {
-    background: linear-gradient(to bottom, rgba(36, 33, 29, 1) 40%, rgba(36, 33, 29, 0));
+    background: linear-gradient(to bottom, rgba(23, 30, 43, 1) 40%, rgba(23, 30, 43, 0));
   }
 `;
 
@@ -364,7 +364,7 @@ const BottomGradientFade = styled.div`
   background: linear-gradient(to top, rgba(255, 255, 255, 1) 40%, rgba(255, 255, 255, 0));
 
   [data-theme='dark'] & {
-    background: linear-gradient(to top, rgba(36, 33, 29, 1) 40%, rgba(36, 33, 29, 0));
+    background: linear-gradient(to top, rgba(23, 30, 43, 1) 40%, rgba(23, 30, 43, 0));
   }
 `;
 
@@ -523,7 +523,7 @@ const SkeletonShimmer = styled.div`
 `;
 
 const RegionStoryListSkeleton: React.FC = () => (
-  <div style={{ marginTop: '0.25rem', flex: 1, overflowY: 'auto', paddingRight: '0.25rem', display: 'flex', flexDirection: 'column', gap: '0.375rem' }} aria-busy="true" aria-label="ì§€ì—­ ì˜¤ë””ì˜¤ ì´ì•¼ê¸° ë¡œë”© ì¤‘">
+  <div style={{ marginTop: '0.25rem', flex: 1, overflowY: 'auto', paddingRight: '0.25rem', display: 'flex', flexDirection: 'column', gap: '0.375rem' }} aria-busy="true" aria-label="Áö¿ª ¿Àµğ¿À ÀÌ¾ß±â ·Îµù Áß">
     {Array.from({ length: 5 }, (_, index) => (
       <div key={index} style={{ display: 'flex', height: 84, alignItems: 'center', gap: '0.75rem', borderRadius: '0.75rem', padding: '0.375rem 0.625rem' }}>
         <SkeletonShimmer style={{ height: 72, width: 72, flexShrink: 0, borderRadius: '0.75rem' }} />
@@ -542,7 +542,7 @@ function getStoryExcerpt(story: SorimaruStorySummary): string {
   if (story.audioTitle && story.audioTitle !== story.title) {
     return story.audioTitle;
   }
-  return story.region.name ? `${story.region.name}ì— ë‚¨ì€ ì˜¤ë””ì˜¤ ì†Œë¦¬ ì´ì•¼ê¸°` : 'ì´ ì¥ì†Œì— ë¨¸ë¬´ëŠ” ì˜¤ë””ì˜¤ ì´ì•¼ê¸°';
+  return story.region.name ? `${story.region.name}¿¡ ³²Àº ¿Àµğ¿À ¼Ò¸® ÀÌ¾ß±â` : 'ÀÌ Àå¼Ò¿¡ ¸Ó¹«´Â ¿Àµğ¿À ÀÌ¾ß±â';
 }
 
 function RegionStoryItem({
@@ -593,7 +593,7 @@ function RegionStoryItem({
             {story.title}
           </StoryTitle>
           <DurationStatus isActive={active}>
-            {active && isPlaying ? 'ì¬ìƒ ì¤‘' : formattedDuration}
+            {active && isPlaying ? 'Àç»ı Áß' : formattedDuration}
           </DurationStatus>
         </StoryHeadRow>
         <ExcerptText>
@@ -751,17 +751,17 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
       <InnerContainer variants={sectionVariants}>
         <SectionHeader variants={titleVariants}>
           <MainHeading id="sound-map-heading">
-            ì§€ë„ë¡œ ë“£ëŠ” ì´ì•¼ê¸°
+            Áöµµ·Î µè´Â ÀÌ¾ß±â
           </MainHeading>
           <SubDesc>
-            ëŒ€í•œë¯¼êµ­ ì§€ë„ì—ì„œ ì§€ì—­ì„ ëˆŒëŸ¬ ê·¸ê³³ì— ë‚¨ì€ ì˜¤ë””ì˜¤ ì´ì•¼ê¸°ë¥¼ ë“¤ì–´ë³´ì„¸ìš”.
+            ´ëÇÑ¹Î±¹ Áöµµ¿¡¼­ Áö¿ªÀ» ´­·¯ ±×°÷¿¡ ³²Àº ¿Àµğ¿À ÀÌ¾ß±â¸¦ µé¾îº¸¼¼¿ä.
           </SubDesc>
         </SectionHeader>
 
         <LayoutGrid variants={contentVariants}>
           <MapStage>
             <MapHintPill>
-              <PulseDot /> ì§€ì—­ì„ ëˆŒëŸ¬ íƒìƒ‰í•´ë³´ì„¸ìš”
+              <PulseDot /> Áö¿ªÀ» ´­·¯ Å½»öÇØº¸¼¼¿ä
             </MapHintPill>
 
             <MapSvgWrapper>
@@ -844,7 +844,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
               {KOREA_REGION_PATHS.map((region) => {
                 const active = region.id === selectedRegionId;
                 const apiGroup = regionGroups?.groups.find((group) => group.label === region.label);
-                const count = apiGroup?.storyCount ?? (groupsState.status === 'success' ? 0 : 'â€¦');
+                const count = apiGroup?.storyCount ?? (groupsState.status === 'success' ? 0 : '¡¦');
                 return (
                   <RegionPin
                     key={region.id}
@@ -871,7 +871,7 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
             <AsideHeader>
               <RegionLabel>{selectedRegion.label}</RegionLabel>
               <StoriesCount>
-                {isRegionLoading ? 'ì¡°íšŒ ì¤‘â€¦' : `${apiRegionGroup?.storyCount ?? regionStories.length}ê°œ ì´ì•¼ê¸°`}
+                {isRegionLoading ? 'Á¶È¸ Áß¡¦' : `${apiRegionGroup?.storyCount ?? regionStories.length}°³ ÀÌ¾ß±â`}
               </StoriesCount>
             </AsideHeader>
 
@@ -923,13 +923,13 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
                   {isFetchingNextPage && (
                     <LoadingSpinnerWrapper>
                       <span className="spinner" />
-                      <span>ì¶”ê°€ ì´ì•¼ê¸° ë¶ˆëŸ¬ì˜¤ëŠ” ì¤‘â€¦</span>
+                      <span>Ãß°¡ ÀÌ¾ß±â ºÒ·¯¿À´Â Áß¡¦</span>
                     </LoadingSpinnerWrapper>
                   )}
 
                   {!hasMore && regionStories.length > 5 && (
                     <p style={{ padding: '0.75rem 0', textAlign: 'center', fontSize: fontSize.micro, color: meok[500] }}>
-                      {selectedRegion.label}ì˜ ëª¨ë“  ì˜¤ë””ì˜¤ ì´ì•¼ê¸°ë¥¼ í™•ì¸í–ˆì–´ìš”.
+                      {selectedRegion.label}ÀÇ ¸ğµç ¿Àµğ¿À ÀÌ¾ß±â¸¦ È®ÀÎÇß¾î¿ä.
                     </p>
                   )}
                 </ScrollContent>

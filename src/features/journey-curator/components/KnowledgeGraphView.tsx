@@ -3,18 +3,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  MapPin,
-  Landmark,
-  ShoppingBag,
-  Headphones,
-  Flame,
-  Network,
-  Sparkles,
-  ArrowUpRight,
-  RotateCcw,
-  X,
-} from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Cancel01Icon, FlameIcon, HeadphonesIcon, LandmarkIcon, MapPinIcon, NetworkIcon, RotateCcwIcon, ShoppingBag01Icon, SparklesIcon } from '@hugeicons/core-free-icons'
 import { lightPalette , fontSize } from '@/design-system/tokens';
 import type { GraphNode, NodeCategory } from '../types/journey.types';
 import { useJourneyStore } from '../store/useJourneyStore';
@@ -46,7 +36,7 @@ const GraphCard = styled.div`
   user-select: none;
 
   [data-theme='dark'] & {
-    background: #1c1a17;
+    background: #0B1220;
     border-color: rgba(255, 255, 255, 0.08);
     box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45);
   }
@@ -194,7 +184,7 @@ const NodeElement = styled.div<{
   }
 
   [data-theme='dark'] & {
-    background: ${({ $active }) => ($active ? '#2b2722' : 'rgba(36, 33, 29, 0.94)')};
+    background: ${({ $active }) => ($active ? '#2b2722' : 'rgba(23, 30, 43, 0.94)')};
     border-color: ${({ $active, $color }) => ($active ? $color : 'rgba(255, 255, 255, 0.1)')};
     box-shadow: ${({ $active, $color }) =>
       $active
@@ -262,7 +252,7 @@ const InspectorCard = styled(motion.div)`
   backdrop-filter: blur(12px);
 
   [data-theme='dark'] & {
-    background: #24211d;
+    background: #171E2B;
     border-color: rgba(255, 255, 255, 0.1);
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
   }
@@ -331,15 +321,15 @@ const CATEGORY_COLORS: Record<NodeCategory, string> = {
 function renderNodeIcon(category: NodeCategory) {
   switch (category) {
     case 'region':
-      return <MapPin />;
+      return <HugeiconsIcon icon={MapPinIcon} />;
     case 'hanok':
-      return <Landmark />;
+      return <HugeiconsIcon icon={LandmarkIcon} />;
     case 'market':
-      return <ShoppingBag />;
+      return <HugeiconsIcon icon={ShoppingBag01Icon} />;
     case 'sorimaru':
-      return <Headphones />;
+      return <HugeiconsIcon icon={HeadphonesIcon} />;
     case 'warmth':
-      return <Flame />;
+      return <HugeiconsIcon icon={FlameIcon} />;
   }
 }
 
@@ -400,7 +390,7 @@ export default function KnowledgeGraphView() {
         label: n.label,
         category: n.category,
         badge: n.badge,
-        description: n.description || `${n.label}ì— ì–½íŒ ê³ ìœ í•œ ì´ì•¼ê¸°ì™€ ì˜¨ê¸°`,
+        description: n.description || `${n.label}¿¡ ¾ôÈù °íÀ¯ÇÑ ÀÌ¾ß±â¿Í ¿Â±â`,
         x: centerX + Math.cos(preset.angle) * preset.dist,
         y: centerY + Math.sin(preset.angle) * preset.dist * 0.65,
         vx: 0,
@@ -609,16 +599,16 @@ export default function KnowledgeGraphView() {
       >
         <GraphHeader>
           <HeaderTitle>
-            <Network size={16} color={lightPalette.cheongrok[500]} />
-            <span>AI ì—¬ì • ì§€ì‹ ê·¸ë˜í”„ Â· {plan.region}</span>
+            <HugeiconsIcon icon={NetworkIcon} size={16} color={lightPalette.cheongrok[500]} />
+            <span>AI ¿©Á¤ Áö½Ä ±×·¡ÇÁ ¡¤ {plan.region}</span>
           </HeaderTitle>
 
           <Legend>
-            <LegendItem $color={CATEGORY_COLORS.region}>ì§€ì—­ ê¶Œì—­</LegendItem>
-            <LegendItem $color={CATEGORY_COLORS.hanok}>í•œì˜¥ ê±´ì¶•</LegendItem>
-            <LegendItem $color={CATEGORY_COLORS.market}>ì „í†µì‹œì¥</LegendItem>
-            <LegendItem $color={CATEGORY_COLORS.sorimaru}>ì†Œë¦¬ë§ˆë£¨ SORIMARU</LegendItem>
-            <LegendItem $color={CATEGORY_COLORS.warmth}>ì‹¤ì‹œê°„ ì˜¨ê¸°</LegendItem>
+            <LegendItem $color={CATEGORY_COLORS.region}>Áö¿ª ±Ç¿ª</LegendItem>
+            <LegendItem $color={CATEGORY_COLORS.hanok}>ÇÑ¿Á °ÇÃà</LegendItem>
+            <LegendItem $color={CATEGORY_COLORS.market}>ÀüÅë½ÃÀå</LegendItem>
+            <LegendItem $color={CATEGORY_COLORS.sorimaru}>¼Ò¸®¸¶·ç SORIMARU</LegendItem>
+            <LegendItem $color={CATEGORY_COLORS.warmth}>½Ç½Ã°£ ¿Â±â</LegendItem>
           </Legend>
         </GraphHeader>
 
@@ -651,9 +641,9 @@ export default function KnowledgeGraphView() {
 
         {}
         <Controls>
-          <ResetBtn type="button" onClick={initSimulation} title="ë…¸ë“œ ë°°ì¹˜ ì›ë˜ëŒ€ë¡œ">
-            <RotateCcw size={12} />
-            <span>ì›ë˜ ìœ„ì¹˜ë¡œ</span>
+          <ResetBtn type="button" onClick={initSimulation} title="³ëµå ¹èÄ¡ ¿ø·¡´ë·Î">
+            <HugeiconsIcon icon={RotateCcwIcon} size={12} />
+            <span>¿ø·¡ À§Ä¡·Î</span>
           </ResetBtn>
         </Controls>
 
@@ -680,7 +670,7 @@ export default function KnowledgeGraphView() {
                   {selectedNode.badge && <NodeBadge>{selectedNode.badge}</NodeBadge>}
                 </InspectorTitle>
                 <CloseBtn onClick={() => setSelectedNode(null)}>
-                  <X size={14} />
+                  <HugeiconsIcon icon={Cancel01Icon} size={14} />
                 </CloseBtn>
               </InspectorTop>
               <InspectorDesc>{selectedNode.description}</InspectorDesc>

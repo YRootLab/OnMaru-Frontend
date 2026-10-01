@@ -9,16 +9,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { palette, meok } from '@/design-system/tokens';
 import { useAdminAuth } from '@/features/admin/hooks/useAdminAuth';
-import {
-  LayoutDashboard,
-  Flame,
-  AlertCircle,
-  Wand2,
-  Users,
-  Database,
-  LogOut,
-  ArrowLeftRight,
-} from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { AlertCircleIcon, ArrowLeftRightIcon, DashboardCircleIcon, Database01Icon, FlameIcon, Logout01Icon, MagicWand01Icon, UsersIcon } from '@hugeicons/core-free-icons'
 
 interface NavItem {
   label: string;
@@ -40,35 +32,35 @@ export const AdminSidebar: React.FC = () => {
     {
       label: '대시보드',
       href: '/admin',
-      icon: <LayoutDashboard size={18} strokeWidth={1.75} />,
+      icon: <HugeiconsIcon icon={DashboardCircleIcon} size={18} strokeWidth={1.75} />,
     },
     {
       label: '온기 관리',
       href: '/admin/reviews',
-      icon: <Flame size={18} strokeWidth={1.75} />,
+      icon: <HugeiconsIcon icon={FlameIcon} size={18} strokeWidth={1.75} />,
       badge: { count: 8, label: '신규' },
     },
     {
       label: '신고 처리',
       href: '/admin/reports',
-      icon: <AlertCircle size={18} strokeWidth={1.75} />,
+      icon: <HugeiconsIcon icon={AlertCircleIcon} size={18} strokeWidth={1.75} />,
       badge: { count: 3, urgent: true, label: '대기' },
     },
     {
       label: '큐레이션',
       href: '/admin/curation',
-      icon: <Wand2 size={18} strokeWidth={1.75} />,
+      icon: <HugeiconsIcon icon={MagicWand01Icon} size={18} strokeWidth={1.75} />,
     },
     {
       label: '사용자',
       href: '/admin/users',
-      icon: <Users size={18} strokeWidth={1.75} />,
+      icon: <HugeiconsIcon icon={UsersIcon} size={18} strokeWidth={1.75} />,
       adminOnly: true,
     },
     {
       label: '데이터',
       href: '/admin/data',
-      icon: <Database size={18} strokeWidth={1.75} />,
+      icon: <HugeiconsIcon icon={Database01Icon} size={18} strokeWidth={1.75} />,
       adminOnly: true,
     },
   ];
@@ -270,7 +262,7 @@ export const AdminSidebar: React.FC = () => {
               alignItems: 'center',
             }}
           >
-            <LogOut size={18} strokeWidth={1.75} />
+            <HugeiconsIcon icon={Logout01Icon} size={18} strokeWidth={1.75} />
           </button>
         </div>
 
@@ -288,7 +280,7 @@ export const AdminSidebar: React.FC = () => {
           }}
         >
           <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <ArrowLeftRight size={13} color={meok[500]} strokeWidth={1.75} />
+            <HugeiconsIcon icon={ArrowLeftRightIcon} size={13} color={meok[500]} strokeWidth={1.75} />
             <span>Role:</span>
           </span>
           <select

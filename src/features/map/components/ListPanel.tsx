@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ChevronLeftIcon, ChevronRightIcon } from '@hugeicons/core-free-icons'
 import { meok, surface, ringShadow } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import ModeToggle from './ModeToggle';
@@ -109,7 +110,7 @@ const BottomFadeGradient = styled.div`
   z-index: 15;
 
   [data-theme='dark'] & {
-    background: linear-gradient(to top, rgba(45, 41, 36, 0.98) 0%, rgba(45, 41, 36, 0.7) 45%, rgba(45, 41, 36, 0) 100%);
+    background: linear-gradient(to top, rgba(33, 39, 52, 0.98) 0%, rgba(33, 39, 52, 0.7) 45%, rgba(33, 39, 52, 0) 100%);
   }
 `;
 
@@ -193,10 +194,10 @@ export default function ListPanel() {
       <Toggle
         type="button"
         aria-expanded={panelOpen}
-        aria-label={panelOpen ? 'ëª©ë¡ íŒ¨ë„ ì ‘ê¸°' : 'ëª©ë¡ íŒ¨ë„ íŽ¼ì¹˜ê¸°'}
+        aria-label={panelOpen ? '¸ñ·Ï ÆÐ³Î Á¢±â' : '¸ñ·Ï ÆÐ³Î ÆîÄ¡±â'}
         onClick={togglePanel}
       >
-        {panelOpen ? <ChevronLeft size={16} strokeWidth={2} /> : <ChevronRight size={16} strokeWidth={2} />}
+        {panelOpen ? <HugeiconsIcon icon={ChevronLeftIcon} size={16} strokeWidth={2} /> : <HugeiconsIcon icon={ChevronRightIcon} size={16} strokeWidth={2} />}
       </Toggle>
     </Panel>
   );

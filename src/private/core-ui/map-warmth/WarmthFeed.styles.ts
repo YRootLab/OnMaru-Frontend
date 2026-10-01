@@ -1,6 +1,7 @@
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
-import { ChevronDown } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ChevronDownIcon } from '@hugeicons/core-free-icons'
 import { lightPalette, meok, surface, fontSize } from '@/design-system/tokens';
 
 export const FeedContainer = styled.div`
@@ -87,8 +88,8 @@ export const RegionArrowBtn = styled.button<{ $direction: 'left' | 'right' }>`
   [data-theme='dark'] & {
     background: ${({ $direction }) =>
       $direction === 'left'
-        ? 'linear-gradient(to right, rgba(28, 26, 23, 1) 40%, rgba(28, 26, 23, 0.85) 65%, rgba(28, 26, 23, 0) 100%)'
-        : 'linear-gradient(to left, rgba(28, 26, 23, 1) 40%, rgba(28, 26, 23, 0.85) 65%, rgba(28, 26, 23, 0) 100%)'};
+        ? 'linear-gradient(to right, rgba(11, 18, 32, 1) 40%, rgba(11, 18, 32, 0.85) 65%, rgba(11, 18, 32, 0) 100%)'
+        : 'linear-gradient(to left, rgba(11, 18, 32, 1) 40%, rgba(11, 18, 32, 0.85) 65%, rgba(11, 18, 32, 0) 100%)'};
     color: #9ca3af;
   }
 
@@ -215,7 +216,7 @@ export const FeaturedIconBox = styled.div`
   flex-shrink: 0;
 
   [data-theme='dark'] & {
-    background: #1c1a17;
+    background: #0B1220;
     color: ${meok[100]};
   }
 `;
@@ -361,7 +362,7 @@ export const SortSelect = styled.select`
   }
 `;
 
-export const SortChevron = styled(ChevronDown)`
+export const SortChevron = styled(HugeiconsIcon)`
   position: absolute;
   right: 7px;
   pointer-events: none;

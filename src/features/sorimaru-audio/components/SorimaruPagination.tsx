@@ -2,7 +2,8 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ChevronLeftIcon, ChevronRightIcon } from '@hugeicons/core-free-icons'
 import { palette, meok, surface } from '@/design-system/tokens';
 
 interface SorimaruPaginationProps {
@@ -35,7 +36,7 @@ const NavPillGroup = styled.div`
   box-shadow: none;
 
   [data-theme='dark'] & {
-    background: rgba(28, 26, 23, 0.8);
+    background: rgba(11, 18, 32, 0.8);
     border: none;
     box-shadow: none;
   }
@@ -178,21 +179,21 @@ export const SorimaruPagination: React.FC<SorimaruPaginationProps> = ({
   const pageNumbers = getPageNumbers(currentPage, totalPages);
 
   return (
-    <PaginationContainer aria-label="Ïò§ÎîîÏò§ ÏïÑÏπ¥Ïù¥Î∏å ÌéòÏù¥ÏßÄ Î≤àÌò∏">
+    <PaginationContainer aria-label="ø¿µø¿ æ∆ƒ´¿Ã∫Í ∆‰¿Ã¡ˆ π¯»£">
       <NavPillGroup>
         <ArrowButton
           type="button"
           onClick={() => handlePageClick(currentPage - 1)}
           disabled={currentPage <= 1 || isLoading}
-          aria-label="Ïù¥Ï†Ñ ÌéòÏù¥ÏßÄ"
+          aria-label="¿Ã¿¸ ∆‰¿Ã¡ˆ"
         >
-          <ChevronLeft size={15} />
-          <span>Ïù¥Ï†Ñ</span>
+          <HugeiconsIcon icon={ChevronLeftIcon} size={15} />
+          <span>¿Ã¿¸</span>
         </ArrowButton>
 
         {pageNumbers.map((page, index) =>
           page === '...' ? (
-            <EllipsisSpan key={`ellipsis-${index}`}>‚Ä¶</EllipsisSpan>
+            <EllipsisSpan key={`ellipsis-${index}`}>°¶</EllipsisSpan>
           ) : (
             <PageNumberButton
               key={page}
@@ -211,10 +212,10 @@ export const SorimaruPagination: React.FC<SorimaruPaginationProps> = ({
           type="button"
           onClick={() => handlePageClick(currentPage + 1)}
           disabled={currentPage >= totalPages || isLoading}
-          aria-label="Îã§Ïùå ÌéòÏù¥ÏßÄ"
+          aria-label="¥Ÿ¿Ω ∆‰¿Ã¡ˆ"
         >
-          <span>Îã§Ïùå</span>
-          <ChevronRight size={15} />
+          <span>¥Ÿ¿Ω</span>
+          <HugeiconsIcon icon={ChevronRightIcon} size={15} />
         </ArrowButton>
       </NavPillGroup>
     </PaginationContainer>

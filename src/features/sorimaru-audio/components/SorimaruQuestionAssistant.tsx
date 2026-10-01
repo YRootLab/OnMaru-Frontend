@@ -3,7 +3,8 @@
 import React, { FormEvent, useState } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
-import { ArrowUp, RotateCcw, Search } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ArrowUp01Icon, RotateCcwIcon, Search01Icon } from '@hugeicons/core-free-icons'
 import type { SorimaruAssistantFilters, SorimaruAssistantResponse, SorimaruAssistantSource } from '@/features/sorimaru-audio/api/sorimaruAssistant.types';
 import { palette, meok, surface, fontSize } from '@/design-system/tokens';
 
@@ -347,7 +348,7 @@ export function SorimaruQuestionAssistant({ filters, onOpenSource }: SorimaruQue
         <FormContainer onSubmit={ask}>
           <SrOnly htmlFor="sorimaru-natural-question">찾고 싶은 오디오 이야기 질문</SrOnly>
           <InputWrapper>
-            <Search size={16} strokeWidth={2} style={{ flexShrink: 0, color: meok[500] }} />
+            <HugeiconsIcon icon={Search01Icon} size={16} strokeWidth={2} style={{ flexShrink: 0, color: meok[500] }} />
             <StyledInput
               id="sorimaru-natural-question"
               value={question}
@@ -360,7 +361,7 @@ export function SorimaruQuestionAssistant({ filters, onOpenSource }: SorimaruQue
               disabled={!question.trim() || isLoading}
               aria-label="질문 보내기"
             >
-              {isLoading ? <RotateCcw size={14} strokeWidth={2} className="spinning" /> : <ArrowUp size={16} strokeWidth={2} />}
+              {isLoading ? <HugeiconsIcon icon={RotateCcwIcon} size={14} strokeWidth={2} className="spinning" /> : <HugeiconsIcon icon={ArrowUp01Icon} size={16} strokeWidth={2} />}
             </SubmitButton>
           </InputWrapper>
           {isLoading && <HelperText>소리마루 이야기에서 추천 장소를 찾고 있어요.</HelperText>}

@@ -9,7 +9,8 @@
 
 import { useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
-import { X } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Cancel01Icon } from '@hugeicons/core-free-icons'
 import { createPortal } from 'react-dom';
 
 import { meok, surface , fontSize } from '@/design-system/tokens';
@@ -68,7 +69,7 @@ const CloseButton = styled.button`
 
   [data-theme='dark'] & {
     border-color: rgba(255, 255, 255, 0.14);
-    background: rgba(45, 41, 36, 0.86);
+    background: rgba(33, 39, 52, 0.86);
     color: ${meok[400]};
 
     &:hover {
@@ -116,7 +117,7 @@ export default function StructureModal({ title, onClose, children }: StructureMo
     >
       <Shell ref={shellRef} role="dialog" aria-modal="true" aria-label={title} tabIndex={-1}>
         <CloseButton type="button" onClick={onClose}>
-          ë‹«ê¸° <X size={14} strokeWidth={2} aria-hidden="true" />
+          ´Ý±â <HugeiconsIcon icon={Cancel01Icon} size={14} strokeWidth={2} aria-hidden="true" />
         </CloseButton>
 
         {children}

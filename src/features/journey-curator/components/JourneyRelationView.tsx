@@ -7,7 +7,8 @@ import { motion } from 'framer-motion';
 
 
 import styled from '@emotion/styled';
-import { MapPin, Route } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { MapPinIcon, Route01Icon } from '@hugeicons/core-free-icons'
 import { meok, palette, fontSize } from '@/design-system/tokens';
 import type { JourneyBoard, PlaceResource, RegionResource, ResourceRef } from '../types/exploration.types';
 
@@ -168,7 +169,7 @@ export default function JourneyRelationView({ board, focusedRef, onFocus, onOpen
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.3, delay: i * 0.06, ease: 'easeOut' }}
             >
-              <IconBox>{rel.type === 'NEARBY' ? <Route size={14} strokeWidth={2} /> : <MapPin size={14} strokeWidth={2} />}</IconBox>
+              <IconBox>{rel.type === 'NEARBY' ? <HugeiconsIcon icon={Route01Icon} size={14} strokeWidth={2} /> : <HugeiconsIcon icon={MapPinIcon} size={14} strokeWidth={2} />}</IconBox>
               <RelText type="button" onClick={() => onFocus(clickTarget)}>
                 <b>{sourceTitle}</b> · {rel.label} · <b>{targetTitle}</b>
               </RelText>

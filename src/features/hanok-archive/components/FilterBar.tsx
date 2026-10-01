@@ -3,7 +3,8 @@
 import React, { useMemo } from 'react';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
-import { Tag, RotateCcw, Search, X } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Cancel01Icon, MapIcon, RotateCcwIcon, Search01Icon, Tag01Icon } from '@hugeicons/core-free-icons'
 import { meok, palette, surface , fontSize } from '@/design-system/tokens';
 import { STAY_TYPE, type Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
@@ -228,7 +229,7 @@ const BadgeContainer = styled.div`
   border-radius: 18px;
 
   [data-theme='dark'] & {
-    background: #24211D;
+    background: #171E2B;
   }
 `;
 
@@ -358,16 +359,16 @@ export default function FilterBar({
 }: FilterBarProps) {
   const MAJOR_BADGES = useMemo(
     () => [
-      'ì„¸ê³„ìœ ì‚°',
-      'êµ­ê°€ì§€ì •',
-      'ê¶ê¶',
-      'ê³ íƒ',
-      'ì„œì›Â·í–¥êµ',
-      'ê³µê³µê±´ì¶•ë¬¼',
-      'ë¯¼ì†ë§ˆì„',
-      'ëŒë‹´ê¸¸',
-      'ì „í†µì²´í—˜',
-      'ì¡°ì„ ì‹œëŒ€',
+      '¼¼°èÀ¯»ê',
+      '±¹°¡ÁöÁ¤',
+      '±Ã±È',
+      '°íÅÃ',
+      '¼­¿ø¡¤Çâ±³',
+      '°ø°ø°ÇÃà¹°',
+      '¹Î¼Ó¸¶À»',
+      'µ¹´ã±æ',
+      'ÀüÅëÃ¼Çè',
+      'Á¶¼±½Ã´ë',
     ],
     []
   );
@@ -388,7 +389,7 @@ export default function FilterBar({
       if (!v.type || v.type === STAY_TYPE) continue;
       present.add(v.type);
     }
-    return ['ì „ì²´', ...[...present].sort((a, b) => a.localeCompare(b, 'ko'))];
+    return ['ÀüÃ¼', ...[...present].sort((a, b) => a.localeCompare(b, 'ko'))];
   }, [villages]);
 
 
@@ -431,17 +432,17 @@ export default function FilterBar({
     <Wrapper>
       <FindRow>
         <SearchBox>
-          <Search size={15} strokeWidth={2} aria-hidden="true" />
+          <HugeiconsIcon icon={Search01Icon} size={15} strokeWidth={2} aria-hidden="true" />
           <SearchInput
             type="search"
             value={query}
             onChange={(e) => onQueryChange(e.target.value)}
-            placeholder="ì´ë¦„ì´ë‚˜ ì§€ì—­ìœ¼ë¡œ ì°¾ì•„ë³´ì„¸ìš” (ì˜ˆ: ë¶ì´Œ, ì•ˆë™)"
-            aria-label="í•œì˜¥ ì´ë¦„ì´ë‚˜ ì£¼ì†Œë¡œ ì°¾ê¸°"
+            placeholder="ÀÌ¸§ÀÌ³ª Áö¿ªÀ¸·Î Ã£¾Æº¸¼¼¿ä (¿¹: ºÏÃÌ, ¾Èµ¿)"
+            aria-label="ÇÑ¿Á ÀÌ¸§ÀÌ³ª ÁÖ¼Ò·Î Ã£±â"
           />
           {query && (
-            <ClearButton type="button" onClick={() => onQueryChange('')} aria-label="ê²€ìƒ‰ì–´ ì§€ìš°ê¸°">
-              <X size={13} strokeWidth={2.5} />
+            <ClearButton type="button" onClick={() => onQueryChange('')} aria-label="°Ë»ö¾î Áö¿ì±â">
+              <HugeiconsIcon icon={Cancel01Icon} size={13} strokeWidth={2.5} />
             </ClearButton>
           )}
         </SearchBox>
@@ -449,9 +450,9 @@ export default function FilterBar({
         <RegionSelect
           value={region}
           onChange={(e) => onRegionChange(e.target.value)}
-          aria-label="ì§€ì—­ìœ¼ë¡œ ê±°ë¥´ê¸°"
+          aria-label="Áö¿ªÀ¸·Î °Å¸£±â"
         >
-          <option value="ì „ì²´">ì „êµ­</option>
+          <option value="ÀüÃ¼">Àü±¹</option>
           {regions.map((r) => (
             <option key={r} value={r}>
               {r}
@@ -464,7 +465,7 @@ export default function FilterBar({
       {availableTypes.length >= MIN_TYPES_TO_SHOW + 1 && (
       <SegmentScrollWrapper>
         <SegmentScrollContainer>
-          <SegmentControl role="group" aria-label="ë§ˆì„ ìœ í˜• í•„í„°">
+          <SegmentControl role="group" aria-label="¸¶À» À¯Çü ÇÊÅÍ">
             {availableTypes.map((t) => {
               const isActive = activeType === t;
               return (
@@ -493,7 +494,7 @@ export default function FilterBar({
       {allBadges.length > 0 && (
         <BadgeContainer>
           <BadgeHeader>
-            <Tag size={13} strokeWidth={2} color={palette.hwanggeum[700]} />
+            <HugeiconsIcon icon={Tag01Icon} size={13} strokeWidth={2} color={palette.hwanggeum[700]} />
             
           </BadgeHeader>
           <BadgeList>
@@ -506,7 +507,7 @@ export default function FilterBar({
                   $variant={getBadgeVariant(b)}
                   onClick={() => onBadgeToggle(b)}
                   aria-pressed={isActive}
-                  aria-label={`${filterLabel(b)} ${badgeCounts.get(b)}ê³³`}
+                  aria-label={`${filterLabel(b)} ${badgeCounts.get(b)}°÷`}
                 >
                   #{filterLabel(b)}
                   <BadgeCount>{badgeCounts.get(b)}</BadgeCount>
@@ -516,7 +517,7 @@ export default function FilterBar({
           </BadgeList>
           {activeBadges.length > 0 && (
             <ResetBtn onClick={onResetBadges || (() => activeBadges.forEach((b) => onBadgeToggle(b)))}>
-              <RotateCcw size={12} strokeWidth={2} /> ì„ íƒí•œ íƒœê·¸ ì§€ìš°ê¸°
+              <HugeiconsIcon icon={RotateCcwIcon} size={12} strokeWidth={2} /> ¼±ÅÃÇÑ ÅÂ±× Áö¿ì±â
             </ResetBtn>
           )}
         </BadgeContainer>

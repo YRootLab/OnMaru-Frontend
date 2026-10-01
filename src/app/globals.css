@@ -63,7 +63,7 @@ html {
 html[data-theme='dark'],
 html[data-theme='dark'] body,
 [data-theme='dark'] body {
-  background-color: #1C1A17;
+  background-color: #0B1220;
   color: #f8f9fa;
   color-scheme: dark;
 }

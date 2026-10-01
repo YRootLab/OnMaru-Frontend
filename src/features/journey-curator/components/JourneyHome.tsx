@@ -18,7 +18,7 @@ const MainWrapper = styled.main`
   transition: background-color 0.3s ease;
 
   [data-theme='dark'] & {
-    background-color: #1c1a17;
+    background-color: #0B1220;
   }
 `;
 

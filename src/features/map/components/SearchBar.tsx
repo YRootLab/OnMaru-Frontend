@@ -1,11 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
-import {
-  Globe,
-  RotateCcw,
-  Search,
-  X,
-} from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Cancel01Icon, GlobeIcon, RotateCcwIcon, Search01Icon } from '@hugeicons/core-free-icons'
 import { lightPalette, meok, surface, fontSize } from '@/design-system/tokens';
 import { DEFAULT_CENTER, DEFAULT_LEVEL, useMapStore } from '@/features/map/hooks/useMapStore';
 
@@ -356,7 +352,7 @@ export default function SearchBar({ className }: SearchBarProps) {
     <Wrap className={className}>
       <Field onSubmit={handleSubmit}>
         <SearchSubmitBtn type="submit" aria-label="검색하기">
-          <Search size={18} strokeWidth={2} aria-hidden />
+          <HugeiconsIcon icon={Search01Icon} size={18} strokeWidth={2} aria-hidden />
         </SearchSubmitBtn>
 
         <Input
@@ -377,7 +373,7 @@ export default function SearchBar({ className }: SearchBarProps) {
               title="전국 지도로 돌아가기"
               onClick={handleResetToNationwide}
             >
-              <RotateCcw size={14} strokeWidth={2} />
+              <HugeiconsIcon icon={RotateCcwIcon} size={14} strokeWidth={2} />
             </ActionIconBtn>
           )}
 
@@ -389,7 +385,7 @@ export default function SearchBar({ className }: SearchBarProps) {
                 setValue('');
               }}
             >
-              <X size={16} strokeWidth={2} />
+              <HugeiconsIcon icon={Cancel01Icon} size={16} strokeWidth={2} />
             </ActionIconBtn>
           )}
         </ButtonGroup>
@@ -402,7 +398,7 @@ export default function SearchBar({ className }: SearchBarProps) {
               type="button"
               onMouseDown={handleResetToNationwide}
             >
-              <Globe size={16} strokeWidth={2} />
+              <HugeiconsIcon icon={GlobeIcon} size={16} strokeWidth={2} />
               <span>전국 지도로 돌아가기</span>
             </ResetAllBtn>
           )}

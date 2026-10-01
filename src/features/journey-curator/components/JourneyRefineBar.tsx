@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
-import { Sparkles, CornerDownLeft, AlertCircle } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { SparklesIcon, CornerDownLeftIcon, AlertCircleIcon } from '@hugeicons/core-free-icons'
 import { lightPalette, palette, meok, surface , fontSize } from '@/design-system/tokens';
 import { useJourneyStore } from '../store/useJourneyStore';
 
@@ -23,7 +24,7 @@ const Box = styled.div`
   gap: 14px;
 
   [data-theme='dark'] & {
-    background: #1c1a17;
+    background: #0B1220;
     border-color: rgba(255, 255, 255, 0.08);
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
   }
@@ -62,7 +63,7 @@ const InputRow = styled.form`
     box-shadow: 0 4px 16px rgba(0, 184, 130, 0.12);
 
     [data-theme='dark'] & {
-      background: #24211d;
+      background: #171E2B;
     }
   }
 `;
@@ -154,10 +155,10 @@ export default function JourneyRefineBar() {
   const lastError = useJourneyStore((s) => s.lastError);
 
   const defaultSuggestions = [
-    '+ ì „í†µ ì°»ì§‘ ìœ„ì£¼',
-    '+ ë¹„ ì˜¤ëŠ” ë‚  ìš´ì¹˜',
-    '+ ê±·ëŠ” ì‹œê°„ ì¤„ì´ê¸°',
-    '+ ì—­ì‚¬ í•´ì„¤ ì¤‘ì‹¬',
+    '+ ÀüÅë ÂşÁı À§ÁÖ',
+    '+ ºñ ¿À´Â ³¯ ¿îÄ¡',
+    '+ °È´Â ½Ã°£ ÁÙÀÌ±â',
+    '+ ¿ª»ç ÇØ¼³ Áß½É',
   ];
 
   const suggestions = currentPlan?.refineSuggestions?.length
@@ -182,18 +183,18 @@ export default function JourneyRefineBar() {
         <Header>
           {!isGenerating && lastError ? (
             <>
-              <AlertCircle size={16} color={palette.danpung[500]} />
+              <HugeiconsIcon icon={AlertCircleIcon} size={16} color={palette.danpung[500]} />
               <span style={{ color: palette.danpung[700] }}>
-                {lastError} ê¸°ì¡´ ì½”ìŠ¤ëŠ” ê·¸ëŒ€ë¡œ ìˆì–´ìš”.
+                {lastError} ±âÁ¸ ÄÚ½º´Â ±×´ë·Î ÀÖ¾î¿ä.
               </span>
             </>
           ) : (
             <>
-              <Sparkles size={16} color={lightPalette.cheongrok[500]} />
+              <HugeiconsIcon icon={SparklesIcon} size={16} color={lightPalette.cheongrok[500]} />
               <span>
                 {isGenerating
-                  ? 'ìš”ì²­í•˜ì‹  ë‚´ìš©ì„ ë°˜ì˜í•´ ì½”ìŠ¤ë¥¼ ë‹¤ì‹œ ì§œê³  ìˆì–´ìš”'
-                  : 'ì›í•˜ëŠ” ì¡°ê±´ì„ ë”í•´ ì½”ìŠ¤ë¥¼ ë°”ê¿”ë³´ì„¸ìš”'}
+                  ? '¿äÃ»ÇÏ½Å ³»¿ëÀ» ¹İ¿µÇØ ÄÚ½º¸¦ ´Ù½Ã Â¥°í ÀÖ¾î¿ä'
+                  : '¿øÇÏ´Â Á¶°ÇÀ» ´õÇØ ÄÚ½º¸¦ ¹Ù²ãº¸¼¼¿ä'}
               </span>
             </>
           )}
@@ -204,12 +205,12 @@ export default function JourneyRefineBar() {
             type="text"
             value={refineText}
             onChange={(e) => setRefineText(e.target.value)}
-            placeholder="ì˜ˆ: ì¡°ìš©í•œ ì „í†µ ì°»ì§‘ í¬í•¨í•˜ê¸°, ëœ ê±·ëŠ” ì½”ìŠ¤ë¡œ ë°”ê¾¸ê¸°"
-            aria-label="ì—¬ì • ì¡°ê±´ ì¶”ê°€ ì…ë ¥"
+            placeholder="¿¹: Á¶¿ëÇÑ ÀüÅë ÂşÁı Æ÷ÇÔÇÏ±â, ´ú °È´Â ÄÚ½º·Î ¹Ù²Ù±â"
+            aria-label="¿©Á¤ Á¶°Ç Ãß°¡ ÀÔ·Â"
             disabled={isGenerating}
           />
-          <SendBtn type="submit" $disabled={isGenerating} title="ì¡°ê±´ ì ìš©í•˜ê¸°">
-            <CornerDownLeft size={14} />
+          <SendBtn type="submit" $disabled={isGenerating} title="Á¶°Ç Àû¿ëÇÏ±â">
+            <HugeiconsIcon icon={CornerDownLeftIcon} size={14} />
           </SendBtn>
         </InputRow>
 

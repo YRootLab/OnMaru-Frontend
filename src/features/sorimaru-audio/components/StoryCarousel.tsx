@@ -6,7 +6,8 @@ import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { keyframes } from '@emotion/react';
-import { Play, Pause, ChevronLeft, ChevronRight } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ChevronLeftIcon, ChevronRightIcon, MapIcon, PauseIcon, PlayIcon } from '@hugeicons/core-free-icons'
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import { getRailIndicator, shouldUpdateRailIndicator } from './storyCarouselMetrics';
@@ -25,7 +26,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 function formatDuration(story: SorimaruStorySummary): string {
   const seconds = story.durationSeconds;
-  return Number.isFinite(seconds) ? `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}` : 'ì˜¤ë””ì˜¤';
+  return Number.isFinite(seconds) ? `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}` : '¿Àµğ¿À';
 }
 
 const dominantColorCache = new Map<string, string>();
@@ -189,7 +190,7 @@ const PlayBubble = styled.span<{ $isPlaying: boolean }>`
           color: #ffffff;
         `
         : `
-          background-color: rgba(45, 41, 36, 0.9);
+          background-color: rgba(33, 39, 52, 0.9);
           color: ${meok[100]};
           border: 1px solid rgba(255, 255, 255, 0.1);
         `}
@@ -363,9 +364,9 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
 
         <PlayBubble $isPlaying={isPlaying}>
           {isPlaying ? (
-            <Pause size={14} strokeWidth={2} />
+            <HugeiconsIcon icon={PauseIcon} size={14} strokeWidth={2} />
           ) : (
-            <Play size={14} fill="currentColor" style={{ marginLeft: 2 }} />
+            <HugeiconsIcon icon={PlayIcon} size={14} fill="currentColor" style={{ marginLeft: 2 }} />
           )}
         </PlayBubble>
       </ThumbnailContainer>
@@ -384,12 +385,12 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
             <MiniCategoryTag>
               {story.category}
             </MiniCategoryTag>
-            <LocationSpan title={story.region.name || 'ëŒ€í•œë¯¼êµ­ ë¬¸í™”ìœ ì‚°'}>
-              {story.region.name || 'ëŒ€í•œë¯¼êµ­ ë¬¸í™”ìœ ì‚°'}
+            <LocationSpan title={story.region.name || '´ëÇÑ¹Î±¹ ¹®È­À¯»ê'}>
+              {story.region.name || '´ëÇÑ¹Î±¹ ¹®È­À¯»ê'}
             </LocationSpan>
           </CategoryLocationRow>
 
-          <ExcerptText>ì¥ì†Œì— ë¨¸ë¬´ëŠ” ì‹œê°„ì„ ì˜¤ë””ì˜¤ë¡œ ë§Œë‚˜ë³´ì„¸ìš”.</ExcerptText>
+          <ExcerptText>Àå¼Ò¿¡ ¸Ó¹«´Â ½Ã°£À» ¿Àµğ¿À·Î ¸¸³ªº¸¼¼¿ä.</ExcerptText>
         </div>
 
         <CardBottomMeta>
@@ -397,7 +398,7 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
             {formatDuration(story)}
           </span>
           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 500, color: meok[500] }}>
-            ì˜¨ë§ˆë£¨ ë„ìŠ¨íŠ¸
+            ¿Â¸¶·ç µµ½¼Æ®
           </span>
         </CardBottomMeta>
       </CardInfoCol>
@@ -418,7 +419,7 @@ const SkeletonBox = styled.div`
 `;
 
 export const StoryCarouselSkeleton: React.FC = () => (
-  <div aria-label="ì£¼ë³€ ì˜¤ë””ì˜¤ ë¡œë”© ì¤‘" style={{ position: 'relative', width: '100%', overflow: 'hidden' }}>
+  <div aria-label="ÁÖº¯ ¿Àµğ¿À ·Îµù Áß" style={{ position: 'relative', width: '100%', overflow: 'hidden' }}>
     <div style={{ display: 'flex', gap: '1rem', overflowX: 'auto', padding: '0.75rem 1.5rem 2rem', scrollbarWidth: 'none' }}>
       {[1, 2, 3].map((id) => (
         <div
@@ -496,7 +497,7 @@ const EdgeFadeLeft = styled.div`
   background: linear-gradient(to right, rgba(255, 255, 255, 1) 40%, rgba(255, 255, 255, 0));
 
   [data-theme='dark'] & {
-    background: linear-gradient(to right, ${surface.dark.app} 40%, rgba(28, 26, 23, 0));
+    background: linear-gradient(to right, ${surface.dark.app} 40%, rgba(11, 18, 32, 0));
   }
 
   @media (min-width: 640px) {
@@ -515,7 +516,7 @@ const EdgeFadeRight = styled.div`
   background: linear-gradient(to left, rgba(255, 255, 255, 1) 40%, rgba(255, 255, 255, 0));
 
   [data-theme='dark'] & {
-    background: linear-gradient(to left, ${surface.dark.app} 40%, rgba(28, 26, 23, 0));
+    background: linear-gradient(to left, ${surface.dark.app} 40%, rgba(11, 18, 32, 0));
   }
 
   @media (min-width: 640px) {
@@ -535,7 +536,7 @@ const FloatingNavBtn = styled.button<{ $side: 'left' | 'right'; $visible?: boole
   justify-content: center;
   border-radius: 9999px;
   background-color: rgba(255, 255, 255, 0.96);
-  color: #1c1a17;
+  color: #0B1220;
   transition: all 0.2s ease;
   border: none;
   cursor: pointer;
@@ -782,8 +783,8 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
       <div style={{ borderRadius: '1rem', padding: '1rem 1.25rem', textAlign: 'center' }}>
         <OniSearchEmpty
           size="sm"
-          title="ê°€ê¹Œìš´ ì´ì•¼ê¸°ë¥¼ ì°¾ëŠ” ì¤‘ì´ì—ìš”."
-          description="ìœ„ì¹˜ë¥¼ í—ˆìš©í•˜ë©´ ê°€ê¹Œìš´ ì˜¤ë””ì˜¤ë¶€í„° ë³´ì—¬ë“œë¦´ê²Œìš”."
+          title="°¡±î¿î ÀÌ¾ß±â¸¦ Ã£´Â ÁßÀÌ¿¡¿ä."
+          description="À§Ä¡¸¦ Çã¿ëÇÏ¸é °¡±î¿î ¿Àµğ¿ÀºÎÅÍ º¸¿©µå¸±°Ô¿ä."
           compact
         />
       </div>
@@ -791,12 +792,12 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
   }
 
   return (
-    <CarouselOuter aria-label="ì£¼ë³€ ì˜¤ë””ì˜¤ ëª©ë¡">
+    <CarouselOuter aria-label="ÁÖº¯ ¿Àµğ¿À ¸ñ·Ï">
       <div style={{ position: 'relative' }}>
         <ScrollTrack
           ref={railRef}
           tabIndex={0}
-          aria-label="ì£¼ë³€ ì˜¤ë””ì˜¤ë¥¼ ì¢Œìš°ë¡œ ì‚´í´ë³´ê¸°"
+          aria-label="ÁÖº¯ ¿Àµğ¿À¸¦ ÁÂ¿ì·Î »ìÆìº¸±â"
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUpOrLeave}
@@ -832,21 +833,21 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
         {railIndicator.left > 0.5 && (
           <FloatingNavBtn
             type="button"
-            aria-label="ì´ì „ ì£¼ë³€ ì˜¤ë””ì˜¤ ë³´ê¸°"
+            aria-label="ÀÌÀü ÁÖº¯ ¿Àµğ¿À º¸±â"
             onClick={() => moveRail(-1)}
             $side="left"
           >
-            <ChevronLeft size={18} strokeWidth={2} />
+            <HugeiconsIcon icon={ChevronLeftIcon} size={18} strokeWidth={2} />
           </FloatingNavBtn>
         )}
         {railIndicator.width < 100 && railIndicator.left < 99 - railIndicator.width && (
           <FloatingNavBtn
             type="button"
-            aria-label="ë‹¤ìŒ ì£¼ë³€ ì˜¤ë””ì˜¤ ë³´ê¸°"
+            aria-label="´ÙÀ½ ÁÖº¯ ¿Àµğ¿À º¸±â"
             onClick={() => moveRail(1)}
             $side="right"
           >
-            <ChevronRight size={18} strokeWidth={2} />
+            <HugeiconsIcon icon={ChevronRightIcon} size={18} strokeWidth={2} />
           </FloatingNavBtn>
         )}
       </div>

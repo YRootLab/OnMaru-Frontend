@@ -59,12 +59,12 @@ const FALLBACK_IMAGE_SETS = {
 
 const getFallbackImageSet = (story: SorimaruStorySummary) => {
   const category = `${story.category} ${story.title} ${story.region.name}`;
-  if (category.includes('ÌïúÏò•') || category.includes('Í≥†ÌÉù')) return FALLBACK_IMAGE_SETS.hanok;
-  if (category.includes('ÏãúÏû•') || category.includes('Ïû•ÌÑ∞')) return FALLBACK_IMAGE_SETS.market;
-  if (category.includes('ÎßàÏùÑ') || category.includes('Í≥®Î™©')) return FALLBACK_IMAGE_SETS.village;
-  if (category.includes('Í∂Å') || category.includes('Ïó≠ÏÇ¨')) return FALLBACK_IMAGE_SETS.palace;
-  if (category.includes('ÏûêÏó∞') || category.includes('Í∏∏')) return FALLBACK_IMAGE_SETS.nature;
-  if (category.includes('ÏÜåÎ¶¨') || category.includes('Î¨∏Ìôî')) return FALLBACK_IMAGE_SETS.sound;
+  if (category.includes('«—ø¡') || category.includes('∞Ì≈√')) return FALLBACK_IMAGE_SETS.hanok;
+  if (category.includes('Ω√¿Â') || category.includes('¿Â≈Õ')) return FALLBACK_IMAGE_SETS.market;
+  if (category.includes('∏∂¿ª') || category.includes('∞Ò∏Ò')) return FALLBACK_IMAGE_SETS.village;
+  if (category.includes('±√') || category.includes('ø™ªÁ')) return FALLBACK_IMAGE_SETS.palace;
+  if (category.includes('¿⁄ø¨') || category.includes('±Ê')) return FALLBACK_IMAGE_SETS.nature;
+  if (category.includes('º“∏Æ') || category.includes('πÆ»≠')) return FALLBACK_IMAGE_SETS.sound;
   return FALLBACK_IMAGE_SETS.default;
 };
 
@@ -259,7 +259,7 @@ const CardBottomPanel = styled.div<{ $isActive: boolean }>`
   [data-theme='dark'] & {
     color: ${meok[100]};
     background-color: ${({ $isActive }) =>
-      $isActive ? 'rgba(45, 41, 36, 0.92)' : 'rgba(32, 29, 25, 0.82)'};
+      $isActive ? 'rgba(33, 39, 52, 0.92)' : 'rgba(32, 29, 25, 0.82)'};
     border-top: 1px solid rgba(255, 255, 255, 0.08);
   }
 
@@ -363,7 +363,7 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(
         $isActive={isActive}
         draggable={false}
         onMouseDown={(event) => event.preventDefault()}
-        aria-label={`${story.title}${isActive ? ' ÌòÑÏû¨ ÏÑ†ÌÉùÎê®' : ''}`}
+        aria-label={`${story.title}${isActive ? ' «ˆ¿Á º±≈√µ ' : ''}`}
       >
         <motion.div
           style={{ position: 'absolute', inset: 0, borderRadius: '1.25rem', overflow: 'hidden' }}
@@ -430,7 +430,7 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(
                 color: palette.juhong[500],
               }}
             >
-              {copy.durationText} <span style={{ color: meok[700] }}>‚Üó</span>
+              {copy.durationText} <span style={{ color: meok[700] }}>¢÷</span>
             </span>
           )}
         </CardBottomPanel>
@@ -543,7 +543,7 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
           return searchable.includes(category.keyword.toLowerCase());
         });
       const groupedCategoryStories = storySets?.[category.label];
-      const recommendationStories = storySets?.['Ï∂îÏ≤ú'];
+      const recommendationStories = storySets?.['√ﬂ√µ'];
 
       const source =
         localCategoryStories.length
@@ -736,7 +736,7 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
     if (!activeStory && !showSkeleton) {
       return (
         <section
-          aria-label="ÏÜåÎ¶¨ÎßàÎ£® Ï∂îÏ≤ú"
+          aria-label="º“∏Æ∏∂∑Á √ﬂ√µ"
           style={{
             position: 'relative',
             marginLeft: 'auto',
@@ -752,8 +752,8 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
         >
           <OniSearchEmpty
             size="md"
-            title="Ïù¥ Ï£ºÏ†úÏùò Ïù¥ÏïºÍ∏∞Î•º Ï∞æÏßÄ Î™ªÌñàÏñ¥Ïöî"
-            description="Îã§Î•∏ Ïπ¥ÌÖåÍ≥†Î¶¨Ïùò ÏÜåÎ¶¨Î•º ÏÑ†ÌÉùÌï¥ Î≥¥ÏÑ∏Ïöî."
+            title="¿Ã ¡÷¡¶¿« ¿Ãæﬂ±‚∏¶ √£¡ˆ ∏¯«ﬂæÓø‰"
+            description="¥Ÿ∏• ƒ´≈◊∞Ì∏Æ¿« º“∏Æ∏¶ º±≈√«ÿ ∫∏ººø‰."
           />
         </section>
       );
@@ -761,7 +761,7 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
 
     return (
       <section
-        aria-label="ÏÜåÎ¶¨ÎßàÎ£® Ï∂îÏ≤ú"
+        aria-label="º“∏Æ∏∂∑Á √ﬂ√µ"
         aria-busy={showSkeleton}
         style={{
           position: 'relative',
@@ -775,7 +775,7 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
         <div style={{ width: '100%', padding: 0 }}>
           <div style={{ position: 'relative', paddingBottom: '0.5rem', paddingTop: '0.25rem' }}>
             <div style={{ marginLeft: 'auto', marginRight: 'auto', marginBottom: '0.75rem', width: '100%', maxWidth: '72rem' }}>
-              <nav style={{ overflowX: 'auto', scrollbarWidth: 'none' }} aria-label="Ïû•Î©¥ Ïπ¥ÌÖåÍ≥†Î¶¨">
+              <nav style={{ overflowX: 'auto', scrollbarWidth: 'none' }} aria-label="¿Â∏È ƒ´≈◊∞Ì∏Æ">
                 <div style={{ display: 'flex', minWidth: 'max-content', alignItems: 'center', gap: '1rem' }}>
                   {SORIMARU_THEME_CATEGORIES.map((category) => {
                     const isSelected = selectedKeyword === category.keyword;
@@ -787,7 +787,7 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
                         aria-pressed={isSelected}
                         $isSelected={isSelected}
                       >
-                        #{category.keyword === 'ÏãúÏû•' ? 'Ï†ÑÌÜµÏãúÏû•' : category.keyword === 'ÎßàÏùÑ' ? 'Ï†ÑÌÜµÎßàÏùÑ' : category.keyword === 'Í∂Å' ? 'Í∂ÅÍ∂ê' : category.keyword === 'Í∏∏' ? 'ÏûêÏó∞' : category.keyword}
+                        #{category.keyword === 'Ω√¿Â' ? '¿¸≈ÎΩ√¿Â' : category.keyword === '∏∂¿ª' ? '¿¸≈Î∏∂¿ª' : category.keyword === '±√' ? '±√±»' : category.keyword === '±Ê' ? '¿⁄ø¨' : category.keyword}
                       </CategoryTabButton>
                     );
                   })}
@@ -862,7 +862,7 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
                     type="button"
                     onClick={() => moveTo(index)}
                     $active={index === activeIndex}
-                    aria-label={`${index + 1}Î≤àÏß∏ Ïù¥ÏïºÍ∏∞ ÏÑ†ÌÉù`}
+                    aria-label={`${index + 1}π¯¬∞ ¿Ãæﬂ±‚ º±≈√`}
                   />
                 ))}
               </div>

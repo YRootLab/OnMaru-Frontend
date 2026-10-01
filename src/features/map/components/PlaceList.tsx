@@ -3,17 +3,8 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
-import {
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  Map,
-  RotateCcw,
-  AlertCircle,
-  Sparkles,
-  List,
-  Bookmark,
-} from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, MapIcon, RotateCcwIcon, AlertCircleIcon, SparklesIcon, ListIcon, Bookmark01Icon } from '@hugeicons/core-free-icons'
 import { lightPalette, meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
@@ -136,7 +127,7 @@ const SortSelect = styled.select`
   }
 `;
 
-const SortChevron = styled(ChevronDown)`
+const SortChevron = styled(HugeiconsIcon)`
   position: absolute;
   right: 7px;
   pointer-events: none;
@@ -551,7 +542,7 @@ export default function PlaceList() {
       {}
       <StickyHeader>
         <CountLabel aria-live="polite">
-          <List size={15} color={meok[700]} strokeWidth={2} />
+          <HugeiconsIcon icon={ListIcon} size={15} color={meok[700]} strokeWidth={2} />
           <span>{headerTitle}</span>
         </CountLabel>
 
@@ -564,7 +555,7 @@ export default function PlaceList() {
             <option value="dist">거리순</option>
             <option value="name">이름순</option>
           </SortSelect>
-          <SortChevron size={14} strokeWidth={2} />
+          <SortChevron icon={ChevronDownIcon} size={14} strokeWidth={2} />
         </SortDropdownWrapper>
       </StickyHeader>
 
@@ -592,7 +583,7 @@ export default function PlaceList() {
           description={error}
           action={
             <ActionButton type="button" onClick={reload}>
-              <RotateCcw size={14} strokeWidth={2} />
+              <HugeiconsIcon icon={RotateCcwIcon} size={14} strokeWidth={2} />
               <span>다시 시도</span>
             </ActionButton>
           }
@@ -601,7 +592,7 @@ export default function PlaceList() {
         category === 'bookmark' ? (
           <EmptyStateBox>
             <EmptyIconBox>
-              <Bookmark size={24} color={lightPalette.juhong[500]} fill="currentColor" strokeWidth={2} />
+              <HugeiconsIcon icon={Bookmark01Icon} size={24} color={lightPalette.juhong[500]} fill="currentColor" strokeWidth={2} />
             </EmptyIconBox>
             <EmptyTitle>아직 저장한 장소가 없어요</EmptyTitle>
             <EmptyDesc>
@@ -613,7 +604,7 @@ export default function PlaceList() {
                 onClick={() => useMapStore.getState().setCategory(null)}
                 style={{ width: '100%', justifyContent: 'center' }}
               >
-                <Sparkles size={14} strokeWidth={2} />
+                <HugeiconsIcon icon={SparklesIcon} size={14} strokeWidth={2} />
                 <span>전체 명소 둘러보기</span>
               </ActionButton>
             </div>
@@ -643,7 +634,7 @@ export default function PlaceList() {
                     onClick={() => setSearchQuery('')}
                     style={{ width: '100%', justifyContent: 'center' }}
                   >
-                    <RotateCcw size={14} strokeWidth={2} />
+                    <HugeiconsIcon icon={RotateCcwIcon} size={14} strokeWidth={2} />
                     <span>검색어 지우기</span>
                   </ActionButton>
                 )}
@@ -653,7 +644,7 @@ export default function PlaceList() {
                     onClick={() => useMapStore.getState().setCategory(null)}
                     style={{ width: '100%', justifyContent: 'center' }}
                   >
-                    <Sparkles size={14} strokeWidth={2} />
+                    <HugeiconsIcon icon={SparklesIcon} size={14} strokeWidth={2} />
                     <span>전체 명소 둘러보기</span>
                   </ActionButton>
                 )}
@@ -662,7 +653,7 @@ export default function PlaceList() {
                   onClick={handleZoomOut}
                   style={{ width: '100%', justifyContent: 'center' }}
                 >
-                  <Map size={14} strokeWidth={2} />
+                  <HugeiconsIcon icon={MapIcon} size={14} strokeWidth={2} />
                   <span>검색 반경 넓히기</span>
                 </ActionButton>
                 <ActionButton
@@ -670,7 +661,7 @@ export default function PlaceList() {
                   onClick={() => useMapStore.getState().setPopularPanelOpen(true)}
                   style={{ width: '100%', justifyContent: 'center', background: 'rgba(232, 90, 24, 0.08)', color: lightPalette.juhong[500] }}
                 >
-                  <Sparkles size={14} strokeWidth={2} />
+                  <HugeiconsIcon icon={SparklesIcon} size={14} strokeWidth={2} />
                   <span>인기 한옥 둘러보기</span>
                 </ActionButton>
               </div>
@@ -702,7 +693,7 @@ export default function PlaceList() {
                 disabled={validPage <= 1}
                 aria-label="이전 페이지로 이동"
               >
-                <ChevronLeft size={16} strokeWidth={2} />
+                <HugeiconsIcon icon={ChevronLeftIcon} size={16} strokeWidth={2} />
                 <span>이전</span>
               </PageNavBtn>
 
@@ -728,7 +719,7 @@ export default function PlaceList() {
                 aria-label="다음 페이지로 이동"
               >
                 <span>다음</span>
-                <ChevronRight size={16} strokeWidth={2} />
+                <HugeiconsIcon icon={ChevronRightIcon} size={16} strokeWidth={2} />
               </PageNavBtn>
             </PaginationWrapper>
           )}

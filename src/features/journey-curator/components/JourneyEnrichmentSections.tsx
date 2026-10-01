@@ -9,7 +9,8 @@
 
 import styled from '@emotion/styled';
 import { motion, useReducedMotion } from 'framer-motion';
-import { Pause, Play, MapPin, Clock, CalendarDays, Headphones } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { PauseIcon, PlayIcon, MapPinIcon, Clock01Icon, CalendarDaysIcon, HeadphonesIcon } from '@hugeicons/core-free-icons'
 import { meok, palette, fontSize, ringShadow } from '@/design-system/tokens';
 import { useJourneyStore } from '../store/useJourneyStore';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
@@ -266,7 +267,7 @@ const DoganMetaItem = styled.span`
 `;
 
 function splitLede(overview: string): [string, string] {
-  const match = overview.match(/^[^.!?ã€‚]+[.!?ã€‚]/);
+  const match = overview.match(/^[^.!?¡£]+[.!?¡£]/);
   if (!match) return [overview, ''];
   const lede = match[0].trim();
   const rest = overview.slice(match[0].length).trim();
@@ -284,7 +285,7 @@ const AudioList = styled.div`
   box-shadow: ${ringShadow.light.card};
 
   [data-theme='dark'] & {
-    background: #24211d;
+    background: #171E2B;
     box-shadow: ${ringShadow.dark.card};
   }
 
@@ -450,18 +451,18 @@ function AudioItem({
         type="button"
         onClick={toggle}
         whileTap={{ scale: 0.92 }}
-        aria-label={isPlaying ? 'ì˜¤ë””ì˜¤ ì¼ì‹œì •ì§€' : 'ì˜¤ë””ì˜¤ í•´ì„¤ ë“£ê¸°'}
-        title={isPlaying ? 'ì¼ì‹œì •ì§€' : 'ì˜¤ë””ì˜¤ í•´ì„¤ ë“£ê¸°'}
+        aria-label={isPlaying ? '¿Àµğ¿À ÀÏ½ÃÁ¤Áö' : '¿Àµğ¿À ÇØ¼³ µè±â'}
+        title={isPlaying ? 'ÀÏ½ÃÁ¤Áö' : '¿Àµğ¿À ÇØ¼³ µè±â'}
       >
-        {isCurrent && isPlaying ? <Pause size={17} fill="currentColor" /> : <Play size={17} fill="currentColor" style={{ marginLeft: 2 }} />}
+        {isCurrent && isPlaying ? <HugeiconsIcon icon={PauseIcon} size={17} fill="currentColor" /> : <HugeiconsIcon icon={PlayIcon} size={17} fill="currentColor" style={{ marginLeft: 2 }} />}
       </PlayButton>
       <AudioBody>
         <AudioTitleRow>
           <AudioTitle>{story.audioTitle || story.title}</AudioTitle>
           <AudioMeta>
-            <Headphones size={12} />
+            <HugeiconsIcon icon={HeadphonesIcon} size={12} />
             <span>{story.formattedDuration}</span>
-            {story.distance ? ` Â· ì•½ ${story.distance}` : ''}
+            {story.distance ? ` ¡¤ ¾à ${story.distance}` : ''}
           </AudioMeta>
         </AudioTitleRow>
         <ProgressTrack>
@@ -603,8 +604,8 @@ export default function JourneyEnrichmentSections() {
             transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
           >
             <BlockHeader>
-              <BlockTitle>ê³µê°„ì— ê¹ƒë“  ì´ì•¼ê¸°</BlockTitle>
-              <BlockSubtitle>ê³µê°„ì˜ ë‚´ë ¥ê³¼ ê³ ìœ í•œ ì •ì·¨ë¥¼ ì‚¬ì§„ê³¼ í•¨ê»˜ ì²œì²œíˆ ì‚´í´ë³´ì„¸ìš”.</BlockSubtitle>
+              <BlockTitle>°ø°£¿¡ ±êµç ÀÌ¾ß±â</BlockTitle>
+              <BlockSubtitle>°ø°£ÀÇ ³»·Â°ú °íÀ¯ÇÑ Á¤Ãë¸¦ »çÁø°ú ÇÔ²² ÃµÃµÈ÷ »ìÆìº¸¼¼¿ä.</BlockSubtitle>
             </BlockHeader>
           </motion.div>
           <DoganList>
@@ -638,14 +639,14 @@ export default function JourneyEnrichmentSections() {
                         <DoganMetaRow>
                           {entry.usetime && (
                             <DoganMetaItem>
-                              <Clock size={13} strokeWidth={2} />
-                              <span>ì´ìš©ì‹œê°„ {entry.usetime}</span>
+                              <HugeiconsIcon icon={Clock01Icon} size={13} strokeWidth={2} />
+                              <span>ÀÌ¿ë½Ã°£ {entry.usetime}</span>
                             </DoganMetaItem>
                           )}
                           {entry.restdate && (
                             <DoganMetaItem>
-                              <CalendarDays size={13} strokeWidth={2} />
-                              <span>íœ´ë¬´ì¼ {entry.restdate}</span>
+                              <HugeiconsIcon icon={CalendarDaysIcon} size={13} strokeWidth={2} />
+                              <span>ÈŞ¹«ÀÏ {entry.restdate}</span>
                             </DoganMetaItem>
                           )}
                         </DoganMetaRow>
@@ -668,8 +669,8 @@ export default function JourneyEnrichmentSections() {
             transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
           >
             <BlockHeader>
-              <BlockTitle>í˜„ì¥ ì˜¤ë””ì˜¤ í•´ì„¤</BlockTitle>
-              <BlockSubtitle>ë°œê±¸ìŒ ì˜®ê¸°ë©° ê·€ë¡œ ê°ìƒí•  ìˆ˜ ìˆëŠ” ìƒìƒí•œ í•´ì„¤ì´ì—ìš”.</BlockSubtitle>
+              <BlockTitle>ÇöÀå ¿Àµğ¿À ÇØ¼³</BlockTitle>
+              <BlockSubtitle>¹ß°ÉÀ½ ¿Å±â¸ç ±Í·Î °¨»óÇÒ ¼ö ÀÖ´Â »ı»ıÇÑ ÇØ¼³ÀÌ¿¡¿ä.</BlockSubtitle>
             </BlockHeader>
           </motion.div>
           <AudioList>
@@ -697,8 +698,8 @@ export default function JourneyEnrichmentSections() {
             transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
           >
             <BlockHeader>
-              <BlockTitle>í•¨ê»˜ ë“¤ë¥´ê¸° ì¢‹ì€ ë§›ì§‘</BlockTitle>
-              <BlockSubtitle>ì½”ìŠ¤ ì£¼ë³€ì—ì„œ í¸ì•ˆí•˜ê²Œ ì‹ì‚¬ì™€ ì°¨ë¥¼ ì¦ê¸¸ ìˆ˜ ìˆëŠ” ê³³ì´ì—ìš”.</BlockSubtitle>
+              <BlockTitle>ÇÔ²² µé¸£±â ÁÁÀº ¸ÀÁı</BlockTitle>
+              <BlockSubtitle>ÄÚ½º ÁÖº¯¿¡¼­ Æí¾ÈÇÏ°Ô ½Ä»ç¿Í Â÷¸¦ Áñ±æ ¼ö ÀÖ´Â °÷ÀÌ¿¡¿ä.</BlockSubtitle>
             </BlockHeader>
           </motion.div>
           <FoodRow>
@@ -715,11 +716,11 @@ export default function JourneyEnrichmentSections() {
                   <FoodTitle>{food.title}</FoodTitle>
                   {food.addr && (
                     <FoodAddr>
-                      <MapPin size={11} strokeWidth={2} />
+                      <HugeiconsIcon icon={MapPinIcon} size={11} strokeWidth={2} />
                       <span>{shortStreetAddr(food.addr)}</span>
                     </FoodAddr>
                   )}
-                  <FoodDistance>ì•½ {food.distanceMeters}m</FoodDistance>
+                  <FoodDistance>¾à {food.distanceMeters}m</FoodDistance>
                 </FoodCard>
               </motion.div>
             ))}

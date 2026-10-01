@@ -8,7 +8,8 @@
 
 import { useEffect } from 'react';
 import styled from '@emotion/styled';
-import { Bookmark, BookmarkCheck } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Bookmark01Icon, BookmarkCheck01Icon } from '@hugeicons/core-free-icons'
 import { toast } from 'sonner';
 import { useAuth } from '@/features/auth';
 import { meok, palette, fontSize } from '@/design-system/tokens';
@@ -63,7 +64,7 @@ export default function JourneySaveButton() {
 
   return (
     <SaveBtn type="button" onClick={handleClick} $saved={saved} disabled={saved}>
-      {saved ? <BookmarkCheck size={15} strokeWidth={2} /> : <Bookmark size={15} strokeWidth={2} />}
+      {saved ? <HugeiconsIcon icon={BookmarkCheck01Icon} size={15} strokeWidth={2} /> : <HugeiconsIcon icon={Bookmark01Icon} size={15} strokeWidth={2} />}
       <span>{saved ? '저장됨' : '여정 저장하기'}</span>
     </SaveBtn>
   );

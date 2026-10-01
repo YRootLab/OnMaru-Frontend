@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import styled from '@emotion/styled';
-import { CalendarDays, ChevronRight, Heart, RotateCcw } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { CalendarDaysIcon, ChevronRightIcon, HeartIcon, RotateCcwIcon } from '@hugeicons/core-free-icons'
 import { motion } from 'framer-motion';
 import { getPlaceSlipMotion } from '@/shared/motion/placeSlip';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
@@ -241,7 +242,7 @@ const RetryButton = styled.button`
   }
 `;
 
-const ChevronIcon = styled(ChevronRight)`
+const ChevronIcon = styled(HugeiconsIcon)`
   flex-shrink: 0;
   color: #c0c7ce;
 
@@ -297,7 +298,7 @@ export default function MonthlyTimeline({ repository = defaultMemberTimelineRepo
     <Wrap>
       <Header>
         <Title>
-          <CalendarDays size={15} />
+          <HugeiconsIcon icon={CalendarDaysIcon} size={15} />
           이번 달에 모은 장소
         </Title>
         <MonthInput
@@ -315,7 +316,7 @@ export default function MonthlyTimeline({ repository = defaultMemberTimelineRepo
           <Note>
             {error}
             <RetryButton type="button" onClick={() => void load()}>
-              <RotateCcw size={12} />
+              <HugeiconsIcon icon={RotateCcwIcon} size={12} />
               다시 시도
             </RetryButton>
           </Note>
@@ -328,13 +329,13 @@ export default function MonthlyTimeline({ repository = defaultMemberTimelineRepo
               {group.items.map((item) => (
                 <TimelineLink key={item.id} href={targetHref(item)}>
                   <ItemIcon>
-                    <Heart size={13} fill="currentColor" />
+                    <HugeiconsIcon icon={HeartIcon} size={13} fill="currentColor" />
                   </ItemIcon>
                   <ItemText>
                     <ItemTitle>{item.title}</ItemTitle>
                     {item.subtitle && <ItemSub>{item.subtitle}</ItemSub>}
                   </ItemText>
-                  <ChevronIcon size={14} />
+                  <ChevronIcon icon={ChevronRightIcon} size={14} />
                 </TimelineLink>
               ))}
             </DayGroup>

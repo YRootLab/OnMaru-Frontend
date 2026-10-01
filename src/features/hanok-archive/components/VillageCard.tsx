@@ -5,7 +5,8 @@ import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
 import { meok, palette, fluidHeading , fontSize } from '@/design-system/tokens';
-import { Headphones } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { HeadphonesIcon } from '@hugeicons/core-free-icons'
 import type { Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
 
@@ -136,7 +137,7 @@ const TopBadgeRow = styled.div`
 `;
 
 const DocentTag = styled.span`
-  background: rgba(28, 26, 23, 0.75);
+  background: rgba(11, 18, 32, 0.75);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border: none;
@@ -151,11 +152,11 @@ const DocentTag = styled.span`
   gap: 4px;
 `;
 
-const HAS_DOCENT_TYPES = ['ê³ ê¶', 'ë¯¼ì†ë§ˆì„'];
+const HAS_DOCENT_TYPES = ['°í±Ã', '¹Î¼Ó¸¶À»'];
 const HAS_DOCENT_NAMES = [
-  'ê²½ë³µê¶', 'ì„ êµì¥', 'í•˜íšŒ', 'ìš´ì¡°ë£¨', 'ì„ì²­ê°', 'ìµœë¶€ì',
-  'ì†Œì‡„ì›', 'ì°½ë•ê¶', 'ì°½ê²½ê¶', 'ë•ìˆ˜ê¶', 'ì¢…ë¬˜', 'ë‚¨ì‚°ê³¨',
-  'ë„ì‚°ì„œì›', 'ë³‘ì‚°ì„œì›', 'ë‚™ì•ˆìì„±', 'ì™¸ì•”', 'ì–‘ë™',
+  '°æº¹±Ã', '¼±±³Àå', 'ÇÏÈ¸', '¿îÁ¶·ç', 'ÀÓÃ»°¢', 'ÃÖºÎÀÚ',
+  '¼Ò¼â¿ø', 'Ã¢´ö±Ã', 'Ã¢°æ±Ã', '´ö¼ö±Ã', 'Á¾¹¦', '³²»ê°ñ',
+  'µµ»ê¼­¿ø', 'º´»ê¼­¿ø', '³«¾ÈÀ¾¼º', '¿Ü¾Ï', '¾çµ¿',
 ];
 
 interface VillageCardProps {
@@ -165,7 +166,7 @@ interface VillageCardProps {
 
 export default function VillageCard({ village, onClick }: VillageCardProps) {
   const isDocentAvailable =
-    village.type !== 'í•œì˜¥ìŠ¤í…Œì´' &&
+    village.type !== 'ÇÑ¿Á½ºÅ×ÀÌ' &&
     (HAS_DOCENT_TYPES.includes(village.type) ||
       HAS_DOCENT_NAMES.some((n) => village.name.includes(n)));
 
@@ -176,7 +177,7 @@ export default function VillageCard({ village, onClick }: VillageCardProps) {
       onClick={() => onClick?.(village)}
       role="button"
       tabIndex={0}
-      aria-label={`${village.name} ìì„¸íˆ ë³´ê¸°`}
+      aria-label={`${village.name} ÀÚ¼¼È÷ º¸±â`}
       whileHover={{ y: -6, scale: 1.015 }}
       whileTap={{ scale: 0.985 }}
       transition={{ type: 'spring', stiffness: 350, damping: 24 }}
@@ -187,8 +188,8 @@ export default function VillageCard({ village, onClick }: VillageCardProps) {
       {isDocentAvailable && (
         <TopBadgeRow>
           <DocentTag>
-            <Headphones size={11} color={palette.jangmi[400]} />
-            <span>ì†Œë¦¬ë§ˆë£¨ ë„ìŠ¨íŠ¸</span>
+            <HugeiconsIcon icon={HeadphonesIcon} size={11} color={palette.jangmi[400]} />
+            <span>¼Ò¸®¸¶·ç µµ½¼Æ®</span>
           </DocentTag>
         </TopBadgeRow>
       )}
@@ -201,7 +202,7 @@ export default function VillageCard({ village, onClick }: VillageCardProps) {
           <TypeBadge>{filterLabel(village.type)}</TypeBadge>
         </HeaderRow>
 
-        <ActionButton>ë„ê° í•´ì„¤ ë³´ê¸°</ActionButton>
+        <ActionButton>µµ°¨ ÇØ¼³ º¸±â</ActionButton>
       </GradientOverlay>
     </Card>
   );

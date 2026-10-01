@@ -3,7 +3,8 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
-import { Play } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { PlayIcon } from '@hugeicons/core-free-icons'
 import { lightPalette, meok, surface , fontSize } from '@/design-system/tokens';
 
 const bannerShimmer = keyframes`
@@ -225,7 +226,7 @@ export default function SorimaruSpotlightBanner() {
         <ActionRow>
           <SkeletonBar $w="84px" $h="14px" />
           <StartBtn type="button" disabled style={{ opacity: 0.5, cursor: 'default' }}>
-            <Play size={13} className="ml-0.5" />
+            <HugeiconsIcon icon={PlayIcon} size={13} className="ml-0.5" />
             <span>투어 시작</span>
           </StartBtn>
         </ActionRow>
@@ -270,7 +271,7 @@ export default function SorimaruSpotlightBanner() {
         </DocentTag>
 
         <StartBtn type="button" onClick={handleStart}>
-          <Play size={13} fill="currentColor" className="ml-0.5" />
+          <HugeiconsIcon icon={PlayIcon} size={13} fill="currentColor" className="ml-0.5" />
           <span>투어 시작</span>
         </StartBtn>
       </ActionRow>

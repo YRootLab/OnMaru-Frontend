@@ -6,7 +6,8 @@ import { keyframes } from '@emotion/react';
 import { motion } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
 import { meok, lightPalette, fontSize, ringShadow } from '@/design-system/tokens';
-import { Home, ArrowRight } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Home01Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons'
 import type { Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
 
@@ -32,7 +33,7 @@ const Frame = styled.div`
   overflow: visible;
 
   [data-theme='dark'] & {
-    background: #24211D;
+    background: #171E2B;
     border: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: ${ringShadow.dark.card};
   }
@@ -245,8 +246,8 @@ export default function PolaroidCard({
   const showTape = enableTape && index % 2 === 0;
   const tapeLeft = index % 4 < 2;
 
-  const regionName = village.region || 'ÌïúÏò•';
-  const handText = customHandText || `Í≥†Ï¶àÎÑâÌïú ${regionName}ÏóêÏÑú`;
+  const regionName = village.region || '«—ø¡';
+  const handText = customHandText || `∞Ì¡Ó≥À«— ${regionName}ø°º≠`;
 
   return (
     <Wrapper
@@ -255,7 +256,7 @@ export default function PolaroidCard({
       onClick={() => onClick?.(village)}
       role="button"
       tabIndex={0}
-      aria-label={`${village.name} ÏûêÏÑ∏Ìûà Î≥¥Í∏∞`}
+      aria-label={`${village.name} ¿⁄ºº»˜ ∫∏±‚`}
       initial={{ opacity: 0, y: 40, rotate }}
       whileInView={{ opacity: 1, y: 0, rotate }}
       viewport={{ once: true, margin: '-40px' }}
@@ -290,7 +291,7 @@ export default function PolaroidCard({
                 whileHover={{ scale: 1.07 }}
                 transition={{ duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
               />
-              {!village.hasImage && <NoImageLabel><Home size={32} strokeWidth={2} /></NoImageLabel>}
+              {!village.hasImage && <NoImageLabel><HugeiconsIcon icon={Home01Icon} size={32} strokeWidth={2} /></NoImageLabel>}
             </>
           )}
         </PhotoArea>
@@ -302,7 +303,7 @@ export default function PolaroidCard({
 
       {showOutsideMeta && (
         <OutsideMeta>
-          <OutsideTitle>{village.name} ¬∑ {village.region}</OutsideTitle>
+          <OutsideTitle>{village.name} °§ {village.region}</OutsideTitle>
 
           <OutsideBadges>
             <span>#{filterLabel(village.type)}</span>
@@ -312,7 +313,7 @@ export default function PolaroidCard({
           </OutsideBadges>
 
           <DetailButton>
-            ÏûêÏÑ∏Ìûà Î≥¥Í∏∞ <ArrowRight size={14} strokeWidth={2} />
+            ¿⁄ºº»˜ ∫∏±‚ <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
           </DetailButton>
         </OutsideMeta>
       )}
