@@ -140,7 +140,7 @@ export default function HanokManifestoCta() {
             전국 지도 보기 <ArrowRight size={16} strokeWidth={2} />
           </CtaButton>
           <CtaButton href="#hanok-stays">
-            고택 스테이 둘러보기 <ArrowRight size={16} strokeWidth={2} />
+            한옥 스테이 둘러보기 <ArrowRight size={16} strokeWidth={2} />
           </CtaButton>
         </ButtonRow>
       </Container>

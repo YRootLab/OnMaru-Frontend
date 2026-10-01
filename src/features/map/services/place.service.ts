@@ -418,14 +418,7 @@ export class PlaceService {
       const [commonRes, introRes, imageRes] = await Promise.allSettled([
         TourApiClient.get(
           'detailCommon2',
-          {
-            contentId,
-            defaultYN: 'Y',
-            firstImageYN: 'Y',
-            addrinfoYN: 'Y',
-            mapinfoYN: 'Y',
-            overviewYN: 'Y',
-          },
+          { contentId },
           signal(),
         ),
         TourApiClient.get(
@@ -435,7 +428,7 @@ export class PlaceService {
         ),
         TourApiClient.get(
           'detailImage2',
-          { contentId, imageYN: 'Y', subImageYN: 'Y', numOfRows: '10' },
+          { contentId, numOfRows: '10' },
           signal(),
         ),
       ]);
@@ -476,6 +469,7 @@ export class PlaceService {
         if (introRaw.parking) intro['주차시설'] = sanitizeHtml(introRaw.parking);
         if (introRaw.parkingculture) intro['주차시설'] = sanitizeHtml(introRaw.parkingculture);
         if (introRaw.usefee) intro['이용요금'] = sanitizeHtml(introRaw.usefee);
+        if (introRaw.expguide) intro['체험안내'] = sanitizeHtml(introRaw.expguide);
         if (introRaw.infocenter) intro['문의전화'] = sanitizeHtml(introRaw.infocenter);
         if (introRaw.infocenterculture) intro['문의전화'] = sanitizeHtml(introRaw.infocenterculture);
 

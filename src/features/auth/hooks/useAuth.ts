@@ -16,7 +16,7 @@ const PENDING_SAVE_KEY = 'onmaru_pending_save_v1';
 // 목 모드용 흉내 세션 플래그(가이드 §3의 "Auth 키만 유지"를 sessionStorage로 흉내낸 것).
 const MOCK_SESSION_KEY = 'onmaru.mock_session';
 const MOCK_USER_ID = 'mock_guest';
-const MOCK_USER_NAME = '온마루 여행자';
+const MOCK_USER_NAME = '홍길동';
 
 export function useAuth() {
   const router = useRouter();

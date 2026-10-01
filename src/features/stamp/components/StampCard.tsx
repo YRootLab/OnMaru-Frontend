@@ -49,7 +49,9 @@ const Seal = styled.div<{ $unlocked: boolean; $color: string }>`
   background: ${({ $unlocked, $color }) =>
     $unlocked
       ? `radial-gradient(circle at 38% 32%, color-mix(in srgb, ${$color} 82%, white), ${$color} 52%, color-mix(in srgb, ${$color} 86%, black) 100%)`
-      : 'rgba(25, 31, 40, 0.035)'};
+      : 'rgba(25, 31, 40, 0.025)'};
+
+  border: ${({ $unlocked }) => ($unlocked ? 'none' : '1.5px dashed rgba(24,17,10,0.18)')};
 
   box-shadow: ${({ $unlocked }) =>
     $unlocked
@@ -62,7 +64,8 @@ const Seal = styled.div<{ $unlocked: boolean; $color: string }>`
     background: ${({ $unlocked, $color }) =>
       $unlocked
         ? `radial-gradient(circle at 38% 32%, color-mix(in srgb, ${$color} 82%, white), ${$color} 52%, color-mix(in srgb, ${$color} 86%, black) 100%)`
-        : 'rgba(255, 255, 255, 0.04)'};
+        : 'rgba(255, 255, 255, 0.03)'};
+    border: ${({ $unlocked }) => ($unlocked ? 'none' : '1.5px dashed rgba(255,255,255,0.13)')};
     box-shadow: ${({ $unlocked }) =>
       $unlocked
         ? `inset 0 4px 12px rgba(0, 0, 0, 0.4), ${ringShadow.dark.card}`
@@ -93,17 +96,6 @@ const SealText = styled.span`
   }
 `;
 
-/* 잠긴 자리 — 아무 아이콘도 없이 빈 원만 */
-const LockedDot = styled.div`
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(25, 31, 40, 0.12);
-
-  [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.12);
-  }
-`;
 
 const RarityRing = styled.div<{ $rarity: string; $color: string }>`
   position: absolute;
@@ -223,11 +215,15 @@ export default function StampCard({ stamp, collected, onClick }: StampCardProps)
     >
       <Seal ref={sealRef} $unlocked={isUnlocked} $color={stamp.color}>
         {isUnlocked && <RarityRing $rarity={stamp.rarity} $color={stamp.color} />}
-        {isUnlocked ? (
-          <SealText>{stamp.sealText}</SealText>
-        ) : (
-          <LockedDot />
-        )}
+        <SealText
+          style={
+            isUnlocked
+              ? undefined
+              : { color: 'rgba(24,17,10,0.10)', textShadow: 'none' }
+          }
+        >
+          {stamp.sealText}
+        </SealText>
       </Seal>
 
       <StampName $unlocked={isUnlocked}>{stamp.name}</StampName>
