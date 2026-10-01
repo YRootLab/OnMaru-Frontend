@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ShieldCheck, FileText, Database, Code2 } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Cancel01Icon, CodeIcon, Database01Icon, FileTextIcon, ShieldCheckIcon } from '@hugeicons/core-free-icons'
 import { meok, palette, lightPalette, surface, fontSize } from '@/design-system/tokens';
 
 export type PolicyTabKey = 'privacy' | 'terms' | 'publicData' | 'openSource';
@@ -267,10 +268,10 @@ const MetaDate = styled.div`
 `;
 
 const TABS = [
-  { key: 'privacy' as PolicyTabKey, label: '개인정보 처리방침', icon: ShieldCheck },
-  { key: 'terms' as PolicyTabKey, label: '서비스 이용약관', icon: FileText },
-  { key: 'publicData' as PolicyTabKey, label: '공공데이터 이용지침', icon: Database },
-  { key: 'openSource' as PolicyTabKey, label: '오픈소스 라이선스', icon: Code2 },
+  { key: 'privacy' as PolicyTabKey, label: '개인정보 처리방침', icon: ShieldCheckIcon },
+  { key: 'terms' as PolicyTabKey, label: '서비스 이용약관', icon: FileTextIcon },
+  { key: 'publicData' as PolicyTabKey, label: '공공데이터 이용지침', icon: Database01Icon },
+  { key: 'openSource' as PolicyTabKey, label: '오픈소스 라이선스', icon: CodeIcon },
 ];
 
 export default function PolicyModal({ initialTab = 'privacy', onClose }: PolicyModalProps) {
@@ -304,20 +305,19 @@ export default function PolicyModal({ initialTab = 'privacy', onClose }: PolicyM
         >
           <ModalHeader>
             <HeaderTitle id="policy-modal-title">
-              {activeTab === 'privacy' && <ShieldCheck size={20} color={lightPalette.kobalt[500]} />}
-              {activeTab === 'terms' && <FileText size={20} color={lightPalette.kobalt[500]} />}
-              {activeTab === 'publicData' && <Database size={20} color={lightPalette.kobalt[500]} />}
-              {activeTab === 'openSource' && <Code2 size={20} color={lightPalette.kobalt[500]} />}
+              {activeTab === 'privacy' && <HugeiconsIcon icon={ShieldCheckIcon} size={20} color={lightPalette.kobalt[500]} />}
+              {activeTab === 'terms' && <HugeiconsIcon icon={FileTextIcon} size={20} color={lightPalette.kobalt[500]} />}
+              {activeTab === 'publicData' && <HugeiconsIcon icon={Database01Icon} size={20} color={lightPalette.kobalt[500]} />}
+              {activeTab === 'openSource' && <HugeiconsIcon icon={CodeIcon} size={20} color={lightPalette.kobalt[500]} />}
               <span>{TABS.find((t) => t.key === activeTab)?.label}</span>
             </HeaderTitle>
             <CloseButton type="button" onClick={onClose} aria-label="닫기">
-              <X size={18} />
+              <HugeiconsIcon icon={Cancel01Icon} size={18} />
             </CloseButton>
           </ModalHeader>
 
           <TabBar role="tablist">
             {TABS.map((tab) => {
-              const Icon = tab.icon;
               const isActive = activeTab === tab.key;
               return (
                 <TabButton
@@ -328,7 +328,7 @@ export default function PolicyModal({ initialTab = 'privacy', onClose }: PolicyM
                   $active={isActive}
                   onClick={() => setActiveTab(tab.key)}
                 >
-                  <Icon size={14} />
+                  <HugeiconsIcon icon={tab.icon} size={14} />
                   <span>{tab.label}</span>
                 </TabButton>
               );
@@ -349,9 +349,20 @@ export default function PolicyModal({ initialTab = 'privacy', onClose }: PolicyM
                 <Section>
                   <h3>제2조 (처리하는 개인정보의 항목)</h3>
                   <p>서비스는 최소한의 개인정보만을 수집·이용합니다:</p>
+                  <h4>일반 서비스 이용</h4>
                   <ul>
                     <li><strong>필수 수집 항목:</strong> 기기 식별값, 접속 로그, 서비스 이용 기록, 브라우저 환경 정보</li>
                     <li><strong>선택 수집 항목:</strong> 위치 정보(현재 위치 기반 주변 한옥 및 스테이 탐색 시), 저장/북마크 목록</li>
+                  </ul>
+                  <h4>카카오 소셜 로그인 (선택)</h4>
+                  <ul>
+                    <li><strong>수집 항목:</strong> 카카오 닉네임, 프로필 이미지 URL (카카오 계정 동의 항목 기준)</li>
+                    <li><strong>처리 방법:</strong> 카카오 OAuth 인증 성공 시 서버에서 HttpOnly 세션 쿠키 발급. 카카오 액세스 토큰은 서버 내에서만 사용되며 브라우저에 전달되지 않습니다.</li>
+                    <li><strong>보유 기간:</strong> 세션 만료 또는 로그아웃 시 즉시 파기</li>
+                  </ul>
+                  <h4>AI 여정 큐레이션 (선택)</h4>
+                  <ul>
+                    <li><strong>처리 내용:</strong> 입력한 여행 키워드 및 무드 선택값이 AI 여정 생성에 활용됩니다. 개인 식별 정보는 포함되지 않습니다.</li>
                   </ul>
                 </Section>
 
@@ -360,6 +371,11 @@ export default function PolicyModal({ initialTab = 'privacy', onClose }: PolicyM
                   <p>
                     서비스는 원칙적으로 이용자의 개인정보를 회원 탈퇴 시 또는 수집·이용 목적이 달성될 때까지 보유하며, 법령에 따른 보존 의무가 있는 경우 해당 기간 동안 안전하게 보관합니다.
                   </p>
+                  <ul>
+                    <li>카카오 로그인 세션 쿠키: 세션 만료 또는 로그아웃 시 즉시 삭제</li>
+                    <li>서비스 이용 로그: 최대 1년 보관 후 파기</li>
+                    <li>북마크·저장 목록: 회원 탈퇴 요청 즉시 파기</li>
+                  </ul>
                 </Section>
 
                 <Section>
@@ -370,7 +386,7 @@ export default function PolicyModal({ initialTab = 'privacy', onClose }: PolicyM
                     <li><strong>책임자:</strong> 온마루 개인정보 보호 담당팀</li>
                   </ul>
                 </Section>
-                <MetaDate>공고일자: 2026년 9월 1일 | 시행일자: 2026년 9월 17일</MetaDate>
+                <MetaDate>공고일자: 2026년 10월 2일 | 시행일자: 2026년 10월 2일</MetaDate>
               </>
             )}
 
@@ -380,7 +396,7 @@ export default function PolicyModal({ initialTab = 'privacy', onClose }: PolicyM
                 <Section>
                   <h3>제1조 (목적)</h3>
                   <p>
-                    본 약관은 온마루(OnMaru)가 제공하는 한옥 아카이브, 소리마루 오디오 도슨트, 3D 인터랙티브 공간 뷰어 등 제반 서비스의 이용 조건 및 절차에 관한 권리·의무 및 책임사항을 규정함을 목적으로 합니다.
+                    본 약관은 온마루(OnMaru)가 제공하는 한옥 아카이브, 소리마루 오디오 도슨트, 3D 인터랙티브 공간 뷰어, AI 이야기길 여정 큐레이터 등 제반 서비스의 이용 조건 및 절차에 관한 권리·의무 및 책임사항을 규정함을 목적으로 합니다.
                   </p>
                 </Section>
 
@@ -390,23 +406,35 @@ export default function PolicyModal({ initialTab = 'privacy', onClose }: PolicyM
                     <li>한국관광공사 TourAPI 4.0 및 Odii 오디오 기반의 전통 한옥·스테이 정보 제공</li>
                     <li>실시간 남중고도 처마 일조량 시뮬레이션 및 7단계 부재 조립 3D 뷰어</li>
                     <li>K-컬처 및 지역 헤리티지 기반의 1박 2일 테마 여정 큐레이션</li>
+                    <li><strong>AI 이야기길 (여정 큐레이터):</strong> Google Gemini 기반 AI가 사용자 키워드와 무드를 분석해 맞춤형 한옥 여정 코스를 생성합니다. 생성된 여정은 저장 및 공유할 수 있습니다.</li>
+                    <li><strong>카카오 소셜 로그인:</strong> 카카오 계정을 통한 간편 로그인을 지원합니다. 로그인 시 카카오 닉네임과 프로필 이미지가 서비스 내 프로필에 사용됩니다.</li>
                   </ul>
                 </Section>
 
                 <Section>
-                  <h3>제3조 (지식재산권의 귀속)</h3>
+                  <h3>제3조 (AI 서비스 이용 조건)</h3>
+                  <p>AI 이야기길 서비스 이용 시 다음 사항에 동의하는 것으로 간주합니다:</p>
+                  <ul>
+                    <li>AI가 생성한 여정 코스는 참고용이며, 실제 현장 사정과 다를 수 있습니다.</li>
+                    <li>AI 생성 결과의 정확성·완전성을 보증하지 않으며, 이에 따른 손해에 대해 책임을 지지 않습니다.</li>
+                    <li>입력한 키워드는 여정 생성 목적으로만 처리되며, 개인 식별 정보는 포함되지 않습니다.</li>
+                  </ul>
+                </Section>
+
+                <Section>
+                  <h3>제4조 (지식재산권의 귀속)</h3>
                   <p>
                     서비스가 자체 제작한 3D 모델링, 디자인 시스템, UI/UX 인터랙션 코드에 대한 지식재산권은 온마루에 귀속됩니다. 공공데이터포털을 통해 연동된 공공데이터의 저작권은 각 원천 제공 기관에 귀속됩니다.
                   </p>
                 </Section>
 
                 <Section>
-                  <h3>제4조 (면책조항)</h3>
+                  <h3>제5조 (면책조항)</h3>
                   <p>
-                    서비스는 천재지변, 공공 API 서버 장애 등 불가항력으로 인해 서비스를 일시 제공할 수 없는 경우 이에 대한 책임을 면합니다. 또한 제공되는 관광 정보는 실시간 현장 사정에 따라 변동될 수 있습니다.
+                    서비스는 천재지변, 공공 API 서버 장애, AI 모델 서비스 중단 등 불가항력으로 인해 서비스를 일시 제공할 수 없는 경우 이에 대한 책임을 면합니다. 또한 제공되는 관광 정보는 실시간 현장 사정에 따라 변동될 수 있습니다.
                   </p>
                 </Section>
-                <MetaDate>시행일자: 2026년 9월 17일</MetaDate>
+                <MetaDate>시행일자: 2026년 10월 2일</MetaDate>
               </>
             )}
 
@@ -450,30 +478,50 @@ export default function PolicyModal({ initialTab = 'privacy', onClose }: PolicyM
                 </Section>
 
                 <Section>
-                  <h4>Next.js (App Router) & React 18</h4>
+                  <h4>Next.js ^16.3.5 (App Router) & React 19.2.4</h4>
                   <CodeBlock>The MIT License (MIT) - Copyright (c) 2026 Vercel, Inc.</CodeBlock>
                 </Section>
 
                 <Section>
-                  <h4>Three.js & React Three Fiber (@react-three/drei, @react-three/fiber)</h4>
+                  <h4>Three.js ^0.185.1 & React Three Fiber (@react-three/drei, @react-three/fiber)</h4>
                   <CodeBlock>The MIT License (MIT) - Copyright (c) 2010-2026 Three.js Authors, Poimandres</CodeBlock>
                 </Section>
 
                 <Section>
-                  <h4>GSAP & ScrollTrigger</h4>
+                  <h4>GSAP ^3.15.0 & @gsap/react ^2.1.2</h4>
                   <CodeBlock>Standard GreenSock License - Copyright (c) 2026 GreenSock Inc.</CodeBlock>
                 </Section>
 
                 <Section>
-                  <h4>Emotion CSS (@emotion/styled, @emotion/react) & Framer Motion</h4>
+                  <h4>Emotion CSS ^11.14.0 (@emotion/styled, @emotion/react) & Framer Motion ^12.42.2</h4>
                   <CodeBlock>The MIT License (MIT) - Copyright (c) Emotion team, Framer B.V.</CodeBlock>
                 </Section>
 
                 <Section>
-                  <h4>Lucide Icons</h4>
-                  <CodeBlock>ISC License - Copyright (c) Lucide Contributors</CodeBlock>
+                  <h4>Zustand ^5.0.14</h4>
+                  <CodeBlock>The MIT License (MIT) - Copyright (c) 2019 Paul Henschel</CodeBlock>
                 </Section>
-                <MetaDate>라이선스 상세 문의: contact@onmaru.kr</MetaDate>
+
+                <Section>
+                  <h4>Sonner ^2.0.8</h4>
+                  <CodeBlock>The MIT License (MIT) - Copyright (c) 2023 Emil Kowalski</CodeBlock>
+                </Section>
+
+                <Section>
+                  <h4>HugeIcons (@hugeicons/react ^1.1.10, @hugeicons/core-free-icons ^4.3.5)</h4>
+                  <CodeBlock>The MIT License (MIT) - Copyright (c) HugeIcons</CodeBlock>
+                </Section>
+
+                <Section>
+                  <h4>Supabase (@supabase/supabase-js ^2.110.0, @supabase/ssr ^0.12.0)</h4>
+                  <CodeBlock>The MIT License (MIT) - Copyright (c) Supabase, Inc.</CodeBlock>
+                </Section>
+
+                <Section>
+                  <h4>Lenis ^1.3.25</h4>
+                  <CodeBlock>The MIT License (MIT) - Copyright (c) Studio Freight</CodeBlock>
+                </Section>
+                <MetaDate>라이선스 상세 문의: contact@onmaru.kr | 최종 갱신: 2026년 10월 2일</MetaDate>
               </>
             )}
           </ContentBody>
