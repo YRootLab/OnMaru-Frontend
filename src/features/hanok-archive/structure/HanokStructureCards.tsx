@@ -14,12 +14,8 @@ import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { motion } from 'framer-motion';
-import {
-  SunMedium,
-  Layers,
-  ArrowUpRight,
-  Sparkles,
-} from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ArrowUpRight01Icon, Layers01Icon, SparklesIcon, SunMediumIcon } from '@hugeicons/core-free-icons'
 
 import { meok, palette, lightPalette, surface, fontSize, ringShadow } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
@@ -375,13 +371,13 @@ export default function HanokStructureCards() {
                 letterSpacing: '-0.01em',
               }}
             >
-              <Sparkles size={12} /> 하지 77° ➔ 동지 29°
+              <HugeiconsIcon icon={SparklesIcon} size={12} /> 하지 77° ➔ 동지 29°
             </div>
           </PreviewCanvas>
 
           <CardBody>
             <SectionLabel $color={lightPalette.hwanggeum[700]}>
-              <SunMedium size={14} /> 자연의 빛과 일조 과학
+              <HugeiconsIcon icon={SunMediumIcon} size={14} /> 자연의 빛과 일조 과학
             </SectionLabel>
 
             <CardTitle>처마는 왜 여름엔 그늘을, 겨울엔 볕을 줄까</CardTitle>
@@ -391,7 +387,7 @@ export default function HanokStructureCards() {
 
             <MoreLink $color={lightPalette.hwanggeum[700]}>
               <span>3D로 보기</span>
-              <ArrowUpRight size={16} />
+              <HugeiconsIcon icon={ArrowUpRight01Icon} size={16} />
             </MoreLink>
           </CardBody>
         </CardContainer>
@@ -452,13 +448,13 @@ export default function HanokStructureCards() {
                 letterSpacing: '-0.01em',
               }}
             >
-              <Sparkles size={12} /> 기단에서 기와까지 7단계
+              <HugeiconsIcon icon={SparklesIcon} size={12} /> 기단에서 기와까지 7단계
             </div>
           </PreviewCanvas>
 
           <CardBody>
             <SectionLabel $color={lightPalette.juhong[700]}>
-              <Layers size={14} /> 못 없는 맞춤과 결구의 미학
+              <HugeiconsIcon icon={Layers01Icon} size={14} /> 못 없는 맞춤과 결구의 미학
             </SectionLabel>
 
             <CardTitle>쇠못 하나 없이, 한옥은 어떻게 일곱 켜로 설까</CardTitle>
@@ -468,7 +464,7 @@ export default function HanokStructureCards() {
 
             <MoreLink $color={lightPalette.juhong[700]}>
               <span>3D로 보기</span>
-              <ArrowUpRight size={16} />
+              <HugeiconsIcon icon={ArrowUpRight01Icon} size={16} />
             </MoreLink>
           </CardBody>
         </CardContainer>

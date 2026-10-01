@@ -1,12 +1,8 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
-import {
-  Globe,
-  RotateCcw,
-  Search,
-  X,
-} from 'lucide-react';
-import { lightPalette, meok, surface, fontSize } from '@/design-system/tokens';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Cancel01Icon, GlobeIcon, RotateCcwIcon, Search01Icon } from '@hugeicons/core-free-icons'
+import { lightPalette, meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
 import { DEFAULT_CENTER, DEFAULT_LEVEL, useMapStore } from '@/features/map/hooks/useMapStore';
 
 const RECENT = ['전주 한옥마을', '북촌 한옥마을', '안동 하회마을', '경주 양동마을', '경복궁'];
@@ -56,7 +52,7 @@ const SearchSubmitBtn = styled.button`
   transition: color 0.15s ease;
 
   &:hover {
-    color: ${lightPalette.kobalt[500]};
+    color: ${lightPalette.cheongrok[500]};
   }
 `;
 
@@ -139,7 +135,7 @@ const Dropdown = styled.div`
   border-radius: 20px;
   background: #ffffff;
   border: none;
-  box-shadow: 0 8px 24px rgba(25, 31, 40, 0.12);
+  box-shadow: ${ringShadow.light.mapPanel};
   user-select: none;
   backdrop-filter: blur(20px);
   max-height: 60dvh;
@@ -147,8 +143,16 @@ const Dropdown = styled.div`
 
   [data-theme='dark'] & {
     background: ${surface.dark.card};
-    border: none;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: ${ringShadow.dark.mapPanel};
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) & {
+      background: ${surface.dark.card};
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: ${ringShadow.dark.mapPanel};
+    }
   }
 
   @media (max-width: 1023px) {
@@ -180,8 +184,8 @@ const ResetAllBtn = styled.button`
   transition: all 0.15s ease;
 
   &:hover {
-    background: ${lightPalette.kobalt[50]};
-    color: ${lightPalette.kobalt[700]};
+    background: ${lightPalette.cheongrok[50]};
+    color: ${lightPalette.cheongrok[700]};
   }
 
   [data-theme='dark'] & {
@@ -235,7 +239,7 @@ const Suggestion = styled.button`
 
   &:hover {
     background: rgba(74, 111, 160, 0.1);
-    color: ${lightPalette.kobalt[700]};
+    color: ${lightPalette.cheongrok[700]};
   }
 
   [data-theme='dark'] & {
@@ -356,11 +360,11 @@ export default function SearchBar({ className }: SearchBarProps) {
     <Wrap className={className}>
       <Field onSubmit={handleSubmit}>
         <SearchSubmitBtn type="submit" aria-label="검색하기">
-          <Search size={18} strokeWidth={2} aria-hidden />
+          <HugeiconsIcon icon={Search01Icon} size={18} strokeWidth={2} aria-hidden />
         </SearchSubmitBtn>
 
         <Input
-          type="search"
+          type="text"
           value={value}
           placeholder="지역이나 한옥 이름을 검색해 보세요"
           aria-label="장소 검색"
@@ -373,11 +377,11 @@ export default function SearchBar({ className }: SearchBarProps) {
           {isSearched && (
             <ActionIconBtn
               type="button"
-              aria-label="전국 지도로 돌아가기"
-              title="전국 지도로 돌아가기"
+              aria-label="전국 지도 보기"
+              title="전국 지도 보기"
               onClick={handleResetToNationwide}
             >
-              <RotateCcw size={14} strokeWidth={2} />
+              <HugeiconsIcon icon={RotateCcwIcon} size={14} strokeWidth={2} />
             </ActionIconBtn>
           )}
 
@@ -389,7 +393,7 @@ export default function SearchBar({ className }: SearchBarProps) {
                 setValue('');
               }}
             >
-              <X size={16} strokeWidth={2} />
+              <HugeiconsIcon icon={Cancel01Icon} size={16} strokeWidth={2} />
             </ActionIconBtn>
           )}
         </ButtonGroup>
@@ -402,8 +406,8 @@ export default function SearchBar({ className }: SearchBarProps) {
               type="button"
               onMouseDown={handleResetToNationwide}
             >
-              <Globe size={16} strokeWidth={2} />
-              <span>전국 지도로 돌아가기</span>
+              <HugeiconsIcon icon={GlobeIcon} size={16} strokeWidth={2} />
+              <span>전국 지도 보기</span>
             </ResetAllBtn>
           )}
 

@@ -1,8 +1,9 @@
-'use client';
+﻿'use client';
 
 import { useMemo } from 'react';
 import styled from '@emotion/styled';
-import { MapPin, Flame } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { MapPinIcon, FlameIcon } from '@hugeicons/core-free-icons'
 import { meok, surface , fontSize } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
@@ -35,7 +36,7 @@ const Root = styled.div<{ $isDark: boolean }>`
   max-width: calc(100vw - 32px);
 
   border-radius: 18px;
-  background: ${({ $isDark }) => ($isDark ? 'rgba(28, 26, 23, 0.94)' : 'rgba(255, 255, 255, 0.95)')};
+  background: ${({ $isDark }) => ($isDark ? 'rgba(11, 18, 32, 0.94)' : 'rgba(255, 255, 255, 0.95)')};
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: none;
@@ -45,7 +46,7 @@ const Root = styled.div<{ $isDark: boolean }>`
   transition: all 0.2s ease;
 
   [data-theme='dark'] & {
-    background: rgba(28, 26, 23, 0.94);
+    background: rgba(11, 18, 32, 0.94);
     border: none;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
   }
@@ -166,7 +167,7 @@ const PeriodBtn = styled.button<{ $active: boolean; $isDark: boolean }>`
   color: ${({ $active, $isDark }) =>
     $active
       ? $isDark
-        ? '#1C1A17'
+        ? '${surface.dark.app}'
         : '#ffffff'
       : $isDark
         ? '#D1D5DB'
@@ -195,7 +196,7 @@ const PeriodBtn = styled.button<{ $active: boolean; $isDark: boolean }>`
 
   [data-theme='dark'] & {
     background: ${({ $active }) => ($active ? '#F59E0B' : 'rgba(255, 255, 255, 0.08)')};
-    color: ${({ $active }) => ($active ? '#1C1A17' : '#D1D5DB')};
+    color: ${({ $active }) => ($active ? '${surface.dark.app}' : '#D1D5DB')};
 
     &:hover {
       background: ${({ $active }) => ($active ? '#F59E0B' : 'rgba(255, 255, 255, 0.14)')};
@@ -268,8 +269,6 @@ const ViewTypeBtn = styled.button<{ $active: boolean; $isDark: boolean }>`
 export default function WarmthLegend() {
   const mode = useMapStore((s) => s.mode);
   const warmths = useMapStore((s) => s.warmths);
-  const heatDays = useMapStore((s) => s.heatDays);
-  const heatDayIndex = useMapStore((s) => s.heatDayIndex);
   const category = useMapStore((s) => s.category);
   const period = useMapStore((s) => s.warmthPeriod);
   const setPeriod = useMapStore((s) => s.setWarmthPeriod);
@@ -305,7 +304,6 @@ export default function WarmthLegend() {
   if (mode !== 'warmth') return null;
 
   const percent = stat.ratio === null ? null : Math.round(stat.ratio * 100);
-  const observedYmd = heatDays[heatDayIndex]?.ymd;
 
   return (
     <Root $isDark={isDark} aria-label="온기 히트맵 범례">
@@ -320,7 +318,7 @@ export default function WarmthLegend() {
           onClick={() => setWarmthViewType('district')}
           title="시·군·구 행정구역 경계선과 권역별 통계로 보기"
         >
-          <MapPin size={13} strokeWidth={2.2} />
+          <HugeiconsIcon icon={MapPinIcon} size={13} strokeWidth={2.2} />
           <span>시·군 행정별</span>
         </ViewTypeBtn>
         <ViewTypeBtn
@@ -332,7 +330,7 @@ export default function WarmthLegend() {
           onClick={() => setWarmthViewType('heatmap')}
           title="초기 버전의 부드러운 원형 밀도 히트맵으로 보기"
         >
-          <Flame size={13} strokeWidth={2.2} />
+          <HugeiconsIcon icon={FlameIcon} size={13} strokeWidth={2.2} />
           <span>원형 히트맵</span>
         </ViewTypeBtn>
       </ViewTypeSegment>
@@ -347,12 +345,6 @@ export default function WarmthLegend() {
           </>
         )}
       </Summary>
-
-      {observedYmd && (
-        <RampNote $isDark={isDark}>
-          방문객 관측 기준 {observedYmd.slice(0, 4)}.{observedYmd.slice(4, 6)}.{observedYmd.slice(6, 8)}
-        </RampNote>
-      )}
 
       <Ramp>
         <RampBar $gradient={rampGradient} aria-hidden="true" />
@@ -383,3 +375,4 @@ export default function WarmthLegend() {
     </Root>
   );
 }
+

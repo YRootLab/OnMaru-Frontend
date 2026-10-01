@@ -2,8 +2,9 @@
 
 import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
-import { Home, Users, MapPin, Headphones, Bookmark } from 'lucide-react';
-import { lightPalette , fontSize } from '@/design-system/tokens';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Home01Icon, UsersIcon, MapPinIcon, HeadphonesIcon, Bookmark01Icon } from '@hugeicons/core-free-icons'
+import { lightPalette, meok, fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 
@@ -36,6 +37,16 @@ const TabButton = styled.button<{ $active?: boolean }>`
   &:active {
     transform: scale(0.94);
   }
+
+  [data-theme='dark'] & {
+    color: ${({ $active }) => ($active ? lightPalette.hwanggeum[400] : meok[400])};
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) & {
+      color: ${({ $active }) => ($active ? lightPalette.hwanggeum[400] : meok[400])};
+    }
+  }
 `;
 
 const IconSlot = styled.span`
@@ -58,6 +69,16 @@ const CountBadge = styled.span`
   border-radius: 9999px;
   background: ${lightPalette.hwanggeum[500]};
   color: #ffffff;
+
+  [data-theme='dark'] & {
+    background: ${lightPalette.hwanggeum[400]};
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) & {
+      background: ${lightPalette.hwanggeum[400]};
+    }
+  }
   font-size: ${fontSize.micro};
   font-weight: 700;
   line-height: 1;
@@ -81,7 +102,7 @@ export default function MapMobileTabs() {
     <Nav aria-label="지도 탐색">
       <TabButton type="button" onClick={() => router.push('/')} aria-label="홈으로 이동">
         <IconSlot>
-          <Home size={19} />
+          <HugeiconsIcon icon={Home01Icon} size={19} />
         </IconSlot>
         <span>홈</span>
       </TabButton>
@@ -93,12 +114,12 @@ export default function MapMobileTabs() {
           setMode('warmth');
           setSheetSnap('half');
         }}
-        aria-label="온기 피드 둘러보기"
+        aria-label="온기 피드"
       >
         <IconSlot>
-          <Users size={19} />
+          <HugeiconsIcon icon={UsersIcon} size={19} />
         </IconSlot>
-        <span>온기피드</span>
+        <span>온기 피드</span>
       </TabButton>
 
       <TabButton
@@ -108,17 +129,17 @@ export default function MapMobileTabs() {
           setMode('info');
           if (category === 'bookmark') setCategory(null);
         }}
-        aria-label="한옥 지도 탐색"
+        aria-label="지도마루"
       >
         <IconSlot>
-          <MapPin size={19} />
+          <HugeiconsIcon icon={MapPinIcon} size={19} />
         </IconSlot>
         <span>지도마루</span>
       </TabButton>
 
-      <TabButton type="button" onClick={() => router.push('/sorimaru')} aria-label="소리마루 오디오 도슨트">
+      <TabButton type="button" onClick={() => router.push('/sorimaru')} aria-label="소리마루">
         <IconSlot>
-          <Headphones size={19} />
+          <HugeiconsIcon icon={HeadphonesIcon} size={19} />
         </IconSlot>
         <span>소리마루</span>
       </TabButton>
@@ -131,10 +152,10 @@ export default function MapMobileTabs() {
           setCategory('bookmark');
           setSheetSnap('half');
         }}
-        aria-label="마음에 담은 장소 목록"
+        aria-label="모음마루"
       >
         <IconSlot>
-          <Bookmark size={19} fill={isBookmarkActive ? 'currentColor' : 'none'} />
+          <HugeiconsIcon icon={Bookmark01Icon} size={19} fill={isBookmarkActive ? 'currentColor' : 'none'} />
           {bookmarkCount > 0 && <CountBadge>{bookmarkCount}</CountBadge>}
         </IconSlot>
         <span>모음마루</span>

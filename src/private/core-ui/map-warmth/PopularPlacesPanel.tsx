@@ -1,9 +1,10 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
-import { X, Landmark } from 'lucide-react';
-import { lightPalette, meok , fontSize } from '@/design-system/tokens';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Cancel01Icon, LandmarkIcon } from '@hugeicons/core-free-icons'
+import { lightPalette, meok, surface, fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import type { RankedPlace } from '@/features/map/types';
 
@@ -25,7 +26,7 @@ const PanelRoot = styled.div`
   background: #ffffff;
 
   [data-theme='dark'] & {
-    background: #2D2924;
+    background: ${surface.dark.card};
   }
 `;
 
@@ -167,7 +168,7 @@ const PlaceRow = styled.div`
   }
 
   [data-theme='dark'] & {
-    background: #2D2924;
+    background: ${surface.dark.card};
 
     &:hover {
       background: rgba(255, 255, 255, 0.06);
@@ -267,7 +268,7 @@ function PopularPlaceThumbnail({ imageUrl, placeName }: { imageUrl: string | nul
   if (!thumbnailUrl) {
     return (
       <PlaceholderThumb aria-label={`${placeName} 이미지 없음`} role="img">
-        <Landmark size={22} strokeWidth={2} />
+        <HugeiconsIcon icon={LandmarkIcon} size={22} strokeWidth={2} />
       </PlaceholderThumb>
     );
   }
@@ -333,7 +334,7 @@ export default function PopularPlacesPanel() {
           onClick={() => setPopularPanelOpen(false)}
           aria-label="인기 장소 패널 닫기"
         >
-          <X size={20} strokeWidth={2} />
+          <HugeiconsIcon icon={Cancel01Icon} size={20} strokeWidth={2} />
         </CloseBtn>
       </TopBar>
 

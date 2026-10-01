@@ -3,11 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, X, CheckCircle2 } from 'lucide-react';
-import { palette, ringShadow } from '@/design-system/tokens';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { SparklesIcon, Cancel01Icon, CheckmarkCircle01Icon } from '@hugeicons/core-free-icons'
 import { useJourneyStore } from '../store/useJourneyStore';
 import MiniOmokGame from './MiniOmokGame';
 import TraditionalWordSearch from './TraditionalWordSearch';
+import { surface, ringShadow } from '@/design-system/tokens';
 
 const Overlay = styled(motion.div)`
   position: fixed;
@@ -39,7 +40,7 @@ const LoaderCard = styled(motion.div)<{ $isCompleted?: boolean }>`
   transition: box-shadow 0.3s ease;
 
   [data-theme='dark'] & {
-    background: #1c1a17;
+    background: ${surface.dark.app};
     box-shadow: ${ringShadow.dark.card};
   }
 
@@ -172,7 +173,7 @@ export default function JourneyAssemblyLoader() {
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           >
             <CloseButton onClick={handleClose} aria-label="닫기">
-              <X size={16} />
+              <HugeiconsIcon icon={Cancel01Icon} size={16} />
             </CloseButton>
 
             <StepBadge
@@ -187,9 +188,9 @@ export default function JourneyAssemblyLoader() {
               }
             >
               {hasCompleted ? (
-                <CheckCircle2 size={13} />
+                <HugeiconsIcon icon={CheckmarkCircle01Icon} size={13} />
               ) : (
-                <Sparkles size={12} />
+                <HugeiconsIcon icon={SparklesIcon} size={12} />
               )}
               <span>
                 {hasCompleted

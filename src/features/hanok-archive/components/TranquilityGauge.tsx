@@ -2,9 +2,11 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
-import { Activity, Clock, ShieldCheck, Sparkles } from 'lucide-react';
-import { meok, palette , fontSize } from '@/design-system/tokens';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Activity01Icon, Clock01Icon, ShieldCheckIcon, SparklesIcon } from '@hugeicons/core-free-icons'
+
 import type { TranquilityData } from '../hooks/useHanokTranquility';
+import { palette, meok, surface, fontSize } from '@/design-system/tokens';
 
 interface TranquilityGaugeProps {
   data: TranquilityData | null;
@@ -17,7 +19,7 @@ export default function TranquilityGauge({ data, loading }: TranquilityGaugeProp
       <Container>
         <HeaderRow>
           <BadgeBox>
-            <Activity size={14} color={palette.juhong[500]} />
+            <HugeiconsIcon icon={Activity01Icon} size={14} color={palette.juhong[500]} />
             <BadgeText>관광 빅데이터 실시간 분석 중...</BadgeText>
           </BadgeBox>
         </HeaderRow>
@@ -31,7 +33,7 @@ export default function TranquilityGauge({ data, loading }: TranquilityGaugeProp
     <Container>
       <HeaderRow>
         <BadgeBox>
-          <Activity size={14} color={palette.juhong[500]} />
+          <HugeiconsIcon icon={Activity01Icon} size={14} color={palette.juhong[500]} />
           <BadgeText>한국관광공사 DataLab 실시간 고즈넉 지수</BadgeText>
         </BadgeBox>
         <DistrictTag>{data.district} 권역</DistrictTag>
@@ -44,7 +46,7 @@ export default function TranquilityGauge({ data, loading }: TranquilityGaugeProp
         </ScoreBox>
 
         <LevelBadge style={{ backgroundColor: `${data.badgeColor}18`, color: data.badgeColor }}>
-          <Sparkles size={13} />
+          <HugeiconsIcon icon={SparklesIcon} size={13} />
           <span>{data.level}</span>
         </LevelBadge>
       </MainRow>
@@ -61,14 +63,14 @@ export default function TranquilityGauge({ data, loading }: TranquilityGaugeProp
 
       <InfoCardsRow>
         <InfoPill>
-          <Clock size={13} color={palette.hwanggeum[700]} />
+          <HugeiconsIcon icon={Clock01Icon} size={13} color={palette.hwanggeum[700]} />
           <PillLabel>추천 골든타임:</PillLabel>
           <PillVal>{data.goldenHour}</PillVal>
         </InfoPill>
       </InfoCardsRow>
 
       <AdviceText>
-        <ShieldCheck size={14} color={palette.juhong[600]} style={{ flexShrink: 0, marginTop: 2 }} />
+        <HugeiconsIcon icon={ShieldCheckIcon} size={14} color={palette.juhong[600]} style={{ flexShrink: 0, marginTop: 2 }} />
         <span>{data.advice}</span>
       </AdviceText>
     </Container>
@@ -85,7 +87,7 @@ const Container = styled.div`
   margin-bottom: 24px;
 
   [data-theme='dark'] & {
-    background: #24211D;
+    background: ${surface.dark.surface};
   }
 `;
 
@@ -212,7 +214,7 @@ const InfoPill = styled.div`
   box-shadow: none;
 
   [data-theme='dark'] & {
-    background: #1C1A17;
+    background: ${surface.dark.app};
     color: ${meok[200]};
   }
 `;
@@ -252,4 +254,4 @@ const AdviceText = styled.div`
     background: rgba(255, 255, 255, 0.04);
     color: ${meok[200]};
   }
-`;
+`;

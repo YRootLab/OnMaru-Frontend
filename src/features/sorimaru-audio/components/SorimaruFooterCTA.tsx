@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useMemo } from 'react';
 import Link from 'next/link';
@@ -49,7 +49,7 @@ const GlassCard = styled(motion.div)`
   backdrop-filter: blur(12px);
 
   [data-theme='dark'] & {
-    background: linear-gradient(to bottom right, ${surface.dark.card}, #24211D);
+    background: linear-gradient(to bottom right, ${surface.dark.card}, ${surface.dark.surface});
     color: ${meok[100]};
     border: 1px solid rgba(255, 255, 255, 0.08);
   }
@@ -66,7 +66,7 @@ const RadialOverlay = styled.div`
   background: radial-gradient(circle, rgba(255, 255, 255, 0.6) 0%, transparent 60%, rgba(255, 244, 235, 0.8) 100%);
 
   [data-theme='dark'] & {
-    background: radial-gradient(circle, rgba(45, 41, 36, 0.4) 0%, transparent 60%, rgba(36, 33, 29, 0.8) 100%);
+    background: radial-gradient(circle, rgba(33, 39, 52, 0.4) 0%, transparent 60%, rgba(23, 30, 43, 0.8) 100%);
   }
 `;
 
@@ -316,4 +316,4 @@ export const SorimaruFooterCTA: React.FC = () => {
       </ContentWrapper>
     </SectionContainer>
   );
-};
+};

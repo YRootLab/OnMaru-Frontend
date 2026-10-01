@@ -5,7 +5,8 @@ import styled from '@emotion/styled';
 import Link from 'next/link';
 import { meok, palette, lightPalette, surface, fluidHeading , fontSize } from '@/design-system/tokens';
 
-import { Home, Leaf, ArrowRight } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Home01Icon, Leaf01Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons'
 
 
 const Section = styled.section`
@@ -130,17 +131,17 @@ export default function HanokManifestoCta() {
       <Container
       >
         <ManifestoParagraph>
-          한옥 <InlineIcon><Home strokeWidth={2} /></InlineIcon>은 지나간 유산이 아니라 지금 우리에게 필요한 쉼터{' '}
-          <InlineIcon><Leaf strokeWidth={2} /></InlineIcon>입니다. 수백 년을 버틴 대청마루에{' '}
+          한옥 <InlineIcon><HugeiconsIcon icon={Home01Icon} strokeWidth={2} /></InlineIcon>은 지나간 유산이 아니라 지금 우리에게 필요한 쉼터{' '}
+          <InlineIcon><HugeiconsIcon icon={Leaf01Icon} strokeWidth={2} /></InlineIcon>입니다. 수백 년을 버틴 대청마루에{' '}
           <HighlightText>당신의 하루</HighlightText>도 쉬어 갑니다.
         </ManifestoParagraph>
 
         <ButtonRow>
           <CtaButton href="/map" $primary>
-            전국 지도 보기 <ArrowRight size={16} strokeWidth={2} />
+            전국 지도 보기 <HugeiconsIcon icon={ArrowRight01Icon} size={16} strokeWidth={2} />
           </CtaButton>
           <CtaButton href="#hanok-stays">
-            고택 스테이 둘러보기 <ArrowRight size={16} strokeWidth={2} />
+            고택 스테이 둘러보기 <HugeiconsIcon icon={ArrowRight01Icon} size={16} strokeWidth={2} />
           </CtaButton>
         </ButtonRow>
       </Container>

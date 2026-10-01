@@ -13,14 +13,8 @@ import { Toast } from '@/features/admin/components/Toast';
 import { WarmthReview, ReviewStatus } from '@/features/admin/types';
 import { getReviews, moderateReview } from '@/features/admin/api/adminApi';
 import { useAdminCursorPagination } from '@/features/admin/hooks/useAdminCursorPagination';
-import {
-  Search,
-  RotateCcw,
-  X,
-  MoreHorizontal,
-  EyeOff,
-  Trash2,
-} from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Cancel01Icon, EyeOffIcon, MoreHorizontalIcon, RotateCcwIcon, Search01Icon, TrashIcon } from '@hugeicons/core-free-icons'
 
 export default function AdminReviewsPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -316,7 +310,7 @@ export default function AdminReviewsPage() {
               borderRadius: '6px',
             }}
           >
-            <MoreHorizontal size={16} strokeWidth={2} />
+            <HugeiconsIcon icon={MoreHorizontalIcon} size={16} strokeWidth={2} />
           </button>
         </div>
       ),
@@ -356,7 +350,7 @@ export default function AdminReviewsPage() {
             backgroundColor: '#FFFFFF',
           }}
         >
-          <Search size={16} color={meok[400]} strokeWidth={2} />
+          <HugeiconsIcon icon={Search01Icon} size={16} color={meok[400]} strokeWidth={2} />
           <input
             type="text"
             placeholder="닉네임, 장소, 내용 검색"
@@ -483,13 +477,13 @@ export default function AdminReviewsPage() {
             cursor: 'pointer',
           }}
         >
-          <RotateCcw size={15} strokeWidth={2} />
+          <HugeiconsIcon icon={RotateCcwIcon} size={15} strokeWidth={2} />
           <span>초기화</span>
         </button>
 
         {}
         <div style={{ marginLeft: 'auto', fontSize: '12px', color: meok[500] }}>
-          현재 페이지 <strong style={{ color: meok[900] }}>{filteredReviews.length}</strong>건 (서버 페이지당 20건)
+          현재 페이지 <strong style={{ color: meok[900] }}>{filteredReviews.length}</strong>건 (온기·기간·정렬은 현재 페이지 20건 기준)
         </div>
       </div>
 
@@ -667,7 +661,7 @@ export default function AdminReviewsPage() {
                     padding: '4px',
                   }}
                 >
-                  <X size={20} strokeWidth={2} />
+                  <HugeiconsIcon icon={Cancel01Icon} size={20} strokeWidth={2} />
                 </button>
               </div>
 
@@ -841,7 +835,7 @@ export default function AdminReviewsPage() {
                     cursor: 'pointer',
                   }}
                 >
-                  <EyeOff size={15} strokeWidth={2} />
+                  <HugeiconsIcon icon={EyeOffIcon} size={15} strokeWidth={2} />
                   <span>숨김</span>
                 </button>
               )}
@@ -874,7 +868,7 @@ export default function AdminReviewsPage() {
                     cursor: 'pointer',
                   }}
                 >
-                  <Trash2 size={15} strokeWidth={2} />
+                  <HugeiconsIcon icon={TrashIcon} size={15} strokeWidth={2} />
                   <span>삭제</span>
                 </button>
               )}

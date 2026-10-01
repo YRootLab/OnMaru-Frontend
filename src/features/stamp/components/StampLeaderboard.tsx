@@ -1,7 +1,8 @@
 'use client';
 
 import styled from '@emotion/styled';
-import { MapPin, Medal, RefreshCw, ShieldCheck, Trophy, UserCheck, UserX } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { MapPinIcon, Medal01Icon, RefreshCwIcon, ShieldCheckIcon, TrophyIcon, UserCheck01Icon, UserXIcon } from '@hugeicons/core-free-icons'
 import type { StampRankingEntry, StampRankingStatusResponse } from '../domain/models';
 import { meok } from '@/design-system/tokens';
 import OniSearchEmpty from '@/shared/components/OniSearchEmpty/OniSearchEmpty';
@@ -83,7 +84,7 @@ const Action = styled.button<{ $danger?: boolean }>`
   &:disabled { opacity: 0.55; cursor: wait; }
 `;
 
-const List = styled.div`
+const RankList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -174,34 +175,33 @@ export default function StampLeaderboard({
     <Root>
       <Participation>
         <ParticipationTitle>
-          <ShieldCheck size={17} /> 익명 탐방 랭킹
+          <HugeiconsIcon icon={ShieldCheckIcon} size={17} /> 익명 탐방 랭킹
         </ParticipationTitle>
         {!isLoggedIn ? (
           <>
-            <Copy>공개 랭킹은 동의한 회원만 참여하며 서버가 만든 익명 별명만 표시해요.</Copy>
-            <Action type="button" onClick={onLogin}><UserCheck size={15} /> 로그인하고 참여하기</Action>
+            <Copy>익명 랭킹에 참여하면 임의로 생성된 별명으로 표시돼요.</Copy>
+            <Action type="button" onClick={onLogin}><HugeiconsIcon icon={UserCheck01Icon} size={15} /> 로그인하고 참여하기</Action>
           </>
         ) : myRanking?.participating ? (
           <>
-            <Copy>서버 생성 익명 별명 <strong>{myRanking.publicNickname}</strong>으로 참여 중이에요.</Copy>
+            <Copy>익명 별명 <strong>{myRanking.publicNickname}</strong>으로 참여 중이에요.</Copy>
             <MyStats>
               <span>내 순위 <strong>{myRanking.rank}위</strong></span>
               <span>참여자 <strong>{myRanking.participantCount}명</strong></span>
               <span>달성률 <strong>{myRanking.completionRate}%</strong></span>
             </MyStats>
             <Action $danger type="button" disabled={mutationPending} onClick={onWithdraw}>
-              <UserX size={15} /> 참여 철회
+              <HugeiconsIcon icon={UserXIcon} size={15} /> 참여 취소하기
             </Action>
           </>
         ) : (
           <>
             <Copy>
-              수결 획득만으로 자동 등록되지 않아요. 참여하면 서버가 익명 별명을 만들고,
-              철회하면 공개 목록에서 즉시 제외해요.
+              도장을 모아도 자동으로 등록되지 않아요. 언제든 참여하거나 취소할 수 있어요.
             </Copy>
             {myRanking && (
               <MyStats>
-                <span>내 수결 <strong>{myRanking.stampCount}개</strong></span>
+                <span>모은 도장 <strong>{myRanking.stampCount}개</strong></span>
                 <span>달성률 <strong>{myRanking.completionRate}%</strong></span>
               </MyStats>
             )}
@@ -210,19 +210,19 @@ export default function StampLeaderboard({
               disabled={mutationPending || retryAfterSeconds > 0}
               onClick={onJoin}
             >
-              <UserCheck size={15} />
-              {retryAfterSeconds > 0 ? `${retryAfterSeconds}초 뒤 참여 가능` : '익명 랭킹 참여'}
+              <HugeiconsIcon icon={UserCheck01Icon} size={15} />
+              {retryAfterSeconds > 0 ? `${retryAfterSeconds}초 뒤 참여 가능` : '익명 랭킹 참여하기'}
             </Action>
           </>
         )}
       </Participation>
 
       {loading && entries.length === 0 ? (
-        <List aria-label="랭킹을 불러오는 중" aria-busy="true">
+        <RankList aria-label="랭킹을 불러오는 중" aria-busy="true">
           {Array.from({ length: 5 }, (_, index) => (
             <Row key={index}><Rank $rank={index + 1}>{index + 1}</Rank><SkeletonLine /></Row>
           ))}
-        </List>
+        </RankList>
       ) : hasError && entries.length === 0 ? (
         <OniSearchEmpty
           size="sm"
@@ -230,29 +230,29 @@ export default function StampLeaderboard({
           description="잠시 후 다시 시도해 주세요."
           compact
           action={
-            <Action type="button" onClick={onRetry}><RefreshCw size={15} /> 다시 시도</Action>
+            <Action type="button" onClick={onRetry}><HugeiconsIcon icon={RefreshCwIcon} size={15} /> 다시 시도하기</Action>
           }
         />
       ) : entries.length === 0 ? (
         <Empty>아직 공개 랭킹 참여자가 없어요.</Empty>
       ) : (
-        <List>
+        <RankList>
           {entries.map((entry) => (
             <Row key={entry.publicId}>
               <Rank $rank={entry.rank}>
-                {entry.rank === 1 ? <Trophy size={15} /> : entry.rank <= 3 ? <Medal size={15} /> : entry.rank}
+                {entry.rank === 1 ? <HugeiconsIcon icon={TrophyIcon} size={15} /> : entry.rank <= 3 ? <HugeiconsIcon icon={Medal01Icon} size={15} /> : entry.rank}
               </Rank>
               <UserInfo>
                 <Nickname>{entry.nickname}</Nickname>
                 <Stats>
-                  <span><Trophy size={12} /> 수결 {entry.stampCount}개</span>
-                  <span><MapPin size={12} /> {entry.visitedRegionCount}개 권역</span>
+                  <span><HugeiconsIcon icon={TrophyIcon} size={12} /> 도장 {entry.stampCount}개</span>
+                  <span><HugeiconsIcon icon={MapPinIcon} size={12} /> {entry.visitedRegionCount}개 권역</span>
                   <span>달성률 {entry.completionRate}%</span>
                 </Stats>
               </UserInfo>
             </Row>
           ))}
-        </List>
+        </RankList>
       )}
     </Root>
   );

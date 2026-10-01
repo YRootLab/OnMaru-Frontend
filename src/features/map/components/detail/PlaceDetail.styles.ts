@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
-import { lightPalette, darkPalette, meok , fontSize } from '@/design-system/tokens';
+import { lightPalette, darkPalette, palette, meok, surface, fontSize } from '@/design-system/tokens';
 
 export const pulse = keyframes`
   0%, 100% { opacity: 1; }
@@ -21,7 +21,8 @@ export const DetailWrapper = styled.div`
   outline: none;
 
   [data-theme='dark'] & {
-    background: #2D2924;
+    background: ${surface.dark.card};
+    box-shadow: var(--shadow-card-inset);
   }
 `;
 
@@ -36,7 +37,7 @@ export const HeaderBar = styled.header`
   z-index: 5;
 
   [data-theme='dark'] & {
-    background: #2D2924;
+    background: ${surface.dark.card};
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   }
 `;
@@ -230,7 +231,7 @@ export const LiveWarmthMeter = styled.div`
   margin: 0 16px 12px;
   padding: 10px 14px;
   border-radius: 14px;
-  background: #fbf8f2;
+  background: #f8f8f7;
   border: none;
   display: flex;
   align-items: center;
@@ -239,7 +240,7 @@ export const LiveWarmthMeter = styled.div`
   box-sizing: border-box;
 
   [data-theme='dark'] & {
-    background: #25221d;
+    background: ${surface.dark.surface};
   }
 `;
 
@@ -265,8 +266,8 @@ export const LiveWarmthPulse = styled.span<{ $busy: boolean }>`
   height: 7px;
   border-radius: 50%;
   flex-shrink: 0;
-  background: ${({ $busy }) => ($busy ? lightPalette.hwanggeum[400] : lightPalette.hwanggeum[500])};
-  box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.2);
+  background: ${({ $busy }) => ($busy ? palette.juhong[400] : palette.juhong[500])};
+  box-shadow: 0 0 0 3px rgba(255, 106, 16, 0.2);
 `;
 
 const mascotBounce = keyframes`
@@ -298,7 +299,8 @@ export const StampCheckInBanner = styled.div<{ $isVisited: boolean }>`
   padding: 10px 14px;
   border-radius: 14px;
   background: ${({ $isVisited }) =>
-    $isVisited ? 'rgba(5, 150, 105, 0.08)' : 'rgba(212, 175, 55, 0.12)'};
+    $isVisited ? 'rgba(5, 150, 105, 0.08)' : 'rgba(255, 106, 16, 0.08)'};
+  border: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -307,7 +309,7 @@ export const StampCheckInBanner = styled.div<{ $isVisited: boolean }>`
 
   [data-theme='dark'] & {
     background: ${({ $isVisited }) =>
-      $isVisited ? 'rgba(5, 150, 105, 0.18)' : 'rgba(212, 175, 55, 0.18)'};
+      $isVisited ? 'rgba(5, 150, 105, 0.18)' : 'rgba(255, 106, 16, 0.12)'};
   }
 `;
 
@@ -360,12 +362,13 @@ export const StampActionBtn = styled.button<{ $isVisited: boolean }>`
     opacity: 0.6;
   }
   white-space: nowrap;
-  background: ${({ $isVisited }) => ($isVisited ? 'rgba(5, 150, 105, 0.15)' : '#b91c1c')};
+  background: ${({ $isVisited }) => ($isVisited ? 'rgba(5, 150, 105, 0.15)' : palette.juhong[600])};
   color: ${({ $isVisited }) => ($isVisited ? '#047857' : '#ffffff')};
-  transition: opacity 0.15s ease, transform 0.1s ease;
+  transition: opacity 0.15s ease, transform 0.1s ease, background 0.15s ease;
 
   &:hover {
-    opacity: 0.92;
+    opacity: 0.94;
+    background: ${({ $isVisited }) => ($isVisited ? 'rgba(5, 150, 105, 0.22)' : palette.juhong[700])};
   }
 
   &:active {
@@ -373,17 +376,25 @@ export const StampActionBtn = styled.button<{ $isVisited: boolean }>`
   }
 
   [data-theme='dark'] & {
-    background: ${({ $isVisited }) => ($isVisited ? 'rgba(5, 150, 105, 0.25)' : '#b91c1c')};
+    background: ${({ $isVisited }) => ($isVisited ? 'rgba(5, 150, 105, 0.25)' : palette.juhong[500])};
     color: ${({ $isVisited }) => ($isVisited ? '#34d399' : '#ffffff')};
+
+    &:hover {
+      background: ${({ $isVisited }) => ($isVisited ? 'rgba(5, 150, 105, 0.32)' : palette.juhong[400])};
+    }
   }
 `;
 
 export const LiveWarmthCount = styled.span`
   font-size: ${fontSize.micro};
-  color: ${lightPalette.hwanggeum[700]};
+  color: ${palette.juhong[600]};
   font-weight: 700;
   flex-shrink: 0;
   white-space: nowrap;
+
+  [data-theme='dark'] & {
+    color: ${palette.juhong[300]};
+  }
 `;
 
 export const HeroActionTile = styled.button<{ $highlight?: boolean; $isWarmth?: boolean }>`
@@ -399,13 +410,13 @@ export const HeroActionTile = styled.button<{ $highlight?: boolean; $isWarmth?: 
     $highlight
       ? 'rgba(212, 32, 88, 0.08)'
       : $isWarmth
-        ? 'rgba(255, 184, 0, 0.08)'
+        ? 'rgba(255, 85, 0, 0.08)'
         : 'rgba(78, 89, 104, 0.06)'};
   color: ${({ $highlight, $isWarmth }) =>
     $highlight
       ? lightPalette.jangmi[700]
       : $isWarmth
-        ? lightPalette.hwanggeum[700]
+        ? palette.juhong[600]
         : meok[700]};
   cursor: pointer;
   transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
@@ -416,13 +427,13 @@ export const HeroActionTile = styled.button<{ $highlight?: boolean; $isWarmth?: 
       $highlight
         ? 'rgba(212, 32, 88, 0.15)'
         : $isWarmth
-          ? 'rgba(255, 184, 0, 0.15)'
+          ? 'rgba(255, 85, 0, 0.15)'
           : 'rgba(78, 89, 104, 0.12)'};
     color: ${({ $highlight, $isWarmth }) =>
       $highlight
         ? lightPalette.jangmi[900]
         : $isWarmth
-          ? lightPalette.hwanggeum[900]
+          ? palette.juhong[800]
           : meok[900]};
     transform: translateY(-1.5px);
   }
@@ -436,14 +447,29 @@ export const HeroActionTile = styled.button<{ $highlight?: boolean; $isWarmth?: 
       $highlight
         ? 'rgba(248, 78, 118, 0.15)'
         : $isWarmth
-          ? 'rgba(248, 87, 0, 0.15)'
+          ? 'rgba(255, 106, 16, 0.15)'
           : 'rgba(255, 255, 255, 0.06)'};
     color: ${({ $highlight, $isWarmth }) =>
       $highlight
         ? darkPalette.jangmi[400]
         : $isWarmth
-          ? darkPalette.juhong[400]
+          ? palette.juhong[300]
           : meok[400]};
+
+    &:hover {
+      background: ${({ $highlight, $isWarmth }) =>
+        $highlight
+          ? 'rgba(248, 78, 118, 0.22)'
+          : $isWarmth
+            ? 'rgba(255, 106, 16, 0.24)'
+            : 'rgba(255, 255, 255, 0.12)'};
+      color: ${({ $highlight, $isWarmth }) =>
+        $highlight
+          ? darkPalette.jangmi[300]
+          : $isWarmth
+            ? palette.juhong[200]
+            : '#ffffff'};
+    }
   }
 
   span {
@@ -496,7 +522,7 @@ export const CoreInfoBox = styled.div`
   gap: 11px;
 
   [data-theme='dark'] & {
-    background: #25221d;
+    background: ${surface.dark.surface};
   }
 `;
 
@@ -574,7 +600,7 @@ export const ToggleMoreBtn = styled.button`
   padding: 0;
 
   background: transparent;
-  color: ${lightPalette.kobalt[700]};
+  color: ${lightPalette.cheongrok[700]};
   font-family: inherit;
   font-size: ${fontSize.xs};
   font-weight: 400;
@@ -593,7 +619,7 @@ export const BottomActionArea = styled.div`
   gap: 8px;
 
   [data-theme='dark'] & {
-    background: #2D2924;
+    background: ${surface.dark.card};
     border-top: 1px solid rgba(255, 255, 255, 0.08);
   }
 `;
@@ -743,102 +769,3 @@ export const ErrorBox = styled.div`
   text-align: center;
 `;
 
-export const CinematicBanner = styled.div`
-  margin: 12px 16px 6px;
-  padding: 14px 16px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, rgba(212, 32, 88, 0.08) 0%, rgba(248, 78, 118, 0.12) 100%);
-  border: none;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  position: relative;
-  overflow: hidden;
-
-  [data-theme='dark'] & {
-    background: linear-gradient(135deg, rgba(248, 78, 118, 0.15) 0%, rgba(212, 32, 88, 0.18) 100%);
-  }
-`;
-
-export const CinematicHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`;
-
-export const CinematicBadge = styled.span`
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: ${fontSize.micro};
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  color: ${lightPalette.jangmi[500]};
-
-  [data-theme='dark'] & {
-    color: ${darkPalette.jangmi[400]};
-  }
-`;
-
-export const CinematicDuration = styled.span`
-  font-size: ${fontSize.micro};
-  color: ${meok[500]};
-  font-weight: 400;
-`;
-
-export const CinematicTitle = styled.h4`
-  font-family: var(--font-traditional-title);
-  margin: 0;
-  font-size: 15px;
-  font-weight: 700;
-  color: ${meok[900]};
-  line-height: 1.35;
-
-  [data-theme='dark'] & {
-    color: ${meok[100]};
-  }
-`;
-
-export const CinematicDesc = styled.p`
-  font-family: var(--font-traditional-body);
-  margin: 0;
-  font-size: 13px;
-  color: ${meok[700]};
-  line-height: 1.45;
-
-  [data-theme='dark'] & {
-    color: ${meok[400]};
-  }
-`;
-
-export const CinematicStartButton = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  width: 100%;
-  height: 38px;
-  margin-top: 4px;
-  border: none;
-  border-radius: 12px;
-  background: ${lightPalette.jangmi[500]};
-  color: #ffffff;
-  font-family: inherit;
-  font-size: ${fontSize.xs};
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.15s ease;
-
-  &:hover {
-    background: ${lightPalette.jangmi[700]};
-    transform: translateY(-1px);
-  }
-
-  &:active {
-    transform: scale(0.98);
-  }
-
-  [data-theme='dark'] & {
-    background: ${darkPalette.jangmi[500]};
-  }
-`;

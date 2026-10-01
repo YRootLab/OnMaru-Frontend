@@ -1,9 +1,10 @@
-'use client';
+﻿'use client';
 
 import React, { useMemo } from 'react';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
-import { Tag, RotateCcw, Search, X } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Cancel01Icon, MapIcon, RotateCcwIcon, Search01Icon, Tag01Icon } from '@hugeicons/core-free-icons'
 import { meok, palette, surface , fontSize } from '@/design-system/tokens';
 import { STAY_TYPE, type Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
@@ -228,7 +229,7 @@ const BadgeContainer = styled.div`
   border-radius: 18px;
 
   [data-theme='dark'] & {
-    background: #24211D;
+    background: ${surface.dark.surface};
   }
 `;
 
@@ -431,17 +432,17 @@ export default function FilterBar({
     <Wrapper>
       <FindRow>
         <SearchBox>
-          <Search size={15} strokeWidth={2} aria-hidden="true" />
+          <HugeiconsIcon icon={Search01Icon} size={15} strokeWidth={2} aria-hidden="true" />
           <SearchInput
             type="search"
             value={query}
             onChange={(e) => onQueryChange(e.target.value)}
-            placeholder="이름이나 지역으로 찾아보세요 (예: 북촌, 안동)"
-            aria-label="한옥 이름이나 주소로 찾기"
+            placeholder="한옥 이름이나 지역을 검색해 보세요 (예: 북촌, 안동)"
+            aria-label="한옥 검색"
           />
           {query && (
             <ClearButton type="button" onClick={() => onQueryChange('')} aria-label="검색어 지우기">
-              <X size={13} strokeWidth={2.5} />
+              <HugeiconsIcon icon={Cancel01Icon} size={13} strokeWidth={2.5} />
             </ClearButton>
           )}
         </SearchBox>
@@ -449,7 +450,7 @@ export default function FilterBar({
         <RegionSelect
           value={region}
           onChange={(e) => onRegionChange(e.target.value)}
-          aria-label="지역으로 거르기"
+          aria-label="지역 선택"
         >
           <option value="전체">전국</option>
           {regions.map((r) => (
@@ -464,7 +465,7 @@ export default function FilterBar({
       {availableTypes.length >= MIN_TYPES_TO_SHOW + 1 && (
       <SegmentScrollWrapper>
         <SegmentScrollContainer>
-          <SegmentControl role="group" aria-label="마을 유형 필터">
+          <SegmentControl role="group" aria-label="한옥 유형 선택">
             {availableTypes.map((t) => {
               const isActive = activeType === t;
               return (
@@ -493,7 +494,7 @@ export default function FilterBar({
       {allBadges.length > 0 && (
         <BadgeContainer>
           <BadgeHeader>
-            <Tag size={13} strokeWidth={2} color={palette.hwanggeum[700]} />
+            <HugeiconsIcon icon={Tag01Icon} size={13} strokeWidth={2} color={palette.hwanggeum[700]} />
             
           </BadgeHeader>
           <BadgeList>
@@ -516,7 +517,7 @@ export default function FilterBar({
           </BadgeList>
           {activeBadges.length > 0 && (
             <ResetBtn onClick={onResetBadges || (() => activeBadges.forEach((b) => onBadgeToggle(b)))}>
-              <RotateCcw size={12} strokeWidth={2} /> 선택한 태그 지우기
+              <HugeiconsIcon icon={RotateCcwIcon} size={12} strokeWidth={2} /> 선택 초기화
             </ResetBtn>
           )}
         </BadgeContainer>
@@ -524,3 +525,4 @@ export default function FilterBar({
     </Wrapper>
   );
 }
+

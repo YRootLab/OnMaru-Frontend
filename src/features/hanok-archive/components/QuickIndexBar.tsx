@@ -3,7 +3,8 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { meok, palette, surface , fontSize } from '@/design-system/tokens';
-import { BookOpen, Home, Sun, MapPin } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { BookOpen01Icon, Home01Icon, Sun01Icon, MapPinIcon } from '@hugeicons/core-free-icons'
 
 const IndexContainer = styled.nav`
   display: flex;
@@ -24,7 +25,7 @@ const IndexContainer = styled.nav`
   z-index: 10;
 
   [data-theme='dark'] & {
-    background: rgba(28, 26, 23, 0.85);
+    background: rgba(11, 18, 32, 0.85);
     border-color: rgba(255, 255, 255, 0.12);
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
   }
@@ -91,26 +92,27 @@ export default function QuickIndexBar({ className }: QuickIndexBarProps) {
   };
 
   return (
-    <IndexContainer className={className} aria-label="한옥 마루 주요 챕터 바로가기">
+    <IndexContainer className={className} aria-label="한옥마루 주요 메뉴 바로가기">
       <IndexChip type="button" onClick={() => scrollTo('grid')}>
-        <BookOpen size={15} strokeWidth={2} color={palette.juhong[500]} />
+        <HugeiconsIcon icon={BookOpen01Icon} size={15} strokeWidth={2} color={palette.juhong[500]} />
         <span>전국 한옥 도감</span>
       </IndexChip>
 
       <IndexChip type="button" onClick={() => scrollTo('hanok-stays')}>
-        <Home size={15} strokeWidth={2} color={palette.cheongrok[500]} />
+        <HugeiconsIcon icon={Home01Icon} size={15} strokeWidth={2} color={palette.cheongrok[500]} />
         <span>지역별 한옥 스테이</span>
       </IndexChip>
 
       <IndexChip type="button" onClick={() => scrollTo('structure')}>
-        <Sun size={15} strokeWidth={2} color={palette.hwanggeum[500]} />
-        <span>3D 구조 & 처마 일조 랩</span>
+        <HugeiconsIcon icon={Sun01Icon} size={15} strokeWidth={2} color={palette.hwanggeum[500]} />
+        <span>3D 구조와 처마 일조</span>
       </IndexChip>
 
       <IndexChip type="button" onClick={() => scrollTo('map')}>
-        <MapPin size={15} strokeWidth={2} color={palette.juhong[500]} />
-        <span>전국 공간 지도</span>
+        <HugeiconsIcon icon={MapPinIcon} size={15} strokeWidth={2} color={palette.juhong[500]} />
+        <span>전국 한옥 지도</span>
       </IndexChip>
     </IndexContainer>
   );
 }
+

@@ -9,7 +9,8 @@ import { meok, palette } from '@/design-system/tokens';
 import { TableSkeleton } from './TableSkeleton';
 import { EmptyState } from './EmptyState';
 import { Pagination, CursorPagination } from './Pagination';
-import { ChevronUp, ChevronDown } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ChevronUpIcon, ChevronDownIcon } from '@hugeicons/core-free-icons'
 
 export interface ColumnDef<T> {
   key: string;
@@ -163,9 +164,9 @@ export function DataTable<T>({
                       {col.sortable && isSorted && (
                         <span style={{ display: 'inline-flex' }}>
                           {sortDirection === 'asc' ? (
-                            <ChevronUp size={12} strokeWidth={2.2} />
+                            <HugeiconsIcon icon={ChevronUpIcon} size={12} strokeWidth={2.2} />
                           ) : (
-                            <ChevronDown size={12} strokeWidth={2.2} />
+                            <HugeiconsIcon icon={ChevronDownIcon} size={12} strokeWidth={2.2} />
                           )}
                         </span>
                       )}

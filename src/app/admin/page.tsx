@@ -15,12 +15,8 @@ import { EmptyState } from '@/features/admin/components/EmptyState';
 import { useAdminAuth } from '@/features/admin/hooks/useAdminAuth';
 import { getDashboardSummary, runPipeline } from '@/features/admin/api/adminApi';
 import type { DashboardSummary } from '@/features/admin/api/adminApi';
-import {
-  ArrowRight,
-  RefreshCw,
-  Flame,
-  ShieldAlert,
-} from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ArrowRight01Icon, RefreshCwIcon, FlameIcon, ShieldAlertIcon } from '@hugeicons/core-free-icons'
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -128,7 +124,7 @@ export default function AdminDashboardPage() {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Flame size={20} color={palette.juhong[500]} strokeWidth={2.2} />
+              <HugeiconsIcon icon={FlameIcon} size={20} color={palette.juhong[500]} strokeWidth={2.2} />
               <h2 style={{ fontSize: '18px', fontWeight: 700, color: meok[900], margin: 0 }}>
                 최근 온기
               </h2>
@@ -146,7 +142,7 @@ export default function AdminDashboardPage() {
               }}
             >
               <span>전체보기</span>
-              <ArrowRight size={15} strokeWidth={2} />
+              <HugeiconsIcon icon={ArrowRight01Icon} size={15} strokeWidth={2} />
             </Link>
           </div>
 
@@ -209,7 +205,7 @@ export default function AdminDashboardPage() {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <ShieldAlert size={20} color={palette.danpung[500]} strokeWidth={2.2} />
+              <HugeiconsIcon icon={ShieldAlertIcon} size={20} color={palette.danpung[500]} strokeWidth={2.2} />
               <h2 style={{ fontSize: '18px', fontWeight: 700, color: meok[900], margin: 0 }}>
                 처리 대기 신고
               </h2>
@@ -227,7 +223,7 @@ export default function AdminDashboardPage() {
               }}
             >
               <span>처리하기</span>
-              <ArrowRight size={15} strokeWidth={2} />
+              <HugeiconsIcon icon={ArrowRight01Icon} size={15} strokeWidth={2} />
             </Link>
           </div>
 
@@ -324,7 +320,7 @@ export default function AdminDashboardPage() {
                 transition: 'all 0.15s ease',
               }}
             >
-              <RefreshCw size={16} strokeWidth={2} className={isRebuilding ? 'animate-spin' : ''} />
+              <HugeiconsIcon icon={RefreshCwIcon} size={16} strokeWidth={2} className={isRebuilding ? 'animate-spin' : ''} />
               <span>{isRebuilding ? '갱신 중...' : '지금 갱신하기'}</span>
             </button>
           )}

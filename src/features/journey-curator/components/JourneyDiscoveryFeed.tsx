@@ -3,13 +3,15 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import styled from '@emotion/styled';
-import { ArrowLeft, ArrowRight, RotateCcw, Volume2, Heart } from 'lucide-react';
-import { palette, fontSize, ringShadow } from '@/design-system/tokens';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ArrowLeft01Icon, ArrowRight01Icon, HeartIcon, RotateCcwIcon, VolumeHighIcon } from '@hugeicons/core-free-icons'
+
 import { useJourneyStore } from '../store/useJourneyStore';
 import { useCuratedCourses, usePopularRegions, usePopularSounds } from '../hooks/useHomeData';
 import { hasAuthenticatedUser, showLoginRequiredToast } from '@/features/auth/privateState';
 import { saveOdiiStory, unsaveOdiiStory } from '@/features/sorimaru-audio/api/odiiEngagementApi';
 import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
+import { palette, surface, ringShadow, fontSize } from '@/design-system/tokens';
 
 const FeedContainer = styled.div`
   width: min(calc(100% - 40px), 1140px);
@@ -109,11 +111,11 @@ const CourseStage = styled.div<{ $showLeading: boolean; $showTrailing: boolean }
   }
 
   [data-theme='dark'] &::before {
-    background: linear-gradient(90deg, #24211d 0%, rgba(36, 33, 29, 0.72) 22%, rgba(36, 33, 29, 0) 100%);
+    background: linear-gradient(90deg, ${surface.dark.surface} 0%, rgba(23, 30, 43, 0.72) 22%, rgba(23, 30, 43, 0) 100%);
   }
 
   [data-theme='dark'] &::after {
-    background: linear-gradient(270deg, #24211d 0%, rgba(36, 33, 29, 0.72) 22%, rgba(36, 33, 29, 0) 100%);
+    background: linear-gradient(270deg, ${surface.dark.surface} 0%, rgba(23, 30, 43, 0.72) 22%, rgba(23, 30, 43, 0) 100%);
   }
 `;
 
@@ -192,7 +194,7 @@ const CourseArrow = styled.button`
 
   [data-theme='dark'] & {
     border-color: rgba(255, 255, 255, 0.12);
-    background: rgba(36, 33, 29, 0.94);
+    background: rgba(23, 30, 43, 0.94);
     color: #f8f9fa;
   }
 
@@ -248,7 +250,7 @@ const CourseCard = styled.button`
   position: relative;
 
   [data-theme='dark'] & {
-    background: #24211d;
+    background: ${surface.dark.surface};
     box-shadow: ${ringShadow.dark.card};
   }
 
@@ -283,7 +285,7 @@ const CourseImageWrap = styled.div`
   background: #f2f4f6;
 
   [data-theme='dark'] & {
-    background: #1c1a17;
+    background: ${surface.dark.app};
   }
 
   @media (max-width: 640px) {
@@ -312,7 +314,7 @@ const CourseImagePlaceholder = styled.div`
   background: #e5e5e3;
 
   [data-theme='dark'] & {
-    background: #2d2924;
+    background: ${surface.dark.card};
   }
 `;
 
@@ -466,7 +468,7 @@ const SoundCard = styled(Link)`
   transition: all 0.22s ease;
 
   [data-theme='dark'] & {
-    background: #24211d;
+    background: ${surface.dark.surface};
     box-shadow: ${ringShadow.dark.card};
   }
 
@@ -592,7 +594,7 @@ const SkeletonCard = styled.div`
   box-shadow: ${ringShadow.light.card};
 
   [data-theme='dark'] & {
-    background: #24211d;
+    background: ${surface.dark.surface};
     box-shadow: ${ringShadow.dark.card};
   }
 `;
@@ -607,7 +609,7 @@ const SkeletonPulse = styled.div`
   animation: sk-pulse 1.5s infinite;
 
   [data-theme='dark'] & {
-    background: linear-gradient(90deg, #2d2924 25%, #38342e 50%, #2d2924 75%);
+    background: linear-gradient(90deg, ${surface.dark.card} 25%, #262C38 50%, ${surface.dark.card} 75%);
     background-size: 200% 100%;
   }
 
@@ -616,7 +618,7 @@ const SkeletonPulse = styled.div`
     background: #e5e5e3;
 
     [data-theme='dark'] & {
-      background: #2d2924;
+      background: ${surface.dark.card};
     }
   }
 `;
@@ -649,7 +651,7 @@ const CourseSkeletonCard = styled.div`
 
   [data-theme='dark'] & {
     border-color: rgba(255, 255, 255, 0.08);
-    background: #24211d;
+    background: ${surface.dark.surface};
     box-shadow: ${ringShadow.dark.card};
   }
 
@@ -714,7 +716,7 @@ const FeedState = styled.div<{ $compact?: boolean }>`
 
   [data-theme='dark'] & {
     border-color: #4a453f;
-    background: #24211d;
+    background: ${surface.dark.surface};
   }
 `;
 
@@ -753,14 +755,16 @@ function HomeFeedFailure({
       <OniSearchEmpty
         compact={compact}
         size="md"
-        title={unavailable ? '온마루가 소식을 모으고 있어요' : '잠시 길을 잃었어요'}
+        title={unavailable ? '새로운 여정을 준비하고 있어요' : '추천 여정을 불러오지 못했어요'}
         description={
-          unavailable ? '새로운 이야기를 준비 중이에요. 잠시 후 다시 찾아올게요.' : '연결을 다시 확인해 볼까요?'
+          unavailable
+            ? '잠시 후 다시 찾아와 주세요.'
+            : '네트워크 연결 상태를 확인하고 다시 시도해 주세요.'
         }
         action={
           <RetryButton type="button" onClick={onRetry}>
-            <RotateCcw size={13} />
-            다시 불러오기
+            <HugeiconsIcon icon={RotateCcwIcon} size={13} />
+            다시 시도하기
           </RetryButton>
         }
       />
@@ -801,7 +805,7 @@ const RegionCard = styled.button`
   gap: 6px;
 
   [data-theme='dark'] & {
-    background: #24211d;
+    background: ${surface.dark.surface};
     box-shadow: ${ringShadow.dark.button};
   }
 
@@ -885,7 +889,7 @@ const CategoryChip = styled.button<{ $active: boolean }>`
 
   [data-theme='dark'] & {
     border-color: ${({ $active }) => ($active ? palette.juhong[400] : 'rgba(255, 255, 255, 0.14)')};
-    background: ${({ $active }) => ($active ? palette.juhong[500] : '#24211d')};
+    background: ${({ $active }) => ($active ? palette.juhong[500] : '${surface.dark.surface}')};
     color: ${({ $active }) => ($active ? '#ffffff' : '#a1a1aa')};
   }
 `;
@@ -1026,7 +1030,7 @@ export default function JourneyDiscoveryFeed() {
           </TagList>
           <ExploreText>
             <span>일정 보기</span>
-            <ArrowRight size={12} />
+            <HugeiconsIcon icon={ArrowRight01Icon} size={12} />
           </ExploreText>
         </CourseFooter>
       </CourseBody>
@@ -1100,7 +1104,7 @@ export default function JourneyDiscoveryFeed() {
                     disabled={currentCourseIndex === 0}
                     onClick={() => moveCourseCarousel(currentCourseIndex - 1)}
                   >
-                    <ArrowLeft size={17} aria-hidden="true" />
+                    <HugeiconsIcon icon={ArrowLeft01Icon} size={17} aria-hidden="true" />
                   </CourseArrow>
                   <CourseViewport ref={courseViewportRef}>
                   <CourseRail>
@@ -1114,7 +1118,7 @@ export default function JourneyDiscoveryFeed() {
                     disabled={currentCourseIndex >= maxCourseIndex}
                     onClick={() => moveCourseCarousel(currentCourseIndex + 1)}
                   >
-                    <ArrowRight size={17} aria-hidden="true" />
+                    <HugeiconsIcon icon={ArrowRight01Icon} size={17} aria-hidden="true" />
                   </CourseArrow>
                 </CourseStage>
                 {featuredCourses.length > visibleCourseCount && (
@@ -1173,7 +1177,7 @@ export default function JourneyDiscoveryFeed() {
                 <SoundCard key={storyId} href={`/sorimaru?stid=${encodeURIComponent(storyId)}`}>
                   <SoundRank aria-label={`${rank}위`}>#{rank}</SoundRank>
                   <PlayIconWrap>
-                    <Volume2 size={20} />
+                    <HugeiconsIcon icon={VolumeHighIcon} size={20} />
                   </PlayIconWrap>
                   <SoundInfo>
                     <SoundTitle>{title}</SoundTitle>
@@ -1185,7 +1189,7 @@ export default function JourneyDiscoveryFeed() {
                     aria-label={isSaved ? '찜 해제' : '찜하기'}
                     onClick={(e) => handleToggleSave(e, storyId, isSaved)}
                   >
-                    <Heart size={16} fill={isSaved ? '#ef4444' : 'none'} strokeWidth={isSaved ? 0 : 2} />
+                    <HugeiconsIcon icon={HeartIcon} size={16} fill={isSaved ? '#ef4444' : 'none'} strokeWidth={isSaved ? 0 : 2} />
                   </SoundSaveBtn>
                 </SoundCard>
               )})}
@@ -1222,4 +1226,4 @@ export default function JourneyDiscoveryFeed() {
       </section>
     </FeedContainer>
   );
-}
+}

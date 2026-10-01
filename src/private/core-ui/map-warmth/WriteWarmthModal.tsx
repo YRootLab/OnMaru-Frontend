@@ -2,8 +2,9 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import styled from '@emotion/styled';
-import { X, Flame, Users, Leaf, Check, MapPin } from 'lucide-react';
-import { lightPalette, meok , fontSize } from '@/design-system/tokens';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Cancel01Icon, FlameIcon, UsersIcon, Leaf01Icon, CheckIcon, MapPinIcon } from '@hugeicons/core-free-icons'
+import { meok, surface, fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useCreateVisitReview } from '@/features/visit-review/presentation/useCreateVisitReview';
 import type { Warmth } from '@/features/map/types';
@@ -74,11 +75,11 @@ const ModalCard = styled.div<{ $open: boolean }>`
   border-radius: 24px;
   background: #ffffff;
 
-  transform: ${({ $open }) => ($open ? 'scale(1) translateY(0)' : 'scale(0.95) translateY(12px)')};
-  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: ${({ $open }) => ($open ? 'scale(1) translateY(0)' : 'scale(0.93) translateY(18px)')};
+  transition: transform 0.38s cubic-bezier(0.19, 1.15, 0.22, 1), opacity 0.24s ease-out;
 
   [data-theme='dark'] & {
-    background: #24211D;
+    background: ${surface.dark.surface};
     color: #F3F4F6;
     border: none;
   }
@@ -172,20 +173,20 @@ const RegionChip = styled.button<{ $active: boolean }>`
   font-size: ${fontSize.xs};
   font-weight: 500;
   cursor: pointer;
-  background: ${({ $active }) => ($active ? lightPalette.hwanggeum[500] : '#f2f4f6')};
-  color: ${({ $active }) => ($active ? '#191f28' : meok[700])};
+  background: ${({ $active }) => ($active ? meok[900] : '#f2f4f6')};
+  color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
   transition: all 0.15s ease;
 
   &:hover {
-    background: ${({ $active }) => ($active ? lightPalette.hwanggeum[500] : '#e5e8eb')};
+    background: ${({ $active }) => ($active ? meok[800] : '#e5e8eb')};
   }
 
   [data-theme='dark'] & {
-    background: ${({ $active }) => ($active ? '#e85a18' : 'rgba(255, 255, 255, 0.08)')};
+    background: ${({ $active }) => ($active ? 'rgba(255, 255, 255, 0.18)' : 'rgba(255, 255, 255, 0.08)')};
     color: ${({ $active }) => ($active ? '#ffffff' : '#9CA3AF')};
 
     &:hover {
-      background: ${({ $active }) => ($active ? '#e85a18' : 'rgba(255, 255, 255, 0.14)')};
+      background: ${({ $active }) => ($active ? 'rgba(255, 255, 255, 0.24)' : 'rgba(255, 255, 255, 0.14)')};
     }
   }
 `;
@@ -203,7 +204,7 @@ const PlaceInputIcon = styled.div`
   transform: translateY(-50%);
   display: flex;
   align-items: center;
-  color: ${lightPalette.hwanggeum[500]};
+  color: ${meok[500]};
   pointer-events: none;
 `;
 
@@ -226,8 +227,8 @@ const PlaceInput = styled.input`
   }
 
   &:focus {
-    background: ${lightPalette.hwanggeum[50]};
-    color: ${lightPalette.hwanggeum[900]};
+    background: #eef1f4;
+    color: ${meok[900]};
   }
 
   [data-theme='dark'] & {
@@ -239,7 +240,7 @@ const PlaceInput = styled.input`
     }
 
     &:focus {
-      background: rgba(232, 90, 24, 0.12);
+      background: rgba(255, 255, 255, 0.1);
       color: #ffffff;
     }
   }
@@ -255,7 +256,7 @@ const PlaceDropdown = styled.div`
   padding: 4px;
 
   [data-theme='dark'] & {
-    background: #1C1A17;
+    background: ${surface.dark.app};
     border: none;
   }
 `;
@@ -278,16 +279,16 @@ const PlaceOption = styled.button`
   transition: background 0.12s ease;
 
   &:hover {
-    background: ${lightPalette.hwanggeum[50]};
-    color: ${lightPalette.hwanggeum[700]};
+    background: #eef1f4;
+    color: ${meok[700]};
   }
 
   [data-theme='dark'] & {
     color: #E5E7EB;
 
     &:hover {
-      background: rgba(232, 90, 24, 0.18);
-      color: #FBBF24;
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
     }
   }
 `;
@@ -317,23 +318,23 @@ const MoodButton = styled.button<{ $active: boolean }>`
   height: 42px;
   border-radius: 14px;
 
-  background: ${({ $active }) => ($active ? lightPalette.hwanggeum[500] : '#f2f4f6')};
-  color: ${({ $active }) => ($active ? '#191f28' : meok[700])};
+  background: ${({ $active }) => ($active ? meok[900] : '#f2f4f6')};
+  color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
   font-size: ${fontSize.sm};
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
 
   &:hover {
-    background: ${({ $active }) => ($active ? lightPalette.hwanggeum[500] : '#e5e8eb')};
+    background: ${({ $active }) => ($active ? meok[800] : '#e5e8eb')};
   }
 
   [data-theme='dark'] & {
-    background: ${({ $active }) => ($active ? '#e85a18' : 'rgba(255, 255, 255, 0.08)')};
+    background: ${({ $active }) => ($active ? 'rgba(255, 255, 255, 0.18)' : 'rgba(255, 255, 255, 0.08)')};
     color: ${({ $active }) => ($active ? '#ffffff' : '#D1D5DB')};
 
     &:hover {
-      background: ${({ $active }) => ($active ? '#e85a18' : 'rgba(255, 255, 255, 0.14)')};
+      background: ${({ $active }) => ($active ? 'rgba(255, 255, 255, 0.24)' : 'rgba(255, 255, 255, 0.14)')};
     }
   }
 `;
@@ -359,23 +360,23 @@ const TagChip = styled.button<{ $selected: boolean }>`
   padding: 6px 12px;
   border-radius: 9999px;
 
-  background: ${({ $selected }) => ($selected ? lightPalette.hwanggeum[500] : '#f2f4f6')};
-  color: ${({ $selected }) => ($selected ? '#191f28' : meok[700])};
+  background: ${({ $selected }) => ($selected ? meok[900] : '#f2f4f6')};
+  color: ${({ $selected }) => ($selected ? '#ffffff' : meok[700])};
   font-size: ${fontSize.xs};
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
 
   &:hover {
-    background: ${({ $selected }) => ($selected ? lightPalette.hwanggeum[500] : '#e5e8eb')};
+    background: ${({ $selected }) => ($selected ? meok[800] : '#e5e8eb')};
   }
 
   [data-theme='dark'] & {
-    background: ${({ $selected }) => ($selected ? '#e85a18' : 'rgba(255, 255, 255, 0.08)')};
+    background: ${({ $selected }) => ($selected ? 'rgba(255, 255, 255, 0.18)' : 'rgba(255, 255, 255, 0.08)')};
     color: ${({ $selected }) => ($selected ? '#ffffff' : '#D1D5DB')};
 
     &:hover {
-      background: ${({ $selected }) => ($selected ? '#e85a18' : 'rgba(255, 255, 255, 0.14)')};
+      background: ${({ $selected }) => ($selected ? 'rgba(255, 255, 255, 0.24)' : 'rgba(255, 255, 255, 0.14)')};
     }
   }
 `;
@@ -445,8 +446,8 @@ const SubmitBtn = styled.button`
   margin-top: 8px;
 
   border-radius: 14px;
-  background: ${lightPalette.hwanggeum[500]};
-  color: #191f28;
+  background: ${meok[900]};
+  color: #ffffff;
   font-family: inherit;
   font-size: ${fontSize.sm};
   font-weight: 700;
@@ -454,7 +455,7 @@ const SubmitBtn = styled.button`
   transition: all 0.18s ease;
 
   &:hover:not(:disabled) {
-    background: ${lightPalette.hwanggeum[700]};
+    background: ${meok[800]};
   }
 
   &:disabled {
@@ -464,10 +465,10 @@ const SubmitBtn = styled.button`
   }
 
   [data-theme='dark'] & {
-    background: linear-gradient(135deg, #e85a18 0%, #d4af37 100%);
+    background: ${meok[900]};
 
     &:hover:not(:disabled) {
-      background: linear-gradient(135deg, #f06a2b 0%, #e5bd47 100%);
+      background: ${meok[800]};
     }
 
     &:disabled {
@@ -571,11 +572,11 @@ export default function WriteWarmthModal({
       <ModalCard $open={isOpen} onClick={(e) => e.stopPropagation()}>
         <ModalHeader>
           <ModalTitle>
-            <Flame size={20} strokeWidth={2} color={lightPalette.hwanggeum[500]} />
+            <HugeiconsIcon icon={FlameIcon} size={20} strokeWidth={2} color={meok[600]} />
             <span>온기 한 줄 남기기</span>
           </ModalTitle>
           <CloseBtn type="button" onClick={onClose} aria-label="닫기">
-            <X size={20} strokeWidth={2} />
+            <HugeiconsIcon icon={Cancel01Icon} size={20} strokeWidth={2} />
           </CloseBtn>
         </ModalHeader>
 
@@ -598,7 +599,7 @@ export default function WriteWarmthModal({
 
             <PlaceInputWrap>
               <PlaceInputIcon>
-                <MapPin size={16} strokeWidth={2} />
+                <HugeiconsIcon icon={MapPinIcon} size={16} strokeWidth={2} />
               </PlaceInputIcon>
               <PlaceInput
                 type="text"
@@ -678,7 +679,7 @@ export default function WriteWarmthModal({
 
           {}
           <FormSection>
-            <SectionLabel>남기고 싶은 이야기나 꿀팁</SectionLabel>
+            <SectionLabel>방문 팁이나 남기고 싶은 이야기</SectionLabel>
             <TextArea
               value={text}
               onChange={(e) => setText(e.target.value.slice(0, 80))}
@@ -691,7 +692,7 @@ export default function WriteWarmthModal({
           {(!selectedPlace || Boolean(createError)) && (
             <ErrorText role="alert">
               {createError
-                ? '후기를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.'
+                ? '온기를 저장하지 못했어요. 잠시 후 다시 시도해 주세요.'
                 : '목록에서 장소를 선택해 주세요.'}
             </ErrorText>
           )}
@@ -699,7 +700,7 @@ export default function WriteWarmthModal({
           <SubmitBtn type="submit" disabled={!text.trim() || !selectedPlace || isSuccess || isSubmitting}>
             {isSuccess ? (
               <>
-                <Check size={18} strokeWidth={2} />
+                <HugeiconsIcon icon={CheckIcon} size={18} strokeWidth={2} />
                 <span>이야기를 남겼어요!</span>
               </>
             ) : (
@@ -711,3 +712,4 @@ export default function WriteWarmthModal({
     </Overlay>
   );
 }
+

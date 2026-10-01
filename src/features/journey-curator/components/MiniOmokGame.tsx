@@ -3,20 +3,8 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  RotateCcw,
-  Award,
-  Sparkles,
-  CheckCircle2,
-  Bot,
-  User,
-  Flame,
-  Trophy,
-  Crown,
-  Swords,
-  Search,
-  PartyPopper,
-} from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Award01Icon, BotIcon, CheckmarkCircle01Icon, CrownIcon, FlameIcon, RotateCcwIcon, Search01Icon, SparklesIcon, Sword01Icon, TrophyIcon, UserIcon } from '@hugeicons/core-free-icons'
 import { fontSize, palette, ringShadow } from '@/design-system/tokens';
 
 const BOARD_SIZE = 11;
@@ -426,7 +414,7 @@ const WinnerOverlay = styled(motion.div)`
   box-shadow: ${ringShadow.light.cardHoverGlow};
 
   [data-theme='dark'] & {
-    background: rgba(28, 26, 23, 0.96);
+    background: rgba(11, 18, 32, 0.96);
     box-shadow: ${ringShadow.dark.cardHoverGlow};
   }
 `;
@@ -801,7 +789,7 @@ export default function MiniOmokGame({
     <Container>
       <StatusHeader>
         <TurnBadge $isUserTurn={isPlayerTurn}>
-          {isPlayerTurn ? <User size={13} /> : <Bot size={13} />}
+          {isPlayerTurn ? <HugeiconsIcon icon={UserIcon} size={13} /> : <HugeiconsIcon icon={BotIcon} size={13} />}
           <span>{isPlayerTurn ? '내 차례 (흑돌)' : 'AI가 생각하고 있어요'}</span>
         </TurnBadge>
 
@@ -843,11 +831,11 @@ export default function MiniOmokGame({
 
               <WinnerIconWrap $winner={winner}>
                 {winner === 'B' ? (
-                  <Crown size={24} />
+                  <HugeiconsIcon icon={CrownIcon} size={24} />
                 ) : winner === 'W' ? (
-                  <Bot size={24} />
+                  <HugeiconsIcon icon={BotIcon} size={24} />
                 ) : (
-                  <Swords size={24} />
+                  <HugeiconsIcon icon={Sword01Icon} size={24} />
                 )}
               </WinnerIconWrap>
 
@@ -869,7 +857,7 @@ export default function MiniOmokGame({
               {!isGenerationComplete ? (
                 <>
                   <NoticeText $variant="gold">
-                    <Sparkles size={13} />
+                    <HugeiconsIcon icon={SparklesIcon} size={13} />
                     <span>맞춤 여정을 추천하는 중이에요</span>
                   </NoticeText>
                   <div
@@ -886,7 +874,7 @@ export default function MiniOmokGame({
                       style={{ justifyContent: 'center' }}
                       onClick={handleReset}
                     >
-                      <RotateCcw size={12} />
+                      <HugeiconsIcon icon={RotateCcwIcon} size={12} />
                       <span>한 판 더 하기</span>
                     </ActionButton>
                     {onGoToWordSearch && (
@@ -894,7 +882,7 @@ export default function MiniOmokGame({
                         style={{ justifyContent: 'center' }}
                         onClick={onGoToWordSearch}
                       >
-                        <Search size={12} />
+                        <HugeiconsIcon icon={Search01Icon} size={12} />
                         <span>낱말 찾기 이동</span>
                       </ActionButton>
                     )}
@@ -903,17 +891,17 @@ export default function MiniOmokGame({
               ) : (
                 <>
                   <NoticeText $variant="green">
-                    <CheckCircle2 size={14} />
+                    <HugeiconsIcon icon={CheckmarkCircle01Icon} size={14} />
                     <span>맞춤 여정이 준비되었어요</span>
                   </NoticeText>
                   <div style={{ display: 'flex', gap: '8px', marginTop: '4px', width: '100%', maxWidth: '270px', justifyContent: 'center' }}>
                     <ActionButton onClick={handleReset}>
-                      <RotateCcw size={12} />
+                      <HugeiconsIcon icon={RotateCcwIcon} size={12} />
                       <span>한 판 더 하기</span>
                     </ActionButton>
                     {onViewJourney && (
                       <ViewJourneyBtn onClick={onViewJourney}>
-                        <Sparkles size={12} />
+                        <HugeiconsIcon icon={SparklesIcon} size={12} />
                         <span>완성된 여정 보기</span>
                       </ViewJourneyBtn>
                     )}
@@ -928,7 +916,7 @@ export default function MiniOmokGame({
       <ControlsBar>
         <div style={{ display: 'flex', gap: '8px' }}>
           <ActionButton onClick={handleReset}>
-            <RotateCcw size={12} />
+            <HugeiconsIcon icon={RotateCcwIcon} size={12} />
             <span>다시 하기</span>
           </ActionButton>
           <ActionButton onClick={handleUndo} disabled={moveHistory.length < 2 || !isPlayerTurn}>
@@ -938,7 +926,7 @@ export default function MiniOmokGame({
 
         {onGoToWordSearch && (
           <ActionButton onClick={onGoToWordSearch}>
-            <Search size={12} />
+            <HugeiconsIcon icon={Search01Icon} size={12} />
             <span>낱말 찾기</span>
           </ActionButton>
         )}
@@ -954,12 +942,12 @@ export default function MiniOmokGame({
             transition={{ type: 'spring', damping: 20, stiffness: 350 }}
           >
             <CompleteText>
-              <CheckCircle2 size={14} color="#008a60" />
+              <HugeiconsIcon icon={CheckmarkCircle01Icon} size={14} color="#008a60" />
               <span>맞춤 여정이 준비되었어요</span>
             </CompleteText>
             {onViewJourney && (
               <ViewJourneyBtn onClick={onViewJourney}>
-                <Sparkles size={12} />
+                <HugeiconsIcon icon={SparklesIcon} size={12} />
                 <span>완성된 여정 보기</span>
               </ViewJourneyBtn>
             )}
@@ -968,4 +956,4 @@ export default function MiniOmokGame({
       </AnimatePresence>
     </Container>
   );
-}
+}

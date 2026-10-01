@@ -210,7 +210,7 @@ export default function HanokParts() {
       <SectionHeader
         id="hanok-parts-heading"
         title="일곱 켜, 이름과 하는 일"
-        subtitle="한 줄을 누르면 그 켜가 선 3D로 들어갑니다"
+        subtitle="항목을 누르면 3D 구조를 자세히 볼 수 있어요"
       />
 
       <List>

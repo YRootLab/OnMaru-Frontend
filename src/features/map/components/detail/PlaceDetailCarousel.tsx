@@ -2,15 +2,8 @@
 
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
-import {
-  ChevronLeft,
-  ChevronRight,
-  Landmark,
-  Home,
-  Utensils,
-  Coffee,
-  ShoppingBag,
-} from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ChevronLeftIcon, ChevronRightIcon, LandmarkIcon, Home01Icon, UtensilsIcon, Coffee01Icon, ShoppingBag01Icon } from '@hugeicons/core-free-icons'
 import { meok , fontSize } from '@/design-system/tokens';
 import type { PlaceCategory } from '@/features/map/types';
 
@@ -124,20 +117,20 @@ const FallbackText = styled.span`
 `;
 
 function renderCategoryFallback(category?: PlaceCategory | string) {
-  let icon = <Landmark size={28} strokeWidth={2} />;
+  let icon = <HugeiconsIcon icon={LandmarkIcon} size={28} strokeWidth={2} />;
   let label = '한국의 아름다운 전통 공간';
 
   if (category === 'stay') {
-    icon = <Home size={28} strokeWidth={2} />;
+    icon = <HugeiconsIcon icon={Home01Icon} size={28} strokeWidth={2} />;
     label = '마당이 있는 한옥 스테이';
   } else if (category === 'food') {
-    icon = <Utensils size={28} strokeWidth={2} />;
+    icon = <HugeiconsIcon icon={UtensilsIcon} size={28} strokeWidth={2} />;
     label = '대를 이어온 전통의 손맛';
   } else if (category === 'cafe') {
-    icon = <Coffee size={28} strokeWidth={2} />;
+    icon = <HugeiconsIcon icon={Coffee01Icon} size={28} strokeWidth={2} />;
     label = '처마 밑 은은한 다도 향기';
   } else if (category === 'market') {
-    icon = <ShoppingBag size={28} strokeWidth={2} />;
+    icon = <HugeiconsIcon icon={ShoppingBag01Icon} size={28} strokeWidth={2} />;
     label = '정겨운 전통시장 풍경';
   }
 
@@ -189,7 +182,7 @@ export default function PlaceDetailCarousel({
                   onClick={() => setCurrentSlide((prev) => Math.max(0, prev - 1))}
                   aria-label="이전 사진 보기"
                 >
-                  <ChevronLeft size={18} strokeWidth={2} />
+                  <HugeiconsIcon icon={ChevronLeftIcon} size={18} strokeWidth={2} />
                 </CarouselNavBtn>
               )}
               {currentSlide < validImages.length - 1 && (
@@ -199,7 +192,7 @@ export default function PlaceDetailCarousel({
                   onClick={() => setCurrentSlide((prev) => Math.min(validImages.length - 1, prev + 1))}
                   aria-label="다음 사진 보기"
                 >
-                  <ChevronRight size={18} strokeWidth={2} />
+                  <HugeiconsIcon icon={ChevronRightIcon} size={18} strokeWidth={2} />
                 </CarouselNavBtn>
               )}
 

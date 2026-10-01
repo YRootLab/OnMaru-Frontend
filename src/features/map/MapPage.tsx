@@ -11,7 +11,8 @@ function isMapInfoCategory(value: string | null): value is MapInfoCategory {
 }
 
 import { motion, useReducedMotion } from 'framer-motion';
-import { ChevronLeft } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ChevronLeftIcon } from '@hugeicons/core-free-icons'
 
 import { transientProps } from '@/design-system/styled';
 import { meok, surface , fontSize } from '@/design-system/tokens';
@@ -37,8 +38,6 @@ import WarmthNotesLayer from '@/private/core-ui/map-warmth/WarmthNotesLayer';
 import WriteButton from '@/private/core-ui/map-warmth/WriteButton';
 import WarmthLegend from '@/private/core-ui/map-warmth/WarmthLegend';
 import MapNavRail, { RAIL_INSET, RAIL_WIDTH } from './components/MapNavRail';
-import CinematicTourMapLayer from '@/features/cinematic-tour/components/CinematicTourMapLayer';
-import CinematicTourFloatingBar from '@/features/cinematic-tour/components/CinematicTourFloatingBar';
 import { StampSealAnimation, useStampStore } from '@/features/stamp';
 
 const FONT = "'Spoqa Han Sans Neo', -apple-system, BlinkMacSystemFont, sans-serif";
@@ -436,7 +435,6 @@ export default function MapPage() {
         <ViewportOverlays />
         <WarmthLayer />
         <WarmthNotesLayer />
-        <CinematicTourMapLayer />
         <MapChips
           $interactive={!isDetailOpen}
           style={{ left: chipsMinLeft }}
@@ -455,7 +453,7 @@ export default function MapPage() {
               aria-label="온마루 메인 홈으로 이동"
               title="온마루 메인 홈으로 이동"
             >
-              <ChevronLeft size={16} strokeWidth={2} />
+              <HugeiconsIcon icon={ChevronLeftIcon} size={16} strokeWidth={2} />
               <span>온마루 홈</span>
             </FloatingHomeButton>
           )}
@@ -498,9 +496,6 @@ export default function MapPage() {
           <CategoryChips align="start" />
         </MobileChipsScroller>
       </MobileTopBar>
-
-      {}
-      <CinematicTourFloatingBar />
 
       <BottomSheet />
 

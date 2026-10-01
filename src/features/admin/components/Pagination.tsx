@@ -5,7 +5,8 @@
 
 import React from 'react';
 import { meok, palette } from '@/design-system/tokens';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ChevronLeftIcon, ChevronRightIcon } from '@hugeicons/core-free-icons'
 
 interface PaginationProps {
   currentPage: number;
@@ -42,7 +43,8 @@ export const Pagination: React.FC<PaginationProps> = ({
   const pages = getPageNumbers();
 
   return (
-    <div
+    <nav
+      aria-label="페이지 내비게이션"
       className={className}
       style={{
         display: 'flex',
@@ -71,7 +73,7 @@ export const Pagination: React.FC<PaginationProps> = ({
           transition: 'background-color 0.15s ease',
         }}
       >
-        <ChevronLeft size={16} strokeWidth={2} />
+        <HugeiconsIcon icon={ChevronLeftIcon} size={16} strokeWidth={2} />
       </button>
 
       {pages.map((p) => {
@@ -81,6 +83,7 @@ export const Pagination: React.FC<PaginationProps> = ({
             key={p}
             type="button"
             onClick={() => onPageChange(p)}
+            aria-current={isActive ? 'page' : undefined}
             style={{
               width: '32px',
               height: '32px',
@@ -118,9 +121,9 @@ export const Pagination: React.FC<PaginationProps> = ({
           transition: 'background-color 0.15s ease',
         }}
       >
-        <ChevronRight size={16} strokeWidth={2} />
+        <HugeiconsIcon icon={ChevronRightIcon} size={16} strokeWidth={2} />
       </button>
-    </div>
+    </nav>
   );
 };
 
@@ -146,7 +149,8 @@ export const CursorPagination: React.FC<CursorPaginationProps> = ({
   if (!hasPrev && !hasNext) return null;
 
   return (
-    <div
+    <nav
+      aria-label="커서 페이지 내비게이션"
       className={className}
       style={{
         display: 'flex',
@@ -177,11 +181,12 @@ export const CursorPagination: React.FC<CursorPaginationProps> = ({
           transition: 'all 0.15s ease',
         }}
       >
-        <ChevronLeft size={16} strokeWidth={2} />
+        <HugeiconsIcon icon={ChevronLeftIcon} size={16} strokeWidth={2} />
         <span>이전</span>
       </button>
 
       <div
+        aria-current="page"
         style={{
           padding: '4px 12px',
           borderRadius: '6px',
@@ -217,8 +222,8 @@ export const CursorPagination: React.FC<CursorPaginationProps> = ({
         }}
       >
         <span>다음</span>
-        <ChevronRight size={16} strokeWidth={2} />
+        <HugeiconsIcon icon={ChevronRightIcon} size={16} strokeWidth={2} />
       </button>
-    </div>
+    </nav>
   );
 };

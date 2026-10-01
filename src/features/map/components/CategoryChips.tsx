@@ -4,20 +4,8 @@ import React, { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  BookOpen,
-  Calendar,
-  Coffee,
-  Flame,
-  Heart,
-  Home,
-  Landmark,
-  Leaf,
-  ShoppingBag,
-  Sparkles,
-  Users,
-  Utensils,
-} from 'lucide-react';
+import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
+import { Calendar01Icon, Coffee01Icon, FlameIcon, GridViewIcon, HeartIcon, LandmarkIcon, Leaf01Icon, Moon01Icon, ShoppingBag01Icon, SparklesIcon, UsersIcon, UtensilsIcon } from '@hugeicons/core-free-icons'
 import { transientProps } from '@/design-system/styled';
 import { meok, fontSize, ringShadow } from '@/design-system/tokens';
 
@@ -28,27 +16,27 @@ interface CategoryItem {
   id: string;
   label: string;
   keyword: string;
-  icon: React.ComponentType<{ size?: number; className?: string; 'aria-hidden'?: boolean; strokeWidth?: number }>;
+  icon: IconSvgElement;
 }
 
 const CATEGORIES: Record<MapMode, CategoryItem[]> = {
   info: [
-    { id: 'spot', label: '고택', keyword: '고택', icon: Landmark },
-    { id: 'experience', label: '전통 체험', keyword: '체험', icon: Sparkles },
-    { id: 'culture', label: '문화유산', keyword: '서원', icon: BookOpen },
-    { id: 'festival', label: '축제', keyword: '축제', icon: Calendar },
-    { id: 'stay', label: '한옥 숙소', keyword: '한옥스테이', icon: Home },
-    { id: 'food', label: '전통 맛집', keyword: '향토음식', icon: Utensils },
-    { id: 'cafe', label: '한옥 카페', keyword: '한옥카페', icon: Coffee },
-    { id: 'market', label: '전통 시장', keyword: '전통시장', icon: ShoppingBag },
-    { id: 'all', label: '전체', keyword: '', icon: Sparkles },
+    { id: 'spot', label: '고택', keyword: '고택', icon: LandmarkIcon },
+    { id: 'experience', label: '전통 체험', keyword: '체험', icon: SparklesIcon },
+    { id: 'culture', label: '문화유산', keyword: '서원', icon: LandmarkIcon },
+    { id: 'festival', label: '축제', keyword: '축제', icon: Calendar01Icon },
+    { id: 'stay', label: '한옥 숙소', keyword: '한옥스테이', icon: Moon01Icon },
+    { id: 'food', label: '전통 맛집', keyword: '향토음식', icon: UtensilsIcon },
+    { id: 'cafe', label: '한옥 카페', keyword: '한옥카페', icon: Coffee01Icon },
+    { id: 'market', label: '전통 시장', keyword: '전통시장', icon: ShoppingBag01Icon },
+    { id: 'all', label: '전체', keyword: '', icon: GridViewIcon },
   ],
   warmth: [
-    { id: 'all', label: '전체 온기', keyword: '', icon: Flame },
-    { id: 'busy', label: '북적이는 곳', keyword: '북적', icon: Users },
-    { id: 'quiet', label: '한적한 곳', keyword: '한적', icon: Leaf },
-    { id: 'today', label: '오늘 이야기', keyword: '오늘', icon: Calendar },
-    { id: 'mine', label: '내가 쓴 글', keyword: '내온기', icon: Heart },
+    { id: 'all', label: '전체 온기', keyword: '', icon: FlameIcon },
+    { id: 'busy', label: '북적이는 곳', keyword: '북적', icon: UsersIcon },
+    { id: 'quiet', label: '한적한 곳', keyword: '한적', icon: Leaf01Icon },
+    { id: 'today', label: '오늘 이야기', keyword: '오늘', icon: Calendar01Icon },
+    { id: 'mine', label: '내가 쓴 글', keyword: '내온기', icon: HeartIcon },
   ],
 };
 
@@ -64,12 +52,6 @@ const chipPopIn = keyframes`
     transform: translateY(0) scale(1);
   }
 `;
-
-
-
-
-
-
 
 const Scroller = styled.div`
   position: relative;
@@ -93,9 +75,6 @@ const Scroller = styled.div`
     cursor: grabbing;
   }
 `;
-
-
-
 
 const ModeGroup = styled(motion.div, transientProps)<{ $align: 'start' | 'end' }>`
   position: relative;
@@ -166,18 +145,18 @@ const Chip = styled.button<{ $active: boolean; $index: number }>`
   }
 
   [data-theme='dark'] & {
-    background: ${({ $active }) => ($active ? '#ffffff' : 'rgba(42, 45, 54, 0.95)')};
-    border: none;
-    color: ${({ $active }) => ($active ? '#171513' : '#ffffff')};
+    background: ${({ $active }) => ($active ? '#3B6FD4' : 'rgba(23, 30, 43, 0.92)')};
+    border: 1px solid ${({ $active }) => ($active ? 'rgba(100, 160, 255, 0.35)' : 'rgba(255, 255, 255, 0.12)')};
+    color: ${({ $active }) => ($active ? '#ffffff' : 'rgba(255, 255, 255, 0.87)')};
     font-weight: ${({ $active }) => ($active ? '700' : '500')};
     box-shadow: ${ringShadow.dark.mapChip};
   }
 
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme='light']) & {
-      background: ${({ $active }) => ($active ? '#ffffff' : 'rgba(42, 45, 54, 0.95)')};
-      border: none;
-      color: ${({ $active }) => ($active ? '#171513' : '#ffffff')};
+      background: ${({ $active }) => ($active ? '#3B6FD4' : 'rgba(23, 30, 43, 0.92)')};
+      border: 1px solid ${({ $active }) => ($active ? 'rgba(100, 160, 255, 0.35)' : 'rgba(255, 255, 255, 0.12)')};
+      color: ${({ $active }) => ($active ? '#ffffff' : 'rgba(255, 255, 255, 0.87)')};
       font-weight: ${({ $active }) => ($active ? '700' : '500')};
       box-shadow: ${ringShadow.dark.mapChip};
     }
@@ -196,14 +175,8 @@ const ChipWrap = styled.div`
 
 
 interface CategoryChipsProps {
-
-
-
   align?: 'start' | 'end';
 }
-
-
-
 
 export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
   const mode = useMapStore((s) => s.mode);
@@ -254,15 +227,11 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
     }
   };
 
-
-
   const updateEdgeFade = useCallback(() => {
     const el = containerRef.current;
     if (!el) return;
     el.style.setProperty('--scroll-left', `${el.scrollLeft}px`);
   }, []);
-
-
 
   const dragRef = useRef<{ startX: number; startScrollLeft: number; moved: boolean } | null>(null);
   const suppressClickRef = useRef(false);
@@ -272,8 +241,6 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
     const container = containerRef.current;
     if (!container) return;
     dragRef.current = { startX: e.clientX, startScrollLeft: container.scrollLeft, moved: false };
-
-
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -286,7 +253,7 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
       try {
         container.setPointerCapture(e.pointerId);
       } catch {
-
+        // ignore
       }
     }
     if (drag.moved) {
@@ -301,11 +268,9 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
       try {
         container.releasePointerCapture(e.pointerId);
       } catch {
-
+        // ignore
       }
     }
-
-
     suppressClickRef.current = Boolean(dragRef.current?.moved);
     dragRef.current = null;
   };
@@ -335,8 +300,6 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
     el.addEventListener('scroll', updateEdgeFade, { passive: true });
     const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateEdgeFade) : null;
     observer?.observe(el);
-
-
     const settleTimer = window.setTimeout(updateEdgeFade, 220);
     return () => {
       el.removeEventListener('scroll', updateEdgeFade);
@@ -367,7 +330,6 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
           transition={{ duration: 0.18, ease: 'easeOut' }}
         >
           {items.map((item, index) => {
-            const Icon = item.icon;
             const isActive = isItemActive(item);
             return (
               <ChipWrap key={item.id}>
@@ -378,7 +340,7 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
                   aria-pressed={isActive}
                   onClick={() => handleChipClick(item)}
                 >
-                  <Icon size={16} aria-hidden />
+                  <HugeiconsIcon icon={item.icon} size={16} aria-hidden />
                   <span>{item.label}</span>
                 </Chip>
               </ChipWrap>

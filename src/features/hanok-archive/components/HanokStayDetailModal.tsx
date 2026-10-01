@@ -1,31 +1,9 @@
-'use client';
+﻿'use client';
 
 import React, { useMemo, useState, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import {
-  X,
-  MapPin,
-  Clock,
-  Car,
-  Phone,
-  Globe,
-  Images,
-  Home,
-  ExternalLink,
-  Coffee,
-  Bookmark,
-  ZoomIn,
-  ChevronLeft,
-  ChevronRight,
-  Sparkles,
-  Navigation,
-  Layers,
-  Leaf,
-  Flower2,
-  Snowflake,
-  Sprout,
-  Wind,
-} from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Bookmark01Icon, Cancel01Icon, Car01Icon, ChevronLeftIcon, ChevronRightIcon, Clock01Icon, Coffee01Icon, ExternalLinkIcon, Flower01Icon, GlobeIcon, Home01Icon, Image02Icon, Layers01Icon, Leaf01Icon, MapPinIcon, Navigation01Icon, PhoneIcon, SnowflakeIcon, SparklesIcon, SproutIcon, WindIcon, ZoomInIcon } from '@hugeicons/core-free-icons'
 import { meok, palette, surface , fontSize } from '@/design-system/tokens';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import type { Village } from '@/features/hanok-archive/types';
@@ -33,6 +11,7 @@ import { filterLabel } from '@/features/hanok-archive/filterLabels';
 import { useStayDetail } from '@/features/hanok-archive/hooks/useStayDetail';
 import { inferSeasonTags } from '@/features/hanok-archive/utils/villageInsights';
 import ContentTagChips from '@/shared/components/ContentTagChips';
+import { livelyModalSpring, livelyBottomSheetSpring, modalOverlayTransition } from '@/shared/motion/modalMotion';
 import {
   Overlay,
   ModalCard,
@@ -85,11 +64,11 @@ import {
 import styled from '@emotion/styled';
 
 const SEASON_ICON: Record<string, React.ReactElement> = {
-  '봄꽃': <Flower2 size={12} strokeWidth={2} />,
-  '단풍': <Leaf size={12} strokeWidth={2} />,
-  '설경': <Snowflake size={12} strokeWidth={2} />,
-  '억새': <Sprout size={12} strokeWidth={2} />,
-  '여름녹음': <Wind size={12} strokeWidth={2} />,
+  '봄꽃': <HugeiconsIcon icon={Flower01Icon} size={12} strokeWidth={2} />,
+  '단풍': <HugeiconsIcon icon={Leaf01Icon} size={12} strokeWidth={2} />,
+  '설경': <HugeiconsIcon icon={SnowflakeIcon} size={12} strokeWidth={2} />,
+  '억새': <HugeiconsIcon icon={SproutIcon} size={12} strokeWidth={2} />,
+  '여름녹음': <HugeiconsIcon icon={WindIcon} size={12} strokeWidth={2} />,
 };
 
 interface HanokStayDetailModalProps {
@@ -199,21 +178,20 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
+        transition={modalOverlayTransition}
         onClick={onClose}
       >
         <ModalCard
-          initial={isMobile ? { y: '100%', opacity: 1 } : { scale: 0.94, opacity: 0, y: 16 }}
+          initial={isMobile ? { y: '100%', opacity: 1 } : { scale: 0.93, opacity: 0, y: 16 }}
           animate={isMobile ? { y: 0, opacity: 1 } : { scale: 1, opacity: 1, y: 0 }}
-          exit={isMobile ? { y: '100%', opacity: 1 } : { scale: 0.96, opacity: 0, y: 12 }}
-          transition={isMobile
-            ? { type: 'spring', damping: 32, stiffness: 300 }
-            : { type: 'spring', damping: 28, stiffness: 350 }}
+          exit={isMobile ? { y: '100%', opacity: 1 } : { scale: 0.95, opacity: 0, y: 12 }}
+          transition={isMobile ? livelyBottomSheetSpring : livelyModalSpring}
           onClick={(e) => e.stopPropagation()}
         >
           {}
           <ImageHero $bg={currentHeroImage}>
             <CloseBtn onClick={onClose} aria-label="닫기">
-              <X size={18} strokeWidth={2.5} />
+              <HugeiconsIcon icon={Cancel01Icon} size={18} strokeWidth={2.5} />
             </CloseBtn>
 
             <HeroContent>
@@ -227,7 +205,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                 onClick={() => setZoomedImageIdx(activeImageIdx ?? 0)}
                 title="사진 크게 보기"
               >
-                <ZoomIn size={13} strokeWidth={2} /> 사진 크게 보기
+                <HugeiconsIcon icon={ZoomInIcon} size={13} strokeWidth={2} /> 사진 크게 보기
               </HeroZoomBadge>
             )}
           </ImageHero>
@@ -237,7 +215,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
             <MetaRow>
               <TypeBadge>한옥스테이</TypeBadge>
               <AddrText>
-                <MapPin size={13} strokeWidth={2} style={{ display: 'inline', marginRight: 4 }} />
+                <HugeiconsIcon icon={MapPinIcon} size={13} strokeWidth={2} style={{ display: 'inline', marginRight: 4 }} />
                 {stay.addr}
               </AddrText>
             </MetaRow>
@@ -248,18 +226,18 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
             {}
             <InsightRow>
               <InsightBadge $color="#2e5f7c">
-                <Home size={12} strokeWidth={2} />
+                <HugeiconsIcon icon={Home01Icon} size={12} strokeWidth={2} />
                 {detailData?.roomtype
                   ? cleanTourApiHtml(detailData.roomtype).split('/')[0].trim()
                   : '전통 한옥'}
               </InsightBadge>
               <InsightBadge $color="#7c5c2e">
-                <Layers size={12} strokeWidth={2} />
+                <HugeiconsIcon icon={Layers01Icon} size={12} strokeWidth={2} />
                 온돌 마루
               </InsightBadge>
               {seasonTags.map((tag) => (
                 <InsightBadge key={tag} $color="#2e7d5e">
-                  {SEASON_ICON[tag] ?? <Leaf size={12} strokeWidth={2} />}
+                  {SEASON_ICON[tag] ?? <HugeiconsIcon icon={Leaf01Icon} size={12} strokeWidth={2} />}
                   {tag}
                 </InsightBadge>
               ))}
@@ -269,7 +247,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
             <CuratorsNoteSection>
               <NoteHeader>
                 <HeaderBadge>
-                  <Sparkles size={16} color={palette.cheongrok[500]} />
+                  <HugeiconsIcon icon={SparklesIcon} size={16} color={palette.cheongrok[500]} />
                   <span>숙소 소개</span>
                 </HeaderBadge>
               </NoteHeader>
@@ -290,24 +268,24 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
               <MapDotGrid aria-hidden="true" />
               <MapPreviewContent>
                 <MapPreviewLabel>
-                  <MapPin size={13} strokeWidth={2} /> 위치
+                  <HugeiconsIcon icon={MapPinIcon} size={13} strokeWidth={2} /> 위치
                 </MapPreviewLabel>
                 <MapPreviewName>{stay.name}</MapPreviewName>
                 <MapPreviewAddr>{stay.addr}</MapPreviewAddr>
               </MapPreviewContent>
               <MapPreviewAction>
-                카카오맵으로 보기 <ChevronRight size={14} strokeWidth={2.5} />
+                카카오맵으로 보기 <HugeiconsIcon icon={ChevronRightIcon} size={14} strokeWidth={2.5} />
               </MapPreviewAction>
             </MapPreviewCard>
 
             {}
             <SectionTitle>
-              <Sparkles size={16} strokeWidth={2} /> 이용 안내
+              <HugeiconsIcon icon={SparklesIcon} size={16} strokeWidth={2} /> 이용 안내
             </SectionTitle>
             <InfoGrid>
               <InfoCard>
                 <InfoIconBox>
-                  <Clock size={16} strokeWidth={2} />
+                  <HugeiconsIcon icon={Clock01Icon} size={16} strokeWidth={2} />
                 </InfoIconBox>
                 <InfoContentBox>
                   <InfoLabel>입실 · 퇴실</InfoLabel>
@@ -321,7 +299,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
 
               <InfoCard>
                 <InfoIconBox>
-                  <Home size={16} strokeWidth={2} />
+                  <HugeiconsIcon icon={Home01Icon} size={16} strokeWidth={2} />
                 </InfoIconBox>
                 <InfoContentBox>
                   <InfoLabel>객실 구조</InfoLabel>
@@ -335,7 +313,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
 
               <InfoCard>
                 <InfoIconBox>
-                  <Car size={16} strokeWidth={2} />
+                  <HugeiconsIcon icon={Car01Icon} size={16} strokeWidth={2} />
                 </InfoIconBox>
                 <InfoContentBox>
                   <InfoLabel>주차</InfoLabel>
@@ -347,7 +325,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
 
               <InfoCard>
                 <InfoIconBox>
-                  <Coffee size={16} strokeWidth={2} />
+                  <HugeiconsIcon icon={Coffee01Icon} size={16} strokeWidth={2} />
                 </InfoIconBox>
                 <InfoContentBox>
                   <InfoLabel>편의시설</InfoLabel>
@@ -360,7 +338,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
 
               <InfoCard>
                 <InfoIconBox>
-                  <Phone size={16} strokeWidth={2} />
+                  <HugeiconsIcon icon={PhoneIcon} size={16} strokeWidth={2} />
                 </InfoIconBox>
                 <InfoContentBox>
                   <InfoLabel>문의 전화</InfoLabel>
@@ -372,18 +350,18 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
 
               <InfoCard>
                 <InfoIconBox>
-                  <Globe size={16} strokeWidth={2} />
+                  <HugeiconsIcon icon={GlobeIcon} size={16} strokeWidth={2} />
                 </InfoIconBox>
                 <InfoContentBox>
                   <InfoLabel>예약 링크</InfoLabel>
                   <InfoVal>
                     {homepageInfo.url ? (
                       <a href={homepageInfo.url} target="_blank" rel="noopener noreferrer">
-                        {homepageInfo.label} <ExternalLink size={12} style={{ display: 'inline' }} />
+                        {homepageInfo.label} <HugeiconsIcon icon={ExternalLinkIcon} size={12} style={{ display: 'inline' }} />
                       </a>
                     ) : (
                       <a href={getBookingUrl(stay)} target="_blank" rel="noopener noreferrer">
-                        예약 정보 찾아보기 <ExternalLink size={12} style={{ display: 'inline' }} />
+                        예약 정보 확인하기 <HugeiconsIcon icon={ExternalLinkIcon} size={12} style={{ display: 'inline' }} />
                       </a>
                     )}
                   </InfoVal>
@@ -396,7 +374,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
             {galleryImages.length > 1 && (
               <GallerySection>
                 <SectionTitle>
-                  <Images size={16} strokeWidth={2} /> 숙소 사진 ({galleryImages.length}장)
+                  <HugeiconsIcon icon={Image02Icon} size={16} strokeWidth={2} /> 숙소 사진 ({galleryImages.length}장)
                 </SectionTitle>
                 <GalleryGrid>
                   {galleryImages.map((img, idx) => (
@@ -425,7 +403,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                예약 정보 확인하기 <ExternalLink size={15} strokeWidth={2} />
+                예약 정보 확인하기 <HugeiconsIcon icon={ExternalLinkIcon} size={15} strokeWidth={2} />
               </DirectBookingButton>
 
               <MapGuideBtn
@@ -433,7 +411,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <Navigation size={14} strokeWidth={2} /> 길찾기
+                <HugeiconsIcon icon={Navigation01Icon} size={14} strokeWidth={2} /> 길찾기
               </MapGuideBtn>
 
               <BookmarkActionBtn
@@ -442,7 +420,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                 onClick={handleBookmarkToggle}
                 title={bookmarked ? '저장 목록에서 제거' : '숙소 저장'}
               >
-                <Bookmark size={15} strokeWidth={2} fill={bookmarked ? 'currentColor' : 'none'} />
+                <HugeiconsIcon icon={Bookmark01Icon} size={15} strokeWidth={2} fill={bookmarked ? 'currentColor' : 'none'} />
                 {bookmarked ? '저장됨' : '저장하기'}
               </BookmarkActionBtn>
             </ActionRow>
@@ -464,7 +442,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
             onClick={() => setZoomedImageIdx(null)}
             aria-label="사진 닫기"
           >
-            <X size={20} strokeWidth={2.5} />
+            <HugeiconsIcon icon={Cancel01Icon} size={20} strokeWidth={2.5} />
           </LightboxCloseBtn>
 
           {galleryImages.length > 1 && (
@@ -479,7 +457,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
               }}
               aria-label="이전 사진"
             >
-              <ChevronLeft size={24} strokeWidth={2.5} />
+              <HugeiconsIcon icon={ChevronLeftIcon} size={24} strokeWidth={2.5} />
             </LightboxNavBtn>
           )}
 
@@ -503,7 +481,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
               }}
               aria-label="다음 사진"
             >
-              <ChevronRight size={24} strokeWidth={2.5} />
+              <HugeiconsIcon icon={ChevronRightIcon} size={24} strokeWidth={2.5} />
             </LightboxNavBtn>
           )}
 
@@ -568,10 +546,11 @@ const MapGuideBtn = styled.a`
   }
 
   [data-theme='dark'] & {
-    background: #24211D;
+    background: ${surface.dark.surface};
     color: ${meok[100]};
     &:hover {
       background: #2E2A25;
     }
   }
 `;
+

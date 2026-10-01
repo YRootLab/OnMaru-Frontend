@@ -5,19 +5,8 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import styled from '@emotion/styled';
 import { AnimatePresence, motion } from 'framer-motion';
-import {
-  Award,
-  BookOpen,
-  Bookmark,
-  Check,
-  Headphones,
-  Home,
-  MapPin,
-  Moon,
-  Sparkles,
-  Sun,
-  User,
-} from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Award01Icon, BookOpen01Icon, Bookmark01Icon, CheckIcon, HeadphonesIcon, Home01Icon, MapPinIcon, Moon01Icon, SparklesIcon, Sun01Icon, UserIcon } from '@hugeicons/core-free-icons'
 import { transientProps } from '@/design-system/styled';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useJourneyStore } from '@/features/journey-curator/store/useJourneyStore';
@@ -61,7 +50,7 @@ const RailContainer = styled(motion.aside, transientProps)`
   transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 
   [data-theme='dark'] & {
-    background: rgba(28, 26, 23, 0.88);
+    background: rgba(11, 18, 32, 0.88);
     border: 1px solid rgba(255, 255, 255, 0.12);
     box-shadow: ${ringShadow.dark.card};
   }
@@ -88,7 +77,7 @@ const LogoArea = styled.div`
   }
 
   &:focus-visible {
-    outline: 2px solid ${lightPalette.kobalt[500]};
+    outline: 2px solid ${lightPalette.cheongrok[500]};
     outline-offset: 2px;
     border-radius: 8px;
   }
@@ -328,7 +317,7 @@ export default function MapNavRail() {
   const isMapActive = mode === 'info' && category !== 'bookmark';
   const isRouteEntrance = useMapEntranceStore((s) => s.isRouteEntrance);
   const themeOptions: ThemePreference[] = ['system', 'light', 'dark'];
-  const ThemeTriggerIcon = themeMode === 'dark' ? Moon : Sun;
+  const themeTriggerIcon = themeMode === 'dark' ? Moon01Icon : Sun01Icon;
   const themeTriggerLabel = getThemeTriggerLabel({ preference, mode: themeMode });
 
   useEffect(() => {
@@ -400,7 +389,7 @@ export default function MapNavRail() {
           title="홈"
         >
           <NavItemIcon>
-            <Home size={19} strokeWidth={2} />
+            <HugeiconsIcon icon={Home01Icon} size={19} strokeWidth={2} />
           </NavItemIcon>
           <NavItemLabel>홈</NavItemLabel>
         </NavItemBtn>
@@ -414,7 +403,7 @@ export default function MapNavRail() {
           title="한옥마루"
         >
           <NavItemIcon>
-            <BookOpen size={19} strokeWidth={2} />
+            <HugeiconsIcon icon={BookOpen01Icon} size={19} strokeWidth={2} />
           </NavItemIcon>
           <NavItemLabel>한옥마루</NavItemLabel>
         </NavItemBtn>
@@ -428,7 +417,7 @@ export default function MapNavRail() {
           title="소리마루"
         >
           <NavItemIcon>
-            <Headphones size={19} strokeWidth={2} />
+            <HugeiconsIcon icon={HeadphonesIcon} size={19} strokeWidth={2} />
           </NavItemIcon>
           <NavItemLabel>소리마루</NavItemLabel>
         </NavItemBtn>
@@ -442,7 +431,7 @@ export default function MapNavRail() {
           title="지도마루"
         >
           <NavItemIcon>
-            <MapPin size={19} strokeWidth={2} />
+            <HugeiconsIcon icon={MapPinIcon} size={19} strokeWidth={2} />
           </NavItemIcon>
           <NavItemLabel>지도마루</NavItemLabel>
         </NavItemBtn>
@@ -452,13 +441,13 @@ export default function MapNavRail() {
           type="button"
           $active={false}
           onClick={() => router.push('/stamps')}
-          aria-label="한옥 수결첩"
-          title="한옥 수결첩"
+          aria-label="한옥 도장첩"
+          title="한옥 도장첩"
         >
           <NavItemIcon>
-            <Award size={19} strokeWidth={2} />
+            <HugeiconsIcon icon={Award01Icon} size={19} strokeWidth={2} />
           </NavItemIcon>
-          <NavItemLabel>수결첩</NavItemLabel>
+          <NavItemLabel>도장첩</NavItemLabel>
         </NavItemBtn>
 
 
@@ -475,7 +464,7 @@ export default function MapNavRail() {
           title="모음마루"
         >
           <NavItemIcon>
-            <Bookmark size={19} strokeWidth={2} />
+            <HugeiconsIcon icon={Bookmark01Icon} size={19} strokeWidth={2} />
           </NavItemIcon>
           <NavItemLabel>모음마루</NavItemLabel>
         </NavItemBtn>
@@ -495,7 +484,7 @@ export default function MapNavRail() {
             aria-expanded={isThemePickerOpen}
           >
             <NavItemIcon>
-              <ThemeTriggerIcon size={19} strokeWidth={2} />
+              <HugeiconsIcon icon={themeTriggerIcon} size={19} strokeWidth={2} />
             </NavItemIcon>
             <NavItemLabel>{preference === 'system' ? '자동' : getThemePreferenceLabel(preference)}</NavItemLabel>
           </NavItemBtn>
@@ -512,7 +501,7 @@ export default function MapNavRail() {
               >
                 {themeOptions.map((option) => {
                   const active = preference === option;
-                  const OptionIcon = option === 'dark' ? Moon : option === 'light' ? Sun : Sparkles;
+                  const optionIcon = option === 'dark' ? Moon01Icon : option === 'light' ? Sun01Icon : SparklesIcon;
                   return (
                     <ThemeRailChoiceButton
                       key={option}
@@ -526,7 +515,7 @@ export default function MapNavRail() {
                       }}
                     >
                       <ThemeRailChoiceIcon>
-                        <OptionIcon size={15} strokeWidth={2} />
+                        <HugeiconsIcon icon={optionIcon} size={15} strokeWidth={2} />
                       </ThemeRailChoiceIcon>
                       <ThemeRailChoiceCopy>
                         <ThemeRailChoiceTitle>{getThemePreferenceLabel(option)}</ThemeRailChoiceTitle>
@@ -535,7 +524,7 @@ export default function MapNavRail() {
                         </ThemeRailChoiceSummary>
                       </ThemeRailChoiceCopy>
                       <ThemeRailChoiceCheck aria-hidden="true">
-                        {active ? <Check size={14} strokeWidth={2.4} /> : null}
+                        {active ? <HugeiconsIcon icon={CheckIcon} size={14} strokeWidth={2.4} /> : null}
                       </ThemeRailChoiceCheck>
                     </ThemeRailChoiceButton>
                   );
@@ -552,7 +541,7 @@ export default function MapNavRail() {
           title="로그인"
         >
           <NavItemIcon>
-            <User size={19} strokeWidth={2} />
+            <HugeiconsIcon icon={UserIcon} size={19} strokeWidth={2} />
           </NavItemIcon>
           <NavItemLabel>마이</NavItemLabel>
         </NavItemBtn>

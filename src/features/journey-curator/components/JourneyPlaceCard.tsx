@@ -12,7 +12,8 @@
 
 
 import styled from '@emotion/styled';
-import { Check, HelpCircle } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { CheckIcon, HelpCircleIcon } from '@hugeicons/core-free-icons'
 import { meok, palette, fontSize } from '@/design-system/tokens';
 import type { JourneyCandidate, PlaceResource } from '../types/exploration.types';
 
@@ -173,7 +174,7 @@ export default function JourneyPlaceCard({
         <CheckList>
           {candidate.constraintChecks.map((c) => (
             <CheckRow key={c.key} $status={c.status}>
-              {c.status === 'UNKNOWN' ? <HelpCircle size={12} strokeWidth={2} /> : <Check size={12} strokeWidth={2} />}
+              {c.status === 'UNKNOWN' ? <HugeiconsIcon icon={HelpCircleIcon} size={12} strokeWidth={2} /> : <HugeiconsIcon icon={CheckIcon} size={12} strokeWidth={2} />}
               <span>{c.label}</span>
             </CheckRow>
           ))}

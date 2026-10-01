@@ -9,10 +9,12 @@
 
 import { useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
-import { X } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Cancel01Icon } from '@hugeicons/core-free-icons'
 import { createPortal } from 'react-dom';
 
 import { meok, surface , fontSize } from '@/design-system/tokens';
+import { livelyModalEnter } from '@/shared/motion/modalMotion';
 
 const Overlay = styled.div`
   position: fixed;
@@ -34,6 +36,7 @@ const Shell = styled.div`
   border-radius: clamp(18px, 2.4vw, 28px);
   background: ${surface.light.base};
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  animation: ${livelyModalEnter} 0.4s cubic-bezier(0.19, 1.15, 0.22, 1) both;
 
   [data-theme='dark'] & {
     background: ${surface.dark.surface};
@@ -68,7 +71,7 @@ const CloseButton = styled.button`
 
   [data-theme='dark'] & {
     border-color: rgba(255, 255, 255, 0.14);
-    background: rgba(45, 41, 36, 0.86);
+    background: rgba(33, 39, 52, 0.86);
     color: ${meok[400]};
 
     &:hover {
@@ -116,7 +119,7 @@ export default function StructureModal({ title, onClose, children }: StructureMo
     >
       <Shell ref={shellRef} role="dialog" aria-modal="true" aria-label={title} tabIndex={-1}>
         <CloseButton type="button" onClick={onClose}>
-          닫기 <X size={14} strokeWidth={2} aria-hidden="true" />
+          닫기 <HugeiconsIcon icon={Cancel01Icon} size={14} strokeWidth={2} aria-hidden="true" />
         </CloseButton>
 
         {children}
@@ -125,3 +128,4 @@ export default function StructureModal({ title, onClose, children }: StructureMo
     document.body,
   );
 }
+

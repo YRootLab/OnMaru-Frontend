@@ -3,21 +3,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  MapPin,
-  Landmark,
-  ShoppingBag,
-  Headphones,
-  Flame,
-  Network,
-  Sparkles,
-  ArrowUpRight,
-  RotateCcw,
-  X,
-} from 'lucide-react';
-import { lightPalette , fontSize } from '@/design-system/tokens';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Cancel01Icon, FlameIcon, HeadphonesIcon, LandmarkIcon, MapPinIcon, NetworkIcon, RotateCcwIcon, ShoppingBag01Icon, SparklesIcon } from '@hugeicons/core-free-icons'
+
 import type { GraphNode, NodeCategory } from '../types/journey.types';
 import { useJourneyStore } from '../store/useJourneyStore';
+import { surface, fontSize, lightPalette } from '@/design-system/tokens';
 
 const Container = styled.div`
   width: min(calc(100% - 40px), 1140px);
@@ -46,7 +37,7 @@ const GraphCard = styled.div`
   user-select: none;
 
   [data-theme='dark'] & {
-    background: #1c1a17;
+    background: ${surface.dark.app};
     border-color: rgba(255, 255, 255, 0.08);
     box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45);
   }
@@ -194,7 +185,7 @@ const NodeElement = styled.div<{
   }
 
   [data-theme='dark'] & {
-    background: ${({ $active }) => ($active ? '#2b2722' : 'rgba(36, 33, 29, 0.94)')};
+    background: ${({ $active }) => ($active ? '#2b2722' : 'rgba(23, 30, 43, 0.94)')};
     border-color: ${({ $active, $color }) => ($active ? $color : 'rgba(255, 255, 255, 0.1)')};
     box-shadow: ${({ $active, $color }) =>
       $active
@@ -262,7 +253,7 @@ const InspectorCard = styled(motion.div)`
   backdrop-filter: blur(12px);
 
   [data-theme='dark'] & {
-    background: #24211d;
+    background: ${surface.dark.surface};
     border-color: rgba(255, 255, 255, 0.1);
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
   }
@@ -331,15 +322,15 @@ const CATEGORY_COLORS: Record<NodeCategory, string> = {
 function renderNodeIcon(category: NodeCategory) {
   switch (category) {
     case 'region':
-      return <MapPin />;
+      return <HugeiconsIcon icon={MapPinIcon} />;
     case 'hanok':
-      return <Landmark />;
+      return <HugeiconsIcon icon={LandmarkIcon} />;
     case 'market':
-      return <ShoppingBag />;
+      return <HugeiconsIcon icon={ShoppingBag01Icon} />;
     case 'sorimaru':
-      return <Headphones />;
+      return <HugeiconsIcon icon={HeadphonesIcon} />;
     case 'warmth':
-      return <Flame />;
+      return <HugeiconsIcon icon={FlameIcon} />;
   }
 }
 
@@ -609,7 +600,7 @@ export default function KnowledgeGraphView() {
       >
         <GraphHeader>
           <HeaderTitle>
-            <Network size={16} color={lightPalette.cheongrok[500]} />
+            <HugeiconsIcon icon={NetworkIcon} size={16} color={lightPalette.cheongrok[500]} />
             <span>AI 여정 지식 그래프 · {plan.region}</span>
           </HeaderTitle>
 
@@ -652,7 +643,7 @@ export default function KnowledgeGraphView() {
         {}
         <Controls>
           <ResetBtn type="button" onClick={initSimulation} title="노드 배치 원래대로">
-            <RotateCcw size={12} />
+            <HugeiconsIcon icon={RotateCcwIcon} size={12} />
             <span>원래 위치로</span>
           </ResetBtn>
         </Controls>
@@ -680,7 +671,7 @@ export default function KnowledgeGraphView() {
                   {selectedNode.badge && <NodeBadge>{selectedNode.badge}</NodeBadge>}
                 </InspectorTitle>
                 <CloseBtn onClick={() => setSelectedNode(null)}>
-                  <X size={14} />
+                  <HugeiconsIcon icon={Cancel01Icon} size={14} />
                 </CloseBtn>
               </InspectorTop>
               <InspectorDesc>{selectedNode.description}</InspectorDesc>
@@ -690,4 +681,4 @@ export default function KnowledgeGraphView() {
       </GraphCard>
     </Container>
   );
-}
+}

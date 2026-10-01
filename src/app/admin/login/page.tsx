@@ -8,7 +8,8 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { meok, palette } from '@/design-system/tokens';
 import { useAdminAuth } from '@/features/admin/hooks/useAdminAuth';
-import { Lock, Mail, AlertCircle } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { LockIcon, Mail01Icon, AlertCircleIcon } from '@hugeicons/core-free-icons'
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -101,7 +102,7 @@ export default function AdminLoginPage() {
               color: palette.danpung[700],
             }}
           >
-            <AlertCircle size={16} strokeWidth={2} />
+            <HugeiconsIcon icon={AlertCircleIcon} size={16} strokeWidth={2} />
             <span>{errorMessage}</span>
           </div>
         )}
@@ -113,7 +114,7 @@ export default function AdminLoginPage() {
               이메일 주소
             </label>
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-              <Mail size={16} color={meok[400]} strokeWidth={2} style={{ position: 'absolute', left: '12px' }} />
+              <HugeiconsIcon icon={Mail01Icon} size={16} color={meok[400]} strokeWidth={2} style={{ position: 'absolute', left: '12px' }} />
               <input
                 type="email"
                 placeholder="admin@onmaru.kr"
@@ -139,7 +140,7 @@ export default function AdminLoginPage() {
               비밀번호
             </label>
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-              <Lock size={16} color={meok[400]} strokeWidth={2} style={{ position: 'absolute', left: '12px' }} />
+              <HugeiconsIcon icon={LockIcon} size={16} color={meok[400]} strokeWidth={2} style={{ position: 'absolute', left: '12px' }} />
               <input
                 type="password"
                 placeholder="비밀번호 입력"

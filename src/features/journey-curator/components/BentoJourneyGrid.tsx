@@ -1,22 +1,11 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import styled from '@emotion/styled';
 import { motion } from 'framer-motion';
-import {
-  Compass,
-  Clock,
-  Landmark,
-  Headphones,
-  Play,
-  Pause,
-  Flame,
-  ArrowRight,
-  Sparkles,
-  Bookmark,
-  BookmarkCheck,
-} from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Compass01Icon, Clock01Icon, LandmarkIcon, HeadphonesIcon, PlayIcon, PauseIcon, FlameIcon, ArrowRight01Icon, SparklesIcon, Bookmark01Icon, BookmarkCheck01Icon } from '@hugeicons/core-free-icons'
 import { toast } from 'sonner';
 import { useAuth } from '@/features/auth';
 import { useSavedJourneyStore } from '../store/useSavedJourneyStore';
@@ -82,7 +71,7 @@ const BookmarkBtn = styled.button<{ $saved: boolean }>`
   flex-shrink: 0;
 
   [data-theme='dark'] & {
-    background: ${({ $saved }) => ($saved ? 'rgba(0, 184, 130, 0.15)' : '#24211d')};
+    background: ${({ $saved }) => ($saved ? 'rgba(0, 184, 130, 0.15)' : '${surface.dark.surface}')};
     border-color: ${({ $saved }) => ($saved ? '#00b882' : 'rgba(255, 255, 255, 0.12)')};
     color: ${({ $saved }) => ($saved ? '#00b882' : '#a1a1aa')};
   }
@@ -205,7 +194,7 @@ const BaseCard = styled(motion.div)`
   transition: all 0.22s ease;
 
   [data-theme='dark'] & {
-    background: #1c1a17;
+    background: ${surface.dark.app};
     border-color: rgba(255, 255, 255, 0.08);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   }
@@ -320,7 +309,7 @@ const TimelineStop = styled.div`
     box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
 
     [data-theme='dark'] & {
-      border-color: #1c1a17;
+      border-color: ${surface.dark.app};
     }
   }
 `;
@@ -589,7 +578,7 @@ export default function BentoJourneyGrid() {
 
   const handleBookmarkToggle = () => {
     if (!isLoggedIn) {
-      toast.info('로그인해주세요.');
+      toast.info('로그인하면 여정을 저장할 수 있어요.');
       return;
     }
 
@@ -598,7 +587,7 @@ export default function BentoJourneyGrid() {
       toast.success('여정 저장을 취소했어요.');
     } else {
       saveJourney(plan);
-      toast.success(`✨ '${plan.title}' 여정을 저장했어요!`);
+      toast.success(`'${plan.title}' 여정을 저장했어요.`);
     }
   };
 
@@ -619,7 +608,7 @@ export default function BentoJourneyGrid() {
           <div>
             {plan.isAiGenerated && (
               <AiBadge>
-                <Sparkles size={12} />
+                <HugeiconsIcon icon={SparklesIcon} size={12} />
                 <span>실시간 맞춤 여정</span>
               </AiBadge>
             )}
@@ -633,7 +622,7 @@ export default function BentoJourneyGrid() {
         {}
         <RouteCard>
           <CardBadge $color="#3b82f6">
-            <Compass size={14} strokeWidth={2} />
+            <HugeiconsIcon icon={Compass01Icon} size={14} strokeWidth={2} />
             <span>추천 코스 동선</span>
           </CardBadge>
 
@@ -662,7 +651,7 @@ export default function BentoJourneyGrid() {
 
           <RouteMeta>
             <MetaItem>
-              <Clock size={14} strokeWidth={2} />
+              <HugeiconsIcon icon={Clock01Icon} size={14} strokeWidth={2} />
               <span>
                 {hasMultipleDays ? `${activeDay?.dayNumber}일차 소요: ` : '총 소요: '}
                 {currentDuration}
@@ -691,14 +680,14 @@ export default function BentoJourneyGrid() {
                 ? `${activeDay?.dayNumber}일차 동선 지도로 보기`
                 : '지도에서 전체 동선 보기'}
             </span>
-            <ArrowRight size={14} strokeWidth={2} />
+            <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
           </ActionLink>
         </RouteCard>
 
         {}
         <HanokCard>
           <CardBadge $color={lightPalette.cheongrok[500]}>
-            <Landmark size={14} strokeWidth={2} />
+            <HugeiconsIcon icon={LandmarkIcon} size={14} strokeWidth={2} />
             <span>공간 기록</span>
           </CardBadge>
           <CardTitle>{hanokCard.title}</CardTitle>
@@ -711,14 +700,14 @@ export default function BentoJourneyGrid() {
 
           <ActionLink href={hanokCard.hanokLink} $color={lightPalette.cheongrok[500]}>
             <span>한옥 구조 살펴보기</span>
-            <ArrowRight size={14} strokeWidth={2} />
+            <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
           </ActionLink>
         </HanokCard>
 
         {}
         <SorimaruCard>
           <CardBadge $color="#8b5cf6">
-            <Headphones size={14} strokeWidth={2} />
+            <HugeiconsIcon icon={HeadphonesIcon} size={14} strokeWidth={2} />
             <span>공간 오디오 해설</span>
           </CardBadge>
           <CardTitle>{sorimaruCard.title}</CardTitle>
@@ -729,7 +718,7 @@ export default function BentoJourneyGrid() {
               onClick={() => setIsPlaying(!isPlaying)}
               aria-label={isPlaying ? '오디오 일시정지' : '오디오 듣기'}
             >
-              {isPlaying ? <Pause size={18} strokeWidth={2} /> : <Play size={18} fill="currentColor" style={{ marginLeft: 2 }} />}
+              {isPlaying ? <HugeiconsIcon icon={PauseIcon} size={18} strokeWidth={2} /> : <HugeiconsIcon icon={PlayIcon} size={18} fill="currentColor" style={{ marginLeft: 2 }} />}
             </PlayBtn>
             <AudioInfo>
               <AudioTitle>{sorimaruCard.subtitle}</AudioTitle>
@@ -742,15 +731,15 @@ export default function BentoJourneyGrid() {
           <ExcerptBox>"{sorimaruCard.excerpt}"</ExcerptBox>
 
           <ActionLink href={sorimaruCard.sorimaruLink} $color="#8b5cf6">
-            <span>오디오 전체 이야기 듣기</span>
-            <ArrowRight size={14} strokeWidth={2} />
+            <span>전체 이야기 듣기</span>
+            <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
           </ActionLink>
         </SorimaruCard>
 
         {}
         <WarmthCard>
           <CardBadge $color={lightPalette.juhong[500]}>
-            <Flame size={14} strokeWidth={2} />
+            <HugeiconsIcon icon={FlameIcon} size={14} strokeWidth={2} />
             <span>실시간 분위기와 혼잡도</span>
           </CardBadge>
           <CardTitle>현재 분위기: '{warmthCard.status}'</CardTitle>
@@ -772,10 +761,10 @@ export default function BentoJourneyGrid() {
 
           <ActionLink href="/map" $color={lightPalette.juhong[500]}>
             <span>여행자 온기 이야기 보기</span>
-            <ArrowRight size={14} strokeWidth={2} />
+            <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
           </ActionLink>
         </WarmthCard>
       </BentoGrid>
     </Container>
   );
-}
+}

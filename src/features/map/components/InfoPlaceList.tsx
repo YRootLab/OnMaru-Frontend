@@ -3,7 +3,8 @@
 import { useCallback, useRef } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
-import { AlertCircle, ChevronLeft, List, RotateCcw } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { AlertCircleIcon, ChevronLeftIcon, ListIcon, RotateCcwIcon } from '@hugeicons/core-free-icons'
 import { meok, surface, fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { listInfoPlaces } from '@/features/map/services/infoMap.service';
@@ -252,7 +253,7 @@ export default function InfoPlaceList() {
             onClick={() => setInfoRegionCode(null)}
             aria-label="전국 목록으로 돌아가기"
           >
-            <ChevronLeft size={13} strokeWidth={2} />
+            <HugeiconsIcon icon={ChevronLeftIcon} size={13} strokeWidth={2} />
             전국
           </BreadcrumbBtn>
           <span>·</span>
@@ -262,7 +263,7 @@ export default function InfoPlaceList() {
 
       <StickyHeader>
         <CountLabel aria-live="polite">
-          <List size={15} color={meok[700]} strokeWidth={2} />
+          <HugeiconsIcon icon={ListIcon} size={15} color={meok[700]} strokeWidth={2} />
           <span>{headerTitle}</span>
         </CountLabel>
       </StickyHeader>
@@ -287,7 +288,7 @@ export default function InfoPlaceList() {
           description={listError}
           action={
             <RetryBtn type="button" onClick={reload}>
-              <RotateCcw size={14} strokeWidth={2} />
+              <HugeiconsIcon icon={RotateCcwIcon} size={14} strokeWidth={2} />
               다시 시도
             </RetryBtn>
           }

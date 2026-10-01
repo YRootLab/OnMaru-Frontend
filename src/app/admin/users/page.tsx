@@ -15,14 +15,8 @@ import { useAdminAuth } from '@/features/admin/hooks/useAdminAuth';
 import { useAdminUsers } from '@/features/admin/hooks/useAdminUsers';
 import { AdminUser, AdminRole } from '@/features/admin/types';
 import { createSanction } from '@/features/admin/api/adminApi';
-import {
-  Search,
-  RotateCcw,
-  UserX,
-  X,
-  Info,
-  AlertCircle,
-} from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Search01Icon, RotateCcwIcon, UserXIcon, Cancel01Icon, InformationCircleIcon, AlertCircleIcon } from '@hugeicons/core-free-icons'
 
 export default function AdminUsersPage() {
   const { user: currentUser, isAdmin } = useAdminAuth();
@@ -169,7 +163,7 @@ export default function AdminUsersPage() {
         <EmptyState
           title="접근 권한이 없습니다"
           description="사용자 권한 관리 및 제재 화면은 최고 관리자(ADMIN)만 접근할 수 있습니다."
-          icon={<AlertCircle size={48} color={palette.danpung[500]} strokeWidth={1.8} />}
+          icon={<HugeiconsIcon icon={AlertCircleIcon} size={48} color={palette.danpung[500]} strokeWidth={1.8} />}
         />
       </div>
     );
@@ -366,7 +360,7 @@ export default function AdminUsersPage() {
             >
               정지
             </button>
-          ) : (
+          ) : row.status === 'SUSPENDED' ? (
             <button
               type="button"
               onClick={() => setUnsuspendTarget(row)}
@@ -385,7 +379,7 @@ export default function AdminUsersPage() {
             >
               해제
             </button>
-          )}
+          ) : null}
         </div>
       ),
     },
@@ -423,7 +417,7 @@ export default function AdminUsersPage() {
             alignItems: 'center',
           }}
         >
-          <Search
+          <HugeiconsIcon icon={Search01Icon}
             size={16}
             color={meok[400]}
             strokeWidth={2}
@@ -535,7 +529,7 @@ export default function AdminUsersPage() {
             transition: 'background-color 0.15s ease',
           }}
         >
-          <RotateCcw size={15} strokeWidth={2} />
+          <HugeiconsIcon icon={RotateCcwIcon} size={15} strokeWidth={2} />
           <span>초기화</span>
         </button>
 
@@ -616,7 +610,7 @@ export default function AdminUsersPage() {
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <UserX size={20} color={palette.danpung[500]} strokeWidth={2} />
+                <HugeiconsIcon icon={UserXIcon} size={20} color={palette.danpung[500]} strokeWidth={2} />
                 <h3 style={{ fontSize: '17px', fontWeight: 700, color: meok[900], margin: 0 }}>
                   사용자 이용 정지
                 </h3>
@@ -626,7 +620,7 @@ export default function AdminUsersPage() {
                 onClick={() => setSuspendTarget(null)}
                 style={{ border: 'none', background: 'none', cursor: 'pointer', color: meok[400] }}
               >
-                <X size={20} strokeWidth={2} />
+                <HugeiconsIcon icon={Cancel01Icon} size={20} strokeWidth={2} />
               </button>
             </div>
 
@@ -766,7 +760,7 @@ export default function AdminUsersPage() {
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Info size={20} color={palette.juhong[500]} strokeWidth={2} />
+                <HugeiconsIcon icon={InformationCircleIcon} size={20} color={palette.juhong[500]} strokeWidth={2} />
                 <h3 style={{ fontSize: '17px', fontWeight: 700, color: meok[900], margin: 0 }}>
                   사용자 활동 상세
                 </h3>
@@ -776,7 +770,7 @@ export default function AdminUsersPage() {
                 onClick={() => setActivityTarget(null)}
                 style={{ border: 'none', background: 'none', cursor: 'pointer', color: meok[400] }}
               >
-                <X size={20} strokeWidth={2} />
+                <HugeiconsIcon icon={Cancel01Icon} size={20} strokeWidth={2} />
               </button>
             </div>
 

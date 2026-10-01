@@ -6,7 +6,8 @@
 
 import React, { useEffect } from 'react';
 import { palette } from '@/design-system/tokens';
-import { CheckCircle2, AlertCircle, Info } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { AlertCircleIcon, CheckmarkCircle01Icon, InformationCircleIcon } from '@hugeicons/core-free-icons'
 
 export type ToastType = 'success' | 'error' | 'info';
 
@@ -39,10 +40,10 @@ export const Toast: React.FC<ToastProps> = ({
 
   const Icon =
     type === 'success'
-      ? CheckCircle2
+      ? CheckmarkCircle01Icon
       : type === 'error'
-      ? AlertCircle
-      : Info;
+      ? AlertCircleIcon
+      : InformationCircleIcon;
 
   return (
     <div
@@ -72,7 +73,7 @@ export const Toast: React.FC<ToastProps> = ({
           to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
-      <Icon size={18} strokeWidth={2.2} />
+      <HugeiconsIcon icon={Icon} size={18} strokeWidth={2.2} />
       <span>{message}</span>
     </div>
   );

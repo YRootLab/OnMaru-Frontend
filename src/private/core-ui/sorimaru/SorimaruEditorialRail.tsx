@@ -259,7 +259,7 @@ const CardBottomPanel = styled.div<{ $isActive: boolean }>`
   [data-theme='dark'] & {
     color: ${meok[100]};
     background-color: ${({ $isActive }) =>
-      $isActive ? 'rgba(45, 41, 36, 0.92)' : 'rgba(32, 29, 25, 0.82)'};
+      $isActive ? 'rgba(33, 39, 52, 0.92)' : 'rgba(32, 29, 25, 0.82)'};
     border-top: 1px solid rgba(255, 255, 255, 0.08);
   }
 
@@ -872,4 +872,4 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
       </section>
     );
   }
-);
+);

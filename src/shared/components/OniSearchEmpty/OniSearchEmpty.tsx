@@ -4,6 +4,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { useReducedMotion } from 'framer-motion';
 import { meok, fontSize } from '@/design-system/tokens';
+import { useIsAppleDevice } from '@/shared/hooks/useIsAppleDevice';
 
 export interface OniSearchEmptyProps {
   /**
@@ -65,6 +66,7 @@ const MascotWrapper = styled.div<{ $size: 'sm' | 'md' | 'lg' }>`
   flex-shrink: 0;
   pointer-events: none;
   user-select: none;
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.16));
 
   @media (max-width: 640px) {
     width: ${({ $size }) => ($size === 'sm' ? '160px' : $size === 'lg' ? '300px' : '230px')};
@@ -81,7 +83,6 @@ const MascotImage = styled.img`
   transform-origin: center center;
   pointer-events: none;
   user-select: none;
-  mix-blend-mode: screen;
 `;
 
 const MascotVideo = styled.video`
@@ -92,7 +93,10 @@ const MascotVideo = styled.video`
   transform-origin: center center;
   pointer-events: none;
   user-select: none;
-  mix-blend-mode: screen;
+
+  [data-theme='dark'] & {
+    mix-blend-mode: screen;
+  }
 `;
 
 const MascotStaticFallback = styled.img`
@@ -162,6 +166,7 @@ export function OniSearchEmpty({
 }: OniSearchEmptyProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const prefersReducedMotion = useReducedMotion();
+  const isApple = useIsAppleDevice();
   const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
@@ -199,6 +204,14 @@ export function OniSearchEmpty({
             alt=""
             width={sizePixels}
             height={sizePixels}
+          />
+        ) : isApple ? (
+          <MascotImage
+            src={imageSrc}
+            alt=""
+            width={sizePixels}
+            height={sizePixels}
+            onError={() => setHasError(true)}
           />
         ) : videoSrc ? (
           <MascotVideo

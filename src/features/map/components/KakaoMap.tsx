@@ -1,26 +1,19 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Script from 'next/script';
 import styled from '@emotion/styled';
 import { Global, css } from '@emotion/react';
-import {
-  Plane,
-  X,
-  RotateCcw,
-  LocateFixed,
-  Sun,
-  Moon,
-  Plus,
-  Minus,
-} from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Cancel01Icon, LocateFixedIcon, MinusSignIcon, Moon01Icon, PlusSignIcon, RotateCcwIcon, Sun01Icon } from '@hugeicons/core-free-icons'
 import { toast } from 'sonner';
 import { meok, lightPalette, surface, fontSize } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
 import { KAKAO_SDK_SRC, useKakaoMap } from '@/features/map/hooks/useKakaoMap';
 import { DEFAULT_CENTER, useMapStore } from '@/features/map/hooks/useMapStore';
 import type { LatLng } from '@/features/map/types';
+import { isAppleOrSafari } from '@/shared/hooks/useIsAppleDevice';
 
 const mapGlobalStyles = css`
 
@@ -88,14 +81,14 @@ const mapGlobalStyles = css`
   }
 
   [data-theme='dark'] .om-my-location-bubble {
-    background: #1c1a17;
+    background: ${surface.dark.app};
     color: #f8f8f7;
     border: 1px solid rgba(255, 255, 255, 0.14);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
   }
 
   [data-theme='dark'] .om-my-location-bubble::after {
-    border-color: #1c1a17 transparent transparent transparent;
+    border-color: ${surface.dark.app} transparent transparent transparent;
   }
 
   .om-my-location-oni-wrap {
@@ -192,65 +185,6 @@ const WarmTint = styled.div<{ $active: boolean }>`
   transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 `;
 
-const FlightBanner = styled.div`
-  position: absolute;
-  top: 18px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 45;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 16px 8px 12px;
-  background: #191f28;
-  color: #ffffff;
-  border-radius: 9999px;
-  animation: flight-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
-
-  @keyframes flight-in {
-    from {
-      opacity: 0;
-      transform: translate(-50%, -14px) scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: translate(-50%, 0) scale(1);
-    }
-  }
-
-  span.hub-name {
-    font-size: ${fontSize.xs};
-    font-weight: 700;
-    color: #ffffff;
-    letter-spacing: -0.2px;
-  }
-
-  span.step-badge {
-    padding: 2px 7px;
-    border-radius: 9999px;
-    background: ${lightPalette.juhong[500]};
-    font-size: ${fontSize.micro};
-    font-weight: 700;
-  }
-
-  button.stop-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 10px;
-    border-radius: 9999px;
-    background: rgba(255, 255, 255, 0.15);
-    color: #ffffff;
-    font-size: ${fontSize.xs};
-    font-weight: 500;
-    cursor: pointer;
-    transition: background 0.15s ease;
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.25);
-    }
-  }
-`;
 
 const Research = styled.button`
   position: absolute;
@@ -369,12 +303,6 @@ const ControlButton = styled.button<{ $active?: boolean }>`
 `;
 
 
-const FLIGHT_STOPS = [
-  { name: '서울 북촌 한옥마을', lat: 37.5826, lng: 126.9848, level: 4 },
-  { name: '전주 한옥마을', lat: 35.8150, lng: 127.1530, level: 4 },
-  { name: '안동 하회마을', lat: 36.5392, lng: 128.5185, level: 4 },
-  { name: '경주 양동마을', lat: 35.9985, lng: 129.2520, level: 4 },
-];
 
 export default function KakaoMap() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -385,12 +313,6 @@ export default function KakaoMap() {
   const isSearchDirty = useMapStore((s) => s.isSearchDirty);
   const panelOpen = useMapStore((s) => s.panelOpen);
   const [isLocating, setIsLocating] = useState(false);
-  const [flightState, setFlightState] = useState<{ active: boolean; step: number }>({
-    active: false,
-    step: 0,
-  });
-
-  const flightTimerRef = useRef<NodeJS.Timeout | null>(null);
 
 
   useEffect(() => {
@@ -466,16 +388,21 @@ export default function KakaoMap() {
 
 
     const buildOniPinElement = () => {
+      const isApple = isAppleOrSafari();
       const el = document.createElement('div');
       el.className = 'om-my-location-pin';
       el.innerHTML = `
         <div class="om-my-location-bubble">
-          <span>내 위치 👋</span>
+          <span>내 위치 </span>
         </div>
         <div class="om-my-location-oni-wrap">
-          <video autoplay loop muted playsinline preload="auto" class="om-my-location-oni-video">
-            <source src="/videos/Oni_hi.webm" type="video/webm" />
-          </video>
+          ${
+            isApple
+              ? '<img src="/images/character/Oni_hi.png" alt="" class="om-my-location-oni-video" />'
+              : `<video autoplay loop muted playsinline preload="auto" class="om-my-location-oni-video">
+                  <source src="/videos/Oni_hi.webm" type="video/webm" />
+                </video>`
+          }
         </div>
         <div class="om-my-location-ground-shadow"></div>
       `;
@@ -580,57 +507,6 @@ export default function KakaoMap() {
   };
 
 
-  const stopFlight = useCallback(() => {
-    if (flightTimerRef.current) clearInterval(flightTimerRef.current);
-    flightTimerRef.current = null;
-    setFlightState({ active: false, step: 0 });
-  }, []);
-
-  const startFlight = useCallback(() => {
-    if (!map || !window.kakao?.maps) return;
-
-    if (flightState.active) {
-      stopFlight();
-      return;
-    }
-
-    let currentStep = 0;
-    const executeStep = (step: number) => {
-      const stop = FLIGHT_STOPS[step];
-      if (!stop) {
-        stopFlight();
-        return;
-      }
-
-      setFlightState({ active: true, step });
-      const latLng = new window.kakao.maps.LatLng(stop.lat, stop.lng);
-      map.setLevel(stop.level, { animate: true });
-      map.panTo(latLng);
-
-      const store = useMapStore.getState();
-      store.setCenter({ lat: stop.lat, lng: stop.lng }, stop.level);
-    };
-
-    executeStep(0);
-
-    flightTimerRef.current = setInterval(() => {
-      currentStep += 1;
-      if (currentStep >= FLIGHT_STOPS.length) {
-        stopFlight();
-      } else {
-        executeStep(currentStep);
-      }
-    }, 4800);
-  }, [map, flightState.active, stopFlight]);
-
-  useEffect(() => {
-    return () => {
-      if (flightTimerRef.current) clearInterval(flightTimerRef.current);
-    };
-  }, []);
-
-  const currentFlightStop = FLIGHT_STOPS[flightState.step];
-
   return (
     <Frame>
       <Global styles={mapGlobalStyles} />
@@ -644,24 +520,9 @@ export default function KakaoMap() {
       />
       <WarmTint $active={!isEffectiveNight} aria-hidden="true" />
 
-      {}
-      {flightState.active && currentFlightStop && (
-        <FlightBanner>
-          <span className="step-badge">{flightState.step + 1} / {FLIGHT_STOPS.length}</span>
-          <span className="hub-name flex items-center gap-1">
-            <Plane size={14} strokeWidth={2} />
-            <span>시네마틱 투어 중: {currentFlightStop.name}</span>
-          </span>
-          <button type="button" className="stop-btn" onClick={stopFlight}>
-            <X size={14} strokeWidth={2} />
-            <span>종료</span>
-          </button>
-        </FlightBanner>
-      )}
-
-      {isSearchDirty && !flightState.active && (
+      {isSearchDirty && (
         <Research type="button" onClick={() => useMapStore.getState().clearSearchDirty()}>
-          <RotateCcw size={16} strokeWidth={2} aria-hidden />
+          <HugeiconsIcon icon={RotateCcwIcon} size={16} strokeWidth={2} aria-hidden />
           이 지역 재검색
         </Research>
       )}
@@ -677,29 +538,20 @@ export default function KakaoMap() {
             title="내 현재 위치로 이동"
           >
             {isLocating ? (
-              <RotateCcw size={18} strokeWidth={2} className="animate-spin" style={{ animation: 'spin 1s linear infinite' }} />
+              <HugeiconsIcon icon={RotateCcwIcon} size={18} strokeWidth={2} className="animate-spin" style={{ animation: 'spin 1s linear infinite' }} />
             ) : (
-              <LocateFixed size={18} strokeWidth={2} />
+              <HugeiconsIcon icon={LocateFixedIcon} size={18} strokeWidth={2} />
             )}
-          </ControlButton>
-          <ControlButton
-            type="button"
-            aria-label="시네마틱 한옥 스카이뷰 비행 투어"
-            onClick={startFlight}
-            $active={flightState.active}
-            title={flightState.active ? '스카이뷰 비행 투어 중지' : '전국 4대 한옥 스카이뷰 비행 투어'}
-          >
-            <Plane size={18} strokeWidth={2} />
           </ControlButton>
         </Stack>
 
         {}
         <Stack>
           <ControlButton type="button" aria-label="확대" onClick={() => zoom(-1)}>
-            <Plus size={18} strokeWidth={2} />
+            <HugeiconsIcon icon={PlusSignIcon} size={18} strokeWidth={2} />
           </ControlButton>
           <ControlButton type="button" aria-label="축소" onClick={() => zoom(1)}>
-            <Minus size={18} strokeWidth={2} />
+            <HugeiconsIcon icon={MinusSignIcon} size={18} strokeWidth={2} />
           </ControlButton>
         </Stack>
       </Controls>

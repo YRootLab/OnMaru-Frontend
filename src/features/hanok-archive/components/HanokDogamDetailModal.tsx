@@ -5,37 +5,8 @@ import { AnimatePresence } from 'framer-motion';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import {
-  X,
-  MapPin,
-  ChevronDown,
-  ArrowRight,
-  BookOpen,
-  Clock,
-  Calendar,
-  Car,
-  Phone,
-  Globe,
-  Info,
-  Images,
-  Bookmark,
-  ZoomIn,
-  ChevronLeft,
-  ChevronRight,
-  Landmark,
-  Navigation,
-  Layers,
-  Award,
-  Leaf,
-  Flower2,
-  Snowflake,
-  Sprout,
-  Wind,
-  Copy,
-  Check,
-  Sparkles,
-  Building,
-} from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { ArrowRight01Icon, Award01Icon, BookOpen01Icon, Bookmark01Icon, Building01Icon, Calendar01Icon, Cancel01Icon, Car01Icon, CheckIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, Clock01Icon, Copy01Icon, Flower01Icon, GlobeIcon, Image02Icon, InformationCircleIcon, LandmarkIcon, Layers01Icon, Leaf01Icon, MapPinIcon, Navigation01Icon, PhoneIcon, SnowflakeIcon, SparklesIcon, SproutIcon, WindIcon, ZoomInIcon } from '@hugeicons/core-free-icons'
 import { inferStructureTags, extractHeritageGrade, inferSeasonTags } from '@/features/hanok-archive/utils/villageInsights';
 import { meok, palette, surface , fontSize } from '@/design-system/tokens';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
@@ -45,6 +16,7 @@ import { useHanokAudioGuide } from '@/features/hanok-archive/hooks/useHanokAudio
 import { useHanokTranquility } from '@/features/hanok-archive/hooks/useHanokTranquility';
 import { useHanokDetail } from '@/features/hanok-archive/hooks/useHanokDetail';
 import ContentTagChips from '@/shared/components/ContentTagChips';
+import { livelyModalSpring, livelyBottomSheetSpring, modalOverlayTransition } from '@/shared/motion/modalMotion';
 import SoriMaruBridgeCard from './SoriMaruBridgeCard';
 import TranquilityGauge from './TranquilityGauge';
 import {
@@ -111,11 +83,11 @@ import styled from '@emotion/styled';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 
 const SEASON_ICON: Record<string, React.ReactElement> = {
-  '봄꽃': <Flower2 size={12} strokeWidth={2} />,
-  '단풍': <Leaf size={12} strokeWidth={2} />,
-  '설경': <Snowflake size={12} strokeWidth={2} />,
-  '억새': <Sprout size={12} strokeWidth={2} />,
-  '여름녹음': <Wind size={12} strokeWidth={2} />,
+  '봄꽃': <HugeiconsIcon icon={Flower01Icon} size={12} strokeWidth={2} />,
+  '단풍': <HugeiconsIcon icon={Leaf01Icon} size={12} strokeWidth={2} />,
+  '설경': <HugeiconsIcon icon={SnowflakeIcon} size={12} strokeWidth={2} />,
+  '억새': <HugeiconsIcon icon={SproutIcon} size={12} strokeWidth={2} />,
+  '여름녹음': <HugeiconsIcon icon={WindIcon} size={12} strokeWidth={2} />,
 };
 
 gsap.registerPlugin(ScrollTrigger);
@@ -269,22 +241,21 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
+        transition={modalOverlayTransition}
         onClick={onClose}
       >
         <ModalCard
           ref={modalRef}
-          initial={isMobile ? { y: '100%', opacity: 1 } : { scale: 0.94, opacity: 0, y: 16 }}
+          initial={isMobile ? { y: '100%', opacity: 1 } : { scale: 0.93, opacity: 0, y: 16 }}
           animate={isMobile ? { y: 0, opacity: 1 } : { scale: 1, opacity: 1, y: 0 }}
-          exit={isMobile ? { y: '100%', opacity: 1 } : { scale: 0.96, opacity: 0, y: 12 }}
-          transition={isMobile
-            ? { type: 'spring', damping: 32, stiffness: 300 }
-            : { type: 'spring', damping: 28, stiffness: 350 }}
+          exit={isMobile ? { y: '100%', opacity: 1 } : { scale: 0.95, opacity: 0, y: 12 }}
+          transition={isMobile ? livelyBottomSheetSpring : livelyModalSpring}
           onClick={(e) => e.stopPropagation()}
         >
           {}
           <ImageHero $bg={currentHeroImage}>
             <CloseBtn onClick={onClose} aria-label="닫기">
-              <X size={18} strokeWidth={2.5} />
+              <HugeiconsIcon icon={Cancel01Icon} size={18} strokeWidth={2.5} />
             </CloseBtn>
 
             <HeroContent>
@@ -298,7 +269,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
                 onClick={() => setZoomedImageIdx(activeImageIdx ?? 0)}
                 title="사진 크게 보기"
               >
-                <ZoomIn size={13} strokeWidth={2} /> 사진 크게 보기
+                <HugeiconsIcon icon={ZoomInIcon} size={13} strokeWidth={2} /> 사진 크게 보기
               </HeroZoomBadge>
             )}
           </ImageHero>
@@ -308,7 +279,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
             <MetaRow>
               <TypeBadge>{filterLabel(village.type)}</TypeBadge>
               <AddrText>
-                <MapPin size={13} strokeWidth={2} style={{ display: 'inline', marginRight: 4 }} />
+                <HugeiconsIcon icon={MapPinIcon} size={13} strokeWidth={2} style={{ display: 'inline', marginRight: 4 }} />
                 {village.addr}
               </AddrText>
             </MetaRow>
@@ -320,33 +291,33 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
             <InsightRow>
               {heritageGrade && (
                 <InsightBadge $color="#c0392b">
-                  <Award size={12} strokeWidth={2} />
+                  <HugeiconsIcon icon={Award01Icon} size={12} strokeWidth={2} />
                   {heritageGrade}
                 </InsightBadge>
               )}
               <InsightBadge $color="#7c5c2e">
-                <Layers size={12} strokeWidth={2} />
+                <HugeiconsIcon icon={Layers01Icon} size={12} strokeWidth={2} />
                 {structureTags[0]}
               </InsightBadge>
               {structureTags.slice(1).map((tag) => (
                 <InsightBadge key={tag} $color="#595550">
-                  <Layers size={12} strokeWidth={2} />
+                  <HugeiconsIcon icon={Layers01Icon} size={12} strokeWidth={2} />
                   {tag}
                 </InsightBadge>
               ))}
               {seasonTags.map((tag) => (
                 <InsightBadge key={tag} $color="#8a6538">
-                  {SEASON_ICON[tag] ?? <Leaf size={12} strokeWidth={2} />}
+                  {SEASON_ICON[tag] ?? <HugeiconsIcon icon={Leaf01Icon} size={12} strokeWidth={2} />}
                   {tag}
                 </InsightBadge>
               ))}
             </InsightRow>
 
-            {/* 한눈에 보는 기본 정보 (Quick Essential Info) */}
+            {/* 한눈에 보는 기본 정보 (Quick Essential InformationCircleIcon) */}
             <QuickInfoContainer>
               <QuickInfoHeader>
                 <QuickInfoTitle>
-                  <Info size={16} strokeWidth={2.2} /> 한눈에 보는 기본 정보
+                  <HugeiconsIcon icon={InformationCircleIcon} size={16} strokeWidth={2.2} /> 한눈에 보는 기본 정보
                 </QuickInfoTitle>
               </QuickInfoHeader>
 
@@ -354,7 +325,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
                 {/* 1. 소재지 / 주소 */}
                 <QuickInfoCard $fullWidth>
                   <QuickInfoIcon>
-                    <MapPin size={16} strokeWidth={2} />
+                    <HugeiconsIcon icon={MapPinIcon} size={16} strokeWidth={2} />
                   </QuickInfoIcon>
                   <QuickInfoBody>
                     <QuickInfoItemLabel>소재지 (주소)</QuickInfoItemLabel>
@@ -369,11 +340,11 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
                         >
                           {copiedAddress ? (
                             <>
-                              <Check size={12} strokeWidth={2.5} /> 복사됨
+                              <HugeiconsIcon icon={CheckIcon} size={12} strokeWidth={2.5} /> 복사됨
                             </>
                           ) : (
                             <>
-                              <Copy size={12} strokeWidth={2} /> 복사
+                              <HugeiconsIcon icon={Copy01Icon} size={12} strokeWidth={2} /> 복사
                             </>
                           )}
                         </CopyBtn>
@@ -385,7 +356,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
                 {/* 2. 주차 시설 */}
                 <QuickInfoCard>
                   <QuickInfoIcon>
-                    <Car size={16} strokeWidth={2} />
+                    <HugeiconsIcon icon={Car01Icon} size={16} strokeWidth={2} />
                   </QuickInfoIcon>
                   <QuickInfoBody>
                     <QuickInfoItemLabel>주차 안내</QuickInfoItemLabel>
@@ -400,7 +371,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
                 {/* 3. 이용 / 운영 시간 */}
                 <QuickInfoCard>
                   <QuickInfoIcon>
-                    <Clock size={16} strokeWidth={2} />
+                    <HugeiconsIcon icon={Clock01Icon} size={16} strokeWidth={2} />
                   </QuickInfoIcon>
                   <QuickInfoBody>
                     <QuickInfoItemLabel>
@@ -421,7 +392,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
                 {/* 4. 쉬는 날 / 휴무 */}
                 <QuickInfoCard>
                   <QuickInfoIcon>
-                    <Calendar size={16} strokeWidth={2} />
+                    <HugeiconsIcon icon={Calendar01Icon} size={16} strokeWidth={2} />
                   </QuickInfoIcon>
                   <QuickInfoBody>
                     <QuickInfoItemLabel>쉬는 날 (휴무)</QuickInfoItemLabel>
@@ -436,7 +407,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
                 {/* 5. 문의처 */}
                 <QuickInfoCard>
                   <QuickInfoIcon>
-                    <Phone size={16} strokeWidth={2} />
+                    <HugeiconsIcon icon={PhoneIcon} size={16} strokeWidth={2} />
                   </QuickInfoIcon>
                   <QuickInfoBody>
                     <QuickInfoItemLabel>문의처</QuickInfoItemLabel>
@@ -456,7 +427,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
                 {detailData?.expguide && (
                   <QuickInfoCard $fullWidth>
                     <QuickInfoIcon>
-                      <Sparkles size={16} strokeWidth={2} />
+                      <HugeiconsIcon icon={SparklesIcon} size={16} strokeWidth={2} />
                     </QuickInfoIcon>
                     <QuickInfoBody>
                       <QuickInfoItemLabel>체험 및 이용 안내</QuickInfoItemLabel>
@@ -471,13 +442,13 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
                 {homepageInfo.url && (
                   <QuickInfoCard $fullWidth>
                     <QuickInfoIcon>
-                      <Globe size={16} strokeWidth={2} />
+                      <HugeiconsIcon icon={GlobeIcon} size={16} strokeWidth={2} />
                     </QuickInfoIcon>
                     <QuickInfoBody>
                       <QuickInfoItemLabel>공식 누리집</QuickInfoItemLabel>
                       <QuickInfoItemValue>
                         <a href={homepageInfo.url} target="_blank" rel="noopener noreferrer">
-                          {homepageInfo.label} <ArrowRight size={12} strokeWidth={2} style={{ display: 'inline' }} />
+                          {homepageInfo.label} <HugeiconsIcon icon={ArrowRight01Icon} size={12} strokeWidth={2} style={{ display: 'inline' }} />
                         </a>
                       </QuickInfoItemValue>
                     </QuickInfoBody>
@@ -488,7 +459,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
                 {isStayType && (detailData?.subfacility || detailData?.roomcount || detailData?.chkcooking) && (
                   <QuickInfoCard $fullWidth>
                     <QuickInfoIcon>
-                      <Building size={16} strokeWidth={2} />
+                      <HugeiconsIcon icon={Building01Icon} size={16} strokeWidth={2} />
                     </QuickInfoIcon>
                     <QuickInfoBody>
                       <QuickInfoItemLabel>객실 및 편의시설</QuickInfoItemLabel>
@@ -518,7 +489,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
               <CuratorsNoteSection>
                 <NoteHeader>
                   <HeaderBadge>
-                    <BookOpen size={16} strokeWidth={2} />
+                    <HugeiconsIcon icon={BookOpen01Icon} size={16} strokeWidth={2} />
                     <span>전통 건축 및 역사 해설</span>
                   </HeaderBadge>
                   {fetchedOverview && (
@@ -541,7 +512,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
                 {isLongContent && (
                   <ExpandBtn onClick={() => setIsExpanded(!isExpanded)}>
                     {isExpanded ? '접기' : '전문 읽기'}{' '}
-                    <ChevronDown
+                    <HugeiconsIcon icon={ChevronDownIcon}
                       size={14}
                       strokeWidth={2}
                       style={{
@@ -563,13 +534,13 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
               <MapDotGrid aria-hidden="true" />
               <MapPreviewContent>
                 <MapPreviewLabel>
-                  <MapPin size={13} strokeWidth={2} /> 위치
+                  <HugeiconsIcon icon={MapPinIcon} size={13} strokeWidth={2} /> 위치
                 </MapPreviewLabel>
                 <MapPreviewName>{village.name}</MapPreviewName>
                 <MapPreviewAddr>{village.addr}</MapPreviewAddr>
               </MapPreviewContent>
               <MapPreviewAction>
-                카카오맵으로 보기 <ChevronRight size={14} strokeWidth={2.5} />
+                카카오맵으로 보기 <HugeiconsIcon icon={ChevronRightIcon} size={14} strokeWidth={2.5} />
               </MapPreviewAction>
             </MapPreviewCard>
 
@@ -585,7 +556,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
             {!isLoadingOverview && detailData?.repeatInfo && detailData.repeatInfo.length > 0 && (
               <>
                 <SectionTitle>
-                  <Landmark size={16} strokeWidth={2} /> 주요 공간
+                  <HugeiconsIcon icon={LandmarkIcon} size={16} strokeWidth={2} /> 주요 공간
                 </SectionTitle>
                 <RepeatList>
                   {detailData.repeatInfo.map((item, idx) => (
@@ -602,7 +573,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
             {galleryImages.length > 1 && (
               <GallerySection>
                 <SectionTitle>
-                  <Images size={16} strokeWidth={2} /> 사진 둘러보기 ({galleryImages.length}장)
+                  <HugeiconsIcon icon={Image02Icon} size={16} strokeWidth={2} /> 사진 둘러보기 ({galleryImages.length}장)
                 </SectionTitle>
                 <GalleryGrid>
                   {galleryImages.map((img, idx) => (
@@ -631,7 +602,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <Navigation size={15} strokeWidth={2} /> 길찾기
+                <HugeiconsIcon icon={Navigation01Icon} size={15} strokeWidth={2} /> 길찾기
               </NaverDirectionsBtn>
 
               <BookmarkActionBtn
@@ -640,7 +611,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
                 onClick={handleBookmarkToggle}
                 title={bookmarked ? '저장 목록에서 제거' : '도감에 저장'}
               >
-                <Bookmark size={15} strokeWidth={2} fill={bookmarked ? 'currentColor' : 'none'} />
+                <HugeiconsIcon icon={Bookmark01Icon} size={15} strokeWidth={2} fill={bookmarked ? 'currentColor' : 'none'} />
                 {bookmarked ? '저장됨' : '저장하기'}
               </BookmarkActionBtn>
             </ActionRow>
@@ -662,7 +633,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
             onClick={() => setZoomedImageIdx(null)}
             aria-label="사진 닫기"
           >
-            <X size={20} strokeWidth={2.5} />
+            <HugeiconsIcon icon={Cancel01Icon} size={20} strokeWidth={2.5} />
           </LightboxCloseBtn>
 
           {galleryImages.length > 1 && (
@@ -677,7 +648,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
               }}
               aria-label="이전 사진"
             >
-              <ChevronLeft size={24} strokeWidth={2.5} />
+              <HugeiconsIcon icon={ChevronLeftIcon} size={24} strokeWidth={2.5} />
             </LightboxNavBtn>
           )}
 
@@ -701,7 +672,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
               }}
               aria-label="다음 사진"
             >
-              <ChevronRight size={24} strokeWidth={2.5} />
+              <HugeiconsIcon icon={ChevronRightIcon} size={24} strokeWidth={2.5} />
             </LightboxNavBtn>
           )}
 

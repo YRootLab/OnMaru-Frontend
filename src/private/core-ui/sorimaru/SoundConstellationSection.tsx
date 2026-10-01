@@ -179,7 +179,7 @@ const MapHintPill = styled.div`
   backdrop-filter: blur(4px);
 
   [data-theme='dark'] & {
-    background-color: rgba(36, 33, 29, 0.9);
+    background-color: rgba(23, 30, 43, 0.9);
     color: ${meok[200]};
     border: 1px solid rgba(255, 255, 255, 0.08);
   }
@@ -287,7 +287,7 @@ const AsidePanel = styled.aside`
   backdrop-filter: blur(12px);
 
   [data-theme='dark'] & {
-    background-color: rgba(36, 33, 29, 0.88);
+    background-color: rgba(23, 30, 43, 0.88);
     border: none;
     box-shadow: none;
   }
@@ -349,7 +349,7 @@ const TopGradientFade = styled.div`
   background: linear-gradient(to bottom, rgba(255, 255, 255, 1) 40%, rgba(255, 255, 255, 0));
 
   [data-theme='dark'] & {
-    background: linear-gradient(to bottom, rgba(36, 33, 29, 1) 40%, rgba(36, 33, 29, 0));
+    background: linear-gradient(to bottom, rgba(23, 30, 43, 1) 40%, rgba(23, 30, 43, 0));
   }
 `;
 
@@ -364,7 +364,7 @@ const BottomGradientFade = styled.div`
   background: linear-gradient(to top, rgba(255, 255, 255, 1) 40%, rgba(255, 255, 255, 0));
 
   [data-theme='dark'] & {
-    background: linear-gradient(to top, rgba(36, 33, 29, 1) 40%, rgba(36, 33, 29, 0));
+    background: linear-gradient(to top, rgba(23, 30, 43, 1) 40%, rgba(23, 30, 43, 0));
   }
 `;
 
@@ -969,4 +969,4 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
       </InnerContainer>
     </SectionWrapper>
   );
-};
+};

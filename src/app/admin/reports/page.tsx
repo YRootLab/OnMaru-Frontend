@@ -13,17 +13,10 @@ import { Toast } from '@/features/admin/components/Toast';
 import { EmptyState } from '@/features/admin/components/EmptyState';
 import { CursorPagination } from '@/features/admin/components/Pagination';
 import { ReportItem, ReportStatus } from '@/features/admin/types';
-import { getReports, moderateReview } from '@/features/admin/api/adminApi';
+import { getReports, moderateReview, createSanction } from '@/features/admin/api/adminApi';
 import { useAdminCursorPagination } from '@/features/admin/hooks/useAdminCursorPagination';
-import {
-  ShieldAlert,
-  EyeOff,
-  Trash2,
-  XCircle,
-  UserX,
-  CheckCircle2,
-  Clock,
-} from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { CancelCircleIcon, CheckmarkCircle01Icon, Clock01Icon, EyeOffIcon, ShieldAlertIcon, TrashIcon, UserXIcon } from '@hugeicons/core-free-icons'
 
 export default function AdminReportsPage() {
   const [reasonFilter, setReasonFilter] = useState<string>('ALL');
@@ -40,10 +33,11 @@ export default function AdminReportsPage() {
     goToNextPage,
     goToPrevPage,
     resetAndRefetch,
-  } = useAdminCursorPagination<ReportItem, { reason?: string }>({
+  } = useAdminCursorPagination<ReportItem, { reason?: string; status?: string }>({
     fetchFn: getReports,
     filters: {
       reason: reasonFilter === 'ALL' ? undefined : reasonFilter,
+      status: activeTab,
     },
     limit: 20,
   });
@@ -85,23 +79,28 @@ export default function AdminReportsPage() {
       description: `[${report.review.place.name}] 후기를 숨김 상태로 전환하시겠습니까?\n일반 사용자 피드에서 즉시 비노출 처리됩니다.`,
       isDestructive: false,
       onConfirm: async () => {
-        setReports((prev) =>
-          prev.map((item) =>
-            item.id === report.id
-              ? {
-                  ...item,
-                  status: 'RESOLVED',
-                  resolvedAt: new Date().toISOString(),
-                  resolvedBy: '관리자(본인)',
-                  review: { ...item.review, status: 'HIDDEN' },
-                }
-              : item
-          )
-        );
-        setConfirmState((prev) => ({ ...prev, isOpen: false }));
-        setToastMessage('후기가 숨김 처리되고 신고가 해결 완료되었습니다.');
-        await moderateReview(report.review.id, 'HIDDEN', report.reasonLabel).catch(() => {});
-        await resetAndRefetch();
+        try {
+          await moderateReview(report.review.id, 'HIDDEN', report.reasonLabel);
+          setReports((prev) =>
+            prev.map((item) =>
+              item.id === report.id
+                ? {
+                    ...item,
+                    status: 'RESOLVED',
+                    resolvedAt: new Date().toISOString(),
+                    resolvedBy: '관리자(본인)',
+                    review: { ...item.review, status: 'HIDDEN' },
+                  }
+                : item
+            )
+          );
+          setToastMessage('후기가 숨김 처리되고 신고가 해결 완료되었습니다.');
+          await resetAndRefetch();
+        } catch {
+          setToastMessage('후기 숨김 처리에 실패했습니다.');
+        } finally {
+          setConfirmState((prev) => ({ ...prev, isOpen: false }));
+        }
       },
     });
   };
@@ -113,23 +112,28 @@ export default function AdminReportsPage() {
       description: `이 후기를 완전히 삭제하시겠습니까?\n삭제된 내용은 복구할 수 없으며 작성자(${report.review.author.nickname})에게 경고 및 삭제 알림이 발송됩니다.`,
       isDestructive: true,
       onConfirm: async () => {
-        setReports((prev) =>
-          prev.map((item) =>
-            item.id === report.id
-              ? {
-                  ...item,
-                  status: 'RESOLVED',
-                  resolvedAt: new Date().toISOString(),
-                  resolvedBy: '관리자(본인)',
-                  review: { ...item.review, status: 'DELETED' },
-                }
-              : item
-          )
-        );
-        setConfirmState((prev) => ({ ...prev, isOpen: false }));
-        setToastMessage('후기가 영구 삭제되었으며 사용자에게 알림이 발송되었습니다.');
-        await moderateReview(report.review.id, 'REMOVED', report.reasonLabel).catch(() => {});
-        await resetAndRefetch();
+        try {
+          await moderateReview(report.review.id, 'REMOVED', report.reasonLabel);
+          setReports((prev) =>
+            prev.map((item) =>
+              item.id === report.id
+                ? {
+                    ...item,
+                    status: 'RESOLVED',
+                    resolvedAt: new Date().toISOString(),
+                    resolvedBy: '관리자(본인)',
+                    review: { ...item.review, status: 'DELETED' },
+                  }
+                : item
+            )
+          );
+          setToastMessage('후기가 영구 삭제되었으며 사용자에게 알림이 발송되었습니다.');
+          await resetAndRefetch();
+        } catch {
+          setToastMessage('후기 삭제 처리에 실패했습니다.');
+        } finally {
+          setConfirmState((prev) => ({ ...prev, isOpen: false }));
+        }
       },
     });
   };
@@ -141,21 +145,27 @@ export default function AdminReportsPage() {
       description: `정상적인 이용 후기로 판단하여 이 신고를 반려하시겠습니까?\n해당 후기는 게시 상태를 유지합니다.`,
       isDestructive: false,
       onConfirm: async () => {
-        setReports((prev) =>
-          prev.map((item) =>
-            item.id === report.id
-              ? {
-                  ...item,
-                  status: 'REJECTED',
-                  resolvedAt: new Date().toISOString(),
-                  resolvedBy: '관리자(본인)',
-                }
-              : item
-          )
-        );
-        setConfirmState((prev) => ({ ...prev, isOpen: false }));
-        setToastMessage('신고가 반려 처리되었습니다.');
-        await resetAndRefetch();
+        try {
+          await moderateReview(report.review.id, 'PUBLISHED', 'FALSE_POSITIVE').catch(() => {});
+          setReports((prev) =>
+            prev.map((item) =>
+              item.id === report.id
+                ? {
+                    ...item,
+                    status: 'REJECTED',
+                    resolvedAt: new Date().toISOString(),
+                    resolvedBy: '관리자(본인)',
+                  }
+                : item
+            )
+          );
+          setToastMessage('신고가 반려 처리되었습니다.');
+          await resetAndRefetch();
+        } catch {
+          setToastMessage('신고 반려 처리에 실패했습니다.');
+        } finally {
+          setConfirmState((prev) => ({ ...prev, isOpen: false }));
+        }
       },
     });
   };
@@ -167,23 +177,33 @@ export default function AdminReportsPage() {
       description: `작성자 '${report.review.author.nickname}' 계정을 7일간 서비스 이용 정지하시겠습니까?\n신고 누적 횟수: ${report.reportedUserAccumReports}회`,
       isDestructive: true,
       onConfirm: async () => {
-        setReports((prev) =>
-          prev.map((item) =>
-            item.id === report.id
-              ? {
-                  ...item,
-                  status: 'RESOLVED',
-                  resolvedAt: new Date().toISOString(),
-                  resolvedBy: '관리자(본인)',
-                  review: { ...item.review, status: 'HIDDEN' },
-                }
-              : item
-          )
-        );
-        setConfirmState((prev) => ({ ...prev, isOpen: false }));
-        setToastMessage(`작성자 '${report.review.author.nickname}'의 계정이 정지 처리되었습니다.`);
-        await moderateReview(report.review.id, 'HIDDEN', '사용자 정지로 인한 숨김').catch(() => {});
-        await resetAndRefetch();
+        try {
+          await createSanction(report.review.author.id, {
+            type: 'SUSPENSION',
+            reason: report.reasonLabel || '신고 누적 제재',
+            durationDays: 7,
+          });
+          await moderateReview(report.review.id, 'HIDDEN', '사용자 정지로 인한 숨김');
+          setReports((prev) =>
+            prev.map((item) =>
+              item.id === report.id
+                ? {
+                    ...item,
+                    status: 'RESOLVED',
+                    resolvedAt: new Date().toISOString(),
+                    resolvedBy: '관리자(본인)',
+                    review: { ...item.review, status: 'HIDDEN' },
+                  }
+                : item
+            )
+          );
+          setToastMessage(`작성자 '${report.review.author.nickname}'의 계정이 정지 처리되었습니다.`);
+          await resetAndRefetch();
+        } catch {
+          setToastMessage('사용자 정지 처리에 실패했습니다.');
+        } finally {
+          setConfirmState((prev) => ({ ...prev, isOpen: false }));
+        }
       },
     });
   };
@@ -405,7 +425,7 @@ export default function AdminReportsPage() {
                         gap: '4px',
                       }}
                     >
-                      <ShieldAlert size={14} strokeWidth={2} />
+                      <HugeiconsIcon icon={ShieldAlertIcon} size={14} strokeWidth={2} />
                       {report.reasonLabel}
                     </span>
                     <StatusBadge status={report.status} />
@@ -413,7 +433,7 @@ export default function AdminReportsPage() {
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '12px', color: meok[500] }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <Clock size={14} strokeWidth={2} />
+                      <HugeiconsIcon icon={Clock01Icon} size={14} strokeWidth={2} />
                       <span>신고 접수: {new Date(report.createdAt).toLocaleString('ko-KR')}</span>
                     </div>
                     <span>
@@ -556,7 +576,7 @@ export default function AdminReportsPage() {
                           gap: '4px',
                         }}
                       >
-                        <EyeOff size={14} strokeWidth={2} />
+                        <HugeiconsIcon icon={EyeOffIcon} size={14} strokeWidth={2} />
                         <span>숨김 처리</span>
                       </button>
 
@@ -578,7 +598,7 @@ export default function AdminReportsPage() {
                           gap: '4px',
                         }}
                       >
-                        <Trash2 size={14} strokeWidth={2} />
+                        <HugeiconsIcon icon={TrashIcon} size={14} strokeWidth={2} />
                         <span>삭제</span>
                       </button>
 
@@ -600,7 +620,7 @@ export default function AdminReportsPage() {
                           gap: '4px',
                         }}
                       >
-                        <XCircle size={14} strokeWidth={2} />
+                        <HugeiconsIcon icon={CancelCircleIcon} size={14} strokeWidth={2} />
                         <span>반려</span>
                       </button>
 
@@ -622,13 +642,13 @@ export default function AdminReportsPage() {
                           gap: '4px',
                         }}
                       >
-                        <UserX size={14} strokeWidth={2} />
+                        <HugeiconsIcon icon={UserXIcon} size={14} strokeWidth={2} />
                         <span>작성자 정지</span>
                       </button>
                     </div>
                   ) : (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: meok[500] }}>
-                      <CheckCircle2 size={16} strokeWidth={2} color={palette.cheongrok[500]} />
+                      <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} strokeWidth={2} color={palette.cheongrok[500]} />
                       <span>
                         처리 완료 ({report.resolvedAt ? new Date(report.resolvedAt).toLocaleDateString() : '-'}, {report.resolvedBy ?? '관리자'})
                       </span>

@@ -2,10 +2,12 @@
 
 import React from 'react';
 import styled from '@emotion/styled';
-import { Headphones, ArrowRight, Sparkles } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { HeadphonesIcon, ArrowRight01Icon, SparklesIcon } from '@hugeicons/core-free-icons'
 import { useRouter } from 'next/navigation';
-import { meok, palette , fontSize } from '@/design-system/tokens';
+
 import type { AudioGuideStory } from '../hooks/useHanokAudioGuide';
+import { palette, meok, surface, fontSize } from '@/design-system/tokens';
 
 interface SoriMaruBridgeCardProps {
   stories: AudioGuideStory[];
@@ -40,7 +42,7 @@ export default function SoriMaruBridgeCard({ stories, hanokName }: SoriMaruBridg
     <CardContainer>
       <HeaderRow>
         <BadgeBox>
-          <Headphones size={13} />
+          <HugeiconsIcon icon={HeadphonesIcon} size={13} />
           <span>소리마루 도슨트 연계</span>
         </BadgeBox>
         <OfficialTag>소리마루 공식 도슨트 음원</OfficialTag>
@@ -62,7 +64,7 @@ export default function SoriMaruBridgeCard({ stories, hanokName }: SoriMaruBridg
       <ActionRow>
         <ListenInSoriMaruBtn type="button" onClick={handleNavigateToSoriMaru}>
           <span>소리마루에서 도슨트 듣기</span>
-          <ArrowRight size={15} strokeWidth={2.2} />
+          <HugeiconsIcon icon={ArrowRight01Icon} size={15} strokeWidth={2.2} />
         </ListenInSoriMaruBtn>
       </ActionRow>
     </CardContainer>
@@ -80,7 +82,7 @@ const CardContainer = styled.div`
   transition: background-color 0.2s ease;
 
   [data-theme='dark'] & {
-    background: #24211D;
+    background: ${surface.dark.surface};
   }
 `;
 
@@ -208,4 +210,4 @@ const ListenInSoriMaruBtn = styled.button`
       background: ${palette.jangmi[400]};
     }
   }
-`;
+`;

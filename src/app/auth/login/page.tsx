@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import styled from '@emotion/styled';
 import { useAuth } from '@/features/auth';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
+import { useIsAppleDevice } from '@/shared/hooks/useIsAppleDevice';
 
 const HanokLogin3DStage = dynamic(() => import('@/features/auth/components/HanokLogin3DStage'), {
   ssr: false,
@@ -60,7 +61,7 @@ const SpeechBubble = styled.div`
   gap: 4px;
   padding: 6px 14px;
   border-radius: 9999px;
-  background: rgba(28, 26, 23, 0.82);
+  background: rgba(11, 18, 32, 0.82);
   color: #ffffff;
   font-size: 12px;
   font-weight: 600;
@@ -93,7 +94,7 @@ const SpeechBubble = styled.div`
     transform: translateX(-50%);
     border-width: 4px;
     border-style: solid;
-    border-color: rgba(28, 26, 23, 0.82) transparent transparent transparent;
+    border-color: rgba(11, 18, 32, 0.82) transparent transparent transparent;
   }
 
   [data-theme='dark'] & {
@@ -113,7 +114,7 @@ const OniVideoWrap = styled.div`
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.16));
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.16));
 
   img, video {
     width: 100%;
@@ -121,6 +122,9 @@ const OniVideoWrap = styled.div`
     object-fit: contain;
     display: block;
     pointer-events: none;
+  }
+
+  video {
     mix-blend-mode: screen;
   }
 
@@ -173,6 +177,7 @@ export default function LoginPage() {
   const { loginWithKakao } = useAuth();
   const { theme } = useOnmaruTheme();
   const c = theme.colors;
+  const isApple = useIsAppleDevice();
   const [oniVideoError, setOniVideoError] = useState(false);
 
   return (
@@ -185,9 +190,9 @@ export default function LoginPage() {
 
           {/* 온이 캐릭터 + 온이 정수리 바로 위 말풍선 */}
           <OniContainer>
-            <SpeechBubble>온마루에 오신 걸 환영해요! </SpeechBubble>
+            <SpeechBubble>온마루에 오신 걸 환영해요!</SpeechBubble>
             <OniVideoWrap>
-              {oniVideoError ? (
+              {isApple || oniVideoError ? (
                 <img src="/images/character/Oni_hi.png" alt="온마루 캐릭터 온이" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
               ) : (
                 <video autoPlay loop muted playsInline preload="auto" aria-label="온마루 캐릭터 온이" onError={() => setOniVideoError(true)}>
@@ -200,9 +205,9 @@ export default function LoginPage() {
 
         <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <p style={{ fontSize: '14px', color: c.text.muted, margin: 0, lineHeight: 1.5 }}>
-            카카오 계정으로 로그인하고
+            카카오 계정으로 간편하게 시작하고
             <br />
-            온마루의 모든 이야기를 만나보세요.
+            한옥 여정과 소리를 기록해 보세요.
           </p>
         </div>
 
@@ -224,4 +229,4 @@ function KakaoBubbleIcon() {
       />
     </svg>
   );
-}
+}

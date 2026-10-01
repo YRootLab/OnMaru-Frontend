@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
-import { Megaphone } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Megaphone01Icon } from '@hugeicons/core-free-icons'
 import { lightPalette, meok , fontSize } from '@/design-system/tokens';
 
 const NOTICES = [
@@ -43,7 +44,7 @@ const IconWrap = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${lightPalette.kobalt[500]};
+  color: ${lightPalette.cheongrok[500]};
   flex-shrink: 0;
 
   [data-theme='dark'] & {
@@ -101,7 +102,7 @@ export default function LiveNoticeBanner() {
   return (
     <Container role="status" aria-label="문화재 소식 안내">
       <IconWrap>
-        <Megaphone size={15} strokeWidth={2} />
+        <HugeiconsIcon icon={Megaphone01Icon} size={15} strokeWidth={2} />
       </IconWrap>
       <TextScroller>
         <NoticeText key={index}>{NOTICES[index]}</NoticeText>
