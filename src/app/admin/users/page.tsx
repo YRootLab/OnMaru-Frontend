@@ -366,7 +366,7 @@ export default function AdminUsersPage() {
             >
               정지
             </button>
-          ) : (
+          ) : row.status === 'SUSPENDED' ? (
             <button
               type="button"
               onClick={() => setUnsuspendTarget(row)}
@@ -385,7 +385,7 @@ export default function AdminUsersPage() {
             >
               해제
             </button>
-          )}
+          ) : null}
         </div>
       ),
     },

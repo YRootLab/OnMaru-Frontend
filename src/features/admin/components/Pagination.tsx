@@ -42,7 +42,8 @@ export const Pagination: React.FC<PaginationProps> = ({
   const pages = getPageNumbers();
 
   return (
-    <div
+    <nav
+      aria-label="페이지 내비게이션"
       className={className}
       style={{
         display: 'flex',
@@ -81,6 +82,7 @@ export const Pagination: React.FC<PaginationProps> = ({
             key={p}
             type="button"
             onClick={() => onPageChange(p)}
+            aria-current={isActive ? 'page' : undefined}
             style={{
               width: '32px',
               height: '32px',
@@ -120,7 +122,7 @@ export const Pagination: React.FC<PaginationProps> = ({
       >
         <ChevronRight size={16} strokeWidth={2} />
       </button>
-    </div>
+    </nav>
   );
 };
 
@@ -146,7 +148,8 @@ export const CursorPagination: React.FC<CursorPaginationProps> = ({
   if (!hasPrev && !hasNext) return null;
 
   return (
-    <div
+    <nav
+      aria-label="커서 페이지 내비게이션"
       className={className}
       style={{
         display: 'flex',
@@ -182,6 +185,7 @@ export const CursorPagination: React.FC<CursorPaginationProps> = ({
       </button>
 
       <div
+        aria-current="page"
         style={{
           padding: '4px 12px',
           borderRadius: '6px',
@@ -219,6 +223,6 @@ export const CursorPagination: React.FC<CursorPaginationProps> = ({
         <span>다음</span>
         <ChevronRight size={16} strokeWidth={2} />
       </button>
-    </div>
+    </nav>
   );
 };

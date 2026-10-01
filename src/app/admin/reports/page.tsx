@@ -13,7 +13,7 @@ import { Toast } from '@/features/admin/components/Toast';
 import { EmptyState } from '@/features/admin/components/EmptyState';
 import { CursorPagination } from '@/features/admin/components/Pagination';
 import { ReportItem, ReportStatus } from '@/features/admin/types';
-import { getReports, moderateReview } from '@/features/admin/api/adminApi';
+import { getReports, moderateReview, createSanction } from '@/features/admin/api/adminApi';
 import { useAdminCursorPagination } from '@/features/admin/hooks/useAdminCursorPagination';
 import {
   ShieldAlert,
@@ -40,10 +40,11 @@ export default function AdminReportsPage() {
     goToNextPage,
     goToPrevPage,
     resetAndRefetch,
-  } = useAdminCursorPagination<ReportItem, { reason?: string }>({
+  } = useAdminCursorPagination<ReportItem, { reason?: string; status?: string }>({
     fetchFn: getReports,
     filters: {
       reason: reasonFilter === 'ALL' ? undefined : reasonFilter,
+      status: activeTab,
     },
     limit: 20,
   });
@@ -85,23 +86,28 @@ export default function AdminReportsPage() {
       description: `[${report.review.place.name}] 후기를 숨김 상태로 전환하시겠습니까?\n일반 사용자 피드에서 즉시 비노출 처리됩니다.`,
       isDestructive: false,
       onConfirm: async () => {
-        setReports((prev) =>
-          prev.map((item) =>
-            item.id === report.id
-              ? {
-                  ...item,
-                  status: 'RESOLVED',
-                  resolvedAt: new Date().toISOString(),
-                  resolvedBy: '관리자(본인)',
-                  review: { ...item.review, status: 'HIDDEN' },
-                }
-              : item
-          )
-        );
-        setConfirmState((prev) => ({ ...prev, isOpen: false }));
-        setToastMessage('후기가 숨김 처리되고 신고가 해결 완료되었습니다.');
-        await moderateReview(report.review.id, 'HIDDEN', report.reasonLabel).catch(() => {});
-        await resetAndRefetch();
+        try {
+          await moderateReview(report.review.id, 'HIDDEN', report.reasonLabel);
+          setReports((prev) =>
+            prev.map((item) =>
+              item.id === report.id
+                ? {
+                    ...item,
+                    status: 'RESOLVED',
+                    resolvedAt: new Date().toISOString(),
+                    resolvedBy: '관리자(본인)',
+                    review: { ...item.review, status: 'HIDDEN' },
+                  }
+                : item
+            )
+          );
+          setToastMessage('후기가 숨김 처리되고 신고가 해결 완료되었습니다.');
+          await resetAndRefetch();
+        } catch {
+          setToastMessage('후기 숨김 처리에 실패했습니다.');
+        } finally {
+          setConfirmState((prev) => ({ ...prev, isOpen: false }));
+        }
       },
     });
   };
@@ -113,23 +119,28 @@ export default function AdminReportsPage() {
       description: `이 후기를 완전히 삭제하시겠습니까?\n삭제된 내용은 복구할 수 없으며 작성자(${report.review.author.nickname})에게 경고 및 삭제 알림이 발송됩니다.`,
       isDestructive: true,
       onConfirm: async () => {
-        setReports((prev) =>
-          prev.map((item) =>
-            item.id === report.id
-              ? {
-                  ...item,
-                  status: 'RESOLVED',
-                  resolvedAt: new Date().toISOString(),
-                  resolvedBy: '관리자(본인)',
-                  review: { ...item.review, status: 'DELETED' },
-                }
-              : item
-          )
-        );
-        setConfirmState((prev) => ({ ...prev, isOpen: false }));
-        setToastMessage('후기가 영구 삭제되었으며 사용자에게 알림이 발송되었습니다.');
-        await moderateReview(report.review.id, 'REMOVED', report.reasonLabel).catch(() => {});
-        await resetAndRefetch();
+        try {
+          await moderateReview(report.review.id, 'REMOVED', report.reasonLabel);
+          setReports((prev) =>
+            prev.map((item) =>
+              item.id === report.id
+                ? {
+                    ...item,
+                    status: 'RESOLVED',
+                    resolvedAt: new Date().toISOString(),
+                    resolvedBy: '관리자(본인)',
+                    review: { ...item.review, status: 'DELETED' },
+                  }
+                : item
+            )
+          );
+          setToastMessage('후기가 영구 삭제되었으며 사용자에게 알림이 발송되었습니다.');
+          await resetAndRefetch();
+        } catch {
+          setToastMessage('후기 삭제 처리에 실패했습니다.');
+        } finally {
+          setConfirmState((prev) => ({ ...prev, isOpen: false }));
+        }
       },
     });
   };
@@ -141,21 +152,27 @@ export default function AdminReportsPage() {
       description: `정상적인 이용 후기로 판단하여 이 신고를 반려하시겠습니까?\n해당 후기는 게시 상태를 유지합니다.`,
       isDestructive: false,
       onConfirm: async () => {
-        setReports((prev) =>
-          prev.map((item) =>
-            item.id === report.id
-              ? {
-                  ...item,
-                  status: 'REJECTED',
-                  resolvedAt: new Date().toISOString(),
-                  resolvedBy: '관리자(본인)',
-                }
-              : item
-          )
-        );
-        setConfirmState((prev) => ({ ...prev, isOpen: false }));
-        setToastMessage('신고가 반려 처리되었습니다.');
-        await resetAndRefetch();
+        try {
+          await moderateReview(report.review.id, 'PUBLISHED', 'FALSE_POSITIVE').catch(() => {});
+          setReports((prev) =>
+            prev.map((item) =>
+              item.id === report.id
+                ? {
+                    ...item,
+                    status: 'REJECTED',
+                    resolvedAt: new Date().toISOString(),
+                    resolvedBy: '관리자(본인)',
+                  }
+                : item
+            )
+          );
+          setToastMessage('신고가 반려 처리되었습니다.');
+          await resetAndRefetch();
+        } catch {
+          setToastMessage('신고 반려 처리에 실패했습니다.');
+        } finally {
+          setConfirmState((prev) => ({ ...prev, isOpen: false }));
+        }
       },
     });
   };
@@ -167,23 +184,33 @@ export default function AdminReportsPage() {
       description: `작성자 '${report.review.author.nickname}' 계정을 7일간 서비스 이용 정지하시겠습니까?\n신고 누적 횟수: ${report.reportedUserAccumReports}회`,
       isDestructive: true,
       onConfirm: async () => {
-        setReports((prev) =>
-          prev.map((item) =>
-            item.id === report.id
-              ? {
-                  ...item,
-                  status: 'RESOLVED',
-                  resolvedAt: new Date().toISOString(),
-                  resolvedBy: '관리자(본인)',
-                  review: { ...item.review, status: 'HIDDEN' },
-                }
-              : item
-          )
-        );
-        setConfirmState((prev) => ({ ...prev, isOpen: false }));
-        setToastMessage(`작성자 '${report.review.author.nickname}'의 계정이 정지 처리되었습니다.`);
-        await moderateReview(report.review.id, 'HIDDEN', '사용자 정지로 인한 숨김').catch(() => {});
-        await resetAndRefetch();
+        try {
+          await createSanction(report.review.author.id, {
+            type: 'SUSPENSION',
+            reason: report.reasonLabel || '신고 누적 제재',
+            durationDays: 7,
+          });
+          await moderateReview(report.review.id, 'HIDDEN', '사용자 정지로 인한 숨김');
+          setReports((prev) =>
+            prev.map((item) =>
+              item.id === report.id
+                ? {
+                    ...item,
+                    status: 'RESOLVED',
+                    resolvedAt: new Date().toISOString(),
+                    resolvedBy: '관리자(본인)',
+                    review: { ...item.review, status: 'HIDDEN' },
+                  }
+                : item
+            )
+          );
+          setToastMessage(`작성자 '${report.review.author.nickname}'의 계정이 정지 처리되었습니다.`);
+          await resetAndRefetch();
+        } catch {
+          setToastMessage('사용자 정지 처리에 실패했습니다.');
+        } finally {
+          setConfirmState((prev) => ({ ...prev, isOpen: false }));
+        }
       },
     });
   };

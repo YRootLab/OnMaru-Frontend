@@ -489,7 +489,7 @@ export default function AdminReviewsPage() {
 
         {}
         <div style={{ marginLeft: 'auto', fontSize: '12px', color: meok[500] }}>
-          현재 페이지 <strong style={{ color: meok[900] }}>{filteredReviews.length}</strong>건 (서버 페이지당 20건)
+          현재 페이지 <strong style={{ color: meok[900] }}>{filteredReviews.length}</strong>건 (온기·기간·정렬은 현재 페이지 20건 기준)
         </div>
       </div>
 

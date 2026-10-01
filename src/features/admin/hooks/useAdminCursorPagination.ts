@@ -96,9 +96,8 @@ export function useAdminCursorPagination<TItem, TFilter extends Record<string, u
 
         // Requirement 5: 만료·변조 cursor의 400 VALIDATION_ERROR 시 cursor 버리고 첫 페이지 재조회 흐름 제공
         const isValidationOrExpired =
-          apiErr.status === 400 ||
+          (apiErr.status === 400 && apiErr.code === 'VALIDATION_ERROR') ||
           apiErr.status === 410 ||
-          apiErr.code === 'VALIDATION_ERROR' ||
           apiErr.code === 'CURSOR_EXPIRED' ||
           apiErr.code === 'CURSOR_INVALID';
 
@@ -134,10 +133,12 @@ export function useAdminCursorPagination<TItem, TFilter extends Record<string, u
       return;
     }
 
-    // Filter or limit changed: discard prior cursors & fetch page 1
+    // Filter or limit changed: discard prior cursors & fetch page 1 if autoFetch is true
     cursorHistoryRef.current = [undefined];
     setPageIndex(0);
-    void executeFetch(undefined, 0);
+    if (autoFetch) {
+      void executeFetch(undefined, 0);
+    }
   }, [serializedFilters, autoFetch, executeFetch]);
 
   const goToNextPage = useCallback(async () => {

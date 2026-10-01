@@ -62,25 +62,26 @@ export default function AdminCurationPage() {
   const [badgePopoverId, setBadgePopoverId] = useState<string | null>(null);
   const [customBadgeInput, setCustomBadgeInput] = useState('');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastType, setToastType] = useState<'success' | 'error'>('success');
   const [isApplyConfirmOpen, setIsApplyConfirmOpen] = useState(false);
   const [isApplying, setIsApplying] = useState(false);
   const [lastAppliedTime, setLastAppliedTime] = useState('2026.08.04 04:00');
+  const [drafts, setDrafts] = useState<Record<string, CurationItem>>({});
 
   const updateItem = (id: string, updates: Partial<CurationItem>) => {
-    setCurations((prev) =>
-      prev.map((item) => {
-        if (item.id === id) {
-          return {
-            ...item,
-            ...updates,
-            lastModifiedBy: '관리자(본인)',
-            lastModifiedAt: '방금 전',
-            isModifiedLocally: true,
-          };
-        }
-        return item;
-      })
-    );
+    const original = curations.find((item) => item.id === id);
+    const base = drafts[id] || original;
+    if (!base) return;
+
+    const updated: CurationItem = {
+      ...base,
+      ...updates,
+      lastModifiedBy: '관리자(본인)',
+      lastModifiedAt: '방금 전',
+      isModifiedLocally: true,
+    };
+
+    setDrafts((prev) => ({ ...prev, [id]: updated }));
     setModifiedIds((prev) => new Set(prev).add(id));
   };
 
@@ -91,8 +92,12 @@ export default function AdminCurationPage() {
     setImageFilter('ALL');
   };
 
+  const displayedCurations = useMemo(() => {
+    return curations.map((item) => drafts[item.id] || item);
+  }, [curations, drafts]);
+
   const filteredList = useMemo(() => {
-    return curations.filter((item) => {
+    return displayedCurations.filter((item) => {
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const matchName = item.name.toLowerCase().includes(q);
@@ -107,20 +112,23 @@ export default function AdminCurationPage() {
 
       return true;
     });
-  }, [curations, searchQuery, typeFilter, imageFilter]);
+  }, [displayedCurations, searchQuery, typeFilter, imageFilter]);
 
   const handleApplyChanges = async () => {
     setIsApplying(true);
-    const toSave = curations.filter((i) => modifiedIds.has(i.id));
+    const toSave = Object.values(drafts);
     try {
       await Promise.all(toSave.map((i) => updateCuration(i.contentId || i.id, i)));
-      const count = modifiedIds.size;
+      const count = toSave.length;
+      setDrafts({});
       setModifiedIds(new Set());
       setIsApplyConfirmOpen(false);
       setLastAppliedTime(new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }));
+      setToastType('success');
       setToastMessage(`변경사항 ${count}건이 서비스 데이터에 성공적으로 반영되었습니다.`);
       await resetAndRefetch();
     } catch {
+      setToastType('error');
       setToastMessage('저장 중 오류가 발생했습니다.');
     } finally {
       setIsApplying(false);
@@ -525,7 +533,7 @@ export default function AdminCurationPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {toastMessage && (
-        <Toast message={toastMessage} type="success" onClose={() => setToastMessage(null)} />
+        <Toast message={toastMessage} type={toastType} onClose={() => setToastMessage(null)} />
       )}
 
       {}

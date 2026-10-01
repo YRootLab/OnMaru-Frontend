@@ -131,41 +131,11 @@ export interface ApiError {
   code?: string;
 }
 
-export interface PaginationParams {
-  page?: number;
-  limit: number;
-}
-
-export interface CursorPaginationParams {
-  limit?: number;
-  cursor?: string;
-}
-
-export interface CursorPageResponse<T> {
-  schemaVersion?: string;
-  items: T[];
-  nextCursor?: string | null;
-  hasNext: boolean;
-  hasMore?: boolean;
-}
-
-export interface PaginatedResponse<T> extends CursorPageResponse<T> {
-  total?: number;
-  page?: number;
-  limit?: number;
-  totalPages?: number;
-}
-
-export interface ModerationQueueItem {
-  reviewId: string;
-  priority: 'HIGH_RISK' | 'STANDARD';
-  oldestOpenReportAt: string;
-  ageSeconds: number;
-  slaTargetAt: string;
-  overdue: boolean;
-}
-
-export interface ModerationQueuePageResponse extends CursorPageResponse<ModerationQueueItem> {
-  generatedAt: string;
-  oldestOpenReportAgeSeconds: number;
-}
+export type {
+  PaginationParams,
+  CursorPaginationParams,
+  CursorPageResponse,
+  PaginatedResponse,
+  ModerationQueueItem,
+  ModerationQueuePageResponse,
+} from './domain/adminTypes';

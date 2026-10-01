@@ -144,12 +144,25 @@ export interface ReviewsQuery {
   sort?: string;
 }
 
-export async function getReviews(query: ReviewsQuery = {}): Promise<CursorPageResponse<WarmthReview>> {
+export function buildReviewsParams(query: ReviewsQuery = {}): Record<string, unknown> {
   const limit = Math.max(1, Math.min(100, query.limit ?? 20));
   const rawStatus = query.status === 'ALL' ? undefined : query.status;
   const status = rawStatus === 'DELETED' ? 'REMOVED' : rawStatus;
   const q = (query.query ?? query.search)?.trim();
   const searchParam = q && q.length > 0 ? q.slice(0, 120) : undefined;
+
+  const params: Record<string, unknown> = { limit };
+  if (query.cursor) params.cursor = query.cursor;
+  if (status) params.status = status;
+  if (searchParam) params.query = searchParam;
+  return params;
+}
+
+export async function getReviews(query: ReviewsQuery = {}): Promise<CursorPageResponse<WarmthReview>> {
+  const params = buildReviewsParams(query);
+  const limit = params.limit as number;
+  const status = params.status as string | undefined;
+  const searchParam = params.query as string | undefined;
 
   if (USE_MOCK) {
     await delay(150);
@@ -167,11 +180,6 @@ export async function getReviews(query: ReviewsQuery = {}): Promise<CursorPageRe
     });
     return paginateCursor(filtered, limit, query.cursor);
   }
-
-  const params: Record<string, unknown> = { limit };
-  if (query.cursor) params.cursor = query.cursor;
-  if (status) params.status = status;
-  if (searchParam) params.query = searchParam;
 
   const res = await apiRequest<CursorPageResponse<any>>('/admin/reviews', { params });
   const items: WarmthReview[] = (res.items || []).map((r: any) => ({
@@ -240,9 +248,20 @@ export interface ReportsQuery {
   status?: string;
 }
 
-export async function getReports(query: ReportsQuery = {}): Promise<CursorPageResponse<ReportItem>> {
+export function buildReportsParams(query: ReportsQuery = {}): Record<string, unknown> {
   const limit = Math.max(1, Math.min(100, query.limit ?? 20));
   const reason = query.reason === 'ALL' ? undefined : query.reason;
+  const params: Record<string, unknown> = { limit };
+  if (query.cursor) params.cursor = query.cursor;
+  if (reason) params.reason = reason;
+  if (query.status && query.status !== 'ALL') params.status = query.status;
+  return params;
+}
+
+export async function getReports(query: ReportsQuery = {}): Promise<CursorPageResponse<ReportItem>> {
+  const params = buildReportsParams(query);
+  const limit = params.limit as number;
+  const reason = params.reason as string | undefined;
 
   if (USE_MOCK) {
     await delay(150);
@@ -253,10 +272,6 @@ export async function getReports(query: ReportsQuery = {}): Promise<CursorPageRe
     });
     return paginateCursor(filtered, limit, query.cursor);
   }
-
-  const params: Record<string, unknown> = { limit };
-  if (query.cursor) params.cursor = query.cursor;
-  if (reason) params.reason = reason;
 
   const res = await apiRequest<CursorPageResponse<any>>('/admin/reports', { params });
   const items: ReportItem[] = (res.items || []).map((r: any) => ({
@@ -577,23 +592,11 @@ export function createAdminRepository(
 ) {
   return {
     listReviews: (query: ReviewsQuery = {}) => {
-      const limit = Math.max(1, Math.min(100, query.limit ?? 20));
-      const rawStatus = query.status === 'ALL' ? undefined : query.status;
-      const status = rawStatus === 'DELETED' ? 'REMOVED' : rawStatus;
-      const q = (query.query ?? query.search)?.trim();
-      const searchParam = q && q.length > 0 ? q.slice(0, 120) : undefined;
-      const params: Record<string, unknown> = { limit };
-      if (query.cursor) params.cursor = query.cursor;
-      if (status) params.status = status;
-      if (searchParam) params.query = searchParam;
+      const params = buildReviewsParams(query);
       return fetcher('/admin/reviews', { method: 'GET', params }) as Promise<CursorPageResponse<WarmthReview>>;
     },
     listReports: (query: ReportsQuery = {}) => {
-      const limit = Math.max(1, Math.min(100, query.limit ?? 20));
-      const reason = query.reason === 'ALL' ? undefined : query.reason;
-      const params: Record<string, unknown> = { limit };
-      if (query.cursor) params.cursor = query.cursor;
-      if (reason) params.reason = reason;
+      const params = buildReportsParams(query);
       return fetcher('/admin/reports', { method: 'GET', params }) as Promise<CursorPageResponse<ReportItem>>;
     },
     listUsers: (query: UsersQuery = {}) => {
