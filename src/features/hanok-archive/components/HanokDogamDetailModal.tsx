@@ -27,6 +27,10 @@ import {
   Layers,
   Award,
   Leaf,
+  Flower2,
+  Snowflake,
+  Sprout,
+  Wind,
 } from 'lucide-react';
 import { inferStructureTags, extractHeritageGrade, inferSeasonTags } from '@/features/hanok-archive/utils/villageInsights';
 import { meok, palette, surface , fontSize } from '@/design-system/tokens';
@@ -85,9 +89,29 @@ import {
   LightboxNavBtn,
   LightboxFooter,
   LightboxCounter,
+  InsightRow,
+  InsightBadge,
+  MapPreviewCard,
+  MapDotGrid,
+  MapPreviewContent,
+  MapPreviewLabel,
+  MapPreviewName,
+  MapPreviewAddr,
+  MapPreviewAction,
+  ExpguideCard,
+  ExpguideLabel,
+  ExpguideText,
 } from './VillageDetailModal.styles';
 import styled from '@emotion/styled';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
+
+const SEASON_ICON: Record<string, React.ReactElement> = {
+  '봄꽃': <Flower2 size={12} strokeWidth={2} />,
+  '단풍': <Leaf size={12} strokeWidth={2} />,
+  '설경': <Snowflake size={12} strokeWidth={2} />,
+  '억새': <Sprout size={12} strokeWidth={2} />,
+  '여름녹음': <Wind size={12} strokeWidth={2} />,
+};
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -247,8 +271,13 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
       detailData?.restdate ||
       detailData?.parking ||
       detailData?.tel ||
-      homepageInfo.url
+      homepageInfo.url ||
+      detailData?.expguide
   );
+
+  const kakaoMapUrl = village.lat && village.lng
+    ? `https://map.kakao.com/link/map/${encodeURIComponent(village.name)},${village.lat},${village.lng}`
+    : `https://map.kakao.com/link/search/${encodeURIComponent(village.name)}`;
 
   return (
     <AnimatePresence>
@@ -324,7 +353,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
               ))}
               {seasonTags.map((tag) => (
                 <InsightBadge key={tag} $color="#2e7d5e">
-                  <Leaf size={12} strokeWidth={2} />
+                  {SEASON_ICON[tag] ?? <Leaf size={12} strokeWidth={2} />}
                   {tag}
                 </InsightBadge>
               ))}
@@ -376,6 +405,26 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
                 )}
               </CuratorsNoteSection>
             )}
+
+            {}
+            <MapPreviewCard
+              href={kakaoMapUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${village.name} 카카오맵에서 보기`}
+            >
+              <MapDotGrid aria-hidden="true" />
+              <MapPreviewContent>
+                <MapPreviewLabel>
+                  <MapPin size={13} strokeWidth={2} /> 위치
+                </MapPreviewLabel>
+                <MapPreviewName>{village.name}</MapPreviewName>
+                <MapPreviewAddr>{village.addr}</MapPreviewAddr>
+              </MapPreviewContent>
+              <MapPreviewAction>
+                카카오맵으로 보기 <ChevronRight size={14} strokeWidth={2.5} />
+              </MapPreviewAction>
+            </MapPreviewCard>
 
             {}
             <SoriMaruBridgeCard stories={audioGuideStories} hanokName={village.name} />
@@ -455,6 +504,15 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
                     </InfoCard>
                   )}
                 </InfoGrid>
+
+                {detailData?.expguide && (
+                  <ExpguideCard>
+                    <ExpguideLabel>
+                      <Info size={13} strokeWidth={2} /> 체험·이용 안내
+                    </ExpguideLabel>
+                    <ExpguideText>{cleanTourApiHtml(detailData.expguide)}</ExpguideText>
+                  </ExpguideCard>
+                )}
               </>
             )}
 
@@ -592,32 +650,6 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
     </AnimatePresence>
   );
 }
-
-const InsightRow = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 4px;
-`;
-
-const InsightBadge = styled.span<{ $color: string }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 9px;
-  border-radius: 9999px;
-  font-size: 11.5px;
-  font-weight: 600;
-  color: ${({ $color }) => $color};
-  background: ${({ $color }) => $color}18;
-  border: 1px solid ${({ $color }) => $color}30;
-
-  [data-theme='dark'] & {
-    color: ${({ $color }) => $color}cc;
-    background: ${({ $color }) => $color}22;
-    border-color: ${({ $color }) => $color}44;
-  }
-`;
 
 const NaverDirectionsBtn = styled.a`
   flex: 1.5;

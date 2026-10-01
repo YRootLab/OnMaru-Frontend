@@ -224,14 +224,9 @@ export const SourceTag = styled.span`
 
 export const StoryContainer = styled.div<{ $isExpanded: boolean }>`
   position: relative;
-  ${({ $isExpanded }) =>
-    !$isExpanded &&
-    `
-    display: -webkit-box;
-    -webkit-line-clamp: 5;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  `}
+  overflow: hidden;
+  max-height: ${({ $isExpanded }) => ($isExpanded ? 'none' : '160px')};
+  transition: max-height 0.35s ease;
 `;
 
 export const StoryParagraph = styled.p`
@@ -745,4 +740,170 @@ export const LightboxCounter = styled.span`
   font-size: ${fontSize.xs};
   font-weight: 500;
   letter-spacing: 0.05em;
+`;
+
+export const InsightRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 4px;
+`;
+
+export const InsightBadge = styled.span<{ $color: string }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: ${({ $color }) => $color};
+  background: ${({ $color }) => $color}18;
+  border: 1px solid ${({ $color }) => $color}30;
+
+  [data-theme='dark'] & {
+    color: ${({ $color }) => $color}cc;
+    background: ${({ $color }) => $color}22;
+    border-color: ${({ $color }) => $color}44;
+  }
+`;
+
+export const MapPreviewCard = styled.a`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #e8f4e8 0%, #d4ecd4 100%);
+  border: 1px solid rgba(46, 125, 94, 0.18);
+  text-decoration: none;
+  color: inherit;
+  margin-bottom: 4px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(46, 125, 94, 0.15);
+  }
+
+  [data-theme='dark'] & {
+    background: linear-gradient(135deg, rgba(46, 125, 94, 0.18) 0%, rgba(46, 125, 94, 0.1) 100%);
+    border-color: rgba(46, 125, 94, 0.3);
+  }
+`;
+
+export const MapDotGrid = styled.div`
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(46, 125, 94, 0.12) 1px, transparent 1px);
+  background-size: 18px 18px;
+  pointer-events: none;
+`;
+
+export const MapPreviewContent = styled.div`
+  flex: 1;
+  min-width: 0;
+  position: relative;
+`;
+
+export const MapPreviewLabel = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #2e7d5e;
+  margin-bottom: 3px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+
+  [data-theme='dark'] & {
+    color: #4caf82;
+  }
+`;
+
+export const MapPreviewName = styled.div`
+  font-size: 14px;
+  font-weight: 600;
+  color: ${meok[900]};
+  letter-spacing: -0.02em;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  [data-theme='dark'] & {
+    color: ${meok[100]};
+  }
+`;
+
+export const MapPreviewAddr = styled.div`
+  font-size: 11.5px;
+  color: ${meok[600]};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
+`;
+
+export const MapPreviewAction = styled.div`
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #2e7d5e;
+  white-space: nowrap;
+  position: relative;
+
+  [data-theme='dark'] & {
+    color: #4caf82;
+  }
+`;
+
+export const ExpguideCard = styled.div`
+  margin-top: 12px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(78, 89, 104, 0.04);
+  border: 1px solid rgba(78, 89, 104, 0.1);
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+`;
+
+export const ExpguideLabel = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: ${meok[600]};
+  margin-bottom: 8px;
+  letter-spacing: 0.01em;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
+`;
+
+export const ExpguideText = styled.p`
+  margin: 0;
+  font-size: ${fontSize.sm};
+  line-height: 1.7;
+  color: ${meok[800]};
+  white-space: pre-line;
+  word-break: keep-all;
+
+  [data-theme='dark'] & {
+    color: ${meok[200]};
+  }
 `;

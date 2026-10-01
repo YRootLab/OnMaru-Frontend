@@ -4,6 +4,7 @@ import styled from '@emotion/styled';
 import { MapPin, Medal, RefreshCw, ShieldCheck, Trophy, UserCheck, UserX } from 'lucide-react';
 import type { StampRankingEntry, StampRankingStatusResponse } from '../domain/models';
 import { meok } from '@/design-system/tokens';
+import OniSearchEmpty from '@/shared/components/OniSearchEmpty/OniSearchEmpty';
 
 interface StampLeaderboardProps {
   entries: StampRankingEntry[];
@@ -223,12 +224,15 @@ export default function StampLeaderboard({
           ))}
         </List>
       ) : hasError && entries.length === 0 ? (
-        <Empty>
-          <div>
-            <p>랭킹을 불러오지 못했어요.</p>
+        <OniSearchEmpty
+          size="sm"
+          title="랭킹을 불러오지 못했어요"
+          description="잠시 후 다시 시도해 주세요."
+          compact
+          action={
             <Action type="button" onClick={onRetry}><RefreshCw size={15} /> 다시 시도</Action>
-          </div>
-        </Empty>
+          }
+        />
       ) : entries.length === 0 ? (
         <Empty>아직 공개 랭킹 참여자가 없어요.</Empty>
       ) : (

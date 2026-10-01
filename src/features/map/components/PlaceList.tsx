@@ -586,17 +586,17 @@ export default function PlaceList() {
           ))}
         </SkeletonWrapper>
       ) : error ? (
-        <EmptyStateBox role="alert">
-          <EmptyIconBox>
-            <AlertCircle size={24} strokeWidth={2} />
-          </EmptyIconBox>
-          <EmptyTitle>정보를 가져오지 못했어요</EmptyTitle>
-          <EmptyDesc>{error}</EmptyDesc>
-          <ActionButton type="button" onClick={reload}>
-            <RotateCcw size={14} strokeWidth={2} />
-            <span>다시 시도</span>
-          </ActionButton>
-        </EmptyStateBox>
+        <OniSearchEmpty
+          size="md"
+          title="정보를 가져오지 못했어요"
+          description={error}
+          action={
+            <ActionButton type="button" onClick={reload}>
+              <RotateCcw size={14} strokeWidth={2} />
+              <span>다시 시도</span>
+            </ActionButton>
+          }
+        />
       ) : sortedItems.length === 0 ? (
         category === 'bookmark' ? (
           <EmptyStateBox>
