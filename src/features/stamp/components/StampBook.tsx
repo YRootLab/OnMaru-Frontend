@@ -26,6 +26,7 @@ gsap.registerPlugin(useGSAP);
 /* ── 수결첩 디자인 토큰 ── */
 const NIGHT    = '#0B0D13';
 const INK_LIGHT = '#E8DFC8';
+const INK       = INK_LIGHT;
 const INK_DIM   = 'rgba(232, 223, 200, 0.42)';
 const CINNABAR  = '#C9221A';
 const AMBER     = '#E09240';
