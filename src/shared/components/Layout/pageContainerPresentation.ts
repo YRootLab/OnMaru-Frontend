@@ -13,7 +13,6 @@ export function getPageContainerPresentation(pathname: string): PageContainerPre
     pathname.startsWith('/sorimaru') ||
     pathname.startsWith('/map') ||
     pathname.startsWith('/mypage') ||
-    pathname.startsWith('/stamps') ||
     pathname.startsWith('/discover');
 
   return {

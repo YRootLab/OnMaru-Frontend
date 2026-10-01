@@ -70,6 +70,7 @@ interface MapState {
   reloadNonce: number;
   panelOpen: boolean;
   sheetSnap: SheetSnap;
+  isWarmthWriteOpen: boolean;
 
   // ── Info list state ──────────────────────────────────────────────────────
   infoCategory: MapInfoCategory;
@@ -131,6 +132,7 @@ interface MapState {
   togglePanel: () => void;
   setPanelOpen: (panelOpen: boolean) => void;
   setSheetSnap: (snap: SheetSnap) => void;
+  setIsWarmthWriteOpen: (open: boolean) => void;
 }
 
 export const useMapStore = create<MapState>((set, get) => ({
@@ -277,4 +279,6 @@ export const useMapStore = create<MapState>((set, get) => ({
   togglePanel: () => set({ panelOpen: !get().panelOpen }),
   setPanelOpen: (panelOpen) => set({ panelOpen }),
   setSheetSnap: (sheetSnap) => set({ sheetSnap }),
+  isWarmthWriteOpen: false,
+  setIsWarmthWriteOpen: (isWarmthWriteOpen) => set({ isWarmthWriteOpen }),
 }));

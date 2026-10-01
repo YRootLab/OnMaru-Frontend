@@ -36,6 +36,7 @@ import ContentTagChips from '@/shared/components/ContentTagChips';
 import {
   Overlay,
   ModalCard,
+  ModalScrollContent,
   ImageHero,
   CloseBtn,
   HeroContent,
@@ -210,12 +211,13 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
             : { type: 'spring', damping: 28, stiffness: 350 }}
           onClick={(e) => e.stopPropagation()}
         >
+          <CloseBtn onClick={onClose} aria-label="닫기">
+            <X size={18} strokeWidth={2.5} />
+          </CloseBtn>
+
+          <ModalScrollContent>
           {}
           <ImageHero $bg={currentHeroImage}>
-            <CloseBtn onClick={onClose} aria-label="닫기">
-              <X size={18} strokeWidth={2.5} />
-            </CloseBtn>
-
             <HeroContent>
               <HeroRegion>{stay.region} · 고즈넉한 하룻밤</HeroRegion>
               <HeroTitle>{stay.name}</HeroTitle>
@@ -447,6 +449,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
               </BookmarkActionBtn>
             </ActionRow>
           </Body>
+          </ModalScrollContent>
         </ModalCard>
       </Overlay>
 

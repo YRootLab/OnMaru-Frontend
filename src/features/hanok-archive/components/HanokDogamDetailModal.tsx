@@ -50,6 +50,7 @@ import TranquilityGauge from './TranquilityGauge';
 import {
   Overlay,
   ModalCard,
+  ModalScrollContent,
   ImageHero,
   CloseBtn,
   HeroContent,
@@ -206,7 +207,17 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
 
   const fetchedOverview = detailData?.overview ? cleanTourApiHtml(detailData.overview) : null;
 
-  const currentStoryText = fetchedOverview || village.overview || village.summary || '';
+  const currentStoryText = useMemo(() => {
+    if (fetchedOverview) return fetchedOverview;
+    if (village.overview) return village.overview;
+    if (village.summary) {
+      if (village.summary.endsWith('…')) {
+        return village.summary.replace(/[\s\.]+…$/, ' 전해지는 유서 깊은 한국의 대표적인 전통 공간입니다.');
+      }
+      return village.summary;
+    }
+    return `${village.name}의 건축 양식과 문화유산 기록을 수록 중입니다.`;
+  }, [fetchedOverview, village]);
 
   const paragraphs = useMemo(() => {
     if (!currentStoryText) return [];
@@ -281,12 +292,13 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
             : { type: 'spring', damping: 28, stiffness: 350 }}
           onClick={(e) => e.stopPropagation()}
         >
+          <CloseBtn onClick={onClose} aria-label="닫기">
+            <X size={18} strokeWidth={2.5} />
+          </CloseBtn>
+
+          <ModalScrollContent>
           {}
           <ImageHero $bg={currentHeroImage}>
-            <CloseBtn onClick={onClose} aria-label="닫기">
-              <X size={18} strokeWidth={2.5} />
-            </CloseBtn>
-
             <HeroContent>
               <HeroRegion>{village.region} · 한국의 전통 공간</HeroRegion>
               <HeroTitle>{village.name}</HeroTitle>
@@ -507,7 +519,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
             </QuickInfoContainer>
 
             {}
-            {isLoadingOverview && !village.summary ? (
+            {isLoadingOverview && !fetchedOverview ? (
               <OverviewSkeleton>
                 <SkeletonLine style={{ width: '100%' }} />
                 <SkeletonLine style={{ width: '92%' }} />
@@ -526,7 +538,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
                   )}
                 </NoteHeader>
 
-                <StoryContainer ref={storyRef} $isExpanded={isExpanded}>
+                <StoryContainer ref={storyRef} $isExpanded={!isLongContent || isExpanded}>
                   {paragraphs.length > 0 ? (
                     paragraphs.map((p, idx) => (
                       <StoryParagraph data-reading-paragraph key={idx}>{p}</StoryParagraph>
@@ -645,6 +657,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
               </BookmarkActionBtn>
             </ActionRow>
           </Body>
+          </ModalScrollContent>
         </ModalCard>
       </Overlay>
 
