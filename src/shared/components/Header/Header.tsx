@@ -787,6 +787,10 @@ export default function Header() {
     mode: renderedThemeMode,
   });
 
+  if (pathname.startsWith('/admin')) {
+    return null;
+  }
+
   return (
     <>
       <AnimatePresence>
