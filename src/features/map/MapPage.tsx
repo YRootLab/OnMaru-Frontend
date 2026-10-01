@@ -245,7 +245,7 @@ export default function MapPage() {
   const isWarmthWriteOpen = useMapStore((s) => s.isWarmthWriteOpen);
 
   const isDetailOpen = Boolean(detailId) || popularPanelOpen;
-  const isChipsHidden = isDetailOpen || isWarmthWriteOpen;
+  const isChipsHidden = isDetailOpen;
 
 
 

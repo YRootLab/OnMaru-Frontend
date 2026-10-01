@@ -3,10 +3,12 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import styled from '@emotion/styled';
+import { motion, AnimatePresence } from 'framer-motion';
 import { X, Flame, Users, Leaf, Check, MapPin } from 'lucide-react';
 import { lightPalette, meok, fontSize, ringShadow } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useCreateVisitReview } from '@/features/visit-review/presentation/useCreateVisitReview';
+import { RAIL_INSET, RAIL_WIDTH } from '@/features/map/components/MapNavRail';
 import type { Warmth } from '@/features/map/types';
 import MoodSelector, { type MoodValue } from './MoodSelector';
 
@@ -21,6 +23,9 @@ interface WriteWarmthModalProps {
   };
   onCreated?: (review: Warmth) => void;
 }
+
+const PANEL_WIDTH = 400;
+const PANEL_WIDTH_COMPACT = 358;
 
 const REGIONS = [
   '전국',
@@ -45,53 +50,48 @@ const PRESET_TAGS = [
   '#차한잔',
 ];
 
-
-const Overlay = styled.div<{ $open: boolean }>`
+const PanelContainer = styled(motion.aside)<{ $panelOpen: boolean }>`
   position: fixed;
-  inset: 0;
-  z-index: 10000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  background: rgba(25, 31, 40, 0.45);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  opacity: ${({ $open }) => ($open ? 1 : 0)};
-  pointer-events: ${({ $open }) => ($open ? 'auto' : 'none')};
-  transition: opacity 0.22s ease;
-
-  [data-theme='dark'] & {
-    background: rgba(0, 0, 0, 0.72);
-  }
-`;
-
-const ModalCard = styled.div<{ $open: boolean }>`
-  position: relative;
-  width: 400px;
-  max-width: calc(100vw - 32px);
-  height: calc(100vh - 32px);
-  max-height: calc(100vh - 32px);
+  top: ${RAIL_INSET}px;
+  bottom: ${RAIL_INSET}px;
+  left: ${({ $panelOpen }) =>
+    $panelOpen
+      ? `${RAIL_INSET + RAIL_WIDTH + RAIL_INSET + PANEL_WIDTH + 12}px`
+      : `${RAIL_INSET + RAIL_WIDTH + RAIL_INSET}px`};
+  width: ${PANEL_WIDTH}px;
+  height: calc(100vh - ${RAIL_INSET * 2}px);
+  z-index: 40;
   display: flex;
   flex-direction: column;
   padding: 24px;
   border-radius: 24px;
   background: #ffffff;
-  box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.16), 0 4px 12px -4px rgba(0, 0, 0, 0.08);
   overflow: hidden;
-
-  transform: ${({ $open }) => ($open ? 'scale(1) translateY(0)' : 'scale(0.95) translateY(12px)')};
-  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
-
-  @media (min-width: 1024px) and (max-width: 1439px) {
-    width: 358px;
-  }
+  pointer-events: auto;
 
   [data-theme='dark'] & {
     background: #24211D;
     color: #F3F4F6;
     box-shadow: ${ringShadow.dark.mapPanel};
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  @media (min-width: 1024px) and (max-width: 1439px) {
+    left: ${({ $panelOpen }) =>
+      $panelOpen
+        ? `${RAIL_INSET + RAIL_WIDTH + RAIL_INSET + PANEL_WIDTH_COMPACT + 12}px`
+        : `${RAIL_INSET + RAIL_WIDTH + RAIL_INSET}px`};
+    width: ${PANEL_WIDTH_COMPACT}px;
+  }
+
+  @media (max-width: 1023px) {
+    top: 12px;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+    height: auto;
   }
 `;
 
@@ -198,7 +198,11 @@ const RegionScroller = styled.div`
   display: flex;
   gap: 6px;
   overflow-x: auto;
+  overflow-y: hidden;
   padding-bottom: 4px;
+  touch-action: pan-x;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
   scrollbar-width: none;
   &::-webkit-scrollbar {
     display: none;
@@ -246,7 +250,7 @@ const PlaceInputIcon = styled.div`
   transform: translateY(-50%);
   display: flex;
   align-items: center;
-  color: ${lightPalette.hwanggeum[500]};
+  color: ${meok[500]};
   pointer-events: none;
 `;
 
@@ -269,8 +273,8 @@ const PlaceInput = styled.input`
   }
 
   &:focus {
-    background: ${lightPalette.hwanggeum[50]};
-    color: ${lightPalette.hwanggeum[900]};
+    background: #eef1f4;
+    color: ${meok[900]};
   }
 
   [data-theme='dark'] & {
@@ -282,7 +286,7 @@ const PlaceInput = styled.input`
     }
 
     &:focus {
-      background: rgba(232, 90, 24, 0.12);
+      background: rgba(255, 255, 255, 0.1);
       color: #ffffff;
     }
   }
@@ -321,8 +325,8 @@ const PlaceOption = styled.button`
   transition: background 0.12s ease;
 
   &:hover {
-    background: ${lightPalette.hwanggeum[50]};
-    color: ${lightPalette.hwanggeum[700]};
+    background: #eef1f4;
+    color: ${meok[700]};
   }
 
   [data-theme='dark'] & {
@@ -391,7 +395,6 @@ const MoodButtonMascot = styled.img`
 `;
 
 
-
 const TagWrap = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -402,23 +405,23 @@ const TagChip = styled.button<{ $selected: boolean }>`
   padding: 6px 12px;
   border-radius: 9999px;
 
-  background: ${({ $selected }) => ($selected ? lightPalette.hwanggeum[500] : '#f2f4f6')};
-  color: ${({ $selected }) => ($selected ? '#191f28' : meok[700])};
+  background: ${({ $selected }) => ($selected ? meok[900] : '#f2f4f6')};
+  color: ${({ $selected }) => ($selected ? '#ffffff' : meok[700])};
   font-size: ${fontSize.xs};
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
 
   &:hover {
-    background: ${({ $selected }) => ($selected ? lightPalette.hwanggeum[500] : '#e5e8eb')};
+    background: ${({ $selected }) => ($selected ? meok[800] : '#e5e8eb')};
   }
 
   [data-theme='dark'] & {
-    background: ${({ $selected }) => ($selected ? '#e85a18' : 'rgba(255, 255, 255, 0.08)')};
+    background: ${({ $selected }) => ($selected ? 'rgba(255, 255, 255, 0.18)' : 'rgba(255, 255, 255, 0.08)')};
     color: ${({ $selected }) => ($selected ? '#ffffff' : '#D1D5DB')};
 
     &:hover {
-      background: ${({ $selected }) => ($selected ? '#e85a18' : 'rgba(255, 255, 255, 0.14)')};
+      background: ${({ $selected }) => ($selected ? 'rgba(255, 255, 255, 0.24)' : 'rgba(255, 255, 255, 0.14)')};
     }
   }
 `;
@@ -528,6 +531,7 @@ export default function WriteWarmthModal({
 }: WriteWarmthModalProps) {
   const items = useMapStore((s) => s.items);
   const setWarmths = useMapStore((s) => s.setWarmths);
+  const panelOpen = useMapStore((s) => s.panelOpen);
   const setIsWarmthWriteOpen = useMapStore((s) => s.setIsWarmthWriteOpen);
   const { create, loading: isSubmitting, error: createError } = useCreateVisitReview();
 
@@ -631,22 +635,32 @@ export default function WriteWarmthModal({
     } catch {}
   };
 
-  if (!isOpen || !mounted) return null;
+  if (!mounted) return null;
 
   return createPortal(
-    <Overlay $open={isOpen} onClick={onClose} role="dialog" aria-modal="true">
-      <ModalCard $open={isOpen} onClick={(e) => e.stopPropagation()}>
-        <ModalHeader>
-          <ModalTitle>
-            <Flame size={20} strokeWidth={2} color={lightPalette.hwanggeum[500]} />
-            <span>온기 한 줄 남기기</span>
-          </ModalTitle>
-          <CloseBtn type="button" onClick={onClose} aria-label="닫기">
-            <X size={20} strokeWidth={2} />
-          </CloseBtn>
-        </ModalHeader>
+    <AnimatePresence>
+      {isOpen && (
+        <PanelContainer
+          key="warmth-write-panel"
+          $panelOpen={panelOpen}
+          initial={{ opacity: 0, x: -20, scale: 0.98 }}
+          animate={{ opacity: 1, x: 0, scale: 1 }}
+          exit={{ opacity: 0, x: -20, scale: 0.98 }}
+          transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+          role="dialog"
+          aria-label="온기 한 줄 남기기"
+        >
+          <ModalHeader>
+            <ModalTitle>
+              <Flame size={20} strokeWidth={2} color={lightPalette.hwanggeum[500]} />
+              <span>온기 한 줄 남기기</span>
+            </ModalTitle>
+            <CloseBtn type="button" onClick={onClose} aria-label="닫기">
+              <X size={20} strokeWidth={2} />
+            </CloseBtn>
+          </ModalHeader>
 
-        <ModalForm onSubmit={handleSubmit}>
+          <ModalForm onSubmit={handleSubmit}>
           {}
           <FormSection>
             <SectionLabel>어디를 다녀오셨나요?</SectionLabel>
@@ -774,8 +788,9 @@ export default function WriteWarmthModal({
             )}
           </SubmitBtn>
         </ModalForm>
-      </ModalCard>
-    </Overlay>,
-    document.body
-  );
+      </PanelContainer>
+    )}
+  </AnimatePresence>,
+  document.body
+);
 }
