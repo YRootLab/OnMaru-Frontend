@@ -268,6 +268,7 @@ const ViewTypeBtn = styled.button<{ $active: boolean; $isDark: boolean }>`
 export default function WarmthLegend() {
   const mode = useMapStore((s) => s.mode);
   const warmths = useMapStore((s) => s.warmths);
+  const heatDays = useMapStore((s) => s.heatDays);
   const category = useMapStore((s) => s.category);
   const period = useMapStore((s) => s.warmthPeriod);
   const setPeriod = useMapStore((s) => s.setWarmthPeriod);
@@ -303,6 +304,7 @@ export default function WarmthLegend() {
   if (mode !== 'warmth') return null;
 
   const percent = stat.ratio === null ? null : Math.round(stat.ratio * 100);
+  const observedYmd = heatDays.at(-1)?.ymd;
 
   return (
     <Root $isDark={isDark} aria-label="온기 히트맵 범례">
@@ -344,6 +346,12 @@ export default function WarmthLegend() {
           </>
         )}
       </Summary>
+
+      {observedYmd && (
+        <RampNote $isDark={isDark}>
+          방문객 관측 기준 {observedYmd.slice(0, 4)}.{observedYmd.slice(4, 6)}.{observedYmd.slice(6, 8)}
+        </RampNote>
+      )}
 
       <Ramp>
         <RampBar $gradient={rampGradient} aria-hidden="true" />
