@@ -16,7 +16,7 @@ const PENDING_SAVE_KEY = 'onmaru_pending_save_v1';
 // 목 모드용 흉내 세션 플래그(가이드 §3의 "Auth 키만 유지"를 sessionStorage로 흉내낸 것).
 const MOCK_SESSION_KEY = 'onmaru.mock_session';
 const MOCK_USER_ID = 'mock_guest';
-const MOCK_USER_NAME = '온마루 여행자';
+const MOCK_USER_NAME = '도담';
 
 export function useAuth() {
   const router = useRouter();
@@ -84,11 +84,12 @@ export function useAuth() {
       toast.success(`${nextUser.displayName}님, 환영해요!`);
       return true;
     } catch {
-      // 401 AUTH_REQUIRED 등 — 게스트 상태는 보존되므로 바로 재시도 가능하다.
+      // 401 AUTH_REQUIRED 등 — undefined 상태로 남지 않도록 게스트 상태를 확정한다.
+      clearSession();
       toast.error('카카오 로그인에 실패했어요. 다시 시도해 주세요.');
       return false;
     }
-  }, [applyProfile]);
+  }, [applyProfile, clearSession]);
 
   // FE #97: POST /auth/logout으로 서버 세션도 함께 끊는다. 실패해도(세션 만료 등)
   // 로컬 정리는 그대로 진행한다 — 로그아웃은 사용자 입장에서 항상 성공해야 한다.

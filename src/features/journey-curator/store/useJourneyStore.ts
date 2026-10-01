@@ -10,6 +10,10 @@ import { USE_MOCK } from '@/lib/api/client';
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
+// Monotonic counter — incremented on each new exploration or reset.
+// Guards stale async callbacks from writing to the store.
+let currentGen = 0;
+
 function mapJourneyError(err: unknown): string {
   if (isOnmaruApiError(err)) {
     if (err.classification === 'RATE_LIMITED') {
@@ -89,7 +93,7 @@ interface JourneyState {
 
 type SetFn = (partial: Partial<JourneyState>) => void;
 
-function runWithSse(accepted: RunAccepted, set: SetFn, timeoutMs = 15000): Promise<ExplorationSnapshot> {
+function runWithSse(accepted: RunAccepted, set: SetFn, gen: number, timeoutMs = 15000): Promise<ExplorationSnapshot> {
   return new Promise((resolve, reject) => {
     let reconnected = false;
     let cancelled = false;
@@ -104,13 +108,22 @@ function runWithSse(accepted: RunAccepted, set: SetFn, timeoutMs = 15000): Promi
       }
       unsubscribe?.();
       unsubscribe = null;
-      set({ unsubscribeSse: null });
+      if (gen === currentGen) set({ unsubscribeSse: null });
     };
 
     const fetchAndResolve = async () => {
       cleanup();
       try {
-        resolve(await defaultJourneyRepository.getExploration(accepted.explorationId));
+        const snapshot = await defaultJourneyRepository.getExploration(accepted.explorationId);
+        if (
+          snapshot.latestRun?.runId === accepted.runId &&
+          snapshot.latestRun?.status === 'COMPLETED' &&
+          snapshot.board
+        ) {
+          resolve(snapshot);
+        } else {
+          reject(new Error('SNAPSHOT_INCOMPLETE'));
+        }
       } catch (err) {
         reject(err);
       }
@@ -127,6 +140,7 @@ function runWithSse(accepted: RunAccepted, set: SetFn, timeoutMs = 15000): Promi
         accepted.explorationId,
         accepted.runId,
         (frame) => {
+          if (gen !== currentGen) { cleanup(); return; }
           if (frame.event === 'run.terminal' || frame.event === 'reset') {
             fetchAndResolve();
           } else if (frame.event === 'auth_closed') {
@@ -149,14 +163,15 @@ function runWithSse(accepted: RunAccepted, set: SetFn, timeoutMs = 15000): Promi
           },
         },
       );
-      set({ unsubscribeSse: unsubscribe });
+      if (gen === currentGen) set({ unsubscribeSse: unsubscribe });
     };
 
     doSubscribe();
   });
 }
 
-async function runInitialExploration(query: string, set: SetFn) {
+async function runInitialExploration(query: string, set: SetFn, gen: number) {
+  if (gen !== currentGen) return;
   set({ isExploring: true, lastError: null });
 
   if (!USE_MOCK) {
@@ -165,9 +180,11 @@ async function runInitialExploration(query: string, set: SetFn) {
         query,
         idempotencyKey: `journey-${Date.now()}-${Math.random().toString(16).slice(2)}`,
       });
+      if (gen !== currentGen) return;
       set({ explorationId: accepted.explorationId, runId: accepted.runId });
 
-      const snapshot = await runWithSse(accepted, set);
+      const snapshot = await runWithSse(accepted, set, gen);
+      if (gen !== currentGen) return;
       set({
         isExploring: false,
         explorationBoard: snapshot.board as any,
@@ -177,6 +194,7 @@ async function runInitialExploration(query: string, set: SetFn) {
       });
       return;
     } catch (err) {
+      if (gen !== currentGen) return;
       if (err instanceof Error && err.message === 'AUTH_CLOSED') {
         set({ isExploring: false, lastError: '로그인이 필요해요.' });
         return;
@@ -187,10 +205,14 @@ async function runInitialExploration(query: string, set: SetFn) {
 
   try {
     const result = await fetchExplorationBoard(query);
+    if (gen !== currentGen) return;
     if (result.ok) {
       set({
         isExploring: false,
         explorationBoard: result.board,
+        explorationId: null,
+        runId: null,
+        stateVersion: 0,
         boardCreatedAt: new Date().toISOString(),
         hanokDogan: result.hanokDogan,
         nearbyAudio: result.nearbyAudio,
@@ -204,6 +226,7 @@ async function runInitialExploration(query: string, set: SetFn) {
       });
     }
   } catch (err) {
+    if (gen !== currentGen) return;
     set({
       isExploring: false,
       lastError: mapJourneyError(err),
@@ -238,6 +261,7 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
     const option = MOOD_OPTIONS.find((m) => m.id === moodId);
     const query = option?.query || option?.label || '';
     const fallback = JOURNEY_PLANS[moodId] || JOURNEY_PLANS.quiet;
+    const gen = ++currentGen;
 
     set({
       activeMood: moodId,
@@ -251,8 +275,8 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
       currentPlan: fallback,
     });
 
-    await runInitialExploration(query, set);
-    set({ isGenerating: false });
+    await runInitialExploration(query, set, gen);
+    if (gen === currentGen) set({ isGenerating: false });
   },
 
   selectNode: (nodeId) => {
@@ -262,6 +286,7 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
   submitSearch: async (customQuery) => {
     const query = customQuery ?? get().currentQuery;
     if (!query.trim()) return;
+    const gen = ++currentGen;
 
     set({
       isGenerating: true,
@@ -272,8 +297,8 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
       lastError: null,
     });
 
-    await runInitialExploration(query, set);
-    set({ isGenerating: false });
+    await runInitialExploration(query, set, gen);
+    if (gen === currentGen) set({ isGenerating: false });
   },
 
 
@@ -297,7 +322,7 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
           idempotencyKey: `turn-${Date.now()}-${Math.random().toString(16).slice(2)}`,
         });
 
-        const snapshot = await runWithSse(accepted, set);
+        const snapshot = await runWithSse(accepted, set, currentGen);
         set({
           isGenerating: false,
           stateVersion: snapshot.stateVersion,
@@ -338,6 +363,9 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
       if (result.ok && result.diff) {
         set({
           isGenerating: false,
+          explorationId: null,
+          runId: null,
+          stateVersion: 0,
           pendingProposal: {
             board: result.board,
             hanokDogan: result.hanokDogan,
@@ -366,6 +394,7 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
     const { explorationId, runId } = get();
     if (!explorationId || !runId) return;
 
+    ++currentGen; // invalidate any in-flight generation
     try {
       await defaultJourneyRepository.cancelRun(explorationId, runId);
       set({ isGenerating: false, explorationBoard: null });
@@ -396,6 +425,7 @@ export const useJourneyStore = create<JourneyState>((set, get) => ({
   dismissProposal: () => set({ pendingProposal: null }),
 
   resetJourney: () => {
+    ++currentGen; // invalidate any in-flight generation
     const { unsubscribeSse } = get();
     unsubscribeSse?.();
     set({

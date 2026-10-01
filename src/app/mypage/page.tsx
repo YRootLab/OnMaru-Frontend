@@ -124,25 +124,34 @@ export default function MyPage() {
   const c = theme.colors;
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', padding: '64px 16px 80px' }}>
+    <div style={{ display: 'flex', justifyContent: 'center', padding: '96px 16px 80px' }}>
       <div style={{ width: '100%', maxWidth: '520px', display: 'flex', flexDirection: 'column', gap: '40px' }}>
         <div style={{ backgroundColor: c.bg.surface, borderRadius: '20px', padding: '36px 28px 28px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-          <div
-            style={{
-              width: '80px',
-              height: '80px',
-              borderRadius: '50%',
-              backgroundColor: c.action.primaryBg,
-              color: c.action.primary,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '32px',
-              fontWeight: 800,
-            }}
-          >
-            {(user.displayName || '길')[0]}
-          </div>
+          {user.profileImageUrl ? (
+            <img
+              src={user.profileImageUrl}
+              alt={user.displayName || '프로필'}
+              style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+            />
+          ) : (
+            <div
+              style={{
+                width: '80px',
+                height: '80px',
+                borderRadius: '50%',
+                backgroundColor: c.action.primaryBg,
+                color: c.action.primary,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '32px',
+                fontWeight: 800,
+                flexShrink: 0,
+              }}
+            >
+              {(user.displayName || '길')[0]}
+            </div>
+          )}
 
           <div style={{ marginTop: '16px', fontSize: '26px', fontWeight: 800, color: c.text.primary, letterSpacing: '-0.025em' }}>
             {user.displayName || '길손'}님

@@ -809,6 +809,7 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
   const { isLoggedIn, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
   const oniVideoRef = useRef<HTMLVideoElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // 타이핑 위치 실시간 추적 상태 및 Ref
   const [typingX, setTypingX] = useState<number | null>(null);
@@ -823,6 +824,17 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
       (searchFormRef as React.MutableRefObject<HTMLFormElement | null>).current = node;
     }
   };
+
+  useEffect(() => {
+    const input = inputRef.current;
+    const measurer = textMeasurerRef.current;
+    if (!input || !measurer) return;
+    const s = window.getComputedStyle(input);
+    measurer.style.fontFamily = s.fontFamily;
+    measurer.style.fontSize = s.fontSize;
+    measurer.style.fontWeight = s.fontWeight;
+    measurer.style.letterSpacing = s.letterSpacing;
+  }, [hasSearched]);
 
   useEffect(() => {
     const trimmed = currentQuery || '';
@@ -930,10 +942,6 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
             height: 0,
             overflow: 'hidden',
             whiteSpace: 'pre',
-            fontFamily: 'inherit',
-            fontSize: '16px',
-            fontWeight: 500,
-            letterSpacing: 'normal',
             pointerEvents: 'none',
           }}
           aria-hidden="true"
@@ -981,6 +989,7 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
 
         <SearchForm ref={handleFormRef} onSubmit={handleSubmit} $compact={hasSearched}>
           <Input
+            ref={inputRef}
             type="text"
             value={currentQuery}
             onChange={(e) => setQuery(e.target.value)}

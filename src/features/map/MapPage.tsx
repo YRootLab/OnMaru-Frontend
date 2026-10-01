@@ -241,8 +241,10 @@ export default function MapPage() {
   const panelOpen = useMapStore((s) => s.panelOpen);
   const detailId = useMapStore((s) => s.detailId);
   const popularPanelOpen = useMapStore((s) => s.popularPanelOpen);
+  const isWarmthWriteOpen = useMapStore((s) => s.isWarmthWriteOpen);
 
   const isDetailOpen = Boolean(detailId) || popularPanelOpen;
+  const isChipsHidden = isDetailOpen;
 
 
 
@@ -436,14 +438,14 @@ export default function MapPage() {
         <WarmthLayer />
         <WarmthNotesLayer />
         <MapChips
-          $interactive={!isDetailOpen}
+          $interactive={!isChipsHidden}
           style={{ left: chipsMinLeft }}
           initial={isRouteEntrance ? { opacity: 0, y: 8 } : false}
-          animate={{ opacity: isDetailOpen ? 0 : 1, y: isDetailOpen ? -6 : 0 }}
+          animate={{ opacity: isChipsHidden ? 0 : 1, y: isChipsHidden ? -6 : 0 }}
           transition={
             isRouteEntrance
               ? { ...CATEGORY_SPRING_TRANSITION, delay: CATEGORY_ENTER_DELAY_S }
-              : { duration: 0 }
+              : { duration: 0.2 }
           }
         >
           {!panelOpen && (
@@ -491,7 +493,7 @@ export default function MapPage() {
       {
 
 }
-      <MobileTopBar $hidden={isDetailOpen}>
+      <MobileTopBar $hidden={isChipsHidden}>
         <MobileChipsScroller>
           <CategoryChips align="start" />
         </MobileChipsScroller>

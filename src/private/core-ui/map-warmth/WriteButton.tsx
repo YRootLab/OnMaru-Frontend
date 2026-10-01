@@ -63,12 +63,13 @@ export default function WriteButton() {
     <>
       <FloatingBtn
         type="button"
+        data-write-btn="true"
         onClick={() => {
           if (!hasAuthenticatedUser()) {
             showLoginRequiredToast();
             return;
           }
-          setIsOpen(true);
+          setIsOpen((prev) => !prev);
         }}
         aria-label="장소에 대한 온기 후기 남기기"
       >
