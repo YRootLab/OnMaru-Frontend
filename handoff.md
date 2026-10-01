@@ -1,6 +1,7 @@
 # handoff.md
 
 ## Current Work
+- 2026-10-01 Issue #267: 운영 온기 히트맵 기본 요청이 오늘 날짜를 보내 DataLab 최신 관측(2026-08-24)을 놓치는 문제를 재현했다. `fix/267-warmth-latest-date`에서 기본 요청의 날짜를 생략하고 명시적 날짜 선택은 보존한다. BE 좌표/성능은 YRootLab/OnMaru-backend#561로 추적한다.
 - 2026-09-29 소리마루 스켈레톤 초기 scale 깜빡임 수정: `EditorialRailSkeletonCard`에 `initial={false}`를 지정해 첫 렌더부터 중앙/좌우 카드의 최종 scale·opacity·rotate 상태를 사용하도록 했다. 검증: `SorimaruEditorialRail.test.tsx` 7건, `tsc --noEmit` 통과.
 - 2026-09-29 공통 상단 네비게이션 글자 크기 조정 완료: `Header.tsx`의 데스크톱 메뉴와 로그인 텍스트를 `fontSize.xs`(12px)에서 `fontSize.sm`(14px)로 변경해 모든 라우트에서 동일하게 표시되도록 했다. 모바일 메뉴는 기존 14px을 유지한다. 검증: Header 테스트 2건, `tsc --noEmit`, ESLint 통과.
 - 2026-09-29 소리마루 `장면을 따라 걷는 소리` 레일 로딩 UI 개선 완료: `initialLoading`/catalog `loading` 상태를 Editorial Rail에 전달하고, 초기 로딩 또는 새로고침 중 기존 카드 외곽의 크기·위치·회전·확대·active position을 유지한 채 이미지와 내부 데이터 자리만 중성 회색 shimmer skeleton으로 교체했다. 데이터가 없을 때도 5개 placeholder position을 렌더링하며, 로딩 중 자동 스크롤·카드 선택을 중지한다. `SorimaruEditorialRail.test.tsx` 회귀 테스트 추가. 검증: 관련 Vitest 7건, `tsc --noEmit`, ESLint 통과.

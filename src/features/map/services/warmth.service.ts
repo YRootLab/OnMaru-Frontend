@@ -141,7 +141,7 @@ async function executeWarmthFetchFlow(
   const fallbackFetcher = options.fallbackFetcher ?? fetchLegacyWarmthFallback;
   const delay = options.delayFn ?? defaultDelay;
 
-  const date = params.date || new Date().toISOString().split('T')[0];
+  const date = params.date;
   const metric = params.metric || 'VISIT_COUNT';
   const regionCode = params.regionCode;
 
@@ -205,7 +205,7 @@ async function executeWarmthFetchFlow(
         try {
           const obsResult = await repository.getObservations({
             regionCode: targetRegion,
-            metric,
+            metric: 'VISITOR_COUNT',
           });
           if (obsResult && Array.isArray(obsResult.items)) {
             const adapted = adaptObservationsToDaysAndSeries(obsResult.items as any, spots);
@@ -215,6 +215,10 @@ async function executeWarmthFetchFlow(
         } catch (obsErr) {
           log.warn('[warmthService] Optional observations API call failed:', obsErr);
         }
+      }
+
+      if (days.length === 0 && response.observedDate) {
+        days = [{ ymd: response.observedDate.replaceAll('-', ''), weekday: '' }];
       }
 
       log.log(`[warmthService] Spring API success: ${spots.length} spots retrieved, ${days.length} days (source: SPRING)`);

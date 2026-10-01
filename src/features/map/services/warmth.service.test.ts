@@ -14,6 +14,28 @@ describe('Warmth Service & Fallback (FE #92 / Spec)', () => {
 
   const mockDelayImmediate = async () => {};
 
+  it('기본 온기 조회는 날짜를 생략해 백엔드 최신 발행일을 사용한다', async () => {
+    const repository: MapInsightsRepository = {
+      getHeatmap: vi.fn().mockResolvedValue({
+        schemaVersion: '1.2',
+        coverageStatus: 'COMPLETE',
+        metric: 'VISIT_COUNT',
+        observedDate: '2026-08-24',
+        generatedAt: '2026-10-01T00:00:00Z',
+        spots: [],
+      }),
+      getObservations: vi.fn(),
+    };
+
+    await fetchWarmthData({}, { repository, delayFn: mockDelayImmediate });
+
+    expect(repository.getHeatmap).toHaveBeenCalledWith({
+      date: undefined,
+      metric: 'VISIT_COUNT',
+      regionCode: undefined,
+    });
+  });
+
   it('1. Spring heatmap 성공: 기존 HeatSpot으로 변환 및 기존 지도 UI 데이터 형식 유지', async () => {
     const mockSpringSpot: SpringHeatmapSpot = {
       id: 'spot-123',
@@ -51,9 +73,20 @@ describe('Warmth Service & Fallback (FE #92 / Spec)', () => {
       { repository, delayFn: mockDelayImmediate },
     );
 
+    expect(repository.getHeatmap).toHaveBeenCalledWith({
+      date: '2026-09-28',
+      metric: 'VISIT_COUNT',
+      regionCode: undefined,
+    });
+
     expect(result.source).toBe('SPRING');
     expect(result.coverageStatus).toBe('COMPLETE');
     expect(result.spots).toHaveLength(1);
+    expect(repository.getObservations).toHaveBeenCalledWith({
+      regionCode: 'kr-45-jeonju',
+      metric: 'VISITOR_COUNT',
+    });
+    expect(result.days).toEqual([{ ymd: '20260928', weekday: '' }]);
 
     const spot = result.spots[0];
     expect(spot).toEqual({
@@ -392,7 +425,7 @@ describe('Warmth Service & Fallback (FE #92 / Spec)', () => {
     expect(repository.getHeatmap).toHaveBeenCalledTimes(1);
     expect(repository.getObservations).toHaveBeenCalledWith({
       regionCode: 'kr-45-jeonju',
-      metric: 'VISIT_COUNT',
+      metric: 'VISITOR_COUNT',
     });
     expect(result.days).toHaveLength(2);
     expect(result.days.map((d) => d.ymd)).toEqual(['20260927', '20260928']);
