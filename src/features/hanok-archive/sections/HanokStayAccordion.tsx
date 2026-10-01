@@ -1,14 +1,12 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import styled from '@emotion/styled';
-import { motion, AnimatePresence } from 'framer-motion';
-import { transientProps } from '@/design-system/styled';
-import { meok, palette, surface, fluidHeading , fontSize } from '@/design-system/tokens';
+import { meok, palette, surface, fontSize } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
-import { STAY_TYPE } from '@/features/hanok-archive/types';
-import type { Village } from '@/features/hanok-archive/types';
-import { Home, Flame, Coffee, Sparkles, Leaf, MapPin, RotateCcw, ArrowRight, ExternalLink, ChevronDown } from 'lucide-react';
+import VillageCard from '@/features/hanok-archive/components/VillageCard';
+import { STAY_TYPE, type Village } from '@/features/hanok-archive/types';
+import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty/OniSearchEmpty';
 
 const Section = styled.section`
   position: relative;
@@ -62,389 +60,22 @@ const RegionFilterChip = styled.button<{ $active: boolean; $empty?: boolean }>`
   }
 `;
 
-const AccordionContainer = styled.div`
-  display: flex;
+const StayGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 14px;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  min-height: 460px;
-  padding: 8px 0;
 
-  @media (max-width: 768px) {
-    display: grid;
-    grid-template-columns: 1fr;
-    align-items: stretch;
-    justify-content: flex-start;
-    overflow-x: hidden;
-    overflow-y: visible;
-    min-height: unset;
-    padding: 4px 0 8px;
-    gap: 10px;
+  @media (min-width: 800px) {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  @media (min-width: 1080px) {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
   }
 `;
 
-const AccordionPill = styled(motion.div, transientProps)<{ $active: boolean; $bg: string | null }>`
-  position: relative;
-  height: 440px;
-  border-radius: ${({ $active }) => ($active ? '32px' : '9999px')};
-  overflow: hidden;
-  cursor: pointer;
-
-  ${({ $bg }) =>
-    $bg
-      ? `background-image: url("${$bg}"); background-size: cover; background-position: center 25%;`
-      : 'background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);'}
-  user-select: none;
-  flex-shrink: 0;
-
-  @media (max-width: 768px) {
-    width: 100%;
-    height: 64px;
-    scroll-snap-align: none;
-    border-radius: ${({ $active }) => ($active ? '20px' : '14px')};
-    max-width: none;
-  }
-`;
-
-const PillImageLayer = styled(motion.div, transientProps)<{ $bg: string | null }>`
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  ${({ $bg }) =>
-    $bg
-      ? `background-image: url("${$bg}"); background-size: cover; background-position: center 25%;`
-      : 'background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);'}
-  transition: transform 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
-
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      180deg,
-      rgba(0, 0, 0, 0.02) 0%,
-      rgba(0, 0, 0, 0.15) 35%,
-      rgba(0, 0, 0, 0.72) 70%,
-      rgba(0, 0, 0, 0.92) 100%
-    );
-  }
-`;
-
-const CollapsedIconButton = styled(motion.div, transientProps)`
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  display: grid;
-  place-items: center;
-  color: ${meok[900]};
-  z-index: 5;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-
-  @media (max-width: 768px) {
-    display: none;
-  }
-`;
-
-const MobileCollapsedRow = styled.div`
-  position: absolute;
-  inset: 0;
-  display: none;
-  align-items: center;
-  padding: 0 16px;
-  gap: 10px;
-  z-index: 5;
-  color: #ffffff;
-
-  @media (max-width: 768px) {
-    display: flex;
-  }
-`;
-
-const MobileRegionBadge = styled.span`
-  font-size: 11px;
-  font-weight: 600;
-  background: rgba(255, 255, 255, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  border-radius: 9999px;
-  padding: 3px 9px;
-  flex-shrink: 0;
-  letter-spacing: 0.01em;
-`;
-
-const MobileName = styled.span`
-  font-size: 14px;
-  font-weight: 500;
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
-  letter-spacing: -0.02em;
-`;
-
-const ActiveContentOverlay = styled(motion.div, transientProps)`
-  position: absolute;
-  bottom: 20px;
-  left: 20px;
-  right: 20px;
-  z-index: 5;
-  color: #ffffff;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-
-  @media (max-width: 640px) {
-    bottom: 16px;
-    left: 16px;
-    right: 16px;
-    gap: 8px;
-  }
-`;
-
-const ContentHeader = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-`;
-
-const TagRow = styled.div`
-  display: flex;
-  gap: 8px;
-  align-items: center;
-`;
-
-const StayTag = styled.span`
-  font-size: ${fontSize.xs};
-  font-weight: 500;
-  color: #ffffff;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(8px);
-  padding: 4px 11px;
-  border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  letter-spacing: -0.01em;
-`;
-
-const StayTitle = styled.h3`
-  font-family: var(--font-hanok);
-  font-size: ${fluidHeading.card};
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  margin: 0;
-  line-height: 1.28;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
-  color: #ffffff;
-  word-break: keep-all;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-`;
-
-const StayAddress = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: ${fontSize.xs};
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.88);
-  line-height: 1.4;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
-  min-width: 0;
-  width: 100%;
-`;
-
-const StayAddressText = styled.span`
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  word-break: keep-all;
-  flex: 1;
-  min-width: 0;
-`;
-
-const BottomActionRow = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-top: 4px;
-
-  @media (max-width: 640px) {
-    justify-content: stretch;
-  }
-`;
-
-const ActiveIconButton = styled.div`
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: #ffffff;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  display: grid;
-  place-items: center;
-  color: ${meok[900]};
-  flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-  cursor: pointer;
-  transition: transform 0.18s ease;
-
-  &:hover {
-    transform: scale(1.06);
-  }
-
-  [data-theme='dark'] & {
-    background: ${surface.dark.card};
-    color: ${meok[100]};
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
-  }
-
-  @media (max-width: 640px) {
-    display: none;
-  }
-`;
-
-const ActionGroup = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-
-  @media (max-width: 640px) {
-    flex: 1;
-    gap: 8px;
-  }
-`;
-
-const DirectBookingBtn = styled.a`
-  background: ${palette.juhong[500]};
-  color: #ffffff;
-  font-size: ${fontSize.xs};
-  font-weight: 500;
-  padding: 9px 15px;
-  border-radius: 9999px;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  white-space: nowrap;
-  border: none;
-  transition: transform 0.18s ease, background 0.18s ease;
-
-  &:hover {
-    background: ${palette.juhong[600]};
-    transform: translateY(-1px);
-  }
-
-  [data-theme='dark'] & {
-    background: ${palette.juhong[500]};
-    &:hover {
-      background: ${palette.juhong[400]};
-    }
-  }
-
-  @media (max-width: 640px) {
-    flex: 1;
-    justify-content: center;
-    padding: 9px 10px;
-    font-size: 12px;
-  }
-`;
-
-const DetailActionBtn = styled.button`
-  background: rgba(45, 52, 43, 0.78);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #ffffff;
-  font-size: ${fontSize.xs};
-  font-weight: 500;
-  padding: 9px 15px;
-  border-radius: 9999px;
-  cursor: pointer;
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  transition: all 0.18s ease;
-
-  &:hover {
-    background: rgba(45, 52, 43, 0.95);
-    border-color: rgba(255, 255, 255, 0.3);
-    transform: translateY(-1px);
-  }
-
-  @media (max-width: 640px) {
-    flex: 1;
-    justify-content: center;
-    padding: 9px 10px;
-    font-size: 12px;
-  }
-`;
-
-function getBookingUrl(item: Village): string {
-  if (item.overview) {
-    const match = item.overview.match(/https?:\/\/[^\s"']+/i);
-    if (match) return match[0];
-  }
-  return `https://search.naver.com/search.naver?query=${encodeURIComponent(item.name + ' 예약')}`;
-}
-
-
-const ControlsRow = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 16px;
-  padding: 0 4px;
-`;
-
-const BatchInfo = styled.span`
-  font-size: ${fontSize.xs};
-  font-weight: 400;
-  color: ${meok[500]};
-
-  [data-theme='dark'] & {
-    color: ${meok[400]};
-  }
-`;
-
-const RefreshBtn = styled.button`
-
-  background: #ffffff;
-  color: ${meok[900]};
-  font-size: ${fontSize.xs};
-  font-weight: 500;
-  padding: 8px 18px;
-  border-radius: 9999px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: #f8fafc;
-  }
-
-  [data-theme='dark'] & {
-    background: ${surface.dark.card};
-    color: ${meok[100]};
-  }
-
-  [data-theme='dark'] &:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-`;
 
 
 
@@ -468,31 +99,6 @@ const EmptyState = styled.div`
   }
 `;
 
-const EmptyHeadline = styled.p`
-  margin: 0;
-  font-size: ${fluidHeading.label};
-  font-weight: 300;
-  letter-spacing: -0.02em;
-  color: ${meok[900]};
-  word-break: keep-all;
-
-  [data-theme='dark'] & {
-    color: ${meok[100]};
-  }
-`;
-
-const EmptyHint = styled.p`
-  margin: 0;
-  font-size: ${fontSize.sm};
-  font-weight: 400;
-  line-height: 1.7;
-  color: ${meok[500]};
-  word-break: keep-all;
-
-  [data-theme='dark'] & {
-    color: ${meok[400]};
-  }
-`;
 
 const EmptyAction = styled.button`
   margin-top: 6px;
@@ -648,16 +254,6 @@ const REGION_ORDER = [
   '제주',
 ];
 
-const ICONS = [
-  <Home size={20} strokeWidth={2} key="home" />,
-  <Flame size={20} strokeWidth={2} key="flame" />,
-  <Leaf size={20} strokeWidth={2} key="trees" />,
-  <Coffee size={20} strokeWidth={2} key="coffee" />,
-  <Sparkles size={20} strokeWidth={2} key="sparkles" />,
-  <Leaf size={20} strokeWidth={2} key="leaf" />,
-  <MapPin size={20} strokeWidth={2} key="mountain" />,
-];
-const BATCH_SIZE = 7;
 
 interface HanokStayAccordionProps {
   villages: Village[];
@@ -671,17 +267,6 @@ export default function HanokStayAccordion({
   onSelectStay,
 }: HanokStayAccordionProps) {
   const [selectedRegion, setSelectedRegion] = useState('전체');
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [page, setPage] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia('(max-width: 767px)');
-    setIsMobile(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, []);
 
   const allStays = useMemo(() => {
 
@@ -726,21 +311,8 @@ export default function HanokStayAccordion({
     return counts;
   }, [allStays, regionTabs]);
 
-  const maxPages = Math.max(1, Math.ceil(regionFilteredStays.length / BATCH_SIZE));
-  const currentBatch = useMemo(() => {
-    const start = (page % maxPages) * BATCH_SIZE;
-    return regionFilteredStays.slice(start, start + BATCH_SIZE);
-  }, [regionFilteredStays, page, maxPages]);
-
   const handleRegionSelect = (reg: string) => {
     setSelectedRegion(reg);
-    setPage(0);
-    setActiveIndex(0);
-  };
-
-  const handleNextBatch = () => {
-    setPage((prev) => (prev + 1) % maxPages);
-    setActiveIndex(0);
   };
 
   return (
@@ -754,7 +326,7 @@ export default function HanokStayAccordion({
       />
 
       <RegionFilterBar>
-        {regionTabs.filter((reg) => reg !== '전체').map((reg) => {
+        {regionTabs.map((reg) => {
           const count = countByRegion[reg] ?? 0;
           const isActive = selectedRegion === reg;
           return (
@@ -771,140 +343,38 @@ export default function HanokStayAccordion({
         })}
       </RegionFilterBar>
 
-      {currentBatch.length > 0 ? (
-        <>
-          <AccordionContainer>
-            {currentBatch.map((item, idx) => {
-              const isActive = idx === activeIndex;
-              const icon = ICONS[idx % ICONS.length];
-
-              return (
-                <AccordionPill
-                  key={item.id}
-                  $active={isActive}
-                  $bg={item.hasImage ? item.image : null}
-                  onClick={() => setActiveIndex(idx)}
-                  initial={false}
-                  animate={isMobile
-                    ? { height: isActive ? 280 : 64 }
-                    : { flex: isActive ? 3.5 : 0.6 }}
-                  transition={{ type: 'spring', stiffness: 350, damping: 32 }}
-                  whileHover={{ scale: isActive ? 1 : 1.03 }}
-                >
-                  <PillImageLayer
-                    key={item.id}
-                    $bg={item.hasImage ? item.image : null}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.35, ease: 'easeOut' }}
-                  />
-
-                  {!isActive && (
-                    <CollapsedIconButton>
-                      <Home size={20} strokeWidth={2} />
-                    </CollapsedIconButton>
-                  )}
-
-                  {!isActive && (
-                    <MobileCollapsedRow>
-                      <MobileRegionBadge>{item.region}</MobileRegionBadge>
-                      <MobileName>{item.name}</MobileName>
-                      <ChevronDown size={15} strokeWidth={2} style={{ flexShrink: 0, opacity: 0.7 }} />
-                    </MobileCollapsedRow>
-                  )}
-
-                  <AnimatePresence>
-                    {isActive && (
-                      <ActiveContentOverlay
-                        initial={isMobile ? { opacity: 0 } : { opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={isMobile ? { opacity: 0 } : { opacity: 0, y: 8 }}
-                        transition={isMobile ? { duration: 0.08 } : { duration: 0.22 }}
-                      >
-                        <ContentHeader>
-                          <TagRow>
-                            <StayTag>{item.region}</StayTag>
-                          </TagRow>
-                          <StayTitle>{item.name}</StayTitle>
-                          <StayAddress>
-                            <MapPin size={13} strokeWidth={2} style={{ flexShrink: 0 }} />
-                            <StayAddressText>{item.addr}</StayAddressText>
-                          </StayAddress>
-                        </ContentHeader>
-
-                        <BottomActionRow>
-                          <ActiveIconButton
-                            aria-label="한옥 숙소"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (onSelectStay) onSelectStay(item);
-                              else if (onSelectVillage) onSelectVillage(item);
-                            }}
-                          >
-                            <Home size={20} strokeWidth={2} />
-                          </ActiveIconButton>
-
-                          <ActionGroup>
-                            <DirectBookingBtn
-                              href={getBookingUrl(item)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              예약 정보 확인하기 <ExternalLink size={13} strokeWidth={2} />
-                            </DirectBookingBtn>
-                            {(onSelectStay || onSelectVillage) && (
-                              <DetailActionBtn
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (onSelectStay) onSelectStay(item);
-                                  else if (onSelectVillage) onSelectVillage(item);
-                                }}
-                              >
-                                숙소 상세 <ArrowRight size={13} strokeWidth={2} />
-                              </DetailActionBtn>
-                            )}
-                          </ActionGroup>
-                        </BottomActionRow>
-                      </ActiveContentOverlay>
-                    )}
-                  </AnimatePresence>
-                </AccordionPill>
-              );
-            })}
-          </AccordionContainer>
-
-          <ControlsRow>
-            <BatchInfo>
-              {page + 1} / {maxPages} · {selectedRegion} {regionFilteredStays.length}곳
-            </BatchInfo>
-            {maxPages > 1 && (
-              <RefreshBtn onClick={handleNextBatch}>
-                <RotateCcw size={14} strokeWidth={2} /> 다른 스테이 보기
-              </RefreshBtn>
-            )}
-          </ControlsRow>
-        </>
+      {regionFilteredStays.length > 0 ? (
+        <StayGrid>
+          {regionFilteredStays.map((item) => (
+            <VillageCard
+              key={item.id}
+              village={item}
+              onClick={onSelectStay ?? onSelectVillage}
+            />
+          ))}
+        </StayGrid>
       ) : (
         <EmptyState role="status" aria-live="polite">
-          {selectedRegion === '전체' ? (
-            <>
-              <EmptyHeadline>아직 기록된 한옥 스테이가 없습니다</EmptyHeadline>
-              <EmptyHint>잠시 후 다시 확인해 주세요.</EmptyHint>
-            </>
-          ) : (
-            <>
-              <EmptyHeadline>{selectedRegion}에는 아직 묵어갈 한옥이 없습니다</EmptyHeadline>
-              <EmptyHint>
-                이 지역은 아직 모으는 중이에요.
-                <br />
-                다른 지역의 한옥 스테이부터 둘러보시겠어요?
-              </EmptyHint>
-              <EmptyAction type="button" onClick={() => handleRegionSelect('전체')}>
-                전국 한옥 스테이 {allStays.length}곳 보기
-              </EmptyAction>
-            </>
-          )}
+          <OniSearchEmpty
+            size="md"
+            title={
+              selectedRegion === '전체'
+                ? '아직 기록된 한옥 스테이가 없습니다'
+                : `${selectedRegion}에는 아직 묵어갈 한옥이 없습니다`
+            }
+            description={
+              selectedRegion === '전체'
+                ? '잠시 후 다시 확인해 주세요.'
+                : '이 지역은 아직 모으는 중이에요.\n다른 지역의 한옥 스테이부터 둘러보시겠어요?'
+            }
+            action={
+              selectedRegion !== '전체' ? (
+                <EmptyAction type="button" onClick={() => handleRegionSelect('전체')}>
+                  전국 한옥 스테이 {allStays.length}곳 보기
+                </EmptyAction>
+              ) : undefined
+            }
+          />
         </EmptyState>
       )}
     </Section>

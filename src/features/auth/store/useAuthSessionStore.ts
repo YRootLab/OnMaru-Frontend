@@ -35,6 +35,12 @@ export const useAuthSessionStore = create<AuthSessionState>((set, get) => ({
 
   ensureSessionLoaded: async () => {
     if (get().hasLoadedOnce) return;
+    // ?auth=success 복귀 직후엔 useAuthReturn이 refreshSessionAfterKakaoLogin으로
+    // 세션을 확정한다. 이 타이밍에 ensureSessionLoaded가 먼저 401을 받으면
+    // user=null로 확정돼 MyPage가 /auth/login으로 튕겨나가는 경쟁 조건이 생긴다.
+    if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('auth') === 'success') {
+      return;
+    }
     set({ hasLoadedOnce: true });
     try {
       const profile = await defaultMemberRepository.getMyProfile();
@@ -47,7 +53,7 @@ export const useAuthSessionStore = create<AuthSessionState>((set, get) => ({
 
   applyProfile: (profile) => {
     const nextUser = toAuthUser(profile);
-    set({ user: nextUser });
+    set({ user: nextUser, hasLoadedOnce: true });
     return nextUser;
   },
 

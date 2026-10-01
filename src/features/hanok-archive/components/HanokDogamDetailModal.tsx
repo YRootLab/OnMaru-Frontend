@@ -24,7 +24,11 @@ import {
   ChevronRight,
   Landmark,
   Navigation,
+  Layers,
+  Award,
+  Leaf,
 } from 'lucide-react';
+import { inferStructureTags, extractHeritageGrade, inferSeasonTags } from '@/features/hanok-archive/utils/villageInsights';
 import { meok, palette, surface , fontSize } from '@/design-system/tokens';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import type { Village } from '@/features/hanok-archive/types';
@@ -234,6 +238,10 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
 
   const homepageInfo = useMemo(() => extractHomepageUrl(detailData?.homepage), [detailData]);
 
+  const structureTags = useMemo(() => inferStructureTags(village), [village]);
+  const heritageGrade = useMemo(() => extractHeritageGrade(village), [village]);
+  const seasonTags = useMemo(() => inferSeasonTags(village), [village]);
+
   const hasOperationalInfo = Boolean(
     detailData?.usetime ||
       detailData?.restdate ||
@@ -295,6 +303,32 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
 
             {}
             <ContentTagChips tags={detailData?.contentTags} />
+
+            {}
+            <InsightRow>
+              {heritageGrade && (
+                <InsightBadge $color="#c0392b">
+                  <Award size={12} strokeWidth={2} />
+                  {heritageGrade}
+                </InsightBadge>
+              )}
+              <InsightBadge $color="#7c5c2e">
+                <Layers size={12} strokeWidth={2} />
+                {structureTags[0]}
+              </InsightBadge>
+              {structureTags.slice(1).map((tag) => (
+                <InsightBadge key={tag} $color="#5a6e5a">
+                  <Layers size={12} strokeWidth={2} />
+                  {tag}
+                </InsightBadge>
+              ))}
+              {seasonTags.map((tag) => (
+                <InsightBadge key={tag} $color="#2e7d5e">
+                  <Leaf size={12} strokeWidth={2} />
+                  {tag}
+                </InsightBadge>
+              ))}
+            </InsightRow>
 
             {}
             {isLoadingOverview && !village.summary ? (
@@ -558,6 +592,32 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
     </AnimatePresence>
   );
 }
+
+const InsightRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 4px;
+`;
+
+const InsightBadge = styled.span<{ $color: string }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: ${({ $color }) => $color};
+  background: ${({ $color }) => $color}18;
+  border: 1px solid ${({ $color }) => $color}30;
+
+  [data-theme='dark'] & {
+    color: ${({ $color }) => $color}cc;
+    background: ${({ $color }) => $color}22;
+    border-color: ${({ $color }) => $color}44;
+  }
+`;
 
 const NaverDirectionsBtn = styled.a`
   flex: 1.5;

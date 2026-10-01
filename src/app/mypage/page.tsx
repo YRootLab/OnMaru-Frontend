@@ -83,9 +83,9 @@ export default function MyPage() {
           defaultSavedResourcesRepository.listPlaces({ limit: 10 }).then((r) => r.items),
           defaultVisitReviewRepository.listReviews({ scope: 'MY', limit: 10 }).then((r) => r.items),
         ]);
-        setJourneyThreads(threads);
-        setSavedPlaces(places);
-        setMyVisitReviews(reviews);
+        setJourneyThreads(threads ?? []);
+        setSavedPlaces(places ?? []);
+        setMyVisitReviews(reviews ?? []);
       } catch (err) {
         console.warn('[MyPage] 서버 데이터 로드 실패:', err);
       }
@@ -138,7 +138,7 @@ export default function MyPage() {
               fontWeight: 800,
             }}
           >
-            {user.displayName.slice(0, 1)}
+            {(user.displayName ?? '?').slice(0, 1)}
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -146,7 +146,7 @@ export default function MyPage() {
               카카오 로그인 완료
             </div>
             <div style={{ fontSize: '20px', fontWeight: 800, color: c.text.primary }}>
-              {user.displayName}님, 환영합니다
+              {user.displayName ?? '온마루 여행자'}님, 환영합니다
             </div>
           </div>
 
