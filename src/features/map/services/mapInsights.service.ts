@@ -46,7 +46,7 @@ export interface ObservationsResult {
 }
 
 export interface MapInsightsRepository {
-  getHeatmap(input: { date: string; regionCode?: string; metric?: string }): Promise<HeatmapResult>;
+  getHeatmap(input: { date?: string; regionCode?: string; metric?: string }): Promise<HeatmapResult>;
   getObservations(input: { regionCode: string; metric?: string; from?: string; to?: string }): Promise<ObservationsResult>;
 }
 

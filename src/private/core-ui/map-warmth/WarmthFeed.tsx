@@ -151,7 +151,7 @@ export default function WarmthFeed() {
       default:
         return {
           title: '온기 따라 걷는 한옥 여행',
-          desc: '실시간 방문객의 체감 분위기와 발자취를 안내해 드릴게요!',
+          desc: '방문객 관측과 이곳에 남긴 이야기를 안내해 드릴게요!',
           image: '/images/character/Oni_total.png',
         };
     }

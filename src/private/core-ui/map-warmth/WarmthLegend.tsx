@@ -374,4 +374,5 @@ export default function WarmthLegend() {
       </PeriodRow>
     </Root>
   );
-}
+}
+
