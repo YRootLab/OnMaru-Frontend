@@ -25,14 +25,12 @@ import {
 import { useMapEntranceStore } from '@/shared/navigation/mapEntranceState';
 import { useMapStore } from './hooks/useMapStore';
 import { useMapData } from './hooks/useMapData';
-import { useInfoMapData } from './hooks/useInfoMapData';
 import BottomSheet from './components/BottomSheet';
 import CategoryChips from './components/CategoryChips';
 import DetailPanel from './components/DetailPanel';
 import KakaoMap from './components/KakaoMap';
 import ListPanel from './components/ListPanel';
 import PlaceMarkers from './components/PlaceMarkers';
-import ViewportOverlays from './components/ViewportOverlays';
 import WarmthLayer from '@/private/core-ui/map-warmth/WarmthLayer';
 import WarmthNotesLayer from '@/private/core-ui/map-warmth/WarmthNotesLayer';
 import WriteButton from '@/private/core-ui/map-warmth/WriteButton';
@@ -241,8 +239,10 @@ export default function MapPage() {
   const panelOpen = useMapStore((s) => s.panelOpen);
   const detailId = useMapStore((s) => s.detailId);
   const popularPanelOpen = useMapStore((s) => s.popularPanelOpen);
+  const isWarmthWriteOpen = useMapStore((s) => s.isWarmthWriteOpen);
 
   const isDetailOpen = Boolean(detailId) || popularPanelOpen;
+  const isChipsHidden = isDetailOpen;
 
 
 
@@ -380,26 +380,6 @@ export default function MapPage() {
 
 
   useMapData();
-  useInfoMapData();
-
-  // Push info-mode category/regionCode to URL when they change
-  const infoCategory = useMapStore((s) => s.infoCategory);
-  const infoRegionCode = useMapStore((s) => s.infoRegionCode);
-  useEffect(() => {
-    if (mode !== 'info') return;
-    const params = new URLSearchParams(window.location.search);
-    params.set('mode', 'info');
-    params.set('category', infoCategory);
-    if (infoRegionCode) {
-      params.set('regionCode', infoRegionCode);
-    } else {
-      params.delete('regionCode');
-    }
-    const next = `${window.location.pathname}?${params.toString()}`;
-    if (next !== `${window.location.pathname}${window.location.search}`) {
-      router.push(next, { scroll: false });
-    }
-  }, [mode, infoCategory, infoRegionCode, router]);
 
   const isRouteEntrance = useMapEntranceStore((s) => s.isRouteEntrance);
   const setRouteEntrance = useMapEntranceStore((s) => s.setRouteEntrance);
@@ -432,18 +412,17 @@ export default function MapPage() {
       <MapArea>
         <KakaoMap />
         <PlaceMarkers />
-        <ViewportOverlays />
         <WarmthLayer />
         <WarmthNotesLayer />
         <MapChips
-          $interactive={!isDetailOpen}
+          $interactive={!isChipsHidden}
           style={{ left: chipsMinLeft }}
           initial={isRouteEntrance ? { opacity: 0, y: 8 } : false}
-          animate={{ opacity: isDetailOpen ? 0 : 1, y: isDetailOpen ? -6 : 0 }}
+          animate={{ opacity: isChipsHidden ? 0 : 1, y: isChipsHidden ? -6 : 0 }}
           transition={
             isRouteEntrance
               ? { ...CATEGORY_SPRING_TRANSITION, delay: CATEGORY_ENTER_DELAY_S }
-              : { duration: 0 }
+              : { duration: 0.2 }
           }
         >
           {!panelOpen && (
@@ -491,7 +470,7 @@ export default function MapPage() {
       {
 
 }
-      <MobileTopBar $hidden={isDetailOpen}>
+      <MobileTopBar $hidden={isChipsHidden}>
         <MobileChipsScroller>
           <CategoryChips align="start" />
         </MobileChipsScroller>

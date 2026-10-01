@@ -476,6 +476,7 @@ export class PlaceService {
         if (introRaw.parking) intro['주차시설'] = sanitizeHtml(introRaw.parking);
         if (introRaw.parkingculture) intro['주차시설'] = sanitizeHtml(introRaw.parkingculture);
         if (introRaw.usefee) intro['이용요금'] = sanitizeHtml(introRaw.usefee);
+        if (introRaw.expguide) intro['체험안내'] = sanitizeHtml(introRaw.expguide);
         if (introRaw.infocenter) intro['문의전화'] = sanitizeHtml(introRaw.infocenter);
         if (introRaw.infocenterculture) intro['문의전화'] = sanitizeHtml(introRaw.infocenterculture);
 

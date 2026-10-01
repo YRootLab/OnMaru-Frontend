@@ -198,14 +198,14 @@ export function OniSearchEmpty({
       $compact={compact}
     >
       <MascotWrapper $size={size} aria-hidden="true">
-        {prefersReducedMotion || hasError ? (
+        {prefersReducedMotion ? (
           <MascotStaticFallback
             src="/images/character/Oni_tea.png"
             alt=""
             width={sizePixels}
             height={sizePixels}
           />
-        ) : isApple ? (
+        ) : isApple || hasError ? (
           <MascotImage
             src={imageSrc}
             alt=""

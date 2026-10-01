@@ -25,16 +25,12 @@ export const ModalCard = styled(motion.div)`
   max-width: 720px;
   width: 100%;
   max-height: 88vh;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
   position: relative;
+  display: flex;
+  flex-direction: column;
   border: none;
   box-shadow: none;
-
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
 
   [data-theme='dark'] & {
     background: ${surface.dark.card};
@@ -45,6 +41,18 @@ export const ModalCard = styled(motion.div)`
     max-height: 92dvh;
     width: 100%;
     max-width: 100%;
+  }
+`;
+
+export const ModalScrollContent = styled.div`
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
   }
 `;
 
@@ -75,7 +83,7 @@ export const CloseBtn = styled.button`
   position: absolute;
   top: 16px;
   right: 16px;
-  z-index: 10;
+  z-index: 50;
   width: 38px;
   height: 38px;
   border-radius: 50%;

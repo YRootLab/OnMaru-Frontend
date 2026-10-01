@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { AlertCircleIcon, RefreshCwIcon, ShieldCheckIcon, UserIcon } from '@hugeicons/core-free-icons'
@@ -24,46 +24,60 @@ import OniSearchEmpty from '@/shared/components/OniSearchEmpty/OniSearchEmpty';
 
 gsap.registerPlugin(useGSAP);
 
+/* ── 수결첩 디자인 토큰 ── */
+const NIGHT    = '#0B0D13';
+const INK_LIGHT = '#E8DFC8';
+const INK       = INK_LIGHT;
+const INK_DIM   = 'rgba(232, 223, 200, 0.42)';
+const CINNABAR  = '#C9221A';
+const AMBER     = '#E09240';
+
+const getStampRotation = (id: string) =>
+  ((id.charCodeAt(Math.floor(id.length / 2)) % 7) - 3) * 0.75;
+
 const Root = styled.div`
   width: 100%;
-  padding: clamp(80px, 10vw, 120px) clamp(16px, 4vw, 48px) 100px;
-  color: inherit;
+  padding: clamp(32px, 4vw, 48px) 0 120px;
+  color: ${INK_LIGHT};
+  background: ${NIGHT};
   visibility: hidden;
+  border-radius: 16px;
 `;
 
 const Header = styled.header`
   margin-bottom: clamp(32px, 4vw, 48px);
 `;
 
+const TitleBlock = styled.div`
+  margin-bottom: 18px;
+`;
+
 const Title = styled.h1`
   font-family: var(--font-traditional);
-  font-size: clamp(28px, 4vw, 44px);
+  font-size: clamp(30px, 4.5vw, 48px);
   font-weight: 700;
   letter-spacing: -0.03em;
-  line-height: 1.1;
-  margin: 0 0 8px 0;
-  color: ${meok[900]};
+  line-height: 1.05;
+  margin: 0 0 14px 0;
+  color: ${INK_LIGHT};
+`;
 
-  [data-theme='dark'] & {
-    color: #ffffff;
-  }
+const TitleRule = styled.div`
+  width: 48px;
+  height: 2px;
+  background: ${CINNABAR};
 `;
 
 const SingleStat = styled.div`
-  font-size: 14px;
-  color: ${meok[400]};
+  font-size: 13px;
+  color: ${INK_DIM};
   margin-bottom: 8px;
 
   strong {
     font-family: var(--font-traditional);
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
-    color: ${meok[800]};
-  }
-
-  [data-theme='dark'] & {
-    color: ${meok[500]};
-    strong { color: ${meok[200]}; }
+    color: ${INK_LIGHT};
   }
 `;
 
@@ -71,12 +85,8 @@ const UserLine = styled.div`
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 12px;
-  color: ${meok[400]};
-
-  [data-theme='dark'] & {
-    color: ${meok[500]};
-  }
+  font-size: 11.5px;
+  color: rgba(232, 223, 200, 0.3);
 `;
 
 /* ── hero: 지도 + 스탯 ── */
@@ -98,138 +108,107 @@ const HeroLayout = styled.div`
 const StatsSection = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  align-items: flex-start;
+  gap: 16px;
+
+  @media (max-width: 900px) {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 24px;
+  }
 `;
 
-const BigNumber = styled.div`
+/* ── 인장형 진행 스탯 ── */
+const ProgressSealWrap = styled.div`
+  position: relative;
+  width: 160px;
+  height: 160px;
+  flex-shrink: 0;
+
+  svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    circle { transition: none !important; }
+  }
+`;
+
+const ProgressSealCenter = styled.div`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+`;
+
+const ProgressNum = styled.span`
   font-family: var(--font-traditional);
-  font-size: clamp(80px, 11vw, 116px);
-  font-weight: 900;
+  font-size: 52px;
+  font-weight: 800;
   line-height: 1;
-  letter-spacing: -0.05em;
-  color: #D9281C;
-
-  span {
-    font-family: var(--font-traditional-body);
-    font-size: clamp(16px, 2vw, 22px);
-    font-weight: 400;
-    letter-spacing: 0;
-    color: ${meok[400]};
-    margin-left: 8px;
-  }
-
-  [data-theme='dark'] & {
-    color: #ff5a4d;
-    span { color: ${meok[400]}; }
-  }
+  letter-spacing: -0.04em;
+  color: ${AMBER};
 `;
 
-const StatCaption = styled.div`
-  font-size: 13px;
-  font-weight: 500;
-  color: ${meok[500]};
-  margin-top: 4px;
+const ProgressOf = styled.span`
+  font-size: 12px;
+  color: ${INK_DIM};
   letter-spacing: -0.01em;
 `;
 
-const ProgressWrap = styled.div``;
-
-const ProgressHead = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 6px;
-`;
-
-const ProgressLabel = styled.span`
+const ProgressMeta = styled.div`
   font-size: 12px;
-  color: ${meok[500]};
-`;
-
-const ProgressPct = styled.span`
-  font-family: var(--font-traditional);
-  font-size: 13px;
-  font-weight: 700;
-  color: ${meok[700]};
-
-  [data-theme='dark'] & { color: ${meok[300]}; }
-`;
-
-const ProgressTrack = styled.div`
-  width: 100%;
-  height: 2px;
-  background: rgba(25, 31, 40, 0.1);
-
-  [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.1);
-  }
-`;
-
-const ProgressInk = styled.div<{ $percent: number }>`
-  height: 100%;
-  width: ${({ $percent }) => `${$percent}%`};
-  background: ${meok[700]};
-  transition: width 1s cubic-bezier(0.22, 1, 0.36, 1);
-
-  [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.7);
-  }
-
-  @media (prefers-reduced-motion: reduce) { transition: none; }
+  font-weight: 500;
+  color: ${INK_DIM};
+  letter-spacing: 0.01em;
 `;
 
 /* ── tabs ── */
 
 const TabRow = styled.div`
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 2px;
   overflow-x: auto;
-  padding-bottom: 14px;
-  margin-bottom: 28px;
-  border-bottom: 1px solid rgba(25, 31, 40, 0.08);
+  padding-bottom: 0;
+  margin-bottom: 36px;
+  border-bottom: 1px solid rgba(232, 223, 200, 0.1);
   scrollbar-width: none;
 
   &::-webkit-scrollbar { display: none; }
-
-  [data-theme='dark'] & {
-    border-bottom-color: rgba(255, 255, 255, 0.08);
-  }
 `;
 
 const Divider = styled.span`
   width: 1px;
-  height: 16px;
-  background: rgba(25, 31, 40, 0.1);
-  margin: 0 6px;
+  height: 14px;
+  background: rgba(232, 223, 200, 0.1);
+  margin: 0 6px 10px;
   flex-shrink: 0;
-
-  [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.1);
-  }
 `;
 
 const TabButton = styled.button<{ $active: boolean }>`
-  height: 30px;
-  padding: 0 10px;
+  height: 36px;
+  padding: 0 12px;
   border: none;
+  border-bottom: 2px solid ${({ $active }) => ($active ? CINNABAR : 'transparent')};
+  margin-bottom: -1px;
   background: transparent;
-  border-radius: 6px;
+  font-family: var(--font-traditional);
   font-size: 14px;
   font-weight: ${({ $active }) => ($active ? 700 : 400)};
   cursor: pointer;
   white-space: nowrap;
-  color: ${({ $active }) => ($active ? meok[900] : meok[400])};
-  transition: color 0.12s ease;
+  color: ${({ $active }) => ($active ? CINNABAR : INK_DIM)};
+  transition: color 0.12s ease, border-color 0.12s ease;
 
-  [data-theme='dark'] & {
-    color: ${({ $active }) => ($active ? '#ffffff' : meok[400])};
-  }
-
-  &:hover {
-    color: ${meok[700]};
-    [data-theme='dark'] & { color: ${meok[200]}; }
-  }
+  &:hover { color: ${INK_LIGHT}; }
 `;
 
 /* ── stamp grid ── */
@@ -237,11 +216,11 @@ const TabButton = styled.button<{ $active: boolean }>`
 const StampsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 40px 16px;
+  gap: 44px 20px;
 
   @media (max-width: 640px) {
     grid-template-columns: repeat(2, 1fr);
-    gap: 28px 12px;
+    gap: 32px 16px;
   }
 `;
 
@@ -249,39 +228,26 @@ const LeaderboardHeader = styled.div`
   font-family: var(--font-traditional);
   font-size: 18px;
   font-weight: 700;
-  color: ${meok[900]};
+  color: ${INK_LIGHT};
   margin-bottom: 16px;
-
-  [data-theme='dark'] & { color: #ffffff; }
-`;
-
-const ErrorState = styled.div`
-  min-height: 360px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 32px;
-  text-align: center;
-  color: ${meok[600]};
-  background: #f8f8f7;
-  border-radius: 20px;
-
-  [data-theme='dark'] & { background: rgba(255, 255, 255, 0.04); }
 `;
 
 const RetryButton = styled.button`
   height: 40px;
-  padding: 0 16px;
+  padding: 0 18px;
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  border: 1px solid #cdcdca;
-  border-radius: 10px;
-  background: #ffffff;
-  color: ${meok[800]};
+  border: 1px solid rgba(232, 223, 200, 0.15);
+  border-radius: 8px;
+  background: rgba(232, 223, 200, 0.06);
+  color: ${INK_LIGHT};
+  font-family: var(--font-traditional);
+  font-size: 13px;
   cursor: pointer;
+  transition: background 0.12s ease;
+
+  &:hover { background: rgba(232, 223, 200, 0.1); }
 `;
 
 interface StampBookProps {
@@ -336,6 +302,20 @@ export default function StampBook({ initialCatalog }: StampBookProps) {
   const totalStampsCount = collection.summary.totalCount;
   const unlockedCount = collection.summary.collectedCount;
   const progressPercent = collection.summary.completionRate;
+
+  const [displayCount, setDisplayCount] = useState(0);
+  useEffect(() => {
+    if (unlockedCount === 0) { setDisplayCount(0); return; }
+    const obj = { val: 0 };
+    const tween = gsap.to(obj, {
+      val: unlockedCount,
+      duration: 1.4,
+      ease: 'power2.out',
+      delay: 0.6,
+      onUpdate: () => setDisplayCount(Math.round(obj.val)),
+    });
+    return () => { tween.kill(); };
+  }, [unlockedCount]);
 
   const unlockedRegions = new Set<string>();
   collection.stamps.forEach((stamp) => {
@@ -421,7 +401,10 @@ export default function StampBook({ initialCatalog }: StampBookProps) {
   return (
     <Root ref={containerRef}>
       <Header>
-        <Title className="header-elem">나의 한옥 수결첩</Title>
+        <TitleBlock>
+          <Title className="header-elem">나의 한옥 수결첩</Title>
+          <TitleRule className="header-elem" />
+        </TitleBlock>
         <SingleStat className="header-elem">
           <strong>{unlockedCount}</strong> / {totalStampsCount}개
         </SingleStat>
@@ -446,21 +429,34 @@ export default function StampBook({ initialCatalog }: StampBookProps) {
         />
 
         <StatsSection>
-          <BigNumber className="stat-item">
-            {unlockedCount}
-            <span>/ {totalStampsCount}개</span>
-          </BigNumber>
-          <StatCaption>모은 도장</StatCaption>
-
-          <ProgressWrap className="stat-item">
-            <ProgressHead>
-              <ProgressLabel>전국 달성률</ProgressLabel>
-              <ProgressPct>{progressPercent}%</ProgressPct>
-            </ProgressHead>
-            <ProgressTrack>
-              <ProgressInk className="progress-ink" $percent={progressPercent} />
-            </ProgressTrack>
-          </ProgressWrap>
+          <ProgressSealWrap
+            className="stat-item"
+            aria-label={`${unlockedCount}개 수결 달성, 달성률 ${progressPercent}%`}
+          >
+            <svg viewBox="0 0 160 160" aria-hidden="true">
+              <circle
+                cx="80" cy="80" r="66"
+                fill="none"
+                stroke="rgba(232,223,200,0.08)"
+                strokeWidth="1"
+              />
+              <circle
+                cx="80" cy="80" r="66"
+                fill="none"
+                stroke={AMBER}
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeDasharray={`${(progressPercent / 100) * 414.7} 414.7`}
+                transform="rotate(-90 80 80)"
+                style={{ transition: 'stroke-dasharray 1.2s cubic-bezier(0.22,1,0.36,1)' }}
+              />
+            </svg>
+            <ProgressSealCenter>
+              <ProgressNum>{displayCount}</ProgressNum>
+              <ProgressOf>/ {totalStampsCount}개</ProgressOf>
+            </ProgressSealCenter>
+          </ProgressSealWrap>
+          <ProgressMeta className="stat-item">전국 달성률 {progressPercent}%</ProgressMeta>
         </StatsSection>
       </HeroLayout>
 
@@ -491,7 +487,11 @@ export default function StampBook({ initialCatalog }: StampBookProps) {
       {activeTab === 'stamps' ? (
         <StampsGrid>
           {filteredStamps.map((stamp) => (
-            <div key={stamp.id} className="stamp-card-elem">
+            <div
+              key={stamp.id}
+              className="stamp-card-elem"
+              style={{ transform: `rotate(${getStampRotation(stamp.id)}deg)` }}
+            >
               <StampCard
                 stamp={stamp}
                 collected={stamp.collected ?? undefined}

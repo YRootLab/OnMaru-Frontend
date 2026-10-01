@@ -38,10 +38,10 @@ const SvgContainer = styled.svg`
   height: auto;
   aspect-ratio: 800 / 759;
   overflow: visible;
-  filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.08));
+  filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.06));
 
   [data-theme='dark'] & {
-    filter: drop-shadow(0 10px 40px rgba(0, 0, 0, 0.6));
+    filter: drop-shadow(0 8px 32px rgba(0, 0, 0, 0.5));
   }
 `;
 
@@ -61,50 +61,29 @@ const SvgDefs = () => (
 const RegionGroup = styled.g`
   cursor: pointer;
   outline: none;
-  transform-origin: center;
 
   &:focus-visible path {
     stroke: #D9281C;
-    stroke-width: 3.5px;
-    filter: url(#glow-active);
+    stroke-width: 3px;
   }
 `;
 
 const RegionPath = styled.path<{ $active: boolean; $unlocked: boolean }>`
   stroke: ${({ $active, $unlocked }) =>
-    $active
-      ? '#D9281C'
-      : $unlocked
-      ? '#E07B00'
-      : 'rgba(200, 196, 192, 0.7)'};
+    $active ? '#C9221A' : $unlocked ? '#9A6010' : 'rgba(255,255,255,0.1)'};
 
-  stroke-width: ${({ $active }) => ($active ? '3px' : '1.5px')};
+  stroke-width: ${({ $active }) => ($active ? '2px' : '0.8px')};
   stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
 
   fill: ${({ $active, $unlocked }) =>
-    $active
-      ? 'rgba(217, 40, 28, 0.2)'
-      : $unlocked
-      ? 'rgba(224, 123, 0, 0.18)'
-      : '#fafaf9'};
+    $active ? 'rgba(201,34,26,0.22)' : $unlocked ? 'rgba(160,96,0,0.2)' : 'rgba(255,255,255,0.05)'};
 
-  [data-theme='dark'] & {
-    stroke: ${({ $active, $unlocked }) =>
-      $active
-        ? '#ff5a4d'
-        : $unlocked
-        ? '#ffaa33'
-        : 'rgba(255, 255, 255, 0.15)'};
-    fill: ${({ $active, $unlocked }) =>
-      $active
-        ? 'rgba(217, 40, 28, 0.35)'
-        : $unlocked
-        ? 'rgba(224, 123, 0, 0.28)'
-        : 'rgba(255, 255, 255, 0.04)'};
+  transition: filter 0.18s ease;
+
+  ${RegionGroup}:hover & {
+    filter: ${({ $active }) => ($active ? 'none' : 'brightness(1.5)')};
   }
-
-  ${({ $active }) => $active && `filter: url(#glow-active);`}
 `;
 
 const RegionText = styled.text<{ $active: boolean; $unlocked: boolean }>`
@@ -112,43 +91,23 @@ const RegionText = styled.text<{ $active: boolean; $unlocked: boolean }>`
   font-size: 26px;
   font-weight: 700;
   fill: ${({ $active, $unlocked }) =>
-    $active
-      ? '#8B0D04'
-      : $unlocked
-      ? '#7A4000'
-      : '#a8a29e'};
+    $active ? '#ff8a80' : $unlocked ? '#cc9040' : 'rgba(232,223,200,0.35)'};
   pointer-events: none;
   text-anchor: middle;
   dominant-baseline: central;
   paint-order: stroke fill;
 
-  stroke: #ffffff;
-  stroke-width: 6px;
+  stroke: #0B0D13;
+  stroke-width: 5px;
   stroke-linejoin: round;
-
-  [data-theme='dark'] & {
-    fill: ${({ $active, $unlocked }) =>
-      $active ? '#ff8a80' : $unlocked ? '#ffcc80' : '#d6d3d1'};
-    stroke: #1c1917;
-    stroke-width: 6px;
-  }
 `;
 
 const MapHint = styled.div`
-  margin-top: 20px;
-  padding: 10px 20px;
-  background-color: rgba(217, 40, 28, 0.06);
-  border-radius: 20px;
+  margin-top: 16px;
   text-align: center;
-  font-size: 13px;
-  font-weight: 500;
-  color: #9B1C14;
-  letter-spacing: -0.02em;
-
-  [data-theme='dark'] & {
-    background-color: rgba(217, 40, 28, 0.1);
-    color: #ff8a80;
-  }
+  font-size: 12px;
+  color: rgba(232, 223, 200, 0.28);
+  letter-spacing: -0.01em;
 `;
 
 
@@ -198,61 +157,9 @@ export default function KoreaMapCanvas({
 
   useGSAP(() => {
     if (!containerRef.current || !svgRef.current) return;
-
-
     gsap.set(containerRef.current, { visibility: 'visible' });
-
-    const regions = svgRef.current.querySelectorAll('.region-group');
-    gsap.from(regions, {
-      opacity: 0,
-      scale: 0.8,
-      y: 20,
-      duration: 0.6,
-      stagger: 0.05,
-      ease: 'back.out(1.7)',
-      clearProps: 'transform',
-    });
-
-
-    const activeRings = svgRef.current.querySelectorAll('.active-pulse-ring');
-    if (activeRings.length > 0) {
-      gsap.to(activeRings, {
-        scale: 1.3,
-        opacity: 0,
-        duration: 1.5,
-        repeat: -1,
-        ease: 'power2.out',
-      });
-    }
-  }, { scope: containerRef, dependencies: [selectedRegion] });
-
-
-  const onMouseEnterRegion = (event: React.MouseEvent<SVGGElement>) => {
-    const group = event.currentTarget;
-    const path = group.querySelector('path');
-
-    gsap.to(group, { scale: 1.03, duration: 0.3, ease: 'power2.out' });
-
-    if (path && group.getAttribute('data-active') !== 'true') {
-      const isUnlocked = group.getAttribute('data-unlocked') === 'true';
-      gsap.to(path, {
-        fill: isUnlocked ? 'rgba(224, 123, 0, 0.32)' : 'rgba(200, 196, 192, 0.3)',
-        stroke: isUnlocked ? '#E07B00' : '#a8a29e',
-        duration: 0.3
-      });
-    }
-  };
-
-  const onMouseLeaveRegion = (event: React.MouseEvent<SVGGElement>) => {
-    const group = event.currentTarget;
-    const path = group.querySelector('path');
-
-    gsap.to(group, { scale: 1, duration: 0.3, ease: 'power2.inOut' });
-
-    if (path && group.getAttribute('data-active') !== 'true') {
-      gsap.to(path, { clearProps: 'fill,stroke', duration: 0.3 });
-    }
-  };
+    gsap.from(svgRef.current, { opacity: 0, duration: 0.5, ease: 'power2.out' });
+  }, { scope: containerRef, dependencies: [] });
 
   const handleRegionClick = (pathId: string) => {
     stampAudio.playMapClickSound();
@@ -288,15 +195,11 @@ export default function KoreaMapCanvas({
           const active = isPathActive(region.id, selectedRegion);
           const unlocked = isPathUnlocked(region.id, unlockedRegions);
 
-          const textYOffset = unlocked ? 18 : 0;
-
           return (
             <RegionGroup
               key={region.id}
               className="region-group"
               onClick={() => handleRegionClick(region.id)}
-              onMouseEnter={onMouseEnterRegion}
-              onMouseLeave={onMouseLeaveRegion}
               tabIndex={0}
               data-active={active}
               data-unlocked={unlocked}
@@ -306,56 +209,19 @@ export default function KoreaMapCanvas({
                   handleRegionClick(region.id);
                 }
               }}
+              aria-label={`${region.label} ${unlocked ? '방문 완료' : '미방문'} — 클릭하여 필터링`}
+              aria-pressed={active}
             >
-              <title>{`${region.label} 권역: ${unlocked ? '방문 완료 (인장 보유)' : '미방문'} - 클릭하여 필터링`}</title>
-
               <RegionPath
                 d={region.d}
-                $active={active}$unlocked={unlocked}
-                role="button"
-                aria-pressed={active}
-                aria-label={`${region.label} ${unlocked ? '방문 완료' : '미방문'}`}
+                $active={active}
+                $unlocked={unlocked}
               />
-
-              {active && (
-                <circle
-                  className="active-pulse-ring"
-                  cx={region.centroid.x}
-                  cy={region.centroid.y + textYOffset}
-                  r="38"
-                  fill="none"
-                  stroke="#D9281C"
-                  strokeWidth="2.5"
-                  style={{ transformOrigin: 'center', vectorEffect: 'non-scaling-stroke' }}
-                />
-              )}
-
-              {unlocked && (
-                <g transform={`translate(${region.centroid.x}, ${region.centroid.y - 16})`}>
-                  <circle
-                    r="15"
-                    fill="#7b2424"
-                    stroke="rgba(255,255,255,0.55)"
-                    strokeWidth="2"
-                  />
-                  <text
-                    y="1"
-                    textAnchor="middle"
-                    dominantBaseline="central"
-                    fill="#ffffff"
-                    fontSize="14"
-                    fontWeight="900"
-                    fontFamily="serif"
-                  >
-                    印
-                  </text>
-                </g>
-              )}
-
               <RegionText
                 x={region.centroid.x}
-                y={region.centroid.y + textYOffset}
-                $active={active}$unlocked={unlocked}
+                y={region.centroid.y}
+                $active={active}
+                $unlocked={unlocked}
               >
                 {region.shortLabel}
               </RegionText>

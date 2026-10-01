@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useMemo, useState, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
@@ -15,6 +15,7 @@ import { livelyModalSpring, livelyBottomSheetSpring, modalOverlayTransition } fr
 import {
   Overlay,
   ModalCard,
+  ModalScrollContent,
   ImageHero,
   CloseBtn,
   HeroContent,
@@ -188,12 +189,13 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
           transition={isMobile ? livelyBottomSheetSpring : livelyModalSpring}
           onClick={(e) => e.stopPropagation()}
         >
+          <CloseBtn onClick={onClose} aria-label="닫기">
+            <HugeiconsIcon icon={Cancel01Icon} size={18} strokeWidth={2.5} />
+          </CloseBtn>
+
+          <ModalScrollContent>
           {}
           <ImageHero $bg={currentHeroImage}>
-            <CloseBtn onClick={onClose} aria-label="닫기">
-              <HugeiconsIcon icon={Cancel01Icon} size={18} strokeWidth={2.5} />
-            </CloseBtn>
-
             <HeroContent>
               <HeroRegion>{stay.region} · 고즈넉한 하룻밤</HeroRegion>
               <HeroTitle>{stay.name}</HeroTitle>
@@ -425,6 +427,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
               </BookmarkActionBtn>
             </ActionRow>
           </Body>
+          </ModalScrollContent>
         </ModalCard>
       </Overlay>
 

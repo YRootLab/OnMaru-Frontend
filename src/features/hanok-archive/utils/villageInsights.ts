@@ -16,7 +16,7 @@ export function extractHeritageGrade(village: Village): string | null {
   const text = `${village.overview} ${village.summary} ${village.badges.join(' ')}`;
   if (/국보/.test(text)) return '국보';
   if (/보물/.test(text)) return '보물';
-  if (/사적/.test(text)) return '사적';
+  if (/(?<![가-힣])사적(?![가-힣])/.test(text)) return '사적';
   if (/명승/.test(text)) return '명승';
   if (/등록문화재/.test(text)) return '등록문화재';
   if (/문화재/.test(text)) return '문화재';

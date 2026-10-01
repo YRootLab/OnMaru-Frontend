@@ -27,7 +27,9 @@ export function useHanokDetail(village: Village) {
         return res.json();
       })
       .then((data: VillageDetailResponse) => {
-        detailCache.set(village.id, data);
+        if (data && (data.overview || (data.source && data.source !== 'none'))) {
+          detailCache.set(village.id, data);
+        }
         if (isMounted) {
           setDetailData(data);
           setIsLoadingOverview(false);
