@@ -50,6 +50,7 @@ import TranquilityGauge from './TranquilityGauge';
 import {
   Overlay,
   ModalCard,
+  ModalScrollContent,
   ImageHero,
   CloseBtn,
   HeroContent,
@@ -291,12 +292,13 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
             : { type: 'spring', damping: 28, stiffness: 350 }}
           onClick={(e) => e.stopPropagation()}
         >
+          <CloseBtn onClick={onClose} aria-label="닫기">
+            <X size={18} strokeWidth={2.5} />
+          </CloseBtn>
+
+          <ModalScrollContent>
           {}
           <ImageHero $bg={currentHeroImage}>
-            <CloseBtn onClick={onClose} aria-label="닫기">
-              <X size={18} strokeWidth={2.5} />
-            </CloseBtn>
-
             <HeroContent>
               <HeroRegion>{village.region} · 한국의 전통 공간</HeroRegion>
               <HeroTitle>{village.name}</HeroTitle>
@@ -655,6 +657,7 @@ export default function HanokDogamDetailModal({ village, onClose }: HanokDogamDe
               </BookmarkActionBtn>
             </ActionRow>
           </Body>
+          </ModalScrollContent>
         </ModalCard>
       </Overlay>
 
