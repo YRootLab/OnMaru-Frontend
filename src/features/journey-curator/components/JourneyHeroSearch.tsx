@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
-import { SparklesIcon, Search01Icon, ArrowRight01Icon, Compass01Icon, CloudIcon, ShoppingBag01Icon, HeadphonesIcon, CloudRainIcon, Leaf01Icon, LoaderCircleIcon, Cancel01Icon } from '@hugeicons/core-free-icons'
+import { SparklesIcon, Search01Icon, ArrowRight01Icon, Compass01Icon, CloudIcon, ShoppingBag01Icon, HeadphonesIcon, CloudRainIcon, Leaf01Icon, SproutIcon, LoaderCircleIcon, Cancel01Icon } from '@hugeicons/core-free-icons'
 import { palette, lightPalette, meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
 import { useJourneyStore } from '../store/useJourneyStore';
 import { useAuth } from '@/features/auth';
@@ -764,12 +764,6 @@ const RefineChip = styled.button`
   }
 `;
 
-const ErrorBanner = styled.div`
-  margin-top: 10px;
-  font-size: ${fontSize.xs};
-  color: ${palette.danpung[500]};
-  font-weight: 500;
-`;
 
 function getMoodIcon(id: string) {
   switch (id) {
@@ -779,10 +773,12 @@ function getMoodIcon(id: string) {
       return <HugeiconsIcon icon={ShoppingBag01Icon} size={15} />;
     case 'story':
       return <HugeiconsIcon icon={HeadphonesIcon} size={15} />;
+    case 'rain':
     case 'rainy':
       return <HugeiconsIcon icon={CloudRainIcon} size={15} />;
+    case 'nature':
     case 'rest':
-      return <HugeiconsIcon icon={Leaf01Icon} size={15} />;
+      return <HugeiconsIcon icon={SproutIcon} size={15} />;
     default:
       return <HugeiconsIcon icon={SparklesIcon} size={15} />;
   }
@@ -804,7 +800,6 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
   const refinePlan = useJourneyStore((s) => s.refinePlan);
   const cancelRun = useJourneyStore((s) => s.cancelRun);
   const currentPlan = useJourneyStore((s) => s.currentPlan);
-  const lastError = useJourneyStore((s) => s.lastError);
   const isGenerating = useJourneyStore((s) => s.isGenerating);
   const hasSearched = useJourneyStore((s) => s.hasSearched);
   const { moods } = useMoodOptions();
@@ -1010,7 +1005,6 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
 
       {hasSearched && (
         <>
-          {lastError && <ErrorBanner>{lastError} 기존 코스는 그대로 유지했어요.</ErrorBanner>}
           <RefineChipsContainer>
             {suggestions.map((item, idx) => (
               <RefineChip

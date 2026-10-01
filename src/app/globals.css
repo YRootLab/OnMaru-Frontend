@@ -76,6 +76,16 @@ html[data-theme='light'] body,
   color-scheme: light;
 }
 
+::selection {
+  background: #C9221A;
+  color: #ffffff;
+}
+
+html[data-theme='dark'] ::selection {
+  background: rgba(201, 34, 26, 0.55);
+  color: #F0E8D6;
+}
+
 html, body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }

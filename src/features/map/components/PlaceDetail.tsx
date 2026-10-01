@@ -4,11 +4,9 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { AlertCircleIcon, Award01Icon, Bookmark01Icon, Camera01Icon, Cancel01Icon, Car01Icon, CheckIcon, CheckmarkCircle01Icon, ChevronDownIcon, ChevronLeftIcon, ChevronUpIcon, Compass01Icon, FlameIcon, HeadphonesIcon, Navigation01Icon, PlayIcon, RotateCcwIcon, Share01Icon, Ticket01Icon } from '@hugeicons/core-free-icons'
 import { logger } from '@/lib/log';
-import { lightPalette, meok } from '@/design-system/tokens';
+import { lightPalette, palette, meok } from '@/design-system/tokens';
 import { useSorimaruPlaceStory } from '@/features/sorimaru-audio/hooks/useSorimaruPlaceStory';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
-import { generateDynamicWaypoints } from '@/features/sorimaru-audio/hooks/useSorimaruPlaceStory';
-import { useCinematicTourStore } from '@/features/cinematic-tour/store/useCinematicTourStore';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import { usePlaceDetail } from '@/features/map/hooks/usePlaceDetail';
@@ -65,13 +63,6 @@ import {
   SkeletonImg,
   SkeletonLine,
   ErrorBox,
-  CinematicBanner,
-  CinematicHeader,
-  CinematicBadge,
-  CinematicDuration,
-  CinematicTitle,
-  CinematicDesc,
-  CinematicStartButton,
 } from './detail/PlaceDetail.styles';
 
 const log = logger('map');
@@ -242,22 +233,11 @@ export default function PlaceDetail() {
     return list;
   }, [matchedSorimaruStory, data?.intro, selectedItem?.category, tel]);
 
-  const startTour = useCinematicTourStore((s) => s.startTour);
   const selectAndLoadStory = useSorimaruAudioStore((s) => s.selectAndLoadStory);
 
-  const handleStartCinematicTour = async () => {
+  const handlePlayAudio = async () => {
     if (!matchedSorimaruStory) return;
-    const detail = await selectAndLoadStory(matchedSorimaruStory, 'play');
-    if (!detail) return;
-    startTour({
-      tid: detail.storyId, tlid: detail.storyId, stid: detail.storyId, stlid: detail.storyId,
-      title: detail.title, audioTitle: detail.audioTitle, category: detail.category,
-      mapX: detail.coordinates ? String(detail.coordinates.lng) : '',
-      mapY: detail.coordinates ? String(detail.coordinates.lat) : '',
-      script: detail.transcript.map((line) => line.text).join('\n'), playTime: String(detail.durationSeconds),
-      audioUrl: detail.audioUrl, imageUrl: detail.imageUrl ?? '', locationName: detail.region.name,
-      tags: detail.contentTags, waypoints: generateDynamicWaypoints(detail),
-    });
+    await selectAndLoadStory(matchedSorimaruStory, 'play');
     const store = useMapStore.getState();
     if (store.sheetSnap === 'full') {
       store.setSheetSnap('peek');
@@ -440,7 +420,7 @@ export default function PlaceDetail() {
                 <HeroActionTile
                   type="button"
                   $highlight
-                  onClick={handleStartCinematicTour}
+                  onClick={handlePlayAudio}
                   title="현장 오디오 해설 듣기"
                 >
                   <HugeiconsIcon icon={HeadphonesIcon} size={18} strokeWidth={2} />
@@ -493,7 +473,7 @@ export default function PlaceDetail() {
             {isRealTraditional && detailId && !isUnavailable(detailId) && (
               <StampCheckInBanner $isVisited={isPlaceVisited}>
                 <StampBannerLeft>
-                  <HugeiconsIcon icon={Award01Icon} size={18} color={isPlaceVisited ? '#059669' : '#b45309'} />
+                  <HugeiconsIcon icon={Award01Icon} size={18} color={isPlaceVisited ? '#059669' : palette.juhong[500]} />
                   <StampBannerText>
                     <StampBannerTitle>
                       {isPlaceVisited ? '도장첩에 기록된 한옥' : '한옥 도장첩 방문 기록'}
@@ -526,28 +506,6 @@ export default function PlaceDetail() {
                   )}
                 </StampActionBtn>
               </StampCheckInBanner>
-            )}
-
-            {matchedSorimaruStory && (
-              <CinematicBanner>
-                <CinematicHeader>
-                  <CinematicBadge>
-                    <HugeiconsIcon icon={Compass01Icon} size={13} strokeWidth={2} />
-                    <span>오디오 해설</span>
-                  </CinematicBadge>
-                  <CinematicDuration>
-                    {matchedSorimaruStory.durationSeconds ? `약 ${Math.ceil(matchedSorimaruStory.durationSeconds / 60)}분` : '약 10분'}
-                  </CinematicDuration>
-                </CinematicHeader>
-                <CinematicTitle>{matchedSorimaruStory.audioTitle}</CinematicTitle>
-                <CinematicDesc>
-                  해설사와 함께 지도를 따라 걷는 코스
-                </CinematicDesc>
-                <CinematicStartButton type="button" onClick={handleStartCinematicTour}>
-                  <HugeiconsIcon icon={PlayIcon} size={15} strokeWidth={2} className="ml-0.5" />
-                  <span>오디오 해설 듣기</span>
-                </CinematicStartButton>
-              </CinematicBanner>
             )}
 
             <CoreInfoBox>

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import Link from 'next/link';
@@ -21,7 +21,7 @@ const HomeButton = styled(Link)`
   gap: 8px;
   padding: 10px 20px;
   border-radius: 9999px;
-  background: #0B1220;
+  background: ${surface.dark.app};
   color: #ffffff;
   font-size: 14px;
   font-weight: 600;

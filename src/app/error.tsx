@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useEffect } from 'react';
 import styled from '@emotion/styled';
@@ -20,7 +20,7 @@ const RetryButton = styled.button`
   gap: 8px;
   padding: 10px 20px;
   border-radius: 9999px;
-  background: #0B1220;
+  background: ${surface.dark.app};
   color: #ffffff;
   font-size: 14px;
   font-weight: 600;
