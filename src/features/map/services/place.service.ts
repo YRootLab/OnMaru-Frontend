@@ -418,7 +418,14 @@ export class PlaceService {
       const [commonRes, introRes, imageRes] = await Promise.allSettled([
         TourApiClient.get(
           'detailCommon2',
-          { contentId },
+          {
+            contentId,
+            defaultYN: 'Y',
+            firstImageYN: 'Y',
+            addrinfoYN: 'Y',
+            mapinfoYN: 'Y',
+            overviewYN: 'Y',
+          },
           signal(),
         ),
         TourApiClient.get(
@@ -428,7 +435,7 @@ export class PlaceService {
         ),
         TourApiClient.get(
           'detailImage2',
-          { contentId, numOfRows: '10' },
+          { contentId, imageYN: 'Y', subImageYN: 'Y', numOfRows: '10' },
           signal(),
         ),
       ]);

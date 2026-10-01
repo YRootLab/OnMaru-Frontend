@@ -182,42 +182,20 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
   const mode = useMapStore((s) => s.mode);
   const category = useMapStore((s) => s.category);
   const setCategory = useMapStore((s) => s.setCategory);
-  const infoCategory = useMapStore((s) => s.infoCategory);
-  const setInfoCategory = useMapStore((s) => s.setInfoCategory);
-  const triggerSearch = useMapStore((s) => s.triggerSearch);
 
   const items = CATEGORIES[mode];
   const containerRef = useRef<HTMLDivElement>(null);
 
   const isItemActive = useCallback(
     (item: CategoryItem) => {
-      if (mode === 'info') return infoCategory === item.id;
-      return mode === 'warmth'
-        ? (item.id === 'all' && (!category || category === 'all')) || category === item.id
-        : category === item.id;
+      if (item.id === 'all') return !category || category === 'all';
+      return category === item.id;
     },
-    [mode, category, infoCategory]
+    [category]
   );
 
   const handleChipClick = (item: CategoryItem) => {
-    if (mode === 'info') {
-      setInfoCategory(item.id as MapInfoCategory);
-      if (!useMapStore.getState().panelOpen) {
-        useMapStore.getState().setPanelOpen(true);
-      }
-      return;
-    }
-
-    if (mode === 'warmth') {
-      if (item.id === 'all' || category === item.id) {
-        setCategory(null);
-      } else {
-        setCategory(item.id);
-      }
-      return;
-    }
-
-    if (category === item.id) {
+    if (item.id === 'all' || category === item.id) {
       setCategory(null);
     } else {
       setCategory(item.id);

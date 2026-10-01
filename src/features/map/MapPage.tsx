@@ -25,14 +25,12 @@ import {
 import { useMapEntranceStore } from '@/shared/navigation/mapEntranceState';
 import { useMapStore } from './hooks/useMapStore';
 import { useMapData } from './hooks/useMapData';
-import { useInfoMapData } from './hooks/useInfoMapData';
 import BottomSheet from './components/BottomSheet';
 import CategoryChips from './components/CategoryChips';
 import DetailPanel from './components/DetailPanel';
 import KakaoMap from './components/KakaoMap';
 import ListPanel from './components/ListPanel';
 import PlaceMarkers from './components/PlaceMarkers';
-import ViewportOverlays from './components/ViewportOverlays';
 import WarmthLayer from '@/private/core-ui/map-warmth/WarmthLayer';
 import WarmthNotesLayer from '@/private/core-ui/map-warmth/WarmthNotesLayer';
 import WriteButton from '@/private/core-ui/map-warmth/WriteButton';
@@ -382,26 +380,6 @@ export default function MapPage() {
 
 
   useMapData();
-  useInfoMapData();
-
-  // Push info-mode category/regionCode to URL when they change
-  const infoCategory = useMapStore((s) => s.infoCategory);
-  const infoRegionCode = useMapStore((s) => s.infoRegionCode);
-  useEffect(() => {
-    if (mode !== 'info') return;
-    const params = new URLSearchParams(window.location.search);
-    params.set('mode', 'info');
-    params.set('category', infoCategory);
-    if (infoRegionCode) {
-      params.set('regionCode', infoRegionCode);
-    } else {
-      params.delete('regionCode');
-    }
-    const next = `${window.location.pathname}?${params.toString()}`;
-    if (next !== `${window.location.pathname}${window.location.search}`) {
-      router.push(next, { scroll: false });
-    }
-  }, [mode, infoCategory, infoRegionCode, router]);
 
   const isRouteEntrance = useMapEntranceStore((s) => s.isRouteEntrance);
   const setRouteEntrance = useMapEntranceStore((s) => s.setRouteEntrance);
@@ -434,7 +412,6 @@ export default function MapPage() {
       <MapArea>
         <KakaoMap />
         <PlaceMarkers />
-        <ViewportOverlays />
         <WarmthLayer />
         <WarmthNotesLayer />
         <MapChips
