@@ -1,10 +1,10 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Activity01Icon, Clock01Icon, ShieldCheckIcon, SparklesIcon } from '@hugeicons/core-free-icons'
-import { meok, palette , fontSize } from '@/design-system/tokens';
+
 import type { TranquilityData } from '../hooks/useHanokTranquility';
 
 interface TranquilityGaugeProps {
@@ -86,7 +86,7 @@ const Container = styled.div`
   margin-bottom: 24px;
 
   [data-theme='dark'] & {
-    background: #171E2B;
+    background: ${surface.dark.surface};
   }
 `;
 
@@ -213,7 +213,7 @@ const InfoPill = styled.div`
   box-shadow: none;
 
   [data-theme='dark'] & {
-    background: #0B1220;
+    background: ${surface.dark.app};
     color: ${meok[200]};
   }
 `;

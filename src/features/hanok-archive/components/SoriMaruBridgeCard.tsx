@@ -1,11 +1,11 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { HeadphonesIcon, ArrowRight01Icon, SparklesIcon } from '@hugeicons/core-free-icons'
 import { useRouter } from 'next/navigation';
-import { meok, palette , fontSize } from '@/design-system/tokens';
+
 import type { AudioGuideStory } from '../hooks/useHanokAudioGuide';
 
 interface SoriMaruBridgeCardProps {
@@ -81,7 +81,7 @@ const CardContainer = styled.div`
   transition: background-color 0.2s ease;
 
   [data-theme='dark'] & {
-    background: #171E2B;
+    background: ${surface.dark.surface};
   }
 `;
 

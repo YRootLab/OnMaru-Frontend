@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
@@ -7,7 +7,7 @@ import { useGSAP } from '@gsap/react';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Cancel01Icon, CheckIcon, Award01Icon } from '@hugeicons/core-free-icons'
 import type { StampDef } from '../types';
-import { meok } from '@/design-system/tokens';
+import { meok, surface } from '@/design-system/tokens';
 import { stampAudio } from '../utils/sound';
 
 
@@ -40,7 +40,7 @@ const SealCard = styled.div`
   overflow: hidden;
 
   [data-theme='dark'] & {
-    background: #0B1220;
+    background: ${surface.dark.app};
     color: #ffffff;
     border: 1px solid rgba(255, 255, 255, 0.08);
   }
@@ -380,4 +380,4 @@ export default function StampSealAnimation({ stamp, onClose }: StampSealAnimatio
       </SealCard>
     </Overlay>
   );
-}
+}

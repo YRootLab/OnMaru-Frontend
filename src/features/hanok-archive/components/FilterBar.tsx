@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useMemo } from 'react';
 import styled from '@emotion/styled';
@@ -229,7 +229,7 @@ const BadgeContainer = styled.div`
   border-radius: 18px;
 
   [data-theme='dark'] & {
-    background: #171E2B;
+    background: ${surface.dark.surface};
   }
 `;
 

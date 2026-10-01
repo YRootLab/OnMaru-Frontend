@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useMemo, useState } from 'react';
 import styled from '@emotion/styled';
@@ -206,7 +206,7 @@ const ThumbnailSlot = styled.div<{ $isCurrent: boolean; $src: string }>`
   flex-shrink: 0;
 
   [data-theme='dark'] & {
-    background-color: #2d2925;
+    background-color: ${surface.dark.card};
   }
 
   img {
@@ -257,11 +257,11 @@ const PlayIconBtn = styled.button`
   }
 
   [data-theme='dark'] & {
-    background: rgba(33, 30, 25, 0.92);
+    background: rgba(23, 30, 43, 0.92);
     color: #ffffff;
 
     &:hover {
-      background: #0B1220;
+      background: ${surface.dark.app};
       color: ${palette.juhong[400]};
     }
   }
@@ -591,7 +591,7 @@ const ViewSegmentBtn = styled.button<{ $active: boolean }>`
   [data-theme='dark'] & {
     color: ${({ $active }) => ($active ? '#ffffff' : meok[400])};
     background-color: ${({ $active }) =>
-      $active ? '#2b2824' : 'transparent'};
+      $active ? '${surface.dark.surface}' : 'transparent'};
     box-shadow: ${({ $active }) =>
       $active ? '0 2px 8px rgba(0, 0, 0, 0.3)' : 'none'};
 
@@ -681,4 +681,4 @@ export function SorimaruArchiveBrowse({ stories, isLoading }: SorimaruArchiveBro
       )}
     </div>
   );
-}
+}

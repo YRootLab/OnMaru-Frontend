@@ -1,9 +1,10 @@
-'use client';
+﻿'use client';
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import styled from '@emotion/styled';
-import { palette, meok, fontSize } from '@/design-system/tokens';
+
 import { HugeiconsIcon } from '@hugeicons/react'
+import { palette, surface } from '@/design-system/tokens';
 import { Compass01Icon, ArrowExpand01Icon, ArrowShrink01Icon, RotateCwIcon, MapPinIcon, RefreshCwIcon } from '@hugeicons/core-free-icons'
 import { motion, AnimatePresence } from 'framer-motion';
 import { AudioReactiveAura } from './AudioReactiveAura';
@@ -25,7 +26,7 @@ const Container = styled.div<{ $isFullscreen?: boolean }>`
   border-radius: 1.25rem;
   overflow: hidden;
   position: relative;
-  background-color: #0B1220;
+  background-color: ${surface.dark.app};
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 12px 32px rgba(0, 0, 0, 0.25);
   transition: height 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   user-select: none;
@@ -487,4 +488,4 @@ const ButtonGroup = styled.div`
   align-items: center;
   gap: 0.375rem;
   pointer-events: auto;
-`;
+`;

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -71,7 +71,7 @@ const BookmarkBtn = styled.button<{ $saved: boolean }>`
   flex-shrink: 0;
 
   [data-theme='dark'] & {
-    background: ${({ $saved }) => ($saved ? 'rgba(0, 184, 130, 0.15)' : '#171E2B')};
+    background: ${({ $saved }) => ($saved ? 'rgba(0, 184, 130, 0.15)' : '${surface.dark.surface}')};
     border-color: ${({ $saved }) => ($saved ? '#00b882' : 'rgba(255, 255, 255, 0.12)')};
     color: ${({ $saved }) => ($saved ? '#00b882' : '#a1a1aa')};
   }
@@ -194,7 +194,7 @@ const BaseCard = styled(motion.div)`
   transition: all 0.22s ease;
 
   [data-theme='dark'] & {
-    background: #0B1220;
+    background: ${surface.dark.app};
     border-color: rgba(255, 255, 255, 0.08);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   }
@@ -309,7 +309,7 @@ const TimelineStop = styled.div`
     box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
 
     [data-theme='dark'] & {
-      border-color: #0B1220;
+      border-color: ${surface.dark.app};
     }
   }
 `;

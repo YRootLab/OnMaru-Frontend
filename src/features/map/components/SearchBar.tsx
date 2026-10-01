@@ -52,7 +52,7 @@ const SearchSubmitBtn = styled.button`
   transition: color 0.15s ease;
 
   &:hover {
-    color: ${lightPalette.kobalt[500]};
+    color: ${lightPalette.cheongrok[500]};
   }
 `;
 
@@ -176,8 +176,8 @@ const ResetAllBtn = styled.button`
   transition: all 0.15s ease;
 
   &:hover {
-    background: ${lightPalette.kobalt[50]};
-    color: ${lightPalette.kobalt[700]};
+    background: ${lightPalette.cheongrok[50]};
+    color: ${lightPalette.cheongrok[700]};
   }
 
   [data-theme='dark'] & {
@@ -231,7 +231,7 @@ const Suggestion = styled.button`
 
   &:hover {
     background: rgba(74, 111, 160, 0.1);
-    color: ${lightPalette.kobalt[700]};
+    color: ${lightPalette.cheongrok[700]};
   }
 
   [data-theme='dark'] & {
@@ -356,7 +356,7 @@ export default function SearchBar({ className }: SearchBarProps) {
         </SearchSubmitBtn>
 
         <Input
-          type="search"
+          type="text"
           value={value}
           placeholder="지역이나 한옥 이름을 검색해 보세요"
           aria-label="장소 검색"

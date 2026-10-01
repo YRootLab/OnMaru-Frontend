@@ -708,8 +708,8 @@ const styles = css`
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    background: ${lightPalette.kobalt[50]};
-    color: ${lightPalette.kobalt[700]};
+    background: ${lightPalette.cheongrok[50]};
+    color: ${lightPalette.cheongrok[700]};
     flex-shrink: 0;
   }
 
@@ -728,7 +728,7 @@ const styles = css`
     height: 20px;
     padding: 0 6px;
     border-radius: 9999px;
-    background: ${lightPalette.kobalt[500]};
+    background: ${lightPalette.cheongrok[500]};
     color: #ffffff;
     font-size: ${fontSize.xs};
     font-weight: 700;

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useMemo } from 'react';
 import Link from 'next/link';
@@ -49,7 +49,7 @@ const GlassCard = styled(motion.div)`
   backdrop-filter: blur(12px);
 
   [data-theme='dark'] & {
-    background: linear-gradient(to bottom right, ${surface.dark.card}, #171E2B);
+    background: linear-gradient(to bottom right, ${surface.dark.card}, ${surface.dark.surface});
     color: ${meok[100]};
     border: 1px solid rgba(255, 255, 255, 0.08);
   }

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 
 
@@ -11,7 +11,7 @@ import styled from '@emotion/styled';
 import { motion, useReducedMotion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { PauseIcon, PlayIcon, MapPinIcon, Clock01Icon, CalendarDaysIcon, HeadphonesIcon } from '@hugeicons/core-free-icons'
-import { meok, palette, fontSize, ringShadow } from '@/design-system/tokens';
+
 import { useJourneyStore } from '../store/useJourneyStore';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import type { NearbyAudioStory } from '../types/enrichment.types';
@@ -285,7 +285,7 @@ const AudioList = styled.div`
   box-shadow: ${ringShadow.light.card};
 
   [data-theme='dark'] & {
-    background: #171E2B;
+    background: ${surface.dark.surface};
     box-shadow: ${ringShadow.dark.card};
   }
 

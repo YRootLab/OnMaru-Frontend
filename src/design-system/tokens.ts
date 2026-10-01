@@ -245,11 +245,11 @@ export const semanticTokens = {
       primarySubtle:  palette.jangmi[100],
     },
     info: {
-      primary:        palette.kobalt[500],
-      primaryHover:   palette.kobalt[400],
-      primaryPressed: palette.kobalt[700],
-      primaryBg:      palette.kobalt[50],
-      primarySubtle:  palette.kobalt[100],
+      primary:        palette.cheongrok[500],
+      primaryHover:   palette.cheongrok[400],
+      primaryPressed: palette.cheongrok[700],
+      primaryBg:      palette.cheongrok[50],
+      primarySubtle:  palette.cheongrok[100],
     },
     success: {
       primary:        palette.cheongrok[500],
@@ -327,11 +327,11 @@ export const semanticTokens = {
       primarySubtle:  palette.jangmi[700],
     },
     info: {
-      primary:        palette.kobalt[500],
-      primaryHover:   palette.kobalt[400],
-      primaryPressed: palette.kobalt[700],
-      primaryBg:      palette.kobalt[900],
-      primarySubtle:  palette.kobalt[700],
+      primary:        palette.cheongrok[500],
+      primaryHover:   palette.cheongrok[400],
+      primaryPressed: palette.cheongrok[700],
+      primaryBg:      palette.cheongrok[900],
+      primarySubtle:  palette.cheongrok[700],
     },
     success: {
       primary:        palette.cheongrok[500],
@@ -501,6 +501,7 @@ export const createTheme = (mode: ColorMode) => {
       xl:   '0 16px 48px rgba(25, 31, 40, 0.11)',
       glow: '0 0 20px rgba(232, 90, 24, 0.18)',
       ring: ringShadow.light,
+      inset: 'none',
 
     } : {
       sm:   '0 1px 3px rgba(0, 0, 0, 0.36)',
@@ -509,6 +510,7 @@ export const createTheme = (mode: ColorMode) => {
       xl:   '0 16px 48px rgba(0, 0, 0, 0.62)',
       glow: '0 4px 16px rgba(0, 0, 0, 0.48)',
       ring: ringShadow.dark,
+      inset: 'inset 1px 1px 4px rgba(0,0,0,0.48), inset -1px -1px 2px rgba(255,255,255,0.04)',
     },
 
     transition: {

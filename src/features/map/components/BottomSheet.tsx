@@ -68,7 +68,7 @@ const Sheet = styled.div<{ $height: string; $dragging: boolean }>`
 
   [data-theme='dark'] & {
     background: ${surface.dark.card};
-    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08);
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08), inset 0 2px 6px rgba(0, 0, 0, 0.4), inset 0 -1px 2px rgba(255, 255, 255, 0.04);
   }
 
   @media (min-width: 1024px) {

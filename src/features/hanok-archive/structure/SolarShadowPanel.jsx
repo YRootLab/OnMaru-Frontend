@@ -208,8 +208,8 @@ const Stage = styled.section`
     --sim-rail: rgba(255, 255, 255, 0.13);
     --sim-tick: rgba(255, 255, 255, 0.34);
     --sim-ring: ${surface.dark.surface};
-    --sim-pill: rgba(45, 41, 36, 0.82);
-    --sim-pill-strong: rgba(45, 41, 36, 0.92);
+    --sim-pill: rgba(23, 30, 43, 0.82);
+    --sim-pill-strong: rgba(23, 30, 43, 0.92);
     --sim-pill-hover: ${surface.dark.card};
     --sim-pill-border: rgba(255, 255, 255, 0.12);
     --sim-accent-wash: rgba(255, 255, 255, 0.08);

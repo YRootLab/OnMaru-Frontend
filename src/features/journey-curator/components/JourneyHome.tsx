@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useRef } from 'react';
 import styled from '@emotion/styled';
@@ -18,7 +18,7 @@ const MainWrapper = styled.main`
   transition: background-color 0.3s ease;
 
   [data-theme='dark'] & {
-    background-color: #0B1220;
+    background-color: ${surface.dark.app};
   }
 `;
 

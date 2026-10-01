@@ -145,18 +145,18 @@ const Chip = styled.button<{ $active: boolean; $index: number }>`
   }
 
   [data-theme='dark'] & {
-    background: ${({ $active }) => ($active ? '#85B8FF' : 'rgba(23, 30, 43, 0.92)')};
-    border: 1px solid ${({ $active }) => ($active ? 'transparent' : 'rgba(255, 255, 255, 0.12)')};
-    color: ${({ $active }) => ($active ? '#0B1220' : 'rgba(255, 255, 255, 0.87)')};
+    background: ${({ $active }) => ($active ? '#3B6FD4' : 'rgba(23, 30, 43, 0.92)')};
+    border: 1px solid ${({ $active }) => ($active ? 'rgba(100, 160, 255, 0.35)' : 'rgba(255, 255, 255, 0.12)')};
+    color: ${({ $active }) => ($active ? '#ffffff' : 'rgba(255, 255, 255, 0.87)')};
     font-weight: ${({ $active }) => ($active ? '700' : '500')};
     box-shadow: ${ringShadow.dark.mapChip};
   }
 
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme='light']) & {
-      background: ${({ $active }) => ($active ? '#85B8FF' : 'rgba(23, 30, 43, 0.92)')};
-      border: 1px solid ${({ $active }) => ($active ? 'transparent' : 'rgba(255, 255, 255, 0.12)')};
-      color: ${({ $active }) => ($active ? '#0B1220' : 'rgba(255, 255, 255, 0.87)')};
+      background: ${({ $active }) => ($active ? '#3B6FD4' : 'rgba(23, 30, 43, 0.92)')};
+      border: 1px solid ${({ $active }) => ($active ? 'rgba(100, 160, 255, 0.35)' : 'rgba(255, 255, 255, 0.12)')};
+      color: ${({ $active }) => ($active ? '#ffffff' : 'rgba(255, 255, 255, 0.87)')};
       font-weight: ${({ $active }) => ($active ? '700' : '500')};
       box-shadow: ${ringShadow.dark.mapChip};
     }

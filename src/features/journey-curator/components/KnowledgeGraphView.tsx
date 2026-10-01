@@ -1,11 +1,11 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Cancel01Icon, FlameIcon, HeadphonesIcon, LandmarkIcon, MapPinIcon, NetworkIcon, RotateCcwIcon, ShoppingBag01Icon, SparklesIcon } from '@hugeicons/core-free-icons'
-import { lightPalette , fontSize } from '@/design-system/tokens';
+
 import type { GraphNode, NodeCategory } from '../types/journey.types';
 import { useJourneyStore } from '../store/useJourneyStore';
 
@@ -36,7 +36,7 @@ const GraphCard = styled.div`
   user-select: none;
 
   [data-theme='dark'] & {
-    background: #0B1220;
+    background: ${surface.dark.app};
     border-color: rgba(255, 255, 255, 0.08);
     box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45);
   }
@@ -252,7 +252,7 @@ const InspectorCard = styled(motion.div)`
   backdrop-filter: blur(12px);
 
   [data-theme='dark'] & {
-    background: #171E2B;
+    background: ${surface.dark.surface};
     border-color: rgba(255, 255, 255, 0.1);
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
   }

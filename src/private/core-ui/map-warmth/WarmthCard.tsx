@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
@@ -32,6 +32,7 @@ const CardWrapper = styled.article`
 
   [data-theme='dark'] & {
     background: ${surface.dark.surface};
+    box-shadow: var(--shadow-card-inset);
 
     &:hover {
       background: ${surface.dark.card};
@@ -273,7 +274,7 @@ const RelatedThumb = styled.div`
   flex-shrink: 0;
 
   [data-theme='dark'] & {
-    background: #2c2822;
+    background: ${surface.dark.card};
     color: ${meok[400]};
   }
 `;

@@ -26,7 +26,7 @@ const FooterWrapper = styled.footer`
 
 
   [data-theme='dark'] & {
-    background: linear-gradient(180deg, #1C1A17 0%, #131210 100%);
+    background: linear-gradient(180deg, #0B1220 0%, #070E18 100%);
     color: rgba(255, 255, 255, 0.7);
     border-top: 1px solid rgba(255, 255, 255, 0.07);
   }

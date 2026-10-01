@@ -53,7 +53,7 @@ const DrawerBackdrop = styled(motion.button)`
   position: absolute;
   inset: 0;
   cursor: default;
-  background-color: rgba(33, 30, 25, 0.35);
+  background-color: rgba(0, 0, 0, 0.5);
   border: none;
 `;
 
@@ -323,4 +323,4 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
       </AnimatePresence>
     </>
   );
-};
+};

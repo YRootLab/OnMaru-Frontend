@@ -1,11 +1,10 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { SparklesIcon, Cancel01Icon, CheckmarkCircle01Icon } from '@hugeicons/core-free-icons'
-import { palette, ringShadow } from '@/design-system/tokens';
 import { useJourneyStore } from '../store/useJourneyStore';
 import MiniOmokGame from './MiniOmokGame';
 import TraditionalWordSearch from './TraditionalWordSearch';
@@ -40,7 +39,7 @@ const LoaderCard = styled(motion.div)<{ $isCompleted?: boolean }>`
   transition: box-shadow 0.3s ease;
 
   [data-theme='dark'] & {
-    background: #0B1220;
+    background: ${surface.dark.app};
     box-shadow: ${ringShadow.dark.card};
   }
 
@@ -226,4 +225,4 @@ export default function JourneyAssemblyLoader() {
       )}
     </AnimatePresence>
   );
-}
+}

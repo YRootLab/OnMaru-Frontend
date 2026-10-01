@@ -600,7 +600,7 @@ export const ToggleMoreBtn = styled.button`
   padding: 0;
 
   background: transparent;
-  color: ${lightPalette.kobalt[700]};
+  color: ${lightPalette.cheongrok[700]};
   font-family: inherit;
   font-size: ${fontSize.xs};
   font-weight: 400;

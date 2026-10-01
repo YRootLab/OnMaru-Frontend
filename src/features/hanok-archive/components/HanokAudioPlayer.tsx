@@ -1,10 +1,10 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { HeadphonesIcon, PlayIcon, PauseIcon, RotateCcwIcon, FileTextIcon, ChevronDownIcon, ChevronUpIcon } from '@hugeicons/core-free-icons'
-import { meok, palette , fontSize } from '@/design-system/tokens';
+
 import type { SorimaruStory } from '../hooks/useHanokSorimaru';
 
 interface HanokAudioPlayerProps {
@@ -163,7 +163,7 @@ const Container = styled.div`
   margin-bottom: 24px;
 
   [data-theme='dark'] & {
-    background: #171E2B;
+    background: ${surface.dark.surface};
   }
 `;
 
@@ -250,7 +250,7 @@ const SelectorSelect = styled.select`
   cursor: pointer;
 
   [data-theme='dark'] & {
-    background: #0B1220;
+    background: ${surface.dark.app};
     color: ${meok[200]};
   }
 `;
@@ -431,7 +431,7 @@ const ScriptContent = styled.div`
   }
 
   [data-theme='dark'] & {
-    background: #0B1220;
+    background: ${surface.dark.app};
     color: ${meok[200]};
   }
 `;

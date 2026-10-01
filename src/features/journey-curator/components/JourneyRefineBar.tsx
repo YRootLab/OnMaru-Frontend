@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
@@ -24,7 +24,7 @@ const Box = styled.div`
   gap: 14px;
 
   [data-theme='dark'] & {
-    background: #0B1220;
+    background: ${surface.dark.app};
     border-color: rgba(255, 255, 255, 0.08);
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
   }
@@ -63,7 +63,7 @@ const InputRow = styled.form`
     box-shadow: 0 4px 16px rgba(0, 184, 130, 0.12);
 
     [data-theme='dark'] & {
-      background: #171E2B;
+      background: ${surface.dark.surface};
     }
   }
 `;

@@ -1,11 +1,11 @@
-'use client';
+﻿'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ArrowLeft01Icon, ArrowRight01Icon, HeartIcon, RotateCcwIcon, VolumeHighIcon } from '@hugeicons/core-free-icons'
-import { palette, fontSize, ringShadow } from '@/design-system/tokens';
+
 import { useJourneyStore } from '../store/useJourneyStore';
 import { useCuratedCourses, usePopularRegions, usePopularSounds } from '../hooks/useHomeData';
 import { hasAuthenticatedUser, showLoginRequiredToast } from '@/features/auth/privateState';
@@ -110,11 +110,11 @@ const CourseStage = styled.div<{ $showLeading: boolean; $showTrailing: boolean }
   }
 
   [data-theme='dark'] &::before {
-    background: linear-gradient(90deg, #171E2B 0%, rgba(23, 30, 43, 0.72) 22%, rgba(23, 30, 43, 0) 100%);
+    background: linear-gradient(90deg, ${surface.dark.surface} 0%, rgba(23, 30, 43, 0.72) 22%, rgba(23, 30, 43, 0) 100%);
   }
 
   [data-theme='dark'] &::after {
-    background: linear-gradient(270deg, #171E2B 0%, rgba(23, 30, 43, 0.72) 22%, rgba(23, 30, 43, 0) 100%);
+    background: linear-gradient(270deg, ${surface.dark.surface} 0%, rgba(23, 30, 43, 0.72) 22%, rgba(23, 30, 43, 0) 100%);
   }
 `;
 
@@ -249,7 +249,7 @@ const CourseCard = styled.button`
   position: relative;
 
   [data-theme='dark'] & {
-    background: #171E2B;
+    background: ${surface.dark.surface};
     box-shadow: ${ringShadow.dark.card};
   }
 
@@ -284,7 +284,7 @@ const CourseImageWrap = styled.div`
   background: #f2f4f6;
 
   [data-theme='dark'] & {
-    background: #0B1220;
+    background: ${surface.dark.app};
   }
 
   @media (max-width: 640px) {
@@ -313,7 +313,7 @@ const CourseImagePlaceholder = styled.div`
   background: #e5e5e3;
 
   [data-theme='dark'] & {
-    background: #212734;
+    background: ${surface.dark.card};
   }
 `;
 
@@ -467,7 +467,7 @@ const SoundCard = styled(Link)`
   transition: all 0.22s ease;
 
   [data-theme='dark'] & {
-    background: #171E2B;
+    background: ${surface.dark.surface};
     box-shadow: ${ringShadow.dark.card};
   }
 
@@ -593,7 +593,7 @@ const SkeletonCard = styled.div`
   box-shadow: ${ringShadow.light.card};
 
   [data-theme='dark'] & {
-    background: #171E2B;
+    background: ${surface.dark.surface};
     box-shadow: ${ringShadow.dark.card};
   }
 `;
@@ -608,7 +608,7 @@ const SkeletonPulse = styled.div`
   animation: sk-pulse 1.5s infinite;
 
   [data-theme='dark'] & {
-    background: linear-gradient(90deg, #212734 25%, #262C38 50%, #212734 75%);
+    background: linear-gradient(90deg, ${surface.dark.card} 25%, #262C38 50%, ${surface.dark.card} 75%);
     background-size: 200% 100%;
   }
 
@@ -617,7 +617,7 @@ const SkeletonPulse = styled.div`
     background: #e5e5e3;
 
     [data-theme='dark'] & {
-      background: #212734;
+      background: ${surface.dark.card};
     }
   }
 `;
@@ -650,7 +650,7 @@ const CourseSkeletonCard = styled.div`
 
   [data-theme='dark'] & {
     border-color: rgba(255, 255, 255, 0.08);
-    background: #171E2B;
+    background: ${surface.dark.surface};
     box-shadow: ${ringShadow.dark.card};
   }
 
@@ -715,7 +715,7 @@ const FeedState = styled.div<{ $compact?: boolean }>`
 
   [data-theme='dark'] & {
     border-color: #4a453f;
-    background: #171E2B;
+    background: ${surface.dark.surface};
   }
 `;
 
@@ -804,7 +804,7 @@ const RegionCard = styled.button`
   gap: 6px;
 
   [data-theme='dark'] & {
-    background: #171E2B;
+    background: ${surface.dark.surface};
     box-shadow: ${ringShadow.dark.button};
   }
 
@@ -888,7 +888,7 @@ const CategoryChip = styled.button<{ $active: boolean }>`
 
   [data-theme='dark'] & {
     border-color: ${({ $active }) => ($active ? palette.juhong[400] : 'rgba(255, 255, 255, 0.14)')};
-    background: ${({ $active }) => ($active ? palette.juhong[500] : '#171E2B')};
+    background: ${({ $active }) => ($active ? palette.juhong[500] : '${surface.dark.surface}')};
     color: ${({ $active }) => ($active ? '#ffffff' : '#a1a1aa')};
   }
 `;

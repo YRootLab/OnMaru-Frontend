@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useMemo, useState, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
@@ -116,7 +116,7 @@ const SortSelect = styled.select`
     background-color: transparent;
 
     option {
-      background-color: #25221d;
+      background-color: ${surface.dark.surface};
       color: #ffffff;
     }
   }
@@ -349,7 +349,7 @@ const ActionButton = styled.button`
 
   &:hover {
     background: rgba(74, 111, 160, 0.1);
-    color: ${lightPalette.kobalt[700]};
+    color: ${lightPalette.cheongrok[700]};
   }
 
   &:active {

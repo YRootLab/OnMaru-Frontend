@@ -1,10 +1,10 @@
-'use client';
+﻿'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Camera01Icon, Cancel01Icon, AlertCircleIcon } from '@hugeicons/core-free-icons'
-import { meok, lightPalette, darkPalette , fontSize } from '@/design-system/tokens';
+import { meok, lightPalette, darkPalette, surface, fontSize } from '@/design-system/tokens';
 import { livelyModalEnter } from '@/shared/motion/modalMotion';
 
 const Backdrop = styled.div`
@@ -39,7 +39,7 @@ const Container = styled.div`
   animation: ${livelyModalEnter} 0.38s cubic-bezier(0.19, 1.15, 0.22, 1) both;
 
   [data-theme='dark'] & {
-    background: #0B1220;
+    background: ${surface.dark.app};
   }
 
   @media (max-width: 768px) {
@@ -58,7 +58,7 @@ const Header = styled.div`
   z-index: 2;
 
   [data-theme='dark'] & {
-    background: #25221d;
+    background: ${surface.dark.surface};
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   }
 `;
@@ -86,14 +86,14 @@ const SubBadge = styled.span`
   gap: 4px;
   padding: 3px 8px;
   border-radius: 9999px;
-  background: ${lightPalette.kobalt[50]};
-  color: ${lightPalette.kobalt[700]};
+  background: ${lightPalette.cheongrok[50]};
+  color: ${lightPalette.cheongrok[700]};
   font-size: ${fontSize.micro};
   font-weight: 700;
 
   [data-theme='dark'] & {
     background: rgba(0, 167, 106, 0.18);
-    color: ${darkPalette.kobalt[200]};
+    color: ${darkPalette.cheongrok[200]};
   }
 `;
 
@@ -130,7 +130,7 @@ const RoadviewBody = styled.div`
   flex: 1;
   width: 100%;
   height: 100%;
-  background: #25221d;
+  background: ${surface.dark.surface};
 `;
 
 const FallbackOverlay = styled.div`
@@ -144,7 +144,7 @@ const FallbackOverlay = styled.div`
   padding: 24px;
   text-align: center;
   color: #ffffff;
-  background: #0B1220;
+  background: ${surface.dark.app};
 
   p {
     font-size: ${fontSize.sm};

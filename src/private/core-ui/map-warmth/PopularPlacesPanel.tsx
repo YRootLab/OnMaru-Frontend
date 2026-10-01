@@ -1,10 +1,10 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Cancel01Icon, LandmarkIcon } from '@hugeicons/core-free-icons'
-import { lightPalette, meok , fontSize } from '@/design-system/tokens';
+import { lightPalette, meok, surface, fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import type { RankedPlace } from '@/features/map/types';
 
@@ -26,7 +26,7 @@ const PanelRoot = styled.div`
   background: #ffffff;
 
   [data-theme='dark'] & {
-    background: #212734;
+    background: ${surface.dark.card};
   }
 `;
 
@@ -168,7 +168,7 @@ const PlaceRow = styled.div`
   }
 
   [data-theme='dark'] & {
-    background: #212734;
+    background: ${surface.dark.card};
 
     &:hover {
       background: rgba(255, 255, 255, 0.06);
@@ -390,4 +390,4 @@ export default function PopularPlacesPanel() {
       </ListContainer>
     </PanelRoot>
   );
-}
+}

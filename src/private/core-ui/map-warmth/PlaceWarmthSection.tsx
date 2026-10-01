@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { FlameIcon, Leaf01Icon, UsersIcon, PlusSignIcon, MessageCircleIcon } from '@hugeicons/core-free-icons'
-import { lightPalette, meok , fontSize } from '@/design-system/tokens';
+import { lightPalette, palette, meok , fontSize } from '@/design-system/tokens';
 import { usePlaceVisitReviews } from '@/features/visit-review/presentation/usePlaceVisitReviews';
 import WriteWarmthModal from './WriteWarmthModal';
 import MoodSelector from './MoodSelector';
@@ -54,12 +54,17 @@ const CountBadge = styled.span`
   height: 20px;
   padding: 0 6px;
   border-radius: 9999px;
-  background: ${lightPalette.hwanggeum[50]};
-  color: ${lightPalette.hwanggeum[900]};
+  background: ${palette.juhong[50]};
+  color: ${palette.juhong[700]};
   font-size: ${fontSize.micro};
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   border: none;
+
+  [data-theme='dark'] & {
+    background: rgba(255, 106, 16, 0.18);
+    color: ${palette.juhong[300]};
+  }
 `;
 
 const WriteButton = styled.button`
@@ -70,21 +75,31 @@ const WriteButton = styled.button`
   padding: 0 12px;
   border: none;
   border-radius: 9999px;
-  background: ${lightPalette.hwanggeum[50]};
-  color: ${lightPalette.hwanggeum[900]};
+  background: ${palette.juhong[50]};
+  color: ${palette.juhong[700]};
   font-family: inherit;
   font-size: ${fontSize.xs};
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
 
   &:hover {
-    background: ${lightPalette.hwanggeum[500]};
+    background: ${palette.juhong[500]};
     color: #ffffff;
   }
 
   &:active {
     transform: scale(0.96);
+  }
+
+  [data-theme='dark'] & {
+    background: rgba(255, 106, 16, 0.14);
+    color: ${palette.juhong[300]};
+
+    &:hover {
+      background: ${palette.juhong[500]};
+      color: #ffffff;
+    }
   }
 `;
 
@@ -97,7 +112,7 @@ const WarmthList = styled.div`
 const WarmthCard = styled.div`
   padding: 14px 16px;
   border-radius: 18px;
-  background: #fbf8f2;
+  background: #f8f8f7;
   border: none;
   transition: transform 0.15s ease;
 
@@ -106,7 +121,7 @@ const WarmthCard = styled.div`
   }
 
   [data-theme='dark'] & {
-    background: #25221d;
+    background: #171E2B;
   }
 `;
 
@@ -131,8 +146,13 @@ const MoodBadge = styled.span<{ $mood?: '한적' | '북적' }>`
   border-radius: 6px;
   font-size: ${fontSize.micro};
   font-weight: 700;
-  color: ${lightPalette.hwanggeum[900]};
-  background: ${lightPalette.hwanggeum[50]};
+  color: ${palette.juhong[800]};
+  background: ${palette.juhong[50]};
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.08);
+    color: #e2e8f0;
+  }
 `;
 
 const TimeAndMine = styled.div`
@@ -169,10 +189,15 @@ const TagList = styled.div`
 const TagItem = styled.span`
   padding: 2px 8px;
   border-radius: 6px;
-  background: ${lightPalette.hwanggeum[50]};
-  color: ${lightPalette.hwanggeum[900]};
+  background: rgba(255, 106, 16, 0.08);
+  color: ${palette.juhong[800]};
   font-size: ${fontSize.micro};
   font-weight: 500;
+
+  [data-theme='dark'] & {
+    background: rgba(255, 106, 16, 0.16);
+    color: ${palette.juhong[300]};
+  }
 `;
 
 const WarmthText = styled.p`
@@ -195,11 +220,11 @@ const EmptyBox = styled.div`
   justify-content: center;
   padding: 24px 16px;
   border-radius: 16px;
-  background: #fafafa;
+  background: #f8f8f7;
   text-align: center;
 
   [data-theme='dark'] & {
-    background: #25221d;
+    background: #171E2B;
   }
 `;
 
@@ -210,13 +235,13 @@ const EmptyIconBox = styled.div`
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: ${lightPalette.hwanggeum[50]};
-  color: ${lightPalette.hwanggeum[900]};
+  background: ${palette.juhong[50]};
+  color: ${palette.juhong[600]};
   margin-bottom: 10px;
 
   [data-theme='dark'] & {
-    background: rgba(248, 87, 0, 0.2);
-    color: #fb923c;
+    background: rgba(255, 106, 16, 0.18);
+    color: ${palette.juhong[300]};
   }
 `;
 
@@ -248,8 +273,9 @@ const EmptyActionBtn = styled.button`
   height: 32px;
   padding: 0 14px;
 
+  border: none;
   border-radius: 9999px;
-  background: ${lightPalette.hwanggeum[500]};
+  background: ${palette.juhong[500]};
   color: #ffffff;
   font-family: inherit;
   font-size: ${fontSize.xs};
@@ -259,7 +285,15 @@ const EmptyActionBtn = styled.button`
   transition: background 0.15s ease;
 
   &:hover {
-    background: ${lightPalette.hwanggeum[700]};
+    background: ${palette.juhong[600]};
+  }
+
+  [data-theme='dark'] & {
+    background: ${palette.juhong[500]};
+
+    &:hover {
+      background: ${palette.juhong[400]};
+    }
   }
 `;
 
@@ -300,7 +334,7 @@ export default function PlaceWarmthSection({
       <SectionContainer id="place-warmth-section">
         <SectionHeader>
           <TitleBox>
-            <HugeiconsIcon icon={FlameIcon} size={16} strokeWidth={2} color={lightPalette.hwanggeum[500]} />
+            <HugeiconsIcon icon={FlameIcon} size={16} strokeWidth={2} color={palette.juhong[500]} />
             <SectionTitle>머문 이들의 온기</SectionTitle>
             <CountBadge>{matchedWarmths.length}</CountBadge>
           </TitleBox>

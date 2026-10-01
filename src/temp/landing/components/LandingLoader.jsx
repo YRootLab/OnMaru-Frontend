@@ -47,7 +47,7 @@ const ProgressTrack = styled.div`
   width: 100%;
   height: 4px;
   border-radius: 9999px;
-  background: rgba(28, 26, 23, 0.08);
+  background: rgba(0, 0, 0, 0.08);
   overflow: hidden;
 `;
 

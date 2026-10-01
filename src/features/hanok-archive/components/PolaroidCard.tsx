@@ -1,11 +1,11 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { motion } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
-import { meok, lightPalette, fontSize, ringShadow } from '@/design-system/tokens';
+
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Home01Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons'
 import type { Village } from '@/features/hanok-archive/types';
@@ -33,7 +33,7 @@ const Frame = styled.div`
   overflow: visible;
 
   [data-theme='dark'] & {
-    background: #171E2B;
+    background: ${surface.dark.surface};
     border: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: ${ringShadow.dark.card};
   }

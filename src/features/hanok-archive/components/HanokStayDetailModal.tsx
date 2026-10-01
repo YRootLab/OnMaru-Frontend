@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useMemo, useState, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
@@ -546,7 +546,7 @@ const MapGuideBtn = styled.a`
   }
 
   [data-theme='dark'] & {
-    background: #171E2B;
+    background: ${surface.dark.surface};
     color: ${meok[100]};
     &:hover {
       background: #2E2A25;

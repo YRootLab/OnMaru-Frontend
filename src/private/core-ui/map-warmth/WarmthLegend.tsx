@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useMemo } from 'react';
 import styled from '@emotion/styled';
@@ -167,7 +167,7 @@ const PeriodBtn = styled.button<{ $active: boolean; $isDark: boolean }>`
   color: ${({ $active, $isDark }) =>
     $active
       ? $isDark
-        ? '#0B1220'
+        ? '${surface.dark.app}'
         : '#ffffff'
       : $isDark
         ? '#D1D5DB'
@@ -196,7 +196,7 @@ const PeriodBtn = styled.button<{ $active: boolean; $isDark: boolean }>`
 
   [data-theme='dark'] & {
     background: ${({ $active }) => ($active ? '#F59E0B' : 'rgba(255, 255, 255, 0.08)')};
-    color: ${({ $active }) => ($active ? '#0B1220' : '#D1D5DB')};
+    color: ${({ $active }) => ($active ? '${surface.dark.app}' : '#D1D5DB')};
 
     &:hover {
       background: ${({ $active }) => ($active ? '#F59E0B' : 'rgba(255, 255, 255, 0.14)')};

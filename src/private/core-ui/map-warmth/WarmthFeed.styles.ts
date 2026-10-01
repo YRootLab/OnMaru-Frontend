@@ -1,4 +1,4 @@
-import styled from '@emotion/styled';
+﻿import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ChevronDownIcon } from '@hugeicons/core-free-icons'
@@ -180,7 +180,7 @@ export const FeaturedCard = styled.div`
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 
   [data-theme='dark'] & {
-    background: #25221d;
+    background: ${surface.dark.surface};
   }
 `;
 
@@ -216,7 +216,7 @@ export const FeaturedIconBox = styled.div`
   flex-shrink: 0;
 
   [data-theme='dark'] & {
-    background: #0B1220;
+    background: ${surface.dark.app};
     color: ${meok[100]};
   }
 `;
@@ -351,7 +351,7 @@ export const SortSelect = styled.select`
     background-color: transparent;
 
     option {
-      background-color: #25221d;
+      background-color: ${surface.dark.surface};
       color: #ffffff;
     }
   }
@@ -501,7 +501,7 @@ export const OniBannerCard = styled.div`
   transition: background 0.2s ease;
 
   [data-theme='dark'] & {
-    background: #25221d;
+    background: ${surface.dark.surface};
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
   }
 `;

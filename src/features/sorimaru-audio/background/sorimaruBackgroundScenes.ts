@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   SorimaruBackgroundCategory,
   SorimaruBackgroundMotif,
   SorimaruBackgroundPalette,
@@ -18,8 +18,8 @@ export const SORIMARU_BACKGROUND_PALETTE: SorimaruBackgroundPalette = {
 };
 
 export const SORIMARU_BACKGROUND_DARK_PALETTE: SorimaruBackgroundPalette = {
-  canvas: '#0B1220',
-  paper: '#171E2B',
+  canvas: '${surface.dark.app}',
+  paper: '${surface.dark.surface}',
   lightRgb: '45, 41, 36',
   fiberRgb: '215, 210, 200',
   shadowRgb: '0, 0, 0',

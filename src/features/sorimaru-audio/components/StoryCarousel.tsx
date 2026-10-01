@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
@@ -150,7 +150,7 @@ const ThumbnailPhoto = styled.img<{ $isCurrent: boolean }>`
 const BottomGradient = styled.div`
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(33, 30, 25, 0.65), transparent 60%);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.65), transparent 60%);
 `;
 
 const PlayBubble = styled.span<{ $isPlaying: boolean }>`
@@ -536,7 +536,7 @@ const FloatingNavBtn = styled.button<{ $side: 'left' | 'right'; $visible?: boole
   justify-content: center;
   border-radius: 9999px;
   background-color: rgba(255, 255, 255, 0.96);
-  color: #0B1220;
+  color: ${surface.dark.app};
   transition: all 0.2s ease;
   border: none;
   cursor: pointer;

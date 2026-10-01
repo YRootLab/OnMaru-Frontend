@@ -1,17 +1,18 @@
-'use client';
+﻿'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
 import styled from '@emotion/styled';
 import { AnimatePresence, motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { PlayIcon, PauseIcon, Cancel01Icon, HeartIcon, RotateCcwIcon, RotateCwIcon, Compass01Icon, BookOpen01Icon } from '@hugeicons/core-free-icons'
+import { meok, palette, surface, fontSize } from '@/design-system/tokens';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { useSorimaruAudioPlayer } from '@/features/sorimaru-audio/hooks/useSorimaruAudioPlayer';
 import { useSorimaruImage } from '@/features/sorimaru-audio/hooks/useSorimaruImage';
 import { SorimaruRoadview } from './SorimaruRoadview';
 import { PlayerTranscriptPanel } from './PlayerTranscriptPanel';
 import { normalizeContentTags } from './playerTranscriptModel';
-import { palette, meok, fontSize } from '@/design-system/tokens';
+
 import { useIsAppleDevice } from '@/shared/hooks/useIsAppleDevice';
 import { livelyBottomSheetSpring } from '@/shared/motion/modalMotion';
 
@@ -359,7 +360,7 @@ const ProgressTrack = styled.div`
   background-color: rgba(0, 0, 0, 0.08);
 
   [data-theme='dark'] & {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.20);
   }
 `;
 
@@ -414,7 +415,7 @@ const DrawerPanel = styled(motion.aside)`
   }
 
   [data-theme='dark'] & {
-    background-color: #0B1220;
+    background-color: ${surface.dark.app};
     color: ${meok[100]};
     box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.7);
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -840,8 +841,8 @@ const CustomSliderContainer = styled.div<{ $progress?: number }>`
         to right,
         ${palette.juhong[400]} 0%,
         ${palette.juhong[500]} ${({ $progress = 0 }) => $progress}%,
-        rgba(255, 255, 255, 0.14) ${({ $progress = 0 }) => $progress}%,
-        rgba(255, 255, 255, 0.14) 100%
+        rgba(255, 255, 255, 0.24) ${({ $progress = 0 }) => $progress}%,
+        rgba(255, 255, 255, 0.24) 100%
       );
     }
 
@@ -862,7 +863,7 @@ const CustomSliderContainer = styled.div<{ $progress?: number }>`
       transition: transform 0.15s ease;
 
       [data-theme='dark'] & {
-        background: #0B1220;
+        background: ${surface.dark.app};
         border: 2.5px solid ${palette.juhong[400]};
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5), 0 0 12px rgba(255, 85, 0, 0.5);
       }
@@ -883,7 +884,7 @@ const CustomSliderContainer = styled.div<{ $progress?: number }>`
       cursor: grab;
 
       [data-theme='dark'] & {
-        background: #0B1220;
+        background: ${surface.dark.app};
         border: 2.5px solid ${palette.juhong[400]};
       }
     }
