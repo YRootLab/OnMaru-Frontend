@@ -15,6 +15,8 @@ export interface ColumnDef<T> {
   key: string;
   label: string;
   width?: string | number;
+  minWidth?: string | number;
+  noWrap?: boolean;
   align?: 'left' | 'center' | 'right';
   sortable?: boolean;
   render?: (row: T, index: number) => React.ReactNode;
@@ -142,6 +144,7 @@ export function DataTable<T>({
                     onClick={() => col.sortable && onSort && onSort(col.key)}
                     style={{
                       width: col.width,
+                      minWidth: col.minWidth || col.width,
                       padding: '0 16px',
                       textAlign: col.align || 'left',
                       cursor: col.sortable ? 'pointer' : 'default',
@@ -253,10 +256,12 @@ export function DataTable<T>({
                         key={col.key}
                         style={{
                           width: col.width,
+                          minWidth: col.minWidth || col.width,
                           padding: '0 16px',
                           textAlign: col.align || 'left',
                           fontSize: '13px',
                           color: meok[700],
+                          whiteSpace: col.noWrap === false ? 'normal' : 'nowrap',
                         }}
                       >
                         {col.render
