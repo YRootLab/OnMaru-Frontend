@@ -20,7 +20,8 @@ export function useHanokDetail(village: Village) {
     setIsLoadingOverview(true);
     let isMounted = true;
 
-    fetch(`/api/tourapi/detail?id=${encodeURIComponent(village.id)}`)
+    const contentTypeId = village.type === 'stay' ? '32' : '12';
+    fetch(`/api/tourapi/detail?id=${encodeURIComponent(village.id)}&contentTypeId=${contentTypeId}`)
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
