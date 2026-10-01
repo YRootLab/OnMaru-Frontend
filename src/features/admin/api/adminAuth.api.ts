@@ -1,5 +1,5 @@
 import { apiRequest, getApiRootBaseUrl, setAccessToken, removeAccessToken, USE_MOCK } from '@/lib/api/client';
-import type { AdminUser } from '@/features/admin/types';
+import type { AdminRole, AdminUser } from '@/features/admin/types';
 
 export interface LoginResponse {
   accessToken: string;
@@ -23,6 +23,19 @@ async function fetchCsrf(): Promise<CsrfResponse> {
   return res.json() as Promise<CsrfResponse>;
 }
 
+export interface BackendLoginResponse {
+  schemaVersion?: string;
+  accessToken: string;
+  expiresIn?: number;
+  admin?: {
+    id: string;
+    email: string;
+    role: AdminRole;
+    nickname?: string;
+  };
+  user?: AdminUser;
+}
+
 export async function adminLogin(email: string, password: string): Promise<LoginResponse> {
   if (USE_MOCK) {
     await new Promise((r) => setTimeout(r, 300));
@@ -42,12 +55,40 @@ export async function adminLogin(email: string, password: string): Promise<Login
   }
 
   const csrf = await fetchCsrf();
-  return apiRequest<LoginResponse>('/auth/admin/login', {
+  const res = await apiRequest<BackendLoginResponse>('/auth/admin/login', {
     method: 'POST',
     body: { email, password },
     csrf: false,
     headers: { [csrf.headerName]: csrf.token },
   });
+
+  const rawUser = res.admin || res.user;
+  const now = new Date().toISOString();
+  const user: AdminUser = rawUser
+    ? {
+        id: rawUser.id,
+        email: rawUser.email,
+        nickname: rawUser.nickname || rawUser.email.split('@')[0] || '온마루지기',
+        role: rawUser.role,
+        status: 'ACTIVE',
+        reviewCount: 0,
+        reportCount: 0,
+        createdAt: now,
+        lastLoginAt: now,
+      }
+    : {
+        id: 'admin_usr',
+        email,
+        nickname: '온마루지기',
+        role: 'ADMIN',
+        status: 'ACTIVE',
+        reviewCount: 0,
+        reportCount: 0,
+        createdAt: now,
+        lastLoginAt: now,
+      };
+
+  return { accessToken: res.accessToken, user };
 }
 
 export async function adminLogout(): Promise<void> {
@@ -76,5 +117,20 @@ export async function adminRefresh(): Promise<string | null> {
 }
 
 export async function adminGetMe(): Promise<AdminUser> {
-  return apiRequest<AdminUser>('/admin/me', { method: 'GET' });
+  const principal = await apiRequest<{ id: string; email: string; role: AdminRole; nickname?: string }>(
+    '/auth/admin/me',
+    { method: 'GET' }
+  );
+  const now = new Date().toISOString();
+  return {
+    id: principal.id,
+    email: principal.email,
+    nickname: principal.nickname || principal.email.split('@')[0] || '온마루지기',
+    role: principal.role,
+    status: 'ACTIVE',
+    reviewCount: 0,
+    reportCount: 0,
+    createdAt: now,
+    lastLoginAt: now,
+  };
 }

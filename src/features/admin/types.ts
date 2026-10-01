@@ -9,7 +9,7 @@ export interface AdminUser {
   email: string;
   nickname: string;
   role: AdminRole;
-  status: 'ACTIVE' | 'SUSPENDED';
+  status: 'ACTIVE' | 'DELETING' | 'SUSPENDED';
   avatarUrl?: string;
   reviewCount: number;
   reportCount: number;

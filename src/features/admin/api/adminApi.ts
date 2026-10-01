@@ -22,9 +22,12 @@ import { mockVillages, mockStays, mockRoutes } from '@/features/admin/mock/curat
 import { mockPipelineStatus } from '@/features/admin/mock/pipeline.mock';
 import type {
   AdminUser,
+  AdminRole,
   WarmthReview,
   ReportItem,
+  ReportReason,
   CurationItem,
+  CurationCategory,
   CursorPageResponse,
   PaginatedResponse,
   ModerationQueueItem,
@@ -52,7 +55,81 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
       pipeline: mockPipelineSummary,
     };
   }
-  return apiRequest<DashboardSummary>('/admin/dashboard/summary');
+
+  const raw = await apiRequest<any>('/admin/dashboard/summary');
+
+  const statMap = new Map<string, number>();
+  if (Array.isArray(raw?.stats)) {
+    raw.stats.forEach((s: any) => {
+      statMap.set(s.key, s.value);
+    });
+  }
+
+  const stats: DashboardStatCard[] = Array.isArray(raw?.stats) && raw.stats[0]?.label
+    ? raw.stats
+    : [
+        {
+          key: 'today_reviews',
+          label: '전체 온기',
+          value: statMap.get('REVIEWS_TOTAL') ?? 0,
+          delta: 0,
+          deltaType: 'neutral',
+          comparisonText: '누적 등록',
+        },
+        {
+          key: 'pending_reports',
+          label: '신고 대기',
+          value: statMap.get('REPORTS_PENDING') ?? 0,
+          delta: 0,
+          deltaType: (statMap.get('REPORTS_PENDING') ?? 0) > 0 ? 'decrease' : 'neutral',
+          highlight: (statMap.get('REPORTS_PENDING') ?? 0) > 0,
+          comparisonText: (statMap.get('REPORTS_PENDING') ?? 0) > 0 ? '신속 조치 필요' : '모두 처리됨',
+        },
+        {
+          key: 'published_reviews',
+          label: '게시 중 온기',
+          value: statMap.get('REVIEWS_PUBLISHED') ?? 0,
+          delta: 0,
+          deltaType: 'neutral',
+          comparisonText: '정상 노출',
+        },
+        {
+          key: 'hidden_reviews',
+          label: '숨김·제재 온기',
+          value: (statMap.get('REVIEWS_HIDDEN') ?? 0) + (statMap.get('REVIEWS_REMOVED') ?? 0),
+          delta: 0,
+          deltaType: 'neutral',
+          comparisonText: '비공개 조치',
+        },
+      ];
+
+  const recentReviews = Array.isArray(raw?.recentReviews)
+    ? raw.recentReviews.map((r: any) => ({
+        id: r.id,
+        nickname: r.author?.nickname || r.nickname || '익명 온마루',
+        placeName: r.place?.name || r.placeName || r.content?.slice(0, 16) || '한옥 장소',
+        mood: r.mood ?? (r.score ?? 5),
+        timeAgo: r.createdAt ? new Date(r.createdAt).toLocaleDateString('ko-KR') : '최근',
+      }))
+    : [];
+
+  const pendingReports = Array.isArray(raw?.pendingReports)
+    ? raw.pendingReports.map((p: any) => ({
+        id: p.id,
+        reviewId: p.reviewId || p.targetReviewId,
+        targetAuthor: p.targetAuthor || '작성자',
+        targetPlace: p.targetPlace || '장소',
+        reason: p.reason || '신고',
+        timeAgo: p.createdAt ? new Date(p.createdAt).toLocaleDateString('ko-KR') : '최근',
+      }))
+    : [];
+
+  return {
+    stats,
+    recentReviews,
+    pendingReports,
+    pipeline: raw?.pipeline || mockPipelineSummary,
+  };
 }
 
 // ── Reviews ───────────────────────────────────────────────────────────────────
@@ -96,14 +173,58 @@ export async function getReviews(query: ReviewsQuery = {}): Promise<CursorPageRe
   if (status) params.status = status;
   if (searchParam) params.query = searchParam;
 
-  return apiRequest<CursorPageResponse<WarmthReview>>('/admin/reviews', { params });
+  const res = await apiRequest<CursorPageResponse<any>>('/admin/reviews', { params });
+  const items: WarmthReview[] = (res.items || []).map((r: any) => ({
+    id: r.id,
+    content: r.content || r.text || '',
+    status: (r.status === 'DELETED' ? 'REMOVED' : r.status) || 'PUBLISHED',
+    author: r.author || {
+      id: r.authorId || 'unknown',
+      nickname: r.authorNickname || `회원_${String(r.authorId || r.id).slice(0, 6)}`,
+      email: r.authorEmail || `${String(r.authorId || r.id).slice(0, 6)}@onmaru.kr`,
+    },
+    place: r.place || {
+      id: r.placeId || 'hanok_01',
+      name: r.placeName || '한옥 장소',
+      region: r.placeRegion || '서울/경기',
+    },
+    mood: r.mood ?? (r.score ?? 5),
+    tags: r.tags || [],
+    images: r.images || [],
+    helpfulCount: r.helpfulCount ?? r.likeCount ?? 0,
+    reportCount: r.reportCount ?? 0,
+    createdAt: r.createdAt || new Date().toISOString(),
+    updatedAt: r.updatedAt || r.createdAt || new Date().toISOString(),
+  }));
+
+  return {
+    schemaVersion: res.schemaVersion || '1.0',
+    items,
+    hasNext: Boolean(res.hasNext),
+    hasMore: Boolean(res.hasNext),
+    nextCursor: res.hasNext ? res.nextCursor : null,
+  };
 }
 
-export async function moderateReview(reviewId: string, action: string, reason: string): Promise<void> {
+export async function moderateReview(reviewId: string, actionOrStatus: string, reasonText?: string): Promise<void> {
   if (USE_MOCK) { await delay(300); return; }
+  const rawStatus = actionOrStatus.toUpperCase();
+  const nextStatus = rawStatus === 'DELETED' ? 'REMOVED' : rawStatus;
+
+  let mappedReason = 'OTHER_POLICY_VIOLATION';
+  if (reasonText?.includes('스팸') || reasonText?.includes('광고')) mappedReason = 'SPAM_CONFIRMED';
+  else if (reasonText?.includes('욕설') || reasonText?.includes('비방')) mappedReason = 'ABUSE_CONFIRMED';
+  else if (reasonText?.includes('개인정보')) mappedReason = 'PII_HIGH_RISK';
+  else if (reasonText?.includes('저작권')) mappedReason = 'COPYRIGHT_CONFIRMED';
+  else if (nextStatus === 'PUBLISHED') mappedReason = 'FALSE_POSITIVE';
+
   return apiRequest<void>(`/admin/reviews/${reviewId}/moderation-actions`, {
     method: 'POST',
-    body: { action, reason },
+    body: {
+      nextStatus,
+      reason: mappedReason,
+      note: reasonText || '관리자 조치',
+    },
     csrf: true,
     idempotencyKey: newIdempotencyKey(),
   });
@@ -137,7 +258,52 @@ export async function getReports(query: ReportsQuery = {}): Promise<CursorPageRe
   if (query.cursor) params.cursor = query.cursor;
   if (reason) params.reason = reason;
 
-  return apiRequest<CursorPageResponse<ReportItem>>('/admin/reports', { params });
+  const res = await apiRequest<CursorPageResponse<any>>('/admin/reports', { params });
+  const items: ReportItem[] = (res.items || []).map((r: any) => ({
+    id: r.id,
+    reason: (r.reason as ReportReason) || 'SPAM',
+    reasonLabel:
+      r.reasonLabel ||
+      (r.reason === 'SPAM' ? '광고/스팸' : r.reason === 'ABUSE' ? '욕설/비방' : r.reason || '기타'),
+    reporter: r.reporter || {
+      id: r.reporterId || 'usr-reporter',
+      nickname: r.reporterNickname || '신고자',
+      email: r.reporterEmail || 'reporter@onmaru.kr',
+    },
+    review: r.review || {
+      id: r.reviewId || 'rev-01',
+      author: {
+        id: r.reviewAuthorId || 'author-01',
+        nickname: r.reviewAuthorNickname || '피신고자',
+        email: 'user@onmaru.kr',
+      },
+      place: {
+        id: 'place-01',
+        name: r.placeName || '한옥 장소',
+        region: '서울/경기',
+      },
+      mood: 3,
+      content: r.detail || r.reviewContent || '신고 대상 콘텐츠 내용',
+      tags: [],
+      images: [],
+      helpfulCount: 0,
+      reportCount: 1,
+      status: 'PUBLISHED',
+      createdAt: r.createdAt || new Date().toISOString(),
+      updatedAt: r.createdAt || new Date().toISOString(),
+    },
+    reportedUserAccumReports: r.reportedUserAccumReports ?? 1,
+    status: r.status === 'OPEN' ? 'PENDING' : r.status || 'PENDING',
+    createdAt: r.createdAt || new Date().toISOString(),
+  }));
+
+  return {
+    schemaVersion: res.schemaVersion || '1.0',
+    items,
+    hasNext: Boolean(res.hasNext),
+    hasMore: Boolean(res.hasNext),
+    nextCursor: res.hasNext ? res.nextCursor : null,
+  };
 }
 
 // ── Users ─────────────────────────────────────────────────────────────────────
@@ -172,7 +338,26 @@ export async function getUsers(query: UsersQuery = {}): Promise<CursorPageRespon
   if (query.cursor) params.cursor = query.cursor;
   if (serverStatus) params.status = serverStatus;
 
-  return apiRequest<CursorPageResponse<AdminUser>>('/admin/users', { params });
+  const res = await apiRequest<CursorPageResponse<any>>('/admin/users', { params });
+  const items: AdminUser[] = (res.items || []).map((u: any) => ({
+    id: u.id,
+    email: u.email || `${String(u.id).slice(0, 8)}@onmaru.kr`,
+    nickname: u.nickname || `회원_${String(u.id).slice(0, 6)}`,
+    role: (u.role as AdminRole) || 'USER',
+    status: (u.status as any) || 'ACTIVE',
+    reviewCount: Number(u.reviewCount ?? 0),
+    reportCount: Number(u.reportCount ?? 0),
+    createdAt: u.createdAt || new Date().toISOString(),
+    lastLoginAt: u.lastLoginAt,
+  }));
+
+  return {
+    schemaVersion: res.schemaVersion || '1.0',
+    items,
+    hasNext: Boolean(res.hasNext),
+    hasMore: Boolean(res.hasNext),
+    nextCursor: res.hasNext ? res.nextCursor : null,
+  };
 }
 
 export interface SanctionInput {
@@ -236,15 +421,41 @@ export async function getCurations(query: CurationsQuery = {}): Promise<CursorPa
   if (category && ['VILLAGE', 'STAY', 'ROUTE'].includes(category)) params.category = category;
   if (included !== undefined) params.included = included;
 
-  return apiRequest<CursorPageResponse<CurationItem>>('/admin/curations', { params });
+  const res = await apiRequest<CursorPageResponse<any>>('/admin/curations', { params });
+  const items: CurationItem[] = (res.items || []).map((c: any) => ({
+    id: c.id || c.placeId,
+    contentId: c.placeId || c.contentId || c.id,
+    category: (c.category as CurationCategory) || category || 'VILLAGE',
+    name: c.name || `한옥 큐레이션 #${String(c.placeId || c.id).slice(0, 6)}`,
+    region: c.region || '서울/경기',
+    type: c.type || 'EXPERIENCE',
+    thumbnail: c.thumbnail || '',
+    badges: Array.isArray(c.badges) ? c.badges : [],
+    isIncluded: typeof c.included === 'boolean' ? c.included : Boolean(c.isIncluded),
+    lastModifiedBy: c.lastModifiedBy || '관리자',
+    lastModifiedAt: c.updatedAt ? new Date(c.updatedAt).toLocaleDateString('ko-KR') : '방금 전',
+  }));
+
+  return {
+    schemaVersion: res.schemaVersion || '1.0',
+    items,
+    hasNext: Boolean(res.hasNext),
+    hasMore: Boolean(res.hasNext),
+    nextCursor: res.hasNext ? res.nextCursor : null,
+  };
 }
 
 export async function updateCuration(placeId: string, update: Partial<CurationItem>): Promise<void> {
   if (USE_MOCK) { await delay(300); return; }
   return apiRequest<void>(`/admin/curations/${placeId}`, {
     method: 'PUT',
-    body: update,
+    body: {
+      category: update.category,
+      included: update.isIncluded ?? true,
+      badges: update.badges ?? [],
+    },
     csrf: true,
+    idempotencyKey: newIdempotencyKey(),
   });
 }
 
