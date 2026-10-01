@@ -189,7 +189,7 @@ export default function RoadviewModal({
       if (panoId) {
         roadview.setPanoId(panoId, position);
       } else {
-        setError('ÀÌ Àå¼Ò ÁÖº¯ 100m ¾È¿¡´Â ·Îµåºä°¡ ¾ø¾î¿ä.');
+        setError('ì´ ì¥ì†Œ ì£¼ë³€ 100m ì•ˆì—ëŠ” ë¡œë“œë·°ê°€ ì—†ì–´ìš”.');
       }
     });
   }, [isOpen, lat, lng]);
@@ -197,17 +197,17 @@ export default function RoadviewModal({
   if (!isOpen) return null;
 
   return (
-    <Backdrop onClick={onClose} role="dialog" aria-modal="true" aria-label="ÇöÀå 360µµ °Å¸® Ç³°æ">
+    <Backdrop onClick={onClose} role="dialog" aria-modal="true" aria-label="í˜„ì¥ 360ë„ ê±°ë¦¬ í’ê²½">
       <Container onClick={(e) => e.stopPropagation()}>
         <Header>
           <TitleBox>
             <Title>{placeName}</Title>
             <SubBadge>
               <HugeiconsIcon icon={Camera01Icon} size={13} strokeWidth={2} />
-              <span>ÇöÀå 360¡Æ µÑ·¯º¸±â</span>
+              <span>í˜„ì¥ 360Â° ë‘˜ëŸ¬ë³´ê¸°</span>
             </SubBadge>
           </TitleBox>
-          <CloseButton type="button" onClick={onClose} aria-label="´İ±â">
+          <CloseButton type="button" onClick={onClose} aria-label="ë‹«ê¸°">
             <HugeiconsIcon icon={Cancel01Icon} size={20} strokeWidth={2} />
           </CloseButton>
         </Header>
@@ -218,7 +218,7 @@ export default function RoadviewModal({
           {error && (
             <FallbackOverlay>
               <HugeiconsIcon icon={AlertCircleIcon} size={32} color={lightPalette.juhong[500]} strokeWidth={1.8} />
-              <h4 style={{ fontSize: '15px', fontWeight: 700, margin: 0 }}>·Îµåºä¸¦ ºÒ·¯¿Ã ¼ö ¾ø¾î¿ä</h4>
+              <h4 style={{ fontSize: '15px', fontWeight: 700, margin: 0 }}>ë¡œë“œë·°ë¥¼ ë¶ˆëŸ¬ì˜¬ ìˆ˜ ì—†ì–´ìš”</h4>
               <p>{error}</p>
             </FallbackOverlay>
           )}
@@ -226,4 +226,4 @@ export default function RoadviewModal({
       </Container>
     </Backdrop>
   );
-}
+}

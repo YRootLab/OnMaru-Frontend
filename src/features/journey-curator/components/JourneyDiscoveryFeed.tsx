@@ -327,7 +327,7 @@ export function CourseImageLayer({ name, thumbnailUrl }: CourseImageLayerProps) 
 
   return (
     <>
-      <CourseImagePlaceholder aria-label={`${name} ÀÌ¹ÌÁö ¾øÀ½`} role="img" />
+      <CourseImagePlaceholder aria-label={`${name} ì´ë¯¸ì§€ ì—†ìŒ`} role="img" />
       {imageUrl && (
         <CourseImage
           src={imageUrl}
@@ -754,14 +754,16 @@ function HomeFeedFailure({
       <OniSearchEmpty
         compact={compact}
         size="md"
-        title={unavailable ? '¿Â¸¶·ç°¡ ¼Ò½ÄÀ» ¸ğÀ¸°í ÀÖ¾î¿ä' : 'Àá½Ã ±æÀ» ÀÒ¾ú¾î¿ä'}
+        title={unavailable ? 'ìƒˆë¡œìš´ ì—¬ì •ì„ ì¤€ë¹„í•˜ê³  ìˆì–´ìš”' : 'ì¶”ì²œ ì—¬ì •ì„ ë¶ˆëŸ¬ì˜¤ì§€ ëª»í–ˆì–´ìš”'}
         description={
-          unavailable ? '»õ·Î¿î ÀÌ¾ß±â¸¦ ÁØºñ ÁßÀÌ¿¡¿ä. Àá½Ã ÈÄ ´Ù½Ã Ã£¾Æ¿Ã°Ô¿ä.' : '¿¬°áÀ» ´Ù½Ã È®ÀÎÇØ º¼±î¿ä?'
+          unavailable
+            ? 'ì ì‹œ í›„ ë‹¤ì‹œ ì°¾ì•„ì™€ ì£¼ì„¸ìš”.'
+            : 'ë„¤íŠ¸ì›Œí¬ ì—°ê²° ìƒíƒœë¥¼ í™•ì¸í•˜ê³  ë‹¤ì‹œ ì‹œë„í•´ ì£¼ì„¸ìš”.'
         }
         action={
           <RetryButton type="button" onClick={onRetry}>
             <HugeiconsIcon icon={RotateCcwIcon} size={13} />
-            ´Ù½Ã ºÒ·¯¿À±â
+            ë‹¤ì‹œ ì‹œë„í•˜ê¸°
           </RetryButton>
         }
       />
@@ -852,11 +854,11 @@ const RegionSub = styled.span`
 
 const COURSE_CATEGORY_LIST = ['HANOK_STAY', 'CULTURE_ART', 'TRADITIONAL_FOOD', 'GARDEN_ECOLOGY', 'LOCAL_SCENE'] as const;
 const COURSE_CATEGORY_LABELS: Record<string, string> = {
-  HANOK_STAY: 'ÇÑ¿Á ¼÷¹Ú',
-  CULTURE_ART: '¹®È­¡¤¿¹¼ú',
-  TRADITIONAL_FOOD: 'ÀüÅë À½½Ä',
-  GARDEN_ECOLOGY: 'Á¤¿ø¡¤»ıÅÂ',
-  LOCAL_SCENE: 'Áö¿ª »ıÈ°',
+  HANOK_STAY: 'í•œì˜¥ ìˆ™ë°•',
+  CULTURE_ART: 'ë¬¸í™”Â·ì˜ˆìˆ ',
+  TRADITIONAL_FOOD: 'ì „í†µ ìŒì‹',
+  GARDEN_ECOLOGY: 'ì •ì›Â·ìƒíƒœ',
+  LOCAL_SCENE: 'ì§€ì—­ ìƒí™œ',
 };
 
 const CategoryFilterRow = styled.div`
@@ -1023,10 +1025,10 @@ export default function JourneyDiscoveryFeed() {
             {course.tags.map((tag) => (
               <Tag key={tag}>#{tag}</Tag>
             ))}
-            {course.savedByMe && <Tag>ÀúÀåµÊ</Tag>}
+            {course.savedByMe && <Tag>ì €ì¥ë¨</Tag>}
           </TagList>
           <ExploreText>
-            <span>ÀÏÁ¤ º¸±â</span>
+            <span>ì¼ì • ë³´ê¸°</span>
             <HugeiconsIcon icon={ArrowRight01Icon} size={12} />
           </ExploreText>
         </CourseFooter>
@@ -1040,18 +1042,18 @@ export default function JourneyDiscoveryFeed() {
       <section>
         <SectionHeader>
           <SectionTitleGroup>
-            <SectionTitle>ÀÌ¹ø ÁÖ ÃßÃµ ÄÚ½º</SectionTitle>
-            <SectionDescription>Á¤Ãë¿Í ¼Ò¸®°¡ ¸Ó¹«´Â Àå¼Ò¸¦ µÑ·¯º¸¼¼¿ä.</SectionDescription>
+            <SectionTitle>ì´ë²ˆ ì£¼ ì¶”ì²œ ì½”ìŠ¤</SectionTitle>
+            <SectionDescription>ì •ì·¨ì™€ ì†Œë¦¬ê°€ ë¨¸ë¬´ëŠ” ì¥ì†Œë¥¼ ë‘˜ëŸ¬ë³´ì„¸ìš”.</SectionDescription>
           </SectionTitleGroup>
         </SectionHeader>
 
-        <CategoryFilterRow role="group" aria-label="Ä«Å×°í¸® ÇÊÅÍ">
+        <CategoryFilterRow role="group" aria-label="ì¹´í…Œê³ ë¦¬ í•„í„°">
           <CategoryChip
             type="button"
             $active={selectedCategory === undefined}
             onClick={() => { setSelectedCategory(undefined); setActiveCourseIndex(0); }}
           >
-            ÀüÃ¼
+            ì „ì²´
           </CategoryChip>
           {COURSE_CATEGORY_LIST.map((cat) => (
             <CategoryChip
@@ -1097,7 +1099,7 @@ export default function JourneyDiscoveryFeed() {
                   <CourseArrow
                     type="button"
                     data-direction="prev"
-                    aria-label="ÀÌÀü ÃßÃµ ÄÚ½º"
+                    aria-label="ì´ì „ ì¶”ì²œ ì½”ìŠ¤"
                     disabled={currentCourseIndex === 0}
                     onClick={() => moveCourseCarousel(currentCourseIndex - 1)}
                   >
@@ -1111,7 +1113,7 @@ export default function JourneyDiscoveryFeed() {
                   <CourseArrow
                     type="button"
                     data-direction="next"
-                    aria-label="´ÙÀ½ ÃßÃµ ÄÚ½º"
+                    aria-label="ë‹¤ìŒ ì¶”ì²œ ì½”ìŠ¤"
                     disabled={currentCourseIndex >= maxCourseIndex}
                     onClick={() => moveCourseCarousel(currentCourseIndex + 1)}
                   >
@@ -1119,13 +1121,13 @@ export default function JourneyDiscoveryFeed() {
                   </CourseArrow>
                 </CourseStage>
                 {featuredCourses.length > visibleCourseCount && (
-                  <CourseIndicators aria-label="ÃßÃµ ÄÚ½º À§Ä¡">
+                  <CourseIndicators aria-label="ì¶”ì²œ ì½”ìŠ¤ ìœ„ì¹˜">
                     {Array.from({ length: maxCourseIndex + 1 }, (_, index) => (
                       <CourseIndicator
                         key={index}
                         type="button"
                         $active={currentCourseIndex === index}
-                        aria-label={`${index + 1}¹øÂ° ÃßÃµ ÄÚ½º º¸±â`}
+                        aria-label={`${index + 1}ë²ˆì§¸ ì¶”ì²œ ì½”ìŠ¤ ë³´ê¸°`}
                         aria-current={currentCourseIndex === index ? 'true' : undefined}
                         onClick={() => moveCourseCarousel(index)}
                       />
@@ -1141,8 +1143,8 @@ export default function JourneyDiscoveryFeed() {
       <section>
           <SectionHeader>
             <SectionTitleGroup>
-              <SectionTitle>Áö±İ ÀÎ±â ÀÖ´Â ÇÑ¿Á ¼Ò¸®</SectionTitle>
-              <SectionDescription>Ã³¸¶ ¹Ø ºø¼Ò¸®¿Í ´ëÃ»¸¶·ç Ç³°æ¼Ò¸®¸¦ µé¾îº¸¼¼¿ä.</SectionDescription>
+              <SectionTitle>ì§€ê¸ˆ ì¸ê¸° ìˆëŠ” í•œì˜¥ ì†Œë¦¬</SectionTitle>
+              <SectionDescription>ì²˜ë§ˆ ë°‘ ë¹—ì†Œë¦¬ì™€ ëŒ€ì²­ë§ˆë£¨ í’ê²½ì†Œë¦¬ë¥¼ ë“¤ì–´ë³´ì„¸ìš”.</SectionDescription>
             </SectionTitleGroup>
           </SectionHeader>
 
@@ -1164,15 +1166,15 @@ export default function JourneyDiscoveryFeed() {
                 const storyId = story?.storyId ?? sound.storyId;
                 const title = story?.title ?? sound.audioTitle ?? sound.title;
                 const location = story?.region?.name ?? sound.locationName;
-                const duration = story?.durationSeconds ? `${Math.floor(story.durationSeconds / 60)}ºĞ` : sound.formattedDuration || sound.playTime;
+                const duration = story?.durationSeconds ? `${Math.floor(story.durationSeconds / 60)}ë¶„` : sound.formattedDuration || sound.playTime;
                 const rank = sound.rank ?? (index + 1);
                 const rawSaved = story?.savedByMe ?? sound.savedByMe ?? false;
                 const isSaved = storyId in savedOverrides ? savedOverrides[storyId] : rawSaved;
                 const playCount = sound.playCount;
-                const meta = [location, duration, playCount != null ? `Àç»ı ${playCount.toLocaleString()}` : undefined].filter(Boolean).join(' ¡¤ ');
+                const meta = [location, duration, playCount != null ? `ì¬ìƒ ${playCount.toLocaleString()}` : undefined].filter(Boolean).join(' Â· ');
                 return (
                 <SoundCard key={storyId} href={`/sorimaru?stid=${encodeURIComponent(storyId)}`}>
-                  <SoundRank aria-label={`${rank}À§`}>#{rank}</SoundRank>
+                  <SoundRank aria-label={`${rank}ìœ„`}>#{rank}</SoundRank>
                   <PlayIconWrap>
                     <HugeiconsIcon icon={VolumeHighIcon} size={20} />
                   </PlayIconWrap>
@@ -1183,7 +1185,7 @@ export default function JourneyDiscoveryFeed() {
                   <SoundSaveBtn
                     type="button"
                     data-saved={isSaved}
-                    aria-label={isSaved ? 'Âò ÇØÁ¦' : 'ÂòÇÏ±â'}
+                    aria-label={isSaved ? 'ì°œ í•´ì œ' : 'ì°œí•˜ê¸°'}
                     onClick={(e) => handleToggleSave(e, storyId, isSaved)}
                   >
                     <HugeiconsIcon icon={HeartIcon} size={16} fill={isSaved ? '#ef4444' : 'none'} strokeWidth={isSaved ? 0 : 2} />
@@ -1197,8 +1199,8 @@ export default function JourneyDiscoveryFeed() {
       <section>
           <SectionHeader>
             <SectionTitleGroup>
-              <SectionTitle>ÀÎ±â Áö¿ª</SectionTitle>
-              <SectionDescription>¹æ¹® ÈÄ±â°¡ ¸¹ÀÌ ½×ÀÎ Áö¿ªÀ» µÑ·¯º¸¼¼¿ä.</SectionDescription>
+              <SectionTitle>ì¸ê¸° ì§€ì—­</SectionTitle>
+              <SectionDescription>ë°©ë¬¸ í›„ê¸°ê°€ ë§ì´ ìŒ“ì¸ ì§€ì—­ì„ ë‘˜ëŸ¬ë³´ì„¸ìš”.</SectionDescription>
             </SectionTitleGroup>
           </SectionHeader>
 
@@ -1216,11 +1218,11 @@ export default function JourneyDiscoveryFeed() {
               : popularRegions.map((region) => (
             <RegionCard key={region.region.regionCode} onClick={() => handleSelectCourse(region.region.name)}>
               <RegionName>{region.region.name}</RegionName>
-              <RegionSub>ÈÄ±â {region.reviewCount}°³</RegionSub>
+              <RegionSub>í›„ê¸° {region.reviewCount}ê°œ</RegionSub>
             </RegionCard>
           ))}
         </RegionGrid>
       </section>
     </FeedContainer>
   );
-}
+}

@@ -147,14 +147,14 @@ export const SectionErrorFallback: React.FC<SectionErrorFallbackProps> = ({
       <MainTitle>{title}</MainTitle>
       <SubDescription>{description}</SubDescription>
 
-      {requestId && <RequestIdText>¿À·ù ID: {requestId}</RequestIdText>}
+      {requestId && <RequestIdText>ì˜¤ë¥˜ ID: {requestId}</RequestIdText>}
 
       {canRetry && onRetry && (
         <RetryButton type="button" onClick={onRetry}>
           <HugeiconsIcon icon={RefreshCwIcon} size={14} />
-          ´Ù½Ã ½Ãµµ
+          ë‹¤ì‹œ ì‹œë„
         </RetryButton>
       )}
     </FallbackContainer>
   );
-};
+};

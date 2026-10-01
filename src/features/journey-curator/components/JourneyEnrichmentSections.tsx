@@ -267,7 +267,7 @@ const DoganMetaItem = styled.span`
 `;
 
 function splitLede(overview: string): [string, string] {
-  const match = overview.match(/^[^.!?¡£]+[.!?¡£]/);
+  const match = overview.match(/^[^.!?ã€‚]+[.!?ã€‚]/);
   if (!match) return [overview, ''];
   const lede = match[0].trim();
   const rest = overview.slice(match[0].length).trim();
@@ -451,8 +451,8 @@ function AudioItem({
         type="button"
         onClick={toggle}
         whileTap={{ scale: 0.92 }}
-        aria-label={isPlaying ? '¿Àµğ¿À ÀÏ½ÃÁ¤Áö' : '¿Àµğ¿À ÇØ¼³ µè±â'}
-        title={isPlaying ? 'ÀÏ½ÃÁ¤Áö' : '¿Àµğ¿À ÇØ¼³ µè±â'}
+        aria-label={isPlaying ? 'ì˜¤ë””ì˜¤ ì¼ì‹œì •ì§€' : 'ì˜¤ë””ì˜¤ í•´ì„¤ ë“£ê¸°'}
+        title={isPlaying ? 'ì¼ì‹œì •ì§€' : 'ì˜¤ë””ì˜¤ í•´ì„¤ ë“£ê¸°'}
       >
         {isCurrent && isPlaying ? <HugeiconsIcon icon={PauseIcon} size={17} fill="currentColor" /> : <HugeiconsIcon icon={PlayIcon} size={17} fill="currentColor" style={{ marginLeft: 2 }} />}
       </PlayButton>
@@ -462,7 +462,7 @@ function AudioItem({
           <AudioMeta>
             <HugeiconsIcon icon={HeadphonesIcon} size={12} />
             <span>{story.formattedDuration}</span>
-            {story.distance ? ` ¡¤ ¾à ${story.distance}` : ''}
+            {story.distance ? ` Â· ì•½ ${story.distance}` : ''}
           </AudioMeta>
         </AudioTitleRow>
         <ProgressTrack>
@@ -604,8 +604,8 @@ export default function JourneyEnrichmentSections() {
             transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
           >
             <BlockHeader>
-              <BlockTitle>°ø°£¿¡ ±êµç ÀÌ¾ß±â</BlockTitle>
-              <BlockSubtitle>°ø°£ÀÇ ³»·Â°ú °íÀ¯ÇÑ Á¤Ãë¸¦ »çÁø°ú ÇÔ²² ÃµÃµÈ÷ »ìÆìº¸¼¼¿ä.</BlockSubtitle>
+              <BlockTitle>ê³µê°„ì— ê¹ƒë“  ì´ì•¼ê¸°</BlockTitle>
+              <BlockSubtitle>ê³µê°„ì˜ ë‚´ë ¥ê³¼ ê³ ìœ í•œ ì •ì·¨ë¥¼ ì‚¬ì§„ê³¼ í•¨ê»˜ ì²œì²œíˆ ì‚´í´ë³´ì„¸ìš”.</BlockSubtitle>
             </BlockHeader>
           </motion.div>
           <DoganList>
@@ -640,13 +640,13 @@ export default function JourneyEnrichmentSections() {
                           {entry.usetime && (
                             <DoganMetaItem>
                               <HugeiconsIcon icon={Clock01Icon} size={13} strokeWidth={2} />
-                              <span>ÀÌ¿ë½Ã°£ {entry.usetime}</span>
+                              <span>ì´ìš©ì‹œê°„ {entry.usetime}</span>
                             </DoganMetaItem>
                           )}
                           {entry.restdate && (
                             <DoganMetaItem>
                               <HugeiconsIcon icon={CalendarDaysIcon} size={13} strokeWidth={2} />
-                              <span>ÈŞ¹«ÀÏ {entry.restdate}</span>
+                              <span>íœ´ë¬´ì¼ {entry.restdate}</span>
                             </DoganMetaItem>
                           )}
                         </DoganMetaRow>
@@ -669,8 +669,8 @@ export default function JourneyEnrichmentSections() {
             transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
           >
             <BlockHeader>
-              <BlockTitle>ÇöÀå ¿Àµğ¿À ÇØ¼³</BlockTitle>
-              <BlockSubtitle>¹ß°ÉÀ½ ¿Å±â¸ç ±Í·Î °¨»óÇÒ ¼ö ÀÖ´Â »ı»ıÇÑ ÇØ¼³ÀÌ¿¡¿ä.</BlockSubtitle>
+              <BlockTitle>í˜„ì¥ ì˜¤ë””ì˜¤ í•´ì„¤</BlockTitle>
+              <BlockSubtitle>ë°œê±¸ìŒ ì˜®ê¸°ë©° ê·€ë¡œ ê°ìƒí•  ìˆ˜ ìˆëŠ” ìƒìƒí•œ í•´ì„¤ì´ì—ìš”.</BlockSubtitle>
             </BlockHeader>
           </motion.div>
           <AudioList>
@@ -698,8 +698,8 @@ export default function JourneyEnrichmentSections() {
             transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
           >
             <BlockHeader>
-              <BlockTitle>ÇÔ²² µé¸£±â ÁÁÀº ¸ÀÁı</BlockTitle>
-              <BlockSubtitle>ÄÚ½º ÁÖº¯¿¡¼­ Æí¾ÈÇÏ°Ô ½Ä»ç¿Í Â÷¸¦ Áñ±æ ¼ö ÀÖ´Â °÷ÀÌ¿¡¿ä.</BlockSubtitle>
+              <BlockTitle>í•¨ê»˜ ë“¤ë¥´ê¸° ì¢‹ì€ ë§›ì§‘</BlockTitle>
+              <BlockSubtitle>ì½”ìŠ¤ ì£¼ë³€ì—ì„œ í¸ì•ˆí•˜ê²Œ ì‹ì‚¬ì™€ ì°¨ë¥¼ ì¦ê¸¸ ìˆ˜ ìˆëŠ” ê³³ì´ì—ìš”.</BlockSubtitle>
             </BlockHeader>
           </motion.div>
           <FoodRow>
@@ -720,7 +720,7 @@ export default function JourneyEnrichmentSections() {
                       <span>{shortStreetAddr(food.addr)}</span>
                     </FoodAddr>
                   )}
-                  <FoodDistance>¾à {food.distanceMeters}m</FoodDistance>
+                  <FoodDistance>ì•½ {food.distanceMeters}m</FoodDistance>
                 </FoodCard>
               </motion.div>
             ))}
@@ -729,4 +729,4 @@ export default function JourneyEnrichmentSections() {
       )}
     </Wrap>
   );
-}
+}

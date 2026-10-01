@@ -325,7 +325,7 @@ export default function StampSealAnimation({ stamp, onClose }: StampSealAnimatio
         onClick={(e) => e.stopPropagation()}
       >
         <HanjiBackdrop />
-        <CloseButton onClick={handleClose} aria-label="´İ±â">
+        <CloseButton onClick={handleClose} aria-label="ë‹«ê¸°">
           <HugeiconsIcon icon={Cancel01Icon} size={18} />
         </CloseButton>
 
@@ -333,12 +333,12 @@ export default function StampSealAnimation({ stamp, onClose }: StampSealAnimatio
           <HugeiconsIcon icon={Award01Icon} size={13} />
           <span>
             {stamp.rarity === 'legendary'
-              ? 'Àü¼³ ¾îº¸'
+              ? 'ì „ì„¤ ì–´ë³´'
               : stamp.rarity === 'rare'
-              ? 'Èñ±Í ÀÎÀå'
+              ? 'í¬ê·€ ì¸ì¥'
               : stamp.rarity === 'regional'
-              ? '±Ç¿ª ÀÎÀå'
-              : 'ÇÑ¿Á ¼ö°á'}
+              ? 'ê¶Œì—­ ì¸ì¥'
+              : 'í•œì˜¥ ìˆ˜ê²°'}
           </span>
         </RarityTag>
 
@@ -375,9 +375,9 @@ export default function StampSealAnimation({ stamp, onClose }: StampSealAnimatio
 
         <ConfirmBtn $color={stamp.color} onClick={handleClose}>
           <HugeiconsIcon icon={CheckIcon} size={16} strokeWidth={2.5} />
-          <span>ÀÎÀåÃ¸¿¡ ´ã¾Ò¾î¿ä</span>
+          <span>ì¸ì¥ì²©ì— ë‹´ì•˜ì–´ìš”</span>
         </ConfirmBtn>
       </SealCard>
     </Overlay>
   );
-}
+}

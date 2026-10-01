@@ -117,7 +117,7 @@ export default function StructureModal({ title, onClose, children }: StructureMo
     >
       <Shell ref={shellRef} role="dialog" aria-modal="true" aria-label={title} tabIndex={-1}>
         <CloseButton type="button" onClick={onClose}>
-          ´Ý±â <HugeiconsIcon icon={Cancel01Icon} size={14} strokeWidth={2} aria-hidden="true" />
+          ë‹«ê¸° <HugeiconsIcon icon={Cancel01Icon} size={14} strokeWidth={2} aria-hidden="true" />
         </CloseButton>
 
         {children}
@@ -125,4 +125,4 @@ export default function StructureModal({ title, onClose, children }: StructureMo
     </Overlay>,
     document.body,
   );
-}
+}

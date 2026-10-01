@@ -401,7 +401,7 @@ export const SorimaruRoadview: React.FC<SorimaruRoadviewProps> = ({
         <FallbackContainer>
           <FallbackImg
             src={fallbackImage}
-            alt={title || 'ÇÑ¿Á ÇöÀå ºä'}
+            alt={title || 'í•œì˜¥ í˜„ì¥ ë·°'}
             loading="eager"
             referrerPolicy="no-referrer"
             onLoad={() => setIsImgLoaded(true)}
@@ -420,7 +420,7 @@ export const SorimaruRoadview: React.FC<SorimaruRoadviewProps> = ({
           >
             <SkeletonBadge>
               <HugeiconsIcon icon={Compass01Icon} size={14} className="spin-icon" />
-              <span>{isTargetingRoadview ? '360¡Æ ÇöÀå ºä ·Îµù Áß...' : 'ÇöÀå »çÁø ºÒ·¯¿À´Â Áß...'}</span>
+              <span>{isTargetingRoadview ? '360Â° í˜„ì¥ ë·° ë¡œë”© ì¤‘...' : 'í˜„ì¥ ì‚¬ì§„ ë¶ˆëŸ¬ì˜¤ëŠ” ì¤‘...'}</span>
             </SkeletonBadge>
           </SkeletonOverlay>
         )}
@@ -435,29 +435,29 @@ export const SorimaruRoadview: React.FC<SorimaruRoadviewProps> = ({
           <span className="dot" />
           <span>
             {statusType === 'live'
-              ? 'ÇöÀå »çÁø ºä¾î'
+              ? 'í˜„ì¥ ì‚¬ì§„ ë·°ì–´'
               : statusType === 'photo'
-              ? 'ÇöÀå »çÁø ºä¾î'
-              : 'ÇöÀå ºä ·Îµù Áß'}
+              ? 'í˜„ì¥ ì‚¬ì§„ ë·°ì–´'
+              : 'í˜„ì¥ ë·° ë¡œë”© ì¤‘'}
           </span>
         </StatusChip>
 
         <ButtonGroup>
           {error && (
-            <IconButton type="button" onClick={retryRoadview} title="ÇöÀå ºä ´Ù½Ã ºÒ·¯¿À±â" aria-label="ÇöÀå ºä ´Ù½Ã ºÒ·¯¿À±â">
+            <IconButton type="button" onClick={retryRoadview} title="í˜„ì¥ ë·° ë‹¤ì‹œ ë¶ˆëŸ¬ì˜¤ê¸°" aria-label="í˜„ì¥ ë·° ë‹¤ì‹œ ë¶ˆëŸ¬ì˜¤ê¸°">
               <HugeiconsIcon icon={RefreshCwIcon} size={13} strokeWidth={2} />
             </IconButton>
           )}
           {loaded && (
-            <IconButton type="button" onClick={handleResetAngle} title="½ÃÁ¡ ÃÊ±âÈ­" aria-label="½ÃÁ¡ ÃÊ±âÈ­">
+            <IconButton type="button" onClick={handleResetAngle} title="ì‹œì  ì´ˆê¸°í™”" aria-label="ì‹œì  ì´ˆê¸°í™”">
               <HugeiconsIcon icon={RotateCwIcon} size={13} strokeWidth={2} />
             </IconButton>
           )}
           <IconButton
             type="button"
             onClick={toggleFullscreen}
-            title={isFullscreen ? '±âº» È­¸é' : '½Ã¾ß È®Àå'}
-            aria-label={isFullscreen ? '±âº» È­¸é' : '½Ã¾ß È®Àå'}
+            title={isFullscreen ? 'ê¸°ë³¸ í™”ë©´' : 'ì‹œì•¼ í™•ì¥'}
+            aria-label={isFullscreen ? 'ê¸°ë³¸ í™”ë©´' : 'ì‹œì•¼ í™•ì¥'}
           >
             {isFullscreen ? <HugeiconsIcon icon={ArrowShrink01Icon} size={13} strokeWidth={2} /> : <HugeiconsIcon icon={ArrowExpand01Icon} size={13} strokeWidth={2} />}
           </IconButton>
@@ -474,7 +474,7 @@ export const SorimaruRoadview: React.FC<SorimaruRoadviewProps> = ({
             transition={{ duration: 0.3 }}
           >
             <HugeiconsIcon icon={Compass01Icon} size={14} className="animate-spin" />
-            <span>È­¸éÀ» µå·¡±×ÇÏ¿© ÁÖº¯ 360¡Æ¸¦ µÑ·¯º¸¼¼¿ä</span>
+            <span>í™”ë©´ì„ ë“œë˜ê·¸í•˜ì—¬ ì£¼ë³€ 360Â°ë¥¼ ë‘˜ëŸ¬ë³´ì„¸ìš”</span>
           </DragGuidanceBadge>
         )}
       </AnimatePresence>
@@ -487,4 +487,4 @@ const ButtonGroup = styled.div`
   align-items: center;
   gap: 0.375rem;
   pointer-events: auto;
-`;
+`;

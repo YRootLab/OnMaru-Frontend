@@ -26,7 +26,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 function formatDuration(story: SorimaruStorySummary): string {
   const seconds = story.durationSeconds;
-  return Number.isFinite(seconds) ? `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}` : '¿Àµğ¿À';
+  return Number.isFinite(seconds) ? `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}` : 'ì˜¤ë””ì˜¤';
 }
 
 const dominantColorCache = new Map<string, string>();
@@ -385,12 +385,12 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
             <MiniCategoryTag>
               {story.category}
             </MiniCategoryTag>
-            <LocationSpan title={story.region.name || '´ëÇÑ¹Î±¹ ¹®È­À¯»ê'}>
-              {story.region.name || '´ëÇÑ¹Î±¹ ¹®È­À¯»ê'}
+            <LocationSpan title={story.region.name || 'ëŒ€í•œë¯¼êµ­ ë¬¸í™”ìœ ì‚°'}>
+              {story.region.name || 'ëŒ€í•œë¯¼êµ­ ë¬¸í™”ìœ ì‚°'}
             </LocationSpan>
           </CategoryLocationRow>
 
-          <ExcerptText>Àå¼Ò¿¡ ¸Ó¹«´Â ½Ã°£À» ¿Àµğ¿À·Î ¸¸³ªº¸¼¼¿ä.</ExcerptText>
+          <ExcerptText>ì¥ì†Œì— ë¨¸ë¬´ëŠ” ì‹œê°„ì„ ì˜¤ë””ì˜¤ë¡œ ë§Œë‚˜ë³´ì„¸ìš”.</ExcerptText>
         </div>
 
         <CardBottomMeta>
@@ -398,7 +398,7 @@ const NearbyStoryCard: React.FC<NearbyStoryCardProps> = ({ story, isCurrent, isP
             {formatDuration(story)}
           </span>
           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 500, color: meok[500] }}>
-            ¿Â¸¶·ç µµ½¼Æ®
+            ì˜¨ë§ˆë£¨ ë„ìŠ¨íŠ¸
           </span>
         </CardBottomMeta>
       </CardInfoCol>
@@ -419,7 +419,7 @@ const SkeletonBox = styled.div`
 `;
 
 export const StoryCarouselSkeleton: React.FC = () => (
-  <div aria-label="ÁÖº¯ ¿Àµğ¿À ·Îµù Áß" style={{ position: 'relative', width: '100%', overflow: 'hidden' }}>
+  <div aria-label="ì£¼ë³€ ì˜¤ë””ì˜¤ ë¡œë”© ì¤‘" style={{ position: 'relative', width: '100%', overflow: 'hidden' }}>
     <div style={{ display: 'flex', gap: '1rem', overflowX: 'auto', padding: '0.75rem 1.5rem 2rem', scrollbarWidth: 'none' }}>
       {[1, 2, 3].map((id) => (
         <div
@@ -783,8 +783,8 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
       <div style={{ borderRadius: '1rem', padding: '1rem 1.25rem', textAlign: 'center' }}>
         <OniSearchEmpty
           size="sm"
-          title="°¡±î¿î ÀÌ¾ß±â¸¦ Ã£´Â ÁßÀÌ¿¡¿ä."
-          description="À§Ä¡¸¦ Çã¿ëÇÏ¸é °¡±î¿î ¿Àµğ¿ÀºÎÅÍ º¸¿©µå¸±°Ô¿ä."
+          title="ì£¼ë³€ì— ë“¤ì„ ìˆ˜ ìˆëŠ” ì´ì•¼ê¸°ê°€ ì—†ì–´ìš”"
+          description="ìœ„ì¹˜ë¥¼ í—ˆìš©í•˜ë©´ ê°€ê¹Œìš´ í•œì˜¥ì˜ ì†Œë¦¬ë¶€í„° ë“¤ë ¤ë“œë¦´ê²Œìš”."
           compact
         />
       </div>
@@ -792,12 +792,12 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
   }
 
   return (
-    <CarouselOuter aria-label="ÁÖº¯ ¿Àµğ¿À ¸ñ·Ï">
+    <CarouselOuter aria-label="ì£¼ë³€ ì˜¤ë””ì˜¤ ëª©ë¡">
       <div style={{ position: 'relative' }}>
         <ScrollTrack
           ref={railRef}
           tabIndex={0}
-          aria-label="ÁÖº¯ ¿Àµğ¿À¸¦ ÁÂ¿ì·Î »ìÆìº¸±â"
+          aria-label="ì£¼ë³€ ì˜¤ë””ì˜¤ ëª©ë¡ì„ ì¢Œìš°ë¡œ ì‚´í´ë³´ê¸°"
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUpOrLeave}
@@ -833,7 +833,7 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
         {railIndicator.left > 0.5 && (
           <FloatingNavBtn
             type="button"
-            aria-label="ÀÌÀü ÁÖº¯ ¿Àµğ¿À º¸±â"
+            aria-label="ì´ì „ ì£¼ë³€ ì˜¤ë””ì˜¤ ë³´ê¸°"
             onClick={() => moveRail(-1)}
             $side="left"
           >
@@ -843,7 +843,7 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
         {railIndicator.width < 100 && railIndicator.left < 99 - railIndicator.width && (
           <FloatingNavBtn
             type="button"
-            aria-label="´ÙÀ½ ÁÖº¯ ¿Àµğ¿À º¸±â"
+            aria-label="ë‹¤ìŒ ì£¼ë³€ ì˜¤ë””ì˜¤ ë³´ê¸°"
             onClick={() => moveRail(1)}
             $side="right"
           >
@@ -865,3 +865,4 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
     </CarouselOuter>
   );
 };
+

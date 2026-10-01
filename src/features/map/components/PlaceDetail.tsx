@@ -482,7 +482,7 @@ export default function PlaceDetail() {
                   const el = document.getElementById('place-warmth-section');
                   if (el) el.scrollIntoView({ behavior: 'smooth' });
                 }}
-                title="방문객 온기(후기) 보기"
+                title="온기 남기기"
               >
                 <HugeiconsIcon icon={FlameIcon} size={18} strokeWidth={2} />
                 <span>온기 남기기</span>
@@ -496,11 +496,11 @@ export default function PlaceDetail() {
                   <HugeiconsIcon icon={Award01Icon} size={18} color={isPlaceVisited ? '#059669' : '#b45309'} />
                   <StampBannerText>
                     <StampBannerTitle>
-                      {isPlaceVisited ? '수결첩에 보관된 한옥' : '한옥 수결첩 방문 기록'}
+                      {isPlaceVisited ? '도장첩에 기록된 한옥' : '한옥 도장첩 방문 기록'}
                     </StampBannerTitle>
                     <StampBannerSub>
                       {isPlaceVisited
-                        ? '수결첩에 도장을 남겼어요 · 눌러서 확인하기'
+                        ? '도장첩에 도장을 남겼어요 · 눌러서 확인하기'
                         : '이곳을 다녀오셨다면 방문 도장을 남겨보세요'}
                     </StampBannerSub>
                   </StampBannerText>
@@ -512,11 +512,11 @@ export default function PlaceDetail() {
                   onClick={() => void checkIn(detailId)}
                 >
                   {checkingIn ? (
-                    <span>위치 확인 중</span>
+                    <span>위치 확인 중...</span>
                   ) : isPlaceVisited ? (
                     <>
                       <HugeiconsIcon icon={CheckmarkCircle01Icon} size={13} strokeWidth={2.5} />
-                      <span>방문 확인</span>
+                      <span>방문 완료</span>
                     </>
                   ) : (
                     <>

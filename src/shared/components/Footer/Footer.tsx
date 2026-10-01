@@ -381,7 +381,7 @@ export default function Footer() {
   return (
     <>
       <FooterWrapper
-        aria-label="푸터 네비게이션"
+        aria-label="서비스 안내 및 정책"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onMouseMove={handleMouseMove}
@@ -393,7 +393,7 @@ export default function Footer() {
             <BottomLayout>
               <LeftInfoCol>
                 <BusinessInfo>
-                  <p>온마루 (OnMaru) · 한국관광공사 공공데이터(TourAPI 4.0 · Odii API) 기반 한옥 몰입형 관광 큐레이션</p>
+                  <p>온마루 · 한국관광공사 공공데이터(TourAPI · Odii) 기반 한옥 큐레이션 서비스</p>
                 </BusinessInfo>
 
                 <PolicyLinksRow>
@@ -407,7 +407,7 @@ export default function Footer() {
                     공공데이터 이용지침
                   </PolicyButton>
                   <PolicyButton type="button" onClick={() => setActivePolicyTab('openSource')}>
-                    오픈소스 라이선스 고지
+                    오픈소스 라이선스
                   </PolicyButton>
                 </PolicyLinksRow>
 

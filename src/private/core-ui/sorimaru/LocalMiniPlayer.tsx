@@ -1125,11 +1125,11 @@ export const LocalMiniPlayer: React.FC = () => {
               }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.94 }}
-              title="¿ÂÀÌ - ¼Ò¸® °¨»ó Áß"
-              aria-label="¿ÂÀÌ - ¼Ò¸® °¨»ó Áß"
+              title="ì†Œë¦¬ë¥¼ ë“£ëŠ” ì˜¨ì´"
+              aria-label="ì†Œë¦¬ë¥¼ ë“£ëŠ” ì˜¨ì´"
             >
               <FloatingOniBubble className="floating-oni-bubble" $show={showOniBubble}>
-                {isPlaying ? 'ÀÌ¾ß±â¿¡ ±Í ±â¿ïÀÌ´Â Áß ??' : '°íÁî³ËÇÑ ÇÑ¿ÁÀÇ ¼Ò¸® ?'}
+                {isPlaying ? 'ì´ì•¼ê¸°ì— ê·€ ê¸°ìš¸ì´ëŠ” ì¤‘ì´ì—ìš”' : 'ê³ ì¦ˆë„‰í•œ í•œì˜¥ì˜ ì†Œë¦¬ë¥¼ ë“¤ë ¤ë“œë¦´ê²Œìš”'}
               </FloatingOniBubble>
               {isApple || oniVideoError ? (
                 <img src="/images/character/Oni_listen_no_bg.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', filter: 'drop-shadow(0 8px 18px rgba(0, 0, 0, 0.3))', transform: 'scaleX(-1)' }} />
@@ -1157,7 +1157,7 @@ export const LocalMiniPlayer: React.FC = () => {
                 whileTap={{ scale: 0.92 }}
                 whileHover={{ scale: 1.06 }}
                 onClick={() => setIsPlaying(!isPlaying)}
-                aria-label={isPlaying ? 'ÀÏ½ÃÁ¤Áö' : 'Àç»ý'}
+                aria-label={isPlaying ? 'ì¼ì‹œì •ì§€' : 'ìž¬ìƒ'}
               >
                 <PlayPauseIcon />
               </PlayCircleBtn>
@@ -1166,8 +1166,8 @@ export const LocalMiniPlayer: React.FC = () => {
                 $saved={isSaved}
                 whileTap={{ scale: 0.88 }}
                 onClick={(e) => { e.stopPropagation(); toggleSavedStory(story); }}
-                aria-label={isSaved ? '¸¶À½¿¡ ´ãÀº ¼Ò¸®¿¡¼­ Á¦°Å' : '¸¶À½¿¡ ´ã±â'}
-                title={isSaved ? '¸¶À½¿¡ ´ãÀ½' : '¸¶À½¿¡ ´ã±â'}
+                aria-label={isSaved ? 'ë§ˆìŒì— ë‹´ì€ ì†Œë¦¬ì—ì„œ ì œê±°' : 'ë§ˆìŒì— ë‹´ê¸°'}
+                title={isSaved ? 'ë§ˆìŒì— ë‹´ìŒ' : 'ë§ˆìŒì— ë‹´ê¸°'}
               >
                 <HugeiconsIcon icon={HeartIcon} size={16} strokeWidth={2.2} fill={isSaved ? 'currentColor' : 'none'} />
               </MiniHeartBtn>
@@ -1178,7 +1178,7 @@ export const LocalMiniPlayer: React.FC = () => {
                   setIsExpanded(true);
                 }}
               >
-                ´ëº» º¸±â
+                ëŒ€ë³¸ ë³´ê¸°
               </ScriptOpenBtn>
             </MiniPlayerContent>
 
@@ -1217,7 +1217,7 @@ export const LocalMiniPlayer: React.FC = () => {
               <DrawerHeader>
                 <HeaderLeftArea />
 
-                <SegmentedControl role="tablist" aria-label="ÇÃ·¹ÀÌ¾î ºä ¸ðµå ¼±ÅÃ">
+                <SegmentedControl role="tablist" aria-label="í”Œë ˆì´ì–´ ë·° ëª¨ë“œ ì„ íƒ">
                   <SegmentTab
                     role="tab"
                     aria-selected={activeViewMode === 'roadview'}
@@ -1231,7 +1231,7 @@ export const LocalMiniPlayer: React.FC = () => {
                       />
                     )}
                     <HugeiconsIcon icon={Compass01Icon} size={15} className="tab-icon" strokeWidth={2.2} />
-                    <span>ÇöÀå »çÁø</span>
+                    <span>í˜„ìž¥ ì‚¬ì§„</span>
                   </SegmentTab>
 
                   <SegmentTab
@@ -1247,7 +1247,7 @@ export const LocalMiniPlayer: React.FC = () => {
                       />
                     )}
                     <HugeiconsIcon icon={BookOpen01Icon} size={15} className="tab-icon" strokeWidth={2.2} />
-                    <span>ÀüÃ¼ ´ëº»</span>
+                    <span>ì „ì²´ ëŒ€ë³¸</span>
                   </SegmentTab>
                 </SegmentedControl>
 
@@ -1258,8 +1258,8 @@ export const LocalMiniPlayer: React.FC = () => {
                     whileTap={{ scale: 0.9 }}
                     whileHover={{ scale: 1.06 }}
                     onClick={() => toggleSavedStory(story)}
-                    aria-label={isSaved ? '¸¶À½¿¡ ´ãÀº ¼Ò¸®¿¡¼­ Á¦°Å' : '¸¶À½¿¡ ´ãÀº ¼Ò¸®¿¡ Ãß°¡'}
-                    title={isSaved ? '¸¶À½¿¡ ´ãÀ½' : '¸¶À½¿¡ ´ã±â'}
+                    aria-label={isSaved ? 'ë§ˆìŒì— ë‹´ì€ ì†Œë¦¬ì—ì„œ ì œê±°' : 'ë§ˆìŒì— ë‹´ì€ ì†Œë¦¬ì— ì¶”ê°€'}
+                    title={isSaved ? 'ë§ˆìŒì— ë‹´ìŒ' : 'ë§ˆìŒì— ë‹´ê¸°'}
                   >
                     <HugeiconsIcon icon={HeartIcon} size={17} strokeWidth={2.2} fill={isSaved ? 'currentColor' : 'none'} />
                   </HeartSaveButton>
@@ -1267,7 +1267,7 @@ export const LocalMiniPlayer: React.FC = () => {
                     type="button"
                     whileTap={{ scale: 0.92 }}
                     onClick={closePlayer}
-                    aria-label="ÆÐ³Î ´Ý±â"
+                    aria-label="íŒ¨ë„ ë‹«ê¸°"
                   >
                     <HugeiconsIcon icon={Cancel01Icon} size={18} strokeWidth={2.5} />
                   </CloseBtn>
@@ -1328,31 +1328,31 @@ export const LocalMiniPlayer: React.FC = () => {
                           className="main-title"
                           variants={shouldAnimateTranscript ? metaItemFadeUp : undefined}
                         >
-                          {story.title || 'ÇÑ¿Á ¼Ò¸® ÀÌ¾ß±â'}
+                          {story.title || 'í•œì˜¥ ì†Œë¦¬ ì´ì•¼ê¸°'}
                         </motion.h3>
                         <motion.p
                           className="sub-info"
                           variants={shouldAnimateTranscript ? metaItemFadeUp : undefined}
                         >
-                          <span>{story.audioTitle || 'Á¶¼±½Ã´ëÀÇ »ýÈ°»óÀ» ¿³º¼ ¼ö ÀÖ´Â ÇÑ¿Á¸¶À»'}</span>
+                          <span>{story.audioTitle || 'ì¡°ì„ ì‹œëŒ€ì˜ ìƒí™œìƒì„ ì—¿ë³¼ ìˆ˜ ìžˆëŠ” í•œì˜¥ë§ˆì„'}</span>
                         </motion.p>
                         <HashtagsScrollWrap
                           variants={shouldAnimateTranscript ? metaItemFadeUp : undefined}
-                          aria-label="ÀÌ¾ß±â °ü·Ã ÇØ½ÃÅÂ±×"
+                          aria-label="ì´ì•¼ê¸° ê´€ë ¨ í•´ì‹œíƒœê·¸"
                         >
                           {(() => {
                             const customTags = story.contentTags.filter(
-                              (t) => !t.includes('´ëÇÑ¹Î±¹') && !t.includes('¼Ò¸®')
+                              (t) => !t.includes('ëŒ€í•œë¯¼êµ­') && !t.includes('ì†Œë¦¬')
                             );
                             const titleKeyword = story.title?.split(/[-?\s]/)[0];
                             const baseTags = [
                               titleKeyword,
-                              'ÇÑ¿Áµµ½¼Æ®',
-                              '¿Àµð¿À°¡ÀÌµå',
-                              'Á¶¼±»ýÈ°»ó',
-                              'ÀüÅë°ø°£',
-                              'Ã»ÇÐµ¿',
-                            ].filter((t): t is string => Boolean(t && t.trim() && !t.includes('´ëÇÑ¹Î±¹')));
+                              'í•œì˜¥ë„ìŠ¨íŠ¸',
+                              'ì˜¤ë””ì˜¤ê°€ì´ë“œ',
+                              'ì¡°ì„ ìƒí™œìƒ',
+                              'ì „í†µê³µê°„',
+                              'ì²­í•™ë™',
+                            ].filter((t): t is string => Boolean(t && t.trim() && !t.includes('ëŒ€í•œë¯¼êµ­')));
 
                             const merged = [...new Set([...customTags, ...baseTags])]
                               .map((t) => (t.startsWith('#') ? t : `#${t.trim()}`))
@@ -1406,7 +1406,7 @@ export const LocalMiniPlayer: React.FC = () => {
                       max={duration || 100}
                       value={currentTime}
                       onChange={(event) => seekTo(Number(event.target.value))}
-                      aria-label="¿Àµð¿À Àç»ý À§Ä¡ Á¶Àý"
+                      aria-label="ì˜¤ë””ì˜¤ ìž¬ìƒ ìœ„ì¹˜ ì¡°ì ˆ"
                     />
                   </CustomSliderContainer>
 
@@ -1423,10 +1423,10 @@ export const LocalMiniPlayer: React.FC = () => {
                     type="button"
                     whileTap={{ scale: 0.92 }}
                     onClick={cyclePlaybackRate}
-                    title="Àç»ý ¼Óµµ º¯°æ"
-                    aria-label={`Àç»ý ¼Óµµ ${playbackRate}¹è`}
+                    title="ìž¬ìƒ ì†ë„ ë³€ê²½"
+                    aria-label={`ìž¬ìƒ ì†ë„ ${playbackRate}ë°°`}
                   >
-                    {playbackRate}¡¿
+                    {playbackRate}Ã—
                   </SpeedChip>
 
                   <DeckCenterCluster>
@@ -1435,8 +1435,8 @@ export const LocalMiniPlayer: React.FC = () => {
                       whileTap={{ scale: 0.92 }}
                       whileHover={{ scale: 1.05 }}
                       onClick={() => seekTo(Math.max(0, currentTime - 10))}
-                      title="10ÃÊ ÀüÀ¸·Î"
-                      aria-label="10ÃÊ ÀüÀ¸·Î"
+                      title="10ì´ˆ ì „ìœ¼ë¡œ"
+                      aria-label="10ì´ˆ ì „ìœ¼ë¡œ"
                     >
                       <HugeiconsIcon icon={RotateCcwIcon} size={15} strokeWidth={2.4} />
                       <span>10</span>
@@ -1447,7 +1447,7 @@ export const LocalMiniPlayer: React.FC = () => {
                       whileTap={{ scale: 0.9 }}
                       whileHover={{ scale: 1.06 }}
                       onClick={() => setIsPlaying(!isPlaying)}
-                      aria-label={isPlaying ? 'ÀÏ½ÃÁ¤Áö' : 'Àç»ý'}
+                      aria-label={isPlaying ? 'ì¼ì‹œì •ì§€' : 'ìž¬ìƒ'}
                     >
                       <PlayPauseIcon size={20} />
                     </BigPlayBtn>
@@ -1457,8 +1457,8 @@ export const LocalMiniPlayer: React.FC = () => {
                       whileTap={{ scale: 0.92 }}
                       whileHover={{ scale: 1.05 }}
                       onClick={() => seekTo(Math.min(duration || currentTime + 10, currentTime + 10))}
-                      title="10ÃÊ ÈÄ·Î"
-                      aria-label="10ÃÊ ÈÄ·Î"
+                      title="10ì´ˆ í›„ë¡œ"
+                      aria-label="10ì´ˆ í›„ë¡œ"
                     >
                       <HugeiconsIcon icon={RotateCwIcon} size={15} strokeWidth={2.4} />
                       <span>10</span>
@@ -1477,3 +1477,4 @@ export const LocalMiniPlayer: React.FC = () => {
     </>
   );
 };
+

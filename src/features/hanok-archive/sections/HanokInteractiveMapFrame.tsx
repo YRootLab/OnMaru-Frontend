@@ -475,18 +475,18 @@ interface KakaoCluster {
   getCenter(): unknown;
 }
 
-const REGIONS = ['ÀüÃ¼', '¼­¿ï', '°æºÏ', 'ÀüºÏ', '°æ³²', 'Ãæ³²', '°­¿ø', '°æ±â', 'Àü³²'];
+const REGIONS = ['ì „ì²´', 'ì„œìš¸', 'ê²½ë¶', 'ì „ë¶', 'ê²½ë‚¨', 'ì¶©ë‚¨', 'ê°•ì›', 'ê²½ê¸°', 'ì „ë‚¨'];
 
 const REGION_STORIES: Record<string, string> = {
-  ÀüÃ¼: 'Àü±¹¿¡ ³²Àº ±Ã±È°ú °íÅÃ, ¼­¿ø°ú ÇÑ¿Á¸¶À»À» Áöµµ¿¡¼­ Ã£¾Æº¸¼¼¿ä.',
-  ¼­¿ï: '°æº¹±Ã°ú Ã¢´ö±ÃºÎÅÍ Ã»¿î¹®ÇĞµµ¼­°ü±îÁö, µµ½É¿¡ ³²Àº ±Ã±È°ú Çö´ë ÇÑ¿Á.',
-  °æºÏ: '¾Èµ¿ ÇÏÈ¸¸¶À»°ú º´»ê¼­¿ø ¸¸´ë·ç, À¯±³ ¹®È­¿Í Á¾ÅÃÀÇ º»Çâ.',
-  ÀüºÏ: 'ÀüÁÖ ÇÑ¿Á¸¶À» ÇĞÀÎ´ç°ú °æ±âÀü µ¹´ã±æ, È£³² »ç´ëºÎÀÇ °¡¿Á.',
-  °æ³²: 'Áö¸®»ê ÀÚ¶ô¿¡ ¼± ÇÔ¾ç °³ÆòÇÑ¿Á¸¶À» ÀÏµÎ°íÅÃ.',
-  Ãæ³²: '°øÁÖÇÑ¿Á¸¶À»ÀÇ ±¸µéÀå°ú ¿Ü¾Ï¹Î¼Ó¸¶À» µ¹´ã±æ.',
-  °­¿ø: '°­¸ª ¼±±³Àå ¿­È­´ç°ú ¿¬¸ø À§ È°·¡Á¤.',
-  °æ±â: 'È­¼ºÇà±Ã °ç¿¡ ÀÌ¾îÁø ¼ö¿ø ³²¹® ÇÑ¿Á °Å¸®.',
-  Àü³²: 'ÇØ³² À±¼±µµ °íÅÃ°ú ³ªÁÖ Çâ±³, ³²µµ À¯ÇĞÀÇ ÀÚÃë.',
+  ì „ì²´: 'ì „êµ­ì— ë‚¨ì€ ê¶ê¶ê³¼ ê³ íƒ, ì„œì›ê³¼ í•œì˜¥ë§ˆì„ì„ ì§€ë„ì—ì„œ ì°¾ì•„ë³´ì„¸ìš”.',
+  ì„œìš¸: 'ê²½ë³µê¶ê³¼ ì°½ë•ê¶ë¶€í„° ì²­ìš´ë¬¸í•™ë„ì„œê´€ê¹Œì§€, ë„ì‹¬ì— ë‚¨ì€ ê¶ê¶ê³¼ í˜„ëŒ€ í•œì˜¥.',
+  ê²½ë¶: 'ì•ˆë™ í•˜íšŒë§ˆì„ê³¼ ë³‘ì‚°ì„œì› ë§ŒëŒ€ë£¨, ìœ êµ ë¬¸í™”ì™€ ì¢…íƒì˜ ë³¸í–¥.',
+  ì „ë¶: 'ì „ì£¼ í•œì˜¥ë§ˆì„ í•™ì¸ë‹¹ê³¼ ê²½ê¸°ì „ ëŒë‹´ê¸¸, í˜¸ë‚¨ ì‚¬ëŒ€ë¶€ì˜ ê°€ì˜¥.',
+  ê²½ë‚¨: 'ì§€ë¦¬ì‚° ìë½ì— ì„  í•¨ì–‘ ê°œí‰í•œì˜¥ë§ˆì„ ì¼ë‘ê³ íƒ.',
+  ì¶©ë‚¨: 'ê³µì£¼í•œì˜¥ë§ˆì„ì˜ êµ¬ë“¤ì¥ê³¼ ì™¸ì•”ë¯¼ì†ë§ˆì„ ëŒë‹´ê¸¸.',
+  ê°•ì›: 'ê°•ë¦‰ ì„ êµì¥ ì—´í™”ë‹¹ê³¼ ì—°ëª» ìœ„ í™œë˜ì •.',
+  ê²½ê¸°: 'í™”ì„±í–‰ê¶ ê³ì— ì´ì–´ì§„ ìˆ˜ì› ë‚¨ë¬¸ í•œì˜¥ ê±°ë¦¬.',
+  ì „ë‚¨: 'í•´ë‚¨ ìœ¤ì„ ë„ ê³ íƒê³¼ ë‚˜ì£¼ í–¥êµ, ë‚¨ë„ ìœ í•™ì˜ ìì·¨.',
 };
 
 export default function HanokInteractiveMapFrame({
@@ -502,12 +502,12 @@ export default function HanokInteractiveMapFrame({
   const mapResourcesRef = useRef<KakaoResourceScope | null>(null);
   const markerResourcesRef = useRef<KakaoResourceScope | null>(null);
 
-  const [selectedRegion, setSelectedRegion] = useState('ÀüÃ¼');
+  const [selectedRegion, setSelectedRegion] = useState('ì „ì²´');
   const [isLoaded, setIsLoaded] = useState(false);
   const [isStoryExpanded, setIsStoryExpanded] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(() => kakaoAppKey
     ? null
-    : 'NEXT_PUBLIC_KAKAO_MAP_KEY È¯°æ º¯¼ö°¡ ¾ø½À´Ï´Ù. °³¹ß ¼­¹ö(npm run dev)¸¦ Àç½ÃÀÛÇØ º¸¼¼¿ä.');
+    : 'NEXT_PUBLIC_KAKAO_MAP_KEY í™˜ê²½ ë³€ìˆ˜ê°€ ì—†ìŠµë‹ˆë‹¤. ê°œë°œ ì„œë²„(npm run dev)ë¥¼ ì¬ì‹œì‘í•´ ë³´ì„¸ìš”.');
 
   const validVillages = useMemo(
     () => villages.filter((v) => typeof v.lat === 'number' && typeof v.lng === 'number'),
@@ -515,7 +515,7 @@ export default function HanokInteractiveMapFrame({
   );
 
   const regionVillages = useMemo(() => {
-    if (selectedRegion === 'ÀüÃ¼') return validVillages;
+    if (selectedRegion === 'ì „ì²´') return validVillages;
     return validVillages.filter((v) => v.region.includes(selectedRegion));
   }, [validVillages, selectedRegion]);
 
@@ -618,7 +618,7 @@ export default function HanokInteractiveMapFrame({
       });
     } catch (err: unknown) {
       console.error('[KakaoMap] MapIcon initialization error:', err);
-      setErrorMessage('Áöµµ¸¦ ºÒ·¯¿ÀÁö ¸øÇß¾î¿ä. Àá½Ã ÈÄ ´Ù½Ã ½ÃµµÇØ ÁÖ¼¼¿ä.');
+      setErrorMessage('ì§€ë„ë¥¼ ë¶ˆëŸ¬ì˜¤ì§€ ëª»í–ˆì–´ìš”. ì ì‹œ í›„ ë‹¤ì‹œ ì‹œë„í•´ ì£¼ì„¸ìš”.');
     }
   }, [fitKoreaBounds, validVillages]);
 
@@ -706,7 +706,7 @@ export default function HanokInteractiveMapFrame({
     const syncOverlayVisibility = () => {
       if (!mapRef.current) return;
       const currentLevel = mapRef.current.getLevel();
-      const showOverlays = selectedRegion !== 'ÀüÃ¼' || currentLevel < 8;
+      const showOverlays = selectedRegion !== 'ì „ì²´' || currentLevel < 8;
 
       overlaysRef.current.forEach((overlay) => {
         overlay.setMap(showOverlays ? mapRef.current : null);
@@ -721,7 +721,7 @@ export default function HanokInteractiveMapFrame({
     markerResources.trackListener(mapRef.current, 'zoom_changed', syncOverlayVisibility);
 
 
-    if (selectedRegion === 'ÀüÃ¼' && clustererRef.current) {
+    if (selectedRegion === 'ì „ì²´' && clustererRef.current) {
       clustererRef.current.addMarkers(newMarkers);
 
 
@@ -767,7 +767,7 @@ export default function HanokInteractiveMapFrame({
     const observer = new ResizeObserver(() => {
       if (!mapRef.current) return;
       mapRef.current.relayout();
-      if (selectedRegion === 'ÀüÃ¼') {
+      if (selectedRegion === 'ì „ì²´') {
         fitKoreaBounds(mapRef.current, validVillages);
       }
     });
@@ -781,7 +781,7 @@ export default function HanokInteractiveMapFrame({
 
     if (!mapRef.current || !window.kakao || !window.kakao.maps) return;
 
-    if (region === 'ÀüÃ¼') {
+    if (region === 'ì „ì²´') {
       fitKoreaBounds(mapRef.current, validVillages);
     } else {
       const targets = validVillages.filter((v) => v.region.includes(region));
@@ -809,7 +809,7 @@ export default function HanokInteractiveMapFrame({
           onReady={initMap}
           onError={() => {
             setErrorMessage(
-              'Ä«Ä«¿À Áöµµ SDK ½ºÅ©¸³Æ®¸¦ ºÒ·¯¿ÀÁö ¸øÇß½À´Ï´Ù. Ä«Ä«¿À °³¹ßÀÚ ¼¾ÅÍ¿¡¼­ http://localhost:3000 µµ¸ŞÀÎÀÌ µî·ÏµÇ¾î ÀÖ´ÂÁö È®ÀÎÇØÁÖ¼¼¿ä.'
+              'ì¹´ì¹´ì˜¤ ì§€ë„ SDK ìŠ¤í¬ë¦½íŠ¸ë¥¼ ë¶ˆëŸ¬ì˜¤ì§€ ëª»í–ˆìŠµë‹ˆë‹¤. ì¹´ì¹´ì˜¤ ê°œë°œì ì„¼í„°ì—ì„œ http://localhost:3000 ë„ë©”ì¸ì´ ë“±ë¡ë˜ì–´ ìˆëŠ”ì§€ í™•ì¸í•´ì£¼ì„¸ìš”.'
             );
           }}
         />
@@ -820,13 +820,13 @@ export default function HanokInteractiveMapFrame({
           <HugeiconsIcon icon={AlertCircleIcon} size={24} strokeWidth={2} />
           <div>{errorMessage}</div>
           <ErrorSubtext>
-            Kakao Developers ÄÜ¼Ö ¡æ [³» ¾ÖÇÃ¸®ÄÉÀÌ¼Ç] ¡æ [ÇÃ·§Æû] ¡æ [Web »çÀÌÆ® µµ¸ŞÀÎ]¿¡ ÇöÀç °³¹ß µµ¸ŞÀÎÀÌ µî·ÏµÇ¾î ÀÖ¾î¾ß ÇÕ´Ï´Ù.
+            Kakao Developers ì½˜ì†” â†’ [ë‚´ ì• í”Œë¦¬ì¼€ì´ì…˜] â†’ [í”Œë«í¼] â†’ [Web ì‚¬ì´íŠ¸ ë„ë©”ì¸]ì— í˜„ì¬ ê°œë°œ ë„ë©”ì¸ì´ ë“±ë¡ë˜ì–´ ìˆì–´ì•¼ í•©ë‹ˆë‹¤.
           </ErrorSubtext>
         </MapLoadingState>
       ) : !isLoaded ? (
         <MapLoadingState>
           <HugeiconsIcon icon={MapPinIcon} size={22} strokeWidth={2} />
-          Áöµµ¸¦ ºÒ·¯¿À´Â ÁßÀÔ´Ï´Ù¡¦
+          ì§€ë„ë¥¼ ë¶ˆëŸ¬ì˜¤ëŠ” ì¤‘ì…ë‹ˆë‹¤â€¦
         </MapLoadingState>
       ) : null}
 
@@ -859,19 +859,19 @@ export default function HanokInteractiveMapFrame({
             transition={{ duration: 0.18, ease: 'easeOut' }}
           >
             <PanelHeaderRow>
-              <PanelSubHeader>ÇÑ¿Á ÀÌ¾ß±â</PanelSubHeader>
+              <PanelSubHeader>í•œì˜¥ ì´ì•¼ê¸°</PanelSubHeader>
               <CollapseBtn onClick={() => setIsStoryExpanded(false)}>
                 <HugeiconsIcon icon={ChevronLeftIcon} size={16} strokeWidth={2} />
               </CollapseBtn>
             </PanelHeaderRow>
 
             <PanelTitle>
-              {selectedRegion === 'ÀüÃ¼' ? 'Àü±¹ ÇÑ¿Á' : `${selectedRegion} ÇÑ¿Á`}
+              {selectedRegion === 'ì „ì²´' ? 'ì „êµ­ í•œì˜¥' : `${selectedRegion} í•œì˜¥`}
             </PanelTitle>
-            <PanelCountBadge>{regionVillages.length}°÷</PanelCountBadge>
+            <PanelCountBadge>{regionVillages.length}ê³³</PanelCountBadge>
 
             <PanelDesc>
-              {REGION_STORIES[selectedRegion] || REGION_STORIES['ÀüÃ¼']}
+              {REGION_STORIES[selectedRegion] || REGION_STORIES['ì „ì²´']}
             </PanelDesc>
 
             <MiniCardList>
@@ -886,7 +886,7 @@ export default function HanokInteractiveMapFrame({
                   <MiniInfo>
                     <MiniTitle>{v.name}</MiniTitle>
                     <MiniMeta>
-                      {v.region} ¡¤ {filterLabel(v.type)}
+                      {v.region} Â· {filterLabel(v.type)}
                     </MiniMeta>
                   </MiniInfo>
                 </MiniCard>
@@ -902,11 +902,11 @@ export default function HanokInteractiveMapFrame({
             onClick={() => setIsStoryExpanded(true)}
           >
             <HugeiconsIcon icon={BookOpen01Icon} size={15} strokeWidth={2} style={{ color: JUHONG_PRIMARY }} />
-            <span>ÇÑ¿Á ÀÌ¾ß±â ({regionVillages.length}°÷)</span>
+            <span>í•œì˜¥ ì´ì•¼ê¸° ({regionVillages.length}ê³³)</span>
             <HugeiconsIcon icon={ChevronRightIcon} size={15} strokeWidth={2} />
           </CollapsedPillBtn>
         )}
       </AnimatePresence>
     </Frame>
   );
-}
+}

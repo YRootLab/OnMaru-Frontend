@@ -172,7 +172,7 @@ export default function JourneyAssemblyLoader() {
             exit={{ scale: 0.92, opacity: 0, y: 15 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           >
-            <CloseButton onClick={handleClose} aria-label="´Ý±â">
+            <CloseButton onClick={handleClose} aria-label="ë‹«ê¸°">
               <HugeiconsIcon icon={Cancel01Icon} size={16} />
             </CloseButton>
 
@@ -194,18 +194,18 @@ export default function JourneyAssemblyLoader() {
               )}
               <span>
                 {hasCompleted
-                  ? '¿©Á¤ »ý¼º ¿Ï·á'
-                  : 'ÀÏÁ¤À» ¸¸µå´Â Áß'}
+                  ? 'ì—¬ì • ìƒì„± ì™„ë£Œ'
+                  : 'ì¼ì •ì„ ë§Œë“œëŠ” ì¤‘'}
               </span>
             </StepBadge>
 
             <Title>
-              {gameMode === 'omok' ? 'Åò¸¶·ç ¿À¸ñ ÇÑ ÆÇ' : 'ÀüÅë ³¹¸» Ã£±â'}
+              {gameMode === 'omok' ? 'íˆ‡ë§ˆë£¨ ì˜¤ëª© í•œ íŒ' : 'ì „í†µ ë‚±ë§ ì°¾ê¸°'}
             </Title>
             <Subtitle>
               {gameMode === 'omok'
-                ? 'ÀÏÁ¤À» ÁØºñÇÏ´Â µ¿¾È °¡º±°Ô ¿À¸ñ ÇÑ ÆÇ Áñ°Üº¸¼¼¿ä.'
-                : 'ÀÏÁ¤À» ÁØºñÇÏ´Â µ¿¾È ¼û°ÜÁø ³¹¸»À» Ã£¾Æº¸¼¼¿ä.'}
+                ? 'ì¼ì •ì„ ì¤€ë¹„í•˜ëŠ” ë™ì•ˆ ê°€ë³ê²Œ ì˜¤ëª© í•œ íŒ ì¦ê²¨ë³´ì„¸ìš”.'
+                : 'ì¼ì •ì„ ì¤€ë¹„í•˜ëŠ” ë™ì•ˆ ìˆ¨ê²¨ì§„ ë‚±ë§ì„ ì°¾ì•„ë³´ì„¸ìš”.'}
             </Subtitle>
 
             {gameMode === 'omok' ? (
@@ -226,4 +226,4 @@ export default function JourneyAssemblyLoader() {
       )}
     </AnimatePresence>
   );
-}
+}

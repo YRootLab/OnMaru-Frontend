@@ -1,4 +1,4 @@
-'use client';
+ï»¿'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -815,7 +815,7 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
   const router = useRouter();
   const oniVideoRef = useRef<HTMLVideoElement>(null);
 
-  // Å¸ÀÌÇÎ À§Ä¡ ½Ç½Ã°£ ÃßÀû »óÅÂ ¹× Ref
+  // íƒ€ì´í•‘ ìœ„ì¹˜ ì‹¤ì‹œê°„ ì¶”ì  ìƒíƒœ ë° Ref
   const [typingX, setTypingX] = useState<number | null>(null);
   const [facingDirection, setFacingDirection] = useState<'right' | 'left'>('right');
   const prevQueryLenRef = useRef<number>(0);
@@ -873,10 +873,10 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
   }, []);
 
   const defaultSuggestions = [
-    '+ ÀüÅë ÂşÁı ´õº¸±â',
-    '+ ºñ ¿À´Â ³¯ ÄÚ½º',
-    '+ °È´Â ½Ã°£ ÁÙÀÌ±â',
-    '+ ¿ª»ç ÇØ¼³ Æ÷ÇÔ',
+    '+ ì „í†µ ì°»ì§‘ ë”ë³´ê¸°',
+    '+ ë¹„ ì˜¤ëŠ” ë‚  ì½”ìŠ¤',
+    '+ ê±·ëŠ” ì‹œê°„ ì¤„ì´ê¸°',
+    '+ ì—­ì‚¬ í•´ì„¤ í¬í•¨',
   ];
 
   const suggestions = currentPlan?.refineSuggestions?.length
@@ -916,12 +916,12 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
     <Container $compact={hasSearched}>
       {!hasSearched && (
         <>
-          <Title>¾î¶² ÇÑ¿ÁÀ¸·Î ¶°³ª°í ½ÍÀ¸¼¼¿ä?</Title>
+          <Title>ì–´ë–¤ ì¥ì†Œë¡œ ë– ë‚˜ê³  ì‹¶ìœ¼ì„¸ìš”?</Title>
 
           <Subtitle>
-            ¿øÇÏ´Â ºĞÀ§±â³ª Áö¿ªÀ» Àû¾îÁÖ½Ã¸é,
+            ì›í•˜ëŠ” ë¶„ìœ„ê¸°ë‚˜ ì§€ì—­ì„ ì ì–´ì£¼ì‹œë©´,
             <br />
-            ÇÑ¿Á°ú ÁÖº¯ º¼°Å¸®, »ı»ıÇÑ ¼Ò¸®¸¦ ¿«¾î ²À ¸Â´Â ÀÏÁ¤À» ¸¸µé¾î µå·Á¿ä.
+            í•œì˜¥ê³¼ ì£¼ë³€ ë³¼ê±°ë¦¬, ìƒìƒí•œ ì†Œë¦¬ë¥¼ ì—®ì–´ ê¼­ ë§ëŠ” ì¼ì •ì„ ë§Œë“¤ì–´ ë“œë ¤ìš”.
           </Subtitle>
         </>
       )}
@@ -955,7 +955,7 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
               aria-hidden="true"
             >
               <OniBubble $visible={Boolean(currentQuery)}>
-                {currentQuery ? '¿ÂÀÌ°¡ ±æÀ» ºñÃß°í ÀÖ¾î¿ä ??' : '¿ÂÀÌ°¡ ±æÀ» ¹àÈ÷°í ÀÖ¾î¿ä'}
+                {currentQuery ? 'ì˜¨ì´ê°€ ê¸¸ì„ ë¹„ì¶”ê³  ìˆì–´ìš” ??' : 'ì˜¨ì´ê°€ ê¸¸ì„ ë°íˆê³  ìˆì–´ìš”'}
               </OniBubble>
               <OniVideoBox $isTyping={Boolean(currentQuery)} $direction={facingDirection}>
                 {isApple || oniVideoError ? (
@@ -968,7 +968,7 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
                     muted
                     playsInline
                     preload="auto"
-                    aria-label="¿ÂÀÌ°¡ ±æÀ» ¹àÈ÷°í ÀÖ¾î¿ä"
+                    aria-label="ì˜¨ì´ê°€ ê¸¸ì„ ë°íˆê³  ìˆì–´ìš”"
                     onError={() => setOniVideoError(true)}
                     onCanPlay={(e) => {
                       e.currentTarget.muted = true;
@@ -989,11 +989,11 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
             type="text"
             value={currentQuery}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="¾îµğ·Î ¶°³ª°í ½ÍÀ¸¼¼¿ä?"
-            aria-label="¿©ÇàÇÏ°í ½ÍÀº ÇÑ¿ÁÀÌ³ª Áö¿ª ÀÔ·Â"
+            placeholder="ì–´ë””ë¡œ ë– ë‚˜ê³  ì‹¶ìœ¼ì„¸ìš”?"
+            aria-label="ì—¬í–‰í•˜ê³  ì‹¶ì€ í•œì˜¥ì´ë‚˜ ì§€ì—­ ì…ë ¥"
           />
           {isGenerating ? (
-            <SubmitButton type="button" $disabled={isCancelling} $compact={hasSearched} onClick={handleCancel} aria-label="»ı¼º Ãë¼Ò">
+            <SubmitButton type="button" $disabled={isCancelling} $compact={hasSearched} onClick={handleCancel} aria-label="ìƒì„± ì·¨ì†Œ">
               {isCancelling ? (
                 <HugeiconsIcon icon={LoaderCircleIcon} size={16} style={{ animation: 'spin 1s linear infinite' }} />
               ) : (
@@ -1001,7 +1001,7 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
               )}
             </SubmitButton>
           ) : (
-            <SubmitButton type="submit" $compact={hasSearched} aria-label="¸ÂÃã ÄÚ½º Ã£±â">
+            <SubmitButton type="submit" $compact={hasSearched} aria-label="ë§ì¶¤ ì½”ìŠ¤ ì°¾ê¸°">
               <HugeiconsIcon icon={Search01Icon} size={16} />
             </SubmitButton>
           )}
@@ -1010,7 +1010,7 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
 
       {hasSearched && (
         <>
-          {lastError && <ErrorBanner>{lastError} ±âÁ¸ ÄÚ½º´Â ±×´ë·Î À¯ÁöÇß¾î¿ä.</ErrorBanner>}
+          {lastError && <ErrorBanner>{lastError} ê¸°ì¡´ ì½”ìŠ¤ëŠ” ê·¸ëŒ€ë¡œ ìœ ì§€í–ˆì–´ìš”.</ErrorBanner>}
           <RefineChipsContainer>
             {suggestions.map((item, idx) => (
               <RefineChip
@@ -1047,3 +1047,4 @@ export default function JourneyHeroSearch({ searchFormRef, moodChipsRef }: Journ
     </Container>
   );
 }
+

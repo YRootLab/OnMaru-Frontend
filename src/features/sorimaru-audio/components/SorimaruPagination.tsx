@@ -179,21 +179,21 @@ export const SorimaruPagination: React.FC<SorimaruPaginationProps> = ({
   const pageNumbers = getPageNumbers(currentPage, totalPages);
 
   return (
-    <PaginationContainer aria-label="¿Àµğ¿À ¾ÆÄ«ÀÌºê ÆäÀÌÁö ¹øÈ£">
+    <PaginationContainer aria-label="ì˜¤ë””ì˜¤ ì•„ì¹´ì´ë¸Œ í˜ì´ì§€ ë²ˆí˜¸">
       <NavPillGroup>
         <ArrowButton
           type="button"
           onClick={() => handlePageClick(currentPage - 1)}
           disabled={currentPage <= 1 || isLoading}
-          aria-label="ÀÌÀü ÆäÀÌÁö"
+          aria-label="ì´ì „ í˜ì´ì§€"
         >
           <HugeiconsIcon icon={ChevronLeftIcon} size={15} />
-          <span>ÀÌÀü</span>
+          <span>ì´ì „</span>
         </ArrowButton>
 
         {pageNumbers.map((page, index) =>
           page === '...' ? (
-            <EllipsisSpan key={`ellipsis-${index}`}>¡¦</EllipsisSpan>
+            <EllipsisSpan key={`ellipsis-${index}`}>â€¦</EllipsisSpan>
           ) : (
             <PageNumberButton
               key={page}
@@ -212,12 +212,12 @@ export const SorimaruPagination: React.FC<SorimaruPaginationProps> = ({
           type="button"
           onClick={() => handlePageClick(currentPage + 1)}
           disabled={currentPage >= totalPages || isLoading}
-          aria-label="´ÙÀ½ ÆäÀÌÁö"
+          aria-label="ë‹¤ìŒ í˜ì´ì§€"
         >
-          <span>´ÙÀ½</span>
+          <span>ë‹¤ìŒ</span>
           <HugeiconsIcon icon={ChevronRightIcon} size={15} />
         </ArrowButton>
       </NavPillGroup>
     </PaginationContainer>
   );
-};
+};

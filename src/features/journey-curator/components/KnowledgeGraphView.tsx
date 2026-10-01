@@ -390,7 +390,7 @@ export default function KnowledgeGraphView() {
         label: n.label,
         category: n.category,
         badge: n.badge,
-        description: n.description || `${n.label}¿¡ ¾ôÈù °íÀ¯ÇÑ ÀÌ¾ß±â¿Í ¿Â±â`,
+        description: n.description || `${n.label}ì— ì–½íŒ ê³ ìœ í•œ ì´ì•¼ê¸°ì™€ ì˜¨ê¸°`,
         x: centerX + Math.cos(preset.angle) * preset.dist,
         y: centerY + Math.sin(preset.angle) * preset.dist * 0.65,
         vx: 0,
@@ -600,15 +600,15 @@ export default function KnowledgeGraphView() {
         <GraphHeader>
           <HeaderTitle>
             <HugeiconsIcon icon={NetworkIcon} size={16} color={lightPalette.cheongrok[500]} />
-            <span>AI ¿©Á¤ Áö½Ä ±×·¡ÇÁ ¡¤ {plan.region}</span>
+            <span>AI ì—¬ì • ì§€ì‹ ê·¸ë˜í”„ Â· {plan.region}</span>
           </HeaderTitle>
 
           <Legend>
-            <LegendItem $color={CATEGORY_COLORS.region}>Áö¿ª ±Ç¿ª</LegendItem>
-            <LegendItem $color={CATEGORY_COLORS.hanok}>ÇÑ¿Á °ÇÃà</LegendItem>
-            <LegendItem $color={CATEGORY_COLORS.market}>ÀüÅë½ÃÀå</LegendItem>
-            <LegendItem $color={CATEGORY_COLORS.sorimaru}>¼Ò¸®¸¶·ç SORIMARU</LegendItem>
-            <LegendItem $color={CATEGORY_COLORS.warmth}>½Ç½Ã°£ ¿Â±â</LegendItem>
+            <LegendItem $color={CATEGORY_COLORS.region}>ì§€ì—­ ê¶Œì—­</LegendItem>
+            <LegendItem $color={CATEGORY_COLORS.hanok}>í•œì˜¥ ê±´ì¶•</LegendItem>
+            <LegendItem $color={CATEGORY_COLORS.market}>ì „í†µì‹œì¥</LegendItem>
+            <LegendItem $color={CATEGORY_COLORS.sorimaru}>ì†Œë¦¬ë§ˆë£¨ SORIMARU</LegendItem>
+            <LegendItem $color={CATEGORY_COLORS.warmth}>ì‹¤ì‹œê°„ ì˜¨ê¸°</LegendItem>
           </Legend>
         </GraphHeader>
 
@@ -641,9 +641,9 @@ export default function KnowledgeGraphView() {
 
         {}
         <Controls>
-          <ResetBtn type="button" onClick={initSimulation} title="³ëµå ¹èÄ¡ ¿ø·¡´ë·Î">
+          <ResetBtn type="button" onClick={initSimulation} title="ë…¸ë“œ ë°°ì¹˜ ì›ë˜ëŒ€ë¡œ">
             <HugeiconsIcon icon={RotateCcwIcon} size={12} />
-            <span>¿ø·¡ À§Ä¡·Î</span>
+            <span>ì›ë˜ ìœ„ì¹˜ë¡œ</span>
           </ResetBtn>
         </Controls>
 
@@ -680,4 +680,4 @@ export default function KnowledgeGraphView() {
       </GraphCard>
     </Container>
   );
-}
+}

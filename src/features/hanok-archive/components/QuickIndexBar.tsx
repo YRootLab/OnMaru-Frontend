@@ -92,26 +92,27 @@ export default function QuickIndexBar({ className }: QuickIndexBarProps) {
   };
 
   return (
-    <IndexContainer className={className} aria-label="ÇÑ¿Á ¸¶·ç ÁÖ¿ä Ã©ÅÍ ¹Ù·Î°¡±â">
+    <IndexContainer className={className} aria-label="í•œì˜¥ë§ˆë£¨ ì£¼ìš” ë©”ë‰´ ë°”ë¡œê°€ê¸°">
       <IndexChip type="button" onClick={() => scrollTo('grid')}>
         <HugeiconsIcon icon={BookOpen01Icon} size={15} strokeWidth={2} color={palette.juhong[500]} />
-        <span>Àü±¹ ÇÑ¿Á µµ°¨</span>
+        <span>ì „êµ­ í•œì˜¥ ë„ê°</span>
       </IndexChip>
 
       <IndexChip type="button" onClick={() => scrollTo('hanok-stays')}>
         <HugeiconsIcon icon={Home01Icon} size={15} strokeWidth={2} color={palette.cheongrok[500]} />
-        <span>Áö¿ªº° ÇÑ¿Á ½ºÅ×ÀÌ</span>
+        <span>ì§€ì—­ë³„ í•œì˜¥ ìŠ¤í…Œì´</span>
       </IndexChip>
 
       <IndexChip type="button" onClick={() => scrollTo('structure')}>
         <HugeiconsIcon icon={Sun01Icon} size={15} strokeWidth={2} color={palette.hwanggeum[500]} />
-        <span>3D ±¸Á¶ & Ã³¸¶ ÀÏÁ¶ ·¦</span>
+        <span>3D êµ¬ì¡°ì™€ ì²˜ë§ˆ ì¼ì¡°</span>
       </IndexChip>
 
       <IndexChip type="button" onClick={() => scrollTo('map')}>
         <HugeiconsIcon icon={MapPinIcon} size={15} strokeWidth={2} color={palette.juhong[500]} />
-        <span>Àü±¹ °ø°£ Áöµµ</span>
+        <span>ì „êµ­ í•œì˜¥ ì§€ë„</span>
       </IndexChip>
     </IndexContainer>
   );
 }
+

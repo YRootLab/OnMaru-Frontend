@@ -20,26 +20,26 @@ interface SorimaruArchiveBrowseProps {
 type ArchiveView = 'stories' | 'places';
 
 const STOPWORDS = new Set([
-  '¼Ò¸®',
-  'ÀÌ¾ß±â',
-  '¼Ò¸®ÀÌ¾ß±â',
-  '¿Àµğ',
-  '¿ÀµğÀÌ¾ß±â',
-  '´ëÇÑ¹Î±¹',
-  'ÇÑ±¹',
-  '¹®È­À¯»ê',
-  '¹®È­Àç',
-  'ÀüÃ¼',
-  '¾È³»',
-  '°³¿ä',
-  '¼ºÀÎ¿ë',
-  '¾î¸°ÀÌ¿ë',
-  'ÇØ¼³',
-  'Á¤º¸',
-  '¼Ò¸®·Î',
-  '¸¸³ª´Â',
-  '¼Ò¸®µé',
-  '½ºÅä¸®',
+  'ì†Œë¦¬',
+  'ì´ì•¼ê¸°',
+  'ì†Œë¦¬ì´ì•¼ê¸°',
+  'ì˜¤ë””',
+  'ì˜¤ë””ì´ì•¼ê¸°',
+  'ëŒ€í•œë¯¼êµ­',
+  'í•œêµ­',
+  'ë¬¸í™”ìœ ì‚°',
+  'ë¬¸í™”ì¬',
+  'ì „ì²´',
+  'ì•ˆë‚´',
+  'ê°œìš”',
+  'ì„±ì¸ìš©',
+  'ì–´ë¦°ì´ìš©',
+  'í•´ì„¤',
+  'ì •ë³´',
+  'ì†Œë¦¬ë¡œ',
+  'ë§Œë‚˜ëŠ”',
+  'ì†Œë¦¬ë“¤',
+  'ìŠ¤í† ë¦¬',
 ]);
 
 function getStoryTags(story: SorimaruStorySummary, max = 4): string[] {
@@ -123,7 +123,7 @@ const SkeletonGrid = styled.div`
 
 function ArchiveSkeleton() {
   return (
-    <SkeletonGrid aria-busy="true" aria-label="ÀÌ¾ß±â¸¦ ºÒ·¯¿À´Â ÁßÀÌ¿¡¿ä">
+    <SkeletonGrid aria-busy="true" aria-label="ì´ì•¼ê¸°ë¥¼ ë¶ˆëŸ¬ì˜¤ëŠ” ì¤‘ì´ì—ìš”">
       {Array.from({ length: 6 }, (_, index) => (
         <div
           key={index}
@@ -411,7 +411,7 @@ function StoryRow({ story, index }: StoryRowProps) {
           <PlayIconBtn
             type="button"
             onClick={togglePlayback}
-            aria-label={`${story.title} ${isThisPlaying ? 'ÀÏ½ÃÁ¤Áö' : 'Àç»ı'}`}
+            aria-label={`${story.title} ${isThisPlaying ? 'ì¼ì‹œì •ì§€' : 'ì¬ìƒ'}`}
           >
             {isThisPlaying ? (
               <span style={{ display: 'flex', height: 12, alignItems: 'flex-end', gap: 2 }} aria-hidden="true">
@@ -544,7 +544,7 @@ function PlaceGroupCard({ group, startIndex }: { group: SorimaruPlaceGroup; star
           <HugeiconsIcon icon={MapPinIcon} size={15} strokeWidth={2.2} color={palette.juhong[500]} style={{ flexShrink: 0 }} />
           <PlaceGroupTitle>{group.label}</PlaceGroupTitle>
         </PlaceHeaderLeft>
-        <PlaceCountBadge>{group.stories.length}°³ÀÇ ¼Ò¸®</PlaceCountBadge>
+        <PlaceCountBadge>{group.stories.length}ê°œì˜ ì†Œë¦¬</PlaceCountBadge>
       </PlaceGroupHeader>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         {group.stories.map((story, index) => (
@@ -616,7 +616,7 @@ export function SorimaruArchiveBrowse({ stories, isLoading }: SorimaruArchiveBro
           justifyContent: 'space-between',
         }}
       >
-        <ViewSegmentControl role="tablist" aria-label="¾ÆÄ«ÀÌºê Ç¥½Ã ¹æ½Ä">
+        <ViewSegmentControl role="tablist" aria-label="ì•„ì¹´ì´ë¸Œ í‘œì‹œ ë°©ì‹">
           <ViewSegmentBtn
             type="button"
             role="tab"
@@ -625,7 +625,7 @@ export function SorimaruArchiveBrowse({ stories, isLoading }: SorimaruArchiveBro
             $active={view === 'stories'}
           >
             <HugeiconsIcon icon={GridViewIcon} size={13} />
-            ÀÌ¾ß±âº°
+            ì´ì•¼ê¸°ë³„
           </ViewSegmentBtn>
           <ViewSegmentBtn
             type="button"
@@ -635,13 +635,13 @@ export function SorimaruArchiveBrowse({ stories, isLoading }: SorimaruArchiveBro
             $active={view === 'places'}
           >
             <HugeiconsIcon icon={Layers01Icon} size={13} />
-            Àå¼Òº°
+            ì¥ì†Œë³„
           </ViewSegmentBtn>
         </ViewSegmentControl>
 
         {view === 'places' && (
           <span style={{ fontSize: fontSize.micro, fontWeight: 500, color: meok[500] }}>
-            ÇöÀç °á°ú ±âÁØ
+            í˜„ì¬ ê²°ê³¼ ê¸°ì¤€
           </span>
         )}
       </div>
@@ -651,8 +651,8 @@ export function SorimaruArchiveBrowse({ stories, isLoading }: SorimaruArchiveBro
       ) : stories.length === 0 ? (
         <OniSearchEmpty
           size="md"
-          title="Á¶°Ç¿¡ ¸Â´Â ÀÌ¾ß±â°¡ ¾ÆÁ÷ ¾ø¾î¿ä"
-          description="´Ù¸¥ Ä«Å×°í¸®¸¦ ¼±ÅÃÇÏ°Å³ª °Ë»ö¾î¸¦ º¯°æÇØ º¸¼¼¿ä."
+          title="ì¡°ê±´ì— ë§ëŠ” ì´ì•¼ê¸°ê°€ ì•„ì§ ì—†ì–´ìš”"
+          description="ë‹¤ë¥¸ ì¹´í…Œê³ ë¦¬ë¥¼ ì„ íƒí•˜ê±°ë‚˜ ê²€ìƒ‰ì–´ë¥¼ ë³€ê²½í•´ ë³´ì„¸ìš”."
         />
       ) : view === 'stories' ? (
         <div
@@ -681,4 +681,4 @@ export function SorimaruArchiveBrowse({ stories, isLoading }: SorimaruArchiveBro
       )}
     </div>
   );
-}
+}

@@ -63,11 +63,11 @@ import {
 import styled from '@emotion/styled';
 
 const SEASON_ICON: Record<string, React.ReactElement> = {
-  'º½²É': <HugeiconsIcon icon={Flower01Icon} size={12} strokeWidth={2} />,
-  '´ÜÇ³': <HugeiconsIcon icon={Leaf01Icon} size={12} strokeWidth={2} />,
-  '¼³°æ': <HugeiconsIcon icon={SnowflakeIcon} size={12} strokeWidth={2} />,
-  '¾ï»õ': <HugeiconsIcon icon={SproutIcon} size={12} strokeWidth={2} />,
-  '¿©¸§³ìÀ½': <HugeiconsIcon icon={WindIcon} size={12} strokeWidth={2} />,
+  'ë´„ê½ƒ': <HugeiconsIcon icon={Flower01Icon} size={12} strokeWidth={2} />,
+  'ë‹¨í’': <HugeiconsIcon icon={Leaf01Icon} size={12} strokeWidth={2} />,
+  'ì„¤ê²½': <HugeiconsIcon icon={SnowflakeIcon} size={12} strokeWidth={2} />,
+  'ì–µìƒˆ': <HugeiconsIcon icon={SproutIcon} size={12} strokeWidth={2} />,
+  'ì—¬ë¦„ë…¹ìŒ': <HugeiconsIcon icon={WindIcon} size={12} strokeWidth={2} />,
 };
 
 interface HanokStayDetailModalProps {
@@ -98,7 +98,7 @@ function extractHomepageUrl(homepageHtml?: string | null): { url: string | null;
       const parsed = new URL(rawUrl);
       return { url: rawUrl, label: parsed.hostname.replace(/^www\./, '') };
     } catch {
-      return { url: rawUrl, label: '°ø½Ä ¿¹¾àÃ³ ¹Ù·Î°¡±â' };
+      return { url: rawUrl, label: 'ê³µì‹ ì˜ˆì•½ì²˜ ë°”ë¡œê°€ê¸°' };
     }
   }
   return { url: null, label: '' };
@@ -109,7 +109,7 @@ function getBookingUrl(item: Village): string {
     const match = item.overview.match(/https?:\/\/[^\s"']+/i);
     if (match) return match[0];
   }
-  return `https://search.naver.com/search.naver?query=${encodeURIComponent(item.name + ' ¿¹¾à')}`;
+  return `https://search.naver.com/search.naver?query=${encodeURIComponent(item.name + ' ì˜ˆì•½')}`;
 }
 
 export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailModalProps) {
@@ -129,7 +129,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
     toggleBookmark({
       id: stay.id,
       name: stay.name,
-      category: 'ÇÑ¿Á½ºÅ×ÀÌ',
+      category: 'í•œì˜¥ìŠ¤í…Œì´',
       addr: stay.addr,
       image: stay.image || undefined,
       lat: stay.lat ?? undefined,
@@ -190,12 +190,12 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
         >
           {}
           <ImageHero $bg={currentHeroImage}>
-            <CloseBtn onClick={onClose} aria-label="´İ±â">
+            <CloseBtn onClick={onClose} aria-label="ë‹«ê¸°">
               <HugeiconsIcon icon={Cancel01Icon} size={18} strokeWidth={2.5} />
             </CloseBtn>
 
             <HeroContent>
-              <HeroRegion>{stay.region} ¡¤ °íÁî³ËÇÑ ÇÏ·í¹ã</HeroRegion>
+              <HeroRegion>{stay.region} Â· ê³ ì¦ˆë„‰í•œ í•˜ë£»ë°¤</HeroRegion>
               <HeroTitle>{stay.name}</HeroTitle>
             </HeroContent>
 
@@ -203,9 +203,9 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
               <HeroZoomBadge
                 type="button"
                 onClick={() => setZoomedImageIdx(activeImageIdx ?? 0)}
-                title="»çÁø Å©°Ô º¸±â"
+                title="ì‚¬ì§„ í¬ê²Œ ë³´ê¸°"
               >
-                <HugeiconsIcon icon={ZoomInIcon} size={13} strokeWidth={2} /> »çÁø Å©°Ô º¸±â
+                <HugeiconsIcon icon={ZoomInIcon} size={13} strokeWidth={2} /> ì‚¬ì§„ í¬ê²Œ ë³´ê¸°
               </HeroZoomBadge>
             )}
           </ImageHero>
@@ -213,7 +213,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
           <Body>
             {}
             <MetaRow>
-              <TypeBadge>ÇÑ¿Á½ºÅ×ÀÌ</TypeBadge>
+              <TypeBadge>í•œì˜¥ìŠ¤í…Œì´</TypeBadge>
               <AddrText>
                 <HugeiconsIcon icon={MapPinIcon} size={13} strokeWidth={2} style={{ display: 'inline', marginRight: 4 }} />
                 {stay.addr}
@@ -229,11 +229,11 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                 <HugeiconsIcon icon={Home01Icon} size={12} strokeWidth={2} />
                 {detailData?.roomtype
                   ? cleanTourApiHtml(detailData.roomtype).split('/')[0].trim()
-                  : 'ÀüÅë ÇÑ¿Á'}
+                  : 'ì „í†µ í•œì˜¥'}
               </InsightBadge>
               <InsightBadge $color="#7c5c2e">
                 <HugeiconsIcon icon={Layers01Icon} size={12} strokeWidth={2} />
-                ¿Âµ¹ ¸¶·ç
+                ì˜¨ëŒ ë§ˆë£¨
               </InsightBadge>
               {seasonTags.map((tag) => (
                 <InsightBadge key={tag} $color="#2e7d5e">
@@ -248,12 +248,12 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
               <NoteHeader>
                 <HeaderBadge>
                   <HugeiconsIcon icon={SparklesIcon} size={16} color={palette.cheongrok[500]} />
-                  <span>¼÷¼Ò ¼Ò°³</span>
+                  <span>ìˆ™ì†Œ ì†Œê°œ</span>
                 </HeaderBadge>
               </NoteHeader>
               <StoryContainer $isExpanded={true}>
                 <StoryParagraph>
-                  {stayIntroText || 'ÇÑ¿ÁÀÇ ¿Âµ¹°ú ¸¶·ç¿¡¼­ »ç°èÀı Á¤Ãë¸¦ ´À³¢¸ç ¸Ó¹° ¼ö ÀÖ´Â °÷ÀÌ¿¡¿ä.'}
+                  {stayIntroText || 'í•œì˜¥ì˜ ì˜¨ëŒê³¼ ë§ˆë£¨ì—ì„œ ì‚¬ê³„ì ˆ ì •ì·¨ë¥¼ ëŠë¼ë©° ë¨¸ë¬¼ ìˆ˜ ìˆëŠ” ê³³ì´ì—ìš”.'}
                 </StoryParagraph>
               </StoryContainer>
             </CuratorsNoteSection>
@@ -263,24 +263,24 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
               href={kakaoMapUrl}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label={`${stay.name} Ä«Ä«¿À¸Ê¿¡¼­ º¸±â`}
+              aria-label={`${stay.name} ì¹´ì¹´ì˜¤ë§µì—ì„œ ë³´ê¸°`}
             >
               <MapDotGrid aria-hidden="true" />
               <MapPreviewContent>
                 <MapPreviewLabel>
-                  <HugeiconsIcon icon={MapPinIcon} size={13} strokeWidth={2} /> À§Ä¡
+                  <HugeiconsIcon icon={MapPinIcon} size={13} strokeWidth={2} /> ìœ„ì¹˜
                 </MapPreviewLabel>
                 <MapPreviewName>{stay.name}</MapPreviewName>
                 <MapPreviewAddr>{stay.addr}</MapPreviewAddr>
               </MapPreviewContent>
               <MapPreviewAction>
-                Ä«Ä«¿À¸ÊÀ¸·Î º¸±â <HugeiconsIcon icon={ChevronRightIcon} size={14} strokeWidth={2.5} />
+                ì¹´ì¹´ì˜¤ë§µìœ¼ë¡œ ë³´ê¸° <HugeiconsIcon icon={ChevronRightIcon} size={14} strokeWidth={2.5} />
               </MapPreviewAction>
             </MapPreviewCard>
 
             {}
             <SectionTitle>
-              <HugeiconsIcon icon={SparklesIcon} size={16} strokeWidth={2} /> ÀÌ¿ë ¾È³»
+              <HugeiconsIcon icon={SparklesIcon} size={16} strokeWidth={2} /> ì´ìš© ì•ˆë‚´
             </SectionTitle>
             <InfoGrid>
               <InfoCard>
@@ -288,11 +288,11 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                   <HugeiconsIcon icon={Clock01Icon} size={16} strokeWidth={2} />
                 </InfoIconBox>
                 <InfoContentBox>
-                  <InfoLabel>ÀÔ½Ç ¡¤ Åğ½Ç</InfoLabel>
+                  <InfoLabel>ì…ì‹¤ Â· í‡´ì‹¤</InfoLabel>
                   <InfoVal>
                     {detailData?.checkin || detailData?.checkout
-                      ? `ÀÔ½Ç ${detailData.checkin || '15:00'} ¡¤ Åğ½Ç ${detailData.checkout || '11:00'}`
-                      : 'ÀÔ½Ç 15:00 ÀÌÈÄ ¡¤ Åğ½Ç 11:00 ÀÌÀü'}
+                      ? `ì…ì‹¤ ${detailData.checkin || '15:00'} Â· í‡´ì‹¤ ${detailData.checkout || '11:00'}`
+                      : 'ì…ì‹¤ 15:00 ì´í›„ Â· í‡´ì‹¤ 11:00 ì´ì „'}
                   </InfoVal>
                 </InfoContentBox>
               </InfoCard>
@@ -302,11 +302,11 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                   <HugeiconsIcon icon={Home01Icon} size={16} strokeWidth={2} />
                 </InfoIconBox>
                 <InfoContentBox>
-                  <InfoLabel>°´½Ç ±¸Á¶</InfoLabel>
+                  <InfoLabel>ê°ì‹¤ êµ¬ì¡°</InfoLabel>
                   <InfoVal>
                     {detailData?.roomtype
                       ? `${cleanTourApiHtml(detailData.roomtype)}${detailData?.roomcount ? ` (${cleanTourApiHtml(detailData.roomcount)})` : ''}`
-                      : 'ÀüÅë ¿Âµ¹¹æ ¡¤ ´ëÃ»¸¶·ç ¡¤ µ¶Ã¤/º°Ã¤'}
+                      : 'ì „í†µ ì˜¨ëŒë°© Â· ëŒ€ì²­ë§ˆë£¨ Â· ë…ì±„/ë³„ì±„'}
                   </InfoVal>
                 </InfoContentBox>
               </InfoCard>
@@ -316,9 +316,9 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                   <HugeiconsIcon icon={Car01Icon} size={16} strokeWidth={2} />
                 </InfoIconBox>
                 <InfoContentBox>
-                  <InfoLabel>ÁÖÂ÷</InfoLabel>
+                  <InfoLabel>ì£¼ì°¨</InfoLabel>
                   <InfoVal>
-                    {cleanTourApiHtml(detailData?.parking) || '¼÷¼Ò Àü¿ë ¶Ç´Â ÀÎ±Ù ÁÖÂ÷ °¡´É'}
+                    {cleanTourApiHtml(detailData?.parking) || 'ìˆ™ì†Œ ì „ìš© ë˜ëŠ” ì¸ê·¼ ì£¼ì°¨ ê°€ëŠ¥'}
                   </InfoVal>
                 </InfoContentBox>
               </InfoCard>
@@ -328,10 +328,10 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                   <HugeiconsIcon icon={Coffee01Icon} size={16} strokeWidth={2} />
                 </InfoIconBox>
                 <InfoContentBox>
-                  <InfoLabel>ÆíÀÇ½Ã¼³</InfoLabel>
+                  <InfoLabel>í¸ì˜ì‹œì„¤</InfoLabel>
                   <InfoVal>
                     {cleanTourApiHtml(detailData?.subfacility) ||
-                      `${detailData?.barbecue ? '¹ÙºñÅ¥ °¡´É ¡¤ ' : ''}ÀüÅëÂ÷ ´Ùµµ Ã¼Çè ¡¤ Á¤¿ø ¸¶´ç ¡¤ Wi-Fi`}
+                      `${detailData?.barbecue ? 'ë°”ë¹„í ê°€ëŠ¥ Â· ' : ''}ì „í†µì°¨ ë‹¤ë„ ì²´í—˜ Â· ì •ì› ë§ˆë‹¹ Â· Wi-Fi`}
                   </InfoVal>
                 </InfoContentBox>
               </InfoCard>
@@ -341,9 +341,9 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                   <HugeiconsIcon icon={PhoneIcon} size={16} strokeWidth={2} />
                 </InfoIconBox>
                 <InfoContentBox>
-                  <InfoLabel>¹®ÀÇ ÀüÈ­</InfoLabel>
+                  <InfoLabel>ë¬¸ì˜ ì „í™”</InfoLabel>
                   <InfoVal>
-                    {cleanTourApiHtml(detailData?.tel) || '»çÀü ¿Â¶óÀÎ ¿¹¾à ¹× À¯¼± ¹®ÀÇ'}
+                    {cleanTourApiHtml(detailData?.tel) || 'ì‚¬ì „ ì˜¨ë¼ì¸ ì˜ˆì•½ ë° ìœ ì„  ë¬¸ì˜'}
                   </InfoVal>
                 </InfoContentBox>
               </InfoCard>
@@ -353,7 +353,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                   <HugeiconsIcon icon={GlobeIcon} size={16} strokeWidth={2} />
                 </InfoIconBox>
                 <InfoContentBox>
-                  <InfoLabel>¿¹¾à ¸µÅ©</InfoLabel>
+                  <InfoLabel>ì˜ˆì•½ ë§í¬</InfoLabel>
                   <InfoVal>
                     {homepageInfo.url ? (
                       <a href={homepageInfo.url} target="_blank" rel="noopener noreferrer">
@@ -361,7 +361,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                       </a>
                     ) : (
                       <a href={getBookingUrl(stay)} target="_blank" rel="noopener noreferrer">
-                        ¿¹¾à Á¤º¸ Ã£¾Æº¸±â <HugeiconsIcon icon={ExternalLinkIcon} size={12} style={{ display: 'inline' }} />
+                        ì˜ˆì•½ ì •ë³´ í™•ì¸í•˜ê¸° <HugeiconsIcon icon={ExternalLinkIcon} size={12} style={{ display: 'inline' }} />
                       </a>
                     )}
                   </InfoVal>
@@ -374,7 +374,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
             {galleryImages.length > 1 && (
               <GallerySection>
                 <SectionTitle>
-                  <HugeiconsIcon icon={Image02Icon} size={16} strokeWidth={2} /> ¼÷¼Ò »çÁø ({galleryImages.length}Àå)
+                  <HugeiconsIcon icon={Image02Icon} size={16} strokeWidth={2} /> ìˆ™ì†Œ ì‚¬ì§„ ({galleryImages.length}ì¥)
                 </SectionTitle>
                 <GalleryGrid>
                   {galleryImages.map((img, idx) => (
@@ -386,10 +386,10 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                         setActiveImageIdx(idx);
                         setZoomedImageIdx(idx);
                       }}
-                      title="»çÁø Å©°Ô º¸±â"
+                      title="ì‚¬ì§„ í¬ê²Œ ë³´ê¸°"
                     >
                       { }
-                      <img src={img} alt={`${stay.name} »çÁø ${idx + 1}`} loading="lazy" />
+                      <img src={img} alt={`${stay.name} ì‚¬ì§„ ${idx + 1}`} loading="lazy" />
                     </GalleryThumb>
                   ))}
                 </GalleryGrid>
@@ -403,7 +403,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                ¿¹¾à Á¤º¸ È®ÀÎÇÏ±â <HugeiconsIcon icon={ExternalLinkIcon} size={15} strokeWidth={2} />
+                ì˜ˆì•½ ì •ë³´ í™•ì¸í•˜ê¸° <HugeiconsIcon icon={ExternalLinkIcon} size={15} strokeWidth={2} />
               </DirectBookingButton>
 
               <MapGuideBtn
@@ -411,17 +411,17 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <HugeiconsIcon icon={Navigation01Icon} size={14} strokeWidth={2} /> ±æÃ£±â
+                <HugeiconsIcon icon={Navigation01Icon} size={14} strokeWidth={2} /> ê¸¸ì°¾ê¸°
               </MapGuideBtn>
 
               <BookmarkActionBtn
                 type="button"
                 $bookmarked={bookmarked}
                 onClick={handleBookmarkToggle}
-                title={bookmarked ? 'ÀúÀå ¸ñ·Ï¿¡¼­ Á¦°Å' : '¼÷¼Ò ÀúÀå'}
+                title={bookmarked ? 'ì €ì¥ ëª©ë¡ì—ì„œ ì œê±°' : 'ìˆ™ì†Œ ì €ì¥'}
               >
                 <HugeiconsIcon icon={Bookmark01Icon} size={15} strokeWidth={2} fill={bookmarked ? 'currentColor' : 'none'} />
-                {bookmarked ? 'ÀúÀåµÊ' : 'ÀúÀåÇÏ±â'}
+                {bookmarked ? 'ì €ì¥ë¨' : 'ì €ì¥í•˜ê¸°'}
               </BookmarkActionBtn>
             </ActionRow>
           </Body>
@@ -440,7 +440,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
           <LightboxCloseBtn
             type="button"
             onClick={() => setZoomedImageIdx(null)}
-            aria-label="»çÁø ´İ±â"
+            aria-label="ì‚¬ì§„ ë‹«ê¸°"
           >
             <HugeiconsIcon icon={Cancel01Icon} size={20} strokeWidth={2.5} />
           </LightboxCloseBtn>
@@ -455,7 +455,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                   prev !== null ? (prev - 1 + galleryImages.length) % galleryImages.length : 0
                 );
               }}
-              aria-label="ÀÌÀü »çÁø"
+              aria-label="ì´ì „ ì‚¬ì§„"
             >
               <HugeiconsIcon icon={ChevronLeftIcon} size={24} strokeWidth={2.5} />
             </LightboxNavBtn>
@@ -465,7 +465,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
             { }
             <LightboxImg
               src={galleryImages[zoomedImageIdx]}
-              alt={`${stay.name} È®´ë »çÁø`}
+              alt={`${stay.name} í™•ëŒ€ ì‚¬ì§„`}
             />
           </LightboxImageWrapper>
 
@@ -479,7 +479,7 @@ export default function HanokStayDetailModal({ stay, onClose }: HanokStayDetailM
                   prev !== null ? (prev + 1) % galleryImages.length : 0
                 );
               }}
-              aria-label="´ÙÀ½ »çÁø"
+              aria-label="ë‹¤ìŒ ì‚¬ì§„"
             >
               <HugeiconsIcon icon={ChevronRightIcon} size={24} strokeWidth={2.5} />
             </LightboxNavBtn>
@@ -553,3 +553,4 @@ const MapGuideBtn = styled.a`
     }
   }
 `;
+

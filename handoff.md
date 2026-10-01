@@ -1,6 +1,11 @@
 # handoff.md
 
 ## Current Work
+- 2026-10-02 온이(Oni) 라이트 모드 그래픽 버그 해결 및 전사 UX Writing & 메뉴바 문구 표준화 완료:
+  - 밝은 테마에서 `mix-blend-mode: screen;`으로 인해 온이 캐릭터가 백화되는 현상을 다크 모드 한정으로 격리하여 라이트/다크 전 테마에서 캐릭터 원본 색감이 선명하게 노출되도록 개선.
+  - 전사 메뉴바, 네비게이션 탭, 퀵인덱스, 바텀시트, 빈 상태, 에러 상태, 모달 버튼, 토스트 문구 전반을 UX Writing 5대 코어밸류(Clear, Concise, Casual, Respect, Emotional)와 8대 프린시플에 맞춰 표준화.
+  - 이전 편집 도중 발생한 인코딩 이상 및 깨진 문자(`??`, `?`)를 UTF-8 정규화로 완전 복구.
+  - 검증: 전체 Vitest 95개 파일 / 386개 테스트 100% 통과, `npx tsc --noEmit` 타입 에러 0건 통과.
 - 2026-09-29 소리마루 스켈레톤 초기 scale 깜빡임 수정: `EditorialRailSkeletonCard`에 `initial={false}`를 지정해 첫 렌더부터 중앙/좌우 카드의 최종 scale·opacity·rotate 상태를 사용하도록 했다. 검증: `SorimaruEditorialRail.test.tsx` 7건, `tsc --noEmit` 통과.
 - 2026-09-29 공통 상단 네비게이션 글자 크기 조정 완료: `Header.tsx`의 데스크톱 메뉴와 로그인 텍스트를 `fontSize.xs`(12px)에서 `fontSize.sm`(14px)로 변경해 모든 라우트에서 동일하게 표시되도록 했다. 모바일 메뉴는 기존 14px을 유지한다. 검증: Header 테스트 2건, `tsc --noEmit`, ESLint 통과.
 - 2026-09-29 소리마루 `장면을 따라 걷는 소리` 레일 로딩 UI 개선 완료: `initialLoading`/catalog `loading` 상태를 Editorial Rail에 전달하고, 초기 로딩 또는 새로고침 중 기존 카드 외곽의 크기·위치·회전·확대·active position을 유지한 채 이미지와 내부 데이터 자리만 중성 회색 shimmer skeleton으로 교체했다. 데이터가 없을 때도 5개 placeholder position을 렌더링하며, 로딩 중 자동 스크롤·카드 선택을 중지한다. `SorimaruEditorialRail.test.tsx` 회귀 테스트 추가. 검증: 관련 Vitest 7건, `tsc --noEmit`, ESLint 통과.

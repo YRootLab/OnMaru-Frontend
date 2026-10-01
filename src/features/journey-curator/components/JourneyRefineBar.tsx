@@ -155,10 +155,10 @@ export default function JourneyRefineBar() {
   const lastError = useJourneyStore((s) => s.lastError);
 
   const defaultSuggestions = [
-    '+ ÀüÅë ÂşÁı À§ÁÖ',
-    '+ ºñ ¿À´Â ³¯ ¿îÄ¡',
-    '+ °È´Â ½Ã°£ ÁÙÀÌ±â',
-    '+ ¿ª»ç ÇØ¼³ Áß½É',
+    '+ ì „í†µ ì°»ì§‘ ìœ„ì£¼',
+    '+ ë¹„ ì˜¤ëŠ” ë‚  ìš´ì¹˜',
+    '+ ê±·ëŠ” ì‹œê°„ ì¤„ì´ê¸°',
+    '+ ì—­ì‚¬ í•´ì„¤ ì¤‘ì‹¬',
   ];
 
   const suggestions = currentPlan?.refineSuggestions?.length
@@ -185,7 +185,7 @@ export default function JourneyRefineBar() {
             <>
               <HugeiconsIcon icon={AlertCircleIcon} size={16} color={palette.danpung[500]} />
               <span style={{ color: palette.danpung[700] }}>
-                {lastError} ±âÁ¸ ÄÚ½º´Â ±×´ë·Î ÀÖ¾î¿ä.
+                {lastError} ê¸°ì¡´ ì½”ìŠ¤ëŠ” ê·¸ëŒ€ë¡œ ìˆì–´ìš”.
               </span>
             </>
           ) : (
@@ -193,8 +193,8 @@ export default function JourneyRefineBar() {
               <HugeiconsIcon icon={SparklesIcon} size={16} color={lightPalette.cheongrok[500]} />
               <span>
                 {isGenerating
-                  ? '¿äÃ»ÇÏ½Å ³»¿ëÀ» ¹İ¿µÇØ ÄÚ½º¸¦ ´Ù½Ã Â¥°í ÀÖ¾î¿ä'
-                  : '¿øÇÏ´Â Á¶°ÇÀ» ´õÇØ ÄÚ½º¸¦ ¹Ù²ãº¸¼¼¿ä'}
+                  ? 'ìš”ì²­í•˜ì‹  ë‚´ìš©ì„ ë°˜ì˜í•´ ì½”ìŠ¤ë¥¼ ë‹¤ì‹œ ì§œê³  ìˆì–´ìš”'
+                  : 'ì›í•˜ëŠ” ì¡°ê±´ì„ ë”í•´ ì½”ìŠ¤ë¥¼ ë°”ê¿”ë³´ì„¸ìš”'}
               </span>
             </>
           )}
@@ -205,11 +205,11 @@ export default function JourneyRefineBar() {
             type="text"
             value={refineText}
             onChange={(e) => setRefineText(e.target.value)}
-            placeholder="¿¹: Á¶¿ëÇÑ ÀüÅë ÂşÁı Æ÷ÇÔÇÏ±â, ´ú °È´Â ÄÚ½º·Î ¹Ù²Ù±â"
-            aria-label="¿©Á¤ Á¶°Ç Ãß°¡ ÀÔ·Â"
+            placeholder="ì˜ˆ: ì¡°ìš©í•œ ì „í†µ ì°»ì§‘ í¬í•¨í•˜ê¸°, ëœ ê±·ëŠ” ì½”ìŠ¤ë¡œ ë°”ê¾¸ê¸°"
+            aria-label="ì—¬ì • ì¡°ê±´ ì¶”ê°€ ì…ë ¥"
             disabled={isGenerating}
           />
-          <SendBtn type="submit" $disabled={isGenerating} title="Á¶°Ç Àû¿ëÇÏ±â">
+          <SendBtn type="submit" $disabled={isGenerating} title="ì¡°ê±´ ì ìš©í•˜ê¸°">
             <HugeiconsIcon icon={CornerDownLeftIcon} size={14} />
           </SendBtn>
         </InputRow>
@@ -229,4 +229,4 @@ export default function JourneyRefineBar() {
       </Box>
     </Wrapper>
   );
-}
+}

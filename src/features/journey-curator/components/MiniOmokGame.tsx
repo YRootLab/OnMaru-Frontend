@@ -790,7 +790,7 @@ export default function MiniOmokGame({
       <StatusHeader>
         <TurnBadge $isUserTurn={isPlayerTurn}>
           {isPlayerTurn ? <HugeiconsIcon icon={UserIcon} size={13} /> : <HugeiconsIcon icon={BotIcon} size={13} />}
-          <span>{isPlayerTurn ? '³» Â÷·Ê (Èæµ¹)' : 'AI°¡ »ý°¢ÇÏ°í ÀÖ¾î¿ä'}</span>
+          <span>{isPlayerTurn ? 'ë‚´ ì°¨ë¡€ (í‘ëŒ)' : 'AIê°€ ìƒê°í•˜ê³  ìžˆì–´ìš”'}</span>
         </TurnBadge>
 
 
@@ -803,7 +803,7 @@ export default function MiniOmokGame({
               key={`${r}-${c}`}
               $stone={stone}
               onClick={() => handleCellClick(r, c)}
-              aria-label={`Çà ${r + 1}, ¿­ ${c + 1}`}
+              aria-label={`í–‰ ${r + 1}, ì—´ ${c + 1}`}
             >
               {isStarPoint(r, c) && !stone && <StarPointDot />}
               {stone && (
@@ -841,24 +841,24 @@ export default function MiniOmokGame({
 
               <WinnerTitle>
                 {winner === 'B'
-                  ? '½Â¸®ÇÏ¼Ì¾î¿ä!'
+                  ? 'ìŠ¹ë¦¬í•˜ì…¨ì–´ìš”!'
                   : winner === 'W'
-                  ? 'AI°¡ ÀÌ°å¾î¿ä'
-                  : '¹«½ÂºÎ¿¹¿ä'}
+                  ? 'AIê°€ ì´ê²¼ì–´ìš”'
+                  : 'ë¬´ìŠ¹ë¶€ì˜ˆìš”'}
               </WinnerTitle>
               <WinnerDesc>
                 {winner === 'B'
-                  ? 'ÃàÇÏÇØ¿ä! AI¸¦ »ó´ë·Î ¸ÚÁø ½Â¸®¸¦ °ÅµÎ¼Ì¾î¿ä.'
+                  ? 'ì¶•í•˜í•´ìš”! AIë¥¼ ìƒëŒ€ë¡œ ë©‹ì§„ ìŠ¹ë¦¬ë¥¼ ê±°ë‘ì…¨ì–´ìš”.'
                   : winner === 'W'
-                  ? '¾Æ½±°Ô Á³¾î¿ä. ÇÑ ¹ø ´õ µµÀüÇØ º¼±î¿ä?'
-                  : 'Ä¡¿­ÇÑ Á¢Àü ³¡¿¡ ºñ°å¾î¿ä.'}
+                  ? 'ì•„ì‰½ê²Œ ì¡Œì–´ìš”. í•œ ë²ˆ ë” ë„ì „í•´ ë³¼ê¹Œìš”?'
+                  : 'ì¹˜ì—´í•œ ì ‘ì „ ëì— ë¹„ê²¼ì–´ìš”.'}
               </WinnerDesc>
 
               {!isGenerationComplete ? (
                 <>
                   <NoticeText $variant="gold">
                     <HugeiconsIcon icon={SparklesIcon} size={13} />
-                    <span>¸ÂÃã ¿©Á¤À» ÃßÃµÇÏ´Â ÁßÀÌ¿¡¿ä</span>
+                    <span>ë§žì¶¤ ì—¬ì •ì„ ì¶”ì²œí•˜ëŠ” ì¤‘ì´ì—ìš”</span>
                   </NoticeText>
                   <div
                     style={{
@@ -875,7 +875,7 @@ export default function MiniOmokGame({
                       onClick={handleReset}
                     >
                       <HugeiconsIcon icon={RotateCcwIcon} size={12} />
-                      <span>ÇÑ ÆÇ ´õ ÇÏ±â</span>
+                      <span>í•œ íŒ ë” í•˜ê¸°</span>
                     </ActionButton>
                     {onGoToWordSearch && (
                       <ActionButton
@@ -883,7 +883,7 @@ export default function MiniOmokGame({
                         onClick={onGoToWordSearch}
                       >
                         <HugeiconsIcon icon={Search01Icon} size={12} />
-                        <span>³¹¸» Ã£±â ÀÌµ¿</span>
+                        <span>ë‚±ë§ ì°¾ê¸° ì´ë™</span>
                       </ActionButton>
                     )}
                   </div>
@@ -892,17 +892,17 @@ export default function MiniOmokGame({
                 <>
                   <NoticeText $variant="green">
                     <HugeiconsIcon icon={CheckmarkCircle01Icon} size={14} />
-                    <span>¸ÂÃã ¿©Á¤ÀÌ ÁØºñµÇ¾ú¾î¿ä</span>
+                    <span>ë§žì¶¤ ì—¬ì •ì´ ì¤€ë¹„ë˜ì—ˆì–´ìš”</span>
                   </NoticeText>
                   <div style={{ display: 'flex', gap: '8px', marginTop: '4px', width: '100%', maxWidth: '270px', justifyContent: 'center' }}>
                     <ActionButton onClick={handleReset}>
                       <HugeiconsIcon icon={RotateCcwIcon} size={12} />
-                      <span>ÇÑ ÆÇ ´õ ÇÏ±â</span>
+                      <span>í•œ íŒ ë” í•˜ê¸°</span>
                     </ActionButton>
                     {onViewJourney && (
                       <ViewJourneyBtn onClick={onViewJourney}>
                         <HugeiconsIcon icon={SparklesIcon} size={12} />
-                        <span>¿Ï¼ºµÈ ¿©Á¤ º¸±â</span>
+                        <span>ì™„ì„±ëœ ì—¬ì • ë³´ê¸°</span>
                       </ViewJourneyBtn>
                     )}
                   </div>
@@ -917,17 +917,17 @@ export default function MiniOmokGame({
         <div style={{ display: 'flex', gap: '8px' }}>
           <ActionButton onClick={handleReset}>
             <HugeiconsIcon icon={RotateCcwIcon} size={12} />
-            <span>´Ù½Ã ÇÏ±â</span>
+            <span>ë‹¤ì‹œ í•˜ê¸°</span>
           </ActionButton>
           <ActionButton onClick={handleUndo} disabled={moveHistory.length < 2 || !isPlayerTurn}>
-            <span>ÇÑ ¼ö Ãë¼Ò</span>
+            <span>í•œ ìˆ˜ ì·¨ì†Œ</span>
           </ActionButton>
         </div>
 
         {onGoToWordSearch && (
           <ActionButton onClick={onGoToWordSearch}>
             <HugeiconsIcon icon={Search01Icon} size={12} />
-            <span>³¹¸» Ã£±â</span>
+            <span>ë‚±ë§ ì°¾ê¸°</span>
           </ActionButton>
         )}
       </ControlsBar>
@@ -943,12 +943,12 @@ export default function MiniOmokGame({
           >
             <CompleteText>
               <HugeiconsIcon icon={CheckmarkCircle01Icon} size={14} color="#008a60" />
-              <span>¸ÂÃã ¿©Á¤ÀÌ ÁØºñµÇ¾ú¾î¿ä</span>
+              <span>ë§žì¶¤ ì—¬ì •ì´ ì¤€ë¹„ë˜ì—ˆì–´ìš”</span>
             </CompleteText>
             {onViewJourney && (
               <ViewJourneyBtn onClick={onViewJourney}>
                 <HugeiconsIcon icon={SparklesIcon} size={12} />
-                <span>¿Ï¼ºµÈ ¿©Á¤ º¸±â</span>
+                <span>ì™„ì„±ëœ ì—¬ì • ë³´ê¸°</span>
               </ViewJourneyBtn>
             )}
           </FinishedBanner>
@@ -956,4 +956,4 @@ export default function MiniOmokGame({
       </AnimatePresence>
     </Container>
   );
-}
+}

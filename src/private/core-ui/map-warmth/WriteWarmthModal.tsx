@@ -23,26 +23,26 @@ interface WriteWarmthModalProps {
 }
 
 const REGIONS = [
-  'Àü±¹',
-  'ÀüÁÖ',
-  '¾Èµ¿',
-  '°æÁÖ',
-  '¼­¿ï',
-  '°­¸ª',
-  '´ã¾ç',
-  '°øÁÖ/ºÎ¿©',
-  'Á¦ÁÖ',
+  'ì „êµ­',
+  'ì „ì£¼',
+  'ì•ˆë™',
+  'ê²½ì£¼',
+  'ì„œìš¸',
+  'ê°•ë¦‰',
+  'ë‹´ì–‘',
+  'ê³µì£¼/ë¶€ì—¬',
+  'ì œì£¼',
 ];
 
 const PRESET_TAGS = [
-  '#´ëÃ»¸¶·ç',
-  '#¾ß°æ',
-  '#»çÁø¸ÀÁı',
-  '#ÀüÅëÃ¼Çè',
-  '#Èú¸µ',
-  '#°íÁî³ËÇÔ',
-  '#»êÃ¥ÄÚ½º',
-  '#Â÷ÇÑÀÜ',
+  '#ëŒ€ì²­ë§ˆë£¨',
+  '#ì•¼ê²½',
+  '#ì‚¬ì§„ë§›ì§‘',
+  '#ì „í†µì²´í—˜',
+  '#íë§',
+  '#ê³ ì¦ˆë„‰í•¨',
+  '#ì‚°ì±…ì½”ìŠ¤',
+  '#ì°¨í•œì”',
 ];
 
 
@@ -488,7 +488,7 @@ export default function WriteWarmthModal({
   const setWarmths = useMapStore((s) => s.setWarmths);
   const { create, loading: isSubmitting, error: createError } = useCreateVisitReview();
 
-  const [selectedRegion, setSelectedRegion] = useState('Àü±¹');
+  const [selectedRegion, setSelectedRegion] = useState('ì „êµ­');
   const [placeQuery, setPlaceQuery] = useState(defaultPlace?.name || '');
   const [selectedPlace, setSelectedPlace] = useState<{
     id: string;
@@ -498,7 +498,7 @@ export default function WriteWarmthModal({
   } | null>(defaultPlace || null);
 
   const [score, setScore] = useState<MoodValue>(1);
-  const [mood, setMood] = useState<'ÇÑÀû' | 'ºÏÀû'>('ÇÑÀû');
+  const [mood, setMood] = useState<'í•œì ' | 'ë¶ì '>('í•œì ');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [text, setText] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
@@ -513,7 +513,7 @@ export default function WriteWarmthModal({
 
   const filteredPlaces = useMemo(() => {
     let list = items;
-    if (selectedRegion !== 'Àü±¹') {
+    if (selectedRegion !== 'ì „êµ­') {
       list = list.filter(
         (i) => i.addr?.includes(selectedRegion) || i.name.includes(selectedRegion),
       );
@@ -573,9 +573,9 @@ export default function WriteWarmthModal({
         <ModalHeader>
           <ModalTitle>
             <HugeiconsIcon icon={FlameIcon} size={20} strokeWidth={2} color={meok[600]} />
-            <span>¿Â±â ÇÑ ÁÙ ³²±â±â</span>
+            <span>ì˜¨ê¸° í•œ ì¤„ ë‚¨ê¸°ê¸°</span>
           </ModalTitle>
-          <CloseBtn type="button" onClick={onClose} aria-label="´İ±â">
+          <CloseBtn type="button" onClick={onClose} aria-label="ë‹«ê¸°">
             <HugeiconsIcon icon={Cancel01Icon} size={20} strokeWidth={2} />
           </CloseBtn>
         </ModalHeader>
@@ -583,7 +583,7 @@ export default function WriteWarmthModal({
         <form onSubmit={handleSubmit}>
           {}
           <FormSection>
-            <SectionLabel>¾îµğ¸¦ ´Ù³à¿À¼Ì³ª¿ä?</SectionLabel>
+            <SectionLabel>ì–´ë””ë¥¼ ë‹¤ë…€ì˜¤ì…¨ë‚˜ìš”?</SectionLabel>
             <RegionScroller>
               {REGIONS.map((region) => (
                 <RegionChip
@@ -610,7 +610,7 @@ export default function WriteWarmthModal({
                   if (e.target.value !== selectedPlace?.name) setSelectedPlace(null);
                   setIsDropdownOpen(true);
                 }}
-                placeholder="Àå¼Ò ÀÌ¸§À» °Ë»öÇØº¸¼¼¿ä (¿¹: °æ±âÀü)"
+                placeholder="ì¥ì†Œ ì´ë¦„ì„ ê²€ìƒ‰í•´ë³´ì„¸ìš” (ì˜ˆ: ê²½ê¸°ì „)"
                 required
               />
             </PlaceInputWrap>
@@ -633,36 +633,36 @@ export default function WriteWarmthModal({
 
           {}
           <FormSection>
-            <SectionLabel>ÀÌ°÷¿¡¼­ ¾î¶² ±âºĞÀÌ µå¼Ì³ª¿ä?</SectionLabel>
+            <SectionLabel>ì´ê³³ì—ì„œ ì–´ë–¤ ê¸°ë¶„ì´ ë“œì…¨ë‚˜ìš”?</SectionLabel>
             <MoodSelector value={score} onChange={(val) => setScore(val)} />
           </FormSection>
 
           {}
           <FormSection>
-            <SectionLabel>Áö±İ ºĞÀ§±â´Â ¾î¶§¿ä?</SectionLabel>
+            <SectionLabel>ì§€ê¸ˆ ë¶„ìœ„ê¸°ëŠ” ì–´ë•Œìš”?</SectionLabel>
             <MoodButtonGroup>
               <MoodButton
                 type="button"
-                $active={mood === 'ÇÑÀû'}
-                onClick={() => setMood('ÇÑÀû')}
+                $active={mood === 'í•œì '}
+                onClick={() => setMood('í•œì ')}
               >
                 <MoodButtonMascot src="/images/character/Oni_tea.png" alt="" width={22} height={22} aria-hidden="true" />
-                <span>ÇÑÀûÇØ¿ä</span>
+                <span>í•œì í•´ìš”</span>
               </MoodButton>
               <MoodButton
                 type="button"
-                $active={mood === 'ºÏÀû'}
-                onClick={() => setMood('ºÏÀû')}
+                $active={mood === 'ë¶ì '}
+                onClick={() => setMood('ë¶ì ')}
               >
                 <MoodButtonMascot src="/images/character/Oni_sogo.png" alt="" width={22} height={22} aria-hidden="true" />
-                <span>ºÏÀû¿©¿ä</span>
+                <span>ë¶ì ì—¬ìš”</span>
               </MoodButton>
             </MoodButtonGroup>
           </FormSection>
 
           {}
           <FormSection>
-            <SectionLabel>¾î¿ï¸®´Â ºĞÀ§±â¸¦ °ñ¶óº¸¼¼¿ä (¼±ÅÃ)</SectionLabel>
+            <SectionLabel>ì–´ìš¸ë¦¬ëŠ” ë¶„ìœ„ê¸°ë¥¼ ê³¨ë¼ë³´ì„¸ìš” (ì„ íƒ)</SectionLabel>
             <TagWrap>
               {PRESET_TAGS.map((tag) => (
                 <TagChip
@@ -679,21 +679,21 @@ export default function WriteWarmthModal({
 
           {}
           <FormSection>
-            <SectionLabel>³²±â°í ½ÍÀº ÀÌ¾ß±â³ª ²ÜÆÁ</SectionLabel>
+            <SectionLabel>ë°©ë¬¸ íŒì´ë‚˜ ë‚¨ê¸°ê³  ì‹¶ì€ ì´ì•¼ê¸°</SectionLabel>
             <TextArea
               value={text}
               onChange={(e) => setText(e.target.value.slice(0, 80))}
-              placeholder="¿¹: ¸¶´ç¿¡ ÇÉ ¹è·Õ³ª¹« ²ÉÀÌ Âü ¿¹»µ¿ä. ¾ÆÄ§ ÀÏÂï µé¸£´Â °É ÃßÃµÇØ¿ä."
+              placeholder="ì˜ˆ: ë§ˆë‹¹ì— í•€ ë°°ë¡±ë‚˜ë¬´ ê½ƒì´ ì°¸ ì˜ˆë»ìš”. ì•„ì¹¨ ì¼ì° ë“¤ë¥´ëŠ” ê±¸ ì¶”ì²œí•´ìš”."
               required
             />
-            <CharCount>{text.length} / 80ÀÚ</CharCount>
+            <CharCount>{text.length} / 80ì</CharCount>
           </FormSection>
 
           {(!selectedPlace || Boolean(createError)) && (
             <ErrorText role="alert">
               {createError
-                ? 'ÈÄ±â¸¦ ÀúÀåÇÏÁö ¸øÇß½À´Ï´Ù. Àá½Ã ÈÄ ´Ù½Ã ½ÃµµÇØ ÁÖ¼¼¿ä.'
-                : '¸ñ·Ï¿¡¼­ Àå¼Ò¸¦ ¼±ÅÃÇØ ÁÖ¼¼¿ä.'}
+                ? 'ì˜¨ê¸°ë¥¼ ì €ì¥í•˜ì§€ ëª»í–ˆì–´ìš”. ì ì‹œ í›„ ë‹¤ì‹œ ì‹œë„í•´ ì£¼ì„¸ìš”.'
+                : 'ëª©ë¡ì—ì„œ ì¥ì†Œë¥¼ ì„ íƒí•´ ì£¼ì„¸ìš”.'}
             </ErrorText>
           )}
 
@@ -701,14 +701,14 @@ export default function WriteWarmthModal({
             {isSuccess ? (
               <>
                 <HugeiconsIcon icon={CheckIcon} size={18} strokeWidth={2} />
-                <span>ÀÌ¾ß±â¸¦ ³²°å¾î¿ä!</span>
+                <span>ì´ì•¼ê¸°ë¥¼ ë‚¨ê²¼ì–´ìš”!</span>
               </>
             ) : (
-              <span>{isSubmitting ? 'ÀúÀå Áß¡¦' : '¿Â±â µî·ÏÇÏ±â'}</span>
+              <span>{isSubmitting ? 'ì €ì¥ ì¤‘â€¦' : 'ì˜¨ê¸° ë“±ë¡í•˜ê¸°'}</span>
             )}
           </SubmitBtn>
         </form>
       </ModalCard>
     </Overlay>
   );
-}
+}

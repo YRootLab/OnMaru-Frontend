@@ -336,12 +336,12 @@ export default function CinematicTourFloatingBar() {
   const waypoints = story.waypoints ?? [];
 
   return (
-    <Container role="dialog" aria-label="Ω√≥◊∏∂∆Ω ∞¯∞£ ø¿µø¿ ≈ıæÓ ƒ¡∆Æ∑—∑Ø">
+    <Container role="dialog" aria-label="ÏãúÎÑ§ÎßàÌã± Í≥µÍ∞Ñ Ïò§ÎîîÏò§ Ìà¨Ïñ¥ Ïª®Ìä∏Î°§Îü¨">
       <TopRow>
         <BadgeTitleGroup>
           <TourBadge>
             <HugeiconsIcon icon={Compass01Icon} size={13} />
-            <span>Ω√≥◊∏∂∆Ω ≈ıæÓ</span>
+            <span>ÏãúÎÑ§ÎßàÌã± Ìà¨Ïñ¥</span>
           </TourBadge>
           <TourTitle>{story.title}</TourTitle>
         </BadgeTitleGroup>
@@ -350,11 +350,11 @@ export default function CinematicTourFloatingBar() {
           <IconButton
             type="button"
             onClick={() => router.push(`/sorimaru?storyId=${story.tid}`)}
-            title="º“∏Æ∏∂∑Á «ÿº≥∞˙ ¥Î∫ª ∫∏±‚"
+            title="ÏÜåÎ¶¨ÎßàÎ£® Ìï¥ÏÑ§Í≥º ÎåÄÎ≥∏ Î≥¥Í∏∞"
           >
             <HugeiconsIcon icon={ExternalLinkIcon} size={16} />
           </IconButton>
-          <IconButton type="button" onClick={stopTour} title="≈ıæÓ ¡æ∑·">
+          <IconButton type="button" onClick={stopTour} title="Ìà¨Ïñ¥ Ï¢ÖÎ£å">
             <HugeiconsIcon icon={Cancel01Icon} size={18} />
           </IconButton>
         </ActionGroup>
@@ -383,7 +383,7 @@ export default function CinematicTourFloatingBar() {
           <SubtitleMetaRow>
             <SubtitleIndexBadge>
               <HugeiconsIcon icon={HeadphonesIcon} size={11} />
-              <span>«ÿº≥ ¿⁄∏∑ ({activeSentenceIndex + 1}/{totalSentences})</span>
+              <span>Ìï¥ÏÑ§ ÏûêÎßâ ({activeSentenceIndex + 1}/{totalSentences})</span>
             </SubtitleIndexBadge>
           </SubtitleMetaRow>
         )}
@@ -393,7 +393,7 @@ export default function CinematicTourFloatingBar() {
         {currentPhotoTip && (
           <PhotoTipPill>
             <HugeiconsIcon icon={Camera01Icon} size={13} />
-            <span>∆˜≈‰ Ω∫∆Ã: {currentPhotoTip}</span>
+            <span>Ìè¨ÌÜ† Ïä§Ìåü: {currentPhotoTip}</span>
           </PhotoTipPill>
         )}
       </SubtitleBox>
@@ -409,12 +409,12 @@ export default function CinematicTourFloatingBar() {
             type="button"
             onClick={prevWaypoint}
             disabled={activeWaypointIndex === 0}
-            title="¿Ã¿¸ Ω∫∆Ã"
+            title="Ïù¥Ï†Ñ Ïä§Ìåü"
           >
             <HugeiconsIcon icon={SkipBackIcon} size={18} />
           </IconButton>
 
-          <PlayBtn type="button" onClick={togglePlay} title={isPlaying ? '¿œΩ√¡§¡ˆ' : '¿Áª˝'}>
+          <PlayBtn type="button" onClick={togglePlay} title={isPlaying ? 'ÏùºÏãúÏ†ïÏßÄ' : 'Ïû¨ÏÉù'}>
             {isPlaying ? <HugeiconsIcon icon={PauseIcon} size={20} /> : <HugeiconsIcon icon={PlayIcon} size={20} style={{ marginLeft: 2 }} />}
           </PlayBtn>
 
@@ -422,7 +422,7 @@ export default function CinematicTourFloatingBar() {
             type="button"
             onClick={nextWaypoint}
             disabled={activeWaypointIndex >= waypoints.length - 1}
-            title="¥Ÿ¿Ω Ω∫∆Ã"
+            title="Îã§Ïùå Ïä§Ìåü"
           >
             <HugeiconsIcon icon={SkipForwardIcon} size={18} />
           </IconButton>
@@ -430,9 +430,9 @@ export default function CinematicTourFloatingBar() {
 
         <TimeText style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           <HugeiconsIcon icon={HeadphonesIcon} size={13} />
-          <span>{story.speaker ?? 'µµΩº∆Æ'}</span>
+          <span>{story.speaker ?? 'ÎèÑÏä®Ìä∏'}</span>
         </TimeText>
       </ControlsRow>
     </Container>
   );
-}
+}

@@ -152,11 +152,11 @@ const DocentTag = styled.span`
   gap: 4px;
 `;
 
-const HAS_DOCENT_TYPES = ['°í±Ã', '¹Î¼Ó¸¶À»'];
+const HAS_DOCENT_TYPES = ['ê³ ê¶', 'ë¯¼ì†ë§ˆì„'];
 const HAS_DOCENT_NAMES = [
-  '°æº¹±Ã', '¼±±³Àå', 'ÇÏÈ¸', '¿îÁ¶·ç', 'ÀÓÃ»°¢', 'ÃÖºÎÀÚ',
-  '¼Ò¼â¿ø', 'Ã¢´ö±Ã', 'Ã¢°æ±Ã', '´ö¼ö±Ã', 'Á¾¹¦', '³²»ê°ñ',
-  'µµ»ê¼­¿ø', 'º´»ê¼­¿ø', '³«¾ÈÀ¾¼º', '¿Ü¾Ï', '¾çµ¿',
+  'ê²½ë³µê¶', 'ì„ êµì¥', 'í•˜íšŒ', 'ìš´ì¡°ë£¨', 'ì„ì²­ê°', 'ìµœë¶€ì',
+  'ì†Œì‡„ì›', 'ì°½ë•ê¶', 'ì°½ê²½ê¶', 'ë•ìˆ˜ê¶', 'ì¢…ë¬˜', 'ë‚¨ì‚°ê³¨',
+  'ë„ì‚°ì„œì›', 'ë³‘ì‚°ì„œì›', 'ë‚™ì•ˆìì„±', 'ì™¸ì•”', 'ì–‘ë™',
 ];
 
 interface VillageCardProps {
@@ -166,7 +166,7 @@ interface VillageCardProps {
 
 export default function VillageCard({ village, onClick }: VillageCardProps) {
   const isDocentAvailable =
-    village.type !== 'ÇÑ¿Á½ºÅ×ÀÌ' &&
+    village.type !== 'í•œì˜¥ìŠ¤í…Œì´' &&
     (HAS_DOCENT_TYPES.includes(village.type) ||
       HAS_DOCENT_NAMES.some((n) => village.name.includes(n)));
 
@@ -177,7 +177,7 @@ export default function VillageCard({ village, onClick }: VillageCardProps) {
       onClick={() => onClick?.(village)}
       role="button"
       tabIndex={0}
-      aria-label={`${village.name} ÀÚ¼¼È÷ º¸±â`}
+      aria-label={`${village.name} ìì„¸íˆ ë³´ê¸°`}
       whileHover={{ y: -6, scale: 1.015 }}
       whileTap={{ scale: 0.985 }}
       transition={{ type: 'spring', stiffness: 350, damping: 24 }}
@@ -189,7 +189,7 @@ export default function VillageCard({ village, onClick }: VillageCardProps) {
         <TopBadgeRow>
           <DocentTag>
             <HugeiconsIcon icon={HeadphonesIcon} size={11} color={palette.jangmi[400]} />
-            <span>¼Ò¸®¸¶·ç µµ½¼Æ®</span>
+            <span>ì†Œë¦¬ë§ˆë£¨ ë„ìŠ¨íŠ¸</span>
           </DocentTag>
         </TopBadgeRow>
       )}
@@ -202,8 +202,8 @@ export default function VillageCard({ village, onClick }: VillageCardProps) {
           <TypeBadge>{filterLabel(village.type)}</TypeBadge>
         </HeaderRow>
 
-        <ActionButton>µµ°¨ ÇØ¼³ º¸±â</ActionButton>
+        <ActionButton>ë„ê° í•´ì„¤ ë³´ê¸°</ActionButton>
       </GradientOverlay>
     </Card>
   );
-}
+}

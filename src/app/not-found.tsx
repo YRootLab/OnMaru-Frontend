@@ -45,11 +45,11 @@ export default function NotFound() {
       <OniSearchEmpty
         size="lg"
         title="페이지를 찾을 수 없어요"
-        description="요청하신 페이지를 찾을 수 없어요. 주소를 확인하시거나 아래 홈으로 돌아가 주세요."
+        description="입력하신 주소가 잘못되었거나 변경된 페이지예요."
         action={
           <HomeButton href="/">
             <HugeiconsIcon icon={Home01Icon} size={16} />
-            홈으로 돌아가기
+            홈으로 가기
           </HomeButton>
         }
       />

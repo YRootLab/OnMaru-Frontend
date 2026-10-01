@@ -359,16 +359,16 @@ export default function FilterBar({
 }: FilterBarProps) {
   const MAJOR_BADGES = useMemo(
     () => [
-      '¼¼°èÀ¯»ê',
-      '±¹°¡ÁöÁ¤',
-      '±Ã±È',
-      '°íÅÃ',
-      '¼­¿ø¡¤Çâ±³',
-      '°ø°ø°ÇÃà¹°',
-      '¹Î¼Ó¸¶À»',
-      'µ¹´ã±æ',
-      'ÀüÅëÃ¼Çè',
-      'Á¶¼±½Ã´ë',
+      'ì„¸ê³„ìœ ì‚°',
+      'êµ­ê°€ì§€ì •',
+      'ê¶ê¶',
+      'ê³ íƒ',
+      'ì„œì›Â·í–¥êµ',
+      'ê³µê³µê±´ì¶•ë¬¼',
+      'ë¯¼ì†ë§ˆì„',
+      'ëŒë‹´ê¸¸',
+      'ì „í†µì²´í—˜',
+      'ì¡°ì„ ì‹œëŒ€',
     ],
     []
   );
@@ -389,7 +389,7 @@ export default function FilterBar({
       if (!v.type || v.type === STAY_TYPE) continue;
       present.add(v.type);
     }
-    return ['ÀüÃ¼', ...[...present].sort((a, b) => a.localeCompare(b, 'ko'))];
+    return ['ì „ì²´', ...[...present].sort((a, b) => a.localeCompare(b, 'ko'))];
   }, [villages]);
 
 
@@ -437,11 +437,11 @@ export default function FilterBar({
             type="search"
             value={query}
             onChange={(e) => onQueryChange(e.target.value)}
-            placeholder="ÀÌ¸§ÀÌ³ª Áö¿ªÀ¸·Î Ã£¾Æº¸¼¼¿ä (¿¹: ºÏÃÌ, ¾Èµ¿)"
-            aria-label="ÇÑ¿Á ÀÌ¸§ÀÌ³ª ÁÖ¼Ò·Î Ã£±â"
+            placeholder="í•œì˜¥ ì´ë¦„ì´ë‚˜ ì§€ì—­ì„ ê²€ìƒ‰í•´ ë³´ì„¸ìš” (ì˜ˆ: ë¶ì´Œ, ì•ˆë™)"
+            aria-label="í•œì˜¥ ê²€ìƒ‰"
           />
           {query && (
-            <ClearButton type="button" onClick={() => onQueryChange('')} aria-label="°Ë»ö¾î Áö¿ì±â">
+            <ClearButton type="button" onClick={() => onQueryChange('')} aria-label="ê²€ìƒ‰ì–´ ì§€ìš°ê¸°">
               <HugeiconsIcon icon={Cancel01Icon} size={13} strokeWidth={2.5} />
             </ClearButton>
           )}
@@ -450,9 +450,9 @@ export default function FilterBar({
         <RegionSelect
           value={region}
           onChange={(e) => onRegionChange(e.target.value)}
-          aria-label="Áö¿ªÀ¸·Î °Å¸£±â"
+          aria-label="ì§€ì—­ ì„ íƒ"
         >
-          <option value="ÀüÃ¼">Àü±¹</option>
+          <option value="ì „ì²´">ì „êµ­</option>
           {regions.map((r) => (
             <option key={r} value={r}>
               {r}
@@ -465,7 +465,7 @@ export default function FilterBar({
       {availableTypes.length >= MIN_TYPES_TO_SHOW + 1 && (
       <SegmentScrollWrapper>
         <SegmentScrollContainer>
-          <SegmentControl role="group" aria-label="¸¶À» À¯Çü ÇÊÅÍ">
+          <SegmentControl role="group" aria-label="í•œì˜¥ ìœ í˜• ì„ íƒ">
             {availableTypes.map((t) => {
               const isActive = activeType === t;
               return (
@@ -507,7 +507,7 @@ export default function FilterBar({
                   $variant={getBadgeVariant(b)}
                   onClick={() => onBadgeToggle(b)}
                   aria-pressed={isActive}
-                  aria-label={`${filterLabel(b)} ${badgeCounts.get(b)}°÷`}
+                  aria-label={`${filterLabel(b)} ${badgeCounts.get(b)}ê³³`}
                 >
                   #{filterLabel(b)}
                   <BadgeCount>{badgeCounts.get(b)}</BadgeCount>
@@ -517,7 +517,7 @@ export default function FilterBar({
           </BadgeList>
           {activeBadges.length > 0 && (
             <ResetBtn onClick={onResetBadges || (() => activeBadges.forEach((b) => onBadgeToggle(b)))}>
-              <HugeiconsIcon icon={RotateCcwIcon} size={12} strokeWidth={2} /> ¼±ÅÃÇÑ ÅÂ±× Áö¿ì±â
+              <HugeiconsIcon icon={RotateCcwIcon} size={12} strokeWidth={2} /> ì„ íƒ ì´ˆê¸°í™”
             </ResetBtn>
           )}
         </BadgeContainer>
@@ -525,3 +525,4 @@ export default function FilterBar({
     </Wrapper>
   );
 }
+

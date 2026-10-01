@@ -363,10 +363,10 @@ const ControlButton = styled.button<{ $active?: boolean }>`
 
 
 const FLIGHT_STOPS = [
-  { name: '¼­¿ï ºÏÃÌ ÇÑ¿Á¸¶À»', lat: 37.5826, lng: 126.9848, level: 4 },
-  { name: 'ÀüÁÖ ÇÑ¿Á¸¶À»', lat: 35.8150, lng: 127.1530, level: 4 },
-  { name: '¾Èµ¿ ÇÏÈ¸¸¶À»', lat: 36.5392, lng: 128.5185, level: 4 },
-  { name: '°æÁÖ ¾çµ¿¸¶À»', lat: 35.9985, lng: 129.2520, level: 4 },
+  { name: 'ì„œìš¸ ë¶ì´Œ í•œì˜¥ë§ˆì„', lat: 37.5826, lng: 126.9848, level: 4 },
+  { name: 'ì „ì£¼ í•œì˜¥ë§ˆì„', lat: 35.8150, lng: 127.1530, level: 4 },
+  { name: 'ì•ˆë™ í•˜íšŒë§ˆì„', lat: 36.5392, lng: 128.5185, level: 4 },
+  { name: 'ê²½ì£¼ ì–‘ë™ë§ˆì„', lat: 35.9985, lng: 129.2520, level: 4 },
 ];
 
 export default function KakaoMap() {
@@ -464,7 +464,7 @@ export default function KakaoMap() {
       el.className = 'om-my-location-pin';
       el.innerHTML = `
         <div class="om-my-location-bubble">
-          <span>³» À§Ä¡ ??</span>
+          <span>ë‚´ ìœ„ì¹˜ ??</span>
         </div>
         <div class="om-my-location-oni-wrap">
           ${
@@ -542,7 +542,7 @@ export default function KakaoMap() {
 
   const locate = () => {
     if (typeof window === 'undefined' || !navigator.geolocation) {
-      toast.error('ÇöÀç È¯°æ¿¡¼­´Â À§Ä¡ Á¤º¸¸¦ Áö¿øÇÏÁö ¾Ê¾Æ¿ä.');
+      toast.error('í˜„ì¬ í™˜ê²½ì—ì„œëŠ” ìœ„ì¹˜ ì •ë³´ë¥¼ ì§€ì›í•˜ì§€ ì•Šì•„ìš”.');
       return;
     }
 
@@ -555,15 +555,15 @@ export default function KakaoMap() {
     };
 
     const onError = (err: GeolocationPositionError) => {
-      console.warn('GPS °íÁ¤¹Ğµµ Á¶È¸ ½ÇÆĞ, ÀÏ¹İ À§Ä¡·Î Àç½Ãµµ:', err.message);
+      console.warn('GPS ê³ ì •ë°€ë„ ì¡°íšŒ ì‹¤íŒ¨, ì¼ë°˜ ìœ„ì¹˜ë¡œ ì¬ì‹œë„:', err.message);
       navigator.geolocation.getCurrentPosition(
         onSuccess,
         (fallbackErr) => {
           setIsLocating(false);
           if (fallbackErr.code === fallbackErr.PERMISSION_DENIED) {
-            toast.error('ºê¶ó¿ìÀú »ó´Ü ÁÖ¼ÒÃ¢ ¿ŞÂÊÀÇ À§Ä¡ ±ÇÇÑÀ» [Çã¿ë]À¸·Î º¯°æÇØ ÁÖ¼¼¿ä.');
+            toast.error('ë¸Œë¼ìš°ì € ìƒë‹¨ ì£¼ì†Œì°½ ì™¼ìª½ì˜ ìœ„ì¹˜ ê¶Œí•œì„ [í—ˆìš©]ìœ¼ë¡œ ë³€ê²½í•´ ì£¼ì„¸ìš”.');
           } else {
-            toast.error('ÇöÀç À§Ä¡¸¦ °¡Á®¿Ã ¼ö ¾ø¾î¿ä. ±âº» À§Ä¡·Î º¸¿©µå¸±°Ô¿ä.');
+            toast.error('í˜„ì¬ ìœ„ì¹˜ë¥¼ ê°€ì ¸ì˜¬ ìˆ˜ ì—†ì–´ìš”. ê¸°ë³¸ ìœ„ì¹˜ë¡œ ë³´ì—¬ë“œë¦´ê²Œìš”.');
           }
         },
         { enableHighAccuracy: false, timeout: 10000, maximumAge: 0 },
@@ -637,7 +637,7 @@ export default function KakaoMap() {
       <Canvas
         ref={containerRef}
         role="application"
-        aria-label="ÇÑ¿Á À§Ä¡ Áöµµ"
+        aria-label="í•œì˜¥ ìœ„ì¹˜ ì§€ë„"
         $isNight={isEffectiveNight}
       />
       <WarmTint $active={!isEffectiveNight} aria-hidden="true" />
@@ -648,11 +648,11 @@ export default function KakaoMap() {
           <span className="step-badge">{flightState.step + 1} / {FLIGHT_STOPS.length}</span>
           <span className="hub-name flex items-center gap-1">
             <HugeiconsIcon icon={Airplane01Icon} size={14} strokeWidth={2} />
-            <span>½Ã³×¸¶Æ½ Åõ¾î Áß: {currentFlightStop.name}</span>
+            <span>ì‹œë„¤ë§ˆí‹± íˆ¬ì–´ ì¤‘: {currentFlightStop.name}</span>
           </span>
           <button type="button" className="stop-btn" onClick={stopFlight}>
             <HugeiconsIcon icon={Cancel01Icon} size={14} strokeWidth={2} />
-            <span>Á¾·á</span>
+            <span>ì¢…ë£Œ</span>
           </button>
         </FlightBanner>
       )}
@@ -660,7 +660,7 @@ export default function KakaoMap() {
       {isSearchDirty && !flightState.active && (
         <Research type="button" onClick={() => useMapStore.getState().clearSearchDirty()}>
           <HugeiconsIcon icon={RotateCcwIcon} size={16} strokeWidth={2} aria-hidden />
-          ÀÌ Áö¿ª Àç°Ë»ö
+          ì´ ì§€ì—­ ì¬ê²€ìƒ‰
         </Research>
       )}
 
@@ -669,10 +669,10 @@ export default function KakaoMap() {
         <Stack>
           <ControlButton
             type="button"
-            aria-label="ÇöÀ§Ä¡·Î ÀÌµ¿"
+            aria-label="í˜„ìœ„ì¹˜ë¡œ ì´ë™"
             onClick={locate}
             $active={isLocating}
-            title="³» ÇöÀç À§Ä¡·Î ÀÌµ¿"
+            title="ë‚´ í˜„ì¬ ìœ„ì¹˜ë¡œ ì´ë™"
           >
             {isLocating ? (
               <HugeiconsIcon icon={RotateCcwIcon} size={18} strokeWidth={2} className="animate-spin" style={{ animation: 'spin 1s linear infinite' }} />
@@ -682,10 +682,10 @@ export default function KakaoMap() {
           </ControlButton>
           <ControlButton
             type="button"
-            aria-label="½Ã³×¸¶Æ½ ÇÑ¿Á ½ºÄ«ÀÌºä ºñÇà Åõ¾î"
+            aria-label="ì‹œë„¤ë§ˆí‹± í•œì˜¥ ìŠ¤ì¹´ì´ë·° ë¹„í–‰ íˆ¬ì–´"
             onClick={startFlight}
             $active={flightState.active}
-            title={flightState.active ? '½ºÄ«ÀÌºä ºñÇà Åõ¾î ÁßÁö' : 'Àü±¹ 4´ë ÇÑ¿Á ½ºÄ«ÀÌºä ºñÇà Åõ¾î'}
+            title={flightState.active ? 'ìŠ¤ì¹´ì´ë·° ë¹„í–‰ íˆ¬ì–´ ì¤‘ì§€' : 'ì „êµ­ 4ëŒ€ í•œì˜¥ ìŠ¤ì¹´ì´ë·° ë¹„í–‰ íˆ¬ì–´'}
           >
             <HugeiconsIcon icon={Airplane01Icon} size={18} strokeWidth={2} />
           </ControlButton>
@@ -693,14 +693,14 @@ export default function KakaoMap() {
 
         {}
         <Stack>
-          <ControlButton type="button" aria-label="È®´ë" onClick={() => zoom(-1)}>
+          <ControlButton type="button" aria-label="í™•ëŒ€" onClick={() => zoom(-1)}>
             <HugeiconsIcon icon={PlusSignIcon} size={18} strokeWidth={2} />
           </ControlButton>
-          <ControlButton type="button" aria-label="Ãà¼Ò" onClick={() => zoom(1)}>
+          <ControlButton type="button" aria-label="ì¶•ì†Œ" onClick={() => zoom(1)}>
             <HugeiconsIcon icon={MinusSignIcon} size={18} strokeWidth={2} />
           </ControlButton>
         </Stack>
       </Controls>
     </Frame>
   );
-}
+}

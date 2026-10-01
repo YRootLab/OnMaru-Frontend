@@ -19,7 +19,7 @@ export default function TranquilityGauge({ data, loading }: TranquilityGaugeProp
         <HeaderRow>
           <BadgeBox>
             <HugeiconsIcon icon={Activity01Icon} size={14} color={palette.juhong[500]} />
-            <BadgeText>°ü±¤ ºòµ¥ÀÌÅÍ ½Ç½Ã°£ ºĞ¼® Áß...</BadgeText>
+            <BadgeText>ê´€ê´‘ ë¹…ë°ì´í„° ì‹¤ì‹œê°„ ë¶„ì„ ì¤‘...</BadgeText>
           </BadgeBox>
         </HeaderRow>
       </Container>
@@ -33,9 +33,9 @@ export default function TranquilityGauge({ data, loading }: TranquilityGaugeProp
       <HeaderRow>
         <BadgeBox>
           <HugeiconsIcon icon={Activity01Icon} size={14} color={palette.juhong[500]} />
-          <BadgeText>ÇÑ±¹°ü±¤°ø»ç DataLab ½Ç½Ã°£ °íÁî³Ë Áö¼ö</BadgeText>
+          <BadgeText>í•œêµ­ê´€ê´‘ê³µì‚¬ DataLab ì‹¤ì‹œê°„ ê³ ì¦ˆë„‰ ì§€ìˆ˜</BadgeText>
         </BadgeBox>
-        <DistrictTag>{data.district} ±Ç¿ª</DistrictTag>
+        <DistrictTag>{data.district} ê¶Œì—­</DistrictTag>
       </HeaderRow>
 
       <MainRow>
@@ -63,7 +63,7 @@ export default function TranquilityGauge({ data, loading }: TranquilityGaugeProp
       <InfoCardsRow>
         <InfoPill>
           <HugeiconsIcon icon={Clock01Icon} size={13} color={palette.hwanggeum[700]} />
-          <PillLabel>ÃßÃµ °ñµçÅ¸ÀÓ:</PillLabel>
+          <PillLabel>ì¶”ì²œ ê³¨ë“ íƒ€ì„:</PillLabel>
           <PillVal>{data.goldenHour}</PillVal>
         </InfoPill>
       </InfoCardsRow>
@@ -253,4 +253,4 @@ const AdviceText = styled.div`
     background: rgba(255, 255, 255, 0.04);
     color: ${meok[200]};
   }
-`;
+`;

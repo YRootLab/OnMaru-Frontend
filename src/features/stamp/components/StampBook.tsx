@@ -392,7 +392,7 @@ export default function StampBook({ initialCatalog }: StampBookProps) {
           description="잠시 후 다시 시도해 주세요."
           action={
             <RetryButton type="button" onClick={() => void refreshCatalog().catch(() => undefined)}>
-              <HugeiconsIcon icon={RefreshCwIcon} size={15} /> 다시 시도
+              <HugeiconsIcon icon={RefreshCwIcon} size={15} /> 다시 시도하기
             </RetryButton>
           }
         />
@@ -406,11 +406,11 @@ export default function StampBook({ initialCatalog }: StampBookProps) {
         <Header><Title>나의 한옥 수결첩</Title></Header>
         <OniSearchEmpty
           size="md"
-          title="내 수결첩을 불러오지 못했어요"
-          description="이전 데모 도장은 표시하지 않습니다. 다시 시도해 주세요."
+          title="수결첩을 불러오지 못했어요"
+          description="잠시 후 다시 시도해 주세요."
           action={
             <RetryButton type="button" onClick={() => void refreshBook().catch(() => undefined)}>
-              <HugeiconsIcon icon={RefreshCwIcon} size={15} /> 다시 시도
+              <HugeiconsIcon icon={RefreshCwIcon} size={15} /> 다시 시도하기
             </RetryButton>
           }
         />
@@ -499,10 +499,10 @@ export default function StampBook({ initialCatalog }: StampBookProps) {
                   if (stamp.collected) {
                     openStampModal(stamp);
                   } else if (!isLoggedIn) {
-                    toast.info('로그인하면 현장에서 수결을 모을 수 있어요.');
+                    toast.info('로그인하면 현장에서 도장을 모을 수 있어요.');
                     loginWithKakao();
                   } else {
-                    toast.info('한옥 장소 가까이에서 지도 탭의 도장 찍기를 이용해 주세요.');
+                    toast.info('한옥 현장 근처에서 도장을 찍을 수 있어요.');
                   }
                 }}
               />

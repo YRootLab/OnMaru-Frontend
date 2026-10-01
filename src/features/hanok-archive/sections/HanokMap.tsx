@@ -61,8 +61,8 @@ export default function HanokMap({ villages, onSelectVillage }: HanokMapProps) {
     <Section id="map" aria-labelledby="map-heading">
       <SectionHeader
         id="map-heading"
-        title="어디 있는지 한눈에"
-        actionLabel="전체 지도 열기 ↗"
+        title="전국 한옥 지도"
+        actionLabel="전체 지도 보기 ↗"
         actionHref="/map"
       />
 

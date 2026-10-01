@@ -37,11 +37,11 @@ export const SORIMARU_BACKGROUND_STAGES = [
 ] as const satisfies readonly SorimaruBackgroundStage[];
 
 const CATEGORY_MODIFIERS: Record<string, SorimaruBackgroundCategory> = {
-  «—ø¡: 'hanok',
-  Ω√¿Â: 'market',
-  ∏∂¿ª: 'village',
-  ±√: 'palace',
-  ±Ê: 'nature',
+  ÌïúÏò•: 'hanok',
+  ÏãúÏû•: 'market',
+  ÎßàÏùÑ: 'village',
+  Í∂Å: 'palace',
+  Í∏∏: 'nature',
 };
 
 const STAGE_MOTIFS: Record<SorimaruBackgroundStage, SorimaruBackgroundMotif> = {
@@ -133,4 +133,4 @@ export function resolveSorimaruBackgroundPresentation(
   variant: SorimaruBackgroundVariant,
 ): SorimaruBackgroundPresentation {
   return VARIANT_PRESENTATIONS[variant];
-}
+}

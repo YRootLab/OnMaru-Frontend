@@ -83,13 +83,13 @@ export default function HanokAudioPlayer({ stories, hanokName }: HanokAudioPlaye
       <HeaderRow>
         <BadgeBox>
           <HugeiconsIcon icon={HeadphonesIcon} size={14} />
-          <BadgeText>ÇÑ±¹°ü±¤°ø»ç Sorimaru ¿Àµğ¿À µµ½¼Æ®</BadgeText>
+          <BadgeText>í•œêµ­ê´€ê´‘ê³µì‚¬ Sorimaru ì˜¤ë””ì˜¤ ë„ìŠ¨íŠ¸</BadgeText>
         </BadgeBox>
-        <QualityTag>°ø½Ä ÇØ¼³ À½¿ø</QualityTag>
+        <QualityTag>ê³µì‹ í•´ì„¤ ìŒì›</QualityTag>
       </HeaderRow>
 
       <StoryTitleBox>
-        <StoryTitle>{currentStory.audioTitle || `${hanokName} °ø°£ ÇØ¼³`}</StoryTitle>
+        <StoryTitle>{currentStory.audioTitle || `${hanokName} ê³µê°„ í•´ì„¤`}</StoryTitle>
         {stories.length > 1 && (
           <SelectorSelect
             value={currentIndex}
@@ -106,7 +106,7 @@ export default function HanokAudioPlayer({ stories, hanokName }: HanokAudioPlaye
 
       {}
       <PlayerControls>
-        <PlayBtn onClick={togglePlay} aria-label={isPlaying ? 'ÀÏ½ÃÁ¤Áö' : 'Àç»ı'}>
+        <PlayBtn onClick={togglePlay} aria-label={isPlaying ? 'ì¼ì‹œì •ì§€' : 'ì¬ìƒ'}>
           {isPlaying ? <HugeiconsIcon icon={PauseIcon} size={17} fill="currentColor" /> : <HugeiconsIcon icon={PlayIcon} size={17} fill="currentColor" />}
         </PlayBtn>
 
@@ -124,7 +124,7 @@ export default function HanokAudioPlayer({ stories, hanokName }: HanokAudioPlaye
 
         <TimeDisplay>{formatSeconds(duration)}</TimeDisplay>
 
-        <SecondaryBtn onClick={handleRestart} title="Ã³À½ºÎÅÍ ´Ù½Ã µè±â">
+        <SecondaryBtn onClick={handleRestart} title="ì²˜ìŒë¶€í„° ë‹¤ì‹œ ë“£ê¸°">
           <HugeiconsIcon icon={RotateCcwIcon} size={15} />
         </SecondaryBtn>
       </PlayerControls>
@@ -135,7 +135,7 @@ export default function HanokAudioPlayer({ stories, hanokName }: HanokAudioPlaye
           <ScriptToggleBtn onClick={() => setShowScript(!showScript)}>
             <ScriptToggleLeft>
               <HugeiconsIcon icon={FileTextIcon} size={14} />
-              <span>µµ½¼Æ® ³¶µ¶ ´ëº» º¸±â</span>
+              <span>ë„ìŠ¨íŠ¸ ë‚­ë… ëŒ€ë³¸ ë³´ê¸°</span>
             </ScriptToggleLeft>
             {showScript ? <HugeiconsIcon icon={ChevronUpIcon} size={16} /> : <HugeiconsIcon icon={ChevronDownIcon} size={16} />}
           </ScriptToggleBtn>
@@ -434,4 +434,4 @@ const ScriptContent = styled.div`
     background: #0B1220;
     color: ${meok[200]};
   }
-`;
+`;

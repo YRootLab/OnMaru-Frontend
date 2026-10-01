@@ -62,7 +62,7 @@ export function useStampCheckIn() {
       } else if (outcome.kind === 'awarded') {
         toast.success(`새로운 수결 ${outcome.awardCount}개를 획득했어요.`);
       } else {
-        toast.success('방문이 수결첩에 기록되었어요.');
+        toast.success('방문 도장이 기록되었어요.');
       }
     } catch (error) {
       const stampError = toStampError(error);

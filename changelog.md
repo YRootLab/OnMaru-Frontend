@@ -3,6 +3,14 @@
 Lightweight human-readable summary of meaningful repository changes. This does not replace Git history.
 
 ## Unreleased
+- 온이(Oni) 캐릭터 라이트 모드 백화(Ghosting) 현상 수정: 밝은 배경(`#ffffff`, `#f8f8f7`)에서 `mix-blend-mode: screen;` 적용 시 픽셀이 완전히 하얗게 날아가던 문제를 해결하기 위해 다크 모드(`[data-theme='dark']`) 환경에서만 screen 블렌딩이 활성화되도록 분기 처리했다.
+- 전역 네비게이션 및 메뉴바 용어 표준화:
+  - 지도 네비게이션 레일(`MapNavRail.tsx`) 및 관련 UI의 난해한 고어 표기 '수결첩'을 대중적이고 명확한 '도장첩'으로 개선했다.
+  - 지도 모바일 탭(`MapMobileTabs.tsx`)의 띄어쓰기('온기피드' -> '온기 피드') 및 모바일 접근성 라벨(aria-label)을 간결하고 일관되게 정돈했다.
+  - 한옥 아카이브 퀵인덱스 및 섹션 헤더의 외래어/약어('3D 구조 & 처마 일조 랩' -> '3D 구조와 처마 일조', '어디 있는지 한눈에' -> '전국 한옥 지도')를 정리하고 '이달의 픽'을 '이달의 추천'으로 개선했다.
+- 전사 UX Writing 프린시플(Clear, Concise, Casual, Respect, Emotional) 전면 적용:
+  - 8가지 라이팅 프린시플(Predictable hint, Weed cutting, Remove empty sentences, Focus on key message, Easy to speak, Suggest over force, Universal words, Find hidden emotion)을 준수하여 에러 상태, 빈 상태(Empty State), 모달 액션, 안내 문구, 검색창 플레이스홀더, 토스트 메시지를 친절한 해요체와 예측 가능한 동작 명칭으로 통일했다.
+  - 소리마루 미니플레이어 및 주요 컴포넌트에 남아 있던 문자 깨짐(`??`, `?`)을 복구하고 깨끗한 UTF-8 인코딩으로 정규화했다.
 
 ## [v0.1.5] - 2026-09-29
 - 소리마루 스켈레톤 레일의 좌우 카드가 첫 렌더에서 잠시 원본 크기로 보인 뒤 축소되던 현상을 수정했다. Framer Motion 초기 상태를 최종 scale에 맞춰 로딩 시작부터 중앙 카드와 주변 카드의 크기 관계가 즉시 표시되도록 했다.

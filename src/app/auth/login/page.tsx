@@ -183,19 +183,19 @@ export default function LoginPage() {
   return (
     <PageWrapper>
       <LoginCard>
-        {/* ±ÕÇü ÀâÈù ÇÑ¿Á 3D ¹«´ë + ¿ÂÀÌ */}
+        {/* ê· í˜• ìž¡ížŒ í•œì˜¥ 3D ë¬´ëŒ€ + ì˜¨ì´ */}
         <WelcomeStage>
-          {/* µÚÆíÀÇ 3D ÇÑ¿Á ¸ðµ¨ */}
+          {/* ë’¤íŽ¸ì˜ 3D í•œì˜¥ ëª¨ë¸ */}
           <HanokLogin3DStage />
 
-          {/* ¿ÂÀÌ Ä³¸¯ÅÍ + ¿ÂÀÌ Á¤¼ö¸® ¹Ù·Î À§ ¸»Ç³¼± */}
+          {/* ì˜¨ì´ ìºë¦­í„° + ì˜¨ì´ ì •ìˆ˜ë¦¬ ë°”ë¡œ ìœ„ ë§í’ì„  */}
           <OniContainer>
-            <SpeechBubble>¿Â¸¶·ç¿¡ ¿À½Å °É È¯¿µÇØ¿ä! </SpeechBubble>
+            <SpeechBubble>ì˜¨ë§ˆë£¨ì— ì˜¤ì‹  ê±¸ í™˜ì˜í•´ìš”!</SpeechBubble>
             <OniVideoWrap>
               {isApple || oniVideoError ? (
-                <img src="/images/character/Oni_hi.png" alt="¿Â¸¶·ç Ä³¸¯ÅÍ ¿ÂÀÌ" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                <img src="/images/character/Oni_hi.png" alt="ì˜¨ë§ˆë£¨ ìºë¦­í„° ì˜¨ì´" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
               ) : (
-                <video autoPlay loop muted playsInline preload="auto" aria-label="¿Â¸¶·ç Ä³¸¯ÅÍ ¿ÂÀÌ" onError={() => setOniVideoError(true)}>
+                <video autoPlay loop muted playsInline preload="auto" aria-label="ì˜¨ë§ˆë£¨ ìºë¦­í„° ì˜¨ì´" onError={() => setOniVideoError(true)}>
                   <source src="/videos/Oni_hi.webm" type="video/webm" onError={() => setOniVideoError(true)} />
                 </video>
               )}
@@ -205,15 +205,15 @@ export default function LoginPage() {
 
         <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <p style={{ fontSize: '14px', color: c.text.muted, margin: 0, lineHeight: 1.5 }}>
-            Ä«Ä«¿À °èÁ¤À¸·Î ·Î±×ÀÎÇÏ°í
+            ì¹´ì¹´ì˜¤ ê³„ì •ìœ¼ë¡œ ê°„íŽ¸í•˜ê²Œ ì‹œìž‘í•˜ê³ 
             <br />
-            ¿Â¸¶·çÀÇ ¸ðµç ÀÌ¾ß±â¸¦ ¸¸³ªº¸¼¼¿ä.
+            í•œì˜¥ ì—¬ì •ê³¼ ì†Œë¦¬ë¥¼ ê¸°ë¡í•´ ë³´ì„¸ìš”.
           </p>
         </div>
 
         <KakaoButton type="button" onClick={loginWithKakao}>
           <KakaoBubbleIcon />
-          Ä«Ä«¿À·Î ½ÃÀÛÇÏ±â
+          ì¹´ì¹´ì˜¤ë¡œ ì‹œìž‘í•˜ê¸°
         </KakaoButton>
       </LoginCard>
     </PageWrapper>
@@ -229,4 +229,4 @@ function KakaoBubbleIcon() {
       />
     </svg>
   );
-}
+}

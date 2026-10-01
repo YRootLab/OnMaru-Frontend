@@ -94,12 +94,12 @@ export default function MapMobileTabs() {
           setMode('warmth');
           setSheetSnap('half');
         }}
-        aria-label="온기 피드 둘러보기"
+        aria-label="온기 피드"
       >
         <IconSlot>
           <HugeiconsIcon icon={UsersIcon} size={19} />
         </IconSlot>
-        <span>온기피드</span>
+        <span>온기 피드</span>
       </TabButton>
 
       <TabButton
@@ -109,7 +109,7 @@ export default function MapMobileTabs() {
           setMode('info');
           if (category === 'bookmark') setCategory(null);
         }}
-        aria-label="한옥 지도 탐색"
+        aria-label="지도마루"
       >
         <IconSlot>
           <HugeiconsIcon icon={MapPinIcon} size={19} />
@@ -117,7 +117,7 @@ export default function MapMobileTabs() {
         <span>지도마루</span>
       </TabButton>
 
-      <TabButton type="button" onClick={() => router.push('/sorimaru')} aria-label="소리마루 오디오 도슨트">
+      <TabButton type="button" onClick={() => router.push('/sorimaru')} aria-label="소리마루">
         <IconSlot>
           <HugeiconsIcon icon={HeadphonesIcon} size={19} />
         </IconSlot>
@@ -132,7 +132,7 @@ export default function MapMobileTabs() {
           setCategory('bookmark');
           setSheetSnap('half');
         }}
-        aria-label="마음에 담은 장소 목록"
+        aria-label="모음마루"
       >
         <IconSlot>
           <HugeiconsIcon icon={Bookmark01Icon} size={19} fill={isBookmarkActive ? 'currentColor' : 'none'} />

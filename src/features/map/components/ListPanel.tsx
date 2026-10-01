@@ -194,11 +194,11 @@ export default function ListPanel() {
       <Toggle
         type="button"
         aria-expanded={panelOpen}
-        aria-label={panelOpen ? '¸ñ·Ï ÆÐ³Î Á¢±â' : '¸ñ·Ï ÆÐ³Î ÆîÄ¡±â'}
+        aria-label={panelOpen ? 'ëª©ë¡ íŒ¨ë„ ì ‘ê¸°' : 'ëª©ë¡ íŒ¨ë„ íŽ¼ì¹˜ê¸°'}
         onClick={togglePanel}
       >
         {panelOpen ? <HugeiconsIcon icon={ChevronLeftIcon} size={16} strokeWidth={2} /> : <HugeiconsIcon icon={ChevronRightIcon} size={16} strokeWidth={2} />}
       </Toggle>
     </Panel>
   );
-}
+}

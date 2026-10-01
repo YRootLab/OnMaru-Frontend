@@ -236,7 +236,7 @@ export default function HanokAssemblyModal({ onClose, initialStage }: HanokAssem
   const activeIndex = Math.max(0, activeStageOf(local));
 
   return (
-    <StructureModal title="ÇÑ¿Á 7´Ü°è Á¶¸³" onClose={onClose}>
+    <StructureModal title="í•œì˜¥ 7ë‹¨ê³„ ì¡°ë¦½" onClose={onClose}>
       <Body>
         <Scroller ref={scrollerRef} onScroll={readProgress}>
           <Stage>
@@ -246,7 +246,7 @@ export default function HanokAssemblyModal({ onClose, initialStage }: HanokAssem
 
             <HanokAssemblyPanel local={local} />
 
-            {local < 0.01 && <ScrollHint>½ºÅ©·ÑÀ» ³»·Á ÇÑ¿ÁÀ» ¼¼¿öº¸¼¼¿ä</ScrollHint>}
+            {local < 0.01 && <ScrollHint>ìŠ¤í¬ë¡¤ì„ ë‚´ë ¤ í•œì˜¥ì„ ì„¸ì›Œë³´ì„¸ìš”</ScrollHint>}
 
             <Controls>
               {STAGES.map((stage, i) => (
@@ -270,4 +270,4 @@ export default function HanokAssemblyModal({ onClose, initialStage }: HanokAssem
       </Body>
     </StructureModal>
   );
-}
+}

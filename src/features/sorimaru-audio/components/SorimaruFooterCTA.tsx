@@ -263,14 +263,14 @@ export const SorimaruFooterCTA: React.FC = () => {
   const term = useMemo(() => getNextSolarTerm(), []);
 
   const termText = (() => {
-    if (!term) return 'Àı±â ¾Ë¸²';
-    if (term.daysLeft === 0) return `${term.name} ¿À´Ã`;
-    if (term.daysLeft === 1) return `${term.name} ³»ÀÏ`;
-    return `${term.name}±îÁö D-${term.daysLeft}`;
+    if (!term) return 'ì ˆê¸° ì•Œë¦¼';
+    if (term.daysLeft === 0) return `${term.name} ì˜¤ëŠ˜`;
+    if (term.daysLeft === 1) return `${term.name} ë‚´ì¼`;
+    return `${term.name}ê¹Œì§€ D-${term.daysLeft}`;
   })();
 
   return (
-    <SectionContainer aria-label="´ÙÀ½¿¡ ¶Ç ¹æ¹®ÇÏ±â">
+    <SectionContainer aria-label="ë‹¤ìŒì— ë˜ ë°©ë¬¸í•˜ê¸°">
       <ContentWrapper>
         <GlassCard
           initial={{ opacity: 0, y: 20 }}
@@ -291,29 +291,29 @@ export const SorimaruFooterCTA: React.FC = () => {
             </SolarBadge>
 
             <MainHeading>
-              ´ÙÀ½ °èÀı¿¡µµ, »õ·Î¿î ÀÌ¾ß±â¸¦ ¸¸³ª¿ä
+              ë‹¤ìŒ ê³„ì ˆì—ë„, ìƒˆë¡œìš´ ì´ì•¼ê¸°ë¥¼ ë§Œë‚˜ìš”
             </MainHeading>
 
             <Description>
-              °èÀı°ú ³¯Â¥°¡ ¹Ù²î¸é ¿À´ÃÀÇ ´ëÇ¥ ÀÌ¾ß±âµµ »õ·Ó°Ô ¿­·Á¿ä.
-              ´ÙÀ½¿¡ µ¹¾Æ¿ÔÀ» ¶§ ´Ù¸¥ Àå¼ÒÀÇ ¿Â±â¸¦ ÀÌ¾î¼­ µé¾îº¸¼¼¿ä.
+              ê³„ì ˆê³¼ ë‚ ì§œê°€ ë°”ë€Œë©´ ì˜¤ëŠ˜ì˜ ëŒ€í‘œ ì´ì•¼ê¸°ë„ ìƒˆë¡­ê²Œ ì—´ë ¤ìš”.
+              ë‹¤ìŒì— ëŒì•„ì™”ì„ ë•Œ ë‹¤ë¥¸ ì¥ì†Œì˜ ì˜¨ê¸°ë¥¼ ì´ì–´ì„œ ë“¤ì–´ë³´ì„¸ìš”.
             </Description>
 
             {}
             <ButtonRow>
               <PrimaryCtaLink href="/map">
-                <span>Àü±¹ ÇÑ¿Á Áöµµ¿¡¼­ µÑ·¯º¸±â</span>
-                <span className="arrow">¡æ</span>
+                <span>ì „êµ­ í•œì˜¥ ì§€ë„ì—ì„œ ë‘˜ëŸ¬ë³´ê¸°</span>
+                <span className="arrow">â†’</span>
               </PrimaryCtaLink>
               <SecondaryCtaLink href="/">
-                ¿Â¸¶·ç 3D ÇÑ¿Á ÀÌ¾ß±â º¸·¯ °¡±â
+                ì˜¨ë§ˆë£¨ 3D í•œì˜¥ ì´ì•¼ê¸° ë³´ëŸ¬ ê°€ê¸°
               </SecondaryCtaLink>
             </ButtonRow>
 
-            <SubText>¿À´ÃÀÇ ¼Ò¸®´Â ³»ÀÏ ¶Ç ´Ù¸¥ Àå¸éÀ¸·Î ÀÌ¾îÁ®¿ä.</SubText>
+            <SubText>ì˜¤ëŠ˜ì˜ ì†Œë¦¬ëŠ” ë‚´ì¼ ë˜ ë‹¤ë¥¸ ì¥ë©´ìœ¼ë¡œ ì´ì–´ì ¸ìš”.</SubText>
           </InnerBody>
         </GlassCard>
       </ContentWrapper>
     </SectionContainer>
   );
-};
+};

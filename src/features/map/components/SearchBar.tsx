@@ -369,8 +369,8 @@ export default function SearchBar({ className }: SearchBarProps) {
           {isSearched && (
             <ActionIconBtn
               type="button"
-              aria-label="전국 지도로 돌아가기"
-              title="전국 지도로 돌아가기"
+              aria-label="전국 지도 보기"
+              title="전국 지도 보기"
               onClick={handleResetToNationwide}
             >
               <HugeiconsIcon icon={RotateCcwIcon} size={14} strokeWidth={2} />
@@ -399,7 +399,7 @@ export default function SearchBar({ className }: SearchBarProps) {
               onMouseDown={handleResetToNationwide}
             >
               <HugeiconsIcon icon={GlobeIcon} size={16} strokeWidth={2} />
-              <span>전국 지도로 돌아가기</span>
+              <span>전국 지도 보기</span>
             </ResetAllBtn>
           )}
 

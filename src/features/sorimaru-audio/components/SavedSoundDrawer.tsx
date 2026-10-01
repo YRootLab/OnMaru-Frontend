@@ -202,10 +202,10 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
       <FloatingOpenButton
         type="button"
         onClick={() => setIsOpen(true)}
-        aria-label={`¸¶À½ ´ã¾ÆµÐ ¼Ò¸® ${savedStories.length}°³ ¿­±â`}
+        aria-label={`ë§ˆìŒ ë‹´ì•„ë‘” ì†Œë¦¬ ${savedStories.length}ê°œ ì—´ê¸°`}
       >
         <HugeiconsIcon icon={HeartIcon} size={14} strokeWidth={2} fill="currentColor" style={{ color: palette.juhong[500] }} />
-        ¸¶À½ ´ã¾ÆµÐ ¼Ò¸®
+        ë§ˆìŒ ë‹´ì•„ë‘” ì†Œë¦¬
         <span style={{ fontFamily: 'var(--font-hanok)', fontVariantNumeric: 'tabular-nums', fontSize: fontSize.micro, color: meok[700] }}>
           {savedStories.length}
         </span>
@@ -217,11 +217,11 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
             style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', justifyContent: 'flex-end' }}
             role="dialog"
             aria-modal="true"
-            aria-label="¸¶À½ ´ã¾ÆµÐ ¼Ò¸® º¸°üÇÔ"
+            aria-label="ë§ˆìŒ ë‹´ì•„ë‘” ì†Œë¦¬ ë³´ê´€í•¨"
           >
             <DrawerBackdrop
               type="button"
-              aria-label="º¸°üÇÔ ´Ý±â"
+              aria-label="ë³´ê´€í•¨ ë‹«ê¸°"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -236,30 +236,30 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
             >
               <DrawerHeader>
                 <div>
-                  <p style={{ fontSize: '0.75rem', fontWeight: 600, color: palette.juhong[500] }}>´Ù½Ã µè°í ½ÍÀº Àå¸é</p>
+                  <p style={{ fontSize: '0.75rem', fontWeight: 600, color: palette.juhong[500] }}>ë‹¤ì‹œ ë“£ê³  ì‹¶ì€ ìž¥ë©´</p>
                   <h2 style={{ marginTop: '0.25rem', fontFamily: 'var(--font-hanok)', fontSize: '1.5rem', fontWeight: 700, letterSpacing: '-0.045em' }}>
-                    ¸¶À½ ´ã¾ÆµÐ ¼Ò¸®
+                    ë§ˆìŒ ë‹´ì•„ë‘” ì†Œë¦¬
                   </h2>
                 </div>
                 <CloseButton
                   type="button"
                   onClick={() => setIsOpen(false)}
-                  aria-label="º¸°üÇÔ ´Ý±â"
+                  aria-label="ë³´ê´€í•¨ ë‹«ê¸°"
                 >
                   <HugeiconsIcon icon={Cancel01Icon} size={22} strokeWidth={2} />
                 </CloseButton>
               </DrawerHeader>
 
               <DrawerSubText style={{ marginTop: '1rem' }}>
-                ÁÁ¾ÆÇÏ´Â ÀÌ¾ß±â¸¦ ÀÌ°÷¿¡ ¸ð¾ÆµÎ¸é ´ÙÀ½ ¹æ¹®¿¡µµ ÀÌ¾î¼­ µéÀ» ¼ö ÀÖ¾î¿ä.
+                ì¢‹ì•„í•˜ëŠ” ì´ì•¼ê¸°ë¥¼ ì´ê³³ì— ëª¨ì•„ë‘ë©´ ë‹¤ìŒ ë°©ë¬¸ì—ë„ ì´ì–´ì„œ ë“¤ì„ ìˆ˜ ìžˆì–´ìš”.
               </DrawerSubText>
 
               <ScrollList>
                 {savedStories.length === 0 ? (
                   <div style={{ padding: '4rem 0', textAlign: 'center', fontSize: '0.75rem', lineHeight: '1.5rem', color: meok[700] }}>
-                    ´ã¾ÆµÐ ¼Ò¸®°¡ ¾ÆÁ÷ ¾ø¾î¿ä.
+                    ë‹´ì•„ë‘” ì†Œë¦¬ê°€ ì•„ì§ ì—†ì–´ìš”.
                     <br />
-                    ÀÌ¾ß±â ¿· ÇÏÆ®¸¦ ´©¸£¸é ´ãÀ» ¼ö ÀÖ¾î¿ä.
+                    ì´ì•¼ê¸° ì˜† í•˜íŠ¸ë¥¼ ëˆ„ë¥´ë©´ ë‹´ì„ ìˆ˜ ìžˆì–´ìš”.
                   </div>
                 ) : (
                   savedStories.map((story, index) => {
@@ -277,7 +277,7 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
                         </ThumbBox>
                         <div style={{ minWidth: 0, flex: 1 }}>
                           <p style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: fontSize.micro, color: palette.juhong[500] }}>
-                            {story.region.name || '¼Ò¸®ÀÇ Àå¼Ò'}
+                            {story.region.name || 'ì†Œë¦¬ì˜ ìž¥ì†Œ'}
                           </p>
                           <button
                             type="button"
@@ -297,14 +297,14 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
                               onClick={() => handlePlay(story)}
                               style={{ fontSize: fontSize.micro, fontWeight: 600, color: palette.juhong[500], background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                             >
-                              {isCurrentPlaying ? 'Àá½Ã ¸ØÃß±â' : 'ÀÌ¾ß±â µè±â'}
+                              {isCurrentPlaying ? 'ìž ì‹œ ë©ˆì¶”ê¸°' : 'ì´ì•¼ê¸° ë“£ê¸°'}
                             </button>
                             <button
                               type="button"
                               onClick={() => onRemoveBookmark(story.storyId)}
                               style={{ fontSize: fontSize.micro, color: meok[700], background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                             >
-                              ´ã±â ÇØÁ¦
+                              ë‹´ê¸° í•´ì œ
                             </button>
                           </div>
                         </div>
@@ -315,7 +315,7 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
               </ScrollList>
 
               <p style={{ paddingTop: '1rem', fontSize: fontSize.micro, color: meok[700], borderTop: '1px solid rgba(33, 30, 25, 0.08)' }}>
-                ÀÌ ±â±â¿¡¸¸ ÀúÀåµÅ¿ä.
+                ì´ ê¸°ê¸°ì—ë§Œ ì €ìž¥ë¼ìš”.
               </p>
             </DrawerAside>
           </div>
@@ -323,4 +323,4 @@ export const SavedSoundDrawer: React.FC<SavedSoundDrawerProps> = ({
       </AnimatePresence>
     </>
   );
-};
+};

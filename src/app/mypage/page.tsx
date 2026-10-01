@@ -616,17 +616,15 @@ export default function MyPage() {
                   e.currentTarget.muted = true;
                   e.currentTarget.play().catch(() => {});
                 }}
-                style={{ width: '100%', height: '100%', objectFit: 'contain', background: 'transparent', mixBlendMode: 'screen' }}
+                style={{ width: '100%', height: '100%', objectFit: 'contain', background: 'transparent' }}
               >
                 <source src="/videos/Oni_hi.webm" type="video/webm" onError={() => setOniVideoError(true)} />
               </video>
             )}
           </div>
           <div style={{ fontSize: '22px', fontWeight: 800, color: c.text.primary, marginBottom: '10px', marginTop: '8px', letterSpacing: '-0.025em' }}>온이</div>
-          <p style={{ margin: 0, fontSize: '14px', color: c.text.secondary, lineHeight: 1.8, maxWidth: '300px' }}>
-            온마루의 마스코트예요. 한옥의 숨결과<br />
-            소리를 함께 잇고 싶어 오늘도<br />
-            이렇게 반갑게 인사한답니다 👋
+          <p style={{ margin: 0, fontSize: '14px', color: c.text.secondary, lineHeight: 1.8, maxWidth: '320px' }}>
+            한옥의 숨결과 소리를 전하는 온마루의 길잡이, 온이예요. 여정 중에 궁금한 점이 생기면 언제든 찾아주세요 👋
           </p>
         </div>
 
@@ -634,7 +632,7 @@ export default function MyPage() {
           {confirmingDelete ? (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
               <p style={{ margin: 0, fontSize: '13px', color: c.error.primary }}>
-                정말 탈퇴하시겠어요? 북마크·온기 기록은 남지만 로그인 정보는 삭제돼요.
+                정말 온마루를 떠나시겠어요? 계정 정보는 즉시 삭제되며, 작성하신 글과 온기 기록은 삭제되지 않아요.
               </p>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button

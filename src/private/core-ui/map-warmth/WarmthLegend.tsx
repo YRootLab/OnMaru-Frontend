@@ -306,9 +306,9 @@ export default function WarmthLegend() {
   const percent = stat.ratio === null ? null : Math.round(stat.ratio * 100);
 
   return (
-    <Root $isDark={isDark} aria-label="¿Â±â È÷Æ®¸Ê ¹ü·Ê">
+    <Root $isDark={isDark} aria-label="ì˜¨ê¸° íˆíŠ¸ë§µ ë²”ë¡€">
       {}
-      <ViewTypeSegment $isDark={isDark} role="tablist" aria-label="¿Â±â Ç¥½Ã ¹æ½Ä">
+      <ViewTypeSegment $isDark={isDark} role="tablist" aria-label="ì˜¨ê¸° í‘œì‹œ ë°©ì‹">
         <ViewTypeBtn
           type="button"
           role="tab"
@@ -316,10 +316,10 @@ export default function WarmthLegend() {
           $active={warmthViewType === 'district'}
           $isDark={isDark}
           onClick={() => setWarmthViewType('district')}
-          title="½Ã¡¤±º¡¤±¸ ÇàÁ¤±¸¿ª °æ°è¼±°ú ±Ç¿ªº° Åë°è·Î º¸±â"
+          title="ì‹œÂ·êµ°Â·êµ¬ í–‰ì •êµ¬ì—­ ê²½ê³„ì„ ê³¼ ê¶Œì—­ë³„ í†µê³„ë¡œ ë³´ê¸°"
         >
           <HugeiconsIcon icon={MapPinIcon} size={13} strokeWidth={2.2} />
-          <span>½Ã¡¤±º ÇàÁ¤º°</span>
+          <span>ì‹œÂ·êµ° í–‰ì •ë³„</span>
         </ViewTypeBtn>
         <ViewTypeBtn
           type="button"
@@ -328,19 +328,19 @@ export default function WarmthLegend() {
           $active={warmthViewType === 'heatmap'}
           $isDark={isDark}
           onClick={() => setWarmthViewType('heatmap')}
-          title="ÃÊ±â ¹öÀüÀÇ ºÎµå·¯¿î ¿øÇü ¹Ğµµ È÷Æ®¸ÊÀ¸·Î º¸±â"
+          title="ì´ˆê¸° ë²„ì „ì˜ ë¶€ë“œëŸ¬ìš´ ì›í˜• ë°€ë„ íˆíŠ¸ë§µìœ¼ë¡œ ë³´ê¸°"
         >
           <HugeiconsIcon icon={FlameIcon} size={13} strokeWidth={2.2} />
-          <span>¿øÇü È÷Æ®¸Ê</span>
+          <span>ì›í˜• íˆíŠ¸ë§µ</span>
         </ViewTypeBtn>
       </ViewTypeSegment>
 
       <Summary $isDark={isDark} aria-live="polite">
         {stat.total === 0 ? (
-          'ÀÌ ÀÏ´ë¿¡ ³²Àº ÇÑÁÙÆòÀÌ ¾ÆÁ÷ ¾ø¾î¿ä'
+          'ì´ ì¼ëŒ€ì— ë‚¨ì€ í•œì¤„í‰ì´ ì•„ì§ ì—†ì–´ìš”'
         ) : (
           <>
-            ÀÌ ÀÏ´ë ÇÑÁÙÆò <b>{stat.total}</b>Æí ¡¤ °íÁî³ËÇÔ <b>{100 - (percent ?? 0)}%</b> ¡¤ ºÏÀûÀÌ´Â Á¤{' '}
+            ì´ ì¼ëŒ€ í•œì¤„í‰ <b>{stat.total}</b>í¸ Â· ê³ ì¦ˆë„‰í•¨ <b>{100 - (percent ?? 0)}%</b> Â· ë¶ì ì´ëŠ” ì •{' '}
             <b>{percent}%</b>
           </>
         )}
@@ -349,16 +349,16 @@ export default function WarmthLegend() {
       <Ramp>
         <RampBar $gradient={rampGradient} aria-hidden="true" />
         <RampEnds $isDark={isDark}>
-          <span>ÇÑÀû</span>
-          <span>ºÕºö</span>
+          <span>í•œì </span>
+          <span>ë¶ë¹”</span>
         </RampEnds>
-        <RampNote $isDark={isDark}>¾Æ¹« »öµµ ¾ø´Â °÷Àº ¾ÆÁ÷ Áı°è°¡ ´êÁö ¾ÊÀº °÷ÀÌ¿¡¿ä.</RampNote>
+        <RampNote $isDark={isDark}>ì•„ë¬´ ìƒ‰ë„ ì—†ëŠ” ê³³ì€ ì•„ì§ ì§‘ê³„ê°€ ë‹¿ì§€ ì•Šì€ ê³³ì´ì—ìš”.</RampNote>
       </Ramp>
 
       <Divider $isDark={isDark} />
 
-      <PeriodRow role="group" aria-label="¿Â±â ±â°£">
-        <PeriodLabel $isDark={isDark}>±â°£</PeriodLabel>
+      <PeriodRow role="group" aria-label="ì˜¨ê¸° ê¸°ê°„">
+        <PeriodLabel $isDark={isDark}>ê¸°ê°„</PeriodLabel>
         {PERIOD_OPTIONS.map((option) => (
           <PeriodBtn
             key={option.id}
@@ -374,4 +374,4 @@ export default function WarmthLegend() {
       </PeriodRow>
     </Root>
   );
-}
+}

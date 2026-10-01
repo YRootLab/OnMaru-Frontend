@@ -812,10 +812,10 @@ export default function Header() {
       <MobileStatusBlur $isLanding={usesDarkSurface} aria-hidden="true" />
 
       <MobileTopBar $isLanding={usesDarkSurface}$isMapPage={isMapPage}>
-        <LogoLink href="/" aria-label="¿Â¸¶·ç È¨À¸·Î ÀÌµ¿" onClick={resetJourney}>
+        <LogoLink href="/" aria-label="ì˜¨ë§ˆë£¨ í™ˆìœ¼ë¡œ ì´ë™" onClick={resetJourney}>
           <Image
             src={ONMARU_LOGO_SRC}
-            alt="¿Â¸¶·ç ·Î°í"
+            alt="ì˜¨ë§ˆë£¨ ë¡œê³ "
             width={26}
             height={26}
             style={{ objectFit: 'contain', height: '26px', width: '26px', borderRadius: '6px' }}
@@ -835,10 +835,10 @@ export default function Header() {
 
         {}
         <LeftSection $isMapPage={isMapPage}>
-          <LogoLink href="/" aria-label="¿Â¸¶·ç È¨À¸·Î ÀÌµ¿" onClick={resetJourney}>
+          <LogoLink href="/" aria-label="ì˜¨ë§ˆë£¨ í™ˆìœ¼ë¡œ ì´ë™" onClick={resetJourney}>
             <Image
               src={ONMARU_LOGO_SRC}
-              alt="¿Â¸¶·ç ·Î°í"
+              alt="ì˜¨ë§ˆë£¨ ë¡œê³ "
               width={26}
               height={26}
               style={{ objectFit: 'contain', height: '26px', width: '26px', borderRadius: '6px' }}
@@ -850,10 +850,10 @@ export default function Header() {
         {}
         <CenterNav $isMapPage={isMapPage}>
           {[
-            { href: '/', label: 'È¨', icon: Home01Icon, active: pathname === '/' },
-            { href: '/hanok', label: 'ÇÑ¿Á¸¶·ç', icon: BookOpen01Icon, active: pathname.startsWith('/hanok') },
-            { href: '/sorimaru', label: '¼Ò¸®¸¶·ç', icon: HeadphonesIcon, active: isSoriMaruPage },
-            { href: '/map', label: 'Áöµµ¸¶·ç', icon: MapIcon, active: pathname.startsWith('/map') },
+            { href: '/', label: 'í™ˆ', icon: Home01Icon, active: pathname === '/' },
+            { href: '/hanok', label: 'í•œì˜¥ë§ˆë£¨', icon: BookOpen01Icon, active: pathname.startsWith('/hanok') },
+            { href: '/sorimaru', label: 'ì†Œë¦¬ë§ˆë£¨', icon: HeadphonesIcon, active: isSoriMaruPage },
+            { href: '/map', label: 'ì§€ë„ë§ˆë£¨', icon: MapIcon, active: pathname.startsWith('/map') },
           ].map((item) => {
             const isSelected = item.active;
             return (
@@ -907,7 +907,7 @@ export default function Header() {
         </ThemePickerWrap>
 
         <LoginButton href={isLoggedIn ? '/mypage' : '/auth/login'} $isLanding={usesDarkSurface}>
-          <span>{isLoggedIn ? (user?.displayName ?? '¸¶ÀÌÆäÀÌÁö') : '·Î±×ÀÎ'}</span>
+          <span>{isLoggedIn ? (user?.displayName ?? 'ë§ˆì´í˜ì´ì§€') : 'ë¡œê·¸ì¸'}</span>
           <HugeiconsIcon icon={ArrowRight01Icon} size={12} />
         </LoginButton>
 
@@ -916,7 +916,7 @@ export default function Header() {
             <ThemePickerPopover
               $isLanding={usesDarkSurface}
               role="menu"
-              aria-label="È­¸é ¸ğµå ¼±ÅÃ"
+              aria-label="í™”ë©´ ëª¨ë“œ ì„ íƒ"
               initial={{ opacity: 0, y: -4, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -4, scale: 0.98 }}
@@ -992,7 +992,7 @@ export default function Header() {
         <MobileMenuButton
           type="button"
           $isLanding={usesDarkSurface}
-          aria-label="¸Ş´º"
+          aria-label="ë©”ë‰´"
           aria-expanded={isMobileMenuOpen}
           aria-controls="mobile-navigation"
           onClick={() => setIsMobileMenuOpen((prev) => !prev)}
@@ -1023,22 +1023,22 @@ export default function Header() {
                 }}
               >
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <HugeiconsIcon icon={Home01Icon} size={15} /> È¨
+                  <HugeiconsIcon icon={Home01Icon} size={15} /> í™ˆ
                 </span>
               </MobileMenuLink>
               <MobileMenuLink href="/hanok" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <HugeiconsIcon icon={BookOpen01Icon} size={15} /> ÇÑ¿Á¸¶·ç
+                  <HugeiconsIcon icon={BookOpen01Icon} size={15} /> í•œì˜¥ë§ˆë£¨
                 </span>
               </MobileMenuLink>
               <MobileMenuLink href="/sorimaru" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <HugeiconsIcon icon={HeadphonesIcon} size={15} /> ¼Ò¸®¸¶·ç
+                  <HugeiconsIcon icon={HeadphonesIcon} size={15} /> ì†Œë¦¬ë§ˆë£¨
                 </span>
               </MobileMenuLink>
               <MobileMenuLink href="/map" $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <HugeiconsIcon icon={MapIcon} size={15} /> Áöµµ¸¶·ç
+                  <HugeiconsIcon icon={MapIcon} size={15} /> ì§€ë„ë§ˆë£¨
                 </span>
               </MobileMenuLink>
               <MobileMenuDivider $isLanding={usesDarkSurface} />
@@ -1056,7 +1056,7 @@ export default function Header() {
                     color: usesDarkSurface ? 'rgba(250, 250, 250, 0.75)' : meok[700],
                   }}
                 >
-                  È­¸é ¸ğµå
+                  í™”ë©´ ëª¨ë“œ
                 </span>
                 <div style={{ display: 'flex', gap: '4px' }}>
                   {(['light', 'dark', 'system'] as const).map((opt) => (
@@ -1081,13 +1081,13 @@ export default function Header() {
                         cursor: 'pointer',
                       }}
                     >
-                      {opt === 'light' ? '¶óÀÌÆ®' : opt === 'dark' ? '´ÙÅ©' : '½Ã½ºÅÛ'}
+                      {opt === 'light' ? 'ë¼ì´íŠ¸' : opt === 'dark' ? 'ë‹¤í¬' : 'ì‹œìŠ¤í…œ'}
                     </button>
                   ))}
                 </div>
               </div>
               <MobileMenuLink href={isLoggedIn ? '/mypage' : '/auth/login'} $isLanding={usesDarkSurface} onClick={() => setIsMobileMenuOpen(false)}>
-                {isLoggedIn ? (user?.displayName ?? '¸¶ÀÌÆäÀÌÁö') : '·Î±×ÀÎ'}
+                {isLoggedIn ? (user?.displayName ?? 'ë§ˆì´í˜ì´ì§€') : 'ë¡œê·¸ì¸'}
               </MobileMenuLink>
             </MobileMenuPanel>
           )}
@@ -1096,4 +1096,4 @@ export default function Header() {
       </HeaderContainer>
     </>
   );
-}
+}

@@ -246,8 +246,8 @@ export default function PolaroidCard({
   const showTape = enableTape && index % 2 === 0;
   const tapeLeft = index % 4 < 2;
 
-  const regionName = village.region || 'ÇÑ¿Á';
-  const handText = customHandText || `°íÁî³ËÇÑ ${regionName}¿¡¼­`;
+  const regionName = village.region || 'í•œì˜¥';
+  const handText = customHandText || `ê³ ì¦ˆë„‰í•œ ${regionName}ì—ì„œ`;
 
   return (
     <Wrapper
@@ -256,7 +256,7 @@ export default function PolaroidCard({
       onClick={() => onClick?.(village)}
       role="button"
       tabIndex={0}
-      aria-label={`${village.name} ÀÚ¼¼È÷ º¸±â`}
+      aria-label={`${village.name} ìì„¸íˆ ë³´ê¸°`}
       initial={{ opacity: 0, y: 40, rotate }}
       whileInView={{ opacity: 1, y: 0, rotate }}
       viewport={{ once: true, margin: '-40px' }}
@@ -303,7 +303,7 @@ export default function PolaroidCard({
 
       {showOutsideMeta && (
         <OutsideMeta>
-          <OutsideTitle>{village.name} ¡¤ {village.region}</OutsideTitle>
+          <OutsideTitle>{village.name} Â· {village.region}</OutsideTitle>
 
           <OutsideBadges>
             <span>#{filterLabel(village.type)}</span>
@@ -313,10 +313,10 @@ export default function PolaroidCard({
           </OutsideBadges>
 
           <DetailButton>
-            ÀÚ¼¼È÷ º¸±â <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
+            ìì„¸íˆ ë³´ê¸° <HugeiconsIcon icon={ArrowRight01Icon} size={14} strokeWidth={2} />
           </DetailButton>
         </OutsideMeta>
       )}
     </Wrapper>
   );
-}
+}

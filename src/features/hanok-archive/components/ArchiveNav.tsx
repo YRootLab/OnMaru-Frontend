@@ -87,9 +87,9 @@ const HamburgerBtn = styled.button`
 `;
 
 const MENU_ITEMS: { label: string; href: string; section: SectionId }[] = [
-  { label: '찾는 곳이 있나요?', href: '#grid', section: 'grid' },
-  { label: '어디 있는지 한눈에', href: '#map', section: 'map' },
-  { label: '이달의 픽', href: '#monthly', section: 'monthly' },
+  { label: '한옥 둘러보기', href: '#grid', section: 'grid' },
+  { label: '한옥 지도', href: '#map', section: 'map' },
+  { label: '이달의 추천', href: '#monthly', section: 'monthly' },
 ];
 
 interface ArchiveNavProps {

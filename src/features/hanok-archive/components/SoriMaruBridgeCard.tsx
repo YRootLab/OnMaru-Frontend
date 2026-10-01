@@ -34,7 +34,7 @@ export default function SoriMaruBridgeCard({ stories, hanokName }: SoriMaruBridg
   const formatSeconds = (sec: number) => {
     const m = Math.floor(sec / 60);
     const s = Math.floor(sec % 60);
-    return `${m}ºĞ ${s > 0 ? `${s}ÃÊ` : ''}`;
+    return `${m}ë¶„ ${s > 0 ? `${s}ì´ˆ` : ''}`;
   };
 
   return (
@@ -42,27 +42,27 @@ export default function SoriMaruBridgeCard({ stories, hanokName }: SoriMaruBridg
       <HeaderRow>
         <BadgeBox>
           <HugeiconsIcon icon={HeadphonesIcon} size={13} />
-          <span>¼Ò¸®¸¶·ç µµ½¼Æ® ¿¬°è</span>
+          <span>ì†Œë¦¬ë§ˆë£¨ ë„ìŠ¨íŠ¸ ì—°ê³„</span>
         </BadgeBox>
-        <OfficialTag>¼Ò¸®¸¶·ç °ø½Ä µµ½¼Æ® À½¿ø</OfficialTag>
+        <OfficialTag>ì†Œë¦¬ë§ˆë£¨ ê³µì‹ ë„ìŠ¨íŠ¸ ìŒì›</OfficialTag>
       </HeaderRow>
 
       <ContentBody>
         <StoryTitle>
-          {primaryStory.audioTitle || `${hanokName} °ÇÃà °ø°£ ÇØ¼³`}
+          {primaryStory.audioTitle || `${hanokName} ê±´ì¶• ê³µê°„ í•´ì„¤`}
         </StoryTitle>
         <GuideDesc>
           {primaryStory.durationSeconds > 0 && (
-            <DurationText>¾à {formatSeconds(primaryStory.durationSeconds)} ¼Ò¿ä ¡¤ </DurationText>
+            <DurationText>ì•½ {formatSeconds(primaryStory.durationSeconds)} ì†Œìš” Â· </DurationText>
           )}
-          ÀÌ °ÇÃà¹°ÀÇ ¿ª»ç¿Í °ø°£ ÀÌ¾ß±â´Â <strong>¡®¼Ò¸®¸¶·ç¡¯</strong>¿¡¼­ µéÀ» ¼ö ÀÖ¾î¿ä.{' '}
-          °íÀ½Áú À½¿ø¿¡ ´ëº»±îÁö ÇÔ²² º¼ ¼ö ÀÖ½À´Ï´Ù.
+          ì´ ê±´ì¶•ë¬¼ì˜ ì—­ì‚¬ì™€ ê³µê°„ ì´ì•¼ê¸°ëŠ” <strong>â€˜ì†Œë¦¬ë§ˆë£¨â€™</strong>ì—ì„œ ë“¤ì„ ìˆ˜ ìˆì–´ìš”.{' '}
+          ê³ ìŒì§ˆ ìŒì›ì— ëŒ€ë³¸ê¹Œì§€ í•¨ê»˜ ë³¼ ìˆ˜ ìˆìŠµë‹ˆë‹¤.
         </GuideDesc>
       </ContentBody>
 
       <ActionRow>
         <ListenInSoriMaruBtn type="button" onClick={handleNavigateToSoriMaru}>
-          <span>¼Ò¸®¸¶·ç¿¡¼­ µµ½¼Æ® µè±â</span>
+          <span>ì†Œë¦¬ë§ˆë£¨ì—ì„œ ë„ìŠ¨íŠ¸ ë“£ê¸°</span>
           <HugeiconsIcon icon={ArrowRight01Icon} size={15} strokeWidth={2.2} />
         </ListenInSoriMaruBtn>
       </ActionRow>
@@ -209,4 +209,4 @@ const ListenInSoriMaruBtn = styled.button`
       background: ${palette.jangmi[400]};
     }
   }
-`;
+`;
