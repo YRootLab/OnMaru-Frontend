@@ -1,7 +1,8 @@
-﻿'use client';
+'use client';
 
 import React, { useRef } from 'react';
 import styled from '@emotion/styled';
+import { surface } from '@/design-system/tokens';
 
 import { useJourneyStore } from '../store/useJourneyStore';
 import JourneyHeroSearch from './JourneyHeroSearch';

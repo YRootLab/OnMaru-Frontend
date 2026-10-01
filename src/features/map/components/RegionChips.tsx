@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import styled from '@emotion/styled';
-import { meok, surface , fontSize } from '@/design-system/tokens';
+import { meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
 import { DEFAULT_CENTER, useMapStore } from '@/features/map/hooks/useMapStore';
 import type { LatLng } from '@/features/map/types';
 
@@ -54,6 +54,16 @@ const Chip = styled.button<{ $active: boolean }>`
     background: ${({ $active }) => ($active ? '#3B6FD4' : 'rgba(23, 30, 43, 0.90)')};
     border: 1px solid ${({ $active }) => ($active ? 'rgba(100, 160, 255, 0.35)' : 'rgba(255, 255, 255, 0.12)')};
     color: ${({ $active }) => ($active ? '#ffffff' : 'rgba(255, 255, 255, 0.87)')};
+    box-shadow: ${ringShadow.dark.mapChip};
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) & {
+      background: ${({ $active }) => ($active ? '#3B6FD4' : 'rgba(23, 30, 43, 0.90)')};
+      border: 1px solid ${({ $active }) => ($active ? 'rgba(100, 160, 255, 0.35)' : 'rgba(255, 255, 255, 0.12)')};
+      color: ${({ $active }) => ($active ? '#ffffff' : 'rgba(255, 255, 255, 0.87)')};
+      box-shadow: ${ringShadow.dark.mapChip};
+    }
   }
 `;
 

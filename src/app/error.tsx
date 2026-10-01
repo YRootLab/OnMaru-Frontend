@@ -1,10 +1,11 @@
-﻿'use client';
+'use client';
 
 import React, { useEffect } from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { RotateCcwIcon } from '@hugeicons/core-free-icons'
 import OniSearchEmpty from '@/shared/components/OniSearchEmpty/OniSearchEmpty';
+import { surface } from '@/design-system/tokens';
 
 const PageWrapper = styled.div`
   display: flex;

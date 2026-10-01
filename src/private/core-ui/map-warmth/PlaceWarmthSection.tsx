@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { FlameIcon, Leaf01Icon, UsersIcon, PlusSignIcon, MessageCircleIcon } from '@hugeicons/core-free-icons'
-import { lightPalette, palette, meok , fontSize } from '@/design-system/tokens';
+import { lightPalette, palette, meok, surface, fontSize } from '@/design-system/tokens';
 import { usePlaceVisitReviews } from '@/features/visit-review/presentation/usePlaceVisitReviews';
 import WriteWarmthModal from './WriteWarmthModal';
 import MoodSelector from './MoodSelector';
@@ -121,7 +121,7 @@ const WarmthCard = styled.div`
   }
 
   [data-theme='dark'] & {
-    background: #171E2B;
+    background: ${surface.dark.surface};
   }
 `;
 
@@ -224,7 +224,7 @@ const EmptyBox = styled.div`
   text-align: center;
 
   [data-theme='dark'] & {
-    background: #171E2B;
+    background: ${surface.dark.surface};
   }
 `;
 

@@ -393,7 +393,7 @@ export default function KakaoMap() {
       el.className = 'om-my-location-pin';
       el.innerHTML = `
         <div class="om-my-location-bubble">
-          <span>내 위치 ??</span>
+          <span>내 위치 </span>
         </div>
         <div class="om-my-location-oni-wrap">
           ${

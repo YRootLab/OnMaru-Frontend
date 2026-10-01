@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Cancel01Icon, GlobeIcon, RotateCcwIcon, Search01Icon } from '@hugeicons/core-free-icons'
-import { lightPalette, meok, surface, fontSize } from '@/design-system/tokens';
+import { lightPalette, meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
 import { DEFAULT_CENTER, DEFAULT_LEVEL, useMapStore } from '@/features/map/hooks/useMapStore';
 
 const RECENT = ['전주 한옥마을', '북촌 한옥마을', '안동 하회마을', '경주 양동마을', '경복궁'];
@@ -135,7 +135,7 @@ const Dropdown = styled.div`
   border-radius: 20px;
   background: #ffffff;
   border: none;
-  box-shadow: 0 8px 24px rgba(25, 31, 40, 0.12);
+  box-shadow: ${ringShadow.light.mapPanel};
   user-select: none;
   backdrop-filter: blur(20px);
   max-height: 60dvh;
@@ -143,8 +143,16 @@ const Dropdown = styled.div`
 
   [data-theme='dark'] & {
     background: ${surface.dark.card};
-    border: none;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: ${ringShadow.dark.mapPanel};
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) & {
+      background: ${surface.dark.card};
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: ${ringShadow.dark.mapPanel};
+    }
   }
 
   @media (max-width: 1023px) {

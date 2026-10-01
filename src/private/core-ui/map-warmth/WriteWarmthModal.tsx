@@ -4,7 +4,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Cancel01Icon, FlameIcon, UsersIcon, Leaf01Icon, CheckIcon, MapPinIcon } from '@hugeicons/core-free-icons'
-import { meok, fontSize } from '@/design-system/tokens';
+import { meok, surface, fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useCreateVisitReview } from '@/features/visit-review/presentation/useCreateVisitReview';
 import type { Warmth } from '@/features/map/types';
@@ -79,7 +79,7 @@ const ModalCard = styled.div<{ $open: boolean }>`
   transition: transform 0.38s cubic-bezier(0.19, 1.15, 0.22, 1), opacity 0.24s ease-out;
 
   [data-theme='dark'] & {
-    background: #171E2B;
+    background: ${surface.dark.surface};
     color: #F3F4F6;
     border: none;
   }
@@ -256,7 +256,7 @@ const PlaceDropdown = styled.div`
   padding: 4px;
 
   [data-theme='dark'] & {
-    background: #0B1220;
+    background: ${surface.dark.app};
     border: none;
   }
 `;

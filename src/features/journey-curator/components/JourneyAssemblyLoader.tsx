@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
@@ -8,6 +8,7 @@ import { SparklesIcon, Cancel01Icon, CheckmarkCircle01Icon } from '@hugeicons/co
 import { useJourneyStore } from '../store/useJourneyStore';
 import MiniOmokGame from './MiniOmokGame';
 import TraditionalWordSearch from './TraditionalWordSearch';
+import { surface, ringShadow } from '@/design-system/tokens';
 
 const Overlay = styled(motion.div)`
   position: fixed;

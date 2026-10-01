@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
 import styled from '@emotion/styled';
@@ -6,6 +6,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { HeadphonesIcon, PlayIcon, PauseIcon, RotateCcwIcon, FileTextIcon, ChevronDownIcon, ChevronUpIcon } from '@hugeicons/core-free-icons'
 
 import type { SorimaruStory } from '../hooks/useHanokSorimaru';
+import { palette, meok, surface, fontSize } from '@/design-system/tokens';
 
 interface HanokAudioPlayerProps {
   stories: SorimaruStory[];

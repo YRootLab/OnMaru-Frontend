@@ -4,7 +4,7 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import styled from '@emotion/styled';
-import { fontSize, meok } from '@/design-system/tokens';
+import { fontSize, meok, surface } from '@/design-system/tokens';
 import { useIsAppleDevice } from '@/shared/hooks/useIsAppleDevice';
 import PolicyModal, { type PolicyTabKey } from './PolicyModal';
 
@@ -26,7 +26,7 @@ const FooterWrapper = styled.footer`
 
 
   [data-theme='dark'] & {
-    background: linear-gradient(180deg, #0B1220 0%, #070E18 100%);
+    background: linear-gradient(180deg, ${surface.dark.app} 0%, #070E18 100%);
     color: rgba(255, 255, 255, 0.7);
     border-top: 1px solid rgba(255, 255, 255, 0.07);
   }

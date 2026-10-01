@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import Link from 'next/link';
@@ -6,6 +6,7 @@ import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Home01Icon } from '@hugeicons/core-free-icons'
 import OniSearchEmpty from '@/shared/components/OniSearchEmpty/OniSearchEmpty';
+import { surface } from '@/design-system/tokens';
 
 const PageWrapper = styled.div`
   display: flex;

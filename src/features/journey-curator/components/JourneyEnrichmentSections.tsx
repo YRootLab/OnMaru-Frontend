@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 
 
@@ -15,6 +15,7 @@ import { PauseIcon, PlayIcon, MapPinIcon, Clock01Icon, CalendarDaysIcon, Headpho
 import { useJourneyStore } from '../store/useJourneyStore';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import type { NearbyAudioStory } from '../types/enrichment.types';
+import { palette, surface, ringShadow, fontSize } from '@/design-system/tokens';
 
 const Wrap = styled.section`
   width: min(calc(100% - 40px), 1140px);

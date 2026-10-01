@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import styled from '@emotion/styled';
@@ -10,6 +10,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { Home01Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons'
 import type { Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
+import { lightPalette, meok, surface, ringShadow, fontSize } from '@/design-system/tokens';
 
 
 const ROTATIONS = [-4.2, 2.8, -2.1, 3.5];

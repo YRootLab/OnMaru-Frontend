@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import styled from '@emotion/styled';
@@ -8,6 +8,7 @@ import { Cancel01Icon, FlameIcon, HeadphonesIcon, LandmarkIcon, MapPinIcon, Netw
 
 import type { GraphNode, NodeCategory } from '../types/journey.types';
 import { useJourneyStore } from '../store/useJourneyStore';
+import { surface, fontSize, lightPalette } from '@/design-system/tokens';
 
 const Container = styled.div`
   width: min(calc(100% - 40px), 1140px);

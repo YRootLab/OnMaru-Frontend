@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import styled from '@emotion/styled';
@@ -7,6 +7,7 @@ import { HeadphonesIcon, ArrowRight01Icon, SparklesIcon } from '@hugeicons/core-
 import { useRouter } from 'next/navigation';
 
 import type { AudioGuideStory } from '../hooks/useHanokAudioGuide';
+import { palette, meok, surface, fontSize } from '@/design-system/tokens';
 
 interface SoriMaruBridgeCardProps {
   stories: AudioGuideStory[];

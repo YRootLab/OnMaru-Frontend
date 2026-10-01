@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Home01Icon, UsersIcon, MapPinIcon, HeadphonesIcon, Bookmark01Icon } from '@hugeicons/core-free-icons'
-import { lightPalette , fontSize } from '@/design-system/tokens';
+import { lightPalette, meok, fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 
@@ -37,6 +37,16 @@ const TabButton = styled.button<{ $active?: boolean }>`
   &:active {
     transform: scale(0.94);
   }
+
+  [data-theme='dark'] & {
+    color: ${({ $active }) => ($active ? lightPalette.hwanggeum[400] : meok[400])};
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) & {
+      color: ${({ $active }) => ($active ? lightPalette.hwanggeum[400] : meok[400])};
+    }
+  }
 `;
 
 const IconSlot = styled.span`
@@ -59,6 +69,16 @@ const CountBadge = styled.span`
   border-radius: 9999px;
   background: ${lightPalette.hwanggeum[500]};
   color: #ffffff;
+
+  [data-theme='dark'] & {
+    background: ${lightPalette.hwanggeum[400]};
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) & {
+      background: ${lightPalette.hwanggeum[400]};
+    }
+  }
   font-size: ${fontSize.micro};
   font-weight: 700;
   line-height: 1;

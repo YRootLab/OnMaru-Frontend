@@ -43,7 +43,7 @@ const Root = styled.div<{ $panelOpen: boolean; $snap: SheetSnap; $embedded?: boo
         box-shadow: none;
 
         [data-theme='dark'] & {
-          background: #171E2B;
+          background: ${surface.dark.surface};
         }
       `
       : `

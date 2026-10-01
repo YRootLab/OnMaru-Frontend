@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import styled from '@emotion/styled';
@@ -6,6 +6,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { Activity01Icon, Clock01Icon, ShieldCheckIcon, SparklesIcon } from '@hugeicons/core-free-icons'
 
 import type { TranquilityData } from '../hooks/useHanokTranquility';
+import { palette, meok, surface, fontSize } from '@/design-system/tokens';
 
 interface TranquilityGaugeProps {
   data: TranquilityData | null;

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
@@ -11,6 +11,7 @@ import { useCuratedCourses, usePopularRegions, usePopularSounds } from '../hooks
 import { hasAuthenticatedUser, showLoginRequiredToast } from '@/features/auth/privateState';
 import { saveOdiiStory, unsaveOdiiStory } from '@/features/sorimaru-audio/api/odiiEngagementApi';
 import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
+import { palette, surface, ringShadow, fontSize } from '@/design-system/tokens';
 
 const FeedContainer = styled.div`
   width: min(calc(100% - 40px), 1140px);
