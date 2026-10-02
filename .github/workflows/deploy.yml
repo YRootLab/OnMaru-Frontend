@@ -35,3 +35,48 @@ jobs:
 
       - name: 빌드 실행
         run: npm run build
+
+  Deploy-Production:
+    name: Vercel 프로덕션 배포
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    needs: Build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+      - name: 소스코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Vercel CLI 설치
+        run: npm install --global vercel@latest
+
+      - name: Vercel 토큰 설정 확인
+        id: check-token
+        run: |
+          if [ -z "${{ secrets.VERCEL_TOKEN }}" ]; then
+            echo "available=false" >> $GITHUB_OUTPUT
+            echo "⚠️ VERCEL_TOKEN이 설정되지 않아 배포를 건너뜁니다."
+          else
+            echo "available=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Vercel 환경 설정 가져오기
+        if: steps.check-token.outputs.available == 'true'
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Vercel 프로덕션 빌드
+        if: steps.check-token.outputs.available == 'true'
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Vercel 프로덕션 배포
+        if: steps.check-token.outputs.available == 'true'
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
