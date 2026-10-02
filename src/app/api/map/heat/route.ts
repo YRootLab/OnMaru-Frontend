@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 
-const BACKEND = process.env.NEXT_PUBLIC_API_BASE_URL ?? process.env.NEXT_PUBLIC_API_URL ?? '';
+const BACKEND = process.env.NEXT_PUBLIC_API_URL ?? '';
 
 export async function GET(request: Request) {
   if (!BACKEND) {
-    console.error('[heat] NEXT_PUBLIC_API_BASE_URL / NEXT_PUBLIC_API_URL not configured — heatmap upstream unavailable');
+    console.error('[heat] NEXT_PUBLIC_API_URL not configured — heatmap upstream unavailable');
     return NextResponse.json({ spots: [], error: 'upstream not configured' }, { status: 502 });
   }
 

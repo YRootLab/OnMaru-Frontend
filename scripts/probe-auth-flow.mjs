@@ -15,7 +15,6 @@
 
 const API = (
   process.argv[2] ??
-  process.env.NEXT_PUBLIC_API_BASE_URL ??
   process.env.NEXT_PUBLIC_API_URL ??
   ''
 ).replace(/\/+$/, '');
@@ -23,7 +22,7 @@ const API = (
 if (!API) {
   console.error(
     '❌ 백엔드 주소가 없습니다. `npm run probe:auth -- http://localhost:8080`처럼 넘기거나\n' +
-      '   .env.local에 NEXT_PUBLIC_API_URL(또는 NEXT_PUBLIC_API_BASE_URL)을 설정해주세요.'
+      '   .env.local에 NEXT_PUBLIC_API_URL을 설정해주세요.'
   );
   process.exit(1);
 }
