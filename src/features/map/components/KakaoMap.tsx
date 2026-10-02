@@ -419,8 +419,9 @@ const LocatingOverlay = styled.div`
   animation: sogo-card-in 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
 
   @media (max-width: 1023px) {
-    right: 72px;
-    bottom: 136px;
+    right: 50%;
+    transform: translateX(50%);
+    bottom: 160px;
   }
 `;
 
@@ -467,12 +468,17 @@ const SogoBubble = styled.div`
 `;
 
 const SogoOniWrap = styled.div`
-  width: 120px;
-  height: 120px;
+  width: 160px;
+  height: 160px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
   animation: sogo-bounce 0.65s ease-in-out infinite;
+
+  @media (max-width: 1023px) {
+    width: 140px;
+    height: 140px;
+  }
 `;
 
 const SogoImg = styled.img`
