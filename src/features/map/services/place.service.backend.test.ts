@@ -10,7 +10,6 @@ vi.mock('@/lib/tour-api/tourApiClient', () => ({
 
 describe('PlaceService.getNearbyPlaces backend-first (FE #90)', () => {
   const originalApiUrl = process.env.NEXT_PUBLIC_API_URL;
-  const originalApiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   beforeEach(() => {
     apiGetMock.mockReset();
@@ -20,7 +19,6 @@ describe('PlaceService.getNearbyPlaces backend-first (FE #90)', () => {
 
   afterEach(() => {
     if (originalApiUrl === undefined) { delete process.env.NEXT_PUBLIC_API_URL; } else { process.env.NEXT_PUBLIC_API_URL = originalApiUrl; }
-    if (originalApiBaseUrl === undefined) { delete process.env.NEXT_PUBLIC_API_BASE_URL; } else { process.env.NEXT_PUBLIC_API_BASE_URL = originalApiBaseUrl; }
     vi.resetModules();
   });
 
@@ -102,9 +100,8 @@ describe('PlaceService.getNearbyPlaces backend-first (FE #90)', () => {
     expect(apiGetMock).not.toHaveBeenCalled();
   });
 
-  it('uses backend when only NEXT_PUBLIC_API_BASE_URL is set (prod regression #222)', async () => {
-    delete process.env.NEXT_PUBLIC_API_URL;
-    process.env.NEXT_PUBLIC_API_BASE_URL = 'https://api.onmaru.test';
+  it('uses backend when NEXT_PUBLIC_API_URL is set (prod regression #222)', async () => {
+    process.env.NEXT_PUBLIC_API_URL = 'https://api.onmaru.test';
     apiGetMock.mockResolvedValue({
       items: [
         {

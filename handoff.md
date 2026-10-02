@@ -1,6 +1,7 @@
 # handoff.md
 
 ## Current Work
+- 2026-10-02 FE #276: API 기준 URL을 `NEXT_PUBLIC_API_URL` 하나로 통합했다. 로컬 `.env.local`은 `https://staging-api.onmaru.site`, Vercel Production은 `https://api.onmaru.site`를 사용하며 Preview 설정은 필수 흐름에서 제외한다. GitHub Repository Secret `NEXT_PUBLIC_API_URL`을 추가했고, 병합 전까지 현행 workflow 보호를 위해 예전 `NEXT_PUBLIC_API_BASE_URL` Secret 삭제는 보류한다. 검증: Vitest 97 files/392 tests, TypeScript, ESLint(기존 warning 3건), 환경계약, staging URL production build 통과.
 - 2026-10-02 온이(Oni) 라이트 모드 그래픽 버그 해결 및 전사 UX Writing & 메뉴바 문구 표준화 완료:
   - 밝은 테마에서 `mix-blend-mode: screen;`으로 인해 온이 캐릭터가 백화되는 현상을 다크 모드 한정으로 격리하여 라이트/다크 전 테마에서 캐릭터 원본 색감이 선명하게 노출되도록 개선.
   - 전사 메뉴바, 네비게이션 탭, 퀵인덱스, 바텀시트, 빈 상태, 에러 상태, 모달 버튼, 토스트 문구 전반을 UX Writing 5대 코어밸류(Clear, Concise, Casual, Respect, Emotional)와 8대 프린시플에 맞춰 표준화.
@@ -37,7 +38,7 @@
 - 남은 반복 대상: `map/utils/formatters`의 중복 `toHttps` 통합 여부 판단(기능 경계를 넘는 공유 유틸이라 별도 결정 필요), 지도(`map`) 기능으로 1~5단계 반복(6단계 계속) — 범위가 커서 시작 전에 확인 필요.
 - `chore/remove-comments` 브랜치에서 추적 파일의 불필요한 주석을 제거 중이다. 컴파일러·린터·에디터 지시문과 실행용 shebang만 보존하고, 보존 주석은 문장부호 없이 단어로 끝나게 정리한다.
 - 카카오 로그인 로직을 백엔드 신규 플로우(2026-09-21 가이드, 로컬 e2e 검증 완료)에 맞춰 갱신했다. 변경 요약: (1) `features/auth`가 카카오 authorize URL을 직접 조립하던 목 모드 경로를 폐기하고 `GET /auth/kakao/login?returnTo=` 시작 + `{returnTo}?auth=success|failed` 복귀 파싱으로 전환, (2) 로그인 상태 판정을 localStorage `onmaru_user` 캐시가 아닌 zustand 인메모리 세션 스토어 + `GET /members/me`(200/401, `credentials: include`)로 단일화, (3) 콜백 페이지는 레거시 진입 방어로 축소, (4) 전역 `useAuthReturn` 핸들러를 `Providers`에 Suspense로 마운트, (5) `loginWithKakao`는 현재 경로를 returnTo로 쓰고 여정 저장 intent가 있으면 `/`로 돌아와 저장을 마무리한다.
-- 로컬 개발용 `.env.local`에는 `NEXT_PUBLIC_API_URL` 또는 `NEXT_PUBLIC_API_BASE_URL` 하나만 있으면 로그인이 동작한다(둘 다 client.ts에서 지원). 카카오 로그인 키는 FE에 불필요하다(지도 SDK용 `NEXT_PUBLIC_KAKAO_MAP_KEY`는 유지).
+- 로컬 개발용 `.env.local`은 `NEXT_PUBLIC_API_URL=https://staging-api.onmaru.site`를 사용한다. 카카오 로그인 키는 FE에 불필요하고 지도 SDK용 `NEXT_PUBLIC_KAKAO_MAP_KEY`는 유지한다.
 - 배포 전 백엔드 후속 작업(가이드 §4): 콜백 성공 redirect가 상대경로라 FE/BE가 다른 호스트면 브라우저가 백엔드 호스트로 이동한다. 백엔드가 FE origin allowlist 절대 redirect로 수정해야 한다.
 - 로그인 장애 발생 시 원인 판별 절차: (1) `npm run probe:auth` 실행 — 실패하면 백엔드/환경 문제, (2) 프로브 통과 시 `npm test -- src/features/auth` — 실패하면 FE 계약 문제, (3) 둘 다 통과하면 브라우저 네트워크 탭에서 `GET /auth/kakao/login` 요청·응답과 `{returnTo}?auth=` 복귀 쿼리를 확인한다. 실제 카카오 동의 화면 왕복은 자동 검증 대상이 아니다.
 - README를 다른 개발팀이 서비스 범위와 협업 지점을 이해할 수 있는 온마루 서비스 소개 문서로 개편했다. 구현 코드·명령·인증 정보는 포함하지 않았다.
