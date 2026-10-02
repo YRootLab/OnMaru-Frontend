@@ -75,16 +75,16 @@ const TabLink = styled(Link, transientProps)<TabProps>`
   margin: 4px 6px;
   border-radius: 12px;
   color: ${({ $isLanding, $isActive }) => {
-    if ($isActive) return $isLanding ? '#f8e6bd' : lightPalette.juhong[500];
+    if ($isActive) return $isLanding ? '#ffffff' : 'rgba(33, 30, 25, 0.9)';
     return $isLanding ? 'rgba(250, 250, 250, 0.68)' : 'rgba(33, 30, 25, 0.68)';
   }};
   background-color: ${({ $isActive, $isLanding }) => {
     if (!$isActive) return 'transparent';
-    return $isLanding ? 'rgba(255, 255, 255, 0.10)' : lightPalette.juhong[50];
+    return $isLanding ? 'rgba(255, 255, 255, 0.13)' : 'rgba(0, 0, 0, 0.07)';
   }};
   border: 1px solid ${({ $isActive, $isLanding }) => {
     if (!$isActive) return 'transparent';
-    return $isLanding ? 'rgba(255, 255, 255, 0.12)' : lightPalette.juhong[100];
+    return $isLanding ? 'rgba(255, 255, 255, 0.14)' : 'rgba(0, 0, 0, 0.07)';
   }};
   font-family: 'Spoqa Han Sans Neo', sans-serif;
   font-size: ${fontSize.micro};
@@ -98,14 +98,14 @@ const TabLink = styled(Link, transientProps)<TabProps>`
   }
 
   [data-theme='dark'] & {
-    color: ${({ $isLanding, $isActive }) => {
-      if ($isActive) return '#f8e6bd';
+    color: ${({ $isActive }) => {
+      if ($isActive) return '#ffffff';
       return 'rgba(250, 250, 250, 0.68)';
     }};
     background-color: ${({ $isActive }) =>
-      $isActive ? 'rgba(255, 120, 48, 0.18)' : 'transparent'};
+      $isActive ? 'rgba(255, 255, 255, 0.10)' : 'transparent'};
     border-color: ${({ $isActive }) =>
-      $isActive ? 'rgba(255, 120, 48, 0.25)' : 'transparent'};
+      $isActive ? 'rgba(255, 255, 255, 0.12)' : 'transparent'};
   }
 `;
 

@@ -46,6 +46,8 @@ const CATEGORIES: Record<MapMode, CategoryItem[]> = {
 
 function getCategoryActiveColor(categoryId: string): string {
   switch (categoryId) {
+    case 'hanok':
+      return palette.juhong[500];
     case 'stay':
       return palette.jangmi[600];
     case 'food':
@@ -129,7 +131,7 @@ const Chip = styled.button<{
   border-radius: 9999px;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: none;
+  border: 1px solid rgba(0, 0, 0, 0.08);
   white-space: nowrap;
   cursor: pointer;
   opacity: 0;
@@ -138,41 +140,40 @@ const Chip = styled.button<{
 
   transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
     box-shadow 0.18s ease,
-    background 0.18s ease,
-    color 0.18s ease;
+    border-color 0.18s ease,
+    color 0.18s ease,
+    font-weight 0.18s ease;
 
-  /* 폰트: 강조 칩은 선택/비선택 무관 항상 도현체 normal, 일반 칩은 Spoqa Han Sans Neo */
-  font-family: ${({ $isEmphasis }) =>
-    $isEmphasis ? fontFamily.dohyun : "'Spoqa Han Sans Neo', sans-serif"};
-  font-weight: ${({ $isEmphasis, $active }) =>
-    $isEmphasis ? 'normal' : $active ? 600 : 500};
+  /* 폰트: 전체 카테고리 칩 통일 */
+  font-family: 'Spoqa Han Sans Neo', sans-serif;
+  font-weight: ${({ $active }) => ($active ? 700 : 500)};
   font-size: ${fontSize.xs};
   letter-spacing: -0.02em;
 
-  /* 배경 & 글자색:
-     - 강조 칩: 도현체 + 온마루 메인 컬러 juhong[500] 배경 + 글자 흰색
-     - 일반 칩: 선택 시 해당 종류 색으로 채움, 비선택 시 기존 스타일 유지
-  */
-  background: ${({ $isEmphasis, $active, $categoryColor }) => {
-    if ($isEmphasis) return palette.juhong[500];
-    if ($active) return $categoryColor || meok[900];
-    return 'rgba(255, 255, 255, 0.94)';
-  }};
-  color: ${({ $isEmphasis, $active }) =>
-    $isEmphasis || $active ? '#ffffff' : meok[700]};
-  box-shadow: ${({ $isEmphasis, $active }) =>
-    $isEmphasis && $active
-      ? `0 0 0 2px #ffffff, 0 0 0 4px ${palette.juhong[500]}`
-      : 'none'};
+  /* 배경색은 변경 없이 유지, 활성화(active) 시 아이콘 및 폰트 색상만 변경 */
+  background: rgba(255, 255, 255, 0.94);
+  border-color: ${({ $active, $categoryColor }) =>
+    $active ? ($categoryColor || meok[900]) : 'rgba(0, 0, 0, 0.08)'};
+  color: ${({ $active, $categoryColor }) =>
+    $active ? ($categoryColor || meok[900]) : meok[700]};
+  box-shadow: ${({ $active, $categoryColor }) =>
+    $active
+      ? `0 0 0 1px ${$categoryColor || meok[900]}, 0 2px 8px rgba(0, 0, 0, 0.08)`
+      : '0 1px 3px rgba(0, 0, 0, 0.06)'};
+
+  svg {
+    flex-shrink: 0;
+  }
 
   &:hover {
-    color: #ffffff;
-    background: ${({ $isEmphasis, $active, $categoryColor }) => {
-      if ($isEmphasis) return palette.juhong[600];
-      if ($active) return $categoryColor || meok[900];
-      return meok[900];
-    }};
+    /* 호버 시 배경색 변경 없이 폰트 굵게 */
+    font-weight: 700;
+    color: ${({ $active, $categoryColor }) =>
+      $active ? ($categoryColor || meok[900]) : meok[900]};
+    border-color: ${({ $active, $categoryColor }) =>
+      $active ? ($categoryColor || meok[900]) : meok[400]};
     transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.09);
   }
 
   &:active {
@@ -180,7 +181,7 @@ const Chip = styled.button<{
   }
 
   &:focus-visible {
-    outline: 2px solid ${({ $isEmphasis }) => ($isEmphasis ? palette.juhong[500] : meok[900])};
+    outline: 2px solid ${({ $categoryColor }) => $categoryColor || meok[900]};
     outline-offset: 2px;
   }
 
@@ -197,23 +198,22 @@ const Chip = styled.button<{
   }
 
   [data-theme='dark'] & {
-    background: ${({ $isEmphasis, $active, $categoryColor }) => {
-      if ($isEmphasis) return palette.juhong[500];
-      if ($active) return $categoryColor || '#3B6FD4';
-      return 'rgba(23, 30, 43, 0.92)';
-    }};
-    border: 1px solid
-      ${({ $isEmphasis, $active }) => {
-        if ($isEmphasis) return $active ? 'rgba(255, 255, 255, 0.4)' : 'rgba(255, 255, 255, 0.2)';
-        if ($active) return 'rgba(255, 255, 255, 0.25)';
-        return 'rgba(255, 255, 255, 0.12)';
-      }};
-    color: ${({ $isEmphasis, $active }) =>
-      $isEmphasis || $active ? '#ffffff' : 'rgba(255, 255, 255, 0.87)'};
-    box-shadow: ${({ $isEmphasis, $active }) =>
-      $isEmphasis && $active
-        ? `0 0 0 2px #171E2B, 0 0 0 4px ${palette.juhong[500]}`
+    background: rgba(23, 30, 43, 0.92);
+    border-color: ${({ $active, $categoryColor }) =>
+      $active ? ($categoryColor || '#5EA4FF') : 'rgba(255, 255, 255, 0.12)'};
+    color: ${({ $active, $categoryColor }) =>
+      $active ? ($categoryColor || '#5EA4FF') : 'rgba(255, 255, 255, 0.75)'};
+    box-shadow: ${({ $active, $categoryColor }) =>
+      $active
+        ? `0 0 0 1px ${$categoryColor || '#5EA4FF'}, 0 2px 10px rgba(0, 0, 0, 0.4)`
         : ringShadow.dark.mapChip};
+
+    &:hover {
+      color: ${({ $active, $categoryColor }) =>
+        $active ? ($categoryColor || '#5EA4FF') : '#ffffff'};
+      border-color: ${({ $active, $categoryColor }) =>
+        $active ? ($categoryColor || '#5EA4FF') : 'rgba(255, 255, 255, 0.3)'};
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {

@@ -556,10 +556,9 @@ export const CoreValue = styled.span`
 `;
 
 export const BuildingSpecValue = styled.span`
-  font-family: ${fontFamily.dohyun};
   font-size: ${fontSize.sm};
-  font-weight: normal;
-  color: ${palette.juhong[700]};
+  font-weight: 600;
+  color: ${palette.juhong[500]};
   text-align: right;
   word-break: keep-all;
 
@@ -574,10 +573,9 @@ export const OverviewSection = styled.div`
 `;
 
 export const SectionTitle = styled.h3`
-  font-family: ${fontFamily.dohyun};
   margin: 0 0 8px;
   font-size: 16px;
-  font-weight: normal;
+  font-weight: 700;
   color: ${meok[900]};
 
   [data-theme='dark'] & {
