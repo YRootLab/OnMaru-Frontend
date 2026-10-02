@@ -195,7 +195,7 @@ export default function HanokManifestoCta() {
         : {
             duration: isManifestoFirst ? 0.9 : 1.8, // 첫글자는 0.9초 만에 또렷하게 안착
             delay,
-            ease: [0.25, 0.1, 0.25, 1],
+            ease: [0.25, 0.1, 0.25, 1] as const,
           },
     }),
   };
@@ -210,7 +210,7 @@ export default function HanokManifestoCta() {
         : {
             delay: totalDelay + 0.3,
             duration: 1.4,
-            ease: [0.25, 0.1, 0.25, 1],
+            ease: [0.25, 0.1, 0.25, 1] as const,
           },
     },
   };

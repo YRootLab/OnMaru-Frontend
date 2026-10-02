@@ -211,10 +211,19 @@ export const semanticTokens = {
       default: meok[400],
     },
     text: {
-      primary:   meok[900],
-      secondary: meok[700],
-      muted:     meok[500],
-      inverse:   '#FFFFFF',
+      primary:     meok[900],
+      secondary:   meok[700],
+      muted:       meok[500],
+      inverse:     '#FFFFFF',
+      hanokAccent: palette.juhong[700],
+    },
+    map: {
+      stay:      palette.jangmi[600],
+      food:      palette.cheongrok[700],
+      learn:     palette.kobalt[600],
+      play:      palette.jaha[500],
+      etc:       meok[600],
+      hanokMark: palette.juhong[500],
     },
     action: {
       primary:        palette.juhong[500],
@@ -236,6 +245,10 @@ export const semanticTokens = {
       starPressed: palette.hwanggeum[700],
       starBg:      palette.hwanggeum[50],
       starSubtle:  palette.hwanggeum[100],
+      emphasis: {
+        bg: palette.juhong[700],
+        fg: '#FFFFFF',
+      },
     },
     docent: {
       primary:        palette.jangmi[500],
@@ -293,10 +306,19 @@ export const semanticTokens = {
       default: 'rgba(255, 255, 255, 0.22)',
     },
     text: {
-      primary:   'rgba(255, 255, 255, 0.87)',
-      secondary: 'rgba(255, 255, 255, 0.60)',
-      muted:     'rgba(255, 255, 255, 0.38)',
-      inverse:   surface.dark.app,
+      primary:     'rgba(255, 255, 255, 0.87)',
+      secondary:   'rgba(255, 255, 255, 0.60)',
+      muted:       'rgba(255, 255, 255, 0.38)',
+      inverse:     surface.dark.app,
+      hanokAccent: palette.juhong[400],
+    },
+    map: {
+      stay:      palette.jangmi[500],
+      food:      palette.cheongrok[600],
+      learn:     palette.kobalt[500],
+      play:      palette.jaha[400],
+      etc:       meok[500],
+      hanokMark: palette.juhong[500],
     },
     action: {
       primary:        palette.kobalt[200],   // 200-tone 탈채도, 링크·아이콘·포커스
@@ -318,6 +340,10 @@ export const semanticTokens = {
       starPressed: palette.hwanggeum[700],
       starBg:      palette.hwanggeum[900],
       starSubtle:  palette.hwanggeum[700],
+      emphasis: {
+        bg: palette.juhong[700],
+        fg: '#FFFFFF',
+      },
     },
     docent: {
       primary:        palette.jangmi[500],

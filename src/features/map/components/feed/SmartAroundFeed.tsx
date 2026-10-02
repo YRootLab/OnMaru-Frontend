@@ -63,9 +63,12 @@ const SkeletonBar = styled.div<{ $w: string; $h: string; $radius?: string }>`
 `;
 import { HugeiconsIcon } from '@hugeicons/react'
 import { ChevronLeftIcon, ChevronRightIcon } from '@hugeicons/core-free-icons'
-import { lightPalette, meok, fontSize } from '@/design-system/tokens';
+import { lightPalette, meok, fontSize, fontFamily } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
-import type { Item } from '@/features/map/types';
+import { CATEGORY_STYLES } from '../PlaceMarkers';
+import { isHanok } from '@/features/map/utils/isHanok';
+import { EmphasisBadge } from '../EmphasisBadge';
+import type { Item, PlaceCategory } from '@/features/map/types';
 
 
 interface SmartAroundFeedProps {
@@ -97,8 +100,9 @@ const TitleBox = styled.div`
 
 const Title = styled.h3`
   margin: 0;
+  font-family: ${fontFamily.dohyun};
   font-size: ${fontSize.sm};
-  font-weight: 500;
+  font-weight: normal;
   color: ${meok[900]};
   letter-spacing: -0.02em;
 
@@ -109,8 +113,8 @@ const Title = styled.h3`
 
 const SubText = styled.span`
   font-size: ${fontSize.micro};
-  font-weight: 400;
-  color: ${lightPalette.cheongrok[500]};
+  font-weight: 500;
+  color: ${meok[500]};
 `;
 
 const FeedContainer = styled.div`
@@ -292,34 +296,43 @@ const TagRow = styled.div`
   margin-top: 2px;
 `;
 
-const HashTag = styled.span`
+const HashTag = styled.span<{ $category?: PlaceCategory }>`
   display: inline-flex;
   align-items: center;
   font-size: ${fontSize.micro};
   font-weight: 500;
-  color: ${lightPalette.cheongrok[700]};
-  background: rgba(30, 122, 104, 0.08);
+  color: ${({ $category }) =>
+    $category ? CATEGORY_STYLES[$category]?.main : meok[600]};
+  background: ${({ $category }) =>
+    $category ? CATEGORY_STYLES[$category]?.lightBg : 'rgba(78, 89, 104, 0.08)'};
   padding: 2px 7px;
   border-radius: 6px;
   letter-spacing: -0.01em;
+
+  [data-theme='dark'] & {
+    color: ${({ $category }) =>
+      $category ? CATEGORY_STYLES[$category]?.lightBorder : meok[300]};
+    background: ${({ $category }) => {
+      const color = $category && CATEGORY_STYLES[$category]?.main;
+      return color ? `${color}20` : 'rgba(255, 255, 255, 0.08)';
+    }};
+  }
 `;
 
-function getPlaceTags(item: Item): string[] {
-  const tags: string[] = [];
-
+function getPlaceTags(item: Item): { label: string; category?: PlaceCategory }[] {
+  const tags: { label: string; category?: PlaceCategory }[] = [];
 
   if (item.addr) {
     const parts = item.addr.split(' ');
     if (parts.length >= 2) {
       const city = parts[1].replace(/특별시|광역시|특별자치시|특별자치도|도|시|군|구/g, '').trim();
       if (city && city.length >= 2) {
-        tags.push(`#${city}`);
+        tags.push({ label: `#${city}` });
       }
     }
   }
 
-
-  const categoryTagMap: Record<string, string> = {
+  const categoryTagMap: Record<PlaceCategory, string> = {
     spot: '#고택명소',
     cafe: '#한옥카페',
     stay: '#한옥숙소',
@@ -329,7 +342,11 @@ function getPlaceTags(item: Item): string[] {
     food: '#향토음식',
     market: '#전통시장',
   };
-  tags.push(categoryTagMap[item.category] || '#한옥명소');
+
+  tags.push({
+    label: categoryTagMap[item.category] || '#한옥명소',
+    category: item.category,
+  });
 
   return tags;
 }
@@ -452,37 +469,49 @@ export default function SmartAroundFeed({ items }: SmartAroundFeedProps) {
         </FloatingNavBtn>
 
         <Scroller ref={scrollerRef} onWheel={handleWheel} role="region" aria-label="추천 한옥 명소 목록">
-        {curatedSpots.map((item) => (
-          <CuratedCard key={item.id} type="button" onClick={() => handleClick(item)}>
-            <PhotoBox $src={item.image!}>
-              <Image
-                src={item.image!}
-                alt={item.name}
-                fill
-                sizes="240px"
-                style={{ objectFit: 'cover' }}
-                unoptimized
-              />
-              {item.dist ? (
-                <DistanceOverlay>
-                  {Math.round(item.dist) >= 1000
-                    ? `${(item.dist / 1000).toFixed(1)}km`
-                    : `${Math.round(item.dist)}m`}
-                </DistanceOverlay>
-              ) : null}
-            </PhotoBox>
+        {curatedSpots.map((item) => {
+          const placeIsHanok = isHanok(item);
+          return (
+            <CuratedCard key={item.id} type="button" onClick={() => handleClick(item)}>
+              <PhotoBox $src={item.image!}>
+                <Image
+                  src={item.image!}
+                  alt={item.name}
+                  fill
+                  sizes="240px"
+                  style={{ objectFit: 'cover' }}
+                  unoptimized
+                />
+                {placeIsHanok && (
+                  <div style={{ position: 'absolute', top: 6, left: 6, zIndex: 2 }}>
+                    <EmphasisBadge size="sm" showIcon title="한옥 인증 및 전통 건축">
+                      한옥
+                    </EmphasisBadge>
+                  </div>
+                )}
+                {item.dist ? (
+                  <DistanceOverlay>
+                    {Math.round(item.dist) >= 1000
+                      ? `${(item.dist / 1000).toFixed(1)}km`
+                      : `${Math.round(item.dist)}m`}
+                  </DistanceOverlay>
+                ) : null}
+              </PhotoBox>
 
-            <Body>
-              <Name title={item.name}>{item.name}</Name>
-              <MoodReview>{getMoodReview(item.name, item.category)}</MoodReview>
-              <TagRow>
-                {getPlaceTags(item).map((tag) => (
-                  <HashTag key={tag}>{tag}</HashTag>
-                ))}
-              </TagRow>
-            </Body>
-          </CuratedCard>
-        ))}
+              <Body>
+                <Name title={item.name}>{item.name}</Name>
+                <MoodReview>{getMoodReview(item.name, item.category)}</MoodReview>
+                <TagRow>
+                  {getPlaceTags(item).map((tag) => (
+                    <HashTag key={tag.label} $category={tag.category}>
+                      {tag.label}
+                    </HashTag>
+                  ))}
+                </TagRow>
+              </Body>
+            </CuratedCard>
+          );
+        })}
       </Scroller>
       </FeedContainer>
     </Wrapper>

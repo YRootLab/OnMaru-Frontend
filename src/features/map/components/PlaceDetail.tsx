@@ -51,6 +51,7 @@ import {
   CoreRow,
   CoreLabel,
   CoreValue,
+  BuildingSpecValue,
   OverviewSection,
   SectionTitle,
   OverviewText,
@@ -64,6 +65,8 @@ import {
   SkeletonLine,
   ErrorBox,
 } from './detail/PlaceDetail.styles';
+import { isHanok } from '@/features/map/utils/isHanok';
+import { EmphasisBadge } from './EmphasisBadge';
 
 const log = logger('map');
 
@@ -153,10 +156,33 @@ export default function PlaceDetail() {
   const addr = data?.addr1 || selectedItem?.addr || '';
   const tel = data?.tel || selectedItem?.tel;
 
-  const isRealTraditional = useMemo(() => {
-    if (selectedItem?.isTraditional !== undefined) return selectedItem.isTraditional;
-    return isTraditionalPlace(title);
-  }, [selectedItem?.isTraditional, title]);
+  const placeIsHanok = useMemo(() => {
+    return isHanok(selectedItem || data);
+  }, [selectedItem, data]);
+
+  const bldStructure =
+    (selectedItem as any)?.strctCdNm?.toString() ||
+    (selectedItem as any)?.strct?.toString() ||
+    data?.intro?.['구조'] ||
+    data?.intro?.['건축구조'] ||
+    (selectedItem as any)?.structure?.toString();
+
+  const bldRoof =
+    (selectedItem as any)?.roofCdNm?.toString() ||
+    (selectedItem as any)?.roof?.toString() ||
+    data?.intro?.['지붕'] ||
+    data?.intro?.['지붕형태'] ||
+    (selectedItem as any)?.roofType?.toString();
+
+  const bldYear =
+    (selectedItem as any)?.archYear?.toString() ||
+    (selectedItem as any)?.buildYear?.toString() ||
+    data?.intro?.['건축연도'] ||
+    data?.intro?.['건축시기'] ||
+    data?.intro?.['건립시기'] ||
+    data?.intro?.['건축년도'];
+
+  const isRealTraditional = placeIsHanok || isTraditionalPlace(title);
 
   const userLocation = useMapStore((s) => s.userLocation);
   const center = useMapStore((s) => s.center);
@@ -167,26 +193,24 @@ export default function PlaceDetail() {
 
   const badges = useMemo(() => {
     const list: string[] = [];
-    if (isRealTraditional) {
-      list.push('정통 한옥');
-    } else {
+    if (!placeIsHanok) {
       list.push('주변 연계 시설');
     }
 
-    if (selectedItem?.category === 'stay') list.push(isRealTraditional ? '정통 한옥숙소' : '주변 숙박');
+    if (selectedItem?.category === 'stay') list.push(placeIsHanok ? '한옥숙소' : '주변 숙박');
     else if (selectedItem?.category === 'experience') list.push('전통체험');
     else if (selectedItem?.category === 'culture') list.push('문화유산');
-    else if (selectedItem?.category === 'festival') list.push('야행축제');
-    else if (selectedItem?.category === 'food') list.push(isRealTraditional ? '향토음식' : '일반음식');
-    else if (selectedItem?.category === 'cafe') list.push(isRealTraditional ? '전통찻집' : '일반카페');
+    else if (selectedItem?.category === 'festival') list.push('축제');
+    else if (selectedItem?.category === 'food') list.push(placeIsHanok ? '전통맛집' : '일반음식');
+    else if (selectedItem?.category === 'cafe') list.push(placeIsHanok ? '한옥카페' : '일반카페');
     else if (selectedItem?.category === 'market') list.push('전통시장');
-    else list.push(isRealTraditional ? '고택명소' : '관광명소');
+    else list.push(placeIsHanok ? '고택명소' : '관광명소');
 
     if (travelEstimate.fullLabel) {
       list.push(travelEstimate.fullLabel);
     }
     return list;
-  }, [selectedItem, isRealTraditional, travelEstimate]);
+  }, [selectedItem, placeIsHanok, travelEstimate]);
 
   let lat = Number(data?.mapy) || selectedItem?.lat || 0;
   let lng = Number(data?.mapx) || selectedItem?.lng || 0;
@@ -380,6 +404,9 @@ export default function PlaceDetail() {
               {addr && <PlaceAddress>{addr}</PlaceAddress>}
               {badges.length > 0 && (
                 <BadgeRow>
+                  {placeIsHanok && (
+                    <EmphasisBadge size="sm" showIcon>한옥</EmphasisBadge>
+                  )}
                   {badges.map((badge, idx) => (
                     <Badge key={idx}>{badge}</Badge>
                   ))}
@@ -538,6 +565,27 @@ export default function PlaceDetail() {
                                 : isRealTraditional ? '고택' : '명소'}
                 </CoreValue>
               </CoreRow>
+
+              {bldStructure && (
+                <CoreRow>
+                  <CoreLabel>건축 구조</CoreLabel>
+                  <BuildingSpecValue>{bldStructure}</BuildingSpecValue>
+                </CoreRow>
+              )}
+
+              {bldRoof && (
+                <CoreRow>
+                  <CoreLabel>지붕 양식</CoreLabel>
+                  <BuildingSpecValue>{bldRoof}</BuildingSpecValue>
+                </CoreRow>
+              )}
+
+              {bldYear && (
+                <CoreRow>
+                  <CoreLabel>건축 연도</CoreLabel>
+                  <BuildingSpecValue>{bldYear}</BuildingSpecValue>
+                </CoreRow>
+              )}
 
               {data?.intro?.['이용시간'] && (
                 <CoreRow>

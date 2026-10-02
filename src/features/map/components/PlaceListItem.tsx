@@ -11,6 +11,8 @@ import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { matchSorimaruStory } from '@/features/sorimaru-audio/hooks/useSorimaruPlaceStory';
 import { calculateTravelEstimate } from '@/features/map/utils/geo';
+import { isHanok } from '@/features/map/utils/isHanok';
+import { EmphasisBadge } from './EmphasisBadge';
 import { CATEGORY_STYLES } from './PlaceMarkers';
 import type { Item, PlaceCategory } from '@/features/map/types';
 import SavePlaceButton from '@/features/saved-resources/components/SavePlaceButton';
@@ -41,7 +43,7 @@ const ItemContainer = styled(motion.li)`
   }
 `;
 
-const ItemButton = styled.button<{ $isSelected: boolean }>`
+const ItemButton = styled.button<{ $isSelected: boolean; $category?: PlaceCategory }>`
   position: relative;
   display: flex;
   align-items: center;
@@ -62,13 +64,15 @@ const ItemButton = styled.button<{ $isSelected: boolean }>`
       transform: scale(1.3);
     }
     h4 {
-      color: ${lightPalette.cheongrok[700]};
+      color: ${({ $category }) =>
+        ($category && CATEGORY_STYLES[$category]?.main) || meok[900]};
     }
   }
 
   [data-theme='dark'] & {
     &:hover h4 {
-      color: #2dd4bf;
+      color: ${({ $category }) =>
+        ($category && CATEGORY_STYLES[$category]?.lightBorder) || '#ffffff'};
     }
   }
 
@@ -89,7 +93,7 @@ const SaveButtonSlot = styled.div`
   z-index: 3;
 `;
 
-const ThumbnailBox = styled.div<{ $isSelected?: boolean; $src?: string | null }>`
+const ThumbnailBox = styled.div<{ $isSelected?: boolean; $src?: string | null; $category?: PlaceCategory }>`
   position: relative;
   width: 88px;
   height: 88px;
@@ -104,8 +108,10 @@ const ThumbnailBox = styled.div<{ $isSelected?: boolean; $src?: string | null }>
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: ${({ $isSelected }) =>
-    $isSelected ? `0 0 0 2px ${lightPalette.cheongrok[500]}` : 'none'};
+  box-shadow: ${({ $isSelected, $category }) =>
+    $isSelected
+      ? `0 0 0 2px ${($category && CATEGORY_STYLES[$category]?.main) || lightPalette.cheongrok[500]}`
+      : 'none'};
   transition: box-shadow 0.2s ease;
 
   img {
@@ -121,8 +127,8 @@ const ThumbnailBox = styled.div<{ $isSelected?: boolean; $src?: string | null }>
   }
 `;
 
-const FallbackIconWrapper = styled.div`
-  color: ${meok[400]};
+const FallbackIconWrapper = styled.div<{ $category?: PlaceCategory }>`
+  color: ${({ $category }) => ($category && CATEGORY_STYLES[$category]?.main) || meok[400]};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -177,37 +183,17 @@ const CategoryTag = styled.span<{ $category: PlaceCategory }>`
   font-size: ${fontSize.micro};
   font-weight: 600;
   line-height: 1.4;
-  color: ${({ $category }) =>
-    $category === 'spot'
-      ? meok[700]
-      : CATEGORY_STYLES[$category]?.main || meok[700]};
-  background: ${({ $category }) =>
-    $category === 'spot'
-      ? 'rgba(78, 89, 104, 0.08)'
-      : CATEGORY_STYLES[$category]?.lightBg || 'rgba(78, 89, 104, 0.08)'};
+  color: ${({ $category }) => CATEGORY_STYLES[$category]?.main || meok[700]};
+  background: ${({ $category }) => CATEGORY_STYLES[$category]?.lightBg || 'rgba(78, 89, 104, 0.08)'};
   flex-shrink: 0;
   letter-spacing: -0.01em;
-`;
-
-const TraditionalBadge = styled.span`
-  display: inline-flex;
-  align-items: center;
-  gap: 3.5px;
-  padding: 2px 7.5px;
-  border-radius: 6px;
-  font-size: ${fontSize.micro};
-  font-weight: 800;
-  letter-spacing: -0.01em;
-  color: #854d0e;
-  background: #fef08a;
-  box-shadow: 0 1px 4px rgba(245, 158, 11, 0.2);
-  white-space: nowrap;
-  flex-shrink: 0;
 
   [data-theme='dark'] & {
-    color: #fef08a;
-    background: rgba(234, 179, 8, 0.28);
-    box-shadow: 0 0 10px rgba(250, 204, 21, 0.45);
+    color: ${({ $category }) => CATEGORY_STYLES[$category]?.lightBorder || meok[300]};
+    background: ${({ $category }) => {
+      const color = CATEGORY_STYLES[$category]?.main;
+      return color ? `${color}20` : 'rgba(255, 255, 255, 0.08)';
+    }};
   }
 `;
 
@@ -353,31 +339,19 @@ function PlaceListItemComponent({
     return Boolean(matchSorimaruStory(item, availableStories));
   }, [item, availableStories]);
 
-  const isRealTraditional = useMemo(() => {
-    if (item.isTraditional !== undefined) return item.isTraditional;
-    return /(한옥|고택|종택|향교|서원|사당|궁궐|성곽|누각|정자|기와|초가|전통|다원|다도|명옥헌|임청각|명재|선교장|운현궁|낙선재|대청|마루|온돌|당\b|재\b|헌\b|루\b|정\b|각\b|원\b)/i.test(
-      item.name,
-    );
-  }, [item.isTraditional, item.name]);
+  const placeIsHanok = useMemo(() => isHanok(item), [item]);
 
   const cleanCatLabel = useMemo(() => {
-    if (item.category === 'stay') return isRealTraditional ? '한옥 숙소' : '주변 숙소';
-    if (item.category === 'cafe') return isRealTraditional ? '한옥 카페' : '일반 카페';
-    if (item.category === 'food') return isRealTraditional ? '전통 맛집' : '일반 음식점';
+    if (item.category === 'stay') return placeIsHanok ? '한옥 숙소' : '주변 숙소';
+    if (item.category === 'cafe') return placeIsHanok ? '한옥 카페' : '일반 카페';
+    if (item.category === 'food') return placeIsHanok ? '전통 맛집' : '일반 음식점';
     if (item.category === 'spot') return '고택';
     if (item.category === 'market') return '전통 시장';
     if (item.category === 'culture') return '문화유산';
     if (item.category === 'experience') return '전통 체험';
     if (item.category === 'festival') return '축제';
-    return CATEGORY_LABELS[item.category] || '한옥 명소';
-  }, [item.category, isRealTraditional]);
-
-
-
-  const showTraditionalBadge = useMemo(() => {
-    if (!isRealTraditional) return false;
-    return item.category === 'spot' || item.category === 'culture';
-  }, [isRealTraditional, item.category]);
+    return CATEGORY_LABELS[item.category] || '명소';
+  }, [item.category, placeIsHanok]);
 
   const district = getDistrictFromAddr(item.addr);
 
@@ -391,13 +365,14 @@ function PlaceListItemComponent({
       <ItemButton
         type="button"
         $isSelected={isSelected}
+        $category={item.category}
         onClick={() => onSelect(item)}
         onMouseEnter={() => onHover(item.id)}
         onMouseLeave={() => onHover(null)}
         aria-current={isSelected ? 'true' : undefined}
         aria-expanded={isSelected}
       >
-        <ThumbnailBox $isSelected={isSelected} $src={item.image}>
+        <ThumbnailBox $isSelected={isSelected} $src={item.image} $category={item.category}>
           {item.image ? (
             <Image
               src={item.image}
@@ -408,7 +383,7 @@ function PlaceListItemComponent({
               unoptimized
             />
           ) : (
-            <FallbackIconWrapper>
+            <FallbackIconWrapper $category={item.category}>
               {renderCategoryIcon(item.category)}
             </FallbackIconWrapper>
           )}
@@ -421,11 +396,10 @@ function PlaceListItemComponent({
 
           <BadgeRow>
             <CategoryTag $category={item.category}>{cleanCatLabel}</CategoryTag>
-            {showTraditionalBadge && (
-              <TraditionalBadge title="정통 한옥 및 전통 문화재 인증 명소">
-                <HugeiconsIcon icon={Store01Icon} size={10.5} />
-                <span>정통 한옥</span>
-              </TraditionalBadge>
+            {placeIsHanok && (
+              <EmphasisBadge size="sm" showIcon title="한옥 인증 및 전통 건축">
+                한옥
+              </EmphasisBadge>
             )}
             {hasSorimaru && (
               <SorimaruBadge title="소리마루 오디오 해설 지원 장소">

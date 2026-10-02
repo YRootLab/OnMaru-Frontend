@@ -1,10 +1,10 @@
-﻿'use client';
+'use client';
 
 import { useMemo, useState, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, MapIcon, RotateCcwIcon, AlertCircleIcon, SparklesIcon, ListIcon, Bookmark01Icon } from '@hugeicons/core-free-icons'
+import { Cancel01Icon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, MapIcon, RotateCcwIcon, AlertCircleIcon, SparklesIcon, ListIcon, Bookmark01Icon } from '@hugeicons/core-free-icons'
 import { lightPalette, meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
@@ -634,7 +634,7 @@ export default function PlaceList() {
                     onClick={() => setSearchQuery('')}
                     style={{ width: '100%', justifyContent: 'center' }}
                   >
-                    <HugeiconsIcon icon={RotateCcwIcon} size={14} strokeWidth={2} />
+                    <HugeiconsIcon icon={Cancel01Icon} size={14} strokeWidth={2} />
                     <span>검색어 지우기</span>
                   </ActionButton>
                 )}
