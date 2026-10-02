@@ -95,10 +95,10 @@ const Dropdown = styled.div`
   right: 0;
   z-index: 40;
   padding: 16px;
-  border-radius: 20px;
+  border-radius: 12px;
   background: #ffffff;
   border: none;
-  box-shadow: ${ringShadow.light.mapPanel};
+  box-shadow: ${ringShadow.light.card};
   user-select: none;
   backdrop-filter: blur(20px);
   max-height: 60dvh;
@@ -107,14 +107,14 @@ const Dropdown = styled.div`
   [data-theme='dark'] & {
     background: ${surface.dark.card};
     border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: ${ringShadow.dark.mapPanel};
+    box-shadow: ${ringShadow.dark.card};
   }
 
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme='light']) & {
       background: ${surface.dark.card};
       border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: ${ringShadow.dark.mapPanel};
+      box-shadow: ${ringShadow.dark.card};
     }
   }
 
