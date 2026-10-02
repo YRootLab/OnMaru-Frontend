@@ -496,7 +496,7 @@ export default function PlaceDetail() {
               </HeroActionTile>
             </HeroActionGrid>
 
-            {}
+            {/* [TEMP] 도장첩 체크인 배너 — 준비 중, 복원 시 주석 해제
             {isRealTraditional && detailId && !isUnavailable(detailId) && (
               <StampCheckInBanner $isVisited={isPlaceVisited}>
                 <StampBannerLeft>
@@ -534,6 +534,7 @@ export default function PlaceDetail() {
                 </StampActionBtn>
               </StampCheckInBanner>
             )}
+            */}
 
             <CoreInfoBox>
               <CoreRow>
