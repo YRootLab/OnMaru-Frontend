@@ -153,8 +153,8 @@ export const ringShadow = {
 
     focusJuhong: '0 0 0 1px rgba(255, 85, 0, 0.35), 0 0 0 4px rgba(255, 85, 0, 0.08), 0 4px 12px rgba(255, 85, 0, 0.08)',
 
-    mapPanel: '0 12px 32px -8px rgba(0, 0, 0, 0.6), 0 4px 12px -4px rgba(0, 0, 0, 0.4)',
-    mapChip:  '0 4px 14px rgba(0, 0, 0, 0.4)',
+    mapPanel: '0 8px 28px -4px rgba(0, 0, 0, 0.12), 0 2px 8px -2px rgba(0, 0, 0, 0.07)',
+    mapChip:  REST_LIGHT,
   },
   dark: {
     card: REST_DARK,
@@ -166,7 +166,7 @@ export const ringShadow = {
     focusJuhong: '0 0 0 1px rgba(255, 110, 30, 0.45), 0 0 0 4px rgba(255, 110, 30, 0.15), 0 4px 16px rgba(255, 110, 30, 0.15)',
 
     mapPanel: '0 12px 32px -8px rgba(0, 0, 0, 0.72), 0 4px 12px -4px rgba(0, 0, 0, 0.55)',
-    mapChip:  '0 4px 14px rgba(0, 0, 0, 0.55)',
+    mapChip:  REST_DARK,
   },
 } as const;
 

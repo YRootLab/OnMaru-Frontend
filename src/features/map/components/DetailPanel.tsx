@@ -25,6 +25,7 @@ const DetailAside = styled(motion.aside)<{ $open: boolean }>`
   height: 100%;
   background: ${surface.light.card};
   border-radius: 24px;
+  box-shadow: ${ringShadow.light.mapPanel};
 
   z-index: 22;
   pointer-events: auto;
