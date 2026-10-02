@@ -1,4 +1,4 @@
-﻿
+
 
 
 
@@ -402,6 +402,24 @@ export const fluidHeading = {
 
 
 
+export const fontFaces = {
+  dohyun: `@font-face {
+  font-family: 'Dohyun';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMDOHYEON.woff') format('woff');
+  font-weight: normal;
+  font-display: swap;
+}`,
+} as const;
+
+export const fontFamily = {
+  sans: '"Spoqa Han Sans Neo", system-ui, sans-serif',
+  serif: '"Spoqa Han Sans Neo", system-ui, sans-serif',
+  traditionalTitle: '"Spoqa Han Sans Neo", sans-serif',
+  traditionalBody: '"Spoqa Han Sans Neo", sans-serif',
+  traditional: '"Spoqa Han Sans Neo", sans-serif',
+  dohyun: "'Dohyun', sans-serif",
+} as const;
+
 export const createTheme = (mode: ColorMode) => {
   const s = semanticTokens[mode];
 
@@ -427,13 +445,8 @@ export const createTheme = (mode: ColorMode) => {
     },
 
     typography: {
-      fontFamily: {
-        sans: '"Spoqa Han Sans Neo", system-ui, sans-serif',
-        serif: '"Spoqa Han Sans Neo", system-ui, sans-serif',
-        traditionalTitle: '"Spoqa Han Sans Neo", sans-serif',
-        traditionalBody: '"Spoqa Han Sans Neo", sans-serif',
-        traditional: '"Spoqa Han Sans Neo", sans-serif',
-      },
+      fontFaces,
+      fontFamily,
       fontSize,
       mobile: {
         d1: '56px', d2: '36px', d3: '32px',
