@@ -6,7 +6,8 @@ import Image from 'next/image';
 import styled from '@emotion/styled';
 import { AnimatePresence, motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Award01Icon, BookOpen01Icon, Bookmark01Icon, CheckIcon, HeadphonesIcon, Home01Icon, MapPinIcon, Moon01Icon, SparklesIcon, Sun01Icon, UserIcon } from '@hugeicons/core-free-icons'
+import { Award01Icon, Bookmark01Icon, CheckIcon, HeadphonesIcon, Home01Icon, MapPinIcon, Moon01Icon, SparklesIcon, Sun01Icon, UserIcon } from '@hugeicons/core-free-icons'
+import { HanokIcon } from './HanokIcon'
 import { transientProps } from '@/design-system/styled';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useJourneyStore } from '@/features/journey-curator/store/useJourneyStore';
@@ -403,7 +404,7 @@ export default function MapNavRail() {
           title="한옥마루"
         >
           <NavItemIcon>
-            <HugeiconsIcon icon={BookOpen01Icon} size={19} strokeWidth={2} />
+            <HanokIcon size={22} />
           </NavItemIcon>
           <NavItemLabel>한옥마루</NavItemLabel>
         </NavItemBtn>
