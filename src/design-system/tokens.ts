@@ -215,7 +215,7 @@ export const semanticTokens = {
       secondary:   meok[700],
       muted:       meok[500],
       inverse:     '#FFFFFF',
-      hanokAccent: palette.juhong[700],
+      hanokAccent: palette.juhong[500],
     },
     map: {
       stay:      palette.jangmi[600],
@@ -246,7 +246,7 @@ export const semanticTokens = {
       starBg:      palette.hwanggeum[50],
       starSubtle:  palette.hwanggeum[100],
       emphasis: {
-        bg: palette.juhong[700],
+        bg: palette.juhong[500],
         fg: '#FFFFFF',
       },
     },
@@ -341,7 +341,7 @@ export const semanticTokens = {
       starBg:      palette.hwanggeum[900],
       starSubtle:  palette.hwanggeum[700],
       emphasis: {
-        bg: palette.juhong[700],
+        bg: palette.juhong[500],
         fg: '#FFFFFF',
       },
     },

@@ -150,11 +150,11 @@ const Chip = styled.button<{
   letter-spacing: -0.02em;
 
   /* 배경 & 글자색:
-     - 강조 칩: 도현체 + 배경 juhong[700] + 글자 흰색
+     - 강조 칩: 도현체 + 온마루 메인 컬러 juhong[500] 배경 + 글자 흰색
      - 일반 칩: 선택 시 해당 종류 색으로 채움, 비선택 시 기존 스타일 유지
   */
   background: ${({ $isEmphasis, $active, $categoryColor }) => {
-    if ($isEmphasis) return palette.juhong[700];
+    if ($isEmphasis) return palette.juhong[500];
     if ($active) return $categoryColor || meok[900];
     return 'rgba(255, 255, 255, 0.94)';
   }};
@@ -168,7 +168,7 @@ const Chip = styled.button<{
   &:hover {
     color: #ffffff;
     background: ${({ $isEmphasis, $active, $categoryColor }) => {
-      if ($isEmphasis) return palette.juhong[800];
+      if ($isEmphasis) return palette.juhong[600];
       if ($active) return $categoryColor || meok[900];
       return meok[900];
     }};
@@ -198,7 +198,7 @@ const Chip = styled.button<{
 
   [data-theme='dark'] & {
     background: ${({ $isEmphasis, $active, $categoryColor }) => {
-      if ($isEmphasis) return palette.juhong[700];
+      if ($isEmphasis) return palette.juhong[500];
       if ($active) return $categoryColor || '#3B6FD4';
       return 'rgba(23, 30, 43, 0.92)';
     }};

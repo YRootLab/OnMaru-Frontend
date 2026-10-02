@@ -16,7 +16,7 @@ const StyledBadge = styled.span<{ $size: 'sm' | 'md' }>`
   align-items: center;
   justify-content: center;
   border-radius: 9999px;
-  background: ${palette.juhong[700]};
+  background: ${palette.juhong[500]};
   color: #ffffff;
   font-family: ${fontFamily.dohyun};
   font-weight: normal;
@@ -32,7 +32,7 @@ const StyledBadge = styled.span<{ $size: 'sm' | 'md' }>`
   font-size: ${({ $size }) => ($size === 'sm' ? fontSize.micro : fontSize.xs)};
 
   [data-theme='dark'] & {
-    background: ${palette.juhong[700]};
+    background: ${palette.juhong[500]};
     color: #ffffff;
   }
 `;
@@ -42,7 +42,7 @@ const StyledBadge = styled.span<{ $size: 'sm' | 'md' }>`
  *
  * 규칙:
  * - 폰트: 도현체 (fontFamily.dohyun), font-weight: normal (가짜 볼드 방지).
- * - 배경: juhong[700] (badge.emphasis.bg).
+ * - 배경: juhong[500] (badge.emphasis.bg, 프로젝트 메인 컬러).
  * - 글자: 흰색 (#FFFFFF, badge.emphasis.fg).
  * - 아이콘: /icon/hanok.svg 기반 HanokIcon 지원 (showIcon prop).
  * - 용도: 한옥 표식, 국가민속문화유산, 공식 한옥체험업 등 도현체 강조 라벨.
