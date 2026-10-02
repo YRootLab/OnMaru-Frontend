@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Cancel01Icon, GlobeIcon, RotateCcwIcon, Search01Icon } from '@hugeicons/core-free-icons'
+import { Cancel01Icon, GlobeIcon, Search01Icon } from '@hugeicons/core-free-icons'
 import { lightPalette, meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
 import { DEFAULT_CENTER, DEFAULT_LEVEL, useMapStore } from '@/features/map/hooks/useMapStore';
 
@@ -270,7 +270,6 @@ export default function SearchBar({ className }: SearchBarProps) {
     }
   }, [searchTrigger, searchQuery]);
 
-
   const handleResetToNationwide = () => {
     setValue('');
     setSearchQuery('');
@@ -354,7 +353,7 @@ export default function SearchBar({ className }: SearchBarProps) {
     performSearch(value);
   };
 
-  const isSearched = Boolean(value) || (currentAddress && !currentAddress.includes('전국'));
+  const isSearched = Boolean(value) || Boolean(currentAddress && !currentAddress.includes('전국'));
 
   return (
     <Wrap className={className}>
@@ -374,23 +373,13 @@ export default function SearchBar({ className }: SearchBarProps) {
         />
 
         <ButtonGroup>
-          {isSearched && (
-            <ActionIconBtn
-              type="button"
-              aria-label="전국 지도 보기"
-              title="전국 지도 보기"
-              onClick={handleResetToNationwide}
-            >
-              <HugeiconsIcon icon={RotateCcwIcon} size={14} strokeWidth={2} />
-            </ActionIconBtn>
-          )}
-
           {value && (
             <ActionIconBtn
               type="button"
               aria-label="검색어 지우기"
               onClick={() => {
                 setValue('');
+                setSearchQuery('');
               }}
             >
               <HugeiconsIcon icon={Cancel01Icon} size={16} strokeWidth={2} />
