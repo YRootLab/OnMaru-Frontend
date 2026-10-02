@@ -8,6 +8,7 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { BookOpen01Icon, HeadphonesIcon, Home01Icon, MapIcon, UserIcon } from '@hugeicons/core-free-icons'
 import { transientProps } from '@/design-system/styled';
 import { lightPalette, fontSize } from '@/design-system/tokens';
+import { HanokIcon } from '@/features/map/components/HanokIcon';
 import { useJourneyStore } from '@/features/journey-curator/store/useJourneyStore';
 import { useAuth } from '@/features/auth';
 
@@ -144,6 +145,8 @@ export default function GlobalMobileTabs({ isLanding }: { isLanding: boolean }) 
             <span style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
               {tab.icon === HeadphonesIcon && isSelected ? (
                 <HeadphonesFilledEars size={19} strokeWidth={1.5} />
+              ) : tab.href === '/hanok' ? (
+                <HanokIcon size={20} />
               ) : (
                 <HugeiconsIcon
                   icon={tab.icon}

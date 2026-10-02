@@ -19,6 +19,7 @@ import {
 import type { ThemePreference } from '@/design-system/tokens';
 import { useAuth } from '@/features/auth';
 import GlobalMobileTabs, { HeadphonesFilledEars } from './GlobalMobileTabs';
+import { HanokIcon } from '@/features/map/components/HanokIcon';
 import { HEADER_EXIT_S, ENTRANCE_EASE } from '@/shared/navigation/mapEntranceTiming';
 import { useMapEntranceStore } from '@/shared/navigation/mapEntranceState';
 import { shouldUseLandingDarkSurface } from './headerSurface';
@@ -878,6 +879,11 @@ export default function Header() {
                     <HeadphonesFilledEars
                       size={13}
                       strokeWidth={1.5}
+                      style={{ marginRight: 5, verticalAlign: '-1px' }}
+                    />
+                  ) : item.href === '/hanok' ? (
+                    <HanokIcon
+                      size={14}
                       style={{ marginRight: 5, verticalAlign: '-1px' }}
                     />
                   ) : (
