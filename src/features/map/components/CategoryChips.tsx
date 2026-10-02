@@ -27,7 +27,7 @@ const CATEGORIES: Record<MapMode, CategoryItem[]> = {
     { id: 'hanok', label: '한옥', keyword: '한옥', icon: LandmarkIcon, isEmphasis: true },
     { id: 'stay', label: '숙소', keyword: '한옥스테이', icon: Moon01Icon },
     { id: 'food', label: '전통 맛집', keyword: '향토음식', icon: UtensilsIcon },
-    { id: 'cafe', label: '한옥 카페', keyword: '한옥카페', icon: Coffee01Icon },
+    { id: 'cafe', label: '전통 카페', keyword: '전통카페', icon: Coffee01Icon },
     { id: 'market', label: '전통 시장', keyword: '전통시장', icon: ShoppingBag01Icon },
     { id: 'spot', label: '고택', keyword: '고택', icon: LandmarkIcon },
     { id: 'culture', label: '문화유산', keyword: '서원', icon: LandmarkIcon },

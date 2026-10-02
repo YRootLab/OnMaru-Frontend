@@ -442,7 +442,7 @@ export default function SmartAroundFeed({ items }: SmartAroundFeedProps) {
     <Wrapper>
       <Header>
         <TitleBox>
-          <Title>추천 한옥 명소</Title>
+          <Title>추천 명소</Title>
         </TitleBox>
       </Header>
 

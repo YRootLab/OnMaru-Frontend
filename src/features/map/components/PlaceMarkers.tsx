@@ -17,8 +17,8 @@ import type { Item, PlaceCategory } from '../types';
 const log = logger('map');
 
 
-const LABEL_MAX_LEVEL = 5;
-const PIN_MAX_LEVEL = 6;
+const LABEL_MAX_LEVEL = 4;
+const PIN_MAX_LEVEL = 8;
 
 
 
@@ -28,8 +28,9 @@ const PIN_MAX_LEVEL = 6;
 
 
 
-const LABEL_PIN_LIMIT = 60;
-const BADGE_PIN_LIMIT = 40;
+const LABEL_PIN_LIMIT = 30;
+const BADGE_PIN_LIMIT = 25;
+
 
 
 const CATEGORY_ICONS: Record<PlaceCategory, MapIconName> = {
@@ -856,10 +857,11 @@ function clusterNearbyItems(items: Item[], level: number): ClusterGroup[] {
   const cellSize =
     level >= 11 ? 0.85 :
     level >= 10 ? 0.45 :
-    level >= 9 ? 0.22 :
-    level >= 8 ? 0.08 :
-    level >= 7 ? 0.04 :
-    0.02;
+    level >= 9  ? 0.22 :
+    level >= 8  ? 0.10 :
+    level >= 7  ? 0.05 :
+    level >= 6  ? 0.025 :
+    0.012;
   const grid = new Map<string, Item[]>();
 
   for (const item of items) {

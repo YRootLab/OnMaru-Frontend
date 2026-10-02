@@ -61,18 +61,13 @@ const ItemButton = styled.button<{ $isSelected: boolean; $category?: PlaceCatego
 
   &:hover {
     img {
-      transform: scale(1.3);
-    }
-    h4 {
-      color: ${({ $category }) =>
-        ($category && CATEGORY_STYLES[$category]?.main) || meok[900]};
+      transform: scale(1.08);
     }
   }
 
   [data-theme='dark'] & {
     &:hover h4 {
-      color: ${({ $category }) =>
-        ($category && CATEGORY_STYLES[$category]?.lightBorder) || '#ffffff'};
+      color: #ffffff;
     }
   }
 

@@ -187,7 +187,7 @@ export const MAP_INFO_CATEGORY_LABELS: Record<MapInfoCategory, string> = {
   festival: '축제',
   stay: '한옥 숙소',
   food: '전통 맛집',
-  cafe: '한옥 카페',
+  cafe: '전통 카페',
   market: '전통 시장',
   all: '전체',
 };

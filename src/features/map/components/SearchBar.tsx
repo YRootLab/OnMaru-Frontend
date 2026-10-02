@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Cancel01Icon, GlobeIcon, Search01Icon } from '@hugeicons/core-free-icons'
+import { GlobeIcon, Search01Icon } from '@hugeicons/core-free-icons'
 import { lightPalette, meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
 import { DEFAULT_CENTER, DEFAULT_LEVEL, useMapStore } from '@/features/map/hooks/useMapStore';
 
@@ -84,43 +84,6 @@ const Input = styled.input`
 
     &::placeholder {
       color: ${meok[400]};
-    }
-  }
-`;
-
-const ButtonGroup = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 4px;
-`;
-
-const ActionIconBtn = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  flex: none;
-  padding: 0;
-
-  border-radius: 50%;
-  background: rgba(25, 31, 40, 0.08);
-  color: ${meok[700]};
-  cursor: pointer;
-  transition: all 0.15s ease;
-
-  &:hover {
-    background: rgba(25, 31, 40, 0.16);
-    color: ${meok[900]};
-  }
-
-  [data-theme='dark'] & {
-    background: rgba(255, 255, 255, 0.1);
-    color: ${meok[400]};
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.18);
-      color: #ffffff;
     }
   }
 `;
@@ -263,12 +226,62 @@ export default function SearchBar({ className }: SearchBarProps) {
   const [open, setOpen] = useState(false);
   const lastTriggerRef = useRef(searchTrigger);
 
+  const performSearch = useCallback(
+    (query: string) => {
+      const keyword = query.trim();
+      if (!keyword) return;
+
+      setValue(keyword);
+      setSearchQuery(keyword);
+      setOpen(false);
+
+      const store = useMapStore.getState();
+
+      if (typeof window !== 'undefined' && window.kakao?.maps?.services) {
+        const ps = new window.kakao.maps.services.Places();
+        ps.keywordSearch(keyword, (data: any, status: any) => {
+          if (status === window.kakao.maps.services.Status.OK && data && data.length > 0) {
+            const first = data[0];
+            const targetLat = Number(first.y);
+            const targetLng = Number(first.x);
+
+            if (map) {
+              const latLng = new window.kakao.maps.LatLng(targetLat, targetLng);
+              map.setCenter(latLng);
+              map.setLevel(4, { animate: true });
+            }
+
+            store.setCurrentAddress(first.address_name || keyword);
+            store.setCenter({ lat: targetLat, lng: targetLng }, 4);
+            store.clearSearchDirty();
+            return;
+          }
+
+          fallbackLocalSearch(keyword);
+        });
+      } else {
+        fallbackLocalSearch(keyword);
+      }
+    },
+    [map],
+  );
+
+  // searchQuery가 외부(CategoryChips 등)에서 바뀌면 입력창 텍스트 동기화
+  useEffect(() => {
+    setValue(searchQuery);
+  }, [searchQuery]);
+
+  // searchTrigger 증가 시 실제 검색 실행 (두 SearchBar 인스턴스 모두 실행하지만
+  // performSearch는 동일 결과를 도출하므로 멱등성 보장)
   useEffect(() => {
     if (searchTrigger !== lastTriggerRef.current) {
-      performSearch(searchQuery);
       lastTriggerRef.current = searchTrigger;
+      const q = useMapStore.getState().searchQuery;
+      if (q) performSearch(q);
     }
-  }, [searchTrigger, searchQuery]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTrigger]);
+
 
   const handleResetToNationwide = () => {
     setValue('');
@@ -288,56 +301,13 @@ export default function SearchBar({ className }: SearchBarProps) {
     }
   };
 
-  const performSearch = useCallback(
-    (query: string) => {
-      const keyword = query.trim();
-      if (!keyword) return;
-
-      setValue(keyword);
-      setSearchQuery(keyword);
-      setOpen(false);
-
-      const store = useMapStore.getState();
-
-
-      if (typeof window !== 'undefined' && window.kakao?.maps?.services) {
-        const ps = new window.kakao.maps.services.Places();
-        ps.keywordSearch(keyword, (data: any, status: any) => {
-          if (status === window.kakao.maps.services.Status.OK && data && data.length > 0) {
-            const first = data[0];
-            const targetLat = Number(first.y);
-            const targetLng = Number(first.x);
-
-
-            if (map) {
-              const latLng = new window.kakao.maps.LatLng(targetLat, targetLng);
-              map.setCenter(latLng);
-              map.setLevel(4, { animate: true });
-            }
-
-
-            store.setCurrentAddress(first.address_name || keyword);
-            store.setCenter({ lat: targetLat, lng: targetLng }, 4);
-            store.clearSearchDirty();
-            return;
-          }
-
-
-          fallbackLocalSearch(keyword);
-        });
-      } else {
-        fallbackLocalSearch(keyword);
-      }
-    },
-    [map],
-  );
-
   const fallbackLocalSearch = (keyword: string) => {
     const store = useMapStore.getState();
     const cleanKw = keyword.toLowerCase().replace(/\s+/g, '');
     const matched = store.items.find((item) =>
       item.name.toLowerCase().replace(/\s+/g, '').includes(cleanKw),
     );
+
 
     if (matched && map && window.kakao?.maps) {
       map.panTo(new window.kakao.maps.LatLng(matched.lat, matched.lng));
@@ -372,21 +342,9 @@ export default function SearchBar({ className }: SearchBarProps) {
           onBlur={() => setTimeout(() => setOpen(false), 220)}
         />
 
-        <ButtonGroup>
-          {value && (
-            <ActionIconBtn
-              type="button"
-              aria-label="검색어 지우기"
-              onClick={() => {
-                setValue('');
-                setSearchQuery('');
-              }}
-            >
-              <HugeiconsIcon icon={Cancel01Icon} size={16} strokeWidth={2} />
-            </ActionIconBtn>
-          )}
-        </ButtonGroup>
+
       </Field>
+
 
       {open && (
         <Dropdown>
