@@ -6,7 +6,7 @@ import Image from 'next/image';
 import styled from '@emotion/styled';
 import { AnimatePresence, motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Award01Icon, Bookmark01Icon, CheckIcon, HeadphonesIcon, Home01Icon, MapPinIcon, Moon01Icon, SparklesIcon, Sun01Icon, UserIcon } from '@hugeicons/core-free-icons'
+import { Bookmark01Icon, CheckIcon, HeadphonesIcon, Home01Icon, MapPinIcon, Moon01Icon, SparklesIcon, Sun01Icon, UserIcon } from '@hugeicons/core-free-icons'
 import { HanokIcon } from './HanokIcon'
 import { transientProps } from '@/design-system/styled';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
@@ -437,7 +437,7 @@ export default function MapNavRail() {
           <NavItemLabel>지도마루</NavItemLabel>
         </NavItemBtn>
 
-        {}
+        {/* [TEMP] 도장첩 — 준비 중, 복원 시 주석 해제
         <NavItemBtn
           type="button"
           $active={false}
@@ -450,6 +450,7 @@ export default function MapNavRail() {
           </NavItemIcon>
           <NavItemLabel>도장첩</NavItemLabel>
         </NavItemBtn>
+        */}
 
 
         {}
