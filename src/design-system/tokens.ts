@@ -1,4 +1,4 @@
-﻿
+
 
 
 
@@ -153,8 +153,8 @@ export const ringShadow = {
 
     focusJuhong: '0 0 0 1px rgba(255, 85, 0, 0.35), 0 0 0 4px rgba(255, 85, 0, 0.08), 0 4px 12px rgba(255, 85, 0, 0.08)',
 
-    mapPanel: '0 12px 32px -8px rgba(0, 0, 0, 0.6), 0 4px 12px -4px rgba(0, 0, 0, 0.4)',
-    mapChip:  '0 4px 14px rgba(0, 0, 0, 0.4)',
+    mapPanel: '0 8px 28px -4px rgba(0, 0, 0, 0.12), 0 2px 8px -2px rgba(0, 0, 0, 0.07)',
+    mapChip:  REST_LIGHT,
   },
   dark: {
     card: REST_DARK,
@@ -166,7 +166,7 @@ export const ringShadow = {
     focusJuhong: '0 0 0 1px rgba(255, 110, 30, 0.45), 0 0 0 4px rgba(255, 110, 30, 0.15), 0 4px 16px rgba(255, 110, 30, 0.15)',
 
     mapPanel: '0 12px 32px -8px rgba(0, 0, 0, 0.72), 0 4px 12px -4px rgba(0, 0, 0, 0.55)',
-    mapChip:  '0 4px 14px rgba(0, 0, 0, 0.55)',
+    mapChip:  REST_DARK,
   },
 } as const;
 
@@ -211,10 +211,19 @@ export const semanticTokens = {
       default: meok[400],
     },
     text: {
-      primary:   meok[900],
-      secondary: meok[700],
-      muted:     meok[500],
-      inverse:   '#FFFFFF',
+      primary:     meok[900],
+      secondary:   meok[700],
+      muted:       meok[500],
+      inverse:     '#FFFFFF',
+      hanokAccent: palette.juhong[500],
+    },
+    map: {
+      stay:      palette.jangmi[600],
+      food:      palette.cheongrok[700],
+      learn:     palette.kobalt[600],
+      play:      palette.jaha[500],
+      etc:       meok[600],
+      hanokMark: palette.juhong[500],
     },
     action: {
       primary:        palette.juhong[500],
@@ -236,6 +245,10 @@ export const semanticTokens = {
       starPressed: palette.hwanggeum[700],
       starBg:      palette.hwanggeum[50],
       starSubtle:  palette.hwanggeum[100],
+      emphasis: {
+        bg: palette.juhong[500],
+        fg: '#FFFFFF',
+      },
     },
     docent: {
       primary:        palette.jangmi[500],
@@ -293,10 +306,19 @@ export const semanticTokens = {
       default: 'rgba(255, 255, 255, 0.22)',
     },
     text: {
-      primary:   'rgba(255, 255, 255, 0.87)',
-      secondary: 'rgba(255, 255, 255, 0.60)',
-      muted:     'rgba(255, 255, 255, 0.38)',
-      inverse:   surface.dark.app,
+      primary:     'rgba(255, 255, 255, 0.87)',
+      secondary:   'rgba(255, 255, 255, 0.60)',
+      muted:       'rgba(255, 255, 255, 0.38)',
+      inverse:     surface.dark.app,
+      hanokAccent: palette.juhong[400],
+    },
+    map: {
+      stay:      palette.jangmi[500],
+      food:      palette.cheongrok[600],
+      learn:     palette.kobalt[500],
+      play:      palette.jaha[400],
+      etc:       meok[500],
+      hanokMark: palette.juhong[500],
     },
     action: {
       primary:        palette.kobalt[200],   // 200-tone 탈채도, 링크·아이콘·포커스
@@ -318,6 +340,10 @@ export const semanticTokens = {
       starPressed: palette.hwanggeum[700],
       starBg:      palette.hwanggeum[900],
       starSubtle:  palette.hwanggeum[700],
+      emphasis: {
+        bg: palette.juhong[500],
+        fg: '#FFFFFF',
+      },
     },
     docent: {
       primary:        palette.jangmi[500],
@@ -402,6 +428,24 @@ export const fluidHeading = {
 
 
 
+export const fontFaces = {
+  dohyun: `@font-face {
+  font-family: 'Dohyun';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/BMDOHYEON.woff') format('woff');
+  font-weight: normal;
+  font-display: swap;
+}`,
+} as const;
+
+export const fontFamily = {
+  sans: '"Spoqa Han Sans Neo", system-ui, sans-serif',
+  serif: '"Spoqa Han Sans Neo", system-ui, sans-serif',
+  traditionalTitle: '"Spoqa Han Sans Neo", sans-serif',
+  traditionalBody: '"Spoqa Han Sans Neo", sans-serif',
+  traditional: '"Spoqa Han Sans Neo", sans-serif',
+  dohyun: "'Dohyun', sans-serif",
+} as const;
+
 export const createTheme = (mode: ColorMode) => {
   const s = semanticTokens[mode];
 
@@ -427,13 +471,8 @@ export const createTheme = (mode: ColorMode) => {
     },
 
     typography: {
-      fontFamily: {
-        sans: '"Spoqa Han Sans Neo", system-ui, sans-serif',
-        serif: '"Spoqa Han Sans Neo", system-ui, sans-serif',
-        traditionalTitle: '"Spoqa Han Sans Neo", sans-serif',
-        traditionalBody: '"Spoqa Han Sans Neo", sans-serif',
-        traditional: '"Spoqa Han Sans Neo", sans-serif',
-      },
+      fontFaces,
+      fontFamily,
       fontSize,
       mobile: {
         d1: '56px', d2: '36px', d3: '32px',

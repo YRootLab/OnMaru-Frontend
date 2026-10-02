@@ -22,6 +22,7 @@ const Panel = styled.aside<{ $open: boolean; $mounted: boolean }>`
   height: 100%;
   background: ${surface.light.card};
   border-radius: 24px;
+  box-shadow: ${ringShadow.light.mapPanel};
 
   z-index: 21;
   pointer-events: auto;
@@ -198,4 +199,4 @@ export default function ListPanel() {
       </Toggle>
     </Panel>
   );
-}
+}

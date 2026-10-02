@@ -7,29 +7,32 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react'
 import { Calendar01Icon, Coffee01Icon, FlameIcon, GridViewIcon, HeartIcon, LandmarkIcon, Leaf01Icon, Moon01Icon, ShoppingBag01Icon, SparklesIcon, UsersIcon, UtensilsIcon } from '@hugeicons/core-free-icons'
 import { transientProps } from '@/design-system/styled';
-import { meok, fontSize, ringShadow } from '@/design-system/tokens';
+import { meok, palette, fontFamily, fontSize, ringShadow } from '@/design-system/tokens';
 
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import type { MapInfoCategory, MapMode } from '@/features/map/types';
+import { HanokIcon } from './HanokIcon';
 
 interface CategoryItem {
   id: string;
   label: string;
   keyword: string;
   icon: IconSvgElement;
+  isEmphasis?: boolean;
 }
 
 const CATEGORIES: Record<MapMode, CategoryItem[]> = {
   info: [
-    { id: 'spot', label: '고택', keyword: '고택', icon: LandmarkIcon },
-    { id: 'experience', label: '전통 체험', keyword: '체험', icon: SparklesIcon },
-    { id: 'culture', label: '문화유산', keyword: '서원', icon: LandmarkIcon },
-    { id: 'festival', label: '축제', keyword: '축제', icon: Calendar01Icon },
-    { id: 'stay', label: '한옥 숙소', keyword: '한옥스테이', icon: Moon01Icon },
-    { id: 'food', label: '전통 맛집', keyword: '향토음식', icon: UtensilsIcon },
-    { id: 'cafe', label: '한옥 카페', keyword: '한옥카페', icon: Coffee01Icon },
-    { id: 'market', label: '전통 시장', keyword: '전통시장', icon: ShoppingBag01Icon },
     { id: 'all', label: '전체', keyword: '', icon: GridViewIcon },
+    { id: 'hanok', label: '한옥', keyword: '한옥', icon: LandmarkIcon, isEmphasis: true },
+    { id: 'stay', label: '숙소', keyword: '한옥스테이', icon: Moon01Icon },
+    { id: 'food', label: '전통 맛집', keyword: '향토음식', icon: UtensilsIcon },
+    { id: 'cafe', label: '전통 카페', keyword: '전통카페', icon: Coffee01Icon },
+    { id: 'market', label: '전통 시장', keyword: '전통시장', icon: ShoppingBag01Icon },
+    { id: 'spot', label: '고택', keyword: '고택', icon: LandmarkIcon },
+    { id: 'culture', label: '문화유산', keyword: '서원', icon: LandmarkIcon },
+    { id: 'experience', label: '전통 체험', keyword: '체험', icon: SparklesIcon },
+    { id: 'festival', label: '축제', keyword: '축제', icon: Calendar01Icon },
   ],
   warmth: [
     { id: 'all', label: '전체 온기', keyword: '', icon: FlameIcon },
@@ -39,6 +42,31 @@ const CATEGORIES: Record<MapMode, CategoryItem[]> = {
     { id: 'mine', label: '내가 쓴 글', keyword: '내온기', icon: HeartIcon },
   ],
 };
+
+function getCategoryActiveColor(categoryId: string): string {
+  switch (categoryId) {
+    case 'hanok':
+      return palette.juhong[500];
+    case 'stay':
+      return palette.jangmi[600];
+    case 'food':
+      return palette.cheongrok[700];
+    case 'cafe':
+      return palette.cheongrok[600];
+    case 'market':
+      return palette.cheongrok[800];
+    case 'spot':
+      return palette.kobalt[600];
+    case 'culture':
+      return palette.kobalt[700];
+    case 'experience':
+      return palette.jaha[500];
+    case 'festival':
+      return palette.jaha[600];
+    default:
+      return meok[900];
+  }
+}
 
 const GAP = 6;
 
@@ -86,7 +114,13 @@ const ModeGroup = styled(motion.div, transientProps)<{ $align: 'start' | 'end' }
   min-width: 100%;
 `;
 
-const Chip = styled.button<{ $active: boolean; $index: number }>`
+const Chip = styled.button<{
+  $active: boolean;
+  $index: number;
+  $isEmphasis?: boolean;
+  $isAll?: boolean;
+  $categoryColor?: string;
+}>` 
   display: flex;
   flex: none;
   align-items: center;
@@ -95,32 +129,64 @@ const Chip = styled.button<{ $active: boolean; $index: number }>`
   padding: 0 12px;
 
   border-radius: 9999px;
-  background: ${({ $active }) => ($active ? meok[900] : 'rgba(255, 255, 255, 0.94)')};
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: none;
-
-  color: ${({ $active }) => ($active ? '#ffffff' : meok[700])};
-  font-family: 'Spoqa Han Sans Neo', sans-serif;
-  font-size: ${fontSize.xs};
-  font-weight: 500;
-  letter-spacing: -0.02em;
   white-space: nowrap;
   cursor: pointer;
-  box-shadow: none;
   opacity: 0;
   animation: ${chipPopIn} 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   animation-delay: ${({ $index }) => $index * 40}ms;
 
   transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
     box-shadow 0.18s ease,
-    background 0.18s ease,
-    color 0.18s ease;
+    color 0.18s ease,
+    font-weight 0.18s ease;
+
+  /* 폰트: 전체 카테고리 칩 통일 */
+  font-family: 'Spoqa Han Sans Neo', sans-serif;
+  font-weight: ${({ $active }) => ($active ? 700 : 500)};
+  font-size: ${fontSize.xs};
+  letter-spacing: -0.02em;
+
+  /* 배경 & 폰트 컬러:
+     - 한옥 칩: 비선택 시 연한 주홍(juhong[300]), 선택(active) 시 메인 주홍(juhong[500]) 배경 + 흰색 폰트
+     - 일반 칩: 기본 화이트/글래스 배경, 선택(active) 시 아이콘 & 폰트만 카테고리 색상 전환
+  */
+  background: ${({ $isEmphasis, $isAll, $active }) => {
+    if ($isEmphasis) return $active ? palette.juhong[500] : palette.juhong[100];
+    if ($isAll && $active) return meok[900];
+    return 'rgba(255, 255, 255, 0.94)';
+  }};
+  border: none;
+  color: ${({ $isEmphasis, $isAll, $active, $categoryColor }) => {
+    if ($isEmphasis) return $active ? '#ffffff' : meok[900];
+    if ($isAll && $active) return '#ffffff';
+    if ($active) return $categoryColor || meok[900];
+    return meok[700];
+  }};
+  box-shadow: ${ringShadow.light.mapChip};
+
+  svg {
+    flex-shrink: 0;
+  }
 
   &:hover {
-    color: ${({ $active }) => ($active ? '#ffffff' : meok[900])};
-    background: ${({ $active }) => ($active ? meok[900] : '#ffffff')};
+    /* 호버 시 폰트 굵게 */
+    font-weight: 700;
+    background: ${({ $isEmphasis, $isAll, $active }) => {
+      if ($isEmphasis) return $active ? palette.juhong[600] : palette.juhong[200];
+      if ($isAll && $active) return meok[800];
+      return 'rgba(255, 255, 255, 0.94)';
+    }};
+    color: ${({ $isEmphasis, $isAll, $active, $categoryColor }) => {
+      if ($isEmphasis) return $active ? '#ffffff' : meok[900];
+      if ($isAll && $active) return '#ffffff';
+      if ($active) return $categoryColor || meok[900];
+      return meok[900];
+    }};
     transform: translateY(-1px);
+    box-shadow: ${ringShadow.light.buttonHover};
   }
 
   &:active {
@@ -128,7 +194,7 @@ const Chip = styled.button<{ $active: boolean; $index: number }>`
   }
 
   &:focus-visible {
-    outline: 2px solid ${meok[900]};
+    outline: 2px solid ${({ $isEmphasis }) => ($isEmphasis ? palette.juhong[500] : meok[900])};
     outline-offset: 2px;
   }
 
@@ -145,20 +211,33 @@ const Chip = styled.button<{ $active: boolean; $index: number }>`
   }
 
   [data-theme='dark'] & {
-    background: ${({ $active }) => ($active ? '#3B6FD4' : 'rgba(23, 30, 43, 0.92)')};
-    border: 1px solid ${({ $active }) => ($active ? 'rgba(100, 160, 255, 0.35)' : 'rgba(255, 255, 255, 0.12)')};
-    color: ${({ $active }) => ($active ? '#ffffff' : 'rgba(255, 255, 255, 0.87)')};
-    font-weight: ${({ $active }) => ($active ? '700' : '500')};
+    background: ${({ $isEmphasis, $isAll, $active }) => {
+      if ($isEmphasis) return $active ? palette.juhong[500] : 'rgba(255, 85, 0, 0.14)';
+      if ($isAll && $active) return 'rgba(255, 255, 255, 0.92)';
+      return 'rgba(23, 30, 43, 0.92)';
+    }};
+    border: none;
+    color: ${({ $isEmphasis, $isAll, $active, $categoryColor }) => {
+      if ($isEmphasis) return $active ? '#ffffff' : 'rgba(255, 255, 255, 0.88)';
+      if ($isAll && $active) return meok[900];
+      if ($active) return $categoryColor || '#5EA4FF';
+      return 'rgba(255, 255, 255, 0.75)';
+    }};
     box-shadow: ${ringShadow.dark.mapChip};
-  }
 
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme='light']) & {
-      background: ${({ $active }) => ($active ? '#3B6FD4' : 'rgba(23, 30, 43, 0.92)')};
-      border: 1px solid ${({ $active }) => ($active ? 'rgba(100, 160, 255, 0.35)' : 'rgba(255, 255, 255, 0.12)')};
-      color: ${({ $active }) => ($active ? '#ffffff' : 'rgba(255, 255, 255, 0.87)')};
-      font-weight: ${({ $active }) => ($active ? '700' : '500')};
-      box-shadow: ${ringShadow.dark.mapChip};
+    &:hover {
+      background: ${({ $isEmphasis, $isAll, $active }) => {
+        if ($isEmphasis) return $active ? palette.juhong[600] : 'rgba(255, 85, 0, 0.22)';
+        if ($isAll && $active) return '#ffffff';
+        return 'rgba(23, 30, 43, 0.92)';
+      }};
+      color: ${({ $isEmphasis, $isAll, $active, $categoryColor }) => {
+        if ($isEmphasis) return $active ? '#ffffff' : '#ffffff';
+        if ($isAll && $active) return meok[900];
+        if ($active) return $categoryColor || '#5EA4FF';
+        return '#ffffff';
+      }};
+      box-shadow: ${ringShadow.dark.buttonHover};
     }
   }
 
@@ -182,6 +261,7 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
   const mode = useMapStore((s) => s.mode);
   const category = useMapStore((s) => s.category);
   const setCategory = useMapStore((s) => s.setCategory);
+  const setSearchQuery = useMapStore((s) => s.setSearchQuery);
 
   const items = CATEGORIES[mode];
   const containerRef = useRef<HTMLDivElement>(null);
@@ -195,12 +275,19 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
   );
 
   const handleChipClick = (item: CategoryItem) => {
-    if (item.id === 'all' || category === item.id) {
+    const isDeselect = item.id === 'all' || category === item.id;
+    if (isDeselect) {
       setCategory(null);
+      // 검색창 초기화
+      setSearchQuery('');
     } else {
       setCategory(item.id);
       if (!useMapStore.getState().panelOpen) {
         useMapStore.getState().setPanelOpen(true);
+      }
+      // 검색창에 키워드 표시만 (Places API 검색 없음 — 카테고리 키워드는 장소명이 아님)
+      if (mode === 'info' && item.keyword) {
+        setSearchQuery(item.keyword);
       }
     }
   };
@@ -309,16 +396,24 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
         >
           {items.map((item, index) => {
             const isActive = isItemActive(item);
+            const categoryColor = getCategoryActiveColor(item.id);
             return (
               <ChipWrap key={item.id}>
                 <Chip
                   type="button"
                   $active={isActive}
                   $index={index}
+                  $isEmphasis={item.isEmphasis}
+                  $isAll={item.id === 'all'}
+                  $categoryColor={categoryColor}
                   aria-pressed={isActive}
                   onClick={() => handleChipClick(item)}
                 >
-                  <HugeiconsIcon icon={item.icon} size={16} aria-hidden />
+                  {item.id === 'hanok' ? (
+                    <HanokIcon size={20} />
+                  ) : (
+                    <HugeiconsIcon icon={item.icon} size={16} aria-hidden />
+                  )}
                   <span>{item.label}</span>
                 </Chip>
               </ChipWrap>

@@ -30,7 +30,10 @@ export function useAuth() {
   // 목 모드: 백엔드가 없으니 비로그인으로 시작하고, ?auth=success 복귀 시 흉내로 세션 생성.
   useEffect(() => {
     if (!USE_MOCK) {
-      void ensureSessionLoaded();
+      // 세션 로드 성공 시 hint 설정 — hasAuthenticatedUser()가 북마크 등에서 체크하기 때문.
+      ensureSessionLoaded().then(() => {
+        if (useAuthSessionStore.getState().user) markSessionHint();
+      });
       return;
     }
     // 목 모드: 백엔드가 없으니 sessionStorage 플래그로 세션을 복원한다.

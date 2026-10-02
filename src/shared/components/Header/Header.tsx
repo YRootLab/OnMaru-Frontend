@@ -19,6 +19,7 @@ import {
 import type { ThemePreference } from '@/design-system/tokens';
 import { useAuth } from '@/features/auth';
 import GlobalMobileTabs, { HeadphonesFilledEars } from './GlobalMobileTabs';
+import { HanokIcon } from '@/features/map/components/HanokIcon';
 import { HEADER_EXIT_S, ENTRANCE_EASE } from '@/shared/navigation/mapEntranceTiming';
 import { useMapEntranceStore } from '@/shared/navigation/mapEntranceState';
 import { shouldUseLandingDarkSurface } from './headerSurface';
@@ -216,7 +217,7 @@ const CenterNav = styled('nav', transientProps)<LandingProps>`
 const NavLink = styled(Link, transientProps)<LandingProps>`
   position: relative;
   font-family: 'Spoqa Han Sans Neo', sans-serif;
-  font-size: ${fontSize.sm};
+  font-size: 0.82rem;
   font-weight: ${({ $isActive }) => ($isActive ? 700 : 400)};
   color: ${({ $isLanding, $isActive }) => {
     if ($isActive) {
@@ -230,16 +231,23 @@ const NavLink = styled(Link, transientProps)<LandingProps>`
   align-items: center;
   justify-content: center;
   padding: 4px 11px;
-  border-radius: 9999px;
-  background-color: transparent;
+  border-radius: 8px;
+  background-color: ${({ $isActive, $isLanding }) => {
+    if (!$isActive) return 'transparent';
+    return $isLanding ? 'rgba(255, 255, 255, 0.13)' : 'rgba(0, 0, 0, 0.07)';
+  }};
   border: 1px solid transparent;
   box-shadow: none;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-  transition: color 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: color 180ms cubic-bezier(0.16, 1, 0.3, 1), background-color 180ms cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
     color: ${({ $isLanding }) => ($isLanding ? '#ffffff' : meok[900])};
+    background-color: ${({ $isActive, $isLanding }) => {
+      if ($isActive) return $isLanding ? 'rgba(255, 255, 255, 0.13)' : 'rgba(0, 0, 0, 0.07)';
+      return $isLanding ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.045)';
+    }};
   }
 
   [data-theme='dark'] & {
@@ -249,12 +257,13 @@ const NavLink = styled(Link, transientProps)<LandingProps>`
       }
       return $isLanding ? 'rgba(255, 255, 255, 0.82)' : meok[200];
     }};
-    background-color: transparent;
+    background-color: ${({ $isActive }) => ($isActive ? 'rgba(255, 255, 255, 0.10)' : 'transparent')};
     border-color: transparent;
     box-shadow: none;
 
     &:hover {
       color: #ffffff;
+      background-color: ${({ $isActive }) => ($isActive ? 'rgba(255, 255, 255, 0.10)' : 'rgba(255, 255, 255, 0.06)')};
     }
   }
 
@@ -872,6 +881,11 @@ export default function Header() {
                       strokeWidth={1.5}
                       style={{ marginRight: 5, verticalAlign: '-1px' }}
                     />
+                  ) : item.href === '/hanok' ? (
+                    <HanokIcon
+                      size={17}
+                      style={{ marginRight: 5, verticalAlign: '-2px' }}
+                    />
                   ) : (
                     <HugeiconsIcon
                       icon={item.icon}
@@ -1096,4 +1110,4 @@ export default function Header() {
       </HeaderContainer>
     </>
   );
-}
+}

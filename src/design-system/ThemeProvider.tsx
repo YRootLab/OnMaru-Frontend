@@ -49,8 +49,7 @@ const OnmaruThemeContext = createContext<OnmaruThemeContextValue | null>(null)
 
 
 const createGlobalStyles = (theme: OnmaruTheme) => css`
-
-
+  ${theme.typography.fontFaces.dohyun}
 
   *, *::before, *::after {
     box-sizing: border-box;
@@ -83,6 +82,7 @@ const createGlobalStyles = (theme: OnmaruTheme) => css`
 
 
   :root {
+    --font-dohyun: ${theme.typography.fontFamily.dohyun};
 
     --color-bg-app:      ${theme.colors.bg.app};
     --color-bg-surface:  ${theme.colors.bg.surface};

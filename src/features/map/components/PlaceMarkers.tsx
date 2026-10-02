@@ -4,10 +4,12 @@ import { useEffect, useRef } from 'react';
 import { Global, css } from '@emotion/react';
 import { gsap } from 'gsap';
 import { logger } from '@/lib/log';
-import { meok, lightPalette , fontSize } from '@/design-system/tokens';
+import { meok, lightPalette, palette, fontSize } from '@/design-system/tokens';
 import { escapeHtml, safeImageUrl } from '@/features/map/utils/formatters';
 import { mapIconSvg, type MapIconName } from '@/features/map/utils/mapIconSvg';
 import { calculateTravelEstimate, isTraditionalPlace, shortRegionName } from '@/features/map/utils/geo';
+import { isHanok } from '@/features/map/utils/isHanok';
+import { renderHanokMarkHtml } from './HanokMark';
 import { useMapStore } from '../hooks/useMapStore';
 import { useStampStore } from '@/features/stamp/presentation/useStampStore';
 import type { Item, PlaceCategory } from '../types';
@@ -15,8 +17,8 @@ import type { Item, PlaceCategory } from '../types';
 const log = logger('map');
 
 
-const LABEL_MAX_LEVEL = 5;
-const PIN_MAX_LEVEL = 6;
+const LABEL_MAX_LEVEL = 4;
+const PIN_MAX_LEVEL = 8;
 
 
 
@@ -26,8 +28,9 @@ const PIN_MAX_LEVEL = 6;
 
 
 
-const LABEL_PIN_LIMIT = 60;
-const BADGE_PIN_LIMIT = 40;
+const LABEL_PIN_LIMIT = 30;
+const BADGE_PIN_LIMIT = 25;
+
 
 
 const CATEGORY_ICONS: Record<PlaceCategory, MapIconName> = {
@@ -53,72 +56,85 @@ export const CATEGORY_STYLES: Record<
     lightBg: string;
     lightBorder: string;
     border: string;
+    clusterBg: string;
     iconSvg: string;
   }
 > = {
-
+  // [보고 배우다 그룹] 고택: kobalt[600], 문화유산: kobalt[700] (명도 1단계 차이)
   spot: {
-    main: '#2F68FF',
-    lightBg: 'rgba(47, 104, 255, 0.12)',
-    lightBorder: 'rgba(47, 104, 255, 0.28)',
-    border: '#2F68FF',
+    main: palette.kobalt[600],
+    lightBg: palette.kobalt[50],
+    lightBorder: palette.kobalt[200],
+    border: palette.kobalt[600],
+    clusterBg: palette.kobalt[600],
     iconSvg: renderCategoryIconSvg('spot', 14),
   },
 
   culture: {
-    main: '#1748CF',
-    lightBg: 'rgba(23, 72, 207, 0.12)',
-    lightBorder: 'rgba(23, 72, 207, 0.28)',
-    border: '#1748CF',
+    main: palette.kobalt[700],
+    lightBg: palette.kobalt[50],
+    lightBorder: palette.kobalt[200],
+    border: palette.kobalt[700],
+    clusterBg: palette.kobalt[700],
     iconSvg: renderCategoryIconSvg('culture', 14),
   },
 
+  // [머물다 그룹] 숙소: jangmi[600]
   stay: {
-    main: '#FF5414',
-    lightBg: 'rgba(255, 84, 20, 0.12)',
-    lightBorder: 'rgba(255, 84, 20, 0.28)',
-    border: '#FF5414',
+    main: palette.jangmi[600],
+    lightBg: palette.jangmi[50],
+    lightBorder: palette.jangmi[200],
+    border: palette.jangmi[600],
+    clusterBg: palette.jangmi[600],
     iconSvg: renderCategoryIconSvg('stay', 14),
   },
 
+  // [먹다 그룹] 전통 맛집: cheongrok[700], 한옥 카페: cheongrok[600], 전통 시장: cheongrok[800]
+  // 클러스터 숫자 뱃지 배경은 작은 글씨 대비 확보를 위해 먹다 그룹은 cheongrok[800] 사용
   food: {
-    main: '#D93600',
-    lightBg: 'rgba(217, 54, 0, 0.12)',
-    lightBorder: 'rgba(217, 54, 0, 0.28)',
-    border: '#D93600',
+    main: palette.cheongrok[700],
+    lightBg: palette.cheongrok[50],
+    lightBorder: palette.cheongrok[200],
+    border: palette.cheongrok[700],
+    clusterBg: palette.cheongrok[800],
     iconSvg: renderCategoryIconSvg('food', 14),
   },
 
   cafe: {
-    main: '#00B882',
-    lightBg: 'rgba(0, 184, 130, 0.12)',
-    lightBorder: 'rgba(0, 184, 130, 0.28)',
-    border: '#00B882',
+    main: palette.cheongrok[600],
+    lightBg: palette.cheongrok[50],
+    lightBorder: palette.cheongrok[200],
+    border: palette.cheongrok[600],
+    clusterBg: palette.cheongrok[800],
     iconSvg: renderCategoryIconSvg('cafe', 14),
   },
 
+  market: {
+    main: palette.cheongrok[800],
+    lightBg: palette.cheongrok[50],
+    lightBorder: palette.cheongrok[200],
+    border: palette.cheongrok[800],
+    clusterBg: palette.cheongrok[800],
+    iconSvg: renderCategoryIconSvg('market', 14),
+  },
+
+  // [놀다 그룹] 전통 체험: jaha[500], 축제: jaha[600] (명도 1단계 차이)
   experience: {
-    main: '#FF2A6D',
-    lightBg: 'rgba(255, 42, 109, 0.12)',
-    lightBorder: 'rgba(255, 42, 109, 0.28)',
-    border: '#FF2A6D',
+    main: palette.jaha[500],
+    lightBg: palette.jaha[50],
+    lightBorder: palette.jaha[200],
+    border: palette.jaha[500],
+    clusterBg: palette.jaha[500],
     iconSvg: renderCategoryIconSvg('experience', 14),
   },
 
   festival: {
-    main: '#673AB7',
-    lightBg: 'rgba(103, 58, 183, 0.12)',
-    lightBorder: 'rgba(103, 58, 183, 0.28)',
-    border: '#673AB7',
+    main: palette.jaha[600],
+    lightBg: palette.jaha[50],
+    lightBorder: palette.jaha[200],
+    border: palette.jaha[600],
+    clusterBg: palette.jaha[600],
     iconSvg: renderCategoryIconSvg('festival', 14),
-  },
-
-  market: {
-    main: '#00825B',
-    lightBg: 'rgba(0, 130, 91, 0.12)',
-    lightBorder: 'rgba(0, 130, 91, 0.28)',
-    border: '#00825B',
-    iconSvg: renderCategoryIconSvg('market', 14),
   },
 };
 
@@ -741,6 +757,31 @@ const styles = css`
 
 
 
+  .om-hanok-mark {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: ${palette.juhong[500]};
+    border: 1.5px solid #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    z-index: 10;
+    pointer-events: none;
+    box-sizing: border-box;
+  }
+
+  .om-cluster-hanok-dot {
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: ${palette.juhong[500]};
+    margin-left: 3px;
+    vertical-align: middle;
+  }
+
   .om-pin:focus-visible,
   .om-badge-pin:focus-visible,
   .om-cluster-pill:focus-visible {
@@ -816,10 +857,11 @@ function clusterNearbyItems(items: Item[], level: number): ClusterGroup[] {
   const cellSize =
     level >= 11 ? 0.85 :
     level >= 10 ? 0.45 :
-    level >= 9 ? 0.22 :
-    level >= 8 ? 0.08 :
-    level >= 7 ? 0.04 :
-    0.02;
+    level >= 9  ? 0.22 :
+    level >= 8  ? 0.10 :
+    level >= 7  ? 0.05 :
+    level >= 6  ? 0.025 :
+    0.012;
   const grid = new Map<string, Item[]>();
 
   for (const item of items) {
@@ -916,9 +958,11 @@ export default function PlaceMarkers() {
     overlayMapRef.current.clear();
 
     const activeItems =
-      category && category !== 'all' && category !== 'bookmark'
-        ? items.filter((it) => it.category === category)
-        : items;
+      category === 'hanok'
+        ? items.filter((it) => isHanok(it))
+        : category && category !== 'all' && category !== 'bookmark'
+          ? items.filter((it) => it.category === category)
+          : items;
 
     if (activeItems.length === 0) return;
 
@@ -934,6 +978,7 @@ export default function PlaceMarkers() {
         const topItem = cluster.items[0];
         const catStyle = CATEGORY_STYLES[topItem.category] || CATEGORY_STYLES.spot;
         const isSingle = count === 1;
+        const hasHanokInCluster = cluster.items.some((it) => isHanok(it));
 
         const el = document.createElement('div');
         el.className = 'om-cluster-pill';
@@ -943,7 +988,7 @@ export default function PlaceMarkers() {
             ${catStyle.iconSvg}
           </span>
           <span class="om-cluster-region-name">${escapeHtml(isSingle ? topItem.name : regionName)}</span>
-          ${!isSingle ? `<span class="om-cluster-count-badge" style="background: ${catStyle.main}">${count}</span>` : ''}
+          ${!isSingle ? `<span class="om-cluster-count-badge" style="background: ${catStyle.clusterBg}">${count}${hasHanokInCluster ? `<span class="om-cluster-hanok-dot" title="한옥 포함" aria-label="한옥 포함"></span>` : ''}</span>` : ''}
         `;
 
         el.setAttribute('role', 'button');
@@ -1043,25 +1088,23 @@ export default function PlaceMarkers() {
         ? `${estimate.distanceStr} · ${estimate.travelTimeStr}`
         : estimate.distanceStr;
 
-      const isTraditional = item.isTraditional ?? isTraditionalPlace(item.name);
+      const placeIsHanok = isHanok(item);
 
-      const catLabel = isTraditional
-        ? item.category === 'stay'
-          ? '정통 한옥숙소'
-          : item.category === 'cafe'
-            ? '전통 찻집·한옥카페'
-            : item.category === 'food'
-              ? '향토·전통음식'
-              : item.category === 'spot'
-                ? '고택·명소'
-                : '전통 문화'
-        : item.category === 'stay'
-          ? '주변 연계숙소'
-          : item.category === 'cafe'
-            ? '주변 일반카페'
-            : item.category === 'food'
-              ? '주변 일반음식점'
-              : '관광명소';
+      const catLabel = item.category === 'stay'
+        ? (placeIsHanok ? '한옥 숙소' : '주변 숙소')
+        : item.category === 'cafe'
+          ? (placeIsHanok ? '한옥 카페' : '카페')
+          : item.category === 'food'
+            ? (placeIsHanok ? '전통 맛집' : '음식점')
+            : item.category === 'spot'
+              ? '고택'
+              : item.category === 'culture'
+                ? '문화유산'
+                : item.category === 'experience'
+                  ? '전통 체험'
+                  : item.category === 'festival'
+                    ? '축제'
+                    : '전통 시장';
 
 
 
@@ -1087,37 +1130,21 @@ export default function PlaceMarkers() {
       const imgSrc = safeImageUrl(item.image);
 
       if (withLabel) {
-        el.className = `om-pin${isTraditional ? ' om-pin--traditional' : ''}`;
+        el.className = 'om-pin';
         el.style.position = 'relative';
-        const tradLabel = item.name.includes('한옥') || item.name.includes('고택') || item.category === 'stay' ? '한옥' : '전통';
         el.innerHTML = `
           <span class="om-pin-icon-box" style="background: ${catStyle.lightBg}; border: 1px solid ${catStyle.lightBorder}; color: ${catStyle.main};">${catStyle.iconSvg}</span>
-          ${isTraditional ? `<span class="om-pin-trad-chip">${tradLabel}</span>` : ''}
           <span>${escapeHtml(item.name)}</span>
+          ${placeIsHanok ? renderHanokMarkHtml('om-hanok-mark', '한옥') : ''}
         `;
-        if (isTraditional) {
-
-
-
-
-
-          const stars = document.createElement('span');
-          stars.className = 'om-pin-stars';
-          const starSvg = mapIconSvg('star', 11);
-          stars.innerHTML = `
-            <span style="top:-16px;left:14px;color:#EAB308;display:inline-flex;">${starSvg}</span>
-            <span style="top:-9px;left:-6px;color:#EAB308;display:inline-flex;">${starSvg}</span>
-            <span style="bottom:-13px;right:2px;color:#EAB308;display:inline-flex;">${starSvg}</span>
-            <span style="bottom:-7px;right:18px;color:#EAB308;display:inline-flex;">${starSvg}</span>
-          `;
-          el.appendChild(stars);
-        }
       } else {
-        el.className = `om-badge-pin${isTraditional ? ' om-badge-pin--traditional' : ''}`;
+        el.className = 'om-badge-pin';
+        el.style.position = 'relative';
         el.innerHTML = `
           <span class="om-badge-icon-inner" style="background: #ffffff; color: ${catStyle.main};">
             ${renderCategoryIconSvg(item.category, 16)}
           </span>
+          ${placeIsHanok ? renderHanokMarkHtml('om-hanok-mark', '한옥') : ''}
         `;
       }
 

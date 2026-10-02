@@ -7,7 +7,7 @@ import { createCsrfTokenProvider } from './csrf';
 import { isOnmaruApiError, normalizeApiError } from './errors';
 import { API_RETRY_POLICIES, delay } from './retryPolicy';
 
-const DEFAULT_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || '';
+const DEFAULT_BASE = process.env.NEXT_PUBLIC_API_URL || '';
 export const USE_MOCK = !DEFAULT_BASE;
 
 function sanitizeForLog(value: unknown): string {
@@ -303,7 +303,7 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
           continue;
         }
 
-        if (error.requestId) {
+        if (error.requestId && response.status !== 401) {
           console.error('[api] requestId:', error.requestId, sanitizeForLog(path), response.status);
         }
         throw error;
