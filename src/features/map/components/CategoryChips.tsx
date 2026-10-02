@@ -160,7 +160,7 @@ const Chip = styled.button<{
   }};
   border: none;
   color: ${({ $isEmphasis, $isAll, $active, $categoryColor }) => {
-    if ($isEmphasis) return $active ? '#ffffff' : palette.juhong[700];
+    if ($isEmphasis) return $active ? '#ffffff' : meok[900];
     if ($isAll && $active) return '#ffffff';
     if ($active) return $categoryColor || meok[900];
     return meok[700];
@@ -180,7 +180,7 @@ const Chip = styled.button<{
       return 'rgba(255, 255, 255, 0.94)';
     }};
     color: ${({ $isEmphasis, $isAll, $active, $categoryColor }) => {
-      if ($isEmphasis) return $active ? '#ffffff' : palette.juhong[800];
+      if ($isEmphasis) return $active ? '#ffffff' : meok[900];
       if ($isAll && $active) return '#ffffff';
       if ($active) return $categoryColor || meok[900];
       return meok[900];
@@ -218,7 +218,7 @@ const Chip = styled.button<{
     }};
     border: none;
     color: ${({ $isEmphasis, $isAll, $active, $categoryColor }) => {
-      if ($isEmphasis) return $active ? '#ffffff' : palette.juhong[300];
+      if ($isEmphasis) return $active ? '#ffffff' : 'rgba(255, 255, 255, 0.88)';
       if ($isAll && $active) return meok[900];
       if ($active) return $categoryColor || '#5EA4FF';
       return 'rgba(255, 255, 255, 0.75)';
@@ -232,7 +232,7 @@ const Chip = styled.button<{
         return 'rgba(23, 30, 43, 0.92)';
       }};
       color: ${({ $isEmphasis, $isAll, $active, $categoryColor }) => {
-        if ($isEmphasis) return $active ? '#ffffff' : palette.juhong[200];
+        if ($isEmphasis) return $active ? '#ffffff' : '#ffffff';
         if ($isAll && $active) return meok[900];
         if ($active) return $categoryColor || '#5EA4FF';
         return '#ffffff';
