@@ -883,8 +883,8 @@ export default function Header() {
                     />
                   ) : item.href === '/hanok' ? (
                     <HanokIcon
-                      size={14}
-                      style={{ marginRight: 5, verticalAlign: '-1px' }}
+                      size={17}
+                      style={{ marginRight: 5, verticalAlign: '-2px' }}
                     />
                   ) : (
                     <HugeiconsIcon

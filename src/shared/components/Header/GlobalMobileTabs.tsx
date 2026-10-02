@@ -146,7 +146,7 @@ export default function GlobalMobileTabs({ isLanding }: { isLanding: boolean }) 
               {tab.icon === HeadphonesIcon && isSelected ? (
                 <HeadphonesFilledEars size={19} strokeWidth={1.5} />
               ) : tab.href === '/hanok' ? (
-                <HanokIcon size={20} />
+                <HanokIcon size={23} />
               ) : (
                 <HugeiconsIcon
                   icon={tab.icon}
