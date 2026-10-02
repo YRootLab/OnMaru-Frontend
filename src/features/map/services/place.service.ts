@@ -174,7 +174,7 @@ export class PlaceService {
       return cached.items;
     }
 
-    if (!opts.category && (process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL)) {
+    if (!opts.category && process.env.NEXT_PUBLIC_API_URL) {
       const backendItems = await this.fetchFromBackend({
         lat: opts.lat,
         lng: opts.lng,

@@ -3,6 +3,7 @@
 Lightweight human-readable summary of meaningful repository changes. This does not replace Git history.
 
 ## Unreleased
+- FE #276: 브라우저 API 호출, Next.js rewrite, 인증 점검 스크립트와 GitHub Actions가 `NEXT_PUBLIC_API_URL` 하나만 사용하도록 환경변수 계약을 통합하고 로컬 스테이징·Vercel Production 전환 안내서를 추가했다.
 - 온이(Oni) 캐릭터 라이트 모드 백화(Ghosting) 현상 수정: 밝은 배경(`#ffffff`, `#f8f8f7`)에서 `mix-blend-mode: screen;` 적용 시 픽셀이 완전히 하얗게 날아가던 문제를 해결하기 위해 다크 모드(`[data-theme='dark']`) 환경에서만 screen 블렌딩이 활성화되도록 분기 처리했다.
 - 전역 네비게이션 및 메뉴바 용어 표준화:
   - 지도 네비게이션 레일(`MapNavRail.tsx`) 및 관련 UI의 난해한 고어 표기 '수결첩'을 대중적이고 명확한 '도장첩'으로 개선했다.
