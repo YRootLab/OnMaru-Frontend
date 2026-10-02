@@ -232,6 +232,22 @@ const Section = styled.div`
     }
   }
 
+  a {
+    color: ${palette.kobalt[500]};
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-weight: 500;
+    transition: opacity 0.2s;
+
+    &:hover {
+      opacity: 0.8;
+    }
+
+    [data-theme='dark'] & {
+      color: ${palette.kobalt[300]};
+    }
+  }
+
   li {
     margin-bottom: 4px;
   }
@@ -472,6 +488,21 @@ export default function PolicyModal({ initialTab = 'privacy', onClose }: PolicyM
                   <p>
                     본 서비스에 수록된 한옥 이미지 및 해설 텍스트의 일부는 한국관광공사 TourAPI 4.0 및 Odii 서비스를 통해 제공받은 공공저작물(제1유형: 출처표시)을 기반으로 제작되었습니다.
                   </p>
+                  <h4>외부 그래픽 및 아이콘 리소스</h4>
+                  <p>
+                    지도 및 카테고리 한옥 마커 아이콘:{' '}
+                    <a href="https://iconscout.com/icons/korean" target="_blank" rel="noopener noreferrer">
+                      korean
+                    </a>
+                    {' by '}
+                    <a href="https://iconscout.com/contributors/fahrulsaputra7" target="_blank" rel="noopener noreferrer">
+                      Fahrul Saputra
+                    </a>
+                    {' on '}
+                    <a href="https://iconscout.com" target="_blank" rel="noopener noreferrer">
+                      IconScout
+                    </a>
+                  </p>
                 </Section>
                 <MetaDate>데이터 갱신 주기: 매 시간 자동 동기화</MetaDate>
               </>
@@ -481,9 +512,9 @@ export default function PolicyModal({ initialTab = 'privacy', onClose }: PolicyM
             {activeTab === 'openSource' && (
               <>
                 <Section>
-                  <h3>📦 오픈소스 소프트웨어 고지 (Open Source Licenses)</h3>
+                  <h3>📦 오픈소스 소프트웨어 및 리소스 라이선스 고지</h3>
                   <p>
-                    온마루 프론트엔드는 전 세계 개발자 커뮤니티의 오픈소스 생태계와 다음 라이브러리들을 기반으로 빌드되었습니다:
+                    온마루 프론트엔드는 전 세계 개발자 및 크리에이터 커뮤니티의 오픈소스 생태계와 다음 라이브러리 및 리소스들을 기반으로 빌드되었습니다:
                   </p>
                 </Section>
 
@@ -520,6 +551,24 @@ export default function PolicyModal({ initialTab = 'privacy', onClose }: PolicyM
                 <Section>
                   <h4>HugeIcons (@hugeicons/react ^1.1.10, @hugeicons/core-free-icons ^4.3.5)</h4>
                   <CodeBlock>The MIT License (MIT) - Copyright (c) HugeIcons</CodeBlock>
+                </Section>
+
+                <Section>
+                  <h4>IconScout - Korean Icon (한옥 마커 및 태그 아이콘)</h4>
+                  <p>
+                    <a href="https://iconscout.com/icons/korean" target="_blank" rel="noopener noreferrer">
+                      korean
+                    </a>
+                    {' by '}
+                    <a href="https://iconscout.com/contributors/fahrulsaputra7" target="_blank" rel="noopener noreferrer">
+                      Fahrul Saputra
+                    </a>
+                    {' on '}
+                    <a href="https://iconscout.com" target="_blank" rel="noopener noreferrer">
+                      IconScout
+                    </a>
+                  </p>
+                  <CodeBlock>IconScout Free License with Attribution - Designed by Fahrul Saputra</CodeBlock>
                 </Section>
 
                 <Section>

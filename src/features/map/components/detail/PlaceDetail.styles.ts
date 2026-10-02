@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
-import { lightPalette, darkPalette, palette, meok, surface, fontSize } from '@/design-system/tokens';
+import { lightPalette, darkPalette, palette, meok, surface, fontSize, fontFamily } from '@/design-system/tokens';
 
 export const pulse = keyframes`
   0%, 100% { opacity: 1; }
@@ -555,15 +555,26 @@ export const CoreValue = styled.span`
   }
 `;
 
+export const BuildingSpecValue = styled.span`
+  font-size: ${fontSize.sm};
+  font-weight: 600;
+  color: ${palette.juhong[500]};
+  text-align: right;
+  word-break: keep-all;
+
+  [data-theme='dark'] & {
+    color: ${palette.juhong[400]};
+  }
+`;
+
 export const OverviewSection = styled.div`
   padding: 16px;
   margin-top: 6px;
 `;
 
 export const SectionTitle = styled.h3`
-  font-family: var(--font-traditional-title);
   margin: 0 0 8px;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   color: ${meok[900]};
 

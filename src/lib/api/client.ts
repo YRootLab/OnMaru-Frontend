@@ -303,7 +303,7 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
           continue;
         }
 
-        if (error.requestId) {
+        if (error.requestId && response.status !== 401) {
           console.error('[api] requestId:', error.requestId, sanitizeForLog(path), response.status);
         }
         throw error;

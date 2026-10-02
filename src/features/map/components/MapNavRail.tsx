@@ -6,7 +6,8 @@ import Image from 'next/image';
 import styled from '@emotion/styled';
 import { AnimatePresence, motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Award01Icon, BookOpen01Icon, Bookmark01Icon, CheckIcon, HeadphonesIcon, Home01Icon, MapPinIcon, Moon01Icon, SparklesIcon, Sun01Icon, UserIcon } from '@hugeicons/core-free-icons'
+import { Bookmark01Icon, CheckIcon, HeadphonesIcon, Home01Icon, MapPinIcon, Moon01Icon, SparklesIcon, Sun01Icon, UserIcon } from '@hugeicons/core-free-icons'
+import { HanokIcon } from './HanokIcon'
 import { transientProps } from '@/design-system/styled';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useJourneyStore } from '@/features/journey-curator/store/useJourneyStore';
@@ -130,16 +131,16 @@ const NavItemBtn = styled.button<{ $active: boolean }>`
   border-radius: 12px;
   cursor: pointer;
   gap: 3px;
-  background: ${({ $active }) => ($active ? lightPalette.juhong[50] : 'transparent')};
-  color: ${({ $active }) => ($active ? lightPalette.juhong[500] : meok[500])};
+  background: ${({ $active }) => ($active ? 'rgba(0, 0, 0, 0.07)' : 'transparent')};
+  color: ${({ $active }) => ($active ? meok[900] : meok[500])};
   transition:
     background-color 180ms cubic-bezier(0.16, 1, 0.3, 1),
     color 180ms cubic-bezier(0.16, 1, 0.3, 1),
     transform 150ms cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    background: ${({ $active }) => ($active ? lightPalette.juhong[50] : 'rgba(0, 0, 0, 0.045)')};
-    color: ${({ $active }) => ($active ? lightPalette.juhong[500] : meok[900])};
+    background: ${({ $active }) => ($active ? 'rgba(0, 0, 0, 0.07)' : 'rgba(0, 0, 0, 0.045)')};
+    color: ${({ $active }) => ($active ? meok[900] : meok[900])};
   }
 
   &:active {
@@ -147,12 +148,12 @@ const NavItemBtn = styled.button<{ $active: boolean }>`
   }
 
   [data-theme='dark'] & {
-    background: ${({ $active }) => ($active ? 'rgba(255, 85, 0, 0.18)' : 'transparent')};
-    color: ${({ $active }) => ($active ? '#FF7830' : meok[400])};
+    background: ${({ $active }) => ($active ? 'rgba(255, 255, 255, 0.10)' : 'transparent')};
+    color: ${({ $active }) => ($active ? '#ffffff' : meok[400])};
 
     &:hover {
-      background: ${({ $active }) => ($active ? 'rgba(255, 85, 0, 0.24)' : 'rgba(255, 255, 255, 0.08)')};
-      color: ${({ $active }) => ($active ? '#FF7830' : '#ffffff')};
+      background: ${({ $active }) => ($active ? 'rgba(255, 255, 255, 0.10)' : 'rgba(255, 255, 255, 0.08)')};
+      color: ${({ $active }) => ($active ? '#ffffff' : '#ffffff')};
     }
   }
 `;
@@ -403,7 +404,7 @@ export default function MapNavRail() {
           title="한옥마루"
         >
           <NavItemIcon>
-            <HugeiconsIcon icon={BookOpen01Icon} size={19} strokeWidth={2} />
+            <HanokIcon size={22} />
           </NavItemIcon>
           <NavItemLabel>한옥마루</NavItemLabel>
         </NavItemBtn>
@@ -436,7 +437,7 @@ export default function MapNavRail() {
           <NavItemLabel>지도마루</NavItemLabel>
         </NavItemBtn>
 
-        {}
+        {/* [TEMP] 도장첩 — 준비 중, 복원 시 주석 해제
         <NavItemBtn
           type="button"
           $active={false}
@@ -449,6 +450,7 @@ export default function MapNavRail() {
           </NavItemIcon>
           <NavItemLabel>도장첩</NavItemLabel>
         </NavItemBtn>
+        */}
 
 
         {}

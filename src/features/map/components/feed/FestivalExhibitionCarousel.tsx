@@ -62,8 +62,10 @@ const SkeletonBar = styled.div<{ $w: string; $h: string }>`
 `;
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Calendar01Icon, ChevronLeftIcon, ChevronRightIcon, SparklesIcon } from '@hugeicons/core-free-icons'
-import { lightPalette, meok, surface , fontSize } from '@/design-system/tokens';
+import { lightPalette, darkPalette, meok, surface, fontSize, fontFamily } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
+import { isHanok } from '@/features/map/utils/isHanok';
+import { EmphasisBadge } from '@/features/map/components/EmphasisBadge';
 import type { Item } from '@/features/map/types';
 
 interface FestivalExhibitionCarouselProps {
@@ -96,7 +98,7 @@ const TitleGroup = styled.div`
 const SectionTitle = styled.h3`
   margin: 0;
   font-size: ${fontSize.sm};
-  font-weight: 500;
+  font-weight: 700;
   color: ${meok[900]};
   letter-spacing: -0.02em;
 
@@ -108,7 +110,11 @@ const SectionTitle = styled.h3`
 const BadgeTitle = styled.span`
   font-size: ${fontSize.micro};
   font-weight: 500;
-  color: ${lightPalette.cheongrok[500]};
+  color: ${lightPalette.jaha[600]};
+
+  [data-theme='dark'] & {
+    color: ${darkPalette.jaha[400]};
+  }
 `;
 
 const MoreBtn = styled.button`
@@ -118,13 +124,22 @@ const MoreBtn = styled.button`
 
   background: transparent;
   font-size: ${fontSize.xs};
-  font-weight: 400;
-  color: ${meok[400]};
+  font-weight: 500;
+  color: ${lightPalette.jaha[600]};
   cursor: pointer;
   padding: 2px 4px;
+  border: none;
 
   &:hover {
-    color: ${meok[700]};
+    color: ${lightPalette.jaha[700]};
+  }
+
+  [data-theme='dark'] & {
+    color: ${darkPalette.jaha[400]};
+
+    &:hover {
+      color: ${darkPalette.jaha[300]};
+    }
   }
 `;
 
@@ -250,20 +265,31 @@ const ThumbBox = styled.div<{ $src: string | null }>`
   }
 `;
 
-const CardBadge = styled.div`
+const BadgeOverlay = styled.div`
   position: absolute;
   top: 8px;
   left: 8px;
   z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+`;
+
+const CardBadge = styled.div`
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  padding: 2px 7px;
+  padding: 2.5px 7.5px;
   border-radius: 9999px;
   font-size: ${fontSize.micro};
   font-weight: 700;
-  color: ${surface.light.card};
-  background: ${lightPalette.cheongrok[500]};
+  color: #ffffff;
+  background: ${lightPalette.jaha[600]};
+  box-shadow: 0 1px 3px rgba(110, 0, 230, 0.25);
+
+  [data-theme='dark'] & {
+    background: ${darkPalette.jaha[500]};
+  }
 `;
 
 const CardBody = styled.div`
@@ -290,8 +316,12 @@ const CardDateRow = styled.div`
   align-items: center;
   gap: 4px;
   font-size: ${fontSize.micro};
-  color: ${lightPalette.cheongrok[700]};
+  color: ${lightPalette.jaha[600]};
   font-weight: 500;
+
+  [data-theme='dark'] & {
+    color: ${darkPalette.jaha[400]};
+  }
 `;
 
 const CardAddr = styled.div`
@@ -461,37 +491,47 @@ export default function FestivalExhibitionCarousel({ festivals }: FestivalExhibi
         </FloatingNavBtn>
 
         <Scroller ref={scrollerRef} onWheel={handleWheel} role="region" aria-label="진행 중인 축제 및 기획전 목록">
-          {displayList.map((item) => (
-            <FestivalCard key={item.id} type="button" onClick={() => handleClick(item)}>
-              <ThumbBox $src={item.image ?? null}>
-                {item.image ? (
-                  <Image
-                    src={item.image}
-                    alt={item.name}
-                    fill
-                    sizes="248px"
-                    style={{ objectFit: 'cover' }}
-                    unoptimized
-                  />
-                ) : (
-                  <div style={{ width: '100%', height: '100%', background: '#eae4d9' }} />
-                )}
-                <CardBadge>
-                  <HugeiconsIcon icon={SparklesIcon} size={10} strokeWidth={2} />
-                  <span>축제·기획전</span>
-                </CardBadge>
-              </ThumbBox>
+          {displayList.map((item) => {
+            const placeIsHanok = isHanok(item);
+            return (
+              <FestivalCard key={item.id} type="button" onClick={() => handleClick(item)}>
+                <ThumbBox $src={item.image ?? null}>
+                  {item.image ? (
+                    <Image
+                      src={item.image}
+                      alt={item.name}
+                      fill
+                      sizes="248px"
+                      style={{ objectFit: 'cover' }}
+                      unoptimized
+                    />
+                  ) : (
+                    <div style={{ width: '100%', height: '100%', background: '#eae4d9' }} />
+                  )}
+                  <BadgeOverlay>
+                    <CardBadge>
+                      <HugeiconsIcon icon={SparklesIcon} size={10} strokeWidth={2} />
+                      <span>축제·기획전</span>
+                    </CardBadge>
+                    {placeIsHanok && (
+                      <EmphasisBadge size="sm" showIcon title="한옥 인증 및 전통 건축">
+                        한옥
+                      </EmphasisBadge>
+                    )}
+                  </BadgeOverlay>
+                </ThumbBox>
 
-              <CardBody>
-                <CardTitle title={item.name}>{item.name}</CardTitle>
-                <CardDateRow>
-                  <HugeiconsIcon icon={Calendar01Icon} size={12} strokeWidth={2} />
-                  <span>야간 개방 및 특별 행사 진행</span>
-                </CardDateRow>
-                <CardAddr>{item.addr || '전통 한옥 명소'}</CardAddr>
-              </CardBody>
-            </FestivalCard>
-          ))}
+                <CardBody>
+                  <CardTitle title={item.name}>{item.name}</CardTitle>
+                  <CardDateRow>
+                    <HugeiconsIcon icon={Calendar01Icon} size={12} strokeWidth={2} />
+                    <span>야간 개방 및 특별 행사 진행</span>
+                  </CardDateRow>
+                  <CardAddr>{item.addr || '전통 한옥 명소'}</CardAddr>
+                </CardBody>
+              </FestivalCard>
+            );
+          })}
         </Scroller>
       </CarouselContainer>
     </SectionWrapper>

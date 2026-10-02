@@ -4,30 +4,33 @@ import { useMemo, useState, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, MapIcon, RotateCcwIcon, AlertCircleIcon, SparklesIcon, ListIcon, Bookmark01Icon } from '@hugeicons/core-free-icons'
+import { Cancel01Icon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, MapIcon, RotateCcwIcon, AlertCircleIcon, SparklesIcon, ListIcon, Bookmark01Icon, GridViewIcon } from '@hugeicons/core-free-icons'
 import { lightPalette, meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import { distanceInMeters } from '@/features/map/utils/geo';
 import { PlaceListItem } from './PlaceListItem';
+import { HanokIcon } from './HanokIcon';
 import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
 import LiveNoticeBanner from './feed/LiveNoticeBanner';
 import FestivalExhibitionCarousel from './feed/FestivalExhibitionCarousel';
 import SorimaruSpotlightBanner from './feed/SorimaruSpotlightBanner';
 import SmartAroundFeed from './feed/SmartAroundFeed';
 import type { Item, PlaceCategory } from '@/features/map/types';
+import { isHanok } from '@/features/map/utils/isHanok';
 
 const ITEMS_PER_PAGE = 10;
 
 const CATEGORY_NAMES: Record<string, string> = {
   bookmark: '저장한 장소',
+  hanok: '한옥',
   spot: '고택',
   experience: '전통 체험',
   culture: '문화유산',
   festival: '축제',
   stay: '한옥 숙소',
   food: '전통 맛집',
-  cafe: '한옥 카페',
+  cafe: '전통 카페',
   market: '전통 시장',
 };
 
@@ -404,6 +407,9 @@ export default function PlaceList() {
             });
           }
         });
+      } else if (category === 'hanok') {
+        // hanok 칩 = PlaceMarkers와 동일한 isHanok() 판별 기준 적용
+        list = list.filter((item) => isHanok(item));
       } else {
         list = list.filter((item) => item.category === category);
       }
@@ -634,8 +640,7 @@ export default function PlaceList() {
                     onClick={() => setSearchQuery('')}
                     style={{ width: '100%', justifyContent: 'center' }}
                   >
-                    <HugeiconsIcon icon={RotateCcwIcon} size={14} strokeWidth={2} />
-                    <span>검색어 지우기</span>
+                  
                   </ActionButton>
                 )}
                 {category && (
@@ -644,7 +649,7 @@ export default function PlaceList() {
                     onClick={() => useMapStore.getState().setCategory(null)}
                     style={{ width: '100%', justifyContent: 'center' }}
                   >
-                    <HugeiconsIcon icon={SparklesIcon} size={14} strokeWidth={2} />
+                    <HugeiconsIcon icon={GridViewIcon} size={14} strokeWidth={2} />
                     <span>전체 명소 둘러보기</span>
                   </ActionButton>
                 )}
@@ -661,7 +666,7 @@ export default function PlaceList() {
                   onClick={() => useMapStore.getState().setPopularPanelOpen(true)}
                   style={{ width: '100%', justifyContent: 'center', background: 'rgba(232, 90, 24, 0.08)', color: lightPalette.juhong[500] }}
                 >
-                  <HugeiconsIcon icon={SparklesIcon} size={14} strokeWidth={2} />
+                  <HanokIcon size={14} />
                   <span>인기 한옥 둘러보기</span>
                 </ActionButton>
               </div>

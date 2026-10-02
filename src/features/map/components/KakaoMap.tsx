@@ -1,6 +1,6 @@
-﻿'use client';
+'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Script from 'next/script';
 import styled from '@emotion/styled';
@@ -14,6 +14,8 @@ import { KAKAO_SDK_SRC, useKakaoMap } from '@/features/map/hooks/useKakaoMap';
 import { DEFAULT_CENTER, useMapStore } from '@/features/map/hooks/useMapStore';
 import type { LatLng } from '@/features/map/types';
 import { isAppleOrSafari } from '@/shared/hooks/useIsAppleDevice';
+
+const LOC_PERMISSION_KEY = 'om_location_permission_granted';
 
 const mapGlobalStyles = css`
 
@@ -54,16 +56,18 @@ const mapGlobalStyles = css`
     align-items: center;
     gap: 4px;
     padding: 3.5px 10px;
-    margin-bottom: 2px;
+    margin-bottom: -4px;
     border-radius: 9999px;
     font-size: 11px;
     font-weight: 700;
     white-space: nowrap;
-    background: #ffffff;
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     color: #171513;
     letter-spacing: -0.2px;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
-    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.13);
+    border: 1px solid rgba(0, 0, 0, 0.06);
     position: relative;
     z-index: 5;
     transition: all 0.2s ease;
@@ -81,14 +85,16 @@ const mapGlobalStyles = css`
   }
 
   [data-theme='dark'] .om-my-location-bubble {
-    background: ${surface.dark.app};
+    background: rgba(20, 22, 30, 0.78);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     color: #f8f8f7;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
   }
 
   [data-theme='dark'] .om-my-location-bubble::after {
-    border-color: ${surface.dark.app} transparent transparent transparent;
+    border-color: rgba(20, 22, 30, 0.78) transparent transparent transparent;
   }
 
   .om-my-location-oni-wrap {
@@ -101,6 +107,7 @@ const mapGlobalStyles = css`
     z-index: 2;
     pointer-events: none;
     margin-bottom: -18px;
+    margin-top: -2px;
   }
 
   .om-my-location-oni-video {
@@ -133,17 +140,51 @@ const mapGlobalStyles = css`
       width: 86px;
       height: 86px;
       margin-bottom: -14px;
+      margin-top: -2px;
     }
     .om-my-location-bubble {
       font-size: 10.5px;
       padding: 3px 8px;
-      margin-bottom: 2px;
+      margin-bottom: -4px;
     }
     .om-my-location-ground-shadow {
       width: 38px;
       height: 8px;
       margin-top: -10px;
     }
+  }
+
+  /* ── 소고 춤 로딩 애니메이션 ─────────────────────────────────────────── */
+  @keyframes sogo-body-sway {
+    0%   { transform: rotate(-6deg) translateX(-2px); }
+    25%  { transform: rotate(0deg)  translateX(0px); }
+    50%  { transform: rotate(6deg)  translateX(2px); }
+    75%  { transform: rotate(0deg)  translateX(0px); }
+    100% { transform: rotate(-6deg) translateX(-2px); }
+  }
+
+  @keyframes sogo-drum-wave {
+    0%   { transform: rotate(-20deg) translateY(0px); }
+    30%  { transform: rotate(15deg)  translateY(-6px); }
+    60%  { transform: rotate(-25deg) translateY(2px); }
+    80%  { transform: rotate(10deg)  translateY(-4px); }
+    100% { transform: rotate(-20deg) translateY(0px); }
+  }
+
+  @keyframes sogo-bounce {
+    0%, 100% { transform: translateY(0px) scaleY(1); }
+    30%       { transform: translateY(-8px) scaleY(1.04); }
+    60%       { transform: translateY(-3px) scaleY(0.98); }
+  }
+
+  @keyframes sogo-card-in {
+    from { opacity: 0; transform: translateY(12px) scale(0.9); }
+    to   { opacity: 1; transform: translateY(0)    scale(1); }
+  }
+
+  @keyframes sogo-shimmer {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.6; }
   }
 `;
 
@@ -232,6 +273,221 @@ const Research = styled.button`
   }
 `;
 
+// ── Location Permission Modal ────────────────────────────────────────────────
+const ModalBackdrop = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(14, 16, 22, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: modal-fade-in 0.22s ease;
+
+  @keyframes modal-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+`;
+
+const ModalCard = styled.div`
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 28px 24px 24px;
+  max-width: 340px;
+  width: 100%;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22), 0 4px 16px rgba(0, 0, 0, 0.1);
+  animation: modal-slide-up 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+
+  [data-theme='dark'] & {
+    background: #1e2028;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+  }
+
+  @keyframes modal-slide-up {
+    from { opacity: 0; transform: translateY(16px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+`;
+
+const ModalEmoji = styled.div`
+  font-size: 40px;
+  text-align: center;
+  margin-bottom: 14px;
+  line-height: 1;
+`;
+
+const ModalTitle = styled.h2`
+  font-size: 17px;
+  font-weight: 700;
+  color: #171513;
+  text-align: center;
+  margin: 0 0 8px;
+  letter-spacing: -0.03em;
+
+  [data-theme='dark'] & {
+    color: #f5f5f4;
+  }
+`;
+
+const ModalDesc = styled.p`
+  font-size: 13.5px;
+  color: #6b7280;
+  text-align: center;
+  line-height: 1.6;
+  margin: 0 0 22px;
+  letter-spacing: -0.01em;
+
+  [data-theme='dark'] & {
+    color: #9ca3af;
+  }
+`;
+
+const ModalButtonRow = styled.div`
+  display: flex;
+  gap: 8px;
+`;
+
+const ModalDenyBtn = styled.button`
+  flex: 1;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid rgba(25, 31, 40, 0.12);
+  background: #f5f5f4;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+
+  &:hover {
+    background: #e5e5e3;
+    color: #374151;
+  }
+
+  [data-theme='dark'] & {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.1);
+    color: #9ca3af;
+    &:hover { background: rgba(255,255,255,0.1); color: #d1d5db; }
+  }
+`;
+
+const ModalAllowBtn = styled.button`
+  flex: 2;
+  height: 44px;
+  border-radius: 12px;
+  border: none;
+  background: ${meok[900]};
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+  letter-spacing: -0.01em;
+
+  &:hover {
+    background: ${meok[800]};
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+  }
+
+  &:active { transform: scale(0.97); }
+
+  [data-theme='dark'] & {
+    background: ${lightPalette.cheongrok[500]};
+    color: #ffffff;
+    &:hover { background: ${lightPalette.cheongrok[600]}; }
+  }
+`;
+
+// ── Sogo Dance Loading Overlay ─────────────────────────────────────────────
+const LocatingOverlay = styled.div`
+  position: absolute;
+  right: 72px;
+  bottom: 16px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+  animation: sogo-card-in 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+
+  @media (max-width: 1023px) {
+    right: 50%;
+    transform: translateX(50%);
+    bottom: 160px;
+  }
+`;
+
+const SogoBubble = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  margin-bottom: -6px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #171513;
+  letter-spacing: -0.2px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  position: relative;
+  animation: sogo-shimmer 1s ease-in-out infinite;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: rgba(255, 255, 255, 0.92) transparent transparent transparent;
+  }
+
+  [data-theme='dark'] & {
+    background: rgba(18, 20, 28, 0.9);
+    color: #f8f8f7;
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+    &::after {
+      border-color: rgba(18, 20, 28, 0.9) transparent transparent transparent;
+    }
+  }
+`;
+
+const SogoOniWrap = styled.div`
+  width: 160px;
+  height: 160px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: sogo-bounce 0.65s ease-in-out infinite;
+
+  @media (max-width: 1023px) {
+    width: 140px;
+    height: 140px;
+  }
+`;
+
+const SogoImg = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.32));
+`;
+
 const Controls = styled.div`
   position: absolute;
   right: 16px;
@@ -313,6 +569,7 @@ export default function KakaoMap() {
   const isSearchDirty = useMapStore((s) => s.isSearchDirty);
   const panelOpen = useMapStore((s) => s.panelOpen);
   const [isLocating, setIsLocating] = useState(false);
+  const [showLocationModal, setShowLocationModal] = useState(false);
 
 
   useEffect(() => {
@@ -324,6 +581,8 @@ export default function KakaoMap() {
   const hasAutoLocatedRef = useRef(false);
   const myLocationOverlayRef = useRef<any>(null);
   const myLocationCircleRef = useRef<any>(null);
+  // Track current level for overlay visibility
+  const currentLevelRef = useRef<number>(useMapStore.getState().level);
 
   const searchParams = useSearchParams();
   const queryLat = searchParams?.get('lat');
@@ -347,35 +606,90 @@ export default function KakaoMap() {
   }, [map, hasQueryCoords, parsedQueryLat, parsedQueryLng]);
 
 
+  // ── Auto-locate on mount with permission flow ───────────────────────────────
+  const doAutoLocate = () => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const currentPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        const level = useMapStore.getState().mode === 'info' ? 7 : 5;
+        moveTo(currentPos, level, pos.coords.accuracy);
+        localStorage.setItem(LOC_PERMISSION_KEY, 'granted');
+      },
+      () => {
+        navigator.geolocation.getCurrentPosition(
+          (fallbackPos) => {
+            const fallbackCoord = { lat: fallbackPos.coords.latitude, lng: fallbackPos.coords.longitude };
+            const level = useMapStore.getState().mode === 'info' ? 7 : 5;
+            moveTo(fallbackCoord, level, fallbackPos.coords.accuracy);
+            localStorage.setItem(LOC_PERMISSION_KEY, 'granted');
+          },
+          () => { /* denied silently */ },
+          { enableHighAccuracy: false, timeout: 6000, maximumAge: 300000 },
+        );
+      },
+      { enableHighAccuracy: true, timeout: 6000, maximumAge: 120000 },
+    );
+  };
+
   useEffect(() => {
     if (!map || hasAutoLocatedRef.current || hasQueryCoords) return;
     hasAutoLocatedRef.current = true;
 
-    if (typeof window !== 'undefined' && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const currentPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-          const level = useMapStore.getState().mode === 'info' ? 7 : 5;
-          moveTo(currentPos, level, pos.coords.accuracy);
-        },
-        () => {
+    if (typeof window === 'undefined' || !navigator.geolocation) return;
 
-          navigator.geolocation.getCurrentPosition(
-            (fallbackPos) => {
-              const fallbackCoord = { lat: fallbackPos.coords.latitude, lng: fallbackPos.coords.longitude };
-              const level = useMapStore.getState().mode === 'info' ? 7 : 5;
-              moveTo(fallbackCoord, level, fallbackPos.coords.accuracy);
-            },
-            () => {
-
-            },
-            { enableHighAccuracy: false, timeout: 6000, maximumAge: 300000 },
-          );
-        },
-        { enableHighAccuracy: true, timeout: 6000, maximumAge: 120000 },
-      );
+    const alreadyGranted = localStorage.getItem(LOC_PERMISSION_KEY) === 'granted';
+    if (alreadyGranted) {
+      // Silently auto-locate
+      doAutoLocate();
+    } else {
+      // Check actual permission state first (no prompt yet)
+      if ('permissions' in navigator) {
+        navigator.permissions.query({ name: 'geolocation' }).then((result) => {
+          if (result.state === 'granted') {
+            localStorage.setItem(LOC_PERMISSION_KEY, 'granted');
+            doAutoLocate();
+          } else if (result.state === 'denied') {
+            // Don't show modal if already denied at browser level
+          } else {
+            // 'prompt' state – show our custom modal
+            setShowLocationModal(true);
+          }
+        }).catch(() => {
+          setShowLocationModal(true);
+        });
+      } else {
+        setShowLocationModal(true);
+      }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, hasQueryCoords]);
+
+  // ── Zoom-level based overlay visibility ─────────────────────────────────────
+  // Kakao level: 1=최대확대, 14=최대축소. level >= 9 이면 아이콘 숨김
+  const MY_LOCATION_HIDE_LEVEL = 9;
+
+  const updateOverlayVisibility = (level: number) => {
+    currentLevelRef.current = level;
+    const overlay = myLocationOverlayRef.current;
+    if (!overlay) return;
+    const shouldShow = level < MY_LOCATION_HIDE_LEVEL;
+    overlay.setMap(shouldShow ? useMapStore.getState().map : null);
+  };
+
+  // Listen to map zoom changes
+  useEffect(() => {
+    if (!map || !window.kakao?.maps) return;
+    const onZoomChanged = () => {
+      const level = map.getLevel();
+      updateOverlayVisibility(level);
+    };
+    window.kakao.maps.event.addListener(map, 'zoom_changed', onZoomChanged);
+    return () => {
+      window.kakao?.maps?.event?.removeListener(map, 'zoom_changed', onZoomChanged);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map]);
 
   const moveTo = (target: LatLng, targetLevel = 3, accuracy?: number) => {
     const currentMap = useMapStore.getState().map;
@@ -438,7 +752,11 @@ export default function KakaoMap() {
       xAnchor: 0.5,
       zIndex: 35,
     });
-    myLocationOverlayRef.current.setMap(currentMap);
+    // Only show overlay if current zoom level is close enough
+    const currentLevel = currentLevelRef.current;
+    if (currentLevel < MY_LOCATION_HIDE_LEVEL) {
+      myLocationOverlayRef.current.setMap(currentMap);
+    }
 
     if (myLocationCircleRef.current) {
       myLocationCircleRef.current.setMap(null);
@@ -507,10 +825,47 @@ export default function KakaoMap() {
   };
 
 
+  // ── Modal handlers ──────────────────────────────────────────────────────────
+  const handleLocationAllow = () => {
+    setShowLocationModal(false);
+    doAutoLocate();
+  };
+
+  const handleLocationDeny = () => {
+    setShowLocationModal(false);
+  };
+
   return (
     <Frame>
       <Global styles={mapGlobalStyles} />
       <Script strategy="afterInteractive" src={KAKAO_SDK_SRC} onLoad={initMap} />
+
+      {/* Location Permission Modal */}
+      {showLocationModal && (
+        <ModalBackdrop
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="loc-modal-title"
+          onClick={(e) => { if (e.target === e.currentTarget) handleLocationDeny(); }}
+        >
+          <ModalCard>
+            <ModalEmoji>📍</ModalEmoji>
+            <ModalTitle id="loc-modal-title">내 주변 한옥을 찾아드릴게요</ModalTitle>
+            <ModalDesc>
+              현재 위치를 이용하면 가까운 한옥 숙소·명소를<br />
+              바로 지도에서 확인할 수 있어요.
+            </ModalDesc>
+            <ModalButtonRow>
+              <ModalDenyBtn type="button" onClick={handleLocationDeny}>
+                나중에
+              </ModalDenyBtn>
+              <ModalAllowBtn type="button" onClick={handleLocationAllow}>
+                내 위치 허용하기
+              </ModalAllowBtn>
+            </ModalButtonRow>
+          </ModalCard>
+        </ModalBackdrop>
+      )}
 
       <Canvas
         ref={containerRef}
@@ -527,8 +882,24 @@ export default function KakaoMap() {
         </Research>
       )}
 
+      {/* 소고 춤 로딩 오버레이 — Controls 바깥에 포지셔닝 (Frame 직소) */}
+      {isLocating && (
+        <LocatingOverlay aria-live="polite" aria-label="현재 위치 찾는 중">
+          <SogoBubble>
+            <span>📍</span>
+            <span>위치 찾는 중...</span>
+          </SogoBubble>
+          <SogoOniWrap>
+            <SogoImg
+              src="/images/character/Oni_loading.png"
+              alt="위치를 찾고 있는 온니"
+              draggable={false}
+            />
+          </SogoOniWrap>
+        </LocatingOverlay>
+      )}
+
       <Controls>
-        {}
         <Stack>
           <ControlButton
             type="button"
@@ -537,11 +908,7 @@ export default function KakaoMap() {
             $active={isLocating}
             title="내 현재 위치로 이동"
           >
-            {isLocating ? (
-              <HugeiconsIcon icon={RotateCcwIcon} size={18} strokeWidth={2} className="animate-spin" style={{ animation: 'spin 1s linear infinite' }} />
-            ) : (
-              <HugeiconsIcon icon={LocateFixedIcon} size={18} strokeWidth={2} />
-            )}
+            <HugeiconsIcon icon={LocateFixedIcon} size={18} strokeWidth={2} />
           </ControlButton>
         </Stack>
 
