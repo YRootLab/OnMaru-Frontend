@@ -19,6 +19,7 @@ import { LocalMiniPlayer } from '@/private/core-ui/sorimaru/LocalMiniPlayer';
 import { SorimaruAtmosphereBackground } from './SorimaruAtmosphereBackground';
 import type { SorimaruBackgroundVariant } from '@/features/sorimaru-audio/background/sorimaruBackground.types';
 import { VesselReveal } from '@/shared/components/animation/VesselReveal';
+import SharedSectionHeading from '@/shared/components/SectionHeading';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { SORIMARU_REGION_CHIPS } from '@/features/sorimaru-audio/data/sorimaruCategoryData';
 import type { SorimaruRepository } from '@/features/sorimaru-audio/application/SorimaruRepository';
@@ -168,23 +169,7 @@ const HeroStageDiv = styled.div`
   }
 `;
 
-const SectionGradientTitle = styled.h2`
-  display: inline-block;
-  background: linear-gradient(to right, #211e19, #403b35, #6a6158);
-  -webkit-background-clip: text;
-  background-clip: text;
-  font-family: var(--font-hanok);
-  font-size: clamp(24px, 3.2vw, 36px);
-  font-weight: 700;
-  letter-spacing: -0.045em;
-  color: transparent;
-
-  [data-theme='dark'] & {
-    background: linear-gradient(to right, #ffffff, #d9d9d7, #b0b8c1);
-    -webkit-background-clip: text;
-    background-clip: text;
-  }
-`;
+const SectionGradientTitle = styled(SharedSectionHeading)``;
 
 const CenteredContainer = styled.div`
   margin-left: auto;
@@ -508,9 +493,10 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
               <div style={{ marginTop: '1rem', width: '100%' }} data-sorimaru-stage="themes">
                 <CenteredContainer>
                   <div style={{ paddingTop: '1rem' }}>
-                    <SectionGradientTitle as="h3">
-                      장면을 따라 걷는 소리
-                    </SectionGradientTitle>
+                    <SectionGradientTitle
+                      headingLevel={3}
+                      title="장면을 따라 걷는 소리"
+                    />
                   </div>
                   <div style={{ marginTop: '0.5rem' }}>
                     <SorimaruEditorialRail
@@ -550,9 +536,10 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                 <CenteredContainer>
                   <NearbyHeader>
                     <div style={{ minWidth: 0 }}>
-                      <SectionGradientTitle id="nearby-stories-heading">
-                        오늘, 여기에서
-                      </SectionGradientTitle>
+                      <SectionGradientTitle
+                        id="nearby-stories-heading"
+                        title="오늘, 여기에서"
+                      />
                       <SectionDescription $notice={locationNotice}>
                         <NearbyLocationDescription message={locationMessage} />
                       </SectionDescription>
@@ -590,9 +577,10 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
               >
                 <CenteredContainer>
                   <div style={{ marginBottom: '0.75rem' }}>
-                    <SectionGradientTitle id="archive-heading">
-                      소리로 만나는 한국
-                    </SectionGradientTitle>
+                    <SectionGradientTitle
+                      id="archive-heading"
+                      title="소리로 만나는 한국"
+                    />
                     <SectionDescription>
                       처마 끝 바람 소리부터 천년 고도의 숨결까지, 마음에 머무는 이야기 트랙.
                     </SectionDescription>

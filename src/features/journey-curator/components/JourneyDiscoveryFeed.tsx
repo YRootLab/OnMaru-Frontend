@@ -11,6 +11,7 @@ import { useCuratedCourses, usePopularRegions, usePopularSounds } from '../hooks
 import { hasAuthenticatedUser, showLoginRequiredToast } from '@/features/auth/privateState';
 import { saveOdiiStory, unsaveOdiiStory } from '@/features/sorimaru-audio/api/odiiEngagementApi';
 import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
+import SharedSectionHeading from '@/shared/components/SectionHeading';
 import { palette, surface, ringShadow, fontSize } from '@/design-system/tokens';
 
 const FeedContainer = styled.div`
@@ -35,44 +36,8 @@ const FeedContainer = styled.div`
 `;
 
 
-const SectionHeader = styled.div`
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
+const SectionHeader = styled(SharedSectionHeading)`
   margin-bottom: 24px;
-`;
-
-const SectionTitleGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-`;
-
-const SectionTitle = styled.h2`
-  font-family: var(--font-hanok);
-  font-size: ${fontSize['2xl']};
-  font-weight: 700;
-  color: #191f28;
-  margin: 0;
-  letter-spacing: -0.02em;
-
-  [data-theme='dark'] & {
-    color: #f8f9fa;
-  }
-
-  @media (max-width: 768px) {
-    font-size: ${fontSize.xl};
-  }
-`;
-
-const SectionDescription = styled.p`
-  font-size: ${fontSize.sm};
-  color: #6b7684;
-  margin: 0;
-
-  [data-theme='dark'] & {
-    color: #a1a1aa;
-  }
 `;
 
 
@@ -1041,12 +1006,10 @@ export default function JourneyDiscoveryFeed() {
     <FeedContainer>
       {}
       <section>
-        <SectionHeader>
-          <SectionTitleGroup>
-            <SectionTitle>이번 주 추천 코스</SectionTitle>
-            <SectionDescription>정취와 소리가 머무는 장소를 둘러보세요.</SectionDescription>
-          </SectionTitleGroup>
-        </SectionHeader>
+        <SectionHeader
+          title="이번 주 추천 코스"
+          subtitle="정취와 소리가 머무는 장소를 둘러보세요."
+        />
 
         <CategoryFilterRow role="group" aria-label="카테고리 필터">
           <CategoryChip
@@ -1142,12 +1105,10 @@ export default function JourneyDiscoveryFeed() {
 
       {}
       <section>
-          <SectionHeader>
-            <SectionTitleGroup>
-              <SectionTitle>지금 인기 있는 한옥 소리</SectionTitle>
-              <SectionDescription>처마 밑 빗소리와 대청마루 풍경소리를 들어보세요.</SectionDescription>
-            </SectionTitleGroup>
-          </SectionHeader>
+          <SectionHeader
+            title="지금 인기 있는 한옥 소리"
+            subtitle="처마 밑 빗소리와 대청마루 풍경소리를 들어보세요."
+          />
 
           <SoundGrid>
             {soundsLoading
@@ -1198,12 +1159,10 @@ export default function JourneyDiscoveryFeed() {
 
       {}
       <section>
-          <SectionHeader>
-            <SectionTitleGroup>
-              <SectionTitle>인기 지역</SectionTitle>
-              <SectionDescription>방문 후기가 많이 쌓인 지역을 둘러보세요.</SectionDescription>
-            </SectionTitleGroup>
-          </SectionHeader>
+          <SectionHeader
+            title="인기 지역"
+            subtitle="방문 후기가 많이 쌓인 지역을 둘러보세요."
+          />
 
           <RegionGrid>
             {regionsLoading
