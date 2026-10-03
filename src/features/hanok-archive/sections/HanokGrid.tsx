@@ -12,6 +12,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { getHanokGridPage } from './hanokGridModel';
 import { EMPTY_STATE, toSearchParams, type HanokFilterState } from './hanokFilterQuery';
 import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
+import {
+  clearGridReveal,
+  moveGridReveal,
+} from '@/features/hanok-archive/presentation/gridReveal';
 
 const Section = styled.section``;
 
@@ -187,11 +191,17 @@ export default function HanokGrid({
         <>
           <AnimatePresence mode="wait">
             <Grid
+              className="hanok-reveal-grid"
               key={`${state.activeType}-${state.region}-${state.query}-${state.activeBadges.join(',')}-${state.page}`}
               variants={containerVariants}
               initial="hidden"
               animate="show"
               exit="hidden"
+              onPointerMove={(event) => {
+                if (event.pointerType && event.pointerType !== 'mouse' && event.pointerType !== 'pen') return;
+                moveGridReveal(event.currentTarget, event.clientX, event.clientY);
+              }}
+              onPointerLeave={(event) => clearGridReveal(event.currentTarget)}
             >
               {paginatedItems.map((v) => (
                 <motion.div key={v.id} variants={itemVariants}>
