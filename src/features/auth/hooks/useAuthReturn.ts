@@ -47,6 +47,12 @@ export function useAuthReturn(): void {
           router.replace('/');
           return;
         }
+        if (!success) {
+          // 세션 확정 실패 — MyPage 가드와 router.replace 경쟁을 피하기 위해
+          // 직접 로그인 화면으로 이동한다(cleanup URL로 가면 가드 redirect가 묻힌다).
+          router.replace('/auth/login');
+          return;
+        }
       } else {
         // 실패해도 게스트 상태는 보존된다 — 안내 후 재시도 가능.
         toast.error('카카오 로그인에 실패했어요. 잠시 후 다시 시도해 주세요.');
