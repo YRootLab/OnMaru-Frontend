@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { palette } from '@/design-system/tokens';
+import type { ViewportSnapshot } from '@/features/map/domain/viewportRefreshPolicy';
 import type {
   HeatDay,
   HeatSpot,
@@ -61,6 +62,7 @@ interface MapState {
   currentAddress: string;
 
   searchCenter: LatLng;
+  committedViewport: ViewportSnapshot;
   isSearchDirty: boolean;
 
   searchQuery: string;
@@ -128,6 +130,8 @@ interface MapState {
   setCurrentAddress: (currentAddress: string) => void;
   markSearchDirty: () => void;
   clearSearchDirty: () => void;
+  initializeCommittedViewport: (snapshot: ViewportSnapshot) => void;
+  commitViewportSearch: (snapshot: ViewportSnapshot) => void;
   reload: () => void;
   togglePanel: () => void;
   setPanelOpen: (panelOpen: boolean) => void;
@@ -199,6 +203,11 @@ export const useMapStore = create<MapState>((set, get) => ({
   sortOrder: 'dist',
   currentAddress: '대한민국 전국',
   searchCenter: DEFAULT_CENTER,
+  committedViewport: {
+    center: DEFAULT_CENTER,
+    level: DEFAULT_LEVEL,
+    radius: 0,
+  },
   isSearchDirty: false,
   searchQuery: '',
   searchTrigger: 0,
@@ -275,6 +284,14 @@ export const useMapStore = create<MapState>((set, get) => ({
   markSearchDirty: () => set({ isSearchDirty: true }),
 
   clearSearchDirty: () => set({ isSearchDirty: false, searchCenter: get().center }),
+  initializeCommittedViewport: (committedViewport) => set({ committedViewport }),
+  commitViewportSearch: (snapshot) =>
+    set((state) => ({
+      searchCenter: snapshot.center,
+      committedViewport: snapshot,
+      isSearchDirty: false,
+      reloadNonce: state.reloadNonce + 1,
+    })),
   reload: () => set({ reloadNonce: get().reloadNonce + 1 }),
   togglePanel: () => set({ panelOpen: !get().panelOpen }),
   setPanelOpen: (panelOpen) => set({ panelOpen }),
