@@ -105,10 +105,10 @@ const CardMotionButton = styled(motion.button)<{ $isActive: boolean }>`
   transition: box-shadow 0.3s ease, filter 0.3s ease;
 
   [data-theme='dark'] & {
-    border: 2px solid ${surface.dark.surface};
-    background-color: ${surface.dark.card};
-    box-shadow: ${({ $isActive }) =>
-      $isActive ? '0 14px 32px rgba(0, 0, 0, 0.45)' : '0 4px 14px rgba(0, 0, 0, 0.25)'};
+    overflow: visible;
+    border-radius: 0;
+    background-color: ${surface.dark.surface};
+    box-shadow: none;
   }
 
   &:hover {
@@ -122,6 +122,16 @@ const CardMotionButton = styled(motion.button)<{ $isActive: boolean }>`
   @media (min-width: 1024px) {
     height: 380px;
     width: 250px;
+  }
+`;
+
+const CardImageLayer = styled(motion.div)`
+  position: absolute;
+  inset: 0;
+
+  [data-theme='dark'] & {
+    overflow: hidden;
+    border-radius: 1.25rem 1.25rem 0 0;
   }
 `;
 
@@ -161,7 +171,7 @@ const SkeletonBottomPanel = styled.div<{ $isActive: boolean }>`
   background: ${({ $isActive }) => ($isActive ? '#f5f5f4' : '#f8f8f7')};
 
   [data-theme='dark'] & {
-    background: ${({ $isActive }) => ($isActive ? '#30302e' : '#262624')};
+    background: ${surface.dark.surface};
   }
 
   @media (min-width: 640px) {
@@ -257,8 +267,9 @@ const CardBottomPanel = styled.div<{ $isActive: boolean }>`
 
   [data-theme='dark'] & {
     color: ${meok[100]};
-    background-color: ${surface.dark.card};
+    background-color: ${surface.dark.surface};
     backdrop-filter: none;
+    border: 0 solid ${surface.dark.surface};
     border-top: 1px solid rgba(255, 255, 255, 0.08);
   }
 
@@ -464,8 +475,7 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(
         onMouseDown={(event) => event.preventDefault()}
         aria-label={`${story.title}${isActive ? ' 현재 선택됨' : ''}`}
       >
-        <motion.div
-          style={{ position: 'absolute', inset: 0, borderRadius: '1.25rem', overflow: 'hidden' }}
+        <CardImageLayer
           animate={{ opacity: isActive ? 1 : 0.54 }}
           transition={{ duration: trackTransitionEnabled && isVisible ? 0.42 : 0, ease: [0.16, 1, 0.3, 1] }}
         >
@@ -495,7 +505,7 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(
               background: 'linear-gradient(to top, rgba(255, 255, 255, 0.55), transparent 60%, rgba(0, 0, 0, 0.05))',
             }}
           />
-        </motion.div>
+        </CardImageLayer>
 
         <CardBottomPanel $isActive={isActive}>
           <p

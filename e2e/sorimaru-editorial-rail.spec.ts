@@ -117,6 +117,8 @@ test('dark-mode active card clips one opaque surface without a bright rounded fr
   await expect(activeCard).toBeVisible();
   const styles = await activeCard.evaluate((node) => {
     const cardStyle = getComputedStyle(node);
+    const imageLayer = node.children[0] as HTMLElement;
+    const imageLayerStyle = getComputedStyle(imageLayer);
     const bottomPanel = node.children[1] as HTMLElement;
     const panelStyle = getComputedStyle(bottomPanel);
 
@@ -125,7 +127,16 @@ test('dark-mode active card clips one opaque surface without a bright rounded fr
       cardBorderStyle: cardStyle.borderStyle,
       cardBorderColor: cardStyle.borderColor,
       cardBackgroundColor: cardStyle.backgroundColor,
+      cardBoxShadow: cardStyle.boxShadow,
+      cardBorderRadius: cardStyle.borderRadius,
+      cardOverflow: cardStyle.overflow,
+      imageLayerBorderRadius: imageLayerStyle.borderRadius,
+      imageLayerOverflow: imageLayerStyle.overflow,
       panelBackgroundColor: panelStyle.backgroundColor,
+      panelBoxShadow: panelStyle.boxShadow,
+      panelBorderBottomColor: panelStyle.borderBottomColor,
+      panelBorderLeftColor: panelStyle.borderLeftColor,
+      panelBorderRightColor: panelStyle.borderRightColor,
       panelBottomLeftRadius: panelStyle.borderBottomLeftRadius,
       panelBottomRightRadius: panelStyle.borderBottomRightRadius,
     };
@@ -134,10 +145,18 @@ test('dark-mode active card clips one opaque surface without a bright rounded fr
     getComputedStyle(node.parentElement as HTMLElement).backgroundColor,
   );
 
-  expect(styles.cardBorderWidth).toBe('2px');
-  expect(styles.cardBorderStyle).toBe('solid');
-  expect(styles.cardBorderColor).toBe(stageBackgroundColor);
+  expect(styles.cardBorderWidth).toBe('0px');
+  expect(styles.cardBackgroundColor).toBe(stageBackgroundColor);
+  expect(styles.cardBoxShadow).toBe('none');
+  expect(styles.cardBorderRadius).toBe('0px');
+  expect(styles.cardOverflow).toBe('visible');
+  expect(styles.imageLayerBorderRadius).toBe('20px 20px 0px 0px');
+  expect(styles.imageLayerOverflow).toBe('hidden');
   expect(styles.panelBackgroundColor).toBe(styles.cardBackgroundColor);
+  expect(styles.panelBoxShadow).toBe('none');
+  expect(styles.panelBorderBottomColor).toBe(stageBackgroundColor);
+  expect(styles.panelBorderLeftColor).toBe(stageBackgroundColor);
+  expect(styles.panelBorderRightColor).toBe(stageBackgroundColor);
   expect(styles.panelBottomLeftRadius).toBe('0px');
   expect(styles.panelBottomRightRadius).toBe('0px');
 });
