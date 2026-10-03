@@ -52,12 +52,22 @@ const FALLBACK_BACKGROUND = '#E8D5C0';
 
 export function resolveCharacterPath(id: string | undefined): string {
   if (!id) return FALLBACK_CHARACTER_PATH;
-  return PROFILE_CHARACTER_PATHS[id as CharacterId] ?? FALLBACK_CHARACTER_PATH;
+  const path = PROFILE_CHARACTER_PATHS[id as CharacterId];
+  if (!path) {
+    console.error(`[profile] 알 수 없는 characterId: "${id}" — CHARACTER_01로 fallback`);
+    return FALLBACK_CHARACTER_PATH;
+  }
+  return path;
 }
 
 export function resolveBackground(id: string | undefined): string {
   if (!id) return FALLBACK_BACKGROUND;
-  return PROFILE_BACKGROUNDS[id as BackgroundId] ?? FALLBACK_BACKGROUND;
+  const color = PROFILE_BACKGROUNDS[id as BackgroundId];
+  if (!color) {
+    console.error(`[profile] 알 수 없는 backgroundId: "${id}" — BACKGROUND_01로 fallback`);
+    return FALLBACK_BACKGROUND;
+  }
+  return color;
 }
 
 export const CHARACTER_IDS = Object.keys(PROFILE_CHARACTER_PATHS) as CharacterId[];
