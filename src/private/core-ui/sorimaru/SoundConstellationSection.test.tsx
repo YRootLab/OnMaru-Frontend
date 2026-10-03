@@ -97,7 +97,7 @@ describe('SoundConstellationSection props data flow', () => {
     const nextPage = new Promise<SorimaruStoryPage>((resolve) => { resolveNext = resolve; });
     if (kind === 'empty') input.groupsState.data!.groups[0].regionCodes.push('second-returned-code');
     const listStories = vi.fn<SorimaruRepository['listStories']>()
-      .mockResolvedValueOnce({ items: kind === 'short' ? input.regionStoriesState.items : [], nextCursor: kind === 'short' ? 'actual-next-cursor' : null, hasMore: kind === 'short' })
+      .mockResolvedValueOnce({ items: kind === 'short' ? input.regionStoriesState.items : [], totalCount: kind === 'short' ? input.regionStoriesState.items.length : 0, nextCursor: kind === 'short' ? 'actual-next-cursor' : null, hasMore: kind === 'short' })
       .mockReturnValueOnce(nextPage);
     const repository: SorimaruRepository = {
       listStories, getStoryDetail: vi.fn(), listRegionGroups: vi.fn().mockResolvedValue(input.groupsState.data),
@@ -124,7 +124,7 @@ describe('SoundConstellationSection props data flow', () => {
     expect(listStories).toHaveBeenLastCalledWith(kind === 'short'
       ? { language: 'ko-KR', regionCode: 'returned-code', limit: 20, cursor: 'actual-next-cursor' }
       : { language: 'ko-KR', regionCode: 'second-returned-code', limit: 20 });
-    await act(async () => resolveNext({ items: [], nextCursor: null, hasMore: false }));
+    await act(async () => resolveNext({ items: [], totalCount: 0, nextCursor: null, hasMore: false }));
     gesture();
     expect(listStories).toHaveBeenCalledTimes(2);
   });

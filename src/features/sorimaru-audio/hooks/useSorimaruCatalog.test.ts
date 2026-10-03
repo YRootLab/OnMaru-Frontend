@@ -10,7 +10,7 @@ const story = (storyId: string): SorimaruStorySummary => ({
   contentTags: [], savedByMe: false,
 });
 const page = (id: string, nextCursor: string | null = null): SorimaruStoryPage => ({
-  items: [story(id)], nextCursor, hasMore: nextCursor !== null,
+  items: [story(id)], totalCount: 1, nextCursor, hasMore: nextCursor !== null,
 });
 const repository = (listStories: SorimaruRepository['listStories']): SorimaruRepository => ({
   listStories, getStoryDetail: vi.fn(), listRegionGroups: vi.fn(),

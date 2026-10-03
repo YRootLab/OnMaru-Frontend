@@ -25,6 +25,7 @@ describe('Sorimaru HTTP repository', () => {
   it('lists 12 summaries with one backend request and no detail requests', async () => {
     const request = vi.fn().mockResolvedValue({
       items: Array.from({ length: 12 }, (_, index) => summary(index + 1)),
+      totalCount: 24,
       nextCursor: 'next',
       hasMore: true,
     });
@@ -33,6 +34,7 @@ describe('Sorimaru HTTP repository', () => {
     const page = await repository.listStories({ language: 'ko-KR', limit: 12 });
 
     expect(page.items).toHaveLength(12);
+    expect(page.totalCount).toBe(24);
     expect(page.nextCursor).toBe('next');
     expect(request).toHaveBeenCalledTimes(1);
     expect(request).toHaveBeenCalledWith('odii/stories', {
@@ -41,7 +43,7 @@ describe('Sorimaru HTTP repository', () => {
   });
 
   it('uses the returned cursor in exactly one next-page request', async () => {
-    const request = vi.fn().mockResolvedValue({ items: [summary(13)], nextCursor: null, hasMore: false });
+    const request = vi.fn().mockResolvedValue({ items: [summary(13)], totalCount: 13, nextCursor: null, hasMore: false });
     const repository = createSorimaruHttpRepository(request);
 
     await repository.listStories({ language: 'ko-KR', limit: 12, cursor: 'cursor-2' });
@@ -81,7 +83,7 @@ describe('Sorimaru HTTP repository', () => {
   it('propagates a list failure instead of returning an empty page and allows retry', async () => {
     const request = vi.fn()
       .mockRejectedValueOnce(new Error('backend unavailable'))
-      .mockResolvedValueOnce({ items: [summary(1)], nextCursor: null, hasMore: false });
+      .mockResolvedValueOnce({ items: [summary(1)], totalCount: 1, nextCursor: null, hasMore: false });
     const repository = createSorimaruHttpRepository(request);
     const query = { language: 'ko-KR', limit: 12 };
 
@@ -92,8 +94,8 @@ describe('Sorimaru HTTP repository', () => {
 
   it('does not cache malformed responses', async () => {
     const request = vi.fn()
-      .mockResolvedValueOnce({ items: [{ storyId: 'partial' }], nextCursor: null, hasMore: false })
-      .mockResolvedValueOnce({ items: [summary(1)], nextCursor: null, hasMore: false });
+      .mockResolvedValueOnce({ items: [{ storyId: 'partial' }], totalCount: 1, nextCursor: null, hasMore: false })
+      .mockResolvedValueOnce({ items: [summary(1)], totalCount: 1, nextCursor: null, hasMore: false });
     const repository = createSorimaruHttpRepository(request);
     const query = { language: 'ko-KR', limit: 12 };
 
@@ -103,7 +105,7 @@ describe('Sorimaru HTTP repository', () => {
   });
 
   it('force refresh skips a cached success but joins an in-flight request', async () => {
-    const request = vi.fn().mockResolvedValue({ items: [summary(1)], nextCursor: null, hasMore: false });
+    const request = vi.fn().mockResolvedValue({ items: [summary(1)], totalCount: 1, nextCursor: null, hasMore: false });
     const repository = createSorimaruHttpRepository(request);
     const query = { language: 'ko-KR', limit: 12 };
 
@@ -129,8 +131,8 @@ describe('Sorimaru HTTP repository', () => {
 
   it('does not share user-specific summary successes between server calls', async () => {
     const request = vi.fn()
-      .mockResolvedValueOnce({ items: [{ ...summary(1), savedByMe: false }], nextCursor: null, hasMore: false })
-      .mockResolvedValueOnce({ items: [{ ...summary(1), savedByMe: true }], nextCursor: null, hasMore: false });
+      .mockResolvedValueOnce({ items: [{ ...summary(1), savedByMe: false }], totalCount: 1, nextCursor: null, hasMore: false })
+      .mockResolvedValueOnce({ items: [{ ...summary(1), savedByMe: true }], totalCount: 1, nextCursor: null, hasMore: false });
     const repository = createSorimaruRuntimeRepository(request, () => false);
     const query = { language: 'ko-KR', limit: 12 };
 
@@ -140,7 +142,7 @@ describe('Sorimaru HTTP repository', () => {
   });
 
   it('shares successful list reads within a browser tab', async () => {
-    const request = vi.fn().mockResolvedValue({ items: [summary(1)], nextCursor: null, hasMore: false });
+    const request = vi.fn().mockResolvedValue({ items: [summary(1)], totalCount: 1, nextCursor: null, hasMore: false });
     const repository = createSorimaruRuntimeRepository(request, () => true);
     const query = { language: 'ko-KR', limit: 12 };
 

@@ -4,7 +4,7 @@ import { createSorimaruApiAdapter } from './sorimaruApi';
 
 describe('Sorimaru API compatibility boundary', () => {
   it('delegates the supported cursor list without fetching details', async () => {
-    const page = { items: [], nextCursor: 'cursor-2', hasMore: true };
+    const page = { items: [], totalCount: 20, nextCursor: 'cursor-2', hasMore: true };
     const repository = {
       listStories: vi.fn().mockResolvedValue(page),
       getStoryDetail: vi.fn(),
