@@ -1,6 +1,7 @@
 # handoff.md
 
 ## Current Work
+- 2026-10-04 운영 한옥 지도가 SDK HTTP 200 이후에도 무한 로딩되던 문제를 수정했다. 루트 레이아웃과 지도 컴포넌트의 Kakao SDK 중복 선언을 제거해 각 지도 화면이 `onReady`에서 직접 초기화하도록 통일했고, 아이콘 마이그레이션 때 잘못 바뀐 `kakao.maps.MapIcon`을 실제 `kakao.maps.Map` 생성자로 복구했다. 한옥 지도는 25초 안에 초기화되지 않으면 자연스러운 오류 안내로 전환하며 하드코딩된 localhost 안내를 제거했다. 검증: 지도 관련 Vitest 3파일/12건, 변경 파일 ESLint, TypeScript, production build, 3002 포트 실제 SDK 200·지도 렌더링 확인.
 - 2026-10-03 소리마루 다크 모드에서 배경 Stage가 라이트 `#fafafa`로 남던 원인을 수정했다. 다크 팔레트에 실제 토큰 대신 `'${surface.dark.app}'` 문자열이 들어가 있던 오류를 실제 `surface.dark.*` 값으로 교체하고, hydration 시 늦게 남은 라이트 CSS 변수보다 Stage 자체 팔레트를 사용하도록 했다. 편집형 레일의 다크 전용 컨테이너 면과 좌우 그라데이션은 투명하게 제거하고, 카드 합성 마스크는 페이지 배경색으로 맞췄으며 비선택 인디케이터는 다크 캔버스에서 2:1 이상 대비를 확보했다. 공통 데스크톱 헤더는 메뉴 글자를 14px로, 메뉴 아이콘을 15~18px로 키워 같은 중심선에 정렬했고, 로그인 버튼을 32px 높이·대칭 수평 패딩으로 맞춘 뒤 오른쪽 아이콘을 16px로 확대했다. 검증: Sorimaru 배경 Vitest 7건, 관련 Playwright 4건, TypeScript, 변경 TS/TSX ESLint, 1411×997 다크 모드 캡처 확인.
 - 2026-10-03 홈·한옥마루·소리마루의 라이트 모드 페이지 캔버스를 공통 디자인 토큰 `surface.light.base`(`#fafafa`)로 통일했다. 소리마루 전용 배경 팔레트의 `#ffffff` 하드코딩을 제거하고 홈 루트·한옥 공통 대기 배경도 같은 토큰을 사용하도록 맞췄으며, 흰색 카드/종이 레이어와 다크 모드 색상은 유지했다. 검증: 배경 모델 Vitest 6건, TypeScript, 변경 파일 ESLint, Playwright 실제 브라우저 계산값 및 1440px 라이트 모드 캡처 확인.
 - 2026-10-03 소리마루 다크 카드 합성 경계 해결 과정을 `docs/blog/2026-10-03-sorimaru-dark-card-compositing-fringe.md`에 블로그 초안으로 정리했다. 실제 문제가 남아 있던 `22a9500`과 최종 구조를 동일한 1440px 뷰포트·동일 목 데이터로 실행해 변경 전·다크 변경 후·라이트 모드 캡처를 만들었고, 사용자 제보 확대 이미지도 함께 보존했다. 글은 `blog-tone`과 `writing-rule`을 적용해 실패한 접근, GPU 합성 원리, Motion/Button/Surface/Mask 책임 분리, Playwright 회귀 계약을 설명한다.

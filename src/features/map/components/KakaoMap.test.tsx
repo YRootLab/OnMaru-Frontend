@@ -11,8 +11,8 @@ const sdk = vi.hoisted(() => ({ init: vi.fn(), reset: vi.fn() }));
 
 vi.mock('next/navigation', () => ({ useSearchParams: () => new URLSearchParams() }));
 vi.mock('next/script', () => ({
-  default: (props: { onLoad?: () => void; onError?: () => void; src: string }) => (
-    <button type="button" data-testid="kakao-sdk" data-src={props.src} onClick={props.onLoad} onDoubleClick={props.onError} />
+  default: (props: { onReady?: () => void; onError?: () => void; src: string }) => (
+    <button type="button" data-testid="kakao-sdk" data-src={props.src} onClick={props.onReady} onDoubleClick={props.onError} />
   ),
 }));
 vi.mock('@/design-system/ThemeProvider', () => ({

@@ -890,7 +890,7 @@ export default function KakaoMap() {
         key={sdkAttempt}
         strategy="afterInteractive"
         src={sdkAttempt === 0 ? KAKAO_SDK_SRC : `${KAKAO_SDK_SRC}&omRetry=${sdkAttempt}`}
-        onLoad={handleSdkLoad}
+        onReady={handleSdkLoad}
         onError={handleSdkError}
       />
 
