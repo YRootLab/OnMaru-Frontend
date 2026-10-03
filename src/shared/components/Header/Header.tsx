@@ -452,27 +452,17 @@ const LoginButton = styled(Link, transientProps)<LandingProps>`
 
   border-radius: 9999px;
   height: 32px;
-  padding: 0 11px;
+  padding: 0 4px 0 15px;
   text-decoration: none;
   letter-spacing: -0.01em;
   line-height: 1;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 8px;
   box-shadow: ${({ $isLanding }) =>
     $isLanding
       ? '0 3px 10px rgba(0, 0, 0, 0.35)'
       : '0 2px 8px rgba(0, 0, 0, 0.1)'};
-
-  > span,
-  > svg {
-    display: block;
-    flex-shrink: 0;
-  }
-
-  > svg {
-    transform: translateY(-2px);
-  }
 
   [data-theme='dark'] & {
     color: #ffffff;
@@ -482,6 +472,27 @@ const LoginButton = styled(Link, transientProps)<LandingProps>`
 
   @media (prefers-reduced-motion: reduce) {
     transition: none;
+  }
+`;
+
+const LoginLabel = styled.span`
+  display: block;
+  flex-shrink: 0;
+`;
+
+const LoginChevron = styled.span`
+  display: inline-flex;
+  width: 14px;
+  height: 18px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(-2px);
+
+  > svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
   }
 `;
 
@@ -932,8 +943,10 @@ export default function Header() {
         </ThemePickerWrap>
 
         <LoginButton href={isLoggedIn ? '/mypage' : '/auth/login'} $isLanding={usesDarkSurface}>
-          <span>{isLoggedIn ? (user?.displayName ?? '마이페이지') : '로그인'}</span>
-          <HugeiconsIcon icon={ChevronRightIcon} size={18} strokeWidth={2.2} />
+          <LoginLabel>{isLoggedIn ? (user?.displayName ?? '마이페이지') : '로그인'}</LoginLabel>
+          <LoginChevron aria-hidden="true">
+            <HugeiconsIcon icon={ChevronRightIcon} size={18} strokeWidth={2.2} />
+          </LoginChevron>
         </LoginButton>
 
         <AnimatePresence>

@@ -28,15 +28,26 @@ test('desktop navigation keeps enlarged icons and labels on one visual center', 
   const loginMetrics = await loginButton.evaluate((node) => {
     const label = node.querySelector('span') as HTMLElement;
     const icon = node.querySelector('svg') as SVGElement;
+    const iconPath = icon.querySelector('path') as SVGGraphicsElement;
     const buttonRect = node.getBoundingClientRect();
     const labelRect = label.getBoundingClientRect();
     const iconRect = icon.getBoundingClientRect();
+    const pathBox = iconPath.getBBox();
+    const pathMatrix = iconPath.getScreenCTM();
+    const pathTopLeft = new DOMPoint(pathBox.x, pathBox.y).matrixTransform(pathMatrix!);
+    const pathBottomRight = new DOMPoint(
+      pathBox.x + pathBox.width,
+      pathBox.y + pathBox.height,
+    ).matrixTransform(pathMatrix!);
     const style = getComputedStyle(node);
     return {
       height: buttonRect.height,
       paddingTop: style.paddingTop,
       paddingBottom: style.paddingBottom,
       arrowWidth: iconRect.width,
+      leadingSpacing: labelRect.left - buttonRect.left,
+      topSpacing: Math.min(labelRect.top, pathTopLeft.y) - buttonRect.top,
+      trailingSpacing: buttonRect.right - pathBottomRight.x,
       labelCenterDifference: Math.abs(
         buttonRect.top + buttonRect.height / 2 - (labelRect.top + labelRect.height / 2),
       ),
@@ -48,6 +59,8 @@ test('desktop navigation keeps enlarged icons and labels on one visual center', 
   expect(loginMetrics.height).toBe(32);
   expect(loginMetrics.paddingTop).toBe(loginMetrics.paddingBottom);
   expect(loginMetrics.arrowWidth).toBeGreaterThanOrEqual(16);
+  expect(loginMetrics.leadingSpacing).toBeGreaterThanOrEqual(15);
+  expect(Math.abs(loginMetrics.topSpacing - loginMetrics.trailingSpacing)).toBeLessThanOrEqual(1.5);
   expect(loginMetrics.labelCenterDifference).toBeLessThanOrEqual(1);
   expect(loginMetrics.iconCenterOffset).toBeCloseTo(-2, 1);
 });
