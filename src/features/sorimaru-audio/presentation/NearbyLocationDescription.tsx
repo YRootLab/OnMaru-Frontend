@@ -14,7 +14,7 @@ const NeutralText = styled.span`
 
 const Emphasis = styled.strong`
   font-weight: 700;
-  color: ${palette.juhong[700]};
+  color: ${palette.juhong[500]};
 
   [data-theme='dark'] & {
     color: ${palette.juhong[300]};
