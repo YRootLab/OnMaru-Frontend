@@ -33,7 +33,7 @@
 - Produces: `buildHomeCourseTags(input: { category?: string | null; tags?: string[] | null; savedByMe?: boolean }): HomeCourseTag[]`.
 - Produces: `HomeCourseTag = { label: string; kind: 'category' | 'content' | 'saved' }`.
 
-- [ ] **Step 1: Write failing helper tests**
+- [x] **Step 1: Write failing helper tests**
 
 ```ts
 expect(getHomeCourseCategoryLabel('HANOK')).toBe('한옥');
@@ -72,13 +72,13 @@ expect(buildHomeCourseTags({
 ]);
 ```
 
-- [ ] **Step 2: Run the focused test and verify RED**
+- [x] **Step 2: Run the focused test and verify RED**
 
 Run: `npx vitest run src/features/journey-curator/presentation/homeCourseTags.test.ts`
 
 Expected: FAIL because the presentation helper does not exist.
 
-- [ ] **Step 3: Implement the minimal deterministic helper**
+- [x] **Step 3: Implement the minimal deterministic helper**
 
 ```ts
 export const COURSE_CATEGORY_LABELS: Readonly<Record<string, string>> = {
@@ -134,13 +134,13 @@ export function buildHomeCourseTags(input: {
 
 Remove the duplicated local label object from `JourneyDiscoveryFeed` and import `COURSE_CATEGORY_LABELS` from this helper. The filter continues to submit the existing enum code.
 
-- [ ] **Step 4: Run the focused test and verify GREEN**
+- [x] **Step 4: Run the focused test and verify GREEN**
 
 Run: `npx vitest run src/features/journey-curator/presentation/homeCourseTags.test.ts`
 
 Expected: all category, fallback, normalization, duplicate, saved-state, and limit tests PASS.
 
-- [ ] **Step 5: Commit the helper**
+- [x] **Step 5: Commit the helper**
 
 ```bash
 git add src/features/journey-curator/presentation/homeCourseTags.ts \
@@ -160,7 +160,7 @@ git commit -m "fix(home): localize curated course categories"
 - Consumes: `category?: string | null`, `tags?: string[] | null`, and `savedByMe?: boolean`.
 - Produces: `HomeCourseTagList(props): React.ReactElement`, an accessible one-line chip list backed by `buildHomeCourseTags`.
 
-- [ ] **Step 1: Write the failing component test**
+- [x] **Step 1: Write the failing component test**
 
 ```tsx
 render(
@@ -179,13 +179,13 @@ expect(screen.queryByText('#공예')).toBeNull();
 expect(screen.getAllByRole('listitem')).toHaveLength(3);
 ```
 
-- [ ] **Step 2: Run the focused test and verify RED**
+- [x] **Step 2: Run the focused test and verify RED**
 
 Run: `npx vitest run src/features/journey-curator/components/HomeCourseTagList.test.tsx`
 
 Expected: FAIL because `HomeCourseTagList` does not exist.
 
-- [ ] **Step 3: Implement the chip list and integrate it**
+- [x] **Step 3: Implement the chip list and integrate it**
 
 ```tsx
 export function HomeCourseTagList(props: HomeCourseTagListProps) {
@@ -214,17 +214,17 @@ Replace the inline `<TagList>` block in `renderCourseCard` with:
 />
 ```
 
-- [ ] **Step 4: Synchronize the course skeleton footer**
+- [x] **Step 4: Synchronize the course skeleton footer**
 
 Replace the single 42%-width footer line with three small pill-shaped `SkeletonLine` elements grouped at the left, while preserving the existing CTA skeleton at the right. Use heights and gaps matching the final 20px chips so loading and loaded footers keep the same footprint.
 
-- [ ] **Step 5: Run component tests and verify GREEN**
+- [x] **Step 5: Run component tests and verify GREEN**
 
 Run: `npx vitest run src/features/journey-curator/components/HomeCourseTagList.test.tsx src/features/journey-curator/components/JourneyDiscoveryFeed.test.tsx`
 
 Expected: chip semantics, Korean labels, three-chip limit, and existing image fallback tests PASS.
 
-- [ ] **Step 6: Commit the UI change**
+- [x] **Step 6: Commit the UI change**
 
 ```bash
 git add src/features/journey-curator/components/HomeCourseTagList.tsx \
@@ -243,7 +243,7 @@ git commit -m "fix(home): render curated course tags as chips"
 - Consumes: the helper and chip component from Tasks 1 and 2.
 - Produces: a verified branch and a documented `develop` PR.
 
-- [ ] **Step 1: Add the changelog entry**
+- [x] **Step 1: Add the changelog entry**
 
 Add under `Unreleased`:
 
@@ -251,7 +251,7 @@ Add under `Unreleased`:
 - 홈 `이번 주 추천 코스`의 영문 분류 코드를 한국어로 바꾸고, 분류·콘텐츠·저장 상태를 중복 없는 최대 3개의 태그 칩으로 정리했다.
 ```
 
-- [ ] **Step 2: Run fresh verification**
+- [x] **Step 2: Run fresh verification**
 
 ```bash
 npx vitest run \
@@ -268,7 +268,7 @@ git diff origin/develop...HEAD --check
 
 Expected: every command exits 0.
 
-- [ ] **Step 3: Verify the rendered home cards**
+- [x] **Step 3: Verify the rendered home cards**
 
 On port 3002, verify desktop and mobile `/` views: no raw `HANOK*` values are visible; category chips are pale orange; content and saved chips are neutral; middle dots are absent from `문화 예술` and `정원 생태`; no more than three chips render; the CTA remains visible; cards and skeletons keep the same footer height.
 
