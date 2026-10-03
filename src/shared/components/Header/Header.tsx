@@ -478,6 +478,7 @@ const LoginButton = styled(Link, transientProps)<LandingProps>`
 const LoginLabel = styled.span`
   display: block;
   flex-shrink: 0;
+  transform: translateY(2px);
 `;
 
 const LoginChevron = styled.span`
@@ -487,6 +488,7 @@ const LoginChevron = styled.span`
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
+  transform: translateY(2px);
 
   > svg {
     width: 18px;

@@ -48,9 +48,8 @@ test('desktop navigation keeps enlarged icons and labels on one visual center', 
       leadingSpacing: labelRect.left - buttonRect.left,
       topSpacing: Math.min(labelRect.top, pathTopLeft.y) - buttonRect.top,
       trailingSpacing: buttonRect.right - pathBottomRight.x,
-      labelCenterDifference: Math.abs(
-        buttonRect.top + buttonRect.height / 2 - (labelRect.top + labelRect.height / 2),
-      ),
+      labelCenterOffset:
+        labelRect.top + labelRect.height / 2 - (buttonRect.top + buttonRect.height / 2),
       iconCenterOffset:
         iconRect.top + iconRect.height / 2 - (buttonRect.top + buttonRect.height / 2),
     };
@@ -61,6 +60,6 @@ test('desktop navigation keeps enlarged icons and labels on one visual center', 
   expect(loginMetrics.arrowWidth).toBeGreaterThanOrEqual(16);
   expect(loginMetrics.leadingSpacing).toBeGreaterThanOrEqual(15);
   expect(Math.abs(loginMetrics.leadingSpacing - loginMetrics.trailingSpacing)).toBeLessThanOrEqual(1.5);
-  expect(loginMetrics.labelCenterDifference).toBeLessThanOrEqual(1);
-  expect(loginMetrics.iconCenterOffset).toBeCloseTo(0, 1);
+  expect(loginMetrics.labelCenterOffset).toBeCloseTo(2, 1);
+  expect(loginMetrics.iconCenterOffset).toBeCloseTo(2, 1);
 });
