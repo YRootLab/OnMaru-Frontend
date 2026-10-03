@@ -11,8 +11,14 @@ vi.mock('next/navigation', () => ({ useRouter: () => ({ push }) }));
 vi.mock('@/features/admin/hooks/useAdminAuth', () => ({ useAdminAuth: () => ({ login }) }));
 
 describe('AdminLoginPage', () => {
-  beforeEach(() => vi.clearAllMocks());
-  afterEach(cleanup);
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.stubEnv('NODE_ENV', 'production');
+  });
+  afterEach(() => {
+    cleanup();
+    vi.unstubAllEnvs();
+  });
 
   function submitCredentials() {
     fireEvent.change(screen.getByPlaceholderText('admin@onmaru.kr'), { target: { value: 'admin@onmaru.kr' } });
