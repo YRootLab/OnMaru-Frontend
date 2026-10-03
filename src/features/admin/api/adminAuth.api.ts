@@ -103,10 +103,14 @@ export async function adminLogout(): Promise<void> {
   }
 }
 
-export async function adminRefresh(): Promise<string | null> {
+let adminRefreshPromise: Promise<string | null> | null = null;
+
+async function requestAdminRefresh(): Promise<string | null> {
   if (USE_MOCK) return null;
   const res = await apiRequest<{ accessToken: string }>('/auth/admin/refresh', {
     method: 'POST',
+    csrf: true,
+    auth: false,
     retry: false,
   });
   if (res?.accessToken) {
@@ -114,6 +118,24 @@ export async function adminRefresh(): Promise<string | null> {
     return res.accessToken;
   }
   return null;
+}
+
+export function adminRefresh(): Promise<string | null> {
+  if (adminRefreshPromise) return adminRefreshPromise;
+
+  adminRefreshPromise = requestAdminRefresh().finally(() => {
+    adminRefreshPromise = null;
+  });
+  return adminRefreshPromise;
+}
+
+export async function waitForAdminRefresh(): Promise<void> {
+  if (!adminRefreshPromise) return;
+  try {
+    await adminRefreshPromise;
+  } catch {
+    // A pre-login refresh failure must settle before a new session is created.
+  }
 }
 
 export async function adminGetMe(): Promise<AdminUser> {
