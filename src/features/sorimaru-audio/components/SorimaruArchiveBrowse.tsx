@@ -11,10 +11,13 @@ import { groupSorimaruStoriesByPlace, type SorimaruPlaceGroup } from '@/features
 import { useSorimaruImage } from '@/features/sorimaru-audio/hooks/useSorimaruImage';
 import { palette, meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
 import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
+import { SorimaruRequestErrorState } from '@/features/sorimaru-audio/presentation/SorimaruRequestErrorState';
 
 interface SorimaruArchiveBrowseProps {
   stories: SorimaruStorySummary[];
   isLoading: boolean;
+  error?: Error | null;
+  onRetry?: () => void;
 }
 
 type ArchiveView = 'stories' | 'places';
@@ -601,7 +604,7 @@ const ViewSegmentBtn = styled.button<{ $active: boolean }>`
   }
 `;
 
-export function SorimaruArchiveBrowse({ stories, isLoading }: SorimaruArchiveBrowseProps) {
+export function SorimaruArchiveBrowse({ stories, isLoading, error = null, onRetry }: SorimaruArchiveBrowseProps) {
   const [view, setView] = useState<ArchiveView>('stories');
   const groups = useMemo(() => groupSorimaruStoriesByPlace(stories), [stories]);
 
@@ -648,6 +651,8 @@ export function SorimaruArchiveBrowse({ stories, isLoading }: SorimaruArchiveBro
 
       {isLoading ? (
         <ArchiveSkeleton />
+      ) : error && onRetry ? (
+        <SorimaruRequestErrorState onRetry={onRetry} />
       ) : stories.length === 0 ? (
         <OniSearchEmpty
           size="md"

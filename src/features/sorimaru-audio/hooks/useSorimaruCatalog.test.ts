@@ -18,8 +18,9 @@ const repository = (listStories: SorimaruRepository['listStories']): SorimaruRep
 });
 const deferred = <T>() => {
   let resolve!: (value: T) => void;
-  const promise = new Promise<T>((done) => { resolve = done; });
-  return { promise, resolve };
+  let reject!: (reason: unknown) => void;
+  const promise = new Promise<T>((done, fail) => { resolve = done; reject = fail; });
+  return { promise, resolve, reject };
 };
 
 describe('Sorimaru catalog controller', () => {
@@ -194,6 +195,36 @@ describe('Sorimaru catalog controller', () => {
     await catalog.setScope('전체');
     expect(catalog.getSnapshot().catalog).toMatchObject({ status: 'success', error: null });
     expect(catalog.getSnapshot().catalog.pages[0].items[0].storyId).toBe('recovered');
+  });
+
+  it('hides a failed initial request while retrying and restores the error only after retry failure', async () => {
+    const retryRequest = deferred<SorimaruStoryPage>();
+    const listStories = vi.fn()
+      .mockRejectedValueOnce(new Error('initial offline'))
+      .mockReturnValueOnce(retryRequest.promise);
+    const catalog = createSorimaruCatalogController(repository(listStories));
+
+    await catalog.loadInitial();
+    expect(catalog.getSnapshot()).toMatchObject({
+      initialLoading: false,
+      initialError: expect.any(Error),
+      catalog: { status: 'error', error: expect.any(Error) },
+    });
+
+    const retrying = catalog.retry();
+    expect(catalog.getSnapshot()).toMatchObject({
+      initialLoading: true,
+      initialError: null,
+      catalog: { status: 'loading', error: null },
+    });
+
+    retryRequest.reject(new Error('retry timed out'));
+    await retrying;
+    expect(catalog.getSnapshot()).toMatchObject({
+      initialLoading: false,
+      initialError: expect.any(Error),
+      catalog: { status: 'error', error: expect.any(Error) },
+    });
   });
 
   it('keeps the numbered page after a failed cursor request and clears its error on retry', async () => {

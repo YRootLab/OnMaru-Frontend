@@ -18,6 +18,7 @@ import SorimaruSpotlightBanner from './feed/SorimaruSpotlightBanner';
 import SmartAroundFeed from './feed/SmartAroundFeed';
 import type { Item, PlaceCategory } from '@/features/map/types';
 import { isHanok } from '@/features/map/utils/isHanok';
+import { getMapLoadErrorCopy } from '@/features/map/presentation/mapLoadErrorCopy';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -55,6 +56,27 @@ const FeedWrapper = styled.div`
   gap: 32px;
   margin-top: 20px;
   margin-bottom: 40px;
+`;
+
+const DegradedNotice = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 8px 12px 4px;
+  border: 1px solid ${meok[300]};
+  border-radius: 12px;
+  background: #f8f8f7;
+  padding: 10px 12px;
+  color: ${meok[700]};
+  font-size: ${fontSize.micro};
+  line-height: 1.4;
+
+  [data-theme='dark'] & {
+    border-color: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.05);
+    color: ${meok[300]};
+  }
 `;
 
 const CountLabel = styled.span`
@@ -366,7 +388,7 @@ export default function PlaceList() {
   const userLocation = useMapStore((s) => s.userLocation);
   const center = useMapStore((s) => s.center);
   const loading = useMapStore((s) => s.loading);
-  const error = useMapStore((s) => s.error);
+  const placeLoadError = useMapStore((s) => s.placeLoadError);
   const category = useMapStore((s) => s.category);
   const currentAddress = useMapStore((s) => s.currentAddress);
   const selectedId = useMapStore((s) => s.selectedId);
@@ -377,12 +399,20 @@ export default function PlaceList() {
   const setSelectedId = useMapStore((s) => s.setSelectedId);
   const setHoveredId = useMapStore((s) => s.setHoveredId);
   const reload = useMapStore((s) => s.reload);
+  const setLoading = useMapStore((s) => s.setLoading);
+  const setPlaceLoadError = useMapStore((s) => s.setPlaceLoadError);
   const searchQuery = useMapStore((s) => s.searchQuery);
   const setSearchQuery = useMapStore((s) => s.setSearchQuery);
 
   const bookmarks = useBookmarkStore((s) => s.bookmarks);
   const listTopRef = useRef<HTMLDivElement>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const requestErrorCopy = placeLoadError ? getMapLoadErrorCopy(placeLoadError) : null;
+  const retryPlaces = () => {
+    setPlaceLoadError(null);
+    setLoading(items.length === 0);
+    reload();
+  };
 
 
   const sortedItems = useMemo(() => {
@@ -565,6 +595,16 @@ export default function PlaceList() {
         </SortDropdownWrapper>
       </StickyHeader>
 
+      {placeLoadError && items.length > 0 && requestErrorCopy && (
+        <DegradedNotice role="status" aria-live="polite">
+          <span>{requestErrorCopy.title} 이전에 불러온 장소를 보여드릴게요.</span>
+          <ActionButton type="button" onClick={retryPlaces}>
+            <HugeiconsIcon icon={RotateCcwIcon} size={13} aria-hidden="true" />
+            다시 시도
+          </ActionButton>
+        </DegradedNotice>
+      )}
+
       {}
       {loading && items.length === 0 ? (
         <SkeletonWrapper aria-busy="true" aria-label="장소 목록을 불러오는 중이에요">
@@ -582,13 +622,16 @@ export default function PlaceList() {
             </SkeletonItem>
           ))}
         </SkeletonWrapper>
-      ) : error ? (
+      ) : placeLoadError && items.length === 0 && requestErrorCopy ? (
         <OniSearchEmpty
           size="md"
-          title="정보를 가져오지 못했어요"
-          description={error}
+          role="alert"
+          videoSrc=""
+          imageSrc="/images/character/Oni_server_error.png"
+          title={requestErrorCopy.title}
+          description={requestErrorCopy.description}
           action={
-            <ActionButton type="button" onClick={reload}>
+            <ActionButton type="button" onClick={retryPlaces}>
               <HugeiconsIcon icon={RotateCcwIcon} size={14} strokeWidth={2} />
               <span>다시 시도</span>
             </ActionButton>

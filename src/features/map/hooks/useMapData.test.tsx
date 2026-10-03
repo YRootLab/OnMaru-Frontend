@@ -101,6 +101,32 @@ describe('useMapData viewport request scheduling', () => {
     expect(fetchWarmthData).not.toHaveBeenCalled();
   });
 
+  it('starts the places deadline before the Kakao SDK creates a map', async () => {
+    useMapStore.setState({ map: null });
+
+    renderHook(() => useMapData());
+
+    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1));
+    expect(fetch).toHaveBeenCalledWith(
+      expect.stringContaining('/api/map/places?'),
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
+    );
+
+    act(() => {
+      useMapStore.getState().initializeCommittedViewport({
+        center,
+        level: 9,
+        radius: 12_000,
+      });
+    });
+
+    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(2));
+    expect(fetch).toHaveBeenLastCalledWith(
+      expect.stringContaining('radius=12000'),
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
+    );
+  });
+
   it('loads only warmth data while warmth mode is active', async () => {
     useMapStore.setState({
       mode: 'warmth',
@@ -112,6 +138,18 @@ describe('useMapData viewport request scheduling', () => {
 
     await waitFor(() => expect(fetchWarmthData).toHaveBeenCalledTimes(1));
     expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it('starts a fresh places request after leaving warmth mode', async () => {
+    useMapStore.setState({ mode: 'warmth', map: null });
+    const { rerender } = renderHook(() => useMapData());
+    await waitFor(() => expect(fetchWarmthData).toHaveBeenCalledTimes(1));
+
+    act(() => useMapStore.getState().setMode('info'));
+    rerender();
+
+    await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1));
+    expect(useMapStore.getState().placeLoadError).toBeNull();
   });
 
   it('clears stale warmth markers after a successful empty response', async () => {

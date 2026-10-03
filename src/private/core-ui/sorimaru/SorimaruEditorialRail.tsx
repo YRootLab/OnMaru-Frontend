@@ -5,17 +5,22 @@ import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { motion } from 'framer-motion';
 import gsap from 'gsap';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ChevronLeftIcon, ChevronRightIcon } from '@hugeicons/core-free-icons';
 import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import { editorialRailCardViewModel } from '@/features/sorimaru-audio/presentation/sorimaruEditorialRailViewModel';
 import { SORIMARU_THEME_CATEGORIES } from '@/features/sorimaru-audio/data/sorimaruCategoryData';
 import { SORIMARU_RAIL_VISIBLE_BUFFER, getVisibleRailPositions } from './sorimaruEditorialRailModel';
 import { palette, meok, surface, fontSize } from '@/design-system/tokens';
 import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty/OniSearchEmpty';
+import { SorimaruRequestErrorState } from '@/features/sorimaru-audio/presentation/SorimaruRequestErrorState';
 
 interface SorimaruEditorialRailProps {
   stories: SorimaruStorySummary[];
   storySets?: Record<string, SorimaruStorySummary[]>;
   isLoading?: boolean;
+  error?: Error | null;
+  onRetry?: () => void;
   onSelectStory: (story: SorimaruStorySummary, intent: 'play') => void;
 }
 
@@ -293,6 +298,109 @@ const CarouselStageWrapper = styled.div`
   }
 `;
 
+const NavSideButton = styled.button<{ $side: 'left' | 'right' }>`
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 40;
+  display: flex;
+  width: 3.5rem;
+  cursor: pointer;
+  align-items: center;
+  border: none;
+  transition: opacity 0.2s ease;
+
+  @media (min-width: 640px) {
+    width: 4.5rem;
+  }
+
+  @media (min-width: 1024px) {
+    width: 5.5rem;
+  }
+
+  ${({ $side }) =>
+    $side === 'left'
+      ? `
+        left: 0;
+        justify-content: flex-start;
+        padding-left: 0.5rem;
+        background: linear-gradient(to right, rgba(248, 248, 247, 0.78), rgba(248, 248, 247, 0.36), transparent);
+
+        @media (min-width: 640px) {
+          padding-left: 0.75rem;
+        }
+      `
+      : `
+        right: 0;
+        justify-content: flex-end;
+        padding-right: 0.5rem;
+        background: linear-gradient(to left, rgba(248, 248, 247, 0.78), rgba(248, 248, 247, 0.36), transparent);
+
+        @media (min-width: 640px) {
+          padding-right: 0.75rem;
+        }
+      `}
+
+  [data-theme='dark'] & {
+    background: ${({ $side }) =>
+      $side === 'left'
+        ? 'linear-gradient(to right, rgba(28, 28, 27, 0.82), rgba(28, 28, 27, 0.42), transparent)'
+        : 'linear-gradient(to left, rgba(28, 28, 27, 0.82), rgba(28, 28, 27, 0.42), transparent)'};
+  }
+
+  &:active:not(:disabled) {
+    opacity: 0.8;
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  span.icon-box {
+    display: flex;
+    height: 2.75rem;
+    width: 2.25rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    border-radius: 0.75rem;
+    background-color: rgba(248, 248, 247, 0.8);
+    color: ${meok[900]};
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+
+    [data-theme='dark'] & {
+      border-color: rgba(255, 255, 255, 0.08);
+      background-color: rgba(45, 45, 43, 0.86);
+      color: ${meok[200]};
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+    }
+  }
+
+  &:hover:not(:disabled) span.icon-box {
+    transform: scale(1.1);
+    background-color: #ffffff;
+    color: ${palette.juhong[500]};
+
+    [data-theme='dark'] & {
+      background-color: ${surface.dark.elevated};
+      color: ${palette.juhong[400]};
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+
+    span.icon-box {
+      transition: none;
+    }
+  }
+`;
+
 const CategoryTabButton = styled.button<{ $isSelected: boolean }>`
   user-select: none;
   white-space: nowrap;
@@ -511,7 +619,7 @@ const IndicatorDot = styled.button<{ $active: boolean }>`
 `;
 
 export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
-  function SorimaruEditorialRail({ stories, storySets, isLoading = false, onSelectStory }) {
+  function SorimaruEditorialRail({ stories, storySets, isLoading = false, error = null, onRetry, onSelectStory }) {
     const [selectedKeyword, setSelectedKeyword] = useState(SORIMARU_THEME_CATEGORIES[0].keyword);
     const [cachedImageUrls, setCachedImageUrls] = useState<Record<string, string>>(() => {
       if (typeof window === 'undefined') return {};
@@ -733,6 +841,28 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
       if (offset === 0 && story) onSelectStory(story, 'play');
     };
 
+    if (error && !showSkeleton && onRetry) {
+      return (
+        <section
+          aria-label="소리마루 추천"
+          style={{
+            position: 'relative',
+            marginLeft: 'auto',
+            marginRight: 'auto',
+            display: 'flex',
+            minHeight: 355,
+            width: '100%',
+            maxWidth: '72rem',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1.5rem 0',
+          }}
+        >
+          <SorimaruRequestErrorState onRetry={onRetry} />
+        </section>
+      );
+    }
+
     if (!activeStory && !showSkeleton) {
       return (
         <section
@@ -796,6 +926,34 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
             </div>
 
             <CarouselStageWrapper>
+              <NavSideButton
+                type="button"
+                onClick={() => moveBy(-1)}
+                onDragStart={(event) => event.preventDefault()}
+                draggable={false}
+                disabled={showSkeleton || featured.length < 2}
+                aria-label="이전 이야기"
+                $side="left"
+              >
+                <span className="icon-box">
+                  <HugeiconsIcon icon={ChevronLeftIcon} size={22} strokeWidth={2} />
+                </span>
+              </NavSideButton>
+
+              <NavSideButton
+                type="button"
+                onClick={() => moveBy(1)}
+                onDragStart={(event) => event.preventDefault()}
+                draggable={false}
+                disabled={showSkeleton || featured.length < 2}
+                aria-label="다음 이야기"
+                $side="right"
+              >
+                <span className="icon-box">
+                  <HugeiconsIcon icon={ChevronRightIcon} size={22} strokeWidth={2} />
+                </span>
+              </NavSideButton>
+
                 <div
                   style={{
                     position: 'absolute',
@@ -872,4 +1030,4 @@ export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
       </section>
     );
   }
-);
+);

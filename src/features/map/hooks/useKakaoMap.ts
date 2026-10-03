@@ -51,13 +51,19 @@ export function snapshotFromMap(
 export function useKakaoMap(containerRef: RefObject<HTMLDivElement | null>) {
   const createdRef = useRef(false);
   const disposeRef = useRef<(() => void) | null>(null);
+  const initializationGenerationRef = useRef(0);
 
   const initMap = useCallback(() => {
     const container = containerRef.current;
     if (createdRef.current || !container || !window.kakao?.maps) return;
     createdRef.current = true;
+    const generation = initializationGenerationRef.current;
 
     window.kakao.maps.load(() => {
+      if (generation !== initializationGenerationRef.current) {
+        createdRef.current = false;
+        return;
+      }
       const { center, level, setMap, setCenter, initializeCommittedViewport } = useMapStore.getState();
       const map = new window.kakao.maps.Map(container, {
         center: new window.kakao.maps.LatLng(center.lat, center.lng),
@@ -100,16 +106,19 @@ export function useKakaoMap(containerRef: RefObject<HTMLDivElement | null>) {
     });
   }, [containerRef]);
 
+  const resetMapInitialization = useCallback(() => {
+    initializationGenerationRef.current += 1;
+    disposeRef.current?.();
+    disposeRef.current = null;
+    createdRef.current = false;
+    useMapStore.getState().setMap(null);
+  }, []);
+
 
   useEffect(() => {
     initMap();
-    return () => {
-      disposeRef.current?.();
-      disposeRef.current = null;
-      createdRef.current = false;
-      useMapStore.getState().setMap(null);
-    };
-  }, [initMap]);
+    return resetMapInitialization;
+  }, [initMap, resetMapInitialization]);
 
-  return initMap;
+  return { initMap, resetMapInitialization };
 }
