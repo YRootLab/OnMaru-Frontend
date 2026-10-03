@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { PlaceDetailData } from '@/features/map/types';
+import { loadCanonicalPlaceDetail } from '@/features/map/services/canonicalPlaceDetail.service';
 
 export type { PlaceDetailData };
 
@@ -11,14 +12,21 @@ interface CacheEntry {
 const detailCache = new Map<string, CacheEntry>();
 const CACHE_TTL = 10 * 60 * 1000;
 
-export function usePlaceDetail(contentId: string | null, contentTypeId?: string) {
+type PlaceDetailSource = 'legacy' | 'canonical';
+
+export function usePlaceDetail(
+  contentId: string | null,
+  contentTypeId?: string,
+  source: PlaceDetailSource = 'legacy',
+) {
   const [data, setData] = useState<PlaceDetailData | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchDetail = useCallback(async (id: string, typeId?: string) => {
 
-    const cached = detailCache.get(id);
+    const cacheKey = `${source}:${id}`;
+    const cached = detailCache.get(cacheKey);
     if (cached && cached.expiresAt > Date.now()) {
       setData(cached.data);
       setLoading(false);
@@ -33,6 +41,16 @@ export function usePlaceDetail(contentId: string | null, contentTypeId?: string)
     const timeoutId = setTimeout(() => controller.abort(), 10000);
 
     try {
+      if (source === 'canonical') {
+        const detail = await loadCanonicalPlaceDetail(id, controller.signal);
+        detailCache.set(cacheKey, {
+          data: detail,
+          expiresAt: Date.now() + CACHE_TTL,
+        });
+        setData(detail);
+        return;
+      }
+
       const query = typeId ? `?contentTypeId=${typeId}` : '';
       const res = await fetch(`/api/place/${id}${query}`, {
         signal: controller.signal,
@@ -40,7 +58,7 @@ export function usePlaceDetail(contentId: string | null, contentTypeId?: string)
 
       if (res.ok) {
         const json: PlaceDetailData = await res.json();
-        detailCache.set(id, {
+        detailCache.set(cacheKey, {
           data: json,
           expiresAt: Date.now() + CACHE_TTL,
         });
@@ -57,7 +75,7 @@ export function usePlaceDetail(contentId: string | null, contentTypeId?: string)
       clearTimeout(timeoutId);
       setLoading(false);
     }
-  }, []);
+  }, [source]);
 
   useEffect(() => {
     if (!contentId) {
@@ -72,10 +90,10 @@ export function usePlaceDetail(contentId: string | null, contentTypeId?: string)
 
   const reload = useCallback(() => {
     if (contentId) {
-      detailCache.delete(contentId);
+      detailCache.delete(`${source}:${contentId}`);
       fetchDetail(contentId, contentTypeId);
     }
-  }, [contentId, contentTypeId, fetchDetail]);
+  }, [contentId, contentTypeId, fetchDetail, source]);
 
   return { data, loading, error, reload };
 }

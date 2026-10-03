@@ -66,6 +66,16 @@
 - 2026-09-23: #184·#185 FE 연동 작업 — 지역 그룹 응답 어댑터(`odii/regions`), 홈 인기 소리(`home/popular-sounds`), 재생 기록(`odii/stories/{storyId}/plays`), 오디오 찜 영속 API를 연결했다. 인기 소리 스켈레톤을 실제 기본 응답 수(7개)에 맞추고 목데이터 기반 찜 저장을 제거했다. `tsc`, 관련 Vitest 14건 통과.
 - 2026-09-23 추가: 홈 인기 소리 UI는 `usePopularSounds`로 `/home/popular-sounds`를 직접 사용하고, 소리마루 `SoundConstellationSection`은 `odii/regions` 그룹 응답의 `storyCount`를 지도 핀/선택 지역 헤더에 반영한다. 지도 지역 API 실패 시 목 카드로 대체하지 않는다.
 - 2026-09-23 추가: 홈 `이번 주 추천 코스` 캐러셀 좌우 버튼을 카드보다 앞선 z-index와 안전한 좌우 inset으로 조정하고, 로딩 상태를 이미지·지역 배지·제목·설명 2줄·태그·CTA까지 실제 카드 구조와 동일하게 구성했다.
+## 2026-10-03 지도 정보모드 신규 API 재연결
+
+- 완료: Issue #246 / PR #250에서 구현했던 `/api/v1/map/info/places`·`/api/v1/map/info/viewport` 경계를 현재 UI 위에 재연결했다.
+- 확인한 회귀: `4b0c770`에서 연결된 `useInfoMapData`, `ViewportOverlays`, `InfoPlaceList`, viewport PLACE marker 경계가 `8468e52`에서 제거되어 `/api/map/places`로 돌아갔다.
+- 구현 결과: 현재 검색·카드·배너·온기 UI를 유지하면서 정보 칩/list/viewport/marker 데이터 경계를 복구했다. 기본 category는 `ALL`, 한옥은 단일 `HANOK`, 목록은 category·region 변경 시 초기화하고 cursor page는 `placeId` 중복 제거·snapshot scope·abort를 적용한다. 정보 상세는 canonical `/api/v1/places/{placeId}`를 사용하며 legacy TourAPI 상세 fan-out을 차단한다. viewport는 최신 develop의 committed viewport 정책을 따르고 debounce 시작 시 확정 bbox를 고정하며, 목록 cursor·viewport의 409 자동 복구를 각각 1회로 제한하고 viewport 단독 503에는 기존 오버레이를 유지한 재시도 UI를 제공한다.
+- 2026-10-04 실 API 재검증: 전용 SSH 명령으로 staging을 시작한 뒤 TLS·`/v3/api-docs`·`category=HANOK` 목록이 200을 반환했고 `appliedCategories`의 한옥 canonical category 4종을 확인했다. staging fixture는 2건이라 `nextCursor=null`이며 두 번째 page는 만들 수 없다. 운영은 첫 30건의 `nextCursor`로 두 번째 30건을 200으로 조회했고 동일 snapshot·중복 `placeId` 0건을 확인했다. BE Issue #553·#566과 FE #246은 이미 closed다.
+- 남은 위험: staging과 운영의 zoom level 9 viewport가 `DISTRICT` 및 양수 `totalCountInViewport`를 반환하면서도 `items=[]`다. FE merge는 사용자의 2026-10-04 명시적 요청으로 진행하되, aggregate 데이터 복구 전에는 줌 9 구역 오버레이가 비어 보일 수 있다.
+- 검증: 최신 `origin/develop` 병합 후 지도 관련 Vitest 10 files/34 tests, `npx tsc --noEmit`, 대상 ESLint가 통과했다. 앞선 production build와 로컬 Chrome fixture 스모크에서는 한옥→숙소 전환 시 URL·칩·검색 문구·`totalCount` 헤더가 함께 바뀌고 dev 로그에 `/api/map/places` 요청이 없음을 확인했다.
+- 최신 develop 기준선 정리 및 최종 검증: 관리자 quick-login 테스트에 production/development 환경을 명시했고, screenHanok fallback 테스트의 실 staging 호출을 즉시 실패하는 fake로 교체했다. `/api/proxy` self-loop 방지용 `NEXT_PUBLIC_API_URL_INTERNAL`은 `next.config.ts`에서만 허용하도록 환경변수 계약을 갱신했다. 독립 코드리뷰의 상세·viewport·409·오류 UI 지적과 debounce 중 bbox/zoom 불일치 가능성을 반영했다. 2026-10-04 최신 develop 재병합 후 전체 Vitest 143 files/632 tests와 TypeScript가 통과했으며 production build를 재검증한다.
+
 # Issue #297 — 관리자 목록 `totalCount` 커서 페이지네이션 (2026-10-03)
 
 - 작업 브랜치: `fix/297-admin-total-count-pagination`

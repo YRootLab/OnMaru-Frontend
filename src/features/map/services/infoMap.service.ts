@@ -16,7 +16,7 @@ export interface ListInfoPlacesInput {
 // ── Fixtures (BE 미준비 시 병렬 개발용) ──────────────────────────────────────
 
 const FIXTURE_PLACES: InfoPlacePage = {
-  query: { category: 'SPOT' },
+  query: { category: 'ALL' },
   snapshot: { id: 'fixture-snap-001', publishedAt: new Date().toISOString() },
   totalCount: 0,
   items: [],
@@ -59,7 +59,11 @@ export async function loadMapViewport(
   if (USE_MOCK) return FIXTURE_VIEWPORT;
 
   const { signal, bbox, zoomLevel, category, regionCode } = params;
-  const queryParams: Record<string, string> = { bbox, zoomLevel: String(zoomLevel), category };
+  const queryParams: Record<string, string> = {
+    bbox,
+    zoomLevel: String(zoomLevel),
+    category: category.toUpperCase(),
+  };
   if (regionCode) queryParams.regionCode = regionCode;
 
   return apiRequest<MapViewportResponse>('/map/info/viewport', {

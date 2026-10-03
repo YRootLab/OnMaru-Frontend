@@ -99,6 +99,8 @@ export default function ViewportOverlays() {
   const mode = useMapStore((s) => s.mode);
   const viewportItems = useMapStore((s) => s.viewportItems);
   const viewportRenderMode = useMapStore((s) => s.viewportRenderMode);
+  const viewportError = useMapStore((s) => s.viewportError);
+  const retryInfoViewport = useMapStore((s) => s.retryInfoViewport);
 
   const overlaysRef = useRef<OverlayRef[]>([]);
 
@@ -154,5 +156,49 @@ export default function ViewportOverlays() {
     };
   }, [map, mode, viewportItems, viewportRenderMode]);
 
-  return null;
+  if (!viewportError) return null;
+
+  return (
+    <div
+      role="status"
+      style={{
+        position: 'absolute',
+        top: 86,
+        left: '50%',
+        zIndex: 30,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        maxWidth: 'calc(100% - 32px)',
+        padding: '9px 12px',
+        border: '1px solid #d9d9d7',
+        borderRadius: 12,
+        background: 'rgba(248, 248, 247, 0.96)',
+        color: '#4e5968',
+        fontSize: 12,
+        boxShadow: '0 4px 14px rgba(25, 31, 40, 0.12)',
+        transform: 'translateX(-50%)',
+      }}
+    >
+      <span>{viewportError}</span>
+      <button
+        type="button"
+        aria-label="지도 다시 시도"
+        onClick={retryInfoViewport}
+        style={{
+          flexShrink: 0,
+          padding: '4px 9px',
+          border: 0,
+          borderRadius: 999,
+          background: '#e5e5e3',
+          color: '#333d4b',
+          font: 'inherit',
+          fontWeight: 600,
+          cursor: 'pointer',
+        }}
+      >
+        다시 시도
+      </button>
+    </div>
+  );
 }
