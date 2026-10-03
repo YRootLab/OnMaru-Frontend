@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { surface } from '@/design-system/tokens';
 import {
   getSorimaruTearBoundaries,
+  SORIMARU_BACKGROUND_DARK_PALETTE,
   SORIMARU_BACKGROUND_PALETTE,
   SORIMARU_BACKGROUND_STAGES,
   resolveSorimaruBackgroundCategory,
@@ -19,6 +20,11 @@ describe('Sorimaru background scene model', () => {
       shadowRgb: '70, 70, 70',
       accentRgb: '145, 145, 145',
     });
+  });
+
+  it('provides valid dark surface colors to the rendered background stage', () => {
+    expect(SORIMARU_BACKGROUND_DARK_PALETTE.canvas).toBe('#0B1220');
+    expect(SORIMARU_BACKGROUND_DARK_PALETTE.paper).toBe('#171E2B');
   });
 
   it('maps only approved Sorimaru themes to restrained category modifiers', () => {

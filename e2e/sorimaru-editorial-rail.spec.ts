@@ -8,6 +8,27 @@ const corsHeaders = {
   'access-control-allow-credentials': 'true',
 };
 
+function compositeContrast(foreground: string, background: [number, number, number]) {
+  const channels = foreground.match(/[\d.]+/g)?.map(Number) ?? [];
+  const [red = 0, green = 0, blue = 0, alpha = 1] = channels;
+  const composite = [red, green, blue].map((channel, index) =>
+    channel * alpha + background[index] * (1 - alpha),
+  );
+  const luminance = (rgb: number[]) => {
+    const [r, g, b] = rgb.map((channel) => {
+      const normalized = channel / 255;
+      return normalized <= 0.04045
+        ? normalized / 12.92
+        : ((normalized + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  const foregroundLuminance = luminance(composite);
+  const backgroundLuminance = luminance(background);
+  return (Math.max(foregroundLuminance, backgroundLuminance) + 0.05) /
+    (Math.min(foregroundLuminance, backgroundLuminance) + 0.05);
+}
+
 const stories = Array.from({ length: 3 }, (_, index) => ({
   storyId: `visual-story-${index + 1}`,
   title: `라이트 모드 이야기 ${index + 1}`,
@@ -26,6 +47,15 @@ const stories = Array.from({ length: 3 }, (_, index) => ({
   contentTags: ['한옥'],
   savedByMe: false,
 }));
+
+test('dark-mode page canvas stays on the shared dark app surface', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('onmaru-color-mode', 'dark'));
+  await page.goto('/sorimaru');
+
+  const backgroundStage = page.locator('[data-variant="hanji-journey"]');
+  await expect(backgroundStage).toBeVisible();
+  await expect(backgroundStage).toHaveCSS('background-color', 'rgb(11, 18, 32)');
+});
 
 test('light-mode rail arrows change only icon color on hover', async ({ page }) => {
   await page.route('**/api/v1/odii/stories**', (route) => route.fulfill({
@@ -164,8 +194,12 @@ test('dark-mode active card clips one opaque surface without a bright rounded fr
       edgeMaskBorderRadius: edgeMaskStyle.borderRadius,
     };
   });
-  const stageBackgroundColor = await page.getByRole('button', { name: '다음 이야기' }).evaluate((node) =>
-    getComputedStyle(node.parentElement as HTMLElement).backgroundColor,
+  const railSurface = await page.getByRole('button', { name: '다음 이야기' }).evaluate((node) => ({
+    navigationBackground: getComputedStyle(node).backgroundImage,
+    stageBackgroundColor: getComputedStyle(node.parentElement as HTMLElement).backgroundColor,
+  }));
+  const inactiveIndicatorColor = await page.getByRole('button', { name: '2번째 이야기 선택' }).evaluate((node) =>
+    getComputedStyle(node).backgroundColor,
   );
 
   expect(styles.cardBorderWidth).toBe('0px');
@@ -173,7 +207,7 @@ test('dark-mode active card clips one opaque surface without a bright rounded fr
   expect(styles.cardBoxShadow).toBe('none');
   expect(styles.cardBorderRadius).toBe('0px');
   expect(styles.cardOverflow).toBe('visible');
-  expect(styles.surfaceBackgroundColor).not.toBe(stageBackgroundColor);
+  expect(styles.surfaceBackgroundColor).not.toBe(railSurface.stageBackgroundColor);
   expect(styles.surfaceBorderRadius).toBe('20px');
   expect(styles.surfaceOverflow).toBe('hidden');
   expect(styles.imageLayerBorderRadius).toBe('0px');
@@ -183,7 +217,10 @@ test('dark-mode active card clips one opaque surface without a bright rounded fr
   expect(styles.panelBottomLeftRadius).toBe('0px');
   expect(styles.panelBottomRightRadius).toBe('0px');
   expect(styles.edgeMaskDisplay).toBe('block');
-  expect(styles.edgeMaskBorderColor).toBe(stageBackgroundColor);
+  expect(railSurface.navigationBackground).toBe('none');
+  expect(railSurface.stageBackgroundColor).toBe('rgba(0, 0, 0, 0)');
+  expect(styles.edgeMaskBorderColor).toBe('rgb(11, 18, 32)');
   expect(styles.edgeMaskBorderWidth).toBe('3px');
   expect(styles.edgeMaskBorderRadius).toBe('21px');
+  expect(compositeContrast(inactiveIndicatorColor, [11, 18, 32])).toBeGreaterThanOrEqual(2);
 });

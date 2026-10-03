@@ -147,7 +147,7 @@ const CardEdgeMask = styled.div`
     z-index: 30;
     display: block;
     box-sizing: border-box;
-    border: 3px solid ${surface.dark.surface};
+    border: 3px solid ${surface.dark.app};
     border-radius: 21px;
     pointer-events: none;
   }
@@ -325,7 +325,7 @@ const CarouselStageWrapper = styled.div`
   }
 
   [data-theme='dark'] & {
-    background-color: ${surface.dark.surface};
+    background-color: transparent;
   }
 `;
 
@@ -373,10 +373,7 @@ const NavSideButton = styled.button<{ $side: 'left' | 'right' }>`
       `}
 
   [data-theme='dark'] & {
-    background: ${({ $side }) =>
-      $side === 'left'
-        ? 'linear-gradient(to right, rgba(28, 28, 27, 0.82), rgba(28, 28, 27, 0.42), transparent)'
-        : 'linear-gradient(to left, rgba(28, 28, 27, 0.82), rgba(28, 28, 27, 0.42), transparent)'};
+    background: transparent;
   }
 
   &:active:not(:disabled) {
@@ -646,6 +643,16 @@ const IndicatorDot = styled.button<{ $active: boolean }>`
           background-color: rgba(33, 30, 25, 0.5);
         }
       `}
+
+  [data-theme='dark'] & {
+    background-color: ${({ $active }) =>
+      $active ? palette.juhong[500] : 'rgba(250, 250, 250, 0.32)'};
+
+    &:hover {
+      background-color: ${({ $active }) =>
+        $active ? palette.juhong[500] : 'rgba(250, 250, 250, 0.56)'};
+    }
+  }
 `;
 
 export const SorimaruEditorialRail = React.memo<SorimaruEditorialRailProps>(
