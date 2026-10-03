@@ -87,6 +87,20 @@ test('light-mode rail arrows change only icon color on hover', async ({ page }) 
   expect(after.height).toBeCloseTo(before.height, 1);
   expect(after.backgroundColor).toBe(before.backgroundColor);
   expect(after.color).not.toBe(before.color);
+
+  const lightCard = page.getByRole('button', { name: /현재 선택됨/ }).first();
+  const lightCardShape = await lightCard.evaluate((node) => ({
+    outerRadius: getComputedStyle(node).borderRadius,
+    outerOverflow: getComputedStyle(node).overflow,
+    surfaceRadius: getComputedStyle(node.children[0] as HTMLElement).borderRadius,
+    surfaceOverflow: getComputedStyle(node.children[0] as HTMLElement).overflow,
+    edgeMaskDisplay: getComputedStyle(node.children[1] as HTMLElement).display,
+  }));
+  expect(lightCardShape.outerRadius).toBe('0px');
+  expect(lightCardShape.outerOverflow).toBe('visible');
+  expect(lightCardShape.surfaceRadius).toBe('20px');
+  expect(lightCardShape.surfaceOverflow).toBe('hidden');
+  expect(lightCardShape.edgeMaskDisplay).toBe('none');
 });
 
 test('dark-mode active card clips one opaque surface without a bright rounded fringe', async ({ page }) => {
@@ -117,19 +131,24 @@ test('dark-mode active card clips one opaque surface without a bright rounded fr
   await expect(activeCard).toBeVisible();
   const styles = await activeCard.evaluate((node) => {
     const cardStyle = getComputedStyle(node);
-    const imageLayer = node.children[0] as HTMLElement;
+    const cardSurface = node.children[0] as HTMLElement;
+    const surfaceStyle = getComputedStyle(cardSurface);
+    const imageLayer = cardSurface.children[0] as HTMLElement;
     const imageLayerStyle = getComputedStyle(imageLayer);
-    const bottomPanel = node.children[1] as HTMLElement;
+    const bottomPanel = cardSurface.children[1] as HTMLElement;
     const panelStyle = getComputedStyle(bottomPanel);
+    const edgeMask = node.children[1] as HTMLElement;
+    const edgeMaskStyle = getComputedStyle(edgeMask);
 
     return {
       cardBorderWidth: cardStyle.borderWidth,
-      cardBorderStyle: cardStyle.borderStyle,
-      cardBorderColor: cardStyle.borderColor,
       cardBackgroundColor: cardStyle.backgroundColor,
       cardBoxShadow: cardStyle.boxShadow,
       cardBorderRadius: cardStyle.borderRadius,
       cardOverflow: cardStyle.overflow,
+      surfaceBackgroundColor: surfaceStyle.backgroundColor,
+      surfaceBorderRadius: surfaceStyle.borderRadius,
+      surfaceOverflow: surfaceStyle.overflow,
       imageLayerBorderRadius: imageLayerStyle.borderRadius,
       imageLayerOverflow: imageLayerStyle.overflow,
       panelBackgroundColor: panelStyle.backgroundColor,
@@ -139,6 +158,10 @@ test('dark-mode active card clips one opaque surface without a bright rounded fr
       panelBorderRightColor: panelStyle.borderRightColor,
       panelBottomLeftRadius: panelStyle.borderBottomLeftRadius,
       panelBottomRightRadius: panelStyle.borderBottomRightRadius,
+      edgeMaskDisplay: edgeMaskStyle.display,
+      edgeMaskBorderColor: edgeMaskStyle.borderColor,
+      edgeMaskBorderWidth: edgeMaskStyle.borderWidth,
+      edgeMaskBorderRadius: edgeMaskStyle.borderRadius,
     };
   });
   const stageBackgroundColor = await page.getByRole('button', { name: '다음 이야기' }).evaluate((node) =>
@@ -146,17 +169,21 @@ test('dark-mode active card clips one opaque surface without a bright rounded fr
   );
 
   expect(styles.cardBorderWidth).toBe('0px');
-  expect(styles.cardBackgroundColor).toBe(stageBackgroundColor);
+  expect(styles.cardBackgroundColor).toBe('rgba(0, 0, 0, 0)');
   expect(styles.cardBoxShadow).toBe('none');
   expect(styles.cardBorderRadius).toBe('0px');
   expect(styles.cardOverflow).toBe('visible');
-  expect(styles.imageLayerBorderRadius).toBe('20px 20px 0px 0px');
-  expect(styles.imageLayerOverflow).toBe('hidden');
-  expect(styles.panelBackgroundColor).toBe(styles.cardBackgroundColor);
+  expect(styles.surfaceBackgroundColor).not.toBe(stageBackgroundColor);
+  expect(styles.surfaceBorderRadius).toBe('20px');
+  expect(styles.surfaceOverflow).toBe('hidden');
+  expect(styles.imageLayerBorderRadius).toBe('0px');
+  expect(styles.imageLayerOverflow).toBe('visible');
+  expect(styles.panelBackgroundColor).toBe(styles.surfaceBackgroundColor);
   expect(styles.panelBoxShadow).toBe('none');
-  expect(styles.panelBorderBottomColor).toBe(stageBackgroundColor);
-  expect(styles.panelBorderLeftColor).toBe(stageBackgroundColor);
-  expect(styles.panelBorderRightColor).toBe(stageBackgroundColor);
   expect(styles.panelBottomLeftRadius).toBe('0px');
   expect(styles.panelBottomRightRadius).toBe('0px');
+  expect(styles.edgeMaskDisplay).toBe('block');
+  expect(styles.edgeMaskBorderColor).toBe(stageBackgroundColor);
+  expect(styles.edgeMaskBorderWidth).toBe('3px');
+  expect(styles.edgeMaskBorderRadius).toBe('21px');
 });

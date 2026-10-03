@@ -90,8 +90,8 @@ const CardMotionButton = styled(motion.button)<{ $isActive: boolean }>`
   width: 175px;
   flex-shrink: 0;
   user-select: none;
-  overflow: hidden;
-  border-radius: 1.25rem;
+  overflow: visible;
+  border-radius: 0;
   isolation: isolate;
   background-color: transparent;
   text-align: left;
@@ -99,15 +99,11 @@ const CardMotionButton = styled(motion.button)<{ $isActive: boolean }>`
   border: none;
   cursor: pointer;
   z-index: ${({ $isActive }) => ($isActive ? 20 : 10)};
-  box-shadow: ${({ $isActive }) =>
-    $isActive ? '0 12px 28px rgba(0, 0, 0, 0.12)' : '0 4px 14px rgba(0, 0, 0, 0.04)'};
   filter: ${({ $isActive }) => ($isActive ? 'none' : 'grayscale(0.12)')};
-  transition: box-shadow 0.3s ease, filter 0.3s ease;
+  transition: filter 0.3s ease;
 
   [data-theme='dark'] & {
-    overflow: visible;
-    border-radius: 0;
-    background-color: ${surface.dark.surface};
+    background-color: transparent;
     box-shadow: none;
   }
 
@@ -125,14 +121,41 @@ const CardMotionButton = styled(motion.button)<{ $isActive: boolean }>`
   }
 `;
 
+const CardSurface = styled.div<{ $isActive: boolean }>`
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  background-color: transparent;
+  box-shadow: ${({ $isActive }) =>
+    $isActive ? '0 12px 28px rgba(0, 0, 0, 0.12)' : '0 4px 14px rgba(0, 0, 0, 0.04)'};
+  transition: box-shadow 0.3s ease;
+
+  [data-theme='dark'] & {
+    background-color: ${surface.dark.card};
+    box-shadow: ${({ $isActive }) =>
+      $isActive ? '0 14px 32px rgba(0, 0, 0, 0.45)' : '0 4px 14px rgba(0, 0, 0, 0.25)'};
+  }
+`;
+
+const CardEdgeMask = styled.div`
+  display: none;
+
+  [data-theme='dark'] & {
+    position: absolute;
+    inset: -1px;
+    z-index: 30;
+    display: block;
+    box-sizing: border-box;
+    border: 3px solid ${surface.dark.surface};
+    border-radius: 21px;
+    pointer-events: none;
+  }
+`;
+
 const CardImageLayer = styled(motion.div)`
   position: absolute;
   inset: 0;
-
-  [data-theme='dark'] & {
-    overflow: hidden;
-    border-radius: 1.25rem 1.25rem 0 0;
-  }
 `;
 
 const skeletonShimmer = keyframes`
@@ -236,16 +259,19 @@ const EditorialRailSkeletonCard = React.memo<EditorialRailSkeletonCardProps>(
         transition={{ duration: 0 }}
         $isActive={isActive}
       >
-        <SkeletonImage />
-        <SkeletonBottomPanel $isActive={isActive}>
-          <SkeletonLine $width="4.75rem" $height="0.7rem" />
-          <SkeletonTitleLines>
-            <SkeletonLine $width="94%" $height="1rem" $marginTop="0" />
-            <SkeletonLine $width="70%" $height="1rem" $marginTop="0" />
-          </SkeletonTitleLines>
-          <SkeletonLine $width="58%" $height="0.8rem" $marginTop="0.25rem" />
-          {isActive && <SkeletonLine $width="4.25rem" $height="0.8rem" $marginTop="0.5rem" />}
-        </SkeletonBottomPanel>
+        <CardSurface $isActive={isActive}>
+          <SkeletonImage />
+          <SkeletonBottomPanel $isActive={isActive}>
+            <SkeletonLine $width="4.75rem" $height="0.7rem" />
+            <SkeletonTitleLines>
+              <SkeletonLine $width="94%" $height="1rem" $marginTop="0" />
+              <SkeletonLine $width="70%" $height="1rem" $marginTop="0" />
+            </SkeletonTitleLines>
+            <SkeletonLine $width="58%" $height="0.8rem" $marginTop="0.25rem" />
+            {isActive && <SkeletonLine $width="4.25rem" $height="0.8rem" $marginTop="0.5rem" />}
+          </SkeletonBottomPanel>
+        </CardSurface>
+        <CardEdgeMask />
       </CardMotionButton>
     );
   },
@@ -267,9 +293,9 @@ const CardBottomPanel = styled.div<{ $isActive: boolean }>`
 
   [data-theme='dark'] & {
     color: ${meok[100]};
-    background-color: ${surface.dark.surface};
+    background-color: ${surface.dark.card};
     backdrop-filter: none;
-    border: 0 solid ${surface.dark.surface};
+    border: 0 solid ${surface.dark.card};
     border-top: 1px solid rgba(255, 255, 255, 0.08);
   }
 
@@ -475,39 +501,40 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(
         onMouseDown={(event) => event.preventDefault()}
         aria-label={`${story.title}${isActive ? ' 현재 선택됨' : ''}`}
       >
-        <CardImageLayer
-          animate={{ opacity: isActive ? 1 : 0.54 }}
-          transition={{ duration: trackTransitionEnabled && isVisible ? 0.42 : 0, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <img
-            src={initialImageSrc}
-            alt=""
-            draggable={false}
-            loading={distance <= 3 ? 'eager' : 'lazy'}
-            decoding="async"
-            style={{ height: '100%', width: '100%', objectFit: 'cover' }}
-            onError={(event) => {
-              const image = event.currentTarget;
-              if (image.dataset.fallbackApplied === 'true') {
-                image.onerror = null;
-                image.src = FALLBACK_IMAGE_SETS.default[0];
-                return;
-              }
-              image.dataset.fallbackApplied = 'true';
-              image.src = fallbackImageFor(story);
-            }}
-          />
-          <div
-            style={{
-              pointerEvents: 'none',
-              position: 'absolute',
-              inset: 0,
-              background: 'linear-gradient(to top, rgba(255, 255, 255, 0.55), transparent 60%, rgba(0, 0, 0, 0.05))',
-            }}
-          />
-        </CardImageLayer>
+        <CardSurface $isActive={isActive}>
+          <CardImageLayer
+            animate={{ opacity: isActive ? 1 : 0.54 }}
+            transition={{ duration: trackTransitionEnabled && isVisible ? 0.42 : 0, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <img
+              src={initialImageSrc}
+              alt=""
+              draggable={false}
+              loading={distance <= 3 ? 'eager' : 'lazy'}
+              decoding="async"
+              style={{ height: '100%', width: '100%', objectFit: 'cover' }}
+              onError={(event) => {
+                const image = event.currentTarget;
+                if (image.dataset.fallbackApplied === 'true') {
+                  image.onerror = null;
+                  image.src = FALLBACK_IMAGE_SETS.default[0];
+                  return;
+                }
+                image.dataset.fallbackApplied = 'true';
+                image.src = fallbackImageFor(story);
+              }}
+            />
+            <div
+              style={{
+                pointerEvents: 'none',
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(to top, rgba(255, 255, 255, 0.55), transparent 60%, rgba(0, 0, 0, 0.05))',
+              }}
+            />
+          </CardImageLayer>
 
-        <CardBottomPanel $isActive={isActive}>
+          <CardBottomPanel $isActive={isActive}>
           <p
             style={{
               overflow: 'hidden',
@@ -542,7 +569,9 @@ const EditorialRailCard = React.memo<EditorialRailCardProps>(
               {copy.durationText} <span style={{ color: meok[700] }}>↗</span>
             </span>
           )}
-        </CardBottomPanel>
+          </CardBottomPanel>
+        </CardSurface>
+        <CardEdgeMask />
       </CardMotionButton>
     );
   },
