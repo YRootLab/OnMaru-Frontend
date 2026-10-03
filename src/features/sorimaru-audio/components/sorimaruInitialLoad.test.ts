@@ -18,15 +18,15 @@ const stories: SorimaruStorySummary[] = Array.from({ length: 9 }, (_, index) => 
   savedByMe: false,
 }));
 
-const firstPage: SorimaruStoryPage = { items: stories, nextCursor: 'cursor-2', hasMore: true };
+const firstPage: SorimaruStoryPage = { items: stories, totalCount: 17, nextCursor: 'cursor-2', hasMore: true };
 
 describe('Section 2 loaded summaries', () => {
   it('keeps 17 unique stories across two loaded pages when the archive changes page', async () => {
     const pageOneItems = Array.from({ length: 12 }, (_, index) => ({ ...stories[0], storyId: `rail-${index + 1}` }));
     const pageTwoItems = Array.from({ length: 5 }, (_, index) => ({ ...stories[0], storyId: `rail-${index + 13}` }));
     const pages: SorimaruStoryPage[] = [
-      { items: pageOneItems, nextCursor: 'cursor-2', hasMore: true },
-      { items: [pageOneItems[11], ...pageTwoItems], nextCursor: null, hasMore: false },
+      { items: pageOneItems, totalCount: 17, nextCursor: 'cursor-2', hasMore: true },
+      { items: [pageOneItems[11], ...pageTwoItems], totalCount: 17, nextCursor: null, hasMore: false },
     ];
     const catalog = createSorimaruCatalogController(repositoryWith(vi.fn().mockResolvedValue(pages[1])), pages[0]);
     await catalog.loadInitial();
@@ -79,22 +79,23 @@ describe('loadNextSorimaruPage', () => {
   it('uses only the final cursor and deduplicates overlapping story ids', async () => {
     const secondPage: SorimaruStoryPage = {
       items: [stories[8], { ...stories[0], storyId: 'story-10' }],
+      totalCount: 10,
       nextCursor: null,
       hasMore: false,
     };
     const repository = repositoryWith(vi.fn().mockResolvedValue(secondPage));
-    const pages = [{ items: [stories[0]], nextCursor: 'old-cursor', hasMore: true }, firstPage];
+    const pages = [{ items: [stories[0]], totalCount: 17, nextCursor: 'old-cursor', hasMore: true }, firstPage];
 
     const result = await loadNextSorimaruPage(repository, pages, { language: 'ko-KR', limit: 12, category: '한옥' });
 
     expect(repository.listStories).toHaveBeenCalledOnce();
     expect(repository.listStories).toHaveBeenCalledWith({ language: 'ko-KR', limit: 12, category: '한옥', cursor: 'cursor-2' });
-    expect(result.at(-1)).toEqual({ items: [{ ...stories[0], storyId: 'story-10' }], nextCursor: null, hasMore: false });
+    expect(result.at(-1)).toEqual({ items: [{ ...stories[0], storyId: 'story-10' }], totalCount: 10, nextCursor: null, hasMore: false });
   });
 
   it.each([
-    { pages: [{ items: stories, nextCursor: 'cursor-2', hasMore: false }] },
-    { pages: [{ items: stories, nextCursor: null, hasMore: true }] },
+    { pages: [{ items: stories, totalCount: 9, nextCursor: 'cursor-2', hasMore: false }] },
+    { pages: [{ items: stories, totalCount: 9, nextCursor: null, hasMore: true }] },
   ] satisfies Array<{ pages: SorimaruStoryPage[] }>)('does not request another page without a usable cursor', async ({ pages }) => {
     const repository = repositoryWith(vi.fn());
 

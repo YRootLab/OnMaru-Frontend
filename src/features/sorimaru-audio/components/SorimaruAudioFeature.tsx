@@ -374,7 +374,8 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   const [selectionError, setSelectionError] = useState<Error | null>(null);
   const pendingSelectionRef = useRef<(SorimaruSelectionIntent & { autoPlay: boolean }) | null>(null);
   const pendingRailSelectionRef = useRef<SorimaruStorySummary | null>(null);
-  const storyList = (catalog.pages[currentPage - 1]?.items ?? []).filter((story) => {
+  const currentCatalogPage = catalog.pages[currentPage - 1];
+  const storyList = (currentCatalogPage?.items ?? []).filter((story) => {
     if (!searchQuery) return true;
     const keyword = searchQuery.toLowerCase();
     return [story.title, story.audioTitle, story.region.name, ...story.contentTags]
@@ -599,7 +600,10 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                     <CategoryTagFilter />
                   </div>
                   <div>
-                    <SorimaruArchiveMetaBar resultCount={storyList.length} />
+                    <SorimaruArchiveMetaBar
+                      resultCount={storyList.length}
+                      totalCount={searchQuery ? undefined : currentCatalogPage?.totalCount}
+                    />
                   </div>
 
                   <div style={{ position: 'relative', overflow: 'visible' }}>
