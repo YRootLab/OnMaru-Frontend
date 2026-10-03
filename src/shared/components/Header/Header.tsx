@@ -471,7 +471,7 @@ const LoginButton = styled(Link, transientProps)<LandingProps>`
   }
 
   > svg {
-    transform: translateY(1px);
+    transform: translateY(-2px);
   }
 
   [data-theme='dark'] & {
@@ -890,12 +890,12 @@ export default function Header() {
                     <HeadphonesFilledEars
                       size={15}
                       strokeWidth={1.5}
-                      style={{ display: 'block', flexShrink: 0, transform: 'translateY(1px)' }}
+                      style={{ display: 'block', flexShrink: 0, transform: 'translateY(-2px)' }}
                     />
                   ) : item.href === '/hanok' ? (
                     <HanokIcon
                       size={18}
-                      style={{ display: 'block', flexShrink: 0, transform: 'translateY(1px)' }}
+                      style={{ display: 'block', flexShrink: 0, transform: 'translateY(-2px)' }}
                     />
                   ) : (
                     <HugeiconsIcon
@@ -904,7 +904,7 @@ export default function Header() {
                       fill={isSelected ? 'currentColor' : 'none'}
                       fillOpacity={isSelected ? 0.6 : undefined}
                       strokeWidth={isSelected ? 1.5 : 2}
-                      style={{ display: 'block', flexShrink: 0, transform: 'translateY(1px)' }}
+                      style={{ display: 'block', flexShrink: 0, transform: 'translateY(-2px)' }}
                     />
                   )}
                   <span>{item.label}</span>

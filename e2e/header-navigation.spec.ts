@@ -22,7 +22,7 @@ test('desktop navigation keeps enlarged icons and labels on one visual center', 
 
   expect(navigationMetrics.fontSize).toBe('14px');
   expect(navigationMetrics.iconWidth).toBeGreaterThanOrEqual(15);
-  expect(navigationMetrics.iconCenterOffset).toBeCloseTo(1, 1);
+  expect(navigationMetrics.iconCenterOffset).toBeCloseTo(-2, 1);
 
   const loginButton = page.getByRole('link', { name: '로그인' });
   const loginMetrics = await loginButton.evaluate((node) => {
@@ -49,5 +49,5 @@ test('desktop navigation keeps enlarged icons and labels on one visual center', 
   expect(loginMetrics.paddingTop).toBe(loginMetrics.paddingBottom);
   expect(loginMetrics.arrowWidth).toBeGreaterThanOrEqual(16);
   expect(loginMetrics.labelCenterDifference).toBeLessThanOrEqual(1);
-  expect(loginMetrics.iconCenterOffset).toBeCloseTo(1, 1);
+  expect(loginMetrics.iconCenterOffset).toBeCloseTo(-2, 1);
 });
