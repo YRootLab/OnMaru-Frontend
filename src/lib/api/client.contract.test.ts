@@ -1,8 +1,10 @@
+// @vitest-environment jsdom
+
 import { describe, expect, it, vi } from 'vitest';
 import { normalizeApiError } from './errors';
 import { shouldLoadNextPage } from './cursor';
 import { createCsrfTokenProvider } from './csrf';
-import { apiRequest, resetApiClientForTests } from './client';
+import { apiRequest, resetApiClientForTests, setAccessToken } from './client';
 
 describe('api contract foundation', () => {
   it('normalizes backend error bodies by code and request id', () => {
@@ -106,6 +108,67 @@ describe('api contract foundation', () => {
     expect(csrfCall?.[0]).toBe('https://api.onmaru.test/auth/csrf');
   });
 
+  it('includes the csrf header when a 401 triggers the admin refresh request', async () => {
+    let resourceAttempts = 0;
+    const fetcher = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url.endsWith('/auth/csrf')) {
+        return new Response(JSON.stringify({ token: 'refresh-csrf', headerName: 'X-ADMIN-CSRF' }));
+      }
+      if (url.endsWith('/auth/admin/refresh')) {
+        return new Response(JSON.stringify({ accessToken: 'renewed-access' }));
+      }
+      resourceAttempts += 1;
+      if (resourceAttempts === 1) {
+        return new Response(JSON.stringify({ code: 'AUTH_REQUIRED' }), { status: 401 });
+      }
+      return new Response(JSON.stringify({ ok: true }));
+    });
+
+    resetApiClientForTests({ baseUrl: 'https://api.onmaru.test', fetcher: fetcher as unknown as typeof fetch });
+    setAccessToken('expired-access');
+
+    await expect(apiRequest('/admin/resource', { retry: false })).resolves.toEqual({ ok: true });
+
+    const refreshCall = fetcher.mock.calls.find(([input]) => String(input).endsWith('/auth/admin/refresh'));
+    expect(refreshCall?.[1]).toEqual(expect.objectContaining({
+      method: 'POST',
+      credentials: 'include',
+      headers: expect.objectContaining({ 'X-ADMIN-CSRF': 'refresh-csrf' }),
+    }));
+  });
+
+  it('resets a rejected csrf token and retries the unauthorized refresh only once', async () => {
+    let csrfRequests = 0;
+    let refreshRequests = 0;
+    let resourceAttempts = 0;
+    const fetcher = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.endsWith('/auth/csrf')) {
+        csrfRequests += 1;
+        return new Response(JSON.stringify({ token: `csrf-${csrfRequests}`, headerName: 'X-CSRF-TOKEN' }));
+      }
+      if (url.endsWith('/auth/admin/refresh')) {
+        refreshRequests += 1;
+        if (refreshRequests === 1) {
+          return new Response(JSON.stringify({ code: 'CSRF_INVALID' }), { status: 403 });
+        }
+        return new Response(JSON.stringify({ accessToken: 'renewed-access' }));
+      }
+      resourceAttempts += 1;
+      return resourceAttempts === 1
+        ? new Response(JSON.stringify({ code: 'AUTH_REQUIRED' }), { status: 401 })
+        : new Response(JSON.stringify({ ok: true }));
+    });
+
+    resetApiClientForTests({ baseUrl: 'https://api.onmaru.test', fetcher: fetcher as unknown as typeof fetch });
+    setAccessToken('expired-access');
+
+    await expect(apiRequest('/admin/resource', { retry: false })).resolves.toEqual({ ok: true });
+    expect(csrfRequests).toBe(2);
+    expect(refreshRequests).toBe(2);
+  });
+
   describe('API Outage Policy (API 장애 상태 정책)', () => {
     it('classifies 503 with x-render-routing: hibernate-wake-error header as SERVER_WAKING', () => {
       const error = normalizeApiError(
@@ -194,4 +257,3 @@ describe('api contract foundation', () => {
     });
   });
 });
-

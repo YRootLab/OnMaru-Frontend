@@ -4,7 +4,7 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import styled from '@emotion/styled';
-import { fontSize, meok, surface } from '@/design-system/tokens';
+import { fontFamily, fontSize, meok, surface } from '@/design-system/tokens';
 import { useIsAppleDevice } from '@/shared/hooks/useIsAppleDevice';
 import PolicyModal, { type PolicyTabKey } from './PolicyModal';
 
@@ -308,14 +308,13 @@ const LeftInfoCol = styled.div`
 
 const MassiveWatermark = styled.div`
   width: auto;
-  font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', 'Spoqa Han Sans Neo', sans-serif;
+  font-family: ${fontFamily.dohyun};
   font-size: clamp(1.8rem, 5.8vw, 5.8rem);
-  font-weight: 900;
+  font-weight: normal;
   line-height: 1.1;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.02em;
   user-select: none;
   pointer-events: none;
-  margin: 16px 0 0;
   white-space: nowrap;
   word-break: keep-all;
   overflow: hidden;
@@ -341,7 +340,7 @@ const MassiveWatermark = styled.div`
 
   @media (max-width: 768px) {
     font-size: clamp(2rem, 10vw, 3.8rem);
-    letter-spacing: -0.03em;
+    letter-spacing: -0.01em;
     white-space: normal;
     overflow: visible;
   }
