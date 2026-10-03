@@ -7,7 +7,6 @@ import { USE_MOCK } from '@/lib/api/client';
 import { useAuth } from './useAuth';
 import { buildAuthReturnCleanup, parseAuthReturnParam } from '../services/authReturn';
 import { hasPendingSave } from '@/features/journey-curator/store/pendingSaveBridge';
-import { useAuthSessionStore } from '../store/useAuthSessionStore';
 
 /*
   카카오 로그인 복귀 감지 — 가이드 §1-2.
@@ -43,17 +42,10 @@ export function useAuthReturn(): void {
       if (auth === 'success') {
         const success = USE_MOCK ? completeMockKakaoLogin() : await refreshSessionAfterKakaoLogin();
         if (cancelled) return;
-        if (success) {
-          const user = useAuthSessionStore.getState().user;
-          // 신규 유저: characterId가 없으면 온보딩으로
-          if (user && !user.characterId) {
-            router.replace('/onboarding');
-            return;
-          }
-          if (hasPendingSave()) {
-            router.replace('/');
-            return;
-          }
+        if (success && hasPendingSave()) {
+          // 여정 저장 intent가 살아있다면 원래 화면에서 저장을 마저 끝내게 한다.
+          router.replace('/');
+          return;
         }
       } else {
         // 실패해도 게스트 상태는 보존된다 — 안내 후 재시도 가능.
