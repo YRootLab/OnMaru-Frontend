@@ -195,4 +195,18 @@ describe('useInfoMapData', () => {
     expect(loadMapViewport).toHaveBeenCalledTimes(2);
     expect(listInfoPlaces).toHaveBeenCalledTimes(1);
   });
+
+  it('keeps the committed bbox stable during the viewport debounce', async () => {
+    const map = useMapStore.getState().map as ReturnType<typeof createMap>;
+    renderHook(() => useInfoMapData());
+
+    map.setBounds({ west: 129, south: 32, east: 131, north: 34 });
+    act(() => useMapStore.getState().setCenter({ lat: 33, lng: 130 }, 7));
+    await act(() => vi.advanceTimersByTimeAsync(700));
+
+    expect(loadMapViewport).toHaveBeenCalledWith(expect.objectContaining({
+      bbox: '125.50000,35.50000,128.50000,38.50000',
+      zoomLevel: 9,
+    }));
+  });
 });

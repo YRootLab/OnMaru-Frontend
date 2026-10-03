@@ -160,15 +160,15 @@ export function useInfoMapData(enabled = true) {
       return;
     }
 
+    const committedBbox = getBboxFromMap(map);
+    if (!committedBbox) return;
+
     // Clear previous pending request
     if (viewportTimerRef.current) clearTimeout(viewportTimerRef.current);
     viewportControllerRef.current?.abort();
 
     viewportTimerRef.current = setTimeout(() => {
-      const bbox = getBboxFromMap(map);
-      if (!bbox) return;
-
-      const requestKey = `${bbox}__${infoCategory}__${infoRegionCode ?? ''}__${bucket}`;
+      const requestKey = `${committedBbox}__${infoCategory}__${infoRegionCode ?? ''}__${bucket}`;
       if (requestKey === lastViewportKeyRef.current) return;
       lastViewportKeyRef.current = requestKey;
 
@@ -179,7 +179,7 @@ export function useInfoMapData(enabled = true) {
       store.setViewportError(null);
 
       loadMapViewport({
-        bbox,
+        bbox: committedBbox,
         zoomLevel: committedViewport.level,
         category: infoCategory.toUpperCase(),
         ...(infoRegionCode ? { regionCode: infoRegionCode } : {}),
