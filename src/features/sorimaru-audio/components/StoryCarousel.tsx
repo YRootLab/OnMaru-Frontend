@@ -419,29 +419,46 @@ const SkeletonBox = styled.div`
   border-radius: 4px;
 `;
 
+const SkeletonStoryCard = styled.div`
+  display: grid;
+  min-height: 11rem;
+  width: min(94vw, 25.5rem);
+  flex-shrink: 0;
+  grid-template-columns: 125px minmax(0, 1fr);
+  gap: 1rem;
+  overflow: hidden;
+  border-radius: 1rem;
+  background-color: #f8f8f7;
+  padding: 0.75rem;
+
+  @media (min-width: 640px) {
+    width: 25.5rem;
+    grid-template-columns: 132px minmax(0, 1fr);
+  }
+`;
+
+const SkeletonThumbnail = styled(SkeletonBox)`
+  position: relative;
+  min-height: 136px;
+  width: 100%;
+  border-radius: 10px;
+
+  @media (min-width: 640px) {
+    min-height: 144px;
+  }
+`;
+
 export const StoryCarouselSkeleton: React.FC = () => (
   <div aria-label="주변 오디오 로딩 중" style={{ position: 'relative', width: '100%', overflow: 'hidden' }}>
     <div style={{ display: 'flex', gap: '1rem', overflowX: 'auto', padding: '0.75rem 1.5rem 2rem', scrollbarWidth: 'none' }}>
       {[1, 2, 3].map((id) => (
-        <div
+        <SkeletonStoryCard
           key={id}
           data-skeleton-story-card
-          style={{
-            display: 'grid',
-            minHeight: '11rem',
-            width: 'min(94vw, 25.5rem)',
-            flexShrink: 0,
-            gridTemplateColumns: '125px minmax(0, 1fr)',
-            gap: '1rem',
-            overflow: 'hidden',
-            borderRadius: '1rem',
-            backgroundColor: '#f8f8f7',
-            padding: '0.75rem',
-          }}
         >
-          <SkeletonBox style={{ minHeight: '9.5rem', width: '100%', borderRadius: 10, position: 'relative' }}>
+          <SkeletonThumbnail>
             <div style={{ position: 'absolute', bottom: 10, left: 10, height: 32, width: 32, borderRadius: '50%', backgroundColor: '#d9d9d7' }} />
-          </SkeletonBox>
+          </SkeletonThumbnail>
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '2px' }}>
             <div>
               <SkeletonBox data-skeleton-title-row style={{ height: 18, width: '88%', borderRadius: 6 }} />
@@ -457,7 +474,7 @@ export const StoryCarouselSkeleton: React.FC = () => (
               <SkeletonBox style={{ height: 14, width: 80 }} />
             </div>
           </div>
-        </div>
+        </SkeletonStoryCard>
       ))}
     </div>
   </div>
