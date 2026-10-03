@@ -24,6 +24,7 @@ import { HanokAtmosphereBackground } from '@/shared/components/HanokBackground';
 import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
 import { HanokPresenceOverlay } from '@/features/realtime-presence/presentation/components/HanokPresenceOverlay';
 import { ROOM_ID_HANOK_ARCHIVE } from '@/features/realtime-presence/domain/presence.rooms';
+import HanokArchiveIntroHeading from '@/features/hanok-archive/components/HanokArchiveIntroHeading';
 
 const loadDogamDetailModal = () => import('@/features/hanok-archive/components/HanokDogamDetailModal');
 const HanokDogamDetailModal = dynamic(loadDogamDetailModal, { ssr: false });
@@ -183,39 +184,6 @@ const HeroClothesline = styled.div`
   margin: 22px 0;
 `;
 
-const Kicker = styled.p`
-  font-size: ${fontSize.xs};
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: ${lightPalette.juhong[500]};
-  margin: 0 0 10px;
-
-  [data-theme='dark'] & {
-    color: ${lightPalette.juhong[400]};
-  }
-`;
-
-const PageTitle = styled.h1`
-  font-family: var(--font-hanok);
-  font-size: clamp(1.6rem, 3.2vw, 2.75rem);
-  font-weight: 700;
-  line-height: 1.25;
-  letter-spacing: -0.02em;
-  color: ${meok[900]};
-  margin: 0 0 14px;
-  text-align: left;
-  white-space: nowrap;
-
-  [data-theme='dark'] & {
-    color: ${meok[100]};
-  }
-
-  @media (max-width: 520px) {
-    white-space: normal;
-    word-break: keep-all;
-  }
-`;
-
 const Lead = styled.p`
   font-size: clamp(0.875rem, 1.25vw, 1.05rem);
   font-weight: 400;
@@ -299,8 +267,7 @@ export default function HanokArchive({ villages, meta, initialFilters }: HanokAr
           <IntroStage>
             <IntroContent>
               <Intro>
-                <Kicker>사라지기 전에 기록한다 · 전국 {archiveData.meta.total}곳</Kicker>
-                <PageTitle>지금 한옥은 어디에 남아 있을까?</PageTitle>
+                <HanokArchiveIntroHeading total={archiveData.meta.total} />
                 <HeroClothesline>
                   {section1Villages ? (
                     <HanokPolaroidClothesline

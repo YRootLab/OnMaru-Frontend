@@ -2,17 +2,36 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import styled from '@emotion/styled';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { transientProps } from '@/design-system/styled';
 import { meok, palette, surface, fluidHeading , fontSize } from '@/design-system/tokens';
 import SectionHeader from '@/features/hanok-archive/components/SectionHeader';
 import { STAY_TYPE } from '@/features/hanok-archive/types';
 import type { Village } from '@/features/hanok-archive/types';
+import {
+  getStayPage,
+  getStayPageCount,
+  moveStayPage,
+  type StayPageDirection,
+} from '@/features/hanok-archive/presentation/stayPagination';
 import { HugeiconsIcon } from '@hugeicons/react'
-import { Home01Icon, FlameIcon, Coffee01Icon, SparklesIcon, Leaf01Icon, MapPinIcon, RotateCcwIcon, ArrowRight01Icon, ExternalLinkIcon, ChevronDownIcon } from '@hugeicons/core-free-icons'
+import { Home01Icon, FlameIcon, Coffee01Icon, SparklesIcon, Leaf01Icon, MapPinIcon, ArrowLeft01Icon, ArrowRight01Icon, ExternalLinkIcon, ChevronDownIcon } from '@hugeicons/core-free-icons'
 
 const Section = styled.section`
   position: relative;
+`;
+
+const FilterToolbar = styled.div`
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 16px;
+  margin-bottom: 24px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
 `;
 
 const RegionFilterBar = styled.div`
@@ -20,10 +39,28 @@ const RegionFilterBar = styled.div`
   gap: 8px;
   overflow-x: auto;
   padding-bottom: 8px;
-  margin-bottom: 24px;
   scrollbar-width: none;
   &::-webkit-scrollbar {
     display: none;
+  }
+`;
+
+const ResultCount = styled.span`
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  color: ${meok[500]};
+  font-size: ${fontSize.xs};
+  font-weight: 500;
+  white-space: nowrap;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
+
+  @media (max-width: 768px) {
+    justify-self: end;
   }
 `;
 
@@ -63,7 +100,94 @@ const RegionFilterChip = styled.button<{ $active: boolean; $empty?: boolean }>`
   }
 `;
 
-const AccordionContainer = styled.div`
+const CarouselShell = styled.div`
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'viewport'
+    'pagination';
+  row-gap: 14px;
+  align-items: center;
+`;
+
+const PageViewport = styled.div`
+  grid-area: viewport;
+  min-width: 0;
+  overflow: hidden;
+`;
+
+const PaginationControls = styled.div`
+  grid-area: pagination;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 44px;
+`;
+
+const PageNavigationButton = styled.button`
+  position: static;
+  width: 38px;
+  height: 38px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid ${meok[300]};
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: ${meok[900]};
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.08);
+  transition: background-color 0.18s ease, border-color 0.18s ease, opacity 0.18s ease;
+
+  &:hover:not(:disabled) {
+    background: #f8fafc;
+    border-color: ${meok[400]};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${palette.juhong[500]};
+    outline-offset: 3px;
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.28;
+  }
+
+  [data-theme='dark'] & {
+    background: ${surface.dark.card};
+    border-color: ${meok[700]};
+    color: ${meok[100]};
+  }
+
+  [data-theme='dark'] &:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: ${meok[500]};
+  }
+
+  @media (max-width: 768px) {
+    width: 44px;
+    height: 44px;
+    box-shadow: none;
+  }
+`;
+
+const PageCounter = styled.span`
+  min-width: 48px;
+  text-align: center;
+  color: ${meok[500]};
+  font-size: ${fontSize.xs};
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+
+  [data-theme='dark'] & {
+    color: ${meok[400]};
+  }
+`;
+
+const AccordionContainer = styled(motion.div)`
   display: flex;
   gap: 14px;
   align-items: center;
@@ -331,7 +455,7 @@ const DirectBookingBtn = styled.a`
   color: #ffffff;
   font-size: ${fontSize.xs};
   font-weight: 500;
-  padding: 9px 15px;
+  padding: 8px 15px;
   border-radius: 9999px;
   text-decoration: none;
   display: inline-flex;
@@ -343,6 +467,8 @@ const DirectBookingBtn = styled.a`
 
   &:hover {
     background: ${palette.juhong[600]};
+    color: #ffffff;
+    opacity: 1;
     transform: translateY(-1px);
   }
 
@@ -356,7 +482,7 @@ const DirectBookingBtn = styled.a`
   @media (max-width: 640px) {
     flex: 1;
     justify-content: center;
-    padding: 9px 10px;
+    padding: 8px 10px;
     font-size: 12px;
   }
 `;
@@ -399,58 +525,6 @@ function getBookingUrl(item: Village): string {
   }
   return `https://search.naver.com/search.naver?query=${encodeURIComponent(item.name + ' 예약')}`;
 }
-
-
-const ControlsRow = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 16px;
-  padding: 0 4px;
-`;
-
-const BatchInfo = styled.span`
-  font-size: ${fontSize.xs};
-  font-weight: 400;
-  color: ${meok[500]};
-
-  [data-theme='dark'] & {
-    color: ${meok[400]};
-  }
-`;
-
-const RefreshBtn = styled.button`
-
-  background: #ffffff;
-  color: ${meok[900]};
-  font-size: ${fontSize.xs};
-  font-weight: 500;
-  padding: 8px 18px;
-  border-radius: 9999px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: #f8fafc;
-  }
-
-  [data-theme='dark'] & {
-    background: ${surface.dark.card};
-    color: ${meok[100]};
-  }
-
-  [data-theme='dark'] &:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-`;
-
-
-
-
-
 
 const EmptyState = styled.div`
   min-height: 240px;
@@ -658,7 +732,18 @@ const ICONS = [
   <HugeiconsIcon icon={Leaf01Icon} size={20} strokeWidth={2} key="leaf" />,
   <HugeiconsIcon icon={MapPinIcon} size={20} strokeWidth={2} key="mountain" />,
 ];
-const BATCH_SIZE = 7;
+
+const pageVariants = {
+  enter: (direction: StayPageDirection) => ({ x: direction * 72, opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit: (direction: StayPageDirection) => ({ x: direction * -72, opacity: 0 }),
+};
+
+const reducedPageVariants = {
+  enter: { x: 0, opacity: 0 },
+  center: { x: 0, opacity: 1 },
+  exit: { x: 0, opacity: 0 },
+};
 
 interface HanokStayAccordionProps {
   villages: Village[];
@@ -671,9 +756,11 @@ export default function HanokStayAccordion({
   onSelectVillage,
   onSelectStay,
 }: HanokStayAccordionProps) {
+  const reduceMotion = useReducedMotion();
   const [selectedRegion, setSelectedRegion] = useState('전체');
   const [activeIndex, setActiveIndex] = useState(0);
   const [page, setPage] = useState(0);
+  const [pageDirection, setPageDirection] = useState<StayPageDirection>(1);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -727,54 +814,74 @@ export default function HanokStayAccordion({
     return counts;
   }, [allStays, regionTabs]);
 
-  const maxPages = Math.max(1, Math.ceil(regionFilteredStays.length / BATCH_SIZE));
-  const currentBatch = useMemo(() => {
-    const start = (page % maxPages) * BATCH_SIZE;
-    return regionFilteredStays.slice(start, start + BATCH_SIZE);
-  }, [regionFilteredStays, page, maxPages]);
+  const maxPages = getStayPageCount(regionFilteredStays.length);
+  const currentBatch = useMemo(
+    () => getStayPage(regionFilteredStays, page),
+    [regionFilteredStays, page],
+  );
+  const resultCountLabel = selectedRegion === '전체'
+    ? `전국 ${allStays.length}곳`
+    : `${selectedRegion} ${regionFilteredStays.length}곳`;
 
   const handleRegionSelect = (reg: string) => {
     setSelectedRegion(reg);
+    setPageDirection(1);
     setPage(0);
     setActiveIndex(0);
   };
 
-  const handleNextBatch = () => {
-    setPage((prev) => (prev + 1) % maxPages);
+  const handlePageChange = (direction: StayPageDirection) => {
+    const nextPage = moveStayPage(page, direction, maxPages);
+    if (nextPage === page) return;
+
+    setPageDirection(direction);
+    setPage(nextPage);
     setActiveIndex(0);
   };
 
   return (
     <Section id="hanok-stays" aria-labelledby="stay-heading">
-      <SectionHeader
-        id="stay-heading"
-        title="지역별 한옥 스테이"
+      <SectionHeader id="stay-heading" title="지역별 한옥 스테이" />
 
-
-        subtitle={`${allStays.length}곳`}
-      />
-
-      <RegionFilterBar>
-        {regionTabs.filter((reg) => reg !== '전체').map((reg) => {
-          const count = countByRegion[reg] ?? 0;
-          const isActive = selectedRegion === reg;
-          return (
-            <RegionFilterChip
-              key={reg}
-              $active={isActive}
-              $empty={count === 0}
-              onClick={() => handleRegionSelect(reg)}
-              aria-label={`${reg} ${count}곳`}
-            >
-              {reg}
-            </RegionFilterChip>
-          );
-        })}
-      </RegionFilterBar>
+      <FilterToolbar>
+        <RegionFilterBar aria-label="한옥 스테이 지역 필터">
+          {regionTabs.map((reg) => {
+            const count = countByRegion[reg] ?? 0;
+            const isActive = selectedRegion === reg;
+            return (
+              <RegionFilterChip
+                key={reg}
+                $active={isActive}
+                $empty={count === 0}
+                onClick={() => handleRegionSelect(reg)}
+                aria-label={`${reg} ${count}곳`}
+                aria-pressed={isActive}
+              >
+                {reg}
+              </RegionFilterChip>
+            );
+          })}
+        </RegionFilterBar>
+        <ResultCount role="status" aria-live="polite">
+          {resultCountLabel}
+        </ResultCount>
+      </FilterToolbar>
 
       {currentBatch.length > 0 ? (
-        <>
-          <AccordionContainer>
+        <CarouselShell>
+          <PageViewport>
+            <AnimatePresence initial={false} mode="wait" custom={pageDirection}>
+              <AccordionContainer
+                key={`${selectedRegion}-${page}`}
+                custom={pageDirection}
+                variants={reduceMotion ? reducedPageVariants : pageVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={reduceMotion
+                  ? { duration: 0.12 }
+                  : { duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+              >
             {currentBatch.map((item, idx) => {
               const isActive = idx === activeIndex;
               const icon = ICONS[idx % ICONS.length];
@@ -873,19 +980,34 @@ export default function HanokStayAccordion({
                 </AccordionPill>
               );
             })}
-          </AccordionContainer>
+              </AccordionContainer>
+            </AnimatePresence>
+          </PageViewport>
 
-          <ControlsRow>
-            <BatchInfo>
-              {page + 1} / {maxPages} · {selectedRegion} {regionFilteredStays.length}곳
-            </BatchInfo>
-            {maxPages > 1 && (
-              <RefreshBtn onClick={handleNextBatch}>
-                <HugeiconsIcon icon={RotateCcwIcon} size={14} strokeWidth={2} /> 다른 스테이 보기
-              </RefreshBtn>
-            )}
-          </ControlsRow>
-        </>
+          <PaginationControls data-testid="stay-pagination-controls">
+            <PageNavigationButton
+              type="button"
+              aria-label="이전 스테이 페이지"
+              disabled={page === 0}
+              onClick={() => handlePageChange(-1)}
+            >
+              <HugeiconsIcon icon={ArrowLeft01Icon} size={18} strokeWidth={2} />
+            </PageNavigationButton>
+
+            <PageCounter data-testid="stay-page-counter" aria-label="스테이 페이지">
+              {page + 1} / {maxPages}
+            </PageCounter>
+
+            <PageNavigationButton
+              type="button"
+              aria-label="다음 스테이 페이지"
+              disabled={page === maxPages - 1}
+              onClick={() => handlePageChange(1)}
+            >
+              <HugeiconsIcon icon={ArrowRight01Icon} size={18} strokeWidth={2} />
+            </PageNavigationButton>
+          </PaginationControls>
+        </CarouselShell>
       ) : (
         <EmptyState role="status" aria-live="polite">
           {selectedRegion === '전체' ? (
