@@ -21,6 +21,19 @@ export const PROFILE_CHARACTER_PATHS: Record<CharacterId, string> = {
   CHARACTER_10: '/images/profile/호기심온이.png',
 };
 
+export const PROFILE_CHARACTER_NAMES: Record<CharacterId, string> = {
+  CHARACTER_01: '눈웃음온이',
+  CHARACTER_02: '다도쉼온이',
+  CHARACTER_03: '명필온이',
+  CHARACTER_04: '무사도령온이',
+  CHARACTER_05: '소리몰입온이',
+  CHARACTER_06: '쿨쿨낮잠온이',
+  CHARACTER_07: '꿀약과온이',
+  CHARACTER_08: '윙크온이',
+  CHARACTER_09: '청사초롱온이',
+  CHARACTER_10: '호기심온이',
+};
+
 export const PROFILE_BACKGROUNDS: Record<BackgroundId, string> = {
   BACKGROUND_01: palette.juhong[100],    // 연한 주황
   BACKGROUND_02: palette.hwanggeum[100], // 연한 노랑
