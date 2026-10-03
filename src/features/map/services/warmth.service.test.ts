@@ -86,7 +86,7 @@ describe('Warmth Service & Fallback (FE #92 / Spec)', () => {
       regionCode: 'kr-45-jeonju',
       metric: 'VISITOR_COUNT',
     });
-    expect(result.days).toEqual([{ ymd: '20260928', weekday: '' }]);
+    expect(result.days).toEqual([{ ymd: '20260928', weekday: '월' }]); // 2026-09-28 is Monday
 
     const spot = result.spots[0];
     expect(spot).toEqual({

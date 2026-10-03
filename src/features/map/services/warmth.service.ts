@@ -218,7 +218,9 @@ async function executeWarmthFetchFlow(
       }
 
       if (days.length === 0 && response.observedDate) {
-        days = [{ ymd: response.observedDate.replaceAll('-', ''), weekday: '' }];
+        const DOW = ['일', '월', '화', '수', '목', '금', '토'];
+        const weekday = DOW[new Date(response.observedDate).getDay()] ?? '';
+        days = [{ ymd: response.observedDate.replaceAll('-', ''), weekday }];
       }
 
       log.log(`[warmthService] Spring API success: ${spots.length} spots retrieved, ${days.length} days (source: SPRING)`);
