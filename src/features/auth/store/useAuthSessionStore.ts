@@ -14,7 +14,10 @@ import { defaultMemberRepository, type MemberProfile } from '../api/memberApi';
 export interface AuthUser {
   id: string;
   displayName: string;
+  /** @deprecated BE #552 이후 characterId/backgroundId로 대체. */
   profileImageUrl?: string;
+  characterId?: string;
+  backgroundId?: string;
 }
 
 interface AuthSessionState {
@@ -27,7 +30,13 @@ interface AuthSessionState {
 }
 
 export function toAuthUser(profile: MemberProfile): AuthUser {
-  return { id: profile.id, displayName: profile.displayName, profileImageUrl: profile.profileImageUrl };
+  return {
+    id: profile.id,
+    displayName: profile.displayName,
+    profileImageUrl: profile.profileImageUrl,
+    characterId: profile.characterId,
+    backgroundId: profile.backgroundId,
+  };
 }
 
 export const useAuthSessionStore = create<AuthSessionState>((set, get) => ({

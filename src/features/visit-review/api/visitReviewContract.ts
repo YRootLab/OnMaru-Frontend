@@ -2,6 +2,12 @@ import type { CursorPage } from '@/lib/api/cursor';
 
 export type VisitReviewReportReason = 'SPAM' | 'ABUSE' | 'PERSONAL_DATA' | 'COPYRIGHT' | 'OTHER';
 
+export type ReviewAuthor = {
+  displayName: string;
+  characterId?: string;
+  backgroundId?: string;
+};
+
 export type VisitReview = {
   id: string;
   placeId: string;
@@ -16,6 +22,7 @@ export type VisitReview = {
   likedByMe: boolean;
   mine: boolean;
   createdAt: string;
+  author?: ReviewAuthor;
 };
 
 export type VisitReviewPage = CursorPage<VisitReview>;

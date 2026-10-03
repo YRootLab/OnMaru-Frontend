@@ -10,11 +10,13 @@ describe('member repository (FE #97)', () => {
     }) as never);
 
     await repository.getMyProfile();
+    await repository.updateMyProfile({ displayName: '한옥 산책자', characterId: 'CHARACTER_01', backgroundId: 'BACKGROUND_01' });
     await repository.deleteMyAccount();
     await repository.logout();
 
     expect(calls).toEqual([
       { path: '/members/me', options: { method: 'GET', cache: 'no-store' } },
+      { path: '/members/me', options: { method: 'PATCH', body: { displayName: '한옥 산책자', characterId: 'CHARACTER_01', backgroundId: 'BACKGROUND_01' }, csrf: true } },
       { path: '/members/me', options: { method: 'DELETE', csrf: true } },
       { path: '/auth/logout', options: { method: 'POST', csrf: true } },
     ]);

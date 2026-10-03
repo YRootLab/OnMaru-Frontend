@@ -43,6 +43,12 @@ export interface Item {
 }
 
 
+export interface WarmthAuthor {
+  displayName: string;
+  characterId?: string;
+  backgroundId?: string;
+}
+
 export interface Warmth {
   id: string;
   placeId: string;
@@ -56,6 +62,7 @@ export interface Warmth {
   createdAt: string;
 
   mine?: boolean;
+  author?: WarmthAuthor;
 
   visitorCount?: number;
   helpfulCount?: number;
@@ -85,6 +92,7 @@ export interface WarmthReview {
   isHelpful?: boolean;
 
   mine?: boolean;
+  author?: WarmthAuthor;
 }
 
 

@@ -9,6 +9,10 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { Bookmark01Icon, FlameIcon, ChevronRightIcon, MapPinIcon, Cancel01Icon, Compass01Icon, SparklesIcon, HeartIcon, Music01Icon, PenLineIcon, CheckIcon } from '@hugeicons/core-free-icons'
 import type { SavedJourneyDetail } from '@/features/journey-curator/types/exploration.types';
 import { useAuth } from '@/features/auth';
+import { useAuthSessionStore } from '@/features/auth/store/useAuthSessionStore';
+import { OniAvatar } from '@/features/profile/OniAvatar';
+import { CHARACTER_IDS, BACKGROUND_IDS, PROFILE_BACKGROUNDS, resolveBackground } from '@/features/profile/assets';
+import { defaultMemberRepository } from '@/features/auth/api/memberApi';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import { loadWarmth } from '@/features/map/warmth/warmthRepo';
 import { formatRelativeTime } from '@/features/map/utils/formatters';
@@ -39,6 +43,11 @@ export default function MyPage() {
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const isApple = useIsAppleDevice();
   const [oniVideoError, setOniVideoError] = useState(false);
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [draftName, setDraftName] = useState('');
+  const [draftCharacter, setDraftCharacter] = useState('');
+  const [draftBackground, setDraftBackground] = useState('');
+  const [profileSaving, setProfileSaving] = useState(false);
 
   const savedJourneys = useSavedJourneyStore((s) => s.savedJourneys);
   const removeJourney = useSavedJourneyStore((s) => s.removeJourney);
@@ -127,35 +136,174 @@ export default function MyPage() {
     <div style={{ display: 'flex', justifyContent: 'center', padding: '96px 16px 80px' }}>
       <div style={{ width: '100%', maxWidth: '520px', display: 'flex', flexDirection: 'column', gap: '40px' }}>
         <div style={{ backgroundColor: c.bg.surface, borderRadius: '20px', padding: '36px 28px 28px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-          {user.profileImageUrl ? (
-            <img
-              src={user.profileImageUrl}
-              alt={user.displayName || '프로필'}
-              style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
-            />
-          ) : (
-            <div
+          <div style={{ position: 'relative', display: 'inline-block' }}>
+            <OniAvatar characterId={user.characterId} backgroundId={user.backgroundId} size={80} />
+            <button
+              type="button"
+              aria-label="프로필 변경"
+              onClick={() => {
+                setDraftName(user.displayName || '');
+                setDraftCharacter(user.characterId || 'CHARACTER_01');
+                setDraftBackground(user.backgroundId || 'BACKGROUND_01');
+                setEditingProfile(true);
+              }}
               style={{
-                width: '80px',
-                height: '80px',
+                position: 'absolute',
+                bottom: -2,
+                right: -2,
+                width: 26,
+                height: 26,
                 borderRadius: '50%',
-                backgroundColor: c.action.primaryBg,
-                color: c.action.primary,
+                border: `2px solid ${c.bg.surface}`,
+                backgroundColor: c.action.primary,
+                color: c.text.inverse,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '32px',
-                fontWeight: 800,
-                flexShrink: 0,
+                cursor: 'pointer',
+                fontSize: 13,
               }}
             >
-              {(user.displayName || '길')[0]}
-            </div>
-          )}
+              <HugeiconsIcon icon={PenLineIcon} size={12} />
+            </button>
+          </div>
 
           <div style={{ marginTop: '16px', fontSize: '26px', fontWeight: 800, color: c.text.primary, letterSpacing: '-0.025em' }}>
             {user.displayName || '길손'}님
           </div>
+
+          {editingProfile && (
+            <div style={{ width: '100%', marginTop: '20px', textAlign: 'left' }}>
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: c.text.secondary, marginBottom: '6px' }}>
+                  닉네임
+                </label>
+                <input
+                  value={draftName}
+                  onChange={(e) => setDraftName(e.target.value)}
+                  maxLength={20}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '10px',
+                    border: `1.5px solid ${c.bg.card}`,
+                    backgroundColor: c.bg.app,
+                    color: c.text.primary,
+                    fontSize: '14px',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '12px' }}>
+                <div style={{ fontSize: '12px', fontWeight: 600, color: c.text.secondary, marginBottom: '8px' }}>캐릭터</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  {CHARACTER_IDS.map((id) => (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => setDraftCharacter(id)}
+                      style={{
+                        padding: 0,
+                        border: `2px solid ${draftCharacter === id ? c.action.primary : 'transparent'}`,
+                        borderRadius: '50%',
+                        cursor: 'pointer',
+                        background: 'none',
+                        outline: 'none',
+                      }}
+                    >
+                      <OniAvatar
+                        characterId={id}
+                        backgroundId={draftBackground || 'BACKGROUND_01'}
+                        size={44}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
+                <div style={{ fontSize: '12px', fontWeight: 600, color: c.text.secondary, marginBottom: '8px' }}>배경색</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  {BACKGROUND_IDS.map((id) => (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => setDraftBackground(id)}
+                      style={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: '50%',
+                        backgroundColor: PROFILE_BACKGROUNDS[id],
+                        border: `3px solid ${draftBackground === id ? c.action.primary : 'transparent'}`,
+                        cursor: 'pointer',
+                        outline: 'none',
+                        boxShadow: draftBackground === id ? `0 0 0 1px ${c.action.primary}` : 'none',
+                      }}
+                      aria-label={id}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  type="button"
+                  disabled={profileSaving}
+                  onClick={async () => {
+                    if (!draftName.trim()) return;
+                    setProfileSaving(true);
+                    try {
+                      const updated = await defaultMemberRepository.updateMyProfile({
+                        displayName: draftName.trim(),
+                        characterId: draftCharacter || undefined,
+                        backgroundId: draftBackground || undefined,
+                      });
+                      useAuthSessionStore.getState().applyProfile(updated);
+                      toast.success('프로필을 변경했어요.');
+                      setEditingProfile(false);
+                    } catch {
+                      toast.error('프로필 변경에 실패했어요. 잠시 후 다시 시도해주세요.');
+                    } finally {
+                      setProfileSaving(false);
+                    }
+                  }}
+                  style={{
+                    flex: 1,
+                    height: '40px',
+                    borderRadius: '10px',
+                    border: 'none',
+                    backgroundColor: c.action.primary,
+                    color: c.text.inverse,
+                    fontSize: '14px',
+                    fontWeight: 700,
+                    cursor: profileSaving ? 'not-allowed' : 'pointer',
+                    opacity: profileSaving ? 0.7 : 1,
+                  }}
+                >
+                  {profileSaving ? '저장 중…' : '저장'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditingProfile(false)}
+                  style={{
+                    height: '40px',
+                    padding: '0 16px',
+                    borderRadius: '10px',
+                    border: 'none',
+                    backgroundColor: c.bg.card,
+                    color: c.text.secondary,
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}
+                >
+                  취소
+                </button>
+              </div>
+            </div>
+          )}
 
           <div style={{ display: 'flex', width: '100%', marginTop: '24px', borderRadius: '14px', backgroundColor: c.bg.card, overflow: 'hidden' }}>
             {[
