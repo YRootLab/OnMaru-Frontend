@@ -20,7 +20,9 @@
     "probe:village": "node --env-file=.env.local scripts/probe-village.mjs",
     "probe:map": "node --env-file=.env.local scripts/probe-map-categories.mjs",
     "probe:auth": "node --env-file=.env.local scripts/probe-auth-flow.mjs",
-    "generate:api-types": "openapi-typescript https://api.onmaru.site/v3/api-docs -o ./src/types/api.generated.d.ts"
+    "generate:api-types": "openapi-typescript https://api.onmaru.site/v3/api-docs -o ./src/types/api.generated.d.ts",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -62,7 +64,18 @@
     "typescript": "^5",
     "vite": "^8.3.0",
     "vitest": "^4.1.11",
-    "yaml": "^2.9.1"
+    "yaml": "^2.9.1",
+    "storybook": "^10.6.1",
+    "@storybook/nextjs-vite": "^10.6.1",
+    "@chromatic-com/storybook": "latest",
+    "@storybook/addon-vitest": "^10.6.1",
+    "@storybook/addon-a11y": "^10.6.1",
+    "@storybook/addon-docs": "^10.6.1",
+    "@storybook/addon-mcp": "^10.6.1",
+    "eslint-plugin-storybook": "^10.6.1",
+    "@vitest/browser-playwright": "4.1.11",
+    "@vitest/coverage-v8": "4.1.11",
+    "playwright": "latest"
   },
   "optionalDependencies": {
     "@rolldown/binding-darwin-arm64": "^1.2.7",
