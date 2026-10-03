@@ -77,6 +77,7 @@ function scheduleIdleWork(callback: () => void): () => void {
 
 const CardButton = styled.button<{ $isCurrent: boolean; $isHovered: boolean; $accentColor: string }>`
   display: grid;
+  min-height: 11rem;
   width: min(94vw, 25.5rem);
   flex-shrink: 0;
   scroll-snap-align: start;
@@ -209,13 +210,13 @@ const CardInfoCol = styled.div`
 
 const CardMainTitle = styled.h3<{ $isCurrent: boolean }>`
   font-family: var(--font-hanok);
-  font-size: 0.875rem;
+  font-size: ${fontSize.base};
   font-weight: 700;
-  line-height: 1.25;
+  line-height: 1.35;
   letter-spacing: -0.035em;
   transition: color 0.3s ease;
   display: -webkit-box;
-  -webkit-line-clamp: 1;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   color: ${({ $isCurrent }) => ($isCurrent ? palette.juhong[500] : meok[900])};
@@ -225,7 +226,7 @@ const CardMainTitle = styled.h3<{ $isCurrent: boolean }>`
   }
 
   @media (min-width: 640px) {
-    font-size: 1rem;
+    font-size: ${fontSize.lg};
   }
 `;
 
@@ -234,7 +235,7 @@ const CardSubTitle = styled.p`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: ${fontSize.micro};
+  font-size: ${fontSize.xs};
   font-weight: 500;
   line-height: 1rem;
   color: ${meok[700]};
@@ -257,7 +258,7 @@ const MiniCategoryTag = styled.span`
   border-radius: 4px;
   background-color: ${palette.juhong[50]};
   padding: 1px 0.375rem;
-  font-size: ${fontSize.micro};
+  font-size: ${fontSize.xs};
   font-weight: 600;
   line-height: 1rem;
   color: ${palette.juhong[600]};
@@ -272,7 +273,7 @@ const LocationSpan = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: ${fontSize.micro};
+  font-size: ${fontSize.xs};
   font-weight: 500;
   line-height: 1rem;
   color: ${meok[500]};
@@ -288,7 +289,7 @@ const ExcerptText = styled.p`
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  font-size: ${fontSize.micro};
+  font-size: ${fontSize.xs};
   line-height: 1.4;
   color: ${meok[500]};
 
@@ -303,7 +304,7 @@ const CardBottomMeta = styled.div`
   align-items: center;
   justify-content: space-between;
   padding-top: 0.5rem;
-  font-size: ${fontSize.micro};
+  font-size: ${fontSize.xs};
   color: ${meok[500]};
 
   [data-theme='dark'] & {
@@ -424,9 +425,10 @@ export const StoryCarouselSkeleton: React.FC = () => (
       {[1, 2, 3].map((id) => (
         <div
           key={id}
+          data-skeleton-story-card
           style={{
             display: 'grid',
-            minHeight: '176px',
+            minHeight: '11rem',
             width: 'min(94vw, 25.5rem)',
             flexShrink: 0,
             gridTemplateColumns: '125px minmax(0, 1fr)',
@@ -437,12 +439,13 @@ export const StoryCarouselSkeleton: React.FC = () => (
             padding: '0.75rem',
           }}
         >
-          <SkeletonBox style={{ minHeight: '176px', width: '100%', borderRadius: 10, position: 'relative' }}>
+          <SkeletonBox style={{ minHeight: '9.5rem', width: '100%', borderRadius: 10, position: 'relative' }}>
             <div style={{ position: 'absolute', bottom: 10, left: 10, height: 32, width: 32, borderRadius: '50%', backgroundColor: '#d9d9d7' }} />
           </SkeletonBox>
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '2px' }}>
             <div>
-              <SkeletonBox style={{ height: 16, width: '80%', borderRadius: 6 }} />
+              <SkeletonBox data-skeleton-title-row style={{ height: 18, width: '88%', borderRadius: 6 }} />
+              <SkeletonBox data-skeleton-title-row style={{ marginTop: 4, height: 18, width: '68%', borderRadius: 6 }} />
               <SkeletonBox style={{ marginTop: 4, height: 14, width: '60%' }} />
               <div style={{ marginTop: 6, display: 'flex', gap: 4 }}>
                 <SkeletonBox style={{ height: 16, width: 64, borderRadius: 9999 }} />
@@ -865,4 +868,3 @@ export const StoryCarousel: React.FC<StoryCarouselProps> = ({ stories, isLoading
     </CarouselOuter>
   );
 };
-
