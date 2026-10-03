@@ -17,6 +17,7 @@ import type {
   Warmth,
 } from '@/features/map/types';
 import type { WarmthPeriod } from '@/features/map/warmth/heatScale';
+import type { MapLoadError } from '@/features/map/application/mapLoadError';
 
 
 export const DEFAULT_CENTER: LatLng = { lat: 36.35, lng: 127.75 };
@@ -53,6 +54,7 @@ interface MapState {
   warmthViewType: 'district' | 'heatmap';
   loading: boolean;
   error: string | null;
+  placeLoadError: MapLoadError | null;
   selectedId: string | null;
   hoveredId: string | null;
   detailId: string | null;
@@ -120,6 +122,7 @@ interface MapState {
   setWarmthPeriod: (period: WarmthPeriod) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
+  setPlaceLoadError: (error: MapLoadError | null) => void;
   setSelectedId: (id: string | null) => void;
   setHoveredId: (id: string | null) => void;
   setDetailId: (id: string | null) => void;
@@ -195,6 +198,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   warmthViewType: 'district',
   loading: true,
   error: null,
+  placeLoadError: null,
   selectedId: null,
   hoveredId: null,
   detailId: null,
@@ -269,6 +273,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   setWarmthPeriod: (warmthPeriod) => set({ warmthPeriod }),
   setLoading: (loading) => set({ loading }),
   setError: (error) => set({ error }),
+  setPlaceLoadError: (placeLoadError) => set({ placeLoadError }),
   setSelectedId: (selectedId) => set({ selectedId }),
   setHoveredId: (hoveredId) => set({ hoveredId }),
   setDetailId: (detailId) =>

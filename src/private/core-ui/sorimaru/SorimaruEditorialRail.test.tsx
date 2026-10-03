@@ -93,6 +93,29 @@ describe('Sorimaru editorial rail', () => {
     expect(screen.queryByText('한옥 이야기 1')).toBeNull();
   });
 
+  it('shows a retryable server state instead of empty-result guidance on failure', () => {
+    const onRetry = vi.fn();
+    render(
+      <SorimaruEditorialRail
+        stories={[]}
+        error={new Error('offline')}
+        onRetry={onRetry}
+        onSelectStory={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText('잠시 연결이 불안정해요')).toBeTruthy();
+    expect(screen.queryByText('이 주제의 이야기를 찾지 못했어요')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: '다시 시도' }));
+    expect(onRetry).toHaveBeenCalledOnce();
+  });
+
+  it('keeps empty-result guidance after a successful empty response', () => {
+    renderRail(vi.fn(), []);
+    expect(screen.getByText('이 주제의 이야기를 찾지 못했어요')).toBeTruthy();
+    expect(screen.queryByText('잠시 연결이 불안정해요')).toBeNull();
+  });
+
   it('preserves the story badge, specific region subtitle, and Korean duration copy', () => {
     renderRail();
     const activeCard = screen.getByRole('button', { name: '한옥 이야기 1 현재 선택됨' });
@@ -157,5 +180,19 @@ describe('Sorimaru editorial rail', () => {
     fireEvent.click(screen.getByRole('button', { name: '한옥 이야기 2 현재 선택됨' }));
     expect(onSelectStory).toHaveBeenCalledExactlyOnceWith(stories[1], 'play');
     expect(repository.getStoryDetail).not.toHaveBeenCalled();
+  });
+
+  it('moves exactly one story for each previous or next navigation click', () => {
+    vi.stubGlobal('IntersectionObserver', NearbyObserver);
+    renderRail();
+
+    fireEvent.click(screen.getByRole('button', { name: '다음 이야기' }));
+    expect(screen.getByRole('button', { name: '한옥 이야기 2 현재 선택됨' })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: '다음 이야기' }));
+    expect(screen.getByRole('button', { name: '한옥 이야기 3 현재 선택됨' })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('button', { name: '이전 이야기' }));
+    expect(screen.getByRole('button', { name: '한옥 이야기 2 현재 선택됨' })).toBeTruthy();
   });
 });

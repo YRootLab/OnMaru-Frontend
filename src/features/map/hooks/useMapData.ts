@@ -1,10 +1,15 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { logger } from '@/lib/log';
 import { arePlaceResultsEqual } from '@/features/map/services/placeResultIdentity';
 import { fetchWarmthData } from '@/features/map/services/warmth.service';
-import type { Item, KakaoMap } from '@/features/map/types';
+import type { KakaoMap } from '@/features/map/types';
+import {
+  fetchMapPlaces,
+  MAP_LOAD_TIMEOUT_MS,
+} from '@/features/map/infrastructure/fetchMapPlaces';
+import { MapLoadError, toMapLoadError } from '@/features/map/application/mapLoadError';
 import { distanceInMeters } from './useKakaoMap';
 import { useMapStore } from './useMapStore';
 
@@ -34,21 +39,24 @@ function searchRadius(map: KakaoMap, centerLat: number, centerLng: number): numb
 }
 
 export function useMapData() {
-  const map = useMapStore((state) => state.map);
   const mode = useMapStore((state) => state.mode);
   const category = useMapStore((state) => state.category);
   const searchCenter = useMapStore((state) => state.searchCenter);
+  const committedRadius = useMapStore((state) => state.committedViewport.radius);
   const reloadNonce = useMapStore((state) => state.reloadNonce);
+  const attemptRef = useRef<{ key: string; startedAt: number; settled: boolean } | null>(null);
 
   useEffect(() => {
-    if (!map) return;
-
     const controller = new AbortController();
     const initialState = useMapStore.getState();
     const level = initialState.committedViewport.level;
-    const radius = searchRadius(map, searchCenter.lat, searchCenter.lng);
+    const currentMap = initialState.map;
+    const radius = currentMap
+      ? searchRadius(currentMap, searchCenter.lat, searchCenter.lng)
+      : Math.max(1_000, committedRadius || 3_000);
 
     if (mode === 'warmth') {
+      attemptRef.current = null;
       fetchWarmthData({
         lat: searchCenter.lat,
         lng: searchCenter.lng,
@@ -72,71 +80,66 @@ export function useMapData() {
       return () => controller.abort();
     }
 
-    const params = new URLSearchParams({
-      lat: String(searchCenter.lat),
-      lng: String(searchCenter.lng),
-      radius: String(radius),
-    });
-    if (category) params.set('category', category);
-
-    const isInitialRequest = initialState.items.length === 0;
-    if (isInitialRequest) {
-      initialState.setLoading(true);
-      initialState.setError(null);
-    }
-
+    const requestKey = [mode, category ?? '', searchCenter.lat, searchCenter.lng, reloadNonce].join(':');
     const startedAt = performance.now();
-    log.log('fetch', { ...Object.fromEntries(params), mode });
+    if (!attemptRef.current || attemptRef.current.key !== requestKey) {
+      attemptRef.current = { key: requestKey, startedAt, settled: false };
+    }
+    const attempt = attemptRef.current;
+    const isBlockingRequest = initialState.items.length === 0 && !attempt.settled;
+    if (isBlockingRequest) {
+      initialState.setLoading(true);
+    }
+    initialState.setPlaceLoadError(null);
 
-    fetch(`/api/map/places?${params}`, { signal: controller.signal })
-      .then(async (response) => {
-        const json = await response.json().catch(() => ({}));
-        const items: Item[] = Array.isArray(json.items) ? json.items : [];
-        const failed = !response.ok || Boolean(json.error);
+    const timeoutMs = isBlockingRequest
+      ? Math.max(1, MAP_LOAD_TIMEOUT_MS - (startedAt - attempt.startedAt))
+      : MAP_LOAD_TIMEOUT_MS;
+    log.log('fetch', { lat: searchCenter.lat, lng: searchCenter.lng, radius, category, mode });
+
+    fetchMapPlaces(
+      { lat: searchCenter.lat, lng: searchCenter.lng, radius, category },
+      { signal: controller.signal, timeoutMs },
+    )
+      .then(({ items, degraded, notice }) => {
         log.log(
           'items',
           items.length,
           `${Math.round(performance.now() - startedAt)}ms`,
-          json.error ?? '',
+          notice ?? '',
         );
 
         const store = useMapStore.getState();
-        if (!failed) {
-          const currentItems = store.items;
-          const targetItem = currentItems.find((item) => item.id === store.detailId);
-          const nextItems =
-            targetItem && !items.some((item) => item.id === targetItem.id)
-              ? [targetItem, ...items]
-              : items;
+        const currentItems = store.items;
+        const targetItem = currentItems.find((item) => item.id === store.detailId);
+        const nextItems =
+          targetItem && !items.some((item) => item.id === targetItem.id)
+            ? [targetItem, ...items]
+            : items;
 
-          if (!arePlaceResultsEqual(currentItems, nextItems)) {
-            store.setItems(nextItems);
-          }
-          store.setError(null);
-          return;
+        if (!arePlaceResultsEqual(currentItems, nextItems)) {
+          store.setItems(nextItems);
         }
-
-        if (store.items.length === 0) {
-          store.setError(
-            typeof json.error === 'string' ? json.error : '장소를 불러오지 못했어요',
-          );
-        }
+        store.setPlaceLoadError(
+          degraded
+            ? new MapLoadError('unavailable', 503, notice ?? 'Fallback map data is being shown')
+            : null,
+        );
       })
       .catch((error: unknown) => {
         if (error instanceof DOMException && error.name === 'AbortError') return;
         log.error('fetch 실패', error);
-
-        const store = useMapStore.getState();
-        if (store.items.length === 0) {
-          store.setError(error instanceof Error ? error.message : '장소를 불러오지 못했어요');
-        }
+        useMapStore.getState().setPlaceLoadError(toMapLoadError(error));
       })
       .finally(() => {
-        if (!controller.signal.aborted && isInitialRequest) {
-          useMapStore.getState().setLoading(false);
+        if (!controller.signal.aborted && attemptRef.current?.key === requestKey) {
+          attemptRef.current.settled = true;
+          if (isBlockingRequest) {
+            useMapStore.getState().setLoading(false);
+          }
         }
       });
 
     return () => controller.abort();
-  }, [map, mode, category, searchCenter.lat, searchCenter.lng, reloadNonce]);
+  }, [mode, category, searchCenter.lat, searchCenter.lng, committedRadius, reloadNonce]);
 }

@@ -63,6 +63,35 @@ describe('SoundConstellationSection props data flow', () => {
     expect(input.onRetry).toHaveBeenCalledOnce();
   });
 
+  it.each(['groups', 'stories'] as const)('ends the region skeleton and shows an actionable error when %s loading fails', (failure) => {
+    vi.stubGlobal('IntersectionObserver', Observer);
+    const input = props();
+    if (failure === 'groups') {
+      input.groupsState = { status: 'error', data: null, error: new Error('groups offline') };
+      input.regionStoriesState = { status: 'idle', items: [], hasMore: false, loadingNext: false, error: null };
+    } else {
+      input.regionStoriesState = { status: 'error', items: [], hasMore: false, loadingNext: false, error: new Error('stories offline') };
+    }
+
+    render(<SoundConstellationSection {...input} />);
+
+    expect(screen.queryByLabelText('지역 오디오 이야기 로딩 중')).toBeNull();
+    expect(screen.getByRole('alert')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: '다시 시도' }));
+    expect(input.onRetry).toHaveBeenCalledOnce();
+  });
+
+  it('shows a settled empty state instead of a skeleton when the selected region has no stories', () => {
+    vi.stubGlobal('IntersectionObserver', Observer);
+    const input = props();
+    input.regionStoriesState = { status: 'empty', items: [], hasMore: false, loadingNext: false, error: null };
+
+    render(<SoundConstellationSection {...input} />);
+
+    expect(screen.queryByLabelText('지역 오디오 이야기 로딩 중')).toBeNull();
+    expect(screen.getByText('이 지역의 이야기를 준비 중이에요')).toBeTruthy();
+  });
+
   it('waits for a downward wheel gesture on a short page and coalesces duplicate events until loading finishes', () => {
     vi.stubGlobal('IntersectionObserver', Observer);
     const input = props();

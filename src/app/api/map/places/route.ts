@@ -65,7 +65,17 @@ export async function GET(request: Request) {
     : null;
 
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-    return NextResponse.json({ items: [], error: 'lat/lng 좌표 필요' });
+    return NextResponse.json(
+      {
+        items: [],
+        degraded: false,
+        error: {
+          code: 'INVALID_COORDINATES',
+          message: '지도 좌표를 확인해 주세요.',
+        },
+      },
+      { status: 400 },
+    );
   }
 
   try {
@@ -74,11 +84,15 @@ export async function GET(request: Request) {
   } catch (error) {
 
     const fallback = fallbackPlaces(lat, lng);
+    const message = error instanceof Error ? error.message : '장소 목록을 불러오지 못했습니다';
 
     return NextResponse.json({
       items: fallback,
       degraded: true,
-      error: error instanceof Error ? error.message : '장소 목록을 불러오지 못했습니다',
-    });
+      error: {
+        code: 'MAP_PLACES_UNAVAILABLE',
+        message,
+      },
+    }, { status: fallback.length > 0 ? 200 : 503 });
   }
 }

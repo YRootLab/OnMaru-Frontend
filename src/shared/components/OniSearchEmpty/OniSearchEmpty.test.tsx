@@ -1,9 +1,19 @@
 // @vitest-environment jsdom
 
 import React from 'react';
-import { describe, it, expect } from 'vitest';
+import { afterEach, describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { OniSearchEmpty } from './OniSearchEmpty';
+
+const motionState = vi.hoisted(() => ({ reduced: false }));
+
+vi.mock('framer-motion', () => ({
+  useReducedMotion: () => motionState.reduced,
+}));
+
+afterEach(() => {
+  motionState.reduced = false;
+});
 
 describe('OniSearchEmpty', () => {
   it('renders title, description and action', () => {
@@ -56,5 +66,20 @@ describe('OniSearchEmpty', () => {
     expect(titleEl.tagName).toBe('H4');
     expect(descEl.tagName).toBe('P');
     expect(titleEl.compareDocumentPosition(descEl)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+
+  it('honors an explicit static image during reduced motion', () => {
+    motionState.reduced = true;
+    const { container } = render(
+      <OniSearchEmpty
+        title="잠시 연결이 불안정해요"
+        videoSrc=""
+        imageSrc="/images/character/Oni_server_error.png"
+      />
+    );
+
+    const image = container.querySelector('img');
+    expect(image).toBeTruthy();
+    expect(image?.getAttribute('src')).toContain('/images/character/Oni_server_error.png');
   });
 });
