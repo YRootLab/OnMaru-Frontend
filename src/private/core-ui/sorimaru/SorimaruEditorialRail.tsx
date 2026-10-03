@@ -108,7 +108,6 @@ const CardMotionButton = styled(motion.button)<{ $isActive: boolean }>`
     background-color: ${surface.dark.card};
     box-shadow: ${({ $isActive }) =>
       $isActive ? '0 14px 32px rgba(0, 0, 0, 0.45)' : '0 4px 14px rgba(0, 0, 0, 0.25)'};
-    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
   &:hover {

@@ -77,3 +77,29 @@ test('light-mode rail arrows change only icon color on hover', async ({ page }) 
   expect(after.backgroundColor).toBe(before.backgroundColor);
   expect(after.color).not.toBe(before.color);
 });
+
+test('dark-mode active card has no bright outer border around its rounded edge', async ({ page }) => {
+  await page.route('**/api/v1/odii/stories**', (route) => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({ items: stories, totalCount: stories.length, nextCursor: null, hasMore: false }),
+  }));
+  await page.route('**/api/v1/odii/regions**', (route) => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({ groups: [] }),
+  }));
+  await page.route('**/api/v1/members/me', (route) => route.fulfill({
+    status: 401,
+    contentType: 'application/json',
+    body: JSON.stringify({ code: 'AUTH_REQUIRED' }),
+  }));
+
+  await page.goto('/sorimaru');
+  await page.getByText('라이트 모드 이야기 1').first().waitFor({ state: 'visible' });
+  await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'dark'));
+
+  const activeCard = page.getByRole('button', { name: /현재 선택됨/ }).first();
+  await expect(activeCard).toBeVisible();
+  expect(await activeCard.evaluate((node) => getComputedStyle(node).borderWidth)).toBe('0px');
+});
