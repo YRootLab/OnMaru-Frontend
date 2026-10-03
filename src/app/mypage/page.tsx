@@ -9,6 +9,10 @@ import { HugeiconsIcon } from '@hugeicons/react'
 import { Bookmark01Icon, FlameIcon, ChevronRightIcon, MapPinIcon, Cancel01Icon, Compass01Icon, SparklesIcon, HeartIcon, Music01Icon, PenLineIcon, CheckIcon } from '@hugeicons/core-free-icons'
 import type { SavedJourneyDetail } from '@/features/journey-curator/types/exploration.types';
 import { useAuth } from '@/features/auth';
+import { useAuthSessionStore } from '@/features/auth/store/useAuthSessionStore';
+import { OniAvatar } from '@/features/profile/OniAvatar';
+import { CHARACTER_IDS, BACKGROUND_IDS, PROFILE_BACKGROUNDS, PROFILE_CHARACTER_NAMES } from '@/features/profile/assets';
+import { defaultMemberRepository } from '@/features/auth/api/memberApi';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import { loadWarmth } from '@/features/map/warmth/warmthRepo';
 import { formatRelativeTime } from '@/features/map/utils/formatters';
@@ -39,6 +43,11 @@ export default function MyPage() {
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const isApple = useIsAppleDevice();
   const [oniVideoError, setOniVideoError] = useState(false);
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [draftName, setDraftName] = useState('');
+  const [draftCharacter, setDraftCharacter] = useState('');
+  const [draftBackground, setDraftBackground] = useState('');
+  const [profileSaving, setProfileSaving] = useState(false);
 
   const savedJourneys = useSavedJourneyStore((s) => s.savedJourneys);
   const removeJourney = useSavedJourneyStore((s) => s.removeJourney);
@@ -126,72 +135,217 @@ export default function MyPage() {
   return (
     <div style={{ display: 'flex', justifyContent: 'center', padding: '96px 16px 80px' }}>
       <div style={{ width: '100%', maxWidth: '520px', display: 'flex', flexDirection: 'column', gap: '40px' }}>
-        <div style={{ backgroundColor: c.bg.surface, borderRadius: '20px', padding: '36px 28px 28px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-          {user.profileImageUrl ? (
-            <img
-              src={user.profileImageUrl}
-              alt={user.displayName || '프로필'}
-              style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
-            />
-          ) : (
-            <div
+        {/* 프로필 카드 — 보기 모드 */}
+        {!editingProfile && (
+          <div style={{ backgroundColor: c.bg.surface, borderRadius: '20px', padding: '32px 28px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+            <OniAvatar characterId={user.characterId} backgroundId={user.backgroundId} size={88} />
+            <div style={{ marginTop: '4px', fontSize: '11px', fontWeight: 600, color: c.text.muted }}>
+              {PROFILE_CHARACTER_NAMES[user.characterId as keyof typeof PROFILE_CHARACTER_NAMES] ?? '온이'}
+            </div>
+            <div style={{ marginTop: '8px', fontSize: '24px', fontWeight: 800, color: c.text.primary, letterSpacing: '-0.025em' }}>
+              {user.displayName || '길손'}님
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setDraftName(user.displayName || '');
+                setDraftCharacter(user.characterId || 'CHARACTER_01');
+                setDraftBackground(user.backgroundId || 'BACKGROUND_01');
+                setEditingProfile(true);
+              }}
               style={{
-                width: '80px',
-                height: '80px',
-                borderRadius: '50%',
-                backgroundColor: c.action.primaryBg,
-                color: c.action.primary,
+                marginTop: '16px',
+                height: '36px',
+                padding: '0 20px',
+                borderRadius: '10px',
+                border: 'none',
+                backgroundColor: c.bg.card,
+                color: c.text.secondary,
+                fontSize: '13px',
+                fontWeight: 600,
+                cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '32px',
-                fontWeight: 800,
-                flexShrink: 0,
+                gap: '6px',
               }}
             >
-              {(user.displayName || '길')[0]}
+              <HugeiconsIcon icon={PenLineIcon} size={13} />
+              프로필 변경
+            </button>
+
+            <div style={{ display: 'flex', width: '100%', marginTop: '24px', borderRadius: '14px', backgroundColor: c.bg.card, overflow: 'hidden' }}>
+              {[
+                { label: '저장 여정', value: savedExplorations.length },
+                { label: '북마크', value: bookmarks.length },
+                { label: '담은 소리', value: savedSounds.length },
+              ].map((stat) => (
+                <div key={stat.label} style={{ flex: 1, padding: '16px 0', textAlign: 'center' }}>
+                  <div style={{ fontSize: '22px', fontWeight: 800, color: c.text.primary, letterSpacing: '-0.02em' }}>{stat.value}</div>
+                  <div style={{ fontSize: '11.5px', color: c.text.muted, marginTop: '3px', fontWeight: 500 }}>{stat.label}</div>
+                </div>
+              ))}
             </div>
-          )}
 
-          <div style={{ marginTop: '16px', fontSize: '26px', fontWeight: 800, color: c.text.primary, letterSpacing: '-0.025em' }}>
-            {user.displayName || '길손'}님
+            <button
+              type="button"
+              onClick={logout}
+              style={{ marginTop: '16px', height: '36px', padding: '0 20px', borderRadius: '10px', border: 'none', backgroundColor: c.bg.card, color: c.text.secondary, fontSize: '13px', fontWeight: 600, cursor: 'pointer', outline: 'none' }}
+              onFocus={(e) => { e.currentTarget.style.boxShadow = `0 0 0 2px ${c.action.primary}`; }}
+              onBlur={(e) => { e.currentTarget.style.boxShadow = 'none'; }}
+            >
+              로그아웃
+            </button>
           </div>
+        )}
 
-          <div style={{ display: 'flex', width: '100%', marginTop: '24px', borderRadius: '14px', backgroundColor: c.bg.card, overflow: 'hidden' }}>
-            {[
-              { label: '저장 여정', value: savedExplorations.length },
-              { label: '북마크', value: bookmarks.length },
-              { label: '담은 소리', value: savedSounds.length },
-            ].map((stat, i) => (
-              <div key={stat.label} style={{ flex: 1, padding: '16px 0', textAlign: 'center' }}>
-                <div style={{ fontSize: '22px', fontWeight: 800, color: c.text.primary, letterSpacing: '-0.02em' }}>{stat.value}</div>
-                <div style={{ fontSize: '11.5px', color: c.text.muted, marginTop: '3px', fontWeight: 500 }}>{stat.label}</div>
+        {/* 프로필 편집 카드 */}
+        {editingProfile && (
+          <div style={{ backgroundColor: c.bg.surface, borderRadius: '20px', padding: '28px 24px 24px' }}>
+            {/* 미리보기 */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px', padding: '16px', backgroundColor: c.bg.card, borderRadius: '14px' }}>
+              <OniAvatar characterId={draftCharacter} backgroundId={draftBackground} size={64} />
+              <div>
+                <div style={{ fontSize: '11px', fontWeight: 600, color: c.text.muted, marginBottom: '2px' }}>
+                  {PROFILE_CHARACTER_NAMES[draftCharacter as keyof typeof PROFILE_CHARACTER_NAMES] ?? '온이'}
+                </div>
+                <div style={{ fontSize: '17px', fontWeight: 800, color: c.text.primary, letterSpacing: '-0.02em' }}>
+                  {draftName || '닉네임을 입력하세요'}
+                </div>
               </div>
-            ))}
-          </div>
+            </div>
 
-          <button
-            type="button"
-            onClick={logout}
-            style={{
-              marginTop: '20px',
-              height: '36px',
-              padding: '0 20px',
-              borderRadius: '10px',
-              border: 'none',
-              backgroundColor: c.bg.card,
-              color: c.text.secondary,
-              fontSize: '13px',
-              fontWeight: 600,
-              cursor: 'pointer',
-              outline: 'none',
-            }}
-            onFocus={(e) => { e.currentTarget.style.boxShadow = `0 0 0 2px ${c.action.primary}`; }}
-            onBlur={(e) => { e.currentTarget.style.boxShadow = 'none'; }}
-          >
-            로그아웃
-          </button>
-        </div>
+            {/* 닉네임 */}
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: c.text.secondary, marginBottom: '8px' }}>닉네임</label>
+              <input
+                value={draftName}
+                onChange={(e) => setDraftName(e.target.value)}
+                maxLength={20}
+                placeholder="2~20자"
+                style={{
+                  width: '100%',
+                  padding: '11px 14px',
+                  borderRadius: '10px',
+                  border: `1.5px solid ${c.bg.card}`,
+                  backgroundColor: c.bg.app,
+                  color: c.text.primary,
+                  fontSize: '14px',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+                onFocus={(e) => { e.currentTarget.style.borderColor = c.action.primary; }}
+                onBlur={(e) => { e.currentTarget.style.borderColor = c.bg.card; }}
+              />
+            </div>
+
+            {/* 캐릭터 선택 */}
+            <div style={{ marginBottom: '20px' }}>
+              <div style={{ fontSize: '12px', fontWeight: 700, color: c.text.secondary, marginBottom: '10px' }}>캐릭터</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px' }}>
+                {CHARACTER_IDS.map((id) => (
+                  <button
+                    key={id}
+                    type="button"
+                    aria-label={PROFILE_CHARACTER_NAMES[id]}
+                    aria-pressed={draftCharacter === id}
+                    onClick={() => setDraftCharacter(id)}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '4px',
+                      padding: '6px 4px',
+                      border: `2px solid ${draftCharacter === id ? c.action.primary : 'transparent'}`,
+                      borderRadius: '14px',
+                      cursor: 'pointer',
+                      background: draftCharacter === id ? c.action.primaryBg : 'transparent',
+                      outline: 'none',
+                    }}
+                  >
+                    <OniAvatar characterId={id} backgroundId={draftBackground} size={48} />
+                    <span style={{ fontSize: '9px', fontWeight: 600, color: draftCharacter === id ? c.action.primary : c.text.muted, textAlign: 'center', lineHeight: 1.2, wordBreak: 'keep-all' }}>
+                      {PROFILE_CHARACTER_NAMES[id].replace('온이', '')}온이
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 배경색 선택 */}
+            <div style={{ marginBottom: '24px' }}>
+              <div style={{ fontSize: '12px', fontWeight: 700, color: c.text.secondary, marginBottom: '10px' }}>배경색</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                {BACKGROUND_IDS.map((id) => (
+                  <button
+                    key={id}
+                    type="button"
+                    aria-label={`배경 ${id}`}
+                    aria-pressed={draftBackground === id}
+                    onClick={() => setDraftBackground(id)}
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: '50%',
+                      backgroundColor: PROFILE_BACKGROUNDS[id],
+                      border: `3px solid ${draftBackground === id ? c.action.primary : 'transparent'}`,
+                      cursor: 'pointer',
+                      outline: 'none',
+                      boxShadow: draftBackground === id ? `0 0 0 2px ${c.action.primary}` : 'none',
+                      transition: 'box-shadow 0.15s',
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* 저장 / 취소 */}
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                type="button"
+                disabled={profileSaving || !draftName.trim()}
+                onClick={async () => {
+                  if (!draftName.trim()) return;
+                  setProfileSaving(true);
+                  try {
+                    const updated = await defaultMemberRepository.updateMyProfile({
+                      displayName: draftName.trim(),
+                      characterId: draftCharacter || undefined,
+                      backgroundId: draftBackground || undefined,
+                    });
+                    useAuthSessionStore.getState().applyProfile(updated);
+                    toast.success('프로필을 변경했어요.');
+                    setEditingProfile(false);
+                  } catch {
+                    toast.error('프로필 변경에 실패했어요. 잠시 후 다시 시도해주세요.');
+                  } finally {
+                    setProfileSaving(false);
+                  }
+                }}
+                style={{
+                  flex: 1, height: '44px', borderRadius: '12px', border: 'none',
+                  backgroundColor: c.action.primary, color: c.text.inverse,
+                  fontSize: '15px', fontWeight: 700,
+                  cursor: (profileSaving || !draftName.trim()) ? 'not-allowed' : 'pointer',
+                  opacity: (profileSaving || !draftName.trim()) ? 0.6 : 1,
+                }}
+              >
+                {profileSaving ? '저장 중…' : '저장'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditingProfile(false)}
+                style={{
+                  height: '44px', padding: '0 20px', borderRadius: '12px', border: 'none',
+                  backgroundColor: c.bg.card, color: c.text.secondary,
+                  fontSize: '15px', fontWeight: 600, cursor: 'pointer',
+                }}
+              >
+                취소
+              </button>
+            </div>
+          </div>
+        )}
+
 
         {}
         <SectionRow title="화면 모드" theme={theme}>

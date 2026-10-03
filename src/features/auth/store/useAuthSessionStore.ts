@@ -14,7 +14,10 @@ import { defaultMemberRepository, type MemberProfile } from '../api/memberApi';
 export interface AuthUser {
   id: string;
   displayName: string;
+  /** @deprecated BE #552 이후 characterId/backgroundId로 대체. */
   profileImageUrl?: string;
+  characterId?: string;
+  backgroundId?: string;
 }
 
 interface AuthSessionState {
@@ -24,10 +27,18 @@ interface AuthSessionState {
   ensureSessionLoaded: () => Promise<void>;
   applyProfile: (profile: MemberProfile) => AuthUser;
   clear: () => void;
+  /** 탈퇴 후 재로그인 대비: undefined+false로 완전 초기화해 isLoading=true를 보장한다. */
+  reset: () => void;
 }
 
 export function toAuthUser(profile: MemberProfile): AuthUser {
-  return { id: profile.id, displayName: profile.displayName, profileImageUrl: profile.profileImageUrl };
+  return {
+    id: profile.id,
+    displayName: profile.displayName,
+    profileImageUrl: profile.profileImageUrl,
+    characterId: profile.characterId,
+    backgroundId: profile.backgroundId,
+  };
 }
 
 export const useAuthSessionStore = create<AuthSessionState>((set, get) => ({
@@ -59,4 +70,5 @@ export const useAuthSessionStore = create<AuthSessionState>((set, get) => ({
   },
 
   clear: () => set({ user: null }),
+  reset: () => set({ user: undefined, hasLoadedOnce: false }),
 }));

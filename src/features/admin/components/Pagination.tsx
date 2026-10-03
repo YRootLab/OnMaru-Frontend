@@ -129,6 +129,10 @@ export const Pagination: React.FC<PaginationProps> = ({
 
 export interface CursorPaginationProps {
   currentPage: number;
+  totalPages: number;
+  totalCount: number;
+  rangeStart: number;
+  rangeEnd: number;
   hasNext: boolean;
   hasPrev: boolean;
   onNext: () => void;
@@ -139,6 +143,10 @@ export interface CursorPaginationProps {
 
 export const CursorPagination: React.FC<CursorPaginationProps> = ({
   currentPage,
+  totalPages,
+  totalCount,
+  rangeStart,
+  rangeEnd,
   hasNext,
   hasPrev,
   onNext,
@@ -146,8 +154,6 @@ export const CursorPagination: React.FC<CursorPaginationProps> = ({
   isLoading = false,
   className,
 }) => {
-  if (!hasPrev && !hasNext) return null;
-
   return (
     <nav
       aria-label="커서 페이지 내비게이션"
@@ -155,12 +161,19 @@ export const CursorPagination: React.FC<CursorPaginationProps> = ({
       style={{
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center',
-        gap: '12px',
-        padding: '20px 0',
+        justifyContent: 'space-between',
+        gap: '16px',
+        padding: '16px 20px',
+        flexWrap: 'wrap',
       }}
     >
-      <button
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: meok[500], fontSize: '13px' }}>
+        <strong style={{ color: meok[800] }}>전체 {totalCount.toLocaleString('ko-KR')}건</strong>
+        {totalCount > 0 && <span>{rangeStart.toLocaleString('ko-KR')}–{rangeEnd.toLocaleString('ko-KR')}건 표시</span>}
+      </div>
+
+      {(hasPrev || hasNext) && <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <button
         type="button"
         onClick={onPrev}
         disabled={!hasPrev || isLoading}
@@ -197,7 +210,7 @@ export const CursorPagination: React.FC<CursorPaginationProps> = ({
           fontVariantNumeric: 'tabular-nums',
         }}
       >
-        {currentPage} 페이지
+        {currentPage} / {totalPages} 페이지
       </div>
 
       <button
@@ -224,6 +237,7 @@ export const CursorPagination: React.FC<CursorPaginationProps> = ({
         <span>다음</span>
         <HugeiconsIcon icon={ChevronRightIcon} size={16} strokeWidth={2} />
       </button>
+      </div>}
     </nav>
   );
 };

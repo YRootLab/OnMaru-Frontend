@@ -9,6 +9,7 @@ describe('useAdminCursorPagination hook tests (#262 / BE #509)', () => {
   it('requests first page with cursor undefined and limit, and tracks hasNext correctly', async () => {
     const fetchFn = vi.fn().mockResolvedValue({
       items: [{ id: '1', name: 'Item 1' }],
+      totalCount: 41,
       nextCursor: 'cursor_2',
       hasNext: true,
     } as CursorPageResponse<{ id: string; name: string }>);
@@ -27,6 +28,10 @@ describe('useAdminCursorPagination hook tests (#262 / BE #509)', () => {
     expect(result.current.pageNumber).toBe(1);
     expect(result.current.hasPrev).toBe(false);
     expect(result.current.hasNext).toBe(true);
+    expect(result.current.totalCount).toBe(41);
+    expect(result.current.totalPages).toBe(3);
+    expect(result.current.rangeStart).toBe(1);
+    expect(result.current.rangeEnd).toBe(1);
     expect(result.current.items).toEqual([{ id: '1', name: 'Item 1' }]);
   });
 
@@ -34,16 +39,19 @@ describe('useAdminCursorPagination hook tests (#262 / BE #509)', () => {
     const fetchFn = vi.fn()
       .mockResolvedValueOnce({
         items: [{ id: '1' }],
+        totalCount: 41,
         nextCursor: 'cursor_page_2',
         hasNext: true,
       })
       .mockResolvedValueOnce({
         items: [{ id: '2' }],
+        totalCount: 41,
         nextCursor: 'cursor_page_3',
         hasNext: true,
       })
       .mockResolvedValueOnce({
         items: [{ id: '1' }],
+        totalCount: 41,
         nextCursor: 'cursor_page_2',
         hasNext: true,
       });
@@ -65,6 +73,9 @@ describe('useAdminCursorPagination hook tests (#262 / BE #509)', () => {
 
     expect(fetchFn).toHaveBeenLastCalledWith({ limit: 20, cursor: 'cursor_page_2' });
     expect(result.current.pageNumber).toBe(2);
+    expect(result.current.totalCount).toBe(41);
+    expect(result.current.rangeStart).toBe(21);
+    expect(result.current.rangeEnd).toBe(21);
     expect(result.current.hasPrev).toBe(true);
 
     // Go to previous page
@@ -78,11 +89,10 @@ describe('useAdminCursorPagination hook tests (#262 / BE #509)', () => {
   });
 
   it('discards prior cursors and resets to page 1 when filter changes', async () => {
-    const fetchFn = vi.fn().mockResolvedValue({
-      items: [{ id: '10' }],
-      nextCursor: 'cursor_next',
-      hasNext: true,
-    });
+    const fetchFn = vi.fn()
+      .mockResolvedValueOnce({ items: [{ id: '10' }], totalCount: 25, nextCursor: 'cursor_next', hasNext: true })
+      .mockResolvedValueOnce({ items: [{ id: '20' }], totalCount: 25, nextCursor: null, hasNext: false })
+      .mockResolvedValueOnce({ items: [{ id: '30' }], totalCount: 1, nextCursor: null, hasNext: false });
 
     let currentFilter = { status: 'PUBLISHED' };
     const { result, rerender } = renderHook(() =>
@@ -111,6 +121,8 @@ describe('useAdminCursorPagination hook tests (#262 / BE #509)', () => {
     expect(fetchFn).toHaveBeenLastCalledWith({ status: 'HIDDEN', limit: 20 });
     expect(result.current.pageNumber).toBe(1);
     expect(result.current.hasPrev).toBe(false);
+    expect(result.current.totalCount).toBe(1);
+    expect(result.current.totalPages).toBe(1);
   });
 
   it('ignores stale late responses from earlier requests (race condition protection)', async () => {
