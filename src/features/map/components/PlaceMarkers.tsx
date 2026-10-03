@@ -10,6 +10,10 @@ import { mapIconSvg, type MapIconName } from '@/features/map/utils/mapIconSvg';
 import { calculateTravelEstimate, isTraditionalPlace, shortRegionName } from '@/features/map/utils/geo';
 import { isHanok } from '@/features/map/utils/isHanok';
 import { renderHanokMarkHtml } from './HanokMark';
+import {
+  advanceMarkerEntranceState,
+  type MarkerEntranceState,
+} from './markerEntrancePolicy';
 import { useMapStore } from '../hooks/useMapStore';
 import { useStampStore } from '@/features/stamp/presentation/useStampStore';
 import type { Item, PlaceCategory } from '../types';
@@ -937,7 +941,7 @@ export default function PlaceMarkers() {
   const mode = useMapStore((s) => s.mode);
   const items = useMapStore((s) => s.items);
   const category = useMapStore((s) => s.category);
-  const level = useMapStore((s) => s.level);
+  const level = useMapStore((s) => s.committedViewport.level);
   const selectedId = useMapStore((s) => s.selectedId);
   const hoveredId = useMapStore((s) => s.hoveredId);
   const detailId = useMapStore((s) => s.detailId);
@@ -946,6 +950,11 @@ export default function PlaceMarkers() {
 
 
   const overlayMapRef = useRef<Map<string, OverlayRecord>>(new Map());
+  const markerEntranceStateRef = useRef<MarkerEntranceState>({
+    hasRendered: false,
+    category,
+    pendingCategory: false,
+  });
 
   useEffect(() => {
     if (!map || mode !== 'info' || items.length === 0 || !window.kakao?.maps) {
@@ -964,7 +973,17 @@ export default function PlaceMarkers() {
           ? items.filter((it) => it.category === category)
           : items;
 
+    const entranceDecision = advanceMarkerEntranceState(markerEntranceStateRef.current, {
+      category,
+      markerCount: activeItems.length,
+      reducedMotion: Boolean(
+        window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
+      ),
+    });
+    markerEntranceStateRef.current = entranceDecision.state;
+
     if (activeItems.length === 0) return;
+    const shouldAnimate = entranceDecision.animate;
 
     const isCluster = level > PIN_MAX_LEVEL;
 
@@ -1031,7 +1050,7 @@ export default function PlaceMarkers() {
         overlayMapRef.current.set(`cluster_${idx}`, { overlay, el });
       });
 
-      burstIn(entranceWrappers);
+      if (shouldAnimate) burstIn(entranceWrappers);
 
       return () => {
         overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));
@@ -1228,7 +1247,7 @@ export default function PlaceMarkers() {
       overlayMapRef.current.set(item.id, { overlay, el });
     });
 
-    burstIn(entranceWrappers);
+    if (shouldAnimate) burstIn(entranceWrappers);
 
     return () => {
       overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));

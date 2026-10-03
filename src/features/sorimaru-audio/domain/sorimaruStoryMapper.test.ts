@@ -11,12 +11,12 @@ const summary = {
 describe('mapStoryPage', () => {
   it('maps a list item without requiring audioUrl or transcript', () => {
     const page = mapStoryPage({
-      schemaVersion: '1.2', items: [summary], nextCursor: 'cursor-2', hasMore: true,
+      schemaVersion: '1.2', items: [summary], totalCount: 23675, nextCursor: 'cursor-2', hasMore: true,
     });
 
     expect(page.items).toEqual([summary]);
     expect(page.items[0]).not.toHaveProperty('audioUrl');
-    expect(page).toMatchObject({ nextCursor: 'cursor-2', hasMore: true });
+    expect(page).toMatchObject({ totalCount: 23675, nextCursor: 'cursor-2', hasMore: true });
   });
 
   it('rejects a list payload without an items array', () => {
@@ -24,17 +24,30 @@ describe('mapStoryPage', () => {
   });
 
   it('keeps a valid empty page empty', () => {
-    expect(mapStoryPage({ items: [], nextCursor: null, hasMore: false })).toEqual({
-      items: [], nextCursor: null, hasMore: false,
+    expect(mapStoryPage({ items: [], totalCount: 0, nextCursor: null, hasMore: false })).toEqual({
+      items: [], totalCount: 0, nextCursor: null, hasMore: false,
     });
   });
 
+  it('rejects a list payload without a non-negative integer totalCount', () => {
+    expect(() => mapStoryPage({ items: [summary], nextCursor: null, hasMore: false }))
+      .toThrow('Invalid Sorimaru story page');
+    expect(() => mapStoryPage({ items: [summary], totalCount: -1, nextCursor: null, hasMore: false }))
+      .toThrow('Invalid Sorimaru story page');
+    expect(() => mapStoryPage({ items: [summary], totalCount: 1.5, nextCursor: null, hasMore: false }))
+      .toThrow('Invalid Sorimaru story page');
+    expect(() => mapStoryPage({ items: [summary, { ...summary, storyId: 'story-2' }], totalCount: 1, nextCursor: null, hasMore: false }))
+      .toThrow('Invalid Sorimaru story page');
+    expect(() => mapStoryPage({ items: [summary], totalCount: Number.MAX_SAFE_INTEGER + 1, nextCursor: null, hasMore: false }))
+      .toThrow('Invalid Sorimaru story page');
+  });
+
   it('rejects malformed summary and pagination fields', () => {
-    expect(() => mapStoryPage({ items: [{ ...summary, durationSeconds: '180' }], nextCursor: null, hasMore: false }))
+    expect(() => mapStoryPage({ items: [{ ...summary, durationSeconds: '180' }], totalCount: 1, nextCursor: null, hasMore: false }))
       .toThrow('Invalid Sorimaru story page');
-    expect(() => mapStoryPage({ items: [summary], nextCursor: 2, hasMore: true }))
+    expect(() => mapStoryPage({ items: [summary], totalCount: 1, nextCursor: 2, hasMore: true }))
       .toThrow('Invalid Sorimaru story page');
-    expect(() => mapStoryPage({ items: [summary], nextCursor: null, hasMore: 'false' }))
+    expect(() => mapStoryPage({ items: [summary], totalCount: 1, nextCursor: null, hasMore: 'false' }))
       .toThrow('Invalid Sorimaru story page');
   });
 });

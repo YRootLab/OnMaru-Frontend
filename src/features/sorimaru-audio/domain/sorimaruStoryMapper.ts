@@ -72,6 +72,8 @@ export function mapStoryPage(payload: unknown): SorimaruStoryPage {
   if (!isObject(payload)
     || !Array.isArray(payload.items)
     || !payload.items.every(isSummary)
+    || !Number.isSafeInteger(payload.totalCount)
+    || (payload.totalCount as number) < payload.items.length
     || !isNullableString(payload.nextCursor)
     || typeof payload.hasMore !== 'boolean') {
     throw new Error('Invalid Sorimaru story page');
@@ -79,6 +81,7 @@ export function mapStoryPage(payload: unknown): SorimaruStoryPage {
 
   return {
     items: payload.items.map(mapSummary),
+    totalCount: payload.totalCount as number,
     nextCursor: payload.nextCursor,
     hasMore: payload.hasMore,
   };

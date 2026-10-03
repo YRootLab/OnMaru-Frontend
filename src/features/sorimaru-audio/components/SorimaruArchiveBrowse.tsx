@@ -11,10 +11,13 @@ import { groupSorimaruStoriesByPlace, type SorimaruPlaceGroup } from '@/features
 import { useSorimaruImage } from '@/features/sorimaru-audio/hooks/useSorimaruImage';
 import { palette, meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
 import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
+import { SorimaruRequestErrorState } from '@/features/sorimaru-audio/presentation/SorimaruRequestErrorState';
 
 interface SorimaruArchiveBrowseProps {
   stories: SorimaruStorySummary[];
   isLoading: boolean;
+  error?: Error | null;
+  onRetry?: () => void;
 }
 
 type ArchiveView = 'stories' | 'places';
@@ -127,8 +130,10 @@ function ArchiveSkeleton() {
       {Array.from({ length: 6 }, (_, index) => (
         <div
           key={index}
+          data-skeleton-archive-card
           style={{
             display: 'flex',
+            minHeight: '6.5rem',
             alignItems: 'center',
             gap: '0.875rem',
             borderRadius: '16px',
@@ -140,9 +145,10 @@ function ArchiveSkeleton() {
           <SkeletonBox style={{ height: 68, width: 68, minWidth: 68, flexShrink: 0, borderRadius: '12px' }} />
           <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', gap: 7 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 6 }}>
-              <SkeletonBox style={{ height: 16, width: '65%' }} />
+              <SkeletonBox data-skeleton-title-row style={{ height: 16, width: '65%' }} />
               <SkeletonBox style={{ height: 14, width: 38, borderRadius: 4 }} />
             </div>
+            <SkeletonBox data-skeleton-title-row style={{ height: 16, width: '52%' }} />
             <SkeletonBox style={{ height: 12, width: '45%' }} />
             <div style={{ display: 'flex', gap: 6, marginTop: 2 }}>
               <SkeletonBox style={{ height: 10, width: 36 }} />
@@ -159,6 +165,7 @@ function ArchiveSkeleton() {
 const StoryArticle = styled.article<{ $isCurrent: boolean }>`
   position: relative;
   display: flex;
+  min-height: 6.5rem;
   cursor: pointer;
   align-items: center;
   gap: 0.875rem;
@@ -286,7 +293,7 @@ const CardBody = styled.div`
 
 const TitleRow = styled.div`
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 0.5rem;
 `;
@@ -294,13 +301,13 @@ const TitleRow = styled.div`
 
 const StoryRowTitle = styled.h3<{ $isCurrent: boolean }>`
   font-family: var(--font-hanok);
-  font-size: 0.9375rem;
+  font-size: ${fontSize.base};
   font-weight: 700;
   line-height: 1.3;
   letter-spacing: -0.02em;
   color: ${({ $isCurrent }) => ($isCurrent ? palette.juhong[500] : meok[900])};
   display: -webkit-box;
-  -webkit-line-clamp: 1;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   transition: color 0.15s ease;
@@ -320,7 +327,7 @@ const StoryRowTitle = styled.h3<{ $isCurrent: boolean }>`
 
 const DurationPill = styled.span`
   flex-shrink: 0;
-  font-size: 10.5px;
+  font-size: ${fontSize.xs};
   font-weight: 600;
   color: ${meok[500]};
   background-color: rgba(0, 0, 0, 0.04);
@@ -338,7 +345,7 @@ const LocationMeta = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 11.5px;
+  font-size: ${fontSize.xs};
   color: ${meok[600]};
   overflow: hidden;
   text-overflow: ellipsis;
@@ -354,7 +361,7 @@ const HashtagsRow = styled.div`
   flex-wrap: wrap;
   align-items: center;
   gap: 0.2rem 0.45rem;
-  font-size: 11px;
+  font-size: ${fontSize.xs};
   line-height: 1.3;
   margin-top: 0.05rem;
 `;
@@ -601,7 +608,7 @@ const ViewSegmentBtn = styled.button<{ $active: boolean }>`
   }
 `;
 
-export function SorimaruArchiveBrowse({ stories, isLoading }: SorimaruArchiveBrowseProps) {
+export function SorimaruArchiveBrowse({ stories, isLoading, error = null, onRetry }: SorimaruArchiveBrowseProps) {
   const [view, setView] = useState<ArchiveView>('stories');
   const groups = useMemo(() => groupSorimaruStoriesByPlace(stories), [stories]);
 
@@ -648,6 +655,8 @@ export function SorimaruArchiveBrowse({ stories, isLoading }: SorimaruArchiveBro
 
       {isLoading ? (
         <ArchiveSkeleton />
+      ) : error && onRetry ? (
+        <SorimaruRequestErrorState onRetry={onRetry} />
       ) : stories.length === 0 ? (
         <OniSearchEmpty
           size="md"
