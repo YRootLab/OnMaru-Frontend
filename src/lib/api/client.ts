@@ -27,6 +27,7 @@ export type ApiRequestOptions = {
   signal?: AbortSignal;
   cache?: RequestCache;
   headers?: Record<string, string>;
+  auth?: boolean;
   rootPath?: boolean;
   retry?: boolean | { maxRetries?: number };
   onWaking?: (attempt: number, delayMs: number) => void;
@@ -106,6 +107,8 @@ export function resetApiClientForTests(config?: Partial<ApiClientConfig>): void 
     fetcher: config?.fetcher ?? ((...args) => fetch(...args)),
   };
   csrfProvider = createCsrfTokenProvider(apiClientConfig.fetcher, apiClientConfig.baseUrl.replace(/\/+$/, ''));
+  refreshPromise = null;
+  _accessToken = null;
 }
 
 
@@ -135,33 +138,44 @@ export const removeAccessToken = (): void => {
 };
 
 
-let isRefreshing = false;
 let refreshPromise: Promise<void> | null = null;
 
 async function handleUnauthorized(): Promise<void> {
   if (typeof window === 'undefined') return;
-  // Single-flight: 동시에 refresh 요청 하나만
   if (refreshPromise) return refreshPromise;
-  if (isRefreshing) return;
 
-  isRefreshing = true;
   refreshPromise = (async () => {
     try {
       if (!apiClientConfig.baseUrl) throw new Error('No base URL');
 
-      // refresh token은 HttpOnly cookie로 자동 전송됨
-      const res = await apiClientConfig.fetcher(
-        `${apiClientConfig.baseUrl}/api/v1/auth/admin/refresh`,
-        {
+      for (let csrfAttempt = 0; csrfAttempt < 2; csrfAttempt += 1) {
+        const csrf = await csrfProvider.getToken();
+        const res = await apiClientConfig.fetcher(`${apiClientConfig.baseUrl}/api/v1/auth/admin/refresh`, {
           method: 'POST',
           credentials: 'include',
-          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        },
-      );
+          headers: { Accept: 'application/json', [csrf.headerName]: csrf.token },
+        });
 
-      if (!res.ok) throw new Error('Refresh failed');
-      const data = await res.json();
-      if (data.accessToken) setAccessToken(data.accessToken);
+        const text = await res.text();
+        let data: any = {};
+        if (text) {
+          try {
+            data = JSON.parse(text);
+          } catch {
+            data = {};
+          }
+        }
+
+        if (res.ok && data.accessToken) {
+          setAccessToken(data.accessToken);
+          return;
+        }
+        if (res.status === 403 && data.code === 'CSRF_INVALID' && csrfAttempt === 0) {
+          csrfProvider.reset();
+          continue;
+        }
+        throw new Error('Refresh failed');
+      }
     } catch {
       removeAccessToken();
       if (
@@ -172,7 +186,6 @@ async function handleUnauthorized(): Promise<void> {
         window.location.href = '/admin/login';
       }
     } finally {
-      isRefreshing = false;
       refreshPromise = null;
     }
   })();
@@ -221,6 +234,7 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
 
   const allowRetry = options.retry !== false;
   let attempt = 0;
+  let csrfRecoveryAttempted = false;
   const startedAt = Date.now();
 
   while (true) {
@@ -244,7 +258,7 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
       const csrf = await csrfProvider.getToken();
       headers[csrf.headerName] = csrf.token;
     }
-    const token = getAccessToken();
+    const token = options.auth === false ? null : getAccessToken();
     if (token) headers['Authorization'] = `Bearer ${token}`;
     try {
       const response = await apiClientConfig.fetcher(buildUrl(path, options.params, options.rootPath), {
@@ -276,10 +290,14 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
         const error = normalizeApiError(response.status, payload, response.headers, text);
         if (error.code === 'CSRF_INVALID' && options.csrf) {
           csrfProvider.reset();
+          if (!csrfRecoveryAttempted) {
+            csrfRecoveryAttempted = true;
+            continue;
+          }
         }
 
         // 401: refresh 후 1회 재시도 (admin 경로)
-        if (response.status === 401 && attempt === 1 && _accessToken) {
+        if (response.status === 401 && attempt === 1 && options.auth !== false && _accessToken) {
           clearTimeout(timeoutId);
           await handleUnauthorized();
           continue;
