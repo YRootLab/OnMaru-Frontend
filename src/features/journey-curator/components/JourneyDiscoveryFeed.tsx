@@ -13,6 +13,7 @@ import { saveOdiiStory, unsaveOdiiStory } from '@/features/sorimaru-audio/api/od
 import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
 import { palette, surface, ringShadow, fontSize } from '@/design-system/tokens';
 import { COURSE_CATEGORY_LABELS } from '../presentation/homeCourseTags';
+import { HomeCourseTagList } from './HomeCourseTagList';
 
 const FeedContainer = styled.div`
   width: min(calc(100% - 40px), 1140px);
@@ -402,28 +403,6 @@ const CourseFooter = styled.div`
   margin-top: 5px;
 `;
 
-const TagList = styled.div`
-  min-width: 0;
-  flex: 1;
-  display: block;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-`;
-
-const Tag = styled.span`
-  font-size: 13px;
-  color: #8b95a1;
-
-  & + & {
-    margin-left: 4px;
-  }
-
-  [data-theme='dark'] & {
-    color: #71717a;
-  }
-`;
-
 const ExploreText = styled.span`
   display: inline-flex;
   width: 76px;
@@ -700,6 +679,20 @@ const CourseSkeletonFooter = styled.div`
   gap: 8px;
   margin-top: 5px;
   padding-top: 10px;
+`;
+
+const CourseSkeletonTags = styled.div`
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow: hidden;
+
+  ${SkeletonLine} {
+    flex: 0 0 auto;
+    border-radius: 999px;
+  }
 `;
 
 const FeedState = styled.div<{ $compact?: boolean }>`
@@ -1015,13 +1008,11 @@ export default function JourneyDiscoveryFeed() {
         <CourseTitle>{course.name}</CourseTitle>
         <CourseDesc>{course.summary}</CourseDesc>
         <CourseFooter>
-          <TagList>
-            <Tag>{COURSE_CATEGORY_LABELS[course.category] ?? course.category}</Tag>
-            {course.tags.map((tag) => (
-              <Tag key={tag}>#{tag}</Tag>
-            ))}
-            {course.savedByMe && <Tag>저장됨</Tag>}
-          </TagList>
+          <HomeCourseTagList
+            category={course.category}
+            tags={course.tags}
+            savedByMe={course.savedByMe}
+          />
           <ExploreText>
             <span>일정 보기</span>
             <HugeiconsIcon icon={ArrowRight01Icon} size={12} />
@@ -1076,7 +1067,11 @@ export default function JourneyDiscoveryFeed() {
                       <SkeletonLine $w="100%" $h="20px" />
                       <SkeletonLine $w="88%" $h="20px" />
                       <CourseSkeletonFooter>
-                        <SkeletonLine $w="42%" $h="14px" />
+                        <CourseSkeletonTags>
+                          <SkeletonLine $w="58px" $h="20px" />
+                          <SkeletonLine $w="46px" $h="20px" />
+                          <SkeletonLine $w="48px" $h="20px" />
+                        </CourseSkeletonTags>
                         <SkeletonLine $w="27%" $h="18px" />
                       </CourseSkeletonFooter>
                     </CourseSkeletonBody>
