@@ -7,6 +7,9 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 - 소리마루 다크 카드의 밝은 합성 경계를 재현·진단·해결한 과정을 변경 전·변경 후·라이트 모드 캡처와 함께 기술 블로그 초안으로 기록했다.
 - 소리마루 `장면을 따라 걷는 소리`의 라이트 모드 좌우 화살표에서 hover 확대와 배경색 전환을 제거하고 아이콘 색만 바뀌게 했다. 버튼 뒤에 추가됐던 따뜻한 회색 그라데이션을 제거해 기존 카드 마스크 페이드와 투명한 섹션 배경을 복원했다. 라이트·다크 모두 카드의 둥근 모서리를 유지하면서, 모션 버튼과 실제 카드 면을 분리하고 다크 모드에만 무대색 외곽 마스크를 겹쳐 GPU 합성으로 생기던 밝은 하단 프린지를 제거했다.
 - 홈 `이번 주 추천 코스`의 영문 분류 코드를 한국어로 바꾸고, 분류·콘텐츠·저장 상태를 중복 없는 최대 3개의 태그 칩으로 정리했다.
+- 지도 정보모드를 cursor 기반 `/api/v1/map/info/places`와 zoom-aware `/api/v1/map/info/viewport`에 다시 연결했다. 데스크톱·모바일 목록을 `InfoPlaceList`로 통일하고, `totalCount`·중복 없는 cursor append·stale snapshot/abort·409 1회 복구·503 기존 데이터 유지·servedBbox 요청 생략을 보강했다. 정보모드에서는 legacy `/api/map/places`와 TourAPI 직접 조회를 차단하고 상세도 canonical `/api/v1/places/{placeId}`를 사용하며, `HANOK`을 list와 viewport에 같은 서버 category로 전달한다. REGION·DISTRICT·CLUSTER는 서버 aggregate overlay만, PLACE는 canonical `placeId` marker만 렌더링한다. viewport는 확정된 지도 상태에서만 갱신하고 단독 오류에는 기존 오버레이를 유지한 재시도 안내를 표시한다.
+- 최신 develop 병합 후 관리자 빠른 로그인 테스트가 production/development 환경을 명시하도록 교정하고, 한옥 fallback 테스트가 실 staging 재시도 대신 결정적 장애 fake를 사용하도록 격리했다. 브라우저 API 기준은 `NEXT_PUBLIC_API_URL`로 유지하되 `/api/proxy`의 내부 upstream 키는 `next.config.ts`에만 허용하도록 환경변수 계약을 갱신했다.
+- 스테이징 API를 전용 SSH 시작 명령으로 기동해 TLS·OpenAPI·`category=HANOK` 목록 200과 한옥 canonical category 4종을 확인했다. 운영에서는 첫 30건의 `nextCursor`로 두 번째 30건을 조회해 동일 snapshot과 `placeId` 중복 0건을 검증했다. 스테이징 fixture는 2건이라 다음 cursor가 없으며, DISTRICT viewport가 전체 건수와 달리 빈 aggregate를 반환하는 상태는 백엔드 후속 확인 대상으로 남겼다.
 - 소리마루의 한옥 글꼴·반응형 크기·라이트/다크 텍스트 그라디언트를 공통 섹션 헤더로 분리해 홈, 한옥마루, 소리마루의 최상위 섹션 제목과 부제 위계를 통일했다. 한옥 도감 카드의 `도감 해설 보기`는 호버 배경 피드백만 유지하고 위로 움직이던 애니메이션을 제거했다.
 - 아이콘 라이브러리 교체 과정에서 카카오 지도 생성자 `kakao.maps.Map`이 `MapIcon`으로 바뀌어 지도가 초기화되지 않던 회귀를 복구했다. 로컬 JavaScript SDK 도메인을 등록한 3004 환경에서 SDK 응답과 실제 지도·클러스터 렌더링을 확인했다. 전국 지도의 초기 맞춤은 한 단계 확대된 64km 축척으로 조정하고 클러스터 숫자를 flex로 수평·수직 중앙 정렬했다.
 - 전국 한옥 도감 카드의 상승·이미지 확대 호버를 제거하고 Microsoft Fluent Reveal에서 착안한 그리드 단위 Spotlight 효과로 교체했다. 하나의 포인터 위치를 모든 카드의 좌표계로 투영해 커서와 가까운 이웃 카드 모서리까지 반응한다. 라이트 모드는 차가운 회백색 광원과 커서 주변 사진만 `blur(3px)`·`saturate(1.08)`로 처리하는 절제된 프로스트 글래스 렌즈를 사용하고, 다크 모드는 216px 흰색 확산광을 사용한다. 밝은 아이보리에서 온마루 주홍으로 이어지는 테두리를 사용하되 외부 네온은 사용하지 않으며, 터치 화면과 모션 축소 설정에서는 효과를 표시하지 않는다.
@@ -18,7 +21,7 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 - FE #281: 소리마루의 정상적인 0건 결과와 서버/API 실패를 분리했다. 실패 시 차분한 서버 오류 온이 이미지와 `잠시 연결이 불안정해요` 안내, 즉시 오류를 숨기는 재시도 동작을 편집형 레일과 전체 이야기 목록에 공통 적용했다.
 - FE #282: 지도 장소 목록과 Kakao 지도 SDK에 25초 로딩 상한을 적용하고 네트워크·타임아웃·429·5xx 상태별 편안한 안내와 재시도를 추가했다. 기존 장소가 있으면 유지한 채 비차단 안내를 표시하고, 데이터가 없으면 목록과 지도 캔버스가 각각 오류 상태로 종료되도록 했다. 내부 장소 API는 잘못된 좌표를 400, 폴백도 없는 상위 장애를 503으로 반환한다.
 - 소리마루 재시도 중에는 상단 오류 안내를 즉시 숨기고, 요청이 다시 실패할 때만 복귀하도록 상태 전환을 수정했다. `지도로 듣는 이야기`의 지역 오류는 전역 안내와 분리해 섹션 내 재시도로 표시하고, 오류나 최종 빈 결과를 무한 스켈레톤으로 표시하지 않도록 개선했다.
-- FE #276: 브라우저 API 호출, Next.js rewrite, 인증 점검 스크립트와 GitHub Actions가 `NEXT_PUBLIC_API_URL` 하나만 사용하도록 환경변수 계약을 통합하고 로컬 스테이징·Vercel Production 전환 안내서를 추가했다.
+- FE #276: 브라우저 API 호출, 인증 점검 스크립트와 GitHub Actions가 `NEXT_PUBLIC_API_URL`을 사용하도록 환경변수 계약을 통합하고, Next.js rewrite는 `/api/proxy` self-loop를 피하기 위한 전용 내부 upstream 키를 사용하도록 범위를 제한했다.
 - 온이(Oni) 캐릭터 라이트 모드 백화(Ghosting) 현상 수정: 밝은 배경(`#ffffff`, `#f8f8f7`)에서 `mix-blend-mode: screen;` 적용 시 픽셀이 완전히 하얗게 날아가던 문제를 해결하기 위해 다크 모드(`[data-theme='dark']`) 환경에서만 screen 블렌딩이 활성화되도록 분기 처리했다.
 - 전역 네비게이션 및 메뉴바 용어 표준화:
   - 지도 네비게이션 레일(`MapNavRail.tsx`) 및 관련 UI의 난해한 고어 표기 '수결첩'을 대중적이고 명확한 '도장첩'으로 개선했다.

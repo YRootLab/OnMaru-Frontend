@@ -1,15 +1,13 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+vi.mock('@/features/hanok-archive/infrastructure/screenHanokSource', () => ({
+  fetchBackendScreenHanoks: vi.fn().mockRejectedValue(new Error('backend unavailable')),
+  saveScreenHanokPlace: vi.fn(),
+  unsaveScreenHanokPlace: vi.fn(),
+}));
 import { screenHanokService } from './screenHanok.service';
 
 describe('screenHanokService (Issue #103)', () => {
-  beforeEach(() => {
-    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('backend unavailable')));
-  });
-
-  afterEach(() => {
-    vi.unstubAllGlobals();
-  });
-
   it('returns screen hanok items including fallback when backend is unreachable', async () => {
     const items = await screenHanokService.getScreenHanoks();
     expect(items.length).toBeGreaterThan(0);

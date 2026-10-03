@@ -1,17 +1,19 @@
 'use client';
 
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
+import { isOnmaruApiError } from '@/lib/api/errors';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { AlertCircleIcon, ChevronLeftIcon, ListIcon, RotateCcwIcon } from '@hugeicons/core-free-icons'
 import { meok, surface, fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { listInfoPlaces } from '@/features/map/services/infoMap.service';
+import { mapInfoPlaceToItem } from '@/features/map/services/infoMarker.service';
 import { PlaceListItem } from './PlaceListItem';
 import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
 import { MAP_INFO_CATEGORY_LABELS as CATEGORY_LABELS } from '@/features/map/types';
-import type { InfoPlaceItem, Item } from '@/features/map/types';
+import type { Item } from '@/features/map/types';
 
 const shimmer = keyframes`
   0% { background-position: -200% 0; }
@@ -82,6 +84,27 @@ const LoadingMore = styled.div`
   color: ${meok[400]};
 `;
 
+const InlineError = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 14px 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f5f5f4;
+  color: ${meok[700]};
+  font-size: ${fontSize.xs};
+
+  & > span {
+    flex: 1;
+  }
+
+  [data-theme='dark'] & {
+    background: rgba(255, 255, 255, 0.06);
+    color: ${meok[200]};
+  }
+`;
+
 const SkeletonWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -101,6 +124,11 @@ const SkeletonThumb = styled.div`
   background-size: 200% 100%;
   animation: ${shimmer} 1.6s ease-in-out infinite;
   flex-shrink: 0;
+
+  @media (max-width: 1023px) {
+    width: 80px;
+    height: 80px;
+  }
 `;
 const SkeletonContent = styled.div`
   display: flex;
@@ -147,21 +175,6 @@ const RetryBtn = styled.button`
   margin-top: 4px;
 `;
 
-function toItem(p: InfoPlaceItem): Item {
-  return {
-    id: p.placeId,
-    name: p.name,
-    category: (p.category?.toLowerCase() ?? 'spot') as Item['category'],
-    lat: p.coordinates.lat,
-    lng: p.coordinates.lng,
-    addr: p.region?.name ?? '',
-    image: p.thumbnailUrl,
-    tel: null,
-    dist: null,
-    savedByMe: p.savedByMe,
-  };
-}
-
 export default function InfoPlaceList() {
   const infoCategory = useMapStore((s) => s.infoCategory);
   const infoRegionCode = useMapStore((s) => s.infoRegionCode);
@@ -176,17 +189,33 @@ export default function InfoPlaceList() {
   const setHoveredId = useMapStore((s) => s.setHoveredId);
   const infoRegionName = useMapStore((s) => s.infoRegionName);
   const setInfoRegionCode = useMapStore((s) => s.setInfoRegionCode);
-  const reload = useMapStore((s) => s.reload);
+  const retryInfoList = useMapStore((s) => s.retryInfoList);
 
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadingMoreRef = useRef(false);
+  const nextPageControllerRef = useRef<AbortController | null>(null);
+  const cursorRecoveryScopeRef = useRef<string>('');
+
+  useEffect(() => {
+    cursorRecoveryScopeRef.current = '';
+  }, [infoCategory, infoRegionCode]);
+
+  const handleRetry = () => {
+    cursorRecoveryScopeRef.current = '';
+    retryInfoList();
+  };
 
   // Callback ref: sets up the IntersectionObserver when the sentinel element mounts,
   // so it works even when the sentinel first renders after listItems arrive.
   const sentinelRef = useCallback((el: HTMLDivElement | null) => {
     observerRef.current?.disconnect();
     observerRef.current = null;
-    if (!el) return;
+    if (!el) {
+      nextPageControllerRef.current?.abort();
+      nextPageControllerRef.current = null;
+      loadingMoreRef.current = false;
+      return;
+    }
 
     observerRef.current = new IntersectionObserver(
       (entries) => {
@@ -196,10 +225,13 @@ export default function InfoPlaceList() {
         if (!cursor || loading) return;
 
         loadingMoreRef.current = true;
+        nextPageControllerRef.current?.abort();
         const ctrl = new AbortController();
+        nextPageControllerRef.current = ctrl;
         const store = useMapStore.getState();
         const requestCategory = store.infoCategory;
         const requestRegionCode = store.infoRegionCode;
+        const requestSnapshotId = store.listSnapshotId;
         store.setIsListLoading(true);
 
         listInfoPlaces({
@@ -211,16 +243,33 @@ export default function InfoPlaceList() {
           .then((page) => {
             const s = useMapStore.getState();
             if (s.infoCategory !== requestCategory || s.infoRegionCode !== requestRegionCode) return;
+            if (s.listSnapshotId !== requestSnapshotId || page.snapshot.id !== requestSnapshotId) return;
             if (page.nextCursor === cursor) return; // guard: cursor not advancing
             s.appendListItems(page.items, page.nextCursor);
           })
           .catch((err: unknown) => {
-            if (err instanceof DOMException && err.name === 'AbortError') return;
+            if (ctrl.signal.aborted || (err instanceof DOMException && err.name === 'AbortError')) return;
+            if (isOnmaruApiError(err) && err.code === 'SNAPSHOT_EXPIRED') {
+              const recoveryScope = `${requestCategory}__${requestRegionCode ?? ''}`;
+              if (cursorRecoveryScopeRef.current === recoveryScope) {
+                store.setListError('목록 기준이 만료됐어요. 다시 시도해 주세요');
+                return;
+              }
+              cursorRecoveryScopeRef.current = recoveryScope;
+              store.setIsListLoading(false);
+              loadingMoreRef.current = false;
+              store.setListItems([], 0, null, null);
+              store.retryInfoList();
+              return;
+            }
             store.setListError('추가 목록을 불러오지 못했어요');
           })
           .finally(() => {
-            store.setIsListLoading(false);
-            loadingMoreRef.current = false;
+            if (nextPageControllerRef.current === ctrl) {
+              nextPageControllerRef.current = null;
+              store.setIsListLoading(false);
+              loadingMoreRef.current = false;
+            }
           });
       },
       { rootMargin: '120px' },
@@ -281,13 +330,13 @@ export default function InfoPlaceList() {
             </SkeletonItem>
           ))}
         </SkeletonWrapper>
-      ) : listError ? (
+      ) : listError && listItems.length === 0 ? (
         <OniSearchEmpty
           size="md"
           title="정보를 가져오지 못했어요"
           description={listError}
           action={
-            <RetryBtn type="button" onClick={reload}>
+            <RetryBtn type="button" onClick={handleRetry}>
               <HugeiconsIcon icon={RotateCcwIcon} size={14} strokeWidth={2} />
               다시 시도
             </RetryBtn>
@@ -312,9 +361,19 @@ export default function InfoPlaceList() {
         />
       ) : (
         <>
+          {listError && (
+            <InlineError role="status">
+              <HugeiconsIcon icon={AlertCircleIcon} size={15} strokeWidth={2} />
+              <span>{listError}</span>
+              <RetryBtn type="button" onClick={handleRetry} aria-label="다시 시도">
+                <HugeiconsIcon icon={RotateCcwIcon} size={14} strokeWidth={2} />
+                다시 시도
+              </RetryBtn>
+            </InlineError>
+          )}
           <ListContainer role="list">
             {listItems.map((p, idx) => {
-              const item = toItem(p);
+              const item = mapInfoPlaceToItem(p);
               return (
                 <PlaceListItem
                   key={p.placeId}

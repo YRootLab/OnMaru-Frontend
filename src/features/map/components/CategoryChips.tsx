@@ -261,6 +261,8 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
   const mode = useMapStore((s) => s.mode);
   const category = useMapStore((s) => s.category);
   const setCategory = useMapStore((s) => s.setCategory);
+  const infoCategory = useMapStore((s) => s.infoCategory);
+  const setInfoCategory = useMapStore((s) => s.setInfoCategory);
   const setSearchQuery = useMapStore((s) => s.setSearchQuery);
 
   const items = CATEGORIES[mode];
@@ -268,13 +270,26 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
 
   const isItemActive = useCallback(
     (item: CategoryItem) => {
+      if (mode === 'info') return infoCategory === item.id;
       if (item.id === 'all') return !category || category === 'all';
       return category === item.id;
     },
-    [category]
+    [category, infoCategory, mode]
   );
 
   const handleChipClick = (item: CategoryItem) => {
+    if (mode === 'info') {
+      const nextCategory = item.id === 'all' || infoCategory === item.id
+        ? 'all'
+        : item.id as MapInfoCategory;
+      setInfoCategory(nextCategory);
+      setSearchQuery(nextCategory === 'all' ? '' : item.keyword);
+      if (!useMapStore.getState().panelOpen) {
+        useMapStore.getState().setPanelOpen(true);
+      }
+      return;
+    }
+
     const isDeselect = item.id === 'all' || category === item.id;
     if (isDeselect) {
       setCategory(null);
@@ -284,10 +299,6 @@ export default function CategoryChips({ align = 'start' }: CategoryChipsProps) {
       setCategory(item.id);
       if (!useMapStore.getState().panelOpen) {
         useMapStore.getState().setPanelOpen(true);
-      }
-      // 검색창에 키워드 표시만 (Places API 검색 없음 — 카테고리 키워드는 장소명이 아님)
-      if (mode === 'info' && item.keyword) {
-        setSearchQuery(item.keyword);
       }
     }
   };

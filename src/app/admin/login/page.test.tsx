@@ -11,10 +11,7 @@ vi.mock('next/navigation', () => ({ useRouter: () => ({ push }) }));
 vi.mock('@/features/admin/hooks/useAdminAuth', () => ({ useAdminAuth: () => ({ login }) }));
 
 describe('AdminLoginPage', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    vi.stubEnv('NODE_ENV', 'production');
-  });
+  beforeEach(() => vi.clearAllMocks());
   afterEach(() => {
     cleanup();
     vi.unstubAllEnvs();
@@ -49,8 +46,16 @@ describe('AdminLoginPage', () => {
   });
 
   it('does not render development quick-login controls outside development mode', () => {
+    vi.stubEnv('NODE_ENV', 'production');
     render(<AdminLoginPage />);
     expect(screen.queryByRole('button', { name: 'ADMIN으로 로그인' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'EDITOR로 로그인' })).toBeNull();
+  });
+
+  it('renders quick-login controls only in development mode', () => {
+    vi.stubEnv('NODE_ENV', 'development');
+    render(<AdminLoginPage />);
+    expect(screen.getByRole('button', { name: 'ADMIN으로 로그인' })).toBeDefined();
+    expect(screen.getByRole('button', { name: 'EDITOR로 로그인' })).toBeDefined();
   });
 });

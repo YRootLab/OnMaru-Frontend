@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { isOnmaruApiError } from '@/lib/api/errors';
 import { useMapStore } from './useMapStore';
 import { listInfoPlaces, loadMapViewport } from '@/features/map/services/infoMap.service';
 import type { KakaoMap, ViewportRenderMode } from '@/features/map/types';
@@ -62,24 +63,27 @@ function isInsideServedBbox(map: KakaoMap, servedBbox: string): boolean {
   return withinLat && withinLng;
 }
 
-export function useInfoMapData() {
+export function useInfoMapData(enabled = true) {
   const map = useMapStore((s) => s.map);
   const mode = useMapStore((s) => s.mode);
   const infoCategory = useMapStore((s) => s.infoCategory);
   const infoRegionCode = useMapStore((s) => s.infoRegionCode);
-  const level = useMapStore((s) => s.level);
-  const center = useMapStore((s) => s.center);
-  const reloadNonce = useMapStore((s) => s.reloadNonce);
+  const committedViewport = useMapStore((s) => s.committedViewport);
+  const infoListReloadNonce = useMapStore((s) => s.infoListReloadNonce);
+  const infoViewportReloadNonce = useMapStore((s) => s.infoViewportReloadNonce);
 
   // Track last issued viewport request key to dedupe cluster click + idle
   const lastViewportKeyRef = useRef<string>('');
-  const lastReloadNonceRef = useRef(reloadNonce);
+  const lastViewportScopeRef = useRef<string>('');
+  const listSnapshotRecoveryScopeRef = useRef<string>('');
+  const viewportSnapshotRecoveryScopeRef = useRef<string>('');
+  const lastViewportReloadNonceRef = useRef(infoViewportReloadNonce);
   const viewportControllerRef = useRef<AbortController | null>(null);
   const viewportTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // ── Places list ────────────────────────────────────────────────────────────
   useEffect(() => {
-    if (mode !== 'info') return;
+    if (!enabled || mode !== 'info') return;
 
     const ctrl = new AbortController();
     const store = useMapStore.getState();
@@ -93,6 +97,7 @@ export function useInfoMapData() {
     })
       .then((page) => {
         if (ctrl.signal.aborted) return;
+        listSnapshotRecoveryScopeRef.current = '';
         const regionName = page.items[0]?.region?.name;
         if (infoRegionCode && regionName && !useMapStore.getState().infoRegionName) {
           store.setInfoRegionCode(infoRegionCode, regionName);
@@ -101,6 +106,25 @@ export function useInfoMapData() {
       })
       .catch((err: unknown) => {
         if (ctrl.signal.aborted || (err instanceof DOMException && err.name === 'AbortError')) return;
+        if (isOnmaruApiError(err) && err.code === 'SNAPSHOT_EXPIRED') {
+          const recoveryScope = `${infoCategory}__${infoRegionCode ?? ''}`;
+          if (listSnapshotRecoveryScopeRef.current === recoveryScope) {
+            store.setListError('목록 기준이 만료됐어요. 다시 시도해 주세요');
+            return;
+          }
+          listSnapshotRecoveryScopeRef.current = recoveryScope;
+          store.setListItems([], 0, null, null);
+          store.retryInfoList();
+          return;
+        }
+        if (isOnmaruApiError(err) && err.code === 'INVALID_REQUEST') {
+          store.setListError('목록 요청 조건을 확인해 주세요');
+          return;
+        }
+        if (isOnmaruApiError(err) && err.status === 503) {
+          store.setListError('목록 서비스 연결이 원활하지 않아요. 다시 시도해 주세요');
+          return;
+        }
         store.setListError('장소 목록을 불러오지 못했어요');
       })
       .finally(() => {
@@ -110,40 +134,41 @@ export function useInfoMapData() {
       });
 
     return () => ctrl.abort();
-  }, [mode, infoCategory, infoRegionCode, reloadNonce]);
+  }, [enabled, mode, infoCategory, infoRegionCode, infoListReloadNonce]);
 
   // ── Viewport ───────────────────────────────────────────────────────────────
   useEffect(() => {
-    if (mode !== 'info' || !map) return;
+    if (!enabled || mode !== 'info' || !map) return;
 
-    // reloadNonce forces a fresh fetch even if bbox/bucket didn't change
-    if (lastReloadNonceRef.current !== reloadNonce) {
-      lastReloadNonceRef.current = reloadNonce;
+    // Explicit viewport retry forces a fresh fetch even if bbox/bucket didn't change.
+    if (lastViewportReloadNonceRef.current !== infoViewportReloadNonce) {
+      lastViewportReloadNonceRef.current = infoViewportReloadNonce;
       lastViewportKeyRef.current = '';
+      lastViewportScopeRef.current = '';
     }
 
     const store = useMapStore.getState();
-    const bucket = renderBucket(level);
+    const bucket = renderBucket(committedViewport.level);
     const currentServedBbox = store.servedBbox;
     const currentSnapshotId = store.viewportSnapshotId;
 
     const cacheKey = `${currentSnapshotId}__${infoCategory}__${infoRegionCode ?? ''}__${bucket}`;
-    const isSameBucket = cacheKey === lastViewportKeyRef.current;
+    const isSameBucket = cacheKey === lastViewportScopeRef.current;
 
     // Skip if viewport is still inside servedBbox with same bucket
     if (isSameBucket && currentServedBbox && isInsideServedBbox(map, currentServedBbox)) {
       return;
     }
 
+    const committedBbox = getBboxFromMap(map);
+    if (!committedBbox) return;
+
     // Clear previous pending request
     if (viewportTimerRef.current) clearTimeout(viewportTimerRef.current);
     viewportControllerRef.current?.abort();
 
     viewportTimerRef.current = setTimeout(() => {
-      const bbox = getBboxFromMap(map);
-      if (!bbox) return;
-
-      const requestKey = `${bbox}__${infoCategory}__${infoRegionCode ?? ''}__${bucket}`;
+      const requestKey = `${committedBbox}__${infoCategory}__${infoRegionCode ?? ''}__${bucket}`;
       if (requestKey === lastViewportKeyRef.current) return;
       lastViewportKeyRef.current = requestKey;
 
@@ -154,19 +179,42 @@ export function useInfoMapData() {
       store.setViewportError(null);
 
       loadMapViewport({
-        bbox,
-        zoomLevel: level,
+        bbox: committedBbox,
+        zoomLevel: committedViewport.level,
         category: infoCategory.toUpperCase(),
         ...(infoRegionCode ? { regionCode: infoRegionCode } : {}),
         signal: ctrl.signal,
       })
         .then((res) => {
           if (ctrl.signal.aborted) return;
+          viewportSnapshotRecoveryScopeRef.current = '';
           store.setViewportResponse(res);
+          lastViewportScopeRef.current = `${res.snapshotId}__${infoCategory}__${infoRegionCode ?? ''}__${bucket}`;
         })
         .catch((err: unknown) => {
           if (ctrl.signal.aborted || (err instanceof DOMException && err.name === 'AbortError')) return;
           lastViewportKeyRef.current = '';
+          lastViewportScopeRef.current = '';
+          if (isOnmaruApiError(err) && err.code === 'SNAPSHOT_EXPIRED') {
+            const recoveryScope = `${infoCategory}__${infoRegionCode ?? ''}`;
+            if (viewportSnapshotRecoveryScopeRef.current === recoveryScope) {
+              store.setViewportError('지도 기준이 만료됐어요. 다시 시도해 주세요');
+              return;
+            }
+            viewportSnapshotRecoveryScopeRef.current = recoveryScope;
+            store.setListItems([], 0, null, null);
+            store.retryInfoList();
+            store.retryInfoViewport();
+            return;
+          }
+          if (isOnmaruApiError(err) && err.code === 'INVALID_REQUEST') {
+            store.setViewportError('지도 요청 조건을 확인해 주세요');
+            return;
+          }
+          if (isOnmaruApiError(err) && err.status === 503) {
+            store.setViewportError('지도 서비스 연결이 원활하지 않아요. 다시 시도해 주세요');
+            return;
+          }
           store.setViewportError('지도 데이터를 불러오지 못했어요');
         })
         .finally(() => {
@@ -180,5 +228,16 @@ export function useInfoMapData() {
       if (viewportTimerRef.current) clearTimeout(viewportTimerRef.current);
       viewportControllerRef.current?.abort();
     };
-  }, [map, mode, infoCategory, infoRegionCode, level, center.lat, center.lng, reloadNonce]);
+  }, [
+    enabled,
+    map,
+    mode,
+    infoCategory,
+    infoRegionCode,
+    committedViewport.center.lat,
+    committedViewport.center.lng,
+    committedViewport.level,
+    committedViewport.radius,
+    infoViewportReloadNonce,
+  ]);
 }
