@@ -69,7 +69,7 @@
 - 운영 제한: BE staging에서 `category=HANOK`과 첫 `nextCursor`의 두 번째 page가 200으로 검증되기 전에는 merge·운영 배포하지 않는다. 사용자의 2026-10-04 명시적 요청에 따라 FE 코드리뷰용 PR은 먼저 생성한다.
 - 2026-10-03 실 API 재검증: staging `https://staging-api.onmaru.site`는 `/`, `/v3/api-docs`, info places·viewport 모두 nginx 503을 반환했다. 운영 `https://api.onmaru.site`도 `category=HANOK` list는 400 `INVALID_REQUEST`(`field=query`), viewport는 400 `INVALID_REQUEST`(`field=category`)를 반환했다. 따라서 HANOK 및 두 번째 cursor page 준비 조건은 미충족이다. 관련 BE Issue #553·#566도 open 상태다.
 - 검증: 최신 `origin/develop` 병합 후 지도 관련 Vitest 10 files/34 tests, `npx tsc --noEmit`, 대상 ESLint가 통과했다. 앞선 production build와 로컬 Chrome fixture 스모크에서는 한옥→숙소 전환 시 URL·칩·검색 문구·`totalCount` 헤더가 함께 바뀌고 dev 로그에 `/api/map/places` 요청이 없음을 확인했다.
-- 최신 develop 기준선: 전체 Vitest는 130 files/593 tests가 통과하고 3 files/3 tests가 실패한다. 실패 파일(`next.config.ts` 환경변수 계약, 관리자 로그인 quick-login 노출, screenHanok fallback timeout)은 이 브랜치에서 수정하지 않았으며 `origin/develop`과 동일하고 개별 재실행에서도 재현된다. 보호 브랜치 PR 게이트 처리 전에 별도 수정 또는 기준선 판단이 필요하다.
+- 최신 develop 기준선 정리: 관리자 quick-login 테스트에 production/development 환경을 명시했고, screenHanok fallback 테스트의 실 staging 호출을 즉시 실패하는 fake로 교체했다. `/api/proxy` self-loop 방지용 `NEXT_PUBLIC_API_URL_INTERNAL`은 `next.config.ts`에서만 허용하도록 환경변수 계약을 갱신했다. 전체 Vitest 133 files/597 tests, TypeScript, 대상 ESLint, `NEXT_PUBLIC_API_URL='' npm run build`가 통과했다.
 
 # Issue #297 — 관리자 목록 `totalCount` 커서 페이지네이션 (2026-10-03)
 
