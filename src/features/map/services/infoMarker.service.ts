@@ -1,4 +1,10 @@
-import type { Item, PlaceCategory, ViewportItem, ViewportRenderMode } from '../types';
+import type {
+  InfoPlaceItem,
+  Item,
+  PlaceCategory,
+  ViewportItem,
+  ViewportRenderMode,
+} from '../types';
 
 export function mapInfoCategoryToPlaceCategory(category?: string): PlaceCategory {
   const normalized = category?.toUpperCase() ?? '';
@@ -10,6 +16,21 @@ export function mapInfoCategoryToPlaceCategory(category?: string): PlaceCategory
   if (normalized.includes('FESTIVAL')) return 'festival';
   if (normalized.includes('CULTURE') || normalized.includes('HISTORIC')) return 'culture';
   return 'spot';
+}
+
+export function mapInfoPlaceToItem(place: InfoPlaceItem): Item {
+  return {
+    id: place.placeId,
+    name: place.name,
+    category: mapInfoCategoryToPlaceCategory(place.category),
+    lat: place.coordinates.lat,
+    lng: place.coordinates.lng,
+    addr: place.region?.name ?? '',
+    image: place.thumbnailUrl,
+    tel: null,
+    dist: null,
+    savedByMe: place.savedByMe,
+  };
 }
 
 export function selectInfoMarkerItems(

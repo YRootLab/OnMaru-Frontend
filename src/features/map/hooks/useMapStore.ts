@@ -86,6 +86,7 @@ interface MapState {
   listSnapshotId: string | null;
   isListLoading: boolean;
   listError: string | null;
+  infoListReloadNonce: number;
 
   // ── Info viewport state ──────────────────────────────────────────────────
   viewportItems: ViewportItem[];
@@ -94,6 +95,7 @@ interface MapState {
   servedBbox: string | null;
   isViewportLoading: boolean;
   viewportError: string | null;
+  infoViewportReloadNonce: number;
 
   setInfoCategory: (category: MapInfoCategory) => void;
   setInfoRegionCode: (regionCode: string | null, regionName?: string | null) => void;
@@ -101,9 +103,11 @@ interface MapState {
   appendListItems: (items: InfoPlaceItem[], nextCursor: string | null) => void;
   setIsListLoading: (loading: boolean) => void;
   setListError: (error: string | null) => void;
+  retryInfoList: () => void;
   setViewportResponse: (res: MapViewportResponse) => void;
   setIsViewportLoading: (loading: boolean) => void;
   setViewportError: (error: string | null) => void;
+  retryInfoViewport: () => void;
 
   setMap: (map: KakaoMap | null) => void;
   setMode: (mode: MapMode) => void;
@@ -153,6 +157,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   listSnapshotId: null,
   isListLoading: false,
   listError: null,
+  infoListReloadNonce: 0,
 
   // ── Info viewport ──────────────────────────────────────────────────────────
   viewportItems: [],
@@ -161,6 +166,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   servedBbox: null,
   isViewportLoading: false,
   viewportError: null,
+  infoViewportReloadNonce: 0,
 
   setInfoCategory: (infoCategory) =>
     set({
@@ -197,6 +203,10 @@ export const useMapStore = create<MapState>((set, get) => ({
     }),
   setIsListLoading: (isListLoading) => set({ isListLoading }),
   setListError: (listError) => set({ listError }),
+  retryInfoList: () => set((state) => ({
+    listError: null,
+    infoListReloadNonce: state.infoListReloadNonce + 1,
+  })),
   setViewportResponse: (res) =>
     set({
       viewportItems: res.items,
@@ -206,6 +216,10 @@ export const useMapStore = create<MapState>((set, get) => ({
     }),
   setIsViewportLoading: (isViewportLoading) => set({ isViewportLoading }),
   setViewportError: (viewportError) => set({ viewportError }),
+  retryInfoViewport: () => set((state) => ({
+    viewportError: null,
+    infoViewportReloadNonce: state.infoViewportReloadNonce + 1,
+  })),
 
   map: null,
   mode: 'info',

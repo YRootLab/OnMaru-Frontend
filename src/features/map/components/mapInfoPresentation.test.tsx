@@ -14,6 +14,7 @@ vi.mock('@/private/core-ui/map-warmth/PopularPlacesPanel', () => ({ default: () 
 
 import BottomSheet from './BottomSheet';
 import ListPanel from './ListPanel';
+import ViewportOverlays from './ViewportOverlays';
 
 describe('map information list presentation', () => {
   beforeEach(() => {
@@ -40,5 +41,17 @@ describe('map information list presentation', () => {
 
     expect(screen.getByText('정보 목록 소스')).toBeTruthy();
     expect(screen.queryByText('legacy 목록 소스')).toBeNull();
+  });
+
+  it('shows a retry action when only the viewport request fails', () => {
+    useMapStore.setState({
+      viewportError: '지도 서비스 연결이 원활하지 않아요. 다시 시도해 주세요',
+      viewportItems: [],
+    });
+
+    render(<ViewportOverlays />);
+
+    expect(screen.getByRole('status').textContent).toContain('지도 서비스 연결이 원활하지 않아요');
+    expect(screen.getByRole('button', { name: '지도 다시 시도' })).toBeTruthy();
   });
 });

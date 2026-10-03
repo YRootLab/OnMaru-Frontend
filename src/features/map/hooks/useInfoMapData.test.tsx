@@ -136,6 +136,25 @@ describe('useInfoMapData', () => {
     expect(useMapStore.getState().listError).toBe('목록 기준이 만료됐어요. 다시 시도해 주세요');
   });
 
+  it('stops viewport snapshot recovery after one automatic retry', async () => {
+    loadMapViewport.mockRejectedValue({
+      status: 409,
+      code: 'SNAPSHOT_EXPIRED',
+      message: 'expired',
+    });
+
+    renderHook(() => useInfoMapData());
+    await act(() => vi.advanceTimersByTimeAsync(700));
+    await act(async () => Promise.resolve());
+    await act(() => vi.advanceTimersByTimeAsync(700));
+    await act(async () => Promise.resolve());
+
+    expect(loadMapViewport).toHaveBeenCalledTimes(2);
+    expect(useMapStore.getState().viewportError).toBe(
+      '지도 기준이 만료됐어요. 다시 시도해 주세요',
+    );
+  });
+
   it('keeps viewport data and skips a new request for a small pan inside servedBbox', async () => {
     const map = useMapStore.getState().map as ReturnType<typeof createMap>;
     renderHook(() => useInfoMapData());
@@ -149,5 +168,31 @@ describe('useInfoMapData', () => {
 
     expect(loadMapViewport).toHaveBeenCalledTimes(1);
     expect(useMapStore.getState().viewportRenderMode).toBe('DISTRICT');
+  });
+
+  it('waits for the committed viewport before requesting after a transient pan', async () => {
+    const map = useMapStore.getState().map as ReturnType<typeof createMap>;
+    renderHook(() => useInfoMapData());
+    await act(() => vi.advanceTimersByTimeAsync(700));
+    await act(async () => Promise.resolve());
+    expect(loadMapViewport).toHaveBeenCalledTimes(1);
+    expect(listInfoPlaces).toHaveBeenCalledTimes(1);
+
+    map.setBounds({ west: 129, south: 32, east: 131, north: 34 });
+    act(() => useMapStore.getState().setCenter({ lat: 33, lng: 130 }, 7));
+    await act(() => vi.advanceTimersByTimeAsync(1_000));
+
+    expect(loadMapViewport).toHaveBeenCalledTimes(1);
+    expect(listInfoPlaces).toHaveBeenCalledTimes(1);
+
+    act(() => useMapStore.getState().commitViewportSearch({
+      center: { lat: 33, lng: 130 },
+      level: 7,
+      radius: 3_000,
+    }));
+    await act(() => vi.advanceTimersByTimeAsync(700));
+
+    expect(loadMapViewport).toHaveBeenCalledTimes(2);
+    expect(listInfoPlaces).toHaveBeenCalledTimes(1);
   });
 });

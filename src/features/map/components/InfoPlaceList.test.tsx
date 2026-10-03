@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { act, cleanup, render, screen } from '@testing-library/react';
+import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { InfoPlaceItem } from '../types';
 import { useMapStore } from '../hooks/useMapStore';
@@ -120,6 +120,46 @@ describe('InfoPlaceList', () => {
     view.unmount();
 
     expect(signal.aborted).toBe(true);
+  });
+
+  it('limits automatic cursor snapshot recovery to one restart', async () => {
+    listInfoPlaces.mockRejectedValue({
+      status: 409,
+      code: 'SNAPSHOT_EXPIRED',
+      message: 'expired',
+    });
+    useMapStore.setState({ listNextCursor: 'cursor-1' });
+    render(<InfoPlaceList />);
+
+    await act(async () => {
+      observerCallback?.(
+        [{ isIntersecting: true } as IntersectionObserverEntry],
+        {} as IntersectionObserver,
+      );
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    await waitFor(() => expect(useMapStore.getState().isListLoading).toBe(false));
+    const firstRecoveryNonce = useMapStore.getState().infoListReloadNonce;
+
+    await act(async () => {
+      useMapStore.getState().setListItems([item], 1, 'cursor-2', 'snap-2');
+      await Promise.resolve();
+    });
+    await waitFor(() => expect(observerCallback).not.toBeNull());
+    await act(async () => {
+      observerCallback?.(
+        [{ isIntersecting: true } as IntersectionObserverEntry],
+        {} as IntersectionObserver,
+      );
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    await waitFor(() => expect(listInfoPlaces).toHaveBeenCalledTimes(2));
+
+    expect(firstRecoveryNonce).toBe(1);
+    expect(useMapStore.getState().infoListReloadNonce).toBe(1);
+    expect(useMapStore.getState().listError).toBe('목록 기준이 만료됐어요. 다시 시도해 주세요');
   });
 });
 

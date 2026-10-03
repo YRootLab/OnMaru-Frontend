@@ -3,7 +3,7 @@
 Lightweight human-readable summary of meaningful repository changes. This does not replace Git history.
 
 ## Unreleased
-- 지도 정보모드를 cursor 기반 `/api/v1/map/info/places`와 zoom-aware `/api/v1/map/info/viewport`에 다시 연결했다. 데스크톱·모바일 목록을 `InfoPlaceList`로 통일하고, `totalCount`·중복 없는 cursor append·stale snapshot/abort·409 1회 복구·503 기존 데이터 유지·servedBbox 요청 생략을 보강했다. 정보모드에서는 legacy `/api/map/places`와 TourAPI 직접 조회를 차단하며, `HANOK`을 list와 viewport에 같은 서버 category로 전달한다. REGION·DISTRICT·CLUSTER는 서버 aggregate overlay만, PLACE는 canonical `placeId` marker만 렌더링한다.
+- 지도 정보모드를 cursor 기반 `/api/v1/map/info/places`와 zoom-aware `/api/v1/map/info/viewport`에 다시 연결했다. 데스크톱·모바일 목록을 `InfoPlaceList`로 통일하고, `totalCount`·중복 없는 cursor append·stale snapshot/abort·409 1회 복구·503 기존 데이터 유지·servedBbox 요청 생략을 보강했다. 정보모드에서는 legacy `/api/map/places`와 TourAPI 직접 조회를 차단하고 상세도 canonical `/api/v1/places/{placeId}`를 사용하며, `HANOK`을 list와 viewport에 같은 서버 category로 전달한다. REGION·DISTRICT·CLUSTER는 서버 aggregate overlay만, PLACE는 canonical `placeId` marker만 렌더링한다. viewport는 확정된 지도 상태에서만 갱신하고 단독 오류에는 기존 오버레이를 유지한 재시도 안내를 표시한다.
 - 최신 develop 병합 후 관리자 빠른 로그인 테스트가 production/development 환경을 명시하도록 교정하고, 한옥 fallback 테스트가 실 staging 재시도 대신 결정적 장애 fake를 사용하도록 격리했다. 브라우저 API 기준은 `NEXT_PUBLIC_API_URL`로 유지하되 `/api/proxy`의 내부 upstream 키는 `next.config.ts`에만 허용하도록 환경변수 계약을 갱신했다.
 - FE #293: 관리자 로그인 뒤 refresh 요청에 동적 CSRF header와 HttpOnly cookie credential을 포함하고, 동시 세션 복구를 하나의 Promise로 합쳤다. 로그인 401과 로그인 후 세션 복구 실패 메시지를 분리했으며 production 관리자 로그인 화면에서 개발용 원클릭 계정을 제거했다.
 - 소리마루 주변 이야기와 아카이브 카드의 작은 글자를 한 단계 키우고 긴 제목을 최대 두 줄로 표시했다. 위치 기반 전국 큐레이션 안내는 핵심 조건과 대체 콘텐츠만 주황색으로 강조하고 카드 스켈레톤 높이를 실제 레이아웃과 맞췄다.

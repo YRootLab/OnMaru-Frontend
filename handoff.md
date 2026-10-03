@@ -65,11 +65,11 @@
 
 - 완료: Issue #246 / PR #250에서 구현했던 `/api/v1/map/info/places`·`/api/v1/map/info/viewport` 경계를 현재 UI 위에 재연결했다.
 - 확인한 회귀: `4b0c770`에서 연결된 `useInfoMapData`, `ViewportOverlays`, `InfoPlaceList`, viewport PLACE marker 경계가 `8468e52`에서 제거되어 `/api/map/places`로 돌아갔다.
-- 구현 결과: 현재 검색·카드·배너·온기 UI를 유지하면서 정보 칩/list/viewport/marker 데이터 경계만 복구했다. 기본 category는 `ALL`, 한옥은 단일 `HANOK`, 목록은 category·region 변경 시 초기화하고 cursor page는 `placeId` 중복 제거·snapshot scope·abort를 적용한다. 409 자동 복구는 1회로 제한하고 503은 기존 데이터를 유지한다.
+- 구현 결과: 현재 검색·카드·배너·온기 UI를 유지하면서 정보 칩/list/viewport/marker 데이터 경계를 복구했다. 기본 category는 `ALL`, 한옥은 단일 `HANOK`, 목록은 category·region 변경 시 초기화하고 cursor page는 `placeId` 중복 제거·snapshot scope·abort를 적용한다. 정보 상세는 canonical `/api/v1/places/{placeId}`를 사용하며 legacy TourAPI 상세 fan-out을 차단한다. viewport는 최신 develop의 committed viewport 정책을 따르고, 목록 cursor·viewport의 409 자동 복구를 각각 1회로 제한하며, viewport 단독 503에는 기존 오버레이를 유지한 재시도 UI를 제공한다.
 - 운영 제한: BE staging에서 `category=HANOK`과 첫 `nextCursor`의 두 번째 page가 200으로 검증되기 전에는 merge·운영 배포하지 않는다. 사용자의 2026-10-04 명시적 요청에 따라 FE 코드리뷰용 PR은 먼저 생성한다.
 - 2026-10-03 실 API 재검증: staging `https://staging-api.onmaru.site`는 `/`, `/v3/api-docs`, info places·viewport 모두 nginx 503을 반환했다. 운영 `https://api.onmaru.site`도 `category=HANOK` list는 400 `INVALID_REQUEST`(`field=query`), viewport는 400 `INVALID_REQUEST`(`field=category`)를 반환했다. 따라서 HANOK 및 두 번째 cursor page 준비 조건은 미충족이다. 관련 BE Issue #553·#566도 open 상태다.
 - 검증: 최신 `origin/develop` 병합 후 지도 관련 Vitest 10 files/34 tests, `npx tsc --noEmit`, 대상 ESLint가 통과했다. 앞선 production build와 로컬 Chrome fixture 스모크에서는 한옥→숙소 전환 시 URL·칩·검색 문구·`totalCount` 헤더가 함께 바뀌고 dev 로그에 `/api/map/places` 요청이 없음을 확인했다.
-- 최신 develop 기준선 정리: 관리자 quick-login 테스트에 production/development 환경을 명시했고, screenHanok fallback 테스트의 실 staging 호출을 즉시 실패하는 fake로 교체했다. `/api/proxy` self-loop 방지용 `NEXT_PUBLIC_API_URL_INTERNAL`은 `next.config.ts`에서만 허용하도록 환경변수 계약을 갱신했다. 전체 Vitest 133 files/597 tests, TypeScript, 대상 ESLint, `NEXT_PUBLIC_API_URL='' npm run build`가 통과했다.
+- 최신 develop 기준선 정리 및 최종 검증: 관리자 quick-login 테스트에 production/development 환경을 명시했고, screenHanok fallback 테스트의 실 staging 호출을 즉시 실패하는 fake로 교체했다. `/api/proxy` self-loop 방지용 `NEXT_PUBLIC_API_URL_INTERNAL`은 `next.config.ts`에서만 허용하도록 환경변수 계약을 갱신했다. 독립 코드리뷰의 상세·viewport·409·오류 UI 지적을 반영한 뒤 전체 Vitest 134 files/602 tests, TypeScript, 대상 ESLint, `NEXT_PUBLIC_API_URL='' npm run build`가 통과했다.
 
 # Issue #297 — 관리자 목록 `totalCount` 커서 페이지네이션 (2026-10-03)
 

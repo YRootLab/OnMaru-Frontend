@@ -68,15 +68,16 @@ export function useInfoMapData(enabled = true) {
   const mode = useMapStore((s) => s.mode);
   const infoCategory = useMapStore((s) => s.infoCategory);
   const infoRegionCode = useMapStore((s) => s.infoRegionCode);
-  const level = useMapStore((s) => s.level);
-  const center = useMapStore((s) => s.center);
-  const reloadNonce = useMapStore((s) => s.reloadNonce);
+  const committedViewport = useMapStore((s) => s.committedViewport);
+  const infoListReloadNonce = useMapStore((s) => s.infoListReloadNonce);
+  const infoViewportReloadNonce = useMapStore((s) => s.infoViewportReloadNonce);
 
   // Track last issued viewport request key to dedupe cluster click + idle
   const lastViewportKeyRef = useRef<string>('');
   const lastViewportScopeRef = useRef<string>('');
-  const snapshotRecoveryScopeRef = useRef<string>('');
-  const lastReloadNonceRef = useRef(reloadNonce);
+  const listSnapshotRecoveryScopeRef = useRef<string>('');
+  const viewportSnapshotRecoveryScopeRef = useRef<string>('');
+  const lastViewportReloadNonceRef = useRef(infoViewportReloadNonce);
   const viewportControllerRef = useRef<AbortController | null>(null);
   const viewportTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -96,7 +97,7 @@ export function useInfoMapData(enabled = true) {
     })
       .then((page) => {
         if (ctrl.signal.aborted) return;
-        snapshotRecoveryScopeRef.current = '';
+        listSnapshotRecoveryScopeRef.current = '';
         const regionName = page.items[0]?.region?.name;
         if (infoRegionCode && regionName && !useMapStore.getState().infoRegionName) {
           store.setInfoRegionCode(infoRegionCode, regionName);
@@ -107,13 +108,13 @@ export function useInfoMapData(enabled = true) {
         if (ctrl.signal.aborted || (err instanceof DOMException && err.name === 'AbortError')) return;
         if (isOnmaruApiError(err) && err.code === 'SNAPSHOT_EXPIRED') {
           const recoveryScope = `${infoCategory}__${infoRegionCode ?? ''}`;
-          if (snapshotRecoveryScopeRef.current === recoveryScope) {
+          if (listSnapshotRecoveryScopeRef.current === recoveryScope) {
             store.setListError('목록 기준이 만료됐어요. 다시 시도해 주세요');
             return;
           }
-          snapshotRecoveryScopeRef.current = recoveryScope;
+          listSnapshotRecoveryScopeRef.current = recoveryScope;
           store.setListItems([], 0, null, null);
-          store.reload();
+          store.retryInfoList();
           return;
         }
         if (isOnmaruApiError(err) && err.code === 'INVALID_REQUEST') {
@@ -133,21 +134,21 @@ export function useInfoMapData(enabled = true) {
       });
 
     return () => ctrl.abort();
-  }, [enabled, mode, infoCategory, infoRegionCode, reloadNonce]);
+  }, [enabled, mode, infoCategory, infoRegionCode, infoListReloadNonce]);
 
   // ── Viewport ───────────────────────────────────────────────────────────────
   useEffect(() => {
     if (!enabled || mode !== 'info' || !map) return;
 
-    // reloadNonce forces a fresh fetch even if bbox/bucket didn't change
-    if (lastReloadNonceRef.current !== reloadNonce) {
-      lastReloadNonceRef.current = reloadNonce;
+    // Explicit viewport retry forces a fresh fetch even if bbox/bucket didn't change.
+    if (lastViewportReloadNonceRef.current !== infoViewportReloadNonce) {
+      lastViewportReloadNonceRef.current = infoViewportReloadNonce;
       lastViewportKeyRef.current = '';
       lastViewportScopeRef.current = '';
     }
 
     const store = useMapStore.getState();
-    const bucket = renderBucket(level);
+    const bucket = renderBucket(committedViewport.level);
     const currentServedBbox = store.servedBbox;
     const currentSnapshotId = store.viewportSnapshotId;
 
@@ -179,13 +180,14 @@ export function useInfoMapData(enabled = true) {
 
       loadMapViewport({
         bbox,
-        zoomLevel: level,
+        zoomLevel: committedViewport.level,
         category: infoCategory.toUpperCase(),
         ...(infoRegionCode ? { regionCode: infoRegionCode } : {}),
         signal: ctrl.signal,
       })
         .then((res) => {
           if (ctrl.signal.aborted) return;
+          viewportSnapshotRecoveryScopeRef.current = '';
           store.setViewportResponse(res);
           lastViewportScopeRef.current = `${res.snapshotId}__${infoCategory}__${infoRegionCode ?? ''}__${bucket}`;
         })
@@ -195,13 +197,14 @@ export function useInfoMapData(enabled = true) {
           lastViewportScopeRef.current = '';
           if (isOnmaruApiError(err) && err.code === 'SNAPSHOT_EXPIRED') {
             const recoveryScope = `${infoCategory}__${infoRegionCode ?? ''}`;
-            if (snapshotRecoveryScopeRef.current === recoveryScope) {
+            if (viewportSnapshotRecoveryScopeRef.current === recoveryScope) {
               store.setViewportError('지도 기준이 만료됐어요. 다시 시도해 주세요');
               return;
             }
-            snapshotRecoveryScopeRef.current = recoveryScope;
+            viewportSnapshotRecoveryScopeRef.current = recoveryScope;
             store.setListItems([], 0, null, null);
-            store.reload();
+            store.retryInfoList();
+            store.retryInfoViewport();
             return;
           }
           if (isOnmaruApiError(err) && err.code === 'INVALID_REQUEST') {
@@ -225,5 +228,16 @@ export function useInfoMapData(enabled = true) {
       if (viewportTimerRef.current) clearTimeout(viewportTimerRef.current);
       viewportControllerRef.current?.abort();
     };
-  }, [enabled, map, mode, infoCategory, infoRegionCode, level, center.lat, center.lng, reloadNonce]);
+  }, [
+    enabled,
+    map,
+    mode,
+    infoCategory,
+    infoRegionCode,
+    committedViewport.center.lat,
+    committedViewport.center.lng,
+    committedViewport.level,
+    committedViewport.radius,
+    infoViewportReloadNonce,
+  ]);
 }

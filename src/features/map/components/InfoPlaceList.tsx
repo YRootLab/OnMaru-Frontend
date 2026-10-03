@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
 import { isOnmaruApiError } from '@/lib/api/errors';
@@ -9,11 +9,11 @@ import { AlertCircleIcon, ChevronLeftIcon, ListIcon, RotateCcwIcon } from '@huge
 import { meok, surface, fontSize } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { listInfoPlaces } from '@/features/map/services/infoMap.service';
-import { mapInfoCategoryToPlaceCategory } from '@/features/map/services/infoMarker.service';
+import { mapInfoPlaceToItem } from '@/features/map/services/infoMarker.service';
 import { PlaceListItem } from './PlaceListItem';
 import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
 import { MAP_INFO_CATEGORY_LABELS as CATEGORY_LABELS } from '@/features/map/types';
-import type { InfoPlaceItem, Item } from '@/features/map/types';
+import type { Item } from '@/features/map/types';
 
 const shimmer = keyframes`
   0% { background-position: -200% 0; }
@@ -175,21 +175,6 @@ const RetryBtn = styled.button`
   margin-top: 4px;
 `;
 
-function toItem(p: InfoPlaceItem): Item {
-  return {
-    id: p.placeId,
-    name: p.name,
-    category: mapInfoCategoryToPlaceCategory(p.category),
-    lat: p.coordinates.lat,
-    lng: p.coordinates.lng,
-    addr: p.region?.name ?? '',
-    image: p.thumbnailUrl,
-    tel: null,
-    dist: null,
-    savedByMe: p.savedByMe,
-  };
-}
-
 export default function InfoPlaceList() {
   const infoCategory = useMapStore((s) => s.infoCategory);
   const infoRegionCode = useMapStore((s) => s.infoRegionCode);
@@ -204,11 +189,21 @@ export default function InfoPlaceList() {
   const setHoveredId = useMapStore((s) => s.setHoveredId);
   const infoRegionName = useMapStore((s) => s.infoRegionName);
   const setInfoRegionCode = useMapStore((s) => s.setInfoRegionCode);
-  const reload = useMapStore((s) => s.reload);
+  const retryInfoList = useMapStore((s) => s.retryInfoList);
 
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadingMoreRef = useRef(false);
   const nextPageControllerRef = useRef<AbortController | null>(null);
+  const cursorRecoveryScopeRef = useRef<string>('');
+
+  useEffect(() => {
+    cursorRecoveryScopeRef.current = '';
+  }, [infoCategory, infoRegionCode]);
+
+  const handleRetry = () => {
+    cursorRecoveryScopeRef.current = '';
+    retryInfoList();
+  };
 
   // Callback ref: sets up the IntersectionObserver when the sentinel element mounts,
   // so it works even when the sentinel first renders after listItems arrive.
@@ -255,8 +250,16 @@ export default function InfoPlaceList() {
           .catch((err: unknown) => {
             if (ctrl.signal.aborted || (err instanceof DOMException && err.name === 'AbortError')) return;
             if (isOnmaruApiError(err) && err.code === 'SNAPSHOT_EXPIRED') {
+              const recoveryScope = `${requestCategory}__${requestRegionCode ?? ''}`;
+              if (cursorRecoveryScopeRef.current === recoveryScope) {
+                store.setListError('목록 기준이 만료됐어요. 다시 시도해 주세요');
+                return;
+              }
+              cursorRecoveryScopeRef.current = recoveryScope;
+              store.setIsListLoading(false);
+              loadingMoreRef.current = false;
               store.setListItems([], 0, null, null);
-              store.reload();
+              store.retryInfoList();
               return;
             }
             store.setListError('추가 목록을 불러오지 못했어요');
@@ -333,7 +336,7 @@ export default function InfoPlaceList() {
           title="정보를 가져오지 못했어요"
           description={listError}
           action={
-            <RetryBtn type="button" onClick={reload}>
+            <RetryBtn type="button" onClick={handleRetry}>
               <HugeiconsIcon icon={RotateCcwIcon} size={14} strokeWidth={2} />
               다시 시도
             </RetryBtn>
@@ -362,7 +365,7 @@ export default function InfoPlaceList() {
             <InlineError role="status">
               <HugeiconsIcon icon={AlertCircleIcon} size={15} strokeWidth={2} />
               <span>{listError}</span>
-              <RetryBtn type="button" onClick={reload} aria-label="다시 시도">
+              <RetryBtn type="button" onClick={handleRetry} aria-label="다시 시도">
                 <HugeiconsIcon icon={RotateCcwIcon} size={14} strokeWidth={2} />
                 다시 시도
               </RetryBtn>
@@ -370,7 +373,7 @@ export default function InfoPlaceList() {
           )}
           <ListContainer role="list">
             {listItems.map((p, idx) => {
-              const item = toItem(p);
+              const item = mapInfoPlaceToItem(p);
               return (
                 <PlaceListItem
                   key={p.placeId}
