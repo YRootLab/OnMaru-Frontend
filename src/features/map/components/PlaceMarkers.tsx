@@ -7,10 +7,11 @@ import { logger } from '@/lib/log';
 import { meok, lightPalette, palette, fontSize } from '@/design-system/tokens';
 import { escapeHtml, safeImageUrl } from '@/features/map/utils/formatters';
 import { mapIconSvg, type MapIconName } from '@/features/map/utils/mapIconSvg';
-import { calculateTravelEstimate, isTraditionalPlace, shortRegionName } from '@/features/map/utils/geo';
+import { calculateTravelEstimate } from '@/features/map/utils/geo';
 import { isHanok } from '@/features/map/utils/isHanok';
 import { renderHanokMarkHtml } from './HanokMark';
 import { useMapStore } from '../hooks/useMapStore';
+import { selectInfoMarkerItems } from '../services/infoMarker.service';
 import { useStampStore } from '@/features/stamp/presentation/useStampStore';
 import type { Item, PlaceCategory } from '../types';
 
@@ -18,7 +19,6 @@ const log = logger('map');
 
 
 const LABEL_MAX_LEVEL = 4;
-const PIN_MAX_LEVEL = 8;
 
 
 
@@ -826,81 +826,6 @@ const styles = css`
 `;
 
 
-function extractClusterRegionName(clusterItems: Item[]): string {
-  const counts: Record<string, number> = {};
-
-  for (const item of clusterItems) {
-    if (!item.addr) continue;
-
-
-    const name = shortRegionName(item.addr);
-    if (name.length >= 2) counts[name] = (counts[name] || 0) + 1;
-  }
-
-  const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
-  return top ? top[0] : '한옥명소';
-}
-
-interface ClusterGroup {
-  lat: number;
-  lng: number;
-  items: Item[];
-}
-
-
-
-
-
-
-
-function clusterNearbyItems(items: Item[], level: number): ClusterGroup[] {
-  const cellSize =
-    level >= 11 ? 0.85 :
-    level >= 10 ? 0.45 :
-    level >= 9  ? 0.22 :
-    level >= 8  ? 0.10 :
-    level >= 7  ? 0.05 :
-    level >= 6  ? 0.025 :
-    0.012;
-  const grid = new Map<string, Item[]>();
-
-  for (const item of items) {
-    const cellX = Math.round(item.lng / cellSize);
-    const cellY = Math.round(item.lat / cellSize);
-    const key = `${cellX}_${cellY}`;
-
-    const cellItems = grid.get(key) || [];
-    cellItems.push(item);
-    grid.set(key, cellItems);
-  }
-
-  const clusters: ClusterGroup[] = [];
-  grid.forEach((cellItems) => {
-    let sumLat = 0;
-    let sumLng = 0;
-    for (const item of cellItems) {
-      sumLat += item.lat;
-      sumLng += item.lng;
-    }
-    clusters.push({
-      lat: sumLat / cellItems.length,
-      lng: sumLng / cellItems.length,
-      items: cellItems,
-    });
-  });
-
-  return clusters;
-}
-
-
-
-
-
-
-
-
-
-
 function wrapForEntrance(el: HTMLElement, transformOrigin: string): HTMLDivElement {
   const wrapper = document.createElement('div');
   wrapper.style.display = 'inline-block';
@@ -935,8 +860,8 @@ type OverlayRecord = { overlay: any; el: HTMLElement };
 export default function PlaceMarkers() {
   const map = useMapStore((s) => s.map);
   const mode = useMapStore((s) => s.mode);
-  const items = useMapStore((s) => s.items);
-  const category = useMapStore((s) => s.category);
+  const viewportItems = useMapStore((s) => s.viewportItems);
+  const viewportRenderMode = useMapStore((s) => s.viewportRenderMode);
   const level = useMapStore((s) => s.level);
   const selectedId = useMapStore((s) => s.selectedId);
   const hoveredId = useMapStore((s) => s.hoveredId);
@@ -948,7 +873,8 @@ export default function PlaceMarkers() {
   const overlayMapRef = useRef<Map<string, OverlayRecord>>(new Map());
 
   useEffect(() => {
-    if (!map || mode !== 'info' || items.length === 0 || !window.kakao?.maps) {
+    const activeItems = selectInfoMarkerItems(viewportRenderMode, viewportItems);
+    if (!map || mode !== 'info' || activeItems.length === 0 || !window.kakao?.maps) {
       overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));
       overlayMapRef.current.clear();
       return;
@@ -956,96 +882,6 @@ export default function PlaceMarkers() {
 
     overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));
     overlayMapRef.current.clear();
-
-    const activeItems =
-      category === 'hanok'
-        ? items.filter((it) => isHanok(it))
-        : category && category !== 'all' && category !== 'bookmark'
-          ? items.filter((it) => it.category === category)
-          : items;
-
-    if (activeItems.length === 0) return;
-
-    const isCluster = level > PIN_MAX_LEVEL;
-
-    if (isCluster) {
-      const clusters = clusterNearbyItems(activeItems, level);
-      const entranceWrappers: HTMLDivElement[] = [];
-
-      clusters.forEach((cluster, idx) => {
-        const count = cluster.items.length;
-        const regionName = extractClusterRegionName(cluster.items);
-        const topItem = cluster.items[0];
-        const catStyle = CATEGORY_STYLES[topItem.category] || CATEGORY_STYLES.spot;
-        const isSingle = count === 1;
-        const hasHanokInCluster = cluster.items.some((it) => isHanok(it));
-
-        const el = document.createElement('div');
-        el.className = 'om-cluster-pill';
-
-        el.innerHTML = `
-          <span class="om-cluster-icon-box" style="background: ${catStyle.lightBg}; color: ${catStyle.main}; border: 1px solid ${catStyle.lightBorder};">
-            ${catStyle.iconSvg}
-          </span>
-          <span class="om-cluster-region-name">${escapeHtml(isSingle ? topItem.name : regionName)}</span>
-          ${!isSingle ? `<span class="om-cluster-count-badge" style="background: ${catStyle.clusterBg}">${count}${hasHanokInCluster ? `<span class="om-cluster-hanok-dot" title="한옥 포함" aria-label="한옥 포함"></span>` : ''}</span>` : ''}
-        `;
-
-        el.setAttribute('role', 'button');
-        el.setAttribute('tabindex', '0');
-        el.setAttribute('aria-label', isSingle ? `${topItem.name}. 상세 보기` : `${regionName} 지역 ${count}곳. 확대해서 보기`);
-
-        const handleClick = () => {
-          if (isSingle) {
-            const store = useMapStore.getState();
-            store.setSelectedId(topItem.id);
-            store.setDetailId(topItem.id);
-            store.map?.panTo(new window.kakao.maps.LatLng(topItem.lat, topItem.lng));
-            store.setSheetSnap('full');
-          } else {
-            const currentLevel = map.getLevel();
-            const targetLevel = Math.max(1, currentLevel - 2);
-            map.setLevel(targetLevel, { animate: true });
-            map.panTo(new window.kakao.maps.LatLng(cluster.lat, cluster.lng));
-          }
-        };
-
-        el.addEventListener('click', handleClick);
-        el.addEventListener('keydown', (event) => {
-          if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault();
-            handleClick();
-          }
-        });
-
-        const wrapper = wrapForEntrance(el, 'center center');
-        entranceWrappers.push(wrapper);
-
-        const overlay = new window.kakao.maps.CustomOverlay({
-          position: new window.kakao.maps.LatLng(cluster.lat, cluster.lng),
-          content: wrapper,
-          yAnchor: 0.5,
-          zIndex: 10,
-        });
-        overlay.setMap(map);
-        overlayMapRef.current.set(`cluster_${idx}`, { overlay, el });
-      });
-
-      burstIn(entranceWrappers);
-
-      return () => {
-        overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));
-        overlayMapRef.current.clear();
-      };
-    }
-
-
-
-
-
-
-
-
 
     const withLabel = level <= LABEL_MAX_LEVEL;
     const maxPins = withLabel ? LABEL_PIN_LIMIT : BADGE_PIN_LIMIT;
@@ -1239,7 +1075,7 @@ export default function PlaceMarkers() {
 
 
 
-  }, [map, mode, items, category, level, userLocation, searchCenter]);
+  }, [map, mode, viewportItems, viewportRenderMode, level, userLocation, searchCenter]);
 
 
   useEffect(() => {

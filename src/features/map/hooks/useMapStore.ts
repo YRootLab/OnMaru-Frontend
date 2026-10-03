@@ -137,7 +137,7 @@ interface MapState {
 
 export const useMapStore = create<MapState>((set, get) => ({
   // ── Info list ──────────────────────────────────────────────────────────────
-  infoCategory: 'spot',
+  infoCategory: 'all',
   infoRegionCode: null,
   infoRegionName: null,
   listItems: [],
@@ -156,13 +156,38 @@ export const useMapStore = create<MapState>((set, get) => ({
   viewportError: null,
 
   setInfoCategory: (infoCategory) =>
-    set({ infoCategory, infoRegionCode: null, infoRegionName: null, listNextCursor: null, listSnapshotId: null }),
+    set({
+      infoCategory,
+      infoRegionCode: null,
+      infoRegionName: null,
+      listItems: [],
+      listTotalCount: 0,
+      listNextCursor: null,
+      listSnapshotId: null,
+      listError: null,
+    }),
   setInfoRegionCode: (infoRegionCode, infoRegionName = null) =>
-    set({ infoRegionCode, infoRegionName, listNextCursor: null }),
+    set({
+      infoRegionCode,
+      infoRegionName,
+      listItems: [],
+      listTotalCount: 0,
+      listNextCursor: null,
+      listSnapshotId: null,
+      listError: null,
+    }),
   setListItems: (items, totalCount, nextCursor, snapshotId) =>
     set({ listItems: items, listTotalCount: totalCount, listNextCursor: nextCursor, listSnapshotId: snapshotId }),
   appendListItems: (items, nextCursor) =>
-    set((s) => ({ listItems: [...s.listItems, ...items], listNextCursor: nextCursor })),
+    set((s) => {
+      const seen = new Set(s.listItems.map((item) => item.placeId));
+      const uniqueItems = items.filter((item) => {
+        if (seen.has(item.placeId)) return false;
+        seen.add(item.placeId);
+        return true;
+      });
+      return { listItems: [...s.listItems, ...uniqueItems], listNextCursor: nextCursor };
+    }),
   setIsListLoading: (isListLoading) => set({ isListLoading }),
   setListError: (listError) => set({ listError }),
   setViewportResponse: (res) =>

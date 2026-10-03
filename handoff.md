@@ -58,3 +58,12 @@
 - 2026-09-23: #184·#185 FE 연동 작업 — 지역 그룹 응답 어댑터(`odii/regions`), 홈 인기 소리(`home/popular-sounds`), 재생 기록(`odii/stories/{storyId}/plays`), 오디오 찜 영속 API를 연결했다. 인기 소리 스켈레톤을 실제 기본 응답 수(7개)에 맞추고 목데이터 기반 찜 저장을 제거했다. `tsc`, 관련 Vitest 14건 통과.
 - 2026-09-23 추가: 홈 인기 소리 UI는 `usePopularSounds`로 `/home/popular-sounds`를 직접 사용하고, 소리마루 `SoundConstellationSection`은 `odii/regions` 그룹 응답의 `storyCount`를 지도 핀/선택 지역 헤더에 반영한다. 지도 지역 API 실패 시 목 카드로 대체하지 않는다.
 - 2026-09-23 추가: 홈 `이번 주 추천 코스` 캐러셀 좌우 버튼을 카드보다 앞선 z-index와 안전한 좌우 inset으로 조정하고, 로딩 상태를 이미지·지역 배지·제목·설명 2줄·태그·CTA까지 실제 카드 구조와 동일하게 구성했다.
+## 2026-10-03 지도 정보모드 신규 API 재연결
+
+- 완료: Issue #246 / PR #250에서 구현했던 `/api/v1/map/info/places`·`/api/v1/map/info/viewport` 경계를 현재 UI 위에 재연결했다.
+- 확인한 회귀: `4b0c770`에서 연결된 `useInfoMapData`, `ViewportOverlays`, `InfoPlaceList`, viewport PLACE marker 경계가 `8468e52`에서 제거되어 `/api/map/places`로 돌아갔다.
+- 구현 결과: 현재 검색·카드·배너·온기 UI를 유지하면서 정보 칩/list/viewport/marker 데이터 경계만 복구했다. 기본 category는 `ALL`, 한옥은 단일 `HANOK`, 목록은 category·region 변경 시 초기화하고 cursor page는 `placeId` 중복 제거·snapshot scope·abort를 적용한다. 409 자동 복구는 1회로 제한하고 503은 기존 데이터를 유지한다.
+- 운영 제한: BE staging에서 `category=HANOK`과 첫 `nextCursor`의 두 번째 page가 200으로 검증되기 전에는 merge·운영 배포하지 않는다. 사용자의 2026-10-04 명시적 요청에 따라 FE 코드리뷰용 PR은 먼저 생성한다.
+- 2026-10-03 실 API 재검증: staging `https://staging-api.onmaru.site`는 `/`, `/v3/api-docs`, info places·viewport 모두 nginx 503을 반환했다. 운영 `https://api.onmaru.site`도 `category=HANOK` list는 400 `INVALID_REQUEST`(`field=query`), viewport는 400 `INVALID_REQUEST`(`field=category`)를 반환했다. 따라서 HANOK 및 두 번째 cursor page 준비 조건은 미충족이다. 관련 BE Issue #553·#566도 open 상태다.
+- 검증: 지도 회귀 Vitest 8 files/25 tests, `npx tsc --noEmit`, 대상 ESLint, `NEXT_PUBLIC_API_URL='' npm run build`, 로컬 Chrome fixture 스모크를 통과했다. 브라우저에서 한옥→숙소 전환 시 URL·칩·검색 문구·`totalCount` 헤더가 함께 바뀌고 dev 로그에 `/api/map/places` 요청이 없음을 확인했다.
+- 기준선: 전체 Vitest는 109 files/488 tests가 통과하고 기존 `scripts/api-url-env-contract.test.mjs` 1건만 실패한다. `.env.example`의 기존 `NEXT_PUBLIC_API_BASE_URL` 항목이 단일 환경키 계약을 위반하며 이번 지도 범위에서는 변경하지 않았다.

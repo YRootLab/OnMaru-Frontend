@@ -7,7 +7,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@hugeicons/core-free-icons'
 import { meok, surface, ringShadow } from '@/design-system/tokens';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import ModeToggle from './ModeToggle';
-import PlaceList from './PlaceList';
+import InfoPlaceList from './InfoPlaceList';
 import SearchBar from './SearchBar';
 import WarmthFeed from '@/private/core-ui/map-warmth/WarmthFeed';
 
@@ -181,7 +181,7 @@ export default function ListPanel() {
           {mode === 'warmth' ? (
             <WarmthFeed />
           ) : (
-            <PlaceList />
+            <InfoPlaceList />
           )}
         </ListArea>
 

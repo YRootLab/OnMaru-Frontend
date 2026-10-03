@@ -3,6 +3,7 @@
 Lightweight human-readable summary of meaningful repository changes. This does not replace Git history.
 
 ## Unreleased
+- 지도 정보모드를 cursor 기반 `/api/v1/map/info/places`와 zoom-aware `/api/v1/map/info/viewport`에 다시 연결했다. 데스크톱·모바일 목록을 `InfoPlaceList`로 통일하고, `totalCount`·중복 없는 cursor append·stale snapshot/abort·409 1회 복구·503 기존 데이터 유지·servedBbox 요청 생략을 보강했다. 정보모드에서는 legacy `/api/map/places`와 TourAPI 직접 조회를 차단하며, `HANOK`을 list와 viewport에 같은 서버 category로 전달한다. REGION·DISTRICT·CLUSTER는 서버 aggregate overlay만, PLACE는 canonical `placeId` marker만 렌더링한다.
 - FE #276: 브라우저 API 호출, Next.js rewrite, 인증 점검 스크립트와 GitHub Actions가 `NEXT_PUBLIC_API_URL` 하나만 사용하도록 환경변수 계약을 통합하고 로컬 스테이징·Vercel Production 전환 안내서를 추가했다.
 - 온이(Oni) 캐릭터 라이트 모드 백화(Ghosting) 현상 수정: 밝은 배경(`#ffffff`, `#f8f8f7`)에서 `mix-blend-mode: screen;` 적용 시 픽셀이 완전히 하얗게 날아가던 문제를 해결하기 위해 다크 모드(`[data-theme='dark']`) 환경에서만 screen 블렌딩이 활성화되도록 분기 처리했다.
 - 전역 네비게이션 및 메뉴바 용어 표준화:

@@ -62,7 +62,7 @@ export function useMapData() {
 
   useEffect(() => {
     const { setItems, setLoading, setError } = useMapStore.getState();
-    if (!map) {
+    if (!map || mode !== 'warmth') {
       return;
     }
 
