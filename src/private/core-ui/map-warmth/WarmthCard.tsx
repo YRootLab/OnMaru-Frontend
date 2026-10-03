@@ -5,6 +5,7 @@ import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { LandmarkIcon, Home01Icon, UtensilsIcon, Coffee01Icon, ShoppingBag01Icon, FlameIcon, Leaf01Icon, ChevronRightIcon, ChevronUpIcon, ChevronDownIcon } from '@hugeicons/core-free-icons'
 import { lightPalette, darkPalette, meok, surface , fontSize } from '@/design-system/tokens';
+import { OniAvatar } from '@/features/profile/OniAvatar';
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { toggleHelpful } from '@/features/map/warmth/warmthRepo';
 import { formatRelativeTime } from '@/features/map/utils/formatters';
@@ -451,9 +452,21 @@ export default function WarmthCard({ review, onHover }: WarmthCardProps) {
 
       {}
       <FooterMeta>
-        <MetaDate>
-          {formatRelativeTime(review.createdAt)}
-        </MetaDate>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          {review.author && (
+            <OniAvatar
+              characterId={review.author.characterId}
+              backgroundId={review.author.backgroundId}
+              size={22}
+            />
+          )}
+          <MetaDate>
+            {review.author ? review.author.displayName : formatRelativeTime(review.createdAt)}
+            {review.author && (
+              <span style={{ marginLeft: 4, opacity: 0.6 }}>· {formatRelativeTime(review.createdAt)}</span>
+            )}
+          </MetaDate>
+        </div>
         <HelpfulButton
           type="button"
           $active={helpful}

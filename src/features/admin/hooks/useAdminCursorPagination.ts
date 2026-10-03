@@ -27,6 +27,7 @@ export function useAdminCursorPagination<TItem, TFilter extends Record<string, u
   const validLimit = Math.max(1, Math.min(100, limit));
 
   const [items, setItems] = useState<TItem[]>([]);
+  const [totalCount, setTotalCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<ApiError | null>(null);
   const [hasNext, setHasNext] = useState<boolean>(false);
@@ -81,6 +82,7 @@ export function useAdminCursorPagination<TItem, TFilter extends Record<string, u
         const resolvedNextCursor = isNextAvailable ? (res.nextCursor ?? null) : null;
 
         setItems(res.items ?? []);
+        setTotalCount(res.totalCount);
         setHasNext(isNextAvailable && Boolean(resolvedNextCursor));
         setNextCursor(resolvedNextCursor);
         setPageIndex(targetPageIndex);
@@ -136,6 +138,7 @@ export function useAdminCursorPagination<TItem, TFilter extends Record<string, u
     // Filter or limit changed: discard prior cursors & fetch page 1 if autoFetch is true
     cursorHistoryRef.current = [undefined];
     setPageIndex(0);
+    setTotalCount(0);
     if (autoFetch) {
       void executeFetch(undefined, 0);
     }
@@ -173,6 +176,10 @@ export function useAdminCursorPagination<TItem, TFilter extends Record<string, u
     error,
     pageIndex,
     pageNumber: pageIndex + 1,
+    totalCount,
+    totalPages: Math.max(1, Math.ceil(totalCount / validLimit)),
+    rangeStart: items.length > 0 ? pageIndex * validLimit + 1 : 0,
+    rangeEnd: items.length > 0 ? Math.min(pageIndex * validLimit + items.length, totalCount) : 0,
     hasNext,
     hasPrev: pageIndex > 0,
     nextCursor,

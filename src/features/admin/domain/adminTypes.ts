@@ -140,6 +140,7 @@ export interface CursorPaginationParams {
 export interface CursorPageResponse<T> {
   schemaVersion?: string;
   items: T[];
+  totalCount: number;
   nextCursor?: string | null;
   hasNext: boolean;
   hasMore?: boolean;

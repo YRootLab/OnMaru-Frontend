@@ -19,6 +19,7 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const showQuickLogin = process.env.NODE_ENV === 'development';
 
   const handleLogin = async (e?: React.FormEvent, quickEmail?: string) => {
     if (e) e.preventDefault();
@@ -31,13 +32,15 @@ export default function AdminLoginPage() {
     if (!quickEmail && !loginPassword.trim()) { setErrorMessage('비밀번호를 입력해 주세요.'); return; }
 
     setIsLoading(true);
-    const ok = await login(loginEmail, loginPassword);
+    const result = await login(loginEmail, loginPassword);
     setIsLoading(false);
 
-    if (ok) {
+    if (result.ok) {
       router.push('/admin');
-    } else {
+    } else if (result.code === 'INVALID_CREDENTIALS') {
       setErrorMessage('이메일 또는 비밀번호를 확인해 주세요.');
+    } else {
+      setErrorMessage('로그인은 성공했지만 관리자 세션을 불러오지 못했습니다. 다시 시도해 주세요.');
     }
   };
 
@@ -110,12 +113,13 @@ export default function AdminLoginPage() {
         {}
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <label style={{ fontSize: '12px', fontWeight: 600, color: meok[700] }}>
+            <label htmlFor="admin-email" style={{ fontSize: '12px', fontWeight: 600, color: meok[700] }}>
               이메일 주소
             </label>
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
               <HugeiconsIcon icon={Mail01Icon} size={16} color={meok[400]} strokeWidth={2} style={{ position: 'absolute', left: '12px' }} />
               <input
+                id="admin-email"
                 type="email"
                 placeholder="admin@onmaru.kr"
                 value={email}
@@ -136,12 +140,13 @@ export default function AdminLoginPage() {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            <label style={{ fontSize: '12px', fontWeight: 600, color: meok[700] }}>
+            <label htmlFor="admin-password" style={{ fontSize: '12px', fontWeight: 600, color: meok[700] }}>
               비밀번호
             </label>
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
               <HugeiconsIcon icon={LockIcon} size={16} color={meok[400]} strokeWidth={2} style={{ position: 'absolute', left: '12px' }} />
               <input
+                id="admin-password"
                 type="password"
                 placeholder="비밀번호 입력"
                 value={password}
@@ -185,7 +190,7 @@ export default function AdminLoginPage() {
         </form>
 
         {}
-        <div
+        {showQuickLogin && <div
           style={{
             borderTop: '1px solid rgba(78, 89, 104, 0.08)',
             paddingTop: '16px',
@@ -231,7 +236,7 @@ export default function AdminLoginPage() {
               EDITOR로 로그인
             </button>
           </div>
-        </div>
+        </div>}
       </div>
     </div>
   );

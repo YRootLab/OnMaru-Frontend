@@ -101,6 +101,7 @@ const fixtureReviews: VisitReview[] = [
     likedByMe: false,
     mine: false,
     createdAt: '2026-09-13T10:30:00.000Z',
+    author: { displayName: '고요한 마루 4821', characterId: 'CHARACTER_03', backgroundId: 'BACKGROUND_05' },
   },
   {
     id: 'review-jeonju-2',
@@ -113,6 +114,7 @@ const fixtureReviews: VisitReview[] = [
     likedByMe: true,
     mine: false,
     createdAt: '2026-09-12T07:00:00.000Z',
+    author: { displayName: '한옥 산책자', characterId: 'CHARACTER_07', backgroundId: 'BACKGROUND_02' },
   },
 ];
 

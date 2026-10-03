@@ -14,6 +14,7 @@ export function visitReviewToWarmth(review: VisitReview): Warmth {
     tags: review.tags ?? [],
     createdAt: review.createdAt,
     mine: review.mine,
+    author: review.author,
   };
 }
 

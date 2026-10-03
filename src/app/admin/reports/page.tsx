@@ -28,6 +28,10 @@ export default function AdminReportsPage() {
     setItems: setReports,
     isLoading,
     pageNumber,
+    totalCount,
+    totalPages,
+    rangeStart,
+    rangeEnd,
     hasNext,
     hasPrev,
     goToNextPage,
@@ -663,6 +667,10 @@ export default function AdminReportsPage() {
 
       <CursorPagination
         currentPage={pageNumber}
+        totalCount={totalCount}
+        totalPages={totalPages}
+        rangeStart={rangeStart}
+        rangeEnd={rangeEnd}
         hasNext={hasNext}
         hasPrev={hasPrev}
         onNext={goToNextPage}

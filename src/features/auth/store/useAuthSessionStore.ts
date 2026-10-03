@@ -14,7 +14,10 @@ import { defaultMemberRepository, type MemberProfile } from '../api/memberApi';
 export interface AuthUser {
   id: string;
   displayName: string;
+  /** @deprecated BE #552 이후 characterId/backgroundId로 대체. */
   profileImageUrl?: string;
+  characterId?: string;
+  backgroundId?: string;
 }
 
 interface AuthSessionState {
@@ -24,10 +27,18 @@ interface AuthSessionState {
   ensureSessionLoaded: () => Promise<void>;
   applyProfile: (profile: MemberProfile) => AuthUser;
   clear: () => void;
+  /** 탈퇴 후 재로그인 대비: undefined+false로 완전 초기화해 isLoading=true를 보장한다. */
+  reset: () => void;
 }
 
 export function toAuthUser(profile: MemberProfile): AuthUser {
-  return { id: profile.id, displayName: profile.displayName, profileImageUrl: profile.profileImageUrl };
+  return {
+    id: profile.id,
+    displayName: profile.displayName,
+    profileImageUrl: profile.profileImageUrl,
+    characterId: profile.characterId,
+    backgroundId: profile.backgroundId,
+  };
 }
 
 export const useAuthSessionStore = create<AuthSessionState>((set, get) => ({
@@ -40,6 +51,9 @@ export const useAuthSessionStore = create<AuthSessionState>((set, get) => ({
     // 세션을 확정한다. 이 타이밍에 ensureSessionLoaded가 먼저 401을 받으면
     // user=null로 확정돼 MyPage가 /auth/login으로 튕겨나가는 경쟁 조건이 생긴다.
     if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('auth') === 'success') {
+      // ?auth=success 복귀 시 user를 undefined로 리셋 — hasLoadedOnce=true+user=null 조합이면
+      // isLoading=false가 돼 MyPage 가드가 refreshSessionAfterKakaoLogin 완료 전에 튕긴다.
+      set({ user: undefined, hasLoadedOnce: false });
       return;
     }
     set({ hasLoadedOnce: true });
@@ -59,4 +73,5 @@ export const useAuthSessionStore = create<AuthSessionState>((set, get) => ({
   },
 
   clear: () => set({ user: null }),
+  reset: () => set({ user: undefined, hasLoadedOnce: false }),
 }));

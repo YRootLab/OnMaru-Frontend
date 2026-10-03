@@ -2,6 +2,22 @@ import { describe, expect, it } from 'vitest';
 import { createAdminRepository } from './adminApi';
 
 describe('Admin API cursor pagination contract tests (#262 / BE #509)', () => {
+  it('preserves totalCount from all six cursor list responses', async () => {
+    const repository = createAdminRepository((async () => ({
+      items: [], totalCount: 128, nextCursor: null, hasNext: false,
+    })) as never);
+
+    const responses = await Promise.all([
+      repository.listUsers(),
+      repository.listReviews(),
+      repository.listReports(),
+      repository.getModerationQueue(),
+      repository.listCurations(),
+      repository.getOperationsModerationQueue(),
+    ]);
+
+    expect(responses.map((response) => response.totalCount)).toEqual([128, 128, 128, 128, 128, 128]);
+  });
   it('requests reviews first page without cursor, using default limit 20', async () => {
     const calls: Array<{ path: string; options: unknown }> = [];
     const repository = createAdminRepository((async (path: string, options: unknown) => {

@@ -41,6 +41,9 @@ interface DataTableProps<T> {
     isCursor?: boolean;
     hasNext?: boolean;
     hasPrev?: boolean;
+    totalCount?: number;
+    rangeStart?: number;
+    rangeEnd?: number;
     onNext?: () => void;
     onPrev?: () => void;
   };
@@ -282,6 +285,10 @@ export function DataTable<T>({
         pagination.isCursor ? (
           <CursorPagination
             currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages ?? 1}
+            totalCount={pagination.totalCount ?? rows.length}
+            rangeStart={pagination.rangeStart ?? (rows.length > 0 ? 1 : 0)}
+            rangeEnd={pagination.rangeEnd ?? rows.length}
             hasNext={pagination.hasNext ?? false}
             hasPrev={pagination.hasPrev ?? false}
             onNext={pagination.onNext ?? (() => {})}

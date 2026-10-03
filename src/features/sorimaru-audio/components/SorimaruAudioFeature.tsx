@@ -33,6 +33,7 @@ import { useViewportActivation } from '@/shared/hooks/useViewportActivation';
 import { SOUND_CONSTELLATION_API_ROOT_MARGIN } from '@/private/core-ui/sorimaru/soundConstellationMotion';
 import { palette, meok, surface, fontSize } from '@/design-system/tokens';
 import { HanjiDeckleEdge } from '@/shared/components/HanjiDeckleEdge';
+import { NearbyLocationDescription } from '@/features/sorimaru-audio/presentation/NearbyLocationDescription';
 
 const AllStoriesModal = dynamic(
   () => import('./AllStoriesModal').then((module) => module.AllStoriesModal),
@@ -216,18 +217,18 @@ const SectionDescription = styled.p<{ $notice?: boolean }>`
     $notice
       ? `
         white-space: normal;
-        font-weight: 600;
-        color: ${palette.juhong[700]};
+        font-weight: 500;
       `
       : `
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        color: ${meok[700]};
       `}
 
+  color: ${meok[700]};
+
   [data-theme='dark'] & {
-    color: ${({ $notice }) => ($notice ? palette.juhong[300] : meok[400])};
+    color: ${meok[400]};
   }
 `;
 
@@ -540,7 +541,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                         title="오늘, 여기에서"
                       />
                       <SectionDescription $notice={locationNotice}>
-                        {locationMessage}
+                        <NearbyLocationDescription message={locationMessage} />
                       </SectionDescription>
                     </div>
                     <div style={{ display: 'flex', flexShrink: 0, alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem' }}>

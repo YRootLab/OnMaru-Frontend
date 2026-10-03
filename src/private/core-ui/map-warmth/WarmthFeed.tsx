@@ -96,7 +96,7 @@ export default function WarmthFeed() {
   const period = useMapStore((s) => s.warmthPeriod);
   const [selectedRegion, setSelectedRegion] = useState('all');
   const serverRegions = useVisitReviewRegions();
-  const { data: serverWarmths } = useVisitReviewFeed(
+  const { data: serverWarmths, error: reviewsError } = useVisitReviewFeed(
     selectedRegion === 'all' ? undefined : selectedRegion,
   );
   const regionOptions = useMemo(
@@ -441,7 +441,13 @@ export default function WarmthFeed() {
 
       <FeedScroll>
         <div ref={feedTopRef} />
-        {filteredReviews.length === 0 ? (
+        {reviewsError && filteredReviews.length === 0 ? (
+          <OniSearchEmpty
+            size="md"
+            title="온기 이야기를 불러오지 못했어요"
+            description="잠시 후 다시 시도해주세요."
+          />
+        ) : filteredReviews.length === 0 ? (
           <OniSearchEmpty
             size="md"
             title={

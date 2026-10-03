@@ -13,7 +13,16 @@ export interface MemberProfile {
   schemaVersion?: string;
   id: string;
   displayName: string;
+  /** @deprecated BE #552 이후 characterId/backgroundId로 대체. 과도기 호환용. */
   profileImageUrl?: string;
+  characterId?: string;
+  backgroundId?: string;
+}
+
+export interface UpdateProfileInput {
+  displayName?: string;
+  characterId?: string;
+  backgroundId?: string;
 }
 
 /** DELETE /api/v1/members/me → 202 { status: "DELETING" } (탈퇴 접수, 비동기 처리). */
@@ -23,6 +32,7 @@ export interface DeleteAccountResponse {
 
 export interface MemberRepository {
   getMyProfile(): Promise<MemberProfile>;
+  updateMyProfile(input: UpdateProfileInput): Promise<MemberProfile>;
   deleteMyAccount(): Promise<DeleteAccountResponse>;
   logout(): Promise<void>;
 }
@@ -31,6 +41,9 @@ export function createMemberRepository(request: RequestFn = apiRequest): MemberR
   return {
     getMyProfile() {
       return request<MemberProfile>('/members/me', { method: 'GET', cache: 'no-store' });
+    },
+    updateMyProfile(input) {
+      return request<MemberProfile>('/members/me', { method: 'PATCH', body: input, csrf: true });
     },
     deleteMyAccount() {
       return request<DeleteAccountResponse>('/members/me', { method: 'DELETE', csrf: true });

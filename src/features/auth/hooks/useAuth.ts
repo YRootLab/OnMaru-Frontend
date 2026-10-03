@@ -24,6 +24,7 @@ export function useAuth() {
   const ensureSessionLoaded = useAuthSessionStore((s) => s.ensureSessionLoaded);
   const applyProfile = useAuthSessionStore((s) => s.applyProfile);
   const clearSession = useAuthSessionStore((s) => s.clear);
+  const resetSession = useAuthSessionStore((s) => s.reset);
 
   // 세션 쿠키(HttpOnly)로만 로그인 여부를 알 수 있으니 마운트 시 서버에 물어본다.
   // 실서버: GET /members/me (200 = 로그인, 401 = 비로그인, 자동 재시도 없음 — 가이드 §1-5).
@@ -113,6 +114,7 @@ export function useAuth() {
 
   // 회원 탈퇴 — DELETE /members/me → 202 {status:"DELETING"}(비동기 접수). 카카오 연결
   // 해제는 백엔드 담당, 프론트는 실패해도 로컬 세션 정리만 책임진다.
+  // logout도 같이 호출해 세션 쿠키를 지워야 재로그인 시 stale 쿠키 충돌이 없다.
   const deleteAccount = useCallback(async (): Promise<void> => {
     if (!USE_MOCK) {
       try {
@@ -120,13 +122,20 @@ export function useAuth() {
       } catch {
         // 세션이 이미 만료된 경우 등 — 로컬 정리는 그대로 진행한다.
       }
+      try {
+        await defaultMemberRepository.logout();
+      } catch {
+        // 세션 쿠키 만료 등 — 이미 지워진 것이니 무시한다.
+      }
     }
     window.sessionStorage.removeItem(MOCK_SESSION_KEY);
     clearPrivateClientState();
-    clearSession();
+    // clear() 대신 reset() — user:undefined+hasLoadedOnce:false로 초기화해
+    // 재로그인 시 isLoading:true가 보장되어 MyPage 가드가 조기 발동하지 않는다.
+    resetSession();
     toast.success('탈퇴가 완료됐어요. 그동안 온마루를 이용해 주셔서 감사해요.');
     router.push('/');
-  }, [router, clearSession]);
+  }, [router, resetSession]);
 
   return {
     user: user ?? null,
