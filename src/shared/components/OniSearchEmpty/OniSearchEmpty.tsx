@@ -200,7 +200,7 @@ export function OniSearchEmpty({
       <MascotWrapper $size={size} aria-hidden="true">
         {prefersReducedMotion ? (
           <MascotStaticFallback
-            src="/images/character/Oni_tea.png"
+            src={videoSrc ? '/images/character/Oni_tea.png' : imageSrc}
             alt=""
             width={sizePixels}
             height={sizePixels}

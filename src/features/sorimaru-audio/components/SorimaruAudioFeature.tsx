@@ -368,7 +368,6 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
     } else {
       tryLocate();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialLoading]);
 
   const [selectionError, setSelectionError] = useState<Error | null>(null);
@@ -381,7 +380,7 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
       .some((value) => value.toLowerCase().includes(keyword));
   });
   const editorialRailStories = React.useMemo(() => loadedEditorialRailStories(catalog.pages), [catalog.pages]);
-  const apiError = initialError || catalog.error || selectionError || regionStories.groupsState.error || regionStories.regionStoriesState.error
+  const apiError = initialError || catalog.error || selectionError
     ? '소리마루 이야기를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'
     : null;
   const lastPage = catalog.pages.at(-1);
@@ -427,11 +426,11 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
   const retryApiRequests = () => {
     if (initialError || catalog.error) {
       void retry();
-    } else if (regionStories.groupsState.error || regionStories.regionStoriesState.error) {
-      retryRegionRequests();
     } else if (selectionError && pendingRailSelectionRef.current) {
+      setSelectionError(null);
       handleRailStorySelection(pendingRailSelectionRef.current, 'play');
     } else if (selectionError && pendingSelectionRef.current) {
+      setSelectionError(null);
       const loadedStories = [...(initialData?.archive?.items ?? initialPage?.items ?? []), ...catalog.pages.flatMap((page) => page.items)];
       void selectFromIntent(loadedStories, pendingSelectionRef.current, true)
         .then(() => setSelectionError(null))
@@ -516,6 +515,8 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                       stories={editorialRailStories}
                       storySets={heroStorySets}
                       isLoading={initialLoading || catalog.status === 'loading'}
+                      error={catalog.error}
+                      onRetry={retryApiRequests}
                       onSelectStory={handleRailStorySelection}
                     />
                   </div>
@@ -603,7 +604,12 @@ export const SorimaruAudioFeature: React.FC<SorimaruAudioFeatureProps> = ({
                   </div>
 
                   <div style={{ position: 'relative', overflow: 'visible' }}>
-                    <SorimaruArchiveBrowse stories={storyList} isLoading={catalog.status === 'loading'} />
+                    <SorimaruArchiveBrowse
+                      stories={storyList}
+                      isLoading={catalog.status === 'loading'}
+                      error={catalog.error}
+                      onRetry={retryApiRequests}
+                    />
                   </div>
 
                   <div>
