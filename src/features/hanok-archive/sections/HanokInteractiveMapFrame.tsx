@@ -10,6 +10,11 @@ import { lightPalette, meok, surface , fontSize } from '@/design-system/tokens';
 import type { Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
 import { createKakaoResourceScope, type KakaoResourceScope } from './kakaoMapResources';
+import {
+  createKakaoMap,
+  fitKakaoMapBounds,
+  KAKAO_CLUSTER_STYLES,
+} from './kakaoMapFactory';
 
 
 
@@ -520,7 +525,11 @@ export default function HanokInteractiveMapFrame({
   }, [validVillages, selectedRegion]);
 
 
-  const fitKoreaBounds = useCallback((mapInstance: KakaoMapInstance, targets: Village[]) => {
+  const fitKoreaBounds = useCallback((
+    mapInstance: KakaoMapInstance,
+    targets: Village[],
+    zoomInSteps = 0,
+  ) => {
     if (!mapInstance || !window.kakao || !window.kakao.maps || targets.length === 0) return;
 
     const bounds = new window.kakao.maps.LatLngBounds();
@@ -531,7 +540,7 @@ export default function HanokInteractiveMapFrame({
     });
 
 
-    mapInstance.setBounds(bounds, 32, 32, 32, 32);
+    fitKakaoMapBounds(mapInstance, bounds, zoomInSteps);
   }, []);
 
 
@@ -551,7 +560,11 @@ export default function HanokInteractiveMapFrame({
         };
 
 
-        const map = new window.kakao.maps.MapIcon(containerRef.current, options) as KakaoMapInstance;
+        const map = createKakaoMap<KakaoMapInstance>(
+          window.kakao.maps,
+          containerRef.current,
+          options,
+        );
         mapRef.current = map;
         mapResourcesRef.current?.dispose();
         const mapResources = createKakaoResourceScope((target, eventName, listener) => {
@@ -573,36 +586,7 @@ export default function HanokInteractiveMapFrame({
             averageCenter: true,
             minLevel: 8,
             calculator: [10, 30, 50],
-            styles: [
-              {
-                width: '46px',
-                height: '46px',
-                background: 'rgba(255, 255, 255, 0.94)',
-                border: '1.5px solid #FF5500',
-                borderRadius: '50%',
-                color: '#D94000',
-                textAlign: 'center',
-                lineHeight: '43px',
-                fontWeight: '500',
-                fontSize: '13px',
-                boxShadow: 'none',
-                fontFamily: 'var(--font-hanok)',
-              },
-              {
-                width: '54px',
-                height: '54px',
-                background: 'linear-gradient(135deg, #FF5500 0%, #D94000 100%)',
-                border: '2px solid #ffffff',
-                borderRadius: '50%',
-                color: '#ffffff',
-                textAlign: 'center',
-                lineHeight: '50px',
-                fontWeight: '500',
-                fontSize: '14px',
-                boxShadow: 'none',
-                fontFamily: 'var(--font-hanok)',
-              },
-            ],
+            styles: KAKAO_CLUSTER_STYLES,
           }) as KakaoClustererInstance;
           clustererRef.current = clusterer;
           mapResources.trackCleanup(() => clusterer.clear());
@@ -612,12 +596,12 @@ export default function HanokInteractiveMapFrame({
 
         const relayoutTimer = window.setTimeout(() => {
           map.relayout();
-          fitKoreaBounds(map, validVillages);
+          fitKoreaBounds(map, validVillages, 1);
         }, 120);
         mapResources.trackTimer(relayoutTimer, window.clearTimeout);
       });
     } catch (err: unknown) {
-      console.error('[KakaoMap] MapIcon initialization error:', err);
+      console.error('[KakaoMap] Map initialization error:', err);
       setErrorMessage('지도를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
     }
   }, [fitKoreaBounds, validVillages]);
@@ -768,7 +752,7 @@ export default function HanokInteractiveMapFrame({
       if (!mapRef.current) return;
       mapRef.current.relayout();
       if (selectedRegion === '전체') {
-        fitKoreaBounds(mapRef.current, validVillages);
+        fitKoreaBounds(mapRef.current, validVillages, 1);
       }
     });
     observer.observe(el);
@@ -782,7 +766,7 @@ export default function HanokInteractiveMapFrame({
     if (!mapRef.current || !window.kakao || !window.kakao.maps) return;
 
     if (region === '전체') {
-      fitKoreaBounds(mapRef.current, validVillages);
+      fitKoreaBounds(mapRef.current, validVillages, 1);
     } else {
       const targets = validVillages.filter((v) => v.region.includes(region));
       if (targets.length > 0) {

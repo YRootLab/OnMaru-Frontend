@@ -5,6 +5,11 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 ## Unreleased
 - 지도 정보모드를 cursor 기반 `/api/v1/map/info/places`와 zoom-aware `/api/v1/map/info/viewport`에 다시 연결했다. 데스크톱·모바일 목록을 `InfoPlaceList`로 통일하고, `totalCount`·중복 없는 cursor append·stale snapshot/abort·409 1회 복구·503 기존 데이터 유지·servedBbox 요청 생략을 보강했다. 정보모드에서는 legacy `/api/map/places`와 TourAPI 직접 조회를 차단하고 상세도 canonical `/api/v1/places/{placeId}`를 사용하며, `HANOK`을 list와 viewport에 같은 서버 category로 전달한다. REGION·DISTRICT·CLUSTER는 서버 aggregate overlay만, PLACE는 canonical `placeId` marker만 렌더링한다. viewport는 확정된 지도 상태에서만 갱신하고 단독 오류에는 기존 오버레이를 유지한 재시도 안내를 표시한다.
 - 최신 develop 병합 후 관리자 빠른 로그인 테스트가 production/development 환경을 명시하도록 교정하고, 한옥 fallback 테스트가 실 staging 재시도 대신 결정적 장애 fake를 사용하도록 격리했다. 브라우저 API 기준은 `NEXT_PUBLIC_API_URL`로 유지하되 `/api/proxy`의 내부 upstream 키는 `next.config.ts`에만 허용하도록 환경변수 계약을 갱신했다.
+- 스테이징 API를 전용 SSH 시작 명령으로 기동해 TLS·OpenAPI·`category=HANOK` 목록 200과 한옥 canonical category 4종을 확인했다. 운영에서는 첫 30건의 `nextCursor`로 두 번째 30건을 조회해 동일 snapshot과 `placeId` 중복 0건을 검증했다. 스테이징 fixture는 2건이라 다음 cursor가 없으며, DISTRICT viewport가 전체 건수와 달리 빈 aggregate를 반환하는 상태는 백엔드 후속 확인 대상으로 남겼다.
+- 소리마루의 한옥 글꼴·반응형 크기·라이트/다크 텍스트 그라디언트를 공통 섹션 헤더로 분리해 홈, 한옥마루, 소리마루의 최상위 섹션 제목과 부제 위계를 통일했다. 한옥 도감 카드의 `도감 해설 보기`는 호버 배경 피드백만 유지하고 위로 움직이던 애니메이션을 제거했다.
+- 아이콘 라이브러리 교체 과정에서 카카오 지도 생성자 `kakao.maps.Map`이 `MapIcon`으로 바뀌어 지도가 초기화되지 않던 회귀를 복구했다. 로컬 JavaScript SDK 도메인을 등록한 3004 환경에서 SDK 응답과 실제 지도·클러스터 렌더링을 확인했다. 전국 지도의 초기 맞춤은 한 단계 확대된 64km 축척으로 조정하고 클러스터 숫자를 flex로 수평·수직 중앙 정렬했다.
+- 전국 한옥 도감 카드의 상승·이미지 확대 호버를 제거하고 Microsoft Fluent Reveal에서 착안한 그리드 단위 Spotlight 효과로 교체했다. 하나의 포인터 위치를 모든 카드의 좌표계로 투영해 커서와 가까운 이웃 카드 모서리까지 반응한다. 라이트 모드는 차가운 회백색 광원과 커서 주변 사진만 `blur(3px)`·`saturate(1.08)`로 처리하는 절제된 프로스트 글래스 렌즈를 사용하고, 다크 모드는 216px 흰색 확산광을 사용한다. 밝은 아이보리에서 온마루 주홍으로 이어지는 테두리를 사용하되 외부 네온은 사용하지 않으며, 터치 화면과 모션 축소 설정에서는 효과를 표시하지 않는다.
+- 한옥마루 전국 한옥 도감의 백엔드 카테고리 코드를 한국어로 표시하고, 카드 카테고리 태그를 이미지 좌측 상단으로 옮겼다. 상단 태그 글자는 10px에서 12px로 키워 읽기 쉽게 했으며, 긴 한옥 이름은 최대 2줄까지 노출하되 제목 영역 높이를 일정하게 유지해 하단 버튼 정렬이 흔들리지 않도록 개선했다.
 - FE #293: 관리자 로그인 뒤 refresh 요청에 동적 CSRF header와 HttpOnly cookie credential을 포함하고, 동시 세션 복구를 하나의 Promise로 합쳤다. 로그인 401과 로그인 후 세션 복구 실패 메시지를 분리했으며 production 관리자 로그인 화면에서 개발용 원클릭 계정을 제거했다.
 - 소리마루 주변 이야기와 아카이브 카드의 작은 글자를 한 단계 키우고 긴 제목을 최대 두 줄로 표시했다. 위치 기반 전국 큐레이션 안내는 핵심 조건과 대체 콘텐츠만 주황색으로 강조하고 카드 스켈레톤 높이를 실제 레이아웃과 맞췄다.
 - 지도마루는 마지막 줌·이동 조작 후 900ms 동안 기다린 뒤 의미 있는 변화만 한 번 갱신하고, 새 데이터를 기다리는 동안 기존 목록과 마커를 유지하며 반복 등장 효과를 억제해 더 편안하게 탐색할 수 있도록 개선했다.
@@ -265,6 +270,9 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## [Unreleased] 
 ### Changed 
+- 지역별 한옥 스테이의 단방향 `다른 스테이 보기`를 7개 숙소 단위의 이전·다음 페이지네이션으로 교체했다. 지역 필터 우측 결과 수는 `전국 N곳` 또는 선택 지역 기준으로 즉시 갱신하고, 이전 버튼·현재 페이지·다음 버튼은 카드 아래 중앙에 하나의 pagination control로 묶었다. 예약 CTA는 가로 여백을 유지하면서 세로 패딩만 줄여 숙소 상세 버튼과 높이를 맞췄고, hover 상태에서도 글자와 아이콘의 흰색 대비가 유지되도록 했다.
+- 한옥마루 인트로 제목을 공통 섹션 제목의 글자 크기·그라디언트 위계에 맞추고, `지금 한옥`은 브랜드 주황색으로, 기록 문구는 중립 회색으로 정리했다.
+- 전국 한옥 도감 Spotlight의 라이트 모드 중심광·외곽광 범위를 넓히고 이미지 질감을 흐리던 backdrop blur를 제거해 더 자연스러운 확산광으로 조정했다. 다크 모드 광원은 기존 크기를 유지한다.
 - 소리마루 `장면을 따라 걷는 소리` 카드 레일의 좌·우 탐색 화살표를 복구하고, 각 클릭이 이야기를 정확히 한 칸씩 이동하도록 회귀 테스트를 추가했다.
 - 지도 온기 모드에서 방문량 기반 Map Heat와 사용자 VisitReview를 완전히 분리했다. 공개 후기 응답의 비공개 moderation `status` 필터와 후기/장소 기반 Heat fallback을 제거하고, 서버 지역 코드·장소별 전용 조회·실제 후기 작성 POST(CSRF/멱등성)를 연결했다.
 - 지도 인기 장소 카드에서 이미지 요청이 실패해도 빈 썸네일을 남기지 않고, 58px placeholder로 전환하도록 보완했다.
