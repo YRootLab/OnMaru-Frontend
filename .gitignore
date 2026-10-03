@@ -55,6 +55,7 @@ docs/
 /new
 /claude_workspace
 
+/docs/superpowers
 
 *.tsbuildinfo
 tsconfig.tsbuildinfo
@@ -73,3 +74,6 @@ docs/decisions/.adr-toolkit.lock
 
 
 new/troubleshooting-notes.md
+
+*storybook.log
+storybook-static

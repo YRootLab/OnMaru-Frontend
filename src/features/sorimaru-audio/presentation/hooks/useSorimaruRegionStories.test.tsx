@@ -13,7 +13,7 @@ const story = (storyId: string): SorimaruStorySummary => ({
   coordinates: null, durationSeconds: 180, imageUrl: null, linkedPlaceId: null, contentTags: [], savedByMe: false,
 });
 const page = (id: string, nextCursor: string | null = null): SorimaruStoryPage => ({
-  items: id ? [story(id)] : [], nextCursor, hasMore: nextCursor !== null,
+  items: id ? [story(id)] : [], totalCount: id ? 1 : 0, nextCursor, hasMore: nextCursor !== null,
 });
 const groups: SorimaruRegionGroups = { groups: [
   { label: '서울·경기·인천', regionCodes: ['returned-seoul'], storyCount: 5 },
@@ -111,7 +111,7 @@ describe('useSorimaruRegionStories', () => {
     const repo = repository();
     const next = deferred<SorimaruStoryPage>();
     repo.listStories.mockResolvedValueOnce(page('first', 'opaque-cursor')).mockReturnValueOnce(next.promise)
-      .mockResolvedValueOnce({ items: [story('first'), story('second')], nextCursor: null, hasMore: false });
+      .mockResolvedValueOnce({ items: [story('first'), story('second')], totalCount: 2, nextCursor: null, hasMore: false });
     const { result } = renderHook(() => useSorimaruRegionStories(repo, true));
     await waitFor(() => expect(result.current.regionStoriesState.status).toBe('success'));
     act(() => { void result.current.loadNextRegionPage(); void result.current.loadNextRegionPage(); });

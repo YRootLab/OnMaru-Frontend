@@ -19,6 +19,7 @@ export interface SorimaruStoryDetail extends SorimaruStorySummary {
 
 export interface SorimaruStoryPage {
   items: SorimaruStorySummary[];
+  totalCount: number;
   nextCursor: string | null;
   hasMore: boolean;
 }

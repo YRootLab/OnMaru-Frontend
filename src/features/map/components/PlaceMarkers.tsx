@@ -10,10 +10,14 @@ import { mapIconSvg, type MapIconName } from '@/features/map/utils/mapIconSvg';
 import { calculateTravelEstimate } from '@/features/map/utils/geo';
 import { isHanok } from '@/features/map/utils/isHanok';
 import { renderHanokMarkHtml } from './HanokMark';
+import {
+  advanceMarkerEntranceState,
+  type MarkerEntranceState,
+} from './markerEntrancePolicy';
 import { useMapStore } from '../hooks/useMapStore';
 import { selectInfoMarkerItems } from '../services/infoMarker.service';
 import { useStampStore } from '@/features/stamp/presentation/useStampStore';
-import type { Item, PlaceCategory } from '../types';
+import type { PlaceCategory } from '../types';
 
 const log = logger('map');
 
@@ -862,7 +866,8 @@ export default function PlaceMarkers() {
   const mode = useMapStore((s) => s.mode);
   const viewportItems = useMapStore((s) => s.viewportItems);
   const viewportRenderMode = useMapStore((s) => s.viewportRenderMode);
-  const level = useMapStore((s) => s.level);
+  const infoCategory = useMapStore((s) => s.infoCategory);
+  const level = useMapStore((s) => s.committedViewport.level);
   const selectedId = useMapStore((s) => s.selectedId);
   const hoveredId = useMapStore((s) => s.hoveredId);
   const detailId = useMapStore((s) => s.detailId);
@@ -871,6 +876,11 @@ export default function PlaceMarkers() {
 
 
   const overlayMapRef = useRef<Map<string, OverlayRecord>>(new Map());
+  const markerEntranceStateRef = useRef<MarkerEntranceState>({
+    hasRendered: false,
+    category: infoCategory,
+    pendingCategory: false,
+  });
 
   useEffect(() => {
     const activeItems = selectInfoMarkerItems(viewportRenderMode, viewportItems);
@@ -883,6 +893,15 @@ export default function PlaceMarkers() {
     overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));
     overlayMapRef.current.clear();
 
+    const entranceDecision = advanceMarkerEntranceState(markerEntranceStateRef.current, {
+      category: infoCategory,
+      markerCount: activeItems.length,
+      reducedMotion: Boolean(
+        window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
+      ),
+    });
+    markerEntranceStateRef.current = entranceDecision.state;
+    const shouldAnimate = entranceDecision.animate;
     const withLabel = level <= LABEL_MAX_LEVEL;
     const maxPins = withLabel ? LABEL_PIN_LIMIT : BADGE_PIN_LIMIT;
 
@@ -1064,7 +1083,7 @@ export default function PlaceMarkers() {
       overlayMapRef.current.set(item.id, { overlay, el });
     });
 
-    burstIn(entranceWrappers);
+    if (shouldAnimate) burstIn(entranceWrappers);
 
     return () => {
       overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));
@@ -1075,7 +1094,16 @@ export default function PlaceMarkers() {
 
 
 
-  }, [map, mode, viewportItems, viewportRenderMode, level, userLocation, searchCenter]);
+  }, [
+    map,
+    mode,
+    viewportItems,
+    viewportRenderMode,
+    infoCategory,
+    level,
+    userLocation,
+    searchCenter,
+  ]);
 
 
   useEffect(() => {

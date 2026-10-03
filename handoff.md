@@ -1,6 +1,9 @@
 # handoff.md
 
 ## Current Work
+- 2026-10-03 Issue #293 구현 및 develop PR #294 병합 완료, `release/0.1.10` 운영 승격 진행 중: 운영 관리자 refresh에 동적 CSRF header·`credentials: include`를 적용하고 `CSRF_INVALID`는 캐시 초기화 후 한 번만 복구한다. `adminRefresh`는 정확히 같은 Promise를 공유하며 refresh 자체의 401은 재귀 refresh를 만들지 않는다. 로그인 전 진행 중이던 bootstrap refresh를 먼저 정리해 새 세션과의 경쟁을 막고, login 401과 로그인 후 세션 복구 실패 메시지를 분리했으며 사용자 상태를 여러 `useAdminAuth` 인스턴스에 동기화했다. production 원클릭 ADMIN/EDITOR UI는 렌더링하지 않는다. BE 및 토큰 저장 정책은 변경하지 않았다. master 배포 후 운영 login → refresh → me, 새로고침 유지, 단일 refresh, logout cookie 제거를 검증해야 한다.
+- 2026-10-03 Issue #283 지도마루 줌·이동 중 중복 요청과 마커 재배치 개선 완료: transient viewport와 서버 요청용 committed viewport를 분리하고, 마지막 조작 900ms 후 누적 줌 2단계 또는 `max(1.2km, viewport 반경×20%)` 이동에서만 한 번 갱신한다. 검색·지역·현재 위치·재시도는 즉시 반영하며 정보/온기 모드는 각자 필요한 API만 호출한다. background refresh 중 기존 목록·마커를 유지하고 완전히 동일한 결과는 상태 참조를 보존하며, 마커 등장 효과는 최초 표시와 카테고리 변경에만 실행한다. PR 전 리뷰에서 발견한 pending settle과 명시적 이동의 경쟁 조건, 빈 카테고리 결과 뒤 entrance 누락, 온기 정상 빈 응답의 stale marker 유지도 회귀 테스트와 함께 수정했다. 실서비스 `/api/map/places`는 진단 당시 콜드 약 1.07초, 이후 약 0.25~0.35초였다. `.env.example`의 폐기된 `NEXT_PUBLIC_API_BASE_URL`도 제거해 환경변수 계약을 복구했다. 검증: 전체 Vitest 106파일/485건, TypeScript, 변경 파일 ESLint(오류 0, 기존 unused-disable 경고 4), production build 통과. 작업 브랜치: `fix/map-viewport-fetch-stability`.
+- 2026-10-03 Issue #285: 소리마루 목록의 새 `totalCount` 필드를 필수 계약으로 반영했다. 전체·카테고리·지역 응답의 필터 적용 전체 건수를 `소리로 만나는 한국` 메타바에 표시하고, 로컬 키워드 검색 중에는 현재 페이지 검색 결과 수를 유지한다. FE 배포 전 staging/production BE의 `GET /api/v1/odii/stories`가 모든 성공 응답에 비음수 정수 `totalCount`를 포함해야 한다.
 - 2026-10-02 FE #276: API 기준 URL을 `NEXT_PUBLIC_API_URL` 하나로 통합했다. 로컬 `.env.local`은 `https://staging-api.onmaru.site`, Vercel Production은 `https://api.onmaru.site`를 사용하며 Preview 설정은 필수 흐름에서 제외한다. GitHub Repository Secret `NEXT_PUBLIC_API_URL`을 추가했고, 병합 전까지 현행 workflow 보호를 위해 예전 `NEXT_PUBLIC_API_BASE_URL` Secret 삭제는 보류한다. 검증: Vitest 97 files/392 tests, TypeScript, ESLint(기존 warning 3건), 환경계약, staging URL production build 통과.
 - 2026-10-02 온이(Oni) 라이트 모드 그래픽 버그 해결 및 전사 UX Writing & 메뉴바 문구 표준화 완료:
   - 밝은 테마에서 `mix-blend-mode: screen;`으로 인해 온이 캐릭터가 백화되는 현상을 다크 모드 한정으로 격리하여 라이트/다크 전 테마에서 캐릭터 원본 색감이 선명하게 노출되도록 개선.
@@ -65,5 +68,14 @@
 - 구현 결과: 현재 검색·카드·배너·온기 UI를 유지하면서 정보 칩/list/viewport/marker 데이터 경계만 복구했다. 기본 category는 `ALL`, 한옥은 단일 `HANOK`, 목록은 category·region 변경 시 초기화하고 cursor page는 `placeId` 중복 제거·snapshot scope·abort를 적용한다. 409 자동 복구는 1회로 제한하고 503은 기존 데이터를 유지한다.
 - 운영 제한: BE staging에서 `category=HANOK`과 첫 `nextCursor`의 두 번째 page가 200으로 검증되기 전에는 merge·운영 배포하지 않는다. 사용자의 2026-10-04 명시적 요청에 따라 FE 코드리뷰용 PR은 먼저 생성한다.
 - 2026-10-03 실 API 재검증: staging `https://staging-api.onmaru.site`는 `/`, `/v3/api-docs`, info places·viewport 모두 nginx 503을 반환했다. 운영 `https://api.onmaru.site`도 `category=HANOK` list는 400 `INVALID_REQUEST`(`field=query`), viewport는 400 `INVALID_REQUEST`(`field=category`)를 반환했다. 따라서 HANOK 및 두 번째 cursor page 준비 조건은 미충족이다. 관련 BE Issue #553·#566도 open 상태다.
-- 검증: 지도 회귀 Vitest 8 files/25 tests, `npx tsc --noEmit`, 대상 ESLint, `NEXT_PUBLIC_API_URL='' npm run build`, 로컬 Chrome fixture 스모크를 통과했다. 브라우저에서 한옥→숙소 전환 시 URL·칩·검색 문구·`totalCount` 헤더가 함께 바뀌고 dev 로그에 `/api/map/places` 요청이 없음을 확인했다.
-- 기준선: 전체 Vitest는 109 files/488 tests가 통과하고 기존 `scripts/api-url-env-contract.test.mjs` 1건만 실패한다. `.env.example`의 기존 `NEXT_PUBLIC_API_BASE_URL` 항목이 단일 환경키 계약을 위반하며 이번 지도 범위에서는 변경하지 않았다.
+- 검증: 최신 `origin/develop` 병합 후 지도 관련 Vitest 10 files/34 tests, `npx tsc --noEmit`, 대상 ESLint가 통과했다. 앞선 production build와 로컬 Chrome fixture 스모크에서는 한옥→숙소 전환 시 URL·칩·검색 문구·`totalCount` 헤더가 함께 바뀌고 dev 로그에 `/api/map/places` 요청이 없음을 확인했다.
+- 최신 develop 기준선: 전체 Vitest는 130 files/593 tests가 통과하고 3 files/3 tests가 실패한다. 실패 파일(`next.config.ts` 환경변수 계약, 관리자 로그인 quick-login 노출, screenHanok fallback timeout)은 이 브랜치에서 수정하지 않았으며 `origin/develop`과 동일하고 개별 재실행에서도 재현된다. 보호 브랜치 PR 게이트 처리 전에 별도 수정 또는 기준선 판단이 필요하다.
+
+# Issue #297 — 관리자 목록 `totalCount` 커서 페이지네이션 (2026-10-03)
+
+- 작업 브랜치: `fix/297-admin-total-count-pagination`
+- 관리자 커서 목록 6개 API의 공통 응답 타입에 필터 기준 `totalCount`를 반영했다.
+- 사용자·후기·신고·큐레이션 화면의 커서 페이지네이션에 전체 건수, 현재 표시 범위, 현재/전체 페이지를 표시한다.
+- `nextCursor`는 해석하지 않고 기존처럼 다음 요청에 그대로 전달하며 필터 변경 시 커서와 전체 건수를 초기화한다.
+- 관리자 feature 테스트 23개, 타입 검사, 변경 파일 ESLint, production build가 통과했다.
+- PR 생성 전 사용자 최종 승인이 필요하다.

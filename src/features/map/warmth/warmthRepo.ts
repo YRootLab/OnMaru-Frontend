@@ -157,6 +157,7 @@ export function toReview(w: Warmth): WarmthReview {
     helpfulCount: w.helpfulCount ?? 0,  // 백엔드에서 제공
     isHelpful: w.isHelpful ?? false,    // 백엔드에서 제공
     mine: w.mine,
+    author: w.author,
   };
 }
 

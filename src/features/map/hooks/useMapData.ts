@@ -2,181 +2,72 @@
 
 import { useEffect } from 'react';
 import { logger } from '@/lib/log';
-import { distanceInMeters } from './useKakaoMap';
-import { decodeHeatPayload } from '@/features/map/warmth/heatPresentation';
-import { useMapStore } from './useMapStore';
-import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import { fetchWarmthData } from '@/features/map/services/warmth.service';
-import type { HeatDay, HeatSpot, Item, KakaoMap } from '@/features/map/types';
+import type { KakaoMap } from '@/features/map/types';
+import { distanceInMeters } from './useKakaoMap';
+import { useMapStore } from './useMapStore';
 
 const log = logger('map');
-const CLIENT_CACHE_TTL = 60_000;
-const clientHeatCache = new Map<string, { expiresAt: number; spots: HeatSpot[]; days: HeatDay[] }>();
-const clientPlaceCache = new Map<string, { expiresAt: number; items: Item[] }>();
-
 
 function radiusFromMap(map: KakaoMap): number {
   const bounds = map.getBounds?.();
-  if (!bounds) return 3000;
-  const ne = bounds.getNorthEast();
-  const c = map.getCenter();
+  if (!bounds) return 3_000;
+  const northEast = bounds.getNorthEast();
+  const center = map.getCenter();
   return distanceInMeters(
-    { lat: c.getLat(), lng: c.getLng() },
-    { lat: ne.getLat(), lng: ne.getLng() },
+    { lat: center.getLat(), lng: center.getLng() },
+    { lat: northEast.getLat(), lng: northEast.getLng() },
   );
 }
 
-
-
-
-
-
-
-
-
-
-
 function searchRadius(map: KakaoMap, centerLat: number, centerLng: number): number {
-  const c = map.getCenter?.();
-  const offset = c
+  const center = map.getCenter?.();
+  const offset = center
     ? distanceInMeters(
         { lat: centerLat, lng: centerLng },
-        { lat: c.getLat(), lng: c.getLng() },
+        { lat: center.getLat(), lng: center.getLng() },
       )
     : 0;
 
-
-  return Math.max(1000, Math.round(offset + radiusFromMap(map)));
+  return Math.max(1_000, Math.round(offset + radiusFromMap(map)));
 }
 
-// 캐싱은 백엔드에서 처리 — 프론트는 API 응답을 그대로 사용
-
-
 export function useMapData() {
-  const map = useMapStore((s) => s.map);
-  const mode = useMapStore((s) => s.mode);
-  const category = useMapStore((s) => s.category);
-  const searchCenter = useMapStore((s) => s.searchCenter);
-  const reloadNonce = useMapStore((s) => s.reloadNonce);
-  const level = useMapStore((s) => s.level);
+  const mode = useMapStore((state) => state.mode);
+  const searchCenter = useMapStore((state) => state.searchCenter);
+  const committedRadius = useMapStore((state) => state.committedViewport.radius);
 
   useEffect(() => {
-    const { setItems, setLoading, setError } = useMapStore.getState();
-    if (!map || mode !== 'warmth') {
-      return;
-    }
+    if (mode !== 'warmth') return;
 
-    const radius = searchRadius(map, searchCenter.lat, searchCenter.lng);
-    const roundedLat = Math.round(searchCenter.lat * 100) / 100;
-    const roundedLng = Math.round(searchCenter.lng * 100) / 100;
-    const roundedRadius = Math.round(radius / 1000) * 1000;
-    const cacheKey = `${roundedLat}_${roundedLng}_${roundedRadius}_${category || 'all'}`;
     const controller = new AbortController();
+    const initialState = useMapStore.getState();
+    const level = initialState.committedViewport.level;
+    const currentMap = initialState.map;
+    const radius = currentMap
+      ? searchRadius(currentMap, searchCenter.lat, searchCenter.lng)
+      : Math.max(1_000, committedRadius || 3_000);
+
     fetchWarmthData({
       lat: searchCenter.lat,
       lng: searchCenter.lng,
       level,
-      radius: Math.max(radius, level <= 5 ? 5000 : 15000),
+      radius: Math.max(radius, level <= 5 ? 5_000 : 15_000),
       signal: controller.signal,
     })
-      .then((res) => {
-        if (res.spots && res.spots.length > 0) {
-          useMapStore.getState().setHeatSpots(res.spots);
-          useMapStore.getState().setHeatDays(res.days);
-        }
-        if (res.noticeMessage) {
-          useMapStore.getState().setError(res.noticeMessage);
-        }
-      })
-      .catch((err) => {
-        if (err instanceof DOMException && err.name === 'AbortError') return;
-        log.warn('권역 히트스팟 패치 실패:', err);
-      });
-
-
-
-    const cached = clientPlaceCache.get(cacheKey);
-    if (cached && cached.expiresAt > Date.now()) {
-      setItems(cached.items);
-      setLoading(false);
-      return;
-    }
-
-    const params = new URLSearchParams({
-      lat: String(searchCenter.lat),
-      lng: String(searchCenter.lng),
-      radius: String(radius),
-    });
-    if (category) params.set('category', category);
-
-    setLoading(true);
-    setError(null);
-    const t0 = performance.now();
-    log.log('fetch', { ...Object.fromEntries(params), mode });
-
-    fetch(`/api/map/places?${params}`, { signal: controller.signal })
-      .then(async (res) => {
-        const json = await res.json().catch(() => ({}));
-        const items: Item[] = Array.isArray(json.items) ? json.items : [];
-        log.log('items', items.length, `${Math.round(performance.now() - t0)}ms`, json.error ?? '');
-
-        const failed = !res.ok || Boolean(json.error);
-
-
-
-
-
-
-
-
-
-
-
-
-        if (!failed) {
-          clientPlaceCache.set(cacheKey, {
-            expiresAt: Date.now() + CLIENT_CACHE_TTL,
-            items,
-          });
-
-
-          const currentDetailId = useMapStore.getState().detailId;
-          const currentItems = useMapStore.getState().items;
-          const targetItem = currentItems.find((it) => it.id === currentDetailId);
-          const nextItems =
-            targetItem && !items.some((it) => it.id === targetItem.id)
-              ? [targetItem, ...items]
-              : items;
-
-          setItems(nextItems);
-        } else if (items.length > 0) {
-
-          const currentDetailId = useMapStore.getState().detailId;
-          const currentItems = useMapStore.getState().items;
-          const targetItem = currentItems.find((it) => it.id === currentDetailId);
-          const nextItems =
-            targetItem && !items.some((it) => it.id === targetItem.id)
-              ? [targetItem, ...items]
-              : items;
-
-          setItems(nextItems);
-        }
-
-
-        if (!res.ok || json.error) {
-          setError(typeof json.error === 'string' ? json.error : '장소를 불러오지 못했어요');
+      .then((response) => {
+        const store = useMapStore.getState();
+        store.setHeatSpots(response.spots ?? []);
+        store.setHeatDays(response.days ?? []);
+        if (response.noticeMessage) {
+          store.setError(response.noticeMessage);
         }
       })
-      .catch((err: unknown) => {
-        if (err instanceof DOMException && err.name === 'AbortError') return;
-        log.error('fetch 실패', err);
-
-        setError(err instanceof Error ? err.message : '장소를 불러오지 못했어요');
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setLoading(false);
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === 'AbortError') return;
+        log.warn('권역 히트스팟 패치 실패:', error);
       });
 
     return () => controller.abort();
-  }, [map, mode, category, searchCenter.lat, searchCenter.lng, level, reloadNonce]);
+  }, [mode, searchCenter.lat, searchCenter.lng, committedRadius]);
 }

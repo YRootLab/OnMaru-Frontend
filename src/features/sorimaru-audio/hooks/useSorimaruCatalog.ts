@@ -100,7 +100,18 @@ export function createSorimaruCatalogController(repository: SorimaruRepository, 
   async function loadInitial(force = false): Promise<void> {
     generation += 1;
     const requestInitialGeneration = ++initialGeneration;
-    if (!initialPage || force) publish({ initialLoading: true });
+    if (!initialPage || force) {
+      publish({
+        initialLoading: true,
+        initialError: null,
+        catalog: {
+          ...snapshot.catalog,
+          status: 'loading',
+          error: null,
+          loadingNext: false,
+        },
+      });
+    }
     const result: SorimaruInitialData = initialPage && !force
       ? { archive: initialPage, heroStories: initialPage.items.slice(0, 7), nearbyStories: initialPage.items, archiveError: null }
       : await loadSorimaruInitialData(repository);

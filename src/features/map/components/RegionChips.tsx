@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import styled from '@emotion/styled';
 import { meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
+import { snapshotFromMap } from '@/features/map/hooks/useKakaoMap';
 import { DEFAULT_CENTER, useMapStore } from '@/features/map/hooks/useMapStore';
 import type { LatLng } from '@/features/map/types';
 
@@ -73,8 +74,17 @@ export default function RegionChips() {
 
   const panTo = (center: LatLng) => {
     map?.panTo(new window.kakao.maps.LatLng(center.lat, center.lng));
-    useMapStore.getState().setCenter(center);
-    useMapStore.getState().clearSearchDirty();
+    const store = useMapStore.getState();
+    store.setCenter(center);
+    store.commitViewportSearch(
+      map
+        ? snapshotFromMap(map, { center })
+        : {
+            center,
+            level: store.level,
+            radius: store.committedViewport.radius || 3_000,
+          },
+    );
   };
 
   const select = (id: string, center?: LatLng) => {

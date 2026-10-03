@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { palette } from '@/design-system/tokens';
+import type { ViewportSnapshot } from '@/features/map/domain/viewportRefreshPolicy';
 import type {
   HeatDay,
   HeatSpot,
@@ -16,6 +17,7 @@ import type {
   Warmth,
 } from '@/features/map/types';
 import type { WarmthPeriod } from '@/features/map/warmth/heatScale';
+import type { MapLoadError } from '@/features/map/application/mapLoadError';
 
 
 export const DEFAULT_CENTER: LatLng = { lat: 36.35, lng: 127.75 };
@@ -52,6 +54,7 @@ interface MapState {
   warmthViewType: 'district' | 'heatmap';
   loading: boolean;
   error: string | null;
+  placeLoadError: MapLoadError | null;
   selectedId: string | null;
   hoveredId: string | null;
   detailId: string | null;
@@ -61,6 +64,7 @@ interface MapState {
   currentAddress: string;
 
   searchCenter: LatLng;
+  committedViewport: ViewportSnapshot;
   isSearchDirty: boolean;
 
   searchQuery: string;
@@ -118,6 +122,7 @@ interface MapState {
   setWarmthPeriod: (period: WarmthPeriod) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
+  setPlaceLoadError: (error: MapLoadError | null) => void;
   setSelectedId: (id: string | null) => void;
   setHoveredId: (id: string | null) => void;
   setDetailId: (id: string | null) => void;
@@ -128,6 +133,8 @@ interface MapState {
   setCurrentAddress: (currentAddress: string) => void;
   markSearchDirty: () => void;
   clearSearchDirty: () => void;
+  initializeCommittedViewport: (snapshot: ViewportSnapshot) => void;
+  commitViewportSearch: (snapshot: ViewportSnapshot) => void;
   reload: () => void;
   togglePanel: () => void;
   setPanelOpen: (panelOpen: boolean) => void;
@@ -216,6 +223,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   warmthViewType: 'district',
   loading: true,
   error: null,
+  placeLoadError: null,
   selectedId: null,
   hoveredId: null,
   detailId: null,
@@ -224,6 +232,11 @@ export const useMapStore = create<MapState>((set, get) => ({
   sortOrder: 'dist',
   currentAddress: '대한민국 전국',
   searchCenter: DEFAULT_CENTER,
+  committedViewport: {
+    center: DEFAULT_CENTER,
+    level: DEFAULT_LEVEL,
+    radius: 0,
+  },
   isSearchDirty: false,
   searchQuery: '',
   searchTrigger: 0,
@@ -285,6 +298,7 @@ export const useMapStore = create<MapState>((set, get) => ({
   setWarmthPeriod: (warmthPeriod) => set({ warmthPeriod }),
   setLoading: (loading) => set({ loading }),
   setError: (error) => set({ error }),
+  setPlaceLoadError: (placeLoadError) => set({ placeLoadError }),
   setSelectedId: (selectedId) => set({ selectedId }),
   setHoveredId: (hoveredId) => set({ hoveredId }),
   setDetailId: (detailId) =>
@@ -300,6 +314,14 @@ export const useMapStore = create<MapState>((set, get) => ({
   markSearchDirty: () => set({ isSearchDirty: true }),
 
   clearSearchDirty: () => set({ isSearchDirty: false, searchCenter: get().center }),
+  initializeCommittedViewport: (committedViewport) => set({ committedViewport }),
+  commitViewportSearch: (snapshot) =>
+    set((state) => ({
+      searchCenter: snapshot.center,
+      committedViewport: snapshot,
+      isSearchDirty: false,
+      reloadNonce: state.reloadNonce + 1,
+    })),
   reload: () => set({ reloadNonce: get().reloadNonce + 1 }),
   togglePanel: () => set({ panelOpen: !get().panelOpen }),
   setPanelOpen: (panelOpen) => set({ panelOpen }),

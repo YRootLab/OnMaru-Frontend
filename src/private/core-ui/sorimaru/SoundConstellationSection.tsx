@@ -8,6 +8,8 @@ import { motion, type Variants } from 'framer-motion';
 import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorimaruAudioStore';
 import type { SorimaruStorySummary } from '@/features/sorimaru-audio/domain/sorimaruStory';
 import type { RegionGroupsState, RegionStoriesState } from '@/features/sorimaru-audio/presentation/hooks/useSorimaruRegionStories';
+import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty/OniSearchEmpty';
+import { SectionErrorFallback } from '@/shared/components/SectionErrorFallback/SectionErrorFallback';
 import { KOREA_MAP_VIEWBOX, KOREA_REGION_PATHS } from './koreaMapPaths';
 import { getVirtualRange, VIRTUAL_ITEM_HEIGHT } from './soundConstellationScroll';
 import {
@@ -616,7 +618,15 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
 
   const [hoveredRegionId, setHoveredRegionId] = useState<string | null>(null);
   const [isListHovered, setIsListHovered] = useState(false);
-  const isRegionLoading = groupsState.status !== 'success' || regionStoriesState.status === 'idle' || regionStoriesState.status === 'loading';
+  const regionError = groupsState.error ?? regionStoriesState.error;
+  const isRegionLoading = groupsState.status === 'idle'
+    || groupsState.status === 'loading'
+    || (groupsState.status === 'success'
+      && (regionStoriesState.status === 'idle' || regionStoriesState.status === 'loading'));
+  const isRegionEmpty = !regionError
+    && groupsState.status === 'success'
+    && regionStoriesState.status === 'empty'
+    && !regionStoriesState.hasMore;
   const isFetchingNextPage = regionStoriesState.loadingNext;
 
 
@@ -844,7 +854,11 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
               {KOREA_REGION_PATHS.map((region) => {
                 const active = region.id === selectedRegionId;
                 const apiGroup = regionGroups?.groups.find((group) => group.label === region.label);
-                const count = apiGroup?.storyCount ?? (groupsState.status === 'success' ? 0 : '…');
+                const count = apiGroup?.storyCount ?? (
+                  groupsState.status === 'idle' || groupsState.status === 'loading'
+                    ? '…'
+                    : groupsState.status === 'error' ? '–' : 0
+                );
                 return (
                   <RegionPin
                     key={region.id}
@@ -871,12 +885,29 @@ export const SoundConstellationSection: React.FC<SoundConstellationSectionProps>
             <AsideHeader>
               <RegionLabel>{selectedRegion.label}</RegionLabel>
               <StoriesCount>
-                {isRegionLoading ? '조회 중…' : `${apiRegionGroup?.storyCount ?? regionStories.length}개 이야기`}
+                {isRegionLoading
+                  ? '조회 중…'
+                  : regionError ? '불러오지 못함' : `${apiRegionGroup?.storyCount ?? regionStories.length}개 이야기`}
               </StoriesCount>
             </AsideHeader>
 
             {isRegionLoading ? (
               <RegionStoryListSkeleton />
+            ) : regionError ? (
+              <SectionErrorFallback
+                compact
+                error={regionError}
+                title={`${selectedRegion.label} 이야기를 불러오지 못했어요`}
+                description="네트워크 연결 상태를 확인하고 다시 시도해 주세요."
+                onRetry={onRetry}
+              />
+            ) : isRegionEmpty ? (
+              <OniSearchEmpty
+                size="sm"
+                compact
+                title="이 지역의 이야기를 준비 중이에요"
+                description="다른 지역을 눌러 새로운 소리를 찾아보세요."
+              />
             ) : (
               <ScrollWrapper>
                 <TopGradientFade aria-hidden="true" />

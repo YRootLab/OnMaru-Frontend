@@ -4,10 +4,26 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import type { AdminRole, AdminUser } from '@/features/admin/types';
 import { setAccessToken, removeAccessToken, USE_MOCK } from '@/lib/api/client';
-import { adminLogin, adminLogout, adminRefresh, adminGetMe } from '@/features/admin/api/adminAuth.api';
+import { isOnmaruApiError } from '@/lib/api/errors';
+import {
+  adminLogin,
+  adminLogout,
+  adminRefresh,
+  adminGetMe,
+  waitForAdminRefresh,
+} from '@/features/admin/api/adminAuth.api';
 
-// 메모리 내 사용자 상태 (새로고침 시 refresh API로 복구)
 let _memUser: AdminUser | null = null;
+const userListeners = new Set<(user: AdminUser | null) => void>();
+
+function publishUser(user: AdminUser | null) {
+  _memUser = user;
+  userListeners.forEach((listener) => listener(user));
+}
+
+export type AdminLoginResult =
+  | { ok: true }
+  | { ok: false; code: 'INVALID_CREDENTIALS' | 'SESSION_RECOVERY_FAILED' };
 
 
 export function useAdminAuth() {
@@ -17,8 +33,14 @@ export function useAdminAuth() {
   const bootstrapped = useRef(false);
 
   const setUser = useCallback((u: AdminUser | null) => {
-    _memUser = u;
-    setUserState(u);
+    publishUser(u);
+  }, []);
+
+  useEffect(() => {
+    userListeners.add(setUserState);
+    return () => {
+      userListeners.delete(setUserState);
+    };
   }, []);
 
   const DEFAULT_ADMIN: AdminUser = {
@@ -55,15 +77,29 @@ export function useAdminAuth() {
       .finally(() => setIsLoading(false));
   }, [setUser]);
 
-  const login = useCallback(async (email: string, password: string): Promise<boolean> => {
+  const login = useCallback(async (email: string, password: string): Promise<AdminLoginResult> => {
     setIsLoading(true);
+    let loginCompleted = false;
     try {
+      await waitForAdminRefresh();
       const { accessToken, user: loggedInUser } = await adminLogin(email, password);
+      loginCompleted = true;
       setAccessToken(accessToken);
-      setUser(loggedInUser);
-      return true;
-    } catch {
-      return false;
+      if (USE_MOCK) {
+        setUser(loggedInUser);
+        return { ok: true };
+      }
+      await adminRefresh();
+      const currentAdmin = await adminGetMe();
+      setUser(currentAdmin);
+      return { ok: true };
+    } catch (error) {
+      removeAccessToken();
+      setUser(null);
+      if (!loginCompleted && isOnmaruApiError(error) && error.status === 401) {
+        return { ok: false, code: 'INVALID_CREDENTIALS' };
+      }
+      return { ok: false, code: 'SESSION_RECOVERY_FAILED' };
     } finally {
       setIsLoading(false);
     }

@@ -23,6 +23,7 @@ describe('Sorimaru editorial rail card copy', () => {
         contentTags: ['palace'],
         savedByMe: false,
       }],
+      totalCount: 1,
       nextCursor: null,
       hasMore: false,
     });

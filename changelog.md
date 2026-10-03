@@ -4,6 +4,13 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## Unreleased
 - 지도 정보모드를 cursor 기반 `/api/v1/map/info/places`와 zoom-aware `/api/v1/map/info/viewport`에 다시 연결했다. 데스크톱·모바일 목록을 `InfoPlaceList`로 통일하고, `totalCount`·중복 없는 cursor append·stale snapshot/abort·409 1회 복구·503 기존 데이터 유지·servedBbox 요청 생략을 보강했다. 정보모드에서는 legacy `/api/map/places`와 TourAPI 직접 조회를 차단하며, `HANOK`을 list와 viewport에 같은 서버 category로 전달한다. REGION·DISTRICT·CLUSTER는 서버 aggregate overlay만, PLACE는 canonical `placeId` marker만 렌더링한다.
+- FE #293: 관리자 로그인 뒤 refresh 요청에 동적 CSRF header와 HttpOnly cookie credential을 포함하고, 동시 세션 복구를 하나의 Promise로 합쳤다. 로그인 401과 로그인 후 세션 복구 실패 메시지를 분리했으며 production 관리자 로그인 화면에서 개발용 원클릭 계정을 제거했다.
+- 소리마루 주변 이야기와 아카이브 카드의 작은 글자를 한 단계 키우고 긴 제목을 최대 두 줄로 표시했다. 위치 기반 전국 큐레이션 안내는 핵심 조건과 대체 콘텐츠만 주황색으로 강조하고 카드 스켈레톤 높이를 실제 레이아웃과 맞췄다.
+- 지도마루는 마지막 줌·이동 조작 후 900ms 동안 기다린 뒤 의미 있는 변화만 한 번 갱신하고, 새 데이터를 기다리는 동안 기존 목록과 마커를 유지하며 반복 등장 효과를 억제해 더 편안하게 탐색할 수 있도록 개선했다.
+- 소리마루 `GET /api/v1/odii/stories`의 새 `totalCount` 계약을 반영했다. 전체·카테고리·지역 목록에서 현재 페이지의 최대 20건이 아니라 서버가 필터를 적용해 반환한 전체 이야기 수를 표시하며, 누락되거나 음수·소수인 `totalCount` 응답은 잘못된 계약으로 처리한다.
+- FE #281: 소리마루의 정상적인 0건 결과와 서버/API 실패를 분리했다. 실패 시 차분한 서버 오류 온이 이미지와 `잠시 연결이 불안정해요` 안내, 즉시 오류를 숨기는 재시도 동작을 편집형 레일과 전체 이야기 목록에 공통 적용했다.
+- FE #282: 지도 장소 목록과 Kakao 지도 SDK에 25초 로딩 상한을 적용하고 네트워크·타임아웃·429·5xx 상태별 편안한 안내와 재시도를 추가했다. 기존 장소가 있으면 유지한 채 비차단 안내를 표시하고, 데이터가 없으면 목록과 지도 캔버스가 각각 오류 상태로 종료되도록 했다. 내부 장소 API는 잘못된 좌표를 400, 폴백도 없는 상위 장애를 503으로 반환한다.
+- 소리마루 재시도 중에는 상단 오류 안내를 즉시 숨기고, 요청이 다시 실패할 때만 복귀하도록 상태 전환을 수정했다. `지도로 듣는 이야기`의 지역 오류는 전역 안내와 분리해 섹션 내 재시도로 표시하고, 오류나 최종 빈 결과를 무한 스켈레톤으로 표시하지 않도록 개선했다.
 - FE #276: 브라우저 API 호출, Next.js rewrite, 인증 점검 스크립트와 GitHub Actions가 `NEXT_PUBLIC_API_URL` 하나만 사용하도록 환경변수 계약을 통합하고 로컬 스테이징·Vercel Production 전환 안내서를 추가했다.
 - 온이(Oni) 캐릭터 라이트 모드 백화(Ghosting) 현상 수정: 밝은 배경(`#ffffff`, `#f8f8f7`)에서 `mix-blend-mode: screen;` 적용 시 픽셀이 완전히 하얗게 날아가던 문제를 해결하기 위해 다크 모드(`[data-theme='dark']`) 환경에서만 screen 블렌딩이 활성화되도록 분기 처리했다.
 - 전역 네비게이션 및 메뉴바 용어 표준화:
@@ -257,6 +264,7 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 
 ## [Unreleased] 
 ### Changed 
+- 소리마루 `장면을 따라 걷는 소리` 카드 레일의 좌·우 탐색 화살표를 복구하고, 각 클릭이 이야기를 정확히 한 칸씩 이동하도록 회귀 테스트를 추가했다.
 - 지도 온기 모드에서 방문량 기반 Map Heat와 사용자 VisitReview를 완전히 분리했다. 공개 후기 응답의 비공개 moderation `status` 필터와 후기/장소 기반 Heat fallback을 제거하고, 서버 지역 코드·장소별 전용 조회·실제 후기 작성 POST(CSRF/멱등성)를 연결했다.
 - 지도 인기 장소 카드에서 이미지 요청이 실패해도 빈 썸네일을 남기지 않고, 58px placeholder로 전환하도록 보완했다.
 - 홈 `이번 주 추천 코스` 카드에서 placeholder보다 실제 이미지를 뒤에 렌더링해 TourAPI 썸네일이 가려지지 않도록 수정하고, 공백 URL 및 이미지 요청 실패 시에는 placeholder를 유지하도록 했다.
@@ -280,3 +288,7 @@ Lightweight human-readable summary of meaningful repository changes. This does n
 - 2026-09-23: #184·#185 오디오 지역 그룹/인기 소리 API 연결, 재생 기록·찜 영속화, 실제 응답 크기에 맞춘 인기 소리 로딩 스켈레톤 개선.
 - 2026-09-23: 홈 인기 소리와 소리마루 지도 지역 그룹을 실제 백엔드 응답에 연결.
 - 2026-09-23: 추천 코스 캐러셀 버튼 레이어 및 상세 카드 스켈레톤 개선.
+# 2026-10-03
+
+- 관리자 사용자·후기·신고·검수 큐·큐레이션 목록 API의 `totalCount`를 FE 커서 응답에 반영했다. (#297)
+- 관리자 목록 하단에서 필터 기준 전체 결과 수, 현재 표시 범위, 현재/전체 페이지를 확인할 수 있도록 커서 페이지네이션을 개선했다. (#297)

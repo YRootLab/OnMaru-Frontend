@@ -10,10 +10,13 @@ import { Cancel01Icon, LocateFixedIcon, MinusSignIcon, Moon01Icon, PlusSignIcon,
 import { toast } from 'sonner';
 import { meok, lightPalette, surface, fontSize } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
-import { KAKAO_SDK_SRC, useKakaoMap } from '@/features/map/hooks/useKakaoMap';
+import { KAKAO_SDK_SRC, snapshotFromMap, useKakaoMap } from '@/features/map/hooks/useKakaoMap';
+import { useKakaoSdkLoad } from '@/features/map/hooks/useKakaoSdkLoad';
 import { DEFAULT_CENTER, useMapStore } from '@/features/map/hooks/useMapStore';
 import type { LatLng } from '@/features/map/types';
 import { isAppleOrSafari } from '@/shared/hooks/useIsAppleDevice';
+import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty/OniSearchEmpty';
+import { getMapLoadErrorCopy } from '@/features/map/presentation/mapLoadErrorCopy';
 
 const LOC_PERMISSION_KEY = 'om_location_permission_granted';
 
@@ -202,6 +205,49 @@ const Canvas = styled.div<{ $isNight: boolean }>`
     $isNight
       ? 'invert(92%) hue-rotate(180deg) brightness(92%) contrast(112%) saturate(85%)'
       : 'none'};
+`;
+
+const MapFailureOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  z-index: 19;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(248, 248, 247, 0.96);
+  backdrop-filter: blur(8px);
+
+  [data-theme='dark'] & {
+    background: rgba(23, 30, 43, 0.96);
+  }
+`;
+
+const MapRetryButton = styled.button`
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid rgba(78, 89, 104, 0.22);
+  border-radius: 9999px;
+  background: #ffffff;
+  padding: 0 16px;
+  color: ${meok[800]};
+  font-family: inherit;
+  font-size: ${fontSize.xs};
+  font-weight: 700;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid ${lightPalette.cheongrok[500]};
+    outline-offset: 2px;
+  }
+
+  [data-theme='dark'] & {
+    border-color: rgba(255, 255, 255, 0.16);
+    background: ${surface.dark.card};
+    color: ${meok[100]};
+  }
 `;
 
 
@@ -562,7 +608,7 @@ const ControlButton = styled.button<{ $active?: boolean }>`
 
 export default function KakaoMap() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const initMap = useKakaoMap(containerRef);
+  const { initMap, resetMapInitialization } = useKakaoMap(containerRef);
   const { mode: themeMode, setMode: setThemePreference } = useOnmaruTheme();
   const isEffectiveNight = themeMode === 'dark';
   const map = useMapStore((s) => s.map);
@@ -570,6 +616,10 @@ export default function KakaoMap() {
   const panelOpen = useMapStore((s) => s.panelOpen);
   const [isLocating, setIsLocating] = useState(false);
   const [showLocationModal, setShowLocationModal] = useState(false);
+  const { sdkAttempt, mapLoadError, handleSdkLoad, handleSdkError, retryMapLoad } =
+    useKakaoSdkLoad({ map, initMap, resetMapInitialization });
+
+  const mapErrorCopy = mapLoadError ? getMapLoadErrorCopy(mapLoadError) : null;
 
 
   useEffect(() => {
@@ -662,7 +712,6 @@ export default function KakaoMap() {
         setShowLocationModal(true);
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, hasQueryCoords]);
 
   // ── Zoom-level based overlay visibility ─────────────────────────────────────
@@ -688,7 +737,6 @@ export default function KakaoMap() {
     return () => {
       window.kakao?.maps?.event?.removeListener(map, 'zoom_changed', onZoomChanged);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map]);
 
   const moveTo = (target: LatLng, targetLevel = 3, accuracy?: number) => {
@@ -779,7 +827,7 @@ export default function KakaoMap() {
     const store = useMapStore.getState();
     store.setUserLocation(target);
     store.setCenter(target, targetLevel);
-    store.clearSearchDirty();
+    store.commitViewportSearch(snapshotFromMap(currentMap, { center: target, level: targetLevel }));
   };
 
   const zoom = (delta: number) => {
@@ -838,7 +886,13 @@ export default function KakaoMap() {
   return (
     <Frame>
       <Global styles={mapGlobalStyles} />
-      <Script strategy="afterInteractive" src={KAKAO_SDK_SRC} onLoad={initMap} />
+      <Script
+        key={sdkAttempt}
+        strategy="afterInteractive"
+        src={sdkAttempt === 0 ? KAKAO_SDK_SRC : `${KAKAO_SDK_SRC}&omRetry=${sdkAttempt}`}
+        onLoad={handleSdkLoad}
+        onError={handleSdkError}
+      />
 
       {/* Location Permission Modal */}
       {showLocationModal && (
@@ -875,8 +929,34 @@ export default function KakaoMap() {
       />
       <WarmTint $active={!isEffectiveNight} aria-hidden="true" />
 
+      {mapLoadError && mapErrorCopy && (
+        <MapFailureOverlay>
+          <OniSearchEmpty
+            size="md"
+            compact
+            role="alert"
+            videoSrc=""
+            imageSrc="/images/character/Oni_server_error.png"
+            title="지도를 지금 불러올 수 없어요"
+            description={mapErrorCopy.description}
+            action={(
+              <MapRetryButton type="button" onClick={retryMapLoad}>
+                <HugeiconsIcon icon={RotateCcwIcon} size={15} aria-hidden="true" />
+                지도 다시 불러오기
+              </MapRetryButton>
+            )}
+          />
+        </MapFailureOverlay>
+      )}
+
       {isSearchDirty && (
-        <Research type="button" onClick={() => useMapStore.getState().clearSearchDirty()}>
+        <Research
+          type="button"
+          onClick={() => {
+            const store = useMapStore.getState();
+            if (store.map) store.commitViewportSearch(snapshotFromMap(store.map));
+          }}
+        >
           <HugeiconsIcon icon={RotateCcwIcon} size={16} strokeWidth={2} aria-hidden />
           이 지역 재검색
         </Research>

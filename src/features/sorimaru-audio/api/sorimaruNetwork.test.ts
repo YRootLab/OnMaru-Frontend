@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import type { SorimaruRepository } from '../application/SorimaruRepository';
 import { createSorimaruNetworkClient, fetchSorimaruRegionGroups } from './sorimaruNetwork';
 
-const page = { items: [], nextCursor: null, hasMore: false };
+const page = { items: [], totalCount: 0, nextCursor: null, hasMore: false };
 
 describe('Sorimaru network compatibility boundary', () => {
   it('delegates cursor lists to the backend repository without public requests', async () => {
