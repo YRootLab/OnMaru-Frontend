@@ -27,6 +27,8 @@ interface AuthSessionState {
   ensureSessionLoaded: () => Promise<void>;
   applyProfile: (profile: MemberProfile) => AuthUser;
   clear: () => void;
+  /** 탈퇴 후 재로그인 대비: undefined+false로 완전 초기화해 isLoading=true를 보장한다. */
+  reset: () => void;
 }
 
 export function toAuthUser(profile: MemberProfile): AuthUser {
@@ -68,4 +70,5 @@ export const useAuthSessionStore = create<AuthSessionState>((set, get) => ({
   },
 
   clear: () => set({ user: null }),
+  reset: () => set({ user: undefined, hasLoadedOnce: false }),
 }));
