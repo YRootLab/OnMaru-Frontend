@@ -24,6 +24,7 @@ import {
 } from '@/shared/navigation/mapEntranceTiming';
 import { useMapEntranceStore } from '@/shared/navigation/mapEntranceState';
 import { useMapStore } from './hooks/useMapStore';
+import { snapshotFromMap } from './hooks/useKakaoMap';
 import { useMapData } from './hooks/useMapData';
 import BottomSheet from './components/BottomSheet';
 import CategoryChips from './components/CategoryChips';
@@ -356,17 +357,25 @@ export default function MapPage() {
 
       return {
         center: targetCoord,
-        searchCenter: targetCoord,
         level: 4,
         selectedId: targetId,
         detailId: targetId,
         panelOpen: true,
         sheetSnap: 'full',
-        isSearchDirty: false,
         items: nextItems,
         category: queryCategory || state.category,
       };
     });
+    const store = useMapStore.getState();
+    store.commitViewportSearch(
+      currentMap
+        ? snapshotFromMap(currentMap, { center: targetCoord, level: 4 })
+        : {
+            center: targetCoord,
+            level: 4,
+            radius: store.committedViewport.radius || 3_000,
+          },
+    );
   }, [
     hasTargetLocation,
     parsedLat,

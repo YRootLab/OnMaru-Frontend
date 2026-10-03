@@ -1,6 +1,12 @@
 'use client';
 
 import { useCallback, useEffect, useRef, type RefObject } from 'react';
+import {
+  VIEWPORT_SETTLE_MS,
+  shouldCommitViewport,
+  type ViewportSnapshot,
+} from '@/features/map/domain/viewportRefreshPolicy';
+import type { KakaoMap, LatLng } from '@/features/map/types';
 import { distanceInMeters } from '@/features/map/utils/geo';
 import { useMapStore } from './useMapStore';
 
@@ -11,16 +17,33 @@ export const KAKAO_SDK_SRC =
   `&libraries=services,clusterer&autoload=false`;
 
 
-const REFETCH_DISTANCE = 1200;
-
-
-const IDLE_DEBOUNCE_MS = 700;
-
-
-
-
 export { distanceInMeters };
 
+export function snapshotFromMap(
+  map: KakaoMap,
+  overrides: { center?: LatLng; level?: number } = {},
+): ViewportSnapshot {
+  const mapCenter = map.getCenter();
+  const center = overrides.center ?? {
+    lat: mapCenter.getLat(),
+    lng: mapCenter.getLng(),
+  };
+  const bounds = map.getBounds?.();
+  const southWest = bounds?.getSouthWest?.();
+  const northEast = bounds?.getNorthEast?.();
+  const radius = southWest && northEast
+    ? distanceInMeters(
+        { lat: southWest.getLat(), lng: southWest.getLng() },
+        { lat: northEast.getLat(), lng: northEast.getLng() },
+      ) / 2
+    : 3_000;
+
+  return {
+    center,
+    level: overrides.level ?? map.getLevel(),
+    radius: Math.max(1_000, Math.round(radius)),
+  };
+}
 
 
 
@@ -35,7 +58,7 @@ export function useKakaoMap(containerRef: RefObject<HTMLDivElement | null>) {
     createdRef.current = true;
 
     window.kakao.maps.load(() => {
-      const { center, level, setMap, setCenter } = useMapStore.getState();
+      const { center, level, setMap, setCenter, initializeCommittedViewport } = useMapStore.getState();
       const map = new window.kakao.maps.Map(container, {
         center: new window.kakao.maps.LatLng(center.lat, center.lng),
         level,
@@ -43,31 +66,20 @@ export function useKakaoMap(containerRef: RefObject<HTMLDivElement | null>) {
 
       let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
+      initializeCommittedViewport(snapshotFromMap(map));
+
       const onIdle = () => {
-        const c = map.getCenter();
-        const nextLevel = map.getLevel();
-        const next = { lat: c.getLat(), lng: c.getLng() };
-
-
-
-
-
-
-        const prev = useMapStore.getState();
-        const zoomChanged = nextLevel !== prev.level;
-        const moved = distanceInMeters(next, prev.searchCenter) >= REFETCH_DISTANCE;
-
-        setCenter(next, nextLevel);
+        const current = snapshotFromMap(map);
+        setCenter(current.center, current.level);
 
         if (debounceTimer) clearTimeout(debounceTimer);
         debounceTimer = setTimeout(() => {
-          if (zoomChanged || moved) {
-            useMapStore.getState().clearSearchDirty();
-            if (zoomChanged) {
-              useMapStore.getState().reload();
-            }
+          const latest = snapshotFromMap(map);
+          const store = useMapStore.getState();
+          if (shouldCommitViewport(latest, store.committedViewport)) {
+            store.commitViewportSearch(latest);
           }
-        }, IDLE_DEBOUNCE_MS);
+        }, VIEWPORT_SETTLE_MS);
       };
 
       window.kakao.maps.event.addListener(map, 'idle', onIdle);

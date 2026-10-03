@@ -10,7 +10,7 @@ import { Cancel01Icon, LocateFixedIcon, MinusSignIcon, Moon01Icon, PlusSignIcon,
 import { toast } from 'sonner';
 import { meok, lightPalette, surface, fontSize } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
-import { KAKAO_SDK_SRC, useKakaoMap } from '@/features/map/hooks/useKakaoMap';
+import { KAKAO_SDK_SRC, snapshotFromMap, useKakaoMap } from '@/features/map/hooks/useKakaoMap';
 import { DEFAULT_CENTER, useMapStore } from '@/features/map/hooks/useMapStore';
 import type { LatLng } from '@/features/map/types';
 import { isAppleOrSafari } from '@/shared/hooks/useIsAppleDevice';
@@ -779,7 +779,7 @@ export default function KakaoMap() {
     const store = useMapStore.getState();
     store.setUserLocation(target);
     store.setCenter(target, targetLevel);
-    store.clearSearchDirty();
+    store.commitViewportSearch(snapshotFromMap(currentMap, { center: target, level: targetLevel }));
   };
 
   const zoom = (delta: number) => {
@@ -876,7 +876,13 @@ export default function KakaoMap() {
       <WarmTint $active={!isEffectiveNight} aria-hidden="true" />
 
       {isSearchDirty && (
-        <Research type="button" onClick={() => useMapStore.getState().clearSearchDirty()}>
+        <Research
+          type="button"
+          onClick={() => {
+            const store = useMapStore.getState();
+            if (store.map) store.commitViewportSearch(snapshotFromMap(store.map));
+          }}
+        >
           <HugeiconsIcon icon={RotateCcwIcon} size={16} strokeWidth={2} aria-hidden />
           이 지역 재검색
         </Research>

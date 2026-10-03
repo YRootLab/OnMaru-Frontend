@@ -3,6 +3,7 @@ import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
 import { GlobeIcon, Search01Icon } from '@hugeicons/core-free-icons'
 import { lightPalette, meok, surface, fontSize, ringShadow } from '@/design-system/tokens';
+import { snapshotFromMap } from '@/features/map/hooks/useKakaoMap';
 import { DEFAULT_CENTER, DEFAULT_LEVEL, useMapStore } from '@/features/map/hooks/useMapStore';
 
 const RECENT = ['전주 한옥마을', '북촌 한옥마을', '안동 하회마을', '경주 양동마을', '경복궁'];
@@ -253,7 +254,18 @@ export default function SearchBar({ className }: SearchBarProps) {
 
             store.setCurrentAddress(first.address_name || keyword);
             store.setCenter({ lat: targetLat, lng: targetLng }, 4);
-            store.clearSearchDirty();
+            store.commitViewportSearch(
+              map
+                ? snapshotFromMap(map, {
+                    center: { lat: targetLat, lng: targetLng },
+                    level: 4,
+                  })
+                : {
+                    center: { lat: targetLat, lng: targetLng },
+                    level: 4,
+                    radius: store.committedViewport.radius || 3_000,
+                  },
+            );
             return;
           }
 
@@ -293,7 +305,15 @@ export default function SearchBar({ className }: SearchBarProps) {
     store.setCategory(null);
     store.setSelectedId(null);
     store.setDetailId(null);
-    store.clearSearchDirty();
+    store.commitViewportSearch(
+      map
+        ? snapshotFromMap(map, { center: DEFAULT_CENTER, level: DEFAULT_LEVEL })
+        : {
+            center: DEFAULT_CENTER,
+            level: DEFAULT_LEVEL,
+            radius: store.committedViewport.radius || 3_000,
+          },
+    );
 
     if (map && window.kakao?.maps) {
       map.setCenter(new window.kakao.maps.LatLng(DEFAULT_CENTER.lat, DEFAULT_CENTER.lng));
@@ -312,6 +332,13 @@ export default function SearchBar({ className }: SearchBarProps) {
     if (matched && map && window.kakao?.maps) {
       map.panTo(new window.kakao.maps.LatLng(matched.lat, matched.lng));
       map.setLevel(3, { animate: true });
+      store.setCenter({ lat: matched.lat, lng: matched.lng }, 3);
+      store.commitViewportSearch(
+        snapshotFromMap(map, {
+          center: { lat: matched.lat, lng: matched.lng },
+          level: 3,
+        }),
+      );
       store.setSelectedId(matched.id);
       store.setDetailId(matched.id);
       store.setSheetSnap('full');
