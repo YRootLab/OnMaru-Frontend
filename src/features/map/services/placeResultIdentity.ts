@@ -22,9 +22,3 @@ export function arePlaceResultsEqual(current: Item[], next: Item[]): boolean {
     current.every((item, index) => areItemsEqual(item, next[index]))
   );
 }
-
-export function placeMarkerSignature(items: Item[]): string {
-  return JSON.stringify(
-    items.map(({ id, lat, lng, category }) => [id, lat, lng, category]),
-  );
-}

@@ -151,4 +151,24 @@ describe('useKakaoMap viewport scheduling', () => {
 
     expect(useMapStore.getState().reloadNonce).toBe(0);
   });
+
+  it('discards a pending settle when an explicit viewport action commits first', () => {
+    const container = document.createElement('div');
+    renderHook(() => useKakaoMap({ current: container }));
+    mapLevel = 9;
+
+    act(() => idleListener?.());
+    act(() => vi.advanceTimersByTime(400));
+
+    const explicitSnapshot = {
+      center: { lat: 35.815, lng: 127.153 },
+      level: 4,
+      radius: 5_000,
+    };
+    act(() => useMapStore.getState().commitViewportSearch(explicitSnapshot));
+    act(() => vi.advanceTimersByTime(500));
+
+    expect(useMapStore.getState().reloadNonce).toBe(1);
+    expect(useMapStore.getState().committedViewport).toEqual(explicitSnapshot);
+  });
 });

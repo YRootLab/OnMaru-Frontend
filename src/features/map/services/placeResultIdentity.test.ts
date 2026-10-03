@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Item } from '@/features/map/types';
-import { arePlaceResultsEqual, placeMarkerSignature } from './placeResultIdentity';
+import { arePlaceResultsEqual } from './placeResultIdentity';
 
 const place: Item = {
   id: 'a',
@@ -19,25 +19,18 @@ describe('place result identity', () => {
     expect(arePlaceResultsEqual([place], [{ ...place }])).toBe(true);
   });
 
-  it('updates items when presentation fields change while keeping marker identity stable', () => {
+  it('updates items when presentation fields change', () => {
     const changed = [{ ...place, name: '새 이름', dist: 20 }];
 
     expect(arePlaceResultsEqual([place], changed)).toBe(false);
-    expect(placeMarkerSignature([place])).toBe(placeMarkerSignature(changed));
   });
 
-  it('detects marker identity changes, order changes, additions and removals', () => {
+  it('detects identity changes, order changes, additions and removals', () => {
     const second: Item = { ...place, id: 'b', name: 'B' };
 
-    expect(placeMarkerSignature([place])).not.toBe(
-      placeMarkerSignature([{ ...place, lat: 36.4 }]),
-    );
-    expect(placeMarkerSignature([place])).not.toBe(
-      placeMarkerSignature([{ ...place, category: 'stay' }]),
-    );
-    expect(placeMarkerSignature([place, second])).not.toBe(
-      placeMarkerSignature([second, place]),
-    );
-    expect(placeMarkerSignature([place])).not.toBe(placeMarkerSignature([]));
+    expect(arePlaceResultsEqual([place], [{ ...place, lat: 36.4 }])).toBe(false);
+    expect(arePlaceResultsEqual([place], [{ ...place, category: 'stay' }])).toBe(false);
+    expect(arePlaceResultsEqual([place, second], [second, place])).toBe(false);
+    expect(arePlaceResultsEqual([place], [])).toBe(false);
   });
 });

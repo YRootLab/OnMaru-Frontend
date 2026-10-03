@@ -57,13 +57,11 @@ export function useMapData() {
         signal: controller.signal,
       })
         .then((response) => {
-          if (response.spots && response.spots.length > 0) {
-            const store = useMapStore.getState();
-            store.setHeatSpots(response.spots);
-            store.setHeatDays(response.days);
-          }
+          const store = useMapStore.getState();
+          store.setHeatSpots(response.spots ?? []);
+          store.setHeatDays(response.days ?? []);
           if (response.noticeMessage) {
-            useMapStore.getState().setError(response.noticeMessage);
+            store.setError(response.noticeMessage);
           }
         })
         .catch((error: unknown) => {

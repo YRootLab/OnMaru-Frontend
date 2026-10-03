@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { shouldAnimateMarkerEntrance } from './markerEntrancePolicy';
+import {
+  advanceMarkerEntranceState,
+  shouldAnimateMarkerEntrance,
+} from './markerEntrancePolicy';
 
 describe('marker entrance policy', () => {
   it('animates the first non-empty marker render', () => {
@@ -37,5 +40,24 @@ describe('marker entrance policy', () => {
         reducedMotion: true,
       }),
     ).toBe(false);
+  });
+
+  it('keeps a category entrance pending until that category has markers', () => {
+    const emptyCategory = advanceMarkerEntranceState(
+      { hasRendered: true, category: 'spot', pendingCategory: false },
+      { category: 'stay', markerCount: 0, reducedMotion: false },
+    );
+
+    expect(emptyCategory.animate).toBe(false);
+    expect(emptyCategory.state.pendingCategory).toBe(true);
+
+    const loadedCategory = advanceMarkerEntranceState(emptyCategory.state, {
+      category: 'stay',
+      markerCount: 2,
+      reducedMotion: false,
+    });
+
+    expect(loadedCategory.animate).toBe(true);
+    expect(loadedCategory.state.pendingCategory).toBe(false);
   });
 });

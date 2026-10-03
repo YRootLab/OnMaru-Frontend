@@ -73,9 +73,12 @@ export function useKakaoMap(containerRef: RefObject<HTMLDivElement | null>) {
         setCenter(current.center, current.level);
 
         if (debounceTimer) clearTimeout(debounceTimer);
+        const scheduledReloadNonce = useMapStore.getState().reloadNonce;
         debounceTimer = setTimeout(() => {
-          const latest = snapshotFromMap(map);
           const store = useMapStore.getState();
+          if (store.reloadNonce !== scheduledReloadNonce) return;
+
+          const latest = snapshotFromMap(map);
           if (shouldCommitViewport(latest, store.committedViewport)) {
             store.commitViewportSearch(latest);
           }

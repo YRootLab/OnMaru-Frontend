@@ -114,6 +114,34 @@ describe('useMapData viewport request scheduling', () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
+  it('clears stale warmth markers after a successful empty response', async () => {
+    useMapStore.setState({
+      mode: 'warmth',
+      heatSpots: [
+        {
+          id: 'old',
+          placeId: 'old-place',
+          name: '이전 장소',
+          lat: 35.1,
+          lng: 129.1,
+          district: '부산',
+          visitorCount: 10,
+          congestionScore: 20,
+          congestionLevel: 'relaxed',
+          surgeMultiplier: 1,
+          intensity: 0.2,
+        },
+      ],
+      heatDays: [{ ymd: '20261002', weekday: '금' }],
+    });
+
+    renderHook(() => useMapData());
+    await waitFor(() => expect(fetchWarmthData).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(useMapStore.getState().heatSpots).toEqual([]));
+
+    expect(useMapStore.getState().heatDays).toEqual([]);
+  });
+
   it('keeps the items reference when a refresh returns fully identical items', async () => {
     vi.mocked(fetch)
       .mockResolvedValueOnce(
