@@ -10,6 +10,7 @@ import { mapIconSvg, type MapIconName } from '@/features/map/utils/mapIconSvg';
 import { calculateTravelEstimate, isTraditionalPlace, shortRegionName } from '@/features/map/utils/geo';
 import { isHanok } from '@/features/map/utils/isHanok';
 import { renderHanokMarkHtml } from './HanokMark';
+import { shouldAnimateMarkerEntrance } from './markerEntrancePolicy';
 import { useMapStore } from '../hooks/useMapStore';
 import { useStampStore } from '@/features/stamp/presentation/useStampStore';
 import type { Item, PlaceCategory } from '../types';
@@ -937,7 +938,7 @@ export default function PlaceMarkers() {
   const mode = useMapStore((s) => s.mode);
   const items = useMapStore((s) => s.items);
   const category = useMapStore((s) => s.category);
-  const level = useMapStore((s) => s.level);
+  const level = useMapStore((s) => s.committedViewport.level);
   const selectedId = useMapStore((s) => s.selectedId);
   const hoveredId = useMapStore((s) => s.hoveredId);
   const detailId = useMapStore((s) => s.detailId);
@@ -946,8 +947,20 @@ export default function PlaceMarkers() {
 
 
   const overlayMapRef = useRef<Map<string, OverlayRecord>>(new Map());
+  const hasRenderedMarkersRef = useRef(false);
+  const previousCategoryRef = useRef(category);
 
   useEffect(() => {
+    const categoryChanged = previousCategoryRef.current !== category;
+    previousCategoryRef.current = category;
+    const shouldAnimate = shouldAnimateMarkerEntrance({
+      hasRendered: hasRenderedMarkersRef.current,
+      categoryChanged,
+      reducedMotion: Boolean(
+        window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
+      ),
+    });
+
     if (!map || mode !== 'info' || items.length === 0 || !window.kakao?.maps) {
       overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));
       overlayMapRef.current.clear();
@@ -1031,7 +1044,8 @@ export default function PlaceMarkers() {
         overlayMapRef.current.set(`cluster_${idx}`, { overlay, el });
       });
 
-      burstIn(entranceWrappers);
+      if (shouldAnimate) burstIn(entranceWrappers);
+      hasRenderedMarkersRef.current = entranceWrappers.length > 0;
 
       return () => {
         overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));
@@ -1228,7 +1242,8 @@ export default function PlaceMarkers() {
       overlayMapRef.current.set(item.id, { overlay, el });
     });
 
-    burstIn(entranceWrappers);
+    if (shouldAnimate) burstIn(entranceWrappers);
+    if (entranceWrappers.length > 0) hasRenderedMarkersRef.current = true;
 
     return () => {
       overlayMapRef.current.forEach((val: OverlayRecord) => val.overlay.setMap(null));
