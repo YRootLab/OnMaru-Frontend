@@ -83,7 +83,7 @@ type CommittedViewport = {
 
 ## 결과 및 마커 안정성
 
-장소 응답은 `id`, 좌표, 카테고리의 안정적인 signature로 현재 결과와 비교한다. signature가 같으면 `setItems`를 호출하지 않아 목록 정렬, 페이지, Kakao overlay가 불필요하게 재구성되지 않게 한다.
+장소 응답의 렌더링 필드 전체가 현재 결과와 같으면 `setItems`를 호출하지 않아 목록 정렬, 페이지, Kakao overlay가 불필요하게 재구성되지 않게 한다. `id`, 좌표, 카테고리 기반 marker signature는 별도로 계산해 구조적 동일성을 표현하되, 이름·이미지·주소 같은 최신 표시 데이터가 누락되지 않도록 items 동등성 판단과 분리한다.
 
 결과가 실제로 달라진 경우에만 목록과 마커를 교체한다. 기존 데이터는 응답이 성공할 때까지 유지하므로 빈 화면이나 중간 skeleton으로 돌아가지 않는다.
 
@@ -111,7 +111,7 @@ viewport background refresh와 동일 결과 재사용에서는 등장 애니메
 - 이동 임계값은 최소 1.2km이며 넓은 viewport에서는 반경의 20%로 증가한다.
 - transient `level` 변경만으로 `useMapData`가 실행되지 않는다.
 - 정보 모드는 장소 API만, 온기 모드는 온기 API만 호출한다.
-- 동일 signature 응답은 `items` reference를 교체하지 않는다.
+- 렌더링 필드 전체가 동일한 응답은 `items` reference를 교체하지 않는다.
 - background refresh 실패 시 기존 items를 유지한다.
 - 마커 entrance 효과는 최초 표시 또는 카테고리 변경에만 실행한다.
 
