@@ -12,12 +12,18 @@ const placeItem: ViewportItem = {
 };
 
 describe('selectInfoMarkerItems', () => {
-  it.each(['REGION', 'DISTRICT', 'CLUSTER'] as const)(
+  it.each(['REGION', 'DISTRICT'] as const)(
     'does not turn the national list into markers in %s mode',
     (renderMode) => {
       expect(selectInfoMarkerItems(renderMode, [placeItem])).toEqual([]);
     },
   );
+
+  it('keeps singleton PLACE items as category markers in the CLUSTER bucket', () => {
+    expect(selectInfoMarkerItems('CLUSTER', [placeItem])).toEqual([
+      expect.objectContaining({ id: 'canonical-1', category: 'spot' }),
+    ]);
+  });
 
   it('maps only canonical PLACE viewport items at the PLACE render bucket', () => {
     const aggregate: ViewportItem = {
