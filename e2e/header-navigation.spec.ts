@@ -60,7 +60,7 @@ test('desktop navigation keeps enlarged icons and labels on one visual center', 
   expect(loginMetrics.paddingTop).toBe(loginMetrics.paddingBottom);
   expect(loginMetrics.arrowWidth).toBeGreaterThanOrEqual(16);
   expect(loginMetrics.leadingSpacing).toBeGreaterThanOrEqual(15);
-  expect(Math.abs(loginMetrics.topSpacing - loginMetrics.trailingSpacing)).toBeLessThanOrEqual(1.5);
+  expect(Math.abs(loginMetrics.leadingSpacing - loginMetrics.trailingSpacing)).toBeLessThanOrEqual(1.5);
   expect(loginMetrics.labelCenterDifference).toBeLessThanOrEqual(1);
-  expect(loginMetrics.iconCenterOffset).toBeCloseTo(-2, 1);
+  expect(loginMetrics.iconCenterOffset).toBeCloseTo(0, 1);
 });

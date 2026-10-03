@@ -452,7 +452,7 @@ const LoginButton = styled(Link, transientProps)<LandingProps>`
 
   border-radius: 9999px;
   height: 32px;
-  padding: 0 4px 0 15px;
+  padding: 0 10px 0 15px;
   text-decoration: none;
   letter-spacing: -0.01em;
   line-height: 1;
@@ -487,7 +487,6 @@ const LoginChevron = styled.span`
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  transform: translateY(-2px);
 
   > svg {
     width: 18px;
