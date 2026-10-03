@@ -178,6 +178,7 @@ export type KakaoMap = any;
 // ── Info map ──────────────────────────────────────────────────────────────────
 
 export type MapInfoCategory =
+  | 'hanok'
   | 'spot'
   | 'experience'
   | 'culture'
@@ -189,6 +190,7 @@ export type MapInfoCategory =
   | 'all';
 
 export const MAP_INFO_CATEGORY_LABELS: Record<MapInfoCategory, string> = {
+  hanok: '한옥',
   spot: '고택',
   experience: '전통 체험',
   culture: '문화유산',

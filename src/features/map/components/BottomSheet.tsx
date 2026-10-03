@@ -8,7 +8,7 @@ import { surface } from '@/design-system/tokens';
 import type { SheetSnap } from '@/features/map/types';
 import ModeToggle from './ModeToggle';
 import PlaceDetail from './PlaceDetail';
-import PlaceList from './PlaceList';
+import InfoPlaceList from './InfoPlaceList';
 import WarmthFeed from '@/private/core-ui/map-warmth/WarmthFeed';
 import PopularPlacesPanel from '@/private/core-ui/map-warmth/PopularPlacesPanel';
 
@@ -295,7 +295,7 @@ export default function BottomSheet() {
                 <ModeToggle compact fullWidth />
               </ModeToggleHeader>
               <ListArea ref={listRef}>
-                {mode === 'warmth' ? <WarmthFeed /> : <PlaceList />}
+                {mode === 'warmth' ? <WarmthFeed /> : <InfoPlaceList />}
               </ListArea>
             </MotionView>
           )}

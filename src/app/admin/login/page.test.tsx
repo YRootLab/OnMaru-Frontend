@@ -12,7 +12,10 @@ vi.mock('@/features/admin/hooks/useAdminAuth', () => ({ useAdminAuth: () => ({ l
 
 describe('AdminLoginPage', () => {
   beforeEach(() => vi.clearAllMocks());
-  afterEach(cleanup);
+  afterEach(() => {
+    cleanup();
+    vi.unstubAllEnvs();
+  });
 
   function submitCredentials() {
     fireEvent.change(screen.getByPlaceholderText('admin@onmaru.kr'), { target: { value: 'admin@onmaru.kr' } });
@@ -43,8 +46,16 @@ describe('AdminLoginPage', () => {
   });
 
   it('does not render development quick-login controls outside development mode', () => {
+    vi.stubEnv('NODE_ENV', 'production');
     render(<AdminLoginPage />);
     expect(screen.queryByRole('button', { name: 'ADMIN으로 로그인' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'EDITOR로 로그인' })).toBeNull();
+  });
+
+  it('renders quick-login controls only in development mode', () => {
+    vi.stubEnv('NODE_ENV', 'development');
+    render(<AdminLoginPage />);
+    expect(screen.getByRole('button', { name: 'ADMIN으로 로그인' })).toBeDefined();
+    expect(screen.getByRole('button', { name: 'EDITOR로 로그인' })).toBeDefined();
   });
 });

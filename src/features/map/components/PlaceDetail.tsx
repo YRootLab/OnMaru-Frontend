@@ -10,6 +10,10 @@ import { useSorimaruAudioStore } from '@/features/sorimaru-audio/store/useSorima
 import { useMapStore } from '@/features/map/hooks/useMapStore';
 import { useBookmarkStore } from '@/features/map/hooks/useBookmarkStore';
 import { usePlaceDetail } from '@/features/map/hooks/usePlaceDetail';
+import {
+  mapInfoPlaceToItem,
+  selectInfoMarkerItems,
+} from '@/features/map/services/infoMarker.service';
 import { useStampStore } from '@/features/stamp/presentation/useStampStore';
 import { useStampCheckIn } from '@/features/stamp/presentation/useStampCheckIn';
 import { calculateTravelEstimate, isTraditionalPlace } from '@/features/map/utils/geo';
@@ -72,18 +76,27 @@ const log = logger('map');
 
 export default function PlaceDetail() {
   const detailId = useMapStore((s) => s.detailId);
+  const mode = useMapStore((s) => s.mode);
   const setDetailId = useMapStore((s) => s.setDetailId);
   const fromPopularRanking = useMapStore((s) => s.fromPopularRanking);
   const goBackToPopularRanking = useMapStore((s) => s.goBackToPopularRanking);
   const items = useMapStore((s) => s.items);
+  const listItems = useMapStore((s) => s.listItems);
+  const viewportItems = useMapStore((s) => s.viewportItems);
+  const viewportRenderMode = useMapStore((s) => s.viewportRenderMode);
   const warmths = useMapStore((s) => s.warmths);
 
   const [isRoadviewOpen, setIsRoadviewOpen] = useState(false);
 
-  const selectedItem = useMemo(
-    () => items.find((i) => i.id === detailId),
-    [items, detailId],
-  );
+  const selectedItem = useMemo(() => {
+    if (mode === 'info') {
+      const listItem = listItems.find((item) => item.placeId === detailId);
+      if (listItem) return mapInfoPlaceToItem(listItem);
+      return selectInfoMarkerItems(viewportRenderMode, viewportItems)
+        .find((item) => item.id === detailId);
+    }
+    return items.find((item) => item.id === detailId);
+  }, [mode, listItems, viewportItems, viewportRenderMode, items, detailId]);
 
   const { data, loading, error, reload } = usePlaceDetail(
     detailId,
@@ -100,6 +113,7 @@ export default function PlaceDetail() {
               : selectedItem?.category === 'market'
                 ? '38'
                 : '12',
+    mode === 'info' ? 'canonical' : 'legacy',
   );
 
   const [isOverviewExpanded, setIsOverviewExpanded] = useState(false);

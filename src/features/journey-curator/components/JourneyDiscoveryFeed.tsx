@@ -11,7 +11,10 @@ import { useCuratedCourses, usePopularRegions, usePopularSounds } from '../hooks
 import { hasAuthenticatedUser, showLoginRequiredToast } from '@/features/auth/privateState';
 import { saveOdiiStory, unsaveOdiiStory } from '@/features/sorimaru-audio/api/odiiEngagementApi';
 import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
+import SharedSectionHeading from '@/shared/components/SectionHeading';
 import { palette, surface, ringShadow, fontSize } from '@/design-system/tokens';
+import { COURSE_CATEGORY_LABELS } from '../presentation/homeCourseTags';
+import { HomeCourseTagList } from './HomeCourseTagList';
 
 const FeedContainer = styled.div`
   width: min(calc(100% - 40px), 1140px);
@@ -35,44 +38,8 @@ const FeedContainer = styled.div`
 `;
 
 
-const SectionHeader = styled.div`
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
+const SectionHeader = styled(SharedSectionHeading)`
   margin-bottom: 24px;
-`;
-
-const SectionTitleGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-`;
-
-const SectionTitle = styled.h2`
-  font-family: var(--font-hanok);
-  font-size: ${fontSize['2xl']};
-  font-weight: 700;
-  color: #191f28;
-  margin: 0;
-  letter-spacing: -0.02em;
-
-  [data-theme='dark'] & {
-    color: #f8f9fa;
-  }
-
-  @media (max-width: 768px) {
-    font-size: ${fontSize.xl};
-  }
-`;
-
-const SectionDescription = styled.p`
-  font-size: ${fontSize.sm};
-  color: #6b7684;
-  margin: 0;
-
-  [data-theme='dark'] & {
-    color: #a1a1aa;
-  }
 `;
 
 
@@ -401,28 +368,6 @@ const CourseFooter = styled.div`
   margin-top: 5px;
 `;
 
-const TagList = styled.div`
-  min-width: 0;
-  flex: 1;
-  display: block;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-`;
-
-const Tag = styled.span`
-  font-size: 13px;
-  color: #8b95a1;
-
-  & + & {
-    margin-left: 4px;
-  }
-
-  [data-theme='dark'] & {
-    color: #71717a;
-  }
-`;
-
 const ExploreText = styled.span`
   display: inline-flex;
   width: 76px;
@@ -701,6 +646,20 @@ const CourseSkeletonFooter = styled.div`
   padding-top: 10px;
 `;
 
+const CourseSkeletonTags = styled.div`
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow: hidden;
+
+  ${SkeletonLine} {
+    flex: 0 0 auto;
+    border-radius: 999px;
+  }
+`;
+
 const FeedState = styled.div<{ $compact?: boolean }>`
   grid-column: 1 / -1;
   min-height: ${({ $compact }) => ($compact ? '220px' : '280px')};
@@ -854,13 +813,6 @@ const RegionSub = styled.span`
 `;
 
 const COURSE_CATEGORY_LIST = ['HANOK_STAY', 'CULTURE_ART', 'TRADITIONAL_FOOD', 'GARDEN_ECOLOGY', 'LOCAL_SCENE'] as const;
-const COURSE_CATEGORY_LABELS: Record<string, string> = {
-  HANOK_STAY: '한옥 숙박',
-  CULTURE_ART: '문화·예술',
-  TRADITIONAL_FOOD: '전통 음식',
-  GARDEN_ECOLOGY: '정원·생태',
-  LOCAL_SCENE: '지역 생활',
-};
 
 const CategoryFilterRow = styled.div`
   display: flex;
@@ -1021,13 +973,11 @@ export default function JourneyDiscoveryFeed() {
         <CourseTitle>{course.name}</CourseTitle>
         <CourseDesc>{course.summary}</CourseDesc>
         <CourseFooter>
-          <TagList>
-            <Tag>{COURSE_CATEGORY_LABELS[course.category] ?? course.category}</Tag>
-            {course.tags.map((tag) => (
-              <Tag key={tag}>#{tag}</Tag>
-            ))}
-            {course.savedByMe && <Tag>저장됨</Tag>}
-          </TagList>
+          <HomeCourseTagList
+            category={course.category}
+            tags={course.tags}
+            savedByMe={course.savedByMe}
+          />
           <ExploreText>
             <span>일정 보기</span>
             <HugeiconsIcon icon={ArrowRight01Icon} size={12} />
@@ -1041,12 +991,10 @@ export default function JourneyDiscoveryFeed() {
     <FeedContainer>
       {}
       <section>
-        <SectionHeader>
-          <SectionTitleGroup>
-            <SectionTitle>이번 주 추천 코스</SectionTitle>
-            <SectionDescription>정취와 소리가 머무는 장소를 둘러보세요.</SectionDescription>
-          </SectionTitleGroup>
-        </SectionHeader>
+        <SectionHeader
+          title="이번 주 추천 코스"
+          subtitle="정취와 소리가 머무는 장소를 둘러보세요."
+        />
 
         <CategoryFilterRow role="group" aria-label="카테고리 필터">
           <CategoryChip
@@ -1082,7 +1030,11 @@ export default function JourneyDiscoveryFeed() {
                       <SkeletonLine $w="100%" $h="20px" />
                       <SkeletonLine $w="88%" $h="20px" />
                       <CourseSkeletonFooter>
-                        <SkeletonLine $w="42%" $h="14px" />
+                        <CourseSkeletonTags>
+                          <SkeletonLine $w="58px" $h="20px" />
+                          <SkeletonLine $w="46px" $h="20px" />
+                          <SkeletonLine $w="48px" $h="20px" />
+                        </CourseSkeletonTags>
                         <SkeletonLine $w="27%" $h="18px" />
                       </CourseSkeletonFooter>
                     </CourseSkeletonBody>
@@ -1142,12 +1094,10 @@ export default function JourneyDiscoveryFeed() {
 
       {}
       <section>
-          <SectionHeader>
-            <SectionTitleGroup>
-              <SectionTitle>지금 인기 있는 한옥 소리</SectionTitle>
-              <SectionDescription>처마 밑 빗소리와 대청마루 풍경소리를 들어보세요.</SectionDescription>
-            </SectionTitleGroup>
-          </SectionHeader>
+          <SectionHeader
+            title="지금 인기 있는 한옥 소리"
+            subtitle="처마 밑 빗소리와 대청마루 풍경소리를 들어보세요."
+          />
 
           <SoundGrid>
             {soundsLoading
@@ -1198,12 +1148,10 @@ export default function JourneyDiscoveryFeed() {
 
       {}
       <section>
-          <SectionHeader>
-            <SectionTitleGroup>
-              <SectionTitle>인기 지역</SectionTitle>
-              <SectionDescription>방문 후기가 많이 쌓인 지역을 둘러보세요.</SectionDescription>
-            </SectionTitleGroup>
-          </SectionHeader>
+          <SectionHeader
+            title="인기 지역"
+            subtitle="방문 후기가 많이 쌓인 지역을 둘러보세요."
+          />
 
           <RegionGrid>
             {regionsLoading

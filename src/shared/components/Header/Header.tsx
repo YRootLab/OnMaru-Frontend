@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import styled from '@emotion/styled';
 import { HugeiconsIcon } from '@hugeicons/react'
-import { ArrowRight01Icon, BookOpen01Icon, Cancel01Icon, CheckIcon, HeadphonesIcon, Home01Icon, MapIcon, Menu01Icon, Moon01Icon, SparklesIcon, Sun01Icon } from '@hugeicons/core-free-icons'
+import { BookOpen01Icon, Cancel01Icon, CheckIcon, ChevronRightIcon, HeadphonesIcon, Home01Icon, MapIcon, Menu01Icon, Moon01Icon, SparklesIcon, Sun01Icon } from '@hugeicons/core-free-icons'
 import { transientProps } from '@/design-system/styled';
 import { lightPalette, meok, fontSize, ringShadow } from '@/design-system/tokens';
 import { useOnmaruTheme } from '@/design-system/ThemeProvider';
@@ -217,8 +217,9 @@ const CenterNav = styled('nav', transientProps)<LandingProps>`
 const NavLink = styled(Link, transientProps)<LandingProps>`
   position: relative;
   font-family: 'Spoqa Han Sans Neo', sans-serif;
-  font-size: 0.82rem;
+  font-size: ${fontSize.sm};
   font-weight: ${({ $isActive }) => ($isActive ? 700 : 400)};
+  line-height: 1;
   color: ${({ $isLanding, $isActive }) => {
     if ($isActive) {
       return $isLanding ? '#ffffff' : meok[900];
@@ -450,14 +451,14 @@ const LoginButton = styled(Link, transientProps)<LandingProps>`
     $isLanding ? 'rgba(255, 255, 255, 0.16)' : 'rgba(0, 0, 0, 0.08)'};
 
   border-radius: 9999px;
-  height: 28px;
-  padding: 0 12px 0 13px;
+  height: 32px;
+  padding: 0 10px 0 15px;
   text-decoration: none;
   letter-spacing: -0.01em;
   line-height: 1;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 8px;
   box-shadow: ${({ $isLanding }) =>
     $isLanding
       ? '0 3px 10px rgba(0, 0, 0, 0.35)'
@@ -471,6 +472,28 @@ const LoginButton = styled(Link, transientProps)<LandingProps>`
 
   @media (prefers-reduced-motion: reduce) {
     transition: none;
+  }
+`;
+
+const LoginLabel = styled.span`
+  display: block;
+  flex-shrink: 0;
+  transform: translateY(2px);
+`;
+
+const LoginChevron = styled.span`
+  display: inline-flex;
+  width: 14px;
+  height: 18px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(2px);
+
+  > svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
   }
 `;
 
@@ -874,26 +897,26 @@ export default function Header() {
                 $isActive={isSelected}
                 onClick={item.href === '/' ? resetJourney : undefined}
               >
-                <span style={{ position: 'relative', zIndex: 1, display: 'inline-flex', alignItems: 'center' }}>
+                <span style={{ position: 'relative', zIndex: 1, display: 'inline-flex', height: 20, alignItems: 'center', gap: 6, lineHeight: 1 }}>
                   {item.icon === HeadphonesIcon && isSelected ? (
                     <HeadphonesFilledEars
-                      size={13}
+                      size={15}
                       strokeWidth={1.5}
-                      style={{ marginRight: 5, verticalAlign: '-1px' }}
+                      style={{ display: 'block', flexShrink: 0, transform: 'translateY(-2px)' }}
                     />
                   ) : item.href === '/hanok' ? (
                     <HanokIcon
-                      size={17}
-                      style={{ marginRight: 5, verticalAlign: '-2px' }}
+                      size={18}
+                      style={{ display: 'block', flexShrink: 0, transform: 'translateY(-2px)' }}
                     />
                   ) : (
                     <HugeiconsIcon
                       icon={item.icon}
-                      size={13}
+                      size={15}
                       fill={isSelected ? 'currentColor' : 'none'}
                       fillOpacity={isSelected ? 0.6 : undefined}
                       strokeWidth={isSelected ? 1.5 : 2}
-                      style={{ marginRight: 5, verticalAlign: '-1px' }}
+                      style={{ display: 'block', flexShrink: 0, transform: 'translateY(-2px)' }}
                     />
                   )}
                   <span>{item.label}</span>
@@ -915,14 +938,16 @@ export default function Header() {
             aria-haspopup="menu"
             aria-expanded={isThemePickerOpen}
           >
-            <HugeiconsIcon icon={themeTriggerIcon} size={14} />
+            <HugeiconsIcon icon={themeTriggerIcon} size={16} />
           </ThemeToggleBtn>
 
         </ThemePickerWrap>
 
         <LoginButton href={isLoggedIn ? '/mypage' : '/auth/login'} $isLanding={usesDarkSurface}>
-          <span>{isLoggedIn ? (user?.displayName ?? '마이페이지') : '로그인'}</span>
-          <HugeiconsIcon icon={ArrowRight01Icon} size={12} />
+          <LoginLabel>{isLoggedIn ? (user?.displayName ?? '마이페이지') : '로그인'}</LoginLabel>
+          <LoginChevron aria-hidden="true">
+            <HugeiconsIcon icon={ChevronRightIcon} size={18} strokeWidth={2.2} />
+          </LoginChevron>
         </LoginButton>
 
         <AnimatePresence>

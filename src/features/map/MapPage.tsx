@@ -26,12 +26,14 @@ import { useMapEntranceStore } from '@/shared/navigation/mapEntranceState';
 import { useMapStore } from './hooks/useMapStore';
 import { snapshotFromMap } from './hooks/useKakaoMap';
 import { useMapData } from './hooks/useMapData';
+import { useInfoMapData } from './hooks/useInfoMapData';
 import BottomSheet from './components/BottomSheet';
 import CategoryChips from './components/CategoryChips';
 import DetailPanel from './components/DetailPanel';
 import KakaoMap from './components/KakaoMap';
 import ListPanel from './components/ListPanel';
 import PlaceMarkers from './components/PlaceMarkers';
+import ViewportOverlays from './components/ViewportOverlays';
 import WarmthLayer from '@/private/core-ui/map-warmth/WarmthLayer';
 import WarmthNotesLayer from '@/private/core-ui/map-warmth/WarmthNotesLayer';
 import WriteButton from '@/private/core-ui/map-warmth/WriteButton';
@@ -294,18 +296,20 @@ export default function MapPage() {
   const queryCategory = searchParams?.get('category') || null;
   const queryRegionCode = searchParams?.get('regionCode') || null;
   const queryMode = searchParams?.get('mode') || null;
+  const [infoUrlHydrated, setInfoUrlHydrated] = useState(false);
 
   // Sync URL info-mode params to store on mount
   useEffect(() => {
-    if (queryMode !== 'info') return;
-    const store = useMapStore.getState();
-    if (isMapInfoCategory(queryCategory) && queryCategory !== store.infoCategory) {
-      store.setInfoCategory(queryCategory);
+    if (queryMode === 'info') {
+      const store = useMapStore.getState();
+      if (isMapInfoCategory(queryCategory) && queryCategory !== store.infoCategory) {
+        store.setInfoCategory(queryCategory);
+      }
+      if (queryRegionCode !== store.infoRegionCode) {
+        store.setInfoRegionCode(queryRegionCode);
+      }
     }
-    if (queryRegionCode !== store.infoRegionCode) {
-      store.setInfoRegionCode(queryRegionCode);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    setInfoUrlHydrated(true);
   }, []);
 
   const parsedLat = parseFloat(queryLat || '');
@@ -389,6 +393,23 @@ export default function MapPage() {
 
 
   useMapData();
+  useInfoMapData(infoUrlHydrated);
+
+  const infoCategory = useMapStore((s) => s.infoCategory);
+  const infoRegionCode = useMapStore((s) => s.infoRegionCode);
+  useEffect(() => {
+    if (!infoUrlHydrated || mode !== 'info') return;
+    const params = new URLSearchParams(window.location.search);
+    params.set('mode', 'info');
+    params.set('category', infoCategory);
+    if (infoRegionCode) params.set('regionCode', infoRegionCode);
+    else params.delete('regionCode');
+
+    const nextSearch = params.toString();
+    if (nextSearch !== window.location.search.slice(1)) {
+      router.replace(`${window.location.pathname}?${nextSearch}`, { scroll: false });
+    }
+  }, [infoCategory, infoRegionCode, infoUrlHydrated, mode, router]);
 
   const isRouteEntrance = useMapEntranceStore((s) => s.isRouteEntrance);
   const setRouteEntrance = useMapEntranceStore((s) => s.setRouteEntrance);
@@ -421,6 +442,7 @@ export default function MapPage() {
       <MapArea>
         <KakaoMap />
         <PlaceMarkers />
+        <ViewportOverlays />
         <WarmthLayer />
         <WarmthNotesLayer />
         <MapChips

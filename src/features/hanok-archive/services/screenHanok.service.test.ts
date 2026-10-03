@@ -1,4 +1,10 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+vi.mock('@/features/hanok-archive/infrastructure/screenHanokSource', () => ({
+  fetchBackendScreenHanoks: vi.fn().mockRejectedValue(new Error('backend unavailable')),
+  saveScreenHanokPlace: vi.fn(),
+  unsaveScreenHanokPlace: vi.fn(),
+}));
 import { screenHanokService } from './screenHanok.service';
 
 describe('screenHanokService (Issue #103)', () => {

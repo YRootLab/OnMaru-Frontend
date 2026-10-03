@@ -10,6 +10,11 @@ import { lightPalette, meok, surface , fontSize } from '@/design-system/tokens';
 import type { Village } from '@/features/hanok-archive/types';
 import { filterLabel } from '@/features/hanok-archive/filterLabels';
 import { createKakaoResourceScope, type KakaoResourceScope } from './kakaoMapResources';
+import {
+  createKakaoMap,
+  fitKakaoMapBounds,
+  KAKAO_CLUSTER_STYLES,
+} from './kakaoMapFactory';
 
 
 
@@ -476,6 +481,7 @@ interface KakaoCluster {
 }
 
 const REGIONS = ['전체', '서울', '경북', '전북', '경남', '충남', '강원', '경기', '전남'];
+const MAP_LOAD_TIMEOUT_MS = 25_000;
 
 const REGION_STORIES: Record<string, string> = {
   전체: '전국에 남은 궁궐과 고택, 서원과 한옥마을을 지도에서 찾아보세요.',
@@ -509,6 +515,16 @@ export default function HanokInteractiveMapFrame({
     ? null
     : 'NEXT_PUBLIC_KAKAO_MAP_KEY 환경 변수가 없습니다. 개발 서버(npm run dev)를 재시작해 보세요.');
 
+  useEffect(() => {
+    if (isLoaded || errorMessage) return;
+
+    const timeout = window.setTimeout(() => {
+      setErrorMessage('지도를 지금 불러올 수 없어요. 잠시 후 다시 시도해 주세요.');
+    }, MAP_LOAD_TIMEOUT_MS);
+
+    return () => window.clearTimeout(timeout);
+  }, [errorMessage, isLoaded]);
+
   const validVillages = useMemo(
     () => villages.filter((v) => typeof v.lat === 'number' && typeof v.lng === 'number'),
     [villages]
@@ -520,7 +536,11 @@ export default function HanokInteractiveMapFrame({
   }, [validVillages, selectedRegion]);
 
 
-  const fitKoreaBounds = useCallback((mapInstance: KakaoMapInstance, targets: Village[]) => {
+  const fitKoreaBounds = useCallback((
+    mapInstance: KakaoMapInstance,
+    targets: Village[],
+    zoomInSteps = 0,
+  ) => {
     if (!mapInstance || !window.kakao || !window.kakao.maps || targets.length === 0) return;
 
     const bounds = new window.kakao.maps.LatLngBounds();
@@ -531,7 +551,7 @@ export default function HanokInteractiveMapFrame({
     });
 
 
-    mapInstance.setBounds(bounds, 32, 32, 32, 32);
+    fitKakaoMapBounds(mapInstance, bounds, zoomInSteps);
   }, []);
 
 
@@ -551,7 +571,11 @@ export default function HanokInteractiveMapFrame({
         };
 
 
-        const map = new window.kakao.maps.MapIcon(containerRef.current, options) as KakaoMapInstance;
+        const map = createKakaoMap<KakaoMapInstance>(
+          window.kakao.maps,
+          containerRef.current,
+          options,
+        );
         mapRef.current = map;
         mapResourcesRef.current?.dispose();
         const mapResources = createKakaoResourceScope((target, eventName, listener) => {
@@ -573,36 +597,7 @@ export default function HanokInteractiveMapFrame({
             averageCenter: true,
             minLevel: 8,
             calculator: [10, 30, 50],
-            styles: [
-              {
-                width: '46px',
-                height: '46px',
-                background: 'rgba(255, 255, 255, 0.94)',
-                border: '1.5px solid #FF5500',
-                borderRadius: '50%',
-                color: '#D94000',
-                textAlign: 'center',
-                lineHeight: '43px',
-                fontWeight: '500',
-                fontSize: '13px',
-                boxShadow: 'none',
-                fontFamily: 'var(--font-hanok)',
-              },
-              {
-                width: '54px',
-                height: '54px',
-                background: 'linear-gradient(135deg, #FF5500 0%, #D94000 100%)',
-                border: '2px solid #ffffff',
-                borderRadius: '50%',
-                color: '#ffffff',
-                textAlign: 'center',
-                lineHeight: '50px',
-                fontWeight: '500',
-                fontSize: '14px',
-                boxShadow: 'none',
-                fontFamily: 'var(--font-hanok)',
-              },
-            ],
+            styles: KAKAO_CLUSTER_STYLES,
           }) as KakaoClustererInstance;
           clustererRef.current = clusterer;
           mapResources.trackCleanup(() => clusterer.clear());
@@ -612,12 +607,12 @@ export default function HanokInteractiveMapFrame({
 
         const relayoutTimer = window.setTimeout(() => {
           map.relayout();
-          fitKoreaBounds(map, validVillages);
+          fitKoreaBounds(map, validVillages, 1);
         }, 120);
         mapResources.trackTimer(relayoutTimer, window.clearTimeout);
       });
     } catch (err: unknown) {
-      console.error('[KakaoMap] MapIcon initialization error:', err);
+      console.error('[KakaoMap] Map initialization error:', err);
       setErrorMessage('지도를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.');
     }
   }, [fitKoreaBounds, validVillages]);
@@ -768,7 +763,7 @@ export default function HanokInteractiveMapFrame({
       if (!mapRef.current) return;
       mapRef.current.relayout();
       if (selectedRegion === '전체') {
-        fitKoreaBounds(mapRef.current, validVillages);
+        fitKoreaBounds(mapRef.current, validVillages, 1);
       }
     });
     observer.observe(el);
@@ -782,7 +777,7 @@ export default function HanokInteractiveMapFrame({
     if (!mapRef.current || !window.kakao || !window.kakao.maps) return;
 
     if (region === '전체') {
-      fitKoreaBounds(mapRef.current, validVillages);
+      fitKoreaBounds(mapRef.current, validVillages, 1);
     } else {
       const targets = validVillages.filter((v) => v.region.includes(region));
       if (targets.length > 0) {
@@ -809,7 +804,7 @@ export default function HanokInteractiveMapFrame({
           onReady={initMap}
           onError={() => {
             setErrorMessage(
-              '카카오 지도 SDK 스크립트를 불러오지 못했습니다. 카카오 개발자 센터에서 http://localhost:3000 도메인이 등록되어 있는지 확인해주세요.'
+              '지도를 지금 불러올 수 없어요. 잠시 후 다시 시도해 주세요.'
             );
           }}
         />
@@ -820,7 +815,7 @@ export default function HanokInteractiveMapFrame({
           <HugeiconsIcon icon={AlertCircleIcon} size={24} strokeWidth={2} />
           <div>{errorMessage}</div>
           <ErrorSubtext>
-            Kakao Developers 콘솔 → [내 애플리케이션] → [플랫폼] → [Web 사이트 도메인]에 현재 개발 도메인이 등록되어 있어야 합니다.
+            네트워크 상태를 확인한 뒤 페이지를 새로고침해 주세요.
           </ErrorSubtext>
         </MapLoadingState>
       ) : !isLoaded ? (
@@ -909,4 +904,4 @@ export default function HanokInteractiveMapFrame({
       </AnimatePresence>
     </Frame>
   );
-}
+}

@@ -49,5 +49,8 @@ jobs:
       - name: 의존성 설치
         run: npm ci
 
+      - name: Storybook 브라우저 설치
+        run: npx playwright install --with-deps chromium
+
       - name: 테스트 실행
         run: npm test -- --passWithNoTests
