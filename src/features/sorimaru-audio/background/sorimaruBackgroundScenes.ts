@@ -7,9 +7,10 @@
   SorimaruBackgroundStage,
   SorimaruBackgroundVariant,
 } from './sorimaruBackground.types';
+import { surface } from '@/design-system/tokens';
 
 export const SORIMARU_BACKGROUND_PALETTE: SorimaruBackgroundPalette = {
-  canvas: '#ffffff',
+  canvas: surface.light.base,
   paper: '#ffffff',
   lightRgb: '255, 255, 255',
   fiberRgb: '112, 112, 112',

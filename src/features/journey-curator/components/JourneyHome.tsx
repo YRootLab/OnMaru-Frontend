@@ -15,7 +15,7 @@ const MainWrapper = styled.main`
   position: relative;
   min-height: 100dvh;
   overflow: hidden;
-  background-color: #ffffff;
+  background-color: ${surface.light.base};
   transition: background-color 0.3s ease;
 
   [data-theme='dark'] & {
