@@ -324,7 +324,7 @@ const NavSideButton = styled.button<{ $side: 'left' | 'right' }>`
         left: 0;
         justify-content: flex-start;
         padding-left: 0.5rem;
-        background: linear-gradient(to right, rgba(248, 248, 247, 0.78), rgba(248, 248, 247, 0.36), transparent);
+        background: transparent;
 
         @media (min-width: 640px) {
           padding-left: 0.75rem;
@@ -334,7 +334,7 @@ const NavSideButton = styled.button<{ $side: 'left' | 'right' }>`
         right: 0;
         justify-content: flex-end;
         padding-right: 0.5rem;
-        background: linear-gradient(to left, rgba(248, 248, 247, 0.78), rgba(248, 248, 247, 0.36), transparent);
+        background: transparent;
 
         @media (min-width: 640px) {
           padding-right: 0.75rem;
@@ -371,7 +371,7 @@ const NavSideButton = styled.button<{ $side: 'left' | 'right' }>`
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+    transition: color 0.2s ease;
 
     [data-theme='dark'] & {
       border-color: rgba(255, 255, 255, 0.08);
@@ -382,12 +382,9 @@ const NavSideButton = styled.button<{ $side: 'left' | 'right' }>`
   }
 
   &:hover:not(:disabled) span.icon-box {
-    transform: scale(1.1);
-    background-color: #ffffff;
     color: ${palette.juhong[500]};
 
     [data-theme='dark'] & {
-      background-color: ${surface.dark.elevated};
       color: ${palette.juhong[400]};
     }
   }
