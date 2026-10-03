@@ -12,6 +12,7 @@ import { hasAuthenticatedUser, showLoginRequiredToast } from '@/features/auth/pr
 import { saveOdiiStory, unsaveOdiiStory } from '@/features/sorimaru-audio/api/odiiEngagementApi';
 import { OniSearchEmpty } from '@/shared/components/OniSearchEmpty';
 import { palette, surface, ringShadow, fontSize } from '@/design-system/tokens';
+import { COURSE_CATEGORY_LABELS } from '../presentation/homeCourseTags';
 
 const FeedContainer = styled.div`
   width: min(calc(100% - 40px), 1140px);
@@ -854,13 +855,6 @@ const RegionSub = styled.span`
 `;
 
 const COURSE_CATEGORY_LIST = ['HANOK_STAY', 'CULTURE_ART', 'TRADITIONAL_FOOD', 'GARDEN_ECOLOGY', 'LOCAL_SCENE'] as const;
-const COURSE_CATEGORY_LABELS: Record<string, string> = {
-  HANOK_STAY: '한옥 숙박',
-  CULTURE_ART: '문화·예술',
-  TRADITIONAL_FOOD: '전통 음식',
-  GARDEN_ECOLOGY: '정원·생태',
-  LOCAL_SCENE: '지역 생활',
-};
 
 const CategoryFilterRow = styled.div`
   display: flex;
